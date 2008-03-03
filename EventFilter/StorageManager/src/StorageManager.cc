@@ -1,4 +1,4 @@
-// $Id: StorageManager.cc,v 1.42 2008/02/27 16:00:52 meschi Exp $
+// $Id: StorageManager.cc,v 1.43 2008/03/03 20:34:06 biery Exp $
 
 #include <iostream>
 #include <iomanip>
@@ -2366,19 +2366,19 @@ void StorageManager::parseFileEntry(std::string in, std::string &out, unsigned i
 
 std::string StorageManager::findStreamName(std::string &in)
 {
-  cout << "in findStreamName with string " << in << endl;
+  //cout << "in findStreamName with string " << in << endl;
   string::size_type t = in.find("storageManager");
 
   string::size_type b;
   if(t != string::npos)
     {
-      cout << " storageManager is at " << t << endl;
+      //cout << " storageManager is at " << t << endl;
       b = in.rfind(".",t-2);
       if(b!=string::npos) 
 	{
-	  cout << "looking for substring " << t-b-2 << "long" <<endl;
-	  cout << " stream name should be at " << b+1 << endl;
-	  cout << " will return name " << string(in.substr(b+1,t-b-2)) << endl;
+	  //cout << "looking for substring " << t-b-2 << "long" <<endl;
+	  //cout << " stream name should be at " << b+1 << endl;
+	  //cout << " will return name " << string(in.substr(b+1,t-b-2)) << endl;
 	  return string(in.substr(b+1,t-b-2));
 	}
       else
@@ -2864,7 +2864,7 @@ bool StorageManager::monitoring(toolbox::task::WorkLoop* wl)
 	    if(streams_.find(sname) == streams_.end())
 	      streams_.insert(pair<string,streammon>(sname,streammon()));
 	  }
-	int streamssize =  streams_.size();
+	//int streamssize =  streams_.size();  // unused variable
 	
       }
       for(ismap it = streams_.begin(); it != streams_.end(); it++)
