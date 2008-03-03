@@ -136,7 +136,7 @@ inline bool operator<( const SiPixelCluster& one, const SiPixelCluster& other) {
     return true;
   } else if ( one.minPixelRow() > other.minPixelRow() ) {
     return false;
-  } else if ( one.minPixelCol() <= other.minPixelCol() ) {
+  } else if ( one.minPixelCol() < other.minPixelCol() ) {
     return true;
   } else {
     return false;
