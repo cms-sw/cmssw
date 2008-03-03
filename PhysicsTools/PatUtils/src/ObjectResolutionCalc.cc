@@ -1,5 +1,5 @@
 //
-// $Id: ObjectResolutionCalc.cc,v 1.1 2008/01/15 13:21:24 lowette Exp $
+// $Id: ObjectResolutionCalc.cc,v 1.2 2008/01/16 20:33:16 lowette Exp $
 //
 
 #include "PhysicsTools/PatUtils/interface/ObjectResolutionCalc.h"
@@ -10,9 +10,9 @@ using namespace pat;
 
 // constructor with path; default should not be used
 ObjectResolutionCalc::ObjectResolutionCalc(TString resopath, bool useNN = false): useNN_(useNN) {
-  std::cout << "=== Constructing a TopObjectResolutionCalc... " << std::endl; 
+  edm::LogVerbatim("ObjectResolutionCalc") << ("ObjectResolutionCalc") << "=== Constructing a TopObjectResolutionCalc...";
   resoFile_ = new TFile(resopath);
-  if (!resoFile_) std::cout<<"### No resolutions fits for this file available: "<<resopath<<"... ###"<<std::endl;
+  if (!resoFile_) edm::LogError("ObjectResolutionCalc") << "No resolutions fits for this file available: "<<resopath<<"...";
   TString  resObsName[8] = {"_ares","_bres","_cres","_dres","_thres","_phres","_etres","_etares"};
   
   TList* keys = resoFile_->GetListOfKeys();
@@ -46,11 +46,11 @@ ObjectResolutionCalc::ObjectResolutionCalc(TString resopath, bool useNN = false)
   TH1F *tmpEta = (TH1F*) (resoFile_->GetKey("hEtaBins")->ReadObj());
   for(int b=1; b<=tmpEta->GetNbinsX(); b++) etaBinVals_.push_back(tmpEta->GetXaxis()->GetBinLowEdge(b));
   etaBinVals_.push_back(tmpEta->GetXaxis()->GetBinUpEdge(tmpEta->GetNbinsX()));
-  std::cout<<"Found "<<etaBinVals_.size()-1<< " eta-bins with edges: ( ";
-  for(size_t u=0; u<etaBinVals_.size(); u++) std::cout<<etaBinVals_[u]<<", ";
-  std::cout<<"\b\b )"<<std::endl;
+  edm::LogVerbatim("ObjectResolutionCalc") << "Found "<<etaBinVals_.size()-1  << " eta-bins with edges: ( ";
+  for(size_t u=0; u<etaBinVals_.size(); u++) edm::LogVerbatim("ObjectResolutionCalc") << etaBinVals_[u]<<", ";
+  edm::LogVerbatim("ObjectResolutionCalc") << "\b\b )"<<std::endl;
   
-  std::cout << "=== done." << std::endl;
+  edm::LogVerbatim("ObjectResolutionCalc") << "=== done." << std::endl;
 }
 
 

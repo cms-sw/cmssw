@@ -1,5 +1,5 @@
 //
-// $Id: LeptonLRCalc.cc,v 1.2 2008/01/16 20:33:16 lowette Exp $
+// $Id: LeptonLRCalc.cc,v 1.3 2008/01/21 16:26:20 lowette Exp $
 //
 
 #include "PhysicsTools/PatUtils/interface/LeptonLRCalc.h"
@@ -352,7 +352,7 @@ void LeptonLRCalc::readFitsElectron() {
   // Read in the fit functions from the rootfile
   TFile * electronFile = new TFile(TString(electronLRFile_));
   // FIXME: use messagelogger
-  if (!electronFile) std::cout << "*** ERROR: fitFile " << electronLRFile_ << " not found. I will most likely crash now..." << std::endl;
+  if (!electronFile) edm::LogError("LeptonLRCalc") << "*** ERROR: fitFile " << electronLRFile_ << " not found. I will most likely crash now..." << std::endl;
   TH1 * electronLRHist1 = (TH1 *) electronFile->GetKey("myLRPlot10")->ReadObj();
   TH1 * electronLRHist2 = (TH1 *) electronFile->GetKey("myLRPlot20")->ReadObj();
   TH1 * electronLRHist3 = (TH1 *) electronFile->GetKey("myLRPlot30")->ReadObj();
@@ -381,7 +381,7 @@ void LeptonLRCalc::readFitsMuon() {
   // Read in the fit functions from the rootfile
   TFile * muonFile = new TFile(TString(muonLRFile_));
   // FIXME: use messagelogger
-  if (!muonFile) std::cout << "*** ERROR: fitFile " << muonLRFile_ << " not found. I will most likely crash now..." << std::endl;
+  if (!muonFile) edm::LogError("LeptonLRCalc") << "*** ERROR: fitFile " << muonLRFile_ << " not found. I will most likely crash now..." << std::endl;
   TH1 * muonLRHist1 = (TH1 *) muonFile->GetKey("myLRPlot11")->ReadObj();
   TH1 * muonLRHist2 = (TH1 *) muonFile->GetKey("myLRPlot21")->ReadObj();
   TH1 * muonLRHist3 = (TH1 *) muonFile->GetKey("myLRPlot31")->ReadObj();
@@ -409,7 +409,7 @@ void LeptonLRCalc::readFitsTau() {
   // Read in the fit functions from the rootfile
   TFile * tauFile = new TFile(TString(tauLRFile_));
   // FIXME: use messagelogger or throw exception
-  if (!tauFile) std::cout << "*** ERROR: fitFile " << tauLRFile_ << " not found. I will most likely crash now..." << std::endl;
+  if (!tauFile) edm::LogError("LeptonLRCalc") << "*** ERROR: fitFile " << tauLRFile_ << " not found. I will most likely crash now..." << std::endl;
   // FIXME: names and order of the fits
   TH1 * tauLRHist1 = (TH1 *) tauFile->GetKey("myLRPlot12")->ReadObj();
   TH1 * tauLRHist2 = (TH1 *) tauFile->GetKey("myLRPlot22")->ReadObj();
