@@ -13,7 +13,7 @@ Implementation:
 //
 // Original Author:  Freya Blekman
 //         Created:  Wed Nov 14 15:02:06 CET 2007
-// $Id: SiPixelGainCalibrationAnalysis.h,v 1.11 2008/02/15 13:32:19 fblekman Exp $
+// $Id: SiPixelGainCalibrationAnalysis.h,v 1.12 2008/02/27 21:34:16 fblekman Exp $
 //
 //
 
@@ -36,6 +36,7 @@ Implementation:
 #include "CondFormats/SiPixelObjects/interface/SiPixelGainCalibrationOffline.h"
 #include "CondFormats/SiPixelObjects/interface/SiPixelGainCalibrationForHLT.h"
 
+#include "DQMServices/Core/interface/MonitorElement.h"
 #include "TLinearFitter.h"
 
 //
