@@ -3,9 +3,9 @@
 /** \class PhotonProducer
  **  
  **
- **  $Id: PhotonProducer.h,v 1.13 2008/02/06 17:22:39 nancy Exp $ 
- **  $Date: 2008/02/06 17:22:39 $ 
- **  $Revision: 1.13 $
+ **  $Id: PhotonProducer.h,v 1.15 2008/02/21 17:57:18 nancy Exp $ 
+ **  $Date: 2008/02/21 17:57:18 $ 
+ **  $Revision: 1.15 $
  **  \author Nancy Marinelli, U. of Notre Dame, US
  **
  ***/
@@ -25,6 +25,7 @@
 #include "RecoEcal/EgammaCoreTools/interface/PositionCalc.h"
 #include "DataFormats/EgammaReco/interface/ElectronPixelSeedFwd.h"
 #include "RecoCaloTools/MetaCollections/interface/CaloRecHitMetaCollections.h"
+#include "RecoEgamma/EgammaTools/interface/HoECalculator.h"
 
 // PhotonProducer inherits from EDProducer, so it can be a module:
 class PhotonProducer : public edm::EDProducer {
@@ -86,5 +87,7 @@ class PhotonProducer : public edm::EDProducer {
   PositionCalc posCalculator_;
 
   edm::ESHandle<CaloGeometry> theCaloGeom_;
+  HoECalculator  theHoverEcalc_;
+
 };
 #endif

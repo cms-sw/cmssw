@@ -174,6 +174,8 @@ void PhotonProducer::produce(edm::Event& theEvent, const edm::EventSetup& theEve
     mhbhe=  new HBHERecHitMetaCollection(*hbhe);
   }
 
+  
+  theHoverEcalc_=HoECalculator(theCaloGeom_);
 
   // Get ElectronPixelSeeds
   Handle<reco::ElectronPixelSeedCollection> pixelSeedHandle;
@@ -246,7 +248,8 @@ void PhotonProducer::fillPhotonCollection(
     // preselection
     if (aClus->energy()/cosh(aClus->eta()) <= minSCEt_) continue;
     // calculate HoE
-    double HoE = hOverE(scRef,mhbhe);
+    //double HoE = hOverE(scRef,mhbhe);
+    double HoE=theHoverEcalc_(pClus,mhbhe);
     if (HoE>=maxHOverE_)  continue;
     
     
@@ -290,7 +293,7 @@ void PhotonProducer::fillPhotonCollection(
 
     const reco::Particle::LorentzVector  p4(momentum.x(), momentum.y(), momentum.z(), photonEnergy );
     
-    reco::Photon newCandidate(0, p4, unconvPos, scRef, seedShapeRef, HoE, hasSeed, vtx);
+    reco::Photon newCandidate(p4, unconvPos, scRef, seedShapeRef, HoE, hasSeed, vtx);
 
     if ( validConversions_) {
 	int icp=0;
@@ -322,6 +325,8 @@ void PhotonProducer::fillPhotonCollection(
 
 double PhotonProducer::hOverE(const reco::SuperClusterRef & scRef,
 			      HBHERecHitMetaCollection *mhbhe){
+
+  ////// this is obsolete. Taking the calculator in EgammaTools instead
   double HoE=0;
   if (mhbhe) {
     CaloConeSelector sel(hOverEConeSize_, theCaloGeom_.product(), DetId::Hcal);
