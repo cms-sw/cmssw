@@ -1,4 +1,4 @@
-// Last commit: $Id: SiStripConfigDb.h,v 1.41 2008/02/27 11:27:43 bainbrid Exp $
+// Last commit: $Id: SiStripConfigDb.h,v 1.42 2008/02/28 13:13:36 bainbrid Exp $
 
 #ifndef OnlineDB_SiStripConfigDb_SiStripConfigDb_h
 #define OnlineDB_SiStripConfigDb_SiStripConfigDb_h
@@ -220,7 +220,6 @@ class SiStripConfigDb {
   friend class cms::SiStripO2O;
   
   // Commissioning clients
-  friend class SiStripCommissioningSource;
   friend class SiStripCommissioningDbClient;
   friend class SiStripCommissioningOfflineDbClient;
   friend class CommissioningHistosUsingDb;
