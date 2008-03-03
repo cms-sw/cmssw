@@ -20,7 +20,7 @@ namespace{
 }
 #include "CondFormats/CSCObjects/interface/CSCDBNoiseMatrix.h"
 namespace{
-  std::vector< CSCDBNoiseMatrix::Item> mcontainer;
+  std::vector<CSCDBNoiseMatrix::Item> mcontainer;
 }
 #include "CondFormats/CSCObjects/interface/CSCcrosstalk.h"
 namespace{
@@ -28,12 +28,17 @@ namespace{
 }
 #include "CondFormats/CSCObjects/interface/CSCDBCrosstalk.h"
 namespace{
-  std::vector< CSCDBCrosstalk::Item> ccontainer;
+  std::vector<CSCDBCrosstalk::Item> ccontainer;
 }
-#include "CondFormats/CSCObjects/interface/CSCDeadNoisy.h"
+#include "CondFormats/CSCObjects/interface/CSCBadStrips.h"
 namespace{
-  std::vector< CSCDeadNoisy::BadChambers> bchmcontainer;
-  std::vector< CSCDeadNoisy::BadChannels> bchncontainer;
+  std::vector<CSCBadStrips::BadChamber> bschmcontainer;
+  std::vector<CSCBadStrips::BadChannel> bschncontainer;
+}
+#include "CondFormats/CSCObjects/interface/CSCBadWires.h"
+namespace{
+  std::vector<CSCBadWires::BadChamber> bwchmcontainer;
+  std::vector<CSCBadWires::BadChannel> bwchncontainer;
 }
 #include "CondFormats/CSCObjects/interface/CSCChamberMap.h"
 namespace{

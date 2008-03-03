@@ -31,11 +31,17 @@
  <class name="CSCDBCrosstalk::Item"/>
  <class name="std::vector<CSCDBCrosstalk::Item>"/>
 
- <class name="CSCDeadNoisy"/>
- <class name="CSCDeadNoisy::BadChambers"/>
- <class name="CSCDeadNoisy::BadChannels"/>
- <class name="std::vector<CSCDeadNoisy::BadChambers>"/>
- <class name="std::vector<CSCDeadNoisy::BadChannels>"/>
+ <class name="CSCBadStrips"/>
+ <class name="CSCBadStrips::BadChamber"/>
+ <class name="CSCBadStrips::BadChannel"/>
+ <class name="std::vector<CSCBadStrips::BadChamber>"/>
+ <class name="std::vector<CSCBadStrips::BadChannel>"/>
+
+ <class name="CSCBadWires"/>
+ <class name="CSCBadWires::BadChamber"/>
+ <class name="CSCBadWires::BadChannel"/>
+ <class name="std::vector<CSCBadWires::BadChamber>"/>
+ <class name="std::vector<CSCBadWires::BadChannel>"/>
  
  <class name="CSCMapItem"/>
  <class name="CSCMapItem::MapItem"/>
