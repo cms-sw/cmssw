@@ -6,7 +6,7 @@
 <use name=FWCore/Framework>
 <use name=FWCore/MessageLogger>
 <use name=FWCore/ParameterSet>
-<use name=DQMServices/CoreROOT>
+<use name=DQMServices/Core>
 <use name=DataFormats/METReco>
 <use name=DataFormats/RecoCandidate>
 <use name=DataFormats/ParticleFlowReco>
@@ -18,7 +18,7 @@
   <use name=FWCore/Framework>
   <use name=FWCore/ParameterSet>
   <use name=FWCore/MessageLogger>
-  <use name=DQMServices/CoreROOT>
+  <use name=DQMServices/Core>
   <use name=DataFormats/METReco>
   <use name=DataFormats/RecoCandidate>
   <use name=DataFormats/ParticleFlowReco>

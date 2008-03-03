@@ -10,11 +10,11 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
-///#include "DQMServices/Daemon/interface/MonitorDaemon.h"
 
 #include "DataFormats/Candidate/interface/CandidateFwd.h"
 #include "DataFormats/Candidate/interface/Candidate.h"
+
+#include "DQMServices/Core/interface/DQMStore.h"
 
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
@@ -52,7 +52,7 @@ void PFBenchmarkAnalyzer::beginJob(const edm::EventSetup& iSetup)
 {
 
   // get ahold of back-end interface
-  dbe_ = edm::Service<DaqMonitorBEInterface>().operator->();
+  dbe_ = edm::Service<DQMStore>().operator->();
   
   if (dbe_) {
 

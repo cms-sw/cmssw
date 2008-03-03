@@ -1,11 +1,13 @@
+
+
 #ifndef PFTESTER_H
 #define PFTESTER_H
 
 // author: Mike Schmitt (The University of Florida)
 // date: 11/7/2007
 
-#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
-
+#include "DQMServices/Core/interface/DQMStore.h"
+#include "DQMServices/Core/interface/MonitorElement.h"
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
@@ -26,7 +28,7 @@ public:
  private:
 
   // DAQ Tools
-  DaqMonitorBEInterface* dbe_;
+  DQMStore* dbe_;
   std::map<std::string, MonitorElement*> me;
 
   // Inputs from Configuration File

@@ -54,7 +54,7 @@ void PFTester::beginJob(const edm::EventSetup& iSetup)
 {
 
   // get ahold of back-end interface
-  dbe_ = edm::Service<DaqMonitorBEInterface>().operator->();
+  dbe_ = edm::Service<DQMStore>().operator->();
   
   if (dbe_) {
 
