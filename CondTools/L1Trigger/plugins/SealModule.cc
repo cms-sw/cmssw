@@ -2,11 +2,23 @@
 #include "FWCore/Framework/interface/SourceFactory.h"
 #include "CondTools/L1Trigger/plugins/L1TDBESSource.h"
 #include "CondTools/L1Trigger/plugins/L1TWriter.h"
+#include "CondTools/L1Trigger/plugins/L1CondDBPayloadWriter.h"
+#include "CondTools/L1Trigger/plugins/L1CondDBIOVWriter.h"
+#include "CondTools/L1Trigger/plugins/L1TriggerKeyDummyProd.h"
+#include "CondTools/L1Trigger/plugins/L1TriggerKeyListDummyProd.h"
+#include "CondTools/L1Trigger/plugins/L1TriggerKeyOnlineProd.h"
+#include "CondTools/L1Trigger/plugins/L1TriggerConfigOnlineProd.h"
 
 using namespace l1t;
 
 DEFINE_FWK_EVENTSETUP_SOURCE(L1TDBESSource);
 DEFINE_FWK_MODULE(L1TWriter);
+DEFINE_ANOTHER_FWK_MODULE(L1CondDBPayloadWriter);
+DEFINE_ANOTHER_FWK_MODULE(L1CondDBIOVWriter);
+DEFINE_FWK_EVENTSETUP_MODULE(L1TriggerKeyDummyProd);
+DEFINE_ANOTHER_FWK_EVENTSETUP_MODULE(L1TriggerKeyListDummyProd);
+DEFINE_ANOTHER_FWK_EVENTSETUP_MODULE(L1TriggerKeyOnlineProd);
+DEFINE_ANOTHER_FWK_EVENTSETUP_MODULE(L1TriggerConfigOnlineProd);
 
 #include "CondCore/PluginSystem/interface/registration_macros.h"
 #include "CondTools/L1Trigger/interface/WriterProxy.h"
@@ -19,6 +31,12 @@ DEFINE_SEAL_MODULE();
 
 REGISTER_PLUGIN(L1TriggerKeyRcd, L1TriggerKey);
 REGISTER_L1_WRITER(L1TriggerKeyRcd, L1TriggerKey);
+
+#include "CondFormats/DataRecord/interface/L1TriggerKeyListRcd.h"
+#include "CondFormats/L1TObjects/interface/L1TriggerKeyList.h"
+
+REGISTER_PLUGIN(L1TriggerKeyListRcd, L1TriggerKeyList);
+REGISTER_L1_WRITER(L1TriggerKeyListRcd, L1TriggerKeyList);
 
 // L1 scales
 #include "CondFormats/L1TObjects/interface/L1CaloEtScale.h"

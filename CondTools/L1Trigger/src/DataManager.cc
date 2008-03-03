@@ -9,7 +9,9 @@
 namespace l1t
 {
 
-DataManager::DataManager (const std::string & connect, const std::string & catalog)
+DataManager::DataManager (const std::string & connect,
+			  const std::string & authenticationPath,
+			  bool isOMDS )
 {
 //     // Initialize session used with this object
 //     poolSession = new cond::DBSession ();
@@ -24,10 +26,22 @@ DataManager::DataManager (const std::string & connect, const std::string & catal
 //     coralSession->configuration ().connectionConfiguration ()->enableConnectionSharing ();
 //     coralSession->configuration ().connectionConfiguration ()->enableReadOnlySessionOnUpdateConnections ();
 
-    session = new cond::DBSession ();
-    session->configuration ().setAuthenticationMethod (cond::Env);
-    session->configuration ().connectionConfiguration ()->enableConnectionSharing ();
-    session->configuration ().connectionConfiguration ()->enableReadOnlySessionOnUpdateConnections ();
+    session = new cond::DBSession();
+    setDebug( false ) ;
+
+    if( isOMDS )
+      {
+	session->configuration().setAuthenticationMethod(cond::XML);
+      }
+    else
+      {
+	session->configuration().setAuthenticationMethod(cond::Env);
+	session->configuration().connectionConfiguration()
+	  ->enableConnectionSharing ();
+	session->configuration().connectionConfiguration()
+	  ->enableReadOnlySessionOnUpdateConnections ();
+      }
+    session->configuration().setAuthenticationPath( authenticationPath ) ;
     session->open() ;
     
 
@@ -80,5 +94,16 @@ edm::eventsetup::TypeTag DataManager::findType (const std::string & type) const
   return typeTag;
 }
 
-
+  void
+  DataManager::setDebug( bool debug )
+  {
+    if( debug )
+      {
+	session->configuration().setMessageLevel( cond::Debug ) ;
+      }
+    else
+      {
+	session->configuration().setMessageLevel( cond::Error ) ;
+      }
+  }
 }

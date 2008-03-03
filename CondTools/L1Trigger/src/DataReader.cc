@@ -13,8 +13,11 @@
 namespace l1t
 {
     
-DataReader::DataReader (const std::string & connect, const std::string & catalog)
-    : DataManager (connect, catalog)
+  //DataReader::DataReader (const std::string & connect, const std::string & catalog)
+  //    : DataManager (connect, catalog)
+  DataReader::DataReader( const std::string& connectString,
+			  const std::string& authenticationPath )
+    : DataManager( connectString, authenticationPath )
 {
     // we always maintain pool connection open, so that DataProxy could load the data.
 //     pool->connect ();
@@ -45,6 +48,20 @@ L1TriggerKey DataReader::readKey (const std::string & tag, const edm::RunNumber_
             << "for l1 tag \"" << tag << "\"";
 
     cond::TypedRef<L1TriggerKey> key (pool, data.payload ());
+    L1TriggerKey ret (*key); // clone key, so that it could be returned nicely
+
+    pool.commit ();
+
+    return ret;
+}
+
+L1TriggerKey DataReader::readKey (const std::string & payloadToken)
+{
+//     pool->startTransaction (true);
+  cond::PoolTransaction& pool = connection->poolTransaction() ;
+    pool.start (true);
+
+    cond::TypedRef<L1TriggerKey> key (pool, payloadToken);
     L1TriggerKey ret (*key); // clone key, so that it could be returned nicely
 
     pool.commit ();
@@ -211,5 +228,4 @@ DataReader::key ()
 {
     return createPayload ("L1TriggerKeyRcd", "L1TriggerKey");
 }
-
 }

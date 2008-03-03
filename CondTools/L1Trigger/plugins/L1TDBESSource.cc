@@ -21,7 +21,8 @@ namespace l1t
 //
 L1TDBESSource::L1TDBESSource(const edm::ParameterSet& iConfig)
     : keyTag (iConfig.getParameter<std::string> ("tag")),
-    reader (iConfig.getParameter<std::string> ("connect"), iConfig.getParameter<std::string> ("catalog"))
+    reader (iConfig.getParameter<std::string> ("connect"),
+	    iConfig.getParameter<std::string> ("authentication"))
 {
     // HACK: Technically I should not require this line. But without it, I can't get L1TriggerKey to register.
     //static edm::eventsetup::heterocontainer::HCTypeTagTemplate<L1TriggerKey, edm::eventsetup::DataKey> test;

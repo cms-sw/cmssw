@@ -44,7 +44,9 @@ class DataReader : public DataManager
          * connect - connection string to pool db, e.g. sqlite_file:test.db
          * catalog - catalog that should be used for this connection. e.g. file:test.xml
          */
-        explicit DataReader (const std::string & connect, const std::string & catalog);
+  //explicit DataReader (const std::string & connect, const std::string & catalog);
+  explicit DataReader (const std::string& connectString,
+		       const std::string& authenticationPath );
         virtual ~DataReader ();
 
         /* Returns key for givent tag ant IOV time moment. This key then can be used
@@ -54,8 +56,17 @@ class DataReader : public DataManager
         /* Reads payload from the DB. This one requires L1 key to figure out which record is considered
          * valid
          */
+
+        L1TriggerKey readKey (const std::string & payloadToken);
+
         template<typename T>
         T readPayload (const L1TriggerKey & key, const std::string & record);
+
+      // Read payload by payload token
+      template<typename T>
+      void readPayload ( const std::string & payloadToken, T& payload );
+
+      //void readPayload ( const std::string & payloadToken, L1TriggerKey& payload );
 
         /* Returns proxy that should provided objects of given type for given object. This will not
          * take any information about IOV moment. You can set this information via updateToken.
@@ -147,6 +158,18 @@ T DataReader::readPayload (const L1TriggerKey & key, const std::string & record)
 /*     pool->disconnect (); */
     //connection->disconnect ();
     return T (*ref);
+}
+
+template<typename T>
+void DataReader::readPayload( const std::string& payloadToken, T& payload )
+{
+   cond::PoolTransaction& pool = connection->poolTransaction() ;
+   pool.start( true ) ;
+
+   cond::TypedRef<T> ref (pool, payloadToken);
+
+   pool.commit ();
+   payload = *ref ;
 }
 
 }

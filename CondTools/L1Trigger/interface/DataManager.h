@@ -24,8 +24,12 @@ namespace l1t
 class DataManager
 {
     public:
-        explicit DataManager (const std::string & connect, const std::string & catalog);
+        explicit DataManager (const std::string & connect,
+			      const std::string & authenticationPath,
+			      bool isOMDS = false );
         virtual ~DataManager ();
+
+	void setDebug( bool debug ) ;
 
     protected:
         /* Returns type object for provided type name

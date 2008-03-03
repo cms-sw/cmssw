@@ -65,7 +65,15 @@ void DataWriter::writeKey (L1TriggerKey * key, const std::string & tag, const in
     editor = iov.newIOVEditor (tagToken);
 
     // finally insert new IOV
-    editor->insert (sinceRun, ref.token ());
+    if( requireMapping )
+      {
+	// insert() sets till-time, not since-time -- will this work?
+	editor->insert (sinceRun, ref.token ());
+      }
+    else
+      {
+	editor->append(sinceRun, ref.token ());
+      }
     tagToken = editor->token ();
     delete editor;
 
@@ -91,7 +99,7 @@ void DataWriter::addMappings (const std::string tag, const std::string iovToken)
   //    coral->startTransaction (false);
     coral.start (false);
 
-    metadata->addMapping (tag, iovToken);
+    metadata->addMapping (tag, iovToken); // default timetype = run number
 
     coral.commit ();
     //    coral->disconnect ();
@@ -129,6 +137,129 @@ void DataWriter::writePayload (L1TriggerKey & key, const edm::EventSetup & setup
     pool.commit ();
     // pool->disconnect ();
   //connection->disconnect ();
+}
+
+std::string
+DataWriter::writePayload( const edm::EventSetup& setup,
+			  const std::string& recordType )
+{
+    WriterFactory* factory = WriterFactory::get();
+    WriterProxy* writer = factory->create( recordType + "@Writer" ) ;
+    assert( writer != 0 );
+
+    cond::PoolTransaction& pool = connection->poolTransaction() ;
+    pool.start( false ) ;
+
+    // update key to have new payload registered for record-type pair.
+    std::string payloadToken = writer->save( setup, pool ) ;
+    std::cout << recordType << " PAYLOAD TOKEN " << payloadToken << std::endl ;
+
+    delete writer;
+    pool.commit ();
+
+    return payloadToken ;
+}
+
+void
+DataWriter::writeKeyList( L1TriggerKeyList* keyList,
+			  const std::string& tag,
+			  const int sinceRun )
+{
+   // Get IOVToken for given tag
+   std::string tagToken = findTokenForTag( tag ) ;
+   bool requireMapping = tagToken.empty() ;
+
+    cond::PoolTransaction& pool = connection->poolTransaction() ;
+    pool.start( false ) ;
+
+    cond::TypedRef< L1TriggerKeyList > ref( pool, keyList ) ;
+    ref.markWrite( "L1TriggerKeyListRcd" ) ;
+
+    cond::IOVService iov( pool ) ;
+
+    // Create editor, with or without tagToken
+    cond::IOVEditor* editor ;
+    editor = iov.newIOVEditor( tagToken ) ;
+
+    // Insert new IOV
+    if( requireMapping )
+      {
+	// insert() sets till-time, not since-time -- will this work?
+	editor->insert( sinceRun, ref.token() ) ;
+      }
+    else
+      {
+	editor->append( sinceRun, ref.token() ) ;
+      }
+    tagToken = editor->token() ;
+    delete editor ;
+
+    // Is this necessary?
+    pool.commit() ;
+
+    if( tagToToken.find( tag ) != tagToToken.end () )
+    {
+       tagToToken.insert( std::make_pair( tag, tagToken ) ) ;
+    }
+
+    // Assign payload token with IOV value
+    if( requireMapping )
+    {
+       addMappings( tag, tagToken ) ;
+    }
+
+    std::cout << "L1TriggerKeyList IOV TOKEN " << tagToken
+	      << " TAG " << tag << std::endl ;
+}
+
+void
+DataWriter::updateIOV( const std::string& tag,
+		       const std::string& payloadToken,
+		       const int sinceRun )
+{
+    std::cout << tag << " PAYLOAD TOKEN " << payloadToken << std::endl ;
+
+   // Get IOVToken for given tag
+   std::string tagToken = findTokenForTag( tag ) ;
+   bool requireMapping = tagToken.empty() ;
+
+    cond::PoolTransaction& pool = connection->poolTransaction() ;
+    pool.start( false ) ;
+
+    cond::IOVService iov( pool ) ;
+
+    // Create editor, with or without tagToken
+    cond::IOVEditor* editor ;
+    editor = iov.newIOVEditor( tagToken ) ;
+
+    // Insert new IOV
+    if( requireMapping )
+      {
+	// insert() sets till-time, not since-time -- will this work?
+	editor->insert( sinceRun, payloadToken ) ;
+      }
+    else
+      {
+	editor->append( sinceRun, payloadToken ) ;
+      }
+    tagToken = editor->token() ;
+    delete editor ;
+
+    // Is this necessary?
+    pool.commit() ;
+
+    if( tagToToken.find( tag ) != tagToToken.end () )
+    {
+       tagToToken.insert( std::make_pair( tag, tagToken ) ) ;
+    }
+
+    // Assign payload token with IOV value
+    if( requireMapping )
+    {
+       addMappings( tag, tagToken ) ;
+    }
+
+    std::cout << tag << " IOV TOKEN " << tagToken << std::endl ;
 }
 
 

@@ -13,7 +13,7 @@
 //
 // Original Author:  Giedrius Bacevicius
 //         Created:  Wed Jul 11 13:52:35 CEST 2007
-// $Id: L1TWriter.cc,v 1.3 2008/01/22 18:47:10 muzaffar Exp $
+// $Id: L1TWriter.cc,v 1.4 2008/02/12 21:54:47 wsun Exp $
 //
 //
 
@@ -40,7 +40,8 @@ namespace l1t
 //
 L1TWriter::L1TWriter(const edm::ParameterSet& iConfig)
     : sinceRun (-1), executionNumber (0),
-    writer (iConfig.getParameter<std::string> ("connect"), iConfig.getParameter<std::string> ("catalog"))
+    writer (iConfig.getParameter<std::string> ("connect"),
+	    iConfig.getParameter<std::string> ("authentication"))
 {
     std::vector<std::string> params = iConfig.getParameterNames ();
 

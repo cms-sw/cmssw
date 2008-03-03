@@ -55,10 +55,19 @@ class WriterProxyT : public WriterProxy
             edm::ESHandle<Type> handle;
             setup.get<Record> ().get (handle);
 
-            cond::TypedRef<Type> ref (pool, new Type (*(handle.product ())));
-            ref.markWrite (recordName);
+	    // If handle is invalid, then data is already in DB
+	    if( handle.isValid() )
+	      {
+		cond::TypedRef<Type> ref (pool,
+					  new Type (*(handle.product ())));
+		ref.markWrite (recordName);
 
-            return ref.token ();
+		return ref.token ();
+	      }
+	    else
+	      {
+		return std::string() ;
+	      }
         }
 };
 

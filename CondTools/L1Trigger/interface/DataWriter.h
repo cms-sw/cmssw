@@ -11,6 +11,7 @@
 
 // L1T includes
 #include "CondFormats/L1TObjects/interface/L1TriggerKey.h"
+#include "CondFormats/L1TObjects/interface/L1TriggerKeyList.h"
 
 #include "CondTools/L1Trigger/interface/DataManager.h"
 #include "CondTools/L1Trigger/interface/WriterProxy.h"
@@ -47,8 +48,11 @@ class DataWriter : public DataManager
          * connect - connection string to pool db, e.g. sqlite_file:test.db
          * catalog - catalog that should be used for this connection. e.g. file:test.xml
          */
-        explicit DataWriter (const std::string & connect, const std::string & catalog)
-            : DataManager (connect, catalog) {};
+  //        explicit DataWriter (const std::string & connect, const std::string & catalog)
+  //            : DataManager (connect, catalog) {};
+  explicit DataWriter (const std::string& connectString,
+		       const std::string& authenticationPath )
+    : DataManager( connectString, authenticationPath ) {};
         virtual ~DataWriter () {};
 
         /* Data writting functions */
@@ -65,7 +69,26 @@ class DataWriter : public DataManager
         /* Writes given key to DB and starts its IOV from provided run number.
          * From here pointer ownership is managed by POOL
          */
-        void writeKey (L1TriggerKey * key, const std::string & tag, const int sinceRun);
+        void writeKey (L1TriggerKey * key,
+		       const std::string & tag,
+		       const int sinceRun);  // actually tillRun
+
+      // Added by wsun 03/2008
+
+      // Get payload from EventSetup and write to DB with no IOV
+      // recordType = "record@type", return value is payload token
+      std::string writePayload( const edm::EventSetup& setup,
+				const std::string& recordType ) ;
+
+      // Write L1TriggerKeyList to DB
+      void writeKeyList( L1TriggerKeyList* keyList,
+			 const std::string& tag, // tag for IOV sequence
+			 const int sinceRun ) ;
+
+      // Append IOV with sinceRun to IOV sequence with given tag
+      void updateIOV( const std::string& tag,
+		      const std::string& payloadToken,
+		      const int sinceRun ) ;
 
     protected:
         /* Helper method that maps tag with iovToken */
