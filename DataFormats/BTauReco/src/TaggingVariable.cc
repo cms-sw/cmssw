@@ -68,6 +68,10 @@ const char* TaggingVariableDescription[] = {
   /* [neutralclusterRadius]                     = */ "mean DR between neutral ECAL clus. and lead.track",
 
   /* [leptonQuality]                            = */ "lepton identification quality",
+  /* [trackP0Par]                               = */ "track momentum along the jet axis, in the jet rest frame",
+  /* [trackP0ParRatio]                          = */ "track momentum along the jet axis, in the jet rest frame, normalized to its energy"
+  /* [trackChi2]                                = */ "chi2 of the track fit",
+              
   
   /* [lastTaggingVariable]                      = */ ""
 };
@@ -132,6 +136,9 @@ const char* TaggingVariableTokens[] = {
   /* [neutralclusterRadius]                     = */ "neutralclusterRadius",
 
   /* [leptonQuality]                            = */ "leptonQuality",
+  /* [trackP0Par]                               = */ "trackP0Par",
+  /* [trackP0ParRatio]                          = */ "trackP0ParRatio",
+  /* [trackChi2]                                = */ "trackChi2",
 
   /* [lastTaggingVariable]                      = */ "lastTaggingVariable"
 };
