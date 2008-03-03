@@ -9,6 +9,7 @@
 #include "TFile.h"
 #include "TH1.h"
 #include "TF1.h"
+#include "TMath.h"
 #include "TCanvas.h"
 #include "TROOT.h"
 #include <boost/shared_ptr.hpp>
@@ -34,13 +35,16 @@ ostream& operator<<(ostream& os, const vector<T>& v)
 
 int main(int ac, char *av[]) { 
   try {
-    string ext;
+      double fMin, fMax;
+      string ext;
       po::options_description desc("Allowed options");
       desc.add_options()
 	("help", "produce help message")
 	("include-path,I", po::value< vector<string> >(), 
 	 "include path")
 	("input-file", po::value< vector<string> >(), "input file")
+	("min,m", po::value<double>(&fMin)->default_value(-20), "minimum value for fit range")
+	("max,M", po::value<double>(&fMax)->default_value(20), "maximum value for fit range")
 	("gauss", "fit to a gaussian")
 	("2gauss", "fit to a linear combination of two gaussians")
 	("output-file,O", po::value<string>(&ext)->default_value(".ps"), 
@@ -78,15 +82,18 @@ int main(int ac, char *av[]) {
 	  v_file = vm["input-file"].as< vector<string> >();
 	  for(vector<string>::const_iterator it = v_file.begin(); 
 	      it != v_file.end(); ++it) { 
-	     TFile * root_file = new TFile(it->c_str(),"read");
-	     TH1D * zMass = (TH1D*) root_file->Get("zMassRes");
-	     v_ZMassResHistos.push_back(zMass);
-	     gROOT->SetStyle("Plain");
-	     string f_string = *it;
-	     replace(f_string.begin(), f_string.end(), '.', '_');
-	     string eps_string = f_string + ext;
-	     v_eps.push_back(eps_string);
-	     cout << ">>> histogram loaded\n";
+	    TFile * root_file = new TFile(it->c_str(),"read");
+	    TDirectory *Histos = (TDirectory*) root_file->GetDirectory("ZHisto");
+	    TDirectory *RecoHistos = (TDirectory*) Histos->GetDirectory("ZResHisto");
+	    TH1D * zMass = (TH1D*) RecoHistos->Get("ZMassRes");
+	    zMass->GetXaxis()->SetTitle("Mass (GeV/c^{2})"); 
+	    v_ZMassResHistos.push_back(zMass);
+	    gROOT->SetStyle("Plain");
+	    string f_string = *it;
+	    replace(f_string.begin(), f_string.end(), '.', '_');
+	    string eps_string = f_string + ext;
+	    v_eps.push_back(eps_string);
+	    cout << ">>> histogram loaded\n";
 	  }
 	  cout << v_file.size() << ", " << v_ZMassResHistos.size() << ", " << v_eps.size() << endl;
 	  cout <<">>> Input files loaded\n";
@@ -119,7 +126,7 @@ int main(int ac, char *av[]) {
 	    typedef Product<Constant, Gaussian> FitFunction;
 	    FitFunction f = c * gaus;
 	    typedef fit::HistoChiSquare<FitFunction> ChiSquared;
-	    ChiSquared chi2(f, zMass, -20, 20);
+	    ChiSquared chi2(f, zMass, fMin, fMax);
 	    int fullBins = chi2.degreesOfFreedom();
 	    cout << "N. deg. of freedom: " << fullBins << endl;
 	    fit::RootMinuit<ChiSquared> minuit(3, chi2, true);
@@ -140,7 +147,7 @@ int main(int ac, char *av[]) {
 	    cout << mean1 << " ; " << dmean1 << endl;
 	    dsigma1 = minuit.getParameterError(2);
 	    cout << sigma1 << " ; " << dsigma1 << endl;
-	    TF1 fun = root::tf1("fun", f, 0, 200, yield1, mean1, sigma1);
+	    TF1 fun = root::tf1("fun", f, fMin, fMax, yield1, mean1, sigma1);
 	    fun.SetParNames(yield1.name().c_str(), mean1.name().c_str(), sigma1.name().c_str());
 	    fun.SetLineColor(kRed);
 	    TCanvas *canvas = new TCanvas("canvas");
@@ -176,7 +183,7 @@ int main(int ac, char *av[]) {
 	    typedef Sum<ConstGaussian, ConstGaussian> FitFunction;
 	    FitFunction f = cog1 + cog2;
 	    typedef fit::HistoChiSquare<FitFunction> ChiSquared;
-	    ChiSquared chi2(f, zMass, -20, 20);
+	    ChiSquared chi2(f, zMass, fMin, fMax);
 	    int fullBins = chi2.degreesOfFreedom();
 	    cout << "N. deg. of freedom: " << fullBins << endl;
 	    fit::RootMinuit<ChiSquared> minuit(6, chi2, true);
@@ -213,7 +220,7 @@ int main(int ac, char *av[]) {
 	    pars.push_back(sigma1.ptr());
 	    pars.push_back(mean2.ptr());
 	    pars.push_back(sigma2.ptr());
-	    TF1 fun = root::tf1("fun", f, -60, 60, pars);
+	    TF1 fun = root::tf1("fun", f, fMin, fMax, pars);
 	    fun.SetParNames(yield1.name().c_str(), yield2.name().c_str(), 
 			    mean1.name().c_str(), sigma1.name().c_str(), 
 		  mean2.name().c_str(), sigma2.name().c_str());

@@ -11,6 +11,7 @@
 #include "TFile.h"
 #include "TH1.h"
 #include "TF1.h"
+#include "TMath.h"
 #include "TCanvas.h"
 #include "TROOT.h"
 #include <boost/shared_ptr.hpp>
@@ -36,16 +37,19 @@ ostream& operator<<(ostream& os, const vector<T>& v)
 
 int main(int ac, char *av[]) { 
   try {
-    string ext;
+      double fMin, fMax;
+      string ext;
       po::options_description desc("Allowed options");
       desc.add_options()
 	("help", "produce help message")
 	("include-path,I", po::value< vector<string> >(), 
 	 "include path")
 	("input-file", po::value< vector<string> >(), "input file")
+	("min,m", po::value<double>(&fMin)->default_value(80), "minimum value for fit range")
+	("max,M", po::value<double>(&fMax)->default_value(120), "maximum value for fit range")
 	("breitwigner", "fit to a breit-wigner")
 	("gauss", "fit to a gaussian")
-	("zlineshape", "fit to the Z Line Shape")
+	("bwint", "fit to a breit-wigner plus Z/photon interference term")
 	("output-file,O", po::value<string>(&ext)->default_value(".ps"), 
 	 "output file format")
 	;
@@ -131,7 +135,7 @@ int main(int ac, char *av[]) {
 	    typedef Product<Constant, BreitWigner> FitFunction;
 	    FitFunction f = c * bw;
 	    typedef fit::HistoChiSquare<FitFunction> ChiSquared;
-	    ChiSquared chi2(f, zMass, 80, 120);
+	    ChiSquared chi2(f, zMass, fMin, fMax);
 	    int fullBins = chi2.degreesOfFreedom();
 	    cout << "N. deg. of freedom: " << fullBins << endl;
 	    fit::RootMinuit<ChiSquared> minuit(3, chi2, true);
@@ -152,16 +156,16 @@ int main(int ac, char *av[]) {
 	    cout << mass << " ; " << dmass << endl;
 	    dgamma = minuit.getParameterError(2);
 	    cout << gamma << " ; " << dgamma << endl;
-	    TF1 fun = root::tf1("fun", f, 0, 200, yield, mass, gamma);
+	    TF1 fun = root::tf1("fun", f, fMin, fMax, yield, mass, gamma);
 	    fun.SetParNames(yield.name().c_str(), mass.name().c_str(), gamma.name().c_str());
 	    fun.SetLineColor(kRed);
 	    TCanvas *canvas = new TCanvas("canvas");
 	    zMass->Draw("e");
 	    fun.Draw("same");	
-	    string epsFilename = "ZMassFitBW_" + v_eps[i];
+	    string epsFilename = "ZMassMCFitBW_" + v_eps[i];
 	    canvas->SaveAs(epsFilename.c_str());
 	    canvas->SetLogy();
-	    string epsLogFilename = "ZMassFitBW_Log_" + v_eps[i];
+	    string epsLogFilename = "ZMassMCFitBW_Log_" + v_eps[i];
 	    canvas->SaveAs(epsLogFilename.c_str());
 	  }
 	}
@@ -180,7 +184,7 @@ int main(int ac, char *av[]) {
 	    typedef Product<Constant, Gaussian> FitFunction;
 	    FitFunction f = c * gaus;
 	    typedef fit::HistoChiSquare<FitFunction> ChiSquared;
-	    ChiSquared chi2(f, zMass, 80, 120);
+	    ChiSquared chi2(f, zMass, fMin, fMax);
 	    int fullBins = chi2.degreesOfFreedom();
 	    cout << "N. deg. of freedom: " << fullBins << endl;
 	    fit::RootMinuit<ChiSquared> minuit(3, chi2, true);
@@ -201,23 +205,23 @@ int main(int ac, char *av[]) {
 	    cout << mean << " ; " << dmean << endl;
 	    dsigma = minuit.getParameterError(2);
 	    cout << sigma << " ; " << dsigma << endl;
-	    TF1 fun = root::tf1("fun", f, 0, 200, yield, mean, sigma);
+	    TF1 fun = root::tf1("fun", f, fMin, fMax, yield, mean, sigma);
 	    fun.SetParNames(yield.name().c_str(), mean.name().c_str(), sigma.name().c_str());
 	    fun.SetLineColor(kRed);
 	    TCanvas *canvas = new TCanvas("canvas");
 	    zMass->Draw("e");
 	    fun.Draw("same");	
-	    string epsFilename = "ZMassFitG_" + v_eps[i];
+	    string epsFilename = "ZMassMCFitG_" + v_eps[i];
 	    canvas->SaveAs(epsFilename.c_str());
 	    canvas->SetLogy();
-	    string epsLogFilename = "ZMassFitG_Log_" + v_eps[i];
+	    string epsLogFilename = "ZMassMCFitG_Log_" + v_eps[i];
 	    canvas->SaveAs(epsLogFilename.c_str());
 	  }
 	}
       
-      if (vm.count("zlineshape"))
+      if (vm.count("bwint"))
 	{
-	  cout << "Fitting histograms in input files to the Z Line Shape\n";
+	  cout << "Fitting histograms in input files to the Breit-Wigner plus Z/photon interference term\n";
 	  cout << ">>> set pars: " << endl;
 	  cout << yield << " ; " << dyield << endl; 
 	  cout << mass << " ; " << dmass << endl; 
@@ -238,7 +242,7 @@ int main(int ac, char *av[]) {
 	    pars.push_back(f_gamma.ptr());
 	    pars.push_back(f_int.ptr());
 	    typedef fit::HistoChiSquare<FitFunction> ChiSquared;
-	    ChiSquared chi2(f, zMass, 80, 120);
+	    ChiSquared chi2(f, zMass, fMin, fMax);
 	    int fullBins = chi2.degreesOfFreedom();
 	    cout << "N. deg. of freedom: " << fullBins << endl;
 	    fit::RootMinuit<ChiSquared> minuit(5, chi2, true);
@@ -266,17 +270,17 @@ int main(int ac, char *av[]) {
 	    cout << f_gamma << " ; " << df_gamma << endl;
 	    df_int = minuit.getParameterError(4);
 	    cout << f_int << " ; " << df_int << endl;
-	    TF1 fun = root::tf1("fun", f, 0, 200, pars); 
+	    TF1 fun = root::tf1("fun", f, fMin, fMax, pars); 
 	    fun.SetParNames(yield.name().c_str(), mass.name().c_str(), gamma.name().c_str(), 
 	                    f_gamma.name().c_str(), f_int.name().c_str());
 	    fun.SetLineColor(kRed); 
 	    TCanvas *canvas = new TCanvas("canvas");
 	    zMass->Draw("e");
 	    fun.Draw("same");
-	    string epsFilename = "ZMassFitZLS_" + v_eps[i];
+	    string epsFilename = "ZMassMCFitBwIn_" + v_eps[i];
 	    canvas->SaveAs(epsFilename.c_str());
 	    canvas->SetLogy();
-	    string epsLogFilename = "ZMassFitZLS_Log_" + v_eps[i];
+	    string epsLogFilename = "ZMassMCFitBwIn_Log_" + v_eps[i];
 	    canvas->SaveAs(epsLogFilename.c_str());
 	  }
 	}

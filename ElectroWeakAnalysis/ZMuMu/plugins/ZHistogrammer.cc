@@ -8,11 +8,16 @@ public:
 private:
   virtual void analyze(const edm::Event& event, const edm::EventSetup& setup);
   edm::InputTag  z_, gen_, match_;
-  size_t nbinsPt_, nbinsAng_;
-  double ptMax_, angMax_;
+  size_t nbinsMass_, nbinsPt_, nbinsAng_, nbinsMassRes_;
+  double massMax_, ptMax_, angMax_, massResMax_;
   TH1F *h_nZ_, *h_mZ_, *h_ptZ_, *h_phiZ_, *h_thetaZ_, *h_etaZ_, *h_rapidityZ_;
+  TH1F *h_invmMuMuReco_;
   TH1F *h_nZMC_, *h_mZMC_, *h_ptZMC_, *h_phiZMC_, *h_thetaZMC_, *h_etaZMC_, *h_rapidityZMC_;
+  TH1F *h_invmMuMuMC_;
+  //TH1F *h_mZ2vs3MC_, *h_ptZ2vs3MC_, *h_phiZ2vs3MC_, *h_thetaZ2vs3MC_, *h_etaZ2vs3MC_, *h_rapidityZ2vs3MC_;
   TH1F *h_mResZ_, *h_ptResZ_, *h_phiResZ_, *h_thetaResZ_, *h_etaResZ_, *h_rapidityResZ_;
+  TH1F *h_mResZMuMuMC_;
+  TH1F *h_mResZMuMuReco_;
 };
 
 #include "DataFormats/Candidate/interface/Candidate.h"
@@ -25,6 +30,7 @@ private:
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "PhysicsTools/UtilAlgos/interface/TFileService.h"
+#include <cmath>
 #include <iostream>
 
 using namespace std;
@@ -35,41 +41,71 @@ ZHistogrammer::ZHistogrammer(const ParameterSet& pset) :
   z_(pset.getParameter<InputTag>("z")),
   gen_(pset.getParameter<InputTag>("gen")), 
   match_(pset.getParameter<InputTag>("match")), 
+  nbinsMass_(pset.getUntrackedParameter<size_t>("nbinsMass")),
   nbinsPt_(pset.getUntrackedParameter<size_t>("nbinsPt")),
   nbinsAng_(pset.getUntrackedParameter<size_t>("nbinsAng")),
+  nbinsMassRes_(pset.getUntrackedParameter<size_t>("nbinsMassRes")),
+  massMax_(pset.getUntrackedParameter<double>("massMax")),
   ptMax_(pset.getUntrackedParameter<double>("ptMax")),
-  angMax_(pset.getUntrackedParameter<double>("angMax")) { 
+  angMax_(pset.getUntrackedParameter<double>("angMax")), 
+  massResMax_(pset.getUntrackedParameter<double>("massResMax")) { 
   cout << ">>> Z Histogrammer constructor" << endl;
   Service<TFileService> fs;
   TFileDirectory ZHisto = fs->mkdir( "ZRecoHisto" );
   TFileDirectory ZMCHisto = fs->mkdir( "ZMCHisto" );
-  TFileDirectory ZResHisto = fs->mkdir( "ZResHisto" );
+  TFileDirectory ZResHisto = fs->mkdir( "ZResolutionHisto" );
+  //TFileDirectory Z2vs3MCHisto = fs->mkdir( "Z2vs3MCHisto" );
   h_nZ_ = ZHisto.make<TH1F>("ZNumber", "number of Z particles", 11, -0.5, 10.5);
-  h_mZ_ = ZHisto.make<TH1F>("ZMass", "Z mass (GeV/c^{2})", 100,  0, 200);
+  h_mZ_ = ZHisto.make<TH1F>("ZMass", "Z mass (GeV/c^{2})", nbinsMass_,  0, massMax_);
   h_ptZ_ = ZHisto.make<TH1F>("ZPt", "Z p_{t} (GeV/c)", nbinsPt_, 0, ptMax_);
   h_phiZ_ = ZHisto.make<TH1F>("ZPhi", "Z #phi", nbinsAng_,  -angMax_, angMax_);
   h_thetaZ_ = ZHisto.make<TH1F>("Ztheta", "Z #theta", nbinsAng_,  0, angMax_);
   h_etaZ_ = ZHisto.make<TH1F>("ZEta", "Z #eta", nbinsAng_,  -angMax_, angMax_);
   h_rapidityZ_ = ZHisto.make<TH1F>("ZRapidity", "Z rapidity", nbinsAng_,  -angMax_, angMax_);
+  h_invmMuMuReco_ = ZHisto.make<TH1F>("MuMuRecoMass", "#mu #mu Reco invariant mass", 
+				      nbinsMass_,  0, massMax_);
   h_nZMC_ = ZMCHisto.make<TH1F>("ZMCNumber", "number of Z MC particles", 11, -0.5, 10.5);
-  h_mZMC_ = ZMCHisto.make<TH1F>("ZMCMass", "Z MC mass (GeV/c^{2})", 100,  0, 200);
+  h_mZMC_ = ZMCHisto.make<TH1F>("ZMCMass", "Z MC mass (GeV/c^{2})", nbinsMass_,  0, massMax_);
   h_ptZMC_ = ZMCHisto.make<TH1F>("ZMCPt", "Z MC p_{t} (GeV/c)", nbinsPt_, 0, ptMax_);
   h_phiZMC_ = ZMCHisto.make<TH1F>("ZMCPhi", "Z MC #phi", nbinsAng_,  -angMax_, angMax_);
   h_thetaZMC_ = ZMCHisto.make<TH1F>("ZMCTheta", "Z MC #theta", nbinsAng_,  0, angMax_);
   h_etaZMC_ = ZMCHisto.make<TH1F>("ZMCEta", "Z MC #eta", nbinsAng_,  -angMax_, angMax_);
   h_rapidityZMC_ = ZMCHisto.make<TH1F>("ZMCRapidity", "Z MC rapidity", 
 				       nbinsAng_,  -angMax_, angMax_);
-  h_mResZ_ = ZResHisto.make<TH1F>("ZMassRes", "Z mass Resolution (GeV/c^{2})", 240,  -60, 60);
-  h_ptResZ_ = ZResHisto.make<TH1F>("ZPtRes", "Z p_{t} Resolution (GeV/c)", 
+  h_invmMuMuMC_ = ZMCHisto.make<TH1F>("MuMuMCMass", "#mu #mu MC invariant mass", 
+				      nbinsMass_,  0, massMax_);
+  /*
+  h_mZ2vs3MC_ = Z2vs3MCHisto.make<TH1F>("Z2vs3MCMass", "Z MC st 2 vs st 3 mass (GeV/c^{2})", 
+					nbinsMassRes_, -massResMax_, massResMax_);
+  h_ptZ2vs3MC_ = Z2vs3MCHisto.make<TH1F>("Z2vs3MCPt", "Z MC st 2 vs st 3 p_{t} (GeV/c)", 
+					 nbinsPt_, -ptMax_, ptMax_);
+  h_phiZ2vs3MC_ = Z2vs3MCHisto.make<TH1F>("Z2vs3MCPhi", "Z MC st 2 vs st 3 #phi", 
+					  nbinsAng_,  -angMax_, angMax_);
+  h_thetaZ2vs3MC_ = Z2vs3MCHisto.make<TH1F>("Z2vs3MCTheta", "Z MC st 2 vs st 3 #theta", 
+					    nbinsAng_,  -angMax_, angMax_);
+  h_etaZ2vs3MC_ = Z2vs3MCHisto.make<TH1F>("Z2vs3MCEta", "Z MC st 2 vs st 3 #eta", 
+					  nbinsAng_,  -angMax_, angMax_);
+  h_rapidityZ2vs3MC_ = Z2vs3MCHisto.make<TH1F>("Z2vs3MCRapidity", "Z MC st 2 vs st 3 rapidity", 
+				       nbinsAng_,  -angMax_, angMax_);
+  */
+  h_mResZ_ = ZResHisto.make<TH1F>("ZMassResolution", "Z mass Resolution (GeV/c^{2})", 
+				  nbinsMassRes_, -massResMax_, massResMax_);
+  h_ptResZ_ = ZResHisto.make<TH1F>("ZPtResolution", "Z p_{t} Resolution (GeV/c)", 
 				   nbinsPt_, -ptMax_, ptMax_);
-  h_phiResZ_ = ZResHisto.make<TH1F>("ZPhiRes", "Z #phi Resolution", 
+  h_phiResZ_ = ZResHisto.make<TH1F>("ZPhiResolution", "Z #phi Resolution", 
 				    nbinsAng_,  -angMax_, angMax_);
-  h_thetaResZ_ = ZResHisto.make<TH1F>("ZThetaRes", "Z #theta Resolution", 
+  h_thetaResZ_ = ZResHisto.make<TH1F>("ZThetaResolution", "Z #theta Resolution", 
 				      nbinsAng_, -angMax_, angMax_);
-  h_etaResZ_ = ZResHisto.make<TH1F>("ZEtaRes", "Z #eta Resolution", 
+  h_etaResZ_ = ZResHisto.make<TH1F>("ZEtaResolution", "Z #eta Resolution", 
 				    nbinsAng_,  -angMax_, angMax_);
-  h_rapidityResZ_ = ZResHisto.make<TH1F>("ZRapidityRes", "Z rapidity Resolution", 
+  h_rapidityResZ_ = ZResHisto.make<TH1F>("ZRapidityResolution", "Z rapidity Resolution", 
 					 nbinsAng_,  -angMax_, angMax_);
+  h_mResZMuMuMC_ = ZResHisto.make<TH1F>("ZToMuMuMCMassResolution", 
+					"Z vs #mu #mu MC mass Resolution (GeV/c^{2})", 
+					nbinsMassRes_, -massResMax_, massResMax_);
+  h_mResZMuMuReco_ = ZResHisto.make<TH1F>("ZToMuMuRecoMassResolution", 
+					  "Z vs #mu #mu Reco mass Resolution (GeV/c^{2})", 
+					  nbinsMassRes_, -massResMax_, massResMax_);
 }
 
 void ZHistogrammer::analyze(const edm::Event& event, const edm::EventSetup& setup) { 
@@ -89,17 +125,35 @@ void ZHistogrammer::analyze(const edm::Event& event, const edm::EventSetup& setu
     h_thetaZ_->Fill(zCand.theta());
     h_etaZ_->Fill(zCand.eta());
     h_rapidityZ_->Fill(zCand.rapidity());
-    if(zCand.hasMasterClone()) {
-      cout << ">>> Z has masterClone!" << endl;
-      CandidateRef zCandRef(z, i);
-      CandidateRef zMCMatch = (*match)[zCandRef];
+    CandidateRef zCandRef(z, i);
+    CandidateRef zMCMatch = (*match)[zCandRef];
+    if(zMCMatch.isNonnull() && zMCMatch->pdgId()==23) {
       h_mResZ_->Fill(zCandRef->mass() - zMCMatch->mass());
       h_ptResZ_->Fill(zCandRef->pt() - zMCMatch->pt());
       h_phiResZ_->Fill(zCandRef->phi() - zMCMatch->phi());
       h_thetaResZ_->Fill(zCandRef->theta() - zMCMatch->theta());
       h_etaResZ_->Fill(zCandRef->eta() - zMCMatch->eta());
       h_rapidityResZ_->Fill(zCandRef->rapidity() - zMCMatch->rapidity());
-    } else cout << ">>> Sorry, no masterClone for Z!" << endl;
+      const Candidate * dau0 = zMCMatch->daughter(0);
+      const Candidate * dau1 = zMCMatch->daughter(1);
+      for(size_t i0 = 0; i0 < dau0->numberOfDaughters(); ++i0) {
+	const Candidate * ddau0 = dau0->daughter(i0);
+	if(abs(ddau0->pdgId())==13 && ddau0->status()==1) {
+	  dau0 = ddau0; break;
+	}
+      }
+      for(size_t i1 = 0; i1 < dau1->numberOfDaughters(); ++i1) {
+	const Candidate * ddau1 = dau1->daughter(i1);
+	if(abs(ddau1->pdgId())==13 && ddau1->status()==1) {
+	  dau1 = ddau1; break;
+	}
+      }
+      assert(abs(dau0->pdgId())==13 && dau0->status()==1);
+      assert(abs(dau1->pdgId())==13 && dau1->status()==1);
+      double invMass = (dau0->p4()+dau1->p4()).mass();
+      h_invmMuMuReco_->Fill(invMass);
+      h_mResZMuMuReco_->Fill(zCand.mass() - invMass);
+    }
   }
   h_nZMC_->Fill(gen->size());
   for(size_t i = 0; i < gen->size(); ++i) {
@@ -116,22 +170,43 @@ void ZHistogrammer::analyze(const edm::Event& event, const edm::EventSetup& setu
       h_thetaZMC_->Fill(genCand.theta());
       h_etaZMC_->Fill(genCand.eta());
       h_rapidityZMC_->Fill(genCand.rapidity());
-      if(genCand.numberOfDaughters() == 3) {//Z0 decays in mu+ mu-, the 3rd daughter is the same Z0
-	const Candidate * dauGen0 = genCand.daughter(0);
-	const Candidate * dauGen1 = genCand.daughter(1);
-	const Candidate * dauGen2 = genCand.daughter(2);
-	cout << ">>> daughter MC 0 PDG Id " << dauGen0->pdgId() 
-	     << ", status " << dauGen0->status() 
-	     << ", charge " << dauGen0->charge() 
-	     << endl;
-	cout << ">>> daughter MC 1 PDG Id " << dauGen1->pdgId() 
-	     << ", status " << dauGen1->status()
-	     << ", charge " << dauGen1->charge() 
-	     << endl;
-	cout << ">>> daughter MC 2 PDG Id " << dauGen2->pdgId() 
-	     << ", status " << dauGen2->status()
-	     << ", charge " << dauGen2->charge() << endl;
+      Particle::LorentzVector pZ(0, 0, 0, 0);
+      int nMu = 0;
+      for(size_t j = 0; j < genCand.numberOfDaughters(); ++j) { 
+	const Candidate *dauGen = genCand.daughter(j);
+	/*
+	if((dauGen->pdgId() == 23) && (dauGen->status() == 2)) { 
+	  h_mZ2vs3MC_->Fill(genCand.mass() - dauGen->mass());
+	  h_ptZ2vs3MC_->Fill(genCand.pt() - dauGen->pt());
+	  h_phiZ2vs3MC_->Fill(genCand.phi() - dauGen->phi());
+	  h_thetaZ2vs3MC_->Fill(genCand.theta() - dauGen->theta());
+	  h_etaZ2vs3MC_->Fill(genCand.eta() - dauGen->eta());
+	  h_rapidityZ2vs3MC_->Fill(genCand.rapidity() - dauGen->rapidity());
+	}
+	*/
+	if((abs(dauGen->pdgId()) == 13) && (dauGen->numberOfDaughters() != 0)) {
+	  //we are looking for photons of final state radiation
+	  cout << ">>> The muon " << j 
+	       << " has " << dauGen->numberOfDaughters() << " daughters" <<endl;
+	  for(size_t k = 0; k < dauGen->numberOfDaughters(); ++k) {
+	    const Candidate * dauMuGen = dauGen->daughter(k);
+	    cout << ">>> Mu " << j 
+		 << " daughter MC " << k 
+		 << " PDG Id " << dauMuGen->pdgId() 
+		 << ", status " << dauMuGen->status() 
+		 << ", charge " << dauMuGen->charge() 
+		 << endl;
+	    if(abs(dauMuGen->pdgId()) == 13 && dauMuGen->status() ==1) {
+	      pZ += dauMuGen->p4();
+	      nMu ++;
+	    }
+	  }
+	}
       }
+      assert(nMu == 2);
+      double mZ = pZ.mass();
+      h_invmMuMuMC_->Fill(mZ);
+      h_mResZMuMuMC_->Fill(genCand.mass() - mZ);
     }
   }
 }
