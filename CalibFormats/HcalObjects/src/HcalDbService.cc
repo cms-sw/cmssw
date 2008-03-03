@@ -1,7 +1,7 @@
 //
 // F.Ratnikov (UMd), Aug. 9, 2005
 //
-// $Id: HcalDbService.cc,v 1.17 2007/12/20 01:39:56 mansj Exp $
+// $Id: HcalDbService.cc,v 1.18 2008/03/03 16:52:44 rofierzy Exp $
 
 #include "FWCore/Framework/interface/eventsetupdata_registration_macro.h"
 
@@ -32,6 +32,8 @@ bool HcalDbService::makeHcalCalibration (const HcalGenericDetId& fId, HcalCalibr
   if (fObject) {
     const HcalPedestal* pedestal = getPedestal (fId);
     const HcalGain* gain = getGain (fId);
+    const HcalRespCorr* respcorr = getHcalRespCorr (fId);
+
     if (mPedestalInADC) {
       const HcalQIEShape* shape=getHcalShape();
       const HcalQIECoder* coder=getHcalCoder(fId);
@@ -46,12 +48,12 @@ bool HcalDbService::makeHcalCalibration (const HcalGenericDetId& fId, HcalCalibr
 	  float y1=coder->charge(*shape,x1,i);
 	  pedTrue[i]=(y2-y1)*(x-x1)+y1;
 	}
-	*fObject = HcalCalibrations (gain->getValues (), pedTrue);
+	*fObject = HcalCalibrations (gain->getValues (), pedTrue, respcorr->getValue() );
 	return true; 
       }
     } else {
       if (pedestal && gain) {
-	*fObject = HcalCalibrations (gain->getValues (), pedestal->getValues ());
+	*fObject = HcalCalibrations (gain->getValues (), pedestal->getValues (), respcorr->getValue() );
 	return true;
       }
     }
