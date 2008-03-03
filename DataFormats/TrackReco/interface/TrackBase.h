@@ -46,7 +46,7 @@
  * 
  * \author Thomas Speer, Luca Lista, Pascal Vanlaer, Juan Alcaraz
  *
- * \version $Id: TrackBase.h,v 1.60 2008/02/21 13:16:43 gpetrucc Exp $
+ * \version $Id: TrackBase.h,v 1.61 2008/02/27 23:53:31 vlimant Exp $
  *
  */
 
@@ -80,7 +80,7 @@ namespace reco {
     /// track algorithm
     enum TrackAlgorithm { undefAlgorithm=0, ctf=1, rs=2, cosmics=3, beamhalo=4, iter1=5, iter2=6, iter3=7 };
     /// track quality
-    enum TrackQuality { undefQuality=0, loose=1, tight=2 };
+    enum TrackQuality { undefQuality=-1, loose=0, tight=1 };
     
     /// default constructor
     TrackBase();
@@ -216,11 +216,13 @@ namespace reco {
     /// position index 
 
     ///Track algorithm
+    void setAlgorithm(const TrackAlgorithm a, bool set=true) { if (set) algorithm_=a; else algorithm_=undefAlgorithm;}
     TrackAlgorithm algo() const ;
     std::string algoName() const;
     ///Track quality
-    TrackQuality quality() const;
-    std::string qualityName() const;
+    bool quality(const TrackQuality ) const;
+    void setQuality(const TrackQuality, bool set=true); 
+    static std::string qualityName(TrackQuality);
 
   private:
     /// chi-squared
@@ -238,9 +240,9 @@ namespace reco {
     /// hit pattern
     HitPattern hitPattern_;
     /// track algorithm
-    char algorithm_;
+    uint8_t algorithm_;
     /// track quality
-    char quality_;
+    uint8_t quality_;
 
   };
 
@@ -268,12 +270,32 @@ namespace reco {
     return "undefAlgorithm";
   }
       
-  inline TrackBase::TrackQuality TrackBase::quality() const {
-    return (TrackBase::TrackQuality) quality_;
+  inline bool TrackBase::quality( const TrackBase::TrackQuality q) const{
+    switch(q){
+    case undefQuality: return (quality_==0);
+    default:
+      {
+	return (quality_ & (1<<q))>>q;
+      }
+    }
+    return false;
   }
-  
-  inline std::string TrackBase::qualityName() const{
-    switch(quality_)
+
+  inline void TrackBase::setQuality( const TrackBase::TrackQuality q, bool set){
+    switch(q){
+    case undefQuality: quality_=0;
+    default: 
+      {
+	if (set)//regular OR if setting value to true
+	  quality_= quality_ | (1<<q) ;
+	else // doing "half-XOR" if unsetting value
+	  quality_= quality_ & (~(1<<q));
+      }
+    }
+  }
+
+  inline std::string TrackBase::qualityName(TrackQuality q){
+    switch(q)
       {
       case undefQuality: return "undefQuality";
       case loose: return "loose";

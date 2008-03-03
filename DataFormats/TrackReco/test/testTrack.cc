@@ -65,5 +65,17 @@ void testTrack::checkAll() {
   CPPUNIT_ASSERT( t.covariance( 3, 3 ) == cov( 3, 3 ) );
   CPPUNIT_ASSERT( t.covariance( 3, 4 ) == cov( 3, 4 ) );
   CPPUNIT_ASSERT( t.covariance( 4, 4 ) == cov( 4, 4 ) );
+  
+  t.setQuality(reco::TrackBase::loose);
+  CPPUNIT_ASSERT( t.quality(reco::TrackBase::loose) == true );
+  t.setQuality(reco::TrackBase::loose, false);
+  CPPUNIT_ASSERT( t.quality(reco::TrackBase::loose) == false );
+
+  t.setAlgorithm(reco::TrackBase::ctf);
+  CPPUNIT_ASSERT( t.algo() == reco::TrackBase::ctf );
+
+  t.setAlgorithm(reco::TrackBase::ctf, false);
+  CPPUNIT_ASSERT( t.algo() == reco::TrackBase::undefAlgorithm );
+
 }
 
