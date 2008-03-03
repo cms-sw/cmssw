@@ -58,6 +58,16 @@ class CSCRecoConditions
   /// fill crosstalk information for 3 neighbouring strip channels as linear vector (must be allocated by caller)
   void crossTalk( const CSCDetId& id, int centralStrip, std::vector<float>& xtalks) const;
 
+  /// Get bad strip word
+  const std::bitset<80>& badStripWord( const CSCDetId& id ) const {
+    return theConditions.badStripWord( id );
+  }
+
+  /// Get bad wiregroup word
+  const std::bitset<112>& badWireWord( const CSCDetId& id ) const {
+    return theConditions.badWireWord( id );
+  }
+
  private:
 
   CSCConditions theConditions;
