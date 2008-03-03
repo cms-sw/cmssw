@@ -9,7 +9,7 @@ namespace edm { class ParameterSet; class Event; class EventSetup; }
 class MuonServiceProxy;
 class TrackerSeedGenerator;
 class MuonTrackingRegionBuilder;
-
+class TrackerSeedCleaner;
 //
 // generate seeds corresponding to L2 muons
 //
@@ -29,6 +29,6 @@ private:
   double thePtCut;
   MuonTrackingRegionBuilder* theRegionBuilder;
   TrackerSeedGenerator* theTkSeedGenerator;
-
+  TrackerSeedCleaner* theSeedCleaner;
 };
 #endif

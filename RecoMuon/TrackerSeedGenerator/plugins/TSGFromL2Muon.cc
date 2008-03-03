@@ -18,6 +18,7 @@
 #include "RecoMuon/GlobalTrackingTools/interface/MuonTrackingRegionBuilder.h"
 #include "RecoMuon/TrackerSeedGenerator/interface/TrackerSeedGenerator.h"
 #include "RecoMuon/TrackerSeedGenerator/interface/TrackerSeedGeneratorFactory.h"
+#include "RecoMuon/TrackerSeedGenerator/interface/TrackerSeedCleaner.h"
 
 TSGFromL2Muon::TSGFromL2Muon(const edm::ParameterSet& cfg)
   : theConfig(cfg), theTkSeedGenerator(0)
@@ -56,6 +57,17 @@ void TSGFromL2Muon::beginJob(const edm::EventSetup& es)
   std::string seedGenName = seedGenPSet.getParameter<std::string>("ComponentName");
   theTkSeedGenerator = TrackerSeedGeneratorFactory::get()->create(seedGenName, seedGenPSet);
   theTkSeedGenerator->init(theService);
+
+  //seed cleaner
+  edm::ParameterSet trackerSeedCleanerPSet = theConfig.getParameter<edm::ParameterSet>("TrackerSeedCleaner");
+  //to activate or not the cleaner
+  if (trackerSeedCleanerPSet.empty())
+    theSeedCleaner=0;
+  else{
+    theSeedCleaner = new TrackerSeedCleaner(trackerSeedCleanerPSet);
+    theSeedCleaner->init(theService);
+  }
+
 }
 
 
@@ -67,6 +79,7 @@ void TSGFromL2Muon::produce(edm::Event& ev, const edm::EventSetup& es)
   theService->update(es);
   theTkSeedGenerator->setEvent(ev);
   if (theRegionBuilder)  theRegionBuilder->setEvent(ev);
+  if (theSeedCleaner) theSeedCleaner->setEvent(ev);
 
   //retrieve L2 track collection
   edm::Handle<reco::TrackCollection> l2muonH;
@@ -93,7 +106,7 @@ void TSGFromL2Muon::produce(edm::Event& ev, const edm::EventSetup& es)
       
       TkTrackingRegionsMargin<float> etaMargin(fabs(region1->etaRange().min() - region1->etaRange().mean()),
 					       fabs(region1->etaRange().max() - region1->etaRange().mean()));
-      
+
       region=RectangularEtaPhiTrackingRegion(region1->direction(),
 					     region1->origin(),
 					     region1->ptMin(),
@@ -110,13 +123,17 @@ void TSGFromL2Muon::produce(edm::Event& ev, const edm::EventSetup& es)
     std::pair<const Trajectory*,reco::TrackRef> staCand(0, muRef);
     theTkSeedGenerator->trackerSeeds(staCand, region, tkSeeds);
 
-    //ADDME
+    //Seed Cleaner From Direction
     //clean them internatly
+    if(theSeedCleaner){
+       std::vector<TrajectorySeed> tkClSeeds = theSeedCleaner->clean(muRef,region,tkSeeds);
+       edm::LogWarning("TSGFromL2Muon")<<tkClSeeds.size() << " or " << tkSeeds.size() << " seeds for this L2 afther cleaning.";
+       //tkSeeds.swap(tkClSeeds);
+    }
 
-    // push them in the output
     uint is=0;
     uint isMax=tkSeeds.size();
-    LogDebug("TSGFromL2Muon")<<isMax<<" seeds for this l2.";
+    LogDebug("TSGFromL2Muon")<<isMax<<" seeds for this L2.";
     for (;is!=isMax;++is){
       result->push_back( L3MuonTrajectorySeed(tkSeeds[is], muRef));
     }//tkseed loop
