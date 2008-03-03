@@ -48,6 +48,9 @@ namespace edm
     pixeldigi_collection_   = ps.getParameter<edm::InputTag>("pixeldigiCollection");
     PixelDigiCollectionDM_  = ps.getParameter<std::string>("PixelDigiCollectionDM");
 
+    // clear local storage for this event                                                                     
+    SiHitStorage_.clear();
+
   }
 	       
 
@@ -66,31 +69,31 @@ namespace edm
 
     Handle< edm::DetSetVector<PixelDigi> >  input;
 
-    e.getByLabel(pixeldigi_collection_,input);
+    if( e.getByLabel(pixeldigi_collection_,input) ) {
 
-    //loop on all detsets (detectorIDs) inside the input collection
-    edm::DetSetVector<PixelDigi>::const_iterator DSViter=input->begin();
-    for (; DSViter!=input->end();DSViter++){
+      //loop on all detsets (detectorIDs) inside the input collection
+      edm::DetSetVector<PixelDigi>::const_iterator DSViter=input->begin();
+      for (; DSViter!=input->end();DSViter++){
 
 #ifdef DEBUG
-      LogDebug("DataMixingSiPixelWorker")  << "Processing DetID " << DSViter->id;
+	LogDebug("DataMixingSiPixelWorker")  << "Processing DetID " << DSViter->id;
 #endif
 
-      uint32_t detID = DSViter->id;
-      edm::DetSet<PixelDigi>::const_iterator begin =(DSViter->data).begin();
-      edm::DetSet<PixelDigi>::const_iterator end   =(DSViter->data).end();
-      edm::DetSet<PixelDigi>::const_iterator icopy;
+	uint32_t detID = DSViter->id;
+	edm::DetSet<PixelDigi>::const_iterator begin =(DSViter->data).begin();
+	edm::DetSet<PixelDigi>::const_iterator end   =(DSViter->data).end();
+	edm::DetSet<PixelDigi>::const_iterator icopy;
   
-      OneDetectorMap LocalMap;
+	OneDetectorMap LocalMap;
 
-      for (icopy=begin; icopy!=end; icopy++) {
-	LocalMap.insert(OneDetectorMap::value_type( (icopy->channel()), *icopy ));
+	for (icopy=begin; icopy!=end; icopy++) {
+	  LocalMap.insert(OneDetectorMap::value_type( (icopy->channel()), *icopy ));
+	}
+
+	SiHitStorage_.insert( SiGlobalIndex::value_type( detID, LocalMap ) );
       }
-
-      SiHitStorage_.insert( SiGlobalIndex::value_type( detID, LocalMap ) );
-    }
  
-    
+    }    
   } // end of addSiPixelSignals
 
 
@@ -103,52 +106,52 @@ namespace edm
 
     Handle< edm::DetSetVector<PixelDigi> >  input;
 
-    e->getByLabel(pixeldigi_collection_,input);
+    if( e->getByLabel(pixeldigi_collection_,input) ) {
 
-    //loop on all detsets (detectorIDs) inside the input collection
-    edm::DetSetVector<PixelDigi>::const_iterator DSViter=input->begin();
-    for (; DSViter!=input->end();DSViter++){
+      //loop on all detsets (detectorIDs) inside the input collection
+      edm::DetSetVector<PixelDigi>::const_iterator DSViter=input->begin();
+      for (; DSViter!=input->end();DSViter++){
 
 #ifdef DEBUG
-      LogDebug("DataMixingSiPixelWorker")  << "Pileups: Processing DetID " << DSViter->id;
+	LogDebug("DataMixingSiPixelWorker")  << "Pileups: Processing DetID " << DSViter->id;
 #endif
 
-      uint32_t detID = DSViter->id;
-      edm::DetSet<PixelDigi>::const_iterator begin =(DSViter->data).begin();
-      edm::DetSet<PixelDigi>::const_iterator end   =(DSViter->data).end();
-      edm::DetSet<PixelDigi>::const_iterator icopy;
+	uint32_t detID = DSViter->id;
+	edm::DetSet<PixelDigi>::const_iterator begin =(DSViter->data).begin();
+	edm::DetSet<PixelDigi>::const_iterator end   =(DSViter->data).end();
+	edm::DetSet<PixelDigi>::const_iterator icopy;
 
-      // find correct local map (or new one) for this detector ID
+	// find correct local map (or new one) for this detector ID
 
-      SiGlobalIndex::const_iterator itest;
+	SiGlobalIndex::const_iterator itest;
 
-      itest = SiHitStorage_.find(detID);
+	itest = SiHitStorage_.find(detID);
 
-      if(itest!=SiHitStorage_.end()) {  // this detID already has hits, add to existing map
+	if(itest!=SiHitStorage_.end()) {  // this detID already has hits, add to existing map
 
-	OneDetectorMap LocalMap = itest->second;
+	  OneDetectorMap LocalMap = itest->second;
 
-	// fill in local map with extra channels
-	for (icopy=begin; icopy!=end; icopy++) {
-	  LocalMap.insert(OneDetectorMap::value_type( (icopy->channel()), *icopy ));
-	}
+	  // fill in local map with extra channels
+	  for (icopy=begin; icopy!=end; icopy++) {
+	    LocalMap.insert(OneDetectorMap::value_type( (icopy->channel()), *icopy ));
+	  }
 
-	SiHitStorage_[detID]=LocalMap;
+	  SiHitStorage_[detID]=LocalMap;
 	  
-      }
-      else{ // fill local storage with this information, put in global collection
+	}
+	else{ // fill local storage with this information, put in global collection
 
-	OneDetectorMap LocalMap;
+	  OneDetectorMap LocalMap;
 
-	for (icopy=begin; icopy!=end; icopy++) {
-	  LocalMap.insert(OneDetectorMap::value_type( (icopy->channel()), *icopy ));
+	  for (icopy=begin; icopy!=end; icopy++) {
+	    LocalMap.insert(OneDetectorMap::value_type( (icopy->channel()), *icopy ));
+	  }
+
+	  SiHitStorage_.insert( SiGlobalIndex::value_type( detID, LocalMap ) );
 	}
 
-	SiHitStorage_.insert( SiGlobalIndex::value_type( detID, LocalMap ) );
       }
-
     }
-
   }
 
 

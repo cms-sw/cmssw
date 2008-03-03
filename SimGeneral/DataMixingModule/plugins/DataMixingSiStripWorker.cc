@@ -49,6 +49,9 @@ namespace edm
     SistripLabel_   = ps.getParameter<edm::InputTag>("SistripLabel");
     SiStripDigiCollectionDM_  = ps.getParameter<std::string>("SiStripDigiCollectionDM");
 
+    // clear local storage for this event                                                                     
+    SiHitStorage_.clear();
+
   }
 	       
 
@@ -67,31 +70,31 @@ namespace edm
 
     Handle< edm::DetSetVector<SiStripDigi> >  input;
 
-    e.getByLabel(Sistripdigi_collection_.label(),SistripLabel_.label(),input);
+    if( e.getByLabel(Sistripdigi_collection_.label(),SistripLabel_.label(),input) ) {
 
-    //loop on all detsets (detectorIDs) inside the input collection
-    edm::DetSetVector<SiStripDigi>::const_iterator DSViter=input->begin();
-    for (; DSViter!=input->end();DSViter++){
+      //loop on all detsets (detectorIDs) inside the input collection
+      edm::DetSetVector<SiStripDigi>::const_iterator DSViter=input->begin();
+      for (; DSViter!=input->end();DSViter++){
 
 #ifdef DEBUG
-      LogDebug("DataMixingSiStripWorker")  << "Processing DetID " << DSViter->id;
+	LogDebug("DataMixingSiStripWorker")  << "Processing DetID " << DSViter->id;
 #endif
 
-      uint32_t detID = DSViter->id;
-      edm::DetSet<SiStripDigi>::const_iterator begin =(DSViter->data).begin();
-      edm::DetSet<SiStripDigi>::const_iterator end   =(DSViter->data).end();
-      edm::DetSet<SiStripDigi>::const_iterator icopy;
+	uint32_t detID = DSViter->id;
+	edm::DetSet<SiStripDigi>::const_iterator begin =(DSViter->data).begin();
+	edm::DetSet<SiStripDigi>::const_iterator end   =(DSViter->data).end();
+	edm::DetSet<SiStripDigi>::const_iterator icopy;
   
-      OneDetectorMap LocalMap;
+	OneDetectorMap LocalMap;
 
-      for (icopy=begin; icopy!=end; icopy++) {
-	LocalMap.insert(OneDetectorMap::value_type( (icopy->strip()), *icopy ));
+	for (icopy=begin; icopy!=end; icopy++) {
+	  LocalMap.insert(OneDetectorMap::value_type( (icopy->strip()), *icopy ));
+	}
+
+	SiHitStorage_.insert( SiGlobalIndex::value_type( detID, LocalMap ) );
       }
-
-      SiHitStorage_.insert( SiGlobalIndex::value_type( detID, LocalMap ) );
-    }
  
-    
+    }
   } // end of addSiStripSignals
 
 
@@ -104,52 +107,52 @@ namespace edm
 
     Handle< edm::DetSetVector<SiStripDigi> >  input;
 
-    e->getByLabel(Sistripdigi_collection_.label(),SistripLabel_.label(),input);
+    if( e->getByLabel(Sistripdigi_collection_.label(),SistripLabel_.label(),input) ) {
 
-    //loop on all detsets (detectorIDs) inside the input collection
-    edm::DetSetVector<SiStripDigi>::const_iterator DSViter=input->begin();
-    for (; DSViter!=input->end();DSViter++){
+      //loop on all detsets (detectorIDs) inside the input collection
+      edm::DetSetVector<SiStripDigi>::const_iterator DSViter=input->begin();
+      for (; DSViter!=input->end();DSViter++){
 
 #ifdef DEBUG
-      LogDebug("DataMixingSiStripWorker")  << "Pileups: Processing DetID " << DSViter->id;
+	LogDebug("DataMixingSiStripWorker")  << "Pileups: Processing DetID " << DSViter->id;
 #endif
 
-      uint32_t detID = DSViter->id;
-      edm::DetSet<SiStripDigi>::const_iterator begin =(DSViter->data).begin();
-      edm::DetSet<SiStripDigi>::const_iterator end   =(DSViter->data).end();
-      edm::DetSet<SiStripDigi>::const_iterator icopy;
+	uint32_t detID = DSViter->id;
+	edm::DetSet<SiStripDigi>::const_iterator begin =(DSViter->data).begin();
+	edm::DetSet<SiStripDigi>::const_iterator end   =(DSViter->data).end();
+	edm::DetSet<SiStripDigi>::const_iterator icopy;
 
-      // find correct local map (or new one) for this detector ID
+	// find correct local map (or new one) for this detector ID
 
-      SiGlobalIndex::const_iterator itest;
+	SiGlobalIndex::const_iterator itest;
 
-      itest = SiHitStorage_.find(detID);
+	itest = SiHitStorage_.find(detID);
 
-      if(itest!=SiHitStorage_.end()) {  // this detID already has hits, add to existing map
+	if(itest!=SiHitStorage_.end()) {  // this detID already has hits, add to existing map
 
-        OneDetectorMap LocalMap = itest->second;
+	  OneDetectorMap LocalMap = itest->second;
 
-        // fill in local map with extra channels
-        for (icopy=begin; icopy!=end; icopy++) {
-          LocalMap.insert(OneDetectorMap::value_type( (icopy->channel()), *icopy ));
-        }
+	  // fill in local map with extra channels
+	  for (icopy=begin; icopy!=end; icopy++) {
+	    LocalMap.insert(OneDetectorMap::value_type( (icopy->channel()), *icopy ));
+	  }
 
-        SiHitStorage_[detID]=LocalMap;
+	  SiHitStorage_[detID]=LocalMap;
 	  
-      }
-      else{ // fill local storage with this information, put in global collection
+	}
+	else{ // fill local storage with this information, put in global collection
 
-	OneDetectorMap LocalMap;
+	  OneDetectorMap LocalMap;
 
-	for (icopy=begin; icopy!=end; icopy++) {
-	  LocalMap.insert(OneDetectorMap::value_type( (icopy->strip()), *icopy ));
+	  for (icopy=begin; icopy!=end; icopy++) {
+	    LocalMap.insert(OneDetectorMap::value_type( (icopy->strip()), *icopy ));
+	  }
+
+	  SiHitStorage_.insert( SiGlobalIndex::value_type( detID, LocalMap ) );
 	}
 
-	SiHitStorage_.insert( SiGlobalIndex::value_type( detID, LocalMap ) );
       }
-
     }
-
   }
 
 

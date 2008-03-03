@@ -77,14 +77,11 @@ namespace edm
 
    const HBHERecHitCollection*  HBHERecHits = 0;
 
-   try {
-     e.getByLabel( HBHErechitCollection_.label(), pHBHERecHits);
+   if( e.getByLabel( HBHErechitCollection_.label(), pHBHERecHits) ) {
      HBHERecHits = pHBHERecHits.product(); // get a ptr to the product
-
-     LogInfo("DataMixingHcalWorker") << "total # HBHE rechits: " << HBHERecHits->size();
-
-   } catch (...) {
-   }
+     LogDebug("DataMixingHcalWorker") << "total # HBHE rechits: " << HBHERecHits->size();
+   } 
+   
  
    if (HBHERecHits)
      {
@@ -109,14 +106,13 @@ namespace edm
 
    const HORecHitCollection*  HORecHits = 0;
 
-   try {
-     e.getByLabel( HOrechitCollection_.label(), pHORecHits);
+   if( e.getByLabel( HOrechitCollection_.label(), pHORecHits) ){
      HORecHits = pHORecHits.product(); // get a ptr to the product
 #ifdef DEBUG
      LogDebug("DataMixingHcalWorker") << "total # HO rechits: " << HORecHits->size();
 #endif
-   } catch (...) {
-   }
+   } 
+   
  
    if (HORecHits)
      {
@@ -141,14 +137,13 @@ namespace edm
 
    const HFRecHitCollection*  HFRecHits = 0;
 
-   try {
-     e.getByLabel( HFrechitCollection_.label(), pHFRecHits);
+   if( e.getByLabel( HFrechitCollection_.label(), pHFRecHits) ) {
      HFRecHits = pHFRecHits.product(); // get a ptr to the product
 #ifdef DEBUG
      LogDebug("DataMixingHcalWorker") << "total # HF rechits: " << HFRecHits->size();
 #endif
-   } catch (...) {
-   }
+   } 
+   
  
    if (HFRecHits)
      {
@@ -173,14 +168,13 @@ namespace edm
 
    const ZDCRecHitCollection*  ZDCRecHits = 0;
 
-   try {
-     e.getByLabel( ZDCrechitCollection_.label(), pZDCRecHits);
+   if( e.getByLabel( ZDCrechitCollection_.label(), pZDCRecHits) ) {
      ZDCRecHits = pZDCRecHits.product(); // get a ptr to the product
 #ifdef DEBUG
      LogDebug("DataMixingHcalWorker") << "total # ZDC rechits: " << ZDCRecHits->size();
 #endif
-   } catch (...) {
-   }
+   } 
+   
  
    if (ZDCRecHits)
      {
@@ -212,14 +206,13 @@ namespace edm
    Handle< HBHERecHitCollection > pHBHERecHits;
    const HBHERecHitCollection*  HBHERecHits = 0;
 
-   try {
-     e->getByLabel( HBHErechitCollection_.label(), pHBHERecHits);
+   if( e->getByLabel( HBHErechitCollection_.label(), pHBHERecHits) ) {
      HBHERecHits = pHBHERecHits.product(); // get a ptr to the product
 #ifdef DEBUG
      LogDebug("DataMixingHcalWorker") << "total # HEHB rechits: " << HBHERecHits->size();
 #endif
-   } catch (...) {
-   }
+   } 
+   
  
    if (HBHERecHits)
      {
@@ -241,14 +234,13 @@ namespace edm
    Handle< HORecHitCollection > pHORecHits;
    const HORecHitCollection*  HORecHits = 0;
 
-   try {
-     e->getByLabel( HOrechitCollection_.label(), pHORecHits);
+   if( e->getByLabel( HOrechitCollection_.label(), pHORecHits) ) {
      HORecHits = pHORecHits.product(); // get a ptr to the product
 #ifdef DEBUG
      LogDebug("DataMixingHcalWorker") << "total # HO rechits: " << HORecHits->size();
 #endif
-   } catch (...) {
-   }
+   } 
+   
  
    if (HORecHits)
      {
@@ -271,14 +263,13 @@ namespace edm
    Handle< HFRecHitCollection > pHFRecHits;
    const HFRecHitCollection*  HFRecHits = 0;
 
-   try {
-     e->getByLabel( HFrechitCollection_.label(), pHFRecHits);
+   if( e->getByLabel( HFrechitCollection_.label(), pHFRecHits) ) {
      HFRecHits = pHFRecHits.product(); // get a ptr to the product
 #ifdef DEBUG
      LogDebug("DataMixingHcalWorker") << "total # HF rechits: " << HFRecHits->size();
 #endif
-   } catch (...) {
-   }
+   } 
+   
  
    if (HFRecHits)
      {
@@ -301,14 +292,13 @@ namespace edm
    Handle< ZDCRecHitCollection > pZDCRecHits;
    const ZDCRecHitCollection*  ZDCRecHits = 0;
 
-   try {
-     e->getByLabel( ZDCrechitCollection_.label(), pZDCRecHits);
+   if( e->getByLabel( ZDCrechitCollection_.label(), pZDCRecHits) ) {
      ZDCRecHits = pZDCRecHits.product(); // get a ptr to the product
 #ifdef DEBUG
      LogDebug("DataMixingHcalWorker") << "total # ZDC rechits: " << ZDCRecHits->size();
 #endif
-   } catch (...) {
-   }
+   } 
+   
  
    if (ZDCRecHits)
      {
@@ -375,7 +365,7 @@ namespace edm
 	  nmatch=0;	  
 	}
 	else {
-	  HBHErechits->push_back( OldHit );
+	  if(formerID>0) HBHErechits->push_back( OldHit );
 	}
 	
 	iHBchk = iHB;
@@ -429,7 +419,7 @@ namespace edm
 	  nmatch=0;	  
 	}
 	else {
-	  HOrechits->push_back( HOOldHit );
+	  if(formerID>0) HOrechits->push_back( HOOldHit );
 	}
 	
 	iHOchk = iHO;
@@ -483,7 +473,7 @@ namespace edm
 	  nmatch=0;	  
 	}
 	else {
-	  HFrechits->push_back( HFOldHit );
+	  if(formerID>0) HFrechits->push_back( HFOldHit );
 	}
 	
 	iHFchk = iHF;
@@ -537,7 +527,7 @@ namespace edm
 	  nmatch=0;	  
 	}
 	else {
-	  ZDCrechits->push_back( ZOldHit );
+	  if(formerID>0) ZDCrechits->push_back( ZOldHit );
 	}
 	
 	iZDCchk = iZDC;

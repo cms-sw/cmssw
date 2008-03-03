@@ -84,12 +84,11 @@ namespace edm
 
    const EBRecHitCollection*  EBRecHits = 0;
 
-   try {
-     e.getByLabel(EBProducer_.label(),EBrechitCollection_.label(), pEBRecHits);
+   if(e.getByLabel(EBProducer_.label(),EBrechitCollection_.label(), pEBRecHits) ){
      EBRecHits = pEBRecHits.product(); // get a ptr to the product
-     LogInfo("DataMixingEMWorker") << "total # EB rechits: " << EBRecHits->size();
-   } catch (...) {
+     LogDebug("DataMixingEMWorker") << "total # EB rechits: " << EBRecHits->size();
    }
+   
  
    if (EBRecHits)
      {
@@ -112,14 +111,12 @@ namespace edm
 
    const EERecHitCollection*  EERecHits = 0;
 
-   try {
-     e.getByLabel(EEProducer_.label(),EErechitCollection_.label(), pEERecHits);
+   
+   if(e.getByLabel(EEProducer_.label(),EErechitCollection_.label(), pEERecHits) ){
      EERecHits = pEERecHits.product(); // get a ptr to the product
-#ifdef DEBUG
      LogDebug("DataMixingEMWorker") << "total # EE rechits: " << EERecHits->size();
-#endif
-   } catch (...) {
-   }
+   } 
+   
  
    if (EERecHits)
      {
@@ -128,9 +125,8 @@ namespace edm
 	   it != EERecHits->end(); ++it) {
 
 	 EERecHitStorage_.insert(EERecHitMap::value_type( ( it->id() ), *it ));
-	 
 #ifdef DEBUG	 
-         LogDebug("DataMixingEMWorker") << "processed EERecHit with rawId: "
+	 LogDebug("DataMixingEMWorker") << "processed EERecHit with rawId: "
 				      << it->id().rawId() << "\n"
 				      << " rechit energy: " << it->energy();
 #endif
@@ -143,14 +139,14 @@ namespace edm
 
    const ESRecHitCollection*  ESRecHits = 0;
 
-   try {
-     e.getByLabel( ESProducer_.label(),ESrechitCollection_.label(), pESRecHits);
+   
+   if(e.getByLabel( ESProducer_.label(),ESrechitCollection_.label(), pESRecHits) ){
      ESRecHits = pESRecHits.product(); // get a ptr to the product
 #ifdef DEBUG
      LogDebug("DataMixingEMWorker") << "total # ES rechits: " << ESRecHits->size();
 #endif
-   } catch (...) {
-   }
+   } 
+   
  
    if (ESRecHits)
      {
@@ -182,14 +178,14 @@ namespace edm
    Handle< EBRecHitCollection > pEBRecHits;
    const EBRecHitCollection*  EBRecHits = 0;
 
-   try {
-     e->getByLabel(EBProducer_.label(),EBrechitCollection_.label(), pEBRecHits);
+  
+   if( e->getByLabel(EBProducer_.label(),EBrechitCollection_.label(), pEBRecHits) ){
      EBRecHits = pEBRecHits.product(); // get a ptr to the product
 #ifdef DEBUG
      LogDebug("DataMixingEMWorker") << "total # EB rechits: " << EBRecHits->size();
 #endif
-   } catch (...) {
-   }
+   } 
+   
  
    if (EBRecHits)
      {
@@ -211,14 +207,14 @@ namespace edm
    Handle< EERecHitCollection > pEERecHits;
    const EERecHitCollection*  EERecHits = 0;
 
-   try {
-     e->getByLabel( EEProducer_.label(),EErechitCollection_.label(), pEERecHits);
+   
+   if( e->getByLabel( EEProducer_.label(),EErechitCollection_.label(), pEERecHits) ){
      EERecHits = pEERecHits.product(); // get a ptr to the product
 #ifdef DEBUG
      LogDebug("DataMixingEMWorker") << "total # EE rechits: " << EERecHits->size();
 #endif
-   } catch (...) {
    }
+   
  
    if (EERecHits)
      {
@@ -240,14 +236,14 @@ namespace edm
    Handle< ESRecHitCollection > pESRecHits;
    const ESRecHitCollection*  ESRecHits = 0;
 
-   try {
-     e->getByLabel( ESProducer_.label(),ESrechitCollection_.label(), pESRecHits);
+   
+   if( e->getByLabel( ESProducer_.label(),ESrechitCollection_.label(), pESRecHits) ){
      ESRecHits = pESRecHits.product(); // get a ptr to the product
 #ifdef DEBUG
      LogDebug("DataMixingEMWorker") << "total # ES rechits: " << ESRecHits->size();
 #endif
-   } catch (...) {
-   }
+   } 
+   
  
    if (ESRecHits)
      {
@@ -313,7 +309,7 @@ namespace edm
 	  nmatch=0;	  
 	}
 	else {
-	  EBrechits->push_back( OldHit );
+	  if(formerID>0) EBrechits->push_back( OldHit );
 	}
 	
 	iEBchk = iEB;
@@ -367,7 +363,7 @@ namespace edm
 	  nmatch=0;	  
 	}
 	else {
-	  EErechits->push_back( OldHit );
+	  if(formerID>0) EErechits->push_back( OldHit );
 	}
 	
 	iEEchk = iEE;
@@ -420,7 +416,7 @@ namespace edm
 	  nmatch=0;	  
 	}
 	else {
-	  ESrechits->push_back( OldHit );
+	  if(formerID>0) ESrechits->push_back( OldHit );
 	}
 	
 	iESchk = iES;
