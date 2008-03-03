@@ -12,24 +12,29 @@
  *   
  * \author: Vasile Mihai Ghete - HEPHY Vienna
  * 
- * $Date:$
- * $Revision:$
+ * $Date$
+ * $Revision$
  *
  */
 
 // system include files
+#include "boost/mpl/vector.hpp"
 
 // user include files
-#include "FWCore/Framework/interface/EventSetupRecordImplementation.h"
+//#include "FWCore/Framework/interface/EventSetupRecordImplementation.h"
+#include "FWCore/Framework/interface/DependentRecordImplementation.h"
+#include "CondFormats/DataRecord/interface/L1TriggerKeyListRcd.h"
+#include "CondFormats/DataRecord/interface/L1TriggerKeyRcd.h"
 
 // forward declarations
 
 // class declaration
-class L1GtParametersRcd : public edm::eventsetup::EventSetupRecordImplementation<L1GtParametersRcd>
-{
+// class L1GtParametersRcd : public edm::eventsetup::EventSetupRecordImplementation<L1GtParametersRcd>
+// {
 
-    // empty
+//     // empty
 
-};
+// };
+class L1GtParametersRcd : public edm::eventsetup::DependentRecordImplementation<L1GtParametersRcd, boost::mpl::vector<L1TriggerKeyListRcd,L1TriggerKeyRcd> > {};
 
 #endif

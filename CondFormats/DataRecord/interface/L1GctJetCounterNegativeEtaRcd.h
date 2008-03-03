@@ -16,11 +16,17 @@
 //
 // Author:      
 // Created:     Tue Jul 10 10:14:03 CEST 2007
-// $Id: L1GctJetFinderParamsRcd.h,v 1.1 2007/07/10 11:42:55 heath Exp $
+// $Id: L1GctJetCounterNegativeEtaRcd.h,v 1.1 2007/09/17 11:22:33 heath Exp $
 //
 
-#include "FWCore/Framework/interface/EventSetupRecordImplementation.h"
+#include "boost/mpl/vector.hpp"
 
-class L1GctJetCounterNegativeEtaRcd : public edm::eventsetup::EventSetupRecordImplementation<L1GctJetCounterNegativeEtaRcd> {};
+//#include "FWCore/Framework/interface/EventSetupRecordImplementation.h"
+#include "FWCore/Framework/interface/DependentRecordImplementation.h"
+#include "CondFormats/DataRecord/interface/L1TriggerKeyListRcd.h"
+#include "CondFormats/DataRecord/interface/L1TriggerKeyRcd.h"
+
+//class L1GctJetCounterNegativeEtaRcd : public edm::eventsetup::EventSetupRecordImplementation<L1GctJetCounterNegativeEtaRcd> {};
+class L1GctJetCounterNegativeEtaRcd : public edm::eventsetup::DependentRecordImplementation<L1GctJetCounterNegativeEtaRcd, boost::mpl::vector<L1TriggerKeyListRcd,L1TriggerKeyRcd> > {};
 
 #endif

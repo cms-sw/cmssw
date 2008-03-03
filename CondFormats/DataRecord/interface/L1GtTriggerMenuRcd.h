@@ -23,12 +23,14 @@
 // user include files
 #include "FWCore/Framework/interface/DependentRecordImplementation.h"
 #include "CondFormats/DataRecord/interface/L1GtStableParametersRcd.h"
+#include "CondFormats/DataRecord/interface/L1TriggerKeyListRcd.h"
+#include "CondFormats/DataRecord/interface/L1TriggerKeyRcd.h"
 
 // forward declarations
 
 // class declaration - record depends on L1GtStableParametersRcd
 class L1GtTriggerMenuRcd : public edm::eventsetup::DependentRecordImplementation<
-            L1GtTriggerMenuRcd, boost::mpl::vector<L1GtStableParametersRcd> >
+            L1GtTriggerMenuRcd, boost::mpl::vector<L1GtStableParametersRcd,L1TriggerKeyListRcd,L1TriggerKeyRcd> >
 {
 
     // empty

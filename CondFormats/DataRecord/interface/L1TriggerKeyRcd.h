@@ -16,11 +16,17 @@
 //
 // Author:      Giedrius Bacevicius
 // Created:     Tue Jul 17 19:15:08 CEST 2007
-// $Id$
+// $Id: L1TriggerKeyRcd.h,v 1.1 2007/08/22 14:20:13 jbrooke Exp $
 //
 
-#include "FWCore/Framework/interface/EventSetupRecordImplementation.h"
+#include "boost/mpl/vector.hpp"
 
-class L1TriggerKeyRcd : public edm::eventsetup::EventSetupRecordImplementation<L1TriggerKeyRcd> {};
+//#include "FWCore/Framework/interface/EventSetupRecordImplementation.h"
+#include "FWCore/Framework/interface/DependentRecordImplementation.h"
+#include "CondFormats/DataRecord/interface/L1TriggerKeyListRcd.h"
+
+//class L1TriggerKeyRcd : public edm::eventsetup::EventSetupRecordImplementation<L1TriggerKeyRcd> {};
+
+class L1TriggerKeyRcd : public edm::eventsetup::DependentRecordImplementation<L1TriggerKeyRcd, boost::mpl::vector<L1TriggerKeyListRcd> > {};
 
 #endif
