@@ -7,5 +7,6 @@
   <class name="SimpleL3AbsoluteCorrector"/>
   <class name="SimpleL4EMFCorrector"/>
   <class name="SimpleL5FlavorCorrector"/>
+  <class name="SimpleL7PartonCorrector"/>
 </selection>
 </lcgdict>
