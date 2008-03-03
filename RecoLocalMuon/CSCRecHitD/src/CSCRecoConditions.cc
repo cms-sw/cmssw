@@ -1,7 +1,7 @@
 #include <RecoLocalMuon/CSCRecHitD/src/CSCRecoConditions.h>
 #include <iostream>
 
-CSCRecoConditions::CSCRecoConditions( const edm::ParameterSet & ps ) {
+CSCRecoConditions::CSCRecoConditions( const edm::ParameterSet & ps ) : theConditions( ps ) {
 }
 
 CSCRecoConditions::~CSCRecoConditions() {
