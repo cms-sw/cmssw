@@ -1,6 +1,6 @@
 /** \class HLTElectronDetaDphiFilter
  *
- * $Id: HLTElectronDetaDphiFilter.cc,v 1.4 2007/12/07 09:32:56 ghezzi Exp $ 
+ * $Id: HLTElectronDetaDphiFilter.cc,v 1.1 2008/03/03 12:51:39 ghezzi Exp $ 
  *
  *  \author Alessio Ghezzi (Milano-Bicocca & CERN)
  *
@@ -66,8 +66,11 @@ HLTElectronDetaDphiFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSe
     reco::ElectronRef eleref = elecands[i];
     const reco::SuperClusterRef theClus = eleref->superCluster();
     const math::XYZVector trackMom =  eleref->track()->momentum();
+    float deltaphi=fabs(trackMom.phi()-theClus->phi());
+    if(deltaphi>6.283185308) deltaphi-=6.283185308;
+    if(deltaphi>3.141592654) deltaphi=6.283185308-deltaphi;
 
-    if( fabs(trackMom.eta()-theClus->eta()) < DeltaEtacut_  &&  fabs(trackMom.phi()-theClus->phi()) < DeltaPhicut_ ){
+    if( fabs(trackMom.eta()-theClus->eta()) < DeltaEtacut_  &&   deltaphi < DeltaPhicut_ ){
       n++;
       filterproduct->addObject(TriggerElectron, eleref);
     }
