@@ -35,6 +35,8 @@ DEFINE_JET_CORRECTION_SERVICE (L3AbsoluteCorrector, L3AbsoluteCorrectionService)
 DEFINE_JET_CORRECTION_SERVICE (L4EMFCorrector, L4EMFCorrectionService);
 #include "JetMETCorrections/Algorithms/interface/L5FlavorCorrector.h"
 DEFINE_JET_CORRECTION_SERVICE (L5FlavorCorrector, L5FlavorCorrectionService);
+#include "JetMETCorrections/Algorithms/interface/L7PartonCorrector.h"
+DEFINE_JET_CORRECTION_SERVICE (L7PartonCorrector, L7PartonCorrectionService);
 #include "JetMETCorrections/Algorithms/interface/JetPlusTrackCorrector.h"
 DEFINE_JET_CORRECTION_SERVICE (JetPlusTrackCorrector, JetPlusTrackCorrectionService);
 
