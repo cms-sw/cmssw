@@ -17,6 +17,7 @@
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 
 #include "RecoCaloTools/MetaCollections/interface/CaloRecHitMetaCollections.h"
+#include "RecoEgamma/EgammaTools/interface/HoECalculator.h"
  
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/Common/interface/EDProduct.h"
@@ -54,9 +55,9 @@ class ElectronPixelSeedProducer : public edm::EDProducer
   const CaloSubdetectorGeometry *subDetGeometry_; 
   const HBHERecHitCollection* hithbhe_;
 
-  // cuts for the filter
-  // cone size for H/E
-  double hOverEConeSize_; 
+  //for the filter
+  HoECalculator calc_;
+
   // maximum H/E where H is the Hcal energy inside the cone centered on the seed cluster eta-phi position 
   double maxHOverE_; 
   double SCEtCut_;

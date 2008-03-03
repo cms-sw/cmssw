@@ -12,7 +12,7 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Thu july 6 13:22:06 CEST 2006
-// $Id: GsfElectronAlgo.cc,v 1.10 2008/02/29 13:01:54 uberthon Exp $
+// $Id: GsfElectronAlgo.cc,v 1.11 2008/02/29 17:50:53 uberthon Exp $
 //
 //
 
@@ -23,6 +23,7 @@
 #include "RecoEgamma/EgammaElectronAlgos/interface/ElectronMomentumCorrector.h"
 #include "RecoEgamma/EgammaElectronAlgos/interface/ElectronEnergyCorrector.h"
 #include "RecoEgamma/EgammaTools/interface/ECALPositionCalculator.h"
+#include "RecoEgamma/EgammaTools/interface/HoECalculator.h"
 
 #include "DataFormats/EgammaReco/interface/BasicCluster.h"
 #include "DataFormats/EgammaReco/interface/ClusterShape.h"
@@ -151,6 +152,12 @@ void  GsfElectronAlgo::run(Event& e, GsfElectronCollection & outEle) {
   e.getByLabel(assBarrelShapeLabel_,assBarrelShapeInstanceName_,barrelShapeAssocH);
   e.getByLabel(assEndcapShapeLabel_,assEndcapShapeInstanceName_,endcapShapeAssocH);
 
+  // for HoE calculation
+  edm::Handle<HBHERecHitCollection> hbhe;
+  mhbhe_=0;
+  bool got = e.getByLabel(hbheLabel_,hbheInstanceName_,hbhe);  
+  if (got) mhbhe_=  new HBHERecHitMetaCollection(*hbhe);
+
   //Getting the beamspot from the Event:
   edm::Handle<reco::BeamSpot> recoBeamSpotHandle;
   e.getByType(recoBeamSpotHandle);
@@ -188,6 +195,8 @@ void  GsfElectronAlgo::run(Event& e, GsfElectronCollection & outEle) {
  
   str << "=================================================";
   LogDebug("GsfElectronAlgo") << str.str();
+
+  delete mhbhe_;
   return;
 }
 
@@ -334,7 +343,10 @@ void GsfElectronAlgo::createElectron(const SuperClusterRef & scRef,const GsfTrac
 								 vtxMom_.y()*scale,
 								 vtxMom_.z()*scale,
 								 (*scRef).energy());
-     GsfElectron ele(momentum,scRef,seedShapeRef,trackRef,sclPos_,sclMom,seedPos,seedMom,innPos,innMom,vtxPos,vtxMom_,outPos,outMom,HoE_);
+      // should be coming from supercluster!
+     HoECalculator calc(theCaloGeom);
+     double HoE=calc(&(*scRef),mhbhe_);
+     GsfElectron ele(momentum,scRef,seedShapeRef,trackRef,sclPos_,sclMom,seedPos,seedMom,innPos,innMom,vtxPos,vtxMom_,outPos,outMom,HoE);
 
       //and set various properties
       ECALPositionCalculator ecpc;
@@ -344,7 +356,7 @@ void GsfElectronAlgo::createElectron(const SuperClusterRef & scRef,const GsfTrac
       ele.setDeltaEtaSuperClusterAtVtx((*scRef).position().eta() - trackEta);
       float dphi = (*scRef).position().phi() - trackPhi;
       if (fabs(dphi)>CLHEP::pi)
-	dphi = dphi < 0? CLHEP::pi2 + dphi : dphi - CLHEP::pi2;
+	dphi = dphi < 0? CLHEP::twopi + dphi : dphi - CLHEP::twopi;
       ele.setDeltaPhiSuperClusterAtVtx(dphi);
 
       // set corrections + classification

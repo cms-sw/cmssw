@@ -25,6 +25,7 @@
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "TrackingTools/MaterialEffects/interface/PropagatorWithMaterial.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
+#include "RecoCaloTools/MetaCollections/interface/CaloRecHitMetaCollections.h"
 
 #include "RecoTracker/MeasurementDet/interface/MeasurementTracker.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
@@ -126,13 +127,13 @@ public:
   int subdet_; //subdetector for this cluster
   GlobalPoint sclPos_;
   GlobalVector vtxMom_;
-  double HoE_;
   TrajectoryStateOnSurface innTSOS_;
   TrajectoryStateOnSurface outTSOS_;
   TrajectoryStateOnSurface vtxTSOS_;
   TrajectoryStateOnSurface sclTSOS_;
   TrajectoryStateOnSurface seedTSOS_;
 
+  HBHERecHitMetaCollection *mhbhe_;
   unsigned int processType_;
 };
 

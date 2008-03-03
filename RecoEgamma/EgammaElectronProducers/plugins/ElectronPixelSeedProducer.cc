@@ -13,7 +13,7 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: ElectronPixelSeedProducer.cc,v 1.15 2008/02/29 12:50:48 uberthon Exp $
+// $Id: ElectronPixelSeedProducer.cc,v 1.16 2008/02/29 16:51:22 uberthon Exp $
 //
 //
 
@@ -47,7 +47,6 @@ ElectronPixelSeedProducer::ElectronPixelSeedProducer(const edm::ParameterSet& iC
   edm::ParameterSet pset = iConfig.getParameter<edm::ParameterSet>("SeedConfiguration");
   SCEtCut_=pset.getParameter<double>("SCEtCut");
   maxHOverE_=pset.getParameter<double>("maxHOverE");
-  hOverEConeSize_=pset.getParameter<double>("hOverEConeSize");
 
   if (algo_=="FilteredSeed") 
     matcher_= new SubSeedGenerator(pset);
@@ -86,15 +85,14 @@ void ElectronPixelSeedProducer::produce(edm::Event& e, const edm::EventSetup& iS
   // get calo geometry //FIXME: cacheId
   edm::ESHandle<CaloGeometry>                 theCaloGeom;
   iSetup.get<IdealGeometryRecord>().get(theCaloGeom);
+  calc_=HoECalculator(theCaloGeom);
   subDetGeometry_= theCaloGeom->getSubdetectorGeometry (DetId::Hcal,4) ;
 
   // to check existence
   edm::Handle<HBHERecHitCollection> hbhe;
   HBHERecHitMetaCollection *mhbhe=0;
-  if (hOverEConeSize_ > 0.) {
-    e.getByLabel(hbheLabel_,hbheInstanceName_,hbhe);  
-    mhbhe=  new HBHERecHitMetaCollection(*hbhe);
-  }
+  bool got =    e.getByLabel(hbheLabel_,hbheInstanceName_,hbhe);  
+  if (got) mhbhe=  new HBHERecHitMetaCollection(*hbhe);
 
   ElectronPixelSeedCollection *seeds= new ElectronPixelSeedCollection;
   std::auto_ptr<ElectronPixelSeedCollection> pSeeds;
@@ -133,18 +131,7 @@ void ElectronPixelSeedProducer::filterClusters(const edm::Handle<reco::SuperClus
 
     if (scl.energy()/cosh(scl.eta())>SCEtCut_) {
 
-      // will use HoECalculator when available
-      double HoE;
-      if (mhbhe) {
-
-	GlobalPoint pclu(scl.x(),scl.y(),scl.z());
-	HcalDetId dB= subDetGeometry_->getClosestCell(pclu);
-	CaloRecHitMetaCollectionV::const_iterator i=mhbhe->find(dB);
-
-	HoE =  i->energy()/scl.energy();
-      } else HoE=0;
-      LogDebug("ElectronPixelSeedProducer") << "H/E : " << HoE;
-
+      double HoE=calc_(&scl,mhbhe);
       if (HoE <= maxHOverE_) {
 	sclRefs.push_back(edm::Ref<reco::SuperClusterCollection> (superClusters,i));
       }
