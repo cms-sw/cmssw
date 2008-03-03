@@ -13,7 +13,7 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: ElectronPixelSeedProducer.cc,v 1.16 2008/02/29 16:51:22 uberthon Exp $
+// $Id: ElectronPixelSeedProducer.cc,v 1.17 2008/03/03 15:37:33 uberthon Exp $
 //
 //
 
@@ -99,7 +99,7 @@ void ElectronPixelSeedProducer::produce(edm::Event& e, const edm::EventSetup& iS
  
   // loop over barrel + endcap
   for (unsigned int i=0; i<2; i++) {  
-    // invoke algorithm
+   // invoke algorithm
     edm::Handle<SuperClusterCollection> clusters;
     if (e.getByLabel(label_[i],instanceName_[i],clusters))   {
       if (algo_=="") {
@@ -119,7 +119,7 @@ void ElectronPixelSeedProducer::produce(edm::Event& e, const edm::EventSetup& iS
   }
   e.put(pSeeds);
   delete mhbhe;
-}
+ }
 
 void ElectronPixelSeedProducer::filterClusters(const edm::Handle<reco::SuperClusterCollection> &superClusters,HBHERecHitMetaCollection*mhbhe, SuperClusterRefVector &sclRefs) {
 
