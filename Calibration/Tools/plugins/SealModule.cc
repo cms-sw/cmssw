@@ -13,7 +13,7 @@
 #include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
 #include "PhysicsTools/RecoAlgos/interface/GsfElectronSelector.h"
 
-#include "Calibration/Tools/plugins/SelectorWithEventSetup.h"
+//#include "Calibration/Tools/plugins/SelectorWithEventSetup.h"
 
 DEFINE_SEAL_MODULE();
 
