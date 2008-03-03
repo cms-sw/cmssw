@@ -88,8 +88,9 @@ private:
   mutable float theAverageGain; // average over entire system, subject to some constraints!
 
   edm::ESWatcher<CSCDBGainsRcd> gainsWatcher_; 
-  edm::ESWatcher<CSCBadStripsRcd> badStripsWatcher_; 
-  edm::ESWatcher<CSCBadWiresRcd> badWiresWatcher_; 
+  //@@ remove until we have real information to use
+  //  edm::ESWatcher<CSCBadStripsRcd> badStripsWatcher_; 
+  //  edm::ESWatcher<CSCBadWiresRcd> badWiresWatcher_; 
 };
 
 #endif

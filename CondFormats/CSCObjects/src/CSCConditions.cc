@@ -21,6 +21,9 @@ CSCConditions::CSCConditions( const edm::ParameterSet& ps )
   theAverageGain( -1.0 )
 {
   readBadChannels_ = ps.getParameter<bool>("readBadChannels");
+  // initialize #layers = 2808
+  badStripWords.resize( 2808, 0 );
+  badWireWords.resize( 2808, 0 );
 }
 
 
@@ -57,30 +60,35 @@ void CSCConditions::initializeEvent(const edm::EventSetup & es)
     edm::ESHandle<CSCBadWires> hBadW;
     es.get<CSCBadWiresRcd>().get( hBadW );
     theBadWires = hBadW.product();
+
+    //@@    if( badStripsWatcher_.check( es ) ) { 
+      fillBadStripWords();
+    //@@    }
+    //@@    if( badWiresWatcher_.check( es ) ) { 
+      fillBadWireWords();
+    //@    }
+
   }
 
   // Has GainsRcd changed?
   if( gainsWatcher_.check( es ) ) { // Yes...
     theAverageGain = -1.0; // ...reset, so next access will recalculate it
   }
-  if( badStripsWatcher_.check( es ) ) { 
-    fillBadStripWords();
-  }
-  if( badWiresWatcher_.check( es ) ) { 
-    fillBadWireWords();
-  }
+
 
 //  print();
 }
 
 void CSCConditions::fillBadStripWords(){
-  badStripWords.resize( 2808, 0 );
+  // reset existing values
+  badStripWords.assign( 2808, 0 );
   if ( readBadChannels() ) {
     // unpack what we've read from theBadStrips
   } 
 }
 void CSCConditions::fillBadWireWords(){
-  badWireWords.resize( 2808, 0 );
+  // reset existing values
+  badWireWords.assign( 2808, 0 );
   if ( readBadChannels() ) {
     // unpack what we've read from theBadWires
   } 
