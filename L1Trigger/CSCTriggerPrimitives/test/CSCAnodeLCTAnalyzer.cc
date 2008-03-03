@@ -4,8 +4,8 @@
  * Slava Valuev  May 26, 2004.
  * Porting from ORCA by S. Valuev in September 2006.
  *
- * $Date: 2007/08/17 16:17:28 $
- * $Revision: 1.6 $
+ * $Date: 2007/10/08 14:30:03 $
+ * $Revision: 1.7 $
  *
  */
 
@@ -26,7 +26,7 @@ using namespace std;
 //-----------------
 
 bool CSCAnodeLCTAnalyzer::debug = true;
-bool CSCAnodeLCTAnalyzer::isMTCCMask = false;
+bool CSCAnodeLCTAnalyzer::isMTCCMask = true;
 
 vector<CSCAnodeLayerInfo> CSCAnodeLCTAnalyzer::getSimInfo(
       const CSCALCTDigi& alct, const CSCDetId& alctId,

@@ -7,8 +7,8 @@
 //
 //   Author List: S. Valuev, UCLA.
 //
-//   $Date: 2007/12/31 11:58:49 $
-//   $Revision: 1.18 $
+//   $Date: 2008/02/25 21:33:26 $
+//   $Revision: 1.19 $
 //
 //   Modifications:
 //
@@ -94,7 +94,7 @@ CSCTriggerPrimitivesReader::CSCTriggerPrimitivesReader(const edm::ParameterSet& 
   dataLctsIn_ = conf.getParameter<bool>("dataLctsIn");
   emulLctsIn_ = conf.getParameter<bool>("emulLctsIn");
   isMTCCData_ = conf.getParameter<bool>("isMTCCData");
-  isTMB07 = false;
+  isTMB07 = true;
   lctProducerData_ = conf.getUntrackedParameter<string>("CSCLCTProducerData",
 							"cscunpacker");
   lctProducerEmul_ = conf.getUntrackedParameter<string>("CSCLCTProducerEmul",
