@@ -1,3 +1,8 @@
+2008-03-03  Harry Cheung <cheung@fnal.gov>
+
+	* tag V01-06-01
+	* Enabled consumers to select an SM stream by the SM streamLabel
+
 2008-02-11  Harry Cheung <cheung@fnal.gov>
 
 	* tag V01-06-00
