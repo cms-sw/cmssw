@@ -176,7 +176,6 @@ void SiStripRecHitConverterAlgorithm::run(edm::Handle<edm::SiStripRefGetter<SiSt
 void SiStripRecHitConverterAlgorithm::match(SiStripMatchedRecHit2DCollection & outmatched,SiStripRecHit2DCollection & outrphi, SiStripRecHit2DCollection & outstereo,const TrackerGeometry& tracker, const SiStripRecHitMatcher & matcher,LocalVector trackdirection) const {
   
   int nmatch=0;
-  int nunmatch=0;
   
   const std::vector<DetId> rphidetIDs = outrphi.ids();
   const std::vector<DetId> stereodetIDs = outstereo.ids();
@@ -198,28 +197,26 @@ void SiStripRecHitConverterAlgorithm::match(SiStripMatchedRecHit2DCollection & o
       std::vector<DetId>::const_iterator partnerdetiter=std::find(stereodetIDs.begin(),stereodetIDs.end(),theId);
       if(partnerdetiter==stereodetIDs.end()) id=0;	
       
-      const SiStripRecHit2DCollection::range rhpartnerRange = outstereo.get(theId);
-      SiStripRecHit2DCollection::const_iterator rhpartnerRangeIteratorBegin = rhpartnerRange.first;
-      SiStripRecHit2DCollection::const_iterator rhpartnerRangeIteratorEnd   = rhpartnerRange.second;
-      
       if (id>0){ //if the detector has a stereo det associated and at least an hit in the stereo detector
 	
+	const SiStripRecHit2DCollection::range rhpartnerRange = outstereo.get(theId);
+	SiStripRecHit2DCollection::const_iterator rhpartnerRangeIteratorBegin = rhpartnerRange.first;
+	SiStripRecHit2DCollection::const_iterator rhpartnerRangeIteratorEnd   = rhpartnerRange.second;
+      
 	const GluedGeomDet* gluedDet = (const GluedGeomDet*)tracker.idToDet(DetId(specDetId.glued()));
-	
+	SiStripRecHitMatcher::SimpleHitCollection stereoHits;
+	stereoHits.reserve(rhpartnerRangeIteratorEnd-rhpartnerRangeIteratorBegin);
+
+	for (SiStripRecHit2DCollection::const_iterator i=rhpartnerRangeIteratorBegin; i != rhpartnerRangeIteratorEnd; ++i) {
+	  stereoHits.push_back( &(*i)); // convert to simple pointer
+	}
 	// perform the matchin looping over the hit on the stereo dets
-	collectorMatchedSingleHit=matcher.match(&(*iter),rhpartnerRangeIteratorBegin,rhpartnerRangeIteratorEnd,gluedDet,trackdirection);
+	matcher.match(&(*iter),stereoHits.begin(),stereoHits.end(),collectorMatched,gluedDet,trackdirection);
 	
-	if (collectorMatchedSingleHit.size() > 0) { //if a matched is found add the hit to the temporary collection
-	  nmatch++;
-	  for (edm::OwnVector<SiStripMatchedRecHit2D>::iterator itt = collectorMatchedSingleHit.begin();  itt != collectorMatchedSingleHit.end() ; itt++)
-	    collectorMatched.push_back(new SiStripMatchedRecHit2D(*itt));
-	}
-	else{
-	  nunmatch++;
-	}
       }
     }
     if (collectorMatched.size()>0){
+      nmatch+=collectorMatched.size();
       StripSubdetector stripDetId(*detunit_iterator);
       outmatched.put(DetId(stripDetId.glued()),collectorMatched.begin(),collectorMatched.end());
     }
@@ -228,7 +225,5 @@ void SiStripRecHitConverterAlgorithm::match(SiStripMatchedRecHit2DCollection & o
   edm::LogInfo("SiStripRecHitConverter") 
     << "found\n"	 
     << nmatch 
-    << "  matched RecHit\n"
-    << nunmatch 
-    << "  unmatched clusters";
+    << "  matched RecHits\n";
 }
