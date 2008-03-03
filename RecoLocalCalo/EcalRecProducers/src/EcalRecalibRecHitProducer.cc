@@ -1,9 +1,9 @@
 /** \class EcalRecalibRecHitProducer
  *   produce ECAL rechits from uncalibrated rechits
  *
- *  $Id: EcalRecalibRecHitProducer.cc,v 1.14 2007/09/27 10:14:21 ferriff Exp $
- *  $Date: 2007/09/27 10:14:21 $
- *  $Revision: 1.14 $
+ *  $Id: EcalRecalibRecHitProducer.cc,v 1.1 2008/03/03 17:37:27 ferriff Exp $
+ *  $Date: 2008/03/03 17:37:27 $
+ *  $Revision: 1.1 $
  *  \author Shahram Rahatlou, University of Rome & INFN, March 2006
  *
  **/
@@ -135,7 +135,7 @@ void EcalRecalibRecHitProducer::produce(edm::Event& evt, const edm::EventSetup& 
                         // get laser coefficient
                         float lasercalib = 1;
                         if (doLaserCorrections_) {
-                                pLaser->getLaserCorrection( EBDetId(it->id()), evt.time() );
+                                lasercalib = pLaser->getLaserCorrection( EBDetId(it->id()), evt.time() );
                         }
 
                         // make the rechit and put in the output collection
@@ -165,7 +165,7 @@ void EcalRecalibRecHitProducer::produce(edm::Event& evt, const edm::EventSetup& 
                         // get laser coefficient
                         float lasercalib = 1;
                         if (doLaserCorrections_) {
-                                pLaser->getLaserCorrection( EEDetId(it->id()), evt.time() );
+                                lasercalib = pLaser->getLaserCorrection( EEDetId(it->id()), evt.time() );
                         }
 
                         // make the rechit and put in the output collection
