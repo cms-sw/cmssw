@@ -19,7 +19,7 @@
 
 #include "HLTrigger/Egamma/interface/HLTEgammaDoubleEtPhiFilter.h"
 #include "HLTrigger/Egamma/interface/HLTElectronOneOEMinusOneOPFilterRegional.h"
-
+#include "HLTrigger/Egamma/interface/HLTElectronDetaDphiFilter.h"
 DEFINE_SEAL_MODULE();
 DEFINE_ANOTHER_FWK_MODULE(HLTEgammaEtFilter);
 DEFINE_ANOTHER_FWK_MODULE(HLTEgammaDoubleEtFilter);
@@ -40,3 +40,4 @@ DEFINE_ANOTHER_FWK_MODULE(HLTElectronTrackIsolFilterRegional);
 DEFINE_ANOTHER_FWK_MODULE(HLTEgammaDoubleEtPhiFilter);
 
 DEFINE_ANOTHER_FWK_MODULE(HLTElectronOneOEMinusOneOPFilterRegional);
+DEFINE_ANOTHER_FWK_MODULE(HLTElectronDetaDphiFilter);
