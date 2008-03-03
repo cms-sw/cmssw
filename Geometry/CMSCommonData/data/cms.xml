@@ -60,7 +60,7 @@
  <Constant name="ForwdVcalZ1"  value="11.1495*m"/>
  <Constant name="ForwdVcalZ2"  value="12.8005*m"/>
  <Constant name="ForwdVcalR1"  value="1.595*m"/>
- <Constant name="ForwdDetsZ1"  value="16.0015*m"/>
+ <Constant name="ForwdDetsZ1"  value="16.0065*m"/>
  <Constant name="ForwdDetsR1"  value="33.00*cm"/>
  <Constant name="MBarRmin"     value="3.80*m"/>
  <Constant name="MBarRmax"     value="8.05*m"/>
