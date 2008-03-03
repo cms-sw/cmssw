@@ -94,103 +94,103 @@ void TrackProducerWithSCAssociation::produce(edm::Event& theEvent, const edm::Ev
   AlgoProductCollection algoResults;
   reco::BeamSpot bs;
   
-  try{  
-    getFromEvt(theEvent,theTCCollection,bs);  
   
-    
+  getFromEvt(theEvent,theTCCollection,bs);  
+  
+  if (theTCCollection.failedToGet()){
+    edm::LogError("TrackProducerWithSCAssociation")  <<"TrackProducerWithSCAssociation could not get the TrackCandidateCollection.";} 
+  else{
     //
     //run the algorithm  
     //
-   LogDebug("TrackProducerWithSCAssociation") << "TrackProducerWithSCAssociation run the algorithm" << "\n";
+    LogDebug("TrackProducerWithSCAssociation") << "TrackProducerWithSCAssociation run the algorithm" << "\n";
     //    theAlgo.runWithCandidate(theG.product(), theMF.product(), *theTCCollection, 
     //			     theFitter.product(), thePropagator.product(), theBuilder.product(), algoResults);
     // we have to copy this method from the algo in order to get the association track-seed
     // this is ugly temporary code that should be replaced!!!!!
     // start of copied code ======================================================
-    edm::LogInfo("TrackProducerWithSCAssociation") << "Number of TrackCandidates: " << theTCCollection->size() << "\n";
-    
-    int cont = 0;
-    int tcc=0;
-    for (TrackCandidateCollection::const_iterator i=theTCCollection->begin(); i!=theTCCollection->end();i++)
-      {
-	
-	const TrackCandidate * theTC = &(*i);
-	PTrajectoryStateOnDet state = theTC->trajectoryStateOnDet();
-	const TrackCandidate::range& recHitVec=theTC->recHits();
-	const TrajectorySeed& seed = theTC->seed();
-	
-	//convert PTrajectoryStateOnDet to TrajectoryStateOnSurface
-	TrajectoryStateTransform transformer;
-	
-	DetId  detId(state.detId());
-	TrajectoryStateOnSurface theTSOS = transformer.transientState( state,
-								       &(theG.product()->idToDet(detId)->surface()), 
-								       theMF.product());
-	
-	//	LogDebug("TrackProducerWithSCAssociation") << "TrackProducerWithSCAssociation  Initial TSOS\n" << theTSOS << "\n";
-	
-	//convert the TrackingRecHit vector to a TransientTrackingRecHit vector
-	//meanwhile computes the number of degrees of freedom
-	TransientTrackingRecHit::RecHitContainer hits;
-	
-	float ndof=0;
-	
-	for (edm::OwnVector<TrackingRecHit>::const_iterator i=recHitVec.first;
-	     i!=recHitVec.second; i++){
-	  hits.push_back(theBuilder.product()->build(&(*i) ));
-	  //	  if ((*i).isValid()){
-	  // ndof = ndof + (i->dimension())*(i->weight());
-	  // }
-	}
-	
-	ndof = ndof - 5;
-	
-	//build Track
-	LogDebug("TrackProducerWithSCAssociation") << "TrackProducerWithSCAssociation going to buildTrack"<< "\n";
-	bool ok = theAlgo.buildTrack(theFitter.product(),thePropagator.product(),algoResults, hits, theTSOS, seed, ndof, bs, theTC->seedRef());
-	LogDebug("TrackProducerWithSCAssociation") << "TrackProducerWithSCAssociation buildTrack result: " << ok << "\n";
-	if(ok) {
-	  cont++;
-	  tccLocations.push_back(tcc);
-	}
-	tcc++;
-      }
-    edm::LogInfo("TrackProducerWithSCAssociation") << "Number of Tracks found: " << cont << "\n";
-    LogDebug("TrackProducerWithSCAssociation") << "TrackProducerWithSCAssociation Number of Tracks found: " << cont << "\n";
-    // end of copied code ======================================================
-    
-  } catch (cms::Exception &e){ edm::LogInfo("TrackProducerWithSCAssociation") << "cms::Exception caught!!!" << "\n" << e << "\n";}
-  //
-  //put everything in the event
-  // we copy putInEvt to get OrphanHandle filled...
-  putInEvt(theEvent, outputRHColl, outputTColl, outputTEColl, outputTrajectoryColl, algoResults);
   
-  // now construct associationmap and put it in the  event
-  int itrack=0;
+    LogDebug("TrackProducerWithSCAssociation") << "TrackProducerWithSCAssociation  Number of TrackCandidates: " << theTCCollection->size() << "\n";
+    try{  
+      int cont = 0;
+      int tcc=0;
+   
+      for (TrackCandidateCollection::const_iterator i=theTCCollection->begin(); i!=theTCCollection->end();i++)
+	{
+	  
+	  const TrackCandidate * theTC = &(*i);
+	  PTrajectoryStateOnDet state = theTC->trajectoryStateOnDet();
+	  const TrackCandidate::range& recHitVec=theTC->recHits();
+	  const TrajectorySeed& seed = theTC->seed();
+	  
+	  //convert PTrajectoryStateOnDet to TrajectoryStateOnSurface
+	  TrajectoryStateTransform transformer;
+	  
+	  DetId  detId(state.detId());
+	  TrajectoryStateOnSurface theTSOS = transformer.transientState( state,
+									 &(theG.product()->idToDet(detId)->surface()), 
+									 theMF.product());
+	  
+	  LogDebug("TrackProducerWithSCAssociation")  << "TrackProducerWithSCAssociation  Initial TSOS\n" << theTSOS << "\n";
+	  
+	  //convert the TrackingRecHit vector to a TransientTrackingRecHit vector
+	  //meanwhile computes the number of degrees of freedom
+	  TransientTrackingRecHit::RecHitContainer hits;
+	  
+	  float ndof=0;
+	  
+	  for (edm::OwnVector<TrackingRecHit>::const_iterator i=recHitVec.first;
+	       i!=recHitVec.second; i++){
+	    hits.push_back(theBuilder.product()->build(&(*i) ));
+	  }
 
-  std::vector<edm::Ref<reco::SuperClusterCollection> > vecOfSCRef; 
+	  
+	  //build Track
+	  LogDebug("TrackProducerWithSCAssociation") << "TrackProducerWithSCAssociation going to buildTrack"<< "\n";
+	  bool ok = theAlgo.buildTrack(theFitter.product(),thePropagator.product(),algoResults, hits, theTSOS, seed, ndof, bs, theTC->seedRef());
+	  LogDebug("TrackProducerWithSCAssociation")  << "TrackProducerWithSCAssociation buildTrack result: " << ok << "\n";
+	  if(ok) {
+	    cont++;
+	    tccLocations.push_back(tcc);
+	  }
+	  tcc++;
+	}
+      edm::LogInfo("TrackProducerWithSCAssociation") << "Number of Tracks found: " << cont << "\n";
+      LogDebug("TrackProducerWithSCAssociation") << "TrackProducerWithSCAssociation Number of Tracks found: " << cont << "\n";
+      // end of copied code ======================================================
+      
+    } catch (cms::Exception &e){ edm::LogInfo("TrackProducerWithSCAssociation") << "cms::Exception caught!!!" << "\n" << e << "\n";}
+    //
+    //put everything in the event
+    // we copy putInEvt to get OrphanHandle filled...
+    putInEvt(theEvent, outputRHColl, outputTColl, outputTEColl, outputTrajectoryColl, algoResults);
+    
+    // now construct associationmap and put it in the  event
+    int itrack=0;
+    
+    std::vector<edm::Ref<reco::SuperClusterCollection> > vecOfSCRef; 
 
-  for(AlgoProductCollection::iterator i=algoResults.begin(); i!=algoResults.end();i++){
-    edm::Ref<reco::TrackCollection> trackRef(rTracks_,itrack);
-    edm::Ref<TrackCandidateCollection> trackCRef(theTCCollection,tccLocations[itrack]);
-    reco::SuperClusterRef scRef( scTrkCandAssCollection[trackCRef] );
-    vecOfSCRef.push_back( scRef );
-    itrack++;
+    for(AlgoProductCollection::iterator i=algoResults.begin(); i!=algoResults.end();i++){
+      edm::Ref<reco::TrackCollection> trackRef(rTracks_,itrack);
+      edm::Ref<TrackCandidateCollection> trackCRef(theTCCollection,tccLocations[itrack]);
+      reco::SuperClusterRef scRef( scTrkCandAssCollection[trackCRef] );
+      vecOfSCRef.push_back( scRef );
+      itrack++;
+    }
+    
+    
+    edm::ValueMap<reco::SuperClusterRef>::Filler filler(*scTrkAssoc_p);
+    filler.insert(rTracks_, vecOfSCRef.begin(), vecOfSCRef.end());
+    filler.fill();
+    
+    
+    LogDebug("TrackProducerWithSCAssociation")<< "TrackProducerWithSCAssociation going to put the Track-SC map in the event with size  " << (*scTrkAssoc_p).size() << std::endl;
+    theEvent.put(scTrkAssoc_p,trackSuperClusterAssociationCollection_ ); 
+    
   }
 
-
-  edm::ValueMap<reco::SuperClusterRef>::Filler filler(*scTrkAssoc_p);
-  filler.insert(rTracks_, vecOfSCRef.begin(), vecOfSCRef.end());
-  filler.fill();
+}  
   
-
-  LogDebug("TrackProducerWithSCAssociation") << "TrackProducerWithSCAssociation going to put the Track-SC map in the event with size  " << (*scTrkAssoc_p).size() << std::endl;
-  theEvent.put(scTrkAssoc_p,trackSuperClusterAssociationCollection_ ); 
-  
-  LogDebug("TrackProducerWithSCAssociation") << "TrackProducerWithSCAssociation end" << "\n";
-}
-
-
 std::vector<reco::TransientTrack> TrackProducerWithSCAssociation::getTransient(edm::Event& theEvent, const edm::EventSetup& setup)
 {
   edm::LogInfo("TrackProducerWithSCAssociation") << "Analyzing event number: " << theEvent.id() << "\n";
@@ -351,13 +351,13 @@ TrackingRecHitRefProd rHits = evt.getRefBeforePut<TrackingRecHitCollection>();
   }
 
   LogTrace("TrackingRegressionTest") << "========== TrackProducer Info ===================";
-  LogTrace("TrackingRegressionTest") << "number of finalTracks: " << selTracks->size();
+  LogDebug("TrackProducerWithSCAssociation") << "number of finalTracks: " << selTracks->size() << std::endl;
   for (reco::TrackCollection::const_iterator it = selTracks->begin(); it != selTracks->end(); it++) {
-    LogTrace("TrackingRegressionTest") << "track's n valid and invalid hit, chi2, pt : "
+    LogDebug("TrackProducerWithSCAssociation")  << "track's n valid and invalid hit, chi2, pt : "
                                        << it->found() << " , "
                                        << it->lost()  <<" , "
                                        << it->normalizedChi2() << " , "
-                                       << it->pt();
+	       << it->pt() << std::endl;
   }
   LogTrace("TrackingRegressionTest") << "=================================================";
 
