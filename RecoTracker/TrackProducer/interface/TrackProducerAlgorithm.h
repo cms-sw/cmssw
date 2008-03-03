@@ -4,8 +4,8 @@
 /** \class TrackProducerAlgorithm
  *  This class calls the Final Fit and builds the Tracks then produced by the TrackProducer or by the TrackRefitter
  *
- *  $Date: 2008/01/26 10:45:59 $
- *  $Revision: 1.18 $
+ *  $Date: 2008/02/18 16:32:39 $
+ *  $Revision: 1.19 $
  *  \author cerati
  */
 
@@ -99,6 +99,7 @@ public:
 
  private:
   edm::ParameterSet conf_;  
+  std::string algoName_;
 
   TrajectoryStateOnSurface getInitialState(const T * theT,
 					   TransientTrackingRecHit::RecHitContainer& hits,

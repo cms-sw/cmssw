@@ -85,14 +85,23 @@ TrackProducerAlgorithm<reco::Track>::buildTrack (const TrajectoryFitter * theFit
 
     LogDebug("TrackProducer") << "pos=" << v << " mom=" << p << " pt=" << p.perp() << " mag=" << p.mag();
 
-    std::string theTrackAlgo( conf_.getParameter<std::string>( "@module_label" ) );  
+    algoName_ = conf_.getParameter<std::string>( "AlgorithmName" );  
+    //std::string theTrackAlgo = algoName_;
     reco::TrackBase::TrackAlgorithm Algo = reco::TrackBase::undefAlgorithm;
-    if (theTrackAlgo == "preFilterCmsTracks")
+    if (algoName_ == "ctf")
       Algo = reco::TrackBase::ctf;
-    else if (theTrackAlgo == "rsWithMaterialTracks")
+    else if (algoName_ == "rs")
       Algo = reco::TrackBase::rs;
-    else if (theTrackAlgo == "ctfWithMaterialTracksBeamHaloMuon")
+    else if (algoName_ == "beamhalo")
       Algo = reco::TrackBase::beamhalo;
+    else if (algoName_ == "cosmics")
+      Algo = reco::TrackBase::cosmics;
+    else if (algoName_ == "iter1")
+      Algo = reco::TrackBase::iter1;
+    else if (algoName_ == "iter2")
+      Algo = reco::TrackBase::iter2;
+    else if (algoName_ == "iter3")
+      Algo = reco::TrackBase::iter3;
 
     theTrack = new reco::Track(theTraj->chiSquared(),
 			       int(ndof),//FIXME fix weight() in TrackingRecHit
