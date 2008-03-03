@@ -622,7 +622,7 @@ HIPAlignmentAlgorithm::calcAPE(double* par, int iter, double function)
   // into 0.9999999999998 in the HIPAlignmentAlgorithm::initialize is
   // also used here.  If I'm wrong, you'll get an assertion.
   if (function == 0.) {
-    return max(0.,par[0]+((par[1]-par[0])/par[2])*diter);
+    return max(par[1],par[0]+((par[1]-par[0])/par[2])*diter);
   }
   else if (function == 1.) {
     return max(0.,par[0]*(exp(-pow(diter,par[1])/par[2])));
@@ -645,7 +645,7 @@ void HIPAlignmentAlgorithm::bookRoot(void)
   TString tname="T1";
   char iterString[5];
   sprintf(iterString, "%i",theIteration);
-  tname.Append(":");
+  tname.Append("_");
   tname.Append(iterString);
 
   theTree  = new TTree(tname,"Eventwise tree");
@@ -834,8 +834,8 @@ void HIPAlignmentAlgorithm::collector(void)
       theIteration,ioerr);
 
     if (ioerr!=0) { 
-      edm::LogWarning("Alignment") <<"[HIPAlignmentAlgorithm::collector] could not read user variable files!";
-      return;
+      edm::LogWarning("Alignment") <<"[HIPAlignmentAlgorithm::collector] could not read user variable files for job" << ijob;
+      continue;
     }
 
     // add
