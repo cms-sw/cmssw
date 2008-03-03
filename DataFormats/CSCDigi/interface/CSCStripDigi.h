@@ -4,9 +4,9 @@
 /** \class CSCStripDigi
  *
  * Digi for CSC Cathode Strips.
- *  
- *  $Date: 2007/09/26 06:59:32 $
- *  $Revision: 1.17 $
+ *
+ *  $Date: 2008/02/12 17:39:02 $
+ *  $Revision: 1.18 $
  *
  * \author M. Schmitt, Northwestern
  *
@@ -37,7 +37,7 @@ public:
   int getStrip() const { return strip;}
 
   // Get ADC readings
-  std::vector<int> getADCCounts() const { return ADCCounts; }
+  std::vector<int> getADCCounts() const ;
 
   /// Other getters
   std::vector<uint16_t> getADCOverflow() const {return ADCOverflow;}
@@ -58,7 +58,7 @@ public:
   float amplitude() const {return ADCCounts[4]-pedestal();}
 
 private:
-  
+
   uint16_t strip;
   std::vector<int> ADCCounts;
   std::vector<uint16_t> ADCOverflow;
@@ -73,7 +73,7 @@ inline std::ostream & operator<<(std::ostream & o, const CSCStripDigi& digi) {
   for (size_t i = 0; i<digi.getADCCounts().size(); ++i ){
     o <<" " <<(digi.getADCCounts())[i]; }
   return o;
-  
+
 }
 
 #endif

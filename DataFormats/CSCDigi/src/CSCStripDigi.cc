@@ -1,7 +1,7 @@
 /** \file
- * 
- *  $Date: 2007/07/23 12:08:20 $
- *  $Revision: 1.13 $
+ *
+ *  $Date: 2008/02/12 17:39:40 $
+ *  $Revision: 1.14 $
  *
  * \author M.Schmitt, Northwestern
  */
@@ -38,6 +38,8 @@ CSCStripDigi::CSCStripDigi ():
   Errorstat(8,0)
 {
 }
+
+std::vector<int> CSCStripDigi::getADCCounts() const { return ADCCounts; }
 
 // Comparison
 bool
