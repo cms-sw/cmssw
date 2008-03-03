@@ -84,8 +84,8 @@ int main(int ac, char *av[]) {
 	      it != v_file.end(); ++it) { 
 	    TFile * root_file = new TFile(it->c_str(),"read");
 	    TDirectory *Histos = (TDirectory*) root_file->GetDirectory("ZHisto");
-	    TDirectory *RecoHistos = (TDirectory*) Histos->GetDirectory("ZResHisto");
-	    TH1D * zMass = (TH1D*) RecoHistos->Get("ZMassRes");
+	    TDirectory *RecoHistos = (TDirectory*) Histos->GetDirectory("ZResolutionHisto");
+	    TH1D * zMass = (TH1D*) RecoHistos->Get("ZToMuMuRecoMassResolution");
 	    zMass->GetXaxis()->SetTitle("Mass (GeV/c^{2})"); 
 	    v_ZMassResHistos.push_back(zMass);
 	    gROOT->SetStyle("Plain");
@@ -103,7 +103,7 @@ int main(int ac, char *av[]) {
       Parameter yield2("Yield 2", 1000);
       Parameter mean1("Mean 1", 0);
       Parameter sigma1("Sigma 1", 1.);
-      Parameter mean2("Mean 2", -1.);
+      Parameter mean2("Mean 2", 0);
       Parameter sigma2("Sigma 2", 1.);
       Parameter dyield1("Yield 1 Error", 0);
       Parameter dyield2("Yield 2 Error", 0);
@@ -132,6 +132,7 @@ int main(int ac, char *av[]) {
 	    fit::RootMinuit<ChiSquared> minuit(3, chi2, true);
 	    minuit.setParameter(0, yield1, 10, 100, 100000);
 	    minuit.setParameter(1, mean1, 0.001, -1., 1.);
+	    minuit.fixParameter(1);
 	    minuit.setParameter(2, sigma1, 0.1, -5., 5.);
 	    double amin = minuit.minimize();
 	    cout << "fullBins = " << fullBins 
@@ -190,6 +191,7 @@ int main(int ac, char *av[]) {
 	    minuit.setParameter(0, yield1, 10, 100, 100000);
 	    minuit.setParameter(1, yield2, 10, 100, 100000);
 	    minuit.setParameter(2, mean1, 0.001, -10, 10);
+	    minuit.fixParameter(2);
 	    minuit.setParameter(3, sigma1, 0.1, -5., 5.);
 	    minuit.setParameter(4, mean2, 0.001, -11, 9.);
 	    minuit.setParameter(5, sigma2, 0.1, -5., 5.);

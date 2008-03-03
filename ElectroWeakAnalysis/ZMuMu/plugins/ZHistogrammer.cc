@@ -11,13 +11,13 @@ private:
   size_t nbinsMass_, nbinsPt_, nbinsAng_, nbinsMassRes_;
   double massMax_, ptMax_, angMax_, massResMax_;
   TH1F *h_nZ_, *h_mZ_, *h_ptZ_, *h_phiZ_, *h_thetaZ_, *h_etaZ_, *h_rapidityZ_;
-  TH1F *h_invmMuMuReco_;
+  TH1F *h_invmMuMu_;
   TH1F *h_nZMC_, *h_mZMC_, *h_ptZMC_, *h_phiZMC_, *h_thetaZMC_, *h_etaZMC_, *h_rapidityZMC_;
   TH1F *h_invmMuMuMC_;
   //TH1F *h_mZ2vs3MC_, *h_ptZ2vs3MC_, *h_phiZ2vs3MC_, *h_thetaZ2vs3MC_, *h_etaZ2vs3MC_, *h_rapidityZ2vs3MC_;
   TH1F *h_mResZ_, *h_ptResZ_, *h_phiResZ_, *h_thetaResZ_, *h_etaResZ_, *h_rapidityResZ_;
+  TH1F *h_mResZMuMu_;
   TH1F *h_mResZMuMuMC_;
-  TH1F *h_mResZMuMuReco_;
 };
 
 #include "DataFormats/Candidate/interface/Candidate.h"
@@ -62,7 +62,7 @@ ZHistogrammer::ZHistogrammer(const ParameterSet& pset) :
   h_thetaZ_ = ZHisto.make<TH1F>("Ztheta", "Z #theta", nbinsAng_,  0, angMax_);
   h_etaZ_ = ZHisto.make<TH1F>("ZEta", "Z #eta", nbinsAng_,  -angMax_, angMax_);
   h_rapidityZ_ = ZHisto.make<TH1F>("ZRapidity", "Z rapidity", nbinsAng_,  -angMax_, angMax_);
-  h_invmMuMuReco_ = ZHisto.make<TH1F>("MuMuRecoMass", "#mu #mu Reco invariant mass", 
+  h_invmMuMu_ = ZHisto.make<TH1F>("MuMuMass", "#mu #mu invariant mass", 
 				      nbinsMass_,  0, massMax_);
   h_nZMC_ = ZMCHisto.make<TH1F>("ZMCNumber", "number of Z MC particles", 11, -0.5, 10.5);
   h_mZMC_ = ZMCHisto.make<TH1F>("ZMCMass", "Z MC mass (GeV/c^{2})", nbinsMass_,  0, massMax_);
@@ -100,12 +100,12 @@ ZHistogrammer::ZHistogrammer(const ParameterSet& pset) :
 				    nbinsAng_,  -angMax_, angMax_);
   h_rapidityResZ_ = ZResHisto.make<TH1F>("ZRapidityResolution", "Z rapidity Resolution", 
 					 nbinsAng_,  -angMax_, angMax_);
+  h_mResZMuMu_ = ZResHisto.make<TH1F>("ZToMuMuRecoMassResolution", 
+				      "Z vs #mu #mu Reco mass Resolution (GeV/c^{2})", 
+				      nbinsMassRes_, -massResMax_, massResMax_);
   h_mResZMuMuMC_ = ZResHisto.make<TH1F>("ZToMuMuMCMassResolution", 
 					"Z vs #mu #mu MC mass Resolution (GeV/c^{2})", 
 					nbinsMassRes_, -massResMax_, massResMax_);
-  h_mResZMuMuReco_ = ZResHisto.make<TH1F>("ZToMuMuRecoMassResolution", 
-					  "Z vs #mu #mu Reco mass Resolution (GeV/c^{2})", 
-					  nbinsMassRes_, -massResMax_, massResMax_);
 }
 
 void ZHistogrammer::analyze(const edm::Event& event, const edm::EventSetup& setup) { 
@@ -151,8 +151,8 @@ void ZHistogrammer::analyze(const edm::Event& event, const edm::EventSetup& setu
       assert(abs(dau0->pdgId())==13 && dau0->status()==1);
       assert(abs(dau1->pdgId())==13 && dau1->status()==1);
       double invMass = (dau0->p4()+dau1->p4()).mass();
-      h_invmMuMuReco_->Fill(invMass);
-      h_mResZMuMuReco_->Fill(zCand.mass() - invMass);
+      h_invmMuMu_->Fill(invMass);
+      h_mResZMuMu_->Fill(zCand.mass() - invMass);
     }
   }
   h_nZMC_->Fill(gen->size());

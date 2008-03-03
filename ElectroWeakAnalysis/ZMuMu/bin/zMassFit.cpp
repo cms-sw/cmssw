@@ -101,7 +101,7 @@ int main(int ac, char *av[]) {
 	     TFile * root_file = new TFile(it->c_str(),"read");
 	     TDirectory *Histos = (TDirectory*) root_file->GetDirectory("ZHisto");
 	     TDirectory *RecoHistos = (TDirectory*) Histos->GetDirectory("ZRecoHisto");
-	     TH1D * zMass = (TH1D*) RecoHistos->Get("ZMass");
+	     TH1D * zMass = (TH1D*) RecoHistos->Get("MuMuMass");
 	     zMass->GetXaxis()->SetTitle("#mu #mu invariant mass (GeV/c^{2})");
 	     v_ZMassHistos.push_back(zMass);
 	     gROOT->SetStyle("Plain");
