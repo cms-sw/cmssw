@@ -62,8 +62,8 @@ void DCCEventBlock::unpack( uint64_t * buffer, uint numbBytes, uint expFedId){
   if( fedId_ != expFedId  ){ 
     
   edm::LogWarning("EcalRawToDigiDev")
-    <<"\n For event "<<l1_
-    <<"\n Expected FED id is "<<expFedId<<" while current FED id is "<<fedId_
+    <<"\n For event L1A: "<<l1_
+    <<"\n Expected FED id is: "<<expFedId<<" while current FED id is: "<<fedId_
     <<"\n => Skipping to next fed block...";
   
   //TODO : add this to an error event collection
@@ -75,7 +75,7 @@ void DCCEventBlock::unpack( uint64_t * buffer, uint numbBytes, uint expFedId){
   if( eventSize_ == EMPTYEVENTSIZE ){ 
     
     edm::LogWarning("EcalRawToDigiDev")
-      <<"\n Event "<<l1_<<" is empty for dcc "<<fedId_
+      <<"\n Event L1A: "<<l1_<<" is empty for fed: "<<fedId_
       <<"\n => Skipping to next fed block...";
    
     return;
@@ -86,7 +86,7 @@ void DCCEventBlock::unpack( uint64_t * buffer, uint numbBytes, uint expFedId){
   else if( eventSize_ < HEADERSIZE ){    
     
     edm::LogError("EcalRawToDigiDev")
-      <<"\n Event "<<l1_<<" in dcc "<< fedId_
+      <<"\n Event L1A: "<<l1_<<" in fed: "<< fedId_
       <<"\n Event size is "<<eventSize_<<" bytes while the minimum is "<<HEADERSIZE<<" bytes"
       <<"\n => Skipping to next fed block..."; 
     
@@ -107,7 +107,7 @@ void DCCEventBlock::unpack( uint64_t * buffer, uint numbBytes, uint expFedId){
   if( eventSize_ != blockLength_*8 ){
     
     edm::LogError("EcalRawToDigiDev")
-      <<"\n Event (L1A) "<<l1_<<" in fed: "<< fedId_
+      <<"\n Event L1A: "<<l1_<<" in fed: "<< fedId_
       <<"\n size is "<<eventSize_<<" bytes while "<<(blockLength_*8)<<" are set in the event header "
       <<"\n => Skipping to next fed block..."; 
     //TODO : add this to a dcc size error collection 
@@ -180,7 +180,7 @@ void DCCEventBlock::unpack( uint64_t * buffer, uint numbBytes, uint expFedId){
   else if ( triggerType_ == CALIBRATIONTRIGGER ){ numbChannels = 70; }
   else {
     edm::LogError("EcalRawToDigiDev")
-      <<"\n Event "<<l1_<<" in dcc "<< fedId_
+      <<"\n Event L1A: "<<l1_<<" in fed: "<< fedId_
       <<"\n Event has an unsupported trigger type "<<triggerType_
       <<"\n => Skipping to next fed block..."; 
     //TODO : add this to a dcc trigger type error collection 

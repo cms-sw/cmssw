@@ -103,7 +103,8 @@ int DCCFEBlock::unpack(uint64_t ** data, uint * dwToEnd, bool zs, uint expectedT
 
     uint dccBx = (event_->bx())&TCC_BX_MASK;
     uint dccL1 = (event_->l1A())&TCC_L1_MASK; 
-    if( dccBx != bx_ || dccL1 != l1_ ){
+    // accounting for counters starting from 0 in ECAL FE, while from 1 in CSM
+    if( dccBx != bx_ || dccL1 != (l1_+1) ){
       edm::LogWarning("EcalRawToDigiDevNumTowerBlocks")
 	<<"\n Synchronization error for Tower Block "<<towerId_<<" in event "<<event_->l1A()
 	<<" with bx "<<event_->bx()<<" in fed "<<mapper_->getActiveDCC()
