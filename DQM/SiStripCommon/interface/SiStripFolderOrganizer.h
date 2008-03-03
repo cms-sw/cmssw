@@ -58,7 +58,8 @@ class SiStripFolderOrganizer
 
       // detector folders
       void setDetectorFolder(uint32_t rawdetid=0);
-
+      // layer folders
+      void setLayerFolder(uint32_t rawdetid=0,int32_t layer=0);
    private:
       SiStripFolderOrganizer(const SiStripFolderOrganizer&); // stop default
       const SiStripFolderOrganizer& operator=(const SiStripFolderOrganizer&); // stop default

@@ -35,7 +35,8 @@
 #include "CalibFormats/SiStripObjects/interface/SiStripDetCabling.h"
 
 #include "DQM/SiStripCommon/interface/SiStripFolderOrganizer.h"
-#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
+//#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 
 #include "TString.h"
@@ -64,16 +65,14 @@ class SiStripMonitorTrack : public edm::EDAnalyzer {
   MonitorElement * bookMEProfile(const char*, const char*);
   MonitorElement * bookMETrend(const char*, const char*);
   // internal evaluation of monitorables
-  void AllClusters();
-  void trackStudy();
-  bool clusterInfos(const SiStripClusterInfo* cluster, const uint32_t& detid,std::string flag, LocalVector LV);	
+  void AllClusters(const edm::EventSetup& es);
+  void trackStudy(const edm::EventSetup& es);
+  bool clusterInfos(SiStripClusterInfo* cluster, const uint32_t& detid,std::string flag, LocalVector LV);	
   std::pair<std::string,int32_t> GetSubDetAndLayer(const uint32_t& detid);
-  //  void RecHitInfo(const SiStripRecHit2D* tkrecHit, LocalVector LV,reco::TrackRef track_ref, const edm::EventSetup&);
-  void RecHitInfo(const SiStripRecHit2D* tkrecHit, LocalVector LV,reco::TrackRef track_ref);
-  const SiStripClusterInfo* MatchClusterInfo(const SiStripCluster* cluster, const uint32_t& detid);
+  void RecHitInfo(const SiStripRecHit2D* tkrecHit, LocalVector LV,reco::TrackRef track_ref, const edm::EventSetup&);
   // fill monitorables 
-  void fillModMEs(const SiStripClusterInfo*,TString,float);
-  void fillTrendMEs(const SiStripClusterInfo*,std::string,float,std::string);
+  void fillModMEs(SiStripClusterInfo*,TString,float);
+  void fillTrendMEs(SiStripClusterInfo*,std::string,float,std::string);
   void fillTrend(MonitorElement* ME,float value1);
   inline void fillME(MonitorElement* ME,float value1){if (ME!=0)ME->Fill(value1);}
   inline void fillME(MonitorElement* ME,float value1,float value2){if (ME!=0)ME->Fill(value1,value2);}
@@ -83,7 +82,7 @@ class SiStripMonitorTrack : public edm::EDAnalyzer {
   // ----------member data ---------------------------
       
  private:
-  DaqMonitorBEInterface * dbe;
+  DQMStore * dbe;
   edm::ParameterSet conf_;
   std::string histname; 
   TString name;
@@ -128,17 +127,23 @@ class SiStripMonitorTrack : public edm::EDAnalyzer {
   std::map<TString, ModMEs> ModMEsMap;
   std::map<TString, MonitorElement*> MEMap;
 
-  edm::Handle< edm::DetSetVector<SiStripClusterInfo> >  dsv_SiStripClusterInfo;
   edm::Handle< edm::DetSetVector<SiStripCluster> >  dsv_SiStripCluster;
+
+  //  edm::Handle< edm::DetSetVector<SiStripRawDigi> > rawDigiHandle;
+
+
   edm::Handle<reco::TrackCollection> trackCollection;
+  
   edm::Handle<reco::TrackInfoTrackAssociationCollection> TItkAssociatorCollection;
   edm::ESHandle<TrackerGeometry> tkgeom;
   edm::ESHandle<SiStripDetCabling> SiStripDetCabling_;
 
   edm::ParameterSet Parameters;
   edm::InputTag Track_src_;
-  edm::InputTag ClusterInfo_src_;
   edm::InputTag Cluster_src_;
+  edm::InputTag theRawdigiProducer;
+  edm::InputTag theRawdigiLabel;
+
   std::vector<uint32_t> ModulesToBeExcluded_;
   std::vector<const SiStripCluster*> vPSiStripCluster;
   std::map<std::pair<std::string,int32_t>,bool> DetectedLayers;
@@ -148,5 +153,7 @@ class SiStripMonitorTrack : public edm::EDAnalyzer {
   int runNb, eventNb;
   int firstEvent;
   int countOn, countOff, countAll, NClus[4][3];
+  int neighbourStripNumber;
+
 };
 #endif

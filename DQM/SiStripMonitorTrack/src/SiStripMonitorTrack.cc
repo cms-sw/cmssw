@@ -25,13 +25,13 @@ static TString SubDet[_NUM_SISTRIP_SUBDET_]={"TIB","TID","TOB","TEC"};
 static std::string flags[2] = {"OnTrack","OffTrack"};
 
 SiStripMonitorTrack::SiStripMonitorTrack(const edm::ParameterSet& conf):
-  dbe(edm::Service<DaqMonitorBEInterface>().operator->()),
+  dbe(edm::Service<DQMStore>().operator->()),
   conf_(conf),
   Track_src_( conf.getParameter<edm::InputTag>( "Track_src" ) ),
-  ClusterInfo_src_( conf.getParameter<edm::InputTag>( "ClusterInfo_src" ) ),
   Cluster_src_( conf.getParameter<edm::InputTag>( "Cluster_src" ) ),
   folder_organizer(), tracksCollection_in_EventTree(true),
-  firstEvent(-1)
+  firstEvent(-1),
+  neighbourStripNumber(3)
 {
   for(int i=0;i<4;++i) for(int j=0;j<2;++j) NClus[i][j]=0;
 }
@@ -72,8 +72,12 @@ void SiStripMonitorTrack::analyze(const edm::Event& e, const edm::EventSetup& es
   countOff=0;
   
   //cluster input
-  e.getByLabel( ClusterInfo_src_, dsv_SiStripClusterInfo);
-  e.getByLabel( Cluster_src_,     dsv_SiStripCluster);    
+  edm::Handle< edm::DetSetVector<SiStripRawDigi> > rawDigiHandle;
+  theRawdigiProducer = conf_.getParameter<edm::InputTag>("rawdigiProducer");
+  theRawdigiLabel = conf_.getParameter<edm::InputTag>("rawdigiLabel");
+  
+  e.getByLabel( Cluster_src_, dsv_SiStripCluster);    
+  e.getByLabel(theRawdigiProducer.label(),theRawdigiLabel.label(),rawDigiHandle);
 
   e.getByLabel(Track_src_, trackCollection);
   if (trackCollection.isValid()){
@@ -81,7 +85,7 @@ void SiStripMonitorTrack::analyze(const edm::Event& e, const edm::EventSetup& es
     edm::LogError("SiStripMonitorTrack")<<" Track Collection is not valid !!" <<std::endl;
     tracksCollection_in_EventTree=false;
   }
-  
+      
   // track input
   edm::InputTag TkiTag = conf_.getParameter<edm::InputTag>( "TrackInfo" );
   e.getByLabel( TkiTag, TItkAssociatorCollection );
@@ -92,10 +96,10 @@ void SiStripMonitorTrack::analyze(const edm::Event& e, const edm::EventSetup& es
   }
  
  //Perform track study
-  if (tracksCollection_in_EventTree || trackAssociatorCollection_in_EventTree) trackStudy();
+  if (tracksCollection_in_EventTree || trackAssociatorCollection_in_EventTree) trackStudy(es);
   
   //Perform Cluster Study (irrespectively to tracks)
-  AllClusters();//analyzes the off Track Clusters
+  AllClusters(es);//analyzes the off Track Clusters
 
   //Summary Counts of clusters
   std::map<TString, MonitorElement*>::iterator iME;
@@ -419,7 +423,7 @@ MonitorElement* SiStripMonitorTrack::bookMETrend(const char* ParameterSetLabel, 
 }
 
 //------------------------------------------------------------------------------------------
-void SiStripMonitorTrack::trackStudy()
+void SiStripMonitorTrack::trackStudy(const edm::EventSetup& es)
 {
   LogDebug("SiStripMonitorTrack") << "Start" << __PRETTY_FUNCTION__ ;
   const reco::TrackCollection tC = *(trackCollection.product());
@@ -463,10 +467,10 @@ void SiStripMonitorTrack::trackStudy()
 	  ss<<"\nMatched recHit found"<< std::endl;	  
 	  //mono side
 	  statedirection= trackinforef->localTrackMomentumOnMono(Updated,(*iter).first);
-	  if(statedirection.mag() != 0)	  RecHitInfo(matchedhit->monoHit(),statedirection,trackref);
+	  if(statedirection.mag() != 0)	  RecHitInfo(matchedhit->monoHit(),statedirection,trackref,es);
 	  //stereo side
 	  statedirection= trackinforef->localTrackMomentumOnStereo(Updated,(*iter).first);
-	  if(statedirection.mag() != 0)	  RecHitInfo(matchedhit->stereoHit(),statedirection,trackref);
+	  if(statedirection.mag() != 0)	  RecHitInfo(matchedhit->stereoHit(),statedirection,trackref,es);
 	  ss<<"\nLocalMomentum (stereo): "<<trackinforef->localTrackMomentumOnStereo(Updated,(*iter).first);
 	}
       }
@@ -476,10 +480,10 @@ void SiStripMonitorTrack::trackStudy()
 	if(phit!=0){
 	  //mono side
 	  statedirection= trackinforef->localTrackMomentumOnMono(Updated,(*iter).first);
-	  if(statedirection.mag() != 0) RecHitInfo(&(phit->originalHit()),statedirection,trackref);
+	  if(statedirection.mag() != 0) RecHitInfo(&(phit->originalHit()),statedirection,trackref,es);
 	  //stereo side
 	  statedirection= trackinforef->localTrackMomentumOnStereo(Updated,(*iter).first);
-	  if(statedirection.mag() != 0)  RecHitInfo(&(phit->originalHit()),statedirection,trackref);
+	  if(statedirection.mag() != 0)  RecHitInfo(&(phit->originalHit()),statedirection,trackref,es);
 	}	
 	
       }
@@ -488,7 +492,7 @@ void SiStripMonitorTrack::trackStudy()
 	if(hit!=0){
 	  ss<<"\nSingle recHit found"<< std::endl;	  
 	  statedirection=(trackinforef->stateOnDet(Updated,(*iter).first)->parameters()).momentum();
-	  if(statedirection.mag() != 0) RecHitInfo(hit,statedirection,trackref);
+	  if(statedirection.mag() != 0) RecHitInfo(hit,statedirection,trackref,es);
 	  
 	}
       }
@@ -497,7 +501,7 @@ void SiStripMonitorTrack::trackStudy()
   }
 }
 
-  void SiStripMonitorTrack::RecHitInfo(const SiStripRecHit2D* tkrecHit, LocalVector LV,reco::TrackRef track_ref ){
+  void SiStripMonitorTrack::RecHitInfo(const SiStripRecHit2D* tkrecHit, LocalVector LV,reco::TrackRef track_ref, const edm::EventSetup& es){
     
     if(!tkrecHit->isValid()){
       LogTrace("SiStripMonitorTrack") <<"\t\t Invalid Hit " << std::endl;
@@ -520,12 +524,13 @@ void SiStripMonitorTrack::trackStudy()
     if ( tkrecHit != NULL ){
       LogTrace("SiStripMonitorTrack") << "GOOD hit" << std::endl;
       const SiStripCluster* SiStripCluster_ = &*(tkrecHit->cluster());
-      const SiStripClusterInfo* SiStripClusterInfo_ = MatchClusterInfo(SiStripCluster_,detid);
-      
+      SiStripClusterInfo* SiStripClusterInfo_ = new SiStripClusterInfo(detid,*SiStripCluster_,es);
+            
       if ( clusterInfos(SiStripClusterInfo_,detid,"OnTrack", LV ) ) {
 	vPSiStripCluster.push_back(SiStripCluster_);
 	countOn++;
       }
+      delete SiStripClusterInfo_; 
       //}
     }else{
       LogTrace("SiStripMonitorTrack") << "NULL hit" << std::endl;
@@ -534,7 +539,7 @@ void SiStripMonitorTrack::trackStudy()
 
 //------------------------------------------------------------------------
 
-void SiStripMonitorTrack::AllClusters()
+void SiStripMonitorTrack::AllClusters( const edm::EventSetup& es)
 {
 
   LogDebug("SiStripMonitorTrack") << "Start cluster analysis" ;
@@ -547,7 +552,7 @@ void SiStripMonitorTrack::AllClusters()
     LogDebug("SiStripMonitorTrack") << "on detid "<< detid << " N Cluster= " << DSViter->data.size();
     edm::DetSet<SiStripCluster>::const_iterator ClusIter = DSViter->data.begin();
     for(; ClusIter!=DSViter->data.end(); ClusIter++) {
-      const SiStripClusterInfo* SiStripClusterInfo_=MatchClusterInfo(&*ClusIter,detid);
+      SiStripClusterInfo* SiStripClusterInfo_= new SiStripClusterInfo(detid,*ClusIter,es);
 	LogDebug("SiStripMonitorTrack") << "ClusIter " << &*ClusIter << "\t " 
 	                                << std::find(vPSiStripCluster.begin(),vPSiStripCluster.end(),&*ClusIter)-vPSiStripCluster.begin();
 	if (std::find(vPSiStripCluster.begin(),vPSiStripCluster.end(),&*ClusIter) == vPSiStripCluster.end()){
@@ -555,29 +560,13 @@ void SiStripMonitorTrack::AllClusters()
 	    countOff++;
 	  }
 	}
+	delete SiStripClusterInfo_; 
     }
   }
 }
 
-
 //------------------------------------------------------------------------
-const SiStripClusterInfo* SiStripMonitorTrack::MatchClusterInfo(const SiStripCluster* cluster, const uint32_t& detid)
-{
-  LogTrace("SiStripMonitorTrack") << "\n["<<__PRETTY_FUNCTION__<<"]" << std::endl;
-  edm::DetSetVector<SiStripClusterInfo>::const_iterator DSViter = dsv_SiStripClusterInfo->find(detid);
-  edm::DetSet<SiStripClusterInfo>::const_iterator ClusIter = DSViter->data.begin();
-  for(; ClusIter!=DSViter->data.end(); ClusIter++) {
-    if((ClusIter->firstStrip() == cluster->firstStrip()) &&
-       (ClusIter->stripAmplitudes().size() == cluster->amplitudes().size()))
-      return &(*ClusIter);
-  }
-  edm::LogError("SiStripMonitorTrack") << "Matching of SiStripCluster and SiStripClusterInfo is failed for cluster on detid "
-				       << detid << "\n\tReturning NULL pointer";
-  return 0;
-}
-
-//------------------------------------------------------------------------
-bool SiStripMonitorTrack::clusterInfos(const SiStripClusterInfo* cluster, const uint32_t& detid,std::string flag, const LocalVector LV)
+bool SiStripMonitorTrack::clusterInfos(SiStripClusterInfo* cluster, const uint32_t& detid,std::string flag, const LocalVector LV)
 {
   LogTrace("SiStripMonitorTrack") << "\n["<<__PRETTY_FUNCTION__<<"]" << std::endl;
   //folder_organizer.setDetectorFolder(0);
@@ -585,10 +574,10 @@ bool SiStripMonitorTrack::clusterInfos(const SiStripClusterInfo* cluster, const 
   // if one imposes a cut on the clusters, apply it
   const  edm::ParameterSet ps = conf_.getParameter<edm::ParameterSet>("ClusterConditions");
   if( ps.getParameter<bool>("On") &&
-      (cluster->charge()/cluster->noise() < ps.getParameter<double>("minStoN") ||
-       cluster->charge()/cluster->noise() > ps.getParameter<double>("maxStoN") ||
-       cluster->width() < ps.getParameter<double>("minWidth") ||
-       cluster->width() > ps.getParameter<double>("maxWidth")                    )) return false;
+      (cluster->getCharge()/cluster->getNoise() < ps.getParameter<double>("minStoN") ||
+       cluster->getCharge()/cluster->getNoise() > ps.getParameter<double>("maxStoN") ||
+       cluster->getWidth() < ps.getParameter<double>("minWidth") ||
+       cluster->getWidth() > ps.getParameter<double>("maxWidth")                    )) return false;
   // start of the analysis
   
   int SubDet_enum = StripSubdetector(detid).subdetId()-3;
@@ -597,7 +586,7 @@ bool SiStripMonitorTrack::clusterInfos(const SiStripClusterInfo* cluster, const 
   else if (flag=="OffTrack") iflag=1;
   NClus[SubDet_enum][iflag]++;
   std::stringstream ss;
-  const_cast<SiStripClusterInfo*>(cluster)->print(ss);
+  //  const_cast<SiStripClusterInfo*>(cluster)->print(ss);
   LogTrace("SiStripMonitorTrack") << "\n["<<__PRETTY_FUNCTION__<<"]\n" << ss.str() << std::endl;
   
   float cosRZ = -2;
@@ -758,29 +747,33 @@ void SiStripMonitorTrack::fillTrend(MonitorElement* me ,float value)
 }
 
 //--------------------------------------------------------------------------------
-void SiStripMonitorTrack::fillModMEs(const SiStripClusterInfo* cluster,TString name,float cos)
+void SiStripMonitorTrack::fillModMEs(SiStripClusterInfo* cluster,TString name,float cos)
 {
   std::map<TString, ModMEs>::iterator iModME  = ModMEsMap.find(name);
   if(iModME!=ModMEsMap.end()){
-    fillME(iModME->second.ClusterStoN  ,cluster->charge()/cluster->noise());
-    fillME(iModME->second.ClusterStoNCorr ,cluster->charge()*cos/cluster->noise());
-    fillME(iModME->second.ClusterCharge,cluster->charge());
-    fillME(iModME->second.ClusterChargeCorr,cluster->charge()*cos);
-    fillME(iModME->second.ClusterWidth ,cluster->width());
-    fillME(iModME->second.ClusterPos   ,cluster->position());
+    fillME(iModME->second.ClusterStoN  ,cluster->getCharge()/cluster->getNoise());
+    fillME(iModME->second.ClusterStoNCorr ,cluster->getCharge()*cos/cluster->getNoise());
+    fillME(iModME->second.ClusterCharge,cluster->getCharge());
+    fillME(iModME->second.ClusterChargeCorr,cluster->getCharge()*cos);
+    fillME(iModME->second.ClusterWidth ,cluster->getWidth());
+    fillME(iModME->second.ClusterPos   ,cluster->getPosition());
+
+    std::vector<float> amplitudesL, amplitudesR;
+    amplitudesL = cluster->getRawDigiAmplitudesLR(neighbourStripNumber,*rawDigiHandle,dsv_SiStripCluster,theRawDigiLabel).first;	
+    amplitudesR = cluster->getRawDigiAmplitudesLR(neighbourStripNumber,*rawDigiHandle,dsv_SiStripCluster,theRawDigiLabel).second;
 
     //fill the PGV histo
-    float PGVmax = cluster->maxCharge();
-    int PGVposCounter = cluster->firstStrip() - cluster->rawdigiAmplitudesL().size() - cluster->maxPos();
+    float PGVmax = cluster->getMaxCharge();
+    int PGVposCounter = cluster->firstStrip() - amplitudesL.size() - cluster->getMaxPosition();
     for (int i= int(conf_.getParameter<edm::ParameterSet>("TProfileClusterPGV").getParameter<double>("xmin"));i<PGVposCounter;++i)
       fillME(iModME->second.ClusterPGV, i,0.);
-    for (std::vector<float>::const_iterator it=cluster->rawdigiAmplitudesL().begin();it<cluster->rawdigiAmplitudesL().end();++it) {
+    for (std::vector<float>::const_iterator it=amplitudesL.begin();it<amplitudesL.end();++it) {
       fillME(iModME->second.ClusterPGV, PGVposCounter++,(*it)/PGVmax);
     }
-    for (std::vector<uint16_t>::const_iterator it=cluster->stripAmplitudes().begin();it<cluster->stripAmplitudes().end();++it) {
+    for (std::vector<uint16_t>::const_iterator it=cluster->getStripAmplitudes().begin();it<cluster->getStripAmplitudes().end();++it) {
       fillME(iModME->second.ClusterPGV, PGVposCounter++,(*it)/PGVmax);
     }
-    for (std::vector<float>::const_iterator it=cluster->rawdigiAmplitudesR().begin();it<cluster->rawdigiAmplitudesR().end();++it) {
+    for (std::vector<float>::const_iterator it=amplitudesR.begin();it<amplitudesR.end();++it) {
       fillME(iModME->second.ClusterPGV, PGVposCounter++,(*it)/PGVmax);
     }
     for (int i= PGVposCounter;i<int(conf_.getParameter<edm::ParameterSet>("TProfileClusterPGV").getParameter<double>("xmax"));++i)
@@ -789,25 +782,25 @@ void SiStripMonitorTrack::fillModMEs(const SiStripClusterInfo* cluster,TString n
   }
 }
 
-void SiStripMonitorTrack::fillTrendMEs(const SiStripClusterInfo* cluster,std::string name,float cos, std::string flag)
+void SiStripMonitorTrack::fillTrendMEs(SiStripClusterInfo* cluster,std::string name,float cos, std::string flag)
 { 
   std::map<TString, ModMEs>::iterator iModME  = ModMEsMap.find(name);
   if(iModME!=ModMEsMap.end()){
     if(flag=="OnTrack"){
-      fillME(iModME->second.ClusterStoNCorr,(cluster->charge()/cluster->noise())*cos);
-      fillTrend(iModME->second.ClusterStoNCorrTrend,(cluster->charge()/cluster->noise())*cos);
-      fillME(iModME->second.ClusterChargeCorr,cluster->charge()*cos);
-      fillTrend(iModME->second.ClusterChargeCorrTrend,cluster->charge()*cos);
+      fillME(iModME->second.ClusterStoNCorr,(cluster->getCharge()/cluster->getNoise())*cos);
+      fillTrend(iModME->second.ClusterStoNCorrTrend,(cluster->getCharge()/cluster->getNoise())*cos);
+      fillME(iModME->second.ClusterChargeCorr,cluster->getCharge()*cos);
+      fillTrend(iModME->second.ClusterChargeCorrTrend,cluster->getCharge()*cos);
     }
-    fillME(iModME->second.ClusterStoN  ,cluster->charge()/cluster->noise());
-    fillTrend(iModME->second.ClusterStoNTrend,cluster->charge()/cluster->noise());
-    fillME(iModME->second.ClusterCharge,cluster->charge());
-    fillTrend(iModME->second.ClusterChargeTrend,cluster->charge());
-    fillME(iModME->second.ClusterNoise ,cluster->noise());
-    fillTrend(iModME->second.ClusterNoiseTrend,cluster->noise());
-    fillME(iModME->second.ClusterWidth ,cluster->width());
-    fillTrend(iModME->second.ClusterWidthTrend,cluster->width());
-    fillME(iModME->second.ClusterPos   ,cluster->position());
+    fillME(iModME->second.ClusterStoN  ,cluster->getCharge()/cluster->getNoise());
+    fillTrend(iModME->second.ClusterStoNTrend,cluster->getCharge()/cluster->getNoise());
+    fillME(iModME->second.ClusterCharge,cluster->getCharge());
+    fillTrend(iModME->second.ClusterChargeTrend,cluster->getCharge());
+    fillME(iModME->second.ClusterNoise ,cluster->getNoise());
+    fillTrend(iModME->second.ClusterNoiseTrend,cluster->getNoise());
+    fillME(iModME->second.ClusterWidth ,cluster->getWidth());
+    fillTrend(iModME->second.ClusterWidthTrend,cluster->getWidth());
+    fillME(iModME->second.ClusterPos   ,cluster->getPosition());
   }
 }
 DEFINE_FWK_MODULE(SiStripMonitorTrack);

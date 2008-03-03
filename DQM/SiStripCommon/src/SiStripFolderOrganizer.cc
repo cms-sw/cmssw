@@ -8,7 +8,7 @@
 //
 // Original Author:  dkcira
 //         Created:  Thu Jan 26 23:52:43 CET 2006
-// $Id: SiStripFolderOrganizer.cc,v 1.14 2008/02/21 14:03:19 bainbrid Exp $
+// $Id: SiStripFolderOrganizer.cc,v 1.13 2008/01/22 19:16:55 muzaffar Exp $
 //
 
 #include <iostream>
@@ -152,6 +152,41 @@ void SiStripFolderOrganizer::setDetectorFolder(uint32_t rawdetid){
     std::string fec_stereo_mono; if(tec1.stereo()==0){fec_stereo_mono="mono_modules";}else{fec_stereo_mono="stereo_modules";}
 
     rest<<sep<<"TEC"<<sep<<"side_"<<tec1.side()<<sep<<"wheel_"<<tec1.wheel()<<sep<<petal_bkw_frw<<sep<<"petal_"<<(tec1.petal()).at(1)<<sep<<"ring_"<<tec1.ring()<<sep<<fec_stereo_mono<<sep<<"module_"<<rawdetid;
+  }else{
+  // ---------------------------  ???  --------------------------- //
+    LogWarning("SiStripTkDQM|WrongInput")<<"no such subdetector type :"<<subdetid<<" no folder set!"<<endl;
+    return;
+  }
+
+  lokal_folder += rest.str();
+  dbe_->setCurrentFolder(lokal_folder);
+}
+
+void SiStripFolderOrganizer::setLayerFolder(uint32_t rawdetid, int32_t layer){
+  std::string lokal_folder = TopFolderName + sep + MechanicalFolderName;
+  if(rawdetid == 0 ){ // just top MechanicalFolder if rawdetid==0;
+    dbe_->setCurrentFolder(lokal_folder);
+    return;
+  }
+
+  std::ostringstream rest;
+  int subdetid = ((rawdetid>>25)&0x7);
+  if(       subdetid==3 ){
+  // ---------------------------  TIB  --------------------------- //
+    TIBDetId tib1 = TIBDetId(rawdetid);
+    rest<<sep<<"TIB"<<sep<<"layer_"<<layer;
+  }else if( subdetid==4){
+  // ---------------------------  TID  --------------------------- //
+    TIDDetId tid1 = TIDDetId(rawdetid);
+    rest<<sep<<"TID"<<sep<<"side_"<<tid1.side()<<sep<<"wheel_"<<layer;
+  }else if( subdetid==5){
+  // ---------------------------  TOB  --------------------------- //
+    TOBDetId tob1 = TOBDetId(rawdetid);
+    rest<<sep<<"TOB"<<sep<<"layer_"<<layer;
+  }else if( subdetid==6){
+  // ---------------------------  TEC  --------------------------- //
+    TECDetId tec1 = TECDetId(rawdetid);
+    rest<<sep<<"TEC"<<sep<<"side_"<<tec1.side()<<sep<<"wheel_"<<tec1.wheel();
   }else{
   // ---------------------------  ???  --------------------------- //
     LogWarning("SiStripTkDQM|WrongInput")<<"no such subdetector type :"<<subdetid<<" no folder set!"<<endl;

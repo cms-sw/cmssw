@@ -8,7 +8,7 @@
 //
 // Original Author:  dkcira
 //         Created:  Wed Feb 22 16:07:58 CET 2006
-// $Id: SiStripHistoId.cc,v 1.5 2007/03/21 16:39:28 bainbrid Exp $
+// $Id: SiStripHistoId.cc,v 1.6 2008/01/22 19:16:55 muzaffar Exp $
 //
 
 #include<iostream>
@@ -32,7 +32,7 @@ SiStripHistoId::~SiStripHistoId()
 }
 
 
-std::string SiStripHistoId::createHistoId(std::string description, std::string id_type, uint32_t component_id){
+std::string SiStripHistoId::createHistoId(std::string description, std::string id_type,uint32_t component_id){
   unsigned int pos1 = description.find( separator1, 0 ); // check if std::string 'description' contains by mistake the 'separator1'
   unsigned int pos2 = description.find( separator2, 0 ); // check if std::string 'description' contains by mistake the 'separator2'
   if ( pos1 == std::string::npos && pos2 == std::string::npos ){ // ok, not found either separator
@@ -43,6 +43,29 @@ std::string SiStripHistoId::createHistoId(std::string description, std::string i
     }else{
       LogWarning("SiStripTkDQM|WrongInput")<<"no such type of component accepted: "<<id_type
                             <<" . id_type can be: fed, det, or fec."
+                            <<"   Throwing exception";
+      throw std::string("Exception thrown");
+    }
+  }else{
+    LogWarning("SiStripTkDQM|WrongInput")<<"histogram description cannot contain: "<<separator1<<" or: "<<separator2
+                          <<" histogram description = "<<description
+                          <<" . Throwing exception";
+    throw std::string("Exception thrown");
+  }
+}
+
+std::string SiStripHistoId::createHistoLayer(std::string description, std::string id_type,std::string path,std::string flag){
+  unsigned int pos1 = description.find( separator1, 0 ); // check if std::string 'description' contains by mistake the 'separator1'
+  unsigned int pos2 = description.find( separator2, 0 ); // check if std::string 'description' contains by mistake the 'separator2'
+  if ( pos1 == std::string::npos && pos2 == std::string::npos ){ // ok, not found either separator
+    if(id_type=="fed" || id_type=="det" || id_type=="fec"  || id_type=="layer"){ // ok! is one of the accepted id_type-s
+      std::ostringstream compid; compid<<path; // use std::ostringstream for casting integer to std::string
+      std::string local_histo_id = description + separator2 + path + separator1 +flag;
+      LogTrace("SiStripHistoId") << "Local_histo_ID " << local_histo_id << std::endl;
+      return local_histo_id;
+    }else{
+      LogWarning("SiStripTkDQM|WrongInput")<<"no such type of component accepted: "<<id_type
+                            <<" . id_type can be: fed, det, fec or layer."
                             <<"   Throwing exception";
       throw std::string("Exception thrown");
     }
