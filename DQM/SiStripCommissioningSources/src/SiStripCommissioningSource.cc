@@ -28,8 +28,8 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/Exception.h"
-#include "OnlineDB/SiStripConfigDb/interface/SiStripConfigDb.h"
-#include "OnlineDB/SiStripESSources/interface/SiStripFedCablingBuilderFromDb.h"
+//#include "OnlineDB/SiStripConfigDb/interface/SiStripConfigDb.h"
+//#include "OnlineDB/SiStripESSources/interface/SiStripFedCablingBuilderFromDb.h"
 #include <boost/cstdint.hpp>
 #include <memory>
 #include <iomanip>
@@ -266,7 +266,7 @@ void SiStripCommissioningSource::analyze( const edm::Event& event,
   }
 
   // Check if need to rebuild FED/FEC cabling objects for connection run
-  cablingForConnectionRun( summary->runType() );
+  //cablingForConnectionRun( summary->runType() ); //@@ do not use!
   
   // Extract run number and forward to client
   if ( event.id().run() != run_ ) { 
@@ -1057,58 +1057,58 @@ void SiStripCommissioningSource::directory( std::stringstream& dir,
 
 // -----------------------------------------------------------------------------
 //
-void SiStripCommissioningSource::cablingForConnectionRun( const sistrip::RunType& type ) {
+// void SiStripCommissioningSource::cablingForConnectionRun( const sistrip::RunType& type ) {
 
-  if ( type == sistrip::FED_CABLING ||
-       type == sistrip::QUITE_FAST_CABLING ||
-       type == sistrip::FAST_CABLING ) {
-    std::stringstream ss;
-    ss << "[SiStripCommissioningSource::" << __func__ << "]"
-       << " Run type is " << SiStripEnumsAndStrings::runType( type ) << "!"
-       << " Checking if cabling should be rebuilt using FED and device descriptions!...";
-    edm::LogVerbatim(mlDqmSource_) << ss.str();
-  } else { return; }
+//   if ( type == sistrip::FED_CABLING ||
+//        type == sistrip::QUITE_FAST_CABLING ||
+//        type == sistrip::FAST_CABLING ) {
+//     std::stringstream ss;
+//     ss << "[SiStripCommissioningSource::" << __func__ << "]"
+//        << " Run type is " << SiStripEnumsAndStrings::runType( type ) << "!"
+//        << " Checking if cabling should be rebuilt using FED and device descriptions!...";
+//     edm::LogVerbatim(mlDqmSource_) << ss.str();
+//   } else { return; }
 
-  // Build and retrieve SiStripConfigDb object using service
-  SiStripConfigDb* db = edm::Service<SiStripConfigDb>().operator->(); //@@ NOT GUARANTEED TO BE THREAD SAFE! 
-  LogTrace(mlCabling_) 
-    << "[SiStripCommissioningSource::" << __func__ << "]"
-    << " Nota bene: using the SiStripConfigDb API"
-    << " as a \"service\" does not presently guarantee"
-    << " thread-safe behaviour!...";
+//   // Build and retrieve SiStripConfigDb object using service
+//   SiStripConfigDb* db = edm::Service<SiStripConfigDb>().operator->(); //@@ NOT GUARANTEED TO BE THREAD SAFE! 
+//   LogTrace(mlCabling_) 
+//     << "[SiStripCommissioningSource::" << __func__ << "]"
+//     << " Nota bene: using the SiStripConfigDb API"
+//     << " as a \"service\" does not presently guarantee"
+//     << " thread-safe behaviour!...";
   
-  if ( !db ) { 
-    edm::LogError(mlCabling_) 
-      << "[SiStripCommissioningSource::" << __func__ << "]"
-      << " NULL pointer to SiStripConfigDb returned by service!"
-      << " Cannot check if cabling needs to be rebuilt!";
-    return;
-  }
+//   if ( !db ) { 
+//     edm::LogError(mlCabling_) 
+//       << "[SiStripCommissioningSource::" << __func__ << "]"
+//       << " NULL pointer to SiStripConfigDb returned by service!"
+//       << " Cannot check if cabling needs to be rebuilt!";
+//     return;
+//   }
   
-  if ( db->getFedConnections().empty() ) {
-    edm::LogVerbatim(mlCabling_) 
-      << "[SiStripCommissioningSource::" << __func__ << "]"
-      << " Datbase does not contain FED connections!"
-      << " Do not need to rebuild cabling object based on FED and device descriptions!"; 
-   return;
-  }
+//   if ( db->getFedConnections().empty() ) {
+//     edm::LogVerbatim(mlCabling_) 
+//       << "[SiStripCommissioningSource::" << __func__ << "]"
+//       << " Datbase does not contain FED connections!"
+//       << " Do not need to rebuild cabling object based on FED and device descriptions!"; 
+//    return;
+//   }
   
-  if ( fecCabling_ ) { delete fecCabling_; fecCabling_ = 0; }
-  if ( fedCabling_ ) { delete fedCabling_; fedCabling_ = 0; }
+//   if ( fecCabling_ ) { delete fecCabling_; fecCabling_ = 0; }
+//   if ( fedCabling_ ) { delete fedCabling_; fedCabling_ = 0; }
   
-  // Build FEC cabling
-  fecCabling_ = new SiStripFecCabling();
-  SiStripConfigDb::DcuDetIdMap mapping;
-  SiStripFedCablingBuilderFromDb::buildFecCablingFromDevices( db,
-							      *fecCabling_,
-							      mapping );
-  // Build FED cabling
-  fedCabling_ = new SiStripFedCabling();
-  SiStripFedCablingBuilderFromDb::getFedCabling( *fecCabling_,
-						 *fedCabling_ );
+//   // Build FEC cabling
+//   fecCabling_ = new SiStripFecCabling();
+//   SiStripConfigDb::DcuDetIdMap mapping;
+//   SiStripFedCablingBuilderFromDb::buildFecCablingFromDevices( db,
+// 							      *fecCabling_,
+// 							      mapping );
+//   // Build FED cabling
+//   fedCabling_ = new SiStripFedCabling();
+//   SiStripFedCablingBuilderFromDb::getFedCabling( *fecCabling_,
+// 						 *fedCabling_ );
 
-  edm::LogVerbatim(mlCabling_) 
-    << "[SiStripCommissioningSource::" << __func__ << "]"
-    << " Cabling object rebuilt using on FED and device descriptions!";
+//   edm::LogVerbatim(mlCabling_) 
+//     << "[SiStripCommissioningSource::" << __func__ << "]"
+//     << " Cabling object rebuilt using on FED and device descriptions!";
   
-}
+// }

@@ -80,7 +80,7 @@ class SiStripCommissioningSource : public edm::EDAnalyzer {
 		  uint32_t run_number = 0 );
   
   /** */
-  void cablingForConnectionRun( const sistrip::RunType& );
+  //void cablingForConnectionRun( const sistrip::RunType& ); //@@ do not use!
 
   
   // ---------- DQM fwk and cabling ----------
