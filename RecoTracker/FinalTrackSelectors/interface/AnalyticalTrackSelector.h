@@ -6,9 +6,9 @@
  * 
  * \author Paolo Azzurri, Giovanni Petrucciani 
  *
- * \version $Revision: 1.3 $
+ * \version $Revision: 1.4 $
  *
- * $Id: AnalyticalTrackSelector.h,v 1.3 2008/02/12 17:10:03 paoloa Exp $
+ * $Id: AnalyticalTrackSelector.h,v 1.4 2008/02/19 19:42:07 pioppi Exp $
  *
  */
 
@@ -70,7 +70,7 @@ namespace reco { namespace modules {
 			std::vector<double> dz_par2_;
 
 	    /// Minimum number of hits
-			uint32_t min_hit_;
+			uint32_t min_layers_;
 
             /// storage
             std::auto_ptr<reco::TrackCollection> selTracks_;
