@@ -169,7 +169,10 @@ MuonErrorMatrix::MuonErrorMatrix(const edm::ParameterSet & iConfig):theD(0){
 	  for(unsigned int ix=1;ix<=iX;++ix){
 	    for(unsigned int iy=1;iy<=iY;++iy){
 	      for(unsigned int iz=1;iz<=iZ;++iz){
-		pf->SetBinContent(ix,iy,iz,values[continuous_i++]);
+		pf->Fill(pf->GetXaxis()->GetBinCenter(ix),
+			 pf->GetYaxis()->GetBinCenter(iy),
+			 pf->GetZaxis()->GetBinCenter(iz),
+			 values[continuous_i++]);
 	      }}}
 	}
       }
