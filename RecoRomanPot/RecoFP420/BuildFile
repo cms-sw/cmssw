@@ -20,7 +20,6 @@
 <use name=Mixing/Base>
 <use name=DetectorDescription/Core>
 <use name=FWCore/Framework>
-<use name=FWCore/ParameterSet>
 <use name=FWCore/MessageLogger>
 <use name=hector>
 <use name=boost>
@@ -57,7 +56,6 @@
  <use name=Mixing/Base>
  <use name=DetectorDescription/Core>
  <use name=FWCore/Framework>
- <use name=FWCore/ParameterSet>
  <use name=FWCore/MessageLogger>
  <use name=hector>
  <use name=boost>
