@@ -561,8 +561,8 @@ L1Comparator::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   isValid[GMT] = ((        gmt_data .isValid()) && (        gmt_emul .isValid()));
   isValid[GMT]&= ((    gmt_rdt_data_.isValid()) && (    gmt_rdt_emul_.isValid()));
   isValid[GLT] = ((    glt_rdt_data .isValid()) && (    glt_rdt_emul .isValid()));
-  isValid[GLT]&= ((    glt_evm_data .isValid()) && (    glt_evm_emul .isValid()));
-  isValid[GLT]&= ((    glt_obj_data .isValid()) && (    glt_obj_emul .isValid()));
+  //isValid[GLT]&= ((    glt_evm_data .isValid()) && (    glt_evm_emul .isValid()));
+  //isValid[GLT]&= ((    glt_obj_data .isValid()) && (    glt_obj_emul .isValid()));
 
 
   if(verbose()) {
@@ -608,9 +608,8 @@ L1Comparator::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   if(m_doSys[GMT]&&isValid[GMT]) process<L1MuGMTCandCollection>          (    gmt_can_data,     gmt_can_emul, GMT);
 
   // >>---- GLT ---- <<  
-  std::vector<bool> gtword_d(128,false);
-  std::vector<bool> gtword_e(128,false);
-
+  GltDEDigi gltdigimon;
+  
   if(m_doSys[GLT]) {
     if(dumpEvent_) {
       m_dumpFile << "\nEntry: " << nevt_ 
@@ -622,8 +621,18 @@ L1Comparator::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
     m_dumpFile << "\n  GT...\n";
 
     if(glt_rdt_data.isValid() && glt_rdt_emul.isValid()) {
-      gtword_d = glt_rdt_data->decisionWord();
-      gtword_e = glt_rdt_emul->decisionWord();
+      
+      //fill gt mon info
+      bool globalDBit[2];
+      std::vector<bool> gltDecBits[2], gltTchBits[2];
+      globalDBit[0] = glt_rdt_data->decision();
+      globalDBit[1] = glt_rdt_emul->decision();
+      gltDecBits[0] = glt_rdt_data->decisionWord();
+      gltDecBits[1] = glt_rdt_emul->decisionWord();
+      gltTchBits[0] = glt_rdt_data->technicalTriggerWord();
+      gltTchBits[1] = glt_rdt_emul->technicalTriggerWord();
+      gltdigimon.set(globalDBit, gltDecBits, gltTchBits);
+
       DEncand[GLT][0]=1; DEncand[GLT][1]=1;
       DEmatchEvt[GLT]  = compareCollections(glt_rdt_data, glt_rdt_emul);  
     }
@@ -680,8 +689,7 @@ L1Comparator::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   
   // >>---- d|e record ---- <<  
   std::auto_ptr<L1DataEmulRecord> record
-    (new L1DataEmulRecord(evt_match,m_doSys,DEmatchEvt,DEncand,m_dedigis));
-  record->set_gltbits(gtword_d,gtword_e);
+    (new L1DataEmulRecord(evt_match,m_doSys,DEmatchEvt,DEncand,m_dedigis, gltdigimon));
   if(verbose()) {
     std::cout << "\n [L1Comparator] printing DErecord" 
 	      << "(entry:"<< nevt_ 
@@ -1187,14 +1195,15 @@ L1Comparator::compareCollections(edm::Handle<L1GlobalTriggerObjectMapRecord> dat
   const std::vector<L1GlobalTriggerObjectMap>& data_ovec = data->gtObjectMap();
   const std::vector<L1GlobalTriggerObjectMap>& emul_ovec = emul->gtObjectMap();
 
-  for(int idx=0; idx<(int)data_ovec.size(); idx++) {
+  
+  for(std::vector<L1GtLogicParser::OperandToken>::size_type idx=0; idx<(int)data_ovec.size(); idx++) {
     match &= ( data_ovec.at(idx).algoName()               == emul_ovec.at(idx).algoName()               );
     match &= ( data_ovec.at(idx).algoBitNumber()          == emul_ovec.at(idx).algoBitNumber()	        );
     match &= ( data_ovec.at(idx).algoGtlResult()          == emul_ovec.at(idx).algoGtlResult()	        );
     match &= ( data_ovec.at(idx).combinationVector()      == emul_ovec.at(idx).combinationVector()	);
     match &= ( data_ovec.at(idx).operandTokenVector().size()==emul_ovec.at(idx).operandTokenVector().size());
     if(match) {
-      for(unsigned i=0; i< data_ovec.at(idx).operandTokenVector().size(); i++) {
+      for(std::vector<L1GtLogicParser::OperandToken>::size_type i=0; i<data_ovec.at(idx).operandTokenVector().size(); i++) {
 	match &= ( data_ovec.at(idx).operandTokenVector().at(i).tokenName ==
 		   emul_ovec.at(idx).operandTokenVector().at(i).tokenName );
 	match &= ( data_ovec.at(idx).operandTokenVector().at(i).tokenNumber ==
