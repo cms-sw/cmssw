@@ -89,6 +89,11 @@ AlCaDiJetsProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
                             return;
           }
+
+//   for (CaloJetCollection::const_iterator track=jets->begin(); track!=jets->end(); track++)
+//   {
+//       cout<<" Phi "<<(*track).phi()<<" Eta "<<(*track).eta()<<" Et "<<(*track).et()<<endl;
+//   }
              fJet1n = (*jets)[0];
              fJet2n = (*jets)[1];
 
@@ -97,23 +102,25 @@ AlCaDiJetsProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
              double dphi = fabs(phi1-phi2);
              if (dphi > myvalue) dphi = twomyvalue-dphi;
              double degreedphi = dphi*180./myvalue;
+//           cout<<" The angle between two jets "<<degreedphi<<" "<<phi1<<" "<<phi2<<" "<<dphi<<" "<<myvalue<<endl;
            int iejet = 0;
            if( fabs(degreedphi-180) < 30. )
            {
-               cout<<" Jet is found "<<endl;
+//               cout<<" Jet is found "<<endl;
                iejet = 1;
                fJet1 = (*jets)[0];
                fJet2 = (*jets)[1];
            } // dphi
               else
            {
-
+//            cout<<" Keep empty collection "<<endl;
             iEvent.put( outputTColl, "DiJetsTracksCollection");
             iEvent.put( result, "DiJetsBackToBackCollection");
             iEvent.put( miniDiJetsEcalRecHitCollection,"DiJetsEcalRecHitCollection");
             iEvent.put( miniDiJetsHBHERecHitCollection, "DiJetsHBHERecHitCollection");
             iEvent.put( miniDiJetsHORecHitCollection, "DiJetsHORecHitCollection");
             iEvent.put( miniDiJetsHFRecHitCollection, "DiJetsHFRecHitCollection");
+//            cout<<" Final return "<<endl;
                             return;
            }
              result->push_back (fJet1n);
@@ -208,7 +215,7 @@ AlCaDiJetsProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   edm::Handle<HBHERecHitCollection> hbhe;
   iEvent.getByLabel(hbheInput_,hbhe);
   const HBHERecHitCollection Hithbhe = *(hbhe.product());
-  //cout<<" Size of HBHE collection "<<Hithbhe.size()<<endl;
+//  cout<<" Size of HBHE collection "<<Hithbhe.size()<<endl;
    
   for(HBHERecHitCollection::const_iterator hbheItr=Hithbhe.begin(); hbheItr!=Hithbhe.end(); hbheItr++)
         {
@@ -230,13 +237,13 @@ AlCaDiJetsProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     if (!allowMissingInputs_) {cout<<"No HBHE collection "<<endl; throw e;}
     }
 
- //  std::cout<<" Size of mini HCAL collection "<<miniDiJetsHBHERecHitCollection->size()<<std::endl;
+//   std::cout<<" Size of mini HCAL collection "<<miniDiJetsHBHERecHitCollection->size()<<std::endl;
 
   try{  
    edm::Handle<HORecHitCollection> ho;
    iEvent.getByLabel(hoInput_,ho);
    const HORecHitCollection Hitho = *(ho.product());
-   //cout<<" Size of HO collection "<<Hitho.size()<<endl;
+//   cout<<" Size of HO collection "<<Hitho.size()<<endl;
   for(HORecHitCollection::const_iterator hoItr=Hitho.begin(); hoItr!=Hitho.end(); hoItr++)
         {
 
@@ -285,7 +292,7 @@ AlCaDiJetsProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     } catch (cms::Exception& e) { // can't find it!
     if (!allowMissingInputs_) throw e;
     }
- //  cout<<" Size of mini HF collection "<<miniDiJetsHFRecHitCollection->size()<<endl;
+//  cout<<" Size of mini HF collection "<<miniDiJetsHFRecHitCollection->size()<<endl;
 
   //Put selected information in the event
   iEvent.put( outputTColl, "DiJetsTracksCollection");

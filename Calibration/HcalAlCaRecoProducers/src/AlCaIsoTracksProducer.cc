@@ -20,14 +20,10 @@
 #include "FWCore/Utilities/interface/Exception.h"
 
 #include "Geometry/CaloTopology/interface/EcalPreshowerTopology.h"
-#include "DataFormats/ParticleFlowReco/interface/PFRecHit.h"
-#include "DataFormats/ParticleFlowReco/interface/PFLayer.h"
-#include "DataFormats/ParticleFlowReco/interface/PFClusterFwd.h"
-#include "DataFormats/ParticleFlowReco/interface/PFCluster.h"
-#include "DataFormats/ParticleFlowReco/interface/PFRecHitFwd.h"
-#include "DataFormats/ParticleFlowReco/interface/PFRecHit.h"
-#include "DataFormats/ParticleFlowReco/interface/PFRecHitFwd.h"
-#include "DataFormats/ParticleFlowReco/interface/PFRecHit.h"
+
+#include "DataFormats/TrackReco/interface/TrackExtra.h"
+#include "DataFormats/TrackReco/interface/TrackExtraFwd.h"
+#include "RecoTracker/TrackProducer/interface/TrackProducerBase.h"
 
 #include <boost/regex.hpp> 
 
@@ -55,6 +51,8 @@ AlCaIsoTracksProducer::AlCaIsoTracksProducer(const edm::ParameterSet& iConfig)
   m_ptCut = iConfig.getUntrackedParameter<double>("ptCut",1.5);
   m_ecalCut = iConfig.getUntrackedParameter<double>("ecalCut",8.);
   m_histoFlag = iConfig.getUntrackedParameter<int>("histoFlag",0);
+  
+  cout<<" Isolation parameter "<< m_ddirCut <<endl;
   
 //
 // Parameters for track associator   ===========================
@@ -88,11 +86,16 @@ AlCaIsoTracksProducer::AlCaIsoTracksProducer(const edm::ParameterSet& iConfig)
   }
 
 //register your products
+//  edm::ProductRegistryHelper::TypeLabelItem ttt = produces<reco::TrackCollection>("IsoTrackTracksCollection");
+//  edm::ProductRegistryHelper::TypeLabelItem ttt0 = produces<reco::TrackExtraCollection>("IsoTrackExtraTracksCollection");
+//  cout<<" ProductID for ExtraTracks "<<ttt0.typeID_<<endl;
+  
   produces<reco::TrackCollection>("IsoTrackTracksCollection");
+  produces<reco::TrackExtraCollection>("IsoTrackExtraTracksCollection");
+  
   produces<EcalRecHitCollection>("IsoTrackEcalRecHitCollection");
   produces<HBHERecHitCollection>("IsoTrackHBHERecHitCollection");
   produces<HORecHitCollection>("IsoTrackHORecHitCollection");
-//  produces<PFRecHitCollection>("IsoTrackPFRecHitCollection");
   produces<EcalRecHitCollection>("IsoTrackPSEcalRecHitCollection");
   
   allowMissingInputs_ = true;
@@ -111,9 +114,18 @@ AlCaIsoTracksProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
 //Create empty output collections
 //
    std::auto_ptr<reco::TrackCollection> outputTColl(new reco::TrackCollection);
+   std::auto_ptr<reco::TrackExtraCollection> outputExTColl(new reco::TrackExtraCollection);
+   
+//   cout<<" Try to register "<<endl;
+   
+   reco::TrackExtraRefProd rTrackExtras = iEvent.getRefBeforePut<reco::TrackExtraCollection>("IsoTrackExtraTracksCollection"); 
+
+//   cout<<" End to try " << endl;
+   
    std::auto_ptr<EcalRecHitCollection> outputEColl(new EcalRecHitCollection);
    std::auto_ptr<HBHERecHitCollection> outputHColl(new HBHERecHitCollection);
    std::auto_ptr<HORecHitCollection> outputHOColl(new HORecHitCollection);
+   
 //   std::auto_ptr<PFRecHitCollection> outputPFColl(new PFRecHitCollection);
    std::auto_ptr<EcalRecHitCollection> outputPSEColl(new EcalRecHitCollection);
    
@@ -184,7 +196,6 @@ AlCaIsoTracksProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
 
    const reco::TrackCollection tC = *(trackCollection.product());
    
-//   cout<<" IsoTrackProducer starts with N tracks = "<< tC.size() << endl;
    
 //   if( tC.size() == 0 )
 //   {
@@ -197,6 +208,7 @@ AlCaIsoTracksProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
 
    int itrk=0;
    int nisotr=0;
+   edm::Ref<reco::TrackExtraCollection>::key_type  idx = 0;
 
 //   Parameters for TrackDetAssociator ================================
 // For Low momentum tracks need to look for larger cone for search ====
@@ -208,6 +220,7 @@ AlCaIsoTracksProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
    parameters_.dREcal = 0.1;
    parameters_.dRHcal = 1.;
 
+    
 // main loop over input tracks
    for (reco::TrackCollection::const_iterator track=tC.begin(); track!=tC.end(); track++) {
         int isol = 1;
@@ -234,8 +247,19 @@ AlCaIsoTracksProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
 	
         double etaecal=info.trkGlobPosAtEcal.eta();
         double phiecal=info.trkGlobPosAtEcal.phi();
-        double thetaecal=2.*atan(1.)-asin(2.*exp(etaecal)/(1.+exp(2.*etaecal)));
-        if(etaecal<0)thetaecal=-thetaecal;
+
+//        double thetaecal=2.*atan(1.)-asin(2.*exp(etaecal)/(1.+exp(2.*etaecal)));
+//        if(etaecal<0)thetaecal=-thetaecal;
+	
+	double thetaecal = 2*atan(exp(-etaecal));
+	
+        double dAngle;
+	if (fabs(etaecal)<1.479) dAngle=atan((m_ddirCut*pow(129.,-1))*cos(acos(-1.)/2.-thetaecal));
+	else dAngle=atan((m_ddirCut*pow(275.,-1))*fabs(cos(thetaecal))); 
+	 
+//	cout<<" isolation dAngle "<<dAngle<<" thetaecal "<<thetaecal<<" "<<pow(129.,-1)<<" "<<pow(275.,-1)<<" "<<cos(acos(-1.)/2.-thetaecal)
+//	<<" "<<sin(thetaecal)<<endl; 
+	 	
 	double ddR = 0.1;
 	
         double eecal=info.coneEnergy(ddR,TrackDetMatchInfo::EcalRecHits);
@@ -262,8 +286,11 @@ AlCaIsoTracksProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
 
                double etaecal1=info1.trkGlobPosAtEcal.eta();
                double phiecal1=info1.trkGlobPosAtEcal.phi();
-               double thetaecal1=2.*atan(1.)-asin(2.*exp(etaecal1)/(1.+exp(2.*etaecal1)));
-               if(etaecal1<0)thetaecal1=-thetaecal1;
+	       
+//               double thetaecal1=2.*atan(1.)-asin(2.*exp(etaecal1)/(1.+exp(2.*etaecal1)));
+//               if(etaecal1<0)thetaecal1=-thetaecal1;
+	       
+	       double thetaecal1 = 2*atan(exp(-etaecal));
 	       
                if(m_histoFlag==1){
                  IsoHists.Dvertx->Fill(dx);
@@ -290,7 +317,11 @@ AlCaIsoTracksProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
                if(ptrack<10.)factor+=(10.-ptrack)/20.;
                if(ptrack1<10.)factor1+=(10.-ptrack1)/20.;
 
-               if( ddir < m_ddirCut*factor*factor1 ) {isol = 0; break;}
+//               if( ddir < m_ddirCut*factor*factor1 ) {isol = 0; break;}
+
+               if( ddir < dAngle*factor*factor1 ) {isol = 0; break;}
+	       
+	       
             }
 
 //      TrackDetMatchInfo info2;
@@ -317,8 +348,22 @@ AlCaIsoTracksProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
 
 // we have a good isolated track, so write it out
         if(iflag == 1) {
+	
+// Take info on the track extras and keep it in the outercollection
+		  
           cout <<"   ---> Track "<<itrk<<" is isolated!"<<std::endl;
+	  
+	  TrackExtraRef myextra = (*track).extra();
+//          cout<<" Check my extra "<<myextra->outerMomentum()<<" "<<myextra->outerPosition()<<endl;
+	  
+	  reco::TrackExtraRef teref= reco::TrackExtraRef ( rTrackExtras, idx ++ );
+	  
           outputTColl->push_back(*track);
+	  reco::Track & mytrack = outputTColl->back();
+	  
+	  mytrack.setExtra( teref );
+	  outputExTColl->push_back(*myextra);
+	  reco::TrackExtra & tx = outputExTColl->back();
 	  
           for (std::vector<EcalRecHit>::const_iterator ehit=miniEcalRecHitCollection->begin(); ehit!=miniEcalRecHitCollection->end(); ehit++) {
             GlobalPoint posH = geo->getPosition((*ehit).detid());
@@ -365,7 +410,7 @@ AlCaIsoTracksProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
 	  
           nisotr++;
         }
-      }
+      } // second track loop
    } // end of main track loop
 
    if(m_histoFlag==1){
@@ -421,50 +466,7 @@ AlCaIsoTracksProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
     for(IT i=psrechits.begin(); i!=psrechits.end(); i++) {
       
       outputPSEColl->push_back( *i );
-      
-      
-/*      
-      const EcalRecHit& hit = *i;
-      double energy = hit.energy();
-                
-      const ESDetId& detid = hit.detid();
-      const CaloCellGeometry *thisCell = psGeometry->getGeometry(detid);
-     
-      if(!thisCell) {
-	cout << "warning detid "<<detid.rawId() <<" not found in preshower geometry" <<endl;
-      }
-      
-      const GlobalPoint& position = thisCell->getPosition();
-      int layer = 0;
             
-      switch( detid.plane() ) {
-      case 1:
-	layer = PFLayer::PS1;
-	break;
-      case 2:
-	layer = PFLayer::PS2;
-	break;
-      default:
-	  cout <<"incorrect preshower plane !! plane number "
-	  <<detid.plane()<<endl;
-	assert(0);
-      }
- 
-      reco::PFRecHit *pfrh
-	= new reco::PFRecHit( detid.rawId(), layer, energy, 
-			      position.x(), position.y(), position.z(), 0,0,0 );
-
-//      cout << "detid.rawId() "<< detid.rawId() << " layer "<< layer  << " energy "<<energy << " XYZ"<< 
-//             position.x()  <<  " "<< position.y() << " "<< position.z() <<  endl;
-
-      if( !pfrh ) continue; // problem with this rechit. skip it
-
-      outputPFColl->push_back( *pfrh );
-
-      delete pfrh;
-      
-*/      
-      
     }
     
     
@@ -486,16 +488,16 @@ AlCaIsoTracksProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
 
   iEvent.put( outputTColl, "IsoTrackTracksCollection");
 //  cout<<" Point 1 "<<endl;
-  iEvent.put( outputEColl, "IsoTrackEcalRecHitCollection");
+  iEvent.put( outputExTColl, "IsoTrackExtraTracksCollection");
 //  cout<<" Point 2 "<<endl;
-  iEvent.put( outputHColl, "IsoTrackHBHERecHitCollection");
+  iEvent.put( outputEColl, "IsoTrackEcalRecHitCollection");
 //  cout<<" Point 3 "<<endl;
-  iEvent.put( outputHOColl, "IsoTrackHORecHitCollection");
+  iEvent.put( outputHColl, "IsoTrackHBHERecHitCollection");
 //  cout<<" Point 4 "<<endl;
-//  iEvent.put( outputPFColl, "IsoTrackPFRecHitCollection");
+  iEvent.put( outputHOColl, "IsoTrackHORecHitCollection");
 //  cout<<" Point 5 "<<endl;
   iEvent.put( outputPSEColl, "IsoTrackPSEcalRecHitCollection");
-//  cout<<" Point 5 "<<endl;
+//  cout<<" Point 6 "<<endl;
 
 }
 

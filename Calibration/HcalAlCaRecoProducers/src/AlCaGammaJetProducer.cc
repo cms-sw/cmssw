@@ -101,7 +101,7 @@ AlCaGammaJetProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     for(reco::SuperClusterCollection::const_iterator aClus = correctedIslandBarrelSuperClusters->begin();
 	aClus != correctedIslandBarrelSuperClusters->end(); aClus++) {
       double vet = aClus->energy()/cosh(aClus->eta());
-      //    cout<<" Barrel supercluster " << vet <<" energy "<<aClus->energy()<<" eta "<<aClus->eta()<<endl;
+          cout<<" Barrel supercluster " << vet <<" energy "<<aClus->energy()<<" eta "<<aClus->eta()<<endl;
       if(vet>20.) {
 	if(vet > vetmax)
 	  {
@@ -144,7 +144,7 @@ AlCaGammaJetProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     }
   }
    
-  //cout<<" Number of gammas "<<nclusb<<" "<<ncluse<<endl;  
+  cout<<" Number of gammas "<<nclusb<<" "<<ncluse<<endl;  
   
   if( nclusb == 0 && ncluse == 0 ) {
    
@@ -215,7 +215,7 @@ AlCaGammaJetProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
            numjet++;
            if(numjet > 3) break;
 
-  //         cout<<" phi,eta "<< phigamma<<" "<< etagamma<<" "<<phijet0<<" "<<etajet0<<endl;
+           cout<<" phi,eta "<< phigamma<<" "<< etagamma<<" "<<phijet0<<" "<<etajet0<<endl;
 
 // Find jet back to gamma
  	   
