@@ -22,8 +22,8 @@
 //                Porting from ORCA by S. Valuev (Slava.Valuev@cern.ch),
 //                May 2006.
 //
-//   $Date: 2007/10/08 14:23:41 $
-//   $Revision: 1.22 $
+//   $Date: 2007/11/12 13:49:59 $
+//   $Revision: 1.23 $
 //
 //   Modifications: 
 //
@@ -1211,7 +1211,7 @@ std::vector <CSCCLCTDigi> CSCCathodeLCTProcessor::findLCTs(const int halfstrip[C
     //
     // Firmware configuration has been fixed for most of 2007 runs, so
     // this trick should NOT be used when emulating 2007 trigger.
-#ifdef MTCC
+#ifdef MTCC2
     int max_bx = 4;
     for (int ilayer = 0; ilayer < CSCConstants::NUM_LAYERS; ilayer++) {
       for (int istrip = 0; istrip < CSCConstants::NUM_HALF_STRIPS; istrip++) {
