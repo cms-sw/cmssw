@@ -14,7 +14,7 @@
 // Original Author:  Evan Klose Friis
 //    additions by:  Freya Blekman
 //         Created:  Tue Nov  6 17:27:19 CET 2007
-// $Id: SiPixelOfflineCalibAnalysisBase.cc,v 1.9 2008/02/25 08:47:30 fblekman Exp $
+// $Id: SiPixelOfflineCalibAnalysisBase.cc,v 1.10 2008/02/27 21:22:36 fblekman Exp $
 //
 //
 
@@ -38,7 +38,7 @@ SiPixelOfflineCalibAnalysisBase::SiPixelOfflineCalibAnalysisBase(const edm::Para
    siPixelCalibDigiProducer_ = iConfig.getParameter<edm::InputTag>("DetSetVectorSiPixelCalibDigiTag");
    createOutputFile_ = iConfig.getUntrackedParameter<bool>("saveFile",false);
    outputFileName_ = iConfig.getParameter<std::string>("outputFileName");
-   daqBE_ = &*edm::Service<DaqMonitorBEInterface>();
+   daqBE_ = &*edm::Service<DQMStore>();
    folderMaker_ = new SiPixelFolderOrganizer();
    
 }
@@ -308,12 +308,7 @@ SiPixelOfflineCalibAnalysisBase::checkPixel(uint32_t detid,short row, short col)
 void SiPixelOfflineCalibAnalysisBase::addTF1ToDQMMonitoringElement(MonitorElement *ele, TF1 *func){
   
   if(func){
-  
-    TH1F *root_ob = dynamic_cast<TH1F*> (ele);
-  
-    if(root_ob){
-       root_ob->GetListOfFunctions()->Add(func);
-    }
+    ele->getTH1()->GetListOfFunctions()->Add(func);
   }
   return;
 }

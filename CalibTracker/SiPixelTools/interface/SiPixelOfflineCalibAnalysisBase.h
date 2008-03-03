@@ -14,7 +14,7 @@
 // Original Author:  Evan Klose Friis
 //    additions by:  Freya Blekman
 //         Created:  Tue Nov  6 17:27:19 CET 2007
-// $Id: SiPixelOfflineCalibAnalysisBase.h,v 1.9 2008/02/15 13:36:23 fblekman Exp $
+// $Id: SiPixelOfflineCalibAnalysisBase.h,v 1.10 2008/02/27 21:22:35 fblekman Exp $
 //
 //
 
@@ -50,9 +50,9 @@
 
 #include "TF1.h"
 
-#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
-#include "DQM/SiPixelCommon/interface/SiPixelHistogramId.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
+#include "DQM/SiPixelCommon/interface/SiPixelHistogramId.h"
 #include "DQM/SiPixelCommon/interface/SiPixelFolderOrganizer.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "CondFormats/SiPixelObjects/interface/SiPixelFedCablingMap.h"
@@ -111,7 +111,7 @@ protected:
 private:
   
   SiPixelFolderOrganizer* folderMaker_;
-  DaqMonitorBEInterface* daqBE_;
+  DQMStore* daqBE_;
   SiPixelHistogramId * theHistogramIdWorker_;
   std::string outputFileName_;
   bool createOutputFile_;
