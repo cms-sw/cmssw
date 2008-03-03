@@ -35,14 +35,20 @@ EgammaSCCorrectionMaker::EgammaSCCorrectionMaker(const edm::ParameterSet& ps)
   std::string sCAlgo_str = ps.getParameter<std::string>("superClusterAlgo");
 
   // determine which BasicCluster algo we are correcting for
+  //And obtain forrection parameters form cfg file
+  edm::ParameterSet fCorrPset;
   if (sCAlgo_str=="Hybrid") {
     sCAlgo_= reco::hybrid;
+    fCorrPset = ps.getParameter<edm::ParameterSet>("hyb_fCorrPset"); 
   } else if (sCAlgo_str=="Island") {
     sCAlgo_= reco::island;
+    fCorrPset = ps.getParameter<edm::ParameterSet>("isl_fCorrPset");
   } else if (sCAlgo_str=="DynamicHybrid") {
     sCAlgo_ = reco::dynamicHybrid;
+    fCorrPset = ps.getParameter<edm::ParameterSet>("dyn_fCorrPset"); 
   } else if (sCAlgo_str=="FixedMatrix") {
     sCAlgo_ = reco::fixedMatrix;
+    fCorrPset = ps.getParameter<edm::ParameterSet>("fix_fCorrPset");
   } else {
     edm::LogError("EgammaSCCorrectionMakerError") 
       << "Error! SuperClusterAlgo in config file must be Hybrid or Island: " 
@@ -56,22 +62,6 @@ EgammaSCCorrectionMaker::EgammaSCCorrectionMaker(const edm::ParameterSet& ps)
 
   etThresh_ =  ps.getParameter<double>("etThresh");
 
-  //Get fCorr parametes according the algo
-  edm::ParameterSet fCorrPset;
-  if ( sCAlgo_str == "Hybrid" ) 
-    fCorrPset = ps.getParameter<edm::ParameterSet>("hyb_fCorrPset"); 
-  else if ( sCAlgo_str == "DynamicHybrid" ) 
-    fCorrPset = ps.getParameter<edm::ParameterSet>("dyn_fCorrPset"); 
-  else if ( sCAlgo_str == "Island" )
-    fCorrPset = ps.getParameter<edm::ParameterSet>("isl_fCorrPset");
-  else if ( sCAlgo_str == "FixedMatrix" )
-    fCorrPset = ps.getParameter<edm::ParameterSet>("fix_fCorrPset");
-  else {
-    edm::LogError("EgammaSCCorrectionMakerError") 
-      << "Error! SuperClusterAlgo in config file must be Hybrid or Island: " 
-      << sCAlgo_str << "  Using Hybrid by default";
-    sCAlgo_ = reco::hybrid;
-  }
   // set the producer parameters
   outputCollection_ = ps.getParameter<std::string>("corectedSuperClusterCollection");
   produces<reco::SuperClusterCollection>(outputCollection_);
