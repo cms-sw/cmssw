@@ -4571,6 +4571,12 @@
     </MaterialFraction>
   </CompositeMaterial>
 
+  <CompositeMaterial name="C6F14_F2_-10C" density="1.82033*g/cm3" symbol=" " method="mixture by weight">
+    <MaterialFraction fraction="1.00000000">
+      <rMaterial name="materials:C6F14"/>
+    </MaterialFraction>
+  </CompositeMaterial>
+
 
 <!-- Tracker Cooling Fluids END -->
 
