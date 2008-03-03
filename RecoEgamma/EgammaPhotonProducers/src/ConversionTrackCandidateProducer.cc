@@ -209,14 +209,33 @@ void ConversionTrackCandidateProducer::produce(edm::Event& theEvent, const edm::
   }
   reco::SuperClusterCollection scEndcapCollection = *(scEndcapHandle.product());
   LogDebug("ConversionTrackCandidateProducer")  << "ConversionTrackCandidateProducer Endcap SC collection size  " << scEndcapCollection.size() << "\n";
+
+  // get the geometry from the event setup:
+  theEventSetup.get<IdealGeometryRecord>().get(theCaloGeom_);
+  // Get HoverE
+  Handle<HBHERecHitCollection> hbhe;
+  HBHERecHitMetaCollection *mhbhe=0;
+  theEvent.getByLabel(hbheLabel_,hbheInstanceName_,hbhe);  
+  if (!hbhe.isValid()) {
+    edm::LogError("PhotonProducer") << "Error! Can't get the product "<<hbheInstanceName_.c_str();
+    return; 
+  }
+  
+  if (hOverEConeSize_ > 0.) {
+    mhbhe=  new HBHERecHitMetaCollection(*hbhe);
+  }
+  theHoverEcalc_=HoECalculator(theCaloGeom_);
+
+
+
   
 
   /////////////
   vecOfSCRefForOutIn.clear();
   vecOfSCRefForInOut.clear();
 
-  buildCollections(scBarrelHandle, bcBarrelHandle, *outInTrackCandidate_p,*inOutTrackCandidate_p,vecOfSCRefForOutIn,vecOfSCRefForInOut );
-  buildCollections(scEndcapHandle, bcEndcapHandle, *outInTrackCandidate_p,*inOutTrackCandidate_p,vecOfSCRefForOutIn,vecOfSCRefForInOut );
+  buildCollections(scBarrelHandle, bcBarrelHandle,  mhbhe,*outInTrackCandidate_p,*inOutTrackCandidate_p,vecOfSCRefForOutIn,vecOfSCRefForInOut );
+  buildCollections(scEndcapHandle, bcEndcapHandle,  mhbhe,*outInTrackCandidate_p,*inOutTrackCandidate_p,vecOfSCRefForOutIn,vecOfSCRefForInOut );
 
 
 
@@ -264,6 +283,7 @@ void ConversionTrackCandidateProducer::produce(edm::Event& theEvent, const edm::
 
 void ConversionTrackCandidateProducer::buildCollections( const edm::Handle<reco::SuperClusterCollection> & scHandle,
                                                          const edm::Handle<reco::BasicClusterCollection> & bcHandle,
+							 HBHERecHitMetaCollection *mhbhe,
 							 TrackCandidateCollection& outInTrackCandidates,
 							 TrackCandidateCollection& inOutTrackCandidates,
 							 std::vector<edm::Ref<reco::SuperClusterCollection> >& vecRecOI,
@@ -284,8 +304,13 @@ void ConversionTrackCandidateProducer::buildCollections( const edm::Handle<reco:
     reco::SuperClusterRef scRefOutIn(reco::SuperClusterRef(scHandle, lSC));
     reco::SuperClusterRef scRefInOut(reco::SuperClusterRef(scHandle, lSC));
     lSC++;
+
     // preselection
     if (aClus->energy()/cosh(aClus->eta()) <= minSCEt_) continue;
+    const reco::SuperCluster* pClus=&(*aClus);
+    double HoE=theHoverEcalc_(pClus,mhbhe);
+    if (HoE>=maxHOverE_)  continue;
+
 
     theOutInSeedFinder_->setCandidate(*aClus);
     theOutInSeedFinder_->makeSeeds(  clusterCollection );
