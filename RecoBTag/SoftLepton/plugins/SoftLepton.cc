@@ -12,7 +12,7 @@
 
 // Original Author:  fwyzard
 //         Created:  Wed Oct 18 18:02:07 CEST 2006
-// $Id: SoftLepton.cc,v 1.15 2008/01/24 19:23:05 fwyzard Exp $
+// $Id: SoftLepton.cc,v 1.16 2008/01/25 09:45:55 fwyzard Exp $
 
 
 #include <memory>
@@ -32,8 +32,11 @@
 #include "DataFormats/Common/interface/RefToBase.h"
 
 // ROOT::Math vectors (aka math::XYZVector)
+#include "DataFormats/Math/interface/LorentzVector.h"
 #include "DataFormats/Math/interface/Vector3D.h"
+#include "Math/GenVector/PxPyPzM4D.h"
 #include "Math/GenVector/VectorUtil.h"
+#include "Math/GenVector/Boost.h"
 
 #include "DataFormats/GeometryVector/interface/GlobalVector.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
@@ -59,6 +62,14 @@
 #include "TrackingTools/IPTools/interface/IPTools.h"
 #include "RecoVertex/PrimaryVertexProducer/interface/PrimaryVertexSorter.h"
 #include "SoftLepton.h"
+
+enum {
+  AXIS_CALORIMETRIC             = 0,  // use the calorimietric jet axis
+  AXIS_CHARGED_AVERAGE          = 1,  // refine jet axis using charged tracks: use a pT-weighted average of (eta, phi)
+  AXIS_CHARGED_AVERAGE_NOLEPTON = 2,  // as above, without the tagging lepton track
+  AXIS_CHARGED_SUM              = 3,  // refine jet axis using charged tracks: use the sum of tracks momentum
+  AXIS_CHARGED_SUM_NOLEPTON     = 4   // as above, without the tagging lepton track
+};
 
 using namespace std;
 using namespace edm;
@@ -250,13 +261,13 @@ reco::SoftLeptonTagInfo SoftLepton::tag (
       continue;
 
     reco::SoftLeptonProperties properties;
-    properties.axisRefinement = m_refineJetAxis;
 
     const reco::TransientTrack transientTrack = m_transientTrackBuilder->build(*lepton);
     properties.sip2d    = IPTools::signedTransverseImpactParameter( transientTrack, jetAxis, primaryVertex ).second.significance();
     properties.sip3d    = IPTools::signedImpactParameter3D( transientTrack, jetAxis, primaryVertex ).second.significance();
     properties.deltaR   = DeltaR( lepton_momentum, axis );
     properties.ptRel    = Perp( lepton_momentum, axis );
+    properties.p0Par    = boostedPPar( lepton_momentum, axis );
     properties.etaRel   = relativeEta( lepton_momentum, axis );
     properties.ratio    = lepton_momentum.R() / axis.R();
     properties.ratioRel = lepton_momentum.Dot(axis) / axis.Mag2();
@@ -275,8 +286,8 @@ GlobalVector SoftLepton::refineJetAxis (
 ) const {
   math::XYZVector axis = jet->momentum();
 
-  if (m_refineJetAxis == reco::SoftLeptonProperties::AXIS_CHARGED_AVERAGE or
-      m_refineJetAxis == reco::SoftLeptonProperties::AXIS_CHARGED_AVERAGE_NOLEPTON) {
+  if (m_refineJetAxis == AXIS_CHARGED_AVERAGE or
+      m_refineJetAxis == AXIS_CHARGED_AVERAGE_NOLEPTON) {
 
     double sum_pT        = 0.;
     double sum_eta_by_pT = 0.;
@@ -302,7 +313,7 @@ GlobalVector SoftLepton::refineJetAxis (
     }
 
     // "remove" excluded track
-    if (m_refineJetAxis == reco::SoftLeptonProperties::AXIS_CHARGED_AVERAGE_NOLEPTON and exclude.isNonnull()) {
+    if (m_refineJetAxis == AXIS_CHARGED_AVERAGE_NOLEPTON and exclude.isNonnull()) {
       const reco::Track & track = *exclude;
 
       perp = track.pt();
@@ -319,8 +330,8 @@ GlobalVector SoftLepton::refineJetAxis (
     if (sum_pT > 1.)    // avoid the case of only the lepton-track with small rounding errors
       axis = math::RhoEtaPhiVector( axis.rho(), axis.eta() + sum_eta_by_pT / sum_pT, axis.phi() + sum_phi_by_pT / sum_pT);
     
-  } else if (m_refineJetAxis == reco::SoftLeptonProperties::AXIS_CHARGED_SUM or
-             m_refineJetAxis == reco::SoftLeptonProperties::AXIS_CHARGED_SUM_NOLEPTON) {
+  } else if (m_refineJetAxis == AXIS_CHARGED_SUM or
+             m_refineJetAxis == AXIS_CHARGED_SUM_NOLEPTON) {
     math::XYZVector sum;
 
     // recalculate the jet direction as the sum of charget tracks momenta
@@ -330,7 +341,7 @@ GlobalVector SoftLepton::refineJetAxis (
     }
 
     // "remove" excluded track
-    if (m_refineJetAxis == reco::SoftLeptonProperties::AXIS_CHARGED_SUM_NOLEPTON and exclude.isNonnull()) {
+    if (m_refineJetAxis == AXIS_CHARGED_SUM_NOLEPTON and exclude.isNonnull()) {
       const reco::Track & track = *exclude;
       sum -= track.momentum();
     }
@@ -343,8 +354,17 @@ GlobalVector SoftLepton::refineJetAxis (
 }
 
 double SoftLepton::relativeEta(const math::XYZVector& vector, const math::XYZVector& axis) {
-  double mag = vector.R() * axis.R();
+  double mag = vector.r() * axis.r();
   double dot = vector.Dot(axis); 
   return -log((mag - dot)/(mag + dot)) / 2;
 }
 
+// compute the lepton momentum along the jet axis, in the jet rest frame
+double SoftLepton::boostedPPar(const math::XYZVector& vector, const math::XYZVector& axis) {
+  static const double lepton_mass = 0.00;       // assume a massless (ultrarelativistic) lepton
+  static const double jet_mass    = 5.279;      // use B±/B0 mass as the jet rest mass [PDG 2007 updates]
+  ROOT::Math::LorentzVector<ROOT::Math::PxPyPzM4D<double> > lepton(vector.Dot(axis) / axis.r(), Perp(vector, axis), 0., lepton_mass);
+  ROOT::Math::LorentzVector<ROOT::Math::PxPyPzM4D<double> > jet( axis.r(), 0., 0., jet_mass );
+  ROOT::Math::BoostX boost( -jet.Beta() );
+  return boost(lepton).x();
+} 
