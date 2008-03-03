@@ -39,6 +39,7 @@ namespace cms
     virtual void beginJob (edm::EventSetup const & es){beginJobBase(es);}
 
     virtual void produce(edm::Event& e, const edm::EventSetup& es){produceBase(e,es);}
+    
   };
 }
 

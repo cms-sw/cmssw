@@ -43,6 +43,7 @@ namespace cms{
     conf_(conf),
     theTrackCandidateOutput(true),
     theTrajectoryOutput(false),
+    useSplitting(conf.getParameter<bool>("useHitsSplitting")),
     theTrajectoryBuilderName(conf.getParameter<std::string>("TrajectoryBuilder")), 
     theTrajectoryBuilder(0),
     theTrajectoryCleanerName(conf.getParameter<std::string>("TrajectoryCleaner")), 
@@ -186,37 +187,38 @@ namespace cms{
       //analyseCleanedTrajectories(unsmoothedResult);
       
       if (theTrackCandidateOutput){
-      // Step F: Convert to TrackCandidates
-      output->reserve(unsmoothedResult.size());
-      for (vector<Trajectory>::const_iterator it = unsmoothedResult.begin();
-	   it != unsmoothedResult.end(); it++) {
+	// Step F: Convert to TrackCandidates
+       output->reserve(unsmoothedResult.size());
+       for (vector<Trajectory>::const_iterator it = unsmoothedResult.begin();
+	    it != unsmoothedResult.end(); it++) {
 	
-	Trajectory::RecHitContainer thits;
-	it->recHitsV(thits);
-	OwnVector<TrackingRecHit> recHits;
-	recHits.reserve(thits.size());
-	for (Trajectory::RecHitContainer::const_iterator hitIt = thits.begin();
-	     hitIt != thits.end(); hitIt++) {
-	  recHits.push_back( (**hitIt).hit()->clone());
-	}
+	 Trajectory::RecHitContainer thits;
+	 //it->recHitsV(thits);
+	 it->recHitsV(thits,useSplitting);
+	 OwnVector<TrackingRecHit> recHits;
+	 recHits.reserve(thits.size());
+	 for (Trajectory::RecHitContainer::const_iterator hitIt = thits.begin();
+	      hitIt != thits.end(); hitIt++) {
+	   recHits.push_back( (**hitIt).hit()->clone());
+	 }
 	
-	//PTrajectoryStateOnDet state = *(it->seed().startingState().clone());
-	std::pair<TrajectoryStateOnSurface, const GeomDet*> initState = 
-	  theInitialState->innerState( *it);
+	 //PTrajectoryStateOnDet state = *(it->seed().startingState().clone());
+	 std::pair<TrajectoryStateOnSurface, const GeomDet*> initState = 
+	   theInitialState->innerState( *it);
       
-	// temporary protection againt invalid initial states
-	if (! initState.first.isValid() || initState.second == 0) {
-          //cout << "invalid innerState, will not make TrackCandidate" << endl;
-          continue;
-        }
+	 // temporary protection againt invalid initial states
+	 if (! initState.first.isValid() || initState.second == 0) {
+	   //cout << "invalid innerState, will not make TrackCandidate" << endl;
+	   continue;
+	 }
 
-	PTrajectoryStateOnDet* state = TrajectoryStateTransform().persistentState( initState.first,
-										   initState.second->geographicalId().rawId());
-
-	output->push_back(TrackCandidate(recHits,it->seed(),*state,it->seedRef() ) );
-	
-	delete state;
-      }
+	 PTrajectoryStateOnDet* state = TrajectoryStateTransform().persistentState( initState.first,
+										    initState.second->geographicalId().rawId());
+	 
+	 output->push_back(TrackCandidate(recHits,it->seed(),*state,it->seedRef() ) );
+	 
+	 delete state;
+       }
       }//output trackcandidates
       
       

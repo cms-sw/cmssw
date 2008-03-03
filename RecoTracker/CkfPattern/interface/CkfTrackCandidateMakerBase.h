@@ -41,6 +41,7 @@ namespace cms
 
     bool theTrackCandidateOutput;
     bool theTrajectoryOutput;
+    bool useSplitting;
 
     std::string theTrajectoryBuilderName;
     const TrajectoryBuilder*  theTrajectoryBuilder;
@@ -57,6 +58,7 @@ namespace cms
     const NavigationSchool*       theNavigationSchool;
     
     RedundantSeedCleaner*  theSeedCleaner;
+
 
     // methods for debugging
     virtual TrajectorySeedCollection::const_iterator lastSeed(TrajectorySeedCollection const& theSeedColl){return theSeedColl.end();}
