@@ -1,17 +1,23 @@
 <lcgdict>
  <class name="HcalPedestal"/>
- <class name="HcalPedestals" id="3BCA6124-EEB5-5245-CB96-73E512AE3428"/>
- <class name="HcalPedestalWidths" id="0EF09007-0FB3-3DD7-7F74-5274C6C28842"/>
+ <class name="HcalPedestals"/>
+
  <class name="HcalPedestalWidth"/>
- <class name="HcalGains" id="A069207D-22A2-1BAD-FD51-13613F781A97"/>
+ <class name="HcalPedestalWidths"/>
+
  <class name="HcalGain"/>
- <class name="HcalGainWidths" id="2726EDFB-D5A8-4EEA-822B-5F0DE6784CB2"/>
+ <class name="HcalGains"/>
+
  <class name="HcalGainWidth"/>
- <class name="HcalQIEData" id="3A102A5E-7773-02EF-7B98-A838BED8D66A"/>
+ <class name="HcalGainWidths"/>
+
  <class name="HcalQIECoder"/>
- <class name="HcalCalibrationQIEData" id="FA66C28E-F2E7-B335-7C6D-3225C672FC9C"/>
+ <class name="HcalQIEData"/>
+
  <class name="HcalCalibrationQIECoder"/>
- <class name="HcalElectronicsMap" id="1EC50DB8-886B-ABB4-E875-20AF1C0C66E3">
+ <class name="HcalCalibrationQIEData"/>
+
+ <class name="HcalElectronicsMap">
   <field name="mPItemsById" transient="true"/>
   <field name="sortedByPId" transient="true"/>
   <field name="mTItemsByTrigId" transient="true"/>
@@ -19,11 +25,16 @@
  </class>
  <class name="HcalElectronicsMap::PrecisionItem"/>
  <class name="HcalElectronicsMap::TriggerItem"/>
- <class name="HcalChannelQuality" id="6AD128B1-6893-20A1-F739-079F9223BF21"/>
- <class name="HcalChannelQuality::Item"/>
+
+ <class name="HcalChannelStatus"/>
+ <class name="HcalChannelQuality"/>
 
  <class name="HcalZSThreshold"/>
  <class name="HcalZSThresholds"/>
 
+ <class name="HcalRespCorr"/>
+ <class name="HcalRespCorrs"/>
+
  <class pattern="*vector*"/>
+ <class pattern="*HcalCondObjectContainer*"/>
 </lcgdict>   

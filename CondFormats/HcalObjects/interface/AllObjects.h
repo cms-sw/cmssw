@@ -12,5 +12,6 @@
 #include "CondFormats/HcalObjects/interface/HcalChannelQuality.h"
 #include "CondFormats/HcalObjects/interface/HcalElectronicsMap.h"
 #include "CondFormats/HcalObjects/interface/HcalZSThresholds.h"
+#include "CondFormats/HcalObjects/interface/HcalRespCorrs.h"
 
 #endif
