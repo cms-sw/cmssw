@@ -79,7 +79,7 @@ void L1RCTReceiverCard::fillInput(vector<unsigned short> input){
     ecalFG.at(i) = input.at(i) & 1;
     hcalInput.at(i) = input.at(i+32)/2;
     hcalMuon.at(i) = input.at(i+32) & 1;
-    unsigned long lookup = rctLookupTables_->lookup(ecalInput.at(i),hcalInput.at(i),ecalFG.at(i),crtNo, cardNo, i+1);
+    unsigned long lookup = rctLookupTables_->lookup(ecalInput.at(i),hcalInput.at(i),ecalFG.at(i),crtNo, cardNo, i); // tower number 0-31 now
     unsigned short etIn7Bits = lookup&127;
     unsigned short etIn9Bits = (lookup >> 8)&511;
     unsigned short HE_FGBit = (lookup>>7)&1;
