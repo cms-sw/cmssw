@@ -4,7 +4,7 @@
 <use name=DataFormats/TrackReco>
 <use name=clhep>
 <use name=boost>
-<use name=DQMServices/CoreROOT>
+<use name=DQMServices/Core>
 <use name=SimDataFormats/TrackerDigiSimLink>
 <use name=DataFormats/SiStripDetId> 
 <use name=FWCore/ParameterSet>

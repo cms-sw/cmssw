@@ -1,8 +1,8 @@
 <use name=root>
-<use name=DQMServices/CoreROOT>
+<use name=DQMServices/Core>
 
 <export>
 	<lib name=ValidationTools>
 	<use name=root>
-	<use name=DQMServices/CoreROOT>
+	<use name=DQMServices/Core>
 </export>
