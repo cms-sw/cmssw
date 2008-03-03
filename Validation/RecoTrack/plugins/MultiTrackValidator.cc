@@ -264,8 +264,8 @@ void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup
 	} // END for (unsigned int f=0; f<etaintervals[w].size()-1; f++){
 	
 	for (unsigned int f=0; f<pTintervals[w].size()-1; f++){
-          if (sqrt(tp->momentum().perp2())>pTintervals[w][f]&&
-              sqrt(tp->momentum().perp2())<pTintervals[w][f+1]) {
+          if (getPt(sqrt(tp->momentum().perp2()))>pTintervals[w][f]&&
+              getPt(sqrt(tp->momentum().perp2()))<pTintervals[w][f+1]) {
             totSIMpT[w][f]++;
 	    if (rt.size()!=0) {
 	      totASSpT[w][f]++;
@@ -317,8 +317,8 @@ void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup
 	}
 	
 	for (unsigned int f=0; f<pTintervals[w].size()-1; f++){
-	  if (sqrt(track->momentum().perp2())>pTintervals[w][f]&&
-	      sqrt(track->momentum().perp2())<pTintervals[w][f+1]) {
+	  if (getPt(sqrt(track->momentum().perp2()))>pTintervals[w][f]&&
+	      getPt(sqrt(track->momentum().perp2()))<pTintervals[w][f+1]) {
 	    totRECpT[w][f]++; 
 	    if (tp.size()!=0) {
 	      totASS2pT[w][f]++;
@@ -458,11 +458,11 @@ void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup
 	  cotThetares_vs_eta[w]->Fill(getEta(track->eta()),1/tan(1.570796326794896558-lambdaRec)-1/tan(1.570796326794896558-lambdaSim));         
 
 	  //same as before but vs pT
-	  dxyres_vs_pt[w]->Fill(track->pt(),dxyRec-dxySim);
-	  ptres_vs_pt[w]->Fill(track->pt(),(track->pt()-sqrt(assocTrack->momentum().perp2()))/track->pt());
-	  dzres_vs_pt[w]->Fill(track->pt(),dzRec-dzSim);
-	  phires_vs_pt[w]->Fill(track->pt(),phiRec-phiSim);
-	  cotThetares_vs_pt[w]->Fill(track->pt(),1/tan(1.570796326794896558-lambdaRec)-1/tan(1.570796326794896558-lambdaSim));
+	  dxyres_vs_pt[w]->Fill(getPt(track->pt()),dxyRec-dxySim);
+	  ptres_vs_pt[w]->Fill(getPt(track->pt()),(track->pt()-sqrt(assocTrack->momentum().perp2()))/track->pt());
+	  dzres_vs_pt[w]->Fill(getPt(track->pt()),dzRec-dzSim);
+	  phires_vs_pt[w]->Fill(getPt(track->pt()),phiRec-phiSim);
+	  cotThetares_vs_pt[w]->Fill(getPt(track->pt()),1/tan(1.570796326794896558-lambdaRec)-1/tan(1.570796326794896558-lambdaSim));
   	 
   	 
 	  //pulls of track params vs eta: fill 2D histos

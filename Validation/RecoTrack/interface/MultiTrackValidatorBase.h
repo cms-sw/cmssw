@@ -4,8 +4,8 @@
 /** \class MultiTrackValidatorBase
  *  Base class for analyzers that produces histrograms to validate Track Reconstruction performances
  *
- *  $Date: 2008/02/21 09:36:20 $
- *  $Revision: 1.3 $
+ *  $Date: 2008/03/01 16:02:26 $
+ *  $Revision: 1.4 $
  *  \author cerati
  */
 
@@ -54,7 +54,8 @@ class MultiTrackValidatorBase {
     nintpT(pset.getParameter<int>("nintpT")),
     minHit(pset.getParameter<double>("minHit")),
     maxHit(pset.getParameter<double>("maxHit")),
-    nintHit(pset.getParameter<int>("nintHit"))
+    nintHit(pset.getParameter<int>("nintHit")),
+    useInvPt(pset.getParameter<bool>("useInvPt"))
     {
       dbe_ = edm::Service<DQMStore>().operator->();
     }
@@ -81,6 +82,11 @@ class MultiTrackValidatorBase {
   virtual double getEta(double eta) {
     if (useFabs) return fabs(eta);
     else return eta;
+  }
+
+  virtual double getPt(double pt) {
+    if (useInvPt && pt!=0) return 1/pt;
+    else return pt;
   }
   
   void fillPlotFromVector(MonitorElement* h, std::vector<int>& vec) {
@@ -178,7 +184,8 @@ class MultiTrackValidatorBase {
   int nintpT;
   double minHit, maxHit;
   int nintHit;
-  
+  bool useInvPt;
+
   edm::ESHandle<MagneticField> theMF;
 
   std::vector<const TrackAssociatorBase*> associator;
