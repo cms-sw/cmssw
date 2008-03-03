@@ -481,28 +481,43 @@ L1TDEMON::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
     
   }//close loop over dedigi-cands
 
-  ///gltbits
-  const int gtnbit=128;
-  std::vector<bool> dbitv = deRecord->gltbits(0);
-  std::vector<bool> ebitv = deRecord->gltbits(1);
-  std::vector<bool> debitv(gtnbit,false), debitmaskv(gtnbit,false), 
-    gtbitmasked(gtnbit,false);
-  for(int i=0; i<gtnbit; i++)
+  ///GT mon info
+  const int w64=64;
+  GltDEDigi gltdigimon = deRecord->getGlt();
+  bool ddecbit = gltdigimon.globalDBit[0];
+  bool edecbit = gltdigimon.globalDBit[1];
+  std::vector<bool> edecbitv = gltdigimon.gltDecBits[0];
+  std::vector<bool> ddecbitv = gltdigimon.gltDecBits[1];
+  std::vector<bool> etchbitv = gltdigimon.gltTchBits[0];
+  std::vector<bool> dtchbitv = gltdigimon.gltTchBits[1];
+
+  std::vector<bool> dedecbitv(2*w64,false), debitmaskv(2*w64,false), 
+    gtbitmasked(2*w64,false);
+  for(int i=0; i<2*w64; i++)
     gtbitmasked[i] = false; //no masking!
-  for(int i=0; i<gtnbit; i++) {
-    debitv[i]=(dbitv[i]&&ebitv[i]);
-    debitmaskv[i]=(debitv[i]&& !gtbitmasked[i]);
-    if(dbitv[i])  dword [GLT]->Fill(i,1);
-    if(ebitv[i])  eword [GLT]->Fill(i,1);
-    if(debitv[i]) deword[GLT]->Fill(i,1);
-    if(debitmaskv[i]) masked[GLT]->Fill(i,1);
+  for(int i=0; i<2*w64; i++) {
+    dedecbitv[i]=(ddecbitv[i]&&edecbitv[i]);
+    debitmaskv[i]=(dedecbitv[i]&& !gtbitmasked[i]);
+    if(ddecbitv[i])  dword [GLT]->Fill(i,1);
+    if(edecbitv[i])  eword [GLT]->Fill(i,1);
+    if(dedecbitv[i]) deword[GLT]->Fill(i,1);
+    if(debitmaskv[i])masked[GLT]->Fill(i,1);
   }
+
+  std::vector<bool> detchbitv(w64,false);
+  for(int i=0; i<w64; i++) {
+    detchbitv[i]=(dtchbitv[i]&&etchbitv[i]);
+  }
+
   if(verbose()) {
-    std::cout << "L1TDEMON gltbits:\n";
-    std::cout << "\ndata:"; for(int i=0; i<gtnbit; i++) std::cout << dbitv[i];
-    std::cout << "\nemul:"; for(int i=0; i<gtnbit; i++) std::cout << ebitv[i];
-    std::cout << "\nand :"; for(int i=0; i<gtnbit; i++) std::cout << debitv[i];
-    std::cout << "\nmask:"; for(int i=0; i<gtnbit; i++) std::cout << debitmaskv[i];
+    std::cout << "L1TDEMON gt dec bits:\n";
+    std::cout << "\ndata:"; for(int i=0; i<2*w64; i++) std::cout << ddecbitv[i];
+    std::cout << "\nemul:"; for(int i=0; i<2*w64; i++) std::cout << edecbitv[i];
+    std::cout << "\nand :"; for(int i=0; i<2*w64; i++) std::cout << dedecbitv[i];
+    std::cout << "\nmask:"; for(int i=0; i<2*w64; i++) std::cout << debitmaskv[i];
+    std::cout << "\n gt tech trig bits:\n";
+    std::cout << "\ndata:"; for(int i=0; i<w64; i++) std::cout << dtchbitv[i];
+    std::cout << "\nemul:"; for(int i=0; i<w64; i++) std::cout << etchbitv[i];
     std::cout << "\n";
   }      
 
