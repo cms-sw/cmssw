@@ -101,12 +101,13 @@ reco::CaloMET CaloSpecificAlgo::addInfo(edm::Handle<edm::View<Candidate> > tower
 	      else if( subdet == HcalForward )
 		{
 		  if (!noHF)
-		    if( calotower->hadEt() > MaxTowerHad ) MaxTowerHad = calotower->hadEt();
-		  
+		    {
+		      if( calotower->hadEt() > MaxTowerHad ) MaxTowerHad = calotower->hadEt();
+		      if( calotower->emEt()  > MaxTowerEm  ) MaxTowerEm  = calotower->emEt();
+		    }
+
 		  specific.HadEtInHF   += calotower->hadEt();
 		  specific.EmEtInHF    += calotower->emEt(); 
-
-		  if( calotower->emEt()  > MaxTowerEm  ) MaxTowerEm  = calotower->emEt();
 
 		  if (calotower->eta()>=0)
 		    {
