@@ -144,7 +144,7 @@ namespace edm
     std::vector<edm::Handle<std::vector<SimTrack> > > result_t;
     e.getMany((*sel_),result_t);
     int str=result_t.size();
-    if (str>1) LogWarning("MixingModule") << " Found "<<str<<" SimTrack collections in signal file, only first one will be stored!!!!!!";
+    //    if (str>1) LogWarning("MixingModule") << " Found "<<str<<" SimTrack collections in signal file, only first one will be stored!!!!!!";
     if (str>0) {
       edm::BranchDescription desc =result_t[0].provenance()->product();
       LogDebug("MixingModule") <<" adding " << result_t[0].product()->size()<<" signal SimTracks";
@@ -154,7 +154,7 @@ namespace edm
     std::vector<edm::Handle<std::vector<SimVertex> > > result_v;
     e.getMany((*sel_),result_v);
     int sv=result_v.size();
-    if (sv>1) LogWarning("MixingModule") << " Found "<<sv<<" SimVertex collections in signal file, only first one will be stored!!!!!!";
+    //    if (sv>1) LogWarning("MixingModule") << " Found "<<sv<<" SimVertex collections in signal file, only first one will be stored!!!!!!";
     if (sv>0) {
       LogDebug("MixingModule") <<" adding " << result_v[0].product()->size()<<" signal Simvertices ";
       cfVertices_->addSignals(result_v[0].product(),e.id());
@@ -164,7 +164,7 @@ namespace edm
     std::vector<edm::Handle<edm::HepMCProduct> > result_mc;
     e.getMany((*sel_),result_mc);
     int smc=result_mc.size();
-    if (smc>1) LogWarning("MixingModule") << " Found "<<smc<<" HepMCProducte in signal file, only first one will be stored!!!!!!";
+    //    if (smc>1) LogWarning("MixingModule") << " Found "<<smc<<" HepMCProducte in signal file, only first one will be stored!!!!!!";
     if (smc>0) {
       LogDebug("MixingModule") <<" adding signal HepMCProduct";
       std::vector<edm::HepMCProduct> vec;
@@ -244,7 +244,7 @@ namespace edm
     std::vector<edm::Handle<std::vector<SimTrack> > > result_t;
     e->getMany((*sel_),result_t);
     int str=result_t.size();
-    if (str>1) LogWarning("MixingModule") <<"Too many SimTrack containers, should be only one!";
+    //    if (str>1) LogWarning("MixingModule") <<"Too many SimTrack containers, should be only one!";
     if (str>0) {
       LogDebug("MixingModule") <<result_t[0].product()->size()<<"  Simtracks added, eventNr "<<eventNr;
       if (result_t[0].isValid()) {
@@ -256,7 +256,7 @@ namespace edm
     std::vector<edm::Handle<std::vector<SimVertex> > > result_v;
     e->getMany((*sel_),result_v);
     int sv=result_v.size();
-    if (sv>1) LogWarning("MixingModule") <<"Too many SimVertex containers, should be only one!"; 
+    //    if (sv>1) LogWarning("MixingModule") <<"Too many SimVertex containers, should be only one!"; 
     if (sv>0) {
       LogDebug("MixingModule") <<result_v[0].product()->size()<<"  Simvertices added";
       if (result_v[0].isValid()) {
@@ -271,7 +271,7 @@ namespace edm
     std::vector<edm::Handle<edm::HepMCProduct> > result_mc;
     e->getMany((*sel_),result_mc);
     int smc=result_mc.size();
-    if (smc>1) LogWarning("MixingModule") <<"Too many HepMCProducts, should be only one!"; 
+    //    if (smc>1) LogWarning("MixingModule") <<"Too many HepMCProducts, should be only one!"; 
     if (smc>0) {
       LogDebug("MixingModule") <<"  HepMCProduct added";
       std::vector<edm::HepMCProduct> vec;
@@ -336,6 +336,7 @@ namespace edm
       e.put(pOut);
     }
   }
+
   void MixingModule::getEventStartInfo(edm::Event & e, const unsigned int s) {
     // read event start info from event
     // and set it in BMixingModule
