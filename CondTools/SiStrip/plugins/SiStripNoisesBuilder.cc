@@ -29,22 +29,22 @@ void SiStripNoisesBuilder::analyze(const edm::Event& evt, const edm::EventSetup&
 
       float MeanNoise = 5;
       float RmsNoise  = 1;
-      double badStripProb = .5;
-
+      
       float noise =  RandGauss::shoot(MeanNoise,RmsNoise);
-      bool disable = (RandFlat::shoot(1.) < badStripProb ? true:false);
+      
+      //double badStripProb = .5;
+      //bool disable = (RandFlat::shoot(1.) < badStripProb ? true:false);
 	
+      obj->setData(noise,theSiStripVector);
       if (count<printdebug_)
 	edm::LogInfo("SiStripNoisesBuilder") << "detid " << it->first << " \t"
 					     << " strip " << strip << " \t"
 					     << noise     << " \t" 
-					     << disable   << " \t" 
+					     << theSiStripVector.back()/10 << " \t" 
 					     << std::endl; 	    
-      obj->setData(noise,disable,theSiStripVector);
     }    
       
-    SiStripNoises::Range range(theSiStripVector.begin(),theSiStripVector.end());
-    if ( ! obj->put(it->first,range) )
+    if ( ! obj->put(it->first,theSiStripVector) )
       edm::LogError("SiStripNoisesBuilder")<<"[SiStripNoisesBuilder::analyze] detid already exists"<<std::endl;
   }
 
