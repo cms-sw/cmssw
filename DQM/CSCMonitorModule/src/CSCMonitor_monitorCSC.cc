@@ -44,6 +44,17 @@ void CSCMonitor::monitorCSC(const CSCEventData& data, int nodeID=0, int dduID = 
   dmbID		= dmbHeader.dmbID();
   ChamberID	= (((crateID) << 4) + dmbID) & 0xFFF;
 
+
+  int iendcap = -1;
+  int istation = -1;
+  // TODO: Add actual Map conversion
+  int id = cscMapping.chamber(iendcap, istation, crateID, dmbID, -1);
+  if (id==0) {
+        return;
+  }
+  CSCDetId cid( id );
+
+
   // LOG4CPLUS_DEBUG(logger_, "Done");
   // LOG4CPLUS_INFO(logger_, 
   //		  "Chamber ID = "<< ChamberID << " Crate ID = "<< crateID << " DMB ID = " << dmbID);
@@ -519,7 +530,7 @@ void CSCMonitor::monitorCSC(const CSCEventData& data, int nodeID=0, int dduID = 
       CSCTMBHeader tmbHeader = tmbData.tmbHeader();
       CSCTMBTrailer tmbTrailer = tmbData.tmbTrailer();
 
-      vector<CSCCLCTDigi> clctsDatasTmp = tmbHeader.CLCTDigis();
+      vector<CSCCLCTDigi> clctsDatasTmp = tmbHeader.CLCTDigis(cid.rawId());
       vector<CSCCLCTDigi> clctsDatas;
 
       for (uint32_t lct=0; lct<clctsDatasTmp.size(); lct++) {
