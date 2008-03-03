@@ -5,7 +5,7 @@
 
 #include "DataFormats/HepMCCandidate/interface/GenParticleFwd.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
-#include "DataFormats/JetReco/interface/GenJetfwd.h"
+#include "DataFormats/JetReco/interface/GenJetCollection.h"
 #include "DataFormats/JetReco/interface/GenJet.h"
 
 // Match by deltaR and deltaPt, ranking by deltaR (default)

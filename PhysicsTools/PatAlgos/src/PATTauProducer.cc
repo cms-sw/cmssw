@@ -1,5 +1,5 @@
 //
-// $Id: PATTauProducer.cc,v 1.11 2008/02/13 18:06:58 adamwo Exp $
+// $Id: PATTauProducer.cc,v 1.12 2008/02/21 21:23:52 delaer Exp $
 //
 
 #include "PhysicsTools/PatAlgos/interface/PATTauProducer.h"
@@ -11,15 +11,15 @@
 
 #include "PhysicsTools/Utilities/interface/DeltaR.h"
 
-#include <DataFormats/TauReco/interface/PFTau.h>
-#include <DataFormats/TauReco/interface/PFTauDiscriminatorByIsolation.h>
-#include <DataFormats/TauReco/interface/CaloTau.h>
-#include <DataFormats/TauReco/interface/CaloTauDiscriminatorByIsolation.h>
+#include "DataFormats/TauReco/interface/PFTau.h"
+#include "DataFormats/TauReco/interface/PFTauDiscriminatorByIsolation.h"
+#include "DataFormats/TauReco/interface/CaloTau.h"
+#include "DataFormats/TauReco/interface/CaloTauDiscriminatorByIsolation.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticleFwd.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
-#include <DataFormats/ParticleFlowReco/interface/PFBlock.h>
-#include <DataFormats/ParticleFlowReco/interface/PFBlockElement.h>
-#include <DataFormats/ParticleFlowReco/interface/PFCluster.h>
+#include "DataFormats/ParticleFlowReco/interface/PFBlock.h"
+#include "DataFormats/ParticleFlowReco/interface/PFBlockElement.h"
+#include "DataFormats/ParticleFlowReco/interface/PFCluster.h"
 
 #include "PhysicsTools/PatUtils/interface/ObjectResolutionCalc.h"
 #include "PhysicsTools/PatUtils/interface/LeptonLRCalc.h"
@@ -93,13 +93,16 @@ void PATTauProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
 	std::list<const PFBlockElement*> elements;
         PFCandidateRefVector myPFCands=thePFTau->pfTauTagInfoRef()->PFCands();
         for(int i=0;i<(int)myPFCands.size();i++){
+	  /*
           if(myPFCands[i]->blockRef()->elements().size()!=0){
             for(OwnVector<PFBlockElement>::const_iterator iPFBlockElement=myPFCands[i]->blockRef()->elements().begin();
                 iPFBlockElement!=myPFCands[i]->blockRef()->elements().end();iPFBlockElement++){
               elements.push_back(&(*iPFBlockElement));
             }
           }
+	  */
         }
+	/*
         if(thePFTau->leadPFChargedHadrCand()->blockRef()->elements().size()!=0){
           for(OwnVector<PFBlockElement>::const_iterator iPFBlockElement=thePFTau->leadPFChargedHadrCand()->blockRef()->elements().begin();
               iPFBlockElement!=thePFTau->leadPFChargedHadrCand()->blockRef()->elements().end();iPFBlockElement++){
@@ -107,6 +110,7 @@ void PATTauProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
               leadEnergy += iPFBlockElement->clusterRef()->energy();
           }
         }
+	*/
         elements.sort();
         elements.unique();
         for(std::list<const PFBlockElement*>::const_iterator ielements = elements.begin();ielements!=elements.end();++ielements) {

@@ -1,5 +1,5 @@
 //
-// $Id: PATJetProducer.cc,v 1.12 2008/02/13 18:06:58 adamwo Exp $
+// $Id: PATJetProducer.cc,v 1.13 2008/02/28 15:34:10 llista Exp $
 //
 
 #include "PhysicsTools/PatAlgos/interface/PATJetProducer.h"
@@ -202,7 +202,7 @@ void PATJetProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
         //look only at the tagger present in tagModuleLabelsToKeep_
         for (unsigned int i = 0; i < tagModuleLabelsToKeep_.size(); ++i) {
           if (moduleLabel == tagModuleLabelsToKeep_[i] + tagModuleLabelPostfix_) {  
-              //********store discriminators*********
+              // ********store discriminators*********
               if (addDiscriminators_) {
                   std::pair<std::string, float> pairDiscri;
                   pairDiscri.first = tagModuleLabelsToKeep_[i];
@@ -210,7 +210,7 @@ void PATJetProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
                   ajet.addBDiscriminatorPair(pairDiscri);
                   continue;
               }
-              //********store jetTagRef*********
+              // ********store jetTagRef*********
               if (addJetTagRefs_) {
                   std::pair<std::string, reco::JetTagRef> pairjettagref;
                   pairjettagref.first = tagModuleLabelsToKeep_[i];
