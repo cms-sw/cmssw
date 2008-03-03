@@ -25,7 +25,7 @@ AlCaGammaJetProducer::AlCaGammaJetProducer(const edm::ParameterSet& iConfig)
    hfLabel_=iConfig.getParameter<edm::InputTag>("hfInput");
    mInputCalo = iConfig.getParameter<std::vector<edm::InputTag> >("srcCalo");
    ecalLabels_=iConfig.getParameter<std::vector<edm::InputTag> >("ecalInputs");
-   m_inputTrackLabel = iConfig.getUntrackedParameter<std::string>("inputTrackLabel","ctfWithMaterialTracks");
+   m_inputTrackLabel = iConfig.getUntrackedParameter<std::string>("inputTrackLabel","generalTracks");
    correctedIslandBarrelSuperClusterCollection_ = iConfig.getParameter<std::string>("correctedIslandBarrelSuperClusterCollection");
    correctedIslandBarrelSuperClusterProducer_   = iConfig.getParameter<std::string>("correctedIslandBarrelSuperClusterProducer");
    correctedIslandEndcapSuperClusterCollection_ = iConfig.getParameter<std::string>("correctedIslandEndcapSuperClusterCollection");

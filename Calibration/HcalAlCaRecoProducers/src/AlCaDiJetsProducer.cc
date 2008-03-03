@@ -19,7 +19,7 @@ namespace cms
 
 AlCaDiJetsProducer::AlCaDiJetsProducer(const edm::ParameterSet& iConfig)
 {
-   m_inputTrackLabel = iConfig.getUntrackedParameter<std::string>("inputTrackLabel","ctfWithMaterialTracks"); 
+   m_inputTrackLabel = iConfig.getUntrackedParameter<std::string>("inputTrackLabel","generalTracks"); 
    ecalLabels_=iConfig.getParameter<std::vector<edm::InputTag> >("ecalInputs");
    mInputCalo_ = iConfig.getParameter<std::vector<edm::InputTag> >("srcCalo");
    hbheInput_ = iConfig.getParameter<edm::InputTag>("hbheInput");

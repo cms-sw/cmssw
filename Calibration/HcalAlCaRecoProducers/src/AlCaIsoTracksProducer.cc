@@ -37,7 +37,7 @@ using namespace reco;
 AlCaIsoTracksProducer::AlCaIsoTracksProducer(const edm::ParameterSet& iConfig)
 { 
   
-  m_inputTrackLabel = iConfig.getUntrackedParameter<std::string>("inputTrackLabel","ctfWithMaterialTracks");
+  m_inputTrackLabel = iConfig.getUntrackedParameter<std::string>("inputTrackLabel","generalTracks");
   hoLabel_ = iConfig.getParameter<edm::InputTag>("hoInput");
 //
 // Ecal Collection
