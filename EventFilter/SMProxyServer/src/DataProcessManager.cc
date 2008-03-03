@@ -1,4 +1,4 @@
-// $Id: DataProcessManager.cc,v 1.7 2008/02/04 22:32:07 biery Exp $
+// $Id: DataProcessManager.cc,v 1.8 2008/02/11 15:02:11 biery Exp $
 
 #include "EventFilter/SMProxyServer/interface/DataProcessManager.h"
 #include "EventFilter/StorageManager/interface/SMCurlInterface.h"
@@ -391,6 +391,9 @@ namespace stor
         ConsRegResponseView respView(&buf_[0]);
         registrationStatus = respView.getStatus();
         consumerId = respView.getConsumerId();
+        if (eventServer_.get() != NULL) {
+          eventServer_->setStreamSelectionTable(respView.getStreamSelectionTable());
+        }
       }
       catch (cms::Exception excpt) {
         const unsigned int MAX_DUMP_LENGTH = 1000;

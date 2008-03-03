@@ -1,4 +1,4 @@
-// $Id: SMProxyServer.cc,v 1.10 2008/02/02 02:35:29 hcheung Exp $
+// $Id: SMProxyServer.cc,v 1.11 2008/02/11 15:02:12 biery Exp $
 
 #include <iostream>
 #include <iomanip>
@@ -1030,16 +1030,19 @@ void SMProxyServer::consumerWebPage(xgi::Input *in, xgi::Output *out)
   }
   else
   {
-    // construct a parameter set from the consumer request
-    boost::shared_ptr<edm::ParameterSet>
-      requestParamSet(new edm::ParameterSet(consumerRequest));
+    // fetch the event selection request from the consumer request
+    edm::ParameterSet requestParamSet(consumerRequest);
+    Strings selectionRequest =
+      EventSelector::getEventSelectionVString(requestParamSet);
+    Strings modifiedRequest =
+      eventServer->updateTriggerSelectionForStreams(selectionRequest);
 
     // create the local consumer interface and add it to the event server
     boost::shared_ptr<ConsumerPipe>
       consPtr(new ConsumerPipe(consumerName, consumerPriority,
                                activeConsumerTimeout_.value_,
                                idleConsumerTimeout_.value_,
-                               requestParamSet, consumerHost,
+                               modifiedRequest, consumerHost,
                                consumerQueueSize_));
     eventServer->addConsumer(consPtr);
 

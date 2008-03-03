@@ -1,4 +1,4 @@
-// $Id: StorageManager.cc,v 1.41 2008/02/21 17:31:17 biery Exp $
+// $Id: StorageManager.cc,v 1.42 2008/02/27 16:00:52 meschi Exp $
 
 #include <iostream>
 #include <iomanip>
@@ -1960,9 +1960,9 @@ void StorageManager::consumerWebPage(xgi::Input *in, xgi::Output *out)
     if (reqString.size() >= 2) consumerRequest = reqString;
   }
 
-  // create the buffer to hold the registration reply message
-  const int BUFFER_SIZE = 100;
-  char msgBuff[BUFFER_SIZE];
+  // resize the local buffer, if needed, to handle a minimal response message
+  unsigned int responseSize = 200;
+  if (mybuffer_.capacity() < responseSize) mybuffer_.resize(responseSize);
 
   // fetch the event server
   // (it and/or the job controller may not have been created yet)
@@ -1976,7 +1976,7 @@ void StorageManager::consumerWebPage(xgi::Input *in, xgi::Output *out)
   if (eventServer.get() == NULL)
   {
     // build the registration response into the message buffer
-    ConsRegResponseBuilder respMsg(msgBuff, BUFFER_SIZE,
+    ConsRegResponseBuilder respMsg(&mybuffer_[0], mybuffer_.capacity(),
                                    ConsRegResponseBuilder::ES_NOT_READY, 0);
     // debug message so that compiler thinks respMsg is used
     FDEBUG(20) << "Registration response size =  " <<
@@ -1984,16 +1984,24 @@ void StorageManager::consumerWebPage(xgi::Input *in, xgi::Output *out)
   }
   else
   {
-    // construct a parameter set from the consumer request
-    boost::shared_ptr<edm::ParameterSet>
-      requestParamSet(new edm::ParameterSet(consumerRequest));
+    // resize the local buffer, if needed, to handle a full response message
+    int mapStringSize = eventServer->getSelectionTableStringSize();
+    responseSize += (int) (2.5 * mapStringSize);
+    if (mybuffer_.capacity() < responseSize) mybuffer_.resize(responseSize);
+
+    // fetch the event selection request from the consumer request
+    edm::ParameterSet requestParamSet(consumerRequest);
+    Strings selectionRequest =
+      EventSelector::getEventSelectionVString(requestParamSet);
+    Strings modifiedRequest =
+      eventServer->updateTriggerSelectionForStreams(selectionRequest);
 
     // create the local consumer interface and add it to the event server
     boost::shared_ptr<ConsumerPipe>
       consPtr(new ConsumerPipe(consumerName, consumerPriority,
                                activeConsumerTimeout_.value_,
                                idleConsumerTimeout_.value_,
-                               requestParamSet, consumerHost,
+                               modifiedRequest, consumerHost,
                                consumerQueueSize_));
     eventServer->addConsumer(consPtr);
     // over-ride pushmode if not set in StorageManager
@@ -2001,18 +2009,22 @@ void StorageManager::consumerWebPage(xgi::Input *in, xgi::Output *out)
         consPtr->setPushMode(false);
 
     // build the registration response into the message buffer
-    ConsRegResponseBuilder respMsg(msgBuff, BUFFER_SIZE,
+    ConsRegResponseBuilder respMsg(&mybuffer_[0], mybuffer_.capacity(),
                                    0, consPtr->getConsumerId());
+
+    // add the stream selection table to the proxy server response
+    if (consPtr->isProxyServer()) {
+      respMsg.setStreamSelectionTable(eventServer->getStreamSelectionTable());
+    }
+
     // debug message so that compiler thinks respMsg is used
     FDEBUG(20) << "Registration response size =  " <<
       respMsg.size() << std::endl;
   }
 
   // send the response
-  ConsRegResponseView responseMessage(msgBuff);
+  ConsRegResponseView responseMessage(&mybuffer_[0]);
   unsigned int len = responseMessage.size();
-  if(mybuffer_.capacity() < len) mybuffer_.resize(len);
-  for (unsigned int i=0; i<len; ++i) mybuffer_[i]=msgBuff[i];
 
   out->getHTTPResponseHeader().addHeader("Content-Type", "application/octet-stream");
   out->getHTTPResponseHeader().addHeader("Content-Transfer-Encoding", "binary");
