@@ -1,22 +1,26 @@
 #include "CondFormats/CSCObjects/interface/CSCConditions.h"
 #include "FWCore/Framework/interface/ESHandle.h"
-#include "CondFormats/DataRecord/interface/CSCDBGainsRcd.h"
 #include "CondFormats/DataRecord/interface/CSCDBPedestalsRcd.h"
 #include "CondFormats/DataRecord/interface/CSCDBNoiseMatrixRcd.h"
 #include "CondFormats/DataRecord/interface/CSCDBCrosstalkRcd.h"
 #include "CondFormats/CSCObjects/interface/CSCDBGains.h"
 #include "CondFormats/CSCObjects/interface/CSCDBPedestals.h"
 #include "CondFormats/CSCObjects/interface/CSCDBCrosstalk.h"
+#include "CondFormats/CSCObjects/interface/CSCBadStrips.h"
+#include "CondFormats/CSCObjects/interface/CSCBadWires.h"
+#include "DataFormats/MuonDetId/interface/CSCIndexer.h"
 
-
-
-CSCConditions::CSCConditions() 
+CSCConditions::CSCConditions( const edm::ParameterSet& ps ) 
  :theNoiseMatrix(0),
   theGains(0),
   thePedestals(0),
   theCrosstalk(0),
+  theBadStrips(0),
+  theBadWires(0),
+  readBadChannels_(false),
   theAverageGain( -1.0 )
 {
+  readBadChannels_ = ps.getParameter<bool>("readBadChannels");
 }
 
 
@@ -39,22 +43,51 @@ void CSCConditions::initializeEvent(const edm::EventSetup & es)
   edm::ESHandle<CSCDBPedestals> hPedestals;
   es.get<CSCDBPedestalsRcd>().get( hPedestals );
   thePedestals = hPedestals.product();
-
   // Strip autocorrelation noise matrix
   edm::ESHandle<CSCDBNoiseMatrix> hNoiseMatrix;
   es.get<CSCDBNoiseMatrixRcd>().get(hNoiseMatrix);
   theNoiseMatrix = hNoiseMatrix.product();
 
+  if ( readBadChannels() ) {
+  // Bad strip channels
+    edm::ESHandle<CSCBadStrips> hBadS;
+    es.get<CSCBadStripsRcd>().get( hBadS );
+    theBadStrips = hBadS.product();
+  // Bad wiregroup channels
+    edm::ESHandle<CSCBadWires> hBadW;
+    es.get<CSCBadWiresRcd>().get( hBadW );
+    theBadWires = hBadW.product();
+  }
+
   // Has GainsRcd changed?
   if( gainsWatcher_.check( es ) ) { // Yes...
     theAverageGain = -1.0; // ...reset, so next access will recalculate it
   }
-  
+  if( badStripsWatcher_.check( es ) ) { 
+    fillBadStripWords();
+  }
+  if( badWiresWatcher_.check( es ) ) { 
+    fillBadWireWords();
+  }
+
 //  print();
 }
 
+void CSCConditions::fillBadStripWords(){
+  badStripWords.resize( 2808, 0 );
+  if ( readBadChannels() ) {
+    // unpack what we've read from theBadStrips
+  } 
+}
+void CSCConditions::fillBadWireWords(){
+  badWireWords.resize( 2808, 0 );
+  if ( readBadChannels() ) {
+    // unpack what we've read from theBadWires
+  } 
+}
 
 void CSCConditions::print() const
+  //@@ NEEDS THOROUGH UPDATING
 {
 /*
   std::cout << "SIZES: GAINS: " << theGains->gains.size()
@@ -170,6 +203,16 @@ void CSCConditions::crossTalk( const CSCDetId& id, int channel, std::vector<floa
   ct[1] = float ( item.xtalk_intercept_left )/theCrosstalk->factor_intercept;
   ct[2] = float ( item.xtalk_slope_right )/theCrosstalk->factor_slope;
   ct[3] = float ( item.xtalk_intercept_right )/theCrosstalk->factor_intercept;
+}
+
+const std::bitset<80>& CSCConditions::badStripWord( const CSCDetId& id ) const {
+  CSCIndexer indexer;
+  return badStripWords[indexer.layerIndex(id)];
+}
+
+const std::bitset<112>& CSCConditions::badWireWord( const CSCDetId& id ) const {
+  CSCIndexer indexer;
+  return badWireWords[indexer.layerIndex(id)];
 }
 
 /// Return average strip gain for full CSC system. Lazy evaluation.
