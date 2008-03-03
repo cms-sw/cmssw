@@ -16,6 +16,7 @@
 #include "CondFormats/CSCObjects/interface/CSCChamberIndex.h"
 #include "CondFormats/DataRecord/interface/CSCChamberIndexRcd.h"
 #include "OnlineDB/CSCCondDB/interface/CSCChamberIndexValues.h"
+#include "CondFormats/CSCObjects/interface/CSCMapItem.h"
 #include "OnlineDB/CSCCondDB/interface/CSCMap1.h"
 
 class CSCChamberIndexValues: public edm::ESProducer, public edm::EventSetupRecordIntervalFinder  {
@@ -23,7 +24,6 @@ class CSCChamberIndexValues: public edm::ESProducer, public edm::EventSetupRecor
   CSCChamberIndexValues(const edm::ParameterSet&);
   ~CSCChamberIndexValues();
   
-  // void fillChamberIndex();
   inline static CSCChamberIndex * fillChamberIndex();
 
   typedef const  CSCChamberIndex * ReturnType;
@@ -72,8 +72,7 @@ inline CSCChamberIndex *  CSCChamberIndexValues::fillChamberIndex()
       }
     }
   }
-return mapobj;
-
+  return mapobj;
 }
 
 #endif
