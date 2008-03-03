@@ -58,3 +58,60 @@ std::ostream& operator<<(std::ostream& s, const L1DataEmulDigi& de) {
     return s;
 }
 
+GltDEDigi::GltDEDigi() {
+  this->reset();
+}
+
+void GltDEDigi::reset() {
+  const int w64 = 64; 
+  for(int j=0; j<2; j++) {
+    globalDBit[j]=false;
+    gltDecBits[j].reserve(w64*2);
+    gltTchBits[j].reserve(w64  );
+    for(int i=0; i<w64; i++) {
+      gltDecBits[j][i]    =false;  
+      gltDecBits[j][i+w64]=false;  
+      gltTchBits[j][i]    =false;
+    }
+  }
+}
+
+GltDEDigi::GltDEDigi(bool glbit[], GltBits dbits[], GltBits tbits[]) {
+  this->set(glbit, dbits, tbits);
+}
+
+void GltDEDigi::set(bool glbit[], GltBits dbits[], GltBits tbits[]) {
+  for(int i=0; i<2; i++) {
+    globalDBit[i]=glbit[i];
+    gltDecBits[i]=dbits[i];
+    gltTchBits[i]=tbits[i];
+  }
+}
+
+std::ostream& operator<<(std::ostream& s, const GltDEDigi& glt) {
+  GltDEDigi::GltBits dbits[2], tbits[2];
+  bool glbit[2];
+  for(int i=0; i<2; i++) {
+    glbit[i]=glt.globalDBit[i];
+    dbits[i]=glt.gltDecBits[i];
+    tbits[i]=glt.gltTchBits[i];
+  }
+  s << "GT DEdigi"
+    << " decision: "
+    << glbit[0];
+  if(glbit[0]!=glbit[1])
+    s << "(data), " << glbit[1] << "(emul)";
+  s << "\n data dec-word: ";
+  for(GltDEDigi::GltBits::const_iterator i=dbits[0].begin();
+      i!=dbits[0].end(); i++)  s<<*i; 
+  s << "\n emul dec-word: ";
+  for(GltDEDigi::GltBits::const_iterator i=dbits[1].begin();
+      i!=dbits[1].end(); i++)  s<<*i; 
+  s << "\n data techical: ";
+  for(GltDEDigi::GltBits::const_iterator i=tbits[0].begin();
+      i!=tbits[0].end(); i++)  s<<*i; 
+  s << "\n emul technical: ";
+  for(GltDEDigi::GltBits::const_iterator i=tbits[1].begin();
+      i!=tbits[1].end(); i++)  s<<*i; 
+  return s;
+}

@@ -1,6 +1,6 @@
 #include "DataFormats/L1Trigger/interface/L1DataEmulRecord.h"
 
-L1DataEmulRecord::L1DataEmulRecord() : deAgree(0) {
+L1DataEmulRecord::L1DataEmulRecord() : deAgree(0), deGlt() {
   for(int i=0; i<DEnsys; i++) {
     deMatch[i] = 0;
     deSysCompared[i] = 0;
@@ -8,15 +8,11 @@ L1DataEmulRecord::L1DataEmulRecord() : deAgree(0) {
       deNCand[i][j] =  0;
   }
   deColl.clear();
-  for(int j=0; j<2; j++) {
-    gltBits[j].reserve(128);
-    for(int i=0; i<128; i++)
-      gltBits[j][i]=false;  
-  }
 }
 
 L1DataEmulRecord::L1DataEmulRecord(bool evt_match, bool sys_comp[], 
-  bool sys_match[],int nCand[][2],L1DEDigiCollection coll ) : deAgree(evt_match) {
+  bool sys_match[],int nCand[][2],L1DEDigiCollection coll, GltDEDigi glt ) 
+  : deAgree(evt_match), deGlt(glt) {
   for(int i=0; i<DEnsys; i++) {
     deMatch[i] = sys_match[i];
     deSysCompared[i] = sys_comp[i];
@@ -24,11 +20,6 @@ L1DataEmulRecord::L1DataEmulRecord(bool evt_match, bool sys_comp[],
       deNCand[i][j] = nCand[i][j];
   }
   deColl = coll;
-  for(int j=0; j<2; j++) {
-    gltBits[j].reserve(128);
-    for(int i=0; i<128; i++)
-      gltBits[j][i]=false;  
-  }
 }
 
 L1DataEmulRecord::~L1DataEmulRecord() { } 
@@ -68,5 +59,6 @@ std::ostream& operator<<(std::ostream& s, const L1DataEmulRecord& cand) {
   std::vector<L1DataEmulDigi> dgcoll = cand.getColl();
   for(it = dgcoll.begin(); it != dgcoll.end(); it++ )
     s << "\n\t" << *it;
+  s << cand.getGlt();
   return s;
 }

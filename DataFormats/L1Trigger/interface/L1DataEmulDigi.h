@@ -10,6 +10,7 @@
 #include <ostream>
 #include <string>
 #include <utility>
+#include <vector>
 
 class L1DataEmulDigi {
 
@@ -52,5 +53,17 @@ class L1DataEmulDigi {
 };
 
 std::ostream& operator<<(std::ostream&, const L1DataEmulDigi&);
+
+struct GltDEDigi {
+  typedef std::vector<bool> GltBits;
+  GltDEDigi();
+  void reset();
+  GltDEDigi(bool glbit[], GltBits dbits[], GltBits tbits[]);
+  void set(bool glbit[], GltBits dbits[], GltBits tbits[]);
+  bool globalDBit[2];
+  GltBits gltDecBits[2], gltTchBits[2];
+};
+
+std::ostream& operator<<(std::ostream&, const GltDEDigi&);
 
 #endif
