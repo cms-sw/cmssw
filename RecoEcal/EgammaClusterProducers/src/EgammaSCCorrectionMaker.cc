@@ -127,12 +127,10 @@ EgammaSCCorrectionMaker::produce(edm::Event& evt, const edm::EventSetup& es)
     {
       reco::SuperCluster newClus;
       if(applyEnergyCorrection_) {
-	//        newClus = energyCorrector_->applyCorrection(*aClus, *hitCollection, sCAlgo_);
         newClus = energyCorrector_->applyCorrection(*aClus, *hitCollection, sCAlgo_, geometry_p);
       }
 
       if(newClus.energy()*sin(newClus.position().theta())>etThresh_) {
-	//Print out bool parameter showing which energy corr is applied 
 	//and corrected energy of SC before placing SCs in collection
 	//std::cout << " Check 1 " << "\n"
 	//	  << " Parameters of corrected SCs " << "\n"
