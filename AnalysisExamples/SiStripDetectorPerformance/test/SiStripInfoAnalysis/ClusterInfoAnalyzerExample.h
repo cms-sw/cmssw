@@ -71,7 +71,7 @@
 #include <iostream>
 
 
-class DaqMonitorBEInterface;
+class DQMStore;
 
 class ClusterInfoAnalyzerExample : public edm::EDAnalyzer
 {
@@ -132,7 +132,7 @@ class ClusterInfoAnalyzerExample : public edm::EDAnalyzer
   
   std::vector<uint32_t> theModulesToBeExcluded; 
  
-  DaqMonitorBEInterface* daqMonInterface_; 
+  DQMStore* daqMonInterface_; 
   bool show_mechanical_structure_view; 
   bool reset_each_run;  
   

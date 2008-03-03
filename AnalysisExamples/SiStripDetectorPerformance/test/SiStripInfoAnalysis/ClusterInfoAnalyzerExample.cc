@@ -1,6 +1,6 @@
 
 /*
- * $Date: 2007/01/29 08:20:40 $
+ * $Date: 2008/02/28 14:21:34 $
  *
  * \author: Evelyne Delmeire
  */
@@ -10,8 +10,8 @@
 
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
-#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
-#include "DQMServices/Core/interface/MonitorElementT.h"
+#include "DQMServices/Core/interface/DQMStore.h"
+#include "DQMServices/Core/interface/MonitorElement.h"
 #include "DQM/SiStripCommon/interface/SiStripFolderOrganizer.h"
 #include "DQM/SiStripCommon/interface/SiStripHistoId.h"
 
@@ -53,7 +53,7 @@ ClusterInfoAnalyzerExample::ClusterInfoAnalyzerExample(edm::ParameterSet const& 
   theTrackTrackInfoAssocLabel(conf.getParameter<edm::InputTag>( "trackTrackInfoAssocLabel" )),  
   theClusterSourceLabel(conf.getParameter<edm::InputTag>( "clusterSourceLabel" )),        
   theModulesToBeExcluded(conf.getParameter< std::vector<uint32_t> >("modulesToBeExcluded")),
-  daqMonInterface_(edm::Service<DaqMonitorBEInterface>().operator->()), 
+  daqMonInterface_(edm::Service<DQMStore>().operator->()), 
   show_mechanical_structure_view(true), 
   reset_each_run(false)
 {  
@@ -759,12 +759,13 @@ void ClusterInfoAnalyzerExample::getClusterInfoFromRecHit(const SiStripRecHit2D*
 
 //---------------------------------------------------------------------------------------------
 void ClusterInfoAnalyzerExample::ResetME(MonitorElement* me){
-  MonitorElementT<TNamed>* ob = dynamic_cast<MonitorElementT<TNamed>*> (me);
-  if (ob) {
-    TH1F * root_ob = dynamic_cast<TH1F *> (ob->operator->());
-    if(root_ob)root_ob->Reset();
-  } 
+  if (me && me->kind() == MonitorElement::DQM_KIND_TH1F) {
+    TH1F * root_ob = me->getTH1F();
+    if(root_ob) root_ob->Reset();
+  }
 }
+//-----------------
+
 //---------------------------------------------------------------------------------------------
 
 
