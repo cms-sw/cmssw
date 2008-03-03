@@ -108,12 +108,12 @@ void OptoScanTask::fill( const SiStripEventSummary& summary,
     if ( bias > 50 ) { return; } // only use bias settings 1-50
     
     // Find digital "0" and digital "1" levels from tick marks within scope mode data
-    std::pair<float,float> digital_range;
-    digital_range.first = sistrip::invalid_;
-    digital_range.second = sistrip::invalid_;
-    
     std::vector<float> baseline;
-    float baseline_rms = 0;
+    std::pair<float,float> digital_range;
+    digital_range.first  = sistrip::invalid_;
+    digital_range.second = sistrip::invalid_;
+    float baseline_rms   = sistrip::invalid_;
+
     locateTicks( digis, digital_range, baseline, baseline_rms );
 
     uint16_t bin = bias - 1; // fill "bins" (0-49), not bias (1-50)
@@ -156,33 +156,51 @@ void OptoScanTask::locateTicks( const edm::DetSet<SiStripRawDigi>& digis,
 				std::pair<float,float>& range, 
 				std::vector<float>& baseline,
 				float& baseline_rms ) {
+  
+  // Copy ADC values and sort 
+  std::vector<uint16_t> adc; 
+  adc.reserve( digis.data.size() ); 
+  for ( uint16_t iadc = 0; iadc < digis.data.size(); iadc++ ) { adc.push_back( digis.data[iadc].adc() ); }
+  sort( adc.begin(), adc.end() );
 
-  if (1) {
+  // Select algo 
+  if ( true ) {
 
-    // Trivial algo
-    
-    std::vector<uint16_t> adc; 
-    adc.reserve( digis.data.size() ); 
-    for ( uint16_t iadc = 0; iadc < digis.data.size(); iadc++ ) { adc.push_back( digis.data[iadc].adc() ); }
-    sort( adc.begin(), adc.end() );
-
-    range.first  = adc.front();
-    range.second = adc.back();
+    if ( adc.size() > 70 ) {
+      
+      // Define "baseline" and "tick mark top" levels as ("min" and "max" ADC values)
+      range.first  = adc.front();
+      range.second = adc.back();
+      
+      // Construct vector to hold "baseline samples" (and excluding tick mark samples, assuming 2 per 70 samples)
+      std::vector<uint16_t>::const_iterator ii = adc.begin();
+      std::vector<uint16_t>::const_iterator jj = adc.end() - 2 * ( adc.size() / 70 );
+      std::vector<uint16_t> truncated; 
+      truncated.resize( jj - ii );
+      std::copy( ii, jj, truncated.begin() );
+      if ( truncated.empty() ) { return; }
+      
+      // Calc mean baseline level
+      float b_mean = 0.;
+      std::vector<uint16_t>::const_iterator iii = truncated.begin();
+      std::vector<uint16_t>::const_iterator jjj = truncated.end();
+      for ( ; iii != jjj; ++iii ) { b_mean += *iii; }
+      b_mean /= ( 1. * truncated.size() );
+      
+      // Calc baseline noise
+      float b_rms = 0.;
+      std::vector<uint16_t>::const_iterator iiii = truncated.begin();
+      std::vector<uint16_t>::const_iterator jjjj = truncated.end();
+      for ( ; iiii != jjjj; ++iiii ) { b_rms += fabs( *iiii - b_mean ); }
+      baseline_rms = sqrt ( b_rms / ( 1. * truncated.size() ) );
+      
+    } else {
+      edm::LogWarning(mlDqmSource_)
+	<< "[OptoScanTask::" << __func__ << "]"
+	<< " Insufficient ADC values: " << adc.size();
+    }
 
   } else {
-
-    // More complicated algo
-
-    int ttt = 1022;
-    int bbb = 50;
-  
-    // Copy ADC values and sort 
-    std::vector<uint16_t> adc; 
-    adc.reserve( digis.data.size() ); 
-    for ( uint16_t iadc = 0; iadc < digis.data.size(); iadc++ ) { adc.push_back( digis.data[iadc].adc() ); }
-    sort( adc.begin(), adc.end() );
-
-    SiStripFedKey key( digis.detId() );
   
     // Initialization for "baseline" 
     std::vector<float> base;
@@ -190,7 +208,7 @@ void OptoScanTask::locateTicks( const edm::DetSet<SiStripRawDigi>& digis,
     float base_mean = 0.;
     float base_rms = 0.;
     float base_median = 0.;
-  
+    
     // Initialization for "tick marks" 
     std::vector<float> tick;
     tick.reserve( adc.size() );
@@ -205,7 +223,7 @@ void OptoScanTask::locateTicks( const edm::DetSet<SiStripRawDigi>& digis,
     std::vector<uint16_t>::const_iterator iter = adc.begin();
     std::vector<uint16_t>::const_iterator jter = adc.end();
     for ( ; iter != jter; iter++ ) { 
-      if ( *iter < mid_range ) {
+      if ( *iter <= mid_range ) {
 	base.push_back( *iter ); 
 	base_mean += *iter;
 	base_rms += (*iter) * (*iter);
@@ -243,20 +261,6 @@ void OptoScanTask::locateTicks( const edm::DetSet<SiStripRawDigi>& digis,
     range.first = base_mean; 
     range.second = tick_mean; 
     baseline_rms = base_rms;
-  
-    // Check for condition where tick mark top cannot be distinguished from baseline
-    if ( !adc.empty() ) {
-      if ( base.empty() || tick.empty() ) {
-	range.first  = adc.front();
-	range.second = adc.back();
-	if ( key.key() == 0x0004c5c4 ) {
-	}
-      }
-    } else {
-      edm::LogWarning(mlDqmSource_)
-	<< "[OptoScanTask::" << __func__ << "]"
-	<< " Found no ADC values!";
-    }
 
   }
  
