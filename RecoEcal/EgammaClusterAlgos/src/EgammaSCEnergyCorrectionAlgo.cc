@@ -1,5 +1,5 @@
 //
-// $Id: EgammaSCEnergyCorrectionAlgo.cc,v 1.10 2008/02/24 18:33:56 kkaadze Exp $
+// $Id: EgammaSCEnergyCorrectionAlgo.cc,v 1.13 2008/03/03 11:32:56 kkaadze Exp $
 // Author: David Evans, Bristol
 //
 #include "RecoEcal/EgammaClusterAlgos/interface/EgammaSCEnergyCorrectionAlgo.h"
@@ -21,6 +21,7 @@ EgammaSCEnergyCorrectionAlgo::EgammaSCEnergyCorrectionAlgo(double noise,
   
   fBrem_ = pset.getParameter<std::vector<double> >("fBremVec");  
   fEtEta_ = pset.getParameter<std::vector<double> >("fEtEtaVec");
+  brLinearThr_ = pset.getParameter<double>("brLinearThr");
 
 }
 
@@ -106,7 +107,6 @@ reco::SuperCluster EgammaSCEnergyCorrectionAlgo::applyCorrection(const reco::Sup
   //which calculates phiWidth and etaWidth
   SuperClusterShapeAlgo* SCShape = new SuperClusterShapeAlgo(&rhc, geometry);
 
-  double preshowerE = 0.;
   double phiWidth = 0.;
   double etaWidth = 0.;
   //Calculate phiWidth & etaWidth for SuperClusters
@@ -120,22 +120,14 @@ reco::SuperCluster EgammaSCEnergyCorrectionAlgo::applyCorrection(const reco::Sup
   float newEnergy = 0;
   
   if ( theAlgo == reco::hybrid || theAlgo == reco::dynamicHybrid) {
-    std::cout << "The ALGO = " << theAlgo << std::endl;
     // first apply Zhang's eta corrections
     newEnergy = fEta(cl.energy(), cl.eta());
-    std::cout << "Zhang's e = " << std::endl;
     // now apply F(brem)
-    std::cout << "pw/ew = " << std::endl;
     newEnergy = fBrem(newEnergy, phiWidth/etaWidth);
-    std::cout << "fBrem e = " << newEnergy << std::endl;
     // now apply F(Et, eta)
-    double theta = atan(2*exp(-cl.eta()));
-    double eT = newEnergy*sin(theta);
-    std::cout << "eT and eta = " << eT << " " << cl.eta() << std::endl;
+    double eT = newEnergy/cosh(cl.eta());
     eT = fEtEta(eT, cl.eta());
-    std::cout << "fEtEta eT = " << eT << std::endl;
-    newEnergy = eT/sin(theta);
-    std::cout << "newEnergy = " << newEnergy << std::endl; 
+    newEnergy = eT*cosh(cl.eta());
   } else {     
     //Apply f(nCry) correction on island algo and fixedMatrix algo 
     newEnergy = seedC->energy()/fNCrystals(nCryGT2Sigma, theAlgo, theBase)+bremsEnergy;
@@ -152,9 +144,6 @@ reco::SuperCluster EgammaSCEnergyCorrectionAlgo::applyCorrection(const reco::Sup
   reco::SuperCluster corrCl(newEnergy, 
     math::XYZPoint(cl.position().X(), cl.position().Y(), cl.position().Z()),
     cl.seed(), clusters_v );
-
-  std::cout << "phiWith = " << phiWidth << std::endl;
-  std::cout << "etaWith = " << etaWidth << std::endl;
 
   corrCl.setPhiWidth(phiWidth);
   corrCl.setEtaWidth(etaWidth);
@@ -183,8 +172,8 @@ double EgammaSCEnergyCorrectionAlgo::fBrem(double e, double brLinear)
     
   //Make No Corrections if brLinear is invalid!
   if ( brLinear == 0 ) return e;
-  //Make flat corection if brLinear is too big ( >10)
-  if ( brLinear > 12 ) brLinear = 12.0;
+  //Make flat corection if brLinear is too big ( >12)
+  if ( brLinear > brLinearThr_ ) brLinear = brLinearThr_;  
 
   //Parameters provided in cfg file
   double p0 = fBrem_[0]; 
