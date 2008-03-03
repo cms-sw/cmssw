@@ -48,10 +48,10 @@
 #include "CondFormats/DataRecord/interface/L1GtTriggerMenuRcd.h"
 
 #include "CondFormats/L1TObjects/interface/L1GtPrescaleFactors.h"
-#include "CondFormats/DataRecord/interface/L1GtPrescaleFactorsRcd.h"
+#include "CondFormats/DataRecord/interface/L1GtPrescaleFactorsAlgoTrigRcd.h"
 
 #include "CondFormats/L1TObjects/interface/L1GtTriggerMask.h"
-#include "CondFormats/DataRecord/interface/L1GtTriggerMaskRcd.h"
+#include "CondFormats/DataRecord/interface/L1GtTriggerMaskAlgoTrigRcd.h"
 
 #include "L1Trigger/GlobalTriggerAnalyzer/interface/L1GtTrigReportEntry.h"
 
@@ -121,11 +121,11 @@ void L1GtTrigReport::analyze(const edm::Event& iEvent, const edm::EventSetup& ev
 
     // get EventSetup
     //     prescale factos and trigger mask
-    edm::ESHandle< L1GtPrescaleFactors> l1GtPF;
-    evSetup.get< L1GtPrescaleFactorsRcd>().get(l1GtPF) ;
+    edm::ESHandle< L1GtPrescaleFactors> l1GtPfAlgo;
+    evSetup.get< L1GtPrescaleFactorsAlgoTrigRcd>().get(l1GtPfAlgo) ;
 
-    edm::ESHandle< L1GtTriggerMask> l1GtTM;
-    evSetup.get< L1GtTriggerMaskRcd>().get(l1GtTM) ;
+    edm::ESHandle< L1GtTriggerMask> l1GtTmAlgo;
+    evSetup.get< L1GtTriggerMaskAlgoTrigRcd>().get(l1GtTmAlgo) ;
 
     //     the trigger menu from the EventSetup
 
@@ -156,8 +156,8 @@ void L1GtTrigReport::analyze(const edm::Event& iEvent, const edm::EventSetup& ev
             int algBitNumber = (itAlgo->second)->algoBitNumber();
             bool algResult = gtDecisionWord[algBitNumber];
 
-            int prescaleFactor = l1GtPF->gtPrescaleFactors().at(algBitNumber);
-            unsigned int triggerMask = l1GtTM->gtTriggerMask().at(algBitNumber);
+            int prescaleFactor = l1GtPfAlgo->gtPrescaleFactors().at(algBitNumber);
+            unsigned int triggerMask = l1GtTmAlgo->gtTriggerMask().at(algBitNumber);
 
             L1GtTrigReportEntry* entryRep = 
                 new L1GtTrigReportEntry(menuName, algName, prescaleFactor, triggerMask);
@@ -196,8 +196,8 @@ void L1GtTrigReport::analyze(const edm::Event& iEvent, const edm::EventSetup& ev
             std::string algName = itAlgo->first;
             int algBitNumber = (itAlgo->second)->algoBitNumber();
 
-            int prescaleFactor = l1GtPF->gtPrescaleFactors().at(algBitNumber);
-            unsigned int triggerMask = l1GtTM->gtTriggerMask().at(algBitNumber);
+            int prescaleFactor = l1GtPfAlgo->gtPrescaleFactors().at(algBitNumber);
+            unsigned int triggerMask = l1GtTmAlgo->gtTriggerMask().at(algBitNumber);
 
             L1GtTrigReportEntry* entryRep = 
                 new L1GtTrigReportEntry(menuName, algName, prescaleFactor, triggerMask);
@@ -289,8 +289,9 @@ void L1GtTrigReport::endJob() {
                     << std::right << std::setw(20) << (*itEntry)->gtTriggerMenuName() 
                     << std::right << std::setw(35) << (*itEntry)->gtAlgoName() << " " 
                     //<< std::right << std::setw(5)  << algBitNumber << " " 
-                    << std::right << std::setw(10) << (*itEntry)->gtPrescaleFactor() << " " 
-                    << std::right << std::setw(5)  << (*itEntry)->gtTriggerMask() << " " 
+                    << std::right << std::setw(10) << (*itEntry)->gtPrescaleFactor() << "   " 
+                    << std::right << std::setw(2) << std::setfill('0')  
+                    << std::hex << (*itEntry)->gtTriggerMask() << std::setfill(' ') << std::dec << " " 
                     << std::right << std::setw(10) << (*itEntry)->gtNrEventsAccept() << " " 
                     << std::right << std::setw(10) << (*itEntry)->gtNrEventsReject() << " "
                     << std::right << std::setw(10) << (*itEntry)->gtNrEventsError() << " " << "\n";
