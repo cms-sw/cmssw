@@ -589,12 +589,13 @@ void SiStripCommissioningSource::fillHistos( const SiStripEventSummary* const su
     const std::vector<FedChannelConnection>& conns = fedCabling_->connections(*ifed);
     std::vector<FedChannelConnection>::const_iterator iconn = conns.begin();
     for ( ; iconn != conns.end(); iconn++ ) {
+
+      if ( !(iconn->fedId()) || iconn->fedId() > sistrip::valid_ ) { continue; }
       
       // Create FED key and check if non-zero
       uint32_t fed_key = SiStripFedKey( iconn->fedId(), 
 					SiStripFedKey::feUnit(iconn->fedCh()),
 					SiStripFedKey::feChan(iconn->fedCh()) ).key();
-      if ( !(iconn->fedId()) ) { continue; }
 
       // Retrieve digis for given FED key and check if found
       std::vector< edm::DetSet<SiStripRawDigi> >::const_iterator digis = raw.find( fed_key ); 
@@ -612,6 +613,15 @@ void SiStripCommissioningSource::fillHistos( const SiStripEventSummary* const su
 	     << " Unable to fill histograms!";
 	  edm::LogWarning(mlDqmSource_) << ss.str();
 	}
+      } else {
+	std::stringstream ss;
+	ss << "[SiStripCommissioningSource::" << __func__ << "]"
+	   << " Unable to DetSet containing digis for FED key " 
+	   << std::hex << std::setfill('0') << std::setw(8) << fed_key << std::dec
+	   << " and FED id/ch " 
+	   << iconn->fedId() << "/"
+	   << iconn->fedCh();
+	edm::LogWarning(mlDqmSource_) << ss.str();
       }
     } // fed channel loop
   } // fed id loop
