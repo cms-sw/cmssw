@@ -33,8 +33,10 @@
 #include "CondFormats/DataRecord/interface/CSCCrateMapRcd.h"
 #include "CondFormats/CSCObjects/interface/CSCDDUMap.h"
 #include "CondFormats/DataRecord/interface/CSCDDUMapRcd.h"
-#include "CondFormats/CSCObjects/interface/CSCDeadNoisy.h"
-#include "CondFormats/DataRecord/interface/CSCDeadNoisyRcd.h"
+#include "CondFormats/CSCObjects/interface/CSCBadStrips.h"
+#include "CondFormats/DataRecord/interface/CSCBadStripsRcd.h"
+#include "CondFormats/CSCObjects/interface/CSCBadWires.h"
+#include "CondFormats/DataRecord/interface/CSCBadWiresRcd.h"
 #include "CondFormats/CSCObjects/interface/CSCReadoutMapping.h"
 #include "CondFormats/DataRecord/interface/CSCReadoutMappingRcd.h"
 
@@ -51,6 +53,7 @@ REGISTER_PLUGIN(CSCChamberMapRcd,CSCChamberMap);
 REGISTER_PLUGIN(CSCChamberIndexRcd,CSCChamberIndex);
 REGISTER_PLUGIN(CSCCrateMapRcd,CSCCrateMap);
 REGISTER_PLUGIN(CSCDDUMapRcd,CSCDDUMap);
-REGISTER_PLUGIN(CSCDeadNoisyRcd,CSCDeadNoisy);
+REGISTER_PLUGIN(CSCBadStripsRcd,CSCBadStrips);
+REGISTER_PLUGIN(CSCBadWiresRcd,CSCBadWires);
 REGISTER_PLUGIN(CSCIdentifierRcd,CSCIdentifier);
 REGISTER_PLUGIN(CSCReadoutMappingRcd,CSCReadoutMapping);
