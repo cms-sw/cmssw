@@ -3,7 +3,7 @@
  * Generates PYQUEN HepMC events
  *
  * Original Author: Camelia Mironov
- * $Id: PyquenSource.cc,v 1.9 2007/12/04 03:51:31 mironov Exp $
+ * $Id: PyquenSource.cc,v 1.10 2008/01/24 15:35:07 yilmaz Exp $
 */
 
 #include <iostream>
@@ -202,6 +202,12 @@ bool PyquenSource::pyqpythia_init(const ParameterSet & pset)
   ostringstream sRandomSet;
   sRandomSet << "MRPY(1)=" << seed;
   call_pygive(sRandomSet.str());
+
+  //Turn Hadronization Off if there is quenching
+  if(doquench_){
+     string sHadOff("MSTP(111)=0");
+     call_pygive(sHadOff);
+  }
 
     // Set PYTHIA parameters in a single ParameterSet  
   ParameterSet pythia_params = pset.getParameter<ParameterSet>("PythiaParameters") ;
