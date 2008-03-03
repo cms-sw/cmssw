@@ -340,7 +340,7 @@ int TrackAssociatorByHits::LayerFromDetid(const DetId& detId ) const
 } 
 
 RecoToSimCollectionSeed  
-TrackAssociatorByHits::associateRecoToSim(edm::Handle<TrajectorySeedCollection >& seedCollectionH,
+TrackAssociatorByHits::associateRecoToSim(edm::Handle<edm::View<TrajectorySeed> >& seedCollectionH,
 					  edm::Handle<TrackingParticleCollection>&  TPCollectionH,     
 					  const edm::Event * e ) const{
 
@@ -355,12 +355,11 @@ TrackAssociatorByHits::associateRecoToSim(edm::Handle<TrajectorySeedCollection >
   
   const TrackingParticleCollection tPC   = *(TPCollectionH.product());
 
-  const  TrajectorySeedCollection   tC = *(seedCollectionH.product()); 
-  
+  const edm::View<TrajectorySeed> sC = *(seedCollectionH.product()); 
   
   //get the ID of the recotrack  by hits 
   int tindex=0;
-  for (TrajectorySeedCollection::const_iterator seed=tC.begin(); seed!=tC.end(); seed++, tindex++) {
+  for (edm::View<TrajectorySeed>::const_iterator seed=sC.begin(); seed!=sC.end(); seed++, tindex++) {
     matchedIds.clear();
     int ri=0;//valid rechits
     getMatchedIds<edm::OwnVector<TrackingRecHit>::const_iterator>(matchedIds, SimTrackIds, ri, seed->recHits().first, seed->recHits().second, associate );
@@ -383,9 +382,8 @@ TrackAssociatorByHits::associateRecoToSim(edm::Handle<TrajectorySeedCollection >
 	if(quality > theMinHitCut){
 	  if(!AbsoluteNumberOfHits && quality>1.) std::cout << " **** fraction > 1 " << " nshared = " << nshared 
 							    << "rechits = " << ri << " hit found " << seed->nHits() <<  std::endl;
-	  outputCollection.insert(edm::Ref<TrajectorySeedCollection>(seedCollectionH,tindex), 
-				  std::make_pair(edm::Ref<TrackingParticleCollection>(TPCollectionH, tpindex),
-						 quality));
+	  outputCollection.insert(edm::RefToBase<TrajectorySeed>(seedCollectionH,tindex), 
+				  std::make_pair(edm::Ref<TrackingParticleCollection>(TPCollectionH, tpindex),quality));
 	  LogTrace("TrackAssociator") << "Seed number " << tindex  
 				      << "associated to TP (pdgId, nb segments, p) = " 
 				      << (*t).pdgId() << " " << (*t).g4Tracks().size() 
@@ -404,7 +402,7 @@ TrackAssociatorByHits::associateRecoToSim(edm::Handle<TrajectorySeedCollection >
 
 
 SimToRecoCollectionSeed
-TrackAssociatorByHits::associateSimToReco(edm::Handle<TrajectorySeedCollection>& seedCollectionH,
+TrackAssociatorByHits::associateSimToReco(edm::Handle<edm::View<TrajectorySeed> >& seedCollectionH,
 					  edm::Handle<TrackingParticleCollection>& TPCollectionH, 
 					  const edm::Event * e ) const{
 
@@ -419,12 +417,12 @@ TrackAssociatorByHits::associateSimToReco(edm::Handle<TrajectorySeedCollection>&
   
   const TrackingParticleCollection tPC   = *(TPCollectionH.product());
 
-  const TrajectorySeedCollection tC = *(seedCollectionH.product()); 
+  const edm::View<TrajectorySeed> sC = *(seedCollectionH.product()); 
 
   //get the ID of the recotrack  by hits 
   int tindex=0;
   int ri = 0;
-  for (TrajectorySeedCollection::const_iterator seed=tC.begin(); seed!=tC.end(); seed++, tindex++) {
+  for (edm::View<TrajectorySeed>::const_iterator seed=sC.begin(); seed!=sC.end(); seed++, tindex++) {
     getMatchedIds<edm::OwnVector<TrackingRecHit>::const_iterator>(matchedIds, SimTrackIds, ri, seed->recHits().first, seed->recHits().second, associate );
 
     //save id for the track
@@ -446,7 +444,7 @@ TrackAssociatorByHits::associateSimToReco(edm::Handle<TrajectorySeedCollection>&
 				    << " nrechit = " << ri;
 	if (quality>theMinHitCut) {
 	  outputCollection.insert(edm::Ref<TrackingParticleCollection>(TPCollectionH, tpindex), 
-				  std::make_pair(edm::Ref<TrajectorySeedCollection>(seedCollectionH,tindex),quality));
+				  std::make_pair(edm::RefToBase<TrajectorySeed>(seedCollectionH,tindex), quality));
 	  LogTrace("TrackAssociator") << "TrackingParticle number " << tpindex 
 					      << " associated with hit quality =" << quality ;
 	}

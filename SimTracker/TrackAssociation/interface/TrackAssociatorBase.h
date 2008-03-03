@@ -4,8 +4,8 @@
 /** \class TrackAssociatorBase
  *  Base class for TrackAssociators. Methods take as input the handle of Track and TrackingPArticle collections and return an AssociationMap (oneToManyWithQuality)
  *
- *  $Date: 2007/12/18 16:15:32 $
- *  $Revision: 1.13 $
+ *  $Date: 2008/01/31 15:08:41 $
+ *  $Revision: 1.14 $
  *  \author magni, cerati
  */
 
@@ -18,10 +18,10 @@
 
 namespace reco{
   typedef edm::AssociationMap<edm::OneToManyWithQualityGeneric
-    <TrackingParticleCollection, TrajectorySeedCollection, double> >
+    <TrackingParticleCollection, edm::View<TrajectorySeed>, double> >
     SimToRecoCollectionSeed;  
   typedef edm::AssociationMap<edm::OneToManyWithQualityGeneric 
-    <TrajectorySeedCollection, TrackingParticleCollection, double> >
+    <edm::View<TrajectorySeed>, TrackingParticleCollection, double> >
     RecoToSimCollectionSeed;  
   
   typedef edm::AssociationMap<edm::OneToManyWithQualityGeneric
@@ -80,14 +80,14 @@ class TrackAssociatorBase {
                                                         const edm::Event * event = 0 ) const = 0 ; 
 
   //TrajectorySeed
-  virtual reco::RecoToSimCollectionSeed associateRecoToSim(edm::Handle<TrajectorySeedCollection>&, 
+  virtual reco::RecoToSimCollectionSeed associateRecoToSim(edm::Handle<edm::View<TrajectorySeed> >&, 
 							   edm::Handle<TrackingParticleCollection>&, 
 							   const edm::Event * event = 0) const {
     reco::RecoToSimCollectionSeed empty;
     return empty;
   }
   
-  virtual reco::SimToRecoCollectionSeed associateSimToReco(edm::Handle<TrajectorySeedCollection>&, 
+  virtual reco::SimToRecoCollectionSeed associateSimToReco(edm::Handle<edm::View<TrajectorySeed> >&, 
 							   edm::Handle<TrackingParticleCollection>&, 
 							   const edm::Event * event = 0) const {
     reco::SimToRecoCollectionSeed empty;
