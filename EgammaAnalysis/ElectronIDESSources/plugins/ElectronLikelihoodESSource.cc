@@ -1,9 +1,4 @@
-#include "FWCore/Utilities/interface/EDMException.h"
-
 #include "EgammaAnalysis/ElectronIDESSources/plugins/ElectronLikelihoodESSource.h"
-#include <TFile.h>
-#include <TDirectory.h>
-
 
 ElectronLikelihoodESSource::ElectronLikelihoodESSource (const edm::ParameterSet& cfg) :
   m_eleWeight (cfg.getParameter<double> ("eleWeight")) ,
