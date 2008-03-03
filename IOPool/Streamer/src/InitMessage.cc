@@ -106,7 +106,7 @@ std::string InitMsgView::outputModuleLabel() const
 
 void InitMsgView::hltTriggerNames(Strings& save_here) const
 {
-  getNames(hlt_trig_start_,hlt_trig_len_,save_here);
+  MsgTools::getNames(hlt_trig_start_,hlt_trig_len_,save_here);
 }
 
 void InitMsgView::hltTriggerSelections(Strings& save_here) const
@@ -115,20 +115,12 @@ void InitMsgView::hltTriggerSelections(Strings& save_here) const
     throw cms::Exception("Invalid Message Version", "InitMsgView")
       << "HLT trigger selections are only supported in Protocol Version 5 and above" << ".\n";
 
-  getNames(hlt_select_start_,hlt_select_len_,save_here);
+  MsgTools::getNames(hlt_select_start_,hlt_select_len_,save_here);
 }
 
 void InitMsgView::l1TriggerNames(Strings& save_here) const
 {
-  getNames(l1_trig_start_,l1_trig_len_,save_here);
-}
-
-void InitMsgView::getNames(uint8* from, uint32 from_len, Strings& to) const
-{
-  // not the most efficient way to do this
-  std::istringstream ist(std::string(reinterpret_cast<char *>(from),from_len));
-  typedef std::istream_iterator<std::string> Iter;
-  std::copy(Iter(ist),Iter(),std::back_inserter(to));
+  MsgTools::getNames(l1_trig_start_,l1_trig_len_,save_here);
 }
 
 uint32 InitMsgView::eventHeaderSize() const

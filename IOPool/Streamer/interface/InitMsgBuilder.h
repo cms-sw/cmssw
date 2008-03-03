@@ -27,8 +27,6 @@ public:
   uint32 bufferSize() const {return size_;}
 
 private:
-  uint8* fillNames(const Strings& names, uint8* pos);
-  
   uint8* buf_;
   uint32 size_;
   uint8* desc_addr_;

@@ -79,8 +79,6 @@ public:
   uint32 eventHeaderSize() const;
 
 private:
-  void getNames(uint8* from, uint32 from_len, Strings& to) const;
-
   uint8* buf_;
   HeaderView head_;
 

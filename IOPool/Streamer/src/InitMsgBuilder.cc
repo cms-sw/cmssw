@@ -42,9 +42,9 @@ InitMsgBuilder::InitMsgBuilder(void* buf, uint32 size,
   memcpy(pos,output_module_label,outmod_label_len);
   pos += outmod_label_len;
 
-  pos = fillNames(hlt_names,pos);
-  pos = fillNames(hlt_selections,pos);
-  pos = fillNames(l1_names,pos);
+  pos = MsgTools::fillNames(hlt_names,pos);
+  pos = MsgTools::fillNames(hlt_selections,pos);
+  pos = MsgTools::fillNames(l1_names,pos);
 
   desc_addr_ = pos + sizeof(char_uint32);
   setDescLength(0);
@@ -63,23 +63,6 @@ InitMsgBuilder::InitMsgBuilder(void* buf, uint32 size,
   uint32 eventHeaderSize = 2 + (9*4) + hlt_sz + l1_sz;
   convert(eventHeaderSize, h->event_header_size_);
 }
-
-uint8* InitMsgBuilder::fillNames(const Strings& names, uint8* pos)
-{
-  uint32 sz = names.size();
-  convert(sz,pos); // save number of strings
-  uint8* len_pos = pos + sizeof(char_uint32); // area for length
-  pos = len_pos + sizeof(char_uint32); // area for full string of names
-  bool first = true;
-
-  for(Strings::const_iterator beg = names.begin(), begEnd = names.end(); beg != begEnd; ++beg) {
-      if(first) first = false; else *pos++ = ' ';
-      pos = edm::copy_all(*beg,pos);
-  }
-  convert((uint32)(pos-len_pos-sizeof(char_uint32)),len_pos);
-  return pos;
-}
-
 
 void InitMsgBuilder::setDescLength(uint32 len)
 {
