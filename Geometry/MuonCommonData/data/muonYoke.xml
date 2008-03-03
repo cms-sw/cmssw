@@ -3,16 +3,16 @@
 <SolidSection label="muonYoke.xml"> 
  <Cone name="YN12_a" dz="0.245*m" rMin1="0.9243*m" rMax1="2.6300*m" rMin2="0.8900*m" rMax2="2.6300*m" startPhi="75*deg" deltaPhi="30*deg"/> 
  <Tubs name="YN12_b" rMin="0.7250*m" rMax="2.6300*m" dz="0.0500*m" startPhi="75*deg" deltaPhi="30*deg"/> 
- <Tubs name="YN12_c" rMin="0.8500*m" rMax="2.6300*m" dz="0.1650*m" startPhi="75*deg" deltaPhi="30*deg"/> 
+ <Tubs name="YN12_c" rMin="0.8500*m" rMax="2.6300*m" dz="0.1640*m" startPhi="75*deg" deltaPhi="30*deg"/> 
  <Tubs name="YE1_a" rMin="0.8500*m" rMax="1.1350*m" dz="0.3550*m" startPhi="75*deg" deltaPhi="30*deg"/> 
  <PseudoTrap name="YE1_b" dx1="0.293734*m" dx2="1.86356*m" dy1="0.3000*m" dy2="0.3000*m" dz="2.92934*m" radius="-1.1350*m" atMinusZ="true"/> 
- <Tubs name="YE12" rMin="0.9350*m" rMax="1.1350*m" dz="0.2725*m" startPhi="75*deg" deltaPhi="30*deg"/> 
- <Tubs name="YE2_a" rMin="0.9500*m" rMax="1.3600*m" dz="0.3550*m" startPhi="75*deg" deltaPhi="30*deg"/> 
- <PseudoTrap name="YE2_b" dx1="0.351968*m" dx2="1.86356*m" dy1="0.3000*m" dy2="0.3000*m" dz="2.82067*m" radius="-1.3600*m" atMinusZ="true"/> 
- <Tubs name="YE23" rMin="1.0400*m" rMax="1.3600*m" dz="0.2726*m" startPhi="75*deg" deltaPhi="30*deg"/> 
- <Tubs name="YE3_a" rMin="1.0400*m" rMax="1.5300*m" dz="0.1800*m" startPhi="75*deg" deltaPhi="30*deg"/> 
- <PseudoTrap name="YE3_b" dx1="0.395967*m" dx2="1.86356*m" dy1="0.1250*m" dy2="0.1250*m" dz="2.73857*m" radius="-1.5300*m" atMinusZ="true"/> 
- <Tubs name="YE34" rMin="1.1300*m" rMax="1.5300*m" dz="0.2726*m" startPhi="75*deg" deltaPhi="30*deg"/> 
+ <Tubs name="YE12" rMin="0.9350*m" rMax="1.1350*m" dz="0.2675*m" startPhi="75*deg" deltaPhi="30*deg"/> 
+ <Tubs name="YE2_a" rMin="0.9500*m" rMax="1.3600*m" dz="0.3600*m" startPhi="75*deg" deltaPhi="30*deg"/> 
+ <PseudoTrap name="YE2_b" dx1="0.351968*m" dx2="1.86356*m" dy1="0.305*m" dy2="0.305*m" dz="2.82067*m" radius="-1.3600*m" atMinusZ="true"/> 
+ <Tubs name="YE23" rMin="1.0400*m" rMax="1.3600*m" dz="0.2675*m" startPhi="75*deg" deltaPhi="30*deg"/> 
+ <Tubs name="YE3_a" rMin="1.0400*m" rMax="1.5300*m" dz="0.185*m" startPhi="75*deg" deltaPhi="30*deg"/> 
+ <PseudoTrap name="YE3_b" dx1="0.395967*m" dx2="1.86356*m" dy1="0.130*m" dy2="0.130*m" dz="2.73857*m" radius="-1.5300*m" atMinusZ="true"/> 
+ <Tubs name="YE34" rMin="1.1300*m" rMax="1.5300*m" dz="0.2725*m" startPhi="75*deg" deltaPhi="30*deg"/> 
  <Tubs name="ShieldingME4" rMin="1.1300*m" rMax="2.5000*m" dz="0.0375*m" startPhi="75*deg" deltaPhi="30*deg"/> 
 <!-- remove this comment start line to restore YE4
  <PseudoTrap name="YE4" dx1="0.647073*m" dx2="1.86356*m" dy1="0.0500*m" dy2="0.0500*m" dz="2.27000*m" radius="-2.5000*m" atMinusZ="true"/> 
@@ -1270,7 +1270,7 @@ remove this end comment line to restore YE4 -->
   <ParE name="rotateSolid" value="-90*deg"/> 
   <ParE name="center" value="0"/> 
   <ParE name="center" value="0"/> 
-  <ParE name="center" value="7.1*m"/> 
+  <ParE name="center" value="7.099*m"/> 
  </AlgoPosPart> 
  <AlgoPosPart algo="global:angular"> 
   <rParent name="mf:ME"/> 
@@ -1315,7 +1315,7 @@ remove this end comment line to restore YE4 -->
   <ParE name="rotateSolid" value="-90*deg"/> 
   <ParE name="center" value="0"/> 
   <ParE name="center" value="0"/> 
-  <ParE name="center" value="8.2475*m"/> 
+  <ParE name="center" value="8.2425*m"/> 
  </AlgoPosPart> 
  <AlgoPosPart algo="global:angular"> 
   <rParent name="mf:ME"/> 
@@ -1329,7 +1329,7 @@ remove this end comment line to restore YE4 -->
   <ParE name="rotateSolid" value="-90*deg"/> 
   <ParE name="center" value="0"/> 
   <ParE name="center" value="0"/> 
-  <ParE name="center" value="8.875*m"/> 
+  <ParE name="center" value="8.870*m"/> 
  </AlgoPosPart> 
  <AlgoPosPart algo="global:angular"> 
   <rParent name="mf:ME"/> 
@@ -1346,7 +1346,7 @@ remove this end comment line to restore YE4 -->
   <ParE name="rotateSolid" value="90*deg"/> 
   <ParE name="center" value="0"/> 
   <ParE name="center" value="0"/> 
-  <ParE name="center" value="8.82*m"/> 
+  <ParE name="center" value="8.815*m"/> 
  </AlgoPosPart> 
  <AlgoPosPart algo="global:angular"> 
   <rParent name="mf:ME"/> 
@@ -1360,7 +1360,7 @@ remove this end comment line to restore YE4 -->
   <ParE name="rotateSolid" value="-90*deg"/> 
   <ParE name="center" value="0"/> 
   <ParE name="center" value="0"/> 
-  <ParE name="center" value="9.5025*m"/> 
+  <ParE name="center" value="9.4975*m"/> 
  </AlgoPosPart> 
  <AlgoPosPart algo="global:angular"> 
   <rParent name="mf:ME"/> 
@@ -1374,7 +1374,7 @@ remove this end comment line to restore YE4 -->
   <ParE name="rotateSolid" value="-90*deg"/> 
   <ParE name="center" value="0"/> 
   <ParE name="center" value="0"/> 
-  <ParE name="center" value="9.955*m"/> 
+  <ParE name="center" value="9.950*m"/> 
  </AlgoPosPart> 
  <AlgoPosPart algo="global:angular"> 
   <rParent name="mf:ME"/> 
@@ -1391,7 +1391,7 @@ remove this end comment line to restore YE4 -->
   <ParE name="rotateSolid" value="90*deg"/> 
   <ParE name="center" value="0"/> 
   <ParE name="center" value="0"/> 
-  <ParE name="center" value="9.9*m"/> 
+  <ParE name="center" value="9.895*m"/> 
  </AlgoPosPart> 
  <AlgoPosPart algo="global:angular"> 
   <rParent name="mf:ME"/> 
