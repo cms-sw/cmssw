@@ -59,18 +59,19 @@ namespace reco
       double emEtInHF() const {return calo_data.EmEtInHF;};
       /* Returns the event MET Significance */
       double metSignificance() const {return calo_data.METSignificance;};
+      /* Returns the event SET in HF+ */
+      double CaloSETInpHF() const {return calo_data.CaloSETInpHF;};
+      /* Returns the event SET in HF- */
+      double CaloSETInmHF() const {return calo_data.CaloSETInmHF;};
       /* Returns the event MET in HF+ */
       double CaloMETInpHF() const {return calo_data.CaloMETInpHF;};
       /* Returns the event MET in HF- */
       double CaloMETInmHF() const {return calo_data.CaloMETInmHF;};
-      /* Returns the event MET in HF+ */
-      double CaloMETInpHE() const {return calo_data.CaloMETInpHE;};
-      /* Returns the event MET in HF- */
-      double CaloMETInmHE() const {return calo_data.CaloMETInmHE;};
-      /* Returns the event MET in HF+ */
-      double CaloMETInpHB() const {return calo_data.CaloMETInpHB;};
-      /* Returns the event MET in HF- */
-      double CaloMETInmHB() const {return calo_data.CaloMETInmHB;};
+      /* Returns the event MET-phi in HF+ */
+      double CaloMETPhiInpHF() const {return calo_data.CaloMETPhiInpHF;};
+      /* Returns the event MET-phi in HF- */
+      double CaloMETPhiInmHF() const {return calo_data.CaloMETPhiInmHF;};
+    
       
       // block accessors
       SpecificCaloMETData getSpecific() const {return calo_data;}

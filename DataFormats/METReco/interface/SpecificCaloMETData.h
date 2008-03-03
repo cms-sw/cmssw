@@ -29,10 +29,8 @@ struct SpecificCaloMETData
   double METSignificance;       // Em ET fraction
   double CaloMETInpHF;         // CaloMET in HF+ 
   double CaloMETInmHF;         // CaloMET in HF- 
-  double CaloMETInpHE;         // CaloMET in HE+ 
-  double CaloMETInmHE;         // CaloMET in HE- 
-  double CaloMETInpHB;         // CaloMET in HB+ 
-  double CaloMETInmHB;         // CaloMET in HB- 
+  double CaloSETInpHF;         // CaloSET in HF+ 
+  double CaloSETInmHF;         // CaloSET in HF- 
   double CaloMETPhiInpHF;         // CaloMET-phi in HF+ 
   double CaloMETPhiInmHF;         // CaloMET-phi in HF- 
   double CaloMETPhiInpHE;         // CaloMET-phi in HE+ 
