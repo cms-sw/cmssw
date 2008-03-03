@@ -13,11 +13,11 @@
 //
 // Original Author:  Chi Nhan Nguyen
 //         Created:  Fri Feb 22 09:20:55 CST 2008
-// $Id: L1TauAnalyzer.cc,v 1.6 2008/02/25 01:22:39 chinhan Exp $
+// $Id: L1TauAnalyzer.cc,v 1.1 2008/02/25 22:01:05 chinhan Exp $
 //
 //
 
-#include "RecoTauTag/HLTAnalyzers/interface/L1TauAnalyzer.h"
+#include "HLTriggerOffline/Tau/interface/L1TauAnalyzer.h"
 
 
 //
