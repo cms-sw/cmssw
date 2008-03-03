@@ -34,7 +34,6 @@
 #include "DataFormats/GeometryVector/interface/LocalPoint.h"
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 
-#include <AnalysisDataFormats/SiStripClusterInfo/interface/SiStripClusterInfo.h> 
 #include "RecoLocalTracker/SiStripRecHitConverter/interface/StripCPE.h"
 
 using namespace std;
@@ -1787,20 +1786,6 @@ void SiStripTrackingRecHitsValid::analyze(const edm::Event& e, const edm::EventS
 	  float anglebeta = atan(trackdirection.y()/trackdirection.z())*180/TMath::Pi();
 
 	  const edm::Ref<edm::DetSetVector<SiStripCluster>, SiStripCluster, edm::refhelper::FindForDetSetVector<SiStripCluster> > cluster=hit->cluster();
-
-	  SiStripClusterInfo clusterinfo(*cluster);// = new SiStripClusterInfo();
-	  //	  cout<<"clusterinfocharge = "<<clusterinfo.charge()<<endl;
-	  //cout<<"clusterinfofirststrip = "<<clusterinfo.firstStrip()<<endl;
-	  const std::vector<float>  VecNoise = clusterinfo.stripNoises();
-	  //cout<<"vecnoisesize = "<<VecNoise.size()<<endl;
-	  //for(size_t ia=0; ia<VecNoise.size();ia++){
-	  //  cout<<"Noise = "<<VecNoise[ia]<<endl;
-	  //}
-	  const std::vector<uint16_t> stripamplitudes=clusterinfo.stripAmplitudes();
-	  //cout<<"stripamplitudessize = "<<stripamplitudes.size()<<endl;
-	  //for(size_t ia=0; ia<stripamplitudes.size();ia++){
-	  //  cout<<"stripamplitudes = "<<stripamplitudes[ia]<<endl;
-	  //}
 
 	  position = thit->localPosition();
 	  error = thit->localPositionError();
