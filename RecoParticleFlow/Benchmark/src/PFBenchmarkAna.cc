@@ -1,8 +1,14 @@
 #include "RecoParticleFlow/Benchmark/interface/PFBenchmarkAna.h"
 
+<<<<<<< PFBenchmarkAna.cc
+#include "DQMServices/Core/interface/DQMStore.h"
+#include "DQMServices/Core/interface/MonitorElement.h"
+//#include "DQMServices/Core/interface/CollateMERoot.h"
+=======
 //#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
 //#include "DQMServices/Daemon/interface/MonitorDaemon.h"
 //#include "DQMServices/CoreROOT/interface/CollateMERoot.h"
+>>>>>>> 1.8
 //#include "FWCore/ServiceRegistry/interface/Service.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h" 
@@ -13,6 +19,13 @@
 using namespace reco;
 using namespace std;
 
+<<<<<<< PFBenchmarkAna.cc
+// preprocessor macro for booking 1d histos with DQMStore -or- bare Root
+#define BOOK1D(name,title,nbinsx,lowx,highx) do { \
+  if (dbe_) \
+    h##name = dbe_->book1D(#name,#title,nbinsx,lowx,highx)->getTH1F(); \
+  else \
+=======
 // preprocessor macro for booking 1d histos with DaqMonitorBEInterface -or- bare Root
 #define BOOK1D(name,title,nbinsx,lowx,highx) { \
   if (dbe_) { \
@@ -20,9 +33,17 @@ using namespace std;
     MonitorElementT<TH1F> *ob = dynamic_cast<MonitorElementT<TH1F>* >(me); \
     if (ob) h##name = dynamic_cast<TH1F *>(ob->operator->()); \
   } else \
+>>>>>>> 1.8
     h##name = new TH1F(#name,#title,nbinsx,lowx,highx); \
-}
+} while(0)
 
+<<<<<<< PFBenchmarkAna.cc
+// preprocessor macro for booking 2d histos with DQMStore -or- bare Root
+#define BOOK2D(name,title,nbinsx,lowx,highx,nbinsy,lowy,highy) do { \
+  if (dbe_) \
+    h##name = dbe_->book2D(#name,#title,nbinsx,lowx,highx,nbinsy,lowy,highy)->getTH2F(); \
+  else \
+=======
 // preprocessor macro for booking 2d histos with DaqMonitorBEInterface -or- bare Root
 #define BOOK2D(name,title,nbinsx,lowx,highx,nbinsy,lowy,highy) { \
   if (dbe_) { \
@@ -30,8 +51,9 @@ using namespace std;
     MonitorElementT<TH2F> *ob = dynamic_cast<MonitorElementT<TH2F>* >(me); \
     if (ob) h##name = dynamic_cast<TH2F *>(ob->operator->()); \
   } else \
+>>>>>>> 1.8
     h##name = new TH2F(#name,#title,nbinsx,lowx,highx,nbinsy,lowy,highy); \
-}
+} while(0)
 
 PFBenchmarkAna::PFBenchmarkAna() {}
 

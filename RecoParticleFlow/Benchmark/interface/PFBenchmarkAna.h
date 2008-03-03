@@ -12,7 +12,7 @@
 #include "TH1F.h"
 #include "TH2F.h"
 
-class DaqMonitorBEInterface;
+class DQMStore;
 class PFBenchmarkAlgo;
 
 class PFBenchmarkAna {
@@ -21,7 +21,7 @@ public:
   PFBenchmarkAna();
   virtual ~PFBenchmarkAna();
 
-  void setup(DaqMonitorBEInterface *DQM = NULL);
+  void setup(DQMStore *DQM = NULL);
   template <typename RecoCandidate, typename GenCandidate, template <typename> class VectorT, template <typename> class VectorU>
   void fill(const VectorT<RecoCandidate> *, const VectorU<GenCandidate> *, bool PlotAgainstReco = true);
   void write(std::string Filename);
@@ -63,7 +63,7 @@ private:
 
 protected:
 
-  DaqMonitorBEInterface *dbe_;
+  DQMStore *dbe_;
   PFBenchmarkAlgo *algo_;
 
 };

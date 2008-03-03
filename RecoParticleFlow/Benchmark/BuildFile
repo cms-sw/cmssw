@@ -4,7 +4,7 @@
 <use name=boost>
 
 <use name=FWCore/Utilities>
-<use name=DQMServices/CoreROOT>
+<use name=DQMServices/Core>
 <use name=DataFormats/RecoCandidate>
 <use name=DataFormats/JetReco>
 <use name=DataFormats/ParticleFlowCandidate>

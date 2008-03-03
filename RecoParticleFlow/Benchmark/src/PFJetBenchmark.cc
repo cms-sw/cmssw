@@ -175,6 +175,7 @@ void PFJetBenchmark::process(const reco::PFJetCollection& pfJets, const reco::Ge
 	 cout << "==============deltaR " << deltaR << "  resPt " << resPt
 	      << " resChargedHadEnergy " << resChargedHadEnergy
 		  << " resNeutralHadEnergy " << resNeutralHadEnergy
+
 		  << " resNeutralEmEnergy " << resNeutralEmEnergy
 	      << endl;
 	      	 }
@@ -212,13 +213,13 @@ void PFJetBenchmark::process(const reco::PFJetCollection& pfJets, const reco::Ge
 
 void PFJetBenchmark::gettrue (const reco::GenJet* truth, double& true_ChargedHadEnergy, 
   double& true_NeutralHadEnergy, double& true_NeutralEmEnergy){
-  std::vector <const GenParticleCandidate*> mcparts = truth->getConstituents ();
+  std::vector <const GenParticle*> mcparts = truth->getConstituents ();
   true_NeutralEmEnergy = 0.;
   true_ChargedHadEnergy = 0.;
   true_NeutralHadEnergy = 0.;
 // for each MC particle in turn  
   for (unsigned i = 0; i < mcparts.size (); i++) {
-    const GenParticleCandidate* mcpart = mcparts[i];
+    const GenParticle* mcpart = mcparts[i];
     int PDG = abs( mcpart->pdgId());
 	double e = mcpart->energy(); 
     switch(PDG){  // start PDG switch
@@ -289,14 +290,14 @@ void PFJetBenchmark::gettrue (const reco::GenJet* truth, double& true_ChargedHad
    cout<<resetiosflags(ios::right|ios::fixed);
    }
 void PFJetBenchmark::printGenJet (const reco::GenJet* truth){
-	std::vector <const GenParticleCandidate*> mcparts = truth->getConstituents ();
+	std::vector <const GenParticle*> mcparts = truth->getConstituents ();
 	cout << "GenJet p/px/py/pz/pt: " << truth->p() << '/' << truth->px () 
 		<< '/' << truth->py() << '/' << truth->pz() << '/' << truth->pt() << endl
 		<< "    eta/phi: " << truth->eta () << '/' << truth->phi () << endl
 		<< "    # of constituents: " << mcparts.size() << endl;
 	cout << "    constituents:" << endl;
 	for (unsigned i = 0; i < mcparts.size (); i++) {
-    const GenParticleCandidate* mcpart = mcparts[i];
+    const GenParticle* mcpart = mcparts[i];
     cout << "      #" << i << "  PDG code:" << mcpart->pdgId() 
 		 << ", p/pt/eta/phi: " << mcpart->p() << '/' << mcpart->pt() 
 		 << '/' << mcpart->eta() << '/' << mcpart->phi() << endl;
