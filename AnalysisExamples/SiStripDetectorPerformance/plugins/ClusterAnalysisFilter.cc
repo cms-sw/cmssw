@@ -13,18 +13,18 @@ namespace cms
   {  
     produces <uint16_t>();
   }
-
+  
   void ClusterAnalysisFilter::beginJob(edm::EventSetup const& es) {
     //get geom    
     es.get<TrackerDigiGeometryRecord>().get( tkgeom );
     edm::LogInfo("ClusterAnalysis") << "[ClusterAnalysis::beginJob] There are "<<tkgeom->detUnits().size() <<" detectors instantiated in the geometry" << std::endl;  
   }
-
+  
   bool ClusterAnalysisFilter::filter(edm::Event & e, edm::EventSetup const& c) {
-
+    
     //Get input 
     e.getByLabel( Cluster_src_, dsv_SiStripCluster);    
-
+    
     bool TrackNumberSelector_Decision_;
     e.getByLabel( Track_src_, trackCollection);
     if (!trackCollection.isValid()) {
@@ -32,7 +32,7 @@ namespace cms
     } else {
       TrackNumberSelector_Decision_ =TrackNumberSelector();
     }
-
+    
     bool TriggerSelector_Decision_;
     e.getByType(ltcdigis);
     if (!ltcdigis.isValid()) {
@@ -40,10 +40,10 @@ namespace cms
     } else {
       TriggerSelector_Decision_=TriggerSelector();
     }
-
+    
     bool ClusterNumberSelector_Decision_=ClusterNumberSelector();
     bool ClusterInModuleSelector_Decision_=ClusterInModuleSelector(c);
-
+    
     bool decision = 
       ( ! conf_.getParameter<edm::ParameterSet>("TrackNumberSelector").getParameter<bool>("On") || TrackNumberSelector_Decision_ )
       &&
@@ -54,7 +54,7 @@ namespace cms
       ( ! conf_.getParameter<edm::ParameterSet>("ClusterInModuleSelector").getParameter<bool>("On") || ClusterInModuleSelector_Decision_ )
       //&& SomeThingElse
       ;
-
+    
     uint16_t decisionWord = 
       ( TrackNumberSelector_Decision_ & 0x1)
       |
@@ -65,20 +65,20 @@ namespace cms
       ((ClusterInModuleSelector_Decision_ << 3) & 0x8)
       // | ( SomeThingElse < nbits)
       ;
-
+    
     std::auto_ptr< uint16_t > odecisionWord( new uint16_t(decisionWord) );
     e.put(odecisionWord);
     
     return decision;
   }
-
+  
   bool ClusterAnalysisFilter::TrackNumberSelector(){
     
     const edm::ParameterSet ps = conf_.getParameter<edm::ParameterSet>("TrackNumberSelector");
     
     int32_t min=ps.getParameter<int32_t>("minNTracks");
     int32_t max=ps.getParameter<int32_t>("maxNTracks");
-
+    
     return ( (int32_t) trackCollection.product()->size() >= min && (int32_t) trackCollection.product()->size() < max) ;
   }
   
@@ -96,8 +96,8 @@ namespace cms
     }  
     return (count >= min && count < max) ;
   }
-
-
+  
+  
   bool ClusterAnalysisFilter::TriggerSelector(){
     
     const edm::ParameterSet ps = conf_.getParameter<edm::ParameterSet>("TriggerSelector");
@@ -119,7 +119,7 @@ namespace cms
 	 ( ps.getParameter<bool>("RPCTB") & 0x1u ) << 4
 	 )
 	;
-    
+      
       LogTrace("ClusterAnalysisFilter")
 	<< "Filter " 	
 	<< "Mask " <<  ((*ltc_it).externTriggerMask() & 0x1Fu)
@@ -133,24 +133,30 @@ namespace cms
     }
     return word;    
   }
+  
 
 
   bool ClusterAnalysisFilter::ClusterInModuleSelector ( const edm::EventSetup& es){
-
+    
     const edm::ParameterSet ps = conf_.getParameter<edm::ParameterSet>("ClusterInModuleSelector");
     const edm::ParameterSet pps = ps.getParameter<edm::ParameterSet>("ClrausterConditions");
     
     std::vector<uint32_t> ModulesToLookIn_=ps.getParameter< std::vector<uint32_t> >("ModulesToLookIn");
     std::vector<uint32_t> SubDetToLookIn_=ps.getParameter< std::vector<uint32_t> >("SubDetToLookIn");
     std::vector<uint32_t> SkipModules_=ps.getParameter< std::vector<uint32_t> >("SkipModules");
-
     
-    for (std::vector<uint32_t>::const_iterator iter=ModulesToLookIn_.begin(); iter!=ModulesToLookIn_.end();iter++){
+    
+    for (std::vector<uint32_t>::const_iterator iter=ModulesToLookIn_.begin(); 
+                                              iter!=ModulesToLookIn_.end();iter++){
       edm::DetSetVector<SiStripCluster>::const_iterator DSViter = dsv_SiStripCluster->find(*iter);
+      
       if ( DSViter != dsv_SiStripCluster->end() ){      
         uint32_t detid=DSViter->id;
-	for(edm::DetSet<SiStripCluster>::const_iterator ClusIter = DSViter->data.begin(); ClusIter!=DSViter->data.end();ClusIter++){ 
+	for(edm::DetSet<SiStripCluster>::const_iterator ClusIter = DSViter->data.begin(); 
+	                                                ClusIter!=DSViter->data.end();ClusIter++){ 
+							
 	  SiStripClusterInfo* clusterInfo = new SiStripClusterInfo( detid, *ClusIter, es);
+	  
 	  if (
 	      clusterInfo->getCharge()/clusterInfo->getNoise() > pps.getParameter<double>("minStoN") 
 	      &&
@@ -161,19 +167,21 @@ namespace cms
 	      clusterInfo->getWidth() < pps.getParameter<double>("maxWidth") 
 	      ){
 	    return ps.getParameter<bool>("Accept");
-	  }
+	  } //if 
 	  delete clusterInfo;
-      }	      
-    }
-
+	} //for 	      
+      } //if
+    } // for
+    
     for (edm::DetSetVector<SiStripCluster>::const_iterator DSViter = dsv_SiStripCluster->begin(); DSViter != dsv_SiStripCluster->end(); DSViter++ ){	
       uint32_t detid=DSViter->id;
-      if (find(SkipModules_.begin(),SkipModules_.end(),detid)!=SkipModules_.end())
-	continue;
+      
+      if (find(SkipModules_.begin(),SkipModules_.end(),detid)!=SkipModules_.end())continue;
       const StripGeomDetUnit* _StripGeomDetUnit = dynamic_cast<const StripGeomDetUnit*>(tkgeom->idToDetUnit(DetId(detid)));
       for (std::vector<uint32_t>::const_iterator iter=SubDetToLookIn_.begin(); iter!=SubDetToLookIn_.end();iter++){	
-	if ((uint) _StripGeomDetUnit->specificType().subDetector() == *iter){
 	
+	if ((uint) _StripGeomDetUnit->specificType().subDetector() == *iter){
+	  
 	  for(edm::DetSet<SiStripCluster>::const_iterator ClusIter = DSViter->data.begin(); ClusIter!=DSViter->data.end(); ClusIter++){
 	    SiStripClusterInfo* clusterInfo = new SiStripClusterInfo( detid, *ClusIter, es);
 	    if (
@@ -185,22 +193,13 @@ namespace cms
 		&&
 		clusterInfo->getWidth() < pps.getParameter<double>("maxWidth") 
 		){
-	//       std::cout
-// 		<< "\n\t\tcluster detid "       << ClusIter->geographicalId()  
-// 		<< "\n\t\tcluster first strip " << ClusIter->firstStrip()
-// 		<< "\n\t\tcluster charge "      << ClusIter->charge()    
-// 		<< "\n\t\tcluster noise "       << ClusIter->noise()     
-// 		<< "\n\t\tcluster position "    << ClusIter->position()  
-// 		<< "\n\t\tcluster width "       << ClusIter->width()  
-// 		<< std::endl;
 	      return ps.getParameter<bool>("Accept");
-	    }
+	    } 
 	    delete clusterInfo;
-	}	      
+	  } 	
+	}
       }
-    }
-    
+    } 
     return !ps.getParameter<bool>("Accept");
   }
-  
-}
+} 
