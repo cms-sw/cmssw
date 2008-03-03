@@ -13,6 +13,7 @@
 <use name=Geometry/CaloTopology>
 <use name=RecoEcal/EgammaCoreTools>
 <use name=RecoEgamma/EgammaPhotonAlgos>
+<use name=RecoEgamma/EgammaTools>
 <use name=RecoTracker/MeasurementDet>
 <use name=RecoTracker/CkfPattern>
 <use name=RecoTracker/TrackProducer>
@@ -36,7 +37,7 @@
   <use name=Geometry/CaloGeometry>
   <use name=Geometry/CaloTopology>
   <use name=RecoEcal/EgammaCoreTools>
-  <use name=RecoEgamma/EgammaPhotonAlgos> 
+  <use name=RecoEgamma/EgammaTools>
   <use name=RecoTracker/MeasurementDet>
   <use name=RecoTracker/CkfPattern>
   <use name=RecoTracker/TrackProducer>
