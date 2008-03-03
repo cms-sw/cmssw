@@ -12,7 +12,7 @@
  *  Crystal identifier class for the ECAL barrel
  *
  *
- *  $Id: EBDetId.h,v 1.19 2007/06/27 05:51:13 innocent Exp $
+ *  $Id: EBDetId.h,v 1.20 2007/06/27 06:01:51 innocent Exp $
  */
 
 
@@ -83,6 +83,12 @@ class EBDetId : public DetId {
 
   /// check if a valid index combination
   static bool validDetId(int i, int j) ;
+
+  static bool isNextToBoundary(EBDetId id);
+
+  static bool isNextToEtaBoundary(EBDetId id);
+
+  static bool isNextToPhiBoundary(EBDetId id);
 
   /// range constants
   static const int MIN_IETA = 1;

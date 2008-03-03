@@ -10,7 +10,7 @@
  *  Crystal/cell identifier class for the ECAL endcap
  *
  *
- *  $Id: EEDetId.h,v 1.13 2007/06/27 06:01:51 innocent Exp $
+ *  $Id: EEDetId.h,v 1.14 2007/06/27 13:35:36 ferriff Exp $
  */
 
 
@@ -52,6 +52,12 @@ class EEDetId : public DetId {
   int hashedIndex() const {
     return iy() - nBegin[ ix() - 1 ] + nIntegral[ ix() - 1 ]  + (positiveZ() ? ICR_FEE : 0);
   }
+
+  static bool isNextToBoundary(EEDetId id);
+
+  static bool isNextToDBoundary(EEDetId id);
+
+  static bool isNextToRingBoundary(EEDetId id);
 
   /// get a DetId from a compact index for arrays
   static EEDetId unhashIndex(int hi);

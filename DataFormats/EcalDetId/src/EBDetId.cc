@@ -102,6 +102,23 @@ int EBDetId::tower_iphi() const {
   iphi_simple-=2;
   return ((iphi_simple<=0)?(iphi_simple+72):(iphi_simple));
 }
+
+
+bool EBDetId::isNextToBoundary(EBDetId id) {
+        return isNextToEtaBoundary( id ) || isNextToPhiBoundary( id );
+}
+
+bool EBDetId::isNextToEtaBoundary(EBDetId id) {
+        int ieta = id.ietaSM();
+        return ieta == 1 || std::binary_search( kModuleBoundaries, kModuleBoundaries + 4, ieta ) || ieta == 85;
+}
+
+bool EBDetId::isNextToPhiBoundary(EBDetId id) {
+        int iphi = id.iphiSM();
+        return iphi == 1 || iphi == 20;
+}
+
+
   
 std::ostream& operator<<(std::ostream& s,const EBDetId& id) {
   return s << "(EB ieta " << id.ieta() << ", iphi" << id.iphi() 

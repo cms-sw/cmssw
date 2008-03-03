@@ -287,6 +287,31 @@ int EEDetId::ic() const
   return icrys;
 }  
 
+
+bool EEDetId::isNextToBoundary(EEDetId id) {
+        return isNextToDBoundary(id) || isNextToRingBoundary(id);
+}
+
+
+bool EEDetId::isNextToDBoundary(EEDetId id) {
+        // hardcoded values for D boundary
+        return id.ix() == 50 || id.ix() == 51;
+}
+
+
+bool EEDetId::isNextToRingBoundary(EEDetId id) {
+        for (int i = -1; i <= 1; ++i) {
+                for (int j = -1; j <= 1; ++j) {
+                        if ( ! validDetId( id.ix() + i, id.iy() + j, id.zside() ) ) {
+                                return true;
+                        }
+                }
+        }
+        return false;
+}
+
+
+
 bool EEDetId::validDetId(int crystal_ix, int crystal_iy, int iz) {
 
   bool valid = false;
