@@ -386,8 +386,7 @@ void SiStripInformationExtractor::plotHistosFromLayout(DQMStore * dqm_store){
 	  if (me_ref) {
 	    TH1* hist1_ref = me_ref->getTH1();
 	    if (hist1_ref) {
-//	      cout << ref_path << " " << hist1_ref->GetEntries() << " " << 
-endl;
+//	      cout << ref_path << " " << hist1_ref->GetEntries() << " " << endl;
 	      hist1_ref->SetLineColor(3);
               hist1_ref->SetMarkerColor(3);
               if (hname.find("Summary") != string::npos) hist1_ref->DrawCopy("same");
