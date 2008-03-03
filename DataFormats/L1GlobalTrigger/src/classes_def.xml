@@ -42,6 +42,12 @@
   <class name="L1GlobalTriggerRecord"/>
   <class name="edm::Wrapper<L1GlobalTriggerRecord>"/>
 
+  <class name="L1GtTechnicalTrigger"/>
+  <class name="edm::Wrapper<L1GtTechnicalTrigger>"/>
+
+  <class name="L1GtTechnicalTriggerRecord"/>
+  <class name="edm::Wrapper<L1GtTechnicalTriggerRecord>"/>
+
   <class name="std::vector<std::vector<int> >"/>
   <class name="std::vector<std::vector<std::vector<int> > >"/>
   
