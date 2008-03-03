@@ -3,6 +3,7 @@
 xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../DetectorDescription/Schema/DDLSchema.xsd">
 <SpecParSection  xmlns="http://www.cern.ch/cms/DDL" label="Try1" eval="true">
 <!-- p o r t e d  f r o m  ORCA/Data/MuonData/EndcapData Tim Cox-->
+<!-- converted for just physical chambers - ME1a & ME1b params part of ME11 - Tim Cox 02.04.2007-->
 <!-- # =========================================================== -->
 <!-- # Parameters for Cathode Strip Chambers: ME11AlumFrame        -->
 <!-- # =========================================================== -->
