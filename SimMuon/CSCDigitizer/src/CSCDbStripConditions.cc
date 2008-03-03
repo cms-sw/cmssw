@@ -10,7 +10,7 @@
 
 CSCDbStripConditions::CSCDbStripConditions(const edm::ParameterSet & pset) 
 : CSCStripConditions(),
-  theConditions(),
+  theConditions( pset ),
   theCapacitiveCrosstalk(pset.getParameter<double>("capacativeCrosstalk")),
   theResistiveCrosstalkScaling(pset.getParameter<double>("resistiveCrosstalkScaling")),
   theGainsConstant(pset.getParameter<double>("gainsConstant")),
