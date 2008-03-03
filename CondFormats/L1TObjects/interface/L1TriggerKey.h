@@ -25,27 +25,44 @@ protected:
      * I as unvable to make type std::map<std::pair<std::string, std::string>, std::string> persistent
      * so record and type are concatanated with @ sign and resulting string is used as a key.
      */
-    typedef std::map<std::string, std::string> RecordsToToken;
-    RecordsToToken recordsToToken;
+
+  // wsun 03/2008: instead of tokens, store the configuration keys instead.
+/*     typedef std::map<std::string, std::string> RecordsToToken; */
+/*     RecordsToToken recordsToToken; */
+    typedef std::map<std::string, std::string> RecordToKey;
+    RecordToKey m_recordToKey;
+
+
+    // wsun 03/2008: add data member for TSC key
+    std::string m_tscKey ;
 public:
     // Constructors
     L1TriggerKey () {}
 
     /* Adds new record and type mapping to payload. If such exists, nothing happens */
-    void add (const std::string & record, const std::string & type, const std::string & payload)
-    { recordsToToken.insert (std::make_pair (record + "@" + type, payload)); }
+    void add (const std::string & record, const std::string & type, const std::string & key)
+    { m_recordToKey.insert (std::make_pair (record + "@" + type, key)); }
 
-    /* Gets payload token for record and type. If no such paylaod exists, emtpy string
+    void setTSCKey( const std::string& tscKey )
+    { m_tscKey = tscKey ; }
+
+    /* Gets payload key for record and type. If no such paylaod exists, emtpy string
      * is returned.
      */
     std::string get (const std::string & record, const std::string & type) const
     {
-        RecordsToToken::const_iterator it = recordsToToken.find (record + "@" + type);
-        if (it == recordsToToken.end ())
+        RecordToKey::const_iterator it = m_recordToKey.find (record + "@" + type);
+        if (it == m_recordToKey.end ())
             return std::string ();
         else
             return it->second;
     }
+
+    std::string getTSCKey() const
+      { return m_tscKey ; }
+
+    const RecordToKey& recordToKeyMap() const
+      { return m_recordToKey ; }
 };
 
 #endif
