@@ -10,6 +10,10 @@ EcalRecHit::EcalRecHit(const DetId& id, float energy, float time) :
   CaloRecHit(id,energy,time) {
 }
 
+bool EcalRecHit::isRecovered() const {
+        return time() == kRECOVERED;
+}
+
 std::ostream& operator<<(std::ostream& s, const EcalRecHit& hit) {
   if (hit.detid().det() == DetId::Ecal && hit.detid().subdetId() == EcalBarrel) 
     return s << EBDetId(hit.detid()) << ": " << hit.energy() << " GeV, " << hit.time() << " ns";
@@ -20,4 +24,3 @@ std::ostream& operator<<(std::ostream& s, const EcalRecHit& hit) {
   else
     return s << "EcalRecHit undefined subdetector" ;
 }
-
