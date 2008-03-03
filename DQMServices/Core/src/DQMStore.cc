@@ -701,7 +701,7 @@ DQMStore::getMEs(void) const
   MEMap::const_iterator i = data_.lower_bound(pwd_);
   for ( ; i != e && isSubdirectory(pwd_, i->second.path_); ++i)
     if (i->second.path_ == pwd_)
-      result.push_back(i->first);
+      result.push_back(i->second.name_);
 
   return result;
 }
