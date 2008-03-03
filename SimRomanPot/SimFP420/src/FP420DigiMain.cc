@@ -43,18 +43,20 @@ using namespace std;
 FP420DigiMain::FP420DigiMain(const edm::ParameterSet& conf):conf_(conf){
   std::cout << "Creating a FP420DigiMain" << std::endl;
   ndigis=0;
-  verbosity = conf_.getUntrackedParameter<int>("VerbosityLevel");
-  theElectronPerADC      = conf_.getParameter<double>("ElectronFP420PerAdc");
-  theThreshold      = conf_.getParameter<double>("AdcFP420Threshold");
-  noNoise      = conf_.getParameter<bool>("NoFP420Noise");
-  addNoisyPixels      = conf_.getParameter<bool>("AddNoisyPixels");
-  thez420      = conf_.getParameter<double>("z420");
-  thezD2      = conf_.getParameter<double>("zD2");
-  thezD3      = conf_.getParameter<double>("zD3");
-  
+  verbosity        = conf_.getUntrackedParameter<int>("VerbosityLevel");
+  theElectronPerADC= conf_.getParameter<double>("ElectronFP420PerAdc");
+  theThreshold     = conf_.getParameter<double>("AdcFP420Threshold");
+  noNoise          = conf_.getParameter<bool>("NoFP420Noise");
+  addNoisyPixels   = conf_.getParameter<bool>("AddNoisyPixels");
+  thez420          = conf_.getParameter<double>("z420");
+  thezD2           = conf_.getParameter<double>("zD2");
+  thezD3           = conf_.getParameter<double>("zD3");
+  theApplyTofCut   = conf_.getParameter<bool>("ApplyTofCut");
+  tofCut           = conf_.getParameter<double>("LowtofCutAndTo200ns");
   xytype=2;
   
   if(verbosity>0) {
+    std::cout << "theApplyTofCut=" << theApplyTofCut << " tofCut=" << tofCut << std::endl;
     std::cout << "FP420DigiMain theElectronPerADC=" << theElectronPerADC << " theThreshold=" << theThreshold << " noNoise=" << noNoise << std::endl;
   }
   // X (or Y)define type of sensor (zside=1 or 2 used to derive it: 1-Y, 2-X)
@@ -77,8 +79,7 @@ FP420DigiMain::FP420DigiMain(const edm::ParameterSet& conf):conf_(conf){
   numStripsYW = 51;        // Y plate number of W strips:50 *0.400=20mm (zside=1) - W have ortogonal projection
   numStripsXW = 26;        // X plate number of W strips:25 *0.400=10mm (zside=2) - W have ortogonal projection
   
-  //tofCut = 100.;           // Cut on the particle TOF   = 100 or 50
-  tofCut = 1350.;           // Cut on the particle TOF range  = 1380 - 1500
+  //  tofCut = 1350.;           // Cut on the particle TOF range  = 1380 - 1500
   elossCut = 0.00003;           // Cut on the particle TOF   = 100 or 50
   
   
@@ -200,10 +201,16 @@ vector <HDigiFP420> FP420DigiMain::run(const std::vector<PSimHit> &input,
       //    std::cout << " sector= " << sector << "  zmodule= " << zmodule << std::endl;
       std::cout << "  bfield= " << bfield << std::endl;
     }
-    
-    if ( tofCut < abs(tof) < (tofCut+200.) && losenergy > elossCut) {
+
+  if(verbosity>0) {
+      std::cout << " *******FP420DigiMain:                           theApplyTofCut= " << theApplyTofCut << std::endl;
+      std::cout << " tof= " << tof << "  EnergyLoss= " << losenergy  << "  pabs= " <<  ihit.pabs() << std::endl;
+      std::cout << " particleType= " << ihit.particleType() << std::endl;
+  }
+    if ( ( !(theApplyTofCut)  ||  (theApplyTofCut &&   tofCut < abs(tof) < (tofCut+200.)) ) && losenergy > elossCut) {
       //    if ( abs(tof) < tofCut && losenergy > elossCut) {
       // if ( losenergy>0) {
+      if(verbosity>0) std::cout << " inside tof: OK " << std::endl;
       
       //   zside = 1 - Y strips;   =2 - X strips;
       //	  HitDigitizerFP420::hit_map_type _temp = theHitDigitizerFP420->processHit(ihit,bfield,zside,numStrips,pitch);
