@@ -147,7 +147,7 @@ void SeedValidator::analyze(const edm::Event& event, const edm::EventSetup& setu
       //
       //get collections from the event
       //
-      edm::Handle<TrajectorySeedCollection> seedCollection;
+      edm::Handle<edm::View<TrajectorySeed> > seedCollection;
       event.getByLabel(label[www], seedCollection);
       if (seedCollection->size()==0) {
 	edm::LogInfo("TrackValidator") << "SeedCollection size = 0!" ; 
@@ -179,7 +179,7 @@ void SeedValidator::analyze(const edm::Event& event, const edm::EventSetup& setu
 	h_etaSIM[w]->Fill(tp->momentum().eta());
 	h_vertposSIM[w]->Fill(sqrt(tp->vertex().perp2()));
 
-	std::vector<std::pair<edm::Ref<TrajectorySeedCollection>, double> > rt;
+	std::vector<std::pair<edm::RefToBase<TrajectorySeed>, double> > rt;
 	if(simRecColl.find(tp) != simRecColl.end()){
 	  rt = simRecColl[tp];
 	  if (rt.size()!=0) {
@@ -205,8 +205,8 @@ void SeedValidator::analyze(const edm::Event& event, const edm::EventSetup& setu
 	} // END for (unsigned int f=0; f<etaintervals[w].size()-1; f++){
 	
 	for (unsigned int f=0; f<pTintervals[w].size()-1; f++){
-          if (sqrt(tp->momentum().perp2())>pTintervals[w][f]&&
-              sqrt(tp->momentum().perp2())<pTintervals[w][f+1]) {
+          if (getPt(sqrt(tp->momentum().perp2()))>pTintervals[w][f]&&
+              getPt(sqrt(tp->momentum().perp2()))<pTintervals[w][f+1]) {
             totSIMpT[w][f]++;
 	    if (rt.size()!=0) {
 	      totASSpT[w][f]++;
@@ -234,7 +234,7 @@ void SeedValidator::analyze(const edm::Event& event, const edm::EventSetup& setu
       TrajectoryStateClosestToBeamLineBuilder tscblBuilder;
       PerigeeConversions tspConverter;
       for(TrajectorySeedCollection::size_type i=0; i<seedCollection->size(); ++i){
-	edm::Ref<TrajectorySeedCollection> seed(seedCollection, i);
+	edm::RefToBase<TrajectorySeed> seed(seedCollection, i);
 	rT++;
 
 	//get parameters and errors from the seed state
@@ -292,8 +292,8 @@ void SeedValidator::analyze(const edm::Event& event, const edm::EventSetup& setu
 	}
 	
 	for (unsigned int f=0; f<pTintervals[w].size()-1; f++){
-	  if (ptSeed>pTintervals[w][f]&&
-	      ptSeed<pTintervals[w][f+1]) {
+	  if (getPt(ptSeed)>pTintervals[w][f]&&
+	      getPt(ptSeed)<pTintervals[w][f+1]) {
 	    totRECpT[w][f]++; 
 	    if (tp.size()!=0) {
 	      totASS2pT[w][f]++;
