@@ -43,14 +43,10 @@ CSCValidation::CSCValidation(const ParameterSet& pset){
 
   // calib
   hCalibGainsS = new TH1F("hCalibGainsS","Gains Slope",400,0,400);
-  hCalibGainsI = new TH1F("hCalibGainsI","Gains Intercept",400,0,400);
-  hCalibGainsChi2 = new TH1F("hCalibGainsChi2","Gains Chi2",400,0,400);
   hCalibXtalkSL = new TH1F("hCalibXtalkSL","Xtalk Slope Left",400,0,400);
   hCalibXtalkSR = new TH1F("hCalibXtalkSR","Xtalk Slope Right",400,0,400);
   hCalibXtalkIL = new TH1F("hCalibXtalkIL","Xtalk Intercept Left",400,0,400);
   hCalibXtalkIR = new TH1F("hCalibXtalkIR","Xtalk Intercept Right",400,0,400);
-  hCalibXtalkChi2L = new TH1F("hCalibXtalkChi2L","Xtalk Chi2 Left",400,0,400);
-  hCalibXtalkChi2R = new TH1F("hCalibXtalkChi2R","Xtalk Chi2 Right",400,0,400);
   hCalibPedsP = new TH1F("hCalibPedsP","Peds",400,0,400);
   hCalibPedsR = new TH1F("hCalibPedsR","Peds RMS",400,0,400);
   hCalibNoise33 = new TH1F("hCalibNoise33","Noise Matrix 33",400,0,400);
@@ -223,14 +219,10 @@ CSCValidation::~CSCValidation(){
   // calib
   theFile->cd("Calib");
   hCalibGainsS->Write();
-  hCalibGainsI->Write();
-  hCalibGainsChi2->Write();
   hCalibXtalkSL->Write();
   hCalibXtalkSR->Write();
   hCalibXtalkIL->Write();
   hCalibXtalkIR->Write();
-  hCalibXtalkChi2L->Write();
-  hCalibXtalkChi2R->Write();
   hCalibPedsP->Write();
   hCalibPedsR->Write();
   hCalibNoise33->Write();
@@ -463,14 +455,10 @@ void CSCValidation::analyze(const Event & event, const EventSetup& eventSetup){
 
     for (int i = 0; i < 400; i++){
       hCalibGainsS->SetBinContent(i+1,pGains->gains[i].gain_slope);
-      hCalibGainsI->SetBinContent(i+1,pGains->gains[i].gain_intercept);
-      hCalibGainsChi2->SetBinContent(i+1,pGains->gains[i].gain_chi2);
       hCalibXtalkSL->SetBinContent(i+1,pCrosstalk->crosstalk[i].xtalk_slope_left);
       hCalibXtalkSR->SetBinContent(i+1,pCrosstalk->crosstalk[i].xtalk_slope_right);
       hCalibXtalkIL->SetBinContent(i+1,pCrosstalk->crosstalk[i].xtalk_intercept_left);
       hCalibXtalkIR->SetBinContent(i+1,pCrosstalk->crosstalk[i].xtalk_intercept_right);
-      hCalibXtalkChi2L->SetBinContent(i+1,pCrosstalk->crosstalk[i].xtalk_chi2_left);
-      hCalibXtalkChi2R->SetBinContent(i+1,pCrosstalk->crosstalk[i].xtalk_chi2_right);
       hCalibPedsP->SetBinContent(i+1,pPedestals->pedestals[i].ped);
       hCalibPedsR->SetBinContent(i+1,pPedestals->pedestals[i].rms);
       hCalibNoise33->SetBinContent(i+1,pNoiseMatrix->matrix[i].elem33);

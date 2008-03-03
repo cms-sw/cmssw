@@ -25,14 +25,10 @@ cat > ${MACRO}<<EOF
   vector<TH1F*> hCn;
 
   hCn.push_back((TH1F*)fn->Get("Calib/hCalibGainsS"));
-  hCn.push_back((TH1F*)fn->Get("Calib/hCalibGainsI"));
-  hCn.push_back((TH1F*)fn->Get("Calib/hCalibGainsChi2"));
   hCn.push_back((TH1F*)fn->Get("Calib/hCalibXtalkSL"));
   hCn.push_back((TH1F*)fn->Get("Calib/hCalibXtalkSR"));
   hCn.push_back((TH1F*)fn->Get("Calib/hCalibXtalkIL"));
   hCn.push_back((TH1F*)fn->Get("Calib/hCalibXtalkIR"));
-  hCn.push_back((TH1F*)fn->Get("Calib/hCalibXtalkChi2L"));
-  hCn.push_back((TH1F*)fn->Get("Calib/hCalibXtalkChi2R"));
   hCn.push_back((TH1F*)fn->Get("Calib/hCalibPedsP"));
   hCn.push_back((TH1F*)fn->Get("Calib/hCalibPedsR"));
   hCn.push_back((TH1F*)fn->Get("Calib/hCalibNoise33"));
@@ -49,14 +45,10 @@ cat > ${MACRO}<<EOF
   hCn.push_back((TH1F*)fn->Get("Calib/hCalibNoise77"));
 
   hCo.push_back((TH1F*)fo->Get("Calib/hCalibGainsS"));
-  hCo.push_back((TH1F*)fo->Get("Calib/hCalibGainsI"));
-  hCo.push_back((TH1F*)fo->Get("Calib/hCalibGainsChi2"));
   hCo.push_back((TH1F*)fo->Get("Calib/hCalibXtalkSL"));
   hCo.push_back((TH1F*)fo->Get("Calib/hCalibXtalkSR"));
   hCo.push_back((TH1F*)fo->Get("Calib/hCalibXtalkIL"));
   hCo.push_back((TH1F*)fo->Get("Calib/hCalibXtalkIR"));
-  hCo.push_back((TH1F*)fo->Get("Calib/hCalibXtalkChi2L"));
-  hCo.push_back((TH1F*)fo->Get("Calib/hCalibXtalkChi2R"));
   hCo.push_back((TH1F*)fo->Get("Calib/hCalibPedsP"));
   hCo.push_back((TH1F*)fo->Get("Calib/hCalibPedsR"));
   hCo.push_back((TH1F*)fo->Get("Calib/hCalibNoise33"));
@@ -76,7 +68,7 @@ cat > ${MACRO}<<EOF
   vector<int> ndiff;
   vector<float> vdiff;
 
-  for (int k = 0; k < 23; k++){
+  for (int k = 0; k < 19; k++){
     ndiff.push_back(0);
     for (int i = 0; i < 400; i++){
       float vo = hCo[k]->GetBinContent(i+1);
@@ -89,28 +81,24 @@ cat > ${MACRO}<<EOF
   out << "Results: " << endl;
   out << "Number of channels with diff from reference > 1% for... " << endl;
   out << "Gain Slopes: " << ndiff[0] << endl;
-  out << "Gain Intercepts: " << ndiff[1] << endl;
-  out << "Gain Chi2: " << ndiff[2] << endl;
-  out << "Xtalk Slopes Left: " << ndiff[3] << endl;
-  out << "Xtalk Slopes Right: " << ndiff[4] << endl;
-  out << "Xtalk Intercepts Left: " << ndiff[5] << endl;
-  out << "Xtalk Intercepts Right: " << ndiff[6] << endl;
-  out << "Xtalk Chi2 Left: " << ndiff[7] << endl;
-  out << "Xtalk Chi2 Right: " << ndiff[8] << endl;
-  out << "Peds: " << ndiff[9] << endl;
-  out << "Ped RMS: " << ndiff[10] << endl;
-  out << "Noise Matrix 33: " << ndiff[11] << endl;
-  out << "Noise Matrix 34: " << ndiff[12] << endl;
-  out << "Noise Matrix 35: " << ndiff[13] << endl;
-  out << "Noise Matrix 44: " << ndiff[14] << endl;
-  out << "Noise Matrix 45: " << ndiff[15] << endl;
-  out << "Noise Matrix 46: " << ndiff[16] << endl;
-  out << "Noise Matrix 55: " << ndiff[17] << endl;
-  out << "Noise Matrix 56: " << ndiff[18] << endl;
-  out << "Noise Matrix 57: " << ndiff[19] << endl;
-  out << "Noise Matrix 66: " << ndiff[20] << endl;
-  out << "Noise Matrix 67: " << ndiff[21] << endl;
-  out << "Noise Matrix 77: " << ndiff[22] << endl;
+  out << "Xtalk Slopes Left: " << ndiff[1] << endl;
+  out << "Xtalk Slopes Right: " << ndiff[2] << endl;
+  out << "Xtalk Intercepts Left: " << ndiff[3] << endl;
+  out << "Xtalk Intercepts Right: " << ndiff[4] << endl;
+  out << "Peds: " << ndiff[5] << endl;
+  out << "Ped RMS: " << ndiff[6] << endl;
+  out << "Noise Matrix 33: " << ndiff[7] << endl;
+  out << "Noise Matrix 34: " << ndiff[8] << endl;
+  out << "Noise Matrix 35: " << ndiff[9] << endl;
+  out << "Noise Matrix 44: " << ndiff[10] << endl;
+  out << "Noise Matrix 45: " << ndiff[11] << endl;
+  out << "Noise Matrix 46: " << ndiff[12] << endl;
+  out << "Noise Matrix 55: " << ndiff[13] << endl;
+  out << "Noise Matrix 56: " << ndiff[14] << endl;
+  out << "Noise Matrix 57: " << ndiff[15] << endl;
+  out << "Noise Matrix 66: " << ndiff[16] << endl;
+  out << "Noise Matrix 67: " << ndiff[17] << endl;
+  out << "Noise Matrix 77: " << ndiff[18] << endl;
 
   out.close();
 }

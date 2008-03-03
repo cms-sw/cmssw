@@ -130,14 +130,10 @@ private:
 
   // my histograms
   TH1F *hCalibGainsS;
-  TH1F *hCalibGainsI;
-  TH1F *hCalibGainsChi2;
   TH1F *hCalibXtalkSL;
   TH1F *hCalibXtalkSR;
   TH1F *hCalibXtalkIL;
   TH1F *hCalibXtalkIR;
-  TH1F *hCalibXtalkChi2L;
-  TH1F *hCalibXtalkChi2R;
   TH1F *hCalibPedsP;
   TH1F *hCalibPedsR;
   TH1F *hCalibNoise33;
