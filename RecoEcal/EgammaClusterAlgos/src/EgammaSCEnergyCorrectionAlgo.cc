@@ -1,5 +1,5 @@
 //
-// $Id: EgammaSCEnergyCorrectionAlgo.cc,v 1.11 2008/02/29 18:52:47 dlevans Exp $
+// $Id: EgammaSCEnergyCorrectionAlgo.cc,v 1.10 2008/02/24 18:33:56 kkaadze Exp $
 // Author: David Evans, Bristol
 //
 #include "RecoEcal/EgammaClusterAlgos/interface/EgammaSCEnergyCorrectionAlgo.h"
@@ -33,7 +33,7 @@ EgammaSCEnergyCorrectionAlgo::~EgammaSCEnergyCorrectionAlgo()
 reco::SuperCluster EgammaSCEnergyCorrectionAlgo::applyCorrection(const reco::SuperCluster &cl, 
 								 const EcalRecHitCollection &rhc, reco::AlgoId theAlgo, const CaloSubdetectorGeometry* geometry)
 {	
-/*	
+	
   // Insert the recHits into map	
   // (recHits needed as number of crystals in the seed cluster
   //  with energy above 2sigma noise required)
@@ -60,7 +60,7 @@ reco::SuperCluster EgammaSCEnergyCorrectionAlgo::applyCorrection(const reco::Sup
   {
     std::cout << "   Seed cluster energy... " << seedC->energy() << std::endl;
   }
-*/
+
   // Get the constituent clusters
   reco::basicCluster_iterator cluster;
   reco::BasicClusterRefVector clusters_v;
@@ -71,9 +71,6 @@ reco::SuperCluster EgammaSCEnergyCorrectionAlgo::applyCorrection(const reco::Sup
     clusters_v.push_back(*cluster);
     if (verbosity_ <= pINFO) std::cout << (*cluster)->energy() << ", ";
   }
-
-/*
-
   if (verbosity_ <= pINFO) std::cout << std::endl;
 
   // Find the algorithm used to construct the basic clusters making up the supercluster	
@@ -104,7 +101,7 @@ reco::SuperCluster EgammaSCEnergyCorrectionAlgo::applyCorrection(const reco::Sup
   {
     std::cout << "   bremsEnergy " << bremsEnergy << std::endl;
   }
-*/
+
   //Create the pointer ot class SuperClusterShapeAlgo
   //which calculates phiWidth and etaWidth
   SuperClusterShapeAlgo* SCShape = new SuperClusterShapeAlgo(&rhc, geometry);
@@ -117,33 +114,28 @@ reco::SuperCluster EgammaSCEnergyCorrectionAlgo::applyCorrection(const reco::Sup
   phiWidth = SCShape->phiWidth();
   etaWidth = SCShape->etaWidth();
 
-<<<<<<< EgammaSCEnergyCorrectionAlgo.cc
   // Calculate the new supercluster energy 
-  //Apply new Enegry SCale correction for Barrel
-=======
-/*
-  // Calculate the new supercluster energy either 
-  //as a function of number of crystals in the seed basiccluster 
+  //as a function of number of crystals in the seed basiccluster for Endcap 
   //or apply new Enegry SCale correction
->>>>>>> 1.11
   float newEnergy = 0;
+  
   if ( theAlgo == reco::hybrid || theAlgo == reco::dynamicHybrid) {
     std::cout << "The ALGO = " << theAlgo << std::endl;
     // first apply Zhang's eta corrections
     newEnergy = fEta(cl.energy(), cl.eta());
-    std::cout << "Zhang's e = " << newEnergy << std::endl; 
+    std::cout << "Zhang's e = " << std::endl;
     // now apply F(brem)
-    std::cout << "pw/ew = " << phiWidth/etaWidth << std::endl;
+    std::cout << "pw/ew = " << std::endl;
     newEnergy = fBrem(newEnergy, phiWidth/etaWidth);
     std::cout << "fBrem e = " << newEnergy << std::endl;
     // now apply F(Et, eta)
     double theta = atan(2*exp(-cl.eta()));
     double eT = newEnergy*sin(theta);
-    std::cout << "eT and eta = " << eT << " " << cl.eta() << std::endl; 
+    std::cout << "eT and eta = " << eT << " " << cl.eta() << std::endl;
     eT = fEtEta(eT, cl.eta());
     std::cout << "fEtEta eT = " << eT << std::endl;
     newEnergy = eT/sin(theta);
-    std::cout << "New e = " << newEnergy << std::endl;
+    std::cout << "newEnergy = " << newEnergy << std::endl; 
   } else {     
     //Apply f(nCry) correction on island algo and fixedMatrix algo 
     newEnergy = seedC->energy()/fNCrystals(nCryGT2Sigma, theAlgo, theBase)+bremsEnergy;
@@ -160,12 +152,9 @@ reco::SuperCluster EgammaSCEnergyCorrectionAlgo::applyCorrection(const reco::Sup
   reco::SuperCluster corrCl(newEnergy, 
     math::XYZPoint(cl.position().X(), cl.position().Y(), cl.position().Z()),
     cl.seed(), clusters_v );
-*/
 
-  reco::SuperCluster corrCl(cl.energy(), 
-    math::XYZPoint(cl.position().X(), cl.position().Y(), cl.position().Z()),
-    cl.seed(), clusters_v );
-
+  std::cout << "phiWith = " << phiWidth << std::endl;
+  std::cout << "etaWith = " << etaWidth << std::endl;
 
   corrCl.setPhiWidth(phiWidth);
   corrCl.setEtaWidth(etaWidth);

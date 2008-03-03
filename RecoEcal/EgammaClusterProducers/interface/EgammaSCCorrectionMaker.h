@@ -46,6 +46,7 @@ class EgammaSCCorrectionMaker : public edm::EDProducer {
     
      // vars for the correction algo
      bool applyEnergyCorrection_;
+     //     bool oldEnergyScaleCorrection_;
      double sigmaElectronicNoise_;
      double etThresh_;
      
