@@ -18,22 +18,10 @@
 #include "FWCore/Framework/interface/ModuleFactory.h"
 #include "FWCore/Framework/interface/ESProducer.h"
 
+#include "CondFormats/HcalObjects/interface/AllObjects.h"
+
 class HcalCalibrations;
 class HcalCalibrationWidths;
-
-class HcalPedestal;
-class HcalPedestalWidth;
-class HcalGain;
-class HcalGainWidth;
-class HcalPedestals;
-class HcalPedestalWidths;
-class HcalGains;
-class HcalGainWidths;
-class HcalQIECoder;
-class HcalQIEShape;
-class HcalQIEData;
-class HcalChannelQuality;
-class HcalElectronicsMap;
 
 class HcalDbService {
  public:
@@ -49,6 +37,7 @@ class HcalDbService {
   const HcalQIECoder* getHcalCoder (const HcalGenericDetId& fId) const;
   const HcalQIEShape* getHcalShape () const;
   const HcalElectronicsMap* getHcalMapping () const;
+  const HcalRespCorr* getHcalRespCorr (const HcalGenericDetId& fId) const;
   
   void setData (const HcalPedestals* fItem) {mPedestals = fItem; buildCalibrations(); }
   void setData (const HcalPedestalWidths* fItem) {mPedestalWidths = fItem;}
@@ -57,6 +46,9 @@ class HcalDbService {
   void setData (const HcalQIEData* fItem) {mQIEData = fItem; buildCalibrations(); }
   void setData (const HcalChannelQuality* fItem) {mChannelQuality = fItem;}
   void setData (const HcalElectronicsMap* fItem) {mElectronicsMap = fItem;}
+  void setData (const HcalRespCorrs* fItem) {mRespCorrs = fItem;}
+  void setData (const HcalZSThresholds* fItem) {mZSThresholds = fItem;}
+
  private:
   bool makeHcalCalibration (const HcalGenericDetId& fId, HcalCalibrations* fObject) const;
   void buildCalibrations();
@@ -68,6 +60,8 @@ class HcalDbService {
   const HcalQIEData* mQIEData;
   const HcalChannelQuality* mChannelQuality;
   const HcalElectronicsMap* mElectronicsMap;
+  const HcalRespCorrs* mRespCorrs;
+  const HcalZSThresholds* mZSThresholds;
   bool mPedestalInADC;
   HcalCalibrationsSet mCalibSet;
 };

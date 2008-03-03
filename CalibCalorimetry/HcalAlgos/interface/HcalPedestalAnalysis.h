@@ -12,6 +12,7 @@
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
 #include "DataFormats/HcalDigi/interface/HcalDigiCollections.h"
 
+#include "CondFormats/HcalObjects/interface/AllObjects.h"
 
 #include "TH1F.h"
 #include "TF1.h"
@@ -30,11 +31,7 @@
 //                0 - write out current raw constants (default)
 //                1 - write out validated constants
 
-class HcalPedestals;
-class HcalPedestalWidths;
 class HcalDbService;
-class HcalQIEShape;
-class HcalQIECoder;
 class TFile;
 
 class HcalPedestalAnalysis{

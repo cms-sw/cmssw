@@ -7,13 +7,13 @@
 #include <iostream>
 
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
-#include "CondFormats/HcalObjects/interface/AllClasses.h"
+#include "CondFormats/HcalObjects/interface/AllObjects.h"
 
 /**
    \class HcalDbASCIIIO
    \brief IO for ASCII instances of Hcal Calibrations
    \author Fedor Ratnikov Oct. 28, 2005
-   $Id: HcalDbASCIIIO.h,v 1.6 2006/02/22 19:51:38 fedor Exp $
+   $Id: HcalDbASCIIIO.h,v 1.7 2006/05/22 21:10:35 fedor Exp $
    
 Text file formats for different data types is as following:
 - # in first column comments the line
@@ -47,9 +47,14 @@ namespace HcalDbASCIIIO {
   bool dumpObject (std::ostream& fOutput, const HcalQIEData& fObject);
   bool getObject (std::istream& fInput, HcalCalibrationQIEData* fObject);
   bool dumpObject (std::ostream& fOutput, const HcalCalibrationQIEData& fObject);
-  bool getObject (std::istream& fInput, HcalChannelQuality* fObject);
-  bool dumpObject (std::ostream& fOutput, const HcalChannelQuality& fObject);
   bool getObject (std::istream& fInput, HcalElectronicsMap* fObject);
   bool dumpObject (std::ostream& fOutput, const HcalElectronicsMap& fObject);
+
+  bool getObject (std::istream& fInput, HcalChannelQuality* fObject);
+  bool dumpObject (std::ostream& fOutput, const HcalChannelQuality& fObject);
+  bool getObject (std::istream& fInput, HcalRespCorrs* fObject);
+  bool dumpObject (std::ostream& fOutput, const HcalRespCorrs& fObject);
+  bool getObject (std::istream& fInput, HcalZSThresholds* fObject);
+  bool dumpObject (std::ostream& fOutput, const HcalZSThresholds& fObject);
 } 
 #endif

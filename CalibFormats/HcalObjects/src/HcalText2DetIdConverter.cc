@@ -1,6 +1,6 @@
 /** \class HcalText2DetIdConverter
     \author F.Ratnikov, UMd
-    $Id: HcalText2DetIdConverter.cc,v 1.4 2006/10/18 23:43:38 fedor Exp $
+    $Id: HcalText2DetIdConverter.cc,v 1.5 2008/01/22 18:58:53 muzaffar Exp $
 */
 #include <stdlib.h>
 #include <iostream>
@@ -110,6 +110,7 @@ bool HcalText2DetIdConverter::init (DetId fId) {
       flavorName = "HT";
       setField (1, triggerId.ieta());
       setField (2, triggerId.iphi());
+      setField (3, 1);
     }
   }
   else if (genId.isHcalZDCDetId ()) {
@@ -122,6 +123,7 @@ bool HcalText2DetIdConverter::init (DetId fId) {
     }
     setField (1, zdcId.zside());
     setField (2, zdcId.channel());
+    setField (3, -99);
   }
   else if (genId.isHcalCalibDetId ()) {
     HcalCalibDetId calibId (mId);
@@ -150,6 +152,7 @@ bool HcalText2DetIdConverter::init (DetId fId) {
     case 7: field2 = "RadDam3"; break;
     default: result = false;
     }
+    setField (3, -99);
   }
   else {
     flavorName = "UNKNOWN_FLAVOR";

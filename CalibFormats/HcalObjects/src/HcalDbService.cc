@@ -1,7 +1,7 @@
 //
 // F.Ratnikov (UMd), Aug. 9, 2005
 //
-// $Id: HcalDbService.cc,v 1.16 2007/05/10 20:26:16 mansj Exp $
+// $Id: HcalDbService.cc,v 1.17 2007/12/20 01:39:56 mansj Exp $
 
 #include "FWCore/Framework/interface/eventsetupdata_registration_macro.h"
 
@@ -12,14 +12,6 @@
 #include "CalibFormats/HcalObjects/interface/HcalCalibrations.h"
 #include "CalibFormats/HcalObjects/interface/HcalCalibrationWidths.h"
 
-#include "CondFormats/HcalObjects/interface/HcalPedestals.h"
-#include "CondFormats/HcalObjects/interface/HcalPedestalWidths.h"
-#include "CondFormats/HcalObjects/interface/HcalGains.h"
-#include "CondFormats/HcalObjects/interface/HcalGainWidths.h"
-#include "CondFormats/HcalObjects/interface/HcalQIEShape.h"
-#include "CondFormats/HcalObjects/interface/HcalQIEData.h"
-#include "CondFormats/HcalObjects/interface/HcalChannelQuality.h"
-#include "CondFormats/HcalObjects/interface/HcalElectronicsMap.h"
 #include "RecoLocalCalo/CaloTowersCreator/interface/EScales.h"
 #include <cmath>
 
@@ -32,6 +24,7 @@ HcalDbService::HcalDbService (const edm::ParameterSet& cfg)
   mGainWidths (0),
   mQIEData(0),
   mElectronicsMap(0),
+  mRespCorrs(0),
   mPedestalInADC(cfg.getUntrackedParameter<bool>("PedestalInADC",false))
  {}
 
@@ -112,6 +105,14 @@ bool HcalDbService::makeHcalCalibrationWidth (const HcalGenericDetId& fId, HcalC
   }
   return false;
 }  
+
+
+const HcalRespCorr* HcalDbService::getHcalRespCorr (const HcalGenericDetId& fId) const {
+  if (mRespCorrs) {
+    return mRespCorrs->getValues (fId);
+  }
+  return 0;
+}
 
 const HcalPedestal* HcalDbService::getPedestal (const HcalGenericDetId& fId) const {
   if (mPedestals) {
