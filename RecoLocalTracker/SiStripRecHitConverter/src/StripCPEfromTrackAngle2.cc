@@ -10,94 +10,63 @@ using namespace std;
 
 StripClusterParameterEstimator::LocalValues StripCPEfromTrackAngle2::localParameters( const SiStripCluster & cl,const LocalTrajectoryParameters & ltp)const{
 
+  //
+  // get the det from the geometry
+  //
+
+  //cout<<"StripCPEfromTrackAngle2 NEW"<<endl;
+
+  StripCPE::Param const & p = param(DetId(cl.geographicalId()));
+  
   LocalPoint middlepoint = ltp.position();
   LocalVector atrackUnit = ltp.momentum()/ltp.momentum().mag();
 
 
-  DetId detId(cl.geographicalId());
-  const GeomDetUnit *  det = geom_->idToDetUnit(detId);
-  uint32_t myid;
-  myid=detId.rawId();
+  LocalPoint  position = p.topology->localPosition(cl.barycenter());
   
   
-  LocalPoint position;
-  LocalError eresult;
-  LocalVector drift=LocalVector(0,0,1);
-  const StripGeomDetUnit * stripdet=(const StripGeomDetUnit*)(det);
-  const StripTopology &topol=(StripTopology&)stripdet->topology();
-  position = topol.localPosition(cl.barycenter());
-  
-  
-  drift= driftDirection(stripdet);
-  float thickness=stripdet->surface().bounds().thickness();
-
-  ////////////////
-  float pitch = topol.localPitch(position);
-  float tanalpha = atrackUnit.x()/atrackUnit.z();
-  float tanalphaL = drift.x()/drift.z();
-  float SLorentz = 0.5*(thickness/pitch)*tanalphaL;
-
-  float Wtrack = fabs((thickness/pitch)*tanalpha - (thickness/pitch)*tanalphaL);
-
-  /////////////////
-
-  //  drift*=(thickness/2);
-
-  //calculate error form track angle
-
-
   LocalVector trackDir = atrackUnit;
       
-  if(drift.z() == 0.) {
+  if(p.drift.z() == 0.) {
     edm::LogError("StripCPE") <<"No drift towards anodes !!!";
-    eresult = topol.localError(cl.barycenter(),1/12.);
-    return std::make_pair(position+drift*(thickness/2),eresult);
+    LocalError eresult = p.topology->localError(cl.barycenter(),1/12.);
+    return std::make_pair(position-p.drift*(p.thickness/2),eresult);
   }	 
 
-  if(trackDir.z()*drift.z() > 0.) trackDir *= -1.;
+  if(trackDir.z()*p.drift.z() > 0.) trackDir *= -1.;
 
-  const Bounds& bounds = stripdet->surface().bounds();
-
-  float maxLength = sqrt( bounds.length()*bounds.length()+bounds.width()*bounds.width());
-  drift *= fabs(thickness/drift.z());       
   if(trackDir.z() !=0.) {
-    trackDir *= fabs(thickness/trackDir.z());
+    trackDir *= fabs(p.thickness/trackDir.z());
   } else {
-    trackDir *= maxLength/trackDir.mag();
+    trackDir *= p.maxLength/trackDir.mag();
   }
-
-  //    LocalPoint result=LocalPoint(position.x()+drift.x()/2,position.y()+drift.y()/2,0);
-  LocalPoint result=LocalPoint(position.x()-0.5*drift.x(),position.y()-0.5*drift.y(),0);
 
   // covered length along U
       
-  LocalVector middleOfProjection = 0.5*(trackDir + drift);
+  LocalVector middleOfProjection = 0.5*(trackDir + p.drift);
 
-  LocalPoint middlePointOnStrips = middlepoint + 0.5*drift;
+  LocalPoint middlePointOnStrips = middlepoint + 0.5*p.drift;
 
   LocalPoint p1 = LocalPoint(middlePointOnStrips.x() + middleOfProjection.x()
 			     ,middlePointOnStrips.y() + middleOfProjection.y());
   LocalPoint p2 = LocalPoint(middlePointOnStrips.x() - middleOfProjection.x()
 			     ,middlePointOnStrips.y() - middleOfProjection.y());
 
-  MeasurementPoint m1 = topol.measurementPosition(p1);
-  MeasurementPoint m2 = topol.measurementPosition(p2);
+  MeasurementPoint m1 = p.topology->measurementPosition(p1);
+  MeasurementPoint m2 = p.topology->measurementPosition(p2);
   float u1 = m1.x();
   float u2 = m2.x();
-  int nstrips = topol.nstrips(); 
-  float uProj = std::min( float(fabs( u1 - u2)), float(nstrips));
+  float uProj = std::min( float(fabs( u1 - u2)), float(p.nstrips));
 
   int clusterWidth ;
   clusterWidth = cl.amplitudes().size();
 
   int expectedWidth;
-  expectedWidth = 1 + int(u2) -int(u1);
+  if (u1<u2) expectedWidth = 1 + int(u2) -int(u1);
+  if (u1>u2) expectedWidth = 1 + int(u1) -int(u2);
+  if (u1==u2) expectedWidth = 1;
+  //  expectedWidth = 1 + int(u2) -int(u1);
 
-  int Sp = int(position.x()/pitch+SLorentz+0.5*Wtrack);
-  int Sm = int(position.x()/pitch+SLorentz-0.5*Wtrack);
-  int Wexp = 1+Sp-Sm;
-
-  expectedWidth = Wexp;
 
   // Coefficients P0, P1 & P2 of quadratic parametrization of 
   // resolution in terms of track width.
@@ -105,17 +74,24 @@ StripClusterParameterEstimator::LocalValues StripCPEfromTrackAngle2::localParame
   // need different parametrizations (iopt=0,1,2 below).
 
   float projectionOnU ;
-  //  projectionOnU = uProj;
-  projectionOnU = Wtrack;
+  projectionOnU = uProj;
   const unsigned int nbins = 3;
   //const float P0[nbins] =  { 0.329,   0.069,   0.549};
   //const float P1[nbins] =  {-0.088,   0.049,  -0.619};
   //const float P2[nbins] =  {-0.115,   0.004,   0.282};
 
   // Good param
+  /*
   const float P0[nbins] =  {2.45226e-01,9.09088e-02, 2.43403e-01 };
   const float P1[nbins] =  {-3.50310e-02,-1.37922e-02,-1.93286e-01  };
   const float P2[nbins] =  {-1.14758e-01,1.31774e-02,7.68252e-02};
+  */
+  const float P0[nbins] =  {2.62868e-01 ,2.07353e-01,2.56743e-01};//best
+  const float P1[nbins] =  {-1.11246e-01 ,-1.44337e-01,-1.84289e-01};//best
+  const float P2[nbins] =  {-3.86084e-02,4.76344e-02,6.69619e-02};//best
+  //
+
+    //
   const float minError = 0.1;
 
   // Coefficients of linear parametrization in terms of cluster
@@ -123,9 +99,11 @@ StripClusterParameterEstimator::LocalValues StripCPEfromTrackAngle2::localParame
   //const float q0 = 1.80;
   //const float q1 = 2.83;
 
-  // Good param
-  const float q0 = 9.07253e-01;
-  const float q1 = 3.10393e+00;
+  // Good param 
+  const float q0 = 9.07253e-01; //best
+  const float q1 = 3.10393e+00;//best
+  //const float q0 = 3.83120e-01;
+  //const float q1 = 1.80999e+00;
 
   unsigned int iopt;
   if (clusterWidth > expectedWidth + 2) {
@@ -164,28 +142,25 @@ StripClusterParameterEstimator::LocalValues StripCPEfromTrackAngle2::localParame
   }
 
 
-  //cout<<"EdgeAlgo:iopt = "<<iopt<<endl;
-  //cout<<"EdgeAlgo:Wtrack = "<<Wtrack<<endl;
-  //cout<<"EdgeAlgo:uerr = "<<uerr<<endl;
 
   // For the sake of stability, avoid very small resolution.
   if (uerr < minError) uerr = minError;
-
+  
   short firstStrip = cl.firstStrip();
 
   short lastStrip = firstStrip + clusterWidth - 1;
-
+  
   // If cluster reaches edge of sensor, inflate its error.
-  //  if (firstStrip == 0 || lastStrip == numStripsInDet - 1) {
-    if (firstStrip == 0 || lastStrip == nstrips - 1) {
+    if (firstStrip == 0 || lastStrip == p.nstrips - 1) {
       uerr += 0.5*(1 + projectionOnU);
   }
-      
-
+     
+    //if((cl.amplitudes().size() - (uProj+2.5)) > 1) uerr=cl.amplitudes().size()  * (1./sqrt(12.));
+  
   MeasurementError merror=MeasurementError( uerr*uerr, 0., 1./12.);
-  //  LocalPoint result=LocalPoint(position.x()+drift.x()/2,position.y()+drift.y()/2,0);
-  MeasurementPoint mpoint=topol.measurementPosition(result);
-  eresult=topol.localError(mpoint,merror);
+  LocalPoint result=LocalPoint(position.x()-0.5*p.drift.x(),position.y()-0.5*p.drift.y(),0);
+  MeasurementPoint mpoint=p.topology->measurementPosition(result);
+  LocalError eresult=p.topology->localError(mpoint,merror);
 
 
   return std::make_pair(result,eresult);
