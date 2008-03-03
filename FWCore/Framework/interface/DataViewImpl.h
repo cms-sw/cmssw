@@ -81,7 +81,7 @@ edm::Ref<AppleCollection> ref(refApples, index);
 */
 /*----------------------------------------------------------------------
 
-$Id: DataViewImpl.h,v 1.34 2007/11/30 19:08:22 wmtan Exp $
+$Id: DataViewImpl.h,v 1.35 2008/01/15 06:51:44 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 #include <cassert>
@@ -153,6 +153,10 @@ namespace edm {
 	       std::string const& productInstanceName,
 	       Handle<View<ELEMENT> >& result) const;
 
+    // Template member overload to deal with Views.     
+    template <typename ELEMENT>
+    bool
+    get(ProductID const& oid, Handle<View<ELEMENT> >& result) const ;
 
     /// same as above, but using the InputTag class 	 
     template <typename PROD> 	 
@@ -627,6 +631,26 @@ namespace edm {
       return true;
     }
     return false;
+  }
+
+    template <typename ELEMENT>
+    bool
+    DataViewImpl::get(ProductID const& oid, Handle<View<ELEMENT> >& result) const
+  {
+      result.clear();
+      BasicHandle bh = this->get_(oid);
+
+      if(bh.failedToGet()) {
+          boost::shared_ptr<cms::Exception> whyFailed(new edm::Exception(edm::errors::ProductNotFound) );
+          *whyFailed
+              << "get View by ID failed: no product with ID = " << oid.id() <<"\n";
+          Handle<View<ELEMENT> > temp(whyFailed);
+          result.swap(temp);
+          return false;
+      }
+
+      fillView_(bh, result);
+      return true;
   }
   
   
