@@ -1,7 +1,7 @@
 #ifndef _SERVICEMANAGER_H_
 #define _SERVICEMANAGER_H_
 
-// $Id: ServiceManager.h,v 1.1 2007/02/05 11:19:56 klute Exp $
+// $Id: ServiceManager.h,v 1.2 2008/01/29 21:15:40 biery Exp $
 
 #include "FWCore/ParameterSet/interface/ProcessDesc.h"
 #include "FWCore/Framework/interface/EventSelector.h"
@@ -16,6 +16,7 @@
 #include <vector>
 #include <list>
 #include <string>
+#include <map>
 
 namespace edm 
 {
@@ -39,6 +40,8 @@ namespace edm
     
     std::list<std::string>& get_filelist();
     std::list<std::string>& get_currfiles();
+
+    std::map<std::string, Strings> getStreamSelectionTable();
     
   private:   
     void collectStreamerPSets(const std::string& config);        

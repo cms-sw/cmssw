@@ -1,4 +1,4 @@
-// $Id: ServiceManager.cc,v 1.4 2007/08/18 06:04:57 hcheung Exp $
+// $Id: ServiceManager.cc,v 1.5 2008/01/29 21:22:56 biery Exp $
 
 #include <EventFilter/StorageManager/interface/ServiceManager.h>
 #include "EventFilter/StorageManager/interface/Configurator.h"
@@ -137,6 +137,21 @@ std::list<std::string>& ServiceManager::get_currfiles()
   return currfiles_;  
 }
 
+/**
+ * Returns a map of the trigger selection strings for each output stream.
+ */
+std::map<std::string, Strings> ServiceManager::getStreamSelectionTable()
+{
+  std::map<std::string, Strings> selTable;
+  for(std::vector<ParameterSet>::iterator it = outModPSets_.begin();
+      it != outModPSets_.end(); ++it) {
+    std::string streamLabel = it->getParameter<string> ("streamLabel");
+    if (streamLabel.size() > 0) {
+      selTable[streamLabel] = EventSelector::getEventSelectionVString(*it);
+    }
+  }
+  return selTable;
+}
 
 //
 // *** wrote similar example code in IOPool/Streamer/test/ParamSetWalker_t.cpp 
