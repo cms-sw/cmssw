@@ -23,7 +23,7 @@
  *   isIdle() will return false since the consumer has moved from the idle
  *   to the disconnected state.)
  *
- * $Id: ConsumerPipe.h,v 1.10 2008/01/29 19:35:37 biery Exp $
+ * $Id: ConsumerPipe.h,v 1.11 2008/02/11 15:06:22 biery Exp $
  */
 
 #include <string>
@@ -48,7 +48,7 @@ namespace stor
   public:
     ConsumerPipe(std::string name, std::string priority,
                  int activeTimeout, int idleTimeout,
-                 boost::shared_ptr<edm::ParameterSet> parameterSet,
+                 Strings triggerSelection,
                  std::string hostName, int queueSize);
 
     ~ConsumerPipe();
@@ -85,7 +85,7 @@ namespace stor
     std::string consumerName_;
     std::string consumerPriority_;
     int events_;
-    boost::shared_ptr<edm::ParameterSet> requestParamSet_;
+    Strings triggerSelection_;
     std::string hostName_;
     bool consumerIsProxyServer_;
 

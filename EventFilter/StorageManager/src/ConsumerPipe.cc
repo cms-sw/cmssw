@@ -4,7 +4,7 @@
  * event server part of the storage manager.
  *
  * 16-Aug-2006 - KAB  - Initial Implementation
- * $Id: ConsumerPipe.cc,v 1.17 2008/01/29 19:35:38 biery Exp $
+ * $Id: ConsumerPipe.cc,v 1.18 2008/02/11 15:16:43 biery Exp $
  */
 
 #include "EventFilter/StorageManager/interface/ConsumerPipe.h"
@@ -33,13 +33,13 @@ boost::mutex ConsumerPipe::rootIdLock_;
  */
 ConsumerPipe::ConsumerPipe(std::string name, std::string priority,
                            int activeTimeout, int idleTimeout,
-                           boost::shared_ptr<edm::ParameterSet> parameterSet,
+                           Strings triggerSelection,
                            std::string hostName, int queueSize):
   han_(curl_easy_init()),
   headers_(),
   consumerName_(name),consumerPriority_(priority),
   events_(0),
-  requestParamSet_(parameterSet),
+  triggerSelection_(triggerSelection),
   hostName_(hostName),
   pushEventFailures_(0),
   maxQueueSize_(queueSize)
@@ -119,7 +119,7 @@ void ConsumerPipe::initializeSelection(Strings const& fullTriggerList)
     consumerId_ << std::endl;
 
   // create our event selector
-  eventSelector_.reset(new EventSelector(requestParamSet_->getUntrackedParameter("SelectEvents", ParameterSet()),
+  eventSelector_.reset(new EventSelector(triggerSelection_,
 					 fullTriggerList));
   // indicate that initialization is complete
   initializationDone = true;
@@ -342,7 +342,7 @@ void ConsumerPipe::clearQueue()
 
 std::vector<std::string> ConsumerPipe::getTriggerRequest() const
 {
-  return EventSelector::getEventSelectionVString(*requestParamSet_);
+  return triggerSelection_;
 }
 
 void ConsumerPipe::setRegistryWarning(std::string const& message)
