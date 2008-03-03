@@ -1,6 +1,7 @@
 #ifndef RecoECAL_ECALClusters_EgammaSCEnergyCorrectionAlgo_h_
 #define RecoECAL_ECALClusters_EgammaSCEnergyCorrectionAlgo_h_
 
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
 #include "DataFormats/EgammaReco/interface/BasicCluster.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHit.h"
@@ -19,8 +20,10 @@ class EgammaSCEnergyCorrectionAlgo
 
     // public member functions
     EgammaSCEnergyCorrectionAlgo(double noise, 
-				 VerbosityLevel verbosity = pERROR, 
-				 bool applyOldCorrection = true);
+				 reco::AlgoId theAlgo,
+				 const edm::ParameterSet& pset, 
+				 VerbosityLevel verbosity = pERROR
+                                 );
     ~EgammaSCEnergyCorrectionAlgo();
 
     // take a SuperCluster and return a corrected SuperCluster
@@ -34,9 +37,9 @@ class EgammaSCEnergyCorrectionAlgo
  
   private:
     // Zhang shower leakage corrections
-    double fEta(double eta);
+    double fEta(double e, double eta);
     // F(brem) correction with brem = phiWidth/etaWidth
-    double fBrem(double brem, double e);
+    double fBrem(double e, double brem);
     // F(et, eta) correction
     double fEtEta(double et, double eta);
 
@@ -54,9 +57,13 @@ class EgammaSCEnergyCorrectionAlgo
 
     //  the verbosity level
     VerbosityLevel verbosity_;
+
+    reco::AlgoId theAlgo_;
+
+    //Paramete sets for corrections functions
+    std::vector<double> fBrem_; 
+    std::vector<double> fEtEta_; 
     
-    //parameter to switch off/on f(nCry) correction
-    bool applyOldCorrection_;
 };
 
 #endif /*RecoECAL_ECALClusters_EgammaSCEnergyCorrectionAlgo_h_*/
