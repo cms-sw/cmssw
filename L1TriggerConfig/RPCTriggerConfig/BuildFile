@@ -1,15 +1,25 @@
+<Architecture name=slc4_ia32_gcc345>
+<Flags CXXFLAGS="-O0 -g -DDEBUG">
+<makefile>
+F77compiler:=g77
+CCcompiler:=gcc3
+CXXFLAGS := $(patsubst -O2,,$(CXXFLAGS))
+</makefile>
+</Architecture>
+
 <use name=FWCore/Framework>
 <use name=FWCore/PluginManager>
 <use name=FWCore/ParameterSet>
+
 <use name=CondFormats/RPCObjects>
 <use name=CondFormats/DataRecord>
+<use name=Geometry/RPCGeometry>
 <use name=L1Trigger/RPCTrigger>
+
 <flags EDM_PLUGIN=1>
 <export>
-   <lib name=L1TriggerConfigRPCTriggerConfig>
+   <lib name=L1TriggerConfigRPCConeBuilder>
    <use name=FWCore/Framework>
    <use name=FWCore/PluginManager>
    <use name=FWCore/ParameterSet>
-   <use name=CondFormats/RPCObjects>
-   <use name=CondFormats/DataRecord>
 </export>
