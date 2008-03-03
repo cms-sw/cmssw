@@ -72,7 +72,6 @@ void SiStripMonitorTrack::analyze(const edm::Event& e, const edm::EventSetup& es
   countOff=0;
   
   //cluster input
-  edm::Handle< edm::DetSetVector<SiStripRawDigi> > rawDigiHandle;
   theRawdigiProducer = conf_.getParameter<edm::InputTag>("rawdigiProducer");
   theRawdigiLabel = conf_.getParameter<edm::InputTag>("rawdigiLabel");
   
@@ -759,23 +758,24 @@ void SiStripMonitorTrack::fillModMEs(SiStripClusterInfo* cluster,TString name,fl
     fillME(iModME->second.ClusterPos   ,cluster->getPosition());
 
     std::vector<float> amplitudesL, amplitudesR;
-    amplitudesL = cluster->getRawDigiAmplitudesLR(neighbourStripNumber,*rawDigiHandle,dsv_SiStripCluster,theRawDigiLabel).first;	
-    amplitudesR = cluster->getRawDigiAmplitudesLR(neighbourStripNumber,*rawDigiHandle,dsv_SiStripCluster,theRawDigiLabel).second;
+    //    amplitudesL = cluster->getRawDigiAmplitudesLR(neighbourStripNumber,*rawDigiHandle,dsv_SiStripCluster,theRawdigiLabel.label()).first;	
+    //    amplitudesR = cluster->getRawDigiAmplitudesLR(neighbourStripNumber,*rawDigiHandle,dsv_SiStripCluster,theRawdigiLabel.label()).second;
 
     //fill the PGV histo
     float PGVmax = cluster->getMaxCharge();
-    int PGVposCounter = cluster->firstStrip() - amplitudesL.size() - cluster->getMaxPosition();
+    //    int PGVposCounter = cluster->getFirstStrip() - amplitudesL.size() - cluster->getMaxPosition();
+    int PGVposCounter = cluster->getFirstStrip() - cluster->getMaxPosition();
     for (int i= int(conf_.getParameter<edm::ParameterSet>("TProfileClusterPGV").getParameter<double>("xmin"));i<PGVposCounter;++i)
       fillME(iModME->second.ClusterPGV, i,0.);
-    for (std::vector<float>::const_iterator it=amplitudesL.begin();it<amplitudesL.end();++it) {
-      fillME(iModME->second.ClusterPGV, PGVposCounter++,(*it)/PGVmax);
-    }
+//     for (std::vector<float>::const_iterator it=amplitudesL.begin();it<amplitudesL.end();++it) {
+//       fillME(iModME->second.ClusterPGV, PGVposCounter++,(*it)/PGVmax);
+//     }
     for (std::vector<uint16_t>::const_iterator it=cluster->getStripAmplitudes().begin();it<cluster->getStripAmplitudes().end();++it) {
       fillME(iModME->second.ClusterPGV, PGVposCounter++,(*it)/PGVmax);
     }
-    for (std::vector<float>::const_iterator it=amplitudesR.begin();it<amplitudesR.end();++it) {
-      fillME(iModME->second.ClusterPGV, PGVposCounter++,(*it)/PGVmax);
-    }
+//     for (std::vector<float>::const_iterator it=amplitudesR.begin();it<amplitudesR.end();++it) {
+//       fillME(iModME->second.ClusterPGV, PGVposCounter++,(*it)/PGVmax);
+//     }
     for (int i= PGVposCounter;i<int(conf_.getParameter<edm::ParameterSet>("TProfileClusterPGV").getParameter<double>("xmax"));++i)
       fillME(iModME->second.ClusterPGV, i,0.);
     //end fill the PGV histo

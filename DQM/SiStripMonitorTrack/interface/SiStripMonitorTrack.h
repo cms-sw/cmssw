@@ -129,8 +129,7 @@ class SiStripMonitorTrack : public edm::EDAnalyzer {
 
   edm::Handle< edm::DetSetVector<SiStripCluster> >  dsv_SiStripCluster;
 
-  //  edm::Handle< edm::DetSetVector<SiStripRawDigi> > rawDigiHandle;
-
+  edm::Handle< edm::DetSetVector<SiStripRawDigi> > rawDigiHandle;
 
   edm::Handle<reco::TrackCollection> trackCollection;
   
@@ -153,7 +152,7 @@ class SiStripMonitorTrack : public edm::EDAnalyzer {
   int runNb, eventNb;
   int firstEvent;
   int countOn, countOff, countAll, NClus[4][3];
-  int neighbourStripNumber;
+  uint32_t neighbourStripNumber;
 
 };
 #endif
