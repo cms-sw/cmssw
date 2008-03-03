@@ -80,7 +80,10 @@ public:
   //  bool peakMode; //  = false;
   bool noNoise; //  = false; 
   bool addNoisyPixels;//  = true ;
-  float tofCut, elossCut;             // Cut on the particle TOF   = 100 or 50
+  bool theApplyTofCut;
+
+  float elossCut;            
+  double tofCut;             
   float theThreshold;          // ADC threshold   = 2
 
   double pitchX;          // pitchX
