@@ -56,7 +56,7 @@ void CSCTFTrackProducer::produce(edm::Event & e, const edm::EventSetup& c)
   if(useDT)e.getByType(dttrig);
 
   const CSCCorrelatedLCTDigiCollection *lcts = LCTs.product();
-  if(TMB07){ // translate new quality codes to conventional ones
+/*  if(TMB07){ // translate new quality codes to conventional ones
      for(CSCCorrelatedLCTDigiCollection::DigiRangeIterator csc=lcts->begin(); csc!=lcts->end(); csc++){
         CSCCorrelatedLCTDigiCollection::Range range = lcts->get((*csc).first);
         for(CSCCorrelatedLCTDigiCollection::const_iterator lct=range.first; lct!=range.second; lct++){
@@ -71,7 +71,7 @@ void CSCTFTrackProducer::produce(edm::Event & e, const edm::EventSetup& c)
         }
      }
   }
-
+*/
   my_builder->buildTracks(lcts, (useDT?dttrig.product():0), track_product.get(), dt_stubs.get());
 
   e.put(track_product);

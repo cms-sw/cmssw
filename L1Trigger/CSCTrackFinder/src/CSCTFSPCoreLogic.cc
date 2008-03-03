@@ -243,8 +243,12 @@ bool CSCTFSPCoreLogic::run(const unsigned& endcap, const unsigned& sector, const
 			   const unsigned& etawin4, const unsigned& etawin5, const unsigned& etawin6,
 			   const unsigned& mindphip, const unsigned& mindeta_accp,
 			   const unsigned& maxdeta_accp, const unsigned& maxdphi_accp,
-			   const unsigned& bxa_on, const unsigned& extend, const int& minBX,
-			   const int& maxBX)
+
+			   const unsigned& m_extend_length,
+			   const unsigned& m_allowALCTonly, const unsigned& m_allowCLCTonly,
+			   const unsigned& m_preTrigger,
+
+                           const int& minBX, const int& maxBX)
 {
   mytracks.clear();
 
@@ -312,7 +316,8 @@ bool CSCTFSPCoreLogic::run(const unsigned& endcap, const unsigned& sector, const
 	 //70, 4, 16, 128,
 
 	 //((extend << 1) & 0xe)|bxa_on // {reserved[11:0], extend[2:0],BXA_enable}
-	 0x144
+	 ///0x144?:
+         (m_preTrigger<<7)||(m_allowCLCTonly<<5)||(m_allowALCTonly<<4)||(m_extend_length<<1)
 	 );
       /* // Extremely verbose debug
       LogDebug("CSCTFSPCoreLogic:run()") << std::hex

@@ -19,11 +19,35 @@ CSCTFSectorProcessor::CSCTFSectorProcessor(const unsigned& endcap,
   m_endcap = endcap;
   m_sector = sector;
   TMB07    = tmb07;
-  m_bxa_on = pset.getParameter<bool>("UseBXA");
-  m_extend_length = pset.getParameter<unsigned>("BXAExtendLength");
+
   m_latency = pset.getParameter<unsigned>("CoreLatency");
   m_minBX = pset.getParameter<int>("MinBX");
   m_maxBX = pset.getParameter<int>("MaxBX");
+
+  m_bxa_depth = -1;
+  try {
+    m_bxa_depth = pset.getParameter<unsigned>("BXAdepth");
+  } catch(...) {
+    LogDebug("CSCTFSectorProcessor") << "Looking for BXAdepth in EventSetup for endcap="<<m_endcap<<", sector="<<m_sector;
+  }
+  m_allowALCTonly = -1;
+  try {
+    m_allowALCTonly = ( pset.getParameter<bool>("AllowALCTonly") ? 1 : 0 );
+  } catch(...) {
+    LogDebug("CSCTFSectorProcessor") << "Looking for AllowALCTonly in EventSetup for endcap="<<m_endcap<<", sector="<<m_sector;
+  }
+  m_allowCLCTonly = -1;
+  try {
+    m_allowCLCTonly = ( pset.getParameter<bool>("AllowCLCTonly") ? 1 : 0 );
+  } catch(...) {
+    LogDebug("CSCTFSectorProcessor") << "Looking for AllowCLCTonly in EventSetup for endcap="<<m_endcap<<", sector="<<m_sector;
+  }
+  m_preTrigger = -1;
+  try {
+    m_preTrigger    = pset.getParameter<unsigned>("PreTrigger");
+  } catch(...) {
+    LogDebug("CSCTFSectorProcessor") << "Looking for PreTrigger in EventSetup for endcap="<<m_endcap<<", sector="<<m_sector;
+  }
 
   std::vector<unsigned>::const_iterator iter;
   int index=0;
@@ -32,59 +56,59 @@ CSCTFSectorProcessor::CSCTFSectorProcessor(const unsigned& endcap,
   try {
     std::vector<unsigned> etawins = pset.getParameter<std::vector<unsigned> >("EtaWindows");
     for(iter=etawins.begin(),index=0; iter!=etawins.end()&&index<6; iter++,index++) m_etawin[index] = *iter;
-    edm::LogInfo("CSCTFSectorProcessor") << "Using EtaWindows parameters from .cfi file for endcap="<<m_endcap<<", sector="<<m_sector;
+    LogDebug("CSCTFSectorProcessor") << "Using EtaWindows parameters from .cfi file for endcap="<<m_endcap<<", sector="<<m_sector;
   } catch(...) {
-    edm::LogInfo("CSCTFSectorProcessor") << "Looking for EtaWindows in EventSetup for endcap="<<m_endcap<<", sector="<<m_sector;
+    LogDebug("CSCTFSectorProcessor") << "Looking for EtaWindows in EventSetup for endcap="<<m_endcap<<", sector="<<m_sector;
   }
 
   for(index=0; index<8; index++) m_etamin[index] = -1;
   try {
     std::vector<unsigned> etamins = pset.getParameter<std::vector<unsigned> >("EtaMin");
     for(iter=etamins.begin(),index=0; iter!=etamins.end()&&index<8; iter++,index++) m_etamin[index] = *iter;
-    edm::LogInfo("CSCTFSectorProcessor") << "Using EtaMin parameters from .cfi file for endcap="<<m_endcap<<", sector="<<m_sector;
+    LogDebug("CSCTFSectorProcessor") << "Using EtaMin parameters from .cfi file for endcap="<<m_endcap<<", sector="<<m_sector;
   } catch(...) {
-    edm::LogInfo("CSCTFSectorProcessor") << "Looking for EtaMin in EventSetup for endcap="<<m_endcap<<", sector="<<m_sector;
+    LogDebug("CSCTFSectorProcessor") << "Looking for EtaMin in EventSetup for endcap="<<m_endcap<<", sector="<<m_sector;
   }
 
   for(index=0; index<8; index++) m_etamax[index] = -1;
   try {
     std::vector<unsigned> etamaxs = pset.getParameter<std::vector<unsigned> >("EtaMax");
     for(iter=etamaxs.begin(),index=0; iter!=etamaxs.end()&&index<8; iter++,index++) m_etamax[index] = *iter;
-    edm::LogInfo("CSCTFSectorProcessor") << "Using EtaMax parameters from .cfi file for endcap="<<m_endcap<<", sector="<<m_sector;
+    LogDebug("CSCTFSectorProcessor") << "Using EtaMax parameters from .cfi file for endcap="<<m_endcap<<", sector="<<m_sector;
   } catch(...) {
-    edm::LogInfo("CSCTFSectorProcessor") << "Looking for EtaMax in EventSetup for endcap="<<m_endcap<<", sector="<<m_sector;
+    LogDebug("CSCTFSectorProcessor") << "Looking for EtaMax in EventSetup for endcap="<<m_endcap<<", sector="<<m_sector;
   }
 
   m_mindphip=-1;
   try {
     m_mindphip = pset.getParameter<unsigned>("mindphip");
-    edm::LogInfo("CSCTFSectorProcessor") << "Using mindphip parameters from .cfi file for endcap="<<m_endcap<<", sector="<<m_sector;
+    LogDebug("CSCTFSectorProcessor") << "Using mindphip parameters from .cfi file for endcap="<<m_endcap<<", sector="<<m_sector;
   } catch(...) {
-    edm::LogInfo("CSCTFSectorProcessor") << "Looking for mindphip in EventSetup for endcap="<<m_endcap<<", sector="<<m_sector;
+    LogDebug("CSCTFSectorProcessor") << "Looking for mindphip in EventSetup for endcap="<<m_endcap<<", sector="<<m_sector;
   }
 
   m_mindeta_accp=-1;
   try {
     m_mindeta_accp = pset.getParameter<unsigned>("mindeta_accp");
-    edm::LogInfo("CSCTFSectorProcessor") << "Using mindeta_accp parameters from .cfi file for endcap="<<m_endcap<<", sector="<<m_sector;
+    LogDebug("CSCTFSectorProcessor") << "Using mindeta_accp parameters from .cfi file for endcap="<<m_endcap<<", sector="<<m_sector;
   } catch(...) {
-    edm::LogInfo("CSCTFSectorProcessor") << "Looking for mindeta_accp in EventSetup for endcap="<<m_endcap<<", sector="<<m_sector;
+    LogDebug("CSCTFSectorProcessor") << "Looking for mindeta_accp in EventSetup for endcap="<<m_endcap<<", sector="<<m_sector;
   }
 
   m_maxdeta_accp=-1;
   try {
     m_maxdeta_accp = pset.getParameter<unsigned>("maxdeta_accp");
-    edm::LogInfo("CSCTFSectorProcessor") << "Using maxdeta_accp parameters from .cfi file for endcap="<<m_endcap<<", sector="<<m_sector;
+    LogDebug("CSCTFSectorProcessor") << "Using maxdeta_accp parameters from .cfi file for endcap="<<m_endcap<<", sector="<<m_sector;
   } catch(...) {
-    edm::LogInfo("CSCTFSectorProcessor") << "Looking for maxdeta_accp in EventSetup for endcap="<<m_endcap<<", sector="<<m_sector;
+    LogDebug("CSCTFSectorProcessor") << "Looking for maxdeta_accp in EventSetup for endcap="<<m_endcap<<", sector="<<m_sector;
   }
 
   m_maxdphi_accp=-1;
   try {
     m_maxdphi_accp = pset.getParameter<unsigned>("maxdphi_accp");
-    edm::LogInfo("CSCTFSectorProcessor") << "Using maxdphi_accp parameters from .cfi file for endcap="<<m_endcap<<", sector="<<m_sector;
+    LogDebug("CSCTFSectorProcessor") << "Using maxdphi_accp parameters from .cfi file for endcap="<<m_endcap<<", sector="<<m_sector;
   } catch(...) {
-    edm::LogInfo("CSCTFSectorProcessor") << "Looking for maxdphi_accp in EventSetup for endcap="<<m_endcap<<", sector="<<m_sector;
+    LogDebug("CSCTFSectorProcessor") << "Looking for maxdphi_accp in EventSetup for endcap="<<m_endcap<<", sector="<<m_sector;
   }
 
   try {
@@ -99,9 +123,9 @@ CSCTFSectorProcessor::CSCTFSectorProcessor(const unsigned& endcap,
           else
             srLUTs_[FPGAs[i]] = new CSCSectorReceiverLUT(endcap, sector, 0, i, srLUTset, TMB07);
       }
-      edm::LogInfo("CSCTFSectorProcessor") << "Using stand-alone SR LUT for endcap="<<m_endcap<<", sector="<<m_sector;
+      LogDebug("CSCTFSectorProcessor") << "Using stand-alone SR LUT for endcap="<<m_endcap<<", sector="<<m_sector;
   } catch(...) {
-    edm::LogInfo("CSCTFSectorProcessor") << "Looking for SR LUT in EventSetup for endcap="<<m_endcap<<", sector="<<m_sector;
+    LogDebug("CSCTFSectorProcessor") << "Looking for SR LUT in EventSetup for endcap="<<m_endcap<<", sector="<<m_sector;
   }
 
   core_ = new CSCTFSPCoreLogic();
@@ -109,10 +133,10 @@ CSCTFSectorProcessor::CSCTFSectorProcessor(const unsigned& endcap,
   try {
     edm::ParameterSet ptLUTset = pset.getParameter<edm::ParameterSet>("PTLUT");
 	ptLUT_ = new CSCTFPtLUT(ptLUTset);
-    edm::LogInfo("CSCTFSectorProcessor") << "Using stand-alone PT LUT for endcap="<<m_endcap<<", sector="<<m_sector;
+    LogDebug("CSCTFSectorProcessor") << "Using stand-alone PT LUT for endcap="<<m_endcap<<", sector="<<m_sector;
   } catch(...){
     ptLUT_=0;
-    edm::LogInfo("CSCTFSectorProcessor") << "Looking for PT LUT in EventSetup for endcap="<<m_endcap<<", sector="<<m_sector;
+    LogDebug("CSCTFSectorProcessor") << "Looking for PT LUT in EventSetup for endcap="<<m_endcap<<", sector="<<m_sector;
   }
 }
 
@@ -172,11 +196,17 @@ void CSCTFSectorProcessor::initialize(const edm::EventSetup& c){
     }
     if( register_=="CSR_SCC" && chip_=="SP" ){
         unsigned int value = strtol(writeValue_.c_str(),'\0',16);
-        if(m_bxa_on<0) m_bxa_on = value&0x1;
+        if( m_bxa_depth<0     ) m_bxa_depth     = value&0x3;
+        if( m_allowALCTonly<0 ) m_allowALCTonly =(value&0x10)>>4;
+        if( m_allowCLCTonly<0 ) m_allowCLCTonly =(value&0x20)>>5;
+        if( m_preTrigger<0    ) m_preTrigger    =(value&0x3000)>>12;
     }
   }
   // Check if parameters were not initialized in both: constuctor (from .cf? file) and initialize method (from EventSetup)
-  if(m_bxa_on      <0) throw cms::Exception("CSCTFSectorProcessor")<<"UseBXA parameter left uninitialized for endcap="<<m_endcap<<", sector="<<m_sector;
+  if(m_bxa_depth    <0) throw cms::Exception("CSCTFSectorProcessor")<<"BXAdepth parameter left uninitialized for endcap="<<m_endcap<<", sector="<<m_sector;
+  if(m_allowALCTonly<0) throw cms::Exception("CSCTFSectorProcessor")<<"AllowALCTonly parameter left uninitialized for endcap="<<m_endcap<<", sector="<<m_sector;
+  if(m_allowCLCTonly<0) throw cms::Exception("CSCTFSectorProcessor")<<"AllowCLCTonly parameter left uninitialized for endcap="<<m_endcap<<", sector="<<m_sector;
+  if(m_preTrigger   <0) throw cms::Exception("CSCTFSectorProcessor")<<"PreTrigger parameter left uninitialized for endcap="<<m_endcap<<", sector="<<m_sector;
   if(m_mindphip    <0) throw cms::Exception("CSCTFSectorProcessor")<<"mindphip parameter left uninitialized for endcap="<<m_endcap<<", sector="<<m_sector;
   if(m_mindeta_accp<0) throw cms::Exception("CSCTFSectorProcessor")<<"mindeta_accp parameter left uninitialized for endcap="<<m_endcap<<", sector="<<m_sector;
   if(m_maxdeta_accp<0) throw cms::Exception("CSCTFSectorProcessor")<<"maxdeta_accp parameter left uninitialized for endcap="<<m_endcap<<", sector="<<m_sector;
@@ -275,8 +305,9 @@ bool CSCTFSectorProcessor::run(const CSCTriggerContainer<csctf::TrackStub>& stub
                  m_etamax[4], m_etamax[5], m_etamax[6], m_etamax[7],
                  m_etawin[0], m_etawin[1], m_etawin[2],
                  m_etawin[3], m_etawin[4], m_etawin[5],
-		 m_mindphip,  m_mindeta_accp,  m_maxdeta_accp, m_maxdphi_accp,
-		 m_bxa_on,    m_extend_length, m_minBX, m_maxBX) )
+                 m_mindphip,  m_mindeta_accp,  m_maxdeta_accp, m_maxdphi_accp,
+                 m_bxa_depth, m_allowALCTonly, m_allowCLCTonly, m_preTrigger,
+                 m_minBX, m_maxBX) )
     {
       l1_tracks = core_->tracks();
     }

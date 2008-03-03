@@ -49,9 +49,9 @@ public:
   CSCTFSectorProcessor(const CSCTFSectorProcessor& par) {}
 
   unsigned m_endcap, m_sector, TMB07;
-  unsigned m_bxa_on, m_extend_length;
   unsigned m_latency;
 
+  int m_bxa_depth, m_allowALCTonly, m_allowCLCTonly, m_preTrigger;
   int m_minBX, m_maxBX;
   // parameters below are signed to allow for uninitialized (<0) state
   int m_etawin[6], m_etamin[8], m_etamax[8];
