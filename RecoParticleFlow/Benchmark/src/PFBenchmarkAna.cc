@@ -1,10 +1,11 @@
 #include "RecoParticleFlow/Benchmark/interface/PFBenchmarkAna.h"
 
-#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
+//#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
 //#include "DQMServices/Daemon/interface/MonitorDaemon.h"
 //#include "DQMServices/CoreROOT/interface/CollateMERoot.h"
 //#include "FWCore/ServiceRegistry/interface/Service.h"
-
+#include "DQMServices/Core/interface/DQMStore.h"
+#include "DQMServices/Core/interface/MonitorElement.h" 
 #include "TFile.h"
 #include "TH1F.h"
 #include "TH2F.h"
@@ -16,7 +17,7 @@ using namespace std;
 #define BOOK1D(name,title,nbinsx,lowx,highx) { \
   if (dbe_) { \
     MonitorElement *me = dbe_->book1D(#name,#title,nbinsx,lowx,highx); \
-    MonitorElementT<TNamed> *ob = dynamic_cast<MonitorElementT<TNamed>* >(me); \
+    MonitorElementT<TH1F> *ob = dynamic_cast<MonitorElementT<TH1F>* >(me); \
     if (ob) h##name = dynamic_cast<TH1F *>(ob->operator->()); \
   } else \
     h##name = new TH1F(#name,#title,nbinsx,lowx,highx); \
@@ -26,7 +27,7 @@ using namespace std;
 #define BOOK2D(name,title,nbinsx,lowx,highx,nbinsy,lowy,highy) { \
   if (dbe_) { \
     MonitorElement *me = dbe_->book2D(#name,#title,nbinsx,lowx,highx,nbinsy,lowy,highy); \
-    MonitorElementT<TNamed> *ob = dynamic_cast<MonitorElementT<TNamed>* >(me); \
+    MonitorElementT<TH2F> *ob = dynamic_cast<MonitorElementT<TH2F>* >(me); \
     if (ob) h##name = dynamic_cast<TH2F *>(ob->operator->()); \
   } else \
     h##name = new TH2F(#name,#title,nbinsx,lowx,highx,nbinsy,lowy,highy); \
@@ -36,7 +37,7 @@ PFBenchmarkAna::PFBenchmarkAna() {}
 
 PFBenchmarkAna::~PFBenchmarkAna() {}
 
-void PFBenchmarkAna::setup(DaqMonitorBEInterface *DQM) {
+void PFBenchmarkAna::setup(DQMStore *DQM) {
 
   if (DQM) dbe_ = DQM;
   else file_ = new TFile();
