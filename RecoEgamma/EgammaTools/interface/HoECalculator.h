@@ -9,13 +9,16 @@
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
 
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
-#include "RecoCaloTools/MetaCollections/interface/CaloRecHitMetaCollection.h"
+
+#include "RecoCaloTools/MetaCollections/interface/CaloRecHitMetaCollections.h"
+
 
 class HoECalculator
 {
   public:
   
    HoECalculator() ;
+   HoECalculator(const edm::ESHandle<CaloGeometry>&) ;
 
    double operator() ( const reco::BasicCluster* , 
                        const edm::Event& e , 
@@ -25,11 +28,17 @@ class HoECalculator
                        const edm::Event& e , 
 		       const edm::EventSetup& c )  ;
    
+   double operator() ( const reco::SuperCluster* , 
+                       HBHERecHitMetaCollection *mhbhe);
+
   private:
   
    double getHoE(GlobalPoint pos, float energy,
 		 const edm::Event& e , 
 		 const edm::EventSetup& c )  ;
+   double getHoE(GlobalPoint pos, float energy,
+                 HBHERecHitMetaCollection *mhbhe);
+
    
     edm::ESHandle<CaloGeometry>  theCaloGeom_ ;
     const HBHERecHitCollection* hithbhe_ ;
