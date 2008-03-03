@@ -21,6 +21,7 @@
 CSCTFTrackProducer::CSCTFTrackProducer(const edm::ParameterSet& pset)
 {
   input_module = pset.getUntrackedParameter<edm::InputTag>("SectorReceiverInput");
+  dt_producer  = pset.getUntrackedParameter<edm::InputTag>("DTproducer");
   edm::ParameterSet sp_pset = pset.getParameter<edm::ParameterSet>("SectorProcessor");
   useDT = pset.getParameter<bool>("useDT");
   TMB07 = pset.getParameter<bool>("isTMB07");
@@ -53,7 +54,8 @@ void CSCTFTrackProducer::produce(edm::Event & e, const edm::EventSetup& c)
   std::auto_ptr<CSCTriggerContainer<csctf::TrackStub> > dt_stubs(new CSCTriggerContainer<csctf::TrackStub>);
 
   e.getByLabel(input_module.label(),input_module.instance(), LCTs);
-  if(useDT)e.getByType(dttrig);
+  if(useDT)
+    e.getByLabel(dt_producer.label(),dt_producer.instance(), dttrig);
 
   const CSCCorrelatedLCTDigiCollection *lcts = LCTs.product();
 /*  if(TMB07){ // translate new quality codes to conventional ones

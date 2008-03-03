@@ -25,7 +25,7 @@ class CSCTFTrackProducer : public edm::EDProducer
  private:
 
   bool useDT, TMB07;
-  edm::InputTag input_module;
+  edm::InputTag input_module, dt_producer;
   CSCTFTrackBuilder* my_builder;
 };
 
