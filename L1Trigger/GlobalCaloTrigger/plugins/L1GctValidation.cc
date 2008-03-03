@@ -15,7 +15,7 @@
 #include <math.h>
 
 L1GctValidation::L1GctValidation(const edm::ParameterSet& iConfig) :
-   m_energy_tag(iConfig.getUntrackedParameter<std::string>("L1GctEmulDigis","l1GctEmulDigis"))
+   m_energy_tag(iConfig.getUntrackedParameter<std::string>("inputTag","gctDigis"))
 {
 }
 
