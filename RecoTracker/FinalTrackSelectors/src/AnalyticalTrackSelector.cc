@@ -19,7 +19,7 @@ AnalyticalTrackSelector::AnalyticalTrackSelector( const edm::ParameterSet & cfg 
     dz_par1_(cfg.getParameter< std::vector<double> >("dz_par1")),
     d0_par2_(cfg.getParameter< std::vector<double> >("d0_par2")),
     dz_par2_(cfg.getParameter< std::vector<double> >("dz_par2")),
-    min_hit_(cfg.getParameter<uint32_t>("minNumberHits") )
+    min_layers_(cfg.getParameter<uint32_t>("minNumberLayers") )
 {
  
     std::string alias( cfg.getParameter<std::string>( "@module_label" ) );
@@ -85,7 +85,7 @@ void AnalyticalTrackSelector::produce( edm::Event& evt, const edm::EventSetup& e
             if (copyTrajectories_) trackRefs_[current] = reco::TrackRef();
             continue;
         }
-	selTracks_->push_back( Track( trk ) ); // clone and store
+		selTracks_->push_back( Track( trk ) ); // clone and store
         if (!copyExtras_) continue;
 
         // TrackExtras
@@ -144,9 +144,9 @@ void AnalyticalTrackSelector::produce( edm::Event& evt, const edm::EventSetup& e
 
 bool AnalyticalTrackSelector::select(const reco::BeamSpot &vertexBeamSpot, const reco::Track &tk, const std::vector<Point> &points) {
    using namespace std; 
-   uint32_t nhits = tk.numberOfValidHits();
-   // cut on the minimum number of hits
-   if (nhits<min_hit_) return false;
+   uint32_t nlayers = tk.hitPattern().trackerLayersWithMeasurement();
+   // cut on the minimum number of crossed layers
+   if (nlayers<min_layers_) return false;
 
    double pt = tk.pt(),eta = tk.eta(), chi2n =  tk.normalizedChi2();
    double d0 = -tk.dxy(vertexBeamSpot.position()), d0E =  tk.d0Error(),dz = tk.dz(), dzE =  tk.dzError();
@@ -155,9 +155,9 @@ bool AnalyticalTrackSelector::select(const reco::BeamSpot &vertexBeamSpot, const
    // nominal z0 resolution for the track pt and eta
    double nomdzE = nomd0E*(std::cosh(eta));
    //cut on chiquare/ndof && on d0 compatibility with beam line
-   if (chi2n <= chi2n_par_*nhits &&
-	   abs(d0) < pow(d0_par1_[0]*nhits,d0_par1_[1])*nomd0E &&
-	   abs(d0) < pow(d0_par2_[0]*nhits,d0_par2_[1])*d0E ) {
+   if (chi2n <= chi2n_par_*nlayers &&
+	   abs(d0) < pow(d0_par1_[0]*nlayers,d0_par1_[1])*nomd0E &&
+	   abs(d0) < pow(d0_par2_[0]*nlayers,d0_par2_[1])*d0E ) {
 	 //no vertex, wide z cuts
 	 if (points.empty()) { 
 	   if ( abs(dz) < (vertexBeamSpot.sigmaZ()*3) ) return true;  
@@ -165,8 +165,8 @@ bool AnalyticalTrackSelector::select(const reco::BeamSpot &vertexBeamSpot, const
 	 // z compatibility with a vertex
 	 for (std::vector<Point>::const_iterator point = points.begin(), end = points.end(); point != end; ++point) {
 	   if (
-		   abs(dz-(point->z())) < pow(dz_par1_[0]*nhits,dz_par1_[1])*nomdzE &&
-		   abs(dz-(point->z())) < pow(dz_par2_[0]*nhits,dz_par2_[1])*dzE ) return true;
+		   abs(dz-(point->z())) < pow(dz_par1_[0]*nlayers,dz_par1_[1])*nomdzE &&
+		   abs(dz-(point->z())) < pow(dz_par2_[0]*nlayers,dz_par2_[1])*dzE ) return true;
 	 }
    }
    return false;
