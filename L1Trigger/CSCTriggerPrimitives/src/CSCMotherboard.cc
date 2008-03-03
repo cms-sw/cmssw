@@ -27,8 +27,8 @@
 //                Based on code by Nick Wisniewski (nw@its.caltech.edu)
 //                and a framework by Darin Acosta (acosta@phys.ufl.edu).
 //
-//   $Date: 2007/08/17 16:12:36 $
-//   $Revision: 1.10 $
+//   $Date: 2007/11/12 13:58:40 $
+//   $Revision: 1.11 $
 //
 //   Modifications: Numerous later improvements by Jason Mumford and
 //                  Slava Valuev (see cvs in ORCA).
@@ -304,22 +304,33 @@ unsigned int CSCMotherboard::findQuality(const CSCALCTDigi& aLCT,
     }
   }
   else {
-    // Sum of ALCT and CLCT quality bits.  CLCT quality is, in fact, the
-    // number of layers hit, so subtract 3 to put it to the same footing as
-    // the ALCT quality.
-    int sumQual = aLCT.getQuality() + (cLCT.getQuality()-3);
-    if (sumQual < 1 || sumQual > 6) {
-      edm::LogWarning("CSCMotherboard")
-	<< "+++ findQuality: Unexpected sumQual = " << sumQual << "+++\n";
+    // 2007 definition.
+    // First if statement is fictitious, just to help the CSC TF emulator
+    // handle such cases (one needs to make sure they will be accounted for
+    // in the new quality definition.
+    if (!(aLCT.isValid()) || !(cLCT.isValid())) {
+      if (aLCT.isValid() && !(cLCT.isValid()))      quality = 1; // no CLCT
+      else if (!(aLCT.isValid()) && cLCT.isValid()) quality = 2; // no ALCT
+      else quality = 0; // both absent; should never happen.
     }
+    else {
+      // Sum of ALCT and CLCT quality bits.  CLCT quality is, in fact, the
+      // number of layers hit, so subtract 3 to put it to the same footing as
+      // the ALCT quality.
+      int sumQual = aLCT.getQuality() + (cLCT.getQuality()-3);
+      if (sumQual < 1 || sumQual > 6) {
+	edm::LogWarning("CSCMotherboard")
+	  << "+++ findQuality: Unexpected sumQual = " << sumQual << "+++\n";
+      }
 
-    // LCT quality is basically the sum of ALCT and CLCT qualities, but split
-    // in two groups depending on the CLCT pattern id (higher quality for
-    // straighter patterns).
-    int offset = 0;
-    if (cLCT.getPattern() <= 7) offset = 4;
-    else                        offset = 9;
-    quality = offset + sumQual;
+      // LCT quality is basically the sum of ALCT and CLCT qualities, but split
+      // in two groups depending on the CLCT pattern id (higher quality for
+      // straighter patterns).
+      int offset = 0;
+      if (cLCT.getPattern() <= 7) offset = 4;
+      else                        offset = 9;
+      quality = offset + sumQual;
+    }
   }
   return quality;
 }
