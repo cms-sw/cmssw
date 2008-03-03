@@ -89,7 +89,7 @@ void SummaryPlotFactoryBase::init( const sistrip::Monitorable& mon,
   
   if ( ( gran_ == sistrip::UNKNOWN_GRAN ||
 	 gran_ == sistrip::UNDEFINED_GRAN ) &&
-       view != sistrip::HISTO_1D ) {
+       pres != sistrip::HISTO_1D ) {
     edm::LogWarning(mlSummaryPlots_) 
       << "[SummaryPlotFactoryBase::" << __func__ << "]"
       << " Unexpected granularity: " 
