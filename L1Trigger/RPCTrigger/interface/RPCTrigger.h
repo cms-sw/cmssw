@@ -4,8 +4,8 @@
 /** \class RPCTrigger
  *  \brief Implements RPC trigger emulation
  *
- *  $Date: 2007/06/06 13:39:13 $
- *  $Revision: 1.12 $
+ *  $Date: 2008/02/21 12:49:19 $
+ *  $Revision: 1.13 $
  *  \author Tomasz Fruboes
  */
 
@@ -31,6 +31,8 @@
 
 // L1RpcTrigger specific includes
 #include "L1Trigger/RPCTrigger/interface/RPCTriggerGeo.h"
+#include "L1Trigger/RPCTrigger/interface/RPCConeBuilderFromES.h"
+
 #include "L1Trigger/RPCTrigger/interface/RPCPacManager.h"
 
 #include "L1Trigger/RPCTrigger/interface/RPCPacTrigger.h"
@@ -58,7 +60,8 @@ class RPCTrigger : public edm::EDProducer {
     
     
     RPCTriggerGeo m_theLinksystem;  ///< Tells where to send no of fired strip.
-    
+    RPCConeBuilderFromES m_theLinksystemFromES;
+
     RPCPacManager<RPCPacData> m_pacManager;
     
     RPCBasicTrigConfig* m_trigConfig;
@@ -66,6 +69,7 @@ class RPCTrigger : public edm::EDProducer {
     RPCPacTrigger* m_pacTrigger;
  
     bool m_firstRun;   
+    bool m_buildOwnLinkSystem; ///< Tells, if RPCTrigger should build its own connections, or use those from es
     int m_triggerDebug;
     unsigned long long m_cacheID;
     std::vector<L1MuRegionalCand> giveFinallCandindates(L1RpcTBMuonsVec finalMuons, short type);

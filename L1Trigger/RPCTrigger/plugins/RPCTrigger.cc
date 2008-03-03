@@ -1,7 +1,7 @@
 /** \file RPCTrigger.cc
  *
- *  $Date: 2007/07/31 13:46:10 $
- *  $Revision: 1.6 $
+ *  $Date: 2008/02/21 12:49:33 $
+ *  $Revision: 1.7 $
  *  \author Tomasz Fruboes
  */
 #include "L1Trigger/RPCTrigger/interface/RPCTrigger.h"
@@ -10,7 +10,8 @@
 #include "CondFormats/DataRecord/interface/L1RPCConfigRcd.h"
 #include "CondFormats/RPCObjects/interface/L1RPCConfig.h"
 
-
+#include "CondFormats/DataRecord/interface/L1RPCConeBuilderRcd.h"
+#include "CondFormats/RPCObjects/interface/L1RPCConeBuilder.h"
 //#define ML_DEBUG 
 
 
@@ -38,6 +39,7 @@ RPCTrigger::RPCTrigger(const edm::ParameterSet& iConfig):
      m_triggerDebug = 0;
    
   m_label = iConfig.getParameter<std::string>("label");
+  m_buildOwnLinkSystem = iConfig.getParameter<bool>("buildOwnLinkSystem");
 }
 
 
@@ -95,8 +97,8 @@ RPCTrigger::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   }
 
  
-  // Build the trigger linksystem geometry;
-  if (!m_theLinksystem.isGeometryBuilt()){
+  // Build the trigger linksystem geometry (if not, use cone definitions from ES)
+  if (m_buildOwnLinkSystem && !m_theLinksystem.isGeometryBuilt()){
 
     edm::LogInfo("RPC") << "Building RPC links map for a RPCTrigger";
     edm::ESHandle<RPCGeometry> rpcGeom;
@@ -111,8 +113,16 @@ RPCTrigger::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 //  iEvent.getByType(rpcDigis);
   //iEvent.getByLabel("muonRPCDigis",rpcDigis);
   iEvent.getByLabel(m_label, rpcDigis);
-
-  L1RpcLogConesVec ActiveCones = m_theLinksystem.getCones(rpcDigis);
+  
+  L1RpcLogConesVec ActiveCones;
+  if (m_buildOwnLinkSystem){
+    ActiveCones = m_theLinksystem.getCones(rpcDigis);
+  } else { //use es
+    edm::ESHandle<L1RPCConeBuilder> coneBuilder;
+    iSetup.get<L1RPCConeBuilderRcd>().get(coneBuilder);
+    ActiveCones = m_theLinksystemFromES.getConesFromES(rpcDigis,coneBuilder);
+    
+  }
   
   L1RpcTBMuonsVec2 finalMuons = m_pacTrigger->runEvent(ActiveCones);
 
