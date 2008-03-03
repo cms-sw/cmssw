@@ -12,6 +12,8 @@
 #include <utility>
 #include <vector>
 
+#include "DataFormats/L1Trigger/interface/L1MonitorDigi.h"
+
 class L1DataEmulDigi {
 
  public:
@@ -27,6 +29,8 @@ class L1DataEmulDigi {
   void setType (int n) {m_type = n;}
   void setData(unsigned int d, unsigned int e) {m_data[0]=d; m_data[1]=e;}
   void setRank(float d, float e) {m_rank[0]=d; m_rank[1]=e;}
+  void setDEpair(L1MonitorDigi d, L1MonitorDigi e) 
+    {m_DEpair[0]=d; m_DEpair[1]=e; }
 
   int sid() const {return m_sid;}
   int cid() const {return m_cid;}
@@ -36,6 +40,8 @@ class L1DataEmulDigi {
   int type() const {return m_type;}
   void data(unsigned int *d) const {d[0]=m_data[0]; d[1]=m_data[1];}
   void rank(float *r) const {r[0]=m_rank[0]; r[1]=m_rank[1];}
+  L1MonitorDigi data() const {return m_DEpair[0];}
+  L1MonitorDigi emul() const {return m_DEpair[1];}
 
   int reset();
   bool empty() const;
@@ -49,6 +55,7 @@ class L1DataEmulDigi {
   unsigned int m_data[2];
   float m_rank[2];
   int m_null;
+  L1MonitorDigi m_DEpair[2]; 
 
 };
 

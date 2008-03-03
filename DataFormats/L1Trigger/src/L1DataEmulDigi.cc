@@ -19,6 +19,8 @@ int L1DataEmulDigi::reset() {
   m_type = m_null; 
   std::fill(m_data,m_data+sizeof(m_data)/sizeof(m_data[0]),0);
   std::fill(m_rank,m_rank+sizeof(m_rank)/sizeof(m_rank[0]),m_null);
+  L1MonitorDigi def;
+  m_DEpair[0]=def;   m_DEpair[1]=def;
   return m_null;
 }
 
