@@ -1,5 +1,6 @@
 #ifndef DataFormats_PatCandidates_PATObject_h
 #define DataFormats_PatCandidates_PATObject_h
+
 /** \class    PATObject PATObject.h "DataFormats/PatCandidates/interface/PATObject.h"
  *
  *  \brief    Templated PAT object container
@@ -8,103 +9,109 @@
  *
  *  \author   Steven Lowette
  *
- *  \version  $Id: PATObject.h,v 1.4 2008/01/26 20:19:44 gpetrucc Exp $
+ *  \version  $Id: PATObject.h,v 1.5 2008/02/29 11:30:47 llista Exp $
  *
  */
+
 #include "DataFormats/Common/interface/RefToBase.h"
 #include <vector>
+
 
 namespace pat {
 
   template <class ObjectType>
   class PATObject : public ObjectType {
-  public:
-    /// default constructor
-    PATObject();
-    /// constructor from a base object (leaves invalid reference to original object!)
-    PATObject(const ObjectType & obj);
-    /// constructor from reference
-    PATObject(const edm::RefToBase<ObjectType> & ref);
-    /// destructor
-    virtual ~PATObject() {}
-    /// access to the original object; returns zero for null Ref and throws for unavailable collection
-    const ObjectType * originalObject() const;
-    /// reference to original object. Returns a null reference if not available
-    const edm::RefToBase<ObjectType> & originalObjectRef() const;
-    /// standard deviation on A
-    float resolutionA() const;
-    /// standard deviation on B
-    float resolutionB() const;
-    /// standard deviation on C    
-    float resolutionC() const;
-    /// standard deviation on D
-    float resolutionD() const;
-    /// standard deviation on transverse energy
-    float resolutionET() const;
-    /// standard deviation on pseudorapidity
-    float resolutionEta() const;
-    /// standard deviation on azimuthal angle
-    float resolutionPhi() const;
-    /// standard deviation on polar angle
-    float resolutionTheta() const;
-    /// covariance matrix elements
-    const std::vector<float> & covMatrix() const;
-    /// set standard deviation on A
-    void setResolutionA(float a);
-    /// set standard deviation on B
-    void setResolutionB(float b);
-    /// set standard deviation on C
-    void setResolutionC(float c);
-    /// set standard deviation on D
-    void setResolutionD(float d);
-    /// set standard deviation on transverse energy
-    void setResolutionET(float et);
-    /// set standard deviation on pseudorapidity
-    void setResolutionEta(float eta);
-    /// set standard deviation on azimuthal angle
-    void setResolutionPhi(float phi);
-    /// set standard deviation on polar angle
-    void setResolutionTheta(float theta);
-    /// set covariance matrix elements
-    void setCovMatrix(const std::vector<float> & c);
-    
-  protected:
-    // reference back to the original object
-    edm::RefToBase<ObjectType> refToOrig_;
-    /// standard deviation on transverse energy
-    float resET_;
-    /// standard deviation on pseudorapidity
-    float resEta_;
-    /// standard deviation on azimuthal angle
-    float resPhi_;
-    /// standard deviation on A
-    float resA_;
-    /// standard deviation on B
-    float resB_;
-    /// standard deviation on C
-    float resC_;
-    /// standard deviation on D
-    float resD_;
-    /// standard deviation on polar angle
-    float resTheta_;
-    // covariance matrix elements
-    std::vector<float> covM_;
+
+    public:
+
+      /// default constructor
+      PATObject();
+      /// constructor from a base object (leaves invalid reference to original object!)
+      PATObject(const ObjectType & obj);
+      /// constructor from reference
+      PATObject(const edm::RefToBase<ObjectType> & ref);
+      /// destructor
+      virtual ~PATObject() {}
+      /// access to the original object; returns zero for null Ref and throws for unavailable collection
+      const ObjectType * originalObject() const;
+      /// reference to original object. Returns a null reference if not available
+      const edm::RefToBase<ObjectType> & originalObjectRef() const;
+      /// standard deviation on A (see CMS Note 2006/023)
+      float resolutionA() const;
+      /// standard deviation on B (see CMS Note 2006/023)
+      float resolutionB() const;
+      /// standard deviation on C (see CMS Note 2006/023)
+      float resolutionC() const;
+      /// standard deviation on D (see CMS Note 2006/023)
+      float resolutionD() const;
+      /// standard deviation on transverse energy
+      float resolutionEt() const;
+      /// standard deviation on pseudorapidity
+      float resolutionEta() const;
+      /// standard deviation on azimuthal angle
+      float resolutionPhi() const;
+      /// standard deviation on polar angle
+      float resolutionTheta() const;
+      /// covariance matrix elements
+      const std::vector<float> & covMatrix() const;
+      /// set standard deviation on A (see CMS Note 2006/023)
+      void setResolutionA(float a);
+      /// set standard deviation on B (see CMS Note 2006/023)
+      void setResolutionB(float b);
+      /// set standard deviation on C (see CMS Note 2006/023)
+      void setResolutionC(float c);
+      /// set standard deviation on D (see CMS Note 2006/023)
+      void setResolutionD(float d);
+      /// set standard deviation on transverse energy
+      void setResolutionEt(float et);
+      /// set standard deviation on pseudorapidity
+      void setResolutionEta(float eta);
+      /// set standard deviation on azimuthal angle
+      void setResolutionPhi(float phi);
+      /// set standard deviation on polar angle
+      void setResolutionTheta(float theta);
+      /// set covariance matrix elements
+      void setCovMatrix(const std::vector<float> & c);
+      
+    protected:
+      // reference back to the original object
+      edm::RefToBase<ObjectType> refToOrig_;
+      /// standard deviation on transverse energy
+      float resEt_;
+      /// standard deviation on pseudorapidity
+      float resEta_;
+      /// standard deviation on azimuthal angle
+      float resPhi_;
+      /// standard deviation on A (see CMS Note 2006/023)
+      float resA_;
+      /// standard deviation on B (see CMS Note 2006/023)
+      float resB_;
+      /// standard deviation on C (see CMS Note 2006/023)
+      float resC_;
+      /// standard deviation on D (see CMS Note 2006/023)
+      float resD_;
+      /// standard deviation on polar angle
+      float resTheta_;
+      // covariance matrix elements
+      std::vector<float> covM_;
+
   };
 
+
   template <class ObjectType> PATObject<ObjectType>::PATObject() :
-    resET_(0), resEta_(0), resPhi_(0), resA_(0), resB_(0), resC_(0), resD_(0), resTheta_(0) {
+    resEt_(0), resEta_(0), resPhi_(0), resA_(0), resB_(0), resC_(0), resD_(0), resTheta_(0) {
   }
 
   template <class ObjectType> PATObject<ObjectType>::PATObject(const ObjectType & obj) :
     ObjectType(obj),
     refToOrig_(),
-    resET_(0), resEta_(0), resPhi_(0), resA_(0), resB_(0), resC_(0), resD_(0),  resTheta_(0) {
+    resEt_(0), resEta_(0), resPhi_(0), resA_(0), resB_(0), resC_(0), resD_(0),  resTheta_(0) {
   }
 
   template <class ObjectType> PATObject<ObjectType>::PATObject(const edm::RefToBase<ObjectType> & ref) :
     ObjectType(*ref),
     refToOrig_(ref),
-    resET_(0), resEta_(0), resPhi_(0), resA_(0), resB_(0), resC_(0), resD_(0),  resTheta_(0) {
+    resEt_(0), resEta_(0), resPhi_(0), resA_(0), resB_(0), resC_(0), resD_(0),  resTheta_(0) {
   }
 
   template <class ObjectType> const ObjectType * PATObject<ObjectType>::originalObject() const {
@@ -127,7 +134,7 @@ namespace pat {
   const edm::RefToBase<ObjectType> & PATObject<ObjectType>::originalObjectRef() const { return refToOrig_; }
 
   template <class ObjectType> 
-  float PATObject<ObjectType>::resolutionET() const { return resET_; }
+  float PATObject<ObjectType>::resolutionEt() const { return resEt_; }
 
   template <class ObjectType> 
   float PATObject<ObjectType>::resolutionEta() const { return resEta_; }
@@ -154,7 +161,7 @@ namespace pat {
   const std::vector<float> & PATObject<ObjectType>::covMatrix() const { return covM_; }
 
   template <class ObjectType> 
-  void PATObject<ObjectType>::setResolutionET(float et) { resET_ = et; }
+  void PATObject<ObjectType>::setResolutionEt(float et) { resEt_ = et; }
 
   template <class ObjectType> 
   void PATObject<ObjectType>::setResolutionEta(float eta) { resEta_ = eta; }

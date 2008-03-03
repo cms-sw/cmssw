@@ -21,7 +21,7 @@
     This class is based upon the ElectronSelector by F. Ronga
    
     \author C. Autermann (Uni Hamburg)
-    \version $Id: CaloJetSelector.h,v 1.1 2008/02/15 15:54:26 auterman Exp $
+    \version $Id: CaloJetSelector.h,v 1.2 2008/02/19 18:04:14 auterman Exp $
 **/
 
 #include <string>
@@ -55,15 +55,15 @@ namespace pat {
     //int    NTracksmin_;              //not defined for CaloJets
 
     ///used variables JetRejectorTool:
-    double PTmin_;
+    double Ptmin_;
     double EMvsHadFmin_;               double EMvsHadFmax_;
     double HadFmin_;                   double HadFmax_;
     double N90min_;                    double N90max_;
     double NCaloTowersmin_;            double NCaloTowersmax_;
     double HighestTowerOverJetmin_;    double HighestTowerOverJetmax_;
     double RWidthmin_;                 double RWidthmax_;
-    double PTjetOverArea_min_;         double PTjetOverArea_max_;
-    double PTtowerOverArea_min_;       double PTtowerOverArea_max_;
+    double PtJetOverArea_min_;         double PtJetOverArea_max_;
+    double PtTowerOverArea_min_;       double PtTowerOverArea_max_;
 
   }; // class
   

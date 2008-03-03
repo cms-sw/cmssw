@@ -12,7 +12,7 @@ CaloJetSelector::CaloJetSelector( const edm::ParameterSet& config )
     EMFmin_		    = config.getParameter<double>("EMFmin");
     EMFmax_                 = config.getParameter<double>("EMFmax");
     Etamax_                 = config.getParameter<double>("Etamax");
-    PTmin_		    = config.getParameter<double>("PTmin");
+    Ptmin_		    = config.getParameter<double>("Ptmin");
     EMvsHadFmin_ 	    = config.getParameter<double>("EMvsHadFmin");		
     EMvsHadFmax_ 	    = config.getParameter<double>("EMvsHadFmax");
     HadFmin_ 		    = config.getParameter<double>("HadFmin");			 
@@ -25,10 +25,10 @@ CaloJetSelector::CaloJetSelector( const edm::ParameterSet& config )
     HighestTowerOverJetmax_ = config.getParameter<double>("HighestTowerOverJetmax");
     RWidthmin_ 		    = config.getParameter<double>("RWidthmin"); 		 
     RWidthmax_ 		    = config.getParameter<double>("RWidthmax");
-    PTjetOverArea_min_ 	    = config.getParameter<double>("PTjetOverAreamin"); 	 
-    PTjetOverArea_max_ 	    = config.getParameter<double>("PTjetOverAreamax");
-    PTtowerOverArea_min_    = config.getParameter<double>("PTtowerOverAreamin");	 
-    PTtowerOverArea_max_    = config.getParameter<double>("PTtowerOverAreamax");
+    PtJetOverArea_min_ 	    = config.getParameter<double>("PtJetOverAreamin"); 	 
+    PtJetOverArea_max_ 	    = config.getParameter<double>("PtJetOverAreamax");
+    PtTowerOverArea_min_    = config.getParameter<double>("PtTowerOverAreamin");	 
+    PtTowerOverArea_max_    = config.getParameter<double>("PtTowerOverAreamax");
 }
 
 
@@ -43,7 +43,7 @@ CaloJetSelector::filter( //const unsigned int&        index,
 
   ///Retrieve information
   ///Pt Jet
-  if (Jet.p4().Pt()<PTmin_) result = BAD;
+  if (Jet.p4().Pt()<Ptmin_) result = BAD;
   
   ///eta region
   double eta = fabs(Jet.p4().Eta());
@@ -104,14 +104,14 @@ CaloJetSelector::filter( //const unsigned int&        index,
   ///Pt Jet / Towers Area 		  
   double PtJetoverArea = 0.;
   if (Jet.towersArea() !=0.) PtJetoverArea = Jet.p4().Pt() / Jet.towersArea();
-  if (PtJetoverArea < PTjetOverArea_min_ ||
-      PtJetoverArea > PTjetOverArea_max_  ) result = BAD;
+  if (PtJetoverArea < PtJetOverArea_min_ ||
+      PtJetoverArea > PtJetOverArea_max_  ) result = BAD;
 
   ///Highest Et Tower / Towers Area
   double PtToweroverArea = 0.;
   if (Jet.towersArea() !=0.) PtToweroverArea = MaxEnergyTower / Jet.towersArea();
-  if (PtToweroverArea < PTtowerOverArea_min_ ||
-      PtToweroverArea > PTtowerOverArea_max_  ) result = BAD;
+  if (PtToweroverArea < PtTowerOverArea_min_ ||
+      PtToweroverArea > PtTowerOverArea_max_  ) result = BAD;
 
   return result;
 }

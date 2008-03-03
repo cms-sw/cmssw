@@ -1,5 +1,5 @@
 //
-// $Id: ObjectResolutionCalc.cc,v 1.2 2008/01/16 20:33:16 lowette Exp $
+// $Id: ObjectResolutionCalc.cc,v 1.3 2008/03/03 13:45:04 lowette Exp $
 //
 
 #include "PhysicsTools/PatUtils/interface/ObjectResolutionCalc.h"
@@ -36,7 +36,7 @@ ObjectResolutionCalc::ObjectResolutionCalc(TString resopath, bool useNN = false)
             TString etabin = name; etabin.Remove(0,etabin.Index("_")+1); etabin.Remove(0,etabin.Index("_")+7);
             int etaBin = etabin.Atoi();
             TH1F *tmp = (TH1F*) (resoFile_->GetKey(name)->ReadObj());
-            fResVsET_[p][etaBin] = (TF1)(*(tmp -> GetFunction("F_"+name)));
+            fResVsEt_[p][etaBin] = (TF1)(*(tmp -> GetFunction("F_"+name)));
 	  }
         }
       }
@@ -63,7 +63,7 @@ ObjectResolutionCalc::~ObjectResolutionCalc() {
 float ObjectResolutionCalc::obsRes(int obs, int eta, float eT) {
   if (useNN_) throw edm::Exception( edm::errors::LogicError, 
                                    "TopObjectResolutionCalc::obsRes should never be called when using a NN for resolutions." );
-  float res = fResVsET_[obs][eta].Eval(eT);
+  float res = fResVsEt_[obs][eta].Eval(eT);
   return res;
 }
 
@@ -89,7 +89,7 @@ void ObjectResolutionCalc::operator()(Electron & obj) {
     obj.setResolutionD(     network_[3]->Evaluate(0,v ));	
     obj.setResolutionTheta( network_[4]->Evaluate(0,v ));	 
     obj.setResolutionPhi(   network_[5]->Evaluate(0,v ));	
-    obj.setResolutionET(    network_[6]->Evaluate(0,v ));	
+    obj.setResolutionEt(    network_[6]->Evaluate(0,v ));	
     obj.setResolutionEta(   network_[7]->Evaluate(0,v ));
   } else {
     int bin = this->etaBin(obj.eta());
@@ -99,7 +99,7 @@ void ObjectResolutionCalc::operator()(Electron & obj) {
     obj.setResolutionD(     this->obsRes(3,bin,obj.et()) ); 
     obj.setResolutionTheta( this->obsRes(4,bin,obj.et()) );  
     obj.setResolutionPhi(   this->obsRes(5,bin,obj.et()) ); 
-    obj.setResolutionET(    this->obsRes(6,bin,obj.et()) ); 
+    obj.setResolutionEt(    this->obsRes(6,bin,obj.et()) ); 
     obj.setResolutionEta(   this->obsRes(7,bin,obj.et()) );
   }
 }
@@ -116,7 +116,7 @@ void ObjectResolutionCalc::operator()(Muon & obj) {
     obj.setResolutionD(     network_[3]->Evaluate(0,v ));	
     obj.setResolutionTheta( network_[4]->Evaluate(0,v ));	 
     obj.setResolutionPhi(   network_[5]->Evaluate(0,v ));	
-    obj.setResolutionET(    network_[6]->Evaluate(0,v ));	
+    obj.setResolutionEt(    network_[6]->Evaluate(0,v ));	
     obj.setResolutionEta(   network_[7]->Evaluate(0,v ));
   } else {
     int bin = this->etaBin(obj.eta());
@@ -126,7 +126,7 @@ void ObjectResolutionCalc::operator()(Muon & obj) {
     obj.setResolutionD(     this->obsRes(3,bin,obj.et()) ); 
     obj.setResolutionTheta( this->obsRes(4,bin,obj.et()) );  
     obj.setResolutionPhi(   this->obsRes(5,bin,obj.et()) ); 
-    obj.setResolutionET(    this->obsRes(6,bin,obj.et()) ); 
+    obj.setResolutionEt(    this->obsRes(6,bin,obj.et()) ); 
     obj.setResolutionEta(   this->obsRes(7,bin,obj.et()) );
   }
 }
@@ -143,7 +143,7 @@ void ObjectResolutionCalc::operator()(Jet & obj) {
     obj.setResolutionD(     network_[3]->Evaluate(0,v ));	
     obj.setResolutionTheta( network_[4]->Evaluate(0,v ));	 
     obj.setResolutionPhi(   network_[5]->Evaluate(0,v ));	
-    obj.setResolutionET(    network_[6]->Evaluate(0,v ));	
+    obj.setResolutionEt(    network_[6]->Evaluate(0,v ));	
     obj.setResolutionEta(   network_[7]->Evaluate(0,v ));
   } else {
     int bin = this->etaBin(obj.eta());
@@ -153,7 +153,7 @@ void ObjectResolutionCalc::operator()(Jet & obj) {
     obj.setResolutionD(     this->obsRes(3,bin,obj.et()) ); 
     obj.setResolutionTheta( this->obsRes(4,bin,obj.et()) );  
     obj.setResolutionPhi(   this->obsRes(5,bin,obj.et()) ); 
-    obj.setResolutionET(    this->obsRes(6,bin,obj.et()) ); 
+    obj.setResolutionEt(    this->obsRes(6,bin,obj.et()) ); 
     obj.setResolutionEta(   this->obsRes(7,bin,obj.et()) );
   }
 }
@@ -170,7 +170,7 @@ void ObjectResolutionCalc::operator()(MET & obj) {
     obj.setResolutionD(     network_[3]->Evaluate(0,v ));
     obj.setResolutionTheta( 1000000.  );   			// Total freedom	
     obj.setResolutionPhi(   network_[5]->Evaluate(0,v ));	
-    obj.setResolutionET(    network_[6]->Evaluate(0,v ));	
+    obj.setResolutionEt(    network_[6]->Evaluate(0,v ));	
     obj.setResolutionEta(   1000000.  );    			// Total freedom
   } else {
     obj.setResolutionA(     this->obsRes(0,0,obj.et())  );
@@ -179,7 +179,7 @@ void ObjectResolutionCalc::operator()(MET & obj) {
     obj.setResolutionD(     this->obsRes(3,0,obj.et())  );
     obj.setResolutionTheta( 1000000.  );   			// Total freedom
     obj.setResolutionPhi(   this->obsRes(5,0,obj.et())  );
-    obj.setResolutionET(    this->obsRes(6,0,obj.et())  );
+    obj.setResolutionEt(    this->obsRes(6,0,obj.et())  );
     obj.setResolutionEta(   1000000.  );    			// Total freedom
   }
 }
@@ -196,7 +196,7 @@ void ObjectResolutionCalc::operator()(Tau & obj) {
     obj.setResolutionD(     network_[3]->Evaluate(0,v ));	
     obj.setResolutionTheta( network_[4]->Evaluate(0,v ));	 
     obj.setResolutionPhi(   network_[5]->Evaluate(0,v ));	
-    obj.setResolutionET(    network_[6]->Evaluate(0,v ));	
+    obj.setResolutionEt(    network_[6]->Evaluate(0,v ));	
     obj.setResolutionEta(   network_[7]->Evaluate(0,v ));
   } else {
     int bin = this->etaBin(obj.eta());
@@ -206,7 +206,7 @@ void ObjectResolutionCalc::operator()(Tau & obj) {
     obj.setResolutionD(     this->obsRes(3,bin,obj.et()) ); 
     obj.setResolutionTheta( this->obsRes(4,bin,obj.et()) );  
     obj.setResolutionPhi(   this->obsRes(5,bin,obj.et()) ); 
-    obj.setResolutionET(    this->obsRes(6,bin,obj.et()) ); 
+    obj.setResolutionEt(    this->obsRes(6,bin,obj.et()) ); 
     obj.setResolutionEta(   this->obsRes(7,bin,obj.et()) );
   }
 }

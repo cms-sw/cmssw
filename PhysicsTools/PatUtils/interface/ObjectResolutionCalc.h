@@ -1,5 +1,5 @@
 //
-// $Id: ObjectResolutionCalc.h,v 1.1 2008/01/15 13:20:55 lowette Exp $
+// $Id: ObjectResolutionCalc.h,v 1.2 2008/01/16 20:33:14 lowette Exp $
 //
 
 #ifndef PhysicsTools_PatUtils_ObjectResolutionCalc_h
@@ -10,7 +10,7 @@
   \brief    Class to calculate MC resolutions for pat objects
 
   \author   Jan Heyninck, Petra Van Mulders, Christophe Delaere
-  \version  $Id: ObjectResolutionCalc.h,v 1.1 2008/01/15 13:20:55 lowette Exp $
+  \version  $Id: ObjectResolutionCalc.h,v 1.2 2008/01/16 20:33:14 lowette Exp $
 */
 
 
@@ -57,7 +57,7 @@ namespace pat {
 
       TFile * resoFile_;
       std::vector<float> etaBinVals_;
-      TF1 fResVsET_[10][10];
+      TF1 fResVsEt_[10][10];
       TMultiLayerPerceptron * network_[10];
       bool useNN_;
 

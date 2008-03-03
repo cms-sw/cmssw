@@ -1,5 +1,5 @@
 //
-// $Id: TrackerIsolationPt.cc,v 1.2 2008/01/21 16:26:20 lowette Exp $
+// $Id: TrackerIsolationPt.cc,v 1.3 2008/02/28 14:54:25 llista Exp $
 //
 
 #include "PhysicsTools/PatUtils/interface/TrackerIsolationPt.h"
@@ -39,8 +39,8 @@ float TrackerIsolationPt::calculate(const Muon & theMuon, const edm::View<reco::
 float TrackerIsolationPt::calculate(const reco::Track & theTrack, const edm::View<reco::Track> & theTracks, float isoCone) const {
   // initialize some variables
   float isoPtLepton = 0;
-  const reco::Track * closestTrackDRPT = 0, * closestTrackDR = 0;
-  float closestDRPT = 10000, closestDR = 10000;
+  const reco::Track * closestTrackDRPt = 0, * closestTrackDR = 0;
+  float closestDRPt = 10000, closestDR = 10000;
   // use all these pointless vector conversions because the momenta from tracks
   // are completely unusable; bah, these math-vectors are worthless!
   HepLorentzVector lepton(theTrack.px(), theTrack.py(), theTrack.pz(), theTrack.p());
@@ -52,9 +52,9 @@ float TrackerIsolationPt::calculate(const reco::Track & theTrack, const edm::Vie
       // find the closest matching track
       // FIXME: we could association by hits or chi2 to match
       float pRatio = track.perp()/lepton.perp();
-      if (dR < closestDRPT && pRatio > 0.5 && pRatio < 1.5) {
-        closestDRPT = dR;
-        closestTrackDRPT = &*itTrack;
+      if (dR < closestDRPt && pRatio > 0.5 && pRatio < 1.5) {
+        closestDRPt = dR;
+        closestTrackDRPt = &*itTrack;
       }
       if (dR < closestDR) {
         closestDR = dR;
@@ -62,8 +62,8 @@ float TrackerIsolationPt::calculate(const reco::Track & theTrack, const edm::Vie
       }
     }
   }
-  if (closestTrackDRPT) {
-    GlobalVector closestTrackVector(closestTrackDRPT->px(), closestTrackDRPT->py(), closestTrackDRPT->pz());
+  if (closestTrackDRPt) {
+    GlobalVector closestTrackVector(closestTrackDRPt->px(), closestTrackDRPt->py(), closestTrackDRPt->pz());
     isoPtLepton -= closestTrackVector.perp();
   } else if (closestTrackDR) {
     GlobalVector closestTrackVector(closestTrackDR->px(), closestTrackDR->py(), closestTrackDR->pz());
