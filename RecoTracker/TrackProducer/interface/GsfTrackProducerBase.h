@@ -4,8 +4,8 @@
 /** \class GsfTrackProducerBase
  *  Produce Tracks from TrackCandidates
  *
- *  $Date: 2008/01/26 10:45:56 $
- *  $Revision: 1.6 $
+ *  $Date: 2008/03/02 14:25:52 $
+ *  $Revision: 1.7 $
  *  \author cerati
  */
 
@@ -15,13 +15,14 @@
 #include "DataFormats/GsfTrackReco/interface/GsfTrackExtraFwd.h"
 #include "DataFormats/GsfTrackReco/interface/GsfComponent5D.h"
 #include "RecoTracker/TrackProducer/interface/TrackProducerBase.h"
+#include "DataFormats/BeamSpot/interface/BeamSpot.h"
 
 // #include "TrackingTools/TransientTrack/interface/TransientTrack.h"
 
 class TrajectoryStateOnSurface;
 class Propagator;
 class TransverseImpactPointExtrapolator;
-class TSCPBuilderNoMaterial;
+class TrajectoryStateClosestToBeamLineBuilder;
 
 class GsfTrackProducerBase : public TrackProducerBase<reco::GsfTrack> {
 public:
@@ -38,7 +39,8 @@ public:
 			std::auto_ptr<reco::TrackExtraCollection>&,
 			std::auto_ptr<reco::GsfTrackExtraCollection>&,
 			std::auto_ptr<std::vector<Trajectory> >&,
-			AlgoProductCollection&);
+			AlgoProductCollection&,
+			const reco::BeamSpot&);
 
 
 protected:
@@ -46,7 +48,8 @@ protected:
   void fillMode (reco::GsfTrack& track, const TrajectoryStateOnSurface innertsos,
 		 const Propagator& gsfProp,
 		 const TransverseImpactPointExtrapolator& tipExtrapolator,
-		 const TSCPBuilderNoMaterial& tscpBuilder) const;
+		 TrajectoryStateClosestToBeamLineBuilder& tscblBuilder,
+		 const reco::BeamSpot& bs) const;
 
 private:
 bool useSplitting;

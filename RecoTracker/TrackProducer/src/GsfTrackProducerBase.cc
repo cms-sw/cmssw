@@ -14,7 +14,7 @@
 #include "TrackingTools/GsfTools/interface/MultiGaussianState1D.h"
 #include "TrackingTools/GsfTools/interface/GaussianSumUtilities1D.h"
 #include "TrackingTools/PatternTools/interface/TransverseImpactPointExtrapolator.h"
-#include "TrackingTools/PatternTools/interface/TSCPBuilderNoMaterial.h"
+#include "TrackingTools/PatternTools/interface/TrajectoryStateClosestToBeamLineBuilder.h"
 #include "TrackingTools/PatternTools/interface/Trajectory.h"
 
 #include "TrackingTools/PatternTools/interface/TrajTrackAssociation.h"
@@ -28,7 +28,8 @@ GsfTrackProducerBase::putInEvt(edm::Event& evt,
 			       std::auto_ptr<reco::TrackExtraCollection>& selTrackExtras,
 			       std::auto_ptr<reco::GsfTrackExtraCollection>& selGsfTrackExtras,
 			       std::auto_ptr<std::vector<Trajectory> >&   selTrajectories,
-			       AlgoProductCollection& algoResults)
+			       AlgoProductCollection& algoResults,
+			       const reco::BeamSpot& bs)
 {
 
   TrackingRecHitRefProd rHits = evt.getRefBeforePut<TrackingRecHitCollection>();
@@ -43,7 +44,7 @@ GsfTrackProducerBase::putInEvt(edm::Event& evt,
 //   edm::Ref< std::vector<Trajectory> >::key_type iTjRef = 0;
 //   std::map<unsigned int, unsigned int> tjTkMap;
 
-  TSCPBuilderNoMaterial tscpBuilder;
+  TrajectoryStateClosestToBeamLineBuilder tscblBuilder;
 
   for(AlgoProductCollection::iterator i=algoResults.begin(); i!=algoResults.end();i++){
     Trajectory * theTraj = (*i).first;
@@ -150,7 +151,7 @@ GsfTrackProducerBase::putInEvt(edm::Event& evt,
     if ( innertsos.isValid() ) {
       GsfPropagatorAdapter gsfProp(AnalyticalPropagator(innertsos.magneticField(),anyDirection));
       TransverseImpactPointExtrapolator tipExtrapolator(gsfProp);
-      fillMode(track,innertsos,gsfProp,tipExtrapolator,tscpBuilder);
+      fillMode(track,innertsos,gsfProp,tipExtrapolator,tscblBuilder,bs);
     }
 
     delete theTrack;
@@ -226,12 +227,16 @@ void
 GsfTrackProducerBase::fillMode (reco::GsfTrack& track, const TrajectoryStateOnSurface innertsos,
 				const Propagator& gsfProp,
 				const TransverseImpactPointExtrapolator& tipExtrapolator,
-				const TSCPBuilderNoMaterial& tscpBuilder) const
+				TrajectoryStateClosestToBeamLineBuilder& tscblBuilder,
+				const reco::BeamSpot& bs) const
 {
-  // get transverse impact parameter plane (from mean)
-  //       TrajectoryStateOnSurface vtxTsos = 
-  // 	TransverseImpactPointExtrapolator(geomProp).extrapolate(innertsos,GlobalPoint(0.,0.,0.));
-  TrajectoryStateOnSurface vtxTsos = tipExtrapolator.extrapolate(innertsos,GlobalPoint(0.,0.,0.));
+  // Get transverse impact parameter plane (from mean). This is a first approximation;
+  // the mode is then extrapolated to the
+  // final position closest to the beamline.
+  GlobalPoint bsPos(bs.position().x()+(track.vz()-bs.position().z())*bs.dxdz(),
+		    bs.position().y()+(track.vz()-bs.position().z())*bs.dydz(),
+		    track.vz());
+  TrajectoryStateOnSurface vtxTsos = tipExtrapolator.extrapolate(innertsos,bsPos);
   if ( !vtxTsos.isValid() )  vtxTsos = innertsos;
  // extrapolate mixture
   vtxTsos = gsfProp.propagate(innertsos,vtxTsos.surface());
@@ -269,17 +274,19 @@ GsfTrackProducerBase::fillMode (reco::GsfTrack& track, const TrajectoryStateOnSu
 				      vtxTsos.surface(),
 				      vtxTsos.magneticField(),
 				      vtxTsos.surfaceSide());
-    TrajectoryStateClosestToPoint tscp = tscpBuilder(*modeTsos.freeState(),GlobalPoint(0.,0.,0.));
-    GlobalVector tscpMom =  tscp.theState().momentum();
-    reco::GsfTrack::Vector mom(tscpMom.x(),tscpMom.y(),tscpMom.z());
-    reco::GsfTrack::CovarianceMatrixMode cov;
-    const AlgebraicSymMatrix55& tscpCov = tscp.perigeeError().covarianceMatrix();
-    for ( unsigned int iv1=0; iv1<reco::GsfTrack::dimensionMode; ++iv1 ) {
-      for ( unsigned int iv2=0; iv2<reco::GsfTrack::dimensionMode; ++iv2 ) {
-	cov(iv1,iv2) = tscpCov(iv1,iv2);
-      }
+    TrajectoryStateClosestToBeamLine tscbl = tscblBuilder(*modeTsos.freeState(),bs);
+    if ( tscbl.isValid() ) {
+      FreeTrajectoryState fts = tscbl.trackStateAtPCA();
+      GlobalVector tscblMom = fts.momentum();
+      reco::GsfTrack::Vector mom(tscblMom.x(),tscblMom.y(),tscblMom.z());
+      reco::GsfTrack::CovarianceMatrixMode cov;
+      const AlgebraicSymMatrix55& tscblCov = fts.curvilinearError().matrix();
+      for ( unsigned int iv1=0; iv1<reco::GsfTrack::dimensionMode; ++iv1 ) {
+	for ( unsigned int iv2=0; iv2<reco::GsfTrack::dimensionMode; ++iv2 ) {
+	  cov(iv1,iv2) = tscblCov(iv1,iv2);
+	}
+      } 
+      track.setMode(fts.charge(),mom,cov);
     }
-      
-    track.setMode(tscp.charge(),mom,cov);
   }
 }

@@ -57,10 +57,10 @@ void GsfTrackProducer::produce(edm::Event& theEvent, const edm::EventSetup& setu
   //
   //declare and get TrackColection to be retrieved from the event
   //
-    AlgoProductCollection algoResults;
+  AlgoProductCollection algoResults;
+  reco::BeamSpot bs;
   try{  
     edm::Handle<TrackCandidateCollection> theTCCollection;
-    reco::BeamSpot bs;
     getFromEvt(theEvent,theTCCollection,bs);
     
     //
@@ -73,7 +73,7 @@ void GsfTrackProducer::produce(edm::Event& theEvent, const edm::EventSetup& setu
   //
   //put everything in the event
   putInEvt(theEvent, outputRHColl, outputTColl, outputTEColl, outputGsfTEColl,
-	   outputTrajectoryColl, algoResults);
+	   outputTrajectoryColl, algoResults, bs);
   LogDebug("GsfTrackProducer") << "end" << "\n";
 }
 
