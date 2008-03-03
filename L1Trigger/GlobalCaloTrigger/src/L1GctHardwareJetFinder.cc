@@ -336,7 +336,7 @@ void L1GctHardwareJetFinder::convertClustersToOutputJets()
     unsigned JET_THRESHOLD = ( isForward ? m_FwdJetSeed : m_CenJetSeed);
     if (m_clusters.at(j).et()>=JET_THRESHOLD) {
       unsigned rawsum = m_clusters.at(j).et();
-      if (m_clusters.at(j).overFlow()) { rawsum = rawsum | (1<<L1GctJet::RAWSUM_BITWIDTH); }
+      if (m_clusters.at(j).overFlow()) { rawsum = rawsum | L1GctJet::kRawsumOFlowBit ; }
       L1GctJet temp(rawsum, m_clusters.at(j).gctEta(), m_clusters.at(j).gctPhi(), 
                     isForward, m_clusters.at(j).tauVeto());
       m_outputJets.at(j) = temp;

@@ -23,8 +23,10 @@ gctTestHfEtSums::~gctTestHfEtSums() {}
 //
   /// Reset stored sums
 void gctTestHfEtSums::reset() {
-  m_expectedEtSumPositiveEta      = 0;
-  m_expectedEtSumNegativeEta      = 0;
+  m_expectedRing0EtSumPositiveEta = 0;
+  m_expectedRing0EtSumNegativeEta = 0;
+  m_expectedRing1EtSumPositiveEta = 0;
+  m_expectedRing1EtSumNegativeEta = 0;
   m_expectedTowerCountPositiveEta = 0;
   m_expectedTowerCountNegativeEta = 0;
 }
@@ -36,7 +38,7 @@ void gctTestHfEtSums::fillExpectedHfSums(const RegionsVector& inputRegions)
 {
   // A bunch of constants defining how the code works
   static const unsigned NUMBER_OF_FRWRD_RINGS=4;
-  static const unsigned NUMBER_OF_INNER_RINGS=1;
+  static const unsigned NUMBER_OF_INNER_RINGS=2;
   static const unsigned NUMBER_OF_RINGS_PER_WHEEL=L1CaloRegionDetId::N_ETA/2;
   static const unsigned MIN_ETA_COUNTS =NUMBER_OF_RINGS_PER_WHEEL - NUMBER_OF_FRWRD_RINGS;
   static const unsigned MIN_ETA_HF_SUMS=NUMBER_OF_RINGS_PER_WHEEL - NUMBER_OF_INNER_RINGS;
@@ -44,18 +46,21 @@ void gctTestHfEtSums::fillExpectedHfSums(const RegionsVector& inputRegions)
   static const unsigned MAX_ETSUM_VALUE = L1GctJetCounts::kEtHfSumMaxValue;
   static const unsigned MAX_TOWER_COUNT = 31;
 
-  bool overFlowNegativeEta = false;
-  bool overFlowPositiveEta = false;
+  std::vector<unsigned> etNegativeEta(NUMBER_OF_INNER_RINGS,0);
+  std::vector<unsigned> etPositiveEta(NUMBER_OF_INNER_RINGS,0);
+  std::vector<bool>     ofNegativeEta(NUMBER_OF_INNER_RINGS,false);
+  std::vector<bool>     ofPositiveEta(NUMBER_OF_INNER_RINGS,false);
   // Loop over regions, selecting those in the outer ring(s) of the Hf
   for (RegionsVector::const_iterator region=inputRegions.begin(); region!=inputRegions.end(); region++) {
     if (region->id().rctEta() >= MIN_ETA_HF_SUMS) {
+      unsigned ring = NUMBER_OF_RINGS_PER_WHEEL - region->id().rctEta() - 1;
       // Split into positive and negative eta
       if (region->id().ieta() < NUMBER_OF_RINGS_PER_WHEEL) {
-        m_expectedEtSumNegativeEta += region->et() >> BIT_SHIFT;
-        overFlowNegativeEta |= region->overFlow();
+        etNegativeEta.at(ring) += region->et() >> BIT_SHIFT;
+        ofNegativeEta.at(ring) = ofNegativeEta.at(ring) || region->overFlow();
       } else {
-        m_expectedEtSumPositiveEta += region->et() >> BIT_SHIFT;
-        overFlowPositiveEta |= region->overFlow();
+        etPositiveEta.at(ring) += region->et() >> BIT_SHIFT;
+        ofPositiveEta.at(ring) = ofPositiveEta.at(ring) || region->overFlow();
       }
     }
     if (region->id().rctEta() >= MIN_ETA_COUNTS) {
@@ -67,8 +72,14 @@ void gctTestHfEtSums::fillExpectedHfSums(const RegionsVector& inputRegions)
       }
     }
   }
-  if (m_expectedEtSumNegativeEta > MAX_ETSUM_VALUE || overFlowNegativeEta) m_expectedEtSumNegativeEta = MAX_ETSUM_VALUE;
-  if (m_expectedEtSumPositiveEta > MAX_ETSUM_VALUE || overFlowPositiveEta) m_expectedEtSumPositiveEta = MAX_ETSUM_VALUE;
+  m_expectedRing0EtSumNegativeEta = ( (etNegativeEta.at(0) > MAX_ETSUM_VALUE) || ofNegativeEta.at(0) ? MAX_ETSUM_VALUE
+                                                                                                     : etNegativeEta.at(0) );
+  m_expectedRing0EtSumPositiveEta = ( (etPositiveEta.at(0) > MAX_ETSUM_VALUE) || ofPositiveEta.at(0) ? MAX_ETSUM_VALUE
+                                                                                                     : etPositiveEta.at(0) );
+  m_expectedRing1EtSumNegativeEta = ( (etNegativeEta.at(1) > MAX_ETSUM_VALUE) || ofNegativeEta.at(1) ? MAX_ETSUM_VALUE
+                                                                                                     : etNegativeEta.at(1) );
+  m_expectedRing1EtSumPositiveEta = ( (etPositiveEta.at(1) > MAX_ETSUM_VALUE) || ofPositiveEta.at(1) ? MAX_ETSUM_VALUE
+                                                                                                     : etPositiveEta.at(1) );
   if (m_expectedTowerCountNegativeEta > MAX_TOWER_COUNT) m_expectedTowerCountNegativeEta = MAX_TOWER_COUNT;
   if (m_expectedTowerCountPositiveEta > MAX_TOWER_COUNT) m_expectedTowerCountPositiveEta = MAX_TOWER_COUNT;
 }
@@ -84,21 +95,28 @@ bool gctTestHfEtSums::checkHfEtSums(const L1GlobalCaloTrigger* gct) const
   std::vector< unsigned > jetCounts=gct->getEnergyFinalStage()->getJetCountValues();
   assert (jetCounts.size()==12);
 
-  unsigned jetCountWord1= jetCounts.at(6)         | (jetCounts.at(7)  <<  5) | (jetCounts.at(8)  << 10) |
-                         (jetCounts.at(9)  << 16) | (jetCounts.at(10) << 21) | (jetCounts.at(11) << 26) ;
-
   unsigned towerCountPositiveEta = jetCounts.at(6);
   unsigned towerCountNegativeEta = jetCounts.at(7);
-  unsigned etSumPositiveEta = (((jetCountWord1 & 0x03e00000) >> 19) | ((jetCountWord1 & 0x00030000) >> 16));
-  unsigned etSumNegativeEta = (((jetCountWord1 & 0x7c000000) >> 24) | ((jetCountWord1 & 0x000c0000) >> 18));
+  unsigned etSumRing0PositiveEta = jetCounts.at(8);
+  unsigned etSumRing0NegativeEta = jetCounts.at(9);
+  unsigned etSumRing1PositiveEta = jetCounts.at(10);
+  unsigned etSumRing1NegativeEta = jetCounts.at(11);
 
-  if (etSumPositiveEta != m_expectedEtSumPositiveEta)
-    { cout << "Hf Et Sum Positive Eta, expected " << m_expectedEtSumPositiveEta
-                                    << ", found " << etSumPositiveEta << endl;
+  if (etSumRing0PositiveEta != m_expectedRing0EtSumPositiveEta)
+    { cout << "Hf Et Sum Positive Eta, expected " << m_expectedRing0EtSumPositiveEta 
+                                    << ", found " << etSumRing0PositiveEta << endl;
       testPass = false; }
-  if (etSumNegativeEta != m_expectedEtSumNegativeEta)
-    { cout << "Hf Et Sum Negative Eta, expected " << m_expectedEtSumNegativeEta
-                                    << ", found " << etSumNegativeEta << endl;
+  if (etSumRing0NegativeEta != m_expectedRing0EtSumNegativeEta )
+    { cout << "Hf Et Sum Negative Eta, expected " << m_expectedRing0EtSumNegativeEta 
+                                    << ", found " << etSumRing0NegativeEta << endl;
+      testPass = false; }
+  if (etSumRing1PositiveEta != m_expectedRing1EtSumPositiveEta)
+    { cout << "Hf Et Sum Positive Eta, expected " << m_expectedRing1EtSumPositiveEta 
+                                    << ", found " << etSumRing1PositiveEta << endl;
+      testPass = false; }
+  if (etSumRing1NegativeEta != m_expectedRing1EtSumNegativeEta )
+    { cout << "Hf Et Sum Negative Eta, expected " << m_expectedRing1EtSumNegativeEta 
+                                    << ", found " << etSumRing1NegativeEta << endl;
       testPass = false; }
   if (towerCountPositiveEta != m_expectedTowerCountPositiveEta)
     { cout << "Hf Tower Count Positive Eta, expected " << m_expectedTowerCountPositiveEta

@@ -156,12 +156,10 @@ void L1GctWheelJetFpga::reset()
   for (unsigned int i=0; i<MAX_LEAF_CARDS; ++i)
   {
     m_inputHt.at(i).reset();
-    m_inputHfSums.at(i).etSum.reset();
-    m_inputHfSums.at(i).nOverThreshold.reset();
+    m_inputHfSums.at(i).reset();
   }
   m_outputHt.reset();
-  m_outputHfSums.etSum.reset();
-  m_outputHfSums.nOverThreshold.reset();
+  m_outputHfSums.reset();
   for (unsigned int i=0; i<N_JET_COUNTERS; ++i)
   {
     m_jetCounters.at(i)->reset();

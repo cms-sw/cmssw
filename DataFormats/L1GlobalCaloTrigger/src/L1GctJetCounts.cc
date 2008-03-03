@@ -109,14 +109,24 @@ unsigned L1GctJetCounts::hfTowerCountNegativeEta() const
   return count(7);
 }
 
-unsigned L1GctJetCounts::hfTowerEtSumPositiveEta() const
+unsigned L1GctJetCounts::hfRing0EtSumPositiveEta() const
 {
-  return (((m_data1 & 0x03e00000) >> 19) | ((m_data1 & 0x00030000) >> 16));
+  return count(8);
 }
 
-unsigned L1GctJetCounts::hfTowerEtSumNegativeEta() const
+unsigned L1GctJetCounts::hfRing0EtSumNegativeEta() const
 {
-  return (((m_data1 & 0x7c000000) >> 24) | ((m_data1 & 0x000c0000) >> 18));
+  return count(9);
+}
+
+unsigned L1GctJetCounts::hfRing1EtSumPositiveEta() const
+{
+  return count(10);
+}
+
+unsigned L1GctJetCounts::hfRing1EtSumNegativeEta() const
+{
+  return count(11);
 }
 
 // pretty print

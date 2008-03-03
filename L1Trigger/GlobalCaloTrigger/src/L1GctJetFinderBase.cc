@@ -129,8 +129,7 @@ void L1GctJetFinderBase::reset()
   m_outputEtStrip1 = 0;
   m_outputHt = 0;
 
-  m_outputHfSums.etSum.reset();
-  m_outputHfSums.nOverThreshold.reset();
+  m_outputHfSums.reset();
 }
 
 // This is how the regions from the RCT get into the GCT for processing 
@@ -260,28 +259,30 @@ L1GctJetFinderBase::etHadType L1GctJetFinderBase::calcHt() const
 L1GctJetFinderBase::hfTowerSumsType L1GctJetFinderBase::calcHfSums() const
 {
   static const UShort NUMBER_OF_FRWRD_RINGS = 4;
-  static const UShort NUMBER_OF_INNER_RINGS = 1;
+  static const UShort NUMBER_OF_INNER_RINGS = 2;
   static const UShort BIT_SHIFT = L1GctJetCounts::kEtHfSumBitShift;
-  unsigned et = 0;
+  std::vector<unsigned> et(NUMBER_OF_INNER_RINGS, 0);
+  std::vector<bool>     of(NUMBER_OF_INNER_RINGS, false);
   unsigned nt = 0;
-  bool of = false;
+
   UShort offset = COL_OFFSET*(centralCol0() + 1);
   for (UShort i=0; i < NUMBER_OF_FRWRD_RINGS; ++i) {
     offset--;
 
     // Sum HF Et over "inner rings"
     if (i<NUMBER_OF_INNER_RINGS) {
-      et += m_inputRegions.at(offset).et() >> BIT_SHIFT;
-      of |= m_inputRegions.at(offset).overFlow();
+      et.at(i) += m_inputRegions.at(offset).et() >> BIT_SHIFT;
+      of.at(i) = of.at(i) || m_inputRegions.at(offset).overFlow();
 
-      et += m_inputRegions.at(offset+COL_OFFSET).et() >> BIT_SHIFT;
-      of |= m_inputRegions.at(offset+COL_OFFSET).overFlow();
+      et.at(i) += m_inputRegions.at(offset+COL_OFFSET).et() >> BIT_SHIFT;
+      of.at(i) = of.at(i) || m_inputRegions.at(offset+COL_OFFSET).overFlow();
     }
     // Count fine grain bits over the whole HF
     if (m_inputRegions.at(offset).fineGrain()) nt++;
     if (m_inputRegions.at(offset+COL_OFFSET).fineGrain()) nt++;
   }
-  hfTowerSumsType temp(et, nt);
-  temp.etSum.setOverFlow(temp.etSum.overFlow() || of);
+  hfTowerSumsType temp(et.at(0), et.at(1), nt);
+  temp.etSum0.setOverFlow(temp.etSum0.overFlow() || of.at(0));
+  temp.etSum1.setOverFlow(temp.etSum1.overFlow() || of.at(1));
   return temp;
 }

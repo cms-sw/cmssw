@@ -58,25 +58,33 @@ public:
   typedef L1GctUnsignedInt<L1GctEtTotal::kEtTotalNBits> etTotalType;
   typedef L1GctUnsignedInt<  L1GctEtHad::kEtHadNBits  > etHadType;
 
-  // For HF-based triggers we sum the Et, and count towers over threshold
-  // (based on the "fineGrain" bit from the RCT). Define a data type to transfer
-  // result of both calculations.
+  // For HF-based triggers we sum the Etin the two "inner" (large eta) rings;
+  // and count towers over threshold based on the "fineGrain" bit from the RCT.
+  // Define a data type to transfer the result of all calculations.
   // The results are defined as L1GctJetCount types since they don't have
   // a separate overFlow bit. An overflow condition gives value=max.
 
   struct hfTowerSumsType {
 
-    L1GctJetCount< L1GctJetCounts::kEtHfSumBits > etSum;
+    L1GctJetCount< L1GctJetCounts::kEtHfSumBits > etSum0;
+    L1GctJetCount< L1GctJetCounts::kEtHfSumBits > etSum1;
     L1GctJetCount< 5 > nOverThreshold;
 
     // Define some constructors and an addition operator for our data type
-    hfTowerSumsType() : etSum(0), nOverThreshold(0) {}
-    hfTowerSumsType(unsigned e, unsigned n) : etSum(e), nOverThreshold(n) {}
-    hfTowerSumsType(L1GctJetCount< L1GctJetCounts::kEtHfSumBits > e,
-                    L1GctJetCount< 5 > n) : etSum(e), nOverThreshold(n) {}
-    void reset() { etSum.reset(); nOverThreshold.reset(); }
-    hfTowerSumsType operator+(const hfTowerSumsType& rhs) const 
-      { hfTowerSumsType temp( (this->etSum+rhs.etSum), (this->nOverThreshold+rhs.nOverThreshold) ); return temp; } 
+    hfTowerSumsType() : etSum0(0), etSum1(0), nOverThreshold(0) {}
+    hfTowerSumsType(unsigned e0, unsigned e1, unsigned n) : etSum0(e0), etSum1(e1), nOverThreshold(n) {}
+    hfTowerSumsType(L1GctJetCount< L1GctJetCounts::kEtHfSumBits > e0,
+                    L1GctJetCount< L1GctJetCounts::kEtHfSumBits > e1,
+                    L1GctJetCount< 5 > n) : etSum0(e0), etSum1(e1), nOverThreshold(n) {}
+
+    void reset() { etSum0.reset(); etSum1.reset(); nOverThreshold.reset(); }
+
+    hfTowerSumsType operator+(const hfTowerSumsType& rhs) const {
+      hfTowerSumsType temp( (this->etSum0+rhs.etSum0),
+                            (this->etSum1+rhs.etSum1),
+                            (this->nOverThreshold+rhs.nOverThreshold) );
+      return temp;
+    } 
 
   };
 

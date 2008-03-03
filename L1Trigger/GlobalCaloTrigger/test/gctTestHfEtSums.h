@@ -40,8 +40,10 @@ public:
 
 private:
 
-  unsigned m_expectedEtSumPositiveEta;
-  unsigned m_expectedEtSumNegativeEta;
+  unsigned m_expectedRing0EtSumPositiveEta;
+  unsigned m_expectedRing0EtSumNegativeEta;
+  unsigned m_expectedRing1EtSumPositiveEta;
+  unsigned m_expectedRing1EtSumNegativeEta;
   unsigned m_expectedTowerCountPositiveEta;
   unsigned m_expectedTowerCountNegativeEta;
 

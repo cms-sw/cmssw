@@ -81,8 +81,10 @@ L1GctValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
     theJetCounts.at(jc)->Fill(jetCountDigi->count(jc));
   }
 
-  theHfEtSumPositiveEta->Fill(jetCountDigi->hfTowerEtSumPositiveEta());  
-  theHfEtSumNegativeEta->Fill(jetCountDigi->hfTowerEtSumNegativeEta());  
+  theHfRing0EtSumPositiveEta->Fill(jetCountDigi->hfRing0EtSumPositiveEta());  
+  theHfRing0EtSumNegativeEta->Fill(jetCountDigi->hfRing0EtSumNegativeEta());  
+  theHfRing1EtSumPositiveEta->Fill(jetCountDigi->hfRing1EtSumPositiveEta());  
+  theHfRing1EtSumNegativeEta->Fill(jetCountDigi->hfRing1EtSumNegativeEta());  
   theHfTowerCountPositiveEta->Fill(jetCountDigi->hfTowerCountPositiveEta());  
   theHfTowerCountNegativeEta->Fill(jetCountDigi->hfTowerCountNegativeEta());  
 
@@ -124,15 +126,20 @@ L1GctValidation::beginJob(const edm::EventSetup&)
     ss >> title;
     ss << "Jet Count number " << jc;
     if (jc== 6 || jc== 7) { ss << " (Hf tower count)"; }
-    if (jc==10 || jc==11) { ss << " (Hf Et sum MSB)"; }
+    if (jc== 8 || jc== 9) { ss << " (Hf Et0 sum MSB)"; }
+    if (jc==10 || jc==11) { ss << " (Hf Et1 sum MSB)"; }
     ss >> header;
     theJetCounts.push_back(dir1.make<TH1F>(title.c_str(), header.c_str(), 32, 0., 32.));
   }
 
-  theHfEtSumPositiveEta      = dir1.make<TH1F>("HfEtSumPositiveEta", "Hf Inner Ring Et eta+",
-                                               100, 0., 200.);
-  theHfEtSumNegativeEta      = dir1.make<TH1F>("HfEtSumNegativeEta", "Hf Inner Ring Et eta-",
-                                               100, 0., 200.);
+  theHfRing0EtSumPositiveEta = dir1.make<TH1F>("HfRing0EtSumPositiveEta", "Hf Inner Ring0 Et eta+",
+                                               60, 0., 30.);
+  theHfRing0EtSumNegativeEta = dir1.make<TH1F>("HfRing0EtSumNegativeEta", "Hf Inner Ring0 Et eta-",
+                                               60, 0., 30.);
+  theHfRing1EtSumPositiveEta = dir1.make<TH1F>("HfRing1EtSumPositiveEta", "Hf Inner Ring1 Et eta+",
+                                               60, 0., 30.);
+  theHfRing1EtSumNegativeEta = dir1.make<TH1F>("HfRing1EtSumNegativeEta", "Hf Inner Ring1 Et eta-",
+                                               60, 0., 30.);
   theHfTowerCountPositiveEta = dir1.make<TH1F>("HfTowerCountPositiveEta", "Hf Threshold bits eta+",
                                                20, 0., 20.);
   theHfTowerCountNegativeEta = dir1.make<TH1F>("HfTowerCountNegativeEta", "Hf Threshold bits eta-",

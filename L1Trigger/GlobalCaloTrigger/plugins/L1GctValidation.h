@@ -60,8 +60,10 @@ class L1GctValidation : public edm::EDAnalyzer {
       TH2F* theMissEtVector;
 
       std::vector<TH1F*> theJetCounts;
-      TH1F* theHfEtSumPositiveEta;
-      TH1F* theHfEtSumNegativeEta;
+      TH1F* theHfRing0EtSumPositiveEta;
+      TH1F* theHfRing0EtSumNegativeEta;
+      TH1F* theHfRing1EtSumPositiveEta;
+      TH1F* theHfRing1EtSumNegativeEta;
       TH1F* theHfTowerCountPositiveEta;
       TH1F* theHfTowerCountNegativeEta;
 

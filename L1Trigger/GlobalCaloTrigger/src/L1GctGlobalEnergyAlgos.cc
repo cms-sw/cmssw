@@ -372,19 +372,11 @@ void L1GctGlobalEnergyAlgos::packHfTowerSumsIntoJetCountBits()
   m_outputJetCounts.at(6)  = m_plusWheelJetFpga->getOutputHfSums().nOverThreshold;
   m_outputJetCounts.at(7)  = m_minusWheelJetFpga->getOutputHfSums().nOverThreshold;
 
-  unsigned etSumPlusWheel  = m_plusWheelJetFpga->getOutputHfSums().etSum.value();
-  unsigned etSumMinusWheel = m_minusWheelJetFpga->getOutputHfSums().etSum.value();
+  m_outputJetCounts.at(8)  = m_plusWheelJetFpga->getOutputHfSums().etSum0;
+  m_outputJetCounts.at(9)  = m_minusWheelJetFpga->getOutputHfSums().etSum0;
 
-  // Do some bit manipulation to get meaningful results in single jet counts
-  // Take the five MSB of each et sum and put them in bits 14:10, 9:5;
-  // stuff the remaining bits into 3:0
-  // NB ASSUMES there are SEVEN bits per et sum.
-  unsigned outBits = (( etSumPlusWheel & 0x7c) << 3) | (( etSumPlusWheel & 0x03)) |
-                     ((etSumMinusWheel & 0x7c) << 8) | ((etSumMinusWheel & 0x03) << 2);
-
-  m_outputJetCounts.at(9)  = L1GctJetCount<5>( outBits         & 0x1f);
-  m_outputJetCounts.at(10) = L1GctJetCount<5>((outBits >>  5 ) & 0x1f);
-  m_outputJetCounts.at(11) = L1GctJetCount<5>((outBits >> 10 ) & 0x1f);
+  m_outputJetCounts.at(10) = m_plusWheelJetFpga->getOutputHfSums().etSum1;
+  m_outputJetCounts.at(11) = m_minusWheelJetFpga->getOutputHfSums().etSum1;
 
 }
 
