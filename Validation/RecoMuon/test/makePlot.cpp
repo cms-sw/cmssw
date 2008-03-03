@@ -204,8 +204,12 @@ bool PlotManager::saveEfficiency(const string& histName, const string& histTitle
   TH1F* denoHist = dynamic_cast<TH1F*>(theSrcFile_->Get(denoHistName.c_str()));
   
   // Check validity of objects
-  if ( numeHist == 0 || denoHist == 0 ) {
-    cerr << "Cannot get object" << endl;
+  if ( numeHist == 0 ) {
+    cerr << "Cannot get object : " << numeHistName << endl;
+    return false;
+  }
+  if ( denoHist == 0 ) {
+    cerr << "Cannot get object : " << denoHistName << endl;
     return false;
   }
 
@@ -237,7 +241,7 @@ bool PlotManager::saveEfficiency(const string& histName, const string& histTitle
   }
 
   // Create new histogram
-  TH1F* effHist = dynamic_cast<TH1F*>(numeHist->Clone());
+  TH1F* effHist = dynamic_cast<TH1F*>(numeHist->Clone(newHistName.c_str()));
   
   // effHist->Divide(denoHist);
   // Set the error to binomial statistics
@@ -255,7 +259,7 @@ bool PlotManager::saveEfficiency(const string& histName, const string& histTitle
   }
 
   // Cosmetics
-  effHist->SetName(newHistName.c_str());
+  //effHist->SetName(newHistName.c_str());
   effHist->SetTitle(histTitle.c_str());
   effHist->SetMinimum(0.0);
   effHist->SetMaximum(1.0);
@@ -281,7 +285,7 @@ bool PlotManager::saveBayesEfficiency(const string& graphName, const string& gra
   
   // Check validity of objects
   if ( numeHist == 0 || denoHist == 0 ) {
-    cerr << "Cannot get object" << endl;
+    cerr << "Cannot get object : " << graphName << endl;
     return false;
   }
 
@@ -342,7 +346,7 @@ bool PlotManager::saveFakeRate(const string& histName, const string& histTitle,
   
   // Check validity of objects
   if ( numeHist == 0 || denoHist == 0 ) {
-    cerr << "Cannot get object" << endl;
+    cerr << "Cannot get object : " << histName << endl;
     return false;
   }
 
@@ -417,7 +421,7 @@ bool PlotManager::saveResolution(const string& histName, const string& histTitle
 
   // Check validity of objects
   if ( srcHist == NULL ) {
-    cerr << "Cannot get object" << endl;
+    cerr << "Cannot get object : " << histName << endl;
     return false;
   }
   
@@ -502,7 +506,6 @@ bool PlotManager::dumpObject(const string& objName,
   }
 
   TNamed* saveObj = dynamic_cast<TNamed*>(srcObj->Clone(newObjName.c_str()));
-//  saveObj->SetName(newObjName.c_str());
   saveObj->SetTitle(objTitle.c_str());
   
   // Save histogram
