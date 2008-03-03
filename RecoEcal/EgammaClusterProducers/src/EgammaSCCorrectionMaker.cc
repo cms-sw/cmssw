@@ -35,10 +35,20 @@ EgammaSCCorrectionMaker::EgammaSCCorrectionMaker(const edm::ParameterSet& ps)
   std::string sCAlgo_str = ps.getParameter<std::string>("superClusterAlgo");
 
   // determine which BasicCluster algo we are correcting for
+  // And get fCorr parameters correspondingly
+  edm::ParameterSet fCorrPset;
   if (sCAlgo_str=="Hybrid") {
     sCAlgo_= reco::hybrid;
+    fCorrPset = ps.getParameter<edm::ParameterSet>("hyb_fCorrPset"); 
   } else if (sCAlgo_str=="Island") {
     sCAlgo_= reco::island;
+    fCorrPset = ps.getParameter<edm::ParameterSet>("isl_fCorrPset");
+  } else if (sCAlgo_str=="DynamicHybrid") {
+    sCAlgo_ = reco::dynamicHybrid;
+    fCorrPset = ps.getParameter<edm::ParameterSet>("dyn_fCorrPset"); 
+  } else if (sCAlgo_str=="FixedMatrix") {
+    sCAlgo_ = reco::fixedMatrix;
+    fCorrPset = ps.getParameter<edm::ParameterSet>("fix_fCorrPset");
   } else {
     edm::LogError("EgammaSCCorrectionMakerError") 
       << "Error! SuperClusterAlgo in config file must be Hybrid or Island: " 
@@ -48,7 +58,6 @@ EgammaSCCorrectionMaker::EgammaSCCorrectionMaker(const edm::ParameterSet& ps)
   
   // set correction algo parameters
   applyEnergyCorrection_ = ps.getParameter<bool>("applyEnergyCorrection");
-  oldEnergyScaleCorrection_ = ps.getParameter<bool>("applyOldCorrection");
   sigmaElectronicNoise_ =  ps.getParameter<double>("sigmaElectronicNoise");
 
   etThresh_ =  ps.getParameter<double>("etThresh");
@@ -58,7 +67,7 @@ EgammaSCCorrectionMaker::EgammaSCCorrectionMaker(const edm::ParameterSet& ps)
   produces<reco::SuperClusterCollection>(outputCollection_);
 
   // instanciate the correction algo object
-  energyCorrector_ = new EgammaSCEnergyCorrectionAlgo(sigmaElectronicNoise_, verbosity_, oldEnergyScaleCorrection_);
+  energyCorrector_ = new EgammaSCEnergyCorrectionAlgo(sigmaElectronicNoise_, sCAlgo_, fCorrPset, verbosity_);
 }
 
 EgammaSCCorrectionMaker::~EgammaSCCorrectionMaker()
@@ -111,7 +120,7 @@ EgammaSCCorrectionMaker::produce(edm::Event& evt, const edm::EventSetup& es)
    
   // Define a collection of corrected SuperClusters to put back into the event
   std::auto_ptr<reco::SuperClusterCollection> corrClusters(new reco::SuperClusterCollection);
-
+  
   //  Loop over raw clusters and make corrected ones
   reco::SuperClusterCollection::const_iterator aClus;
   for(aClus = rawClusters->begin(); aClus != rawClusters->end(); aClus++)
@@ -125,8 +134,6 @@ EgammaSCCorrectionMaker::produce(edm::Event& evt, const edm::EventSetup& es)
       if(newClus.energy()*sin(newClus.position().theta())>etThresh_) {
 	//Print out bool parameter showing which energy corr is applied 
 	//and corrected energy of SC before placing SCs in collection
-	//std::cout << "boolPar & CorrEnergy " << oldEnergyScaleCorrection_ 
-	//	  << " : " << newClus.energy() << std::endl;
 	//std::cout << " Check 1 " << "\n"
 	//	  << " Parameters of corrected SCs " << "\n"
 	//	  << " energy = " << newClus.energy() <<"\n"
