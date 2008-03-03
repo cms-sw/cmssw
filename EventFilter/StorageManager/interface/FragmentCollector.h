@@ -62,7 +62,12 @@ namespace stor
     edm::EventBuffer& getFragmentQueue() { return *frag_q_; }
     edm::EventBuffer& getCommandQueue() { return *cmd_q_; }
     
-    void setEventServer(boost::shared_ptr<EventServer>& es) { eventServer_ = es; }
+    void setEventServer(boost::shared_ptr<EventServer>& es) {
+      eventServer_ = es;
+      if (eventServer_.get() != NULL && writer_.get() != NULL) {
+        eventServer_->setStreamSelectionTable(writer_->getStreamSelectionTable());
+      }
+    }
     void setInitMsgCollection(boost::shared_ptr<InitMsgCollection>& imColl) { initMsgCollection_ = imColl; }
 
   private:
