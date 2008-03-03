@@ -21,8 +21,8 @@ namespace {
   std::vector< SiStripPedestals::DetRegistry >::iterator tmp6;
   std::vector< SiStripPedestals::DetRegistry >::const_iterator tmp7;
   
-  std::vector<short>::iterator tmp8;
-  std::vector<short>::const_iterator tmp9;
+  std::vector<unsigned char>::iterator tmp8;
+  std::vector<unsigned char>::const_iterator tmp9;
   std::vector< SiStripNoises::DetRegistry >::iterator tmp10;
   std::vector< SiStripNoises::DetRegistry >::const_iterator tmp11;
 
