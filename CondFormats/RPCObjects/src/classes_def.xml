@@ -45,6 +45,8 @@
   <class name="std::vector<RPCPattern::TQuality>"/>
   <class name="std::vector<RPCPattern>"/>
 
+  <class name="L1RPCConeBuilder"/>
+
   <class name="RPCdbData"/>
   <class name="RPCdbData::Item"/>
   <class name="std::vector<RPCdbData::Item>"/>
