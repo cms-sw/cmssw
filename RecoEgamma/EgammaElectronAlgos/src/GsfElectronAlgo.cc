@@ -12,7 +12,7 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Thu july 6 13:22:06 CEST 2006
-// $Id: GsfElectronAlgo.cc,v 1.11 2008/02/29 17:50:53 uberthon Exp $
+// $Id: GsfElectronAlgo.cc,v 1.12 2008/03/03 15:34:40 uberthon Exp $
 //
 //
 
@@ -184,16 +184,16 @@ void  GsfElectronAlgo::run(Event& e, GsfElectronCollection & outEle) {
 
   std::ostringstream str;
 
-  str << "========== GsfElectronAlgo Info ==========";
-  str << "Event " << e.id();
-  str << "Number of final electron tracks: " << tracksH.product()->size();
-  str << "Number of final electrons: " << outEle.size();
+  str << "\n========== GsfElectronAlgo Info ==========";
+  str << "\nEvent " << e.id();
+  str << "\nNumber of final electron tracks: " << tracksH.product()->size();
+  str << "\nNumber of final electrons: " << outEle.size();
   for (vector<GsfElectron>::const_iterator it = outEle.begin(); it != outEle.end(); it++) {
-    str << "New electron with charge, pt, eta, phi : "  << it->charge() << " , " 
+    str << "\nNew electron with charge, pt, eta, phi : "  << it->charge() << " , " 
         << it->pt() << " , " << it->eta() << " , " << it->phi();
   }
  
-  str << "=================================================";
+  str << "\n=================================================";
   LogDebug("GsfElectronAlgo") << str.str();
 
   delete mhbhe_;

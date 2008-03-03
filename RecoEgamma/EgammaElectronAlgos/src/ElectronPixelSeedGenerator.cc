@@ -13,7 +13,7 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: ElectronPixelSeedGenerator.cc,v 1.38 2008/02/21 15:41:52 uberthon Exp $
+// $Id: ElectronPixelSeedGenerator.cc,v 1.42 2008/02/29 13:01:53 uberthon Exp $
 //
 //
 #include "RecoEgamma/EgammaElectronAlgos/interface/PixelHitMatcher.h" 
@@ -43,7 +43,6 @@
 
 #include "TrackingTools/KalmanUpdators/interface/KFUpdator.h"
 #include "TrackingTools/Records/interface/TrackingComponentsRecord.h"
-#include "TrackingTools/DetLayers/interface/NavigationSetter.h"
 #include "TrackingTools/MaterialEffects/interface/PropagatorWithMaterial.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -100,7 +99,6 @@ ElectronPixelSeedGenerator::~ElectronPixelSeedGenerator() {
   delete myMatchPos;
   delete thePropagator;
   delete theUpdator;
-
 }
 
 void ElectronPixelSeedGenerator::setupES(const edm::EventSetup& setup) {
@@ -113,7 +111,7 @@ void ElectronPixelSeedGenerator::setupES(const edm::EventSetup& setup) {
   edm::ESHandle<NavigationSchool> nav;
   setup.get<NavigationSchoolRecord>().get("SimpleNavigationSchool", nav);
   theNavigationSchool = nav.product();
-  NavigationSetter setter(*theNavigationSchool);
+  theSetter=new NavigationSetter(*theNavigationSchool);
 
   edm::ESHandle<MeasurementTracker>    measurementTrackerHandle;
   setup.get<CkfComponentsRecord>().get(measurementTrackerHandle);

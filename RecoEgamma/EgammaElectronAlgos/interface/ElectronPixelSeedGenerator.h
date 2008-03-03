@@ -20,6 +20,7 @@
 
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h"
 #include "TrackingTools/PatternTools/interface/TrajectoryStateUpdator.h"
+#include "TrackingTools/DetLayers/interface/NavigationSetter.h"
 
 #include "RecoTracker/TransientTrackingRecHit/interface/TSiPixelRecHit.h"
 #include "RecoTracker/TkDetLayers/interface/GeometricSearchTracker.h"
@@ -77,6 +78,7 @@ class ElectronPixelSeedGenerator: public ElectronSeedGenerator
 
   const MeasurementTracker*     theMeasurementTracker;
   const NavigationSchool*       theNavigationSchool;
+  const NavigationSetter*       theSetter;
 
   const edm::EventSetup *theSetup; 
   TrajectoryStateTransform transformer_; 
