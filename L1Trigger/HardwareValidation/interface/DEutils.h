@@ -77,6 +77,11 @@ DEutils<EcalTrigPrimDigiCollection>::DEDigi(col_cit itd,  col_cit itm, int aflag
   int de = (aflag==4)?0:itd->compressedEt() ;
   int ee = (aflag==3)?0:itm->compressedEt() ;
   digi.setRank((float)de,(float)ee);
+  L1MonitorDigi dedata(dedefs::ETP,cid, itd->id().iphi(),itd->id().ieta(),0, 
+		       itd->compressedEt(),itd->id().rawId());
+  L1MonitorDigi deemul(dedefs::ETP,cid, itm->id().iphi(),itm->id().ieta(),0, 
+		       itm->compressedEt(),itm->id().rawId());
+  digi.setDEpair(dedata,deemul);
   return digi;
 }
 
