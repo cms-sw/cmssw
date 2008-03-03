@@ -309,7 +309,8 @@ void Hector::filterFP420(){
 	if(m_verbosity) cout << "=== Hector:filterFP420:  isStopped=" << (*m_isStoppedfp420.find(line)).second <<  endl;
 	
 	if (!is_stop) {
-	  part->propagate( m_rpp420_f );
+	  if ( direction == 1 ) part->propagate( m_rpp420_f );
+	  if ( direction == -1 ) part->propagate( m_rpp420_b );
 	  x1_420 = part->getX();
 	  y1_420 = part->getY();
 	  if(m_verbosity) cout << "=== Hector:filterFP420: x=  "<< x1_420 <<" y= " << y1_420 << endl;
@@ -534,8 +535,7 @@ HepMC::GenEvent * Hector::addPartToHepMC( HepMC::GenEvent * evt ){
 	fi     = std::atan2(tx,ty); // tx, ty never == 0?
 	energy = (*m_eAtTrPoint.find(line)).second;
 	
-	HepMC::GenEvent::vertex_iterator v_it;
-	
+	//	HepMC::GenEvent::vertex_iterator v_it;
 	//	time   = ( *evt->vertices_begin() )->position().t(); // does time important?
 	//long double time_buf = 0;
 	//for (v_it = evt->vertices_begin(); v_it != evt->vertices_end(); ++v_it)  { // since no operator--
@@ -575,14 +575,14 @@ HepMC::GenEvent * Hector::addPartToHepMC( HepMC::GenEvent * evt ){
                                                           gpart->pdg_id(), 1, gpart->flow() ) );
           evt->add_vertex( vert );
 	  
+	if(m_verbosity) std::cout << "Hector::TRANSPORTED pz= "<< gpart->momentum().pz()  << " eta= "<< gpart->momentum().eta()  << " status= "<< gpart->status()  <<std::endl;
 	  
 	  
 	}// ddd
       }// if gpart
     }// if !isStopped
-
+    
     else {
-      /*
       gpart = evt->barcode_to_particle( line );
       if ( gpart ) {
 	HepMC::GenVertex * vert= new HepMC::GenVertex();
@@ -590,9 +590,10 @@ HepMC::GenEvent * Hector::addPartToHepMC( HepMC::GenEvent * evt ){
 	vert->add_particle_in( gpart );
 	vert->add_particle_out( gpart );
 	evt->add_vertex( vert );
+	if(m_verbosity) std::cout << "Hector::NON-transp. pz= "<< gpart->momentum().pz()  << " eta= "<< gpart->momentum().eta()  << " status= "<< gpart->status()  <<std::endl;
       }
-*/
     }
+
   }//for 
   //  cout << "=== Hector:addPartToHepMC: end " << endl;
   
