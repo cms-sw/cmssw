@@ -3,7 +3,7 @@
 #include "DataFormats/L1CSCTrackFinder/interface/L1CSCTrackCollection.h"
 
 CSCTFanalyzer::CSCTFanalyzer(edm::ParameterSet const& pset):edm::EDAnalyzer(){
-	trackProducer = pset.getUntrackedParameter<edm::InputTag>("trackProducer",edm::InputTag("l1csctracks"));
+	trackProducer = pset.getUntrackedParameter<edm::InputTag>("trackProducer",edm::InputTag("csctfTrackDigis"));
 	lctProducer   = pset.getUntrackedParameter<edm::InputTag>("cscTriggerPrimitiveDigis",edm::InputTag("cscTriggerPrimitiveDigis"));
 	file = new TFile("qwe.root","RECREATE");
 	tree = new TTree("dy","QWE");
