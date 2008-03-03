@@ -1,5 +1,5 @@
 //
-// $Id: PATMuonProducer.cc,v 1.7 2008/02/13 18:06:58 adamwo Exp $
+// $Id: PATMuonProducer.cc,v 1.8 2008/02/28 15:34:10 llista Exp $
 //
 
 #include "PhysicsTools/PatAlgos/interface/PATMuonProducer.h"
@@ -9,7 +9,7 @@
 
 #include "DataFormats/HepMCCandidate/interface/GenParticleCandidate.h"
 #include "PhysicsTools/Utilities/interface/DeltaR.h"
-#include "DataFormats/MuonReco/interface/MuIsoDeposit.h"
+#include "DataFormats/RecoCandidate/interface/IsoDeposit.h"
 #include "DataFormats/MuonReco/interface/Muon.h"
 #include "DataFormats/MuonReco/interface/MuonFwd.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticleFwd.h"
