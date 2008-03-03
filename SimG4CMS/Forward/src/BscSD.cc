@@ -43,57 +43,57 @@
 #define debug
 //-------------------------------------------------------------------
 BscSD::BscSD(std::string name, const DDCompactView & cpv,
-		 SensitiveDetectorCatalog & clg, 
-		 edm::ParameterSet const & p, const SimTrackManager* manager) :
+	     SensitiveDetectorCatalog & clg, 
+	     edm::ParameterSet const & p, const SimTrackManager* manager) :
   SensitiveTkDetector(name, cpv, clg, p), numberingScheme(0), name(name),
   hcID(-1), theHC(0), theManager(manager), currentHit(0), theTrack(0), 
   currentPV(0), unitID(0),  previousUnitID(0), preStepPoint(0), 
   postStepPoint(0), eventno(0){
     
-    //Add Bsc Sentitive Detector Name
-    collectionName.insert(name);
+  //Add Bsc Sentitive Detector Name
+  collectionName.insert(name);
     
     
-    //Parameters
-      edm::ParameterSet m_p = p.getParameter<edm::ParameterSet>("BscSD");
-       int verbn = m_p.getUntrackedParameter<int>("Verbosity");
-    //int verbn = 1;
+  //Parameters
+  edm::ParameterSet m_p = p.getParameter<edm::ParameterSet>("BscSD");
+  int verbn = m_p.getUntrackedParameter<int>("Verbosity");
+  //int verbn = 1;
     
-    SetVerboseLevel(verbn);
-    LogDebug("BscSim") 
-      << "*******************************************************\n"
-      << "*                                                     *\n"
-      << "* Constructing a BscSD  with name " << name << "\n"
-      << "*                                                     *\n"
-      << "*******************************************************";
+  SetVerboseLevel(verbn);
+  LogDebug("BscSim") 
+    << "*******************************************************\n"
+    << "*                                                     *\n"
+    << "* Constructing a BscSD  with name " << name << "\n"
+    << "*                                                     *\n"
+    << "*******************************************************";
     
     
-    slave  = new TrackingSlaveSD(name);
+  slave  = new TrackingSlaveSD(name);
     
-    //
-    // attach detectors (LogicalVolumes)
-    //
-    std::vector<std::string> lvNames = clg.logicalNames(name);
+  //
+  // attach detectors (LogicalVolumes)
+  //
+  std::vector<std::string> lvNames = clg.logicalNames(name);
 
-    this->Register();
+  this->Register();
 
-    for (std::vector<std::string>::iterator it=lvNames.begin();  
-	 it !=lvNames.end(); it++) {
-      this->AssignSD(*it);
-      edm::LogInfo("BscSim") << "BscSD : Assigns SD to LV " << (*it);
-    }
-    
-    if      (name == "BSCHits") {
-      if (verbn > 0) {
-      edm::LogInfo("BscSim") << "name = BSCHits and  new BscNumberingSchem";
-      }
-      numberingScheme = new BscNumberingScheme() ;
-    } else {
-      edm::LogWarning("BscSim") << "BscSD: ReadoutName "<<name<<" not supported";
-    }
-    
-    edm::LogInfo("BscSim") << "BscSD: Instantiation completed";
+  for (std::vector<std::string>::iterator it=lvNames.begin();  
+       it !=lvNames.end(); it++) {
+    this->AssignSD(*it);
+    edm::LogInfo("BscSim") << "BscSD : Assigns SD to LV " << (*it);
   }
+    
+  if      (name == "BSCHits") {
+    if (verbn > 0) {
+      edm::LogInfo("BscSim") << "name = BSCHits and  new BscNumberingSchem";
+    }
+    numberingScheme = new BscNumberingScheme() ;
+  } else {
+    edm::LogWarning("BscSim") << "BscSD: ReadoutName "<<name<<" not supported";
+  }
+  
+  edm::LogInfo("BscSim") << "BscSD: Instantiation completed";
+}
 
 
 
@@ -113,7 +113,7 @@ double BscSD::getEnergyDeposit(G4Step* aStep) {
 
 void BscSD::Initialize(G4HCofThisEvent * HCE) { 
 #ifdef debug
-    LogDebug("BscSim") << "BscSD : Initialize called for " << name << std::endl;
+  LogDebug("BscSim") << "BscSD : Initialize called for " << name << std::endl;
 #endif
 
   theHC = new BscG4HitCollection(name, collectionName[0]);
@@ -134,19 +134,19 @@ bool BscSD::ProcessHits(G4Step * aStep, G4TouchableHistory * ) {
     return true;
   } else {
     GetStepInfo(aStep);
-  //   LogDebug("BscSim") << edeposit <<std::endl;
+    //   LogDebug("BscSim") << edeposit <<std::endl;
 
     //AZ
 #ifdef debug
-  LogDebug("BscSim") << "BscSD :  number of hits = " << theHC->entries() << std::endl;
+    LogDebug("BscSim") << "BscSD :  number of hits = " << theHC->entries() << std::endl;
 #endif
 
     if (HitExists() == false && edeposit>0. &&  theHC->entries()< 100 ){ 
       CreateNewHit();
-    return true;
+      return true;
     }
   }
-    return true;
+  return true;
 } 
 
 void BscSD::GetStepInfo(G4Step* aStep) {
@@ -212,7 +212,7 @@ G4bool BscSD::HitExists() {
   // Update if in the same detector, time-slice and for same track   
   //  if (primaryID == primID && tSliceID == tsID && unitID==previousUnitID) {
   if (tSliceID == tsID && unitID==previousUnitID) {
-  //AZ:
+    //AZ:
     UpdateHit();
     return true;
   }
@@ -232,14 +232,14 @@ G4bool BscSD::HitExists() {
     if (aPreviousHit->getTrackID()     == primaryID &&
 	aPreviousHit->getTimeSliceID() == tSliceID  &&
 	aPreviousHit->getUnitID()      == unitID       ) {
-  //AZ:
+      //AZ:
       currentHit = aPreviousHit;
       found      = true;
     }
   }          
 
   if (found) {
-  //AZ:
+    //AZ:
     UpdateHit();
     return true;
   } else {
@@ -273,13 +273,13 @@ void BscSD::CreateNewHit() {
 
 #ifdef debug
   LogDebug("BscSim") << "BscSD CreateNewHit for"
-       << " PV "     << currentPV->GetName()
-       << " PVid = " << currentPV->GetCopyNo()
-       << " Unit "   << unitID <<std::endl;
+		     << " PV "     << currentPV->GetName()
+		     << " PVid = " << currentPV->GetCopyNo()
+		     << " Unit "   << unitID <<std::endl;
   LogDebug("BscSim") << " primary "    << primaryID
-       << " time slice " << tSliceID 
-       << " For Track  " << theTrack->GetTrackID()
-       << " which is a " << theTrack->GetDefinition()->GetParticleName();
+		     << " time slice " << tSliceID 
+		     << " For Track  " << theTrack->GetTrackID()
+		     << " which is a " << theTrack->GetDefinition()->GetParticleName();
 	   
   if (theTrack->GetTrackID()==1) {
     LogDebug("BscSim") << " of energy "     << theTrack->GetTotalEnergy();
@@ -333,15 +333,15 @@ void BscSD::CreateNewHit() {
 void BscSD::UpdateHit() {
   //
   if (Eloss > 0.) {
-  currentHit->addEnergyDeposit(edepositEM,edepositHAD);
+    currentHit->addEnergyDeposit(edepositEM,edepositHAD);
 
 #ifdef debug
     LogDebug("BscSim") << "updateHit: add eloss " << Eloss <<std::endl;
     LogDebug("BscSim") << "CurrentHit=" << currentHit
-         << ", PostStepPoint=" << postStepPoint->GetPosition() << std::endl;
+		       << ", PostStepPoint=" << postStepPoint->GetPosition();
 #endif
     //AZ
-        currentHit->setEnergyLoss(Eloss);
+    currentHit->setEnergyLoss(Eloss);
   }  
 
 
@@ -377,41 +377,41 @@ void BscSD::EndOfEvent(G4HCofThisEvent* ) {
   }
   for (int j=0; j<theHC->entries() && j<100; j++) {
     //AZ:
-              BscG4Hit* aHit = (*theHC)[j];
+    BscG4Hit* aHit = (*theHC)[j];
     LogDebug("BscSim") << "hit number" << j << "unit ID = "<<aHit->getUnitID()<< "\n";
     LogDebug("BscSim") << "entry z " << aHit->getEntry().z()<< "\n";
     LogDebug("BscSim") << "entr theta " << aHit->getThetaAtEntry()<< "\n";
 
     Local3DPoint locExitPoint(0,0,0);
     Local3DPoint locEntryPoint(aHit->getEntry().x(),
-			 aHit->getEntry().y(),
-			 aHit->getEntry().z());
+			       aHit->getEntry().y(),
+			       aHit->getEntry().z());
     slave->processHits(PSimHit(locEntryPoint,locExitPoint,
-				  aHit->getPabs(),
-				  aHit->getTof(),
-				  aHit->getEnergyLoss(),
-				  aHit->getParticleType(),
-				  aHit->getUnitID(),
-				  aHit->getTrackID(),
-				  aHit->getThetaAtEntry(),
-				  aHit->getPhiAtEntry()));
+			       aHit->getPabs(),
+			       aHit->getTof(),
+			       aHit->getEnergyLoss(),
+			       aHit->getParticleType(),
+			       aHit->getUnitID(),
+			       aHit->getTrackID(),
+			       aHit->getThetaAtEntry(),
+			       aHit->getPhiAtEntry()));
 
-				  /*
-				  aHit->getEM(),
-				  aHit->getHadr(),
-				  aHit->getIncidentEnergy(),
-				  aHit->getTimeSlice(),
-				  aHit->getEntry(),
-				  aHit->getEntryLocalP(),
-				  aHit->getExitLocalP(),
-				  aHit->getParentId(),
-				  aHit->getX(), 
-				  aHit->getY(), 
-				  aHit->getZ(), 
-				  aHit->getVx(), 
-				  aHit->getVy(), 
-				  aHit->getVz() 
-*/
+    /*
+      aHit->getEM(),
+      aHit->getHadr(),
+      aHit->getIncidentEnergy(),
+      aHit->getTimeSlice(),
+      aHit->getEntry(),
+      aHit->getEntryLocalP(),
+      aHit->getExitLocalP(),
+      aHit->getParentId(),
+      aHit->getX(), 
+      aHit->getY(), 
+      aHit->getZ(), 
+      aHit->getVx(), 
+      aHit->getVy(), 
+      aHit->getVz() 
+    */
   }
   Summarize();
 }
@@ -461,7 +461,7 @@ void BscSD::update (const ::EndOfEvent*) {
 
 void BscSD::clearHits(){
   //AZ:
-    slave->Initialize();
+  slave->Initialize();
 }
 
 std::vector<std::string> BscSD::getNames(){
