@@ -1,5 +1,5 @@
 //
-// $Id: PATJetProducer.cc,v 1.13 2008/02/28 15:34:10 llista Exp $
+// $Id: PATJetProducer.cc,v 1.16 2008/03/03 19:50:45 lowette Exp $
 //
 
 #include "PhysicsTools/PatAlgos/interface/PATJetProducer.h"
@@ -12,11 +12,13 @@
 
 #include "JetMETCorrections/Objects/interface/JetCorrector.h"
 #include "DataFormats/BTauReco/interface/JetTag.h"
-//#include "DataFormats/BTauReco/interface/TrackProbabilityTagInfo.h"
+#include "DataFormats/BTauReco/interface/TrackProbabilityTagInfo.h"
 //#include "DataFormats/BTauReco/interface/TrackProbabilityTagInfoFwd.h"
-//#include "DataFormats/BTauReco/interface/TrackCountingTagInfo.h"
+#include "DataFormats/BTauReco/interface/TrackIPTagInfo.h"
+#include "DataFormats/BTauReco/interface/TrackCountingTagInfo.h"
+#include "DataFormats/BTauReco/interface/SecondaryVertexTagInfo.h"
 //#include "DataFormats/BTauReco/interface/TrackCountingTagInfoFwd.h"
-//#include "DataFormats/BTauReco/interface/SoftLeptonTagInfo.h"
+#include "DataFormats/BTauReco/interface/SoftLeptonTagInfo.h"
 //#include "DataFormats/BTauReco/interface/SoftLeptonTagInfoFwd.h"
 #include "DataFormats/Candidate/interface/CandMatchMap.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticleFwd.h"
