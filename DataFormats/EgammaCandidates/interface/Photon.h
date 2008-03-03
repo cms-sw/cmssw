@@ -6,7 +6,7 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: Photon.h,v 1.16 2007/12/10 18:24:07 nancy Exp $
+ * \version $Id: Photon.h,v 1.17 2007/12/10 20:59:34 futyand Exp $
  *
  */
 #include "DataFormats/RecoCandidate/interface/RecoCandidate.h"
@@ -22,7 +22,7 @@ namespace reco {
     /// default constructor
     Photon() : RecoCandidate() { }
     /// constructor from values
-    Photon( Charge q, const LorentzVector & p4, Point unconvPos, 
+    Photon( const LorentzVector & p4, Point unconvPos, 
 	    const SuperClusterRef scl,  const ClusterShapeRef shp, double HoE,
 	    bool hasPixelSeed=false, const Point & vtx = Point( 0, 0, 0 ) );
     /// destructor
