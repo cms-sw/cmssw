@@ -105,15 +105,15 @@ class HybridClusterAlgo
   //The real constructor
   HybridClusterAlgo(double eb_str, 
 		    int step,
-		    double ethres,
-		    double eThresA,
-                    double eThresB,
 		    double eseed,
 		    double ewing,
+                    double ethres,
                     const PositionCalc& posCalculator,
-                    const edm::ParameterSet &bremRecoveryPset,
-                    bool dynamicPhiRoad = false,
+//                    bool dynamicPhiRoad = false,
 		    bool dynamicEThres = false,
+                    double eThresA = 0,
+                    double eThresB = 0.1,
+//                    const edm::ParameterSet &bremRecoveryPset,
 		    DebugLevel debugLevel = pINFO);
 
   // destructor
@@ -122,6 +122,12 @@ class HybridClusterAlgo
      if (dynamicPhiRoad_) delete phiRoadAlgo_;
      //     delete SCShape_;
   } 
+
+  void setDynamicPhiRoad(const edm::ParameterSet &bremRecoveryPset)
+  {
+     dynamicPhiRoad_ = true;
+     phiRoadAlgo_ = new BremRecoveryPhiRoadAlgo(bremRecoveryPset);
+  }
 
   //Hand over the map, the geometry, and I'll hand you back clusters.
   void makeClusters(const EcalRecHitCollection*,

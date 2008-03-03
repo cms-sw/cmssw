@@ -11,20 +11,20 @@
 //The real constructor
 HybridClusterAlgo::HybridClusterAlgo(double eb_str, 
 				     int step, 
-				     double ethres,
-                                     double eThresA,
-                                     double eThresB,
 				     double eseed,
 				     double ewing,
+                                     double ethres,
 				     const PositionCalc& posCalculator,
- 				     const edm::ParameterSet &bremRecoveryPset,
-				     bool dynamicPhiRoad,
+//				     bool dynamicPhiRoad,
 				     bool dynamicEThres,
+                                     double eThresA,
+                                     double eThresB,
+     //                                const edm::ParameterSet &bremRecoveryPset,
 				     DebugLevel debugLevel) :
    eb_st(eb_str), phiSteps_(step), 
    eThres_(ethres), eThresA_(eThresA), eThresB_(eThresB),
    Eseed(eseed),  Ewing(ewing), 
-   dynamicPhiRoad_(dynamicPhiRoad), dynamicEThres_(dynamicEThres), debugLevel_(debugLevel)
+   dynamicEThres_(dynamicEThres), debugLevel_(debugLevel)
 {
 
   if ( debugLevel_ == pDEBUG ) {
@@ -32,7 +32,7 @@ HybridClusterAlgo::HybridClusterAlgo(double eb_str,
     //          << " : A,B " << eThresA_ << ", " << eThresB_ << std::endl;
   }
 
-   if (dynamicPhiRoad_) phiRoadAlgo_ = new BremRecoveryPhiRoadAlgo(bremRecoveryPset);
+   //if (dynamicPhiRoad_) phiRoadAlgo_ = new BremRecoveryPhiRoadAlgo(bremRecoveryPset);
    posCalculator_ = posCalculator;
 }
 

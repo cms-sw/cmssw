@@ -58,28 +58,30 @@ HybridClusterProducer::HybridClusterProducer(const edm::ParameterSet& ps)
   providedParameters.insert(std::make_pair("W0",ps.getParameter<double>("posCalc_w0")));
   providedParameters.insert(std::make_pair("X0",ps.getParameter<double>("posCalc_x0")));
 
-  // get brem recovery parameters
-  edm::ParameterSet bremRecoveryPset;
-  bool dynamicPhiRoad = ps.getParameter<bool>("dynamicPhiRoad");
-  if (dynamicPhiRoad) {
-     bremRecoveryPset = ps.getParameter<edm::ParameterSet>("bremRecoveryPset");
-  }
-
   posCalculator_ = PositionCalc(providedParameters);
   shapeAlgo_ = ClusterShapeAlgo(providedParameters);
 
   hybrid_p = new HybridClusterAlgo(ps.getParameter<double>("HybridBarrelSeedThr"), 
                                    ps.getParameter<int>("step"),
-                                   ps.getParameter<double>("ethresh"),
-				   ps.getParameter<double>("eThreshA"),
-				   ps.getParameter<double>("eThreshB"),
                                    ps.getParameter<double>("eseed"),
                                    ps.getParameter<double>("ewing"),
+                                   ps.getParameter<double>("ethresh"),
                                    posCalculator_,
-				   bremRecoveryPset,
-                                   dynamicPhiRoad,
+                                   //dynamicPhiRoad,
 			           ps.getParameter<bool>("dynamicEThresh"),
+                                   ps.getParameter<double>("eThreshA"),
+                                   ps.getParameter<double>("eThreshB"),
+                                   //bremRecoveryPset,
                                    debugL);
+
+
+  // get brem recovery parameters
+  bool dynamicPhiRoad = ps.getParameter<bool>("dynamicPhiRoad");
+  if (dynamicPhiRoad) {
+     edm::ParameterSet bremRecoveryPset = ps.getParameter<edm::ParameterSet>("bremRecoveryPset");
+     hybrid_p->setDynamicPhiRoad(bremRecoveryPset);
+  }
+
 
   clustershapecollection_ = ps.getParameter<std::string>("clustershapecollection");
   clusterShapeAssociation_ = ps.getParameter<std::string>("shapeAssociation");
