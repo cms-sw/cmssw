@@ -1,6 +1,6 @@
 /*
- *  $Date: 2007/11/28 16:30:39 $
- *  $Revision: 1.11 $
+ *  $Date: 2008/01/22 20:57:23 $
+ *  $Revision: 1.12 $
  *  
  *  Filip Moorgat & Hector Naves 
  *  26/10/05
@@ -215,6 +215,21 @@ bool AlpgenSource::produce(Event & e) {
     evt->set_signal_process_id(pypars.msti[0]);
     evt->set_event_number(numberEventsInRun() - remainingEvents() - 1);
     
+    int id1 = pyint1.mint[14];
+    int id2 = pyint1.mint[15];
+    if ( id1 == 21 ) id1 = 0;
+    if ( id2 == 21 ) id2 = 0; 
+    double x1 = pyint1.vint[40];
+    double x2 = pyint1.vint[41];  
+    double Q  = pyint1.vint[50];
+    double pdf1 = pyint1.vint[38];
+    pdf1 /= x1 ;
+    double pdf2 = pyint1.vint[39];
+    pdf2 /= x2 ;
+    evt->set_pdf_info( HepMC::PdfInfo(id1,id2,x1,x2,Q,pdf1,pdf2) ) ;
+    
+    evt->weights().push_back( pyint1.vint[96] );
+
     //******** Verbosity ********
     
     if(event() <= maxEventsToPrint_ &&
