@@ -10,12 +10,10 @@
 #include "DQM/SiPixelMonitorClient/interface/SiPixelEDAClient.h"
 #include "DQM/SiPixelMonitorClient/interface/ANSIColors.h"
 #include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DQMServices/WebComponents/interface/CgiReader.h"
 #include "FWCore/ParameterSet/interface/FileInPath.h"
 
-#include "TClass.h"
 #include "TText.h"
 #include "TROOT.h"
 #include "TPad.h"
@@ -41,6 +39,7 @@
 #include <math.h>
 
 #include <cstdlib> // for free() - Root can allocate with malloc() - sigh...
+#include "DQMServices/Core/interface/MonitorElement.h"
  
 using namespace std;
 
@@ -121,9 +120,8 @@ void SiPixelInformationExtractor::fillBarrelList(DQMStore* bei,
 	   im != contents.end(); im++) {
         string sname = (*iv);
         string tname = sname.substr(8,(sname.find("_",8)-8)) + "_";
-	if (((*im)).find(tname) == 0) {
-	  string fullpathname = bei->pwd() + "/" + (*im); 
-          getModuleME(bei, fullpathname);                       
+	if (((*im)).find(tname) != string::npos) {
+          getModuleME(bei,(*im));                       
 	}
       }
     }
@@ -160,9 +158,8 @@ void SiPixelInformationExtractor::fillEndcapList(DQMStore* bei,
 	   im != contents.end(); im++) {
         string sname = (*iv);
         string tname = sname.substr(8,(sname.find("_",8)-8)) + "_";
-	if (((*im)).find(tname) == 0) {
-	  string fullpathname = bei->pwd() + "/" + (*im); 
-          getModuleME(bei, fullpathname);                        
+	if (((*im)).find(tname) != string::npos) {
+          getModuleME(bei,(*im));                        
 	}
       }
     }
@@ -196,13 +193,22 @@ MonitorElement* SiPixelInformationExtractor::getModuleME(DQMStore* bei,
    
   for (vector<string>::const_iterator it = contents.begin();
        it != contents.end(); it++) {
-    if ((*it).find(me_name) == 0) {
-      string fullpathname = bei->pwd() + "/" + (*it); 
+    if ((*it).find(me_name) != string::npos) {
 
-      me = bei->get(fullpathname);
+      me = bei->get((*it));
       
       if (me) {
-	me->Reset();
+	TObject * root_obh1 = me->getRootObject();
+	if (root_obh1) {
+	  QString type = root_obh1->GetName();
+	  if(type.contains("TH1") > 0) {
+	    (me->getTH1F())->Reset();
+	  }else if(type.contains("TH2") > 0) {
+	    (me->getTH2F())->Reset();
+	  }else if(type.contains("TH3") > 0) {
+	    (me->getTH3F())->Reset();
+          }
+	}
 	return me;
       }
     }
@@ -258,13 +264,14 @@ void SiPixelInformationExtractor::selectSingleModuleHistos(DQMStore   * bei,
 	{
 	  theME = *it ;
           string temp_s ; 
+//cout<<"REGEXP:"<<(*it)<<" , "<<rx.search(theME);
           if( rx.search(theME) != -1 ) { temp_s = rx.cap(1).latin1() ; }
+//cout<<" , "<<temp_s;
+//cout<<endl;
 	  if (temp_s == (*ih)) 
 	  {
-	    string full_path = currDir + "/" + (*it);
-	    //cout<<"full_path="<<full_path<<endl;
 
-	    MonitorElement * me = bei->get(full_path.c_str());
+	    MonitorElement * me = bei->get((*it));
 	    
 	    if (me) 
 	    {
@@ -378,14 +385,31 @@ void SiPixelInformationExtractor::plotTkMapHisto(DQMStore * bei,
 //
 std::string  SiPixelInformationExtractor::getMEType(MonitorElement * theMe)
 {
-  QString qtype = theMe->getRootObject()->IsA()->GetName() ;
-  if(         qtype.contains("TH1") > 0 )
+  TObject * histogramObj = theMe->getRootObject();
+  if(histogramObj) 
   {
-    return "TH1" ;
-  } else if ( qtype.contains("TH2") > 0  ) {
-    return "TH2" ;
-  } else if ( qtype.contains("TH3") > 0 ) {
-    return "TH3" ;
+    QString qtype = histogramObj->GetName() ;
+    if(         qtype.contains("TH1") > 0 )
+    {
+     return "TH1" ;
+    } else if ( qtype.contains("TH2") > 0  ) {
+     return "TH2" ;
+    } else if ( qtype.contains("TH3") > 0 ) {
+     return "TH3" ;
+    }
+    
+  } else {
+   cout << ACYellow << ACBold 
+   	<< "[SiPixelInformationExtractor::getMEType()] "
+   	<< ACRed << ACBold << ACReverse
+   	<< "WARNING:"
+   	<< ACPlain 
+	<< " Could not dynamic_cast "
+	<< ACCyan
+   	<< theMe->getName()
+	<< " to TNamed"
+	<< ACPlain
+   	<< endl ;
   }
   return "TH1" ;
 }
@@ -433,142 +457,150 @@ void SiPixelInformationExtractor::plotHisto(DQMStore * bei,
   paveOnCanvas->SetFillColor(0);
   
 
-  string opt = "" ;
-  QString type = theMe->getRootObject()->IsA()->GetName() ;
-  if(         type.contains("TH1") > 0 )
+  TObject * histogramObj = theMe->getRootObject();
+  if(histogramObj) 
   {
-    opt = "" ;
-  } else if ( type.contains("TH2") > 0  ) {
-    opt = "COLZ" ;
-  } else if ( type.contains("TH3") > 0 ) {
-    opt = "" ;
-  }
-  theMe->getRootObject()->Draw(opt.c_str());
-
-  int istat =  SiPixelUtility::getStatus(theMe);
-	
-  TH1F* histoME = theMe->getTH1F();
-  string var = theMEName.substr(theMEName.find_last_of("/")+1);
-
-  //add reference histos here:
-  if (!readReference_) {
-    string localPath = string("DQM/SiPixelMonitorClient/scripts/Reference.root");
-    bei->open(edm::FileInPath(localPath).fullPath(), false, "", "Reference");
-    readReference_ = true;
-  }	
-  std::string refMEName = "Reference/" + theMEName;
-  MonitorElement * refMe = bei->get(refMEName);
-  if(refMe){
-    TH1 * hist1_ref = refMe->getTH1();
-    if(hist1_ref && histoME && histoME->GetEntries()>0){
-      hist1_ref->SetLineColor(4); //blue
-      hist1_ref->SetTitle("reference");
-      histoME->SetLineColor(1); //black
-      histoME->Draw();
-      hist1_ref->Draw("same"); 
-      //hist1_ref->DrawNormalized("same", histoME->GetEntries()); // entries are just
-      //number of modules in the summary histos, so that won't work as normalization!
-	
-      //hist1_ref->DrawNormalized("same", histoME->GetMean(2));
-      //hist1_ref->SetLineColor(3); //blue
-      //hist1_ref->DrawNormalized("same", histoME->GetEntries()); 
-      //hist1_ref->SetLineColor(2); //blue
-      //hist1_ref->DrawNormalized("same", histoME->GetMean(2)*histoME->GetEntries()); 
-      
-      //hist1_ref->Draw();
+    string opt = "" ;
+    QString type = histogramObj->GetName() ;
+    TH1F * histoME;
+    if(         type.contains("TH1") > 0 ) {
+     opt = "" ;
+     histoME = theMe->getTH1F();
+    } else if ( type.contains("TH2") > 0  ) {
+     opt = "COLZ" ;
+    } else if ( type.contains("TH3") > 0 ) {
+     opt = "" ;
     }
-  }
-    
-    
-  if(istat!=0){
-    string tag;
-    int icol;
-    SiPixelUtility::getStatusColor(istat, icol, tag);
-      
-    TText* statusOnCanvas = paveOnCanvas->AddText(tag.c_str());
-    statusOnCanvas->SetTextSize(0.08);
-    statusOnCanvas->SetTextFont(112);
-    statusOnCanvas->SetNDC(kTRUE);
-    statusOnCanvas->SetTextColor(icol);
-      
-    double ymax = -1.;  
-    double ymin = -1.;
-    double xmax = -1.;  
-    double xmin = -1.;
-    double warning = -1.;
-    double error = -1.;
-    double channelFraction = -1.;
-    //if(var.find("SUM") != string::npos){
-    //cout << "ME name: " << var << endl;
-    setLines(theMe,var,ymin,ymax,warning,error,channelFraction);
-    //cout << "ymin: " << ymin << " ymax: " << ymax << " warning: " << warning << " error: " << error << " channelFraction: " << channelFraction << endl;
+    histogramObj->Draw(opt.c_str());
+
+    int istat =  SiPixelUtility::getStatus(theMe);
 	
-    if(istat!=dqm::qstatus::STATUS_OK){
-      string textMessage = "fraction of channels failing:";
-      TText* messageOnCanvas = paveOnCanvas->AddText(textMessage.c_str());
-      messageOnCanvas->SetTextSize(0.03);
-      messageOnCanvas->SetNDC(kTRUE);
-      char text[10];
-      sprintf(text,"%.2f %%",channelFraction);
-      messageOnCanvas = paveOnCanvas->AddText(text);
-      messageOnCanvas->SetTextSize(0.035);
-      messageOnCanvas->SetNDC(kTRUE);
-      /*char newtext1[25];
-	sprintf(newtext1,"(warning level: %.0f %%)",warning);
-	messageOnCanvas = paveOnCanvas->AddText(newtext1);
-	messageOnCanvas->SetTextSize(0.025);
-	messageOnCanvas->SetNDC(kTRUE);
-	char newtext2[25];
-	sprintf(newtext2,"(error level: %.0f %%)",error);
-	messageOnCanvas = paveOnCanvas->AddText(newtext2);
-	messageOnCanvas->SetTextSize(0.025);
-	messageOnCanvas->SetNDC(kTRUE);
-      */
-    }
-    if(ymin!= -1. && ymax!=-1.){
-      SiPixelUtility::setDrawingOption(histoME);
-      l_min->SetLineColor(icol);
-      l_max->SetLineColor(icol);
-      if(var.find("SUM") != string::npos){	  
-	xmin = histoME->GetXaxis()->GetXmin();
-	xmax = histoME->GetXaxis()->GetXmax(); 
-	//cout<<"xmin="<<xmin<<" , xmax="<<xmax<<" , ymin="<<ymin<<" , ymax="<<ymax<<endl;
-	l_min->SetX1(xmin);
-	l_min->SetX2(xmax);
-	l_min->SetY1(ymin);
-	l_min->SetY2(ymin);
-	l_min->Draw("same");
-	l_max->SetX1(xmin);
-	l_max->SetX2(xmax);
-	l_max->SetY1(ymax);
-	l_max->SetY2(ymax);
-	l_max->Draw("same");
-      }else{
-	xmin = ymin;
-	xmax = ymax;
-	ymin = histoME->GetYaxis()->GetBinLowEdge(1);
-	ymax = histoME->GetMaximum();
-	//cout<<"xmin="<<xmin<<" , xmax="<<xmax<<" , ymin="<<ymin<<" , ymax="<<ymax<<endl;
-	l_min->SetX1(xmin);
-	l_min->SetX2(xmin);
-	l_min->SetY1(ymin);
-	l_min->SetY2(ymax);
-	l_min->Draw("same");
-	l_max->SetX1(xmax);
-	l_max->SetX2(xmax);
-	l_max->SetY1(ymin);
-	l_max->SetY2(ymax);
-	l_max->Draw("same");
+    string var = theMEName.substr(theMEName.find_last_of("/")+1);
+
+    //add reference histos here:
+    if (!readReference_) {
+      string localPath = string("DQM/SiPixelMonitorClient/scripts/Reference.root");
+      bei->open(edm::FileInPath(localPath).fullPath(), false, "", "Reference");
+      readReference_ = true;
+    }	
+    std::string refMEName = "Reference/" + theMEName;
+    MonitorElement * refMe = bei->get(refMEName);
+    if(refMe){
+      TH1F * hist1_ref = refMe->getTH1F();
+      if(hist1_ref && histoME && histoME->GetEntries()>0){
+        hist1_ref->SetLineColor(4); //blue
+	hist1_ref->SetTitle("reference");
+	histoME->SetLineColor(1); //black
+	histoME->Draw();
+	hist1_ref->Draw("same"); 
+	//hist1_ref->DrawNormalized("same", histoME->GetEntries()); // entries are just
+	//number of modules in the summary histos, so that won't work as normalization!
       }
     }
-    //setSubDetAxisDrawing(theMEName,histoME);
-    //}
-    paveOnCanvas->Draw("same");
-  }
-  if(((var.find("Barrel") != string::npos) && (var.find("SUM") != string::npos)) ||
-     ((var.find("Endcap") != string::npos) && (var.find("SUM") != string::npos))) 
-    setSubDetAxisDrawing(theMEName,histoME);
     
+    
+    if(istat!=0){
+      string tag;
+      int icol;
+      SiPixelUtility::getStatusColor(istat, icol, tag);
+      
+      TText* statusOnCanvas = paveOnCanvas->AddText(tag.c_str());
+      statusOnCanvas->SetTextSize(0.08);
+      statusOnCanvas->SetTextFont(112);
+      statusOnCanvas->SetNDC(kTRUE);
+      statusOnCanvas->SetTextColor(icol);
+      
+      double ymax = -1.;  
+      double ymin = -1.;
+      double xmax = -1.;  
+      double xmin = -1.;
+      double warning = -1.;
+      double error = -1.;
+      double channelFraction = -1.;
+      //if(var.find("SUM") != string::npos){
+	//cout << "ME name: " << var << endl;
+	setLines(theMe,var,ymin,ymax,warning,error,channelFraction);
+	//cout << "ymin: " << ymin << " ymax: " << ymax << " warning: " << warning << " error: " << error << " channelFraction: " << channelFraction << endl;
+	
+	if(istat!=dqm::qstatus::STATUS_OK){
+	  string textMessage = "fraction of channels failing:";
+	  TText* messageOnCanvas = paveOnCanvas->AddText(textMessage.c_str());
+	  messageOnCanvas->SetTextSize(0.03);
+	  messageOnCanvas->SetNDC(kTRUE);
+	  char text[10];
+	  sprintf(text,"%.2f %%",channelFraction);
+	  messageOnCanvas = paveOnCanvas->AddText(text);
+	  messageOnCanvas->SetTextSize(0.035);
+	  messageOnCanvas->SetNDC(kTRUE);
+	  /*char newtext1[25];
+	  sprintf(newtext1,"(warning level: %.0f %%)",warning);
+	  messageOnCanvas = paveOnCanvas->AddText(newtext1);
+	  messageOnCanvas->SetTextSize(0.025);
+	  messageOnCanvas->SetNDC(kTRUE);
+	  char newtext2[25];
+	  sprintf(newtext2,"(error level: %.0f %%)",error);
+	  messageOnCanvas = paveOnCanvas->AddText(newtext2);
+	  messageOnCanvas->SetTextSize(0.025);
+	  messageOnCanvas->SetNDC(kTRUE);
+	  */
+	}
+	if(ymin!= -1. && ymax!=-1.){
+	  SiPixelUtility::setDrawingOption(histoME);
+	  l_min->SetLineColor(icol);
+	  l_max->SetLineColor(icol);
+          if(var.find("SUM") != string::npos){	  
+	    xmin = histoME->GetXaxis()->GetXmin();
+	    xmax = histoME->GetXaxis()->GetXmax(); 
+	    //cout<<"xmin="<<xmin<<" , xmax="<<xmax<<" , ymin="<<ymin<<" , ymax="<<ymax<<endl;
+	    l_min->SetX1(xmin);
+	    l_min->SetX2(xmax);
+	    l_min->SetY1(ymin);
+	    l_min->SetY2(ymin);
+	    l_min->Draw("same");
+	    l_max->SetX1(xmin);
+	    l_max->SetX2(xmax);
+	    l_max->SetY1(ymax);
+	    l_max->SetY2(ymax);
+	    l_max->Draw("same");
+	  }else{
+	    xmin = ymin;
+	    xmax = ymax;
+	    ymin = histoME->GetYaxis()->GetBinLowEdge(1);
+	    ymax = histoME->GetMaximum();
+	    //cout<<"xmin="<<xmin<<" , xmax="<<xmax<<" , ymin="<<ymin<<" , ymax="<<ymax<<endl;
+	    l_min->SetX1(xmin);
+	    l_min->SetX2(xmin);
+	    l_min->SetY1(ymin);
+	    l_min->SetY2(ymax);
+	    l_min->Draw("same");
+	    l_max->SetX1(xmax);
+	    l_max->SetX2(xmax);
+	    l_max->SetY1(ymin);
+	    l_max->SetY2(ymax);
+	    l_max->Draw("same");
+	  }
+	}
+	//setSubDetAxisDrawing(theMEName,histoME);
+      //}
+      paveOnCanvas->Draw("same");
+    }
+    if(((var.find("Barrel") != string::npos) && (var.find("SUM") != string::npos)) ||
+       ((var.find("Endcap") != string::npos) && (var.find("SUM") != string::npos))) 
+      setSubDetAxisDrawing(theMEName,histoME);
+    
+  } else {
+   cout << ACYellow << ACBold 
+   	<< "[SiPixelInformationExtractor::plotHisto()] "
+   	<< ACRed << ACBold << ACReverse
+   	<< "WARNING:"
+   	<< ACPlain 
+	<< " Could not dynamic_cast "
+	<< ACCyan
+   	<< theMEName
+	<< " to TNamed"
+	<< ACPlain
+   	<< endl ;
+  }
   theCanvas->Update();
   fillNamedImageBuffer(theCanvas,theMEName);
 //   cout << ACYellow << ACBold << ACReverse
@@ -739,7 +771,7 @@ void SiPixelInformationExtractor::plotHistos(multimap<string,string>& req_map,
     int icol;
     SiPixelUtility::getStatusColor(istat, icol, tag);
   
-    TObject *ob = (*it) ? (*it)->getRootObject() : 0;
+    TObject * ob = (*it)->getRootObject();
     if (ob) {
 /////      canvas.cd(i);
       canvas_->cd(i);
@@ -839,14 +871,17 @@ void SiPixelInformationExtractor::fillModuleAndHistoList(DQMStore * bei,
 	   it != contents.end(); it++) {
 	string hname          = (*it).substr(0, (*it).find("_siPixel"));
 	if (hname==" ") hname = (*it).substr(0, (*it).find("_ctfWithMaterialTracks"));
-        string fullpathname   = bei->pwd() + "/" + (*it); 
 
-        MonitorElement * me   = bei->get(fullpathname);
+        MonitorElement * me   = bei->get((*it));
 	
         string htype          = "undefined" ;
         if (me) 
 	{
-	 htype = me->getRootObject()->IsA()->GetName() ;
+         TObject * histogramObj = me->getRootObject();
+         if(histogramObj) 
+         {
+          htype = histogramObj->GetName() ;
+	 }
 	}
 	//cout<<"hname="<<hname<<endl;
         histos[hname] = htype ;
@@ -952,7 +987,6 @@ void SiPixelInformationExtractor::printModuleHistoList(DQMStore * bei,
 	      << "            value   = \"" << (*it) << "\""
 	      << "            onclick = \"javascript:IMGC.selectedIMGCItems()\" />\n"
 	      << "     <a href=\"javascript:IMGC.updateIMGC('" << currDir << "')\">\n       " 
-//	      <<        qit << "\n"
 	      <<        (*it) << "\n"
 	      << "     </a>\n"
 	      << "    </li>" 
@@ -980,8 +1014,11 @@ void SiPixelInformationExtractor::readSummaryHistoTree(DQMStore* bei,
 						       xgi::Output * out) {
 //cout<<"entering  SiPixelInformationExtractor::readSummaryHistoTree"<<endl;
   ostringstream sumtree;
+  //cout<<"str_name="<<str_name<<endl;
   if (goToDir(bei, str_name)) {
     sumtree << "<ul id=\"dhtmlgoodies_tree\" class=\"dhtmlgoodies_tree\">" << endl;
+    
+    //cout<<"calling printSummaryHistoList now for this directory!"<<endl;
     printSummaryHistoList(bei,sumtree);
     sumtree <<"</ul>" << endl;   
   } else {
@@ -1014,7 +1051,8 @@ void SiPixelInformationExtractor::printSummaryHistoList(DQMStore * bei,
   static string indent_str = "";
   string currDir = bei->pwd();
   string dname = currDir.substr(currDir.find_last_of("/")+1);
-  if (dname.find("Module_") ==0 || dname.find("FED_")==0) return;
+  if (dname.find("Module_") != string::npos || dname.find("FED_")!=string::npos) return;
+//cout<<"currDir="<<currDir<<" , dname="<<dname<<endl;
   str_val << " <li>\n"
           << "  <a href=\"#\" id=\"" << currDir << "\">\n   " 
 	  <<     dname 
@@ -1028,10 +1066,13 @@ void SiPixelInformationExtractor::printSummaryHistoList(DQMStore * bei,
     str_val << " </li> "<< endl;    
     return;
   }
-  str_val << "\n   <ul>" << endl;      
+  str_val << "\n   <ul>" << endl;    
+  
+//cout<<"BEFORE LOOP: NMEs="<<meVec.size()<<" , NSUBDIRs="<<subDirVec.size()<<endl;  
   for (vector<string>::const_iterator it = meVec.begin();
        it != meVec.end(); it++) {
-    if ((*it).find("SUM") == 0) {
+//cout<<"Looping now for tree: "<<(*it)<<endl;
+    if ((*it).find("SUM") != string::npos) {
       QString qit = (*it) ;
       QRegExp rx("(\\w+)_(siPixel|ctfWithMaterialTracks)");
       if( rx.search(qit) > -1 ) {qit = rx.cap(1);} 
@@ -1140,9 +1181,8 @@ void SiPixelInformationExtractor::printAlarmList(DQMStore * bei,
   str_val << "<ul>" << endl;
   for (vector<string>::const_iterator it = meVec.begin();
 	   it != meVec.end(); it++) {
-    string full_path = currDir + "/" + (*it);
 
-    MonitorElement * me = bei->get(full_path);
+    MonitorElement * me = bei->get((*it));
     
     if (!me) continue;
     std::vector<QReport *> my_map = me->getQReports();
@@ -1754,9 +1794,8 @@ void SiPixelInformationExtractor::selectMEList(DQMStore   * bei,
       if( rx.search(theME) == -1 ) {continue ;} // If the ME is not a siPixel or ctfWithMaterialTrack one, skip
       if (rx.cap(1).latin1() == theMEName)  
       {
-        string full_path = currDir + "/" + (*it);
 
-        MonitorElement * me = bei->get(full_path.c_str());
+        MonitorElement * me = bei->get((*it));
 	
         if (me) {mes.push_back(me);}
       }
@@ -1982,7 +2021,6 @@ void SiPixelInformationExtractor::getMEList(DQMStore    * bei,
 	    << endl ;
        continue ;
       } // If the ME is not a Pixel one, skip
-      string full_path = currDir + "/" + (*it);
       string mEName = rx.cap(1).latin1() ;
       mEHash[mEName]++ ;
     }
@@ -2226,8 +2264,7 @@ float SiPixelInformationExtractor::computeGlobalQualityFlag(DQMStore * bei)
    
     for (vector<string>::const_iterator it = meVec.begin();
 	 it != meVec.end(); it++) {
-      string full_path = currDir + "/" + (*it);
-      MonitorElement * me = bei->get(full_path);
+      MonitorElement * me = bei->get((*it));
     
       if (!me) continue;
       std::vector<QReport *> my_map = me->getQReports();

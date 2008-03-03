@@ -5,13 +5,13 @@
 #include "DQM/SiPixelMonitorClient/interface/ANSIColors.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/FileInPath.h"
-#include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
 
 #include <qstring.h>
 #include <qregexp.h>
 
 #include <iostream>
+#include "DQMServices/Core/interface/DQMStore.h"
+#include "DQMServices/Core/interface/MonitorElement.h"
 using namespace std;
 //
 // -- Constructor
@@ -180,6 +180,7 @@ void SiPixelActionExecutor::fillBarrelSummary(DQMStore* bei,
 					      vector<string>& me_names) {
   //cout<<"entering SiPixelActionExecutor::fillBarrelSummary..."<<endl;
   string currDir = bei->pwd();
+//cout<<"currDir="<<currDir<<" , dir_name="<<dir_name<<endl;
   string prefix;
   if(source_type_==0) prefix="SUMRAW";
   else if (source_type_==1) prefix="SUMDIG";
@@ -191,6 +192,7 @@ void SiPixelActionExecutor::fillBarrelSummary(DQMStore* bei,
     vector<MonitorElement*> sum_mes;
     for (vector<string>::const_iterator iv = me_names.begin();
 	 iv != me_names.end(); iv++) {
+//cout<<"me_names iterator: "<<(*iv)<<endl;	 
       if(source_type_==5||source_type_==6){
         if((*iv)=="errorType"||(*iv)=="NErrors"||(*iv)=="fullType"||(*iv)=="chanNmbr"||
 	   (*iv)=="TBMType"||(*iv)=="EvtNbr"||(*iv)=="evtSize"||(*iv)=="linkId"||
@@ -214,6 +216,7 @@ void SiPixelActionExecutor::fillBarrelSummary(DQMStore* bei,
 	   (*iv)=="pixelAliveSummary")
 	  prefix="SUMCAL"; 
       }
+//cout<<"PREFIX= "<<prefix<<endl;
       if((*iv).find("residual")!=string::npos ||        // track residuals
          prefix == "SUMCAL"){                           // calibrations
         string tag = prefix + "_" + (*iv) + "_mean_" 
@@ -232,7 +235,8 @@ void SiPixelActionExecutor::fillBarrelSummary(DQMStore* bei,
       }else{
         string tag = prefix + "_" + (*iv) + "_" 
                                 + currDir.substr(currDir.find(dir_name));
-        MonitorElement* temp = getSummaryME(bei, tag);
+//cout<<"sum histo name tag: "<<tag<<" , then calling getSummaryME for it."<<endl;        
+	MonitorElement* temp = getSummaryME(bei, tag);
         sum_mes.push_back(temp);
       }
     }
@@ -244,25 +248,30 @@ void SiPixelActionExecutor::fillBarrelSummary(DQMStore* bei,
     int ndet = 0;
     for (vector<string>::const_iterator it = subdirs.begin();
        it != subdirs.end(); it++) {
+//cout<<"looking in subdir: "<<(*it)<<endl;       
       if ( (*it).find("Module_") == string::npos) continue;
+//cout<<"cd into mod: "<<(*it)<<endl;
       bei->cd(*it);
       ndet++;
       
       vector<string> contents = bei->getMEs(); 
-      
+//cout<<"number of MEs here is "<<contents.size()<<endl;      
       for (vector<MonitorElement*>::const_iterator isum = sum_mes.begin();
 	   isum != sum_mes.end(); isum++) {
+//cout<<"First Loop: "<<(*isum)<<endl;
 	for (vector<string>::const_iterator im = contents.begin();
 	     im != contents.end(); im++) {
-          string sname = ((*isum)->getName());
+          string sname = (*isum)->getName();
 	  string tname = " ";
           tname = sname.substr(7,(sname.find("_",7)-6));
-	  if (((*im)).find(tname) == 0) {
-	    string fullpathname = bei->pwd() + "/" + (*im); 
-
-	    MonitorElement *  me = bei->get(fullpathname);
+//cout<<"SNAME="<<sname<<" , find: "<<sname.find("_",7)<<" , TNAME="<<tname<<endl;
+//cout<<"(*im)= "<<(*im)<<" , tname="<<tname<<" , find: "<<(*im).find(tname)<<endl;
+	  if ((*im).find(tname) != string::npos) {
+//cout<<"This is the one I want!"<<endl;
+	    MonitorElement *  me = bei->get((*im));
 	    
 	    if (me){ 
+	    //cout<<"sname: "<<sname<<endl;
 	      if (sname.find("_RMS_")!=string::npos){
 	        (*isum)->Fill(ndet, me->getRMS());
 	      }else if (sname.find("_FracOfPerfectPix_")!=string::npos){
@@ -271,6 +280,7 @@ void SiPixelActionExecutor::fillBarrelSummary(DQMStore* bei,
 		float nall = me->getEntries();
 	        (*isum)->Fill(ndet, nlast/nall);
               }else{
+//cout<<"Filling the "<<sname<<" histo now!: "<<ndet<<" , "<<me->getMean()<<endl;
 	        (*isum)->Fill(ndet, me->getMean());
 	      }
               (*isum)->setAxisTitle("modules",1);
@@ -284,7 +294,7 @@ void SiPixelActionExecutor::fillBarrelSummary(DQMStore* bei,
 	      }
 	      (*isum)->setAxisTitle(title,2);
 	    }
-            break;
+	    break;
           }
 	}
       }
@@ -296,6 +306,7 @@ void SiPixelActionExecutor::fillBarrelSummary(DQMStore* bei,
        it != subdirs.end(); it++) {
       if((bei->pwd()).find("Endcap")!=string::npos ||
          (bei->pwd()).find("AdditionalPixelErrors")!=string::npos) bei->goUp();
+// cout<<"I am in "<<bei->pwd()<<" , and want to cd into "<<(*it)<<endl;
       bei->cd(*it);
       if((*it).find("Endcap")!=string::npos ||
          (*it).find("AdditionalPixelErrors")!=string::npos) continue;
@@ -310,7 +321,7 @@ void SiPixelActionExecutor::fillBarrelSummary(DQMStore* bei,
     }
     fillGrandBarrelSummaryHistos(bei, grandbarrel_me_names);
   }
- // cout<<"...leaving SiPixelActionExecutor::fillBarrelSummary!"<<endl;
+  //cout<<"...leaving SiPixelActionExecutor::fillBarrelSummary!"<<endl;
 }
 
 void SiPixelActionExecutor::fillEndcapSummary(DQMStore* bei,
@@ -396,10 +407,9 @@ void SiPixelActionExecutor::fillEndcapSummary(DQMStore* bei,
           string sname = ((*isum)->getName());
 	  string tname = " ";
           tname = sname.substr(7,(sname.find("_",7)-6));
-	  if (((*im)).find(tname) == 0) {
-	    string fullpathname = bei->pwd() + "/" + (*im); 
+	  if ((*im).find(tname) != string::npos) {
 
-	    MonitorElement *  me = bei->get(fullpathname);
+	    MonitorElement *  me = bei->get((*im));
 	    
 	    if (me){ 
 	      if (sname.find("_RMS_")!=string::npos){
@@ -495,10 +505,9 @@ void SiPixelActionExecutor::fillFEDErrorSummary(DQMStore* bei,
           string sname = ((*isum)->getName());
 	  string tname = " ";
           tname = sname.substr(7,(sname.find("_",7)-6));
-	  if (((*im)).find(tname) == 0) {
-	    string fullpathname = bei->pwd() + "/" + (*im); 
+	  if (((*im)).find(tname) != string::npos) {
 
-	    MonitorElement *  me = bei->get(fullpathname);
+	    MonitorElement *  me = bei->get((*im));
 	    
 	    if (me){ 
 	      (*isum)->Fill(ndet, me->getMean());
@@ -534,9 +543,8 @@ void SiPixelActionExecutor::fillGrandBarrelSummaryHistos(DQMStore* bei,
   vector<MonitorElement*> gsum_mes;
   string path_name = bei->pwd();
   string dir_name =  path_name.substr(path_name.find_last_of("/")+1);
-  if ((dir_name.find("Collector") == 0) ||
-      //(dir_name.find("Collated") == 0) ||
-      (dir_name.find("FU") == 0) ||
+//cout<<"path_name="<<path_name<<" , dir_name="<<dir_name<<endl;
+  if ((dir_name.find("DQMData") == 0) ||
       (dir_name.find("Pixel") == 0) ||
       (dir_name.find("AdditionalPixelErrors") == 0) ||
       (dir_name.find("Endcap") == 0) ||
@@ -554,11 +562,13 @@ void SiPixelActionExecutor::fillGrandBarrelSummaryHistos(DQMStore* bei,
   for (vector<string>::const_iterator it = subdirs.begin();
        it != subdirs.end(); it++) {
     cnt++;
+//cout<<"I am in "<<bei->pwd()<<" and want to cd into "<<(*it)<<" , counter is "<<cnt<<endl;    
     bei->cd(*it);
-
+//cout<<"...now I am in "<<bei->pwd()<<endl;
     vector<string> contents = bei->getMEs();
     
     bei->goUp();
+//cout<<"...and now I am in "<<bei->pwd()<<endl;
     
     string prefix;
     if(source_type_==0) prefix="SUMRAW";
@@ -567,11 +577,13 @@ void SiPixelActionExecutor::fillGrandBarrelSummaryHistos(DQMStore* bei,
     else if (source_type_==3) prefix="SUMRES";
     else if (source_type_==4) prefix="SUMHIT";
     else if (source_type_>=7) prefix="SUMCAL";
-  
+//cout<<"prefix is "<<prefix<<endl;  
     for (vector<string>::const_iterator im = contents.begin();
 	 im != contents.end(); im++) {
+//cout<<"Looping over this ME now: "<<(*im)<<endl;
       for (vector<string>::const_iterator iv = me_names.begin();
 	   iv != me_names.end(); iv++) {
+//cout<<"Looping over this me_name now: "<<(*iv)<<endl;
         if(source_type_==5||source_type_==6){
           if((*iv)=="errorType"||(*iv)=="NErrors"||(*iv)=="fullType"||(*iv)=="chanNmbr"||
 	     (*iv)=="TBMType"||(*iv)=="EvtNbr"||(*iv)=="evtSize"||(*iv)=="linkId"||
@@ -601,26 +613,31 @@ void SiPixelActionExecutor::fillGrandBarrelSummaryHistos(DQMStore* bei,
 	    prefix="SUMCAL";
         }
 	string var = "_" + (*iv) + "_";
+//cout<<"we are looking at var "<<var<<endl;
 	if ((*im).find(var) != string::npos) {
-	  string full_path = path_name + "/" + (*it) + "/" +(*im);
-	   MonitorElement * me = bei->get(full_path.c_str());
+
+	   MonitorElement * me = bei->get((*im));
 	   
 	   if (!me) continue; 
+//cout<<"got the ME now!"<<endl;
 	   int actual_size = gsum_mes.size();
 	   int wanted_size = me_names.size();
-	   if (dir_name=="Barrel") wanted_size = wanted_size * 2.;
+	   //if (dir_name=="Barrel") wanted_size = wanted_size * 2;
            if (actual_size !=  wanted_size) {
-	     nbin = me->getTH1F()->GetNbinsX();        
+	     TH1F * root_obh1 = me->getTH1F();
+	     if (root_obh1) nbin = root_obh1->GetNbinsX();        
              string me_name = prefix + "_" + (*iv) + "_" + dir_name;
              if(dir_name=="Barrel") nbin=768;
 	     else if(dir_name.find("Shell")!=string::npos) nbin=192;
 	     else nbin=nbin*nDirs;
+	     //cout<<"getGrandSummaryME: "<<nbin<<" , "<<me_name<<" , "<<actual_size<<" , "<<wanted_size<<endl;
 	     getGrandSummaryME(bei, nbin, me_name, gsum_mes);
-	     if (dir_name.find("Barrel")!=string::npos){
-	       bei->goUp(); 
-	       getGrandSummaryME(bei, nbin, me_name, gsum_mes);
-	       bei->cd("Barrel");
-	     }
+	     //if (dir_name.find("Barrel")!=string::npos){
+	     //  bei->goUp(); 
+	     //  getGrandSummaryME(bei, nbin, me_name, gsum_mes);
+	     //  cout<<"here: "<<bei->pwd()<<" , MEs: "<<(bei->getMEs()).size()<<" , DIRs: "<<(bei->getSubdirs()).size()<<endl;
+	       //if((bei->pwd())=="Pixel") bei->cd("Barrel");
+	     //}
            }
 	   for (vector<MonitorElement*>::const_iterator igm = gsum_mes.begin();
 		igm != gsum_mes.end(); igm++) {
@@ -652,6 +669,7 @@ void SiPixelActionExecutor::fillGrandBarrelSummaryHistos(DQMStore* bei,
     }
     iDir++;
   }
+//  cout<<"here: "<<bei->pwd()<<" , MEs: "<<(bei->getMEs()).size()<<" , subDirs: "<<(bei->getSubdirs()).size()<<endl;
 //cout<<"...leaving SiPixelActionExecutor::fillGrandBarrelSummaryHistos!"<<endl;
 }
 
@@ -661,9 +679,8 @@ void SiPixelActionExecutor::fillGrandEndcapSummaryHistos(DQMStore* bei,
   vector<MonitorElement*> gsum_mes;
   string path_name = bei->pwd();
   string dir_name =  path_name.substr(path_name.find_last_of("/")+1);
-  if ((dir_name.find("Collector") == 0) ||
-      //(dir_name.find("Collated") == 0) ||
-      (dir_name.find("FU") == 0) ||
+//cout<<"path_name="<<path_name<<" , dir_name="<<dir_name<<endl;
+  if ((dir_name.find("DQMData") == 0) ||
       (dir_name.find("Pixel") == 0) ||
       (dir_name.find("AdditionalPixelErrors") == 0) ||
       (dir_name.find("Barrel") == 0) ||
@@ -727,16 +744,16 @@ void SiPixelActionExecutor::fillGrandEndcapSummaryHistos(DQMStore* bei,
         }
 	string var = "_" + (*iv) + "_";
 	if ((*im).find(var) != string::npos) {
-	  string full_path = path_name + "/" + (*it) + "/" +(*im);
 
-	   MonitorElement * me = bei->get(full_path.c_str());
+	   MonitorElement * me = bei->get((*im));
 	   
 	   if (!me) continue; 
 	   int actual_size = gsum_mes.size();
 	   int wanted_size = me_names.size();
-	   if (dir_name=="Endcap") wanted_size = wanted_size * 2.;
+	   //if (dir_name=="Endcap") wanted_size = wanted_size * 2;
            if (actual_size !=  wanted_size) {
-	     nbin = me->getTH1F()->GetNbinsX();        
+	     TH1F * root_obh1 = me->getTH1F();
+	     if (root_obh1) nbin = root_obh1->GetNbinsX();        
              string me_name = prefix + "_" + (*iv) + "_" + dir_name;
              if(dir_name=="Endcap") nbin=672;
 	     else if(dir_name.find("HalfCylinder")!=string::npos) nbin=168;
@@ -745,11 +762,11 @@ void SiPixelActionExecutor::fillGrandEndcapSummaryHistos(DQMStore* bei,
 	     else if(dir_name.find("Panel_1")!=string::npos) nbin=4;
 	     else if(dir_name.find("Panel_2")!=string::npos) nbin=3;
 	     getGrandSummaryME(bei, nbin, me_name, gsum_mes);
-	     if (dir_name.find("Endcap")!=string::npos){
-	       bei->goUp(); 
-	       getGrandSummaryME(bei, nbin, me_name, gsum_mes);
-	       bei->cd("Endcap");
-	     }
+	     //if (dir_name.find("Endcap")!=string::npos){
+	     //  bei->goUp(); 
+	     //  getGrandSummaryME(bei, nbin, me_name, gsum_mes);
+//	       bei->cd("Endcap");
+	     //}
 	   }
 	   for (vector<MonitorElement*>::const_iterator igm = gsum_mes.begin();
 		igm != gsum_mes.end(); igm++) {
@@ -786,6 +803,7 @@ void SiPixelActionExecutor::fillGrandEndcapSummaryHistos(DQMStore* bei,
     }
     iDir++;
   }
+//  cout<<"...leaving SiPixelActionExecutor::fillGrandEndcapSummaryHistos."<<endl;
 }
 //
 // -- Get Summary ME
@@ -794,25 +812,40 @@ void SiPixelActionExecutor::getGrandSummaryME(DQMStore* bei,
                                               int nbin, 
 					      string& me_name, 
 					      vector<MonitorElement*> & mes) {
-
+//cout<<"Entering SiPixelActionExecutor::getGrandSummaryME..."<<endl;
   vector<string> contents = bei->getMEs();
       
   for (vector<string>::const_iterator it = contents.begin();
        it != contents.end(); it++) {
-    if ((*it).find(me_name) == 0) {
-      string fullpathname = bei->pwd() + "/" + me_name;
+//       cout<<"iterator: "<<(*it)<<endl;
+    if ((*it).find(me_name) != string::npos) {
 
-      MonitorElement* me = bei->get(fullpathname);
+      MonitorElement* me = bei->get((*it));
       
       if (me) {
-	me->Reset();
+	TObject * root_obh1 = me->getRootObject();
+	if (root_obh1) {
+	  QString type = root_obh1->GetName();
+	  if(type.contains("TH1") > 0) {
+	    (me->getTH1F())->Reset();
+	  }else if(type.contains("TH2") > 0) {
+	    (me->getTH2F())->Reset();
+	  }else if(type.contains("TH3") > 0) {
+	    (me->getTH3F())->Reset();
+          }
+//	  cout<<"type: "<<type<<endl;
+	}
 	mes.push_back(me);
-	return;
+        return;
       }
     }
   }
   MonitorElement* temp_me = bei->book1D(me_name.c_str(),me_name.c_str(),nbin,1.,nbin+1.);
-  if (temp_me) mes.push_back(temp_me);
+  if (temp_me) {
+    mes.push_back(temp_me);
+//    cout<<"Created the ME "<<me_name<<endl;
+  }
+//cout<<"...leaving SiPixelActionExecutor::getGrandSummaryME!"<<endl;
 }
 
 
@@ -821,26 +854,38 @@ void SiPixelActionExecutor::getGrandSummaryME(DQMStore* bei,
 //
 MonitorElement* SiPixelActionExecutor::getSummaryME(DQMStore* bei,
                                                     string me_name) {
-//cout<<"Entering SiPixelActionExecutor::getSummaryME..."<<endl;
+//cout<<"Entering SiPixelActionExecutor::getSummaryME for ME "<<me_name<<endl;
   MonitorElement* me = 0;
   vector<string> contents = bei->getMEs();    
-  
+//cout<<"getSummaryME::I am in this dir now: "<<bei->pwd()<<" , I have so many ME's here: "<<contents.size()<<endl;  
   for (vector<string>::const_iterator it = contents.begin();
        it != contents.end(); it++) {
-    if ((*it).find(me_name) == 0) {
-      string fullpathname = bei->pwd() + "/" + (*it); 
+//cout<<"getSummaryME::sum histo name iterator: "<<(*it)<<endl;
+    if ((*it).find(me_name) != string::npos) {
 
-      me = bei->get(fullpathname);
+      me = bei->get((*it));
       
       if (me) {
-	me->Reset();
+	TObject * root_obh1 = me->getRootObject();
+	if (root_obh1) {
+	  QString type = root_obh1->GetName();
+	  if(type.contains("TH1") > 0) {
+	    (me->getTH1F())->Reset();
+	  }else if(type.contains("TH2") > 0) {
+	    (me->getTH2F())->Reset();
+	  }else if(type.contains("TH3") > 0) {
+	    (me->getTH3F())->Reset();
+          }
+//cout<<"getSummaryME::Found ME of type "<<type<<endl;
+	}
 	return me;
       }
     }
   }
+//cout<<"getSummaryME::Booking 1D histo now: "<< me_name.c_str()<<endl;
   me = bei->book1D(me_name.c_str(), me_name.c_str(),4,1.,5.);
+//  cout<<"...leaving SiPixelActionExecutor::getSummaryME!"<<endl;
   return me;
-  //cout<<"...leaving SiPixelActionExecutor::getSummaryME!"<<endl;
 }
 
 
@@ -852,13 +897,22 @@ MonitorElement* SiPixelActionExecutor::getFEDSummaryME(DQMStore* bei,
       
   for (vector<string>::const_iterator it = contents.begin();
        it != contents.end(); it++) {
-    if ((*it).find(me_name) == 0) {
-      string fullpathname = bei->pwd() + "/" + (*it); 
+    if ((*it).find(me_name) != string::npos) {
 
-      me = bei->get(fullpathname);
+      me = bei->get((*it));
       
       if (me) {
-	me->Reset();
+	TObject * root_obh1 = me->getRootObject();
+	if (root_obh1) {
+	  QString type = root_obh1->GetName();
+	  if(type.contains("TH1") > 0) {
+	    (me->getTH1F())->Reset();
+	  }else if(type.contains("TH2") > 0) {
+	    (me->getTH2F())->Reset();
+	  }else if(type.contains("TH3") > 0) {
+	    (me->getTH3F())->Reset();
+          }
+	}
 	return me;
       }
     }
@@ -996,7 +1050,7 @@ void SiPixelActionExecutor::fillLayout(DQMStore * bei){
           configWriter_->createRow();
         }
         ostringstream full_path;
-	full_path << "test/" << currDir << "/" << *im ;
+	full_path << "test/" << *im ;
         string element = "monitorable";
         string element_name = full_path.str();     
         configWriter_->createColumn(element, element_name);

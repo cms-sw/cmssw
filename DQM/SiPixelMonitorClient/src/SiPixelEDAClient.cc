@@ -190,7 +190,7 @@ void SiPixelEDAClient::endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, e
 // -- End Run
 //
 void SiPixelEDAClient::endRun(edm::Run const& run, edm::EventSetup const& eSetup){
-//  cout<<"Entering SiPixelEDAClient::endRun: "<<endl;
+  //cout<<"Entering SiPixelEDAClient::endRun: "<<endl;
 
   //edm::LogVerbatim ("SiPixelEDAClient") <<"[SiPixelEDAClient]: End of Run, saving  DQM output ";
   //int iRun = run.run();
@@ -209,7 +209,7 @@ void SiPixelEDAClient::endRun(edm::Run const& run, edm::EventSetup const& eSetup
   MonitorElement* errorSummaryME = bei_->get("Pixel/EventInfo/errorSummary");
   if(errorSummaryME) errorSummaryME->Fill(GQF); 
 
-//  cout<<"...leaving SiPixelEDAClient::endRun. "<<endl;
+  //cout<<"...leaving SiPixelEDAClient::endRun. "<<endl;
 }
 
 //

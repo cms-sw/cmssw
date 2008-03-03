@@ -108,7 +108,7 @@ void SiPixelWebInterface::handleEDARequest(xgi::Input* in,xgi::Output* out, int 
 
     vector<std::string> meList = bei->getMEs() ;
     
-    *out << MEFolder << " " ;
+    //*out << MEFolder << " " ;
     bei->cd() ;
     for(vector<std::string>::iterator it=meList.begin(); it!=meList.end(); it++)
     {
@@ -121,7 +121,7 @@ void SiPixelWebInterface::handleEDARequest(xgi::Input* in,xgi::Output* out, int 
     std::string canvasW = get_from_multimap(requestMap_, "canvasW");
     std::string canvasH = get_from_multimap(requestMap_, "canvasH");
     std::stringstream fullPath ;
-    fullPath << folder << "/" << plot ;
+    fullPath << plot ;
     out->getHTTPResponseHeader().addHeader("Content-Type", "image/png");
     out->getHTTPResponseHeader().addHeader("Pragma", "no-cache");   
     out->getHTTPResponseHeader().addHeader("Cache-Control", "no-store, no-cache, must-revalidate,max-age=0");
@@ -148,15 +148,17 @@ void SiPixelWebInterface::handleEDARequest(xgi::Input* in,xgi::Output* out, int 
   } else if (requestID == "ModuleHistoList") {
     theActionFlag = NoAction;
     string sname = get_from_multimap(requestMap_, "StructureName");
-    cout<<"in EDARequest: structure name= "<<sname<<endl;
+cout<<"in EDARequest: structure name= "<<sname<<endl;
     infoExtractor_->readModuleHistoTree(bei, sname, out);    
   } else if (requestID == "SummaryHistoList") {
     theActionFlag = NoAction;
     string sname = get_from_multimap(requestMap_, "StructureName");
+cout<<"in EDARequest: structure name= "<<sname<<endl;
     infoExtractor_->readSummaryHistoTree(bei, sname, out);    
   } else if (requestID == "AlarmList") {
     theActionFlag = NoAction;
     string sname = get_from_multimap(requestMap_, "StructureName");
+cout<<"in EDARequest: structure name= "<<sname<<endl;
     infoExtractor_->readAlarmTree(bei, sname, out);    
   } else if (requestID == "ReadQTestStatus") {
     theActionFlag = NoAction;
@@ -275,7 +277,7 @@ void SiPixelWebInterface::readConfiguration(int& tkmap_freq,int& summary_freq){
 // -- Perform action
 //
 void SiPixelWebInterface::performAction() {
-//cout<<"entering performAction..."<<endl;
+cout<<"entering performAction..."<<endl;
   DQMStore * bei = (*mui_p)->getBEInterface();
   switch (theActionFlag) {
   case SiPixelWebInterface::CreateTkMap :
@@ -367,7 +369,7 @@ void SiPixelWebInterface::performAction() {
     }
   }
   setActionFlag(SiPixelWebInterface::NoAction);
-//  cout<<"leaving performAction..."<<endl;
+  cout<<"leaving performAction..."<<endl;
 }
 
 
