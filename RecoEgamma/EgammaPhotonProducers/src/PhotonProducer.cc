@@ -248,7 +248,6 @@ void PhotonProducer::fillPhotonCollection(
     // preselection
     if (aClus->energy()/cosh(aClus->eta()) <= minSCEt_) continue;
     // calculate HoE
-    //double HoE = hOverE(scRef,mhbhe);
     double HoE=theHoverEcalc_(pClus,mhbhe);
     if (HoE>=maxHOverE_)  continue;
     
