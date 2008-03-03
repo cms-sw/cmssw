@@ -1,5 +1,5 @@
 //
-// $Id: PATJetProducer.cc,v 1.12.2.1 2008/03/03 16:45:28 lowette Exp $
+// $Id: PATJetProducer.cc,v 1.13 2008/02/28 15:34:10 llista Exp $
 //
 
 #include "PhysicsTools/PatAlgos/interface/PATJetProducer.h"
@@ -11,8 +11,7 @@
 #include "DataFormats/Common/interface/Association.h"
 
 #include "JetMETCorrections/Objects/interface/JetCorrector.h"
-//#include "DataFormats/BTauReco/interface/JetTagFwd.h"
-//#include "DataFormats/BTauReco/interface/JetTag.h"
+#include "DataFormats/BTauReco/interface/JetTag.h"
 //#include "DataFormats/BTauReco/interface/TrackProbabilityTagInfo.h"
 //#include "DataFormats/BTauReco/interface/TrackProbabilityTagInfoFwd.h"
 //#include "DataFormats/BTauReco/interface/TrackCountingTagInfo.h"
@@ -37,30 +36,33 @@ using namespace pat;
 
 PATJetProducer::PATJetProducer(const edm::ParameterSet& iConfig) {
   // initialize the configurables
-  jetsSrc_                 = iConfig.getParameter<edm::InputTag>            ( "jetSource" );
-  getJetMCFlavour_         = iConfig.getParameter<bool>                     ( "getJetMCFlavour" );
-  jetPartonMapSource_      = iConfig.getParameter<edm::InputTag>            ( "JetPartonMapSource" );
-  addGenPartonMatch_       = iConfig.getParameter<bool>                     ( "addGenPartonMatch" );
-  genPartonSrc_            = iConfig.getParameter<edm::InputTag>            ( "genPartonMatch" );
-  addGenJetMatch_          = iConfig.getParameter<bool>                     ( "addGenJetMatch" );
-  genJetSrc_               = iConfig.getParameter<edm::InputTag>            ( "genJetMatch" );
-  addPartonJetMatch_       = iConfig.getParameter<bool>                     ( "addPartonJetMatch" );
-  partonJetSrc_            = iConfig.getParameter<edm::InputTag>            ( "partonJetSource" );
-  addResolutions_          = iConfig.getParameter<bool>                     ( "addResolutions" );
-  useNNReso_               = iConfig.getParameter<bool>                     ( "useNNResolutions" );
-  caliJetResoFile_         = iConfig.getParameter<std::string>              ( "caliJetResoFile" );
-  caliBJetResoFile_        = iConfig.getParameter<std::string>              ( "caliBJetResoFile" );
-  addBTagInfo_             = iConfig.getParameter<bool>                     ( "addBTagInfo" );
-  tagModuleLabelPostfix_   = iConfig.getParameter<std::string>              ( "tagModuleLabelPostfix" ); 
-  addDiscriminators_       = iConfig.getParameter<bool>                     ( "addDiscriminators" );
-  addJetTagRefs_           = iConfig.getParameter<bool>                     ( "addJetTagRefs" );
-  tagModuleLabelsToKeep_   = iConfig.getParameter<std::vector<std::string> >( "tagModuleLabelsToKeep" );
-  addAssociatedTracks_     = iConfig.getParameter<bool>                     ( "addAssociatedTracks" ); 
-  trackAssociationPSet_    = iConfig.getParameter<edm::ParameterSet>        ( "trackAssociation" );
-  addJetCharge_            = iConfig.getParameter<bool>                     ( "addJetCharge" ); 
-  jetChargePSet_           = iConfig.getParameter<edm::ParameterSet>        ( "jetCharge" );
+  jetsSrc_                 = iConfig.getParameter<edm::InputTag>	      ( "jetSource" );
+  getJetMCFlavour_         = iConfig.getParameter<bool> 		      ( "getJetMCFlavour" );
+  jetPartonMapSource_      = iConfig.getParameter<edm::InputTag>	      ( "JetPartonMapSource" );
+  addGenPartonMatch_       = iConfig.getParameter<bool> 		      ( "addGenPartonMatch" );
+  genPartonSrc_            = iConfig.getParameter<edm::InputTag>	      ( "genPartonMatch" );
+  addGenJetMatch_          = iConfig.getParameter<bool> 		      ( "addGenJetMatch" );
+  genJetSrc_               = iConfig.getParameter<edm::InputTag>	      ( "genJetMatch" );
+  addPartonJetMatch_       = iConfig.getParameter<bool> 		      ( "addPartonJetMatch" );
+  partonJetSrc_            = iConfig.getParameter<edm::InputTag>	      ( "partonJetSource" );
+  addResolutions_          = iConfig.getParameter<bool> 		      ( "addResolutions" );
+  useNNReso_               = iConfig.getParameter<bool> 		      ( "useNNResolutions" );
+  caliJetResoFile_         = iConfig.getParameter<std::string>  	      ( "caliJetResoFile" );
+  caliBJetResoFile_        = iConfig.getParameter<std::string>  	      ( "caliBJetResoFile" );
+  addBTagInfo_             = iConfig.getParameter<bool> 		      ( "addBTagInfo" );
+  tagModuleLabelPostfix_   = iConfig.getParameter<std::string>  	      ( "tagModuleLabelPostfix" ); 
+  addDiscriminators_       = iConfig.getParameter<bool> 		      ( "addDiscriminators" );
+  addTagInfoRefs_          = iConfig.getParameter<bool> 		      ( "addTagInfoRefs" );
+  tagModuleLabelsToKeep_   = iConfig.getParameter<std::vector<std::string> >  ( "tagModuleLabelsToKeep" );
+  ipTagInfoLabel_          = iConfig.getParameter<std::vector<edm::InputTag> >( "ipTagInfoLabelName" );
+  softETagInfoLabel_       = iConfig.getParameter<std::vector<edm::InputTag> >( "softETagInfoLabelName" );
+  softMTagInfoLabel_       = iConfig.getParameter<std::vector<edm::InputTag> >( "softMTagInfoLabelName" );
+  svTagInfoLabel_          = iConfig.getParameter<std::vector<edm::InputTag> >( "svTagInfoLabelName" );
+  addAssociatedTracks_     = iConfig.getParameter<bool> 		      ( "addAssociatedTracks" ); 
+  trackAssociationPSet_    = iConfig.getParameter<edm::ParameterSet>	      ( "trackAssociation" );
+  addJetCharge_            = iConfig.getParameter<bool> 		      ( "addJetCharge" ); 
+  jetChargePSet_           = iConfig.getParameter<edm::ParameterSet>	      ( "jetCharge" );
 
-   
   // construct resolution calculator
   if (addResolutions_) {
     theResoCalc_ = new ObjectResolutionCalc(edm::FileInPath(caliJetResoFile_).fullPath(), useNNReso_);
@@ -109,15 +111,19 @@ void PATJetProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
 */
 
   // Get the vector of jet tags with b-tagging info
-  //std::vector<edm::Handle<std::vector<reco::JetTag> > > jetTags_testManyByType ;
-  /*
-  std::vector<edm::Handle<edm::ValueMap<reco::JetTagRef> > > jetTags_testManyByType ;
-  iEvent.getManyByType(jetTags_testManyByType);
+  std::vector<edm::Handle<std::vector<reco::JetTag> > > jetTags_testManyByType ;
+  if (addBTagInfo_) iEvent.getManyByType(jetTags_testManyByType);
+
+  edm::Handle<reco::SoftLeptonTagInfoCollection>         jetsInfoHandle_sle;
+  edm::Handle<reco::SoftLeptonTagInfoCollection>         jetsInfoHandle_slm;
+  edm::Handle<reco::TrackIPTagInfoCollection>            jetsInfoHandleTIP;
+  edm::Handle<reco::SecondaryVertexTagInfoCollection>    jetsInfoHandleSV;
+
   // Define the handles for the specific algorithms
   edm::Handle<reco::SoftLeptonTagInfoCollection> jetsInfoHandle_sl;
   edm::Handle<reco::TrackProbabilityTagInfoCollection> jetsInfoHandleTP;
   edm::Handle<reco::TrackCountingTagInfoCollection> jetsInfoHandleTC;
-  */
+
   // tracks Jet Track Association, by hand in CMSSW_1_3_X
   edm::Handle<reco::TrackCollection> hTracks;
   iEvent.getByLabel(trackAssociationPSet_.getParameter<edm::InputTag>("tracksSource"), hTracks);
@@ -192,37 +198,75 @@ void PATJetProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
 
     // add b-tag info if available & required
     if (addBTagInfo_) {
-      /*
+      
       for (size_t k=0; k<jetTags_testManyByType.size(); k++) {
-        edm::Handle<edm::ValueMap<reco::JetTagRef> > jetTags = jetTags_testManyByType[k];
+        edm::Handle<std::vector<reco::JetTag> > jetTags = jetTags_testManyByType[k];
 
         //get label and module names
         std::string moduleLabel = (jetTags).provenance()->moduleLabel();
-
-        //look only at the tagger present in tagModuleLabelsToKeep_
-        for (unsigned int i = 0; i < tagModuleLabelsToKeep_.size(); ++i) {
-          if (moduleLabel == tagModuleLabelsToKeep_[i] + tagModuleLabelPostfix_) {  
-              // ********store discriminators*********
-              if (addDiscriminators_) {
-                  std::pair<std::string, float> pairDiscri;
-                  pairDiscri.first = tagModuleLabelsToKeep_[i];
-                  pairDiscri.second = ((*jetTags)[jetsRef])->discriminator();
-                  ajet.addBDiscriminatorPair(pairDiscri);
-                  continue;
-              }
-              // ********store jetTagRef*********
-              if (addJetTagRefs_) {
-                  std::pair<std::string, reco::JetTagRef> pairjettagref;
-                  pairjettagref.first = tagModuleLabelsToKeep_[i];
-                  pairjettagref.second = ((*jetTags)[jetsRef]);
-                  ajet.addBJetTagRefPair(pairjettagref);
-              }
+	for (size_t t = 0; t < jetTags->size(); t++) {
+          edm::RefToBase<reco::Jet> jet_p = (*jetTags)[t].first;
+	  
+	  if (jet_p.isNull()) {
+            /*std::cout << "-----------> JetTag::jet() returned null reference" << std::endl; */
+            continue;
           }
-        }
-      }
-      */
-    }
+	  if (DeltaR<reco::Candidate>()( *itJet, *jet_p ) < 0.00001) {
+	    //look only at the tagger present in tagModuleLabelsToKeep_
+	    for (unsigned int i = 0; i < tagModuleLabelsToKeep_.size(); ++i) {
+	      if (moduleLabel == tagModuleLabelsToKeep_[i] + tagModuleLabelPostfix_) {  
+		//********store discriminators*********
+		if (addDiscriminators_) {
+		  std::pair<std::string, float> pairDiscri;
+		  pairDiscri.first = tagModuleLabelsToKeep_[i];
+		  pairDiscri.second = ((*jetTags)[t]).second;
+		  ajet.addBDiscriminatorPair(pairDiscri);
+		  continue;
+		}
+		//********store TagInfo*********
+		
+	      }
+	    }
+	    /*
+	      impactParameterTagInfos, ( jetBProbabilityBJetTags & jetProbabilityBJetTags & trackCountingHighPurBJetTags & trackCountingHighEffBJetTags & impactParameterMVABJetTags ) ,
+	      secondaryVertexTagInfos, ( simpleSecondaryVertexBJetTags & combinedSecondaryVertexBJetTags & combinedSecondaryVertexMVABJetTags )     ) &
+	      ( btagSoftElectrons, softElectronTagInfos, softElectronBJetTags ) &
+	      ( softMuonTagInfos, ( softMuonBJetTags & softMuonNoIPBJetTags ) ) 
+	    */
+	    if (addTagInfoRefs_) {
+	      //add TagInfo for IP based taggers
+	      for(unsigned int k=0; k<ipTagInfoLabel_.size(); k++){
+		iEvent.getByLabel(ipTagInfoLabel_[k],jetsInfoHandleTIP);
+		TrackIPTagInfoCollection::const_iterator it = jetsInfoHandleTIP->begin();
+		ajet.addBTagIPTagInfoRef( TrackIPTagInfoRef(  jetsInfoHandleTIP, it+t - jetsInfoHandleTIP->begin()) );
+	      }
+	      //add TagInfo for soft leptons tagger
+	      for(unsigned int k=0; k<softETagInfoLabel_.size(); k++){
+		iEvent.getByLabel(softETagInfoLabel_[k],jetsInfoHandle_sle);
+		SoftLeptonTagInfoCollection::const_iterator it = jetsInfoHandle_sle->begin();
+		ajet.addBTagSoftLeptonERef(  SoftLeptonTagInfoRef( jetsInfoHandle_sle,  it+t  - jetsInfoHandle_sle->begin() )  );
+	      }
 
+	      //add TagInfo for soft leptons tagger
+	      for(unsigned int k=0; k<softMTagInfoLabel_.size(); k++){
+		iEvent.getByLabel(softMTagInfoLabel_[k],jetsInfoHandle_slm);
+		SoftLeptonTagInfoCollection::const_iterator it = jetsInfoHandle_slm->begin();
+		ajet.addBTagSoftLeptonMRef(  SoftLeptonTagInfoRef( jetsInfoHandle_slm,  it+t  - jetsInfoHandle_slm->begin() )  );
+	      } 
+              //add TagInfo for Secondary Vertex taggers
+	      for(unsigned int k=0; k<svTagInfoLabel_.size(); k++){
+		iEvent.getByLabel(svTagInfoLabel_[k],jetsInfoHandleSV);
+		SecondaryVertexTagInfoCollection::const_iterator it = jetsInfoHandleSV->begin();
+		ajet.addBTagSecondaryVertexTagInfoRef( SecondaryVertexTagInfoRef(jetsInfoHandleSV,it+t  - jetsInfoHandleSV->begin()) );
+	      }
+	      
+	    }
+	  }
+	}
+      }
+      
+    }
+    
     // Associate tracks with jet (at least temporary)
     simpleJetTrackAssociator_.associate(ajet.momentum(), hTracks, ajet.associatedTracks_);
 
