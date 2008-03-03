@@ -3,8 +3,6 @@
 
 #include "DataFormats/L1GlobalCaloTrigger/interface/L1GctJetCand.h"
 
-//DEFINE STATICS
-const unsigned L1GctJet::RAWSUM_BITWIDTH = 10;
 
 
 L1GctJet::L1GctJet(uint16_t rawsum, unsigned eta, unsigned phi, bool forwardJet, bool tauVeto) :
@@ -13,7 +11,7 @@ L1GctJet::L1GctJet(uint16_t rawsum, unsigned eta, unsigned phi, bool forwardJet,
   m_forwardJet(forwardJet),
   m_tauVeto(tauVeto || forwardJet)
 {
-
+  if (rawsum>kRawsumMaxValue) { rawsum = ((rawsum & kRawsumMaxValue) | kRawsumOFlowBit); }
 }
 
 L1GctJet::~L1GctJet()
@@ -67,6 +65,8 @@ void L1GctJet::setupJet(uint16_t rawsum, unsigned eta, unsigned phi, bool forwar
   m_id = temp;
   m_forwardJet = forwardJet;
   m_tauVeto = tauVeto || forwardJet;
+
+  if (rawsum>kRawsumMaxValue) { rawsum = ((rawsum & kRawsumMaxValue) | kRawsumOFlowBit); }
 }
 
 /// eta value as encoded in hardware at the GCT output
