@@ -14,6 +14,9 @@
 
 
 # GREN pedestals in ADC counts
+Pedestals   CondFormats/HcalObjects/data/hcal_pedestals_ADC_v1.txt   CondFormats/HcalObjects/data/GREN_peds_ADC_v2/gren_peds_ADC_v2_w30066.txt   test.txt
+
+
 # Pedestals   CondFormats/HcalObjects/data/hcal_pedestals_ADC_v1.txt   CondFormats/HcalObjects/data/GREN_peds_ADC_v2/30066-peds_ADC.txt   gren_peds_ADC_v2_w30066.txt
 # Pedestals   CondTools/Hcal/tools/gren_peds_ADC_v2_w30066.txt   CondFormats/HcalObjects/data/GREN_peds_ADC_v2/30097-peds_ADC.txt   gren_peds_ADC_v2_w30097.txt
 # Pedestals   CondTools/Hcal/tools/gren_peds_ADC_v2_w30097.txt   CondFormats/HcalObjects/data/GREN_peds_ADC_v2/30129-peds_ADC.txt   gren_peds_ADC_v2_w30129.txt

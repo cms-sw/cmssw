@@ -17,16 +17,14 @@ int main (int argn, char* argv []) {
   double scale = atof (argv[3]);
   HcalGains gainsIn;
   HcalDbASCIIIO::getObject (inStream, &gainsIn);
-  gainsIn.sort();
   HcalGains gainsOut;
   std::vector<DetId> channels = gainsIn.getAllChannels ();
   for (unsigned i = 0; i < channels.size(); i++) {
     DetId id = channels[i];
-    gainsOut.addValue (id, 
-		       gainsIn.getValue (id, 0) * scale, gainsIn.getValue (id, 1) * scale, 
-		       gainsIn.getValue (id, 2) * scale, gainsIn.getValue (id, 3) * scale);
+    HcalGain item(id, gainsIn.getValues(id)->getValue(0) * scale, gainsIn.getValues(id)->getValue(1) * scale, 
+		  gainsIn.getValues(id)->getValue(2) * scale, gainsIn.getValues(id)->getValue(3) * scale);
+    gainsOut.addValues(item);
   }
-  gainsOut.sort();
   HcalDbASCIIIO::dumpObject (outStream, gainsOut);
   return 0;
 }

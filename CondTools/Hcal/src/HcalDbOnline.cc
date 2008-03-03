@@ -1,7 +1,7 @@
 
 //
 // F.Ratnikov (UMd), Dec 14, 2005
-// $Id: HcalDbOnline.cc,v 1.16 2006/11/21 03:39:09 fedor Exp $
+// $Id: HcalDbOnline.cc,v 1.17 2007/05/09 07:34:46 michals Exp $
 //
 #include <limits>
 #include <string>
@@ -455,26 +455,24 @@ bool HcalDbOnline::getObject (HcalPedestals* fObject, HcalPedestalWidths* fWidth
       HcalDetId id (sub, z * eta, phi, depth);
       
       if (fObject) {
-	fObject->sort ();
-	try {
-	  fObject->getValues (id);
-	  std::cerr << "HcalDbOnline::getObject-> Ignore data to redefine channel " << id.rawId() << std::endl;
-	}
-	catch (cms::Exception& e) {
-	  fObject->addValue (id, values);
-	}
+	  if (fObject->exists(id) )
+	    std::cerr << "HcalDbOnline::getObject-> Ignore data to redefine channel " << id.rawId() << std::endl;
+	  else
+	    {
+	      HcalPedestal myped(id,values[0],values[1],values[2],values[3]);
+	      fObject->addValues(myped);
+	    }
       }
       if (fWidths) {
-	fWidths->sort ();
-	try {
-	  fWidths->getValues (id);
+	if (fWidths->exists(id) )
 	  std::cerr << "HcalDbOnline::getObject-> Ignore data to redefine channel " << id.rawId() << std::endl;
-	}
-	catch (cms::Exception& e) {
-	  HcalPedestalWidth* width = fWidths->setWidth (id);
-	  for (int i = 0; i < 4; i++) 
-	    for (int j = i; j < 4; j++) width->setSigma (i, j, widths [i][j]);
-	}
+	else
+	  {
+	    HcalPedestalWidth mywidth(id);
+	    for (int i = 0; i < 4; i++) 
+	      for (int j = i; j < 4; j++) mywidth.setSigma (i, j, widths [i][j]);
+	    fWidths->addValues(mywidth);
+	  }
       }
     }
     delete rset;
@@ -482,8 +480,8 @@ bool HcalDbOnline::getObject (HcalPedestals* fObject, HcalPedestalWidths* fWidth
   catch (oracle::occi::SQLException& sqlExcp) {
     std::cerr << "HcalDbOnline::getObject exception-> " << sqlExcp.getErrorCode () << ": " << sqlExcp.what () << std::endl;
   }
-  if (fObject) fObject->sort ();
-  if (fWidths) fWidths->sort ();
+  //  if (fObject) fObject->sort ();
+  //  if (fWidths) fWidths->sort ();
   return true;
 }
 
@@ -535,24 +533,22 @@ bool HcalDbOnline::getObject (HcalGains* fObject, HcalGainWidths* fWidths, const
       HcalDetId id (sub, z * eta, phi, depth);
 
       if (fObject) {
-	fObject->sort ();
-	try {
-	  fObject->getValues (id);
+	if (fObject->exists(id) )
 	  std::cerr << "HcalDbOnline::getObject-> Ignore data to redefine channel " << id.rawId() << std::endl;
-	}
-	catch (cms::Exception& e) {
-	  fObject->addValue (id, values);
-	}
+	else
+	  {
+	    HcalGain mygain(id,values[0],values[1],values[2],values[3]);
+	    fObject->addValues (mygain);
+	  }
       }
       if (fWidths) {
-	fWidths->sort ();
-	try {
-	  fWidths->getValues (id);
+	if (fWidths->exists(id) )
 	  std::cerr << "HcalDbOnline::getObject-> Ignore data to redefine channel " << id.rawId() << std::endl;
-	}
-	catch (cms::Exception& e) {
-	  fWidths->addValue (id, values);
-	}
+	else
+	  {
+	    HcalGainWidth mywid(id,values[0],values[1],values[2],values[3]);
+	    fWidths->addValues(mywid);
+	  }
       }
     }
     delete rset;
@@ -560,8 +556,8 @@ bool HcalDbOnline::getObject (HcalGains* fObject, HcalGainWidths* fWidths, const
   catch (oracle::occi::SQLException& sqlExcp) {
     std::cerr << "HcalDbOnline::getObject exception-> " << sqlExcp.getErrorCode () << ": " << sqlExcp.what () << std::endl;
   }
-  if (fObject) fObject->sort ();
-  if (fWidths) fWidths->sort ();
+  //  if (fObject) fObject->sort ();
+  //  if (fWidths) fWidths->sort ();
   return true;
 }
 

@@ -114,22 +114,13 @@ void HcalPedestalWidthsCheck::analyze(const edm::Event& ev, const edm::EventSetu
 	  {
 	    const HcalPedestalWidth* mywidth = myRefPeds->getValues( mydetid );
 	    std::cout << "o";
-	    resultPeds->setWidth( *mywidth );
-//	    //   bool addValue (DetId fId, const float fValues [4]);
-//	    const float* values = (myRefPeds->getValues( mydetid ))->getValues();
-//	    std::cout << "o";
-//	    resultPeds->addValue( (*it), values );
+	    resultPeds->addValues( *mywidth );
 	  }
 	else // present in new list, take new pedestals
 	  {
 	    const HcalPedestalWidth* mywidth = myNewPeds->getValues( mydetid );
 	    std::cout << "n";
-	    resultPeds->setWidth( *mywidth );
-//	    const float* values = (myNewPeds->getValues( mydetid ))->getValues();
-//	    std::cout << "n";
-//	    resultPeds->addValue( (*it), values );
-	    // compare the values of the pedestals for valid channels between update and reference
-	    
+	    resultPeds->addValues( *mywidth );
 
 	    listNewChan.erase(cell);  // fix 25.02.08
 	  }
@@ -140,12 +131,11 @@ void HcalPedestalWidthsCheck::analyze(const edm::Event& ev, const edm::EventSetu
 	DetId mydetid = *it;
 	const HcalPedestalWidth* mywidth = myNewPeds->getValues( mydetid );
 	std::cout << "N";
-	resultPeds->setWidth( *mywidth );
+	resultPeds->addValues( *mywidth );
       }
     // dump the resulting list of pedestals into a file
     std::ofstream outStream3(outfile.c_str());
     std::cout << "--- Dumping PedestalWidths - the combined ones ---" << std::endl;
-    resultPeds->sort();
     HcalDbASCIIIO::dumpObject (outStream3, (*resultPeds) );
 
 

@@ -1,7 +1,7 @@
 
 //
 // F.Ratnikov (UMd), Dec 14, 2005
-// $Id: HcalDbPoolOCCI.cc,v 1.1 2006/02/08 20:25:55 fedor Exp $
+// $Id: HcalDbPoolOCCI.cc,v 1.2 2006/07/29 00:45:21 fedor Exp $
 //
 #include <string>
 #include <iostream>
@@ -69,11 +69,13 @@ HcalDbPoolOCCI::~HcalDbPoolOCCI () {
 }
 
 bool HcalDbPoolOCCI::getObject (HcalPedestals* fObject, const std::string& fTag, unsigned long fRun) {
-  return getObjectGeneric (fObject, fTag, fRun);
+  HcalPedestal* myped;
+  return getObjectGeneric (fObject, myped, fTag, fRun);
 }
 
 bool HcalDbPoolOCCI::getObject (HcalGains* fObject, const std::string& fTag, unsigned long fRun) {
-  return getObjectGeneric (fObject, fTag, fRun);
+  HcalGain* mygain;
+  return getObjectGeneric (fObject, mygain, fTag, fRun);
 }
 
 bool HcalDbPoolOCCI::getObject (HcalElectronicsMap* fObject, const std::string& fTag, unsigned long fRun) {
@@ -134,8 +136,8 @@ std::string HcalDbPoolOCCI::getDataToken (const std::string& fIov, unsigned long
   return result;
 }
 
-template <class T>
-bool HcalDbPoolOCCI::getObjectGeneric (T* fObject, const std::string& fTag, unsigned long fRun) {
+template <class T, class S>
+bool HcalDbPoolOCCI::getObjectGeneric (T* fObject, S* fCondObject, const std::string& fTag, unsigned long fRun) {
   std::string mdToken = getMetadataToken (fTag);
    if (debug) std::cout << "HcalDbPoolOCCI::getObjectGeneric-> tag/token: " << fTag << '/' << mdToken << std::endl;
   if (mdToken.empty ()) return false;
@@ -157,12 +159,14 @@ bool HcalDbPoolOCCI::getObjectGeneric (T* fObject, const std::string& fTag, unsi
 	unsigned long hcalId = rset->getUInt (1);
 	float values [4];
 	for (int i = 0; i < 4; i++) values [i] = rset->getFloat (i+2);
-	fObject->addValue (DetId (hcalId), values);
+
+	fCondObject = new S(DetId (hcalId), values[0], values[1], values[2], values[3]);
+	fObject->addValues (*fCondObject);
+	delete fCondObject;
 	//	 if (debug) std::cout << "new entry: " << hcalId << '/' << values [0] << '/' << values [1] << '/' 
 	//	  << values [2] << '/' << values [3] << std::endl;
       }
       delete rset;
-      fObject->sort ();
       return true;
     }
     catch (oracle::occi::SQLException& sqlExcp) {

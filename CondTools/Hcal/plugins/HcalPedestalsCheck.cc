@@ -122,15 +122,15 @@ void HcalPedestalsCheck::analyze(const edm::Event& ev, const edm::EventSetup& es
         if (cell == listNewChan.end()) // not present in new list, take old pedestals
           {
             //   bool addValue (DetId fId, const float fValues [4]);
-            const float* values = (myRefPeds->getValues( mydetid ))->getValues();
+	    const HcalPedestal* item = myRefPeds->getValues(mydetid);
             std::cout << "o";
-            resultPeds->addValue( (*it), values );
+            resultPeds->addValues(*item);
           }
         else // present in new list, take new pedestals
           {
-            const float* values = (myNewPeds->getValues( mydetid ))->getValues();
+            const HcalPedestal* item = myNewPeds->getValues(mydetid);
             std::cout << "n";
-            resultPeds->addValue( (*it), values );
+            resultPeds->addValues(*item);
             // compare the values of the pedestals for valid channels between update and reference
             listNewChan.erase(cell);  // fix 25.02.08
           }
@@ -140,9 +140,9 @@ void HcalPedestalsCheck::analyze(const edm::Event& ev, const edm::EventSetup& es
     for (std::vector<DetId>::iterator it = listNewChan.begin(); it != listNewChan.end(); it++)  // fix 25.02.08
       {
 	DetId mydetid = *it;
-	const float* values = (myNewPeds->getValues( mydetid ))->getValues();
+	const HcalPedestal* item = myNewPeds->getValues(mydetid);
 	std::cout << "N";
-	resultPeds->addValue( (*it), values );
+	resultPeds->addValues(*item);
       }
 
 
@@ -155,7 +155,9 @@ void HcalPedestalsCheck::analyze(const edm::Event& ev, const edm::EventSetup& es
     if(checkemapflag){
     for (std::vector<HcalGenericDetId>::const_iterator it = listEMap.begin(); it != listEMap.end(); it++)
       {
-      DetId mydetid = DetId(it->rawId());
+	DetId mydetid = DetId(it->rawId());
+	HcalGenericDetId mygenid(it->rawId());
+	std::cout << "id = " << mygenid << ", hashed id = " << mygenid.hashedId() << std::endl;
 	if (std::find(listResult.begin(), listResult.end(), mydetid ) == listResult.end())
 	  {
 	    std::cout << "Conditions not found for DetId = " << HcalGenericDetId(it->rawId()) << std::endl;
@@ -166,7 +168,6 @@ void HcalPedestalsCheck::analyze(const edm::Event& ev, const edm::EventSetup& es
     // dump the resulting list of pedestals into a file
     std::ofstream outStream3(outfile.c_str());
     std::cout << "--- Dumping Pedestals - the combined ones ---" << std::endl;
-    resultPeds->sort();
     HcalDbASCIIIO::dumpObject (outStream3, (*resultPeds) );
     }
 

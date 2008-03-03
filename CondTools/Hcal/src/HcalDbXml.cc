@@ -1,7 +1,7 @@
 
 //
 // F.Ratnikov (UMd), Oct 28, 2005
-// $Id: HcalDbXml.cc,v 1.6 2006/11/21 03:39:09 fedor Exp $
+// $Id: HcalDbXml.cc,v 1.7 2008/01/22 18:55:34 muzaffar Exp $
 //
 #include <vector>
 #include <string>
@@ -359,12 +359,13 @@ bool HcalDbXml::dumpObject (std::ostream& fOutput,
   for (std::vector<DetId>::iterator channel = channels.begin ();
        channel !=  channels.end ();
        channel++) {
-    HcalPedestalWidth* item = widths.setWidth (*channel);
+
+    HcalPedestalWidth item(*channel);
     for (int iCapId = 0; iCapId < 4; iCapId++) {
-      item->setSigma (iCapId, iCapId, dummyError*dummyError);
+      item.setSigma (iCapId, iCapId, dummyError*dummyError);
     }
+    widths.addValues(item);
   }
-  widths.sort ();
   return dumpObject (fOutput, fRun, fGMTIOVBegin, fGMTIOVEnd, fTag, fObject, widths);
 }
 
@@ -379,12 +380,11 @@ bool HcalDbXml::dumpObject (std::ostream& fOutput,
 			    const HcalGains& fObject) {
   HcalGainWidths widths;
   std::vector<DetId> channels = fObject.getAllChannels ();
-  for (std::vector<DetId>::iterator channel = channels.begin ();
-       channel !=  channels.end ();
-       channel++) {
-    widths.addValue (*channel, 0, 0, 0, 0); // no error
-  }
-  widths.sort ();
+  for (std::vector<DetId>::iterator channel = channels.begin (); channel !=  channels.end (); channel++) 
+    {
+      HcalGainWidth item(*channel,0,0,0,0);
+      widths.addValues(item); // no error
+    }
   return dumpObject (fOutput, fRun, fGMTIOVBegin, fGMTIOVEnd, fTag, fObject, widths);
 }
 

@@ -90,10 +90,10 @@ void HcalGainsCheck::analyze(const edm::Event& ev, const edm::EventSetup& es)
 	HcalGenericDetId myId(*it);
 	//	ocMapRef->Fill(myId->);
 
-	float valCap0 = myRefGains->getValue( (*it), 0);
-	float valCap1 = myRefGains->getValue( (*it), 1);
-	float valCap2 = myRefGains->getValue( (*it), 2);
-	float valCap3 = myRefGains->getValue( (*it), 3);
+	float valCap0 = myRefGains->getValues(*it)->getValue(0);
+	float valCap1 = myRefGains->getValues(*it)->getValue(1);
+	float valCap2 = myRefGains->getValues(*it)->getValue(2);
+	float valCap3 = myRefGains->getValues(*it)->getValue(3);
 
 	gainsRefCap0->Fill(valCap0);
 	gainsRefCap1->Fill(valCap1);
@@ -103,10 +103,10 @@ void HcalGainsCheck::analyze(const edm::Event& ev, const edm::EventSetup& es)
 	cell = std::find(listNewChan.begin(), listNewChan.end(), (*it));
 	if (cell != listNewChan.end() ) //found
 	  {
-	    float valCap0up = myNewGains->getValue( (*it), 0);
-	    float valCap1up = myNewGains->getValue( (*it), 1);
-	    float valCap2up = myNewGains->getValue( (*it), 2);
-	    float valCap3up = myNewGains->getValue( (*it), 3);
+	    float valCap0up = myNewGains->getValues(*it)->getValue(0);
+	    float valCap1up = myNewGains->getValues(*it)->getValue(1);
+	    float valCap2up = myNewGains->getValues(*it)->getValue(2);
+	    float valCap3up = myNewGains->getValues(*it)->getValue(3);
 	    
 	    diffUpRefCap0->Fill(valCap0up - valCap0);
 	    diffUpRefCap1->Fill(valCap1up - valCap1);
@@ -131,10 +131,10 @@ void HcalGainsCheck::analyze(const edm::Event& ev, const edm::EventSetup& es)
       }
     for (std::vector<DetId>::const_iterator it = listNewChan.begin(); it!=listNewChan.end(); it++)
       {
-	float valCap0 = myNewGains->getValue( (*it), 0);
-	float valCap1 = myNewGains->getValue( (*it), 1);
-	float valCap2 = myNewGains->getValue( (*it), 2);
-	float valCap3 = myNewGains->getValue( (*it), 3);
+	float valCap0 = myNewGains->getValues(*it)->getValue(0);
+	float valCap1 = myNewGains->getValues(*it)->getValue(1);
+	float valCap2 = myNewGains->getValues(*it)->getValue(2);
+	float valCap3 = myNewGains->getValues(*it)->getValue(3);
 
 	gainsUpCap0->Fill(valCap0);
 	gainsUpCap1->Fill(valCap1);
@@ -167,15 +167,15 @@ void HcalGainsCheck::analyze(const edm::Event& ev, const edm::EventSetup& es)
 	cell = std::find(listNewChan.begin(), listNewChan.end(), mydetid);
 	if (cell == listNewChan.end()) // not present in new list, take old conditions
 	  {
-	    const float* values = (myRefGains->getValues( mydetid ))->getValues();
+	    const HcalGain* item = myRefGains->getValues(mydetid);
 	    std::cout << "o";
-	    resultGains->addValue( (*it), values );
+	    resultGains->addValues(*item);
 	  }
-	else // present in new list, take new pedestals
+	else // present in new list, take new conditions
 	  {
-	    const float* values = (myNewGains->getValues( mydetid ))->getValues();
+	    const HcalGain* item = myNewGains->getValues(mydetid);
 	    std::cout << "n";
-	    resultGains->addValue( (*it), values );
+	    resultGains->addValues(*item);
 	  }
       }
     std::cout << std::endl;
@@ -200,7 +200,6 @@ void HcalGainsCheck::analyze(const edm::Event& ev, const edm::EventSetup& es)
     //    filename3 << "test_combined.txt";
     std::ofstream outStream3(outfile.c_str());
     std::cout << "--- Dumping Gains - the combined ones ---" << std::endl;
-    resultGains->sort();
     HcalDbASCIIIO::dumpObject (outStream3, (*resultGains) );
 
     }
