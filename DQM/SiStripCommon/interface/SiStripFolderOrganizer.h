@@ -16,7 +16,9 @@
 //
 // Original Author:  dkcira
 //         Created:  Thu Jan 26 23:49:46 CET 2006
-// $Id: SiStripFolderOrganizer.h,v 1.4 2008/02/21 14:03:18 bainbrid Exp $
+
+// $Id: SiStripFolderOrganizer.h,v 1.6 2008/03/03 11:50:40 maborgia Exp $
+
 //
 
 #include <string>

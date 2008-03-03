@@ -8,7 +8,8 @@
 //
 // Original Author:  dkcira
 //         Created:  Thu Jan 26 23:52:43 CET 2006
-// $Id: SiStripFolderOrganizer.cc,v 1.13 2008/01/22 19:16:55 muzaffar Exp $
+
+// $Id: SiStripFolderOrganizer.cc,v 1.16 2008/03/03 11:50:42 maborgia Exp $
 //
 
 #include <iostream>
