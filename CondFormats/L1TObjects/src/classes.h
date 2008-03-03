@@ -38,3 +38,9 @@
 #include "CondFormats/L1TObjects/interface/L1GtCondition.h"
 #include "CondFormats/L1TObjects/interface/L1GtAlgorithm.h"
 #include "CondFormats/L1TObjects/interface/L1GtTriggerMenu.h"
+
+namespace {
+  namespace {
+    std::map< std::string, std::map< std::string, std::string > > dummy ;
+  }
+}
