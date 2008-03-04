@@ -60,7 +60,6 @@
 #include <Geometry/CSCGeometry/interface/CSCLayerGeometry.h>
 #include <Geometry/Records/interface/MuonGeometryRecord.h>
 
-#include "RecoLocalMuon/CSCRecHit/src/CSCWireCluster.h"
 #include "DataFormats/CSCRecHit/interface/CSCRecHit2DCollection.h"
 #include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
 
