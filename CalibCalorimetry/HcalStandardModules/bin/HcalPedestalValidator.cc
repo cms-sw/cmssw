@@ -179,8 +179,6 @@ int main (int argn, char* argv []) {
   delete RawPeds;
   delete RawPedWids;
 
-  if (outputPeds) outputPeds->sort ();
-  if (outputPedWids) outputPedWids->sort ();
 
 // store new objects if necessary
   if (Flag%100000>0) {

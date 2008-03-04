@@ -13,8 +13,8 @@
 /*
  * \file HcalPedestalAnalyzer.cc
  * 
- * $Date: 2007/04/10 23:02:35 $
- * $Revision: 1.9 $
+ * $Date: 2008/01/22 18:59:58 $
+ * $Revision: 1.10 $
  * \author S Stoynev / W Fisher
  *
 */
@@ -163,8 +163,6 @@ void HcalPedestalAnalyzer::endJob(void) {
   delete inputPeds;
   delete inputPedWids;
 
-  if (outputPeds) outputPeds->sort ();
-  if (outputPedWids) outputPedWids->sort ();
 
   // store new objects
   // Flag=-2 indicates there were less than 100 events and output is meaningless
