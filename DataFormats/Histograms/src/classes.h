@@ -17,7 +17,8 @@
 #include "TProfile.h"
 #include "TProfile2D.h"
 #include "TProfile3D.h"
-#include "DataFormats/Histograms/interface/MEtoROOTFormat.h"
+#include "DataFormats/Histograms/interface/MEtoEDMFormat.h"
+#include "TString.h"
 
 namespace {
   struct dictionary {
@@ -45,29 +46,29 @@ namespace {
   namespace {
     std::vector<uint32_t> dummy1;
     std::vector<std::vector<uint32_t> > dummy2;
-    MEtoROOT<TH1F> dummy3;
-    MEtoROOT<TH2F> dummy4;
-    MEtoROOT<TH3F> dummy5;
-    MEtoROOT<TProfile> dummy6;
-    MEtoROOT<TProfile2D> dummy7;
-    MEtoROOT<float> dummy8;
-    MEtoROOT<int> dummy9;
-    MEtoROOT<std::string> dummy10;
-    std::vector<MEtoROOT<TH1F>::MEROOTObject> dummy11;
-    std::vector<MEtoROOT<TH2F>::MEROOTObject> dummy12;
-    std::vector<MEtoROOT<TH3F>::MEROOTObject> dummy13;
-    std::vector<MEtoROOT<TProfile>::MEROOTObject> dummy14;
-    std::vector<MEtoROOT<TProfile2D>::MEROOTObject> dummy15;
-    std::vector<MEtoROOT<float>::MEROOTObject> dummy16;
-    std::vector<MEtoROOT<int>::MEROOTObject> dummy17;
-    std::vector<MEtoROOT<std::string>::MEROOTObject> dummy18;
-    edm::Wrapper<MEtoROOT<TH1F> > theValidData1;
-    edm::Wrapper<MEtoROOT<TH2F> > theValidData2;
-    edm::Wrapper<MEtoROOT<TH3F> > theValidData3;
-    edm::Wrapper<MEtoROOT<TProfile> > theValidData4;
-    edm::Wrapper<MEtoROOT<TProfile2D> > theValidData5;
-    edm::Wrapper<MEtoROOT<float> > theValidData6;
-    edm::Wrapper<MEtoROOT<int> > theValidData7;
-    edm::Wrapper<MEtoROOT<std::string> > theValidData8;
+    MEtoEDM<TH1F> dummy3;
+    MEtoEDM<TH2F> dummy4;
+    MEtoEDM<TH3F> dummy5;
+    MEtoEDM<TProfile> dummy6;
+    MEtoEDM<TProfile2D> dummy7;
+    MEtoEDM<float> dummy8;
+    MEtoEDM<int> dummy9;
+    MEtoEDM<TString> dummy10;
+    std::vector<MEtoEDM<TH1F>::MEtoEDMObject> dummy11;
+    std::vector<MEtoEDM<TH2F>::MEtoEDMObject> dummy12;
+    std::vector<MEtoEDM<TH3F>::MEtoEDMObject> dummy13;
+    std::vector<MEtoEDM<TProfile>::MEtoEDMObject> dummy14;
+    std::vector<MEtoEDM<TProfile2D>::MEtoEDMObject> dummy15;
+    std::vector<MEtoEDM<float>::MEtoEDMObject> dummy16;
+    std::vector<MEtoEDM<int>::MEtoEDMObject> dummy17;
+    std::vector<MEtoEDM<TString>::MEtoEDMObject> dummy18;
+    edm::Wrapper<MEtoEDM<TH1F> > theValidData1;
+    edm::Wrapper<MEtoEDM<TH2F> > theValidData2;
+    edm::Wrapper<MEtoEDM<TH3F> > theValidData3;
+    edm::Wrapper<MEtoEDM<TProfile> > theValidData4;
+    edm::Wrapper<MEtoEDM<TProfile2D> > theValidData5;
+    edm::Wrapper<MEtoEDM<float> > theValidData6;
+    edm::Wrapper<MEtoEDM<int> > theValidData7;
+    edm::Wrapper<MEtoEDM<TString> > theValidData8;
   }
 }

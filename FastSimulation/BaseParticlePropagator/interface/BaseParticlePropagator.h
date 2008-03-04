@@ -113,7 +113,7 @@ public:
       Z axis, to the preshower layer 1 & 2, to the ECAL entrance, to the 
       HCAL entrance, the HCAL 2nd and 3rd layer (not coded yet), the VFCAL 
       entrance, or any BoundSurface(disk or cylinder)*/
-  bool propagateToClosestApproach(bool first=true);
+  bool propagateToClosestApproach(double x0=0.,double y0=0,bool first=true);
   bool propagateToEcal(bool first=true);
   bool propagateToPreshowerLayer1(bool first=true);
   bool propagateToPreshowerLayer2(bool first=true);
@@ -169,17 +169,12 @@ public:
   inline void increaseRCyl(double delta) {rCyl = rCyl + delta; rCyl2 = rCyl*rCyl; }
 
   /// Transverse impact parameter
-  inline double xyImpactParameter() const {
-    // Transverse impact parameter
-    return ( charge() != 0.0 && bField != 0.0 ) ? 
-      helixCentreDistToAxis() - fabs( helixRadius() ) :
-      fabs( Px() * Y() - Py() * X() ) / Pt(); 
-  }
+  double xyImpactParameter(double x0=0., double y0=0.) const;
 
   /// Longitudinal impact parameter
-  inline double zImpactParameter() const {
+  inline double zImpactParameter(double x0=0, double y0=0.) const {
     // Longitudinal impact parameter
-    return Z() - Pz() * std::sqrt(R2()/Perp2());
+    return Z() - Pz() * std::sqrt( ((X()-x0)*(X()-x0) + (Y()-y0)*(Y()-y0) ) / Perp2());
   }
 
   /// The helix Radius

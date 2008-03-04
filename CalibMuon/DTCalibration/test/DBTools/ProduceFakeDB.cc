@@ -2,8 +2,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2007/09/14 08:07:22 $
- *  $Revision: 1.2 $
+ *  $Date: 2007/03/28 17:05:19 $
+ *  $Revision: 1.1 $
  *  \author S. Bolognesi - INFN Torino
  */
 
@@ -60,7 +60,7 @@ void ProduceFakeDB::endJob() {
     //Loop on superlayers
     for (vector<DTSuperLayer*>::const_iterator sl = dtSupLylist.begin();
 	 sl != dtSupLylist.end(); sl++) {
-      mtimeMap->set((*sl)->id(), vdrift, hitReso, DTTimeUnits::ns);
+      mtimeMap->setSLMtime((*sl)->id(), vdrift, hitReso, DTTimeUnits::ns);
     }
 
     // Write the object in the DB
@@ -80,7 +80,7 @@ void ProduceFakeDB::endJob() {
     //Loop on superlayers
     for (vector<DTSuperLayer*>::const_iterator sl = dtSupLylist.begin();
 	 sl != dtSupLylist.end(); sl++) {
-      tTrigMap->set((*sl)->id(), ttrig, sigmaTtrig, DTTimeUnits::ns);
+      tTrigMap->setSLTtrig((*sl)->id(), ttrig, sigmaTtrig, DTTimeUnits::ns);
     }
 
     // Write the object in the DB
@@ -107,7 +107,7 @@ void ProduceFakeDB::endJob() {
       //Loop on wires
       for(int w=0; w<nWires; w++){
 	DTWireId wireId((*ly)->id(), w + firstWire);
-	tZeroMap->set(wireId, tzero, sigmaTzero, DTTimeUnits::counts );
+	tZeroMap->setCellT0(wireId, tzero, sigmaTzero, DTTimeUnits::counts );
       }
     }
 

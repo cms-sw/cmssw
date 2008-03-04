@@ -272,10 +272,10 @@ namespace edm {
     // uncompress if we need to
     // 78 was a dummy value (for no uncompressed) - should be 0 for uncompressed
     // need to get rid of this when 090 MTCC streamers are gotten rid of
-    unsigned long origsize = eventView.reserved();
-    unsigned long dest_size; //(should be >= eventView.reserved() )
+    unsigned long origsize = eventView.origDataSize();
+    unsigned long dest_size; //(should be >= eventView.origDataSize() )
 
-    if(eventView.reserved() != 78 && eventView.reserved() != 0)
+    if(origsize != 78 && origsize != 0)
     {
       // compressed
       dest_size = uncompressBuffer((unsigned char*)eventView.eventData(),

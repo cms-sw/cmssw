@@ -3,23 +3,23 @@
 
 
 - General:
-The main change for this release was a major upgrade of the GT emulator.
+  - The main change for this release was a major upgrade of the GT emulator.
 
 - Main changes and new features:
-   * GT emulator takes trigger menu from dummy ESProducer/DB
-   * GT emulator timing improved
-   * DigiToRaw/RawToDigi complete
-      * CSCTF and DTTF modules now included in default sequences
-      * CSC and DT TPG digis can be accessed via CSCTF/DTTF RawToDigi
-      * GCT modules now include RCT region energies
-   * GCT default jet algorithm changed to match hardware
-   * GCT default jet corrections based on 17X
-   * HLT seeding sequence and test job added to L1Trigger/Configuration
+  - GT emulator takes trigger menu from dummy ESProducer/DB
+  - GT emulator timing improved
+  - DigiToRaw/RawToDigi complete
+    - CSCTF and DTTF modules now included in default sequences
+    - CSC and DT TPG digis can be accessed via CSCTF/DTTF RawToDigi
+    - GCT modules now include RCT region energies
+  - GCT default jet algorithm changed to match hardware
+  - GCT default jet corrections based on 17X
+  - HLT seeding sequence and test job added to L1Trigger/Configuration
 
 - Major bug fixes:
 
 - Known issues:
-   * Outstanding bug in write-read of CondFormats other than L1TriggerKey
+  - Outstanding bug in write-read of CondFormats other than L1TriggerKey
 
 <hr>
 Last updated: @DATE@ Jim Brooke

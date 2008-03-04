@@ -4,9 +4,10 @@
 /** \class QTestHandle
  * *
  *  Handles quality tests (configuring, attaching to ME's, 
+ *  subscribing to the ME's for which quality tests are requested).
  *
- *  $Date: 2007/09/06 13:21:57 $
- *  $Revision: 1.4 $
+ *  $Date: 2007/07/08 21:03:53 $
+ *  $Revision: 1.3.4.1 $
  *  \author Ilaria Segoni
   */
   

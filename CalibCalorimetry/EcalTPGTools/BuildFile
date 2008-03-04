@@ -10,8 +10,6 @@
 <use name=SimCalorimetry/EcalSimAlgos>
 <use name=FWCore/Framework>
 <use name=FWCore/Utilities>
-<use name=OnlineDB/EcalCondDB>
-<use name=OnlineDB/Oracle>
 <export>
  <use name=DataFormats/EcalDigi>
  <use name=DataFormats/EcalDetId>
@@ -25,7 +23,5 @@
  <use name=SimCalorimetry/EcalSimAlgos>
  <use name=FWCore/Framework>
  <use name=FWCore/Utilities>
- <use name=OnlineDB/EcalCondDB>
- <use name=OnlineDB/Oracle>
  <lib name=CalibCalorimetryEcalTPGTools>
 </export>

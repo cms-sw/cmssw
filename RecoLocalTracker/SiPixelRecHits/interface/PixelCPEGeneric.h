@@ -31,7 +31,6 @@
 // of the pixel algorithm.
 
 #include "RecoLocalTracker/SiPixelRecHits/interface/PixelCPEBase.h"
-#include "CondTools/SiPixel/interface/SiPixelDBErrorParametrization.h"
 
 // Already defined in the base class
 //#include "Geometry/CommonDetUnit/interface/GeomDetType.h"
@@ -54,12 +53,11 @@
 #endif
 
 class MagneticField;
-class SiPixelCPEParmErrors;
 class PixelCPEGeneric : public PixelCPEBase
 {
  public:
   // PixelCPEGeneric( const DetUnit& det );
-  PixelCPEGeneric(edm::ParameterSet const& conf, const MagneticField*, const SiPixelCPEParmErrors*);
+  PixelCPEGeneric(edm::ParameterSet const& conf, const MagneticField*);
   ~PixelCPEGeneric() {;}
 
   LocalPoint localPosition (const SiPixelCluster& cluster, const GeomDetUnit & det) const; 
@@ -108,16 +106,6 @@ class PixelCPEGeneric : public PixelCPEBase
   //--- Errors squared in x and y.  &&& Need to be revisited.
   float err2X(bool&, int&) const;
   float err2Y(bool&, int&) const;
-
-  //--- Cuts made externally settable
-  double the_eff_charge_cut_lowX;
-  double the_eff_charge_cut_lowY;
-  double the_eff_charge_cut_highX;
-  double the_eff_charge_cut_highY;
-  double the_size_cutX;
-  double the_size_cutY;
-
-	SiPixelDBErrorParametrization * dbErrors_;
 
  protected:
   //--- These functions are no longer needed, yet they are declared 

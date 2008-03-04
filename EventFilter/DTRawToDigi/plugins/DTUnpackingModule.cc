@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2007/08/06 11:09:07 $
- *  $Revision: 1.4 $
+ *  $Date: 2007/09/04 08:07:26 $
+ *  $Revision: 1.5 $
  *  \author S. Argiro - N. Amapane - M. Zanetti 
  * FRC 060906
  */
@@ -10,7 +10,6 @@
 #include <FWCore/Framework/interface/Event.h>
 #include <DataFormats/Common/interface/Handle.h>
 #include <FWCore/Framework/interface/ESHandle.h>
-#include <FWCore/Framework/interface/MakerMacros.h>
 #include <FWCore/Framework/interface/EventSetup.h>
 #include <FWCore/ParameterSet/interface/ParameterSet.h>
 
@@ -21,10 +20,8 @@
 #include <DataFormats/DTDigi/interface/DTDigiCollection.h>
 #include <DataFormats/DTDigi/interface/DTLocalTriggerCollection.h>
 
-#include <CondFormats/DTObjects/interface/DTReadOutMapping.h>
 #include <CondFormats/DataRecord/interface/DTReadOutMappingRcd.h>
 
-#include <EventFilter/DTRawToDigi/interface/DTDDUWords.h>
 #include <EventFilter/DTRawToDigi/plugins/DTDDUUnpacker.h>
 #include <EventFilter/DTRawToDigi/plugins/DTROS25Unpacker.h>
 #include <EventFilter/DTRawToDigi/plugins/DTROS8Unpacker.h>
@@ -33,7 +30,6 @@
 using namespace edm;
 using namespace std;
 
-#include <iostream>
 
 
 #define SLINK_WORD_SIZE 8 

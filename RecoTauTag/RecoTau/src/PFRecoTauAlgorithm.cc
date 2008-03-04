@@ -68,47 +68,35 @@ PFTau PFRecoTauAlgorithm::buildPFTau(const PFTauTagInfoRef& myPFTauTagInfoRef,co
   double myPFTau_refInnerPosition_z=0.;
   if(myleadPFCand.isNonnull()){
     myPFTau.setleadPFChargedHadrCand(myleadPFCand);
-    if ((*myleadPFCand).blockRef()->elements().size()!=0){
-      for (OwnVector<PFBlockElement>::const_iterator iPFBlockElement=(*myleadPFCand).blockRef()->elements().begin();iPFBlockElement!=(*myleadPFCand).blockRef()->elements().end();iPFBlockElement++){
-	if ((*iPFBlockElement).type()==PFBlockElement::TRACK && ROOT::Math::VectorUtil::DeltaR((*myleadPFCand).momentum(),(*iPFBlockElement).trackRef()->momentum())<0.001){
-	  TrackRef myleadPFCand_rectk=(*iPFBlockElement).trackRef();
-	  if(myleadPFCand_rectk.isNonnull()){
-	    myleadPFCand_rectkavailable=true;
-	    myleadPFCand_rectkDZ=(*myleadPFCand_rectk).dz();
-	    if(TransientTrackBuilder_!=0){ 
-	      const TransientTrack myleadPFCand_rectransienttk=TransientTrackBuilder_->build(&(*myleadPFCand_rectk));
-	      GlobalVector myPFJetdir((*myPFJet).px(),(*myPFJet).py(),(*myPFJet).pz());
-	      if(IPTools::signedTransverseImpactParameter(myleadPFCand_rectransienttk,myPFJetdir,myPV).first)
-		myPFTau.setleadPFChargedHadrCandsignedSipt(IPTools::signedTransverseImpactParameter(myleadPFCand_rectransienttk,myPFJetdir,myPV).second.significance());
-	    }
-	    // Track::innerOk(), ::innerPosition() make use of the TrackExtra object possibly wrongly -in RecoParticleFlow/PFTracking package- associated to the Track - Nov 25, 2007;
-	    /*
-	    if((*myleadPFCand_rectk).innerOk()){
-	      myPFTau_refInnerPosition_x=(*myleadPFCand_rectk).innerPosition().x(); 
-	      myPFTau_refInnerPosition_y=(*myleadPFCand_rectk).innerPosition().y(); 
-	      myPFTau_refInnerPosition_z=(*myleadPFCand_rectk).innerPosition().z(); 
-	    }
-	    */
-	  }
-	}
+    TrackRef myleadPFCand_rectk=(*myleadPFCand).trackRef();
+    if(myleadPFCand_rectk.isNonnull()){
+      myleadPFCand_rectkavailable=true;
+      myleadPFCand_rectkDZ=(*myleadPFCand_rectk).dz();
+      if(TransientTrackBuilder_!=0){ 
+	const TransientTrack myleadPFCand_rectransienttk=TransientTrackBuilder_->build(&(*myleadPFCand_rectk));
+	GlobalVector myPFJetdir((*myPFJet).px(),(*myPFJet).py(),(*myPFJet).pz());
+	if(IPTools::signedTransverseImpactParameter(myleadPFCand_rectransienttk,myPFJetdir,myPV).first)
+	  myPFTau.setleadPFChargedHadrCandsignedSipt(IPTools::signedTransverseImpactParameter(myleadPFCand_rectransienttk,myPFJetdir,myPV).second.significance());
       }
+      // Track::innerOk(), ::innerPosition() make use of the TrackExtra object possibly wrongly -in RecoParticleFlow/PFTracking package- associated to the Track - Nov 25, 2007;
+      /*
+	if((*myleadPFCand_rectk).innerOk()){
+	myPFTau_refInnerPosition_x=(*myleadPFCand_rectk).innerPosition().x(); 
+	myPFTau_refInnerPosition_y=(*myleadPFCand_rectk).innerPosition().y(); 
+	myPFTau_refInnerPosition_z=(*myleadPFCand_rectk).innerPosition().z(); 
+	}
+      */
     }
-
     if (UseChargedHadrCandLeadChargedHadrCand_tksDZconstraint_ && myleadPFCand_rectkavailable){
       PFCandidateRefVector myPFChargedHadrCandsbis;
       for(PFCandidateRefVector::const_iterator iPFCand=myPFChargedHadrCands.begin();iPFCand!=myPFChargedHadrCands.end();iPFCand++){
-	TrackRef iPFChargedHadrCand_track;
-	if ((**iPFCand).block()->elements().size()!=0){
-	  for (OwnVector<PFBlockElement>::const_iterator iPFBlock=(**iPFCand).block()->elements().begin();iPFBlock!=(**iPFCand).block()->elements().end();iPFBlock++){
-	    if ((*iPFBlock).type()==PFBlockElement::TRACK && ROOT::Math::VectorUtil::DeltaR((**iPFCand).momentum(),(*iPFBlock).trackRef()->momentum())<0.001) iPFChargedHadrCand_track=(*iPFBlock).trackRef();
-	  }
-	}else continue;
+	TrackRef iPFChargedHadrCand_track=(**iPFCand).trackRef();
 	if (!iPFChargedHadrCand_track)continue;
 	if (fabs((*iPFChargedHadrCand_track).dz()-myleadPFCand_rectkDZ)<=ChargedHadrCandLeadChargedHadrCand_tksmaxDZ_) myPFChargedHadrCandsbis.push_back(*iPFCand);
       }
       myPFChargedHadrCands=myPFChargedHadrCandsbis;
     }
-
+    
     TFormula myTrackerSignalConeSizeTFormula=myPFTauElementsOperators.computeConeSizeTFormula(TrackerSignalConeSizeFormula_,"Tracker signal cone size");
     double myTrackerSignalConeSize=myPFTauElementsOperators.computeConeSize(myTrackerSignalConeSizeTFormula,TrackerSignalConeSize_min_,TrackerSignalConeSize_max_);
     TFormula myTrackerIsolConeSizeTFormula=myPFTauElementsOperators.computeConeSizeTFormula(TrackerIsolConeSizeFormula_,"Tracker isolation cone size");

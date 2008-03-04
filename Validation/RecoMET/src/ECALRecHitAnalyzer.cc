@@ -6,31 +6,22 @@
 
 ECALRecHitAnalyzer::ECALRecHitAnalyzer(const edm::ParameterSet& iConfig)
 {
-  
-  // Retrieve Information from the Configuration File
-  geometryFile_      = iConfig.getUntrackedParameter<std::string>("GeometryFile");
-  outputFile_        = iConfig.getUntrackedParameter<std::string>("OutputFile");
-  ECALRecHitsLabel_  = iConfig.getParameter<std::string>("ECALRecHitsLabel");
-  EBRecHitsLabel_  = iConfig.getParameter<std::string>("EBRecHitsLabel");
-  EERecHitsLabel_    = iConfig.getParameter<std::string>("EERecHitsLabel");
-
   debug_             = iConfig.getParameter<bool>("Debug");
 
-  if (outputFile_.size() > 0)
-    edm::LogInfo("OutputInfo") << " MET/HCALRecHit Task histograms will be saved to '" << outputFile_.c_str() << "'";
-  else edm::LogInfo("OutputInfo") << " MET/HCALRecHit Task histograms will NOT be saved";
  
 }
 
 void ECALRecHitAnalyzer::endJob() {
-
-  // Store the DAQ Histograms
-  if (outputFile_.size() > 0 && dbe_)
-    dbe_->save(outputFile_);
+  //Write out the histogram files.
+  m_DataFile->Write();
+  m_GeomFile->Write();
 } 
 
 void ECALRecHitAnalyzer::beginJob(const edm::EventSetup& iSetup){
   CurrentEvent = -1;
+  // Make the output files
+  m_GeomFile=new TFile("ECAL_geometry.root" ,"RECREATE");  
+  m_DataFile=new TFile("ECALRecHitAnalyzer_data.root" ,"RECREATE");  
   // Book the Histograms
   BookHistos();
   // Fill the geometry histograms
@@ -39,66 +30,61 @@ void ECALRecHitAnalyzer::beginJob(const edm::EventSetup& iSetup){
 
 void ECALRecHitAnalyzer::BookHistos()
 {
-  // get ahold of back-end interface
-  dbe_ = edm::Service<DaqMonitorBEInterface>().operator->();
-  
-  if (dbe_) {
-
   // Book Geometry Histograms
- dbe_->setCurrentFolder("METTask/ECAL/geometry");
+  m_GeomFile->cd();
   // ECAL barrel
-  me["hEB_ieta_iphi_etaMap"] = dbe_->book2D("hEB_ieta_iphi_etaMap","", 171, -85, 86, 360, 1, 361);
-  me["hEB_ieta_iphi_phiMap"] = dbe_->book2D("hEB_ieta_iphi_phiMap","", 171, -85, 86, 360, 1, 361);
-  me["hEB_ieta_detaMap"] = dbe_->book1D("hEB_ieta_detaMap","", 171, -85, 86);
-  me["hEB_ieta_dphiMap"] = dbe_->book1D("hEB_ieta_dphiMap","", 171, -85, 86);
+  hEB_ieta_iphi_etaMap = new TH2F("hEB_ieta_iphi_etaMap","", 171, -85, 86, 360, 1, 361);
+  hEB_ieta_iphi_phiMap = new TH2F("hEB_ieta_iphi_phiMap","", 171, -85, 86, 360, 1, 361);
+  hEB_ieta_detaMap = new TH1F("hEB_ieta_detaMap","", 171, -85, 86);
+  hEB_ieta_dphiMap = new TH1F("hEB_ieta_dphiMap","", 171, -85, 86);
   // ECAL +endcap
-  me["hEEpZ_ix_iy_xMap"] = dbe_->book2D("hEEpZ_ix_iy_xMap","", 100,1,101, 100,1,101);
-  me["hEEpZ_ix_iy_yMap"] = dbe_->book2D("hEEpZ_ix_iy_yMap","", 100,1,101, 100,1,101);
-  me["hEEpZ_ix_iy_dxMap"] = dbe_->book2D("hEEpZ_ix_iy_dxMap","", 100,1,101, 100,1,101);  
-  me["hEEpZ_ix_iy_dyMap"] = dbe_->book2D("hEEpZ_ix_iy_dyMap","", 100,1,101, 100,1,101);
+  hEEpZ_ix_iy_xMap = new TH2F("hEEpZ_ix_iy_xMap","", 100,1,101, 100,1,101);
+  hEEpZ_ix_iy_yMap = new TH2F("hEEpZ_ix_iy_yMap","", 100,1,101, 100,1,101);
+  hEEpZ_ix_iy_dxMap = new TH2F("hEEpZ_ix_iy_dxMap","", 100,1,101, 100,1,101);  
+  hEEpZ_ix_iy_dyMap = new TH2F("hEEpZ_ix_iy_dyMap","", 100,1,101, 100,1,101);
   // ECAL -endcap
-  me["hEEmZ_ix_iy_xMap"] = dbe_->book2D("hEEmZ_ix_iy_xMap","", 100,1,101, 100,1,101);
-  me["hEEmZ_ix_iy_yMap"] = dbe_->book2D("hEEmZ_ix_iy_yMap","", 100,1,101, 100,1,101);
-  me["hEEmZ_ix_iy_dxMap"] = dbe_->book2D("hEEmZ_ix_iy_dxMap","", 100,1,101, 100,1,101);  
-  me["hEEmZ_ix_iy_dyMap"] = dbe_->book2D("hEEmZ_ix_iy_dyMap","", 100,1,101, 100,1,101);
+  hEEmZ_ix_iy_xMap = new TH2F("hEEmZ_ix_iy_xMap","", 100,1,101, 100,1,101);
+  hEEmZ_ix_iy_yMap = new TH2F("hEEmZ_ix_iy_yMap","", 100,1,101, 100,1,101);
+  hEEmZ_ix_iy_dxMap = new TH2F("hEEmZ_ix_iy_dxMap","", 100,1,101, 100,1,101);  
+  hEEmZ_ix_iy_dyMap = new TH2F("hEEmZ_ix_iy_dyMap","", 100,1,101, 100,1,101);
 
   // Initialize bins for geometry to -999 because z = 0 is a valid entry 
   for (int i=1; i<=100; i++)
     for (int j=1; j<=100; j++)
       {
-	me["hEEpZ_ix_iy_xMap"]->setBinContent(i,j,-999);
-	me["hEEpZ_ix_iy_yMap"]->setBinContent(i,j,-999);
-	me["hEEpZ_ix_iy_dxMap"]->setBinContent(i,j,-999);
-	me["hEEpZ_ix_iy_dyMap"]->setBinContent(i,j,-999);
+	hEEpZ_ix_iy_xMap->SetBinContent(i,j,-999);
+	hEEpZ_ix_iy_yMap->SetBinContent(i,j,-999);
+	hEEpZ_ix_iy_dxMap->SetBinContent(i,j,-999);
+	hEEpZ_ix_iy_dyMap->SetBinContent(i,j,-999);
 
-	me["hEEmZ_ix_iy_xMap"]->setBinContent(i,j,-999);
-	me["hEEmZ_ix_iy_yMap"]->setBinContent(i,j,-999);
-	me["hEEmZ_ix_iy_dxMap"]->setBinContent(i,j,-999);
-	me["hEEmZ_ix_iy_dyMap"]->setBinContent(i,j,-999);
+	hEEmZ_ix_iy_xMap->SetBinContent(i,j,-999);
+	hEEmZ_ix_iy_yMap->SetBinContent(i,j,-999);
+	hEEmZ_ix_iy_dxMap->SetBinContent(i,j,-999);
+	hEEmZ_ix_iy_dyMap->SetBinContent(i,j,-999);
       }
 
   for (int i=1; i<=171; i++)
     {
-      me["hEB_ieta_detaMap"]->setBinContent(i,-999);
-      me["hEB_ieta_dphiMap"]->setBinContent(i,-999);
+      hEB_ieta_detaMap->SetBinContent(i,-999);
+      hEB_ieta_dphiMap->SetBinContent(i,-999);
       for (int j=1; j<=360; j++)
 	{
-	  me["hEB_ieta_iphi_etaMap"]->setBinContent(i,j,-999);
-	  me["hEB_ieta_iphi_phiMap"]->setBinContent(i,j,-999);
+	  hEB_ieta_iphi_etaMap->SetBinContent(i,j,-999);
+	  hEB_ieta_iphi_phiMap->SetBinContent(i,j,-999);
 	}
     }
 
   // Book Data Histograms
-  dbe_->setCurrentFolder("METTask/ECAL/data");
+  m_DataFile->cd();
   // Energy Histograms by logical index
-  me["hEEpZ_energy_ix_iy"] = dbe_->book2D("hEEpZ_energy_ix_iy","", 100,1,101, 100,1,101);
-  me["hEEmZ_energy_ix_iy"] = dbe_->book2D("hEEmZ_energy_ix_iy","", 100,1,101, 100,1,101);
-  me["hEB_energy_ieta_iphi"] = dbe_->book2D("hEB_energy_ieta_iphi","", 171, -85, 86, 360, 1, 361);   
+  hEEpZ_energy_ix_iy = new TH2F("hEEpZ_energy_ix_iy","", 100,1,101, 100,1,101);
+  hEEmZ_energy_ix_iy = new TH2F("hEEmZ_energy_ix_iy","", 100,1,101, 100,1,101);
+  hEB_energy_ieta_iphi = new TH2F("hEB_energy_ieta_iphi","", 171, -85, 86, 360, 1, 361);   
   // Occupancy Histograms by logical index
-  me["hEEpZ_Occ_ix_iy"] = dbe_->book2D("hEEpZ_Occ_ix_iy","", 100,1,101, 100,1,101);  
-  me["hEEmZ_Occ_ix_iy"] = dbe_->book2D("hEEmZ_Occ_ix_iy","", 100,1,101, 100,1,101);  
-  me["hEB_Occ_ieta_iphi"] = dbe_->book2D("hEB_Occ_ieta_iphi","",171, -85, 86, 360, 1, 361);   
-  }
+  hEEpZ_Occ_ix_iy = new TH2F("hEEpZ_Occ_ix_iy","", 100,1,101, 100,1,101);  
+  hEEmZ_Occ_ix_iy = new TH2F("hEEmZ_Occ_ix_iy","", 100,1,101, 100,1,101);  
+  hEB_Occ_ieta_iphi = new TH2F("hEB_Occ_ieta_iphi","",171, -85, 86, 360, 1, 361);   
+ 
 }
 
 void ECALRecHitAnalyzer::FillGeometry(const edm::EventSetup& iSetup)
@@ -125,8 +111,8 @@ void ECALRecHitAnalyzer::FillGeometry(const edm::EventSetup& iSetup)
     int Crystal_iphi = EcalID.iphi();
     double Crystal_eta = cell->getPosition().eta();
     double Crystal_phi = cell->getPosition().phi();
-    me["hEB_ieta_iphi_etaMap"]->setBinContent(Crystal_ieta+86, Crystal_iphi, Crystal_eta);
-    me["hEB_ieta_iphi_phiMap"]->setBinContent(Crystal_ieta+86, Crystal_iphi, (Crystal_phi*180/M_PI) );
+    hEB_ieta_iphi_etaMap->SetBinContent(Crystal_ieta+86, Crystal_iphi, Crystal_eta);
+    hEB_ieta_iphi_phiMap->SetBinContent(Crystal_ieta+86, Crystal_iphi, (Crystal_phi*180/M_PI) );
     
     DEBUG( " Crystal " << n );
     DEBUG( "  ieta, iphi = " << Crystal_ieta << ", " << Crystal_iphi);
@@ -153,14 +139,14 @@ void ECALRecHitAnalyzer::FillGeometry(const edm::EventSetup& iSetup)
     // ECAL -endcap
     if (Crystal_zside == -1)
       {
-	me["hEEmZ_ix_iy_xMap"]->setBinContent(Crystal_ix, Crystal_iy, Crystal_x);
-	me["hEEmZ_ix_iy_yMap"]->setBinContent(Crystal_ix, Crystal_iy, Crystal_y);
+	hEEmZ_ix_iy_xMap->SetBinContent(Crystal_ix, Crystal_iy, Crystal_x);
+	hEEmZ_ix_iy_yMap->SetBinContent(Crystal_ix, Crystal_iy, Crystal_y);
       }
     // ECAL +endcap
     if (Crystal_zside == 1)
       {
-	me["hEEpZ_ix_iy_xMap"]->setBinContent(Crystal_ix, Crystal_iy, Crystal_x);
-	me["hEEpZ_ix_iy_yMap"]->setBinContent(Crystal_ix, Crystal_iy, Crystal_y);
+	hEEpZ_ix_iy_xMap->SetBinContent(Crystal_ix, Crystal_iy, Crystal_x);
+	hEEpZ_ix_iy_yMap->SetBinContent(Crystal_ix, Crystal_iy, Crystal_y);
       }
 
       DEBUG( " Crystal " << n );
@@ -178,23 +164,23 @@ void ECALRecHitAnalyzer::FillGeometry(const edm::EventSetup& iSetup)
     {
       int ieta_ = 86 + ieta;
       
-      double eta = me["hEB_ieta_iphi_etaMap"]->getBinContent(ieta_, 1);
+      double eta = hEB_ieta_iphi_etaMap->GetBinContent(ieta_, 1);
       double etam1 = -999;
       
       if (ieta==1) 
-	etam1 = me["hEB_ieta_iphi_etaMap"]->getBinContent(85, 1);
+	etam1 = hEB_ieta_iphi_etaMap->GetBinContent(85, 1);
       else 
-	etam1 = me["hEB_ieta_iphi_etaMap"]->getBinContent(ieta_ - 1, 1);
+	etam1 = hEB_ieta_iphi_etaMap->GetBinContent(ieta_ - 1, 1);
 
-      //double phi = me["hEB_ieta_iphi_phiMap"]->getBinContent(ieta_, 1);
+      //double phi = hEB_ieta_iphi_phiMap->GetBinContent(ieta_, 1);
       double deta = fabs( eta - etam1 );
-      double dphi = fabs( me["hEB_ieta_iphi_phiMap"]->getBinContent(ieta_, 1) - me["hEB_ieta_iphi_phiMap"]->getBinContent(ieta_, 2) );
+      double dphi = fabs( hEB_ieta_iphi_phiMap->GetBinContent(ieta_, 1) - hEB_ieta_iphi_phiMap->GetBinContent(ieta_, 2) );
           
       currentLowEdge_eta += deta;
-      me["hEB_ieta_detaMap"]->setBinContent(ieta_, deta); // positive rings
-      me["hEB_ieta_dphiMap"]->setBinContent(ieta_, dphi); // positive rings
-      me["hEB_ieta_detaMap"]->setBinContent(86-ieta, deta); // negative rings
-      me["hEB_ieta_dphiMap"]->setBinContent(86-ieta, dphi); // negative rings
+      hEB_ieta_detaMap->SetBinContent(ieta_, deta); // positive rings
+      hEB_ieta_dphiMap->SetBinContent(ieta_, dphi); // positive rings
+      hEB_ieta_detaMap->SetBinContent(86-ieta, deta); // negative rings
+      hEB_ieta_dphiMap->SetBinContent(86-ieta, dphi); // negative rings
     }
 }
 
@@ -211,10 +197,9 @@ void ECALRecHitAnalyzer::WriteECALRecHits(const edm::Event& iEvent, const edm::E
 {
   edm::Handle<EBRecHitCollection> EBRecHits;
   edm::Handle<EERecHitCollection> EERecHits;
-  iEvent.getByLabel( ECALRecHitsLabel_, EBRecHitsLabel_, EBRecHits );
-  iEvent.getByLabel( ECALRecHitsLabel_, EERecHitsLabel_, EERecHits );
-  DEBUG( "Got ECALRecHits");
-
+  iEvent.getByLabel( "ecalRecHit", "EcalRecHitsEB", EBRecHits );
+  iEvent.getByLabel( "ecalRecHit", "EcalRecHitsEE", EERecHits );
+  
   edm::Handle<reco::CandidateCollection> to;
   iEvent.getByLabel( "caloTowers", to );
   const CandidateCollection *towers = (CandidateCollection *)to.product();
@@ -222,61 +207,73 @@ void ECALRecHitAnalyzer::WriteECALRecHits(const edm::Event& iEvent, const edm::E
   edm::Ref<CaloTowerCollection> towerRef = tower->get<CaloTowerRef>();
   const CaloTowerCollection *towerCollection = towerRef.product();
   CaloTowerCollection::const_iterator calotower = towerCollection->begin();
-  DEBUG( "Got Towers");    
-
+    
   edm::ESHandle<CaloGeometry> pG;
   iSetup.get<IdealGeometryRecord>().get(pG);
   const CaloGeometry cG = *pG;
   const CaloSubdetectorGeometry* EBgeom=cG.getSubdetectorGeometry(DetId::Ecal,1);
   const CaloSubdetectorGeometry* EEgeom=cG.getSubdetectorGeometry(DetId::Ecal,2);
-  DEBUG( "Got Geometry");
-  DEBUG( "tower size = " << towerCollection->size());
-  
-
- EBRecHitCollection::const_iterator ebrechit;
-  int nEBrechit = 0;
-  for (ebrechit = EBRecHits->begin(); ebrechit != EBRecHits->end(); ebrechit++) {
-    
-    EBDetId det = ebrechit->id();
-    double Energy = ebrechit->energy();
-    Int_t ieta = det.ieta();
-    Int_t iphi = det.iphi();
-    
-    if (Energy>0)
-      {
-	me["hEB_energy_ieta_iphi"]->Fill(ieta, iphi, Energy);
-	me["hEB_Occ_ieta_iphi"]->Fill(ieta, iphi);
-      }
-
-  } // loop over EB
-
-  EERecHitCollection::const_iterator eerechit;
-  int nEErechit = 0;
-  for (eerechit = EERecHits->begin(); eerechit != EERecHits->end(); eerechit++) {
-    
-    EEDetId det = eerechit->id();
-    double Energy = eerechit->energy();
-    Int_t ix = det.ix();
-    Int_t iy = det.iy();
-    int Crystal_zside = det.zside();
-	
-    if (Energy>0)
-      {
-	if (Crystal_zside == -1)
+  // Loop over towers and get each tower's RecHit constituents
+  for( ; calotower != towerCollection->end(); calotower++ ) 
+    {
+      size_t numRecHits = calotower->constituentsSize();
+      for(size_t j = 0; j <numRecHits ; j++) {
+	DetId RecHitDetID=calotower->constituent(j);
+	DetId::Detector DetNum=RecHitDetID.det();
+	// Check if RecHit is in ECAL
+	if( DetNum == DetId::Ecal )
 	  {
-	    me["hEEmZ_energy_ix_iy"]->Fill(ix, iy, Energy);
-	    me["hEEmZ_Occ_ix_iy"]->Fill(ix, iy);
-	  }
-	if (Crystal_zside == 1)
-	  {
-	    me["hEEpZ_energy_ix_iy"]->Fill(ix, iy, Energy);
-	    me["hEEpZ_Occ_ix_iy"]->Fill(ix, iy);
-	  }
-      }
-  } // loop over EE
-} // loop over RecHits
-
-
+	    int EcalNum =  RecHitDetID.subdetId();
+	    // Check if ECAL RecHit is in Barrel
+	    if( EcalNum == 1 )
+	      {
+		EBDetId EcalID = RecHitDetID;
+		const CaloCellGeometry* cell=EBgeom->getGeometry(RecHitDetID);
+		GlobalPoint p = cell->getPosition();
+		EBRecHitCollection::const_iterator theRecHit=EBRecHits->find(EcalID);	   
+		float Energy = theRecHit->energy();
+		float ieta = EcalID.ieta();
+		float iphi = EcalID.iphi();
+		hEB_energy_ieta_iphi->Fill(ieta, iphi, Energy);
+		hEB_Occ_ieta_iphi->Fill(ieta, iphi);
+		
+		DEBUG(" ECAL Barrel: ");
+		DEBUG("         RecHit " << j << ": EB, ieta=" << EcalID.ieta() <<  ", iphi=" << EcalID.iphi() <<  ", SM=" << EcalID.ism() << ", energy=" << theRecHit->energy());
+		DEBUG("                                  eta=" << p.eta()       <<  ",  phi=" << p.phi() );
+		
+	      } // end if
+	    
+	    // Check if ECAL RecHit is in Endcap
+	    else if(  EcalNum == 2 )
+	      {
+		EEDetId EcalID = RecHitDetID;
+		const CaloCellGeometry* cell=EEgeom->getGeometry(RecHitDetID);
+		GlobalPoint p = cell->getPosition();
+		EERecHitCollection::const_iterator theRecHit=EERecHits->find(EcalID);
+		float Energy = theRecHit->energy();
+		float ix = EcalID.ix();
+		float iy = EcalID.iy();
+		int Crystal_zside = EcalID.zside();
+		
+		 if (Crystal_zside == -1)
+		   {
+		     hEEmZ_energy_ix_iy->Fill(ix, iy, Energy);
+		     hEEmZ_Occ_ix_iy->Fill(ix, iy);
+		   }
+		 if (Crystal_zside == 1)
+		   {
+		     hEEpZ_energy_ix_iy->Fill(ix, iy, Energy);
+		     hEEpZ_Occ_ix_iy->Fill(ix, iy);
+		   }
+		 
+		   DEBUG(" ECAL Endcap: " );	    
+		   DEBUG("         RecHit " << j << ": EE, ix=" << EcalID.ix() <<  ", iy=" << EcalID.iy() << ", energy=" << theRecHit->energy() );
+		   DEBUG("                                  x=" << p.x()       <<  ",  y=" << p.y() );
+	      } // end if
+	   } // end if ECAL
+       } // loop over RecHits
+     } // loop over towers
+}
 
 void ECALRecHitAnalyzer::DumpGeometry()
 {

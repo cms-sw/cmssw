@@ -2,13 +2,32 @@
 \page SimulationReleaseNotes Simulation Release Notes - CMSSW_1_8_x 
 
 - General:
+ - Changes in Geometry and DataFormats are NOT allowed
+ - Changes in Digis allowed; simulated digis fully validated - no problems found
+ - Many cleanups towards reducing memory footprint
+ - Clean CLHEP vectors/matrices from simulation code 
+ - Clean static data/methods definitions in progress
 
 - Main changes and new features:
+ - New external package HepPDT v3.02.03 and related interface in SimGeneral/HepPDTESSource
+   are used towards solving problems such as missing lifetime/width; basic features introduced,
+   further development in progress
+ - Playback option introduced in MixingModule for CrossingFrame; tests in progress
+ - Hector interface introduced but is not yet fully integrated with forward geometry
+ - GFlash code re-organized in a single package; work on tuning of EM/HAD in progress
+ - Tracker: geometry continues to be updated for passive material budget, agreement 
+   of weighted pieces vs simulated volumes always better than 10%; 
+   tests of playback option with MixingModule in progress for Low Luminosity pileup
+ - HCAL: updated PMT geometry, updated table of gains and pedestals; changes in the HB (-2%) 
+   and HE (+10%) energy scales reflects in digis
+ - Muon/RPC: introduced realistic cluster size, noise map 
 
 - Major bug fixes:
+ - Fixed old bug in timing of displaced vertexes
 
 - Known issues:
-
+ - Non-reproducibility of the G4-level simulated hits remain an issue, due to internal
+   problems in Geant4.8.3.p01
 
 
 <hr>

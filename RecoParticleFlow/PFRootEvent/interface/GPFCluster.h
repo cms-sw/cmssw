@@ -17,16 +17,13 @@ class GPFCluster : public GPFBase, public TMarker {
 
   GPFCluster(DisplayManager *dm, int view, int ident, 
 	     const reco::PFCluster* clus,
-             double x,double y,TAttMarker *attm);
+             double x,double y,int color);
   virtual ~GPFCluster() {;}
     
   double           getEnergy() {return en_;}
   virtual void     draw();
-  void             setColor();
-  void             setColor(int newcol);
+  void             setColor(int newcolor);
   void             setInitialColor();
-  void             setNewStyle();
-  void             setNewSize(); 
     
   //overridden ROOT method 
   virtual void     Print();     // *MENU*

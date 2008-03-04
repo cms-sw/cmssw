@@ -8,7 +8,7 @@
 //
 // Original Author:  Shahram RAHATLOU
 //         Created:  Tue Aug  2 16:15:01 CEST 2005
-// $Id: EcalHVScanAnalyzer.cc,v 1.3 2006/11/17 16:36:12 rahatlou Exp $
+// $Id: EcalHVScanAnalyzer.cc,v 1.2 2006/01/10 13:37:37 rahatlou Exp $
 //
 //
 #include "RecoTBCalo/EcalHVScan/src/EcalHVScanAnalyzer.h"
@@ -218,13 +218,13 @@ EcalHVScanAnalyzer::analyze( const edm::Event& iEvent, const edm::EventSetup& iS
 
    // take a look at PNdiodes
    Handle<EcalPnDiodeDigiCollection> h_pndiodes;
-   iEvent.getByLabel( pndiodeProducer_,h_pndiodes);
-   if ( h_pndiodes.isValid() ) {
-           const EcalPnDiodeDigiCollection* pndiodes = h_pndiodes.product();
-           std::cout << "length of EcalPnDiodeDigiCollection: " << pndiodes->size() << std::endl;
-   } else {
-           edm::LogError("EcalHVScannerError") << "Error! can't get the EcalPnDiodeDigiCollection object " << std::endl;
+   try {
+     iEvent.getByLabel( pndiodeProducer_,h_pndiodes);
+   } catch ( std::exception& ex ) {
+     std::cerr << "Error! can't get the EcalPnDiodeDigiCollection object " << std::endl;
    }
+   const EcalPnDiodeDigiCollection* pndiodes = h_pndiodes.product();
+   std::cout << "length of EcalPnDiodeDigiCollection: " << pndiodes->size() << std::endl;
 
    // find max of PND signal
    std::vector<double> maxAmplPN;
@@ -247,14 +247,12 @@ EcalHVScanAnalyzer::analyze( const edm::Event& iEvent, const edm::EventSetup& iS
 
    // fetch the digis and compute signal amplitude
    Handle<EcalUncalibratedRecHitCollection> phits;
+   try {
      //std::cout << "EcalHVScanAnalyzer::analyze getting product with label: " << digiProducer_.c_str()<< " prodname: " << digiCollection_.c_str() << endl;
-   iEvent.getByLabel( hitProducer_, hitCollection_,phits);
-   //iEvent.getByLabel( hitProducer_, phits);
-   if ( phits.isValid() ) {
-           const EcalUncalibratedRecHitCollection* hits = phits.product(); // get a ptr to the product
-           std::cout << "# of EcalUncalibratedRecHits hits: " << hits->size() << std::endl;
-   } else {
-           edm::LogError("EcalHVScannerError") << "Error! can't get the product " << hitCollection_;
+     iEvent.getByLabel( hitProducer_, hitCollection_,phits);
+     //iEvent.getByLabel( hitProducer_, phits);
+   } catch ( std::exception& ex ) {
+     std::cerr << "Error! can't get the product " << hitCollection_.c_str() << std::endl;
    }
 
    // reset tree variables
@@ -274,6 +272,8 @@ EcalHVScanAnalyzer::analyze( const edm::Event& iEvent, const edm::EventSetup& iS
    }
 
    // loop over hits
+   const EcalUncalibratedRecHitCollection* hits = phits.product(); // get a ptr to the product
+   std::cout << "# of EcalUncalibratedRecHits hits: " << hits->size() << std::endl;
    for(EcalUncalibratedRecHitCollection::const_iterator ithit = hits->begin(); ithit != hits->end(); ++ithit) {
 
 

@@ -139,7 +139,6 @@ HcalNumberingFromDDD::HcalID HcalNumberingFromDDD::unitID(int det,
   LogDebug("HCalGeom") << "HcalNumberingFromDDD: etaR = " << etaR << " : "
 		       << zside << "/" << ieta << " phi " << hphi << " : "
 		       << iphi;
-
   HcalNumberingFromDDD::HcalID tmp = unitID(det,zside,depth,ieta,iphi,lay);
   return tmp;
 
@@ -172,7 +171,8 @@ HcalNumberingFromDDD::HcalID HcalNumberingFromDDD::unitID(int det, int zside,
       if (etaR <= etaMin[1]) depth = 3;
     }
   }
-  if (etaR == nOff[1] && depth > 2) etaR = nOff[1]-1;
+  if (etaR == nOff[1] && depth > 2 && det == static_cast<int>(HcalEndcap))
+    etaR = nOff[1]-1;
   if (det == static_cast<int>(HcalBarrel) && depth == 4) {
     det = static_cast<int>(HcalOuter);
   }

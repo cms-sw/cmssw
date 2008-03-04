@@ -10,6 +10,7 @@
 #define FP420G4Hit_h
 
 #include "G4VHit.hh"
+#include <CLHEP/Vector/ThreeVector.h>
 #include <boost/cstdint.hpp>
 #include <iostream>
 
@@ -49,8 +50,7 @@ public:
   double       getIncidentEnergy() const;
   void         setIncidentEnergy (double e);
   
-  //G4int          getTrackID() const;
-  unsigned int               getTrackID() const;
+  G4int          getTrackID() const;
   void         setTrackID (int i);
   
   unsigned int getUnitID() const;

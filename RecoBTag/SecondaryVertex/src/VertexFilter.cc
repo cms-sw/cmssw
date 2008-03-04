@@ -19,6 +19,7 @@ using namespace reco;
 
 VertexFilter::VertexFilter(const edm::ParameterSet &params) :
 	useTrackWeights(params.getParameter<bool>("useTrackWeights")),
+	minTrackWeight(params.getParameter<double>("minimumTrackWeight")),
 	massMax(params.getParameter<double>("massMax")),
 	fracPV(params.getParameter<double>("fracPV")),
 	multiplicityMin(params.getParameter<unsigned int>("multiplicityMin")),
@@ -36,12 +37,14 @@ VertexFilter::VertexFilter(const edm::ParameterSet &params) :
 }
 
 static unsigned int
-computeSharedTracks(const Vertex &pv, const std::vector<TrackRef> &svTracks)
+computeSharedTracks(const Vertex &pv, const std::vector<TrackRef> &svTracks,
+                    double minTrackWeight)
 {
 	std::set<TrackRef> pvTracks;
-	std::transform(pv.tracks_begin(), pv.tracks_end(),
-	               std::inserter(pvTracks, pvTracks.begin()),
-	               std::mem_fun_ref(&TrackBaseRef::castTo<TrackRef>));
+	for(std::vector<TrackBaseRef>::const_iterator iter = pv.tracks_begin();
+	    iter != pv.tracks_end(); iter++)
+		if (pv.trackWeight(*iter) >= minTrackWeight)
+			pvTracks.insert(iter->castTo<TrackRef>());
 
 	unsigned int count = 0;
 	for(std::vector<TrackRef>::const_iterator iter = svTracks.begin();
@@ -56,9 +59,10 @@ bool VertexFilter::operator () (const Vertex &pv,
                                 const GlobalVector &direction) const
 {
 	std::vector<TrackRef> svTracks;
-	std::transform(sv.tracks_begin(), sv.tracks_end(),
-	               std::inserter(svTracks, svTracks.begin()),
-	               std::mem_fun_ref(&TrackBaseRef::castTo<TrackRef>));
+	for(std::vector<TrackBaseRef>::const_iterator iter = sv.tracks_begin();
+	    iter != sv.tracks_end(); iter++)
+		if (sv.trackWeight(*iter) >= minTrackWeight)
+			svTracks.push_back(iter->castTo<TrackRef>());
 
 	// minimum number of tracks at vertex
 
@@ -97,7 +101,8 @@ bool VertexFilter::operator () (const Vertex &pv,
 	// find shared tracks between PV and SV
 
 	if (fracPV < 1.0) {
-		unsigned int sharedTracks = computeSharedTracks(pv, svTracks);
+		unsigned int sharedTracks =
+			computeSharedTracks(pv, svTracks, minTrackWeight);
 		if ((double)sharedTracks / svTracks.size() > fracPV)
 			return false;
 	}

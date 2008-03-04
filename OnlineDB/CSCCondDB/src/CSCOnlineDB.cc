@@ -49,15 +49,15 @@
   sqlStmt = "SELECT max(record_id) from "+tab;
   stmt->setSQL(sqlStmt);
   rset = stmt->executeQuery ();
-  //  try{
+  try{
     while (rset->next ())
     {rec_id= rset->getInt (1);}
-    //     }catch(oracle::occi::SQLException ex)
-    //    {
-    // std::cout<<"Exception thrown: "<<std::endl;
-    // std::cout<<"Error number: "<<  ex.getErrorCode() << std::endl;
-    // std::cout<<ex.getMessage() << std::endl;
-    //}
+     }catch(oracle::occi::SQLException ex)
+    {
+     std::cout<<"Exception thrown: "<<std::endl;
+     std::cout<<"Error number: "<<  ex.getErrorCode() << std::endl;
+     std::cout<<ex.getMessage() << std::endl;
+    }
   stmt->closeResultSet (rset);
 
   if(record>rec_id){
@@ -117,15 +117,15 @@
   sqlStmt = "SELECT max(map_id) from "+tab_map;
   stmt->setSQL(sqlStmt);
   rset = stmt->executeQuery ();
-  //  try{
+  try{
     while (rset->next ())
     {map_id= rset->getInt (1);}
-    //     }catch(oracle::occi::SQLException ex)
-    //{
-    // std::cout<<"Exception thrown: "<<std::endl;
-    // std::cout<<"Error number: "<<  ex.getErrorCode() << std::endl;
-    // std::cout<<ex.getMessage() << std::endl;
-    //}
+     }catch(oracle::occi::SQLException ex)
+    {
+     std::cout<<"Exception thrown: "<<std::endl;
+     std::cout<<"Error number: "<<  ex.getErrorCode() << std::endl;
+     std::cout<<ex.getMessage() << std::endl;
+    }
   stmt->closeResultSet (rset);
 
   std::ostringstream ss;
@@ -135,15 +135,15 @@
   ss.str(""); // clear
   stmt->setSQL(sqlStmt);
   rset = stmt->executeQuery ();
-  //  try{
+  try{
     while (rset->next ())
     {map_index= rset->getInt (1);}
-    //     }catch(oracle::occi::SQLException ex)
-    //{
-    // std::cout<<"Exception thrown: "<<std::endl;
-    // std::cout<<"Error number: "<<  ex.getErrorCode() << std::endl;
-    // std::cout<<ex.getMessage() << std::endl;
-    //}
+     }catch(oracle::occi::SQLException ex)
+    {
+     std::cout<<"Exception thrown: "<<std::endl;
+     std::cout<<"Error number: "<<  ex.getErrorCode() << std::endl;
+     std::cout<<ex.getMessage() << std::endl;
+    }
   stmt->closeResultSet (rset);
 
   sqlStmt = "INSERT INTO "+tab_map+" VALUES (:1, :2, :3, :4)";
@@ -180,18 +180,18 @@
 
    map_id=map_id+1;
    map_index=map_index+1;
-   //  try{
+  try{
    stmt->setInt (1, map_id);
    stmt->setInt (2, record);
    stmt->setInt (3, map_index);
    stmt->setInt (4, id_det);
    if(obj_name!="test") stmt->executeUpdate ();
-   //}catch(oracle::occi::SQLException ex)
-   //{
-   //std::cout<<"Exception thrown for insertBind"<<std::endl;
-   //std::cout<<"Error number: "<<  ex.getErrorCode() << std::endl;
-   //std::cout<<ex.getMessage() << std::endl;
-   //}
+  }catch(oracle::occi::SQLException ex)
+  {
+   std::cout<<"Exception thrown for insertBind"<<std::endl;
+   std::cout<<"Error number: "<<  ex.getErrorCode() << std::endl;
+   std::cout<<ex.getMessage() << std::endl;
+  }
 
    k=0;
    for(i=0;i<sizev;++i){
@@ -208,19 +208,19 @@
      c[j][i]=obj->obj[id_det][i][j];
     }
    }
-   //  try{
+  try{
    stmt1->setDataBuffer(1, c1, oracle::occi::OCCIINT, si , &elensi[0]);
    stmt1->setDataBuffer(2, c2, oracle::occi::OCCIINT, si , &elensi[0]);
     for(j=0;j<sizeint;++j){
      stmt1->setDataBuffer(j+3, c[j], oracle::occi::OCCIFLOAT, sf, &elensf[0]);
     }
    if(obj_name!="test") stmt1->executeArrayUpdate(sizev);
-   //     }catch(oracle::occi::SQLException ex)
-   // {
-   //  std::cout<<"Exception thrown: "<<std::endl;
-   //  std::cout<<"Error number: "<<  ex.getErrorCode() << std::endl;
-   //  std::cout<<ex.getMessage() << std::endl;
-   // }
+     }catch(oracle::occi::SQLException ex)
+    {
+     std::cout<<"Exception thrown: "<<std::endl;
+     std::cout<<"Error number: "<<  ex.getErrorCode() << std::endl;
+     std::cout<<ex.getMessage() << std::endl;
+    }
   }
   con->commit();
   con->terminateStatement (stmt);
@@ -235,15 +235,15 @@ void condbon::cdbon_last_record (std::string obj_name, int *record)
   stmt->setSQL(sqlStmt);
   oracle::occi::ResultSet *rset;
   rset = stmt->executeQuery ();
-  //try{
+  try{
     while (rset->next ())
     {*record = rset->getInt (1);}
-    //     }catch(oracle::occi::SQLException ex)
-    //{
-    // std::cout<<"Exception thrown: "<<std::endl;
-    // std::cout<<"Error number: "<<  ex.getErrorCode() << std::endl;
-    // std::cout<<ex.getMessage() << std::endl;
-    //}
+     }catch(oracle::occi::SQLException ex)
+    {
+     std::cout<<"Exception thrown: "<<std::endl;
+     std::cout<<"Error number: "<<  ex.getErrorCode() << std::endl;
+     std::cout<<ex.getMessage() << std::endl;
+    }
   con->terminateStatement (stmt);
 } // end of cdbon_last_record
 
@@ -276,15 +276,15 @@ void condbon::cdbon_last_record (std::string obj_name, int *record)
   ss.str(""); // clear
   stmt->setSQL(sqlStmt);
   rset = stmt->executeQuery ();
-  //  try{
+  try{
     while (rset->next ())
     {num_var= rset->getInt(1) - 2;}
-    //     }catch(oracle::occi::SQLException ex)
-    //{
-    // std::cout<<"Exception thrown: "<<std::endl;
-    // std::cout<<"Error number: "<<  ex.getErrorCode() << std::endl;
-    // std::cout<<ex.getMessage() << std::endl;
-    //}
+     }catch(oracle::occi::SQLException ex)
+    {
+     std::cout<<"Exception thrown: "<<std::endl;
+     std::cout<<"Error number: "<<  ex.getErrorCode() << std::endl;
+     std::cout<<ex.getMessage() << std::endl;
+    }
   stmt->closeResultSet (rset);
 
   ss<<record;
@@ -293,7 +293,7 @@ sqlStmt = "SELECT map_id,map_index,layer_id from "+tab_map+" where record_id="+s
   ss.str(""); // clear
   stmt->setSQL(sqlStmt);
   rset = stmt->executeQuery ();
-  //  try{
+  try{
     while (rset->next ())
     {map_id = rset->getInt (1);
      map_index = rset->getInt (2);
@@ -303,7 +303,7 @@ sqlStmt = "SELECT map_id,map_index,layer_id from "+tab_map+" where record_id="+s
      ss.str(""); // clear
      stmt1->setSQL(sqlStmt1);
      rset1 = stmt1->executeQuery ();
-     //     try{
+     try{
        while (rset1->next ())
        {vec_index = rset1->getInt (2);
                obj->obj[layer_id].resize(vec_index);
@@ -311,17 +311,17 @@ sqlStmt = "SELECT map_id,map_index,layer_id from "+tab_map+" where record_id="+s
          obj->obj[layer_id][vec_index-1].push_back(rset1->getFloat(3+i));
                               }
        }
-       //   }catch(oracle::occi::SQLException ex)
-       //{
-       // std::cout<<"Exception thrown: "<<std::endl;
-       // std::cout<<"Error number: "<<  ex.getErrorCode() << std::endl;
-       // std::cout<<ex.getMessage() << std::endl;
-       //}
+        }catch(oracle::occi::SQLException ex)
+       {
+        std::cout<<"Exception thrown: "<<std::endl;
+        std::cout<<"Error number: "<<  ex.getErrorCode() << std::endl;
+        std::cout<<ex.getMessage() << std::endl;
+       }
     }
-    // }catch(oracle::occi::SQLException ex)
-    //{
-    // std::cout<<"Exception thrown: "<<std::endl;
-    // std::cout<<"Error number: "<<  ex.getErrorCode() << std::endl;
-    // std::cout<<ex.getMessage() << std::endl;
-    //}
+     }catch(oracle::occi::SQLException ex)
+    {
+     std::cout<<"Exception thrown: "<<std::endl;
+     std::cout<<"Error number: "<<  ex.getErrorCode() << std::endl;
+     std::cout<<ex.getMessage() << std::endl;
+    }
 } // end of cdbon_read_rec

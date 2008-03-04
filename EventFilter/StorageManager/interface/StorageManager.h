@@ -10,17 +10,19 @@
 
      See CMS EventFilter wiki page for further notes.
 
-   $Id: StorageManager.h,v 1.19 2007/08/19 07:31:43 hcheung Exp $
+   $Id: StorageManager.h,v 1.22 2008/02/21 14:17:06 biery Exp $
 */
 
 #include <string>
 #include <list>
+#include <map>
 
 #include "FWCore/PluginManager/interface/ProblemTracker.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/MessageService/interface/MessageServicePresence.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
+#include "EventFilter/Utilities/interface/Exception.h"
 #include "EventFilter/Utilities/interface/Css.h"
 #include "EventFilter/Utilities/interface/RunBase.h"
 #include "EventFilter/Utilities/interface/StateMachine.h"
@@ -79,7 +81,9 @@ namespace stor {
     // *** FSM soap command callback
     xoap::MessageReference fsmCallback(xoap::MessageReference msg)
       throw (xoap::exception::Exception);
-
+    // @@EM added monitoring workloop
+    void startMonitoringWorkLoop() throw (evf::Exception);
+    bool monitoring(toolbox::task::WorkLoop* wl);
     
 ////////////////////////////////////////////////////////////////////////////////
    private:  
@@ -119,7 +123,10 @@ namespace stor {
     void DQMconsumerWebPage
       (xgi::Input *in, xgi::Output *out) throw (xgi::exception::Exception);
 
-    void parseFileEntry(std::string in, std::string &out, unsigned int &nev, unsigned int &sz);
+
+    void parseFileEntry(std::string in, std::string &out, unsigned int &nev, unsigned long long &sz);
+
+    std::string findStreamName(std::string &in);
 	
     // *** state machine related
     evf::StateMachine fsm_;
@@ -164,8 +171,6 @@ namespace stor {
     toolbox::mem::Pool *pool_;
 
     // added for Event Server
-    std::vector<unsigned char> serialized_prods_;
-    int  ser_prods_size_;
     std::vector<unsigned char> mybuffer_; //temporary buffer instead of using stack
     xdata::Double maxESEventRate_;  // hertz
     xdata::Integer activeConsumerTimeout_;  // seconds
@@ -175,6 +180,7 @@ namespace stor {
     xdata::Integer DQMactiveConsumerTimeout_;  // seconds
     xdata::Integer DQMidleConsumerTimeout_;  // seconds
     xdata::Integer DQMconsumerQueueSize_;
+    boost::mutex consumerInitMsgLock_;
 
     SMFUSenderList smfusenders_;
     xdata::UnsignedInteger32 connectedFUs_;
@@ -213,6 +219,21 @@ namespace stor {
     xdata::Double            storedVolume_;
     xdata::UnsignedInteger32 memoryUsed_;
     xdata::String            progressMarker_;
+
+    // @@EM workloop / action signature for monitoring
+    toolbox::task::WorkLoop         *wlMonitoring_;      
+    toolbox::task::ActionSignature  *asMonitoring_;
+
+    // @@EM parameters monitored by workloop (not in flashlist just yet) 
+    struct streammon{
+    int		nclosedfiles_;
+    int		nevents_;
+    int		totSizeInkBytes_;
+    };
+    typedef std::map<std::string,streammon> smap;
+    typedef std::map<std::string,streammon>::iterator ismap;
+    smap	streams_;
+
     enum
     {
       DEFAULT_PURGE_TIME = 120,

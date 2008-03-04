@@ -1,50 +1,20 @@
 /*!
-\page FrameworkReleaseNotes Framework Release Notes
+\page FrameworkReleaseNotes Framework Release Notes - CMSSW_1_8_x 
 
 - General:
-	This release (1_7_X) contains many internal FW/Edm changes not visible to users.
-There is one important exception to this, listed below.
-
+  - Many of the developments in the area of framework and infrastructure have been internal improvements in implementation, needed for optimization, and are not user visible. 
 - Main changes and new features:
-	The various get* calls (for example: getByLabel) will now return an 
-invalid handle if the requested data does not exist in the event.  The return 
-type has also changed to a bool.  It will be set to true if the data exists 
-and the handle is valid and will be set to false if the data is not available.
-This means that it is no longer necessary to protect these calls with try/catch
-block statements and it is strongly recommended that all users move to if/else
-constructs instead.
-	As an example, this code:
-
-  try {
-     evt.getByLabel( EBdigiCollection_, pEBDigis);
-     EBdigis = pEBDigis.product(); // get a ptr to the product
-     edm::LogInfo("EcalUncalibRecHitInfo") << "total # EBdigis: " << EBdigis->size() ;
-   } catch (...) {
-     // edm::LogError("EcalUncalibRecHitError") << "Error! can't get the product " << EBdigiCollection_.c_str() ;
-   }
-
-	should be changed to
-
-   evt.getByLabel( EBdigiCollection_, pEBDigis);
-   if(pEBDigis.isValid()) {
-     EBdigis = pEBDigis.product(); // get a ptr to the product
-     edm::LogInfo("EcalUncalibRecHitInfo") << "total # EBdigis: " << EBdigis->size() ;
-   } else {
-     // edm::LogError("EcalUncalibRecHitError") << "Error! can't get the product " << EBdigiCollection_.c_str() ;
-   }
-
-	Such try/catch blocks should be replaced with if/else constructs regardless of whether the catch block
-uses catch(...), catch(cms::Exception), or catch(std::exception).
-   
+  - per file fast cloning is now used in the Pool input/output modules.  This should improve IO performance and memory foot print for application where many branches are copied forward.  For a pure copy application like edmFastMerge, cmsRun now provides identical performance.  Therefor the standalone edmFastMerge will be deprecated.
+  - A root Histogram is now an object that can be stored in an event or run tree.  This required a change to the root default ownership policy.  Now users are required to use either the DQM service infrastructure or the TFileService.
+  - More raw/reco only objects have been moved to unsplit branches to improve IO performance.
+  - firstLumi number of lumi's supported, in an analogous way as firstEvent and number of events
+  - malloc tuning feature added to cmsRun - default tune per arch happens at global constructor time, the memory profiler has config parameters that will over-ride the default tune.
 - Major bug fixes:
-	edmFastMerge no longer opens many input files at the same time.  
-This fix also went into the later releases of 1_6_X
 
 - Known issues:
-	Nothing known at this time.
-
+  - There have been many changes which should in principle reduce the amount of
+ memory needed by the IO modules for root.  As of this writing no conclusive measurements of the effectiveness of the changes has been made.
 
 <hr>
-Last updated: @DATE@ William Tanenbaum
- 
+Last updated: @DATE@ Liz Sexton-Kennedy
 */

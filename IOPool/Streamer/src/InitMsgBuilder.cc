@@ -6,8 +6,10 @@
 InitMsgBuilder::InitMsgBuilder(void* buf, uint32 size,
                                uint32 run, const Version& v,
                                const char* release_tag,
-			       const char* process_name,		       
+                               const char* process_name,		       
+                               const char* output_module_label,
                                const Strings& hlt_names,
+                               const Strings& hlt_selections,
                                const Strings& l1_names):
   buf_((uint8*)buf),size_(size)
 {
@@ -33,8 +35,16 @@ InitMsgBuilder::InitMsgBuilder(void* buf, uint32 size,
   memcpy(pos,process_name,process_name_len);
   pos += process_name_len;
 
-  pos = fillNames(hlt_names,pos);
-  pos = fillNames(l1_names,pos);
+  // output module label next
+  uint32 outmod_label_len = strlen(output_module_label);
+  assert(outmod_label_len < 0x00ff);
+  *pos++ = outmod_label_len;
+  memcpy(pos,output_module_label,outmod_label_len);
+  pos += outmod_label_len;
+
+  pos = MsgTools::fillNames(hlt_names,pos);
+  pos = MsgTools::fillNames(hlt_selections,pos);
+  pos = MsgTools::fillNames(l1_names,pos);
 
   desc_addr_ = pos + sizeof(char_uint32);
   setDescLength(0);
@@ -50,26 +60,9 @@ InitMsgBuilder::InitMsgBuilder(void* buf, uint32 size,
   if (l1_sz != 0) l1_sz = 1 + ((l1_sz-1)/8);
 
   //Size of Event Header
-  uint32 eventHeaderSize = 1+ (8*4) + hlt_sz + l1_sz;
+  uint32 eventHeaderSize = 2 + (9*4) + hlt_sz + l1_sz;
   convert(eventHeaderSize, h->event_header_size_);
 }
-
-uint8* InitMsgBuilder::fillNames(const Strings& names, uint8* pos)
-{
-  uint32 sz = names.size();
-  convert(sz,pos); // save number of strings
-  uint8* len_pos = pos + sizeof(char_uint32); // area for length
-  pos = len_pos + sizeof(char_uint32); // area for full string of names
-  bool first = true;
-
-  for(Strings::const_iterator beg = names.begin(), begEnd = names.end(); beg != begEnd; ++beg) {
-      if(first) first = false; else *pos++ = ' ';
-      pos = edm::copy_all(*beg,pos);
-  }
-  convert((uint32)(pos-len_pos-sizeof(char_uint32)),len_pos);
-  return pos;
-}
-
 
 void InitMsgBuilder::setDescLength(uint32 len)
 {

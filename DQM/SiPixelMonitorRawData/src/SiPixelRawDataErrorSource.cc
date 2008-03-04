@@ -23,13 +23,9 @@
 //
 #include "DQM/SiPixelMonitorRawData/interface/SiPixelRawDataErrorSource.h"
 // Framework
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
-#include "FWCore/Framework/interface/ModuleFactory.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 // DQM Framework
-#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
 #include "DQM/SiPixelCommon/interface/SiPixelFolderOrganizer.h"
 // Geometry
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
@@ -39,11 +35,8 @@
 // DataFormats
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
-#include "DataFormats/SiPixelRawData/interface/SiPixelRawDataError.h"
-#include "DataFormats/Common/interface/DetSetVector.h"
 #include "DataFormats/FEDRawData/interface/FEDNumbering.h"
 //
-#include <boost/cstdint.hpp>
 #include <string>
 #include <stdlib.h>
 

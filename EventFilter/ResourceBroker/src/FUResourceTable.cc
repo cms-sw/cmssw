@@ -162,12 +162,24 @@ bool FUResourceTable::sendData(toolbox::task::WorkLoop* /* wl */)
 	UInt_t   cellIndex       = cell->index();
 	UInt_t   cellRunNumber   = cell->runNumber();
 	UInt_t   cellEvtNumber   = cell->evtNumber();
+	UInt_t   cellOutModId    = cell->outModId();
 	UChar_t *cellPayloadAddr = cell->payloadAddr();
 	UInt_t   cellEventSize   = cell->eventSize();
 	shmBuffer_->finishReadingRecoCell(cell);	
 
-	sendDataEvent(cellIndex,cellRunNumber,cellEvtNumber,
+	sendDataEvent(cellIndex,cellRunNumber,cellEvtNumber,cellOutModId,
 		      cellPayloadAddr,cellEventSize);
+      }
+      else if (cell->type()==2) {
+	UInt_t cellIndex=cell->index();
+	UInt_t   cellRunNumber   = cell->runNumber();
+	UInt_t   cellEvtNumber   = cell->evtNumber();
+	UChar_t *cellPayloadAddr = cell->payloadAddr();
+	UInt_t   cellEventSize   = cell->eventSize();
+	shmBuffer_->finishReadingRecoCell(cell);	
+
+	sendErrorEvent(cellIndex,cellRunNumber,cellEvtNumber,
+		       cellPayloadAddr,cellEventSize);
       }
       else {
 	string errmsg="Unknown RecoCell type (neither DATA nor INIT).";
@@ -312,10 +324,11 @@ bool FUResourceTable::discard(toolbox::task::WorkLoop* /* wl */)
 	break;
       }
       else {
+	count++;
 	LOG4CPLUS_DEBUG(log_,"FUResourceTable: Wait for all clients to detach,"
 			<<" nClients="<<shmBuffer_->nClients()
 			<<" nattch="<<FUShmBuffer::shm_nattch(shmBuffer_->shmid())
-			<<" ("<<++count<<")");
+			<<" ("<<count<<")");
 	::sleep(1);
       }
     }
@@ -458,23 +471,17 @@ void FUResourceTable::dropEvent()
 
 
 //______________________________________________________________________________
-void FUResourceTable::handleErrorEvent(pid_t pid)
+void FUResourceTable::handleErrorEvent(UInt_t runNumber,pid_t pid)
 {
   lockShm();
   vector<pid_t> pids=cellPrcIds();
   unlockShm();
-  UInt_t index=pids.size();
-  for (UInt_t i=0;i<pids.size();i++) {
-    if (pid==pids[i]) { index=i; break; }
-  }
+  UInt_t iRawCell=pids.size();
+  for (UInt_t i=0;i<pids.size();i++) { if (pid==pids[i]) { iRawCell=i; break; } }
   
-  if (index<pids.size()) {
-    evt::State_t state = shmBuffer_->evtState(index);
-    if (state==evt::RAWREADING||state==evt::RAWREAD) {
-      shmBuffer_->setEvtState(index,evt::PROCESSING);
-    }
-    shmBuffer_->scheduleRawCellForDiscard(index);
-  }
+  if (iRawCell<pids.size())
+    shmBuffer_->writeErrorEventData(runNumber,iRawCell);
+  
   shmBuffer_->removeClientPrcId(pid);
 }
 
@@ -524,14 +531,7 @@ void FUResourceTable::shutDownClients()
   isReadyToShutDown_   = false;
   
   if (nbClientsToShutDown_==0) {
-    //    if (FUShmBuffer::shm_nattch(shmBuffer_->shmid())==1) {
-    //shmBuffer_->writeRecoEmptyEvent();
-    //shmBuffer_->writeDqmEmptyEvent();
-    //isReadyToShutDown_=true;
-    //}
-    //else {
     shmBuffer_->scheduleRawEmptyCellForDiscard();
-    //}
   }
   else {
     UInt_t n=nbClientsToShutDown_;
@@ -718,6 +718,7 @@ void FUResourceTable::sendInitMessage(UInt_t   fuResourceId,
 void FUResourceTable::sendDataEvent(UInt_t   fuResourceId,
 				    UInt_t   runNumber,
 				    UInt_t   evtNumber,
+				    UInt_t   outModId,
 				    UChar_t *data,
 				    UInt_t   dataSize)
 {
@@ -726,7 +727,28 @@ void FUResourceTable::sendDataEvent(UInt_t   fuResourceId,
   }
   else {
     UInt_t   nbBytes    =sm_->sendDataEvent(fuResourceId,
-					    runNumber,evtNumber,data,dataSize);
+					    runNumber,evtNumber,outModId,
+					    data,dataSize);
+    outputSumOfSquares_+=(uint64_t)nbBytes*(uint64_t)nbBytes;
+    outputSumOfSizes_  +=nbBytes;
+    nbSent_++;
+  }
+}
+
+
+//______________________________________________________________________________
+void FUResourceTable::sendErrorEvent(UInt_t   fuResourceId,
+				     UInt_t   runNumber,
+				     UInt_t   evtNumber,
+				     UChar_t *data,
+				     UInt_t   dataSize)
+{
+  if (0==sm_) {
+    LOG4CPLUS_ERROR(log_,"No StorageManager, DROP ERROR EVENT!");
+  }
+  else {
+    UInt_t nbBytes=sm_->sendErrorEvent(fuResourceId,
+				       runNumber,evtNumber,data,dataSize);
     outputSumOfSquares_+=(uint64_t)nbBytes*(uint64_t)nbBytes;
     outputSumOfSizes_  +=nbBytes;
     nbSent_++;

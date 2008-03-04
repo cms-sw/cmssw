@@ -1,11 +1,11 @@
-// $Id: Numbers.cc,v 1.44 2008/01/05 09:11:09 dellaric Exp $
+// $Id: Numbers.cc,v 1.49 2008/02/09 18:27:48 dellaric Exp $
 
 /*!
   \file Numbers.cc
   \brief Some "id" conversions
   \author B. Gobbo 
-  \version $Revision: 1.44 $
-  \date $Date: 2008/01/05 09:11:09 $
+  \version $Revision: 1.49 $
+  \date $Date: 2008/02/09 18:27:48 $
 */
 
 #include <sstream>
@@ -39,7 +39,7 @@ void Numbers::initGeometry( const edm::EventSetup& setup ) {
 
   if( Numbers::init ) return;
 
-  std::cout << "Initializing ECAL Geometry ... " << std::flush;
+  std::cout << "Initializing ECAL Geometry ..." << std::endl;
 
   Numbers::init = true;
 
@@ -206,7 +206,7 @@ std::string Numbers::sEE( const int ism  ) {
 
 //-------------------------------------------------------------------------
 
-int Numbers::iSM( const int ism, const int subdet ) throw( std::runtime_error ) {
+int Numbers::iSM( const int ism, const EcalSubdetector subdet ) throw( std::runtime_error ) {
 
   if( subdet == EcalBarrel ) {
 
@@ -318,7 +318,7 @@ int Numbers::iSM( const EcalTrigTowerDetId& id ) throw( std::runtime_error ) {
 
   } else {
 
-    int subdet = Numbers::subDet( id );
+    EcalSubdetector subdet = Numbers::subDet( id );
 
     if( subdet == EcalBarrel ) {
 
@@ -385,7 +385,7 @@ int Numbers::iSM( const EcalPnDiodeDetId& id ) throw( std::runtime_error ) {
 
 //-------------------------------------------------------------------------
 
-int Numbers::iSM( const EcalDCCHeaderBlock& id, const int subdet ) throw( std::runtime_error ) {
+int Numbers::iSM( const EcalDCCHeaderBlock& id, const EcalSubdetector subdet ) throw( std::runtime_error ) {
 
   int idcc = id.id();
 
@@ -406,7 +406,7 @@ int Numbers::iSM( const EcalDCCHeaderBlock& id, const int subdet ) throw( std::r
 
 //-------------------------------------------------------------------------
 
-int Numbers::iTT( const int ism, const int subdet, const int i1, const int i2 ) throw( std::runtime_error ) {
+int Numbers::iTT( const int ism, const EcalSubdetector subdet, const int i1, const int i2 ) throw( std::runtime_error ) {
 
   if( subdet == EcalBarrel ) {
 
@@ -425,6 +425,8 @@ int Numbers::iTT( const int ism, const int subdet, const int i1, const int i2 ) 
     if( EEDetId::validDetId(i1, i2, iz) ) {
 
       EEDetId id(i1, i2, iz, EEDetId::XYMODE);
+
+      if( Numbers::iSM( id ) != ism ) return( -1 );
 
       if( Numbers::map ) {
 
@@ -466,7 +468,7 @@ int Numbers::iTT( const EcalTrigTowerDetId& id ) throw( std::runtime_error ) {
 
   } else {
 
-    int subdet = Numbers::subDet( id );
+    EcalSubdetector subdet = Numbers::subDet( id );
 
     if( subdet == EcalBarrel ) {
 
@@ -582,9 +584,7 @@ int Numbers::indexEE( const int ism, const int ix, const int iy ){
 
   if( EEDetId::validDetId(ix, iy, iz) ) {
 
-    EEDetId id(ix, iy, iz, EEDetId::XYMODE);
-
-    return( id.hashedIndex() );
+    return( 1000*ix + iy );
 
   } else {
 
@@ -614,6 +614,8 @@ int Numbers::icEE( const int ism, const int ix, const int iy ) throw( std::runti
   if( EEDetId::validDetId(ix, iy, iz) ) {
 
     EEDetId id(ix, iy, iz, EEDetId::XYMODE);
+
+    if( Numbers::iSM( id ) != ism ) return( -1 );
 
     if( Numbers::map ) {
 

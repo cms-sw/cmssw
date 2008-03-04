@@ -7,9 +7,7 @@
   <class name="reco::IsolatedPixelTrackCandidateRefProd"/>
   <class name="edm::Wrapper<reco::IsolatedPixelTrackCandidateCollection>"/>
   <class name="edm::reftobase::Holder<reco::Candidate, edm::Ref<std::vector<reco::IsolatedPixelTrackCandidate>,reco::IsolatedPixelTrackCandidate,edm::refhelper::FindUsingAdvance<std::vector<reco::IsolatedPixelTrackCandidate>,reco::IsolatedPixelTrackCandidate> > >" />
-  <class name="edm::Ref<std::vector<reco::IsolatedPixelTrackCandidate>,reco::IsolatedPixelTrackCandidate,edm::refhelper::FindUsingAdvance<std::vector<reco::IsolatedPixelTrackCandidate>,reco::IsolatedPixelTrackCandidate> >"/>
-  <class name="std::vector<edm::Ref<std::vector<reco::IsolatedPixelTrackCandidate>,reco::IsolatedPixelTrackCandidate,edm::refhelper::FindUsingAdvance<std::vector<reco::IsolatedPixelTrackCandidate>,reco::IsolatedPixelTrackCandidate> > >"/>
-
+ 
   <class name="reco::EcalIsolatedParticleCandidate"/>
   <class name="reco::EcalIsolatedParticleCandidateCollection"/>
   <class name="reco::EcalIsolatedParticleCandidateRef"/>

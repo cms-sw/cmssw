@@ -200,7 +200,6 @@ copy("$ENV{PWD}/../test/.WebLib.js", "$ENV{PWD}/WebLib.js");
 copy("$ENV{PWD}/../test/Online.html", "$ENV{PWD}/.");
 copy("$ENV{PWD}/../test/TrackerMapFrame.html", "$ENV{PWD}/.");
 copy("$ENV{PWD}/../test/TrackerMapME.html", "$ENV{PWD}/.");
-copy("$ENV{PWD}/../test/embedded_svg.html", "$ENV{PWD}/.");
 copy("$ENV{PWD}/../test/rightEmbedded.html", "$ENV{PWD}/.");
 copy("$ENV{PWD}/../test/svgmap.xml", "$ENV{PWD}/.");
 copy("$ENV{PWD}/../test/loader.html", "$ENV{PWD}/.");
@@ -208,11 +207,11 @@ copy("$ENV{PWD}/../test/loader.html", "$ENV{PWD}/.");
 $SERVED_DIR="http://$hostname:40000/temporary";
 system qq[perl], qq[-pi -e], qq[s#SERVED_DIRECTORY_URL#$SERVED_DIR#], qq[$ENV{PWD}/WebLib.js]; 
 
-system qq[cp], qq[-r], qq[$ENV{PWD}/../../TrackerCommon/test/js_files], qq[$ENV{PWD}/js_files];
-system qq[cp], qq[-r], qq[$ENV{PWD}/../../TrackerCommon/test/css_files], qq[$ENV{PWD}/css_files];
-system qq[cp], qq[-r], qq[$ENV{PWD}/../../TrackerCommon/test/images], qq[$ENV{PWD}/images];
+system qq[cp], qq[-r], qq[$ENV{PWD}/../test/js_files], qq[$ENV{PWD}/js_files];
+system qq[cp], qq[-r], qq[$ENV{PWD}/../test/css_files], qq[$ENV{PWD}/css_files];
+system qq[cp], qq[-r], qq[$ENV{PWD}/../test/images], qq[$ENV{PWD}/images];
 
-copy("$ENV{PWD}/../test/js_files/.svgmap.js", "$ENV{PWD}/js_files/svgmap.js");
+copy("$ENV{PWD}/js_files/.svgmap.js", "$ENV{PWD}/js_files/svgmap.js");
 system qq[perl], qq[-pi -e], qq[s#serverHost#$COLLECTORNAME#g], qq[$ENV{PWD}/js_files/svgmap.js];
 
 #
@@ -476,7 +475,7 @@ sub makeCtlDestroy
 	"start configure enable halt stop gennums.txt summaryCatalog.txt test.root`;\n\n";
     $result = $result . "`rm -rf Online.html TrackerMapFrame.html TrackerMapHeader.txt TrackerMapME.html rightEmbedded.html loader.html "
           . "\*.png css_files js_files images WebLib.js `;\n\n";
-    $result = $result . "`rm -rf tracker.dat  trackermap.txt test.xml svgmap.xml embedded_svg.html`;\n\n";
+    $result = $result . "`rm -rf tracker.dat  trackermap.txt test.xml svgmap.xml`;\n\n";
     $result = $result . "`rm -rf sipixel_monitorelement_config.xml sipixel_qualitytest_config.xml`;\n\n";
     $result = $result . "print \"FUShmCleanUp_t ...\\n\";\n\n";
     $result = $result . "`FUShmCleanUp_t`;\n\n";

@@ -7,7 +7,7 @@
 
 /** \class CSCStripTopology
  * ABC interface for all endcap muon CSC radial strip topologies. <BR>
- * In the Endcap Muon CSCs, the cathode strips are strictly fan-shaped, 
+ * In the Endcap Muon CSCs, the cathode strips are not strictly fan-shaped, 
  * each subtending a constant azimuthal angle, and project to a point. 
  * In every station and ring except for ME13 the nominal (perfect) geometry 
  * has this point of intersection (approximately) on the beam line. 
@@ -16,7 +16,6 @@
  * Note that the base class RST is concrete but this class is again abstract
  * (for both historical and operational reasons.) <BR>
  * Alternate strip layers in each CSC are relatively offset by half-a-strip width
- * (except in ME11)
  * so the CSCStripTopology must be an OffsetRadialStripTopology, rather than
  * a simple RadialStripTopology in which the long symmetry axis of the plane
  * of strips is aligned with the local y axis of the detector. <BR>
@@ -29,7 +28,7 @@ class CSCStripTopology : public  OffsetRadialStripTopology {
 public:
 
   /** 
-   * Constructor
+   * Constructor from:
    *    \param ns number of strips
    *    \param aw angular width of a strip
    *    \param dh detector height (extent of strip plane along long symmetry axis))

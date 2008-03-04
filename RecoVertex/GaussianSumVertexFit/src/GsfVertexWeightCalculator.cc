@@ -1,9 +1,9 @@
 #include "RecoVertex/GaussianSumVertexFit/interface/GsfVertexWeightCalculator.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "RecoVertex/VertexPrimitives/interface/VertexException.h"
 
 #include <cfloat>
 
-double GsfVertexWeightCalculator::calculate(const  VertexState & oldVertex,
+double GsfVertexWeightCalculator::calculate(const  VertexState & oldVertex, //const  VertexState & newVertex,
 	 const RefCountedLinearizedTrackState track, double cov) const
 {
   double previousWeight = oldVertex.weightInMixture() * track->weightInMixture();
@@ -42,18 +42,15 @@ double GsfVertexWeightCalculator::calculate(const  VertexState & oldVertex,
   double sigmaDet;
   sigmaM.Det(sigmaDet);
   int  ifail = ! sigmaM.Invert(); 
-  if(ifail != 0) {
-    edm::LogWarning("GsfVertexWeightCalculator") << "S matrix inversion failed";
-    return -1.;
-  }
+  if(ifail != 0) throw VertexException
+                       ("GsfVertexWeightCalculator::S matrix inversion failed");
   
 	
   double chi = ROOT::Math::Similarity(diff,sigmaM);;  //SigmaM is now inverted !!!
   double weight = pow(2. * M_PI, -0.5 * 5) * sqrt(1./sigmaDet) * exp(-0.5 * chi);
 
-  if (isnan(weight) || sigmaDet<=0.) {
-    edm::LogWarning("GsfVertexWeightCalculator") << "Weight is NaN";
-    return -1.;
+ if (isnan(weight) || sigmaDet<=0.) {
+   throw VertexException("GsfVertexWeightCalculator::Weight is nan");
   }
 
   return weight*previousWeight;

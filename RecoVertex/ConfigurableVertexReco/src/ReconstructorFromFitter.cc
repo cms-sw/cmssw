@@ -21,6 +21,11 @@ vector < TransientVertex > ReconstructorFromFitter::vertices
     {
       edm::LogWarning("ReconstructorFromFitter") << "exception caught: " << e.what();
     }
+  } catch ( ... ) {
+    if ( verbose )
+    {
+      edm::LogWarning ("[ReconstructorFromFitter") << "unidentified exception caught.";
+    }
   }
   return ret;
 }
@@ -41,6 +46,11 @@ vector < TransientVertex > ReconstructorFromFitter::vertices
     if ( verbose )
     {
       edm::LogWarning("ReconstructorFromFitter") << "exception caught: " << e.what();
+    }
+  } catch ( ... ) {
+    if ( verbose )
+    {
+      edm::LogWarning ("[ReconstructorFromFitter") << "unidentified exception caught.";
     }
   }
   return ret;

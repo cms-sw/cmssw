@@ -1,16 +1,13 @@
-// $Id: EcalMonitorPrescaler.cc,v 1.5 2007/12/04 08:51:21 dellaric Exp $
+// $Id: EcalMonitorPrescaler.cc,v 1.6 2007/12/18 08:43:40 dellaric Exp $
 
 /*!
   \file EcalMonitorPrescaler.cc
   \brief Ecal specific Prescaler
   \author G. Della Ricca
-  \version $Revision: 1.5 $
-  \date $Date: 2007/12/04 08:51:21 $
+  \version $Revision: 1.6 $
+  \date $Date: 2007/12/18 08:43:40 $
 */
 
-#include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "DataFormats/EcalRawData/interface/EcalRawDataCollections.h"

@@ -1,8 +1,8 @@
 /*
  * \file EEClusterClient.cc
  *
- * $Date: 2008/01/17 09:34:42 $
- * $Revision: 1.33 $
+ * $Date: 2008/01/27 09:41:13 $
+ * $Revision: 1.40 $
  * \author G. Della Ricca
  * \author E. Di Marco
  *
@@ -18,23 +18,9 @@
 #include "TGraph.h"
 #include "TLine.h"
 
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-
 #include "DQMServices/UI/interface/MonitorUIRoot.h"
 
-#include "OnlineDB/EcalCondDB/interface/RunTag.h"
-#include "OnlineDB/EcalCondDB/interface/RunIOV.h"
-#include "OnlineDB/EcalCondDB/interface/MonPedestalsOnlineDat.h"
-
-#include "OnlineDB/EcalCondDB/interface/EcalCondDBInterface.h"
-
-#include "CondTools/Ecal/interface/EcalErrorDictionary.h"
-
-#include "DQM/EcalCommon/interface/EcalErrorMask.h"
 #include "DQM/EcalCommon/interface/UtilsClient.h"
-#include "DQM/EcalCommon/interface/LogicID.h"
 #include "DQM/EcalCommon/interface/Numbers.h"
 
 #include <DQM/EcalEndcapMonitorClient/interface/EEClusterClient.h>
@@ -52,7 +38,7 @@ EEClusterClient::EEClusterClient(const ParameterSet& ps){
   verbose_ = ps.getUntrackedParameter<bool>("verbose", false);
 
   // enableMonitorDaemon_ switch
-  enableMonitorDaemon_ = ps.getUntrackedParameter<bool>("enableMonitorDaemon", true);
+  enableMonitorDaemon_ = ps.getUntrackedParameter<bool>("enableMonitorDaemon", false);
 
   // enableCleanup_ switch
   enableCleanup_ = ps.getUntrackedParameter<bool>("enableCleanup", false);
@@ -69,7 +55,7 @@ EEClusterClient::EEClusterClient(const ParameterSet& ps){
   h01_[1] = 0;
   h01_[2] = 0;
 
-  for(int iEE=0;iEE<2;++iEE) {
+  for(int iEE=0;iEE<2;iEE++) {
     for(int i=0;i<3;++i) {
       h04_[i][iEE] = 0;
       h02ProjR_[i][iEE] = 0;
@@ -152,7 +138,7 @@ void EEClusterClient::cleanup(void) {
     if ( h01_[1] ) delete h01_[1];
     if ( h01_[2] ) delete h01_[2];
 
-    for(int iEE=0;iEE<2;++iEE) {
+    for(int iEE=0;iEE<2;iEE++) {
       for(int i=0;i<3;++i) {
         if(h04_[i][iEE]) delete h04_[i][iEE];
         if(h02ProjR_[i][iEE]) delete h02ProjR_[i][iEE];
@@ -182,7 +168,7 @@ void EEClusterClient::cleanup(void) {
   h01_[1] = 0;
   h01_[2] = 0;
 
-  for(int iEE=0;iEE<2;++iEE) {
+  for(int iEE=0;iEE<2;iEE++) {
     for(int i=0;i<3;++i) {
       h04_[i][iEE] = 0;
       h02ProjR_[i][iEE] = 0;
@@ -224,7 +210,7 @@ void EEClusterClient::analyze(void){
     if ( verbose_ ) cout << "EEClusterClient: ievt/jevt = " << ievt_ << "/" << jevt_ << endl;
   }
 
-  Char_t histo[200];
+  char histo[200];
 
   MonitorElement* me;
 
@@ -387,10 +373,7 @@ void EEClusterClient::htmlOutput(int run, string htmlDir, string htmlName){
   htmlFile << "<h2>Monitoring task:&nbsp;&nbsp;&nbsp;&nbsp; <span " << endl;
   htmlFile << " style=\"color: rgb(0, 0, 153);\">CLUSTER</span></h2> " << endl;
   htmlFile << "<hr>" << endl;
-  //  htmlFile << "<table border=1><tr><td bgcolor=red>channel has problems in this task</td>" << endl;
-  //  htmlFile << "<td bgcolor=lime>channel has NO problems</td>" << endl;
-  //  htmlFile << "<td bgcolor=yellow>channel is missing</td></table>" << endl;
-  //  htmlFile << "<hr>" << endl;
+
   htmlFile <<  "<a href=\"#bc_plots\"> Basic Clusters plots </a>" << endl;
   htmlFile << "<p>" << endl;
   htmlFile <<  "<a href=\"#sc_plots\"> Super Clusters plots </a>" << endl;
@@ -540,7 +523,7 @@ void EEClusterClient::htmlOutput(int run, string htmlDir, string htmlName){
 
   // Energy profiles
   for(int iVar=0; iVar<3; ++iVar) {
-    for(int iEE=0; iEE<2; ++iEE) {
+    for(int iEE=0; iEE<2; iEE++) {
 
       imgNameEneMap[iVar][iEE] = "";
 
@@ -623,7 +606,7 @@ void EEClusterClient::htmlOutput(int run, string htmlDir, string htmlName){
   }
 
   // Cluster occupancy profiles
-  for ( int iEE=0; iEE<2; ++iEE ) {
+  for (int iEE=0; iEE<2; iEE++) {
 
     imgNameNumMap[iEE] = "";
 
@@ -709,7 +692,7 @@ void EEClusterClient::htmlOutput(int run, string htmlDir, string htmlName){
   htmlFile << "<tr align=\"center\">" << endl;
 
   for(int iVar=0; iVar<3; ++iVar) {
-    for(int iEE=0; iEE<2; ++iEE) {
+    for(int iEE=0; iEE<2; iEE++) {
       if ( imgNameEneMap[iVar][iEE].size() != 0)
         htmlFile << "<td><img src=\"" << imgNameEneMap[iVar][iEE] << "\"></td>" << endl;
       else
@@ -718,7 +701,7 @@ void EEClusterClient::htmlOutput(int run, string htmlDir, string htmlName){
     htmlFile << "</tr>" << endl;
   }
 
-  for ( int iEE = 0; iEE<2; ++iEE ) {
+  for ( int iEE = 0; iEE<2; iEE++ ) {
     if ( imgNameNumMap[iEE].size() != 0)
       htmlFile << "<td><img src=\"" << imgNameNumMap[iEE] << "\"></td>" << endl;
     else
@@ -735,7 +718,7 @@ void EEClusterClient::htmlOutput(int run, string htmlDir, string htmlName){
   htmlFile << "<tr align=\"center\">" << endl;
 
   for(int iVar=0; iVar<3; ++iVar) {
-    for(int iEE=0; iEE<2; ++iEE) {
+    for(int iEE=0; iEE<2; iEE++) {
       if ( imgNameEneXproj[iVar][iEE].size() != 0 )
         htmlFile << "<td><img src=\"" << imgNameEneXproj[iVar][iEE] << "\"></td>" << endl;
       else
@@ -748,7 +731,7 @@ void EEClusterClient::htmlOutput(int run, string htmlDir, string htmlName){
     htmlFile << "</tr>" << endl;
   }
 
-  for(int iEE=0; iEE<2; ++iEE) {
+  for(int iEE=0; iEE<2; iEE++) {
     if ( imgNameNumXproj[iEE].size() != 0 )
       htmlFile << "<td><img src=\"" << imgNameNumXproj[iEE] << "\"></td>" << endl;
     else

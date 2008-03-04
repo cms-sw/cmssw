@@ -2,6 +2,7 @@
 #define MonitorUserInterface_h
 
 class MonitorElement;
+class CollateMonitorElement;
 
 #include "DQMServices/Core/interface/StringUtil.h"
 #include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
@@ -130,6 +131,54 @@ class MonitorUserInterface : public StringUtil
   /// set reconnect delay parameter (in secs);
   /// use delay < 0 for no reconnection attempts
   virtual void setReconnectDelay(int delay) = 0;
+
+  // --------------------- Collation of MEs --------------------------------
+  /// collate 1D histograms, store in <pathname>
+  virtual CollateMonitorElement * collate1D(const std::string name, 
+					    const std::string title, 
+					    const std::string pathname)=0;
+  /// collate 2D histograms, store in <pathname>
+  virtual CollateMonitorElement * collate2D(const std::string name, 
+					    const std::string title, 
+					    const std::string pathname)=0;
+  /// collate 3D histograms, store in <pathname>
+  virtual CollateMonitorElement * collate3D(const std::string name, 
+					    const std::string title, 
+					    const std::string pathname)=0;
+  /// collate profiles, store in <pathname>;
+  virtual CollateMonitorElement* collateProf(const std::string name, 
+					     const std::string title, 
+					     const std::string pathname)=0;
+  
+  /// collate profiles, store in <pathname>;
+  virtual CollateMonitorElement* collateProf2D(const std::string name, 
+					       const std::string title, 
+					       const std::string pathname)
+    = 0;
+  
+  /// add <search_string> to summary ME; 
+  /// <search_string> could : (a) be exact pathname (e.g. A/B/C/histo): FAST
+  /// (b) include wildcards (e.g. A/?/C/histo, A/B/*/histo or A/B/*): SLOW
+  /// this action applies to all MEs already available or future ones
+  void add(CollateMonitorElement * cme, std::string search_string) const;
+  /// same as above for tagged MEs
+  void add(CollateMonitorElement * cme, unsigned int tag, 
+	   std::string search_string) const;
+  /// add directory contents to summary ME ==> FAST
+  /// (need exact pathname without wildcards, e.g. A/B/C);
+  /// use flag to specify whether subfolders (& their contents) should be included;
+  /// this action applies to all MEs already available or future ones
+  void add(CollateMonitorElement* cme, std::string pathname, bool useSubfolds)
+    const;
+  /// same as above for tagged MEs
+  void add(CollateMonitorElement* cme,unsigned int tag,std::string pathname,
+	   bool useSubfolds) const;
+  /// add tagged MEs to summary ME ==> FAST
+  /// this action applies to all MEs already available or future ones
+  void add(CollateMonitorElement * cme, unsigned int tag) const;
+  /// do calculations for all collate MEs; come here at end of monitoring cycle)
+  void doSummary(void);
+
   ///
 
   // -------------------- Quality tests on MonitorElements ------------------

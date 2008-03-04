@@ -11,8 +11,6 @@ namespace {
     reco::IsolatedPixelTrackCandidateRefVector                                 ptc_rv1;
     edm::Wrapper<reco::IsolatedPixelTrackCandidateCollection>                  ptc_wc1;
     edm::reftobase::Holder<reco::Candidate, reco::IsolatedPixelTrackCandidateRef> ptc_h1;
-    edm::Ref<reco::IsolatedPixelTrackCandidateCollection> 		       ptc_sr1;
-    reco::IsolatedPixelTrackCandidateSimpleRefVector 			       ptc_srv1;
 
     reco::EcalIsolatedParticleCandidate                                          ptc2;
     reco::EcalIsolatedParticleCandidateCollection                                ptc_c2;

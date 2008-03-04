@@ -13,7 +13,7 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: ForwardMeasurementEstimator.cc,v 1.2 2006/06/30 12:36:57 uberthon Exp $
+// $Id: ForwardMeasurementEstimator.cc,v 1.3 2007/02/05 17:53:52 uberthon Exp $
 //
 //
 #include "RecoEgamma/EgammaElectronAlgos/interface/ForwardMeasurementEstimator.h"
@@ -32,13 +32,19 @@ std::pair<bool,double> ForwardMeasurementEstimator::estimate( const TrajectorySt
   GlobalPoint gp = hit.det()->surface().toGlobal( lp);
   float rhPhi = gp.phi();
   float rhR = gp.perp();
-
+  
   float zLayer = ts.globalParameters().position().z();
   float rLayer = ts.globalParameters().position().perp();
+//  float xLayer = ts.globalParameters().position().x();
+//  float yLayer = ts.globalParameters().position().y();
 
   // compute the limits in r from the given limits in z
-  //estimate the vertex
-  float zVert = zLayer - rLayer/tan(ts.globalDirection().theta());
+//   // estimate the vertex
+//   float rdiff = pow((xLayer-0.0322),2) + yLayer*yLayer;
+//   rdiff = sqrt(rdiff);
+//   float zVert = zLayer - rdiff/tan(ts.globalDirection().theta());
+//     std::cout << "[ForwardMeasurementEstimator] vertex original calculation " <<  zVert << " revised calculation " 
+//      << zVert2 << std::endl;
 
   //326.5 is the estimated shower center position 320.5+6cm see ECAL TDR p 81
   float zCluster;
@@ -49,11 +55,11 @@ std::pair<bool,double> ForwardMeasurementEstimator::estimate( const TrajectorySt
   float rCluster = rLayer/myScale;
   float rMin; float rMax;
   if (zLayer > 0) {
-    rMin = rCluster*(zLayer - theZRangeMax)/(zCluster - theZRangeMax);
-    rMax = rCluster*(zLayer + theZRangeMax)/(zCluster + theZRangeMax);
+     rMin = rCluster*(zLayer - theZRangeMax)/(zCluster - theZRangeMax);
+     rMax = rCluster*(zLayer + theZRangeMax)/(zCluster + theZRangeMax);
   } else {
-    rMin = rCluster*(zLayer + theZRangeMax)/(zCluster + theZRangeMax);
-    rMax = rCluster*(zLayer - theZRangeMax)/(zCluster - theZRangeMax);
+     rMin = rCluster*(zLayer + theZRangeMax)/(zCluster + theZRangeMax);
+     rMax = rCluster*(zLayer - theZRangeMax)/(zCluster - theZRangeMax);
   } 
 
 
@@ -120,5 +126,8 @@ ForwardMeasurementEstimator::maximalLocalDisplacement( const TrajectoryStateOnSu
   else return Local2DVector(999999,999999);
 }
 
-
+void ForwardMeasurementEstimator::setVertex( float vertex)
+{
+  zVert=vertex;
+}
 

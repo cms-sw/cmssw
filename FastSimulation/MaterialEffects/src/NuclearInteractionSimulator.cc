@@ -13,7 +13,6 @@
 #include <iostream>
 #include <sys/stat.h>
 #include <cmath>
-#include <string>
 #include "TFile.h"
 #include "TTree.h"
 #include "TROOT.h"
@@ -29,6 +28,8 @@ NuclearInteractionSimulator::NuclearInteractionSimulator(
   std::vector< std::vector<double> >& ratios,
   std::map<int,int >& idMap,
   std::string inputFile,
+  unsigned int distAlgo,
+  double distCut,
   const RandomEngine* engine) 
   :
   MaterialEffectsSimulator(engine),
@@ -40,7 +41,9 @@ NuclearInteractionSimulator::NuclearInteractionSimulator(
   thePionEnergy(pionEnergy),
   theLengthRatio(lengthRatio),
   theRatios(ratios),
-  theIDMap(idMap)
+  theIDMap(idMap),
+  theDistAlgo(distAlgo),
+  theDistCut(distCut)
 
 {
 
@@ -271,6 +274,17 @@ void NuclearInteractionSimulator::compute(ParticlePropagator& Particle)
 	Particle.rotate(rotation1);
 	Particle.rotate(rotation2);
 	
+	// Distance 
+	double distance = std::sin(theta);
+
+	// Create a daughter if the kink is large engough 
+	if ( distance > theDistCut ) { 
+	  _theUpdatedState.resize(1);
+	  _theUpdatedState[0].SetXYZT(Particle.Px(), Particle.Py(),
+				      Particle.Pz(), Particle.E());
+	  _theUpdatedState[0].setID(Particle.pid());
+	}
+
 	//	hscatter->Fill(myTheta);
 	//	hscatter2->Fill(pHadron,myTheta);
 	
@@ -420,6 +434,8 @@ void NuclearInteractionSimulator::compute(ParticlePropagator& Particle)
 	  //      std::cout << "First and last tracks are " << firstTrack << " " << lastTrack << std::endl;
 	  
 	  _theUpdatedState.resize(lastTrack-firstTrack+1);
+
+	  double distMin = 1E99;
 	  for ( unsigned iTrack=firstTrack; iTrack<=lastTrack; ++iTrack ) {
 	    
 	    unsigned idaugh = iTrack - firstTrack;
@@ -438,18 +454,28 @@ void NuclearInteractionSimulator::compute(ParticlePropagator& Particle)
 				     + aParticle.py*aParticle.py
 				     + aParticle.pz*aParticle.pz
 				     + aParticle.mass*aParticle.mass/(ecm*ecm) );
-	    _theUpdatedState[idaugh].SetXYZT(aParticle.px*ecm,aParticle.py*ecm,
-					     aParticle.pz*ecm,energy*ecm);	    
-	    _theUpdatedState[idaugh].setID(aParticle.id);
+
+	    RawParticle& aDaughter = _theUpdatedState[idaugh]; 
+	    aDaughter.SetXYZT(aParticle.px*ecm,aParticle.py*ecm,
+			      aParticle.pz*ecm,energy*ecm);	    
+	    aDaughter.setID(aParticle.id);
 
 	    // Rotate around the boost axis
-	    _theUpdatedState[idaugh].rotate(axisRotation);
+	    aDaughter.rotate(axisRotation);
 	    
 	    // Boost it in the lab frame
-	    _theUpdatedState[idaugh].boost(axisBoost);
-	    
+	    aDaughter.boost(axisBoost);
+
+	    // Store the closest daughter index (for later tracking purposes, so charged particles only) 
+	    double distance = distanceToPrimary(Particle,aDaughter);
+	    // Find the closest daughter, if closer than a given upper limit.
+	    if ( distance < distMin && distance < theDistCut ) {
+	      distMin = distance;
+	      theClosestChargedDaughterId = idaugh;
+	    }
+
 	  }
-	  
+ 
 	  // Increment for next time
 	  ++aCurrentInteraction[ene];
 	  
@@ -468,6 +494,48 @@ void NuclearInteractionSimulator::compute(ParticlePropagator& Particle)
     }
 
   }
+
+}
+
+double 
+NuclearInteractionSimulator::distanceToPrimary(const RawParticle& Particle,
+					       const RawParticle& aDaughter) const {
+
+  double distance = 2E99;
+
+  // Compute the distance only for charged primaries
+  if ( fabs(Particle.charge()) > 1E-12 ) { 
+
+    // The secondary must have the same charge
+    double chargeDiff = fabs(aDaughter.charge()-Particle.charge());
+    if ( fabs(chargeDiff) < 1E-12 ) {
+
+      // Here are two distance definitions * to be tuned *
+      switch ( theDistAlgo ) { 
+	
+      case 1:
+	// sin(theta12)
+	distance = (aDaughter.Vect().Unit().Cross(Particle.Vect().Unit())).R();
+	break;
+	
+      case 2: 
+	// sin(theta12) * p1/p2
+	distance = (aDaughter.Vect().Cross(Particle.Vect())).R()
+	  /aDaughter.Vect().Mag2();
+	break;
+	
+      default:
+	// Should not happen
+	distance = 2E99;
+	break;
+	
+      }
+
+    }
+
+  }
+      
+  return distance;
 
 }
 

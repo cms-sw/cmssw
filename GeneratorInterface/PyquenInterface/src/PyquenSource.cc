@@ -3,7 +3,6 @@
  * Generates PYQUEN HepMC events
  *
  * Original Author: Camelia Mironov
- * $Id: PyquenSource.cc,v 1.8 2007/10/05 15:17:58 loizides Exp $
 */
 
 #include <iostream>
@@ -13,14 +12,14 @@
 #include "GeneratorInterface/PyquenInterface/interface/PyquenWrapper.h"
 #include "GeneratorInterface/CommonInterface/interface/PythiaCMS.h"
 
-#include "SimDataFormats/HepMCProduct/interface/GenInfoProduct.h"
-#include "SimDataFormats/HiGenData/interface/GenHIEvent.h"
 #include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/RandomNumberGenerator.h"
 
+#include "HepMC/GenEvent.h"
+#include "HepMC/HeavyIon.h"
 #include "HepMC/IO_HEPEVT.h"
 #include "HepMC/PythiaWrapper.h"
 
@@ -32,16 +31,9 @@ HepMC::IO_HEPEVT hepevtio;
 PyquenSource :: PyquenSource(const ParameterSet & pset, InputSourceDescription const& desc):
 GeneratedInputSource(pset, desc), evt(0), 
 abeamtarget_(pset.getParameter<double>("aBeamTarget")),
-angularspecselector_(pset.getParameter<int>("angularSpectrumSelector")),
 bfixed_(pset.getParameter<double>("bFixed")),
 cflag_(pset.getParameter<int>("cFlag")),
 comenergy(pset.getParameter<double>("comEnergy")),
-doquench_(pset.getParameter<bool>("doQuench")),
-doradiativeenloss_(pset.getParameter<bool>("doRadiativeEnLoss")),
-docollisionalenloss_(pset.getParameter<bool>("doCollisionalEnLoss")),
-nquarkflavor_(pset.getParameter<int>("numQuarkFlavor")),
-qgpt0_(pset.getParameter<double>("qgpInitialTemperature")),
-qgptau0_(pset.getParameter<double>("qgpProperTimeFormation")),
 maxEventsToPrint_(pset.getUntrackedParameter<int>("maxEventsToPrint",1)),
 pythiaHepMCVerbosity_(pset.getUntrackedParameter<bool>("pythiaHepMCVerbosity",false)),
 pythiaPylistVerbosity_(pset.getUntrackedParameter<int>("pythiaPylistVerbosity",0))
@@ -51,7 +43,7 @@ pythiaPylistVerbosity_(pset.getUntrackedParameter<int>("pythiaPylistVerbosity",0
   // Verbosity Level
   // Valid PYLIST arguments are: 1, 2, 3, 5, 7, 11, 12, 13
   pythiaPylistVerbosity_ = pset.getUntrackedParameter<int>("pythiaPylistVerbosity",0);
-  LogDebug("PYLISTverbosity") << "Pythia PYLIST verbosity level = " << pythiaPylistVerbosity_ << endl;
+   LogDebug("PYLISTverbosity") << "Pythia PYLIST verbosity level = " << pythiaPylistVerbosity_ << endl;
   
   // HepMC event verbosity Level
   pythiaHepMCVerbosity_ = pset.getUntrackedParameter<bool>("pythiaHepMCVerbosity",false);
@@ -64,16 +56,12 @@ pythiaPylistVerbosity_(pset.getUntrackedParameter<int>("pythiaPylistVerbosity",0
   //initialize pythia
   pyqpythia_init(pset);
 
-  //initilize pyquen
-  pyquen_init(pset);
-
   // Call PYTHIA
   call_pyinit("CMS", "p", "p", comenergy);  
   
   cout<<endl;
 
   produces<HepMCProduct>();
-  produces<GenInfoProduct, edm::InRun>();
 }
 
 
@@ -116,11 +104,10 @@ bool PyquenSource::call_pygive(const std::string& iParm )
 {
   // Set Pythia parameters
 
-  int numWarn = pydat1.mstu[26];//# warnings
-  int numErr = pydat1.mstu[22]; //# errors
+  int numWarn = pydat1.mstu[26]; //# warnings
+  int numErr = pydat1.mstu[22];// # errors
   // call the fortran routine pygive with a fortran string
   PYGIVE( iParm.c_str(), iParm.length() );  
-
   // if an error or warning happens it is problem
   return pydat1.mstu[26] == numWarn && pydat1.mstu[22] == numErr;   
 }
@@ -129,36 +116,28 @@ bool PyquenSource::call_pygive(const std::string& iParm )
 //____________________________________________________________________
 void PyquenSource::clear()
 {
+
 }
 
 
 //_____________________________________________________________________
 bool PyquenSource::produce(Event & e)
 {
-  edm::LogInfo("PYQUENabeamtarget") << "##### PYQUEN: beam/target A = "                     << abeamtarget_;
-  edm::LogInfo("PYQUENcflag")       << "##### PYQUEN: centrality flag cflag_ = "            << cflag_;
-  edm::LogInfo("PYQUENbfixed")      << "##### PYQUEN: fixed impact parameter bFixed = "     << bfixed_;
-  edm::LogInfo("PYQUENinNFlav")     << "##### PYQUEN: No active quark flavor nf = "         << pyqpar.nfu;
-  edm::LogInfo("PYQUENinTemp")      << "##### PYQUEN: Initial temperature of QGP, T0 = "    << pyqpar.T0u;
-  edm::LogInfo("PYQUENinTau")       << "##### PYQUEN: Proper formation time of QGP, tau0 =" << pyqpar.tau0u;
+
+  edm::LogInfo("PYQUENabeamtarget") << "abeamtarget_ =  " << abeamtarget_;
+  edm::LogInfo("PYQUENcflag") << "cflag_ = " << cflag_;
+  edm::LogInfo("PYQUENbfixed") << "bfixed_ = " << bfixed_;
+  edm::LogInfo("PYQUENinAction") << "##### Calling PYQUEN(abeamtarget_,cflag_,bfixed_) ####";
 
   // Generate PYQUEN event
   // generate single partonic PYTHIA jet event
   call_pyevnt();
 
-  // call PYQUEN to apply parton rescattering and energy loss 
-  // if doQuench=FALSE, it is pure PYTHIA
-  if( doquench_ ){
-    PYQUEN(abeamtarget_,cflag_,bfixed_);
-    edm::LogInfo("PYQUENinAction") << "##### Calling PYQUEN("<<abeamtarget_<<","<<cflag_<<","<<bfixed_<<") ####";
-  } else {
-    edm::LogInfo("PYQUENinAction") << "##### Calling PYQUEN: QUENCHING OFF!! This is just PYTHIA !!!! ####";
-  }
-  call_pylist(1);
+  // call PYQUEN to apply parton rescattering and energy loss
+  PYQUEN(abeamtarget_,cflag_,bfixed_);
 
   // call PYTHIA to finish the hadronization
   PYEXEC();
-  call_pylist(1);
 
   // fill the HEPEVT with the PYJETS event record
   call_pyhepc(1);
@@ -176,17 +155,17 @@ bool PyquenSource::produce(Event & e)
   e.put(bare_product); 
 
   // verbosity
-  if( event() <= maxEventsToPrint_ && ( pythiaPylistVerbosity_ || pythiaHepMCVerbosity_ )) { 
-    // Prints PYLIST info
-     if( pythiaPylistVerbosity_ ){
-       call_pylist(pythiaPylistVerbosity_);
-     }
+  if( event() <= maxEventsToPrint_ && ( pythiaPylistVerbosity_ || pythiaHepMCVerbosity_ )){ 
+      // Prints PYLIST info
+      if( pythiaPylistVerbosity_ ){
+	  call_pylist(pythiaPylistVerbosity_);
+      }
       
-     // Prints HepMC event
-     if( pythiaHepMCVerbosity_ ){
-        cout << "Event process = " << pypars.msti[0] << endl; 
-	evt->print(); 
-     }
+      // Prints HepMC event
+      if( pythiaHepMCVerbosity_ ){
+	  cout << "Event process = " << pypars.msti[0] << endl; 
+	//	evt->print();
+      }
   }
     
   return true;
@@ -226,13 +205,12 @@ bool PyquenSource::pyqpythia_init(const ParameterSet & pset)
     for( vector<string>::const_iterator itPar = pars.begin(); itPar != pars.end(); ++itPar ) {
       static string sRandomValueSetting("MRPY(1)");
       if( 0 == itPar->compare(0,sRandomValueSetting.size(),sRandomValueSetting) ) {
-         throw edm::Exception(edm::errors::Configuration,"PythiaError")
-           << " Attempted to set random number using 'MRPY(1)'. NOT ALLOWED!\n"
-              " Use RandomNumberGeneratorService to set the random number seed.";
+	throw edm::Exception(edm::errors::Configuration,"PythiaError")
+	  <<" Attempted to set random number using 'MRPY(1)'. NOT ALLOWED! \n Use RandomNumberGeneratorService to set the random number seed.";
       }
       if( !call_pygive(*itPar) ) {
-        throw edm::Exception(edm::errors::Configuration,"PythiaError") 
-           << "PYTHIA did not accept \""<<*itPar<<"\"";
+	throw edm::Exception(edm::errors::Configuration,"PythiaError") 
+	  <<"PYTHIA did not accept \""<<*itPar<<"\"";
       }
     }
   }
@@ -240,41 +218,3 @@ bool PyquenSource::pyqpythia_init(const ParameterSet & pset)
   return true;
 }
 
-
-//_________________________________________________________________
-bool PyquenSource::pyquen_init(const ParameterSet &pset)
-{
-  // PYQUEN initialization
-
-  // angular emitted gluon  spectrum selection 
-  pyqpar.ianglu = angularspecselector_;
-
-  // type of medium induced partonic energy loss
-  if( doradiativeenloss_ && docollisionalenloss_ ){
-    edm::LogInfo("PYQUENinEnLoss") << "##### PYQUEN: Radiative AND Collisional partonic energy loss ON ####";
-    pyqpar.ienglu = 0; 
-  } else if ( doradiativeenloss_ ) {
-    edm::LogInfo("PYQUENinRad") << "##### PYQUEN: Only RADIATIVE partonic energy loss ON ####";
-    pyqpar.ienglu = 1; 
-  } else if ( docollisionalenloss_ ) {
-    edm::LogInfo("PYQUENinColl") << "##### PYQUEN: Only COLLISIONAL partonic energy loss ON ####";
-    pyqpar.ienglu = 2; 
-  } else {
-    edm::LogInfo("PYQUENinEnLoss") << "##### PYQUEN: Radiative AND Collisional partonic energy loss ON ####";
-    pyqpar.ienglu = 0; 
-  }
-
-  // number of active quark flavors in qgp
-  pyqpar.nfu    = nquarkflavor_;
-
-  // initial temperature of QGP
-  pyqpar.T0u    = qgpt0_;
-
-  // proper time of QGP formation
-  pyqpar.tau0u  = qgptau0_;
-
-  return true;
-}
-
-
-//____________________________________________________________________

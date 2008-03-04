@@ -105,32 +105,21 @@ EcalSimpleSource::EcalSimpleSource(const edm::ParameterSet& pset,
   string simHitFormula = pset.getParameter<string>("simHitFormula");
   
   verbose_ = pset.getUntrackedParameter<bool>("verbose", false);
-  //  replaceAll(formula, "itt0", "((((ieta0<85)*(84-ieta0)+(ieta0>=85)*(ieta0-85))/5-18)*4+((iphi0/5+2)%4))");
-  replaceAll(formula, "ebm", "(ieta0<85)");
-  replaceAll(formula, "ebp", "(ieta0>84)");
+  replaceAll(formula, "itt0", "(ieta0%85)*20+((iphi0+10)%20)");
   replaceAll(formula, "ieta0", "x");
   replaceAll(formula, "iphi0", "y");
   replaceAll(formula, "ievt0", "z");
   replaceAll(formula, "isample0", "t");
   //  cout << "----------> " << formula << endl;
   
-  replaceAll(tpFormula, "itt0", "((ieta0<28)*(27-ieta0)+(ieta0>=28)*(ieta0-28))*4+(iphi0+2)%4");
-  replaceAll(tpFormula, "eb", "(ieta0>10 && ieta0<45)");
-  replaceAll(tpFormula, "ebm", "(ieta0>10 && ieta0<28)");
-  replaceAll(tpFormula, "ebp", "(ieta0>27 && ieta0<45)");
-  replaceAll(tpFormula, "ee", "(ieta0<11 || ieta0>44)");
-  replaceAll(tpFormula, "eem", "(ieta0<11)");
-  replaceAll(tpFormula, "eep", "(ieta0>44)");
+  replaceAll(tpFormula, "itt0", "((ieta0-11+17)%17)*4+(iphi0+2)%4");
   replaceAll(tpFormula, "ieta0", "x");
   replaceAll(tpFormula, "iphi0", "y");
   replaceAll(tpFormula, "ievt0", "z");
   replaceAll(tpFormula, "isample0", "t");
   //cout << "----------> " << tpFormula << endl;
   
-
-  //replaceAll(simHitormula, "itt0", "((((ieta0<85)*(84-ieta0)+(ieta0>=85)*(ieta0-85))/5-18)*4+((iphi0/5+2)%4))");
-  replaceAll(simHitFormula, "ebm", "(ieta0<85)");
-  replaceAll(simHitFormula, "ebp", "(ieta0>84)");
+  replaceAll(simHitFormula, "itt0", "(ieta0%85)*20+((iphi0+10)%20)");
   replaceAll(simHitFormula, "ieta0", "x");
   replaceAll(simHitFormula, "iphi0", "y");
   replaceAll(simHitFormula, "ievt0", "z");

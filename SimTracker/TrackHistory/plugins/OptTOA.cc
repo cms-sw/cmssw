@@ -15,7 +15,7 @@
 //
 // Original Author:  Victor Bazterra
 //         Created:  Tue Mar 13 14:15:40 CDT 2007
-// $Id: OptTOA.cc,v 1.2 2008/01/14 11:57:22 fambrogl Exp $
+// $Id: OptTOA.h,v 1.2 2007/05/21 18:06:15 bazterra Exp $
 //
 //
 
@@ -235,10 +235,9 @@ private:
   
   std::string primaryVertex_;
 
-
   double d0Pull(
     const edm::ESHandle<MagneticField> &,
-    const edm::RefToBase<reco::Track>,
+    const reco::TrackRef,
     reco::RecoToSimCollection &,
     bool
   );
@@ -280,7 +279,7 @@ OptTOA::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   // Tracking particle information
   edm::Handle<TrackingParticleCollection>  TPCollection;
   // Track collection
-  edm::Handle<edm::View<reco::Track> > trackCollection;
+  edm::Handle<reco::TrackCollection> trackCollection;
   // Primary vertex
   edm::Handle<reco::VertexCollection> primaryVertex;
   // Jet to tracks associator
@@ -404,89 +403,88 @@ OptTOA::LoopOverJetTracksAssociation(
     reco::Vertex::Point p(0,0,0);
     pv = reco::Vertex(p,e,1,1,1);
   }
-  
+
   reco::JetTracksAssociationCollection::const_iterator it = jetTracksAssociation->begin();
-  
+
   TrackOrigin tracer(-2);
-  
+ 
   int i=0; 
   for(; it != jetTracksAssociation->end(); it++, i++)
-    {
-      // get jetTracks object
-      reco::JetTracksAssociationRef jetTracks(jetTracksAssociation, i); 
+  {
+    // get jetTracks object
+    reco::JetTracksAssociationRef jetTracks(jetTracksAssociation, i); 
 
-      double pvZ = pv.z(); 
-      GlobalVector direction(jetTracks->first->px(), jetTracks->first->py(), jetTracks->first->pz());
+    double pvZ = pv.z(); 
+    GlobalVector direction(jetTracks->first->px(), jetTracks->first->py(), jetTracks->first->pz());
       
-      // get the tracks associated to the jet
-      reco::TrackRefVector tracks = jetTracks->second;
-      for(std::size_t index = 0; index < tracks.size(); index++)
-	{
-	  edm::RefToBase<reco::Track> track(tracks[index]);
-	  double pt = tracks[index]->pt();
-	  double chi2 = tracks[index]->normalizedChi2();
-	  std::size_t hits = tracks[index]->recHitsSize();
-	  
-	  if(hits < minNumberOfHits_ || chi2 > maxChi2_ || pt < minPt_ ) continue;
-	  
-	  const reco::TransientTrack transientTrack = bproduct->build(&(*tracks[index]));
-	  double distanceToAxis = - SignedImpactParameter3D::distanceWithJetAxis(transientTrack, direction, pv).second.value();
-	  double decayLength = SignedDecayLength3D::apply(transientTrack, direction, pv).second.value();
-	  double d0pull = d0Pull(theMF, track, association, associationByHits_);
-	  double dz = tracks[index]->dz() - pvZ;
-	  double d0 = tracks[index]->d0();
-	  
-	  // If the track is not fake then get the orginal particles
-	  if (tracer.evaluate(track, association, associationByHits_))
-	    {
-	      const HepMC::GenParticle * particle = tracer.particle();
-	      
-	      /*
-		
-	      if (particle) 
-	      { 
-	      if (fabs(d0pull) > 3.0)  // Badly reconstructed
-	      histogram_data_[3].push_back(histogram_element_t(decayLength, distanceToAxis, d0, dz, pt, chi2, hits));          
-	      else if (tracer.isDisplaced()) // Displaced tracks
-	      histogram_data_[2].push_back(histogram_element_t(decayLength, distanceToAxis, d0, dz, pt, chi2, hits));
-	      else if (HepPDT::ParticleID(particle->pdg_id()).hasBottom()) // B tracks first
-	      histogram_data_[0].push_back(histogram_element_t(decayLength, distanceToAxis, d0, dz, pt, chi2, hits));                  
-	      else // Anything else
-	      histogram_data_[1].push_back(histogram_element_t(decayLength, distanceToAxis, d0, dz, pt, chi2, hits));
-	      }
-	      else // Particle without image in the generator
-	      histogram_data_[1].push_back(histogram_element_t(decayLength, distanceToAxis, d0, dz, pt, chi2, hits));
-	      
-	      */
-	      
-	      if (particle) 
-		{ 
-		  if (HepPDT::ParticleID(particle->pdg_id()).hasBottom()) // B tracks first
-		    histogram_data_[0].push_back(histogram_element_t(decayLength, distanceToAxis, d0, dz, pt, chi2, hits));      
-		  else if (fabs(d0pull) > 3.0)  // Badly reconstructed
-		    histogram_data_[3].push_back(histogram_element_t(decayLength, distanceToAxis, d0, dz, pt, chi2, hits));          
-		  else if (tracer.isDisplaced()) // Displaced tracks
-		    histogram_data_[2].push_back(histogram_element_t(decayLength, distanceToAxis, d0, dz, pt, chi2, hits));
-		  else // Anything else
-		    histogram_data_[1].push_back(histogram_element_t(decayLength, distanceToAxis, d0, dz, pt, chi2, hits));
-		}
-	      else // Particle without image in the generator
-		histogram_data_[1].push_back(histogram_element_t(decayLength, distanceToAxis, d0, dz, pt, chi2, hits));
-	      
-	    }
-	  else
-	    {
-	      std::cout << "Fake +++ " << std::endl;
-	      histogram_data_[4].push_back(histogram_element_t(decayLength, distanceToAxis, d0, dz, pt, chi2, hits));
-	    }
-	}
+    // get the tracks associated to the jet
+    reco::TrackRefVector tracks = jetTracks->second;
+    for(std::size_t index = 0; index < tracks.size(); index++)
+    {
+      double pt = tracks[index]->pt();
+      double chi2 = tracks[index]->normalizedChi2();
+      std::size_t hits = tracks[index]->recHitsSize();
+        
+      if(hits < minNumberOfHits_ || chi2 > maxChi2_ || pt < minPt_ ) continue;
+      
+      const reco::TransientTrack transientTrack = bproduct->build(&(*tracks[index]));
+      double distanceToAxis = - SignedImpactParameter3D::distanceWithJetAxis(transientTrack, direction, pv).second.value();
+      double decayLength = SignedDecayLength3D::apply(transientTrack, direction, pv).second.value();
+      double d0pull = d0Pull(theMF, tracks[index], association, associationByHits_);
+      double dz = tracks[index]->dz() - pvZ;
+      double d0 = tracks[index]->d0();
+      
+      // If the track is not fake then get the orginal particles
+      if (tracer.evaluate(tracks[index], association, associationByHits_))
+      {
+        const HepMC::GenParticle * particle = tracer.particle();
+ 
+        /*
+ 
+        if (particle) 
+        { 
+          if (fabs(d0pull) > 3.0)  // Badly reconstructed
+            histogram_data_[3].push_back(histogram_element_t(decayLength, distanceToAxis, d0, dz, pt, chi2, hits));          
+          else if (tracer.isDisplaced()) // Displaced tracks
+            histogram_data_[2].push_back(histogram_element_t(decayLength, distanceToAxis, d0, dz, pt, chi2, hits));
+          else if (HepPDT::ParticleID(particle->pdg_id()).hasBottom()) // B tracks first
+            histogram_data_[0].push_back(histogram_element_t(decayLength, distanceToAxis, d0, dz, pt, chi2, hits));                  
+          else // Anything else
+            histogram_data_[1].push_back(histogram_element_t(decayLength, distanceToAxis, d0, dz, pt, chi2, hits));
+        }
+        else // Particle without image in the generator
+          histogram_data_[1].push_back(histogram_element_t(decayLength, distanceToAxis, d0, dz, pt, chi2, hits));
+  
+        */
+  
+        if (particle) 
+        { 
+          if (HepPDT::ParticleID(particle->pdg_id()).hasBottom()) // B tracks first
+            histogram_data_[0].push_back(histogram_element_t(decayLength, distanceToAxis, d0, dz, pt, chi2, hits));      
+          else if (fabs(d0pull) > 3.0)  // Badly reconstructed
+            histogram_data_[3].push_back(histogram_element_t(decayLength, distanceToAxis, d0, dz, pt, chi2, hits));          
+          else if (tracer.isDisplaced()) // Displaced tracks
+            histogram_data_[2].push_back(histogram_element_t(decayLength, distanceToAxis, d0, dz, pt, chi2, hits));
+          else // Anything else
+            histogram_data_[1].push_back(histogram_element_t(decayLength, distanceToAxis, d0, dz, pt, chi2, hits));
+        }
+        else // Particle without image in the generator
+          histogram_data_[1].push_back(histogram_element_t(decayLength, distanceToAxis, d0, dz, pt, chi2, hits));
+
+      }
+      else
+      {
+        std::cout << "Fake +++ " << std::endl;
+        histogram_data_[4].push_back(histogram_element_t(decayLength, distanceToAxis, d0, dz, pt, chi2, hits));
+      }
     }
+  }
 }
 
 
 double OptTOA::d0Pull(
   const edm::ESHandle<MagneticField> & theMF,
-  const edm::RefToBase<reco::Track> track,
+  const reco::TrackRef track,
   reco::RecoToSimCollection & association,  
   bool associationByHits
 )

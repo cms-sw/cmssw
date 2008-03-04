@@ -2,8 +2,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2007/11/28 10:31:25 $
- *  $Revision: 1.6 $
+ *  $Date: 2007/11/06 17:36:20 $
+ *  $Revision: 1.4 $
  *  \author G. Cerminara - INFN Torino
  */
 
@@ -112,10 +112,7 @@ void DTSegmentAnalysisTask::analyze(const edm::Event& event, const edm::EventSet
   // Get the 4D segment collection from the event
   edm::Handle<DTRecSegment4DCollection> all4DSegments;
   event.getByLabel(theRecHits4DLabel, all4DSegments);
-  
-  // (for MTCC)
-  //int nsegm_W1Sec10=0, nsegm_W2Sec10=0, nsegm_W2Sec11=0;
- 
+  int nsegm_W1Sec10=0, nsegm_W2Sec10=0, nsegm_W2Sec11=0;
   // Loop over all chambers containing a segment
   DTRecSegment4DCollection::id_iterator chamberId;
   for (chamberId = all4DSegments->id_begin();
@@ -128,15 +125,12 @@ void DTSegmentAnalysisTask::analyze(const edm::Event& event, const edm::EventSet
       cout << "   Chamber: " << *chamberId << " has " << nsegm
 	   << " 4D segments" << endl;
     fillHistos(*chamberId, nsegm);
-
-    // (for MTCC)
-    /*if((*chamberId).wheel()==1 &&((*chamberId).sector()==10 ||(*chamberId).sector()==14))
+    if((*chamberId).wheel()==1 &&((*chamberId).sector()==10 ||(*chamberId).sector()==14))
       nsegm_W1Sec10 = nsegm_W1Sec10+nsegm;
     if((*chamberId).wheel()==2 &&((*chamberId).sector()==10||(*chamberId).sector()==14))
       nsegm_W2Sec10 = nsegm_W2Sec10+nsegm;
     if((*chamberId).wheel()==2 &&((*chamberId).sector()==11))
-    nsegm_W2Sec11 = nsegm_W2Sec11+nsegm;*/
-
+      nsegm_W2Sec11 = nsegm_W2Sec11+nsegm;
      // Loop over the rechits of this ChamerId
     for (DTRecSegment4DCollection::const_iterator segment4D = range.first;
 	 segment4D!=range.second;
@@ -225,11 +219,9 @@ void DTSegmentAnalysisTask::analyze(const edm::Event& event, const edm::EventSet
       }
     }
   }
-
-  // (for MTCC)
-  /*fillHistos(nsegm_W1Sec10,1,10);
-  fillHistos(nsegm_W2Sec10,2,10);
-  fillHistos(nsegm_W2Sec11,2,11);*/
+   fillHistos(nsegm_W1Sec10,1,10);
+   fillHistos(nsegm_W2Sec10,2,10);
+   fillHistos(nsegm_W2Sec11,2,11);
   // -----------------------------------------------------------------------------
 }
   
@@ -313,7 +305,7 @@ void DTSegmentAnalysisTask::bookHistos(int w, int sec) {
 
 }
 
-// Fill a set of histograms (for MTCC)
+// Fill a set of histograms 
 void DTSegmentAnalysisTask::fillHistos(int nsegm, int w, int sec) {
   if (sec==14)
     sec=10;

@@ -1,4 +1,6 @@
 #include "TrackingTools/TrajectoryState/interface/BasicSingleTrajectoryState.h"
+#include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
+#include "MagneticField/Engine/interface/MagneticField.h"
 #include "TrackingTools/AnalyticalJacobians/interface/JacobianLocalToCurvilinear.h"
 #include "TrackingTools/AnalyticalJacobians/interface/JacobianCurvilinearToLocal.h"
 #include "TrackingTools/AnalyticalJacobians/interface/JacobianLocalToCartesian.h"

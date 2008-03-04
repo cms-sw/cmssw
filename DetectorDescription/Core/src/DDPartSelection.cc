@@ -2,7 +2,6 @@
 #include "DetectorDescription/Core/interface/DDPartSelection.h"
 #include "DetectorDescription/Base/interface/DDException.h"
 #include "DetectorDescription/Base/interface/DDdebug.h"
-#include "DetectorDescription/Core/interface/DDLogicalPart.h"
 #include "DetectorDescription/Core/interface/DDSplit.h"
 
 #include "boost/spirit.hpp"
@@ -10,7 +9,6 @@
 // Message logger.
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include <string>
 #include <map>
 
 namespace boost { namespace spirit {} } using namespace boost::spirit;

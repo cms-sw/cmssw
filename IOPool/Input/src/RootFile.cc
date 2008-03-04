@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: RootFile.cc,v 1.108 2008/01/18 00:53:50 wmtan Exp $
+$Id: RootFile.cc,v 1.109 2008/01/21 03:11:45 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include "RootFile.h"
@@ -607,7 +607,7 @@ namespace edm {
         fileIndexIter_ = fileIndex_.findPosition(fileIndexIter_->run_, startAtLumi_, startAtEvent_);      
       }
       while (eventsToSkip_ != 0 && fileIndexIter_ != fileIndexEnd_ &&
-	   fileIndexIter_->getEntryType() == FileIndex::kEvent) {
+	   getEntryTypeSkippingDups() == FileIndex::kEvent) {
         ++fileIndexIter_;
         --eventsToSkip_;
       }
@@ -653,7 +653,7 @@ namespace edm {
       fileIndexIter_ = fileIndex_.findPosition(fileIndexIter_->run_, startAtLumi_, startAtEvent_);      
     }
     while (eventsToSkip_ != 0 && fileIndexIter_ != fileIndexEnd_ &&
-	 fileIndexIter_->getEntryType() == FileIndex::kEvent) {
+	 getEntryTypeSkippingDups() == FileIndex::kEvent) {
       ++fileIndexIter_;
       --eventsToSkip_;
     }

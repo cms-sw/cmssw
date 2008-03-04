@@ -25,7 +25,12 @@ vector<CosmicLayerTriplets::LayerPairAndLayers> CosmicLayerTriplets::layers()
     result.push_back(LayerPairAndLayers(SeedLayerPairs::LayerPair(lh1,lh2),third));
   
   }
-
+  if (_geometry=="TECPAIRS_TOBTRIPLETS"){
+    vector<const LayerWithHits*> third;
+    third.push_back(lh3);
+    result.push_back(LayerPairAndLayers(SeedLayerPairs::LayerPair(lh1,lh2),third));
+  
+  }
   if (_geometry=="MTCC"){
     vector<const LayerWithHits*> third1;
     vector<const LayerWithHits*> third2;
@@ -72,7 +77,7 @@ void CosmicLayerTriplets::init(const SiStripRecHit2DCollection &collstereo,
 
   allLayersWithHits.clear();
   LogDebug("CosmicSeedFinder") <<"Reconstruction for geometry  "<<_geometry;
-  if (_geometry=="STANDARD"){
+  if (_geometry=="STANDARD"  || _geometry=="TECPAIRS_TOBTRIPLETS"){
     rphi_range1=collrphi.get(acc.stripTOBLayer(4));
     rphi_range2=collrphi.get(acc.stripTOBLayer(5));
     rphi_range3=collrphi.get(acc.stripTOBLayer(6));

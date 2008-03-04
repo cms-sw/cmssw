@@ -4,8 +4,8 @@
 /*
  * \file EETestPulseClient.h
  *
- * $Date: 2007/12/28 17:21:29 $
- * $Revision: 1.16 $
+ * $Date: 2008/02/15 13:56:32 $
+ * $Revision: 1.18 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *

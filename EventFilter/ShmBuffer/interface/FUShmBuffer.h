@@ -106,8 +106,12 @@ namespace evf {
 
     bool           writeRecoEventData(unsigned int   runNumber,
 				      unsigned int   evtNumber,
+				      unsigned int   outModId,
 				      unsigned char *data,
 				      unsigned int   dataSize);
+    
+    bool           writeErrorEventData(unsigned int runNumber,
+				       unsigned int iRawCell);
     
     bool           writeDqmEventData(unsigned int   runNumber,
 				     unsigned int   evtAtUpdate,

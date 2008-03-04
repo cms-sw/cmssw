@@ -1,8 +1,8 @@
 /*
  * \file EEBeamHodoClient.cc
  *
- * $Date: 2008/01/17 09:34:42 $
- * $Revision: 1.17 $
+ * $Date: 2008/01/22 19:59:23 $
+ * $Revision: 1.21 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -15,23 +15,9 @@
 #include "TCanvas.h"
 #include "TStyle.h"
 
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-
 #include "DQMServices/UI/interface/MonitorUIRoot.h"
 
-#include "OnlineDB/EcalCondDB/interface/RunTag.h"
-#include "OnlineDB/EcalCondDB/interface/RunIOV.h"
-#include "OnlineDB/EcalCondDB/interface/MonOccupancyDat.h"
-
-#include "OnlineDB/EcalCondDB/interface/EcalCondDBInterface.h"
-
-#include "CondTools/Ecal/interface/EcalErrorDictionary.h"
-
-#include "DQM/EcalCommon/interface/EcalErrorMask.h"
 #include "DQM/EcalCommon/interface/UtilsClient.h"
-#include "DQM/EcalCommon/interface/LogicID.h"
 #include "DQM/EcalCommon/interface/Numbers.h"
 
 #include <DQM/EcalEndcapMonitorClient/interface/EEBeamHodoClient.h>
@@ -49,7 +35,7 @@ EEBeamHodoClient::EEBeamHodoClient(const ParameterSet& ps){
   verbose_ = ps.getUntrackedParameter<bool>("verbose", false);
 
   // enableMonitorDaemon_ switch
-  enableMonitorDaemon_ = ps.getUntrackedParameter<bool>("enableMonitorDaemon", true);
+  enableMonitorDaemon_ = ps.getUntrackedParameter<bool>("enableMonitorDaemon", false);
 
   // enableCleanup_ switch
   enableCleanup_ = ps.getUntrackedParameter<bool>("enableCleanup", false);
@@ -250,7 +236,7 @@ void EEBeamHodoClient::analyze(void){
 
   int smId = 1;
 
-  Char_t histo[200];
+  char histo[200];
 
   MonitorElement* me;
 

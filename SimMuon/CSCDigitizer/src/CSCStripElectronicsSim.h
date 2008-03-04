@@ -104,6 +104,8 @@ private:
   int   sca_peak_bin;
   // which time bin the trigger crossing goes in
   double theComparatorTimeBinOffset;
+  // to center comparator signals
+  double theComparatorTimeOffset;
 
 };
 

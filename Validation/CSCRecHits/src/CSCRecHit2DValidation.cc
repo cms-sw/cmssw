@@ -34,15 +34,6 @@ CSCRecHit2DValidation::CSCRecHit2DValidation(DaqMonitorBEInterface* dbe, const e
 
 }
 
-CSCRecHit2DValidation::~CSCRecHit2DValidation()
-{
-  for(int i = 0; i < 10; ++i)
-  {
-     std::cout << "Resolution of " << theResolutionPlots[i]->getName() << " is " << theResolutionPlots[i]->getRMS() << std::endl;
-  }
-}
-
-
 void CSCRecHit2DValidation::analyze(const edm::Event&e, const edm::EventSetup& eventSetup)
 {
   // get the collection of CSCRecHrecHitItrD
@@ -77,7 +68,7 @@ void CSCRecHit2DValidation::analyze(const edm::Event&e, const edm::EventSetup& e
     theScatterPlots[chamberType-1]->Fill( localPhi, localY);
   }    
   theNPerEventPlot->Fill(nPerEvent);
-return;
+
   // fill sim hits
   std::vector<int> layersWithSimHits = theSimHitMap->detsWithHits();
   for(int i = 0; i < layersWithSimHits.size(); ++i)

@@ -4,7 +4,6 @@
 <use name=DataFormats/Math>
 <use name=DataFormats/TrackReco>
 <use name=FWCore/Utilities>
-<use name=DataFormats/VertexReco>
 <use name=rootmath>
 <use name=rootrflx>
 <export>
@@ -12,7 +11,6 @@
   <use name=DataFormats/DetId>
   <use name=DataFormats/Math>
   <use name=DataFormats/TrackReco>
-  <use name=DataFormats/VertexReco>
   <use name=rootmath>
   <lib name=DataFormatsParticleFlowReco>
 </export>

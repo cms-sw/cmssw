@@ -1,7 +1,7 @@
 /**
  * Author: Sridhara Dasu
  * Created: 04 July 2007
- * $Id: L1RCTParameters.cc,v 1.9 2007/12/06 11:01:54 jleonard Exp $
+ * $Id: L1RCTParameters.cc,v 1.8 2007/11/07 17:33:07 jleonard Exp $
  **/
 
 #include <iostream>
@@ -21,7 +21,6 @@ L1RCTParameters::L1RCTParameters(double eGammaLSB,
 				 double eActivityCut,
 				 double hActivityCut,
 				 double eicIsolationThreshold,
-				 bool ignoreHcalIfNoEcalMip,
 				 std::vector<double> eGammaECalScaleFactors,
 				 std::vector<double> eGammaHCalScaleFactors,
 				 std::vector<double> jetMETECalScaleFactors,
@@ -37,7 +36,6 @@ L1RCTParameters::L1RCTParameters(double eGammaLSB,
   eActivityCut_(eActivityCut),
   hActivityCut_(hActivityCut),
   eicIsolationThreshold_(eicIsolationThreshold),
-  ignoreHcalIfNoEcalMip_(ignoreHcalIfNoEcalMip),
   eGammaECalScaleFactors_(eGammaECalScaleFactors),
   eGammaHCalScaleFactors_(eGammaHCalScaleFactors),
   jetMETECalScaleFactors_(jetMETECalScaleFactors),

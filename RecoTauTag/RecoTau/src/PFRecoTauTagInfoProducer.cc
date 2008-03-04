@@ -32,17 +32,7 @@ void PFRecoTauTagInfoProducer::produce(Event& iEvent, const EventSetup& iSetup){
   iEvent.getByLabel(PVProducer_,thePVs);
   const VertexCollection vertCollection=*(thePVs.product());
   Vertex thePV;
-  if(vertCollection.size()) thePV=*(vertCollection.begin());
-  else{
-    Vertex::Error SimPVError;
-    SimPVError(0,0)=smearedPVsigmaX_*smearedPVsigmaX_;
-    SimPVError(1,1)=smearedPVsigmaY_*smearedPVsigmaY_;
-    SimPVError(2,2)=smearedPVsigmaZ_*smearedPVsigmaZ_;
-    Vertex::Point SimPVPoint(RandGauss::shoot(0.,smearedPVsigmaX_),  
-			     RandGauss::shoot(0.,smearedPVsigmaY_),  
-			     RandGauss::shoot(0.,smearedPVsigmaZ_));
-    thePV=Vertex(SimPVPoint,SimPVError,1,1,1);    
-  }
+  thePV=*(vertCollection.begin());
   
   PFTauTagInfoCollection* extCollection=new PFTauTagInfoCollection();
 

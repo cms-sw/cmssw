@@ -1,5 +1,6 @@
 #include "RecoParticleFlow/PFRootEvent/interface/PFRootEventManager.h"
 #include "RecoParticleFlow/PFRootEvent/interface/PFRootEventManagerColin.h"
+#include "RecoParticleFlow/PFRootEvent/interface/JetPFRootEventManager.h"
 #include "RecoParticleFlow/PFRootEvent/interface/EventColin.h"
 #include "RecoParticleFlow/PFRootEvent/interface/ResidualFitter.h"
 #include "RecoParticleFlow/PFRootEvent/interface/GPFRecHit.h"

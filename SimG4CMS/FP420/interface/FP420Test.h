@@ -36,6 +36,8 @@
 #include "G4VTouchable.hh"
 #include <map>
 #include <cmath>
+#include <CLHEP/Vector/ThreeVector.h>
+#include <CLHEP/Vector/LorentzVector.h>
 #include <CLHEP/Random/Randomize.h> 
 // #include <fstream>
 

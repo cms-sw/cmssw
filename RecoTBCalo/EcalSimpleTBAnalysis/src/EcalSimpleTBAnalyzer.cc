@@ -6,7 +6,7 @@
      <Notes on implementation>
 */
 //
-// $Id: EcalSimpleTBAnalyzer.cc,v 1.7 2007/08/11 05:52:12 innocent Exp $
+// $Id: EcalSimpleTBAnalyzer.cc,v 1.6 2006/08/03 17:24:46 meridian Exp $
 //
 //
 
@@ -222,55 +222,55 @@ EcalSimpleTBAnalyzer::analyze( const edm::Event& iEvent, const edm::EventSetup& 
 
    Handle<EBDigiCollection> pdigis;
    const EBDigiCollection* digis=0;
-   //std::cout << "EcalSimpleTBAnalyzer::analyze getting product with label: " << digiProducer_.c_str()<< " prodname: " << digiCollection_.c_str() << endl;
-   iEvent.getByLabel( digiProducer_, digiCollection_,pdigis);
-   if ( pdigis.isValid() ) {
+   try {
+     //std::cout << "EcalSimpleTBAnalyzer::analyze getting product with label: " << digiProducer_.c_str()<< " prodname: " << digiCollection_.c_str() << endl;
+     iEvent.getByLabel( digiProducer_, digiCollection_,pdigis);
      digis = pdigis.product(); // get a ptr to the product
      //iEvent.getByLabel( hitProducer_, phits);
-   } else {
-           edm::LogError("EcalSimpleTBAnalyzerError") << "Error! can't get the product " << digiCollection_;
+   } catch ( std::exception& ex ) {
+     std::cerr << "Error! can't get the product " << digiCollection_.c_str() << std::endl;
    }
 
    // fetch the digis and compute signal amplitude
    Handle<EBUncalibratedRecHitCollection> phits;
    const EBUncalibratedRecHitCollection* hits=0;
-   //std::cout << "EcalSimpleTBAnalyzer::analyze getting product with label: " << digiProducer_.c_str()<< " prodname: " << digiCollection_.c_str() << endl;
-   iEvent.getByLabel( hitProducer_, hitCollection_,phits);
-   if (phits.isValid()) {
+   try {
+     //std::cout << "EcalSimpleTBAnalyzer::analyze getting product with label: " << digiProducer_.c_str()<< " prodname: " << digiCollection_.c_str() << endl;
+     iEvent.getByLabel( hitProducer_, hitCollection_,phits);
      hits = phits.product(); // get a ptr to the product
      //iEvent.getByLabel( hitProducer_, phits);
-   } else {
-           edm::LogError("EcalSimpleTBAnalyzerError") << "Error! can't get the product " << hitCollection_;
+   } catch ( std::exception& ex ) {
+     std::cerr << "Error! can't get the product " << hitCollection_.c_str() << std::endl;
    }
 
    Handle<EcalTBHodoscopeRecInfo> pHodo;
    const EcalTBHodoscopeRecInfo* recHodo=0;
-   //std::cout << "EcalSimpleTBAnalyzer::analyze getting product with label: " << digiProducer_.c_str()<< " prodname: " << digiCollection_.c_str() << endl;
-   iEvent.getByLabel( hodoRecInfoProducer_, hodoRecInfoCollection_, pHodo);
-   if ( pHodo.isValid() ) {
+   try {
+     //std::cout << "EcalSimpleTBAnalyzer::analyze getting product with label: " << digiProducer_.c_str()<< " prodname: " << digiCollection_.c_str() << endl;
+     iEvent.getByLabel( hodoRecInfoProducer_, hodoRecInfoCollection_, pHodo);
      recHodo = pHodo.product(); // get a ptr to the product
-   } else {
-           edm::LogError("EcalSimpleTBAnalyzerError") << "Error! can't get the product " << hodoRecInfoCollection_;
+   } catch ( std::exception& ex ) {
+     std::cerr << "Error! can't get the product " << hodoRecInfoCollection_.c_str() << std::endl;
    }
 
    Handle<EcalTBTDCRecInfo> pTDC;
    const EcalTBTDCRecInfo* recTDC=0;
-   //std::cout << "EcalSimpleTBAnalyzer::analyze getting product with label: " << digiProducer_.c_str()<< " prodname: " << digiCollection_.c_str() << endl;
-   iEvent.getByLabel( tdcRecInfoProducer_, tdcRecInfoCollection_, pTDC);
-   if ( pTDC.isValid() ) {
+   try {
+     //std::cout << "EcalSimpleTBAnalyzer::analyze getting product with label: " << digiProducer_.c_str()<< " prodname: " << digiCollection_.c_str() << endl;
+     iEvent.getByLabel( tdcRecInfoProducer_, tdcRecInfoCollection_, pTDC);
      recTDC = pTDC.product(); // get a ptr to the product
-   } else {
-           edm::LogError("EcalSimpleTBAnalyzerError") << "Error! can't get the product " << tdcRecInfoCollection_;
+   } catch ( std::exception& ex ) {
+     std::cerr << "Error! can't get the product " << tdcRecInfoCollection_.c_str() << std::endl;
    }
 
    Handle<EcalTBEventHeader> pEventHeader;
    const EcalTBEventHeader* evtHeader=0;
-   //std::cout << "EcalSimpleTBAnalyzer::analyze getting product with label: " << digiProducer_.c_str()<< " prodname: " << digiCollection_.c_str() << endl;
-   iEvent.getByLabel( eventHeaderProducer_ , pEventHeader );
-   if ( pEventHeader.isValid() ) {
+   try {
+     //std::cout << "EcalSimpleTBAnalyzer::analyze getting product with label: " << digiProducer_.c_str()<< " prodname: " << digiCollection_.c_str() << endl;
+     iEvent.getByLabel( eventHeaderProducer_ , pEventHeader );
      evtHeader = pEventHeader.product(); // get a ptr to the product
-   } else {
-           edm::LogError("EcalSimpleTBAnalyzerError") << "Error! can't get the product " << eventHeaderProducer_;
+   } catch ( std::exception& ex ) {
+     std::cerr << "Error! can't get the product " << eventHeaderProducer_.c_str() << std::endl;
    }
    
    if (!hits)
@@ -333,14 +333,21 @@ EcalSimpleTBAnalyzer::analyze( const edm::Event& iEvent, const edm::EventSetup& 
      {
        unsigned int row = icry / 5;
        unsigned int column= icry %5;
-       int ieta=xtalInBeam_.ieta()+column-2;
-       int iphi=xtalInBeam_.iphi()+row-2;
-       EBDetId tempId(ieta, iphi,EBDetId::ETAPHIMODE);
-       if (tempId.ism()==1) 
-               Xtals5x5[icry]=tempId;
-       else
-               Xtals5x5[icry]=EBDetId(0);
-       ///       std::cout << "** Xtal in the matrix **** row " << row  << ", column " << column << ", xtal " << Xtals5x5[icry].ic() << std::endl;
+      try
+	{
+	  int ieta=xtalInBeam_.ieta()+column-2;
+          int iphi=xtalInBeam_.iphi()+row-2;
+          EBDetId tempId(ieta, iphi,EBDetId::ETAPHIMODE);
+	  if (tempId.ism()==1) 
+	    Xtals5x5[icry]=tempId;
+	  else
+            Xtals5x5[icry]=EBDetId(0);
+	  ///       std::cout << "** Xtal in the matrix **** row " << row  << ", column " << column << ", xtal " << Xtals5x5[icry].ic() << std::endl;
+	}
+      catch ( std::runtime_error &e )
+	{
+	  Xtals5x5[icry]=EBDetId(0);   
+        }
      } 
 
 

@@ -47,6 +47,7 @@ GctRawToDigi::GctRawToDigi(const edm::ParameterSet& iConfig) :
   doJets_(iConfig.getUntrackedParameter<bool>("unpackJets",true)),
   doEtSums_(iConfig.getUntrackedParameter<bool>("unpackEtSums",true)),
   doInternEm_(iConfig.getUntrackedParameter<bool>("unpackInternEm",true)),
+  doRct_(iConfig.getUntrackedParameter<bool>("unpackRct",true)),
   doFibres_(iConfig.getUntrackedParameter<bool>("unpackFibres",true)),
   blockUnpacker_()
 {
@@ -116,7 +117,7 @@ void GctRawToDigi::unpack(const FEDRawData& d, edm::Event& e)
   
   // Collections for storing GCT input data.  
   std::auto_ptr<L1CaloEmCollection> rctEm( new L1CaloEmCollection() ); // Input electrons.
-  std::auto_ptr<L1CaloRegionCollection> rctRgn( new L1CaloRegionCollection() ); // Input regions.
+  std::auto_ptr<L1CaloRegionCollection> rctCalo( new L1CaloRegionCollection() ); // Input regions.
   
   // GCT intermediate data
   std::auto_ptr<L1GctInternEmCandCollection> gctInternEm( new L1GctInternEmCandCollection() ); 
@@ -137,6 +138,7 @@ void GctRawToDigi::unpack(const FEDRawData& d, edm::Event& e)
 
   // Setup blockUnpacker
   blockUnpacker_.setRctEmCollection( rctEm.get() );
+  blockUnpacker_.setRctCaloRegionCollection( rctCalo.get() );
   blockUnpacker_.setIsoEmCollection( gctIsoEm.get() );
   blockUnpacker_.setNonIsoEmCollection( gctNonIsoEm.get() );
   blockUnpacker_.setInternEmCollection( gctInternEm.get() );
@@ -179,13 +181,14 @@ void GctRawToDigi::unpack(const FEDRawData& d, edm::Event& e)
     std::ostringstream os;
     os << "Found " << bHdrs.size() << " GCT internal headers" << endl;
     for (unsigned i=0; i<bHdrs.size(); ++i) { os << bHdrs[i]<< endl; }
-    os << "Read " << rctEm.get()->size() << " RCT EM candidates" << endl;
-    os << "Read " << gctIsoEm.get()->size() << " GCT iso EM candidates" << endl;
-    os << "Read " << gctNonIsoEm.get()->size() << " GCT non-iso EM candidates" << endl;
-    os << "Read " << gctInternEm.get()->size() << " GCT intermediate EM candidates" << endl;
-    os << "Read " << gctCenJets.get()->size() << " GCT central jet candidates" << endl;
-    os << "Read " << gctForJets.get()->size() << " GCT forward jet candidates" << endl;
-    os << "Read " << gctTauJets.get()->size() << " Gct tau jet candidates" << endl;
+    os << "Read " << rctEm->size() << " RCT EM candidates" << endl;
+    os << "Read " << rctCalo->size() << " RCT Calo Regions" << endl;
+    os << "Read " << gctIsoEm->size() << " GCT iso EM candidates" << endl;
+    os << "Read " << gctNonIsoEm->size() << " GCT non-iso EM candidates" << endl;
+    os << "Read " << gctInternEm->size() << " GCT intermediate EM candidates" << endl;
+    os << "Read " << gctCenJets->size() << " GCT central jet candidates" << endl;
+    os << "Read " << gctForJets->size() << " GCT forward jet candidates" << endl;
+    os << "Read " << gctTauJets->size() << " Gct tau jet candidates" << endl;
     
     edm::LogVerbatim("GCT") << os.str();
   }
@@ -193,13 +196,11 @@ void GctRawToDigi::unpack(const FEDRawData& d, edm::Event& e)
   // put data into the event
   if (doEm_)
   {
-    e.put(rctEm);
     e.put(gctIsoEm, "isoEm");
     e.put(gctNonIsoEm, "nonIsoEm");
   }
   if (doJets_)
   {
-    e.put(rctRgn);
     e.put(gctCenJets,"cenJets");
     e.put(gctForJets,"forJets");
     e.put(gctTauJets,"tauJets");
@@ -212,6 +213,11 @@ void GctRawToDigi::unpack(const FEDRawData& d, edm::Event& e)
     e.put(etMissResult);
   }
   if (doInternEm_) { e.put(gctInternEm); }
+  if (doRct_)
+  {
+    e.put(rctEm);
+    e.put(rctCalo);
+  }
   if (doFibres_)   { e.put(gctFibres); }
 
 }

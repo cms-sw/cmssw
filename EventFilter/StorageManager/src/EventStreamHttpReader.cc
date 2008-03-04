@@ -17,12 +17,11 @@
                 Manager or specify a maximum number of events for
                 the client to read through a maxEvents parameter.
 
-  $Id: EventStreamHttpReader.cc,v 1.25 2007/11/26 19:46:36 biery Exp $
+  $Id: EventStreamHttpReader.cc,v 1.28 2008/01/29 20:51:12 biery Exp $
 */
 
 #include "EventFilter/StorageManager/src/EventStreamHttpReader.h"
 #include "EventFilter/StorageManager/interface/SMCurlInterface.h"
-#include "IOPool/Streamer/interface/BufferArea.h"
 #include "FWCore/Utilities/interface/DebugMacros.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "IOPool/Streamer/interface/ClassFiller.h"
@@ -35,7 +34,6 @@
 #include <algorithm>
 #include <iterator>
 #include "curl/curl.h"
-#include <string>
 
 #include <wait.h>
 
@@ -195,11 +193,7 @@ namespace edm
       OtherMessageBuilder requestMessage(&msgBuff[0], Header::EVENT_REQUEST,
                                          sizeof(char_uint32));
       uint8 *bodyPtr = requestMessage.msgBody();
-      char_uint32 convertedId;
-      convert(consumerId_, convertedId);
-      for (unsigned int idx = 0; idx < sizeof(char_uint32); idx++) {
-        bodyPtr[idx] = convertedId[idx];
-      }
+      convert(consumerId_, bodyPtr);
       stor::setopt(han, CURLOPT_POSTFIELDS, requestMessage.startAddress());
       stor::setopt(han, CURLOPT_POSTFIELDSIZE, requestMessage.size());
       struct curl_slist *headers=NULL;
@@ -269,8 +263,36 @@ namespace edm
       // reset need-to-set-end-run flag when we get the first event (here any event)
       endRunAlreadyNotified_ = false;
       alreadySaidHalted_ = false;
-      EventMsgView eventView(&buf_[0]);
-      return deserializeEvent(eventView);
+
+      // 29-Jan-2008, KAB:  catch (and re-throw) any exceptions decoding
+      // the event data so that we can display the returned HTML and
+      // (hopefully) give the user a hint as to the cause of the problem.
+      std::auto_ptr<edm::EventPrincipal> evtPtr;
+      try {
+        HeaderView hdrView(&buf_[0]);
+        if (hdrView.code() != Header::EVENT) {
+          throw cms::Exception("EventStreamHttpReader", "readOneEvent");
+        }
+        EventMsgView eventView(&buf_[0]);
+        evtPtr = deserializeEvent(eventView);
+      }
+      catch (cms::Exception excpt) {
+        const unsigned int MAX_DUMP_LENGTH = 2000;
+        std::cout << "========================================" << std::endl;
+        std::cout << "* Exception decoding the geteventdata response from the storage manager!" << std::endl;
+        if (data.d_.length() <= MAX_DUMP_LENGTH) {
+          std::cout << "* Here is the raw text that was returned:" << std::endl;
+          std::cout << data.d_ << std::endl;
+        }
+        else {
+          std::cout << "* Here are the first " << MAX_DUMP_LENGTH <<
+            " characters of the raw text that was returned:" << std::endl;
+          std::cout << (data.d_.substr(0, MAX_DUMP_LENGTH)) << std::endl;
+        }
+        std::cout << "========================================" << std::endl;
+        throw excpt;
+      }
+      return evtPtr;
     }
   }
 
@@ -301,11 +323,7 @@ namespace edm
       OtherMessageBuilder requestMessage(&msgBuff[0], Header::HEADER_REQUEST,
                                          sizeof(char_uint32));
       uint8 *bodyPtr = requestMessage.msgBody();
-      char_uint32 convertedId;
-      convert(consumerId_, convertedId);
-      for (unsigned int idx = 0; idx < sizeof(char_uint32); idx++) {
-        bodyPtr[idx] = convertedId[idx];
-      }
+      convert(consumerId_, bodyPtr);
       stor::setopt(han, CURLOPT_POSTFIELDS, requestMessage.startAddress());
       stor::setopt(han, CURLOPT_POSTFIELDSIZE, requestMessage.size());
       struct curl_slist *headers=NULL;
@@ -349,12 +367,16 @@ namespace edm
     FDEBUG(9) << "EventStreamHttpReader received registry len = " << len << std::endl;
     regdata.resize(len);
     for (int i=0; i<len ; i++) regdata[i] = data.d_[i];
-    InitMsgView initView(&regdata[0]);
     // 21-Jun-2006, KAB:  catch (and re-throw) any exceptions decoding
     // the job header so that we can display the returned HTML and
     // (hopefully) give the user a hint as to the cause of the problem.
     std::auto_ptr<SendJobHeader> p;
     try {
+      HeaderView hdrView(&regdata[0]);
+      if (hdrView.code() != Header::INIT) {
+        throw cms::Exception("EventStreamHttpReader", "readHeader");
+      }
+      InitMsgView initView(&regdata[0]);
       p = deserializeRegistry(initView);
     }
     catch (cms::Exception excpt) {

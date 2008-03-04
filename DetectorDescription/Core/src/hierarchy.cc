@@ -36,7 +36,6 @@
 
 //#include "DetectorDescription/ExprAlgo/interface/ExprEvalSingleton.h"
 //#include "Solid.h"
-#include "DetectorDescription/Core/interface/DDSolid.h"
 
 //#include <typeinfo>
 #include <fstream>

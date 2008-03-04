@@ -4,7 +4,7 @@
 <SpecParSection label="regions.xml" eval="true">
   <SpecPar name="hcal">
     <PartSelector path="//TBHCal"   />
-    <Parameter name="CMSCutsRegion" value="HcalRegion" eval="false"/>
+    <Parameter name="CMSCutsRegion" value="CaloRegion" eval="false"/>
     <Parameter name="ProdCutsForElectrons" value="1*mm"/>
     <Parameter name="ProdCutsForPositrons" value="1*mm"/>
     <Parameter name="ProdCutsForGamma" value="10*mm"/>

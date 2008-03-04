@@ -47,14 +47,15 @@ void HcalDigiTester::reco(const edm::Event& iEvent, const edm::EventSetup& iSetu
   // double deltaR = 0.05;
   
   edm::Handle<edm::HepMCProduct> evtMC;
-  //  iEvent.getByLabel("VtxSmeared",evtMC);
-  iEvent.getByLabel("source",evtMC);
-  if (!evtMC.isValid()) {
-    MC=false;
-    std::cout << "no HepMCProduct found" << std::endl;    
-  } else {
+  try{
+    //  iEvent.getByLabel("VtxSmeared",evtMC);
+    iEvent.getByLabel("source",evtMC);
     MC=true;
     //    std::cout << "source HepMCProduct found"<< std::endl;
+  }
+  catch( char * str ) {
+    MC=false;
+    std::cout << "no HepMCProduct found"<<str<< std::endl;    
   }
   
   HepMC::GenEvent * myGenEvent = new  HepMC::GenEvent(*(evtMC->GetEvent()));

@@ -13,7 +13,6 @@
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "DataFormats/HcalDigi/interface/HBHEDataFrame.h"
 #include "CLHEP/GenericFunctions/Erf.hh"
-#include "CalibFormats/HcalObjects/interface/HcalTPGCoder.h"
 #include "CalibFormats/HcalObjects/interface/HcalTPGRecord.h"
 #include "FastSimulation/Utilities/interface/RandomEngine.h"
 #include "CalibFormats/HcalObjects/interface/HcalDbService.h"

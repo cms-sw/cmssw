@@ -13,12 +13,9 @@
 //
 // Original Author:  Brian Drell
 //         Created:  Fri May 18 22:57:40 CEST 2007
-// $Id: V0Producer.h,v 1.2 2007/07/09 12:58:51 drell Exp $
+// $Id: V0Producer.h,v 1.1 2007/07/05 12:25:39 drell Exp $
 //
 //
-
-#ifndef RECOVERTEX__V0_PRODUCER_H
-#define RECOVERTEX__V0_PRODUCER_H
 
 // system include files
 #include <memory>
@@ -79,5 +76,3 @@ private:
   double lambdaMassCut;
       
 };
-
-#endif

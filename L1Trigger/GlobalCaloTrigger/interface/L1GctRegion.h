@@ -29,6 +29,10 @@ class L1GctRegion : public L1CaloRegion
   L1GctRegion();
 
   ~L1GctRegion();
+
+  // Replace et() method to use 12 bits for all eta
+  unsigned et() const { return raw()&0x3ff; }
+
 };
 
 #endif

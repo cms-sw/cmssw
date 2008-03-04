@@ -46,6 +46,9 @@ class GctBlockHeader {
   /// block name
   std::string name() const { return blockName_[this->id()]; }
 
+  // Static method for looking up block lengths for a given block ID
+  static unsigned int lookupBlockLength(unsigned int blockId);
+
  private:
   
   uint32_t d;

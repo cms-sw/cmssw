@@ -10,8 +10,8 @@
  *   in the muon system and the tracker.
  *
  *
- *  $Date: 2008/01/08 17:43:50 $
- *  $Revision: 1.2 $
+ *  $Date: 2008/01/22 11:57:34 $
+ *  $Revision: 1.3 $
  *
  *  Authors :
  *  Patrick Janot - CERN
@@ -41,11 +41,8 @@
 #include "RecoMuon/TrackingTools/interface/MuonServiceProxy.h"
 #include "RecoMuon/GlobalTrackingTools/interface/GlobalMuonTrackMatcher.h"
 
-#include "RecoTracker/Record/interface/NavigationSchoolRecord.h"
-
 #include "TrackingTools/TrajectoryCleaning/interface/TrajectoryCleanerBySharedHits.h"
 #include "TrackingTools/PatternTools/interface/TrajTrackAssociation.h"
-#include "TrackingTools/DetLayers/interface/NavigationSetter.h"
 
 // Tracker RecHits and Tracks
 #include "DataFormats/TrackReco/interface/Track.h"
@@ -97,12 +94,6 @@ void FastL3MuonTrajectoryBuilder::setEvent(const edm::Event& event) {
     
   GlobalTrajectoryBuilderBase::setEvent(event);
   theEvent = &event;
-    
-  // retrieve navigation school
-  edm::ESHandle<NavigationSchool> nav;
-  GlobalTrajectoryBuilderBase::service()->eventSetup().get<NavigationSchoolRecord>().get("SimpleNavigationSchool", nav);
-  // set the correct navigation    
-  if(nav.isValid()) NavigationSetter setter(*nav.product());
     
   // Retrieve tracker tracks for muons
   regionalTkTracks = makeTkCandCollection(dummyStaCand);
@@ -213,7 +204,7 @@ FastL3MuonTrajectoryBuilder::makeTkCandCollection(const TrackCand& staCand) cons
       edm::Ref<std::vector<Trajectory> > aTrajectoryRef = anAssociation->key;
       reco::TrackRef aTrackRef = anAssociation->val;
       int recoTrackId = findId(*aTrackRef);
-      if ( recoTrackId == simTrack.trackId() ) {
+      if ( recoTrackId == (int)(simTrack.trackId()) ) {
 	tkCandColl.push_back(TrackCand(new Trajectory((*aTrajectoryRef)),reco::TrackRef()));
 	break;
       }

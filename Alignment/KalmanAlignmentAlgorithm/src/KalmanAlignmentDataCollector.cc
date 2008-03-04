@@ -1,15 +1,14 @@
 
 #include "Alignment/KalmanAlignmentAlgorithm/interface/KalmanAlignmentDataCollector.h"
 
-#include "TH1F.h"
 #include "TGraph.h"
-#include "TNtuple.h"
 #include "TFile.h"
+#include "TH1F.h"
 
 using namespace std;
 
 
-KalmanAlignmentDataCollector* KalmanAlignmentDataCollector::theDataCollector = new KalmanAlignmentDataCollector();
+KalmanAlignmentDataCollector* KalmanAlignmentDataCollector::theDataCollector = 0;
 
 
 KalmanAlignmentDataCollector::KalmanAlignmentDataCollector( void ) {}
@@ -23,63 +22,56 @@ KalmanAlignmentDataCollector::~KalmanAlignmentDataCollector() {}
 
 KalmanAlignmentDataCollector* KalmanAlignmentDataCollector::get( void )
 {
-  //if ( !theDataCollector ) theDataCollector = new KalmanAlignmentDataCollector();
+  if ( !theDataCollector ) theDataCollector = new KalmanAlignmentDataCollector();
   return theDataCollector;
 }
 
 
 void KalmanAlignmentDataCollector::configure( const edm::ParameterSet & config )
 {
-  //if ( !theDataCollector ) theDataCollector = new KalmanAlignmentDataCollector();
+  if ( !theDataCollector ) theDataCollector = new KalmanAlignmentDataCollector();
   theDataCollector->config( config );
 }
 
 
 void KalmanAlignmentDataCollector::fillHistogram( string histo_name, float data )
 {
-  //if ( !theDataCollector ) theDataCollector = new KalmanAlignmentDataCollector();
+  if ( !theDataCollector ) theDataCollector = new KalmanAlignmentDataCollector();
   theDataCollector->fillTH1F( histo_name, data );
 }
 
 
 void KalmanAlignmentDataCollector::fillHistogram( string histo_name, int histo_number, float data )
 {
-  //if ( !theDataCollector ) theDataCollector = new KalmanAlignmentDataCollector();
+  if ( !theDataCollector ) theDataCollector = new KalmanAlignmentDataCollector();
   theDataCollector->fillTH1F( histo_name, histo_number, data );
 }
 
 
 void KalmanAlignmentDataCollector::fillGraph( string graph_name, float x_data, float y_data )
 {
-  //if ( !theDataCollector ) theDataCollector = new KalmanAlignmentDataCollector();
+  if ( !theDataCollector ) theDataCollector = new KalmanAlignmentDataCollector();
   theDataCollector->fillTGraph( graph_name, x_data, y_data );
 }
 
 
 void KalmanAlignmentDataCollector::fillGraph( string graph_name, int graph_number, float x_data, float y_data )
 {
-  //if ( !theDataCollector ) theDataCollector = new KalmanAlignmentDataCollector();
+  if ( !theDataCollector ) theDataCollector = new KalmanAlignmentDataCollector();
   theDataCollector->fillTGraph( graph_name, graph_number, x_data, y_data );
-}
-
-
-void KalmanAlignmentDataCollector::fillNtuple( std::string ntuple_name, float data )
-{
-  //if ( !theDataCollector ) theDataCollector = new KalmanAlignmentDataCollector();
-  theDataCollector->fillTNtuple( ntuple_name, data );
 }
 
 
 void KalmanAlignmentDataCollector::write( void )
 {
-  //if ( !theDataCollector ) theDataCollector = new KalmanAlignmentDataCollector();
+  if ( !theDataCollector ) theDataCollector = new KalmanAlignmentDataCollector();
   theDataCollector->writeToTFile();
 }
 
 
 void KalmanAlignmentDataCollector::write( string file_name, string mode )
 {
-  //if ( !theDataCollector ) theDataCollector = new KalmanAlignmentDataCollector();
+  if ( !theDataCollector ) theDataCollector = new KalmanAlignmentDataCollector();
   theDataCollector->writeToTFile( file_name, mode );
 }
 
@@ -146,19 +138,6 @@ void KalmanAlignmentDataCollector::fillTGraph( string graph_name, int graph_numb
 }
 
 
-void KalmanAlignmentDataCollector::fillTNtuple( std::string ntuple_name, float data )
-{
-  if ( theNtupleData.find( ntuple_name ) == theNtupleData.end() )
-  {
-    theNtupleData[ntuple_name] = vector< float > ( 1, data );
-   }
-  else
-  {
-    theNtupleData[ntuple_name].push_back( data );
-  }
-}
-
-
 void KalmanAlignmentDataCollector::writeToTFile( void )
 {
   string fileName = theConfiguration.getUntrackedParameter< string >( "FileName", "KalmanAlignmentData.root" );
@@ -194,7 +173,7 @@ void KalmanAlignmentDataCollector::writeToTFile( string file_name, string mode )
       tempHisto->Write();
       delete tempHisto;
 
-      ++itH;
+      itH++;
     }
   }
 
@@ -231,36 +210,10 @@ void KalmanAlignmentDataCollector::writeToTFile( string file_name, string mode )
       delete[] xData;
       delete[] yData;
 
-      ++itXG;
-      ++itYG;
+      itXG++;
+      itYG++;
     }
   }
-
-
-  if ( !theXGraphData.empty() )
-  {
-    map< string, vector< float > >::iterator itN = theNtupleData.begin();
-
-    TNtuple* ntuple;
-
-    while ( itN != theNtupleData.end() )
-    {
-      ntuple = new TNtuple( itN->first.c_str(), itN->first.c_str(), itN->first.c_str() );
-
-      vector< float >::iterator itD = itN->second.begin(), itDEnd = itN->second.end();
-      while ( itD != itDEnd )
-      {
-	ntuple->Fill( *itD );
-	++itD;
-      }
-
-      ntuple->Write();
-      delete ntuple;
-
-      ++itN;
-    }
-  }
-
 
   file->Write();
   file->Close();

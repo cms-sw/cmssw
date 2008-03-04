@@ -5,7 +5,7 @@
   
 Wrapper: A template wrapper around EDProducts to hold the product ID.
 
-$Id: Wrapper.h,v 1.23 2007/11/06 20:15:50 chrjones Exp $
+$Id: Wrapper.h,v 1.26 2008/01/24 23:38:35 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -37,13 +37,19 @@ namespace edm {
     virtual ~Wrapper() {}
     T const * product() const {return (present ? &obj : 0);}
     T const * operator->() const {return product();}
-    
+
     //these are used by FWLite
     static const std::type_info& productTypeInfo() { return typeid(T);}
     static const std::type_info& typeInfo() { return typeid(Wrapper<T>);}
     
   private:
     virtual bool isPresent_() const {return present;}
+#ifndef __REFLEX__
+    virtual bool isMergeable_();
+    virtual bool mergeProduct_(EDProduct* newProduct);
+    virtual bool hasIsProductEqual_();
+    virtual bool isProductEqual_(EDProduct* newProduct);
+#endif
     virtual void do_fillView(ProductID const& id,
 			     std::vector<void const*>& pointers,
 			     helper_vector_ptr & helpers) const;
@@ -184,6 +190,56 @@ namespace edm {
     void operator()(T& a, T& b) { a = b; }
   };
 
+#ifndef __REFLEX__
+  template <typename T>
+  struct IsMergeable
+  {
+    bool operator()(T& a) { return true; }
+  };
+
+  template <typename T>
+  struct IsNotMergeable
+  {
+    bool operator()(T& a) { return false; }
+  };
+
+  template <typename T>
+  struct DoMergeProduct
+  {
+    bool operator()(T& a, T& b) { return a.mergeProduct(b); }
+  };
+
+  template <typename T>
+  struct DoNotMergeProduct
+  {
+    bool operator()(T& a, T& b) { return true; }
+  };
+
+  template <typename T>
+  struct DoHasIsProductEqual
+  {
+    bool operator()(T& a) { return true; }
+  };
+
+  template <typename T>
+  struct DoNotHasIsProductEqual
+  {
+    bool operator()(T& a) { return false; }
+  };
+
+  template <typename T>
+  struct DoIsProductEqual
+  {
+    bool operator()(T& a, T& b) { return a.isProductEqual(b); }
+  };
+
+  template <typename T>
+  struct DoNotIsProductEqual
+  {
+    bool operator()(T& a, T& b) { return true; }
+  };
+#endif
+
   //------------------------------------------------------------
   // Metafunction support for compile-time selection of code used in
   // Wrapper constructor
@@ -215,6 +271,30 @@ namespace edm {
       static bool const value = 
 	sizeof(has_swap_helper<T>(0)) == sizeof(yes_tag);
     };
+
+#ifndef __REFLEX__
+    template <typename T, bool (T::*)(T const &)>  struct mergeProduct_function;
+    template <typename T> no_tag  has_mergeProduct_helper(...);
+    template <typename T> yes_tag has_mergeProduct_helper(mergeProduct_function<T, &T::mergeProduct> * dummy);
+
+    template<typename T>
+    struct has_mergeProduct_function
+    {
+      static bool const value = 
+	sizeof(has_mergeProduct_helper<T>(0)) == sizeof(yes_tag);
+    };
+
+    template <typename T, bool (T::*)(T const &)>  struct isProductEqual_function;
+    template <typename T> no_tag  has_isProductEqual_helper(...);
+    template <typename T> yes_tag has_isProductEqual_helper(isProductEqual_function<T, &T::isProductEqual> * dummy);
+
+    template<typename T>
+    struct has_isProductEqual_function
+    {
+      static bool const value = 
+	sizeof(has_isProductEqual_helper<T>(0)) == sizeof(yes_tag);
+    };
+#endif
 #else
     //------------------------------------------------------------
     // THE FOLLOWING SHOULD BE REMOVED when we move to a newer
@@ -254,6 +334,47 @@ namespace edm {
     }
   }
 
+#ifndef __REFLEX__
+  template <class T>
+  bool Wrapper<T>::isMergeable_()
+  { 
+    typename boost::mpl::if_c<detail::has_mergeProduct_function<T>::value, 
+      IsMergeable<T>, 
+      IsNotMergeable<T> >::type is_mergeable;
+    return is_mergeable(obj);
+  }
+
+  template <class T>
+  bool Wrapper<T>::mergeProduct_(EDProduct* newProduct)
+  { 
+    Wrapper<T>* wrappedNewProduct = dynamic_cast<Wrapper<T>* >(newProduct);
+    if (wrappedNewProduct == 0) return false;
+    typename boost::mpl::if_c<detail::has_mergeProduct_function<T>::value, 
+      DoMergeProduct<T>, 
+      DoNotMergeProduct<T> >::type merge_product;
+    return merge_product(obj, wrappedNewProduct->obj);
+  }
+
+  template <class T>
+  bool Wrapper<T>::hasIsProductEqual_()
+  { 
+    typename boost::mpl::if_c<detail::has_isProductEqual_function<T>::value, 
+      DoHasIsProductEqual<T>, 
+      DoNotHasIsProductEqual<T> >::type has_is_equal;
+    return has_is_equal(obj);
+  }
+
+  template <class T>
+  bool Wrapper<T>::isProductEqual_(EDProduct* newProduct)
+  { 
+    Wrapper<T>* wrappedNewProduct = dynamic_cast<Wrapper<T>* >(newProduct);
+    if (wrappedNewProduct == 0) return false;
+    typename boost::mpl::if_c<detail::has_isProductEqual_function<T>::value, 
+      DoIsProductEqual<T>, 
+      DoNotIsProductEqual<T> >::type is_equal;
+    return is_equal(obj, wrappedNewProduct->obj);
+  }
+#endif
 }
 
 #include "DataFormats/Common/interface/RefVector.h"

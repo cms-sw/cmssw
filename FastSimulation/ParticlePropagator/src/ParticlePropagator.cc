@@ -104,9 +104,9 @@ ParticlePropagator::initProperDecayTime() {
 
 
 bool
-ParticlePropagator::propagateToClosestApproach(bool first) {
+ParticlePropagator::propagateToClosestApproach(double x0, double y0, bool first) {
   setMagneticField(fieldMap(0.,0.,0.));
-  return BaseParticlePropagator::propagateToClosestApproach(first);
+  return BaseParticlePropagator::propagateToClosestApproach(x0,y0,first);
 }
 
 bool

@@ -8,13 +8,12 @@ gSystem->Load("libCintex.so");
 ROOT::Cintex::Cintex::Enable();
 
 // create a PFRootEventManager
-// PFRootEventManager em("pfRootEvent.opt");
+PFRootEventManager em("pfRootEvent.opt");
 // create a JetPFRootEventManager to make FWLiteJets
-string opt = "pfRootEvent.opt";
-PFRootEventManager em( opt.c_str() );
+//JetPFRootEventManager em("pfRootEvent.opt");
 
 //create a DisplayManager
-DisplayManager dm(&em, opt.c_str() );
+DisplayManager dm(&em);
 
 // display first entry
 int i=0;

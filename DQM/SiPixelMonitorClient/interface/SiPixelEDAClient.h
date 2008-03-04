@@ -6,7 +6,7 @@
 
 #include "EventFilter/Utilities/interface/ModuleWeb.h"
 
-#include "DQMServices/Core/interface/MonitorDaemon.h"
+#include "DQMServices/Daemon/interface/MonitorDaemon.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/LuminosityBlock.h"
@@ -37,11 +37,6 @@ public:
   void publish(xdata::InfoSpace *){};
   //  void handleWebRequest(xgi::Input *in, 
   //                        xgi::Output *out); 
-
-  float qflag_;
-  int allMods_;
-  int errorMods_;
-
 
 protected:
 

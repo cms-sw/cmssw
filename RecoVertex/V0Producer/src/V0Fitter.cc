@@ -13,12 +13,11 @@
 //
 // Original Author:  Brian Drell
 //         Created:  Fri May 18 22:57:40 CEST 2007
-// $Id: V0Fitter.cc,v 1.11 2007/10/29 21:21:13 drell Exp $
+// $Id: V0Fitter.cc,v 1.8 2007/09/19 05:34:54 drell Exp $
 //
 //
 
 #include "RecoVertex/V0Producer/interface/V0Fitter.h"
-#include "PhysicsTools/CandUtils/interface/AddFourMomenta.h"
 
 #include <typeinfo>
 
@@ -49,18 +48,7 @@ V0Fitter::V0Fitter(const edm::Event& iEvent, const edm::EventSetup& iSetup,
   kShortMassCut = kShortMassCut_;
   lambdaMassCut = lambdaMassCut_;
 
-  // FOR DEBUG:
-  initFileOutput();
-  //--------------------
-
-  //std::cout << "Entering V0Producer" << std::endl;
-
   fitAll(iEvent, iSetup);
-
-  // FOR DEBUG:
-  cleanupFileOutput();
-  //--------------------
-
 }
 
 V0Fitter::~V0Fitter() {
@@ -123,16 +111,11 @@ void V0Fitter::fitAll(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   // Check track refs, look at closest approach point to beam spot,
   //  and fill track vector with ones that pass the cut (> 1 cm).
 
-
-  // REMOVE THIS CUT, AND MAKE A SCATTER PLOT OF MASS VS. LARGEST IMPACT
-  //  PARAMETER OF CHARGED DAUGHTER TRACK.
-
   for( unsigned int indx2 = 0; indx2 < theTrackRefs_.size(); indx2++ ) {
     TransientTrack tmpTk( *(theTrackRefs_[indx2]), &(*bFieldHandle) );
     TrajectoryStateClosestToBeamLine
       tscb( tmpTk.stateAtBeamLine() );
-    //if( tscb.transverseImpactParameter().value() > 0.1 ) {
-    if(tscb.transverseImpactParameter().value() > 0.) {
+    if( tscb.transverseImpactParameter().value() > 0.1 ) {
     /*if( sqrt(  theTrackRefs_[indx2]->dxy( beamSpot )
 	     * theTrackRefs_[indx2]->dxy( beamSpot )
 	     + theTrackRefs_[indx2]->dsz( beamSpot )
@@ -153,7 +136,8 @@ void V0Fitter::fitAll(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
 
   // Loop over tracks and vertex good charged track pairs
   for(unsigned int trdx1 = 0; trdx1 < theTracks.size(); trdx1++) {
-    for(unsigned int trdx2 = trdx1 + 1; trdx2 < theTracks.size(); trdx2++) {
+    for(unsigned int trdx2 = trdx1 + 1; trdx2 < theTracks.size(); 
+	trdx2++) {
       //vector<Track> theTracks;  
       vector<TransientTrack> transTracks;
 
@@ -208,24 +192,17 @@ void V0Fitter::fitAll(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
 	(positiveIter->momentum() + negativeIter->momentum()).Mag2();
       double mass = sqrt( totalESq - totalPSq);
 
-      TrajectoryStateClosestToBeamLine
-	tscbPos( posTransTkPtr->stateAtBeamLine() );
-      double d0_pos = tscbPos.transverseImpactParameter().value();
-      TrajectoryStateClosestToBeamLine
-	tscbNeg( negTransTkPtr->stateAtBeamLine() );
-      double d0_neg = tscbNeg.transverseImpactParameter().value();
-
-
       //std::cout << "Calculated m-pi-pi: " << mass << std::endl;
-      mPiPiMassOut << mass << " "
-		   << (d0_neg < d0_pos? d0_pos : d0_neg) << std::endl;
-      //if( mass > 0.7 ) continue;
 
       //----->> Finished making cuts.
 
       // Create TransientTrack objects.  They're needed for the KVF.
+      //TransientTrack thePositiveTransTrack( *positiveIter, &(*bFieldHandle) );
+      //TransientTrack theNegativeTransTrack( *negativeIter, &(*bFieldHandle) );
 
       // Fill the vector of TransientTracks to send to KVF
+      //transTracks.push_back(thePositiveTransTrack);
+      //transTracks.push_back(theNegativeTransTrack);
       transTracks.push_back(*posTransTkPtr);
       transTracks.push_back(*negTransTkPtr);
 
@@ -239,13 +216,17 @@ void V0Fitter::fitAll(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
 
       bool continue_ = true;
       
-      // Loop over RecHits on both tracks to see if the position
+      // ADDED 8-27, loop over RecHits on both tracks to see if the position
       //  is inside that of the reconstructed vertex.  If it is, chuck the Vee.
-      //  NOTE: No cut functionality implemented yet.  This is purely for
-      //  testing at this point.
 
       bool yesorno = false;
-      
+
+      /*if( thePositiveTransTrack.recHitsSize() 
+	 && theNegativeTransTrack.recHitsSize() ) {
+	trackingRecHit_iterator posTrackHitIt 
+	  = thePositiveTransTrack.recHitsBegin();
+	trackingRecHit_iterator negTrackHitIt
+	= theNegativeTransTrack.recHitsBegin();*/
       if( posTransTkPtr->recHitsSize()
 	  && negTransTkPtr->recHitsSize() ) {
 	trackingRecHit_iterator posTrackHitIt
@@ -253,35 +234,39 @@ void V0Fitter::fitAll(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
 	trackingRecHit_iterator negTrackHitIt
 	  = negTransTkPtr->recHitsBegin();
 	
+	//std::cout << "Doing the recHit thing." << std::endl;
+	
+	//for( ; posTrackHitIt < thePositiveTransTrack.recHitsEnd();
 	for( ; posTrackHitIt < posTransTkPtr->recHitsEnd();
 	     posTrackHitIt++) {
 	  const TrackingRecHit* posHitPtr = (*posTrackHitIt).get();
 	  if( (*posTrackHitIt)->isValid() && theRecoVertex.isValid() ) {
 	    GlobalPoint posHitPosition 
-	      = trackerGeomHandle->idToDet(posHitPtr->
-					   geographicalId())->
-	      surface().toGlobal(posHitPtr->localPosition());
+	      = trackerGeom->idToDet((*posTrackHitIt)->
+				     geographicalId())->
+	      surface().toGlobal((*posTrackHitIt)->localPosition());
 
 	    //std::cout << "@@POS: " << posHitPosition.perp() << std::endl;
 	  
 	    if( posHitPosition.perp() < theRecoVertex.position().perp() ) {
-	      //std::cout << typeid(*posHitPtr).name()
-	      //<< "+" << theRecoVertex.position().perp() -
-	      //posHitPosition.perp() 
-	      //<< std::endl;
+	      /*std::cout << typeid(*posHitPtr).name()
+		<< "+" << theRecoVertex.position().perp() -
+		posHitPosition.perp() 
+		<< std::endl;*/
 	      yesorno = true;
 	    }
 	  }
 	}
 	
+	//for( ; negTrackHitIt < theNegativeTransTrack.recHitsEnd();
 	for( ; negTrackHitIt < negTransTkPtr->recHitsEnd();
 	     negTrackHitIt++) {
 	  const TrackingRecHit* negHitPtr = (*negTrackHitIt).get();
 	  if( (*negTrackHitIt)->isValid() && theRecoVertex.isValid() ) {
 	    GlobalPoint negHitPosition 
-	      = trackerGeomHandle->idToDet(negHitPtr->
-					   geographicalId())->
-	      surface().toGlobal(negHitPtr->localPosition());
+	      = trackerGeom->idToDet((*negTrackHitIt)->
+				     geographicalId())->
+	      surface().toGlobal((*negTrackHitIt)->localPosition());
 	    
 	    //std::cout << "@@NEG: " << negHitPosition.perp() << std::endl;
 	    
@@ -294,13 +279,10 @@ void V0Fitter::fitAll(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
 	    }
 	  }
 	}
-	}
-
-      // Here's where cut functionality would be, but now it's blank.
+      }
       if(yesorno) {
 	//std::cout << "End of track pair hits." << std::endl;
       }
-
       
       // If the vertex is valid, make a V0Candidate with it
       //  to be stored in the Event
@@ -311,22 +293,22 @@ void V0Fitter::fitAll(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
       }
 
       if( continue_ ) {
-	if(theRecoVertex.totalChiSquared() > chi2Cut ) {
+	if(theRecoVertex.totalChiSquared() > 20. ) {
 	  continue_ = false;
 	}
       }
 
-
       if( continue_ ) {
 	// Create reco::Vertex object to be put into the Event
+	//TransientVertex tempVtx = theRecoVertex;
 	reco::Vertex theVtx = theRecoVertex;
-	/*
+
 	std::cout << "bef: reco::Vertex: " << theVtx.tracksSize() 
 		  << " " << theVtx.hasRefittedTracks() << std::endl;
 	std::cout << "bef: reco::TransientVertex: " 
 		  << theRecoVertex.originalTracks().size() 
 		  << " " << theRecoVertex.hasRefittedTracks() << std::endl;
-	*/
+
 	// Create and fill vector of refitted TransientTracks
 	//  (iff they've been created by the KVF)
 	vector<TransientTrack> refittedTrax;
@@ -344,31 +326,31 @@ void V0Fitter::fitAll(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
 	
 	// Store track info in reco::Vertex object.  If the option is set,
 	//  store the refitted ones as well.
-	//float one_ = 1.;
-	//if(storeRefTrax) {
-	for( ; traxIter != traxEnd; traxIter++) {
-	  if( traxIter->track().charge() > 0. ) {
-	    //theVtx.add( positiveTrackRef, traxIter->track(), one_ ); 
-	    thePositiveRefTrack = new TransientTrack(*traxIter);
-	  }
-	  else if (traxIter->track().charge() < 0.) {
-	    //theVtx.add( negativeTrackRef, traxIter->track(), one_);
-	    theNegativeRefTrack = new TransientTrack(*traxIter);
+	/*float one_ = 1.;
+	if(storeRefTrax) {
+	  for( ; traxIter != traxEnd; traxIter++) {
+	    if( traxIter->track().charge() > 0. ) {
+	      theVtx.add( positiveTrackRef, traxIter->track(), one_ ); 
+	      thePositiveRefTrack = new TransientTrack(*traxIter);
+	    }
+	    else if (traxIter->track().charge() < 0.) {
+	      theVtx.add( negativeTrackRef, traxIter->track(), one_);
+	      theNegativeRefTrack = new TransientTrack(*traxIter);
+	    }
 	  }
 	}
-	//}
-	/*else {
+	else {
 	  theVtx.add( positiveTrackRef );
 	  theVtx.add( negativeTrackRef );
 	  }*/
-	/*
+
 	std::cout << "aft: reco::Vertex: " << theVtx.tracksSize() 
 		  << " " << theVtx.hasRefittedTracks() << std::endl;
 	std::cout << "aft: reco::TransientVertex: " 
 		  << theRecoVertex.originalTracks().size() 
 		  << " " << theRecoVertex.hasRefittedTracks() << std::endl
 		  << std::endl;
-	*/
+
 	// Calculate momentum vectors for both tracks at the vertex
 	GlobalPoint vtxPos(theVtx.x(), theVtx.y(), theVtx.z());
 
@@ -404,10 +386,10 @@ void V0Fitter::fitAll(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
 	//cleanup stuff we don't need anymore
 	delete trajPlus;
 	delete trajMins;
-	trajPlus = trajMins = NULL;
+	trajPlus = trajMins = 0;
 	delete thePositiveRefTrack;
 	delete theNegativeRefTrack;
-	thePositiveRefTrack = theNegativeRefTrack = NULL;
+	thePositiveRefTrack = theNegativeRefTrack = 0;
 
 	// calculate total energy of V0 3 ways:
 	//  Assume it's a kShort, a Lambda, or a LambdaBar.
@@ -444,7 +426,6 @@ void V0Fitter::fitAll(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
 					 totalP.y(), totalP.z(), 
 					 lambdaBarEtot);
 	Particle::Point vtx(theVtx.x(), theVtx.y(), theVtx.z());
-
 
 	// Create the V0Candidate object that will be stored in the Event
 	V0Candidate theKshort(0, kShortP4, Particle::Point(0,0,0));
@@ -484,7 +465,6 @@ void V0Fitter::fitAll(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
 						 antiProtonE), vtx);
 	theAntiProtonCand.setTrack(negativeTrackRef);
 
-
 	// Store the daughter Candidates in the V0Candidates
 	theKshort.addDaughter(thePiPlusCand);
 	theKshort.addDaughter(thePiMinusCand);
@@ -499,23 +479,14 @@ void V0Fitter::fitAll(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
 	theLambda.setPdgId(3122);
 	theLambdaBar.setPdgId(-3122);
 
-	AddFourMomenta addp4;
-	addp4.set( theKshort );
-	addp4.set( theLambda );
-	addp4.set( theLambdaBar );
-
 	// Store the candidates in a temporary STL vector
 	preCutCands.push_back(theKshort);
 	preCutCands.push_back(theLambda);
 	preCutCands.push_back(theLambdaBar);
-
-
       }
     }
   }
 
-  // If we have any candidates, clean and sort them into proper collections
-  //  using the cuts specified in the EventSetup.
   if( preCutCands.size() )
     applyPostFitCuts();
 
@@ -539,13 +510,7 @@ void V0Fitter::applyPreFitCuts(std::vector<reco::Track> &tracks) {
 
 }
 
-
-// Method that applies cuts to the vector of pre-cut candidates.
 void V0Fitter::applyPostFitCuts() {
-  //static int eventCounter = 1;
-  //std::cout << "Doing applyPostFitCuts()" << std::endl;
-  std::cout << "Starting post fit cuts with " << preCutCands.size()
-	    << " preCutCands" << std::endl;
   for(std::vector<reco::V0Candidate>::iterator theIt = preCutCands.begin();
       theIt != preCutCands.end(); theIt++) {
     bool writeVee = false;
@@ -577,7 +542,6 @@ void V0Fitter::applyPostFitCuts() {
     if( theIt->vertex().chi2() < chi2Cut &&
 	rVtxMag > rVtxCut &&
 	rVtxMag/sigmaRvtxMag > vtxSigCut ) {
-      //rVtxMag/sigmaRvtxMag > 0. ) {
       writeVee = true;
     }
     const double kShortMass = 0.49767;
@@ -603,14 +567,6 @@ void V0Fitter::applyPostFitCuts() {
       }
     }
   }
-  static int numkshorts = 0;
-  numkshorts += theKshorts.size();
-  std::cout << "Ending cuts with " << theKshorts.size() << " K0s, "
-	    << numkshorts << " total." << std::endl;
-  //std::cout << "Finished applyPostFitCuts() for event "
-  //    << eventCounter << std::endl;
-  //eventCounter++;
-
 
 }
 

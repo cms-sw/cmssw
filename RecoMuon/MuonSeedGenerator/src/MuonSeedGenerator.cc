@@ -3,8 +3,8 @@
  *  
  *  All the code is under revision
  *
- *  $Date: 2007/10/16 17:50:43 $
- *  $Revision: 1.20 $
+ *  $Date$
+ *  $Revision$
  *
  *  \author A. Vitelli - INFN Torino, V.Palichik
  *  \author ported by: R. Bellan - INFN Torino
@@ -117,8 +117,8 @@ void MuonSeedGenerator::produce(edm::Event& event, const edm::EventSetup& eSetup
   
   // instantiate the accessor
   // Don not use RPC for seeding
-  MuonDetLayerMeasurements muonMeasurements(enableDTMeasurement,enableCSCMeasurement,false, 
-					    theDTRecSegmentLabel.label(),theCSCRecSegmentLabel.label());
+  MuonDetLayerMeasurements muonMeasurements(theDTRecSegmentLabel.label(),theCSCRecSegmentLabel,edm::InputTag(),
+					    enableDTMeasurement,enableCSCMeasurement,false);
 
   // ------------        EndCap disk z<0 + barrel
 

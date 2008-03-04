@@ -1,9 +1,6 @@
 #include <memory>
 
 // Framework
-#include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
-#include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 //
@@ -11,7 +8,7 @@
 // Geometry
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
-#include "Geometry/TrackerNumberingBuilder/interface/GeometricDet.h"
+#include "Geometry/TrackerTopology/interface/RectangularPixelTopology.h"
 #include "DataFormats/SiPixelDetId/interface/PXBDetId.h"
 #include "DataFormats/SiPixelDetId/interface/PXFDetId.h"
 #include "DataFormats/SiStripDetId/interface/TIBDetId.h" 
@@ -29,16 +26,11 @@
 #include "DataFormats/TrackerRecHit2D/interface/SiTrackerGSRecHit2D.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiTrackerGSRecHit2DCollection.h"
 #include "DataFormats/Common/interface/OwnVector.h" 
-#include "TrackingTools/Records/interface/TransientRecHitRecord.h"
 //
 
 // ROOT
-#include <TROOT.h>
 #include <TStyle.h>
 #include <TGaxis.h>
-#include <TFile.h>
-#include <TTree.h>
-#include <TVector3.h>
 #include <TF1.h>
 #include <TCanvas.h>
 #include <TLegend.h>
@@ -55,7 +47,7 @@
 
 const double PI = 3.14159265358979323;
 
-// #define rrDEBUG
+//#define rrDEBUG
 
 FamosRecHitAnalysis::FamosRecHitAnalysis(edm::ParameterSet const& pset) : 
   _pset(pset),
@@ -64,33 +56,73 @@ FamosRecHitAnalysis::FamosRecHitAnalysis(edm::ParameterSet const& pset) :
 #ifdef rrDEBUG
   std::cout << "Start Famos RecHit Analysis" << std::endl;
 #endif
+  // Switch between old (ORCA) and new (CMSSW) pixel parameterization
+  useCMSSWPixelParameterization = pset.getParameter<bool>("UseCMSSWPixelParametrization");
+#ifdef FAMOS_DEBUG
+  std::cout << (useCMSSWPixelParameterization? "CMSSW" : "ORCA") << " pixel parametrization chosen in config file." << std::endl;
+#endif
   //--- PSimHit Containers
   trackerContainers.clear();
   trackerContainers = pset.getParameter<std::vector<std::string> >("SimHitList");
   //
-  thePixelMultiplicityFileName = pset.getUntrackedParameter<std::string>( "PixelMultiplicityFile" , "FastSimulation/TrackingRecHitProducer/data/PixelData.root" );
-  nAlphaBarrel  = pset.getUntrackedParameter<int>("AlphaBarrelMultiplicity", 4);
-  nBetaBarrel   = pset.getUntrackedParameter<int>("BetaBarrelMultiplicity",  6);
-  nAlphaForward = pset.getUntrackedParameter<int>("AlphaForwardMultiplicity",3);
-  nBetaForward  = pset.getUntrackedParameter<int>("BetaForwardMultiplicity", 3);
+  if(useCMSSWPixelParameterization)
+  {
+    thePixelMultiplicityFileName = pset.getParameter<std::string>( "PixelMultiplicityFileNew" );
+    nAlphaBarrel  = pset.getParameter<int>("AlphaBarrelMultiplicityNew"  );
+    nBetaBarrel   = pset.getParameter<int>("BetaBarrelMultiplicityNew"   );
+    nAlphaForward = pset.getParameter<int>("AlphaForwardMultiplicityNew" );
+    nBetaForward  = pset.getParameter<int>("BetaForwardMultiplicityNew"  );
+  }
+  else
+  {
+    thePixelMultiplicityFileName = pset.getParameter<std::string>( "PixelMultiplicityFile" );
+    nAlphaBarrel  = pset.getParameter<int>("AlphaBarrelMultiplicity"  );
+    nBetaBarrel   = pset.getParameter<int>("BetaBarrelMultiplicity"   );
+    nAlphaForward = pset.getParameter<int>("AlphaForwardMultiplicity" );
+    nBetaForward  = pset.getParameter<int>("BetaForwardMultiplicity"  );
+  }
   // Resolution Barrel    
-  thePixelBarrelResolutionFileName = pset.getUntrackedParameter<std::string>( "PixelBarrelResolutionFile" ,
-									      "FastSimulation/TrackingRecHitProducer/data/PixelBarrelResolution.root" );
-  resAlphaBarrel_binMin   = pset.getUntrackedParameter<double>("AlphaBarrel_BinMin"   ,  -0.2);
-  resAlphaBarrel_binWidth = pset.getUntrackedParameter<double>("AlphaBarrel_BinWidth" ,   0.1);
-  resAlphaBarrel_binN     = pset.getUntrackedParameter<int>(   "AlphaBarrel_BinN"     ,   4  );
-  resBetaBarrel_binMin    = pset.getUntrackedParameter<double>("BetaBarrel_BinMin"    ,   0.0);
-  resBetaBarrel_binWidth  = pset.getUntrackedParameter<double>("BetaBarrel_BinWidth"  ,   0.2);
-  resBetaBarrel_binN      = pset.getUntrackedParameter<int>(   "BetaBarrel_BinN"      ,   7  );
+  if(useCMSSWPixelParameterization)
+  {
+    thePixelBarrelResolutionFileName = pset.getParameter<std::string>( "PixelBarrelResolutionFileNew" );
+    resAlphaBarrel_binMin   = pset.getParameter<double>("AlphaBarrel_BinMinNew"   );
+    resAlphaBarrel_binWidth = pset.getParameter<double>("AlphaBarrel_BinWidthNew" );
+    resAlphaBarrel_binN     = pset.getParameter<int>(   "AlphaBarrel_BinNNew"     );
+    resBetaBarrel_binMin    = pset.getParameter<double>("BetaBarrel_BinMinNew"    );
+    resBetaBarrel_binWidth  = pset.getParameter<double>("BetaBarrel_BinWidthNew"  );
+    resBetaBarrel_binN      = pset.getParameter<int>(   "BetaBarrel_BinNNew"      );
+  }
+  else
+  {
+    thePixelBarrelResolutionFileName = pset.getParameter<std::string>( "PixelBarrelResolutionFile" );
+    resAlphaBarrel_binMin   = pset.getParameter<double>("AlphaBarrel_BinMin"   );
+    resAlphaBarrel_binWidth = pset.getParameter<double>("AlphaBarrel_BinWidth" );
+    resAlphaBarrel_binN     = pset.getParameter<int>(   "AlphaBarrel_BinN"     );
+    resBetaBarrel_binMin    = pset.getParameter<double>("BetaBarrel_BinMin"    );
+    resBetaBarrel_binWidth  = pset.getParameter<double>("BetaBarrel_BinWidth"  );
+    resBetaBarrel_binN      = pset.getParameter<int>(   "BetaBarrel_BinN"      );
+  }
   // Resolution Forward
-  thePixelForwardResolutionFileName = pset.getUntrackedParameter<std::string>( "PixelForwardResolutionFile" ,
-									       "FastSimulation/TrackingRecHitProducer/data/PixelForwardResolution.root" );
-  resAlphaForward_binMin   = pset.getUntrackedParameter<double>("AlphaForward_BinMin"   ,  0.0);
-  resAlphaForward_binWidth = pset.getUntrackedParameter<double>("AlphaForward_BinWidth" ,  0.0);
-  resAlphaForward_binN     = pset.getUntrackedParameter<int>(   "AlphaBarrel_BinN"      ,  0  );
-  resBetaForward_binMin    = pset.getUntrackedParameter<double>("BetaForward_BinMin"    ,  0.0);
-  resBetaForward_binWidth  = pset.getUntrackedParameter<double>("BetaForward_BinWidth"  ,  0.0);
-  resBetaForward_binN      = pset.getUntrackedParameter<int>(   "BetaForward_BinN"      ,  0);
+  if(useCMSSWPixelParameterization)
+  {
+    thePixelForwardResolutionFileName = pset.getParameter<std::string>( "PixelForwardResolutionFileNew" );
+    resAlphaForward_binMin   = pset.getParameter<double>("AlphaForward_BinMinNew"   );
+    resAlphaForward_binWidth = pset.getParameter<double>("AlphaForward_BinWidthNew" );
+    resAlphaForward_binN     = pset.getParameter<int>(   "AlphaBarrel_BinNNew"      );
+    resBetaForward_binMin    = pset.getParameter<double>("BetaForward_BinMinNew"    );
+    resBetaForward_binWidth  = pset.getParameter<double>("BetaForward_BinWidthNew"  );
+    resBetaForward_binN      = pset.getParameter<int>(   "BetaForward_BinNNew"      );
+  }
+  else
+  {
+    thePixelForwardResolutionFileName = pset.getParameter<std::string>( "PixelForwardResolutionFile" );
+    resAlphaForward_binMin   = pset.getParameter<double>("AlphaForward_BinMin"   );
+    resAlphaForward_binWidth = pset.getParameter<double>("AlphaForward_BinWidth" );
+    resAlphaForward_binN     = pset.getParameter<int>(   "AlphaBarrel_BinN"      );
+    resBetaForward_binMin    = pset.getParameter<double>("BetaForward_BinMin"    );
+    resBetaForward_binWidth  = pset.getParameter<double>("BetaForward_BinWidth"  );
+    resBetaForward_binN      = pset.getParameter<int>(   "BetaForward_BinN"      );
+  }
   // root files
   thePixelMultiplicityFile      = new TFile ( edm::FileInPath( thePixelMultiplicityFileName      ).fullPath().c_str() , "READ" );
   thePixelBarrelResolutionFile  = new TFile ( edm::FileInPath( thePixelBarrelResolutionFileName  ).fullPath().c_str() , "READ" );
@@ -164,6 +196,87 @@ void FamosRecHitAnalysis::book() {
   
 #ifdef rrDEBUG
   std::cout << "Famos histograms " << theRootFile->GetName() << " booked" << std::endl;
+  // Print names of histograms inside multiplicity and resolution vectors
+  std::cout << "Contents of histos_PXB_alpha vector" << std::endl;
+  std::cout << "\tsize is " << histos_PXB_alpha.size() << std::endl;
+  for(int i = 0; i < histos_PXB_alpha.size(); i++) {
+    std::cout << "\tElement #" << i << " name is " << (histos_PXB_alpha.at(i))->GetName() << std::endl;
+  }
+  std::cout << "Contents of histos_PXB_beta vector" << std::endl;
+  std::cout << "\tsize is " << histos_PXB_beta.size() << std::endl;
+  for(int i = 0; i < histos_PXB_beta.size(); i++) {
+    std::cout << "\tElement #" << i << " name is " << (histos_PXB_beta.at(i))->GetName() << std::endl;
+  }
+  std::cout << "Contents of histos_PXF_alpha vector" << std::endl;
+  std::cout << "\tsize is " << histos_PXF_alpha.size() << std::endl;
+  for(int i = 0; i < histos_PXF_alpha.size(); i++) {
+    std::cout << "\tElement #" << i << " name is " << (histos_PXF_alpha.at(i))->GetName() << std::endl;
+  }
+  std::cout << "Contents of histos_PXF_beta vector" << std::endl;
+  std::cout << "\tsize is " << histos_PXF_beta.size() << std::endl;
+  for(int i = 0; i < histos_PXF_beta.size(); i++) {
+    std::cout << "\tElement #" << i << " name is " << (histos_PXF_beta.at(i))->GetName() << std::endl;
+  }
+  std::cout << "Contents of histos_PXB_nom_alpha vector" << std::endl;
+  std::cout << "\tsize is " << histos_PXB_nom_alpha.size() << std::endl;
+  for(int i = 0; i < histos_PXB_nom_alpha.size(); i++) {
+    std::cout << "\tElement #" << i << " name is " << (histos_PXB_nom_alpha.at(i))->GetName() << std::endl;
+  }
+  std::cout << "Contents of histos_PXB_nom_beta vector" << std::endl;
+  std::cout << "\tsize is " << histos_PXB_nom_beta.size() << std::endl;
+  for(int i = 0; i < histos_PXB_nom_beta.size(); i++) {
+    std::cout << "\tElement #" << i << " name is " << (histos_PXB_nom_beta.at(i))->GetName() << std::endl;
+  }
+  std::cout << "Contents of histos_PXF_nom_alpha vector" << std::endl;
+  std::cout << "\tsize is " << histos_PXF_nom_alpha.size() << std::endl;
+  for(int i = 0; i < histos_PXF_nom_alpha.size(); i++) {
+    std::cout << "\tElement #" << i << " name is " << (histos_PXF_nom_alpha.at(i))->GetName() << std::endl;
+  }
+  std::cout << "Contents of histos_PXF_nom_beta vector" << std::endl;
+  std::cout << "\tsize is " << histos_PXF_nom_beta.size() << std::endl;
+  for(int i = 0; i < histos_PXF_nom_beta.size(); i++) {
+    std::cout << "\tElement #" << i << " name is " << (histos_PXF_nom_beta.at(i))->GetName() << std::endl;
+  }
+  std::cout << "Contents of histos_PXB_res_alpha vector" << std::endl;
+  std::cout << "\tsize is " << histos_PXB_res_alpha.size() << std::endl;
+  for(int i = 0; i < histos_PXB_res_alpha.size(); i++) {
+    std::cout << "\tElement #" << i << " name is " << (histos_PXB_res_alpha.at(i))->GetName() << std::endl;
+  }
+  std::cout << "Contents of histos_PXB_res_beta vector" << std::endl;
+  std::cout << "\tsize is " << histos_PXB_res_beta.size() << std::endl;
+  for(int i = 0; i < histos_PXB_res_beta.size(); i++) {
+    std::cout << "\tElement #" << i << " name is " << (histos_PXB_res_beta.at(i))->GetName() << std::endl;
+  }
+  std::cout << "Contents of histos_PXF_res_alpha vector" << std::endl;
+  std::cout << "\tsize is " << histos_PXF_res_alpha.size() << std::endl;
+  for(int i = 0; i < histos_PXF_res_alpha.size(); i++) {
+    std::cout << "\tElement #" << i << " name is " << (histos_PXF_res_alpha.at(i))->GetName() << std::endl;
+  }
+  std::cout << "Contents of histos_PXF_res_beta vector" << std::endl;
+  std::cout << "\tsize is " << histos_PXF_res_beta.size() << std::endl;
+  for(int i = 0; i < histos_PXF_res_beta.size(); i++) {
+    std::cout << "\tElement #" << i << " name is " << (histos_PXF_res_beta.at(i))->GetName() << std::endl;
+  }
+  std::cout << "Contents of histos_PXB_nom_res_alpha vector" << std::endl;
+  std::cout << "\tsize is " << histos_PXB_nom_res_alpha.size() << std::endl;
+  for(int i = 0; i < histos_PXB_nom_res_alpha.size(); i++) {
+    std::cout << "\tElement #" << i << " name is " << (histos_PXB_nom_res_alpha.at(i))->GetName() << std::endl;
+  }
+  std::cout << "Contents of histos_PXB_nom_res_beta vector" << std::endl;
+  std::cout << "\tsize is " << histos_PXB_nom_res_beta.size() << std::endl;
+  for(int i = 0; i < histos_PXB_nom_res_beta.size(); i++) {
+    std::cout << "\tElement #" << i << " name is " << (histos_PXB_nom_res_beta.at(i))->GetName() << std::endl;
+  }
+  std::cout << "Contents of histos_PXF_nom_res_alpha vector" << std::endl;
+  std::cout << "\tsize is " << histos_PXF_nom_res_alpha.size() << std::endl;
+  for(int i = 0; i < histos_PXF_nom_res_alpha.size(); i++) {
+    std::cout << "\tElement #" << i << " name is " << (histos_PXF_nom_res_alpha.at(i))->GetName() << std::endl;
+  }
+  std::cout << "Contents of histos_PXF_nom_res_beta vector" << std::endl;
+  std::cout << "\tsize is " << histos_PXF_nom_res_beta.size() << std::endl;
+  for(int i = 0; i < histos_PXF_nom_res_beta.size(); i++) {
+    std::cout << "\tElement #" << i << " name is " << (histos_PXF_nom_res_beta.at(i))->GetName() << std::endl;
+  }
 #endif
 }
 
@@ -237,13 +350,37 @@ void FamosRecHitAnalysis::loadPixelData(TFile* pixelMultiplicityFile, TFile* pix
   loadPixelData( pixelForwardResolutionFile, nBetaForward, resBetaForward_binN, resBetaForward_binWidth, histos_PXF_nom_res_beta, false);
   //
   //
+  // Load also big pixel data if CMSSW parametrization is on
+  // They are pushed back into the vectors after the normal pixels data:
+  // [0, ..., (size/2)-1] -> Normal pixels
+  // [size/2, ..., size-1] -> Big pixels
+  if(useCMSSWPixelParameterization) {
+    // alpha barrel
+    loadPixelData( pixelMultiplicityFile, nAlphaBarrel, std::string("hist_alpha_barrel_big"), histos_PXB_nom_alpha, true );
+    loadPixelData( pixelBarrelResolutionFile, nAlphaBarrel, resAlphaBarrel_binN, resAlphaBarrel_binWidth, histos_PXB_nom_res_alpha, true, true );
+    // 
+    // beta barrel
+    loadPixelData( pixelMultiplicityFile, nBetaBarrel, std::string("hist_beta_barrel_big"), histos_PXB_nom_beta, true );
+    loadPixelData( pixelBarrelResolutionFile, nBetaBarrel, resBetaBarrel_binN, resBetaBarrel_binWidth, histos_PXB_nom_res_beta, false, true );
+    // 
+    // alpha forward
+    loadPixelData( pixelMultiplicityFile, nAlphaForward, std::string("hist_alpha_forward_big"), histos_PXF_nom_alpha, true );
+    loadPixelData( pixelForwardResolutionFile, nAlphaForward, resAlphaForward_binN, resAlphaForward_binWidth, histos_PXF_nom_res_alpha, true, true );
+    // 
+    // beta forward
+    loadPixelData( pixelMultiplicityFile, nBetaForward, std::string("hist_beta_forward_big"), histos_PXF_nom_beta, true );
+    loadPixelData( pixelForwardResolutionFile, nBetaForward, resBetaForward_binN, resBetaForward_binWidth, histos_PXF_nom_res_beta, false, true );
+    //
+    //
+  }
 }
 
 
 void FamosRecHitAnalysis::loadPixelData( TFile* pixelDataFile, unsigned int nMultiplicity, std::string histName,
-					 std::vector<TH1F*>& theMultiplicityProbabilities ) {
+					 std::vector<TH1F*>& theMultiplicityProbabilities, bool isBig ) {
   std::string histName_i = histName + "_%u"; // needed to open histograms with a for
-  theMultiplicityProbabilities.clear();
+  if(!isBig)
+    theMultiplicityProbabilities.clear();
   //
   std::vector<double> mult; // vector with fixed multiplicity
   for(unsigned int i = 0; i<nMultiplicity; i++) {
@@ -252,8 +389,23 @@ void FamosRecHitAnalysis::loadPixelData( TFile* pixelDataFile, unsigned int nMul
   }
   
 #ifdef rrDEBUG
+  const unsigned int maxMult = theMultiplicityProbabilities.size();
+  unsigned int iMult, multSize;
+  if(useCMSSWPixelParameterization) {
+    if(isBig) {     
+      iMult = maxMult / 2;
+      multSize = maxMult ;
+    } else {                
+      iMult = 0;
+      multSize = maxMult;
+    }
+  } else {
+    iMult = 0;
+    multSize = maxMult ;
+  }
+
   std::cout << " Multiplicity probability " << histName << std::endl;
-  for(unsigned int iMult = 0; iMult<theMultiplicityProbabilities.size(); iMult++) {
+  for(/* void */; iMult<multSize; iMult++) {
     for(int iBin = 1; iBin<=theMultiplicityProbabilities[iMult]->GetNbinsX(); iBin++) {
       std::cout << " Multiplicity " << iMult+1 << " bin " << iBin << " low edge = " << theMultiplicityProbabilities[iMult]->GetBinLowEdge(iBin)
 		<< " prob = " << (theMultiplicityProbabilities[iMult])->GetBinContent(iBin) // remember in ROOT bin starts from 1 (0 underflow, nBin+1 overflow)
@@ -265,13 +417,14 @@ void FamosRecHitAnalysis::loadPixelData( TFile* pixelDataFile, unsigned int nMul
 }
 
 void FamosRecHitAnalysis::loadPixelData( TFile* pixelDataFile, unsigned int nMultiplicity, int nBins, double binWidth,
-					 std::vector<TH1F*>& theResolutionHistograms, bool isAlpha) {
+					 std::vector<TH1F*>& theResolutionHistograms, bool isAlpha, bool isBig) {
   //
   // resolutions
 #ifdef rrDEBUG
-      std::cout << " Load resolution histogram from file " << pixelDataFile->GetName()
-		<< " multiplicities " << nMultiplicity << " bins " << nBins << std::endl;
+  std::cout << " Load resolution histogram from file " << pixelDataFile->GetName()
+            << " multiplicities " << nMultiplicity << " bins " << nBins << std::endl;
 #endif
+
   for(unsigned int iMult = 0; iMult<nMultiplicity; iMult++) {
     for(int iBin = -1; iBin<nBins; iBin++) {
       if(iBin<0) iBin++; // to avoid skip loop if nBins==0
@@ -292,7 +445,12 @@ void FamosRecHitAnalysis::loadPixelData( TFile* pixelDataFile, unsigned int nMul
 		  1100 + (iMult+1) );
       }
       //
-      TH1F hist = *(TH1F*) pixelDataFile->Get(  Form( "h%u" , histN ) );
+      std::string histName;
+      if(isBig)
+        histName = Form( "h%ub" , histN );
+      else
+        histName = Form( "h%u" , histN );
+      TH1F hist = *(TH1F*) pixelDataFile->Get( histName.c_str() );
       theResolutionHistograms.push_back( new TH1F(hist) );
 #ifdef rrDEBUG
       std::cout << " Load resolution histogram " << hist.GetName() << " multiplicity " << iMult+1 << " bin " << iBin+1 << std::endl;
@@ -308,7 +466,12 @@ void FamosRecHitAnalysis::bookPixel( std::vector<TH1F*>& histos_alpha , std::vec
                                      std::vector<TH1F*>& histos_dedx_alpha , std::vector<TH1F*>& histos_dedx_beta,
 				     char* det ) {
   //
-  for(unsigned int iHist = 0; iHist < histos_nom_alpha.size(); iHist++) {
+  unsigned int maxHist = 0;
+  if(useCMSSWPixelParameterization)
+    maxHist = histos_nom_alpha.size() / 2;
+  else
+    maxHist = histos_nom_alpha.size();
+  for(unsigned int iHist = 0; iHist < maxHist; iHist++) {
     histos_alpha.push_back( new TH1F(Form( "hist_%s_%u_prob_alpha" , det , iHist+1 ) ,
 				     Form( "Hit Local Position angle #alpha^{Rec} %s (multiplicity %u) probability;#alpha^{Rec} [rad];Probability" , det , iHist+1 ) ,
 				     histos_nom_alpha[iHist]->GetNbinsX() , histos_nom_alpha[iHist]->GetXaxis()->GetXmin() , histos_nom_alpha[iHist]->GetXaxis()->GetXmax() ));
@@ -323,9 +486,33 @@ void FamosRecHitAnalysis::bookPixel( std::vector<TH1F*>& histos_alpha , std::vec
       std::cout << "\tNominal Probability " << histos_nom_alpha[iHist]->GetName() << " bin " << iBin << " is " << histos_nom_alpha[iHist]->GetBinContent(iBin) << std::endl;
 #endif
   }
+  
+  // Book also big pixels if CMSSW parameterization is set
+  if(useCMSSWPixelParameterization) {
+    for(unsigned int iHist = histos_nom_alpha.size()/2; iHist < histos_nom_alpha.size(); iHist++) {
+      unsigned int multiplicity = iHist+1-histos_nom_alpha.size()/2;
+      histos_alpha.push_back( new TH1F(Form( "hist_%s_%u_prob_alpha_big" , det , multiplicity ) ,
+                                       Form( "Hit Local Position angle #alpha^{Rec} %s (multiplicity %u) probability big pixels;#alpha^{Rec} [rad];Probability" , det , multiplicity ) ,
+                                       histos_nom_alpha[iHist]->GetNbinsX() , histos_nom_alpha[iHist]->GetXaxis()->GetXmin() , histos_nom_alpha[iHist]->GetXaxis()->GetXmax() ));
+      histos_dedx_alpha.push_back( new TH1F(Form( "hist_%s_%u_dedx_alpha_big" , det , multiplicity ) ,
+                                            Form( "Sim Hit energy loss dE/dx %s %u big pixels;dE/dx;Entries/bin" , det , multiplicity ) ,
+                                            200, 0, 0.001 ));
+      // change name to the nominal one
+      histos_nom_alpha[iHist]->SetTitle( Form( "Hit Local Position angle #alpha^{Sim} %s (multiplicity %u) probability big pixels;#alpha^{Sim} [rad];Probability" , det , multiplicity ) );
+      histos_nom_alpha[iHist]->SetName(  Form( "hist_%s_%u_nom_prob_alpha_big" , det , multiplicity ) );
+#ifdef rrDEBUG
+      for(int iBin = 1; iBin<=histos_nom_alpha[iHist]->GetNbinsX(); iBin++ )
+        std::cout << "\tNominal Probability " << histos_nom_alpha[iHist]->GetName() << " bin " << iBin << " is " << histos_nom_alpha[iHist]->GetBinContent(iBin) << std::endl;
+#endif  
+    }
+  }
   //
   //
-  for(unsigned int iHist = 0; iHist < histos_nom_beta.size(); iHist++) {
+  if(useCMSSWPixelParameterization)
+    maxHist = histos_nom_beta.size() / 2;
+  else
+    maxHist = histos_nom_beta.size();
+  for(unsigned int iHist = 0; iHist < maxHist; iHist++) {
     histos_beta.push_back( new TH1F(Form( "hist_%s_%u_prob_beta" , det , iHist+1 ) ,
 				    Form( "Hit Local Position angle #beta^{Rec} %s (multiplicity %u) probability;#beta^{Rec} [rad];Probability" , det , iHist+1 ) ,
 				    histos_nom_beta[iHist]->GetNbinsX() , histos_nom_beta[iHist]->GetXaxis()->GetXmin() , histos_nom_beta[iHist]->GetXaxis()->GetXmax() ));
@@ -339,6 +526,26 @@ void FamosRecHitAnalysis::bookPixel( std::vector<TH1F*>& histos_alpha , std::vec
     for(int iBin = 1; iBin<=histos_nom_beta[iHist]->GetNbinsX(); iBin++ )
       std::cout << "\tNominal Probability " << histos_nom_beta[iHist]->GetName() << " bin " << iBin << " is " << histos_nom_beta[iHist]->GetBinContent(iBin) << std::endl;
 #endif
+  }
+
+  // Book also big pixels if CMSSW parameterization is set
+  if(useCMSSWPixelParameterization) {
+    for(unsigned int iHist = histos_nom_beta.size()/2; iHist < histos_nom_beta.size(); iHist++) {
+      unsigned int multiplicity = iHist+1-histos_nom_beta.size()/2;
+      histos_beta.push_back( new TH1F(Form( "hist_%s_%u_prob_beta_big" , det , multiplicity ) ,
+                                      Form( "Hit Local Position angle #beta^{Rec} %s (multiplicity %u) probability big pixels;#beta^{Rec} [rad];Probability" , det , multiplicity ) ,
+                                      histos_nom_beta[iHist]->GetNbinsX() , histos_nom_beta[iHist]->GetXaxis()->GetXmin() , histos_nom_beta[iHist]->GetXaxis()->GetXmax() ));
+      histos_dedx_beta.push_back( new TH1F(Form( "hist_%s_%u_dedx_beta_big" , det , multiplicity ) ,
+                                           Form( "Sim Hit energy loss dE/dx %s %u big pixels;dE/dx;Entries/bin" , det , multiplicity ) ,
+                                           200, 0, 0.001 ));
+      // change name to the nominal one
+      histos_nom_beta[iHist]->SetTitle( Form( "Hit Local Position angle #beta^{Sim} %s (multiplicity %u) probability big pixels;#beta^{Sim} [rad];Probability" , det , multiplicity ) );
+      histos_nom_beta[iHist]->SetName(  Form( "hist_%s_%u_nom_prob_beta_big" , det , multiplicity ) );
+#ifdef rrDEBUG
+      for(int iBin = 1; iBin<=histos_nom_beta[iHist]->GetNbinsX(); iBin++ )
+        std::cout << "\tNominal Probability " << histos_nom_beta[iHist]->GetName() << " bin " << iBin << " is " << histos_nom_beta[iHist]->GetBinContent(iBin) << std::endl;
+#endif
+    }
   }
   //
 }
@@ -377,6 +584,28 @@ void FamosRecHitAnalysis::bookPixel( std::vector<TH1F*>& histos_alpha , std::vec
     }
   }
   
+  // Book also big pixels if CMSSW parameterization is set
+  if(useCMSSWPixelParameterization) {
+    for(unsigned int iMult = 0; iMult<nAlphaMultiplicity; iMult++) {
+      for(int iBin = -1; iBin<resAlpha_binN; iBin++) {
+        if(iBin<0) iBin++; // to avoid skip loop if nBins==0
+        iHist++;
+        float binMin = ( resAlpha_binWidth!=0 ? resAlpha_binMin+(float)(iBin)*resAlpha_binWidth   : -PI );
+        float binMax = ( resAlpha_binWidth!=0 ? resAlpha_binMin+(float)(iBin+1)*resAlpha_binWidth :  PI );
+        histos_alpha.push_back(new TH1F(Form( "hist_%s_%u_%u_res_alpha_big" , det , iMult+1 , iBin+1 ) ,
+                                        Form( "Hit Local Position x^{Rec} [%f<#alpha^{Rec}<%f] %s (multiplicity %u) big pixels;x [cm];Events/bin" ,
+                                              binMin , binMax ,
+                                              det , iMult+1 ) ,
+                                        histos_nom_alpha[iHist]->GetNbinsX() , histos_nom_alpha[iHist]->GetXaxis()->GetXmin() , histos_nom_alpha[iHist]->GetXaxis()->GetXmax() ) );
+        // change name to the nominal one
+        histos_nom_alpha[iHist]->SetName(  Form( "hist_%s_%u_%u_nom_res_alpha_big" , det , iMult+1 , iBin+1 ) );
+        histos_nom_alpha[iHist]->SetTitle( Form( "Hit Local Position x^{Sim} [%f<#alpha^{Sim}<%f] %s (multiplicity %u) big pixels;x [cm];Events/bin" ,
+					       binMin , binMax ,
+					       det , iMult+1 ) );
+      }
+    }
+  }
+  
   iHist = -1; // count the histograms in the vector again
   for(unsigned int iMult = 0; iMult<nBetaMultiplicity; iMult++) {
     for(int iBin = -1; iBin<resBeta_binN; iBin++) {
@@ -394,7 +623,27 @@ void FamosRecHitAnalysis::bookPixel( std::vector<TH1F*>& histos_alpha , std::vec
 					      det , iMult+1 ) );
     }
   }
-  
+
+  // Book also big pixels if CMSSW parameterization is set  
+  if(useCMSSWPixelParameterization) {
+    for(unsigned int iMult = 0; iMult<nBetaMultiplicity; iMult++) {
+      for(int iBin = -1; iBin<resBeta_binN; iBin++) {
+        if(iBin<0) iBin++; // to avoid skip loop if nBins==0
+        iHist++;
+        histos_beta.push_back(new TH1F(Form( "hist_%s_%u_%u_res_beta_big" , det , iMult+1 , iBin+1 ) ,
+                                       Form( "Hit Local Position y^{Rec} [%f<#beta^{Rec}<%f] %s (multiplicity %u) big pixels;y [cm];Events/bin" ,
+                                             resBeta_binMin+(float)(iBin)*resBeta_binWidth , resBeta_binMin+(float)(iBin+1)*resBeta_binWidth ,
+                                             det , iMult+1 ) ,
+                                       histos_nom_beta[iHist]->GetNbinsX() , histos_nom_beta[iHist]->GetXaxis()->GetXmin() , histos_nom_beta[iHist]->GetXaxis()->GetXmax() ) );
+        // change name to the nominal one
+        histos_nom_beta[iHist]->SetName(  Form( "hist_%s_%u_%u_nom_res_beta_big" , det , iMult+1 , iBin+1 ) );
+        histos_nom_beta[iHist]->SetTitle( Form( "Hit Local Position y^{Sim} [%f<#beta^{Sim}<%f] %s (multiplicity %u) big pixels;y [cm];Events/bin" ,
+                                                resBeta_binMin+(float)(iBin)*resBeta_binWidth , resBeta_binMin+(float)(iBin+1)*resBeta_binWidth ,
+                                                det , iMult+1 ) );
+      }
+    }
+  }
+
 #ifdef rrDEBUG
   std::cout << " Resolution histogram booked "
 	    << " alpha " << histos_alpha.size()
@@ -525,7 +774,7 @@ void FamosRecHitAnalysis::analyze(const edm::Event& event, const edm::EventSetup
 	float alpha = acos(locx/sqrt(locx*locx+locz*locz));
 	int subdetid = ((detid>>25)&0x7);
 	unsigned int detUnitId = simHit->detUnitId();
-	// do it only for Pixels: subdetid = 1 or 2
+        // do it only for Pixels: subdetid = 1 or 2
 	if(subdetid == 1 || subdetid==2) {
 	  if( isFlipped( dynamic_cast<const PixelGeomDetUnit*>
 			 ( geometry->idToDetUnit( DetId( detUnitId ) ) ) ) ) { // &&& check for FPIX !!!
@@ -550,6 +799,50 @@ void FamosRecHitAnalysis::analyze(const edm::Event& event, const edm::EventSetup
 	
 	unsigned int mult_alpha = (*iterRecHit).simMultX();
 	unsigned int mult_beta  = (*iterRecHit).simMultY();
+        //
+        
+        bool hasBigPixelInX = false;
+        bool hasBigPixelInY = false;
+        
+        if( (subdetid == 1 || subdetid==2) && useCMSSWPixelParameterization ) {
+          // If the sim track crosses a sensitive region in which there are big pixels,
+          // then we set to true the variables above
+          
+          // Get the topology of the pixel module
+          const PixelGeomDetUnit* detUnit = dynamic_cast<const PixelGeomDetUnit*>(geometry->idToDetUnit(DetId(detUnitId)));
+          const PixelTopology* theSpecificTopology = &(detUnit->specificTopology());
+          RectangularPixelTopology rectPixelTopology(theSpecificTopology->nrows(), 
+                                                     theSpecificTopology->ncolumns(), 
+                                                     theSpecificTopology->pitch().first, 
+                                                     theSpecificTopology->pitch().second);
+          
+          // Get the rows and columns of entry and exit points
+          // FIXME - these are not guaranteed to be the same as the cluster limits (as they should be)
+          const int firstPixelInX = int(rectPixelTopology.pixel(simHit->entryPoint()).first);
+          const int firstPixelInY = int(rectPixelTopology.pixel(simHit->entryPoint()).second);
+          const int lastPixelInX = int(rectPixelTopology.pixel(simHit->exitPoint()).first);
+          const int lastPixelInY = int(rectPixelTopology.pixel(simHit->exitPoint()).second);
+           
+          // Check if there is a big pixel inside and set hasBigPixelInX and hasBigPixelInY accordingly
+          // This function only works if first <= last
+          if(rectPixelTopology.containsBigPixelInX(firstPixelInX < lastPixelInX ? firstPixelInX : lastPixelInX,
+                                                   firstPixelInX > lastPixelInX ? firstPixelInX : lastPixelInX))
+            hasBigPixelInX = true;
+          if(rectPixelTopology.containsBigPixelInY(firstPixelInY < lastPixelInY ? firstPixelInY : lastPixelInY,
+                                                   firstPixelInY > lastPixelInY ? firstPixelInY : lastPixelInY))
+            hasBigPixelInY = true;
+#ifdef rrDEBUG
+          std::cout << " Simhit first pixel in X = " << (firstPixelInX < lastPixelInX ? firstPixelInX : lastPixelInX)
+                    << " last pixel in X = " << (firstPixelInX > lastPixelInX ? firstPixelInX : lastPixelInX)
+                    << " has big pixel in X is " << (hasBigPixelInX ? " true" : " false")
+                    << std::endl;
+          std::cout << " Simhit first pixel in Y = " << (firstPixelInY < lastPixelInY ? firstPixelInY : lastPixelInY)
+                    << " last pixel in Y = " << (firstPixelInY > lastPixelInY ? firstPixelInY : lastPixelInY)
+                    << " has big pixel in Y is " << (hasBigPixelInY ? " true" : " false")
+                    << std::endl;
+#endif 
+        }
+
 #ifdef rrDEBUG
 	std::cout << "\n\t" << iRecHit << std::endl;
 	std::cout << "\tDet Unit id " << detUnitId << " in subdetector " << (*iDetId).subdetId() << std::endl;
@@ -584,8 +877,10 @@ void FamosRecHitAnalysis::analyze(const edm::Event& event, const edm::EventSetup
                     hist_alpha , hist_beta , hist_res_alpha , hist_res_beta , hist_dedx,
                     hist_dedx_alpha, hist_dedx_beta,
                     mult_alpha , mult_beta ,
-                    alpha      , beta       );
+                    alpha      , beta      ,
+                    hasBigPixelInX, hasBigPixelInY );
 	//
+
 	if(hist_x != 0) {
 #ifdef rrDEBUG
 	  std::cout << "\tFill histograms " << hist_x->GetName() << ", " << hist_y->GetName() << ", " << hist_z->GetName() << std::endl;
@@ -725,19 +1020,27 @@ void FamosRecHitAnalysis::chooseHist( unsigned int rawid ,
                                       TH1F*& hist_alpha , TH1F*& hist_beta , TH1F*& hist_res_alpha , TH1F*& hist_res_beta , TH1F*& hist_dedx, 
                                       TH1F*& hist_dedx_alpha, TH1F*& hist_dedx_beta,
                                       unsigned int mult_alpha , unsigned int mult_beta ,
-                                      double       alpha      , double       beta       ) {
+                                      double       alpha      , double       beta,      
+                                      const bool hasBigPixelInX, const bool hasBigPixelInY ) {
   int subdetid = ((rawid>>25)&0x7);
-  
+
   switch (subdetid) {
     // Pixel Barrel
   case 1:
     // PXB
     {
+      unsigned int iAlpha = mult_alpha - 1;
+      unsigned int iBeta = mult_beta - 1;
+      // Big pixel histograms in second half of vector
+      if(hasBigPixelInX)
+        iAlpha+=histos_PXB_alpha.size()/2;
+      if(hasBigPixelInY)
+        iBeta+=histos_PXB_beta.size()/2;
       PXBDetId module(rawid);
-      hist_alpha       = histos_PXB_alpha[mult_alpha-1];
-      hist_beta        = histos_PXB_beta[mult_beta-1];
-      hist_dedx_alpha  = histos_PXB_dedx_alpha[mult_alpha-1];
-      hist_dedx_beta   = histos_PXB_dedx_beta[mult_beta-1];
+      hist_alpha       = histos_PXB_alpha[iAlpha];
+      hist_beta        = histos_PXB_beta[iBeta];
+      hist_dedx_alpha  = histos_PXB_dedx_alpha[iAlpha];
+      hist_dedx_beta   = histos_PXB_dedx_beta[iBeta];
 #ifdef rrDEBUG
       unsigned int theLayer = module.layer();
       std::cout << "\tTracker subdetector " << subdetid << " PXB Layer " << theLayer << std::endl;
@@ -752,14 +1055,22 @@ void FamosRecHitAnalysis::chooseHist( unsigned int rawid ,
 	  double binMax = resAlphaBarrel_binMin+(double)(iBin)*resAlphaBarrel_binWidth;
 	  if( alpha >= binMin && alpha < binMax ) iAlphaHist = ( (mult_alpha-1)*resAlphaBarrel_binN + iBin ) - 1;
 	}
+        if(hasBigPixelInX) // Histogram is in the second half of vector
+          iAlphaHist+=nAlphaBarrel*resAlphaBarrel_binN;
       } else {
-	iAlphaHist = mult_alpha - 1;
+	iAlphaHist = iAlpha;
       }
       if( iAlphaHist==-1 ) {
 	double binMin = resAlphaBarrel_binMin;
 	double binMax = resAlphaBarrel_binMin+(double)(resAlphaBarrel_binN)*resAlphaBarrel_binWidth;
 	if( alpha < binMin)  iAlphaHist = ( (mult_alpha-1)*resAlphaBarrel_binN + 1 ) - 1; // underflow
 	if( alpha >= binMax) iAlphaHist = ( (mult_alpha-1)*resAlphaBarrel_binN + resAlphaBarrel_binN ) - 1; // overflow
+        if(hasBigPixelInX) {
+          if(resAlphaBarrel_binN != 0)
+            iAlphaHist+=nAlphaBarrel*resAlphaBarrel_binN;
+          else
+            iAlphaHist+=nAlphaBarrel;
+        }
       }
       //
       int iBetaHist = -1;
@@ -769,18 +1080,27 @@ void FamosRecHitAnalysis::chooseHist( unsigned int rawid ,
 	  double binMax = resBetaBarrel_binMin+(double)(iBin)*resBetaBarrel_binWidth;
 	  if( beta >= binMin && beta < binMax ) iBetaHist = ( (mult_beta-1)*resBetaBarrel_binN + iBin ) - 1;
 	}
+        if(hasBigPixelInY) // Histogram is in the second half of vector
+          iBetaHist+=nBetaBarrel*resBetaBarrel_binN;
       } else {
-	iBetaHist = mult_beta - 1;
+	iBetaHist = iBeta;
       }
       if( iBetaHist==-1 ) {
 	double binMin = resBetaBarrel_binMin;
 	double binMax = resBetaBarrel_binMin+(double)(resBetaBarrel_binN)*resBetaBarrel_binWidth;
 	if( beta < binMin)  iBetaHist = ( (mult_beta-1)*resBetaBarrel_binN + 1 ) - 1; // underflow
 	if( beta >= binMax) iBetaHist = ( (mult_beta-1)*resBetaBarrel_binN + resBetaBarrel_binN ) - 1; // overflow
+        if(hasBigPixelInY) {
+          if(resBetaBarrel_binN != 0)
+            iBetaHist+=nBetaBarrel*resBetaBarrel_binN;
+          else
+            iBetaHist+=nBetaBarrel;
+        }
       }
       //
 #ifdef rrDEBUG
       std::cout << "\tResolution histos chosen alpha " << iAlphaHist << " beta " << iBetaHist << std::endl;
+      std::cout << "\tSize of alpha and beta vectors " << histos_PXB_res_alpha.size() << ", " << histos_PXB_res_beta.size() << std::endl;
 #endif
       hist_res_alpha = histos_PXB_res_alpha[iAlphaHist];
       hist_res_beta  = histos_PXB_res_beta[iBetaHist];
@@ -791,11 +1111,18 @@ void FamosRecHitAnalysis::chooseHist( unsigned int rawid ,
   case 2:
     // PXF
     {
+      unsigned int iAlpha = mult_alpha - 1;
+      unsigned int iBeta = mult_beta - 1;
+      // Big pixel histograms in second half of vector
+      if(hasBigPixelInX)
+        iAlpha+=histos_PXF_alpha.size()/2;
+      if(hasBigPixelInY)
+        iBeta+=histos_PXF_beta.size()/2;
       PXFDetId module(rawid);
-      hist_alpha       = histos_PXF_alpha[mult_alpha-1];
-      hist_beta        = histos_PXF_beta[mult_beta-1];
-      hist_dedx_alpha  = histos_PXF_dedx_alpha[mult_alpha-1];
-      hist_dedx_beta   = histos_PXF_dedx_beta[mult_beta-1];
+      hist_alpha       = histos_PXF_alpha[iAlpha];
+      hist_beta        = histos_PXF_beta[iBeta];
+      hist_dedx_alpha  = histos_PXF_dedx_alpha[iAlpha];
+      hist_dedx_beta   = histos_PXF_dedx_beta[iBeta];
 #ifdef rrDEBUG
       unsigned int theDisk = module.disk();
       std::cout << "\tTracker subdetector " << subdetid << " PXF Disk " << theDisk << std::endl;
@@ -810,14 +1137,22 @@ void FamosRecHitAnalysis::chooseHist( unsigned int rawid ,
 	  double binMax = resAlphaForward_binMin+(double)(iBin)*resAlphaForward_binWidth;
 	  if( alpha >= binMin && alpha < binMax ) iAlphaHist = ( (mult_alpha-1)*resAlphaForward_binN + iBin ) - 1;
 	}
+        if(hasBigPixelInX) // Histogram is in the second half of vector
+          iAlphaHist+=nAlphaForward*resAlphaForward_binN; 
       } else {
-	iAlphaHist = mult_alpha - 1;
+	iAlphaHist = iAlpha;
       }
       if( iAlphaHist==-1 ) {
 	double binMin = resAlphaForward_binMin;
 	double binMax = resAlphaForward_binMin+(double)(resAlphaForward_binN)*resAlphaForward_binWidth;
 	if( alpha < binMin)  iAlphaHist = ( (mult_alpha-1)*resAlphaForward_binN + 1 ) - 1; // underflow
 	if( alpha >= binMax) iAlphaHist = ( (mult_alpha-1)*resAlphaForward_binN + resAlphaForward_binN ) - 1; // overflow
+        if(hasBigPixelInX) {
+          if(resAlphaForward_binN != 0)
+            iAlphaHist+=nAlphaForward*resAlphaForward_binN;
+          else
+            iAlphaHist+=nAlphaForward;
+        }
       }
       //
       int iBetaHist = -1;
@@ -827,18 +1162,27 @@ void FamosRecHitAnalysis::chooseHist( unsigned int rawid ,
 	  double binMax = resBetaForward_binMin+(double)(iBin)*resBetaForward_binWidth;
 	  if( beta >= binMin && beta < binMax ) iBetaHist = ( (mult_beta-1)*resBetaForward_binN + iBin ) - 1;
 	}
+        if(hasBigPixelInY) // Histogram is in the second half of vector
+          iBetaHist+=nBetaForward*resBetaForward_binN;
       } else {
-	iBetaHist = mult_beta - 1;
+	iBetaHist = iBeta;
       }
       if( iBetaHist==-1 ) {
 	double binMin = resBetaForward_binMin;
 	double binMax = resBetaForward_binMin+(double)(resBetaForward_binN)*resBetaForward_binWidth;
 	if( beta < binMin)  iBetaHist = ( (mult_beta-1)*resBetaForward_binN + 1 ) - 1; // underflow
 	if( beta >= binMax) iBetaHist = ( (mult_beta-1)*resBetaForward_binN + resBetaForward_binN ) - 1; // overflow
+        if(hasBigPixelInY) {
+          if(resBetaForward_binN != 0)
+            iBetaHist+=nBetaForward*resBetaForward_binN;
+          else
+            iBetaHist+=nBetaForward;
+        }
       }
       //
 #ifdef rrDEBUG
       std::cout << "\tResolution histos chosen alpha " << iAlphaHist << " beta " << iBetaHist << std::endl;
+      std::cout << "\tSize of alpha and beta vectors " << histos_PXB_res_alpha.size() << ", " << histos_PXB_res_beta.size() << std::endl;      
 #endif
       hist_res_alpha = histos_PXF_res_alpha[iAlphaHist];
       hist_res_beta  = histos_PXF_res_beta[iBetaHist];
@@ -987,7 +1331,10 @@ void FamosRecHitAnalysis::rootMacroStrip( std::vector<TH1F*>& histos_x      , st
 void FamosRecHitAnalysis::rootMacroPixel( std::vector<TH1F*>& histos_angle ) {
   // create probabilities
   TH1F* hist_tot = 0;
-  for(unsigned int iHist = 0; iHist < histos_angle.size(); iHist++) {
+  unsigned int maxHist = histos_angle.size();
+  if(useCMSSWPixelParameterization)
+    maxHist/=2;
+  for(unsigned int iHist = 0; iHist < maxHist; iHist++) {
     if(iHist == 0) hist_tot = (TH1F*)histos_angle[0]->Clone("tot");
     for(int iBin = 0; iBin < histos_angle[0]->GetNbinsX(); iBin++) {
       //
@@ -1004,7 +1351,7 @@ void FamosRecHitAnalysis::rootMacroPixel( std::vector<TH1F*>& histos_angle ) {
   }
   
 #ifdef rrDEBUG
-  for(unsigned int iMult = 0; iMult<histos_angle.size(); iMult++) {
+  for(unsigned int iMult = 0; iMult<maxHist; iMult++) {
     std::cout << " Multiplicity probability " << histos_angle[iMult]->GetName() << std::endl;
     for(int iBin = 1; iBin<=histos_angle[iMult]->GetNbinsX(); iBin++) {
       std::cout << " Multiplicity " << iMult+1 << " bin " << iBin << " low edge = " << histos_angle[iMult]->GetBinLowEdge(iBin)
@@ -1013,8 +1360,38 @@ void FamosRecHitAnalysis::rootMacroPixel( std::vector<TH1F*>& histos_angle ) {
     }
   }
 #endif
-  
-}
+
+  if(useCMSSWPixelParameterization) { // Create probabilities for big pixels too, if CMSSW parameterization is set
+    delete hist_tot;
+    TH1F* hist_tot = 0;
+    unsigned int minHist = histos_angle.size() / 2;
+    unsigned int maxHist = histos_angle.size();
+    for(unsigned int iHist = minHist; iHist < maxHist; iHist++) {
+      if(iHist == minHist) hist_tot = (TH1F*)histos_angle[minHist]->Clone("tot");
+      for(int iBin = 0; iBin < histos_angle[minHist]->GetNbinsX(); iBin++) {
+        //
+        if(iHist!=minHist) hist_tot->SetBinContent(iBin+1, hist_tot->GetBinContent(iBin+1)+histos_angle[iHist]->GetBinContent(iBin+1) );
+        if(iHist!=minHist) hist_tot->SetBinError(iBin+1, 0.00 );
+#ifdef rrDEBUG
+        std::cout << "\tTotal Probability after " << histos_angle[iHist]->GetName() << " bin " << iBin << " is " << hist_tot->GetBinContent(iBin+1) << std::endl;
+#endif
+      }
+    }
+    for(unsigned int iHist = minHist; iHist < maxHist; iHist++) {
+      histos_angle[iHist]->Divide(hist_tot);
+    }
+#ifdef rrDEBUG
+    for(unsigned int iMult = 0; iMult<histos_angle.size()/2; iMult++) {
+      std::cout << " Multiplicity probability " << histos_angle[iMult+minHist]->GetName() << std::endl;
+      for(int iBin = 1; iBin<=histos_angle[iMult+minHist]->GetNbinsX(); iBin++) {
+        std::cout << " Multiplicity " << iMult+1 << " bin " << iBin << " low edge = " << histos_angle[iMult+minHist]->GetBinLowEdge(iBin)
+                  << " prob = " << (histos_angle[iMult+minHist])->GetBinContent(iBin) // remember in ROOT bin starts from 1 (0 underflow, nBin+1 overflow)
+                  << std::endl;
+      }
+    }
+#endif
+  }
+} 
 //
 
 //

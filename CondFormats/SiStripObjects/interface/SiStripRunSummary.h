@@ -14,13 +14,11 @@ class SiStripRunSummary {
   SiStripRunSummary(){};
   ~SiStripRunSummary(){};
   
-  bool put( std::string runSummary ){ runSummary_ = runSummary; return true; }
-  std::string getRunSummary() const { return runSummary_; } 
+  bool put(std::string runSummary){runSummary_=runSummary;}
+  std::string getRunSummary() const {return runSummary_;} 
 
  private:
-
   std::string runSummary_; 
-
 };
 
 #endif

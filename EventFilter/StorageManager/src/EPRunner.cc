@@ -1,17 +1,13 @@
 
 #include "EventFilter/StorageManager/interface/EPRunner.h"
-#include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/Utilities/interface/DebugMacros.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
 #include "FWCore/ServiceRegistry/interface/ServiceRegistry.h"
 #include "FWCore/Framework/interface/ConstProductRegistry.h"
-#include "IOPool/Streamer/interface/HLTInfo.h"
 
 #include "boost/bind.hpp"
-#include "boost/thread/thread.hpp"
 
-#include <string>
 #include <exception>
 #include <iostream>
 

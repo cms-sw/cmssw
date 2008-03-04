@@ -1,8 +1,8 @@
 /*
  * \file SiStripAnalyser.cc
  * 
- * $Date: 2007/12/19 21:14:44 $
- * $Revision: 1.23 $
+ * $Date: 2007/12/06 19:02:48 $
+ * $Revision: 1.21 $
  * \author  S. Dutta INFN-Pisa
  *
  */
@@ -11,6 +11,7 @@
 #include "DQM/SiStripMonitorClient/interface/SiStripAnalyser.h"
 
 
+#include "DQMServices/UI/interface/MonitorUIRoot.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -23,8 +24,6 @@
 
 #include "CondFormats/DataRecord/interface/SiStripFedCablingRcd.h"
 #include "CondFormats/SiStripObjects/interface/SiStripFedCabling.h"
-#include "CalibTracker/Records/interface/SiStripDetCablingRcd.h"
-#include "CalibFormats/SiStripObjects/interface/SiStripDetCabling.h"
 
 #include "DQM/SiStripMonitorClient/interface/SiStripWebInterface.h"
 #include "DQM/SiStripMonitorClient/interface/SiStripTrackerMapCreator.h"
@@ -55,7 +54,7 @@ using namespace std;
 SiStripAnalyser::SiStripAnalyser(edm::ParameterSet const& ps) :
   ModuleWeb("SiStripAnalyser") {
   
-  // Get TkMap ParameterSet 
+  // Get TkMap ParameterSet and Fed Cabling
   tkMapPSet_ = ps.getParameter<edm::ParameterSet>("TkmapParameters");
 
   string localPath = string("DQM/SiStripMonitorClient/test/loader.html");
@@ -81,11 +80,14 @@ SiStripAnalyser::SiStripAnalyser(edm::ParameterSet const& ps) :
 
 
   // get back-end interface
-  bei_ = Service<DaqMonitorBEInterface>().operator->();
+  dbe_ = Service<DaqMonitorBEInterface>().operator->();
 
+  // instantiate Monitor UI without connecting to any monitoring server
+  // (i.e. "standalone mode")
+  mui_ = new MonitorUIRoot();
 
   // instantiate web interface
-  sistripWebInterface_ = new SiStripWebInterface(bei_);
+  sistripWebInterface_ = new SiStripWebInterface("dummy", "dummy", &mui_);
   trackerMapCreator_ = 0;
   
 }
@@ -130,7 +132,7 @@ void SiStripAnalyser::beginRun(Run const& run, edm::EventSetup const& eSetup) {
   if (m_cacheID_ != cacheID) {
     m_cacheID_ = cacheID;       
     edm::LogInfo("SiStripAnalyser") <<"SiStripAnalyser::beginRun: " 
-				    << " Change in Cabling, recrated TrackerMap";     
+				    << " Reading  new Cabling ";     
     if (trackerMapCreator_) delete trackerMapCreator_;
     trackerMapCreator_ = new SiStripTrackerMapCreator();
     if (!trackerMapCreator_->readConfiguration()) {
@@ -161,7 +163,6 @@ void SiStripAnalyser::endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, ed
   nLumiSecs_++;
 
   eSetup.get<SiStripFedCablingRcd>().get(fedCabling_);
-  eSetup.get<SiStripDetCablingRcd>().get(detCabling_);
  
   cout << "====================================================== " << endl;
   cout << " ===> Iteration # " << nLumiSecs_ << " " 
@@ -176,7 +177,8 @@ void SiStripAnalyser::endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, ed
   // -- Create TrackerMap  according to the frequency
   if (tkMapFrequency_ != -1 && nLumiSecs_ > 0 && nLumiSecs_%tkMapFrequency_ == 0) {
     cout << " Creating Tracker Map " << endl;
-    trackerMapCreator_->create(tkMapPSet_, fedCabling_, bei_);
+    trackerMapCreator_->create(tkMapPSet_, fedCabling_, dbe_);
+    sistripWebInterface_->setTkMapFlag(true);
   }
   // Create predefined plots
   if (staticUpdateFrequency_ != -1 && nLumiSecs_ > 0 && nLumiSecs_%staticUpdateFrequency_  == 0) {
@@ -184,7 +186,7 @@ void SiStripAnalyser::endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, ed
     sistripWebInterface_->setActionFlag(SiStripWebInterface::PlotHistogramFromLayout);
     sistripWebInterface_->performAction();
   }
-  fillGlobalStatus();
+
 }
 
 //
@@ -221,41 +223,5 @@ void SiStripAnalyser::defaultWebPage(xgi::Input *in, xgi::Output *out)
     sistripWebInterface_->handleAnalyserRequest(in, out, iter);
   }
 }
-//
-// -- Get Global Status of Tracker
-//
-void SiStripAnalyser::fillGlobalStatus() {
-  float gStatus = 0.0;
-  // get connected detectors
-  std::vector<uint32_t> SelectedDetIds;
-  detCabling_->addActiveDetectorsRawIds(SelectedDetIds);
-  int nDetsWithError = 0;
-  int nDetsTotal = 0;
-  for (std::vector<uint32_t>::const_iterator idetid=SelectedDetIds.begin(), iEnd=SelectedDetIds.end();idetid!=iEnd;++idetid){    
-    uint32_t detId = *idetid;
-    if (detId == 0 || detId == 0xFFFFFFFF){
-      edm::LogError("SiStripMonitorPedestals") <<"SiStripMonitorPedestals::createMEs: " 
-        << "Wrong DetId !!!!!! " <<  detId << " Neglecting !!!!!! ";
-      continue;
-    }
-    nDetsTotal++;
-    vector<MonitorElement*> detector_mes = bei_->get(detId);
-    int error_me = 0;
-    for (vector<MonitorElement *>::const_iterator it = detector_mes.begin();
-	 it!= detector_mes.end(); it++) {
-      MonitorElement * me = (*it);     
-      if (!me) continue;
-      if (me->getQReports().size() == 0) continue;
-      int istat =  SiStripUtility::getMEStatus((*it)); 
-      if (istat == dqm::qstatus::ERROR)  error_me++;
-    }
-    if (error_me > 0) nDetsWithError++;
-  }
-  gStatus = 1 - nDetsWithError*1.0/nDetsTotal;
-  bei_->cd();
-  MonitorElement* err_summ_me = bei_->get("SiStrip/EventInfo/errorSummary");
-  if(err_summ_me) err_summ_me->Fill(gStatus);
-}
-
 #include "FWCore/Framework/interface/MakerMacros.h"
 DEFINE_FWK_MODULE(SiStripAnalyser);

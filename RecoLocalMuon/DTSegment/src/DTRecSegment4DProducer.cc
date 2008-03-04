@@ -1,8 +1,8 @@
 /** \class DTRecSegment4DProducer
  *  Builds the segments in the DT chambers.
  *
- *  $Date: 2006/07/03 17:21:22 $
- *  $Revision: 1.8 $
+ *  $Date: 2007/08/16 07:08:25 $
+ *  $Revision: 1.9 $
  * \author Riccardo Bellan - INFN Torino <riccardo.bellan@cern.ch>
  */
 
@@ -36,10 +36,10 @@ DTRecSegment4DProducer::DTRecSegment4DProducer(const ParameterSet& pset){
     cout << "[DTRecSegment4DProducer] Constructor called" << endl;
   
   // the name of the 1D rec hits collection
-  theRecHits1DLabel = pset.getParameter<string>("recHits1DLabel");
+  theRecHits1DLabel = pset.getParameter<InputTag>("recHits1DLabel");
   
   // the name of the 2D rec hits collection
-  theRecHits2DLabel = pset.getParameter<string>("recHits2DLabel");
+  theRecHits2DLabel = pset.getParameter<InputTag>("recHits2DLabel");
   
   // Get the concrete 4D-segments reconstruction algo from the factory
   string theReco4DAlgoName = pset.getParameter<string>("Reco4DAlgoName");

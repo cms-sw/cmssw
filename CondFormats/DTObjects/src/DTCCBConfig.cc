@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2007/11/24 12:29:11 $
- *  $Revision: 1.1.4.2 $
+ *  $Date: 2007/12/07 15:00:50 $
+ *  $Revision: 1.2 $
  *  \author Paolo Ronchese INFN Padova
  *
  */
@@ -21,6 +21,7 @@
 // C++ Headers --
 //---------------
 #include <iostream>
+#include <sstream>
 #include <vector>
 
 //-------------------
@@ -252,11 +253,16 @@ DTCCBConfig::const_iterator DTCCBConfig::end() const {
 
 
 std::string DTCCBConfig::mapName() const {
+/*
   std::string name = dataVersion + "_map_CCBConfig";
   char nptr[100];
   sprintf( nptr, "%x", reinterpret_cast<unsigned int>( this ) );
   name += nptr;
   return name;
+*/
+  std::stringstream name;
+  name << dataVersion << "_map_CCBConfig" << this;
+  return name.str();
 }
 
 

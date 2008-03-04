@@ -7,9 +7,9 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Revision: 1.3 $
+ * \version $Revision: 1.2 $
  *
- * $Id: CandidateProducer.h,v 1.3 2007/12/04 09:15:04 llista Exp $
+ * $Id: CandidateProducer.h,v 1.2 2007/12/03 15:38:50 llista Exp $
  *
  */
 #include "FWCore/ParameterSet/interface/InputTag.h"
@@ -84,7 +84,7 @@ private:
   void produce(edm::Event& evt, const edm::EventSetup& es) {
     edm::Handle<TColl> src;
     evt.getByLabel(src_, src);
-    Init::init(selector_, evt, es);
+    Init::init(selector_, es);
     ::helper::MasterCollection<TColl> master(src);
     std::auto_ptr<CColl> cands(new CColl);
     if(src->size()!= 0) {

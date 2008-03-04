@@ -36,6 +36,7 @@ AlignableTracker::AlignableTracker( const TrackerGeometry* tkGeom ):
   buildTEC();
   buildTRK();
 
+  theId = this->components()[0]->id(); // as all composites: id of first component
 }
 
 

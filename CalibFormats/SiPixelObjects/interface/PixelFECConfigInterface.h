@@ -146,10 +146,6 @@ namespace pos{
 			    int& success3)=0;
     
 
-    virtual int rocreset(int mfec, int fecchannel, 
-			 int tbmchannel, int hubaddress)=0;		 
-
-
     //virtual void setVCalDAC(std::string ROC, unsigned char dac)=0;
  
     //... maybe some more

@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2007/04/19 13:28:46 $
- *  $Revision: 1.1 $
+ *  $Date: 2007/08/14 19:19:44 $
+ *  $Revision: 1.2 $
  *  \author N. Amapane - CERN
  */
 
@@ -32,7 +32,7 @@ using namespace edm;
 //______________________________________________________________________________
 DaqFakeReader::DaqFakeReader(const edm::ParameterSet& pset) 
   : runNum(1)
-  , eventNum(0)
+  , eventNum(1)
   , empty_events(pset.getUntrackedParameter<bool>("emptyEvents",false)) 
 {
   // mean = pset.getParameter<float>("mean");

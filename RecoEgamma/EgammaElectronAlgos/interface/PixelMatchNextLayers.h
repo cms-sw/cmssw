@@ -15,7 +15,7 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: PixelMatchNextLayers.h,v 1.2 2006/07/31 21:36:13 tboccali Exp $
+// $Id: PixelMatchNextLayers.h,v 1.3 2007/02/05 17:53:51 uberthon Exp $
 //
 //
 #include "TrackingTools/PatternTools/interface/TrajectoryMeasurement.h" 

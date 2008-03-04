@@ -17,7 +17,6 @@
 #include "Alignment/CocoaModel/interface/Entry.h"
 #include "Alignment/CocoaModel/interface/Measurement.h"
 
-#include "CLHEP/Units/SystemOfUnits.h"
 
 
 CocoaToDDLMgr* CocoaToDDLMgr::instance = 0;

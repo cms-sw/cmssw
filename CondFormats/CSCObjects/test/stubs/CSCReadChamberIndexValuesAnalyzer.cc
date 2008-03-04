@@ -77,13 +77,7 @@ namespace edmtest
       std::cout<<it->cscid<<"  ";
       std::cout<<it->ddu<<"  ";
       std::cout<<it->ddu_input<<"  ";
-      std::cout<<it->slink<<"  ";
-      std::cout<<it->fed_crate<<"  "<<"  ";
-      std::cout<<it->ddu_slot<<"  "<<"  ";
-      std::cout<<it->dcc_fifo<<"  "<<"  ";
-      std::cout<<it->fiber_crate<<"  "<<"  ";
-      std::cout<<it->fiber_pos<<"  "<<"  ";
-      std::cout<<it->fiber_socket<<"  "<<std::endl;
+      std::cout<<it->slink<<"  "<<std::endl;
     }
   }
   DEFINE_FWK_MODULE(CSCReadChamberIndexValuesAnalyzer);

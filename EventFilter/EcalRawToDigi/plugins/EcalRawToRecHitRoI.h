@@ -155,6 +155,7 @@ public:
 	
 	/// remove duplicates
 	void unique(std::vector<int>& FEDs){
+	  std::sort(FEDs.begin(),FEDs.end());
 	  std::vector<int>::iterator n_end = std::unique(FEDs.begin(),FEDs.end());
 	  FEDs.erase(n_end,FEDs.end());}
 	std::string dumpFEDs(const std::vector<int>& FEDs);

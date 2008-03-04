@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2007/07/11 12:21:00 $
- *  $Revision: 1.1 $
+ *  $Date: 2007/03/27 15:44:46 $
+ *  $Revision: 1.3 $
  *  \author S. Bolognesi
  */
 
@@ -93,10 +93,10 @@ void DTTTrigWriter::analyze(const Event & event, const EventSetup& eventSetup) {
       pair<double, double> meanAndSigma = theFitter->fitTimeBox(histo);
 
       // Write them in DB object
-      tTrig->set(slId,
-		 meanAndSigma.first,
-		 meanAndSigma.second,
-		 DTTimeUnits::ns);
+      tTrig->setSLTtrig(slId,
+			meanAndSigma.first,
+			meanAndSigma.second,
+			DTTimeUnits::ns);
       if(debug) {
 	cout << " SL: " << slId
 	     << " mean = " << meanAndSigma.first

@@ -10,14 +10,13 @@
  *
  * \author Luca Lista, Claudio Campagnari, Dmytro Kovalskyi, Jake Ribnik
  *
- * \version $Id: Muon.h,v 1.38 2007/12/13 07:32:39 dmytro Exp $
+ * \version $Id: Muon.h,v 1.36 2007/09/27 22:50:52 dmytro Exp $
  *
  */
 #include "DataFormats/RecoCandidate/interface/RecoCandidate.h"
 #include "DataFormats/MuonReco/interface/MuonChamberMatch.h"
 #include "DataFormats/MuonReco/interface/MuonIsolation.h"
 #include "DataFormats/MuonReco/interface/MuonEnergy.h"
-#include "DataFormats/MuonReco/interface/MuonTime.h"
 
 namespace reco {
  
@@ -47,34 +46,27 @@ namespace reco {
     /// energy deposition
     bool isEnergyValid() const { return energyValid_; }
     /// get energy deposition information
-    MuonEnergy calEnergy() const { return calEnergy_; }
+    MuonEnergy getCalEnergy() const { return calEnergy_; }
     /// set energy deposition information
     void setCalEnergy( const MuonEnergy& calEnergy ) { calEnergy_ = calEnergy; energyValid_ = true; }
-    
-    /// timing information
-    bool isTimeValid() const { return timeValid_; }
-    /// get timing information
-    MuonTime time() const { return time_; }
-    /// set timing information
-    void setTime( const MuonTime& time ) { time_ = time; timeValid_ = true; }
      
     bool isMatchesValid() const { return matchesValid_; }
     /// get muon matching information
-    std::vector<MuonChamberMatch>& matches() { return muMatches_;}
-    const std::vector<MuonChamberMatch>& matches() const { return muMatches_;	}
+    std::vector<MuonChamberMatch>& getMatches() { return muMatches_;}
+    const std::vector<MuonChamberMatch>& getMatches() const { return muMatches_;	}
     /// set muon matching information
     void setMatches( const std::vector<MuonChamberMatch>& matches ) { muMatches_ = matches; matchesValid_ = true; }
      
     /// Muon hypothesis compatibility block
     /// Relative likelihood based on ECAL, HCAL, HO energy defined as
     /// L_muon/(L_muon+L_not_muon)
-    float caloCompatibility() const { return caloCompatibility_; }
+    float getCaloCompatibility() const { return caloCompatibility_; }
     void  setCaloCompatibility(float input){ caloCompatibility_ = input; }
     bool  isCaloCompatibilityValid() const { return caloCompatibility_>=0; } 
     
     /// Summary of muon isolation information 
-    const MuonIsolation& isolationR03() const { return isolationR03_; }
-    const MuonIsolation& isolationR05() const { return isolationR05_; }
+    const MuonIsolation& getIsolationR03() const { return isolationR03_; }
+    const MuonIsolation& getIsolationR05() const { return isolationR05_; }
     void setIsolation( const MuonIsolation& isoR03, const MuonIsolation& isoR05 );
     bool isIsolationValid() const { return isolationValid_; }
      
@@ -100,7 +92,7 @@ namespace reco {
     static const unsigned int StandAloneMuon =  1<<3;
     static const unsigned int CaloMuon =  1<<4;
     void setType( unsigned int type ) { type_ = type; }
-    unsigned int type() const { return type_; }
+    unsigned int getType() const { return type_; }
     bool isGlobalMuon()     const { return type_ & GlobalMuon; }
     bool isTrackerMuon()    const { return type_ & TrackerMuon; }
     bool isStandAloneMuon() const { return type_ & StandAloneMuon; }
@@ -119,11 +111,10 @@ namespace reco {
     MuonEnergy calEnergy_;
     /// Information on matching between tracks and segments
     std::vector<MuonChamberMatch> muMatches_;
-    /// timing
-    MuonTime time_;
-     
+    /// vector of references to traversed towers. Could be useful for
+    /// correcting the missing transverse energy.  
+    CaloTowerRefs traversedTowers_;
     bool energyValid_;
-    bool timeValid_;
     bool matchesValid_;
     bool isolationValid_;
     /// muon hypothesis compatibility with observer calorimeter energy
@@ -137,9 +128,9 @@ namespace reco {
     // FixMe: Still missing trigger information
 
     /// get vector of muon chambers for given station and detector
-    const std::vector<const MuonChamberMatch*> chambers( int station, int muonSubdetId ) const;
+    const std::vector<const MuonChamberMatch*> getChambers( int station, int muonSubdetId ) const;
     /// get pointers to best segment and corresponding chamber in vector of chambers
-    std::pair<const MuonChamberMatch*,const MuonSegmentMatch*> pair( const std::vector<const MuonChamberMatch*> &,
+    std::pair<const MuonChamberMatch*,const MuonSegmentMatch*> getPair( const std::vector<const MuonChamberMatch*>,
 									ArbitrationType type = SegmentArbitration ) const;
      
    public:
@@ -181,19 +172,7 @@ namespace reco {
      float trackDyDzErr ( int station, int muonSubdetId, ArbitrationType type = SegmentArbitration ) const;
      float trackDist    ( int station, int muonSubdetId, ArbitrationType type = SegmentArbitration ) const;
      float trackDistErr ( int station, int muonSubdetId, ArbitrationType type = SegmentArbitration ) const;
-     
-     float t0(int n=0) {
-	int i = 0;
-	for( std::vector<MuonChamberMatch>::const_iterator chamber = muMatches_.begin();
-	     chamber != muMatches_.end(); ++chamber )
-	  for ( std::vector<reco::MuonSegmentMatch>::const_iterator segment = chamber->segmentMatches.begin();
-		segment != chamber->segmentMatches.end(); ++segment )
-	    {
-	       if (i==n) return segment->t0;
-	       ++i;
-	    }
-	return 0;
-     }
+
   };
 
 }

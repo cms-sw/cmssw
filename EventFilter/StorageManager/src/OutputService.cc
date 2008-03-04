@@ -1,9 +1,8 @@
-// $Id: OutputService.cc,v 1.1 2007/02/05 11:19:57 klute Exp $
+// $Id: OutputService.cc,v 1.2 2007/02/05 16:39:41 klute Exp $
 
 #include <EventFilter/StorageManager/interface/OutputService.h>
 
 #include <iostream>
-#include <string>
 #include <sys/time.h> 
  
 using namespace edm;

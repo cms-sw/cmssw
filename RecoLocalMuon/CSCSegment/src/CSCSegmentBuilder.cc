@@ -1,8 +1,8 @@
 
 /** \file CSCSegmentBuilder.cc
  *
- * $Date: 2007/08/16 07:08:27 $
- * $Revision: 1.12 $
+ * $Date: 2006/11/15 16:52:48 $
+ * $Revision: 1.11 $
  * \author M. Sani
  *
  *
@@ -36,22 +36,21 @@ CSCSegmentBuilder::CSCSegmentBuilder(const edm::ParameterSet& ps) : geom_(0) {
         
     // SegAlgo parameter set
     std::vector<edm::ParameterSet> segAlgoPSet = algoPSets[chosenAlgo].getParameter<std::vector<edm::ParameterSet> >("algo_psets");
-
-    // Chamber types to handle
-    std::vector<std::string> chType = algoPSets[chosenAlgo].getParameter<std::vector<std::string> >("chamber_type");
-
+        
     // Algo to chamber type 
     std::vector<int> algoToType = algoPSets[chosenAlgo].getParameter<std::vector<int> >("parameters_per_chamber_type");
 
     // Trap if we don't have enough parameter sets or haven't assigned an algo to every type   
-    if (algoToType.size() !=  chType.size()) {
+    if (algoToType.size() != 9) {
         throw cms::Exception("ParameterSetError") << 
-	  "#dim algosToType=" << algoToType.size() << ", #dim chType=" << chType.size() << std::endl;
+            "#dim algosToType=" << algoToType.size() << ", # chamber types=9" << std::endl;
     }
 
     // Ask factory to build this algorithm, giving it appropriate ParameterSet
+    std::string chType[] = {"ME1/a", "ME1/b", "ME1/2", "ME1/3",
+            "ME2/1", "ME2/2", "ME3/1", "ME3/2", "ME4/1"};
             
-    for (size_t j=0; j<chType.size(); ++j) 		
+    for (size_t j=0; j<9; j++) 		
         algoMap[chType[j]] = CSCSegmentBuilderPluginFactory::get()->
                 create(algoName, segAlgoPSet[algoToType[j]-1]);
 }

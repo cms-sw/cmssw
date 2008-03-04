@@ -30,11 +30,11 @@ class TrackAssociatorByHits : public TrackAssociatorBase {
   
 /* Associate SimTracks to RecoTracks By Hits */
 
-  reco::RecoToSimCollection associateRecoToSim (edm::Handle<edm::View<reco::Track> >&, 
+  reco::RecoToSimCollection associateRecoToSim (edm::Handle<reco::TrackCollection>&, 
 						edm::Handle<TrackingParticleCollection>&, 
 						const edm::Event * event = 0) const;
   
-  reco::SimToRecoCollection associateSimToReco (edm::Handle<edm::View<reco::Track> >&, 
+  reco::SimToRecoCollection associateSimToReco (edm::Handle<reco::TrackCollection>&, 
 						edm::Handle<TrackingParticleCollection>&, 
 						const edm::Event * event = 0) const;
 

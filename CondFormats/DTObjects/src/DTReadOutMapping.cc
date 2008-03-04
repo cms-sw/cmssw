@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2007/11/24 12:29:12 $
- *  $Revision: 1.14.6.3 $
+ *  $Date: 2007/12/07 15:00:51 $
+ *  $Revision: 1.16 $
  *  \author Paolo Ronchese INFN Padova
  *
  */
@@ -21,6 +21,7 @@
 // C++ Headers --
 //---------------
 #include <iostream>
+#include <sstream>
 
 //-------------------
 // Initializations --
@@ -325,20 +326,30 @@ DTReadOutMapping::const_iterator DTReadOutMapping::end() const {
 
 
 std::string DTReadOutMapping::mapNameGR() const {
+/*
   std::string name = cellMapVersion + "_" + robMapVersion + "_map_GR";
   char nptr[100];
   sprintf( nptr, "%x", reinterpret_cast<unsigned int>( this ) );
   name += nptr;
   return name;
+*/
+  std::stringstream name;
+  name << cellMapVersion << "_" << robMapVersion << "_map_GR" << this;
+  return name.str();
 }
 
 
 std::string DTReadOutMapping::mapNameRG() const {
+/*
   std::string name = cellMapVersion + "_" + robMapVersion + "_map_RG";
   char nptr[100];
   sprintf( nptr, "%x", reinterpret_cast<unsigned int>( this ) );
   name += nptr;
   return name;
+*/
+  std::stringstream name;
+  name << cellMapVersion << "_" << robMapVersion << "_map_RG" << this;
+  return name.str();
 }
 
 

@@ -1,8 +1,8 @@
 #include "GeneratorInterface/Pythia6Interface/interface/TauolaInterface.h"
 
 /*
- *  $Date: 2007/04/30 09:39:31 $
- *  $Revision: 1.2 $
+ *  $Date: 2008/02/04 23:20:42 $
+ *  $Revision: 1.4 $
  *  
  *  Christian Veelken
  *   04/17/07
@@ -12,8 +12,11 @@
 #include <stdio.h>
 #include <iostream>
 
-//#include "CLHEP/HepMC/include/PythiaWrapper6_2.h"
-#include "GeneratorInterface/Pythia6Interface/interface/PythiaWrapper6_2.h"
+#include <math.h>
+
+// #include "CLHEP/HepMC/include/PythiaWrapper6_2.h"
+// #include "GeneratorInterface/Pythia6Interface/interface/PythiaWrapper6_2.h"
+#include "HepMC/PythiaWrapper6_2.h"
 #include "GeneratorInterface/CommonInterface/interface/TauolaWrapper.h"
 
 using namespace edm;
@@ -31,6 +34,8 @@ TauolaInterface::TauolaInterface()
 //--- per default,
 //    enable polarization effects in tau lepton decays
   keypol_ = 1;
+  
+  // switch_photos_ = 0 ;
 }
 
 TauolaInterface::~TauolaInterface()
@@ -66,6 +71,7 @@ void TauolaInterface::initialize()
     break;
   case 1 :
     call_taurep(-2);
+    // libra.ifphot = switch_photos_ ;
     call_tauola_srs(mode, keypol_);
     break;
   }
@@ -105,11 +111,12 @@ void TauolaInterface::processEvent()
     call_tauola_srs(mode, keypol_);
     break;
   }
-  
+    
 //--- determine number of entries in HEPEVT common block **after** calling TAUOLA
   if ( debug_ ) std::cout << "determining number of generated particles **after** calling TAUOLA..." << std::endl;
   //int dummy = -1;
   int numGenParticles_afterTAUOLA = call_ihepdim(dummy);
+
 
 //--- convert back HEPEVT to PYJETS common block structure
   if ( debug_ ) std::cout << "converting back HEPEVT to PYJETS common block structure..." << std::endl;
@@ -125,7 +132,9 @@ void TauolaInterface::processEvent()
 //--- simulated further decay of unstable hadrons 
 //    produced in tau decay
   if ( debug_ ) std::cout << "decaying unstable hadrons produced in tau decay..." << std::endl;
+
   int numGenParticles_afterUnstableHadronDecays = decayUnstableHadrons(numGenParticles_beforeTAUOLA, numGenParticles_afterTAUOLA);
+
 
 //--- set production vertex for tau decay products,
 //    taking into account tau lifetime of c tau = 87 um
@@ -137,6 +146,7 @@ void TauolaInterface::processEvent()
 //    produced in tau decay
 //  if ( debug_ ) std::cout << "decaying unstable hadrons produced in tau decay..." << std::endl;
 //  decayUnstableHadrons(numGenParticles_beforeTAUOLA, numGenParticles_afterTAUOLA);
+
 
 //--- print list of particles
   if ( debug_ > 1 ) {

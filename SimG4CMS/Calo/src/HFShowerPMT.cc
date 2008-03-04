@@ -105,11 +105,11 @@ double HFShowerPMT::getHits(G4Step * aStep) {
   int                 boxNo   = touch->GetReplicaNumber(2);
   int                 pmtNo   = touch->GetReplicaNumber(1);
   if (boxNo <= 1) {
-    indexR = pmtR1[pmtNo];
-    indexF = pmtFib1[pmtNo];
+    indexR = pmtR1[pmtNo-1];
+    indexF = pmtFib1[pmtNo-1];
   } else {
-    indexR = pmtR2[pmtNo];
-    indexF = pmtFib2[pmtNo];
+    indexR = pmtR2[pmtNo-1];
+    indexF = pmtFib2[pmtNo-1];
   }
 
   LogDebug("HFShower") << "HFShowerPMT: Box " << boxNo << " PMT "
@@ -123,7 +123,11 @@ double HFShowerPMT::getHits(G4Step * aStep) {
 double HFShowerPMT::getRadius() {
    
   double r = 0.;
-  if (indexR >= 0) r = 0.5*(rTable[indexR]+rTable[indexR+1]);
+  if (indexR >= 0 && indexR+1 < (int)(rTable.size()))
+    r = 0.5*(rTable[indexR]+rTable[indexR+1]);
+  else
+    LogDebug("HFShower") << "HFShowerPMT::getRadius: R " << indexR
+			 << " F " << indexF;
   if (indexF > 3)  r =-r;
   LogDebug("HFShower") << "HFShower: Radius (" << indexR << "/" << indexF 
 		       << ") " << r;

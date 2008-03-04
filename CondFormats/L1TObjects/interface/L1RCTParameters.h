@@ -38,7 +38,6 @@ class L1RCTParameters {
 		  double eActivityCut,
 		  double hActivityCut,
 		  double eicIsolationThreshold,
-		  bool ignoreHcalIfNoEcalMip,
 		  std::vector<double> eGammaECalScaleFactors,
 		  std::vector<double> eGammaHCalScaleFactors,
 		  std::vector<double> jetMETECalScaleFactors,
@@ -60,7 +59,6 @@ class L1RCTParameters {
   double eActivityCut() const {return eActivityCut_;}
   double hActivityCut() const {return hActivityCut_;}
   double eicIsolationThreshold() const {return eicIsolationThreshold_;}
-  bool ignoreHcalIfNoEcalMip() const {return ignoreHcalIfNoEcalMip_;}
   std::vector<double> eGammaECalScaleFactors() const {return eGammaECalScaleFactors_;}
   std::vector<double> eGammaHCalScaleFactors() const {return eGammaHCalScaleFactors_;}
   std::vector<double> jetMETECalScaleFactors() const {return jetMETECalScaleFactors_;}
@@ -130,11 +128,6 @@ class L1RCTParameters {
   // the electron candidate is isolated.
 
   double eicIsolationThreshold_;
-
-  // Ignores HCAL energy if no ECAL energy in corresponding
-  // tower -- to reduce HCAL noise
-
-  bool ignoreHcalIfNoEcalMip_;
 
   // eGamma object ET is computed using the trigger tower ET defined as
   // ecal * eGammaECalScaleFactors[iEta] + hcal * eGammaHCalScaleFactors[iEta]

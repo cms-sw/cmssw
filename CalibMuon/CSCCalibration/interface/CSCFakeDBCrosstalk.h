@@ -23,7 +23,6 @@ class CSCFakeDBCrosstalk: public edm::ESProducer, public edm::EventSetupRecordIn
   
   float mean,min,minchi;
   int seed;long int M;
-  int ii,jj,iii,jjj;
 
   void prefillDBFakeCrosstalk();
   

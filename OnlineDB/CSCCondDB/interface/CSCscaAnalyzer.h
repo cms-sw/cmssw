@@ -57,17 +57,17 @@ class CSCscaAnalyzer : public edm::EDAnalyzer {
   int value_adc[DDU_sca][CHAMBERS_sca][LAYERS_sca][STRIPS_sca][Number_sca];
   int scaNr[DDU_sca][CHAMBERS_sca][LAYERS_sca][STRIPS_sca];
   float value_adc_mean[DDU_sca][CHAMBERS_sca][LAYERS_sca][STRIPS_sca][Number_sca];
-  int count_adc_mean[DDU_sca][CHAMBERS_sca][LAYERS_sca][STRIPS_sca][Number_sca],count_adc[DDU_sca][CHAMBERS_sca][LAYERS_sca][STRIPS_sca][Number_sca];
-  float div[DDU_sca][CHAMBERS_sca][LAYERS_sca][STRIPS_sca][Number_sca],sum_weightSCAnr[DDU_sca][CHAMBERS_sca][LAYERS_sca][STRIPS_sca][Number_sca];
+  int count_adc_mean[DDU_sca][CHAMBERS_sca][LAYERS_sca][STRIPS_sca][Number_sca];
+  float div[DDU_sca][CHAMBERS_sca][LAYERS_sca][STRIPS_sca][Number_sca];
   std::vector<int> adc;
   std::string chamber_id;
   int lines,myIndex;
   std::ifstream filein;
   std::string PSet,name,chamber_type;
   bool debug;
-  int flag,counterzero,maxStrip,counter;
+  int flag,my_scaValue,counterzero,maxStrip,counter;
   unsigned int maxDDU;
-  float pedMean,my_scaValueMean,my_scaValue;
+  float pedMean,my_scaValueMean;
   int scaBlock,trigTime,lctPhase,power,cap,scaNumber,myNcham;
 
   //root ntuple

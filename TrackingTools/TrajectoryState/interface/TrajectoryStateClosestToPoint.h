@@ -1,12 +1,16 @@
 #ifndef TrajectoryStateClosestToPoint_H
 #define TrajectoryStateClosestToPoint_H
 
+#include "DataFormats/CLHEP/interface/AlgebraicObjects.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
 #include "TrackingTools/TrajectoryState/interface/FreeTrajectoryState.h"
 #include "TrackingTools/TrajectoryParametrization/interface/PerigeeTrajectoryParameters.h"
 #include "TrackingTools/TrajectoryParametrization/interface/PerigeeTrajectoryError.h"
 #include "TrackingTools/TrajectoryState/interface/PerigeeConversions.h"
 #include "TrackingTools/TrajectoryParametrization/interface/TrajectoryStateExceptions.h"
+#include "MagneticField/Engine/interface/MagneticField.h"
+#include "DataFormats/Math/interface/Vector.h"
+#include "DataFormats/Math/interface/Error.h"
 
 /**
  * Trajectory state defined at a given point on the helix, which is 

@@ -5,8 +5,7 @@
 #include "DataFormats/MuonReco/interface/Direction.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
-#include "DataFormats/Common/interface/View.h"
-#include <list>
+
 
 namespace muonisolation {
 
@@ -14,11 +13,11 @@ class TrackSelector {
 public:
 
   typedef muonisolation::Range<float> Range;
-  typedef std::list<const reco::Track*> result_type;
-  typedef edm::View<reco::Track> input_type;
+  typedef reco::TrackBase::Point BeamPoint;
 
-  TrackSelector(const Range & z, float r, const Direction &dir, float drMax);
-  result_type operator()(const input_type & tracks) const;
+  TrackSelector(const Range & z, float r, const Direction &dir, float drMax,
+		const BeamPoint& point = BeamPoint(0,0,0));
+  reco::TrackCollection operator()(const reco::TrackCollection & tracks) const;
 
 
 private:
@@ -26,6 +25,8 @@ private:
   Range theR;
   Direction theDir;
   float theDR_Max;
+
+  BeamPoint theBeamPoint;
 
 }; 
 

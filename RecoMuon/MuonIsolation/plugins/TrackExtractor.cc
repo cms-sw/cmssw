@@ -4,10 +4,10 @@
 #include "DataFormats/MuonReco/interface/Direction.h"
 #include "TrackSelector.h"
 #include "DataFormats/Common/interface/Handle.h"
-#include "DataFormats/Common/interface/View.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "DataFormats/BeamSpot/interface/BeamSpot.h"
 
 using namespace edm;
 using namespace std;
@@ -20,7 +20,12 @@ TrackExtractor::TrackExtractor( const ParameterSet& par ) :
   theDiff_r(par.getParameter<double>("Diff_r")),
   theDiff_z(par.getParameter<double>("Diff_z")),
   theDR_Max(par.getParameter<double>("DR_Max")),
-  theDR_Veto(par.getParameter<double>("DR_Veto"))
+  theDR_Veto(par.getParameter<double>("DR_Veto")),
+  //will make it configurable in 20X (or later 18X?)
+  //   theBeamlineOption(par.getParameter<string>("BeamlineOption")),
+  //   theBeamSpotLabel(par.getParameter<edm::InputTag>("BeamSpotLabel"))
+  theBeamlineOption("BeamSpotFromEvent"),
+  theBeamSpotLabel("offlineBeamSpot")
 {
 }
 
@@ -48,22 +53,38 @@ MuIsoDeposit TrackExtractor::deposit(const Event & event, const EventSetup & eve
   deposit.setVeto( veto(muonDir) );
   deposit.addMuonEnergy(muon.pt());
 
-  Handle<View<Track> > tracksH;
+  Handle<TrackCollection> tracksH;
   event.getByLabel(theTrackCollectionTag, tracksH);
-  //  const TrackCollection tracks = *(tracksH.product());
-  LogTrace(metname)<<"***** TRACK COLLECTION SIZE: "<<tracksH->size();
+  const TrackCollection tracks = *(tracksH.product());
+  LogTrace(metname)<<"***** TRACK COLLECTION SIZE: "<<tracks.size();
 
   double vtx_z = muon.vz();
   LogTrace(metname)<<"***** Muon vz: "<<vtx_z;
+  
+  reco::TrackBase::Point beamPoint(0,0, 0);
+
+  if (theBeamlineOption.compare("BeamSpotFromEvent") == 0){
+    //pick beamSpot
+    reco::BeamSpot beamSpot;
+    edm::Handle<reco::BeamSpot> beamSpotH;
+    
+    event.getByLabel(theBeamSpotLabel,beamSpotH);
+
+    if (beamSpotH.isValid()){
+      beamPoint = beamSpotH->position();
+      LogTrace(metname)<<"Extracted beam point at "<<beamPoint<<std::endl;
+    }
+  }
+
+  LogTrace(metname)<<"Using beam point at "<<beamPoint<<std::endl;
   TrackSelector selection(TrackSelector::Range(vtx_z-theDiff_z, vtx_z+theDiff_z),
-       theDiff_r, muonDir, theDR_Max);
-  TrackSelector::result_type sel_tracks = selection(*tracksH);
-  LogTrace(metname)<<"all tracks: "<<tracksH->size()<<" selected: "<<sel_tracks.size();
+			  theDiff_r, muonDir, theDR_Max, beamPoint);
+  TrackCollection sel_tracks = selection(tracks);
+  LogTrace(metname)<<"all tracks: "<<tracks.size()<<" selected: "<<sel_tracks.size();
 
   
-  TrackSelector::result_type::const_iterator tkI = sel_tracks.begin();
-  for (; tkI != sel_tracks.end(); ++tkI) {
-    const reco::Track* tk = *tkI;
+  TrackCollection::const_iterator tk;
+  for (tk = sel_tracks.begin(); tk != sel_tracks.end(); tk++) {
     LogTrace(metname) << "This track has: pt= " << tk->pt() << ", eta= " 
         << tk->eta() <<", phi= "<<tk->phi();
     Direction dirTrk(tk->eta(), tk->phi());

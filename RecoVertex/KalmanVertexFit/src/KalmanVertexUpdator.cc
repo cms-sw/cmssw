@@ -17,13 +17,10 @@ CachingVertex<N> KalmanVertexUpdator<N>::update(const  CachingVertex<N> & oldVer
 
   VertexState newVertexState = positionUpdate(oldVertex.vertexState(), 
 			  	track->linearizedTrack(), weight, sign);
-  if (!newVertexState.isValid()) return CachingVertex<N>();
 
   float chi1 = oldVertex.totalChiSquared();
   float chi2 = chi2Increment(oldVertex.vertexState(), newVertexState, 
                              track->linearizedTrack() , weight );
-  if (chi2<0.) return CachingVertex<N>(); // return invalid vertex
-
   chi1 +=sign * chi2;
 
 //adding or removing track from the CachingVertex::VertexTracks
@@ -37,12 +34,11 @@ CachingVertex<N> KalmanVertexUpdator<N>::update(const  CachingVertex<N> & oldVer
       = find(newVertexTracks.begin(), newVertexTracks.end(), track);
     if (pos != newVertexTracks.end()) {
       newVertexTracks.erase(pos);
-    } else {
-      cout<<"KalmanVertexUpdator::Unable to find requested track in the current vertex"<<endl;
-      throw VertexException("KalmanVertexUpdator::Unable to find requested track in the current vertex");
-    }
+   }else{
+     cout<<"KalmanVertexUpdator::Unable to find requested track in the current vertex"<<endl;
+     throw VertexException("KalmanVertexUpdator::Unable to find requested track in the current vertex");
+   }
   }
-
   if  (oldVertex.hasPrior()) {
     return CachingVertex<N>( oldVertex.priorVertexState(),
                           newVertexState, newVertexTracks, chi1);
@@ -116,10 +112,8 @@ KalmanVertexUpdator<N>::positionUpdate (const VertexState & oldVertex,
 //   AlgebraicSymMatrix33 oldVertexWeight = oldVertex.weight().matrix_new();
   AlgebraicSymMatrixMM s = ROOT::Math::SimilarityT(b,trackParametersWeight);
   ifail = ! s.Invert(); 
-  if(ifail != 0) {
-    edm::LogWarning("KalmanVertexUpdator") << "S matrix inversion failed";
-    return VertexState();
-  }
+  if(ifail != 0) throw VertexException
+                       ("KalmanVertexUpdator::S matrix inversion failed");
 
   AlgebraicSymMatrixNN gB = trackParametersWeight -
        ROOT::Math::Similarity(trackParametersWeight, ROOT::Math::Similarity(b,s));
@@ -171,20 +165,19 @@ double KalmanVertexUpdator<N>::chi2Increment(const VertexState & oldVertex,
 
   AlgebraicSymMatrixMM s = ROOT::Math::SimilarityT(b,trackParametersWeight);
   bool ret = s.Invert(); 
-  if(!ret) {
-    edm::LogWarning("KalmanVertexUpdator") << "S matrix inversion failed";
-    return -1.;
-  }
+  if(!ret) throw VertexException
+                       ("KalmanVertexUpdator::S matrix inversion failed");
 
   const AlgebraicVectorN & theResidual = linearizedTrack->constantTerm();
   AlgebraicVectorM newTrackMomentumP =  s * ROOT::Math::Transpose(b) * trackParametersWeight *
     (trackParameters - theResidual - a*newVertexPositionV);
 
 
-//   AlgebraicVectorN rtp = ( theResidual +  a * newVertexPositionV + b * newTrackMomentumP);
+  AlgebraicVectorN rtp = ( theResidual +  a * newVertexPositionV + b * newTrackMomentumP);
 
-  AlgebraicVectorN parameterResiduals = trackParameters -
-	( theResidual +  a * newVertexPositionV + b * newTrackMomentumP);
+  AlgebraicVectorN parameterResiduals = trackParameters - rtp;
+  if (parameterResiduals(2) >  M_PI) parameterResiduals(2)-= 2*M_PI;
+  if (parameterResiduals(2) < -M_PI) parameterResiduals(2)+= 2*M_PI;
 
   double chi2 = weight * ROOT::Math::Similarity(parameterResiduals, trackParametersWeight);
 

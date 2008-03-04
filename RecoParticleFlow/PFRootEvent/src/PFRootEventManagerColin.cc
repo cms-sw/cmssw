@@ -105,9 +105,6 @@ bool PFRootEventManagerColin::processEntry(int entry) {
   outTreeMy_->Fill();
 
 
-  outTreeMy_->Fill();
-
-
   return rvalue;
 }
 

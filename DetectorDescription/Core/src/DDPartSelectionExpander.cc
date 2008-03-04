@@ -1,7 +1,6 @@
 
 
 #include "DetectorDescription/Core/interface/DDPartSelectionExpander.h"
-#include "DetectorDescription/Core/interface/DDCompactView.h"
 
 #include <iostream>
 #include <cassert>

@@ -20,7 +20,6 @@ HcalMonitorClient::~HcalMonitorClient(){
   if( led_client_ )        delete led_client_;
   if( hot_client_ )        delete hot_client_;
   if( dead_client_ )       delete dead_client_;
-  if( tp_client_ )         delete tp_client_;
   if( mui_ )               delete mui_;
 }
 
@@ -37,7 +36,6 @@ void HcalMonitorClient::initialize(const ParameterSet& ps){
   dataformat_client_ = 0; digi_client_ = 0;
   rechit_client_ = 0; pedestal_client_ = 0;
   led_client_ = 0; hot_client_ = 0; dead_client_=0;
-  tp_client_=0;
   lastResetTime_=0;
 
   debug_ = ps.getUntrackedParameter<bool>("debug", false);
@@ -135,11 +133,6 @@ void HcalMonitorClient::initialize(const ParameterSet& ps){
     dead_client_          = new HcalDeadCellClient();
     dead_client_->init(ps, dbe_,"DeadCellClient");
   }
-  if( ps.getUntrackedParameter<bool>("TrigPrimClient", false) ){
-    if(debug_)   cout << "===>DQM TrigPim Client is ON" << endl;
-    tp_client_          = new HcalTrigPrimClient();
-    tp_client_->init(ps, dbe_,"TrigPrimClient");
-  }
 
   dqm_db_ = new HcalHotCellDbInterface(); 
 
@@ -201,7 +194,6 @@ void HcalMonitorClient::resetAllME() {
   if( led_client_ )        led_client_->resetAllME();
   if( hot_client_ )        hot_client_->resetAllME();
   if( dead_client_ )       dead_client_->resetAllME();
-  if( tp_client_ )         tp_client_->resetAllME();
   return;
 }
 
@@ -219,7 +211,6 @@ void HcalMonitorClient::beginJob(const EventSetup& c){
   if( led_client_ )        led_client_->beginJob(c);
   if( hot_client_ )        hot_client_->beginJob();
   if( dead_client_ )       dead_client_->beginJob();
-  if( tp_client_ )         tp_client_->beginJob();
 
   return;
 }
@@ -237,7 +228,6 @@ void HcalMonitorClient::beginRun(const Run& r, const EventSetup& c) {
   if( led_client_ )        led_client_->beginRun();
   if( hot_client_ )        hot_client_->beginRun();
   if( dead_client_ )       dead_client_->beginRun();
-  if( tp_client_ )         tp_client_->beginRun();
 
   return;
 }
@@ -254,7 +244,6 @@ void HcalMonitorClient::endJob(void) {
   if( dead_client_ )           dead_client_->endJob();
   if( pedestal_client_ )       pedestal_client_->endJob();
   if( led_client_ )            led_client_->endJob();
-  if( tp_client_ )             tp_client_->endJob();
 
   /*
   ///Don't leave this here!!!  FIX ME!
@@ -339,7 +328,6 @@ void HcalMonitorClient::endRun(const Run& r, const EventSetup& c) {
   if( rechit_client_ )      rechit_client_->endRun();
   if( pedestal_client_ )    pedestal_client_->endRun();
   if( led_client_ )         led_client_->endRun();
-  if( tp_client_ )          tp_client_->endRun();
 
   // this is an effective way to avoid ROOT memory leaks ...
   if( enableExit_ ) {
@@ -411,11 +399,8 @@ void HcalMonitorClient::analyze(){
   if( rechit_client_ )     rechit_client_->analyze(); 
   if( pedestal_client_ )   pedestal_client_->analyze();      
   if( led_client_ )        led_client_->analyze(); 
-  if( hot_client_ )        hot_client_->analyze(); 
-  if( dead_client_ )       dead_client_->analyze(); 
-  if( tp_client_ )         tp_client_->analyze(); 
-
-  errorSummary();
+  if( hot_client_ )         hot_client_->analyze(); 
+  if( dead_client_ )         dead_client_->analyze(); 
 
   return;
 }
@@ -431,8 +416,7 @@ void HcalMonitorClient::createTests(void){
   if( pedestal_client_ )   pedestal_client_->createTests(); 
   if( led_client_ )        led_client_->createTests(); 
   if( hot_client_ )        hot_client_->createTests(); 
-  if( dead_client_ )       dead_client_->createTests(); 
-  if( tp_client_ )         tp_client_->createTests(); 
+  if( dead_client_ )        dead_client_->createTests(); 
 
   return;
 }
@@ -455,41 +439,33 @@ void HcalMonitorClient::report(bool doUpdate) {
   if( rechit_client_ ) rechit_client_->report();
   if( hot_client_ ) hot_client_->report();
   if( dead_client_ ) dead_client_->report();
-  if( tp_client_ ) tp_client_->report();
-
-  errorSummary();
-
-  //create html output if specified...
-  if( baseHtmlDir_.size() != 0 && ievt_>0) htmlOutput();
-
-  return;
-}
-
-void HcalMonitorClient::errorSummary(){
   
+
   ///Collect test summary information
-  int nTests=0;
   map<string, vector<QReport*> > errE, errW, errO;
-  if( hot_client_ )        hot_client_->getTestResults(nTests,errE,errW,errO);
-  if( dead_client_ )       dead_client_->getTestResults(nTests,errE,errW,errO);
-  if( led_client_ )        led_client_->getTestResults(nTests,errE,errW,errO);
-  if( tp_client_ )         tp_client_->getTestResults(nTests,errE,errW,errO);
-  if( pedestal_client_ )   pedestal_client_->getTestResults(nTests,errE,errW,errO);
-  if( digi_client_ )       digi_client_->getTestResults(nTests,errE,errW,errO);
-  if( rechit_client_ )     rechit_client_->getTestResults(nTests,errE,errW,errO);
+  int nTests=0;
+  if( hot_client_ ) hot_client_->getTestResults(nTests,errE,errW,errO);
+  if( dead_client_ ) dead_client_->getTestResults(nTests,errE,errW,errO);
+  if( led_client_ ) led_client_->getTestResults(nTests,errE,errW,errO);
+  if( pedestal_client_ ) pedestal_client_->getTestResults(nTests,errE,errW,errO);
+  if( digi_client_ ) digi_client_->getTestResults(nTests,errE,errW,errO);
+  if( rechit_client_ ) rechit_client_->getTestResults(nTests,errE,errW,errO);
   if( dataformat_client_ ) dataformat_client_->getTestResults(nTests,errE,errW,errO);
-  
+
   //For now, report the fraction of good tests....
   float errorSummary = 1.0;
   if(nTests>0) errorSummary = 1.0 - (float(errE.size())+float(errW.size()))/float(nTests);
-  
+    
   cout << "Hcal DQM Error Summary ("<< errorSummary <<"): "<< nTests << " tests, "<<errE.size() << " errors, " <<errW.size() << " warnings, "<< errO.size() << " others" << endl;
-  
+
   char meTitle[256];
   sprintf(meTitle,"%sEventInfo/errorSummary",rootFolder_.c_str() );
   MonitorElement* me = dbe_->get(meTitle);
   if(me) me->Fill(errorSummary);
-  
+
+  //create html output if specified...
+  if( baseHtmlDir_.size() != 0 && ievt_>0) htmlOutput();
+
   return;
 }
 
@@ -545,17 +521,6 @@ void HcalMonitorClient::htmlOutput(void){
     if(digi_client_->hasErrors()) htmlFile << "<td bgcolor=red align=center>This monitor task has errors.</td>" << endl;
     else if(digi_client_->hasWarnings()) htmlFile << "<td bgcolor=yellow align=center>This monitor task has warnings.</td>" << endl;
     else if(digi_client_->hasOther()) htmlFile << "<td bgcolor=aqua align=center>This monitor task has messages.</td>" << endl;
-    else htmlFile << "<td bgcolor=lime align=center>This monitor task has no problems</td>" << endl;
-    htmlFile << "</table>" << endl;
-  }
-  if( tp_client_ ) {
-    htmlName = "HcalTrigPrimClient.html";
-    tp_client_->htmlOutput(irun_, htmlDir, htmlName);
-    htmlFile << "<table border=0 WIDTH=\"50%\"><tr>" << endl;
-    htmlFile << "<td WIDTH=\"35%\"><a href=\"" << htmlName << "\">TrigPrim Monitor</a></td" << endl;
-    if(tp_client_->hasErrors()) htmlFile << "<td bgcolor=red align=center>This monitor task has errors.</td>" << endl;
-    else if(tp_client_->hasWarnings()) htmlFile << "<td bgcolor=yellow align=center>This monitor task has warnings.</td>" << endl;
-    else if(tp_client_->hasOther()) htmlFile << "<td bgcolor=aqua align=center>This monitor task has messages.</td>" << endl;
     else htmlFile << "<td bgcolor=lime align=center>This monitor task has no problems</td>" << endl;
     htmlFile << "</table>" << endl;
   }

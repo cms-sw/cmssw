@@ -13,7 +13,7 @@
 //
 // Original Author:  Domenico GIORDANO
 //         Created:  Wed Oct  3 12:11:10 CEST 2007
-// $Id: SiStripQualityStatistics.cc,v 1.8 2007/11/22 18:01:20 giordano Exp $
+// $Id: SiStripQualityStatistics.cc,v 1.7 2007/11/12 16:05:01 giordano Exp $
 //
 //
 #include "CalibTracker/Records/interface/SiStripQualityRcd.h"
@@ -67,18 +67,6 @@ void SiStripQualityStatistics::analyze( const edm::Event& e, const edm::EventSet
   if (tkMap)
     delete tkMap;
   tkMap=new TrackerMap( "BadComponents" );
-
-
-  ss.str(""); 
-  std::vector<uint32_t> detids=reader->getAllDetIds();
-  std::vector<uint32_t>::const_iterator idet=detids.begin();
-  for(;idet!=detids.end();++idet){
-    ss << "detid " << (*idet) << " IsModuleUsable " << SiStripQuality_->IsModuleUsable((*idet)) << "\n";
-    if (SiStripQuality_->IsModuleUsable((*idet)))
-      tkMap->fillc(*idet,0x00ff00);
-  }
-  LogDebug("SiStripQualityStatistics") << ss.str() << std::endl;
-
 
   std::vector<SiStripQuality::BadComponent> BC = SiStripQuality_->getBadComponentList();
   
@@ -230,7 +218,7 @@ void SiStripQualityStatistics::analyze( const edm::Event& e, const edm::EventSet
   std::string filetype=TkMapFileName_,filename=TkMapFileName_;
   std::stringstream sRun; sRun.str("");
   sRun << "_Run_"  << std::setw(6) << std::setfill('0')<< e.id().run() << std::setw(0) ;
-    
+  
   filename.insert(filename.find("."),sRun.str());
   tkMap->save(true,0,0,filename.c_str());
   filename.erase(filename.begin()+filename.find("."),filename.end());

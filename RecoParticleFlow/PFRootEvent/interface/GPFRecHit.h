@@ -22,11 +22,8 @@ class GPFRecHit : public GPFBase, public TGraph {
   virtual void     draw();
   double           getEnergy() { return en_;}
   std::string      getOption() { return option_;}
-  void             setColor();
   void             setColor(int newcolor);
   void             setInitialColor();
-  void             setNewStyle();
-  void             setNewSize();
     
   //overridden ROOT methods
   virtual void     Print();     // *MENU*

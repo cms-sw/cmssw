@@ -1,7 +1,7 @@
 /** \file 
  *
- *  $Date: 2007/12/18 21:29:03 $
- *  $Revision: 1.14 $
+ *  $Date: 2008/01/29 21:45:26 $
+ *  $Revision: 1.17 $
  *  \author N. Amapane - S. Argiro'
  */
 
@@ -22,6 +22,7 @@
 #include "FWCore/Framework/interface/RunPrincipal.h"
 
 #include <string>
+#include <iostream>
 #include <sys/time.h>
 
 
@@ -96,7 +97,10 @@ namespace edm {
     }
     EventID eventId;
     TimeValue_t time = 0LL;
-    gettimeofday((timeval *)(&time),0);
+    timeval stv;
+    gettimeofday(&stv,0);
+    time = stv.tv_sec;
+    time = (time << 32) + stv.tv_usec;
     Timestamp tstamp(time);
     
     // pass a 0 pointer to fillRawData()!
@@ -109,15 +113,19 @@ namespace edm {
       noMoreEvents_ = true;
       return IsStop;
     }
+    if (eventId.event() == 0) {
+      throw cms::Exception("LogicError")
+        << "The reader used with DaqSource has returned an invalid (zero) event number!\n"
+        << "Event numbers must begin at 1, not 0.";
+    }
     setTimestamp(tstamp);
-    if(fakeLSid_ && luminosityBlockNumber_ != (eventId.event()/lumiSegmentSizeInEvents_ + 1)) {
-	luminosityBlockNumber_ = eventId.event()/lumiSegmentSizeInEvents_ + 1;
+    if(fakeLSid_ && luminosityBlockNumber_ != ((eventId.event() - 1)/lumiSegmentSizeInEvents_ + 1)) {
+	luminosityBlockNumber_ = (eventId.event() - 1)/lumiSegmentSizeInEvents_ + 1;
         newLumi_ = true;
 	resetLuminosityBlockPrincipal();
     }
 
-    // Framework event numbers start at 1, not at zero.
-    eventId = EventID(runNumber_, eventId.event() + 1);
+    eventId = EventID(runNumber_, eventId.event());
     
     // If there is no luminosity block principal, make one.
     if (luminosityBlockPrincipal().get() == 0 || luminosityBlockPrincipal()->luminosityBlock() != luminosityBlockNumber_) {
@@ -153,6 +161,7 @@ namespace edm {
   void
   DaqSource::setRun(RunNumber_t r) {
     assert(ep_.get() == 0);
+    reset();
     newRun_ = newLumi_ = true;
     runNumber_ = r;
     noMoreEvents_ = false;

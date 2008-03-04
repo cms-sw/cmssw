@@ -218,8 +218,7 @@ void TestTrackHits::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
     vector<TrajectoryMeasurement> tmColl = it->measurements();
 
     edm::Ref<vector<Trajectory> >  traj(trajCollectionHandle, i);
-    reco::TrackRef tmptrack = (*trajTrackAssociationCollectionHandle.product())[traj];
-    edm::RefToBase<reco::Track> track(tmptrack);
+    reco::TrackRef track = (*trajTrackAssociationCollectionHandle.product())[traj];
     if (track->eta()>maxeta || track->eta()<mineta) continue;
 
     std::vector<std::pair<TrackingParticleRef, double> > tP;

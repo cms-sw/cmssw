@@ -1,0 +1,489 @@
+#!/usr/bin/env python
+"""
+_svSuite-run_
+
+Binary to scan the Validation package, find the SVSuiteSpec files and
+construct a list of workflows and jobs to be created.
+
+"""
+
+
+import os
+import sys
+import getopt
+import popen2
+import time
+
+
+from MCPayloads.WorkflowSpec import WorkflowSpec
+import MCPayloads.WorkflowTools as WorkflowTools
+from MCPayloads.UUID import uuidgen
+
+#  //
+# // Connection to ProdAgent
+#//
+from MessageService.MessageService import MessageService
+messageService = MessageService()
+messageService.registerAs("svSuite-bin")
+
+
+from SVSuite.Configuration import Configuration
+from SVSuite.SVSuiteSpec import loadSpecFile
+
+valid = ['scram-project-dir=',
+         'validation-package=', 'packages=', 'version=', 'specs=',
+         'input-dbs=',
+         'test-only', ]
+
+usage = \
+"""
+Usage: svSuite-run --version=<CMSSW Version>
+                   --validation-package=<Path to package>
+                   --packages=<Restricted Package List>
+                   --specs=<Restricted Spec List>
+                   --input-dbs=<DBS/DLS Instance> 
+ Options:
+   --version is required, it is the version you will be running the jobs with.
+    You also need a scram runtime environment setup for this version when
+    using this tool
+   --scram-project-dir is required and should be a scram project area for the
+    version you provided.
+   --validation-package is the location of the checked out Validation package
+    that you want to use to create jobs with. Default is to assume it is the
+    current working directory
+   --packages is an optional list of comma separated package names to run.
+    Eg --packages=Performance,GlobalHits will run only specs from those
+    packages
+   --specs is an optional list of comma separated spec names to be run.
+    Eg --specs=SVSuite-GlobalHits-Minbias,SVSuite-Performance-Minbias
+    will run only those specified tests
+ 
+"""
+try:
+    opts, args = getopt.getopt(sys.argv[1:], "", valid)
+except getopt.GetoptError, ex:
+    print usage
+    print str(ex)
+    sys.exit(1)
+
+
+validationPackage = os.getcwd()
+scramDir = None
+packages = None
+version = None
+timestamp = int(time.time())
+specList = None
+testMode = False
+inputDBS = None
+
+
+
+
+   
+
+
+for opt, arg in opts:
+    if opt == "--validation-package":
+        validationPackage = arg
+    if opt == "--version":
+        version = arg
+    if opt == "--scram-project-dir":
+        scramDir = arg
+    if opt == "--test-only":
+        testMode = True
+    if opt == '--input-dbs':
+        inputDBS = arg
+    if opt == "--packages":
+        packages = []
+        for pkg in arg.split(","):
+            if len(pkg.strip()) == 0:
+                continue
+            packages.append(pkg)
+    if opt == '--specs':
+        specList = []
+        for spec in arg.split(","):
+            if len(spec.strip()) == 0:
+                continue
+            specList.append(spec)
+
+
+
+
+inputDBSDLS = {
+    'DBSAddress': None,
+    'DBSURL' : None,
+    'DLSType' : None,
+    'DLSAddress' : None,
+    }
+
+
+
+if str(inputDBS).lower() not in ("none", "relval", "global"):
+    msg = "Unknown input DBS: %s\n" % inputDBS
+    msg += "Must be one of RelVal or Global if specified"
+    raise RuntimeError, msg
+
+
+if str(inputDBS).lower() == "global":
+    # Global DBS/DLS
+    print "Using Global DBS/DLS for input"
+    inputDBSDLS['DBSAddress'] = "MCGlobal/Writer"
+    inputDBSDLS['DBSURL'] = "http://cmsdbs.cern.ch/cms/prod/comp/DBS/CGIServer/prodquery"
+    inputDBSDLS['DLSType'] = "DLS_TYPE_DLI"
+    inputDBSDLS['DLSAddress'] = "prod-lfc-cms-central.cern.ch/grid/cms/DLS/LFC"
+elif str(inputDBS).lower() == "relval":
+    print "Using RelVal DBS/DLS for input"
+    # RelVal DBS/DLS
+    inputDBSDLS['DBSAddress'] = "RelVal/Writer"
+    inputDBSDLS['DBSURL'] = "http://cmsdbs.cern.ch/cms/prod/comp/DBS/CGIServer/prodquery"
+    inputDBSDLS['DLSType'] = "DLS_TYPE_DLI"
+    inputDBSDLS['DLSAddress'] = "prod-lfc-cms-central.cern.ch/grid/cms/DLS/RelVal"
+
+
+
+
+validationDir = os.path.join(validationPackage, "Validation")
+
+if not os.path.exists(validationDir):
+    msg = "Unable to find Validation Package:\n"
+    msg += "%s\n" % validationDir
+    msg += "Cannot proceed without valid location of Validation check out"
+    raise RuntimeError, msg
+
+
+if version == None:
+    msg = "--version argument not supplied\n"
+    msg += "This is a required option\n"
+    print usage
+    raise RuntimeError, msg
+
+reducedVersion = version.replace("CMSSW_", "")
+reducedVersion = reducedVersion.replace("_", "")
+
+
+if scramDir == None:
+    msg = "--scram-project-dir argument not supplied\n"
+    msg += "This is a required option\n"
+    print usage
+    raise RuntimeError, msg
+
+if not os.path.exists(scramDir):
+    msg = "Unable to find Scram Project Dir:\n"
+    msg += "%s\n" % scramDir
+    msg += "Cannot proceed without valid location of Scram Project Area"
+    raise RuntimeError, msg
+
+scanPackages = []
+
+if packages == None:
+    for dirname in os.listdir(validationDir):
+        print dirname
+        if os.path.exists(os.path.join(validationDir, dirname, "data/SVSuiteSpec.xml")):
+            scanPackages.append(dirname)
+
+else:
+    scanPackages = packages
+
+
+specFiles = {}
+
+for package in scanPackages:
+    specFile = os.path.join(validationDir, package,
+                            "data/SVSuiteSpec.xml")
+    if not os.path.exists(specFile):
+        msg = "Warning: Package %s specified " % package
+        msg += "but has no Spec File:\n"
+        msg += "%s\n" % specFile
+        msg += "Not including package..."
+        print msg
+        continue
+    specFiles[package] = specFile
+
+
+
+
+
+
+specs = []
+
+for pkg, specFile in specFiles.items():
+    try:
+        newSpecs = loadSpecFile(specFile)
+    except Exception, ex:
+        msg = "Error loading SpecFile: %s\n" % specFile
+        msg += "Details:\n %s" % str(ex)
+        raise RuntimeError, msg
+
+    for item in newSpecs:
+        item['Package'] = pkg
+
+    specs.extend(newSpecs)
+
+#  //
+# // Specific specs selected only
+#//
+if specList != None:
+    class Filter:
+        def __init__(self, validSpecs):
+            self.validSpecs = validSpecs
+        def __call__(self, item):
+            return item['Name'] in self.validSpecs   
+    specs = filter(Filter(specList), specs)
+
+
+
+def createPSetHash(cfgFile):
+    """
+    _createPSetHash_
+
+    Run the EdmConfigHash utility to create a PSet Hash for the
+    cfg file provided.
+
+    It will be written to cfgFile.hash, and also read back and returned
+    by value.
+
+    An Exception will be raised if the command fails
+
+    """
+    hashFile = "%s.hash" % cfgFile
+    command = "cd %s\neval `scramv1 ru -sh`\n" % scramDir
+    command += "EdmConfigHash < %s > %s " % (cfgFile, hashFile)
+    pop = popen2.Popen4(command)
+    pop.wait()
+    exitStatus = pop.poll()
+    if exitStatus:
+        msg = "Error creating PSet Hash file:\n"
+        msg += pop.fromchild.read()
+        raise RuntimeError, msg
+
+    uuid = uuidgen()
+    hashVal = file(hashFile).read()
+    return "hash=%s;guid=%s;" % (hashVal, uuid)
+
+    
+
+
+def createPythonConfig(cfgFile):
+    """
+    _createPythonConfig_
+
+    Generate a Python Config from the cfgFile provided.
+    Return the location of that file (Will be cfgFile.pycfg
+    
+    """
+    pycfgFile = cfgFile.replace(".cfg", ".pycfg")
+    command = "cd %s\neval `scramv1 ru -sh`\n" % scramDir
+    command += "EdmConfigToPython < %s > %s " % (cfgFile, pycfgFile)
+    pop = popen2.Popen4(command)
+    pop.wait()
+    exitStatus = pop.poll()
+    if exitStatus:
+        msg = "Error creating Python cfg file:\n"
+        msg += pop.fromchild.read()
+        raise RuntimeError, msg
+    
+    #  //
+    # // Check that python file is valid
+    #//
+    
+    pop = popen2.Popen4("%s %s" % (sys.executable, pycfgFile))
+    pop.wait()
+    exitStatus = pop.poll()
+    if exitStatus:
+        msg = "Error importing Python cfg file:\n"
+        msg += pop.fromchild.read()
+        raise RuntimeError, msg
+
+    return pycfgFile
+         
+
+   
+
+
+
+
+def processSpecInstance(spec):
+    """
+    _processSpecInstance_
+
+    Create a Workflow from the spec instance provided.
+
+    """
+    prodName = spec['Name'].replace("SVSuite", "SVSuite%s" % reducedVersion)
+    workflow = WorkflowSpec()
+    workflow.setWorkflowName(prodName)
+    workflow.setRequestCategory("SVSuite")
+    workflow.setRequestTimestamp(timestamp)
+
+    #  //
+    # // Processing or Production type?
+    #//
+    if spec['Type'] == "Processing":
+        dataset = spec.get("InputDataset", None)
+        splitType = spec.get("SplitType", "file")
+        splitSize = spec.get("SplitSize", 1)
+        if dataset == None:
+            msg = "Processing Type Spec %s has no input dataset\n" % (
+                spec['Name'],
+                )
+            msg += "Processing specs require an input dataset to process\n"
+            raise RuntimeError, msg
+        
+        while dataset.startswith("/"):
+            dataset = dataset[1:]
+        datasetSplit = dataset.split("/")
+        if len(datasetSplit) != 3:
+            msg = "Cant extract primary, processed and "
+            msg += "data tier from dataset:\n"
+            msg += spec['InputDataset']
+            raise RuntimeError, msg
+        primaryDataset = datasetSplit[0]
+        dataTier = datasetSplit[1]
+        processedDataset = datasetSplit[2]
+
+        workflow.parameters['SplitType'] = splitType
+        workflow.parameters['SplitSize'] = splitSize
+
+    if inputDBSDLS['DBSAddress'] != None:
+        workflow.parameters['DBSAddress'] = dbsAddress
+        workflow.parameters['DBSURL'] = dbsUrl
+        workflow.parameters['DLSType'] = dlsType
+        workflow.parameters['DLSAddress'] = dlsAddress
+
+
+    cfgFile = os.path.join(validationPackage, spec['Configuration'])
+    if not os.path.exists(cfgFile):
+        msg = "Config File missing for Spec: %s\n" % spec['Name']
+        msg += "Searched for Config File:\n %s\n" % cfgFile
+        raise RuntimeError, msg
+    
+    
+    psetHash = createPSetHash(cfgFile)
+    pyCfgFile = createPythonConfig(cfgFile)
+
+    WorkflowTools.populateCMSRunNode(workflow.payload, "cmsRun1", version,
+                                     pyCfgFile, psetHash, timestamp, prodName)
+
+
+    if spec['Type'] == "Processing":
+        # input dataset (primary, processed)
+        inputDataset = workflow.payload.addInputDataset(primaryDataset,
+                                                        processedDataset)
+        inputDataset["DataTier"] = dataTier
+
+    if spec["SaveCMSRunOutput"]:
+        WorkflowTools.addStageOutNode(workflow.payload, "stageOut1")
+
+    svSuite = workflow.payload.newNode("svSuite1")
+    svSuite.type = "SVSuite"
+    svSuite.application["Project"] = "CMSSW" # project
+    svSuite.application["Version"] = version # version
+    svSuite.application["Architecture"] = "slc3_ia32_gcc323" # arch (not needed)
+    svSuite.application["Executable"] = "RuntimeSVSuite.py" # binary name
+
+    svSuiteConfig = Configuration()
+    svSuiteConfig.zipOutput = True
+    svSuiteConfig.writeJobReport = True
+    svSuiteConfig.doStageIn = True
+    svSuiteConfig.swVersion = version
+    for lfn in spec.referenceLfns:
+        svSuiteConfig.stageIn.append(lfn)
+    for tool in spec.tools:
+        svSuiteConfig.tools.append(tool)
+
+    svSuite.configuration = str(
+        svSuiteConfig.save().makeDOMElement().toxml()
+        )
+
+    svStageOut = svSuite.newNode("stageOut2")
+    svStageOut.type = "StageOut"
+    svStageOut.application["Project"] = ""
+    svStageOut.application["Version"] = ""
+    svStageOut.application["Architecture"] = ""
+    svStageOut.application["Executable"] = "RuntimeStageOut.py" # binary name
+    svStageOut.configuration = ""
+
+    WorkflowTools.generateFilenames(workflow)
+
+    workflowFile = "%s-Workflow.xml" % prodName 
+    workflow.save(workflowFile)
+    
+    return workflowFile
+    
+
+#  //
+# // Process each spec, create a workflow and inject it into the
+#//  ProdAgent
+for spec in specs:
+    msg = "Processing Spec: %s For Package: %s" % (spec['Name'],
+                                                   spec['Package'])
+    print msg
+    workflow = processSpecInstance(spec)
+    print "Workflow Created: %s" % workflow
+    if spec['Type'] == "Processing":
+        #  //
+        # // DatasetInjector
+        #//
+        
+        msg = "Injecting workflow  for %s into DatasetInjector\n" % (
+            spec['Name'],
+            )
+        msg += "To create %s Jobs of %s %s(s) from Dataset\n%s\n" % (
+            spec['NumberOfJobs'],
+            spec['SplitSize'],
+            spec['SplitType'],
+            spec['InputDataset'],
+            )
+        print msg
+        if testMode:
+            print "Test Mode: Not Publishing to ProdAgent..."
+            continue
+        absPathWorkflow = os.path.join(os.getcwd(), workflow)
+        messageService.publish("DatasetInjector:SetWorkflow", absPathWorkflow)
+        messageService.commit()
+        messageService.publish("NewDataset", absPathWorkflow)
+        messageService.commit()
+        time.sleep(1)
+        messageService.publish("DatasetInjector:SelectWorkflow",
+                               os.path.basename(workflow))
+        messageService.commit()
+        time.sleep(1)
+        messageService.publish("DatasetInjector:ReleaseJobs",
+                              str(spec['NumberOfJobs']))
+        messageService.commit()
+        time.sleep(1)
+    else:
+        #  //
+        # // RequestInjector
+        #//
+        msg = "Injecting workflow for %s into RequestInjector\n" % (
+            spec['Name'],
+            )
+        msg += "To create %s jobs of %s events\n" % (
+            spec['NumberOfJobs'], spec['NumberOfEvents'],
+            )
+        print msg
+        if testMode:
+            print "Test Mode: Not Publishing to ProdAgent..."
+            continue
+        absPathWorkflow = os.path.join(os.getcwd(), workflow)
+        messageService.publish("RequestInjector:SetWorkflow", absPathWorkflow)
+        messageService.commit()
+        messageService.publish("NewDataset", absPathWorkflow)
+        messageService.commit()
+        time.sleep(1)
+        messageService.publish("RequestInjector:SelectWorkflow",
+                               os.path.basename(workflow))
+        messageService.commit()
+        time.sleep(1)
+        messageService.publish("RequestInjector:SetEventsPerJob",
+                               str(spec['NumberOfEvents']))
+        messageService.commit()
+        time.sleep(1)
+        for i in range(0, int(spec['NumberOfJobs'])):
+            time.sleep(.1)
+            messageService.publish("RequestInjector:ResourcesAvailable", "")
+            messageService.commit()
+            
+
+    

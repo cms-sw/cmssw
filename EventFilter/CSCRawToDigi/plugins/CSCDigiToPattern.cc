@@ -1,14 +1,6 @@
-#include <iostream>
-#include "FWCore/Framework/interface/EDAnalyzer.h"
-#include "FWCore/Framework/interface/Event.h"
-#include "DataFormats/Common/interface/Handle.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "EventFilter/CSCRawToDigi/src/CSCDigiToPattern.h"
 #include "DataFormats/CSCDigi/interface/CSCCorrelatedLCTDigi.h"
 #include "DataFormats/CSCDigi/interface/CSCCorrelatedLCTDigiCollection.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DataFormats/MuonDetId/interface/CSCDetId.h"
 
 CSCDigiToPattern::CSCDigiToPattern(edm::ParameterSet const& conf) {

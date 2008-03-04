@@ -4,9 +4,6 @@
 #include "CondFormats/Calibration/interface/BlobComplex.h"
 #include "CondFormats/Calibration/interface/mySiStripNoises.h"
 #include "CondFormats/Calibration/interface/CalibHistograms.h"
-#include<bitset>
-#include "CondFormats/Calibration/interface/BitArray.h"
-#include "CondFormats/Calibration/interface/boostTypeObj.h"
 /*#include "CondFormats/SiStripObjects/interface/SiStripFedCabling.h"
 #include "CondFormats/SiStripObjects/interface/FedChannelConnection.h"
 #include "CondFormats/SiStripObjects/interface/SiStripPedestals.h"
@@ -36,7 +33,4 @@ namespace {
   std::vector<BlobComplexContent>::const_iterator tmp19;
   std::vector<BlobComplexObjects>::iterator tmp20;
   std::vector<BlobComplexObjects>::const_iterator tmp21;
-  std::bitset<7> a;
-  std::bitset<8> b;
-  BitArray<9> c;
 }

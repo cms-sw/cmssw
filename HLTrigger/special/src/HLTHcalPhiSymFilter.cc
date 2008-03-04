@@ -80,7 +80,7 @@ HLTHcalPhiSymFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
     }
   }
 
-  if ((!phiSymHBHERecHitCollection->size() ) || (!phiSymHORecHitCollection->size()) || (!phiSymHFRecHitCollection->size())) return false;
+  if ((!phiSymHBHERecHitCollection->size() ) && (!phiSymHORecHitCollection->size()) && (!phiSymHFRecHitCollection->size())) return false;
 
   //Put selected information in the event
   if (phiSymHBHERecHitCollection->size()>0) iEvent.put( phiSymHBHERecHitCollection, phiSymHBHEHits_);

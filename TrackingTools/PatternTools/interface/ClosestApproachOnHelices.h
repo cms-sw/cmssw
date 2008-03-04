@@ -8,12 +8,7 @@ using namespace std;
 
 /** \class ClosestApproachOnHelices
  *  Abstract interface for classes which compute the points of closest 
- *  approach of 2 helices. <br>
- * For a pair of states, the calculate methods have to be called before any of
- * the other methods. This will do all calculations needed to get the result.
- * It returns a status which says whether the calculation was successful.
- * This should be checked before getting the result. If the status is false 
- * and the results querried, an exception will be thrown. 
+ *  approach of 2 helices. 
  */
 
 class FreeTrajectoryState;
@@ -27,26 +22,33 @@ public:
 
   virtual ~ClosestApproachOnHelices() {}
 
-
-  virtual bool calculate(const TrajectoryStateOnSurface & sta, 
-	 const TrajectoryStateOnSurface & stb) = 0;
-
-  virtual bool calculate(const FreeTrajectoryState & sta,
-	const FreeTrajectoryState & stb) = 0;
-
-  virtual bool status() const = 0;
-
   /** Points of closest approach on the 2 helices */
-  virtual pair<GlobalPoint, GlobalPoint> points() const = 0;
+  virtual pair<GlobalPoint, GlobalPoint> 
+  points(const TrajectoryStateOnSurface & sta, 
+	 const TrajectoryStateOnSurface & stb) 
+  const = 0;
+
+  virtual pair<GlobalPoint, GlobalPoint> 
+  points(const FreeTrajectoryState & sta, const FreeTrajectoryState & stb) 
+  const = 0;
 
   /** Crossing point of the 2 helices, computed as an average 
    *  of the points of closest approach. 
    *  The average can be weighted or not, depending on the implementation. 
    */
-  virtual GlobalPoint crossingPoint() const = 0;
+  virtual GlobalPoint crossingPoint(const TrajectoryStateOnSurface & sta, 
+				    const TrajectoryStateOnSurface & stb) 
+    const = 0;
+
+  virtual GlobalPoint crossingPoint(const FreeTrajectoryState & sta, 
+				    const FreeTrajectoryState & stb) const = 0;
 
   /** Distance between the points of closest approach */
-  virtual float distance() const = 0;
+  virtual float distance(const TrajectoryStateOnSurface & sta, 
+			 const TrajectoryStateOnSurface & stb) const = 0;
+
+  virtual float distance(const FreeTrajectoryState & sta, 
+			 const FreeTrajectoryState & stb) const = 0;
 
   virtual ClosestApproachOnHelices * clone() const = 0;
 

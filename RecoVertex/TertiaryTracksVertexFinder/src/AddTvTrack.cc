@@ -89,6 +89,8 @@ vector<TransientVertex> AddTvTrack::getSecondaryVertices(const vector<TransientT
   for( vector<TransientTrack>::const_iterator itT = 
     unusedTrackswithIPSig.begin() ; itT != unusedTrackswithIPSig.end() ; 
     itT++ ) {  
+    try {  
+
       // point on track closest to b flight line 
 
       // ORCA implementation
@@ -264,6 +266,10 @@ vector<TransientVertex> AddTvTrack::getSecondaryVertices(const vector<TransientT
 
       // end TDR INFO ---------------------------------------------------------
    
+    } // end try block 
+    catch(...) {
+      cout << " [AddTvTrack]::getSecondaryVertices throws exception " << endl;
+    }
 
   } // end  main loop over tracks
 

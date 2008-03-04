@@ -30,6 +30,7 @@ namespace {
     HcalHistogramDigiCollection theHH_;
     ZDCDigiCollection theZDC_;
     CastorDigiCollection theCastor_;
+    HOTrigPrimDigiCollection theHOTP_;
 
     edm::Wrapper<edm::SortedCollection<HBHEDataFrame> > anotherHBHE_;
     edm::Wrapper<edm::SortedCollection<HODataFrame> > anotherHO_;
@@ -39,12 +40,14 @@ namespace {
     edm::Wrapper<edm::SortedCollection<HcalHistogramDigi> > anotherHH_;
     edm::Wrapper<edm::SortedCollection<ZDCDataFrame> > anotherZDC_;
     edm::Wrapper<edm::SortedCollection<CastorDataFrame> > anotherCastor_;
+    edm::Wrapper<edm::SortedCollection<HOTriggerPrimitiveDigi> > anotherHOTP_;
 
     edm::Wrapper<HBHEDigiCollection> theHBHEw_;
     edm::Wrapper<HODigiCollection> theHOw_;
     edm::Wrapper<HFDigiCollection> theHFw_;
     edm::Wrapper<HcalCalibDigiCollection> theHCw_;
     edm::Wrapper<HcalTrigPrimDigiCollection> theHTPw_; 
+    edm::Wrapper<HOTrigPrimDigiCollection> theHOTPw_; 
     edm::Wrapper<HcalHistogramDigiCollection> theHHw_; 
     edm::Wrapper<HcalUnpackerReport> theReport_;
     edm::Wrapper<HcalLaserDigi> theLaserw_;

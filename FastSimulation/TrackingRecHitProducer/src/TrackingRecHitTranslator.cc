@@ -21,7 +21,6 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 //#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/Utilities/interface/Exception.h"
 
 // Data Formats
 #include "DataFormats/DetId/interface/DetId.h"

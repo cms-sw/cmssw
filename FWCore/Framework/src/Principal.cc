@@ -1,5 +1,5 @@
 /**----------------------------------------------------------------------
-  $Id: Principal.cc,v 1.19 2008/01/10 17:36:23 wmtan Exp $
+  $Id: Principal.cc,v 1.20 2008/01/17 05:14:01 wmtan Exp $
   ----------------------------------------------------------------------*/
 
 #include <algorithm>
@@ -49,8 +49,8 @@ namespace edm {
     return size();
   }
    
-  Group const *
-  Principal::getExistingGroup(Group const& group) const {
+  Group*
+  Principal::getExistingGroup(Group const& group) {
     unsigned int index = group.index();
     return groups_[index].get();
   }
@@ -73,7 +73,6 @@ namespace edm {
 
   void 
   Principal::replaceGroup(std::auto_ptr<Group> group) {
-    BranchDescription const& bd = group->productDescription();
     unsigned int index = group->index();
     SharedGroupPtr g(group);
     if (g->branchEntryDescription() == 0) g->provenance().setStore(store_);

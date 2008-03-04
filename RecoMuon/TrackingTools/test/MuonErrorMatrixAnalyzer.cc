@@ -205,7 +205,7 @@ MuonErrorMatrixAnalyzer::analyze_from_pull(const edm::Event& iEvent, const edm::
   iSetup.get<IdealMagneticFieldRecord>().get(theField);
 
   //open a collection of track
-  edm::Handle<View<reco::Track> > tracks;
+  edm::Handle<reco::TrackCollection> tracks;
   iEvent.getByLabel(theTrackLabel,tracks);
 
   //open a collection of Tracking particle

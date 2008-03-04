@@ -2,7 +2,7 @@
 // Package:         RecoEgamma/EgammaHLTProducers
 // Class:           EgammaHLTRegionalPixelSeedGeneratorProducers
 //  Modified from TkSeedGeneratorFromTrk by Jeremy Werner, Princeton University, USA
-// $Id: EgammaHLTRegionalPixelSeedGeneratorProducers.cc,v 1.7 2007/08/28 01:43:18 ratnik Exp $
+// $Id: EgammaHLTRegionalPixelSeedGeneratorProducers.cc,v 1.8 2007/09/19 23:39:01 ratnik Exp $
 //
 
 #include <iostream>
@@ -31,6 +31,11 @@
 #include "RecoTracker/TkTrackingRegions/interface/OrderedHitsGenerator.h"
 #include "RecoTracker/TkSeedGenerator/interface/SeedGeneratorFromRegionHits.h"
 
+#include "CondFormats/DataRecord/interface/BeamSpotObjectsRcd.h"//needed?
+#include "CondFormats/BeamSpotObjects/interface/BeamSpotObjects.h"//needed?
+
+#include "DataFormats/BeamSpot/interface/BeamSpot.h"
+#include "DataFormats/Math/interface/Point3D.h"
 // Math
 #include "Math/GenVector/VectorUtil.h"
 #include "Math/GenVector/PxPyPzE4D.h"
@@ -52,7 +57,7 @@ EgammaHLTRegionalPixelSeedGeneratorProducers::EgammaHLTRegionalPixelSeedGenerato
   candTag_     = conf_.getParameter< edm::InputTag > ("candTag");
   candTagEle_  = conf_.getParameter< edm::InputTag > ("candTagEle");
   useZvertex_  = conf_.getParameter<bool>("UseZInVertex");
-
+  BSProducer_ = conf.getParameter<edm::InputTag>("BSProducer");
   // setup orderedhits setup (in order to tell seed generator to use pairs/triplets, which layers)
   edm::ParameterSet hitsfactoryPSet =
       conf_.getParameter<edm::ParameterSet>("OrderedHitsFactoryPSet");
@@ -83,6 +88,13 @@ void EgammaHLTRegionalPixelSeedGeneratorProducers::produce(edm::Event& iEvent, c
   edm::Handle<reco::RecoEcalCandidateCollection> recoecalcands;
   iEvent.getByLabel(candTag_,recoecalcands);
 
+  //Get the Beam Spot position
+  edm::Handle<reco::BeamSpot> recoBeamSpotHandle;
+  // iEvent.getByType(recoBeamSpotHandle);
+  iEvent.getByLabel(BSProducer_,recoBeamSpotHandle);
+  // gets its position
+  const BeamSpot::Point& BSPosition = recoBeamSpotHandle->position(); 
+
   //Get the HLT electrons collection if needed
   edm::Handle<reco::ElectronCollection> electronHandle;
   if(useZvertex_){iEvent.getByLabel(candTagEle_,electronHandle);}
@@ -105,7 +117,7 @@ void EgammaHLTRegionalPixelSeedGeneratorProducers::produce(edm::Event& iEvent, c
     }
     GlobalVector dirVector((recoecalcand)->px(),(recoecalcand)->py(),(recoecalcand)->pz());
     RectangularEtaPhiTrackingRegion etaphiRegion( dirVector,
-											   GlobalPoint(0,0,zvertex), 
+											   GlobalPoint( BSPosition.x(), BSPosition.y(), zvertex ), 
 											   ptmin_,
 											   originradius_,
 											   halflength_,

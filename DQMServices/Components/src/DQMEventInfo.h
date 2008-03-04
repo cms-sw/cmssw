@@ -4,8 +4,8 @@
 /*
  * \file DQMEventInfo.h
  *
- * $Date: 2007/12/17 21:19:20 $
- * $Revision: 1.6 $
+ * $Date: 2007/11/21 00:19:12 $
+ * $Revision: 1.4 $
  * \author M. Zanetti - INFN Padova
  *
 */
@@ -20,7 +20,7 @@
 
 #include <DQMServices/Core/interface/DaqMonitorBEInterface.h>
 #include <DQMServices/Core/interface/MonitorElementBaseT.h>
-#include <DQMServices/Core/interface/MonitorDaemon.h>
+#include <DQMServices/Daemon/interface/MonitorDaemon.h>
 
 #include <memory>
 #include <iostream>

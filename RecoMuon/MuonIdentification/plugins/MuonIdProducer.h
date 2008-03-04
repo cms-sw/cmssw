@@ -20,7 +20,7 @@
 */
 //
 // Original Author:  Dmytro Kovalskyi
-// $Id: MuonIdProducer.h,v 1.7 2007/12/13 07:38:59 dmytro Exp $
+// $Id: MuonIdProducer.h,v 1.5 2007/09/27 22:39:39 dmytro Exp $
 //
 //
 
@@ -58,8 +58,7 @@ class MuonIdProducer : public edm::EDProducer {
    virtual void produce(edm::Event&, const edm::EventSetup&);
 
  private:
-   void          fillMuonId( edm::Event&, const edm::EventSetup&, reco::Muon& );
-   void          fillTime(   edm::Event&, const edm::EventSetup&, reco::Muon&);
+   void          fillMuonId( edm::Event&, const edm::EventSetup&, reco::Muon& aMuon );
    void          fillArbitrationInfo( reco::MuonCollection* );
    void          fillMuonIsolation( edm::Event&, const edm::EventSetup&, reco::Muon& aMuon );
    void          init( edm::Event&, const edm::EventSetup& );
@@ -82,7 +81,7 @@ class MuonIdProducer : public edm::EDProducer {
    // muon track
    int           overlap(const reco::Muon& muon, const reco::Track& track);
 
-   unsigned int  chamberId(const DetId&);
+   unsigned int  getChamberId(const DetId&);
      
    TrackDetectorAssociator trackAssociator_;
    TrackAssociatorParameters parameters_;

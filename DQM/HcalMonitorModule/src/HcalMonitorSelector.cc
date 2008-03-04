@@ -3,8 +3,8 @@
 /*
  * \file HcalMonitorSelector.cc
  * 
- * $Date: 2007/10/23 14:17:17 $
- * $Revision: 1.8 $
+ * $Date: 2006/09/28 22:17:54 $
+ * $Revision: 1.7 $
  * \author W Fisher
  *
 */
@@ -31,8 +31,10 @@ void HcalMonitorSelector::processEvent(const edm::Event& e){
   return;
 
   edm::Handle<HcalTBTriggerData> triggerD;
-  e.getByType(triggerD);
-  if (!triggerD.isValid()) {
+  try{
+    e.getByType(triggerD);
+  }
+  catch(exception& ex) { 
     m_runNum=-1; 
     //If we don't have the trigger data, just activate everyone!
     m_eventMask = m_eventMask|DO_HCAL_PED_CALIBMON|DO_HCAL_LED_CALIBMON; 

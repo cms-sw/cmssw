@@ -2,8 +2,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2007/05/15 14:45:19 $
- *  $Revision: 1.5 $
+ *  $Date: 2006/07/21 12:26:32 $
+ *  $Revision: 1.4 $
  *  \author G. Cerminara - INFN Torino
  */
 
@@ -45,9 +45,6 @@ pair<double, double> DTTimeBoxFitter::fitTimeBox(TH1F *hTimeBox) {
     return make_pair(-1, -1);
   }
 
-  if(hTimeBox->GetEntries() < 10000) {
-    hTimeBox->Rebin(2);
-  }
 
   // Get seeds for the fit
   // The TimeBox range to be fitted (the rising edge)

@@ -8,7 +8,7 @@
 /**
  *  Calulates the (non-normalised) weight of a component the new mixture 
  *  of vertices for the Gaussian Sum vertex filter.
- *  (c.f. Th.Speer & R. Fruewirth, Comp.Phys.Comm 174, 935 (2006) )
+ *  (c.f. R. Fruewirth et.al., Comp.Phys.Comm 100 (1997) 1
  */
 
 class GsfVertexWeightCalculator {
@@ -19,7 +19,6 @@ public:
 
 /**
  *  Method to calculate the weight
- *  A negative weight is returned in case of error.
  *
  */
 

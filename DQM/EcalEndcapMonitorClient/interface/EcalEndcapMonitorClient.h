@@ -4,8 +4,8 @@
 /*
  * \file EcalEndcapMonitorClient.h
  *
- * $Date: 2007/12/30 08:34:36 $
- * $Revision: 1.30 $
+ * $Date: 2008/01/18 18:09:48 $
+ * $Revision: 1.31 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -46,11 +46,6 @@ EcalEndcapMonitorClient(const edm::ParameterSet & ps);
 
 /// Destructor
 ~EcalEndcapMonitorClient();
-
-/// Subscribe/Unsubscribe to Monitoring Elements
-void subscribe(void);
-void subscribeNew(void);
-void unsubscribe(void);
 
 // Initialize
 void initialize(const edm::ParameterSet & ps);
@@ -137,9 +132,6 @@ std::string prefixME_;
 std::string hostName_;
 int         hostPort_;
 
-bool enableServer_;
-int  serverPort_;
- 
 std::string inputFile_;
 std::string referenceFile_;
  

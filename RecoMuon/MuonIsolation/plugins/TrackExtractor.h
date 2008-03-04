@@ -41,6 +41,8 @@ private:
   double theDR_Max;                    // Maximum cone angle for deposits
   double theDR_Veto;                   // Veto cone angle
 
+  std::string theBeamlineOption;       //"NONE", "BeamSpotFromEvent" 
+  edm::InputTag theBeamSpotLabel;      //BeamSpot name 
 };
 
 }

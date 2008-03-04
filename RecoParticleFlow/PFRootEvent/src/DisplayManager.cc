@@ -48,10 +48,9 @@ DisplayManager::DisplayManager(PFRootEventManager *em,
   
   createCanvas();
   
-  //Clusterlines don't work anymore 
-  //vectGClusterLines_.resize(NViews);
-  //vectClusLNb_.resize(NViews);
-  
+  //TODO :  Clusterlines don't work anymore
+  vectGClusterLines_.resize(NViews);
+  vectClusLNb_.resize(NViews);
 
 }
 //________________________________________________________
@@ -60,7 +59,8 @@ DisplayManager::~DisplayManager()
   reset();
 } 
 
-//________________________________________________________
+
+
 void DisplayManager::readOptions( const char* optfile ) {
   
   try {
@@ -90,50 +90,8 @@ void DisplayManager::readOptions( const char* optfile ) {
     viewSize_.clear();
     viewSize_.push_back(600); 
     viewSize_.push_back(600); 
-  } 
-  
-  clusterAttributes_.clear();
-  options_->GetOpt("display", "cluster_attributes", clusterAttributes_);
-  if(clusterAttributes_.size() != 4) {
-    cerr<<"PFRootEventManager::::ReadOptions, bad display/cluster_attributes tag...using 20 10 2 5"
-        <<endl;
-    clusterAttributes_.clear();
-    clusterAttributes_.push_back(2); //color
-    clusterAttributes_.push_back(5);  // color if clusterPS
-    clusterAttributes_.push_back(20); // marker style
-    clusterAttributes_.push_back(10); //markersize *10
-  }
-  trackAttributes_.clear();
-  options_->GetOpt("display", "track_attributes", trackAttributes_);
-  if(trackAttributes_.size() != 4) {
-    cerr<<"PFRootEventManager::::ReadOptions, bad display/track_attributes tag...using 103 1 8 8"
-        <<endl;
-    trackAttributes_.clear();
-    trackAttributes_.push_back(103); //color Line and Marker
-    trackAttributes_.push_back(1);  //line style
-    trackAttributes_.push_back(8);   //Marker style
-    trackAttributes_.push_back(8);   //Marker size *10
-  }
-  
-  
-  clusPattern_ = new TAttMarker(clusterAttributes_[0],clusterAttributes_[2],(double)clusterAttributes_[3]/10);
-  clusPSPattern_ = new TAttMarker(clusterAttributes_[1],clusterAttributes_[2],(double)clusterAttributes_[3]/10);
-  trackPatternL_ = new TAttLine(trackAttributes_[0],trackAttributes_[1],1);
-  trackPatternM_ = new TAttMarker(trackAttributes_[0],trackAttributes_[2],(double)trackAttributes_[3]/10);
-  
-  simPartPatternPhoton_ = new TAttMarker(4,3,.8);
-  simPartPatternElec_   = new TAttMarker(4,5,.8);
-  simPartPatternMuon_   = new TAttMarker(4,2,.8);
-  simPartPatternK_      = new TAttMarker(4,24,.8);
-  simPartPatternPi_     = new TAttMarker(4,25,.8);
-  simPartPatternProton_ = new TAttMarker(4,26,.8);
-  simPartPatternNeutron_= new TAttMarker(4,27,.8);
-  simPartPatternDefault_= new TAttMarker(4,30,.8);
-  
-  simPartPatternL_ = new TAttLine(4,2,1);
-  simPartPatternM_.resize(8);
-  
-  setNewAttrToSimParticles();
+  }  
+
   
   drawHits_= true;
   options_->GetOpt("display", "rechits",drawHits_);
@@ -163,9 +121,8 @@ void DisplayManager::readOptions( const char* optfile ) {
   options_->GetOpt("display","clusters_enmin",clusEnMin_);
   
   
-  drawPFBlocks_  = false;
-  options_->GetOpt("display","drawPFBlock",drawPFBlocks_);
-  //redrawWithoutHits_=false;
+  drawPFBlocks_  = true;
+  redrawWithoutHits_=false;
   
   zoomFactor_ = 10;  
   options_->GetOpt("display", "zoom_factor", zoomFactor_);
@@ -263,104 +220,43 @@ void DisplayManager::createGCluster(const reco::PFCluster& cluster,
   //   if( cutg && !cutg->IsInside( eta, phi ) ) return;
 
 
-  //int color = clusterAttributes_[2];
-  //if ( cluster.layer()==PFLayer::PS1 || cluster.layer()==PFLayer::PS2 )
-  //  color = clusterAttributes_[3];
-    
-  //int markerSize = clusterAttributes_[1];
-  //int markerStyle = clusterAttributes_[0];
-  
-  int clusType=0;
-  
+  int color = 2;
   if ( cluster.layer()==PFLayer::PS1 || cluster.layer()==PFLayer::PS2 )
-     clusType=1;  
+    color = 5;
 
   const math::XYZPoint& xyzPos = cluster.positionXYZ();
-  GPFCluster *gc;
   
   for (int viewType=0;viewType<4;viewType++){
 
     switch(viewType) {
     case XY:
-      {
-       if (clusType==0) {
-          gc = new  GPFCluster(this,
+      GPFCluster *gc = new  GPFCluster(this,
                                        viewType,ident,
                                        &cluster,
-                                       xyzPos.X(), xyzPos.Y(), clusPattern_);
-       }
-       else {
-          gc = new  GPFCluster(this,
-                                       viewType,ident,
-                                       &cluster,
-                                      xyzPos.X(), xyzPos.Y(), clusPSPattern_);
-       }				      
-       graphicMap_.insert(pair<int,GPFBase *> (ident, gc));
-      }
+                                       xyzPos.X(), xyzPos.Y(), color);
+      graphicMap_.insert(pair<int,GPFBase *> (ident, gc));
       break;
     case RZ:
       {
         double sign = 1.;
         if (cos(phi0 - phi) < 0.)
           sign = -1.;
-	if ( clusType==0) { 
-	  gc = new  GPFCluster(this,
-	                                 viewType,ident,
-					 &cluster,
-					 xyzPos.z(),sign*xyzPos.Rho(),
-					 clusPattern_);
-	}
-	else {
-	  gc = new  GPFCluster(this,
-	                                 viewType,ident,
-					 &cluster,
-					 xyzPos.z(),sign*xyzPos.Rho(),
-					 clusPattern_);
-	}
-					 
-	graphicMap_.insert(pair<int,GPFBase *>	(ident, gc));			 
+        graphicMap_.insert(pair<int,GPFBase *> (ident,new GPFCluster(this,viewType,ident,&cluster,xyzPos.z(),sign*xyzPos.Rho(),color)));
       } 
       break;
     case EPE:
       {
         if( cluster.layer()<0 ) {
-	  if (clusType==0) {
-	     gc = new  GPFCluster(this,
-	                                 viewType,ident,
-					 &cluster,
-					 eta,phi,
-					 clusPattern_);
-	  }
-	  else {
-	     gc = new  GPFCluster(this,
-	                                 viewType,ident,
-					 &cluster,
-					 eta,phi,
-					 clusPSPattern_);
-	  }				 
-					 
-	graphicMap_.insert(pair<int,GPFBase *>	(ident, gc));			 
-       }
+          graphicMap_.insert(pair<int,GPFBase *> (ident,new GPFCluster(this,viewType,ident,&cluster,eta,phi,color)));
+          //createGClusterLines(cluster,viewType); 
+        }
       } 
       break;
     case EPH:
       {
         if( cluster.layer()>0 ) {
-	  if (clusType==0) {
-	   gc = new  GPFCluster(this,
-	                                 viewType,ident,
-					 &cluster,
-					 eta,phi,clusPattern_);
-	  }
-	  else {
-	    gc = new  GPFCluster(this,
-	                                 viewType,ident,
-					 &cluster,
-					 eta,phi,clusPSPattern_);
-	  }
-	    
-					 
-	  graphicMap_.insert(pair<int,GPFBase *>	(ident, gc));			 
+          graphicMap_.insert(pair<int,GPFBase *> (ident,new GPFCluster(this,viewType,ident,&cluster,eta,phi,color)));
+          //createGClusterLines(cluster,viewType);
         }
       } 
       break;
@@ -369,10 +265,48 @@ void DisplayManager::createGCluster(const reco::PFCluster& cluster,
   }      
 }
 //________________________________________________________________________________________
+void DisplayManager::createGClusterLines(const reco::PFCluster& cluster,int viewType)
+{
+  
+  int color = 2;
+
+  const math::XYZPoint& xyzPos = cluster.positionXYZ();
+  double eta = xyzPos.Eta(); 
+  double phi = xyzPos.Phi(); 
+  
+  const std::vector< reco::PFRecHitFraction >& rhfracs = 
+    cluster.recHitFractions();
+    
+
+  //   int color = cluster.type();
+
+  // draw a line from the cluster to each of the rechits
+  int nbhits=0;
+ 
+  for(unsigned i=0; i<rhfracs.size(); i++) {
+
+    // rechit index 
+    // unsigned rhi = rhfracs[i].recHitIndex();
+
+    const reco::PFRecHit& rh = *(rhfracs[i].recHitRef());
+
+
+    double rheta = rh.positionXYZ().Eta();
+    double rhphi = rh.positionXYZ().Phi();
+    
+    TLine l(eta,phi,rheta,rhphi);
+    l.SetLineColor(color);
+    vectGClusterLines_[viewType].push_back(l);
+    ++nbhits;
+    
+  }
+  vectClusLNb_[viewType].push_back(nbhits);
+}
+//_______________________________________________________________________________________________
 void DisplayManager::createGPart( const reco::PFSimParticle &ptc,
                                   const std::vector<reco::PFTrajectoryPoint>& points, 
                                   int ident,double pt,double phi0, double sign, bool displayInitial,
-                                  int markerIndex)
+                                  int markerstyle)
 {
   //bool inside = false; 
   //TCutG* cutg = (TCutG*) gROOT->FindObject("CUTG");
@@ -421,18 +355,8 @@ void DisplayManager::createGPart( const reco::PFSimParticle &ptc,
 
     /// no point inside graphical cut.
     //if( !inside ) return;
-    //int color = 4;
-    GPFSimParticle *gc   = new GPFSimParticle(this,
-                                              viewType, ident,
-					      &ptc,
-					      xPos.size(),&xPos[0],&yPos[0],
-					      pt,
-					      simPartPatternM_[markerIndex],
-					      simPartPatternL_,
-					      "pl");
-					      
-    graphicMap_.insert(pair<int,GPFBase *>	(ident, gc));				      
-    //graphicMap_.insert(pair<int,GPFBase *> (ident,new GPFSimParticle(this,viewType,ident,&ptc,xPos.size(),&xPos[0],&yPos[0],pt,simPartPattern_[indexMarker], "pl")));
+    int color = 4;
+    graphicMap_.insert(pair<int,GPFBase *> (ident,new GPFSimParticle(this,viewType,ident,&ptc,xPos.size(),&xPos[0],&yPos[0],pt,markerstyle, color, "pl")));
   }
 }
 //____________________________________________________________________
@@ -488,8 +412,8 @@ void DisplayManager::createGRecHit(reco::PFRecHit& rh,int ident, double maxe, do
           layer == PFLayer::HCAL_ENDCAP ) ) {
       continue;
     }
-    double rheta = rh.positionXYZ().Eta();
-    double rhphi = rh.positionXYZ().Phi();
+    double rheta = rh.positionREP().Eta();
+    double rhphi = rh.positionREP().Phi();
 
     double sign = 1.;
     if (cos(phi0 - rhphi) < 0.) sign = -1.;
@@ -514,17 +438,13 @@ void DisplayManager::createGRecHit(reco::PFRecHit& rh,int ident, double maxe, do
     double propfact = 0.95; // so that the cells don't overlap ? 
     double ampl=0;
     if(me>0) ampl = (log(rh.energy() + 1.)/log(me + 1.));
-    
-    // cout<<"rechit "<<rheta<<" "<<rhphi<<endl;
+     
     for ( unsigned jc=0; jc<4; ++jc ) { 
-
-      if ( phiSize[jc] > 1. ) phiSize[jc] -= 2.*TMath::Pi();  // this is strange...
-      if ( phiSize[jc] < -1. ) phiSize[jc]+= 2.*TMath::Pi();
-      // cout<<"\tcorner "<<jc<<" "<<corners[jc].Eta()<<" "<<corners[jc].Phi()
-      // 	  <<" "<<phiSize[jc]<<" "<<etaSize[jc]<<endl;
- 
+      // cout<<"corner "<<jc<<" "<<corners[jc].Eta()<<" "<<corners[jc].Phi()<<endl;
       phiSize[jc] = rhphi-corners[jc].Phi();
       etaSize[jc] = rheta-corners[jc].Eta();
+      if ( phiSize[jc] > 1. ) phiSize[jc] -= 2.*TMath::Pi();  // this is strange...
+      if ( phiSize[jc] < -1. ) phiSize[jc]+= 2.*TMath::Pi();
       phiSize[jc] *= propfact;
       etaSize[jc] *= propfact;
 
@@ -675,7 +595,7 @@ void DisplayManager::createGTrack( reco::PFRecTrack &tr,
                                    int linestyle) 
 {
       
-  //   bool inside = false; 
+  bool inside = false; 
   //TCutG* cutg = (TCutG*) gROOT->FindObject("CUTG");
   
   for (int viewType=0;viewType<4;++viewType) {
@@ -723,13 +643,8 @@ void DisplayManager::createGTrack( reco::PFRecTrack &tr,
     //if( !inside ) return;
   
     //fill map with graphic objects
-     
-    GPFTrack *gt = new  GPFTrack(this,
-                                 viewType,ident,
-                                 &tr,
-                                 xPos.size(),&xPos[0],&yPos[0],pt,
-				 trackPatternM_,trackPatternL_,"pl");
-    graphicMap_.insert(pair<int,GPFBase *> (ident, gt));
+    int color = 103;
+    graphicMap_.insert(pair<int,GPFBase *> (ident,new GPFTrack(this,viewType,ident,&tr,xPos.size(),&xPos[0],&yPos[0],pt,linestyle, color, "pl")));
   }   
 }
 //________________________________________________________
@@ -747,14 +662,13 @@ void DisplayManager::display(int ientry)
   displayAll();
 }
 //________________________________________________________________________________
-void DisplayManager::displayAll(bool noRedraw)
+void DisplayManager::displayAll()
 {
   if (!isGraphicLoaded_) {
     std::cout<<" no Graphic Objects to draw"<<std::endl;
     return;
   }
-//  if (!redrawWithoutHits_) { 
-    if (noRedraw) { 
+  if (!redrawWithoutHits_) {  
     for (int viewType=0;viewType<NViews;++viewType) {
       displayView_[viewType]->cd();
       gPad->Clear();
@@ -781,8 +695,7 @@ void DisplayManager::displayAll(bool noRedraw)
       break;
     case RECHITECALID: case  RECHITHCALID: case RECHITPSID:
       {
-       // if (redrawWithoutHits_) break;
-       if (!noRedraw) break; 
+        if (redrawWithoutHits_) break; 
         if (drawHits_) 
           if(p->second->getEnergy() > hitEnMin_)  {
             displayView_[view]->cd();
@@ -799,7 +712,7 @@ void DisplayManager::displayAll(bool noRedraw)
           }
       }
       break;
-    case SIMPARTICLEID:
+    case SIMPLEPARTID:
       {
         if (drawParticles_)
           if (p->second->getPt() > particlePtMin_) {
@@ -816,44 +729,6 @@ void DisplayManager::displayAll(bool noRedraw)
     gPad->Modified();
     displayView_[i]->Update();
   }  
-}
-//___________________________________________________________________________________
-void DisplayManager::drawWithNewGraphicAttributes()
-{
-  std::multimap<int,GPFBase *>::iterator p;
-   
-  for (p=graphicMap_.begin();p!=graphicMap_.end();p++) {
-    int ident=p->first;
-    int type=ident >> shiftId_;
-    switch (type) {
-    case CLUSTERECALID: case CLUSTERHCALID: case  CLUSTERPSID: case CLUSTERIBID:
-      {
-        //p->second->setNewStyle(clusterAttributes_[0]);
-        //p->second->setNewSize(clusterAttributes_[1]);
-        //p->second->setColor(clusterAttributes_[2]);	
-        p->second->setNewStyle();
-        p->second->setNewSize();
-        p->second->setColor();	
-      }
-      break;
-    case RECTRACKID:
-      {
-        //p->second->setColor(trackAttributes_[0]);
-        //p->second->setNewStyle(trackAttributes_[1]);
-        //p->second->setNewSize(trackAttributes_[2]);
-        p->second->setColor();
-        p->second->setNewStyle();
-        p->second->setNewSize();
-      }
-      break;
-    case SIMPARTICLEID:
-      {
-      }
-      break;
-    default : break;            
-    }  //switch end
-  }   //for end
-  displayAll(false);
 }
 //___________________________________________________________________________________
 void DisplayManager::displayCanvas()
@@ -939,7 +814,7 @@ void DisplayManager::displayPrevious()
   display(--eventNumber_);
 }
 //______________________________________________________________________________
-void DisplayManager::rubOutGPFBlock()
+void DisplayManager::redraw()
 {
   int size = selectedGObj_.size();
   bool toInitial=true;
@@ -950,7 +825,7 @@ void DisplayManager::rubOutGPFBlock()
 //_______________________________________________________________________________
 void DisplayManager::displayPFBlock(int blockNb) 
 {
-  rubOutGPFBlock();
+  redraw();
   selectedGObj_.clear();
   if (!drawPFBlocks_) return;
   int color=1;
@@ -1004,14 +879,14 @@ void DisplayManager::findAndDraw(int ident)
     return;
   }  
   if (drawPFBlocks_==0  || type<3 || type==8) {
-    rubOutGPFBlock();
+    redraw();
     selectedGObj_.clear();
     bool toInitial=false;
     drawGObject(ident,color,toInitial);
     if (type<3) {
-      //redrawWithoutHits_=true;
-      displayAll(false);
-      //redrawWithoutHits_=false;
+      redrawWithoutHits_=true;
+      displayAll();
+      redrawWithoutHits_=false;
     }
   }     
   updateDisplay();
@@ -1144,7 +1019,7 @@ void DisplayManager::loadGPFBlocks()
 {
   int size = em_->pfBlocks_->size();
   for (int ibl=0;ibl<size;ibl++) {
-    //     int elemNb=((*(em_->pfBlocks_))[ibl].elements()).size();
+    int elemNb=((*(em_->pfBlocks_))[ibl].elements()).size();
     //std::cout<<"block "<<ibl<<":"<<elemNb<<" elements"<<std::flush<<std::endl;
     edm::OwnVector< reco::PFBlockElement >::const_iterator iter;
     for( iter =((*(em_->pfBlocks_))[ibl].elements()).begin();
@@ -1213,7 +1088,7 @@ void DisplayManager::loadGraphicObjects()
   loadGClusters();
   loadGRecHits();
   loadGRecTracks();
-  loadGSimParticles();
+  loadGTrueParticles();
   loadGPFBlocks();
 }
 //________________________________________________________
@@ -1299,7 +1174,7 @@ void DisplayManager::loadGRecTracks()
     const std::vector<reco::PFTrajectoryPoint>& points = 
       itRecTrack->trajectoryPoints();
 
-    int    linestyle = itRecTrack->algoType();
+    int    linestyle = itRecTrack->algoType(); 
     ind++;
     //int recTrackId=(ind<<shiftId_) | RECTRACKID;
     int recTrackId=(RECTRACKID <<shiftId_) | ind; 
@@ -1308,13 +1183,13 @@ void DisplayManager::loadGRecTracks()
   }
 }
 //___________________________________________________________________________
-void DisplayManager::loadGSimParticles()
+void DisplayManager::loadGTrueParticles()
 {
   double phi0=0;
   
-  unsigned simParticlesVSize = em_->trueParticles_.size();
+  unsigned trueParticlesVSize = em_->trueParticles_.size();
 
-  for(unsigned i=0; i<simParticlesVSize; i++) {
+  for(unsigned i=0; i<trueParticlesVSize; i++) {
     
     const reco::PFSimParticle& ptc = em_->trueParticles_[i];
     
@@ -1326,41 +1201,28 @@ void DisplayManager::loadGSimParticles()
 
     double sign = 1.;
     
-    const reco::PFTrajectoryPoint& tpFirst = ptc.trajectoryPoint(0);
-    if ( tpFirst.positionXYZ().X() < 0. )
+    const reco::PFTrajectoryPoint& tpatecal 
+      = ptc.trajectoryPoint(ptc.nTrajectoryMeasurements() +
+                            reco::PFTrajectoryPoint::ECALEntrance );
+    
+    if ( cos(phi0 - tpatecal.momentum().Phi()) < 0.)
       sign = -1.;
 
     const std::vector<reco::PFTrajectoryPoint>& points = 
       ptc.trajectoryPoints();
       
-//    int markerstyle;
-//    switch( abs(ptc.pdgCode() ) ) {
-//  case 22:   markerstyle = 3 ;   break; // photons
-//    case 11:   markerstyle = 5 ;   break; // electrons 
-//    case 13:   markerstyle = 2 ;   break; // muons 
-//    case 130:  
-//    case 321:  markerstyle = 24;  break; // K
-//    case 211:  markerstyle = 25;  break; // pi+/pi-
-//    case 2212: markerstyle = 26;  break; // protons
-//    case 2112: markerstyle = 27;  break; // neutrons  
-//    default:   markerstyle = 30;  break; 
-//    }
-
-   int markerstyle;
-   int indexMarker;
+    int markerstyle;
     switch( abs(ptc.pdgCode() ) ) {
-      case 22:   markerstyle = 3 ; indexMarker=0; break; // photons
-      case 11:   markerstyle = 5 ; indexMarker=1;  break; // electrons 
-      case 13:   markerstyle = 2 ; indexMarker=2;  break; // muons 
-      case 130:  
-      case 321:  markerstyle = 24; indexMarker=3; break; // K
-      case 211:  markerstyle = 25; indexMarker=4; break; // pi+/pi-
-      case 2212: markerstyle = 26; indexMarker=5; break; // protons
-      case 2112: markerstyle = 27; indexMarker=6; break; // neutrons  
-      default:   markerstyle = 30; indexMarker=7; break; 
+    case 22:   markerstyle = 3 ;   break; // photons
+    case 11:   markerstyle = 5 ;   break; // electrons 
+    case 13:   markerstyle = 2 ;   break; // muons 
+    case 130:  
+    case 321:  markerstyle = 24;  break; // K
+    case 211:  markerstyle = 25;  break; // pi+/pi-
+    case 2212: markerstyle = 26;  break; // protons
+    case 2112: markerstyle = 27;  break; // neutrons  
+    default:   markerstyle = 30;  break; 
     }
-   
-   
    
     //int    color = 4;
     //int    linestyle = 2;
@@ -1368,11 +1230,9 @@ void DisplayManager::loadGSimParticles()
     bool displayInitial=true;
     if( ptc.motherId() < 0 ) displayInitial=false;
     
-    //int partId=(i<<shiftId_) | SIMPARTICLEID;
-    int partId=(SIMPARTICLEID << shiftId_) | i; 
-    //createGPart(ptc, points,partId, pt, phi0, sign, displayInitial,markerstyle);
-    createGPart(ptc, points,partId, pt, phi0, sign, displayInitial,indexMarker);
-    
+    //int partId=(i<<shiftId_) | SIMPLEPARTID;
+    int partId=(SIMPLEPARTID << shiftId_) | i; 
+    createGPart(ptc, points,partId, pt, phi0, sign, displayInitial,markerstyle);
   }
 }
 //_____________________________________________________________________________
@@ -1412,8 +1272,8 @@ void DisplayManager::lookForMaxRecHit(bool ecal)
   double etagate = zoomFactor_ * etasize;
   double phigate = zoomFactor_ * phisize;
   
-  double eta =  maxrh->positionXYZ().Eta();
-  double phi =  maxrh->positionXYZ().Phi();
+  double eta =  maxrh->positionREP().Eta();
+  double phi =  maxrh->positionREP().Phi();
   
   if(displayHist_[EPE]) {
     displayHist_[EPE]->GetXaxis()->SetRangeUser(eta-etagate, eta+etagate);
@@ -1523,10 +1383,14 @@ void DisplayManager::reset()
   maxERecHitEcal_=-1;
   maxERecHitHcal_=-1;
   isGraphicLoaded_= false;
-  //for (int i=0;i<NViews;i++) {
-  //  vectGClusterLines_[i].clear();
-  //  vectClusLNb_[i].clear();
-  //}
+  for (int i=0;i<NViews;i++) {
+    //vectGHits_[i].clear();
+    //vectGClus_[i].clear();
+    // vectGTracks_[i].clear();
+    //vectGParts_[i].clear();
+    vectGClusterLines_[i].clear();
+    vectClusLNb_[i].clear();
+  }
   std::multimap<int,GPFBase *>::iterator p;
   for (p=graphicMap_.begin();p!=graphicMap_.end();p++)
     delete p->second;
@@ -1547,20 +1411,7 @@ void DisplayManager::unZoom()
   }
   updateDisplay();
 }
-//_______________________________________________________________________________
-void DisplayManager::setNewAttrToSimParticles()
-{
-  simPartPatternM_.clear();
-  simPartPatternM_.push_back(simPartPatternPhoton_);
-  simPartPatternM_.push_back(simPartPatternElec_);
-  simPartPatternM_.push_back(simPartPatternMuon_);
-  simPartPatternM_.push_back(simPartPatternK_);
-  simPartPatternM_.push_back(simPartPatternPi_);
-  simPartPatternM_.push_back(simPartPatternProton_);
-  simPartPatternM_.push_back(simPartPatternNeutron_);
-  simPartPatternM_.push_back(simPartPatternDefault_);
-}  
- //_________________________________________________________________________________
+//_________________________________________________________________________________
 // void DisplayManager::updateDisplay()
 // {
 //  for( unsigned i=0; i<displayView_.size(); i++) {
@@ -1605,43 +1456,4 @@ void DisplayManager::setNewAttrToSimParticles()
   (vectGClusterLines_[viewType])[i].Draw();
   istart=i;
   }
-*/
-//________________________________________________________________________________________
-/*void DisplayManager::createGClusterLines(const reco::PFCluster& cluster,int viewType)
-{
-  
-  int color = 2;
-
-  const math::XYZPoint& xyzPos = cluster.positionXYZ();
-  double eta = xyzPos.Eta(); 
-  double phi = xyzPos.Phi(); 
-  
-  const std::vector< reco::PFRecHitFraction >& rhfracs = 
-    cluster.recHitFractions();
-    
-
-  //   int color = cluster.type();
-
-  // draw a line from the cluster to each of the rechits
-  int nbhits=0;
- 
-  for(unsigned i=0; i<rhfracs.size(); i++) {
-
-    // rechit index 
-    // unsigned rhi = rhfracs[i].recHitIndex();
-
-    const reco::PFRecHit& rh = *(rhfracs[i].recHitRef());
-
-
-    double rheta = rh.positionXYZ().Eta();
-    double rhphi = rh.positionXYZ().Phi();
-    
-    TLine l(eta,phi,rheta,rhphi);
-    l.SetLineColor(color);
-    vectGClusterLines_[viewType].push_back(l);
-    ++nbhits;
-    
-  }
-  vectClusLNb_[viewType].push_back(nbhits);
-}
 */

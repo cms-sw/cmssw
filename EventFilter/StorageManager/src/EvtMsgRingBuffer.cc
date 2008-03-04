@@ -12,7 +12,6 @@
 #include "EventFilter/StorageManager/interface/EvtMsgRingBuffer.h"
 
 #include "FWCore/Utilities/interface/DebugMacros.h"
-#include "FWCore/Utilities/interface/Exception.h"
 
 #include <iostream>
 

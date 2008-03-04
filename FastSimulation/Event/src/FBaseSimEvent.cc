@@ -15,6 +15,7 @@
 #include "FastSimulation/Event/interface/FSimVertex.h"
 #include "FastSimulation/Event/interface/KineParticleFilter.h"
 #include "FastSimulation/BaseParticlePropagator/interface/BaseParticlePropagator.h"
+#include "FastSimulation/Event/interface/BetaFuncPrimaryVertexGenerator.h"
 #include "FastSimulation/Event/interface/GaussianPrimaryVertexGenerator.h"
 #include "FastSimulation/Event/interface/FlatPrimaryVertexGenerator.h"
 #include "FastSimulation/Event/interface/NoPrimaryVertexGenerator.h"
@@ -82,6 +83,8 @@ FBaseSimEvent::FBaseSimEvent(const edm::ParameterSet& vtx,
     theVertexGenerator = new GaussianPrimaryVertexGenerator(vtx,random);
   else if ( vtxType == "Flat" ) 
     theVertexGenerator = new FlatPrimaryVertexGenerator(vtx,random);
+  else if ( vtxType == "BetaFunc" )
+    theVertexGenerator = new BetaFuncPrimaryVertexGenerator(vtx,random);
   else
     theVertexGenerator = new NoPrimaryVertexGenerator();
 

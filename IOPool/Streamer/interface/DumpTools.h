@@ -12,6 +12,7 @@
 void dumpInitHeader(const InitMsgView* view);
 void dumpInitView(const InitMsgView* view);
 void dumpStartMsg(const InitMsgView* view);
+void dumpInitVerbose(const InitMsgView* view);
 void dumpInit(uint8* buf);
 void printBits(unsigned char c);
 void dumpEventHeader(const EventMsgView* eview);

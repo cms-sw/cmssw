@@ -19,7 +19,7 @@ public:
 
 /**
  *  Method to add a track to an existing CachingVertex
- * An invalid vertex is returned in case of problems during the update.
+ *
  */
 
    CachingVertex<N> add(const CachingVertex<N> & oldVertex,
@@ -27,7 +27,7 @@ public:
 
 /**
  *  Method removing already used VertexTrack from existing CachingVertex
- * An invalid vertex is returned in case of problems during the update.
+ *
  */
 
    CachingVertex<N> remove(const CachingVertex<N> & oldVertex,
@@ -44,7 +44,6 @@ public:
 
     /**
      * The methode which actually does the vertex update.
-     * An invalid vertex is returned in case of problems during the update.
      */
   CachingVertex<N> update(const CachingVertex<N> & oldVertex,
                          const RefCountedVertexTrack track, float weight,

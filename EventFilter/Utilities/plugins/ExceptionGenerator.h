@@ -21,8 +21,8 @@ namespace evf{
     class ExceptionGenerator : public edm::EDAnalyzer, public evf::ModuleWeb
     {
     public:
-      static const int menu_items = 5;
-      static const std::string menu[5];
+      static const int menu_items = 8;
+      static const std::string menu[menu_items];
 						   
       explicit ExceptionGenerator( const edm::ParameterSet& );
       ~ExceptionGenerator(){};
@@ -35,6 +35,9 @@ namespace evf{
       
     private:
       bool actionRequired_;
+      std::string qualifier_;
+      unsigned int intqualifier_;
+      std::string original_referrer_;
       int actionId_;
     };
   }

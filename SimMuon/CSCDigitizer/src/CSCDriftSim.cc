@@ -179,7 +179,7 @@ double CSCDriftSim::gasGain(const CSCDetId & detId) const
   int ring = detId.ring();
   if(detId.station() == 1 && (ring == 1 || ring == 4))
   {
-    result *= 2.78;
+    result *= 2.;
   }
   return result;
 }

@@ -82,7 +82,7 @@ TwoBodyDecayTrajectoryFactory::trajectories( const edm::EventSetup& setup,
   edm::ESHandle< MagneticField > magneticField;
   setup.get< IdealMagneticFieldRecord >().get( magneticField );
 
-  if ( tracks.size() == 2 )
+  if ( tracks.size() == 2 && external.size() == 2 )
   {
     if ( external[0].isValid() && external[1].isValid() ) // Include external estimates
     {
@@ -135,6 +135,8 @@ TwoBodyDecayTrajectoryFactory::constructTrajectories( const ConstTrajTrackPairCo
   // get innermost valid trajectory state and hits from the tracks
   TrajectoryInput input1 = this->innermostStateAndRecHits( tracks[0] );
   TrajectoryInput input2 = this->innermostStateAndRecHits( tracks[1] );
+
+  if ( !( input1.first.isValid() && input2.first.isValid() ) ) return trajectories;
 
   // produce TwoBodyDecayTrajectoryState (input for TwoBodyDecayTrajectory)
   TsosContainer tsos( input1.first, input2.first );

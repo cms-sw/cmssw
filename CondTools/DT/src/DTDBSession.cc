@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2007/11/24 12:29:54 $
- *  $Revision: 1.1.4.2 $
+ *  $Date: 2007/12/07 15:13:21 $
+ *  $Revision: 1.2 $
  *  \author Paolo Ronchese INFN Padova
  *
  */
@@ -16,36 +16,19 @@
 // Collaborating Class Headers --
 //-------------------------------
 
-#include "DataFormats/Provenance/interface/EventID.h"
-#include "DataFormats/Provenance/interface/Timestamp.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Catalog/interface/SiteLocalConfig.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
-#include "CondCore/MetaDataService/interface/MetaData.h"
-#include "CondCore/DBCommon/interface/Connection.h"
 #include "CondCore/DBCommon/interface/PoolTransaction.h"
 //#include "CondCore/DBCommon/interface/PoolStorageManager.h"
 //#include "CondCore/DBCommon/interface/RelationalStorageManager.h"
-#include "CondCore/IOVService/interface/IOVService.h"
-#include "CondCore/IOVService/interface/IOVEditor.h"
-#include "CondCore/IOVService/interface/IOVNames.h"
-#include "CondCore/DBCommon/interface/AuthenticationMethod.h"
 //#include "CondCore/DBCommon/interface/ConnectMode.h"
 #include "CondCore/DBCommon/interface/MessageLevel.h"
-#include "CondCore/DBCommon/interface/Exception.h"
-#include "CondCore/DBCommon/interface/ConfigSessionFromParameterSet.h"
 //#include "CondCore/DBCommon/src/ServiceLoader.h"
-#include "CondCore/DBOutputService/interface/Exception.h"
-#include "CondCore/DBCommon/interface/ObjectRelationalMappingUtility.h"
-#include "CondCore/DBOutputService/src/serviceCallbackToken.h"
 //#include "RelationalAccess/IConnectionService.h"
 //#include "RelationalAccess/IWebCacheControl.h"
 #include <vector>
 
 #include "CondCore/DBCommon/interface/SessionConfiguration.h"
-#include "CondCore/DBCommon/interface/ConnectionConfiguration.h"
 
 
 

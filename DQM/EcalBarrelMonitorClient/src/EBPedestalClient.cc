@@ -1,8 +1,8 @@
 /*
  * \file EBPedestalClient.cc
  *
- * $Date: 2008/01/17 09:34:41 $
- * $Revision: 1.175 $
+ * $Date: 2008/02/09 19:49:57 $
+ * $Revision: 1.180 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -17,14 +17,8 @@
 #include "TCanvas.h"
 #include "TStyle.h"
 
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-
 #include "DQMServices/UI/interface/MonitorUIRoot.h"
 
-#include "OnlineDB/EcalCondDB/interface/RunTag.h"
-#include "OnlineDB/EcalCondDB/interface/RunIOV.h"
 #include "OnlineDB/EcalCondDB/interface/MonPedestalsDat.h"
 #include "OnlineDB/EcalCondDB/interface/MonPNPedDat.h"
 #include "OnlineDB/EcalCondDB/interface/RunCrystalErrorsDat.h"
@@ -54,7 +48,7 @@ EBPedestalClient::EBPedestalClient(const ParameterSet& ps){
   verbose_ = ps.getUntrackedParameter<bool>("verbose", false);
 
   // enableMonitorDaemon_ switch
-  enableMonitorDaemon_ = ps.getUntrackedParameter<bool>("enableMonitorDaemon", true);
+  enableMonitorDaemon_ = ps.getUntrackedParameter<bool>("enableMonitorDaemon", false);
 
   // enableCleanup_ switch
   enableCleanup_ = ps.getUntrackedParameter<bool>("enableCleanup", false);
@@ -187,7 +181,7 @@ void EBPedestalClient::endRun(void) {
 
 void EBPedestalClient::setup(void) {
 
-  Char_t histo[200];
+  char histo[200];
 
   dbe_->setCurrentFolder( "EcalBarrel/EBPedestalClient" );
 
@@ -487,7 +481,7 @@ bool EBPedestalClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRu
 
         if ( update01 || update02 || update03 ) {
 
-          if ( ie == 1 && ip == 1 ) {
+          if ( Numbers::icEB(ism, ie, ip) == 1 ) {
 
             cout << "Preparing dataset for " << Numbers::sEB(ism) << " (ism=" << ism << ")" << endl;
 
@@ -523,12 +517,8 @@ bool EBPedestalClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRu
           int ic = Numbers::indexEB(ism, ie, ip);
 
           if ( econn ) {
-            try {
-              ecid = LogicID::getEcalLogicID("EB_crystal_number", Numbers::iSM(ism, EcalBarrel), ic);
-              dataset1[ecid] = p;
-            } catch (runtime_error &e) {
-              cerr << e.what() << endl;
-            }
+            ecid = LogicID::getEcalLogicID("EB_crystal_number", Numbers::iSM(ism, EcalBarrel), ic);
+            dataset1[ecid] = p;
           }
 
         }
@@ -540,7 +530,7 @@ bool EBPedestalClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRu
 
   if ( econn ) {
     try {
-      cout << "Inserting MonPedestalsDat ... " << flush;
+      cout << "Inserting MonPedestalsDat ..." << endl;
       if ( dataset1.size() != 0 ) econn->insertDataArraySet(&dataset1, moniov);
       cout << "done." << endl;
     } catch (runtime_error &e) {
@@ -604,12 +594,8 @@ bool EBPedestalClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRu
                            UtilsClient::getBinQual(meg05_[ism-1], i, 1);
 
         if ( econn ) {
-          try {
-            ecid = LogicID::getEcalLogicID("EB_LM_PN", Numbers::iSM(ism, EcalBarrel), i-1);
-            dataset2[ecid] = pn;
-          } catch (runtime_error &e) {
-            cerr << e.what() << endl;
-          }
+          ecid = LogicID::getEcalLogicID("EB_LM_PN", Numbers::iSM(ism, EcalBarrel), i-1);
+          dataset2[ecid] = pn;
         }
 
       }
@@ -620,7 +606,7 @@ bool EBPedestalClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRu
 
   if ( econn ) {
     try {
-      cout << "Inserting MonPNPedDat ... " << flush;
+      cout << "Inserting MonPNPedDat ..." << endl;
       if ( dataset2.size() != 0 ) econn->insertDataArraySet(&dataset2, moniov);
       cout << "done." << endl;
     } catch (runtime_error &e) {
@@ -664,7 +650,7 @@ void EBPedestalClient::analyze(void){
   EcalErrorMask::fetchDataSet(&mask1);
   EcalErrorMask::fetchDataSet(&mask2);
 
-  Char_t histo[200];
+  char histo[200];
 
   MonitorElement* me;
 
@@ -819,7 +805,7 @@ void EBPedestalClient::analyze(void){
 
             int ic = Numbers::indexEB(ism, ie, ip);
 
-            if ( ecid.getID1() == Numbers::iSM(ism, EcalBarrel) && ecid.getID2() == ic ) {
+            if ( ecid.getLogicID() == LogicID::getEcalLogicID("EB_crystal_number", Numbers::iSM(ism, EcalBarrel), ic).getLogicID() ) {
               if ( (m->second).getErrorBits() & bits01 ) {
                 if ( meg01_[ism-1] ) {
                   float val = int(meg01_[ism-1]->getBinContent(ie, ip)) % 3;
@@ -905,7 +891,7 @@ void EBPedestalClient::analyze(void){
 
           EcalLogicID ecid = m->first;
 
-          if ( ecid.getID1() == Numbers::iSM(ism, EcalBarrel) && ecid.getID2() == i-1 ) {
+          if ( ecid.getLogicID() == LogicID::getEcalLogicID("EB_LM_PN", Numbers::iSM(ism, EcalBarrel), i-1).getLogicID() ) {
             if ( (m->second).getErrorBits() & bits01 ) {
               if ( meg04_[ism-1] ) {
                 float val = int(meg04_[ism-1]->getBinContent(i, 1)) % 3;

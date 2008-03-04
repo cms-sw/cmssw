@@ -125,6 +125,8 @@ namespace evf
       fsm_.addStateTransition('s','F',"Fail",this,&evf::StateMachine::failed);
       fsm_.addStateTransition('h','F',"Fail",this,&evf::StateMachine::failed);
       
+      fsm_.addStateTransition('E','F',"Fail",this,&evf::StateMachine::failed);
+
       fsm_.setFailedStateTransitionAction(this,&evf::StateMachine::failed);
       fsm_.setFailedStateTransitionChanged(this,&evf::StateMachine::stateChanged);
       fsm_.setStateName('F',"Failed");

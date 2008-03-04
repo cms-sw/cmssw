@@ -729,6 +729,61 @@ void L1GtTriggerMenuXmlParser::cleanupXML(XERCES_CPP_NAMESPACE::XercesDOMParser*
 
 }
 
+// FIXME remove it after new L1 Trigger Menu Editor available
+// mirrors the LUT table from GTgui format to correct bit format
+boost::uint64_t L1GtTriggerMenuXmlParser::mirror(const boost::uint64_t oldLUT,
+        int maxBitsLUT, int maxBitsReal)
+{
+
+    LogTrace("L1GtTriggerMenuXmlParser") << "\n maxBitsLUT (dec) = "
+            << maxBitsLUT << std::endl;
+
+    boost::uint64_t newLUT = 0ULL;
+    int newBit = -1;
+    
+    int firstBin = 0;
+    int diffScale = maxBitsLUT - maxBitsReal;
+    
+    if (diffScale != 0) {
+        firstBin = 1;
+    }
+
+    for (int oldBit = 0; oldBit < maxBitsLUT; ++oldBit) {
+
+        int bitValue = (oldLUT & (1 << oldBit)) >> oldBit;
+
+        newBit = maxBitsReal/2 + firstBin - oldBit - 1;
+
+        if (newBit < 0) {
+            int newVal = (maxBitsLUT/2 + std::abs(newBit) - 1 );
+            int endValid = maxBitsLUT/2 + maxBitsReal/2;
+            if ((newVal < endValid)) {
+                newBit = newVal;
+            }
+            else {
+                newBit = oldBit + (maxBitsReal - maxBitsLUT)/2;
+
+                if (newBit >= maxBitsLUT/2) {
+                    newBit = oldBit;
+                }
+            }
+        }
+
+        newLUT = newLUT | (bitValue << newBit);
+
+        LogTrace("L1GtTriggerMenuXmlParser") << "  old bit number = " << oldBit
+                << "  new bit number = " << newBit << "\n  bit value = "
+                << bitValue << std::endl;
+    }
+
+    LogTrace("L1GtTriggerMenuXmlParser") << "\n Converting old LUT  (hex) "
+            << std::hex << "\n    GTgui.XML:    " << oldLUT << std::dec
+            << std::hex << "\n    Mirror:       " << newLUT << std::dec
+            << std::endl;
+
+    return newLUT;
+}
+
 // methods for the VME file
 
 /**
@@ -1426,15 +1481,24 @@ bool L1GtTriggerMenuXmlParser::parseMuon(XERCES_CPP_NAMESPACE::DOMNode* node,
         return false;
     }
 
+    /// <<<<<
+    // convert from GTgui format to correct bit number (bit number = GCT etaIndex())
+    // FIXME write it correctly in the new GTgui and remove this conversion block
+
+    int maxBitsReal = 64;
+    
+    // maximum number of bits for eta range
+    int maxBitsLUT = 64;
+
+    /// >>>>>>
+    
     for (int i = 0; i < nrObj; i++) {
-        objParameter[i].etaRange = tmpValues[i];
+        
+        objParameter[i].etaRange = mirror(tmpValues[i], maxBitsLUT, maxBitsReal);
+        //objParameter[i].etaRange = tmpValues[i];
 
-        //LogTrace("L1GtTriggerMenuXmlParser")
-        //<< "      etaRange (hex) for muon " << i << " = "
-        //<< std::hex << objParameter[i].etaRange << std::dec
-        //<< std::endl;
     }
-
+    
     // get phiHigh values and fill into structure
     if ( !getConditionChildValues(node, m_xmlTagPhiHigh, nrObj, tmpValues) ) {
         return false;
@@ -1679,15 +1743,28 @@ bool L1GtTriggerMenuXmlParser::parseCalo(XERCES_CPP_NAMESPACE::DOMNode* node,
         return false;
     }
 
-    for (int i = 0; i < nrObj; i++) {
-        objParameter[i].etaRange = tmpValues[i];
+    /// <<<<<
+    // convert from GTgui format to correct bit number (bit number = GCT etaIndex())
+    // FIXME write it correctly in the new GTgui and remove this conversion block
 
-        //LogTrace("L1GtTriggerMenuXmlParser")
-        //<< "      etaRange (hex) for calo object " << i << " = "
-        //<< std::hex << objParameter[i].etaRange << std::dec
-        //<< std::endl;
+    int maxBitsReal = 14;
+    
+    if (caloObjType == ForJet) {
+        maxBitsReal = 8;
     }
 
+    // maximum number of bits for eta range
+    int maxBitsLUT = 16;
+
+    /// >>>>>>
+    
+    for (int i = 0; i < nrObj; i++) {
+        
+        objParameter[i].etaRange = static_cast<unsigned int> (mirror(tmpValues[i], maxBitsLUT, maxBitsReal));
+        //objParameter[i].etaRange = tmpValues[i];
+
+    }
+    
     // get phiRange values and fill into structure
     if ( !getConditionChildValues(node, m_xmlTagPhi, nrObj, tmpValues) ) {
         return false;

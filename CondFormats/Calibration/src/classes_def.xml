@@ -36,7 +36,4 @@
  <class name="__gnu_cxx::__normal_iterator<CalibHistogram*,std::vector<CalibHistogram> >"/>
  <class name="__gnu_cxx::__normal_iterator<const float*,std::vector<float> > "/>
  <class name="__gnu_cxx::__normal_iterator<float*,std::vector<float> >"/>
- <class name="std::bitset<7>"/>
- <class name="BitArray<9>"/>
- <class name="boostTypeObj"/>
 </lcgdict>   

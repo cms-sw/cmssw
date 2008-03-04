@@ -1,8 +1,8 @@
 /*
  * \file EEBeamCaloClient.cc
  *
- * $Date: 2008/01/17 09:34:42 $
- * $Revision: 1.32 $
+ * $Date: 2008/02/09 19:50:12 $
+ * $Revision: 1.40 $
  * \author G. Della Ricca
  * \author A. Ghezzi
  *
@@ -17,21 +17,12 @@
 #include "TCanvas.h"
 #include "TStyle.h"
 
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-
 #include "DQMServices/UI/interface/MonitorUIRoot.h"
 
-#include "OnlineDB/EcalCondDB/interface/RunTag.h"
-#include "OnlineDB/EcalCondDB/interface/RunIOV.h"
 #include "OnlineDB/EcalCondDB/interface/MonOccupancyDat.h"
 
 #include "OnlineDB/EcalCondDB/interface/EcalCondDBInterface.h"
 
-#include "CondTools/Ecal/interface/EcalErrorDictionary.h"
-
-#include "DQM/EcalCommon/interface/EcalErrorMask.h"
 #include "DQM/EcalCommon/interface/UtilsClient.h"
 #include "DQM/EcalCommon/interface/LogicID.h"
 #include "DQM/EcalCommon/interface/Numbers.h"
@@ -51,7 +42,7 @@ EEBeamCaloClient::EEBeamCaloClient(const ParameterSet& ps){
   verbose_ = ps.getUntrackedParameter<bool>("verbose", false);
 
   // enableMonitorDaemon_ switch
-  enableMonitorDaemon_ = ps.getUntrackedParameter<bool>("enableMonitorDaemon", true);
+  enableMonitorDaemon_ = ps.getUntrackedParameter<bool>("enableMonitorDaemon", false);
 
   // enableCleanup_ switch
   enableCleanup_ = ps.getUntrackedParameter<bool>("enableCleanup", false);
@@ -150,7 +141,7 @@ void EEBeamCaloClient::endRun(void) {
 
 void EEBeamCaloClient::setup(void) {
 
-  Char_t histo[200];
+  char histo[200];
 
   dbe_->setCurrentFolder( "EcalEndcap/EEBeamCaloClient" );
 
@@ -289,21 +280,21 @@ bool EEBeamCaloClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRu
         int step = 0;
         if (hBcryDone_){ step = (int) hBcryDone_->GetBinContent(ic);}
         if( step > 0 && step < 86){
-	//if(hBE3x3vsCry_){mean01 = hBE3x3vsCry_->GetBinContent(step);}// E in the 3x3
-	if( hBE1vsCry_ ){mean01 = hBE1vsCry_->GetBinContent(ic);} // E1
+        //if(hBE3x3vsCry_){mean01 = hBE3x3vsCry_->GetBinContent(step);}// E in the 3x3
+        if( hBE1vsCry_ ){mean01 = hBE1vsCry_->GetBinContent(ic);} // E1
         }
         //if(mean01 >0){cout<<"cry: "<<ic<<" ie: "<<ie<<" ip: "<<ip<<" mean: "<< mean01<<endl;}
 
         if ( update_channel ) {
 
-          if ( ie == 1 && ip == 1 ) {
-	//if ( mean01 !=0) {
+          if ( Numbers::icEB(ism, ie, ip) == 1 ) {
+        //if ( mean01 !=0) {
 
             cout << "Preparing dataset for " << Numbers::sEE(ism) << " (ism=" << ism << ")" << endl;
 
             cout << "CryOnBeam (" << ie << "," << ip << ") " << num01  << endl;
             cout << "MaxEneCry (" << ie << "," << ip << ") " << num02  << endl;
-	  cout << "E1 ("        << ie << "," << ip << ") " << mean01 << endl;
+            cout << "E1 ("        << ie << "," << ip << ") " << mean01 << endl;
 
             cout << endl;
 
@@ -315,12 +306,8 @@ bool EEBeamCaloClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRu
           o.setAvgEnergy(mean01);
 
           if ( econn ) {
-            try {
-              ecid = LogicID::getEcalLogicID("EE_crystal_number", ism, ic);
-              dataset[ecid] = o;
-            } catch (runtime_error &e) {
-              cerr << e.what() << endl;
-            }
+            ecid = LogicID::getEcalLogicID("EE_crystal_number", ism, ic);
+            dataset[ecid] = o;
           }
 
         }
@@ -332,7 +319,7 @@ bool EEBeamCaloClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRu
 
   if ( econn ) {
     try {
-      cout << "Inserting MonOccupancyDat ..." << flush;
+      cout << "Inserting MonOccupancyDat ..." << endl;
       if ( dataset.size() != 0 ) econn->insertDataArraySet(&dataset, moniov);
       cout << "done." << endl;
     } catch (runtime_error &e) {
@@ -352,7 +339,7 @@ void EEBeamCaloClient::analyze(void){
     if ( verbose_ ) cout << "EEBeamCaloClient: ievt/jevt = " << ievt_ << "/" << jevt_ << endl;
   }
 
-  Char_t histo[200];
+  char histo[200];
 
   MonitorElement* me = 0;
 
@@ -451,49 +438,49 @@ void EEBeamCaloClient::analyze(void){
     for(int cry=1 ; cry<1701 ; cry ++){
       int step = (int) hBcryDone_->GetBinContent(cry);
       if( step>0 ){//this crystal has been scanned or is dbeng scanned
-	DoneCry++;
-	float E3x3RMS = -1, E3x3 =-1, E1=-1;
-	if(hBE3x3vsCry_){
-	  //E3x3RMS = hBE3x3vsCry_->GetBinError(step);
-	  //E3x3 = hBE3x3vsCry_->GetBinContent(step);
-	  E3x3RMS = hBE3x3vsCry_->GetBinError(cry);
-	  E3x3 = hBE3x3vsCry_->GetBinContent(cry);
-	}
-	//if( hBE1vsCry_){E1=hBE1vsCry_->GetBinContent(step);}
-	if( hBE1vsCry_){E1=hBE1vsCry_->GetBinContent(cry);}
-	bool RMS3x3  =  (  E3x3RMS < RMSEne3x3_ && E3x3RMS >= 0 );
-	bool Mean3x3 =  ( fabs( E3x3 - aveEne3x3_ ) < E3x3Th_);
-	bool Mean1   =  ( fabs( E1 - aveEne1_ ) < E1Th_ );
-	//cout<<"E1: "<<E1<<" E3x3: "<<E3x3<<" E3x3RMS: "<<E3x3RMS<<endl;
-	int ieta = ( cry - 1)/20 + 1 ;//+1 for the bin
-	int iphi = ( cry - 1)%20 + 1 ;//+1 for the bin
-	//fill the RedGreen histo
-	if(ieta >0 && iphi >0 ){
-	  if(RMS3x3 && Mean3x3 && Mean1) {meEEBCaloRedGreen_->setBinContent(ieta,iphi,1.);}
-	  else {meEEBCaloRedGreen_->setBinContent(ieta,iphi,0.);}
-	}
+        DoneCry++;
+        float E3x3RMS = -1, E3x3 =-1, E1=-1;
+        if(hBE3x3vsCry_){
+          //E3x3RMS = hBE3x3vsCry_->GetBinError(step);
+          //E3x3 = hBE3x3vsCry_->GetBinContent(step);
+          E3x3RMS = hBE3x3vsCry_->GetBinError(cry);
+          E3x3 = hBE3x3vsCry_->GetBinContent(cry);
+        }
+        //if( hBE1vsCry_){E1=hBE1vsCry_->GetBinContent(step);}
+        if( hBE1vsCry_){E1=hBE1vsCry_->GetBinContent(cry);}
+        bool RMS3x3  =  (  E3x3RMS < RMSEne3x3_ && E3x3RMS >= 0 );
+        bool Mean3x3 =  ( fabs( E3x3 - aveEne3x3_ ) < E3x3Th_);
+        bool Mean1   =  ( fabs( E1 - aveEne1_ ) < E1Th_ );
+        //cout<<"E1: "<<E1<<" E3x3: "<<E3x3<<" E3x3RMS: "<<E3x3RMS<<endl;
+        int ieta = ( cry - 1)/20 + 1 ;//+1 for the bin
+        int iphi = ( cry - 1)%20 + 1 ;//+1 for the bin
+        //fill the RedGreen histo
+        if(ieta >0 && iphi >0 ){
+          if(RMS3x3 && Mean3x3 && Mean1) {meEEBCaloRedGreen_->setBinContent(ieta,iphi,1.);}
+          else {meEEBCaloRedGreen_->setBinContent(ieta,iphi,0.);}
+        }
 
-	float Entries = -1;
-	//if ( hBEntriesvsCry_ ){Entries = hBEntriesvsCry_->GetBinContent(step);}
-	if ( hBEntriesvsCry_ ){Entries = hBEntriesvsCry_->GetBinContent(cry);}
-	bool Nent = ( Entries * prescaling_  > minEvtNum_ );
-	//cout<<"step: "<<step<<" entries: "<<Entries<<endl;
-	//cout<<"step -1 entries: "<<hBEntriesvsCry_->GetBinContent(step-1)<<endl;
-	//cout<<"step +1 entries: "<<hBEntriesvsCry_->GetBinContent(step+1)<<endl;
-	bool readCryOk = true;
-	if( hBReadCryErrors_ ) {
-	  int step_bin = hBReadCryErrors_->GetXaxis()->FindFixBin(step);
-	  if ( step_bin > 0 && step_bin < hBReadCryErrors_->GetNbinsX() ){
-	    if ( hBReadCryErrors_->GetBinContent(step_bin) <= Entries*ReadCryErrThr_ ){readCryOk = true;}
-	    else {readCryOk = false;}
-	  }
-	}
+        float Entries = -1;
+        //if ( hBEntriesvsCry_ ){Entries = hBEntriesvsCry_->GetBinContent(step);}
+        if ( hBEntriesvsCry_ ){Entries = hBEntriesvsCry_->GetBinContent(cry);}
+        bool Nent = ( Entries * prescaling_  > minEvtNum_ );
+        //cout<<"step: "<<step<<" entries: "<<Entries<<endl;
+        //cout<<"step -1 entries: "<<hBEntriesvsCry_->GetBinContent(step-1)<<endl;
+        //cout<<"step +1 entries: "<<hBEntriesvsCry_->GetBinContent(step+1)<<endl;
+        bool readCryOk = true;
+        if( hBReadCryErrors_ ) {
+          int step_bin = hBReadCryErrors_->GetXaxis()->FindFixBin(step);
+          if ( step_bin > 0 && step_bin < hBReadCryErrors_->GetNbinsX() ){
+            if ( hBReadCryErrors_->GetBinContent(step_bin) <= Entries*ReadCryErrThr_ ){readCryOk = true;}
+            else {readCryOk = false;}
+          }
+        }
 
-	if(Nent && readCryOk ){ meEEBCaloRedGreenSteps_->setBinContent(step,1,1.);}
-	else{ meEEBCaloRedGreenSteps_->setBinContent(step,1,0.);}
+        if(Nent && readCryOk ){ meEEBCaloRedGreenSteps_->setBinContent(step,1,1.);}
+        else{ meEEBCaloRedGreenSteps_->setBinContent(step,1,0.);}
 
-	if (readCryOk &&  meEEBCaloRedGreenReadCry_->getBinContent(1,1) != 0.){ meEEBCaloRedGreenReadCry_->setBinContent(1,1, 1.);}
-	else if ( !readCryOk ){ meEEBCaloRedGreenReadCry_->setBinContent(1,1, 0.);}
+        if (readCryOk &&  meEEBCaloRedGreenReadCry_->getBinContent(1,1) != 0.){ meEEBCaloRedGreenReadCry_->setBinContent(1,1, 1.);}
+        else if ( !readCryOk ){ meEEBCaloRedGreenReadCry_->setBinContent(1,1, 0.);}
       }// end of if (step>0)
     }//end of loop over cry
   }//end of if(hBcryDone_)
@@ -509,14 +496,14 @@ void EEBeamCaloClient::analyze(void){
       int ieta=0,iphi=0;
       float found =0; //there should be just one bin filled but...
       for (int b_eta =1; b_eta<86; b_eta++){
-	for (int b_phi =1; b_phi<21; b_phi++){
-	  float bc = hBCryOnBeam_->GetBinContent(b_eta,b_phi);//FIX ME check if this is the correct binning
-	  if(bc > found){ found =bc; ieta = b_eta; iphi= b_phi;}
-	}
+        for (int b_phi =1; b_phi<21; b_phi++){
+          float bc = hBCryOnBeam_->GetBinContent(b_eta,b_phi);//FIX ME check if this is the correct binning
+          if(bc > found){ found =bc; ieta = b_eta; iphi= b_phi;}
+        }
       }
       if(ieta >0 && iphi >0 ){
-	if(RMS3x3 && Mean3x3 && Mean1) {meEEBCaloRedGreen_->setBinContent(ieta,iphi,1.);}
-	else {meEEBCaloRedGreen_->setBinContent(ieta,iphi,0.);}
+        if(RMS3x3 && Mean3x3 && Mean1) {meEEBCaloRedGreen_->setBinContent(ieta,iphi,1.);}
+        else {meEEBCaloRedGreen_->setBinContent(ieta,iphi,0.);}
       }
     }
     if(hBReadCryErrors_){
@@ -537,14 +524,14 @@ void EEBeamCaloClient::analyze(void){
   //       int ieta=0,iphi=0;
   //       float found =0; //there should be just one bin filled but...
   //       for (int b_eta =1; b_eta<86; b_eta++){
-  // 	for (int b_phi =1; b_phi<21; b_phi++){
-  // 	  float bc = meCryInBeam->getBinContent(b_eta,b_phi);//FIX ME check if this is the correct binning
-  // 	  if(bc > found){ found =bc; ieta = b_eta; iphi= b_phi;}
-  // 	}
+  //         for (int b_phi =1; b_phi<21; b_phi++){
+  //           float bc = meCryInBeam->getBinContent(b_eta,b_phi);//FIX ME check if this is the correct binning
+  //           if(bc > found){ found =bc; ieta = b_eta; iphi= b_phi;}
+  //         }
   //       }
   //       if(ieta >0 && iphi >0 ){
-  // 	if(RMS3x3 && Mean3x3 && Mean1) {meEEBCaloRedGreen_->setBinContent(ieta,iphi,1.);}
-  // 	else {meEEBCaloRedGreen_->setBinContent(ieta,iphi,0.);}
+  //         if(RMS3x3 && Mean3x3 && Mean1) {meEEBCaloRedGreen_->setBinContent(ieta,iphi,1.);}
+  //         else {meEEBCaloRedGreen_->setBinContent(ieta,iphi,0.);}
   //       }
   //     }
   //     float nErr = ErrRedCry->getBinContent(1);// for a non autoscan just the first bin should be filled
@@ -663,7 +650,7 @@ void EEBeamCaloClient::htmlOutput(int run, string htmlDir, string htmlName){
     meName = obj2f->GetName();
     for ( unsigned int i = 0; i < meName.size(); i++ ) {
       if ( meName.substr(i, 1) == " " )  {
-	meName.replace(i, 1, "_");
+        meName.replace(i, 1, "_");
       }
     }
     RedGreenSMImg = meName + ".png";
@@ -698,7 +685,7 @@ void EEBeamCaloClient::htmlOutput(int run, string htmlDir, string htmlName){
 
     for ( unsigned int i = 0; i < meName.size(); i++ ) {
       if ( meName.substr(i, 1) == " " )  {
-	meName.replace(i, 1, "_");
+        meName.replace(i, 1, "_");
       }
     }
     RedGreenImg = meName + ".png";
@@ -737,7 +724,7 @@ void EEBeamCaloClient::htmlOutput(int run, string htmlDir, string htmlName){
     meName = obj2f->GetName();
     for ( unsigned int i = 0; i < meName.size(); i++ ) {
       if ( meName.substr(i, 1) == " " )  {
-	meName.replace(i, 1, "_");
+        meName.replace(i, 1, "_");
       }
     }
     RedGreenAutoImg = meName + ".png";
@@ -787,7 +774,7 @@ void EEBeamCaloClient::htmlOutput(int run, string htmlDir, string htmlName){
 
     for ( unsigned int i = 0; i < meName.size(); i++ ) {
       if ( meName.substr(i, 1) == " " )  {
-	meName.replace(i, 1, "_");
+        meName.replace(i, 1, "_");
       }
     }
     numCryReadImg = meName + ".png";
@@ -815,7 +802,7 @@ void EEBeamCaloClient::htmlOutput(int run, string htmlDir, string htmlName){
 
     for ( unsigned int i = 0; i < meName.size(); i++ ) {
       if ( meName.substr(i, 1) == " " )  {
-	meName.replace(i, 1, "_");
+        meName.replace(i, 1, "_");
       }
     }
     cryReadErrImg = meName + ".png";
@@ -844,7 +831,7 @@ void EEBeamCaloClient::htmlOutput(int run, string htmlDir, string htmlName){
 
     for ( unsigned int i = 0; i < meName.size(); i++ ) {
       if ( meName.substr(i, 1) == " " )  {
-	meName.replace(i, 1, "_");
+        meName.replace(i, 1, "_");
       }
     }
     E1MaxCryImg = meName + ".png";
@@ -872,7 +859,7 @@ void EEBeamCaloClient::htmlOutput(int run, string htmlDir, string htmlName){
 
     for ( unsigned int i = 0; i < meName.size(); i++ ) {
       if ( meName.substr(i, 1) == " " )  {
-	meName.replace(i, 1, "_");
+        meName.replace(i, 1, "_");
       }
     }
     DesyncImg = meName + ".png";
@@ -909,7 +896,7 @@ void EEBeamCaloClient::htmlOutput(int run, string htmlDir, string htmlName){
 
     for ( unsigned int i = 0; i < meName.size(); i++ ) {
       if ( meName.substr(i, 1) == " " )  {
-	meName.replace(i, 1, "_");
+        meName.replace(i, 1, "_");
       }
     }
     cryOnBeamImg = meName + ".png";
@@ -945,7 +932,7 @@ void EEBeamCaloClient::htmlOutput(int run, string htmlDir, string htmlName){
 
     for ( unsigned int i = 0; i < meName.size(); i++ ) {
       if ( meName.substr(i, 1) == " " )  {
-	meName.replace(i, 1, "_");
+        meName.replace(i, 1, "_");
       }
     }
     cryMaxEneImg = meName + ".png";
@@ -994,7 +981,7 @@ void EEBeamCaloClient::htmlOutput(int run, string htmlDir, string htmlName){
 
     for ( unsigned int i = 0; i < meName.size(); i++ ) {
       if ( meName.substr(i, 1) == " " )  {
-	meName.replace(i, 1, "_");
+        meName.replace(i, 1, "_");
       }
     }
     ene1Img = meName + ".png";
@@ -1022,7 +1009,7 @@ void EEBeamCaloClient::htmlOutput(int run, string htmlDir, string htmlName){
 
     for ( unsigned int i = 0; i < meName.size(); i++ ) {
       if ( meName.substr(i, 1) == " " )  {
-	meName.replace(i, 1, "_");
+        meName.replace(i, 1, "_");
       }
     }
     ene3x3Img = meName + ".png";
@@ -1051,7 +1038,7 @@ void EEBeamCaloClient::htmlOutput(int run, string htmlDir, string htmlName){
 
     for ( unsigned int i = 0; i < meName.size(); i++ ) {
       if ( meName.substr(i, 1) == " " )  {
-	meName.replace(i, 1, "_");
+        meName.replace(i, 1, "_");
       }
     }
     EEBeamCentered = meName + ".png";
@@ -1084,9 +1071,9 @@ void EEBeamCaloClient::htmlOutput(int run, string htmlDir, string htmlName){
       meName = objp1->GetName();
 
       for ( unsigned int i = 0; i < meName.size(); i++ ) {
-	if ( meName.substr(i, 1) == " " )  {
-	  meName.replace(i, 1, "_");
-	}
+        if ( meName.substr(i, 1) == " " )  {
+          meName.replace(i, 1, "_");
+        }
       }
       pulseImg[ind] = meName + ".png";
       pulseImgF[ind] = htmlDir + pulseImg[ind] ;
@@ -1106,9 +1093,9 @@ void EEBeamCaloClient::htmlOutput(int run, string htmlDir, string htmlName){
       meName = obj1f->GetName();
 
       for ( unsigned int i = 0; i < meName.size(); i++ ) {
-	if ( meName.substr(i, 1) == " " )  {
-	  meName.replace(i, 1, "_");
-	}
+        if ( meName.substr(i, 1) == " " )  {
+          meName.replace(i, 1, "_");
+        }
       }
       gainsImg[ind] = meName + ".png";
       gainsImgF[ind] = htmlDir + gainsImg[ind];
@@ -1188,7 +1175,7 @@ void EEBeamCaloClient::htmlOutput(int run, string htmlDir, string htmlName){
 
     for ( unsigned int i = 0; i < meName.size(); i++ ) {
       if ( meName.substr(i, 1) == " " )  {
-	meName.replace(i, 1, "_");
+        meName.replace(i, 1, "_");
       }
     }
     cryDoneImg = meName + ".png";
@@ -1216,7 +1203,7 @@ void EEBeamCaloClient::htmlOutput(int run, string htmlDir, string htmlName){
 
     for ( unsigned int i = 0; i < meName.size(); i++ ) {
       if ( meName.substr(i, 1) == " " )  {
-	meName.replace(i, 1, "_");
+        meName.replace(i, 1, "_");
       }
     }
     EntriesVScryImg = meName + ".png";
@@ -1251,7 +1238,7 @@ void EEBeamCaloClient::htmlOutput(int run, string htmlDir, string htmlName){
 
     for ( unsigned int i = 0; i < meName.size(); i++ ) {
       if ( meName.substr(i, 1) == " " )  {
-	meName.replace(i, 1, "_");
+        meName.replace(i, 1, "_");
       }
     }
      E1vsCryImg = meName + ".png";
@@ -1279,7 +1266,7 @@ void EEBeamCaloClient::htmlOutput(int run, string htmlDir, string htmlName){
 
     for ( unsigned int i = 0; i < meName.size(); i++ ) {
       if ( meName.substr(i, 1) == " " )  {
-	meName.replace(i, 1, "_");
+        meName.replace(i, 1, "_");
       }
     }
     E3x3vsCryImg = meName + ".png";
@@ -1316,7 +1303,7 @@ void EEBeamCaloClient::htmlOutput(int run, string htmlDir, string htmlName){
 
     for ( unsigned int i = 0; i < meName.size(); i++ ) {
       if ( meName.substr(i, 1) == " " )  {
-	meName.replace(i, 1, "_");
+        meName.replace(i, 1, "_");
       }
     }
     cryVSeventImg = meName + ".png";
@@ -1339,17 +1326,17 @@ void EEBeamCaloClient::htmlOutput(int run, string htmlDir, string htmlName){
     for( int bin=1; bin < objp1->GetNbinsX()+1; bin++ ){
       float temp = objp1->GetBinContent(bin);
       if(temp >0){
-	if(temp < Ymin){Ymin=temp;}
-	if(temp > Ymax){Ymax=temp;}
+        if(temp < Ymin){Ymin=temp;}
+        if(temp > Ymax){Ymax=temp;}
       }
     }
     //cout<<"Ym: "<<Ymin<< " YM: "<<Ymax<<endl;
     if( Ymin < Ymax+1 ){
        for( int bin=1; bin < objp1->GetNbinsX()+1; bin++ ){
-	 if( objp1->GetBinError(bin) >0 ){
-	   objp1->SetBinContent(bin, (Ymin+Ymax)/2.*objp1->GetBinEntries(bin) );
-	   // cout<<"bin: "<<bin<<" rms: "<< objp1->GetBinError(bin) <<"  "<<(Ymin+Ymax)/2<<endl;
-	 }
+         if( objp1->GetBinError(bin) >0 ){
+           objp1->SetBinContent(bin, (Ymin+Ymax)/2.*objp1->GetBinEntries(bin) );
+           // cout<<"bin: "<<bin<<" rms: "<< objp1->GetBinError(bin) <<"  "<<(Ymin+Ymax)/2<<endl;
+         }
        }
        objp1->GetYaxis()->SetRangeUser(Ymin-1. , Ymax+1.);
     }
@@ -1372,7 +1359,7 @@ void EEBeamCaloClient::htmlOutput(int run, string htmlDir, string htmlName){
 
     for ( unsigned int i = 0; i < meName.size(); i++ ) {
       if ( meName.substr(i, 1) == " " )  {
-	meName.replace(i, 1, "_");
+        meName.replace(i, 1, "_");
       }
     }
     TBmoving = meName + ".png";

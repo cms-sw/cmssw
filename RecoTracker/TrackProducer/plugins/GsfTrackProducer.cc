@@ -67,7 +67,7 @@ void GsfTrackProducer::produce(edm::Event& theEvent, const edm::EventSetup& setu
     LogDebug("GsfTrackProducer") << "run the algorithm" << "\n";
     theAlgo.runWithCandidate(theG.product(), theMF.product(), *theTCCollection, 
 			     theFitter.product(), thePropagator.product(), theBuilder.product(), algoResults);
-  } catch (cms::Exception &e){ edm::LogInfo("GsfTrackProducer") << "cms::Exception caught!!!" << "\n" << e << "\n"; throw; }
+  } catch (cms::Exception &e){ edm::LogInfo("GsfTrackProducer") << "cms::Exception caught!!!" << "\n" << e << "\n";}
   //
   //put everything in the event
   putInEvt(theEvent, outputRHColl, outputTColl, outputTEColl, outputGsfTEColl,
@@ -108,7 +108,7 @@ void GsfTrackProducer::produce(edm::Event& theEvent, const edm::EventSetup& setu
 //     LogDebug("GsfTrackProducer") << "run the algorithm" << "\n";
 //     theAlgo.runWithCandidate(theG.product(), theMF.product(), *theTCCollection, 
 // 			     theFitter.product(), thePropagator.product(), theBuilder.product(), algoResults);
-//   } catch (cms::Exception &e){ edm::LogInfo("GsfTrackProducer") << "cms::Exception caught!!!" << "\n" << e << "\n"; throw;}
+//   } catch (cms::Exception &e){ edm::LogInfo("GsfTrackProducer") << "cms::Exception caught!!!" << "\n" << e << "\n";}
 
 
 //   for (AlgoProductCollection::iterator prod=algoResults.begin();prod!=algoResults.end(); prod++){

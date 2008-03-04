@@ -2,7 +2,7 @@
 #define TrajectoryStateTransform_H
 
 #include "DataFormats/TrajectoryState/interface/PTrajectoryStateOnDet.h"
-#include "DataFormats/TrackReco/interface/TrackFwd.h" 
+#include "DataFormats/TrackReco/interface/Track.h"
 
 class TrajectoryStateOnSurface;
 class FreeTrajectoryState;

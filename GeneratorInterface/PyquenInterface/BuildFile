@@ -1,7 +1,6 @@
 <use name=boost>
 <use name=FWCore/Framework>
 <use name=SimDataFormats/HepMCProduct>
-<use name=SimDataFormats/HiGenData>
 <use name=clhep> 
 <use name=hepmc>
 <use name=f77compiler>
@@ -11,7 +10,6 @@
  <use name=boost>
  <use name=FWCore/Framework>
  <use name=SimDataFormats/HepMCProduct>
- <use name=SimDataFormats/HiGenData>
  <use name=clhep>
  <use name=hepmc>	 
 </export>

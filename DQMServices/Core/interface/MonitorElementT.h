@@ -209,6 +209,15 @@ class MonitorElementT : public MonitorElement
       }
   }
 
+  // this is really bad; unfortunately, gcc 3.2.3 won't let me define 
+  // template classes, so I have to find a workaround for now
+  // error: "...is not a template type" - christos May26, 2005
+  friend class CollateMERootH1;
+  friend class CollateMERootH2;
+  friend class CollateMERootH3;
+  friend class CollateMERootProf;
+  friend class CollateMERootProf2D;
+
 };
 #endif
 

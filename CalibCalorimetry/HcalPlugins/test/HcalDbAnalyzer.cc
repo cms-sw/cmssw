@@ -13,7 +13,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Jun 24 19:13:25 EDT 2005
-// $Id: HcalDbAnalyzer.cc,v 1.19 2007/07/25 20:29:12 mansj Exp $
+// $Id: HcalDbAnalyzer.cc,v 1.18 2007/03/25 12:20:46 mansj Exp $
 //
 //
 
@@ -128,8 +128,8 @@ HcalDbAnalyzer::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup
   std::cout << "HcalDbAnalyzer::analyze-> got HcalDbRecord: " << std::endl;
   std::cout << "HcalDbAnalyzer::analyze-> getting information for HB channel eta=1, phi=1, depth=1..." << std::endl;
   HcalDetId cell (HcalBarrel, 1, 1, 1);
-  
-  const HcalCalibrations& calibrations=pSetup->getHcalCalibrations(cell);
+  HcalCalibrations calibrations;
+  pSetup->makeHcalCalibration (cell, &calibrations);
   HcalCalibrationWidths widths;
   pSetup->makeHcalCalibrationWidth (cell, &widths);
   const HcalQIECoder* coder = pSetup->getHcalCoder (cell);

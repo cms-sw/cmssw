@@ -2,6 +2,9 @@
 
 HcalLaserDigi::HcalLaserDigi() {
   for (int i=0; i<32; ++i) qadcraw_[i]=0;
+  attenuator1_=0;
+  attenuator2_=0;
+  selector_=0;
 }
 
 void HcalLaserDigi::setQADC(const std::vector<uint16_t>& values) {
@@ -28,5 +31,8 @@ double HcalLaserDigi::hitNS(size_t ihit) const {
   return hitRaw(ihit)*0.8;
 }
 
-
-
+void HcalLaserDigi::setLaserControl(int att1, int att2, int select) {
+  attenuator1_=att1;
+  attenuator2_=att2;
+  selector_=select;
+}

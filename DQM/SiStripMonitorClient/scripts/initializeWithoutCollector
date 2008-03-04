@@ -35,7 +35,7 @@ my $libname = "libEventFilterProcessor.so";
 my $pwd = `pwd`; chomp $pwd;
 
 my $dqm_dir    = $ENV{"CMSSW_BASE"}."/src/DQM/SiStripMonitorClient/test";
-my $dqm_common = $ENV{"CMSSW_RELEASE_BASE"}."/src/DQM/TrackerCommon/test";
+my $dqm_common = $ENV{"CMSSW_BASE"}."/src/DQM/TrackerCommon/test";
 
 #
 # interpret command line

@@ -107,6 +107,7 @@ FUResourceBroker::FUResourceBroker(xdaq::ApplicationStub *s)
   , monSleepSec_(1)
   , watchSleepSec_(10)
   , timeOutSec_(30)
+  , processKillerEnabled_(true)
   , reasonForFailed_("")
   , nbAllocateSent_(0)
   , nbTakeReceived_(0)
@@ -170,6 +171,9 @@ FUResourceBroker::FUResourceBroker(xdaq::ApplicationStub *s)
   
   // publish all parameters to app info space
   exportParameters();
+
+  // set application icon for hyperdaq
+  getApplicationDescriptor()->setAttribute("icon", "/evf/images/rbicon.jpg");
 }
 
 
@@ -200,6 +204,7 @@ bool FUResourceBroker::configuring(toolbox::task::WorkLoop* wl)
 				       dqmCellSize_.value_,
 				       bu_,sm_,
 				       log_);
+    FUResource::doFedIdCheck(doFedIdCheck_);
     resourceTable_->setDoCrcCheck(doCrcCheck_);
     resourceTable_->setDoDumpEvents(doDumpEvents_);
     reset();
@@ -597,8 +602,7 @@ bool FUResourceBroker::watching(toolbox::task::WorkLoop* wl)
     int   status=kill(pid,0);
     if (status!=0) {
       LOG4CPLUS_ERROR(log_,"EP prc "<<pid<<" died, send raw data to err stream.");
-      resourceTable_->handleErrorEvent(pid);
-      // TODO: ship raw data to SM!
+      resourceTable_->handleErrorEvent(runNumber_,pid);
     }
   }
   
@@ -615,7 +619,8 @@ bool FUResourceBroker::watching(toolbox::task::WorkLoop* wl)
     double tdiff =difftime(tcurr,tstamp);
     if (tdiff>timeOutSec_) {
       LOG4CPLUS_ERROR(log_,"evt "<<evt<<" timed out, "<<"kill prc "<<pid);
-      kill(pid,9);
+      if(processKillerEnabled_)
+	kill(pid,9);
     }
   }
   
@@ -685,6 +690,7 @@ void FUResourceBroker::exportParameters()
   gui_->addStandardParam("monSleepSec",             &monSleepSec_);
   gui_->addStandardParam("watchSleepSec",           &watchSleepSec_);
   gui_->addStandardParam("timeOutSec",              &timeOutSec_);
+  gui_->addStandardParam("processKillerEnabled",    &processKillerEnabled_);
   gui_->addStandardParam("foundRcmsStateListener",   fsm_.foundRcmsStateListener());
   gui_->addStandardParam("reasonForFailed",         &reasonForFailed_);
   

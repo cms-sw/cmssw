@@ -8,10 +8,9 @@
 <use name=RecoTracker/TrackProducer>
 <use name=FastSimulation/Particle>
 <use name=FastSimulation/BaseParticlePropagator>
-<use name=DataFormats/VertexReco>
 <use name=clhep>
 <use name=boost>
-<use name=roottmva>
+<flags LDFLAGS="-lTMVA">
 <export>	
 <lib name=RecoParticleFlowPFTracking>
 <use name=FWCore/Framework>
@@ -22,6 +21,5 @@
 <use name=RecoTracker/TrackProducer>
 <use name=clhep>
 <use name=boost>
-<use name=DataFormats/VertexReco>
 
 </export>

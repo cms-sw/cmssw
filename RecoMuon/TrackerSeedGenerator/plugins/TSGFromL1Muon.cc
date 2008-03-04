@@ -102,8 +102,8 @@ void TSGFromL1Muon::produce(edm::Event& ev, const edm::EventSetup& es)
       GlobalPoint p0(r0*cos(hits[0].phi()), r0*sin(hits[0].phi()), 0.);
       GlobalPoint p1(r1*cos(hits[1].phi()), r1*sin(hits[1].phi()), 0.);
 
-      //      float cotTheta = (hits[1].z()-hits[0].z())/(hits[1].r()-hits[0].r());
-      //      float eta_rec = asinh(cotTheta);
+      float cotTheta = (hits[1].z()-hits[0].z())/(hits[1].r()-hits[0].r());
+      float eta_rec = asinh(cotTheta);
 
       float phi_vtx = (p1-p0).phi();
 

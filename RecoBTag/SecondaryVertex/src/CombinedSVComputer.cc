@@ -37,6 +37,7 @@ CombinedSVComputer::CombinedSVComputer(const edm::ParameterSet &params) :
 	trackPseudoSelector(params.getParameter<edm::ParameterSet>("trackPseudoSelection")),
 	pseudoMultiplicityMin(params.getParameter<unsigned int>("pseudoMultiplicityMin")),
 	trackMultiplicityMin(params.getParameter<unsigned int>("trackMultiplicityMin")),
+	minTrackWeight(params.getParameter<double>("minimumTrackWeight")),
 	useTrackWeights(params.getParameter<bool>("useTrackWeights")),
 	vertexMassCorrection(params.getParameter<bool>("correctVertexMass")),
 	pseudoVertexV0Filter(params.getParameter<edm::ParameterSet>("pseudoVertexV0Filter")),
@@ -112,9 +113,11 @@ CombinedSVComputer::operator () (const TrackIPTagInfo &ipInfo,
 		for(unsigned int i = 0; i < svInfo.nVertices(); i++) {
 			TrackRefVector tracks = svInfo.vertexTracks(i);
 			for(TrackRefVector::const_iterator track = tracks.begin();
-			    track != tracks.end(); track++)
-				vertexKinematics.add(**track,
-						svInfo.trackWeight(i, *track));
+			    track != tracks.end(); track++) {
+				double w = svInfo.trackWeight(i, *track);
+				if (w >= minTrackWeight)
+					vertexKinematics.add(**track, w);
+			}
 		}
 
 		vars.insert(btau::flightDistance2dVal,

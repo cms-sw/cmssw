@@ -6,7 +6,6 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include <cassert>
-#include <iostream>
 
 //map<std::string,unsigned int> DDValue::indexer_;
 //std::vector<std::string> DDValue::names_(1);

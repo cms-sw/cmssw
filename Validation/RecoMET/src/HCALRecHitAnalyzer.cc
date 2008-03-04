@@ -44,7 +44,6 @@
 #include <cmath>
 #include <TLorentzVector.h>
 
-#define DEBUG(X) { if (debug_) { std::cout << X << std::endl; } }
 
 HCALRecHitAnalyzer::HCALRecHitAnalyzer(const edm::ParameterSet& iConfig)
 {
@@ -110,17 +109,6 @@ void HCALRecHitAnalyzer::beginJob(const edm::EventSetup& iSetup)
     me["hHCAL_D2_energy_ieta_iphi"] = dbe_->book2D("METTask_HCAL_D2_energy_ieta_iphi","",83,-41,42,72,1,73);  
     me["hHCAL_D3_energy_ieta_iphi"] = dbe_->book2D("METTask_HCAL_D3_energy_ieta_iphi","",83,-41,42,72,1,73);  
     me["hHCAL_D4_energy_ieta_iphi"] = dbe_->book2D("METTask_HCAL_D4_energy_ieta_iphi","",83,-41,42,72,1,73);  
-
-
-    me["hHCAL_D1_Minenergy_ieta_iphi"] = dbe_->book2D("METTask_HCAL_D1_Minenergy_ieta_iphi","",83,-41,42,72,1,73);  
-    me["hHCAL_D2_Minenergy_ieta_iphi"] = dbe_->book2D("METTask_HCAL_D2_Minenergy_ieta_iphi","",83,-41,42,72,1,73);  
-    me["hHCAL_D3_Minenergy_ieta_iphi"] = dbe_->book2D("METTask_HCAL_D3_Minenergy_ieta_iphi","",83,-41,42,72,1,73);  
-    me["hHCAL_D4_Minenergy_ieta_iphi"] = dbe_->book2D("METTask_HCAL_D4_Minenergy_ieta_iphi","",83,-41,42,72,1,73); 
-
-    me["hHCAL_D1_Maxenergy_ieta_iphi"] = dbe_->book2D("METTask_HCAL_D1_Maxenergy_ieta_iphi","",83,-41,42,72,1,73);  
-    me["hHCAL_D2_Maxenergy_ieta_iphi"] = dbe_->book2D("METTask_HCAL_D2_Maxenergy_ieta_iphi","",83,-41,42,72,1,73);  
-    me["hHCAL_D3_Maxenergy_ieta_iphi"] = dbe_->book2D("METTask_HCAL_D3_Maxenergy_ieta_iphi","",83,-41,42,72,1,73);  
-    me["hHCAL_D4_Maxenergy_ieta_iphi"] = dbe_->book2D("METTask_HCAL_D4_Maxenergy_ieta_iphi","",83,-41,42,72,1,73); 
 
     me["hHCAL_D1_Occ_ieta_iphi"] = dbe_->book2D("METTask_HCAL_D1_Occ_ieta_iphi","",83,-41,42,72,1,73);  
     me["hHCAL_D2_Occ_ieta_iphi"] = dbe_->book2D("METTask_HCAL_D2_Occ_ieta_iphi","",83,-41,42,72,1,73);  
@@ -229,7 +217,7 @@ void HCALRecHitAnalyzer::FillGeometry(const edm::EventSetup& iSetup)
     if (me["hHCAL_ieta_iphi_etaMap"]->getBinContent(Calo_ieta,Calo_iphi) == -999) {
 
       me["hHCAL_ieta_iphi_etaMap"]->setBinContent(Calo_ieta,Calo_iphi,Calo_eta);
-      me["hHCAL_ieta_iphi_phiMap"]->setBinContent(Calo_ieta,Calo_iphi,Calo_phi*180.0/M_PI);
+      me["hHCAL_ieta_iphi_phiMap"]->setBinContent(Calo_ieta,Calo_iphi,Calo_phi);
 
     }
 
@@ -263,7 +251,7 @@ void HCALRecHitAnalyzer::FillGeometry(const edm::EventSetup& iSetup)
     // HCAL to HE eta, phi map comparison
     if (me["hHCAL_ieta_iphi_etaMap"]->getBinContent(Calo_ieta,Calo_iphi) == -999) {
       me["hHCAL_ieta_iphi_etaMap"]->setBinContent(Calo_ieta,Calo_iphi,Calo_eta);
-      me["hHCAL_ieta_iphi_phiMap"]->setBinContent(Calo_ieta,Calo_iphi,Calo_phi*180.0/M_PI);
+      me["hHCAL_ieta_iphi_phiMap"]->setBinContent(Calo_ieta,Calo_iphi,Calo_phi);
     } 
 
     if (Calo_ieta > HEmax_ieta) HEmax_ieta = Calo_ieta;
@@ -296,7 +284,7 @@ void HCALRecHitAnalyzer::FillGeometry(const edm::EventSetup& iSetup)
     // HCAL to HF eta, phi map comparison
     if (me["hHCAL_ieta_iphi_etaMap"]->getBinContent(Calo_ieta,Calo_iphi) == -999) {
       me["hHCAL_ieta_iphi_etaMap"]->setBinContent(Calo_ieta,Calo_iphi,Calo_eta);
-      me["hHCAL_ieta_iphi_phiMap"]->setBinContent(Calo_ieta,Calo_iphi,Calo_phi*180.0/M_PI);
+      me["hHCAL_ieta_iphi_phiMap"]->setBinContent(Calo_ieta,Calo_iphi,Calo_phi);
     } 
 
     if (Calo_ieta > HFmax_ieta) HFmax_ieta = Calo_ieta;
@@ -329,7 +317,7 @@ void HCALRecHitAnalyzer::FillGeometry(const edm::EventSetup& iSetup)
     // HCAL to HO eta, phi map comparison
     if (me["hHCAL_ieta_iphi_etaMap"]->getBinContent(Calo_ieta,Calo_iphi) == -999) {
       me["hHCAL_ieta_iphi_etaMap"]->setBinContent(Calo_ieta,Calo_iphi,Calo_eta);
-      me["hHCAL_ieta_iphi_phiMap"]->setBinContent(Calo_ieta,Calo_iphi,Calo_phi*180.0/M_PI);
+      me["hHCAL_ieta_iphi_phiMap"]->setBinContent(Calo_ieta,Calo_iphi,Calo_phi);
     } 
 
     if (Calo_ieta > HOmax_ieta) HOmax_ieta = Calo_ieta;
@@ -344,14 +332,12 @@ void HCALRecHitAnalyzer::FillGeometry(const edm::EventSetup& iSetup)
   for (int ieta = 1; ieta < 42 ; ieta++) {
     
     int ieta_ = 42 + ieta;
-    double eta = me["hHCAL_ieta_iphi_etaMap"]->getBinContent(ieta_,3);
-    double phi = me["hHCAL_ieta_iphi_phiMap"]->getBinContent(ieta_,3);
+    double eta = me["hHCAL_ieta_iphi_etaMap"]->getBinContent(ieta_,1);
+    double phi = me["hHCAL_ieta_iphi_phiMap"]->getBinContent(ieta_,1);
     double deta = 2.0*(eta-currentLowEdge_eta);
     deta = ((float)((int)(1.0E3*deta + 0.5)))/1.0E3;
     double dphi = 2.0*phi;
-    if (ieta==40 || ieta==41) dphi = 20;
-    if (ieta<=39 && ieta>=21) dphi = 10;
-    if (ieta<=20) dphi = 5;
+
     // BS: This is WRONG...need to correct overlap 
     if (ieta == 28) deta = 0.218;
     if (ieta == 29) deta= 0.096;      
@@ -452,9 +438,6 @@ void HCALRecHitAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup
     double ET = Energy*TMath::Sin(theta);
     HcalSubdetector HcalNum = det.subdet();
     TLorentzVector v_;
-    
- 
-    
     if (Energy>0) // zero suppress
       {
 	HBHEActiveRing[EtaRing][depth-1] = 1;
@@ -462,54 +445,24 @@ void HCALRecHitAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup
 	HBHESET_EtaRing[EtaRing][depth-1]+=ET;
 	v_.SetPtEtaPhiE(ET, 0, phi, ET);
 	vHBHEMET_EtaRing[EtaRing][depth-1]-=v_;
-      
-	
-	DEBUG( EtaRing << " " << Energy << " " << ET << " " << theta << " " << eta << " " << phi << " : " << vHBHEMET_EtaRing[EtaRing][depth-1].Phi() << " " << vHBHEMET_EtaRing[EtaRing][depth-1].Pt() );  
-	
-	switch (depth) {
-	case 1:
-	  me["hHCAL_D1_Occ_ieta_iphi"]->Fill(ieta,iphi);
-	  break;
-	case 2:
-	  me["hHCAL_D2_Occ_ieta_iphi"]->Fill(ieta,iphi);
-	  break;
-	case 3:
-	  me["hHCAL_D3_Occ_ieta_iphi"]->Fill(ieta,iphi);
-	  break;
-	} // end switch
       }
-    
     switch (depth) {
     case 1:
       me["hHCAL_D1_energy_ieta_iphi"]->Fill(ieta,iphi,Energy);
-           
-      me["hHCAL_D1_energyvsieta"]->Fill(ieta,Energy);    
-      if (Energy>me["hHCAL_D1_Maxenergy_ieta_iphi"]->getBinContent(EtaRing+1, iphi)) 
-	me["hHCAL_D1_Maxenergy_ieta_iphi"]->setBinContent(EtaRing+1, iphi, Energy);
-      if (Energy<me["hHCAL_D1_Minenergy_ieta_iphi"]->getBinContent(EtaRing+1, iphi)) 
-	me["hHCAL_D1_Minenergy_ieta_iphi"]->setBinContent(EtaRing+1, iphi, Energy);
-      
+      me["hHCAL_D1_energyvsieta"]->Fill(ieta,Energy);     
+      me["hHCAL_D1_Occ_ieta_iphi"]->Fill(ieta,iphi);
       break;
     case 2:
       me["hHCAL_D2_energy_ieta_iphi"]->Fill(ieta,iphi,Energy);
-      
       me["hHCAL_D2_energyvsieta"]->Fill(ieta,Energy);
-      if (Energy>me["hHCAL_D2_Maxenergy_ieta_iphi"]->getBinContent(EtaRing+1, iphi)) 
-	me["hHCAL_D2_Maxenergy_ieta_iphi"]->setBinContent(EtaRing+1, iphi, Energy);
-      if (Energy<me["hHCAL_D2_Minenergy_ieta_iphi"]->getBinContent(EtaRing+1, iphi)) 
-	me["hHCAL_D2_Minenergy_ieta_iphi"]->setBinContent(EtaRing+1, iphi, Energy);
+      me["hHCAL_D2_Occ_ieta_iphi"]->Fill(ieta,iphi);
       break;
     case 3:
       me["hHCAL_D3_energy_ieta_iphi"]->Fill(ieta,iphi,Energy);
-      
       me["hHCAL_D3_energyvsieta"]->Fill(ieta,Energy);
-      if (Energy>me["hHCAL_D3_Maxenergy_ieta_iphi"]->getBinContent(EtaRing+1, iphi)) 
-	me["hHCAL_D3_Maxenergy_ieta_iphi"]->setBinContent(EtaRing+1, iphi, Energy);
-      if (Energy<me["hHCAL_D3_Minenergy_ieta_iphi"]->getBinContent(EtaRing+1, iphi)) 
-	me["hHCAL_D3_Minenergy_ieta_iphi"]->setBinContent(EtaRing+1, iphi, Energy);
+      me["hHCAL_D3_Occ_ieta_iphi"]->Fill(ieta,iphi);
       break;
     } // end switch
-
 
     if (HcalNum == HcalBarrel) {
       nHBrechit++;
@@ -591,7 +544,12 @@ void HCALRecHitAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup
     double phi = me["hHCAL_ieta_iphi_phiMap"]->getBinContent(EtaRing+1,iphi);
     double theta = 2*TMath::ATan(exp(-1*eta));
     double ET = Energy*TMath::Sin(theta);
-   TLorentzVector v_; 
+
+    me["hHCAL_D4_energy_ieta_iphi"]->Fill(ieta,iphi,Energy);
+    me["hHCAL_D4_energyvsieta"]->Fill(ieta,Energy);     
+    me["hHCAL_D4_Occ_ieta_iphi"]->Fill(ieta,iphi);
+
+    TLorentzVector v_; 
     if (Energy>0) // zero suppress
       {
 	HOActiveRing[EtaRing] = 1;
@@ -599,16 +557,7 @@ void HCALRecHitAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup
 	HOSET_EtaRing[EtaRing]+=ET;
 	v_.SetPtEtaPhiE(ET, 0, phi, ET);
 	vHOMET_EtaRing[EtaRing]-=v_;
-      
-	me["hHCAL_D4_Occ_ieta_iphi"]->Fill(ieta,iphi);
       }
-    me["hHCAL_D4_energy_ieta_iphi"]->Fill(ieta,iphi,Energy);
-    
-    me["hHCAL_D4_energyvsieta"]->Fill(ieta,Energy);     
-    if (Energy>me["hHCAL_D4_Maxenergy_ieta_iphi"]->getBinContent(EtaRing+1, iphi)) 
-	me["hHCAL_D4_Maxenergy_ieta_iphi"]->setBinContent(EtaRing+1, iphi, Energy);
-      if (Energy<me["hHCAL_D4_Minenergy_ieta_iphi"]->getBinContent(EtaRing+1, iphi)) 
-	me["hHCAL_D4_Minenergy_ieta_iphi"]->setBinContent(EtaRing+1, iphi, Energy);
                                                                                                                                                    
   } // end loop over HORecHit's
 
@@ -670,35 +619,15 @@ void HCALRecHitAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup
 	HFSET_EtaRing[EtaRing][depth-1]+=ET;
 	v_.SetPtEtaPhiE(ET, 0, phi, ET);
 	vHFMET_EtaRing[EtaRing][depth-1]-=v_;                                                                         
-    
-    switch (depth) {
+      }    
+    switch (depth - 1) {
     case 1:
+      me["hHCAL_D1_energy_ieta_iphi"]->Fill(ieta,iphi,Energy);
       me["hHCAL_D1_Occ_ieta_iphi"]->Fill(ieta,iphi);
       break;
     case 2:
-      me["hHCAL_D2_Occ_ieta_iphi"]->Fill(ieta,iphi);
-      break;
-    
-    }
-      }
-    switch (depth) {
-    case 1:
-      me["hHCAL_D1_energy_ieta_iphi"]->Fill(ieta,iphi,Energy);
-      
-      me["hHCAL_D1_energyvsieta"]->Fill(ieta,Energy);  
-      if (Energy>me["hHCAL_D1_Maxenergy_ieta_iphi"]->getBinContent(EtaRing+1, iphi)) 
-	me["hHCAL_D1_Maxenergy_ieta_iphi"]->setBinContent(EtaRing+1, iphi, Energy);
-      if (Energy<me["hHCAL_D1_Minenergy_ieta_iphi"]->getBinContent(EtaRing+1, iphi)) 
-	me["hHCAL_D1_Minenergy_ieta_iphi"]->setBinContent(EtaRing+1, iphi, Energy); 
-      break;
-    case 2:
       me["hHCAL_D2_energy_ieta_iphi"]->Fill(ieta,iphi,Energy);
-      
-      me["hHCAL_D2_energyvsieta"]->Fill(ieta,Energy);  
-      if (Energy>me["hHCAL_D2_Maxenergy_ieta_iphi"]->getBinContent(EtaRing+1, iphi)) 
-	me["hHCAL_D2_Maxenergy_ieta_iphi"]->setBinContent(EtaRing+1, iphi, Energy);
-      if (Energy<me["hHCAL_D2_Minenergy_ieta_iphi"]->getBinContent(EtaRing+1, iphi)) 
-	me["hHCAL_D2_Minenergy_ieta_iphi"]->setBinContent(EtaRing+1, iphi, Energy);
+      me["hHCAL_D2_Occ_ieta_iphi"]->Fill(ieta,iphi);
       break;
     }
 
@@ -708,7 +637,7 @@ void HCALRecHitAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup
   for (int iEtaRing=0; iEtaRing<83; iEtaRing++) {
     for (int jDepth=0; jDepth<2; jDepth++) {
 
-      if (HFActiveRing[iEtaRing][jDepth]) {
+      if (HBHEActiveRing[iEtaRing][jDepth]) {
 
 	switch (jDepth+1) {
 	case 1:
@@ -735,8 +664,6 @@ void HCALRecHitAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup
       }
     }
   }
-
-
 
 }
 
