@@ -11,7 +11,7 @@
 
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "CondCore/PopCon/interface/PopConSourceHandler.h"
-#include "CondCore/PopCon/interface/LogReader.h"
+ 
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "DataFormats/Common/interface/Handle.h"
