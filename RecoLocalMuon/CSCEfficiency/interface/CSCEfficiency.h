@@ -21,7 +21,7 @@
 #include "DataFormats/CSCDigi/interface/CSCCorrelatedLCTDigi.h"
 #include "DataFormats/CSCDigi/interface/CSCCorrelatedLCTDigiCollection.h"
 
-#include "RecoLocalMuon/CSCRecHit/src/CSCWireCluster.h"
+//#include "RecoLocalMuon/CSCRecHit/src/CSCWireCluster.h"
 #include "DataFormats/CSCRecHit/interface/CSCRecHit2DCollection.h"
 
 #include "SimMuon/MCTruth/interface/PSimHitMap.h"
