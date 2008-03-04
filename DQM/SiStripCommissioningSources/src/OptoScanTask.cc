@@ -172,9 +172,9 @@ void OptoScanTask::locateTicks( const edm::DetSet<SiStripRawDigi>& digis,
       range.first  = adc.front();
       range.second = adc.back();
       
-      // Construct vector to hold "baseline samples" (and excluding tick mark samples, assuming 2 per 70 samples)
+      // Construct vector to hold "baseline samples" (exclude tick mark samples: assuming 3 per 70 samples and possible extra tick)
       std::vector<uint16_t>::const_iterator ii = adc.begin();
-      std::vector<uint16_t>::const_iterator jj = adc.end() - 2 * ( adc.size() / 70 );
+      std::vector<uint16_t>::const_iterator jj = adc.end() - 3 * ( ( adc.size() / 70 ) + 1 );
       std::vector<uint16_t> truncated; 
       truncated.resize( jj - ii );
       std::copy( ii, jj, truncated.begin() );
@@ -192,6 +192,8 @@ void OptoScanTask::locateTicks( const edm::DetSet<SiStripRawDigi>& digis,
       std::vector<uint16_t>::const_iterator iiii = truncated.begin();
       std::vector<uint16_t>::const_iterator jjjj = truncated.end();
       for ( ; iiii != jjjj; ++iiii ) { b_rms += fabs( *iiii - b_mean ); }
+
+      range.first = b_mean; 
       baseline_rms = sqrt ( b_rms / ( 1. * truncated.size() ) );
       
     } else {
