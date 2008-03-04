@@ -161,24 +161,25 @@ int main() {
   HcalGainWidths gainWidths;
   // make a calibration service by hand
   for(vector<DetId>::const_iterator detItr = allDetIds.begin(); detItr != allDetIds.end(); ++detItr) {
-    pedestals.addValue(*detItr, HcalDbHardcode::makePedestal(*detItr).getValues ());
-    *pedestalWidths.setWidth(*detItr) = HcalDbHardcode::makePedestalWidth(*detItr);
-    gains.addValue(*detItr, HcalDbHardcode::makeGain(*detItr).getValues ());
-    gainWidths.addValue(*detItr, HcalDbHardcode::makeGainWidth(*detItr).getValues ());
+    pedestals.addValues(HcalDbHardcode::makePedestal(*detItr));
+    pedestalWidths.addValues(HcalDbHardcode::makePedestalWidth(*detItr));
+    gains.addValues(HcalDbHardcode::makeGain(*detItr));
+    gainWidths.addValues(HcalDbHardcode::makeGainWidth(*detItr));
   }
   
-  pedestals.sort();
-  pedestalWidths.sort();
-  gains.sort();
-  gainWidths.sort();
+  //pedestals.sort();
+  //pedestalWidths.sort();
+  //gains.sort();
+  //gainWidths.sort();
 
-  std::cout << "TEST Pedestal " << pedestals.getValue(barrelDetId,  1) << std::endl;
-  std::cout << "ZDC pedestal " << pedestals.getValue(zdcDetId,  1) << std::endl;
-  std::cout << "ZDC pedestal width " << pedestalWidths.getWidth(zdcDetId,  1) << std::endl;
-  std::cout << "ZDC gain " << gains.getValue(zdcDetId,  1) << std::endl;
-  std::cout << "ZDC gain width " << gainWidths.getValue(zdcDetId,  1) << std::endl;
+  //std::cout << "TEST Pedestal " << pedestals.getValues(barrelDetId,  1) << std::endl;
+  //std::cout << "ZDC pedestal " << pedestals.getValue(zdcDetId,  1) << std::endl;
+  //std::cout << "ZDC pedestal width " << pedestalWidths.getWidth(zdcDetId,  1) << std::endl;
+  //std::cout << "ZDC gain " << gains.getValue(zdcDetId,  1) << std::endl;
+  //std::cout << "ZDC gain width " << gainWidths.getValue(zdcDetId,  1) << std::endl;
   
-  HcalDbService calibratorHandle;
+  edm::ParameterSet emptyPSet;
+  HcalDbService calibratorHandle(emptyPSet);
   calibratorHandle.setData(&pedestals);
   calibratorHandle.setData(&pedestalWidths);
   calibratorHandle.setData(&gains);
