@@ -13,7 +13,7 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: GsfElectronProducer.cc,v 1.3 2008/02/11 13:27:54 kkaadze Exp $
+// $Id: GsfElectronProducer.cc,v 1.4 2008/02/29 12:50:48 uberthon Exp $
 //
 //
 
@@ -62,21 +62,21 @@ GsfElectronProducer::~GsfElectronProducer()
 
 void GsfElectronProducer::beginJob(edm::EventSetup const&iSetup) 
 {     
-  algo_->setupES(iSetup);  
 }
 
 // ------------ method called to produce the data  ------------
 void GsfElectronProducer::produce(edm::Event& e, const edm::EventSetup& iSetup) 
 {
+  algo_->setupES(iSetup);  
 
   // Create the output collections   
   std::auto_ptr<GsfElectronCollection> pOutEle(new GsfElectronCollection);
   
   // invoke algorithm
-    algo_->run(e,*pOutEle);
+  algo_->run(e,*pOutEle);
 
   // put result into the Event
-    e.put(pOutEle);
+  e.put(pOutEle);
   
 }
 

@@ -52,15 +52,17 @@ class ElectronPixelSeedProducer : public edm::EDProducer
   ElectronSeedGenerator *matcher_;
   std::string algo_;
  
-  const CaloSubdetectorGeometry *subDetGeometry_; 
   const HBHERecHitCollection* hithbhe_;
 
   //for the filter
+  edm::ESHandle<CaloGeometry>       theCaloGeom;
   HoECalculator calc_;
 
   // maximum H/E where H is the Hcal energy inside the cone centered on the seed cluster eta-phi position 
   double maxHOverE_; 
   double SCEtCut_;
+
+  unsigned long long cacheID_;
 };
   
 #endif

@@ -12,7 +12,7 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Thu july 6 13:22:06 CEST 2006
-// $Id: GsfElectronAlgo.cc,v 1.12 2008/03/03 15:34:40 uberthon Exp $
+// $Id: GsfElectronAlgo.cc,v 1.13 2008/03/03 17:10:15 uberthon Exp $
 //
 //
 
@@ -93,13 +93,14 @@ GsfElectronAlgo::GsfElectronAlgo(const edm::ParameterSet& conf,
   minEOverPBarrel_(minEOverPBarrel), minEOverPEndcaps_(minEOverPEndcaps), 
   maxDeltaEta_(maxDeltaEta), maxDeltaPhi_(maxDeltaPhi),
   highPtPreselection_(highPtPresel), highPtMin_(highPtMin),
-  applyEtaCorrection_(applyEtaCorrection)
+  applyEtaCorrection_(applyEtaCorrection),
+  cacheIDGeom_(0),cacheIDTDGeom_(0),cacheIDMagField_(0)
 {   
  // this is the new version allowing to configurate the algo
   // interfaces still need improvement!!
+  mtsTransform_ = new MultiTrajectoryStateTransform;
   geomPropBw_=0;	
   geomPropFw_=0;	
-  mtsTransform_=0;
 
   // get nested parameter set for the TransientInitialStateEstimator
   ParameterSet tise_params = conf.getParameter<ParameterSet>("TransientInitialStateEstimatorParameters") ;
@@ -125,19 +126,25 @@ GsfElectronAlgo::~GsfElectronAlgo() {
 
 void GsfElectronAlgo::setupES(const edm::EventSetup& es) {
 
-  //services
-  es.get<IdealMagneticFieldRecord>().get(theMagField);
-  es.get<TrackerDigiGeometryRecord>().get(trackerHandle_);
+  // get EventSetupRecords if needed
+  if (cacheIDMagField_!=es.get<IdealMagneticFieldRecord>().cacheIdentifier()){
+    cacheIDMagField_=es.get<IdealMagneticFieldRecord>().cacheIdentifier();
+    es.get<IdealMagneticFieldRecord>().get(theMagField);
+    if (geomPropBw_) delete geomPropBw_;
+    geomPropBw_ = new GsfPropagatorAdapter(AnalyticalPropagator(theMagField.product(), oppositeToMomentum));
+    if (geomPropFw_) delete geomPropFw_;
+    geomPropFw_ = new GsfPropagatorAdapter(AnalyticalPropagator(theMagField.product(), alongMomentum));
+  }
+  if (cacheIDTDGeom_!=es.get<TrackerDigiGeometryRecord>().cacheIdentifier()){
+    cacheIDTDGeom_=es.get<TrackerDigiGeometryRecord>().cacheIdentifier();
+    es.get<TrackerDigiGeometryRecord>().get(trackerHandle_);
+  }
 
-  // get calo geometry
-  es.get<IdealGeometryRecord>().get(theCaloGeom);
+  if (cacheIDGeom_!=es.get<IdealGeometryRecord>().cacheIdentifier()){
+    cacheIDGeom_=es.get<IdealGeometryRecord>().cacheIdentifier();
+    es.get<IdealGeometryRecord>().get(theCaloGeom);
+  }
   
-  if (mtsTransform_) delete mtsTransform_;
-  mtsTransform_ = new MultiTrajectoryStateTransform;
-  if (geomPropBw_) delete geomPropBw_;
-  geomPropBw_ = new GsfPropagatorAdapter(AnalyticalPropagator(theMagField.product(), oppositeToMomentum));
-  if (geomPropFw_) delete geomPropFw_;
-  geomPropFw_ = new GsfPropagatorAdapter(AnalyticalPropagator(theMagField.product(), alongMomentum));
 
 }
 
@@ -333,6 +340,7 @@ void GsfElectronAlgo::createElectron(const SuperClusterRef & scRef,const GsfTrac
       GlobalVector seedMom=computeMode(seedTSOS_);
       GlobalPoint  seedPos=seedTSOS_.globalPosition();
       GlobalVector sclMom=computeMode(sclTSOS_);    
+
       GlobalPoint  vtxPos=vtxTSOS_.globalPosition();
       GlobalVector outMom=computeMode(outTSOS_);
       GlobalPoint  outPos=outTSOS_.globalPosition();

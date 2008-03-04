@@ -13,7 +13,7 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: ElectronPixelSeedProducer.cc,v 1.17 2008/03/03 15:37:33 uberthon Exp $
+// $Id: ElectronPixelSeedProducer.cc,v 1.18 2008/03/03 17:09:01 uberthon Exp $
 //
 //
 
@@ -40,7 +40,7 @@
 
 using namespace reco;
  
-ElectronPixelSeedProducer::ElectronPixelSeedProducer(const edm::ParameterSet& iConfig) : conf_(iConfig)
+ElectronPixelSeedProducer::ElectronPixelSeedProducer(const edm::ParameterSet& iConfig) : conf_(iConfig),cacheID_(0)
 {
 
   algo_ = iConfig.getParameter<std::string>("SeedAlgo");
@@ -74,21 +74,21 @@ ElectronPixelSeedProducer::~ElectronPixelSeedProducer()
 
 void ElectronPixelSeedProducer::beginJob(edm::EventSetup const&iSetup) 
 {
-  matcher_->setupES(iSetup);  //to be fixed
 }
 
 void ElectronPixelSeedProducer::produce(edm::Event& e, const edm::EventSetup& iSetup) 
 {
   LogDebug("ElectronPixelSeedProducer");
   LogDebug("ElectronPixelSeedProducer")  <<"[ElectronPixelSeedProducer::produce] entering " ;
+  // get calo geometry 
+  if (cacheID_!=iSetup.get<IdealGeometryRecord>().cacheIdentifier()) {
+              iSetup.get<IdealGeometryRecord>().get(theCaloGeom);
+	      cacheID_=iSetup.get<IdealGeometryRecord>().cacheIdentifier();
+  }
 
-  // get calo geometry //FIXME: cacheId
-  edm::ESHandle<CaloGeometry>                 theCaloGeom;
-  iSetup.get<IdealGeometryRecord>().get(theCaloGeom);
-  calc_=HoECalculator(theCaloGeom);
-  subDetGeometry_= theCaloGeom->getSubdetectorGeometry (DetId::Hcal,4) ;
+  matcher_->setupES(iSetup);  
 
-  // to check existence
+  // get Hcal Rechit collection
   edm::Handle<HBHERecHitCollection> hbhe;
   HBHERecHitMetaCollection *mhbhe=0;
   bool got =    e.getByLabel(hbheLabel_,hbheInstanceName_,hbhe);  
@@ -96,8 +96,9 @@ void ElectronPixelSeedProducer::produce(edm::Event& e, const edm::EventSetup& iS
 
   ElectronPixelSeedCollection *seeds= new ElectronPixelSeedCollection;
   std::auto_ptr<ElectronPixelSeedCollection> pSeeds;
- 
+
   // loop over barrel + endcap
+  calc_=HoECalculator(theCaloGeom);
   for (unsigned int i=0; i<2; i++) {  
    // invoke algorithm
     edm::Handle<SuperClusterCollection> clusters;

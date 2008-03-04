@@ -77,7 +77,7 @@ class ElectronPixelSeedGenerator: public ElectronSeedGenerator
   PropagatorWithMaterial * thePropagator;
 
   const MeasurementTracker*     theMeasurementTracker;
-  const NavigationSchool*       theNavigationSchool;
+  //  const NavigationSchool*       theNavigationSchool;
   const NavigationSetter*       theSetter;
 
   const edm::EventSetup *theSetup; 
@@ -85,6 +85,12 @@ class ElectronPixelSeedGenerator: public ElectronSeedGenerator
 
   PRecHitContainer recHits_; 
   PTrajectoryStateOnDet* pts_; 
+
+  // keep cacheIds to get records only when necessary
+  unsigned long long cacheIDMagField_;
+  unsigned long long cacheIDGeom_;
+  unsigned long long cacheIDNavSchool_;
+  unsigned long long cacheIDCkfComp_;
 };
 
 #endif // ElectronPixelSeedGenerator_H

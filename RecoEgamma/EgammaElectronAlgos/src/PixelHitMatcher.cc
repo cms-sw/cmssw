@@ -13,7 +13,7 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: PixelHitMatcher.cc,v 1.18 2008/02/28 21:43:27 charlot Exp $
+// $Id: PixelHitMatcher.cc,v 1.19 2008/02/29 10:36:49 uberthon Exp $
 //
 //
 
@@ -47,11 +47,14 @@ PixelHitMatcher::~PixelHitMatcher()
 void PixelHitMatcher::setES(const MagneticField* magField, const MeasurementTracker *theMeasurementTracker){
   theGeometricSearchTracker=theMeasurementTracker->geometricSearchTracker();
   startLayers.setup(theGeometricSearchTracker);
+  if (theLayerMeasurements ) delete theLayerMeasurements;
   theLayerMeasurements = new LayerMeasurements(theMeasurementTracker);
   theMagField = magField;
   delete prop2ndLayer;
   float mass=.000511; // electron propagation
+  if (prop1stLayer) delete prop1stLayer;
   prop1stLayer = new PropagatorWithMaterial(oppositeToMomentum,mass,theMagField);
+  if (prop2ndLayer) delete prop2ndLayer;
   prop2ndLayer = new PropagatorWithMaterial(alongMomentum,mass,theMagField);
 }
 

@@ -135,6 +135,10 @@ public:
 
   HBHERecHitMetaCollection *mhbhe_;
   unsigned int processType_;
+
+  unsigned long long   cacheIDGeom_;
+  unsigned long long cacheIDTDGeom_;
+  unsigned long long cacheIDMagField_;
 };
 
 #endif // GsfElectronAlgo_H

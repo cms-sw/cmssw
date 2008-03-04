@@ -13,7 +13,7 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: ElectronPixelSeedGenerator.cc,v 1.42 2008/02/29 13:01:53 uberthon Exp $
+// $Id: ElectronPixelSeedGenerator.cc,v 1.43 2008/03/03 17:10:15 uberthon Exp $
 //
 //
 #include "RecoEgamma/EgammaElectronAlgos/interface/PixelHitMatcher.h" 
@@ -64,9 +64,11 @@ ElectronPixelSeedGenerator::ElectronPixelSeedGenerator(const edm::ParameterSet &
       deltaPhi1High_(pset.getParameter<double>("DeltaPhi1High")),
       deltaPhi2_(pset.getParameter<double>("DeltaPhi2")),
       myMatchEle(0), myMatchPos(0),
-      theUpdator(0), thePropagator(0), theMeasurementTracker(0), 
-      theNavigationSchool(0), theSetup(0), pts_(0)
-{      // Instantiate the pixel hit matchers
+      thePropagator(0), theMeasurementTracker(0), 
+      theSetter(0), theSetup(0), pts_(0),
+      cacheIDMagField_(0),cacheIDGeom_(0),cacheIDNavSchool_(0),cacheIDCkfComp_(0)
+{ 
+     // Instantiate the pixel hit matchers
   myMatchEle = new PixelHitMatcher( pset.getParameter<double>("ePhiMin1"), 
 				    pset.getParameter<double>("ePhiMax1"),
 				    pset.getParameter<double>("PhiMin2"),
@@ -91,6 +93,7 @@ ElectronPixelSeedGenerator::ElectronPixelSeedGenerator(const edm::ParameterSet &
 				    pset.getParameter<double>("rMaxI"),
 				    pset.getParameter<bool>("searchInTIDTEC"));
 
+  theUpdator = new KFUpdator();
 }
 
 ElectronPixelSeedGenerator::~ElectronPixelSeedGenerator() {
@@ -103,32 +106,49 @@ ElectronPixelSeedGenerator::~ElectronPixelSeedGenerator() {
 
 void ElectronPixelSeedGenerator::setupES(const edm::EventSetup& setup) {
 
-  theSetup= &setup;
+  // get records if necessary (called once per event)
+  bool tochange=false;
 
-  setup.get<IdealMagneticFieldRecord>().get(theMagField);
-  setup.get<TrackerRecoGeometryRecord>().get( theGeomSearchTracker );
+  if (cacheIDMagField_!=setup.get<IdealMagneticFieldRecord>().cacheIdentifier()) {
+    setup.get<IdealMagneticFieldRecord>().get(theMagField);
+    cacheIDMagField_=setup.get<IdealMagneticFieldRecord>().cacheIdentifier();
+    if (thePropagator) delete thePropagator;
+    thePropagator = new PropagatorWithMaterial(alongMomentum,.000511,&(*theMagField)); 
+    tochange=true;
+  }
+  if (cacheIDGeom_!=setup.get<TrackerRecoGeometryRecord>().cacheIdentifier()) {
+    setup.get<TrackerRecoGeometryRecord>().get( theGeomSearchTracker );
+    cacheIDGeom_=setup.get<TrackerRecoGeometryRecord>().cacheIdentifier();
+  }
 
-  edm::ESHandle<NavigationSchool> nav;
-  setup.get<NavigationSchoolRecord>().get("SimpleNavigationSchool", nav);
-  theNavigationSchool = nav.product();
-  theSetter=new NavigationSetter(*theNavigationSchool);
+  if (cacheIDNavSchool_!=setup.get<NavigationSchoolRecord>().cacheIdentifier()) {
+    edm::ESHandle<NavigationSchool> nav;
+    setup.get<NavigationSchoolRecord>().get("SimpleNavigationSchool", nav);
+    cacheIDNavSchool_=setup.get<NavigationSchoolRecord>().cacheIdentifier();
+  
+    //    theNavigationSchool = nav.product();
+    if (theSetter) delete theSetter;
+    theSetter=new NavigationSetter(*(nav.product()));
+  }				   
 
-  edm::ESHandle<MeasurementTracker>    measurementTrackerHandle;
-  setup.get<CkfComponentsRecord>().get(measurementTrackerHandle);
-  theMeasurementTracker = measurementTrackerHandle.product();
-
+  if (cacheIDCkfComp_!=setup.get<CkfComponentsRecord>().cacheIdentifier()) {
+    edm::ESHandle<MeasurementTracker>    measurementTrackerHandle;
+    setup.get<CkfComponentsRecord>().get(measurementTrackerHandle);
+    cacheIDCkfComp_=setup.get<CkfComponentsRecord>().cacheIdentifier();
+    theMeasurementTracker = measurementTrackerHandle.product();
+    tochange=true;
+  }
  
-  if (theUpdator) delete theUpdator;
-  theUpdator = new KFUpdator();
-  if (thePropagator) delete thePropagator;
-  thePropagator = new PropagatorWithMaterial(alongMomentum,.000511,&(*theMagField)); 
- 
-  myMatchEle->setES(&(*theMagField),theMeasurementTracker);
-  myMatchPos->setES(&(*theMagField),theMeasurementTracker);
+  if (tochange) {
+    myMatchEle->setES(&(*theMagField),theMeasurementTracker);
+    myMatchPos->setES(&(*theMagField),theMeasurementTracker);
+  }
 
 }
 
 void  ElectronPixelSeedGenerator::run(edm::Event& e, const edm::EventSetup& setup, const reco::SuperClusterRefVector &sclRefs, reco::ElectronPixelSeedCollection & out){
+
+  theSetup= &setup; 
 
   //Getting the beamspot from the Event:
   edm::Handle<reco::BeamSpot> recoBeamSpotHandle;
@@ -142,7 +162,6 @@ void  ElectronPixelSeedGenerator::run(edm::Event& e, const edm::EventSetup& setu
   zmin1_=BSPosition_.z()-3*sq;
   zmax1_=BSPosition_.z()+3*sq;
 
-  theSetup= &setup; 
   theMeasurementTracker->update(e); 
   
  for  (unsigned int i=0;i<sclRefs.size();++i) {
