@@ -29,6 +29,7 @@ class SiStripNoises {
 		typedef Registry::const_iterator                         RegistryIterator;
 		typedef const std::vector<short>		         InputVector;
 
+		SiStripNoises(const SiStripNoises& );
 		SiStripNoises(){};
 		~SiStripNoises(){};
 
