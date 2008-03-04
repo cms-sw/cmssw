@@ -28,8 +28,6 @@ void newSiStripO2O::analyze(const edm::Event& evt, const edm::EventSetup& iSetup
 
   edm::ESHandle<SiStripNoises> noise;
   iSetup.get<SiStripNoisesRcd>().get(noise);
-  SiStripNoises *noise_cpy = new SiStripNoises();
-
 
   vector<uint32_t> det_ids;
   det_cabling->addActiveDetectorsRawIds(det_ids);
@@ -63,19 +61,21 @@ void newSiStripO2O::analyze(const edm::Event& evt, const edm::EventSetup& iSetup
   }
 
   //COPY NOISE
+  
+  SiStripNoises *noise_cpy = new SiStripNoises(*noise);
+
   std::vector<uint32_t> ndetid;
   noise->getDetIds(ndetid);
   edm::LogInfo("SiStripO2O") << " Noise Found " << ndetid.size() << " DetIds";
   for (size_t id=0;id<ndetid.size();id++){
     SiStripNoises::Range range=noise->getRange(ndetid[id]);
-    noise_cpy->put(ndetid[id],range);      
 
     if (edm::isDebugEnabled()){
       int strip=0;
       LogTrace("SiStripO2O")  << "NOISE detid " << ndetid[id] << " \t"
 			      << " strip " << strip << " \t"
 			      << noise->getNoise(strip,range)     << " \t" 
-			      << noise->getDisable(strip,range)   << " \t" 
+	//<< noise->getDisable(strip,range)   << " \t" 
 			      << std::endl; 	    
     } 
   }
