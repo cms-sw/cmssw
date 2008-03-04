@@ -31,6 +31,7 @@ struct dictionary {
   edm::Wrapper<edmtest::DSVWeirdProduct> dummyw20;
   edm::Wrapper<edmtest::DSTVSimpleProduct> dummyw21;
   edm::Wrapper<edmtest::DSTVSimpleDerivedProduct> dummyw22;
+  edm::Wrapper<edmtest::Int16_tProduct> dummyw23;
 
   edm::Wrapper<edmtest::Thing> dummy105;
   edm::Wrapper<edmtest::ThingWithMerge> dummy104;

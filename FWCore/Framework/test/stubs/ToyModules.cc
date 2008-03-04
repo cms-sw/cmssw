@@ -102,6 +102,37 @@ namespace edmtest {
     std::auto_ptr<IntProduct> p(new IntProduct(value_));
     e.put(p);
   }
+
+  //--------------------------------------------------------------------
+  //
+  // Produces an Int16_tProduct instance.
+  //
+  class Int16_tProducer : public edm::EDProducer {
+  public:
+    explicit Int16_tProducer(edm::ParameterSet const& p) : 
+      value_(p.getParameter<int>("ivalue")) {
+      produces<Int16_tProduct>();
+    }
+    explicit Int16_tProducer(boost::int16_t i, boost::uint16_t j) : value_(i), uvalue_(j) {
+      produces<Int16_tProduct>();
+    }
+    virtual ~Int16_tProducer() { }
+    virtual void produce(edm::Event& e, edm::EventSetup const& c);
+    
+    static void fillDescription(edm::ParameterSetDescription& iDesc) {
+    }
+  private:
+    boost::int16_t value_;
+    boost::uint16_t uvalue_;
+  };
+
+  void
+  Int16_tProducer::produce(edm::Event& e, edm::EventSetup const&) {
+    // EventSetup is not used.
+    std::auto_ptr<Int16_tProduct> p(new Int16_tProduct(value_));
+    e.put(p);
+  }
+
   
   //--------------------------------------------------------------------
   //
@@ -127,7 +158,7 @@ namespace edmtest {
   DoubleProducer::produce(edm::Event& e, edm::EventSetup const&) {
     // EventSetup is not used.
     // Get input
-    edm::Handle<IntProduct> h;
+    edm::Handle<DoubleProduct> h;
     assert(!h.isValid());
 
     try {
@@ -875,6 +906,7 @@ namespace edmtest {
 using edmtest::FailingProducer;
 using edmtest::NonProducer;
 using edmtest::IntProducer;
+using edmtest::Int16_tProducer;
 using edmtest::DoubleProducer;
 using edmtest::SCSimpleProducer;
 using edmtest::OVSimpleProducer;
@@ -895,6 +927,7 @@ using edmtest::IntVecRefToBaseVectorProducer;
 DEFINE_FWK_MODULE(FailingProducer);
 DEFINE_FWK_MODULE(NonProducer);
 DEFINE_FWK_MODULE(IntProducer);
+DEFINE_FWK_MODULE(Int16_tProducer);
 DEFINE_FWK_MODULE(DoubleProducer);
 DEFINE_FWK_MODULE(SCSimpleProducer);
 DEFINE_FWK_MODULE(OVSimpleProducer);
