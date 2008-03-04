@@ -195,7 +195,10 @@ void HcalDigiTester::reco(const edm::Event& iEvent, const edm::EventSetup& iSetu
       double fPhi = cellGeometry->getPosition ().phi () ;
       int depth   = cell.depth();
       
-      conditions->makeHcalCalibration(cell, &calibrations);
+      // old version 
+      //      conditions->makeHcalCalibration(cell, &calibrations);
+      HcalCalibrations calibrations = conditions->getHcalCalibrations(cell);
+
       const HcalQIECoder* channelCoder = conditions->getHcalCoder(cell);
       HcalCoderDb coder (*channelCoder, *shape);
       coder.adc2fC(*digiItr,tool);
