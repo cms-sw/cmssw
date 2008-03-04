@@ -58,6 +58,7 @@ class RPCSimAverageNoiseEff : public RPCSim
   int nbxing;
   double rate;
   double gate;
+  double frate;
 
   std::map< int, std::vector<double> > clsMap;
   std::vector<double> sum_clsize;

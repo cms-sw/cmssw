@@ -65,6 +65,7 @@ RPCSimAverageNoiseEff::RPCSimAverageNoiseEff(const edm::ParameterSet& config) :
   rate=config.getParameter<double>("Rate");
   nbxing=config.getParameter<int>("Nbxing");
   gate=config.getParameter<double>("Gate");
+  frate=config.getParameter<double>("Frate");
 
   if (rpcdigiprint) {
     std::cout <<"Average Efficiency        = "<<aveEff<<std::endl;
@@ -259,7 +260,7 @@ void RPCSimAverageNoiseEff::simulateNoise(const RPCRoll* roll)
     if(j >= nstrips) break; 
     if(veff[j] == 0) continue;
 
-    double ave = vnoise[j]*nbxing*gate*area*1.0e-9;
+    double ave = vnoise[j]*nbxing*gate*area*1.0e-9*frate;
     poissonDistribution_ = new CLHEP::RandPoissonQ(rndEngine, ave);
     N_hits = poissonDistribution_->fire();
 
