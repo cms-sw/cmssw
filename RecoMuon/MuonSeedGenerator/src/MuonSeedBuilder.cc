@@ -40,8 +40,10 @@
 #include <deque>
 #include <utility>
 
-typedef std::pair<double, TrajectorySeed> seedpr ;
-static bool ptDecreasing(const seedpr s1, const seedpr s2) { return ( s1.first > s2.first ); }
+//typedef std::pair<double, TrajectorySeed> seedpr ;
+//static bool ptDecreasing(const seedpr s1, const seedpr s2) { return ( s1.first > s2.first ); }
+typedef std::pair<int, TrajectorySeed> seedpr ;
+static bool lDecreasing(const seedpr s1, const seedpr s2) { return ( s1.first > s2.first ); }
 
 
 /*
@@ -80,13 +82,9 @@ MuonSeedBuilder::MuonSeedBuilder(const edm::ParameterSet& pset){
   maxEtaResolutionCSC  = pset.getParameter<double>("maxEtaResolutionCSC"); 
   maxPhiResolutionCSC  = pset.getParameter<double>("maxPhiResolutionCSC"); 
 
-  // Minimum seed Pt
-  theMinMomentum       = pset.getParameter<double>("minimumSeedPt");
-
-
   // muon service
-  // edm::ParameterSet serviceParameters = pset.getParameter<edm::ParameterSet>("ServiceParameters");
-  // theService        = new MuonServiceProxy(serviceParameters);
+  edm::ParameterSet serviceParameters = pset.getParameter<edm::ParameterSet>("ServiceParameters");
+  theService        = new MuonServiceProxy(serviceParameters);
 
   // Class for forming muon seeds
   muonSeedCreate_      = new MuonSeedCreator( pset ); 
@@ -99,10 +97,8 @@ MuonSeedBuilder::MuonSeedBuilder(const edm::ParameterSet& pset){
 MuonSeedBuilder::~MuonSeedBuilder(){
 
   delete muonSeedCreate_;
-
-  // if (theService) delete theService;
+  if (theService) delete theService;
 }
-
 
 /* 
  * build
@@ -121,15 +117,13 @@ int MuonSeedBuilder::build( edm::Event& event, const edm::EventSetup& eventSetup
   std::vector<TrajectorySeed> rawSeeds;
   std::vector<float> etaOfSeed;
   std::vector<float> phiOfSeed;
-  std::vector<float> ptOfSeed;
-  std::vector<int>   nSegOnSeed;
+  std::vector<int> nSegOnSeed;
 
 
- // Instantiate the accessor (get the segments: DT + CSC but not RPC=false)
+  // Instantiate the accessor (get the segments: DT + CSC but not RPC=false)
   MuonDetLayerMeasurements muonMeasurements(theDTSegmentLabel,theCSCSegmentLabel,edm::InputTag(),
-					    enableDTMeasurement,enableCSCMeasurement,false);
-  
-  
+                                            enableDTMeasurement,enableCSCMeasurement,false);
+
   // 1) Get the various stations and store segments in containers for each station (layers)
  
   // 1a. get the DT segments by stations (layers):
@@ -202,6 +196,7 @@ int MuonSeedBuilder::build( edm::Event& event, const edm::EventSetup& eventSetup
    * Proceed from inside -> out
    * *********************************************************************************************************************/
 
+
   // Loop over all possible MB1 segment to form seeds:
   int index = -1;
   for (SegmentContainer::iterator it = DTlist1.begin(); it != DTlist1.end(); ++it ){
@@ -219,7 +214,6 @@ int MuonSeedBuilder::build( edm::Event& event, const edm::EventSetup& eventSetup
     GlobalPoint gp = (*it)->globalPosition();
     float eta_temp = gp.eta();
     float phi_temp = gp.phi();
-    float seedPt = 0.;
 
     SegmentContainer protoTrack;
     protoTrack.push_back(*it);
@@ -251,16 +245,15 @@ int MuonSeedBuilder::build( edm::Event& event, const edm::EventSetup& eventSetup
     TrajectorySeed thisSeed;
 
     if ( layers[nLayers-1] > 0 ) {
-      thisSeed = muonSeedCreate_->createSeed(2, protoTrack, layers, badSeedLayer, seedPt);  // overlap
+      thisSeed = muonSeedCreate_->createSeed(2, protoTrack, layers, badSeedLayer);  // overlap
     } else {
-      thisSeed = muonSeedCreate_->createSeed(3, protoTrack, layers, badSeedLayer, seedPt);  // DT only
+      thisSeed = muonSeedCreate_->createSeed(3, protoTrack, layers, badSeedLayer);  // DT only
     }
 
     // Add the seeds to master collection
     rawSeeds.push_back(thisSeed); 
     etaOfSeed.push_back(eta_temp);
     phiOfSeed.push_back(phi_temp);
-    ptOfSeed.push_back(seedPt);
     nSegOnSeed.push_back( protoTrack.size() );
 
     // Marked segment as used
@@ -285,7 +278,6 @@ int MuonSeedBuilder::build( edm::Event& event, const edm::EventSetup& eventSetup
     GlobalPoint gp = (*it)->globalPosition();
     float eta_temp = gp.eta();
     float phi_temp = gp.phi();
-    float seedPt = 0.;
 
     SegmentContainer protoTrack;
     protoTrack.push_back(*it);
@@ -317,16 +309,15 @@ int MuonSeedBuilder::build( edm::Event& event, const edm::EventSetup& eventSetup
     TrajectorySeed thisSeed;
   
     if ( layers[nLayers-1] > 0 ) {
-      thisSeed = muonSeedCreate_->createSeed(2, protoTrack, layers, badSeedLayer, seedPt);  // overlap
+      thisSeed = muonSeedCreate_->createSeed(2, protoTrack, layers, badSeedLayer);  // overlap
     } else {
-      thisSeed = muonSeedCreate_->createSeed(3, protoTrack, layers, badSeedLayer, seedPt);  // DT only
+      thisSeed = muonSeedCreate_->createSeed(3, protoTrack, layers, badSeedLayer);  // DT only
     }
 
     // Add the seeds to master collection
     rawSeeds.push_back(thisSeed); 
     etaOfSeed.push_back(eta_temp);
     phiOfSeed.push_back(phi_temp);
-    ptOfSeed.push_back(seedPt);
     nSegOnSeed.push_back( protoTrack.size() );
 
     // Marked segment as used
@@ -351,7 +342,6 @@ int MuonSeedBuilder::build( edm::Event& event, const edm::EventSetup& eventSetup
     GlobalPoint gp = (*it)->globalPosition();
     float eta_temp = gp.eta();
     float phi_temp = gp.phi();
-    float seedPt = 0.;
 
     SegmentContainer protoTrack;
     protoTrack.push_back(*it);
@@ -381,16 +371,15 @@ int MuonSeedBuilder::build( edm::Event& event, const edm::EventSetup& eventSetup
     TrajectorySeed thisSeed;
   
     if ( layers[nLayers-1] > 0 ) {
-      thisSeed = muonSeedCreate_->createSeed(2, protoTrack, layers, badSeedLayer, seedPt);  // overlap
+      thisSeed = muonSeedCreate_->createSeed(2, protoTrack, layers, badSeedLayer);  // overlap
     } else {
-      thisSeed = muonSeedCreate_->createSeed(3, protoTrack, layers, badSeedLayer, seedPt);  // DT only
+      thisSeed = muonSeedCreate_->createSeed(3, protoTrack, layers, badSeedLayer);  // DT only
     }
 
     // Add the seeds to master collection
     rawSeeds.push_back(thisSeed); 
     etaOfSeed.push_back(eta_temp);
     phiOfSeed.push_back(phi_temp);
-    ptOfSeed.push_back(seedPt);
     nSegOnSeed.push_back( protoTrack.size() );
 
     // Marked segment as used
@@ -420,7 +409,6 @@ int MuonSeedBuilder::build( edm::Event& event, const edm::EventSetup& eventSetup
     GlobalPoint gp = (*it)->globalPosition();
     float eta_temp = gp.eta();
     float phi_temp = gp.phi();
-    float seedPt = 0.;
 
     SegmentContainer protoTrack;
     protoTrack.push_back(*it);
@@ -438,25 +426,24 @@ int MuonSeedBuilder::build( edm::Event& event, const edm::EventSetup& eventSetup
 
     if ( nLayers < 2 ) continue;
 
-    TrajectorySeed thisSeed;
-    if ( fabs( gp.eta() ) > 2.1  ) {
-      thisSeed = muonSeedCreate_->createSeed(5, protoTrack, layers, badSeedLayer, seedPt);
-      rawSeeds.push_back(thisSeed);
-          //thisSeed = muonSeedCreate_->createSeed(6, protoTrack, layers, seedPt);
+       TrajectorySeed thisSeed;
+       if ( fabs( gp.eta() ) > 2.1  ) {
+          thisSeed = muonSeedCreate_->createSeed(5, protoTrack, layers, badSeedLayer);
+          rawSeeds.push_back(thisSeed);
+          //thisSeed = muonSeedCreate_->createSeed(6, protoTrack, layers);
           //rawSeeds.push_back(thisSeed);
-    } else {
-      thisSeed = muonSeedCreate_->createSeed(1, protoTrack, layers, badSeedLayer, seedPt);
-      rawSeeds.push_back(thisSeed);
-    }
+       } else {
+          thisSeed = muonSeedCreate_->createSeed(1, protoTrack, layers, badSeedLayer);
+          rawSeeds.push_back(thisSeed);
+       }
 
-    // Add the seeds to master collection
-    etaOfSeed.push_back(eta_temp);
-    phiOfSeed.push_back(phi_temp);
-    ptOfSeed.push_back(seedPt);
-    nSegOnSeed.push_back( nLayers );
+       // Add the seeds to master collection
+       etaOfSeed.push_back(eta_temp);
+       phiOfSeed.push_back(phi_temp);
+       nSegOnSeed.push_back( nLayers );
 
-    // mark this segment as used
-    usedCSClist0B[index] = true;
+       // mark this segment as used
+       usedCSClist0B[index] = true;
   }
 
 
@@ -477,7 +464,6 @@ int MuonSeedBuilder::build( edm::Event& event, const edm::EventSetup& eventSetup
 
     float eta_temp = gp.eta();
     float phi_temp = gp.phi();
-    float seedPt = 0.;
 
     SegmentContainer protoTrack;
     protoTrack.push_back(*it);
@@ -494,17 +480,16 @@ int MuonSeedBuilder::build( edm::Event& event, const edm::EventSetup& eventSetup
 
     if ( nLayers < 2 ) continue;
 
-    TrajectorySeed thisSeed = muonSeedCreate_->createSeed(1, protoTrack, layers, badSeedLayer, seedPt);
+       TrajectorySeed thisSeed = muonSeedCreate_->createSeed(1, protoTrack, layers, badSeedLayer);
 
-    // Add the seeds to master collection
-    rawSeeds.push_back(thisSeed);
-    etaOfSeed.push_back(eta_temp);
-    phiOfSeed.push_back(phi_temp);
-    ptOfSeed.push_back(seedPt);
-    nSegOnSeed.push_back( nLayers );
+       // Add the seeds to master collection
+       rawSeeds.push_back(thisSeed);
+       etaOfSeed.push_back(eta_temp);
+       phiOfSeed.push_back(phi_temp);
+       nSegOnSeed.push_back( nLayers );
 
-    // mark this segment as used
-    usedCSClist1B[index] = true;
+       // mark this segment as used
+       usedCSClist1B[index] = true;
   }
 
 
@@ -525,7 +510,6 @@ int MuonSeedBuilder::build( edm::Event& event, const edm::EventSetup& eventSetup
 
     float eta_temp = gp.eta();
     float phi_temp = gp.phi();
-    float seedPt = 0.;
 
     SegmentContainer protoTrack;
     protoTrack.push_back(*it);
@@ -541,13 +525,12 @@ int MuonSeedBuilder::build( edm::Event& event, const edm::EventSetup& eventSetup
 
     if ( nLayers < 2 ) continue;
 
-    TrajectorySeed thisSeed = muonSeedCreate_->createSeed(1, protoTrack, layers, badSeedLayer, seedPt);
+    TrajectorySeed thisSeed = muonSeedCreate_->createSeed(1, protoTrack, layers, badSeedLayer);
 
     // Add the seeds to master collection
     rawSeeds.push_back(thisSeed);
     etaOfSeed.push_back(eta_temp);
     phiOfSeed.push_back(phi_temp);
-    ptOfSeed.push_back(seedPt);
     nSegOnSeed.push_back( nLayers );
     // mark this segment as used
     usedCSClist2B[index] = true;
@@ -577,7 +560,6 @@ int MuonSeedBuilder::build( edm::Event& event, const edm::EventSetup& eventSetup
     GlobalPoint gp = (*it)->globalPosition();
     float eta_temp = gp.eta();  
     float phi_temp = gp.phi();      
-    float seedPt = 0.;
     
     SegmentContainer protoTrack;
     protoTrack.push_back(*it);
@@ -595,26 +577,24 @@ int MuonSeedBuilder::build( edm::Event& event, const edm::EventSetup& eventSetup
 
     if ( nLayers < 2 ) continue;
 
-    TrajectorySeed thisSeed;
-
-    if ( fabs( gp.eta() ) > 2.1  ) {
-      thisSeed = muonSeedCreate_->createSeed(5, protoTrack, layers, badSeedLayer, seedPt);
-      rawSeeds.push_back(thisSeed);
-          //thisSeed = muonSeedCreate_->createSeed(6, protoTrack, layers, seedPt);
+       TrajectorySeed thisSeed;
+       if ( fabs( gp.eta() ) > 2.1  ) {
+          thisSeed = muonSeedCreate_->createSeed(5, protoTrack, layers, badSeedLayer);
+          rawSeeds.push_back(thisSeed);
+          //thisSeed = muonSeedCreate_->createSeed(6, protoTrack, layers);
           //rawSeeds.push_back(thisSeed);
-    } else {
-      thisSeed = muonSeedCreate_->createSeed(1, protoTrack, layers, badSeedLayer, seedPt);
-      rawSeeds.push_back(thisSeed);
-    }
+       } else {
+          thisSeed = muonSeedCreate_->createSeed(1, protoTrack, layers, badSeedLayer);
+          rawSeeds.push_back(thisSeed);
+       }
  
-    // Add the seeds to master collection
-    etaOfSeed.push_back(eta_temp);
-    phiOfSeed.push_back(phi_temp);
-    ptOfSeed.push_back(seedPt);
-    nSegOnSeed.push_back( nLayers );
+       // Add the seeds to master collection
+       etaOfSeed.push_back(eta_temp);
+       phiOfSeed.push_back(phi_temp);
+       nSegOnSeed.push_back( nLayers );
 
-    // mark this segment as used
-    usedCSClist0F[index] = true;
+       // mark this segment as used
+       usedCSClist0F[index] = true;
   }
   
 
@@ -635,7 +615,6 @@ int MuonSeedBuilder::build( edm::Event& event, const edm::EventSetup& eventSetup
 
     float eta_temp = gp.eta();
     float phi_temp = gp.phi();
-    float seedPt = 0.;
     
     SegmentContainer protoTrack;
     protoTrack.push_back(*it);
@@ -652,17 +631,16 @@ int MuonSeedBuilder::build( edm::Event& event, const edm::EventSetup& eventSetup
   
     if ( nLayers < 2 ) continue; 
   
-    TrajectorySeed thisSeed = muonSeedCreate_->createSeed(1, protoTrack, layers, badSeedLayer, seedPt);
+       TrajectorySeed thisSeed = muonSeedCreate_->createSeed(1, protoTrack, layers, badSeedLayer);
 
-    // Add the seeds to master collection
-    rawSeeds.push_back(thisSeed);
-    etaOfSeed.push_back(eta_temp);
-    phiOfSeed.push_back(phi_temp);
-    ptOfSeed.push_back(seedPt);
-    nSegOnSeed.push_back( nLayers );
+       // Add the seeds to master collection
+       rawSeeds.push_back(thisSeed);
+       etaOfSeed.push_back(eta_temp);
+       phiOfSeed.push_back(phi_temp);
+       nSegOnSeed.push_back( nLayers );
 
-    // mark this segment as used
-    usedCSClist1F[index] = true;
+       // mark this segment as used
+       usedCSClist1F[index] = true;
   } 
 
 
@@ -683,7 +661,6 @@ int MuonSeedBuilder::build( edm::Event& event, const edm::EventSetup& eventSetup
    
     float eta_temp = gp.eta();  
     float phi_temp = gp.phi();   
-    float seedPt = 0.;
    
     SegmentContainer protoTrack;
     protoTrack.push_back(*it);
@@ -699,13 +676,12 @@ int MuonSeedBuilder::build( edm::Event& event, const edm::EventSetup& eventSetup
 
     if ( nLayers < 2 ) continue;
 
-    TrajectorySeed thisSeed = muonSeedCreate_->createSeed(1, protoTrack, layers, badSeedLayer, seedPt);
+    TrajectorySeed thisSeed = muonSeedCreate_->createSeed(1, protoTrack, layers, badSeedLayer);
       
     // Add the seeds to master collection
     rawSeeds.push_back(thisSeed);  
     etaOfSeed.push_back(eta_temp); 
     phiOfSeed.push_back(phi_temp);
-    ptOfSeed.push_back(seedPt);
     nSegOnSeed.push_back( nLayers );
     
     // mark this segment as used
@@ -726,7 +702,6 @@ int MuonSeedBuilder::build( edm::Event& event, const edm::EventSetup& eventSetup
     GlobalPoint gp = (*it)->globalPosition();
     float eta_temp = gp.eta();
     float phi_temp = gp.phi();
-    float seedPt = 0.;
 
     SegmentContainer protoTrack;
     protoTrack.push_back(*it);
@@ -734,11 +709,10 @@ int MuonSeedBuilder::build( edm::Event& event, const edm::EventSetup& eventSetup
     std::vector<int> layers;
     layers.push_back(-1);
 
-    TrajectorySeed thisSeed = muonSeedCreate_->createSeed(4, protoTrack, layers, badSeedLayer, seedPt);
+    TrajectorySeed thisSeed = muonSeedCreate_->createSeed(4, protoTrack, layers, badSeedLayer);
     rawSeeds.push_back(thisSeed);
     etaOfSeed.push_back(eta_temp);
     phiOfSeed.push_back(phi_temp);
-    ptOfSeed.push_back(seedPt);
     nSegOnSeed.push_back( 1 );
     usedDTlist1[index] = true;
   }
@@ -751,7 +725,6 @@ int MuonSeedBuilder::build( edm::Event& event, const edm::EventSetup& eventSetup
     GlobalPoint gp = (*it)->globalPosition();
     float eta_temp = gp.eta();
     float phi_temp = gp.phi();
-    float seedPt = 0.;
 
     SegmentContainer protoTrack;
     protoTrack.push_back(*it);
@@ -759,11 +732,10 @@ int MuonSeedBuilder::build( edm::Event& event, const edm::EventSetup& eventSetup
     std::vector<int> layers;
     layers.push_back(-2);
 
-    TrajectorySeed thisSeed = muonSeedCreate_->createSeed(4, protoTrack, layers, badSeedLayer, seedPt);
+    TrajectorySeed thisSeed = muonSeedCreate_->createSeed(4, protoTrack, layers, badSeedLayer);
     rawSeeds.push_back(thisSeed);
     etaOfSeed.push_back(eta_temp);
     phiOfSeed.push_back(phi_temp);
-    ptOfSeed.push_back(seedPt);
     nSegOnSeed.push_back( 1 );
     usedDTlist2[index] = true;
   }
@@ -777,7 +749,6 @@ int MuonSeedBuilder::build( edm::Event& event, const edm::EventSetup& eventSetup
     GlobalPoint gp = (*it)->globalPosition();
     float eta_temp = gp.eta();
     float phi_temp = gp.phi();
-    float seedPt = 0.;
 
     SegmentContainer protoTrack;
     protoTrack.push_back(*it);
@@ -785,11 +756,10 @@ int MuonSeedBuilder::build( edm::Event& event, const edm::EventSetup& eventSetup
     std::vector<int> layers;
     layers.push_back(-3);
 
-    TrajectorySeed thisSeed = muonSeedCreate_->createSeed(4, protoTrack, layers, badSeedLayer, seedPt);
+    TrajectorySeed thisSeed = muonSeedCreate_->createSeed(4, protoTrack, layers, badSeedLayer);
     rawSeeds.push_back(thisSeed);
     etaOfSeed.push_back(eta_temp);
     phiOfSeed.push_back(phi_temp);
-    ptOfSeed.push_back(seedPt);
     nSegOnSeed.push_back( 1 );
     usedDTlist3[index] = true;
   }
@@ -802,7 +772,6 @@ int MuonSeedBuilder::build( edm::Event& event, const edm::EventSetup& eventSetup
     GlobalPoint gp = (*it)->globalPosition();
     float eta_temp = gp.eta();
     float phi_temp = gp.phi();
-    float seedPt = 0.;
     if ( fabs(eta_temp) > 2.08 ) continue;
 
     SegmentContainer protoTrack;
@@ -811,12 +780,11 @@ int MuonSeedBuilder::build( edm::Event& event, const edm::EventSetup& eventSetup
     std::vector<int> layers;
     layers.push_back(0);
 
-    TrajectorySeed thisSeed = muonSeedCreate_->createSeed(4, protoTrack, layers, badSeedLayer, seedPt);
+    TrajectorySeed thisSeed = muonSeedCreate_->createSeed(4, protoTrack, layers, badSeedLayer);
     rawSeeds.push_back(thisSeed);
     etaOfSeed.push_back(eta_temp);
     phiOfSeed.push_back(phi_temp);
     nSegOnSeed.push_back( 1 );
-    ptOfSeed.push_back(seedPt);
     usedCSClist0F[index] = true;
   }
 
@@ -828,7 +796,6 @@ int MuonSeedBuilder::build( edm::Event& event, const edm::EventSetup& eventSetup
     GlobalPoint gp = (*it)->globalPosition();
     float eta_temp = gp.eta();
     float phi_temp = gp.phi();
-    float seedPt = 0.;
     if ( fabs(eta_temp) > 2.08 ) continue;
 
     SegmentContainer protoTrack;
@@ -837,11 +804,10 @@ int MuonSeedBuilder::build( edm::Event& event, const edm::EventSetup& eventSetup
     std::vector<int> layers;
     layers.push_back(0);
 
-    TrajectorySeed thisSeed = muonSeedCreate_->createSeed(4, protoTrack, layers, badSeedLayer, seedPt);
+    TrajectorySeed thisSeed = muonSeedCreate_->createSeed(4, protoTrack, layers, badSeedLayer);
     rawSeeds.push_back(thisSeed);
     etaOfSeed.push_back(eta_temp);
     phiOfSeed.push_back(phi_temp);
-    ptOfSeed.push_back(seedPt);
     nSegOnSeed.push_back( 1 );
     usedCSClist0B[index] = true;
   }
@@ -854,7 +820,6 @@ int MuonSeedBuilder::build( edm::Event& event, const edm::EventSetup& eventSetup
     GlobalPoint gp = (*it)->globalPosition();
     float eta_temp = gp.eta();
     float phi_temp = gp.phi();
-    float seedPt = 0.;
 
     SegmentContainer protoTrack;
     protoTrack.push_back(*it);
@@ -862,11 +827,10 @@ int MuonSeedBuilder::build( edm::Event& event, const edm::EventSetup& eventSetup
     std::vector<int> layers;
     layers.push_back(1);
 
-    TrajectorySeed thisSeed = muonSeedCreate_->createSeed(4, protoTrack, layers, badSeedLayer, seedPt);
+    TrajectorySeed thisSeed = muonSeedCreate_->createSeed(4, protoTrack, layers, badSeedLayer);
     rawSeeds.push_back(thisSeed);
     etaOfSeed.push_back(eta_temp);
     phiOfSeed.push_back(phi_temp);
-    ptOfSeed.push_back(seedPt);
     nSegOnSeed.push_back( 1 );
     usedCSClist1F[index] = true;
   }
@@ -879,7 +843,6 @@ int MuonSeedBuilder::build( edm::Event& event, const edm::EventSetup& eventSetup
     GlobalPoint gp = (*it)->globalPosition();
     float eta_temp = gp.eta();
     float phi_temp = gp.phi();
-    float seedPt = 0.;
 
     SegmentContainer protoTrack;
     protoTrack.push_back(*it);
@@ -887,11 +850,10 @@ int MuonSeedBuilder::build( edm::Event& event, const edm::EventSetup& eventSetup
     std::vector<int> layers;
     layers.push_back(1);
 
-    TrajectorySeed thisSeed = muonSeedCreate_->createSeed(4, protoTrack, layers, badSeedLayer, seedPt);
+    TrajectorySeed thisSeed = muonSeedCreate_->createSeed(4, protoTrack, layers, badSeedLayer);
     rawSeeds.push_back(thisSeed);
     etaOfSeed.push_back(eta_temp);
     phiOfSeed.push_back(phi_temp);
-    ptOfSeed.push_back(seedPt);
     nSegOnSeed.push_back( 1 );
     usedCSClist1B[index] = true;
   }
@@ -904,7 +866,6 @@ int MuonSeedBuilder::build( edm::Event& event, const edm::EventSetup& eventSetup
     GlobalPoint gp = (*it)->globalPosition();
     float eta_temp = gp.eta();
     float phi_temp = gp.phi();
-    float seedPt = 0.;
 
     SegmentContainer protoTrack;
     protoTrack.push_back(*it);
@@ -912,11 +873,10 @@ int MuonSeedBuilder::build( edm::Event& event, const edm::EventSetup& eventSetup
     std::vector<int> layers;
     layers.push_back(2);
 
-    TrajectorySeed thisSeed = muonSeedCreate_->createSeed(4, protoTrack, layers, badSeedLayer, seedPt);
+    TrajectorySeed thisSeed = muonSeedCreate_->createSeed(4, protoTrack, layers, badSeedLayer);
     rawSeeds.push_back(thisSeed);
     etaOfSeed.push_back(eta_temp);
     phiOfSeed.push_back(phi_temp);
-    ptOfSeed.push_back(seedPt);
     nSegOnSeed.push_back( 1 );
     usedCSClist2F[index] = true;
   }
@@ -929,7 +889,6 @@ int MuonSeedBuilder::build( edm::Event& event, const edm::EventSetup& eventSetup
     GlobalPoint gp = (*it)->globalPosition();
     float eta_temp = gp.eta();
     float phi_temp = gp.phi();
-    float seedPt = 0.;
 
     SegmentContainer protoTrack;
     protoTrack.push_back(*it);
@@ -937,11 +896,10 @@ int MuonSeedBuilder::build( edm::Event& event, const edm::EventSetup& eventSetup
     std::vector<int> layers;
     layers.push_back(2);
 
-    TrajectorySeed thisSeed = muonSeedCreate_->createSeed(4, protoTrack, layers, badSeedLayer, seedPt);
+    TrajectorySeed thisSeed = muonSeedCreate_->createSeed(4, protoTrack, layers, badSeedLayer);
     rawSeeds.push_back(thisSeed);
     etaOfSeed.push_back(eta_temp);
     phiOfSeed.push_back(phi_temp);
-    ptOfSeed.push_back(seedPt);
     nSegOnSeed.push_back( 1 );
     usedCSClist2B[index] = true;
   }
@@ -955,120 +913,31 @@ int MuonSeedBuilder::build( edm::Event& event, const edm::EventSetup& eventSetup
   if (debug) std::cout << "*** CLEAN UP " << std::endl;
   if (debug) std::cout << "Number of seeds BEFORE " << rawSeeds.size() << std::endl;
 
-  int goodSeeds = 0;
-  float MaxEta;
-  float MaxPhi;
-  std::vector<seedpr> SeedwPt;
 
+  int goodSeeds = 0;
+  std::vector<seedpr> SeedwL ;
 
   for ( unsigned i = 0; i < rawSeeds.size(); i++ ) {
-    bool ok = true;
-    if ( fabs(etaOfSeed[i]) < 1. ) {
-      MaxEta = maxEtaResolutionDT;
-      MaxPhi = maxPhiResolutionDT;
-    } else {
-      MaxEta = maxEtaResolutionCSC;
-      MaxPhi = maxPhiResolutionCSC;
-    }
-
-    // Test if 2 seeds represent the same track
-    bool closeMatch = false;
-    bool bad_estimation2 = false;
-    float pt2 = 0.;
-    float size2 = 0.;
-    double deltaR2 = 999.;
-
-    for ( unsigned j = 0; j < rawSeeds.size(); j++ ) {      
-      // same seed, skip
-      if ( i == j ) continue;
-
-      double deltaR2_temp = ( etaOfSeed[i] - etaOfSeed[j] ) * ( etaOfSeed[i] - etaOfSeed[j] );
-      deltaR2_temp       += ( phiOfSeed[i] - phiOfSeed[j] ) * ( phiOfSeed[i] - phiOfSeed[j] );
-
-      // This shouldn't happen, but just in case...
-      if (deltaR2_temp < 0.) deltaR2_temp = -1. * deltaR2_temp;
-      deltaR2_temp = sqrt(deltaR2_temp);
-
-      if ( fabs( etaOfSeed[i] - etaOfSeed[j] ) < MaxEta && 
-           fabs( phiOfSeed[i] - phiOfSeed[j] ) < MaxPhi ) {
-
-        if ( deltaR2_temp < deltaR2 ) {
-          closeMatch = true;
-          deltaR2    = deltaR2_temp;
-          pt2        = ptOfSeed[j];
-          size2      = nSegOnSeed[j];
-          if ( fabs(ptOfSeed[j]) <= theMinMomentum+0.1 ) {
-            bad_estimation2 = true;
-          }
-          else {
-            bad_estimation2 = false;
-          } 
-        }
-        // If deltaR is same, take seed with higher Pt
-        else if ( deltaR2_temp          == deltaR2 &&
-                  nSegOnSeed[j]         >= size2 &&
-                  fabs(ptOfSeed[j]/pt2)  > 1. ) {
-          closeMatch = true;
-          deltaR2    = deltaR2_temp;
-          pt2        = ptOfSeed[j];
-          size2      = nSegOnSeed[j];
-          if ( fabs(ptOfSeed[j]) <= theMinMomentum+0.1 ) {
-            bad_estimation2 = true;
-          }
-          else {
-            bad_estimation2 = false;
-          } 
-        }
-      }
-    }
-
-    bool bad_estimation = ( fabs(ptOfSeed[i]) <= theMinMomentum+0.1 ) ? true:false; 
-
-    // Remove seeds in ME1/a where we have pt = ptMin for those seeds with multiple segments
-    if ( bad_estimation  && fabs(etaOfSeed[i]) > 2.1 ) ok = false;
-
-
-/*    if ( closeMatch ) {
- *
- *     // If 2 seeds close to one another, but not same:
- *     if ( bad_estimation && !bad_estimation2 ) {
- *       ok = false;   // keep the seed which was formed with more than 1 segment, if pt > ptMinimum
- *     }
- *     else if ( nSegOnSeed[i] < 2 && !bad_estimation2 ) {
- *       ok = false;   // keep the seed which has more than 1 segment and lead to a pt estimate > ptMinimum 
- *     }
- *     else if ( nSegOnSeed[i] <= size2 && fabs(ptOfSeed[i]/pt2) < 1. ) {
- *       ok = false;   // keep the seed with largest pt estimate
- *     }
- *   } 
- */  
-    
-    if ( ok ) {
-      seedpr pr1(ptOfSeed[i], rawSeeds[i]);
-      SeedwPt.push_back(pr1);
-      goodSeeds++;
-
-      if ( debug ) std::cout << "Seed "          << i
-                             << " pt estimate: " << ptOfSeed[i] 
-                             << " eta: "         << etaOfSeed[i] 
-                             << " phi: "         << phiOfSeed[i] 
-                             << std::endl;
-    }
-  }  
-
-
-  // Sort the seeds by decreasing pT  
-  // This is to help reconstruction out of STA for seeds sharing hits
-  sort( SeedwPt.begin(), SeedwPt.end(), ptDecreasing );
-
-  // Fill seed collections to be sent to output
-  for(std::vector<seedpr>::iterator i1 = SeedwPt.begin(); i1!= SeedwPt.end(); ++i1 ) {
-     theSeeds.push_back( (*i1).second );
+    seedpr pr1(rawSeeds[i].nHits(), rawSeeds[i]);
+    SeedwL.push_back(pr1);
+  }
+  
+  // sort the seeds by # of own segments 
+  sort(SeedwL.begin(), SeedwL.end(), lDecreasing ) ;
+  std::vector<TrajectorySeed> sortedSeeds;
+  sortedSeeds.clear();
+  for(std::vector<seedpr>::iterator i1 = SeedwL.begin(); i1!= SeedwL.end(); ++i1 ) {
+     sortedSeeds.push_back( (*i1).second ) ;
   }
 
+  // clean the seeds 
+  seedCleaner( eventSetup, sortedSeeds);
+  theSeeds = sortedSeeds;
+  goodSeeds = sortedSeeds.size();
+
+  if (debug) std::cout << "Number of seeds AFTER " << goodSeeds << std::endl;
 
   return goodSeeds;
-
 }
 
 
@@ -1081,6 +950,7 @@ int MuonSeedBuilder::build( edm::Event& event, const edm::EventSetup& eventSetup
  *           = 3 --> barrel
  * *********************************************************************************************************************/
 
+///                                                   segment for seeding         , segments collection     
 bool MuonSeedBuilder::foundMatchingSegment( int type, SegmentContainer& protoTrack, SegmentContainer& segs, 
 					    BoolContainer& usedSeg, float& eta_last, float& phi_last ) {
 
@@ -1102,44 +972,61 @@ bool MuonSeedBuilder::foundMatchingSegment( int type, SegmentContainer& protoTra
     maxdPhi = maxDeltaPhiDT;
   }
 
-  // look up the showering chamber
-  int last_chamber=0;
-  int same_cb =0 ;
+  // showering test
+  int showerIdx =0;
+  double aveIdx = 0.;
+  double aveEta = 0.;
+  double avePhi = 0.;
   int showerLayer = 9;
   for (SegmentContainer::iterator it=segs.begin(); it!=segs.end(); ++it){
 
       DetId pdid = (*it)->geographicalId();
-      if ( pdid.subdetId() == MuonSubdetId::DT) {
+      if ( pdid.subdetId() == MuonSubdetId::DT ) {
          DTChamberId MB_Id = DTChamberId( pdid );
-         showerLayer = MB_Id.station();
-         if ( MB_Id.sector() == last_chamber ) {
-            same_cb++;
-         } else {
-            last_chamber = MB_Id.sector();
-         }
+         showerLayer = -1*MB_Id.station();
       }
-      if ( pdid.subdetId() == MuonSubdetId::CSC) {
+      if ( pdid.subdetId() == MuonSubdetId::CSC ) {
          CSCDetId ME_Id = CSCDetId( pdid );
-         showerLayer = ME_Id.station();
-         if ( ME_Id.chamber() == last_chamber ) {
-            same_cb++;
+         if (ME_Id.station()==1 && ME_Id.ring()==1 ) {
+           showerLayer = 0;     
          } else {
-            last_chamber = ME_Id.chamber();
+           showerLayer = ME_Id.station();
          }
       }
-  }
-  if (same_cb > 1)  badSeedLayer.push_back( showerLayer ); 
 
-  // Global phi/eta from previous segment 
-  float eta_temp = eta_last;
-  float phi_temp = phi_last;
+      GlobalPoint gp1 = (*it)->globalPosition(); 
+      double dh = fabs( gp1.eta() - eta_last ); 
+      double df = fabs( gp1.phi() - phi_last );
+
+      if ( dh > maxdEta || df > maxdPhi ) continue;
+      showerIdx++;
+      // don't count the MB4 
+      if ( (*it)->dimension() != 4  ) continue;
+      aveIdx += 1.0;
+      aveEta += gp1.eta(); 
+      avePhi += gp1.phi(); 
+  }
+
+  if (showerIdx > 2) {
+     aveEta = aveEta/aveIdx ;
+     avePhi = avePhi/aveIdx ;
+     badSeedLayer.push_back( showerLayer ); 
+  } else {
+     aveEta = eta_last;
+     avePhi = phi_last;
+  }
+
+
+  // global phi/eta from previous segment 
+  float eta_temp = aveEta;
+  float phi_temp = avePhi;
 
   // Index counter to keep track of element used in segs 
   int          index = -1;
   int          best_match = index;
   unsigned int best_nCSChits = minCSCHitsPerSegment;
   float        best_R = sqrt( maxdEta*maxdEta + maxdPhi*maxdPhi );
-  float        best_chi2 = 20000;
+  float        best_chi2 = 200;
 
   // Loop over segments in other station (layer) and find candidate match 
   for (SegmentContainer::iterator it=segs.begin(); it!=segs.end(); ++it){
@@ -1150,47 +1037,46 @@ bool MuonSeedBuilder::foundMatchingSegment( int type, SegmentContainer& protoTra
 
     // chi2 cut !
     double dof = static_cast<double>( (*it)->degreesOfFreedom() ) ;
-    if ( ((*it)->chi2()/dof) > 20000.0 ) continue;
+    //if ( ((*it)->chi2()/dof) > best_chi2 ) continue;
 
     GlobalPoint gp2 = (*it)->globalPosition(); 
-
     // Not to get confused:  eta_last is from the previous layer.
     // This is only to find the best set of segments by comparing at the distance layer-by-layer 
-    double deltaEtaTest = gp2.eta() - eta_temp; 
-    double deltaPhiTest = gp2.phi() - phi_temp;
-
-    if (deltaEtaTest < 0.) deltaEtaTest = -deltaEtaTest;
-    if (deltaPhiTest < 0.) deltaPhiTest = -deltaPhiTest;
-
-    if ( deltaEtaTest > maxdEta || deltaPhiTest > maxdPhi ) continue;
+    double deltaEtaTest = fabs( gp2.eta() - eta_temp ); 
+    double deltaPhiTest = fabs( gp2.phi() - phi_temp );
 
     float R = sqrt( deltaEtaTest*deltaEtaTest + deltaPhiTest*deltaPhiTest );
 
-    // DF: We should consider using R instead, which seems more natural to me
-    //     although the resolution in phi is much better than in eta...
+    bool close = ( fabs( R - best_R ) < 0.01  && index!=0 ) ? true:false;
+
+
     bool case1 = ( fabs(deltaEtaTest) < maxdEta && fabs(deltaPhiTest)< maxdPhi ) ? true:false ;
+
+    // for DT station 4
     bool case2 = ((*it)->dimension()!= 4) && (fabs(deltaEtaTest)< 0.6) && (fabs(deltaPhiTest)< maxdPhi)? true:false ;
-    bool closed = ( fabs( R - best_R ) < 0.01  && index!=1 ) ? true:false;
+
+    // reject showering segments which are close enough but not long enough in CSC...
+    if ( type == 1 && close && (*it)->recHits().size() < best_nCSChits ) continue;
 
     if ( !case1 && !case2  ) continue;
-    if (R < best_R || closed) {
+    // pick the segment which is closest to ave/last position 
+    // if they are about the same, pick the one with best chi2/dof
+    if (R < best_R || close ) {
 
-      //if (deltaPhiTest < best_Dphi) {
-      if ((type == 1) && closed && ((*it)->recHits().size()) < best_nCSChits) continue;
-      if (type ==1) { best_nCSChits = ((*it)->recHits().size()); }
+      if ( type ==1 ) { best_nCSChits = ((*it)->recHits().size()); }
       // select smaller chi2/dof
       if ( (*it)->chi2()/dof < best_chi2 ) {
          best_chi2 = (*it)->chi2()/dof ;
          best_R = R;
          best_match = index;
-      }
-
-      if ((*it)->dimension() != 4 && type==3  ) {
-         phi_last = phi_last;
-         eta_last = eta_last;
-      } else {
-         phi_last = gp2.phi(); 
-         eta_last = gp2.eta();
+         // propagate the eta and phi to next layer
+         if ((*it)->dimension() != 4 ) {
+            phi_last = phi_last;
+            eta_last = eta_last;
+         } else {
+            phi_last = gp2.phi(); 
+            eta_last = gp2.eta();
+         }
       }
     } 
   }   
@@ -1198,15 +1084,167 @@ bool MuonSeedBuilder::foundMatchingSegment( int type, SegmentContainer& protoTra
   if (best_match < 0) return ok;
 
   index = -1;
-  
-  // Add best matching segment to protoTrack:
-  for (SegmentContainer::iterator it=segs.begin(); it!=segs.end(); ++it){
-    index++;
-    if (index != best_match) continue;
-    protoTrack.push_back(*it);
-    usedSeg[best_match] = true;
-    ok = true;     
-  }  
+ 
+   
+  if (showerIdx <= 2) { 
+    // Add best matching segment to protoTrack:
+    for (SegmentContainer::iterator it=segs.begin(); it!=segs.end(); ++it){
+      index++;
+      if (index != best_match) continue;
+      protoTrack.push_back(*it);
+      usedSeg[best_match] = true;
+      ok = true;     
+    }  
+    return ok; 
+  } else {
+     ok = false;
+     return ok;
+  }
 
-  return ok; 
 }
+
+
+double MuonSeedBuilder::etaError(const GlobalPoint gp, double rErr) {
+
+  double dHdTheta = 0.0;
+  double dThetadR = 0.0;
+  double etaErr = 1.0;
+
+  if (gp.perp() != 0) {
+
+     dHdTheta = ( gp.mag()+gp.z() )/gp.perp();
+     dThetadR = gp.z() / gp.perp2() ;
+     etaErr =  0.25 * (dHdTheta * dThetadR) * (dHdTheta * dThetadR) * rErr ;
+  }
+ 
+  return etaErr;
+}
+
+
+void MuonSeedBuilder::seedCleaner(const edm::EventSetup& eventSetup, std::vector<TrajectorySeed>& seeds ) {
+
+  theService->update(eventSetup);
+  TrajectoryStateTransform tsTransform;
+
+  // categorize seeds by comparing overlapping segments
+  std::vector<bool> usedSeed(seeds.size(),false);
+  std::vector<int>  seedGrp(seeds.size(), 0);
+  int grp = 0; 
+  std::vector<int> badSeeds;
+  badSeeds.clear();
+
+  for (unsigned int i= 0; i<seeds.size(); i++){
+    
+    if (usedSeed[i]) continue;
+    grp++;
+    usedSeed[i] = true; 
+    seedGrp[i]  = grp;
+
+    for (unsigned int j= i+1; j<seeds.size(); j++){
+     
+      int sameseg=0;
+      // compare the segments between 2 seeds
+      if(usedSeed[j]) continue;
+      for (edm::OwnVector<TrackingRecHit>::const_iterator rt1 = seeds[i].recHits().first; rt1 != seeds[i].recHits().second; rt1++){
+
+        const GeomDet* gdet1 = theService->trackingGeometry()->idToDet( (*rt1).geographicalId() );
+        GlobalPoint gp1 = gdet1->toGlobal( (*rt1).localPosition() );
+        if (gdet1->subDetector()== MuonSubdetId::DT ) {
+           DTChamberId MB_Id = DTChamberId( gdet1->geographicalId() );
+           if (MB_Id.station() == 4)  continue;
+        }
+
+        for (edm::OwnVector<TrackingRecHit>::const_iterator rt2 = seeds[j].recHits().first; rt2 != seeds[j].recHits().second; rt2++){
+
+            const GeomDet* gdet2 = theService->trackingGeometry()->idToDet( (*rt2).geographicalId() );
+            GlobalPoint gp2 = gdet2->toGlobal( (*rt2).localPosition() );
+
+            double dx = gp1.x() - gp2.x() ;
+            double dy = gp1.y() - gp2.y() ;
+            double dz = gp1.z() - gp2.z() ;
+            double dR = sqrt( dx*dx + dy*dy + dz*dz);
+
+            if( dR < 3.0 ) sameseg++;
+        }
+      }
+      //flag and group the used seeds
+      if (sameseg > 1) {
+         usedSeed[j]=true;
+         seedGrp[j]=grp;
+      }
+    }
+  }
+
+  // cleaning the seeds w/ overlapping segments
+  std::vector<TrajectorySeed> goodSeeds;
+  goodSeeds.clear();
+
+  for (int i=1; i<(grp+1); i++) {
+    unsigned int segSize=0;
+    double dRErr  = -1.0;
+    double drelE  = -1.0;
+
+    int bestseed = -1;
+    int grpleader=0;
+    bool keep_all = false;
+    
+    for (unsigned int j= 0; j<seeds.size(); j++){
+ 
+      if ( seedGrp[j]==i ) {
+        
+        grpleader++;
+        if (grpleader==1 && seeds[j].nHits()<3 )  keep_all=true;
+
+        PTrajectoryStateOnDet pTSOD = (seeds[j]).startingState();
+	DetId SeedDetId(pTSOD.detId());
+	const GeomDet* geoDet = theService->trackingGeometry()->idToDet( SeedDetId );
+	TrajectoryStateOnSurface SeedTSOS = tsTransform.transientState(pTSOD, &(geoDet->surface()), &*theService->magneticField());
+	GlobalVector seed_m   = SeedTSOS.globalMomentum();
+        GlobalPoint  seed_xyz = SeedTSOS.globalPosition();
+	double seed_mt = sqrt ( (seed_m.x()*seed_m.x()) + (seed_m.y()*seed_m.y()) );
+        std::vector<float> err_mx = pTSOD.errorMatrix();
+        double ddx = err_mx[2]; 
+        double ddy = err_mx[5]; 
+        double dxx = err_mx[9]; 
+        double dyy = err_mx[14];
+        
+        double dRR = sqrt (ddx*36. + ddy*36 + dxx + dyy ) ; 
+        double relErr = fabs(sqrt(err_mx[0]) / pTSOD.parameters().signedInverseMomentum()) ; 
+
+        // this cut only apply for Endcap muon system 
+        // @@ shouldn't hardcode anything shih-chuan...
+	if ( (seed_mt <= 5.0 || seed_mt > 5000.0 ) && ( seeds.size()> 4 ) && fabs(seed_xyz.eta()) > 2.1 ) continue;  
+	if ( (seed_mt <= 5.0 || seed_mt > 5000.0 ) && ( seeds.size()> 6 ) && fabs(seed_xyz.eta()) <=2.1 ) continue;
+
+        if ( keep_all ) {
+           goodSeeds.push_back(seeds[j]);
+        } else {
+          // pick the one associated with more segments
+          if ( seeds[j].nHits() > segSize ) {
+             bestseed = j;
+             segSize = seeds[j].nHits();
+             dRErr = sqrt (ddx*36. + ddy*36 + dxx + dyy ) ;
+             drelE = relErr ;
+          } 
+          // or pick the one with better relative error
+          else if ( (seeds[j].nHits() == segSize) && (dRErr > dRR) ){
+             bestseed = j;
+             dRErr = sqrt (ddx*36. + ddy*36 + dxx + dyy);
+             drelE = relErr;
+          } 
+          else if ( (seeds[j].nHits() == segSize) && (dRErr == dRR) && (drelE > relErr) ){
+             bestseed =j;
+             dRErr = sqrt (ddx*36. + ddy*36 + dxx + dyy);
+             drelE = relErr;
+          } else {
+            if (debug) std::cout<<"skip this seed "<<std::endl; 
+          }
+        }
+      }  
+    }
+    if ( bestseed > -1 ) goodSeeds.push_back( seeds[bestseed] );
+  }
+  seeds.clear();
+  seeds = goodSeeds ;
+}
+

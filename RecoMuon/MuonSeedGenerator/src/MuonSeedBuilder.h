@@ -5,7 +5,7 @@
  *
  * Algorith to build TrajectorySeed for muon standalone reconstruction.
  * The segments are sorted out to make a protoTrack (vector of matching segments in different 
- * stations a.k.a. layers), for CSC, CSC+DT and DT region, in that order.  
+ * stations a.k.a. layers), for DT+overlap and CSC regions, in that order.  
  * The protoTrack is then passed to the seed creator to create CSC, overlap and/or DT seeds.
  *
  * \author Dominique Fortin - UCR
@@ -52,11 +52,18 @@ class MuonSeedBuilder
 
   std::vector<int> badSeedLayer;
 
+
  private:
 
   /// Find segment which matches protoTrack for endcap only
   bool foundMatchingSegment( int type, SegmentContainer& protoTrack, SegmentContainer& segments,
 			     BoolContainer& usedSeg, float& eta_temp, float& phi_temp );
+
+  /// cleaning the seeds 
+  void seedCleaner(const edm::EventSetup& eventSetup, std::vector<TrajectorySeed>& seeds );   
+
+  /// calculate the eta error from global R error
+  double etaError(const GlobalPoint gp, double rErr);
 
   // This Producer private debug flag
   bool debug;

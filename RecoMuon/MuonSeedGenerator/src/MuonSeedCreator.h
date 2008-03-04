@@ -5,7 +5,12 @@
  *  
  * Creates seed from vector of segment
  *
- * \author Dominique Fortin  
+ * Determine pt of seed using various combination of segments from different layers (stations)
+ * Parameterization used to determine pt between layers i and j:
+ *
+ * pt = [ c_0 + c_1 * (Delta phi_ij) + c_2 * (Delta phi_ij)^2 ] / eta
+ *
+ * \author Dominique Fortin - UCR 
  */
 
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
@@ -40,7 +45,7 @@ class MuonSeedCreator {
   void setBField( const MagneticField* theField ){ BField = theField; };
 
   /// Create a seed from set of segments
-  TrajectorySeed createSeed(int type, SegmentContainer seg, std::vector<int> layers, std::vector<int> badSeedLayer, float& ptSeed);
+  TrajectorySeed createSeed(int type, SegmentContainer seg, std::vector<int> layers, std::vector<int> badSeedLayer);
 
   
  private:

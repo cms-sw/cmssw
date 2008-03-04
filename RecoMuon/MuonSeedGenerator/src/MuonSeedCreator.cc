@@ -59,7 +59,7 @@ MuonSeedCreator::~MuonSeedCreator(){
  *           = 2 --> Overlap
  *           = 3 --> DT
  */
-TrajectorySeed MuonSeedCreator::createSeed(int type, SegmentContainer seg, std::vector<int> layers, std::vector<int> badSeedLayer, float& ptSeed ) {
+TrajectorySeed MuonSeedCreator::createSeed(int type, SegmentContainer seg, std::vector<int> layers, std::vector<int> badSeedLayer ) {
 
   // The index of the station closest to the IP
   int last = 0;
@@ -73,12 +73,13 @@ TrajectorySeed MuonSeedCreator::createSeed(int type, SegmentContainer seg, std::
   //LocalPoint segPos = seg[last]->localPosition();
   LocalPoint segPos;
 
+  //std::cout<<"type= "<<type<<"  multiplicity= "<< badSeedLayer.size() <<std::endl;
   // Compute the pt according to station types used;
   if (type == 1 ) estimatePtCSC(seg, layers, ptmean, sptmean);
   if (type == 2 ) estimatePtOverlap(seg, layers, ptmean, sptmean);
   if (type == 3 ) estimatePtDT(seg, layers, ptmean, sptmean);
   if (type == 4 ) estimatePtSingle(seg, layers, ptmean, sptmean);
-  // type 5 are the seeding for ME1/4 ; type 6 create the same seed but opposite charge!
+  // type 5 are the seeding for ME1/4
   if (type == 5 ) estimatePtCSC(seg, layers, ptmean, sptmean);
 
   // Minimal pt
@@ -92,9 +93,7 @@ TrajectorySeed MuonSeedCreator::createSeed(int type, SegmentContainer seg, std::
     ptmean  = theMaxMomentum * charge;
     sptmean = theMaxMomentum;
   }
-  if (sptmean < 0) sptmean = -sptmean;  // Error should be positive definite
-
-  ptSeed = ptmean;
+  //if (sptmean < 0) sptmean = -sptmean;
 
   LocalTrajectoryParameters param;
   double p_err =0.0;
@@ -120,15 +119,14 @@ TrajectorySeed MuonSeedCreator::createSeed(int type, SegmentContainer seg, std::
             best_seg = i;
          }
          if ( chi2_dof > ( seg[i]->chi2()/dof ) ) {
-            //if ( (type ==5)&&(layers[i] > 2) ) continue; 
-
             // avoiding showering chamber
+            /*
             bool shower = false;
             for (unsigned int j = 0; j< badSeedLayer.size(); j++ ) {
                 if (badSeedLayer[j] == layers[i]) shower = true;
             }
             if (shower) continue;
-
+            */
             chi2_dof = seg[i]->chi2() / dof ;
             best_seg = i;
          }
@@ -149,14 +147,8 @@ TrajectorySeed MuonSeedCreator::createSeed(int type, SegmentContainer seg, std::
      expand = true;
   }
 
-  /*
-  if (type==5) { 
-     in_out = true;
-     out_in = false;
-     expand = false;
-  }*/
   
-  if ( type==1 || type==5 || type==6 ) {
+  if ( type==1 || type==5 ) {
   //if ( type==1 ) {
      // Fill the LocalTrajectoryParameters
      /// get the Global position
@@ -176,6 +168,7 @@ TrajectorySeed MuonSeedCreator::createSeed(int type, SegmentContainer seg, std::
      mat = seg[last]->parametersError().similarityT( seg[last]->projectionMatrix() );  
      mat[0][0]= p_err;
      if (in_out) {
+        if (type==5) { mat[0][0] = 4.0*mat[0][0]; }
         mat[1][1]= 3.*mat[1][1];
 	mat[2][2]= 3.*mat[2][2];
 	mat[3][3]= 2.*mat[3][3];
@@ -234,21 +227,6 @@ TrajectorySeed MuonSeedCreator::createSeed(int type, SegmentContainer seg, std::
      mat = seg[last]->parametersError().similarityT( seg[last]->projectionMatrix() );  
      mat[0][0]= p_err;
   }
-  /*else { 
-
-     LocalPoint  segLocalPos = seg[last]->localPosition();
-     LocalVector segLocalDir = seg[last]->localDirection();
-     double totalP = fabs( ptmean/sin(segGlobPos.theta()) );
-     double QbP = charge / totalP ;
-     double dxdz = segLocalDir.x()/segLocalDir.z();
-     double dydz = segLocalDir.y()/segLocalDir.z();
-     double lx = segLocalPos.x();
-     double ly = segLocalPos.y();
-     double pz_sign =  segLocalDir.z() > 0.0 ? 1.0:-1.0 ;
-     LocalTrajectoryParameters param1(QbP,dxdz,dydz,lx,ly,pz_sign,true);
-     param = param1;
-     p_err =  (sptmean*sptmean)/(totalP*totalP*ptmean*ptmean) ;
-  }*/
 
   if ( debug ) {
     GlobalPoint gp = seg[last]->globalPosition();
@@ -311,6 +289,7 @@ TrajectorySeed MuonSeedCreator::createSeed(int type, SegmentContainer seg, std::
 	    return theSeed;
      }*/
   }
+
 }
 
 /*
@@ -329,6 +308,7 @@ void MuonSeedCreator::estimatePtCSC(SegmentContainer seg, std::vector<int> layer
      reverse( layers.begin(), layers.end() );
      reverse( seg.begin(), seg.end() );
   }
+
   std::vector<double> ptEstimate;
   std::vector<double> sptEstimate;
 
@@ -379,7 +359,7 @@ void MuonSeedCreator::estimatePtCSC(SegmentContainer seg, std::vector<int> layer
       }
       
 
-      if (temp_dphi < 1.0e-8) temp_dphi = 1.0e-8;
+      if (temp_dphi < 1.0e-6) temp_dphi = 1.0e-6;
 
       // ME1 is inner-most
       if ( layer0 == 0 ) {
@@ -468,6 +448,7 @@ void MuonSeedCreator::estimatePtCSC(SegmentContainer seg, std::vector<int> layer
         sptEstimate.push_back( spt );
       }
 
+      /*
       // Estimate pT with dPhi from segment directions
       // ME1 is inner-most
       if ( layer0 == 0 || layer0 == 1 ) {
@@ -505,6 +486,7 @@ void MuonSeedCreator::estimatePtCSC(SegmentContainer seg, std::vector<int> layer
            sptEstimate.push_back( spt );
         }
       }
+      */
 
     } 
   }
@@ -533,27 +515,28 @@ void MuonSeedCreator::estimatePtDT(SegmentContainer seg, std::vector<int> layers
   double pt = 0.;
   double spt = 0.;   
   GlobalPoint segPos[2];
+  float eta = 0.;
 
   unsigned size = seg.size();
 
   if (size < 2) return;
   
   int layer0 = layers[0];
-  segPos[0] = seg[0]->globalPosition();
-  float eta = fabs(segPos[0].eta());
+  //segPos[0] = seg[0]->globalPosition();
+  //float eta = fabs(segPos[0].eta());
 
   // Want to look at every possible pairs
   // inner-most layer
   for ( unsigned idx0 = 0; idx0 < size-1; ++idx0 ) {
     layer0 = layers[idx0];
     segPos[0]  = seg[idx0]->globalPosition();
-
     // outer-most layer
     for ( unsigned idx1 = idx0+1; idx1 < size; ++idx1 ) {
 
       int layer1 = layers[idx1];
       segPos[1] = seg[idx1]->globalPosition();      
-      eta = fabs(segPos[idx0].eta());  // Eta is better determined from track closest from IP
+ 
+      eta = fabs(segPos[0].eta());  // Eta is better determined from track closest from IP
 
       double dphi = segPos[0].phi() - segPos[1].phi();
       double temp_dphi = dphi;
@@ -566,7 +549,7 @@ void MuonSeedCreator::estimatePtDT(SegmentContainer seg, std::vector<int> layers
         sign = -1.0;
       }
       
-      if (temp_dphi < 1.0e-8) temp_dphi = 1.0e-8;
+      if (temp_dphi < 1.0e-6) temp_dphi = 1.0e-6;
 
       // MB1 is inner-most
       if (layer0 == -1) {
@@ -608,7 +591,7 @@ void MuonSeedCreator::estimatePtDT(SegmentContainer seg, std::vector<int> layers
       // MB3 is inner-most    -> only marginally useful to pick up the charge
       if (layer0 == -3) {
         // MB4 is outer-most
-        pt  = ( 0.0470 + 0.01*eta - 0.0242*eta*eta) / temp_dphi;
+        pt  = ( 0.0470 +  0.01*eta - 0.0242*eta*eta) / temp_dphi;
         spt = ( 0.5455 - 0.1407*eta + 0.3828*eta*eta) * pt;
         ptEstimate.push_back( pt*sign );   
         sptEstimate.push_back( spt );
@@ -674,8 +657,7 @@ void MuonSeedCreator::estimatePtOverlap(SegmentContainer seg, std::vector<int> l
       sign = -1.0;  
     } 
      
-    if (temp_dphi < 1.0e-8) temp_dphi = 1.0e-8;
-      
+    if (temp_dphi < 1.0e-6) temp_dphi = 1.0e-6;
   
     // MB1 is inner-most
     if ( layer0 == -1 ) {
@@ -716,6 +698,7 @@ void MuonSeedCreator::estimatePtOverlap(SegmentContainer seg, std::vector<int> l
   } 
 
   if ( segCSC.size() > 1 ) {
+    // don't estimate pt without ME1 information
     bool CSCLayer1=false;
     for (unsigned i=0; i< layersCSC.size(); i++) {
         if ( layersCSC[i]==0 || layersCSC[i]==1 ) CSCLayer1 = true;
@@ -728,7 +711,7 @@ void MuonSeedCreator::estimatePtOverlap(SegmentContainer seg, std::vector<int> l
   }
 
   // Compute weighted average if have more than one estimator
-  if (ptEstimate.size() > 1 ) weightedPt( ptEstimate, sptEstimate, thePt, theSpt);
+  if (ptEstimate.size() > 0 ) weightedPt( ptEstimate, sptEstimate, thePt, theSpt);
 
 }
 /*
@@ -873,7 +856,8 @@ void MuonSeedCreator::weightedPt(std::vector<double> ptEstimate, std::vector<dou
   double charge = 0.;
   // If have more than one pt estimator, first look if any estimator is biased
   // by comparing the charge of each estimator
-  for ( unsigned j = 0; j < ptEstimate.size(); ++j ) {
+
+  for ( unsigned j = 0; j < ptEstimate.size(); j++ ) {
     if ( ptEstimate[j] < 0. ) {
       // To prevent from blowing up, add 0.1 
       charge -= 1. * (ptEstimate[j]*ptEstimate[j]) / (sptEstimate[j]*sptEstimate[j] );  // weight by relative error on pt
@@ -881,7 +865,8 @@ void MuonSeedCreator::weightedPt(std::vector<double> ptEstimate, std::vector<dou
       charge += 1. * (ptEstimate[j]*ptEstimate[j]) / (sptEstimate[j]*sptEstimate[j] );  // weight by relative error on pt
     }
   }
-    
+ 
+  //std::cout <<" Q= "<<charge<<std::endl;   
   // No need to normalize as we want to know only sign ( + or - )
   if (charge < 0.) {
     charge = -1.;
@@ -895,14 +880,6 @@ void MuonSeedCreator::weightedPt(std::vector<double> ptEstimate, std::vector<dou
           
   // Now, we want to compute average Pt using estimators with "correct" charge
   // This is to remove biases
-  /*int minpt=0;
-  for ( unsigned j = 0; j < ptEstimate.size(); ++j ) {
-    if (fabs(ptEstimate[j]) < 5.0 ) {
-        minpt++;
-    }
-  }
-  float minpt_ratio = minpt/ptEstimate.size() ;
-  */
   for ( unsigned j = 0; j < ptEstimate.size(); ++j ) {
     //if ( (minpt_ratio < 0.5) && (fabs(ptEstimate[j]) < 5.0) ) continue;
     if ( ptEstimate[j] * charge > 0. ) {
@@ -911,7 +888,6 @@ void MuonSeedCreator::weightedPt(std::vector<double> ptEstimate, std::vector<dou
       weightPtSum  += ptEstimate[j]/(sptEstimate[j]*sptEstimate[j]);
     }
   }  
-
   if (n < 1) {
     thePt  = defaultMomentum*charge;
     theSpt = defaultMomentum; 
@@ -921,6 +897,7 @@ void MuonSeedCreator::weightedPt(std::vector<double> ptEstimate, std::vector<dou
 
   thePt  = weightPtSum / sigmaSqr_sum;
   theSpt = sqrt( 1.0 / sigmaSqr_sum ) ;
+  //std::cout<<" pt= "<<thePt<<" sPt= "<<theSpt<< std::endl;
   return;
 }
 
