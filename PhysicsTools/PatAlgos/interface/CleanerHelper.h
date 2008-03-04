@@ -74,7 +74,7 @@ class CleanerHelper {
         typedef size_t first_argument_type;
         typedef size_t second_argument_type;
         bool operator()( const size_t & t1, const size_t & t2 ) const {
-            return selected_[t1].pt() > selected_[t2].pt();
+           return comp_(selected_[t1], selected_[t2]);
         }
 
     private:
@@ -84,6 +84,7 @@ class CleanerHelper {
         // fixed
         edm::InputTag src_;
         std::string label_;
+        Comparator comp_;
         // new at every event
         edm::Event *event_;
         edm::Handle< edm::View<T> > sourceView_;
