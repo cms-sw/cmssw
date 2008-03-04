@@ -172,6 +172,16 @@ void CSCDCCUnpacker::produce(edm::Event & e, const edm::EventSetup& c)
 	      examiner->output1().hide();
 	      examiner->output2().hide();
 	      const short unsigned int *data = (short unsigned int *)fedData.data();
+
+	      /*
+	      short unsigned * buf = (short unsigned int *)fedData.data();
+	      for (int i=0;i<length/2;i++) {
+		printf("%04x %04x %04x %04x\n",buf[i+3],buf[i+2],buf[i+1],buf[i]);
+	        i+=3;
+	      }*/
+
+
+
 	      if( examiner->check(data,long(fedData.size()/2)) < 0 )
 		{
 		  goodEvent=false;
@@ -469,9 +479,11 @@ void CSCDCCUnpacker::produce(edm::Event & e, const edm::EventSetup& c)
 	      edm::LogError("CSCDCCUnpacker") <<"ERROR! Examiner decided to reject the event!";
 	      if (examiner) {
                 edm::LogError("CSCDCCUnpacker")
-                  << " Examiner errors:0x" << std::hex << examiner->errors() << " mask:0x" << examinerMask;
+                  << " Examiner errors:0x" << std::hex << examiner->errors() << "&0x" << examinerMask
+		  << " = " << ( examiner->errors()&examinerMask);
 		for (int i=0; i<examiner->nERRORS; ++i) {
-		  if ((examiner->errors()>>i)&0x1) edm::LogError("CSCDCCUnpacker")<<examiner->errName(i);
+		  if (((examinerMask&examiner->errors())>>i)&0x1) 
+		    edm::LogError("CSCDCCUnpacker")<<examiner->errName(i);
 		}
 
               }
