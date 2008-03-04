@@ -1,5 +1,5 @@
 // ----------------------------------------------------------------------
-// $Id: Entry.cc,v 1.27 2007/10/11 06:37:15 wmtan Exp $
+// $Id: Entry.cc,v 1.28 2007/10/24 23:31:08 elmer Exp $
 //
 // definition of Entry's function members
 // ----------------------------------------------------------------------
@@ -18,6 +18,7 @@
 #include <sstream>
 #include <ostream>
 #include <assert.h>
+#include <iostream>
 
 namespace edm {
   namespace pset {
@@ -625,6 +626,33 @@ namespace edm {
     return val;
   }
 
+
+// ----------------------------------------------------------------------
+// Int32
+
+  boost::int64_t
+  Entry::getInt64() const
+  {
+    if(type != 'L') throwValueError("int64");
+    boost::int64_t  val;
+    if(!decode(val, rep)) throwEntryError("int64", rep);
+    return val;
+  }
+
+// ----------------------------------------------------------------------
+// vInt32
+
+  std::vector<boost::int64_t>
+  Entry::getVInt64() const
+  {
+    if(type != 'l') throwValueError("vector<int64>");
+    std::vector<boost::int64_t>  val;
+    if(!decode(val, rep)) throwEntryError("vector<int64>", rep);
+    return val;
+  }
+
+
+
 // ----------------------------------------------------------------------
 // Uint32
 
@@ -646,6 +674,31 @@ namespace edm {
     if(type != 'u') throwValueError("vector<unsigned int>");
     std::vector<unsigned>  val;
     if(!decode(val, rep)) throwEntryError("vector<unsigned int>", rep);
+    return val;
+  }
+
+
+// ----------------------------------------------------------------------
+// Uint64
+
+  boost::uint64_t
+  Entry::getUInt64() const
+  {
+    if(type != 'X') throwValueError("uint64");
+    boost::uint64_t val;
+    if(!decode(val, rep)) throwEntryError("uint64", rep);
+    return val;
+  }
+
+// ----------------------------------------------------------------------
+// vUint64
+
+  std::vector<boost::uint64_t>
+  Entry::getVUInt64() const
+  {
+    if(type != 'x') throwValueError("vector<uint64>");
+    std::vector<boost::uint64_t>  val;
+    if(!decode(val, rep)) throwEntryError("vector<uint64>", rep);
     return val;
   }
 
