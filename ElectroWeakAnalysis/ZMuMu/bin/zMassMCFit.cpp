@@ -50,6 +50,8 @@ int main(int ac, char *av[]) {
 	("breitwigner", "fit to a breit-wigner")
 	("gauss", "fit to a gaussian")
 	("bwint", "fit to a breit-wigner plus Z/photon interference term")
+	("bwintgam", 
+	 "fit to a breit-wigner plus Z/photon interference term and photon propagator")
 	("output-file,O", po::value<string>(&ext)->default_value(".ps"), 
 	 "output file format")
 	;
@@ -113,7 +115,7 @@ int main(int ac, char *av[]) {
       Parameter df_int("Interference factor Error", 0);
       //Parameters for fits with one gaussian
       Parameter yield("Yield", 1000);
-      Parameter mean("Mean", 0);
+      Parameter mean("Mean", 90);
       Parameter sigma("Sigma", 1.);
       Parameter dyield("Yield Error", 0);
       Parameter dmean("Mean Error", 0);
@@ -281,6 +283,71 @@ int main(int ac, char *av[]) {
 	    canvas->SaveAs(epsFilename.c_str());
 	    canvas->SetLogy();
 	    string epsLogFilename = "ZMassMCFitBwIn_Log_" + v_eps[i];
+	    canvas->SaveAs(epsLogFilename.c_str());
+	  }
+	}
+      
+      if (vm.count("bwintgam"))
+	{
+	  cout << "Fitting histograms in input files to the Breit-Wigner plus Z/photon interference term and photon propagator\n";
+	  cout << ">>> set pars: " << endl;
+	  cout << yield << " ; " << dyield << endl; 
+	  cout << mass << " ; " << dmass << endl; 
+	  cout << gamma << " ; " << dgamma << endl; 
+	  cout << f_gamma << " ; " << df_gamma << endl; 
+	  cout << f_int << " ; " << df_int << endl; 
+	  for(size_t i = 0; i < v_ZMCMassHistos.size(); ++i) { 
+	    TH1D * zMass = v_ZMCMassHistos[i]; 
+	    ZLineShape zls(mass, gamma, f_gamma, f_int);
+	    Constant c(yield);
+	    typedef Product<Constant, ZLineShape> FitFunction;
+	    FitFunction f = c * zls;
+	    cout << "set functions" << endl;
+	    vector<shared_ptr<double> > pars;
+	    pars.push_back(yield.ptr());
+	    pars.push_back(mass.ptr());
+	    pars.push_back(gamma.ptr());
+	    pars.push_back(f_gamma.ptr());
+	    pars.push_back(f_int.ptr());
+	    typedef fit::HistoChiSquare<FitFunction> ChiSquared;
+	    ChiSquared chi2(f, zMass, fMin, fMax);
+	    int fullBins = chi2.degreesOfFreedom();
+	    cout << "N. deg. of freedom: " << fullBins << endl;
+	    fit::RootMinuit<ChiSquared> minuit(5, chi2, true);
+	    minuit.setParameter(0, yield, 10, 100, 100000);
+	    minuit.setParameter(1, mass, .1, 70., 110);
+	    minuit.setParameter(2, gamma, 1, 1, 10);
+	    minuit.setParameter(3, f_gamma, 0.1, -100, 1000);
+	    minuit.setParameter(4, f_int, .0001, -1000000, 1000000);
+	    double amin = minuit.minimize();
+	    cout << "fullBins = " << fullBins 
+		 << "; free pars = " << minuit.getNumberOfFreeParameters() 
+		 << endl;
+	    unsigned int ndof = fullBins - minuit.getNumberOfFreeParameters();
+	    cout << "Chi^2 = " << amin << "/" << ndof << " = " << amin/ndof 
+		 << "; prob: " << TMath::Prob( amin, ndof )
+		 << endl;
+	    dyield = minuit.getParameterError(0);
+	    cout << yield << " ; " << dyield << endl;
+	    dmass = minuit.getParameterError(1);
+	    cout << mass << " ; " << dmass << endl;
+	    dgamma = minuit.getParameterError(2);
+	    cout << gamma << " ; " << dgamma << endl;
+	    df_gamma = minuit.getParameterError(3);
+	    cout << f_gamma << " ; " << df_gamma << endl;
+	    df_int = minuit.getParameterError(4);
+	    cout << f_int << " ; " << df_int << endl;
+	    TF1 fun = root::tf1("fun", f, fMin, fMax, pars); 
+	    fun.SetParNames(yield.name().c_str(), mass.name().c_str(), gamma.name().c_str(), 
+	                    f_gamma.name().c_str(), f_int.name().c_str());
+	    fun.SetLineColor(kRed); 
+	    TCanvas *canvas = new TCanvas("canvas");
+	    zMass->Draw("e");
+	    fun.Draw("same");
+	    string epsFilename = "ZMassMCFitBwInGa_" + v_eps[i];
+	    canvas->SaveAs(epsFilename.c_str());
+	    canvas->SetLogy();
+	    string epsLogFilename = "ZMassMCFitBwInGa_Log_" + v_eps[i];
 	    canvas->SaveAs(epsLogFilename.c_str());
 	  }
 	}

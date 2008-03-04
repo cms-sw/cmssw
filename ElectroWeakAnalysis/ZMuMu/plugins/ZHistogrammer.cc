@@ -17,7 +17,7 @@ private:
   //TH1F *h_mZ2vs3MC_, *h_ptZ2vs3MC_, *h_phiZ2vs3MC_, *h_thetaZ2vs3MC_, *h_etaZ2vs3MC_, *h_rapidityZ2vs3MC_;
   TH1F *h_mResZ_, *h_ptResZ_, *h_phiResZ_, *h_thetaResZ_, *h_etaResZ_, *h_rapidityResZ_;
   TH1F *h_mResZMuMu_;
-  TH1F *h_mResZMuMuMC_;
+  TH1F *h_mResZMuMuMC_, *h_mRatioZMuMuMC_;
 };
 
 #include "DataFormats/Candidate/interface/Candidate.h"
@@ -63,7 +63,7 @@ ZHistogrammer::ZHistogrammer(const ParameterSet& pset) :
   h_etaZ_ = ZHisto.make<TH1F>("ZEta", "Z #eta", nbinsAng_,  -angMax_, angMax_);
   h_rapidityZ_ = ZHisto.make<TH1F>("ZRapidity", "Z rapidity", nbinsAng_,  -angMax_, angMax_);
   h_invmMuMu_ = ZHisto.make<TH1F>("MuMuMass", "#mu #mu invariant mass", 
-				      nbinsMass_,  0, massMax_);
+				  nbinsMass_,  0, massMax_);
   h_nZMC_ = ZMCHisto.make<TH1F>("ZMCNumber", "number of Z MC particles", 11, -0.5, 10.5);
   h_mZMC_ = ZMCHisto.make<TH1F>("ZMCMass", "Z MC mass (GeV/c^{2})", nbinsMass_,  0, massMax_);
   h_ptZMC_ = ZMCHisto.make<TH1F>("ZMCPt", "Z MC p_{t} (GeV/c)", nbinsPt_, 0, ptMax_);
@@ -106,6 +106,8 @@ ZHistogrammer::ZHistogrammer(const ParameterSet& pset) :
   h_mResZMuMuMC_ = ZResHisto.make<TH1F>("ZToMuMuMCMassResolution", 
 					"Z vs #mu #mu MC mass Resolution (GeV/c^{2})", 
 					nbinsMassRes_, -massResMax_, massResMax_);
+  h_mRatioZMuMuMC_ = ZResHisto.make<TH1F>("ZToMuMuMCMassRatio", 
+					  "Z vs #mu #mu MC mass Resolution", 200, 0, 2);
 }
 
 void ZHistogrammer::analyze(const edm::Event& event, const edm::EventSetup& setup) { 
@@ -207,6 +209,7 @@ void ZHistogrammer::analyze(const edm::Event& event, const edm::EventSetup& setu
       double mZ = pZ.mass();
       h_invmMuMuMC_->Fill(mZ);
       h_mResZMuMuMC_->Fill(genCand.mass() - mZ);
+      h_mRatioZMuMuMC_->Fill(genCand.mass()/mZ);
     }
   }
 }

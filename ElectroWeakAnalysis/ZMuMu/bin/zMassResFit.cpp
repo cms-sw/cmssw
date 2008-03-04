@@ -144,7 +144,7 @@ int main(int ac, char *av[]) {
 		 << endl;
 	    dyield1 = minuit.getParameterError(0);
 	    cout << yield1 << " ; " << dyield1 << endl;
-	    dmean1 = minuit.getParameterError(1);
+	    //dmean1 = minuit.getParameterError(1);
 	    cout << mean1 << " ; " << dmean1 << endl;
 	    dsigma1 = minuit.getParameterError(2);
 	    cout << sigma1 << " ; " << dsigma1 << endl;
@@ -190,10 +190,10 @@ int main(int ac, char *av[]) {
 	    fit::RootMinuit<ChiSquared> minuit(6, chi2, true);
 	    minuit.setParameter(0, yield1, 10, 100, 100000);
 	    minuit.setParameter(1, yield2, 10, 100, 100000);
-	    minuit.setParameter(2, mean1, 0.001, -10, 10);
-	    minuit.fixParameter(2);
+	    minuit.setParameter(2, mean1, 0.001, -1., 1.);
+	    //minuit.fixParameter(2);
 	    minuit.setParameter(3, sigma1, 0.1, -5., 5.);
-	    minuit.setParameter(4, mean2, 0.001, -11, 9.);
+	    minuit.setParameter(4, mean2, 0.001, -2, 2.);
 	    minuit.setParameter(5, sigma2, 0.1, -5., 5.);
 	    double amin = minuit.minimize();
 	    cout << "fullBins = " << fullBins 
