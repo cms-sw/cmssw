@@ -7,9 +7,9 @@
 // Original Author: Steve Wagner, stevew@pizero.colorado.edu
 // Created:         Sat Jan 14 22:00:00 UTC 2006
 //
-// $Author: gpetrucc $
-// $Date: 2007/12/21 00:47:06 $
-// $Revision: 1.5 $
+// $Author: burkett $
+// $Date: 2008/02/29 17:59:47 $
+// $Revision: 1.6 $
 //
 
 #include <memory>
@@ -384,5 +384,4 @@ namespace cms
     return;
 
   }//end produce
-xs
 }
