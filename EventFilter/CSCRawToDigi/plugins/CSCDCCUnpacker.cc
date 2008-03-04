@@ -470,6 +470,10 @@ void CSCDCCUnpacker::produce(edm::Event & e, const edm::EventSetup& c)
 	      if (examiner) {
                 edm::LogError("CSCDCCUnpacker")
                   << " Examiner errors:0x" << std::hex << examiner->errors() << " mask:0x" << examinerMask;
+		for (int i=0; i<examiner->nERRORS; ++i) {
+		  if ((examiner->errors()>>i)&0x1) edm::LogError("CSCDCCUnpacker")<<examiner->errName(i);
+		}
+
               }
               dccStatusProduct->insertDigi(CSCDetId(1,1,1,1,1), CSCDCCStatusDigi(examiner->errors()));
 	      if(instatiateDQM)  monitor->process(examiner, NULL);
