@@ -8,7 +8,7 @@
 #include <boost/cstdint.hpp>
 
 #include <iosfwd>
-
+#include <iostream>
 namespace edm {
   namespace pset {
 
@@ -115,7 +115,7 @@ namespace edm {
          return Entry(name(), d, tracked_);
      }
      else if(type()=="uint64") {
-         boost::int64_t d = strtoul(value_.c_str(),&end,0);
+         boost::uint64_t d = strtoul(value_.c_str(),&end,0);
          checkParse(value_, end);
          return Entry(name(), d, tracked_);
      }
