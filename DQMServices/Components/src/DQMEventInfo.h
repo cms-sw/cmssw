@@ -4,8 +4,8 @@
 /*
  * \file DQMEventInfo.h
  *
- * $Date: 2008/02/13 22:40:50 $
- * $Revision: 1.8 $
+ * $Date: 2008/02/21 03:26:49 $
+ * $Revision: 1.9 $
  * \author M. Zanetti - INFN Padova
  *
 */
@@ -81,7 +81,8 @@ private:
   MonitorElement * cmsswVer_;          ///CMSSW version run for this job
   MonitorElement * dqmPatch_;          ///DQM patch version for this job
   MonitorElement * errSummary_;        ///Subdetector-specific error summary (float)
-
+  MonitorElement * errSummaryEtaPhi_;     ///Subdetector-specific etaPhi summary (float)
+  MonitorElement * errSummarySegment_[10];
 };
 
 #endif

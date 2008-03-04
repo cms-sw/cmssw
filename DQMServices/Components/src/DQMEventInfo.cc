@@ -2,9 +2,9 @@
  * \file DQMEventInfo.cc
  * \author M. Zanetti - CERN PH
  * Last Update:
- * $Date: 2008/01/22 18:52:30 $
- * $Revision: 1.14 $
- * $Author: muzaffar $
+ * $Date: 2008/02/21 03:26:49 $
+ * $Revision: 1.15 $
+ * $Author: lat $
  *
  */
 
@@ -49,7 +49,17 @@ DQMEventInfo::DQMEventInfo(const ParameterSet& ps){
   eventTimeStamp_ = dbe_->bookFloat("eventTimeStamp");
   errSummary_ = dbe_->bookFloat("errorSummary");
   errSummary_->Fill(-1);
-
+  errSummaryEtaPhi_ =
+  dbe_->book2D("errorSummaryEtaPhi","errorSummaryEtaPhi",60,-3.,3.,64,-3.2,3.2);
+  string suberrfolder = currentfolder + "/errorSummarySegments" ;
+  dbe_->setCurrentFolder(suberrfolder);
+  for (int i=0 ; i<10 ; i++) {
+    char suberr[20];
+    sprintf (suberr,"Segment0%d",i);
+    errSummarySegment_[i] = dbe_->bookFloat(suberr);
+  }
+  
+  dbe_->setCurrentFolder(currentfolder) ;
   //Process specific contents
   processTimeStamp_ = dbe_->bookFloat("processTimeStamp");
   processTimeStamp_->Fill(getUTCtime(&currentTime_));
