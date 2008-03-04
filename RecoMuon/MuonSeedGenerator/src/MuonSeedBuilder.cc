@@ -1,7 +1,7 @@
 /**
  *  See header file for a description of this class.
  *  
- *  \author Dominique Fortin - UCR
+ *  \author Shih-Chuan Kao, Dominique Fortin - UCR
  */
 
 
@@ -1212,9 +1212,8 @@ void MuonSeedBuilder::seedCleaner(const edm::EventSetup& eventSetup, std::vector
         double relErr = fabs(sqrt(err_mx[0]) / pTSOD.parameters().signedInverseMomentum()) ; 
 
         // this cut only apply for Endcap muon system 
-        // @@ shouldn't hardcode anything shih-chuan...
 	if ( (seed_mt <= 5.0 || seed_mt > 5000.0 ) && ( seeds.size()> 4 ) && fabs(seed_xyz.eta()) > 2.1 ) continue;  
-	if ( (seed_mt <= 5.0 || seed_mt > 5000.0 ) && ( seeds.size()> 6 ) && fabs(seed_xyz.eta()) <=2.1 ) continue;
+	//if ( (seed_mt <= 5.0 || seed_mt > 5000.0 ) && ( seeds.size()> 6 ) && fabs(seed_xyz.eta()) <=2.1 ) continue;
 
         if ( keep_all ) {
            goodSeeds.push_back(seeds[j]);
