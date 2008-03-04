@@ -1,7 +1,7 @@
 /** \file BeamProfileFitter.cc
 *
-	*  $Date: 2008/01/22 19:18:03 $
-	*  $Revision: 1.14 $
+	*  $Date: 2008/03/03 09:43:32 $
+	*  $Revision: 1.15 $
 	*  \author Maarten Thomas
 */
 
@@ -23,6 +23,7 @@
 // Topology
 
 #include "TF1.h"
+#include "TH1.h"
 #include "TMath.h"
 
 // function to return an angle in radian between 0 and 2 Pi
