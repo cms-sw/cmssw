@@ -19,7 +19,8 @@ globaldigisanalyze = cms.EDAnalyzer("GlobalDigisAnalyzer",
     ECalEBSrc = cms.InputTag("ecalDigis","ebDigis",""),
     ECalESSrc = cms.InputTag("ecalPreshowerDigis","",""),
     Frequency = cms.untracked.int32(50),
-    HCalDigi = cms.InputTag("hcalUnsuppressedDigis","","")
+    HCalDigi = cms.InputTag("hcalUnsuppressedDigis","",""),
+    MuRPCSrc = cms.InputTag("muonRPCDigis","","")
 )
 
 
