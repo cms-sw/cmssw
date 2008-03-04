@@ -9,13 +9,14 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
-#include "DQMServices/Daemon/interface/MonitorDaemon.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 
 #include "DataFormats/EgammaCandidates/interface/Photon.h"
 #include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
 
 #include "TFile.h"
+#include "TH1D.h"
+#include "TH2D.h"
 
 class EgammaObjects : public edm::EDAnalyzer {
   public:
