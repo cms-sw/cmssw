@@ -7,15 +7,16 @@
 #include "SimCalorimetry/CastorSim/src/CastorSimParameterMap.h"
 #include "SimCalorimetry/CastorSim/src/CastorShape.h"
 #include "SimCalorimetry/CastorSim/src/CastorElectronicsSim.h"
-#include "CalibCalorimetry/HcalAlgos/interface/HcalDbHardcode.h"
-#include "CalibFormats/HcalObjects/interface/HcalDbService.h"
+#include "CalibCalorimetry/CastorCalib/interface/CastorDbHardcode.h"
+#include "CalibFormats/CastorObjects/interface/CastorDbService.h"
+//#include "CalibFormats/HcalObjects/interface/HcalDbService.h"
 #include "SimCalorimetry/CastorSim/src/CastorAmplifier.h"
 #include "SimCalorimetry/CastorSim/src/CastorCoderFactory.h"
 #include "SimCalorimetry/CastorSim/src/CastorHitFilter.h"
-#include "CondFormats/HcalObjects/interface/HcalPedestals.h"
-#include "CondFormats/HcalObjects/interface/HcalPedestalWidths.h"
-#include "CondFormats/HcalObjects/interface/HcalGains.h"
-#include "CondFormats/HcalObjects/interface/HcalGainWidths.h"
+#include "CondFormats/CastorObjects/interface/CastorPedestals.h"
+#include "CondFormats/CastorObjects/interface/CastorPedestalWidths.h"
+#include "CondFormats/CastorObjects/interface/CastorGains.h"
+#include "CondFormats/CastorObjects/interface/CastorGainWidths.h"
 #include "SimDataFormats/CrossingFrame/interface/CrossingFrame.h"
 #include "SimCalorimetry/CastorSim/src/CastorDigitizerTraits.h"
 #include "SimCalorimetry/CastorSim/src/CastorHitCorrection.h"
@@ -45,30 +46,53 @@ void testHitCorrection(CastorHitCorrection * correction, MixCollection<PCaloHit>
     }
 }
 
-
 int main() {
   // make a silly little hit in each subdetector, which should
   // correspond to a 100 GeV particle
 
   HcalCastorDetId castorDetId(HcalCastorDetId::Section(2), true, 1, 1);
   PCaloHit castorHit(castorDetId.rawId(), 50.0, 0.123);
- 
+
+  //assert(castorDetId.zside() == true);
+   
   std::cout<<castorDetId<<std::endl;
   std::cout<<castorHit<<std::endl;
 
   vector<DetId> hcastorDetIds;
   hcastorDetIds.push_back(castorDetId);
 
+  /*
+    DEBUG
+  HcalGenericDetId genericId(castorDetId);
+
+  std::cout<<"generic Id "<< genericId <<std::endl;
+  std::cout<< genericId.det() <<" "<< genericId.subdetId() <<std::endl;
+ 
+  std::cout<<"castor id "<< castorDetId <<std::endl;
+  std::cout<< castorDetId.det() <<" "<< castorDetId.subdetId() <<std::endl;
+
+  std::cout<<"should be: "<< DetId::Calo <<" "<< HcalCastorDetId::SubdetectorId <<std::endl;
+  */
+  /*
+    DEBUG
+  vector<HcalCastorDetId> hcastorDetIds;
+  hcastorDetIds.push_back(castorDetId);
+
+  vector<HcalCastorDetId>::iterator testDetId = hcastorDetIds.begin();
+  std::cout<< (*testDetId).zside() <<" "
+	   << (*testDetId).sector() <<" "
+	   << (*testDetId).module() <<std::endl;
+  */
+
   vector<DetId> allDetIds;
   allDetIds.insert(allDetIds.end(), hcastorDetIds.begin(), hcastorDetIds.end());
-
   vector<PCaloHit> hits;
   hits.push_back(castorHit);
 
-  string hitsName = "HcalHits";
+  string hitsName = "CastorHits";
   vector<string> caloDets;
 
-  CrossingFrame<PCaloHit> crossingFrame(-5, 5, 25,  hitsName, 1);
+  CrossingFrame<PCaloHit> crossingFrame(-5, 5, 25,  hitsName, 0);
   edm::EventID eventId;
   crossingFrame.addSignals(&hits, eventId);
 
@@ -98,16 +122,19 @@ int main() {
 
   castorResponse.setHitFilter(&castorHitFilter);
 
-  HcalPedestals pedestals;
-  HcalPedestalWidths pedestalWidths;
-  HcalGains gains;
-  HcalGainWidths gainWidths;
+  CastorPedestals pedestals;
+  CastorPedestalWidths pedestalWidths;
+  CastorGains gains;
+  CastorGainWidths gainWidths;
+
   // make a calibration service by hand
-  for(vector<DetId>::const_iterator detItr = allDetIds.begin(); detItr != allDetIds.end(); ++detItr) {
-    pedestals.addValue(*detItr, HcalDbHardcode::makePedestal(*detItr).getValues ());
-    *pedestalWidths.setWidth(*detItr) = HcalDbHardcode::makePedestalWidth(*detItr);
-    gains.addValue(*detItr, HcalDbHardcode::makeGain(*detItr).getValues ());
-    gainWidths.addValue(*detItr, HcalDbHardcode::makeGainWidth(*detItr).getValues ());
+  for(vector<DetId>::const_iterator detItr = allDetIds.begin(); 
+      detItr != allDetIds.end(); ++detItr) 
+  {
+      pedestals.addValue(*detItr, CastorDbHardcode::makePedestal(*detItr).getValues ());
+      *pedestalWidths.setWidth(*detItr) = CastorDbHardcode::makePedestalWidth(*detItr);
+      gains.addValue(*detItr, CastorDbHardcode::makeGain(*detItr).getValues ());
+      gainWidths.addValue(*detItr, CastorDbHardcode::makeGainWidth(*detItr).getValues ());
   }
   
   pedestals.sort();
@@ -116,18 +143,20 @@ int main() {
   gainWidths.sort();
 
 //  std::cout << "TEST Pedestal " << pedestals.getValue(barrelDetId,  1) << std::endl;
-  std::cout << "Castor pedestal " << pedestals.getValue(castorDetId,  1) << std::endl;
-  std::cout << "Castor pedestal width " << pedestalWidths.getWidth(castorDetId,  1) << std::endl;
-  std::cout << "Castor gain " << gains.getValue(castorDetId,  1) << std::endl;
-  std::cout << "Castor gain width " << gainWidths.getValue(castorDetId,  1) << std::endl;
+  std::cout << "Castor pedestals " << pedestals.getValue(castorDetId,  1) << std::endl;
+  std::cout << "Castor pedestal widths " << pedestalWidths.getWidth(castorDetId,  1) << std::endl;
+  std::cout << "Castor gains " << gains.getValue(castorDetId,  1) << std::endl;
+  std::cout << "Castor gain widths " << gainWidths.getValue(castorDetId,  1) << std::endl;
 
-  HcalDbService calibratorHandle;
+  CastorDbService calibratorHandle;
+  //HcalDbService calibratorHandle;
   calibratorHandle.setData(&pedestals);
   calibratorHandle.setData(&pedestalWidths);
   calibratorHandle.setData(&gains);
   calibratorHandle.setData(&gainWidths);
-
+  cout << "set data" << std::endl;
   bool addNoise = false;
+
   CastorAmplifier amplifier(&parameterMap, addNoise);
   CastorCoderFactory coderFactory(CastorCoderFactory::NOMINAL);
   CastorElectronicsSim electronicsSim(&amplifier, &coderFactory);
@@ -139,17 +168,20 @@ int main() {
   CaloTDigitizer<CastorDigitizerTraits> castorDigitizer(&castorResponse, &electronicsSim, addNoise);
 
   castorDigitizer.setDetIds(hcastorDetIds);
-
+  cout << "setDetIds" << std::endl;
   auto_ptr<CastorDigiCollection> castorResult(new CastorDigiCollection);
-
+  cout << "castorResult" << std::endl;
 //  MixCollection<PCaloHit> hitCollection(&crossingFrame, hitsName);
   MixCollection<PCaloHit> hitCollection(&crossingFrame);
 
+  cout << "test hit correction" << std::endl;
+  //something breaks here!
   testHitCorrection(&hitCorrection, hitCollection);
 
+  cout << "castordigitizer.run" << std::endl;
   castorDigitizer.run(hitCollection, *castorResult);
 
-  cout << "Castor Frames" << endl;
+  cout << "Castor Frames" << std::endl;
   copy(castorResult->begin(), castorResult->end(), std::ostream_iterator<CastorDataFrame>(std::cout, "\n"));
   
   return 0;
