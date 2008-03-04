@@ -1,4 +1,4 @@
-// Last commit: $Id: SiStripCommissioningOfflineDbClient.cc,v 1.10 2008/02/21 14:08:02 delaer Exp $
+// Last commit: $Id: SiStripCommissioningOfflineDbClient.cc,v 1.11 2008/02/28 13:09:40 bainbrid Exp $
 
 #include "DQM/SiStripCommissioningDbClients/plugins/SiStripCommissioningOfflineDbClient.h"
 #include "DataFormats/SiStripCommon/interface/SiStripEnumsAndStrings.h"
@@ -26,7 +26,7 @@ using namespace sistrip;
 // 
 SiStripCommissioningOfflineDbClient::SiStripCommissioningOfflineDbClient( const edm::ParameterSet& pset ) 
   : SiStripCommissioningOfflineClient(pset),
-    uploadAnal_( pset.getUntrackedParameter<bool>("UploadAnalyses",true) ),
+    uploadAnal_( pset.getUntrackedParameter<bool>("UploadAnalyses",false) ),
     uploadConf_( pset.getUntrackedParameter<bool>("UploadHwConfig",false) ),
     uploadFecSettings_( pset.getUntrackedParameter<bool>("UploadFecSettings",true) ),
     uploadFedSettings_( pset.getUntrackedParameter<bool>("UploadFedSettings",true) )
