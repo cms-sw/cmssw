@@ -22,7 +22,8 @@ namespace {
 
 popcon::ExPedestalSource::ExPedestalSource(const edm::ParameterSet& pset) :
   m_name(pset.getUntrackedParameter<std::string>("name","ExPedestalSource")),
-  m_since(pset.getUntrackedParameter<unsigned int >("firstSince",5)),
+  m_since(pset.getUntrackedParameter<unsigned long long >("firstSince",5)),
+  m_increment(pset.getUntrackedParameter<unsigned long long >("increment",10)),
   m_number(pset.getUntrackedParameter<unsigned int >("number",3)){
 }
 
@@ -56,13 +57,13 @@ void popcon::ExPedestalSource::getNewObjects() {
   fill(*p0,3);
   m_to_transfer.push_back(std::make_pair((Pedestals*)p0,m_since));
   
-  unsigned int since = m_since+10*m_number;
+  unsigned long long since = m_since+m_increment*m_number;
   unsigned int size = 5;
   for (int j=1; j<(int)m_number;++j) {
     Pedestals * p1 = new Pedestals;
     fill(*p1,size);
     m_to_transfer.push_back(std::make_pair((Pedestals*)p1,since));
-    since-=10;
+    since-=m_increment;
     size+=2;
   }
 

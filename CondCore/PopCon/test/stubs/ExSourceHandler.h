@@ -26,7 +26,8 @@ namespace popcon{
     
   private:
     std::string m_name;
-    unsigned int m_since;
+    unsigned long long m_since;
+    unsigned long long m_increment;
     unsigned int m_number;
   };
 }

@@ -212,7 +212,7 @@ cond::service::PoolDBOutputService::createNewIOV( GetToken const & payloadToken,
   try{
     pooldb.start(false);
 
-    cond::IOVService iovmanager(pooldb);
+    cond::IOVService iovmanager(pooldb,m_timetype);
     cond::IOVEditor* editor=iovmanager.newIOVEditor("");
     editor->create(firstSinceTime,iovmanager.timeType());
     objToken = payloadToken(pooldb);

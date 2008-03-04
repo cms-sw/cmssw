@@ -27,8 +27,8 @@ namespace cond{
 	std::string("<Primitive column=\"TIMETYPE\" name=\"timetype\" />\n")+
         std::string("<Container table=\"IOV_DATA\" id_columns=\"ID\" name=\"iov\" position_column=\"POS\" >\n")+
 	std::string("<Object name=\"value_type\" >\n")+
-        std::string("<Primitive column=\"IOV_TOKEN\" name=\"first\" />\n")+
-        std::string("<Primitive column=\"IOV_TIME\" name=\"second\" />\n")+
+        std::string("<Primitive column=\"IOV_TIME\" name=\"first\" />\n")+
+        std::string("<Primitive column=\"IOV_TOKEN\" name=\"second\" />\n")+
 	std::string("</Object >\n")+
 	std::string("</Container >\n")+
 	std::string("</Class >\n")+
