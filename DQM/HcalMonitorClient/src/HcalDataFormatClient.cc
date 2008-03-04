@@ -220,10 +220,10 @@ void HcalDataFormatClient::getHistograms(){
   sprintf(name,"DataFormatMonitor/Num Bad Quality Digis -DV bit-Err bit-Cap Rotation");
   badDigis_ = getHisto(name, process_, dbe_, debug_,cloneME_);
 
-  sprintf(name,"DataFormatMonitor/Num. Unmapped Digis");
+  sprintf(name,"DataFormatMonitor/Num Unmapped Digis");
   unmappedDigis_ = getHisto(name, process_, dbe_, debug_,cloneME_);
 
-  sprintf(name,"DataFormatMonitor/Num. Unmapped Trigger Primitive Digis");
+  sprintf(name,"DataFormatMonitor/Num Unmapped Trigger Primitive Digis");
   unmappedTPDs_ = getHisto(name, process_, dbe_, debug_,cloneME_);
 
   sprintf(name,"DataFormatMonitor/FED Error Map from Unpacker Report");
@@ -420,10 +420,10 @@ void HcalDataFormatClient::resetAllME(){
   sprintf(name,"%sHcal/DataFormatMonitor/Num Bad Quality Digis -DV bit-Err bit-Cap Rotation",process_.c_str());
   resetME(name,dbe_);
   
-  sprintf(name,"%sHcal/DataFormatMonitor/Num. Unmapped Digis",process_.c_str());
+  sprintf(name,"%sHcal/DataFormatMonitor/Num Unmapped Digis",process_.c_str());
   resetME(name,dbe_);
   
-  sprintf(name,"%sHcal/DataFormatMonitor/Num. Unmapped Trigger Primitive Digis",process_.c_str());
+  sprintf(name,"%sHcal/DataFormatMonitor/Num Unmapped Trigger Primitive Digis",process_.c_str());
   resetME(name,dbe_);
   
   sprintf(name,"%sHcal/DataFormatMonitor/FED Error Map from Unpacker Report",process_.c_str());
@@ -804,7 +804,7 @@ void HcalDataFormatClient::createTests(){
     }
   }
 
-  sprintf(meTitle,"%sHcal/DataFormatMonitor/Num. Unmapped Digis"   ,process_.c_str()); 
+  sprintf(meTitle,"%sHcal/DataFormatMonitor/Num Unmapped Digis"   ,process_.c_str()); 
   sprintf(name,"DFMon # Unmapped Digis");
   if(dqmQtests_.find(name) == dqmQtests_.end()){	
     MonitorElement* me = dbe_->get(meTitle);
@@ -818,7 +818,7 @@ void HcalDataFormatClient::createTests(){
     }
   }
 
-  sprintf(meTitle,"%sHcal/DataFormatMonitor/Num. Unmapped Trigger Primitive Digis",process_.c_str()); 
+  sprintf(meTitle,"%sHcal/DataFormatMonitor/Num Unmapped Trigger Primitive Digis",process_.c_str()); 
   sprintf(name,"DFMon # Unmapped TP Digis");
   if(dqmQtests_.find(name) == dqmQtests_.end()){	
     MonitorElement* me = dbe_->get(meTitle);
@@ -848,10 +848,10 @@ void HcalDataFormatClient::loadHistograms(TFile* infile){
   sprintf(name,"DQMData/Hcal/DataFormatMonitor/Num Bad Quality Digis -DV bit-Err bit-Cap Rotation");
   badDigis_ = (TH1F*)infile->Get(name);
 
-  sprintf(name,"DQMData/Hcal/DataFormatMonitor/Num. Unmapped Digis");
+  sprintf(name,"DQMData/Hcal/DataFormatMonitor/Num Unmapped Digis");
   unmappedDigis_ = (TH1F*)infile->Get(name);
 
-  sprintf(name,"DQMData/Hcal/DataFormatMonitor/Num. Unmapped Trigger Primitive Digis");
+  sprintf(name,"DQMData/Hcal/DataFormatMonitor/Num Unmapped Trigger Primitive Digis");
   unmappedTPDs_ = (TH1F*)infile->Get(name);
 
   sprintf(name,"DQMData/Hcal/DataFormatMonitor/FED Error Map from Unpacker Report");

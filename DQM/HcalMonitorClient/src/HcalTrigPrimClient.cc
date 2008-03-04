@@ -188,7 +188,7 @@ void HcalTrigPrimClient::getHistograms(){
    TPTiming_ = getHisto("TrigPrimMonitor/TP Timing",process_, dbe_, debug_,cloneME_);  
    TPTimingTop_ = getHisto("TrigPrimMonitor/TP Timing (Top wedges)",process_, dbe_, debug_,cloneME_);  
    TPTimingBot_ = getHisto("TrigPrimMonitor/TP Timing (Bottom wedges)",process_, dbe_, debug_,cloneME_);  
-   TP_ADC_ = getHisto("TrigPrimMonitor/ADC spectrum TP>0",process_, dbe_, debug_,cloneME_);  
+   TP_ADC_ = getHisto("TrigPrimMonitor/ADC spectrum positive TP",process_, dbe_, debug_,cloneME_);  
     TPOcc_ = getHisto2("TrigPrimMonitor/TP Occupancy",process_, dbe_, debug_,cloneME_);  
   TPvsDigi_ = getHisto2("TrigPrimMonitor/TP vs Digi",process_, dbe_, debug_,cloneME_);  
 
@@ -268,7 +268,7 @@ void HcalTrigPrimClient::resetAllME(){
   resetME(name,dbe_);  
   sprintf(name,"%sHcal/TrigPrimMonitor/TP Timing (Bottom Wedges)",process_.c_str());
   resetME(name,dbe_);  
-  sprintf(name,"%sHcal/TrigPrimMonitor/ADC spectrum TP>0",process_.c_str());
+  sprintf(name,"%sHcal/TrigPrimMonitor/ADC spectrum positive TP",process_.c_str());
   resetME(name,dbe_);  
   sprintf(name,"%sHcal/TrigPrimMonitor/TP Occupancy",process_.c_str());
   resetME(name,dbe_);  

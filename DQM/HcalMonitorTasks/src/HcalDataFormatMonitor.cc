@@ -13,7 +13,7 @@ void HcalDataFormatMonitor::reset(){}
 void HcalDataFormatMonitor::clearME(){
   if(m_dbe){
     m_dbe->setCurrentFolder(baseFolder_);
-    m_dbe->removeContents();    
+    m_dbe->removeContents();
   }
 }
 
@@ -53,11 +53,11 @@ void HcalDataFormatMonitor::setup(const edm::ParameterSet& ps,
     meBadQualityDigis_=  m_dbe->book1D(type,type,4550,-1,9099);
     meBadQualityDigis_->setAxisTitle("# of Bad Digis",1);
     meBadQualityDigis_->setAxisTitle("# of Events",2);
-    type = "Num. Unmapped Digis";
+    type = "Num Unmapped Digis";
     meUnmappedDigis_=  m_dbe->book1D(type,type,4550,-1,9099);
     meUnmappedDigis_->setAxisTitle("# of Unmapped Digis",1);
     meUnmappedDigis_->setAxisTitle("# of Events",2);
-    type = "Num. Unmapped Trigger Primitive Digis";
+    type = "Num Unmapped Trigger Primitive Digis";
     meUnmappedTPDigis_=  m_dbe->book1D(type,type,4550,-1,9099);
     meUnmappedTPDigis_->setAxisTitle("# of Unmapped Trigger Primitive Digis",1);
     meUnmappedTPDigis_->setAxisTitle("# of Events",2);
@@ -92,7 +92,7 @@ void HcalDataFormatMonitor::setup(const edm::ParameterSet& ps,
     meFWVersion_->setAxisTitle("HTR Firmware Version",1);
     meFWVersion_->setAxisTitle("Crate #",2);
     // Examine conditions of the DCC Event Fragment
-    type = "FED ID numbers. (Should be [700...731])";
+    type = "Number of Event Fragments by FED ID";
     meFEDId_=m_dbe->book1D(type, type, 4095, -0.5, 4094.5);
     meFEDId_->setAxisTitle("All possible values of FED ID",1);
 

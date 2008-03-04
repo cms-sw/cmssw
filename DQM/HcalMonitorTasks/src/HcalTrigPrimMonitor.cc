@@ -95,7 +95,7 @@ void HcalTrigPrimMonitor::setup(const edm::ParameterSet& ps, DQMStore* dbe){
     TPTiming_       = m_dbe->book1D("TP Timing","TP Timing",10,0,10);
     TPTimingTop_    = m_dbe->book1D("TP Timing (Top wedges)","TP Timing (Top wedges)",10,0,10);
     TPTimingBot_    = m_dbe->book1D("TP Timing (Bottom wedges)","TP Timing (Bottom wedges)",10,0,10);
-    TP_ADC_         = m_dbe->book1D("ADC spectrum TP>0","ADC spectrum TP>0",200,-0.5,199.5);
+    TP_ADC_         = m_dbe->book1D("ADC spectrum positive TP","ADC spectrum positive TP",200,-0.5,199.5);
     TPOcc_          = m_dbe->book2D("TP Occupancy","TP Occupancy",etaBins_,etaMin_,etaMax_,phiBins_,phiMin_,phiMax_);
     TPvsDigi_       = m_dbe->book2D("TP vs Digi","TP vs Digi",128,0,128,200,0,200);
 
