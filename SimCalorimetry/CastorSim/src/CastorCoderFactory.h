@@ -2,8 +2,8 @@
 #define CastorSim_CastorCoderFactory_h
 
 #include <memory>
-#include "CalibFormats/HcalObjects/interface/HcalDbService.h"
-#include "CalibFormats/HcalObjects/interface/HcalCoder.h"
+#include "CalibFormats/CastorObjects/interface/CastorDbService.h"
+#include "CalibFormats/CastorObjects/interface/CastorCoder.h"
 
 class CastorCoderFactory
 {
@@ -12,15 +12,15 @@ public:
 
   CastorCoderFactory(CoderType coderType);
 
-  void setDbService(const HcalDbService * service) {theDbService = service;}
+  void setDbService(const CastorDbService * service) {theDbService = service;}
 
   /// user gets control of the pointer
-  std::auto_ptr<HcalCoder> coder(const DetId & detId) const;
+  std::auto_ptr<CastorCoder> coder(const DetId & detId) const;
 
 private:
 
   CoderType theCoderType;
-  const HcalDbService * theDbService;
+  const CastorDbService * theDbService;
 };
 
 #endif

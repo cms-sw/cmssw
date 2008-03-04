@@ -24,7 +24,7 @@ public:
   void analogToDigital(CaloSamples & linearFrame, CastorDataFrame & result);
 
   /// Things that need to be initialized every event
-  void newEvent();
+void newEvent();
 
 private:
   template<class Digi> void convert(CaloSamples & frame, Digi & result);

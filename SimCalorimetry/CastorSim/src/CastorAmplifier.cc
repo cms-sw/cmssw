@@ -1,10 +1,10 @@
 #include "SimCalorimetry/CastorSim/src/CastorAmplifier.h"
 #include "SimCalorimetry/CastorSim/src/CastorSimParameters.h"
-#include "CalibFormats/HcalObjects/interface/HcalDbService.h"
-#include "CondFormats/HcalObjects/interface/HcalPedestal.h"
-#include "CondFormats/HcalObjects/interface/HcalGain.h"
-#include "CondFormats/HcalObjects/interface/HcalPedestalWidth.h"
-#include "CondFormats/HcalObjects/interface/HcalGainWidth.h"
+#include "CalibFormats/CastorObjects/interface/CastorDbService.h"
+#include "CondFormats/CastorObjects/interface/CastorPedestal.h"
+#include "CondFormats/CastorObjects/interface/CastorGain.h"
+#include "CondFormats/CastorObjects/interface/CastorPedestalWidth.h"
+#include "CondFormats/CastorObjects/interface/CastorGainWidth.h"
 #include "CalibFormats/CaloObjects/interface/CaloSamples.h"
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -30,11 +30,11 @@ void CastorAmplifier::amplify(CaloSamples & frame) const {
   const CaloSimParameters & parameters = theParameterMap->simParameters(frame.id());
   assert(theDbService != 0);
   HcalGenericDetId hcalGenDetId(frame.id());
-  const HcalPedestal* peds = theDbService->getPedestal(hcalGenDetId);
-  const HcalPedestalWidth* pwidths = theDbService->getPedestalWidth(hcalGenDetId);
+  const CastorPedestal* peds = theDbService->getPedestal(hcalGenDetId);
+  const CastorPedestalWidth* pwidths = theDbService->getPedestalWidth(hcalGenDetId);
   if (!peds || !pwidths )
   {
-    edm::LogError("CastorAmplifier") << "Could not fetch HCAL conditions for channel " << hcalGenDetId;
+    edm::LogError("CastorAmplifier") << "Could not fetch HCAL/CASTOR conditions for channel " << hcalGenDetId;
   }
 
   double gauss [32]; //big enough
@@ -52,6 +52,6 @@ void CastorAmplifier::amplify(CaloSamples & frame) const {
     frame[tbin] *= fCperPE;
     frame[tbin] += pedestal;
   }
-  LogDebug("HcalAmplifier") << frame;
+  LogDebug("CastorAmplifier") << frame;
 }
 

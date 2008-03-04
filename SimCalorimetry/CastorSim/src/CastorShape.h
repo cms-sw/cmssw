@@ -1,5 +1,5 @@
-#ifndef HcalSim_CastorShape_h
-#define HcalSim_CastorShape_h
+#ifndef CastorSim_CastorShape_h
+#define CastorSim_CastorShape_h
 #include<vector>
   
 #include "SimCalorimetry/CaloSimAlgos/interface/CaloVShape.h"

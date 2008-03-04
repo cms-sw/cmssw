@@ -1,5 +1,5 @@
-#ifndef HcalSim_CastorHitFilter_h
-#define HcalSim_CastorHitFilter_h
+#ifndef CastorSim_CastorHitFilter_h
+#define CastorSim_CastorHitFilter_h
 
 #include "SimCalorimetry/CaloSimAlgos/interface/CaloVHitFilter.h"
 #include "DataFormats/HcalDetId/interface/HcalSubdetector.h"

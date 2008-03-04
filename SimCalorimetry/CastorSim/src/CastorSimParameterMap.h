@@ -19,12 +19,18 @@ public:
   virtual const CaloSimParameters & simParameters(const DetId & id) const;
 
   /// accessors
-  CaloSimParameters castorParameters() const  {return theCastorParameters;}
+  //CaloSimParameters castorParameters() const  {return theCastorParameters;}
+    CastorSimParameters castorParameters() const 
+	{
+	    return theCastorParameters;
+	}
+    
+    
 
-  void setDbService(const HcalDbService * service);
+  void setDbService(const CastorDbService * service);
 
 private:
-  CaloSimParameters theCastorParameters;
+  CastorSimParameters theCastorParameters;
 };
 
 #endif

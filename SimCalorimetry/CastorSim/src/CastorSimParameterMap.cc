@@ -3,11 +3,14 @@
 #include "DataFormats/HcalDetId/interface/HcalSubdetector.h"
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
 #include "DataFormats/HcalDetId/interface/HcalCastorDetId.h"
+#include <iostream>
 
+
+//some arbitrary numbers for now
 CastorSimParameterMap::CastorSimParameterMap() :
   theCastorParameters(1., 4.3333,
-                   2.09 , -4,
-                   6, 4, false)
+                   2.09 , -4.,
+                   false)
 {
 }
 /*
@@ -22,13 +25,22 @@ CastorSimParameterMap::CastorSimParameterMap(const edm::ParameterSet & p)
 {
 }
 
-const CaloSimParameters & CastorSimParameterMap::simParameters(const DetId & detId) const {
-  if(detId.det()==DetId::Calo && detId.subdetId()==HcalCastorDetId::SubdetectorId)
-    return theCastorParameters;
+const CaloSimParameters& CastorSimParameterMap::simParameters(const DetId & detId) const 
+{
+    HcalGenericDetId genericId(detId);
+
+    //  if(detId.det()==DetId::Calo && detId.subdetId()==HcalCastorDetId::SubdetectorId)
+    
+    if(genericId.isHcalCastorDetId())
+	return theCastorParameters;
+    
+    else
+	throw cms::Exception("not HcalCastorDetId"); 
+    
 }
 
-void CastorSimParameterMap::setDbService(const HcalDbService * dbService)
+void CastorSimParameterMap::setDbService(const CastorDbService * dbService)
 {
-//  theCastorParameters.setDbService(dbService);
+theCastorParameters.setDbService(dbService);
 }
 

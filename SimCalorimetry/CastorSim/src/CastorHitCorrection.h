@@ -29,7 +29,7 @@ public:
   double charge(const PCaloHit & hit) const;
 
   /// how much delay this hit will get
-//  double delay(const PCaloHit & hit) const;
+  double delay(const PCaloHit & hit) const;
 
   /// applies the delay to the hit
   virtual void correct(PCaloHit & hit) const;

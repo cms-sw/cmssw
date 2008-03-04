@@ -5,7 +5,7 @@
 #include "SimCalorimetry/CaloSimAlgos/interface/CaloVSimParameterMap.h"
 #include "CLHEP/Random/RandGaussQ.h"
 
-class HcalDbService;
+class CastorDbService;
 
 class CastorAmplifier {
 public:
@@ -13,7 +13,7 @@ public:
   virtual ~CastorAmplifier(){ delete theRandGaussQ; }
 
   /// the Producer will probably update this every event
-  void setDbService(const HcalDbService * service) {
+  void setDbService(const CastorDbService * service) {
     theDbService = service;
    }
 
@@ -24,7 +24,7 @@ public:
   void setStartingCapId(int capId) {theStartingCapId = capId;}
 
 private:
-  const HcalDbService * theDbService;
+  const CastorDbService * theDbService;
   CLHEP::RandGaussQ * theRandGaussQ;
   const CaloVSimParameterMap * theParameterMap;
 

@@ -31,7 +31,7 @@ template<class Digi>
 void CastorElectronicsSim::convert(CaloSamples & frame, Digi & result) {
   result.setSize(frame.size());
   theAmplifier->amplify(frame);
-//  theCoderFactory->coder(frame.id())->fC2adc(frame, result, theStartingCapId);
+  theCoderFactory->coder(frame.id())->fC2adc(frame, result, theStartingCapId);
 }
 
 void CastorElectronicsSim::analogToDigital(CaloSamples & lf, CastorDataFrame & result) {

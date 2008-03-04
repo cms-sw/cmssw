@@ -1,6 +1,6 @@
 #include "SimCalorimetry/CastorSim/src/CastorHitCorrection.h"
 #include "SimCalorimetry/CaloSimAlgos/interface/CaloSimParameters.h"
-#include "CalibCalorimetry/HcalAlgos/interface/HcalTimeSlew.h"
+#include "CalibCalorimetry/CastorCalib/interface/CastorTimeSlew.h"
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
 #include "DataFormats/HcalDetId/interface/HcalCastorDetId.h"
@@ -15,17 +15,16 @@ CastorHitCorrection::CastorHitCorrection(const CaloVSimParameterMap * parameterM
 
 void CastorHitCorrection::fillChargeSums(MixCollection<PCaloHit> & hits)
 {
-  clear();
+  //  clear();
   for(MixCollection<PCaloHit>::MixItr hitItr = hits.begin();
       hitItr != hits.end(); ++hitItr)
   {
-    LogDebug("CastorHitCorrection") << "CastorHitCorrection::Hit 0x" << std::hex
-				  << hitItr->id() << std::dec;
+    LogDebug("CastorHitCorrection") << "CastorHitCorrection::Hit 0x" << std::hex << hitItr->id() << std::dec;
     int tbin = timeBin(*hitItr);
     LogDebug("CastorHitCorrection") << "CastorHitCorrection::Hit tbin" << tbin;
     if(tbin >= 0 && tbin < 10) 
     {  
-      theChargeSumsForTimeBin[tbin][hitItr->id()] += charge(*hitItr);
+      theChargeSumsForTimeBin[tbin][DetId(hitItr->id())] += charge(*hitItr);
     }
   }
 }
@@ -48,7 +47,6 @@ double CastorHitCorrection::charge(const PCaloHit & hit) const
   return hit.energy() * simHitToCharge;
 }
 
-/*
 double CastorHitCorrection::delay(const PCaloHit & hit) const 
 {
   // HO goes slow, HF shouldn't be used at all
@@ -56,31 +54,31 @@ double CastorHitCorrection::delay(const PCaloHit & hit) const
 
   DetId detId(hit.id());
   if(detId.det()==DetId::Calo && (detId.subdetId()==HcalCastorDetId::SubdetectorId)) return 0;
+
   HcalDetId hcalDetId(hit.id());
   if(hcalDetId.subdet() == HcalForward) return 0;  
-  HcalTimeSlew::BiasSetting biasSetting = (hcalDetId.subdet() == HcalOuter) ?
-                                          HcalTimeSlew::Slow :
-                                          HcalTimeSlew::Medium;
+  CastorTimeSlew::BiasSetting biasSetting = (hcalDetId.subdet() == HcalOuter) ?
+                                          CastorTimeSlew::Slow :
+                                          CastorTimeSlew::Medium;
   double delay = 0.;
   int tbin = timeBin(hit);
   if(tbin >= 0 && tbin < 10)
   {
-    ChargeSumsByChannel::const_iterator totalChargeItr = theChargeSumsForTimeBin[tbin].find(hcalDetId);
+    ChargeSumsByChannel::const_iterator totalChargeItr = theChargeSumsForTimeBin[tbin].find(detId);
     if(totalChargeItr == theChargeSumsForTimeBin[tbin].end())
     {
-      throw cms::Exception("HcalHitCorrection") << "Cannot find HCAL charge sum for hit " << hit;
+      throw cms::Exception("CastorHitCorrection") << "Cannot find HCAL/CASTOR charge sum for hit " << hit;
     }
     double totalCharge = totalChargeItr->second;
-    delay = HcalTimeSlew::delay(totalCharge, biasSetting);
-    LogDebug("HcalHitCorrection") << "TIMESLEWcharge " << charge(hit) 
+    delay = CastorTimeSlew::delay(totalCharge, biasSetting);
+    LogDebug("CastorHitCorrection") << "TIMESLEWcharge " << charge(hit) 
 				  << "  totalcharge " << totalCharge 
-				  << " olddelay "  << HcalTimeSlew::delay(charge(hit), biasSetting) 
+				  << " olddelay "  << CastorTimeSlew::delay(charge(hit), biasSetting) 
 				  << " newdelay " << delay;
   }
 
   return delay;
 }
-*/
 
 void CastorHitCorrection::correct(PCaloHit & hit) const {
   // replace the hit with a new one, with a time delay
@@ -91,14 +89,16 @@ void CastorHitCorrection::correct(PCaloHit & hit) const {
 int CastorHitCorrection::timeBin(const PCaloHit & hit) const
 {
   const CaloSimParameters & parameters = theParameterMap->simParameters(DetId(hit.id()));
-  double t = hit.time() - timeOfFlight(HcalDetId(hit.id())) + parameters.timePhase();
+  double t = hit.time() - timeOfFlight(DetId(hit.id())) + parameters.timePhase();
   return static_cast<int> (t / 25) + parameters.binOfMaximum() - 1;
 }
 
 
 double CastorHitCorrection::timeOfFlight(const DetId & detId) const
 {
-  if(detId.det()==DetId::Calo && detId.subdetId()==HcalCastorDetId::SubdetectorId)
-    return 37.666;
+    if(detId.det()==DetId::Calo && detId.subdetId()==HcalCastorDetId::SubdetectorId)
+	return 37.666;
+    else
+	throw cms::Exception("not HcalCastorDetId"); 
 }
 
