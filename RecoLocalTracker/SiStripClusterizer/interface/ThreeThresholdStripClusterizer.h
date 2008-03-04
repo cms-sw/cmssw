@@ -64,8 +64,6 @@ class AboveSeed {
 
   inline bool operator()(const SiStripDigi& digi) { 
     return ( 
-	    !noise_->getDisable(digi.strip(), noiseRange_) 
-	    && 
 	    !quality_->IsStripBad(qualityRange_,digi.strip()) 
 	    && 
 	    digi.adc() >= seed * noise_->getNoise(digi.strip(), noiseRange_)
