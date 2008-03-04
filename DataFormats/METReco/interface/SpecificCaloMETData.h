@@ -33,9 +33,6 @@ struct SpecificCaloMETData
   double CaloSETInmHF;         // CaloSET in HF- 
   double CaloMETPhiInpHF;         // CaloMET-phi in HF+ 
   double CaloMETPhiInmHF;         // CaloMET-phi in HF- 
-  double CaloMETPhiInpHE;         // CaloMET-phi in HE+ 
-  double CaloMETPhiInmHE;         // CaloMET-phi in HE- 
-  double CaloMETPhiInpHB;         // CaloMET-phi in HB+ 
-  double CaloMETPhiInmHB;         // CaloMET-phi in HB- 
+
 }; //public : struct SpecificCaloMETData
 #endif
