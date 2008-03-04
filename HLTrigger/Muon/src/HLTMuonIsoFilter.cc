@@ -15,8 +15,8 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "DataFormats/TrackReco/interface/Track.h"
-#include "DataFormats/MuonReco/interface/MuIsoDeposit.h"
-#include "DataFormats/MuonReco/interface/MuIsoDepositFwd.h"
+#include "DataFormats/RecoCandidate/interface/IsoDeposit.h"
+#include "DataFormats/RecoCandidate/interface/IsoDepositFwd.h"
 #include "DataFormats/RecoCandidate/interface/RecoChargedCandidate.h"
 #include "DataFormats/RecoCandidate/interface/RecoChargedCandidateFwd.h"
 
@@ -69,7 +69,7 @@ HLTMuonIsoFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
    Handle<TriggerFilterObjectWithRefs> mucands;
    iEvent.getByLabel (candTag_,mucands);
 
-   Handle<MuIsoFlagMap> depMap;
+   Handle<edm::ValueMap<bool> > depMap;
    iEvent.getByLabel (isoTag_,depMap);
 
    // look at all mucands,  check cuts and add to filter object
@@ -79,7 +79,7 @@ HLTMuonIsoFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
    for (unsigned int i=0; i<vcands.size(); i++) {
      RecoChargedCandidateRef candref =  RecoChargedCandidateRef(vcands[i]);
      TrackRef tk = candref->get<TrackRef>();
-     MuIsoFlagMap::value_type muonIsIsolated = (*depMap)[tk];
+     edm::ValueMap<bool> ::value_type muonIsIsolated = (*depMap)[tk];
      LogDebug("HLTMuonIsoFilter") << " Muon with q*pt= " << tk->charge()*tk->pt() << ", eta= " << tk->eta() << "; Is Muon isolated? " << muonIsIsolated;
      
      if (!muonIsIsolated) continue;
