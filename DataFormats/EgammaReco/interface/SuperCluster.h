@@ -7,7 +7,7 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: SuperCluster.h,v 1.11 2007/09/03 09:50:32 futyand Exp $
+ * \version $Id: SuperCluster.h,v 1.12 2008/02/11 13:10:49 kkaadze Exp $
  *
  */
 #include "DataFormats/Math/interface/Point3D.h"
@@ -15,7 +15,6 @@
 #include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
 #include "DataFormats/EgammaReco/interface/EcalCluster.h"
 #include "DataFormats/DetId/interface/DetId.h"
-#include "RecoEcal/EgammaCoreTools/interface/SuperClusterShapeAlgo.h"
 
 namespace reco {
   class SuperCluster : public EcalCluster {
@@ -85,8 +84,8 @@ namespace reco {
 
     mutable double rawEnergy_;
     
-    double phiWidth_;
-    double etaWidth_;
+    Double32_t phiWidth_;
+    Double32_t etaWidth_;
 
   };
 
