@@ -1,6 +1,6 @@
 from Mixins import _ConfigureComponent
 from Mixins import _Unlabelable, _Labelable
-from Mixins import _TypedParameterizable 
+from Mixins import _TypedParameterizable, PrintOptions
 from SequenceTypes import _Sequenceable
 
 from ExceptionHandling import *
@@ -57,8 +57,21 @@ class ESPrefer(_ConfigureComponent,_TypedParameterizable,_Unlabelable,_Labelable
         if name == '':
             name=self.type_()
         proc._placeESPrefer(name,self)
+    def moduleLabel_(self,myname):
+       # the C++ parser can give it a name like "label@prefer".  Get rid of that.
+       return myname.split('@')[0]
     def nameInProcessDesc_(self, myname):
-       return "esprefer_" + self.type_() + "@" + myname
+       # the C++ parser can give it a name like "label@prefer".  Get rid of that.
+       return "esprefer_" + self.type_() + "@" + myname.split('@')[0]
+    def dumpPythonAs(self, label, options=PrintOptions()):
+       name = self.moduleLabel_(label)
+       if name == '':
+          name = type_()
+       if options.isCfg:
+           return options.indentation()+'process.prefer(\"'+name+'\")'
+       else:
+           # use the base class Module
+           return options.indentation()+'es_prefer_'+name+' = '+self.dumpPython(options)
 
 class _Module(_ConfigureComponent,_TypedParameterizable,_Labelable,_Sequenceable):
     """base class for classes which denote framework event based 'modules'"""
@@ -128,6 +141,7 @@ class Looper(_ConfigureComponent,_TypedParameterizable):
 if __name__ == "__main__":
     import unittest
     from Types import *
+    from SequenceTypes import *
     class TestModules(unittest.TestCase):
         def testEDAnalyzer(self):
             empty = EDAnalyzer("Empty")
@@ -143,6 +157,8 @@ if __name__ == "__main__":
             m = EDProducer("DumbProducer", block, j = int32(10))
             self.assertEqual(9, m.i.value())
             self.assertEqual(10, m.j.value())
+            juicer = ESPrefer("JuiceProducer")
+            self.assertEqual(juicer.dumpPythonAs("juicer"), "process.prefer(\"juicer\")")
 
         
         def testService(self):
@@ -150,5 +166,17 @@ if __name__ == "__main__":
             withParam = Service("Parameterized",foo=untracked(int32(1)), bar = untracked(string("it")))
             self.assertEqual(withParam.foo.value(), 1)
             self.assertEqual(withParam.bar.value(), "it")
+            self.assertEqual(empty.dumpPython(), "cms.Service(\"Empty\")\n")
+            self.assertEqual(withParam.dumpPython(), "cms.Service(\"Parameterized\",\n    foo = cms.untracked.int32(1),\n    bar = cms.untracked.string(\'it\')\n)\n")
+        def testSequences(self):
+            m = EDProducer("MProducer")
+            n = EDProducer("NProducer")
+            m.setLabel("m")
+            n.setLabel("n")
+            s1 = Sequence(m*n)
+            options = PrintOptions()
+            print s1.dumpPython(options)
+
+
 
     unittest.main()

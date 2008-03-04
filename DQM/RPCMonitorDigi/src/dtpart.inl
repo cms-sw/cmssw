@@ -25,7 +25,7 @@ if(all4DSegments->size()>0){
     std::cout<<"\t \t Number of segments in this DT = "<<scounter[DTId]<<std::endl;
     std::cout<<"\t \t Is the only one in this DT?"<<std::endl;
 
-    if(scounter[DTId] == 1){	
+    if(scounter[DTId]==1 && DTId.station()!=4){	
       std::cout<<"\t \t yes"<<std::endl;
       int dtWheel = DTId.wheel();
       int dtStation = DTId.station();
@@ -50,9 +50,12 @@ if(all4DSegments->size()>0){
 	float dy=segmentDirection.y();
 	float dz=segmentDirection.z();
 	std::cout<<"\t \t Loop over all the rolls asociated to this DT"<<std::endl;
-	if(dtSector==13)dtSector=4;
-	if(dtSector==14)dtSector=10;
+
 	std::set<RPCDetId> rollsForThisDT = rollstoreDT[DTStationIndex(0,dtWheel,dtSector,dtStation)];
+	
+	std::cout<<"\t \t Number of rolls for this DT = "<<rollsForThisDT.size()<<std::endl;
+        assert(rollsForThisDT.size()>=1);
+
 	//Loop over all the rolls
 	
 	for (std::set<RPCDetId>::iterator iteraRoll = rollsForThisDT.begin();iteraRoll != rollsForThisDT.end(); iteraRoll++){
@@ -72,14 +75,16 @@ if(all4DSegments->size()>0){
 	  std::cout<<"\t \t \t Center (0,0,0) Roll In DTLocal"<<CenterRollinDTFrame<<std::endl;
 	    
 	  float D=CenterRollinDTFrame.z();
-	  std::cout<<"\t \t \t Is D less than MaxD? D="<<D<<"cm"<<std::endl;
 	  
-	  if(fabs(D)<MaxD){ 
-	    std::cout<<"\t \t \t yes"<<std::endl;
 	    float X=Xo+dx*D/dz;
 	    float Y=Yo+dy*D/dz;
 	    float Z=D;
-	    
+	
+	  std::cout<<"\t \t \t Is the distance less than MaxD? D="<<D<<"cm"<<std::endl;
+  
+
+	  if(X*X+Y*Y+Z*Z<=MaxD*MaxD){ 
+	    std::cout<<"\t \t \t yes"<<std::endl;
 	    const RectangularStripTopology* top_= dynamic_cast<const RectangularStripTopology*> (&(rollasociated->topology()));
 	    LocalPoint xmin = top_->localPosition(0.);
 	    LocalPoint xmax = top_->localPosition((float)rollasociated->nstrips());
@@ -151,7 +156,7 @@ if(all4DSegments->size()>0){
 		std::cout<<"\t \t \t \t \t Digi "<<*digiIt<<std::endl;//print the digis in the event
 		stripDetected=digiIt->strip();
 		
-		float res = (float)(stripDetected) - stripPredicted;
+		double res = fabs((double)(stripDetected) - (double)(stripPredicted));
 
 		//-------filling the histograms--------------------
 
@@ -213,7 +218,7 @@ if(all4DSegments->size()>0){
 	    }//Condition for the right match
 	  }else{
 	    std::cout<<"\t \t \t No, Exrtrapolation too long!, canceled"<<std::endl;
-	  }//D not so big
+	  }//D so big
 	}//loop over all the rolls
       }
     }

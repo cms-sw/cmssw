@@ -3,8 +3,8 @@
  *
  *  \author    : Gero Flucke
  *  date       : October 2006
- *  $Revision: 1.25 $
- *  $Date: 2007/08/31 18:03:19 $
+ *  $Revision: 1.16.2.7 $
+ *  $Date: 2007/08/15 08:38:19 $
  *  (last update by $Author: flucke $)
  */
 
@@ -16,6 +16,9 @@
 #include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHit.h"
 // end in header, too
 
+//#include "MagneticField/Engine/interface/MagneticField.h"
+#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h" 
+
 #include "Alignment/MillePedeAlignmentAlgorithm/interface/MillePedeMonitor.h"
 #include "Alignment/MillePedeAlignmentAlgorithm/interface/MillePedeAlignmentAlgorithm.h"
 #include "Alignment/MillePedeAlignmentAlgorithm/interface/MillePedeVariables.h"
@@ -23,25 +26,17 @@
 #include "Mille.h"       // 'unpublished' interface located in src
 #include "PedeSteerer.h" // dito
 #include "PedeReader.h" // dito
-#include "PedeLabeler.h" // dito
 
 #include "Alignment/ReferenceTrajectories/interface/ReferenceTrajectoryBase.h"
 #include "Alignment/ReferenceTrajectories/interface/TrajectoryFactoryBase.h"
 #include "Alignment/ReferenceTrajectories/interface/TrajectoryFactoryPlugin.h"
 
-#include "Alignment/CommonAlignmentAlgorithm/interface/AlignmentParameterStore.h"
 #include "Alignment/CommonAlignmentAlgorithm/interface/AlignmentIORoot.h"
 
 #include "Alignment/CommonAlignment/interface/AlignableNavigator.h"
 #include "Alignment/CommonAlignment/interface/AlignableDetOrUnitPtr.h"
 
-// includes to make known that they inherit from Alignable:
-#include "Alignment/TrackerAlignment/interface/AlignableTracker.h"
-#include "Alignment/MuonAlignment/interface/AlignableMuon.h"
-
 #include "DataFormats/CLHEP/interface/AlgebraicObjects.h"
-#include "DataFormats/TrackReco/interface/Track.h"
-
 
 #include <Geometry/CommonDetUnit/interface/GeomDetUnit.h>
 #include <Geometry/CommonDetUnit/interface/GeomDetType.h>
@@ -101,8 +96,7 @@ void MillePedeAlignmentAlgorithm::initialize(const edm::EventSetup &setup,
   theAlignables = theAlignmentParameterStore->alignables();
 
   edm::ParameterSet pedeSteerCfg(theConfig.getParameter<edm::ParameterSet>("pedeSteerer"));
-  thePedeSteer = new PedeSteerer(tracker, muon, theAlignmentParameterStore, pedeSteerCfg, theDir,
-				 !this->isMode(myPedeSteerBit));
+  thePedeSteer = new PedeSteerer(tracker, muon, theAlignmentParameterStore, pedeSteerCfg, theDir);
   // After (!) PedeSteerer which uses the SelectionUserVariables attached to the parameters:
   this->buildUserVariables(theAlignables); // for hit statistics and/or pede result
 
@@ -302,7 +296,7 @@ bool MillePedeAlignmentAlgorithm
   if (params) {
     if (!lowestParams) lowestParams = params; // set parameters of lowest level
 
-    const unsigned int alignableLabel = thePedeSteer->labels().alignableLabel(ali);
+    const unsigned int alignableLabel = thePedeSteer->alignableLabel(ali);
     if (0 == alignableLabel) { // FIXME: what about regardAllHits in Markus' code?
       edm::LogWarning("Alignment") << "@SUB=MillePedeAlignmentAlgorithm::globalDerivativesHierarchy"
                                    << "Label not found, skip Alignable.";
@@ -316,7 +310,7 @@ bool MillePedeAlignmentAlgorithm
       if (selPars[iSel]) {
         globalDerivativesX.push_back(derivs[iSel][kLocalX]
 				     /thePedeSteer->cmsToPedeFactor(iSel));
-        globalLabels.push_back(thePedeSteer->labels().parameterLabel(alignableLabel, iSel));
+        globalLabels.push_back(thePedeSteer->parameterLabel(alignableLabel, iSel));
         if (is2DHit) {
 	  globalDerivativesY.push_back(derivs[iSel][kLocalY]
 				       /thePedeSteer->cmsToPedeFactor(iSel));
@@ -528,7 +522,7 @@ unsigned int MillePedeAlignmentAlgorithm::decodeMode(const std::string &mode) co
   } else if (mode == "pedeSteer") {
     return myPedeSteerBit;
   } else if (mode == "pedeRun") {
-    return myPedeSteerBit + myPedeRunBit + myPedeReadBit; // sic! Including steering and reading of result.
+    return myPedeRunBit + myPedeReadBit; // sic! Including reading of result.
   } else if (mode == "pedeRead") {
     return myPedeReadBit;
   }

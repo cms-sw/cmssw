@@ -1,7 +1,7 @@
 /** \file
  *
- * $Date: 2006/05/04 09:14:06 $
- * $Revision: 1.10 $
+ * $Date: 2006/05/04 16:31:48 $
+ * $Revision: 1.11 $
  * \author Stefano Lacaprara - INFN Legnaro <stefano.lacaprara@pd.infn.it>
  * \author Riccardo Bellan - INFN TO <riccardo.bellan@cern.ch>
  */
@@ -50,6 +50,11 @@ DTCombinatorialPatternReco4D::DTCombinatorialPatternReco4D(const ParameterSet& p
   // Get the concrete 2D-segments reconstruction algo from the factory
   // For the 2D reco I use this reconstructor!
   the2DAlgo = new DTCombinatorialPatternReco(pset.getParameter<ParameterSet>("Reco2DAlgoConfig"));
+}
+
+DTCombinatorialPatternReco4D::~DTCombinatorialPatternReco4D(){
+  delete the2DAlgo;
+  delete theUpdator;
 }
 
 void DTCombinatorialPatternReco4D::setES(const EventSetup& setup){

@@ -5,10 +5,9 @@ from  Options import Options
 options = Options()
 
 
-### imports
-from Mixins import PrintOptions,_SimpleParameterTypeBase, _ParameterTypeBase, _Parameterizable, _ConfigureComponent, _TypedParameterizable
-from Mixins import  _Labelable,  _Unlabelable 
-#from Mixins import _ValidatingListBase
+## imports
+from Mixins import PrintOptions,_ParameterTypeBase,_SimpleParameterTypeBase, _Parameterizable, _ConfigureComponent, _TypedParameterizable, _Labelable,  _Unlabelable,  _ValidatingListBase
+from Mixins import *
 from Types import * 
 from Modules import *
 from SequenceTypes import *
@@ -168,6 +167,9 @@ class Process(object):
         # however, only one of them can take the attribute name and it by rights should go to
         # the module and not the ESPrefer
         if not isinstance(value,ESPrefer):
+            if not self._okToPlace(name, value, self.__dict__):
+                print "WARNING: trying to override definition of process."+name
+                return
             self.__dict__[name]=newValue
         if isinstance(newValue,_Labelable):
             newValue.setLabel(name)
@@ -189,38 +191,61 @@ class Process(object):
         newValue =value.copy()
         newValue._place('',self)
         
+    def _okToPlace(self, name, mod, d):
+        if name in d:
+            # if there's an old copy, and the new one
+            # hasn't been modified, we're done.  Still
+            # not quite safe if something has been defined twice.
+            #  Need to add checks
+            if mod._isModified:
+                if d[name]._isModified:
+                    raise RuntimeError("The module %s has been modified twice" %(name))
+                else:
+                    return True
+            else:
+                return False
+        else:
+            return True
+
+    def _place(self, name, mod, d):
+        if self._okToPlace(name, mod, d):
+            if isinstance(mod, _ModuleSequenceType):
+                d[name] = mod._postProcessFixup(self._cloneToObjectDict)
+            else:
+                d[name] = mod
+
     def _placeOutputModule(self,name,mod):
-        self.__outputmodules[name]=mod
+        self._place(name, mod, self.__outputmodules)
     def _placeProducer(self,name,mod):
-        self.__producers[name]=mod
+        self._place(name, mod, self.__producers)
     def _placeFilter(self,name,mod):
-        self.__filters[name]=mod
+        self._place(name, mod, self.__filters)
     def _placeAnalyzer(self,name,mod):
-        self.__analyzers[name]=mod
+        self._place(name, mod, self.__analyzers)
     def _placePath(self,name,mod):
         try:
-            self.__paths[name]=mod._postProcessFixup(self._cloneToObjectDict)
+            self._place(name, mod, self.__paths)
         except ModuleCloneError, msg:
             context = format_outerframe(4)
             raise Exception("%sThe module %s in path %s is unknown to the process %s." %(context, msg, name, self._Process__name))
     def _placeEndPath(self,name,mod):
         try: 
-            self.__endpaths[name]=mod._postProcessFixup(self._cloneToObjectDict)
+            self._place(name, mod, self.__endpaths)
         except ModuleCloneError, msg:
             context = format_outerframe(4)
             raise Exception("%sThe module %s in endpath %s is unknown to the process %s." %(context, msg, name, self._Process__name))
     def _placeSequence(self,name,mod):
-        self.__sequences[name]=mod._postProcessFixup(self._cloneToObjectDict)
+        self._place(name, mod, self.__sequences)
     def _placeESProducer(self,name,mod):
-        self.__esproducers[name]=mod
+        self._place(name, mod, self.__esproducers)
     def _placeESPrefer(self,name,mod):
-        self.__esprefers[name]=mod
+        self._place(name, mod, self.__esprefers)
     def _placeESSource(self,name,mod):
-        self.__essources[name]=mod
+        self._place(name, mod, self.__essources)
     def _placePSet(self,name,mod):
-        self.__psets[name]=mod
+        self._place(name, mod, self.__psets)
     def _placeVPSet(self,name,mod):
-        self.__vpsets[name]=mod
+        self._place(name, mod, self.__vpsets)
     def _placeSource(self,name,mod):
         """Allow the source to be referenced by 'source' or by type name"""
         if name != 'source':
@@ -234,18 +259,23 @@ class Process(object):
             raise ValueError("The label '"+name+"' can not be used for a Looper.  Only 'looper' is allowed.")
         self.__dict__['_Process__looper'] = mod
     def _placeService(self,typeName,mod):
-        self.__services[typeName]=mod
+        self._place(typeName, mod, self.__services)
         self.__dict__[typeName]=mod
+    def load(self, moduleName):
+        module = __import__(moduleName)
+        import sys
+        self.extend(sys.modules[moduleName])
     def extend(self,other,items=()):
         """Look in other and find types which we can use"""
         seqs = dict()
         labelled = dict()
         for name in dir(other):
             item = getattr(other,name)
-            if isinstance(item,_ModuleSequenceType):
+            if name == "source":
+                self.__setattr__(name,item)
+            elif isinstance(item,_ModuleSequenceType):
                 seqs[name]=item
-                continue
-            if isinstance(item,_Labelable):
+            elif isinstance(item,_Labelable):
                 self.__setattr__(name,item)
                 labelled[name]=item
                 try:
@@ -253,8 +283,9 @@ class Process(object):
                 except:
                     item.setLabel(name)
                 continue
-            if isinstance(item,_Unlabelable):
+            elif isinstance(item,_Unlabelable):
                 self.add_(item)
+                
         #now create a sequence which uses the newly made items
         for name in seqs.iterkeys():
             seq = seqs[name]
@@ -289,7 +320,10 @@ class Process(object):
             if name == item.type_():
                 name = ''
             else:
-                name = ' '+name
+                # python sometimes gives '@'-suffixes, to allow
+                # multiple names.  Remove these for .cfg  
+                name = ' '+name.split('@')[0]
+                #name = ' '+name
             returnValue +=options.indentation()+typeName+name+' = '+item.dumpConfig(options)
         return returnValue
     def dumpConfig(self, options=PrintOptions()):
@@ -350,11 +384,54 @@ class Process(object):
         config += "}\n"
         options.unindent()
         return config
-    def _dumpPythonList(self,items, options):
+    def _dumpPythonList(self, d, options):
         returnValue = ''
-        for name,item in items:
+        for name,item in d.iteritems():
             returnValue +='process.'+name+' = '+item.dumpPython(options)+'\n\n'
         return returnValue
+    def _sequencesInDependencyOrder(self):
+        #for each sequence, see what other sequences it depends upon
+        returnValue=DictTypes.SortedKeysDict()
+        class SequenceVisitor(object):
+            def __init__(self,d):
+                self.deps = d
+            def enter(self,visitee):
+                if isinstance(visitee,Sequence):
+                    d.append(visitee)
+                pass
+            def leave(self,visitee):
+                pass
+        dependencies = {}
+        for label,seq in self.sequences.iteritems():
+            d = []
+            v = SequenceVisitor(d)
+            seq.visit(v)
+            dependencies[label]=(seq,d)
+        resolvedDependencies=True
+        #keep looping until we can no longer get rid of all dependencies
+        # if that happens it means we have circular dependencies
+        while resolvedDependencies:
+            resolvedDependencies = (0 != len(dependencies))
+            oldDeps = dict(dependencies)
+            for label,(seq,deps) in oldDeps.iteritems():
+                if len(deps)==0:
+                    resolvedDependencies=True
+                    returnValue[label]=seq
+                    #remove this as a dependency for all other sequences
+                    del dependencies[label]
+                    for lb2,(seq2,deps2) in dependencies.iteritems():
+                        while deps2.count(seq):
+                            deps2.remove(seq)
+        if len(dependencies):
+            raise RuntimeError("circular sequence dependency discovered \n"+
+                               ",".join([label for label,junk in dependencies.iteritems()]))
+        return returnValue
+                
+    def _dumpPython(self, d, options):
+        result = ''
+        for name, value in d.iteritems():
+           result += value.dumpPythonAs(name,options)+'\n'
+        return result
     def dumpPython(self, options=PrintOptions()):
         """return a string containing the equivalent process defined using the configuration language"""
         result = "process = cms.Process(\""+self.__name+"\")\n\n"
@@ -362,41 +439,42 @@ class Process(object):
             result += "process.source = "+self.source_().dumpPython(options)
         if self.looper_():
             result += "process.looper = "+self.looper_().dumpPython()
-        result+=self._dumpPythonList(self.producers_().iteritems(), options)
-        result+=self._dumpPythonList(self.filters_().iteritems() , options)
-        result+=self._dumpPythonList(self.analyzers_().iteritems(), options)
-        result+=self._dumpPythonList(self.outputModules_().iteritems(), options)
-        result+=self._dumpPythonList(self.sequences_().iteritems(), options)
-        result+=self._dumpPythonList(self.paths_().iteritems(), options)
-        result+=self._dumpPythonList(self.endpaths_().iteritems(), options)
-        result+=self._dumpPythonList(self.services_().iteritems(), options)
-        result+=self._dumpPythonList(self.es_producers_().iteritems(), options)
-        result+=self._dumpPythonList(self.es_sources_().iteritems(), options)
-        result+=self._dumpPythonList(self.es_prefers_().iteritems(), options)
-        result+=self._dumpPythonList(self.psets.iteritems(), options)
-        result+=self._dumpPythonList(self.vpsets.iteritems(), options)
+        result+=self._dumpPythonList(self.producers_(), options)
+        result+=self._dumpPythonList(self.filters_() , options)
+        result+=self._dumpPythonList(self.analyzers_(), options)
+        result+=self._dumpPythonList(self.outputModules_(), options)
+        result+=self._dumpPythonList(self._sequencesInDependencyOrder(), options)
+        result+=self._dumpPythonList(self.paths_(), options)
+        result+=self._dumpPythonList(self.endpaths_(), options)
+        result+=self._dumpPythonList(self.services_(), options)
+        result+=self._dumpPythonList(self.es_producers_(), options)
+        result+=self._dumpPythonList(self.es_sources_(), options)
+        result+=self._dumpPython(self.es_prefers_(), options)
+        result+=self._dumpPythonList(self.psets, options)
+        result+=self._dumpPythonList(self.vpsets, options)
         if self.schedule:
-            result += "process.schedule = "+self.schedule.dumpPython(options)
+            pathNames = ['process.'+p.label() for p in self.schedule]
+            result +='process.schedule = cms.Schedule('+','.join(pathNames)+')\n'
         return result
 
-    def insertOneInto(self, parameterSet, label, item):
+    def _insertOneInto(self, parameterSet, label, item):
         vitems = []
         if not item == None:
             newlabel = item.nameInProcessDesc_(label)
             vitems = [newlabel]
             item.insertInto(parameterSet, newlabel)
         parameterSet.addVString(True, label, vitems)
-    def insertManyInto(self, parameterSet, label, itemDict):
+    def _insertManyInto(self, parameterSet, label, itemDict):
         l = []
         for name,value in itemDict.iteritems():
           newLabel = value.nameInProcessDesc_(name)
           l.append(newLabel)
           value.insertInto(parameterSet, name)
         parameterSet.addVString(True, label, l)
-    def insertServices(self, processDesc, itemDict):
+    def _insertServices(self, processDesc, itemDict):
         for name,value in itemDict.iteritems():
            value.insertInto(processDesc)
-    def insertPaths(self, processDesc, processPSet):
+    def _insertPaths(self, processDesc, processPSet):
         scheduledPaths = []
         triggerPaths = []
         endpaths = []
@@ -424,9 +502,9 @@ class Process(object):
         processPSet.addPSet(False, "@trigger_paths", p)
         # add all these paths
         for triggername in triggerPaths:
-            self.paths_()[triggername].insertInto(processPSet, triggername)
+            self.paths_()[triggername].insertInto(processPSet, triggername, self.sequences_())
         for endpathname in endpaths:
-            self.endpaths_()[endpathname].insertInto(processPSet, endpathname)
+            self.endpaths_()[endpathname].insertInto(processPSet, endpathname, self.sequences_())
         
     def fillProcessDesc(self, processDesc, processPSet):
         processPSet.addString(True, "@process_name", self.name_())
@@ -434,16 +512,49 @@ class Process(object):
         all_modules.update(self.filters_())
         all_modules.update(self.analyzers_())
         all_modules.update(self.outputModules_())
-        self.insertManyInto(processPSet, "@all_modules", all_modules)
-        self.insertOneInto(processPSet,  "@all_sources", self.source_())
-        self.insertOneInto(processPSet,  "@all_loopers",   self.looper_())
-        self.insertManyInto(processPSet, "@all_esmodules", self.es_producers_())
-        self.insertManyInto(processPSet, "@all_essources", self.es_sources_())
-        self.insertManyInto(processPSet, "@all_esprefers", self.es_prefers_())
-        self.insertPaths(processDesc, processPSet)
-        self.insertServices(processDesc, self.services_())
+        self._insertManyInto(processPSet, "@all_modules", all_modules)
+        self._insertOneInto(processPSet,  "@all_sources", self.source_())
+        self._insertOneInto(processPSet,  "@all_loopers",   self.looper_())
+        self._insertManyInto(processPSet, "@all_esmodules", self.es_producers_())
+        self._insertManyInto(processPSet, "@all_essources", self.es_sources_())
+        self._insertManyInto(processPSet, "@all_esprefers", self.es_prefers_())
+        self._insertPaths(processDesc, processPSet)
+        self._insertServices(processDesc, self.services_())
         return processDesc
 
+    def prefer(self, esmodule):
+        """Prefer this ES source or producer.  The argument can
+           either be an object label, e.g., 
+             process.prefer(process.juicerProducer) (not supported yet)
+           or a name of an ESSource or ESProducer
+             process.prefer("juicer")
+           or a type of unnamed ESSource or ESProducer
+             process.prefer("JuicerProducer")"""
+        # see if this refers to a named ESProducer
+        if isinstance(esmodule, ESSource) or isinstance(esmodule, ESProducer):
+            raise RuntimeError("Syntax of process.prefer(process.esmodule) not supported yet")
+        elif self._findPreferred(esmodule, self.es_producers_()) or \
+                self._findPreferred(esmodule, self.es_sources_()):
+            pass
+        else:
+            raise RuntimeError("Cannot resolve prefer for "+repr(esmodule))
+
+    def _findPreferred(self, esname, d):
+        # is esname a name in the dictionary?
+        if esname in d:
+            self.__setattr__(esname, ESPrefer(d[esname].type_()))
+            return True
+        else:
+            # maybe it's an unnamed ESModule?
+            found = False
+            for name, value in d.iteritems():
+               if value.type_() == esname:
+                  if found:
+                      raise RuntimeError("More than one ES module for "+esname)
+                  found = True
+                  self.add_( ESPrefer(d[esname].type_()) )
+            return found
+         
 def include(fileName):
     """Parse a configuration file language file and return a 'module like' object"""
     from FWCore.ParameterSet.parseConfig import importConfig
@@ -556,12 +667,85 @@ if __name__=="__main__":
         def testProcessDumpConfig(self):
             p = Process("test")
             p.a = EDAnalyzer("MyAnalyzer")
-            p.paths = Path(p.a)
+            p.p = Path(p.a)
             p.s = Sequence(p.a)
+            p.r = Sequence(p.s)
             p.p2 = Path(p.s)
-            p.dumpConfig()
-            p.dumpPython()
-            
+            p.schedule = Schedule(p.p2,p.p)
+            d=p.dumpConfig()
+            self.assertEqual(d,
+"""process test = {
+    module a = MyAnalyzer { 
+    }
+    sequence s = {a}
+    sequence r = {s}
+    path p = {a}
+    path p2 = {s}
+    schedule = {p2,p}
+}
+""")
+            d=p.dumpPython()
+            self.assertEqual(d,
+"""process = cms.Process("test")
+
+process.a = cms.EDAnalyzer("MyAnalyzer")
+
+
+process.s = cms.Sequence(process.a)
+
+
+process.r = cms.Sequence(process.s)
+
+
+process.p = cms.Path(process.a)
+
+
+process.p2 = cms.Path(process.s)
+
+
+process.schedule = cms.Schedule(process.p2,process.p)
+""")
+            #Reverse order of 'r' and 's'
+            p = Process("test")
+            p.a = EDAnalyzer("MyAnalyzer")
+            p.p = Path(p.a)
+            p.r = Sequence(p.a)
+            p.s = Sequence(p.r)
+            p.p2 = Path(p.r)
+            p.schedule = Schedule(p.p2,p.p)
+            d=p.dumpConfig()
+            self.assertEqual(d,
+"""process test = {
+    module a = MyAnalyzer { 
+    }
+    sequence s = {r}
+    sequence r = {a}
+    path p = {a}
+    path p2 = {r}
+    schedule = {p2,p}
+}
+""")
+            d=p.dumpPython()
+            self.assertEqual(d,
+"""process = cms.Process("test")
+
+process.a = cms.EDAnalyzer("MyAnalyzer")
+
+
+process.r = cms.Sequence(process.a)
+
+
+process.s = cms.Sequence(process.r)
+
+
+process.p = cms.Path(process.a)
+
+
+process.p2 = cms.Path(process.r)
+
+
+process.schedule = cms.Schedule(process.p2,process.p)
+""")            
         def testSecSource(self):
             p = Process('test')
             p.a = SecSource("MySecSource")
@@ -573,10 +757,10 @@ if __name__=="__main__":
             p.b = EDAnalyzer("YourAnalyzer")
             p.c = EDAnalyzer("OurAnalyzer")
             p.s = Sequence(p.a*p.b)
-            self.assertEqual(str(p.s),'(a*b)')
+            self.assertEqual(str(p.s),'a*b')
             self.assertEqual(p.s.label(),'s')
             path = Path(p.c+p.s)
-            self.assertEqual(str(path),'(c+(a*b))')
+            self.assertEqual(str(path),'c+a*b')
 
         def testPath(self):
             p = Process("test")
@@ -586,17 +770,17 @@ if __name__=="__main__":
             path = Path(p.a)
             path *= p.b
             path += p.c
-            self.assertEqual(str(path),'((a*b)+c)')
+            self.assertEqual(str(path),'a*b+c')
             path = Path(p.a*p.b+p.c)
-            self.assertEqual(str(path),'((a*b)+c)')
+            self.assertEqual(str(path),'a*b+c')
 #            path = Path(p.a)*p.b+p.c #This leads to problems with sequences
 #            self.assertEqual(str(path),'((a*b)+c)')
             path = Path(p.a+ p.b*p.c)
-            self.assertEqual(str(path),'(a+(b*c))')
+            self.assertEqual(str(path),'a+b*c')
             path = Path(p.a*(p.b+p.c))
-            self.assertEqual(str(path),'(a*(b+c))')
+            self.assertEqual(str(path),'a*b+c')
             path = Path(p.a*(p.b+~p.c)) 
-            self.assertEqual(str(path),'(a*(b+~c))')
+            self.assertEqual(str(path),'a*b+~c')
             p.es = ESProducer("AnESProducer")
             self.assertRaises(TypeError,Path,p.es)
 
@@ -636,6 +820,22 @@ if __name__=="__main__":
             self.assertEqual(p.modu.a.value(),1)
             self.assertEqual(p.modu.b.value(),2)
 
+        def testOverride(self):
+            p = Process('test')
+            a = EDProducer("A", a1=int32(0))
+            self.assert_(not a.isModified())
+            a.a1 = 1
+            self.assert_(a.isModified())
+            p.a = a
+            self.assertEqual(p.a.a1.value(), 1)
+            # try adding an unmodified module.  Should ignore
+            p.a = EDProducer("A", a1=int32(2))
+            self.assertEqual(p.a.a1.value(), 1)
+            # try adding a modified module.  Should throw
+            b = EDProducer("A", a1=int32(3))
+            b.a1 = 4
+            self.assertRaises(RuntimeError, setattr, *(p,'a',b))
+            
         def testExamples(self):
             p = Process("Test")
             p.source = Source("PoolSource",fileNames = untracked(string("file:reco.root")))
@@ -645,6 +845,14 @@ if __name__=="__main__":
             p.p = Path(p.foos*p.bars)
             p.e = EndPath(p.out)
             p.add_(Service("MessageLogger"))
+
+        def testPrefers(self):
+            p = Process("Test")
+            p.add_(ESSource("ForceSource"))
+            p.juicer = ESProducer("JuicerProducer")
+            p.prefer("ForceSource")
+            p.prefer("juicer")
+
         def testFindDependencies(self):
             p = Process("test")
             p.a = EDProducer("MyProd")
@@ -677,5 +885,7 @@ if __name__=="__main__":
    endpath o = {out}
 }""")
             self.assertEqual(process.source.type_(),"PoolSource")
+        def testUB(self):
+            a = UsingBlock('a')
                                
     unittest.main()

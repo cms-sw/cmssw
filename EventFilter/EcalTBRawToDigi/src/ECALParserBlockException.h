@@ -1,21 +1,21 @@
 // Date   : 30/05/2005
 // Author : N.Almeida (LIP)
 
-#ifndef ECALTBPARSERBLOCKEXCEPTION_H
-#define ECALTBPARSERBLOCKEXCEPTION_H
+#ifndef ECALPARSERBLOCKEXCEPTION_H
+#define ECALPARSERBLOCKEXCEPTION_H
 
 #include <iostream>
 #include <string>
 
 
 
-class ECALTBParserBlockException{ 
+class ECALParserBlockException{ 
 		public :
 		
 			/**
 			 * Constructor
 			 */
-  ECALTBParserBlockException(std::string exceptionInfo_){info_ = exceptionInfo_; }
+  ECALParserBlockException(std::string exceptionInfo_){info_ = exceptionInfo_; }
 		
 		
 			/**

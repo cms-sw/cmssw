@@ -435,7 +435,7 @@ EcalSimHitsValidProducer::update(const G4Step* aStep){
   float Edeposit =  aStep->GetTotalEnergyDeposit();
   if ( crystal == "EFRY"&& Edeposit > 0.0){
           float z = hitPoint.z();
-          float detz = fabs(fabs(z)-3200);
+          float detz = fabs(fabs(z)-3170);
           int x0 = (int)floor( detz/8.9 );
           if ( x0< 26){ 
             eEX0[x0] += Edeposit;

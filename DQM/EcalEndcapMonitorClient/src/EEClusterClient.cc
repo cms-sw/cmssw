@@ -1,8 +1,8 @@
 /*
  * \file EEClusterClient.cc
  *
- * $Date: 2007/10/18 08:33:38 $
- * $Revision: 1.19 $
+ * $Date: 2007/11/10 14:09:11 $
+ * $Revision: 1.25 $
  * \author G. Della Ricca
  * \author E. Di Marco
  *
@@ -22,15 +22,21 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "DQMServices/UI/interface/MonitorUIRoot.h"
-#include "DQMServices/Core/interface/QTestStatus.h"
-#include "DQMServices/QualityTests/interface/QCriterionRoot.h"
 
 #include "OnlineDB/EcalCondDB/interface/RunTag.h"
 #include "OnlineDB/EcalCondDB/interface/RunIOV.h"
 #include "OnlineDB/EcalCondDB/interface/MonPedestalsOnlineDat.h"
 
-#include <DQM/EcalCommon/interface/UtilsClient.h>
-#include <DQM/EcalCommon/interface/Numbers.h>
+#include "OnlineDB/EcalCondDB/interface/EcalCondDBInterface.h"
+
+#include "CondTools/Ecal/interface/EcalErrorDictionary.h"
+
+#include "DQM/EcalCommon/interface/EcalErrorMask.h"
+#include "DQM/EcalCommon/interface/UtilsClient.h"
+#include "DQM/EcalCommon/interface/LogicID.h"
+#include "DQM/EcalCommon/interface/Numbers.h"
+
+#include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
 
 #include <DQM/EcalEndcapMonitorClient/interface/EEClusterClient.h>
 
@@ -42,9 +48,6 @@ EEClusterClient::EEClusterClient(const ParameterSet& ps){
 
   // cloneME switch
   cloneME_ = ps.getUntrackedParameter<bool>("cloneME", true);
-
-  // enableQT switch
-  enableQT_ = ps.getUntrackedParameter<bool>("enableQT", true);
 
   // verbosity switch
   verbose_ = ps.getUntrackedParameter<bool>("verbose", false);
@@ -99,11 +102,6 @@ void EEClusterClient::beginJob(MonitorUserInterface* mui){
   ievt_ = 0;
   jevt_ = 0;
 
-  if ( enableQT_ ) {
-
-
-  }
-
 }
 
 void EEClusterClient::beginRun(void){
@@ -153,9 +151,9 @@ void EEClusterClient::cleanup(void) {
 
     for(int iEE=0;iEE<2;++iEE) {
       for(int i=0;i<3;++i) {
-	if(hProfMap_[i][iEE]) delete hProfMap_[i][iEE];
-	if(hProfMapProjR_[i][iEE]) delete hProfMapProjR_[i][iEE];
-	if(hProfMapProjPhi_[i][iEE]) delete hProfMapProjPhi_[i][iEE];
+        if(hProfMap_[i][iEE]) delete hProfMap_[i][iEE];
+        if(hProfMapProjR_[i][iEE]) delete hProfMapProjR_[i][iEE];
+        if(hProfMapProjPhi_[i][iEE]) delete hProfMapProjPhi_[i][iEE];
       }
     }
 
@@ -871,43 +869,47 @@ void EEClusterClient::htmlOutput(int run, string htmlDir, string htmlName){
 
       if ( objp ) {
 
-	meName = objp->GetName();
+        meName = objp->GetName();
 
-	for ( unsigned int i = 0; i < meName.size(); i++ ) {
-	  if ( meName.substr(i, 1) == " " )  {
-	    meName.replace(i, 1 ,"_" );
-	  }
-	}
-	imgNameEneMap[iVar][iEE] = meName + ".png";
-	imgName = htmlDir + imgNameEneMap[iVar][iEE];
+        for ( unsigned int i = 0; i < meName.size(); i++ ) {
+          if ( meName.substr(i, 1) == " " )  {
+            meName.replace(i, 1 ,"_" );
+          }
+        }
+        imgNameEneMap[iVar][iEE] = meName + ".png";
+        imgName = htmlDir + imgNameEneMap[iVar][iEE];
 
-	cMap->cd();
-	gStyle->SetOptStat(" ");
-	gStyle->SetPalette(10, pCol4);
-	objp->GetXaxis()->SetNdivisions(10, kFALSE);
-	objp->GetYaxis()->SetNdivisions(10, kFALSE);
-	objp->GetZaxis()->SetLabelSize(0.02);
-	cMap->SetGridx();
-	cMap->SetGridy();
-	objp->Draw("colz");
-	if ( iEE == 0 ) labelGrid1.Draw("text,same");
-	if ( iEE == 1 ) labelGrid2.Draw("text,same");
-	Xaxis.Draw();
-	Yaxis.Draw();
-	cMap->SetBit(TGraph::kClipFrame);
-	TLine l;
-	l.SetLineWidth(1);
-	for ( int i=0; i<201; i=i+1){
-	  if ( (Numbers::ixSectorsEE[i]!=0 || Numbers::iySectorsEE[i]!=0) && (Numbers::ixSectorsEE[i+1]!=0 || Numbers::iySectorsEE[i+1]!=0) ) {
-	    l.DrawLine(3.0*(Numbers::ixSectorsEE[i]-50), 3.0*(Numbers::iySectorsEE[i]-50), 3.0*(Numbers::ixSectorsEE[i+1]-50), 3.0*(Numbers::iySectorsEE[i+1]-50));
-	  }
-	}
-	cMap->Update();
-	objp->GetXaxis()->SetLabelColor(0);
-	objp->GetYaxis()->SetLabelColor(0);
-	cMap->SaveAs(imgName.c_str());
-	objp->GetXaxis()->SetLabelColor(1);
-	objp->GetYaxis()->SetLabelColor(1);
+        cMap->cd();
+        gStyle->SetOptStat(" ");
+        gStyle->SetPalette(10, pCol4);
+        objp->GetXaxis()->SetNdivisions(10, kFALSE);
+        objp->GetXaxis()->SetLabelSize(0.02);
+        objp->GetXaxis()->SetTitleSize(0.02);
+        objp->GetYaxis()->SetNdivisions(10, kFALSE);
+        objp->GetYaxis()->SetLabelSize(0.02);
+        objp->GetYaxis()->SetTitleSize(0.02);
+        objp->GetZaxis()->SetLabelSize(0.02);
+        cMap->SetGridx();
+        cMap->SetGridy();
+        objp->Draw("colz");
+        if ( iEE == 0 ) labelGrid1.Draw("text,same");
+        if ( iEE == 1 ) labelGrid2.Draw("text,same");
+        Xaxis.Draw();
+        Yaxis.Draw();
+        cMap->SetBit(TGraph::kClipFrame);
+        TLine l;
+        l.SetLineWidth(1);
+        for ( int i=0; i<201; i=i+1){
+          if ( (Numbers::ixSectorsEE[i]!=0 || Numbers::iySectorsEE[i]!=0) && (Numbers::ixSectorsEE[i+1]!=0 || Numbers::iySectorsEE[i+1]!=0) ) {
+            l.DrawLine(3.0*(Numbers::ixSectorsEE[i]-50), 3.0*(Numbers::iySectorsEE[i]-50), 3.0*(Numbers::ixSectorsEE[i+1]-50), 3.0*(Numbers::iySectorsEE[i+1]-50));
+          }
+        }
+        cMap->Update();
+        objp->GetXaxis()->SetLabelColor(0);
+        objp->GetYaxis()->SetLabelColor(0);
+        cMap->SaveAs(imgName.c_str());
+        objp->GetXaxis()->SetLabelColor(1);
+        objp->GetYaxis()->SetLabelColor(1);
       }
 
       char projXName[100];
@@ -916,34 +918,34 @@ void EEClusterClient::htmlOutput(int run, string htmlDir, string htmlName){
       imgNameEneXproj[iVar][iEE] = string(projXName) + ".png";
       sprintf(projYName,"%s_py",meName.c_str());
       imgNameEneYproj[iVar][iEE] = string(projYName) + ".png";
-    
-      obj1pX = hProfMapProjR_[iVar][iEE]; 
-      obj1pY = hProfMapProjPhi_[iVar][iEE]; 
+
+      obj1pX = hProfMapProjR_[iVar][iEE];
+      obj1pY = hProfMapProjPhi_[iVar][iEE];
 
       if(obj1pX && obj1pY) {
-	cEne->cd();
-	gStyle->SetOptStat("emr");
-	obj1pX->GetXaxis()->SetNdivisions(50205, kFALSE);
-	obj1pY->GetXaxis()->SetNdivisions(50206, kFALSE);
-      
-	imgName = htmlDir + imgNameEneXproj[iVar][iEE];
-	obj1pX->SetStats(kTRUE);
-	obj1pX->Draw("pe");
-	cEne->Update();
-	cEne->SaveAs(imgName.c_str());
-      
-	imgName = htmlDir + imgNameEneYproj[iVar][iEE];
-	obj1pY->SetStats(kTRUE);
-	obj1pY->Draw("pe");
-	cEne->Update();
-	cEne->SaveAs(imgName.c_str());
+        cEne->cd();
+        gStyle->SetOptStat("emr");
+        obj1pX->GetXaxis()->SetNdivisions(50205, kFALSE);
+        obj1pY->GetXaxis()->SetNdivisions(50206, kFALSE);
+
+        imgName = htmlDir + imgNameEneXproj[iVar][iEE];
+        obj1pX->SetStats(kTRUE);
+        obj1pX->Draw("pe");
+        cEne->Update();
+        cEne->SaveAs(imgName.c_str());
+
+        imgName = htmlDir + imgNameEneYproj[iVar][iEE];
+        obj1pY->SetStats(kTRUE);
+        obj1pY->Draw("pe");
+        cEne->Update();
+        cEne->SaveAs(imgName.c_str());
       }
     }
   }
 
   // Cluster occupancy profiles
   for ( int iEE=0; iEE<2; ++iEE ) {
-    
+
     imgNameNumMap[iEE] = "";
 
     objf = hOccMap_[iEE];
@@ -964,7 +966,11 @@ void EEClusterClient::htmlOutput(int run, string htmlDir, string htmlName){
       gStyle->SetOptStat(" ");
       gStyle->SetPalette(10, pCol4);
       objf->GetXaxis()->SetNdivisions(10, kFALSE);
+      objf->GetXaxis()->SetLabelSize(0.02);
+      objf->GetXaxis()->SetTitleSize(0.02);
       objf->GetYaxis()->SetNdivisions(10, kFALSE);
+      objf->GetYaxis()->SetLabelSize(0.02);
+      objf->GetYaxis()->SetTitleSize(0.02);
       objf->GetZaxis()->SetLabelSize(0.02);
       cMap->SetGridx();
       cMap->SetGridy();
@@ -988,30 +994,29 @@ void EEClusterClient::htmlOutput(int run, string htmlDir, string htmlName){
       objf->GetXaxis()->SetLabelColor(1);
       objf->GetYaxis()->SetLabelColor(1);
     }
-  
+
     char projXName[100];
     char projYName[100];
     sprintf(projXName,"%s_px",meName.c_str());
     imgNameNumXproj[iEE] = string(projXName) + ".png";
     sprintf(projYName,"%s_py",meName.c_str());
     imgNameNumYproj[iEE] = string(projYName) + ".png";
-  
-    
+
     obj1dX = hOccMapProjR_[iEE];
     obj1dY = hOccMapProjPhi_[iEE];
-    
+
     if(obj1dX && obj1dY) {
       cEne->cd();
       gStyle->SetOptStat("emr");
       obj1dX->GetXaxis()->SetNdivisions(50205, kFALSE);
       obj1dY->GetXaxis()->SetNdivisions(50206, kFALSE);
-      
+
       imgName = htmlDir + imgNameNumXproj[iEE];
       obj1dX->SetStats(kTRUE);
       obj1dX->Draw("pe");
       cEne->Update();
       cEne->SaveAs(imgName.c_str());
-      
+
       imgName = htmlDir + imgNameNumYproj[iEE];
       obj1dY->SetStats(kTRUE);
       obj1dY->Draw("pe");
@@ -1019,19 +1024,17 @@ void EEClusterClient::htmlOutput(int run, string htmlDir, string htmlName){
       cEne->SaveAs(imgName.c_str());
     }
   }
-  
 
   htmlFile << "<table border=\"0\" cellspacing=\"0\" " << endl;
   htmlFile << "cellpadding=\"10\" align=\"center\"> " << endl;
   htmlFile << "<tr align=\"center\">" << endl;
 
-
   for(int iVar=0; iVar<3; ++iVar) {
     for(int iEE=0; iEE<2; ++iEE) {
       if ( imgNameEneMap[iVar][iEE].size() != 0)
-	htmlFile << "<td><img src=\"" << imgNameEneMap[iVar][iEE] << "\"></td>" << endl;
+        htmlFile << "<td><img src=\"" << imgNameEneMap[iVar][iEE] << "\"></td>" << endl;
       else
-	htmlFile << "<td><img src=\"" << " " << "\"></td>" << endl;
+        htmlFile << "<td><img src=\"" << " " << "\"></td>" << endl;
     }
     htmlFile << "</tr>" << endl;
   }
@@ -1047,27 +1050,26 @@ void EEClusterClient::htmlOutput(int run, string htmlDir, string htmlName){
   htmlFile << "</table>" << endl;
   htmlFile << "<br>" << endl;
 
-
   // projections...
   htmlFile << "<table border=\"0\" cellspacing=\"0\" " << endl;
   htmlFile << "cellpadding=\"10\" align=\"center\"> " << endl;
   htmlFile << "<tr align=\"center\">" << endl;
 
   for(int iVar=0; iVar<3; ++iVar) {
-    for(int iEE=0; iEE<2; ++iEE) { 
+    for(int iEE=0; iEE<2; ++iEE) {
       if ( imgNameEneXproj[iVar][iEE].size() != 0 )
-	htmlFile << "<td><img src=\"" << imgNameEneXproj[iVar][iEE] << "\"></td>" << endl;
+        htmlFile << "<td><img src=\"" << imgNameEneXproj[iVar][iEE] << "\"></td>" << endl;
       else
-	htmlFile << "<td><img src=\"" << " " << "\"></td>" << endl;
+        htmlFile << "<td><img src=\"" << " " << "\"></td>" << endl;
       if ( imgNameEneYproj[iVar][iEE].size() != 0 )
-	htmlFile << "<td><img src=\"" << imgNameEneYproj[iVar][iEE] << "\"></td>" << endl;
+        htmlFile << "<td><img src=\"" << imgNameEneYproj[iVar][iEE] << "\"></td>" << endl;
       else
-	htmlFile << "<td><img src=\"" << " " << "\"></td>" << endl;
+        htmlFile << "<td><img src=\"" << " " << "\"></td>" << endl;
     }
     htmlFile << "</tr>" << endl;
   }
 
-  for(int iEE=0; iEE<2; ++iEE) { 
+  for(int iEE=0; iEE<2; ++iEE) {
     if ( imgNameNumXproj[iEE].size() != 0 )
       htmlFile << "<td><img src=\"" << imgNameNumXproj[iEE] << "\"></td>" << endl;
     else
@@ -1077,13 +1079,10 @@ void EEClusterClient::htmlOutput(int run, string htmlDir, string htmlName){
     else
       htmlFile << "<td><img src=\"" << " " << "\"></td>" << endl;
   }
-  
+
   htmlFile << "</tr>" << endl;
   htmlFile << "</table>" << endl;
   htmlFile << "<br>" << endl;
-
-
-
 
   // ====>  S U P E R   C L U S T E R S   <====
 
@@ -1147,39 +1146,26 @@ void EEClusterClient::htmlOutput(int run, string htmlDir, string htmlName){
   htmlFile << "</table>" << endl;
   htmlFile << "<br>" << endl;
 
-
-
-
-
-
-
-
-
-
-
-
-
   // ===========================================================================
   // Higher Level variables
   // ===========================================================================
-  
 
   for(int iVar=0; iVar<3; ++iVar) {
 
     imgNameHL[iVar] = "";
 
     obj1f = s01_[iVar];
-    
+
     if ( obj1f ) {
-      
+
       meName = obj1f->GetName();
-      
+
       for ( unsigned int i = 0; i < meName.size(); i++ ) {
-	if ( meName.substr(i, 1) == " " )  {
-	  meName.replace(i, 1, "_");
-	}
+        if ( meName.substr(i, 1) == " " )  {
+          meName.replace(i, 1, "_");
+        }
       }
-      
+
       imgNameHL[iVar] = meName + ".png";
       imgName = htmlDir + imgNameHL[iVar];
 
@@ -1189,10 +1175,10 @@ void EEClusterClient::htmlOutput(int run, string htmlDir, string htmlName){
       obj1f->Draw();
       cEne->Update();
       cEne->SaveAs(imgName.c_str());
-      
+
     }
   }
-  
+
   ///*****************************************************************************///
   htmlFile << "<br>" << endl;
   htmlFile <<  "<a name=\"hl_plots\"> <B> Higher Level Quantities plots </B> </a> " << endl;

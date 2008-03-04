@@ -8,6 +8,23 @@
 
 using namespace reco;
 
+Measurement1D VertexDistanceXY::distance(const VertexState & vtx1, 
+					 const VertexState & vtx2) const
+{
+  return distance(vtx1.position(), vtx1.error(),
+  		  vtx2.position(), vtx2.error());
+}
+
+
+Measurement1D 
+VertexDistanceXY::distance(const Vertex& vtx1, const Vertex & vtx2) const
+{
+  return distance(GlobalPoint(Basic3DVector<float> (vtx1.position())), 
+		  RecoVertex::convertError(vtx1.covariance()),
+  		  GlobalPoint(Basic3DVector<float> (vtx2.position())), 
+		  RecoVertex::convertError(vtx2.covariance()));
+}
+
 Measurement1D
 VertexDistanceXY::signedDistance(const Vertex& vtx1, const Vertex & vtx2,
 					 const GlobalVector & momentum) const
@@ -20,6 +37,23 @@ VertexDistanceXY::signedDistance(const Vertex& vtx1, const Vertex & vtx2,
   return unsignedDistance;
 }
 
+
+float VertexDistanceXY::compatibility(const VertexState & vtx1, 
+				      const VertexState & vtx2) const
+{
+  return compatibility(vtx1.position(), vtx1.error(),
+		       vtx2.position(), vtx2.error());
+}
+
+
+float 
+VertexDistanceXY::compatibility(const Vertex& vtx1, const Vertex & vtx2) const
+{
+  return compatibility(GlobalPoint(Basic3DVector<float> (vtx1.position())), 
+		       RecoVertex::convertError(vtx1.covariance()),
+		       GlobalPoint(Basic3DVector<float> (vtx2.position())), 
+		       RecoVertex::convertError(vtx2.covariance()));
+}
 
 
 Measurement1D 

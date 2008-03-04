@@ -9,8 +9,8 @@
 // Created:         Sat Jan 14 22:00:00 UTC 2006
 //
 // $Author: gutsche $
-// $Date: 2007/03/07 21:46:50 $
-// $Revision: 1.9 $
+// $Date: 2007/06/29 23:49:57 $
+// $Revision: 1.10 $
 //
 
 #include <iostream>
@@ -66,20 +66,13 @@ void RoadSearchSeedFinder::produce(edm::Event& e, const edm::EventSetup& es)
   // special treatment for getting pixel collection
   // if collection exists in file, use collection from file
   // if collection does not exist in file, create empty collection
-  const SiPixelRecHitCollection *pixelRecHitCollection = 0;
-  try {
-    edm::Handle<SiPixelRecHitCollection> pixelRecHits;
-    e.getByLabel(pixelRecHitsInputTag, pixelRecHits);
+  static const SiPixelRecHitCollection s_empty;
+  const SiPixelRecHitCollection *pixelRecHitCollection = &s_empty;
+  edm::Handle<SiPixelRecHitCollection> pixelRecHits;
+  if( e.getByLabel(pixelRecHitsInputTag, pixelRecHits)) {
     pixelRecHitCollection = pixelRecHits.product();
-  }
-  catch (edm::Exception const& x) {
-    if ( x.categoryCode() == edm::errors::ProductNotFound ) {
-      if ( x.history().size() == 1 ) {
-	static const SiPixelRecHitCollection s_empty;
-	pixelRecHitCollection = &s_empty;
-	edm::LogWarning("RoadSearch") << "Collection SiPixelRecHitCollection with InputTag " << pixelRecHitsInputTag << " cannot be found, using empty collection of same type. The RoadSearch algorithm is also fully functional without Pixel RecHits.";
-      }
-    }
+  } else {
+    edm::LogWarning("RoadSearch") << "Collection SiPixelRecHitCollection with InputTag " << pixelRecHitsInputTag << " cannot be found, using empty collection of same type. The RoadSearch algorithm is also fully functional without Pixel RecHits.";
   }
   
   // create empty output collection

@@ -13,7 +13,7 @@
 //
 // Original Author:  Domenico GIORDANO
 //         Created:  Wed Oct  3 12:11:10 CEST 2007
-// $Id: SiStripQualityStatistics.cc,v 1.5 2007/10/29 12:26:55 giordano Exp $
+// $Id: SiStripQualityStatistics.cc,v 1.7 2007/11/12 16:05:01 giordano Exp $
 //
 //
 #include "CalibTracker/Records/interface/SiStripQualityRcd.h"
@@ -26,16 +26,17 @@
 #include "DataFormats/SiStripDetId/interface/TIDDetId.h"
 
 #include <iostream>
+#include <iomanip>
 #include <stdio.h>
 #include <sys/time.h>
 
 
 SiStripQualityStatistics::SiStripQualityStatistics( const edm::ParameterSet& iConfig ):
-  printdebug_(iConfig.getUntrackedParameter<bool>("printDebug",false)),
   m_cacheID_(0), 
   dataLabel_(iConfig.getUntrackedParameter<std::string>("dataLabel","")),
   TkMapFileName_(iConfig.getUntrackedParameter<std::string>("TkMapFileName","TkMapBadComponents.svg")),
-  fp_(iConfig.getUntrackedParameter<edm::FileInPath>("file",edm::FileInPath("CalibTracker/SiStripCommon/data/SiStripDetInfo.dat")))
+  fp_(iConfig.getUntrackedParameter<edm::FileInPath>("file",edm::FileInPath("CalibTracker/SiStripCommon/data/SiStripDetInfo.dat"))),
+  tkMap(0)
 {  
   reader = new SiStripDetInfoFileReader(fp_.fullPath());
 }
@@ -213,11 +214,13 @@ void SiStripQualityStatistics::analyze( const edm::Event& e, const edm::EventSet
 
 
   edm::LogInfo("SiStripQualityStatistics") << ss.str() << std::endl;
+
   std::string filetype=TkMapFileName_,filename=TkMapFileName_;
-  std::stringstream sRun;
-  sRun << "_Run_"  <<  e.id().run() ;
+  std::stringstream sRun; sRun.str("");
+  sRun << "_Run_"  << std::setw(6) << std::setfill('0')<< e.id().run() << std::setw(0) ;
+  
   filename.insert(filename.find("."),sRun.str());
-  tkMap->save(true,0,0,filename.c_str(),800,400);
+  tkMap->save(true,0,0,filename.c_str());
   filename.erase(filename.begin()+filename.find("."),filename.end());
   tkMap->print(true,0,0,filename.c_str());
 }

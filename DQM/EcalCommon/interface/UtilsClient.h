@@ -1,11 +1,11 @@
-// $Id: UtilsClient.h,v 1.3 2007/07/02 11:55:23 dellaric Exp $
+// $Id: UtilsClient.h,v 1.4 2007/10/24 13:49:25 dellaric Exp $
 
 /*!
   \file UtilsClient.h
   \brief Ecal Monitor Utils for Client
   \author B. Gobbo 
-  \version $Revision: 1.3 $
-  \date $Date: 2007/07/02 11:55:23 $
+  \version $Revision: 1.4 $
+  \date $Date: 2007/10/24 13:49:25 $
 */
 
 #ifndef UtilsClient_H
@@ -18,6 +18,7 @@
 #include "DQMServices/Core/interface/MonitorElementT.h"
 
 #include "TH1.h"
+#include "TProfile2D.h"
 
 /*! \class UtilsClient
     \brief Utilities for Ecal Monitor Client 
@@ -27,7 +28,7 @@ class UtilsClient {
 
  public:
 
-  /*! \fn template<class T> static T getHisto( const MonitorElement* me, bool clone = false, T ret )
+  /*! \fn template<class T> static T getHisto( const MonitorElement* me, bool clone = false, T ret = 0 )
       \brief Returns the histogram contained by the Monitor Element
       \param me Monitor Element.
       \param clone (boolean) if true clone the histogram. 
@@ -61,31 +62,67 @@ class UtilsClient {
     return ret;
   }
 
-  /*! \fn template<class T> static void printBadChannels( const T* qth )
-      \brief Print the bad channels associated to the quality test
-      \param qth input QCriterionRoot.
+  /*! \fn template<class T> static void printBadChannels( const MonitorElement* me, const T* hi, no_zeros = false )
+      \brief Print the bad channels
+      \param me monitor element
+      \param h1 histogram
+      \param no_zeros disable logging of empty channels
    */
-  template<class T> static void printBadChannels( const T* qth ) {
-    std::vector<dqm::me_util::Channel> badChannels;
-    if ( qth ) badChannels = qth->getBadChannels();
-    if ( ! badChannels.empty() ) {
-      std::cout << std::endl;
-      std::cout << " Channels that failed \""
-		<< qth->getName() << "\" "
-		<< "(Algorithm: "
-		<< (const_cast<T*>(qth))->getAlgoName()
-		<< ")" << std::endl;
-      std::cout << std::endl;
-      for ( std::vector<dqm::me_util::Channel>::iterator it = badChannels.begin(); it != badChannels.end(); ++it ) {
-	std::cout << " (" << it->getBinX()
-		  << ", " << it->getBinY()
-		  << ", " << it->getBinZ()
-		  << ") = " << it->getContents()
-		  << " +- " << it->getRMS()
-		  << std::endl;
-      }
-      std::cout << std::endl;
+  template<class T> static void printBadChannels( const MonitorElement* me, const T* hi, bool no_zeros = false ) {
+    if ( ! me ) {
+      std::cout << "printBadChannels() failed, NULL pointer to MonitorElement !"
+                << std::endl;
+      return;
     }
+    if ( ! hi ) {
+      std::cout << "printBadChannels() failed, NULL pointer to ROOT histogram !"
+                << std::endl;
+      return;
+    }
+    int problems = 0;
+    for ( int ix=1; ix <= me->getNbinsX(); ix++ ) {
+      for ( int iy=1; iy <= me->getNbinsY(); iy++ ) {
+        if ( int(me->getBinContent( ix, iy )) % 3 == 0 ) {
+          problems++;
+        }
+      }
+    }
+    if ( problems == 0 ) return;
+    std::cout << " Channels failing \"" << me->getName() << "\""
+              << " (" << hi->GetName() << ") "
+              << std::endl;
+    std::cout << std::endl;
+    TProfile2D* hj = dynamic_cast<TProfile2D*>(const_cast<T*>(hi));
+    int kx = -1;
+    int ky = -1;
+    for ( int ix = 1; ix <= me->getNbinsX(); ix++ ) {
+      for ( int iy = 1; iy <= me->getNbinsY(); iy++ ) {
+        int jx = ix * hi->GetNbinsX() / me->getNbinsX();
+        int jy = iy * hi->GetNbinsY() / me->getNbinsY();
+        if ( jx == kx && jy == ky ) continue;
+        kx = jx;
+        ky = jy;
+        if ( int(me->getBinContent( ix, iy )) % 3 == 0 ) {
+          if ( no_zeros ) {
+            if ( hi->GetBinContent(hi->GetBin(jx, jy)) == 0 ) continue;
+          }
+          std::cout << " ("
+                    << hi->GetXaxis()->GetBinUpEdge(jx)
+                    << ", "
+                    << hi->GetYaxis()->GetBinUpEdge(jy);
+          if ( hj )
+          std::cout << ", "
+                    << hj->GetBinEntries(hj->GetBin(jx, jy));
+          std::cout << ") = "
+                    << hi->GetBinContent(hi->GetBin(jx, jy))
+                    << " +- "
+                    << hi->GetBinError(hi->GetBin(jx, jy))
+                    << std::endl;
+        }
+      }
+    }
+    std::cout << std::endl;
+    return;
   }
 
   /*! \fn template<class T> static bool getBinStats( const T* histo, const int ix, const int iy, float& num, float& mean, float& rms )

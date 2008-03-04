@@ -13,7 +13,7 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: ElectronPixelSeedProducer.cc,v 1.6 2007/10/19 11:44:24 uberthon Exp $
+// $Id: ElectronPixelSeedProducer.cc,v 1.1 2007/04/20 14:54:21 uberthon Exp $
 //
 //
 
@@ -26,37 +26,34 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "RecoEgamma/EgammaElectronAlgos/interface/ElectronPixelSeedGenerator.h"
-#include "RecoEgamma/EgammaElectronAlgos/interface/SubSeedGenerator.h"
 #include "DataFormats/EgammaReco/interface/ElectronPixelSeed.h"
-#include "DataFormats/EgammaReco/interface/ElectronPixelSeedFwd.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHitCollection.h"
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
 #include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
+#include "DataFormats/EgammaReco/interface/SeedSuperClusterAssociation.h"
 
 #include "ElectronPixelSeedProducer.h"
 
-#include <string>
+#include <iostream>
 
 using namespace reco;
  
 ElectronPixelSeedProducer::ElectronPixelSeedProducer(const edm::ParameterSet& iConfig) : conf_(iConfig)
 {
 
-  std::string algo = iConfig.getParameter<std::string>("SeedAlgo");
-  edm::ParameterSet pset = iConfig.getParameter<edm::ParameterSet>("SeedConfiguration");
-  if (algo=="FilteredSeed") matcher_= new SubSeedGenerator(pset.getParameter<std::string>("initialSeedProducer"),pset.getParameter<std::string>("initialSeedLabel"));
-  else matcher_ = new ElectronPixelSeedGenerator(pset.getParameter<double>("ePhiMin1"),
-					    pset.getParameter<double>("ePhiMax1"),
-					    pset.getParameter<double>("pPhiMin1"),
-					    pset.getParameter<double>("pPhiMax1"),
-					    pset.getParameter<double>("pPhiMin2"),
-					    pset.getParameter<double>("pPhiMax2"),
-					    pset.getParameter<double>("ZMin1"),
-					    pset.getParameter<double>("ZMax1"),
-					    pset.getParameter<double>("ZMin2"),
-					    pset.getParameter<double>("ZMax2"),
-                                            pset.getParameter<bool>("dynamicPhiRoad") );
+  matcher_ = new ElectronPixelSeedGenerator(iConfig.getParameter<double>("ePhiMin1"),
+					    iConfig.getParameter<double>("ePhiMax1"),
+					    iConfig.getParameter<double>("pPhiMin1"),
+					    iConfig.getParameter<double>("pPhiMax1"),
+					    iConfig.getParameter<double>("pPhiMin2"),
+					    iConfig.getParameter<double>("pPhiMax2"),
+					    iConfig.getParameter<double>("ZMin1"),
+					    iConfig.getParameter<double>("ZMax1"),
+					    iConfig.getParameter<double>("ZMin2"),
+					    iConfig.getParameter<double>("ZMax2"),
+                                            iConfig.getParameter<bool>("dynamicPhiRoad") );
 					      
+  matcher_->setup(true); //always set to offline in our case!
  
  //  get labels from config'
   label_[0]=iConfig.getParameter<std::string>("superClusterBarrelProducer");
@@ -65,7 +62,10 @@ ElectronPixelSeedProducer::ElectronPixelSeedProducer(const edm::ParameterSet& iC
   instanceName_[1]=iConfig.getParameter<std::string>("superClusterEndcapLabel");
 
   //register your products
-  produces<ElectronPixelSeedCollection>();
+  produces<TrajectorySeedCollection>(label_[0]);
+  produces<TrajectorySeedCollection>(label_[1]);
+  produces<SeedSuperClusterAssociationCollection>(label_[0]);
+  produces<SeedSuperClusterAssociationCollection>(label_[1]);
 }
 
 
@@ -78,7 +78,7 @@ ElectronPixelSeedProducer::~ElectronPixelSeedProducer()
 
 void ElectronPixelSeedProducer::beginJob(edm::EventSetup const&iSetup) 
 {
-     matcher_->setupES(iSetup);  
+     matcher_->setupES(iSetup,conf_);  
 }
 
 void ElectronPixelSeedProducer::produce(edm::Event& e, const edm::EventSetup& iSetup) 
@@ -86,23 +86,67 @@ void ElectronPixelSeedProducer::produce(edm::Event& e, const edm::EventSetup& iS
   LogDebug("entering");
   LogDebug("")  <<"[ElectronPixelSeedProducer::produce] entering " ;
 
-  ElectronPixelSeedCollection *seeds= new ElectronPixelSeedCollection;
-  std::auto_ptr<ElectronPixelSeedCollection> pSeeds;
+  std::auto_ptr<ElectronPixelSeedCollection> pSeeds[2];
+  std::auto_ptr<SeedSuperClusterAssociationCollection> pOutAssos[2];
+  std::auto_ptr<TrajectorySeedCollection> pOutSeeds[2];
+  pSeeds[0]=  std::auto_ptr<ElectronPixelSeedCollection>(new ElectronPixelSeedCollection);
+  pSeeds[1]=  std::auto_ptr<ElectronPixelSeedCollection>(new ElectronPixelSeedCollection);
+  pOutAssos[0] =std::auto_ptr<SeedSuperClusterAssociationCollection>(new SeedSuperClusterAssociationCollection);
+  pOutAssos[1] =std::auto_ptr<SeedSuperClusterAssociationCollection>(new SeedSuperClusterAssociationCollection);
+  pOutSeeds[0] =std::auto_ptr<TrajectorySeedCollection>(new TrajectorySeedCollection);
+  pOutSeeds[1] =std::auto_ptr<TrajectorySeedCollection>(new TrajectorySeedCollection);
  
   // loop over barrel + endcap
   for (unsigned int i=0; i<2; i++) {  
     // invoke algorithm
     edm::Handle<SuperClusterCollection> clusters;
-    if (e.getByLabel(label_[i],instanceName_[i],clusters))     matcher_->run(e,iSetup,clusters,*seeds);
-  }
+    e.getByLabel(label_[i],instanceName_[i],clusters);
+    matcher_->run(e,clusters,*pSeeds[i]);
+  
+    /*
+    // test of building a ref on ElectronPixelSeedCollection from getRefBeforePut
+    // for this test to work on ElectronPixelSeedCollection, ElectronPixelSeed should be registered as 
+    // product using produces<ElectronPixelSeedCollection>();
+    LogDebug("")  <<"[ElectronPixelSeedProducer::produce] found " << pSeeds->size() << " seeds" ;
+    edm::RefProd<ElectronPixelSeedCollection> refp = e.getRefBeforePut<ElectronPixelSeedCollection>();  
+    LogDebug("")  <<" RefProd<ElectronPixelSeedCollection> id = " << refp.id() ;
+    if (refp.isNull()) LogDebug("")  << "refp isNull !";
+    else LogDebug("")  << "refp is NOT Null !" << std::endl;
+    edm::Ref<ElectronPixelSeedCollection>::key_type idx = 0;
+    edm::Ref<ElectronPixelSeedCollection> ref(refp,idx);
+    if (ref.isNull()) LogDebug("")  << "ref isNull !" ;
+    else LogDebug("")  << "ref is NOT Null !";
+    // up to there, no problem
+    // adding the following line leads to a segv with message "InvalidID get by product ID: no product with given id: 63"
+    //LogDebug("")  <<"ref has " << ref->nHits() << " hits ";
+    */
+  
+    // convert ElectronPixelSeeds into trajectorySeeds 
+    // we have first to create AND put the TrajectorySeedCollection
+    // in order to get a working Handle
+    // if not there is a problem when inserting into the map
 
-  // store the accumulated result
-  pSeeds=  std::auto_ptr<ElectronPixelSeedCollection>(seeds);
-  for (ElectronPixelSeedCollection::iterator is=pSeeds->begin(); is!=pSeeds->end();is++) {
+    pOutSeeds[i]->reserve(pSeeds[i]->size());  
+    for (ElectronPixelSeedCollection::iterator is=pSeeds[i]->begin(); is!=pSeeds[i]->end();is++) {
       LogDebug("")  << "new seed with " << (*is).nHits() << " hits, charge " << (*is).getCharge() <<
 	" and cluster energy " << (*is).superCluster()->energy() << " PID "<<(*is).superCluster().id();
+      TrajectorySeed *seed = &(*is);
+      pOutSeeds[i]->push_back(*seed);
+    }
+    const edm::OrphanHandle<TrajectorySeedCollection> refprod =  e.put(pOutSeeds[i],label_[i]);
+
+    // now we can put the Ref-s into the associationmap
+    unsigned int id=0;
+    for (ElectronPixelSeedCollection::iterator is=pSeeds[i]->begin(); is!=pSeeds[i]->end();is++) {
+      LogDebug("")  << "new seed with " << (*is).nHits() << " hits, charge " << (*is).getCharge() <<
+	" and cluster energy " << (*is).superCluster()->energy() << " PID "<<(*is).superCluster().id();
+      SuperClusterRef refsc = is->superCluster();
+      edm::Ref<TrajectorySeedCollection> refseed(refprod,id++);
+      LogDebug("")  <<" Adding scl ref with PID "<<refsc.id();
+      pOutAssos[i]->insert(refseed,refsc);
+    }
+    e.put(pOutAssos[i],label_[i]);
   }
-  e.put(pSeeds);
 
 }
 

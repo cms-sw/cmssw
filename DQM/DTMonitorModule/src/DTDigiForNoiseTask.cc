@@ -1,8 +1,8 @@
  /*
  * \file DTDigiForNoiseTask.cc
  * 
- * $Date: 2007/10/09 14:26:42 $
- * $Revision: 1.2 $
+ * $Date: 2007/11/06 11:35:04 $
+ * $Revision: 1.4 $
  * \author G. Mila - INFN Torino
  *
  */
@@ -38,8 +38,8 @@ using namespace edm;
 using namespace std;
 
 
-DTDigiForNoiseTask::DTDigiForNoiseTask(const edm::ParameterSet& ps) : DQMAnalyzer(ps) {
-
+DTDigiForNoiseTask::DTDigiForNoiseTask(const edm::ParameterSet& ps){
+  
   debug = ps.getUntrackedParameter<bool>("debug", "false");
   if(debug)
     cout<<"[DTDigiForNoiseTask]: Constructor"<<endl;
@@ -68,16 +68,13 @@ void DTDigiForNoiseTask::endJob(){
 
   if(debug)
     cout<<"[DTDigiForNoiseTask] endjob called!"<<endl;
-  
+
   dbe->rmdir("DT/DTDigiForNoiseTask");
 
-  DQMAnalyzer::endJob();
 }
 
 
 void DTDigiForNoiseTask::beginJob(const edm::EventSetup& context){
-
-  DQMAnalyzer::beginJob(context);
 
   if(debug)
     cout<<"[DTDigiForNoiseTask]: BeginJob"<<endl;
@@ -90,10 +87,8 @@ void DTDigiForNoiseTask::beginJob(const edm::EventSetup& context){
 }
 
 
-void DTDigiForNoiseTask::beginLuminosityBlock(LuminosityBlock const& lumiSeg, EventSetup const& context) {  
-
-  DQMAnalyzer::beginLuminosityBlock(lumiSeg,context);
-
+void DTDigiForNoiseTask::beginLuminosityBlock(LuminosityBlock const& lumiSeg, EventSetup const& context) {
+  
   if(debug)
     cout<<"[DTDigiForNoiseTask]: Begin of LS transition"<<endl;
   
@@ -125,7 +120,7 @@ void DTDigiForNoiseTask::bookHistos(const DTLayerId& lId) {
 			"/Sector" + sector.str() + "/DigiPerEvent");
 
   if (debug){
-    cout<<"[DTDigiForNoiseTask]: folder "<< "DT/DTDigiForNoiseTask/Wheel" + wheel.str() +
+    cout<<"[DTDigiForNoiseTask]: folder "<< "DT/DTDigiTask/Wheel" + wheel.str() +
       "/Station" + station.str() +
       "/Sector" + sector.str() + "/DigiPerEvent"<<endl;
   }
@@ -137,22 +132,20 @@ void DTDigiForNoiseTask::bookHistos(const DTLayerId& lId) {
     + "_SL" + superLayer.str()  
     + "_L" + layer.str();
   
-  if (debug) cout<<"[DTDigiForNoiseTask]: histoName "<<histoName<<endl;
+  if (debug) cout<<"[DTDigiTask]: histoName "<<histoName<<endl;
 
   const DTTopology& dtTopo = muonGeom->layer(lId)->specificTopology();
   const int firstWire = dtTopo.firstChannel();
   const int lastWire = dtTopo.lastChannel();
   int nWires = lastWire-firstWire+1;
   
-  digiHistos[lId] = dbe->book2D(histoName,histoName,nWires,firstWire,lastWire+1,10,-0.5,9.5);
+  digiHistos[lId] = dbe->book2D(histoName,histoName,nWires,firstWire,lastWire,10,-0.5,9.5);
 
 }
   
 
 void DTDigiForNoiseTask::analyze(const edm::Event& e, const edm::EventSetup& c){
   
-  DQMAnalyzer::analyze(e,c);
-
   nevents++;
   //  cout << "events:  " << nevents << endl;
   if (nevents%1000 == 0 && debug) {}
@@ -184,15 +177,15 @@ void DTDigiForNoiseTask::analyze(const edm::Event& e, const edm::EventSetup& c){
 	  const DTTopology& dtTopo = muonGeom->layer(layerId)->specificTopology();
 	  const int firstWire = dtTopo.firstChannel();
 	  const int lastWire = dtTopo.lastChannel();
-
+	  
 	  if (digiHistos.find(layerId) == digiHistos.end())
 	    bookHistos(layerId);
-
+	  
 	  if (digiHistos.find(layerId) != digiHistos.end()){
 	    for (int wire=firstWire; wire<=lastWire; wire++) {
 	      DigiPerWirePerEvent[wire]= 0;
 	    }
-	    
+
 	    for (DTDigiCollection::const_iterator digi = layerDigi.first;
 		 digi!=layerDigi.second;
 		 ++digi){
@@ -208,7 +201,5 @@ void DTDigiForNoiseTask::analyze(const edm::Event& e, const edm::EventSetup& c){
       } //Loop Ls
     } //Loop SLs
   } //Loop over chambers
-  
-  
+   
 }
-

@@ -168,7 +168,8 @@ void DCCTowerBlock::unpackXtalData(uint expStripID, uint expXtalID){
   // if there is an error on xtal id ignore next error checks  
   // otherwise, assume channel_id is valid and proceed with making and checking the data frame
   if(errorOnXtal) return;
-  
+
+  pDetId_ = (EBDetId*) mapper_->getDetIdPointer(towerId_,stripId,xtalId);
   (*digis_)->push_back(*pDetId_);
   EBDataFrame df( (*digis_)->back() );
   frameAdded=true;  

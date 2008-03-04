@@ -1,7 +1,7 @@
 /** \file
  *
- * $Date: 2006/08/29 13:17:28 $
- * $Revision: 1.12 $
+ * $Date: 2007/03/10 16:14:43 $
+ * $Revision: 1.13 $
  * \author Stefano Lacaprara - INFN Legnaro <stefano.lacaprara@pd.infn.it>
  * \author Riccardo Bellan - INFN TO <riccardo.bellan@cern.ch>
  */
@@ -45,6 +45,8 @@ DTRecSegment2DBaseAlgo(pset), theAlgoName("DTCombinatorialPatternReco")
 
 /// Destructor
 DTCombinatorialPatternReco::~DTCombinatorialPatternReco() {
+  delete theUpdator;
+  delete theCleaner;
 }
 
 /* Operations */ 

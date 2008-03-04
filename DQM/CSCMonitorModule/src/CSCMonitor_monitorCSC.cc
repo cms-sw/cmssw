@@ -159,7 +159,7 @@ void CSCMonitor::monitorCSC(const CSCEventData& data, int nodeID=0, int dduID = 
     mo->SetAxisRange(0.1, 1.1*(1.0+ mo->GetBinContent(mo->GetMaximumBin())), "Y");
   }
 
-  if (isMEvalid(cscME,"DMB_BXN_vs_DDU_BXN", mo, UNPACK_DMB)) mo->Fill((int)(BXN), (int)dmbHeaderBXN);
+  if (isMEvalid(cscME,"DMB_BXN_vs_DDU_BXN", mo, UNPACK_DMB)) mo->Fill((int)(BXN)%256, ((int)dmbHeaderBXN)%256);
 
   //    Unpacking CFEB information from DMB header
   int cfeb_dav    = 0;
@@ -326,7 +326,7 @@ void CSCMonitor::monitorCSC(const CSCEventData& data, int nodeID=0, int dduID = 
       }
 
 
-      if (isMEvalid(cscME, "DMB_L1A_vs_ALCT_L1A", mo)) mo->Fill(alctHeader.L1Acc(),dmbHeader.l1a());
+      if (isMEvalid(cscME, "DMB_L1A_vs_ALCT_L1A", mo)) mo->Fill(alctHeader.L1Acc()%16,dmbHeader.l1a());
 
       if (isMEvalid(cscME, "ALCT_DMB_BXN_diff", mo)) {
 	int alct_dmb_bxn_diff = (int)(dmbHeader.bxn()-(alctHeader.BXNCount()&0x7F));
@@ -340,7 +340,7 @@ void CSCMonitor::monitorCSC(const CSCEventData& data, int nodeID=0, int dduID = 
 
       if (isMEvalid(cscME, "ALCT_BXN", mo)) mo->Fill(alctHeader.BXNCount());
 
-      if (isMEvalid(cscME, "ALCT_BXN_vs_DMB_BXN", mo)) mo->Fill((int)((alctHeader.BXNCount())), (int)(dmbHeader.bxn()));
+      if (isMEvalid(cscME, "ALCT_BXN_vs_DMB_BXN", mo)) mo->Fill((int)((alctHeader.BXNCount())%256), (int)(dmbHeader.bxn())%256);
 
       if (isMEvalid(cscME, "ALCT_Number_Rate", mo)) {
 	mo->Fill(alctsDatas.size());
@@ -397,7 +397,7 @@ void CSCMonitor::monitorCSC(const CSCEventData& data, int nodeID=0, int dduID = 
 
 	if (isMEvalid(cscME, Form("ALCT%d_BXN", lct), mo)) {
 	  mo->Fill(alctsDatas[lct].getBX());
-	  mo->doQTest();
+//	  mo->doQTest();
 	}
 
 	if (isMEvalid(cscME, Form("ALCT%d_Quality", lct), mo)) mo->Fill(alctsDatas[lct].getKeyWG(), alctsDatas[lct].getQuality() );
@@ -487,7 +487,7 @@ void CSCMonitor::monitorCSC(const CSCEventData& data, int nodeID=0, int dduID = 
       CSCTMBData tmbData = data.tmbData();
       CSCTMBHeader tmbHeader = tmbData.tmbHeader();
 
-      if (isMEvalid(cscME, "TMB_BXN_vs_ALCT_BXN", mo)) mo->Fill((int)((alctHeader.BXNCount())),(int)(tmbHeader.BXNCount()));
+      if (isMEvalid(cscME, "TMB_BXN_vs_ALCT_BXN", mo)) mo->Fill((int)((alctHeader.BXNCount()))%256,(int)(tmbHeader.BXNCount())%256);
 
       if (isMEvalid(cscME, "TMB_ALCT_BXN_diff", mo)) {
 	int clct_alct_bxn_diff = (int)(alctHeader.BXNCount() - tmbHeader.BXNCount());
@@ -572,7 +572,7 @@ void CSCMonitor::monitorCSC(const CSCEventData& data, int nodeID=0, int dduID = 
 	mo->SetAxisRange(0.1, 1.1*(1.0+mo->GetBinContent(mo->GetMaximumBin())), "Y");
       }
 
-      if (isMEvalid(cscME, "DMB_L1A_vs_CLCT_L1A", mo)) mo->Fill(tmbHeader.L1ANumber(),dmbHeader.l1a());
+      if (isMEvalid(cscME, "DMB_L1A_vs_CLCT_L1A", mo)) mo->Fill(tmbHeader.L1ANumber(),dmbHeader.l1a()%16);
 
       if (isMEvalid(cscME, "CLCT_DMB_BXN_diff", mo)) {
 	int clct_dmb_bxn_diff = (int)(dmbHeader.bxn()-(tmbHeader.BXNCount()&0x7F));
@@ -586,7 +586,7 @@ void CSCMonitor::monitorCSC(const CSCEventData& data, int nodeID=0, int dduID = 
 
       if (isMEvalid(cscME, "CLCT_BXN", mo)) mo->Fill((int)(tmbHeader.BXNCount()));
 
-      if (isMEvalid(cscME, "CLCT_BXN_vs_DMB_BXN", mo)) mo->Fill(tmbHeader.BXNCount(),dmbHeader.bxn());
+      if (isMEvalid(cscME, "CLCT_BXN_vs_DMB_BXN", mo)) mo->Fill(tmbHeader.BXNCount()%256,dmbHeader.bxn()%256);
 
       if (isMEvalid(cscME, "CLCT_Number_Rate", mo)) {
 	mo->Fill(clctsDatas.size());

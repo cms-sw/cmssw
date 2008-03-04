@@ -1,11 +1,11 @@
-// $Id: $
+// $Id: LogicID.h,v 1.1 2007/05/02 09:10:58 benigno Exp $
 
 /*!
   \file LogicID.h
   \brief Cache logicID vector from database
   \author B. Gobbo 
-  \version $Revision: $
-  \date $Date: $
+  \version $Revision: 1.1 $
+  \date $Date: 2007/05/02 09:10:58 $
 */
 
 #ifndef LogicID_H
@@ -15,6 +15,7 @@
 #include <string>
 #include <map>
 #include <stdexcept>
+
 #include "OnlineDB/EcalCondDB/interface/EcalLogicID.h"
 
 class EcalCondDBInterface;

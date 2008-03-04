@@ -13,7 +13,7 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: PixelMatchGsfElectronProducer.cc,v 1.6 2007/10/15 13:29:53 uberthon Exp $
+// $Id: PixelMatchGsfElectronProducer.cc,v 1.3 2007/06/30 00:10:13 charlot Exp $
 //
 //
 
@@ -24,6 +24,7 @@
 #include "DataFormats/EgammaCandidates/interface/PixelMatchGsfElectronFwd.h"
 #include "RecoEgamma/EgammaElectronAlgos/interface/PixelMatchElectronAlgo.h"
 #include "DataFormats/EgammaReco/interface/ElectronPixelSeed.h"
+#include "DataFormats/EgammaReco/interface/SeedSuperClusterAssociation.h"
 #include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
 #include "DataFormats/TrackCandidate/interface/TrackCandidateCollection.h"
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHitFwd.h"
@@ -35,15 +36,14 @@
 
 using namespace reco;
  
-PixelMatchGsfElectronProducer::PixelMatchGsfElectronProducer(const edm::ParameterSet& iConfig) 
+PixelMatchGsfElectronProducer::PixelMatchGsfElectronProducer(const edm::ParameterSet& iConfig) : conf_(iConfig)
 {
   //register your products
   produces<PixelMatchGsfElectronCollection>();
 
   //create algo
   algo_ = new
-    PixelMatchElectronAlgo(iConfig,
-                           iConfig.getParameter<double>("maxEOverPBarrel"),
+    PixelMatchElectronAlgo(iConfig.getParameter<double>("maxEOverPBarrel"),
 			   iConfig.getParameter<double>("maxEOverPEndcaps"),
                            iConfig.getParameter<double>("minEOverPBarrel"),
 			   iConfig.getParameter<double>("minEOverPEndcaps"),
@@ -51,7 +51,7 @@ PixelMatchGsfElectronProducer::PixelMatchGsfElectronProducer(const edm::Paramete
 			   iConfig.getParameter<double>("maxHOverE"),
 			   iConfig.getParameter<double>("maxDeltaEta"),
 			   iConfig.getParameter<double>("maxDeltaPhi"),
-			   iConfig.getParameter<double>("EtCut"),
+			   iConfig.getParameter<double>("ptCut"),
 			   iConfig.getParameter<bool>("highPtPreselection"),
 			   iConfig.getParameter<double>("highPtMin"));
 
@@ -64,7 +64,7 @@ PixelMatchGsfElectronProducer::~PixelMatchGsfElectronProducer()
 
 void PixelMatchGsfElectronProducer::beginJob(edm::EventSetup const&iSetup) 
 {     
-  algo_->setupES(iSetup);  
+  algo_->setupES(iSetup,conf_);  
 }
 
 // ------------ method called to produce the data  ------------

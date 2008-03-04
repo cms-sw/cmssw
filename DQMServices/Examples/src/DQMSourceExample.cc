@@ -1,20 +1,19 @@
-// -*- C++ -*-
-//
-// Package:    DQMServices/Examples
-// Class:      DQMSourceExample
-// 
-/**\class DQMSourceExample
-
-Description: Simple example showing how to create a DQM Source creating & shipping
-monitoring elements
-
-Implementation:
-<Notes on implementation>
+/*
+ * \file DQMSourceExample.cc
+ * \author C.Leonidopoulos
+ * Last Update:
+ * $Date: 2007/11/14 12:17:16 $
+ * $Revision: 1.8 $
+ * $Author: ameyer $
+ *
+ * Description: Simple example showing how to create a DQM Source creating and filling
+ * monitoring elements
 */
-//
-//
-//
+
 #include "DQMServices/Examples/interface/DQMSourceExample.h"
+
+#include "FWCore/ServiceRegistry/interface/Service.h"
+
 
 #include <TRandom.h> // this is just the random number generator
 
@@ -24,43 +23,53 @@ using namespace edm;
 //
 // constructors and destructor
 //
-DQMSourceExample::DQMSourceExample( const edm::ParameterSet& ps )
-  : DQMAnalyzer(ps)
+DQMSourceExample::DQMSourceExample( const edm::ParameterSet& ps ) :
+counterEvt_(0)
 {
-
+     dbe_ = Service<DaqMonitorBEInterface>().operator->();
+     parameters_ = ps;
+     monitorName_ = parameters_.getUntrackedParameter<string>("monitorName","YourSubsystemName");
+     cout << "Monitor name = " << monitorName_ << endl;
+     if (monitorName_ != "" ) monitorName_ = monitorName_+"/" ;
+     prescaleEvt_ = parameters_.getUntrackedParameter<int>("prescaleEvt", -1);
+     cout << "===>DQM event prescale = " << prescaleEvt_ << " events "<< endl;
+ 
 //// use this to read in reference histograms from file
-//  dbe_->readReferenceME("Ecal_000017220.root");
-//  dbe_->open("ref_test.root",false,"","prep");
+//   dbe_->readReferenceME("DQM_referenceME_R000000001.root");
+//    dbe_->open("DQM_referenceME_R000000001.root",false,"","prep");
 
 //// use this to collate histograms from files
 //  dbe_->open("Ecal_000017220.root",true,"","Collate");
 //  dbe_->open("Ecal_000017224.root",true,"","Collate");
 
 //// use this to merge histograms from different runs into the same file
-//  dbe_->open("Ecal_000017220.root",true,"","Run017220");
+///  dbe_->open("DQM_EcalBarrel_R000020994.root",true,"","");
+///  dbe_->open("DQM_L1T_R000020994.root",true,"","");
+
 //  dbe_->open("Ecal_000017224.root",true,"","Run017224");
 
 //// use this to retrieve CMSSW version of file
 //  cout << dbe_->getFileReleaseVersion("ref_test.root") << endl;
 
-
 /// book some histograms here
   const int NBINS = 50; XMIN = 0; XMAX = 50;
 
   // create and cd into new folder
-  dbe_->setCurrentFolder(rootFolder_+"C1");
+  dbe_->setCurrentFolder(monitorName_+"C1");
   h1 = dbe_->book1D("histo", "Example 1D histogram.", NBINS, XMIN, XMAX);
+  h1->setAxisTitle("x-axis title", 1);
+  h1->setAxisTitle("y-axis title", 2);
   h2 = dbe_->book2D("histo2", "Example 2 2D histogram.", NBINS, XMIN, XMAX, 
 		   NBINS, XMIN, XMAX);
   p1 = dbe_->bookProfile("prof1","my profile",NBINS,XMIN,XMAX,NBINS,XMIN,XMAX,"");
   // create and cd into new folder
-  dbe_->setCurrentFolder(rootFolder_+"C1/C2");
+  dbe_->setCurrentFolder(monitorName_+"C1/C2");
   h3 = dbe_->book1D("histo3", "Example 3 1D histogram.", NBINS, XMIN, XMAX);
   h4 = dbe_->book1D("histo4", "Example 4 1D histogram.", NBINS, XMIN, XMAX);
   h5 = dbe_->book1D("histo5", "Example 5 1D histogram.", NBINS, XMIN, XMAX);
   h6 = dbe_->book1D("histo6", "Example 6 1D histogram.", NBINS, XMIN, XMAX);
   // create and cd into new folder
-  dbe_->setCurrentFolder(rootFolder_+"C1/C3");
+  dbe_->setCurrentFolder(monitorName_+"C1/C3");
   const int NBINS2 = 10;
   h7 = dbe_->book1D("histo7", "Example 7 1D histogram.", NBINS2, XMIN, XMAX);
   char temp[1024];
@@ -82,7 +91,7 @@ DQMSourceExample::DQMSourceExample( const edm::ParameterSet& ps )
   dbe_->tag(h2, detector_id);
   dbe_->tag(h7, detector_id);
   // tag full directory
-  dbe_->tagContents(rootFolder_+"C1/C3", detector_id);
+  dbe_->tagContents(monitorName_+"C1/C3", detector_id);
 
   // assign tag to MEs h4 and h6
   const unsigned int detector_id2 = 25;
@@ -124,26 +133,17 @@ DQMSourceExample::~DQMSourceExample()
 
 //--------------------------------------------------------
 void DQMSourceExample::beginJob(const EventSetup& context){
-  // call DQMAnalyzer in the beginning 
-  DQMAnalyzer::beginJob(context);
-  // then do your thing
 
 }
 
 //--------------------------------------------------------
 void DQMSourceExample::beginRun(const edm::Run& r, const EventSetup& context) {
-  // call DQMAnalyzer in the beginning 
-  DQMAnalyzer::beginRun(r, context);
-  // then do your thing
 
 }
 
 //--------------------------------------------------------
 void DQMSourceExample::beginLuminosityBlock(const LuminosityBlock& lumiSeg, 
      const EventSetup& context) {
-  // call DQMAnalyzer in the beginning 
-  DQMAnalyzer::beginLuminosityBlock(lumiSeg,context);
-  // then do your thing
   
 }
 
@@ -151,8 +151,9 @@ void DQMSourceExample::beginLuminosityBlock(const LuminosityBlock& lumiSeg,
 void DQMSourceExample::analyze(const Event& iEvent, 
 			       const EventSetup& iSetup )
 {  
-  // call DQMAnalyzer some place
-  DQMAnalyzer::analyze(iEvent,iSetup); 
+  counterEvt_++;
+  if (prescaleEvt_ > 0 && counterEvt_%prescaleEvt_!=0) return;
+  // cout << " processing conterEvt_: " << counterEvt_ <<endl;
   
   i1->Fill(4);
   f1->Fill(-3.14);
@@ -160,8 +161,8 @@ void DQMSourceExample::analyze(const Event& iEvent,
    // Filling the histogram with random data
   srand( 0 );
 
-  if(getNumEvents()%1000 == 0)
-    cout << " # of cycles = " << getNumEvents() << endl;
+  if(counterEvt_%1000 == 0)
+    cout << " # of events = " << counterEvt_ << endl;
 
   for(int i = 0; i != 20; ++i ) 
     {
@@ -200,23 +201,12 @@ void DQMSourceExample::analyze(const Event& iEvent,
 //--------------------------------------------------------
 void DQMSourceExample::endLuminosityBlock(const LuminosityBlock& lumiSeg, 
                                           const EventSetup& context) {
-  // do your thing here
-
-  // call DQMAnalyzer at the end 
-  DQMAnalyzer::endLuminosityBlock(lumiSeg,context);
 }
 //--------------------------------------------------------
 void DQMSourceExample::endRun(const Run& r, const EventSetup& context){
-  // do your thing here
-  
-  // call DQMAnalyzer at the end
-  DQMAnalyzer::endRun(r,context); 
 }
 //--------------------------------------------------------
 void DQMSourceExample::endJob(){
-  // do your thing ... call DQMAnalyzer in the end
-  
-  DQMAnalyzer::endJob();
 }
 
 

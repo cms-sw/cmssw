@@ -4,7 +4,6 @@
 #include "DataFormats/HLTReco/interface/HLTGlobalObject.h"
 #include "DataFormats/HLTReco/interface/ModuleTiming.h"
 #include "DataFormats/HLTReco/interface/HLTPerformanceInfo.h"
-#include "DataFormats/HLTReco/interface/HLTDataModel.h"
 #include "DataFormats/Common/interface/Wrapper.h"
 
 namespace {
@@ -63,23 +62,5 @@ namespace {
     std::vector<HLTPerformanceInfo::Path>::const_iterator pw11;
     HLTPerformanceInfo::Path::Adapter pw12;
     HLTPerformanceInfo::Path::const_iterator pw13;
-
-
-    reco::TriggerObject to;
-    reco::TriggerCollection tc;
-    reco::TriggerGlobalCollection tg;
-
-    reco::TriggerPointer tp;
-    reco::TriggerPathCollection tpc;
-    reco::TriggerTableCollection ttc;
-
-    edm::Wrapper<reco::TriggerObject> wto;
-    edm::Wrapper<reco::TriggerCollection> wtc;
-    edm::Wrapper<reco::TriggerGlobalCollection> wtg;
-
-    edm::Wrapper<reco::TriggerPointer> wtp;
-    edm::Wrapper<reco::TriggerPathCollection> wtpc;
-    edm::Wrapper<reco::TriggerTableCollection> wttc;
-
   }
 }

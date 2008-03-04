@@ -7,7 +7,7 @@
  * to give an empirical parametrization of the track parameters errors.
  *
  * $Dates: 2007/09/04 13:28 $
- * $Revision: 1.2 $
+ * $Revision: 1.1 $
  *
  * \author Jean-Roch Vlimant  UCSB
  * \author Finn Rebassoo      UCSB
@@ -24,16 +24,13 @@
 
 #include "RecoMuon/TrackingTools/interface/MuonErrorMatrix.h"
 
-#include "FWCore/Framework/interface/ESHandle.h"
-
-#include "DataFormats/GeometrySurface/interface/Cylinder.h"
-#include "DataFormats/GeometrySurface/interface/Plane.h"
+#include <FWCore/Framework/interface/ESHandle.h>
 
 class MagneticField;
 class TrackAssociatorBase;
 class TH1;
 class TH2;
-class Propagator;
+
 //
 // class decleration
 //
@@ -86,31 +83,6 @@ class MuonErrorMatrixAnalyzer : public edm::EDAnalyzer {
   /// class holder for the empirical error scale factor parametrization from pull
   MuonErrorMatrix * theErrorMatrixStore_Pull;
   edm::ParameterSet theErrorMatrixStore_Pull_pset;
-
-
-  /// the range of the pull fit is [-theGaussianPullFitRange, theGaussianPullFitRange] [-2,2] by default
-  double theGaussianPullFitRange;
-
-
-  /// radius at which the comparison is made: =0 is using TSCPBuilderNoMaterial, !=0 is using the propagator
-  double theRadius;
-
-  /// reference to the cylinder of radius theRadius
-  Cylinder::CylinderPointer refRSurface;
-
-  /// z at which the comparison is made: =0 is using TSCPBuilderNoMaterial, !=0 is using the propagator
-  double theZ;
-
-  ///reference to a plane at -z [0] and +z [1]:  [(z>0)]
-  Plane::PlanePointer refZSurface[2];
-
-  /// propagator used to go to the cylinder surface, ALONG momentum
-  std::string thePropagatorName;
-  edm::ESHandle<Propagator> thePropagator;
-
-  /// put the free trajectory state to the TSCPBuilderNoMaterial or the cylinder surface
-  FreeTrajectoryState refLocusState(const FreeTrajectoryState &fts);
-
 
   /// control plot root file (auxiliary, configurable)
   TFile * thePlotFile;

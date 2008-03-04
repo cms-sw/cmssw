@@ -23,8 +23,6 @@ Toy EDProducers and EDProducts for testing purposes only.
 #include "CondFormats/DataRecord/interface/CSCDBCrosstalkRcd.h"
 
 using namespace std;
-std::ofstream DBXtalkFile("dbxtalk.dat",std::ios::out);
-int counter=0;
 
 namespace edmtest
 {
@@ -53,9 +51,9 @@ namespace edmtest
     const CSCDBCrosstalk* mycrosstalk=pcrosstalk.product();
     std::vector<CSCDBCrosstalk::Item>::const_iterator it;
     for( it=mycrosstalk->crosstalk.begin();it!=mycrosstalk->crosstalk.end(); ++it ){
-      counter++;
-
-      DBXtalkFile<<counter<<"  "<<it->xtalk_slope_right<<"  "<<it->xtalk_intercept_right<<"  "<<it->xtalk_chi2_right<<"  "<<it->xtalk_slope_left<<"  "<<it->xtalk_intercept_left<<"  "<<it->xtalk_chi2_left<<std::endl;
+      //no global variables!
+      //counter++;
+      // DBXtalkFile<<counter<<"  "<<it->xtalk_slope_right<<"  "<<it->xtalk_intercept_right<<"  "<<it->xtalk_chi2_right<<"  "<<it->xtalk_slope_left<<"  "<<it->xtalk_intercept_left<<"  "<<it->xtalk_chi2_left<<std::endl;
     }
   }
   DEFINE_FWK_MODULE(CSCCrossTalkDBReadAnalyzer);

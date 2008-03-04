@@ -4,15 +4,14 @@
 /*
  * \file DTDigiForNoiseTask.h
  *
- * $Date: 2007/10/09 08:34:20 $
- * $Revision: 1.1 $
+ * $Date: 2007/11/06 11:35:11 $
+ * $Revision: 1.3 $
  * \author G. Mila - INFN Torino
  *
 */
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-//#include <FWCore/Framework/interface/EDAnalyzer.h>
-#include "DQMServices/Components/interface/DQMAnalyzer.h"
+#include <FWCore/Framework/interface/EDAnalyzer.h>
 #include <DataFormats/Common/interface/Handle.h>
 #include <FWCore/Framework/interface/ESHandle.h>
 #include <FWCore/Framework/interface/Event.h>
@@ -38,8 +37,7 @@ class DTLayerId;
 class DTChamberId;
 
 
-//class DTDigiForNoiseTask: public edm::EDAnalyzer{
-class DTDigiForNoiseTask: public DQMAnalyzer{
+class DTDigiForNoiseTask: public edm::EDAnalyzer{
 
 public:
 
@@ -76,8 +74,6 @@ private:
   edm::ParameterSet parameters;
 
   edm::ESHandle<DTGeometry> muonGeom;
-
-  std::string outputFile;
 
   std::map< DTLayerId, MonitorElement* > digiHistos;
 

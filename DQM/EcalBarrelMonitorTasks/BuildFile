@@ -1,8 +1,6 @@
-<flags EDM_PLUGIN=1>
 <use name=DQM/EcalCommon>
 <use name=DQMServices/Core>
 <use name=DQMServices/Daemon>
-<use name=DataFormats/Common>
 <use name=DataFormats/EcalDetId>
 <use name=DataFormats/EcalDigi>
 <use name=DataFormats/EcalRawData>
@@ -16,10 +14,9 @@
 <use name=TBDataFormats/EcalTBObjects>
 <use name=rootcore>
 <export>
-  <use name=DQMServices/Core>
-  <use name=DataFormats/Common>
-  <use name=DataFormats/EcalDigi>
   <use name=FWCore/Framework>
+  <use name=FWCore/MessageLogger>
   <use name=FWCore/ParameterSet>
+  <use name=FWCore/ServiceRegistry>
   <lib name=DQMEcalBarrelMonitorTasks>
 </export>

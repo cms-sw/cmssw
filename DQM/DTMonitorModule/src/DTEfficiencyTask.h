@@ -8,8 +8,8 @@
  *  All histos are produced per Layer
  *
  *
- *  $Date: 2007/03/27 16:13:45 $
- *  $Revision: 1.3 $
+ *  $Date: 2007/09/20 07:19:52 $
+ *  $Revision: 1.4 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -56,8 +56,6 @@ private:
 
   // Switch for verbosity
   bool debug;
-  std::string theRootFileName;
-  bool writeHisto;
 
   // Lable of 4D segments in the event
   std::string theRecHits4DLabel;

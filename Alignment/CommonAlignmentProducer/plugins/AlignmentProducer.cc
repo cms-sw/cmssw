@@ -1,9 +1,9 @@
 /// \file AlignmentProducer.cc
 ///
 ///  \author    : Frederic Ronga
-///  Revision   : $Revision: 1.16 $
-///  last update: $Date: 2007/10/19 11:30:10 $
-///  by         : $Author: fronga $
+///  Revision   : $Revision: 1.12 $
+///  last update: $Date: 2007/08/16 09:50:10 $
+///  by         : $Author: innocent $
 
 #include "Alignment/CommonAlignmentProducer/plugins/AlignmentProducer.h"
 
@@ -34,18 +34,18 @@
 #include "Geometry/DTGeometryBuilder/src/DTGeometryBuilderFromDDD.h"
 #include "Geometry/CSCGeometryBuilder/src/CSCGeometryBuilderFromDDD.h"
 #include "Geometry/TrackingGeometryAligner/interface/GeometryAligner.h"
-#include "CondFormats/AlignmentRecord/interface/TrackerAlignmentRcd.h"
-#include "CondFormats/AlignmentRecord/interface/TrackerAlignmentErrorRcd.h"
-#include "CondFormats/AlignmentRecord/interface/DTAlignmentRcd.h"
-#include "CondFormats/AlignmentRecord/interface/DTAlignmentErrorRcd.h"
-#include "CondFormats/AlignmentRecord/interface/CSCAlignmentRcd.h"
-#include "CondFormats/AlignmentRecord/interface/CSCAlignmentErrorRcd.h"
-#include "CondFormats/AlignmentRecord/interface/TrackerSurveyRcd.h"
-#include "CondFormats/AlignmentRecord/interface/TrackerSurveyErrorRcd.h"
-#include "CondFormats/AlignmentRecord/interface/DTSurveyRcd.h"
-#include "CondFormats/AlignmentRecord/interface/DTSurveyErrorRcd.h"
-#include "CondFormats/AlignmentRecord/interface/CSCSurveyRcd.h"
-#include "CondFormats/AlignmentRecord/interface/CSCSurveyErrorRcd.h"
+#include "CondFormats/DataRecord/interface/TrackerAlignmentRcd.h"
+#include "CondFormats/DataRecord/interface/TrackerAlignmentErrorRcd.h"
+#include "CondFormats/DataRecord/interface/DTAlignmentRcd.h"
+#include "CondFormats/DataRecord/interface/DTAlignmentErrorRcd.h"
+#include "CondFormats/DataRecord/interface/CSCAlignmentRcd.h"
+#include "CondFormats/DataRecord/interface/CSCAlignmentErrorRcd.h"
+#include "CondFormats/DataRecord/interface/TrackerSurveyRcd.h"
+#include "CondFormats/DataRecord/interface/TrackerSurveyErrorRcd.h"
+#include "CondFormats/DataRecord/interface/DTSurveyRcd.h"
+#include "CondFormats/DataRecord/interface/DTSurveyErrorRcd.h"
+#include "CondFormats/DataRecord/interface/CSCSurveyRcd.h"
+#include "CondFormats/DataRecord/interface/CSCSurveyErrorRcd.h"
 
 // Tracking 	 
 #include "TrackingTools/PatternTools/interface/Trajectory.h" 
@@ -103,11 +103,13 @@ AlignmentProducer::AlignmentProducer(const edm::ParameterSet& iConfig) :
   std::vector<std::string> monitors = monitorConfig.getUntrackedParameter<std::vector<std::string> >( "monitors" );
 
   for (std::vector<std::string>::const_iterator miter = monitors.begin();  miter != monitors.end();  ++miter) {
-    AlignmentMonitorBase* newMonitor = AlignmentMonitorPluginFactory::get()->create(*miter, monitorConfig.getUntrackedParameter<edm::ParameterSet>(*miter));
+//     AlignmentMonitorBase* newMonitor = dynamic_cast<AlignmentMonitorBase*>(
+//	AlignmentMonitorPluginFactory::getMonitor(*miter, monitorConfig.getParameter<edm::ParameterSet>(*miter)));
+     AlignmentMonitorBase* newMonitor = AlignmentMonitorPluginFactory::get()->create(*miter, monitorConfig.getUntrackedParameter<edm::ParameterSet>(*miter));
 
-    if (!newMonitor) throw cms::Exception("BadConfig") << "Couldn't find monitor named " << *miter;
+     if (!newMonitor) throw cms::Exception("BadConfig") << "Couldn't find monitor named " << *miter;
 
-    theMonitors.push_back(newMonitor);
+     theMonitors.push_back(newMonitor);
   }
 
 }
@@ -192,7 +194,7 @@ void AlignmentProducer::beginOfJob( const edm::EventSetup& iSetup )
   // Create alignable tracker and muon 
   if (doTracker_)
   {
-    theAlignableTracker = new AlignableTracker( &(*theTracker) );
+    theAlignableTracker = new AlignableTracker( &(*theGeometricDet), &(*theTracker) );
 
     if (useSurvey_)
     {
@@ -446,35 +448,28 @@ AlignmentProducer::duringLoop( const edm::Event& event,
 {
   nevent_++;
 
-  // Printout event number
   for ( int i=10; i<10000000; i*=10 )
     if ( nevent_<10*i && (nevent_%i)==0 )
       edm::LogInfo("Alignment") << "@SUB=AlignmentProducer::duringLoop" 
                                 << "Events processed: " << nevent_;
-  
+
   // Retrieve trajectories and tracks from the event
-  // -> merely skip if collection is empty
   edm::InputTag tjTag = theParameterSet.getParameter<edm::InputTag>("tjTkAssociationMapTag");
   edm::Handle<TrajTrackAssociationCollection> m_TrajTracksMap;
-  if ( event.getByLabel( tjTag, m_TrajTracksMap ) ) {
-    
-    // Form pairs of trajectories and tracks
-    ConstTrajTrackPairCollection trajTracks;
-    for ( TrajTrackAssociationCollection::const_iterator iPair = m_TrajTracksMap->begin();
-          iPair != m_TrajTracksMap->end(); iPair++ )
-      trajTracks.push_back( ConstTrajTrackPair( &(*(*iPair).key), &(*(*iPair).val) ) );
-    
-    // Run the alignment algorithm
-    theAlignmentAlgo->run(  setup, trajTracks );
-    
-    for (std::vector<AlignmentMonitorBase*>::const_iterator monitor = theMonitors.begin();  monitor != theMonitors.end();  ++monitor) {
-      (*monitor)->duringLoop(setup, trajTracks);
-    }
-  } else {
-    edm::LogInfo("Alignment") << "@SUB=AlignmentProducer::duringLoop" 
-                              << "No track collection found: skipping event";
+  event.getByLabel( tjTag, m_TrajTracksMap );
+
+  // Form pairs of trajectories and tracks
+  ConstTrajTrackPairCollection trajTracks;
+  for ( TrajTrackAssociationCollection::const_iterator iPair = m_TrajTracksMap->begin();
+        iPair != m_TrajTracksMap->end(); iPair++ )
+    trajTracks.push_back( ConstTrajTrackPair( &(*(*iPair).key), &(*(*iPair).val) ) );
+
+  // Run the alignment algorithm
+  theAlignmentAlgo->run(  setup, trajTracks );
+
+  for (std::vector<AlignmentMonitorBase*>::const_iterator monitor = theMonitors.begin();  monitor != theMonitors.end();  ++monitor) {
+     (*monitor)->duringLoop(setup, trajTracks);
   }
-  
 
   return kContinue;
 }
@@ -556,20 +551,21 @@ void AlignmentProducer::createGeometries_( const edm::EventSetup& iSetup )
    iSetup.get<IdealGeometryRecord>().get( cpv );
 
    if (doTracker_) {
-     edm::ESHandle<GeometricDet> geometricDet;
-     iSetup.get<IdealGeometryRecord>().get( geometricDet );
-     TrackerGeomBuilderFromGeometricDet trackerBuilder;
-     theTracker = boost::shared_ptr<TrackerGeometry>( trackerBuilder.build(&(*geometricDet)) );
+      iSetup.get<IdealGeometryRecord>().get( theGeometricDet );
+      TrackerGeomBuilderFromGeometricDet trackerBuilder;
+      theTracker = boost::shared_ptr<TrackerGeometry>( trackerBuilder.build(&(*theGeometricDet)) );
    }
 
    if (doMuon_) {
-     edm::ESHandle<MuonDDDConstants> mdc;
-     iSetup.get<MuonNumberingRecord>().get(mdc);
-     DTGeometryBuilderFromDDD DTGeometryBuilder;
-     CSCGeometryBuilderFromDDD CSCGeometryBuilder;
-     theMuonDT = boost::shared_ptr<DTGeometry>(DTGeometryBuilder.build(&(*cpv), *mdc));
-     theMuonCSC = boost::shared_ptr<CSCGeometry>( new CSCGeometry );
-     CSCGeometryBuilder.build( theMuonCSC, &(*cpv), *mdc );
+      edm::ESHandle<MuonDDDConstants> mdc;
+      iSetup.get<MuonNumberingRecord>().get(mdc);
+      DTGeometryBuilderFromDDD DTGeometryBuilder;
+      CSCGeometryBuilderFromDDD CSCGeometryBuilder;
+      theMuonDT = boost::shared_ptr<DTGeometry>(DTGeometryBuilder.build(&(*cpv), *mdc));
+
+      //theMuonCSC = boost::shared_ptr<CSCGeometry>(CSCGeometryBuilder.build(&(*cpv), *mdc));
+      theMuonCSC = boost::shared_ptr<CSCGeometry>( new CSCGeometry );
+      CSCGeometryBuilder.build( theMuonCSC, &(*cpv), *mdc );
    }
 }
 

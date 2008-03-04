@@ -7,8 +7,8 @@
  * *
  *  DQM Test Client
  *
- *  $Date: 2007/06/18 16:59:23 $
- *  $Revision: 1.4 $
+ *  $Date: 2007/09/19 17:07:38 $
+ *  $Revision: 1.5 $
  *  A. Gresele - INFN Trento
  *  G. Mila - INFN Torino
  *  M. Zanetti - CERN PH
@@ -88,9 +88,7 @@ protected:
   /// DQM Client Diagnostic
   void endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& c);
 
-  /// Save the plots into a file
-  void endRun();
-
+ 
 
 
 private:

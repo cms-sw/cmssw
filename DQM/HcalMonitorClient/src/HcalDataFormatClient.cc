@@ -1,142 +1,80 @@
 #include <DQM/HcalMonitorClient/interface/HcalDataFormatClient.h>
 #include <DQM/HcalMonitorClient/interface/HcalClientUtils.h>
 
-HcalDataFormatClient::HcalDataFormatClient(const ParameterSet& ps, DaqMonitorBEInterface* dbe){
-  dqmReportMapErr_.clear(); dqmReportMapWarn_.clear(); dqmReportMapOther_.clear();
-  dqmQtests_.clear();
+HcalDataFormatClient::HcalDataFormatClient(){}
 
-  dbe_ = dbe;
+
+void HcalDataFormatClient::init(const ParameterSet& ps, DaqMonitorBEInterface* dbe, string clientName){
+  //Call the base class first
+  HcalBaseClient::init(ps,dbe,clientName);
+
   for(int i=0; i<3; i++){
     dferr_[i] = NULL;
-    //    crateErrMap_[i] =NULL;
-    //    spigotErrMap_[i] = NULL;
   }
+  
   spigotErrs_ = NULL;
+  DCC_Err_Warn_ = NULL;
+  DCC_Evt_Fmt_ = NULL;
+  CDF_Violation_ = NULL;
+  DCC_Spigot_Err_ = NULL;
   badDigis_ = NULL;
   unmappedDigis_ = NULL;
   unmappedTPDs_ = NULL;
   fedErrMap_ = NULL;
   BCN_ = NULL;
-
-   BCNMap_ = NULL;
-   EvtMap_ = NULL;
-   ErrMapbyCrate_ = NULL;
-   FWVerbyCrate_ = NULL;
-   ErrCrate0_ = NULL;
-   ErrCrate1_ = NULL;
-   ErrCrate2_ = NULL;
-   ErrCrate3_ = NULL;
-   ErrCrate4_ = NULL;
-   ErrCrate5_ = NULL;
-   ErrCrate6_ = NULL;
-   ErrCrate7_ = NULL;
-   ErrCrate8_ = NULL;
-   ErrCrate9_ = NULL;
-   ErrCrate10_ = NULL;
-   ErrCrate11_ = NULL;
-   ErrCrate12_ = NULL;
-   ErrCrate13_ = NULL;
-   ErrCrate14_ = NULL;
-   ErrCrate15_ = NULL;
-   ErrCrate16_ = NULL;
-   ErrCrate17_ = NULL;
-
-  ievt_=0; jevt_=0;
-
-  // cloneME switch
-  cloneME_ = ps.getUntrackedParameter<bool>("cloneME", true);
+  BCNCheck_ = NULL;
+  EvtNCheck_ = NULL;
+  FibOrbMsgBCN_ = NULL;
   
-  // verbosity switch
-  debug_ = ps.getUntrackedParameter<bool>("debug", false);
-
-  // DQM default process name
-  process_ = ps.getUntrackedParameter<string>("processName", "HcalMonitor/");
-
-  vector<string> subdets = ps.getUntrackedParameter<vector<string> >("subDetsOn");
-  for(int i=0; i<4; i++) subDetsOn_[i] = false;
+  BCNMap_ = NULL;
+  EvtMap_ = NULL;
+  ErrMapbyCrate_ = NULL;
+  FWVerbyCrate_ = NULL;
+  ErrCrate0_ = NULL;
+  ErrCrate1_ = NULL;
+  ErrCrate2_ = NULL;
+  ErrCrate3_ = NULL;
+  ErrCrate4_ = NULL;
+  ErrCrate5_ = NULL;
+  ErrCrate6_ = NULL;
+  ErrCrate7_ = NULL;
+  ErrCrate8_ = NULL;
+  ErrCrate9_ = NULL;
+  ErrCrate10_ = NULL;
+  ErrCrate11_ = NULL;
+  ErrCrate12_ = NULL;
+  ErrCrate13_ = NULL;
+  ErrCrate14_ = NULL;
+  ErrCrate15_ = NULL;
+  ErrCrate16_ = NULL;
+  ErrCrate17_ = NULL;
   
-  for(unsigned int i=0; i<subdets.size(); i++){
-    if(subdets[i]=="HB") subDetsOn_[0] = true;
-    else if(subdets[i]=="HE") subDetsOn_[1] = true;
-    else if(subdets[i]=="HF") subDetsOn_[2] = true;
-    else if(subdets[i]=="HO") subDetsOn_[3] = true;
-  }
-}
-
-HcalDataFormatClient::HcalDataFormatClient(){
-  dqmReportMapErr_.clear(); dqmReportMapWarn_.clear(); dqmReportMapOther_.clear();
-  dqmQtests_.clear();
-  debug_ =false;
-  dbe_ = 0;
-  for(int i=0; i<3; i++){
-    dferr_[i] = NULL;
-    //   crateErrMap_[i] =NULL;
-    //    spigotErrMap_[i] = NULL;
-  }
-
-  spigotErrs_ = NULL;
-  badDigis_ = NULL;
-  unmappedDigis_ = NULL;
-  unmappedTPDs_ = NULL;
-  fedErrMap_ = NULL;
-  BCN_ = NULL;
- 
-   BCNMap_ = NULL;
-   EvtMap_ = NULL;
-   ErrMapbyCrate_ = NULL;
-   FWVerbyCrate_ = NULL;
-   ErrCrate0_ = NULL;
-   ErrCrate1_ = NULL;
-   ErrCrate2_ = NULL;
-   ErrCrate3_ = NULL;
-   ErrCrate4_ = NULL;
-   ErrCrate5_ = NULL;
-   ErrCrate6_ = NULL;
-   ErrCrate7_ = NULL;
-   ErrCrate8_ = NULL;
-   ErrCrate9_ = NULL;
-   ErrCrate10_ = NULL;
-   ErrCrate11_ = NULL;
-   ErrCrate12_ = NULL;
-   ErrCrate13_ = NULL;
-   ErrCrate14_ = NULL;
-   ErrCrate15_ = NULL;
-   ErrCrate16_ = NULL;
-   ErrCrate17_ = NULL;
-
-  for(int i=0; i<4; i++) subDetsOn_[i] = false;
 }
 
 HcalDataFormatClient::~HcalDataFormatClient(){
-
-  this->cleanup();
-  
+  this->cleanup();  
 }
 
 void HcalDataFormatClient::beginJob(void){
-
-  if ( debug_ ) cout << "HcalDataFormatClient: beginJob" << endl;
+  //  if ( debug_ ) cout << "HcalDataFormatClient: beginJob" << endl;
+  cout << "HcalDataFormatClient: beginJob" << endl;
   ievt_ = 0; jevt_ = 0;
-  this->setup();
-  this->resetAllME();
   return;
 }
 
 void HcalDataFormatClient::beginRun(void){
-
   if ( debug_ ) cout << "HcalDataFormatClient: beginRun" << endl;
 
   jevt_ = 0;
-  this->setup();
   this->resetAllME();
   return;
 }
 
 void HcalDataFormatClient::endJob(void) {
-
   if ( debug_ ) cout << "HcalDataFormatClient: endJob, ievt = " << ievt_ << endl;
 
   this->cleanup();
+
   return;
 }
 
@@ -145,29 +83,33 @@ void HcalDataFormatClient::endRun(void) {
   if ( debug_ ) cout << "HcalDataFormatClient: endRun, jevt = " << jevt_ << endl;
 
   this->cleanup();
+
   return;
 }
 
-void HcalDataFormatClient::setup(void) {
-  return;
-}
+
 
 void HcalDataFormatClient::cleanup(void) {
 
   if ( cloneME_ ) {
     for(int i=0; i<3; i++){
       if ( dferr_[i] ) delete dferr_[i];
-      //      if ( crateErrMap_[i]) delete crateErrMap_[i];
-      //      if ( spigotErrMap_[i]) delete spigotErrMap_[i];
     }
   
     if ( spigotErrs_) delete spigotErrs_;
+    if ( DCC_Err_Warn_) delete DCC_Err_Warn_;
+    if ( DCC_Evt_Fmt_) delete DCC_Evt_Fmt_;
+    if ( DCC_Spigot_Err_) delete DCC_Spigot_Err_;
+    if ( CDF_Violation_) delete CDF_Violation_;
     if ( badDigis_) delete badDigis_;
     if ( unmappedDigis_) delete unmappedDigis_;
     if ( unmappedTPDs_) delete unmappedTPDs_;
     if ( fedErrMap_) delete fedErrMap_;
 
     if( BCN_) delete BCN_;
+    if( BCNCheck_) delete BCNCheck_;
+    if( EvtNCheck_) delete EvtNCheck_;
+    if( FibOrbMsgBCN_) delete FibOrbMsgBCN_;
 
    if (BCNMap_) delete BCNMap_;
    if (EvtMap_) delete EvtMap_;
@@ -195,11 +137,13 @@ void HcalDataFormatClient::cleanup(void) {
   }  
   for(int i=0; i<3; i++){
     dferr_[i] = NULL;
-    //    crateErrMap_[i] =NULL;
-    //    spigotErrMap_[i] = NULL;
   }
   
   spigotErrs_ = NULL;
+  DCC_Err_Warn_ = NULL;  
+  DCC_Evt_Fmt_ = NULL;
+  CDF_Violation_ = NULL;
+  DCC_Spigot_Err_ = NULL;
   badDigis_ = NULL;
   unmappedDigis_ = NULL;
   unmappedTPDs_ = NULL;
@@ -207,6 +151,10 @@ void HcalDataFormatClient::cleanup(void) {
 
 
   BCN_ = NULL;
+
+  BCNCheck_ = NULL;
+  EvtNCheck_ = NULL;
+  FibOrbMsgBCN_ = NULL; 
 
    BCNMap_ = NULL;
    EvtMap_ = NULL;
@@ -231,64 +179,15 @@ void HcalDataFormatClient::cleanup(void) {
    ErrCrate16_ = NULL;
    ErrCrate17_ = NULL;
 
-  dqmReportMapErr_.clear(); dqmReportMapWarn_.clear(); dqmReportMapOther_.clear();
-  dqmQtests_.clear();
-
   return;
 }
 
-void HcalDataFormatClient::errorOutput(){
-  
-  if(!dbe_) return;
 
-  dqmReportMapErr_.clear(); dqmReportMapWarn_.clear(); dqmReportMapOther_.clear();
-  
-  for (map<string, string>::iterator testsMap=dqmQtests_.begin(); testsMap!=dqmQtests_.end();testsMap++){
-    string testName = testsMap->first;
-    string meName = testsMap->second;
-    MonitorElement* me = dbe_->get(meName);
-    if(me){
-      if (me->hasError()){
-	vector<QReport*> report =  me->getQErrors();
-	dqmReportMapErr_[meName] = report;
-      }
-      if (me->hasWarning()){
-	vector<QReport*> report =  me->getQWarnings();
-	dqmReportMapWarn_[meName] = report;
-      }
-      if(me->hasOtherReport()){
-	vector<QReport*> report= me->getQOthers();
-	dqmReportMapOther_[meName] = report;
-      }
-    }
-  }
-  printf("Data Format Task: %d errs, %d warnings, %d others\n",dqmReportMapErr_.size(),dqmReportMapWarn_.size(),dqmReportMapOther_.size());
-  return;
-}
-
-void HcalDataFormatClient::getErrors(map<string, vector<QReport*> > outE, map<string, vector<QReport*> > outW, map<string, vector<QReport*> > outO){
-
-  this->errorOutput();
-  outE.clear(); outW.clear(); outO.clear();
-
-  for(map<string, vector<QReport*> >::iterator i=dqmReportMapErr_.begin(); i!=dqmReportMapErr_.end(); i++){
-    outE[i->first] = i->second;
-  }
-  for(map<string, vector<QReport*> >::iterator i=dqmReportMapWarn_.begin(); i!=dqmReportMapWarn_.end(); i++){
-    outW[i->first] = i->second;
-  }
-  for(map<string, vector<QReport*> >::iterator i=dqmReportMapOther_.begin(); i!=dqmReportMapOther_.end(); i++){
-    outO[i->first] = i->second;
-  }
-
-  return;
-}
 
 void HcalDataFormatClient::analyze(void){
-
   jevt_++;
+
   int updates = 0;
-  //  if(mui_) mui_->getNumUpdates();
   if ( updates % 10 == 0 ) {
     if ( debug_ ) cout << "HcalDataFormatClient: " << updates << " updates" << endl;
   }
@@ -297,9 +196,22 @@ void HcalDataFormatClient::analyze(void){
 }
 
 void HcalDataFormatClient::getHistograms(){
+
   if(!dbe_) return;
   
   char name[150];     
+  sprintf(name,"DataFormatMonitor/DCC Error and Warning");
+  DCC_Err_Warn_ = getHisto2(name, process_, dbe_, debug_,cloneME_);
+
+  sprintf(name,"DataFormatMonitor/DCC Event Format violation");
+  DCC_Evt_Fmt_ = getHisto2(name, process_, dbe_, debug_,cloneME_);
+
+  sprintf(name,"DataFormatMonitor/DCC View of Spigot Conditions");
+  DCC_Spigot_Err_ = getHisto2(name, process_, dbe_, debug_,cloneME_);
+
+  sprintf(name,"DataFormatMonitor/Event Fragments violating the Common Data Format");
+  CDF_Violation_ = getHisto2(name, process_, dbe_, debug_,cloneME_);
+
   sprintf(name,"DataFormatMonitor/Spigot Format Errors");
   spigotErrs_ = getHisto(name, process_, dbe_, debug_,cloneME_);
 
@@ -317,6 +229,15 @@ void HcalDataFormatClient::getHistograms(){
 
   sprintf(name,"DataFormatMonitor/BCN");
   BCN_ = getHisto(name, process_, dbe_, debug_,cloneME_);
+
+  sprintf(name,"DataFormatMonitor/BCN Check");
+  BCNCheck_ = getHisto(name, process_, dbe_, debug_,cloneME_);
+
+  sprintf(name,"DataFormatMonitor/EvtN Check");
+  EvtNCheck_ = getHisto(name, process_, dbe_, debug_,cloneME_);
+
+  sprintf(name,"DataFormatMonitor/BCN of Fiber Orbit Message");
+  FibOrbMsgBCN_ = getHisto(name, process_, dbe_, debug_,cloneME_);
 
   sprintf(name,"DataFormatMonitor/Evt Number Out-of-Synch");
   EvtMap_ = getHisto2(name, process_, dbe_, debug_,cloneME_);
@@ -405,13 +326,15 @@ void HcalDataFormatClient::getHistograms(){
  
   for(int i=0; i<4; i++){
     if(!subDetsOn_[i]) continue;
-    string type = "HB";
-    if(i==1) type = "HE";
+    string type = "HBHE";
+    if(i==1) type = "HBHE";
     else if(i==2) type = "HF";
     else if(i==3) type = "HO";
     sprintf(name,"DataFormatMonitor/%s Data Format Error Word", type.c_str());
-    dferr_[i] = getHisto(name, process_, dbe_, debug_,cloneME_);    
-    labelxBits(dferr_[i]);
+    int ind = i-1;
+    if (ind <0) ind = 0;
+    dferr_[ind] = getHisto(name, process_, dbe_, debug_,cloneME_);    
+    labelxBits(dferr_[ind]);
   }
   return;
 }
@@ -467,10 +390,10 @@ void HcalDataFormatClient::labelyBits(TH2F* hist){
 void HcalDataFormatClient::report(){
   if(!dbe_) return;
   if ( debug_ ) cout << "HcalDataFormatClient: report" << endl;
-  this->setup();
   
   char name[256];
-  sprintf(name, "%sHcalMonitor/DataFormatMonitor/Data Format Task Event Number",process_.c_str());
+  
+  sprintf(name, "%sHcal/DataFormatMonitor/Data Format Task Event Number",process_.c_str());
   MonitorElement* me = dbe_->get(name);
   if ( me ) {
     string s = me->valueString();
@@ -478,7 +401,7 @@ void HcalDataFormatClient::report(){
     sscanf((s.substr(2,s.length()-2)).c_str(), "%d", &ievt_);
     if ( debug_ ) cout << "Found '" << name << "'" << endl;
   }
-
+  else printf("Didn't find %s\n",name);
   getHistograms();
   
   return;
@@ -489,106 +412,109 @@ void HcalDataFormatClient::resetAllME(){
   if(!dbe_) return;
   
   char name[150];     
-  sprintf(name,"%sHcalMonitor/DataFormatMonitor/Spigot Format Errors",process_.c_str());
+  sprintf(name,"%sHcal/DataFormatMonitor/Spigot Format Errors",process_.c_str());
   resetME(name,dbe_);
   
-  sprintf(name,"%sHcalMonitor/DataFormatMonitor/Bad Quality Digis",process_.c_str());
+  sprintf(name,"%sHcal/DataFormatMonitor/Bad Quality Digis",process_.c_str());
   resetME(name,dbe_);
   
-  sprintf(name,"%sHcalMonitor/DataFormatMonitor/Unmapped Digis",process_.c_str());
+  sprintf(name,"%sHcal/DataFormatMonitor/Unmapped Digis",process_.c_str());
   resetME(name,dbe_);
   
-  sprintf(name,"%sHcalMonitor/DataFormatMonitor/Unmapped Trigger Primitive Digis",process_.c_str());
+  sprintf(name,"%sHcal/DataFormatMonitor/Unmapped Trigger Primitive Digis",process_.c_str());
   resetME(name,dbe_);
   
-  sprintf(name,"%sHcalMonitor/DataFormatMonitor/FED Error Map",process_.c_str());
+  sprintf(name,"%sHcal/DataFormatMonitor/FED Error Map",process_.c_str());
   resetME(name,dbe_);
 
-  sprintf(name,"%sHcalMonitor/DataFormatMonitor/BCN",process_.c_str());
+  sprintf(name,"%sHcal/DataFormatMonitor/BCN",process_.c_str());
   resetME(name,dbe_);
 
-  sprintf(name,"%sHcalMonitor/DataFormatMonitor/Evt Number Out-of-Synch",process_.c_str());
+  sprintf(name,"%sHcal/DataFormatMonitor/BCN Check",process_.c_str());
   resetME(name,dbe_);
 
-  sprintf(name,"%sHcalMonitor/DataFormatMonitor/BCN Not Constant",process_.c_str());
+  sprintf(name,"%sHcal/DataFormatMonitor/EvtN Check",process_.c_str());
   resetME(name,dbe_);
 
-  sprintf(name,"%sHcalMonitor/DataFormatMonitor/HTR Firmware Version",process_.c_str());
+  sprintf(name,"%sHcal/DataFormatMonitor/FibOrbMsgBCN",process_.c_str());
   resetME(name,dbe_);
 
-  sprintf(name,"%sHcalMonitor/DataFormatMonitor/HTR Error Word by Crate",process_.c_str());
+  sprintf(name,"%sHcal/DataFormatMonitor/Evt Number Out-of-Synch",process_.c_str());
   resetME(name,dbe_);
 
-  sprintf(name,"%sHcalMonitor/DataFormatMonitor/HTR Error Word - Crate 0",process_.c_str());
+  sprintf(name,"%sHcal/DataFormatMonitor/BCN Not Constant",process_.c_str());
   resetME(name,dbe_);
 
-  sprintf(name,"%sHcalMonitor/DataFormatMonitor/HTR Error Word - Crate 1",process_.c_str());
+  sprintf(name,"%sHcal/DataFormatMonitor/HTR Firmware Version",process_.c_str());
   resetME(name,dbe_);
 
-  sprintf(name,"%sHcalMonitor/DataFormatMonitor/HTR Error Word - Crate 2",process_.c_str());
+  sprintf(name,"%sHcal/DataFormatMonitor/HTR Error Word by Crate",process_.c_str());
   resetME(name,dbe_);
 
-  sprintf(name,"%sHcalMonitor/DataFormatMonitor/HTR Error Word - Crate 3",process_.c_str());
+  sprintf(name,"%sHcal/DataFormatMonitor/HTR Error Word - Crate 0",process_.c_str());
   resetME(name,dbe_);
 
-  sprintf(name,"%sHcalMonitor/DataFormatMonitor/HTR Error Word - Crate 4",process_.c_str());
+  sprintf(name,"%sHcal/DataFormatMonitor/HTR Error Word - Crate 1",process_.c_str());
   resetME(name,dbe_);
 
-  sprintf(name,"%sHcalMonitor/DataFormatMonitor/HTR Error Word - Crate 5",process_.c_str());
+  sprintf(name,"%sHcal/DataFormatMonitor/HTR Error Word - Crate 2",process_.c_str());
   resetME(name,dbe_);
 
-  sprintf(name,"%sHcalMonitor/DataFormatMonitor/HTR Error Word - Crate 6",process_.c_str());
+  sprintf(name,"%sHcal/DataFormatMonitor/HTR Error Word - Crate 3",process_.c_str());
   resetME(name,dbe_);
 
-  sprintf(name,"%sHcalMonitor/DataFormatMonitor/HTR Error Word - Crate 7",process_.c_str());
+  sprintf(name,"%sHcal/DataFormatMonitor/HTR Error Word - Crate 4",process_.c_str());
   resetME(name,dbe_);
 
-  sprintf(name,"%sHcalMonitor/DataFormatMonitor/HTR Error Word - Crate 8",process_.c_str());
+  sprintf(name,"%sHcal/DataFormatMonitor/HTR Error Word - Crate 5",process_.c_str());
   resetME(name,dbe_);
 
-  sprintf(name,"%sHcalMonitor/DataFormatMonitor/HTR Error Word - Crate 9",process_.c_str());
+  sprintf(name,"%sHcal/DataFormatMonitor/HTR Error Word - Crate 6",process_.c_str());
   resetME(name,dbe_);
 
-  sprintf(name,"%sHcalMonitor/DataFormatMonitor/HTR Error Word - Crate 10",process_.c_str());
+  sprintf(name,"%sHcal/DataFormatMonitor/HTR Error Word - Crate 7",process_.c_str());
   resetME(name,dbe_);
 
-  sprintf(name,"%sHcalMonitor/DataFormatMonitor/HTR Error Word - Crate 11",process_.c_str());
+  sprintf(name,"%sHcal/DataFormatMonitor/HTR Error Word - Crate 8",process_.c_str());
   resetME(name,dbe_);
 
-  sprintf(name,"%sHcalMonitor/DataFormatMonitor/HTR Error Word - Crate 12",process_.c_str());
+  sprintf(name,"%sHcal/DataFormatMonitor/HTR Error Word - Crate 9",process_.c_str());
   resetME(name,dbe_);
 
-  sprintf(name,"%sHcalMonitor/DataFormatMonitor/HTR Error Word - Crate 13",process_.c_str());
+  sprintf(name,"%sHcal/DataFormatMonitor/HTR Error Word - Crate 10",process_.c_str());
   resetME(name,dbe_);
 
-  sprintf(name,"%sHcalMonitor/DataFormatMonitor/HTR Error Word - Crate 14",process_.c_str());
+  sprintf(name,"%sHcal/DataFormatMonitor/HTR Error Word - Crate 11",process_.c_str());
   resetME(name,dbe_);
 
-  sprintf(name,"%sHcalMonitor/DataFormatMonitor/HTR Error Word - Crate 15",process_.c_str());
+  sprintf(name,"%sHcal/DataFormatMonitor/HTR Error Word - Crate 12",process_.c_str());
   resetME(name,dbe_);
 
-  sprintf(name,"%sHcalMonitor/DataFormatMonitor/HTR Error Word - Crate 16",process_.c_str());
+  sprintf(name,"%sHcal/DataFormatMonitor/HTR Error Word - Crate 13",process_.c_str());
   resetME(name,dbe_);
 
-  sprintf(name,"%sHcalMonitor/DataFormatMonitor/HTR Error Word - Crate 17",process_.c_str());
+  sprintf(name,"%sHcal/DataFormatMonitor/HTR Error Word - Crate 14",process_.c_str());
+  resetME(name,dbe_);
+
+  sprintf(name,"%sHcal/DataFormatMonitor/HTR Error Word - Crate 15",process_.c_str());
+  resetME(name,dbe_);
+
+  sprintf(name,"%sHcal/DataFormatMonitor/HTR Error Word - Crate 16",process_.c_str());
+  resetME(name,dbe_);
+
+  sprintf(name,"%sHcal/DataFormatMonitor/HTR Error Word - Crate 17",process_.c_str());
   resetME(name,dbe_);
 
   for(int i=0; i<4; i++){
     if(!subDetsOn_[i]) continue;
-    string type = "HB";
-    if(i==1) type = "HE";
+    string type = "HBHE";
+    if(i==1) type = "HBHE";
     else if(i==2) type = "HF";
     else if(i==3) type = "HO";
 
-    sprintf(name,"%sHcalMonitor/DataFormatMonitor/%s Data Format Error Word",process_.c_str(), type.c_str());
-    resetME(name,dbe_);
-    /*
-    sprintf(name,"%sHcalMonitor/DataFormatMonitor/%s Data Format Crate Error Map",process_.c_str(), type.c_str());
+    sprintf(name,"%sHcal/DataFormatMonitor/%s Data Format Error Word",process_.c_str(), type.c_str());
     resetME(name,dbe_);
 
-    sprintf(name,"%sHcalMonitor/DataFormatMonitor/%s Data Format Spigot Error Map",process_.c_str(), type.c_str());
-    resetME(name,dbe_);
-    */   
   }
   
   return;
@@ -635,8 +561,8 @@ void HcalDataFormatClient::htmlOutput(int runNo, string htmlDir, string htmlName
   
   htmlFile << "<h2><strong>Hcal DCC Error Word</strong></h2>" << endl;  
   htmlFile << "<h3>" << endl;
-  if(subDetsOn_[0]) htmlFile << "<a href=\"#HB_Plots\">HB Plots </a></br>" << endl;
-  if(subDetsOn_[1]) htmlFile << "<a href=\"#HE_Plots\">HE Plots </a></br>" << endl;
+  if(subDetsOn_[0]||subDetsOn_[1]) htmlFile << "<a href=\"#HBHE_Plots\">HBHE Plots </a></br>" << endl;
+  //if(subDetsOn_[1]) htmlFile << "<a href=\"#HBHE_Plots\">HBHE Plots </a></br>" << endl;
   if(subDetsOn_[2]) htmlFile << "<a href=\"#HF_Plots\">HF Plots </a></br>" << endl;
   if(subDetsOn_[3]) htmlFile << "<a href=\"#HO_Plots\">HO Plots </a></br>" << endl;
   htmlFile << "</h3>" << endl;
@@ -648,12 +574,27 @@ void HcalDataFormatClient::htmlOutput(int runNo, string htmlDir, string htmlName
   htmlFile << "<td>&nbsp;&nbsp;&nbsp;<h3>Global Histograms</h3></td></tr>" << endl;
   htmlFile << "<tr align=\"left\">" << endl;
   histoHTML2(runNo,ErrMapbyCrate_,"Crate #"," ", 92, htmlFile,htmlDir);
-  histoHTML(runNo,BCN_,"Bunch Counter Number","Events", 100, htmlFile,htmlDir);
+  histoHTML2(runNo,DCC_Err_Warn_,"DCC Errors and Warnings","", 100, htmlFile,htmlDir);
+  htmlFile << "</tr>" << endl;
+
+  htmlFile << "<tr align=\"left\">" << endl;
+  histoHTML2(runNo,CDF_Violation_,"Crate #"," ", 92, htmlFile,htmlDir);
+  histoHTML2(runNo,DCC_Evt_Fmt_,"DCC Errors and Warnings","", 100, htmlFile,htmlDir);
   htmlFile << "</tr>" << endl;
 
   htmlFile << "<tr align=\"left\">" << endl;
   histoHTML2(runNo,BCNMap_,"Slot #","Crate #", 92, htmlFile,htmlDir);
   histoHTML2(runNo,EvtMap_,"Slot #","Crate #", 100, htmlFile,htmlDir);
+  htmlFile << "</tr>" << endl;
+
+  htmlFile << "<tr align=\"left\">" << endl;
+  histoHTML(runNo,BCNCheck_,"htr BCN - dcc BCN"," ", 92, htmlFile,htmlDir);
+  histoHTML(runNo,EvtNCheck_,"htr Evt # - dcc Evt #","Events", 100, htmlFile,htmlDir);
+  htmlFile << "</tr>" << endl;
+ 
+  htmlFile << "<tr align=\"left\">" << endl;
+  histoHTML2(runNo,DCC_Spigot_Err_,"Spigot","", 92, htmlFile,htmlDir);
+  histoHTML(runNo,FibOrbMsgBCN_,"Fiber Orbit Message BCN","Events", 100, htmlFile,htmlDir);
   htmlFile << "</tr>" << endl;
 
   htmlFile << "<tr align=\"left\">" << endl;
@@ -667,7 +608,7 @@ void HcalDataFormatClient::htmlOutput(int runNo, string htmlDir, string htmlName
   htmlFile << "</tr>" << endl;
   
   htmlFile << "<tr align=\"left\">" << endl;
-  histoHTML(runNo,fedErrMap_,"DCC id","# Errors", 92, htmlFile,htmlDir);
+  histoHTML(runNo,fedErrMap_,"DCC Id","# Errors", 92, htmlFile,htmlDir);
   histoHTML2(runNo,FWVerbyCrate_,"Firmware Version","Crate #", 100, htmlFile,htmlDir);
   htmlFile << "</tr>" << endl;
 
@@ -717,18 +658,21 @@ void HcalDataFormatClient::htmlOutput(int runNo, string htmlDir, string htmlName
   htmlFile << "</tr>" << endl;
 
 
-
+  bool HBOn_ = subDetsOn_[0];
   for(int i=0; i<4; i++){
     if(!subDetsOn_[i]) continue;
     
-    string type = "HB";
-    if(i==1) type = "HE"; 
+    string type = "HBHE";
+    if(i==1) type = "HBHE"; 
     else if(i==2) type = "HF"; 
     else if(i==3) type = "HO"; 
-    
+    if (i==1 && HBOn_) continue;
     htmlFile << "<td>&nbsp;&nbsp;&nbsp;<a name=\""<<type<<"_Plots\"><h3>" << type << " Histograms</h3></td></tr>" << endl;
-    htmlFile << "<tr align=\"left\">" << endl;  
-    histoHTML(runNo,dferr_[i],"Error Bit","Frequency", 92, htmlFile,htmlDir);
+    htmlFile << "<tr align=\"left\">" << endl;
+    int ind = i-1;
+    if (ind<0) ind = 0;
+    histoHTML(runNo,dferr_[ind],"Error Bit","Frequency", 92, htmlFile,htmlDir);
+    htmlFile << "<tr align=\"left\">" << endl;
     /*
     histoHTML2(runNo,crateErrMap_[i],"VME Crate ID","HTR Slot", 100, htmlFile,htmlDir);
     htmlFile << "</tr>" << endl;   
@@ -750,22 +694,23 @@ void HcalDataFormatClient::htmlOutput(int runNo, string htmlDir, string htmlName
 
 
 void HcalDataFormatClient::createTests(){
+
+  if(debug_) cout << "HcalDataFormatClient: creating tests" << endl;
+
   if(!dbe_) return;
 
   char meTitle[250], name[250];    
   vector<string> params;
   
-  if(debug_) printf("Creating Data Format tests...\n"); 
-  
   for(int i=0; i<4; i++){
     if(!subDetsOn_[i]) continue;
-    string type = "HB";
-    if(i==1) type = "HE"; 
+    string type = "HBHE";
+    if(i==1) type = "HBHE"; 
     else if(i==2) type = "HF"; 
     else if(i==3) type = "HO"; 
     
-    sprintf(meTitle,"%sHcalMonitor/DataFormatMonitor/%s Data Format Error Word",process_.c_str(),type.c_str());
-    sprintf(name,"%s DataFormat",type.c_str());
+    sprintf(meTitle,"%sHcal/DataFormatMonitor/%s Data Format Error Word",process_.c_str(),type.c_str());
+    sprintf(name,"DFMon %s HTR Err Word",type.c_str());
     if(dqmQtests_.find(name) == dqmQtests_.end()){	
       MonitorElement* me = dbe_->get(meTitle);
       if(me){
@@ -779,12 +724,114 @@ void HcalDataFormatClient::createTests(){
     }
   }
 
+  sprintf(meTitle,"%sHcal/DataFormatMonitor/DCC Event Format violation",process_.c_str());
+  sprintf(name,"DFMon DCC Evt Format");
+  if(dqmQtests_.find(name) == dqmQtests_.end()){	
+    MonitorElement* me = dbe_->get(meTitle);
+    if(me){
+      dqmQtests_[name]=meTitle;	  
+      params.clear();
+      params.push_back(meTitle); params.push_back(name);  //hist and test titles
+      createH2ContentTest(dbe_, params);
+    }
+  }
+  
+  sprintf(meTitle,"%sHcal/DataFormatMonitor/HTR Error Word by Crate",process_.c_str());
+  sprintf(name,"DFMon Err Wd by Crate");
+  if(dqmQtests_.find(name) == dqmQtests_.end()){	
+    MonitorElement* me = dbe_->get(meTitle);
+    if(me){
+      dqmQtests_[name]=meTitle;	  
+      params.clear();
+      params.push_back(meTitle); params.push_back(name);  //hist and test titles
+      createH2ContentTest(dbe_, params);
+    }
+  }
+
+  sprintf(meTitle,"%sHcal/DataFormatMonitor/Event Fragments violating the Common Data Format",process_.c_str());
+  sprintf(name,"DFMon CDF Violations");
+  if(dqmQtests_.find(name) == dqmQtests_.end()){	
+    MonitorElement* me = dbe_->get(meTitle);
+    if(me){
+      dqmQtests_[name]=meTitle;	  
+      params.clear();
+      params.push_back(meTitle); params.push_back(name);  //hist and test titles
+      createH2ContentTest(dbe_, params);
+    }
+  }
+
+  sprintf(meTitle,"%sHcal/DataFormatMonitor/DCC Error and Warning",process_.c_str());
+  sprintf(name,"DFMon DCC Err/Warn");
+  if(dqmQtests_.find(name) == dqmQtests_.end()){	
+    MonitorElement* me = dbe_->get(meTitle);
+    if(me){
+      dqmQtests_[name]=meTitle;	  
+      params.clear();
+      params.push_back(meTitle); params.push_back(name);  //hist and test titles
+      createH2ContentTest(dbe_, params);
+    }
+  }
+  
+  sprintf(meTitle,"%sHcal/DataFormatMonitor/DCC View of Spigot Conditions",process_.c_str());
+  sprintf(name,"DFMon DCC Spigot Err");
+  if(dqmQtests_.find(name) == dqmQtests_.end()){	
+    MonitorElement* me = dbe_->get(meTitle);
+    if(me){
+      dqmQtests_[name]=meTitle;	  
+      params.clear();
+      params.push_back(meTitle); params.push_back(name);  //hist and test titles
+      createH2ContentTest(dbe_, params);
+    }
+  }
+  
+  sprintf(meTitle,"%sHcal/DataFormatMonitor/Bad Quality Digis",process_.c_str());
+  sprintf(name,"DFMon # Bad Digis");
+  if(dqmQtests_.find(name) == dqmQtests_.end()){	
+    MonitorElement* me = dbe_->get(meTitle);
+    if(me){	
+      dqmQtests_[name]=meTitle;	  
+      params.clear();
+      params.push_back(meTitle); params.push_back(name);  //hist and test titles
+      params.push_back("1.0"); params.push_back("0.99");  //warn, err probs
+      params.push_back("0.0"); params.push_back("0.0");  //xmin, xmax
+      createXRangeTest(dbe_, params);
+    }
+  }
+
+  sprintf(meTitle,"%sHcal/DataFormatMonitor/Unmapped Digis"   ,process_.c_str()); 
+  sprintf(name,"DFMon # Unmapped Digis");
+  if(dqmQtests_.find(name) == dqmQtests_.end()){	
+    MonitorElement* me = dbe_->get(meTitle);
+    if(me){	
+      dqmQtests_[name]=meTitle;	  
+      params.clear();
+      params.push_back(meTitle); params.push_back(name);  //hist and test titles
+      params.push_back("1.0"); params.push_back("0.99");  //warn, err probs
+      params.push_back("0.0"); params.push_back("0.0");  //xmin, xmax
+      createXRangeTest(dbe_, params);
+    }
+  }
+
+  sprintf(meTitle,"%sHcal/DataFormatMonitor/Unmapped Trigger Primitive Digis",process_.c_str()); 
+  sprintf(name,"DFMon # Unmapped TP Digis");
+  if(dqmQtests_.find(name) == dqmQtests_.end()){	
+    MonitorElement* me = dbe_->get(meTitle);
+    if(me){	
+      dqmQtests_[name]=meTitle;	  
+      params.clear();
+      params.push_back(meTitle); params.push_back(name);  //hist and test titles
+      params.push_back("1.0"); params.push_back("0.99");  //warn, err probs
+      params.push_back("0.0"); params.push_back("0.0");  //xmin, xmax
+      createXRangeTest(dbe_, params);
+    }
+  }
+  
   return;
 }
 
 void HcalDataFormatClient::loadHistograms(TFile* infile){
 
-  TNamed* tnd = (TNamed*)infile->Get("DQMData/HcalMonitor/DataFormatMonitor/Data Format Task Event Number");
+  TNamed* tnd = (TNamed*)infile->Get("DQMData/Hcal/DataFormatMonitor/Data Format Task Event Number");
   if(tnd){
     string s =tnd->GetTitle();
     ievt_ = -1;
@@ -793,106 +840,113 @@ void HcalDataFormatClient::loadHistograms(TFile* infile){
 
 
   char name[150]; 
-
-  sprintf(name,"DQMData/HcalMonitor/DataFormatMonitor/Spigot Format Errors");
-  spigotErrs_ = (TH1F*)infile->Get(name);
-
-  sprintf(name,"DQMData/HcalMonitor/DataFormatMonitor/Bad Quality Digis");
+  sprintf(name,"DQMData/Hcal/DataFormatMonitor/Bad Quality Digis");
   badDigis_ = (TH1F*)infile->Get(name);
 
-  sprintf(name,"DQMData/HcalMonitor/DataFormatMonitor/Unmapped Digis");
+  sprintf(name,"DQMData/Hcal/DataFormatMonitor/Unmapped Digis");
   unmappedDigis_ = (TH1F*)infile->Get(name);
 
-  sprintf(name,"DQMData/HcalMonitor/DataFormatMonitor/Unmapped Trigger Primitive Digis");
+  sprintf(name,"DQMData/Hcal/DataFormatMonitor/Unmapped Trigger Primitive Digis");
   unmappedTPDs_ = (TH1F*)infile->Get(name);
 
-  sprintf(name,"DQMData/HcalMonitor/DataFormatMonitor/FED Error Map");
+  sprintf(name,"DQMData/Hcal/DataFormatMonitor/FED Error Map");
   fedErrMap_ = (TH1F*)infile->Get(name);
 
-  sprintf(name,"DQMData/HcalMonitor/DataFormatMonitor/BCN");
+  sprintf(name,"DQMData/Hcal/DataFormatMonitor/BCN");
   BCN_ = (TH1F*)infile->Get(name);
 
-  sprintf(name,"DQMData/HcalMonitor/DataFormatMonitor/Evt Number Out-of-Synch");
+  sprintf(name,"DQMData/Hcal/DataFormatMonitor/BCN Check");
+  BCNCheck_ = (TH1F*)infile->Get(name);
+
+  sprintf(name,"DQMData/Hcal/DataFormatMonitor/EvtN Check");
+  EvtNCheck_ = (TH1F*)infile->Get(name);
+
+sprintf(name,"DQMData/Hcal/DataFormatMonitor/BCN of Fiber Orbit Message");
+  FibOrbMsgBCN_ = (TH1F*)infile->Get(name);
+
+  sprintf(name,"DQMData/Hcal/DataFormatMonitor/Evt Number Out-of-Synch");
   EvtMap_ = (TH2F*)infile->Get(name);
   
-  sprintf(name,"DQMData/HcalMonitor/DataFormatMonitor/BCN Not Constant");
+  sprintf(name,"DQMData/Hcal/DataFormatMonitor/BCN Not Constant");
   BCNMap_ = (TH2F*)infile->Get(name);
 
-  sprintf(name,"DQMData/HcalMonitor/DataFormatMonitor/HTR Firmware Version");
+  sprintf(name,"DQMData/Hcal/DataFormatMonitor/HTR Firmware Version");
   FWVerbyCrate_ = (TH2F*)infile->Get(name);
 
-  sprintf(name,"DQMData/HcalMonitor/DataFormatMonitor/HTR Error Word by Crate");
+  sprintf(name,"DQMData/Hcal/DataFormatMonitor/HTR Error Word by Crate");
   ErrMapbyCrate_ = (TH2F*)infile->Get(name);
 
-  sprintf(name,"DQMData/HcalMonitor/DataFormatMonitor/HTR Error Word - Crate 0");
+  sprintf(name,"DQMData/Hcal/DataFormatMonitor/HTR Error Word - Crate 0");
   ErrCrate0_ = (TH2F*)infile->Get(name);
 
-  sprintf(name,"DQMData/HcalMonitor/DataFormatMonitor/HTR Error Word - Crate 1");
+  sprintf(name,"DQMData/Hcal/DataFormatMonitor/HTR Error Word - Crate 1");
   ErrCrate1_ = (TH2F*)infile->Get(name);
 
-  sprintf(name,"DQMData/HcalMonitor/DataFormatMonitor/HTR Error Word - Crate 2");
+  sprintf(name,"DQMData/Hcal/DataFormatMonitor/HTR Error Word - Crate 2");
   ErrCrate2_ = (TH2F*)infile->Get(name);
 
-  sprintf(name,"DQMData/HcalMonitor/DataFormatMonitor/HTR Error Word - Crate 3");
+  sprintf(name,"DQMData/Hcal/DataFormatMonitor/HTR Error Word - Crate 3");
   ErrCrate3_ = (TH2F*)infile->Get(name);
 
-  sprintf(name,"DQMData/HcalMonitor/DataFormatMonitor/HTR Error Word - Crate 4");
+  sprintf(name,"DQMData/Hcal/DataFormatMonitor/HTR Error Word - Crate 4");
   ErrCrate4_ = (TH2F*)infile->Get(name);
 
-  sprintf(name,"DQMData/HcalMonitor/DataFormatMonitor/HTR Error Word - Crate 5");
+  sprintf(name,"DQMData/Hcal/DataFormatMonitor/HTR Error Word - Crate 5");
   ErrCrate5_ = (TH2F*)infile->Get(name);
 
-  sprintf(name,"DQMData/HcalMonitor/DataFormatMonitor/HTR Error Word - Crate 6");
+  sprintf(name,"DQMData/Hcal/DataFormatMonitor/HTR Error Word - Crate 6");
   ErrCrate6_ = (TH2F*)infile->Get(name);
 
-  sprintf(name,"DQMData/HcalMonitor/DataFormatMonitor/HTR Error Word - Crate 7");
+  sprintf(name,"DQMData/Hcal/DataFormatMonitor/HTR Error Word - Crate 7");
   ErrCrate7_ = (TH2F*)infile->Get(name);
 
-  sprintf(name,"DQMData/HcalMonitor/DataFormatMonitor/HTR Error Word - Crate 8");
+  sprintf(name,"DQMData/Hcal/DataFormatMonitor/HTR Error Word - Crate 8");
   ErrCrate8_ = (TH2F*)infile->Get(name);
 
-  sprintf(name,"DQMData/HcalMonitor/DataFormatMonitor/HTR Error Word - Crate 9");
+  sprintf(name,"DQMData/Hcal/DataFormatMonitor/HTR Error Word - Crate 9");
   ErrCrate9_ = (TH2F*)infile->Get(name);
 
-  sprintf(name,"DQMData/HcalMonitor/DataFormatMonitor/HTR Error Word - Crate 10");
+  sprintf(name,"DQMData/Hcal/DataFormatMonitor/HTR Error Word - Crate 10");
   ErrCrate10_ = (TH2F*)infile->Get(name);
 
-  sprintf(name,"DQMData/HcalMonitor/DataFormatMonitor/HTR Error Word - Crate 11");
+  sprintf(name,"DQMData/Hcal/DataFormatMonitor/HTR Error Word - Crate 11");
   ErrCrate11_ = (TH2F*)infile->Get(name);
 
-  sprintf(name,"DQMData/HcalMonitor/DataFormatMonitor/HTR Error Word - Crate 12");
+  sprintf(name,"DQMData/Hcal/DataFormatMonitor/HTR Error Word - Crate 12");
   ErrCrate12_ = (TH2F*)infile->Get(name);
 
-  sprintf(name,"DQMData/HcalMonitor/DataFormatMonitor/HTR Error Word - Crate 13");
+  sprintf(name,"DQMData/Hcal/DataFormatMonitor/HTR Error Word - Crate 13");
   ErrCrate13_ = (TH2F*)infile->Get(name);
 
-  sprintf(name,"DQMData/HcalMonitor/DataFormatMonitor/HTR Error Word - Crate 14");
+  sprintf(name,"DQMData/Hcal/DataFormatMonitor/HTR Error Word - Crate 14");
   ErrCrate14_ = (TH2F*)infile->Get(name);
 
-  sprintf(name,"DQMData/HcalMonitor/DataFormatMonitor/HTR Error Word - Crate 15");
+  sprintf(name,"DQMData/Hcal/DataFormatMonitor/HTR Error Word - Crate 15");
   ErrCrate15_ = (TH2F*)infile->Get(name);
 
-  sprintf(name,"DQMData/HcalMonitor/DataFormatMonitor/HTR Error Word - Crate 16");
+  sprintf(name,"DQMData/Hcal/DataFormatMonitor/HTR Error Word - Crate 16");
   ErrCrate16_ = (TH2F*)infile->Get(name);
 
-  sprintf(name,"DQMData/HcalMonitor/DataFormatMonitor/HTR Error Word - Crate 17");
+  sprintf(name,"DQMData/Hcal/DataFormatMonitor/HTR Error Word - Crate 17");
   ErrCrate17_ = (TH2F*)infile->Get(name);
 
   for(int i=0; i<4; i++){
     if(!subDetsOn_[i]) continue;
-    string type = "HB";
-    if(i==1) type = "HE";
+    string type = "HBHE";
+    if(i==1) type = "HBHE";
     else if(i==2) type = "HF";
     else if(i==3) type = "HO";
 
-    sprintf(name,"DQMData/HcalMonitor/DataFormatMonitor/%s Data Format Error Word", type.c_str());
-    dferr_[i] = (TH1F*)infile->Get(name);    
-    labelxBits(dferr_[i]);
+    sprintf(name,"DQMData/Hcal/DataFormatMonitor/%s Data Format Error Word", type.c_str());
+    int ind = i-1;
+    if (i<0) i=0;
+    dferr_[ind] = (TH1F*)infile->Get(name);    
+    labelxBits(dferr_[ind]);
     /*    
-    sprintf(name,"DQMData/HcalMonitor/DataFormatMonitor/%s Data Format Crate Error Map", type.c_str());
+    sprintf(name,"DQMData/Hcal/DataFormatMonitor/%s Data Format Crate Error Map", type.c_str());
     crateErrMap_[i] = (TH2F*)infile->Get(name);
 
-    sprintf(name,"DQMData/HcalMonitor/DataFormatMonitor/%s Data Format Spigot Error Map", type.c_str());
+    sprintf(name,"DQMData/Hcal/DataFormatMonitor/%s Data Format Spigot Error Map", type.c_str());
     spigotErrMap_[i] = (TH2F*)infile->Get(name);
     */
   }

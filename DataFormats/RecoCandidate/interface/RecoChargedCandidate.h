@@ -6,7 +6,7 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: RecoChargedCandidate.h,v 1.7 2007/10/15 13:03:34 llista Exp $
+ * \version $Id: RecoChargedCandidate.h,v 1.5 2006/10/26 09:14:55 llista Exp $
  *
  */
 #include "DataFormats/RecoCandidate/interface/RecoCandidate.h"
@@ -18,13 +18,8 @@ namespace reco {
     /// default constructor
     RecoChargedCandidate() : RecoCandidate() { }
     /// constructor from values
-    RecoChargedCandidate( Charge q , const LorentzVector & p4, const Point & vtx = Point( 0, 0, 0 ),
-			  int pdgId = 0, int status = 0 ) :
-      RecoCandidate( q, p4, vtx, pdgId, status ) { }
-    /// constructor from values
-    RecoChargedCandidate( Charge q , const PolarLorentzVector & p4, const Point & vtx = Point( 0, 0, 0 ),
-			  int pdgId = 0, int status = 0 ) :
-      RecoCandidate( q, p4, vtx, pdgId, status ) { }
+    RecoChargedCandidate( Charge q , const LorentzVector & p4, const Point & vtx = Point( 0, 0, 0 ) ) :
+      RecoCandidate( q, p4, vtx ) { }
     /// destructor
     virtual ~RecoChargedCandidate();
     /// returns a clone of the candidate

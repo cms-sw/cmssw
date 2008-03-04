@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: PoolSource.cc,v 1.67 2007/10/31 20:15:33 wmtan Exp $
+$Id: PoolSource.cc,v 1.64 2007/10/08 21:39:23 wmtan Exp $
 ----------------------------------------------------------------------*/
 #include "PoolSource.h"
 #include "RootFile.h"
@@ -9,7 +9,6 @@ $Id: PoolSource.cc,v 1.67 2007/10/31 20:15:33 wmtan Exp $
 
 #include "FWCore/Catalog/interface/FileCatalog.h"
 #include "FWCore/Framework/interface/EventPrincipal.h"
-#include "FWCore/Framework/interface/FileBlock.h"
 #include "DataFormats/Provenance/interface/ProductRegistry.h"
 #include "DataFormats/Provenance/interface/RunID.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -33,6 +32,8 @@ namespace edm {
     if (matchMode == std::string("strict")) matchMode_ = BranchDescription::Strict;
     ClassFiller();
     if (primary()) {
+      TFile *filePtr = (fileIter_->fileName().empty() ? 0 : TFile::Open(fileIter_->fileName().c_str()));
+      if (filePtr != 0) filePtr->Close();
       init(*fileIter_);
       updateProductRegistry();
       setInitialPosition(pset);
@@ -63,19 +64,6 @@ namespace edm {
   PoolSource::endJob() {
     rootFile_->close(true);
     delete flatDistribution_;
-    flatDistribution_ = 0;
-  }
-
-  boost::shared_ptr<FileBlock>
-  PoolSource::readFile_() {
-    if (!initialized()) {
-      // The first input file has already been opened.
-      setInitialized();
-    } else {
-      // Open the next input file.
-      if (!nextFile()) return boost::shared_ptr<FileBlock>();
-    }
-    return boost::shared_ptr<FileBlock>(new FileBlock);
   }
 
   void PoolSource::setInitialPosition(ParameterSet const& pset) {
@@ -196,7 +184,11 @@ namespace edm {
 
   boost::shared_ptr<RunPrincipal>
   PoolSource::readRun_() {
-    return rootFile_->readRun(primary() ? productRegistry() : rootFile_->productRegistry()); 
+    boost::shared_ptr<RunPrincipal> rp;
+    do {
+	 rp = rootFile_->readRun(primary() ? productRegistry() : rootFile_->productRegistry()); 
+    } while (rp.get() == 0 && nextFile());
+    return rp;
   }
 
   boost::shared_ptr<LuminosityBlockPrincipal>
@@ -224,8 +216,17 @@ namespace edm {
   }
 
   std::auto_ptr<EventPrincipal>
-  PoolSource::readNextEvent() {
-    return readEvent_(boost::shared_ptr<LuminosityBlockPrincipal>());
+  PoolSource::read() {
+    if (next()) {
+      previous();
+    } else {
+      if (!primary()) {
+	repeat();
+      }
+      return std::auto_ptr<EventPrincipal>(0);
+    }
+    boost::shared_ptr<LuminosityBlockPrincipal> lbp;
+    return rootFile_->readEvent(primary() ? productRegistry() : rootFile_->productRegistry(), lbp); 
   }
 
   std::auto_ptr<EventPrincipal>
@@ -233,7 +234,7 @@ namespace edm {
     RootTree::EntryNumber entry = rootFile_->eventTree().getBestEntryNumber(id.run(), id.event());
     if (entry >= 0) {
       rootFile_->eventTree().setEntryNumber(entry - 1);
-      return readNextEvent();
+      return read();
     } else {
       return std::auto_ptr<EventPrincipal>(0);
     }
@@ -304,7 +305,7 @@ namespace edm {
 	return;
     }
     for (int i = 0; i < number; ++i) {
-      std::auto_ptr<EventPrincipal> ev = readNextEvent();
+      std::auto_ptr<EventPrincipal> ev = read();
       if (ev.get() == 0) {
 	return;
       }
@@ -318,10 +319,10 @@ namespace edm {
   PoolSource::readRandom(int number, EventPrincipalVector& result) {
     for (int i = 0; i < number; ++i) {
       while (eventsRemainingInFile_ <= 0) randomize();
-      std::auto_ptr<EventPrincipal> ev = readNextEvent();
+      std::auto_ptr<EventPrincipal> ev = read();
       if (ev.get() == 0) {
 	rewindFile();
-	ev = readNextEvent();
+	ev = read();
 	assert(ev.get() != 0);
       }
       EventPrincipalVectorElement e(ev.release());

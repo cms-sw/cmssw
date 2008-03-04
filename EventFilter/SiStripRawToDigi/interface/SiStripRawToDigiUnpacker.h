@@ -1,4 +1,4 @@
-// Last commit: $Id: SiStripRawToDigiUnpacker.h,v 1.16 2007/06/14 18:39:33 pwing Exp $
+// Last commit: $Id: SiStripRawToDigiUnpacker.h,v 1.17 2007/10/23 22:18:55 bainbrid Exp $
 
 #ifndef EventFilter_SiStripRawToDigi_SiStripRawToDigiUnpacker_H
 #define EventFilter_SiStripRawToDigi_SiStripRawToDigiUnpacker_H
@@ -46,7 +46,7 @@ class SiStripRawToDigiUnpacker {
   /** Creates digis. */
   void createDigis( const SiStripFedCabling&,
 		    const FEDRawDataCollection&,
-		    const SiStripEventSummary&,
+		    SiStripEventSummary&,
 		    RawDigis& scope_mode,
 		    RawDigis& virgin_raw,
 		    RawDigis& proc_raw,
@@ -56,13 +56,17 @@ class SiStripRawToDigiUnpacker {
   void triggerFed( const FEDRawDataCollection&, 
 		   SiStripEventSummary&,
 		   const uint32_t& event );
-
+  
   void locateStartOfFedBuffer( const uint16_t& fed_id, const FEDRawData& input, FEDRawData& output );
 
  private:
   
   /** Private default constructor. */
   SiStripRawToDigiUnpacker();
+
+  /** */
+  void updateEventSummary( const Fed9U::Fed9UEvent* const, 
+			   SiStripEventSummary& );
   
   inline void readoutOrder( uint16_t& physical_order, uint16_t& readout_order );
   inline void physicalOrder( uint16_t& readout_order, uint16_t& physical_order ); 
@@ -88,6 +92,8 @@ class SiStripRawToDigiUnpacker {
   Fed9U::Fed9UEvent* fedEvent_;
 
   uint32_t event_;
+  
+  bool once_;
 
 };
 

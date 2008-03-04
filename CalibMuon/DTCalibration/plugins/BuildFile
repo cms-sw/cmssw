@@ -3,7 +3,6 @@
 <use name=DataFormats/DTRecHit>
 <use name=Geometry/DTGeometry>
 <use name=Geometry/Records>
-<use name=Geometry/MuonNumbering>
 <use name=CondFormats/DTObjects>
 <use name=CondFormats/DataRecord>
 <use name=CondCore/DBOutputService>

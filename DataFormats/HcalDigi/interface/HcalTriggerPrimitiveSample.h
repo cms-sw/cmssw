@@ -6,8 +6,8 @@
 
 /** \class HcalTriggerPrimitiveSample
     
-  $Date: 2006/10/05 17:38:39 $
-  $Revision: 1.5 $
+  $Date: 2007/05/05 19:03:28 $
+  $Revision: 1.6 $
   \author J. Mans - Minnesota
 */
 class HcalTriggerPrimitiveSample {
@@ -23,7 +23,7 @@ public:
   /// get the fine-grain bit
   bool fineGrain() const { return (theSample&0x100)!=0; }
   /// get the slb site number
-  int slb() const { return ((theSample>>13)&0x7)+1; }
+  int slb() const { return ((theSample>>13)&0x7); }
   /// get the slb channel number
   int slbChan() const { return (theSample>>11)&0x3; }
   /// get the id channel

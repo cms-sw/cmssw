@@ -17,43 +17,43 @@ cond::ConfigSessionFromParameterSet::ConfigSessionFromParameterSet(
   int connectionRetrialTimeOut=connectionPset.getUntrackedParameter<int>("connectionRetrialTimeOut",180);
   bool enablePoolAutomaticCleanUp=connectionPset.getUntrackedParameter<bool>("enablePoolAutomaticCleanUp",false);
   if( xmlauthName.empty() ){
-    session.configuration().setAuthenticationMethod(cond::Env);
+    session.sessionConfiguration().setAuthenticationMethod(cond::Env);
   }else{
-    session.configuration().setAuthenticationMethod(cond::XML);
-    session.configuration().setAuthenticationPath(xmlauthName);
+    session.sessionConfiguration().setAuthenticationMethod(cond::XML);
+    session.sessionConfiguration().setAuthenticationPath(xmlauthName);
   }  
   switch (messageLevel) {
   case 0 :
-    session.configuration().setMessageLevel( cond::Error );
+    session.sessionConfiguration().setMessageLevel( cond::Error );
     break;    
   case 1:
-    session.configuration().setMessageLevel( cond::Warning );
+    session.sessionConfiguration().setMessageLevel( cond::Warning );
     break;
   case 2:
-    session.configuration().setMessageLevel( cond::Info );
+    session.sessionConfiguration().setMessageLevel( cond::Info );
     break;
   case 3:
-    session.configuration().setMessageLevel( cond::Debug );
+    session.sessionConfiguration().setMessageLevel( cond::Debug );
     break;  
   default:
-    session.configuration().setMessageLevel( cond::Error );
+    session.sessionConfiguration().setMessageLevel( cond::Error );
   }
   if(enableConnectionSharing){
-    session.configuration().connectionConfiguration()->enableConnectionSharing();
+    session.connectionConfiguration().enableConnectionSharing();
   }else{
-    session.configuration().connectionConfiguration()->disableConnectionSharing();
+    session.connectionConfiguration().disableConnectionSharing();
   }
-  session.configuration().connectionConfiguration()->setConnectionTimeOut(connectionTimeOut);
+  session.connectionConfiguration().setConnectionTimeOut(connectionTimeOut);
   if(enableReadOnlySessionOnUpdateConnection){
-    session.configuration().connectionConfiguration()->enableReadOnlySessionOnUpdateConnections();
+    session.connectionConfiguration().enableReadOnlySessionOnUpdateConnections();
   }else{
-    session.configuration().connectionConfiguration()->disableReadOnlySessionOnUpdateConnections();
+    session.connectionConfiguration().disableReadOnlySessionOnUpdateConnections();
   }
   if( enablePoolAutomaticCleanUp ){
-    session.configuration().connectionConfiguration()->enablePoolAutomaticCleanUp();
+    session.connectionConfiguration().enablePoolAutomaticCleanUp();
   }else{
-    session.configuration().connectionConfiguration()->disablePoolAutomaticCleanUp();
+    session.connectionConfiguration().disablePoolAutomaticCleanUp();
   }
-  session.configuration().connectionConfiguration()->setConnectionRetrialPeriod(connectionRetrialPeriod);
-  session.configuration().connectionConfiguration()->setConnectionRetrialTimeOut(connectionRetrialTimeOut);
+  session.connectionConfiguration().setConnectionRetrialPeriod(connectionRetrialPeriod);
+  session.connectionConfiguration().setConnectionRetrialTimeOut(connectionRetrialTimeOut);
 }

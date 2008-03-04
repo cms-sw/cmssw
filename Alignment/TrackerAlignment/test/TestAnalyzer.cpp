@@ -31,7 +31,8 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "Alignment/TrackerAlignment/interface/AlignableTracker.h"
-#include "Geometry/CommonDetUnit/interface/GeomDet.h"
+#include "Alignment/TrackerAlignment/interface/AlignableTrackerBarrelLayer.h"
+#include "Alignment/TrackerAlignment/interface/AlignableTrackerRod.h"
 
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"

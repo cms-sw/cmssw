@@ -4,8 +4,7 @@
 #include <TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h>
 #include <Geometry/CommonDetUnit/interface/GeomDet.h>
 
-//#include "DataFormats/Math/interface/deltaR.h"
-#include "PhysicsTools/Utilities/interface/DeltaR.h"
+#include "DataFormats/Math/interface/deltaR.h"
 
 using namespace edm;
 using namespace reco;
@@ -14,7 +13,7 @@ TrajectoryStateOnSurface TrackAssociatorByPosition::getState(const TrackingParti
   //loop over PSimHits
   const PSimHit * psimhit=0;
   const BoundPlane * plane=0;
-  double dLim=thePositionMinimumDistance;
+  double dLim=0;
 
   //    look for the further most hit beyond a certain limit
   LogDebug("TrackAssociatorByPosition")<<(int)(simtrack.pSimHit_end()-simtrack.pSimHit_begin())<<" PSimHits.";
@@ -119,7 +118,7 @@ RecoToSimCollection TrackAssociatorByPosition::associateRecoToSim(edm::Handle<re
       if (dQ < theQCut){
 	atLeastOne=true;
 	outputCollection.insert(reco::TrackRef(tCH,Ti),
-				std::make_pair(edm::Ref<TrackingParticleCollection>(tPCH,TPi),-dQ));//association map with quality, is order greater-first
+				std::make_pair(edm::Ref<TrackingParticleCollection>(tPCH,TPi),-dQ));
 	edm::LogVerbatim("TrackAssociatorByPosition")<<"track number: "<<Ti
 						     <<" associated with dQ: "<<dQ
 						     <<" to TrackingParticle number: " <<TPi;}
@@ -167,7 +166,7 @@ SimToRecoCollection TrackAssociatorByPosition::associateSimToReco(edm::Handle<re
       if (dQ < theQCut){
 	atLeastOne=true;
 	outputCollection.insert(edm::Ref<TrackingParticleCollection>(tPCH,TPi),
-				std::make_pair(reco::TrackRef(tCH,Ti),-dQ));//association map with quality, is order greater-first
+				std::make_pair(reco::TrackRef(tCH,Ti),-dQ));
 	edm::LogVerbatim("TrackAssociatorByPosition")<<"TrackingParticle number: "<<TPi
 						     <<" associated with dQ: "<<dQ
 						     <<" to track number: "<<Ti;}

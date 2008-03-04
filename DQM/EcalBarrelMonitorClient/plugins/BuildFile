@@ -1,4 +1,4 @@
 <use name=DQM/EcalBarrelMonitorClient>
- <library file=plugins.cc name=DQMEcalBarrelMonitorClientPlugins>
+<library file=plugins.cc name=DQMEcalBarrelMonitorClientPlugins>
  <flags EDM_PLUGIN=1>
 </library>

@@ -189,8 +189,8 @@ void L1GlobalTriggerGTL::receiveData(edm::Event& iEvent,
         L1MuGMTCand muCand;
         unsigned int nMuon = 0;
 
-        for (std::vector<L1MuGMTCand>::const_iterator itMuon = muonData->
-                begin();
+        for (std::vector<L1MuGMTCand>::const_iterator
+                itMuon = muonData->begin();
                 itMuon != muonData->end();
                 itMuon++ ) {
 
@@ -389,12 +389,14 @@ const std::vector<L1GlobalTriggerObjectMap>* L1GlobalTriggerGTL::objectMap()
             objMap->setCombinationVector(combVectorVal);
             objMap->setObjectTypeVector(objTypeVal);
 
-            std::ostringstream myCout1;
-            objMap->print(myCout1);
+            if ( edm::isDebugEnabled() ) {
+                std::ostringstream myCout1;
+                objMap->print(myCout1);
 
-            LogTrace("L1GlobalTriggerGTL")
-            <<  myCout1.str()
-            << std::endl;
+                LogTrace("L1GlobalTriggerGTL")
+                <<  myCout1.str()
+                << std::endl;
+            }
 
             objMapVec->push_back(*objMap);
 

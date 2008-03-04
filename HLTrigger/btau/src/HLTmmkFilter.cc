@@ -168,7 +168,9 @@ bool HLTmmkFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) {
 	  vertex = tv;
 
 	  Candidate *c = cTrack.clone();
-	  c->setMass(0.4937);
+	  math::PtEtaPhiMLorentzVector p1 = math::PtEtaPhiMLorentzVector(c->p4());
+	  p1.SetM(0.4937);
+	  c->setP4(math::XYZTLorentzVector(p1));
 
 	  mmk->addDaughter(cMuon0);
 	  mmk->addDaughter(cMuon1);
@@ -176,6 +178,7 @@ bool HLTmmkFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) {
 
 	  AddFourMomenta addP4;
 	  addP4.set(*mmk);
+
 	}
       }
     }

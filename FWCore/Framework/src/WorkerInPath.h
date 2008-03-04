@@ -5,7 +5,7 @@
 
 	Author: Jim Kowalkowski 28-01-06
 
-	$Id: WorkerInPath.h,v 1.9 2007/03/22 06:09:28 wmtan Exp $
+	$Id: WorkerInPath.h,v 1.11 2007/11/12 23:57:57 wmtan Exp $
 
 	A wrapper around a Worker, so that statistics can be managed
 	per path.  A Path holds Workers as these things.
@@ -32,6 +32,10 @@ namespace edm {
 
     std::pair<double,double> timeCpuReal() const {
       return std::pair<double,double>(stopwatch_->cpuTime(),stopwatch_->realTime());
+    }
+
+    void clearCounters() {
+      timesVisited_ = timesPassed_ = timesFailed_ = timesExcept_ = 0;
     }
 
     int timesVisited() const { return timesVisited_; }

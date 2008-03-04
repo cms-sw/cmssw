@@ -15,7 +15,8 @@
 #include "DataFormats/ParticleFlowReco/interface/PFClusterFwd.h"
 #include "DataFormats/ParticleFlowReco/interface/PFCluster.h"
 #include "TMVA/Reader.h"
-#include "DataFormats/Math/interface/LorentzVector.h"
+
+
 /// \brief Abstract
 /*!
 \author Michele Pioppi
@@ -38,6 +39,8 @@ class TrajectoryFitter;
 class TrajectorySmoother;
 class TrackerGeometry;
 class TrajectoryStateOnSurface;
+class Propagator;
+class StraightLinePropagator;
 
 class GoodSeedProducer : public edm::EDProducer {
   typedef TrajectoryStateOnSurface TSOS;
@@ -52,9 +55,8 @@ class GoodSeedProducer : public edm::EDProducer {
  
       ///Find the bin in pt and eta
       int getBin(float,float);
-     int getBin(float);
-      void PSforTMVA(math::XYZTLorentzVector mom,
-		     math::XYZTLorentzVector pos);
+      bool PSCorrEnergy(const TSOS, int ptbin);
+      void PSforTMVA(const TSOS);
       // ----------member data ---------------------------
 
       ///Vector of clusters of the PreShower
@@ -66,6 +68,13 @@ class GoodSeedProducer : public edm::EDProducer {
 
       ///Name of the Seed(Gsf) Collection
       std::string preidgsf_;
+
+      ///Propagator
+      edm::ESHandle<Propagator> propagator_;
+
+      ///StraightLinePropagator to propagate the Trajectory from
+      ///ECAL to the max shower surface
+      StraightLinePropagator *maxShPropagator_;
 
       ///Fitter
       edm::ESHandle<TrajectoryFitter> fitter_;
@@ -79,16 +88,8 @@ class GoodSeedProducer : public edm::EDProducer {
       ///Number of hits in the seed;
       int nHitsInSeed_;
 
-      ///Minimum transverse momentum and maximum pseudorapidity
-      double minPt_;
-      double maxEta_;
-
       ///Cut on the energy of the clusters
       double clusThreshold_;
-
-      ///Min and MAx allowed values forEoverP
-      double minEp_;
-      double maxEp_;
 
       ///Produce the Seed for Ckf tracks?
       bool produceCkfseed_;
@@ -99,6 +100,7 @@ class GoodSeedProducer : public edm::EDProducer {
       ///vector of thresholds for different bins of eta and pt
       float thr[150];
       float thrPS[20];
+      float thrTMVA[15];
 
       // ----------access to event data
       edm::ParameterSet conf_;
@@ -123,6 +125,7 @@ class GoodSeedProducer : public edm::EDProducer {
       bool useTmva_;
 
       ///TMVA method
-      std::string method_;
+      std::string metBarrel_;
+      std::string metEndcap_;
 };
 #endif

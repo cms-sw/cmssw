@@ -47,8 +47,6 @@ public:
                      const SiStripQuality *quality,
                      int   qualityFlags,
                      int   qualityDebugFlags,
-		     /* const SiStripDetCabling *stripCabling, */
-		     //const SiStripNoises *stripNoises, 
 		     bool  isRegional=false);
 
   virtual ~MeasurementTracker();
@@ -93,7 +91,6 @@ public:
   const TrackerGeometry*                theTrackerGeom;
   const GeometricSearchTracker*         theGeometricSearchTracker;
   const SiStripQuality*                 theStripQuality;
-  //mutable SiStripNoises*                dummyStripNoises;  // not const
 
   bool isRegional_;
 
@@ -110,9 +107,7 @@ public:
 
   void addStripDets( const TrackingGeometry::DetContainer& dets) const;
 
-  /* void initializeStripStatus (const SiStripDetCabling *stripCabling) const; // LEGACY, DEPRECATED */
   void initializeStripStatus (const SiStripQuality *stripQuality, int qualityFlags, int qualityDebugFlags) const;
-  //void initializeStripNoises (const SiStripNoises *stripNoises) const;
 };
 
 #endif

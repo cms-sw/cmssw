@@ -3,8 +3,8 @@
  *  
  *  This class is an EDFilter choosing reconstructed di-muons
  *
- *  $Date: 2007/03/28 14:04:44 $
- *  $Revision: 1.1 $
+ *  $Date: 2007/12/31 18:43:11 $
+ *  $Revision: 1.3 $
  *
  *  \author Chang Liu  -  Purdue University
  *
@@ -13,7 +13,6 @@
 //-ap #include "Configuration/CSA06Skimming/interface/RecoDiMuon.h"
 #include "GeneratorInterface/GenFilters/interface/RecoDiMuon.h"
 
-#include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 
@@ -57,13 +56,8 @@ bool RecoDiMuon::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
   Handle<reco::TrackCollection> muons;
 
-  try
-  {
-    iEvent.getByLabel(muonLabel_, muons);
-  }
-
-  catch (...) 
-  {	
+  iEvent.getByLabel(muonLabel_, muons);
+  if (!muons.isValid()) {
     edm::LogError("RecoDiMuon") << "FAILED to get Muon Track Collection. ";
     return false;
   }

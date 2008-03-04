@@ -113,7 +113,7 @@ class RKTestPropagator : public Propagator {
 
   explicit RKTestPropagator( const MagneticField* dummyfield, PropagationDirection dir = alongMomentum,
   			     double tolerance = 5.e-5) :
-    RKField ( RKTestFieldProvider() ),
+    theTolerance(tolerance),
     RKVol(RKTestMagVolume(MagVolume::PositionType(0,0,0), MagVolume::RotationType(),ddshapeless, &RKField ) ),
     theRKProp(new RKPropagatorInS(RKVol, dir, tolerance)) {}  
 
@@ -145,13 +145,16 @@ class RKTestPropagator : public Propagator {
 
   Propagator* clone() const
     {
-      return new RKTestPropagator(*this);
+
+      return new RKTestPropagator(magneticField(),propagationDirection(),theTolerance);
+
     }
 
   virtual const MagneticField* magneticField() const { return theRKProp->magneticField();}
 
 
  private:
+  float theTolerance;
   RKTestFieldProvider RKField;
   RKTestMagVolume  RKVol;
   DeepCopyPointerByClone<Propagator> theRKProp;  

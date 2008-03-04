@@ -37,7 +37,6 @@ public:
 
   /** Analyze the Data */
   void analyze(const MuonCollection& muon,
-	       const CaloGeometry& geom,
 	       TTree* tree);
 
 private:

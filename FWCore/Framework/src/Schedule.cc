@@ -805,20 +805,6 @@ namespace edm {
     for_all(all_output_workers_, boost::bind(&OutputWorker::openNewFileIfNeeded, _1));
   }
 
-  void Schedule::beginInputFile(FileBlock const& fb) {
-    for (AllOutputWorkers::const_iterator it = all_output_workers_.begin(), itEnd = all_output_workers_.end();
-      it != itEnd; ++it) {
-	(*it)->beginInputFile(fb); 
-      }
-  }
-
-  void Schedule::endInputFile(FileBlock const& fb) {
-    for (AllOutputWorkers::const_iterator it = all_output_workers_.begin(), itEnd = all_output_workers_.end();
-      it != itEnd; ++it) {
-	(*it)->endInputFile(fb); 
-      }
-  }
-
   void Schedule::beginJob(EventSetup const& es) {
     AllWorkers::iterator i(workersBegin()),e(workersEnd());
     for(; i != e; ++i) { (*i)->beginJob(es); }
@@ -908,6 +894,14 @@ namespace edm {
     fill_summary(trig_paths_,  rep.trigPathSummaries, &fillPathSummary);
     fill_summary(end_paths_,   rep.endPathSummaries,  &fillPathSummary);
     fill_summary(all_workers_, rep.workerSummaries,   &fillWorkerSummary);
+  }
+
+  void
+  Schedule::clearCounters() {
+    total_events_ = total_passed_ = 0;
+    std::for_each(trig_paths_.begin(), trig_paths_.end(), boost::bind(&Path::clearCounters, _1));
+    std::for_each(end_paths_.begin(), end_paths_.end(), boost::bind(&Path::clearCounters, _1));
+    std::for_each(all_workers_.begin(), all_workers_.end(), boost::bind(&Worker::clearCounters, _1));
   }
 
   void

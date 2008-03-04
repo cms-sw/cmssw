@@ -1,15 +1,31 @@
-// $Id: Numbers.cc,v 1.31 2007/10/22 18:01:47 dellaric Exp $
+// $Id: Numbers.cc,v 1.35 2007/12/04 08:51:21 dellaric Exp $
 
 /*!
   \file Numbers.cc
   \brief Some "id" conversions
   \author B. Gobbo 
-  \version $Revision: 1.31 $
-  \date $Date: 2007/10/22 18:01:47 $
+  \version $Revision: 1.35 $
+  \date $Date: 2007/12/04 08:51:21 $
 */
 
 #include <sstream>
 #include <iomanip>
+
+#include "DataFormats/DetId/interface/DetId.h"
+#include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
+  
+#include <DataFormats/EcalDetId/interface/EBDetId.h>
+#include <DataFormats/EcalDetId/interface/EEDetId.h>
+
+#include <DataFormats/EcalDetId/interface/EcalTrigTowerDetId.h>
+#include <DataFormats/EcalDetId/interface/EcalElectronicsId.h>
+#include <DataFormats/EcalDetId/interface/EcalPnDiodeDetId.h>
+#include <DataFormats/EcalRawData/interface/EcalDCCHeaderBlock.h>
+  
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "Geometry/EcalMapping/interface/EcalElectronicsMapping.h"
+#include "Geometry/EcalMapping/interface/EcalMappingRcd.h"
+
 #include "DQM/EcalCommon/interface/Numbers.h"
 
 //-------------------------------------------------------------------------
@@ -33,7 +49,7 @@ void Numbers::initGeometry( const edm::EventSetup& setup ) {
     setup.get< EcalMappingRcd >().get(handle);
     Numbers::map = handle.product();
     std::cout << "done." << std::endl;
-  } catch (cms::Exception &e) {
+  } catch ( cms::Exception &e ) {
     std::cout << "not available." << std::endl;
   }
   std::cout << std::endl;
@@ -183,7 +199,9 @@ int Numbers::iSM( const EBDetId& id ) throw( std::runtime_error ) {
     throw( std::runtime_error( s.str() ) );
 
   } else {
+
     return( Numbers::iSM( id.ism(), EcalBarrel ) );
+
   }
 
 }
@@ -242,14 +260,7 @@ int Numbers::iSM( const EcalTrigTowerDetId& id ) throw( std::runtime_error ) {
 
     if( subdet == EcalBarrel ) {
 
-      int idcc = id.iDCC();
-
-      // EB-/EB+
-      if( idcc >= 10 && idcc <= 45 ) return( idcc - 9 );
-
-      std::ostringstream s;
-      s << "Wrong DCC id: dcc = " << idcc;
-      throw( std::runtime_error( s.str() ) );
+      return( Numbers::iSM( id.iDCC(), EcalBarrel ) );
 
     } else if( subdet ==  EcalEndcap) {
 
@@ -419,6 +430,38 @@ std::vector<DetId> Numbers::crystals( const EcalTrigTowerDetId& id ) throw( std:
     s << "ECAL Geometry not available";
     throw( std::runtime_error( s.str() ) );
   }
+
+}
+
+//-------------------------------------------------------------------------
+
+int Numbers::RtHalf(const EBDetId& id) throw( std::runtime_error ) {
+
+  int ic = id.ic();
+  int ie = (ic-1)/20 + 1;
+  int ip = (ic-1)%20 + 1;
+
+  if( ie > 5 && ip < 11 ) return 2;
+
+  return 1;
+
+}
+
+//-------------------------------------------------------------------------
+
+int Numbers::RtHalf(const EEDetId& id) throw( std::runtime_error ) {
+
+  int ix = id.ix();
+
+  int ism = Numbers::iSM( id );
+
+//
+// to be confirmed !
+//
+  if ( ism == +5 && ix > 50 ) return 2;
+  if ( ism == -5 && ix > 50 ) return 2;
+
+  return 1;
 
 }
 

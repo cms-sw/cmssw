@@ -18,7 +18,6 @@
 
 #include "DataFormats/L1GlobalCaloTrigger/interface/L1GctCollections.h"
 #include "DataFormats/L1GlobalCaloTrigger/interface/L1GctEtSums.h"
-#include "DataFormats/L1GlobalCaloTrigger/interface/L1GctJetCounts.h"
 
 using std::string;
 using std::ios;
@@ -36,12 +35,11 @@ DumpGctDigis::DumpGctDigis(const edm::ParameterSet& iConfig) :
   doEmu_( iConfig.getUntrackedParameter<bool>("doEmulated", true) ),
   doRctEM_( iConfig.getUntrackedParameter<bool>("doRctEm", true) ),
   doEM_( iConfig.getUntrackedParameter<bool>("doEm", true) ),
-  doRegions_( iConfig.getUntrackedParameter<bool>("doRegions", false) ),
-  doJets_( iConfig.getUntrackedParameter<bool>("doJets", false) ),
+  doRegions_( iConfig.getUntrackedParameter<bool>("doRegions", 0) ),
+  doJets_( iConfig.getUntrackedParameter<bool>("doJets", 0) ),
+  rctEmMinRank_( iConfig.getUntrackedParameter<unsigned>("rctEmMinRank", 0) ),
   doInternEM_( iConfig.getUntrackedParameter<bool>("doInternEm", true) ),
-  doFibres_( iConfig.getUntrackedParameter<bool>("doFibres", false) ),
-  doEnergySums_( iConfig.getUntrackedParameter<bool>("doEnergySums", false) ),
-  rctEmMinRank_( iConfig.getUntrackedParameter<unsigned>("rctEmMinRank", 0) )
+  doFibres_( iConfig.getUntrackedParameter<bool>("doFibres", false) )
 {
   //now do what ever initialization is needed
 
@@ -85,17 +83,13 @@ DumpGctDigis::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   if (doJets_ && doHW_) { doJets(iEvent, rawLabel_); }
   if (doJets_ && doEmu_) { doJets(iEvent, emuGctLabel_); }
 
-  // Energy Sums
-  if (doEnergySums_ && doHW_) { doEnergySums(iEvent, rawLabel_); }
-  if (doEnergySums_ && doEmu_) { doEnergySums(iEvent, emuGctLabel_); }
-
   // debugging
   if (doInternEM_ && doHW_) { doInternEM(iEvent, rawLabel_); }
   if (doFibres_ && doHW_) { doFibres(iEvent, rawLabel_); }
 
 }
 
-void DumpGctDigis::doEM(const edm::Event& iEvent, const edm::InputTag& label) {
+void DumpGctDigis::doEM(const edm::Event& iEvent, edm::InputTag label) {
 
   using namespace edm;
 
@@ -108,27 +102,21 @@ void DumpGctDigis::doEM(const edm::Event& iEvent, const edm::InputTag& label) {
   iEvent.getByLabel(label.label(),"isoEm",isoEm);
   iEvent.getByLabel(label.label(),"nonIsoEm",nonIsoEm);
 
-  outFile_ << "Iso EM from : " << label.label() << endl;
+  outFile_ << "Iso EM :" << " from : " << label.label() << endl;
   for (ie=isoEm->begin(); ie!=isoEm->end(); ie++) {
-    outFile_ << (*ie) 
-             << " ieta(detID)=" << ie->regionId().ieta()
-             << " iphi(detID)=" << ie->regionId().iphi()
-             << endl;
+    outFile_ << (*ie) << endl;
   } 
   outFile_ << endl;
   
-  outFile_ << "Non-iso EM from : " << label.label() << endl;
+  outFile_ << "Non-iso EM :" << " from : " << label.label() << endl;
   for (ne=nonIsoEm->begin(); ne!=nonIsoEm->end(); ne++) {
-    outFile_ << (*ne) 
-             << " ieta(detID)=" << ne->regionId().ieta()
-             << " iphi(detID)=" << ne->regionId().iphi()
-             << endl;
+    outFile_ << (*ne) << endl;
   } 
   outFile_ << endl;
 
 }
 
-void DumpGctDigis::doRctEM(const edm::Event& iEvent, const edm::InputTag& label) {
+void DumpGctDigis::doRctEM(const edm::Event& iEvent, edm::InputTag label) {
 
   using namespace edm;
 
@@ -138,13 +126,10 @@ void DumpGctDigis::doRctEM(const edm::Event& iEvent, const edm::InputTag& label)
  
   iEvent.getByLabel(label, em);
 
-  outFile_ << "RCT EM from : " << label.label() << endl;
+  outFile_ << "RCT EM :" << " from : " << label.label() << endl;
   for (e=em->begin(); e!=em->end(); e++) {
     if (e->rank() >= rctEmMinRank_) {
-      outFile_ << (*e) 
-               << " ieta(detID)=" << e->regionId().ieta()
-               << " iphi(detID)=" << e->regionId().iphi()
-               << endl;
+      outFile_ << (*e) << endl;
     }
   } 
   outFile_ << endl;
@@ -152,7 +137,7 @@ void DumpGctDigis::doRctEM(const edm::Event& iEvent, const edm::InputTag& label)
 }
 
 
-void DumpGctDigis::doRegions(const edm::Event& iEvent, const edm::InputTag& label) {
+void DumpGctDigis::doRegions(const edm::Event& iEvent, edm::InputTag label) {
 
   using namespace edm;
 
@@ -162,7 +147,7 @@ void DumpGctDigis::doRegions(const edm::Event& iEvent, const edm::InputTag& labe
   
   iEvent.getByLabel(label, rgns);
 
-  outFile_ << "Regions from : " << label.label() << endl;
+  outFile_ << "Regions :" << " from : " << label.label() << endl;
   for (r=rgns->begin(); r!=rgns->end(); r++) {
     outFile_ << (*r) << endl;
   } 
@@ -171,50 +156,45 @@ void DumpGctDigis::doRegions(const edm::Event& iEvent, const edm::InputTag& labe
 }
 
 
-void DumpGctDigis::doJets(const edm::Event& iEvent, const edm::InputTag& label) {
+void DumpGctDigis::doJets(const edm::Event& iEvent, edm::InputTag label) {
 
   using namespace edm;
 
   Handle<L1GctJetCandCollection> cenJets;
   Handle<L1GctJetCandCollection> forJets;
   Handle<L1GctJetCandCollection> tauJets;
-  Handle<L1GctJetCounts> jetCounts;
   
   L1GctJetCandCollection::const_iterator cj;
   L1GctJetCandCollection::const_iterator fj;
   L1GctJetCandCollection::const_iterator tj;
   
-  const std::string labelStr = label.label();
   
-  iEvent.getByLabel(labelStr,"cenJets",cenJets);
-  iEvent.getByLabel(labelStr,"forJets",forJets);
-  iEvent.getByLabel(labelStr,"tauJets",tauJets);
-  iEvent.getByLabel(label, jetCounts);
+  iEvent.getByLabel(label.label(),"cenJets",cenJets);
+  iEvent.getByLabel(label.label(),"forJets",forJets);
+  iEvent.getByLabel(label.label(),"tauJets",tauJets);
   
-  outFile_ << "Central jets from : " << labelStr << endl;
+  outFile_ << "Central jets :" << " from : " << label.label() << endl;
   for (cj=cenJets->begin(); cj!=cenJets->end(); cj++) {
     outFile_ << (*cj) << endl;
   } 
   outFile_ << endl;
   
-  outFile_ << "Forward jets from : " << labelStr << endl;
+  outFile_ << "Forward jets : " << " from : " << label.label() << endl;
   for (fj=forJets->begin(); fj!=forJets->end(); fj++) {
     outFile_ << (*fj) << endl;
   } 
   outFile_ << endl;
   
-  outFile_ << "Tau jets from : " << labelStr << endl;
+  outFile_ << "Tau jets :" << " from : " << label.label() << endl;
   for (tj=tauJets->begin(); tj!=tauJets->end(); tj++) {
     outFile_ << (*tj) << endl;
-  }
-  
-  outFile_ << "\nJet counts from : " << labelStr << endl; 
-  outFile_ << *(jetCounts.product()) << endl << endl;
+  } 
+  outFile_ << endl; 
 
 }
 
 
-void DumpGctDigis::doInternEM(const edm::Event& iEvent, const edm::InputTag& label) {
+void DumpGctDigis::doInternEM(const edm::Event& iEvent, edm::InputTag label) {
 
   using namespace edm;
 
@@ -224,19 +204,16 @@ void DumpGctDigis::doInternEM(const edm::Event& iEvent, const edm::InputTag& lab
   
   iEvent.getByLabel(label, em);
 
-  outFile_ << "Internal EM from : " << label.label() << endl;
+  outFile_ << "Internal EM :" << " from : " << label.label() << endl;
   for (e=em->begin(); e!=em->end(); e++) {
-    outFile_ << (*e) 
-             << " ieta(detID)=" << e->regionId().ieta()
-             << " iphi(detID)=" << e->regionId().iphi()
-             << endl;
+    outFile_ << (*e) << endl;
   } 
   outFile_ << endl;
   
 }
 
 
-void DumpGctDigis::doFibres(const edm::Event& iEvent, const edm::InputTag& label) {
+void DumpGctDigis::doFibres(const edm::Event& iEvent, edm::InputTag label) {
 
   using namespace edm;
 
@@ -246,28 +223,11 @@ void DumpGctDigis::doFibres(const edm::Event& iEvent, const edm::InputTag& label
   
   iEvent.getByLabel(label, fibres);
 
-  outFile_ << "Fibres from : " << label.label() << endl;
+  outFile_ << "Fibres :" << " from : " << label.label() << endl;
   for (f=fibres->begin(); f!=fibres->end(); f++) {
-    outFile_ << (*f) << endl;
+    outFile_ << std::hex << f->data() << std::dec << endl;
   } 
   outFile_ << endl;
   
 }
 
-void DumpGctDigis::doEnergySums(const edm::Event& iEvent, const edm::InputTag& label)
-{
-  using namespace edm;
-  
-  Handle<L1GctEtTotal> etTotal;
-  Handle<L1GctEtHad> etHad;
-  Handle<L1GctEtMiss> etMiss;
-  
-  iEvent.getByLabel(label, etTotal);
-  iEvent.getByLabel(label, etHad);
-  iEvent.getByLabel(label, etMiss);
-  
-  outFile_ << "Energy sums from: " << label.label() << endl;
-  outFile_ << *(etTotal.product()) << endl;
-  outFile_ << *(etHad.product()) << endl;
-  outFile_ << *(etMiss.product()) << endl << endl;
-}

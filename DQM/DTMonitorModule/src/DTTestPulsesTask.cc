@@ -1,8 +1,8 @@
 /*
  * \file DTTestPulsesTask.cc
  * 
- * $Date: 2007/03/13 18:59:53 $
- * $Revision: 1.9 $
+ * $Date: 2007/06/01 15:22:01 $
+ * $Revision: 1.10 $
  * \author M. Zanetti - INFN Padova
  *
 */
@@ -44,8 +44,6 @@ DTTestPulsesTask::DTTestPulsesTask(const edm::ParameterSet& ps){
 
   cout<<"[DTTestPulseTask]: Constructor"<<endl;
 
-  outputFile = ps.getUntrackedParameter<string>("outputFile", "DTTestPulesSources.root");
-
   parameters = ps;
 
 
@@ -65,8 +63,7 @@ DTTestPulsesTask::DTTestPulsesTask(const edm::ParameterSet& ps){
 DTTestPulsesTask::~DTTestPulsesTask(){
 
   cout <<"[DTTestPulsesTask]: analyzed " << nevents << " events" << endl;
-  
-  if ( (outputFile.size() != 0) && (parameters.getUntrackedParameter<bool>("writeHisto", true))) dbe->save(outputFile);
+ 
 }
 
 

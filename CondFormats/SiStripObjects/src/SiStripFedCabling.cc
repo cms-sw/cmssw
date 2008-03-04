@@ -30,7 +30,19 @@ SiStripFedCabling::SiStripFedCabling( const SiStripFedCabling& input )
   LogTrace(mlCabling_)
     << "[SiStripFedCabling::" << __func__ << "]"
     << " Constructing object...";
-  //@@ TO BE IMPLEMENTED
+
+  std::vector<FedChannelConnection> v_fcc;
+
+  // Retrieve FED ids from cabling map and iterate through                                                                                                                                                    
+  const std::vector<uint16_t>& fedids = input.feds();
+  std::vector<uint16_t>::const_iterator ifed=fedids.begin();
+  for ( ; ifed != fedids.end(); ++ifed ) {
+    //copy the vector of FedChannelConnection for the given ifed 
+    v_fcc.insert(v_fcc.end(),input.connections(*ifed).begin(),input.connections(*ifed).end());
+  }
+
+  buildFedCabling( v_fcc );
+  
 }
 
 // -----------------------------------------------------------------------------

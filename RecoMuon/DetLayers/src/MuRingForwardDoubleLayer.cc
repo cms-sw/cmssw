@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2007/06/14 23:42:39 $
- *  $Revision: 1.1 $
+ *  $Date: 2007/07/10 22:51:46 $
+ *  $Revision: 1.2 $
  *  \author Rick Wilkinson
  */
 
@@ -79,28 +79,23 @@ BoundDisk * MuRingForwardDoubleLayer::computeSurface()
 }
 
 
-bool MuRingForwardDoubleLayer::frontIsCloserTo(const TrajectoryStateOnSurface&tsos) const
+bool MuRingForwardDoubleLayer::isInsideOut(const TrajectoryStateOnSurface& tsos) const 
 {
-  // decide which face is closest, and do that one first.
-  float frontz = theFrontLayer.specificSurface().position().z();
-  float backz  = theBackLayer.specificSurface().position().z();
-  float statez = tsos.globalPosition().z();
-
-  return ( fabs(frontz-statez) < fabs(backz-statez) );
+  return tsos.globalPosition().basicVector().dot(tsos.globalMomentum().basicVector()) > 0;
 }
 
   
 
 std::pair<bool, TrajectoryStateOnSurface>
-MuRingForwardDoubleLayer::compatible( const TrajectoryStateOnSurface& startingState, const Propagator& prop,
-                                      const MeasurementEstimator& est) const
+MuRingForwardDoubleLayer::compatible(const TrajectoryStateOnSurface& startingState, const Propagator& prop,
+                                     const MeasurementEstimator& est) const
 {
   // mostly copied from ForwardDetLayer, except propagates to closest surface,
   // not to center
   const std::string metname = "Muon|RecoMuon|RecoMuonDetLayers|MuRingForwardDoubleLayer";
 
-  bool frontIsCloser = frontIsCloserTo(startingState);
-  const MuRingForwardLayer & closerLayer = (frontIsCloser) ? theFrontLayer : theBackLayer;
+  bool insideOut = isInsideOut(startingState);
+  const MuRingForwardLayer & closerLayer = (insideOut) ? theFrontLayer : theBackLayer;
 
   //std::pair<bool, TrajectoryStateOnSurface> result 
   //  = closerLayer.compatible(startingState, prop, est);
@@ -176,13 +171,15 @@ MuRingForwardDoubleLayer::groupedCompatibleDets( const TrajectoryStateOnSurface&
   const std::string metname = "Muon|RecoMuon|RecoMuonDetLayers|MuRingForwardDoubleLayer";
   vector<GeometricSearchDet::DetWithState> detWithStates1, detWithStates2;
   
-  if(frontIsCloserTo(startingState))
+  if(isInsideOut(startingState))
   {
+    LogTrace(metname) << "Front - Back" <<std::endl;
     detWithStates1 = theFrontLayer.compatibleDets(startingState, prop, est);
     detWithStates2 = theBackLayer.compatibleDets(startingState, prop, est);    
   }
   else 
   {
+    LogTrace(metname) << "Back - Front" <<std::endl;
     detWithStates1 = theBackLayer.compatibleDets(startingState, prop, est);
     detWithStates2 = theFrontLayer.compatibleDets(startingState, prop, est);
   }

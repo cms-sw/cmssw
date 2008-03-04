@@ -14,22 +14,30 @@
 
 // system include files
 #include <sstream>
-#include <iomanip>
+#include <string>
+#include <TTree.h>
+#include <TFile.h>
+#include <TRotMatrix.h>
 
 // user include files
-#include "FWCore/Framework/interface/EDAnalyzer.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
-#include "FWCore/Framework/interface/EventSetup.h"	 
-#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/Framework/interface/EDAnalyzer.h"
 
-#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "Alignment/TrackerAlignment/interface/AlignableTracker.h"
+#include "Alignment/TrackerAlignment/interface/AlignableTrackerBarrelLayer.h"
+#include "Alignment/TrackerAlignment/interface/AlignableTrackerRod.h"
 #include "Alignment/CommonAlignment/interface/AlignableObjectId.h"
 
-
-static const int kLEAD_WIDTH = 40; // First field width
+#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
+#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 
 //
 //
@@ -38,35 +46,52 @@ static const int kLEAD_WIDTH = 40; // First field width
 
 class TestTrackerHierarchy : public edm::EDAnalyzer {
 public:
-  explicit TestTrackerHierarchy( const edm::ParameterSet& ) {}
+  explicit TestTrackerHierarchy( const edm::ParameterSet& );
+  ~TestTrackerHierarchy();
+  
   
   virtual void analyze( const edm::Event&, const edm::EventSetup& );
 private:
   // ----------member data ---------------------------
-  void dumpAlignable( const Alignable*, unsigned int, unsigned int );
-  void printInfo( const Alignable*, unsigned int );
-
-  std::string leaders_, blank_, filled_;
+  void dumpAlignable( Alignable* alignable);
 
 };
 
+//
+// constructors and destructor
+//
+TestTrackerHierarchy::TestTrackerHierarchy( const edm::ParameterSet& iConfig ) 
+{ 
+
+}
+
+
+TestTrackerHierarchy::~TestTrackerHierarchy()
+{ 
+  
+  
+}
+
 
 void
-TestTrackerHierarchy::analyze( const edm::Event&, const edm::EventSetup& setup )
+TestTrackerHierarchy::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup )
 {
 
+   
   edm::LogInfo("TrackerHierarchy") << "Starting!";
-  edm::ESHandle<TrackerGeometry> trackerGeometry;	 
-  setup.get<TrackerDigiGeometryRecord>().get( trackerGeometry );
-  std::auto_ptr<AlignableTracker> theAlignableTracker( new AlignableTracker(&(*trackerGeometry)) );
 
-  leaders_ = "";
-  blank_ = "   ";  // These two...
-  filled_ = "|  "; // ... must have the same length
+  //
+  // Retrieve ideal geometry from event setup
+  //
+  edm::ESHandle<GeometricDet> gD;
+  edm::ESHandle<TrackerGeometry> trackerGeometry;
+  iSetup.get<TrackerDigiGeometryRecord>().get( trackerGeometry );
+  iSetup.get<IdealGeometryRecord>().get( gD );
+
+  AlignableTracker* theAlignableTracker = new AlignableTracker( &(*gD), &(*trackerGeometry) );
 
   // Now dump mother of each alignable
-  //const Alignable* alignable = (&(*theAlignableTracker))->pixelHalfBarrels()[0];
-  dumpAlignable( &(*theAlignableTracker), 1, 1 );
+  dumpAlignable( theAlignableTracker );
   
   
   edm::LogInfo("TrackerAlignment") << "Done!";
@@ -75,57 +100,32 @@ TestTrackerHierarchy::analyze( const edm::Event&, const edm::EventSetup& setup )
 
 
 //__________________________________________________________________________________________________
-// Recursive loop on alignable hierarchy
-void TestTrackerHierarchy::dumpAlignable( const Alignable* alignable,
-                                          unsigned int idau, unsigned int ndau )
+void TestTrackerHierarchy::dumpAlignable( Alignable* alignable )
 {
 
-  printInfo( alignable, idau );
-
-  if ( ndau != idau ) leaders_ += filled_;
-  else leaders_ += blank_;
-
-  const align::Alignables& comps = alignable->components();
-  if ( unsigned int ndau = comps.size() ) {
-    unsigned int idau = 0;
-    for ( align::Alignables::const_iterator iter = comps.begin(); iter != comps.end(); ++iter )
-      dumpAlignable( *iter, ++idau, ndau );
-  }
-
-  leaders_ = leaders_.substr( 0, leaders_.length()-blank_.length() );
-
-}
+  AlignableObjectId converter;
 
 
-//__________________________________________________________________________________________________
-// Do the actual printout
-void TestTrackerHierarchy::printInfo( const Alignable* alignable,
-                                      unsigned int idau )
-{
+  std::ostringstream message;
   
-  static AlignableObjectId converter;
-  int width = kLEAD_WIDTH-leaders_.length();
+  message << "I am a " << converter.typeToName( alignable->alignableObjectId() );
 
-  std::ostringstream name,pos,rot;
+  if ( alignable->mother() )
+	message << " and my mother is a "
+			<< converter.typeToName( alignable->mother()->alignableObjectId() );
+  else
+	message << " and I have no mother :-/";
 
-  name << converter.typeToName( alignable->alignableObjectId() ) << idau;
+  edm::LogInfo("DumpAlignable") << message.str();
 
-  // Position
-  pos.setf(std::ios::fixed);
-  pos << "(" << std::right 
-      << std::setw(8)  << std::setprecision(4) << alignable->globalPosition().x() << ","
-      << std::setw(8)  << std::setprecision(4) << alignable->globalPosition().y() << ","
-      << std::setw(8)  << std::setprecision(4) << alignable->globalPosition().z() << ")";
-
-  edm::LogVerbatim("DumpAlignable") 
-    << leaders_ << "+-> "
-    << std::setw(width) << std::left << name.str()
-    << " | " << std::setw(3)  << std::left << alignable->components().size()
-    << " | " << std::setw(11) << std::left << alignable->id()
-    << " | " << pos.str();
+  if ( alignable->components().size() )
+	{
+	  std::vector<Alignable*> comp = alignable->components();
+	  for ( std::vector<Alignable*>::iterator iter = comp.begin(); iter != comp.end(); iter++ )
+		dumpAlignable( *iter );
+	}
 
 }
+
 //define this as a plug-in
 DEFINE_FWK_MODULE(TestTrackerHierarchy);
-
-

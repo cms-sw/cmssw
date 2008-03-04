@@ -150,7 +150,11 @@ class string(_SimpleParameterTypeBase):
         """only used for cfg-parsing"""
         return string(value)
     def insertInto(self, parameterSet, myname):
-        parameterSet.addString(self.isTracked(), myname, self.value())
+        value = self.value()
+        #  doesn't seem to handle \0 correctly
+        #if value == '\0':
+        #    value = ''
+        parameterSet.addString(self.isTracked(), myname, value)
 
 class InputTag(_ParameterTypeBase):
     def __init__(self,moduleLabel,productInstanceLabel='',processName=''):
@@ -470,7 +474,7 @@ if __name__ == "__main__":
             v[1:1]=[5]
             self.assertEqual(len(v),4)
             self.assertEqual([1,5,4,2],list(v))
-            self.assertEqual(repr(v), "cms.vint32(1, 5, 4, 2)")
+            self.assertEqual(repr(v), "cms.vint32(1,5,4,2)")
             self.assertRaises(TypeError,v.append,('blah'))
         def testbool(self):
             b = bool(True)
@@ -487,6 +491,8 @@ if __name__ == "__main__":
             s=string('\0')
             self.assertEqual(s.value(),'\0')
             self.assertEqual(s.configValue(),"'\\0'")
+            s2=string('')
+            self.assertEqual(s2.value(),'')
         def testUntracked(self):
             p=untracked(int32(1))
             self.assertRaises(TypeError,untracked,(1),{})
@@ -514,7 +520,7 @@ if __name__ == "__main__":
             self.assertEqual(it.getProcessName(), "proc")
             self.assertEqual(repr(it), "cms.InputTag(\"label\",\"\",\"proc\")")
             vit = VInputTag(InputTag("label1"), InputTag("label2"))
-            self.assertEqual(repr(vit), "cms.VInputTag(cms.InputTag(\"label1\",\"\",\"\"), cms.InputTag(\"label2\",\"\",\"\"))")
+            self.assertEqual(repr(vit), "cms.VInputTag(cms.InputTag(\"label1\",\"\",\"\"),cms.InputTag(\"label2\",\"\",\"\"))")
         def testPSet(self):
             p1 = PSet(anInt = int32(1), a = PSet(b = int32(1)))
             self.assertRaises(ValueError, PSet, "foo")

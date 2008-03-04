@@ -1,3 +1,4 @@
+#include "DataFormats/ParticleFlowReco/interface/PFRecTrack.h"
 #include "RecoParticleFlow/PFRootEvent/interface/GPFTrack.h"
 #include "TPad.h"
 #include "TObject.h"
@@ -6,25 +7,24 @@
 
 
 //_______________________________________________________________________
-GPFTrack::GPFTrack() : GPFBase(0, 0, 0),track_(new reco::PFRecTrack())  {}
+GPFTrack::GPFTrack() : track_(new reco::PFRecTrack())  {}
 //________________________________________________________________________
-GPFTrack::GPFTrack(DisplayManager * display,int view,int ident,
-                   reco::PFRecTrack *tra, int size, double *x, double *y,
-                   double pt,int linestyle, std::string option)
-		 : GPFBase(display,view,ident),
-		   TGraph(size,x,y), track_(tra),pt_(pt), option_(option),
-		   color_(103)
+GPFTrack::GPFTrack(reco::PFRecTrack *tra, int size, double *x, double *y,
+                     double pt,int linestyle, std::string option)
+		     : TGraph(size,x,y), track_(tra),pt_(pt), option_(option) 
 {
+    
   ResetBit(kCanDelete);
   
   int    markerstyle = 8;
   double markersize = 0.8;
+  int    color = 103;
 
-  SetLineColor(color_);
+  SetLineColor(color);
   SetLineStyle(linestyle);
   SetMarkerStyle(markerstyle);
   SetMarkerSize(markersize);
-  SetMarkerColor(color_);
+  SetMarkerColor(color);
   
 }		     
 //____________________________________________________________________________________________________________
@@ -42,29 +42,13 @@ void GPFTrack::ExecuteEvent(Int_t event, Int_t px, Int_t py)
  switch (event) {
    case kButton1Down:
      Print();
-     display_->findBlock(origId_);
-     display_->findAndDraw(origId_);
      break;
    default:break;
  }    
      
 }
 //______________________________________________________________________________
-void GPFTrack::draw()
+void GPFTrack::Draw()
 {
  TGraph::Draw(option_.data());
-}
-//______________________________________________________________________________
-void GPFTrack::setColor(int color)
-{
-  if (option_=="f") SetFillColor(color);
-  else              SetLineColor(color);
-  SetMarkerColor(color);
-}
-//_____________________________________________________________________________
-void GPFTrack::setInitialColor()
-{
-  if (option_=="f") SetFillColor(color_);
-  else              SetLineColor(color_);
-  SetMarkerColor(color_);
 }

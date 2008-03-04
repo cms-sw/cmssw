@@ -7,8 +7,8 @@
  *  containing information about various sub-systems in global coordinates 
  *  with full geometry
  *
- *  $Date: 2007/10/04 19:34:25 $
- *  $Revision: 1.11 $
+ *  $Date: 2007/04/30 19:52:10 $
+ *  $Revision: 1.10 $
  *  \author M. Strang SUNY-Buffalo
  */
 
@@ -19,14 +19,6 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/ESHandle.h"
-
-//DQM services
-#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
-#include "DQMServices/Daemon/interface/MonitorDaemon.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
-
-
-
 //#include "DataFormats/Common/interface/Provenance.h"
 #include "DataFormats/Provenance/interface/Provenance.h"
 #include "FWCore/Framework/interface/MakerMacros.h" 
@@ -347,11 +339,6 @@ class GlobalRecHitsProducer : public edm::EDProducer
   unsigned int count;
 
 }; // end class declaration
-
-#endif
-
-#ifndef GlobalHitMap
-#define GlobalHitMap
 
 // geometry mapping
 static const int dTrk             = 1;

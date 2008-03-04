@@ -23,7 +23,7 @@ KFStrip1DUpdator::update(const TSOS& aTsos, const TransientTrackingRecHit& aHit)
   AlgebraicMatrix51 K(R * (C * ROOT::Math::Transpose(H)));
 
   // Compute local filtered state vector
-  AlgebraicVector5 fsv = x + (const AlgebraicVector5 &)(K * (m - px));
+  AlgebraicVector5 fsv = x + K.Col(0) * (m - px);
 
   // Compute covariance matrix of local filtered state vector
   AlgebraicSymMatrix55 I = AlgebraicMatrixID();

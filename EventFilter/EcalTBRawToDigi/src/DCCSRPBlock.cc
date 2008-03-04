@@ -3,14 +3,14 @@
 #include "DCCDataMapper.h"
 #include "DCCEventBlock.h"
 
-DCCTBSRPBlock::DCCTBSRPBlock(
-	DCCTBEventBlock * dccBlock,
-	DCCTBDataParser * parser, 
+DCCSRPBlock::DCCSRPBlock(
+	DCCEventBlock * dccBlock,
+	DCCDataParser * parser, 
 	ulong * buffer, 
 	ulong numbBytes,
 	ulong wordsToEnd,
 	ulong wordEventOffset
-) : DCCTBBlockPrototype(parser,"SRP", buffer, numbBytes,wordsToEnd,wordEventOffset), dccBlock_(dccBlock){
+) : DCCBlockPrototype(parser,"SRP", buffer, numbBytes,wordsToEnd,wordEventOffset), dccBlock_(dccBlock){
 	
 	//Reset error counters ///////
 	errors_["SRP::HEADER"]  = 0;
@@ -32,7 +32,7 @@ DCCTBSRPBlock::DCCTBSRPBlock(
 
 
 
-void DCCTBSRPBlock::dataCheck(){ 
+void DCCSRPBlock::dataCheck(){ 
 	
 	std::string checkErrors("");
 
@@ -60,8 +60,8 @@ void DCCTBSRPBlock::dataCheck(){
 }
 
 
-void  DCCTBSRPBlock::increment(ulong numb){
-	if(!parser_->debug()){ DCCTBBlockPrototype::increment(numb); }
+void  DCCSRPBlock::increment(ulong numb){
+	if(!parser_->debug()){ DCCBlockPrototype::increment(numb); }
 	else {
 		for(ulong counter=0; counter<numb; counter++, dataP_++,wordCounter_++){
 			ulong blockID = (*dataP_)>>BPOSITION_BLOCKID;

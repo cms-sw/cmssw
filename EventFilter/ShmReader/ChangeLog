@@ -1,3 +1,10 @@
+2007-11-23  Philipp SCHIEFERDECKER  <philipp.schieferdecker@cern.ch>
+
+	* tag V01-01-01
+	* detach from shared memory segment in destructor if it isn't
+	null: this ensures that configure -> halt -> configure works
+	properly 
+	
 2007-05-24  Philipp Schieferdecker  <philipp.schieferdecker@cern.ch>
 
 	* tag V01-01-00

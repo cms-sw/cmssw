@@ -217,6 +217,11 @@ void L1GlobalTrigger::produce(edm::Event& iEvent, const edm::EventSetup& evSetup
 
     // set the list of active boards
     gtfeExtWordValue.setActiveBoards(activeBoards);
+    
+    // set the TOTAL_TRIGNR as read from iEvent
+    // TODO check again - PTC stuff
+    
+    gtfeExtWordValue.setTotalTriggerNr(static_cast<boost::uint32_t>(iEvent.id().event()));
 
     // ** fill L1GtfeWord in GT DAQ record
 

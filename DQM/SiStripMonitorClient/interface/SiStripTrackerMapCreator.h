@@ -31,7 +31,6 @@ class SiStripTrackerMapCreator {
 
 
  private:
-  MonitorElement* getTkMapMe(DaqMonitorBEInterface* bei, std::string& me_name, int ndet);
 
   void paintTkMap(int det_id, std::map<MonitorElement*, int>& me_map);
   void paintFedTkMap(int fed_id, int fed_ch, std::map<MonitorElement*, int>& me_map);

@@ -18,7 +18,7 @@
  
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
   
-class  ElectronSeedGenerator;
+class  ElectronPixelSeedGenerator;
  
 class ElectronPixelSeedProducer : public edm::EDProducer
 {
@@ -35,7 +35,7 @@ class ElectronPixelSeedProducer : public edm::EDProducer
   std::string label_[2];
   std::string instanceName_[2];
   const edm::ParameterSet conf_;
-  ElectronSeedGenerator *matcher_;
+  ElectronPixelSeedGenerator *matcher_;
  
   };
   

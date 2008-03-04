@@ -352,7 +352,7 @@ bool FUResourceTable::buildResource(MemRef_t* bufRef)
   FUResource* resource    =resources_[fuResourceId];
   
   // allocate resource
-  if (!resource->isAllocated()) {
+  if (!resource->fatalError()&&!resource->isAllocated()) {
     FUShmRawCell* cell=shmBuffer_->rawCellToWrite();
     resource->allocate(cell);
     if (doCrcCheck_>0&&0==nbAllocated_%doCrcCheck_)  resource->doCrcCheck(true);
@@ -367,7 +367,7 @@ bool FUResourceTable::buildResource(MemRef_t* bufRef)
     nbErrors_   +=resource->nbErrors();
     nbCrcErrors_+=resource->nbCrcErrors();
     unlock();
-    
+	
     // make resource available for pick-up
     if (resource->isComplete()) {
       lock();
@@ -385,11 +385,10 @@ bool FUResourceTable::buildResource(MemRef_t* bufRef)
     
   }
   // bad event, release msg, and the whole resource if this was the last one
-  else {
+  //else {
+  if (resource->fatalError()) {
     bool lastMsg=isLastMessageOfEvent(bufRef);
-    bufRef->release();
     if (lastMsg) {
-      bu_->sendDiscard(buResourceId);
       shmBuffer_->releaseRawCell(resource->shmCell());
       resource->release();
       lock();
@@ -398,6 +397,11 @@ bool FUResourceTable::buildResource(MemRef_t* bufRef)
       nbLost_++;
       nbPending_--;
       unlock();
+      bu_->sendDiscard(buResourceId);
+      sendAllocate();
+    }
+    else {
+      bufRef->release();
     }
   }
   
@@ -634,6 +638,7 @@ void FUResourceTable::sendDqmEvent(UInt_t   fuDqmId,
 bool FUResourceTable::isLastMessageOfEvent(MemRef_t* bufRef)
 {
   while (0!=bufRef->getNextReference()) bufRef=bufRef->getNextReference();
+  
   I2O_EVENT_DATA_BLOCK_MESSAGE_FRAME *block=
     (I2O_EVENT_DATA_BLOCK_MESSAGE_FRAME*)bufRef->getDataLocation();
   

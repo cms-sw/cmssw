@@ -1,6 +1,6 @@
 //
 // Original Author:  Fedor Ratnikov Dec 27, 2006
-// $Id: MCJetCorrector.h,v 1.1 2007/10/03 23:29:50 fedor Exp $
+// $Id: MCJetCorrector.h,v 1.3 2007/03/30 23:47:55 fedor Exp $
 //
 // MC Jet Corrector
 //
@@ -25,8 +25,6 @@ class MCJetCorrector : public JetCorrector {
 
   /// apply correction using Jet information only
   virtual double correction (const LorentzVector& fJet) const;
-  /// apply correction using Jet information only
-  virtual double correction (const reco::Jet& fJet) const;
 
   /// if correction needs event information
   virtual bool eventRequired () const {return false;}

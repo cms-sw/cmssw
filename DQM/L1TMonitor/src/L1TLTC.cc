@@ -1,8 +1,8 @@
 /*
  * \file L1TLTC.cc
  *
- * $Date: 2007/06/27 13:54:00 $
- * $Revision: 1.2 $
+ * $Date: 2007/06/27 14:16:53 $
+ * $Revision: 1.3 $
  * \author J. Berryhill
  *
  */
@@ -51,7 +51,7 @@ L1TLTC::L1TLTC(const ParameterSet& ps)
 
 
   if ( dbe !=NULL ) {
-    dbe->setCurrentFolder("L1TMonitor/L1TLTC");
+    dbe->setCurrentFolder("L1T/L1TLTC");
   }
 
 
@@ -71,14 +71,14 @@ void L1TLTC::beginJob(const EventSetup& c)
   dbe = Service<DaqMonitorBEInterface>().operator->();
 
   if ( dbe ) {
-    dbe->setCurrentFolder("L1TMonitor/L1TLTC");
-    dbe->rmdir("L1TMonitor/L1TLTC");
+    dbe->setCurrentFolder("L1T/L1TLTC");
+    dbe->rmdir("L1T/L1TLTC");
   }
 
 
   if ( dbe ) 
   {
-    dbe->setCurrentFolder("L1TMonitor/L1TLTC");
+    dbe->setCurrentFolder("L1T/L1TLTC");
     h1 = dbe->book1D("Bunch", "Bunch Number", 100, -0.5, 5000.) ;
     h2 = dbe->book1D("Orbit", "Orbit Number", 100, -0.5, 100000. ) ;
     h3 = dbe->book1D("Triggers", "Triggers", 8, -0.5, 7.5 ) ;

@@ -4,6 +4,7 @@
 #include "DataFormats/GeometrySurface/interface/ReferenceCounted.h"
 #include "RecoVertex/VertexPrimitives/interface/CachingVertex.h"
 #include "RecoVertex/VertexPrimitives/interface/VertexState.h"
+class KinematicTree;
 
 /**
  * Class representing a Decay Vertex

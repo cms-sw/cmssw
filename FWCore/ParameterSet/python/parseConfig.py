@@ -3,7 +3,6 @@ import FWCore.ParameterSet.parsecf.pyparsing as pp
 import FWCore.ParameterSet.Config as cms
 from FWCore.ParameterSet.DictTypes import SortedKeysDict
 from Mixins import PrintOptions
-
 # Questions
 #  If an include includes a parameter already defined is that an error?
 #  If a 'using' block includes a parameter already defined, is that an error?
@@ -52,6 +51,34 @@ def _validateLabelledList(params):
     return params
 
 
+class _DictAdapter(object):
+    def __init__(self,d, addSource=False):
+        """Lets a dictionary be looked up by attributes"""
+        #copy 'd' since we need to be able to lookup a 'source' by
+        # it's type to do replace but we do NOT want to add it by its
+        # type to the final Process
+        self.__dict__['d'] = d
+        if addSource and self.d.has_key('source'):
+            self.d[d['source'].type_()]=d['source']
+    def __setattr__(self,name,value):
+        self.d[name]=value
+    def __getattr__(self,name):
+        #print 'asked for '+name
+        return self.d[name]
+
+class _DictCopyAdapter(object):
+    def __init__(self,d):
+        #copy 'd' since we need to be able to lookup a 'source' by
+        # it's type to do replace but we do NOT want to add it by its
+        # type to the final Process
+        self.d = d.copy()
+        if self.d.has_key('source'):
+            self.d[d['source'].type_()]=d['source']
+    def __getattr__(self,name):
+        #print 'asked for '+name
+        return self.d[name]
+
+
 #setup a factory to open the file, we can redirect this for testing
 class _IncludeFile(file):
     def __init__(self,filename):
@@ -83,12 +110,11 @@ def _findAndHandleParameterIncludesRecursive(values,otherFiles,recurseFiles):
     for l,v in values:
         if isinstance(v,_IncludeNode):
             #newValues.extend(_handleParameterInclude(v.filename,otherFiles))
-            newValues.extend(_handleInclude(v.filename,
-                                            otherFiles,
-                                            recurseFiles,
-                                            onlyParameters.parseFile,
-                                            _validateLabelledList,
-                                            _findAndHandleParameterIncludesRecursive))
+            newValues.extend(v.extract(l, otherFiles,
+                                       recurseFiles,
+                                       onlyParameters.parseFile,
+                                       _validateLabelledList,
+                                       _findAndHandleParameterIncludesRecursive))
         else:
             newValues.append((l,v))
     return newValues
@@ -100,12 +126,11 @@ def _findAndHandleProcessBlockIncludesRecursive(values,otherFiles,recurseFiles):
     for l,v in values:
         if isinstance(v,_IncludeNode):
             #newValues.extend(_handleParameterInclude(v.filename,otherFiles))
-            newValues.extend(_handleInclude(v.filename,
-                                            otherFiles,
-                                            recurseFiles,
-                                            onlyProcessBody.parseFile,
-                                            _validateLabelledList,
-                                            _findAndHandleProcessBlockIncludesRecursive))
+            newValues.extend(v.extract(l, otherFiles,
+                                       recurseFiles,
+                                       onlyProcessBody.parseFile,
+                                       _validateLabelledList,
+                                       _findAndHandleProcessBlockIncludesRecursive))
         else:
             newValues.append((l,v))
     return newValues
@@ -136,8 +161,6 @@ def _handleInclude(fileName,otherFiles,recurseFiles,parser,validator,recursor):
             raise RuntimeError('include file '+fileName+' had the error \n'+str(e))
         try:
             values = validator(values)
-        except pp.ParseException, e:
-            raise RuntimeError('after including all other files,include file '+fileName+' had the parsing error \n'+str(e))
         except Exception, e:
             raise RuntimeError('after including all other files, include file '+fileName+' had the error \n'+str(e))
         return values
@@ -146,23 +169,23 @@ def _handleInclude(fileName,otherFiles,recurseFiles,parser,validator,recursor):
         
 def _handleUsing(using,otherUsings,process,allUsingLabels):
     """recursively go through the using blocks and return all the contained valued"""
-    if using.label in otherUsings:
+    if using.value() in otherUsings:
         raise pp.ParseFatalException(using.s,using.loc,
-    "the using labelled '"+using.label+"' recursively uses itself"+
+    "the using.value()led '"+using.value()+"' recursively uses itself"+
     "\n from file "+using.file)
-    allUsingLabels.add(using.label)
+    allUsingLabels.add(using.value())
     values = []
     valuesFromOtherUsings=[]
     otherUsings = otherUsings.copy()
-    otherUsings.add(using.label)
-    if using.label not in process:
+    otherUsings.add(using.value())
+    if using.value() not in process:
         raise pp.ParseFatalException(using.s,using.loc,
-                "the using labelled '"+using.label+"' does not correspond to a known block or PSet"
+                "the using.value()led '"+using.value()+"' does not correspond to a known block or PSet"
                 +"\n from file "+using.file)
-    d = process[using.label].__dict__
+    d = process[using.value()].__dict__
     usingLabels=[]
     for label,param in (x for x in d.iteritems() if isinstance(x[1],cms._ParameterTypeBase)):
-        if isinstance(param,_UsingNode):
+        if isinstance(param,cms.UsingBlock):
             newValues=_handleUsing(param,otherUsings,process,allUsingLabels)
             valuesFromOtherUsings.extend( newValues)
             values.extend(newValues)
@@ -171,12 +194,12 @@ def _handleUsing(using,otherUsings,process,allUsingLabels):
             values.append((label,param))
     for label in usingLabels:
         #remove the using nodes
-        delattr(process[using.label],label)
+        delattr(process[using.value()],label)
     for plabel,param in valuesFromOtherUsings:
-        item = process[using.label]
+        item = process[using.value()]
         if hasattr(item,plabel):
             raise pp.ParseFatalException(using.s,using.loc,
-                "the using labelled '"+using.label+"' tried to add the label '"+
+                "the using labelled '"+using.value()+"' tried to add the label '"+
                 plabel+"' which already exists in this block"
                 +"\n from file "+using.file)
         setattr(item,plabel,param)
@@ -188,7 +211,7 @@ def _findAndHandleUsingBlocksRecursive(label,item,process,allUsingLabels):
     usingLabels = []
     usingForValues = []
     for tempLabel,param in item.__dict__.iteritems():
-        if isinstance(param,_UsingNode):
+        if isinstance(param,cms.UsingBlock):
             oldSize = len(values)
             values.extend(_handleUsing(param,otherUsings,process,allUsingLabels))
             usingLabels.append(tempLabel)
@@ -204,7 +227,7 @@ def _findAndHandleUsingBlocksRecursive(label,item,process,allUsingLabels):
         if hasattr(item,plabel):
             using = usingForValues[index]
             raise pp.ParseFatalException(using.s,using.loc,
-                "the using labelled '"+using.label+"' tried to add the label '"+
+                "the labelledled '"+using.value()+"' tried to add the label '"+
                 plabel+"' which already exists in this block"
                 +"\n from file "+using.file)
         setattr(item,plabel,param)
@@ -219,6 +242,28 @@ def _findAndHandleProcessUsingBlock(values):
             for pset in item:
                 _findAndHandleUsingBlocksRecursive(label,pset,d,allUsingLabels)
     return allUsingLabels
+
+def _flagUsingBlocks(values):
+    """Only flags whether they're resolvable or not"""
+    d=dict(values)
+    for label,item in d.iteritems():
+        if isinstance(item,cms._Parameterizable):
+            _flagUsingBlocksRecursive(item,d)
+        elif isinstance(item,cms.VPSet):
+            for pset in item:
+                _flagUsingBlocksRecursive(pset,d)
+
+def _flagUsingBlocksRecursive(item, d):
+    for label,param in item.__dict__.iteritems():
+        if isinstance(param,cms.UsingBlock):
+            if item.label in d.keys():
+                item.isResolved = True
+        elif isinstance(param,cms._Parameterizable):
+            _flagUsingBlocksRecursive(label,param,process)
+        elif isinstance(param,cms.VPSet):
+            for pset in param:
+                _flagUsingBlocksRecursive(label,pset,process)
+
 
 def _badLabel(s,loc,expr,err):
     """a mal formed label was detected"""
@@ -248,10 +293,13 @@ def _makeLabeledInputTag(s,loc,toks):
     if len(toks[0])==4:
         tracked = False
         del toks[0][0]
-    values = list(iter(toks[0][2]))
-    if len(values) == 1:
-        values +=''
-    p = cms.InputTag(*values)
+    if isinstance(toks[0][2], str):
+        p = cms.InputTag(toks[0][2])
+    else:
+        values = list(iter(toks[0][2]))
+        if len(values) == 1:
+            values +=''
+        p = cms.InputTag(*values)
     if not tracked:
         cms.untracked(p)
     return (toks[0][1],p)
@@ -339,23 +387,6 @@ def _makeLabeledSecSource(s,loc,toks):
         cms.untracked(ss)
     return (toks[0][1],ss)
 
-class _UsingNode(cms._ParameterTypeBase):
-    """For injection purposes, pretend this is a new parameter type
-       then have a post process step which strips these out
-    """
-    def __init__(self,label,s,loc):
-        global _fileStack
-        self.label = label
-        self.s = s
-        self.loc = loc
-        self.file = _fileStack[-1]
-    def dumpPython(self, options=PrintOptions()):
-        if options.isCfg:
-            return "process."+self.label
-        else:
-            return self.label
-
-
 
 #This is ugly but I need to know the labels used by all using statements
 # in order to efficiently process the 
@@ -363,9 +394,12 @@ _allUsingLabels = set()
 def _makeUsing(s,loc,toks):
     global _allUsingLabels
     _allUsingLabels.add(toks[0][1])
+    #global _fileStack
+    #file = _fileStack[-1]
     #TEMP:usings are hard, lets wait
     #raise pp.ParseFatalException(s,loc,"using not yet implemented")
-    return ('using_'+toks[0][1],_UsingNode(toks[0][1],s,loc))
+    options = PrintOptions()
+    return ('using_'+toks[0][1],cms.UsingBlock(toks[0][1]))
 
 
 class _IncludeNode(cms._ParameterTypeBase):
@@ -374,6 +408,49 @@ class _IncludeNode(cms._ParameterTypeBase):
     """
     def __init__(self,filename):
         self.filename = filename
+    def parse(self, parser, validator):
+        """Only the top-level nodes.  No recursion"""
+        global _fileStack
+        _fileStack.append(self.filename)
+        try:
+            #factory = _fileFactory
+            #f = factory(fileName)
+            f = _fileFactory(self.filename)
+            try:
+                values = parser(f)
+                values = validator(values)
+            except pp.ParseException, e:
+                raise RuntimeError('include file '+self.filename+' had the parsing error \n'+str(e))
+            except Exception, e:
+                raise RuntimeError('include file '+self.filename+' had the error \n'+str(e))
+            return values
+        finally:
+            _fileStack.pop()
+
+
+
+    def extract(self, label, otherFiles,recurseFiles,parser,validator,recursor):
+        """reads in the file with name 'fileName' making sure it does not recursively include itself
+        by looking in 'otherFiles' then applies the 'parser' to the contents of the file,
+        runs the validator and then applies the recursor to see if other files must now be included"""
+        fileName = self.filename
+        if fileName in recurseFiles:
+            raise RuntimeError('the file '+fileName+' eventually includes itself')
+        if fileName in otherFiles:
+            return list()
+        newRecurseFiles = recurseFiles.copy()
+        newRecurseFiles.add(fileName)
+        otherFiles.add(fileName)
+        values = self.parse(parser, validator)
+        values =recursor(values,otherFiles,newRecurseFiles)
+        try:
+            values = validator(values)
+        except pp.ParseException, e:
+           raise RuntimeError('after including all other files,include file '+fileName+' had the parsing error \n'+str(e))
+        except Exception, e:
+            raise RuntimeError('after including all other files, include file '+fileName+' had the error \n'+str(e))
+        return values
+
     def pythonFileRoot(self):
         # translate, e.g., "SimMuon/DT/data/my-mod.cfi" to "SimMuon/DT/data/my_mod_cfi"
         return self.filename.replace('.','_').replace('-','_')
@@ -382,35 +459,78 @@ class _IncludeNode(cms._ParameterTypeBase):
     def pythonModuleName(self):
         # we want something like "SimMuon.DT.mod_cfi"
         return self.pythonFileRoot().replace('/','.').replace('.data.','.')
-    def dumpPython(self, options=PrintOptions()):
+    def dumpPython(self, options):
         if options.isCfg: 
-            return "import "+self.pythonModuleName()+"\nprocess.extend("+self.pythonModuleName()+")\n"
+            #return "import "+self.pythonModuleName()+"\nprocess.extend("+self.pythonModuleName()+")\n"
+            return "process.load(\"" + self.pythonModuleName() + "\")\n"
         else:
             return "from "+self.pythonModuleName()+" import *"
-    def createIfNeeded(self):
+    def createFile(self, overwrite):
         import os
         import os.path
         pythonName = self.pythonFileName()
         cmsswSrc = os.path.expandvars("$CMSSW_BASE/src/")
         cmsswReleaseSrc = os.path.expandvars("$CMSSW_RELEASE_BASE/src/")
-        if not os.path.exists(cmsswSrc+pythonName) and not os.path.exists(cmsswReleaseSrc+pythonName):
+        if overwrite or (not os.path.exists(cmsswSrc+pythonName) and \
+                         not os.path.exists(cmsswReleaseSrc+pythonName)):
             # need to check out my own version
             cwd = os.getcwd()
             os.chdir(cmsswSrc)
             pythonDir = os.path.dirname(pythonName)
-            os.system("cvs co "+pythonDir)
+            #os.system("cvs co "+pythonDir)
+            if overwrite and os.path.exists(pythonName):
+                os.remove(pythonName)
             if not os.path.exists(pythonName):
                 # have to make it myself
                 if not os.path.exists(pythonDir):
                     print "Making " + pythonDir
                     os.makedirs(pythonDir)
+                    #os.system("scramv1 build")
                 f=open(pythonName, 'w')
                 f.write(dumpCff(self.filename))
                 f.close()
                 os.chdir(pythonDir)
-                os.system("scramv1 build") 
             os.chdir(cwd)
           
+
+class _IncludeFromNode(_IncludeNode):
+    """An IncludeNode with a label, so it will only
+       extract the named node, plus any IncludeNodes,
+       which are presumed to be blocks"""
+    def __init__(self,fromLabel, filename):
+        super(_IncludeFromNode,self).__init__(filename)
+        self._fromLabel = fromLabel
+    def extract(self, newLabel, otherFiles,recurseFiles,parser,validator,recursor):
+        import copy
+        # First, expand everything, so blocks 
+        # don't worry about re-parsing
+        wasHere = (self.filename in otherFiles)
+        if wasHere:
+            otherFiles.remove(self.filename)
+        expandedValues = _IncludeNode.extract(self, newLabel, otherFiles,recurseFiles,parser,validator,recursor)
+        # one possible fix to the issue of whether the original gets included
+        if not wasHere:
+            otherFiles.remove(self.filename)
+        found = False
+        for l,v in expandedValues:
+           if l == self._fromLabel:
+               found = True
+               # I don't know how to replace it, so I'll just have to copy
+               # second possbile fix is to comment this out
+               expandedValues.remove((l,v))
+               expandedValues.append((newLabel, copy.deepcopy(v)))
+        if not found:
+            raise RuntimeError("the file "+self.filename+" does not contain a "+self._fromLabel
+                                         +"\n from file "+_fileStack[-1])
+        return expandedValues
+    def dumpPythonAs(self, newLabel, options):
+        result = "import copy\n" +_IncludeNode.dumpPython(self, options) + "\n"
+        result += newLabel + " = copy.deepcopy("
+        if options.isCfg:
+            result += "process."
+        result += self._fromLabel+")\n"
+        return result
+
 
 def _makeInclude(s,loc,toks):
     return (toks[0][0],_IncludeNode(toks[0][0]))
@@ -463,9 +583,16 @@ fileInPathParameter = pp.Group(untracked+pp.Keyword('FileInPath')+label+_equalTo
 
 inputTagFormat = pp.Group(letterstart+pp.Optional(pp.Suppress(':')+pp.Optional(pp.NotAny(pp.White())+pp.Word(pp.alphanums),"")+
                           pp.Optional(pp.Suppress(':')+pp.Optional(pp.NotAny(pp.White())+pp.Word(pp.alphanums)))))
+anyInputTag = inputTagFormat|quotedString
+
+#inputTagParameter = pp.Group(untracked+pp.Keyword('InputTag')+label+_equalTo+
+#                             inputTagFormat
+#                             ).setParseAction(_makeLabeledInputTag)
 inputTagParameter = pp.Group(untracked+pp.Keyword('InputTag')+label+_equalTo+
-                             inputTagFormat
+                             anyInputTag
                              ).setParseAction(_makeLabeledInputTag)
+
+
 vinputTagParameter =pp.Group(untracked+pp.Keyword("VInputTag")+label+_equalTo
                              +_scopeBegin
                                +pp.Group(pp.Optional(pp.delimitedList(inputTagFormat)))
@@ -524,22 +651,7 @@ class _MakeFrom(object):
         global _fileStack
         label = toks[0][0]
         inc = toks[0][1]
-        try:
-            values = _findAndHandleProcessBlockIncludes((inc,))
-        except Exception, e:
-            raise pp.ParseFatalException(s,loc,label+" contains the error "+str(e)
-                                         +"\n from file "+_fileStack[-1])
-        #try to resolve any usings, but don't get upset if you can't.
-        try:
-            _findAndHandleProcessUsingBlock(values)
-        except Exception, e:
-            pass
-
-        d = dict(values)
-        if label not in d:
-            raise pp.ParseFatalException(s,loc,"the file "+inc.fileName+" does not contain a "+label
-                                         +"\n from file "+_fileStack[-1])
-        return d[label]
+        return _IncludeFromNode(label, inc[0])
 
 def _replaceKeywordWithType(s,loc,toks):
     type = toks[0][1].type_()
@@ -620,43 +732,58 @@ pathexp << pp.Group(pathseq + pp.ZeroOrMore('&'+pathexp))
 class _LeafNode(object):
     def __init__(self,label):
         self.__isNot = False
-        self.__label = label
-        if self.__label[0]=='!':
-            self.__label=self.__label[1:]
+        self._label = label
+        if self._label[0]=='!':
+            self._label=self._label[1:]
             self.__isNot = True
     def __str__(self):
         v=''
         if self.__isNot:
             v='!'
-        return v+self.__label
+        return v+self._label
     def make(self,process):
         #print getattr(process,self.__label).label()
-        v = getattr(process,self.__label)
+        v = getattr(process,self._label)
         if self.__isNot:
             v= ~v
         return v
-    def cfgRepr(self):
-        return "process."+str(self)
+    def getLeaves(self, leaves):
+        leaves.append(self)
+    def dumpPython(self, options):
+        result = ''
+        if self.__isNot:
+            result += '~'
+        if options.isCfg:
+            result += "process."
+        return result + self._label
+
 class _AidsOp(object):
     def __init__(self,left,right):
         self.__left = left
         self.__right = right
     def __str__(self):
         return '('+str(self.__left)+','+str(self.__right)+')'
-    def cfgRepr(self):
-        return '('+self.__left.cfgRepr()+'*'+self.__right.cfgRepr()+')'
+    def getLeaves(self, leaves):
+        self.__left.getLeaves(leaves)
+        self.__right.getLeaves(leaves)
+    def dumpPython(self, options):
+        return self.__left.dumpPython(options)+'*'+self.__right.dumpPython(options)
     def make(self,process):
         left = self.__left.make(process)
         right = self.__right.make(process)
         return left*right
+
 class _FollowsOp(object):
     def __init__(self,left,right):
         self.__left = left
         self.__right = right
     def __str__(self):
         return '('+str(self.__left)+'&'+str(self.__right)+')'
-    def cfgRepr(self):
-        return '('+self.__left.cfgRepr()+'+'+self.__right.cfgRepr()+')'
+    def getLeaves(self, leaves):
+        self.__left.getLeaves(leaves)
+        self.__right.getLeaves(leaves)
+    def dumpPython(self, options):
+        return self.__left.dumpPython(options)+'+'+self.__right.dumpPython(options)
     def make(self,process):
         left = self.__left.make(process)
         right = self.__right.make(process)
@@ -710,17 +837,14 @@ class _ModuleSeries(object):
     def __str__(self):
         return str(self.topNode)
     def __repr__(self):
-        # extra parentheses never killed anyone
-        result = "cms."+self.factory().__name__+"("+str(self)+")"
-        # for whatever reason, str(self) sticks with old punctuation
-        return result.replace(',','*').replace('&','+')
+        options = PrintOptions()
+        # probably don't want "process." everywhere
+        options.isCfg = False
+        return self.dumpPython(options)
+    def getLeaves(self, leaves):
+        self.topNode.getLeaves(leaves)
     def dumpPython(self, options):
-        if options.isCfg:
-            return self.cfgRepr()
-        else:
-            return repr(self)
-    def cfgRepr(self):
-        return "cms."+self.factory().__name__+"("+self.topNode.cfgRepr()+")"
+        return "cms."+self.factory().__name__+"("+self.topNode.dumpPython(options)+")"
 
 
 class _Sequence(_ModuleSeries):
@@ -761,6 +885,18 @@ class _Schedule(object):
     till the Paths have been created"""
     def __init__(self,labels):
         self.labels = labels
+    def dumpPython(self, options):
+        result = "cms.Schedule("
+        # might have to add the word 'process' to each'
+        newLabels = list()
+        if options.isCfg:
+            for label in self.labels:
+                newLabels.append('process.'+label)
+            result += ','.join(newLabels)
+        result += ')\n'
+
+        return result
+
 
 def _makeSchedule(s,loc,toks):
     """create the appropriate parameter object from the tokens"""
@@ -794,9 +930,6 @@ class _ReplaceNode(object):
         self.setter = setter
         self.forErrorMessage =(s,loc,_fileStack[-1])
         self.multiplesAllowed = setter.multiplesAllowed
-    def setPrefix(self, prefix):
-        """Used to add the word 'process' to included nodes"""
-        self.setter.prefix = prefix
     def getValue(self):
         return self.setter.value
     value = property(fget = getValue,
@@ -823,9 +956,12 @@ class _ReplaceNode(object):
             return
         self._recurse(path[1:],getattr(obj,path[0]))
     def __repr__(self):
+        options = PrintOptions()
+        return self.dumpPython(options)
+    def dumpPython(self, options):
         # translate true/false to True/False
         s = self.getValue()
-        return '.'.join(self.path)+repr(self.setter)
+        return '.'.join(self.path)+self.setter.dumpPython(options)
 
 class _ReplaceSetter(object):
     """Used to 'set' an unknown type of value from a Replace node"""
@@ -833,7 +969,6 @@ class _ReplaceSetter(object):
         self.value = value
         #one one replace of this type is allowed per configuration
         self.multiplesAllowed = False
-        self.prefix = ""
     def setValue(self,obj,attr):
         theAt = getattr(obj,attr)
         #want to change the value, not the actual parameter
@@ -843,11 +978,11 @@ class _ReplaceSetter(object):
         v=theAt._valueFromString(self.value)
         v.setIsTracked(theAt.isTracked())
         setattr(obj,attr,v)
-    def __repr__(self):
+    def dumpPython(self, options):
        # FIXME not really a repr, because of the = sign
-       return " = "+self._pythonValue(self.value)
+       return " = "+self._pythonValue(self.value, options)
     @staticmethod
-    def _pythonValue(value):
+    def _pythonValue(value, options):
         #if it's a number, we don't want quotes
         result = str(value)
         nodots = result.replace('.','')
@@ -857,6 +992,8 @@ class _ReplaceSetter(object):
             result = 'True'
         elif result == 'false':
             result = 'False'
+        elif len(value) == 0:
+            result = repr(value)
         elif result[0] == '[':
             l = eval(result)
             first = True
@@ -865,7 +1002,7 @@ class _ReplaceSetter(object):
             for x in l:
                 if not first:
                     result += ", "
-                element = _ReplaceSetter._pythonValue(x) 
+                element = _ReplaceSetter._pythonValue(x, options) 
                 if element.find('InputTag') != -1:
                    isVInputTag = True
                 result += element
@@ -878,7 +1015,7 @@ class _ReplaceSetter(object):
             result = repr(cms.InputTag._valueFromString(result))
         else:
             # need the quotes
-            result = repr(result)
+            result = repr(value)
         return result
 
  
@@ -891,8 +1028,8 @@ class _ParameterReplaceSetter(_ReplaceSetter):
         self.value.setIsTracked(theAt.isTracked())
         setattr(obj,attr,self.value)
     @staticmethod
-    def _pythonValue(value):
-        return repr(value)
+    def _pythonValue(value, options):
+        return value.dumpPython(options)
 
 class _VPSetReplaceSetter(_ParameterReplaceSetter):
     """Used to 'set' a VPSet replace node"""
@@ -911,8 +1048,8 @@ class _SimpleListTypeExtendSetter(_ReplaceSetter):
     def setValue(self,obj,attr):
         theAt=getattr(obj,attr)
         theAt.extend(theAt._valueFromString(self.value))
-    def __repr__(self):
-        return ".extend("+self._pythonValue(self.value)+")"
+    def dumpPython(self, options):
+        return ".extend("+self._pythonValue(self.value, options)+")"
 
 
 class _SimpleListTypeAppendSetter(_ReplaceSetter):
@@ -923,8 +1060,8 @@ class _SimpleListTypeAppendSetter(_ReplaceSetter):
     def setValue(self,obj,attr):
         theAt=getattr(obj,attr)
         theAt.append(theAt._valueFromString([self.value])[0])
-    def __repr__(self):
-        return ".append("+self._pythonValue(self.value)+")"
+    def dumpPython(self, options):
+        return ".append("+self._pythonValue(self.value, options)+")"
 
 
 
@@ -936,8 +1073,8 @@ class _VPSetExtendSetter(_VPSetReplaceSetter):
     def setValue(self,obj,attr):
         theAt=getattr(obj,attr)
         theAt.extend(self.value)
-    def __repr__(self):
-        return ".extend("+self._pythonValue(self.value)+")"
+    def dumpPython(self, options):
+        return ".extend("+self._pythonValue(self.value, options)+")"
 
 
 
@@ -949,8 +1086,8 @@ class _VPSetAppendSetter(_PSetReplaceSetter):
     def setValue(self,obj,attr):
         theAt=getattr(obj,attr)
         theAt.append(self.value)
-    def __repr__(self):
-        return ".append("+self._pythonValue(self.value)+")"
+    def dumpPython(self, options):
+        return ".append("+self._pythonValue(self.value, options)+")"
 
 
 
@@ -982,15 +1119,17 @@ class _IncrementFromVariableSetter(_ReplaceSetter):
                 theAt.append(self.value.value())
         except Exception, e:
             raise RuntimeError("replacing with "+self.oldValue+" failed because\n"+str(e))
-    def __repr__(self):
+    def dumpPython(self, options):
         v = str(self.value)
+        if options.isCfg:
+            v = 'process.'+v
         # assume variables ending in s are plural
         if v[0] == '[':
            return ".extend("+v+")"
         elif v.endswith('s'):
-           return ".extend("+self.prefix+v+")"
+           return ".extend("+v+")"
         else:
-           return ".append("+self.prefix+v+")"
+           return ".append("+v+")"
 
         
 
@@ -1098,20 +1237,7 @@ def _finalizeProcessFragment(values,usingLabels):
     try:
         #pset replaces must be done first since PSets can be used in a 'using'
         # statement so we want their changes to be reflected
-        class DictAdapter(object):
-            def __init__(self,d, addSource=False):
-                #copy 'd' since we need to be able to lookup a 'source' by
-                # it's type to do replace but we do NOT want to add it by its
-                # type to the final Process
-                self.__dict__['d'] = d
-                if addSource and self.d.has_key('source'):
-                    self.d[d['source'].type_()]=d['source']
-            def __setattr__(self,name,value):
-                self.d[name]=value
-            def __getattr__(self,name):
-                #print 'asked for '+name
-                return self.d[name]
-        adapted = DictAdapter(dict(d),True)
+        adapted = _DictAdapter(dict(d),True)
         #what order do we process replace and using directives?
         # running a test on the C++ cfg parser it appears replace
         # always happens before using
@@ -1130,8 +1256,8 @@ def _finalizeProcessFragment(values,usingLabels):
     # information
     #now we don't want 'source' to be added to 'd' but we do not want
     # copies either
-    adapted = DictAdapter(d)
-    pa = _ProcessAdapter(sequences,DictAdapter(dct))
+    adapted = _DictAdapter(d)
+    pa = _ProcessAdapter(sequences,_DictAdapter(dct))
     for label,obj in sequences.iteritems():
         if label not in dct:
             d[label]=obj.make(pa)
@@ -1170,20 +1296,6 @@ def _dumpCfg(s,loc,toks):
     result = "import FWCore.ParameterSet.Config as cms\nprocess = cms.Process(\""+label+"\")\n"
     print result+dumpPython(values, options)
     return
-    result = "import FWCore.ParameterSet.Config as cms\nprocess = cms.Process(\""+label+"\")\n"
-    for key,value in values:
-        if isinstance(value,_IncludeNode):
-            value.createIfNeeded()
-            result += repr(value)+"\n"
-        elif isinstance(value,_ReplaceNode):
-            value.setPrefix("process.")
-            result += "process."+ repr(value)+"\n"
-        elif isinstance(value,_ModuleSeries):
-            result += "process."+key+" = "+value.cfgRepr(p)+"\n"
-        else:
-            result += "process."+key+" = "+value.dumpPython()+"\n"
-    print result
-
 
 def _makeProcess(s,loc,toks):
     """create a Process from the tokens"""
@@ -1234,18 +1346,7 @@ def _makeProcess(s,loc,toks):
                 del d[label]
         #pset replaces must be done first since PSets can be used in a 'using'
         # statement so we want their changes to be reflected
-        class DictAdapter(object):
-            def __init__(self,d):
-                #copy 'd' since we need to be able to lookup a 'source' by
-                # it's type to do replace but we do NOT want to add it by its
-                # type to the final Process
-                self.d = d.copy()
-                if self.d.has_key('source'):
-                    self.d[d['source'].type_()]=d['source']
-            def __getattr__(self,name):
-                #print 'asked for '+name
-                return self.d[name]
-        adapted = DictAdapter(d)
+        adapted = _DictCopyAdapter(d)
         #what order do we process replace and using directives?
         # running a test on the C++ cfg parser it appears replace
         # always happens before using
@@ -1335,22 +1436,29 @@ def dumpPython(d, options):
     replaces = ''
     others = ''
     sequences = ''
+    schedules = ''
     prefix = ''
     if options.isCfg:
         prefix = 'process.'
     for key,value in d:
-        if isinstance(value,_IncludeNode):
-            value.createIfNeeded()
+        if isinstance(value,_IncludeFromNode):
+            value.createFile(False)
+            newLabel = prefix + key
+            includes += value.dumpPythonAs(prefix+key, options)
+        elif isinstance(value,_IncludeNode):
+            value.createFile(False)
             includes += value.dumpPython(options)+"\n"
         elif isinstance(value,_ReplaceNode):
-            if options.isCfg:
-                value.setPrefix("process.")
-            replaces += prefix+repr(value)+"\n"
+            replaces += prefix+value.dumpPython(options)+"\n"
         elif isinstance(value,_ModuleSeries):
             sequences += prefix+key+" = "+value.dumpPython(options)+"\n"
+        elif isinstance(value,_Schedule):
+            schedules += prefix+key+" = "+value.dumpPython(options)+"\n"
+        elif isinstance(value, cms.ESPrefer):
+            others += value.dumpPythonAs(key, options)
         else:
             others += prefix+key+" = "+value.dumpPython(options)+"\n"
-    return includes+"\n"+others+"\n"+sequences+"\n"+replaces
+    return includes+"\n"+others+"\n"+sequences+"\n"+schedules+"\n"+replaces
 
 class _ConfigReturn(object):
     def __init__(self,d):
@@ -1411,8 +1519,24 @@ def dumpCff(fileName):
     for key,value in compressedValues:
         if isinstance(value, cms._Labelable):
             value.setLabel(key)
+
+    _validateSequences(compressedValues)
+
     return dumpDict(compressedValues)
 
+def _validateSequences(values):
+    """ Takes the usual list of pairs, and for each
+    sequence, checks see if the keys are defined yet.
+    Adds a placeholders for missing keys"""
+    keys = set()
+    leaves = list()
+    for key, value in values:
+        keys.add(key)
+        if isinstance(value, _ModuleSeries):
+           value.getLeaves(leaves)
+    for leaf in leaves:
+        if not leaf._label in keys:
+            leaf._label = "cms.SequencePlaceholder(\""+leaf._label+"\")"
 
 def processFromString(configString):
     """Reads a string containing the equivalent content of a .cfg file and
@@ -1453,6 +1577,11 @@ if __name__=="__main__":
         def setUp(self):
             """Nothing to do """
             #print 'testing'
+        def testPlaceholder(self):
+            t=path.parseString('path p = {out}')
+            _validateSequences(t)
+            self.assertEqual(repr(t[0][1]), "cms.Path(cms.SequencePlaceholder(\"out\"))")
+
         def testLetterstart(self):
             t = letterstart.parseString("abcd")
             self.assertEqual(len(t),1)
@@ -1531,7 +1660,9 @@ if __name__=="__main__":
             self.assertEqual(d['blah'].moduleLabel,'tag')
             self.assertEqual(d['blah'].productInstanceLabel,'')
 
-            t = onlyParameters.parseString("InputTag blah = tag:youIt")
+            t = onlyParameters.parseString("InputTag blah =tag:youIt")
+            # FAILS!
+            #  = onlyParameters.parseString("InputTag blah = \"tag:youIt\"")
             d=dict(iter(t))
             self.assertEqual(type(d['blah']),cms.InputTag)
             self.assertEqual(d['blah'].moduleLabel,'tag')
@@ -1638,7 +1769,7 @@ PSet blah = {
             t=onlyParameters.parseString("PSet blah = {using ick}")
             d=dict(iter(t))
             self.assertEqual(type(d['blah']),cms.PSet)
-            self.assertEqual(d['blah'].using_ick.label, 'ick')
+            self.assertEqual(d['blah'].using_ick.value(), 'ick')
         def testInclude(self):
             #for testing use a different factory
             import StringIO
@@ -1781,13 +1912,15 @@ path 'p' contains the error: 'Process' object has no attribute 'doesNotExist'
             try:
                 _fileFactory = TestFactory('Sub/Pack/data/foo.cfi', 'module foo = TestProd {}')
                 t=plugin.parseString("module bar = foo from 'Sub/Pack/data/foo.cfi'")
-                d=dict(iter(t))
+                t = _findAndHandleProcessBlockIncludes(t)
+                d = dict(iter(t))
                 self.assertEqual(type(d['bar']),cms.EDProducer)
                 self.assertEqual(d['bar'].type_(),"TestProd")
                 
                 
                 _fileFactory = TestFactory('Sub/Pack/data/foo.cfi', 'es_module foo = TestProd {}')
                 t=plugin.parseString("es_module bar = foo from 'Sub/Pack/data/foo.cfi'")
+                t = _findAndHandleProcessBlockIncludes(t)
                 d=dict(iter(t))
                 self.assertEqual(type(d['bar']),cms.ESProducer)
                 self.assertEqual(d['bar'].type_(),"TestProd")
@@ -1856,8 +1989,8 @@ process RECO = {
    path p = {s&fii}
    sequence s = {foo,bar}
 }""")
-            self.assertEqual(str(t[0].p),'((foo*bar)+fii)')
-            self.assertEqual(str(t[0].s),'(foo*bar)')
+            self.assertEqual(str(t[0].p),'foo*bar+fii')
+            self.assertEqual(str(t[0].s),'foo*bar')
             t[0].dumpConfig()
 
             _allUsingLabels = set()
@@ -1877,8 +2010,8 @@ process RECO = {
    path p = {!s&!fii}
    sequence s = {foo,bar}
 }""")
-            self.assertEqual(str(t[0].p),'(~(foo*bar)+~fii)')
-            self.assertEqual(str(t[0].s),'(foo*bar)')
+            self.assertEqual(str(t[0].p),'~foo*bar+~fii')
+            self.assertEqual(str(t[0].s),'foo*bar')
             t[0].dumpConfig()
             
             s="""
@@ -1921,10 +2054,12 @@ process RECO = {
             t=process.parseString("""
 process RECO = {
   include "FWCore/ParameterSet/test/chainIncludeBlock.cfi"
+  replace CaloJetParameters.inputEMin = 0.1
   module i = iterativeConeNoBlock from "FWCore/ParameterSet/test/chainIncludeModule2.cfi"
 }
 """)
             self.assertEqual(t[0].i.jetType.value(), "CaloJet")
+            self.assertEqual(t[0].i.inputEMin.value(), 0.1)
 
 
 
@@ -2449,72 +2584,74 @@ process RECO = {
 #            print t[0][1]
             t=path.parseString('path p = {a,b}')
             self.assertEqual(str(t[0][1]),'(a,b)')            
-            self.checkRepr(t[0][1], 'cms.Path((a*b))')
-            self.assertEqual(t[0][1].cfgRepr(), 'cms.Path((process.a*process.b))')
+            self.checkRepr(t[0][1], 'cms.Path(a*b)')
+            options = PrintOptions()
+            options.isCfg = True
+            self.assertEqual(t[0][1].dumpPython(options), 'cms.Path(process.a*process.b)')
             pth = t[0][1].make(p)
-            self.assertEqual(str(pth),'(a*b)')
+            self.assertEqual(str(pth),'a*b')
             #print pth
 #            print t[0][1]
             t=path.parseString('path p = {a&b}')
             self.assertEqual(str(t[0][1]),'(a&b)')
             pth = t[0][1].make(p)
-            self.assertEqual(str(pth),'(a+b)')
+            self.assertEqual(str(pth),'a+b')
 #            print t[0][1]
             t=path.parseString('path p = {a,b,c}')
             self.assertEqual(str(t[0][1]),'((a,b),c)')
             pth = t[0][1].make(p)
-            self.assertEqual(str(pth),'((a*b)*c)')
+            self.assertEqual(str(pth),'a*b*c')
 #            print t[0][1]
             t=path.parseString('path p = {a&b&c}')
             self.assertEqual(str(t[0][1]),'((a&b)&c)')
             pth = t[0][1].make(p)
-            self.assertEqual(str(pth),'((a+b)+c)')
+            self.assertEqual(str(pth),'a+b+c')
 #            print t[0][1]
             t=path.parseString('path p = {a&b,c}')
             self.assertEqual(str(t[0][1]),'(a&(b,c))')
             pth = t[0][1].make(p)
-            self.assertEqual(str(pth),'(a+(b*c))')
+            self.assertEqual(str(pth),'a+b*c')
 #            print t[0][1]
             t=path.parseString('path p = {a,b&c}')
             self.assertEqual(str(t[0][1]),'((a,b)&c)')
             pth = t[0][1].make(p)
-            self.assertEqual(str(pth),'((a*b)+c)')
+            self.assertEqual(str(pth),'a*b+c')
 #            print t[0][1]
             t=path.parseString('path p = {(a,b)&c}')
             self.assertEqual(str(t[0][1]),'((a,b)&c)')
             pth = t[0][1].make(p)
-            self.assertEqual(str(pth),'((a*b)+c)')
+            self.assertEqual(str(pth),'a*b+c')
 #            print t[0][1]
             t=path.parseString('path p = {(a&b),c}')
             self.assertEqual(str(t[0][1]),'((a&b),c)')
             pth = t[0][1].make(p)
-            self.assertEqual(str(pth),'((a+b)*c)')
+            self.assertEqual(str(pth),'a+b*c')
 #            print t[0][1]
             t=path.parseString('path p = {a,(b&c)}')
             self.assertEqual(str(t[0][1]),'(a,(b&c))')
             pth = t[0][1].make(p)
-            self.assertEqual(str(pth),'(a*(b+c))')
+            self.assertEqual(str(pth),'a*b+c')
 #            print t[0][1]
             t=path.parseString('path p = {a&(b,c)}')
             self.assertEqual(str(t[0][1]),'(a&(b,c))')
             pth = t[0][1].make(p)
-            self.assertEqual(str(pth),'(a+(b*c))')
+            self.assertEqual(str(pth),'a+b*c')
 #            print t[0][1]
             p.d = cms.Sequence(p.a*p.b)
             t=path.parseString('path p = {d,c}')
             self.assertEqual(str(t[0][1]),'(d,c)')
             pth = t[0][1].make(p)
-            self.assertEqual(str(pth),'((a*b)*c)')
+            self.assertEqual(str(pth),'a*b*c')
 #            print t[0][1]
             t=path.parseString('path p = {a&!b}')
             self.assertEqual(str(t[0][1]),'(a&!b)')
             pth = t[0][1].make(p)
-            self.assertEqual(str(pth),'(a+~b)')
+            self.assertEqual(str(pth),'a+~b')
 #            print t[0][1]
             t=path.parseString('path p = {!a&!b&!c}')
             self.assertEqual(str(t[0][1]),'((!a&!b)&!c)')
             pth = t[0][1].make(p)
-            self.assertEqual(str(pth),'((~a+~b)+~c)')
+            self.assertEqual(str(pth),'~a+~b+~c')
         @staticmethod
         def strip(value):
             """strip out whitespace & newlines"""
@@ -2535,12 +2672,14 @@ process RECO = {
             t[0][1].do(process)
             self.assertEqual(process.a.b.value(),1)
             #print t
+            process = cms.Process("Test")
             process.a = cms.EDProducer('FooProd', b=cms.PSet(c=cms.double(2)))
             t=replace.parseString('replace a.b.c = 1')
             self.assertEqual(t[0][0],'a.b.c')
             self.assertEqual(t[0][1].path, ['a','b','c'])
             self.assertEqual(t[0][1].value,'1')
             self.checkRepr(t[0][1], "a.b.c = 1")
+            self.assertEqual(type(process.a.b),cms.PSet)
             t[0][1].do(process)
             self.assertEqual(type(process.a.b),cms.PSet)
             self.assertEqual(process.a.b.c.value(),1.0)
@@ -2554,6 +2693,7 @@ process RECO = {
             self.assertEqual(type(process.a.b),cms.PSet)
             self.assertEqual(process.a.b.c.value(),1.359)
             #print t
+            process = cms.Process("Test")
             process.a = cms.EDProducer('FooProd', b=cms.untracked.PSet())
             self.assertEqual(process.a.b.isTracked(),False)
             t=replace.parseString('replace a.b = {untracked string threshold ="DEBUG"}')
@@ -2563,6 +2703,7 @@ process RECO = {
             self.assertEqual(process.a.b.threshold.value(),"DEBUG")
             self.assertEqual(process.a.b.threshold.isTracked(),False)
             #print t
+            process = cms.Process("Test")
             process.a = cms.EDProducer('FooProd', b=cms.PSet(c=cms.untracked.double(2)))
             self.assertEqual(process.a.b.c.value(),2.0)
             self.assertEqual(process.a.b.c.isTracked(),False)
@@ -2577,6 +2718,7 @@ process RECO = {
             self.assertEqual(t[0][0],'a.b')
             self.assertEqual(t[0][1].path, ['a','b'])
             self.assertEqual(t[0][1].value,'all that')
+            process = cms.Process("Test")
             process.a = cms.EDProducer('FooProd', b=cms.string('thing'))
             self.checkRepr(t[0][1], "a.b = \'all that\'")
             t[0][1].do(process)
@@ -2593,6 +2735,7 @@ process RECO = {
             self.assertEqual(t[0][0],'a.b')
             self.assertEqual(t[0][1].path, ['a','b'])
             self.assertEqual(t[0][1].value,['1','3','6'])
+            process = cms.Process("Test")
             process.a = cms.EDProducer('FooProd', b=cms.vint32())
             self.checkRepr(t[0][1], "a.b = [1, 3, 6]")
 
@@ -2615,6 +2758,7 @@ process RECO = {
             self.assertEqual(type(t[0][1].value),cms.PSet)
             self.assertEqual(t[0][1].value.i.value(), 1) 
             self.checkRepr(t[0][1], "a.b = cms.PSet(i=cms.int32(1))")
+            process = cms.Process("Test")
             process.a = cms.EDProducer('FooProd', b=cms.PSet(j=cms.uint32(5)))
             t[0][1].do(process)
             self.assertEqual(process.a.b.i.value(),1)
@@ -2627,10 +2771,12 @@ process RECO = {
             self.assertEqual(type(t[0][1].value),cms.VPSet)
             self.assertEqual(t[0][1].value[0].i.value(), 1) 
             self.checkRepr(t[0][1], "a.b = cms.VPSet(cms.PSet(i=cms.int32(1)))")
+            process = cms.Process("Test")
             process.a = cms.EDProducer('FooProd', b=cms.VPSet((cms.PSet(j=cms.uint32(5)))))
             t[0][1].do(process)
             self.assertEqual(process.a.b[0].i.value(),1)
             
+            process = cms.Process("Test")
             process.a = cms.EDProducer('FooProd', b=cms.vuint32(2))
             t=replace.parseString('replace a.b += 1')
             self.assertEqual(t[0][0],'a.b')
@@ -2640,6 +2786,7 @@ process RECO = {
             t[0][1].do(process)
             self.assertEqual(list(process.a.b),[2,1])
 
+            process = cms.Process("Test")
             process.a = cms.EDProducer('FooProd', b=cms.vuint32(2))
             t=replace.parseString('replace a.b += {1,3}')
             self.assertEqual(t[0][0],'a.b')
@@ -2654,6 +2801,7 @@ process RECO = {
             self.assertEqual(t[0][1].path, ['a','b'])
             self.assertEqual(t[0][1].value,'all that')
             self.checkRepr(t[0][1], "a.b.append(\'all that\')")
+            process = cms.Process("Test")
             process.a = cms.EDProducer('FooProd', b=cms.vstring('thing'))
             t[0][1].do(process)
             self.assertEqual(list(process.a.b),['thing','all that'])
@@ -2663,6 +2811,7 @@ process RECO = {
             self.assertEqual(t[0][1].path, ['a','b'])
             self.assertEqual(t[0][1].value,['all that','and more'])
             self.checkRepr(t[0][1], "a.b.extend([\'all that\', \'and more\'])")
+            process = cms.Process("Test")
             process.a = cms.EDProducer('FooProd', b=cms.vstring('thing'))
             t[0][1].do(process)
             self.assertEqual(list(process.a.b),['thing','all that','and more'])
@@ -2673,6 +2822,7 @@ process RECO = {
             self.assertEqual(type(t[0][1].value),cms.PSet)
             self.assertEqual(t[0][1].value.i.value(), 1) 
             self.checkRepr(t[0][1], "a.b.append(cms.PSet(i=cms.int32(1)))")
+            process = cms.Process("Test")
             process.a = cms.EDProducer('FooProd',
                                        b=cms.VPSet((cms.PSet(j=cms.uint32(5)))))
             t[0][1].do(process)
@@ -2685,29 +2835,33 @@ process RECO = {
             self.assertEqual(type(t[0][1].value),cms.VPSet)
             self.assertEqual(t[0][1].value[0].i.value(), 1) 
             self.checkRepr(t[0][1], "a.b.extend(cms.VPSet(cms.PSet(i=cms.int32(1))))")
+            process = cms.Process("Test")
             process.a = cms.EDProducer('FooProd', b=cms.VPSet((cms.PSet(j=cms.uint32(5)))))
             t[0][1].do(process)
             self.assertEqual(len(process.a.b),2)
             self.assertEqual(process.a.b[1].i.value(),1)
 
+            process = cms.Process("Test")
             process.a = cms.EDProducer('FooProd', b=cms.vuint32(2), c=cms.vuint32(1))
             t=replace.parseString('replace a.b += a.c')
             self.assertEqual(t[0][0],'a.b')
             self.assertEqual(t[0][1].path, ['a','b'])
             self.assertEqual(t[0][1].value,'a.c')
-            self.checkRepr(t[0][1], "a.b.append(a.c)")
+            self.checkRepr(t[0][1], "a.b.append(process.a.c)")
             t[0][1].do(process)
             self.assertEqual(list(process.a.b),[2,1])
             
+            process = cms.Process("Test")
             process.a = cms.EDProducer('FooProd', b=cms.vuint32(2), c=cms.uint32(1))
             t=replace.parseString('replace a.b += a.c')
             self.assertEqual(t[0][0],'a.b')
             self.assertEqual(t[0][1].path, ['a','b'])
             self.assertEqual(t[0][1].value,'a.c')
-            self.checkRepr(t[0][1], "a.b.append(a.c)")
+            self.checkRepr(t[0][1], "a.b.append(process.a.c)")
             t[0][1].do(process)
             self.assertEqual(list(process.a.b),[2,1])
 
+            process = cms.Process("Test")
             foobar = 'cms.InputTag("foobar","","")'
             process.a = cms.EDProducer('FooProd', b=cms.InputTag("bar",""))
             t = replace.parseString('replace a.b = foobar:')
@@ -2715,6 +2869,7 @@ process RECO = {
             t[0][1].do(process)
             self.assertEqual(process.a.b.configValue(),'foobar::')                        
 
+            process = cms.Process("Test")
             process.a = cms.EDProducer('FooProd', b=cms.VInputTag((cms.InputTag("bar"))))
             t = replace.parseString('replace a.b = {foobar:}')
             self.checkRepr(t[0][1], "a.b = cms.VInputTag("+foobar+")")
@@ -2722,6 +2877,7 @@ process RECO = {
             #self.assertEqual(process.a.b.configValue('',''),'{\nfoobar::\n}\n')                        
             self.assertEqual(list(process.a.b),[cms.InputTag('foobar')])                        
 
+            process = cms.Process("Test")
             process.a = cms.EDProducer('FooProd', b=cms.VInputTag((cms.InputTag("bar"))))
             t = replace.parseString('replace a.b += {foobar:}')
             self.checkRepr(t[0][1], "a.b.extend(cms.VInputTag("+foobar+"))")
@@ -2729,6 +2885,7 @@ process RECO = {
             #self.assertEqual(process.a.b.configValue('',''),'{\nfoobar::\n}\n')                        
             self.assertEqual(list(process.a.b),[cms.InputTag("bar"),cms.InputTag('foobar')])                        
 
+            process = cms.Process("Test")
             process.a = cms.EDProducer("FooProd", b = cms.uint32(1))
             t = replace.parseString('replace a.c = 2')
             self.assertRaises(pp.ParseBaseException,t[0][1].do,(process))

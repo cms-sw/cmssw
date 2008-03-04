@@ -8,10 +8,8 @@
 #include "Alignment/ReferenceTrajectories/interface/TrajectoryFactoryPlugin.h"
 
 #include "Alignment/TrackerAlignment/interface/TrackerAlignableId.h"
-#include "Alignment/TrackerAlignment/interface/AlignableTracker.h"
 
 #include "DataFormats/TrackingRecHit/interface/AlignmentPositionError.h"
-#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 
 #include "Alignment/KalmanAlignmentAlgorithm/interface/KalmanAlignmentUpdatorPlugin.h"
 #include "Alignment/KalmanAlignmentAlgorithm/interface/KalmanAlignmentMetricsUpdatorPlugin.h"
@@ -316,7 +314,7 @@ void KalmanAlignmentAlgorithm::initializeAlignmentParameters( const edm::EventSe
     AlignmentParameters* alignmentParameters = ( *itAlignable )->alignmentParameters();
     KalmanAlignmentUserVariables* auv = new KalmanAlignmentUserVariables( *itAlignable, alignableId, updateGraph );
 
-    pair< int, int > typeAndLayer = alignableId->typeAndLayerFromDetId( (*itAlignable)->id() );
+    pair< int, int > typeAndLayer = alignableId->typeAndLayerFromAlignable( *itAlignable );
 
     if ( abs( typeAndLayer.first ) <= 2 )
     {

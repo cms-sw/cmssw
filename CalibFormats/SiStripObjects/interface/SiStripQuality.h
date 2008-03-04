@@ -17,7 +17,7 @@
 //
 // Author:      Domenico Giordano
 // Created:     Wed Sep 26 17:42:12 CEST 2007
-// $Id: SiStripQuality.h,v 1.3 2007/10/18 08:42:17 giordano Exp $
+// $Id: SiStripQuality.h,v 1.6 2007/11/04 22:29:15 giordano Exp $
 //
 
 
@@ -25,6 +25,7 @@
 #include "FWCore/ParameterSet/interface/FileInPath.h"
 #include "CalibTracker/SiStripCommon/interface/SiStripDetInfoFileReader.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "CalibFormats/SiStripObjects/interface/SiStripDetCabling.h"
 #include <vector>
 
 class SiStripQuality: public SiStripBadStrip {
@@ -59,8 +60,11 @@ class SiStripQuality: public SiStripBadStrip {
     toCleanUp=false;
   }
 
+  void add(const uint32_t&,const SiStripBadStrip::Range&);
   void add(const SiStripBadStrip*);
- 
+  void add(const SiStripDetCabling*);
+  void addInvalidConnectionFromCabling();
+
   bool cleanUp();
 
   void fillBadComponents();
@@ -74,11 +78,15 @@ class SiStripQuality: public SiStripBadStrip {
   edm::FileInPath getFileInPath() const {return FileInPath_;}
 
   //------- Interface for the user ----------//
+  bool IsModuleUsable(const uint32_t& detid) const;
 
   bool IsModuleBad(const uint32_t& detid) const;
   bool IsFiberBad(const uint32_t& detid, const short& fiberNb) const;
   bool IsApvBad(const uint32_t& detid, const short& apvNb) const;
   bool IsStripBad(const uint32_t& detid, const short& strip) const;
+  bool IsStripBad(const Range& range, const short& strip) const;
+  int  nBadStripsOnTheLeft(const Range& range, const short& strip) const; //provides number of consecutive bad strips on the left of strip (including strip)
+  int  nBadStripsOnTheRight(const Range& range, const short& strip) const; //provides number of consecutive bad strips on the right of strip (including strip)
   
   short getBadApvs(const uint32_t& detid) const; 
   //each bad apv correspond to a bit to 1: num=
@@ -113,6 +121,8 @@ class SiStripQuality: public SiStripBadStrip {
   SiStripDetInfoFileReader* reader;
 
   std::vector<BadComponent> BadComponentVect;
+
+  const SiStripDetCabling *SiStripDetCabling_;  
 };
 
 #endif

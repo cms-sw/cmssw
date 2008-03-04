@@ -53,11 +53,7 @@ namespace edm {
       NodePtr processPSetNodePtr = nodes_->front();
       edm::pset::PSetNode * processPSetNode
         = dynamic_cast<edm::pset::PSetNode*>(processPSetNodePtr.get());
-      if(processPSetNode == 0) 
-      {
-        throw edm::Exception(errors::Configuration,"ParseTree")
-          << "The top node of the configuration must be a process";
-      }
+      assert(processPSetNode != 0);
       return processPSetNode;
     }
 
@@ -502,12 +498,8 @@ namespace edm {
       {
         if(currentPtr->findChild(*it, currentPtr) == false)
         {
-          std::ostringstream tr;
-          currentPtr->printTrace(tr);
           throw edm::Exception(errors::Configuration,"No such element")
-             << "Could not find: " << *it << " in " 
-             << currentPtr->type() << " " << currentPtr->name()
-             << "\n" << tr.str();
+             << "Could not find: " << *it << " in " << currentPtr->name();
         }
 
         ++it; 

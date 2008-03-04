@@ -12,11 +12,13 @@
  *
  ************************************************************/
 
-#include "DataFormats/EgammaCandidates/interface/PixelMatchGsfElectronFwd.h"
+#include "DataFormats/EgammaCandidates/interface/PixelMatchGsfElectron.h"
 #include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
+#include "DataFormats/EgammaReco/interface/SeedSuperClusterAssociation.h"
 #include "DataFormats/EgammaReco/interface/BasicClusterShapeAssociation.h"
 #include "DataFormats/GsfTrackReco/interface/GsfTrackFwd.h"
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
+#include "DataFormats/PixelMatchTrackReco/interface/GsfTrackSeedAssociation.h"
 
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -37,55 +39,33 @@ class PixelMatchElectronAlgo {
 
 public:
 
-  PixelMatchElectronAlgo(const edm::ParameterSet& conf,
-                         double maxEOverPBarrel, double maxEOverPEndcaps, 
+  PixelMatchElectronAlgo(double maxEOverPBarrel, double maxEOverPEndcaps, 
                          double minEOverPBarrel, double minEOverPEndcaps,
                          double hOverEConeSize, double maxHOverE, 
-                         double maxDeltaEta, double maxDeltaPhi, double EtCut,
+                         double maxDeltaEta, double maxDeltaPhi, double ptCut,
 			 bool highPtPresel, double highPtMin);
 
   ~PixelMatchElectronAlgo();
 
-  void setupES(const edm::EventSetup& setup);
+  void setupES(const edm::EventSetup& setup, const edm::ParameterSet& conf);
   void run(edm::Event&, reco::PixelMatchGsfElectronCollection&);
 
  private:
 
   // create electrons from superclusters, tracks and Hcal rechits
   void process(edm::Handle<reco::GsfTrackCollection> tracksH,
-	       const reco::BasicClusterShapeAssociationCollection *shpAssBarrel,
-	       const reco::BasicClusterShapeAssociationCollection *shpAssEndcap,
+	       const reco::SeedSuperClusterAssociationCollection *sclAss,
+	       const reco::GsfTrackSeedAssociationCollection *tsAss,
+	       const reco::BasicClusterShapeAssociationCollection *shpAss,
 	       HBHERecHitMetaCollection *mhbhe,
 	       reco::PixelMatchGsfElectronCollection & outEle);
-  void process(edm::Handle<reco::GsfTrackCollection> tracksH,
-	       edm::Handle<reco::SuperClusterCollection> superClustersBarrelH,
-	       edm::Handle<reco::SuperClusterCollection> superClustersEndcapH,
-	       const reco::BasicClusterShapeAssociationCollection *shpAssBarrel,
-	       const reco::BasicClusterShapeAssociationCollection *shpAssEndcap,
-	       HBHERecHitMetaCollection *mhbhe,
-	       reco::PixelMatchGsfElectronCollection & outEle);
-  
   
   // preselection method
-  //  bool preSelection(const reco::SuperCluster& clus, const GlobalVector&, const GlobalPoint&,double HoE);
-  bool preSelection(const reco::SuperCluster& clus);
-
-  // interface to be improved...
-  void createElectron(const reco::SuperClusterRef & scRef,
-                      const reco::GsfTrackRef &trackRef,const reco::ClusterShapeRef& seedShapeRef,
-                      reco::PixelMatchGsfElectronCollection & outEle);  
+  bool preSelection(const reco::SuperCluster& clus, const GlobalVector&, const GlobalPoint&,double HoE);
+  
 
   //Gsf mode calculations
   GlobalVector computeMode(const TrajectoryStateOnSurface &tsos);
-
-  // associations
-  const reco::SuperClusterRef getTrSuperCluster(const reco::GsfTrackRef & trackRef);
-  const reco::GsfTrackRef
-    superClusterMatching(reco::SuperClusterRef sc, edm::Handle<reco::GsfTrackCollection> tracks);
-
-  // intermediate calculations
-  void hOverE(const reco::SuperClusterRef & scRef,HBHERecHitMetaCollection *mhbhe);
-  bool calculateTSOS(const reco::GsfTrack &t,const reco::SuperCluster & theClus);
 
   //ecaleta, ecalphi: in fine to be replaced by propagators
   float ecalEta(float EtaParticle , float Zvertex, float plane_Radius);
@@ -109,7 +89,7 @@ public:
   double maxDeltaPhi_;
 
   // min pT
-  double EtCut_;
+  double ptCut_;
   
   // high pt preselection parameters
   bool highPtPreselection_;
@@ -118,12 +98,22 @@ public:
   // input configuration
   std::string hbheLabel_;
   std::string hbheInstanceName_;
+  std::string trackBarrelLabel_;
+  std::string trackEndcapLabel_;
+  std::string trackBarrelInstanceName_;
+  std::string trackEndcapInstanceName_;
+  std::string assBarrelLabel_;
+  std::string assBarrelInstanceName_;
+  std::string assEndcapLabel_;
+  std::string assEndcapInstanceName_;
+  std::string assBarrelTrTSLabel_;
+  std::string assBarrelTrTSInstanceName_;
+  std::string assEndcapTrTSLabel_;
+  std::string assEndcapTrTSInstanceName_;
   std::string assBarrelShapeLabel_;
   std::string assBarrelShapeInstanceName_;
   std::string assEndcapShapeLabel_;
   std::string assEndcapShapeInstanceName_;
-  std::string trackLabel_;
-  std::string trackInstanceName_;
 
   edm::ESHandle<MagneticField>                theMagField;
   edm::ESHandle<CaloGeometry>                 theCaloGeom;
@@ -132,19 +122,6 @@ public:
   const MultiTrajectoryStateTransform *mtsTransform_;
   const GsfPropagatorAdapter *geomPropBw_;
   const GsfPropagatorAdapter *geomPropFw_;
-
-  // internal variables 
-  int subdet_; //subdetector for this cluster
-  GlobalPoint sclPos_;
-  GlobalVector vtxMom_;
-  double HoE_;
-  TrajectoryStateOnSurface innTSOS_;
-  TrajectoryStateOnSurface outTSOS_;
-  TrajectoryStateOnSurface vtxTSOS_;
-  TrajectoryStateOnSurface sclTSOS_;
-  TrajectoryStateOnSurface seedTSOS_;
-
-  unsigned int processType_;
 };
 
 #endif // PixelMatchElectronAlgo_H

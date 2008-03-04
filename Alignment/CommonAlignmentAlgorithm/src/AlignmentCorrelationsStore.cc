@@ -1,7 +1,4 @@
 #include "Alignment/CommonAlignmentAlgorithm/interface/AlignmentCorrelationsStore.h"
-
-#include "Alignment/CommonAlignment/interface/Alignable.h"
-#include "Alignment/CommonAlignment/interface/AlignmentParameters.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 

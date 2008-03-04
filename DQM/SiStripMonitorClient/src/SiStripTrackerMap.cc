@@ -1,4 +1,5 @@
 #include "CommonTools/TrackerMap/interface/TmModule.h"
+#include "FWCore/ParameterSet/interface/FileInPath.h"
 #include "DQM/SiStripMonitorClient/interface/SiStripTrackerMap.h"
 SiStripTrackerMap::SiStripTrackerMap(string s,int xsize1, int ysize1) : TrackerMap(s,xsize1,ysize1) 
 {
@@ -87,8 +88,8 @@ void SiStripTrackerMap::printonline()
 {
 minvalue=0.; maxvalue=0.;
  svgfile = new ofstream("svgmap.xml",ios::out);
- jsfile = new ifstream("TrackerMapHeader.txt",ios::in);
- 
+ jsfile = new ifstream(edm::FileInPath("DQM/SiStripMonitorClient/data/TrackerMapHeader.txt").fullPath().c_str(),ios::in);
+
  //copy javascript interface from trackermap.txt file
  string line;
  while (getline( *jsfile, line ))
@@ -143,7 +144,7 @@ for (int layer=1; layer < 44; layer++){
   }
 *svgfile << "</svg:defs>" << endl;
 delete jsfile ;					 
- jsfile = new ifstream("TrackerMapTrailer.txt",ios::in); 
+ jsfile = new ifstream(edm::FileInPath("DQM/SiStripMonitorClient/data/TrackerMapTrailer.txt").fullPath().c_str(),ios::in);
  while (getline( *jsfile, line ))			 
        {						 
  	   *svgfile << line << endl;			 

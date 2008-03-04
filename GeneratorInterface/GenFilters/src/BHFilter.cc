@@ -1,16 +1,7 @@
 // livio.fano@cern.ch
 
 #include "GeneratorInterface/GenFilters/interface/BHFilter.h"
-#include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "DataFormats/Common/interface/Handle.h"
-#include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
-#include "FastSimulation/BaseParticlePropagator/interface/BaseParticlePropagator.h"
-#include "FastSimulation/ParticlePropagator/interface/MagneticFieldMap.h"
-#include "MagneticField/Engine/interface/MagneticField.h"
-#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
-#include <map>
-#include <vector>
 
 using namespace std;
 namespace cms

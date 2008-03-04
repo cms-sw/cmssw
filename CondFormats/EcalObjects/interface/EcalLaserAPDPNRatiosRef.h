@@ -3,13 +3,13 @@
 /**
  * Author: Vladlen Timciuc, Caltech, Pasadena, USA
  * Created: 10 July 2007
- * $Id: EcalLaserAPDPNRatiosRef.h,v 1.3 2007/09/09 12:51:14 torimoto Exp $
+ * $Id: EcalLaserAPDPNRatiosRef.h,v 1.4 2007/09/27 09:42:55 ferriff Exp $
  **/
 
 #include "CondFormats/EcalObjects/interface/EcalCondObjectContainer.h"
 
 typedef float EcalLaserAPDPNref;
-typedef EcalCondObjectContainer<EcalLaserAPDPNref> EcalLaserAPDPNRatiosRefMap;
+typedef EcalFloatCondObjectContainer EcalLaserAPDPNRatiosRefMap;
 typedef EcalLaserAPDPNRatiosRefMap EcalLaserAPDPNRatiosRef;
 
 #endif

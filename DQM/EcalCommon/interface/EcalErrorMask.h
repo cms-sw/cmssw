@@ -1,34 +1,34 @@
-// $Id: EcalErrorMask.h,v 1.3 2007/10/22 17:10:37 dellaric Exp $
+// $Id: EcalErrorMask.h,v 1.4 2007/10/23 07:09:46 dellaric Exp $
 
 /*!
   \file EcalErrorMask.h
   \brief Error mask from text file or database
   \author B. Gobbo 
-  \version $Revision: 1.3 $
-  \date $Date: 2007/10/22 17:10:37 $
+  \version $Revision: 1.4 $
+  \date $Date: 2007/10/23 07:09:46 $
 */
 
 #ifndef EcalErrorMask_H
 #define EcalErrorMask_H
 
+#include <cstdlib>
 #include <string>
 #include <map>
 
-#include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
+class EcalCondDBInterface;
 
-#include "OnlineDB/EcalCondDB/interface/RunCrystalErrorsDat.h"
-#include "OnlineDB/EcalCondDB/interface/RunTTErrorsDat.h"
-#include "OnlineDB/EcalCondDB/interface/RunPNErrorsDat.h"
-#include "OnlineDB/EcalCondDB/interface/RunMemChErrorsDat.h"
-#include "OnlineDB/EcalCondDB/interface/RunMemTTErrorsDat.h"
-#include "OnlineDB/EcalCondDB/interface/EcalLogicID.h"
-#include "OnlineDB/EcalCondDB/interface/EcalCondDBInterface.h"
-#include "OnlineDB/EcalCondDB/interface/RunIOV.h"
+class EcalLogicID;
+
+class RunCrystalErrorsDat;
+class RunTTErrorsDat;
+class RunPNErrorsDat;
+class RunMemChErrorsDat;
+class RunMemTTErrorsDat;
+class RunIOV;
 
 class EcalErrorMask {
 
  public:
-
 
   static void readFile( std::string inFile, bool verbose = false, bool verifySyntax = false ) throw( std::runtime_error );
   static void writeFile( std::string outFile ) throw( std::runtime_error );

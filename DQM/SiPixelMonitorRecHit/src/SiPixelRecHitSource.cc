@@ -14,7 +14,7 @@
 //
 // Original Author:  Vincenzo Chiochia
 //         Created:  
-// $Id: SiPixelRecHitSource.cc,v 1.2 2007/10/19 12:02:32 krose Exp $
+// $Id: SiPixelRecHitSource.cc,v 1.3 2007/11/01 13:32:28 chiochia Exp $
 //
 //
 // Adapted by:  Keith Rose
@@ -83,6 +83,13 @@ void SiPixelRecHitSource::beginJob(const edm::EventSetup& iSetup){
 
 void SiPixelRecHitSource::endJob(void){
   cout << "here" << endl;
+
+  std::map<uint32_t,SiPixelRecHitModule*>::iterator struct_iter;
+  for (struct_iter = thePixelStructure.begin() ; struct_iter != thePixelStructure.end() ; struct_iter++) {
+    uint32_t TheID = (*struct_iter).first;
+    int total = rechit_count[TheID];
+    (*struct_iter).second->nfill(total);
+  }
   cout << " SiPixelDigiSource::endJob - Saving Root File " << std::endl;
   std::string outputFile = conf_.getParameter<std::string>("outputFile");
   cout << "ending" << endl;
@@ -119,7 +126,7 @@ void SiPixelRecHitSource::analyze(const edm::Event& iEvent, const edm::EventSetu
 	{
 	  
 
-
+	  rechit_count[TheID]++;
 	  //cout << TheID << endl;
 	  edm::Ref<edm::DetSetVector<SiPixelCluster>, SiPixelCluster> const& clust = pixeliter->cluster();
 	  int sizeX = (*clust).sizeX();

@@ -4,8 +4,8 @@
 /** \class TrackAssociatorByPosition
  *  Class that performs the association of reco::Tracks and TrackingParticles based on position in muon detector
  *
- *  $Date: 2007/07/23 19:09:55 $
- *  $Revision: 1.2 $
+ *  $Date: 2007/07/11 19:41:52 $
+ *  $Revision: 1.1 $
  *  \author vlimant
  */
 
@@ -40,7 +40,6 @@ class TrackAssociatorByPosition : public TrackAssociatorBase {
      theMinIfNoMatch = iConfig.getParameter<bool>("MinIfNoMatch");
      theQminCut = iConfig.getParameter<double>("QminCut");
      theQCut = iConfig.getParameter<double>("QCut");
-     thePositionMinimumDistance = iConfig.getParameter<double>("positionMinimumDistance");
      std::string  meth= iConfig.getParameter<std::string>("method");
      if (meth=="chi2"){ theMethod =0; }
      else if (meth=="dist"){theMethod =1;}
@@ -76,8 +75,7 @@ class TrackAssociatorByPosition : public TrackAssociatorBase {
   double theQminCut;
   double theQCut;
   bool theMinIfNoMatch;
-  double thePositionMinimumDistance;
- 
+
   FreeTrajectoryState getState(const reco::Track &) const;
   TrajectoryStateOnSurface getState(const TrackingParticle &)const;
 

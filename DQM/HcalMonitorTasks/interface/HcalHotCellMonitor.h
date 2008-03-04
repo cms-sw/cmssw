@@ -7,8 +7,8 @@
 
 /** \class HcalHotCellMonitor
   *  
-  * $Date: 2007/10/11 22:35:53 $
-  * $Revision: 1.6 $
+  * $Date: 2007/11/19 18:20:54 $
+  * $Revision: 1.9 $
   * \author W. Fisher - FNAL
   */
 
@@ -40,7 +40,6 @@ public:
 
   void setup(const edm::ParameterSet& ps, DaqMonitorBEInterface* dbe);
   void processEvent(const HBHERecHitCollection& hbHits, const HORecHitCollection& hoHits, const HFRecHitCollection& hfHits);
-  void clearME();
   void reset();
   void FindHBHEHotCells(const HBHERecHitCollection& hbHits, HistList& hist, bool HB);
   void FindHOHotCells(const HORecHitCollection& hoHits, HistList& hist);
@@ -69,6 +68,7 @@ private:  ///Monitoring elements
   double NADA_Ecand_cut0_,NADA_Ecand_cut1_, NADA_Ecand_cut2_;
   double NADA_Ecube_cut_,NADA_Ecell_cut_,NADA_NegCand_cut_;
   double NADA_Ecube_frac_, NADA_Ecell_frac_;
+  int NADA_maxdepth_, NADA_maxeta_, NADA_maxphi_;
 
   double HB_NADA_Ecand_cut0_,HB_NADA_Ecand_cut1_, HB_NADA_Ecand_cut2_;
   double HB_NADA_Ecube_cut_,HB_NADA_Ecell_cut_,HB_NADA_NegCand_cut_;
@@ -82,7 +82,11 @@ private:  ///Monitoring elements
   double HF_NADA_Ecand_cut0_,HF_NADA_Ecand_cut1_, HF_NADA_Ecand_cut2_;
   double HF_NADA_Ecube_cut_,HF_NADA_Ecell_cut_,HF_NADA_NegCand_cut_;
   double HF_NADA_Ecube_frac_, HF_NADA_Ecell_frac_;
-  
+  int HB_NADA_maxdepth_, HB_NADA_maxeta_, HB_NADA_maxphi_;
+  int HE_NADA_maxdepth_, HE_NADA_maxeta_, HE_NADA_maxphi_;
+  int HO_NADA_maxdepth_, HO_NADA_maxeta_, HO_NADA_maxphi_;
+  int HF_NADA_maxdepth_, HF_NADA_maxeta_, HF_NADA_maxphi_;
+
 
 
   float enS, tS, etaS, phiS, idS;
@@ -113,8 +117,8 @@ private:  ///Monitoring elements
   MonitorElement* NADA_NumHotCells;
   MonitorElement* NADA_NumNegCells;
 
-  HistList hbHists,heHists,hfHists,hoHists;
-  NADAHistList NADA_hbHists, NADA_heHists, NADA_hfHists, NADA_hoHists;
+  HistList hbHists,heHists,hfHists,hoHists,hcalHists;
+  NADAHistList NADA_hbHists, NADA_heHists, NADA_hfHists, NADA_hoHists, NADA_hcalHists;
   
   // To do:  Add in NADA histogram for hot NADA cells in each layer
 

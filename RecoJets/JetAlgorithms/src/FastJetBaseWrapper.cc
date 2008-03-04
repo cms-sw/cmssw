@@ -46,13 +46,12 @@ void FastJetBaseWrapper::run(const JetReco::InputCollection& fInput, JetReco::Ou
   
   // convert inputs
   std::vector<fastjet::PseudoJet> fjInputs;
-  fjInputs.reserve (fInput.size());
   
   JetReco::InputCollection::const_iterator input = fInput.begin();
-  for (unsigned i = 0; i < fInput.size(); ++i) {
-    const JetReco::InputItem& c = fInput[i];
-    fjInputs.push_back (fastjet::PseudoJet (c->px(),c->py(),c->pz(),c->energy()));
-    fjInputs.back().set_user_index(i);
+  unsigned index = 0;
+  for (; input != fInput.end(); ++input, ++index) {
+    fjInputs.push_back (fastjet::PseudoJet ((*input)->px(),(*input)->py(),(*input)->pz(),(*input)->energy()));
+    fjInputs.back().set_user_index(index);
   }
    
    // create an object that represents your choice of jet finder and 
@@ -76,6 +75,7 @@ void FastJetBaseWrapper::run(const JetReco::InputCollection& fInput, JetReco::Ou
    double median_Pt_Per_Area = clusterSequenceWithArea ? clusterSequenceWithArea->pt_per_unit_area() : 0.;
 
    // process found jets
+   JetReco::InputCollection jetConstituents; // cache
    for (std::vector<fastjet::PseudoJet>::const_iterator jet=jets.begin(); jet!=jets.end();++jet) {
      // jet itself
      double px=jet->px();
@@ -101,8 +101,8 @@ void FastJetBaseWrapper::run(const JetReco::InputCollection& fInput, JetReco::Ou
      math::XYZTLorentzVector p4(px,py,pz,E);
      // constituents
      std::vector<fastjet::PseudoJet> fastjet_constituents = clusterSequence->constituents(*jet);
-     JetReco::InputCollection jetConstituents; 
-     jetConstituents.reserve (fastjet_constituents.size());
+     // reserve is not defined     jetConstituents.reserve (fastjet_constituents.size());
+     jetConstituents.clear();
      for (std::vector<fastjet::PseudoJet>::const_iterator itConst=fastjet_constituents.begin();
 	  itConst!=fastjet_constituents.end();itConst++){
        jetConstituents.push_back(fInput[(*itConst).user_index()]);

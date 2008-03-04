@@ -142,12 +142,6 @@ namespace edm {
     // Call openNewFileIfNeeded() on all OutputModules
     void openNewOutputFilesIfNeeded();
 
-    // Call beginInputFile() on all OutputModules
-    void beginInputFile(FileBlock const& fb);
-
-    // Call endInputFile() on all OutputModules
-    void endInputFile(FileBlock const& fb);
-
     std::pair<double,double> timeCpuReal() const {
       return std::pair<double,double>(stopwatch_->cpuTime(),stopwatch_->realTime());
     }
@@ -193,6 +187,9 @@ namespace edm {
 
     /// Return whether a module has reached its maximum count.
     bool const terminate() const;
+
+    ///  Clear all the counters in the trigger report.
+    void clearCounters();
 
     class CallPrePost {
     public:

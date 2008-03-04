@@ -19,7 +19,6 @@
 <use name=SimDataFormats/ValidationFormats>
 <use name=SimDataFormats/CrossingFrame>
 <use name=SimDataFormats/CaloHit>
-<use name=DQMServices/CoreROOT>
 <use name=root>
 <use name=clhep>
 
@@ -50,5 +49,4 @@
  <use name=SimDataFormats/CaloHit>
  <use name=root>
  <use name=clhep>
- <use name=DQMServices/CoreROOT>
 </export>

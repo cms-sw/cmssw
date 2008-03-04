@@ -1,6 +1,6 @@
 //------------------------------------------------------------------------
 // File and Version Information:
-//      $Id: SprPreFilter.hh,v 1.4 2007/10/22 21:23:40 narsky Exp $
+//      $Id: SprPreFilter.hh,v 1.3 2007/07/24 23:05:11 narsky Exp $
 //
 // Description:
 //      Class SprPreFilter :
@@ -22,7 +22,6 @@
 
 #include <vector>
 #include <string>
-#include <utility>
 
 
 class SprPreFilter
@@ -33,7 +32,6 @@ public:
   typedef void (*SprPreTransform)(const std::vector<double>&,
 				  std::vector<double>&);
   typedef std::vector<int> (*SprPreClasses)();
-  typedef int (*SprPreClassDefinition)(const std::vector<double>&);
 
   virtual ~SprPreFilter() {}
 
@@ -41,8 +39,7 @@ public:
     : userSelectionVars_(), userSelection_(0), selectionVarToIndex_(),
       userTransformInputVars_(), userTransformOutputVars_(), 
       userTransform_(0), transformVarToIndex_(),
-      userClasses_(),
-      userClassVars_(), userClassDefinition_(0), classVarToIndex_()
+      userClasses_()
   {}
 
   SprPreFilter(const SprPreFilter& other)
@@ -54,38 +51,24 @@ public:
     userTransformOutputVars_(other.userTransformOutputVars_),
     userTransform_(other.userTransform_),
     transformVarToIndex_(other.transformVarToIndex_),
-    userClasses_(other.userClasses_),
-    userClassVars_(other.userClassVars_),
-    userClassDefinition_(other.userClassDefinition_),
-    classVarToIndex_(other.classVarToIndex_)
+    userClasses_(other.userClasses_)
   {}
 
   // Accept or reject a point given its class and coordinates.
   bool pass(int icls, const std::vector<double>& input) const;
 
-
-  // Transform variable names.
+  // Transform point coordinates.
   bool transformVars(const std::vector<std::string>& input, 
 		     std::vector<std::string>& output) const;
-
-  // Transform point coordinates.
   bool transformCoords(const std::vector<double>& input, 
 		       std::vector<double>& output) const;
-
-  // Compute the user-defined class for this event.
-  std::pair<int,bool> computeClass(const std::vector<double>& input) const;
 
   // Supply variables from input data.
   // This method needs to be called after the set methods.
   bool setVars(const std::vector<std::string>& vars);
 
-  /*
-    Note: selection is always applied before transformation!!!
-    Selection requirements are imposed on untransformed variables!
-  */
-
   // define user selection
-  bool setSelection(SprPreVars userVars, 
+  bool setSelection(SprPreVars vars, 
 		    SprPreSelection selection,
 		    SprPreClasses classes);
 
@@ -94,14 +77,9 @@ public:
 		    SprPreVars outputVars,
 		    SprPreTransform transform);
 
-  // define user-defined class
-  bool setClass(SprPreVars userVars,
-		SprPreClassDefinition classDefinition);
-
 protected:
   bool resetSelection();
   bool resetTransform();
-  bool resetClass();
   bool setVarIndex(const std::vector<std::string>& dataVars,
 		   const std::vector<std::string>& userVars,
 		   std::vector<int>& indexMap);
@@ -116,10 +94,6 @@ protected:
   std::vector<int> transformVarToIndex_;
 
   std::vector<int> userClasses_;
-
-  std::vector<std::string> userClassVars_;
-  SprPreClassDefinition userClassDefinition_;
-  std::vector<int> classVarToIndex_;
 };
 
 #endif

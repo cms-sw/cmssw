@@ -1,6 +1,7 @@
 #ifndef Alignment_HIPAlignmentAlgorithm_HIPAlignmentAlgorithm_h
 #define Alignment_HIPAlignmentAlgorithm_HIPAlignmentAlgorithm_h
 
+#include "Alignment/CommonAlignment/interface/AlignableObjectId.h"
 #include "Alignment/CommonAlignmentAlgorithm/interface/AlignmentAlgorithmBase.h"
 #include "Alignment/CommonAlignmentAlgorithm/interface/AlignmentIORoot.h"
 
@@ -78,7 +79,7 @@ class HIPAlignmentAlgorithm : public AlignmentAlgorithmBase
   std::string theCollectorPath;
   int theEventPrescale,theCurrentPrescale;
 
-  std::vector<align::StructureType> theLevels; // for survey residuals
+  std::vector<AlignableObjectId::AlignableObjectIdType> theLevels; // for survey residuals
 
   // root tree variables
   TFile* theFile;
@@ -97,8 +98,7 @@ class HIPAlignmentAlgorithm : public AlignmentAlgorithmBase
   //static const int MAXPAR = 6;
   int m2_Nhit,m2_Type,m2_Layer;
   float m2_Xpos, m2_Ypos, m2_Zpos, m2_Eta, m2_Phi; 
-  align::ID m2_Id;
-  align::StructureType m2_ObjId;
+  int m2_Id,m2_ObjId;
 
 };
 

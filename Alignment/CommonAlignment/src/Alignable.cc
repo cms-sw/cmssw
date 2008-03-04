@@ -1,28 +1,29 @@
 /** \file Alignable.cc
  *
- *  $Date: 2007/10/08 13:21:29 $
- *  $Revision: 1.18 $
- *  (last update by $Author: cklae $)
+ *  $Date: 2007/06/21 16:18:28 $
+ *  $Revision: 1.14 $
+ *  (last update by $Author: flucke $)
  */
 
 #include "Alignment/CommonAlignment/interface/AlignmentParameters.h"
 #include "Alignment/CommonAlignment/interface/SurveyDet.h"
+#include "Geometry/CommonDetUnit/interface/GeomDet.h"
 
 #include "Alignment/CommonAlignment/interface/Alignable.h"
 
 //__________________________________________________________________________________________________
-Alignable::Alignable(align::ID id, const AlignableSurface& surf):
-  theDetId(id),
-  theId(id),
-  theSurface(surf),
+Alignable::Alignable(const GeomDet* det):
+  theDetId( det->geographicalId() ),
+  theId( theDetId.rawId() ),
+  theSurface( det->surface() ),
   theAlignmentParameters(0),
   theMother(0),
   theSurvey(0)
 {
 }
 
-//__________________________________________________________________________________________________
-Alignable::Alignable(align::ID id, const RotationType& rot):
+
+Alignable::Alignable(uint32_t id, const RotationType& rot):
   theId(id),
   theSurface(PositionType(), rot),
   theAlignmentParameters(0),
@@ -37,6 +38,40 @@ Alignable::~Alignable()
   delete theAlignmentParameters;
   delete theSurvey;
 }
+
+
+//__________________________________________________________________________________________________
+void Alignable::deepComponents( std::vector<const Alignable*>& result ) const
+{
+  const Alignables& comp = components();
+
+  unsigned int nComp = comp.size();
+
+  if (nComp > 0)
+    for (unsigned int i = 0; i < nComp; ++i)
+    {
+      comp[i]->deepComponents(result);
+    }
+  else
+    result.push_back(this);
+}
+
+//__________________________________________________________________________________________________
+void Alignable::deepComponents( std::vector<Alignable*>& result )
+{
+  const std::vector<Alignable*>& comp = components();
+
+  unsigned int nComp = comp.size();
+
+  if (nComp > 0)
+    for (unsigned int i = 0; i < nComp; ++i)
+    {
+      comp[i]->deepComponents(result);
+    }
+  else
+    result.push_back(this);
+}
+
 
 //__________________________________________________________________________________________________
 bool Alignable::firstCompsWithParams(Alignables &paramComps) const

@@ -4,8 +4,8 @@
 /** \class AlignableMuon
  *  The alignable muon.
  *
- *  $Date: 2007/03/02 18:39:16 $
- *  $Revision: 1.14 $
+ *  $Date: 2007/03/02 15:46:12 $
+ *  $Revision: 1.13 $
  *  \author Andre Sznajder - UERJ(Brazil)
  */
 
@@ -110,7 +110,7 @@ private:
   AlignableSurface computeSurface();
 
   // Return alignable object identifier
-  virtual StructureType alignableObjectId() const { return align::AlignableMuon; }
+  virtual int alignableObjectId() const { return AlignableObjectId::AlignableMuon; }
 
   // Get alignments sorted by DetId
   Alignments* alignments() const;

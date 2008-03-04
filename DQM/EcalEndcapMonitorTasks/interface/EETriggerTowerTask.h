@@ -4,27 +4,19 @@
 /*
  * \file EETriggerTowerTask.h
  *
- * $Date: 2007/07/19 11:48:49 $
- * $Revision: 1.9 $
+ * $Date: 2007/10/04 08:39:54 $
+ * $Revision: 1.5 $
  * \author C. Bernet
  *
 */
 
-#include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
-
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
-#include "DataFormats/Common/interface/Handle.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
 
-// #include "boost/multi_array.hpp"
-
-// #include <iostream>
-// #include <fstream>
 #include <vector>
-
 
 class MonitorElement;
 class DaqMonitorBEInterface;

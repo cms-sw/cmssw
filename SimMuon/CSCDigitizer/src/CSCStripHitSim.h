@@ -10,9 +10,9 @@
  *
  */
 
-#include "Geometry/CSCGeometry/interface/CSCGattiFunction.h"
-#include "SimMuon/CSCDigitizer/src/CSCDetectorHit.h"
+#include "SimMuon/CSCDigitizer/src/CSCGattiFunction.h"
 #include <vector>
+#include "SimMuon/CSCDigitizer/src/CSCDetectorHit.h"
 
 // declarations
 class CSCLayer;

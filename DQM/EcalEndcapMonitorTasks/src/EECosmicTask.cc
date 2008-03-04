@@ -1,8 +1,8 @@
 /*
  * \file EECosmicTask.cc
  *
- * $Date: 2007/08/16 14:26:08 $
- * $Revision: 1.13 $
+ * $Date: 2007/11/09 19:15:45 $
+ * $Revision: 1.16 $
  * \author G. Della Ricca
  *
 */
@@ -82,18 +82,23 @@ void EECosmicTask::setup(void){
     for (int i = 0; i < 18 ; i++) {
       sprintf(histo, "EECT energy cut %s", Numbers::sEE(i+1).c_str());
       meCutMap_[i] = dbe_->bookProfile2D(histo, histo, 50, Numbers::ix0EE(i+1)+0., Numbers::ix0EE(i+1)+50., 50, Numbers::iy0EE(i+1)+0., Numbers::iy0EE(i+1)+50., 4096, 0., 4096., "s");
+      meCutMap_[i]->setAxisTitle("ix", 1);
+      meCutMap_[i]->setAxisTitle("iy", 2);
     }
 
     dbe_->setCurrentFolder("EcalEndcap/EECosmicTask/Sel");
     for (int i = 0; i < 18 ; i++) {
       sprintf(histo, "EECT energy sel %s", Numbers::sEE(i+1).c_str());
       meSelMap_[i] = dbe_->bookProfile2D(histo, histo, 50, Numbers::ix0EE(i+1)+0., Numbers::ix0EE(i+1)+50., 50, Numbers::iy0EE(i+1)+0., Numbers::iy0EE(i+1)+50., 4096, 0., 4096., "s");
+      meSelMap_[i]->setAxisTitle("ix", 1);
+      meSelMap_[i]->setAxisTitle("iy", 2);
     }
 
     dbe_->setCurrentFolder("EcalEndcap/EECosmicTask/Spectrum");
     for (int i = 0; i < 18 ; i++) {
       sprintf(histo, "EECT energy spectrum %s", Numbers::sEE(i+1).c_str());
       meSpectrumMap_[i] = dbe_->book1D(histo, histo, 100, 0., 1.5);
+      meSpectrumMap_[i]->setAxisTitle("energy (GeV)", 1);
     }
 
   }
@@ -146,10 +151,9 @@ void EECosmicTask::analyze(const Event& e, const EventSetup& c){
   bool enable = false;
   map<int, EcalDCCHeaderBlock> dccMap;
 
-  try {
+  Handle<EcalRawDataCollection> dcchs;
 
-    Handle<EcalRawDataCollection> dcchs;
-    e.getByLabel(EcalRawDataCollection_, dcchs);
+  if ( e.getByLabel(EcalRawDataCollection_, dcchs) ) {
 
     for ( EcalRawDataCollection::const_iterator dcchItr = dcchs->begin(); dcchItr != dcchs->end(); ++dcchItr ) {
 
@@ -171,7 +175,7 @@ void EECosmicTask::analyze(const Event& e, const EventSetup& c){
 
     }
 
-  } catch ( exception& ex) {
+  } else {
 
     LogWarning("EECosmicTask") << EcalRawDataCollection_ << " not available";
 
@@ -183,10 +187,9 @@ void EECosmicTask::analyze(const Event& e, const EventSetup& c){
 
   ievt_++;
 
-  try {
+  Handle<EcalRecHitCollection> hits;
 
-    Handle<EcalRecHitCollection> hits;
-    e.getByLabel(EcalRecHitCollection_, hits);
+  if ( e.getByLabel(EcalRecHitCollection_, hits) ) {
 
     int neeh = hits->size();
     LogDebug("EECosmicTask") << "event " << ievt_ << " hits collection size " << neeh;
@@ -239,7 +242,7 @@ void EECosmicTask::analyze(const Event& e, const EventSetup& c){
 
     }
 
-  } catch ( exception& ex) {
+  } else {
 
     LogWarning("EECosmicTask") << EcalRecHitCollection_ << " not available";
 

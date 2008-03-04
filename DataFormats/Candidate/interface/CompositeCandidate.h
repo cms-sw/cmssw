@@ -9,12 +9,11 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: CompositeCandidate.h,v 1.23 2007/10/18 16:02:56 llista Exp $
+ * \version $Id: CompositeCandidate.h,v 1.19 2007/09/21 14:12:58 llista Exp $
  *
  */
 
 #include "DataFormats/Candidate/interface/iterator_imp_specific.h"
-#include "DataFormats/Candidate/interface/CompositeCandidateFwd.h"
 
 namespace reco {
 
@@ -26,10 +25,6 @@ namespace reco {
     CompositeCandidate() : Candidate() { }
     /// constructor from values
     CompositeCandidate( Charge q, const LorentzVector & p4, const Point & vtx = Point( 0, 0, 0 ),
-			int pdgId = 0, int status = 0, bool integerCharge = true ) :
-      Candidate( q, p4, vtx, pdgId, status, integerCharge ) { }
-    /// constructor from values
-    CompositeCandidate( Charge q, const PolarLorentzVector & p4, const Point & vtx = Point( 0, 0, 0 ),
 			int pdgId = 0, int status = 0, bool integerCharge = true ) :
       Candidate( q, p4, vtx, pdgId, status, integerCharge ) { }
      /// constructor from values
@@ -48,7 +43,7 @@ namespace reco {
     /// last daughter const_iterator
     virtual iterator end();
     /// number of daughters
-    virtual size_type numberOfDaughters() const;
+    virtual size_t numberOfDaughters() const;
     /// return daughter at a given position, i = 0, ... numberOfDaughters() - 1 (read only mode)
     virtual const Candidate * daughter( size_type ) const;
     /// return daughter at a given position, i = 0, ... numberOfDaughters() - 1

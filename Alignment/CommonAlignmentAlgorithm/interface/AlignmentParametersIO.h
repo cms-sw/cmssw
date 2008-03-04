@@ -1,15 +1,19 @@
 #ifndef Alignment_CommonAlignmentAlgorithm_AlignmentParametersIO_h
 #define Alignment_CommonAlignmentAlgorithm_AlignmentParametersIO_h
 
-#include "Alignment/CommonAlignment/interface/Utilities.h"
+
+#include <vector>
 
 /// \class AlignmentParametersIO
 ///
 /// abstract base class for I/O of AlignmentParameters 
 ///
-///  $Date: 2007/01/23 16:07:08 $
-///  $Revision: 1.4 $
-/// (last update by $Author: fronga $)
+///  $Date: 2006/11/30 09:56:03 $
+///  $Revision: 1.3 $
+/// (last update by $Author: flucke $)
+
+class Alignable;
+class AlignmentParameters;
 
 class AlignmentParametersIO 
 {
@@ -34,13 +38,14 @@ class AlignmentParametersIO
   virtual AlignmentParameters* readOne(Alignable* ali, int& ierr) = 0;
 
   /// write AlignmentParameters of many Alignables 
-  int write(const align::Alignables& alivec, bool validCheck);
+  int write(const std::vector<Alignable*>& alivec, bool validCheck);
 
   /// write original RigidBodyAlignmentParameters of many Alignables 
-  int writeOrigRigidBody(const align::Alignables& alivec, bool validCheck);
+  int writeOrigRigidBody(const std::vector<Alignable*>& alivec, bool validCheck);
 
   /// read AlignmentParameters of many Alignables 
-  align::Parameters read(const align::Alignables& alivec, int& ierr);
+  std::vector<AlignmentParameters*> read(const std::vector<Alignable*>& alivec, 
+    int& ierr);
 
 };
 

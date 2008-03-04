@@ -5,8 +5,8 @@
  *
  * Algo for reconstructing 4d segment in DT using a combinatorial approach
  *  
- * $Date: 2006/04/28 15:21:52 $
- * $Revision: 1.5 $
+ * $Date: 2006/05/04 09:17:36 $
+ * $Revision: 1.6 $
  * \author Stefano Lacaprara - INFN Legnaro <stefano.lacaprara@pd.infn.it>
  * \author Riccardo Bellan - INFN TO <riccardo.bellan@cern.ch>
  *
@@ -46,7 +46,7 @@ class DTCombinatorialPatternReco4D : public DTRecSegment4DBaseAlgo {
   DTCombinatorialPatternReco4D(const edm::ParameterSet& pset) ;
   
   /// Destructor
-  virtual ~DTCombinatorialPatternReco4D(){};
+  virtual ~DTCombinatorialPatternReco4D();
     
   /// Operations  
   virtual edm::OwnVector<DTRecSegment4D> reconstruct();

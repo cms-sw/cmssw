@@ -13,7 +13,7 @@
 //
 // Original Author:  Camilo Carrillo (Uniandes)
 //         Created:  Tue Oct  2 16:57:49 CEST 2007
-// $Id: MuonSegmentEff.cc,v 1.11 2007/10/29 15:42:31 carrillo Exp $
+// $Id: MuonSegmentEff.cc,v 1.13 2007/11/07 14:44:41 carrillo Exp $
 //
 //
 
@@ -157,8 +157,8 @@ MuonSegmentEff::MuonSegmentEff(const edm::ParameterSet& iConfig)
   incldt=iConfig.getUntrackedParameter<bool>("incldt",true);
   incldtMB4=iConfig.getUntrackedParameter<bool>("incldtMB4",true);
   inclcsc=iConfig.getUntrackedParameter<bool>("inclcsc",true);
-  widestrip=iConfig.getUntrackedParameter<int>("widestrip",4);
-  widestripRB4=iConfig.getUntrackedParameter<int>("widestripRB4",4);
+  widestrip=iConfig.getUntrackedParameter<double>("widestrip",4.);
+  widestripRB4=iConfig.getUntrackedParameter<double>("widestripRB4",4.);
   MinCosAng=iConfig.getUntrackedParameter<double>("MinCosAng",0.9999);
   MaxD=iConfig.getUntrackedParameter<double>("MaxD",40.);
   muonRPCDigis=iConfig.getUntrackedParameter<std::string>("muonRPCDigis","muonRPCDigis");
@@ -321,10 +321,10 @@ MuonSegmentEff::endJob() {
     float tote = float(totalcounter[1])/float(totalcounter[0]);
     float totr = sqrt(tote*(1.-tote)/float(totalcounter[0]));
   
-    std::cout <<"\n\n \t \t TOTAL EFFICIENCY \t Predicted "<<totalcounter[0]<<"\t Observed "<<totalcounter[1]<<"\t Eff = "<<tote*100.<<"\t +/- \t"<<totr*100.<<"%"<<std::endl;
+    std::cout <<"\n\n \t \t TOTAL EFFICIENCY \t Predicted "<<totalcounter[0]<<"\t Observed "<<totalcounter[1]<<"\t Eff = "<<tote*100.<<"\t +/- \t"<<totr*100.<<" %"<<std::endl;
     std::cout <<totalcounter[1]<<" "<<totalcounter[0]<<" flagcode"<<std::endl;
     
-    ofeff <<"\n\n \t \t TOTAL EFFICIENCY \t Predicted "<<totalcounter[0]<<"\t Observed "<<totalcounter[1]<<"\t Eff = "<<tote*100.<<"\t +/- \t"<<totr*100.<<"%"<<std::endl;
+    ofeff <<"\n\n \t \t TOTAL EFFICIENCY \t Predicted "<<totalcounter[0]<<"\t Observed "<<totalcounter[1]<<"\t Eff = "<<tote*100.<<"\t +/- \t"<<totr*100.<<" %"<<std::endl;
     ofeff <<totalcounter[1]<<" "<<totalcounter[0]<<" flagcode"<<std::endl;
 
   }

@@ -148,7 +148,7 @@ void HcalPedestalAnalysis::processEvent(const HBHEDigiCollection& hbhe,
       for (int i=m_startTS; i<digi.size() && i<=m_endTS; i++) {
         for(int flag=0; flag<4; flag++){
           if(i+flag<digi.size() && i+flag<=m_endTS){
-            per2CapsHists(flag,0,digi.id(),digi.sample(i),digi.sample(i+flag),hbHists.PEDTRENDS,cond);
+            per2CapsHists(flag,0,digi.id(),digi.sample(i),digi.sample(i+flag),hbHists.PEDTRENDS);
           }
         }
       }
@@ -169,7 +169,7 @@ void HcalPedestalAnalysis::processEvent(const HBHEDigiCollection& hbhe,
       for (int i=m_startTS; i<digi.size() && i<=m_endTS; i++) {	   
         for(int flag=0; flag<4; flag++){
           if(i+flag<digi.size() && i+flag<=m_endTS){
-            per2CapsHists(flag,1,digi.id(),digi.sample(i),digi.sample(i+flag),hoHists.PEDTRENDS,cond);
+            per2CapsHists(flag,1,digi.id(),digi.sample(i),digi.sample(i+flag),hoHists.PEDTRENDS);
           }
         }
       }
@@ -190,7 +190,7 @@ void HcalPedestalAnalysis::processEvent(const HBHEDigiCollection& hbhe,
       for (int i=m_startTS; i<digi.size() && i<=m_endTS; i++) {
         for(int flag=0; flag<4; flag++){
           if(i+flag<digi.size() && i+flag<=m_endTS){
-            per2CapsHists(flag,2,digi.id(),digi.sample(i),digi.sample(i+flag),hfHists.PEDTRENDS,cond);
+            per2CapsHists(flag,2,digi.id(),digi.sample(i),digi.sample(i+flag),hfHists.PEDTRENDS);
           }
         }
       }
@@ -209,7 +209,7 @@ void HcalPedestalAnalysis::processEvent(const HBHEDigiCollection& hbhe,
 }
 
 //-----------------------------------------------------------------------------
-void HcalPedestalAnalysis::per2CapsHists(int flag, int id, const HcalDetId detid, const HcalQIESample& qie1, const HcalQIESample& qie2, map<HcalDetId, map<int,PEDBUNCH> > &toolT, const HcalDbService& cond) {
+void HcalPedestalAnalysis::per2CapsHists(int flag, int id, const HcalDetId detid, const HcalQIESample& qie1, const HcalQIESample& qie2, map<HcalDetId, map<int,PEDBUNCH> > &toolT) {
 
 // this function is due to be called for every time slice, it fills either a charge
 // histo for a single capID (flag=0) or a product histo for two capIDs (flag>0)
@@ -240,8 +240,23 @@ void HcalPedestalAnalysis::per2CapsHists(int flag, int id, const HcalDetId detid
     map<int,float> qiecalib;
     char name[1024];
     for(int i=0; i<4; i++){
-      lo=-0.5;
-      hi=9.5;
+// we do not want pedestals in linearized ADC
+//      getLinearizedADC(*m_shape,m_coder,bins,i,lo,hi);
+//      qiecalib[i]=(hi-lo)/bins;
+//      qiecalib[i+4]=lo+0.5;
+// to have pedestals in raw ADC counts
+      if (m_pedsinADC==1) {
+        qiecalib[i]=1.;
+        qiecalib[i+4]=0.;
+      }
+// to have pedestals in fC (for the moment using average QIE calibrations only)
+      else {
+        if (type=="HF") qiecalib[i]=0.36;
+        else qiecalib[i]=0.92;
+        qiecalib[i+4]=0.;
+      }
+      lo=(-0.5-qiecalib[i+4])/qiecalib[i];
+      hi=(9.5-qiecalib[i+4])/qiecalib[i];
       sprintf(name,"%s Pedestal, eta=%d phi=%d d=%d cap=%d",type.c_str(),detid.ieta(),detid.iphi(),detid.depth(),i);  
       insert[i].first =  new TH1F(name,name,bins,lo,hi);
       sprintf(name,"%s Product, eta=%d phi=%d d=%d caps=%d*%d",type.c_str(),detid.ieta(),detid.iphi(),detid.depth(),i,(i+1)%4);  
@@ -265,11 +280,6 @@ void HcalPedestalAnalysis::per2CapsHists(int flag, int id, const HcalDetId detid
 
   _mei = _meot->second;
 
-  const HcalQIECoder* coder = cond.getHcalCoder(detid);
-  const HcalQIEShape* shape = cond.getHcalShape();
-  float charge1 = coder->charge(*shape,qie1.adc(),qie1.capid());
-  float charge2 = coder->charge(*shape,qie2.adc(),qie2.capid());
-
 // fill single capID histo
   if(flag==0){
     if(m_nevtsample>0) {
@@ -281,9 +291,11 @@ void HcalPedestalAnalysis::per2CapsHists(int flag, int id, const HcalDetId detid
         _mei[qie1.capid()+12].first->Reset();
       }
     }
+//    map<int,float> qiecalib = QieCalibMap[detid];
+//    float charge1=(qie1.adc()-qiecalib[qie1.capid()+4])/qiecalib[qie1.capid()];
     if (qie1.adc()<bins){
-      if (m_pedsinADC) _mei[qie1.capid()].first->Fill(qie1.adc());
-      else _mei[qie1.capid()].first->Fill(charge1); 
+      _mei[qie1.capid()].first->AddBinContent(qie1.adc()+1,1);
+//      _mei[qie1.capid()].first->Fill(charge1);
     }
     else if(qie1.adc()>=bins){
       _mei[qie1.capid()].first->AddBinContent(bins+1,1);
@@ -293,8 +305,8 @@ void HcalPedestalAnalysis::per2CapsHists(int flag, int id, const HcalDetId detid
 // fill 2 capID histo
   if(flag>0){
     map<int,float> qiecalib = QieCalibMap[detid];
-    //float charge1=(qie1.adc()-qiecalib[qie1.capid()+4])/qiecalib[qie1.capid()];
-    //float charge2=(qie2.adc()-qiecalib[qie2.capid()+4])/qiecalib[qie2.capid()];
+    float charge1=(qie1.adc()-qiecalib[qie1.capid()+4])/qiecalib[qie1.capid()];
+    float charge2=(qie2.adc()-qiecalib[qie2.capid()+4])/qiecalib[qie2.capid()];
     if (charge1*charge2<bins2){
       _mei[qie1.capid()+4*flag].first->Fill(charge1*charge2);
     }

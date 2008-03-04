@@ -3,14 +3,13 @@
 #include <string>
 #include "CondCore/DBCommon/interface/Time.h"
 namespace cond{
-  class PoolTransaction;
+  class PoolStorageManager;
   class IOVServiceImpl;
   class IOVIterator;
   class IOVEditor;
   class IOVService{
   public:
-    IOVService( cond::PoolTransaction& pooldb,
-		cond::TimeType timetype=cond::runnumber );
+    IOVService( cond::PoolStorageManager& pooldb,cond::TimeType timetype=cond::runnumber);
     virtual ~IOVService();
     std::string payloadToken( const std::string& iovToken,
 			      cond::Time_t currenttime );
@@ -42,7 +41,7 @@ namespace cond{
        export IOV selected by token and associated payload to another database
        return new iov token string 
     */
-    std::string exportIOVWithPayload( cond::PoolTransaction& destDB,
+    std::string exportIOVWithPayload( cond::PoolStorageManager& destDB,
 				      const std::string& iovToken,
 				      const std::string& payloadObjectName );
     /**
@@ -50,13 +49,13 @@ namespace cond{
        payload to another database
        return new iov token string 
     */
-    std::string exportIOVRangeWithPayload( cond::PoolTransaction& destDB,
+    std::string exportIOVRangeWithPayload( cond::PoolStorageManager& destDB,
 					   const std::string& iovToken,
 					   cond::Time_t since,
 					   cond::Time_t till,
 					   const std::string& payloadObjectName );
   private:
-    cond::PoolTransaction* m_pooldb;
+    cond::PoolStorageManager& m_pooldb;
     cond::IOVServiceImpl* m_impl;
   };
 }//ns cond

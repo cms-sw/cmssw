@@ -13,7 +13,7 @@
 //
 // Original Author:  Domenico GIORDANO
 //         Created:  Wed Oct  3 12:11:10 CEST 2007
-// $Id: SiStripQualityESProducer.cc,v 1.2 2007/10/11 12:54:14 giordano Exp $
+// $Id: SiStripQualityESProducer.cc,v 1.3 2007/10/18 09:00:08 giordano Exp $
 //
 //
 
@@ -44,6 +44,8 @@ boost::shared_ptr<SiStripQuality> SiStripQualityESProducer::produce(const SiStri
   quality->clear();
 
   edm::ESHandle<SiStripBadStrip> obj;
+  edm::ESHandle<SiStripDetCabling> cabling;
+
   std::string tagName;  
   std::string recordName;
   for(Parameters::iterator itToGet = toGet.begin(); itToGet != toGet.end(); ++itToGet ) {
@@ -54,16 +56,20 @@ boost::shared_ptr<SiStripQuality> SiStripQualityESProducer::produce(const SiStri
 
     if (recordName=="SiStripBadModuleRcd"){
       iRecord.getRecord<SiStripBadModuleRcd>().get(tagName,obj); 
+      quality->add( obj.product() );    
     } else if (recordName=="SiStripBadFiberRcd"){
       iRecord.getRecord<SiStripBadFiberRcd>().get(tagName,obj); 
+      quality->add( obj.product() );    
     } else if (recordName=="SiStripBadChannelRcd"){
-      iRecord.getRecord<SiStripBadChannelRcd>().get(tagName,obj); 
+      iRecord.getRecord<SiStripBadChannelRcd>().get(tagName,obj);
+      quality->add( obj.product() );    
+    } else if (recordName=="SiStripDetCablingRcd"){
+      iRecord.getRecord<SiStripDetCablingRcd>().get(tagName,cabling);
+      quality->add( cabling.product() );    
     } else {
       edm::LogError("SiStripQualityESProducer") << "[SiStripQualityESProducer::produce] Skipping the requested data for unexisting record " << recordName << " with tag " << tagName << std::endl;
       continue;
     }
-
-    quality->add( obj.product() );    
   }
   quality->cleanUp();
   quality->fillBadComponents();

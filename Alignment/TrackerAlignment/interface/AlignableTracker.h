@@ -1,82 +1,112 @@
 #ifndef Alignment_TrackerAlignment_AlignableTracker_H
 #define Alignment_TrackerAlignment_AlignableTracker_H
 
-#include "Geometry/CommonDetUnit/interface/TrackingGeometry.h"
+#include <vector>
 
+#include "FWCore/Framework/interface/ESHandle.h"
+
+#include "Geometry/TrackerNumberingBuilder/interface/GeometricDet.h"
+#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Alignment/CommonAlignment/interface/AlignableComposite.h"
-#include "Alignment/CommonAlignment/interface/AlignSetup.h"
-#include "Alignment/TrackerAlignment/interface/TrackerCounters.h"
 
-class GeometricDet;
-class TrackerGeometry;
+// Classes that will be used to construct the tracker
+class AlignableTrackerHalfBarrel;
+class AlignablePixelHalfBarrel;
+class AlignableTrackerEndcap;
+class AlignableTID;
+
+/// Constructor of the full tracker geometry.
+/// This object is stored to the EventSetup for further retrieval
 
 class AlignableTracker: public AlignableComposite 
 {
 
+  // Some typdefs to simplify notation
+  typedef GeometricDet::ConstGeometricDetContainer _DetContainer;
+
 public:
   
   /// Constructor (builds the full hierarchy)
-  AlignableTracker( const TrackerGeometry* tracker ); 
+  AlignableTracker( const GeometricDet* geometricDet, const TrackerGeometry* trackerGeometry ); 
+  
+  /// Recursive printout of the tracker structure
+  void dump( void ) const;
 
   /// Return TOB half barrels
-  Alignables& outerHalfBarrels() { return alignableLists_.find("TOBHalfBarrel"); }
+  Alignables outerHalfBarrels();
   /// Return TIB half barrels
-  Alignables& innerHalfBarrels() { return alignableLists_.find("TIBHalfBarrel"); }
+  Alignables innerHalfBarrels();
   /// Return Pixel half barrels
-  Alignables& pixelHalfBarrels() { return alignableLists_.find("TPBHalfBarrel"); }
+  Alignables pixelHalfBarrels();
   /// Return TECs
-  Alignables& endCaps() { return alignableLists_.find("TECEndcap"); }
+  Alignables endCaps();
   /// Return TPEs
-  Alignables& pixelEndCaps() { return alignableLists_.find("TPEEndcap"); }
+  const Alignables& pixelEndCaps() const { return getAlignables("pixelEndcaps"); }
   /// Return TIDs
-  Alignables& TIDs() { return alignableLists_.find("TIDEndcap"); }
+  Alignables TIDs();
+
+  /// Return TOB half barrel at given index
+  AlignableTrackerHalfBarrel &outerHalfBarrel(unsigned int i);
+  /// Return TIB half barrel at given index
+  AlignableTrackerHalfBarrel &innerHalfBarrel(unsigned int i);
+  /// Return Pixel half barrel at given index
+  AlignablePixelHalfBarrel &pixelHalfBarrel(unsigned int i);
+  /// Return endcap at given index
+  AlignableTrackerEndcap &endCap(unsigned int i);
+  /// Return Pixel endcap at given index
+//   AlignableTrackerEndcap &pixelEndCap(unsigned int i);
+  /// Return TID at given index
+  AlignableTID &TID(unsigned int i);
 
   /// Return inner and outer barrel GeomDets together 
-  Alignables barrelGeomDets() { return merge( innerBarrelGeomDets(), outerBarrelGeomDets() ); }
+  Alignables barrelGeomDets(); 
   /// Return inner barrel and TID GeomDets together 
-  Alignables TIBTIDGeomDets() { return merge( innerBarrelGeomDets(), TIDGeomDets() ); }
+  Alignables TIBTIDGeomDets(); 
   /// Return inner barrel GeomDets 
-  Alignables& innerBarrelGeomDets() { return alignableLists_.find("TIBModule"); }
+  Alignables innerBarrelGeomDets();
   /// Return outer barrel GeomDets
-  Alignables& outerBarrelGeomDets() { return alignableLists_.find("TOBModule"); }
+  Alignables outerBarrelGeomDets();
   /// Return pixel barrel GeomDets
-  Alignables& pixelHalfBarrelGeomDets() { return alignableLists_.find("TPBModule"); }
+  Alignables pixelHalfBarrelGeomDets();
   /// Return endcap  GeomDets
-  Alignables& endcapGeomDets() { return alignableLists_.find("TECModule"); }
+  Alignables endcapGeomDets();
   /// Return TID  GeomDets  
-  Alignables& TIDGeomDets() { return alignableLists_.find("TIDModule"); }
+  Alignables TIDGeomDets();
   /// Return pixel endcap GeomDets
-  Alignables& pixelEndcapGeomDets() { return alignableLists_.find("TPEModule"); }
+  const Alignables& pixelEndcapGeomDets() const { return getAlignables("pixelEndcapSensors"); }
   
   /// Return inner and outer barrel rods
-  Alignables barrelRods() { return merge( innerBarrelRods(), outerBarrelRods() ); }
+  Alignables barrelRods();
   /// Return inner barrel rods
-  Alignables& innerBarrelRods() { return alignableLists_.find("TIBString"); }
+  Alignables innerBarrelRods();
   /// Return outer barrel rods
-  Alignables& outerBarrelRods() { return alignableLists_.find("TOBRod"); }
+  Alignables outerBarrelRods();
   /// Return pixel half barrel ladders (implemented as AlignableRods)
-  Alignables& pixelHalfBarrelLadders() { return alignableLists_.find("TPBLadder"); }
+  Alignables pixelHalfBarrelLadders(); // though AlignableRods
   /// Return encap petals
-  Alignables& endcapPetals() { return alignableLists_.find("TECPetal"); }
+  Alignables endcapPetals();
   /// Return TID rings
-  Alignables& TIDRings() { return alignableLists_.find("TIDRing"); }
+  Alignables TIDRings();
   /// Return pixel endcap petals
-  Alignables& pixelEndcapPetals() { return alignableLists_.find("TPEPanel"); }
+  const Alignables& pixelEndcapPetals() const { return getAlignables("pixelEndcapPanels"); }
 		     
   /// Return inner and outer barrel layers
-  Alignables barrelLayers() { return merge( innerBarrelLayers(), outerBarrelLayers() ); }
+  Alignables barrelLayers(); 
   /// Return inner barrel layers
-  Alignables& innerBarrelLayers() { return alignableLists_.find("TIBLayer"); }
+  Alignables innerBarrelLayers();
   /// Return outer barrel layers
-  Alignables& outerBarrelLayers() { return alignableLists_.find("TOBLayer"); }
+  Alignables outerBarrelLayers();
   /// Return pixel half barrel layers
-  Alignables& pixelHalfBarrelLayers() { return alignableLists_.find("TPBLayer"); }
+  Alignables pixelHalfBarrelLayers();
   /// Return endcap layers
-  Alignables& endcapLayers() { return alignableLists_.find("TECDisk"); }
+  Alignables endcapLayers();
   /// Return TID layers
-  Alignables& TIDLayers() { return alignableLists_.find("TIDDisk"); }
+  Alignables TIDLayers();
   /// Return pixel endcap layers
-  Alignables& pixelEndcapLayers() { return alignableLists_.find("TPEHalfDisk"); }
+  const Alignables& pixelEndcapLayers() const { return getAlignables("pixelEndcapHalfDisks"); }
+  
+  /// Return alignable object identifier 
+  virtual int alignableObjectId() const { return AlignableObjectId::AlignableTracker; }
 
   /// Return alignments, sorted by DetId
   Alignments* alignments() const;
@@ -84,31 +114,39 @@ public:
   /// Return alignment errors, sorted by DetId
   AlignmentErrors* alignmentErrors() const;
 
-  private:
+private:
 
-  /// Build a barrel for a given sub-detector (TPB, TIB, TOB).
-  void buildBarrel( const std::string& subDet );  // prefix for sub-detector 
-  
-  /// Create list of lower-level modules
-  void detsToAlignables(const TrackingGeometry::DetContainer& dets,
-                        const std::string& moduleName );
+  // Sub-structure builders (driven by the sub-components of GeometricDet)
+  void buildTOB( const GeometricDet* navigator );   /// Build the tracker outer barrel
+  void buildTIB( const GeometricDet* navigator );   /// Build the tracker inner barrel
+  void buildTID( const GeometricDet* navigator );   /// Build the tracker inner disks
+  void buildTEC( const GeometricDet* navigator );   /// Build the tracker endcap
+  void buildTPB( const GeometricDet* navigator );   /// Build the pixel barrel
 
-  void buildTPB();
-  void buildTPE();
-  void buildTIB();
-  void buildTID();
-  void buildTOB();
-  void buildTEC();
-  void buildTRK();
+  void buildTPE( const TrackerGeometry::DetContainer& ); // Build the pixel endcaps
 
-  Alignables merge( const Alignables& list1, const Alignables& list2 ) const;
+  /// Return all components of a given type
+  std::vector<const GeometricDet*> getAllComponents( const GeometricDet* Det,
+													 const GeometricDet::GDEnumType type ) const;  
 
-  AlignSetup<Alignables> alignableLists_; //< Lists of alignables
-  AlignSetup<Alignable*> alignables_;     //< Hierarchy
+  /// Set mothers recursively
+  void recursiveSetMothers( Alignable* alignable );
 
-  TrackerCounters tkCounters_;
-  
+  /// Helper function to fetch alignables from theTracker for a given structure
+  const Alignables& getAlignables( const std::string& structure ) const;
 
+private:
+
+  const TrackerGeometry* theTrackerGeometry;   // To convert DetIds to GeomDets
+
+  // Containers of separate components
+  std::vector<AlignableTrackerHalfBarrel*>   theOuterHalfBarrels;
+  std::vector<AlignableTrackerHalfBarrel*>   theInnerHalfBarrels;
+  std::vector<AlignablePixelHalfBarrel*>     thePixelHalfBarrels;
+  std::vector<AlignableTrackerEndcap*>       theEndcaps;
+  std::vector<AlignableTID*>                 theTIDs;
+
+  std::map<std::string, Alignables> theTracker; // container to hold the alignables for each level in the hierarchy
 };
 
 #endif //AlignableTracker_H

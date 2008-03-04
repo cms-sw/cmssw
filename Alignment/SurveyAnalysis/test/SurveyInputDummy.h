@@ -3,36 +3,21 @@
 
 /** \class SurveyInputDummy
  *
- *  For uploading some random survey values and pseudo-dummy errors to DB.
+ *  For uploading some pseudo-dummy survey errors to DB.
  *
- *  Usage:
- *    module FPix = SurveyInputDummy
- *    {
- *      VPSet errors =
- *      {
- *        { string level = "DetUnit" double value = 5e-4 },
- *        { string level = "Panel"   double value = 5e-4 }
- *      }
- *    }
- *
- *  The survey value of a structure in a level is randomly selected from a
- *  Gaussian distribution of mean given by the ideal geometry and width =
- *  "value" (e.g. width = 5e-4 for a Panel).
- *  
- *  The covariance matrix for all structures of a level will be diagonal
- *  given by value^2 * identity.
- *
- *  $Date: 2007/09/23 14:42:55 $
+ *  $Date: 2007/05/08 22:36:47 $
  *  $Revision: 1.2 $
  *  \author Chung Khim Lae
  */
 
-#include "Alignment/CommonAlignment/interface/StructureType.h"
+#include "Alignment/CommonAlignment/interface/AlignableObjectId.h"
 #include "Alignment/SurveyAnalysis/interface/SurveyInputBase.h"
 
 class SurveyInputDummy:
   public SurveyInputBase
 {
+  typedef AlignableObjectId::AlignableObjectIdType StructureType;
+
   public:
 
   SurveyInputDummy(
@@ -51,7 +36,7 @@ class SurveyInputDummy:
 		     Alignable*
 		     );
 
-  std::map<align::StructureType, double> theErrors;
+  std::map<StructureType, double> theErrors;
 };
 
 #endif

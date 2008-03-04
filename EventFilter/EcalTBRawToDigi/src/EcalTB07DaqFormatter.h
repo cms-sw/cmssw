@@ -2,8 +2,8 @@
 #define EcalTB07DaqFormatter_H
 /** \class EcalTB07DaqFormatter
  *
- *  $Date: 2007/10/20 10:58:01 $
- *  $Revision: 1.5 $
+ *  $Date: 2007/07/11 17:35:56 $
+ *  $Revision: 1.3 $
  *  \author N. Marinelli  IASA-Athens
  *  \author G. Della Ricca
  *  \author G. Franzoni
@@ -34,11 +34,11 @@ class EcalTB07DaqFormatter   {
   virtual ~EcalTB07DaqFormatter(){LogDebug("EcalTB07RawToDigi") << "@SUB=EcalTB07DaqFormatter" << "\n"; };
 
   void  interpretRawData( const FEDRawData & data , EBDigiCollection& digicollection , EEDigiCollection& eeDigiCollection, 
-			  EcalPnDiodeDigiCollection & pndigicollection,
+			  EcalPnDiodeDigiCollection & pndigicollection ,
 			  EcalRawDataCollection& DCCheaderCollection,
-			  EBDetIdCollection & dccsizecollection,
-			  EcalElectronicsIdCollection & ttidcollection , EcalElectronicsIdCollection & blocksizecollection,
-			  EBDetIdCollection & chidcollection , EBDetIdCollection & gaincollection,
+			  EBDetIdCollection & dccsizecollection ,
+			  EcalTrigTowerDetIdCollection & ttidcollection , EcalTrigTowerDetIdCollection & blocksizecollection,
+			  EBDetIdCollection & chidcollection , EBDetIdCollection & gaincollection ,
 			  EBDetIdCollection & gainswitchcollection , EBDetIdCollection & gainswitchstaycollection,
 			  EcalElectronicsIdCollection & memttidcollection,  EcalElectronicsIdCollection &  memblocksizecollection,
 			  EcalElectronicsIdCollection & memgaincollection,  EcalElectronicsIdCollection & memchidcollection,
@@ -47,7 +47,7 @@ class EcalTB07DaqFormatter   {
 
  private:
   
-  void  DecodeMEM( DCCTBTowerBlock *  towerblock, EcalPnDiodeDigiCollection & pndigicollection ,
+  void  DecodeMEM( DCCTowerBlock *  towerblock, EcalPnDiodeDigiCollection & pndigicollection ,
 		   EcalElectronicsIdCollection & memttidcollection,  EcalElectronicsIdCollection &  memblocksizecollection,
 		   EcalElectronicsIdCollection & memgaincollection,  EcalElectronicsIdCollection & memchidcollection);
   
@@ -57,7 +57,7 @@ class EcalTB07DaqFormatter   {
   bool rightTower(int tower) const ;
 
  private:
-  DCCTBDataParser* theParser_;
+  DCCDataParser* theParser_;
   int cryIcMap_[68][5][5];
   int tbStatusToLocation_[71];
   int tbTowerIDToLocation_[201];

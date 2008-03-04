@@ -15,7 +15,6 @@
 #include "DataFormats/L1Trigger/interface/L1EtMissParticleFwd.h" 
 #include "DataFormats/L1Trigger/interface/L1ParticleMap.h"
 #include "DataFormats/L1Trigger/interface/L1ParticleMapFwd.h" 
-#include "DataFormats/L1Trigger/interface/L1DataEmulRecord.h"
 #include "DataFormats/Common/interface/Wrapper.h"
 #include "DataFormats/Common/interface/RefVector.h"
 #include "DataFormats/Common/interface/RefProd.h"
@@ -54,8 +53,5 @@ namespace {
 
      std::vector<l1extra::L1ParticleMap::L1ObjectType> dummy1 ;
      std::vector<std::vector<unsigned int> > dummy2 ;
-
-     L1DataEmulRecord der;
-     edm::Wrapper<L1DataEmulRecord> w_der;
   }
 }

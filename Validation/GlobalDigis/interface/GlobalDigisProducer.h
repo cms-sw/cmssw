@@ -7,8 +7,8 @@
  *  containing information about various sub-systems in global coordinates 
  *  with full geometry
  *
- *  $Date: 2007/10/04 19:31:00 $
- *  $Revision: 1.11 $
+ *  $Date: 2007/04/30 19:47:36 $
+ *  $Revision: 1.10 $
  *  \author M. Strang SUNY-Buffalo
  */
 
@@ -24,11 +24,6 @@
 #include "FWCore/Framework/interface/MakerMacros.h" 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-
-//DQM services
-#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
-#include "DQMServices/Daemon/interface/MonitorDaemon.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
 
 // ecal calorimeter info
 #include "DataFormats/EcalDigi/interface/EBDataFrame.h"
@@ -246,11 +241,6 @@ class GlobalDigisProducer : public edm::EDProducer
   unsigned int count;
 
 }; // end class declaration
-
-#endif
-
-#ifndef GlobalHitMap
-#define GlobalHitMap
 
 // geometry mapping
 static const int dTrk             = 1;

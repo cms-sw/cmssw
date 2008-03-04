@@ -2,11 +2,11 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
 //--------------------------------------------------------
-HcalMonitorClient::HcalMonitorClient(const ParameterSet& ps): DQMAnalyzer(ps){
+HcalMonitorClient::HcalMonitorClient(const ParameterSet& ps){
   initialize(ps);
 }
 
-HcalMonitorClient::HcalMonitorClient(): DQMAnalyzer(){}
+HcalMonitorClient::HcalMonitorClient(){}
 
 //--------------------------------------------------------
 HcalMonitorClient::~HcalMonitorClient(){
@@ -19,6 +19,7 @@ HcalMonitorClient::~HcalMonitorClient(){
   if( pedestal_client_ )   delete pedestal_client_;
   if( led_client_ )        delete led_client_;
   if( hot_client_ )        delete hot_client_;
+  if( dead_client_ )       delete dead_client_;
   if( mui_ )               delete mui_;
 }
 
@@ -29,10 +30,18 @@ void HcalMonitorClient::initialize(const ParameterSet& ps){
   cout << " *** Hcal Monitor Client ***" << endl;
   cout << endl;
 
+  irun_=0; ilumisec_=0; ievent_=0; itime_=0;
+  actonLS_=false;
+
   dataformat_client_ = 0; digi_client_ = 0;
   rechit_client_ = 0; pedestal_client_ = 0;
-  led_client_ = 0; hot_client_ = 0; 
+  led_client_ = 0; hot_client_ = 0; dead_client_=0;
   lastResetTime_=0;
+
+  debug_ = ps.getUntrackedParameter<bool>("debug", false);
+  if(debug_) cout << "HcalMonitorClient: constructor...." << endl;
+
+
 
   // MonitorDaemon switch
   enableMonitorDaemon_ = ps.getUntrackedParameter<bool>("enableMonitorDaemon", true);
@@ -40,6 +49,7 @@ void HcalMonitorClient::initialize(const ParameterSet& ps){
   else cout << "-->enableMonitorDaemon switch is OFF" << endl;
 
   mui_ = new MonitorUIRoot();
+  dbe_ = mui_->getBEInterface();
 
   // DQM ROOT input
   inputFile_ = ps.getUntrackedParameter<string>("inputFile", "");
@@ -88,21 +98,71 @@ void HcalMonitorClient::initialize(const ParameterSet& ps){
   gStyle->SetPalette(1);
 
   // clients' constructors
-  if( ps.getUntrackedParameter<bool>("DataFormatClient", false) )
-    dataformat_client_   = new HcalDataFormatClient(ps, dbe_);
-  if( ps.getUntrackedParameter<bool>("DigiClient", false) )
-    digi_client_         = new HcalDigiClient(ps, dbe_);
-  if( ps.getUntrackedParameter<bool>("RecHitClient", false) )
-    rechit_client_       = new HcalRecHitClient(ps, dbe_);
-  if( ps.getUntrackedParameter<bool>("PedestalClient", false) )
-    pedestal_client_     = new HcalPedestalClient(ps, dbe_);
-  if( ps.getUntrackedParameter<bool>("LEDClient", false) )
-    led_client_          = new HcalLEDClient(ps, dbe_);
-  if( ps.getUntrackedParameter<bool>("HotCellClient", false) )
-    hot_client_          = new HcalHotCellClient(ps, dbe_);
+  if( ps.getUntrackedParameter<bool>("DataFormatClient", false) ){
+    if(debug_)   cout << "===>DQM DataFormat Client is ON" << endl;
+    dataformat_client_   = new HcalDataFormatClient();
+    dataformat_client_->init(ps, dbe_,"DataFormatClient");
+  }
+  if( ps.getUntrackedParameter<bool>("DigiClient", false) ){
+    if(debug_)   cout << "===>DQM Digi Client is ON" << endl;
+    digi_client_         = new HcalDigiClient();
+    digi_client_->init(ps, dbe_,"DigiClient");
+  }
+  if( ps.getUntrackedParameter<bool>("RecHitClient", false) ){
+    if(debug_)   cout << "===>DQM RecHit Client is ON" << endl;
+    rechit_client_       = new HcalRecHitClient();
+    rechit_client_->init(ps, dbe_,"RecHitClient");
+}
+  if( ps.getUntrackedParameter<bool>("PedestalClient", false) ){
+    if(debug_)   cout << "===>DQM Pedestal Client is ON" << endl;
+    pedestal_client_     = new HcalPedestalClient();
+    pedestal_client_->init(ps, dbe_,"PedestalClient"); 
+  }
+  if( ps.getUntrackedParameter<bool>("LEDClient", false) ){
+    if(debug_)   cout << "===>DQM LED Client is ON" << endl;
+    led_client_          = new HcalLEDClient();
+    led_client_->init(ps, dbe_,"LEDClient"); 
+  }
+  if( ps.getUntrackedParameter<bool>("HotCellClient", false) ){
+    if(debug_)   cout << "===>DQM HotCell Client is ON" << endl;
+    hot_client_          = new HcalHotCellClient();
+    hot_client_->init(ps, dbe_,"HotCellClient");
+  }
+  if( ps.getUntrackedParameter<bool>("DeadCellClient", false) ){
+    if(debug_)   cout << "===>DQM DeadCell Client is ON" << endl;
+    dead_client_          = new HcalDeadCellClient();
+    dead_client_->init(ps, dbe_,"DeadCellClient");
+  }
 
   dqm_db_ = new HcalHotCellDbInterface(); 
 
+  // set parameters   
+  prescaleEvt_ = ps.getUntrackedParameter<int>("diagnosticPrescaleEvt", -1);
+  cout << "===>DQM event prescale = " << prescaleEvt_ << " event(s)"<< endl;
+
+  prescaleLS_ = ps.getUntrackedParameter<int>("diagnosticPrescaleLS", -1);
+  cout << "===>DQM lumi section prescale = " << prescaleLS_ << " lumi section(s)"<< endl;
+  if (prescaleLS_>0) actonLS_=true;
+
+  prescaleUpdate_ = ps.getUntrackedParameter<int>("diagnosticPrescaleUpdate", -1);
+  cout << "===>DQM update prescale = " << prescaleUpdate_ << " update(s)"<< endl;
+
+  prescaleTime_ = ps.getUntrackedParameter<int>("diagnosticPrescaleTime", -1);
+  cout << "===>DQM time prescale = " << prescaleTime_ << " minute(s)"<< endl;
+  
+
+  // Base folder for the contents of this job
+  string subsystemname = ps.getUntrackedParameter<string>("subSystemFolder", "Hcal") ;
+  cout << "===>HcalMonitor name = " << subsystemname << endl;
+  rootFolder_ = subsystemname + "/";
+
+  
+  gettimeofday(&psTime_.startTV,NULL);
+  /// get time in milliseconds, convert to minutes
+  psTime_.startTime = (psTime_.startTV.tv_sec*1000.0+psTime_.startTV.tv_usec/1000.0);
+  psTime_.startTime /= (60.0*1000.0);
+  psTime_.elapsedTime=0;
+  psTime_.updateTime=0;
 
   return;
 }
@@ -132,14 +192,13 @@ void HcalMonitorClient::resetAllME() {
   if( rechit_client_ )     rechit_client_->resetAllME();
   if( pedestal_client_ )   pedestal_client_->resetAllME();
   if( led_client_ )        led_client_->resetAllME();
-  if( hot_client_ )         hot_client_->resetAllME();
+  if( hot_client_ )        hot_client_->resetAllME();
+  if( dead_client_ )       dead_client_->resetAllME();
   return;
 }
 
 //--------------------------------------------------------
 void HcalMonitorClient::beginJob(const EventSetup& c){
-  // call DQMAnalyzer in the beginning 
-  DQMAnalyzer::beginJob(c);
 
   if( debug_ ) cout << "HcalMonitorClient: beginJob" << endl;
   
@@ -150,15 +209,14 @@ void HcalMonitorClient::beginJob(const EventSetup& c){
   if( rechit_client_ )     rechit_client_->beginJob();
   if( pedestal_client_ )   pedestal_client_->beginJob(c);
   if( led_client_ )        led_client_->beginJob(c);
-  if( hot_client_ )         hot_client_->beginJob();
+  if( hot_client_ )        hot_client_->beginJob();
+  if( dead_client_ )       dead_client_->beginJob();
 
   return;
 }
 
 //--------------------------------------------------------
 void HcalMonitorClient::beginRun(const Run& r, const EventSetup& c) {
-  // call DQMAnalyzer in the beginning 
-  DQMAnalyzer::beginRun(r, c);
 
   cout << endl;
   cout << "HcalMonitorClient: Standard beginRun() for run " << r.id().run() << endl;
@@ -169,6 +227,7 @@ void HcalMonitorClient::beginRun(const Run& r, const EventSetup& c) {
   if( pedestal_client_ )   pedestal_client_->beginRun();
   if( led_client_ )        led_client_->beginRun();
   if( hot_client_ )        hot_client_->beginRun();
+  if( dead_client_ )       dead_client_->beginRun();
 
   return;
 }
@@ -178,14 +237,15 @@ void HcalMonitorClient::endJob(void) {
 
   if( debug_ ) cout << "HcalMonitorClient: endJob, ievt = " << ievt_ << endl;
 
-  if( dataformat_client_ ) dataformat_client_->endJob();
-  if( digi_client_ )  digi_client_->endJob();
-  if( rechit_client_ )  rechit_client_->endJob();
-  if( hot_client_ ) hot_client_->endJob();
-  if( pedestal_client_ ) pedestal_client_->endJob();
-  if( led_client_ ) led_client_->endJob();
+  if( dataformat_client_ )     dataformat_client_->endJob();
+  if( digi_client_ )           digi_client_->endJob();
+  if( rechit_client_ )         rechit_client_->endJob();
+  if( hot_client_ )            hot_client_->endJob();
+  if( dead_client_ )           dead_client_->endJob();
+  if( pedestal_client_ )       pedestal_client_->endJob();
+  if( led_client_ )            led_client_->endJob();
 
-
+  /*
   ///Don't leave this here!!!  FIX ME!
   ///Just a temporary example!!
   time_t rawtime;
@@ -207,13 +267,14 @@ void HcalMonitorClient::endJob(void) {
   try{
     XMLPlatformUtils::Initialize();
     DOMDocument* doc = dqm_db_->createDocument();
-    dqm_db_->createHeader(doc, irun_, getRunStartTime());
+    //dqm_db_->createHeader(doc, irun_, getRunStartTime());
+    dqm_db_->createHeader(doc,irun_,ntime);
     for(int i=0; i<4; i++){
       HcalSubdetector subdet = HcalBarrel;
       if(i==1) subdet =  HcalEndcap;
       else if(i==2) subdet = HcalForward;
       else if(i==3) subdet = HcalOuter;
-      
+
       for(int ieta=-42; ieta<=42; ieta++){
 	if(ieta==0) continue;
 	for(int iphi=1; iphi<=73; iphi++){
@@ -240,8 +301,8 @@ void HcalMonitorClient::endJob(void) {
     std::cerr << "Exception" << std::endl;
   }
   XMLPlatformUtils::Terminate();
-  
-  DQMAnalyzer::endJob();
+  */
+
   return;
 }
 
@@ -261,14 +322,13 @@ void HcalMonitorClient::endRun(const Run& r, const EventSetup& c) {
   }
 
   if( hot_client_ )         hot_client_->endRun();
-  if( dataformat_client_ ) dataformat_client_->endRun();
-  if( digi_client_ )       digi_client_->endRun();
-  if( rechit_client_ )     rechit_client_->endRun();
-  if( pedestal_client_ )   pedestal_client_->endRun();
-  if( led_client_ )        led_client_->endRun();
+  if( dead_client_ )        dead_client_->endRun(); 
+  if( dataformat_client_ )  dataformat_client_->endRun();
+  if( digi_client_ )        digi_client_->endRun();
+  if( rechit_client_ )      rechit_client_->endRun();
+  if( pedestal_client_ )    pedestal_client_->endRun();
+  if( led_client_ )         led_client_->endRun();
 
-  // call DQMAnalyzer at the end
-  DQMAnalyzer::endRun(r,c); 
   // this is an effective way to avoid ROOT memory leaks ...
   if( enableExit_ ) {
     cout << endl;
@@ -283,9 +343,6 @@ void HcalMonitorClient::endRun(const Run& r, const EventSetup& c) {
 
 //--------------------------------------------------------
 void HcalMonitorClient::beginLuminosityBlock(const LuminosityBlock &l, const EventSetup &c) {
-  // call DQMAnalyzer in the beginning 
-  DQMAnalyzer::beginLuminosityBlock(l,c);
-  // then do your thing
   if(actonLS_ && !prescale()){
     // do scheduled tasks...
   }
@@ -298,14 +355,12 @@ void HcalMonitorClient::endLuminosityBlock(const LuminosityBlock &l, const Event
     // do scheduled tasks...
     analyze();
   }
-  // call DQMAnalyzer at the end 
-  DQMAnalyzer::endLuminosityBlock(l,c);
+
   return;
 }
 
 //--------------------------------------------------------
 void HcalMonitorClient::analyze(const Event& e, const edm::EventSetup& eventSetup){
-  DQMAnalyzer::analyze(e,eventSetup);
 
   if(resetEvents_>0 && (ievent_%resetEvents_)==0) resetAllME();
   if(resetLS_>0 && (ilumisec_%resetLS_)==0) resetAllME();
@@ -314,7 +369,15 @@ void HcalMonitorClient::analyze(const Event& e, const edm::EventSetup& eventSetu
     resetAllME();
     lastResetTime_ = itime_;
   }
-  //  if(nupdates%resetUpdate_)==0) resetAllME();
+
+
+  // environment datamembers
+  irun_     = e.id().run();
+  ilumisec_ = e.luminosityBlock();
+  ievent_   = e.id().event();
+  itime_    = e.time().value();
+
+  if (debug_) cout << "HcalMonitorClient: evts: "<< nevt_ << ", run: " << irun_ << ", LS: " << ilumisec_ << ", evt: " << ievent_ << ", time: " << itime_ << endl; 
 
   if ( runningStandalone_ || prescale()) return;
   else analyze();
@@ -326,7 +389,7 @@ void HcalMonitorClient::analyze(){
   
   ievt_++;
   if(debug_) printf("\nHcal Monitor Client heartbeat....\n");
-
+  
   createTests();  
   mui_->doMonitoring();
   dbe_->runQTests();
@@ -337,12 +400,15 @@ void HcalMonitorClient::analyze(){
   if( pedestal_client_ )   pedestal_client_->analyze();      
   if( led_client_ )        led_client_->analyze(); 
   if( hot_client_ )         hot_client_->analyze(); 
+  if( dead_client_ )         dead_client_->analyze(); 
 
   return;
 }
 
 //--------------------------------------------------------
 void HcalMonitorClient::createTests(void){
+  
+  if( debug_ ) cout << "HcalMonitorClient: creating all tests" << endl;
 
   if( dataformat_client_ ) dataformat_client_->createTests(); 
   if( digi_client_ )       digi_client_->createTests(); 
@@ -350,6 +416,7 @@ void HcalMonitorClient::createTests(void){
   if( pedestal_client_ )   pedestal_client_->createTests(); 
   if( led_client_ )        led_client_->createTests(); 
   if( hot_client_ )        hot_client_->createTests(); 
+  if( dead_client_ )        dead_client_->createTests(); 
 
   return;
 }
@@ -357,7 +424,8 @@ void HcalMonitorClient::createTests(void){
 //--------------------------------------------------------
 void HcalMonitorClient::report(bool doUpdate) {
   
-  if( debug_ ) cout << "HcalMonitorClient: creating report, ievt = " << ievt_ << endl;
+  if( debug_ ) 
+    cout << "HcalMonitorClient: creating report, ievt = " << ievt_ << endl;
   
   if(doUpdate){
     createTests();  
@@ -370,18 +438,33 @@ void HcalMonitorClient::report(bool doUpdate) {
   if( pedestal_client_ ) pedestal_client_->report();
   if( rechit_client_ ) rechit_client_->report();
   if( hot_client_ ) hot_client_->report();
+  if( dead_client_ ) dead_client_->report();
   
+
+  ///Collect test summary information
   map<string, vector<QReport*> > errE, errW, errO;
-  if( hot_client_ ) hot_client_->getErrors(errE,errW,errO);
-  if( led_client_ ) led_client_->getErrors(errE,errW,errO);
-  if( pedestal_client_ ) pedestal_client_->getErrors(errE,errW,errO);
-  if( digi_client_ ) digi_client_->getErrors(errE,errW,errO);
-  if( rechit_client_ ) rechit_client_->getErrors(errE,errW,errO);
-  if( dataformat_client_ ) dataformat_client_->getErrors(errE,errW,errO);
+  int nTests=0;
+  if( hot_client_ ) hot_client_->getTestResults(nTests,errE,errW,errO);
+  if( dead_client_ ) dead_client_->getTestResults(nTests,errE,errW,errO);
+  if( led_client_ ) led_client_->getTestResults(nTests,errE,errW,errO);
+  if( pedestal_client_ ) pedestal_client_->getTestResults(nTests,errE,errW,errO);
+  if( digi_client_ ) digi_client_->getTestResults(nTests,errE,errW,errO);
+  if( rechit_client_ ) rechit_client_->getTestResults(nTests,errE,errW,errO);
+  if( dataformat_client_ ) dataformat_client_->getTestResults(nTests,errE,errW,errO);
 
+  //For now, report the fraction of good tests....
+  float errorSummary = 1.0;
+  if(nTests>0) errorSummary = 1.0 - (float(errE.size())+float(errW.size()))/float(nTests);
+    
+  cout << "Hcal DQM Error Summary ("<< errorSummary <<"): "<< nTests << " tests, "<<errE.size() << " errors, " <<errW.size() << " warnings, "<< errO.size() << " others" << endl;
 
-  save();
-  if( baseHtmlDir_.size() != 0 ) htmlOutput();
+  char meTitle[256];
+  sprintf(meTitle,"%sEventInfo/errorSummary",rootFolder_.c_str() );
+  MonitorElement* me = dbe_->get(meTitle);
+  if(me) me->Fill(errorSummary);
+
+  //create html output if specified...
+  if( baseHtmlDir_.size() != 0 && ievt_>0) htmlOutput();
 
   return;
 }
@@ -392,8 +475,8 @@ void HcalMonitorClient::htmlOutput(void){
   cout << "Preparing HcalMonitorClient html output ..." << endl;
 
   char tmp[10];
-  if(irun_!=-1) sprintf(tmp, "%09d", irun_);
-  else sprintf(tmp, "%09d", 0);
+  if(irun_!=-1) sprintf(tmp, "DQM_Hcal_R%09d", irun_);
+  else sprintf(tmp, "DQM_Hcal_R%09d", 0);
   string htmlDir = baseHtmlDir_ + "/" + tmp + "/";
   system(("/bin/mkdir -p " + htmlDir).c_str());
 
@@ -463,6 +546,17 @@ void HcalMonitorClient::htmlOutput(void){
     else htmlFile << "<td bgcolor=lime align=center>This monitor task has no problems</td>" << endl;
     htmlFile << "</table>" << endl;
   }
+  if( dead_client_) {
+    htmlName = "HcalDeadCellClient.html";
+    dead_client_->htmlOutput(irun_, htmlDir, htmlName);
+    htmlFile << "<table border=0 WIDTH=\"50%\"><tr>" << endl;
+    htmlFile << "<td WIDTH=\"35%\"><a href=\"" << htmlName << "\">Dead Cell Monitor</a></td" << endl;
+    if(dead_client_->hasErrors()) htmlFile << "<td bgcolor=red align=center>This monitor task has errors.</td>" << endl;
+    else if(dead_client_->hasWarnings()) htmlFile << "<td bgcolor=yellow align=center>This monitor task has warnings.</td>" << endl;
+    else if(dead_client_->hasOther()) htmlFile << "<td bgcolor=aqua align=center>This monitor task has messages.</td>" << endl;
+    else htmlFile << "<td bgcolor=lime align=center>This monitor task has no problems</td>" << endl;
+    htmlFile << "</table>" << endl;
+  }
   if( pedestal_client_) {
     htmlName = "HcalPedestalClient.html";
     pedestal_client_->htmlOutput(irun_, htmlDir, htmlName);
@@ -508,22 +602,24 @@ void HcalMonitorClient::offlineSetup(){
   //  cout << endl;
   //  cout << " *** Hcal Generic Monitor Client, for offline operation***" << endl;
   //  cout << endl;
-
+  /*
   dataformat_client_ = 0; digi_client_ = 0;
   rechit_client_ = 0; pedestal_client_ = 0;
   led_client_ = 0;  hot_client_ = 0;
-  
+  dead_client_=0;
+
   // base Html output directory
   baseHtmlDir_ = ".";
   
   // clients' constructors
   hot_client_          = new HcalHotCellClient();
+  dead_client_         = new HcalDeadCellClient();
   dataformat_client_   = new HcalDataFormatClient();
   rechit_client_       = new HcalRecHitClient();
   digi_client_         = new HcalDigiClient();
   pedestal_client_     = new HcalPedestalClient();
   led_client_          = new HcalLEDClient();
-
+  */
   return;
 }
 
@@ -567,6 +663,7 @@ void HcalMonitorClient::loadHistograms(TFile* infile, const char* fname){
   
 
   if(hot_client_) hot_client_->loadHistograms(infile);
+  if(dead_client_) dead_client_->loadHistograms(infile);
   if(dataformat_client_) dataformat_client_->loadHistograms(infile);
   if(rechit_client_) rechit_client_->loadHistograms(infile);
   if(digi_client_) digi_client_->loadHistograms(infile);
@@ -585,6 +682,7 @@ void HcalMonitorClient::dumpHistograms(int& runNum, vector<TH1F*> &hist1d,vector
 
   /*
   if(hot_client_) hot_client_->dumpHistograms(names,meanX,meanY,rmsX,rmsY);
+  if(dead_client_) dead_client_->dumpHistograms(names,meanX,meanY,rmsX,rmsY);
   if(dataformat_client) dataformat_client_->dumpHistograms(names,meanX,meanY,rmsX,rmsY);
   if(rechit_client_) rechit_client_->dumpHistograms(names,meanX,meanY,rmsX,rmsY);
   if(digi_client_) digi_client_->dumpHistograms(names,meanX,meanY,rmsX,rmsY);
@@ -592,6 +690,43 @@ void HcalMonitorClient::dumpHistograms(int& runNum, vector<TH1F*> &hist1d,vector
   if(led_client_) led_client_->dumpHistograms(names,meanX,meanY,rmsX,rmsY);
   */
  return;
+}
+
+//--------------------------------------------------------
+bool HcalMonitorClient::prescale(){
+  ///Return true if this event should be skipped according to the prescale condition...
+  ///    Accommodate a logical "OR" of the possible tests
+  if (debug_) cout <<"HcalMonitorClient::prescale"<<endl;
+  
+  //First determine if we care...
+  bool evtPS =    prescaleEvt_>0;
+  bool lsPS =     prescaleLS_>0;
+  bool timePS =   prescaleTime_>0;
+  bool updatePS = prescaleUpdate_>0;
+
+  // If no prescales are set, keep the event
+  if(!evtPS && !lsPS && !timePS && !updatePS) return false;
+
+  //check each instance
+  if(lsPS && (ilumisec_%prescaleLS_)!=0) lsPS = false; //LS veto
+  if(evtPS && (ievent_%prescaleEvt_)!=0) evtPS = false; //evt # veto
+  if(timePS){
+    float time = psTime_.elapsedTime - psTime_.updateTime;
+    if(time<prescaleTime_){
+      timePS = false;  //timestamp veto
+      psTime_.updateTime = psTime_.elapsedTime;
+    }
+  }
+  //  if(prescaleUpdate_>0 && (nupdates_%prescaleUpdate_)==0) updatePS=false; ///need to define what "updates" means
+  
+  if (debug_) printf("HcalMonitorClient::prescale  evt: %d/%d, ls: %d/%d, time: %f/%d\n",
+		     ievent_,evtPS,
+		     ilumisec_,lsPS,
+		     psTime_.elapsedTime - psTime_.updateTime,timePS);
+
+  // if any criteria wants to keep the event, do so
+  if(evtPS || lsPS || timePS) return false; //FIXME updatePS left out for now
+  return true;
 }
 
 #include "FWCore/Framework/interface/MakerMacros.h"

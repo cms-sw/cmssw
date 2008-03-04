@@ -41,11 +41,7 @@ class ElectronPixelSeed: public TrajectorySeed
    
     //! Constructor from two hits
     ElectronPixelSeed(edm::Ref<SuperClusterCollection> & seed, PTrajectoryStateOnDet & pts, recHitContainer & rh,  PropagationDirection & dir);
-
-    // Constructor from TrajectorySeed
-    ElectronPixelSeed(edm::Ref<SuperClusterCollection> & scl, const TrajectorySeed & seed) ;
-
-    // 
+      
     SuperClusterRef superCluster() const {return theSuperCluster; }
     
     // interfaces

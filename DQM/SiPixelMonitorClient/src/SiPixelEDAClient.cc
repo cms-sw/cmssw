@@ -42,7 +42,7 @@ using namespace std;
 //
 SiPixelEDAClient::SiPixelEDAClient(const edm::ParameterSet& ps) :
   ModuleWeb("SiPixelEDAClient"){
- cout<<"Entering  SiPixelEDAClient::SiPixelEDAClient: "<<endl;
+ //cout<<"Entering  SiPixelEDAClient::SiPixelEDAClient: "<<endl;
  
   edm::LogInfo("SiPixelEDAClient") <<  " Creating SiPixelEDAClient " << "\n" ;
   parameters = ps;
@@ -61,7 +61,7 @@ SiPixelEDAClient::SiPixelEDAClient(const edm::ParameterSet& ps) :
   sipixelWebInterface_ = new SiPixelWebInterface("dummy", "dummy", &mui_);
   defaultPageCreated_ = false;
   
- cout<<"...leaving  SiPixelEDAClient::SiPixelEDAClient. "<<endl;
+ //cout<<"...leaving  SiPixelEDAClient::SiPixelEDAClient. "<<endl;
 }
 //
 // -- Destructor
@@ -92,14 +92,14 @@ void SiPixelEDAClient::endJob(){
 // -- Begin Job
 //
 void SiPixelEDAClient::beginJob(const edm::EventSetup& eSetup){
-  cout<<"Entering SiPixelEDAClient::beginJob: "<<endl;
+  //cout<<"Entering SiPixelEDAClient::beginJob: "<<endl;
 
   nLumiBlock = 0;
 
   sipixelWebInterface_->readConfiguration(tkMapFrequency_,summaryFrequency_);
   edm::LogInfo("SiPixelEDAClient") << " Configuration files read out correctly" << "\n" ;
-  cout  << " Update Frequencies are " << tkMapFrequency_ << " " 
-                                      << summaryFrequency_ << endl ;
+  //cout  << " Update Frequencies are " << tkMapFrequency_ << " " 
+  //                                    << summaryFrequency_ << endl ;
 
           collationFlag_ = parameters.getUntrackedParameter<int>("CollationtionFlag",0);
          outputFilePath_ = parameters.getUntrackedParameter<string>("OutputFilePath",".");
@@ -108,7 +108,7 @@ void SiPixelEDAClient::beginJob(const edm::EventSetup& eSetup){
 //  if (trackerMapCreator_->readConfiguration()) {
 //    tkMapFrequency_ = trackerMapCreator_->getFrequency();
  // }
-  cout<<"...leaving SiPixelEDAClient::beginJob. "<<endl;
+  //cout<<"...leaving SiPixelEDAClient::beginJob. "<<endl;
 }
 //
 //  -- Analyze 
@@ -131,16 +131,16 @@ void SiPixelEDAClient::beginLuminosityBlock(edm::LuminosityBlock const& lumiSeg,
 // -- End Luminosity Block
 //
 void SiPixelEDAClient::endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& eSetup) {
-  cout<<"Entering SiPixelEDAClient::endLuminosityBlock: "<<endl;
+  //cout<<"Entering SiPixelEDAClient::endLuminosityBlock: "<<endl;
 
   edm::LogVerbatim ("SiPixelEDAClient") <<"[SiPixelEDAClient]: End of LS transition, performing the DQM client operation";
 
   nLumiBlock++;
 
-  cout << "====================================================== " << endl;
-  cout << " ===> Iteration # " << nLumiBlock << " " 
-                               << lumiSeg.luminosityBlock() << endl;
-  cout << "====================================================== " << endl;
+  //cout << "====================================================== " << endl;
+  //cout << " ===> Iteration # " << nLumiBlock << " " 
+  //                             << lumiSeg.luminosityBlock() << endl;
+  //cout << "====================================================== " << endl;
 
 //  if (nLumiBlock==2) {
 //    cout << " Creating Collation " << endl;
@@ -149,16 +149,16 @@ void SiPixelEDAClient::endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, e
 //  }
   // -- Create summary monitor elements according to the frequency
 //  if (summaryFrequency_ != -1 && nLumiBlock%summaryFrequency_ == 1) {
-    cout << " Creating Summary " << endl;
+    //cout << " Creating Summary " << endl;
     sipixelWebInterface_->setActionFlag(SiPixelWebInterface::Summary);
     sipixelWebInterface_->performAction();
 //  }
   if (nLumiBlock==1) {
-    cout << " Setting up QTests " << endl;
+    //cout << " Setting up QTests " << endl;
     sipixelWebInterface_->setActionFlag(SiPixelWebInterface::setupQTest);
     sipixelWebInterface_->performAction();
   }
-    cout << " Checking QTest results " << endl;
+    //cout << " Checking QTest results " << endl;
     sipixelWebInterface_->setActionFlag(SiPixelWebInterface::QTestResult);
     sipixelWebInterface_->performAction();
   
@@ -177,33 +177,33 @@ void SiPixelEDAClient::endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, e
 //  }
 
 //  if ((nLumiBlock % fileSaveFrequency_) == 0) {
-    int iRun = lumiSeg.run();
-    int iLumi  = lumiSeg.luminosityBlock();
-    cout << " Saving histos " << endl;
-    saveAll(iRun, iLumi);
+   // int iRun = lumiSeg.run();
+   // int iLumi  = lumiSeg.luminosityBlock();
+   // cout << " Saving histos " << endl;
+   // saveAll(iRun, iLumi);
 //  }
-  cout<<"...leaving SiPixelEDAClient::endLuminosityBlock. "<<endl;
+  //cout<<"...leaving SiPixelEDAClient::endLuminosityBlock. "<<endl;
 }
 //
 // -- End Run
 //
 void SiPixelEDAClient::endRun(edm::Run const& run, edm::EventSetup const& eSetup){
-  cout<<"Entering SiPixelEDAClient::endRun: "<<endl;
+  //cout<<"Entering SiPixelEDAClient::endRun: "<<endl;
 
-  edm::LogVerbatim ("SiPixelEDAClient") <<"[SiPixelEDAClient]: End of Run, saving  DQM output ";
-  int iRun = run.run();
+  //edm::LogVerbatim ("SiPixelEDAClient") <<"[SiPixelEDAClient]: End of Run, saving  DQM output ";
+  //int iRun = run.run();
   
-  cout << " Updating Summary " << endl;
+  //cout << " Updating Summary " << endl;
   sipixelWebInterface_->setActionFlag(SiPixelWebInterface::Summary);
   sipixelWebInterface_->performAction();
-  cout << " Checking QTest results " << endl;
+  //cout << " Checking QTest results " << endl;
   sipixelWebInterface_->setActionFlag(SiPixelWebInterface::QTestResult);
   sipixelWebInterface_->performAction();
   
   
-  saveAll(iRun, -1);
+  //saveAll(iRun, -1);
 
-  cout<<"...leaving SiPixelEDAClient::endRun. "<<endl;
+  //cout<<"...leaving SiPixelEDAClient::endRun. "<<endl;
 }
 //
 // -- Save file
@@ -217,7 +217,7 @@ void SiPixelEDAClient::saveAll(int irun, int ilumi) {
   } else {
     fname << outputFilePath_ << "/" << "SiPixel." << irun << ".root";
   }
-  cout<<"Output filename = "<<fname.str()<<endl;
+  //cout<<"Output filename = "<<fname.str()<<endl;
   sipixelWebInterface_->setOutputFileName(fname.str());
   sipixelWebInterface_->setActionFlag(SiPixelWebInterface::SaveData);
   sipixelWebInterface_->performAction();

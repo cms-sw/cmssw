@@ -4,8 +4,8 @@
 /*
  * \file EEClusterTask.h
  *
- * $Date: 2007/10/18 08:22:42 $
- * $Revision: 1.6 $
+ * $Date: 2007/10/23 09:47:37 $
+ * $Revision: 1.7 $
  * \author G. Della Ricca
  *
  */
@@ -13,7 +13,9 @@
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
+
+class MonitorElement;
+class DaqMonitorBEInterface;
 
 class EEClusterTask: public edm::EDAnalyzer{
 

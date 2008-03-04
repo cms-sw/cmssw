@@ -4,20 +4,19 @@
 /*
  * \file EcalEndcapMonitorModule.h
  *
- * $Date: 2007/05/12 09:32:24 $
- * $Revision: 1.3 $
+ * $Date: 2007/11/13 13:20:51 $
+ * $Revision: 1.7 $
  * \author G. Della Ricca
  *
 */
-
-#include <string>
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 
-#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
+class MonitorElement;
+class DaqMonitorBEInterface;
 
 class EcalEndcapMonitorModule: public edm::EDAnalyzer{
 
@@ -60,7 +59,7 @@ int ievt_;
 
 edm::InputTag EcalTBEventHeader_;
 edm::InputTag EcalRawDataCollection_;
-edm::InputTag EBDigiCollection_;
+edm::InputTag EEDigiCollection_;
 edm::InputTag EcalUncalibratedRecHitCollection_;
 
 bool verbose_;
@@ -89,8 +88,6 @@ MonitorElement* meEEhits_;
 MonitorElement* meEvent_[18];
 
 bool init_;
-
-std::string outputFile_;
 
 };
 

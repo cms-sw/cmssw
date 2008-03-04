@@ -2,6 +2,9 @@
 #define Vertex_VertexDistanceXY_H
 
 #include "RecoVertex/VertexTools/interface/VertexDistance.h"
+#include "DataFormats/CLHEP/interface/AlgebraicObjects.h"
+#include "DataFormats/GeometryVector/interface/GlobalPoint.h"
+#include "DataFormats/GeometryCommonDetAlgo/interface/GlobalError.h"
 
 /**
  * Computes the distance between two vertices as the chi-squared formed 
@@ -13,6 +16,16 @@ class VertexDistanceXY : public VertexDistance {
 public:
 
   VertexDistanceXY() : theNullMatrix(3, 0) {}
+
+  virtual Measurement1D distance(const reco::Vertex &, 
+				 const reco::Vertex &) const;
+
+  virtual float compatibility (const reco::Vertex &, 
+			       const reco::Vertex &) const;
+
+  virtual Measurement1D distance(const VertexState &, const VertexState &) const;
+
+  virtual float compatibility (const VertexState &, const VertexState &) const;
 
   /**
    * The signed distance is computed using a vector
@@ -32,9 +45,7 @@ public:
   }
 
 
-  using VertexDistance::distance;
-
-private:
+protected:
 
   AlgebraicSymMatrix theNullMatrix;
 
@@ -47,6 +58,7 @@ private:
 			      const GlobalError & vtx1PositionError, 
 			      const GlobalPoint & vtx2Position, 
 			      const GlobalError & vtx2PositionError) const;
+
 };
 
 

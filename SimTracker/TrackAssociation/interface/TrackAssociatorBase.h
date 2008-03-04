@@ -4,14 +4,31 @@
 /** \class TrackAssociatorBase
  *  Base class for TrackAssociators. Methods take as input the handle of Track and TrackingPArticle collections and return an AssociationMap (oneToManyWithQuality)
  *
- *  $Date: 2007/10/26 14:35:20 $
- *  $Revision: 1.11 $
+ *  $Date: 2007/06/09 16:54:26 $
+ *  $Revision: 1.8 $
  *  \author magni, cerati
  */
 
+#include "DataFormats/TrackReco/interface/Track.h"
+#include "DataFormats/TrackReco/interface/TrackFwd.h"
+#include "SimDataFormats/TrackingAnalysis/interface/TrackingParticleFwd.h"
+#include "DataFormats/Common/interface/OneToManyWithQuality.h"
+#include "DataFormats/Common/interface/AssociationMap.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/Event.h"
-#include "DataFormats/RecoCandidate/interface/TrackAssociation.h"
+
+
+namespace reco{
+
+  typedef edm::AssociationMap<edm::OneToManyWithQuality
+    <TrackingParticleCollection, reco::TrackCollection, double> >
+    SimToRecoCollection;  
+  typedef edm::AssociationMap<edm::OneToManyWithQuality 
+    <reco::TrackCollection, TrackingParticleCollection, double> >
+    RecoToSimCollection;  
+  
+}
+
 
 class TrackAssociatorBase {
  public:

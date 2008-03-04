@@ -1,6 +1,7 @@
 #include "SimG4Core/PhysicsLists/interface/G4Version.h"
 #include "SimG4Core/Physics/interface/PhysicsListFactory.h"
 
+#include "CMSModel.hh"
 #include "DummyPhysics.hh"
 #include "FTFPCMS.hh"
 #include "LHEPCMS.hh"
@@ -13,6 +14,7 @@
 #include "QGSPCMS_BERT.hh"
 #include "QGSPCMS_BERT_HP.hh"
 
+DEFINE_PHYSICSLIST(CMSModel);
 DEFINE_PHYSICSLIST(DummyPhysics);
 typedef FTFPCMS FTFP;
 DEFINE_PHYSICSLIST(FTFP);

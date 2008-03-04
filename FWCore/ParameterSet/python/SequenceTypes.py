@@ -6,6 +6,8 @@ from ExceptionHandling import *
 
 class _Sequenceable(object):
     """Denotes an object which can be placed in a sequence"""
+    def __init__(self):
+        pass
     def __mul__(self,rhs):
         return _SequenceOpAids(self,rhs)
     def __add__(self,rhs):
@@ -17,6 +19,15 @@ class _Sequenceable(object):
             return lookuptable[id(self)]
         except:
             raise KeyError("no "+str(type(self))+" with id "+str(id(self))+" found")
+    def isOperation(self):
+        """Returns True if the object is an operator (e.g. *,+ or !) type"""
+        return False
+    def _visitSubNodes(self,visitor):
+        pass
+    def visitNode(self,visitor):
+        visitor.enter(self)
+        self._visitSubNodes(visitor)
+        visitor.leave(self)
 
 class _ModuleSequenceType(_ConfigureComponent, _Labelable):
     """Base class for classes which define a sequence of modules"""
@@ -31,6 +42,7 @@ class _ModuleSequenceType(_ConfigureComponent, _Labelable):
             raise TypeError(msg)
         self._checkIfSequenceable(arg[0])
         self._seq = arg[0]
+        self._isModified = False
     def _place(self,name,proc):
         self._placeImpl(name,proc)
     def __imul__(self,rhs):
@@ -54,9 +66,9 @@ class _ModuleSequenceType(_ConfigureComponent, _Labelable):
     def dumpConfig(self, options):
         return '{'+self._seq.dumpSequenceConfig()+'}\n'
     def dumpPython(self, options):
-        return repr(self)
+        return 'cms.'+type(self).__name__+'('+self._seq.dumpSequencePython()+')\n'
     def __repr__(self):
-        return "cms."+type(self).__name__+'('+self._seq.dumpSequencePython()+')\n'
+        return "cms."+type(self).__name__+'('+str(self._seq)+')\n'
     def copy(self):
         returnValue =_ModuleSequenceType.__new__(type(self))
         returnValue.__init__(self._seq)
@@ -83,35 +95,67 @@ class _ModuleSequenceType(_ConfigureComponent, _Labelable):
         return deps
     def nameInProcessDesc_(self, myname):
         return myname
-    def fillNamesList(self, l):
-        return self._seq.fillNamesList(l)
-    def insertInto(self, parameterSet, myname):
+    def fillNamesList(self, l, otherSequences):
+        return self._seq.fillNamesList(l, otherSequences)
+    def insertInto(self, parameterSet, myname, otherSequences):
         # represented just as a list of names in the ParameterSet
         l = []
-        self.fillNamesList(l)
+        self.fillNamesList(l, otherSequences)
         parameterSet.addVString(True, myname, l)
+    def visit(self,visitor):
+        """Passes to visitor's 'enter' and 'leave' method each item describing the module sequence.
+        If the item contains 'sub' items then visitor will see those 'sub' items between the
+        item's 'enter' and 'leave' calls.
+        """
+        self._seq.visitNode(visitor)
 
-class _SequenceOpAids(_Sequenceable):
+class _SequenceOperator(_Sequenceable):
+    """Used in the expression tree for a sequence"""
+    def __init__(self, left, right):
+        self._left = left
+        self._right = right
+    def __str__(self):
+        return str(self._left)+self._pySymbol+str(self._right)
+    def dumpSequenceConfig(self):
+        return '('+self._left.dumpSequenceConfig()+self._cfgSymbol+self._right.dumpSequenceConfig()+')'
+    def dumpSequencePython(self):
+        return self._left.dumpSequencePython()+self._pySymbol+self._right.dumpSequencePython()
+    def _clonesequence(self, lookuptable):
+        return type(self)(self._left._clonesequence(lookuptable),self._right._clonesequence(lookuptable))
+    def fillNamesList(self, l, otherSequences):
+        self._left.fillNamesList(l, otherSequences)
+        self._right.fillNamesList(l, otherSequences)
+    def isOperation(self):
+        return True
+    def _visitSubNodes(self,visitor):
+        self._left.visitNode(visitor)
+        self._right.visitNode(visitor)
+
+class _SequenceOpAids(_SequenceOperator):
     """Used in the expression tree for a sequence as a stand in for the ',' operator"""
     def __init__(self, left, right):
-        self.__left = left
-        self.__right = right
-    def __str__(self):
-        return '('+str(self.__left)+'*'+str(self.__right) +')'
-    def dumpSequenceConfig(self):
-        return '('+self.__left.dumpSequenceConfig()+','+self.__right.dumpSequenceConfig()+')'
-    def dumpSequencePython(self):
-        return '('+self.__left.dumpSequencePython()+'*'+self.__right.dumpSequencePython()+')'
+        _SequenceOperator.__init__(self, left, right)
+        self._cfgSymbol = ','
+        self._pySymbol = '*'
     def _findDependencies(self,knownDeps,presentDeps):
         #do left first and then right since right depends on left
-        self.__left._findDependencies(knownDeps,presentDeps)
-        self.__right._findDependencies(knownDeps,presentDeps)
-    def _clonesequence(self, lookuptable):
-        return type(self)(self.__left._clonesequence(lookuptable),self.__right._clonesequence(lookuptable))
-    def fillNamesList(self, l):
-        self.__left.fillNamesList(l)
-        self.__right.fillNamesList(l)
+        self._left._findDependencies(knownDeps,presentDeps)
+        self._right._findDependencies(knownDeps,presentDeps)
 
+class _SequenceOpFollows(_SequenceOperator):
+    """Used in the expression tree for a sequence as a stand in for the '&' operator"""
+    def __init__(self, left, right):
+        _SequenceOperator.__init__(self, left, right)
+        self._cfgSymbol = '&'
+        self._pySymbol = '+'
+    def _findDependencies(self,knownDeps,presentDeps):
+        oldDepsL = presentDeps.copy()
+        oldDepsR = presentDeps.copy()
+        self._left._findDependencies(knownDeps,oldDepsL)
+        self._right._findDependencies(knownDeps,oldDepsR)
+        end = len(presentDeps)
+        presentDeps.update(oldDepsL)
+        presentDeps.update(oldDepsR)
 
 class _SequenceNegation(_Sequenceable):
     """Used in the expression tree for a sequence as a stand in for the '!' operator"""
@@ -122,41 +166,17 @@ class _SequenceNegation(_Sequenceable):
     def dumpSequenceConfig(self):
         return '!%s' %self.__operand.dumpSequenceConfig()
     def dumpSequencePython(self):
-        return '!%s' %self.__operand.dumpSequencePython()
+        return '~%s' %self.__operand.dumpSequencePython()
     def _findDependencies(self,knownDeps, presentDeps):
         self.__operand._findDependencies(knownDeps, presentDeps)
-    def fillNamesList(self, l):
+    def fillNamesList(self, l, otherSequences):
         l.append(self.__str__())
     def _clonesequence(self, lookuptable):
         return type(self)(self.__operand._clonesequence(lookuptable))
-
-
-class _SequenceOpFollows(_Sequenceable):
-    """Used in the expression tree for a sequence as a stand in for the '&' operator"""
-    def __init__(self, left, right):
-        self.__left = left
-        self.__right = right
-    def __str__(self):
-        return '('+str(self.__left)+'+'+str(self.__right) +')'
-    def dumpSequenceConfig(self):
-        return '('+self.__left.dumpSequenceConfig()+'&'+self.__right.dumpSequenceConfig()+')'
-    def dumpSequencePython(self):
-        return '('+self.__left.dumpSequencePython()+'+'+self.__right.dumpSequencePython()+')'
-    def _findDependencies(self,knownDeps,presentDeps):
-        oldDepsL = presentDeps.copy()
-        oldDepsR = presentDeps.copy()
-        self.__left._findDependencies(knownDeps,oldDepsL)
-        self.__right._findDependencies(knownDeps,oldDepsR)
-        end = len(presentDeps)
-        presentDeps.update(oldDepsL)
-        presentDeps.update(oldDepsR)
-    def _clonesequence(self, lookuptable):
-        return type(self)(self.__left._clonesequence(lookuptable),self.__right._clonesequence(lookuptable))
-    def fillNamesList(self, l):
-        self.__left.fillNamesList(l)
-        self.__right.fillNamesList(l)
-
-
+    def isOperation(self):
+        return True
+    def _visitSubNodes(self,visitor):
+        self.__operand.visitNode(visitor)
 
 class Path(_ModuleSequenceType):
     def __init__(self,*arg,**argv):
@@ -185,7 +205,33 @@ class Sequence(_ModuleSequenceType,_Sequenceable):
             lookuptable[id(self)]=clone
             lookuptable[id(clone)]=clone
         return lookuptable[id(self)]
+    def _visitSubNodes(self,visitor):
+        self.visit(visitor)
 
+class SequencePlaceholder(_ModuleSequenceType,_Sequenceable):
+    def __init__(self, name):
+        self._name = name
+    def _placeImpl(self,name,proc):
+        pass
+    def insertInto(self, parameterSet, myname):
+        raise RuntimeError("The SequencePlaceholder "+self._name
+                           +" was never overridden")
+    def fillNamesList(self, l, otherSequences):
+        """ Resolves SequencePlaceholders """
+        if not self._name in otherSequences:
+            raise RuntimeError("The SequencePlaceholder "+self._name+ " cannot be resolved")
+        else:
+            otherSequences[self._name].fillNamesList(l, otherSequences)
+    def copy(self):
+        returnValue =SequencePlaceholder.__new__(type(self))
+        returnValue.__init__(self._name)
+        return returnValue
+    def dumpPython(self, options):
+        result = 'cms.SequencePlaceholder(\"'
+        if options.isCfg:
+           result += 'process.'
+        result += +self._name+'\")\n'
+    
 
 class Schedule(_ValidatingParameterListBase,_ConfigureComponent,_Unlabelable):
     def __init__(self,*arg,**argv):
@@ -198,6 +244,87 @@ class Schedule(_ValidatingParameterListBase,_ConfigureComponent,_Unlabelable):
         return copy.copy(self)
     def _place(self,label,process):
         process.setSchedule_(self)
-    def fillNamesList(self, l):
+    def fillNamesList(self, l, otherSequences):
         for seq in self:
-            seq.fillNamesList(l)
+            seq.fillNamesList(l, otherSequences)
+
+if __name__=="__main__":
+    import unittest
+    class DummyModule(_Labelable, _Sequenceable):
+        def __init__(self,name):
+            self.setLabel(name)
+    class TestModuleCommand(unittest.TestCase):
+        def setUp(self):
+            """Nothing to do """
+            print 'testing'
+        def testDumpPython(self):
+            a = DummyModule("a")
+            b = DummyModule('b')
+            p = Path((a*b))
+            self.assertEqual(p.dumpPython(None),"cms.Path(process.a*process.b)\n")
+            p2 = Path((b+a))
+            self.assertEqual(p2.dumpPython(None),"cms.Path(process.b+process.a)\n")
+            c = DummyModule('c')
+            p3 = Path(c*(a+b))
+            self.assertEqual(p3.dumpPython(None),"cms.Path(process.c*process.a+process.b)\n")
+        def testVisitor(self):
+            class TestVisitor(object):
+                def __init__(self, enters, leaves):
+                    self._enters = enters
+                    self._leaves = leaves
+                def enter(self,visitee):
+                    #print visitee
+                    if self._enters[0] != visitee:
+                        raise RuntimeError("wrong node ("+str(visitee)+") on 'enter'")
+                    else:
+                        self._enters = self._enters[1:]
+                def leave(self,visitee):
+                    if self._leaves[0] != visitee:
+                        raise RuntimeError("wrong node ("+str(visitee)+") on 'leave'\n expected ("+str(self._leaves[0])+")")
+                    else:
+                        self._leaves = self._leaves[1:]
+            a = DummyModule("a")
+            b = DummyModule('b')
+            multAB = a*b
+            p = Path(multAB)
+            t = TestVisitor(enters=[multAB,a,b],
+                            leaves=[a,b,multAB])
+            p.visit(t)
+
+            plusAB = a+b
+            p = Path(plusAB)
+            t = TestVisitor(enters=[plusAB,a,b],
+                            leaves=[a,b,plusAB])
+            p.visit(t)
+            
+            s=Sequence(plusAB)
+            c=DummyModule("c")
+            multSC = s*c
+            p=Path(multSC)
+            t=TestVisitor(enters=[multSC,s,plusAB,a,b,c],
+                          leaves=[a,b,plusAB,s,c,multSC])
+            p.visit(t)
+            
+            notA= ~a
+            p=Path(notA)
+            t=TestVisitor(enters=[notA,a],leaves=[a,notA])
+            p.visit(t)
+        def testResolve(self):
+            m1 = DummyModule("m1")
+            m2 = DummyModule("m2")
+            s1 = Sequence(m1)
+            s2 = SequencePlaceholder("s3")
+            s3 = Sequence(m2)
+            p = Path(s1*s2)
+            l = list()
+            d = dict()
+            d['s1'] = s1
+            d['s2'] = s2
+            d['s3'] = s3
+            p.fillNamesList(l, d)
+            self.assertEqual(l, ['m1', 'm2'])
+
+    
+    unittest.main()
+
+        

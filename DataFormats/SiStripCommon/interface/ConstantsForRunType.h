@@ -1,4 +1,4 @@
-// Last commit: $Id: ConstantsForRunType.h,v 1.5 2007/07/11 11:13:59 bainbrid Exp $
+// Last commit: $Id: ConstantsForRunType.h,v 1.6 2007/09/06 21:38:13 delaer Exp $
 
 #ifndef DataFormats_SiStripCommon_ConstantsForRunType_H
 #define DataFormats_SiStripCommon_ConstantsForRunType_H
@@ -41,43 +41,50 @@ namespace sistrip {
    * Run types: (equivalent "TrackerSupervisor" enums in brackets): 
    * unknown run type,
    * undefined run type,
-   * "fast" connection of FED channels to APV pairs (XTOFS_CONNECTION = 21), 
-   * connection of FED channels to APV pairs (BARE_CONNECTION = 13), 
-   * connection of FED channels to APV pairs (CONNECTION = 11),
-   * connection of FED channels to APV pairs (FAST_CONNECTION = 16),
-   * relative APV synchronisation (TIMING = 5), 
-   * relative APV synchronisation using FED delays (TIMING_FED = 12), 
-   * bias and gain scan for LLD device (GAINSCAN = 4), 
-   * APV baseline scan (VPSPSCAN = 14), 
-   * FED calibration run for pedestals and noise (PEDESTAL = 2), 
-   * coarse (25ns) APV latency scan for beam (LATENCY = 6),
-   * fine (1ns) PLL delay scan for beam (DELAY = 7), 
-   * fine (1ns) TTC delay scan for beam (DELAY_TTC = 8), 
-   * APV pulse shape tuning using peak mode operation (CALIBRATION = 3), 
-   * APV pulse shape tuning using deconvolution mode operation (CALIBRATION_DECO = 33), 
-   * APV pulse shape tuning with isha/vfs scan using peak mode operation (CALIBRATION = 3), 
-   * APV pulse shape tuning with isha/vfs scan using deconvolution mode operation (CALIBRATION_DECO = 33), 
-   * physics data-taking run (PHYSIC = 1), 
-   * scope mode running (SCOPE_MODE = 15) 
-   * multi mode operation (PHYSIC10 = 10), 
+   * physics data-taking run                (1 = PHYSIC), 
+   * FED calibration run for peds and noise (2 = PEDESTAL), 
+   * pulse shape tuning using peak mode     (3 = CALIBRATION), 
+   * bias and gain scan for LLD device      (4 = GAINSCAN),  
+   * relative synch                         (5 = TIMING), 
+   * coarse (25ns) latency scan for beam    (6 = LATENCY),
+   * fine (1ns) PLL delay scan for beam     (7 = DELAY), 
+   * fine (1ns) TTC delay scan for beam     (8 = DELAY_TTC), 
+   * multi mode operation                   (10 = PHYSIC10), 
+   * connection run                         (11 = CONNECTION),
+   * relative APV synch using FED delays    (12 = TIMING_FED), 
+   * connection run                         (13 = BARE_CONNECTION), 
+   * baseline scan                          (14 = VPSPSCAN), 
+   * scope mode running                     (15 = SCOPE) 
+   * connection run                         (16 = FAST_CONNECTION),
+   * fine delay at for layer                (17 = DELAY_LAYER) 
+   * physics run in ZS mode                 (18 = PHYSIC_ZS) 
+   * isha/vfs scan using peak mode          (19 = CALIBRATION_SCAN), 
+   * isha/vfs scan using decon mode         (20 = CALIBRATION_SCAN_DECO), 
+   * "fast" connection run                  (21 = XTOFS_CONNECTION), 
+   * pulse shape tuning using decon mode    (33 = CALIBRATION_DECO), 
    */
-  enum RunType { UNKNOWN_RUN_TYPE   = sistrip::unknown_,
-		 UNDEFINED_RUN_TYPE = sistrip::invalid_,
-		 FAST_CABLING          = 21,
-		 FED_CABLING           = 13,
-		 APV_TIMING            = 5,
-		 FED_TIMING            = 12,
-		 OPTO_SCAN             = 4,
-		 VPSP_SCAN             = 14,
-		 PEDESTALS             = 2,
-		 APV_LATENCY           = 6,
-                 FINE_DELAY            = 17,
-		 DAQ_SCOPE_MODE        = 15,
-		 CALIBRATION_SCAN      = 19,
-		 CALIBRATION_SCAN_DECO = 20,
-		 CALIBRATION           = 3,
-		 CALIBRATION_DECO      = 33,
-		 PHYSICS               = 1
+  enum RunType { PHYSICS,//               = 1,
+		 PEDESTALS,//             = 2,
+		 CALIBRATION,//           = 3,
+		 OPTO_SCAN,//             = 4,
+		 APV_TIMING,//            = 5,
+		 APV_LATENCY,//           = 6,
+		 FINE_DELAY_PLL,
+		 FINE_DELAY_TTC,
+		 MULTI_MODE,
+                 FED_CABLING,//           = 13,
+		 FED_TIMING,//            = 12,
+		 VPSP_SCAN,//             = 14,
+		 DAQ_SCOPE_MODE,//        = 15,
+                 QUITE_FAST_CABLING,
+		 FINE_DELAY,//            = 17,
+		 PHYSICS_ZS,
+		 CALIBRATION_SCAN,//      = 19,
+		 CALIBRATION_SCAN_DECO,// = 20,
+		 FAST_CABLING,//          = 21,
+		 CALIBRATION_DECO,//      = 33,
+		 UNKNOWN_RUN_TYPE   = sistrip::unknown_,
+		 UNDEFINED_RUN_TYPE = sistrip::invalid_
   };
 
 }

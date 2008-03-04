@@ -2,7 +2,7 @@
 
 
 void resetME(const char* name, DaqMonitorBEInterface* dbe){
-  if(!dbe) return;
+  if(dbe==NULL) return;
   MonitorElement* me= dbe->get(name);
   if(me) dbe->softReset(me);
   return;
@@ -192,7 +192,7 @@ TH2F* getHisto2(string name, string process, DaqMonitorBEInterface* dbe_, bool v
 
   TH2F* out = NULL;
   char title[150];  
-  sprintf(title, "%sHcalMonitor/%s",process.c_str(),name.c_str());
+  sprintf(title, "%sHcal/%s",process.c_str(),name.c_str());
 
   MonitorElement* me = dbe_->get(title);
 
@@ -216,9 +216,9 @@ TH2F* getHisto2(string name, string process, DaqMonitorBEInterface* dbe_, bool v
 
 TH1F* getHisto(string name, string process, DaqMonitorBEInterface* dbe_, bool verb, bool clone){
   if(!dbe_) return NULL;
-
+  
   char title[150];  
-  sprintf(title, "%sHcalMonitor/%s",process.c_str(),name.c_str());
+  sprintf(title, "%sHcal/%s",process.c_str(),name.c_str());
   TH1F* out = NULL;
 
   const MonitorElement* me = dbe_->get(title);
@@ -391,7 +391,7 @@ void createH2ContentTest(DaqMonitorBEInterface* dbe, vector<string>& params){
     qc = dbe->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(),params[1]);
     // Contents within a mean value     
     ContentsTH2FWithinRangeROOT* me_qc = dynamic_cast<ContentsTH2FWithinRangeROOT*> (qc);
-    me_qc->setMeanRange(0,1e-10);//(atof(params[2].c_str())
+    me_qc->setMeanRange(0,1e-10);
     me_qc->setRMSRange(0,1e-10);
     // link it to the monitor element
     dbe->useQTest(params[0], params[1]);

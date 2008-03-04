@@ -1,8 +1,8 @@
 /*
  * \file L1TFED.cc
  *
- * $Date: 2007/08/29 08:10:09 $
- * $Revision: 1.1 $
+ * $Date: 2007/08/29 08:54:08 $
+ * $Revision: 1.2 $
  * \author J. Berryhill
  *
  */
@@ -51,7 +51,7 @@ L1TFED::L1TFED(const ParameterSet& ps)
 
 
   if ( dbe !=NULL ) {
-    dbe->setCurrentFolder("L1TMonitor/L1TFED");
+    dbe->setCurrentFolder("L1T/L1TFED");
   }
 
 
@@ -71,14 +71,14 @@ void L1TFED::beginJob(const EventSetup& c)
   dbe = Service<DaqMonitorBEInterface>().operator->();
 
   if ( dbe ) {
-    dbe->setCurrentFolder("L1TMonitor/L1TFED");
-    dbe->rmdir("L1TMonitor/L1TFED");
+    dbe->setCurrentFolder("L1T/L1TFED");
+    dbe->rmdir("L1T/L1TFED");
   }
 
 
   if ( dbe ) 
   {
-    dbe->setCurrentFolder("L1TMonitor/L1TFED");
+    dbe->setCurrentFolder("L1T/L1TFED");
     
     fedtest = dbe->book1D("FED test", 
        "FED test", 128, -0.5, 127.5 ) ;	  
@@ -120,7 +120,7 @@ void L1TFED::analyze(const Event& e, const EventSetup& c)
 	  {
 	   DaqMonitorBEInterface *dbe = 
 	   edm::Service<DaqMonitorBEInterface>().operator->();
-	   dbe->setCurrentFolder("L1TMonitor/L1TFED/Details");
+	   dbe->setCurrentFolder("L1T/L1TFED/Details");
 	   std::ostringstream os1;
 	   std::ostringstream os2;
 	   os1 << "fed" << i;

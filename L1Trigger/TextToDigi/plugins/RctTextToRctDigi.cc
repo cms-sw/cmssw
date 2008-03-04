@@ -11,7 +11,7 @@ Description: Makes RCT digis from the file format specified by Pam Klabbers
 //
 // Original Author:  Alex Tapper
 //         Created:  Fri Mar  9 19:11:51 CET 2007
-// $Id: RctTextToRctDigi.cc,v 1.3 2007/05/21 17:31:08 nuno Exp $
+// $Id: RctTextToRctDigi.cc,v 1.2 2007/05/08 15:07:23 nuno Exp $
 
 // Rct Input File Format 
 // Line 1: Crossing no as "Crossing x" (2)     
@@ -41,7 +41,7 @@ const static unsigned NUM_RCT_CRATES = 18;
 
 RctTextToRctDigi::RctTextToRctDigi(const edm::ParameterSet& iConfig):
   m_textFileName(iConfig.getParameter<std::string>("TextFileName")),
-  m_fileEventOffset(iConfig.getParameter<int>("FileEventOffset")),
+  m_skipEvents(iConfig.getParameter<int>("SkipEvents")),
   m_nevt(0)
 {
   // Produces collections
@@ -95,7 +95,7 @@ void RctTextToRctDigi::putEmptyDigi(edm::Event& iEvent) {
 void RctTextToRctDigi::bxSynchro(int &bx,int crate) {
   string tmp;
   // bypass bx input until correct bx is reached
-  while(bx<m_nevt+m_fileEventOffset) {
+  while(bx<m_nevt+m_skipEvents) {
     for (int j=0; j<6; j++){
       getline(m_file[crate],tmp);
     }
@@ -112,7 +112,7 @@ void RctTextToRctDigi::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
 {
 
   // Skip event if required
-  if (m_nevt < m_fileEventOffset){ 
+  if (m_nevt < m_skipEvents){ 
     //string tmp;
     //for (int i=0; i<6; i++){
     //  getline(m_file[i],tmp);
@@ -164,11 +164,11 @@ void RctTextToRctDigi::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
     /// Synchronize bunch crossing
     bxSynchro(BXNum,i);
  
-    if(BXNum!=m_nevt+m_fileEventOffset)
+    if(BXNum!=m_nevt+m_skipEvents)
       throw cms::Exception("RctTextToRctDigiTextSyncError")
 	<< "RctTextToRctDigi::produce : "
 	<< " something screwy happened "
-	<< "evt:" << m_nevt << " != bx:" << BXNum << " + " << m_fileEventOffset 
+	<< "evt:" << m_nevt << " != bx:" << BXNum << " + " << m_skipEvents 
 	<< endl;
     
     // Buffers
@@ -181,13 +181,13 @@ void RctTextToRctDigi::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
     // Isolated electrons
     for (unsigned j=0; j<4; j++){
       m_file[i] >> uLongBuffer;
-      em->push_back(L1CaloEmCand(uLongBuffer, i, true, j,BXNum,0));
+      em->push_back(L1CaloEmCand(uLongBuffer, i, true));
     }
 
     // Non-isolated electrons
     for (unsigned j=0; j<4; j++){
       m_file[i] >> uLongBuffer;
-      em->push_back(L1CaloEmCand(uLongBuffer, i, false, j,BXNum,0));
+      em->push_back(L1CaloEmCand(uLongBuffer, i, false));
     }      
     
     // MIP bits 

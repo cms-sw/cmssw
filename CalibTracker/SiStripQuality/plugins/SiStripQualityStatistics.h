@@ -32,7 +32,6 @@ class SiStripQualityStatistics : public edm::EDAnalyzer {
 
   void SetBadComponents(int,int,SiStripQuality::BadComponent&);
 
-  bool printdebug_;
   unsigned long long m_cacheID_;
   std::string dataLabel_;
   std::string TkMapFileName_;

@@ -42,9 +42,12 @@ simple analyzer to dump information about ECAL cond objects
 #include "CondFormats/EcalObjects/interface/EcalADCToGeVConstant.h"
 #include "CondFormats/DataRecord/interface/EcalADCToGeVConstantRcd.h"
 
-#include "CLHEP/Matrix/Matrix.h"
-
-
+#include "CondFormats/EcalObjects/interface/EcalLaserAlphas.h"
+#include "CondFormats/DataRecord/interface/EcalLaserAlphasRcd.h"
+#include "CondFormats/EcalObjects/interface/EcalLaserAPDPNRatios.h"
+#include "CondFormats/DataRecord/interface/EcalLaserAPDPNRatiosRcd.h"
+#include "CondFormats/EcalObjects/interface/EcalLaserAPDPNRatiosRef.h"
+#include "CondFormats/DataRecord/interface/EcalLaserAPDPNRatiosRefRcd.h"
 
 
 using namespace std;
@@ -161,6 +164,63 @@ EcalObjectAnalyzer::analyze(const edm::Event& e, const edm::EventSetup& context)
        wit->second.print(std::cout);
        std::cout << std::endl;
      }
+
+
+   // get from offline DB the last valid laser set 
+   edm::ESHandle<EcalLaserAPDPNRatios> apdPnRatiosHandle;
+   context.get<EcalLaserAPDPNRatiosRcd>().get(apdPnRatiosHandle);
+   
+   const EcalLaserAPDPNRatios::EcalLaserAPDPNRatiosMap& laserRatiosMap = apdPnRatiosHandle.product()->getLaserMap(); 
+   const EcalLaserAPDPNRatios::EcalLaserTimeStampMap& laserTimeMap = apdPnRatiosHandle.product()->getTimeMap(); 
+
+   EcalLaserAPDPNRatios::EcalLaserAPDPNRatiosMap::const_iterator apdPnRatiosit;
+   // Barrel loop
+   for (apdPnRatiosit = laserRatiosMap.barrelItems().begin(); apdPnRatiosit != laserRatiosMap.barrelItems().end(); ++apdPnRatiosit) {
+     EcalLaserAPDPNRatios::EcalLaserAPDPNpair apdPnRatioPair = (*apdPnRatiosit);
+     std::cout << "EcalAPDPnRatio: first " << apdPnRatioPair.p1 << " second " << apdPnRatioPair.p2 << std::endl;
+   } 
+   // Endcap loop
+   for (apdPnRatiosit = laserRatiosMap.endcapItems().begin(); apdPnRatiosit != laserRatiosMap.endcapItems().end(); ++apdPnRatiosit) {
+     EcalLaserAPDPNRatios::EcalLaserAPDPNpair apdPnRatioPair = (*apdPnRatiosit);
+     std::cout << "EcalAPDPnRatio: first " << apdPnRatioPair.p1 << " second " << apdPnRatioPair.p2 << std::endl;
+   } 
+   //TimeStampLoop
+   for(unsigned int i=0; i<laserTimeMap.size(); ++i)
+     {
+       EcalLaserAPDPNRatios::EcalLaserTimeStamp timestamp = laserTimeMap[i];  
+       std::cout << "EcalAPDPnRatio: timestamp : "  
+		 << i << " " << timestamp.t1.value() << " , " << timestamp.t2.value() << endl;	
+     }
+   
+   // get from offline DB the last valid laser set 
+   edm::ESHandle<EcalLaserAlphas> alphasHandle;
+   context.get<EcalLaserAlphasRcd>().get(alphasHandle);
+   const EcalLaserAlphaMap* alphaMap = alphasHandle.product();
+   EcalLaserAlphaMap::const_iterator alphait;
+   // Barrel loop
+   for(alphait = alphaMap->barrelItems().begin(); alphait != alphaMap->barrelItems().end(); ++alphait) {
+     std::cout << "EcalLaserAlphas:  icalconst: " << (*alphait) << std::endl;
+   } 
+   // Endcap loop
+   for(alphait = alphaMap->endcapItems().begin(); alphait != alphaMap->endcapItems().end(); ++alphait) {
+     std::cout << "EcalLaserAlphas:  icalconst: " << (*alphait) << std::endl;
+   } 
+
+   // get from offline DB the last valid laser set 
+   edm::ESHandle<EcalLaserAPDPNRatiosRef> apdPnRatioRefHandle;
+   context.get<EcalLaserAPDPNRatiosRefRcd>().get(apdPnRatioRefHandle);
+   const EcalLaserAPDPNRatiosRefMap* apdPnRatioRefMap = apdPnRatioRefHandle.product();
+   EcalLaserAPDPNRatiosRefMap::const_iterator apdPnRatioRefIt;
+   // Barrel loop
+   for(apdPnRatioRefIt = apdPnRatioRefMap->barrelItems().begin(); apdPnRatioRefIt != apdPnRatioRefMap->barrelItems().end(); ++apdPnRatioRefIt) {
+     std::cout << "EcalLaserAPDPNRatiosRef:  icalconst: " << (*apdPnRatioRefIt) << std::endl;
+   } 
+   // Endcap loop
+   for(apdPnRatioRefIt = apdPnRatioRefMap->endcapItems().begin(); apdPnRatioRefIt != apdPnRatioRefMap->endcapItems().end(); ++apdPnRatioRefIt) {
+     std::cout << "EcalLaserAPDPNRatiosRef:  icalconst: " << (*apdPnRatioRefIt) << std::endl;
+   } 
+
+      
    
 } //end of ::Analyze()
 DEFINE_FWK_MODULE(EcalObjectAnalyzer);

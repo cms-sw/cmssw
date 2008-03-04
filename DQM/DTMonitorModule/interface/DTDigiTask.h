@@ -4,8 +4,8 @@
 /*
  * \file DTDigiTask.h
  *
- * $Date: 2007/09/20 07:19:09 $
- * $Revision: 1.14 $
+ * $Date: 2007/10/30 10:15:55 $
+ * $Revision: 1.15 $
  * \author M. Zanetti - INFN Padova
  *
 */
@@ -103,9 +103,6 @@ private:
 
   edm::ESHandle<DTTtrig> tTrigMap;
   edm::ESHandle<DTT0> t0Map;
-
-
-  std::string outputFile;
 
   std::map<std::string, std::map<uint32_t, MonitorElement*> > digiHistos;
 

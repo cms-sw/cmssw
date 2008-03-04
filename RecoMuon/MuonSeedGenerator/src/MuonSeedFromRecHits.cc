@@ -2,8 +2,8 @@
  *  See header file for a description of this class.
  *
  *
- *  $Date: 2007/03/31 02:24:09 $
- *  $Revision: 1.19 $
+ *  $Date: 2007/04/03 04:22:03 $
+ *  $Revision: 1.20 $
  *  \author A. Vitelli - INFN Torino, V.Palichik
  *  \author porting  R. Bellan
  *
@@ -109,6 +109,8 @@ TrajectorySeed MuonSeedFromRecHits::createSeed(float ptmean,
   
   edm::OwnVector<TrackingRecHit> container;
   TrajectorySeed theSeed(*seedTSOS,container,oppositeToMomentum);
+
+  delete seedTSOS;
     
   return theSeed;
 }

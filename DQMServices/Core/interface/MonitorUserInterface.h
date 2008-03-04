@@ -176,14 +176,14 @@ class MonitorUserInterface : public StringUtil
   /// add tagged MEs to summary ME ==> FAST
   /// this action applies to all MEs already available or future ones
   void add(CollateMonitorElement * cme, unsigned int tag) const;
+  /// do calculations for all collate MEs; come here at end of monitoring cycle)
+  void doSummary(void);
+
   ///
 
   // -------------------- Quality tests on MonitorElements ------------------
 
  protected:
-
-  /// do calculations for all collate MEs; come here at end of monitoring cycle)
-  void doSummary(void);
 
   /// to be used by methods subscribe (add=true) and unsubscribe (add=false)
   /// <subsc_request> format: (a) exact pathname (e.g. A/B/C/histo)

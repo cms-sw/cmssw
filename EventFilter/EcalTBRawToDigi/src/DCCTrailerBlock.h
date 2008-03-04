@@ -1,19 +1,19 @@
 // Date   : 30/05/2005
 // Author : N.Almeida (LIP)
 
-#ifndef DCCTBTRAILERBLOCK_HH
-#define DCCTBTRAILERBLOCK_HH
+#ifndef DCCTRAILERBLOCK_HH
+#define DCCTRAILERBLOCK_HH
 
 
 #include "DCCBlockPrototype.h"
 class DCCDataParser;
 
-class DCCTBTrailerBlock : public DCCTBBlockPrototype {
+class DCCTrailerBlock : public DCCBlockPrototype {
 
 	public :
 		
-		DCCTBTrailerBlock(
-			DCCTBDataParser * parser, 
+		DCCTrailerBlock(
+			DCCDataParser * parser, 
 			ulong * buffer, 
 			ulong numbBytes,
 			ulong wToEnd, 

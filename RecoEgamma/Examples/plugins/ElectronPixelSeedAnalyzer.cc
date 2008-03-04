@@ -13,7 +13,7 @@
 //
 // Original Author:  Ursula Berthon
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: ElectronPixelSeedAnalyzer.cc,v 1.2 2007/03/22 16:40:05 futyand Exp $
+// $Id: ElectronPixelSeedAnalyzer.cc,v 1.1 2007/07/05 10:34:45 charlot Exp $
 //
 //
 
@@ -211,7 +211,7 @@ ElectronPixelSeedAnalyzer::analyze(const edm::Event& e, const edm::EventSetup& i
       HepMC::FourVector momentum = (*partIter)->momentum();
       //      HepPDT::ParticleID id = (*partIter)->particleID();  // electrons and positrons are 11 and -11
        int id = (*partIter)->pdg_id();  // electrons and positrons are 11 and -11
-     LogDebug("")  << "MC particle id " << id << ", creationVertex " << (*creation) << " cm, initialMomentum " << momentum << " GeV/c" << std::endl;
+     LogDebug("")  << "MC particle id " << id << ", creationVertex " << (*creation) << " cm, initialMomentum " << momentum.mag() << " GeV/c" << std::endl;
       if (id == 11 || id == -11) {
 	histptMC_->Fill(momentum.perp());
 	histetaMC_->Fill(momentum.pseudoRapidity());

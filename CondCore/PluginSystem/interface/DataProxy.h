@@ -5,8 +5,7 @@
 #include <string>
 // user include files
 #include "FWCore/Framework/interface/DataProxyTemplate.h"
-#include "CondCore/DBCommon/interface/Connection.h"
-#include "CondCore/DBCommon/interface/PoolTransaction.h"
+#include "CondCore/DBCommon/interface/PoolStorageManager.h"
 #include "CondCore/DBCommon/interface/Exception.h"
 #include "DataSvc/Ref.h"
 //#include <iostream>
@@ -20,7 +19,7 @@ template< class RecordT, class DataT >
   edm::eventsetup::DataKey::makeTypeTag<DataT>(); 
   }
   */
-  DataProxy( cond::Connection* connection, std::map<std::string,std::string>::iterator& pProxyToToken ): m_connection(connection), m_pProxyToToken(pProxyToToken) { 
+  DataProxy( cond::PoolStorageManager* pooldb, std::map<std::string,std::string>::iterator& pDatumToToken ): m_pooldb(pooldb), m_pDatumToToken(pDatumToToken) { 
     //NOTE: We do this so that the type 'DataT' will get registered
     // when the plugin is dynamically loaded
     //std::cout<<"DataProxy constructor"<<std::endl;
@@ -40,12 +39,11 @@ template< class RecordT, class DataT >
     DataT* result=0;
     try{
       //std::cout<<"DataT make "<<std::endl;
-      cond::PoolTransaction& pooldb=m_connection->poolTransaction(true);
-      pooldb.start();      
-      pool::Ref<DataT> mydata(&(pooldb.poolDataSvc()),m_pProxyToToken->second);
+      m_pooldb->startTransaction(true);      
+      pool::Ref<DataT> mydata(&(m_pooldb->DataSvc()),m_pDatumToToken->second);
       result=mydata.ptr();
       m_data.copyShallow(mydata);
-      pooldb.commit();
+      m_pooldb->commit();
     }catch( const cond::Exception& er ){
       throw er;
     }catch( const std::exception& er ){
@@ -63,8 +61,8 @@ template< class RecordT, class DataT >
   //DataProxy(); // stop default
   const DataProxy& operator=( const DataProxy& ); // stop default
   // ---------- member data --------------------------------
-  cond::Connection* m_connection;
-  std::map<std::string,std::string>::iterator m_pProxyToToken;
+  cond::PoolStorageManager* m_pooldb;
+  std::map<std::string,std::string>::iterator m_pDatumToToken;
   pool::Ref<DataT> m_data;
 };
 #endif /* CONDCORE_PLUGINSYSTEM_DATAPROXY_H */

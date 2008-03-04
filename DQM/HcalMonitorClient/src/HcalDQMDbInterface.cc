@@ -160,3 +160,56 @@ void HcalHotCellDbInterface::createDataset(DOMDocument* doc,
   createData(doc, dataSetElem,item);
 }
 
+void HcalHLXMaskDbInterface::createHeader(DOMDocument* doc){
+  DOMElement*  parent = doc->getDocumentElement();
+  DOMElement*  headerElem = createElement(doc,parent,"HEADER");
+  DOMElement*  typeElem = createElement(doc,headerElem,"TYPE");
+  createElement(doc,typeElem,"EXTENSION_TABLE_NAME","HCAL_HLX_MASKS_TYPE01");
+  createElement(doc,typeElem,"NAME","HCAL HLX masks [type 1]");
+  DOMElement* element= createElement(doc,headerElem,"RUN");
+  element->setAttribute(transcode("mode"), transcode("no-run"));
+}
+
+void HcalHLXMaskDbInterface::createData(DOMDocument* doc,DOMElement* parent, HcalHLXMask masks){
+  DOMElement*  dataElem = createElement(doc,parent,"DATA");
+  createElement(doc, dataElem, "FPGA", masks.position);
+  char tmp[5] = "fooo";
+  sprintf(tmp,"%i",masks.occMask);
+  createElement(doc, dataElem, "OCC_MASK", tmp);
+  sprintf(tmp,"%i",masks.lhcMask);
+  createElement(doc, dataElem, "LHC_MASK", tmp);
+  sprintf(tmp,"%i",masks.sumEtMask);
+  createElement(doc, dataElem, "SUM_ET_MASK", tmp);
+}
+
+DOMElement* HcalHLXMaskDbInterface::createDataset(DOMDocument* doc,
+						  const HcalHLXMask masks,
+						  const char* gmtime,
+						  const char* version, const char* subversion){
+
+  DOMElement*  parent = doc->getDocumentElement();
+  DOMElement*  dataSetElem = createElement(doc,parent,"DATA_SET");
+  createElement(doc,dataSetElem,"VERSION",version);
+  createElement(doc,dataSetElem,"SUBVERSION",subversion);
+  createElement(doc,dataSetElem,"CREATION_TIMESTAMP",gmtime);
+  createElement(doc,dataSetElem,"CREATED_BY","jwerner");
+
+  DOMElement*  partAssElem = createElement(doc,dataSetElem,"PART_ASSEMBLY");
+  DOMElement* parentPartAssElem = createElement(doc,partAssElem,"PARENT_PART");
+  createElement(doc, parentPartAssElem, "KIND_OF_PART", "HCAL HTR Crate");
+  char tmp[5];
+  if(masks.crateId <10){ sprintf(tmp,"CRATE0%i",masks.crateId);}
+  else{ sprintf(tmp,"CRATE%i",masks.crateId);}
+  createElement(doc, parentPartAssElem, "NAME_LABEL",tmp);
+  //end PARENT_PART 
+  DOMElement* childUniqueIdByElem = createElement(doc,partAssElem,"CHILD_UNIQUELY_IDENTIFIED_BY");
+  createElement(doc, childUniqueIdByElem, "KIND_OF_PART", "HCAL HTR Crate Slot");
+  DOMElement* attributeElem = createElement(doc,childUniqueIdByElem,"ATTRIBUTE");
+  createElement(doc, attributeElem, "NAME", "HCAL HTR Slot Number");
+  createElement(doc, attributeElem, "VALUE", itoa(masks.slotId));
+  //end attribute                                                                                                                  
+  //end child uni...                                                                                                               
+  //end part assembly                                                                                                              
+
+  return dataSetElem;
+}

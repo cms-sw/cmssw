@@ -1,4 +1,4 @@
-#include "FWCore/Framework/interface/InputSourceMacros.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
 // The example source module
 #include "DQMServices/Examples/interface/DQMSourceExample.h"
 // The example client module for running the client in the same application as the source

@@ -67,29 +67,14 @@ class ProcLikelihood : public TrainProcessor {
 		Iteration	iteration;
 	};
 
-	std::vector<SigBkg>	pdfs;
-	std::vector<double>	sigSum;
-	std::vector<double>	bkgSum;
-	std::vector<double>	bias;
-	int			categoryIdx;
-	unsigned int		nCategories;
-	bool			doCategoryBias;
-	bool			doGivenBias;
-	bool			doGlobalBias;
-	Iteration		iteration;
+	std::vector<SigBkg> pdfs;
 };
 
 static ProcLikelihood::Registry registry("ProcLikelihood");
 
 ProcLikelihood::ProcLikelihood(const char *name, const AtomicId *id,
                                MVATrainer *trainer) :
-	TrainProcessor(name, id, trainer),
-	categoryIdx(-1),
-	nCategories(1),
-	doCategoryBias(false),
-	doGivenBias(false),
-	doGlobalBias(false),
-	iteration(ITER_FILL)
+	TrainProcessor(name, id, trainer)
 {
 }
 
@@ -99,101 +84,13 @@ ProcLikelihood::~ProcLikelihood()
 
 void ProcLikelihood::configure(DOMElement *elem)
 {
-	int i = 0;
-	bool first = true;
 	for(DOMNode *node = elem->getFirstChild();
 	    node; node = node->getNextSibling()) {
 		if (node->getNodeType() != DOMNode::ELEMENT_NODE)
 			continue;
 
-		DOMElement *elem = static_cast<DOMElement*>(node);
-
-		XMLSimpleStr nodeName(node->getNodeName());
-
-		if (std::strcmp(nodeName,
-		                "general") == 0) {
-			if (!first)
-				throw cms::Exception("ProcLikelihood")
-					<< "Config tag general needs to come "
-					   "first." << std::endl;
-
-			try {
-				double globalBias =
-					XMLDocument::readAttribute<double>(
-								elem, "bias");
-				bias.push_back(globalBias);
-				doGivenBias = true;
-			} catch(...) {
-				doGivenBias = false;
-			}
-
-			doCategoryBias = XMLDocument::readAttribute<bool>(
-						elem, "category_bias", false);
-			doGlobalBias = XMLDocument::readAttribute<bool>(
-						elem, "global_bias", false);
-
-			first = false;
-			continue;
-		}
-		first = false;
-
-		if (std::strcmp(nodeName, "bias_table") == 0) {
-			if (!bias.empty())
-				throw cms::Exception("ProcLikelihood")
-					<< "Bias can be only specified once."
-					<< std::endl;
-
-			for(DOMNode *subNode = node->getFirstChild();
-			    subNode; subNode = subNode->getNextSibling()) {
-				if (subNode->getNodeType() !=
-				    DOMNode::ELEMENT_NODE)
-					continue;
-
-				if (std::strcmp(XMLSimpleStr(
-						subNode->getNodeName()),
-				                "bias") != 0)
-					throw cms::Exception("ProcLikelihood")
-						<< "Expected bias tag in "
-						   "config." << std::endl;
-
-				bias.push_back(
-					XMLDocument::readContent<double>(
-								subNode));
-			}
-
-			continue;
-		}
-
-		if (std::strcmp(nodeName, "category") != 0) {
-			i++;
-			continue;
-		}
-
-		if (categoryIdx >= 0)
-			throw cms::Exception("ProcLikelihood")
-				<< "More than one category variable given."
-				<< std::endl;
-
-
-		unsigned int count = XMLDocument::readAttribute<unsigned int>(
-								elem, "count");
-
-		categoryIdx = i;
-		nCategories = count;
-	}
-
-	for(DOMNode *node = elem->getFirstChild();
-	    node; node = node->getNextSibling()) {
-		if (node->getNodeType() != DOMNode::ELEMENT_NODE)
-			continue;
-
-		XMLSimpleStr nodeName(node->getNodeName());
-		if (std::strcmp(nodeName, "general") == 0 ||
-		    std::strcmp(nodeName, "bias_table") == 0 ||
-		    std::strcmp(nodeName, "category") == 0)
-			continue;
-
-		if (std::strcmp(nodeName, "sigbkg") != 0)
+		if (std::strcmp(XMLSimpleStr(node->getNodeName()),
+		                "sigbkg") != 0)
 			throw cms::Exception("ProcLikelihood")
 				<< "Expected sigbkg tag in config section."
 				<< std::endl;
@@ -222,48 +119,22 @@ void ProcLikelihood::configure(DOMElement *elem)
 			pdf.iteration = ITER_EMPTY;
 		}
 
-		for(unsigned int i = 0; i < nCategories; i++)
-			pdfs.push_back(pdf);
+		pdfs.push_back(pdf);
 	}
 
-	unsigned int nInputs = getInputs().size();
-	if (categoryIdx >= 0)
-		nInputs--;
-
-	sigSum.resize(nCategories);
-	bkgSum.resize(nCategories);
-
-	if (!doGivenBias && !bias.empty()) {
-		doGivenBias = true;
-		if (bias.size() != nCategories)
-			throw cms::Exception("ProcLikelihood")
-				<< "Invalid number of category bias entries."
-				<< std::endl;
-	}
-	while (doGivenBias && bias.size() < nCategories)
-		bias.push_back(bias.front());
-
-	if (pdfs.size() != nInputs * nCategories)
+	if (pdfs.size() != getInputs().size())
 		throw cms::Exception("ProcLikelihood")
-			<< "Got " << (pdfs.size() / nCategories)
-		        << " pdf configs for " << nInputs
-		        << " input variables." << std::endl;
+			<< "Got " << pdfs.size() << " pdf configs for "
+			<< getInputs().size() << " input varibles."
+			<< std::endl;
 }
 
 Calibration::VarProcessor *ProcLikelihood::getCalibration() const
 {
 	Calibration::ProcLikelihood *calib = new Calibration::ProcLikelihood;
 
-	std::vector<unsigned int> pdfMap;
-	for(unsigned int i = 0; i < nCategories; i++)
-		for(unsigned int j = i; j < pdfs.size(); j += nCategories)
-			pdfMap.push_back(j);
-
-	double totalSig = std::accumulate(sigSum.begin(), sigSum.end(), 0.0);
-	double totalBkg = std::accumulate(bkgSum.begin(), bkgSum.end(), 0.0);
-
-	for(unsigned int i = 0; i < pdfs.size(); i++) {
-		const SigBkg *iter = &pdfs[pdfMap[i]];
+	for(std::vector<SigBkg>::const_iterator iter = pdfs.begin();
+	    iter != pdfs.end(); iter++) {
 		Calibration::ProcLikelihood::SigBkg pdf;
 
 		pdf.signal = Calibration::HistogramF(iter->signal.distr.size(),
@@ -298,21 +169,7 @@ Calibration::VarProcessor *ProcLikelihood::getCalibration() const
 		calib->pdfs.push_back(pdf);
 	}
 
-	calib->categoryIdx = categoryIdx;
-
-	if (doGlobalBias || doCategoryBias || doGivenBias) {
-		for(unsigned int i = 0; i < nCategories; i++) {
-			double bias = doGlobalBias
-						? totalSig / totalBkg
-						: 1.0;
-			if (doGivenBias)
-				bias *= this->bias[i];
-			if (doCategoryBias)
-				bias *= (sigSum[i] / totalSig) /
-				        (bkgSum[i] / totalBkg);
-			calib->bias.push_back(bias);
-		}
-	}
+	calib->categoryIdx = -1;
 
 	return calib;
 }
@@ -324,25 +181,8 @@ void ProcLikelihood::trainBegin()
 void ProcLikelihood::trainData(const std::vector<double> *values,
                                bool target, double weight)
 {
-	int category = 0;
-	if (categoryIdx >= 0)
-		category = (int)values[categoryIdx].front();
-	if (category < 0 || category >= (int)nCategories)
-		return;
-
-	if (iteration == ITER_FILL) {
-		if (target)
-			sigSum[category] += weight;
-		else
-			bkgSum[category] += weight;
-	}
-
-	int i = 0;
-	for(std::vector<SigBkg>::iterator iter = pdfs.begin() + category;
-	    iter < pdfs.end(); iter += nCategories, values++) {
-		if (i++ == categoryIdx)
-			values++;
-
+	for(std::vector<SigBkg>::iterator iter = pdfs.begin();
+	    iter != pdfs.end(); iter++, values++) {
 		switch(iter->iteration) {
 		    case ITER_EMPTY:
 			for(std::vector<double>::const_iterator value =
@@ -412,9 +252,6 @@ static void smoothArray(unsigned int n, double *values, unsigned int nTimes)
 void ProcLikelihood::trainEnd()
 {
 	bool done = true;
-	if (iteration == ITER_FILL)
-		iteration = ITER_DONE;
-
 	for(std::vector<SigBkg>::iterator iter = pdfs.begin();
 	    iter != pdfs.end(); iter++) {
 		switch(iter->iteration) {
@@ -492,54 +329,9 @@ bool ProcLikelihood::load()
 			<< "XML training data file has bad root node."
 			<< std::endl;
 
-	DOMNode *node;
-	for(node = elem->getFirstChild();
-	    node; node = node->getNextSibling()) {
-		if (node->getNodeType() != DOMNode::ELEMENT_NODE)
-			continue;
-
-		if (std::strcmp(XMLSimpleStr(node->getNodeName()),
-		                "categories") != 0)
-			throw cms::Exception("ProcLikelihood")
-				<< "Expected categories tag in train file."
-				<< std::endl;
-
-		unsigned int i = 0;
-		for(DOMNode *subNode = node->getFirstChild();
-		    subNode; subNode = subNode->getNextSibling()) {
-			if (subNode->getNodeType() != DOMNode::ELEMENT_NODE)
-				continue;
-
-			if (i >= nCategories)
-				throw cms::Exception("ProcLikelihood")
-					<< "Too many categories in train "
-				           "file." << std::endl;
-
-			if (std::strcmp(XMLSimpleStr(subNode->getNodeName()),
-			                "category") != 0)
-				throw cms::Exception("ProcLikelihood")
-					<< "Expected category tag in train "
-				           "file." << std::endl;
-
-			elem = static_cast<DOMElement*>(subNode);
-
-			sigSum[i] = XMLDocument::readAttribute<double>(
-							elem, "signal");
-			bkgSum[i] = XMLDocument::readAttribute<double>(
-							elem, "background");
-			i++;
-		}
-		if (i < nCategories)
-			throw cms::Exception("ProcLikelihood")
-				<< "Too few categories in train file."
-				<< std::endl;
-
-		break;
-	}
-
 	std::vector<SigBkg>::iterator cur = pdfs.begin();
 
-	for(node = node->getNextSibling();
+	for(DOMNode *node = elem->getFirstChild();
 	    node; node = node->getNextSibling()) {
 		if (node->getNodeType() != DOMNode::ELEMENT_NODE)
 			continue;
@@ -593,7 +385,6 @@ bool ProcLikelihood::load()
 		throw cms::Exception("ProcLikelihood")
 			<< "Missing SigBkg in train data." << std::endl;
 
-	iteration = ITER_DONE;
 	trained = true;
 	return true;
 }
@@ -622,18 +413,9 @@ void ProcLikelihood::save()
 	XMLDocument xml(trainer->trainFileName(this, "xml"), true);
 	DOMDocument *doc = xml.createDocument("ProcLikelihood");
 
-	DOMElement *elem = doc->createElement(XMLUniStr("categories"));
-	xml.getRootNode()->appendChild(elem);
-	for(unsigned int i = 0; i < nCategories; i++) {
-		DOMElement *category = doc->createElement(XMLUniStr("category"));
-		elem->appendChild(category);
-		XMLDocument::writeAttribute(category, "signal", sigSum[i]);
-		XMLDocument::writeAttribute(category, "background", bkgSum[i]);
-	}
-
 	for(std::vector<SigBkg>::const_iterator iter = pdfs.begin();
 	    iter != pdfs.end(); iter++) {
-		elem = doc->createElement(XMLUniStr("sigbkg"));
+		DOMElement *elem = doc->createElement(XMLUniStr("sigbkg"));
 		xml.getRootNode()->appendChild(elem);
 
 		elem->appendChild(xmlStorePDF(doc, iter->signal));

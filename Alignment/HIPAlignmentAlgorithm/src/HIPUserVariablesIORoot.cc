@@ -1,6 +1,7 @@
 #include "TTree.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/Utilities/interface/Exception.h"
 
 #include "Alignment/CommonAlignment/interface/Alignable.h"
 #include "Alignment/CommonAlignment/interface/AlignmentParameters.h"
@@ -97,6 +98,10 @@ int HIPUserVariablesIORoot::writeOne(Alignable* ali)
   int nhit=uvar->nhit;
   int np=jtve.num_row();
 
+  TrackerAlignableId ID;
+  unsigned int detInt = ID.alignableId(ali);
+  int typeInt = ID.alignableTypeId(ali);
+
   Nhit=nhit;
   Npare=np;
   Nparj=np*(np+1)/2;
@@ -107,8 +112,8 @@ int HIPUserVariablesIORoot::writeOne(Alignable* ali)
       if(row-1<col){Jtvj[count]=jtvj[row][col];count++;}
     }
   }
-  Id = ali->id();
-  ObjId = ali->alignableObjectId();
+  Id = detInt;
+  ObjId = typeInt;
 
   tree->Fill();
   return 0;
@@ -122,7 +127,10 @@ AlignmentUserVariables* HIPUserVariablesIORoot::readOne(Alignable* ali,
   ierr=0;
   HIPUserVariables* uvar;
 
-  int entry = findEntry(ali->id(), ali->alignableObjectId());
+  TrackerAlignableId ID;
+  int obj = ID.alignableTypeId(ali);
+  unsigned int detInt = ID.alignableId(ali);
+  int entry = findEntry(detInt,obj);
   if(entry!=-1) {
     tree->GetEntry(entry);
 

@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2007/06/19 11:47:52 $
- *  $Revision: 1.2 $
+ *  $Date: 2007/07/30 14:06:35 $
+ *  $Revision: 1.3 $
  *
  *  \author Martin Grunewald
  *
@@ -58,7 +58,7 @@ HLTrigReport::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
   // get hold of TriggerResults
   Handle<TriggerResults> HLTR;
-  try {iEvent.getByLabel(hlTriggerResults_,HLTR);} catch (...) {;}
+  iEvent.getByLabel(hlTriggerResults_,HLTR);
   if (HLTR.isValid()) {
     if (HLTR->wasrun()) nWasRun_++;
     const bool accept(HLTR->accept());

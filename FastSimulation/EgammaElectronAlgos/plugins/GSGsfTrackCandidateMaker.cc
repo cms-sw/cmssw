@@ -10,10 +10,9 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "DataFormats/Common/interface/OwnVector.h"
-#include "DataFormats/Common/interface/View.h"
-#include "DataFormats/Common/interface/RefToBase.h"
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
 #include "DataFormats/TrackCandidate/interface/TrackCandidateCollection.h"
+#include "DataFormats/TrackCandidate/interface/TrackCandidateSeedAssociation.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiTrackerGSRecHit2DCollection.h"
 #include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
 #include "DataFormats/SiPixelDetId/interface/PXBDetId.h"
@@ -33,6 +32,7 @@ GSGsfTrackCandidateMaker::GSGsfTrackCandidateMaker(const edm::ParameterSet& conf
 {  
   // What is supposed to be produced
   produces<TrackCandidateCollection>();  
+  produces<reco::TrackCandidateSeedAssociationCollection>();
 
   // The pixel seeds origin
   seedProducer = conf.getParameter<std::string>("SeedProducer");
@@ -68,8 +68,9 @@ GSGsfTrackCandidateMaker::produce(edm::Event& e, const edm::EventSetup& es)
   
   // Step A: Retrieve inputs
   // 1) Pixel Seeds
-  edm::Handle<edm::View<TrajectorySeed> > seedCollection;
+  edm::Handle<TrajectorySeedCollection> seedCollection;
   e.getByLabel(seedProducer, seedLabel, seedCollection);
+  const TrajectorySeedCollection* theSeedCollection = &(*seedCollection);
   
   // 2) Tracker RecHits
   edm::Handle<SiTrackerGSRecHit2DCollection> theRHC;
@@ -83,19 +84,25 @@ GSGsfTrackCandidateMaker::produce(edm::Event& e, const edm::EventSetup& es)
   
   // Step B: Create empty output collections
   std::auto_ptr<TrackCandidateCollection> output(new TrackCandidateCollection);    
+  std::auto_ptr<reco::TrackCandidateSeedAssociationCollection> outAssoc(new reco::TrackCandidateSeedAssociationCollection);    
 
   // Step C: Loop over the pixel seeds. Keep only the first one for each track
   //         (Equivalent to seed cleaning in the case of Gsf!)
   //         Create one track candidate for each of these seeds.
+  std::vector<int> seedLocations;
   int theCurrentTrackId = -1;
+  int seednr = -1;
   int seedkept = 0;
 
-  size_t collseed_size = seedCollection->size(); 
-  if ( collseed_size > 0 ) { 
+  if ( theSeedCollection->size() > 0 ) { 
 
-     for (size_t seednr = 0; seednr < collseed_size; seednr++){
+    TrajectorySeedCollection::const_iterator iseed = theSeedCollection->begin();
+    TrajectorySeedCollection::const_iterator theLastSeed = theSeedCollection->end();
+    
+    for( ; iseed != theLastSeed; ++iseed ) {
+      ++seednr;
       // The first hit of the seed  and its simtrack id
-      BasicTrajectorySeed::const_iterator theFirstHit = (*seedCollection)[seednr].recHits().first;
+      BasicTrajectorySeed::const_iterator theFirstHit = iseed->recHits().first;
       BasicTrajectorySeed::const_iterator theSecondHit = theFirstHit; ++theSecondHit;
       const SiTrackerGSRecHit2D* rechit1 = (const SiTrackerGSRecHit2D*) &(*theFirstHit) ;
       int theSimTrackId = rechit1->simtrackId();
@@ -222,7 +229,8 @@ GSGsfTrackCandidateMaker::produce(edm::Event& e, const edm::EventSetup& es)
       // Add the track candidate if it has enough hits and large enough a pT
       if ( recHits.size() >= minimumNumberOfHits && ptSim > ptCut ) { 
 
-	output->push_back(TrackCandidate(recHits,(*seedCollection)[seednr],(*seedCollection)[seednr].startingState(),edm::RefToBase<TrajectorySeed>(seedCollection,seednr)));  
+	output->push_back(TrackCandidate(recHits,*iseed,iseed->startingState()));
+	seedLocations.push_back(seednr);
 
 	// Count the seed selected (and the track candidates)
 	++seedkept;
@@ -233,7 +241,16 @@ GSGsfTrackCandidateMaker::produce(edm::Event& e, const edm::EventSetup& es)
       
   }
     
-  e.put(output);
+  // Step D: write TrackCandidateCollection to the event and create Associationmap
+  const edm::OrphanHandle<TrackCandidateCollection> refprodTrackC = e.put(output);
+
+  for (unsigned int i=0;i<seedLocations.size();++i) {
+    outAssoc->insert(edm::Ref<TrackCandidateCollection>(refprodTrackC,i),
+		     edm::Ref<TrajectorySeedCollection>(seedCollection,seedLocations[i]));    
+  }
+  
+  // Step E: write AssociationMap to the event
+  e.put(outAssoc);
 
   // Step F: There we go out of this mess!
   return;

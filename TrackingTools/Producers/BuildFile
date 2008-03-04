@@ -6,8 +6,6 @@
 <use name=MagneticField/Records>
 <use name=TrackingTools/GeomPropagators>
 <use name=TrackingTools/Records>
-<use name=TrackingTools/TrajectoryCleaning>
-<use name=TrackingTools/TrajectoryFiltering>
 <use name=boost>
 <export>
   <use name=DataFormats/TrajectorySeed>
@@ -15,8 +13,6 @@
   <use name=FWCore/ParameterSet>
   <use name=TrackingTools/GeomPropagators>
   <use name=TrackingTools/Records>
-  <use name=TrackingTools/TrajectoryCleaning>
-  <use name=TrackingTools/TrajectoryFiltering>
   <use name=boost>
   <lib name=TrackingToolsProducers>
 </export>

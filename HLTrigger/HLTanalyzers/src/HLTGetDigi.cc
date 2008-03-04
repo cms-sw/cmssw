@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2007/05/02 07:02:22 $
- *  $Revision: 1.2 $
+ *  $Date: 2007/10/08 15:56:02 $
+ *  $Revision: 1.3 $
  *
  *  \author various
  *
@@ -104,22 +104,24 @@ HLTGetDigi::HLTGetDigi(const edm::ParameterSet& ps)
   GmtReadoutCollection_ = ps.getParameter<edm::InputTag>("GmtReadoutCollection");
   
   //--- Define which digis we want ---//
-  getEcalDigis_   = ps.getUntrackedParameter<bool>("getEcal",true) ; 
-  getEcalESDigis_ = ps.getUntrackedParameter<bool>("getEcalES",true) ; 
-  getHcalDigis_   = ps.getUntrackedParameter<bool>("getHcal",true) ; 
-  getPixelDigis_  = ps.getUntrackedParameter<bool>("getPixels",true) ; 
-  getStripDigis_  = ps.getUntrackedParameter<bool>("getStrips",true) ; 
-  getCSCDigis_    = ps.getUntrackedParameter<bool>("getCSC",true) ; 
-  getDTDigis_     = ps.getUntrackedParameter<bool>("getDT",true) ; 
-  getRPCDigis_    = ps.getUntrackedParameter<bool>("getRPC",true) ; 
-  getGctEmDigis_  = ps.getUntrackedParameter<bool>("getGctEm",true) ; 
-  getGctJetDigis_ = ps.getUntrackedParameter<bool>("getGctJet",true) ; 
-  getGctEtDigis_  = ps.getUntrackedParameter<bool>("getGctEt",true) ;
-  getL1Calo_      = ps.getUntrackedParameter<bool>("getL1Calo",true) ;
-  getGtRecords_   = ps.getUntrackedParameter<bool>("getGtRecords",true) ;
-  getGtRR_        = ps.getUntrackedParameter<bool>("getGtReadoutRecord",true) ;
-  getGmtCands_    = ps.getUntrackedParameter<bool>("getGmtCands",true) ;
-  getGmtRC_       = ps.getUntrackedParameter<bool>("getGmtReadout",true) ;
+  getEcalDigis_    = ps.getUntrackedParameter<bool>("getEcal",true) ; 
+  getEcalESDigis_  = ps.getUntrackedParameter<bool>("getEcalES",true) ; 
+  getHcalDigis_    = ps.getUntrackedParameter<bool>("getHcal",true) ; 
+  getPixelDigis_   = ps.getUntrackedParameter<bool>("getPixels",true) ; 
+  getStripDigis_   = ps.getUntrackedParameter<bool>("getStrips",true) ; 
+  getCSCDigis_     = ps.getUntrackedParameter<bool>("getCSC",true) ; 
+  getDTDigis_      = ps.getUntrackedParameter<bool>("getDT",true) ; 
+  getRPCDigis_     = ps.getUntrackedParameter<bool>("getRPC",true) ; 
+  getGctEmDigis_   = ps.getUntrackedParameter<bool>("getGctEm",true) ; 
+  getGctJetDigis_  = ps.getUntrackedParameter<bool>("getGctJet",true) ; 
+  getGctJetCounts_ = ps.getUntrackedParameter<bool>("getGctJetCounts",true) ; 
+  getGctEtDigis_   = ps.getUntrackedParameter<bool>("getGctEt",true) ;
+  getL1Calo_       = ps.getUntrackedParameter<bool>("getL1Calo",true) ;
+  getGtEvmRR_      = ps.getUntrackedParameter<bool>("getGtEvmRR",true) ;
+  getGtObjectMap_  = ps.getUntrackedParameter<bool>("getGtObjectMap",true) ;
+  getGtRR_         = ps.getUntrackedParameter<bool>("getGtReadoutRecord",true) ;
+  getGmtCands_     = ps.getUntrackedParameter<bool>("getGmtCands",true) ;
+  getGmtRC_        = ps.getUntrackedParameter<bool>("getGmtReadout",true) ;
   
 }
 
@@ -193,7 +195,9 @@ HLTGetDigi::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
         LogDebug("DigiInfo") << "total # Gct central Jet digis: " << cenJetDigis->size() ; 
         LogDebug("DigiInfo") << "total # Gct forward Jet digis: " << forJetDigis->size() ;
         LogDebug("DigiInfo") << "total # Gct tau Jet digis: " << tauJetDigis->size() ;
+    }
 
+    if (getGctJetCounts_) {
         iEvent.getByLabel(GctJetCountsLabel_,GctJetCounts) ; 
         *counts = *GctJetCounts.product() ;
     }
@@ -229,13 +233,15 @@ HLTGetDigi::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     L1GlobalTriggerEvmReadoutRecord* evm = newGtEvm.get() ; 
     L1GlobalTriggerObjectMapRecord* map = newGtMap.get() ; 
     L1GlobalTriggerReadoutRecord* rr = newGtRR.get() ; 
-    if (getGtRecords_) {
+
+    if (getGtEvmRR_) {
         iEvent.getByLabel(GtEvmRRLabel_, gtEvmRR) ;
-        iEvent.getByLabel(GtObjectMapLabel_, gtMap) ;
         *evm = *gtEvmRR.product() ;
+    }
+    if (getGtObjectMap_) {
+        iEvent.getByLabel(GtObjectMapLabel_, gtMap) ;
         *map = *gtMap.product() ;
     }
-
     if (getGtRR_) {
         iEvent.getByLabel(GtRRLabel_, gtRR) ;
         *rr = *gtRR.product() ;

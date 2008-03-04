@@ -3,8 +3,8 @@
  * dummy module  for the test of  DaqFileInputService
  *   
  * 
- * $Date: 2007/08/17 13:58:23 $
- * $Revision: 1.18 $
+ * $Date: 2007/06/13 13:55:32 $
+ * $Revision: 1.15 $
  * \author N. Amapane - S. Argiro'
  * \author G. Franzoni
  *
@@ -292,24 +292,24 @@ class EcalDigiDumperModule: public edm::EDAnalyzer{
     
     
 
-//     // retrieving crystal TP from the Event
-//     edm::Handle<EcalTrigPrimDigiCollection>  primitives;
-//     e.getByLabel("ecalEBunpacker", primitives);
+    // retrieving crystal TP from the Event
+    edm::Handle<EcalTrigPrimDigiCollection>  primitives;
+    e.getByLabel("ecalEBunpacker", primitives);
     
-//     if (verbosity>0 && tpDigi)
-//       {
-// 	std::cout << "\n\n^^^^^^^^^^^^^^^^^^ EcalDigiDumperModule  digi TP collection.  Size: " << primitives->size() << std::endl;
-// 	std::cout << "                                  [EcalDigiDumperModule]  dumping primitives "  << std::endl;
-// 	for ( EcalTrigPrimDigiCollection::const_iterator TPtr = primitives->begin();
-// 	      ( TPtr != primitives->end()  && (TPtr-primitives->begin())<4 ); 
-// 		++TPtr ) {
+    if (verbosity>0 && tpDigi)
+      {
+	std::cout << "\n\n^^^^^^^^^^^^^^^^^^ EcalDigiDumperModule  digi TP collection.  Size: " << primitives->size() << std::endl;
+	std::cout << "                                  [EcalDigiDumperModule]  dumping primitives "  << std::endl;
+	for ( EcalTrigPrimDigiCollection::const_iterator TPtr = primitives->begin();
+	      ( TPtr != primitives->end()  && (TPtr-primitives->begin())<4 ); 
+		++TPtr ) {
 
-// 	  if (!  ((EcalTrigTowerDetId((*TPtr).id()).iDCC()==ieb_id) || (ieb_id==-1))   ) continue;
+	  if (!  ((EcalTrigTowerDetId((*TPtr).id()).iDCC()==ieb_id) || (ieb_id==-1))   ) continue;
 
-// 	  std::cout << "[EcalDigiDumperModule] tower: " << ( (TPtr-primitives->begin()) +1) 
-// 	       << "\n" << (*TPtr) << std::endl;
-// 	}
-//       }
+	  std::cout << "[EcalDigiDumperModule] tower: " << ( (TPtr-primitives->begin()) +1) 
+	       << "\n" << (*TPtr) << std::endl;
+	}
+      }
 
 
  

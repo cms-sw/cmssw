@@ -6,7 +6,7 @@
 EDProduct: The base class of all things that will be inserted into the
 Event.
 
-$Id: EDProduct.h,v 1.10 2007/07/09 07:28:49 llista Exp $
+$Id: EDProduct.h,v 1.9 2007/06/14 04:56:29 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -26,10 +26,6 @@ namespace edm {
     void fillView(ProductID const& id,
 		  std::vector<void const*>& view,
 		  helper_vector_ptr & helpers) const;
-    
-    void setPtr(const std::type_info& iToType,
-                unsigned long iIndex,
-                void const*& oPtr) const;
 
   private:
     // This will never be called.
@@ -40,9 +36,6 @@ namespace edm {
     virtual void do_fillView(ProductID const& id,
 			     std::vector<void const*>& pointers,
 			     helper_vector_ptr & helpers) const = 0;
-    virtual void do_setPtr(const std::type_info& iToType,
-                           unsigned long iIndex,
-                           void const*& oPtr) const = 0;
   };
 }
 #endif

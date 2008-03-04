@@ -7,6 +7,7 @@
 #include "DQM/HcalMonitorClient/interface/HcalDQMChannelQuality.h"
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
 #include "CalibFormats/HcalObjects/interface/HcalText2DetIdConverter.h"
+#include "DQM/HcalMonitorClient/interface/HcalHLXMask.h"
 //#include "CondTools/Hcal/include/HcalDbXml.h"
 
 #include "time.h"
@@ -67,6 +68,19 @@ class HcalHotCellDbInterface : public HcalDQMDbInterface {
   void createHeader(DOMDocument* doc, unsigned int runno, const char* startTime);
 
 };
+
+class HcalHLXMaskDbInterface : public HcalDQMDbInterface {
+ public:
+
+  HcalHLXMaskDbInterface(){};
+
+  void createData(DOMDocument* doc,DOMElement* parent, HcalHLXMask mask);
+  DOMElement* createDataset(DOMDocument* doc, const HcalHLXMask mask, const char* gmtime, const char* version, const char* subversion);
+  void createHeader(DOMDocument* doc);
+};
+
+
+
 
 /*
 class HcalRunSummaryDbInterface : public HcalDQMDbInterface{

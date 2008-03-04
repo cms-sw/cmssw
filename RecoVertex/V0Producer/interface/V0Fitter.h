@@ -13,12 +13,9 @@
 //
 // Original Author:  Brian Drell
 //         Created:  Fri May 18 22:57:40 CEST 2007
-// $Id: V0Fitter.h,v 1.4 2007/09/27 19:50:06 drell Exp $
+// $Id: V0Fitter.h,v 1.2 2007/07/09 12:58:51 drell Exp $
 //
 //
-
-#ifndef RECOVERTEX__V0_FITTER_H
-#define RECOVERTEX__V0_FITTER_H
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -44,12 +41,10 @@
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "Geometry/CommonDetUnit/interface/GeomDet.h"
-#include "Geometry/TrackerGeometryBuilder/interface/GluedGeomDet.h"
 
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
 
 #include <string>
-#include <fstream>
 
 
 class V0Fitter {
@@ -116,16 +111,4 @@ class V0Fitter {
   //  between Kshorts and lambdas, writing the PDGid to the Particle once
   //  this cut has been calculated.
   void applyPostFitCuts();
-
-  // Stuff for debug file output.
-  std::ofstream mPiPiMassOut;
-
-  inline void initFileOutput() {
-    mPiPiMassOut.open("mPiPi.txt", ios::app);
-  }
-  inline void cleanupFileOutput() {
-    mPiPiMassOut.close();
-  }
 };
-
-#endif

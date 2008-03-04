@@ -15,7 +15,7 @@
 //
 // Original Author:  Chi Nhan Nguyen
 //         Created:  Mon Feb 19 13:25:24 CST 2007
-// $Id: FastL1GlobalAlgo.h,v 1.13 2007/10/31 19:01:19 smaruyam Exp $
+// $Id: FastL1GlobalAlgo.h,v 1.10 2007/09/07 19:37:09 smaruyam Exp $
 //
 
 // system include files
@@ -100,9 +100,6 @@ class FastL1GlobalAlgo {
       bool isMaxEtRgn_Window33(int rgnid);
       int isEMCand(CaloTowerDetId cid, l1extra::L1EmParticle* p,const edm::Event& e);
       bool isTauJet(int rgnid);
-
-      bool TauIsolation(int rgnid);
-
       void findJets();
       void addJet(int rgnId, bool taubit);
       void checkMapping();
@@ -121,11 +118,7 @@ class FastL1GlobalAlgo {
 
       std::vector<FastL1Region> m_Regions;
       FastL1RegionMap* m_RMap;
-      bool m_DoBitInfo;
-
-      bool m_GctIso;
-      double m_IsolationEt;
-
+     bool m_DoBitInfo;
       FastL1Config m_L1Config;
       double m_hcaluncomp[33][256];
 };

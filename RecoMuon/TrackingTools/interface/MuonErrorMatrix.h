@@ -42,13 +42,6 @@ class MuonErrorMatrix{
   
   /// main method to be used. Retrieve a 5x5 symetrical matrix according to parametrization of error or scale factor
   CurvilinearTrajectoryError get(GlobalVector momentum);
-  CurvilinearTrajectoryError getFast(GlobalVector momentum);
-
-  /// multiply term by term the two matrix
-  static  void multiply(CurvilinearTrajectoryError & initial_error, const CurvilinearTrajectoryError & scale_error);
-
-  /// divide term by term the two matrix
-  static  bool divide(CurvilinearTrajectoryError & num_error, const CurvilinearTrajectoryError & denom_error);
 
   /// actually get access to the TProfile3D used for the parametrization
   inline TProfile3D * get(int i , int j) {return Index(i,j);}
@@ -71,7 +64,6 @@ class MuonErrorMatrix{
   TFile * theF;
   /// 15 TProfile, each holding he parametrization of each term of the 5x5 
   TProfile3D * theData[15];
-  TProfile3D * theData_fast[5][5];
   
 
   /// internal methods to get the index of a matrix term.

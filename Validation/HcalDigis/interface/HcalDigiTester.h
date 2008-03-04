@@ -30,7 +30,6 @@ public:
 
   DaqMonitorBEInterface* dbe_;
   
-  edm::InputTag inputTag_;
   std::string outputFile_;
   std::string hcalselector_;
   bool subpedvalue_;

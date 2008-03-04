@@ -1,6 +1,4 @@
-// #include "Alignment/CommonAlignment/interface/Alignable.h"
-#include "Alignment/CommonAlignment/interface/AlignableObjectId.h"
-#include "Alignment/CommonAlignmentAlgorithm/interface/AlignmentParameterStore.h"
+#include "Alignment/CommonAlignment/interface/Alignable.h"
 #include "Alignment/SurveyAnalysis/interface/SurveyAlignmentSensor.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
@@ -19,9 +17,9 @@ void SurveyAlignmentAlgorithm::initialize(const edm::EventSetup&,
 					  AlignableMuon*,
 					  AlignmentParameterStore* store)
 {
-  static AlignableObjectId dummy;
+  AlignableObjectId dummy;
 
-  std::vector<align::StructureType> levels;
+  std::vector<Alignable::AlignableObjectIdType> levels;
 
   for (unsigned int l = 0; l < theLevels.size(); ++l)
   {

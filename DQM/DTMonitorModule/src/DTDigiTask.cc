@@ -1,8 +1,8 @@
  /*
  * \file DTDigiTask.cc
  * 
- * $Date: 2007/10/09 13:31:25 $
- * $Revision: 1.32 $
+ * $Date: 2007/10/30 10:13:32 $
+ * $Revision: 1.33 $
  * \author M. Zanetti - INFN Padova
  *
  */
@@ -52,7 +52,6 @@ DTDigiTask::DTDigiTask(const edm::ParameterSet& ps){
   if(debug)
     cout<<"[DTDigiTask]: Constructor"<<endl;
 
-  outputFile = ps.getUntrackedParameter<string>("outputFile", "DTDigiSources.root");
   maxTDCHits = ps.getUntrackedParameter<int>("maxTDCHitsPerChamber",30000);
 
   parameters = ps;
@@ -84,9 +83,6 @@ void DTDigiTask::endJob(){
 
   if(debug)
     cout<<"[DTDigiTask] endjob called!"<<endl;
-
-  if ( (outputFile.size() != 0) && (parameters.getUntrackedParameter<bool>("writeHisto", true)) ) 
-    dbe->save(outputFile);
   
   dbe->rmdir("DT/DTDigiTask");
 }
