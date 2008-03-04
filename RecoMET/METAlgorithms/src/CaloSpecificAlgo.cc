@@ -151,7 +151,9 @@ reco::CaloMET CaloSpecificAlgo::addInfo(edm::Handle<edm::View<Candidate> > tower
   specific.CaloMETPhiInpHF = METpHF.Phi();
   specific.CaloMETPhiInmHF = METmHF.Phi();
 
-  
+  specific.CaloSETInpHF = sumEtInpHF;
+  specific.CaloSETInmHF = sumEtInmHF;
+ 
   // Instantiate containers for the MET candidate and initialise them with
   // the MET information in "met" (of type CommonMETData)
 
