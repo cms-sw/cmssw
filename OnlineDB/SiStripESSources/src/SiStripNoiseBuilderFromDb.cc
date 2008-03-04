@@ -1,5 +1,5 @@
-// Last commit: $Id: SiStripNoiseBuilderFromDb.cc,v 1.2 2007/03/19 13:23:07 bainbrid Exp $
-// Latest tag:  $Name:  $
+// Last commit: $Id: SiStripNoiseBuilderFromDb.cc,v 1.3 2007/11/09 14:40:44 bainbrid Exp $
+// Latest tag:  $Name: V01-00-01 $
 // Location:    $Source: /cvs_server/repositories/CMSSW/CMSSW/OnlineDB/SiStripESSources/src/SiStripNoiseBuilderFromDb.cc,v $
 
 #include "OnlineDB/SiStripESSources/interface/SiStripNoiseBuilderFromDb.h"
@@ -148,7 +148,7 @@ void SiStripNoiseBuilderFromDb::buildNoise( SiStripConfigDb* const db,
 	  << " out of " << ipair->nApvPairs() << " APV pairs";
 	// Fill Noise object with default values
 	for ( uint16_t istrip = 0;istrip < sistrip::STRIPS_PER_FEDCH; istrip++ ){
-	  noise.setData( 0., true, noi );
+	  noise.setData( 0., noi );
 	}
 	continue;
       }
@@ -181,7 +181,6 @@ void SiStripNoiseBuilderFromDb::buildNoise( SiStripConfigDb* const db,
 	for ( ; istrip != strip.end(); istrip++ ) {
 	  
 	  noise.setData( istrip->getNoise(),
-			 istrip->getDisable(),
 			 noi );
 	  
 	} // strip loop
@@ -189,8 +188,7 @@ void SiStripNoiseBuilderFromDb::buildNoise( SiStripConfigDb* const db,
     } // connection loop
     
     // Insert pedestal values into Noise object
-    SiStripNoises::Range range_p( noi.begin(), noi.end() );
-    if ( !noise.put( *det_id, range_p ) ) {
+    if ( !noise.put( *det_id, noi ) ) {
       edm::LogWarning(mlESSources_)
 	<< "[SiStripNoiseBuilderFromDb::" << __func__ << "]"
 	<< " Unable to insert values into SiStripNoises object!"

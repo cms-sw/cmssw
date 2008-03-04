@@ -1,6 +1,6 @@
-// Last commit: $Id: $
-// Latest tag:  $Name:  $
-// Location:    $Source: $
+// Last commit: $Id: test_NoiseBuilder.cc,v 1.1 2006/12/22 12:30:40 bainbrid Exp $
+// Latest tag:  $Name: V01-00-01 $
+// Location:    $Source: /cvs_server/repositories/CMSSW/CMSSW/OnlineDB/SiStripESSources/test/stubs/test_NoiseBuilder.cc,v $
 
 #include "OnlineDB/SiStripESSources/test/stubs/test_NoiseBuilder.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -53,7 +53,7 @@ void test_NoiseBuilder::beginJob( const edm::EventSetup& setup ) {
     // Extract noise and low/high thresholds
     for ( uint16_t istrip = 0; istrip < nstrips; istrip++ ) {
       ss << noise->getNoise( istrip, range ) << "/"
-	 << noise->getDisable( istrip, range ) << ", ";
+	 << ", ";
     }
 
     LogTrace(mlCabling_) << ss.str();
