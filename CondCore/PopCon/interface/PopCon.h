@@ -78,24 +78,7 @@ namespace popcon {
 
   template<typename T>
   void PopCon::writeOne(T * payload, Time_t time) {
-    if (m_dbService->isNewTagRequest(m_record) ){
-      edm::LogInfo ("PopCon") << "Creating new IOV " << time << std::endl;
-      m_dbService->createNewIOV<T>(payload, 
-				   m_since ? time : m_dbService->beginOfTime(),
-				   m_since ?  m_dbService->endOfTime() : time, 
-				   m_record, m_LoggingOn);
-    }
-    else{
-      if (m_since){
-	edm::LogInfo ("PopCon") << "Appending since time " <<  time << std::endl; 
-	m_dbService->appendSinceTime<T>(payload, time, m_record, m_LoggingOn);
-      } 
-      else {
-	edm::LogInfo ("PopCon") << "Appending till time "  <<  time << std::endl; 
-	m_dbService->appendTillTime<T>(payload, time, m_record, m_LoggingOn);
-      }
-    }
-    
+    m_dbService->writeOne(payload, time, m_record, m_LoggingOn, m_since);
   }
 
   template<typename Container>

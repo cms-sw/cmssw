@@ -191,6 +191,28 @@ namespace cond{
 	    withlogging);	
       }
 
+
+      // write one (either create or append
+      template<typename T>
+      void writeOne(T * payload, Time_t time, const std::string& recordName, 
+		    bool withlogging=false, bool since=true) {
+	if (isNewTagRequest(recordName) ){
+	  createNewIOV<T>(payload, 
+			  since ? time : beginOfTime(),
+			  since ?  endOfTime() : time, 
+			  recordName, withlogging);
+	}
+	else{
+	  if (since){ 
+	    appendSinceTime<T>(payload, time, recordName, withlogging);
+	  } 
+	  else { 
+	    appendTillTime<T>(payload, time, recordName, withlogging);
+	  }
+	}	
+      }
+
+
       //
       // Service time utility callback method 
       // return the infinity value according to the given timetype
