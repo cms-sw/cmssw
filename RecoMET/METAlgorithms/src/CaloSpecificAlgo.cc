@@ -158,14 +158,14 @@ reco::CaloMET CaloSpecificAlgo::addInfo(edm::Handle<edm::View<Candidate> > tower
   // remove HF from MET calculation if specified, but keep HF specific calculations
   if (noHF)
     {
-      met.mex -= (MExInmHF + MEyInpHF);
-      met.mey -= (MEyInmHF + MEyInpHF);
-      met.met = sqrt(met.mex*met.mex + met.mey*met.mey);
+      met.mex   -= (MExInmHF + MExInpHF);
+      met.mey   -= (MEyInmHF + MEyInpHF);
       met.sumet -= (sumEtInpHF + sumEtInmHF);
-      totalEm -= specific.EmEtInHF;
-      totalHad -= specific.HadEtInHF;
-      totalEt -= (sumEtInpHF + sumEtInmHF);
-    } 
+      totalEm   -= specific.EmEtInHF;
+      totalHad  -= specific.HadEtInHF;
+      totalEt   -= (sumEtInpHF + sumEtInmHF);
+      met.met    = sqrt(met.mex*met.mex + met.mey*met.mey);   
+ } 
 
   specific.MaxEtInEmTowers         = MaxTowerEm;  
   specific.MaxEtInHadTowers        = MaxTowerHad;         
