@@ -9,6 +9,8 @@
 #include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
 #include "DataFormats/DetId/interface/DetId.h"
 
+#include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
+
 #include <map>
 #include <string>
 

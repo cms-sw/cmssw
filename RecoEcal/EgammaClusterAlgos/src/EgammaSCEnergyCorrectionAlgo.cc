@@ -1,9 +1,9 @@
 //
-// $Id: EgammaSCEnergyCorrectionAlgo.cc,v 1.13 2008/03/03 11:32:56 kkaadze Exp $
+// $Id: EgammaSCEnergyCorrectionAlgo.cc,v 1.14 2008/03/03 16:11:02 kkaadze Exp $
 // Author: David Evans, Bristol
 //
 #include "RecoEcal/EgammaClusterAlgos/interface/EgammaSCEnergyCorrectionAlgo.h"
-
+#include "RecoEcal/EgammaCoreTools/interface/SuperClusterShapeAlgo.h"
 #include <iostream>
 #include <string>
 #include <vector>
