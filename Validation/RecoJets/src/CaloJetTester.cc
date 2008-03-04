@@ -1,6 +1,6 @@
 // Producer for validation histograms for CaloJet objects
 // F. Ratnikov, Sept. 7, 2006
-// $Id: CaloJetTester.cc,v 1.6 2007/08/28 16:51:54 fedor Exp $
+// $Id: CaloJetTester.cc,v 1.7 2008/02/29 20:49:02 ksmith Exp $
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -14,9 +14,9 @@
 #include "DQMServices/Core/interface/MonitorElement.h"
 
 #include "DataFormats/JetReco/interface/CaloJet.h"
-#include "DataFormats/JetReco/interface/CaloJetfwd.h"
+#include "DataFormats/JetReco/interface/CaloJetCollection.h"
 #include "DataFormats/JetReco/interface/GenJet.h"
-#include "DataFormats/JetReco/interface/GenJetfwd.h"
+#include "DataFormats/JetReco/interface/GenJetCollection.h"
 
 #include "RecoJets/JetAlgorithms/interface/JetMatchingTools.h"
 
@@ -172,8 +172,8 @@ void CaloJetTester::analyze(const edm::Event& mEvent, const edm::EventSetup& mSe
     Handle<GenJetCollection> genJets;
     mEvent.getByLabel(mInputGenCollection, genJets);
 
-    std::vector <std::vector <const reco::GenParticleCandidate*> > genJetConstituents (genJets->size());
-    std::vector <std::vector <const reco::GenParticleCandidate*> > caloJetConstituents (caloJets->size());
+    std::vector <std::vector <const reco::GenParticle*> > genJetConstituents (genJets->size());
+    std::vector <std::vector <const reco::GenParticle*> > caloJetConstituents (caloJets->size());
     if (mRThreshold > 0) { 
     }
     else {
