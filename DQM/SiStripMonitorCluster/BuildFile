@@ -7,7 +7,6 @@
 <use name=CalibTracker/Records>
 <use name=CalibTracker/SiStripConnectivity>
 <use name=DQM/SiStripCommon>
-<use name=CommonTools/SiStripZeroSuppression>
 <flags EDM_PLUGIN=1>
 <export>
    <lib name=DQMSiStripMonitorCluster>
@@ -20,5 +19,4 @@
    <use name=CalibTracker/Records>
    <use name=CalibTracker/SiStripConnectivity>
    <use name=DQM/SiStripCommon>
-   <use name=CommonTools/SiStripZeroSuppression>
 </export>

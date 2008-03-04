@@ -13,7 +13,7 @@
 //
 // Original Author:  Simone Gennai and Suchandra Dutta
 //         Created:  Sat Feb  4 20:49:10 CET 2006
-// $Id: SiStripMonitorPedestals.cc,v 1.30 2008/01/22 18:52:44 muzaffar Exp $
+// $Id: SiStripMonitorPedestals.cc,v 1.31 2008/03/01 00:38:25 dutta Exp $
 //
 //
 
@@ -34,8 +34,10 @@
 #include "DQM/SiStripMonitorPedestals/interface/SiStripMonitorPedestals.h"
 #include "CondFormats/DataRecord/interface/SiStripPedestalsRcd.h"
 #include "CondFormats/DataRecord/interface/SiStripNoisesRcd.h"
+#include "CalibTracker/Records/interface/SiStripQualityRcd.h"
 #include "CondFormats/SiStripObjects/interface/SiStripPedestals.h"
 #include "CondFormats/SiStripObjects/interface/SiStripNoises.h"
+#include "CalibFormats/SiStripObjects/interface/SiStripQuality.h"
 
 #include "TProfile.h"
 // std
@@ -168,9 +170,9 @@ void SiStripMonitorPedestals::createMEs() {
 	(local_modmes.CMSubNoisePerStripDB)->setAxisTitle("CMSubNoise from CondDB(ADC) vs Strip Number",1);
 	
 	hid = hidmanager.createHistoId("BadStripFlagCondDB","det", detid);
-	local_modmes.NoisyStripsDB = dqmStore_->book2D(hid, hid, nStrip,0.5,nStrip+0.5,6,-0.5,5.5);
-	dqmStore_->tag(local_modmes.NoisyStripsDB, detid);
-	(local_modmes.NoisyStripsDB)->setAxisTitle("Strip Flag from CondDB(ADC) vs Strip Number",1);
+	local_modmes.BadStripsDB = dqmStore_->book2D(hid, hid, nStrip,0.5,nStrip+0.5,6,-0.5,5.5);
+	dqmStore_->tag(local_modmes.BadStripsDB, detid);
+	(local_modmes.BadStripsDB)->setAxisTitle("Strip Flag from CondDB(ADC) vs Strip Number",1);
       }
       if (runTypeFlag_ == RunMode2 || runTypeFlag_ == RunMode3 ) { 
 	//Pedestals histos
@@ -453,7 +455,7 @@ void SiStripMonitorPedestals::resetMEs(uint32_t idet){
     if (runTypeFlag_ == RunMode1 || runTypeFlag_ == RunMode3 ) { 
       mod_me.PedsPerStripDB->Reset();     
       mod_me.CMSubNoisePerStripDB->Reset();     
-      mod_me.NoisyStripsDB->Reset();     
+      mod_me.BadStripsDB->Reset();     
     }
     if (runTypeFlag_ == RunMode2 || runTypeFlag_ == RunMode3 ) { 
       mod_me.PedsPerStrip->Reset();      
@@ -476,9 +478,11 @@ void SiStripMonitorPedestals::fillCondDBMEs(edm::EventSetup const& eSetup) {
   //get Pedestal and Noise  ES handle
   edm::ESHandle<SiStripPedestals> pedestalHandle;
   edm::ESHandle<SiStripNoises> noiseHandle;
+  edm::ESHandle<SiStripQuality> qualityHandle;
   
   eSetup.get<SiStripPedestalsRcd>().get(pedestalHandle);
   eSetup.get<SiStripNoisesRcd>().get(noiseHandle);
+  eSetup.get<SiStripQualityRcd>().get(qualityHandle);
 
   for (std::map<uint32_t, ModMEs >::const_iterator i = PedMEs.begin() ; i!=PedMEs.end() ; i++) {
     uint32_t detid = i->first; 
@@ -489,6 +493,7 @@ void SiStripMonitorPedestals::fillCondDBMEs(edm::EventSetup const& eSetup) {
     // Get range of pedestal and noise for the detid
     SiStripNoises::Range noiseRange = noiseHandle->getRange(detid);
     SiStripPedestals::Range pedRange = pedestalHandle->getRange(detid);
+    SiStripQuality::Range qualityRange = qualityHandle->getRange(detid);
     
     for(int istrip=0;istrip<nStrip;++istrip){
       try{
@@ -508,7 +513,7 @@ void SiStripMonitorPedestals::fillCondDBMEs(edm::EventSetup const& eSetup) {
       }
       try{
 	//Fill BadStripsNoise
-	(local_modmes.NoisyStripsDB)->Fill(istrip+1,noiseHandle->getDisable(istrip,noiseRange)?1.:0.);
+	(local_modmes.BadStripsDB)->Fill(istrip+1,qualityHandle->IsStripBad(qualityRange,istrip)?1.:0.);
 	
 	
       }

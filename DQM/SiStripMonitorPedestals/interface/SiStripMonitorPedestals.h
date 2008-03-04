@@ -16,7 +16,7 @@
 //
 // Original Author:  gennai, dutta
 //         Created:  Sat Feb  4 20:49:51 CET 2006
-// $Id: SiStripMonitorPedestals.h,v 1.13 2007/11/13 20:17:32 dutta Exp $
+// $Id: SiStripMonitorPedestals.h,v 1.14 2008/03/01 00:38:25 dutta Exp $
 //
 
 // system include files
@@ -89,7 +89,7 @@ class SiStripMonitorPedestals : public edm::EDAnalyzer {
     //MonitorElements for CondDB data display
     MonitorElement* PedsPerStripDB;
     MonitorElement* CMSubNoisePerStripDB;
-    MonitorElement* NoisyStripsDB;
+    MonitorElement* BadStripsDB;
   };
   
   DQMStore* dqmStore_;

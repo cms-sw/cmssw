@@ -5,7 +5,7 @@
 */
 // Original Author:  Dorian Kcira
 //         Created:  Wed Feb  1 16:42:34 CET 2006
-// $Id: SiStripMonitorCluster.cc,v 1.34 2008/01/22 19:15:39 muzaffar Exp $
+// $Id: SiStripMonitorCluster.cc,v 1.35 2008/03/01 00:38:06 dutta Exp $
 #include <vector>
 #include <numeric>
 #include <fstream>
@@ -20,6 +20,8 @@
 #include "CondFormats/SiStripObjects/interface/SiStripNoises.h"
 #include "CalibTracker/Records/interface/SiStripGainRcd.h"
 #include "CalibFormats/SiStripObjects/interface/SiStripGain.h"
+#include "CalibTracker/Records/interface/SiStripQualityRcd.h"
+#include "CalibFormats/SiStripObjects/interface/SiStripQuality.h"
 
 #include "DataFormats/Common/interface/DetSetVector.h"
 #include "DataFormats/SiStripCluster/interface/SiStripCluster.h"
@@ -172,6 +174,9 @@ void SiStripMonitorCluster::analyze(const edm::Event& iEvent, const edm::EventSe
   edm::ESHandle<SiStripGain> gainHandle;
   iSetup.get<SiStripGainRcd>().get(gainHandle);
 
+  edm::ESHandle<SiStripQuality> qualityHandle;
+  iSetup.get<SiStripQualityRcd>().get(qualityHandle);
+
 
   // retrieve producer name of input StripClusterCollection
   std::string clusterProducer = conf_.getParameter<std::string>("ClusterProducer");
@@ -217,6 +222,7 @@ void SiStripMonitorCluster::analyze(const edm::Event& iEvent, const edm::EventSe
 
     SiStripNoises::Range detNoiseRange = noiseHandle->getRange(detid);
     SiStripApvGain::Range detGainRange =  gainHandle->getRange(detid); 
+    SiStripQuality::Range qualityRange = qualityHandle->getRange(detid);
 
     for(edm::DetSet<SiStripCluster>::const_iterator clusterIter = cluster_detset.data.begin(); clusterIter!= cluster_detset.data.end(); clusterIter++){
       
@@ -238,7 +244,7 @@ void SiStripMonitorCluster::analyze(const edm::Event& iEvent, const edm::EventSe
           if(ampls[iamp]>0){ // nonzero amplitude
             clusterSignal += ampls[iamp];
             try{
-              if(!noiseHandle->getDisable(clusterIter->firstStrip()+iamp,detNoiseRange)){
+              if(!qualityHandle->IsStripBad(qualityRange, clusterIter->firstStrip()+iamp)){
 		clusterNoise = noiseHandle->getNoise(clusterIter->firstStrip()+iamp,detNoiseRange)/gainHandle->getStripGain(clusterIter->firstStrip()+iamp, detGainRange);
               }
             }catch(cms::Exception& e){
