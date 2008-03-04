@@ -34,6 +34,7 @@ namespace cms
     // Step A: Get ESObject 
     edm::ESHandle<SiStripNoises> noiseHandle;
     edm::ESHandle<SiStripPedestals> pedestalsHandle;
+    edm::ESHandle<SiStripQuality> qualityHandle;
 
     edm::Handle< edm::DetSetVector<SiStripRawDigi> >  input;
 
@@ -51,8 +52,9 @@ namespace cms
       if (input->size()){
 	es.get<SiStripNoisesRcd>().get(noiseHandle);
 	es.get<SiStripPedestalsRcd>().get(pedestalsHandle);
+	es.get<SiStripQualityRcd>().get(qualityHandle);
 	LogDebug("SiStripZeroSuppression") << "[SiStripZeroSuppression::produce] Analysing " << rawdigiProducer << " " << rawdigiLabel << std::endl;
-	SiStripZeroSuppressionAlgorithm_.run(rawdigiLabel,*input,vSiStripDigi,pedestalsHandle,noiseHandle);
+	SiStripZeroSuppressionAlgorithm_.run(rawdigiLabel,*input,vSiStripDigi,pedestalsHandle,noiseHandle,qualityHandle);
       }
       // Step C: create and fill output collection
       std::auto_ptr< edm::DetSetVector<SiStripDigi> > output(new edm::DetSetVector<SiStripDigi>(vSiStripDigi) );

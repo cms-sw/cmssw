@@ -70,7 +70,8 @@ void SiStripZeroSuppressionAlgorithm::run(std::string RawDigiType,
 					  const edm::DetSetVector<SiStripRawDigi>& input,
 					  std::vector< edm::DetSet<SiStripDigi> >& output,
 					  edm::ESHandle<SiStripPedestals> & pedestalsHandle,
-					  edm::ESHandle<SiStripNoises> & noiseHandle){
+					  edm::ESHandle<SiStripNoises> & noiseHandle,
+					  edm::ESHandle<SiStripQuality> & qualityHandle){
   
 
   
@@ -91,7 +92,7 @@ void SiStripZeroSuppressionAlgorithm::run(std::string RawDigiType,
 
       if ( RawDigiType == "VirginRaw" ) {
 	SiStripPedestalsSubtractor_->subtract(*DSViter,vssRd,pedestalsHandle);
-	SiStripCommonModeNoiseSubtractor_->subtract(DSViter->id,vssRd,noiseHandle);
+	SiStripCommonModeNoiseSubtractor_->subtract(DSViter->id,vssRd,noiseHandle,qualityHandle);
 	SiStripZeroSuppressor_->suppress(vssRd,ssd,noiseHandle,pedestalsHandle);
       } 
       else if ( RawDigiType == "ProcessedRaw" ){

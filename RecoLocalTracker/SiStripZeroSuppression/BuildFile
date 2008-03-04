@@ -12,6 +12,9 @@
 <use name=CondFormats/DataRecord>
 <use name=CondFormats/SiStripObjects>
 
+<use name=CalibFormats/SiStripObjects>
+<use name=CalibTracker/Records>
+
 <use name=CondCore/DBCommon>
 <use name=CondCore/IOVService>
 <use name=CondCore/MetaDataService>
@@ -36,6 +39,9 @@
 
 <use name=CondFormats/DataRecord>
 <use name=CondFormats/SiStripObjects>
+
+<use name=CalibFormats/SiStripObjects>
+<use name=CalibTracker/Records>
 
 <use name=CondCore/DBCommon>
 <use name=CondCore/IOVService>

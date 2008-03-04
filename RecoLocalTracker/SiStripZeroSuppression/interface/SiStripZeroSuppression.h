@@ -41,8 +41,10 @@
 //SiStripPedestalsService
 #include "CondFormats/DataRecord/interface/SiStripNoisesRcd.h"
 #include "CondFormats/DataRecord/interface/SiStripPedestalsRcd.h"
+#include "CalibTracker/Records/interface/SiStripQualityRcd.h"
 #include "CondFormats/SiStripObjects/interface/SiStripNoises.h"
 #include "CondFormats/SiStripObjects/interface/SiStripPedestals.h"
+#include "CalibFormats/SiStripObjects/interface/SiStripQuality.h"
 
 #include <iostream> 
 #include <memory>
