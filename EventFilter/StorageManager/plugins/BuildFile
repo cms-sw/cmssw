@@ -1,6 +1,4 @@
 <use name=DQMServices/Core>
-<use name=DQMServices/CoreROOT>
-<use name=DQMServices/NodeROOT>
 <use name=FWCore/Framework>
 <use name=FWCore/MessageLogger>
 <use name=FWCore/MessageService>

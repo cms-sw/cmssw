@@ -2,7 +2,7 @@
  *  An input source for DQM consumers run in cmsRun that connect to
  *  the StorageManager or SMProxyServer to get DQM data.
  *
- *  $Id: DQMHttpSource.cc,v 1.9 2008/01/22 19:28:36 muzaffar Exp $
+ *  $Id: DQMHttpSource.cc,v 1.10 2008/02/11 15:10:19 biery Exp $
  */
 
 #include "EventFilter/StorageManager/src/DQMHttpSource.h"
@@ -15,6 +15,11 @@
 #include "IOPool/Streamer/interface/ConsRegMessage.h"
 #include "IOPool/Streamer/interface/DQMEventMessage.h"
 #include "IOPool/Streamer/interface/StreamDQMDeserializer.h"
+
+#include "DQMServices/Core/interface/DQMStore.h"
+#include "DQMServices/Core/interface/MonitorElement.h"
+
+#include "TClass.h"
 
 #include <iostream>
 #include <sys/time.h>
@@ -230,13 +235,13 @@ namespace edm
 
       // deserialize and stick into DQM backend
       // need both types of interfaces as the extractObject I use is
-      // only in DaqMonitorBEInterface
+      // only in DQMStore
       if (bei_ == NULL) {
-        bei_ = dynamic_cast<DaqMonitorROOTBackEnd*>(edm::Service<DaqMonitorBEInterface>().operator->());
+        bei_ = edm::Service<DQMStore>().operator->();
       }
       if (bei_ == NULL) {
         throw cms::Exception("readOneEvent", "DQMHttpSource")
-          << "Unable to lookup the DaqMonitorBEInterface service!\n";
+          << "Unable to lookup the DQMStore service!\n";
       }
 
       edm::StreamDQMDeserializer deserializeWorker;
@@ -249,30 +254,19 @@ namespace edm
            toIter != toTablePtr->end(); toIter++) {
         std::string subFolderName = toIter->first;
         std::vector<TObject *> toList = toIter->second;
-        MonitorElementRootFolder * dqmdir = 
-          dynamic_cast<DaqMonitorBEInterface*>(bei_)->makeDirectory(subFolderName);  // fetch or create
-        const bool fromRemoteNode = true; // Pretend this is like connecting to DQM Collector
+        bei_->makeDirectory(subFolderName);  // fetch or create
         for (int tdx = 0; tdx < (int) toList.size(); tdx++) {
           TObject *toPtr = toList[tdx];
           std::string cls = toPtr->IsA()->GetName();
           std::string nm = toPtr->GetName();
           FDEBUG(8) << "    TObject class = " << cls << ", name = " << nm << std::endl;
-          // special handling for TObjString - try to use DQM core code for this:
-          if(bei_->isInt(toPtr) || bei_->isFloat(toPtr) ||
-             bei_->isString(toPtr) || bei_->isQReport(toPtr)) {
-            std::string tos_name, tos_value;
-            bool extractOK = bei_->extractObject(toPtr, fromRemoteNode, tos_name, tos_value);
-            if(extractOK) {
-              addMonitorable(tos_name, subFolderName);
-              setIsDesired(dqmdir, tos_name, true);
-            }
-          } else {
-            addMonitorable(nm, subFolderName);
-            setIsDesired(dqmdir, nm, true);
+	  if (bei_->extract(toPtr, bei_->pwd(), true))
+          {
+	    std::string path;
+	    if (MonitorElement *me = bei_->findObject(subFolderName, nm, path))
+	      me->update();
+            ++count;
           }
-          // for TObjString of type String this will complain
-          bool success = bei_->extractObject(toPtr, dqmdir,fromRemoteNode);
-          if(success) ++count; // success looks to be hardwired to be true on return!
         }
       }
 
@@ -386,42 +380,5 @@ namespace edm
     } while (registrationStatus == ConsRegResponseBuilder::ES_NOT_READY);
 
     FDEBUG(9) << "Consumer ID = " << DQMconsumerId_ << endl;
-  }
-
-  void DQMHttpSource::addMonitorable(std::string name, std::string dir_path)
-  {
-    if (bei_ == NULL) {
-       std::cerr << " *** DQMHttpSource::addMonitorable: No backend interface defined! " << std::endl;
-       std::cerr << " Ignoring addMonitorable operation... " << std::endl;
-       return;
-    }
-    if(!bei_->findObject(name, dir_path)) bei_->addElement(name, dir_path);
-
-    bei_->lock();
-    // make the monitorable string, <dir_path>:<obj1>,<obj2>,...:<tag> where tag is optional
-    // see StringUtil:::unpackDirFormat
-    std::string new_name = dir_path + ":" + name;
-    bei_->addedMonitorable.push_back(new_name);
-    bei_->unlock();
-  }
-
-  void DQMHttpSource::setIsDesired(MonitorElementRootFolder *folder, std::string ME_name, bool flag)
-  {
-    if(!folder)
-    {
-      std::cerr << " *** Null MonitorElementRootFolder in DQMHttpSource::setIsDesired"
-           << std::endl;
-      return;
-    }
-
-    if(!folder->hasMonitorable(ME_name))
-    {
-      std::cerr << " *** DQMHttpSource::setIsDesired: Object " << ME_name << " does not exist in "
-           << folder->getPathname() << std::endl;
-      std::cerr << " Ignoring setIsDesired operation... " << std::endl;
-      return;
-    }
-  
-    folder->isDesired[ME_name] = flag;
   }
 }

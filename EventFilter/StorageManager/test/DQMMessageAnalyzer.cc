@@ -10,7 +10,7 @@
   file in DQMServices/Daemon/test, but modified to include another top level
   folder, to remove the 1 sec wait, and to do the fitting without printout.
 
-  $Id: DQMMessageAnalyzer.cc,v 1.4 2008/01/22 19:28:37 muzaffar Exp $
+  $Id: DQMMessageAnalyzer.cc,v 1.5 2008/01/31 03:46:20 wmtan Exp $
 
 */
 
@@ -29,8 +29,8 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
-#include "DQMServices/Daemon/interface/MonitorDaemon.h"
+#include "DQMServices/Core/interface/DQMStore.h"
+#include "DQMServices/Core/interface/MonitorElement.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
 
@@ -47,6 +47,7 @@
 
 #include "FWCore/Utilities/interface/Exception.h"
 
+#include "TClass.h"
 #include <TRandom.h> // this is just the random number generator
 
 using std::cout; using std::endl;
@@ -92,7 +93,7 @@ private:
   // event counter
   int counter;
   // back-end interface
-  DaqMonitorBEInterface * dbe;
+  DQMStore * dbe;
 };
 
 //
@@ -118,7 +119,7 @@ DQMMessageAnalyzer::DQMMessageAnalyzer( const edm::ParameterSet& iConfig )
 
 
   // get hold of back-end interface
-  dbe = edm::Service<DaqMonitorBEInterface>().operator->();
+  dbe = edm::Service<DQMStore>().operator->();
   
   const int NBINS = 5000; XMIN = 0; XMAX = 50;
 
@@ -268,35 +269,8 @@ void DQMMessageAnalyzer::findMonitorElements(DQMEvent::TObjectTable &toTable,
   std::vector<TObject *> updateTOList;
   for (int idx = 0; idx < (int) localMEList.size(); idx++) {
     MonitorElement *mePtr = localMEList[idx];
-    bool wasUpdated = mePtr->wasUpdated();
-    // TODO - enable the correct "never-sent" determination
-    bool neverSent = false; //SenderBase::isNeverSent(folderPtr, mePtr->getName());
-    if (wasUpdated || neverSent) {
-      MonitorElementRootObject* rootObject =
-        dynamic_cast<MonitorElementRootObject *>(mePtr);
-      if (rootObject) {
-        updateTOList.push_back(rootObject->operator->());
-      }
-      else {
-        FoldableMonitor *foldable =
-          dynamic_cast<FoldableMonitor *>(mePtr);
-        if (foldable) {
-          updateTOList.push_back(foldable->getTagObject());
-        }
-        else {
-          std::cerr << " *** Failed to extract and send object "
-                    << mePtr->getName() << std::endl;
-        }
-      }
-
-      if (wasUpdated) {
-        // TODO - enable this
-        //dbe->add2UpdatedContents(mePtr->getName(), folderPath);
-      }
-      if (neverSent) {
-        // TODO - enable this
-        //SenderBase::setNeverSent(folderPtr, mePtr->getName(), false);
-      }
+    if (mePtr->wasUpdated()) {
+      updateTOList.push_back(mePtr->getRootObject());
     }
   }
   if (updateTOList.size() > 0) {
@@ -350,12 +324,7 @@ void DQMMessageAnalyzer::analyze(const edm::Event& iEvent,
     }
 
   // fit h4 to gaussian
-  MonitorElementT<TNamed>* ob = dynamic_cast<MonitorElementT<TNamed>*> (h4);
-  if(ob)
-    {
-      TH1F * root_ob = dynamic_cast<TH1F *> (ob->operator->());
-      if(root_ob)root_ob->Fit("gaus","Q");
-    }
+  h4->getTH1F()->Fit("gaus","Q");
 
   for ( int i = 0; i != 10; ++i )
     {
@@ -373,12 +342,12 @@ void DQMMessageAnalyzer::analyze(const edm::Event& iEvent,
 
 
   if (dbe == NULL) {
-    dbe = edm::Service<DaqMonitorBEInterface>().operator->();
+    dbe = edm::Service<DQMStore>().operator->();
   }
 
   if (dbe == NULL) {
     throw cms::Exception("postEventProcessing", "FUShmDQMOutputService")
-      << "Unable to lookup the DaqMonitorBEInterface service!\n";
+      << "Unable to lookup the DQMStore service!\n";
   }
 
   //Lets convert histograms into TObjects and throw them in DQMEvent::TObjectTable

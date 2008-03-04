@@ -7,7 +7,7 @@
 
   Description: Example DQM Client 
 
-  $Id: SMDQMClientExample.cc,v 1.5 2008/01/22 19:28:37 muzaffar Exp $
+  $Id: SMDQMClientExample.cc,v 1.6 2008/01/31 03:46:20 wmtan Exp $
 
 */
 
@@ -24,8 +24,8 @@
 #include "FWCore/Framework/interface/LuminosityBlock.h"
 
 
-#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
-#include "DQMServices/UI/interface/MonitorUIRoot.h"
+#include "DQMServices/Core/interface/DQMStore.h"
+#include "DQMServices/Core/interface/MonitorElement.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
 
@@ -67,7 +67,7 @@ private:
   // event counter
   int counter;
   // back-end interface
-  DaqMonitorBEInterface * dbe;
+  DQMStore * dbe;
 
 };
 
@@ -75,7 +75,7 @@ SMDQMClientExample::SMDQMClientExample( const edm::ParameterSet& iConfig )
   : counter(0)
 {
   // get hold of back-end interface
-  dbe = edm::Service<DaqMonitorBEInterface>().operator->();
+  dbe = edm::Service<DQMStore>().operator->();
 
   dbe->showDirStructure();
 }
@@ -133,16 +133,13 @@ void SMDQMClientExample::analyze(const edm::Event& iEvent,
   h7 = dbe->get("C1/C3/histo7");
   if(h7) {
     // fit h7 to gaussian
-    MonitorElementT<TNamed>* ob = dynamic_cast<MonitorElementT<TNamed>*> (h7);
-    if(ob) {
-     TH1F * root_ob = dynamic_cast<TH1F *> (ob->operator->());
+    TH1F * root_ob = h7->getTH1F();
      double int_ent = root_ob->Integral();
      double num_ent = root_ob->GetEntries();
      std::cout << "num entries in h7 = " << num_ent
                << " integral of bin contents = " << int_ent << std::endl;
-     if(root_ob)root_ob->Fit("gaus");
+    root_ob->Fit("gaus");
      root_ob->Reset();
-    }
   } else {
     std::cout << "did not find histo7" << std::endl;
   }
@@ -150,17 +147,14 @@ void SMDQMClientExample::analyze(const edm::Event& iEvent,
   h8 = dbe->get("D1/histo8");
   if(h8) {
     // fit h7 to gaussian
-    MonitorElementT<TNamed>* ob = dynamic_cast<MonitorElementT<TNamed>*> (h8);
-    if(ob) {
-     TH1F * root_ob = dynamic_cast<TH1F *> (ob->operator->());
+    TH1F * root_ob = h8->getTH1F();
      double int_ent = root_ob->Integral();
      double num_ent = root_ob->GetEntries();
      std::cout << "num entries in h8 = " << num_ent
                << " integral of bin contents = " << int_ent << std::endl;
-     if(root_ob)root_ob->Fit("gaus");
-     //if(root_ob)root_ob->Fit("gaus","Q");
+    root_ob->Fit("gaus");
+    //root_ob->Fit("gaus","Q");
      //root_ob->Reset();
-    }
   } else {
     std::cout << "did not find histo8" << std::endl;
   }

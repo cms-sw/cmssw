@@ -10,7 +10,7 @@
   file in DQMServices/Daemon/test, but modified to include another top level
   folder, to remove the 1 sec wait, and to do the fitting without printout.
 
-  $Id: SMDQMSourceExample.cc,v 1.7 2008/01/22 19:28:37 muzaffar Exp $
+  $Id: SMDQMSourceExample.cc,v 1.8 2008/01/31 03:46:20 wmtan Exp $
 
 */
 
@@ -26,9 +26,9 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 
-#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
-#include "DQMServices/Daemon/interface/MonitorDaemon.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
+#include "DQMServices/Core/interface/MonitorElement.h"
 
 #include <TRandom.h> // this is just the random number generator
 
@@ -66,14 +66,14 @@ private:
   // event counter
   int counter;
   // back-end interface
-  DaqMonitorBEInterface * dbe;
+  DQMStore * dbe;
 };
 
 SMDQMSourceExample::SMDQMSourceExample( const edm::ParameterSet& iConfig )
   : counter(0)
 {
   // get hold of back-end interface
-  dbe = edm::Service<DaqMonitorBEInterface>().operator->();
+  dbe = edm::Service<DQMStore>().operator->();
   
   const int NBINS = 500; XMIN = 0; XMAX = 50;
 
@@ -182,12 +182,7 @@ void SMDQMSourceExample::analyze(const edm::Event& iEvent,
     }
 
   // fit h4 to gaussian
-  MonitorElementT<TNamed>* ob = dynamic_cast<MonitorElementT<TNamed>*> (h4);
-  if(ob)
-    {
-      TH1F * root_ob = dynamic_cast<TH1F *> (ob->operator->());
-      if(root_ob)root_ob->Fit("gaus","Q");
-    }
+  h4->getTH1F()->Fit("gaus","Q");
   
   for ( int i = 0; i != 10; ++i ) 
     {
