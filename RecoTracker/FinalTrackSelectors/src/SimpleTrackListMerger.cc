@@ -7,9 +7,9 @@
 // Original Author: Steve Wagner, stevew@pizero.colorado.edu
 // Created:         Sat Jan 14 22:00:00 UTC 2006
 //
-// $Author: burkett $
-// $Date: 2008/02/29 17:59:47 $
-// $Revision: 1.6 $
+// $Author: arizzi $
+// $Date: 2008/03/04 08:56:58 $
+// $Revision: 1.7 $
 //
 
 #include <memory>
@@ -348,8 +348,8 @@ namespace cms
 						 track->innerMomentum(),
 						 track->charge(),
 						 track->innerStateCovariance(),
-						 track->algo(),
-						 track->quality());    
+						 track->algo());
+						    
       //fill the TrackCollection
       reco::TrackExtraRef theTrackExtraRef=track->extra();    
       theTrack->setExtra(theTrackExtraRef);    
@@ -368,8 +368,8 @@ namespace cms
 						 track->innerMomentum(),
 						 track->charge(),
 						 track->innerStateCovariance(),
-						 track->algo(),
-						 track->quality());    
+						 track->algo());
+						    
       //fill the TrackCollection
       reco::TrackExtraRef theTrackExtraRef=track->extra();    
       theTrack->setExtra(theTrackExtraRef);    
