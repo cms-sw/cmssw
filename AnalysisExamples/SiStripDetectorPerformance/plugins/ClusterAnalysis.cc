@@ -1,6 +1,6 @@
 /*
- * $Date: 2008/01/22 19:13:55 $
- * $Revision: 1.12 $
+ * $Date: 2008/02/28 19:49:39 $
+ * $Revision: 1.13 $
  *
  * \author: D. Giordano, domenico.giordano@cern.ch
  * Modified: M.De Mattia 2/3/2007 & R.Castello 5/4/2007 & Susy Borgia 15/11/07
@@ -484,7 +484,6 @@ namespace cms{
       edm::LogError("ClusterAnalysis")<<"trackInfo not found "<<std::endl;
       trackAssociatorCollection_in_EventTree=false;
     }
-    
     vPSiStripCluster.clear();
     countOn=0;
     countOff=0;
@@ -1255,7 +1254,9 @@ namespace cms{
 
       SiStripNoises::Range noiseRange = noiseHandle->getRange(detid);
       SiStripPedestals::Range pedRange = pedestalHandle->getRange(detid);
-
+      
+      SiStripQuality::Range detQualityRange = SiStripQuality_->getRange(detid);
+     
       for(size_t istrip=0;istrip<nstrips;istrip++){
 	try{
 	  //Fill Pedestals
@@ -1271,7 +1272,7 @@ namespace cms{
 	  //Fill BadStripsNoise
 	  TH1F* hh3 = (TH1F*) Hlist->FindObject("DBBadStrips"+appString);
 	  if (hh3!=0)  
-	    hh3->Fill(istrip,noiseHandle->getDisable(istrip,noiseRange)?1.:0.);
+	    hh3->Fill(istrip,SiStripQuality_->IsStripBad(detQualityRange,istrip)?1.:0.);
 	  
 	}catch(cms::Exception& e){
 	  edm::LogError("SiStripCondObjDisplay") << "[SiStripCondObjDisplay::endJob]  cms::Exception:  DetName " << name << " " << e.what() ;
