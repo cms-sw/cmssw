@@ -9,7 +9,7 @@ using reco::modules::TrackMultiSelector;
 
 TrackMultiSelector::Block::Block(const edm::ParameterSet & cfg) :
     pt(p2p<double>(cfg,"pt")), 
-    vhits(p2p<uint32_t>(cfg,"validHits")),
+    vlayers(p2p<uint32_t>(cfg,"validLayers")),
     lhits(p2p<uint32_t>(cfg,"lostHits")),
     chi2n(p2p<double>(cfg,"chi2n")), 
     d0(cfg.getParameter<double>("d0")),
@@ -216,11 +216,11 @@ inline bool  TrackMultiSelector::testVtx ( const reco::Track &tk, const reco::Be
 }
 
 short TrackMultiSelector::select(const reco::Track &tk, const reco::BeamSpot &beamSpot, const std::vector<Point> &points) {
-   uint32_t vhits = tk.numberOfValidHits(), lhits = tk.numberOfLostHits();
+   uint32_t vlayers = tk.hitPattern().trackerLayersWithMeasurement(), lhits = tk.numberOfLostHits();
    double pt = tk.pt(), chi2n =  tk.normalizedChi2();
    int which = 0;
    for (std::vector<TrackMultiSelector::Block>::const_iterator itb = blocks_.begin(), edb = blocks_.end(); itb != edb; ++itb, ++which) {
-        if ( ( itb->vhits.first <= vhits ) && ( vhits <= itb->vhits.second ) &&
+        if ( ( itb->vlayers.first <= vlayers ) && ( vlayers <= itb->vlayers.second ) &&
              ( itb->chi2n.first <= chi2n ) && ( chi2n <= itb->chi2n.second ) &&
              ( itb->pt.first    <= pt    ) && ( pt    <= itb->pt.second    ) &&
              ( itb->lhits.first <= lhits ) && ( lhits <= itb->lhits.second ) &&

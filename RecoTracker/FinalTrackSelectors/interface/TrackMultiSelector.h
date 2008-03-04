@@ -6,9 +6,9 @@
  * 
  * \author Giovanni Petrucciani 
  *
- * \version $Revision: 1.2 $
+ * \version $Revision: 1.3 $
  *
- * $Id: TrackMultiSelector.h,v 1.2 2007/12/27 16:53:15 mangano Exp $
+ * $Id: TrackMultiSelector.h,v 1.3 2008/02/20 17:53:22 gpetrucc Exp $
  *
  */
 
@@ -39,7 +39,7 @@ namespace reco { namespace modules {
         private:
             struct Block {
                 std::pair<double,double> pt;
-                std::pair<uint32_t,uint32_t>   vhits, lhits;
+                std::pair<uint32_t,uint32_t>   vlayers, lhits;
                 std::pair<double,double> chi2n;
                 double d0, dz,d0Rel,dzRel;
 
