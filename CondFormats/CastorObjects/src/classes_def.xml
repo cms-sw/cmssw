@@ -1,0 +1,27 @@
+<lcgdict>
+ <class name="CastorPedestal"/>
+ <class name="CastorPedestals"/>
+ <class name="CastorPedestalWidths"/>
+ <class name="CastorPedestalWidth"/>
+ <class name="CastorGains"/>
+ <class name="CastorGain"/>
+ <class name="CastorGainWidths"/>
+ <class name="CastorGainWidth"/>
+ <class name="CastorQIEData"/>
+ <class name="CastorQIECoder"/>
+ <class name="CastorCalibrationQIEData"/>
+ <class name="CastorCalibrationQIECoder"/>
+ <class name="CastorElectronicsMap">
+  <field name="mPItemsById" transient="true"/>
+  <field name="sortedByPId" transient="true"/>
+  <field name="mTItemsByTrigId" transient="true"/>
+  <field name="sortedByTId" transient="true"/>
+</class>
+ <class name="CastorElectronicsMap::PrecisionItem"/>
+ <class name="CastorElectronicsMap::TriggerItem"/>
+
+ <class name="CastorChannelQuality"/>
+ <class name="CastorChannelQuality::Item"/>
+
+ <class pattern="*vector*"/>
+</lcgdict>   
