@@ -2,7 +2,7 @@
 #define FWCore_ParameterSet_ParameterSet_h
 
 // ----------------------------------------------------------------------
-// $Id: ParameterSet.h,v 1.39 2007/07/26 00:27:07 rpw Exp $
+// $Id: ParameterSet.h,v 1.40 2007/08/30 20:19:09 rpw Exp $
 //
 // Declaration for ParameterSet(parameter set) and related types
 // ----------------------------------------------------------------------
@@ -209,6 +209,25 @@ private:
     return retrieve(name).getVInt32();
   }
   
+ // ----------------------------------------------------------------------
+  // Int64, vInt64
+
+  template<>
+  inline
+  boost::int64_t
+  ParameterSet::getParameter<boost::int64_t>(std::string const& name) const {
+    return retrieve(name).getInt64();
+  }
+
+
+  template<>
+  inline
+  std::vector<boost::int64_t>
+  ParameterSet::getParameter<std::vector<boost::int64_t> >(std::string const& name) const {
+    return retrieve(name).getVInt64();
+  }
+
+
   // ----------------------------------------------------------------------
   // Uint32, vUint32
   
@@ -226,6 +245,24 @@ private:
     return retrieve(name).getVUInt32();
   }
   
+  // ----------------------------------------------------------------------
+  // Uint64, vUint64
+
+  template<>
+  inline
+  boost::uint64_t
+  ParameterSet::getParameter<boost::uint64_t>(std::string const& name) const {
+    return retrieve(name).getUInt64();
+  }
+
+  template<>
+  inline
+  std::vector<boost::uint64_t>
+  ParameterSet::getParameter<std::vector<boost::uint64_t> >(std::string const& name) const {
+    return retrieve(name).getVUInt64();
+  }
+
+
   // ----------------------------------------------------------------------
   // Double, vDouble
   
@@ -430,6 +467,41 @@ private:
   ParameterSet::getUntrackedParameter<std::vector<unsigned int> >(std::string const& name) const {
     return getEntryPointerOrThrow_(name)->getVUInt32();
   }
+
+
+  // ----------------------------------------------------------------------
+  // Uint64, vUint64
+
+  template<>
+  inline
+  boost::uint64_t
+  ParameterSet::getUntrackedParameter<boost::uint64_t>(std::string const& name, boost::uint64_t const& defaultValue) const {
+    Entry const* entryPtr = retrieveUntracked(name);
+    return entryPtr == 0 ? defaultValue : entryPtr->getUInt64();
+  }
+
+  template<>
+  inline
+  boost::uint64_t
+  ParameterSet::getUntrackedParameter<boost::uint64_t>(std::string const& name) const {
+    return getEntryPointerOrThrow_(name)->getUInt64();
+  }
+
+  template<>
+  inline
+  std::vector<boost::uint64_t>
+  ParameterSet::getUntrackedParameter<std::vector<boost::uint64_t> >(std::string const& name, std::vector<boost::uint64_t> const& defaultValue) const {
+    Entry const* entryPtr = retrieveUntracked(name);
+    return entryPtr == 0 ? defaultValue : entryPtr->getVUInt64();
+  }
+
+  template<>
+  inline
+  std::vector<boost::uint64_t>
+  ParameterSet::getUntrackedParameter<std::vector<boost::uint64_t> >(std::string const& name) const {
+    return getEntryPointerOrThrow_(name)->getVUInt64();
+  }
+
 
   
   // ----------------------------------------------------------------------
