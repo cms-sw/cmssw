@@ -3,7 +3,7 @@
 
 //////////////////////////////////////////////////////////////////////
 //
-// $Id: RootOutputFile.h,v 1.20 2008/01/10 17:32:57 wmtan Exp $
+// $Id: RootOutputFile.h,v 1.26 2008/03/04 00:05:03 paterno Exp $
 //
 // Class PoolOutputModule. Output module to POOL file
 //
@@ -12,10 +12,10 @@
 //
 //////////////////////////////////////////////////////////////////////
 
+#include <map>
 #include <memory>
 #include <string>
 #include <iosfwd>
-#include <map>
 #include <vector>
 #include "boost/array.hpp"
 #include "boost/shared_ptr.hpp"
@@ -24,11 +24,13 @@
 #include "FWCore/MessageLogger/interface/JobReport.h"
 #include "DataFormats/Provenance/interface/BranchDescription.h"
 #include "DataFormats/Provenance/interface/BranchType.h"
+#include "DataFormats/Provenance/interface/EntryDescriptionID.h"
 #include "DataFormats/Provenance/interface/EventAuxiliary.h"
 #include "DataFormats/Provenance/interface/EventProcessHistoryID.h"
 #include "DataFormats/Provenance/interface/FileID.h"
 #include "DataFormats/Provenance/interface/FileIndex.h"
 #include "DataFormats/Provenance/interface/LuminosityBlockAuxiliary.h"
+#include "DataFormats/Provenance/interface/ProductStatus.h"
 #include "DataFormats/Provenance/interface/RunAuxiliary.h"
 #include "DataFormats/Provenance/interface/Selections.h"
 #include "IOPool/Output/src/RootOutputTree.h"
@@ -39,6 +41,7 @@ class TFile;
 namespace edm {
   class ParameterSet;
   class PoolOutputModule;
+  class History;
 
   class RootOutputFile {
   public:
@@ -49,6 +52,7 @@ namespace edm {
     //void endFile();
     void writeLuminosityBlock(LuminosityBlockPrincipal const& lb);
     bool writeRun(RunPrincipal const& r);
+    void writeEntryDescriptions();
     void writeFileFormatVersion();
     void writeFileIdentifier();
     void writeFileIndex();
@@ -60,13 +64,12 @@ namespace edm {
     void writeProductDescriptionRegistry();
 
     void finishEndFile();
-    void beginInputFile(FileBlock const& fb, bool fastCloneThisOne);
+    void beginInputFile(FileBlock const& fb, bool fastClone, bool fastMetaClone);
     void respondToCloseInputFile(FileBlock const& fb);
 
     bool isFileFull() const {return newFileAtEndOfRun_;}
 
   private:
-    void buildIndex(TTree *tree, BranchType const& branchType);
     void setBranchAliases(TTree *tree, Selections const& branches) const;
 
   private:
@@ -78,14 +81,21 @@ namespace edm {
       private:
         std::map<std::string, int> treeMap_;
       };
-      OutputItem() : branchDescription_(0), selected_(false) {}
+      OutputItem() : branchDescription_(0),
+	 entryDescriptionIDSharedPtr_(new EntryDescriptionID),
+	 entryDescriptionIDPtr_(entryDescriptionIDSharedPtr_.get()),
+	 selected_(false), renamed_(false), product_(0) {}
       OutputItem(BranchDescription const* bd, bool sel, bool ren) :
-	branchDescription_(bd), selected_(sel), renamed_(ren), branchEntryDescription_(0), product_(0) {}
+	branchDescription_(bd),
+	entryDescriptionIDSharedPtr_(new EntryDescriptionID),
+	entryDescriptionIDPtr_(entryDescriptionIDSharedPtr_.get()),
+	selected_(sel), renamed_(ren), product_(0) {}
       ~OutputItem() {}
       BranchDescription const* branchDescription_;
+      boost::shared_ptr<EntryDescriptionID> entryDescriptionIDSharedPtr_;
+      mutable EntryDescriptionID * entryDescriptionIDPtr_;
       bool selected_;
       bool renamed_;
-      mutable BranchEntryDescription const* branchEntryDescription_;
       mutable void const* product_;
       bool operator <(OutputItem const& rh) const {
         return *branchDescription_ < *rh.branchDescription_;
@@ -96,9 +106,11 @@ namespace edm {
     void fillItemList(Selections const& keptVector,
 		      Selections const& droppedVector,
 		      OutputItemList & outputItemList,
-		      TTree * meta);
+		      TTree *meta);
 
     void fillBranches(BranchType const& branchType, Principal const& principal) const;
+
+    void addEntryDescription(EntryDescription const& desc);
 
     OutputItemListArray outputItemList_;
     std::string file_;
@@ -108,6 +120,7 @@ namespace edm {
     unsigned int fileSizeCheckEvent_;
     PoolOutputModule const* om_;
     bool currentlyFastCloning_;
+    bool currentlyFastMetaCloning_;
     boost::shared_ptr<TFile> filePtr_;
     FileID fid_;
     FileIndex fileIndex_;
@@ -116,19 +129,19 @@ namespace edm {
     FileIndex::EntryNumber_t runEntryNumber_;
     std::vector<EventProcessHistoryID> eventProcessHistoryIDs_;
     TTree * metaDataTree_;
-    EventAuxiliary eventAux_;
-    LuminosityBlockAuxiliary lumiAux_;
-    RunAuxiliary runAux_;
-    EventAuxiliary const* pEventAux_;
+    TTree * entryDescriptionTree_;
+    TTree * eventHistoryTree_;
+    EventAuxiliary const*           pEventAux_;
     LuminosityBlockAuxiliary const* pLumiAux_;
-    RunAuxiliary const* pRunAux_;
+    RunAuxiliary const*             pRunAux_;
+    ProductStatusVector const*      pProductStatuses_;
+    History const*                  pHistory_;
     RootOutputTree eventTree_;
     RootOutputTree lumiTree_;
     RootOutputTree runTree_;
     RootOutputTreePtrArray treePointers_;
-    boost::shared_ptr<ProductRegistry const> productRegistry_;
-    mutable std::list<BranchEntryDescription> provenances_;
     mutable bool newFileAtEndOfRun_;
+    bool dataTypeReported_;
   };
 }
 

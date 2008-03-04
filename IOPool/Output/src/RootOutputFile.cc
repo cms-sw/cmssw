@@ -1,4 +1,4 @@
-// $Id: RootOutputFile.cc,v 1.38 2008/01/10 17:32:57 wmtan Exp $
+// $Id: RootOutputFile.cc,v 1.48 2008/03/04 00:05:03 paterno Exp $
 
 #include "RootOutputFile.h"
 #include "PoolOutputModule.h"
@@ -15,6 +15,8 @@
 #include "FWCore/Framework/interface/EventPrincipal.h"
 #include "FWCore/Framework/interface/LuminosityBlockPrincipal.h"
 #include "FWCore/Framework/interface/RunPrincipal.h"
+#include "DataFormats/Provenance/interface/EntryDescriptionRegistry.h"
+#include "DataFormats/Provenance/interface/History.h"
 #include "DataFormats/Provenance/interface/ModuleDescriptionRegistry.h"
 #include "DataFormats/Provenance/interface/ParameterSetBlob.h"
 #include "DataFormats/Provenance/interface/ProcessHistoryRegistry.h"
@@ -78,6 +80,7 @@ namespace edm {
       fileSizeCheckEvent_(100),
       om_(om),
       currentlyFastCloning_(),
+      currentlyFastMetaCloning_(),
       filePtr_(TFile::Open(file_.c_str(), "recreate", "", om_->compressionLevel())),
       fid_(),
       fileIndex_(),
@@ -86,18 +89,19 @@ namespace edm {
       runEntryNumber_(0LL),
       eventProcessHistoryIDs_(),
       metaDataTree_(0),
-      eventAux_(),
-      lumiAux_(),
-      runAux_(),
-      pEventAux_(&eventAux_),
-      pLumiAux_(&lumiAux_),
-      pRunAux_(&runAux_),
-      eventTree_(filePtr_, InEvent, pEventAux_, om_->basketSize(), om_->splitLevel()),
-      lumiTree_(filePtr_, InLumi, pLumiAux_, om_->basketSize(), om_->splitLevel()),
-      runTree_(filePtr_, InRun, pRunAux_, om_->basketSize(), om_->splitLevel()),
+      entryDescriptionTree_(0),
+      eventHistoryTree_(0),
+      pEventAux_(0),
+      pLumiAux_(0),
+      pRunAux_(0),
+      pProductStatuses_(0),
+      pHistory_(0),
+      eventTree_(filePtr_, InEvent, pEventAux_, pProductStatuses_, om_->basketSize(), om_->splitLevel()),
+      lumiTree_(filePtr_, InLumi, pLumiAux_, pProductStatuses_, om_->basketSize(), om_->splitLevel()),
+      runTree_(filePtr_, InRun, pRunAux_, pProductStatuses_, om_->basketSize(), om_->splitLevel()),
       treePointers_(),
-      provenances_(),
-      newFileAtEndOfRun_(false) {
+      newFileAtEndOfRun_(false), 
+      dataTypeReported_(false)  {
     treePointers_[InEvent] = &eventTree_;
     treePointers_[InLumi]  = &lumiTree_;
     treePointers_[InRun]   = &runTree_;
@@ -117,13 +121,24 @@ namespace edm {
 	  it != itEnd; ++it) {
 	treePointers_[branchType]->addBranch(*it->branchDescription_,
 					      it->selected_,
-					      it->branchEntryDescription_,
+					      it->entryDescriptionIDPtr_,
 					      it->product_,
 					      it < itMarker);
       }
     }
-    // Don't split metadata tree.
-    metaDataTree_ = RootOutputTree::makeTTree(filePtr_.get(), poolNames::metaDataTreeName(), 0);
+    // Don't split metadata tree or event description tree
+    metaDataTree_         = RootOutputTree::makeTTree(filePtr_.get(), poolNames::metaDataTreeName(), 0);
+    entryDescriptionTree_ = RootOutputTree::makeTTree(filePtr_.get(), poolNames::entryDescriptionTreeName(), 0);
+
+    // Create the tree that will carry (event) History objects.
+    eventHistoryTree_     = RootOutputTree::makeTTree(filePtr_.get(), poolNames::eventHistoryTreeName(), om_->splitLevel());
+    if (!eventHistoryTree_)
+      throw edm::Exception(edm::errors::FatalRootError) 
+	<< "Failed to create the tree for History objects\n";
+
+    if (! eventHistoryTree_->Branch(poolNames::eventHistoryBranchName().c_str(), &pHistory_, om_->basketSize(), 0))
+      throw edm::Exception(edm::errors::FatalRootError) 
+	<< "Failed to create a branch for Historys in the output file\n";
 
     fid_ = FileID(createGlobalIdentifier());
 
@@ -158,12 +173,11 @@ namespace edm {
   }
 
 
-  void RootOutputFile::beginInputFile(FileBlock const& fb, bool fastCloneThisOne) {
-    currentlyFastCloning_ = om_->fastCloning() && fb.fastClonable() && fastCloneThisOne;
-    eventTree_.beginInputFile(currentlyFastCloning_);
-    if (currentlyFastCloning_) {
-      eventTree_.fastCloneTree(fb.tree(), fb.metaTree());
-    }
+  void RootOutputFile::beginInputFile(FileBlock const& fb, bool fastClone, bool fastMetaClone) {
+    currentlyFastCloning_ = om_->fastCloning() && fb.fastClonable() && fastClone;
+    currentlyFastMetaCloning_ = om_->fastCloning() && fb.fastClonable() && fastMetaClone;
+    eventTree_.beginInputFile(currentlyFastCloning_, currentlyFastMetaCloning_);
+    eventTree_.fastCloneTree(fb.tree(), fb.metaTree());
   }
 
   void RootOutputFile::respondToCloseInputFile(FileBlock const&) {
@@ -177,6 +191,29 @@ namespace edm {
 
     // Auxiliary branch
     pEventAux_ = &e.aux();
+
+    // History branch
+    History historyForOutput(e.history());
+    historyForOutput.addEntry(om_->selectorConfig());
+    pHistory_ = &historyForOutput;
+    int sz = eventHistoryTree_->Fill();
+    if ( sz <= 0)
+      throw edm::Exception(edm::errors::FatalRootError) 
+	<< "Failed to fill the History tree for event: " << e.id()
+	<< "\nTTree::Fill() returned " << sz << " bytes written." << std::endl;
+
+    // Add the dataType to the job report if it hasn't already been done
+    if(!dataTypeReported_) {
+      Service<JobReport> reportSvc;
+      std::string dataType("MC");
+      if(pEventAux_->isRealData())  dataType = "Data";
+      reportSvc->reportDataType(reportToken_,dataType);
+      dataTypeReported_ = true;
+    }
+
+    // Product Statuses
+    pProductStatuses_ = &e.productStatuses();
+    pHistory_ = & e.history();
 
     // Add event to index
     fileIndex_.addEntry(pEventAux_->run(), pEventAux_->luminosityBlock(), pEventAux_->event(), eventEntryNumber_);
@@ -210,6 +247,8 @@ namespace edm {
   void RootOutputFile::writeLuminosityBlock(LuminosityBlockPrincipal const& lb) {
     // Auxiliary branch
     pLumiAux_ = &lb.aux();
+    // Product Statuses
+    pProductStatuses_ = &lb.productStatuses();
     // Add lumi to index.
     fileIndex_.addEntry(pLumiAux_->run(), pLumiAux_->luminosityBlock(), 0U, lumiEntryNumber_);
     ++lumiEntryNumber_;
@@ -219,11 +258,40 @@ namespace edm {
   bool RootOutputFile::writeRun(RunPrincipal const& r) {
     // Auxiliary branch
     pRunAux_ = &r.aux();
+    // Product Statuses
+    pProductStatuses_ = &r.productStatuses();
     // Add run to index.
     fileIndex_.addEntry(pRunAux_->run(), 0U, 0U, runEntryNumber_);
     ++runEntryNumber_;
     fillBranches(InRun, r.groupGetter());
     return newFileAtEndOfRun_;
+  }
+
+  void RootOutputFile::writeEntryDescriptions() {
+    EntryDescriptionID const* hash(0);
+    EntryDescription const*   desc(0);
+    
+    if (! entryDescriptionTree_->Branch(poolNames::entryDescriptionIDBranchName().c_str(), 
+					&hash, om_->basketSize(), 0))
+      throw edm::Exception(edm::errors::FatalRootError) 
+	<< "Failed to create a branch for EntryDescriptionIDs in the output file";
+
+    if (! entryDescriptionTree_->Branch(poolNames::entryDescriptionBranchName().c_str(), 
+					&desc, om_->basketSize(), 0))
+      throw edm::Exception(edm::errors::FatalRootError) 
+	<< "Failed to create a branch for EntryDescriptions in the output file";
+
+    EntryDescriptionRegistry& edreg = *EntryDescriptionRegistry::instance();
+    for (EntryDescriptionRegistry::const_iterator
+	   i = edreg.begin(),
+	   e = edreg.end();
+	 i != e;
+	 ++i)
+      {
+	hash = const_cast<EntryDescriptionID*>(&(i->first)); // cast needed because keys are const
+	desc = &(i->second);
+	entryDescriptionTree_->Fill();
+      }
   }
 
   void RootOutputFile::writeFileFormatVersion() {
@@ -300,9 +368,17 @@ namespace edm {
   void RootOutputFile::finishEndFile() { 
     metaDataTree_->SetEntries(-1);
     RootOutputTree::writeTTree(metaDataTree_);
+
+    //entryDescriptionTree_->SetEntries(-1);
+    RootOutputTree::writeTTree(entryDescriptionTree_);
+
+    RootOutputTree::writeTTree(eventHistoryTree_);
+
+    // Create branch aliases for all the branches in the
+    // events/lumis/runs trees. The loop is over all types of data
+    // products.
     for (int i = InEvent; i < NumBranchTypes; ++i) {
       BranchType branchType = static_cast<BranchType>(i);
-      buildIndex(treePointers_[branchType]->tree(), branchType);
       setBranchAliases(treePointers_[branchType]->tree(), om_->keptProducts()[branchType]);
       treePointers_[branchType]->writeTree();
     }
@@ -319,62 +395,47 @@ namespace edm {
 
   void RootOutputFile::RootOutputFile::fillBranches(BranchType const& branchType, Principal const& principal) const {
 
-    // Clear the provenance cache for the previous event/lumi/run
-    provenances_.clear();
-
     bool const fastCloning = (branchType == InEvent) && currentlyFastCloning_;
-
+    bool const fastMetaCloning = (branchType == InEvent) && currentlyFastMetaCloning_;
+    
     OutputItemList const& items = outputItemList_[branchType];
+
     // Loop over EDProduct branches, fill the provenance, and write the branch.
     for (OutputItemList::const_iterator i = items.begin(), iEnd = items.end(); i != iEnd; ++i) {
 
-      // If fast cloning, process only produced or renamed branches.
-      if (fastCloning && !i->branchDescription_->produced() && !i->renamed_) continue;
-
       ProductID const& id = i->branchDescription_->productID_;
-
       if (id == ProductID()) {
 	throw edm::Exception(edm::errors::ProductNotFound,"InvalidID")
 	  << "PoolOutputModule::write: invalid ProductID supplied in productRegistry\n";
       }
 
+      bool getProd = i->selected_ && (i->branchDescription_->produced() || i->renamed_ || !fastCloning);
+      bool getProv = i->branchDescription_->produced() || i->renamed_ || !fastMetaCloning;
+
       EDProduct const* product = 0;
-      BasicHandle const bh = principal.getForOutput(id, i->selected_);
-      if (bh.provenance() == 0) {
-	// No group with this ID is in the event.
-	// Create and write the provenance.
-	if (i->branchDescription_->produced_) {
-          BranchEntryDescription provenance;
-	  provenance.moduleDescriptionID_ = i->branchDescription_->moduleDescriptionID_;
-	  provenance.productID_ = id;
-	  provenance.status_ = BranchEntryDescription::CreatorNotRun;
-	  provenance.isPresent_ = false;
-	  provenance.cid_ = 0;
-	  
-	  provenances_.push_front(provenance); 
-	  i->branchEntryDescription_ = &*provenances_.begin();
-	} else {
+      BasicHandle const bh = principal.getForOutput(id, getProd, getProv);
+      if (getProv) {
+        if (bh.provenance() == 0) {
+	  // No product with this ID is in the event.
+	  // Create and write the provenance.
+	  if (i->branchDescription_->produced_) {
+	    EntryDescription entryDescription;
+	    entryDescription.moduleDescriptionID_ = i->branchDescription_->moduleDescriptionID_;
+            EntryDescriptionRegistry::instance()->insertMapped(entryDescription);
+	    *i->entryDescriptionIDPtr_ = entryDescription.id();
+	  } else {
 	    throw edm::Exception(errors::ProductNotFound,"NoMatch")
 	      << "PoolOutputModule: Unexpected internal error.  Contact the framework group.\n"
 	      << "No group for branch" << i->branchDescription_->branchName_ << '\n';
-	}
-      } else {
-	product = bh.wrapper();
-        BranchEntryDescription const& provenance = bh.provenance()->event();
-	// There is a group with this ID is in the event.  Write the provenance.
-	bool present = i->selected_ && product && product->isPresent();
-	if (present == provenance.isPresent()) {
-	  // The provenance can be written out as is, saving a copy. 
-	  i->branchEntryDescription_ = &provenance;
-	} else {
-	  // We need to make a private copy of the provenance so we can set isPresent_ correctly.
-	  provenances_.push_front(provenance);
-	  provenances_.begin()->isPresent_ = present;
-	  i->branchEntryDescription_ = &*provenances_.begin();
-	}
+	  }
+        } else {
+	  product = bh.wrapper();
+	  *i->entryDescriptionIDPtr_ = bh.provenance()->event().id();
+        }
       }
-      if (i->selected_) {
+      if (getProd) {
 	if (product == 0) {
+	  // No product with this ID is in the event.
 	  // Add a null product.
 	  TClass *cp = gROOT->GetClass(i->branchDescription_->wrappedName().c_str());
 	  product = static_cast<EDProduct *>(cp->New());
@@ -385,29 +446,6 @@ namespace edm {
     treePointers_[branchType]->fillTree();
   }
 
-
-
-  void
-  RootOutputFile::buildIndex(TTree * tree, BranchType const& branchType) {
-
-    if (tree->GetNbranches() == 0) return;
-    tree->SetEntries(-1);
-    if (tree->GetEntries() == 0) return;
-
-    // BuildIndex must read the auxiliary branch, so the
-    // buffers need to be set to point to allocated memory.
-    pEventAux_ = &eventAux_;
-    pLumiAux_ = &lumiAux_;
-    pRunAux_ = &runAux_;
-
-    if (BranchTypeToMinorIndexName(branchType).empty()) {
-      tree->BuildIndex(BranchTypeToMajorIndexName(branchType).c_str());
-    } else {
-      tree->BuildIndex(BranchTypeToMajorIndexName(branchType).c_str(),
-	 	       BranchTypeToMinorIndexName(branchType).c_str());
-    }
-  }
-  
   void
   RootOutputFile::setBranchAliases(TTree *tree, Selections const& branches) const {
     if (tree && tree->GetNbranches() != 0) {
