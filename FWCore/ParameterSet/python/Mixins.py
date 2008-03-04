@@ -381,14 +381,14 @@ class _ValidatingParameterListBase(_ValidatingListBase,_ParameterTypeBase):
     def dumpPython(self, options=PrintOptions()):
         result = self.pythonTypeName()+"("
         if len(self)<255:
-            result+=','.join((self.pythonValueForItem(v,options) for v in iter(self)))
+            result+=', '.join((self.pythonValueForItem(v,options) for v in iter(self)))
         else:
             result = '('
             start = 0
             l=list()
             while(start < len(self)):
                 v=self.pythonTypeName()+'('
-                v+=','.join((self.pythonValueForItem(v,options) for v in self[start:start+255]))
+                v+=', '.join((self.pythonValueForItem(v,options) for v in self[start:start+255]))
                 v+=')'
                 l.append(v)
                 start+=255
