@@ -2,8 +2,8 @@
  *  
  *  See header file for description of class
  *
- *  $Date: 2007/10/23 23:16:32 $
- *  $Revision: 1.11 $
+ *  $Date: 2007/11/15 23:22:51 $
+ *  $Revision: 1.12 $
  *  \author M. Strang SUNY-Buffalo
  */
 
@@ -673,7 +673,7 @@ void GlobalDigisProducer::fillHCal(edm::Event& iEvent,
     return;
   } 
   const HcalQIEShape *shape = HCalconditions->getHcalShape();
-  HcalCalibrations calibrations;
+  //HcalCalibrations calibrations;
   CaloSamples tool;
 
   ///////////////////////
@@ -732,7 +732,9 @@ void GlobalDigisProducer::fillHCal(edm::Event& iEvent,
 
     if ((cell.subdet() == sdHcalBrl) || (cell.subdet() == sdHcalEC)) {
       
-      HCalconditions->makeHcalCalibration(cell, &calibrations);
+      //HCalconditions->makeHcalCalibration(cell, &calibrations);
+      const HcalCalibrations& calibrations = 
+	HCalconditions->getHcalCalibrations(cell);
       const HcalQIECoder *channelCoder = HCalconditions->getHcalCoder(cell);
       HcalCoderDb coder(*channelCoder, *shape);
       coder.adc2fC(*ihbhe, tool);
@@ -796,7 +798,9 @@ void GlobalDigisProducer::fillHCal(edm::Event& iEvent,
 
     if (cell.subdet() == sdHcalOut) {
       
-      HCalconditions->makeHcalCalibration(cell, &calibrations);
+      //HCalconditions->makeHcalCalibration(cell, &calibrations);
+      const HcalCalibrations& calibrations = 
+	HCalconditions->getHcalCalibrations(cell);
       const HcalQIECoder *channelCoder = HCalconditions->getHcalCoder(cell);
       HcalCoderDb coder (*channelCoder, *shape);
       coder.adc2fC(*iho, tool);
@@ -837,7 +841,9 @@ void GlobalDigisProducer::fillHCal(edm::Event& iEvent,
 
     if (cell.subdet() == sdHcalFwd) {
       
-      HCalconditions->makeHcalCalibration(cell, &calibrations);
+      //HCalconditions->makeHcalCalibration(cell, &calibrations);
+      const HcalCalibrations& calibrations = 
+	HCalconditions->getHcalCalibrations(cell);
       const HcalQIECoder *channelCoder = HCalconditions->getHcalCoder(cell);
       HcalCoderDb coder (*channelCoder, *shape);
       coder.adc2fC(*ihf, tool);

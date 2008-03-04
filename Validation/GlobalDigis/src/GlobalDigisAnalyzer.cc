@@ -2,8 +2,8 @@
  *  
  *  See header file for description of class
  *
- *  $Date: 2008/02/14 00:29:25 $
- *  $Revision: 1.7 $
+ *  $Date: 2008/02/27 18:42:19 $
+ *  $Revision: 1.8 $
  *  \author M. Strang SUNY-Buffalo
  */
 
@@ -944,7 +944,7 @@ void GlobalDigisAnalyzer::fillHCal(const edm::Event& iEvent,
     return;
   } 
   const HcalQIEShape *shape = HCalconditions->getHcalShape();
-  HcalCalibrations calibrations;
+  //HcalCalibrations calibrations;
   CaloSamples tool;
   
   ///////////////////////
@@ -1003,7 +1003,9 @@ void GlobalDigisAnalyzer::fillHCal(const edm::Event& iEvent,
     
     if ((cell.subdet() == sdHcalBrl) || (cell.subdet() == sdHcalEC)) {
       
-      HCalconditions->makeHcalCalibration(cell, &calibrations);
+      //HCalconditions->makeHcalCalibration(cell, &calibrations);
+      const HcalCalibrations& calibrations = 
+	HCalconditions->getHcalCalibrations(cell);
       const HcalQIECoder *channelCoder = HCalconditions->getHcalCoder(cell);
       HcalCoderDb coder(*channelCoder, *shape);
       coder.adc2fC(*ihbhe, tool);
@@ -1073,7 +1075,9 @@ void GlobalDigisAnalyzer::fillHCal(const edm::Event& iEvent,
     
     if (cell.subdet() == sdHcalOut) {
       
-      HCalconditions->makeHcalCalibration(cell, &calibrations);
+      //HCalconditions->makeHcalCalibration(cell, &calibrations);
+      const HcalCalibrations& calibrations = 
+	HCalconditions->getHcalCalibrations(cell);
       const HcalQIECoder *channelCoder = HCalconditions->getHcalCoder(cell);
       HcalCoderDb coder (*channelCoder, *shape);
       coder.adc2fC(*iho, tool);
@@ -1117,7 +1121,9 @@ void GlobalDigisAnalyzer::fillHCal(const edm::Event& iEvent,
     
     if (cell.subdet() == sdHcalFwd) {
       
-      HCalconditions->makeHcalCalibration(cell, &calibrations);
+      //HCalconditions->makeHcalCalibration(cell, &calibrations);
+      const HcalCalibrations& calibrations = 
+	HCalconditions->getHcalCalibrations(cell);
       const HcalQIECoder *channelCoder = HCalconditions->getHcalCoder(cell);
       HcalCoderDb coder (*channelCoder, *shape);
       coder.adc2fC(*ihf, tool);
