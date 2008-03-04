@@ -3,6 +3,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/ESHandle.h"
 
 // Conditions database
 #include "FWCore/ServiceRegistry/interface/Service.h"
@@ -14,8 +15,9 @@
 // Alignment
 #include "CondFormats/Alignment/interface/Alignments.h"
 #include "CondFormats/Alignment/interface/AlignmentErrors.h"
+#include "CondFormats/Alignment/interface/SurveyErrors.h"
+#include "Alignment/CommonAlignment/interface/SurveyDet.h"
 #include "Alignment/MuonAlignment/interface/MuonAlignment.h"
-#include <FWCore/Framework/interface/ESHandle.h> 
 
 //____________________________________________________________________________________
 //
@@ -23,7 +25,11 @@ MuonAlignment::MuonAlignment(const edm::EventSetup& setup  ):
   theDTAlignRecordName( "DTAlignmentRcd" ),
   theDTErrorRecordName( "DTAlignmentErrorRcd" ),
   theCSCAlignRecordName( "CSCAlignmentRcd" ),
-  theCSCErrorRecordName( "CSCAlignmentErrorRcd" )
+  theCSCErrorRecordName( "CSCAlignmentErrorRcd" ),
+  theDTSurveyRecordName( "DTSurveyRcd" ),
+  theDTSurveyErrorRecordName( "DTSurveyErrorRcd" ),
+  theCSCSurveyRecordName( "CSCSurveyRcd" ),
+  theCSCSurveyErrorRecordName( "CSCSurveyErrorRcd" )
 {
 
   // 1. Retrieve geometry from Event setup and create alignable muon
@@ -83,6 +89,128 @@ void MuonAlignment::moveAlignableGlobalCoord( DetId& detid, std::vector<float>& 
 
 //____________________________________________________________________________________
 // Code needed to store alignments to DB
+
+void MuonAlignment::recursiveList(std::vector<Alignable*> alignables, std::vector<Alignable*> &theList) {
+   for (std::vector<Alignable*>::const_iterator alignable = alignables.begin();  alignable != alignables.end();  ++alignable) {
+      recursiveList((*alignable)->components(), theList);
+      theList.push_back(*alignable);
+   }
+}
+
+void MuonAlignment::saveDTSurveyToDB(void) {
+   // Call service
+  edm::Service<cond::service::PoolDBOutputService> poolDbService;
+  if( !poolDbService.isAvailable() ) // Die if not available
+     throw cms::Exception("NotAvailable") << "PoolDBOutputService not available";
+
+  // Get alignments and errors
+  Alignments *dtAlignments = new Alignments();
+  SurveyErrors *dtSurveyErrors = new SurveyErrors();
+
+  std::vector<Alignable*> alignableList;
+  recursiveList(theAlignableMuon->DTBarrel(), alignableList);
+
+  for (std::vector<Alignable*>::const_iterator alignable = alignableList.begin();  alignable != alignableList.end();  ++alignable) {
+     Alignable *aliid = *alignable;
+     while (aliid->id() == 0) aliid = aliid->components()[0];
+
+     const align::PositionType &pos = (*alignable)->survey()->position();
+     const align::RotationType &rot = (*alignable)->survey()->rotation();
+
+     AlignTransform value(CLHEP::Hep3Vector(pos.x(), pos.y(), pos.z()),
+			    CLHEP::HepRotation(CLHEP::HepRep3x3(rot.xx(), rot.xy(), rot.xz(),
+								      rot.yx(), rot.yy(), rot.yz(),
+								      rot.zx(), rot.zy(), rot.zz())),
+			    aliid->id());
+     SurveyError error((*alignable)->alignableObjectId(), aliid->id(), (*alignable)->survey()->errors());
+     
+     dtAlignments->m_align.push_back(value);
+     dtSurveyErrors->m_surveyErrors.push_back(error);
+  }
+
+  // Store DT alignments and errors
+  if ( poolDbService->isNewTagRequest(theDTSurveyRecordName) ) {
+     poolDbService->createNewIOV<Alignments>( &(*dtAlignments),
+					            poolDbService->endOfTime(),
+					            theDTSurveyRecordName );
+  }
+  else {
+     poolDbService->appendSinceTime<Alignments>( &(*dtAlignments),
+						  poolDbService->currentTime(),
+						  theDTSurveyRecordName );
+  }
+
+  if ( poolDbService->isNewTagRequest(theDTSurveyErrorRecordName) ) {
+     poolDbService->createNewIOV<SurveyErrors>( &(*dtSurveyErrors),
+						poolDbService->endOfTime(),
+						theDTSurveyErrorRecordName );
+  }
+  else {
+     poolDbService->appendSinceTime<SurveyErrors>( &(*dtSurveyErrors),
+						      poolDbService->currentTime(),
+						      theDTSurveyErrorRecordName );
+  }
+}
+
+void MuonAlignment::saveCSCSurveyToDB(void) {
+   // Call service
+  edm::Service<cond::service::PoolDBOutputService> poolDbService;
+  if( !poolDbService.isAvailable() ) // Die if not available
+     throw cms::Exception("NotAvailable") << "PoolDBOutputService not available";
+
+  // Get alignments and errors
+  Alignments *dtAlignments = new Alignments();
+  SurveyErrors *dtSurveyErrors = new SurveyErrors();
+
+  std::vector<Alignable*> alignableList;
+  recursiveList(theAlignableMuon->CSCEndcaps(), alignableList);
+
+  for (std::vector<Alignable*>::const_iterator alignable = alignableList.begin();  alignable != alignableList.end();  ++alignable) {
+     Alignable *aliid = *alignable;
+     while (aliid->id() == 0) aliid = aliid->components()[0];
+
+     const align::PositionType &pos = (*alignable)->survey()->position();
+     const align::RotationType &rot = (*alignable)->survey()->rotation();
+
+     AlignTransform value(CLHEP::Hep3Vector(pos.x(), pos.y(), pos.z()),
+			    CLHEP::HepRotation(CLHEP::HepRep3x3(rot.xx(), rot.xy(), rot.xz(),
+								      rot.yx(), rot.yy(), rot.yz(),
+								      rot.zx(), rot.zy(), rot.zz())),
+			    aliid->id());
+     SurveyError error((*alignable)->alignableObjectId(), aliid->id(), (*alignable)->survey()->errors());
+     
+     dtAlignments->m_align.push_back(value);
+     dtSurveyErrors->m_surveyErrors.push_back(error);
+  }
+
+  // Store CSC alignments and errors
+  if ( poolDbService->isNewTagRequest(theCSCSurveyRecordName) ) {
+     poolDbService->createNewIOV<Alignments>( &(*dtAlignments),
+					            poolDbService->endOfTime(),
+					            theCSCSurveyRecordName );
+  }
+  else {
+     poolDbService->appendSinceTime<Alignments>( &(*dtAlignments),
+						  poolDbService->currentTime(),
+						  theCSCSurveyRecordName );
+  }
+
+  if ( poolDbService->isNewTagRequest(theCSCSurveyErrorRecordName) ) {
+     poolDbService->createNewIOV<SurveyErrors>( &(*dtSurveyErrors),
+						poolDbService->endOfTime(),
+						theCSCSurveyErrorRecordName );
+  }
+  else {
+     poolDbService->appendSinceTime<SurveyErrors>( &(*dtSurveyErrors),
+						      poolDbService->currentTime(),
+						      theCSCSurveyErrorRecordName );
+  }
+}
+
+void MuonAlignment::saveSurveyToDB(void) {
+   saveDTSurveyToDB();
+   saveCSCSurveyToDB();
+}
 
 void MuonAlignment::saveDTtoDB(void) {
    // Call service
