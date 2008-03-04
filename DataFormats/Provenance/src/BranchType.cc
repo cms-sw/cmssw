@@ -171,5 +171,9 @@ namespace edm {
     std::string const& eventMetaDataTreeName() {
       return eventMeta;
     }
+
+    std::string const& eventHistoryTreeName() {
+      return eventHistory;
+    }
   }
 }

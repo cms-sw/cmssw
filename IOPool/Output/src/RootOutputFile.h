@@ -3,7 +3,7 @@
 
 //////////////////////////////////////////////////////////////////////
 //
-// $Id: RootOutputFile.h,v 1.24 2008/02/05 22:56:42 wmtan Exp $
+// $Id: RootOutputFile.h,v 1.25 2008/02/20 20:06:00 marafino Exp $
 //
 // Class PoolOutputModule. Output module to POOL file
 //
@@ -41,6 +41,7 @@ class TFile;
 namespace edm {
   class ParameterSet;
   class PoolOutputModule;
+  class History;
 
   class RootOutputFile {
   public:
@@ -121,10 +122,12 @@ namespace edm {
     std::vector<EventProcessHistoryID> eventProcessHistoryIDs_;
     TTree * metaDataTree_;
     TTree * entryDescriptionTree_;
-    EventAuxiliary const* pEventAux_;
+    TTree * eventHistoryTree_;
+    EventAuxiliary const*           pEventAux_;
     LuminosityBlockAuxiliary const* pLumiAux_;
-    RunAuxiliary const* pRunAux_;
-    ProductStatusVector const* pProductStatuses_;
+    RunAuxiliary const*             pRunAux_;
+    ProductStatusVector const*      pProductStatuses_;
+    History const*                  pHistory_;
     RootOutputTree eventTree_;
     RootOutputTree lumiTree_;
     RootOutputTree runTree_;

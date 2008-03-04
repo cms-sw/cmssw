@@ -10,14 +10,16 @@ such code sees the Event class, which is a proxy for EventPrincipal.
 The major internal component of the EventPrincipal
 is the DataBlock.
 
-$Id: EventPrincipal.h,v 1.72 2008/02/02 21:25:59 wmtan Exp $
+$Id: EventPrincipal.h,v 1.73 2008/02/28 20:51:05 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
 #include "boost/shared_ptr.hpp"
 
 #include "DataFormats/Provenance/interface/EventAuxiliary.h"
+#include "DataFormats/Provenance/interface/History.h"
 #include "FWCore/Framework/interface/Principal.h"
+
 
 namespace edm {
   class EventID;
@@ -99,6 +101,9 @@ namespace edm {
 
     void setUnscheduledHandler(boost::shared_ptr<UnscheduledHandler> iHandler);
 
+    EventSelectionIDVector const& eventSelectionIDs() const;
+    History const& history() const;
+    void setHistory(History const& h);
   private:
     virtual void addOrReplaceGroup(std::auto_ptr<Group> g);
 
@@ -110,6 +115,7 @@ namespace edm {
     boost::shared_ptr<UnscheduledHandler> unscheduledHandler_;
 
     mutable std::vector<std::string> moduleLabelsRunning_;
+    History   eventHistory_;
   };
 
   inline

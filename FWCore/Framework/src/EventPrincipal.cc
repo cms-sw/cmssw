@@ -62,6 +62,18 @@ namespace edm {
     unscheduledHandler_ = iHandler;
   }
 
+  EventSelectionIDVector const&
+  EventPrincipal::eventSelectionIDs() const
+  {
+    return eventHistory_.eventSelectionIDs();
+  }
+
+  History const&
+  EventPrincipal::history() const
+  {
+    return eventHistory_;
+  }
+
   bool
   EventPrincipal::unscheduledFill(Provenance const& prov) const {
 
@@ -90,5 +102,10 @@ namespace edm {
     }
     moduleLabelsRunning_.pop_back();
     return true;
+  }
+
+  void
+  EventPrincipal::setHistory(History const& h) {
+    eventHistory_ = h;
   }
 }

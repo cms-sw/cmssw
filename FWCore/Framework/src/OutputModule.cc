@@ -1,6 +1,6 @@
 /*----------------------------------------------------------------------
 
-$Id: OutputModule.cc,v 1.57 2008/02/01 20:04:57 wmtan Exp $
+$Id: OutputModule.cc,v 1.58 2008/02/21 22:47:51 wdd Exp $
 ----------------------------------------------------------------------*/
 
 #include "FWCore/Framework/interface/OutputModule.h"
@@ -128,7 +128,8 @@ namespace edm {
     current_context_(0),
     prodsValid_(false),
     wantAllEvents_(false),
-    selectors_()
+    selectors_(),
+    selector_config_id_()
   {
     hasNewlyDroppedBranch_.assign(false);
 
@@ -138,7 +139,7 @@ namespace edm {
     ParameterSet selectevents =
       pset.getUntrackedParameter("SelectEvents", ParameterSet());
 
-
+    selector_config_id_ = selectevents.id();
     // If selectevents is an emtpy ParameterSet, then we are to write
     // all events, or one which contains a vstrig 'SelectEvents' that
     // is empty, we are to write all events. We have no need for any

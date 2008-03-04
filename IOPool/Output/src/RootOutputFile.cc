@@ -1,4 +1,4 @@
-// $Id: RootOutputFile.cc,v 1.46 2008/02/12 22:53:01 wmtan Exp $
+// $Id: RootOutputFile.cc,v 1.47 2008/02/20 20:05:17 marafino Exp $
 
 #include "RootOutputFile.h"
 #include "PoolOutputModule.h"
@@ -16,6 +16,7 @@
 #include "FWCore/Framework/interface/LuminosityBlockPrincipal.h"
 #include "FWCore/Framework/interface/RunPrincipal.h"
 #include "DataFormats/Provenance/interface/EntryDescriptionRegistry.h"
+#include "DataFormats/Provenance/interface/History.h"
 #include "DataFormats/Provenance/interface/ModuleDescriptionRegistry.h"
 #include "DataFormats/Provenance/interface/ParameterSetBlob.h"
 #include "DataFormats/Provenance/interface/ProcessHistoryRegistry.h"
@@ -57,10 +58,12 @@ namespace edm {
       eventProcessHistoryIDs_(),
       metaDataTree_(0),
       entryDescriptionTree_(0),
+      eventHistoryTree_(0),
       pEventAux_(0),
       pLumiAux_(0),
       pRunAux_(0),
       pProductStatuses_(0),
+      pHistory_(0),
       eventTree_(filePtr_, InEvent, pEventAux_, pProductStatuses_, om_->basketSize(), om_->splitLevel(),
         om_->fastCloning(), om_->fastMetaCloning(),
         om_->fileBlock_->tree(), om_->fileBlock_->metaTree(),
@@ -87,7 +90,16 @@ namespace edm {
     // Don't split metadata tree or event description tree
     metaDataTree_         = RootOutputTree::makeTTree(filePtr_.get(), poolNames::metaDataTreeName(), 0);
     entryDescriptionTree_ = RootOutputTree::makeTTree(filePtr_.get(), poolNames::entryDescriptionTreeName(), 0);
-    
+
+    // Create the tree that will carry (event) History objects.
+    eventHistoryTree_     = RootOutputTree::makeTTree(filePtr_.get(), poolNames::eventHistoryTreeName(), om_->splitLevel());
+    if (!eventHistoryTree_)
+      throw edm::Exception(edm::errors::FatalRootError) 
+	<< "Failed to create the tree for History objects\n";
+
+    if (! eventHistoryTree_->Branch(poolNames::eventHistoryBranchName().c_str(), &pHistory_, om_->basketSize(), 0))
+      throw edm::Exception(edm::errors::FatalRootError) 
+	<< "Failed to create a branch for Historys in the output file\n";
 
     fid_ = FileID(createGlobalIdentifier());
 
@@ -140,6 +152,16 @@ namespace edm {
     // Auxiliary branch
     pEventAux_ = &e.aux();
 
+    // History branch
+    History historyForOutput(e.history());
+    historyForOutput.addEntry(om_->selectorConfig());
+    pHistory_ = &historyForOutput;
+    int sz = eventHistoryTree_->Fill();
+    if ( sz <= 0)
+      throw edm::Exception(edm::errors::FatalRootError) 
+	<< "Failed to fill the History tree for event: " << e.id()
+	<< "\nTTree::Fill() returned " << sz << " bytes written." << std::endl;
+
     // Add the dataType to the job report if it hasn't already been done
     if(!dataTypeReported_) {
       Service<JobReport> reportSvc;
@@ -151,6 +173,7 @@ namespace edm {
 
     // Product Statuses
     pProductStatuses_ = &e.productStatuses();
+    pHistory_ = & e.history();
 
     // Add event to index
     fileIndex_.addEntry(pEventAux_->run(), pEventAux_->luminosityBlock(), pEventAux_->event(), eventEntryNumber_);
@@ -309,6 +332,8 @@ namespace edm {
     //entryDescriptionTree_->SetEntries(-1);
     RootOutputTree::writeTTree(entryDescriptionTree_);
 
+    RootOutputTree::writeTTree(eventHistoryTree_);
+
     // Create branch aliases for all the branches in the
     // events/lumis/runs trees. The loop is over all types of data
     // products.
@@ -332,7 +357,7 @@ namespace edm {
 
     bool const fastCloning = (branchType == InEvent) && currentlyFastCloning_;
     bool const fastMetaCloning = (branchType == InEvent) && currentlyFastMetaCloning_;
-
+    
     OutputItemList const& items = outputItemList_[branchType];
 
     // Loop over EDProduct branches, fill the provenance, and write the branch.

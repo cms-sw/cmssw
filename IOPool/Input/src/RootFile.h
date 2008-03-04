@@ -5,7 +5,7 @@
 
 RootFile.h // used by ROOT input sources
 
-$Id: RootFile.h,v 1.49 2008/02/28 20:54:43 wmtan Exp $
+$Id: RootFile.h,v 1.50 2008/03/01 17:48:14 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -26,6 +26,7 @@ $Id: RootFile.h,v 1.49 2008/02/28 20:54:43 wmtan Exp $
 #include "DataFormats/Provenance/interface/FileFormatVersion.h"
 #include "DataFormats/Provenance/interface/FileID.h"
 #include "DataFormats/Provenance/interface/FileIndex.h"
+#include "DataFormats/Provenance/interface/History.h"
 #include "DataFormats/Provenance/interface/ProvenanceFwd.h"
 #include "FWCore/MessageLogger/interface/JobReport.h"
 class TFile;
@@ -101,6 +102,7 @@ namespace edm {
     void fillFileIndex();
     void fillEventAuxiliary();
     void fillEventAuxiliaryAndHistory();
+    void fillHistory();
     void fillLumiAuxiliary();
     void fillRunAuxiliary();
     void overrideRunNumber(RunID & id);
@@ -108,6 +110,7 @@ namespace edm {
     void overrideRunNumber(EventID & id, bool isRealData);
     std::string const& newBranchToOldBranch(std::string const& newBranch) const;
     void readEventDescriptionTree();
+    void readEventHistoryTree();
 
     std::string const file_;
     std::string const logicalFile_;
@@ -141,6 +144,8 @@ namespace edm {
     std::map<std::string, std::string> newBranchToOldBranch_;
     std::vector<std::string> sortedNewBranchNames_;
     std::vector<std::string> oldBranchNames_;
+    TTree * eventHistoryTree_;
+    History history_;    
   }; // class RootFile
 
 }

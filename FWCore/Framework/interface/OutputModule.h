@@ -6,12 +6,14 @@
 OutputModule: The base class of all "modules" that write Events to an
 output stream.
 
-$Id: OutputModule.h,v 1.73 2008/02/07 22:46:06 wmtan Exp $
+$Id: OutputModule.h,v 1.74 2008/02/21 22:47:51 wdd Exp $
 
 ----------------------------------------------------------------------*/
 
-#include "boost/array.hpp"
 #include <vector>
+
+#include "boost/array.hpp"
+#include "boost/utility.hpp"
 
 #include "DataFormats/Provenance/interface/BranchType.h"
 #include "DataFormats/Provenance/interface/ModuleDescription.h"
@@ -24,7 +26,6 @@ $Id: OutputModule.h,v 1.73 2008/02/07 22:46:06 wmtan Exp $
 #include "FWCore/Framework/src/OutputWorker.h"
 #include "FWCore/ParameterSet/interface/ParameterSetfwd.h"
 
-
 namespace edm {
 
   typedef edm::detail::CachedProducts::handle_t Trig;
@@ -32,7 +33,7 @@ namespace edm {
   std::vector<std::string> const& getAllTriggerNames();
 
 
-  class OutputModule {
+  class OutputModule : boost::noncopyable {
   public:
     template <typename T> friend class WorkerT;
     friend class OutputWorker;
@@ -81,6 +82,8 @@ namespace edm {
     ModuleDescription const& description() const;
 
     bool wantAllEvents() const {return wantAllEvents_;}
+
+    ParameterSetID selectorConfig() const { return selector_config_id_; }
   private:
 
     int maxEvents_;
@@ -140,6 +143,9 @@ namespace edm {
 
     bool wantAllEvents_;
     mutable detail::CachedProducts selectors_;
+    // ID of the ParameterSet that configured the event selector
+    // subsystem.
+    ParameterSetID selector_config_id_; 
 
     //------------------------------------------------------------------
     // private member functions

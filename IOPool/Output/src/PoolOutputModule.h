@@ -3,7 +3,7 @@
 
 //////////////////////////////////////////////////////////////////////
 //
-// $Id: PoolOutputModule.h,v 1.44 2008/01/30 00:29:19 wmtan Exp $
+// $Id: PoolOutputModule.h,v 1.45 2008/02/01 20:23:42 wmtan Exp $
 //
 // Class PoolOutputModule. Output module to POOL file
 //
@@ -25,7 +25,7 @@
 namespace edm {
   class ParameterSet;
 
-  class PoolOutputModule : public OutputModule, private boost::noncopyable {
+  class PoolOutputModule : public OutputModule {
   public:
     friend class RootOutputFile;
     explicit PoolOutputModule(ParameterSet const& ps);

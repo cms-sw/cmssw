@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: RootFile.cc,v 1.118 2008/02/28 20:54:43 wmtan Exp $
+$Id: RootFile.cc,v 1.119 2008/03/01 17:48:13 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include "RootFile.h"
@@ -80,7 +80,8 @@ namespace edm {
       forcedRunOffset_(forcedRunOffset),
       newBranchToOldBranch_(),
       sortedNewBranchNames_(),
-      oldBranchNames_() {
+      oldBranchNames_(),
+      eventHistoryTree_(0) {
     treePointers_[InEvent] = &eventTree_;
     treePointers_[InLumi]  = &lumiTree_;
     treePointers_[InRun]   = &runTree_;
@@ -131,6 +132,8 @@ namespace edm {
     fileIndexIter_ = fileIndexBegin_ = fileIndex_.begin();
     fileIndexEnd_ = fileIndex_.end();
     eventProcessHistoryIter_ = eventProcessHistoryIDs_.begin();
+
+    readEventHistoryTree();
 
     // freeze our temporary product registry
     tempReg.setFrozen();
@@ -423,6 +426,27 @@ namespace edm {
   }
 
   void
+  RootFile::fillHistory() {
+    // We could consider doing delayed reading, but because we have to
+    // store this History object in a different tree than the event
+    // data tree, this is too hard to do in this first version.
+
+    if (fileFormatVersion_.value_ >= 6) {
+      History* pHistory = &history_;
+      TBranch* eventHistoryBranch = eventHistoryTree_->GetBranch(poolNames::eventHistoryBranchName().c_str());
+      if (!eventHistoryBranch)
+	throw edm::Exception(edm::errors::FatalRootError)
+	  << "Failed to find history branch in event history tree";
+      eventHistoryBranch->SetAddress(&pHistory);
+      eventHistoryTree_->GetEntry(eventTree_.entryNumber());
+    } else {
+      // for backward compatibility.  If we could figure out how many
+      // processes this event has been through, we should fill in
+      // history_ with that many default-constructed IDs.
+    }
+  }
+
+  void
   RootFile::fillEventAuxiliaryAndHistory() {
     fillEventAuxiliary();
     if (!eventProcessHistoryIDs_.empty()) {
@@ -533,6 +557,7 @@ namespace edm {
       return std::auto_ptr<EventPrincipal>(0);
     }
     fillEventAuxiliaryAndHistory();
+    fillHistory();
     overrideRunNumber(eventAux_.id_, eventAux_.isRealData());
     if (lbp.get() == 0) {
 	RunAuxiliary runAux(eventAux_.run(), eventAux_.time(), eventAux_.time());
@@ -556,6 +581,7 @@ namespace edm {
 		processConfiguration_,
 		eventAux_.processHistoryID_,
 		eventTree_.makeDelayedReader(fileFormatVersion_)));
+    thisEvent->setHistory(history_);
 
     // Create a group in the event for each product
     eventTree_.fillGroups(thisEvent->groupGetter());
@@ -735,5 +761,17 @@ namespace edm {
       id = EventID(id.run() + forcedRunOffset_, id.event());
     } 
     if (id.run() == 0) id = EventID(RunID::firstValidRun().run(), id.event());
+  }
+
+  
+  void
+  RootFile::readEventHistoryTree() {
+    // Read in the event history tree, if we have one...
+    if (fileFormatVersion_.value_ < 6) return; 
+    eventHistoryTree_ = dynamic_cast<TTree*>(filePtr_->Get(poolNames::eventHistoryTreeName().c_str()));
+
+    if (!eventHistoryTree_)
+      throw edm::Exception(edm::errors::FatalRootError)
+	<< "Failed to find the event history tree\n";
   }
 }

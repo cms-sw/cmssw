@@ -35,6 +35,12 @@ namespace edm {
   TTree *
   RootOutputTree::makeTTree(TFile * filePtr, std::string const& name, int splitLevel) {
     TTree *tree = new TTree(name.c_str(), "", splitLevel);
+    if (!tree) throw edm::Exception(edm::errors::FatalRootError)
+      << "Failed to create the tree: " << name << std::endl;
+    if (tree->IsZombie())
+      throw edm::Exception(edm::errors::FatalRootError)
+	<< "Tree: " << name << " is a zombie." << std::endl;
+				    
     return assignTTree(filePtr, tree);
   }
 

@@ -5,7 +5,7 @@
 
 RootOutputTree.h // used by ROOT output modules
 
-$Id: RootOutputTree.h,v 1.21 2008/02/25 03:36:19 wmtan Exp $
+$Id: RootOutputTree.h,v 1.23 2008/02/25 16:47:52 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -82,8 +82,6 @@ namespace edm {
       infoBranches_.push_back(statusBranch_);
     }
 
-    ~RootOutputTree() {}
-    
     static void fastCloneTTree(TTree *in, TTree *out);
 
     static TTree * cloneTTree(TFile *filePtr, TTree *tree, Selections const& dropList, std::vector<std::string> const& renamedList);
