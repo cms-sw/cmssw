@@ -21,6 +21,7 @@
 //-------------------------------
 // Collaborating Class Headers --
 //-------------------------------
+#include "CalibMuon/DTDigiSync/interface/DTTTrigBaseSync.h"
 
 
 //---------------
@@ -32,31 +33,25 @@
 //----------------
 // Constructors --
 //----------------
-DTSCTrigUnit::DTSCTrigUnit(DTChamber* stat, const DTConfigManager * _conf_manager) {
-
-  //bool geom_debug = tu_pset.getUntrackedParameter<bool>("Debug");
-  //edm::ParameterSet bti_conf     = tu_pset.getParameter<edm::ParameterSet>("BtiParameters");
-  //edm::ParameterSet traco_conf   = tu_pset.getParameter<edm::ParameterSet>("TracoParameters");
-  //edm::ParameterSet tstheta_conf = tu_pset.getParameter<edm::ParameterSet>("TSThetaParameters");
-  //edm::ParameterSet tsphi_conf   = tu_pset.getParameter<edm::ParameterSet>("TSPhiParameters");
+DTSCTrigUnit::DTSCTrigUnit(DTChamber *stat, const DTConfigManager *conf_manager, DTTTrigBaseSync *sync) {
 
   DTChamberId chambid = stat->id();
-  bool geom_debug = _conf_manager->getDTConfigTrigUnit(chambid)->debug();
+  bool geom_debug = conf_manager->getDTConfigTrigUnit(chambid)->debug();
 
   // create the geometry from the station
   _geom = new DTTrigGeom(stat, geom_debug);
 
   // create BTI
-  _theBTIs = new DTBtiCard(_geom, _conf_manager);
+  _theBTIs = new DTBtiCard(_geom, conf_manager, sync);
 
   // create TSTheta
-  _theTSTheta = new DTTSTheta(_geom,_theBTIs, _conf_manager);
+  _theTSTheta = new DTTSTheta(_geom, _theBTIs, conf_manager);
 
   // create TRACO
-  _theTRACOs = new DTTracoCard(_geom,_theBTIs,_theTSTheta, _conf_manager);
+  _theTRACOs = new DTTracoCard(_geom, _theBTIs, _theTSTheta, conf_manager);
 
   // create TSPhi
-  _theTSPhi = new DTTSPhi(_geom,_theTRACOs, _conf_manager);
+  _theTSPhi = new DTTSPhi(_geom, _theTRACOs, conf_manager);
 
 }
 

@@ -4,8 +4,8 @@
  *     Main EDProducer for the DTTPG
  *
  *
- *   $Date: 2007/05/21 13:13:25 $
- *   $Revision: 1.8 $
+ *   $Date: 2007/08/06 11:12:24 $
+ *   $Revision: 1.9 $
  *
  *   \author C. Battilana
  *
@@ -43,18 +43,14 @@ typedef SectCollPhiColl::const_iterator SectCollPhiColl_iterator;
 typedef vector<DTSectCollThSegm>  SectCollThetaColl;
 typedef SectCollThetaColl::const_iterator SectCollThetaColl_iterator;
 
-DTTrigProd::DTTrigProd(const ParameterSet& pset): my_trig(0) {
+DTTrigProd::DTTrigProd(const ParameterSet& pset) : my_trig(0) {
   
   produces<L1MuDTChambPhContainer>();
   produces<L1MuDTChambThContainer>();
 
-  //SV obsolete, now configuration is read from EventSetup
   my_debug = pset.getUntrackedParameter<bool>("debug");
   my_DTTFnum = pset.getParameter<bool>("DTTFSectorNumbering");
-  //my_BXoffset = pset.getParameter<int>("BXOffset");
-  //if (my_DTTFnum) 
-  //  cout << "[DTTrigProd] Using DTTF Sector Numbering" << endl;
-  //my_trig = new DTTrig(pset.getParameter<ParameterSet>("DTTPGParameters"));
+  my_params = pset;
 
 }
 
@@ -71,27 +67,8 @@ void DTTrigProd::beginJob(const EventSetup & iEventSetup){
   ESHandle< DTConfigManager > confManager ;
   iEventSetup.get< DTConfigManagerRcd >().get( confManager ) ;
    
-//   //for testing purpose....
-//   cout << "*** DTTrigProd::begiJob : testing configuration ---> BEGIN" << endl;
-//   DTBtiId btiid(-1,1,1,1,10);
-//   //DTTracoId tracoid(-1,6,1,13);
-//   DTTracoId tracoid(1,1,1,1);
-//   DTChamberId chid(-1,3,3);
-//   DTSectCollId scid(1,1);
-//   cout <<"BtiMap & TracoMap Size for chamber (1,1,1):" << confManager->getDTConfigBtiMap(chid).size() << " " << confManager->getDTConfigTracoMap(chid).size() << endl;
-
-//   confManager->getDTConfigBti(btiid)->print();
-//   confManager->getDTConfigTraco(tracoid)->print();
-//   confManager->getDTConfigTSTheta(chid)->print();
-//   confManager->getDTConfigTSPhi(chid)->print();
-//   confManager->getDTConfigSectColl(scid)->print();
-
-//   cout << "*** DTTrigProd::beginJob : testing configuration ---> END" << endl;
-
-  //my_debug = confManager->getDTTPGDebug();
   my_BXoffset = confManager->getBXOffset();
-
-  my_trig = new DTTrig(confManager.product());
+  my_trig = new DTTrig(confManager.product(),my_params);
 
   my_trig->createTUs(iEventSetup);
   if (my_debug)

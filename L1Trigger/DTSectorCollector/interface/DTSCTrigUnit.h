@@ -3,8 +3,8 @@
 /**  \class  DTSCTrigUnit
  *     Muon Barrel Sector Collector Trigger Unit (Chamber trigger)
  *
- *   $Date: 2007/04/04 10:44:32 $
- *   $Revision: 1.4 $
+ *   $Date: 2007/04/27 08:45:51 $
+ *   $Revision: 1.5 $
  *
  *   \author C.Grandi, S. Marcellini
  */
@@ -45,7 +45,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 class DTChamber;
-
+class DTTTrigBaseSync;
 
 
 //              ---------------------
@@ -58,7 +58,7 @@ class DTSCTrigUnit {
 
     /// Constructor
     //DTSCTrigUnit(DTChamber* stat, edm::ParameterSet& tu_pset) ;
-    DTSCTrigUnit(DTChamber* stat, const DTConfigManager * conf) ;  
+    DTSCTrigUnit(DTChamber *stat, const DTConfigManager *conf, DTTTrigBaseSync *sync) ;  
 
     /// Destructor 
     ~DTSCTrigUnit() ;

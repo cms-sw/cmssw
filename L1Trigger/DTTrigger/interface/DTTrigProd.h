@@ -4,8 +4,8 @@
  *     Main EDProducer for the DTTPG
  *
  *
- *   $Date: 2007/02/09 11:26:18 $
- *   $Revision: 1.3 $
+ *   $Date: 2007/04/10 09:54:34 $
+ *   $Revision: 1.4 $
  *
  *   \author C. Battilana
  *
@@ -55,6 +55,9 @@ private:
   // Debug Flag
   bool my_debug;
 
+  // ParameterSet
+  edm::ParameterSet my_params;
+   
 };
  
 #endif

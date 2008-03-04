@@ -4,8 +4,8 @@
  *     Contains active DTBtiChips
  *
  *
- *   $Date: 2007/04/20 15:29:01 $
- *   $Revision: 1.6 $
+ *   $Date: 2007/04/27 08:37:37 $
+ *   $Revision: 1.7 $
  *
  *   \author C. Grandi, S. Vanini
  *
@@ -24,6 +24,7 @@
 class DTBtiChip;
 class DTBtiTrig;
 class DTTrigGeom;
+class DTTTrigBaseSync;
 
 //----------------------
 // Base Class Headers --
@@ -63,7 +64,7 @@ class DTBtiCard : public BTICache, public DTGeomSupplier {
 
     /// Constructor
     //DTBtiCard(DTTrigGeom*,edm::ParameterSet&);
-    DTBtiCard(DTTrigGeom *, const DTConfigManager *);
+    DTBtiCard(DTTrigGeom *, const DTConfigManager *, DTTTrigBaseSync *);
 
     /// Destructor 
     ~DTBtiCard();
@@ -130,6 +131,7 @@ class DTBtiCard : public BTICache, public DTGeomSupplier {
     std::vector<DTDigi*> _digis; 
 
     bool _debug;
+    DTTTrigBaseSync *_digi_sync;
     int  _finedelay;
     int  _MCdelay;
 };

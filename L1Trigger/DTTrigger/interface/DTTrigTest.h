@@ -7,8 +7,8 @@
  *   studies
  *
  *
- *   $Date: 2007/03/09 15:17:43 $
- *   $Revision: 1.4 $
+ *   $Date: 2007/04/10 09:54:34 $
+ *   $Revision: 1.5 $
  *
  *   \author C. Battilana
  */
@@ -59,11 +59,15 @@ private:
 
   // debug flag
   bool my_debug;
+  
+  // ParameterSet
+  edm::ParameterSet my_params;
 
   // tree
   TTree* my_tree;
   // TFile
   TFile *my_rootfile;
+
 
   //GENERAL block
   int             runn;

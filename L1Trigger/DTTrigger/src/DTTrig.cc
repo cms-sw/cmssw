@@ -20,9 +20,10 @@
 #include "L1Trigger/DTTrigger/interface/DTTrig.h"
 
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "DataFormats/Common/interface/Handle.h"
+#include "CalibMuon/DTDigiSync/interface/DTTTrigSyncFactory.h"
+#include "CalibMuon/DTDigiSync/interface/DTTTrigBaseSync.h"
 
 #include "Geometry/DTGeometry/interface/DTGeometry.h"
 #include "Geometry/Records/interface/MuonGeometryRecord.h"
@@ -33,6 +34,7 @@
 // C++ Headers --
 //---------------
 #include <iostream>
+#include <string>
 
 //-------------------------------
 // Collaborating Class Headers --
@@ -43,12 +45,7 @@
 // Constructors --
 //----------------
 
-// DTTrig::DTTrig()
-
-
-DTTrig::DTTrig(const DTConfigManager * conf) :
-_conf_manager(conf) {
-
+DTTrig::DTTrig(const DTConfigManager *conf, const  edm::ParameterSet &params) : _conf_manager(conf) {
 
   // Set configuration parameters
   _debug = _conf_manager->getDTTPGDebug();
@@ -57,8 +54,11 @@ _conf_manager(conf) {
     std::cout << std::endl;
     std::cout << "**** Initialization of DTTrigger ****" << std::endl;
     std::cout << std::endl;
+    std::cout << "DTTrig::DTTrig creating synchronizer" << std::endl;
   }
 
+  _digi_sync = DTTTrigSyncFactory::get()->create(params.getParameter<std::string>("tTrigMode"),
+					      params.getParameter<edm::ParameterSet>("tTrigModeConfig"));
 }
 
 
@@ -68,12 +68,17 @@ _conf_manager(conf) {
 DTTrig::~DTTrig(){
 
   clear();
+  delete _digi_sync; //CB check if it is really needed
 
 }
 
 void 
 DTTrig::createTUs(const edm::EventSetup& iSetup ){
   
+  if (_debug)
+    std::cout << "DTTrig::createTUs configuring synchronizer" << std::endl;
+  _digi_sync->setES(iSetup);
+
   // build up Sector Collectors and then
   // build the trrigger units (one for each chamber)
   for(int iwh=-2;iwh<=2;iwh++){ 
@@ -132,7 +137,7 @@ DTTrig::createTUs(const edm::EventSetup& iSetup ){
     // add a trigger unit to the map with a link to the station
     //edm::ParameterSet tu_pset = _conf_pset.getParameter<edm::ParameterSet>("TUParameters");
     //DTSCTrigUnit* tru = new DTSCTrigUnit(chamb,tu_pset);
-    DTSCTrigUnit* tru = new DTSCTrigUnit(chamb,_conf_manager);
+    DTSCTrigUnit* tru = new DTSCTrigUnit(chamb,_conf_manager,_digi_sync);
     _cache[chid] = tru;
     
     //----------- add TU to corresponding SC

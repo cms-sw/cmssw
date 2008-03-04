@@ -32,6 +32,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/Common/interface/Handle.h"
 
+#include "CalibMuon/DTDigiSync/interface/DTTTrigBaseSync.h"
 #include "Geometry/DTGeometry/interface/DTGeometry.h"
 #include "Geometry/Records/interface/MuonGeometryRecord.h"
 #include "Geometry/DTGeometry/interface/DTLayer.h"
@@ -57,17 +58,18 @@ using namespace edm;
 // Constructors --
 //----------------
 
-DTBtiCard::DTBtiCard(DTTrigGeom* geom, const DTConfigManager * _conf_manager) : DTGeomSupplier(geom) {
+DTBtiCard::DTBtiCard(DTTrigGeom *geom, const DTConfigManager *conf_manager, DTTTrigBaseSync *sync) : 
+  DTGeomSupplier(geom), _digi_sync(sync) {
 
         //_configBti = new DTConfigBti(bti_pset);
 	//_configBti->print();
 
 	DTChamberId sid = ChamberId();
-	_conf_bti_map = _conf_manager->getDTConfigBtiMap(sid);	
-	_debug = _conf_manager->getDTTPGDebug();
+	_conf_bti_map = conf_manager->getDTConfigBtiMap(sid);	
+	_debug = conf_manager->getDTTPGDebug();
 
-	_finedelay   = _conf_manager->getDTConfigTrigUnit(sid)->MCSetupTime();
-  	_MCdelay     = _conf_manager->getDTConfigTrigUnit(sid)->MCDigiOffset();
+	_finedelay   = conf_manager->getDTConfigTrigUnit(sid)->MCSetupTime();
+  	//_MCdelay     = conf_manager->getDTConfigTrigUnit(sid)->MCDigiOffset();
 }
 
 //--------------
@@ -263,7 +265,16 @@ DTBtiCard::loadBTI(const DTDigiCollection dtDigis) {
     for (DTDigiCollection::const_iterator digiIt = range.first;
 	 digiIt!=range.second;
 	 ++digiIt){
-      if((*digiIt).time()<1000 &&(*digiIt).time()>0){
+
+      int tube = (*digiIt).wire();
+      const DTWireId tubeid(id,tube);
+      float tdrift = (*digiIt).time() - _digi_sync->offset(tubeid);
+      if (debug()){
+	std::cout << "digi time: " << (*digiIt).time();
+	std::cout << " sync offset: " << _digi_sync->offset(tubeid) << std::endl;
+      }
+
+      if(tdrift<500 && tdrift>-500){
 	if(debug()) 
 		(*digiIt).print();
 
@@ -273,7 +284,7 @@ DTBtiCard::loadBTI(const DTDigiCollection dtDigis) {
 	//DTChamberId dtcham =id.chamberId();
 	int sln = slnum.superlayer();
 	int layn = id.layer();
-	int tube = (*digiIt).wire();
+	//int tube = (*digiIt).wire();
 
         // map in FE channel number: SL theta tubes are numbered inversely w.r.t. hardware setup in new geometry 19/06/06
         // assign ch numbers to btis: in new geometry does not depend on layer staggering anymore! Same staggering anywhere.
@@ -295,7 +306,8 @@ DTBtiCard::loadBTI(const DTDigiCollection dtDigis) {
   	//DTChamberId sid = geom()->statId();
   	//DTBtiId _id = DTBtiId(sid, sln, nbti);
  
-	float tdrift = (*digiIt).time() - _MCdelay + _finedelay; 
+	tdrift = tdrift + _finedelay; 
+//	float tdrift = (*digiIt).time() - _MCdelay + _finedelay; 
 //      std::cout<<"tdrift "<< tdrift << " (*digiIt).wire() " << (*digiIt).wire() << std::endl;
 
 	DTDigi* pdigi = new DTDigi((*digiIt).wire(),tdrift);

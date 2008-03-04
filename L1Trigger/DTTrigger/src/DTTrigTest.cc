@@ -7,8 +7,8 @@
  *   studies
  *
  *
- *   $Date: 2007/05/21 13:13:25 $
- *   $Revision: 1.7 $
+ *   $Date: 2007/10/12 13:40:22 $
+ *   $Revision: 1.8 $
  *
  *   \author C. Battilana
  */
@@ -52,35 +52,13 @@ const double DTTrigTest::my_TtoTDC = 32./25.;
 
 DTTrigTest::DTTrigTest(const ParameterSet& pset): my_trig(0) { 
 
-  //SV obsolete, now configuration is read from EventSetup
-  //my_debug= pset.getUntrackedParameter<bool>("debug");
+  my_debug= pset.getUntrackedParameter<bool>("debug");
   string outputfile = pset.getUntrackedParameter<string>("outputFileName");
-  //if (my_debug) 
-  //  cout << "[DTTrigTest] Creating rootfile " <<  outputfile <<endl;
+  if (my_debug) 
+    cout << "[DTTrigTest] Creating rootfile " <<  outputfile <<endl;
   my_rootfile = new TFile(outputfile.c_str(),"RECREATE");
   my_tree = new TTree("h1","GMT",0);
-  //my_trig = new DTTrig(pset.getParameter<ParameterSet>("DTTPGParameters"));
-
-//   bool globaldelay = pset.getUntrackedParameter<bool>("globalSync");
-//   double syncdelay = pset.getUntrackedParameter<double>("syncDelay");
-//   stringstream myos;
-//   myos << syncdelay;
-  
-//   if (globaldelay) {
-//     if (my_debug)
-//       cout << "[DTTrigTest] Using same synchronization for all chambers:" << endl;
-//     my_trig = new DTTrig();
-//     double ftdelay = pset.getUntrackedParameter<double>("globalSyncValue");
-//     my_trig->config()->setParam("Programmable Dealy",myos.str());
-//     my_trig->config()->setParamValue("BTI setup time","psetdelay",ftdelay*my_TtoTDC);
-//     if (my_debug ) 
-//       cout << "[DTTrigTest] Delay set to " << ftdelay << " ns (as set in parameterset)" << endl; 
-//   }
-//   else {
-//     if (my_debug) 
-//       cout << "[DTTrigTest] Using chamber by chamber synchronization" << endl;
-//     my_trig = new DTTrig(pset.getUntrackedParameter<ParameterSet>("L1DTFineSync"),myos.str());
-//   }
+  my_params = pset;
   if (my_debug) cout << "[DTTrigTest] Constructor executed!!!" << endl;
 
 
@@ -115,12 +93,10 @@ void DTTrigTest::beginJob(const EventSetup & iEventSetup){
   //DTBtiId btiid(1,1,1,1,1);
   //confManager->getDTConfigBti(btiid)->print();
 
-  my_debug= confManager->getDTTPGDebug();
-
-  my_trig = new DTTrig(confManager.product());
+  my_trig = new DTTrig(confManager.product(),my_params);
 
   my_trig->createTUs(iEventSetup);
-  if (my_debug ) 
+  if (my_debug) 
     cout << "[DTTrigTest] TU's Created" << endl;
   
   // BOOKING of the tree's varables

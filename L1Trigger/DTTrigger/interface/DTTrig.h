@@ -4,8 +4,8 @@
  *     Steering routine for L1 trigger simulation in a muon barrel station
  *
  *
- *   $Date: 2007/04/04 10:44:34 $
- *   $Revision: 1.5 $
+ *   $Date: 2007/04/27 08:52:20 $
+ *   $Revision: 1.6 $
  *
  *   \author C.Grandi
  */
@@ -44,6 +44,8 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
+class DTTTrigBaseSync;
+
 //              ---------------------
 //              -- Class Interface --
 //              ---------------------
@@ -67,10 +69,7 @@ class DTTrig {
   public:
   
     //! Constructors
-    /*  DTTrig(); */
-    
-    //DTTrig(const edm::ParameterSet& pset);
-    DTTrig(const DTConfigManager * conf);
+    DTTrig(const DTConfigManager *conf, const edm::ParameterSet &params);
 
     //! Destructor
     ~DTTrig();
@@ -238,8 +237,8 @@ class DTTrig {
 
     TUcontainer _cache;       		// Trigger units
     SCcontainer _cache1;      		// Sector Collector units
-    //edm::ParameterSet _conf_pset;    	// Configuration Pset
-    const DTConfigManager * _conf_manager;    // Configuration Manager class pointer 
+    const DTConfigManager *_conf_manager;    // Configuration Manager class pointer 
+    DTTTrigBaseSync *_digi_sync;
     bool _debug;                     	// Debug flag
 };
 
