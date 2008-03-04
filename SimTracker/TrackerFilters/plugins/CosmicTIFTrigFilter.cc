@@ -132,15 +132,15 @@ namespace cms
 	    }else if(trigconf ==3) {
 /*
 	      HepMC::FourVector S1(350.,1600.,850.,0.);
-	      HepMC::FourVector S3(350.,1600.,2300.,0.);
 	      HepMC::FourVector S2(350.,-1600.,400.,0.);
+	      HepMC::FourVector S3(350.,1600.,2300.,0.);
 	      HepMC::FourVector S4(0.,-1600.,-2000.,0.);
 */
 /*
 //new configuration from data
 	      HepMC::FourVector S1(150.,1600.,900.,0.);
-	      HepMC::FourVector S3(50.,1600.,2450.,0.);
 	      HepMC::FourVector S2(400.,-1600.,100.,0.);
+	      HepMC::FourVector S3(50.,1600.,2450.,0.);
   	      HepMC::FourVector S4(-250.,-1600.,-2050.,0.);
 */	      
 
@@ -148,12 +148,12 @@ namespace cms
 	      HepMC::FourVector S2(trigS2[0],trigS2[1],trigS2[2],0.);
 	      HepMC::FourVector S3(trigS3[0],trigS3[1],trigS3[2],0.);
 	      HepMC::FourVector S4(trigS4[0],trigS4[1],trigS4[2],0.);
+	      
 
-	      /*
-	      std::cout << "S1 = " << S1.x() 
-			<< "\tS2 = " << S2.x()  
-			<< "\tS3 = " << S3.x()  
-			<< "\tS4 = " << S4.x()
+	      /*	      std::cout << "S1 = " << S1.x() << "," << S1.y() << ", " << S1.z()  
+			<< "\nS2 = " << S2.x() << "," << S2.y() << ", " << S2.z()  
+			<< "\nS3 = " << S3.x() << "," << S3.y() << ", " << S3.z()  
+			<< "\nS4 = " << S4.x() << "," << S4.y() << ", " << S4.z() 
 			<< std::endl;  
 	      */
 
@@ -165,6 +165,7 @@ namespace cms
 	      // trigger conditions
 	      if((hit1&&hit2) || (hit3&&hit2) || (hit1&&hit4) || (hit3&&hit4))
 		{
+
 		  /*
 		  cout << "\tGot a trigger in configuration C " << endl; 
 		  if(hit1)cout << "hit1 " << endl;
@@ -172,6 +173,7 @@ namespace cms
 		  if(hit3)cout << "hit3 " << endl;
 		  if(hit4)cout << "hit4 " << endl;
 		  */
+
 		  trig3++;
 		  return true;
 		}
@@ -199,13 +201,13 @@ namespace cms
     //	  float xs=((Sy-y0)*(pz0/py0)-z0)*(px0/pz0)+x0;
     float xs=(Sy-y0)*(px0/py0)+x0;
     
-    //    cout << Sx << " " << Sz << " " << xs << " " << zs << endl;
-    //    cout << x0 << " " << z0 << " " << px0 << " " << py0 << " " << pz0 << endl;
+    //    std::cout << Sx << " " << Sz << " " << xs << " " << zs << std::endl;
+    //std::cout << x0 << " " << z0 << " " << px0 << " " << py0 << " " << pz0 << endl;
     
     if((xs<Sx+500 && xs>Sx-500) && (zs<Sz+500 && zs>Sz-500) )
       {
+	//std::cout << "PASSED" << std::endl;
 	return true;
-	cout << "PASSED" << endl;
       }
     else
       {
