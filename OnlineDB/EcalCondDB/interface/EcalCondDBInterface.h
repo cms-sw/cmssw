@@ -1,7 +1,7 @@
 /***********************************************/
 /* EcalCondDBInterface.h		       */
 /* 					       */
-/* $Id: EcalCondDBInterface.h,v 1.11 2007/11/19 11:08:43 fra Exp $ 	        		       */
+/* $Id: EcalCondDBInterface.h,v 1.12 2008/02/14 15:31:47 fra Exp $ 	        		       */
 /* 					       */
 /* Interface to the Ecal Conditions DB.	       */
 /***********************************************/
@@ -159,6 +159,9 @@ class EcalCondDBInterface : public EcalDBConnection {
    *  Insert a run IOV object.  Nothing is committed in the event of an exception
    */
   void insertRunIOV(RunIOV* iov)
+    throw(std::runtime_error);
+  // updates the end time of an iov
+  void updateRunIOV(RunIOV* iov)
     throw(std::runtime_error);
 
 
