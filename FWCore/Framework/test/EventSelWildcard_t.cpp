@@ -200,7 +200,7 @@ int main()
   patterns.push_back(criteria3);
   Strings criteria4; criteria4.push_back("DEBUG*1"); criteria4.push_back("HLT?2"); 
   patterns.push_back(criteria4);
-  Strings criteria5; criteria5.push_back("D?x1"); criteria5.push_back("CALIBx*"); 
+  Strings criteria5; criteria5.push_back("D*x1"); criteria5.push_back("CALIBx*"); 
   patterns.push_back(criteria5);
   Strings criteria6; criteria6.push_back("HL*1"); criteria6.push_back("C?LIB*2"); 
   patterns.push_back(criteria6);
@@ -239,7 +239,7 @@ int main()
   testmasks.push_back(toBools(t4));
   boost::array<bool,numBits> t5 = {{ true,  true,  true,  true,  
   				     false, false, true,  false, 
-				     true,  false, false, false }};
+				     false,  false, false, false }};
   testmasks.push_back(toBools(t5));
   boost::array<bool,numBits> t6 = {{ false, false, false, false,   
   				     false, true,  false, false, 
@@ -334,7 +334,7 @@ int main()
   ans3.push_back (false);	// t t t t f f t f f f f f
   ans3.push_back (true);	// f f f f f t f f f f t f
   ans3.push_back (false);	// t f f f f t t f f t f t
-  ans3.push_back (true);	// r f f f e t f f t t t t
+  ans3.push_back (false);	// r f f f e t f f t t t t // ready is not fail
 
   ans.push_back(ans3);
   
@@ -353,12 +353,12 @@ int main()
   ans.push_back(ans4);
   
   
-  std::vector<bool> ans5;  	// Answers for criteria 5:{{ "D?x1", "CALIBx*" }};
+  std::vector<bool> ans5;  	// Answers for criteria 5:{{ "D*x1", "CALIBx*" }};
   ans5.push_back (false);	// f f f f f f f f f f f f
   ans5.push_back (true);	// t t t t t t t t t t t t
   ans5.push_back (false);	// t f f f f f f f f f f f
   ans5.push_back (false);	// f t f f f f f f f f f f
-  ans5.push_back (false);	// f f f f f f f f t f f f
+  ans5.push_back (true);	// f f f f f f f f t f f f
   ans5.push_back (false);	// t t t t f f t f f f f f
   ans5.push_back (true);	// f f f f f t f f f f t f
   ans5.push_back (true);	// t f f f f t t f f t f t
@@ -415,7 +415,7 @@ int main()
   ans9.push_back (false);	// t t t t f f t f f f f f
   ans9.push_back (true);	// f f f f f t f f f f t f
   ans9.push_back (true);	// t f f f f t t f f t f t
-  ans9.push_back (true);	// f f f f f t f f t t t t
+  ans9.push_back (true);	// r f f f e t f f t t t t
 
   ans.push_back(ans9);
  

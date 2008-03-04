@@ -3,7 +3,7 @@
 
 /*
   Author: Jim Kowalkowski 01-02-06
-  $Id: EventSelector.h,v 1.10 2008/01/29 18:49:43 biery Exp $
+  $Id: EventSelector.h,v 1.11 2008/02/11 16:21:32 fischler Exp $
 
  */
 
@@ -88,10 +88,13 @@ namespace edm
     typedef std::vector<BitInfo> Bits;
 
     bool accept_all_;
-    Bits decision_bits_;
-    std::vector<Bits> nonveto_bits_;				// change 1
-    bool results_from_current_process_;
+    Bits absolute_acceptors_;					// change 3
+    Bits conditional_acceptors_;				// change 3
+    Bits exception_acceptors_;					// change 3
+    std::vector<Bits> all_must_fail_;				// change 1
+    std::vector<Bits> all_must_fail_noex_;			// change 3
 
+    bool results_from_current_process_;
     bool psetID_initialized_;
     ParameterSetID psetID_;
 
@@ -101,9 +104,36 @@ namespace edm
     bool notStarPresent_;
 
     bool acceptTriggerPath(HLTPathStatus const&, BitInfo const&) const;
+
+    bool acceptOneBit (Bits const & b, 
+    		       HLTGlobalStatus const & tr, 
+    		       hlt::HLTState const & s = hlt::Ready) const;
+    bool acceptAllBits (Bits const & b, 
+    		        HLTGlobalStatus const & tr) const;
+
+    bool containsExceptions(HLTGlobalStatus const & tr) const;
+    
+    bool selectionDecision(HLTGlobalStatus const & tr) const;
+    
     static std::string glob2reg(std::string const& s);
     static std::vector< Strings::const_iterator > 
       matching_triggers(Strings const& trigs, std::string const& s);
+      
+    static bool identical (std::vector<bool> const & a, 
+    			   std::vector<bool> const & b); 
+    static bool identical (EventSelector const & a, 
+    			   EventSelector const & b,
+			   unsigned int N); 
+    static std::vector<bool> expandDecisionList ( 
+    		Bits const & b,  
+		bool PassOrFail,
+		unsigned int n);
+    static bool overlapping ( std::vector<bool> const& a, 
+    			      std::vector<bool> const& b );
+    static bool subset  ( std::vector<bool> const& a, 
+    			  std::vector<bool> const& b );
+    static std::vector<bool> combine ( std::vector<bool> const& a, 
+    			               std::vector<bool> const& b );
   };
 }
 

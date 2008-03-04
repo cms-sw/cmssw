@@ -95,13 +95,18 @@ void testone(const Strings& paths,
 
   TriggerResults results(bm,paths);
 
-      //  std::cerr << "pattern=" << pattern 
-	// 	  << "mask=" << mask << "\n";
+//        std::cerr << "pattern=" << pattern 
+//	 	  << "mask=" << mask << "\n";  // DBG
 
+//  	std:: cerr << "a \n";
   bool a = select.acceptEvent(results);
+//  	std:: cerr << "a1 \n";
   bool a1 = select1.acceptEvent(results);
+//  	std:: cerr << "a2 \n";
   bool a2 = select2.acceptEvent(results);
+//  	std:: cerr << "b2 \n";
   bool b2 = select2.acceptEvent(results);
+//  	std:: cerr << "c1 \n";
   bool c1 = select1.acceptEvent(&(bitArray[0]), number_of_trigger_paths);
 
   if (a!=answer || a1 != answer || a2 != answer || b2 != answer || c1 != answer)
@@ -126,9 +131,13 @@ void testone(const Strings& paths,
 
   TriggerResults results_id(bm, trigger_pset.id());
 
+//  	std:: cerr << "a11 \n";
   bool a11 = select.acceptEvent(results_id);
+//  	std:: cerr << "a12 \n";
   bool a12 = select1.acceptEvent(results_id);
+//  	std:: cerr << "a13 \n";
   bool a13 = select2.acceptEvent(results_id);
+//  	std:: cerr << "a14 \n";
   bool a14 = select2.acceptEvent(results_id);
 
   if (a11 != answer || a12 != answer || a13 != answer || a14 != answer)
@@ -220,14 +229,14 @@ int main()
   Answers ans = { {true, true,  true,  false, false, true,  true,  false, false },
 		  {true, true,  false, true,  true,  false, false, true,  true  },
 		  {true, false, true,  true,  true,  true , true,  true,  true  },
-		  {true, true,  true,  true,  false, true,  true,  true,  true  },
+		  {true, true,  true,  true,  false, true,  true,  true,  false }, // last column changed due to treatment of excp
 		  {false,false, false, false, true,  false, false, false, false },
-		  {true, true,  true,  true,  true,  true,  true,  true,  true  },
+		  {true, true,  true,  true,  true,  true,  true,  true,  false }, // last column changed due to treatment of excp
 		  {true, true,  true,  true,  true,  true,  true,  true,  true  },
 		  {false,true,  true,  false, true,  true,  true,  false, false },
-		  {true, true,  true,  true,  false, true,  true,  true,  true  },
+		  {true, true,  true,  true,  false, true,  true,  true,  false }, // last column changed due to treatment of excp
 		  {true, true,  true,  true,  false, true,  true,  false, false },
-		  {false,false, false, false, true,  false, true,  false, true  }
+		  {false,false, false, false, true,  false, true,  false, false }  // last column changed due to treatment of excp
   };
 
 
