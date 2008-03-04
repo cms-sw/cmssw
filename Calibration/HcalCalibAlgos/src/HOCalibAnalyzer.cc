@@ -13,7 +13,7 @@
 //
 // Original Author:  Gobinda Majumder
 //         Created:  Sat Jul  7 09:51:31 CEST 2007
-// $Id$
+// $Id: HOCalibAnalyzer.cc,v 1.2 2008/02/26 08:24:13 kodolova Exp $
 //
 //
 
@@ -41,6 +41,7 @@
 #include "TCanvas.h"
 #include "TF1.h"
 #include "TStyle.h"
+#include "TMath.h"
 
 #include <string>
 
