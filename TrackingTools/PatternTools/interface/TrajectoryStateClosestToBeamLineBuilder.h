@@ -18,7 +18,7 @@ public:
   typedef FreeTrajectoryState		FTS;
 
   TrajectoryStateClosestToBeamLine operator()
-    (const FTS& originalFTS, const reco::BeamSpot & beamSpot);
+    (const FTS& originalFTS, const reco::BeamSpot & beamSpot) const;
 
 };
 #endif
