@@ -22,8 +22,8 @@ namespace {
 
 popcon::ExPedestalSource::ExPedestalSource(const edm::ParameterSet& pset) :
   m_name(pset.getUntrackedParameter<std::string>("name","ExPedestalSource")),
-  m_since(pset.getUntrackedParameter<unsigned long long >("firstSince",5)),
-  m_increment(pset.getUntrackedParameter<unsigned long long >("increment",10)),
+  m_since(pset.getUntrackedParameter<double >("firstSince",5)),
+  m_increment(pset.getUntrackedParameter<double >("increment",10)),
   m_number(pset.getUntrackedParameter<unsigned int >("number",3)){
 }
 
