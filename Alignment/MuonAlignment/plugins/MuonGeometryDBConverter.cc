@@ -13,7 +13,7 @@
 //
 // Original Author:  Jim Pivarski
 //         Created:  Sat Feb 16 00:04:55 CST 2008
-// $Id$
+// $Id: MuonGeometryDBConverter.cc,v 1.6 2008/02/26 22:14:01 pivarski Exp $
 //
 //
 
@@ -182,8 +182,8 @@ MuonGeometryDBConverter::analyze(const edm::Event &iEvent, const edm::EventSetup
 
 void MuonGeometryDBConverter::recursiveList(std::vector<Alignable*> alignables, std::vector<Alignable*> &theList) {
    for (std::vector<Alignable*>::const_iterator alignable = alignables.begin();  alignable != alignables.end();  ++alignable) {
-      theList.push_back(*alignable);
       recursiveList((*alignable)->components(), theList);
+      theList.push_back(*alignable);
    }
 }
 
