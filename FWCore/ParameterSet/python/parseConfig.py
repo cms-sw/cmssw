@@ -1312,7 +1312,7 @@ def _dumpCfg(s,loc,toks):
     values = _getCompressedNodes(s, loc, list(iter(toks[0][1])) )
     options = PrintOptions()
     options.isCfg = True
-    result = "import FWCore.ParameterSet.Config as cms\nprocess = cms.Process(\""+label+"\")\n"
+    result = "import FWCore.ParameterSet.Config as cms\n\nprocess = cms.Process(\""+label+"\")\n"
     print result+dumpPython(values, options)
     return
 
@@ -1443,7 +1443,7 @@ cfgDumper.ignore(pp.pythonStyleComment)
 
 
 def dumpDict(d):
-    result = 'import FWCore.ParameterSet.Config as cms\n'
+    result = 'import FWCore.ParameterSet.Config as cms\n\n'
     options = PrintOptions()
     options.isCfg = False
     return result+dumpPython(d, options)
@@ -1479,7 +1479,7 @@ def dumpPython(d, options):
             others += value.dumpPythonAs(key, options)
         else:
             others += newLabel+" = "+value.dumpPython(options)+"\n"
-    return includes+"\n"+others+"\n"+sequences+"\n"+schedules+"\n"+replaces
+    return includes+others+sequences+schedules+replaces+"\n"
 
 class _ConfigReturn(object):
     def __init__(self,d):
