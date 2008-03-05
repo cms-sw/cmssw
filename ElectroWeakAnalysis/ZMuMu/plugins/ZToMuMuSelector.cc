@@ -26,11 +26,11 @@ private:
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DataFormats/Common/interface/Handle.h"
+#include "DataFormats/Common/interface/ValueMap.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
-#include "DataFormats/MuonReco/interface/MuIsoDepositFwd.h"
 
 using namespace edm;
 using namespace std;
@@ -65,7 +65,7 @@ bool ZToMuMuSelector::filter (Event & ev, const EventSetup &) {
 	return false;
       }
 
-      Handle<reco::MuIsoAssociationMap> isoMap;
+      Handle<edm::ValueMap<bool> > isoMap;
       ev.getByLabel(isoTag_, isoMap);
       if (!isoMap.isValid()) {
 	LogTrace("") << ">>> ISO Muon collection does not exist !!!";
@@ -73,7 +73,7 @@ bool ZToMuMuSelector::filter (Event & ev, const EventSetup &) {
       }
 
       Handle<TrackCollection> trackerCollection;
-      Handle<reco::MuIsoAssociationMap> isoTrackerMap;
+      Handle<edm::ValueMap<bool> > isoTrackerMap;
       if (!onlyGlobalMuons_) {
 	ev.getByLabel(trackerTag_, trackerCollection);
 	if (!trackerCollection.isValid()) {

@@ -12,6 +12,7 @@
 #include "TCanvas.h"
 #include "TH1.h"
 #include "TF1.h"
+#include "TMath.h"
 #include "TStyle.h"
 #include <iostream>
 #include <cmath>
