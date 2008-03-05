@@ -3,9 +3,9 @@
  *
  *  \author    : Gero Flucke
  *  date       : October 2006
- *  $Revision: 1.31 $
- *  $Date: 2008/02/26 08:59:22 $
- *  (last update by $Author: mstoye $)
+ *  $Revision: 1.32 $
+ *  $Date: 2008/02/26 09:50:33 $
+ *  (last update by $Author: flucke $)
  */
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -218,6 +218,10 @@ void MillePedeAlignmentAlgorithm::run(const edm::EventSetup &setup,
   ConstTrajTrackPairCollection::const_iterator iTrajTrack = tracks.begin();
   for (RefTrajColl::const_iterator iRefTraj = trajectories.begin(), iRefTrajE = trajectories.end();
        iRefTraj != iRefTrajE; ++iRefTraj) {
+
+    RefTrajColl::value_type refTrajPtr = *iRefTraj; 
+    if (!refTrajPtr->isValid()) continue; // currently e.g. if any invalid hit (FIXME for cosmic?)
+    
     if (canUseTrack) {
       if (!this->orderedTsos((*iTrajTrack).first, trackTsos)) continue; // first is Trajectory*
       if (theMonitor) theMonitor->fillTrack((*iTrajTrack).second); // second is reco::Track*
@@ -226,9 +230,6 @@ void MillePedeAlignmentAlgorithm::run(const edm::EventSetup &setup,
       trackTsos.resize((*iTrajTrack).second->recHitsSize());
     }
 
-    RefTrajColl::value_type refTrajPtr = *iRefTraj; 
-    if (!refTrajPtr->isValid()) continue; // currently e.g. if any invalid hit (FIXME for cosmic?)
-    
     std::vector<AlignmentParameters*> parVec(refTrajPtr->recHits().size());//to add hits if all fine
     std::vector<bool> validHitVecY(refTrajPtr->recHits().size()); // collect hit statistics...
     int nValidHitsX = 0;                                // ...assuming that there are no y-only hits
