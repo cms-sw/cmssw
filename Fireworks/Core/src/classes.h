@@ -18,6 +18,10 @@
 #include "Fireworks/Core/interface/FWRhoPhiZViewManager.h"
 #include "Fireworks/Core/interface/FW3DLegoView.h"
 #include "Fireworks/Core/interface/ElectronsProxySCBuilder.h"
+#include "Fireworks/Core/src/FWListEventItem.h"
+#include "Fireworks/Core/src/FWListEventItemEditor.h"
+#include "Fireworks/Core/src/FWListModel.h"
+#include "Fireworks/Core/src/FWListModelEditor.h"
 
 namespace {
    struct Fireworks_Core {

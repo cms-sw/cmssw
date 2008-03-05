@@ -17,4 +17,8 @@
   <class name="FWConfiguration"/>
   <class name="ElectronsProxySCBuilder"/>
   <class name="FWRhoPhiZViewManager"/>
+  <class name="FWListEventItem"/>
+  <class name="FWListEventItemEditor"/>
+  <class name="FWListModel"/>
+  <class name="FWListModelEditor"/>
 </lcgdict>
