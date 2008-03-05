@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue May  8 15:01:20 EDT 2007
-// $Id: Event.h,v 1.7 2007/08/06 15:01:54 chrjones Exp $
+// $Id: Event.h,v 1.8 2007/12/07 23:22:49 wmtan Exp $
 //
 #if !defined(__CINT__) && !defined(__MAKECINT__)
 // system include files
@@ -156,6 +156,7 @@ class Event
       // ---------- member data --------------------------------
       TFile* file_;
       TTree* eventTree_;
+      TTree* eventHistoryTree_;
       Long64_t eventIndex_;
 
       typedef std::map<internal::DataKey, boost::shared_ptr<internal::Data> > KeyToDataMap;

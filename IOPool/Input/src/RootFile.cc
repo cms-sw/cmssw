@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: RootFile.cc,v 1.119 2008/03/01 17:48:13 wmtan Exp $
+$Id: RootFile.cc,v 1.120 2008/03/04 00:05:02 paterno Exp $
 ----------------------------------------------------------------------*/
 
 #include "RootFile.h"
@@ -431,7 +431,7 @@ namespace edm {
     // store this History object in a different tree than the event
     // data tree, this is too hard to do in this first version.
 
-    if (fileFormatVersion_.value_ >= 6) {
+    if (fileFormatVersion_.value_ >= 7) {
       History* pHistory = &history_;
       TBranch* eventHistoryBranch = eventHistoryTree_->GetBranch(poolNames::eventHistoryBranchName().c_str());
       if (!eventHistoryBranch)
@@ -439,24 +439,20 @@ namespace edm {
 	  << "Failed to find history branch in event history tree";
       eventHistoryBranch->SetAddress(&pHistory);
       eventHistoryTree_->GetEntry(eventTree_.entryNumber());
+      eventAux_.processHistoryID_ = history_.processHistoryID();
     } else {
       // for backward compatibility.  If we could figure out how many
       // processes this event has been through, we should fill in
       // history_ with that many default-constructed IDs.
-    }
-  }
-
-  void
-  RootFile::fillEventAuxiliaryAndHistory() {
-    fillEventAuxiliary();
-    if (!eventProcessHistoryIDs_.empty()) {
-      if (eventProcessHistoryIter_->eventID_ != eventAux_.id()) {
-        EventProcessHistoryID target(eventAux_.id(), ProcessHistoryID());
-        eventProcessHistoryIter_ = std::lower_bound(eventProcessHistoryIDs_.begin(), eventProcessHistoryIDs_.end(), target);	
-        assert(eventProcessHistoryIter_->eventID_ == eventAux_.id());
+      if (!eventProcessHistoryIDs_.empty()) {
+        if (eventProcessHistoryIter_->eventID_ != eventAux_.id()) {
+          EventProcessHistoryID target(eventAux_.id(), ProcessHistoryID());
+          eventProcessHistoryIter_ = std::lower_bound(eventProcessHistoryIDs_.begin(), eventProcessHistoryIDs_.end(), target);	
+          assert(eventProcessHistoryIter_->eventID_ == eventAux_.id());
+        }
+        eventAux_.processHistoryID_ = eventProcessHistoryIter_->processHistoryID_;
+        ++eventProcessHistoryIter_;
       }
-      eventAux_.processHistoryID_ = eventProcessHistoryIter_->processHistoryID_;
-      ++eventProcessHistoryIter_;
     }
   }
 
@@ -556,7 +552,7 @@ namespace edm {
     if (!eventTree_.current()) {
       return std::auto_ptr<EventPrincipal>(0);
     }
-    fillEventAuxiliaryAndHistory();
+    fillEventAuxiliary();
     fillHistory();
     overrideRunNumber(eventAux_.id_, eventAux_.isRealData());
     if (lbp.get() == 0) {
@@ -767,7 +763,7 @@ namespace edm {
   void
   RootFile::readEventHistoryTree() {
     // Read in the event history tree, if we have one...
-    if (fileFormatVersion_.value_ < 6) return; 
+    if (fileFormatVersion_.value_ < 7) return; 
     eventHistoryTree_ = dynamic_cast<TTree*>(filePtr_->Get(poolNames::eventHistoryTreeName().c_str()));
 
     if (!eventHistoryTree_)

@@ -15,6 +15,12 @@ namespace edm
     eventSelections_.push_back(eventSelection);
   }
 
+  void
+  History::setProcessHistoryID(ProcessHistoryID const& pid) {
+    processHistoryID_ = pid;
+  }
+
+
   EventSelectionID const&
   History::getEventSelectionID(History::size_type i) const
   {
@@ -26,4 +32,11 @@ namespace edm
   {
     return eventSelections_;
   }
+
+  ProcessHistoryID const&
+  History::processHistoryID() const
+  {
+    return processHistoryID_;
+  }
+
 }

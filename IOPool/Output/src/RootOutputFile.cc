@@ -1,4 +1,4 @@
-// $Id: RootOutputFile.cc,v 1.48 2008/03/04 00:05:03 paterno Exp $
+// $Id: RootOutputFile.cc,v 1.50 2008/03/04 05:14:43 wmtan Exp $
 
 #include "RootOutputFile.h"
 #include "PoolOutputModule.h"
@@ -87,7 +87,6 @@ namespace edm {
       eventEntryNumber_(0LL),
       lumiEntryNumber_(0LL),
       runEntryNumber_(0LL),
-      eventProcessHistoryIDs_(),
       metaDataTree_(0),
       entryDescriptionTree_(0),
       eventHistoryTree_(0),
@@ -195,6 +194,7 @@ namespace edm {
     // History branch
     History historyForOutput(e.history());
     historyForOutput.addEntry(om_->selectorConfig());
+    historyForOutput.setProcessHistoryID(pEventAux_->processHistoryID());
     pHistory_ = &historyForOutput;
     int sz = eventHistoryTree_->Fill();
     if ( sz <= 0)
@@ -219,8 +219,6 @@ namespace edm {
     fileIndex_.addEntry(pEventAux_->run(), pEventAux_->luminosityBlock(), pEventAux_->event(), eventEntryNumber_);
     ++eventEntryNumber_;
 
-    // Add event proces history
-    eventProcessHistoryIDs_.push_back(EventProcessHistoryID(pEventAux_->id(), pEventAux_->processHistoryID()));
     // Store an invailid process history ID in EventAuxiliary for obsolete field.
     pEventAux_->processHistoryID_ = ProcessHistoryID();
 
@@ -318,11 +316,7 @@ namespace edm {
   }
 
   void RootOutputFile::writeEventHistory() {
-    edm::sort_all(eventProcessHistoryIDs_);
-    std::vector<EventProcessHistoryID> *phPtr = &eventProcessHistoryIDs_;
-    TBranch* b = metaDataTree_->Branch(poolNames::eventHistoryBranchName().c_str(), &phPtr, om_->basketSize(), 0);
-    assert(b);
-    b->Fill();
+    RootOutputTree::writeTTree(eventHistoryTree_);
   }
 
   void RootOutputFile::writeProcessConfigurationRegistry() {
@@ -371,8 +365,6 @@ namespace edm {
 
     //entryDescriptionTree_->SetEntries(-1);
     RootOutputTree::writeTTree(entryDescriptionTree_);
-
-    RootOutputTree::writeTTree(eventHistoryTree_);
 
     // Create branch aliases for all the branches in the
     // events/lumis/runs trees. The loop is over all types of data

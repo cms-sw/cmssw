@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue May  8 15:07:03 EDT 2007
-// $Id: Event.cc,v 1.12 2007/12/07 23:22:53 wmtan Exp $
+// $Id: Event.cc,v 1.13 2007/12/15 00:20:44 wmtan Exp $
 //
 
 // system include files
@@ -26,6 +26,7 @@
 
 #include "DataFormats/Provenance/interface/ProductRegistry.h"
 #include "DataFormats/Provenance/interface/FileFormatVersion.h"
+#include "DataFormats/Provenance/interface/History.h"
 
 #include "FWCore/FWLite/interface/setRefStreamer.h"
 
@@ -65,6 +66,7 @@ private:
   Event::Event(TFile* iFile):
   file_(iFile),
   eventTree_(0),
+  eventHistoryTree_(0),
   eventIndex_(-1),
   pAux_(&aux_),
   pOldAux_(0),
@@ -112,6 +114,10 @@ private:
       auxBranch_->SetAddress(&pOldAux_);
     }
     eventIndex_=0;
+
+    if(fileVersion_ >= 7 ) {
+      eventHistoryTree_ = dynamic_cast<TTree*>(iFile->Get(edm::poolNames::eventHistoryTreeName().c_str()));
+    }
     
     getter_ = std::auto_ptr<edm::EDProductGetter>(new internal::ProductGetter(this));
 }
@@ -408,13 +414,26 @@ Event::history() const
       b->GetEntry(0);
     }
     if (newFormat) {
-      std::vector<edm::EventProcessHistoryID> *pEventProcessHistoryIDs = &eventProcessHistoryIDs_;
-      TBranch* b = meta->GetBranch(edm::poolNames::eventHistoryBranchName().c_str());
-      b->SetAddress(&pEventProcessHistoryIDs);
-      b->GetEntry(0);
-      edm::EventProcessHistoryID target(aux_.id(), edm::ProcessHistoryID());
-      processHistoryID = std::lower_bound(eventProcessHistoryIDs_.begin(), eventProcessHistoryIDs_.end(), target)->processHistoryID_;
-    }
+      if (fileVersion_ >= 7) {
+        edm::History history;
+        edm::History* pHistory = &history;
+        TBranch* eventHistoryBranch = eventHistoryTree_->GetBranch(edm::poolNames::eventHistoryBranchName().c_str());
+        if (!eventHistoryBranch)
+          throw edm::Exception(edm::errors::FatalRootError)
+            << "Failed to find history branch in event history tree";
+        eventHistoryBranch->SetAddress(&pHistory);
+        eventHistoryTree_->GetEntry(eventIndex_);
+        processHistoryID = history.processHistoryID();
+      } else {
+        std::vector<edm::EventProcessHistoryID> *pEventProcessHistoryIDs = &eventProcessHistoryIDs_;
+        TBranch* b = meta->GetBranch(edm::poolNames::eventHistoryBranchName().c_str());
+        b->SetAddress(&pEventProcessHistoryIDs);
+        b->GetEntry(0);
+        edm::EventProcessHistoryID target(aux_.id(), edm::ProcessHistoryID());
+        processHistoryID = std::lower_bound(eventProcessHistoryIDs_.begin(), eventProcessHistoryIDs_.end(), target)->processHistoryID_;
+      } 
+    } 
+
   }
   
   return historyMap_[processHistoryID];

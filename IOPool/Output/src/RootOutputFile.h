@@ -3,7 +3,7 @@
 
 //////////////////////////////////////////////////////////////////////
 //
-// $Id: RootOutputFile.h,v 1.26 2008/03/04 00:05:03 paterno Exp $
+// $Id: RootOutputFile.h,v 1.28 2008/03/04 05:14:48 wmtan Exp $
 //
 // Class PoolOutputModule. Output module to POOL file
 //
@@ -26,7 +26,6 @@
 #include "DataFormats/Provenance/interface/BranchType.h"
 #include "DataFormats/Provenance/interface/EntryDescriptionID.h"
 #include "DataFormats/Provenance/interface/EventAuxiliary.h"
-#include "DataFormats/Provenance/interface/EventProcessHistoryID.h"
 #include "DataFormats/Provenance/interface/FileID.h"
 #include "DataFormats/Provenance/interface/FileIndex.h"
 #include "DataFormats/Provenance/interface/LuminosityBlockAuxiliary.h"
@@ -127,7 +126,6 @@ namespace edm {
     FileIndex::EntryNumber_t eventEntryNumber_;
     FileIndex::EntryNumber_t lumiEntryNumber_;
     FileIndex::EntryNumber_t runEntryNumber_;
-    std::vector<EventProcessHistoryID> eventProcessHistoryIDs_;
     TTree * metaDataTree_;
     TTree * entryDescriptionTree_;
     TTree * eventHistoryTree_;

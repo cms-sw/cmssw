@@ -5,7 +5,7 @@
 
 RootFile.h // used by ROOT input sources
 
-$Id: RootFile.h,v 1.50 2008/03/01 17:48:14 wmtan Exp $
+$Id: RootFile.h,v 1.51 2008/03/04 00:05:02 paterno Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -101,7 +101,6 @@ namespace edm {
     void validateFile();
     void fillFileIndex();
     void fillEventAuxiliary();
-    void fillEventAuxiliaryAndHistory();
     void fillHistory();
     void fillLumiAuxiliary();
     void fillRunAuxiliary();
