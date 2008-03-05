@@ -3,7 +3,8 @@
 
 /** 
 \class HcalCalibrationQIEData
-\author Fedor Ratnikov (UMd)
+\author Fedor Ratnikov (UMd), with changes by Radek Ofierzynski 
+   (preserve backwards compatibility of methods for this release)
 POOL object to store calibration mode QIE parameters
 $Id
 */
@@ -11,32 +12,25 @@ $Id
 #include <vector>
 #include <algorithm>
 
+#include "CondFormats/HcalObjects/interface/HcalCondObjectContainer.h"
+
 #include "CondFormats/HcalObjects/interface/HcalCalibrationQIECoder.h"
 #include "DataFormats/DetId/interface/DetId.h"
 
 
-// 
-class HcalCalibrationQIEData {
+class HcalCalibrationQIEData: public HcalCondObjectContainer<HcalCalibrationQIECoder>
+{
  public:
    
-  HcalCalibrationQIEData();
-  ~HcalCalibrationQIEData();
-
-   /// get QIE parameters
-   const HcalCalibrationQIECoder* getCoder (DetId fId) const;
-   // get list of all available channels
-   std::vector<DetId> getAllChannels () const;
-   // check if data are sorted
-   bool sorted () const {return mSorted;}
-   // fill values [capid][range]
-   bool addCoder (DetId fId, const HcalCalibrationQIECoder& fCoder);
+  /// get QIE parameters
+  const HcalCalibrationQIECoder* getCoder (DetId fId) const { return getValues(fId); }
+  // check if data are sorted
+  bool sorted () const {return true;}
+  // fill values [capid][range]
+  bool addCoder (const HcalCalibrationQIECoder& fCoder) { addValues(fCoder); return true; }
    // sort values by channelId  
-   void sort ();
-  typedef HcalCalibrationQIECoder Item;
-  typedef std::vector <Item> Container;
- private:
-   Container mItems;
-   bool mSorted;
+  void sort () {}
+
 };
 
 #endif

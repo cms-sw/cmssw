@@ -3,47 +3,47 @@
 
 /** 
 \class HcalQIEData
-\author Fedor Ratnikov (UMd)
+\author Fedor Ratnikov (UMd), with changes by Radek Ofierzynski 
+   (preserve backwards compatibility of methods for this release)
 POOL object to store QIE parameters
 $Author: ratnikov
-$Date: 2006/05/06 00:33:29 $
-$Revision: 1.4 $
+$Date: 2006/07/29 00:21:32 $
+$Revision: 1.5 $
 */
 
 #include <vector>
 #include <algorithm>
 
+#include "CondFormats/HcalObjects/interface/HcalCondObjectContainer.h"
 #include "CondFormats/HcalObjects/interface/HcalQIEShape.h"
 #include "CondFormats/HcalObjects/interface/HcalQIECoder.h"
 #include "DataFormats/DetId/interface/DetId.h"
 
+namespace
+{
+  HcalQIEShape shape_;
+}
 
-// 
-class HcalQIEData {
+class HcalQIEData: public HcalCondObjectContainer<HcalQIECoder>
+{
  public:
-   
-  HcalQIEData();
-  HcalQIEData(const HcalQIEData&);
-   ~HcalQIEData();
 
-   /// get basic shape
-   //   const HcalQIEShape& getShape () const {return mShape;}
-   const HcalQIEShape& getShape () const;
-   /// get QIE parameters
-   const HcalQIECoder* getCoder (DetId fId) const;
-   // get list of all available channels
-   std::vector<DetId> getAllChannels () const;
-   // check if data are sorted
-   bool sorted () const {return mSorted;}
-   // fill values [capid][range]
-   bool addCoder (DetId fId, const HcalQIECoder& fCoder);
-   // sort values by channelId  
-   void sort ();
-  typedef HcalQIECoder Item;
-  typedef std::vector <Item> Container;
- private:
-   Container mItems;
-   bool mSorted;
+  // constructor, destructor, and all methods stay the same
+
+  /// get basic shape
+  //   const HcalQIEShape& getShape () const {return mShape;}
+  const HcalQIEShape& getShape () const { return shape_;}
+  /// get QIE parameters
+  const HcalQIECoder* getCoder (DetId fId) const { return getValues(fId); }
+  // check if data are sorted - remove in the next version
+  bool sorted () const { return true; }
+  // fill values [capid][range]
+  bool addCoder (const HcalQIECoder& fCoder) { addValues(fCoder); return true; }
+  // sort values by channelId - remove in the next version  
+  void sort () {}
+  
+  //not needed/not used  HcalQIEData(const HcalQIEData&);
+
 };
 
 #endif
