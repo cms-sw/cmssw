@@ -1,22 +1,22 @@
 //
-// $Id: PATElectronCleaner.h,v 1.7 2008/02/05 17:54:07 fronga Exp $
+// $Id: PATElectronCleaner.h,v 1.8 2008/02/13 10:29:06 fronga Exp $
 //
 
 #ifndef PhysicsTools_PatAlgos_PATElectronCleaner_h
 #define PhysicsTools_PatAlgos_PATElectronCleaner_h
 
 /**
-  \class    PATElectronCleaner PATElectronCleaner.h "PhysicsTools/PatAlgos/interface/PATElectronCleaner.h"
-  \brief    Produces pat::Electron's
+  \class    pat::PATElectronCleaner PATElectronCleaner.h "PhysicsTools/PatAlgos/interface/PATElectronCleaner.h"
+  \brief    Produces a clean list of electrons
 
-   The PATElectronCleaner produces analysis-level pat::Electron's starting from
-   a collection of objects of ElectronType. 
+   The PATElectronCleaner produces a clean list of electrons with associated 
+   back-references to the original electron collection.
 
-   The selection is based on the electron ID or on user-defined cuts. 
+   The selection is based on the electron ID or on user-defined cuts.
    It is steered by the configuration parameters:
 
 \code
-PSet selection = {
+ PSet selection = {
    string type = "none | cut | likelihood | neuralnet | custom"
    [ // If cut-based, give electron ID source
      InputTag eIdSource = <source>
@@ -31,11 +31,13 @@ PSet selection = {
      double <cut> = <value>
      ...
    ]
-}
+ }
 \endcode
 
+  The actual selection is performed by the ElectronSelector.
+
   \author   Steven Lowette, James Lamb
-  \version  $Id: PATElectronCleaner.h,v 1.7 2008/02/05 17:54:07 fronga Exp $
+  \version  $Id: PATElectronCleaner.h,v 1.8 2008/02/13 10:29:06 fronga Exp $
 */
 
 
@@ -50,6 +52,7 @@ PSet selection = {
 #include "DataFormats/EgammaReco/interface/ClusterShapeFwd.h"
 
 #include "PhysicsTools/Utilities/interface/PtComparator.h"
+#include "PhysicsTools/UtilAlgos/interface/ParameterAdapter.h"
 
 #include "PhysicsTools/PatUtils/interface/ElectronSelector.h"
 #include "PhysicsTools/PatUtils/interface/DuplicatedElectronRemover.h"
@@ -58,6 +61,7 @@ PSet selection = {
 
 
 namespace pat {
+
   class PATElectronCleaner : public edm::EDProducer {
     public:
       explicit PATElectronCleaner(const edm::ParameterSet & iConfig);
@@ -80,8 +84,8 @@ namespace pat {
     
       edm::ParameterSet selectionCfg_;  ///< Defines all about the selection
       std::string       selectionType_; ///< Selection type (none, custom, cut,...)
-      bool           doSelection_;      ///< Only false if type = "none"
-      std::auto_ptr<ElectronSelector> selector_;   ///< Actually performs the selection
+      bool              doSelection_;   ///< False if type = "none", true otherwise
+      ElectronSelector  selector_;      ///< Actually performs the selection
       
       /// Returns the appropriate cluster shape.
       /// This is a copy of the Egamma code and it should disappear in the future
@@ -90,10 +94,52 @@ namespace pat {
       const reco::ClusterShapeRef& getClusterShape_( const reco::GsfElectron* electron, 
                                                      const edm::Event&        event
                                                      ) const;
-
   };
 
 
+}
+
+namespace reco {
+  namespace modules {
+    /// Helper struct to convert from ParameterSet to ElectronSelection
+    template<> 
+    struct ParameterAdapter<pat::ElectronSelector> { 
+      static pat::ElectronSelector make(const edm::ParameterSet & cfg) {
+        struct pat::ElectronSelection config_;
+        const std::string& selectionType = cfg.getParameter<std::string>("type");
+        config_.selectionType = selectionType;
+        if ( selectionType == "likelihood" || selectionType == "neuralnet" )
+          {
+            config_.value = cfg.getParameter<double>("value");
+          }
+        else if ( selectionType == "custom" )
+          {
+            config_.HoverEBarmax        = cfg.getParameter<double>("HoverEBarmax");
+            config_.SigmaEtaEtaBarmax   = cfg.getParameter<double>("SigmaEtaEtaBarmax");
+            config_.SigmaPhiPhiBarmax   = cfg.getParameter<double>("SigmaPhiPhiBarmax");
+            config_.DeltaEtaInBarmax    = cfg.getParameter<double>("DeltaEtaInBarmax");
+            config_.DeltaPhiInBarmax    = cfg.getParameter<double>("DeltaPhiInBarmax");
+            config_.DeltaPhiOutBarmax   = cfg.getParameter<double>("DeltaPhiOutBarmax");
+            config_.EoverPInBarmin      = cfg.getParameter<double>("EoverPInBarmin");
+            config_.EoverPOutBarmin     = cfg.getParameter<double>("EoverPOutBarmin");
+            config_.InvEMinusInvPBarmax = cfg.getParameter<double>("InvEMinusInvPBarmax");
+            config_.E9overE25Barmin     = cfg.getParameter<double>("E9overE25Barmin");
+            config_.HoverEEndmax        = cfg.getParameter<double>("HoverEEndmax");
+            config_.SigmaEtaEtaEndmax   = cfg.getParameter<double>("SigmaEtaEtaEndmax");
+            config_.SigmaPhiPhiEndmax   = cfg.getParameter<double>("SigmaPhiPhiEndmax");
+            config_.DeltaEtaInEndmax    = cfg.getParameter<double>("DeltaEtaInEndmax");
+            config_.DeltaPhiInEndmax    = cfg.getParameter<double>("DeltaPhiInEndmax");
+            config_.DeltaPhiOutEndmax   = cfg.getParameter<double>("DeltaPhiOutEndmax");
+            config_.EoverPInEndmin      = cfg.getParameter<double>("EoverPInEndmin");
+            config_.EoverPOutEndmin     = cfg.getParameter<double>("EoverPOutEndmin");
+            config_.InvEMinusInvPEndmax = cfg.getParameter<double>("InvEMinusInvPEndmax");
+            config_.E9overE25Endmin     = cfg.getParameter<double>("E9overE25Endmin");
+            config_.doBremEoverPcomp    = cfg.getParameter<bool>  ("doBremEoverPcomp");
+          }
+        return pat::ElectronSelector( config_ );
+      }
+    };
+  }
 }
 
 #endif

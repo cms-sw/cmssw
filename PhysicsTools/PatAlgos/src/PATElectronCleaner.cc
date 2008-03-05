@@ -1,16 +1,14 @@
 //
-// $Id: PATElectronCleaner.cc,v 1.8 2008/02/07 15:47:45 fronga Exp $
+// $Id: PATElectronCleaner.cc,v 1.9 2008/02/13 10:27:30 fronga Exp $
 //
 
 #include "DataFormats/EgammaReco/interface/BasicClusterShapeAssociation.h"
 #include "DataFormats/EgammaReco/interface/BasicCluster.h"
 
-#include "PhysicsTools/PatAlgos/interface/PATElectronCleaner.h"
-
-
 #include <vector>
 #include <memory>
 
+#include "PhysicsTools/PatAlgos/interface/PATElectronCleaner.h"
 
 using pat::PATElectronCleaner;
 
@@ -20,15 +18,14 @@ PATElectronCleaner::PATElectronCleaner(const edm::ParameterSet & iConfig) :
     removeDuplicates_(iConfig.getParameter<bool>("removeDuplicates")),
     helper_(electronSrc_),
     selectionCfg_(iConfig.getParameter<edm::ParameterSet>("selection")),
-    selectionType_(selectionCfg_.getParameter<std::string>("type"))
+    selectionType_(selectionCfg_.getParameter<std::string>("type")),
+    selector_(reco::modules::make<ElectronSelector>(selectionCfg_))
 {
   // produces vector of electrons
   produces<std::vector<reco::PixelMatchGsfElectron> >();
 
   // produces also backmatch to the original electrons
   produces<reco::CandRefValueMap>();
-
-  selector_ = std::auto_ptr<ElectronSelector>( new ElectronSelector(selectionCfg_) );
 
 }
 
@@ -62,7 +59,7 @@ void PATElectronCleaner::produce(edm::Event & iEvent, const edm::EventSetup & iS
       const reco::ClusterShapeRef& shapeRef = getClusterShape_( &srcElectron, iEvent);
       clusterShape = &(*shapeRef);
     }
-    if ( selector_->filter(idx,helper_.source(),(*electronIDs),clusterShape) ) continue;
+    if ( selector_.filter(idx,helper_.source(),(*electronIDs),clusterShape) ) continue;
 
     // write the muon
     helper_.addItem(idx, ourElectron); 

@@ -1,31 +1,35 @@
 #ifndef PhysicsTools_PatAlgos_PATMuonCleaner_h
 #define PhysicsTools_PatAlgos_PATMuonCleaner_h
 //
-// $Id: PATMuonCleaner.h,v 1.4 2008/02/07 15:48:53 fronga Exp $
+// $Id: PATMuonCleaner.h,v 1.5 2008/02/13 10:29:06 fronga Exp $
 //
 
 /**
-  \class    PATMuonCleaner PATMuonCleaner.h "PhysicsTools/PatAlgos/interface/PATMuonCleaner.h"
-  \brief    Produces a clean list of muons, and associated back-references to the original muon collection
+  \class    pat::PATMuonCleaner PATMuonCleaner.h "PhysicsTools/PatAlgos/interface/PATMuonCleaner.h"
+  \brief    Produces a clean list of muons
 
-   The PATMuonCleaner produces a list of clean muons with associated back-references to the original muon collection.
+  The PATMuonCleaner produces a list of clean muons with associated back-references 
+  to the original muon collection.
 
-   The muon selection is based on reconstruction, custom selection or (in the future) muon
-   identification algorithms. It is steered by the configuration parameters:
+  The muon selection is based on reconstruction, custom selection or muon
+  identification algorithms (to be implemented). It is steered by the configuration 
+  parameters:
 
 \code
-PSet selection = {
+ PSet selection = {
    string type = "none | globalMuons | muId | custom" // muId not implemented yet
    [ // If custom, give cut values
      double dPbyPmax = ...
      double chi2max  = ...
      int    nHitsMin = ...
    ]
-}
+ }
 \endcode
  
+  The actual selection is performed by the MuonSelector.
+
   \author   Giovanni Petrucciani (from PATMuonProducer by Steven Lowette, Roger Wolf)
-  \version  $Id: PATMuonCleaner.h,v 1.4 2008/02/07 15:48:53 fronga Exp $
+  \version  $Id: PATMuonCleaner.h,v 1.5 2008/02/13 10:29:06 fronga Exp $
 */
 
 
@@ -39,6 +43,7 @@ PSet selection = {
 #include "DataFormats/MuonReco/interface/Muon.h"
 
 #include "PhysicsTools/Utilities/interface/PtComparator.h"
+#include "PhysicsTools/UtilAlgos/interface/ParameterAdapter.h"
 
 #include "PhysicsTools/PatUtils/interface/MuonSelector.h"
 
@@ -63,11 +68,32 @@ namespace pat {
                                   reco::MuonCollection, 
                                   GreaterByPt<reco::Muon> > helper_;
 
-      edm::ParameterSet selectionCfg_;       ///< Defines everything about the selection
-      std::auto_ptr<MuonSelector> selector_; ///< Actually performs the selection
+      edm::ParameterSet selectionCfg_; ///< Defines everything about the selection
+      MuonSelector      selector_;     ///< Actually performs the selection
+
   };
 
+}
 
+namespace reco {
+  namespace modules {
+    /// Helper struct to convert from ParameterSet to MuonSelection
+    template<> 
+    struct ParameterAdapter<pat::MuonSelector> { 
+      static pat::MuonSelector make(const edm::ParameterSet & cfg) {
+        struct pat::MuonSelection config_;
+        const std::string& selectionType = cfg.getParameter<std::string>("type");
+        config_.selectionType = selectionType;
+        if ( selectionType == "custom" )
+          {
+            config_.dPbyPmax  = cfg.getParameter<double>("dPbyPmax");
+            config_.chi2max  = cfg.getParameter<double>("chi2max");
+            config_.nHitsMin = cfg.getParameter<int>("nHitsMin");
+          }
+        return pat::MuonSelector( config_ );
+      }
+    };
+  }
 }
 
 #endif
