@@ -11,6 +11,6 @@ uint DualByEtaTSG::selectTSG(const TrackCand & muonTrackCand, const TrackingRegi
 {
   LogDebug(theCategory)<<"|eta|=|"<<muonTrackCand.second->eta()<<"|"
 		       <<" compared to: "<<theEtaSeparation;
-  return (fabs(muonTrackCand.second->eta()) > theEtaSeparation);
+  return (fabs(muonTrackCand.second->eta()) < theEtaSeparation);
 }
     
