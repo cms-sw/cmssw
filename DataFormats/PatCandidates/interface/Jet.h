@@ -1,19 +1,19 @@
 //
-// $Id: Jet.h,v 1.7 2008/02/28 14:29:00 llista Exp $
+// $Id: Jet.h,v 1.9 2008/03/03 19:50:43 lowette Exp $
 //
 
 #ifndef DataFormats_PatCandidates_Jet_h
 #define DataFormats_PatCandidates_Jet_h
 
 /**
-  \class    Jet Jet.h "DataFormats/PatCandidates/interface/Jet.h"
+  \class    pat::Jet Jet.h "DataFormats/PatCandidates/interface/Jet.h"
   \brief    Analysis-level calorimeter jet class
 
    Jet implements the analysis-level calorimeter jet class within the
    'pat' namespace
 
   \author   Steven Lowette
-  \version  $Id: Jet.h,v 1.7 2008/02/28 14:29:00 llista Exp $
+  \version  $Id: Jet.h,v 1.9 2008/03/03 19:50:43 lowette Exp $
 */
 
 #include "DataFormats/JetReco/interface/CaloJet.h"

@@ -1,19 +1,19 @@
 //
-// $Id: Photon.h,v 1.3 2008/01/26 20:19:44 gpetrucc Exp $
+// $Id: Photon.h,v 1.4 2008/02/07 18:16:13 lowette Exp $
 //
 
 #ifndef DataFormats_PatCandidates_Photon_h
 #define DataFormats_PatCandidates_Photon_h
 
 /**
-  \class    Photon Photon.h "DataFormats/PatCandidates/interface/Photon.h"
+  \class    pat::Photon Photon.h "DataFormats/PatCandidates/interface/Photon.h"
   \brief    Analysis-level Photon class
 
    Photon implements the analysis-level photon class within the 'pat'
    namespace.
 
   \author   Steven Lowette
-  \version  $Id: Photon.h,v 1.3 2008/01/26 20:19:44 gpetrucc Exp $
+  \version  $Id: Photon.h,v 1.4 2008/02/07 18:16:13 lowette Exp $
 */
 
 #include "DataFormats/PatCandidates/interface/PATObject.h"

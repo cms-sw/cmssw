@@ -14,7 +14,7 @@
 
 */
 //-------------------------------------------------------------------------------------
-//!\class HardEventHypothesis HardEventHypothesis.cc DataFormats/PatCandidates/interface/HardEventHypothesis.h
+//!\class pat::HardEventHypothesis HardEventHypothesis.cc DataFormats/PatCandidates/interface/HardEventHypothesis.h
 //!\brief HardEventHypothesis is a pure virtual base class to implement a "hard" event hypothesis class.
 //!
 //! The idea of HardEventHypothesis is to act as the definition of the interface of a user-defined 
@@ -86,7 +86,7 @@
 //
 // Original Author:  Salvatore Rappoccio
 //         Created:  Tue Feb 12 14:42:17 CST 2008
-// $Id: HardEventHypothesis.h,v 1.1 2008/02/15 21:22:20 srappocc Exp $
+// $Id: HardEventHypothesis.h,v 1.2 2008/02/16 15:27:58 srappocc Exp $
 //
 // Revision History:
 //

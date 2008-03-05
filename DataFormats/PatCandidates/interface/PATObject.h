@@ -1,7 +1,7 @@
 #ifndef DataFormats_PatCandidates_PATObject_h
 #define DataFormats_PatCandidates_PATObject_h
 
-/** \class    PATObject PATObject.h "DataFormats/PatCandidates/interface/PATObject.h"
+/** \class    pat::PATObject PATObject.h "DataFormats/PatCandidates/interface/PATObject.h"
  *
  *  \brief    Templated PAT object container
  *
@@ -9,7 +9,7 @@
  *
  *  \author   Steven Lowette
  *
- *  \version  $Id: PATObject.h,v 1.5 2008/02/29 11:30:47 llista Exp $
+ *  \version  $Id: PATObject.h,v 1.6 2008/03/03 16:45:27 lowette Exp $
  *
  */
 

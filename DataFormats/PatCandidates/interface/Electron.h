@@ -1,19 +1,19 @@
 //
-// $Id: Electron.h,v 1.5 2008/02/07 18:16:13 lowette Exp $
+// $Id: Electron.h,v 1.6 2008/02/11 15:20:48 llista Exp $
 //
 
 #ifndef DataFormats_PatCandidates_Electron_h
 #define DataFormats_PatCandidates_Electron_h
 
 /**
-  \class    Electron Electron.h "DataFormats/PatCandidates/interface/Electron.h"
+  \class    pat::Electron Electron.h "DataFormats/PatCandidates/interface/Electron.h"
   \brief    Analysis-level electron class
 
    Electron implements the analysis-level electron class within the 'pat'
    namespace.
 
   \author   Steven Lowette
-  \version  $Id: Electron.h,v 1.5 2008/02/07 18:16:13 lowette Exp $
+  \version  $Id: Electron.h,v 1.6 2008/02/11 15:20:48 llista Exp $
 */
 
 #include "DataFormats/EgammaCandidates/interface/GsfElectron.h"

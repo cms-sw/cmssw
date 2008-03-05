@@ -1,19 +1,19 @@
 //
-// $Id: Lepton.h,v 1.5 2008/01/26 20:19:43 gpetrucc Exp $
+// $Id: Lepton.h,v 1.6 2008/02/07 18:16:13 lowette Exp $
 //
 
 #ifndef DataFormats_PatCandidates_Lepton_h
 #define DataFormats_PatCandidates_Lepton_h
 
 /**
-  \class    Lepton Lepton.h "DataFormats/PatCandidates/interface/Lepton.h"
+  \class    pat::Lepton Lepton.h "DataFormats/PatCandidates/interface/Lepton.h"
   \brief    Analysis-level lepton class
 
    Lepton implements the analysis-level charged lepton class within the 'pat'
    namespace.
 
   \author   Steven Lowette
-  \version  $Id: Lepton.h,v 1.5 2008/01/26 20:19:43 gpetrucc Exp $
+  \version  $Id: Lepton.h,v 1.6 2008/02/07 18:16:13 lowette Exp $
 */
 
 #include "DataFormats/Candidate/interface/Particle.h"

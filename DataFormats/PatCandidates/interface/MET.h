@@ -1,19 +1,19 @@
 //
-// $Id: MET.h,v 1.6 2008/02/07 18:16:13 lowette Exp $
+// $Id: MET.h,v 1.7 2008/02/28 14:29:00 llista Exp $
 //
 
 #ifndef DataFormats_PatCandidates_MET_h
 #define DataFormats_PatCandidates_MET_h
 
 /**
-  \class    MET MET.h "DataFormats/PatCandidates/interface/MET.h"
+  \class    pat::MET MET.h "DataFormats/PatCandidates/interface/MET.h"
   \brief    Analysis-level MET class
 
    MET implements an analysis-level missing energy class as a 4-vector
    within the 'pat' namespace.
 
   \author   Steven Lowette
-  \version  $Id: MET.h,v 1.6 2008/02/07 18:16:13 lowette Exp $
+  \version  $Id: MET.h,v 1.7 2008/02/28 14:29:00 llista Exp $
 */
 
 

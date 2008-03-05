@@ -1,18 +1,18 @@
 //
-// $Id: Muon.h,v 1.5 2008/02/07 18:16:13 lowette Exp $
+// $Id: Muon.h,v 1.6 2008/02/11 15:53:49 llista Exp $
 //
 
 #ifndef DataFormats_PatCandidates_Muon_h
 #define DataFormats_PatCandidates_Muon_h
 
 /**
-  \class    Muon Muon.h "DataFormats/PatCandidates/interface/Muon.h"
+  \class    pat::Muon Muon.h "DataFormats/PatCandidates/interface/Muon.h"
   \brief    Analysis-level muon class
 
    Muon implements the analysis-level muon class within the 'pat' namespace.
 
   \author   Steven Lowette
-  \version  $Id: Muon.h,v 1.5 2008/02/07 18:16:13 lowette Exp $
+  \version  $Id: Muon.h,v 1.6 2008/02/11 15:53:49 llista Exp $
 */
 
 #include "DataFormats/MuonReco/interface/Muon.h"

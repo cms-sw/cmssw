@@ -1,18 +1,18 @@
 //
-// $Id: Tau.h,v 1.7 2008/01/26 20:19:44 gpetrucc Exp $
+// $Id: Tau.h,v 1.8 2008/02/21 21:23:27 delaer Exp $
 //
 
 #ifndef DataFormats_PatCandidates_Tau_h
 #define DataFormats_PatCandidates_Tau_h
 
 /**
-  \class    Tau Tau.h "DataFormats/PatCandidates/interface/Tau.h"
+  \class    pat::Tau Tau.h "DataFormats/PatCandidates/interface/Tau.h"
   \brief    Analysis-level tau class
 
    Tau implements the analysis-level tau class within the 'pat' namespace.
 
   \author   Steven Lowette
-  \version  $Id: Tau.h,v 1.7 2008/01/26 20:19:44 gpetrucc Exp $
+  \version  $Id: Tau.h,v 1.8 2008/02/21 21:23:27 delaer Exp $
 */
 
 
