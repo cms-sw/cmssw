@@ -1,0 +1,22 @@
+1989  19:36   cmscond_generate_mappingxml -c SiStripFedCabling -P ../src -d CondFormatsSiStripObjects
+  1990  19:36   cmscond_generate_mappingxml -c SiStripPedestals -P ../src -d CondFormatsSiStripObjects
+  1991  19:36   cmscond_generate_mappingxml -c SiStripNoises -P ../src -d CondFormatsSiStripObjects
+  1992  19:36   cmscond_generate_mappingxml -c SiStripApvGain -P ../src -d CondFormatsSiStripObjects
+  1993  19:37   cmscond_generate_mappingxml -c SiStripLorentzAngle -P ../src -d CondFormatsSiStripObjects
+  1994  19:37   cmscond_generate_mappingxml -c SiStripPerformanceSummary -P ../src -d CondFormatsSiStripObjects
+  1995  19:37   cmscond_generate_mappingxml -c SiStripBadStrip -P ../src -d CondFormatsSiStripObjects
+  1996  19:37   cmscond_generate_mappingxml -c SiStripModuleHV -P ../src -d CondFormatsSiStripObjects
+  1997  19:37   cmscond_generate_mappingxml -c SiStripRunSummary -P ../src -d CondFormatsSiStripObjects
+
+###editing xml files adding blob, changing table,column name etc
+
+2032  20:04   pool_build_object_relational_mapping -f SiStripBadStrip_basic_0.xml -d CondFormatsSiStripObjects -c sqlite_file:test.db
+  2033  20:04   pool_build_object_relational_mapping -f SiStripApvGain_basic_0.xml -d CondFormatsSiStripObjects -c sqlite_file:test.db
+  2034  20:05   pool_build_object_relational_mapping -f SiStripFedCabling_basic_0.xml -d CondFormatsSiStripObjects -c sqlite_file:test.db
+  2035  20:05   pool_build_object_relational_mapping -f SiStripLorentzAngle_basic_0.xml -d CondFormatsSiStripObjects -c sqlite_file:test.db
+  2036  20:05   ls *.xml
+  2037  20:05   pool_build_object_relational_mapping -f SiStripModuleHV_basic_0.xml -d CondFormatsSiStripObjects -c sqlite_file:test.db
+  2038  20:06   pool_build_object_relational_mapping -f SiStripNoises_basic_0.xml -d CondFormatsSiStripObjects -c sqlite_file:test.db
+  2039  20:06   pool_build_object_relational_mapping -f SiStripPedestals_basic_0.xml -d CondFormatsSiStripObjects -c sqlite_file:test.db
+  2040  20:06   pool_build_object_relational_mapping -f SiStripPerformanceSummary_basic_0.xml -d CondFormatsSiStripObjects -c sqlite_file:test.db
+  2041  20:06   pool_build_object_relational_mapping -f SiStripRunSummary_basic_0.xml -d CondFormatsSiStripObjects -c sqlite_file:test.db
