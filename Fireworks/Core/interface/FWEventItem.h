@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Jan  3 14:02:21 EST 2008
-// $Id: FWEventItem.h,v 1.13 2008/02/29 21:12:56 chrjones Exp $
+// $Id: FWEventItem.h,v 1.14 2008/03/01 02:17:48 chrjones Exp $
 //
 
 // system include files
@@ -91,6 +91,7 @@ class FWEventItem
       const void* data(const std::type_info&) const;
       const FWDisplayProperties& defaultDisplayProperties() const;
    
+      const std::string& filterExpression() const;
       /**Unique ID for the item. This number starts at 0 and increments by one for each
        new item.*/
       unsigned int id() const;
@@ -129,6 +130,7 @@ class FWEventItem
 		     const std::string& iProcess);
       void setName(const std::string& iName);
       void setDefaultDisplayProperties(const FWDisplayProperties&);
+      void setFilterExpression(const std::string& );
 
       void unselect(int iIndex) const;
       void select(int iIndex) const;
@@ -151,6 +153,7 @@ class FWEventItem
       //const FWEventItem& operator=(const FWEventItem&); // stop default
       void setData(const void* ) const;
    
+      void getPrimaryData() const;
       void runFilter();
       // ---------- member data --------------------------------
       FWModelChangeManager* m_changeManager;
