@@ -2,7 +2,7 @@
 #define PhysicsTools_PatUtils_CaloJetSelector_h
 
 /**
-    \class CaloJetSelector CaloJetSelector.h "PhysicsTools/PatUtils/CaloJetSelector.h"
+    \class pat::CaloJetSelector CaloJetSelector.h "PhysicsTools/PatUtils/CaloJetSelector.h"
     \brief Selects good Jets
    
     The Jet selector returns a flag (passed=0) based on one of the possible
@@ -21,7 +21,7 @@
     This class is based upon the ElectronSelector by F. Ronga
    
     \author C. Autermann (Uni Hamburg)
-    \version $Id: CaloJetSelector.h,v 1.2 2008/02/19 18:04:14 auterman Exp $
+    \version $Id: CaloJetSelector.h,v 1.3 2008/03/03 16:45:29 lowette Exp $
 **/
 
 #include <string>

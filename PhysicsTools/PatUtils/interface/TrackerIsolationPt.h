@@ -1,19 +1,19 @@
 //
-// $Id: TrackerIsolationPt.h,v 1.2 2008/01/21 16:26:19 lowette Exp $
+// $Id: TrackerIsolationPt.h,v 1.3 2008/02/28 14:54:24 llista Exp $
 //
 
 #ifndef PhysicsTools_PatUtils_TrackerIsolationPt_h
 #define PhysicsTools_PatUtils_TrackerIsolationPt_h
 
 /**
-  \class    TrackerIsolationPt TrackerIsolationPt.h "PhysicsTools/PatUtils/interface/TrackerIsolationPt.h"
+  \class    pat::TrackerIsolationPt TrackerIsolationPt.h "PhysicsTools/PatUtils/interface/TrackerIsolationPt.h"
   \brief    Calculates a lepton's tracker isolation pt
 
    TrackerIsolationPt calculates a tracker isolation pt in a cone
    around the lepton's direction, without doing track extrapolation
 
   \author   Steven Lowette
-  \version  $Id: TrackerIsolationPt.h,v 1.2 2008/01/21 16:26:19 lowette Exp $
+  \version  $Id: TrackerIsolationPt.h,v 1.3 2008/02/28 14:54:24 llista Exp $
 */
 
 namespace reco {

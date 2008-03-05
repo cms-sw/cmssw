@@ -1,12 +1,12 @@
 //
-// $Id: LeptonJetIsolationAngle.h,v 1.1 2008/01/15 13:20:26 lowette Exp $
+// $Id: LeptonJetIsolationAngle.h,v 1.2 2008/01/21 16:26:19 lowette Exp $
 //
 
 #ifndef PhysicsTools_PatUtils_LeptonJetIsolationAngle_h
 #define PhysicsTools_PatUtils_LeptonJetIsolationAngle_h
 
 /**
-  \class    LeptonJetIsolationAngle LeptonJetIsolationAngle.h "PhysicsTools/PatUtils/interface/LeptonJetIsolationAngle.h"
+  \class    pat::LeptonJetIsolationAngle LeptonJetIsolationAngle.h "PhysicsTools/PatUtils/interface/LeptonJetIsolationAngle.h"
   \brief    Calculates a lepton's jet isolation angle
 
    LeptonJetIsolationAngle calculates an isolation angle w.r.t. a list of
@@ -14,7 +14,7 @@
    CMS Note 2006/024
 
   \author   Steven Lowette
-  \version  $Id: LeptonJetIsolationAngle.h,v 1.1 2008/01/15 13:20:26 lowette Exp $
+  \version  $Id: LeptonJetIsolationAngle.h,v 1.2 2008/01/21 16:26:19 lowette Exp $
 */
 
 

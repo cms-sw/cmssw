@@ -1,12 +1,12 @@
 //
-// $Id: CaloIsolationEnergy.h,v 1.1 2008/01/15 13:20:15 lowette Exp $
+// $Id: CaloIsolationEnergy.h,v 1.2 2008/02/28 14:54:24 llista Exp $
 //
 
 #ifndef PhysicsTools_PatUtils_CaloIsolationEnergy_h
 #define PhysicsTools_PatUtils_CaloIsolationEnergy_h
 
 /**
-  \class    CaloIsolationEnergy CaloIsolationEnergy.h "PhysicsTools/PatUtils/interface/CaloIsolationEnergy.h"
+  \class    pat::CaloIsolationEnergy CaloIsolationEnergy.h "PhysicsTools/PatUtils/interface/CaloIsolationEnergy.h"
   \brief    Calculates a lepton's calorimetric isolation energy
 
    CaloIsolationEnergy calculates a calorimetric isolation energy in
@@ -14,7 +14,7 @@
    position on the ECAL surface, as defined in CMS Note 2006/024
 
   \author   Steven Lowette
-  \version  $Id: CaloIsolationEnergy.h,v 1.1 2008/01/15 13:20:15 lowette Exp $
+  \version  $Id: CaloIsolationEnergy.h,v 1.2 2008/02/28 14:54:24 llista Exp $
 */
 #include <vector>
 

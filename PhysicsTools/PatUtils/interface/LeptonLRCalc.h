@@ -1,19 +1,19 @@
 //
-// $Id: LeptonLRCalc.h,v 1.2 2008/01/16 20:33:14 lowette Exp $
+// $Id: LeptonLRCalc.h,v 1.3 2008/01/21 16:26:19 lowette Exp $
 //
 
 #ifndef PhysicsTools_PatUtils_LeptonLRCalc_h
 #define PhysicsTools_PatUtils_LeptonLRCalc_h
 
 /**
-  \class    LeptonLRCalc LeptonLRCalc.h "PhysicsTools/PatUtils/interface/LeptonLRCalc.h"
+  \class    pat::LeptonLRCalc LeptonLRCalc.h "PhysicsTools/PatUtils/interface/LeptonLRCalc.h"
   \brief    Steering class for the combined lepton likelihood
 
    LeptonLRCalc allows to calculate and retrieve the combined lepton
    likelihood as originally defined in CMS Note 2006/024
 
   \author   Steven Lowette
-  \version  $Id: LeptonLRCalc.h,v 1.2 2008/01/16 20:33:14 lowette Exp $
+  \version  $Id: LeptonLRCalc.h,v 1.3 2008/01/21 16:26:19 lowette Exp $
 */
 
 

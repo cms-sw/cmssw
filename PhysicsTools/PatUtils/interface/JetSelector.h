@@ -2,7 +2,7 @@
 #define PhysicsTools_PatUtils_JetSelector_h
 
 /**
-    \class JetSelector JetSelector.h "PhysicsTools/PatUtils/JetSelector.h"
+    \class pat::JetSelector JetSelector.h "PhysicsTools/PatUtils/JetSelector.h"
     \brief Selects good Jets
    
     The Jet selector returns a flag (passed=0) based on one of the possible
@@ -21,7 +21,7 @@
     This class is based upon the ElectronSelector by F. Ronga
    
     \author C. Autermann (Uni Hamburg)
-    \version $Id: JetSelector.h,v 1.2 2008/02/15 15:54:26 auterman Exp $
+    \version $Id: JetSelector.h,v 1.3 2008/02/19 18:04:17 auterman Exp $
 **/
 
 #include <string>

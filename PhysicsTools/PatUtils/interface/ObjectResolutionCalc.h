@@ -1,16 +1,16 @@
 //
-// $Id: ObjectResolutionCalc.h,v 1.2 2008/01/16 20:33:14 lowette Exp $
+// $Id: ObjectResolutionCalc.h,v 1.3 2008/03/03 16:45:29 lowette Exp $
 //
 
 #ifndef PhysicsTools_PatUtils_ObjectResolutionCalc_h
 #define PhysicsTools_PatUtils_ObjectResolutionCalc_h
 
 /**
-  \class    ObjectResolutionCalc ObjectResolutionCalc.h "PhysicsTools/PatUtils/interface/ObjectResolutionCalc.h"
+  \class    pat::ObjectResolutionCalc ObjectResolutionCalc.h "PhysicsTools/PatUtils/interface/ObjectResolutionCalc.h"
   \brief    Class to calculate MC resolutions for pat objects
 
   \author   Jan Heyninck, Petra Van Mulders, Christophe Delaere
-  \version  $Id: ObjectResolutionCalc.h,v 1.2 2008/01/16 20:33:14 lowette Exp $
+  \version  $Id: ObjectResolutionCalc.h,v 1.3 2008/03/03 16:45:29 lowette Exp $
 */
 
 
