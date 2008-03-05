@@ -68,7 +68,7 @@
 
 	<class name="std::pair&lt;std::string, PhysicsTools::Calibration::MVAComputer&gt;"/>
 	<class name="std::vector&lt;std::pair&lt;std::string, PhysicsTools::Calibration::MVAComputer&gt; &gt;"/>
-	<class name="PhysicsTools::Calibration::MVAComputerContainer">
+	<class name="PhysicsTools::Calibration::MVAComputerContainer" class_version="0">
 		<field name="cacheId" transient="true"/>
 	</class>
 
