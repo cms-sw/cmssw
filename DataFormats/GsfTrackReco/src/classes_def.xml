@@ -9,7 +9,9 @@
   <class name="edm::Ref<std::vector<reco::GsfTrackExtra>,reco::GsfTrackExtra,edm::refhelper::FindUsingAdvance<std::vector<reco::GsfTrackExtra>,reco::GsfTrackExtra> >"/>
   <class name="edm::RefVector<std::vector<reco::GsfTrackExtra>,reco::GsfTrackExtra,edm::refhelper::FindUsingAdvance<std::vector<reco::GsfTrackExtra>,reco::GsfTrackExtra> >"/>
 
-  <class name="reco::GsfTrack"/>
+  <class name="reco::GsfTrack">
+    <field name="momentumMode_" iotype="ROOT::Math::DisplacementVector3D<ROOT::Math::Cartesian3D<Double32_t> >" /> 
+  </class>
   <class name="std::vector<reco::GsfTrack>"/>
   <class name="edm::Wrapper<std::vector<reco::GsfTrack> >"/>
   <class name="edm::RefProd<std::vector<reco::GsfTrack> >"/>
