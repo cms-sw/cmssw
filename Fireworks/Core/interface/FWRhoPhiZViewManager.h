@@ -16,7 +16,7 @@
 //
 // Original Author:  
 //         Created:  Sat Jan  5 11:27:34 EST 2008
-// $Id: FWRhoPhiZViewManager.h,v 1.11 2008/02/21 20:49:10 chrjones Exp $
+// $Id: FWRhoPhiZViewManager.h,v 1.12 2008/02/29 21:21:18 chrjones Exp $
 //
 
 // system include files
@@ -164,7 +164,6 @@ class FWRhoPhiZViewManager : public FWViewManagerBase
       TypeToBuilder m_typeToBuilder;
       std::vector<boost::shared_ptr<FWRPZModelProxyBase> > m_modelProxies;
 
-      TEveElement* m_geom;
       TEveProjectionManager* m_rhoPhiGeomProjMgr;
       TEveProjectionManager* m_rhoZGeomProjMgr;
       std::vector<TEveElement*> m_rhoPhiGeom;

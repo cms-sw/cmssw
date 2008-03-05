@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Sat Jan  5 14:08:51 EST 2008
-// $Id: FWRhoPhiZViewManager.cc,v 1.20 2008/02/29 21:21:19 chrjones Exp $
+// $Id: FWRhoPhiZViewManager.cc,v 1.21 2008/02/29 23:38:11 dmytro Exp $
 //
 
 // system include files
@@ -73,7 +73,6 @@ const char* const kRhoZViewTypeName = "Rho Z";
 FWRhoPhiZViewManager::FWRhoPhiZViewManager(FWGUIManager* iGUIMgr):
   FWViewManagerBase(kBuilderPrefixes,
                     kBuilderPrefixes+sizeof(kBuilderPrefixes)/sizeof(const char*)),
-  m_geom(0),
   m_rhoPhiGeomProjMgr(0),
   m_rhoZGeomProjMgr(0),
   //m_pad(new TEvePad() ),
@@ -202,26 +201,9 @@ FWRhoPhiZViewManager::rerunBuilders()
 void 
 FWRhoPhiZViewManager::setupGeometry()
 {
-   if ( ! m_geom ) {
-      TFile f("tracker.root");
-      if(not f.IsOpen()) {
-         std::cerr <<"failed to open 'tracker.root'"<<std::endl;
-         throw std::runtime_error("Failed to open 'tracker.root' geometry file");
-      }
-      TEveGeoShapeExtract* gse = dynamic_cast<TEveGeoShapeExtract*>(f.Get("Tracker"));
-      TEveGeoShape* gsre = TEveGeoShape::ImportShapeExtract(gse,0);
-      f.Close();
-      m_geom = gsre;
-      set_color(m_geom,kGray+3,1.,10);
-      
-      hide_tracker_endcap(m_geom);
-      m_rhoPhiGeomProjMgr->ImportElements(m_geom);
-      
-      makeMuonGeometryRhoPhi();
-      // makeMuonGeometryRhoZ();
-      makeMuonGeometryRhoZAdvance();
-   }
-
+   if ( m_rhoPhiGeom.empty() ) makeMuonGeometryRhoPhi();
+   // makeMuonGeometryRhoZ();
+   if ( m_rhoZGeom.empty() ) makeMuonGeometryRhoZAdvance();
 }
 
 void FWRhoPhiZViewManager::addElements()
