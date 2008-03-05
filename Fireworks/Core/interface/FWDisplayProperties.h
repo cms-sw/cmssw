@@ -16,7 +16,7 @@
 //
 // Original Author:  
 //         Created:  Thu Jan  3 14:22:36 EST 2008
-// $Id: FWDisplayProperties.h,v 1.2 2008/01/21 01:17:09 chrjones Exp $
+// $Id: FWDisplayProperties.h,v 1.3 2008/03/01 02:14:58 chrjones Exp $
 //
 
 // system include files
@@ -57,6 +57,10 @@ class FWDisplayProperties
       // ---------- member functions ---------------------------
       void setIsVisible(bool iSet) {
          m_isVisible = iSet;
+      }
+   
+      void setColor(Color_t iColor) {
+         m_color = iColor;
       }
    private:
       //FWDisplayProperties(const FWDisplayProperties&); // stop default
