@@ -34,7 +34,7 @@ private:
   // Inputs from Configuration
   std::string outputFile_;
   std::string geometryFile_;
-  std::string caloTowersLabel_;
+  edm::InputTag caloTowersLabel_;
   bool debug_;
   bool dumpGeometry_;
   double energyThreshold_;

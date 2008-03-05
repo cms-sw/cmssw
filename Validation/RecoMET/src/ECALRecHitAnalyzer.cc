@@ -11,9 +11,8 @@ ECALRecHitAnalyzer::ECALRecHitAnalyzer(const edm::ParameterSet& iConfig)
   // Retrieve Information from the Configuration File
   geometryFile_      = iConfig.getUntrackedParameter<std::string>("GeometryFile");
   outputFile_        = iConfig.getUntrackedParameter<std::string>("OutputFile");
-  ECALRecHitsLabel_  = iConfig.getParameter<std::string>("ECALRecHitsLabel");
-  EBRecHitsLabel_  = iConfig.getParameter<std::string>("EBRecHitsLabel");
-  EERecHitsLabel_    = iConfig.getParameter<std::string>("EERecHitsLabel");
+  EBRecHitsLabel_  = iConfig.getParameter<edm::InputTag>("EBRecHitsLabel");
+  EERecHitsLabel_    = iConfig.getParameter<edm::InputTag>("EERecHitsLabel");
 
   debug_             = iConfig.getParameter<bool>("Debug");
 
@@ -212,8 +211,8 @@ void ECALRecHitAnalyzer::WriteECALRecHits(const edm::Event& iEvent, const edm::E
 {
   edm::Handle<EBRecHitCollection> EBRecHits;
   edm::Handle<EERecHitCollection> EERecHits;
-  iEvent.getByLabel( ECALRecHitsLabel_, EBRecHitsLabel_, EBRecHits );
-  iEvent.getByLabel( ECALRecHitsLabel_, EERecHitsLabel_, EERecHits );
+  iEvent.getByLabel( EBRecHitsLabel_, EBRecHits );
+  iEvent.getByLabel( EERecHitsLabel_, EERecHits );
   DEBUG( "Got ECALRecHits");
 
   edm::Handle<reco::CandidateCollection> to;

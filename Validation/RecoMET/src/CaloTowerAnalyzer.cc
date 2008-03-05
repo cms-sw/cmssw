@@ -53,7 +53,7 @@ CaloTowerAnalyzer::CaloTowerAnalyzer(const edm::ParameterSet & iConfig)
 
   outputFile_          = iConfig.getUntrackedParameter<std::string>("OutputFile");
   geometryFile_        = iConfig.getUntrackedParameter<std::string>("GeometryFile");
-  caloTowersLabel_     = iConfig.getParameter<std::string>("CaloTowersLabel");
+  caloTowersLabel_     = iConfig.getParameter<edm::InputTag>("CaloTowersLabel");
   debug_               = iConfig.getParameter<bool>("Debug");
   dumpGeometry_        = iConfig.getParameter<bool>("DumpGeometry");
 

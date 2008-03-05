@@ -54,9 +54,9 @@ HCALRecHitAnalyzer::HCALRecHitAnalyzer(const edm::ParameterSet& iConfig)
   geometryFile_      = iConfig.getUntrackedParameter<std::string>("GeometryFile");
   outputFile_        = iConfig.getUntrackedParameter<std::string>("OutputFile");
 
-  hBHERecHitsLabel_  = iConfig.getParameter<std::string>("HBHERecHitsLabel");
-  hORecHitsLabel_    = iConfig.getParameter<std::string>("HORecHitsLabel");
-  hFRecHitsLabel_    = iConfig.getParameter<std::string>("HFRecHitsLabel");
+  hBHERecHitsLabel_  = iConfig.getParameter<edm::InputTag>("HBHERecHitsLabel");
+  hORecHitsLabel_    = iConfig.getParameter<edm::InputTag>("HORecHitsLabel");
+  hFRecHitsLabel_    = iConfig.getParameter<edm::InputTag>("HFRecHitsLabel");
 
   debug_             = iConfig.getParameter<bool>("Debug");
 

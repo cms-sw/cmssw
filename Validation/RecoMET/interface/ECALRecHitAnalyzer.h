@@ -101,9 +101,8 @@ public:
   // Inputs from Configuration
   std::string outputFile_;
   std::string geometryFile_;
-  std::string ECALRecHitsLabel_;
-  std::string EBRecHitsLabel_;
-  std::string EERecHitsLabel_;
+  edm::InputTag EBRecHitsLabel_;
+  edm::InputTag EERecHitsLabel_;
   bool debug_;
   bool dumpGeometry_;
 
