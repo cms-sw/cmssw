@@ -13,6 +13,7 @@
 #include "TH2F.h"
 #include "TFile.h"
 #include "math.h"
+#include "TMath.h"
 #include "TF1.h"
 
 #include "CalibCalorimetry/HcalStandardModules/interface/HFLightCalRand.h"
