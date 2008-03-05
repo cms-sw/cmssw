@@ -4,8 +4,8 @@
 /** \class MuonTrackingRegionBuilder
  *  Base class for the Muon reco TrackingRegion Builder
  *
- *  $Date: 2008/02/25 22:17:47 $
- *  $Revision: 1.4 $
+ *  $Date: 2008/02/29 22:09:26 $
+ *  $Revision: 1.5 $
  *  \author A. Everett - Purdue University
  *  \author A. Grelli -  Purdue University, Pavia University 
  */
@@ -57,7 +57,7 @@ class MuonTrackingRegionBuilder {
   const edm::Event* theEvent;
   const MuonServiceProxy * theService;
 
-  bool    theFixedFlag,EnableBeamSpot;
+  bool    theFixedFlag,EnableBeamSpot,usePixelVertex;
   double  TkEscapePt;
   double  Nsigma_eta,Nsigma_Dz,Nsigma_phi ;
   

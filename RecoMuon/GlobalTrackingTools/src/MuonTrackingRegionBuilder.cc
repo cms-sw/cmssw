@@ -1,8 +1,8 @@
 /** \class MuonTrackingRegionBuilder
  *  Base class for the Muon reco TrackingRegion Builder
  *
- *  $Date: 2008/02/25 22:17:48 $
- *  $Revision: 1.5 $
+ *  $Date: 2008/02/29 22:09:30 $
+ *  $Revision: 1.6 $
  *  \author A. Everett - Purdue University
     \author A. Grelli -  Purdue University, Pavia University
  */
@@ -47,6 +47,7 @@ MuonTrackingRegionBuilder::MuonTrackingRegionBuilder(const edm::ParameterSet& pa
   Phi_Region_parameter1 = par.getParameter<double>("PhiR_UpperLimit_Par1");
   Phi_Region_parameter2 = par.getParameter<double>("PhiR_UpperLimit_Par2");
 
+  usePixelVertex = par.getParameter<bool>("UseVertex");
   //Fixed limits
   theFixedFlag     = par.getParameter<bool>("UseFixedRegion");
   Phi_minimum      = par.getParameter<double>("Phi_min");
@@ -89,34 +90,31 @@ RectangularEtaPhiTrackingRegion* MuonTrackingRegionBuilder::region(const reco::T
   // Inizial vertex position (in the following replaced with beam spot/vertexing)
   GlobalPoint vertexPos(0.0,0.0,0.0);
 
+  double TheDeltaZatVTX = 0;
+
   //retrieve beam spot information
   edm::Handle<reco::BeamSpot> bsHandle;
   bool bsHandleFlag = theEvent->getByLabel(theBeamSpotTag, bsHandle);
   //cechk the validity otherwise vertexing
-  if(bsHandleFlag) {
+  if(bsHandleFlag && !usePixelVertex) {
     const reco::BeamSpot & bs = *bsHandle;
     GlobalPoint vertexPosBS(bs.x0(), bs.y0(), bs.z0());
     vertexPos = vertexPosBS;
   }else{
   // Get originZPos from list of vertices (first or all)
     edm::Handle<reco::VertexCollection> vertexCollection;
-    theEvent->getByLabel(vertexCollName,vertexCollection);
+    bool vtxHandleFlag = theEvent->getByLabel(vertexCollName,vertexCollection);
   // ceck if exsist a non empty vertex collection
-    if(vertexCollection->size() > 0) {
+    if(vtxHandleFlag && vertexCollection->size() > 0) {
      reco::VertexCollection::const_iterator Vtx=vertexCollection->begin();// ! only the first low lomi option
      // const Vtx = vertexCollection->front();
       double TheZPosition = Vtx->z();
-      double TheDealtaZatVTX;
 
       GlobalPoint vertexPosVT(0.0,0.0,TheZPosition);
       vertexPos = vertexPosVT;
 
-      if(!theFixedFlag) { //Region Dz from vertexing
-         TheDealtaZatVTX = (Vtx->zError())*Nsigma_Dz;
-      }
-      if(theFixedFlag) {// 15.9
-         TheDealtaZatVTX  = HalfZRegion_size;
-      }
+      // delta Z from vertex error
+      TheDeltaZatVTX = (Vtx->zError())*Nsigma_Dz;
 
      }
    }
@@ -181,7 +179,12 @@ RectangularEtaPhiTrackingRegion* MuonTrackingRegionBuilder::region(const reco::T
   region_dPhi = max(Phi_minimum,region_dPhi1);
   region_dEta = max(Eta_minimum,region_dEta1);
 
-  float deltaZ  = HalfZRegion_size;
+  float deltaZ=0;
+  //standard 15.9 is useVertex than region from vertexing
+  if(usePixelVertex){
+    deltaZ  = TheDeltaZatVTX;
+  } else { deltaZ = HalfZRegion_size; }
+
   float deltaR  = Delta_R_Region;
   double minPt   = max(TkEscapePt,mom.perp()*0.6);
 
