@@ -60,8 +60,8 @@ void MVATrainerSave::endJob()
 			<< "DBService unavailable" << std::endl;
 
 	dbService->createNewIOV<Calibration::MVAComputer>(
-		calib.release(), dbService->endOfTime(),
-		getRecordName().c_str());
+		calib.release(), dbService->beginOfTime(),
+		dbService->endOfTime(), getRecordName().c_str());
 
 	saved = true;
 }

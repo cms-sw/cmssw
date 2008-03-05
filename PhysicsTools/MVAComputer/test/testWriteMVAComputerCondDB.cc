@@ -214,7 +214,7 @@ void testWriteMVAComputerCondDB::endJob()
 		return;
 
 	dbService->createNewIOV<MVAComputerContainer>(
-		container, dbService->endOfTime(),
+		container, dbService->beginOfTime(), dbService->endOfTime(),
 		"BTauGenericMVAJetTagComputerRcd");
 }
 

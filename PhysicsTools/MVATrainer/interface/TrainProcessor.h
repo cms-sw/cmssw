@@ -5,11 +5,7 @@
 #include <string>
 
 #include <boost/version.hpp>
-#if BOOST_VERSION >= 103400
-#	include <boost/filesystem.hpp>
-#else
-#	include <unistd.h>
-#endif
+#include <boost/filesystem.hpp>
 
 #include <xercesc/dom/DOM.hpp>
 
@@ -66,13 +62,7 @@ class TrainProcessor : public Source,
 	{ return 0; }
 
 	inline bool exists(const std::string &name)
-	{
-#if BOOST_VERSION >= 103400
-		return boost::filesystem::exists(name.c_str());
-#else
-		return ::access(name.c_str(), R_OK) == 0;
-#endif
-	}
+	{ return boost::filesystem::exists(name.c_str()); }
 
 	std::string	name;
 	MVATrainer	*trainer;

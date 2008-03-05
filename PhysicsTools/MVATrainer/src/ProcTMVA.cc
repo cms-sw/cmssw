@@ -321,20 +321,14 @@ void ProcTMVA::runTMVATrainer()
 
 	factory->SetWeightExpression("__WEIGHT__");
 
-#if ROOT_VERSION_CODE >= ROOT_VERSION(5, 15, 0)
 	factory->PrepareTrainingAndTestTree("", nSignal, nBackground, 1, 1,
 	                                    "SplitMode=Block:!V");
-#else
-	factory->PrepareTrainingAndTestTree("", -1);
-#endif
 
 	factory->BookMethod(methodType, methodName, methodDescription);
 
 	factory->TrainAllMethods();
 
-#if ROOT_VERSION_CODE >= ROOT_VERSION(5, 15, 0)
 	factory.release(); // ROOT seems to take care of destruction?!
-#endif
 
 	file->Close();
 }
@@ -343,11 +337,10 @@ void ProcTMVA::trainEnd()
 {
 	switch(iteration) {
 	    case ITER_EXPORT:
-#if ROOT_VERSION_CODE >= ROOT_VERSION(5, 15, 0)
 		// work around TMVA issue: fill 1 dummy sig and bkg test event
 		treeSig->Fill();
 		treeBkg->Fill();
-#endif
+
 		/* ROOT context-safe */ {
 			ROOTContextSentinel ctx;
 			file->cd();

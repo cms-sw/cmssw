@@ -12,7 +12,7 @@
 //
 // Author:      Christophe Saout
 // Created:     Sat Apr 24 15:18 CEST 2007
-// $Id: ProcTMVA.cc,v 1.4 2007/07/15 22:31:46 saout Exp $
+// $Id: ProcTMVA.cc,v 1.5 2008/01/07 09:10:00 saout Exp $
 //
 
 #include <string>
@@ -66,6 +66,7 @@ static TMVA::MethodBase *methodInst(TMVA::DataSet *data, TMVA::Types::EMVA type)
 {
 	switch(type) {
 		SWITCH_METHOD(Cuts)
+		SWITCH_METHOD(SeedDistance)
 		SWITCH_METHOD(Likelihood)
 		SWITCH_METHOD(PDERS)
 		SWITCH_METHOD(HMatrix)
@@ -73,12 +74,12 @@ static TMVA::MethodBase *methodInst(TMVA::DataSet *data, TMVA::Types::EMVA type)
 		SWITCH_METHOD(CFMlpANN)
 		SWITCH_METHOD(TMlpANN)
 		SWITCH_METHOD(BDT)
-		SWITCH_METHOD(MLP)
-#if ROOT_VERSION_CODE >= ROOT_VERSION(5, 15, 0)
-		SWITCH_METHOD(SVM)
-#endif
 		SWITCH_METHOD(RuleFit)
+		SWITCH_METHOD(SVM)
+		SWITCH_METHOD(MLP)
 		SWITCH_METHOD(BayesClassifier)
+		SWITCH_METHOD(FDA)
+		SWITCH_METHOD(Committee)
 	    default:
 		return 0;
 	}
@@ -125,18 +126,10 @@ void ProcTMVA::configure(ConfIterator iter, unsigned int n)
 void ProcTMVA::eval(ValueIterator iter, unsigned int n) const
 {
 	for(unsigned int i = 0; i < n; i++)
-#if ROOT_VERSION_CODE >= ROOT_VERSION(5, 15, 0)
 		data.GetEvent().SetVal(i, *iter++);
-#else
-		data.Event().SetVal(i, *iter++);
-#endif
 
-#if ROOT_VERSION_CODE >= ROOT_VERSION(5, 15, 0)
 	method->GetVarTransform().GetEventRaw().CopyVarValues(data.GetEvent());
 	method->GetVarTransform().ApplyTransformation(TMVA::Types::kSignal);
-#else
-	data.ApplyTransformation(method->GetPreprocessingMethod(), kTRUE);
-#endif
 	iter << method->GetMvaValue();
 }
 
