@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Jan 17 19:13:46 EST 2008
-// $Id: FWModelChangeManager.cc,v 1.3 2008/01/23 15:02:14 chrjones Exp $
+// $Id: FWModelChangeManager.cc,v 1.4 2008/01/25 01:54:08 chrjones Exp $
 //
 
 // system include files
@@ -17,6 +17,7 @@
 
 // user include files
 #include "Fireworks/Core/interface/FWModelChangeManager.h"
+#include "Fireworks/Core/interface/FWEventItem.h"
 
 
 //

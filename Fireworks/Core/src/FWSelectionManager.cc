@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Jan 18 14:40:51 EST 2008
-// $Id: FWSelectionManager.cc,v 1.4 2008/01/25 01:54:08 chrjones Exp $
+// $Id: FWSelectionManager.cc,v 1.5 2008/01/25 04:05:36 chrjones Exp $
 //
 
 // system include files
@@ -18,6 +18,7 @@
 // user include files
 #include "Fireworks/Core/interface/FWSelectionManager.h"
 #include "Fireworks/Core/interface/FWModelChangeManager.h"
+#include "Fireworks/Core/interface/FWEventItem.h"
 
 
 //
