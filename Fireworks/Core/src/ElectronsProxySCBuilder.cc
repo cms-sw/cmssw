@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Sun Jan  6 23:57:00 EST 2008
-// $Id: ElectronsProxySCBuilder.cc,v 1.5 2008/02/28 23:25:19 jmuelmen Exp $
+// $Id: ElectronsProxySCBuilder.cc,v 1.6 2008/02/28 23:43:05 jmuelmen Exp $
 //
 
 // system include files
@@ -172,7 +172,7 @@ void ElectronsProxySCBuilder::build (TEveElementList **product)
 			    i->gsfTrack()->vz());
 	  t.fSign = i->gsfTrack()->charge();
 	  TEveTrack* trk = new TEveTrack(&t, propagator);
-	  const float rgba[4] = { 0, 1, 0, 1 };
+	  //const float rgba[4] = { 0, 1, 0, 1 };
 // 	  trk->SetRGBA(rgba);
 	  trk->SetLineColor((Color_t)kGreen);
 	  trk->SetLineWidth(2);
