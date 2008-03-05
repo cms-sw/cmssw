@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Thu Jan  3 14:59:23 EST 2008
-// $Id: FWEventItem.cc,v 1.9 2008/02/29 21:12:56 chrjones Exp $
+// $Id: FWEventItem.cc,v 1.10 2008/03/01 02:17:49 chrjones Exp $
 //
 
 // system include files
@@ -190,6 +190,13 @@ FWEventItem::setDefaultDisplayProperties(const FWDisplayProperties& iProp)
    m_displayProperties= iProp;
 }
 
+void 
+FWEventItem::setFilterExpression(const std::string& iExpression)
+{
+   m_filter.setExpression(iExpression);
+   runFilter();
+}
+
 void
 FWEventItem::runFilter()
 {   
@@ -203,9 +210,11 @@ FWEventItem::runFilter()
       for(int index = 0; index != size; ++index,++itInfo) {
          if(not m_filter.passesFilter(m_colProxy->At(index))) {
             itInfo->m_displayProperties.setIsVisible(false);
-            FWModelId id(this,index);
-            m_changeManager->changed(id);
+         } else {
+            itInfo->m_displayProperties.setIsVisible(true);
          }
+         FWModelId id(this,index);
+         m_changeManager->changed(id);
       }
    }
 }
@@ -318,6 +327,13 @@ FWEventItem::setData(const void* iData) const
    }
 }
 
+void 
+FWEventItem::getPrimaryData() const
+{
+   if(0!=m_data) return;
+   this->data(*(m_type->GetTypeInfo()));
+}
+
 const FWDisplayProperties& 
 FWEventItem::defaultDisplayProperties() const
 {
@@ -362,12 +378,14 @@ FWEventItem::processName() const
 const FWEventItem::ModelInfo& 
 FWEventItem::modelInfo(int iIndex) const
 {
+   getPrimaryData();
    return m_itemInfos.at(iIndex);
 }
 
 size_t
 FWEventItem::size() const
 {
+   getPrimaryData();
    return m_itemInfos.size();
 }
 
@@ -380,9 +398,15 @@ FWEventItem::modelType() const
 const void* 
 FWEventItem::modelData(int iIndex) const
 {
-   const void * data = this->data(*(m_type->GetTypeInfo()));
-   if ( 0 == data) { return data; }
-   return 0 != m_colProxy.get()? m_colProxy->At(iIndex) : data;
+   getPrimaryData();
+   if ( 0 == m_data) { return m_data; }
+   return 0 != m_colProxy.get()? m_colProxy->At(iIndex) : m_data;
+}
+
+const std::string& 
+FWEventItem::filterExpression() const
+{
+   return m_filter.expression();
 }
 
 //
