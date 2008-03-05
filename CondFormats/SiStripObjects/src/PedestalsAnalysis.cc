@@ -372,12 +372,8 @@ bool PedestalsAnalysis::isValid() const {
 // 
 void PedestalsAnalysis::print( std::stringstream& ss, uint32_t iapv ) { 
 
-  if ( iapv >= 2 ) { 
-    edm::LogWarning(mlCommissioning_)
-      << "[" << myName() << "::" << __func__ << "]"
-      << " Unexpected APV number: " << iapv;
-    return;
-  }
+  if ( iapv == 1 || iapv == 2 ) { iapv--; }
+  else { iapv = 0; }
   
   if ( peds_[iapv].size() < 128 ||
        noise_[iapv].size() < 128 ||
