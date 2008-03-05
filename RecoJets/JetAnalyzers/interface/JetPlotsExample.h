@@ -10,6 +10,8 @@
  */
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 
+class TFile;
+
 class JetPlotsExample : public edm::EDAnalyzer {
 public:
   JetPlotsExample( const edm::ParameterSet & );

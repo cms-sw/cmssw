@@ -10,6 +10,8 @@
  */
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 
+class TFile;
+
 class CaloTowersExample : public edm::EDAnalyzer {
 public:
   CaloTowersExample( const edm::ParameterSet & );

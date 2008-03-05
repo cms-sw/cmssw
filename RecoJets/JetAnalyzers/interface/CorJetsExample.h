@@ -10,6 +10,8 @@
  */
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 
+class TFile;
+
 class CorJetsExample : public edm::EDAnalyzer {
 public:
   CorJetsExample( const edm::ParameterSet & );

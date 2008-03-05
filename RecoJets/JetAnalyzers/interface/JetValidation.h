@@ -12,6 +12,8 @@
  */
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 
+class TFile;
+
 class JetValidation : public edm::EDAnalyzer {
 public:
   JetValidation( const edm::ParameterSet & );

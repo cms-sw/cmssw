@@ -12,6 +12,8 @@
  */
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 
+class TFile;
+
 class DijetMass : public edm::EDAnalyzer {
 public:
   DijetMass( const edm::ParameterSet & );
