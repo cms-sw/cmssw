@@ -152,7 +152,10 @@ WriteOneGeometryFromXML::beginJob( edm::EventSetup const& es)
 
   if ( mydbservice->isNewTagRequest("IdealGeometryRecord") ) {
     //    mydbservice->newValidityForNewPayload<PIdealGeometry>(pgeom, mydbservice->endOfTime(), callbackToken);
-    mydbservice->createNewIOV<PIdealGeometry>(pgeom, mydbservice->endOfTime(), "IdealGeometryRecord");
+    mydbservice->createNewIOV<PIdealGeometry>(pgeom
+					      , mydbservice->beginOfTime()
+					      , mydbservice->endOfTime()
+					      , "IdealGeometryRecord");
   } else {
     std::cout << "Tag is already present." << std::endl;
   }

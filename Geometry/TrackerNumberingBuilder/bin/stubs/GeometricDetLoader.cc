@@ -55,7 +55,10 @@ GeometricDetLoader::beginJob( edm::EventSetup const& es)
     putOne(modules[i], pgd);
   }
   if ( mydbservice->isNewTagRequest("PGeometricDetRcd") ) {
-    mydbservice->createNewIOV<PGeometricDet>(pgd, mydbservice->endOfTime(), "PGeometricDetRcd");
+    mydbservice->createNewIOV<PGeometricDet>( pgd
+					      , mydbservice->beginOfTime()
+					      , mydbservice->endOfTime()
+					      , "PGeometricDetRcd");
   } else {
     std::cout << "PGeometricDetRcd Tag is already present." << std::endl;
   }
