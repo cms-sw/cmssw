@@ -258,7 +258,7 @@ class Profile:
     # edit here if more profilers added
     def make_profile(self):
         '''
-        Launch the ricght function according to the profiler name.
+        Launch the right function according to the profiler name.
         '''  
         if self.profiler=='ValgrindFCE':
             return self._profile_valgrindfce()
@@ -366,18 +366,23 @@ class Profile:
    
     def _profile_Memcheck_Valgrind(self):
         '''
-        Launch Valgrind Memcheck profiler
+        Valgrind Memcheck profile launcher
         '''
-        
-        profiler_line='valgrind --tool=memcheck '+\
+        profiler_line=''
+        valgrind_options='time valgrind --tool=memcheck '+\
                                '--leak-check=yes '+\
-                               ' --show-reachable=yes '+\
+                               '--show-reachable=yes '+\
                                '--num-callers=20 '+\
-                               '--track-fds=yes '+\
-                               '%s 2>&1 |tee %s' %(self.command,self.profile_name)
+                               '--track-fds=yes '
         
+        # If we are using cmsDriver we should use the prefix switch        
+        if EXECUTABLE=='cmsRun' and self.command.find('cmsDriver.py')!=-1:
+            profiler_line='%s --prefix "%s" 2>&1 |tee %s' %(self.command,valgrind_options,self.profile_name)
+                            
+        else:                          
+            profiler_line='%s %s >& %s' %(valgrind_options,self.command,self.profile_name)
+                        #'--trace-children=yes '+\
         return execute(profiler_line)
-        
     #-------------------------------------------------------------------
     
     def _profile_Timereport_Parser(self):

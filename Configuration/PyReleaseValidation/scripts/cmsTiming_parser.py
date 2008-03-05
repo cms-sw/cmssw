@@ -109,7 +109,7 @@ def manipulate_log(outdir,logfile_name,secsperbin):
         
     #A line which represents the average is drawn in the TGraph
     avg=histo.GetMean()
-    avg_line=ROOT.TLine(0,avg,last_event,avg)
+    avg_line=ROOT.TLine(1,avg,last_event,avg)
     avg_line.SetLineColor(4)
     avg_line.SetLineWidth(2)
         

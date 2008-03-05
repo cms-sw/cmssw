@@ -16,7 +16,7 @@ def execute(command):
 def analyse_prof_sim(profile_name,outdir):
     
     # A way of formatting strings similar to the c++ one                 
-    outfile1='%s/mem.res' %outdir
+    outfile1='%s/mem_live.res' %outdir
     outfile2='%s/doProduce_output.txt' %outdir
     outfile3='%s/doBeginJob_output.txt' %outdir    
     dummyfile='%s/IgProf-Analyse_output.txt' %outdir
@@ -24,7 +24,7 @@ def analyse_prof_sim(profile_name,outdir):
     #A first manipulation of the profile
     command='igprof-analyse -d -v -g --value peak -r MEM_LIVE %s > %s'\
                                     %(profile_name,dummyfile)
-    execute(command) #we use the method system of the object os tu run a command
+    execute(command) #we use the method system of the object os to run a command
     
     # now let's execute the segment and analyse commands                                                                
     commands_list=(\
@@ -44,7 +44,7 @@ def analyse_prof_sim(profile_name,outdir):
     titlestring='<b>Report executed with release %s on %s.</b>\n<br>\n<hr>\n'\
                                    %(os.environ['CMSSW_VERSION'],time.asctime())
     
-    for command,filename in map(None,commands_list,[outfile1,outfile2,outfile3]):
+    for command,filename in map(None,commands_list,[outfile2,outfile3,outfile1]):
         command_info='Command executed: <em>%s</em><br><br>\n' %command 
         
         # we open and read the txt ascii file
