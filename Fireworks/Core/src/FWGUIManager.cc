@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Feb 11 11:06:40 EST 2008
-// $Id: FWGUIManager.cc,v 1.6 2008/02/24 20:39:05 dmytro Exp $
+// $Id: FWGUIManager.cc,v 1.7 2008/02/29 21:24:45 chrjones Exp $
 //
 
 // system include files
@@ -39,9 +39,9 @@
 #include "Fireworks/Core/interface/FWSelectionManager.h"
 #include "Fireworks/Core/interface/FWModelExpressionSelector.h"
 #include "Fireworks/Core/interface/FWEventItemsManager.h"
+#include "Fireworks/Core/interface/FWSummaryManager.h"
+#include "Fireworks/Core/interface/FWDetailViewManager.h"
 #include "Fireworks/Core/interface/FWViewBase.h"
-
-#include "Fireworks/Core/src/FWListEventItem.h"
 
 //
 // constants, enums and typedefs
@@ -62,7 +62,8 @@ m_selectionManager(iSelMgr),
 m_eiManager(iEIMgr),
 m_continueProcessingEvents(false),
 m_waitForUserAction(true),
-m_code(0)
+m_code(0),
+m_detailViewManager(new FWDetailViewManager() )
 {
    m_selectionManager->selectionChanged_.connect(boost::bind(&FWGUIManager::selectionChanged,this,_1));
    m_eiManager->newItem_.connect(boost::bind(&FWGUIManager::newItem,
@@ -153,15 +154,14 @@ m_code(0)
          //frmMain->SetEditable(kFALSE);
          frmMain->AddFrame(ltf);
          m_listTree = ltf->GetListTree();
-         m_eventObjects =  new TEveElementList("Physics Objects");
-         m_listTree->OpenItem(m_eventObjects->AddIntoListTree(m_listTree,
-                                                              reinterpret_cast<TGListTreeItem*>(0))
-                              );
+         m_summaryManager = new FWSummaryManager(m_listTree,
+                                                 iSelMgr,
+                                                 iEIMgr,
+                                                 m_detailViewManager);
          m_views =  new TEveElementList("Views");
          m_views->AddIntoListTree(m_listTree,reinterpret_cast<TGListTreeItem*>(0));
          m_editor = ltf->GetEditor();
          m_editor->DisplayElement(0);
-
          {
             //m_listTree->Connect("mouseOver(TGListTreeItem*, UInt_t)", "FWGUIManager",
               //                 this, "itemBelowMouse(TGListTreeItem*, UInt_t)");
@@ -261,6 +261,8 @@ m_code(0)
 
 FWGUIManager::~FWGUIManager()
 {
+   delete m_summaryManager;
+   delete m_detailViewManager;
 }
 
 //
@@ -396,11 +398,6 @@ FWGUIManager::newItem(const FWEventItem* iItem)
    if(iItem->id()==0) {
       m_selectionItemsComboBox->Select(0);
    }
-   //TEveElementList* lst = new TEveElementList(iItem->name().c_str(),"",kTRUE);
-   //lst->SetMainColor(iItem->defaultDisplayProperties().color());
-   //NEED TO CHANGE THE SIGNATURE OF THE SIGNAL
-   TEveElementList* lst = new FWListEventItem( const_cast<FWEventItem*>(iItem) );
-   lst->AddIntoListTree(m_listTree,m_eventObjects);
 }
 
 

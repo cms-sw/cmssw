@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Feb 11 10:52:24 EST 2008
-// $Id: FWGUIManager.h,v 1.5 2008/02/21 20:49:10 chrjones Exp $
+// $Id: FWGUIManager.h,v 1.6 2008/02/29 21:24:46 chrjones Exp $
 //
 
 // system include files
@@ -41,10 +41,12 @@ class FWEventItemsManager;
 class FWEventItem;
 class FWViewBase;
 
-class TGListTree;
 class TGListTreeItem;
+class TGListTree;
 class TEveGedEditor;
-class TObject;
+
+class FWSummaryManager;
+class FWDetailViewManager;
 
 class FWGUIManager
 {
@@ -130,11 +132,13 @@ class FWGUIManager
       
       typedef std::map<std::string, ViewBuildFunctor > NameToViewBuilder;
       NameToViewBuilder m_nameToViewBuilder;
-   
+  
       TGListTree* m_listTree;
       TEveGedEditor* m_editor;
-      TEveElementList* m_eventObjects;
       TEveElementList* m_views;
+
+      FWSummaryManager* m_summaryManager;
+      FWDetailViewManager* m_detailViewManager;
 };
 
 
