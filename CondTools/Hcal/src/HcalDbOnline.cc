@@ -1,7 +1,7 @@
 
 //
 // F.Ratnikov (UMd), Dec 14, 2005
-// $Id: HcalDbOnline.cc,v 1.17 2007/05/09 07:34:46 michals Exp $
+// $Id: HcalDbOnline.cc,v 1.18 2008/03/03 20:33:27 rofierzy Exp $
 //
 #include <limits>
 #include <string>
@@ -253,7 +253,10 @@ bool HcalDbOnline::getObject (HcalQIEData* fObject, const std::string& fTag, IOV
 	  }
 	}
 	
-	HcalQIECoder coder;
+	HcalSubdetector sub = hcalSubdet (subdet);
+	HcalDetId id (sub, z * eta, phi, depth);
+
+	HcalQIECoder coder(id.rawId());
 	for (int capId = 0; capId < 4; capId++) {
 	  for (int range = 0; range < 4; range++) {
 	    coder.setOffset (capId, range, offset [capId][range]);
@@ -261,10 +264,7 @@ bool HcalDbOnline::getObject (HcalQIEData* fObject, const std::string& fTag, IOV
 	  }
 	}
 	
-	HcalSubdetector sub = hcalSubdet (subdet);
-	HcalDetId id (sub, z * eta, phi, depth);
-	
-	fObject->addCoder (id, coder);
+	fObject->addCoder (coder);
       }
       delete rset;
     }
@@ -394,13 +394,13 @@ bool HcalDbOnline::getObject (HcalCalibrationQIEData* fObject, const std::string
 	float values [32];
 	for (unsigned bin = 0; bin < 32; bin++) values [bin] = rset->getFloat (index++);
 	
-	HcalCalibrationQIECoder coder;
-	coder.setMinCharges (values);
-	
 	HcalSubdetector sub = hcalSubdet (subdet);
 	HcalDetId id (sub, z * eta, phi, depth);
+
+	HcalCalibrationQIECoder coder(id.rawId());
+	coder.setMinCharges (values);
 	
-	fObject->addCoder (id, coder);
+	fObject->addCoder (coder);
       }
       delete rset;
     }

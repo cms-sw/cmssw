@@ -117,13 +117,13 @@ void HcalQIEDataCheck::analyze(const edm::Event& ev, const edm::EventSetup& es)
 	  {
 	    const HcalQIECoder* myCoder = myRefQIEs->getCoder( mydetid );
 	    std::cout << "o";
-	    resultQIEs->addCoder( mydetid, *myCoder );
+	    resultQIEs->addCoder( *myCoder );
 	  }
 	else // present in new list
 	  {
 	    const HcalQIECoder* myCoder = myNewQIEs->getCoder( mydetid );
 	    std::cout << "n";
-	    resultQIEs->addCoder( mydetid, *myCoder );
+	    resultQIEs->addCoder( *myCoder );
 	    listNewChan.erase(cell);  // fix 25.02.08
 	  }
       }
@@ -132,7 +132,7 @@ void HcalQIEDataCheck::analyze(const edm::Event& ev, const edm::EventSetup& es)
 	DetId mydetid = *it;
 	const HcalQIECoder* myCoder = myNewQIEs->getCoder( mydetid );
 	std::cout << "N";
-	resultQIEs->addCoder( mydetid, *myCoder );
+	resultQIEs->addCoder( *myCoder );
       }
 
     std::ofstream outStream3(outfile.c_str());
