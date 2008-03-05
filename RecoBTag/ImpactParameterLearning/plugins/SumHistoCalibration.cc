@@ -11,9 +11,9 @@
      <Notes on implementation>
 */
 //
-// Original Author:  Jeremy Andrea/Andrea Rizzi
-//         Created:  Mon Aug  6 16:10:38 CEST 2007
-// $Id: ImpactParameterCalibration.cc,v 1.5 2008/02/27 08:44:27 tboccali Exp $
+// Original Author:  Jeremy Andrea
+//         Created:  Wed Mar  5 19:17:38 CEST 2008
+// $Id: SumHistoCalibration.cc,v 1.1 2008/03/05 18:16:36 jandrea Exp $
 //
 //
 // system include files
