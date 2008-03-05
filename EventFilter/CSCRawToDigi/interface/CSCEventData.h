@@ -86,29 +86,29 @@ class CSCEventData {
   int nclct() const {return nclct_;}
 
   /// the DAQ motherboard header.  A good place for event and chamber info
-  const CSCDMBHeader & dmbHeader() const {return theDMBHeader;}
-  CSCDMBHeader & dmbHeader()  {return theDMBHeader;}
+  const CSCDMBHeader * dmbHeader() const {return &theDMBHeader;}
+  CSCDMBHeader * dmbHeader()  {return &theDMBHeader;}
   
   /// user must check if nalct > 0
   CSCALCTHeader * alctHeader() const;
 
   /// user must check if nalct > 0
-  CSCALCTTrailer alctTrailer() const;
+  CSCALCTTrailer * alctTrailer() const;
 
   /// user must check if nalct > 0
-  CSCAnodeData & alctData() const;
+  CSCAnodeData * alctData() const;
 
   ///user must check in nclct > 0
   CSCTMBData * tmbData() const;
 
   /// user must check if nclct > 0
-  CSCTMBHeader & tmbHeader() const;
+  CSCTMBHeader * tmbHeader() const;
 
   /// user must check if nclct > 0
-  CSCCLCTData & clctData() const;
+  CSCCLCTData * clctData() const;
 
   /// DMB trailer
-  CSCDMBTrailer dmbTrailer() const {return theDMBTrailer;}
+  const CSCDMBTrailer * dmbTrailer() const {return &theDMBTrailer;}
   /// routines to add digis to the data
   void add(const CSCStripDigi &, int layer);
   void add(const CSCWireDigi &, int layer);

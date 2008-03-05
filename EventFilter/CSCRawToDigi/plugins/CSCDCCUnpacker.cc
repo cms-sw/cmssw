@@ -227,8 +227,8 @@ void CSCDCCUnpacker::produce(edm::Event & e, const edm::EventSetup& c){
 	  for (unsigned int iCSC=0; iCSC<cscData.size(); ++iCSC) { //loop over CSCs
 
 	    ///first process chamber-wide digis such as LCT
-	    int vmecrate = cscData[iCSC].dmbHeader().crateID();
-	    int dmb = cscData[iCSC].dmbHeader().dmbID();
+	    int vmecrate = cscData[iCSC].dmbHeader()->crateID();
+	    int dmb = cscData[iCSC].dmbHeader()->dmbID();
 
 	    ///adjust crate numbers for MTCC data
 	    if (unpackMTCCData)
@@ -267,7 +267,7 @@ void CSCDCCUnpacker::produce(edm::Event & e, const edm::EventSetup& c){
 
 
 	    ///check alct data integrity 
-	    int nalct = cscData[iCSC].dmbHeader().nalct();
+	    int nalct = cscData[iCSC].dmbHeader()->nalct();
 	    bool goodALCT=false;
 	    //if (nalct&&(cscData[iCSC].dataPresent>>6&0x1)==1) {
 	    if (nalct&&cscData[iCSC].alctHeader()) {  
@@ -310,12 +310,12 @@ void CSCDCCUnpacker::produce(edm::Event & e, const edm::EventSetup& c){
 		    
 		  
 	    ///check TMB data integrity
-	    int nclct = cscData[iCSC].dmbHeader().nclct();
+	    int nclct = cscData[iCSC].dmbHeader()->nclct();
 	    bool goodTMB=false;
 	    //	    if (nclct&&(cscData[iCSC].dataPresent>>5&0x1)==1) {
 	    if (nclct&&cscData[iCSC].tmbData()) {
-	      if (cscData[iCSC].tmbHeader().check()){
-		if (cscData[iCSC].clctData().check()) goodTMB=true; 
+	      if (cscData[iCSC].tmbHeader()->check()){
+		if (cscData[iCSC].clctData()->check()) goodTMB=true; 
 	      }
 	      else {
 		edm::LogError ("CSCDCCUnpacker") <<
@@ -329,7 +329,7 @@ void CSCDCCUnpacker::produce(edm::Event & e, const edm::EventSetup& c){
 	    ///fill correlatedlct and clct digi
 	    if (goodTMB) { 
 	      std::vector <CSCCorrelatedLCTDigi>  correlatedlctDigis =
-		cscData[iCSC].tmbHeader().CorrelatedLCTDigis(layer.rawId());
+		cscData[iCSC].tmbHeader()->CorrelatedLCTDigis(layer.rawId());
 	      
 	      ///ugly kludge to fix wiregroup numbering in MTCC data
 	      if ( unpackMTCCData && (((layer.ring()==3)&&(layer.station()==1))||
@@ -354,14 +354,14 @@ void CSCDCCUnpacker::produce(edm::Event & e, const edm::EventSetup& c){
 
 		      
 	      std::vector <CSCCLCTDigi>  clctDigis =
-		cscData[iCSC].tmbHeader().CLCTDigis(layer.rawId());
+		cscData[iCSC].tmbHeader()->CLCTDigis(layer.rawId());
 	      clctProduct->put(std::make_pair(clctDigis.begin(), clctDigis.end()),layer);
 	      
 	      /// fill cscRpc digi
 	      if (cscData[iCSC].tmbData()->checkSize()) {
 		if (cscData[iCSC].tmbData()->hasRPC()) {
 		  std::vector <CSCRPCDigi>  rpcDigis =
-		    cscData[iCSC].tmbData()->rpcData().digis();
+		    cscData[iCSC].tmbData()->rpcData()->digis();
 		  rpcProduct->put(std::make_pair(rpcDigis.begin(), rpcDigis.end()),layer);
 		}
 	      } 
@@ -377,14 +377,14 @@ void CSCDCCUnpacker::produce(edm::Event & e, const edm::EventSetup& c){
 		    insertDigi(layer, cscData[iCSC].cfebData(icfeb)->statusDigi());
 	      }
 	      ///put dmb status digi
-	      dmbStatusProduct->insertDigi(layer, CSCDMBStatusDigi(cscData[iCSC].dmbHeader().data(),
-								   cscData[iCSC].dmbTrailer().data()));
+	      dmbStatusProduct->insertDigi(layer, CSCDMBStatusDigi(cscData[iCSC].dmbHeader()->data(),
+								   cscData[iCSC].dmbTrailer()->data()));
 	      if (goodTMB)  tmbStatusProduct->
-			      insertDigi(layer, CSCTMBStatusDigi(cscData[iCSC].tmbHeader().data(),
-								 cscData[iCSC].tmbData()->tmbTrailer().data()));
+			      insertDigi(layer, CSCTMBStatusDigi(cscData[iCSC].tmbHeader()->data(),
+								 cscData[iCSC].tmbData()->tmbTrailer()->data()));
 	      if (goodALCT) alctStatusProduct->
 			      insertDigi(layer, CSCALCTStatusDigi(cscData[iCSC].alctHeader()->data(),
-								  cscData[iCSC].alctTrailer().data()));
+								  cscData[iCSC].alctTrailer()->data()));
 	    }
 		
 
@@ -424,7 +424,7 @@ void CSCDCCUnpacker::produce(edm::Event & e, const edm::EventSetup& c){
 			      
 		if (goodTMB){
 		  std::vector <CSCComparatorDigi>  comparatorDigis =
-		    cscData[iCSC].clctData().comparatorDigis(layer.rawId(), icfeb);
+		    cscData[iCSC].clctData()->comparatorDigis(layer.rawId(), icfeb);
 		  comparatorProduct->put(std::make_pair(comparatorDigis.begin(), 
 							comparatorDigis.end()),layer);
 		}

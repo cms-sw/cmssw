@@ -23,6 +23,7 @@ public:
   void setEventInformation(const CSCDMBHeader &) {};
 
   unsigned short * data() {return (unsigned short *) this;}
+  unsigned short * data() const {return (unsigned short *) this;}
 
   unsigned L1a_counter   : 8;
   unsigned dmb_bxn       : 4;  

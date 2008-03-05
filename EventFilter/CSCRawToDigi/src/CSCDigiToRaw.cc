@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2008/02/04 21:37:08 $
- *  $Revision: 1.19 $
+ *  $Date: 2008/02/07 15:38:56 $
+ *  $Revision: 1.20 $
  *  \author A. Tumanov - Rice
  */
 
@@ -69,7 +69,7 @@ CSCDigiToRaw::fillChamberDataMap(const CSCStripDigiCollection & stripDigis,
       //std::cout<<"printing CSCDetId just before dmb" <<cscDetId<<std::endl;
       //std::cout<<"crate " <<mapping->crate(cscDetId)<<std::endl;
       //std::cout<<"dmb " <<mapping->dmb(cscDetId)<<std::endl;
-      cscData.dmbHeader().setCrateAddress(mapping->crate(cscDetId), mapping->dmb(cscDetId));
+      cscData.dmbHeader()->setCrateAddress(mapping->crate(cscDetId), mapping->dmb(cscDetId));
       //add strip digis to that chamber
       std::vector<CSCStripDigi>::const_iterator digiItr = (*j).second.first;
       std::vector<CSCStripDigi>::const_iterator last = (*j).second.second;
@@ -108,7 +108,7 @@ CSCDigiToRaw::fillChamberDataMap(const CSCStripDigiCollection & stripDigis,
           chamberMapItr = chamberMap.insert(pair<CSCDetId, CSCEventData>(chamberID, CSCEventData(chamberType))).first;
         }
       CSCEventData & cscData = chamberMapItr->second;
-      cscData.dmbHeader().setCrateAddress(mapping->crate(cscDetId), mapping->dmb(cscDetId));
+      cscData.dmbHeader()->setCrateAddress(mapping->crate(cscDetId), mapping->dmb(cscDetId));
       //add strip digis to that chamber
       std::vector<CSCWireDigi>::const_iterator digiItr = (*j).second.first;
       std::vector<CSCWireDigi>::const_iterator last = (*j).second.second;

@@ -266,15 +266,15 @@ CSCALCTHeader* CSCEventData::alctHeader() const{
   return theALCTHeader;
 }
 
-CSCALCTTrailer CSCEventData::alctTrailer() const{
+CSCALCTTrailer * CSCEventData::alctTrailer() const{
   if(nalct() == 0) throw("No ALCT for this chamber");
-  return *theALCTTrailer;
+  return theALCTTrailer;
 }
 
 
-CSCAnodeData & CSCEventData::alctData() const {
+CSCAnodeData * CSCEventData::alctData() const {
   if(nalct() == 0) throw("No ALCT for this chamber");
-  return *theAnodeData;
+  return theAnodeData;
 }
 
 CSCTMBData * CSCEventData::tmbData() const {
@@ -283,12 +283,12 @@ CSCTMBData * CSCEventData::tmbData() const {
 }
 
 
-CSCTMBHeader & CSCEventData::tmbHeader() const {
+CSCTMBHeader * CSCEventData::tmbHeader() const {
   if(nclct() == 0) throw("No CLCT for this chamber");
   return tmbData()->tmbHeader();
 }
 
-CSCCLCTData & CSCEventData::clctData() const {
+CSCCLCTData * CSCEventData::clctData() const {
   if(nclct() == 0) throw("No CLCT for this chamber");
   return tmbData()->clctData();
 }
@@ -301,7 +301,7 @@ void CSCEventData::setEventInformation(int bxnum, int lvl1num) {
     theALCTHeader->setEventInformation(theDMBHeader);
   }
   if(theTMBData)  {
-    theTMBData->tmbHeader().setEventInformation(theDMBHeader);
+    theTMBData->tmbHeader()->setEventInformation(theDMBHeader);
   }
 }
     

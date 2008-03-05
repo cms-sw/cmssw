@@ -32,15 +32,15 @@ class CSCTMBData {
   int getCRC() const {return CRCCnt;}
   const unsigned short size()       const {return size_;}
 
-  CSCTMBHeader & tmbHeader()   {return theTMBHeader;}
-  CSCCLCTData & clctData()     {return theCLCTData;}
+  CSCTMBHeader * tmbHeader()   {return &theTMBHeader;}
+  CSCCLCTData * clctData()     {return &theCLCTData;}
   /// check this before using TMB Scope
   bool hasTMBScope() const { return theTMBScopeIsPresent;}
   CSCTMBScope & tmbScope() const;
-  CSCTMBTrailer & tmbTrailer() {return theTMBTrailer;}
+  CSCTMBTrailer * tmbTrailer() {return &theTMBTrailer;}
   /// check this before using RPC
   bool hasRPC() const {return theRPCDataIsPresent;}
-  CSCRPCData & rpcData()       {return theRPCData;}
+  CSCRPCData * rpcData()       {return &theRPCData;}
 
   /// not const because it sets size int TMBTrailer
 
