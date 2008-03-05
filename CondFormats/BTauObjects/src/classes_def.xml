@@ -1,16 +1,16 @@
      <lcgdict>
         <class name="TrackProbabilityCategoryData"/>      
-        <class name="TrackProbabilityCalibration"/>
+        <class name="TrackProbabilityCalibration" class_version="0"/>
 	<class name="TrackProbabilityCalibration::Entry"/>
 	<class name="std::vector<TrackProbabilityCalibration::Entry>"/>     
 
         <class name="CombinedSVCategoryData"/>      
-        <class name="CombinedSVCalibration"/>
+        <class name="CombinedSVCalibration" class_version="0"/>
 	<class name="CombinedSVCalibration::Entry"/>
 	<class name="std::vector<CombinedSVCalibration::Entry>"/>     
         
         <class name="CombinedTauTagCategoryData"/>        
-        <class name="CombinedTauTagCalibration"/>
+        <class name="CombinedTauTagCalibration" class_version="0"/>
         <class name="CombinedTauTagCalibration::Entry"/>
         <class name="std::vector<CombinedTauTagCalibration::Entry>"/>      
 </lcgdict>   

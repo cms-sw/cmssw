@@ -1,0 +1,10 @@
+<?xml version='1.0' encoding="UTF-8"?>
+<!DOCTYPE PoolDatabase SYSTEM "InMemory">
+ <PoolDatabase >
+  <PoolContainer name="TrackProbabilityCalibration3DRcd" >
+   <Class table="TRACKPROBABILITYCA_3" id_columns="ID" name="TrackProbabilityCalibration" mapping_version="TrackProbabilityCalibration3DRcd" >
+     <Blob column="TRACKPROBABILITYCA_4" name="data" />
+   </Class >
+  </PoolContainer >
+ </PoolDatabase >
+ 
