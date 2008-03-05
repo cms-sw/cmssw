@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2007/12/06 01:39:23 $
- *  $Revision: 1.4 $
+ *  $Date: 2008/02/20 22:47:47 $
+ *  $Revision: 1.5 $
  *  \author Andre Sznajder - UERJ(Brazil)
  */
  
@@ -119,51 +119,12 @@ void MisalignedMuonESProducer::saveToDB( void )
 	throw cms::Exception("NotAvailable") << "PoolDBOutputService not available";
 
   // Store DT alignments and errors
-  if ( poolDbService->isNewTagRequest(theDTAlignRecordName) ){
-   poolDbService->createNewIOV<Alignments>( &(*dt_Alignments), 
-	                                    poolDbService->endOfTime(), 
-                                            theDTAlignRecordName );
-  } else {
-    poolDbService->appendSinceTime<Alignments>( &(*dt_Alignments),
-                                                poolDbService->currentTime(), 
-                                                theDTAlignRecordName );
-  }
-      
-  if ( poolDbService->isNewTagRequest(theDTErrorRecordName) ){
-   poolDbService->createNewIOV<AlignmentErrors>( &(*dt_AlignmentErrors),
-                                                 poolDbService->endOfTime(), 
-                                                 theDTErrorRecordName );
-  } else {
-   poolDbService->appendSinceTime<AlignmentErrors>( &(*dt_AlignmentErrors),
-                                                    poolDbService->currentTime(),
-                                                    theDTErrorRecordName );
-  }							  
-
+  poolDbService->writeOne<Alignments>( &(*dt_Alignments), poolDbService->currentTime(), theDTAlignRecordName);
+  poolDbService->writeOne<AlignmentErrors>( &(*dt_AlignmentErrors), poolDbService->currentTime(), theDTErrorRecordName);
 
   // Store CSC alignments and errors
-  if ( poolDbService->isNewTagRequest(theCSCAlignRecordName) ){
-   poolDbService->createNewIOV<Alignments>( &(*csc_Alignments), 
-	                                    poolDbService->endOfTime(), 
-                                            theCSCAlignRecordName );
-  } else {
-    poolDbService->appendSinceTime<Alignments>( &(*csc_Alignments),
-                                                poolDbService->currentTime(), 
-                                                theCSCAlignRecordName );
-  }
-      
-  if ( poolDbService->isNewTagRequest(theCSCErrorRecordName) ){
-   poolDbService->createNewIOV<AlignmentErrors>( &(*csc_AlignmentErrors),
-                                                 poolDbService->endOfTime(), 
-                                                 theCSCErrorRecordName );
-  } else {
-   poolDbService->appendSinceTime<AlignmentErrors>( &(*csc_AlignmentErrors),
-                                                    poolDbService->currentTime(),
-                                                    theCSCErrorRecordName );
-  }							  
-
-
-
-  
+  poolDbService->writeOne<Alignments>( &(*csc_Alignments), poolDbService->currentTime(), theCSCAlignRecordName);
+  poolDbService->writeOne<AlignmentErrors>( &(*csc_AlignmentErrors), poolDbService->currentTime(), theCSCErrorRecordName);
 
 }
 //__________________________________________________________________________________________________

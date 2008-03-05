@@ -129,27 +129,8 @@ void MuonAlignment::saveDTSurveyToDB(void) {
   }
 
   // Store DT alignments and errors
-  if ( poolDbService->isNewTagRequest(theDTSurveyRecordName) ) {
-     poolDbService->createNewIOV<Alignments>( &(*dtAlignments),
-					            poolDbService->endOfTime(),
-					            theDTSurveyRecordName );
-  }
-  else {
-     poolDbService->appendSinceTime<Alignments>( &(*dtAlignments),
-						  poolDbService->currentTime(),
-						  theDTSurveyRecordName );
-  }
-
-  if ( poolDbService->isNewTagRequest(theDTSurveyErrorRecordName) ) {
-     poolDbService->createNewIOV<SurveyErrors>( &(*dtSurveyErrors),
-						poolDbService->endOfTime(),
-						theDTSurveyErrorRecordName );
-  }
-  else {
-     poolDbService->appendSinceTime<SurveyErrors>( &(*dtSurveyErrors),
-						      poolDbService->currentTime(),
-						      theDTSurveyErrorRecordName );
-  }
+  poolDbService->writeOne<Alignments>( &(*dtAlignments), poolDbService->currentTime(), theDTSurveyRecordName);
+  poolDbService->writeOne<SurveyErrors>( &(*dtSurveyErrors), poolDbService->currentTime(), theDTSurveyErrorRecordName);
 }
 
 void MuonAlignment::saveCSCSurveyToDB(void) {
@@ -159,8 +140,8 @@ void MuonAlignment::saveCSCSurveyToDB(void) {
      throw cms::Exception("NotAvailable") << "PoolDBOutputService not available";
 
   // Get alignments and errors
-  Alignments *dtAlignments = new Alignments();
-  SurveyErrors *dtSurveyErrors = new SurveyErrors();
+  Alignments *cscAlignments = new Alignments();
+  SurveyErrors *cscSurveyErrors = new SurveyErrors();
 
   std::vector<Alignable*> alignableList;
   recursiveList(theAlignableMuon->CSCEndcaps(), alignableList);
@@ -179,32 +160,13 @@ void MuonAlignment::saveCSCSurveyToDB(void) {
 			    aliid->id());
      SurveyError error((*alignable)->alignableObjectId(), aliid->id(), (*alignable)->survey()->errors());
      
-     dtAlignments->m_align.push_back(value);
-     dtSurveyErrors->m_surveyErrors.push_back(error);
+     cscAlignments->m_align.push_back(value);
+     cscSurveyErrors->m_surveyErrors.push_back(error);
   }
 
   // Store CSC alignments and errors
-  if ( poolDbService->isNewTagRequest(theCSCSurveyRecordName) ) {
-     poolDbService->createNewIOV<Alignments>( &(*dtAlignments),
-					            poolDbService->endOfTime(),
-					            theCSCSurveyRecordName );
-  }
-  else {
-     poolDbService->appendSinceTime<Alignments>( &(*dtAlignments),
-						  poolDbService->currentTime(),
-						  theCSCSurveyRecordName );
-  }
-
-  if ( poolDbService->isNewTagRequest(theCSCSurveyErrorRecordName) ) {
-     poolDbService->createNewIOV<SurveyErrors>( &(*dtSurveyErrors),
-						poolDbService->endOfTime(),
-						theCSCSurveyErrorRecordName );
-  }
-  else {
-     poolDbService->appendSinceTime<SurveyErrors>( &(*dtSurveyErrors),
-						      poolDbService->currentTime(),
-						      theCSCSurveyErrorRecordName );
-  }
+  poolDbService->writeOne<Alignments>( &(*cscAlignments), poolDbService->currentTime(), theCSCSurveyRecordName);
+  poolDbService->writeOne<SurveyErrors>( &(*cscSurveyErrors), poolDbService->currentTime(), theCSCSurveyErrorRecordName);
 }
 
 void MuonAlignment::saveSurveyToDB(void) {
@@ -223,25 +185,8 @@ void MuonAlignment::saveDTtoDB(void) {
   AlignmentErrors* dt_AlignmentErrors  = theAlignableMuon->dtAlignmentErrors();
 
   // Store DT alignments and errors
-  if ( poolDbService->isNewTagRequest(theDTAlignRecordName) ){
-   poolDbService->createNewIOV<Alignments>( &(*dt_Alignments), 
-	                                    poolDbService->endOfTime(), 
-                                            theDTAlignRecordName );
-  } else {
-    poolDbService->appendSinceTime<Alignments>( &(*dt_Alignments),
-                                                poolDbService->currentTime(), 
-                                                theDTAlignRecordName );
-  }
-      
-  if ( poolDbService->isNewTagRequest(theDTErrorRecordName) ){
-   poolDbService->createNewIOV<AlignmentErrors>( &(*dt_AlignmentErrors),
-                                                 poolDbService->endOfTime(), 
-                                                 theDTErrorRecordName );
-  } else {
-   poolDbService->appendSinceTime<AlignmentErrors>( &(*dt_AlignmentErrors),
-                                                    poolDbService->currentTime(),
-                                                    theDTErrorRecordName );
-  }							  
+  poolDbService->writeOne<Alignments>( &(*dt_Alignments), poolDbService->currentTime(), theDTAlignRecordName);
+  poolDbService->writeOne<AlignmentErrors>( &(*dt_AlignmentErrors), poolDbService->currentTime(), theDTErrorRecordName);
 }
 
 void MuonAlignment::saveCSCtoDB(void) {
@@ -255,25 +200,8 @@ void MuonAlignment::saveCSCtoDB(void) {
   AlignmentErrors* csc_AlignmentErrors = theAlignableMuon->cscAlignmentErrors();
 
   // Store CSC alignments and errors
-  if ( poolDbService->isNewTagRequest(theCSCAlignRecordName) ){
-   poolDbService->createNewIOV<Alignments>( &(*csc_Alignments), 
-	                                    poolDbService->endOfTime(), 
-                                            theCSCAlignRecordName );
-  } else {
-    poolDbService->appendSinceTime<Alignments>( &(*csc_Alignments),
-                                                poolDbService->currentTime(), 
-                                                theCSCAlignRecordName );
-  }
-      
-  if ( poolDbService->isNewTagRequest(theCSCErrorRecordName) ){
-   poolDbService->createNewIOV<AlignmentErrors>( &(*csc_AlignmentErrors),
-                                                 poolDbService->endOfTime(), 
-                                                 theCSCErrorRecordName );
-  } else {
-   poolDbService->appendSinceTime<AlignmentErrors>( &(*csc_AlignmentErrors),
-                                                    poolDbService->currentTime(),
-                                                    theCSCErrorRecordName );
-  }							  
+  poolDbService->writeOne<Alignments>( &(*csc_Alignments), poolDbService->currentTime(), theCSCAlignRecordName);
+  poolDbService->writeOne<AlignmentErrors>( &(*csc_AlignmentErrors), poolDbService->currentTime(), theCSCErrorRecordName);
 }
 
 void MuonAlignment::saveToDB(void) {

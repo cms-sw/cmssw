@@ -13,7 +13,7 @@
 //
 // Original Author:  Jim Pivarski
 //         Created:  Sat Feb 16 00:04:55 CST 2008
-// $Id: MuonGeometryDBConverter.cc,v 1.6 2008/02/26 22:14:01 pivarski Exp $
+// $Id: MuonGeometryDBConverter.cc,v 1.7 2008/03/04 16:32:06 pivarski Exp $
 //
 //
 
@@ -398,18 +398,8 @@ MuonGeometryDBConverter::beginJob(const edm::EventSetup &iSetup) {
 
 	 const std::string cscSurveyRecordName("CSCSurveyRcd");
 	 const std::string cscSurveyErrorRecordName("CSCSurveyErrorRcd");
-	 if (poolDbService->isNewTagRequest(cscSurveyRecordName)) {
-	    poolDbService->createNewIOV<Alignments>(&(*cscAlignments), poolDbService->endOfTime(), cscSurveyRecordName);
-	 }
-	 else {
-	    poolDbService->appendSinceTime<Alignments>(&(*cscAlignments), poolDbService->currentTime(), cscSurveyRecordName);
-	 }
-	 if (poolDbService->isNewTagRequest(cscSurveyErrorRecordName)) {
-	    poolDbService->createNewIOV<SurveyErrors>(&(*cscSurveyErrors), poolDbService->endOfTime(), cscSurveyErrorRecordName);
-	 }
-	 else {
-	    poolDbService->appendSinceTime<SurveyErrors>(&(*cscSurveyErrors), poolDbService->currentTime(), cscSurveyErrorRecordName);
-	 }	 
+	 poolDbService->writeOne<Alignments>( &(*cscAlignments), poolDbService->currentTime(), cscSurveyRecordName);
+	 poolDbService->writeOne<SurveyErrors>( &(*cscSurveyErrors), poolDbService->currentTime(), cscSurveyErrorRecordName);
       }
       else {
 	 Alignments* cscAlignments = m_alignableMuon->cscAlignments();
@@ -417,18 +407,8 @@ MuonGeometryDBConverter::beginJob(const edm::EventSetup &iSetup) {
 
 	 const std::string cscAlignRecordName("CSCAlignmentRcd");
 	 const std::string cscAlignErrorRecordName("CSCAlignmentErrorRcd");
-	 if (poolDbService->isNewTagRequest(cscAlignRecordName)) {
-	    poolDbService->createNewIOV<Alignments>(&(*cscAlignments), poolDbService->endOfTime(), cscAlignRecordName);
-	 }
-	 else {
-	    poolDbService->appendSinceTime<Alignments>(&(*cscAlignments), poolDbService->currentTime(), cscAlignRecordName);
-	 }
-	 if (poolDbService->isNewTagRequest(cscAlignErrorRecordName)) {
-	    poolDbService->createNewIOV<AlignmentErrors>(&(*cscAlignmentErrors), poolDbService->endOfTime(), cscAlignErrorRecordName);
-	 }
-	 else {
-	    poolDbService->appendSinceTime<AlignmentErrors>(&(*cscAlignmentErrors), poolDbService->currentTime(), cscAlignErrorRecordName);
-	 }
+	 poolDbService->writeOne<Alignments>( &(*cscAlignments), poolDbService->currentTime(), cscAlignRecordName);
+	 poolDbService->writeOne<AlignmentErrors>( &(*cscAlignmentErrors), poolDbService->currentTime(), cscAlignErrorRecordName);
       }
    }
    else if (m_CSCOutputMode == std::string("cff")) {
