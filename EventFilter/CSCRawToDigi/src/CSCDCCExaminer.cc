@@ -462,6 +462,7 @@ long CSCDCCExaminer::check(const unsigned short* &buffer, long length){
       // Chamber id ( DMB_ID + (DMB_CRATE<<4) ) from header
       currentChamber = buf0[1]&0x0FFF;
       ++cntCHAMB_Headers[currentChamber];
+      bCHAMB_ERR[currentChamber] |= 0; //Victor's line
 
       fALCT_Header = false;
       fALCT_Format2007= false;
