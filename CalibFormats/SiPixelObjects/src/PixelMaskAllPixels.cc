@@ -203,8 +203,6 @@ PixelROCMaskBits* PixelMaskAllPixels::getMaskBits(PixelROCName name) {
 
 }
 
-
-
 void PixelMaskAllPixels::writeBinary(std::string filename) const{
 
   

@@ -42,7 +42,7 @@ namespace pos{
     virtual void writeASCII(std::string filename) const =0;
 
     friend std::ostream& operator<<(std::ostream& s, const PixelMaskBase& mask);
-
+    
   private:
 
     //Hold pointer to the mask override information.
