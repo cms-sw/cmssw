@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Mar  3 17:20:14 EST 2008
-// $Id: FWListModel.cc,v 1.1 2008/03/05 15:07:31 chrjones Exp $
+// $Id: FWListModel.cc,v 1.2 2008/03/05 16:47:32 chrjones Exp $
 //
 
 // system include files
@@ -70,8 +70,7 @@ FWListModel::~FWListModel()
 void 
 FWListModel::SetMainColor(Color_t iColor)
 {
-   assert(1 == this->GetNParents());
-   FWEventItem* item = static_cast<FWListEventItem*>(*(this->BeginParents()))->eventItem();
+   const FWEventItem* item = m_id.item();
    FWDisplayProperties prop(iColor,item->modelInfo(m_id.index()).displayProperties().isVisible());
    item->setDisplayProperties(m_id.index(),prop);
    TEveElement::SetMainColor(iColor);
@@ -83,8 +82,7 @@ FWListModel::SetRnrSelf(Bool_t rnr)
 {
    //FWDisplayProperties prop(m_item->defaultDisplayProperties().color(),rnr);
    //m_item->setDefaultDisplayProperties(prop);
-   assert(1 == this->GetNParents());
-   FWEventItem* item = static_cast<FWListEventItem*>(*(this->BeginParents()))->eventItem();
+   const FWEventItem* item = m_id.item();
    FWDisplayProperties prop(item->modelInfo(m_id.index()).displayProperties().color(),rnr);
    item->setDisplayProperties(m_id.index(),prop);
    TEveElement::SetRnrSelf(rnr);   
