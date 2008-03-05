@@ -7,44 +7,6 @@
 using pat::ElectronSelector;
 
 //______________________________________________________________________________
-ElectronSelector::ElectronSelector( const edm::ParameterSet& config ) :
-  selectionCfg_(config),
-  selectionType_( config.getParameter<std::string>("type"))
-{
-
-  // Retrieve configuration config.ters only once
-  if ( selectionType_ == "likelihood" || selectionType_ == "neuralnet" )
-    {
-      value_ = selectionCfg_.getParameter<double>("value");
-    }
-  else if ( selectionType_ == "custom" )
-    {
-      HoverEBarmax_        = config.getParameter<double>("HoverEBarmax");
-      SigmaEtaEtaBarmax_   = config.getParameter<double>("SigmaEtaEtaBarmax");
-      SigmaPhiPhiBarmax_   = config.getParameter<double>("SigmaPhiPhiBarmax");
-      DeltaEtaInBarmax_    = config.getParameter<double>("DeltaEtaInBarmax");
-      DeltaPhiInBarmax_    = config.getParameter<double>("DeltaPhiInBarmax");
-      DeltaPhiOutBarmax_   = config.getParameter<double>("DeltaPhiOutBarmax");
-      EoverPInBarmin_      = config.getParameter<double>("EoverPInBarmin");
-      EoverPOutBarmin_     = config.getParameter<double>("EoverPOutBarmin");
-      InvEMinusInvPBarmax_ = config.getParameter<double>("InvEMinusInvPBarmax");
-      E9overE25Barmin_     = config.getParameter<double>("E9overE25Barmin");
-      HoverEEndmax_        = config.getParameter<double>("HoverEEndmax");
-      SigmaEtaEtaEndmax_   = config.getParameter<double>("SigmaEtaEtaEndmax");
-      SigmaPhiPhiEndmax_   = config.getParameter<double>("SigmaPhiPhiEndmax");
-      DeltaEtaInEndmax_    = config.getParameter<double>("DeltaEtaInEndmax");
-      DeltaPhiInEndmax_    = config.getParameter<double>("DeltaPhiInEndmax");
-      DeltaPhiOutEndmax_   = config.getParameter<double>("DeltaPhiOutEndmax");
-      EoverPInEndmin_      = config.getParameter<double>("EoverPInEndmin");
-      EoverPOutEndmin_     = config.getParameter<double>("EoverPOutEndmin");
-      InvEMinusInvPEndmax_ = config.getParameter<double>("InvEMinusInvPEndmax");
-      E9overE25Endmin_     = config.getParameter<double>("E9overE25Endmin");
-      doBremEoverPcomp_    = config.getParameter<bool>  ("doBremEoverPcomp");
-    }
-}
-
-
-//______________________________________________________________________________
 const pat::ParticleStatus
 ElectronSelector::filter( const unsigned int&        index, 
                           const edm::View<Electron>& electrons,
@@ -54,26 +16,26 @@ ElectronSelector::filter( const unsigned int&        index,
 {
 
   // List of possible selections
-  if      ( selectionType_ == "none"       ) 
+  if      ( config_.selectionType == "none"       ) 
     {
       return GOOD;
     }
-  else if ( selectionType_ == "cut"        ) 
+  else if ( config_.selectionType == "cut"        ) 
     {
-      if ( electronID(index,electrons,electronIDs)->cutBasedDecision() ) return GOOD;
+      if ( electronID_(index,electrons,electronIDs)->cutBasedDecision() ) return GOOD;
       return BAD;
     }
-  else if ( selectionType_ == "likelihood" )
+  else if ( config_.selectionType == "likelihood" )
     {
-      if ( electronID(index,electrons,electronIDs)->likelihood() > value_ ) return GOOD;
+      if ( electronID_(index,electrons,electronIDs)->likelihood() > config_.value ) return GOOD;
       return BAD;
     }
-  else if ( selectionType_ == "neuralnet" ) // FIXME: Check sign of comparison!
+  else if ( config_.selectionType == "neuralnet" ) // FIXME: Check sign of comparison!
     {
-      if ( electronID(index,electrons,electronIDs)->neuralNetOutput() > value_ ) return GOOD;
+      if ( electronID_(index,electrons,electronIDs)->neuralNetOutput() > config_.value ) return GOOD;
       return BAD;
     }
-  else if ( selectionType_ == "custom"     ) 
+  else if ( config_.selectionType == "custom"     ) 
     {
       return customSelection_( index, electrons, clusterShape );
     }
@@ -81,17 +43,17 @@ ElectronSelector::filter( const unsigned int&        index,
 
   // Throw! unknown configuration
   throw edm::Exception(edm::errors::Configuration) 
-    << "Unknown electron ID selection " << selectionType_;
+    << "Unknown electron ID selection " << config_.selectionType;
 
 }
 
 
 //______________________________________________________________________________
 const reco::ElectronIDRef& 
-ElectronSelector::electronID( const unsigned int& index,
-                              const edm::View<Electron>& electrons,
-                              const ElectronIDmap& electronIDs
-                              ) const
+ElectronSelector::electronID_( const unsigned int& index,
+                               const edm::View<Electron>& electrons,
+                               const ElectronIDmap& electronIDs
+                               ) const
 {
   // Find electron ID for electron with index index
   edm::Ref<std::vector<Electron> > elecsRef = electrons.refAt(index).castTo<edm::Ref<std::vector<Electron> > >();
@@ -138,42 +100,42 @@ ElectronSelector::customSelection_( const unsigned int&        index,
   // Now do the selection
   // These ones come straight from E/gamma algo
   if ( (eOverPin < 0.8) && (fBrem < 0.2) ) return BAD;
-  if ( doBremEoverPcomp_ && (eOverPin < 0.9*(1-fBrem)) ) return BAD;
+  if ( config_.doBremEoverPcomp && (eOverPin < 0.9*(1-fBrem)) ) return BAD;
 
-  if (  (hOverE > HoverEBarmax_       && !inEndCap )
-     || (hOverE > HoverEEndmax_       &&  inEndCap ) )
+  if (  (hOverE > config_.HoverEBarmax       && !inEndCap )
+     || (hOverE > config_.HoverEEndmax       &&  inEndCap ) )
     return HOVERE;
 
-  if (  (E9overE25 < E9overE25Barmin_ && !inEndCap )
-     || (E9overE25 < E9overE25Endmin_ &&  inEndCap ) )
+  if (  (E9overE25 < config_.E9overE25Barmin && !inEndCap )
+     || (E9overE25 < config_.E9overE25Endmin &&  inEndCap ) )
     return SHOWER;
 
-  if (  (sigmaee > SigmaEtaEtaBarmax_ && !inEndCap )
-     || (sigmaee > SigmaEtaEtaEndmax_ &&  inEndCap ) )
+  if (  (sigmaee > config_.SigmaEtaEtaBarmax && !inEndCap )
+     || (sigmaee > config_.SigmaEtaEtaEndmax &&  inEndCap ) )
     return SHOWER;
 
-  if (  (sigmapp > SigmaPhiPhiBarmax_ && !inEndCap )
-     || (sigmapp > SigmaPhiPhiEndmax_ &&  inEndCap ) )
+  if (  (sigmapp > config_.SigmaPhiPhiBarmax && !inEndCap )
+     || (sigmapp > config_.SigmaPhiPhiEndmax &&  inEndCap ) )
     return SHOWER;
 
-  if (  (eOverPin < EoverPInBarmin_   && !inEndCap )
-     || (eOverPin < EoverPInEndmin_   &&  inEndCap ) )
+  if (  (eOverPin < config_.EoverPInBarmin   && !inEndCap )
+     || (eOverPin < config_.EoverPInEndmin   &&  inEndCap ) )
     return MATCHING;
 
-  if (  (fabs(deltaEtaIn) > DeltaEtaInBarmax_   && !inEndCap )
-     || (fabs(deltaEtaIn) > DeltaEtaInEndmax_   &&  inEndCap ) )
+  if (  (fabs(deltaEtaIn) > config_.DeltaEtaInBarmax   && !inEndCap )
+     || (fabs(deltaEtaIn) > config_.DeltaEtaInEndmax   &&  inEndCap ) )
     return MATCHING;
 
-  if (  (fabs(deltaPhiIn) < DeltaPhiInBarmax_   && !inEndCap )
-     || (fabs(deltaPhiIn) < DeltaPhiInEndmax_   &&  inEndCap ) )
+  if (  (fabs(deltaPhiIn) < config_.DeltaPhiInBarmax   && !inEndCap )
+     || (fabs(deltaPhiIn) < config_.DeltaPhiInEndmax   &&  inEndCap ) )
     return MATCHING;
 
-  if (  (fabs(deltaPhiOut) < DeltaPhiOutBarmax_ && !inEndCap )
-     || (fabs(deltaPhiOut) < DeltaPhiOutEndmax_ &&  inEndCap ) )
+  if (  (fabs(deltaPhiOut) < config_.DeltaPhiOutBarmax && !inEndCap )
+     || (fabs(deltaPhiOut) < config_.DeltaPhiOutEndmax &&  inEndCap ) )
     return MATCHING;
 
-  if (  (invEOverInvP > InvEMinusInvPBarmax_ && !inEndCap )
-     || (invEOverInvP > InvEMinusInvPEndmax_ &&  inEndCap ) )
+  if (  (invEOverInvP > config_.InvEMinusInvPBarmax && !inEndCap )
+     || (invEOverInvP > config_.InvEMinusInvPEndmax &&  inEndCap ) )
     return MATCHING;
    
   return GOOD;

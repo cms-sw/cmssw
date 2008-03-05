@@ -2,21 +2,22 @@
 #define PhysicsTools_PatUtils_ElectronSelector_h
 
 /**
-    \class ElectronSelector ElectronSelector.h "PhysicsTools/PatUtils/ElectronSelector.h"
+    \class pat::ElectronSelector ElectronSelector.h "PhysicsTools/PatUtils/ElectronSelector.h"
     \brief Selects good electrons
    
     The electron selector returns a flag (see pat::ParticleStatus) based on one of the possible
     selections: either eId-based (cut, likelihood, neural net) or custom (user-defined
-    set of cuts). This is driven by the configuration parameters:
-
-    See the PATElectronCleaner documentation for configuration details.
+    set of cuts). This is driven by the configuration parameters (see the PATElectronCleaner 
+    documentation for configuration details).
    
+    The parameters are passed to the selector through an ElectronSelection struct.
+    (An adapter exists for use in CMSSW: reco::modules::ParameterAdapter< pat::ElectronSelector >.)
+
     \author F.J. Ronga (ETH Zurich)
-    \version $Id: ElectronSelector.h,v 1.5 2008/02/07 15:51:01 fronga Exp $
+    \version $Id: ElectronSelector.h,v 1.6 2008/02/13 10:30:35 fronga Exp $
 **/
 
 #include <string>
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "AnalysisDataFormats/Egamma/interface/ElectronID.h"
 #include "AnalysisDataFormats/Egamma/interface/ElectronIDAssociation.h"
@@ -26,13 +27,34 @@
 
 namespace pat {
 
+  /// Structure defining the electron selection
+  struct ElectronSelection {
+    std::string       selectionType; ///< Choose selection type (see PATElectronCleaner)
+    
+    double value; ///< Cut value for likelihood or neural net
+    
+    // Cuts for "custom" selection type
+    double HoverEBarmax;        double HoverEEndmax;
+    double SigmaEtaEtaBarmax;   double SigmaEtaEtaEndmax;
+    double SigmaPhiPhiBarmax;   double SigmaPhiPhiEndmax;
+    double DeltaEtaInBarmax;    double DeltaEtaInEndmax;
+    double DeltaPhiInBarmax;    double DeltaPhiInEndmax;
+    double DeltaPhiOutBarmax;   double DeltaPhiOutEndmax;
+    double EoverPInBarmin;      double EoverPInEndmin;
+    double EoverPOutBarmin;     double EoverPOutEndmin;
+    double InvEMinusInvPBarmax; double InvEMinusInvPEndmax;
+    double E9overE25Barmin;     double E9overE25Endmin;
+    bool   doBremEoverPcomp;    ///< custom: apply cut on comparison between brem and E/P
+    
+  };
+
   class ElectronSelector {
 
     typedef reco::PixelMatchGsfElectron            Electron;
     typedef reco::ElectronIDAssociationCollection  ElectronIDmap;
 
   public:
-    ElectronSelector( const edm::ParameterSet& config );
+    ElectronSelector( const ElectronSelection& cfg ) : config_( cfg ) {}
     ~ElectronSelector() {}
 
     /// Returns 0 if electron matches criteria, a flag otherwise.
@@ -47,22 +69,10 @@ namespace pat {
             const reco::ClusterShape*    clusterShape = 0
             ) const;
     
-    /// Returns the electron ID object based of the given electron.
-    /// The latter is defined by an index in the vector of electrons.
-    /// The ID is found in the association map.
-    const reco::ElectronIDRef& 
-    electronID( const unsigned int&        index,
-                const edm::View<Electron>& electrons,
-                const ElectronIDmap&       electronIDs
-                ) const;
 
   private:
-
-    edm::ParameterSet selectionCfg_; 
-    std::string       selectionType_;
-
-    double value_; // Cut value for likelihood or neural net
-
+    
+    ElectronSelection config_;
 
     /// Full-fledged selection based on SusyAnalyser
     const ParticleStatus
@@ -70,19 +80,14 @@ namespace pat {
                       const edm::View<Electron>& electrons,
                       const reco::ClusterShape*  clusterShape ) const;
     
-    // Custom selection cuts
-    double HoverEBarmax_;        double HoverEEndmax_;
-    double SigmaEtaEtaBarmax_;   double SigmaEtaEtaEndmax_;
-    double SigmaPhiPhiBarmax_;   double SigmaPhiPhiEndmax_;
-    double DeltaEtaInBarmax_;    double DeltaEtaInEndmax_;
-    double DeltaPhiInBarmax_;    double DeltaPhiInEndmax_;
-    double DeltaPhiOutBarmax_;   double DeltaPhiOutEndmax_;
-    double EoverPInBarmin_;      double EoverPInEndmin_;
-    double EoverPOutBarmin_;     double EoverPOutEndmin_;
-    double InvEMinusInvPBarmax_; double InvEMinusInvPEndmax_;
-    double E9overE25Barmin_;     double E9overE25Endmin_;
-
-    bool   doBremEoverPcomp_; // apply cut on comparison between brem and E/P
+    /// Returns the electron ID object based on the given electron.
+    /// The latter is defined by an index in the vector of electrons.
+    /// The ID is found in the association map.
+    const reco::ElectronIDRef& 
+    electronID_( const unsigned int&        index,
+                 const edm::View<Electron>& electrons,
+                 const ElectronIDmap&       electronIDs
+                 ) const;
 
 
   }; // class
