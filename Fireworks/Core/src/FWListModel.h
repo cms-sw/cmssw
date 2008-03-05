@@ -16,13 +16,14 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Mar  3 17:20:20 EST 2008
-// $Id$
+// $Id: FWListModel.h,v 1.1 2008/03/05 15:07:30 chrjones Exp $
 //
 
 // system include files
 #include "TEveElement.h"
 #include "TNamed.h"
 // user include files
+#include "Fireworks/Core/interface/FWModelId.h"
 
 // forward declarations
 class TObject;
@@ -31,7 +32,7 @@ class FWListModel : public TEveElement, public TNamed
 {
 
    public:
-      FWListModel(int iIndex=-1);
+      FWListModel(const FWModelId& iId = FWModelId() );
       virtual ~FWListModel();
 
       // ---------- const member functions ---------------------
@@ -52,7 +53,7 @@ class FWListModel : public TEveElement, public TNamed
       const FWListModel& operator=(const FWListModel&); // stop default
 
       // ---------- member data --------------------------------
-      int m_index;
+      FWModelId m_id;
       Color_t m_color;
 };
 

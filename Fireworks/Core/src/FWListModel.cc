@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Mar  3 17:20:14 EST 2008
-// $Id$
+// $Id: FWListModel.cc,v 1.1 2008/03/05 15:07:31 chrjones Exp $
 //
 
 // system include files
@@ -33,13 +33,14 @@
 //
 // constructors and destructor
 //
-FWListModel::FWListModel(int iIndex):
+FWListModel::FWListModel(const FWModelId& iId):
 TEveElement(m_color),
-m_index(iIndex)
+m_id(iId)
 {
    std::ostringstream s;
-   s<<iIndex;
+   s<<m_id.index();
    SetElementName(s.str().c_str());
+   SetUserData(&m_id);
 }
 
 // FWListModel::FWListModel(const FWListModel& rhs)
@@ -71,8 +72,8 @@ FWListModel::SetMainColor(Color_t iColor)
 {
    assert(1 == this->GetNParents());
    FWEventItem* item = static_cast<FWListEventItem*>(*(this->BeginParents()))->eventItem();
-   FWDisplayProperties prop(iColor,item->modelInfo(m_index).displayProperties().isVisible());
-   item->setDisplayProperties(m_index,prop);
+   FWDisplayProperties prop(iColor,item->modelInfo(m_id.index()).displayProperties().isVisible());
+   item->setDisplayProperties(m_id.index(),prop);
    TEveElement::SetMainColor(iColor);
 }
 
@@ -84,8 +85,8 @@ FWListModel::SetRnrSelf(Bool_t rnr)
    //m_item->setDefaultDisplayProperties(prop);
    assert(1 == this->GetNParents());
    FWEventItem* item = static_cast<FWListEventItem*>(*(this->BeginParents()))->eventItem();
-   FWDisplayProperties prop(item->modelInfo(m_index).displayProperties().color(),rnr);
-   item->setDisplayProperties(m_index,prop);
+   FWDisplayProperties prop(item->modelInfo(m_id.index()).displayProperties().color(),rnr);
+   item->setDisplayProperties(m_id.index(),prop);
    TEveElement::SetRnrSelf(rnr);   
 }
 
