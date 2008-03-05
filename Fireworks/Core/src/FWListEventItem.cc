@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Feb 28 11:13:37 PST 2008
-// $Id: FWListEventItem.cc,v 1.3 2008/03/05 16:47:58 chrjones Exp $
+// $Id: FWListEventItem.cc,v 1.4 2008/03/05 18:39:32 chrjones Exp $
 //
 
 // system include files
@@ -82,13 +82,19 @@ FWListEventItem::SetMainColor(Color_t iColor)
 
 
 void 
-FWListEventItem::SetRnrChildren(Bool_t rnr)
+FWListEventItem::SetRnrState(Bool_t rnr)
 {
    FWDisplayProperties prop(m_item->defaultDisplayProperties().color(),rnr);
    m_item->setDefaultDisplayProperties(prop);
-   TEveElementList::SetRnrChildren(rnr);
+   TEveElementList::SetRnrState(rnr);
    
 }
+Bool_t 
+FWListEventItem::SingleRnrState() const
+{
+   return kTRUE;
+}
+
 
 void 
 FWListEventItem::itemChanged(const FWEventItem* iItem)

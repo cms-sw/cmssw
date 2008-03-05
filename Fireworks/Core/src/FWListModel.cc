@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Mar  3 17:20:14 EST 2008
-// $Id: FWListModel.cc,v 1.2 2008/03/05 16:47:32 chrjones Exp $
+// $Id: FWListModel.cc,v 1.3 2008/03/05 18:38:23 chrjones Exp $
 //
 
 // system include files
@@ -78,20 +78,26 @@ FWListModel::SetMainColor(Color_t iColor)
 
 
 void 
-FWListModel::SetRnrSelf(Bool_t rnr)
+FWListModel::SetRnrState(Bool_t rnr)
 {
    //FWDisplayProperties prop(m_item->defaultDisplayProperties().color(),rnr);
    //m_item->setDefaultDisplayProperties(prop);
    const FWEventItem* item = m_id.item();
    FWDisplayProperties prop(item->modelInfo(m_id.index()).displayProperties().color(),rnr);
    item->setDisplayProperties(m_id.index(),prop);
-   TEveElement::SetRnrSelf(rnr);   
+   TEveElement::SetRnrState(rnr);   
 }
 
 Bool_t 
 FWListModel::CanEditMainColor() const
 {
-   return true;
+   return kTRUE;
+}
+
+Bool_t 
+FWListModel::SingleRnrState() const
+{
+   return kTRUE;
 }
 
 //
