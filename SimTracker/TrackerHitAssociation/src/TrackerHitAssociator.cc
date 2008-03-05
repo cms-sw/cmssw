@@ -15,6 +15,7 @@
 
 //for accumulate
 #include <numeric>
+#include <iostream>
 
 using namespace std;
 using namespace edm;
@@ -110,6 +111,7 @@ TrackerHitAssociator::TrackerHitAssociator(const edm::Event& e, const edm::Param
 
 std::vector<PSimHit> TrackerHitAssociator::associateHit(const TrackingRecHit & thit) 
 {
+  
   //check in case of TTRH
   if(const TransientTrackingRecHit * ttrh = dynamic_cast<const TransientTrackingRecHit *>(&thit)) {
       return associateHit(*ttrh->hit());
@@ -119,9 +121,6 @@ std::vector<PSimHit> TrackerHitAssociator::associateHit(const TrackingRecHit & t
   std::vector<PSimHit> result; 
   simtrackid.clear();
 
-
-
-  
   //get the Detector type of the rechit
   DetId detid=  thit.geographicalId();
   uint32_t detID = detid.rawId();
@@ -163,6 +162,7 @@ std::vector<PSimHit> TrackerHitAssociator::associateHit(const TrackingRecHit & t
 	}
     }
   //check if these are GSRecHits (from FastSim)
+
   if(const SiTrackerGSRecHit2D * rechit = dynamic_cast<const SiTrackerGSRecHit2D *>(&thit))
     {
       simtrackid = associateGSRecHit(rechit);
@@ -170,8 +170,9 @@ std::vector<PSimHit> TrackerHitAssociator::associateHit(const TrackingRecHit & t
   if (const SiTrackerMultiRecHit * rechit = dynamic_cast<const SiTrackerMultiRecHit *>(&thit)){
     return associateMultiRecHit(rechit);
   }
-  //check if these are GSRecHits (from FastSim)
-  else if(const SiTrackerGSMatchedRecHit2D * rechit = dynamic_cast<const SiTrackerGSMatchedRecHit2D *>(&thit))
+  
+  //check if these are GSMatchedRecHits (from FastSim)
+  if(const SiTrackerGSMatchedRecHit2D * rechit = dynamic_cast<const SiTrackerGSMatchedRecHit2D *>(&thit))
     {
       simtrackid = associateGSMatchedRecHit(rechit);
     }
@@ -279,7 +280,7 @@ std::vector< SimHitIdpr > TrackerHitAssociator::associateHitId(const TrackingRec
     }
   //check we are in the pixel tracker
   else if( detid.subdetId() == PixelSubdetector::PixelBarrel || 
-      detid.subdetId() == PixelSubdetector::PixelEndcap) 
+	   detid.subdetId() == PixelSubdetector::PixelEndcap) 
     {
       if(const SiPixelRecHit * rechit = dynamic_cast<const SiPixelRecHit *>(&thit))
 	{	  
@@ -287,11 +288,11 @@ std::vector< SimHitIdpr > TrackerHitAssociator::associateHitId(const TrackingRec
 	}
     }
   //check if these are GSRecHits (from FastSim)
-  else if(const SiTrackerGSRecHit2D * rechit = dynamic_cast<const SiTrackerGSRecHit2D *>(&thit))
+  if(const SiTrackerGSRecHit2D * rechit = dynamic_cast<const SiTrackerGSRecHit2D *>(&thit))
     {
       simtrackid = associateGSRecHit(rechit);
     }  
-  else if(const SiTrackerGSMatchedRecHit2D * rechit = dynamic_cast<const SiTrackerGSMatchedRecHit2D *>(&thit))
+  if(const SiTrackerGSMatchedRecHit2D * rechit = dynamic_cast<const SiTrackerGSMatchedRecHit2D *>(&thit))
     {
       simtrackid = associateGSMatchedRecHit(rechit);
     }
@@ -536,20 +537,20 @@ std::vector<SimHitIdpr> TrackerHitAssociator::associateMultiRecHitId(const SiTra
         std::vector<SimHitIdpr> assimhits;
         std::vector<const TrackingRecHit*>::const_iterator iter;
         for (iter = componenthits.begin(); iter != componenthits.end(); iter ++){
-                std::vector<SimHitIdpr> asstocurrent = associateHitId(**iter);
-                assimhits.insert(assimhits.end(), asstocurrent.begin(), asstocurrent.end());
+	  std::vector<SimHitIdpr> asstocurrent = associateHitId(**iter);
+	  assimhits.insert(assimhits.end(), asstocurrent.begin(), asstocurrent.end());
         }
         //std::cout << "Returning " << assimhits.size() << " simhits" << std::endl;
         return assimhits;
 }
+
 std::vector<SimHitIdpr>  TrackerHitAssociator::associateGSMatchedRecHit(const SiTrackerGSMatchedRecHit2D * gsmrechit)
 {
   //GSRecHit is the FastSimulation RecHit that contains the TrackId already
-
+  
   vector<SimHitIdpr> simtrackid;
   simtrackid.clear();
   SimHitIdpr currentId(gsmrechit->simtrackId(), EncodedEventId(gsmrechit->eeId()));
-  std::cout << "Hit ID " << gsmrechit->simtrackId() << std::endl;
   simtrackid.push_back(currentId);
   return simtrackid;
 }
