@@ -1,9 +1,9 @@
 /// \file AlignmentProducer.cc
 ///
 ///  \author    : Frederic Ronga
-///  Revision   : $Revision: 1.22 $
-///  last update: $Date: 2008/02/21 14:36:07 $
-///  by         : $Author: pivarski $
+///  Revision   : $Revision: 1.23 $
+///  last update: $Date: 2008/02/25 17:47:51 $
+///  by         : $Author: flucke $
 
 #include "AlignmentProducer.h"
 #include "FWCore/Framework/interface/LooperFactory.h" 
@@ -343,18 +343,22 @@ void AlignmentProducer::endOfJob()
        const std::string alignRecordName("TrackerAlignmentRcd");
        const std::string errorRecordName("TrackerAlignmentErrorRcd");
 
-       if ( poolDbService->isNewTagRequest(alignRecordName) )
-	  poolDbService->createNewIOV<Alignments>( alignments, poolDbService->endOfTime(), 
-						   alignRecordName );
-       else
-	  poolDbService->appendSinceTime<Alignments>( alignments, poolDbService->currentTime(), 
-						      alignRecordName );
-       if ( poolDbService->isNewTagRequest(errorRecordName) )
-	  poolDbService->createNewIOV<AlignmentErrors>( alignmentErrors, poolDbService->endOfTime(), 
-							errorRecordName );
-       else
-	  poolDbService->appendSinceTime<AlignmentErrors>( alignmentErrors, poolDbService->currentTime(), 
-							   errorRecordName );
+//        if ( poolDbService->isNewTagRequest(alignRecordName) )
+// 	  poolDbService->createNewIOV<Alignments>( alignments, poolDbService->endOfTime(), 
+// 						   alignRecordName );
+//        else
+// 	  poolDbService->appendSinceTime<Alignments>( alignments, poolDbService->currentTime(), 
+// 						      alignRecordName );
+       poolDbService->writeOne<Alignments>(alignments, poolDbService->currentTime(),
+                                           alignRecordName);
+//        if ( poolDbService->isNewTagRequest(errorRecordName) )
+// 	  poolDbService->createNewIOV<AlignmentErrors>( alignmentErrors, poolDbService->endOfTime(), 
+// 							errorRecordName );
+//        else
+// 	  poolDbService->appendSinceTime<AlignmentErrors>( alignmentErrors, poolDbService->currentTime(), 
+// 							   errorRecordName );
+       poolDbService->writeOne<AlignmentErrors>(alignmentErrors, poolDbService->currentTime(),
+                                                errorRecordName);
     }
  
     if ( doMuon_ ) {
@@ -363,7 +367,7 @@ void AlignmentProducer::endOfJob()
        AlignmentErrors* dtAlignmentErrors  = theAlignableMuon->dtAlignmentErrors();
        Alignments*      cscAlignments      = theAlignableMuon->cscAlignments();
        AlignmentErrors* cscAlignmentErrors = theAlignableMuon->cscAlignmentErrors();
-
+  
        // FIXME: remove the global coordinate transformation from these alignments!
        // GeometryAligner aligner;
        // Alignments localDTAlignments = aligner.removeGlobalTransform(alignments, align::DetectorGlobalPosition(*globalPositionRcd_, DetId(DetId::Muon)));
@@ -375,30 +379,38 @@ void AlignmentProducer::endOfJob()
        const std::string cscAlignRecordName("CSCAlignmentRcd");
        const std::string cscErrorRecordName("CSCAlignmentErrorRcd");
 
-       if (poolDbService->isNewTagRequest(dtAlignRecordName)) {
-	  poolDbService->createNewIOV<Alignments>( &(*dtAlignments), poolDbService->endOfTime(), dtAlignRecordName);
-       }
-       else {
-	  poolDbService->appendSinceTime<Alignments>( &(*dtAlignments), poolDbService->currentTime(), dtAlignRecordName);
-       }
-       if (poolDbService->isNewTagRequest(dtErrorRecordName)) {
-	  poolDbService->createNewIOV<AlignmentErrors>( &(*dtAlignmentErrors), poolDbService->endOfTime(), dtErrorRecordName);
-       }
-       else {
-	  poolDbService->appendSinceTime<AlignmentErrors>( &(*dtAlignmentErrors), poolDbService->currentTime(), dtErrorRecordName);
-       }
-       if (poolDbService->isNewTagRequest(cscAlignRecordName)) {
-	  poolDbService->createNewIOV<Alignments>( &(*cscAlignments), poolDbService->endOfTime(), cscAlignRecordName);
-       }
-       else {
-	  poolDbService->appendSinceTime<Alignments>( &(*cscAlignments), poolDbService->currentTime(), cscAlignRecordName);
-       }
-       if (poolDbService->isNewTagRequest(cscErrorRecordName)) {
-	  poolDbService->createNewIOV<AlignmentErrors>( &(*cscAlignmentErrors), poolDbService->endOfTime(), cscErrorRecordName);
-       }
-       else {
-	  poolDbService->appendSinceTime<AlignmentErrors>( &(*cscAlignmentErrors), poolDbService->currentTime(), cscErrorRecordName);
-       }
+//        if (poolDbService->isNewTagRequest(dtAlignRecordName)) {
+// 	  poolDbService->createNewIOV<Alignments>( &(*dtAlignments), poolDbService->endOfTime(), dtAlignRecordName);
+//        }
+//        else {
+// 	  poolDbService->appendSinceTime<Alignments>( &(*dtAlignments), poolDbService->currentTime(), dtAlignRecordName);
+//        }
+       poolDbService->writeOne<Alignments>(dtAlignments, poolDbService->currentTime(),
+                                           dtAlignRecordName);
+//        if (poolDbService->isNewTagRequest(dtErrorRecordName)) {
+// 	  poolDbService->createNewIOV<AlignmentErrors>( &(*dtAlignmentErrors), poolDbService->endOfTime(), dtErrorRecordName);
+//        }
+//        else {
+// 	  poolDbService->appendSinceTime<AlignmentErrors>( &(*dtAlignmentErrors), poolDbService->currentTime(), dtErrorRecordName);
+//        }
+       poolDbService->writeOne<AlignmentErrors>(dtAlignmentErrors, poolDbService->currentTime(),
+                                                dtErrorRecordName);
+//        if (poolDbService->isNewTagRequest(cscAlignRecordName)) {
+// 	  poolDbService->createNewIOV<Alignments>( &(*cscAlignments), poolDbService->endOfTime(), cscAlignRecordName);
+//        }
+//        else {
+// 	  poolDbService->appendSinceTime<Alignments>( &(*cscAlignments), poolDbService->currentTime(), cscAlignRecordName);
+//        }
+       poolDbService->writeOne<Alignments>(cscAlignments, poolDbService->currentTime(),
+                                           cscAlignRecordName);
+//        if (poolDbService->isNewTagRequest(cscErrorRecordName)) {
+// 	  poolDbService->createNewIOV<AlignmentErrors>( &(*cscAlignmentErrors), poolDbService->endOfTime(), cscErrorRecordName);
+//        }
+//        else {
+// 	  poolDbService->appendSinceTime<AlignmentErrors>( &(*cscAlignmentErrors), poolDbService->currentTime(), cscErrorRecordName);
+//        }
+       poolDbService->writeOne<AlignmentErrors>(cscAlignmentErrors, poolDbService->currentTime(),
+                                                cscErrorRecordName);
     }
   }
 }

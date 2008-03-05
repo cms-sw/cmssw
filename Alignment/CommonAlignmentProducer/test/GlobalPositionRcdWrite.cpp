@@ -78,11 +78,15 @@ void GlobalPositionRcdWrite::beginJob(const edm::EventSetup& iSetup) {
    if (!poolDbService.isAvailable())
       throw cms::Exception("NotAvailable") << "PoolDBOutputService not available";
                   
-   if (poolDbService->isNewTagRequest("GlobalPositionRcd")) {
-      poolDbService->createNewIOV<Alignments>(&(*globalPositions), poolDbService->endOfTime(), "GlobalPositionRcd");
-   } else {
-      poolDbService->appendSinceTime<Alignments>(&(*globalPositions), poolDbService->currentTime(), "GlobalPositionRcd");
-   }
+//    if (poolDbService->isNewTagRequest("GlobalPositionRcd")) {
+//       poolDbService->createNewIOV<Alignments>(&(*globalPositions), poolDbService->endOfTime(), "GlobalPositionRcd");
+//    } else {
+//       poolDbService->appendSinceTime<Alignments>(&(*globalPositions), poolDbService->currentTime(), "GlobalPositionRcd");
+//    }
+   poolDbService->writeOne<Alignments>(&(*globalPositions), poolDbService->currentTime(),
+                                       "GlobalPositionRcd");
+
+
 
    std::cout << "done!" << std::endl;
 }
