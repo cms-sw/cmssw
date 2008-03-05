@@ -1,12 +1,12 @@
 //
-// $Id: ObjectEnergyScale.h,v 1.2 2008/01/16 20:33:03 lowette Exp $
+// $Id: ObjectEnergyScale.h,v 1.3 2008/03/03 16:45:28 lowette Exp $
 //
 
 #ifndef PhysicsTools_PatAlgos_ObjectEnergyScale_h
 #define PhysicsTools_PatAlgos_ObjectEnergyScale_h
 
 /**
-  \class    ObjectEnergyScale ObjectEnergyScale.h "PhysicsTools/PatAlgos/interface/ObjectEnergyScale.h"
+  \class    pat::ObjectEnergyScale ObjectEnergyScale.h "PhysicsTools/PatAlgos/interface/ObjectEnergyScale.h"
   \brief    Energy scale shifting and smearing module
 
    This class provides energy scale shifting & smearing to objects with
@@ -15,7 +15,7 @@
      PhysicsTools/PatAlgos/data/ObjectEnergyScale.cfi
 
   \author   Volker Adler
-  \version  $Id: ObjectEnergyScale.h,v 1.2 2008/01/16 20:33:03 lowette Exp $
+  \version  $Id: ObjectEnergyScale.h,v 1.3 2008/03/03 16:45:28 lowette Exp $
 */
 
 

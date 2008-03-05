@@ -1,12 +1,12 @@
 //
-// $Id: ObjectSpatialResolution.h,v 1.1 2008/01/15 13:30:02 lowette Exp $
+// $Id: ObjectSpatialResolution.h,v 1.2 2008/01/16 20:33:04 lowette Exp $
 //
 
 #ifndef PhysicsTools_PatAlgos_ObjectSpatialResolution_h
 #define PhysicsTools_PatAlgos_ObjectSpatialResolution_h
 
 /**
-  \class    ObjectSpatialResolution ObjectSpatialResolution.h "PhysicsTools/PatAlgos/interface/ObjectSpatialResolution.h"
+  \class    pat::ObjectSpatialResolution ObjectSpatialResolution.h "PhysicsTools/PatAlgos/interface/ObjectSpatialResolution.h"
   \brief    Energy scale shifting and smearing module
 
    This class provides angular smearing to objects with resolutions for
@@ -15,7 +15,7 @@
      PhysicsTools/PatAlgos/data/ObjectSpatialResolution.cfi
 
   \author   Volker Adler
-  \version  $Id: ObjectSpatialResolution.h,v 1.1 2008/01/15 13:30:02 lowette Exp $
+  \version  $Id: ObjectSpatialResolution.h,v 1.2 2008/01/16 20:33:04 lowette Exp $
 */
 
 

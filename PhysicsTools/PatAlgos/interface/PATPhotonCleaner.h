@@ -1,19 +1,19 @@
 //
-// $Id: PATPhotonCleaner.h,v 1.2 2008/01/19 03:52:51 gpetrucc Exp $
+// $Id: PATPhotonCleaner.h,v 1.3 2008/02/28 15:34:09 llista Exp $
 //
 
 #ifndef PhysicsTools_PatAlgos_PATPhotonCleaner_h
 #define PhysicsTools_PatAlgos_PATPhotonCleaner_h
 
 /**
-  \class    PATPhotonCleaner PATPhotonCleaner.h "PhysicsTools/PatAlgos/interface/PATPhotonCleaner.h"
+  \class    pat::PATPhotonCleaner PATPhotonCleaner.h "PhysicsTools/PatAlgos/interface/PATPhotonCleaner.h"
   \brief    Produces pat::Photon's
 
    The PATPhotonCleaner produces analysis-level pat::Photon's starting from
    a collection of objects of PhotonType.
 
   \author   Steven Lowette, Jeremy Andrea
-  \version  $Id: PATPhotonCleaner.h,v 1.2 2008/01/19 03:52:51 gpetrucc Exp $
+  \version  $Id: PATPhotonCleaner.h,v 1.3 2008/02/28 15:34:09 llista Exp $
 */
 
 #include "FWCore/Framework/interface/EDProducer.h"

@@ -1,19 +1,19 @@
 //
-// $Id: PATJetProducer.h,v 1.5 2008/01/26 11:13:05 gpetrucc Exp $
+// $Id: PATJetProducer.h,v 1.6 2008/03/03 19:50:44 lowette Exp $
 //
 
 #ifndef PhysicsTools_PatAlgos_PATJetProducer_h
 #define PhysicsTools_PatAlgos_PATJetProducer_h
 
 /**
-  \class    PATJetProducer PATJetProducer.h "PhysicsTools/PatAlgos/interface/PATJetProducer.h"
+  \class    pat::PATJetProducer PATJetProducer.h "PhysicsTools/PatAlgos/interface/PATJetProducer.h"
   \brief    Produces pat::Jet's
 
    The PATJetProducer produces analysis-level pat::Jet's starting from
    a collection of objects of JetType.
 
   \author   Steven Lowette, Jeremy Andrea
-  \version  $Id: PATJetProducer.h,v 1.5 2008/01/26 11:13:05 gpetrucc Exp $
+  \version  $Id: PATJetProducer.h,v 1.6 2008/03/03 19:50:44 lowette Exp $
 */
 
 

@@ -1,19 +1,19 @@
 //
-// $Id$
+// $Id: PATMETProducer.h,v 1.1 2008/01/15 13:30:07 lowette Exp $
 //
 
 #ifndef PhysicsTools_PatAlgos_PATMETProducer_h
 #define PhysicsTools_PatAlgos_PATMETProducer_h
 
 /**
-  \class    PATMETProducer PATMETProducer.h "PhysicsTools/PatAlgos/interface/PATMETProducer.h"
+  \class    pat::PATMETProducer PATMETProducer.h "PhysicsTools/PatAlgos/interface/PATMETProducer.h"
   \brief    Produces the pat::MET
 
    The PATMETProducer produces the analysis-level pat::MET starting from
    a collection of objects of METType.
 
   \author   Steven Lowette
-  \version  $Id$
+  \version  $Id: PATMETProducer.h,v 1.1 2008/01/15 13:30:07 lowette Exp $
 */
 
 

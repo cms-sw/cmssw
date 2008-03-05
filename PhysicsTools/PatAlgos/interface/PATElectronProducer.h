@@ -1,19 +1,19 @@
 //
-// $Id: PATElectronProducer.h,v 1.6 2008/01/26 12:49:35 gpetrucc Exp $
+// $Id: PATElectronProducer.h,v 1.7 2008/02/12 18:48:31 lowette Exp $
 //
 
 #ifndef PhysicsTools_PatAlgos_PATElectronProducer_h
 #define PhysicsTools_PatAlgos_PATElectronProducer_h
 
 /**
-  \class    PATElectronProducer PATElectronProducer.h "PhysicsTools/PatAlgos/interface/PATElectronProducer.h"
+  \class    pat::PATElectronProducer PATElectronProducer.h "PhysicsTools/PatAlgos/interface/PATElectronProducer.h"
   \brief    Produces pat::Electron's
 
    The PATElectronProducer produces analysis-level pat::Electron's starting from
    a collection of objects of ElectronType.
 
   \author   Steven Lowette, James Lamb
-  \version  $Id: PATElectronProducer.h,v 1.6 2008/01/26 12:49:35 gpetrucc Exp $
+  \version  $Id: PATElectronProducer.h,v 1.7 2008/02/12 18:48:31 lowette Exp $
 */
 
 

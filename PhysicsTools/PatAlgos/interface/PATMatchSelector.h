@@ -1,6 +1,6 @@
 #ifndef PATMatchSelector_h
 #define PATMatchSelector_h
-/* \class PATMatchSelector
+/* \class pat::PATMatchSelector
  *
  * Extended version of MCTruthPairSelector. Preselects matches
  * based on charge, pdgId and status.

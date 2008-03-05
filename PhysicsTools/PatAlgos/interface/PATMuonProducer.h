@@ -1,19 +1,19 @@
 //
-// $Id: PATMuonProducer.h,v 1.3 2008/02/07 18:17:25 lowette Exp $
+// $Id: PATMuonProducer.h,v 1.4 2008/02/12 18:48:31 lowette Exp $
 //
 
 #ifndef PhysicsTools_PatAlgos_PATMuonProducer_h
 #define PhysicsTools_PatAlgos_PATMuonProducer_h
 
 /**
-  \class    PATMuonProducer PATMuonProducer.h "PhysicsTools/PatAlgos/interface/PATMuonProducer.h"
+  \class    pat::PATMuonProducer PATMuonProducer.h "PhysicsTools/PatAlgos/interface/PATMuonProducer.h"
   \brief    Produces pat::Muon's
 
    The PATMuonProducer produces analysis-level pat::Muon's starting from
    a collection of objects of MuonType.
 
   \author   Steven Lowette, Roger Wolf
-  \version  $Id: PATMuonProducer.h,v 1.3 2008/02/07 18:17:25 lowette Exp $
+  \version  $Id: PATMuonProducer.h,v 1.4 2008/02/12 18:48:31 lowette Exp $
 */
 
 

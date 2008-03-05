@@ -1,7 +1,7 @@
 #ifndef PhysicsTools_PatAlgos_CleanerHelper_h
 #define PhysicsTools_PatAlgos_CleanerHelper_h
 /**
-    \class CleanerHelper "PhysicsTools/PatAlgos/interface/CleanerHelper.h"
+    \class pat::helper::CleanerHelper "PhysicsTools/PatAlgos/interface/CleanerHelper.h"
     \brief Helper class for cleaning with Pt sorting and backreferences
 */
 

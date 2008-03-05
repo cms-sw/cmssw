@@ -1,19 +1,19 @@
 //
-// $Id: PATTauProducer.h,v 1.3 2008/01/21 18:04:41 lowette Exp $
+// $Id: PATTauProducer.h,v 1.4 2008/01/25 16:17:00 gpetrucc Exp $
 //
 
 #ifndef PhysicsTools_PatAlgos_PATTauProducer_h
 #define PhysicsTools_PatAlgos_PATTauProducer_h
 
 /**
-  \class    PATTauProducer PATTauProducer.h "PhysicsTools/PatAlgos/interface/PATTauProducer.h"
+  \class    pat::PATTauProducer PATTauProducer.h "PhysicsTools/PatAlgos/interface/PATTauProducer.h"
   \brief    Produces pat::Tau's
 
    The PATTauProducer produces analysis-level pat::Tau's starting from
    a collection of objects of TauType.
 
   \author   Steven Lowette, Christophe Delaere
-  \version  $Id: PATTauProducer.h,v 1.3 2008/01/21 18:04:41 lowette Exp $
+  \version  $Id: PATTauProducer.h,v 1.4 2008/01/25 16:17:00 gpetrucc Exp $
 */
 
 

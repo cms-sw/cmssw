@@ -8,17 +8,17 @@
 // Class:      PATHLTMatchSelector
 //
 /**
-  \class    PATHLTMatchSelector PATHLTMatchSelector.h "PhysicsTools/PatAlgos/interface/PATHLTMatchSelector.h"
+  \class    pat::PATHLTMatchSelector PATHLTMatchSelector.h "PhysicsTools/PatAlgos/interface/PATHLTMatchSelector.h"
   \brief    Dummy class as counterpart to PATMatchSelector in order to use PATCandMatcher
 
    Dummy class.
    This might be replaced later by checks if the particular PATObject could have been fired the requested trigger/filter at all.
 
   \author   Volker Adler
-  \version  $Id: PATHLTMatchSelector.h,v 1.1 2008/02/22 11:27:45 vadler Exp $
+  \version  $Id: PATHLTMatchSelector.h,v 1.1 2008/02/26 13:59:11 vadler Exp $
 */
 //
-// $Id$
+// $Id: PATHLTMatchSelector.h,v 1.1 2008/02/26 13:59:11 vadler Exp $
 //
 
 

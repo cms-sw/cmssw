@@ -1,7 +1,7 @@
 #ifndef PhysicsTools_PatAlgos_OverlapHelper_h
 #define PhysicsTools_PatAlgos_OverlapHelper_h
 /**
-    \class OverlapHelper "PhysicsTools/PatAlgos/interface/OverlapHelper.h"
+    \class pat::helper::OverlapHelper "PhysicsTools/PatAlgos/interface/OverlapHelper.h"
     \brief Helper class for removing overlaps. 
     Can only check overlaps between already existing* collections.
     Full framework only. 

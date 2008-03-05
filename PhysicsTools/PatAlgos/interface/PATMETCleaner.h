@@ -1,19 +1,19 @@
 //
-// $Id: PATMETCleaner.h,v 1.1 2008/01/15 13:30:02 lowette Exp $
+// $Id: PATMETCleaner.h,v 1.1 2008/01/16 16:04:36 gpetrucc Exp $
 //
 
 #ifndef PhysicsTools_PatAlgos_PATMETCleaner_h
 #define PhysicsTools_PatAlgos_PATMETCleaner_h
 
 /**
-  \class    PATMETCleaner PATMETCleaner.h "PhysicsTools/PatAlgos/interface/PATMETCleaner.h"
+  \class    pat::PATMETCleaner PATMETCleaner.h "PhysicsTools/PatAlgos/interface/PATMETCleaner.h"
   \brief    Produces pat::MET's
 
    The PATMETCleaner produces analysis-level pat::MET's starting from
    a collection of objects of METType.
 
   \author   Steven Lowette, Jeremy Andrea
-  \version  $Id: PATMETCleaner.h,v 1.1 2008/01/15 13:30:02 lowette Exp $
+  \version  $Id: PATMETCleaner.h,v 1.1 2008/01/16 16:04:36 gpetrucc Exp $
 */
 
 #include "FWCore/Framework/interface/EDProducer.h"

@@ -1,19 +1,19 @@
 //
-// $Id: PATTauCleaner.h,v 1.5 2008/01/23 11:26:06 gpetrucc Exp $
+// $Id: PATTauCleaner.h,v 1.6 2008/01/23 16:43:17 lowette Exp $
 //
 
 #ifndef PhysicsTools_PatAlgos_PATTauCleaner_h
 #define PhysicsTools_PatAlgos_PATTauCleaner_h
 
 /**
-  \class    PATTauCleaner PATTauCleaner.h "PhysicsTools/PatAlgos/interface/PATTauCleaner.h"
+  \class    pat::PATTauCleaner PATTauCleaner.h "PhysicsTools/PatAlgos/interface/PATTauCleaner.h"
   \brief    Produces pat::Tau's
 
    The PATTauCleaner produces analysis-level pat::Tau's starting from
    a collection of objects of TauType.
 
   \author   Steven Lowette, Christophe Delaere
-  \version  $Id: PATTauCleaner.h,v 1.5 2008/01/23 11:26:06 gpetrucc Exp $
+  \version  $Id: PATTauCleaner.h,v 1.6 2008/01/23 16:43:17 lowette Exp $
 */
 
 

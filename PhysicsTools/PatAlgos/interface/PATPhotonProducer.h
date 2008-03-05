@@ -1,19 +1,19 @@
 //
-// $Id: PATPhotonProducer.h,v 1.1 2008/01/15 13:30:07 lowette Exp $
+// $Id: PATPhotonProducer.h,v 1.1 2008/01/25 13:53:07 lowette Exp $
 //
 
 #ifndef PhysicsTools_PatAlgos_PATPhotonProducer_h
 #define PhysicsTools_PatAlgos_PATPhotonProducer_h
 
 /**
-  \class    PATPhotonProducer PATPhotonProducer.h "PhysicsTools/PatAlgos/interface/PATPhotonProducer.h"
+  \class    pat::PATPhotonProducer PATPhotonProducer.h "PhysicsTools/PatAlgos/interface/PATPhotonProducer.h"
   \brief    Produces the pat::Photon
 
    The PATPhotonProducer produces the analysis-level pat::Photon starting from
    a collection of objects of PhotonType.
 
   \author   Steven Lowette
-  \version  $Id: PATPhotonProducer.h,v 1.1 2008/01/15 13:30:07 lowette Exp $
+  \version  $Id: PATPhotonProducer.h,v 1.1 2008/01/25 13:53:07 lowette Exp $
 */
 
 

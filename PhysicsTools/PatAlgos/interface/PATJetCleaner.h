@@ -1,19 +1,19 @@
 //
-// $Id: PATJetCleaner.h,v 1.3 2008/02/14 12:37:32 auterman Exp $
+// $Id: PATJetCleaner.h,v 1.4 2008/02/19 18:03:42 auterman Exp $
 //
 
 #ifndef PhysicsTools_PatAlgos_PATJetCleaner_h
 #define PhysicsTools_PatAlgos_PATJetCleaner_h
 
 /**
-  \class    PATJetCleaner PATJetCleaner.h "PhysicsTools/PatAlgos/interface/PATJetCleaner.h"
+  \class    pat::PATJetCleaner PATJetCleaner.h "PhysicsTools/PatAlgos/interface/PATJetCleaner.h"
   \brief    Produces pat::Jet's
 
    The PATJetCleaner produces analysis-level pat::Jet's starting from
    a collection of objects of JetType.
 
   \author   Steven Lowette, Jeremy Andrea
-  \version  $Id: PATJetCleaner.h,v 1.3 2008/02/14 12:37:32 auterman Exp $
+  \version  $Id: PATJetCleaner.h,v 1.4 2008/02/19 18:03:42 auterman Exp $
 */
 
 #include "FWCore/Framework/interface/EDProducer.h"

@@ -1,6 +1,6 @@
 #ifndef PatAlgos_PATCandMatcher_h
 #define PatAlgos_PATCandMatcher_h
-/* \class PATCandMatcher.
+/* \class pat::helper::PATCandMatcher
  *
  * Extended version of reco::CandMatcher.
  * Tries to match elements from collection 1 to collection 2 with optional 
