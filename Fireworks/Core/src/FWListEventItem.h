@@ -16,10 +16,11 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Feb 28 11:05:02 PST 2008
-// $Id: FWListEventItem.h,v 1.1 2008/02/29 21:11:42 chrjones Exp $
+// $Id: FWListEventItem.h,v 1.2 2008/03/05 15:13:50 chrjones Exp $
 //
 
 // system include files
+#include <set>
 #include "TEveElement.h"
 
 // user include files
@@ -27,6 +28,7 @@
 // forward declarations
 class FWEventItem;
 class FWDetailViewManager;
+class FWModelId;
 
 class FWListEventItem : public TEveElementList
 {
@@ -49,6 +51,7 @@ class FWListEventItem : public TEveElementList
       void openDetailViewFor(int index) const;
    private:
       void itemChanged(const FWEventItem*);
+      void modelsChanged( const std::set<FWModelId>& );
 
       FWListEventItem(const FWListEventItem&); // stop default
 

@@ -8,12 +8,14 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Feb 28 11:13:37 PST 2008
-// $Id: FWListEventItem.cc,v 1.2 2008/03/05 15:13:50 chrjones Exp $
+// $Id: FWListEventItem.cc,v 1.3 2008/03/05 16:47:58 chrjones Exp $
 //
 
 // system include files
 #include <boost/bind.hpp>
 #include <iostream>
+#include "TEveManager.h"
+#include "TEveSelection.h"
 
 // user include files
 #include "Fireworks/Core/src/FWListEventItem.h"
@@ -42,6 +44,7 @@ m_item(iItem),
 m_detailViewManager(iDV)
 {
    m_item->itemChanged_.connect(boost::bind(&FWListEventItem::itemChanged,this,_1));
+   m_item->changed_.connect(boost::bind(&FWListEventItem::modelsChanged,this,_1));
    TEveElementList::SetMainColor(iItem->defaultDisplayProperties().color());
 }
 
@@ -97,6 +100,46 @@ FWListEventItem::itemChanged(const FWEventItem* iItem)
       this->AddElement( model );
       model->SetMainColor(m_item->defaultDisplayProperties().color());
    }
+}
+
+void 
+FWListEventItem::modelsChanged( const std::set<FWModelId>& iModels )
+{
+   TEveElement::List_i itElement = this->BeginChildren();
+   int index = 0;
+   for(FWModelIds::const_iterator it = iModels.begin(), itEnd = iModels.end();
+       it != itEnd;
+       ++it,++itElement,++index) {
+      assert(itElement != this->EndChildren());         
+      while(index < it->index()) {
+         ++itElement;
+         ++index;
+         assert(itElement != this->EndChildren());         
+      }
+      bool modelChanged = false;
+      const FWEventItem::ModelInfo& info = it->item()->modelInfo(index);
+      if((*itElement)->GetMainColor() != info.displayProperties().color() ) {
+         (*itElement)->SetMainColor(info.displayProperties().color());
+         modelChanged = true;
+      }
+      if(info.isSelected() xor (*itElement)->GetSelectedLevel()==1) {
+         modelChanged = true;
+         if(info.isSelected()) {         
+            gEve->GetSelection()->AddElement(*itElement);
+         } else {
+            gEve->GetSelection()->RemoveElement(*itElement);
+         }
+      }
+      
+      if((*itElement)->GetRnrSelf() != info.displayProperties().isVisible()) {
+         (*itElement)->SetRnrSelf(info.displayProperties().isVisible());
+         modelChanged = true;
+      }
+      if(modelChanged) {
+         (*itElement)->ElementChanged();
+      }
+   }
+   
 }
 
 //
