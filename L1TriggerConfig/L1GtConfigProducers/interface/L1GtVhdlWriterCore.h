@@ -13,8 +13,8 @@
  *
  * \author Philipp Wagner
  *
- * $Date: 2008/02/27 18:51:39 $
- * $Revision: 1.6 $
+ * $Date: 2008/03/03 19:33:41 $
+ * $Revision: 1.7 $
  *
  */
 
@@ -161,7 +161,7 @@ class L1GtVhdlWriterCore : public L1GtVhdlDefinitions
         void initializeDeltaConditions();
 
         /// produces a control output file for condition to integer conversion
-        void writeCond2intMap2File(const std::map<std::string,int> &conditionToIntegerMap);
+        void writeCond2intMap2File();
 
         /// for debuggin
         void printConditionsOfCategory(const L1GtConditionCategory &category, const ConditionMap &map);
@@ -187,6 +187,8 @@ class L1GtVhdlWriterCore : public L1GtVhdlDefinitions
         
         /// converts string name to substiution parameter synthax; name --> $(name)
         std::string sp(const std::string &name);
+        
+        std::string chip2OutputSubDir(const int &chip);
 
     private:
         
@@ -222,6 +224,8 @@ class L1GtVhdlWriterCore : public L1GtVhdlDefinitions
 
         /// bit manager for bit operations
         L1GtVhdlWriterBitManager bm_;
+        
+        std::string version_;
 
         /// common header for all files
         L1GtVhdlTemplateFile commonHeader_;
