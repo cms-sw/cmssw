@@ -67,6 +67,7 @@ CSCEventData::CSCEventData(unsigned short * buf){
 	edm::LogError ("CSCEventData") <<"+++WARNING: Corrupt ALCT data - won't attempt to decode";
       } 
       else {
+	//dataPresent|=0x40;
 	pos += theALCTHeader->sizeInWords(); //size of the header
 	//fill ALCT Digis
 	theALCTHeader->ALCTDigis();    
@@ -80,6 +81,7 @@ CSCEventData::CSCEventData(unsigned short * buf){
 
   if (nclct() ==1)  {
     if (isTMB(pos)) {
+      //dataPresent|=0x20;
       theTMBData = new CSCTMBData(pos);  //fill all TMB data
       pos += theTMBData->size();
     }
@@ -109,6 +111,7 @@ CSCEventData::CSCEventData(unsigned short * buf){
 	if ((cfebTimeout >> icfeb) & 1) {
 	  if (debug) edm::LogInfo ("CSCEventData") << "CFEB Timed out! ";
 	} else {
+	  //dataPresent|=(0x1>>icfeb);
 	  // Fill CFEB data and convert it into cathode digis
 	  theCFEBData[icfeb] = new CSCCFEBData(icfeb, pos);
 	  pos += theCFEBData[icfeb]->sizeInWords();
@@ -151,6 +154,7 @@ CSCEventData CSCEventData::operator=(const CSCEventData & data) {
 
 
 void CSCEventData::init() {
+  //dataPresent = 0;
   theALCTHeader = 0;
   theAnodeData = 0;
   theALCTTrailer = 0;
@@ -257,9 +261,9 @@ CSCCFEBData* CSCEventData::cfebData(unsigned icfeb) const {
 }
 
 
-CSCALCTHeader CSCEventData::alctHeader() const{
+CSCALCTHeader* CSCEventData::alctHeader() const{
   if(nalct() == 0) throw("No ALCT for this chamber");
-  return *theALCTHeader;
+  return theALCTHeader;
 }
 
 CSCALCTTrailer CSCEventData::alctTrailer() const{
@@ -273,20 +277,20 @@ CSCAnodeData & CSCEventData::alctData() const {
   return *theAnodeData;
 }
 
-CSCTMBData & CSCEventData::tmbData() const {
+CSCTMBData * CSCEventData::tmbData() const {
   if(nclct() == 0) throw("No CLCT for this chamber");
-  return *theTMBData;
+  return theTMBData;
 }
 
 
 CSCTMBHeader & CSCEventData::tmbHeader() const {
   if(nclct() == 0) throw("No CLCT for this chamber");
-  return tmbData().tmbHeader();
+  return tmbData()->tmbHeader();
 }
 
 CSCCLCTData & CSCEventData::clctData() const {
   if(nclct() == 0) throw("No CLCT for this chamber");
-  return tmbData().clctData();
+  return tmbData()->clctData();
 }
 
 

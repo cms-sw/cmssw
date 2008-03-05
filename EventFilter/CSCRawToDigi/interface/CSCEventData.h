@@ -90,7 +90,7 @@ class CSCEventData {
   CSCDMBHeader & dmbHeader()  {return theDMBHeader;}
   
   /// user must check if nalct > 0
-  CSCALCTHeader alctHeader() const;
+  CSCALCTHeader * alctHeader() const;
 
   /// user must check if nalct > 0
   CSCALCTTrailer alctTrailer() const;
@@ -99,7 +99,7 @@ class CSCEventData {
   CSCAnodeData & alctData() const;
 
   ///user must check in nclct > 0
-  CSCTMBData & tmbData() const;
+  CSCTMBData * tmbData() const;
 
   /// user must check if nclct > 0
   CSCTMBHeader & tmbHeader() const;
@@ -128,6 +128,7 @@ class CSCEventData {
 
 
   static bool debug;
+  //uint16_t dataPresent; // 7 bit word which will tell if alct, clct, and 5 cfebs are present
 
 private:
   /// helpers for ctors, dtor, and op=
