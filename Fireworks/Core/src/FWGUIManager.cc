@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Feb 11 11:06:40 EST 2008
-// $Id: FWGUIManager.cc,v 1.7 2008/02/29 21:24:45 chrjones Exp $
+// $Id: FWGUIManager.cc,v 1.8 2008/03/05 15:17:53 chrjones Exp $
 //
 
 // system include files
@@ -31,6 +31,7 @@
 //#undef protected
 #include "TEveManager.h"
 #include "TEveGedEditor.h"
+#include "TEveSelection.h"
 
 // user include files
 #include "Fireworks/Core/interface/FWGUIManager.h"
@@ -42,6 +43,8 @@
 #include "Fireworks/Core/interface/FWSummaryManager.h"
 #include "Fireworks/Core/interface/FWDetailViewManager.h"
 #include "Fireworks/Core/interface/FWViewBase.h"
+
+#include "Fireworks/Core/interface/FWEventItem.h"
 
 //
 // constants, enums and typedefs
@@ -470,7 +473,10 @@ void
 FWGUIManager::itemClicked(TGListTreeItem *item, Int_t btn,  UInt_t mask, Int_t x, Int_t y)
 {
    TEveElement* el = static_cast<TEveElement*>(item->GetUserData());
-   m_editor->DisplayElement(el);
+   if(1==btn) {
+      gEve->GetSelection()->UserPickedElement(el,mask&kKeyControlMask);
+      m_editor->DisplayElement(el);
+   }
 }
 void 
 FWGUIManager::itemDblClicked(TGListTreeItem* item, Int_t btn)
