@@ -62,7 +62,7 @@
 	<class name="std::pair&lt;double, std::vector&lt;double&gt; &gt;"/>
 	<class name="std::pair&lt;std::vector&lt;PhysicsTools::Calibration::ProcMLP::Neuron&gt;, bool&gt;"/>
 
-	<class name="PhysicsTools::Calibration::MVAComputer">
+	<class name="PhysicsTools::Calibration::MVAComputer" class_version="0">
 		<field name="cacheId" transient="true"/>
 	</class>
 
