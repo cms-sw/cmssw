@@ -284,12 +284,12 @@ CSCTMBData * CSCEventData::tmbData() const {
 
 
 CSCTMBHeader * CSCEventData::tmbHeader() const {
-  if(nclct() == 0) throw("No CLCT for this chamber");
+  if((nclct() == 0)||(tmbData()==NULL)) throw("No CLCT for this chamber");
   return tmbData()->tmbHeader();
 }
 
 CSCCLCTData * CSCEventData::clctData() const {
-  if(nclct() == 0) throw("No CLCT for this chamber");
+  if((nclct() == 0)||(tmbData()==NULL)) throw("No CLCT for this chamber");
   return tmbData()->clctData();
 }
 
