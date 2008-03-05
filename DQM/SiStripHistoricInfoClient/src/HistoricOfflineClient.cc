@@ -109,7 +109,7 @@ void HistoricOfflineClient::writeToDB(const edm::Run& run) const {
   edm::Service<cond::service::PoolDBOutputService> mydbservice;
   if( mydbservice.isAvailable() ){
     if( mydbservice->isNewTagRequest("SiStripPerformanceSummaryRcd") ){
-      mydbservice->createNewIOV<SiStripPerformanceSummary>(pSummary_,mydbservice->endOfTime(),"SiStripPerformanceSummaryRcd");
+      mydbservice->createNewIOV<SiStripPerformanceSummary>(pSummary_,mydbservice->beginOfTime(),mydbservice->endOfTime(),"SiStripPerformanceSummaryRcd");
     } else {
       mydbservice->appendSinceTime<SiStripPerformanceSummary>(pSummary_,mydbservice->currentTime(),"SiStripPerformanceSummaryRcd");
     }
@@ -128,7 +128,7 @@ void HistoricOfflineClient::writeToDB(edm::EventID evid, edm::Timestamp evtime) 
   edm::Service<cond::service::PoolDBOutputService> mydbservice;
   if( mydbservice.isAvailable() ){
     if( mydbservice->isNewTagRequest("SiStripPerformanceSummaryRcd") ){
-      mydbservice->createNewIOV<SiStripPerformanceSummary>(pSummary_,mydbservice->endOfTime(),"SiStripPerformanceSummaryRcd");      
+      mydbservice->createNewIOV<SiStripPerformanceSummary>(pSummary_,mydbservice->beginOfTime(),mydbservice->endOfTime(),"SiStripPerformanceSummaryRcd");      
     } else {
       mydbservice->appendSinceTime<SiStripPerformanceSummary>(pSummary_,mydbservice->currentTime(),"SiStripPerformanceSummaryRcd");
     }

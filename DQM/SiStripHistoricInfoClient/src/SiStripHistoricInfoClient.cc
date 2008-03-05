@@ -8,7 +8,7 @@
 //
 // Original Author:  dkcira
 //         Created:  Thu Jun 15 09:32:49 CEST 2006
-// $Id: SiStripHistoricInfoClient.cc,v 1.19 2007/12/19 10:44:43 dutta Exp $
+// $Id: SiStripHistoricInfoClient.cc,v 1.20 2008/03/02 00:07:43 dutta Exp $
 //
 
 #include "DQM/SiStripHistoricInfoClient/interface/SiStripHistoricInfoClient.h"
@@ -272,7 +272,7 @@ void SiStripHistoricInfoClient::writeToDB() const {
     std::cout<<"SiStripHistoricInfoClient::writeToDB tillTime = " << tillTime << std::endl;
     
     if( mydbservice->isNewTagRequest("SiStripPerformanceSummaryRcd") ){
-      mydbservice->createNewIOV<SiStripPerformanceSummary>(pSummary_,mydbservice->endOfTime(),"SiStripPerformanceSummaryRcd");      
+      mydbservice->createNewIOV<SiStripPerformanceSummary>(pSummary_,mydbservice->beginOfTime(),mydbservice->endOfTime(),"SiStripPerformanceSummaryRcd");      
     } else {
       mydbservice->appendSinceTime<SiStripPerformanceSummary>(pSummary_,mydbservice->currentTime(),"SiStripPerformanceSummaryRcd");      
     }
