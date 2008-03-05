@@ -16,13 +16,12 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Jan 18 12:44:26 EST 2008
-// $Id: FWModelId.h,v 1.1 2008/01/21 01:17:12 chrjones Exp $
+// $Id: FWModelId.h,v 1.2 2008/02/29 21:15:52 chrjones Exp $
 //
 
 // system include files
 
 // user include files
-#include "Fireworks/Core/interface/FWEventItem.h"
 class FWEventItem;
 
 // forward declarations
@@ -54,8 +53,8 @@ class FWModelId
       // ---------- static member functions --------------------
 
       // ---------- member functions ---------------------------
-      void unselect() const { if(m_item) {m_item->unselect(m_index);}}
-      void select() const { if(m_item) {m_item->select(m_index);}}
+      void unselect() const ;
+      void select() const;
       void toggleSelect() const {}
       void setIndex(int iIndex) { m_index=iIndex;}
    private:
