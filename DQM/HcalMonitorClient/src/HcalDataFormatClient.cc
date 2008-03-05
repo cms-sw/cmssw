@@ -211,7 +211,7 @@ void HcalDataFormatClient::getHistograms(){
   sprintf(name,"DataFormatMonitor/DCC View of Spigot Conditions");
   DCC_Spigot_Err_ = getHisto2(name, process_, dbe_, debug_,cloneME_);
 
-  sprintf(name,"DataFormatMonitor/Event Fragments violating the Common Data Format");
+  sprintf(name,"DataFormatMonitor/Common Data Format violations");
   CDF_Violation_ = getHisto2(name, process_, dbe_, debug_,cloneME_);
 
   sprintf(name,"DataFormatMonitor/Spigot Format Errors");
@@ -754,7 +754,7 @@ void HcalDataFormatClient::createTests(){
     }
   }
 
-  sprintf(meTitle,"%sHcal/DataFormatMonitor/Event Fragments violating the Common Data Format",process_.c_str());
+  sprintf(meTitle,"%sHcal/DataFormatMonitor/Common Data Format violations",process_.c_str());
   sprintf(name,"DFMon CDF Violations");
   if(dqmQtests_.find(name) == dqmQtests_.end()){	
     MonitorElement* me = dbe_->get(meTitle);
