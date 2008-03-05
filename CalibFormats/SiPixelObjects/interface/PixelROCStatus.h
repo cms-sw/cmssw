@@ -37,7 +37,9 @@ namespace pos{
     void set(ROCstatus stat, bool mode);
     void set(const std::string& statName);
     bool get(ROCstatus stat) const ;
-    
+
+    // Added by Dario (March 4th 2008)
+    void reset(void) ;
  
   };
 }
