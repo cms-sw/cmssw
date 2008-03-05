@@ -67,6 +67,12 @@ protected:
     static const std::string quartusSetupFileChip1_;
     static const std::string quartusSetupFileChip2_;   
     
+    // output subdirectories
+    
+    static const std::string outputSubDir1_;
+    static const std::string outputSubDir2_;
+
+    
     // internal templates
     
     // ...
