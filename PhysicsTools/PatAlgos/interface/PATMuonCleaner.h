@@ -1,7 +1,7 @@
 #ifndef PhysicsTools_PatAlgos_PATMuonCleaner_h
 #define PhysicsTools_PatAlgos_PATMuonCleaner_h
 //
-// $Id: PATMuonCleaner.h,v 1.5 2008/02/13 10:29:06 fronga Exp $
+// $Id: PATMuonCleaner.h,v 1.6 2008/03/05 14:52:26 fronga Exp $
 //
 
 /**
@@ -29,7 +29,7 @@
   The actual selection is performed by the MuonSelector.
 
   \author   Giovanni Petrucciani (from PATMuonProducer by Steven Lowette, Roger Wolf)
-  \version  $Id: PATMuonCleaner.h,v 1.5 2008/02/13 10:29:06 fronga Exp $
+  \version  $Id: PATMuonCleaner.h,v 1.6 2008/03/05 14:52:26 fronga Exp $
 */
 
 
@@ -81,7 +81,7 @@ namespace reco {
     template<> 
     struct ParameterAdapter<pat::MuonSelector> { 
       static pat::MuonSelector make(const edm::ParameterSet & cfg) {
-        struct pat::MuonSelection config_;
+        pat::MuonSelection config_;
         const std::string& selectionType = cfg.getParameter<std::string>("type");
         config_.selectionType = selectionType;
         if ( selectionType == "custom" )

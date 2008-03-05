@@ -1,5 +1,5 @@
 //
-// $Id: PATElectronCleaner.h,v 1.8 2008/02/13 10:29:06 fronga Exp $
+// $Id: PATElectronCleaner.h,v 1.9 2008/03/05 14:52:26 fronga Exp $
 //
 
 #ifndef PhysicsTools_PatAlgos_PATElectronCleaner_h
@@ -37,7 +37,7 @@
   The actual selection is performed by the ElectronSelector.
 
   \author   Steven Lowette, James Lamb
-  \version  $Id: PATElectronCleaner.h,v 1.8 2008/02/13 10:29:06 fronga Exp $
+  \version  $Id: PATElectronCleaner.h,v 1.9 2008/03/05 14:52:26 fronga Exp $
 */
 
 
@@ -105,7 +105,7 @@ namespace reco {
     template<> 
     struct ParameterAdapter<pat::ElectronSelector> { 
       static pat::ElectronSelector make(const edm::ParameterSet & cfg) {
-        struct pat::ElectronSelection config_;
+        pat::ElectronSelection config_;
         const std::string& selectionType = cfg.getParameter<std::string>("type");
         config_.selectionType = selectionType;
         if ( selectionType == "likelihood" || selectionType == "neuralnet" )
