@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Feb 28 11:13:37 PST 2008
-// $Id: FWListEventItem.cc,v 1.4 2008/03/05 18:39:32 chrjones Exp $
+// $Id: FWListEventItem.cc,v 1.5 2008/03/05 19:57:40 chrjones Exp $
 //
 
 // system include files
@@ -24,6 +24,7 @@
 
 #include "Fireworks/Core/interface/FWModelId.h"
 #include "Fireworks/Core/interface/FWDetailViewManager.h"
+#include "Fireworks/Core/interface/FWModelChangeManager.h"
 
 
 //
@@ -78,6 +79,15 @@ FWListEventItem::SetMainColor(Color_t iColor)
    FWDisplayProperties prop(iColor,m_item->defaultDisplayProperties().isVisible());
    m_item->setDefaultDisplayProperties(prop);
    TEveElementList::SetMainColor(iColor);
+   
+   FWChangeSentry sentry(*(m_item->changeManager()));
+   for(int index=0; index <static_cast<int>(m_item->size()); ++index) {
+      FWDisplayProperties prop=m_item->modelInfo(index).displayProperties();
+      if(iColor !=prop.color()) {
+          prop.setColor(iColor);
+         m_item->setDisplayProperties(index,prop);
+      }
+   }
 }
 
 
@@ -87,6 +97,15 @@ FWListEventItem::SetRnrState(Bool_t rnr)
    FWDisplayProperties prop(m_item->defaultDisplayProperties().color(),rnr);
    m_item->setDefaultDisplayProperties(prop);
    TEveElementList::SetRnrState(rnr);
+
+   FWChangeSentry sentry(*(m_item->changeManager()));
+   for(int index=0; index <static_cast<int>(m_item->size()); ++index) {
+      FWDisplayProperties prop=m_item->modelInfo(index).displayProperties();
+      if(rnr !=prop.isVisible()) {
+          prop.setIsVisible(rnr);
+         m_item->setDisplayProperties(index,prop);
+      }
+   }
    
 }
 Bool_t 
@@ -137,8 +156,8 @@ FWListEventItem::modelsChanged( const std::set<FWModelId>& iModels )
          }
       }
       
-      if((*itElement)->GetRnrSelf() != info.displayProperties().isVisible()) {
-         (*itElement)->SetRnrSelf(info.displayProperties().isVisible());
+      if((*itElement)->GetRnrState() != info.displayProperties().isVisible()) {
+         (*itElement)->SetRnrState(info.displayProperties().isVisible());
          modelChanged = true;
       }
       if(modelChanged) {
