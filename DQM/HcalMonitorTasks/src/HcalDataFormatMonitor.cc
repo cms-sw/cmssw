@@ -179,92 +179,97 @@ void HcalDataFormatMonitor::setup(const edm::ParameterSet& ps,
     type = "HTR Error Word by Crate";
     meErrWdCrate_ = m_dbe->book2D(type,type,18,-0.5,17.5,maxbits,-0.5,maxbits-0.5);
     meErrWdCrate_ -> setAxisTitle("Crate #",1);
-    meErrWdCrate_ -> setBinLabel(1,"Overflow Warn",2);
-    meErrWdCrate_ -> setBinLabel(2,"Buffer Busy",2);
-    meErrWdCrate_ -> setBinLabel(3,"Empty Event",2);
-    meErrWdCrate_ -> setBinLabel(4,"Reject L1A",2);
-    meErrWdCrate_ -> setBinLabel(5,"Latency Err",2);
-    meErrWdCrate_ -> setBinLabel(6,"Latency Warn",2);
-    meErrWdCrate_ -> setBinLabel(7,"OptDat Err",2);
-    meErrWdCrate_ -> setBinLabel(8,"Clock Err",2);
-    meErrWdCrate_ -> setBinLabel(9,"Bunch Err",2);
-    meErrWdCrate_ -> setBinLabel(13,"Test Mode",2);
-    meErrWdCrate_ -> setBinLabel(14,"Histo Mode",2);
-    meErrWdCrate_ -> setBinLabel(15,"Calib Trig",2);
-    meErrWdCrate_ -> setBinLabel(16,"Bit15 Err",2);
+    labelHTRBits(meErrWdCrate_,2);
 
     type = "HTR Error Word - Crate 0";
     meCrate0HTRErr_ = m_dbe->book2D(type,type,40,-0.25,19.75,maxbits,-0.5,maxbits-0.5);
     meCrate0HTRErr_ ->setAxisTitle("Slot #",1);
-    meCrate0HTRErr_ ->setAxisTitle("Crate #",2);
+    labelHTRBits(meCrate0HTRErr_,2);
+
     type = "HTR Error Word - Crate 1";
     meCrate1HTRErr_ = m_dbe->book2D(type,type,40,-0.25,19.75,maxbits,-0.5,maxbits-0.5);
     meCrate1HTRErr_ ->setAxisTitle("Slot #",1);
-    meCrate1HTRErr_ ->setAxisTitle("Crate #",2);
+    labelHTRBits(meCrate1HTRErr_,2);
+
     type = "HTR Error Word - Crate 2";
     meCrate2HTRErr_ = m_dbe->book2D(type,type,40,-0.25,19.75,maxbits,-0.5,maxbits-0.5);
     meCrate2HTRErr_ ->setAxisTitle("Slot #",1);
-    meCrate2HTRErr_ ->setAxisTitle("Crate #",2);
+    labelHTRBits(meCrate2HTRErr_,2);
+
     type = "HTR Error Word - Crate 3";
     meCrate3HTRErr_ = m_dbe->book2D(type,type,40,-0.25,19.75,maxbits,-0.5,maxbits-0.5);
     meCrate3HTRErr_ ->setAxisTitle("Slot #",1);
-    meCrate3HTRErr_ ->setAxisTitle("Crate #",2);
+    labelHTRBits(meCrate3HTRErr_,2);
+
     type = "HTR Error Word - Crate 4";
     meCrate4HTRErr_ = m_dbe->book2D(type,type,40,-0.25,19.75,maxbits,-0.5,maxbits-0.5);
     meCrate4HTRErr_ ->setAxisTitle("Slot #",1);
-    meCrate4HTRErr_ ->setAxisTitle("Crate #",2);
+    labelHTRBits(meCrate4HTRErr_,2);
+
     type = "HTR Error Word - Crate 5";
     meCrate5HTRErr_ = m_dbe->book2D(type,type,40,-0.25,19.75,maxbits,-0.5,maxbits-0.5);
     meCrate5HTRErr_ ->setAxisTitle("Slot #",1);
-    meCrate5HTRErr_ ->setAxisTitle("Crate #",2);
+    labelHTRBits(meCrate5HTRErr_,2);
+
     type = "HTR Error Word - Crate 6";
     meCrate6HTRErr_ = m_dbe->book2D(type,type,40,-0.25,19.75,maxbits,-0.5,maxbits-0.5);
     meCrate6HTRErr_ ->setAxisTitle("Slot #",1);
-    meCrate6HTRErr_ ->setAxisTitle("Crate #",2);
+    labelHTRBits(meCrate6HTRErr_,2);
+
     type = "HTR Error Word - Crate 7";
     meCrate7HTRErr_ = m_dbe->book2D(type,type,40,-0.25,19.75,maxbits,-0.5,maxbits-0.5);
     meCrate7HTRErr_ ->setAxisTitle("Slot #",1);
-    meCrate7HTRErr_ ->setAxisTitle("Crate #",2);
+    labelHTRBits(meCrate7HTRErr_,2);
+
     type = "HTR Error Word - Crate 8";
     meCrate8HTRErr_ = m_dbe->book2D(type,type,40,-0.25,19.75,maxbits,-0.5,maxbits-0.5);
     meCrate8HTRErr_ ->setAxisTitle("Slot #",1);
-    meCrate8HTRErr_ ->setAxisTitle("Crate #",2);
+    labelHTRBits(meCrate8HTRErr_,2);
+
     type = "HTR Error Word - Crate 9";
     meCrate9HTRErr_ = m_dbe->book2D(type,type,40,-0.25,19.75,maxbits,-0.5,maxbits-0.5);
     meCrate9HTRErr_ ->setAxisTitle("Slot #",1);
-    meCrate9HTRErr_ ->setAxisTitle("Crate #",2);
+    labelHTRBits(meCrate9HTRErr_,2);
+
     type = "HTR Error Word - Crate 10";
     meCrate10HTRErr_ = m_dbe->book2D(type,type,40,-0.25,19.75,maxbits,-0.5,maxbits-0.5);
     meCrate10HTRErr_ ->setAxisTitle("Slot #",1);
-    meCrate10HTRErr_ ->setAxisTitle("Crate #",2);
+    labelHTRBits(meCrate10HTRErr_,2);
+
     type = "HTR Error Word - Crate 11";
     meCrate11HTRErr_ = m_dbe->book2D(type,type,40,-0.25,19.75,maxbits,-0.5,maxbits-0.5);
     meCrate11HTRErr_ ->setAxisTitle("Slot #",1);
-    meCrate11HTRErr_ ->setAxisTitle("Crate #",2);
+    labelHTRBits(meCrate11HTRErr_,2);
+
     type = "HTR Error Word - Crate 12";
     meCrate12HTRErr_ = m_dbe->book2D(type,type,40,-0.25,19.75,maxbits,-0.5,maxbits-0.5);
     meCrate12HTRErr_ ->setAxisTitle("Slot #",1);
-    meCrate12HTRErr_ ->setAxisTitle("Crate #",2);
+    labelHTRBits(meCrate12HTRErr_,2);
+
     type = "HTR Error Word - Crate 13";
     meCrate13HTRErr_ = m_dbe->book2D(type,type,40,-0.25,19.75,maxbits,-0.5,maxbits-0.5);
     meCrate13HTRErr_ ->setAxisTitle("Slot #",1);
-    meCrate13HTRErr_ ->setAxisTitle("Crate #",2);
+    labelHTRBits(meCrate13HTRErr_,2);
+
     type = "HTR Error Word - Crate 14";
     meCrate14HTRErr_ = m_dbe->book2D(type,type,40,-0.25,19.75,maxbits,-0.5,maxbits-0.5);
     meCrate14HTRErr_ ->setAxisTitle("Slot #",1);
-    meCrate14HTRErr_ ->setAxisTitle("Crate #",2);
+    labelHTRBits(meCrate14HTRErr_,2);
+
     type = "HTR Error Word - Crate 15";
     meCrate15HTRErr_ = m_dbe->book2D(type,type,40,-0.25,19.75,maxbits,-0.5,maxbits-0.5);
     meCrate15HTRErr_ ->setAxisTitle("Slot #",1);
-    meCrate15HTRErr_ ->setAxisTitle("Crate #",2);
+    labelHTRBits(meCrate15HTRErr_,2);
+
     type = "HTR Error Word - Crate 16";
     meCrate16HTRErr_ = m_dbe->book2D(type,type,40,-0.25,19.75,maxbits,-0.5,maxbits-0.5);
     meCrate16HTRErr_ ->setAxisTitle("Slot #",1);
-    meCrate16HTRErr_ ->setAxisTitle("Crate #",2);
+    labelHTRBits(meCrate16HTRErr_,2);
+
     type = "HTR Error Word - Crate 17";
     meCrate17HTRErr_ = m_dbe->book2D(type,type,40,-0.25,19.75,maxbits,-0.5,maxbits-0.5);
     meCrate17HTRErr_ ->setAxisTitle("Slot #",1);
-    meCrate17HTRErr_ ->setAxisTitle("Crate #",2);
+    labelHTRBits(meCrate17HTRErr_,2);
     
  /* Disable these histos for now
      type = "Fiber 1 Orbit Message BCN";
@@ -287,52 +292,16 @@ void HcalDataFormatMonitor::setup(const edm::ParameterSet& ps,
 
     type = "HBHE Data Format Error Word";
     DCC_ErrWd_HBHE =  m_dbe->book1D(type,type,16,-0.5,15.5);
-    DCC_ErrWd_HBHE -> setBinLabel(1,"Overflow Warn",1);
-    DCC_ErrWd_HBHE -> setBinLabel(2,"Buffer Busy",1);
-    DCC_ErrWd_HBHE -> setBinLabel(3,"Empty Event",1);
-    DCC_ErrWd_HBHE -> setBinLabel(4,"Reject L1A",1);
-    DCC_ErrWd_HBHE -> setBinLabel(5,"Latency Err",1);
-    DCC_ErrWd_HBHE -> setBinLabel(6,"Latency Warn",1);
-    DCC_ErrWd_HBHE -> setBinLabel(7,"OptDat Err",1);
-    DCC_ErrWd_HBHE -> setBinLabel(8,"Clock Err",1);
-    DCC_ErrWd_HBHE -> setBinLabel(9,"Bunch Err",1);
-    DCC_ErrWd_HBHE -> setBinLabel(13,"Test Mode",1);
-    DCC_ErrWd_HBHE -> setBinLabel(14,"Histo Mode",1);
-    DCC_ErrWd_HBHE -> setBinLabel(15,"Calib Trig",1);
-    DCC_ErrWd_HBHE -> setBinLabel(16,"Bit15 Err",1);
+    labelHTRBits(DCC_ErrWd_HBHE,1);
 
     type = "HF Data Format Error Word";
     DCC_ErrWd_HF =  m_dbe->book1D(type,type,16,-0.5,15.5);
-    DCC_ErrWd_HF -> setBinLabel(1,"Overflow Warn",1);
-    DCC_ErrWd_HF -> setBinLabel(2,"Buffer Busy",1);
-    DCC_ErrWd_HF -> setBinLabel(3,"Empty Event",1);
-    DCC_ErrWd_HF -> setBinLabel(4,"Reject L1A",1);
-    DCC_ErrWd_HF -> setBinLabel(5,"Latency Err",1);
-    DCC_ErrWd_HF -> setBinLabel(6,"Latency Warn",1);
-    DCC_ErrWd_HF -> setBinLabel(7,"OptDat Err",1);
-    DCC_ErrWd_HF -> setBinLabel(8,"Clock Err",1);
-    DCC_ErrWd_HF -> setBinLabel(9,"Bunch Err",1);
-    DCC_ErrWd_HF -> setBinLabel(13,"Test Mode",1);
-    DCC_ErrWd_HF -> setBinLabel(14,"Histo Mode",1);
-    DCC_ErrWd_HF -> setBinLabel(15,"Calib Trig",1);
-    DCC_ErrWd_HF -> setBinLabel(16,"Bit15 Err",1);
-
+    labelHTRBits(DCC_ErrWd_HF,1);
+  
     type = "HO Data Format Error Word";
     DCC_ErrWd_HO = m_dbe->book1D(type,type,16,-0.5,15.5);
-    DCC_ErrWd_HO -> setBinLabel(1,"Overflow Warn",1);
-    DCC_ErrWd_HO -> setBinLabel(2,"Buffer Busy",1);
-    DCC_ErrWd_HO -> setBinLabel(3,"Empty Event",1);
-    DCC_ErrWd_HO -> setBinLabel(4,"Reject L1A",1);
-    DCC_ErrWd_HO -> setBinLabel(5,"Latency Err",1);
-    DCC_ErrWd_HO -> setBinLabel(6,"Latency Warn",1);
-    DCC_ErrWd_HO -> setBinLabel(7,"OptDat Err",1);
-    DCC_ErrWd_HO -> setBinLabel(8,"Clock Err",1);
-    DCC_ErrWd_HO -> setBinLabel(9,"Bunch Err",1);
-    DCC_ErrWd_HO -> setBinLabel(13,"Test Mode",1);
-    DCC_ErrWd_HO -> setBinLabel(14,"Histo Mode",1);
-    DCC_ErrWd_HO -> setBinLabel(15,"Calib Trig",1);
-    DCC_ErrWd_HO -> setBinLabel(16,"Bit15 Err",1);
-
+    labelHTRBits(DCC_ErrWd_HO,1);
+  
    }
 
    return;
@@ -725,7 +694,29 @@ void HcalDataFormatMonitor::HTRPrint(const HcalHTRData& htr,int prtlvl){
 
 return;
 }
+void HcalDataFormatMonitor::labelHTRBits(MonitorElement* mePlot,unsigned int axisType) {
 
+  if (axisType !=1 && axisType != 2) return;
+
+  mePlot -> setBinLabel(1,"Overflow Warn",axisType);
+  mePlot -> setBinLabel(2,"Buffer Busy",axisType);
+  mePlot -> setBinLabel(3,"Empty Event",axisType);
+  mePlot -> setBinLabel(4,"Reject L1A",axisType);
+  mePlot -> setBinLabel(5,"Latency Err",axisType);
+  mePlot -> setBinLabel(6,"Latency Warn",axisType);
+  mePlot -> setBinLabel(7,"OptDat Err",axisType);
+  mePlot -> setBinLabel(8,"Clock Err",axisType);
+  mePlot -> setBinLabel(9,"Bunch Err",axisType);
+  mePlot -> setBinLabel(10,"Link Err",axisType);
+  mePlot -> setBinLabel(11,"CapId Err",axisType);
+  mePlot -> setBinLabel(12,"FE Format Err",axisType);
+  mePlot -> setBinLabel(13,"Test Mode",axisType);
+  mePlot -> setBinLabel(14,"Histo Mode",axisType);
+  mePlot -> setBinLabel(15,"Calib Trig",axisType);
+  mePlot -> setBinLabel(16,"Bit15 Err",axisType);
+
+  return;
+}
 
 
 
