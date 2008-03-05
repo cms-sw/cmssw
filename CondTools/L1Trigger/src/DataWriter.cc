@@ -117,7 +117,12 @@ void DataWriter::writePayload (L1TriggerKey & key, const edm::EventSetup & setup
     WriterFactory * factory = WriterFactory::get();
     const std::string name = buildName(record, type);
     WriterProxy * writer = factory->create(name);
-    assert (writer != 0);
+    if( writer == 0 )
+      {
+	throw cond::Exception( "DataWriter: could not create WriterProxy with name "
+			       + name ) ;
+      }
+    //assert (writer != 0);
 
     //    pool->connect ();
     //connection->connect ( session );
@@ -128,7 +133,12 @@ void DataWriter::writePayload (L1TriggerKey & key, const edm::EventSetup & setup
     // update key to have new payload registered for record-type pair.
     std::string payloadToken = writer->save(setup, pool);
     std::cout << "TOKEN " << payloadToken << std::endl ;
-    assert (!payloadToken.empty ());
+    if( payloadToken.empty() )
+      {
+	throw cond::Exception( "DataWriter: failure to write payload in "
+			       + name ) ;
+      }
+    //assert (!payloadToken.empty ());
 
     key.add (record, type, payloadToken);
 
@@ -145,7 +155,12 @@ DataWriter::writePayload( const edm::EventSetup& setup,
 {
     WriterFactory* factory = WriterFactory::get();
     WriterProxy* writer = factory->create( recordType + "@Writer" ) ;
-    assert( writer != 0 );
+    if( writer == 0 )
+      {
+	throw cond::Exception( "DataWriter: could not create WriterProxy with name "
+			       + recordType + "@Writer" ) ;
+      }
+    //assert( writer != 0 );
 
     cond::PoolTransaction& pool = connection->poolTransaction() ;
     pool.start( false ) ;

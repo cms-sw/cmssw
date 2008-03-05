@@ -13,7 +13,7 @@
 //
 // Original Author:  Werner Man-Li Sun
 //         Created:  Sun Mar  2 07:05:15 CET 2008
-// $Id$
+// $Id: L1CondDBPayloadWriter.cc,v 1.1 2008/03/03 21:52:18 wsun Exp $
 //
 //
 
@@ -92,7 +92,13 @@ L1CondDBPayloadWriter::analyze(const edm::Event& iEvent,
 
       // Record token in L1TriggerKeyList
       keyList = new L1TriggerKeyList( *oldKeyList ) ;
-      assert( keyList->addKey( key->getTSCKey(), token ) ) ;
+      if( !( keyList->addKey( key->getTSCKey(), token ) ) )
+	{
+	  throw cond::Exception( "L1CondDBPayloadWriter: TSC key "
+				 + key->getTSCKey()
+				 + " already in L1TriggerKeyList" ) ;
+	}
+      //assert( keyList->addKey( key->getTSCKey(), token ) ) ;
       //keyListUpdated = true ;
 
       // Loop over record@type in L1TriggerKey
@@ -109,7 +115,13 @@ L1CondDBPayloadWriter::analyze(const edm::Event& iEvent,
 	 if( !token.empty() )
 	 {
 	    // Record token in L1TriggerKeyList
-	    assert( keyList->addKey( it->first, it->second, token ) ) ;
+	   if( !( keyList->addKey( it->first, it->second, token ) ) )
+	     {
+	       throw cond::Exception( "L1CondDBPayloadWriter: subsystem key "
+				      + it->first
+				      + " already in L1TriggerKeyList" ) ;
+	     }
+	   //assert( keyList->addKey( it->first, it->second, token ) ) ;
 	 }
       }
    }

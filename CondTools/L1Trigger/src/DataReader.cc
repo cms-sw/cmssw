@@ -157,7 +157,11 @@ std::string DataReader::payloadToken (const std::string & tag, const edm::RunNum
 
     //connection->disconnect ();
 
-    assert (!payload.empty ());
+    if( payload.empty() )
+      {
+	throw cond::Exception( "DataReader: empty payload token." ) ;
+      }
+    //assert (!payload.empty ());
     return payload;
 }
 

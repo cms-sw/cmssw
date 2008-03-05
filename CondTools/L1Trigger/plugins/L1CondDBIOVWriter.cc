@@ -13,7 +13,7 @@
 //
 // Original Author:  Werner Man-Li Sun
 //         Created:  Sun Mar  2 20:09:46 CET 2008
-// $Id$
+// $Id: L1CondDBIOVWriter.cc,v 1.1 2008/03/03 21:52:17 wsun Exp $
 //
 //
 
@@ -121,7 +121,11 @@ L1CondDBIOVWriter::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
       std::string recordType = itr->first ;
       std::string subsystemKey = itr->second ;
       std::string payloadToken = keyList->token( recordType, subsystemKey ) ;
-      assert( !payloadToken.empty() ) ;
+      if( payloadToken.empty() )
+	{
+	  throw cond::Exception( "L1CondDBIOVWriter: empty payload token" ) ;
+	}
+      // assert( !payloadToken.empty() ) ;
 
       std::cout << "IOVWriter " << recordType << " " << subsystemKey
 		<< " " << payloadToken << " " << std::endl ;
@@ -132,7 +136,12 @@ L1CondDBIOVWriter::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
       // Find tag for IOV token
       std::map<std::string, std::string >::const_iterator recordToTagItr =
 	 m_recordToTagMap.find( recordName ) ;
-      assert( recordToTagItr != m_recordToTagMap.end() ) ;
+      if( recordToTagItr == m_recordToTagMap.end() )
+	{
+	  throw cond::Exception( "L1CondDBIOVWriter: no tag for record "
+				 + recordName ) ;
+	}
+      // assert( recordToTagItr != m_recordToTagMap.end() ) ;
 
       m_writer.updateIOV( recordToTagItr->second, payloadToken, run ) ;
    }
