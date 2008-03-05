@@ -1,4 +1,5 @@
 <use name=DQM/HLTEvF>
+<use name=DataFormats/BeamSpot>
 <library file="*.cc" name=DQMHLTEvFPlugins>
 <flags EDM_PLUGIN=1>
 </library>

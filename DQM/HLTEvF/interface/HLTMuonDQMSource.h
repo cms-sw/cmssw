@@ -5,8 +5,8 @@
  * *
  *  DQM Test Client
  *
- *  $Date: 2008/02/11 17:54:14 $
- *  $Revision: 1.3 $
+ *  $Date: 2008/03/04 14:08:32 $
+ *  $Revision: 1.3.2.1 $
  *  \author  M. Vander Donckt CERN
  *   
  */
@@ -15,7 +15,6 @@
 
 #include <FWCore/Framework/interface/EDAnalyzer.h>
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 
@@ -62,34 +61,41 @@ private:
   int counterEvt_;      ///counter
   int prescaleEvt_;     ///every n events
   double coneSize_;
-  edm::InputTag l2collectionTag_,l3collectionTag_,l3linksTag_,l2isolationTag_,l3isolationTag_;
+  edm::InputTag l2collectionTag_;
+  edm::InputTag l2isolationTag_;
+  edm::InputTag l2seedscollectionTag_;
+  edm::InputTag l3collectionTag_;
+  edm::InputTag l3isolationTag_;
+  edm::InputTag l3linksTag_;
+
   // ----------member data ---------------------------
   bool verbose_;
-  bool monitorDaemon_;
 
-  MonitorElement * hNMu[2];
-  MonitorElement * hcharge[2];
-  MonitorElement * hpt[2];
+  MonitorElement * hNMu[4];
+  MonitorElement * hcharge[4];
+  MonitorElement * hpt[4];
   MonitorElement * hptlx[2];
-  MonitorElement * heta[2];
-  MonitorElement * hphi[2];
-  MonitorElement * hptphi[2];
-  MonitorElement * hpteta[2];
-  MonitorElement * hL2ptres;
-  MonitorElement * hL2etares;
-  MonitorElement * hL2etareseta;
-  MonitorElement * hL2phires;
-  MonitorElement * hL2phiresphi;
-  MonitorElement * hetaphi[2];
+  MonitorElement * heta[4];
+  MonitorElement * hphi[4];
+  MonitorElement * hptphi[4];
+  MonitorElement * hpteta[4];
+  MonitorElement * hptres[3];
+  MonitorElement * hetares[3];
+  MonitorElement * hetareseta[3];
+  MonitorElement * hphires[3];
+  MonitorElement * hphiresphi[3];
+  MonitorElement * hetaphi[4];
   MonitorElement * hdr[2];
+  MonitorElement * hd0[2];
   MonitorElement * hdz[2];
   MonitorElement * hdrphi[2];
+  MonitorElement * hd0phi[2];
   MonitorElement * hdzeta[2];
   MonitorElement * herr0[2];
-  MonitorElement * hnhit[2];
+  MonitorElement * hnhit[4];
   MonitorElement * hdimumass[2];
   MonitorElement * hiso[2];
-
+  MonitorElement * hl1quality;
   float XMIN; float XMAX;
 };
 
