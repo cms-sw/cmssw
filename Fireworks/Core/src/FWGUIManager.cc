@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Feb 11 11:06:40 EST 2008
-// $Id: FWGUIManager.cc,v 1.8 2008/03/05 15:17:53 chrjones Exp $
+// $Id: FWGUIManager.cc,v 1.9 2008/03/05 16:49:18 chrjones Exp $
 //
 
 // system include files
@@ -475,6 +475,9 @@ FWGUIManager::itemClicked(TGListTreeItem *item, Int_t btn,  UInt_t mask, Int_t x
    TEveElement* el = static_cast<TEveElement*>(item->GetUserData());
    if(1==btn) {
       gEve->GetSelection()->UserPickedElement(el,mask&kKeyControlMask);
+      
+      //NOTE: editor should be decided by looking at FWSelectionManager and NOT directly from clicking
+      // in the list
       m_editor->DisplayElement(el);
    }
 }
