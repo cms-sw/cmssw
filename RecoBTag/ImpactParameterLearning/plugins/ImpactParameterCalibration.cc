@@ -13,7 +13,7 @@
 //
 // Original Author:  Jeremy Andrea/Andrea Rizzi
 //         Created:  Mon Aug  6 16:10:38 CEST 2007
-// $Id: ImpactParameterCalibration.cc,v 1.4 2008/02/26 17:50:27 tboccali Exp $
+// $Id: ImpactParameterCalibration.cc,v 1.6 2008/03/03 14:40:48 tboccali Exp $
 //
 //
 // system include files
@@ -227,7 +227,7 @@ ImpactParameterCalibration::beginJob(const edm::EventSetup & iSetup)
   v.push_back(createCategory(8,5000,0.8,1.6,8,50,3,5,0,2.5,0));
   v.push_back(createCategory(8,5000,1.6,2.4,8,50,3,5,0,2.5,0));
   v.push_back(createCategory(8,5000,0,2.4,8,50,2,2,0,2.5,0));
-  for(int i=minLoop;i <=maxLoop ;i++)
+  for(unsigned int i=minLoop;i <=maxLoop ;i++)
    for(unsigned int j=0;j<v.size() ; j++)
     {
      TrackProbabilityCalibration::Entry e;
@@ -244,7 +244,7 @@ ImpactParameterCalibration::beginJob(const edm::EventSetup & iSetup)
     ca[0]  = fromXml(config.getParameter<edm::FileInPath>("calibFile3d"));
     ca[1]  = fromXml(config.getParameter<edm::FileInPath>("calibFile2d"));
   
-    for(int i=minLoop;i <=maxLoop ;i++)
+    for(unsigned int i=minLoop;i <=maxLoop ;i++)
      for(unsigned int j=0;j<ca[i]->data.size() ; j++)
      {
       TrackProbabilityCalibration::Entry e;
@@ -272,7 +272,7 @@ ImpactParameterCalibration::beginJob(const edm::EventSetup & iSetup)
     const TrackProbabilityCalibration * ca[2];
     ca[0]  = calib3DHandle.product();
     ca[1]  = calib2DHandle.product();
-    for(int i=minLoop;i <=maxLoop ;i++)
+    for(unsigned int i=minLoop;i <=maxLoop ;i++)
     for(unsigned int j=0;j<ca[i]->data.size() ; j++)
     {
      TrackProbabilityCalibration::Entry e;
@@ -361,8 +361,8 @@ ImpactParameterCalibration::endJob() {
   {
     edm::Service<cond::service::PoolDBOutputService> mydbservice;
     if( !mydbservice.isAvailable() ) return;
-if(minLoop != 1 && maxLoop !=1)    mydbservice->createNewIOV<TrackProbabilityCalibration>(m_calibration[0],  mydbservice->endOfTime(),"BTagTrackProbability3DRcd");
-  if(minLoop != 0 && maxLoop !=0)   mydbservice->createNewIOV<TrackProbabilityCalibration>(m_calibration[1],  mydbservice->endOfTime(),"BTagTrackProbability2DRcd");
+if(minLoop != 1 && maxLoop !=1)    mydbservice->createNewIOV<TrackProbabilityCalibration>(m_calibration[0], mydbservice->beginOfTime(), mydbservice->endOfTime(),"BTagTrackProbability3DRcd");
+  if(minLoop != 0 && maxLoop !=0)   mydbservice->createNewIOV<TrackProbabilityCalibration>(m_calibration[1],  mydbservice->beginOfTime(), mydbservice->endOfTime(),"BTagTrackProbability2DRcd");
   } 
     
 
