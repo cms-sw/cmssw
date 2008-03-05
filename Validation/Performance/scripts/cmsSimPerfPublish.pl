@@ -7,28 +7,28 @@
 $TimeSizeNumOfEvents=100;
 $IgProfNumOfEvents=5;
 $ValgrindNumOfEvents=1;
-$LocalWebArea=$ARGV[0]; 
+$UserWebArea=$ARGV[0]; 
 
 #Some nomenclature
-@Candle=(
+@Candle=( #These need to match the directory names in the work area
     HiggsZZ4LM190,
     MinBias,
     SingleElectronE1000,
-    SingleMuMinusPt1000,
-    SinglePiMinusPt1000,
+    SingleMuMinusPt10,
+    SinglePiMinusE1000,
     TTbar,
-    ZPrimeJJM700
+    QCD_80_120
     );
-%CmsDriverCandle=(
+%CmsDriverCandle=( #These need to match the cmsDriver.py output filenames
     $Candle[0]=>"HZZLLLL_190",
     $Candle[1]=>"MINBIAS",
     $Candle[2]=>"E_1000",
-    $Candle[3]=>"MU_1000",
-    $Candle[4]=>"PI-_1000",#For now leave it like this to match cmsSimPyRelVal
+    $Candle[3]=>"MU-_pt_10",
+    $Candle[4]=>"PI-_1000",
     $Candle[5]=>"TTBAR",
-    $Candle[6]=>"ZPJJ"
+    $Candle[6]=>"QCD_80_120"
     );
-@Profile=(
+@Profile=( #These need to match the profile directory names ending within the candle directories
           "TimingReport",
           "TimeReport",
           "SimpleMemReport",
@@ -40,12 +40,12 @@ $LocalWebArea=$ARGV[0];
           "valgrind",
           "memcheck_valgrind"
 	   );
-@DirName=(
+@DirName=( #These need to match the candle directory names ending (depending on the type of profiling)
 	  "TimeSize",
 	  "IgProf",
 	  "Valgrind"
 	  );
-@Step=(
+@Step=( 
        "SIM",
        "DIGI"
        );
@@ -53,29 +53,30 @@ $LocalWebArea=$ARGV[0];
 	      "SIM"=>"sim",
 	      "DIGI"=>"digi"
 	      );
-%NumOfEvents=(
+%NumOfEvents=( #These numbers are used in the index.html they are not automatically matched to the actual
+	       #ones (one should automate this, by looking into the cmsCreateSimPerfTestPyRelVal.log logfile)
 	    $DirName[0]=>"$TimeSizeNumOfEvents",
 	    $DirName[1]=>"$IgProfNumOfEvents",
 	    $DirName[2]=>"$ValgrindNumOfEvents"
 	    );
-%OutputHtml=(
-	     $Profile[0]=>"*TimingReport.html",
-	     $Profile[1]=>"TimeReport.html",
-	     $Profile[2]=>"*.html",
-	     $Profile[3]=>"objects_pp.html",
-	     $Profile[4]=>"overall.html",
-	     $Profile[5]=>"overall.html",
-	     $Profile[6]=>"overall.html",
-	     $Profile[7]=>"doBeginJob_output.html",
-	     $Profile[8]=>"overall.html",
-	     $Profile[9]=>"beginjob.html"
+%OutputHtml=( #These are the filenames to be linked in the index.html page for each profile
+	     $Profile[0]=>"*TimingReport.html", #The wildcard spares the need to know the candle name
+	     $Profile[1]=>"TimeReport.html", #This is always the same (for all candles)
+	     $Profile[2]=>"*.html", #This is supposed to be *SimpleMemoryCheck.html, but there is a bug in cmsRelvalreport.py and it is called TimingReport.html!
+	     $Profile[3]=>"objects_pp.html", #This is one of 4 objects_*.html files, it's indifferent which one to pick, just need consistency
+	     $Profile[4]=>"overall.html", #This is always the same (for all candles)
+	     $Profile[5]=>"overall.html", #This is always the same (for all candles)
+	     $Profile[6]=>"overall.html", #This is always the same (for all candles)
+	     $Profile[7]=>"doBeginJob_output.html", #This is complicated... there are 3 html to link... (see IgProf MemAnalyse below)
+	     $Profile[8]=>"overall.html", #This is always the same (for all candles)
+	     $Profile[9]=>"beginjob.html" #This is complicated there are 3 html to link here too... (see Valgrind MemCheck below)
 	     );
-@IgProfMemAnalyseOut=(
+@IgProfMemAnalyseOut=( #This is the special case of IgProfMemAnalyse
 		      "doBeginJob_output.html",
 		      "doProduce_output.html",
-		      "mem.html"
+		      "mem_live.html"
 		      );
-@memcheck_valgrindOut=(
+@memcheck_valgrindOut=( #This is the special case of Valgrind MemCheck (published via Giovanni's script)
 		       "beginjob.html",
 		       "edproduce.html",
 		       "esproduce.html"
@@ -85,6 +86,7 @@ $CMSSW_VERSION=$ENV{'CMSSW_VERSION'};
 $CMSSW_RELEASE_BASE=$ENV{'CMSSW_RELEASE_BASE'};
 $CMSSW_BASE=$ENV{'CMSSW_BASE'};
 $HOST=$ENV{'HOST'};
+$USER=$ENV{'USER'};
 $LocalPath=`pwd`;
 $ShowTagsResult=`showtags -r`;
 
@@ -93,7 +95,7 @@ $PerformancePkg="$CMSSW_BASE/src/Validation/Performance";
 if (-e $PerformancePkg)
 {
     $BASE_PERFORMANCE=$PerformancePkg;
-    print "**Using LOCAL version of Validation/Performance instead of the RELEASE version**\n";
+    print "**[cmsSimPerfPublish.pl]Using LOCAL version of Validation/Performance instead of the RELEASE version**\n";
 }
 else
 {
@@ -101,22 +103,37 @@ else
 }
 
 #Define the web publishing area
-if ($LocalWebArea eq "local")
+if ($UserWebArea eq "simulation")
 { 
-    $WebArea="/tmp/gbenelli/"."$CMSSW_VERSION";
+    $WebArea="/afs/cern.ch/cms/sdt/web/performance/simulation/"."$CMSSW_VERSION";
+    print "Publication web area: $WebArea\n";
+}
+elsif ($UserWebArea eq "relval")
+{
+    $WebArea="/afs/cern.ch/cms/sdt/web/performance/simulation/RelVal/"."$CMSSW_VERSION";
+    print "Publication web area: $WebArea\n";
+}
+elsif ($UserWebArea eq "local")
+{ 
+    $WebArea="/tmp/".$USER."/"."$CMSSW_VERSION";
+    print "**User chose to publish results in a local directory**\n";
     print "Creating local directory $WebArea\n";
     system("mkdir $WebArea");
 }
 else
 {
-    $WebArea="/afs/cern.ch/cms/sdt/web/performance/simulation/"."$CMSSW_VERSION";
+    print "No publication directory specified!\nPlease choose between simulation, relval or local\nE.g.: cmsSimPerfPublish.pl local\n";
+    exit;
 }
+
 #Dump some info in a file   
 opendir(WEBDIR,$WebArea)||die "The area $WebArea does not exist!\nRun the appropriate script to request AFS space first, or wait for it to create it!\n";
 @Contents=readdir(WEBDIR);
 #    $CheckDir=`ls $WebArea`;
 #    if ($CheckDir eq "")
 if ($#Contents==1)#@Contents will have only 2 entries . and .. if the dir is empty.
+                  #In reality things are more complicated there could be .AFS files...
+                  #but it's too much of a particular case to handle it by script
 {
     print "The area $WebArea is ready to be populated!\n";
 }
@@ -129,6 +146,10 @@ $date=`date`;
 @LogFiles=`ls cms*.log`;
 print "Found the following log files:\n";
 print @LogFiles;
+@cmsScimarkDir=`ls -d cmsScimarkResults_*`;
+print "Found the following cmsScimark2 results directories:\n";
+print @cmsScimarkDir;
+@cmsScimarkResults=`ls cmsScimarkResults_*/*.html`;
 $ExecutionDateSec=0;
 foreach (@LogFiles)
 {
@@ -137,7 +158,7 @@ foreach (@LogFiles)
     {
 	$ExecutionDateLastSec=`stat --format=\%Z $_`;
 	$ExecutionDateLast=`stat --format=\%y $_`;
-	print "Execution date for $_ was: $ExecutionDateLast";
+	print "Execution (completion) date for $_ was: $ExecutionDateLast";
 	if ($ExecutionDateLastSec>$ExecutionDateSec)
 	{
 	    $ExecutionDateSec=$ExecutionDateLastSec;
@@ -147,8 +168,10 @@ foreach (@LogFiles)
 }
 print "Copying the logfiles to $WebArea/.\n";
 system("cp -pR cms*.log $WebArea/.");
+print "Copying the cmsScimark2 results to the $WebArea/.\n";
+system("cp -pR cmsScimarkResults_* $WebArea/.");
 #Copy the perf_style.css file from Validation/Performance/doc
-print "Copying perf_style.css style file to $WebArea/.\n";
+print "Copying $BASE_PERFORMANCE/doc/perf_style.css style file to $WebArea/.\n";
 system("cp -pR $BASE_PERFORMANCE/doc/perf_style.css $WebArea/.");
 @Dir=`ls`;
 chomp(@Dir);
@@ -160,11 +183,12 @@ print LOG "These performance tests were executed on host $HOST and published on 
 print LOG "They were run in $LocalPath\n";
 print LOG "Results of showtags -r in the local release:\n$ShowTagsResult\n";
 close(LOG);
-#Produce a small index.html file to navigate the html reports/logs etc
+#Produce a "small" index.html file to navigate the html reports/logs etc
 $IndexFile="$WebArea"."/index.html";
 open(INDEX,">$IndexFile")||die "Cannot open file $IndexFile!\n$!\n";
 print "Writing an index.html file with links to the profiles report information for easier navigation\n"; 
 $TemplateHtml="$BASE_PERFORMANCE"."/doc/index.html";
+print "Template used: $TemplateHtml\n";
 open(TEMPLATE,"<$TemplateHtml")||die "Couldn't open file $TemplateHtml - $!\n";
 #Loop line by line to build our index.html based on the template one
 while (<TEMPLATE>)
@@ -197,6 +221,14 @@ while (<TEMPLATE>)
 	{
 	    chomp($_);
 	    #$LogFileLink="$WebArea/"."$_";
+	    print INDEX "<a href="."$_"."> $_ <\/a>";
+	    print INDEX "<br><br>";
+	}
+	#Add the cmsScimark results here:
+	print INDEX "Results for cmsScimark2 benchmark (running on the other cores) available at:";
+	print INDEX "<br><br>";
+	foreach (@cmsScimarkResults)
+	{
 	    print INDEX "<a href="."$_"."> $_ <\/a>";
 	    print INDEX "<br><br>";
 	}
@@ -239,32 +271,34 @@ while (<TEMPLATE>)
 			print "Found $_ in $LocalPath\n";
 			system("cp -pR $_ $WebArea/.");
 			print INDEX "<a href="."$_".">$_ <\/a>";
+			print INDEX "<br>";
 		    }
 		}
 		foreach (@Profile)
 		{
 		    $CurrentProfile=$_;
-		    foreach (@Step)
+		    foreach (@Step) 
 		    {
 			$ProfileTemplate="$CurrentCandle"."_"."$CurDir"."/"."*_"."$_"."_"."$CurrentProfile"."*/"."$OutputHtml{$CurrentProfile}";
+			#There was the issue of SIM vs sim (same for DIGI) between the previous RelVal based performance suite and the current.
 			$ProfileTemplateLowCaps="$CurrentCandle"."_"."$CurDir"."/"."*_"."$StepLowCaps{$_}"."_"."$CurrentProfile"."*/"."$OutputHtml{$CurrentProfile}";
-			    $ProfileReportLink=`ls $ProfileTemplate 2>/dev/null`;
+			$ProfileReportLink=`ls $ProfileTemplate 2>/dev/null`;
 			if ( $ProfileReportLink !~ /^$CurrentCandle/)#no match with caps try low caps
 			{
 			    $ProfileReportLink=`ls $ProfileTemplateLowCaps 2>/dev/null`;
 			}
 			if ($ProfileReportLink=~/$CurrentProfile/)#It could also not be there
 			{
-			    if ($PrintedOnce==0)
+			    if ($PrintedOnce==0) #Making sure it's printed only once per directory (TimeSize, IgProf, Valgrind) each can have multiple profiles
 			    {
 				print INDEX "<br>";
-				print INDEX "<b>$CurDir</b>";
+				print INDEX "<b>$CurDir</b>";#This is the "title" of a series of profiles, (TimeSize, IgProf, Valgrind)
 				$PrintedOnce=1;
 			    }
-			    print INDEX "<li><a href="."$ProfileReportLink".">$CurrentProfile $_ ("."$NumOfEvents{$CurDir}"." events)<\/a>";
+			    #Special cases first (IgProf MemAnalyse and Valgrind MemCheck)
 			    if ($CurrentProfile eq $Profile[7])
 			    {
-				for ($i=1;$i<3;$i++)
+				for ($i=0;$i<3;$i++)
 				{
 				    $ProfileTemplate="$CurrentCandle"."_"."$CurDir"."/"."*_"."$_"."_"."$CurrentProfile"."*/"."$IgProfMemAnalyseOut[$i]";
 				    $ProfileTemplateLowCaps="$CurrentCandle"."_"."$CurDir"."/"."*_"."$StepLowCaps{$_}"."_"."$CurrentProfile"."*/"."$IgProfMemAnalyseOut[$i]";
@@ -279,9 +313,9 @@ while (<TEMPLATE>)
 				    }
 				}
 			    }
-			    if ($CurrentProfile eq $Profile[9])
+			    elsif ($CurrentProfile eq $Profile[9])
 			    {
-				for ($i=1;$i<3;$i++)
+				for ($i=0;$i<3;$i++)
 				{
 				    $ProfileTemplate="$CurrentCandle"."_"."$CurDir"."/"."*_"."$_"."_"."$CurrentProfile"."*/"."$memcheck_valgrindOut[$i]";
 				    $ProfileTemplateLowCaps="$CurrentCandle"."_"."$CurDir"."/"."*_"."$StepLowCaps{$_}"."_"."$CurrentProfile"."*/"."$memcheck_valgrindOut[$i]";
@@ -295,6 +329,10 @@ while (<TEMPLATE>)
 					print INDEX "<li><a href="."$ProfileReportLink".">$CurrentProfile $memcheck_valgrindOut[$i] $_ ("."$NumOfEvents{$CurDir}"." events)<\/a>";
 				    }
 				}
+			    }
+			    else
+			    {
+				print INDEX "<li><a href="."$ProfileReportLink".">$CurrentProfile $_ ("."$NumOfEvents{$CurDir}"." events)<\/a>";
 			    }
 			}
 		    }

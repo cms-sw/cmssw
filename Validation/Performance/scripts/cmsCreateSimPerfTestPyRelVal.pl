@@ -22,7 +22,7 @@ $PerformancePkg="$CMSSW_BASE/src/Validation/Performance";
 if (-e $PerformancePkg)
 {
     $BASE_PERFORMANCE=$PerformancePkg;
-    print "**Using LOCAL version of Validation/Performance instead of the RELEASE version**\n";
+    print "**[cmsCreateSimPerfTestPyRelVal.pl]Using LOCAL version of Validation/Performance instead of the RELEASE version**\n";
 }
 else
 {
@@ -32,16 +32,33 @@ $PyRelValPkg="$CMSSW_BASE/src/Configuration/PyReleaseValidation";
 if (-e $PyRelValPkg)
 {
     $BASE_PYRELVAL=$PyRelValPkg;
-    print "**Using LOCAL version of Configuration/PyReleaseValidation instead of the RELEASE version**\n";
+    print "**[cmsCreateSimPerfTestPyRelVal.pl]Using LOCAL version of Configuration/PyReleaseValidation instead of the RELEASE version**\n";
 }
 else
 {
     $BASE_PYRELVAL="$CMSSW_RELEASE_BASE/src/Configuration/PyReleaseValidation";
 }
-#Setting the path for the cmsDriver.py command:
-$cmsDriver="$BASE_PYRELVAL/scripts/cmsDriver.py";
-$cmsSimPyRelVal="$BASE_PERFORMANCE/scripts/cmsSimPyRelVal.pl";
-$cmsRelvalreport="$BASE_PYRELVAL/scripts/cmsRelvalreport.py";
+
+#This is the "prefix" to submit all commands to run on cpu1:
+$Taskset="taskset -c 1";
+
+#Setting the path for the commands (and cpu core affinity for some):
+$cmsDriver="$Taskset $BASE_PYRELVAL/scripts/cmsDriver.py";
+$cmsSimPyRelVal="$Taskset $BASE_PERFORMANCE/scripts/cmsSimPyRelVal.pl";
+$cmsRelvalreport="$Taskset $BASE_PYRELVAL/scripts/cmsRelvalreport.py";
+$cmsScimarkLaunch="$BASE_PERFORMANCE/scripts/cmsScimarkLaunch.csh";
+$cmsScimarkParser="$BASE_PERFORMANCE/scripts/cmsScimarkParser.py";
+$cmsScimarkStop="$BASE_PERFORMANCE/scripts/cmsScimarkStop.pl";
+
+#To help performance reproducibility when running on 1 core:
+#Submit executables only on core cpu1,
+#while running cmsScimark on the other cores
+print "Submitting cmsScimarkLaunch to run on core cpu0\n";
+system("taskset -c 0 $cmsScimarkLaunch 0&");
+print "Submitting cmsScimarkLaunch to run on core cpu2\n";
+system("taskset -c 2 $cmsScimarkLaunch 2&");
+print "Submitting cmsScimarkLaunch to run on core cpu3\n";
+system("taskset -c 3 $cmsScimarkLaunch 3&");
 
 $date=`date`;
 $path=`pwd`;
@@ -61,7 +78,10 @@ print SCIMARK "Initial Benchmark\n";
 print SCIMARK "$date$HOST\n";
 for ($i=0;$i<$cmsScimark2NumOfTimes;$i++)
 {
-    $scimark=`cmsScimark2`;
+    $j=$i+1;
+    print "$Taskset cmsScimark2 \[$j/$cmsScimark2NumOfTimes\]\n";
+    $scimark=`$Taskset cmsScimark2`;
+    print SCIMARK "$Taskset cmsScimark2 \[$j/$cmsScimark2NumOfTimes\]\n";
     print SCIMARK "$scimark\n";
 }
 $date=`date`;
@@ -71,7 +91,10 @@ print SCIMARKLARGE "Initial Benchmark\n";
 print SCIMARKLARGE "$date$HOST\n";
 for ($i=0;$i<$cmsScimark2LargeNumOfTimes;$i++)
 {
-    $scimarklarge=`cmsScimark2 -large`;
+    $j=$i+1;
+    print "$Taskset cmsScimark2 -large \[$j/$cmsScimark2NumOfTimes\]\n";
+    $scimarklarge=`$Taskset cmsScimark2 -large`;
+    print SCIMARKLARGE "$Taskset cmsScimark2 -large \[$j/$cmsScimark2NumOfTimes\]\n";
     print SCIMARKLARGE "$scimarklarge\n";
 }
 $date=`date`;
@@ -80,82 +103,119 @@ print SCIMARKLARGE $date;
     HiggsZZ4LM190, 
     MinBias,
     SingleElectronE1000, 
-    SingleMuMinusPt1000, 
-    SinglePiMinusPt1000, 
+    SingleMuMinusPt10, 
+    SinglePiMinusE1000, 
     TTbar, 
-    ZPrimeJJM700
+    QCD_80_120
     );
 
 %CmsDriverCandle=(
     $Candle[0]=>"\"HZZLLLL\"",
     $Candle[1]=>"\"MINBIAS\"",
     $Candle[2]=>"\"E -e 1000\"",
-    $Candle[3]=>"\"MU- -e pt1000\"",
-    $Candle[4]=>"\"PI- -e pt1000\"",
+    $Candle[3]=>"\"MU- -e pt10\"",
+    $Candle[4]=>"\"PI- -e 1000\"",
     $Candle[5]=>"\"TTBAR\"",
-    $Candle[6]=>"\"ZPJJ\""
+    $Candle[6]=>"\"QCD -e 80_120\""
     );
 %CmsDriverCandleNoBrackets=(
     $Candle[0]=>"HZZLLLL",
     $Candle[1]=>"MINBIAS",
     $Candle[2]=>"E -e 1000",
-    $Candle[3]=>"MU- -e pt1000",
-    $Candle[4]=>"PI- -e pt1000",
+    $Candle[3]=>"MU- -e pt10",
+    $Candle[4]=>"PI- -e 1000",
     $Candle[5]=>"TTBAR",
-    $Candle[6]=>"ZPJJ"
+    $Candle[6]=>"QCD -e 80_120"
     );
 #Running TimingReport, TimeReport, SimpleMemoryCheck, EdmSize on all 7 candles
 #With $TimeSizeNumOfEvts events each
-foreach (@Candle)
+if ($TimeSizeNumOfEvts>0)
 {
-   system(
-	"mkdir "."$_"."_TimeSize;
-	cd "."$_"."_TimeSize;
-	$cmsDriver $CmsDriverCandleNoBrackets{$_} -n $TimeSizeNumOfEvts --step=GEN --customise=Simulation.py >& "."$_"."_GEN.log;
-	$cmsSimPyRelVal $TimeSizeNumOfEvts $CmsDriverCandle{$_} 0123;
-	$cmsRelvalreport -i SimulationCandles_"."$CMSSW_VERSION".".txt -t perfreport_tmp -R -P >& "."$_".".log;
-	cd .."
-	);
+    print "Launching the TimeSize tests (TimingReport, TimeReport, SimpleMemoryCheck, EdmSize with $TimeSizeNumOfEvts events each\n"; 
+    foreach (@Candle)
+    {
+	print "mkdir "."$_"."_TimeSize
+cd "."$_"."_TimeSize
+$cmsSimPyRelVal $TimeSizeNumOfEvts $CmsDriverCandle{$_} 0123
+$cmsRelvalreport -i SimulationCandles_"."$CMSSW_VERSION".".txt -t perfreport_tmp -R -P >& "."$_".".log
+cd ..\n";
+	
+	system(
+	       "mkdir "."$_"."_TimeSize;
+	       cd "."$_"."_TimeSize;
+	       $cmsSimPyRelVal $TimeSizeNumOfEvts $CmsDriverCandle{$_} 0123;
+	       $cmsRelvalreport -i SimulationCandles_"."$CMSSW_VERSION".".txt -t perfreport_tmp -R -P >& "."$_".".log;
+	       cd .."
+	      );
+    }
 }
-
-#Running IgProfPerf, IgProfMem (TOTAL, LIVE, ANALYSE) on $IgProfNumOfEvts ZPrimeJJ events
-system(
-    "mkdir ZPrimeJJM700_IgProf;
-    cd ZPrimeJJM700_IgProf;
-    $cmsDriver $CmsDriverCandleNoBrackets{$Candle[6]} -n $IgProfNumOfEvts --step=GEN --customise=Simulation.py >& ZPrimeJJM700_GEN.log;
-    $cmsSimPyRelVal $IgProfNumOfEvts $CmsDriverCandle{$Candle[6]} 4567;
-    $cmsRelvalreport -i SimulationCandles_"."$CMSSW_VERSION".".txt -t perfreport_tmp -R -P >& ZPrimeJJM700.log;
-    cd .."
-    );
-
+#Running IgProfPerf, IgProfMem (TOTAL, LIVE, ANALYSE) on $IgProfNumOfEvts QCD_80_120 events
+if ($IgProfNumOfEvts>0)
+{
+    print "Launching the IgProf tests with $IgProfNumOfEvts each\n";
+    print "mkdir QCD_80_120_IgProf
+cd QCD_80_120_IgProf
+$cmsSimPyRelVal $IgProfNumOfEvts $CmsDriverCandle{$Candle[6]} 4567
+$cmsRelvalreport -i SimulationCandles_"."$CMSSW_VERSION".".txt -t perfreport_tmp -R -P >& QCD_80_120.log
+cd ..\n";
+    system(
+	   "mkdir QCD_80_120_IgProf;
+           cd QCD_80_120_IgProf;
+           $cmsSimPyRelVal $IgProfNumOfEvts $CmsDriverCandle{$Candle[6]} 4567;
+           $cmsRelvalreport -i SimulationCandles_"."$CMSSW_VERSION".".txt -t perfreport_tmp -R -P >& QCD_80_120.log;
+           cd .."
+          );
+}
+if ($ValgrindNumOfEvts>0)
+{
+    print "Launching the Valgrind tests with $ValgrindNumOfEvts events each\n";
 #Running ValgrindFCE callgrind and memcheck on $ValgrindNumOfEvts ZPrimeJJ event (DIGI only)
-system(
-    "mkdir ZPrimeJJM700_Valgrind;
-    cd ZPrimeJJM700_Valgrind;
-    $cmsDriver $CmsDriverCandleNoBrackets{$Candle[6]} -n $ValgrindNumOfEvts --step=GEN,SIM --fileout=ZPJJ__SIM.root --customise=Simulation.py >& ZPrimeJJM700_GEN_SIM.log;
-    $cmsSimPyRelVal $ValgrindNumOfEvts "."$CmsDriverCandle{$Candle[6]}"." 89;grep -v SIM SimulationCandles_"."$CMSSW_VERSION".".txt \>tmp; 
-    mv tmp SimulationCandles_"."$CMSSW_VERSION".".txt;
-    $cmsRelvalreport -i SimulationCandles_"."$CMSSW_VERSION".".txt -t perfreport_tmp -R -P >& ZPrimeJJM700.log;
-    cd .."
-    );
+    print "mkdir QCD_80_120_Valgrind
+cd QCD_80_120_Valgrind
+cp -pR ../QCD_80_120_IgProf/QCD_80_120_SIM.root .
+$cmsSimPyRelVal $ValgrindNumOfEvts "."$CmsDriverCandle{$Candle[6]}"." 89;grep -v SIM SimulationCandles_"."$CMSSW_VERSION".".txt \>tmp
+mv tmp SimulationCandles_"."$CMSSW_VERSION".".txt
+$cmsRelvalreport -i SimulationCandles_"."$CMSSW_VERSION".".txt -t perfreport_tmp -R -P >& QCD_80_120.log
+cd ..\n";
+
+    system(
+	   "mkdir QCD_80_120_Valgrind;
+           cd QCD_80_120_Valgrind;
+           #Copying over the SIM.root file from the IgProf profiling directory to avoid re-running it
+           cp -pR ../QCD_80_120_IgProf/QCD_80_120_SIM.root .;
+           $cmsSimPyRelVal $ValgrindNumOfEvts "."$CmsDriverCandle{$Candle[6]}"." 89;grep -v SIM SimulationCandles_"."$CMSSW_VERSION".".txt \>tmp; 
+           mv tmp SimulationCandles_"."$CMSSW_VERSION".".txt;
+           $cmsRelvalreport -i SimulationCandles_"."$CMSSW_VERSION".".txt -t perfreport_tmp -R -P >& QCD_80_120.log;
+           cd .."
+	  );
 
 #Running ValgrindFCE callgrind and memcheck on $ValgrindNumOfEvts SingleMuMinus event (SIM only)
-system(
-    "mkdir SingleMuMinusPt1000_Valgrind;
-    cd SingleMuMinusPt1000_Valgrind;
-    $cmsDriver $CmsDriverCandleNoBrackets{$Candle[3]} -n $ValgrindNumOfEvts --step=GEN --customise=Simulation.py >& SingleMuMinusPt1000_GEN.log
-    $cmsSimPyRelVal $ValgrindNumOfEvts "."$CmsDriverCandle{$Candle[3]}"." 89;grep -v DIGI SimulationCandles_"."$CMSSW_VERSION".".txt \>tmp; 
-    mv tmp SimulationCandles_"."$CMSSW_VERSION".".txt;
-    $cmsRelvalreport -i SimulationCandles_"."$CMSSW_VERSION".".txt -t perfreport_tmp -R -P >& SingleMuMinusPt1000.log;
-    cd .."
-    );
+    print "mkdir SingleMuMinusPt10_Valgrind
+cd SingleMuMinusPt10_Valgrind
+$cmsSimPyRelVal $ValgrindNumOfEvts "."$CmsDriverCandle{$Candle[3]}"." 89;grep -v DIGI SimulationCandles_"."$CMSSW_VERSION".".txt \>tmp
+mv tmp SimulationCandles_"."$CMSSW_VERSION".".txt
+$cmsRelvalreport -i SimulationCandles_"."$CMSSW_VERSION".".txt -t perfreport_tmp -R -P >& SingleMuMinusPt10.log\n
+cd ..\n";
+
+    system(
+	   "mkdir SingleMuMinusPt10_Valgrind;
+           cd SingleMuMinusPt10_Valgrind;
+           $cmsSimPyRelVal $ValgrindNumOfEvts "."$CmsDriverCandle{$Candle[3]}"." 89;grep -v DIGI SimulationCandles_"."$CMSSW_VERSION".".txt \>tmp; 
+           mv tmp SimulationCandles_"."$CMSSW_VERSION".".txt;
+           $cmsRelvalreport -i SimulationCandles_"."$CMSSW_VERSION".".txt -t perfreport_tmp -R -P >& SingleMuMinusPt10.log;
+           cd .."
+	  );
+}#if $ValgrindNumOfEvts>0
 #Adding an independent benchmark of the machine after running
 $date=`date`;
 print SCIMARK "Final Benchmark\n";
 print SCIMARK "$date$HOST\n";
 for ($i=0;$i<$cmsScimark2NumOfTimes;$i++)
 {
-    $scimark=`cmsScimark2`;
+        $j=$i+1;
+    print "$Taskset cmsScimark2 \[$j/$cmsScimark2NumOfTimes\]\n";
+    #$scimark=`$Taskset cmsScimark2`;
+    print SCIMARK "$Taskset cmsScimark2 \[$j/$cmsScimark2NumOfTimes\]\n";
     print SCIMARK "$scimark\n";
 }
 $date=`date`;
@@ -165,12 +225,18 @@ print SCIMARKLARGE "Final Benchmark\n";
 print SCIMARKLARGE "$date$HOST\n";
 for ($i=0;$i<$cmsScimark2LargeNumOfTimes;$i++)
 {
-    $scimarklarge=`cmsScimark2 -large`;
+        $j=$i+1;
+    print "$Taskset cmsScimark2 -large \[$j/$cmsScimark2NumOfTimes\]\n";
+    #$scimarklarge=`$Taskset cmsScimark2 -large`;
+    print SCIMARKLARGE "$Taskset cmsScimark2 -large \[$j/$cmsScimark2NumOfTimes\]\n";
     print SCIMARKLARGE "$scimarklarge\n";
 }
 $date=`date`;
 print SCIMARKLARGE $date;
 close SCIMARK;
 close SCIMARKLARGE;
+print "Stop all cmsScimarkLaunch jobs\n";
+print "$cmsScimarkStop\n";
+system("$cmsScimarkStop");
 exit;
 
