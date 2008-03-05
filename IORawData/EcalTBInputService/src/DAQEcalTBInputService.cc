@@ -1,6 +1,6 @@
 /*
- *  $Date: 2007/05/16 10:54:15 $
- *  $Revision: 1.16 $
+ *  $Date: 2008/03/05 18:56:37 $
+ *  $Revision: 1.17 $
  *  \author N. Amapane - S. Argiro'
  *  \author G. Franzoni
  */
@@ -66,8 +66,10 @@ void DAQEcalTBInputService::setRunAndEventInfo()
     {
       if ( runNumber_ != 0 ) {
         setRunNumber( runNumber_ );
-      } else {
+      } else if ( reader_->getRunNumber() != 0 ) {
         setRunNumber(reader_->getRunNumber());
+      } else {
+        setRunNumber( 1 );
       }
       //For the moment adding 1 by hand (CMS has event number starting from 1)
       setEventNumber(reader_->getEventNumber()+1);
