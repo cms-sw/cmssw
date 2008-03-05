@@ -27,12 +27,14 @@ HcalMonitorModule::HcalMonitorModule(const edm::ParameterSet& ps){
   ledMon_ = NULL;    mtccMon_ = NULL;
   hotMon_ = NULL;    tempAnalysis_ = NULL;
   deadMon_ = NULL;   tpMon_ = NULL;
+  ctMon_ = NULL;
 
   inputLabelDigi_        = ps.getParameter<edm::InputTag>("digiLabel");
   inputLabelRecHitHBHE_  = ps.getParameter<edm::InputTag>("hbheRecHitLabel");
   inputLabelRecHitHF_    = ps.getParameter<edm::InputTag>("hfRecHitLabel");
   inputLabelRecHitHO_    = ps.getParameter<edm::InputTag>("hoRecHitLabel");
-  
+  inputLabelCaloTower_   = ps.getParameter<edm::InputTag>("caloTowerLabel");
+
   evtSel_ = new HcalMonitorSelector(ps);
   
   dbe_ = Service<DQMStore>().operator->();
@@ -81,13 +83,18 @@ HcalMonitorModule::HcalMonitorModule(const edm::ParameterSet& ps){
     hotMon_ = new HcalHotCellMonitor();
     hotMon_->setup(ps, dbe_);
   }
-  
+
   if ( ps.getUntrackedParameter<bool>("DeadCellMonitor", false) ) {
-    if(debug_ || 1>0) cout << "HcalMonitorModule: Dead Cell monitor flag is on...." << endl;
+    if(debug_) cout << "HcalMonitorModule: Dead Cell monitor flag is on...." << endl;
     deadMon_ = new HcalDeadCellMonitor();
     deadMon_->setup(ps, dbe_);
   }
 
+  if ( ps.getUntrackedParameter<bool>("CaloTowerMonitor", false) ) {
+    if(debug_) cout << "HcalMonitorModule: CaloTower monitor flag is on...." << endl;
+    ctMon_ = new HcalCaloTowerMonitor();
+    ctMon_->setup(ps, dbe_);
+  }
   if ( ps.getUntrackedParameter<bool>("TrigPrimMonitor", false) ) { 	 
     if(debug_) cout << "HcalMonitorModule: TrigPrim monitor flag is on...." << endl; 	 
     tpMon_ = new HcalTrigPrimMonitor(); 	 
@@ -140,7 +147,11 @@ HcalMonitorModule::~HcalMonitorModule(){
     if(pedMon_!=NULL)  {  pedMon_->clearME();}
     if(ledMon_!=NULL)  {  ledMon_->clearME();}
     if(hotMon_!=NULL)  {  hotMon_->clearME();}
+      
     if(deadMon_!=NULL) {  deadMon_->clearME();}
+    if(ctMon_!=NULL) {    ctMon_->clearME();}
+    if(tpMon_!=NULL) {    ctMon_->clearME();}
+
     if(mtccMon_!=NULL) {  mtccMon_->clearME();}
     if(rhMon_!=NULL)   {  rhMon_->clearME();}
     
@@ -154,6 +165,8 @@ HcalMonitorModule::~HcalMonitorModule(){
   if(ledMon_!=NULL) { delete ledMon_; ledMon_=NULL; }
   if(hotMon_!=NULL) { delete hotMon_; hotMon_=NULL; }
   if(deadMon_!=NULL) { delete deadMon_; deadMon_=NULL; }
+  if (ctMon_!=NULL) { delete ctMon_; ctMon_=NULL;}
+  if (tpMon_!=NULL) { delete tpMon_; tpMon_=NULL;}
   if(mtccMon_!=NULL) { delete mtccMon_; mtccMon_=NULL; }
   if(rhMon_!=NULL) { delete rhMon_; rhMon_=NULL; }
   if(tempAnalysis_!=NULL) { delete tempAnalysis_; tempAnalysis_=NULL; }
@@ -242,6 +255,8 @@ void HcalMonitorModule::endJob(void) {
   if(ledMon_!=NULL) ledMon_->done();
   if(hotMon_!=NULL) hotMon_->done();
   if(deadMon_!=NULL) deadMon_->done();
+  if (ctMon_!=NULL) ctMon_->done();
+  if (tpMon_!=NULL) tpMon_->done();
   if(mtccMon_!=NULL) mtccMon_->done();
   if(tempAnalysis_!=NULL) tempAnalysis_->done();
   
@@ -260,7 +275,10 @@ void HcalMonitorModule::reset(){
   if(ledMon_!=NULL)  ledMon_->reset();
   if(hotMon_!=NULL)  hotMon_->reset();
   if(deadMon_!=NULL)  deadMon_->reset();
+  if (ctMon_!=NULL) ctMon_->reset();
+  if (tpMon_!=NULL) tpMon_->reset();
   if(mtccMon_!=NULL)   mtccMon_->reset();
+
   if(tempAnalysis_!=NULL) tempAnalysis_->reset();
 }
 
@@ -304,6 +322,7 @@ void HcalMonitorModule::analyze(const edm::Event& e, const edm::EventSetup& even
   bool rechitOK_ = true;
   bool trigOK_   = false;
   bool tpdOK_    = true;
+  bool calotowerOK_ = true;
 
   // try to get raw data and unpacker report
   edm::Handle<FEDRawDataCollection> rawraw;  
@@ -371,6 +390,12 @@ void HcalMonitorModule::analyze(const edm::Event& e, const edm::EventSetup& even
     rechitOK_ = false;
   }
 
+  // try to get calotowers 
+  edm::Handle<CaloTowerCollection> calotower;
+  e.getByLabel(inputLabelCaloTower_,calotower);
+  if(!calotower.isValid()){
+    calotowerOK_=false;
+  }
 
   /// Run the configured tasks, protect against missing products
 
@@ -402,13 +427,13 @@ void HcalMonitorModule::analyze(const edm::Event& e, const edm::EventSetup& even
   if((deadMon_ != NULL) && (evtMask&DO_HCAL_RECHITMON) && rechitOK_ && digiOK_) 
     deadMon_->processEvent(*hb_hits,*ho_hits,*hf_hits,
 			   *hbhe_digi,*ho_digi,*hf_digi,*conditions_);			     
-
-  // Dead Cell monitor task -- may end up using both rec hits and digis?
+  
   if((tpMon_ != NULL) && rechitOK_ && digiOK_ && tpdOK_) 
     tpMon_->processEvent(*hb_hits,*ho_hits,*hf_hits,
 			 *hbhe_digi,*ho_digi,*hf_digi,*tp_digi);			     
 
-
+  if ((ctMon_ != NULL) && calotowerOK_)
+    ctMon_->processEvent(*calotower);
 
 
   if(ievt_%1000 == 0)
@@ -421,6 +446,7 @@ void HcalMonitorModule::analyze(const edm::Event& e, const edm::EventSetup& even
     cout << "    RecHits ==> " << rechitOK_<< endl;
     cout << "    TrigRec ==> " << trigOK_<< endl;
     cout << "    TPdigis ==> " << tpdOK_<< endl;    
+    cout << "    CaloTowers ==> "<< calotowerOK_<<endl;
   }
 
   return;
