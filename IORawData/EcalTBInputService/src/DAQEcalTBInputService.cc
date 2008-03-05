@@ -1,6 +1,6 @@
 /*
- *  $Date: 2007/04/10 23:10:05 $
- *  $Revision: 1.15 $
+ *  $Date: 2007/05/16 10:54:15 $
+ *  $Revision: 1.16 $
  *  \author N. Amapane - S. Argiro'
  *  \author G. Franzoni
  */
@@ -27,6 +27,7 @@ DAQEcalTBInputService::DAQEcalTBInputService(const ParameterSet& pset,
   } else {
     LogInfo("EcalTBInputService") << "@SUB=DAQEcalTBInputService" << "ASCII input data file";
   }
+  runNumber_ = pset.getUntrackedParameter<unsigned int>("runNumber", 0);
   reader_ = new EcalTBDaqFileReader();
   produces<FEDRawDataCollection>();
 }
@@ -63,7 +64,11 @@ void DAQEcalTBInputService::setRunAndEventInfo()
   
   if (eventRead_)
     {
-      setRunNumber(reader_->getRunNumber());
+      if ( runNumber_ != 0 ) {
+        setRunNumber( runNumber_ );
+      } else {
+        setRunNumber(reader_->getRunNumber());
+      }
       //For the moment adding 1 by hand (CMS has event number starting from 1)
       setEventNumber(reader_->getEventNumber()+1);
       // time is a hack
