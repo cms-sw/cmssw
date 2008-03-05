@@ -1,7 +1,7 @@
 
 //
 // F.Ratnikov (UMd), Oct 28, 2005
-// $Id: HcalDbASCIIIO.cc,v 1.34 2008/01/22 19:07:19 muzaffar Exp $
+// $Id: HcalDbASCIIIO.cc,v 1.35 2008/03/03 16:45:01 rofierzy Exp $
 //
 #include <vector>
 #include <string>
@@ -332,7 +332,7 @@ bool HcalDbASCIIIO::getObject (std::istream& fInput, HcalQIEData* fObject) {
 	    coder.setSlope (capid, range, atof (items [index++].c_str ()));
 	  }
 	}
-	fObject->addCoder (id, coder);
+	fObject->addCoder (coder);
 //      }
     }
   }
@@ -404,7 +404,7 @@ bool HcalDbASCIIIO::getObject (std::istream& fInput, HcalCalibrationQIEData* fOb
 	values[bin] = atof (items [index++].c_str ());
       }
       coder.setMinCharges (values);
-      fObject->addCoder (id, coder);
+      fObject->addCoder (coder);
 //    }
   }
   fObject->sort ();

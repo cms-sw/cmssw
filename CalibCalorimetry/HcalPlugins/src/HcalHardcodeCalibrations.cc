@@ -1,6 +1,6 @@
 // -*- C++ -*-
 // Original Author:  Fedor Ratnikov
-// $Id: HcalHardcodeCalibrations.cc,v 1.12 2008/01/22 18:57:58 muzaffar Exp $
+// $Id: HcalHardcodeCalibrations.cc,v 1.13 2008/03/03 20:22:40 rofierzy Exp $
 //
 //
 
@@ -200,7 +200,7 @@ std::auto_ptr<HcalQIEData> HcalHardcodeCalibrations::produceQIEData (const HcalQ
   std::vector <HcalGenericDetId> cells = allCells(h2mode_);
   for (std::vector <HcalGenericDetId>::const_iterator cell = cells.begin (); cell != cells.end (); cell++) {
     HcalQIECoder coder = HcalDbHardcode::makeQIECoder (*cell);
-    result->addCoder (*cell, coder);
+    result->addCoder (coder);
   }
   return result;
 }
