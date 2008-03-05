@@ -46,7 +46,7 @@ void SiStripApvGainBuilder::analyze(const edm::Event& evt, const edm::EventSetup
   
   if( mydbservice.isAvailable() ){
     if( mydbservice->isNewTagRequest("SiStripApvGainRcd") ){
-      mydbservice->createNewIOV<SiStripApvGain>(obj,mydbservice->endOfTime(),"SiStripApvGainRcd");      
+      mydbservice->createNewIOV<SiStripApvGain>(obj,mydbservice->beginOfTime(),mydbservice->endOfTime(),"SiStripApvGainRcd");      
     } else {
       mydbservice->appendSinceTime<SiStripApvGain>(obj,mydbservice->currentTime(),"SiStripApvGainRcd");      
     }

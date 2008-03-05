@@ -54,9 +54,10 @@ void SiStripNoisesBuilder::analyze(const edm::Event& evt, const edm::EventSetup&
 
   if( mydbservice.isAvailable() ){
     if ( mydbservice->isNewTagRequest("SiStripNoisesRcd") ){
-      mydbservice->createNewIOV<SiStripNoises>(obj,mydbservice->endOfTime(),"SiStripNoisesRcd");
+      mydbservice->createNewIOV<SiStripNoises>(obj,mydbservice->beginOfTime(),mydbservice->endOfTime(),"SiStripNoisesRcd");
     } else {  
-      mydbservice->createNewIOV<SiStripNoises>(obj,mydbservice->currentTime(),"SiStripNoisesRcd");      
+      //mydbservice->createNewIOV<SiStripNoises>(obj,mydbservice->currentTime(),"SiStripNoisesRcd");      
+      mydbservice->appendSinceTime<SiStripNoises>(obj,mydbservice->currentTime(),"SiStripNoisesRcd");      
     }
   }else{
     edm::LogError("SiStripNoisesBuilder")<<"Service is unavailable"<<std::endl;

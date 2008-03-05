@@ -60,9 +60,10 @@ void SiStripPedestalsBuilder::analyze(const edm::Event& evt, const edm::EventSet
 
   if( mydbservice.isAvailable() ){
     if ( mydbservice->isNewTagRequest("SiStripPedestalsRcd") ){
-      mydbservice->createNewIOV<SiStripPedestals>(obj,mydbservice->endOfTime(),"SiStripPedestalsRcd");
+      mydbservice->createNewIOV<SiStripPedestals>(obj,mydbservice->beginOfTime(),mydbservice->endOfTime(),"SiStripPedestalsRcd");
     } else {
-      mydbservice->createNewIOV<SiStripPedestals>(obj,mydbservice->currentTime(),"SiStripPedestalsRcd");      
+      //mydbservice->createNewIOV<SiStripPedestals>(obj,mydbservice->currentTime(),"SiStripPedestalsRcd");      
+      mydbservice->appendSinceTime<SiStripPedestals>(obj,mydbservice->currentTime(),"SiStripPedestalsRcd");      
     }
   }else{
     edm::LogError("SiStripPedestalsBuilder")<<"Service is unavailable"<<std::endl;

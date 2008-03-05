@@ -37,7 +37,7 @@ void SiStripPerformanceSummaryBuilder::analyze(const edm::Event& iEvent, const e
   if( poolDbService.isAvailable() ){
     if ( poolDbService->isNewTagRequest( "SiStripPerformanceSummaryRcd" ) ){
       edm::LogInfo("Tag")<<" is new tag request.";
-      poolDbService->createNewIOV<SiStripPerformanceSummary>( psummary, poolDbService->endOfTime(),"SiStripPerformanceSummaryRcd"  );
+      poolDbService->createNewIOV<SiStripPerformanceSummary>( psummary, poolDbService->beginOfTime(),poolDbService->endOfTime(),"SiStripPerformanceSummaryRcd"  );
     }else{
       edm::LogInfo("Tag")<<" tag exists already.";
       poolDbService->appendSinceTime<SiStripPerformanceSummary>( psummary, poolDbService->currentTime(),"SiStripPerformanceSummaryRcd" );
