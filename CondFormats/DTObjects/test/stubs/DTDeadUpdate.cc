@@ -102,7 +102,8 @@ namespace edmtest {
 
     if( dbservice->isNewTagRequest("DTDeadFlagRcd") ){
       dbservice->createNewIOV<DTDeadFlag>(
-                 dSum,dbservice->endOfTime(),"DTDeadFlagRcd");
+                 dSum,dbservice->beginOfTime(),
+                      dbservice->endOfTime(),"DTDeadFlagRcd");
     }
     else{
       std::cout << "already present tag" << std::endl;

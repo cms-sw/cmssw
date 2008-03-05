@@ -84,8 +84,9 @@ namespace edmtest {
     std::cout << "end of time : " << dbservice->endOfTime() << std::endl;
     if( dbservice->isNewTagRequest("DTCCBConfigRcd") ){
       dbservice->createNewIOV<DTCCBConfig>(
-                 conf,0xffffffff,"DTCCBConfigRcd");
-//                 conf,dbservice->endOfTime(),"DTCCBConfigRcd");
+                 conf,dbservice->beginOfTime(),
+                      dbservice->endOfTime(),"DTCCBConfigRcd");
+//                      0xffffffff,"DTCCBConfigRcd");
     }
     else{
       std::cout << "already present tag" << std::endl;

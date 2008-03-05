@@ -95,7 +95,8 @@ namespace edmtest {
     }
     if( dbservice->isNewTagRequest("DTReadOutMappingRcd") ){
       dbservice->createNewIOV<DTReadOutMapping>(
-                 ro_map,dbservice->endOfTime(),"DTReadOutMappingRcd");
+                 ro_map,dbservice->beginOfTime(),
+                        dbservice->endOfTime(),"DTReadOutMappingRcd");
     }
     else{
       std::cout << "already present tag" << std::endl;
