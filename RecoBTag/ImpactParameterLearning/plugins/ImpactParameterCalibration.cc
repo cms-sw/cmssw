@@ -13,7 +13,7 @@
 //
 // Original Author:  Jeremy Andrea/Andrea Rizzi
 //         Created:  Mon Aug  6 16:10:38 CEST 2007
-// $Id: ImpactParameterCalibration.cc,v 1.6 2008/03/03 14:40:48 tboccali Exp $
+// $Id: ImpactParameterCalibration.cc,v 1.7 2008/03/05 10:40:53 tboccali Exp $
 //
 //
 // system include files
@@ -361,8 +361,8 @@ ImpactParameterCalibration::endJob() {
   {
     edm::Service<cond::service::PoolDBOutputService> mydbservice;
     if( !mydbservice.isAvailable() ) return;
-if(minLoop != 1 && maxLoop !=1)    mydbservice->createNewIOV<TrackProbabilityCalibration>(m_calibration[0], mydbservice->beginOfTime(), mydbservice->endOfTime(),"BTagTrackProbability3DRcd");
-  if(minLoop != 0 && maxLoop !=0)   mydbservice->createNewIOV<TrackProbabilityCalibration>(m_calibration[1],  mydbservice->beginOfTime(), mydbservice->endOfTime(),"BTagTrackProbability2DRcd");
+    if(minLoop == 0 )    mydbservice->createNewIOV<TrackProbabilityCalibration>(m_calibration[0], mydbservice->beginOfTime(), mydbservice->endOfTime(),"BTagTrackProbability3DRcd");
+    if(maxLoop == 1)   mydbservice->createNewIOV<TrackProbabilityCalibration>(m_calibration[1],  mydbservice->beginOfTime(), mydbservice->endOfTime(),"BTagTrackProbability2DRcd");
   } 
     
 
