@@ -178,7 +178,6 @@ TEveElementList *fw::getEcalCrystals (const EcalRecHitCollection *hits,
 	       if (hit != hits->end())
 		    size = hit->energy();
 	  }
-	  const TGeoHMatrix *matrix = geo.getMatrix(k->rawId());
 	  TEveGeoShapeExtract* extract = geo.getExtract(k->rawId());
 	  assert(extract != 0);
 	  TEveTrans t = extract->GetTrans();
