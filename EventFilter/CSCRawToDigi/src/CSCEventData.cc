@@ -127,7 +127,7 @@ CSCEventData::CSCEventData(unsigned short * buf){
 }
 
 bool CSCEventData::isALCT(const short unsigned int * buf) {
-  return (((buf[0]&0xFFFF)==0xDB0A)||((buf[0]&0xF800)==0x6000));  
+  return (((buf[0]&0xFFFF)==0xDB0A)||(((buf[0]&0xF800)==0x6000)&&((buf[1]&0xF800)==0)));
 }
 
 bool CSCEventData::isTMB(const short unsigned int * buf) {
