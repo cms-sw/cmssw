@@ -31,6 +31,8 @@
 
  <class name="EcalLaserAPDPNRatiosRef"/>
 
+ <class name="EcalMappingElectronics"/>
+
  <class name="EcalTPGFineGrainConstEB"/>
  <class name="EcalTPGFineGrainEBIdMap"/>
  <class name="EcalTPGFineGrainStripEE"/>
