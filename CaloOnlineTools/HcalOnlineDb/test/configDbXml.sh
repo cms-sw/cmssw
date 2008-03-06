@@ -6,12 +6,74 @@ echo '='
 echo '= This script prepares HCAL configuration data'
 echo '= for uploading to the Oracle configuration database'
 echo '='
-echo '=    written by: Gena Kukartsev'
+echo '=    written by: Gena Kukartsev,'
+echo '=                Brown University'
+echo '='
 echo '=    email:      kukarzev@fnal.gov'
 echo '='
 echo '=    March 5, 2008'
 echo '='
+echo '=        Fear is the path to the Dark Side....'
+echo '='
 echo '========================================================='
+
+compileMessage()
+{
+    echo ''
+    echo 'ERROR!'
+    echo ''
+    echo -n 'the xmlToolsRun executable is missing. '
+    echo 'Please compile the package. Issue gmake in'
+    echo 'the current directory.'
+    echo ''
+}
+
+uploadInstructions()
+{
+echo ''
+echo -n $1
+echo -n ' are prepared for uploading to OMDS and saved in '
+echo $2
+echo ''
+echo 'REMEMBER!'
+echo -n 'It is always a good idea to upload to the validation '
+echo 'database first before uploading to OMDS'
+echo ''
+echo -n 'In order to upload to a database, copy '
+echo -n $2
+echo ' to'
+echo 'dbvalhcal@pcuscms34.cern.ch:conditions/ (validation - first!)'
+echo 'dbpp5hcal@pcuscms34.cern.ch:conditions/ (OMDS)'
+echo ''
+echo -n 'or, even better, follow the most recent instructions at '
+echo 'https://twiki.cern.ch/twiki/bin/view/CMS/OnlineHCALDataSubmissionProceduresTOProdOMDSP5Server'
+echo ''
+}
+
+zsMenu()
+{
+    echo ''
+    echo -n 'Enter desired tag name: '
+    read tag_name
+    echo -n 'Enter comment: '
+    read comment
+    echo -n 'Enter zero suppression for HB: '
+    read hb_value
+    echo -n 'Enter zero suppression for HE: '
+    read he_value
+    echo -n 'Enter zero suppression for HO: '
+    read ho_value
+    echo -n 'Enter zero suppression for HF: '
+    read hf_value
+    echo 'Creating HTR Zero Suppression values...'
+    ./xmlToolsRun --zs2 --tag=$tag_name --comment="$comment" --zs2HB="$hb_value" --zs2HE="$he_value" --zs2HO="$ho_value" --zs2HF="$hf_value"
+    xml_file=$tag_name'_ZeroSuppressionLoader.xml'
+    zip_file='./'$tag_name'_ZS.zip'
+    zip $zip_file $xml_file
+    rm $xml_file
+    config_name='Zero Suppression data'
+    uploadInstructions 'Zero suppression data' $zip_file
+}
 
 lutMenu()
 {
@@ -72,7 +134,8 @@ mainMenu()
   echo ''
   echo '  -- Main menu'
   echo ' 1. Trigger lookup tables'
-  echo ' 2. Contact info'
+  echo ' 2. HTR Zero Suppression'
+  echo ' 0. Contact info'
   
   echo ''
   echo -n 'Please choose the configuration type: '
@@ -85,6 +148,9 @@ mainMenu()
         lutMenu
 	;;
       2)
+        zsMenu
+	;;
+      0)
       credits
       ;;
       *)
@@ -95,4 +161,9 @@ mainMenu()
 
 }
 
-mainMenu
+if [ -e xmlToolsRun ]
+then
+    mainMenu
+else
+    compileMessage
+fi

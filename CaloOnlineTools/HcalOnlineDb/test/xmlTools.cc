@@ -49,6 +49,7 @@ int hardware( void );
 int qie_adc( void );
 int test_db_access( void );
 std::vector <std::string> splitString (const std::string& fLine);
+int createZSLoader2( string & tag, string & comment, string & zs2HB, string & zs2HE, string & zs2HO, string & zs2HF );
 
 int main( int argc, char **argv )
 {
@@ -62,19 +63,29 @@ int main( int argc, char **argv )
   bool luts = false;
   bool rbx = false;
   bool tag_b = false;
-
+  bool comment_b = false;
   bool testdb_b = false;
   bool lmaptest_b = false;
   bool hardware_b = false;
   bool qie_b = false;
   bool test_db_access_b = false;
+  bool zs2_b = false;
+  bool zs2HB_b = false;
+  bool zs2HE_b = false;
+  bool zs2HO_b = false;
+  bool zs2HF_b = false;
 
   string filename = "";
   string path = "";
   string tag = "";
+  string comment = "";
   string prefix = "";
   string rbx_type = "";
   string aramsParameter = "";
+  string zs2HB = "";
+  string zs2HE = "";
+  string zs2HO = "";
+  string zs2HF = "";
 
   while (1) {
     int this_option_optind = optind ? optind : 1;
@@ -84,6 +95,7 @@ int main( int argc, char **argv )
       {"path", 1, 0, 2},
       {"tag", 1, 0, 3},
       {"prefix", 1, 0, 4},
+      {"comment", 1, 0, 5},
       {"luts", 0, 0, 10},
       {"patterns", 0, 0, 20},
       {"lmap", 0, 0, 30},
@@ -97,6 +109,11 @@ int main( int argc, char **argv )
       {"hardware", 0, 0, 1050},
       {"qie", 0, 0, 1060},
       {"test-db-access", 0, 0, 1070},
+      {"zs2", 0, 0, 1080},
+      {"zs2HB", 1, 0, 1090},
+      {"zs2HE", 1, 0, 1091},
+      {"zs2HO", 1, 0, 1092},
+      {"zs2HF", 1, 0, 1093},
       {0, 0, 0, 0}
     };
         
@@ -167,6 +184,21 @@ int main( int argc, char **argv )
       else
 	{
 	  cout << "Empty prefix!" << endl;
+	}
+      break;
+      
+    case 5:
+      if ( optarg )
+	{
+	  char _buf[1024];
+	  sprintf( _buf, "%s", optarg );
+	  //cout << "path: " << _buf << endl;
+	  comment . append( _buf );
+	  comment_b = true;
+	}
+      else
+	{
+	  cout << "Empty comment!" << endl;
 	}
       break;
       
@@ -254,6 +286,66 @@ int main( int argc, char **argv )
       test_db_access_b=true;
       break;
       
+    case 1080: // ZS generator ver.2
+      zs2_b=true;
+      break;
+      
+    case 1090: // ZS for HB
+      if ( optarg )
+	{
+	  char _buf[1024];
+	  sprintf( _buf, "%s", optarg );
+	  zs2HB .append( _buf );
+	  zs2HB_b = true;
+	}
+      else
+	{
+	  cout << "No zero suppression value for HB specified... " << endl;
+	}
+      break;
+
+    case 1091: // ZS for HE
+      if ( optarg )
+	{
+	  char _buf[1024];
+	  sprintf( _buf, "%s", optarg );
+	  zs2HE .append( _buf );
+	  zs2HE_b = true;
+	}
+      else
+	{
+	  cout << "No zero suppression value for HE specified... " << endl;
+	}
+      break;
+
+    case 1092: // ZS for HO
+      if ( optarg )
+	{
+	  char _buf[1024];
+	  sprintf( _buf, "%s", optarg );
+	  zs2HO .append( _buf );
+	  zs2HO_b = true;
+	}
+      else
+	{
+	  cout << "No zero suppression value for HO specified... " << endl;
+	}
+      break;
+
+    case 1093: // ZS for HF
+      if ( optarg )
+	{
+	  char _buf[1024];
+	  sprintf( _buf, "%s", optarg );
+	  zs2HF .append( _buf );
+	  zs2HF_b = true;
+	}
+      else
+	{
+	  cout << "No zero suppression value for HF specified... " << endl;
+	}
+      break;
+
     default:
       printf ("?? getopt returned character code 0%o ??\n", c);
     }
@@ -304,6 +396,33 @@ int main( int argc, char **argv )
   else if ( test_db_access_b )
     {
       test_db_access();      
+    }
+  else if ( zs2_b )
+    {
+      while(1){
+	if ( !tag_b ){
+	  cout << "No tag specified... exiting" << endl;
+	  break;
+	}
+	if ( !zs2HB_b ){
+	  cout << "No zero suppression value dor HB specified... exiting" << endl;
+	  break;
+	}
+	if ( !zs2HE_b ){
+	  cout << "No zero suppression value dor HE specified... exiting" << endl;
+	  break;
+	}
+	if ( !zs2HO_b ){
+	  cout << "No zero suppression value dor HO specified... exiting" << endl;
+	  break;
+	}
+	if ( !zs2HF_b ){
+	  cout << "No zero suppression value dor HF specified... exiting" << endl;
+	  break;
+	}
+	createZSLoader2( tag, comment, zs2HB, zs2HE, zs2HO, zs2HF );
+	break;
+      }
     }
   else
     {
@@ -402,6 +521,108 @@ int createZSLoader( void )
   
   return 0;
 }
+
+
+// Zero suppression Loader version 2
+int createZSLoader2( string & tag, string & comment, string & zs2HB, string & zs2HE, string & zs2HO, string & zs2HF )
+{
+
+  XMLHTRZeroSuppressionLoader::loaderBaseConfig baseConf;
+  XMLHTRZeroSuppressionLoader::datasetDBConfig conf;
+
+  string lmap_version = "30";
+
+  string _prefix = tag;
+  string _comment = comment;
+  string _version = "GRuMM_test:1";
+  string _subversion = "1";
+
+  baseConf . tag_name = _prefix;
+  baseConf . comment_description = _comment;
+  baseConf . elements_comment_description = _comment;
+  baseConf . run_number = 1;
+  baseConf . iov_begin = 1 ;
+  baseConf . iov_end = -1 ;
+
+  XMLHTRZeroSuppressionLoader doc( &baseConf );
+
+  // loop over LMAP
+  HCALConfigDB * db = new HCALConfigDB();
+  const std::string _accessor = "occi://CMS_HCL_PRTTYPE_HCAL_READER@anyhost/int2r?PASSWORD=HCAL_Reader_88,LHWM_VERSION=22";
+  db -> connect( _accessor );
+
+  oracle::occi::Connection * _connection = db -> getConnection();  
+
+  int eta_abs, side, phi, depth;
+  string subdet;
+
+  try {
+    Statement* stmt = _connection -> createStatement();
+    std::string query = ("SELECT eta, side, phi, depth, subdetector, cds.version ");
+    query += " FROM CMS_HCL_HCAL_CONDITION_OWNER.HCAL_HARDWARE_LOGICAL_MAPS_V3 lmap";
+    query += " join cms_hcl_core_condition_owner.cond_data_sets cds ";
+    query += " on cds.condition_data_set_id=lmap.condition_data_set_id ";
+    query += toolbox::toString(" WHERE version='%s'", lmap_version . c_str() );
+    
+    //SELECT
+    ResultSet *rs = stmt->executeQuery(query.c_str());
+
+    while (rs->next()) {
+      eta_abs  = rs -> getInt(1);
+      side    = rs -> getInt(2);
+      phi     = rs -> getInt(3);
+      depth   = rs -> getInt(4);
+      subdet  = rs -> getString(5);
+      
+      conf . comment_description = _comment;
+      conf . version = _version;
+      conf . subversion = _subversion;
+      conf . eta = eta_abs;
+      conf . z = side;
+      conf . phi = phi;
+      conf . depth = depth;
+      conf . detector_name = subdet;
+
+      int _zs;
+      HcalSubdetector _subdet;
+      if ( subdet == "HB" ){
+	_subdet = HcalBarrel;
+	sscanf(zs2HB.c_str(),"%d", &_zs);
+      }
+      if ( subdet == "HE" ){
+	_subdet = HcalEndcap;
+	sscanf(zs2HE.c_str(),"%d", &_zs);
+      }
+      if ( subdet == "HO" ){
+	_subdet = HcalOuter;
+	sscanf(zs2HO.c_str(),"%d", &_zs);
+      }
+      if ( subdet == "HF" ){
+	_subdet = HcalForward;
+	sscanf(zs2HF.c_str(),"%d", &_zs);
+      }
+      HcalDetId _hcaldetid( _subdet, side*eta_abs, phi, depth );
+      conf . hcal_channel_id = _hcaldetid . rawId();
+
+      //conf . zero_suppression = 9;
+      conf . zero_suppression = _zs;
+
+      doc . addZS( &conf );
+    }
+    //Always terminate statement
+    _connection -> terminateStatement(stmt);
+  } catch (SQLException& e) {
+    XCEPT_RAISE(hcal::exception::ConfigurationDatabaseException,::toolbox::toString("Oracle  exception : %s",e.getMessage().c_str()));
+  }
+
+  db -> disconnect();
+  
+  doc . write( _prefix + "_ZeroSuppressionLoader.xml" );
+  
+  return 0;
+}
+
+
 
 // LUT Loader
 int createLUTLoader( string _prefix, string tag_name )
