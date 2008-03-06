@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Sun Jan  6 23:57:00 EST 2008
-// $Id: ElectronsProxySCBuilder.cc,v 1.6 2008/02/28 23:43:05 jmuelmen Exp $
+// $Id: ElectronsProxySCBuilder.cc,v 1.7 2008/03/05 15:09:46 chrjones Exp $
 //
 
 // system include files
@@ -176,8 +176,8 @@ void ElectronsProxySCBuilder::build (TEveElementList **product)
 // 	  trk->SetRGBA(rgba);
 	  trk->SetLineColor((Color_t)kGreen);
 	  trk->SetLineWidth(2);
-	  TEvePathMark *mark = new TEvePathMark(TEvePathMark::kDaughter);
-	  mark->fV = TEveVector(i->TrackPositionAtCalo().x(),
+	  TEvePathMark mark(TEvePathMark::kDaughter);
+	  mark.fV = TEveVector(i->TrackPositionAtCalo().x(),
 				i->TrackPositionAtCalo().y(),
 				i->TrackPositionAtCalo().z());
 	  trk->AddPathMark(mark);

@@ -154,8 +154,8 @@ void MuonsProxy3DBuilder::build(const FWEventItem* iItem,
 		// add path marks to force outer propagator to follow the expected
 		// track position
 		if ( outerTrack ) {
-		   TEvePathMark* mark = new TEvePathMark( TEvePathMark::kDaughter );
-		   mark->fV = TEveVector( globalTrajectoryPoint[0], globalTrajectoryPoint[1], globalTrajectoryPoint[2] );
+		   TEvePathMark mark( TEvePathMark::kDaughter );
+		   mark.fV = TEveVector( globalTrajectoryPoint[0], globalTrajectoryPoint[1], globalTrajectoryPoint[2] );
 		   outerTrack->AddPathMark( mark );
 		}
                  
