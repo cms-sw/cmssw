@@ -13,7 +13,7 @@
 //
 // Original Author:  Jeremy Andrea/Andrea Rizzi
 //         Created:  Mon Aug  6 16:10:38 CEST 2007
-// $Id: ImpactParameterCalibration.cc,v 1.7 2008/03/05 10:40:53 tboccali Exp $
+// $Id: ImpactParameterCalibration.cc,v 1.8 2008/03/05 18:10:25 tboccali Exp $
 //
 //
 // system include files
@@ -41,7 +41,18 @@
 #include "CondFormats/DataRecord/interface/BTagTrackProbability3DRcd.h"
 
 #include <TClass.h>
-#include <TBuffer.h>
+
+
+#include "RVersion.h"
+#if ROOT_VERSION_CODE >= ROOT_VERSION(5,15,0)
+#include "TBufferFile.h"
+typedef TBufferFile MyTBuffer;
+#else
+#include "TBuffer.h"
+typedef TBuffer MyTBuffer;
+#endif
+
+
 #include <TBufferXML.h>
 #include <iostream>
 #include <fstream>
@@ -368,42 +379,49 @@ ImpactParameterCalibration::endJob() {
 
   if(config.getParameter<bool>("writeToRootXML"))
   {
-   std::ofstream of2("2d.xml");
-   TBufferXML b2(TBuffer::kWrite);
-   of2 << b2.ConvertToXML(const_cast<void*>(static_cast<const void*>(m_calibration[1])),
-                                                  TClass::GetClass("TrackProbabilityCalibration"),
-                                                  kTRUE, kFALSE);
-   of2.close();
-   std::ofstream of3("3d.xml");
-   TBufferXML b3(TBuffer::kWrite);
-   of3 << b3.ConvertToXML(const_cast<void*>(static_cast<const void*>(m_calibration[0])),
-                                                  TClass::GetClass("TrackProbabilityCalibration"),
-                                                  kTRUE, kFALSE);
-   of3.close();
+    if(maxLoop == 1 ){
+      std::ofstream of2("2d.xml");
+      TBufferXML b2(TBuffer::kWrite);
+      of2 << b2.ConvertToXML(const_cast<void*>(static_cast<const void*>(m_calibration[1])),
+			     TClass::GetClass("TrackProbabilityCalibration"),
+			     kTRUE, kFALSE);
+      of2.close();
+    }
+    if(minLoop == 0 ){
+      std::ofstream of3("3d.xml");
+      TBufferXML b3(TBuffer::kWrite);
+      of3 << b3.ConvertToXML(const_cast<void*>(static_cast<const void*>(m_calibration[0])),
+			     TClass::GetClass("TrackProbabilityCalibration"),
+			     kTRUE, kFALSE);
+      of3.close();
+    }
   }
 
  
   if(config.getParameter<bool>("writeToBinary"))
   {
-    /*    std::ofstream ofile("2d.dat");
-    TBuffer buffer(TBuffer::kWrite);
-    buffer.StreamObject(const_cast<void*>(static_cast<const void*>(m_calibration[1])),
-                                                  TClass::GetClass("TrackProbabilityCalibration"));
-    Int_t size = buffer.Length();
-    ofile.write(buffer.Buffer(),size);
-    ofile.close();
-
-    std::ofstream ofile3("3d.dat");
-    TBuffer buffer3(TBuffer::kWrite);
-    buffer3.StreamObject(const_cast<void*>(static_cast<const void*>(m_calibration[0])),
-                                                  TClass::GetClass("TrackProbabilityCalibration"));
-    Int_t size3 = buffer3.Length();
-    ofile3.write(buffer3.Buffer(),size3);
-    ofile3.close();
-    */
+    if(maxLoop == 1 ){
+      
+      std::ofstream ofile("2d.dat");
+      MyTBuffer buffer(TBuffer::kWrite);
+      buffer.StreamObject(const_cast<void*>(static_cast<const void*>(m_calibration[1])),
+			  TClass::GetClass("TrackProbabilityCalibration"));
+      Int_t size = buffer.Length();
+      ofile.write(buffer.Buffer(),size);
+      ofile.close();
+    }
+    if(minLoop == 0 ){
+      std::ofstream ofile3("3d.dat");
+      MyTBuffer buffer3(TBuffer::kWrite);
+      buffer3.StreamObject(const_cast<void*>(static_cast<const void*>(m_calibration[0])),
+			   TClass::GetClass("TrackProbabilityCalibration"));
+      Int_t size3 = buffer3.Length();
+      ofile3.write(buffer3.Buffer(),size3);
+      ofile3.close();
+    }
   }
-
-
+  
+  
 
 
 
