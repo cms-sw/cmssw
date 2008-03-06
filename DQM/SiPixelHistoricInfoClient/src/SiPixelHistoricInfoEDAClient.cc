@@ -246,8 +246,9 @@ void SiPixelHistoricInfoEDAClient::writetoDB(const edm::Run& run) const {
   if (mydbservice.isAvailable()) {
     if (mydbservice->isNewTagRequest("SiPixelPerformanceSummaryRcd")) {
       mydbservice->createNewIOV<SiPixelPerformanceSummary>(performanceSummary_, 
+							   mydbservice->beginOfTime(),
                                                            mydbservice->endOfTime(), 
-							  "SiPixelPerformanceSummaryRcd"); 
+				     			  "SiPixelPerformanceSummaryRcd"); 
     } 
     else {
       mydbservice->appendSinceTime<SiPixelPerformanceSummary>(performanceSummary_, 
@@ -270,6 +271,7 @@ void SiPixelHistoricInfoEDAClient::writetoDB(edm::EventID eventID, edm::Timestam
   if (mydbservice.isAvailable()) {
     if (mydbservice->isNewTagRequest("SiPixelPerformanceSummaryRcd")) {
       mydbservice->createNewIOV<SiPixelPerformanceSummary>(performanceSummary_, 
+							   mydbservice->beginOfTime(),
                                                            mydbservice->endOfTime(), 
 							  "SiPixelPerformanceSummaryRcd");     
     } 
