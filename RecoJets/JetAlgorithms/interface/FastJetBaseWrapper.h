@@ -4,10 +4,10 @@
 
 #include "RecoJets/JetAlgorithms/interface/JetRecoTypes.h"
 #include "FWCore/ParameterSet/interface/ParameterSetfwd.h"
-#include "fastjet/ActiveAreaSpec.hh"
 
 namespace fastjet {
   class JetDefinition;
+  class GhostedAreaSpec;
 }
 
 class FastJetBaseWrapper {
@@ -18,7 +18,7 @@ class FastJetBaseWrapper {
  protected:
   fastjet::JetDefinition* mJetDefinition;
  private:
-  fastjet::ActiveAreaSpec* mActiveArea;
+  fastjet::GhostedAreaSpec* mActiveArea;
   double mJetPtMin;
 }; 
 

@@ -11,7 +11,7 @@
 *  }
 *
 * \author: Fedor Ratnikov, UMd by suggestion from Filip Moortgat
-* $Id$
+* $Id: GenJetParticleSelector.cc,v 1.1 2008/03/06 00:55:36 fedor Exp $
 */
 
 #include "GenJetParticleSelector.h"
@@ -44,7 +44,7 @@ namespace {
 
   inline bool isPromptNeutrino (const reco::GenParticle& part) {
     if (reco::isNeutrino (part)) {
-      const Candidate* mother = part.mother(0);
+      const reco::Candidate* mother = part.mother();
       if(mother) {
         int motherid = mother->pdgId();
         // pdg id from 23 to 39 are bosons
