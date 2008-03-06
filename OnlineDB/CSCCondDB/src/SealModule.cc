@@ -14,10 +14,6 @@
 #include "OnlineDB/CSCCondDB/interface/CSCChamberIndexValues.h"
 #include "OnlineDB/CSCCondDB/interface/CSCCrateMapValues.h"
 #include "OnlineDB/CSCCondDB/interface/CSCDDUMapValues.h"
-#include "OnlineDB/CSCCondDB/interface/WriteChamberMapValuesToDB.h"
-#include "OnlineDB/CSCCondDB/interface/WriteCrateMapValuesToDB.h"
-#include "OnlineDB/CSCCondDB/interface/WriteChamberIndexValuesToDB.h"
-#include "OnlineDB/CSCCondDB/interface/WriteDDUMapValuesToDB.h"
 #include "OnlineDB/CSCCondDB/interface/CSCMap1Read.h"
 
 DEFINE_SEAL_MODULE();
@@ -30,10 +26,6 @@ DEFINE_ANOTHER_FWK_MODULE(CSCNoiseMatrixAnalyzer);
 DEFINE_ANOTHER_FWK_MODULE(CSCscaAnalyzer);
 DEFINE_ANOTHER_FWK_MODULE(CSCCFEBConnectivityAnalyzer);
 DEFINE_ANOTHER_FWK_MODULE(CSCSaturationAnalyzer);
-DEFINE_ANOTHER_FWK_MODULE(WriteChamberMapValuesToDB);
-DEFINE_ANOTHER_FWK_MODULE(WriteCrateMapValuesToDB);
-DEFINE_ANOTHER_FWK_MODULE(WriteChamberIndexValuesToDB);
-DEFINE_ANOTHER_FWK_MODULE(WriteDDUMapValuesToDB);
 DEFINE_ANOTHER_FWK_MODULE(CSCMap1Read);
 DEFINE_ANOTHER_FWK_EVENTSETUP_SOURCE(CSCChamberMapValues);
 DEFINE_ANOTHER_FWK_EVENTSETUP_SOURCE(CSCChamberIndexValues);
