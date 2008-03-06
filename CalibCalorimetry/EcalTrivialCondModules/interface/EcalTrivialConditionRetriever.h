@@ -1,5 +1,5 @@
 //
-// $Id: EcalTrivialConditionRetriever.h,v 1.15 2008/02/18 10:39:22 ferriff Exp $
+// $Id: EcalTrivialConditionRetriever.h,v 1.16 2008/02/19 11:33:51 ferriff Exp $
 // Created: 2 Mar 2006
 //          Shahram Rahatlou, University of Rome & INFN
 //
@@ -50,6 +50,8 @@
 #include "CondFormats/EcalObjects/interface/EcalChannelStatus.h"
 #include "CondFormats/DataRecord/interface/EcalChannelStatusRcd.h"
 
+#include "CondFormats/EcalObjects/interface/EcalMappingElectronics.h"
+#include "CondFormats/DataRecord/interface/EcalMappingElectronicsRcd.h"
 
 #include "FWCore/Framework/interface/IOVSyncValue.h"
 
@@ -84,6 +86,9 @@ public:
 
   virtual std::auto_ptr<EcalChannelStatus> produceEcalChannelStatus( const EcalChannelStatusRcd& );
   virtual std::auto_ptr<EcalChannelStatus> getChannelStatusFromConfiguration( const EcalChannelStatusRcd& );
+
+  virtual std::auto_ptr<EcalMappingElectronics> produceEcalMappingElectronics( const EcalMappingElectronicsRcd& );
+  virtual std::auto_ptr<EcalMappingElectronics> getMappingFromConfiguration( const EcalMappingElectronicsRcd& );
 
 protected:
   //overriding from ContextRecordIntervalFinder
@@ -154,6 +159,7 @@ private:
   std::string intercalibConstantsFile_ ;
   std::string intercalibErrorsFile_ ;
   std::string channelStatusFile_ ;
+  std::string mappingFile_ ;
 
   int nTDCbins_;
 
@@ -167,6 +173,7 @@ private:
   bool producedEcalADCToGeVConstant_;
   bool producedEcalLaserCorrection_;
   bool producedEcalChannelStatus_;
+  bool producedEcalMappingElectronics_;
 
   int    verbose_; // verbosity
 
