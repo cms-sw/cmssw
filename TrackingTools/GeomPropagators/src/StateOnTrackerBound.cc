@@ -7,8 +7,8 @@
 #include "DataFormats/GeometrySurface/interface/BoundCylinder.h"
 
 //Ported from ORCA
-//  $Date: 2007/01/31 17:31:33 $
-//  $Revision: 1.6 $
+//  $Date: 2007/03/07 16:28:42 $
+//  $Revision: 1.7 $
 
 StateOnTrackerBound::StateOnTrackerBound( const Propagator* prop) :
   thePropagator( prop->clone())
@@ -29,7 +29,7 @@ TrajectoryStateOnSurface
 StateOnTrackerBound::operator()(const FreeTrajectoryState& fts) const
 {
   // try to guess if propagation should be first to cylinder or first to disk
-  float tanTheta = fts.position().perp()/fts.position().z();
+  float tanTheta = (fts.position().perp() > 70 ) ? fts.position().perp()/fts.position().z() : fts.momentum().perp()/fts.momentum().z();
   float corner = TrackerBounds::radius() / TrackerBounds::halfLength();
 
   TrajectoryStateOnSurface firstTry;
