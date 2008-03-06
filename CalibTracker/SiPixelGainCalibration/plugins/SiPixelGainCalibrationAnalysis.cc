@@ -13,7 +13,7 @@ Implementation:
 //
 // Original Author:  Freya Blekman
 //         Created:  Wed Nov 14 15:02:06 CET 2007
-// $Id: SiPixelGainCalibrationAnalysis.cc,v 1.17 2008/02/23 12:56:07 elmer Exp $
+// $Id: SiPixelGainCalibrationAnalysis.cc,v 1.18 2008/02/27 21:34:16 fblekman Exp $
 //
 //
 
@@ -237,25 +237,40 @@ void SiPixelGainCalibrationAnalysis::fillDatabase(){
     if( mydbservice->isNewTagRequest(recordName_) ){
       
       mydbservice->createNewIOV<SiPixelGainCalibration>(
-							theGainCalibrationDbInput_, mydbservice->endOfTime(),recordName_);
+							theGainCalibrationDbInput_, 
+							mydbservice->beginOfTime(),
+							mydbservice->endOfTime(),
+							recordName_);
       
       mydbservice->createNewIOV<SiPixelGainCalibrationForHLT>(
-							   theGainCalibrationDbInputHLT_,mydbservice->endOfTime(),recordName_);
+							   theGainCalibrationDbInputHLT_,
+							   mydbservice->beginOfTime(),
+							   mydbservice->endOfTime(),
+							   recordName_);
       
       mydbservice->createNewIOV<SiPixelGainCalibrationOffline>(
-							       theGainCalibrationDbInputOffline_,mydbservice->endOfTime(),recordName_);
+							       theGainCalibrationDbInputOffline_,
+							       mydbservice->beginOfTime(),
+							       mydbservice->endOfTime(),
+							       recordName_);
       
     } 
     else {
       
       mydbservice->appendSinceTime<SiPixelGainCalibration>(
-							   theGainCalibrationDbInput_, mydbservice->currentTime(),recordName_);
+							   theGainCalibrationDbInput_, 
+							   mydbservice->currentTime(),
+							   recordName_);
       
       mydbservice->appendSinceTime<SiPixelGainCalibrationForHLT>(
-							   theGainCalibrationDbInputHLT_, mydbservice->currentTime(),recordName_);
+							   theGainCalibrationDbInputHLT_, 
+							   mydbservice->currentTime(),
+							   recordName_);
       
       mydbservice->appendSinceTime<SiPixelGainCalibrationOffline>(
-							   theGainCalibrationDbInputOffline_, mydbservice->currentTime(),recordName_);
+							   theGainCalibrationDbInputOffline_, 
+							   mydbservice->currentTime(),
+							   recordName_);
     }
     edm::LogInfo(" --- all OK");
   } 
