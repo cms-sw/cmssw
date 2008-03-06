@@ -1,5 +1,4 @@
 #include "PhysicsTools/PatAlgos/interface/PATPrimaryVertexSelector.h"
-
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
@@ -15,12 +14,10 @@ PATPrimaryVertexSelector::PATPrimaryVertexSelector (const edm::ParameterSet& cfg
   dr2Cut_ *= dr2Cut_;
 }
 
-
 void
 PATPrimaryVertexSelector::select (const edm::Handle<collection>& handle, 
 				  const edm::Event& event,
-				  const edm::EventSetup& setup)
-{
+				  const edm::EventSetup& setup) {
   selected_.clear();
   // FIXME: the fixed reference point should be replaced with the measured beamspot
   const math::XYZPoint beamSpot(0.,0.,0.);
@@ -38,8 +35,7 @@ PATPrimaryVertexSelector::select (const edm::Handle<collection>& handle,
 }
 
 bool
-PATPrimaryVertexSelector::operator() (const reco::Vertex* v1, const reco::Vertex* v2) const
-{
+PATPrimaryVertexSelector::operator() (const reco::Vertex* v1, const reco::Vertex* v2) const {
   unsigned int mult1;
   double ptSum1;
   getVertexVariables(*v1,mult1,ptSum1);
@@ -51,14 +47,12 @@ PATPrimaryVertexSelector::operator() (const reco::Vertex* v1, const reco::Vertex
 
 void
 PATPrimaryVertexSelector::getVertexVariables (const reco::Vertex& vertex,
-					      unsigned int& multiplicity, double& ptSum) const
-{
+					      unsigned int& multiplicity, double& ptSum) const {
   multiplicity = 0;
   ptSum = 0.;
-
-  for ( reco::track_iterator it=vertex.tracks_begin();
-	it!=vertex.tracks_end(); ++it ) {
-    if ( fabs((**it).eta())<trackEtaCut_ ) {
+  for(reco::Vertex::trackRef_iterator it=vertex.tracks_begin();
+      it!=vertex.tracks_end(); ++it) {
+    if(fabs((**it).eta())<trackEtaCut_) {
       ++multiplicity;
       ptSum += (**it).pt();
     }
