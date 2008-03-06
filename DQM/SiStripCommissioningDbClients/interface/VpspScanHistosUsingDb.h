@@ -1,4 +1,4 @@
-// Last commit: $Id: VpspScanHistosUsingDb.h,v 1.5 2007/12/19 18:18:10 bainbrid Exp $
+// Last commit: $Id: VpspScanHistosUsingDb.h,v 1.6 2008/02/07 17:02:56 bainbrid Exp $
 
 #ifndef DQM_SiStripCommissioningClients_VpspScanHistosUsingDb_H
 #define DQM_SiStripCommissioningClients_VpspScanHistosUsingDb_H
@@ -10,13 +10,13 @@ class VpspScanHistosUsingDb : public CommissioningHistosUsingDb, public VpspScan
   
  public:
   
-  VpspScanHistosUsingDb( MonitorUserInterface*,
+  VpspScanHistosUsingDb( DQMOldReceiver*,
 			 const DbParams& );
   
-  VpspScanHistosUsingDb( MonitorUserInterface*,
+  VpspScanHistosUsingDb( DQMOldReceiver*,
 			 SiStripConfigDb* const );
   
-  VpspScanHistosUsingDb( DaqMonitorBEInterface*,
+  VpspScanHistosUsingDb( DQMStore*,
 			 SiStripConfigDb* const );
 
   virtual ~VpspScanHistosUsingDb();

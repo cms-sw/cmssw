@@ -3,15 +3,15 @@
 
 #include "DQM/SiStripCommissioningClients/interface/CommissioningHistograms.h"
 
-class MonitorUserInterface;
-class DaqMonitorBEInterface;
+class DQMOldReceiver;
+class DQMStore;
 
 class OptoScanHistograms : public virtual CommissioningHistograms {
 
  public:
 
-  OptoScanHistograms( MonitorUserInterface* );
-  OptoScanHistograms( DaqMonitorBEInterface* );
+  OptoScanHistograms( DQMOldReceiver* );
+  OptoScanHistograms( DQMStore* );
   virtual ~OptoScanHistograms();
   
   void histoAnalysis( bool debug );

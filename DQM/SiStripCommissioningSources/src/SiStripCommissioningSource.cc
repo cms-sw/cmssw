@@ -20,7 +20,7 @@
 #include "DQM/SiStripCommissioningSources/interface/FineDelayTask.h"
 #include "DQM/SiStripCommissioningSources/interface/CalibrationTask.h"
 #include "DQM/SiStripCommissioningSources/interface/CalibrationScanTask.h"
-#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -88,12 +88,12 @@ SiStripCommissioningSource::~SiStripCommissioningSource() {
 
 // -----------------------------------------------------------------------------
 //
-DaqMonitorBEInterface* const SiStripCommissioningSource::dqm( std::string method ) const {
+DQMStore* const SiStripCommissioningSource::dqm( std::string method ) const {
   if ( !dqm_ ) { 
     std::stringstream ss;
     if ( method != "" ) { ss << "[SiStripCommissioningSource::" << method << "]" << std::endl; }
     else { ss << "[SiStripCommissioningSource]" << std::endl; }
-    ss << " NULL pointer to DaqMonitorBEInterface";
+    ss << " NULL pointer to DQMStore";
     edm::LogWarning(mlDqmSource_) << ss.str();
     return 0;
   } else { return dqm_; }
@@ -110,10 +110,10 @@ void SiStripCommissioningSource::beginJob( const edm::EventSetup& setup ) {
   
   // ---------- DQM back-end interface ----------
   
-  dqm_ = edm::Service<DaqMonitorBEInterface>().operator->();
+  dqm_ = edm::Service<DQMStore>().operator->();
   edm::LogInfo(mlDqmSource_)
     << "[SiStripCommissioningSource::" << __func__ << "]"
-    << " DaqMonitorBEInterface service: " 
+    << " DQMStore service: " 
     << dqm_;
   dqm(__func__);
   dqm()->setVerbose(0);

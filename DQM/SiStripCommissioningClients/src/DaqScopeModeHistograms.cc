@@ -12,7 +12,7 @@ using namespace sistrip;
 
 // -----------------------------------------------------------------------------
 /** */
-DaqScopeModeHistograms::DaqScopeModeHistograms( MonitorUserInterface* mui ) 
+DaqScopeModeHistograms::DaqScopeModeHistograms( DQMOldReceiver* mui ) 
   : CommissioningHistograms( mui, sistrip::DAQ_SCOPE_MODE ),
     factory_( new Factory )
 {

@@ -3,7 +3,6 @@
 #include "DataFormats/SiStripCommon/interface/SiStripFecKey.h"
 #include "DataFormats/SiStripCommon/interface/SiStripFedKey.h"
 #include "DQM/SiStripCommissioningSummary/interface/SummaryGenerator.h"
-#include "DQMServices/Core/interface/MonitorElementT.h"
 #include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <iomanip>
@@ -13,7 +12,7 @@ using namespace sistrip;
 
 // -----------------------------------------------------------------------------
 /** */
-CommissioningHistograms::CommissioningHistograms( MonitorUserInterface* mui,
+CommissioningHistograms::CommissioningHistograms( DQMOldReceiver* mui,
 						  const sistrip::RunType& task ) 
   : factory_(0),
     task_(task),
@@ -26,19 +25,19 @@ CommissioningHistograms::CommissioningHistograms( MonitorUserInterface* mui,
     << "[" << __PRETTY_FUNCTION__ << "]"
     << " Constructing object...";
 
-  // MonitorUserInterface
+  // DQMOldReceiver
   if ( mui_ ) { bei_ = mui_->getBEInterface(); }
   else {
     edm::LogError(mlDqmClient_)
       << "[CommissioningHistograms::" << __func__ << "]"
-      << " NULL pointer to MonitorUserInterface!";
+      << " NULL pointer to DQMOldReceiver!";
   }
   
-  // DaqMonitorBEInterface
+  // DQMStore
   if ( !bei_ ) {
     edm::LogError(mlDqmClient_)
       << "[CommissioningHistograms::" << __func__ << "]"
-      << " NULL pointer to DaqMonitorBEInterface!";
+      << " NULL pointer to DQMStore!";
   }
   
   clearHistosMap();
@@ -46,7 +45,7 @@ CommissioningHistograms::CommissioningHistograms( MonitorUserInterface* mui,
 
 // -----------------------------------------------------------------------------
 /** */
-CommissioningHistograms::CommissioningHistograms( DaqMonitorBEInterface* bei,
+CommissioningHistograms::CommissioningHistograms( DQMStore* bei,
 						  const sistrip::RunType& task ) 
   : factory_(0),
     task_(task),
@@ -59,11 +58,11 @@ CommissioningHistograms::CommissioningHistograms( DaqMonitorBEInterface* bei,
     << "[" << __PRETTY_FUNCTION__ << "]"
     << " Constructing object...";
 
-  // DaqMonitorBEInterface
+  // DQMStore
   if ( !bei_ ) {
     edm::LogError(mlDqmClient_)
       << "[CommissioningHistograms::" << __func__ << "]"
-      << " NULL pointer to DaqMonitorBEInterface!";
+      << " NULL pointer to DQMStore!";
   }
   
   clearHistosMap();
@@ -111,7 +110,7 @@ void CommissioningHistograms::Histo::print( std::stringstream& ss ) const {
 
 // -----------------------------------------------------------------------------
 //
-uint32_t CommissioningHistograms::runNumber( DaqMonitorBEInterface* const bei,
+uint32_t CommissioningHistograms::runNumber( DQMStore* const bei,
 					     const std::vector<std::string>& contents ) {
   
   // Check if histograms present
@@ -186,7 +185,7 @@ uint32_t CommissioningHistograms::runNumber( DaqMonitorBEInterface* const bei,
 
 // -----------------------------------------------------------------------------
 /** Extract run type string from "added contents". */
-sistrip::RunType CommissioningHistograms::runType( DaqMonitorBEInterface* const bei,
+sistrip::RunType CommissioningHistograms::runType( DQMStore* const bei,
 						   const std::vector<std::string>& contents ) {
   
   // Check if histograms present
@@ -270,7 +269,7 @@ sistrip::RunType CommissioningHistograms::runType( DaqMonitorBEInterface* const 
 
 // -----------------------------------------------------------------------------
 // Temporary fix: builds a list of histogram directories
-void CommissioningHistograms::getContents( DaqMonitorBEInterface* const bei,
+void CommissioningHistograms::getContents( DQMStore* const bei,
 					   std::vector<std::string>& contents ) {
 
 #ifndef USING_NEW_COLLATE_METHODS
@@ -284,7 +283,7 @@ void CommissioningHistograms::getContents( DaqMonitorBEInterface* const bei,
   if ( !bei ) {
     edm::LogError(mlDqmClient_)
       << "[CommissioningHistograms::" << __func__ << "]"
-      << " NULL pointer to DaqMonitorBEInterface!";
+      << " NULL pointer to DQMStore!";
   }
 
   bei->cd();
@@ -320,7 +319,7 @@ void CommissioningHistograms::getContents( DaqMonitorBEInterface* const bei,
 
 // -----------------------------------------------------------------------------
 //
-void CommissioningHistograms::copyCustomInformation( DaqMonitorBEInterface* const bei,
+void CommissioningHistograms::copyCustomInformation( DQMStore* const bei,
 						     const std::vector<std::string>& contents ) {
   
   // Check if histograms present
@@ -359,8 +358,7 @@ void CommissioningHistograms::copyCustomInformation( DaqMonitorBEInterface* cons
       std::string title = (*ime)->getName();
       std::string::size_type pos = title.find("calchan");
       if ( pos != std::string::npos ) {
-	MonitorElementT< int >* meptr = dynamic_cast<MonitorElementT< int >* >(*ime);
-	int value = meptr ? meptr->getValue() : -1;
+	int value = (*ime)->getIntValue();
 	if ( value>=0 ) {
 	  edm::LogVerbatim(mlDqmClient_)
 	    << "[CommissioningHistograms::" << __func__ << "]"
@@ -393,7 +391,7 @@ void CommissioningHistograms::extractHistograms( const std::vector<std::string>&
   if ( !bei_ ) {
     edm::LogError(mlDqmClient_)
       << "[CommissioningHistograms::" << __func__ << "]"
-      << " NULL pointer to DaqMonitorBEInterface!";
+      << " NULL pointer to DQMStore!";
     return;
   }
   
@@ -555,7 +553,7 @@ void CommissioningHistograms::createCollations( const std::vector<std::string>& 
   if ( !mui_ ) {
     edm::LogError(mlDqmClient_)
       << "[CommissioningHistograms::" << __func__ << "]"
-      << " NULL pointer to MonitorUserInterface!";
+      << " NULL pointer to DQMOldReceiver!";
     return;
   }
   
@@ -858,14 +856,14 @@ void CommissioningHistograms::remove( std::string pattern ) {
   if ( !mui_ ) { 
     edm::LogError(mlDqmClient_)
       << "[CommissioningHistograms::" << __func__ << "]"
-      << " NULL pointer to MonitorUserInterface!"; 
+      << " NULL pointer to DQMOldReceiver!"; 
     return;
   }
 
   if ( !mui_->getBEInterface() ) { 
     edm::LogError(mlDqmClient_)
       << "[CommissioningHistograms::" << __func__ << "]"
-      << " NULL pointer to DaqMonitorBEInterface!"; 
+      << " NULL pointer to DQMStore!"; 
     return;
   }
   
@@ -924,7 +922,7 @@ void CommissioningHistograms::save( std::string& path,
   if ( !mui_ ) { 
     edm::LogError(mlDqmClient_)
       << "[CommissioningHistograms::" << __func__ << "]"
-      << " NULL pointer to MonitorUserInterface!"; 
+      << " NULL pointer to DQMOldReceiver!"; 
     return;
   }
 

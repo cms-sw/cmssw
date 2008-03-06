@@ -11,7 +11,7 @@ class OptoScanTask : public CommissioningTask {
 
  public:
   
-  OptoScanTask( DaqMonitorBEInterface*, const FedChannelConnection& );
+  OptoScanTask( DQMStore*, const FedChannelConnection& );
   virtual ~OptoScanTask();
   
  private:

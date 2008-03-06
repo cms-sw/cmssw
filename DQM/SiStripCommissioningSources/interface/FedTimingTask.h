@@ -10,7 +10,7 @@ class FedTimingTask : public CommissioningTask {
 
  public:
   
-  FedTimingTask( DaqMonitorBEInterface*, const FedChannelConnection& );
+  FedTimingTask( DQMStore*, const FedChannelConnection& );
   virtual ~FedTimingTask();
   
  private:

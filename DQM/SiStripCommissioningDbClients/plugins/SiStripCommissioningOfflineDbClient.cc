@@ -1,4 +1,4 @@
-// Last commit: $Id: SiStripCommissioningOfflineDbClient.cc,v 1.11 2008/02/28 13:09:40 bainbrid Exp $
+// Last commit: $Id: SiStripCommissioningOfflineDbClient.cc,v 1.12 2008/03/04 16:07:08 bainbrid Exp $
 
 #include "DQM/SiStripCommissioningDbClients/plugins/SiStripCommissioningOfflineDbClient.h"
 #include "DataFormats/SiStripCommon/interface/SiStripEnumsAndStrings.h"
@@ -13,9 +13,8 @@
 #include "DQM/SiStripCommissioningDbClients/interface/LatencyHistosUsingDb.h"
 #include "DQM/SiStripCommissioningDbClients/interface/FineDelayHistosUsingDb.h"
 #include "DQM/SiStripCommissioningDbClients/interface/CalibrationHistosUsingDb.h"
-#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
-#include "DQMServices/Core/interface/MonitorUserInterface.h"
-#include "DQMServices/UI/interface/MonitorUIRoot.h"
+#include "DQMServices/Core/interface/DQMStore.h"
+#include "DQMServices/Core/interface/DQMOldReceiver.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "OnlineDB/SiStripConfigDb/interface/SiStripConfigDb.h"
@@ -74,16 +73,16 @@ void SiStripCommissioningOfflineDbClient::createHistos() {
   if ( !mui_ ) {
     edm::LogError(mlDqmClient_)
       << "[SiStripCommissioningOfflineDbClient::" << __func__ << "]"
-      << " NULL pointer to MonitorUserInterface!";
+      << " NULL pointer to DQMOldReceiver!";
     return;
   }
 
   // Check pointer to BEI
-  DaqMonitorBEInterface* bei = mui_->getBEInterface();
+  DQMStore* bei = mui_->getBEInterface();
   if ( !bei ) {
     edm::LogError(mlDqmClient_)
       << "[SiStripCommissioningOfflineDbClient::" << __func__ << "]"
-      << " NULL pointer to DaqMonitorBEInterface!";
+      << " NULL pointer to DQMStore!";
     return;
   }
 

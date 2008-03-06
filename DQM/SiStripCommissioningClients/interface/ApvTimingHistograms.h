@@ -3,15 +3,15 @@
 
 #include "DQM/SiStripCommissioningClients/interface/CommissioningHistograms.h"
 
-class MonitorUserInterface;
-class DaqMonitorBEInterface;
+class DQMOldReceiver;
+class DQMStore;
 
 class ApvTimingHistograms : public virtual CommissioningHistograms {
 
  public:
   
-  ApvTimingHistograms( MonitorUserInterface* );
-  ApvTimingHistograms( DaqMonitorBEInterface* );
+  ApvTimingHistograms( DQMOldReceiver* );
+  ApvTimingHistograms( DQMStore* );
   virtual ~ApvTimingHistograms();
   
   void histoAnalysis( bool debug );

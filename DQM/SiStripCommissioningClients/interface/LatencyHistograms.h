@@ -5,14 +5,14 @@
 #include "DQM/SiStripCommissioningSummary/interface/LatencySummaryFactory.h"
 #include "CondFormats/SiStripObjects/interface/LatencyAnalysis.h"
 
-class MonitorUserInterface;
+class DQMOldReceiver;
 
 class LatencyHistograms : virtual public CommissioningHistograms {
 
  public:
   
-  LatencyHistograms( DaqMonitorBEInterface* );
-  LatencyHistograms( MonitorUserInterface* );
+  LatencyHistograms( DQMStore* );
+  LatencyHistograms( DQMOldReceiver* );
   virtual ~LatencyHistograms();
   
   typedef SummaryHistogramFactory<LatencyAnalysis> Factory;

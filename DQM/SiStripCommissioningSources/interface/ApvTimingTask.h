@@ -10,7 +10,7 @@ class ApvTimingTask : public CommissioningTask {
   
  public:
   
-  ApvTimingTask( DaqMonitorBEInterface*, const FedChannelConnection& );
+  ApvTimingTask( DQMStore*, const FedChannelConnection& );
   virtual ~ApvTimingTask();
   
  private:

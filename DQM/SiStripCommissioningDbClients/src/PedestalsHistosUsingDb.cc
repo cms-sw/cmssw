@@ -1,4 +1,4 @@
-// Last commit: $Id: PedestalsHistosUsingDb.cc,v 1.12 2008/02/19 11:29:30 bainbrid Exp $
+// Last commit: $Id: PedestalsHistosUsingDb.cc,v 1.13 2008/02/20 11:26:12 bainbrid Exp $
 
 #include "DQM/SiStripCommissioningDbClients/interface/PedestalsHistosUsingDb.h"
 #include "CondFormats/SiStripObjects/interface/PedestalsAnalysis.h"
@@ -11,7 +11,7 @@ using namespace sistrip;
 
 // -----------------------------------------------------------------------------
 /** */
-PedestalsHistosUsingDb::PedestalsHistosUsingDb( MonitorUserInterface* mui,
+PedestalsHistosUsingDb::PedestalsHistosUsingDb( DQMOldReceiver* mui,
 						const DbParams& params )
   : CommissioningHistosUsingDb( params ),
     PedestalsHistograms( mui )
@@ -23,7 +23,7 @@ PedestalsHistosUsingDb::PedestalsHistosUsingDb( MonitorUserInterface* mui,
 
 // -----------------------------------------------------------------------------
 /** */
-PedestalsHistosUsingDb::PedestalsHistosUsingDb( MonitorUserInterface* mui,
+PedestalsHistosUsingDb::PedestalsHistosUsingDb( DQMOldReceiver* mui,
 						SiStripConfigDb* const db )
   : CommissioningHistograms( mui, sistrip::PEDESTALS ),
     CommissioningHistosUsingDb( db, mui, sistrip::PEDESTALS ),
@@ -36,7 +36,7 @@ PedestalsHistosUsingDb::PedestalsHistosUsingDb( MonitorUserInterface* mui,
 
 // -----------------------------------------------------------------------------
 /** */
-PedestalsHistosUsingDb::PedestalsHistosUsingDb( DaqMonitorBEInterface* bei,
+PedestalsHistosUsingDb::PedestalsHistosUsingDb( DQMStore* bei,
 						SiStripConfigDb* const db ) 
   : CommissioningHistosUsingDb( db, sistrip::PEDESTALS ),
     PedestalsHistograms( bei )

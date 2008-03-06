@@ -10,7 +10,7 @@ class DaqScopeModeTask : public CommissioningTask {
 
  public:
   
-  DaqScopeModeTask( DaqMonitorBEInterface*, const FedChannelConnection& );
+  DaqScopeModeTask( DQMStore*, const FedChannelConnection& );
   virtual ~DaqScopeModeTask();
   
  private:

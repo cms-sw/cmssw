@@ -14,7 +14,7 @@ using namespace sistrip;
 
 // -----------------------------------------------------------------------------
 /** */
-LatencyHistograms::LatencyHistograms( DaqMonitorBEInterface* bei ) 
+LatencyHistograms::LatencyHistograms( DQMStore* bei ) 
   : CommissioningHistograms( bei, sistrip::FINE_DELAY ),
     factory_( new Factory )
 {
@@ -25,7 +25,7 @@ LatencyHistograms::LatencyHistograms( DaqMonitorBEInterface* bei )
 
 // -----------------------------------------------------------------------------
 /** */
-LatencyHistograms::LatencyHistograms( MonitorUserInterface* mui ) 
+LatencyHistograms::LatencyHistograms( DQMOldReceiver* mui ) 
   : CommissioningHistograms( mui, sistrip::FINE_DELAY ),
     factory_( new Factory )
 {

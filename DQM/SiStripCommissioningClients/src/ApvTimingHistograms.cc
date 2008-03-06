@@ -14,7 +14,7 @@ using namespace sistrip;
 
 // -----------------------------------------------------------------------------
 /** */
-ApvTimingHistograms::ApvTimingHistograms( MonitorUserInterface* mui ) 
+ApvTimingHistograms::ApvTimingHistograms( DQMOldReceiver* mui ) 
   : CommissioningHistograms( mui, sistrip::APV_TIMING )
 {
   factory_ = auto_ptr<ApvTimingSummaryFactory>( new ApvTimingSummaryFactory );
@@ -25,7 +25,7 @@ ApvTimingHistograms::ApvTimingHistograms( MonitorUserInterface* mui )
 
 // -----------------------------------------------------------------------------
 /** */
-ApvTimingHistograms::ApvTimingHistograms( DaqMonitorBEInterface* bei ) 
+ApvTimingHistograms::ApvTimingHistograms( DQMStore* bei ) 
   : CommissioningHistograms( bei, sistrip::APV_TIMING )
 {
   LogTrace(mlDqmClient_) 

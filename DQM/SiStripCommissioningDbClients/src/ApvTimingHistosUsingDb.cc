@@ -1,4 +1,4 @@
-// Last commit: $Id: ApvTimingHistosUsingDb.cc,v 1.17 2008/02/20 11:26:11 bainbrid Exp $
+// Last commit: $Id: ApvTimingHistosUsingDb.cc,v 1.18 2008/02/27 09:19:44 bainbrid Exp $
 
 #include "DQM/SiStripCommissioningDbClients/interface/ApvTimingHistosUsingDb.h"
 #include "CondFormats/SiStripObjects/interface/ApvTimingAnalysis.h"
@@ -11,7 +11,7 @@ using namespace sistrip;
 
 // -----------------------------------------------------------------------------
 /** */
-ApvTimingHistosUsingDb::ApvTimingHistosUsingDb( MonitorUserInterface* mui,
+ApvTimingHistosUsingDb::ApvTimingHistosUsingDb( DQMOldReceiver* mui,
 						const DbParams& params )
   : CommissioningHistosUsingDb( params ),
     ApvTimingHistograms( mui ),
@@ -25,7 +25,7 @@ ApvTimingHistosUsingDb::ApvTimingHistosUsingDb( MonitorUserInterface* mui,
 
 // -----------------------------------------------------------------------------
 /** */
-ApvTimingHistosUsingDb::ApvTimingHistosUsingDb( MonitorUserInterface* mui,
+ApvTimingHistosUsingDb::ApvTimingHistosUsingDb( DQMOldReceiver* mui,
 						SiStripConfigDb* const db ) 
   : CommissioningHistograms( mui, sistrip::APV_TIMING ),
     CommissioningHistosUsingDb( db, mui, sistrip::APV_TIMING ),
@@ -40,7 +40,7 @@ ApvTimingHistosUsingDb::ApvTimingHistosUsingDb( MonitorUserInterface* mui,
 
 // -----------------------------------------------------------------------------
 /** */
-ApvTimingHistosUsingDb::ApvTimingHistosUsingDb( DaqMonitorBEInterface* bei,
+ApvTimingHistosUsingDb::ApvTimingHistosUsingDb( DQMStore* bei,
 						SiStripConfigDb* const db ) 
   : CommissioningHistosUsingDb( db, sistrip::APV_TIMING ),
     ApvTimingHistograms( bei ),

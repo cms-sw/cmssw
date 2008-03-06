@@ -5,13 +5,13 @@
 #include "DQM/SiStripCommissioningSummary/interface/FedTimingSummaryFactory.h"
 #include "CondFormats/SiStripObjects/interface/FedTimingAnalysis.h"
 
-class MonitorUserInterface;
+class DQMOldReceiver;
 
 class FedTimingHistograms : public CommissioningHistograms {
 
  public:
   
-  FedTimingHistograms( MonitorUserInterface* );
+  FedTimingHistograms( DQMOldReceiver* );
   virtual ~FedTimingHistograms();
 
   typedef SummaryHistogramFactory<FedTimingAnalysis> Factory;

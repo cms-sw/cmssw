@@ -1,4 +1,4 @@
-// Last commit: $Id: FastFedCablingHistosUsingDb.cc,v 1.15 2008/02/28 10:24:23 bainbrid Exp $
+// Last commit: $Id: FastFedCablingHistosUsingDb.cc,v 1.16 2008/02/28 13:10:05 bainbrid Exp $
 
 #include "DQM/SiStripCommissioningDbClients/interface/FastFedCablingHistosUsingDb.h"
 #include "CondFormats/SiStripObjects/interface/FastFedCablingAnalysis.h"
@@ -10,7 +10,7 @@ using namespace sistrip;
 
 // -----------------------------------------------------------------------------
 /** */
-FastFedCablingHistosUsingDb::FastFedCablingHistosUsingDb( MonitorUserInterface* mui,
+FastFedCablingHistosUsingDb::FastFedCablingHistosUsingDb( DQMOldReceiver* mui,
 							  const DbParams& params )
   : CommissioningHistosUsingDb( params ),
     FastFedCablingHistograms( mui )
@@ -22,7 +22,7 @@ FastFedCablingHistosUsingDb::FastFedCablingHistosUsingDb( MonitorUserInterface* 
 
 // -----------------------------------------------------------------------------
 /** */
-FastFedCablingHistosUsingDb::FastFedCablingHistosUsingDb( MonitorUserInterface* mui,
+FastFedCablingHistosUsingDb::FastFedCablingHistosUsingDb( DQMOldReceiver* mui,
 							  SiStripConfigDb* const db ) 
   : CommissioningHistograms( mui, sistrip::FAST_CABLING ),
     CommissioningHistosUsingDb( db, mui, sistrip::FAST_CABLING ),
@@ -35,7 +35,7 @@ FastFedCablingHistosUsingDb::FastFedCablingHistosUsingDb( MonitorUserInterface* 
 
 // -----------------------------------------------------------------------------
 /** */
-FastFedCablingHistosUsingDb::FastFedCablingHistosUsingDb( DaqMonitorBEInterface* bei,
+FastFedCablingHistosUsingDb::FastFedCablingHistosUsingDb( DQMStore* bei,
 							  SiStripConfigDb* const db ) 
   : CommissioningHistosUsingDb( db, sistrip::FAST_CABLING ),
     FastFedCablingHistograms( bei )

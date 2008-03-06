@@ -5,15 +5,15 @@
 #include "DQM/SiStripCommissioningSummary/interface/FedCablingSummaryFactory.h"
 #include "CondFormats/SiStripObjects/interface/FedCablingAnalysis.h"
 
-class MonitorUserInterface;
-class DaqMonitorBEInterface;
+class DQMOldReceiver;
+class DQMStore;
 
 class FedCablingHistograms : virtual public CommissioningHistograms {
 
  public:
   
-  FedCablingHistograms( MonitorUserInterface* );
-  FedCablingHistograms( DaqMonitorBEInterface* );
+  FedCablingHistograms( DQMOldReceiver* );
+  FedCablingHistograms( DQMStore* );
   virtual ~FedCablingHistograms();
   
   typedef SummaryPlotFactory<FedCablingAnalysis*> Factory;

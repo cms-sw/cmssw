@@ -1,4 +1,4 @@
-// Last commit: $Id: VpspScanHistosUsingDb.cc,v 1.13 2008/02/19 21:17:18 bainbrid Exp $
+// Last commit: $Id: VpspScanHistosUsingDb.cc,v 1.14 2008/02/20 11:26:13 bainbrid Exp $
 
 #include "DQM/SiStripCommissioningDbClients/interface/VpspScanHistosUsingDb.h"
 #include "CondFormats/SiStripObjects/interface/VpspScanAnalysis.h"
@@ -10,7 +10,7 @@ using namespace sistrip;
 
 // -----------------------------------------------------------------------------
 /** */
-VpspScanHistosUsingDb::VpspScanHistosUsingDb( MonitorUserInterface* mui,
+VpspScanHistosUsingDb::VpspScanHistosUsingDb( DQMOldReceiver* mui,
 					      const DbParams& params )
   : CommissioningHistosUsingDb( params ),
     VpspScanHistograms( mui )
@@ -22,7 +22,7 @@ VpspScanHistosUsingDb::VpspScanHistosUsingDb( MonitorUserInterface* mui,
 
 // -----------------------------------------------------------------------------
 /** */
-VpspScanHistosUsingDb::VpspScanHistosUsingDb( MonitorUserInterface* mui,
+VpspScanHistosUsingDb::VpspScanHistosUsingDb( DQMOldReceiver* mui,
 					      SiStripConfigDb* const db ) 
   : CommissioningHistograms( mui, sistrip::VPSP_SCAN ),
     CommissioningHistosUsingDb( db, sistrip::VPSP_SCAN ),
@@ -35,7 +35,7 @@ VpspScanHistosUsingDb::VpspScanHistosUsingDb( MonitorUserInterface* mui,
 
 // -----------------------------------------------------------------------------
 /** */
-VpspScanHistosUsingDb::VpspScanHistosUsingDb( DaqMonitorBEInterface* bei,
+VpspScanHistosUsingDb::VpspScanHistosUsingDb( DQMStore* bei,
 					      SiStripConfigDb* const db ) 
   : CommissioningHistosUsingDb( db, sistrip::VPSP_SCAN ),
     VpspScanHistograms( bei )

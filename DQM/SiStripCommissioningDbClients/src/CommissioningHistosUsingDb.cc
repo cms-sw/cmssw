@@ -1,4 +1,4 @@
-// Last commit: $Id: CommissioningHistosUsingDb.cc,v 1.9 2008/02/19 11:29:30 bainbrid Exp $
+// Last commit: $Id: CommissioningHistosUsingDb.cc,v 1.10 2008/02/20 11:26:11 bainbrid Exp $
 
 #include "DQM/SiStripCommissioningDbClients/interface/CommissioningHistosUsingDb.h"
 #include "CalibFormats/SiStripObjects/interface/NumberOfDevices.h"
@@ -7,7 +7,7 @@
 #include "CondFormats/SiStripObjects/interface/FedChannelConnection.h"
 #include "CondFormats/SiStripObjects/interface/SiStripFedCabling.h"
 #include "DataFormats/SiStripCommon/interface/SiStripEnumsAndStrings.h"
-#include "DQMServices/Core/interface/MonitorUserInterface.h"
+#include "DQMServices/Core/interface/DQMOldReceiver.h"
 #include "OnlineDB/SiStripConfigDb/interface/SiStripConfigDb.h"
 #include "OnlineDB/SiStripESSources/interface/SiStripFedCablingBuilderFromDb.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -137,7 +137,7 @@ CommissioningHistosUsingDb::CommissioningHistosUsingDb( SiStripConfigDb* const d
 // -----------------------------------------------------------------------------
 /** */
 CommissioningHistosUsingDb::CommissioningHistosUsingDb( SiStripConfigDb* const db,
-							MonitorUserInterface* const mui,
+							DQMOldReceiver* const mui,
 							sistrip::RunType type )
   : CommissioningHistograms( mui, type ),
     runType_(type),
@@ -186,7 +186,7 @@ CommissioningHistosUsingDb::CommissioningHistosUsingDb( SiStripConfigDb* const d
 // -----------------------------------------------------------------------------
 /** */
 CommissioningHistosUsingDb::CommissioningHistosUsingDb()
-  : CommissioningHistograms( reinterpret_cast<MonitorUserInterface*>(0), sistrip::UNDEFINED_RUN_TYPE ),
+  : CommissioningHistograms( reinterpret_cast<DQMOldReceiver*>(0), sistrip::UNDEFINED_RUN_TYPE ),
     runType_(sistrip::UNDEFINED_RUN_TYPE),
     db_(0),
     cabling_(0),

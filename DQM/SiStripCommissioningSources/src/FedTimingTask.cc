@@ -1,13 +1,13 @@
 #include "DQM/SiStripCommissioningSources/interface/FedTimingTask.h"
 #include "DataFormats/SiStripCommon/interface/SiStripHistoTitle.h"
-#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 using namespace sistrip;
 
 // -----------------------------------------------------------------------------
 //
-FedTimingTask::FedTimingTask( DaqMonitorBEInterface* dqm,
+FedTimingTask::FedTimingTask( DQMStore* dqm,
 			      const FedChannelConnection& conn ) :
   CommissioningTask( dqm, conn, "FedTimingTask" ),
   timing_(),

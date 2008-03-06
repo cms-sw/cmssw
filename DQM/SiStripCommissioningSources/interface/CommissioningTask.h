@@ -11,7 +11,7 @@
 #include <string>
 #include <iomanip>
 
-class DaqMonitorBEInterface;
+class DQMStore;
 class MonitorElement;
 
 /**
@@ -23,7 +23,7 @@ class CommissioningTask {
   
   // ---------- Constructors, destructors ----------
 
-  CommissioningTask( DaqMonitorBEInterface*, 
+  CommissioningTask( DQMStore*, 
 		     const FedChannelConnection&,
 		     const std::string& my_name );
 
@@ -92,7 +92,7 @@ class CommissioningTask {
   void updateHistoSet( HistoSet& );
   
   /** Returns const pointer to DQM back-end interface object. */
-  inline DaqMonitorBEInterface* const dqm() const;
+  inline DQMStore* const dqm() const;
 
   /** */
   inline const FedChannelConnection& connection() const;
@@ -122,7 +122,7 @@ class CommissioningTask {
   
   // ---------- Private member data ----------
 
-  DaqMonitorBEInterface* dqm_;
+  DQMStore* dqm_;
 
   uint32_t updateFreq_;
 
@@ -147,7 +147,7 @@ const uint32_t& CommissioningTask::updateFreq() const { return updateFreq_; }
 void CommissioningTask::updateFreq( const uint32_t& freq ) { updateFreq_ = freq; }
 const std::string& CommissioningTask::myName() const { return myName_; }
 
-DaqMonitorBEInterface* const CommissioningTask::dqm() const { return dqm_; }
+DQMStore* const CommissioningTask::dqm() const { return dqm_; }
 const FedChannelConnection& CommissioningTask::connection() const { return connection_; }
 
 const uint32_t& CommissioningTask::fecKey() const { return fecKey_; }

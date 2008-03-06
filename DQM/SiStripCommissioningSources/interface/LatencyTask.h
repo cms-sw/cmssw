@@ -12,7 +12,7 @@ class LatencyTask : public CommissioningTask {
 
  public:
   
-  LatencyTask( DaqMonitorBEInterface*, const FedChannelConnection& );
+  LatencyTask( DQMStore*, const FedChannelConnection& );
   virtual ~LatencyTask();
   
  private:

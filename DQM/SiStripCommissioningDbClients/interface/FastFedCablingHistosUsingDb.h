@@ -1,4 +1,4 @@
-// Last commit: $Id: FastFedCablingHistosUsingDb.h,v 1.4 2008/02/14 13:53:04 bainbrid Exp $
+// Last commit: $Id: FastFedCablingHistosUsingDb.h,v 1.5 2008/02/27 16:33:40 bainbrid Exp $
 
 #ifndef DQM_SiStripCommissioningClients_FastFedCablingHistosUsingDb_H
 #define DQM_SiStripCommissioningClients_FastFedCablingHistosUsingDb_H
@@ -10,13 +10,13 @@ class FastFedCablingHistosUsingDb : public CommissioningHistosUsingDb, public Fa
   
  public:
   
-  FastFedCablingHistosUsingDb( MonitorUserInterface*,
+  FastFedCablingHistosUsingDb( DQMOldReceiver*,
 			       const DbParams& );
   
-  FastFedCablingHistosUsingDb( MonitorUserInterface*,
+  FastFedCablingHistosUsingDb( DQMOldReceiver*,
 			       SiStripConfigDb* const );
 
-  FastFedCablingHistosUsingDb( DaqMonitorBEInterface*,
+  FastFedCablingHistosUsingDb( DQMStore*,
 			       SiStripConfigDb* const );
 
   virtual ~FastFedCablingHistosUsingDb();

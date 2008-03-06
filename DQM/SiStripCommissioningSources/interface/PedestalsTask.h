@@ -11,7 +11,7 @@ class PedestalsTask : public CommissioningTask {
 
  public:
   
-  PedestalsTask( DaqMonitorBEInterface*, const FedChannelConnection& );
+  PedestalsTask( DQMStore*, const FedChannelConnection& );
   virtual ~PedestalsTask();
   
  private:

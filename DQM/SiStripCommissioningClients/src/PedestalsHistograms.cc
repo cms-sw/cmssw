@@ -14,7 +14,7 @@ using namespace sistrip;
 
 // -----------------------------------------------------------------------------
 /** */
-PedestalsHistograms::PedestalsHistograms( MonitorUserInterface* mui ) 
+PedestalsHistograms::PedestalsHistograms( DQMOldReceiver* mui ) 
   : CommissioningHistograms( mui, sistrip::PEDESTALS )
 {
   factory_ = auto_ptr<PedestalsSummaryFactory>( new PedestalsSummaryFactory );
@@ -25,7 +25,7 @@ PedestalsHistograms::PedestalsHistograms( MonitorUserInterface* mui )
 
 // -----------------------------------------------------------------------------
 /** */
-PedestalsHistograms::PedestalsHistograms( DaqMonitorBEInterface* bei ) 
+PedestalsHistograms::PedestalsHistograms( DQMStore* bei ) 
   : CommissioningHistograms( bei, sistrip::PEDESTALS )
 {
   LogTrace(mlDqmClient_) 

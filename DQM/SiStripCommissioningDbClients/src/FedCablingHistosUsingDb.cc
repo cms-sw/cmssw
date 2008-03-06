@@ -1,4 +1,4 @@
-// Last commit: $Id: FedCablingHistosUsingDb.cc,v 1.9 2007/12/19 18:18:11 bainbrid Exp $
+// Last commit: $Id: FedCablingHistosUsingDb.cc,v 1.10 2008/02/07 17:02:57 bainbrid Exp $
 
 #include "DQM/SiStripCommissioningDbClients/interface/FedCablingHistosUsingDb.h"
 #include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
@@ -9,7 +9,7 @@ using namespace sistrip;
 
 // -----------------------------------------------------------------------------
 /** */
-FedCablingHistosUsingDb::FedCablingHistosUsingDb( MonitorUserInterface* mui,
+FedCablingHistosUsingDb::FedCablingHistosUsingDb( DQMOldReceiver* mui,
 						  const DbParams& params )
   : FedCablingHistograms( mui ),
     CommissioningHistosUsingDb( params )
@@ -21,7 +21,7 @@ FedCablingHistosUsingDb::FedCablingHistosUsingDb( MonitorUserInterface* mui,
 
 // -----------------------------------------------------------------------------
 /** */
-FedCablingHistosUsingDb::FedCablingHistosUsingDb( MonitorUserInterface* mui,
+FedCablingHistosUsingDb::FedCablingHistosUsingDb( DQMOldReceiver* mui,
 						  SiStripConfigDb* const db ) 
   : FedCablingHistograms( mui ),
     CommissioningHistosUsingDb( db, mui )
@@ -33,7 +33,7 @@ FedCablingHistosUsingDb::FedCablingHistosUsingDb( MonitorUserInterface* mui,
 
 // -----------------------------------------------------------------------------
 /** */
-FedCablingHistosUsingDb::FedCablingHistosUsingDb( DaqMonitorBEInterface* bei,
+FedCablingHistosUsingDb::FedCablingHistosUsingDb( DQMStore* bei,
 						  SiStripConfigDb* const db ) 
   : FedCablingHistograms( bei ),
     CommissioningHistosUsingDb( db )

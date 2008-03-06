@@ -5,15 +5,15 @@
 #include "DQM/SiStripCommissioningSummary/interface/CalibrationSummaryFactory.h"
 #include "CondFormats/SiStripObjects/interface/CalibrationAnalysis.h"
 
-class MonitorUserInterface;
-class DaqMonitorBEInterface;
+class DQMOldReceiver;
+class DQMStore;
 
 class CalibrationHistograms : virtual public CommissioningHistograms {
 
  public:
   
-  CalibrationHistograms( MonitorUserInterface*, const sistrip::RunType& task = sistrip::CALIBRATION );
-  CalibrationHistograms( DaqMonitorBEInterface*,const sistrip::RunType& task = sistrip::CALIBRATION );
+  CalibrationHistograms( DQMOldReceiver*, const sistrip::RunType& task = sistrip::CALIBRATION );
+  CalibrationHistograms( DQMStore*,const sistrip::RunType& task = sistrip::CALIBRATION );
   virtual ~CalibrationHistograms();
   
   typedef SummaryPlotFactory<CalibrationAnalysis*> Factory;

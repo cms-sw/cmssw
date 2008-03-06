@@ -1,4 +1,4 @@
-// Last commit: $Id: FedCablingHistosUsingDb.h,v 1.5 2007/12/19 18:18:10 bainbrid Exp $
+// Last commit: $Id: FedCablingHistosUsingDb.h,v 1.6 2008/02/07 17:02:55 bainbrid Exp $
 
 #ifndef DQM_SiStripCommissioningClients_FedCablingHistosUsingDb_H
 #define DQM_SiStripCommissioningClients_FedCablingHistosUsingDb_H
@@ -14,13 +14,13 @@ class FedCablingHistosUsingDb : public FedCablingHistograms, public Commissionin
   
  public:
   
-  FedCablingHistosUsingDb( MonitorUserInterface*,
+  FedCablingHistosUsingDb( DQMOldReceiver*,
 			   const DbParams& );
   
-  FedCablingHistosUsingDb( MonitorUserInterface*,
+  FedCablingHistosUsingDb( DQMOldReceiver*,
 			   SiStripConfigDb* const );
 
-  FedCablingHistosUsingDb( DaqMonitorBEInterface*,
+  FedCablingHistosUsingDb( DQMStore*,
 			   SiStripConfigDb* const );
 
   virtual ~FedCablingHistosUsingDb();

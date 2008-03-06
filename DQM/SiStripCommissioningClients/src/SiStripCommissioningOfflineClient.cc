@@ -1,4 +1,4 @@
-// Last commit: $Id: SiStripCommissioningOfflineClient.cc,v 1.31 2008/02/27 11:17:53 bainbrid Exp $
+// Last commit: $Id: SiStripCommissioningOfflineClient.cc,v 1.32 2008/02/27 14:47:04 bainbrid Exp $
 
 #include "DQM/SiStripCommissioningClients/interface/SiStripCommissioningOfflineClient.h"
 #include "DataFormats/SiStripCommon/interface/SiStripEnumsAndStrings.h"
@@ -14,8 +14,8 @@
 #include "DQM/SiStripCommissioningClients/interface/LatencyHistograms.h"
 #include "DQM/SiStripCommissioningClients/interface/FineDelayHistograms.h"
 #include "DQM/SiStripCommissioningClients/interface/CalibrationHistograms.h"
-#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
-#include "DQMServices/UI/interface/MonitorUIRoot.h"
+#include "DQMServices/Core/interface/DQMStore.h"
+#include "DQMServices/Core/interface/DQMOldReceiver.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/FileInPath.h"
 #include <boost/cstdint.hpp>
@@ -27,13 +27,14 @@
 #include <dirent.h>
 #include <errno.h>
 #include "TProfile.h"
+#include "DQMServices/Core/interface/MonitorElement.h"
 
 using namespace sistrip;
 
 // -----------------------------------------------------------------------------
 // 
 SiStripCommissioningOfflineClient::SiStripCommissioningOfflineClient( const edm::ParameterSet& pset ) 
-  : mui_( new MonitorUIRoot() ),
+  : mui_( new DQMOldReceiver() ),
     histos_(0),
     //inputFiles_( pset.getUntrackedParameter< std::vector<std::string> >( "InputRootFiles", std::vector<std::string>() ) ),
     outputFileName_( pset.getUntrackedParameter<std::string>( "OutputRootFile", "" ) ),
@@ -76,7 +77,7 @@ void SiStripCommissioningOfflineClient::beginJob( const edm::EventSetup& setup )
   if ( !mui_ ) {
     edm::LogError(mlDqmClient_)
       << "[SiStripCommissioningOfflineClient::" << __func__ << "]"
-      << " NULL pointer to MonitorUserInterface!"
+      << " NULL pointer to DQMOldReceiver!"
       << " Aborting...";
     return;
   }
@@ -139,11 +140,11 @@ void SiStripCommissioningOfflineClient::beginJob( const edm::EventSetup& setup )
   }
 
   // Retrieve BEI and check for null pointer 
-  DaqMonitorBEInterface* bei = mui_->getBEInterface();
+  DQMStore* bei = mui_->getBEInterface();
   if ( !bei ) {
     edm::LogError(mlDqmClient_)
       << "[SiStripCommissioningOfflineClient::" << __func__ << "]"
-      << " NULL pointer to DaqMonitorBEInterface!"
+      << " NULL pointer to DQMStore!"
       << " Aborting...";
     return;
   }
@@ -409,7 +410,7 @@ void SiStripCommissioningOfflineClient::createHistos() {
   if ( !mui_ ) {
     edm::LogError(mlDqmClient_)
       << "[SiStripCommissioningOfflineClient::" << __func__ << "]"
-      << " NULL pointer to MonitorUserInterface!";
+      << " NULL pointer to DQMOldReceiver!";
     return;
   }
 

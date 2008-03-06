@@ -1,6 +1,6 @@
 #include "DQM/SiStripCommissioningSources/interface/LatencyTask.h"
 #include "DataFormats/SiStripCommon/interface/SiStripHistoTitle.h"
-#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #define NBINS (100)
@@ -13,7 +13,7 @@ std::map<std::string, CommissioningTask::HistoSet> LatencyTask::timingMap_;
 
 // -----------------------------------------------------------------------------
 //
-LatencyTask::LatencyTask( DaqMonitorBEInterface* dqm,
+LatencyTask::LatencyTask( DQMStore* dqm,
 			      const FedChannelConnection& conn ) :
   CommissioningTask( dqm, conn, "LatencyTask" ),timing_(0)
 {

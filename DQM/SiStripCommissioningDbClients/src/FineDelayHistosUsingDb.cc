@@ -1,4 +1,4 @@
-// Last commit: $Id: FineDelayHistosUsingDb.cc,v 1.4 2008/02/14 13:53:04 bainbrid Exp $
+// Last commit: $Id: FineDelayHistosUsingDb.cc,v 1.5 2008/02/20 11:26:11 bainbrid Exp $
 
 #include "DQM/SiStripCommissioningDbClients/interface/FineDelayHistosUsingDb.h"
 #include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
@@ -10,7 +10,7 @@ using namespace sistrip;
 
 // -----------------------------------------------------------------------------
 /** */
-FineDelayHistosUsingDb::FineDelayHistosUsingDb( MonitorUserInterface* mui,
+FineDelayHistosUsingDb::FineDelayHistosUsingDb( DQMOldReceiver* mui,
 						const DbParams& params )
   : CommissioningHistosUsingDb( params ),
     FineDelayHistograms( mui )
@@ -22,7 +22,7 @@ FineDelayHistosUsingDb::FineDelayHistosUsingDb( MonitorUserInterface* mui,
 
 // -----------------------------------------------------------------------------
 /** */
-FineDelayHistosUsingDb::FineDelayHistosUsingDb( MonitorUserInterface* mui,
+FineDelayHistosUsingDb::FineDelayHistosUsingDb( DQMOldReceiver* mui,
 						SiStripConfigDb* const db ) 
   : CommissioningHistosUsingDb( db ),
     FineDelayHistograms( mui )
@@ -34,7 +34,7 @@ FineDelayHistosUsingDb::FineDelayHistosUsingDb( MonitorUserInterface* mui,
 
 // -----------------------------------------------------------------------------
 /** */
-FineDelayHistosUsingDb::FineDelayHistosUsingDb( DaqMonitorBEInterface* bei,
+FineDelayHistosUsingDb::FineDelayHistosUsingDb( DQMStore* bei,
 						SiStripConfigDb* const db ) 
   : CommissioningHistosUsingDb( db ),
     FineDelayHistograms( bei )

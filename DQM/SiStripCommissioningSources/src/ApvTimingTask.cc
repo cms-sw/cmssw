@@ -1,14 +1,14 @@
 #include "DQM/SiStripCommissioningSources/interface/ApvTimingTask.h"
 #include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
 #include "DataFormats/SiStripCommon/interface/SiStripHistoTitle.h"
-#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 using namespace sistrip;
 
 // -----------------------------------------------------------------------------
 //@@ nBins_ should be number of scope mode samples from trigger fed data???
-ApvTimingTask::ApvTimingTask( DaqMonitorBEInterface* dqm,
+ApvTimingTask::ApvTimingTask( DQMStore* dqm,
 			      const FedChannelConnection& conn ) :
   CommissioningTask( dqm, conn, "ApvTimingTask" ),
   timing_(),

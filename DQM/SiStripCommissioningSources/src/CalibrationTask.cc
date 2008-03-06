@@ -1,10 +1,12 @@
 #include "DQM/SiStripCommissioningSources/interface/CalibrationTask.h"
 #include "DataFormats/SiStripCommon/interface/SiStripHistoTitle.h"
-#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
-#include "CommonTools/SiStripZeroSuppression/interface/SiStripPedestalsService.h"
+#include <CondFormats/DataRecord/interface/SiStripPedestalsRcd.h>
+#include <CondFormats/SiStripObjects/interface/SiStripPedestals.h>
+#include <DQMServices/Core/interface/MonitorElement.h>
 
 #include <arpa/inet.h>
 #include <sys/unistd.h>
@@ -14,7 +16,7 @@
 
 // -----------------------------------------------------------------------------
 //
-CalibrationTask::CalibrationTask( DaqMonitorBEInterface* dqm,
+CalibrationTask::CalibrationTask( DQMStore* dqm,
 			      const FedChannelConnection& conn,
 			      const sistrip::RunType& rtype,
 			      const char* filename,

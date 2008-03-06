@@ -12,7 +12,7 @@ using namespace sistrip;
 
 // -----------------------------------------------------------------------------
 //
-CommissioningTask::CommissioningTask( DaqMonitorBEInterface* dqm,
+CommissioningTask::CommissioningTask( DQMStore* dqm,
 				      const FedChannelConnection& conn,
 				      const std::string& my_name ) :
   dqm_(dqm),

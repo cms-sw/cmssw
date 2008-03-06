@@ -1,4 +1,4 @@
-// Last commit: $Id: CommissioningHistosUsingDb.h,v 1.7 2008/02/14 13:53:04 bainbrid Exp $
+// Last commit: $Id: CommissioningHistosUsingDb.h,v 1.8 2008/02/28 13:09:00 bainbrid Exp $
 
 #ifndef DQM_SiStripCommissioningClients_CommissioningHistosUsingDb_H
 #define DQM_SiStripCommissioningClients_CommissioningHistosUsingDb_H
@@ -11,7 +11,7 @@
 
 class SiStripConfigDb;
 class SiStripFedCabling;
-class MonitorUserInterface;
+class DQMOldReceiver;
 
 class CommissioningHistosUsingDb : public virtual CommissioningHistograms {
   
@@ -30,7 +30,7 @@ class CommissioningHistosUsingDb : public virtual CommissioningHistograms {
 			      sistrip::RunType = sistrip::UNDEFINED_RUN_TYPE );
 
   CommissioningHistosUsingDb( SiStripConfigDb* const,
-			      MonitorUserInterface* const,			      
+			      DQMOldReceiver* const,			      
 			      sistrip::RunType = sistrip::UNDEFINED_RUN_TYPE );
   
   virtual ~CommissioningHistosUsingDb();

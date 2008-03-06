@@ -14,7 +14,7 @@
 #include <vector>
 #include <map>
 
-class DaqMonitorBEInterface;
+class DQMStore;
 class CommissioningTask;
 class FedChannelConnection;
 class SiStripEventSummary;
@@ -44,7 +44,7 @@ class SiStripCommissioningSource : public edm::EDAnalyzer {
   SiStripCommissioningSource();
   
   /** */
-  DaqMonitorBEInterface* const dqm( std::string method = "" ) const;
+  DQMStore* const dqm( std::string method = "" ) const;
   
   /** */
   void createRunNumber();
@@ -86,7 +86,7 @@ class SiStripCommissioningSource : public edm::EDAnalyzer {
   // ---------- DQM fwk and cabling ----------
 
   /** Interface to Data Quality Monitoring framework. */
-  DaqMonitorBEInterface* dqm_;
+  DQMStore* dqm_;
 
   /** */
   SiStripFedCabling* fedCabling_;

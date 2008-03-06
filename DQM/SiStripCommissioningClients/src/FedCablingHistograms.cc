@@ -14,7 +14,7 @@ using namespace sistrip;
 
 // -----------------------------------------------------------------------------
 /** */
-FedCablingHistograms::FedCablingHistograms( MonitorUserInterface* mui ) 
+FedCablingHistograms::FedCablingHistograms( DQMOldReceiver* mui ) 
   : CommissioningHistograms( mui, sistrip::FED_CABLING ),
     factory_( new Factory )
 {
@@ -25,7 +25,7 @@ FedCablingHistograms::FedCablingHistograms( MonitorUserInterface* mui )
 
 // -----------------------------------------------------------------------------
 /** */
-FedCablingHistograms::FedCablingHistograms( DaqMonitorBEInterface* bei ) 
+FedCablingHistograms::FedCablingHistograms( DQMStore* bei ) 
   : CommissioningHistograms( bei, sistrip::FED_CABLING ),
     factory_( new Factory )
 {

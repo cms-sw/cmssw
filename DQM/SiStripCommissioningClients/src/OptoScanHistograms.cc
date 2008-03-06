@@ -14,7 +14,7 @@ using namespace sistrip;
 
 // -----------------------------------------------------------------------------
 /** */
-OptoScanHistograms::OptoScanHistograms( MonitorUserInterface* mui ) 
+OptoScanHistograms::OptoScanHistograms( DQMOldReceiver* mui ) 
   : CommissioningHistograms( mui, sistrip::OPTO_SCAN )
 {
   factory_ = auto_ptr<OptoScanSummaryFactory>( new OptoScanSummaryFactory );
@@ -25,7 +25,7 @@ OptoScanHistograms::OptoScanHistograms( MonitorUserInterface* mui )
 
 // -----------------------------------------------------------------------------
 /** */
-OptoScanHistograms::OptoScanHistograms( DaqMonitorBEInterface* bei ) 
+OptoScanHistograms::OptoScanHistograms( DQMStore* bei ) 
   : CommissioningHistograms( bei, sistrip::OPTO_SCAN )
 {
   LogTrace(mlDqmClient_) 

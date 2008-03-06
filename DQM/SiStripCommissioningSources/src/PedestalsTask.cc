@@ -1,7 +1,7 @@
 #include "DQM/SiStripCommissioningSources/interface/PedestalsTask.h"
 #include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
 #include "DataFormats/SiStripCommon/interface/SiStripHistoTitle.h"
-#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 #include "DQM/SiStripCommon/interface/ExtractTObject.h"
 #include "DQM/SiStripCommon/interface/UpdateTProfile.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -12,7 +12,7 @@ using namespace sistrip;
 
 // -----------------------------------------------------------------------------
 //
-PedestalsTask::PedestalsTask( DaqMonitorBEInterface* dqm,
+PedestalsTask::PedestalsTask( DQMStore* dqm,
 			      const FedChannelConnection& conn ) :
   CommissioningTask( dqm, conn, "PedestalsTask" ),
   peds_(),

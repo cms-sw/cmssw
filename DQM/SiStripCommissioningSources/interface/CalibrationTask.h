@@ -11,7 +11,7 @@ class CalibrationTask : public CommissioningTask {
 
  public:
   
-  CalibrationTask( DaqMonitorBEInterface*, const FedChannelConnection&, const sistrip::RunType&, 
+  CalibrationTask( DQMStore*, const FedChannelConnection&, const sistrip::RunType&, 
                    const char* filename, uint32_t run, const edm::EventSetup& setup );
   virtual ~CalibrationTask();
   

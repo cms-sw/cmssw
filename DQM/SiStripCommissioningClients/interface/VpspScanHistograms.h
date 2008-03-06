@@ -3,15 +3,15 @@
 
 #include "DQM/SiStripCommissioningClients/interface/CommissioningHistograms.h"
 
-class MonitorUserInterface;
-class DaqMonitorBEInterface;
+class DQMOldReceiver;
+class DQMStore;
 
 class VpspScanHistograms : public virtual CommissioningHistograms {
 
  public:
   
-  VpspScanHistograms( MonitorUserInterface* );
-  VpspScanHistograms( DaqMonitorBEInterface* );
+  VpspScanHistograms( DQMOldReceiver* );
+  VpspScanHistograms( DQMStore* );
   virtual ~VpspScanHistograms();
   
   void histoAnalysis( bool debug );

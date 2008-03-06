@@ -9,7 +9,7 @@ class FastFedCablingTask : public CommissioningTask {
 
  public:
   
-  FastFedCablingTask( DaqMonitorBEInterface*, const FedChannelConnection& );
+  FastFedCablingTask( DQMStore*, const FedChannelConnection& );
   virtual ~FastFedCablingTask();
   
  private:

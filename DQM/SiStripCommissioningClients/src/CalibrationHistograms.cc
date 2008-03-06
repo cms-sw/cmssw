@@ -3,8 +3,7 @@
 #include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
 #include "DataFormats/SiStripCommon/interface/SiStripEnumsAndStrings.h"
 #include "DQM/SiStripCommon/interface/ExtractTObject.h"
-#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
-#include "DQMServices/Core/interface/MonitorElementT.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <iostream>
 #include <sstream>
@@ -16,7 +15,7 @@ using namespace sistrip;
 
 // -----------------------------------------------------------------------------
 /** */
-CalibrationHistograms::CalibrationHistograms( DaqMonitorBEInterface* bei,const sistrip::RunType& task ) 
+CalibrationHistograms::CalibrationHistograms( DQMStore* bei,const sistrip::RunType& task ) 
   : CommissioningHistograms( bei, task ),
     factory_( new Factory ),
     calchan_(0)
@@ -27,9 +26,9 @@ CalibrationHistograms::CalibrationHistograms( DaqMonitorBEInterface* bei,const s
   std::string pwd = bei->pwd();
   std::string calchanPath = pwd.substr(0,pwd.find(sistrip::root_ + "/")+sistrip::root_.size()+1);
   calchanPath += "/calchan";
-  MonitorElementT< int >*  calchanElement = dynamic_cast<MonitorElementT< int >* >(bei->get(calchanPath));
+  MonitorElement* calchanElement = bei->get(calchanPath);
   if(calchanElement) {
-    calchan_ = calchanElement->getValue() ;
+    calchan_ = calchanElement->getIntValue();
     edm::LogVerbatim(mlDqmClient_)
       << "[CalibrationHistograms::" << __func__ << "]"
       << "CalChan value is " << calchan_;
@@ -41,7 +40,7 @@ CalibrationHistograms::CalibrationHistograms( DaqMonitorBEInterface* bei,const s
   }
 }
 
-CalibrationHistograms::CalibrationHistograms( MonitorUserInterface* mui,const sistrip::RunType& task ) 
+CalibrationHistograms::CalibrationHistograms( DQMOldReceiver* mui,const sistrip::RunType& task ) 
   : CommissioningHistograms( mui, task ),
     factory_( new Factory ),
     calchan_(0)
@@ -52,9 +51,9 @@ CalibrationHistograms::CalibrationHistograms( MonitorUserInterface* mui,const si
   std::string pwd = bei()->pwd();
   std::string calchanPath = pwd.substr(0,pwd.find(sistrip::root_ + "/")+sistrip::root_.size()+1);
   calchanPath += "/calchan";
-  MonitorElementT< int >*  calchanElement = dynamic_cast<MonitorElementT< int >* >(bei()->get(calchanPath));
+  MonitorElement* calchanElement = bei()->get(calchanPath);
   if(calchanElement) {
-    calchan_ = calchanElement->getValue() ;
+    calchan_ = calchanElement->getIntValue() ;
     edm::LogVerbatim(mlDqmClient_)
       << "[CalibrationHistograms::" << __func__ << "]"
       << "CalChan value is " << calchan_;

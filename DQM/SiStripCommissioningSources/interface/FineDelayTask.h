@@ -12,7 +12,7 @@ class FineDelayTask : public CommissioningTask {
 
  public:
   
-  FineDelayTask( DaqMonitorBEInterface*, const FedChannelConnection& );
+  FineDelayTask( DQMStore*, const FedChannelConnection& );
   virtual ~FineDelayTask();
   
  private:

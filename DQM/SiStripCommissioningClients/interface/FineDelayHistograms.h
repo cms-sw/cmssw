@@ -5,14 +5,14 @@
 #include "DQM/SiStripCommissioningSummary/interface/FineDelaySummaryFactory.h"
 #include "CondFormats/SiStripObjects/interface/FineDelayAnalysis.h"
 
-class MonitorUserInterface;
+class DQMOldReceiver;
 
 class FineDelayHistograms : virtual public CommissioningHistograms {
 
  public:
   
-  FineDelayHistograms( DaqMonitorBEInterface* );
-  FineDelayHistograms( MonitorUserInterface* );
+  FineDelayHistograms( DQMStore* );
+  FineDelayHistograms( DQMOldReceiver* );
   virtual ~FineDelayHistograms();
   
   typedef SummaryHistogramFactory<FineDelayAnalysis> Factory;

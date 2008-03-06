@@ -1,7 +1,7 @@
 #include "DQM/SiStripCommissioningSources/interface/OptoScanTask.h"
 #include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
 #include "DataFormats/SiStripCommon/interface/SiStripHistoTitle.h"
-#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <algorithm>
 #include <math.h>
@@ -13,7 +13,7 @@ using namespace sistrip;
 
 // -----------------------------------------------------------------------------
 //
-OptoScanTask::OptoScanTask( DaqMonitorBEInterface* dqm,
+OptoScanTask::OptoScanTask( DQMStore* dqm,
 			    const FedChannelConnection& conn ) :
   CommissioningTask( dqm, conn, "OptoScanTask" ),
   opto_()

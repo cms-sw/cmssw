@@ -3,7 +3,6 @@
 <use name=CondFormats/SiStripObjects>
 <use name=DQM/SiStripCommissioningClients>
 <use name=DQMServices/Core>
-<use name=DQMServices/UI>
 <use name=FWCore/MessageLogger>
 <use name=FWCore/PluginManager>
 <use name=FWCore/ServiceRegistry>

@@ -1,4 +1,4 @@
-// Last commit: $Id: FineDelayHistosUsingDb.h,v 1.3 2008/02/07 17:02:55 bainbrid Exp $
+// Last commit: $Id: FineDelayHistosUsingDb.h,v 1.4 2008/02/14 13:53:04 bainbrid Exp $
 
 #ifndef DQM_SiStripCommissioningClients_FineDelayHistosUsingDb_H
 #define DQM_SiStripCommissioningClients_FineDelayHistosUsingDb_H
@@ -14,13 +14,13 @@ class FineDelayHistosUsingDb : public CommissioningHistosUsingDb, public FineDel
   
  public:
   
-  FineDelayHistosUsingDb( MonitorUserInterface*,
+  FineDelayHistosUsingDb( DQMOldReceiver*,
 			 const DbParams& );
   
-  FineDelayHistosUsingDb( MonitorUserInterface*,
+  FineDelayHistosUsingDb( DQMOldReceiver*,
 			 SiStripConfigDb* const );
   
-  FineDelayHistosUsingDb( DaqMonitorBEInterface*,
+  FineDelayHistosUsingDb( DQMStore*,
 			 SiStripConfigDb* const );
 
   virtual ~FineDelayHistosUsingDb();

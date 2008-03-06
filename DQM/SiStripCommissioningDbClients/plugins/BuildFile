@@ -3,7 +3,6 @@
   <use name=DQM/SiStripCommissioningClients>
   <use name=DQM/SiStripCommissioningDbClients>
   <use name=DQMServices/Core>
-  <use name=DQMServices/UI>
   <use name=FWCore/MessageLogger>
   <use name=OnlineDB/SiStripConfigDb>
   <use name=boost>

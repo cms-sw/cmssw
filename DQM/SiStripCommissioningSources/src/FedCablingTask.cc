@@ -1,7 +1,7 @@
 #include "DQM/SiStripCommissioningSources/interface/FedCablingTask.h"
 #include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
 #include "DataFormats/SiStripCommon/interface/SiStripHistoTitle.h"
-#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <algorithm>
 #include <sstream>
@@ -11,7 +11,7 @@ using namespace sistrip;
 
 // -----------------------------------------------------------------------------
 //
-FedCablingTask::FedCablingTask( DaqMonitorBEInterface* dqm,
+FedCablingTask::FedCablingTask( DQMStore* dqm,
 				const FedChannelConnection& conn ) :
   CommissioningTask( dqm, conn, "FedCablingTask" ),
   histos_()

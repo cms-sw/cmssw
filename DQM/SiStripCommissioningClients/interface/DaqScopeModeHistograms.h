@@ -5,13 +5,13 @@
 #include "DQM/SiStripCommissioningSummary/interface/DaqScopeModeSummaryFactory.h"
 #include "CondFormats/SiStripObjects/interface/DaqScopeModeAnalysis.h"
 
-class MonitorUserInterface;
+class DQMOldReceiver;
 
 class DaqScopeModeHistograms : public CommissioningHistograms {
 
  public:
   
-  DaqScopeModeHistograms( MonitorUserInterface* );
+  DaqScopeModeHistograms( DQMOldReceiver* );
   virtual ~DaqScopeModeHistograms();
   
   typedef SummaryHistogramFactory<DaqScopeModeAnalysis> Factory;

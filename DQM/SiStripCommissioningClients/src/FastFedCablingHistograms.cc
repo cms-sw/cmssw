@@ -15,7 +15,7 @@ using namespace sistrip;
 
 // -----------------------------------------------------------------------------
 /** */
-FastFedCablingHistograms::FastFedCablingHistograms( MonitorUserInterface* mui ) 
+FastFedCablingHistograms::FastFedCablingHistograms( DQMOldReceiver* mui ) 
   : CommissioningHistograms( mui, sistrip::FAST_CABLING )
 {
   factory_ = auto_ptr<FastFedCablingSummaryFactory>( new FastFedCablingSummaryFactory );
@@ -26,7 +26,7 @@ FastFedCablingHistograms::FastFedCablingHistograms( MonitorUserInterface* mui )
 
 // -----------------------------------------------------------------------------
 /** */
-FastFedCablingHistograms::FastFedCablingHistograms( DaqMonitorBEInterface* bei ) 
+FastFedCablingHistograms::FastFedCablingHistograms( DQMStore* bei ) 
   : CommissioningHistograms( bei, sistrip::FAST_CABLING )
 {
   LogTrace(mlDqmClient_) 

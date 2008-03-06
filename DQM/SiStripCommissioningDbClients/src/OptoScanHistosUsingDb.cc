@@ -1,4 +1,4 @@
-// Last commit: $Id: OptoScanHistosUsingDb.cc,v 1.11 2008/02/19 11:29:30 bainbrid Exp $
+// Last commit: $Id: OptoScanHistosUsingDb.cc,v 1.12 2008/02/20 11:26:12 bainbrid Exp $
 
 #include "DQM/SiStripCommissioningDbClients/interface/OptoScanHistosUsingDb.h"
 #include "CondFormats/SiStripObjects/interface/OptoScanAnalysis.h"
@@ -10,7 +10,7 @@ using namespace sistrip;
 
 // -----------------------------------------------------------------------------
 /** */
-OptoScanHistosUsingDb::OptoScanHistosUsingDb( MonitorUserInterface* mui,
+OptoScanHistosUsingDb::OptoScanHistosUsingDb( DQMOldReceiver* mui,
 					      const DbParams& params )
   : CommissioningHistosUsingDb( params ),
     OptoScanHistograms( mui )
@@ -22,7 +22,7 @@ OptoScanHistosUsingDb::OptoScanHistosUsingDb( MonitorUserInterface* mui,
 
 // -----------------------------------------------------------------------------
 /** */
-OptoScanHistosUsingDb::OptoScanHistosUsingDb( MonitorUserInterface* mui,
+OptoScanHistosUsingDb::OptoScanHistosUsingDb( DQMOldReceiver* mui,
 					      SiStripConfigDb* const db )
   : CommissioningHistograms( mui, sistrip::OPTO_SCAN ),
     CommissioningHistosUsingDb( db, mui, sistrip::OPTO_SCAN ),
@@ -35,7 +35,7 @@ OptoScanHistosUsingDb::OptoScanHistosUsingDb( MonitorUserInterface* mui,
 
 // -----------------------------------------------------------------------------
 /** */
-OptoScanHistosUsingDb::OptoScanHistosUsingDb( DaqMonitorBEInterface* bei,
+OptoScanHistosUsingDb::OptoScanHistosUsingDb( DQMStore* bei,
 					      SiStripConfigDb* const db ) 
   : CommissioningHistosUsingDb( db, sistrip::OPTO_SCAN ),
     OptoScanHistograms( bei )

@@ -12,8 +12,8 @@
 #ifndef USING_NEW_COLLATE_METHODS
 #include "DQMServices/Core/interface/CollateMonitorElement.h"
 #endif
-#include "DQMServices/Core/interface/MonitorUserInterface.h"
-#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
+#include "DQMServices/Core/interface/DQMOldReceiver.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 #include <boost/cstdint.hpp>
 #include "TProfile.h"
 #include "TH1.h"
@@ -32,11 +32,11 @@ class CommissioningHistograms {
 
   // ---------- con(de)structors ----------
   
-  CommissioningHistograms( MonitorUserInterface* const,
+  CommissioningHistograms( DQMOldReceiver* const,
 			   const sistrip::RunType& );
   
   // DEPRECACTE
-  CommissioningHistograms( DaqMonitorBEInterface* const,
+  CommissioningHistograms( DQMStore* const,
 			   const sistrip::RunType& );
 
   // MAKE PRIVATE
@@ -86,18 +86,18 @@ class CommissioningHistograms {
 
   // ---------- histogram "actions" ----------
   
-  static uint32_t runNumber( DaqMonitorBEInterface* const,
+  static uint32_t runNumber( DQMStore* const,
 			     const std::vector<std::string>& );
   
-  static sistrip::RunType runType( DaqMonitorBEInterface* const,
+  static sistrip::RunType runType( DQMStore* const,
 				   const std::vector<std::string>& );
   
   /** Extracts custom information from list of MonitorElements. */
-  static void copyCustomInformation( DaqMonitorBEInterface* const,
+  static void copyCustomInformation( DQMStore* const,
 				     const std::vector<std::string>& );
   
   /** Retrieves list of histograms in form of strings. */
-  static void getContents( DaqMonitorBEInterface* const,
+  static void getContents( DQMStore* const,
 			   std::vector<std::string>& );
   
   void extractHistograms( const std::vector<std::string>& );
@@ -127,9 +127,9 @@ class CommissioningHistograms {
 
   inline const sistrip::RunType& task() const;
   
-  inline MonitorUserInterface* const mui() const;
+  inline DQMOldReceiver* const mui() const;
   
-  inline DaqMonitorBEInterface* const bei() const;
+  inline DQMStore* const bei() const;
   
   inline Analyses& data();
   
@@ -161,9 +161,9 @@ class CommissioningHistograms {
   
   sistrip::RunType task_;
   
-  MonitorUserInterface* mui_;
+  DQMOldReceiver* mui_;
   
-  DaqMonitorBEInterface* bei_;
+  DQMStore* bei_;
   
   Analyses data_;
   
@@ -176,8 +176,8 @@ class CommissioningHistograms {
 // ---------- inline methods ----------
 
 const sistrip::RunType& CommissioningHistograms::task() const { return task_; }
-MonitorUserInterface* const CommissioningHistograms::mui() const { return mui_; }
-DaqMonitorBEInterface* const CommissioningHistograms::bei() const { return bei_; }
+DQMOldReceiver* const CommissioningHistograms::mui() const { return mui_; }
+DQMStore* const CommissioningHistograms::bei() const { return bei_; }
 CommissioningHistograms::Analyses& CommissioningHistograms::data() { return data_; }
 CommissioningHistograms::Factory* const CommissioningHistograms::factory() { return factory_.get(); }
 const CommissioningHistograms::HistosMap& CommissioningHistograms::histos() const { return histos_; }

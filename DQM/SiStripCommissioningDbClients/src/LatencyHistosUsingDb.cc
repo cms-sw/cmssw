@@ -1,4 +1,4 @@
-// Last commit: $Id: LatencyHistosUsingDb.cc,v 1.4 2008/02/14 13:53:04 bainbrid Exp $
+// Last commit: $Id: LatencyHistosUsingDb.cc,v 1.5 2008/02/20 11:26:12 bainbrid Exp $
 
 #include "DQM/SiStripCommissioningDbClients/interface/LatencyHistosUsingDb.h"
 #include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
@@ -9,7 +9,7 @@ using namespace sistrip;
 
 // -----------------------------------------------------------------------------
 /** */
-LatencyHistosUsingDb::LatencyHistosUsingDb( MonitorUserInterface* mui,
+LatencyHistosUsingDb::LatencyHistosUsingDb( DQMOldReceiver* mui,
 					      const DbParams& params )
   : CommissioningHistosUsingDb( params ),
     LatencyHistograms( mui )
@@ -21,7 +21,7 @@ LatencyHistosUsingDb::LatencyHistosUsingDb( MonitorUserInterface* mui,
 
 // -----------------------------------------------------------------------------
 /** */
-LatencyHistosUsingDb::LatencyHistosUsingDb( MonitorUserInterface* mui,
+LatencyHistosUsingDb::LatencyHistosUsingDb( DQMOldReceiver* mui,
 					      SiStripConfigDb* const db )
   : CommissioningHistosUsingDb( db ),
     LatencyHistograms( mui )
@@ -33,7 +33,7 @@ LatencyHistosUsingDb::LatencyHistosUsingDb( MonitorUserInterface* mui,
 
 // -----------------------------------------------------------------------------
 /** */
-LatencyHistosUsingDb::LatencyHistosUsingDb( DaqMonitorBEInterface* bei,
+LatencyHistosUsingDb::LatencyHistosUsingDb( DQMStore* bei,
 					      SiStripConfigDb* const db ) 
   : CommissioningHistosUsingDb( db ),
     LatencyHistograms( bei )

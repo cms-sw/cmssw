@@ -1,4 +1,4 @@
-// Last commit: $Id: CalibrationHistosUsingDb.cc,v 1.1 2008/02/20 21:01:08 delaer Exp $
+// Last commit: $Id: CalibrationHistosUsingDb.cc,v 1.2 2008/02/21 14:08:02 delaer Exp $
 
 #include "DQM/SiStripCommissioningDbClients/interface/CalibrationHistosUsingDb.h"
 #include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
@@ -9,7 +9,7 @@ using namespace sistrip;
 
 // -----------------------------------------------------------------------------
 /** */
-CalibrationHistosUsingDb::CalibrationHistosUsingDb( MonitorUserInterface* mui,
+CalibrationHistosUsingDb::CalibrationHistosUsingDb( DQMOldReceiver* mui,
 					            const DbParams& params,
 						    const sistrip::RunType& task )
   : CommissioningHistosUsingDb( params ),
@@ -22,7 +22,7 @@ CalibrationHistosUsingDb::CalibrationHistosUsingDb( MonitorUserInterface* mui,
 
 // -----------------------------------------------------------------------------
 /** */
-CalibrationHistosUsingDb::CalibrationHistosUsingDb( MonitorUserInterface* mui,
+CalibrationHistosUsingDb::CalibrationHistosUsingDb( DQMOldReceiver* mui,
 					      SiStripConfigDb* const db,
 					      const sistrip::RunType& task )
   : CommissioningHistograms( mui, task ),
@@ -36,7 +36,7 @@ CalibrationHistosUsingDb::CalibrationHistosUsingDb( MonitorUserInterface* mui,
 
 // -----------------------------------------------------------------------------
 /** */
-CalibrationHistosUsingDb::CalibrationHistosUsingDb( DaqMonitorBEInterface* bei,
+CalibrationHistosUsingDb::CalibrationHistosUsingDb( DQMStore* bei,
 					      SiStripConfigDb* const db,
 					      const sistrip::RunType& task ) 
   : CommissioningHistosUsingDb( db, task ),

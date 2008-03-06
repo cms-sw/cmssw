@@ -1,4 +1,4 @@
-// Last commit: $Id: SiStripCommissioningOfflineClient.h,v 1.7 2008/02/07 16:44:14 bainbrid Exp $
+// Last commit: $Id: SiStripCommissioningOfflineClient.h,v 1.9 2008/02/25 14:05:00 bainbrid Exp $
 
 #ifndef DQM_SiStripCommissioningClients_SiStripCommissioningOfflineClient_H
 #define DQM_SiStripCommissioningClients_SiStripCommissioningOfflineClient_H
@@ -16,8 +16,8 @@
 #include <map>
 
 class CommissioningHistograms;
-class DaqMonitorBEInterface;
-class MonitorUIRoot;
+class DQMStore;
+class DQMOldReceiver;
 class TH1;
 
 /**
@@ -47,8 +47,8 @@ class SiStripCommissioningOfflineClient : public edm::EDAnalyzer {
   
  protected:
 
-  /** MonitorUserInterface object. */ 
-  MonitorUIRoot* mui_;
+  /** DQMOldReceiver object. */ 
+  DQMOldReceiver* mui_;
   
   /** Action "executor" */
   CommissioningHistograms* histos_;

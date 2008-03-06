@@ -1,14 +1,14 @@
 #include "DQM/SiStripCommissioningSources/interface/DaqScopeModeTask.h"
 #include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
 #include "DataFormats/SiStripCommon/interface/SiStripHistoTitle.h"
-#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 using namespace sistrip;
 
 // -----------------------------------------------------------------------------
 //
-DaqScopeModeTask::DaqScopeModeTask( DaqMonitorBEInterface* dqm,
+DaqScopeModeTask::DaqScopeModeTask( DQMStore* dqm,
 				    const FedChannelConnection& conn ) :
   CommissioningTask( dqm, conn, "DaqScopeModeTask" ),
   scope_(),

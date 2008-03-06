@@ -1,6 +1,6 @@
 #include "DQM/SiStripCommissioningSources/interface/FineDelayTask.h"
 #include "DataFormats/SiStripCommon/interface/SiStripHistoTitle.h"
-#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 // -----------------------------------------------------------------------------
@@ -9,7 +9,7 @@ std::map<std::string, CommissioningTask::HistoSet> FineDelayTask::timingMap_;
 
 // -----------------------------------------------------------------------------
 //
-FineDelayTask::FineDelayTask( DaqMonitorBEInterface* dqm,
+FineDelayTask::FineDelayTask( DQMStore* dqm,
 			      const FedChannelConnection& conn ) :
   CommissioningTask( dqm, conn, "FineDelayTask" ),
   dummy_(),

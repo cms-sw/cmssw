@@ -14,7 +14,7 @@ using namespace sistrip;
 
 // -----------------------------------------------------------------------------
 /** */
-VpspScanHistograms::VpspScanHistograms( MonitorUserInterface* mui ) 
+VpspScanHistograms::VpspScanHistograms( DQMOldReceiver* mui ) 
   : CommissioningHistograms( mui, sistrip::VPSP_SCAN )
 {
   factory_ = auto_ptr<VpspScanSummaryFactory>( new VpspScanSummaryFactory );
@@ -25,7 +25,7 @@ VpspScanHistograms::VpspScanHistograms( MonitorUserInterface* mui )
 
 // -----------------------------------------------------------------------------
 /** */
-VpspScanHistograms::VpspScanHistograms( DaqMonitorBEInterface* bei ) 
+VpspScanHistograms::VpspScanHistograms( DQMStore* bei ) 
   : CommissioningHistograms( bei, sistrip::VPSP_SCAN )
 {
   LogTrace(mlDqmClient_) 
