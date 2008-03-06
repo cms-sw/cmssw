@@ -1,5 +1,5 @@
-#ifndef CondFormats_SiStripObjects_LatencyAnalysis_H
-#define CondFormats_SiStripObjects_LatencyAnalysis_H
+#ifndef CondFormats_SiStripObjects_SamplingAnalysis_H
+#define CondFormats_SiStripObjects_SamplingAnalysis_H
 
 #include "CondFormats/SiStripObjects/interface/CommissioningAnalysis.h"
 #include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
@@ -11,18 +11,18 @@ class TProfile;
 class TF1;
 
 /**
-   @class LatencyAnalysis
+   @class SamplingAnalysis
    @author C. Delaere
    @brief Analysis for latency run
 */
 
-class LatencyAnalysis : public CommissioningAnalysis {
+class SamplingAnalysis : public CommissioningAnalysis {
   
  public:
   
-  LatencyAnalysis( const uint32_t& key );
-  LatencyAnalysis();
-  virtual ~LatencyAnalysis() {;}
+  SamplingAnalysis( const uint32_t& key );
+  SamplingAnalysis();
+  virtual ~SamplingAnalysis() {;}
   
   inline const float& maximum() const { return max_; }
   inline const float& error() const { return error_; }
@@ -49,12 +49,15 @@ class LatencyAnalysis : public CommissioningAnalysis {
   float error_;
   /** pulse shape*/
   Histo histo_;
-  /** Fitter in deconvolution mode */
+  /** Fitter in peak and deconvolution mode */
   TF1* peak_fitter_;
+  TF1* deconv_fitter_;
+  /** reconstruction mode */
+  sistrip::RunType runType_;
   
 };
 
-#endif // CondFormats_SiStripObjects_LatencyAnalysis_H
+#endif // CondFormats_SiStripObjects_SamplingAnalysis_H
 
 
 

@@ -1,4 +1,4 @@
-#include "CondFormats/SiStripObjects/interface/LatencyAnalysis.h"
+#include "CondFormats/SiStripObjects/interface/SamplingAnalysis.h"
 #include "DataFormats/SiStripCommon/interface/SiStripHistoTitle.h"
 #include "DataFormats/SiStripCommon/interface/SiStripEnumsAndStrings.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -14,8 +14,8 @@ using namespace sistrip;
 
 // ----------------------------------------------------------------------------
 // 
-LatencyAnalysis::LatencyAnalysis( const uint32_t& key ) 
-  : CommissioningAnalysis(key,"LatencyAnalysis"),
+SamplingAnalysis::SamplingAnalysis( const uint32_t& key ) 
+  : CommissioningAnalysis(key,"SamplingAnalysis"),
     max_(sistrip::invalid_),
     error_(sistrip::invalid_),
     histo_(0,"")
@@ -27,11 +27,19 @@ LatencyAnalysis::LatencyAnalysis( const uint32_t& key )
    peak_fitter_->FixParameter(3,50);
    peak_fitter_->SetParLimits(4,0,50);
    peak_fitter_->SetParameters(0.,1250,10,50,10);
+   deconv_fitter_ = new TF1("deconv_fitter",fdeconv_convoluted,-50,50,5);
+   deconv_fitter_->FixParameter(0,0);
+   deconv_fitter_->SetParLimits(1,-10,10);
+   deconv_fitter_->SetParLimits(2,0,200);
+   deconv_fitter_->SetParLimits(3,5,100);
+   deconv_fitter_->FixParameter(3,50);
+   deconv_fitter_->SetParLimits(4,0,50);
+   deconv_fitter_->SetParameters(0.,-2.82,0.96,50,20);
 }
 // ----------------------------------------------------------------------------
 // 
-LatencyAnalysis::LatencyAnalysis() 
-  : CommissioningAnalysis("LatencyAnalysis"),
+SamplingAnalysis::SamplingAnalysis() 
+  : CommissioningAnalysis("SamplingAnalysis"),
     max_(sistrip::invalid_),
     error_(sistrip::invalid_),
     histo_(0,"")
@@ -43,11 +51,19 @@ LatencyAnalysis::LatencyAnalysis()
    peak_fitter_->FixParameter(3,50);
    peak_fitter_->SetParLimits(4,0,50);
    peak_fitter_->SetParameters(0.,1250,10,50,10);
+   deconv_fitter_ = new TF1("deconv_fitter",fdeconv_convoluted,-50,50,5);
+   deconv_fitter_->FixParameter(0,0);
+   deconv_fitter_->SetParLimits(1,-10,10);
+   deconv_fitter_->SetParLimits(2,0,200);
+   deconv_fitter_->SetParLimits(3,5,100);
+   deconv_fitter_->FixParameter(3,50);
+   deconv_fitter_->SetParLimits(4,0,50);
+   deconv_fitter_->SetParameters(0.,-2.82,0.96,50,20);
 }
 
 // ----------------------------------------------------------------------------
 // 
-void LatencyAnalysis::print( std::stringstream& ss, uint32_t not_used ) { 
+void SamplingAnalysis::print( std::stringstream& ss, uint32_t not_used ) { 
   header( ss );
   ss << " Delay corresponding to the maximum of the pulse : " << max_ << std::endl
      << " Error on the position (from the fit)            : " << error_ << std::endl;
@@ -55,7 +71,7 @@ void LatencyAnalysis::print( std::stringstream& ss, uint32_t not_used ) {
 
 // ----------------------------------------------------------------------------
 // 
-void LatencyAnalysis::reset() {
+void SamplingAnalysis::reset() {
   error_ = sistrip::invalid_;
   max_ = sistrip::invalid_;
   histo_ = Histo(0,"");
@@ -65,11 +81,19 @@ void LatencyAnalysis::reset() {
   peak_fitter_->FixParameter(3,50);
   peak_fitter_->SetParLimits(4,0,50);
   peak_fitter_->SetParameters(0.,1250,10,50,10);
+  deconv_fitter_ = new TF1("deconv_fitter",fdeconv_convoluted,-50,50,5);
+  deconv_fitter_->FixParameter(0,0);
+  deconv_fitter_->SetParLimits(1,-10,10);
+  deconv_fitter_->SetParLimits(2,0,200);
+  deconv_fitter_->SetParLimits(3,5,100);
+  deconv_fitter_->FixParameter(3,50);
+  deconv_fitter_->SetParLimits(4,0,50);
+  deconv_fitter_->SetParameters(0.,-2.82,0.96,50,20);
 }
 
 // ----------------------------------------------------------------------------
 // 
-void LatencyAnalysis::extract( const std::vector<TH1*>& histos) {
+void SamplingAnalysis::extract( const std::vector<TH1*>& histos) {
   
   // Check
   if ( histos.size() != 1 ) {
@@ -88,12 +112,14 @@ void LatencyAnalysis::extract( const std::vector<TH1*>& histos) {
     
     // Check name
     SiStripHistoTitle title( (*ihis)->GetName() );
-    if ( title.runType() != sistrip::APV_LATENCY ) {
+    if ( title.runType() != sistrip::APV_LATENCY && title.runType() != sistrip::FINE_DELAY) {
       edm::LogWarning(mlCommissioning_) 
 	<< " Unexpected commissioning task: "
 	<< SiStripEnumsAndStrings::runType(title.runType());
       continue;
     }
+    // Set the mode for later fits
+    runType_ = title.runType();
     
     // Extract timing histo
     histo_.first = *ihis;
@@ -105,7 +131,8 @@ void LatencyAnalysis::extract( const std::vector<TH1*>& histos) {
 
 // ----------------------------------------------------------------------------
 // 
-void LatencyAnalysis::analyse() { 
+void SamplingAnalysis::analyse() { 
+
   if ( !histo_.first ) {
     edm::LogWarning(mlCommissioning_) << " NULL pointer to histogram!" ;
     return;
@@ -119,18 +146,26 @@ void LatencyAnalysis::analyse() {
   correctBinning(prof);
   // correct for clustering effects
   correctProfile(prof);
-  // fit
-  histo_.first->Fit(peak_fitter_,"QL");
   
-  // Set monitorables
-  max_ = peak_fitter_->GetMaximumX();
-  error_ = peak_fitter_->GetParError(1);
+  if(runType_==sistrip::APV_LATENCY) {
+    // fit
+    histo_.first->Fit(peak_fitter_,"QL");
+    // Set monitorables
+    max_ = peak_fitter_->GetMaximumX();
+    error_ = peak_fitter_->GetParError(1);
+  } else { // sistrip::FINE_DELAY
+    // fit
+    histo_.first->Fit(deconv_fitter_,"QL");
+    // Set monitorables
+    max_ = deconv_fitter_->GetMaximumX();
+    error_ = deconv_fitter_->GetParError(1);
+  }
 
 }
 
 // ----------------------------------------------------------------------------
 //
-void LatencyAnalysis::pruneProfile(TProfile* profile) const
+void SamplingAnalysis::pruneProfile(TProfile* profile) const
 {
   // loop over bins to find the max stat
   uint32_t nbins=profile->GetNbinsX();
@@ -147,7 +182,7 @@ void LatencyAnalysis::pruneProfile(TProfile* profile) const
 
 // ----------------------------------------------------------------------------
 //
-void LatencyAnalysis::correctBinning(TProfile* prof) const
+void SamplingAnalysis::correctBinning(TProfile* prof) const
 {
   prof->GetXaxis()->SetLimits(prof->GetXaxis()->GetXmin()-prof->GetBinWidth(1)/2.,
                               prof->GetXaxis()->GetXmax()-prof->GetBinWidth(1)/2.);
@@ -155,14 +190,14 @@ void LatencyAnalysis::correctBinning(TProfile* prof) const
 
 // ----------------------------------------------------------------------------
 //
-float LatencyAnalysis::limit(float SoNcut) const
+float SamplingAnalysis::limit(float SoNcut) const
 {
   return 3.814567e+00+8.336601e+00*SoNcut-1.511334e-01*pow(SoNcut,2);
 }
 
 // ----------------------------------------------------------------------------
 //
-float LatencyAnalysis::correctMeasurement(float mean, float SoNcut) const
+float SamplingAnalysis::correctMeasurement(float mean, float SoNcut) const
 {
   if(mean>limit(SoNcut))
     return -8.124872e+00+9.860108e-01*mean-3.618158e-03*pow(mean,2)+2.037263e-05*pow(mean,3);
@@ -171,7 +206,7 @@ float LatencyAnalysis::correctMeasurement(float mean, float SoNcut) const
 
 // ----------------------------------------------------------------------------
 //
-void LatencyAnalysis::correctProfile(TProfile* profile, float SoNcut) const
+void SamplingAnalysis::correctProfile(TProfile* profile, float SoNcut) const
 {
   uint32_t nbins=profile->GetNbinsX();
   float min = limit(SoNcut);
