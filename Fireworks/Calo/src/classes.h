@@ -3,6 +3,7 @@
 #include "Fireworks/Calo/interface/ECalCaloTowerProxy3DLegoBuilder.h"
 #include "Fireworks/Calo/interface/HCalCaloTowerProxy3DLegoBuilder.h"
 #include "Fireworks/Calo/interface/CaloJetProxy3DLegoBuilder.h"
+#include "Fireworks/Calo/interface/CaloJetSelectedProxy3DLegoBuilder.h"
 #include "Fireworks/Calo/interface/CaloJetProxyRhoPhiZ2DBuilder.h"
 #include "Fireworks/Calo/interface/ECalCaloTowerProxyRhoPhiZ2DBuilder.h"
 #include "Fireworks/Calo/interface/HCalCaloTowerProxyRhoPhiZ2DBuilder.h"

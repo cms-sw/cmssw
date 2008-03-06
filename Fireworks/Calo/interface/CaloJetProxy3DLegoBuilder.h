@@ -16,7 +16,7 @@
 //
 // Original Author:  
 //         Created:  Sun Jan  6 23:42:33 EST 2008
-// $Id: CaloJetProxy3DLegoBuilder.h,v 1.1 2008/01/07 05:48:44 chrjones Exp $
+// $Id: CaloJetProxy3DLegoBuilder.h,v 1.1 2008/01/07 14:15:16 chrjones Exp $
 //
 
 // system include files
@@ -36,12 +36,15 @@ class CaloJetProxy3DLegoBuilder : public FW3DLegoDataProxyBuilder
       // ---------- const member functions ---------------------
 
       // ---------- static member functions --------------------
+      static void build(const FWEventItem* iItem, 
+			TH2* product,
+			bool selectedFlag );
 
       // ---------- member functions ---------------------------
 
    private:
       virtual void build(const FWEventItem* iItem, 
-			 TH2F** product);
+			 TH2** product);
 
       CaloJetProxy3DLegoBuilder(const CaloJetProxy3DLegoBuilder&); // stop default
 

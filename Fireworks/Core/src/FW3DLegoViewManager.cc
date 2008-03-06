@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Sun Jan  6 22:01:27 EST 2008
-// $Id: FW3DLegoViewManager.cc,v 1.12 2008/02/21 20:39:07 chrjones Exp $
+// $Id: FW3DLegoViewManager.cc,v 1.13 2008/02/21 20:49:11 chrjones Exp $
 //
 
 // system include files
@@ -91,8 +91,16 @@ FW3DLegoViewManager::buildView(TGFrame* iParent)
       m_background = new TH2F("bkgLego","Background distribution",
                               82, fw3dlego::xbins, 72/m_legoRebinFactor, -3.1416, 3.1416);
       m_background->SetFillColor( Color_t(TColor::GetColor("#151515")) );
-      m_background->Rebin2D();
+      
+      m_highlight  = new TH2F("highLego","Highlight distribution",
+                              82, fw3dlego::xbins, 72/m_legoRebinFactor, -3.1416, 3.1416);
+      m_highlight->SetFillColor( kWhite );
+      
+      m_highlight_map  = new TH2C("highLego","Highlight distribution",
+                              82, fw3dlego::xbins, 72/m_legoRebinFactor, -3.1416, 3.1416);
+      // m_background->Rebin2D();
       m_stack->Add(m_background);
+      m_stack->Add(m_highlight);
    }
    boost::shared_ptr<FW3DLegoView> view( new FW3DLegoView(iParent) );
    m_views.push_back(view);
@@ -106,21 +114,40 @@ void
 FW3DLegoViewManager::newEventAvailable()
 {
   
-   if(0==m_stack || 0==m_views.size()) {
-      return;
-   }
-   for ( std::vector<FW3DLegoModelProxy>::iterator proxy = 
-	   m_modelProxies.begin();
-	proxy != m_modelProxies.end(); ++proxy ) {
-    bool firstTime = (proxy->product == 0);
-    proxy->builder->build( &(proxy->product) );
-    if(firstTime && 0!= proxy->product) {
-       proxy->product->Rebin2D();
-       m_stack->Add(proxy->product);
-    }
+   if(0==m_stack || 0==m_views.size()) return;
+   
+   m_highlight_map->Reset();
+   m_highlight->Reset();
+   for ( std::vector<FW3DLegoModelProxy>::iterator proxy =  m_modelProxies.begin();
+	 proxy != m_modelProxies.end(); ++proxy ) {
+      bool firstTime = (proxy->product == 0);
+      proxy->builder->build( &(proxy->product) );
+      if ( firstTime && 0!= proxy->product && dynamic_cast<TH2F*>(proxy->product) ) {
+	 // proxy->product->Rebin2D();
+	 m_stack->Add(proxy->product);
+      }
+      
+      if ( proxy->product && dynamic_cast<TH2C*>(proxy->product) )
+	m_highlight_map->Add(proxy->product);
   }
 
-  
+   // apply selection by moving data out of proxy products to m_highlight
+   for ( int ix = 1; ix <= m_highlight_map->GetNbinsX(); ++ix ) {
+      for ( int iy = 1; iy <= m_highlight_map->GetNbinsY(); ++iy ) {
+	 if ( m_highlight_map->GetBinContent(ix,iy) < 1 ) continue;
+	 for ( std::vector<FW3DLegoModelProxy>::iterator proxy =  m_modelProxies.begin();
+	       proxy != m_modelProxies.end(); ++proxy ) {
+	    if ( ! proxy->product ) continue;
+	    m_highlight->SetBinContent(ix, iy, 
+				       m_highlight->GetBinContent(ix,iy) + proxy->product->GetBinContent(ix,iy) 
+				       );
+	    proxy->product->SetBinContent(ix,iy,0);
+	 }
+      }
+   }
+   
+  std::cout << "stack: " << m_stack << std::endl; 
+   
   m_stack->GetHistogram()->GetXaxis()->SetTitle("#eta");
   m_stack->GetHistogram()->GetXaxis()->SetTitleColor(Color_t(kYellow));
   m_stack->GetHistogram()->GetYaxis()->SetTitle("#phi");
@@ -154,18 +181,22 @@ FW3DLegoViewManager::newEventAvailable()
 void 
 FW3DLegoViewManager::newItem(const FWEventItem* iItem)
 {
-  TypeToBuilder::iterator itFind = m_typeToBuilder.find(iItem->name());
-  if(itFind != m_typeToBuilder.end()) {
-    FW3DLegoDataProxyBuilder* builder = reinterpret_cast<
-      FW3DLegoDataProxyBuilder*>( 
-        createInstanceOf(TClass::GetClass(typeid(FW3DLegoDataProxyBuilder)),
-			 itFind->second.c_str())
-	);
-    if(0!=builder) {
-      boost::shared_ptr<FW3DLegoDataProxyBuilder> pB( builder );
-      builder->setItem(iItem);
-      m_modelProxies.push_back(FW3DLegoModelProxy(pB) );
-    }
+  TypeToBuilders::iterator itFind = m_typeToBuilders.find(iItem->name());
+  if(itFind != m_typeToBuilders.end()) {
+     for ( std::vector<std::string>::const_iterator builderName = itFind->second.begin();
+	   builderName != itFind->second.end(); ++builderName )
+       {
+	  FW3DLegoDataProxyBuilder* builder = 
+	    reinterpret_cast<FW3DLegoDataProxyBuilder*>(
+							createInstanceOf(TClass::GetClass(typeid(FW3DLegoDataProxyBuilder)),
+									 builderName->c_str())
+							);
+	  if(0!=builder) {
+	     boost::shared_ptr<FW3DLegoDataProxyBuilder> pB( builder );
+	     builder->setItem(iItem);
+	     m_modelProxies.push_back(FW3DLegoModelProxy(pB) );
+	  }
+       }
   }
 }
 
@@ -173,7 +204,7 @@ void
 FW3DLegoViewManager::registerProxyBuilder(const std::string& iType,
 					  const std::string& iBuilder)
 {
-  m_typeToBuilder[iType]=iBuilder;
+   m_typeToBuilders[iType].push_back(iBuilder);
 }
 
 void 

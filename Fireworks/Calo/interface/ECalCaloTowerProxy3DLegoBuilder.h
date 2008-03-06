@@ -16,7 +16,7 @@
 //
 // Original Author:  
 //         Created:  Sun Jan  6 23:42:33 EST 2008
-// $Id$
+// $Id: ECalCaloTowerProxy3DLegoBuilder.h,v 1.1 2008/01/07 05:48:44 chrjones Exp $
 //
 
 // system include files
@@ -41,7 +41,7 @@ class ECalCaloTowerProxy3DLegoBuilder : public FW3DLegoDataProxyBuilder
 
    private:
       virtual void build(const FWEventItem* iItem, 
-			 TH2F** product);
+			 TH2** product);
 
       ECalCaloTowerProxy3DLegoBuilder(const ECalCaloTowerProxy3DLegoBuilder&); // stop default
 

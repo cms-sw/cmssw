@@ -16,7 +16,7 @@
 //
 // Original Author:  
 //         Created:  Sun Jan  6 22:01:21 EST 2008
-// $Id: FW3DLegoViewManager.h,v 1.6 2008/02/21 19:20:47 chrjones Exp $
+// $Id: FW3DLegoViewManager.h,v 1.7 2008/02/21 20:49:10 chrjones Exp $
 //
 
 // system include files
@@ -31,7 +31,9 @@
 // forward declarations
 class TList;
 class THStack;
+class TH2;
 class TH2F;
+class TH2C;
 class TCanvas;
 class FW3DLegoDataProxyBuilder;
 class FWEventItem;
@@ -43,7 +45,7 @@ class FWViewBase;
 struct FW3DLegoModelProxy
 {
    boost::shared_ptr<FW3DLegoDataProxyBuilder>   builder;
-   TH2F*                           product; //owned by builder
+   TH2*                           product; //owned by builder
    FW3DLegoModelProxy():product(0){}
    FW3DLegoModelProxy(boost::shared_ptr<FW3DLegoDataProxyBuilder> iBuilder):
     builder(iBuilder),product(0) {}
@@ -87,14 +89,16 @@ class FW3DLegoViewManager : public FWViewManagerBase
       const FW3DLegoViewManager& operator=(const FW3DLegoViewManager&); // stop default
 
       // ---------- member data --------------------------------
-      typedef  std::map<std::string,std::string> TypeToBuilder;
-      TypeToBuilder m_typeToBuilder;
+      typedef  std::map<std::string,std::vector<std::string> > TypeToBuilders;
+      TypeToBuilders m_typeToBuilders;
       std::vector<FW3DLegoModelProxy> m_modelProxies;
 
       //TCanvas* m_legoCanvas;
       std::vector<boost::shared_ptr<FW3DLegoView> > m_views;
       THStack* m_stack;
       TH2F* m_background;
+      TH2F* m_highlight;
+      TH2C* m_highlight_map;
       int  m_legoRebinFactor;
 };
 

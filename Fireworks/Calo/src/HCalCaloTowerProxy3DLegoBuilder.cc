@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Sun Jan  6 23:57:00 EST 2008
-// $Id: HCalCaloTowerProxy3DLegoBuilder.cc,v 1.2 2008/01/21 01:15:37 chrjones Exp $
+// $Id: HCalCaloTowerProxy3DLegoBuilder.cc,v 1.3 2008/02/03 02:43:53 dmytro Exp $
 //
 
 // system include files
@@ -62,7 +62,7 @@ HCalCaloTowerProxy3DLegoBuilder::~HCalCaloTowerProxy3DLegoBuilder()
 //
 void 
 HCalCaloTowerProxy3DLegoBuilder::build(const FWEventItem* iItem, 
-				       TH2F** product)
+				       TH2** product)
 {
   if (0==*product) {
     *product = new TH2F("hcalLego","CaloTower HCAL Et distribution",

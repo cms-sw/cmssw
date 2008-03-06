@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Thu Dec  6 17:49:54 PST 2007
-// $Id: FW3DLegoDataProxyBuilder.cc,v 1.1 2008/01/07 05:48:46 chrjones Exp $
+// $Id: FW3DLegoDataProxyBuilder.cc,v 1.2 2008/02/03 02:43:55 dmytro Exp $
 //
 
 // system include files
@@ -81,7 +81,7 @@ FW3DLegoDataProxyBuilder::setItem(const FWEventItem* iItem)
 }
 
 void
-FW3DLegoDataProxyBuilder::build(TH2F** iObject)
+FW3DLegoDataProxyBuilder::build(TH2** iObject)
 {
   if(0!= m_item) {
     build(m_item, iObject);

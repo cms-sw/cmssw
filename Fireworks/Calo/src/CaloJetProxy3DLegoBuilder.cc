@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Sun Jan  6 23:57:00 EST 2008
-// $Id: CaloJetProxy3DLegoBuilder.cc,v 1.2 2008/01/21 01:15:39 chrjones Exp $
+// $Id: CaloJetProxy3DLegoBuilder.cc,v 1.3 2008/02/03 02:43:53 dmytro Exp $
 //
 
 // system include files
@@ -63,7 +63,7 @@ CaloJetProxy3DLegoBuilder::~CaloJetProxy3DLegoBuilder()
 //
 void 
 CaloJetProxy3DLegoBuilder::build(const FWEventItem* iItem, 
-				       TH2F** product)
+				       TH2** product)
 {
   if (0==*product) {
     *product = new TH2F("jetsLego","Jets distribution",
@@ -71,39 +71,37 @@ CaloJetProxy3DLegoBuilder::build(const FWEventItem* iItem,
   }
   (*product)->Reset();
   (*product)->SetFillColor(iItem->defaultDisplayProperties().color());
-
-  const reco::CaloJetCollection* jets=0;
-  iItem->get(jets);
-  if(0==jets) {
-    std::cout <<"Failed to get CaloJets"<<std::endl;
-    return;
-  }
-
-  double minJetEt = 15; // GeV
-  double coneSize = 0.5; // jet cone size
-  for ( int ix = 1; ix <= (*product)->GetNbinsX(); ++ix ) {
-    for ( int iy = 1; iy <= (*product)->GetNbinsY(); ++iy ) {
-      for(reco::CaloJetCollection::const_iterator jet = jets->begin(); jet != jets->end(); ++jet) {
-	if ( jet->et() > minJetEt &&
-	     deltaR( jet->eta(), jet->phi(), 
-		     (*product)->GetXaxis()->GetBinCenter(ix),
-		     (*product)->GetYaxis()->GetBinCenter(iy) ) < 
-	     coneSize + sqrt( pow((*product)->GetXaxis()->GetBinWidth(ix),2) +
-			      pow((*product)->GetYaxis()->GetBinWidth(iy),2) ) ) {
-	  (*product)->SetBinContent(ix, iy, 0.1);
-	}
-      }
-    }
-  }
+  
+  build(iItem,*product,kFALSE);
 }
 
-double 
-CaloJetProxy3DLegoBuilder::deltaR( double eta1, double phi1, double eta2, double phi2 )
+void 
+CaloJetProxy3DLegoBuilder::build(const FWEventItem* iItem, 
+				 TH2* product,
+				 bool selectedFlag )
 {
-   double dEta = eta2-eta1;
-   double dPhi = fabs(phi2-phi1);
-   if ( dPhi > 3.1416 ) dPhi = 2*3.1416 - dPhi;
-   return sqrt(dPhi*dPhi+dEta*dEta);
+   const reco::CaloJetCollection* jets=0;
+   iItem->get(jets);
+   if(0==jets) {
+      std::cout <<"Failed to get CaloJets"<<std::endl;
+      return;
+   }
+   
+   for ( unsigned int i = 0; i < jets->size(); ++i ) {
+      // printf("jet pt: %0.2f, eta: %0.2f, phi: %0.2f\n",jets->at(i).pt(), jets->at(i).eta(), jets->at(i).phi());
+      if ( ! iItem->modelInfo(i).displayProperties().isVisible() ) continue;
+      if ( iItem->modelInfo(i).isSelected() != selectedFlag ) continue;
+      std::vector<CaloTowerRef> towers = jets->at(i).getConstituents();
+      for ( std::vector<CaloTowerRef>::const_iterator tower = towers.begin();
+	    tower != towers.end(); ++tower )
+	{
+	   // printf("\ttower eta: %0.2f, phi: %0.2f, et: %0.2f, ieta: %d, iphi: %d\n",
+	   // (*tower)->eta(), (*tower)->phi(), (*tower)->et(),
+	   // product->GetXaxis()->FindFixBin((*tower)->eta()),
+	   // product->GetYaxis()->FindFixBin((*tower)->phi()) );
+	   product->Fill((*tower)->eta(), (*tower)->phi());
+	}
+   }
 }
 
 //
