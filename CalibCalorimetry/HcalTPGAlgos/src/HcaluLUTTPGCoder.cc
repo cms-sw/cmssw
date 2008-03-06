@@ -211,7 +211,9 @@ void HcaluLUTTPGCoder::update(const HcalDbService& conditions) {
 	 if (theTopo.valid(cell)) {  
 	   id = GetLUTID(HcalBarrel,ieta,iphi,depth);
 	   if (inputLUT[id] == 0) throw cms::Exception("PROBLEM: inputLUT has not been initialized for HB, ieta, iphi, depth, id = ") << ieta << "," << iphi << "," << depth << "," << id << std::endl;
-	   conditions.makeHcalCalibration (cell, &calibrations);
+	   //conditions.makeHcalCalibration (cell, &calibrations);
+	   HcalCalibrations calibrations = conditions.getHcalCalibrations(cell);
+
 	   const HcalQIECoder* channelCoder = conditions.getHcalCoder (cell);
 	   HcalCoderDb coder (*channelCoder, *shape);
 	   float ped_ = (calibrations.pedestal(0)+calibrations.pedestal(1)+calibrations.pedestal(2)+calibrations.pedestal(3))/4;
@@ -239,7 +241,8 @@ void HcaluLUTTPGCoder::update(const HcalDbService& conditions) {
 	   else divide = 5.*nominal_gain;
 	   id = GetLUTID(HcalEndcap,ieta,iphi,depth);
 	   if (inputLUT[id] == 0) throw cms::Exception("PROBLEM: inputLUT has not been initialized for HE, ieta, iphi, depth, id = ") << ieta << "," << iphi << "," << depth << "," << id << std::endl;
-	   conditions.makeHcalCalibration (cell, &calibrations);
+	   //conditions.makeHcalCalibration (cell, &calibrations);
+	   HcalCalibrations calibrations = conditions.getHcalCalibrations(cell);
 	   const HcalQIECoder* channelCoder = conditions.getHcalCoder (cell);
 	   HcalCoderDb coder (*channelCoder, *shape);
 	   float ped_ = (calibrations.pedestal(0)+calibrations.pedestal(1)+calibrations.pedestal(2)+calibrations.pedestal(3))/4;
@@ -264,7 +267,8 @@ void HcaluLUTTPGCoder::update(const HcalDbService& conditions) {
 	 if (theTopo.valid(cell)) {  
 	   id = GetLUTID(HcalForward,ieta,iphi,depth);
 	   if (inputLUT[id] == 0) throw cms::Exception("PROBLEM: inputLUT has not been initialized for HF, ieta, iphi, depth, id = ") << ieta << "," << iphi << "," << depth << "," << id << std::endl;
-	   conditions.makeHcalCalibration (cell, &calibrations);
+	   //conditions.makeHcalCalibration (cell, &calibrations);
+	   HcalCalibrations calibrations = conditions.getHcalCalibrations(cell);
 	   const HcalQIECoder* channelCoder = conditions.getHcalCoder (cell);
 	   HcalCoderDb coder (*channelCoder, *shape);
 	   float ped_ = (calibrations.pedestal(0)+calibrations.pedestal(1)+calibrations.pedestal(2)+calibrations.pedestal(3))/4;
