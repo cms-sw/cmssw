@@ -1,8 +1,8 @@
 /** \file LaserAlignment.cc
  *  LAS reconstruction module
  *
- *  $Date: 2008/02/20 09:50:54 $
- *  $Revision: 1.19 $
+ *  $Date: 2008/03/03 09:43:31 $
+ *  $Revision: 1.20 $
  *  \author Maarten Thomas
  *  \author Jan Olzem
  */
@@ -846,13 +846,15 @@ void LaserAlignment::endJob() {
 
       // Store
       if ( poolDbService->isNewTagRequest(theAlignRecordName) )
-	poolDbService->createNewIOV<Alignments>( alignments, poolDbService->endOfTime(), 
+	// poolDbService->createNewIOV<Alignments>( alignments, poolDbService->endOfTime(), 
+	//						 theAlignRecordName );
+	poolDbService->createNewIOV<Alignments>( alignments, poolDbService->currentTime(), poolDbService->endOfTime(), 
 						 theAlignRecordName );
       else
 	poolDbService->appendSinceTime<Alignments>( alignments, poolDbService->currentTime(), 
 						    theAlignRecordName );
       if ( poolDbService->isNewTagRequest(theErrorRecordName) )
-	poolDbService->createNewIOV<AlignmentErrors>( alignmentErrors,
+	poolDbService->createNewIOV<AlignmentErrors>( alignmentErrors, poolDbService->currentTime(), 
 						      poolDbService->endOfTime(), 
 						      theErrorRecordName );
       else
