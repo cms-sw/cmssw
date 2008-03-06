@@ -5,8 +5,8 @@
  *  Tracker Seed Generator by propagating and updating a standAlone muon
  *  to the first 2 (or 1) rechits it meets in tracker system 
  *
- *  $Date: 2008/02/06 17:07:27 $
- *  $Revision: 1.2 $
+ *  $Date: 2008/02/13 18:44:28 $
+ *  $Revision: 1.3 $
  *  \author Chang Liu - Purdue University 
  */
 
@@ -68,7 +68,7 @@ private:
 
   struct IncreasingEstimate{
     bool operator()(const TrajectoryMeasurement& lhs,
-		    const TrajectoryMeasurement& rhs) const{ 
+                    const TrajectoryMeasurement& rhs) const{ 
     return lhs.estimate() < rhs.estimate();
     }
   };
@@ -94,6 +94,8 @@ private:
   double theMaxChi2;
 
   double theErrorRescaling;
+
+  bool theUseVertexStateFlag;
 
   bool theUpdateStateFlag;
 

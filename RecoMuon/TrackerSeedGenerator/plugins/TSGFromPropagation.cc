@@ -2,8 +2,8 @@
 
 /** \class TSGFromPropagation
  *
- *  $Date: 2008/02/13 18:44:38 $
- *  $Revision: 1.19 $
+ *  $Date: 2008/02/18 21:58:30 $
+ *  $Revision: 1.20 $
  *  \author Chang Liu - Purdue University 
  */
 
@@ -154,6 +154,8 @@ void TSGFromPropagation::init(const MuonServiceProxy* service) {
 
   theService = service;
 
+  theUseVertexStateFlag = theConfig.getParameter<bool>("UseVertexState");
+
   theUpdateStateFlag = theConfig.getParameter<bool>("UpdateState");
 
   theUseSecondMeasurementsFlag = theConfig.getParameter<bool>("UseSecondMeasurements");
@@ -216,8 +218,14 @@ TrajectoryStateOnSurface TSGFromPropagation::innerState(const TrackCand& staMuon
 
 TrajectoryStateOnSurface TSGFromPropagation::outerTkState(const TrackCand& staMuon) const {
 
-  StateOnTrackerBound fromOutside(&*propagator());
-  return fromOutside(innerState(staMuon));
+  if ( theUseVertexStateFlag && staMuon.second->pt() > 1.0 ) {
+    FreeTrajectoryState iniState = theTSTransformer->initialFreeState(*(staMuon.second), &*theService->magneticField());
+    StateOnTrackerBound fromInside(&*(theService->propagator("PropagatorWithMaterial")));
+    return fromInside(iniState);
+  } else {
+    StateOnTrackerBound fromOutside(&*propagator());
+    return fromOutside(innerState(staMuon));
+  }
 
 }
 
