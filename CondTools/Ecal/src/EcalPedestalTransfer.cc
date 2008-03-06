@@ -281,7 +281,7 @@ void EcalPedestalTransfer::analyze( const edm::Event& evt, const edm::EventSetup
 	  if( dbOutput->isNewTagRequest(recordName)) {
 	    // create new
 	    std::cout<<"First One "<<std::endl;
-	    dbOutput->createNewIOV<const EcalPedestals>( peds, dbOutput->endOfTime() ,recordName);
+	    dbOutput->createNewIOV<const EcalPedestals>( peds, dbOutput->beginOfTime(),dbOutput->endOfTime() ,recordName);
 	  } else {
 	    // append
 	    std::cout<<"Old One "<<std::endl;

@@ -138,7 +138,7 @@ void EcalDBCopy::copyToDB(const edm::EventSetup& evtSetup, std::string container
     evtSetup.get<EcalPedestalsRcd>().get(handle);
     const EcalPedestals* obj = handle.product();
     cout << "ped pointer is: "<< obj<< endl;
-    dbOutput->createNewIOV<const EcalPedestals>( new EcalPedestals(*obj), dbOutput->endOfTime(),recordName);
+    dbOutput->createNewIOV<const EcalPedestals>( new EcalPedestals(*obj), dbOutput->beginOfTime(),dbOutput->endOfTime(),recordName);
 
   }  else if (container == "EcalADCToGeVConstant") {
     edm::ESHandle<EcalADCToGeVConstant> handle;
@@ -146,7 +146,7 @@ void EcalDBCopy::copyToDB(const edm::EventSetup& evtSetup, std::string container
     const EcalADCToGeVConstant* obj = handle.product();
     cout << "adc pointer is: "<< obj<< endl;
 
-   dbOutput->createNewIOV<const EcalADCToGeVConstant>( new EcalADCToGeVConstant(*obj), dbOutput->endOfTime(),recordName);
+   dbOutput->createNewIOV<const EcalADCToGeVConstant>( new EcalADCToGeVConstant(*obj),dbOutput->beginOfTime(), dbOutput->endOfTime(),recordName);
 
 
   }  else if (container == "EcalChannelStatus") {
@@ -155,7 +155,7 @@ void EcalDBCopy::copyToDB(const edm::EventSetup& evtSetup, std::string container
     const EcalChannelStatus* obj = handle.product();
     cout << "channel status pointer is: "<< obj<< endl;
 
-   dbOutput->createNewIOV<const EcalChannelStatus>( new EcalChannelStatus(*obj), dbOutput->endOfTime(),recordName);
+   dbOutput->createNewIOV<const EcalChannelStatus>( new EcalChannelStatus(*obj),dbOutput->beginOfTime(), dbOutput->endOfTime(),recordName);
 
 
   }
@@ -164,56 +164,56 @@ else if (container == "EcalIntercalibConstants") {
     evtSetup.get<EcalIntercalibConstantsRcd>().get(handle);
     const EcalIntercalibConstants* obj = handle.product();
     cout << "inter pointer is: "<< obj<< endl;
-   dbOutput->createNewIOV<const EcalIntercalibConstants>( new EcalIntercalibConstants(*obj), dbOutput->endOfTime(),recordName);
+   dbOutput->createNewIOV<const EcalIntercalibConstants>( new EcalIntercalibConstants(*obj),dbOutput->beginOfTime(), dbOutput->endOfTime(),recordName);
 
   } else if (container == "EcalIntercalibErrors") {
     edm::ESHandle<EcalIntercalibErrors> handle;
     evtSetup.get<EcalIntercalibErrorsRcd>().get(handle);
     const EcalIntercalibErrors* obj = handle.product();
     cout << "inter pointer is: "<< obj<< endl;
-   dbOutput->createNewIOV<const EcalIntercalibErrors>( new EcalIntercalibErrors(*obj), dbOutput->endOfTime(),recordName);
+   dbOutput->createNewIOV<const EcalIntercalibErrors>( new EcalIntercalibErrors(*obj),dbOutput->beginOfTime(), dbOutput->endOfTime(),recordName);
 
   } else if (container == "EcalGainRatios") {
     edm::ESHandle<EcalGainRatios> handle;
     evtSetup.get<EcalGainRatiosRcd>().get(handle);
     const EcalGainRatios* obj = handle.product();
     cout << "gain pointer is: "<< obj<< endl;
-   dbOutput->createNewIOV<const EcalGainRatios>( new EcalGainRatios(*obj), dbOutput->endOfTime(),recordName);
+   dbOutput->createNewIOV<const EcalGainRatios>( new EcalGainRatios(*obj),dbOutput->beginOfTime(), dbOutput->endOfTime(),recordName);
 
   } else if (container == "EcalWeightXtalGroups") {
     edm::ESHandle<EcalWeightXtalGroups> handle;
     evtSetup.get<EcalWeightXtalGroupsRcd>().get(handle);
     const EcalWeightXtalGroups* obj = handle.product();
     cout << "weight pointer is: "<< obj<< endl;
-   dbOutput->createNewIOV<const EcalWeightXtalGroups>( new EcalWeightXtalGroups(*obj), dbOutput->endOfTime(),recordName);
+   dbOutput->createNewIOV<const EcalWeightXtalGroups>( new EcalWeightXtalGroups(*obj),dbOutput->beginOfTime(), dbOutput->endOfTime(),recordName);
 
   } else if (container == "EcalTBWeights") {
     edm::ESHandle<EcalTBWeights> handle;
     evtSetup.get<EcalTBWeightsRcd>().get(handle);
     const EcalTBWeights* obj = handle.product();
     cout << "tbweight pointer is: "<< obj<< endl;
-   dbOutput->createNewIOV<const EcalTBWeights>( new EcalTBWeights(*obj), dbOutput->endOfTime(),recordName);
+   dbOutput->createNewIOV<const EcalTBWeights>( new EcalTBWeights(*obj), dbOutput->beginOfTime(),dbOutput->endOfTime(),recordName);
 
   } else if (container == "EcalLaserAlphas") {
     edm::ESHandle<EcalLaserAlphas> handle;
     evtSetup.get<EcalLaserAlphasRcd>().get(handle);
     const EcalLaserAlphas* obj = handle.product();
     cout << "ecalLaserAlpha pointer is: "<< obj<< endl;
-   dbOutput->createNewIOV<const EcalLaserAlphas>( new EcalLaserAlphas(*obj), dbOutput->endOfTime(),recordName);
+   dbOutput->createNewIOV<const EcalLaserAlphas>( new EcalLaserAlphas(*obj),dbOutput->beginOfTime(), dbOutput->endOfTime(),recordName);
 
   } else if (container == "EcalLaserAPDPNRatios") {
     edm::ESHandle<EcalLaserAPDPNRatios> handle;
     evtSetup.get<EcalLaserAPDPNRatiosRcd>().get(handle);
     const EcalLaserAPDPNRatios* obj = handle.product();
     cout << "tbweight pointer is: "<< obj<< endl;
-   dbOutput->createNewIOV<const EcalLaserAPDPNRatios>( new EcalLaserAPDPNRatios(*obj), dbOutput->endOfTime(),recordName);
+   dbOutput->createNewIOV<const EcalLaserAPDPNRatios>( new EcalLaserAPDPNRatios(*obj),dbOutput->beginOfTime(), dbOutput->endOfTime(),recordName);
 
   } else if (container == "EcalLaserAPDPNRatiosRef") {
     edm::ESHandle<EcalLaserAPDPNRatiosRef> handle;
     evtSetup.get<EcalLaserAPDPNRatiosRefRcd>().get(handle);
     const EcalLaserAPDPNRatiosRef* obj = handle.product();
     cout << "tbweight pointer is: "<< obj<< endl;
-   dbOutput->createNewIOV<const EcalLaserAPDPNRatiosRef>( new EcalLaserAPDPNRatiosRef(*obj), dbOutput->endOfTime(),recordName);
+   dbOutput->createNewIOV<const EcalLaserAPDPNRatiosRef>( new EcalLaserAPDPNRatiosRef(*obj),dbOutput->beginOfTime(), dbOutput->endOfTime(),recordName);
 
   } else {
     throw cms::Exception("Unknown container");

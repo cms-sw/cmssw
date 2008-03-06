@@ -98,11 +98,10 @@ void EcalTestDevDB::analyze( const edm::Event& evt, const edm::EventSetup& evtSe
       if (container == "EcalPedestals") {
 	EcalPedestals* condObject= generateEcalPedestals();
 
-	// cambiare dappertutto cosi` !!!!!!!!!!!!!!!!!!!!!!!!!!
 	if(irun==m_firstRun && dbOutput->isNewTagRequest(recordName)) {
 	  // create new
 	  std::cout<<"First One "<<std::endl;
-	  dbOutput->createNewIOV<const EcalPedestals>( condObject, dbOutput->endOfTime() ,recordName);
+	  dbOutput->createNewIOV<const EcalPedestals>( condObject, dbOutput->beginOfTime(),dbOutput->endOfTime() ,recordName);
 	} else {
 	  // append
 	  std::cout<<"Old One "<<std::endl;
@@ -115,7 +114,7 @@ void EcalTestDevDB::analyze( const edm::Event& evt, const edm::EventSetup& evtSe
 	if(irun==m_firstRun && dbOutput->isNewTagRequest(recordName)) {
 	  // create new
 	  std::cout<<"First One "<<std::endl;
-	  dbOutput->createNewIOV<const EcalADCToGeVConstant>( condObject, dbOutput->endOfTime() ,recordName);
+	  dbOutput->createNewIOV<const EcalADCToGeVConstant>( condObject, dbOutput->beginOfTime(),dbOutput->endOfTime() ,recordName);
 	} else {
 	  // append
 	  std::cout<<"Old One "<<std::endl;
@@ -128,7 +127,7 @@ void EcalTestDevDB::analyze( const edm::Event& evt, const edm::EventSetup& evtSe
 	if(irun==m_firstRun && dbOutput->isNewTagRequest(recordName)) {
 	  // create new
 	  std::cout<<"First One "<<std::endl;
-	  dbOutput->createNewIOV<const EcalIntercalibConstants>( condObject, dbOutput->endOfTime() ,recordName);
+	  dbOutput->createNewIOV<const EcalIntercalibConstants>( condObject, dbOutput->beginOfTime(),dbOutput->endOfTime() ,recordName);
 	} else {
 	  // append
 	  std::cout<<"Old One "<<std::endl;
@@ -140,7 +139,7 @@ void EcalTestDevDB::analyze( const edm::Event& evt, const edm::EventSetup& evtSe
 	if(irun==m_firstRun && dbOutput->isNewTagRequest(recordName)) {
 	  // create new
 	  std::cout<<"First One "<<std::endl;
-	  dbOutput->createNewIOV<const EcalGainRatios>( condObject, dbOutput->endOfTime() ,recordName);
+	  dbOutput->createNewIOV<const EcalGainRatios>( condObject,dbOutput->beginOfTime(), dbOutput->endOfTime() ,recordName);
 	} else {
 	  // append
 	  std::cout<<"Old One "<<std::endl;
@@ -152,7 +151,7 @@ void EcalTestDevDB::analyze( const edm::Event& evt, const edm::EventSetup& evtSe
 	if(irun==m_firstRun && dbOutput->isNewTagRequest(recordName)) {
 	  // create new
 	  std::cout<<"First One "<<std::endl;
-	  dbOutput->createNewIOV<const EcalWeightXtalGroups>( condObject,  dbOutput->endOfTime() ,recordName);
+	  dbOutput->createNewIOV<const EcalWeightXtalGroups>( condObject, dbOutput->beginOfTime(), dbOutput->endOfTime() ,recordName);
 	} else {
 	  // append
 	  std::cout<<"Old One "<<std::endl;
@@ -164,7 +163,7 @@ void EcalTestDevDB::analyze( const edm::Event& evt, const edm::EventSetup& evtSe
 	if(irun==m_firstRun && dbOutput->isNewTagRequest(recordName)) {
 	  // create new
 	  std::cout<<"First One "<<std::endl;
-	  dbOutput->createNewIOV<const EcalTBWeights>( condObject,  dbOutput->endOfTime() ,recordName);
+	  dbOutput->createNewIOV<const EcalTBWeights>( condObject, dbOutput->beginOfTime(), dbOutput->endOfTime() ,recordName);
 	} else {
 	  // append
 	  std::cout<<"Old One "<<std::endl;
@@ -176,7 +175,7 @@ void EcalTestDevDB::analyze( const edm::Event& evt, const edm::EventSetup& evtSe
 	if(irun==m_firstRun && dbOutput->isNewTagRequest(recordName)) {
 	  // create new
 	  std::cout<<"First One "<<std::endl;
-	  dbOutput->createNewIOV<const EcalLaserAPDPNRatios>( condObject,  dbOutput->endOfTime() ,recordName);
+	  dbOutput->createNewIOV<const EcalLaserAPDPNRatios>( condObject,dbOutput->beginOfTime(),  dbOutput->endOfTime() ,recordName);
 	} else {
 	  // append
 	  std::cout<<"Old One "<<std::endl;
@@ -187,7 +186,7 @@ void EcalTestDevDB::analyze( const edm::Event& evt, const edm::EventSetup& evtSe
 	if(irun==m_firstRun && dbOutput->isNewTagRequest(recordName)) {
 	  // create new
 	  std::cout<<"First One "<<std::endl;
-	  dbOutput->createNewIOV<const EcalLaserAPDPNRatiosRef>( condObject,  dbOutput->endOfTime() ,recordName);
+	  dbOutput->createNewIOV<const EcalLaserAPDPNRatiosRef>( condObject, dbOutput->beginOfTime(), dbOutput->endOfTime() ,recordName);
 	} else {
 	  // append
 	  std::cout<<"Old One "<<std::endl;
@@ -198,7 +197,7 @@ void EcalTestDevDB::analyze( const edm::Event& evt, const edm::EventSetup& evtSe
 	if(irun==m_firstRun && dbOutput->isNewTagRequest(recordName)) {
 	  // create new
 	  std::cout<<"First One "<<std::endl;
-	  dbOutput->createNewIOV<const EcalLaserAlphas>( condObject,  dbOutput->endOfTime() ,recordName);
+	  dbOutput->createNewIOV<const EcalLaserAlphas>( condObject,dbOutput->beginOfTime(),  dbOutput->endOfTime() ,recordName);
 	} else {
 	  // append
 	  std::cout<<"Old One "<<std::endl;

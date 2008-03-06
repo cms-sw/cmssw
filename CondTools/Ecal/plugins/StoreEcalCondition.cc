@@ -48,7 +48,7 @@ void StoreEcalCondition::endJob() {
 	// This is the first object for this tag.
 	// Append mode should be off.
 	// newTime is the end of this new objects IOV.
-	newTime = mydbservice->endOfTime();
+	newTime = mydbservice->beginOfTime();
       } else {
 	// There should already be an object in the DB for this tag.
 	// Append IOV mode should be on.
@@ -62,35 +62,35 @@ void StoreEcalCondition::endJob() {
       if (objectName_[i] == "EcalWeightXtalGroups") {
 	EcalWeightXtalGroups* mycali = readEcalWeightXtalGroupsFromFile(inpFileName_[i].c_str());
 	if(!toAppend){
-	  mydbservice->createNewIOV<EcalWeightXtalGroups>(mycali,newTime,"EcalWeightXtalGroupsRcd");
+	  mydbservice->createNewIOV<EcalWeightXtalGroups>(mycali,newTime,mydbservice->endOfTime(),"EcalWeightXtalGroupsRcd");
 	}else{
 	  mydbservice->appendSinceTime<EcalWeightXtalGroups>(mycali,newTime,"EcalWeightXtalGroupsRcd");
 	}
       }else if (objectName_[i]  =="EcalTBWeights") {
 	EcalTBWeights* mycali=readEcalTBWeightsFromFile(inpFileName_[i].c_str());
 	if(!toAppend){
-	  mydbservice->createNewIOV<EcalTBWeights>(mycali,newTime,"EcalTBWeightsRcd");
+	  mydbservice->createNewIOV<EcalTBWeights>(mycali,newTime,mydbservice->endOfTime(),"EcalTBWeightsRcd");
 	}else{
 	  mydbservice->appendSinceTime<EcalTBWeights>(mycali,newTime,"EcalTBWeightsRcd");
 	}
       } else if (objectName_[i]  == "EcalADCToGeVConstant") {
 	EcalADCToGeVConstant* mycali=readEcalADCToGeVConstantFromFile(inpFileName_[i].c_str());
 	if(!toAppend){
-	  mydbservice->createNewIOV<EcalADCToGeVConstant>(mycali,newTime,"EcalADCToGeVConstantRcd");
+	  mydbservice->createNewIOV<EcalADCToGeVConstant>(mycali,newTime,mydbservice->endOfTime(),"EcalADCToGeVConstantRcd");
 	}else{
 	  mydbservice->appendSinceTime<EcalADCToGeVConstant>(mycali,newTime,"EcalADCToGeVConstantRcd");
 	}
       } else if (objectName_[i]  ==  "EcalIntercalibConstants") {
 	EcalIntercalibConstants* mycali=readEcalIntercalibConstantsFromFile(inpFileName_[i].c_str());
 	if(!toAppend){
-	  mydbservice->createNewIOV<EcalIntercalibConstants>(mycali,newTime,"EcalIntercalibConstantsRcd");
+	  mydbservice->createNewIOV<EcalIntercalibConstants>(mycali,newTime,mydbservice->endOfTime(),"EcalIntercalibConstantsRcd");
 	}else{
 	  mydbservice->appendSinceTime<EcalIntercalibConstants>(mycali,newTime,"EcalIntercalibConstantsRcd");
 	}
       } else if (objectName_[i]  ==  "EcalGainRatios") {
 	EcalGainRatios* mycali=readEcalGainRatiosFromFile(inpFileName_[i].c_str());
 	if(!toAppend){
-	  mydbservice->createNewIOV<EcalGainRatios>(mycali,newTime,"EcalGainRatiosRcd");
+	  mydbservice->createNewIOV<EcalGainRatios>(mycali,newTime,mydbservice->endOfTime(),"EcalGainRatiosRcd");
 	}else{
 	  mydbservice->appendSinceTime<EcalGainRatios>(mycali,newTime,"EcalGainRatiosRcd");
 	}
