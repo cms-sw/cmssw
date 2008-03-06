@@ -161,7 +161,7 @@ SiPixelCondObjForHLTBuilder::analyze(const edm::Event& iEvent, const edm::EventS
 
      if( mydbservice->isNewTagRequest(recordName_) ){
          mydbservice->createNewIOV<SiPixelGainCalibrationForHLT>(
-             SiPixelGainCalibration_, mydbservice->endOfTime(),recordName_);
+             SiPixelGainCalibration_, mydbservice->beginOfTime(), mydbservice->endOfTime(),recordName_);
      } else {
          mydbservice->appendSinceTime<SiPixelGainCalibrationForHLT>(
             SiPixelGainCalibration_, mydbservice->currentTime(),recordName_);

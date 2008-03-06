@@ -13,7 +13,7 @@
 //
 // Original Author:  Freya Blekman
 //         Created:  Wed Sep 19 13:43:52 CEST 2007
-// $Id: SiPixelCalibConfigurationObjectMaker.cc,v 1.1 2008/02/14 14:14:32 fblekman Exp $
+// $Id: SiPixelCalibConfigurationObjectMaker.cc,v 1.1 2008/02/14 20:29:55 fblekman Exp $
 //
 //
 
@@ -98,7 +98,7 @@ void SiPixelCalibConfigurationObjectMaker::analyze(const edm::Event&, const edm:
    
    if(poolDbService.isAvailable()){
      if(poolDbService->isNewTagRequest("SiPixelCalibConfigurationRcd") ){
-       poolDbService->createNewIOV<SiPixelCalibConfiguration>(myCalib,poolDbService->endOfTime(), "SiPixelCalibConfigurationRcd");
+       poolDbService->createNewIOV<SiPixelCalibConfiguration>(myCalib,poolDbService->beginOfTime(),poolDbService->endOfTime(), "SiPixelCalibConfigurationRcd");
      }
      else{
        poolDbService->appendSinceTime<SiPixelCalibConfiguration>(myCalib,poolDbService->currentTime(), "SiPixelCalibConfigurationRcd");

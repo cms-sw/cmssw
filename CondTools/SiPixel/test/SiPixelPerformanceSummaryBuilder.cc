@@ -48,6 +48,7 @@ void SiPixelPerformanceSummaryBuilder::analyze(const edm::Event& iEvent, const e
       if (poolDBService->isNewTagRequest("SiPixelPerformanceSummaryRcd")) {
         edm::LogInfo("Tag") <<" is a new tag request.";
         poolDBService->createNewIOV<SiPixelPerformanceSummary>(performanceSummary, 
+							       poolDBService->beginOfTime(),
 	                                                       poolDBService->endOfTime(),
 							      "SiPixelPerformanceSummaryRcd");
       }

@@ -159,7 +159,7 @@ SiPixelCondObjOfflineBuilder::analyze(const edm::Event& iEvent, const edm::Event
 
      if( mydbservice->isNewTagRequest(recordName_) ){
          mydbservice->createNewIOV<SiPixelGainCalibrationOffline>(
-             SiPixelGainCalibration_, mydbservice->endOfTime(),recordName_);
+             SiPixelGainCalibration_, mydbservice->beginOfTime(), mydbservice->endOfTime(),recordName_);
      } else {
          mydbservice->appendSinceTime<SiPixelGainCalibrationOffline>(
             SiPixelGainCalibration_, mydbservice->currentTime(),recordName_);
