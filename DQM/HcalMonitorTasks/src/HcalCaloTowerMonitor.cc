@@ -71,9 +71,9 @@ void HcalCaloTowerMonitor::processEvent(const CaloTowerCollection& calotower)
       if (fabs(eta)>1.74)
 	{
 	  if (fabs(eta)<=4.716)
-	    iphi=(iphi-1)/2+1;
+	    iphi=(iphi-1)/2*2+1;
 	  else
-	    iphi=(iphi-1)/4+1;
+	    iphi=(iphi-1)/4*4+1;
 	  
 	}
       //ieta is more complicated -- it runs in segments of .087 for the first 20 segments, then the segmentation becomes non-uniform
