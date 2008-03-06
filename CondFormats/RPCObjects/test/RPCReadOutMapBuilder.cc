@@ -63,7 +63,7 @@ void RPCReadOutMapBuilder::endJob()
   try {
     if( mydbservice->isNewTagRequest(m_record) ) {
       mydbservice->createNewIOV<RPCReadOutMapping>(
-          cabling, mydbservice->endOfTime(), m_record);
+          cabling, mydbservice->beginOfTime(), mydbservice->endOfTime(), m_record);
     } else {
       mydbservice->appendSinceTime<RPCReadOutMapping>(
           cabling, mydbservice->currentTime(), m_record);
