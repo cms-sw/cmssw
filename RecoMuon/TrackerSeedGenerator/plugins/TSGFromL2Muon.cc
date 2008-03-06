@@ -20,6 +20,11 @@
 #include "RecoMuon/TrackerSeedGenerator/interface/TrackerSeedGeneratorFactory.h"
 #include "RecoMuon/TrackerSeedGenerator/interface/TrackerSeedCleaner.h"
 
+#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "PhysicsTools/UtilAlgos/interface/TFileService.h"
+
+#include <TH1.h>
+
 TSGFromL2Muon::TSGFromL2Muon(const edm::ParameterSet& cfg)
   : theConfig(cfg), theTkSeedGenerator(0)
 {
@@ -31,6 +36,7 @@ TSGFromL2Muon::TSGFromL2Muon(const edm::ParameterSet& cfg)
   thePtCut = cfg.getParameter<double>("PtCut");
 
   theL2CollectionLabel = cfg.getParameter<edm::InputTag>("MuonCollectionLabel");
+  useTFileService_ = cfg.getUntrackedParameter<bool>("UseTFileService",false);
 }
 
 TSGFromL2Muon::~TSGFromL2Muon()
@@ -55,6 +61,7 @@ void TSGFromL2Muon::beginJob(const edm::EventSetup& es)
   std::string seedGenPSetLabel = theConfig.getParameter<std::string>("tkSeedGenerator");
   edm::ParameterSet seedGenPSet = theConfig.getParameter<edm::ParameterSet>(seedGenPSetLabel);
   std::string seedGenName = seedGenPSet.getParameter<std::string>("ComponentName");
+  seedGenPSet.addUntrackedParameter<bool>("UseTFileService",useTFileService_);
   theTkSeedGenerator = TrackerSeedGeneratorFactory::get()->create(seedGenName, seedGenPSet);
   theTkSeedGenerator->init(theService);
 
@@ -66,6 +73,17 @@ void TSGFromL2Muon::beginJob(const edm::EventSetup& es)
   else{
     theSeedCleaner = new TrackerSeedCleaner(trackerSeedCleanerPSet);
     theSeedCleaner->init(theService);
+  }
+  
+  if(useTFileService_) {
+    edm::Service<TFileService> fs;
+    h_nSeedPerTrack = fs->make<TH1F>("nSeedPerTrack","nSeedPerTrack",76,-0.5,75.5);
+    h_nGoodSeedPerTrack = fs->make<TH1F>("nGoodSeedPerTrack","nGoodSeedPerTrack",75,-0.5,75.5);
+    h_nGoodSeedPerEvent = fs->make<TH1F>("nGoodSeedPerEvent","nGoodSeedPerEvent",75,-0.5,75.5);
+  } else {
+    h_nSeedPerTrack = 0;
+    h_nGoodSeedPerEvent = 0;
+    h_nGoodSeedPerTrack = 0;
   }
 
 }
@@ -122,14 +140,15 @@ void TSGFromL2Muon::produce(edm::Event& ev, const edm::EventSetup& es)
     //make this stupid TrackCand
     std::pair<const Trajectory*,reco::TrackRef> staCand(0, muRef);
     theTkSeedGenerator->trackerSeeds(staCand, region, tkSeeds);
+    if(h_nSeedPerTrack) h_nSeedPerTrack->Fill(tkSeeds.size());
 
     //Seed Cleaner From Direction
     //clean them internatly
     if(theSeedCleaner){
-       std::vector<TrajectorySeed> tkClSeeds = theSeedCleaner->clean(muRef,region,tkSeeds);
-       edm::LogWarning("TSGFromL2Muon")<<tkClSeeds.size() << " or " << tkSeeds.size() << " seeds for this L2 afther cleaning.";
-       //tkSeeds.swap(tkClSeeds);
+       theSeedCleaner->clean(muRef,region,tkSeeds);
+       edm::LogWarning("TSGFromL2Muon") << tkSeeds.size() << " seeds for this L2 afther cleaning.";
     }
+    if(h_nGoodSeedPerTrack) h_nGoodSeedPerTrack->Fill(tkSeeds.size());
 
     uint is=0;
     uint isMax=tkSeeds.size();
@@ -140,6 +159,8 @@ void TSGFromL2Muon::produce(edm::Event& ev, const edm::EventSetup& es)
     
   }//l2muon loop
   
+  if(h_nGoodSeedPerEvent) h_nGoodSeedPerEvent->Fill(result->size());
+
   //ADDME
   //remove seed duplicate, keeping the ref to L2
 

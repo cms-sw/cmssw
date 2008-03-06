@@ -2,6 +2,8 @@
 <use name=RecoMuon/TrackerSeedGenerator>
 <use name=RecoPixelVertexing/PixelTrackFitting>
 <use name=DataFormats/L1GlobalMuonTrigger>
+<use name=PhysicsTools/UtilAlgos>
+<use name=FWCore/ServiceRegistry>
 
 <library file="*.cc" name=RecoMuonTrackerSeedGeneratorPlugins>
       <flags EDM_PLUGIN=1>
