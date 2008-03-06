@@ -70,10 +70,15 @@ void SiPixelFedCablingMapWriter::endJob( ) {
 
   try {
     if( mydbservice->isNewTagRequest(record_) ){
-      mydbservice->createNewIOV<SiPixelFedCablingMap>( cabling, mydbservice->endOfTime(), record_);
+      mydbservice->createNewIOV<SiPixelFedCablingMap>( cabling, 
+						       mydbservice->beginOfTime(),
+						       mydbservice->endOfTime(), 
+						       record_);
     }else{
       mydbservice->appendSinceTime<SiPixelFedCablingMap>( 
-          cabling, mydbservice->currentTime(), record_);
+          cabling, 
+	  mydbservice->currentTime(), 
+	  record_);
     }
   } 
   catch (std::exception &e) { LogError("std::exception:  ") << e.what(); }
