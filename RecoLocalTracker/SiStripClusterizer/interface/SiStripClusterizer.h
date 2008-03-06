@@ -18,7 +18,6 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "DataFormats/Common/interface/Handle.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 //Data Formats
@@ -28,8 +27,6 @@
 #include "DataFormats/SiStripDigi/interface/SiStripRawDigi.h"
 //Clusterizer
 #include "RecoLocalTracker/SiStripClusterizer/interface/SiStripClusterizerAlgorithm.h"
-//SiStripPedestalsService
-//#include "CommonTools/SiStripZeroSuppression/interface/SiStripNoiseService.h"
 
 #include <iostream> 
 #include <memory>

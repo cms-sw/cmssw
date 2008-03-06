@@ -18,7 +18,8 @@ SiStripClusterizerAlgorithm::SiStripClusterizerAlgorithm(const edm::ParameterSet
     ThreeThresholdStripClusterizer_ = new ThreeThresholdStripClusterizer(conf_.getParameter<double>("ChannelThreshold"),
 									 conf_.getParameter<double>("SeedThreshold"),
 									 conf_.getParameter<double>("ClusterThreshold"),
-									 conf_.getParameter<int>("MaxHolesInCluster"));
+									 conf_.getParameter<int>("MaxHolesInCluster"),
+									 conf_.getParameter<std::string>("SiStripQualityLabel"));
     validClusterizer_ = true;
   } else {
     edm::LogError("SiStripClusterizer") << "[SiStripClusterizerAlgorithm] No valid strip clusterizer selected, possible clusterizer: ThreeThresholdClusterizer" << std::endl;
@@ -39,12 +40,7 @@ SiStripClusterizerAlgorithm::~SiStripClusterizerAlgorithm() {
 // } 
 
 
-void SiStripClusterizerAlgorithm::run(
-const edm::DetSetVector<SiStripDigi>& input,
-std::vector<edm::DetSet<SiStripCluster> > & output,
-const edm::ESHandle<SiStripNoises> & noiseHandle, 
-const edm::ESHandle<SiStripGain> & gainHandle,
-const edm::ESHandle<SiStripQuality> & qualityHandle) {
+void SiStripClusterizerAlgorithm::run(const edm::DetSetVector<SiStripDigi>& input,std::vector<edm::DetSet<SiStripCluster> > & output,const edm::EventSetup& es){
 
   if ( validClusterizer_ ) {
     int number_detunits          = 0;
@@ -58,7 +54,7 @@ const edm::ESHandle<SiStripQuality> & qualityHandle) {
 
       edm::DetSet<SiStripCluster> ssc(DSViter->id);
 
-      ThreeThresholdStripClusterizer_->clusterizeDetUnit(*DSViter,ssc, noiseHandle, gainHandle, qualityHandle);
+      ThreeThresholdStripClusterizer_->clusterizeDetUnit(*DSViter,ssc, es);
 
       number_localstriprechits += ssc.data.size();
       

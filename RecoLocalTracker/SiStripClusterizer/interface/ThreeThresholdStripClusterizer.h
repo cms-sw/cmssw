@@ -7,35 +7,34 @@
 #include "DataFormats/SiStripCluster/interface/SiStripCluster.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-//SiStripNoiseService
-//#include "CommonTools/SiStripZeroSuppression/interface/SiStripNoiseService.h"
-
-//gain
+#include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "CalibFormats/SiStripObjects/interface/SiStripGain.h"
+#include "CalibTracker/Records/interface/SiStripGainRcd.h"
 #include "CondFormats/SiStripObjects/interface/SiStripNoises.h"
+#include "CondFormats/DataRecord/interface/SiStripNoisesRcd.h"
 #include "CalibFormats/SiStripObjects/interface/SiStripQuality.h"
+#include "CalibTracker/Records/interface/SiStripQualityRcd.h"
 
 
 #include <vector>
 #include <algorithm>
 #include <cmath>
-
+#include <string>
 
 class ThreeThresholdStripClusterizer {
 public:
 
-  ThreeThresholdStripClusterizer(float strip_thr, float seed_thr,float clust_thr, int max_holes) :
+  ThreeThresholdStripClusterizer(float strip_thr, float seed_thr,float clust_thr, int max_holes,std::string qualityLabel) :
     theChannelThreshold(strip_thr), 
     theSeedThreshold(seed_thr),
     theClusterThreshold(clust_thr),
-    max_holes_(max_holes){};
- 
+    max_holes_(max_holes),
+    qualityLabel_(qualityLabel){};
+  
   //  void setSiStripNoiseService( SiStripNoiseService* in ){ SiStripNoiseService_=in;}
 
-  void clusterizeDetUnit(const 
-edm::DetSet<SiStripDigi>&,edm::DetSet<SiStripCluster>&, const edm::ESHandle<SiStripNoises> & noiseHandle, const edm::ESHandle<SiStripGain>&, const 
-edm::ESHandle<SiStripQuality>&);
+  void clusterizeDetUnit(const edm::DetSet<SiStripDigi>&,edm::DetSet<SiStripCluster>&, const edm::EventSetup& );
 
   float channelThresholdInNoiseSigma() const { return theChannelThreshold;}
   float seedThresholdInNoiseSigma()    const { return theSeedThreshold;}
@@ -48,7 +47,7 @@ private:
   float theSeedThreshold;
   float theClusterThreshold;
   int max_holes_;
-
+  std::string qualityLabel_;
 };
 
 class AboveSeed {

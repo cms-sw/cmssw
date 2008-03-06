@@ -2,12 +2,20 @@
 #include "sstream"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
+
 void ThreeThresholdStripClusterizer::clusterizeDetUnit( 
 						       const edm::DetSet<SiStripDigi>& input,
 						       edm::DetSet<SiStripCluster>& output, 
-						       const edm::ESHandle<SiStripNoises> & noiseHandle,
-						       const edm::ESHandle<SiStripGain> & gainHandle,
-						       const edm::ESHandle<SiStripQuality> & qualityHandle) {
+						       const edm::EventSetup& es){
+  //Get ESObject 
+  edm::ESHandle<SiStripGain> gainHandle;
+  edm::ESHandle<SiStripNoises> noiseHandle;
+  edm::ESHandle<SiStripQuality> qualityHandle;
+
+  es.get<SiStripGainRcd>().get(gainHandle);
+  es.get<SiStripNoisesRcd>().get(noiseHandle);
+  es.get<SiStripQualityRcd>().get(qualityLabel_,qualityHandle);
+  
   const uint32_t& detID = input.id;
   
   if (!qualityHandle->IsModuleUsable(detID)){
