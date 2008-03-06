@@ -3,8 +3,8 @@
 /*
  * \file HcalMonitorModule.cc
  * 
- * $Date: 2008/01/03 23:58:46 $
- * $Revision: 1.49 $
+ * $Date: 2008/03/05 20:48:57 $
+ * $Revision: 1.51 $
  * \author W Fisher
  *
 */
@@ -405,7 +405,7 @@ void HcalMonitorModule::analyze(const edm::Event& e, const edm::EventSetup& even
 
   // Digi monitor task
   if((digiMon_!=NULL) && (evtMask&DO_HCAL_DIGIMON) && digiOK_) 
-   digiMon_->processEvent(*hbhe_digi,*ho_digi,*hf_digi,*conditions_);
+   digiMon_->processEvent(*hbhe_digi,*ho_digi,*hf_digi,*conditions_,*report);
 
   // Pedestal monitor task
   if((pedMon_!=NULL) && (evtMask&DO_HCAL_PED_CALIBMON) && digiOK_) 

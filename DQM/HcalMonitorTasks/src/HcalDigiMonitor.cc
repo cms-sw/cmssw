@@ -290,7 +290,8 @@ void HcalDigiMonitor::setup(const edm::ParameterSet& ps,
 void HcalDigiMonitor::processEvent(const HBHEDigiCollection& hbhe,
 				   const HODigiCollection& ho,
 				   const HFDigiCollection& hf,
-				   const HcalDbService& cond){
+				   const HcalDbService& cond,
+				   const HcalUnpackerReport& report){
   
   if(!m_dbe) { 
     if(fVerbosity) printf("HcalDigiMonitor::processEvent   DQMStore not instantiated!!!\n");  

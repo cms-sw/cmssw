@@ -4,11 +4,12 @@
 #include "DQM/HcalMonitorTasks/interface/HcalBaseMonitor.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
+#include "EventFilter/HcalRawToDigi/interface/HcalUnpacker.h"
 
 /** \class HcalDigiMonitor
   *  
-  * $Date: 2007/11/15 23:13:46 $
-  * $Revision: 1.15 $
+  * $Date: 2008/03/01 00:39:58 $
+  * $Revision: 1.16 $
   * \author W. Fisher - FNAL
   */
 class HcalDigiMonitor: public HcalBaseMonitor {
@@ -21,7 +22,8 @@ public:
   void processEvent(const HBHEDigiCollection& hbhe,
 		    const HODigiCollection& ho,
 		    const HFDigiCollection& hf,
-		    const HcalDbService& cond);
+		    const HcalDbService& cond,
+		    const HcalUnpackerReport& report);
 
   void reset();
 
@@ -47,12 +49,17 @@ private:  ///Monitoring elements
   MonitorElement* OCC_L3;
   MonitorElement* OCC_L4;
   MonitorElement* OCC_ELEC_VME;
-  MonitorElement* OCC_ELEC_FIB;
+  MonitorElement* OCC_ELEC_FIB; //Not relevant for > 1 HTR
   MonitorElement* OCC_ELEC_DCC;
   MonitorElement* ERR_MAP_GEO;
   MonitorElement* ERR_MAP_VME;
-  MonitorElement* ERR_MAP_FIB;
+  MonitorElement* ERR_MAP_FIB;  //Not relevant for > 1 HTR
   MonitorElement* ERR_MAP_DCC;
+
+  MonitorElement* CAPID_T0;
+  MonitorElement* DIGI_NUM;
+  MonitorElement* BQDIGI_NUM;
+  MonitorElement* BQDIGI_FRAC;
 
   struct{
     MonitorElement* DIGI_NUM;
@@ -76,6 +83,11 @@ private:  ///Monitoring elements
     MonitorElement* OCC_MAP_DCC;
     MonitorElement* SHAPE_tot;
     MonitorElement* SHAPE_THR_tot;
+
+    MonitorElement* CAPID_T0;
+    MonitorElement* BQDIGI_NUM;
+    MonitorElement* BQDIGI_FRAC;
+
     std::map<HcalDetId, MonitorElement*> SHAPE;
   } hbHists, heHists, hfHists, hoHists;
 
