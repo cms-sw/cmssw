@@ -60,9 +60,14 @@ void SiPixelLorentzAngleDB::beginJob(const edm::EventSetup& c){
 	if( mydbservice.isAvailable() ){
 		try{
 			if( mydbservice->isNewTagRequest("SiPixelLorentzAngleRcd") ){
-				mydbservice->createNewIOV<SiPixelLorentzAngle>(LorentzAngle,mydbservice->endOfTime(),"SiPixelLorentzAngleRcd");
+				mydbservice->createNewIOV<SiPixelLorentzAngle>(LorentzAngle,
+									       mydbservice->beginOfTime(),
+									       mydbservice->endOfTime(),
+									       "SiPixelLorentzAngleRcd");
 			} else {
-				mydbservice->appendSinceTime<SiPixelLorentzAngle>(LorentzAngle,mydbservice->currentTime(),"SiPixelLorentzAngleRcd");
+				mydbservice->appendSinceTime<SiPixelLorentzAngle>(LorentzAngle,
+										  mydbservice->currentTime(),
+										  "SiPixelLorentzAngleRcd");
 			}
 		}catch(const cond::Exception& er){
 			edm::LogError("SiPixelLorentzAngleDB")<<er.what()<<std::endl;
