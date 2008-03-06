@@ -1,16 +1,16 @@
-// Last commit: $Id: FineDelayHistosUsingDb.h,v 1.4 2008/02/14 13:53:04 bainbrid Exp $
+// Last commit: $Id: FineDelayHistosUsingDb.h,v 1.5 2008/03/06 13:30:50 delaer Exp $
 
 #ifndef DQM_SiStripCommissioningClients_FineDelayHistosUsingDb_H
 #define DQM_SiStripCommissioningClients_FineDelayHistosUsingDb_H
 
-#include "DQM/SiStripCommissioningClients/interface/FineDelayHistograms.h"
+#include "DQM/SiStripCommissioningClients/interface/SamplingHistograms.h"
 #include "DQM/SiStripCommissioningDbClients/interface/CommissioningHistosUsingDb.h"
 #include "OnlineDB/SiStripConfigDb/interface/SiStripConfigDb.h"
 #include <boost/cstdint.hpp>
 #include <string>
 #include <map>
 
-class FineDelayHistosUsingDb : public CommissioningHistosUsingDb, public FineDelayHistograms {
+class FineDelayHistosUsingDb : public CommissioningHistosUsingDb, public SamplingHistograms {
   
  public:
   
@@ -34,6 +34,10 @@ class FineDelayHistosUsingDb : public CommissioningHistosUsingDb, public FineDel
   void update( SiStripConfigDb::FedDescriptions& );
 
   void create( SiStripConfigDb::AnalysisDescriptions&, Analysis ); 
+
+  void computeDelays();
+
+  std::map<unsigned int,unsigned int > delays_;
   
 };
 

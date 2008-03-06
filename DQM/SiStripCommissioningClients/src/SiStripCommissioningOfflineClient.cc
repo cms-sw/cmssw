@@ -1,4 +1,4 @@
-// Last commit: $Id: SiStripCommissioningOfflineClient.cc,v 1.32 2008/02/27 14:47:04 bainbrid Exp $
+// Last commit: $Id: SiStripCommissioningOfflineClient.cc,v 1.33 2008/03/06 13:30:08 delaer Exp $
 
 #include "DQM/SiStripCommissioningClients/interface/SiStripCommissioningOfflineClient.h"
 #include "DataFormats/SiStripCommon/interface/SiStripEnumsAndStrings.h"
@@ -11,8 +11,7 @@
 #include "DQM/SiStripCommissioningClients/interface/OptoScanHistograms.h"
 #include "DQM/SiStripCommissioningClients/interface/VpspScanHistograms.h"
 #include "DQM/SiStripCommissioningClients/interface/PedestalsHistograms.h"
-#include "DQM/SiStripCommissioningClients/interface/LatencyHistograms.h"
-#include "DQM/SiStripCommissioningClients/interface/FineDelayHistograms.h"
+#include "DQM/SiStripCommissioningClients/interface/SamplingHistograms.h"
 #include "DQM/SiStripCommissioningClients/interface/CalibrationHistograms.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/DQMOldReceiver.h"
@@ -416,18 +415,18 @@ void SiStripCommissioningOfflineClient::createHistos() {
 
   // Create "commissioning histograms" object 
   if      ( runType_ == sistrip::FAST_CABLING )         { histos_ = new FastFedCablingHistograms( mui_ ); }
-  else if ( runType_ == sistrip::FED_CABLING )          { histos_ = new FedCablingHistograms( mui_ ); }
-  else if ( runType_ == sistrip::APV_TIMING )           { histos_ = new ApvTimingHistograms(  mui_ ); }
-  else if ( runType_ == sistrip::OPTO_SCAN )            { histos_ = new OptoScanHistograms(   mui_ ); }
-  else if ( runType_ == sistrip::VPSP_SCAN )            { histos_ = new VpspScanHistograms(   mui_ ); }
-  else if ( runType_ == sistrip::PEDESTALS )            { histos_ = new PedestalsHistograms(  mui_ ); }
-  else if ( runType_ == sistrip::APV_LATENCY )          { histos_ = new LatencyHistograms(  mui_ ); }
-  else if ( runType_ == sistrip::FINE_DELAY )           { histos_ = new FineDelayHistograms(  mui_ ); }
+  else if ( runType_ == sistrip::FED_CABLING )          { histos_ = new FedCablingHistograms(  mui_ ); }
+  else if ( runType_ == sistrip::APV_TIMING )           { histos_ = new ApvTimingHistograms(   mui_ ); }
+  else if ( runType_ == sistrip::OPTO_SCAN )            { histos_ = new OptoScanHistograms(    mui_ ); }
+  else if ( runType_ == sistrip::VPSP_SCAN )            { histos_ = new VpspScanHistograms(    mui_ ); }
+  else if ( runType_ == sistrip::PEDESTALS )            { histos_ = new PedestalsHistograms(   mui_ ); }
+  else if ( runType_ == sistrip::APV_LATENCY      ||
+            runType_ == sistrip::FINE_DELAY           ) { histos_ = new SamplingHistograms(    mui_,runType_ ); }
   else if ( runType_ == sistrip::CALIBRATION      ||
 	    runType_ == sistrip::CALIBRATION_DECO ||
 	    runType_ == sistrip::CALIBRATION_SCAN ||
 	    runType_ == sistrip::CALIBRATION_SCAN_DECO) { histos_ = new CalibrationHistograms( mui_,runType_ ); }
-  else if ( runType_ == sistrip::UNDEFINED_RUN_TYPE ) { 
+  else if ( runType_ == sistrip::UNDEFINED_RUN_TYPE   ) { 
     histos_ = 0; 
     edm::LogError(mlDqmClient_)
       << "[SiStripCommissioningOfflineClient::" << __func__ << "]"

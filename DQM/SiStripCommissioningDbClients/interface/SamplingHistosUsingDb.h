@@ -1,7 +1,7 @@
-// Last commit: $Id: LatencyHistosUsingDb.h,v 1.4 2008/03/06 13:30:50 delaer Exp $
+// Last commit: $Id: SamplingHistosUsingDb.h,v 1.3 2008/02/14 13:53:04 bainbrid Exp $
 
-#ifndef DQM_SiStripCommissioningClients_LatencyHistosUsingDb_H
-#define DQM_SiStripCommissioningClients_LatencyHistosUsingDb_H
+#ifndef DQM_SiStripCommissioningClients_SamplingHistosUsingDb_H
+#define DQM_SiStripCommissioningClients_SamplingHistosUsingDb_H
 
 #include "DQM/SiStripCommissioningClients/interface/SamplingHistograms.h"
 #include "DQM/SiStripCommissioningDbClients/interface/CommissioningHistosUsingDb.h"
@@ -10,20 +10,20 @@
 #include <string>
 #include <map>
 
-class LatencyHistosUsingDb : public CommissioningHistosUsingDb, public SamplingHistograms {
+class SamplingHistosUsingDb : public CommissioningHistosUsingDb, public SamplingHistograms {
   
  public:
   
-  LatencyHistosUsingDb( DQMOldReceiver*,
+  SamplingHistosUsingDb( MonitorUserInterface*,
 			 const DbParams& );
   
-  LatencyHistosUsingDb( DQMOldReceiver*,
+  SamplingHistosUsingDb( MonitorUserInterface*,
 			 SiStripConfigDb* const );
   
-  LatencyHistosUsingDb( DQMStore*,
+  SamplingHistosUsingDb( DaqMonitorBEInterface*,
 			 SiStripConfigDb* const );
 
-  virtual ~LatencyHistosUsingDb();
+  virtual ~SamplingHistosUsingDb();
 
   virtual void uploadConfigurations();
   
@@ -35,5 +35,5 @@ class LatencyHistosUsingDb : public CommissioningHistosUsingDb, public SamplingH
   
 };
 
-#endif // DQM_SiStripCommissioningClients_LatencyHistosUsingDb_H
+#endif // DQM_SiStripCommissioningClients_SamplingHistosUsingDb_H
 

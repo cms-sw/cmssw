@@ -354,10 +354,12 @@ void CommissioningHistograms::copyCustomInformation( DQMStore* const bei,
 	  << " NULL pointer to MonitorElement!";
 	continue;
       }
-      // Search for calchan
+      // Search for calchan, isha or vfs
       std::string title = (*ime)->getName();
       std::string::size_type pos = title.find("calchan");
-      if ( pos != std::string::npos ) {
+      if( pos == std::string::npos ) pos = title.find("isha");
+      if( pos == std::string::npos ) pos = title.find("vfs");
+      if( pos != std::string::npos ) {
 	int value = (*ime)->getIntValue();
 	if ( value>=0 ) {
 	  edm::LogVerbatim(mlDqmClient_)

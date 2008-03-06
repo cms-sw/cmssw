@@ -23,10 +23,8 @@ class FineDelayTask : public CommissioningTask {
   virtual void update();
   
   static std::map<std::string, HistoSet> timingMap_;
-  HistoSet dummy_;
-  HistoSet& timing_;
+  HistoSet* timing_;
 
-  uint16_t nBins_;
   float fiberLengthCorrection_;
 
 };

@@ -1,4 +1,4 @@
-// Last commit: $Id: LatencyHistosUsingDb.cc,v 1.5 2008/02/20 11:26:12 bainbrid Exp $
+// Last commit: $Id: LatencyHistosUsingDb.cc,v 1.6 2008/03/06 13:30:52 delaer Exp $
 
 #include "DQM/SiStripCommissioningDbClients/interface/LatencyHistosUsingDb.h"
 #include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
@@ -12,7 +12,7 @@ using namespace sistrip;
 LatencyHistosUsingDb::LatencyHistosUsingDb( DQMOldReceiver* mui,
 					      const DbParams& params )
   : CommissioningHistosUsingDb( params ),
-    LatencyHistograms( mui )
+    SamplingHistograms( mui, APV_LATENCY )
 {
   LogTrace(mlDqmClient_) 
     << "[LatencyHistosUsingDb::" << __func__ << "]"
@@ -24,7 +24,7 @@ LatencyHistosUsingDb::LatencyHistosUsingDb( DQMOldReceiver* mui,
 LatencyHistosUsingDb::LatencyHistosUsingDb( DQMOldReceiver* mui,
 					      SiStripConfigDb* const db )
   : CommissioningHistosUsingDb( db ),
-    LatencyHistograms( mui )
+    SamplingHistograms( mui, APV_LATENCY )
 {
   LogTrace(mlDqmClient_) 
     << "[LatencyHistosUsingDb::" << __func__ << "]"
@@ -36,7 +36,7 @@ LatencyHistosUsingDb::LatencyHistosUsingDb( DQMOldReceiver* mui,
 LatencyHistosUsingDb::LatencyHistosUsingDb( DQMStore* bei,
 					      SiStripConfigDb* const db ) 
   : CommissioningHistosUsingDb( db ),
-    LatencyHistograms( bei )
+    SamplingHistograms( bei, APV_LATENCY )
 {
   LogTrace(mlDqmClient_) 
     << "[LatencyHistosUsingDb::" << __func__ << "]"
@@ -87,13 +87,14 @@ void LatencyHistosUsingDb::uploadConfigurations() {
 void LatencyHistosUsingDb::update( SiStripConfigDb::DeviceDescriptions& devices ) {
   
   // Obtain the latency from the analysis object
-  if(!data_.size() || !data_.begin()->second.isValid() ) {
+  if(!data().size() || !data().begin()->second->isValid() ) {
     edm::LogVerbatim(mlDqmClient_) 
       << "[LatencyHistosUsingDb::" << __func__ << "]"
       << " Updated NO Latency settings. No analysis result available !" ;
     return;
   }
-  uint16_t latency = uint16_t((data_.begin()->second.maximum()/(-25.))+0.5);
+  SamplingAnalysis* anal = dynamic_cast<SamplingAnalysis*>( data().begin()->second );
+  uint16_t latency = uint16_t((anal->maximum()/(-25.))+0.5);
   
   // Iterate through devices and update device descriptions
   uint16_t updated = 0;
@@ -137,7 +138,7 @@ void LatencyHistosUsingDb::create( SiStripConfigDb::AnalysisDescriptions& desc,
 
 #ifdef USING_NEW_DATABASE_MODEL
   
-  LatencyAnalysis* anal = dynamic_cast<LatencyAnalysis*>( analysis->second );
+  SamplingAnalysis* anal = dynamic_cast<SamplingAnalysis*>( analysis->second );
   if ( !anal ) { return; }
   
   SiStripFecKey fec_key( anal->fecKey() ); //@@ analysis->first

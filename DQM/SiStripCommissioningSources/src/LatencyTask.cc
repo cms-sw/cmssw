@@ -37,7 +37,7 @@ void LatencyTask::book() {
   std::string title = SiStripHistoTitle( sistrip::EXPERT_HISTO, 
 					 sistrip::APV_LATENCY, 
   					 sistrip::DET_KEY, 
-					 0,//connection().detId(),
+					 0,
 					 sistrip::TRACKER, 
 					 0 ).title(); 
   // look if such an histogram is already booked
@@ -84,7 +84,6 @@ void LatencyTask::fill( const SiStripEventSummary& summary,
                                 << " at corrected delay of " << correctedDelay
 				<< " in bin " << bin << "  (tof is " << tof << "( since adc = " << digis.data[strip].adc() << "))";
       updateHistoSet( *timing_,bin,digis.data[strip].adc()&0xff);
-      //break;
     }
   }
 }
