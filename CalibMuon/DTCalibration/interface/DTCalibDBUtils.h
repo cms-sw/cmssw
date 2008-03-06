@@ -4,8 +4,8 @@
 /** \class DTCalibDBUtils
  *  Simple interface to PoolDBOutputService to write objects to DB.
  *
- *  $Date: 2007/01/22 11:08:04 $
- *  $Revision: 1.1 $
+ *  $Date: 2007/01/22 17:08:15 $
+ *  $Revision: 1.2 $
  *  \author G. Cerminara - INFN Torino
  */
 
@@ -33,10 +33,10 @@ public:
 	try{
 	  if(dbOutputSvc->isNewTagRequest(record)){
 	    //create mode
-	    dbOutputSvc->template createNewIOV<T>(payload,dbOutputSvc->endOfTime(),record);
+	    dbOutputSvc->writeOne<T>(payload, dbOutputSvc->beginOfTime(),record);
 	  }else{
 	    //append mode. Note: correct PoolDBESSource must be loaded
-	    dbOutputSvc->template appendSinceTime<T>(payload,dbOutputSvc->currentTime(),record);
+	    dbOutputSvc->writeOne<T>(payload, dbOutputSvc->currentTime(),record);
 	  }
 	}catch(const cond::Exception& er){
 	  std::cout << er.what() << std::endl;
