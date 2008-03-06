@@ -3,13 +3,7 @@
  <PoolDatabase >
   <PoolContainer name="SiStripNoisesRcd" >
    <Class table="SISTRIPNOISES" id_columns="IOV_VALUE_ID" name="SiStripNoises" mapping_version="SiStripNoises_basic" >
-     <Container table="DETREGISTRYINDEX_NOISE" id_columns="IOV_VALUE_ID" name="indexes" position_column="POS" >
-       <Object name="value_type" >
-         <Primitive column="DETID" name="detid" />
-         <Primitive column="IBEGIN" name="ibegin" />
-         <Primitive column="IEND" name="iend" />
-       </Object >
-     </Container >
+     <Blob column="DETREGISTRYINDEX_NOISE" name="indexes"/>
      <Blob column="NOISEDATA" name="v_noises"/>
    </Class >
   </PoolContainer >

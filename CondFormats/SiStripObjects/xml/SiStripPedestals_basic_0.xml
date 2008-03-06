@@ -10,6 +10,7 @@
          <Primitive column="IEND" name="iend" />
        </Object >
      </Container >
+     <Blob column="DETREGISTRYINDEX_PED" name="indexes"/>
      <Blob column="PEDESTALDATA" name="v_pedestals"/>
    </Class >
   </PoolContainer >
