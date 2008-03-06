@@ -1,0 +1,22 @@
+<?xml version='1.0' encoding="UTF-8"?>
+<!DOCTYPE PoolDatabase SYSTEM "InMemory">
+ <PoolDatabase >
+  <PoolContainer name="SiPixelGainCalibrationForHLTRcd" >
+   <Class table="SIPIXELGAINCALIBRA_1" id_columns="ID" name="SiPixelGainCalibrationForHLT" mapping_version="SiPixelGainCalibrationForHLT_basic" >
+     <Container table="SIPIXELGAINCALIBRA_2" id_columns="ID_ID" name="indexes" position_column="POS" >
+       <Object name="value_type" >
+         <Primitive column="INDEXES_VALUE_TYPE_DETID" name="detid" />
+         <Primitive column="INDEXES_VALUE_TYPE_IBEGIN" name="ibegin" />
+         <Primitive column="INDEXES_VALUE_TYPE_IEND" name="iend" />
+       </Object >
+     </Container >
+     <Primitive column="MAXGAIN" name="maxGain_" />
+     <Primitive column="MAXPED" name="maxPed_" />
+     <Primitive column="MINGAIN" name="minGain_" />
+     <Primitive column="MINPED" name="minPed_" />
+     <Container table="SIPIXELGAINCALIBRA_3" id_columns="ID_ID" name="v_pedestals" position_column="POS" >
+       <Primitive column="V_PEDESTALS_VALUE_TYPE" name="value_type" />
+     </Container >
+   </Class >
+  </PoolContainer >
+ </PoolDatabase >

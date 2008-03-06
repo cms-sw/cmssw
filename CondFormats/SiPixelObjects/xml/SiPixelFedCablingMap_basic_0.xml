@@ -1,0 +1,27 @@
+<?xml version='1.0' encoding="UTF-8"?>
+<!DOCTYPE PoolDatabase SYSTEM "InMemory">
+ <PoolDatabase >
+  <PoolContainer name="SiPixelFedCablingMapRcd" >
+   <Class table="SIPIXELFEDCABLINGMAP" id_columns="ID" name="SiPixelFedCablingMap" mapping_version="SiPixelFedCablingMap_basic">
+     <Container table="SIPIXELFEDCABLINGM_1" id_columns="ID_ID" name="theFedCablings" position_column="POS" >
+       <Primitive column="THEFEDCABLINGS_KEY_TYPE" name="key_type" />
+       <Object name="mapped_type" >
+         <Primitive column="THEFEDCABLINGS_MAPPED_TYPE_T_1" name="theFedId" />
+         <Container table="SIPIXELFEDCABLINGM_2" id_columns="ID_POS ID_ID_ID" name="theLinks" position_column="POS" >
+           <Object name="value_type" >
+             <Primitive column="THEFEDCABLINGS_MAPPED_TYPE_T_1" name="theId" />
+             <Container table="SIPIXELFEDCABLINGM_3" id_columns="ID_POS ID_ID_POS ID_ID_ID_ID" name="theROCs" position_column="POS" >
+               <Object name="value_type" >
+                 <Primitive column="THEFEDCABLINGS_MAPPED_TYPE_T_1" name="theDetUnit" />
+                 <Primitive column="THEFEDCABLINGS_MAPPED_TYPE_T_2" name="theIdDU" />
+                 <Primitive column="THEFEDCABLINGS_MAPPED_TYPE_T_3" name="theIdLk" />
+               </Object >
+             </Container >
+           </Object >
+         </Container >
+       </Object >
+     </Container >
+     <Primitive column="THEVERSION" name="theVersion" />
+   </Class >
+  </PoolContainer >
+ </PoolDatabase >
