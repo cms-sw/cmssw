@@ -104,6 +104,19 @@ namespace cond{
       std::string tag( const std::string& EventSetupRecordName );
       bool isNewTagRequest( const std::string& EventSetupRecordName );
       const cond::Logger& queryLog() const;
+
+
+      // 180 compatible interface
+      template<typename T>
+      void createNewIOV( T* firstPayloadObj,
+			 cond::Time_t firstTillTime,
+			 const std::string& EventSetupRecordName){
+	// generate warning
+	bool UsingTheOldInterfaceWOfirstSinceTimePleaseUpgrade;
+
+	createNewIOV(irstPayloadObj, beginOfTime(),firstTillTime, EventSetupRecordName,false);
+
+
       //
       // insert the payload and its valid till time into the database
       // Note: user looses the ownership of the pointer to the payloadObj
