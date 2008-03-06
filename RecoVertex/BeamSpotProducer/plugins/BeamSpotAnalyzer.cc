@@ -6,7 +6,7 @@
 
  author: Francisco Yumiceva, Fermilab (yumiceva@fnal.gov)
 
- version $Id: BeamSpotAnalyzer.cc,v 1.5 2007/08/15 21:51:14 yumiceva Exp $
+ version $Id: BeamSpotAnalyzer.cc,v 1.1 2007/08/25 19:07:35 yumiceva Exp $
 
 ________________________________________________________________**/
 
@@ -291,7 +291,7 @@ BeamSpotAnalyzer::endJob() {
 		  std::cout << "poolDBService available"<<std::endl;
 		  if ( poolDbService->isNewTagRequest( "BeamSpotObjectsRcd" ) ) {
 		    std::cout << "new tag requested" << std::endl;
-		    poolDbService->createNewIOV<BeamSpotObjects>( pBSObjects, poolDbService->endOfTime(),
+		    poolDbService->createNewIOV<BeamSpotObjects>( pBSObjects, poolDbService->currentTime(),poolDbService->endOfTime(),
 								  "BeamSpotObjectsRcd"  );
 		  }
 		  else {
