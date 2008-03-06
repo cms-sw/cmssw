@@ -9,14 +9,6 @@
 #include "CalibMuon/CSCCalibration/interface/CSCFakeDBPedestals.h"
 #include "CalibMuon/CSCCalibration/interface/CSCFakeNoiseMatrixConditions.h"
 #include "CalibMuon/CSCCalibration/interface/CSCFakeDBNoiseMatrix.h"
-#include "CalibMuon/CSCCalibration/interface/WriteGainsToDB.h"
-#include "CalibMuon/CSCCalibration/interface/WriteDBGains.h"
-#include "CalibMuon/CSCCalibration/interface/WritePedestalsToDB.h"
-#include "CalibMuon/CSCCalibration/interface/WriteDBPedestals.h"
-#include "CalibMuon/CSCCalibration/interface/WriteNoiseMatrixToDB.h"
-#include "CalibMuon/CSCCalibration/interface/WriteDBNoiseMatrix.h"
-#include "CalibMuon/CSCCalibration/interface/WriteCrosstalkToDB.h"
-#include "CalibMuon/CSCCalibration/interface/WriteDBCrosstalk.h"
 #include "CalibMuon/CSCCalibration/interface/CSCCrosstalkConditions.h"
 #include "CalibMuon/CSCCalibration/interface/CSCCrosstalkDBConditions.h"
 #include "CalibMuon/CSCCalibration/interface/CSCGainsConditions.h"
@@ -41,12 +33,4 @@ DEFINE_ANOTHER_FWK_EVENTSETUP_SOURCE(CSCGainsDBConditions);
 DEFINE_ANOTHER_FWK_EVENTSETUP_SOURCE(CSCNoiseMatrixConditions);
 DEFINE_ANOTHER_FWK_EVENTSETUP_SOURCE(CSCNoiseMatrixDBConditions);
 DEFINE_ANOTHER_FWK_EVENTSETUP_SOURCE(CSCPedestalsDBConditions);
-DEFINE_ANOTHER_FWK_MODULE(WriteGainsToDB);
-DEFINE_ANOTHER_FWK_MODULE(WriteDBGains);
-DEFINE_ANOTHER_FWK_MODULE(WritePedestalsToDB);
-DEFINE_ANOTHER_FWK_MODULE(WriteDBPedestals);
-DEFINE_ANOTHER_FWK_MODULE(WriteNoiseMatrixToDB);
-DEFINE_ANOTHER_FWK_MODULE(WriteDBNoiseMatrix);
-DEFINE_ANOTHER_FWK_MODULE(WriteCrosstalkToDB);
-DEFINE_ANOTHER_FWK_MODULE(WriteDBCrosstalk);
 
