@@ -1,8 +1,8 @@
 /*
  * \file EBSummaryClient.cc
  *
- * $Date: 2008/02/23 08:50:49 $
- * $Revision: 1.114 $
+ * $Date: 2008/02/29 15:03:06 $
+ * $Revision: 1.115 $
  * \author G. Della Ricca
  *
 */
@@ -299,6 +299,15 @@ void EBSummaryClient::setup(void) {
   meGlobalSummary_ = dbe_->book2D(histo, histo, 360, 0., 360., 170, -85., 85.);
   meGlobalSummary_->setAxisTitle("jphi", 1);
   meGlobalSummary_->setAxisTitle("jeta", 2);
+
+
+  dbe_->setCurrentFolder( "EcalBarrel/EventInfo" );
+
+  MonitorElement* meErrorSummaryPhiEta;
+  sprintf(histo, "errorSummaryPhiEta_EB");
+  meErrorSummaryPhiEta = dbe_->book2D(histo, histo, 72, 0., 72., 34, 0., 34);
+  meErrorSummaryPhiEta->setAxisTitle("jphi", 1);
+  meErrorSummaryPhiEta->setAxisTitle("jeta", 2);
 
 }
 
@@ -1056,6 +1065,48 @@ void EBSummaryClient::analyze(void){
   MonitorElement* me = dbe_->get("EcalBarrel/EventInfo/errorSummary");
   if (me) me->Fill(errorSummary);
    
+  MonitorElement* meErrorSummaryPhiEta = dbe_->get("EcalBarrel/EventInfo/errorSummaryPhiEta_EB");
+  if (meErrorSummaryPhiEta) {
+
+    int nValidChannelsTT[72][34];
+    int nGlobalErrorsTT[72][34];
+    for ( int iettx = 0; iettx < 34; iettx++ ) {
+      for ( int ipttx = 0; ipttx < 72; ipttx++ ) {
+	nValidChannelsTT[ipttx][iettx]=0;
+	nGlobalErrorsTT[ipttx][iettx]=0;
+      }
+    }
+
+    for ( int iex = 1; iex <= 170; iex++ ) {
+      for ( int ipx = 1; ipx <= 360; ipx++ ) {
+
+	int iettx = (iex-1)/5+1;
+	int ipttx = (ipx-1)/5+1;
+
+	float xval = meGlobalSummary_->getBinContent( ipx, iex );
+
+        // turn each dark color (masked channel) to valid
+	if ( xval != 2 && xval != 5 ) nValidChannelsTT[ipttx-1][iettx-1]++;
+	if ( xval == 0 ) nGlobalErrorsTT[ipttx-1][iettx-1]++;
+
+      }
+    }
+
+    for ( int iettx = 0; iettx < 34; iettx++ ) {
+      for ( int ipttx = 0; ipttx < 72; ipttx++ ) {
+	
+	float xval = -1.0;
+	if ( nValidChannelsTT[ipttx][iettx] != 0 )
+	  xval = 1.0 - float(nGlobalErrorsTT[ipttx][iettx])/float(nValidChannelsTT[ipttx][iettx]);
+	
+	meErrorSummaryPhiEta->setBinContent( ipttx+1, iettx+1, xval );
+
+      }
+    }
+
+
+  }
+
 }
 
 void EBSummaryClient::htmlOutput(int run, string htmlDir, string htmlName){
