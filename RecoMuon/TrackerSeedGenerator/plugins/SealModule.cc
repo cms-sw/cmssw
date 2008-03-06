@@ -5,9 +5,7 @@
 #include "TSGSmart.h"
 #include "TSGForRoadSearch.h"
 #include "TSGFromPropagation.h"
-#include "DualByHitFractionTSG.h"
 #include "DualByEtaTSG.h"
-#include "DualByZTSG.h"
 #include "CombinedTSG.h"
 
 
@@ -15,9 +13,7 @@ DEFINE_EDM_PLUGIN(TrackerSeedGeneratorFactory, TSGSmart, "TSGSmart");
 DEFINE_EDM_PLUGIN(TrackerSeedGeneratorFactory, TSGFromOrderedHits, "TSGFromOrderedHits");
 DEFINE_EDM_PLUGIN(TrackerSeedGeneratorFactory, TSGForRoadSearch, "TSGForRoadSearch");
 DEFINE_EDM_PLUGIN(TrackerSeedGeneratorFactory, TSGFromPropagation, "TSGFromPropagation");
-DEFINE_EDM_PLUGIN(TrackerSeedGeneratorFactory, DualByHitFractionTSG, "DualByHitFractionTSG");
 DEFINE_EDM_PLUGIN(TrackerSeedGeneratorFactory, DualByEtaTSG, "DualByEtaTSG");
-DEFINE_EDM_PLUGIN(TrackerSeedGeneratorFactory, DualByZTSG, "DualByZTSG");
 DEFINE_EDM_PLUGIN(TrackerSeedGeneratorFactory, CombinedTSG, "CombinedTSG");
 
 

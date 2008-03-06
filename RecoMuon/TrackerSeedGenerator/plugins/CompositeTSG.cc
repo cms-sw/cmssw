@@ -11,12 +11,16 @@ CompositeTSG::CompositeTSG(const edm::ParameterSet & par){
   std::vector<std::string> PSetNames =  par.getParameter<std::vector<std::string> >("PSetNames");
   for (std::vector<std::string>::iterator nIt = PSetNames.begin();nIt!=PSetNames.end();nIt++){
     edm::ParameterSet TSGpset = par.getParameter<edm::ParameterSet>(*nIt);
-    //    TSGpset.addParameter<std::string>("StateOnTrackerBoundOutPropagator",passingOnTo);
-    std::string SeedGenName = TSGpset.getParameter<std::string>("ComponentName");
-    theNames.push_back((*nIt)+":"+SeedGenName);
-    theTSGs.push_back(TrackerSeedGeneratorFactory::get()->create(SeedGenName,TSGpset));
+    if (TSGpset.empty()) {
+      theNames.push_back((*nIt)+":"+"NULL");
+      theTSGs.push_back(0);
+    }else {
+      std::string SeedGenName = TSGpset.getParameter<std::string>("ComponentName");
+      theNames.push_back((*nIt)+":"+SeedGenName);
+      theTSGs.push_back(TrackerSeedGeneratorFactory::get()->create(SeedGenName,TSGpset));
+    }
   }
-
+  
 }
 
 CompositeTSG::~CompositeTSG(){
@@ -27,10 +31,12 @@ CompositeTSG::~CompositeTSG(){
 void CompositeTSG::init(const MuonServiceProxy* service){
   theProxyService = service;
   for (uint iTSG=0; iTSG!=theTSGs.size();iTSG++){
-    theTSGs[iTSG]->init(service);}
+    if(theTSGs[iTSG]) theTSGs[iTSG]->init(service);
+  }
 }
 
 void CompositeTSG::setEvent(const edm::Event &event){
   for (uint iTSG=0; iTSG!=theTSGs.size();iTSG++){
-    theTSGs[iTSG]->setEvent(event);}
+    if(theTSGs[iTSG]) theTSGs[iTSG]->setEvent(event);
+  }
 }
