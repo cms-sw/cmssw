@@ -8,14 +8,15 @@
 // 
 /**\class Event Event.h FWCore/Framework/interface/Event.h
 
-Description: This is the primary interface for accessing EDProducts from a single collision and inserting new derived products.
+Description: This is the primary interface for accessing EDProducts
+from a single collision and inserting new derived products.
 
 For its usage, see "FWCore/Framework/interface/DataViewImpl.h"
 
 */
 /*----------------------------------------------------------------------
 
-$Id: Event.h,v 1.60 2007/08/14 18:54:07 wmtan Exp $
+$Id: Event.h,v 1.61 2008/01/15 06:51:46 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -23,6 +24,7 @@ $Id: Event.h,v 1.60 2007/08/14 18:54:07 wmtan Exp $
 
 #include "DataFormats/Provenance/interface/EventAuxiliary.h"
 #include "DataFormats/Provenance/interface/EventID.h"
+#include "DataFormats/Provenance/interface/History.h"
 #include "DataFormats/Provenance/interface/LuminosityBlockID.h"
 #include "DataFormats/Provenance/interface/RunID.h"
 #include "DataFormats/Provenance/interface/Timestamp.h"
@@ -77,6 +79,8 @@ namespace edm {
     RunNumber_t
     run() const {return id().run();}   
 
+    History const& history() const;
+
   private:
     // commit_() is called to complete the transaction represented by
     // this DataViewImpl. The friendships required seems gross, but any
@@ -91,6 +95,7 @@ namespace edm {
 
     EventAuxiliary const& aux_;
     boost::shared_ptr<LuminosityBlock const> const luminosityBlock_;
+    EventPrincipal& principal_;
   };
 }
 #endif
