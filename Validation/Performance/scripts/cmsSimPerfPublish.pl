@@ -110,7 +110,7 @@ if ($UserWebArea eq "simulation")
 }
 elsif ($UserWebArea eq "relval")
 {
-    $WebArea="/afs/cern.ch/cms/sdt/web/performance/simulation/RelVal/"."$CMSSW_VERSION";
+    $WebArea="/afs/cern.ch/cms/sdt/web/performance/RelVal/"."$CMSSW_VERSION";
     print "Publication web area: $WebArea\n";
 }
 elsif ($UserWebArea eq "local")
