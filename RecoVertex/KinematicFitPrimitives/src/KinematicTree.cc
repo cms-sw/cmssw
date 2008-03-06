@@ -194,7 +194,7 @@ RefCountedKinematicVertex KinematicTree::currentProductionVertex() const
 //_down_ variable is always TRUE here, if
 //the tree is valid.
   if(down){
-   if(*initial == *treeWalker->current().second)
+   if(initial == treeWalker->current().second)
    {
     return res;
    }else{
@@ -202,7 +202,7 @@ RefCountedKinematicVertex KinematicTree::currentProductionVertex() const
     do
     {
      next = treeWalker->nextSibling();
-     if(*treeWalker->current().second == *initial) next = false;
+     if(treeWalker->current().second == initial) next = false;
     }while(next);
     return res;
    }
@@ -260,7 +260,7 @@ bool KinematicTree::findParticle(RefCountedKinematicParticle part) const
  }else{
   bool res = false;
   movePointerToTheTop();
-  if(*(currentParticle()) == *part)
+  if(currentParticle() == part)
   {
    res = true;
   }else if(leftBranchSearch(part)){
@@ -278,7 +278,7 @@ bool KinematicTree::findParticle(RefCountedKinematicParticle part) const
      found = leftBranchSearch(part);
     }else{
      up = movePointerToTheMother();
-     if(*(currentParticle()) == *part) found = true;
+     if(currentParticle() == part) found = true;
     }
    }while(up && !found);
    res = found;
@@ -292,14 +292,14 @@ bool KinematicTree::leftBranchSearch(RefCountedKinematicParticle part) const
 {
  bool found = false;
  bool next = true;
- if(*(currentParticle()) == *part)
+ if(currentParticle() == part)
  {
   found = true;
  }else{
   do
   {
    next = movePointerToTheFirstChild();
-   if(*(currentParticle()) == *part)
+   if(currentParticle() == part)
    {
     found = true;
    }
@@ -316,7 +316,7 @@ bool KinematicTree::findDecayVertex(RefCountedKinematicVertex vert)const
  }else{
  bool res = false;
  movePointerToTheTop();
- if(*(currentDecayVertex()) == *vert)
+ if(currentDecayVertex() == vert)
  {
   res = true;
  }else if(leftBranchVertexSearch(vert)){
@@ -331,7 +331,7 @@ bool KinematicTree::findDecayVertex(RefCountedKinematicVertex vert)const
     fnd = leftBranchVertexSearch(vert);
    }else{
     up=movePointerToTheMother();
-    if(*(currentDecayVertex()) == *vert) fnd = true;
+    if(currentDecayVertex() == vert) fnd = true;
    }   
   }while(up && !fnd);
   res = fnd;
@@ -343,7 +343,7 @@ bool KinematicTree::findDecayVertex(RefCountedKinematicVertex vert)const
 bool KinematicTree::leftBranchVertexSearch(RefCountedKinematicVertex vtx) const
 {
  bool found = false;
- if(*(currentDecayVertex()) == *vtx)
+ if(currentDecayVertex() == vtx)
  {
   found = true;
  }else{
@@ -352,7 +352,7 @@ bool KinematicTree::leftBranchVertexSearch(RefCountedKinematicVertex vtx) const
   do
   {
    next = movePointerToTheFirstChild();
-   if(*(currentDecayVertex()) == *vtx) res = true;
+   if(currentDecayVertex() == vtx) res = true;
   }while(next && !res); 
   found  = res;
  }
