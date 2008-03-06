@@ -105,7 +105,8 @@ PxCPEdbUploader::endJob()
   if( poolDbService.isAvailable() ) {
     if ( poolDbService->isNewTagRequest("SiPixelCPEParmErrorsRcd") )
       poolDbService->
-	createNewIOV<SiPixelCPEParmErrors>( pErrors, 
+	createNewIOV<SiPixelCPEParmErrors>( pErrors,
+					    poolDbService->beginOfTime(),
 					    poolDbService->endOfTime(),
 					    "SiPixelCPEParmErrorsRcd"  );
     else
