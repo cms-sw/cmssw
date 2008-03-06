@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Feb 11 11:06:40 EST 2008
-// $Id: FWGUIManager.cc,v 1.9 2008/03/05 16:49:18 chrjones Exp $
+// $Id: FWGUIManager.cc,v 1.10 2008/03/05 19:57:03 chrjones Exp $
 //
 
 // system include files
@@ -53,6 +53,8 @@
 //
 // static data member definitions
 //
+// this is a kluge for now -- JMü
+FWDetailViewManager *FWGUIManager::m_detailViewManager = new FWDetailViewManager;
 
 //
 // constructors and destructor
@@ -65,8 +67,7 @@ m_selectionManager(iSelMgr),
 m_eiManager(iEIMgr),
 m_continueProcessingEvents(false),
 m_waitForUserAction(true),
-m_code(0),
-m_detailViewManager(new FWDetailViewManager() )
+m_code(0)
 {
    m_selectionManager->selectionChanged_.connect(boost::bind(&FWGUIManager::selectionChanged,this,_1));
    m_eiManager->newItem_.connect(boost::bind(&FWGUIManager::newItem,
@@ -197,6 +198,12 @@ m_detailViewManager(new FWDetailViewManager() )
           
          }
          frmMain->AddFrame(vf);
+
+	 TGTextButton *ele_butt = new TGTextButton(frmMain, "Electron view");
+	 frmMain->AddFrame(ele_butt, new TGLayoutHints(kLHintsTop | kLHintsExpandX));
+// 	 ele_butt->Connect("Clicked()", "ElectronView", m_electronView, "event()");
+	 ele_butt->Connect("Clicked()", "FWGUIManager", this, "makeElectronView()");
+
          frmMain->MapSubwindows();
          frmMain->Resize();
          frmMain->MapWindow();
@@ -464,7 +471,6 @@ FWGUIManager::allowInteraction()
    return m_code;
 }
 
-
 void 
 FWGUIManager::itemChecked(TObject* obj, Bool_t state)
 {
@@ -498,3 +504,4 @@ FWGUIManager::itemBelowMouse(TGListTreeItem* item, UInt_t)
 //
 // static member functions
 //
+

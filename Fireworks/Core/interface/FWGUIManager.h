@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Feb 11 10:52:24 EST 2008
-// $Id: FWGUIManager.h,v 1.6 2008/02/29 21:24:46 chrjones Exp $
+// $Id: FWGUIManager.h,v 1.7 2008/03/05 15:17:53 chrjones Exp $
 //
 
 // system include files
@@ -138,7 +138,10 @@ class FWGUIManager
       TEveElementList* m_views;
 
       FWSummaryManager* m_summaryManager;
-      FWDetailViewManager* m_detailViewManager;
+
+     // hack for now 
+public: 
+     static FWDetailViewManager* m_detailViewManager;
 };
 
 

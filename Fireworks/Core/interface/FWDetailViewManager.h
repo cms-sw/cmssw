@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Wed Mar  5 09:13:43 EST 2008
-// $Id$
+// $Id: FWDetailViewManager.h,v 1.1 2008/03/05 15:07:32 chrjones Exp $
 //
 
 // system include files
@@ -25,6 +25,9 @@
 
 // forward declarations
 class FWModelId;
+class TEveScene;
+class TEveViewer;
+class TGMainFrame;
 
 class FWDetailViewManager
 {
@@ -40,12 +43,19 @@ class FWDetailViewManager
       // ---------- member functions ---------------------------
       void openDetailViewFor(const FWModelId& );
    
+     void close_wm ();
+     void close_button ();
+
    private:
       FWDetailViewManager(const FWDetailViewManager&); // stop default
 
       const FWDetailViewManager& operator=(const FWDetailViewManager&); // stop default
 
-      // ---------- member data --------------------------------
+protected:
+     // ---------- member data --------------------------------
+     TEveScene 		*ns;
+     TEveViewer		*nv;
+     TGMainFrame	*frame;
 
 };
 

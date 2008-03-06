@@ -16,7 +16,7 @@
 //
 // Original Author:  
 //         Created:  Sun Jan  6 23:42:33 EST 2008
-// $Id: ElectronsProxySCBuilder.h,v 1.1.2.2 2008/02/23 07:35:11 dmytro Exp $
+// $Id: ElectronsProxySCBuilder.h,v 1.2.2.1 2008/03/06 18:46:10 jmuelmen Exp $
 //
 
 // system include files
@@ -55,6 +55,7 @@ public:
 	vars[1] = rotation_center[1];
 	vars[2] = rotation_center[2];
      }
+     static ElectronsProxySCBuilder *the_electron_sc_proxy;
    
 private:
      ElectronsProxySCBuilder(const ElectronsProxySCBuilder&); // stop default

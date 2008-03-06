@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Mar  3 17:20:14 EST 2008
-// $Id: FWListModel.cc,v 1.3 2008/03/05 18:38:23 chrjones Exp $
+// $Id: FWListModel.cc,v 1.4 2008/03/05 19:57:41 chrjones Exp $
 //
 
 // system include files
@@ -20,6 +20,8 @@
 #include "Fireworks/Core/src/FWListEventItem.h"
 #include "Fireworks/Core/interface/FWDisplayProperties.h"
 #include "Fireworks/Core/interface/FWEventItem.h"
+#include "Fireworks/Core/interface/FWGUIManager.h"
+#include "Fireworks/Core/interface/FWDetailViewManager.h"
 
 
 //
@@ -106,7 +108,7 @@ FWListModel::SingleRnrState() const
 void 
 FWListModel::openDetailView() const
 {
-   
+     FWGUIManager::m_detailViewManager->openDetailViewFor(m_id);
 }
 
 
