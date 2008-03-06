@@ -16,7 +16,9 @@ namespace cond{
     ~ObjectRelationalMappingUtility();
 
     void buildAndStoreMappingFromBuffer( const std::string& buffer );
-    
+
+    void buildAndStoreMappingFromFile( const std::string& filename );
+
     //void listMappings( std::vector<std::string>& mappinglist );
 
     bool existsMapping(const std::string& version);

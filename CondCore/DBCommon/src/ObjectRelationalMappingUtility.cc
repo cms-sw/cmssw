@@ -11,6 +11,10 @@ cond::ObjectRelationalMappingUtility::~ObjectRelationalMappingUtility(){
 void cond::ObjectRelationalMappingUtility::buildAndStoreMappingFromBuffer( const std::string& buffer ){
   m_mappingutil->buildAndMaterializeMappingFromBuffer( buffer.c_str(),false,false );
 }
+void cond::ObjectRelationalMappingUtility::buildAndStoreMappingFromFile( const std::string& filename ){
+  m_mappingutil->buildAndMaterializeMapping( filename,"",false,false );
+}
+
 /*void cond::ObjectRelationalMappingUtility::listMappings( std::vector<std::string>& mappinglist ){
   mappinglist=m_mappingutil->listMappings();
 }
