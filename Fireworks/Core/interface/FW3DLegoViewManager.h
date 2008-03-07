@@ -16,7 +16,7 @@
 //
 // Original Author:  
 //         Created:  Sun Jan  6 22:01:21 EST 2008
-// $Id: FW3DLegoViewManager.h,v 1.7 2008/02/21 20:49:10 chrjones Exp $
+// $Id: FW3DLegoViewManager.h,v 1.8 2008/03/06 10:17:17 dmytro Exp $
 //
 
 // system include files
@@ -72,13 +72,10 @@ class FW3DLegoViewManager : public FWViewManagerBase
    
       FWViewBase* buildView(TGFrame* iParent);
 
-      /*
-      void DynamicCoordinates();
       void exec3event(int event, int x, int y, TObject *selected);
       void pixel2wc(const Int_t PixelX, const Int_t PixelY, 
 		    Double_t& WCX, Double_t& WCY, const Double_t WCZ = 0);
-       */
-       
+   
    protected:
    virtual void modelChangesComing();
    virtual void modelChangesDone();

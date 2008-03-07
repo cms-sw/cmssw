@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Sun Jan  6 22:01:27 EST 2008
-// $Id: FW3DLegoViewManager.cc,v 1.14 2008/03/06 10:17:17 dmytro Exp $
+// $Id: FW3DLegoViewManager.cc,v 1.15 2008/03/07 03:42:58 dmytro Exp $
 //
 
 // system include files
@@ -107,6 +107,7 @@ FW3DLegoViewManager::buildView(TGFrame* iParent)
    boost::shared_ptr<FW3DLegoView> view( new FW3DLegoView(iParent) );
    m_views.push_back(view);
    view->draw(m_stack);
+   view->connect("FW3DLegoViewManager", this, "exec3event(Int_t,Int_t,Int_t,TObject*)");
    return view.get();
 
 }
@@ -219,10 +220,74 @@ FW3DLegoViewManager::modelChangesDone()
    newEventAvailable();
 }
 
-//
-// const member functions
-//
+void FW3DLegoViewManager::exec3event(int event, int x, int y, TObject *selected)
+{
+   // Two modes of tower selection is supported:
+   // - selection based on the base of a tower (point with z=0)
+   // - project view of a tower (experimental)
+   bool projectedMode = true;
+   TCanvas *c = (TCanvas *) gTQSender;
+   if (event == kButton1Down || event == kButton2Down) {
+      printf("Canvas %s: event=%d, x=%d, y=%d, selected=%s\n", c->GetName(),
+	     event, x, y, selected->IsA()->GetName());
+      if ( ! m_stack) return;
+      
+      double zMax = 0.001;
+      if ( projectedMode ) zMax = m_stack->GetMaximum();
+      int selectedXbin(0), selectedYbin(0);
+      double selectedX(0), selectedY(0), selectedZ(0), selectedValue(0);
+	 
+      // scan non-zero z 
+      int oldx(0), oldy(0);
+      for ( double z = 0; z<zMax; z+=1) {
+	 Double_t wcX,wcY;
+	 pixel2wc(x,y,wcX,wcY,z);
+	 int xbin = m_stack->GetXaxis()->FindFixBin(wcX);
+	 int ybin = m_stack->GetYaxis()->FindFixBin(wcY);
+	 if (oldx == xbin && oldy == ybin) continue;
+	 oldx = xbin; 
+	 oldy = ybin;
+	 if ( xbin > m_stack->GetXaxis()->GetNbins() || ybin > m_stack->GetYaxis()->GetNbins() ) continue;
+	 double content = 0;
+	 TListIter next(m_stack->GetHists());
+	 while ( TH2* layer = dynamic_cast<TH2*>(next()) ) content += layer->GetBinContent(xbin,ybin);
+	 if ( z <= content ) {
+	    selectedXbin = xbin;
+	    selectedYbin = ybin;
+	    selectedX = wcX;
+	    selectedY = wcY;
+	    selectedZ = z;
+	    selectedValue = content;
+	 }
+      }
+      if ( selectedXbin > 0 && selectedYbin>0 )	{
+	 std::cout << "x=" << selectedX << ", y=" << selectedY << ", z=" << selectedZ << 
+	   ", xbin=" << selectedXbin << ", ybin=" << selectedYbin << ", Et: " <<  
+	   selectedValue << std::endl;
+	 for ( std::vector<FW3DLegoModelProxy>::iterator proxy =  m_modelProxies.begin();
+	       proxy != m_modelProxies.end(); ++proxy )
+	   proxy->builder->message(event, selectedXbin, selectedYbin);
+      } else {
+	 for ( std::vector<FW3DLegoModelProxy>::iterator proxy =  m_modelProxies.begin();
+	       proxy != m_modelProxies.end(); ++proxy )
+	   proxy->builder->message(0,0,0);
+      }
+   }
+}
 
-//
-// static member functions
-//
+void FW3DLegoViewManager::pixel2wc(const Int_t pixelX, const Int_t pixelY, 
+                                   Double_t& wcX, Double_t& wcY, const Double_t wcZ)
+{
+   // we need to make Pixel to NDC to WC transformation with the following constraint:
+   // - Pixel only gives 2 coordinates, so we don't know z coordinate in NDC
+   // - We know that in WC z has specific value (depending on what we want to use as 
+   //   a selection point. In the case of the base of each bin, z(wc) = 0
+   // we need to solve some simple linear equations to get what we need
+   Double_t ndcX, ndcY;
+   ((TPad *)gPad)->AbsPixeltoXY( pixelX, pixelY, ndcX, ndcY); // Pixel to NDC
+   Double_t* m = gPad->GetView()->GetTback(); // NDC to WC matrix
+   double part1 = wcZ-m[11]-m[8]*ndcX-m[9]*ndcY;
+   wcX = m[3] + m[0]*ndcX + m[1]*ndcY + m[2]/m[10]*part1;
+   wcY = m[7] + m[4]*ndcX + m[5]*ndcY + m[6]/m[10]*part1;
+}
+

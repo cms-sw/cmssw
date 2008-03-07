@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Sun Jan  6 23:57:00 EST 2008
-// $Id: CaloJetProxy3DLegoBuilder.cc,v 1.4 2008/03/06 10:17:16 dmytro Exp $
+// $Id: CaloJetProxy3DLegoBuilder.cc,v 1.5 2008/03/07 03:42:58 dmytro Exp $
 //
 
 // system include files
@@ -34,6 +34,7 @@
 // constructors and destructor
 //
 CaloJetProxy3DLegoBuilder::CaloJetProxy3DLegoBuilder()
+  :m_product(0)
 {
 }
 
@@ -66,8 +67,10 @@ CaloJetProxy3DLegoBuilder::build(const FWEventItem* iItem,
 				       TH2** product)
 {
   if (0==*product) {
-    *product = new TH2F("jetsLego","Jets distribution",
+     TH2F* h = new TH2F("jetsLego","Jets distribution",
 			82, fw3dlego::xbins, 72/legoRebinFactor(), -3.1416, 3.1416);
+     m_product = h;
+     *product = h;
   }
   (*product)->Reset();
   (*product)->SetFillColor(iItem->defaultDisplayProperties().color());
@@ -106,6 +109,48 @@ CaloJetProxy3DLegoBuilder::build(const FWEventItem* iItem,
 	}
    }
 }
+
+void CaloJetProxy3DLegoBuilder::message( int type, int xbin, int ybin )
+{
+   const FWEventItem* iItem = getItem();
+   const reco::CaloJetCollection* jets=0;
+   iItem->get(jets);
+   if(0==jets) {
+      std::cout <<"Failed to get CaloJets"<<std::endl;
+      return;
+   }
+   if ( ! m_product ) return;
+   
+   // check if any jets contibute to the selected bin
+   // and if not, change message type to zero - unselect.
+   if ( type && m_product->GetBinContent(xbin,ybin) < 1e-9 ) type = 0; 
+   
+   for ( unsigned int i = 0; i < jets->size(); ++i ) {
+      if ( ! iItem->modelInfo(i).displayProperties().isVisible() ) continue;
+      if ( type == 0 ) {
+	 iItem->unselect(i);
+	 continue;
+      }
+      std::vector<CaloTowerRef> towers = jets->at(i).getConstituents();
+      bool selected = false;
+      for ( std::vector<CaloTowerRef>::const_iterator tower = towers.begin();
+	    tower != towers.end(); ++tower )
+	{
+	   if ( m_product->GetXaxis()->FindFixBin((*tower)->eta()) == xbin &&
+		m_product->GetYaxis()->FindFixBin((*tower)->phi()) == ybin )
+	     {
+		selected = true;
+		break;
+	     }
+	}
+      if ( selected && iItem->modelInfo(i).isSelected() ) continue;
+      if ( ! selected && ! iItem->modelInfo(i).isSelected() ) continue;
+      if ( ! selected && iItem->modelInfo(i).isSelected() ) iItem->unselect(i);
+      if ( selected && ! iItem->modelInfo(i).isSelected() ) iItem->select(i);
+   }
+   
+}
+
 
 //
 // const member functions

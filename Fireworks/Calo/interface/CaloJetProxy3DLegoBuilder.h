@@ -16,7 +16,7 @@
 //
 // Original Author:  
 //         Created:  Sun Jan  6 23:42:33 EST 2008
-// $Id: CaloJetProxy3DLegoBuilder.h,v 1.1 2008/01/07 14:15:16 chrjones Exp $
+// $Id: CaloJetProxy3DLegoBuilder.h,v 1.2 2008/03/06 10:17:15 dmytro Exp $
 //
 
 // system include files
@@ -25,7 +25,7 @@
 #include "Fireworks/Core/interface/FW3DLegoDataProxyBuilder.h"
 
 // forward declarations
-
+class TH2F;
 class CaloJetProxy3DLegoBuilder : public FW3DLegoDataProxyBuilder
 {
 
@@ -41,6 +41,7 @@ class CaloJetProxy3DLegoBuilder : public FW3DLegoDataProxyBuilder
 			bool selectedFlag );
 
       // ---------- member functions ---------------------------
+      virtual void message( int type, int xbin, int ybin );
 
    private:
       virtual void build(const FWEventItem* iItem, 
@@ -52,7 +53,7 @@ class CaloJetProxy3DLegoBuilder : public FW3DLegoDataProxyBuilder
 
       double deltaR( double, double, double, double );
       // ---------- member data --------------------------------
-
+      const TH2F* m_product;
 };
 
 

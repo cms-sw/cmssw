@@ -16,7 +16,7 @@
 //
 // Original Author:  
 //         Created:  Sat Jan  5 15:02:03 EST 2008
-// $Id: FW3DLegoDataProxyBuilder.h,v 1.2 2008/02/03 02:43:54 dmytro Exp $
+// $Id: FW3DLegoDataProxyBuilder.h,v 1.3 2008/03/06 10:17:16 dmytro Exp $
 //
 
 // system include files
@@ -46,9 +46,12 @@ class FW3DLegoDataProxyBuilder
       // ---------- member functions ---------------------------
       void setItem(const FWEventItem* iItem);
       void build(TH2** product);
+      virtual void message( int type, int xbin, int ybin ){ }
 
    protected:
       int legoRebinFactor() const {return 1;}
+      const FWEventItem* getItem() const { return m_item; }
+	
    private:
       virtual void build(const FWEventItem* iItem,
 			 TH2** product) = 0 ;

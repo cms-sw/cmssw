@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Feb 21 11:22:37 EST 2008
-// $Id: FW3DLegoView.h,v 1.1 2008/02/21 19:20:05 chrjones Exp $
+// $Id: FW3DLegoView.h,v 1.2 2008/02/21 20:38:39 chrjones Exp $
 //
 
 // system include files
@@ -50,9 +50,7 @@ class FW3DLegoView : public FWViewBase
       void draw(THStack*);
 
       void DynamicCoordinates();
-      void exec3event(int event, int x, int y, TObject *selected);
-      void pixel2wc(const Int_t PixelX, const Int_t PixelY, 
-                    Double_t& WCX, Double_t& WCY, const Double_t WCZ = 0);
+      void connect(const char* receiver_class, void* receiver, const char* slot);   
    
    private:
       FW3DLegoView(const FW3DLegoView&); // stop default
