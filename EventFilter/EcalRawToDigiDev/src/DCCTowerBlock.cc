@@ -75,7 +75,7 @@ void DCCTowerBlock::unpackXtalData(uint expStripID, uint expXtalID){
       int ch = lastXtalId_;
       ch++;
       if (ch > NUMB_XTAL) 	{ch=1; st++;}
-      if (st > NUMB_STRIP)	{ch=-1; st=-1;}
+      if (st > NUMB_STRIP)	{ch=1; st=1;}
       
       // adding channel following the last valid
       pDetId_ = (EBDetId*) mapper_->getDetIdPointer(towerId_,st,ch);
@@ -106,7 +106,7 @@ void DCCTowerBlock::unpackXtalData(uint expStripID, uint expXtalID){
 	  int ch = lastXtalId_;
 	  ch++;
 	  if (ch > NUMB_XTAL)	{ch=1; st++;}
-	  if (st > NUMB_STRIP)	{ch=-1; st=-1;}
+	  if (st >  NUMB_STRIP)	{ch=1; st=1;}
 	  
 	  // adding channel following the last valid
 	  pDetId_ = (EBDetId*) mapper_->getDetIdPointer(towerId_,st,ch);
@@ -135,7 +135,7 @@ void DCCTowerBlock::unpackXtalData(uint expStripID, uint expXtalID){
 	int ch = lastXtalId_;
 	ch++;
 	if (ch > NUMB_XTAL)	{ch=1; st++;}
-	if (st > NUMB_STRIP)	{ch=-1; st=-1;}
+	if (st >  NUMB_STRIP)	{ch=1; st=1;}
 	
 	// adding channel following the last valid
 	pDetId_ = (EBDetId*) mapper_->getDetIdPointer(towerId_,st,ch);
