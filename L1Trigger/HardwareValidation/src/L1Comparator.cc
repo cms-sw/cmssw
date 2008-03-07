@@ -226,6 +226,13 @@ L1Comparator::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
     iEvent.getByLabel(m_DEsource[DTF][1].label(),"DT",dtf_emul);
     iEvent.getByLabel(m_DEsource[DTF][0].label(),"DTTF",dtf_trk_data_);
     iEvent.getByLabel(m_DEsource[DTF][1].label(),"DTTF",dtf_trk_emul_);
+<<<<<<< L1Comparator.cc
+  } 
+  if(dtf_trk_data_.isValid())			 
+    dtf_trk_data = dtf_trk_data_->getContainer();
+  if(dtf_trk_emul_.isValid())			 
+    dtf_trk_emul = dtf_trk_emul_->getContainer();
+=======
   } 
   //extract the regional cands
   typedef std::vector<L1MuDTTrackCand> L1MuDTTrackCandCollection;
@@ -245,6 +252,7 @@ L1Comparator::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   }  
   dtf_trk_data =&dtf_trk_data_v;
   dtf_trk_emul =&dtf_trk_emul_v;
+>>>>>>> 1.11
   
   // -- CTP [cathod strip chamber trigger primitive]
   edm::Handle<CSCALCTDigiCollection>          ctp_ano_data_;
@@ -620,6 +628,29 @@ L1Comparator::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
     }
     m_dumpFile << "\n  GT...\n";
 
+<<<<<<< L1Comparator.cc
+    if(glt_rdt_data.isValid() && glt_rdt_emul.isValid()) {
+      
+      //fill gt mon info
+      bool globalDBit[2];
+      std::vector<bool> gltDecBits[2], gltTchBits[2];
+      globalDBit[0] = glt_rdt_data->decision();
+      globalDBit[1] = glt_rdt_emul->decision();
+      gltDecBits[0] = glt_rdt_data->decisionWord();
+      gltDecBits[1] = glt_rdt_emul->decisionWord();
+      gltTchBits[0] = glt_rdt_data->gtFdlWord().gtTechnicalTriggerWord();
+      gltTchBits[1] = glt_rdt_emul->gtFdlWord().gtTechnicalTriggerWord();
+      gltdigimon.set(globalDBit, gltDecBits, gltTchBits);
+
+      DEncand[GLT][0]=1; DEncand[GLT][1]=1;
+      DEmatchEvt[GLT]  = compareCollections(glt_rdt_data, glt_rdt_emul);  
+    }
+
+    if(glt_evm_data.isValid() && glt_evm_emul.isValid())
+      DEmatchEvt[GLT] &= compareCollections(glt_evm_data, glt_evm_emul);  
+    if(glt_obj_data.isValid() && glt_obj_emul.isValid())
+      DEmatchEvt[GLT] &= compareCollections(glt_obj_data, glt_obj_emul);  
+=======
     if(glt_rdt_data.isValid() && glt_rdt_emul.isValid()) {
       
       //fill gt mon info
@@ -641,6 +672,7 @@ L1Comparator::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
       DEmatchEvt[GLT] &= compareCollections(glt_evm_data, glt_evm_emul);  
     if(glt_obj_data.isValid() && glt_obj_emul.isValid())
       DEmatchEvt[GLT] &= compareCollections(glt_obj_data, glt_obj_emul);  
+>>>>>>> 1.11
 
     char ok[10];
     char dumptofile[1000];
@@ -1201,6 +1233,8 @@ L1Comparator::compareCollections(edm::Handle<L1GlobalTriggerObjectMapRecord> dat
     match &= ( data_ovec.at(idx).algoBitNumber()          == emul_ovec.at(idx).algoBitNumber()	        );
     match &= ( data_ovec.at(idx).algoGtlResult()          == emul_ovec.at(idx).algoGtlResult()	        );
     match &= ( data_ovec.at(idx).combinationVector()      == emul_ovec.at(idx).combinationVector()	);
+<<<<<<< L1Comparator.cc
+=======
     match &= ( data_ovec.at(idx).operandTokenVector().size()==emul_ovec.at(idx).operandTokenVector().size());
     if(match) {
       for(std::vector<L1GtLogicParser::OperandToken>::size_type i=0; i<data_ovec.at(idx).operandTokenVector().size(); i++) {
@@ -1212,6 +1246,7 @@ L1Comparator::compareCollections(edm::Handle<L1GlobalTriggerObjectMapRecord> dat
 		   emul_ovec.at(idx).operandTokenVector().at(i).tokenResult );
       }
     }
+>>>>>>> 1.11
   }
 
   if(m_dumpMode==0 && match)
@@ -1223,15 +1258,22 @@ L1Comparator::compareCollections(edm::Handle<L1GlobalTriggerObjectMapRecord> dat
   m_dumpFile << "\n\tdata: "
 	     << " algorithmName:"         << data_ovec.at(idx).algoName()
 	     << " Bitnumber:"             << data_ovec.at(idx).algoBitNumber()
+<<<<<<< L1Comparator.cc
+	     << " GTLresult:"             << data_ovec.at(idx).algoGtlResult();
+=======
 	     << " GTLresult:"             << data_ovec.at(idx).algoGtlResult()
 	     << " combinationVectorSize:" << data_ovec.at(idx).combinationVector().size()
 	     << " operandTokenVector:"    << data_ovec.at(idx).operandTokenVector().size(); 
+>>>>>>> 1.11
   m_dumpFile << "\n\temul: "
 	     << " algorithmName:"         << emul_ovec.at(idx).algoName()
 	     << " Bitnumber:"             << emul_ovec.at(idx).algoBitNumber()
 	     << " GTLresult:"             << emul_ovec.at(idx).algoGtlResult()
+<<<<<<< L1Comparator.cc
+=======
 	     << " combinationVectorSize:" << emul_ovec.at(idx).combinationVector().size()
 	     << " operandTokenVector:"    << emul_ovec.at(idx).operandTokenVector().size() 
+>>>>>>> 1.11
 	     << "\n" << std::endl;
 
   char ok[10];
