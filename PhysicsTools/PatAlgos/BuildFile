@@ -3,6 +3,7 @@
 <use name=DataFormats/EgammaCandidates>
 <use name=DataFormats/EgammaReco>
 <use name=DataFormats/JetReco>
+<use name=DataFormats/L1Trigger>
 <use name=DataFormats/Math>
 <use name=DataFormats/METReco>
 <use name=DataFormats/MuonReco>
@@ -29,6 +30,7 @@
   <use name=DataFormats/METReco>
   <use name=DataFormats/MuonReco>
   <use name=DataFormats/PatCandidates>
+  <use name=DataFormats/L1Trigger>
   <use name=DataFormats/TauReco>
   <use name=DataFormats/TrackReco>
   <use name=DataFormats/VertexReco>
