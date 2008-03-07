@@ -8,8 +8,8 @@
 
 /** \class HcalDigiMonitor
   *  
-  * $Date: 2008/03/01 00:39:58 $
-  * $Revision: 1.16 $
+  * $Date: 2008/03/06 21:19:54 $
+  * $Revision: 1.17 $
   * \author W. Fisher - FNAL
   */
 class HcalDigiMonitor: public HcalBaseMonitor {
@@ -49,11 +49,11 @@ private:  ///Monitoring elements
   MonitorElement* OCC_L3;
   MonitorElement* OCC_L4;
   MonitorElement* OCC_ELEC_VME;
-  MonitorElement* OCC_ELEC_FIB; //Not relevant for > 1 HTR
+  
   MonitorElement* OCC_ELEC_DCC;
   MonitorElement* ERR_MAP_GEO;
   MonitorElement* ERR_MAP_VME;
-  MonitorElement* ERR_MAP_FIB;  //Not relevant for > 1 HTR
+
   MonitorElement* ERR_MAP_DCC;
 
   MonitorElement* CAPID_T0;
@@ -70,7 +70,7 @@ private:  ///Monitoring elements
     MonitorElement* QIE_DV;
     MonitorElement* ERR_MAP_GEO;
     MonitorElement* ERR_MAP_VME;
-    MonitorElement* ERR_MAP_FIB;
+
     MonitorElement* ERR_MAP_DCC;
     MonitorElement* OCC_MAP_GEO1;
     MonitorElement* OCC_MAP_GEO2;
@@ -79,7 +79,7 @@ private:  ///Monitoring elements
     MonitorElement* OCC_ETA;
     MonitorElement* OCC_PHI;
     MonitorElement* OCC_MAP_VME;
-    MonitorElement* OCC_MAP_FIB;
+
     MonitorElement* OCC_MAP_DCC;
     MonitorElement* SHAPE_tot;
     MonitorElement* SHAPE_THR_tot;
