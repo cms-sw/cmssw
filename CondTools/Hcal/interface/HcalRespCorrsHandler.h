@@ -32,7 +32,7 @@ class HcalRespCorrsHandler : public popcon::PopConSourceHandler<HcalRespCorrs>
 
  private:
   unsigned int sinceTime;
-  std::string fFile;
+  edm::FileInPath fFile;
 
   std::string m_name;
 

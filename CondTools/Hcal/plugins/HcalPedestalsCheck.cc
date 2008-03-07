@@ -157,7 +157,7 @@ void HcalPedestalsCheck::analyze(const edm::Event& ev, const edm::EventSetup& es
       {
 	DetId mydetid = DetId(it->rawId());
 	HcalGenericDetId mygenid(it->rawId());
-	std::cout << "id = " << mygenid << ", hashed id = " << mygenid.hashedId() << std::endl;
+	//	std::cout << "id = " << mygenid << ", hashed id = " << mygenid.hashedId() << std::endl;
 	if (std::find(listResult.begin(), listResult.end(), mydetid ) == listResult.end())
 	  {
 	    std::cout << "Conditions not found for DetId = " << HcalGenericDetId(it->rawId()) << std::endl;

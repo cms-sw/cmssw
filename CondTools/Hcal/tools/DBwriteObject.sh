@@ -56,18 +56,10 @@ do
     jobnumber=`expr $jobnumber + 1`
 done
 jobnumber=0
-for item in `echo $DBPUTTAGLIST`
-do
-    JOBFILE=${JOBFILESTEM}_${jobnumber}.cfg
-    sed -i "s|<PutTag>|${item}|g" $JOBFILE
-    jobnumber=`expr $jobnumber + 1`
-done
-jobnumber=0
 for item in `echo $DBTIMELIST`
 do
     JOBFILE=${JOBFILESTEM}_${jobnumber}.cfg
-    sed -i "s|<SinceTime>|${item}|g" $JOBFILE
-    sed -i "s|<TillTime>|${item}|g" $JOBFILE
+    sed -i "s|<IOVTime>|${item}|g" $JOBFILE
     jobnumber=`expr $jobnumber + 1`
 done
 

@@ -32,7 +32,7 @@ class HcalChannelQualityHandler : public popcon::PopConSourceHandler<HcalChannel
 
  private:
   unsigned int sinceTime;
-  std::string fFile;
+  edm::FileInPath fFile;
 
   std::string m_name;
 

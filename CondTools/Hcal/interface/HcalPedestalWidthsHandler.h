@@ -32,7 +32,7 @@ class HcalPedestalWidthsHandler : public popcon::PopConSourceHandler<HcalPedesta
 
  private:
   unsigned int sinceTime;
-  std::string fFile;
+  edm::FileInPath fFile;
 
   std::string m_name;
 

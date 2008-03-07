@@ -32,7 +32,7 @@ class HcalZSThresholdsHandler : public popcon::PopConSourceHandler<HcalZSThresho
 
  private:
   unsigned int sinceTime;
-  std::string fFile;
+  edm::FileInPath fFile;
 
   std::string m_name;
 

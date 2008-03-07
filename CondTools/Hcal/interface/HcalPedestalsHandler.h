@@ -32,7 +32,7 @@ class HcalPedestalsHandler : public popcon::PopConSourceHandler<HcalPedestals>
 
  private:
   unsigned int sinceTime;
-  std::string fFile;
+  edm::FileInPath fFile;
 
   std::string m_name;
 

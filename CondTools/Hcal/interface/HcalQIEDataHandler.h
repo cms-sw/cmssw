@@ -32,7 +32,7 @@ class HcalQIEDataHandler : public popcon::PopConSourceHandler<HcalQIEData>
 
  private:
   unsigned int sinceTime;
-  std::string fFile;
+  edm::FileInPath fFile;
 
   std::string m_name;
 

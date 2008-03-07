@@ -32,7 +32,7 @@ class HcalGainsHandler : public popcon::PopConSourceHandler<HcalGains>
 
  private:
   unsigned int sinceTime;
-  std::string fFile;
+  edm::FileInPath fFile;
 
   std::string m_name;
 
