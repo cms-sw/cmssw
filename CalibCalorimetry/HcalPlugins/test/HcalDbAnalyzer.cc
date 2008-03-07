@@ -13,7 +13,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Jun 24 19:13:25 EDT 2005
-// $Id: HcalDbAnalyzer.cc,v 1.19 2007/07/25 20:29:12 mansj Exp $
+// $Id: HcalDbAnalyzer.cc,v 1.20 2007/12/20 15:50:18 mansj Exp $
 //
 //
 
@@ -141,10 +141,10 @@ HcalDbAnalyzer::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup
 	    << calibrations.pedestal (2) << '/'
 	    << calibrations.pedestal (3)
 	    << ",  gains: "
-	    << calibrations.gain (0) << '/'
-	    << calibrations.gain (1) << '/'
-	    << calibrations.gain (2) << '/'
-	    << calibrations.gain (3)
+	    << calibrations.rawgain (0) << '/'
+	    << calibrations.rawgain (1) << '/'
+	    << calibrations.rawgain (2) << '/'
+	    << calibrations.rawgain (3)
 	    << std::endl;
   std::cout << "Widths. pedestals: " 
 	    << widths.pedestal (0) << '/'
