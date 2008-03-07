@@ -11,11 +11,8 @@ void HcalDigiClient::init(const ParameterSet& ps, DQMStore* dbe, string clientNa
 
   for(int i=0; i<4; i++){
     gl_occ_geo_[i]=0;
-    gl_err_geo_=0;
     if(i<3) gl_occ_elec_[i]=0;
     if(i<3) gl_err_elec_[i]=0;
-    gl_occ_eta_ = 0;
-    gl_occ_phi_ = 0;
 
     sub_occ_geo_[i][0]=0;  sub_occ_geo_[i][1]=0;
     sub_occ_geo_[i][2]=0;  sub_occ_geo_[i][3]=0;
@@ -31,7 +28,19 @@ void HcalDigiClient::init(const ParameterSet& ps, DQMStore* dbe, string clientNa
     sub_err_elec_[i][2]=0;
     qie_adc_[i]=0;  num_digi_[i]=0;
     qie_capid_[i]=0; qie_dverr_[i]=0;
+
+    sub_num_bqdigi_[i] = 0;
+    sub_bqdigi_frac_[i] = 0;
+    sub_capid_t0_[i] = 0;
   }
+    gl_err_geo_=0;
+    gl_occ_eta_ = 0;
+    gl_occ_phi_ = 0;
+
+    gl_num_digi_ = 0;
+    gl_num_bqdigi_ = 0;
+    gl_bqdigi_frac_ = 0;
+    gl_capid_t0_ = 0;
 }
 
 HcalDigiClient::~HcalDigiClient(){
@@ -87,6 +96,11 @@ void HcalDigiClient::cleanup(void) {
     if(gl_err_geo_) delete gl_err_geo_;
     if(gl_occ_eta_) delete gl_occ_eta_;
     if(gl_occ_phi_) delete gl_occ_phi_;
+
+    if(gl_num_digi_) delete gl_num_digi_;
+    if(gl_num_bqdigi_) delete gl_num_bqdigi_;
+    if(gl_bqdigi_frac_) delete gl_bqdigi_frac_;
+    if(gl_capid_t0_) delete gl_capid_t0_;
     
     for(int i=0; i<4; i++){
       if(gl_occ_geo_[i]) delete gl_occ_geo_[i];
@@ -113,7 +127,11 @@ void HcalDigiClient::cleanup(void) {
       if(qie_adc_[i]) delete qie_adc_[i];
       if(qie_capid_[i]) delete qie_capid_[i];
       if(qie_dverr_[i]) delete qie_dverr_[i];
-      if(num_digi_[i]) delete num_digi_[i];      
+      if(num_digi_[i]) delete num_digi_[i]; 
+
+      if(sub_num_bqdigi_[i]) delete sub_num_bqdigi_[i];      
+      if(sub_bqdigi_frac_[i]) delete sub_bqdigi_frac_[i];      
+      if(sub_capid_t0_[i]) delete sub_capid_t0_[i];           
     }    
   }
 
@@ -121,6 +139,11 @@ void HcalDigiClient::cleanup(void) {
   gl_err_geo_=0;
   gl_occ_eta_ = 0;
   gl_occ_phi_ = 0;
+
+  gl_num_digi_ = 0;
+  gl_num_bqdigi_ = 0;
+  gl_bqdigi_frac_ = 0;
+  gl_capid_t0_ = 0;
   
   for(int i=0; i<4; i++){
     gl_occ_geo_[i]=0;
@@ -141,6 +164,10 @@ void HcalDigiClient::cleanup(void) {
     sub_err_elec_[i][2]=0;
     qie_adc_[i]=0;  num_digi_[i]=0;
     qie_capid_[i]=0; qie_dverr_[i]=0;
+
+    sub_num_bqdigi_[i] = 0;
+    sub_bqdigi_frac_[i] = 0;
+    sub_capid_t0_[i] = 0;
   }
 
   return;
@@ -189,9 +216,6 @@ void HcalDigiClient::getHistograms(){
   sprintf(name,"DigiMonitor/Digi VME Error Map");
   gl_err_elec_[0] = getHisto2(name,process_, dbe_,debug_,cloneME_);
   
-  sprintf(name,"DigiMonitor/Digi Fiber Error Map");
-  gl_err_elec_[1] = getHisto2(name,process_, dbe_,debug_,cloneME_);
-  
   sprintf(name,"DigiMonitor/Digi Spigot Error Map");
   gl_err_elec_[2] = getHisto2(name,process_, dbe_,debug_,cloneME_);
   
@@ -210,9 +234,6 @@ void HcalDigiClient::getHistograms(){
   sprintf(name,"DigiMonitor/Digi VME Occupancy Map");
   gl_occ_elec_[0] = getHisto2(name,process_, dbe_,debug_,cloneME_);
   
-  sprintf(name,"DigiMonitor/Digi Fiber Occupancy Map");
-  gl_occ_elec_[1] = getHisto2(name,process_, dbe_,debug_,cloneME_);
-  
   sprintf(name,"DigiMonitor/Digi Spigot Occupancy Map");
   gl_occ_elec_[2] = getHisto2(name,process_, dbe_,debug_,cloneME_);
   
@@ -221,8 +242,19 @@ void HcalDigiClient::getHistograms(){
   
   sprintf(name,"DigiMonitor/Digi Phi Occupancy Map");
   gl_occ_phi_ = getHisto(name,process_, dbe_,debug_,cloneME_);
-  
-  
+
+  sprintf(name,"DigiMonitor/Capid 1st Time Slice");
+  gl_capid_t0_ = getHisto(name,process_, dbe_,debug_,cloneME_);
+
+  sprintf(name,"DigiMonitor/# of Digis");
+  gl_num_digi_ = getHisto(name,process_, dbe_,debug_,cloneME_);
+
+  sprintf(name,"DigiMonitor/# Bad Qual Digis");
+  gl_num_bqdigi_ = getHisto(name,process_, dbe_,debug_,cloneME_);
+
+  sprintf(name,"DigiMonitor/Bad Digi Fraction");
+  gl_bqdigi_frac_ = getHisto(name,process_, dbe_,debug_,cloneME_);
+   
   for(int i=0; i<4; i++){
     if(!subDetsOn_[i]) continue;
     string type = "HB";
@@ -281,6 +313,17 @@ void HcalDigiClient::getHistograms(){
     sprintf(name,"DigiMonitor/%s/%s QIE Data Valid Err Bits",type.c_str(),type.c_str());
     qie_dverr_[i] = getHisto(name, process_, dbe_,debug_,cloneME_);
 
+    sprintf(name,"DigiMonitor/%s/%s # Bad Qual Digis",type.c_str(),type.c_str());
+    sub_num_bqdigi_[i] = getHisto(name, process_, dbe_,debug_,cloneME_);
+
+    sprintf(name,"DigiMonitor/%s/%s Bad Digi Fraction",type.c_str(),type.c_str());
+    sub_bqdigi_frac_[i] = getHisto(name, process_, dbe_,debug_,cloneME_);
+
+    sprintf(name,"DigiMonitor/%s/%s Capid 1st Time Slice",type.c_str(),type.c_str());
+    sub_capid_t0_[i] = getHisto(name, process_, dbe_,debug_,cloneME_);
+
+
+
   }
   return;
 }
@@ -301,17 +344,25 @@ void HcalDigiClient::resetAllME(){
   resetME(name,dbe_);
   sprintf(name,"%sHcal/DigiMonitor/Digi VME Occupancy Map",process_.c_str());
   resetME(name,dbe_);
-  sprintf(name,"%sHcal/DigiMonitor/Digi Fiber Occupancy Map",process_.c_str());
-  resetME(name,dbe_);
   sprintf(name,"%sHcal/DigiMonitor/Digi Spigot Occupancy Map",process_.c_str());
   resetME(name,dbe_);
   sprintf(name,"%sHcal/DigiMonitor/Digi Geo Error Map",process_.c_str());
   resetME(name,dbe_);
   sprintf(name,"%sHcal/DigiMonitor/Digi VME Error Map",process_.c_str());
   resetME(name,dbe_);
-  sprintf(name,"%sHcal/DigiMonitor/Digi Fiber Error Map",process_.c_str());
-  resetME(name,dbe_);
   sprintf(name,"%sHcal/DigiMonitor/Digi Spigot Error Map",process_.c_str());
+  resetME(name,dbe_);
+
+  sprintf(name,"%sDigiMonitor/Capid 1st Time Slice",process_.c_str());
+  resetME(name,dbe_);
+
+  sprintf(name,"%sDigiMonitor/# of Digis",process_.c_str());
+  resetME(name,dbe_);
+
+  sprintf(name,"%sDigiMonitor/# Bad Qual Digis",process_.c_str());
+  resetME(name,dbe_);
+
+  sprintf(name,"%sDigiMonitor/Bad Digi Fraction",process_.c_str());
   resetME(name,dbe_);
   
   for(int i=0; i<4; i++){
@@ -359,6 +410,18 @@ void HcalDigiClient::resetAllME(){
     resetME(name,dbe_);
     sprintf(name,"%sHcal/DigiMonitor/%s/%s Digi Spigot Occupancy Map",process_.c_str(),type.c_str(),type.c_str());
     resetME(name,dbe_);
+
+    sprintf(name,"%sDigiMonitor/%s/%s Capid 1st Time Slice",process_.c_str(),type.c_str(),type.c_str());
+  resetME(name,dbe_);
+
+  sprintf(name,"%sDigiMonitor/%s/%s # of Digis",process_.c_str(),type.c_str(),type.c_str());
+  resetME(name,dbe_);
+
+  sprintf(name,"%sDigiMonitor/%s/%s # Bad Qual Digis",process_.c_str(),type.c_str(),type.c_str());
+  resetME(name,dbe_);
+
+  sprintf(name,"%sDigiMonitor/%s/%s Bad Digi Fraction",process_.c_str(),type.c_str(),type.c_str());
+  resetME(name,dbe_);
 
   }
   return;
@@ -419,13 +482,8 @@ void HcalDigiClient::htmlOutput(int runNo, string htmlDir, string htmlName){
   htmlFile << "<td>&nbsp;&nbsp;&nbsp;<h3>Global Histograms</h3></td></tr>" << endl;
 
   htmlFile << "<tr align=\"left\">" << endl;
-  histoHTML2(runNo,gl_err_geo_,"iEta","iPhi", 92, htmlFile,htmlDir);
-  histoHTML2(runNo,gl_err_elec_[0],"HTR Slot","VME Crate ID", 100, htmlFile,htmlDir);
-  htmlFile << "</tr>" << endl;
-
-  htmlFile << "<tr align=\"left\">" << endl;
-  histoHTML2(runNo,gl_err_elec_[1],"Fiber Channel","Fiber", 92, htmlFile,htmlDir);
-  histoHTML2(runNo,gl_err_elec_[2],"Spigot","DCC Id", 100, htmlFile,htmlDir);
+  histoHTML(runNo,gl_num_digi_,"# Digis","Events", 92, htmlFile,htmlDir);
+  histoHTML(runNo,gl_bqdigi_frac_,"Fraction bad quality digis","Events", 100, htmlFile,htmlDir);
   htmlFile << "</tr>" << endl;
 
   htmlFile << "<tr align=\"left\">" << endl;
@@ -443,6 +501,26 @@ void HcalDigiClient::htmlOutput(int runNo, string htmlDir, string htmlName){
   histoHTML(runNo,gl_occ_phi_,"iPhi","Events", 100, htmlFile,htmlDir);
   htmlFile << "</tr>" << endl;
 
+  htmlFile << "<tr align=\"left\">" << endl;
+  histoHTML2(runNo,gl_occ_elec_[0],"HTR Slot","VME Crate Id", 92, htmlFile,htmlDir);
+  histoHTML2(runNo,gl_occ_elec_[2],"Spigot","DCC Id", 100, htmlFile,htmlDir);
+  htmlFile << "</tr>" << endl;
+
+  htmlFile << "<tr align=\"left\">" << endl;
+  histoHTML(runNo,gl_num_bqdigi_,"# Bad Quality Digis","Events", 92, htmlFile,htmlDir);
+  histoHTML(runNo,gl_capid_t0_,"CapId T0 relative to 1st CapId","Events", 100, htmlFile,htmlDir);
+  htmlFile << "</tr>" << endl;
+
+  htmlFile << "<tr align=\"left\">" << endl;
+  histoHTML2(runNo,gl_err_geo_,"iEta","iPhi", 92, htmlFile,htmlDir);
+
+  htmlFile << "</tr>" << endl;
+
+  htmlFile << "<tr align=\"left\">" << endl;
+  histoHTML2(runNo,gl_err_elec_[0],"HTR Slot","VME Crate Id", 92, htmlFile,htmlDir);
+  histoHTML2(runNo,gl_err_elec_[2],"Spigot","DCC Id", 100, htmlFile,htmlDir);
+  htmlFile << "</tr>" << endl;
+
   for(int i=0; i<4; i++){
     if(!subDetsOn_[i]) continue;
     string type = "HB";
@@ -453,14 +531,9 @@ void HcalDigiClient::htmlOutput(int runNo, string htmlDir, string htmlName){
     htmlFile << "<tr align=\"left\">" << endl;
     htmlFile << "<td>&nbsp;&nbsp;&nbsp;<a name=\""<<type<<"_Plots\"><h3>" << type << " Histograms</h3></td></tr>" << endl;
 
-    htmlFile << "<tr align=\"left\">" << endl;
-    histoHTML2(runNo,sub_err_geo_[i],"iEta","iPhi", 92, htmlFile,htmlDir);
-    histoHTML2(runNo,sub_err_elec_[i][0],"HTR Slot","VME Crate ID", 100, htmlFile,htmlDir);
-    htmlFile << "</tr>" << endl;
-    
-    htmlFile << "<tr align=\"left\">" << endl;
-    histoHTML2(runNo,sub_err_elec_[i][1],"Fiber Channel","Fiber", 92, htmlFile,htmlDir);
-    histoHTML2(runNo,sub_err_elec_[i][2],"Spigot","DCC Id", 100, htmlFile,htmlDir);
+    htmlFile << "<tr align=\"left\">" << endl;	
+    histoHTML(runNo,num_digi_[i],"Number of Digis","Events", 92, htmlFile,htmlDir);
+    histoHTML(runNo,sub_capid_t0_[i],"CapId (T0) - 1st CapId (T0)","Events", 100, htmlFile,htmlDir);
     htmlFile << "</tr>" << endl;
 
     int count = 0;
@@ -485,12 +558,22 @@ void HcalDigiClient::htmlOutput(int runNo, string htmlDir, string htmlName){
     htmlFile << "</tr>" << endl;
 
     htmlFile << "<tr align=\"left\">" << endl;	
-    histoHTML2(runNo,sub_occ_elec_[i][0],"HTR Slot", "VME Crate ID", 92, htmlFile,htmlDir);
-    histoHTML2(runNo,sub_occ_elec_[i][1],"Fiber Channel","Fiber", 100, htmlFile,htmlDir);
+    histoHTML2(runNo,sub_occ_elec_[i][0],"HTR Slot", "VME Crate ID", 92, htmlFile,htmlDir);    histoHTML2(runNo,sub_occ_elec_[i][2],"Spigot","DCC Id", 100, htmlFile,htmlDir);
     htmlFile << "</tr>" << endl;
 
-    htmlFile << "<tr align=\"left\">" << endl;	
-    histoHTML2(runNo,sub_occ_elec_[i][2],"Spigot","DCC Id", 100, htmlFile,htmlDir);
+    htmlFile << "<tr align=\"left\">" << endl;
+    histoHTML(runNo,sub_num_bqdigi_[i],"# Bad Quality Digis","Events", 92, htmlFile,htmlDir);
+    histoHTML(runNo,sub_bqdigi_frac_[i],"Bad Quality Digi Fraction","Events", 100, htmlFile,htmlDir);
+    htmlFile << "</tr>" << endl;
+
+    htmlFile << "<tr align=\"left\">" << endl;
+    histoHTML2(runNo,sub_err_geo_[i],"iEta","iPhi", 92, htmlFile,htmlDir);
+    histoHTML2(runNo,sub_err_elec_[i][0],"HTR Slot","VME Crate ID", 100, htmlFile,htmlDir);
+    htmlFile << "</tr>" << endl;
+    
+    htmlFile << "<tr align=\"left\">" << endl;
+    histoHTML2(runNo,sub_err_elec_[i][2],"Spigot","DCC Id", 92, htmlFile,htmlDir);
+    histoHTML(runNo,qie_adc_[i],"QIE ADC Value","Events", 100, htmlFile,htmlDir);
     htmlFile << "</tr>" << endl;
     
     htmlFile << "<tr align=\"left\">" << endl;	
@@ -498,11 +581,6 @@ void HcalDigiClient::htmlOutput(int runNo, string htmlDir, string htmlName){
     histoHTML(runNo,qie_capid_[i],"QIE CAPID Value","Events", 100, htmlFile,htmlDir);
     htmlFile << "</tr>" << endl;
     
-    htmlFile << "<tr align=\"left\">" << endl;
-    histoHTML(runNo,qie_adc_[i],"QIE ADC Value","Events", 92, htmlFile,htmlDir);	
-    histoHTML(runNo,num_digi_[i],"Number of Digis","Events", 100, htmlFile,htmlDir);
-    htmlFile << "</tr>" << endl;
-	
   }
   htmlFile << "</table>" << endl;
   htmlFile << "<br>" << endl;
@@ -614,9 +692,6 @@ void HcalDigiClient::loadHistograms(TFile* infile){
   
   sprintf(name,"DQMData/Hcal/DigiMonitor/Digi VME Error Map");
   gl_err_elec_[0] = (TH2F*)infile->Get(name);
-  
-    sprintf(name,"DQMData/Hcal/DigiMonitor/Digi Fiber Error Map");
-    gl_err_elec_[1] = (TH2F*)infile->Get(name);
 
     sprintf(name,"DQMData/Hcal/DigiMonitor/Digi Spigot Error Map");
     gl_err_elec_[2] = (TH2F*)infile->Get(name);
@@ -642,13 +717,21 @@ void HcalDigiClient::loadHistograms(TFile* infile){
     sprintf(name,"DQMData/Hcal/DigiMonitor/Digi VME Occupancy Map");
     gl_occ_elec_[0] = (TH2F*)infile->Get(name);
 
-    sprintf(name,"DQMData/Hcal/DigiMonitor/Digi Fiber Occupancy Map");
-    gl_occ_elec_[1] = (TH2F*)infile->Get(name);
-
     sprintf(name,"DQMData/Hcal/DigiMonitor/Digi Spigot Occupancy Map");
     gl_occ_elec_[2] = (TH2F*)infile->Get(name);
 
+    sprintf(name,"DigiMonitor/Capid 1st Time Slice");
+    gl_capid_t0_ =  (TH1F*)infile->Get(name);
 
+    sprintf(name,"DigiMonitor/# of Digis");
+    gl_num_digi_ =  (TH1F*)infile->Get(name);
+
+    sprintf(name,"DigiMonitor/# Bad Qual Digis");
+    gl_num_bqdigi_ =  (TH1F*)infile->Get(name);
+
+    sprintf(name,"DigiMonitor/Bad Digi Fraction");
+    gl_bqdigi_frac_ =  (TH1F*)infile->Get(name);
+   
   for(int i=0; i<4; i++){
     if(!subDetsOn_[i]) continue;
     string type = "HB";
@@ -707,6 +790,19 @@ void HcalDigiClient::loadHistograms(TFile* infile){
 
     sprintf(name,"DQMData/Hcal/DigiMonitor/%s/%s QIE Data Valid Err Bits",type.c_str(),type.c_str());
     qie_dverr_[i] = (TH1F*)infile->Get(name);
+
+    sprintf(name,"DQMData/Hcal/DigiMonitor/%s/%s Capid 1st Time Slice",type.c_str(),type.c_str());
+    sub_capid_t0_[i] = (TH1F*)infile->Get(name);
+
+    sprintf(name,"DQMData/Hcal/DigiMonitor/%s/%s # of Digis",type.c_str(),type.c_str());
+    num_digi_[i] = (TH1F*)infile->Get(name);
+
+    sprintf(name,"DQMData/Hcal/DigiMonitor/%s/%s # Bad Qual Digis",type.c_str(),type.c_str());
+    sub_num_bqdigi_[i] = (TH1F*)infile->Get(name);
+
+    sprintf(name,"DQMData/Hcal/DigiMonitor/%s/%s Bad Digi Fraction",type.c_str(),type.c_str());
+    sub_bqdigi_frac_[i] = (TH1F*)infile->Get(name);
+
   }
   return;
 }
