@@ -23,8 +23,6 @@
 #include "FWCore/Utilities/interface/Presence.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
-#include "DQMServices/Daemon/interface/MonitorDaemon.h"
-
 #include "xcept/tools.h"
 #include "xgi/Method.h"
 
@@ -173,17 +171,6 @@ FUEventProcessor::FUEventProcessor(xdaq::ApplicationStub *s)
   toolbox::net::URN urn = this->createQualifiedInfoSpace(monInfoSpaceName);
   monitorInfoSpace_ = xdata::getInfoSpaceFactory()->get(urn.toString());
 
-  std::stringstream oss3;
-  oss3<<"urn:xdaq-monitorable-"<<class_.toString()<<"-alt";
-  string monInfoSpaceNameAlt=oss3.str();
-  urn = this->createQualifiedInfoSpace(monInfoSpaceNameAlt);
-  monitorInfoSpaceAlt_ = xdata::getInfoSpaceFactory()->get(urn.toString());
-
-  std::stringstream oss4;
-  oss4<<"urn:xdaq-monitorable-"<<class_.toString()<<"-legend";
-  string monInfoSpaceNameLegend=oss4.str();
-  urn = this->createQualifiedInfoSpace(monInfoSpaceNameLegend);
-  monitorInfoSpaceLegend_ = xdata::getInfoSpaceFactory()->get(urn.toString());
   
   monitorInfoSpace_->fireItemAvailable("url",                      &url_);
   monitorInfoSpace_->fireItemAvailable("class",                    &class_);
@@ -195,15 +182,11 @@ FUEventProcessor::FUEventProcessor(xdaq::ApplicationStub *s)
   monitorInfoSpace_->fireItemAvailable("nbProcessed",              &nbProcessed_);
   monitorInfoSpace_->fireItemAvailable("nbAccepted",               &nbAccepted_);
 
-  monitorInfoSpaceAlt_->fireItemAvailable("runNumber",                &runNumber_);
-  monitorInfoSpaceAlt_->fireItemAvailable("stateName",                 fsm_.stateName()); 
-  monitorInfoSpaceAlt_->fireItemAvailable("epMacroState",             &epMAltState_);
-  monitorInfoSpaceAlt_->fireItemAvailable("epMicroState",             &epmAltState_);
-  monitorInfoSpaceAlt_->fireItemAvailable("nbProcessed",              &nbProcessed_);
-  monitorInfoSpaceAlt_->fireItemAvailable("nbAccepted",               &nbAccepted_);
+  monitorInfoSpace_->fireItemAvailable("epMacroStateInt",             &epMAltState_);
+  monitorInfoSpace_->fireItemAvailable("epMicroStateInt",             &epmAltState_);
   
-  monitorInfoSpaceLegend_->fireItemAvailable("macroStateLegend",      &macro_state_legend_);
-  monitorInfoSpaceLegend_->fireItemAvailable("microStateLegend",      &micro_state_legend_);
+  monitorInfoSpace_->fireItemAvailable("macroStateLegend",      &macro_state_legend_);
+  monitorInfoSpace_->fireItemAvailable("microStateLegend",      &micro_state_legend_);
   
   // bind prescale related soap callbacks
   xoap::bind(this,&FUEventProcessor::getPsReport ,"GetPsReport",XDAQ_NS_URI);
@@ -805,7 +788,7 @@ void FUEventProcessor::initEventProcessor()
     {
       oss << i << "=" << evtProcessor_->stateName((edm::event_processor::State) i) << " ";
     }
-  monitorInfoSpaceLegend_->lock();
+  monitorInfoSpace_->lock();
   macro_state_legend_ = oss.str();
   //fill microstate legend information
   descs_ = evtProcessor_->getAllModuleDescriptions();
@@ -833,7 +816,7 @@ void FUEventProcessor::initEventProcessor()
 	}
     }
   micro_state_legend_ = oss2.str();
-  monitorInfoSpaceLegend_->unlock();
+  monitorInfoSpace_->unlock();
   LOG4CPLUS_INFO(getApplicationLogger(),"FUEventProcessor configuration finished.");
   
   epInitialized_ = true;
@@ -1721,7 +1704,8 @@ bool FUEventProcessor::monitoring(toolbox::task::WorkLoop* wl)
   if(evtProcessor_)
     {
       edm::event_processor::State st = evtProcessor_->getState();
-      if(fsm_.stateName()->toString()=="Enabled" && st != edm::event_processor::sRunning)
+      if(fsm_.stateName()->toString()=="Enabled" && 
+	 !(st == edm::event_processor::sRunning || st == edm::event_processor::sStopping))
 	{
 	  reasonForFailedState_ = "edm failure, EP state ";
 	  reasonForFailedState_ += evtProcessor_->currentStateName();
@@ -1732,7 +1716,7 @@ bool FUEventProcessor::monitoring(toolbox::task::WorkLoop* wl)
   MicroStateService *mss = 0;
 
   monitorInfoSpace_->lock();
-  monitorInfoSpaceAlt_->lock();
+  monitorInfoSpace_->lock();
   if(evtProcessor_)
     {
       epMState_ = evtProcessor_->currentStateName();
@@ -1764,7 +1748,7 @@ bool FUEventProcessor::monitoring(toolbox::task::WorkLoop* wl)
       nbAccepted_  = evtProcessor_->totalEventsPassed(); 
     }
   monitorInfoSpace_->unlock();  
-  monitorInfoSpaceAlt_->unlock();
+  monitorInfoSpace_->unlock();
 
   ::sleep(monSleepSec_.value_);
   
