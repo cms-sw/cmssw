@@ -6,14 +6,15 @@
  *  The parametrisation function in DTDriftTimeParametrization 
  *  from P.G.Abia, J.Puerta is used in all cases where it is applicable. 
  *
- *  $Date: 2007/03/07 19:17:38 $
- *  $Revision: 1.8 $
+ *  $Date: 2007/10/25 10:36:02 $
+ *  $Revision: 1.9 $
  *  \authors: G. Bevilacqua, N. Amapane, G. Cerminara, R. Bellan
  */
 
 #include "FWCore/Framework/interface/EDProducer.h"
 
 #include "DataFormats/DTDigi/interface/DTDigiCollection.h"
+#include "SimDataFormats/DigiSimLinks/interface/DTDigiSimLinkCollection.h"
 #include "DataFormats/MuonDetId/interface/DTWireId.h"
 
 #include "DataFormats/GeometryVector/interface/LocalVector.h"
@@ -85,7 +86,7 @@ class DTDigitizer : public edm::EDProducer {
   //FiXME put alias for the map.
   void storeDigis(DTWireId &wireId, 
 		  TDContainer &hits,
-		  DTDigiCollection &output);
+		  DTDigiCollection &output, DTDigiSimLinkCollection &outputLinks);
   
   // Debug output
   void dumpHit(const PSimHit * hit, float xEntry, float xExit, const DTTopology &topo);
@@ -114,5 +115,10 @@ class DTDigitizer : public edm::EDProducer {
   // the random generator
   CLHEP::RandGaussQ* theGaussianDistribution;
   CLHEP::RandFlat* theFlatDistribution;
+
+  // to configure the creation of Digi-Sim links
+  bool MultipleLinks;
+  float LinksTimeWindow;
+
 };
 #endif

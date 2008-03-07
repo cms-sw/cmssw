@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2007/09/06 12:29:22 $
- *  $Revision: 1.31 $
+ *  $Date: 2007/10/25 10:36:02 $
+ *  $Revision: 1.32 $
  *  \authors: G. Bevilacqua, N. Amapane, G. Cerminara, R. Bellan
  */
 
@@ -69,8 +69,10 @@ DTDigitizer::DTDigitizer(const ParameterSet& conf_) {
   
   //register the Producer with a label
   //produces<DTDigiCollection>("MuonDTDigis"); // FIXME: Do I pass it by ParameterSet?
-  produces<DTDigiCollection>(); // FIXME: Do I pass it by ParameterSet?  
-
+  produces<DTDigiCollection>(); // FIXME: Do I pass it by ParameterSet?
+  //  produces<DTDigiSimLinkCollection>("MuonDTDigiSimLinks");
+  produces<DTDigiSimLinkCollection>();
+  
   //Parameters:
 
   // build digis only for mu hits (for debug purposes) 
@@ -112,6 +114,12 @@ DTDigitizer::DTDigitizer(const ParameterSet& conf_) {
   }
   theGaussianDistribution = new CLHEP::RandGaussQ(rng->getEngine()); 
   theFlatDistribution = new CLHEP::RandFlat(rng->getEngine(), 0, 1); 
+
+  // MultipleLinks=false ==> one-to-one correspondence between digis and SimHits 
+  MultipleLinks = conf_.getParameter<bool>("MultipleLinks");
+  // MultipleLinks=true ==> association of SimHits within a time window LinksTimeWindow 
+  // (of the order of the resolution)
+  LinksTimeWindow = conf_.getParameter<double>("LinksTimeWindow"); // (10 ns)
 }
 
 // Destructor
@@ -140,6 +148,8 @@ void DTDigitizer::produce(Event& iEvent, const EventSetup& iSetup){
 
    // create the pointer to the Digi container
   auto_ptr<DTDigiCollection> output(new DTDigiCollection());
+   // pointer to the DigiSimLink container
+  auto_ptr<DTDigiSimLinkCollection> outputLinks(new DTDigiSimLinkCollection());
   
   // Muon Geometry
   ESHandle<DTGeometry> muonGeom;
@@ -204,7 +214,7 @@ void DTDigitizer::produce(Event& iEvent, const EventSetup& iSetup){
       // the loading must be done by layer but
       // the digitization must be done by wire (in order to take into account the dead time)
 
-      storeDigis(wireId,tdCont,*output);
+      storeDigis(wireId,tdCont,*output,*outputLinks);
     }
     
   }
@@ -213,6 +223,7 @@ void DTDigitizer::produce(Event& iEvent, const EventSetup& iSetup){
   // Load the Digi Container in the Event
   //iEvent.put(output,"MuonDTDigis");
   iEvent.put(output);
+  iEvent.put(outputLinks);
 
 }
 
@@ -485,7 +496,7 @@ float DTDigitizer::externalDelays(const DTLayer* layer,
 
 void DTDigitizer::storeDigis(DTWireId &wireId, 
 			     TDContainer &hits,
-			     DTDigiCollection &output){
+			     DTDigiCollection &output, DTDigiSimLinkCollection &outputLinks){
 
   //************ 7A ***************
 
@@ -495,7 +506,9 @@ void DTDigitizer::storeDigis(DTWireId &wireId,
   //************ 7B ***************
 
   float wakeTime = -999999.0;
-  int digiN = 0; // Digi identifier within the cell (for multiple digis)
+  float resolTime = -999999.0;
+  int digiN = -1; // Digi identifier within the cell (for multiple digis)
+  DTDigi digi;
 
   // loop over signal times and drop signals inside dead time
   for ( TDContainer::const_iterator hit = hits.begin() ; hit != hits.end() ; 
@@ -508,31 +521,47 @@ void DTDigitizer::storeDigis(DTWireId &wireId,
     float time = (*hit).second;
     if ( time > wakeTime ) {
       // Note that digi is constructed with a float value (in ns)
-      DTDigi digi(wireId.wire(), time, digiN);
-      
-      if(debug){
-	cout<<"--------------"<<endl;
-	cout << "Digi time " << digi.time() << endl;
-	cout<<"id: "<<wireId<<endl;
-      }
-
-      // FIXME- not yet ported in CMSSW
+      int wireN = wireId.wire();
+      digiN++;
+      digi = DTDigi(wireN, time, digiN);
 
       // Add association between THIS digi and the corresponding SimTrack
-      // FIXME: still, several hits in this cell may have the same
-      // SimTrack ID (eg. those coming from secondaries), so the association 
-      // is not univoque.
-      // stat->det().simDet()->addLink(Digi.channel(),
-      // (*hit).first->packedTrackId(),1.);
-      // int localId = wireId.wire();
-      // theAssociationMap.createLinks(localId, stat->det().simDet());
+      unsigned int SimTrackId = (*hit).first->trackId();
+      EncodedEventId evId = (*hit).first->eventId();
+      DTDigiSimLink digisimLink(wireN, digiN, SimTrackId, evId);
+
+      if(debug) {
+	cout<<endl<<"---- DTDigitizer ----"<<endl;
+	cout<<"wireId: "<<wireId<<endl;
+	cout<<"sim. time = "<<time<<endl;
+	cout<<"digi number = "<< digi.number()<<", digi time = "<<digi.time()
+	    <<", linked to SimTrack Id = "<<SimTrackId<<endl;
+      }
 
       //************ 7D ***************
       if(digi.countsTDC() < pow(2.,16)){
 	DTLayerId layerID = wireId.layerId();  //taking the layer in which reside the wire
-	output.insertDigi(layerID, digi); // ordering Digis by layer
-	digiN++;
+        output.insertDigi(layerID, digi); // ordering Digis by layer
+        outputLinks.insertDigi(layerID, digisimLink);
 	wakeTime = time + deadTime;
+	resolTime = time + LinksTimeWindow;
+      } 
+      else {
+	digiN--;
+      }
+    }
+    else if (MultipleLinks && time < resolTime){
+      int wireN = wireId.wire();
+      unsigned int SimTrackId = (*hit).first->trackId();
+      EncodedEventId evId = (*hit).first->eventId();
+      DTDigiSimLink digisimLink(wireN, digiN, SimTrackId, evId);
+      DTLayerId layerID = wireId.layerId(); 
+      outputLinks.insertDigi(layerID, digisimLink);
+
+      if(debug) { 
+	cout<<"\nAdded multiple link: \n"
+	    <<"digi number = "<<digi.number()<<", digi time = "<<digi.time()<<" (sim. time = "<<time<<")"
+	    <<", linked to SimTrack Id = "<<SimTrackId<<endl;
       }
     }
   }
