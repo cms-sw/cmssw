@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Mon Dec  3 08:38:38 PST 2007
-// $Id: FWDisplayEvent.cc,v 1.30 2008/03/07 02:11:08 jmuelmen Exp $
+// $Id: FWDisplayEvent.cc,v 1.31 2008/03/07 03:18:02 tdaniels Exp $
 //
 
 // system include files
@@ -93,7 +93,7 @@ FWDisplayEvent::FWDisplayEvent(bool iEnableDebug) :
   rpzViewManager->setGeom(&m_detIdToGeo);
   m_viewManager->add(rpzViewManager);
   m_viewManager->add( boost::shared_ptr<FWViewManagerBase>( new FW3DLegoViewManager(m_guiManager.get())));
-  m_viewManager->add( boost::shared_ptr<FWViewManagerBase>( new MuonPUViewManager));
+//   m_viewManager->add( boost::shared_ptr<FWViewManagerBase>( new MuonPUViewManager));
    
   m_guiManager->createView("Rho Phi");
   m_guiManager->createView("Rho Z");
