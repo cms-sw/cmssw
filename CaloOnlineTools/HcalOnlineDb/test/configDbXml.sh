@@ -23,35 +23,120 @@ compileMessage()
     echo 'ERROR!'
     echo ''
     echo -n 'the xmlToolsRun executable is missing. '
-    echo 'Please compile the package. Issue gmake in'
+    echo -n 'Please compile the package. Issue gmake in'
     echo 'the current directory.'
     echo ''
 }
 
 uploadInstructions()
 {
-echo ''
+echo    ''
 echo -n $1
 echo -n ' are prepared for uploading to OMDS and saved in '
-echo $2
-echo ''
-echo 'REMEMBER!'
+echo    $2
+echo    ''
+echo    'REMEMBER!'
 echo -n 'It is always a good idea to upload to the validation '
-echo 'database first before uploading to OMDS'
-echo ''
+echo    'database first before uploading to OMDS'
+echo    ''
 echo -n 'In order to upload to a database, copy '
 echo -n $2
-echo ' to'
-echo 'dbvalhcal@pcuscms34.cern.ch:conditions/ (validation - first!)'
-echo 'dbpp5hcal@pcuscms34.cern.ch:conditions/ (OMDS)'
-echo ''
+echo    ' to'
+echo    'dbvalhcal@pcuscms34.cern.ch:conditions/ (validation - first!)'
+echo    'dbprdhcal@pcuscms34.cern.ch:conditions/ (Master - for now)'
+echo    'dbpp5hcal@pcuscms34.cern.ch:conditions/ (OMDS)'
+echo    ''
+echo -n 'You need to do all three in this order! If there is a problem '
+echo -n 'reported from the validation DB, fix it first before '
+echo -n 'proceeeding to Master and OMDS '
 echo -n 'or, even better, follow the most recent instructions at '
-echo 'https://twiki.cern.ch/twiki/bin/view/CMS/OnlineHCALDataSubmissionProceduresTOProdOMDSP5Server'
-echo ''
+echo    'https://twiki.cern.ch/twiki/bin/view/CMS/OnlineHCALDataSubmissionProceduresTOProdOMDSP5Server'
+echo    ''
 }
+
+
+rbxPedMenu()
+{
+    echo ''
+    echo '  -- Please choose the RBX config type'
+    echo ' 1. Pedestals'
+    echo ' 2. Zero delays'
+    echo ' 3. GOL currents'
+    echo ''
+    echo -n 'Type: '
+    read rbx_type_num
+
+    case $rbx_type_num in
+	1)
+          rbx_type="pedestals"
+          rbx_type_full="pedestals"
+	  ;;
+	2)
+          rbx_type="delays"
+          rbx_type_full="zero delays"
+	  ;;
+	3)
+          rbx_type="gols"
+          rbx_type_full="GOL currents"
+	;;
+	*)
+          echo 'Invalid choice - nothing to do...'
+          credits
+	  exit 1
+	  ;;
+    esac
+
+    echo    ''
+    echo -n '  -- Processing RBX '
+    echo $rbx_type_full
+    echo    ''
+    echo -n 'Please enter the path to the directory with '
+    echo -n 'RBX pedestal XML brick files (read-only is fine)'
+    echo    ''
+    echo -n 'Path: '
+    read ped_path_temp
+    ped_path=`echo ${ped_path_temp%/}/`
+    echo ''
+    echo -n 'Please enter the desired tag name:'
+    read tag_name
+    echo ''
+    echo -n 'Please enter the comment:'
+    read comment
+    echo ''
+    echo -n 'Please enter the version (string):'
+    read version
+    echo 'processing RBX pedestals from' $ped_path '...'
+    ped_files_num=`find $ped_path -iname "*.xml" | wc -l`
+    echo $ped_files_num 'RBX pedestals brick files found...'
+    if [ $ped_files_num -gt 0 ]
+	then
+	echo -n 'creating temp directory... '
+	ped_temp_dir=`mktemp -d`
+	echo $ped_temp_dir
+	cp `find $ped_path -iname "*.xml"` $ped_temp_dir/
+
+	#source rbx.sh $ped_temp_dir $tag_name
+
+	ls $ped_temp_dir/*.xml > rbx_brick_files.list
+	./xmlToolsRun --rbx=$rbx_type --filename=rbx_brick_files.list --tag=$tag_name --comment="$comment" --version="$version"
+	zip -j ./$tag_name.zip $ped_temp_dir/*.oracle.xml
+	rm rbx_brick_files.list
+	echo -n 'Cleaning temporary files... '
+	rm -rf $ped_temp_dir
+      echo 'done'
+
+    else
+	echo 'No RBX pedestals brick files found... exiting'
+    fi
+
+    uploadInstructions 'RBX pedestals' './'$tag_name'.zip'
+}
+
 
 zsMenu()
 {
+    echo ''
+    echo '  -- Processing HTR zero suppression config'
     echo ''
     echo -n 'Enter desired tag name: '
     read tag_name
@@ -71,7 +156,6 @@ zsMenu()
     zip_file='./'$tag_name'_ZS.zip'
     zip $zip_file $xml_file
     rm $xml_file
-    config_name='Zero Suppression data'
     uploadInstructions 'Zero suppression data' $zip_file
 }
 
@@ -110,7 +194,7 @@ lutMenu()
       rm -rf $lut_temp_dir
       echo 'done'
   else
-      echo 'LUT XML not found...check path, leading-trailing / etc...'
+      echo 'LUT XML not found...check path'
   fi
 }
 
@@ -135,6 +219,7 @@ mainMenu()
   echo '  -- Main menu'
   echo ' 1. Trigger lookup tables'
   echo ' 2. HTR Zero Suppression'
+  echo ' 3. RBX configuration'
   echo ' 0. Contact info'
   
   echo ''
@@ -149,6 +234,9 @@ mainMenu()
 	;;
       2)
         zsMenu
+	;;
+      3)
+        rbxPedMenu
 	;;
       0)
       credits

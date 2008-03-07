@@ -39,7 +39,7 @@ using namespace hcal;
 int createLUTLoader( string prefix_="", string tag_="" );
 int createHTRPatternLoader( void );
 int createLMap( void );
-int createRBXLoader( string type_, string tag_, string list_file );
+int createRBXLoader( string & type_, string & tag_, string & list_file, string & _comment, string & _version );
 //int createRBXentries( string );
 int createZSLoader( void );
 int testocci( void );
@@ -79,6 +79,7 @@ int main( int argc, char **argv )
   string path = "";
   string tag = "";
   string comment = "";
+  string version = "";
   string prefix = "";
   string rbx_type = "";
   string aramsParameter = "";
@@ -96,6 +97,7 @@ int main( int argc, char **argv )
       {"tag", 1, 0, 3},
       {"prefix", 1, 0, 4},
       {"comment", 1, 0, 5},
+      {"version", 1, 0, 6},
       {"luts", 0, 0, 10},
       {"patterns", 0, 0, 20},
       {"lmap", 0, 0, 30},
@@ -192,9 +194,21 @@ int main( int argc, char **argv )
 	{
 	  char _buf[1024];
 	  sprintf( _buf, "%s", optarg );
-	  //cout << "path: " << _buf << endl;
 	  comment . append( _buf );
 	  comment_b = true;
+	}
+      else
+	{
+	  cout << "Empty comment!" << endl;
+	}
+      break;
+      
+    case 6:
+      if ( optarg )
+	{
+	  char _buf[1024];
+	  sprintf( _buf, "%s", optarg );
+	  version . append( _buf );
 	}
       else
 	{
@@ -370,11 +384,16 @@ int main( int argc, char **argv )
     {
       cout << "type: " << rbx_type << endl;
       cout << "TAG_NAME: " << tag << endl;
-      cout << "list file: " << filename << endl;
-      
-      createRBXLoader( rbx_type, tag, filename );      
+      cout << "comment: " << comment << endl;
+      cout << "version: " << version << endl;
+      //cout << "list file: " << filename << endl;
 
-      if ( tag . size() < 1 ) cout << "===> WARNING: tag field is empty!" << endl;
+      if ( tag_b ){
+	createRBXLoader( rbx_type, tag, filename, comment, version );      
+      }
+      else{
+	cout << "Tag name not specified... exiting" << endl;
+      }
     }
   else if ( testdb_b && tag_b )
     {
@@ -906,18 +925,14 @@ int createLMap( void ){
 }
 
 
-int createRBXLoader( string type_, string tag_, string list_file )
+int createRBXLoader( string & type_, string & tag_, string & list_file, string & _comment, string & _version )
 {
   string _prefix = "oracle_"; 
-  string _comment = "RBX pedestals for GREN 2007"; 
-  //string _tag = "AllHCALGRENpartitionPeds4"; // may be overriden by the tag from the brickset
   string _tag = tag_;
-  string _version = "GREN2007:1";
   string _subversion = "1";
 
   std::vector<string> brickFileList;
   char filename[1024];
-  //string listFileName = "rbx_ped.list";
   string listFileName = list_file;
   ifstream inFile( listFileName . c_str(), ios::in );
   if (!inFile)
@@ -943,14 +958,30 @@ int createRBXLoader( string type_, string tag_, string list_file )
       _baseConf . elements_comment_description = _comment;
       _baseConf . tag_name = _tag;
 
+      if ( type_ == "pedestals" ){
+	_baseConf . extention_table_name = "HCAL_RBX_CONFIGURATION_TYPE01";
+	_baseConf . name = "HCAL RBX configuration [PEDESTAL]";
+      }
+      else if ( type_ == "delays" ){
+	_baseConf . extention_table_name = "HCAL_RBX_CONFIGURATION_TYPE01";
+	_baseConf . name = "HCAL RBX configuration [DELAY]";
+      }
+      else if ( type_ == "gols" ){
+	_baseConf . extention_table_name = "HCAL_RBX_CONFIGURATION_TYPE03";
+	_baseConf . name = "HCAL RBX configuration [GOL]";
+      }
+      else{
+	cout << "Unknown config type... exiting" << endl;
+	exit(1);
+      }
+
       _conf . version = _version;
       _conf . subversion = _subversion;
       _conf . comment_description = _comment;
 
       XMLRBXPedestalsLoader p( &_baseConf );
 
-      p . addRBXSlot( &_conf, (*_file) );
-      //p . write( _prefix + (*_file) );
+      p . addRBXSlot( &_conf, (*_file), type_ );
       p . write( (*_file) + ".oracle.xml" );
     }
 
