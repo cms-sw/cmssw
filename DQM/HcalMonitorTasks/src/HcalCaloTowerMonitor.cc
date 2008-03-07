@@ -78,9 +78,10 @@ void HcalCaloTowerMonitor::processEvent(const CaloTowerCollection& calotower)
 	}
       //ieta is more complicated -- it runs in segments of .087 for the first 20 segments, then the segmentation becomes non-uniform
       int ieta=getIeta(eta);
-
+      /*
       cout <<"CALOTOWER eta = \t"<<eta<<"\tphi = "<<it->phi()<<endl;
       cout <<"\t ieta = \t"<<ieta<<"\tiphi = "<<iphi<<endl;
+      */
       // Fill histograms
       caloTowerOcc->Fill(ieta,iphi);
       caloTowerEnergy->Fill(ieta,iphi,it->energy());
