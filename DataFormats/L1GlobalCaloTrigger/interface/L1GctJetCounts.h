@@ -27,8 +27,7 @@ class L1GctJetCounts {
   enum numberOfBits {
     kEtHfSumBits     = 5,
     kEtHfSumOFlowBit = 1 << kEtHfSumBits,
-    kEtHfSumMaxValue = kEtHfSumOFlowBit - 1,
-    kEtHfSumBitShift = 0
+    kEtHfSumMaxValue = kEtHfSumOFlowBit - 1
   };
 
   /// default constructor
