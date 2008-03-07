@@ -1,8 +1,8 @@
 /*
  * \file EESummaryClient.cc
  *
- * $Date: 2008/03/01 13:33:50 $
- * $Revision: 1.91 $
+ * $Date: 2008/03/07 07:12:55 $
+ * $Revision: 1.92 $
  * \author G. Della Ricca
  *
 */
@@ -65,7 +65,7 @@ EESummaryClient::EESummaryClient(const ParameterSet& ps){
   for ( unsigned int i = 1; i <= 18; i++ ) superModules_.push_back(i);
   superModules_ = ps.getUntrackedParameter<vector<int> >("superModules", superModules_);
 
-  // summary maps 
+  // summary maps
   meIntegrity_[0]      = 0;
   meIntegrity_[1]      = 0;
   meOccupancy_[0]      = 0;
@@ -1158,19 +1158,19 @@ void EESummaryClient::analyze(void){
         float xval = -1;
         float val_in = meIntegrity_[0]->getBinContent(jx,jy);
         float val_po = mePedestalOnline_[0]->getBinContent(jx,jy);
-	float val_ls = meLaserL1_[0]->getBinContent(jx,jy);
-	float val_tm = meTiming_[0]->getBinContent(jx,jy);
-	float val_sf = meStatusFlags_[0]->getBinContent(jx,jy);
-	float val_ee = meTriggerTowerEmulError_[0]->getBinContent(jx,jy);
+        float val_ls = meLaserL1_[0]->getBinContent(jx,jy);
+        float val_tm = meTiming_[0]->getBinContent(jx,jy);
+        float val_sf = meStatusFlags_[0]->getBinContent(jx,jy);
+        float val_ee = meTriggerTowerEmulError_[0]->getBinContent(jx,jy);
 
         // turn each dark color (masked channel) to bright green
-	// for laser turn also yellow into bright green
+        // for laser turn also yellow into bright green
         if(val_in>2)  val_in=1;
         if(val_po>2)  val_po=1;
-	if(val_ls>=2) val_ls=1;
-	if(val_tm>2)  val_tm=1;
-	if(val_sf>2)  val_sf=1;
-	if(val_ee>2)  val_ee=1;
+        if(val_ls>=2) val_ls=1;
+        if(val_tm>2)  val_tm=1;
+        if(val_sf>2)  val_sf=1;
+        if(val_ee>2)  val_ee=1;
 
         // -1 = unknown
         //  0 = red
@@ -1178,9 +1178,9 @@ void EESummaryClient::analyze(void){
         //  2 = yellow
 
         if(val_in==-1) xval=-1;
-	else if(val_in == 0) xval=0;
-	else if(val_po == 0 || val_ls == 0 || val_tm == 0 || val_sf == 0 || val_ee == 0) xval = 0;
-	else if(val_po == 2 || val_tm == 2 || val_sf == 2 || val_ee == 2) xval = 2;
+        else if(val_in == 0) xval=0;
+        else if(val_po == 0 || val_ls == 0 || val_tm == 0 || val_sf == 0 || val_ee == 0) xval = 0;
+        else if(val_po == 2 || val_tm == 2 || val_sf == 2 || val_ee == 2) xval = 2;
         else xval=1;
 
         meGlobalSummary_[0]->setBinContent( jx, jy, xval );
@@ -1195,16 +1195,16 @@ void EESummaryClient::analyze(void){
         float xval = -1;
         float val_in = meIntegrity_[1]->getBinContent(jx,jy);
         float val_po = mePedestalOnline_[1]->getBinContent(jx,jy);
-	float val_ls = meLaserL1_[1]->getBinContent(jx,jy);
+        float val_ls = meLaserL1_[1]->getBinContent(jx,jy);
         float val_tm = meTiming_[1]->getBinContent(jx,jy);
         float val_sf = meStatusFlags_[1]->getBinContent(jx,jy);
         float val_ee = meTriggerTowerEmulError_[1]->getBinContent(jx,jy);
 
         // turn each dark color to bright green
-	// for laser turn also yellow into bright green
+        // for laser turn also yellow into bright green
         if(val_in>2) val_in=1;
         if(val_po>2) val_po=1;
-	if(val_ls>=2) val_ls=1;
+        if(val_ls>=2) val_ls=1;
         if(val_tm>2)  val_tm=1;
         if(val_sf>2)  val_sf=1;
         if(val_ee>2)  val_ee=1;
@@ -1215,9 +1215,9 @@ void EESummaryClient::analyze(void){
         //  2 = yellow
 
         if(val_in==-1) xval=-1;
-	else if(val_in == 0) xval=0;
-	else if(val_po == 0 || val_ls == 0 || val_tm == 0 || val_sf == 0 || val_ee == 0) xval = 0;
-	else if(val_po == 2 || val_tm == 2 || val_sf == 2 || val_ee == 2) xval = 2;
+        else if(val_in == 0) xval=0;
+        else if(val_po == 0 || val_ls == 0 || val_tm == 0 || val_sf == 0 || val_ee == 0) xval = 0;
+        else if(val_po == 2 || val_tm == 2 || val_sf == 2 || val_ee == 2) xval = 2;
         else xval=1;
 
         meGlobalSummary_[1]->setBinContent( jx, jy, xval );
@@ -1231,7 +1231,7 @@ void EESummaryClient::analyze(void){
   }
 
    float errorSummary = 1.0 - float(nGlobalErrors)/float(nValidChannels);
-   
+
    MonitorElement* me;
 
    me = dbe_->get("EcalEndcap/EventInfo/errorSummary");
@@ -1560,10 +1560,10 @@ void EESummaryClient::htmlOutput(int run, string htmlDir, string htmlName){
   obj2f = 0;
   obj2f = UtilsClient::getHisto<TH2F*>( meStatusFlags_[1] );
 
-  if ( obj2f && obj2f->GetEntries() != 0 ) { 
+  if ( obj2f && obj2f->GetEntries() != 0 ) {
 
     meName = obj2f->GetName();
-  
+
     for ( unsigned int i = 0; i < meName.size(); i++ ) {
       if ( meName.substr(i, 1) == " " )  {
         meName.replace(i, 1 ,"_" );

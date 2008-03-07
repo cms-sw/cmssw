@@ -1,8 +1,8 @@
 /*
  * \file EBSummaryClient.cc
  *
- * $Date: 2008/03/07 07:14:21 $
- * $Revision: 1.118 $
+ * $Date: 2008/03/07 17:08:10 $
+ * $Revision: 1.119 $
  * \author G. Della Ricca
  *
 */
@@ -204,7 +204,7 @@ void EBSummaryClient::setup(void) {
   for (int i = 0; i < 36; i++) {
     meLaserL1Err_->setBinLabel(i+1, Numbers::sEB(i+1).c_str(), 1);
   }
-  
+
   if ( meLaserL1PN_ ) dbe_->removeElement( meLaserL1PN_->getName() );
   sprintf(histo, "EBLT PN laser quality summary L1");
   meLaserL1PN_ = dbe_->book2D(histo, histo, 90, 0., 90., 20, -10., 10.);
@@ -581,7 +581,7 @@ void EBSummaryClient::analyze(void){
               }
 
               mePedestalOnline_->setBinContent( ipx, iex, xval );
-              if ( xval == 0 ) mePedestalOnlineErr_->Fill( ism ); 
+              if ( xval == 0 ) mePedestalOnlineErr_->Fill( ism );
 
             }
 
@@ -1026,19 +1026,19 @@ void EBSummaryClient::analyze(void){
         float xval = -1;
         float val_in = meIntegrity_->getBinContent(ipx,iex);
         float val_po = mePedestalOnline_->getBinContent(ipx,iex);
-	float val_ls = meLaserL1_->getBinContent(ipx,iex);
-	float val_tm = meTiming_->getBinContent(ipx,iex);
-	float val_sf = meStatusFlags_->getBinContent((ipx-1)/5+1,(iex-1)/5+1);
-	float val_ee = meTriggerTowerEmulError_->getBinContent((ipx-1)/5+1,(iex-1)/5+1);
+        float val_ls = meLaserL1_->getBinContent(ipx,iex);
+        float val_tm = meTiming_->getBinContent(ipx,iex);
+        float val_sf = meStatusFlags_->getBinContent((ipx-1)/5+1,(iex-1)/5+1);
+        float val_ee = meTriggerTowerEmulError_->getBinContent((ipx-1)/5+1,(iex-1)/5+1);
 
         // turn each dark color (masked channel) to bright green
-	// for laser turn also yellow into bright green
+        // for laser turn also yellow into bright green
         if(val_in>2)  val_in=1;
         if(val_po>2)  val_po=1;
-	if(val_ls>=2) val_ls=1;
-	if(val_tm>2)  val_tm=1;
-	if(val_sf>2)  val_sf=1;
-	if(val_ee>2)  val_ee=1;
+        if(val_ls>=2) val_ls=1;
+        if(val_tm>2)  val_tm=1;
+        if(val_sf>2)  val_sf=1;
+        if(val_ee>2)  val_ee=1;
 
         // -1 = unknown
         //  0 = red
@@ -1046,23 +1046,23 @@ void EBSummaryClient::analyze(void){
         //  2 = yellow
 
         if(val_in==-1) xval=-1;
-	else if(val_in == 0) xval=0;
-	else if(val_po == 0 || val_ls == 0 || val_tm == 0 || val_sf == 0 || val_ee == 0) xval = 0;
-	else if(val_po == 2 || val_tm == 2 || val_sf == 2 || val_ee == 2) xval = 2;
+        else if(val_in == 0) xval=0;
+        else if(val_po == 0 || val_ls == 0 || val_tm == 0 || val_sf == 0 || val_ee == 0) xval = 0;
+        else if(val_po == 2 || val_tm == 2 || val_sf == 2 || val_ee == 2) xval = 2;
         else xval=1;
 
         meGlobalSummary_->setBinContent( ipx, iex, xval );
 
-        if ( xval > -1 ) { 
-	  ++nValidChannels;
-	  if ( iex <= 85 ) ++nValidChannelsEBM;
-	  else ++nValidChannelsEBP;
-	}
+        if ( xval > -1 ) {
+          ++nValidChannels;
+          if ( iex <= 85 ) ++nValidChannelsEBM;
+          else ++nValidChannelsEBP;
+        }
         if ( xval == 0 ) {
-	  ++nGlobalErrors;
-	  if ( iex <= 85 ) ++nGlobalErrorsEBM;
-	  else ++nGlobalErrorsEBP;
-	}
+          ++nGlobalErrors;
+          if ( iex <= 85 ) ++nGlobalErrorsEBM;
+          else ++nGlobalErrorsEBP;
+        }
 
       }
 
@@ -1078,10 +1078,10 @@ void EBSummaryClient::analyze(void){
   me = dbe_->get("EcalBarrel/EventInfo/errorSummary");
   if (me) me->Fill(errorSummary);
 
-  me = dbe_->get("EventInfo/errorSummarySegments/Segment00"); 
+  me = dbe_->get("EventInfo/errorSummarySegments/Segment00");
   if (me) me->Fill(errorSummaryEBP);
 
-  me = dbe_->get("EventInfo/errorSummarySegments/Segment01"); 
+  me = dbe_->get("EventInfo/errorSummarySegments/Segment01");
   if (me) me->Fill(errorSummaryEBM);
 
   me = dbe_->get("EcalBarrel/EventInfo/errorSummaryPhiEta_EB");
@@ -1091,33 +1091,33 @@ void EBSummaryClient::analyze(void){
     int nGlobalErrorsTT[72][34];
     for ( int iettx = 0; iettx < 34; iettx++ ) {
       for ( int ipttx = 0; ipttx < 72; ipttx++ ) {
-	nValidChannelsTT[ipttx][iettx]=0;
-	nGlobalErrorsTT[ipttx][iettx]=0;
+        nValidChannelsTT[ipttx][iettx]=0;
+        nGlobalErrorsTT[ipttx][iettx]=0;
       }
     }
 
     for ( int iex = 1; iex <= 170; iex++ ) {
       for ( int ipx = 1; ipx <= 360; ipx++ ) {
 
-	int iettx = (iex-1)/5+1;
-	int ipttx = (ipx-1)/5+1;
+        int iettx = (iex-1)/5+1;
+        int ipttx = (ipx-1)/5+1;
 
-	float xval = meGlobalSummary_->getBinContent( ipx, iex );
+        float xval = meGlobalSummary_->getBinContent( ipx, iex );
 
-	if ( xval != 2 && xval != 5 ) nValidChannelsTT[ipttx-1][iettx-1]++;
-	if ( xval == 0 ) nGlobalErrorsTT[ipttx-1][iettx-1]++;
+        if ( xval != 2 && xval != 5 ) nValidChannelsTT[ipttx-1][iettx-1]++;
+        if ( xval == 0 ) nGlobalErrorsTT[ipttx-1][iettx-1]++;
 
       }
     }
 
     for ( int iettx = 0; iettx < 34; iettx++ ) {
       for ( int ipttx = 0; ipttx < 72; ipttx++ ) {
-	
-	float xval = -1.0;
-	if ( nValidChannelsTT[ipttx][iettx] != 0 )
-	  xval = 1.0 - float(nGlobalErrorsTT[ipttx][iettx])/float(nValidChannelsTT[ipttx][iettx]);
-	
-	me->setBinContent( ipttx+1, iettx+1, xval );
+
+        float xval = -1.0;
+        if ( nValidChannelsTT[ipttx][iettx] != 0 )
+          xval = 1.0 - float(nGlobalErrorsTT[ipttx][iettx])/float(nValidChannelsTT[ipttx][iettx]);
+
+        me->setBinContent( ipttx+1, iettx+1, xval );
 
       }
     }
@@ -1325,7 +1325,7 @@ void EBSummaryClient::htmlOutput(int run, string htmlDir, string htmlName){
     labelGridTT.Draw("text,same");
     cMap->Update();
     cMap->SaveAs(imgName.c_str());
-  
+
   }
 
   imgNameMapPO = "";
