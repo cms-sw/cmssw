@@ -116,6 +116,7 @@ public:
     std::string		host;
     int			port;
     bool		update;
+    bool		warned;
   };
 
   DQMNet(const std::string &appname = "");

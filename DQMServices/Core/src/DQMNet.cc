@@ -1038,6 +1038,7 @@ DQMNet::DQMNet (const std::string &appname /* = "" */)
   upstream_.next   = downstream_.next   = 0;
   upstream_.port   = downstream_.port   = 0;
   upstream_.update = downstream_.update = false;
+  upstream_.warned = downstream_.warned = false;
 }
 
 DQMNet::~DQMNet(void)
@@ -1248,10 +1249,16 @@ DQMNet::run(void)
 	    // "In progress" just means the connection is in progress.
 	    // The connection is ready when the socket is writeable.
 	    // Anything else is a real problem.
-	    logme()
-	      << "WARNING: Unable to initiate connection to the DQM server at "
-	      << ap->host << ":" << ap->port << ": " << e.explain()
-	      << " (will attempt to reconnect in 15 seconds)\n";
+	    if (! ap->warned)
+	    {
+	      logme()
+	        << "NOTE: DQM server at " << ap->host << ":" << ap->port
+		<< " is unavailable.  Connection will be established"
+	        << " automatically on the background once the server"
+		<< " becomes available.  Error from the attempt was: "
+		<< e.explain() << '\n';
+	      ap->warned = true;
+	    }
 
 	    if (s)
 	      s->abort();
@@ -1267,6 +1274,7 @@ DQMNet::run(void)
 	  lock();
 	  Peer *p = createPeer(s);
 	  ap->peer = p;
+	  ap->warned = false;
 	  unlock();
 
 	  InetAddress peeraddr = ((InetSocket *) s)->peername();
