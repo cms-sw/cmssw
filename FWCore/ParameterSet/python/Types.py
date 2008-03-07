@@ -156,6 +156,31 @@ class string(_SimpleParameterTypeBase):
         #    value = ''
         parameterSet.addString(self.isTracked(), myname, value)
 
+
+class EventID(_ParameterTypeBase):
+    def __init(self, run, ev):
+        super(EventID,self).__init__()
+        self.__run = run
+        self.__event = event
+    def run(self):
+        return self.__run
+    def event(self):
+        return self.__event
+    @staticmethod
+    def _isValid(value):
+        return True
+    @staticmethod
+    def _valueFromString(value):
+        """only used for cfg-parsing"""
+        return double(float(value))
+    def pythonValue(self, options=PrintOptions()):
+        return self.__run+ ', '+self.__event
+    def cppID(self, parameterSet):
+        return parameterSet.newEventID(self.run(), self.event())
+    def insertInto(self, parameterSet, myname):
+        parameterSet.addEventID(self.isTracked(), myname, self.cppID(parameterSet))
+
+
 class InputTag(_ParameterTypeBase):
     def __init__(self,moduleLabel,productInstanceLabel='',processName=''):
         super(InputTag,self).__init__()
