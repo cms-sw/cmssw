@@ -1,8 +1,8 @@
 /*
  * \file EBSummaryClient.cc
  *
- * $Date: 2008/03/06 16:49:08 $
- * $Revision: 1.116 $
+ * $Date: 2008/03/07 07:12:53 $
+ * $Revision: 1.117 $
  * \author G. Della Ricca
  *
 */
@@ -1101,7 +1101,7 @@ void EBSummaryClient::analyze(void){
 	if ( nValidChannelsTT[ipttx][iettx] != 0 )
 	  xval = 1.0 - float(nGlobalErrorsTT[ipttx][iettx])/float(nValidChannelsTT[ipttx][iettx]);
 	
-	meErrorSummaryPhiEta->setBinContent( ipttx+1, iettx+1, xval );
+	me->setBinContent( ipttx+1, iettx+1, xval );
 
       }
     }
