@@ -1,8 +1,8 @@
 /*
  * \file EESummaryClient.cc
  *
- * $Date: 2008/02/29 15:06:02 $
- * $Revision: 1.90 $
+ * $Date: 2008/03/01 13:33:50 $
+ * $Revision: 1.91 $
  * \author G. Della Ricca
  *
 */
@@ -598,6 +598,12 @@ void EESummaryClient::cleanup(void) {
 
   if ( meGlobalSummary_[1] ) dbe_->removeElement( meGlobalSummary_[1]->getName() );
   meGlobalSummary_[1] = 0;
+
+  // summary for DQM GUI
+
+  dbe_->setCurrentFolder( "EcalEndcap/EventInfo" );
+
+  // to be done
 
 }
 
@@ -1226,7 +1232,9 @@ void EESummaryClient::analyze(void){
 
    float errorSummary = 1.0 - float(nGlobalErrors)/float(nValidChannels);
    
-   MonitorElement* me = dbe_->get("EcalEndcap/EventInfo/errorSummary");
+   MonitorElement* me;
+
+   me = dbe_->get("EcalEndcap/EventInfo/errorSummary");
    if (me) me->Fill(errorSummary);
 
 }

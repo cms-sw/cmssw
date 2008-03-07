@@ -1,8 +1,8 @@
 /*
  * \file EBSummaryClient.cc
  *
- * $Date: 2008/02/29 15:03:06 $
- * $Revision: 1.115 $
+ * $Date: 2008/03/06 16:49:08 $
+ * $Revision: 1.116 $
  * \author G. Della Ricca
  *
 */
@@ -300,6 +300,7 @@ void EBSummaryClient::setup(void) {
   meGlobalSummary_->setAxisTitle("jphi", 1);
   meGlobalSummary_->setAxisTitle("jeta", 2);
 
+  // summary for DQM GUI
 
   dbe_->setCurrentFolder( "EcalBarrel/EventInfo" );
 
@@ -1062,11 +1063,13 @@ void EBSummaryClient::analyze(void){
 
   float errorSummary = 1.0 - float(nGlobalErrors)/float(nValidChannels);
   
-  MonitorElement* me = dbe_->get("EcalBarrel/EventInfo/errorSummary");
+  MonitorElement* me;
+
+  me = dbe_->get("EcalBarrel/EventInfo/errorSummary");
   if (me) me->Fill(errorSummary);
-   
-  MonitorElement* meErrorSummaryPhiEta = dbe_->get("EcalBarrel/EventInfo/errorSummaryPhiEta_EB");
-  if (meErrorSummaryPhiEta) {
+
+  me = dbe_->get("EcalBarrel/EventInfo/errorSummaryPhiEta_EB");
+  if (me) {
 
     int nValidChannelsTT[72][34];
     int nGlobalErrorsTT[72][34];
@@ -1085,7 +1088,6 @@ void EBSummaryClient::analyze(void){
 
 	float xval = meGlobalSummary_->getBinContent( ipx, iex );
 
-        // turn each dark color (masked channel) to valid
 	if ( xval != 2 && xval != 5 ) nValidChannelsTT[ipttx-1][iettx-1]++;
 	if ( xval == 0 ) nGlobalErrorsTT[ipttx-1][iettx-1]++;
 
@@ -1103,7 +1105,6 @@ void EBSummaryClient::analyze(void){
 
       }
     }
-
 
   }
 
