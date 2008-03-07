@@ -28,6 +28,7 @@ namespace {
     edm::Wrapper<reco::CandidateCollection> w1;
     std::vector<reco::Particle> v2;
     edm::Wrapper<std::vector<reco::Particle> > w2;
+    edm::Wrapper<std::vector<reco::LeafCandidate> > w2bis;
     reco::CandidateRef r1;
     reco::CandidatePtr ptr1;
     reco::CandidateBaseRef r2;

@@ -1,15 +1,14 @@
 <lcgdict>
 <selection>
   <class name="reco::Particle">
+    <field name="p4_" iotype="ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<Double32_t> >" />
     <field name="vertex_" iotype="ROOT::Math::PositionVector3D<ROOT::Math::Cartesian3D<Double32_t> >" />
-    <field name="p4Polar_" transient="true" />
-    <field name="p4Cartesian_" transient="true" />
   </class>
   <class name="reco::Candidate">
     <field name="mothers_" transient="true"/>
   </class>
   <class name="reco::LeafCandidate" />
-  <class name="reco::CompositeCandidate"/>
+  <class name="reco::CompositeCandidate"/>  
   <class name="reco::VertexCompositeCandidate"/>
   <class name="reco::CompositeRefCandidate" />
   <class name="reco::CompositePtrCandidate" />
@@ -72,11 +71,13 @@
 
   <class name="std::vector<reco::Particle>" />
   <class name="std::vector<reco::Candidate *>" />
+  <class name="std::vector<reco::LeafCandidate>" />
   <class name="reco::CandidateCollection" />
   <class name="reco::CandidateBaseRef" />
 
   <class name="edm::Wrapper<reco::CandidateCollection>" />
   <class name="edm::Wrapper<std::vector<reco::Particle> >" />
+  <class name="edm::Wrapper<std::vector<reco::LeafCandidate> >" />
   <class name="edm::Wrapper<reco::CandidateRefVector>"/>
   <class name="edm::Wrapper<reco::CandidateBaseRefVector>" />
   <class name="edm::Wrapper<reco::CandMatchMap>" />
