@@ -2,8 +2,8 @@
 /**
  * \file EcalPedOffset.cc
  *
- * $Date: 2008/02/26 17:43:23 $
- * $Revision: 1.9 $
+ * $Date: 2008/03/02 13:52:22 $
+ * $Revision: 1.10 $
  * \author P. Govoni (pietro.govoni@cernNOSPAM.ch) - originally
  * \author S. Cooper (seth.cooper@cernNOSPAM.ch)
  * Last updated: @DATE@ @AUTHOR@
@@ -298,12 +298,26 @@ void EcalPedOffset::writeDb ()
 
   // connect to the database
   EcalCondDBInterface* DBconnection ;
-  try {
-    DBconnection = new EcalCondDBInterface (m_dbHostName, m_dbName, 
-        m_dbUserName, m_dbPassword, m_dbHostPort); 
+  try
+  {
+    LogInfo("EcalPedOffset") << "Opening DB connection with TNS_ADMIN ...";
+    DBconnection = new EcalCondDBInterface(m_dbName, m_dbUserName, m_dbPassword);
   } catch (runtime_error &e) {
-    edm::LogError ("EcalPedOffset") << e.what();
-    return ;
+    LogError("EcalPedOffset") << e.what();
+    if ( m_dbHostName.size() != 0 )
+    {
+      try
+      {
+        LogInfo("EcalPedOffset") << "Opening DB connection without TNS_ADMIN ...";
+        DBconnection = new EcalCondDBInterface(m_dbHostName, m_dbName, 
+            m_dbUserName, m_dbPassword, m_dbHostPort);
+      } catch (runtime_error &e) {
+        LogError("EcalPedOffset") << e.what();
+        return;
+      }
+    }
+    else
+      return;
   }
 
   // define the query for RunIOV to get the right place in the database
@@ -383,9 +397,33 @@ void EcalPedOffset::writeDb ()
       // fill the table
       if ( DBconnection ) 
       {
-        try {
-          ecid = DBconnection->getEcalLogicID ("EB_crystal_number", 
-              result->first, xtal+1);
+        try 
+        {
+          int fedid = result->first;
+          //FIXME: obtain the correct index for an EE crystal
+          int eid = xtal+1;
+
+          if (fedid >= 601 && fedid <= 609)
+          {
+            ecid = DBconnection->getEcalLogicID("EE_elec_crystal_number", eid);
+          }
+          else if (fedid >= 610 && fedid <= 627)
+          {
+            ecid = DBconnection->getEcalLogicID("EB_crystal_number", fedid-610+19,
+                eid);
+          } 
+          else if (fedid >= 628 && fedid <= 645)
+          {
+            ecid = DBconnection->getEcalLogicID("EB_crystal_number", fedid-628+1, 
+                eid);
+          }
+          else if (fedid >= 646 && fedid <= 654)
+          {
+            ecid = DBconnection->getEcalLogicID("EE_elec_crystal_number", eid);
+          }
+          else
+            LogError("EcalPedOffset") << "FEDid is out of range 601-654";
+
           DBdataset[ecid] = DBtable ;
         } catch (runtime_error &e) {
           edm::LogError ("EcalPedOffset") << e.what();
