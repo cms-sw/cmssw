@@ -30,11 +30,11 @@ if (! open(INPUT,"<$file") ) {
         print OUTFILE "block common_beam_direction_parameters = {\n";
         print OUTFILE "  untracked double MinEta = ".$eta,"\n";
         print OUTFILE "  untracked double MaxEta = ".$eta,"\n";
-        print OUTFILE "  untracked double MaxPhi = ".$phi,"\n";
         print OUTFILE "  untracked double MinPhi = ".$phi,"\n";
+        print OUTFILE "  untracked double MaxPhi = ".$phi,"\n";
         print OUTFILE "  untracked double BeamMeanX = 0.\n";
         print OUTFILE "  untracked double BeamMeanY = 0.\n";
-        print OUTFILE "  untracked double BeamPosition = 0.\n";
+        print OUTFILE "  untracked double BeamPosition = -26733.5\n";
         print OUTFILE "}\n";
  
     }
