@@ -9,6 +9,8 @@
 #include "CondCore/DBCommon/interface/TypedRef.h"
 #include "CondCore/MetaDataService/interface/MetaData.h"
 
+#include "DataFormats/Provenance/interface/RunID.h"
+
 // L1T includes
 #include "CondFormats/L1TObjects/interface/L1TriggerKey.h"
 #include "CondFormats/L1TObjects/interface/L1TriggerKeyList.h"
@@ -71,7 +73,7 @@ class DataWriter : public DataManager
          */
         void writeKey (L1TriggerKey * key,
 		       const std::string & tag,
-		       const int sinceRun);  // actually tillRun
+		       const edm::RunNumber_t sinceRun);
 
       // Added by wsun 03/2008
 
@@ -83,12 +85,12 @@ class DataWriter : public DataManager
       // Write L1TriggerKeyList to DB
       void writeKeyList( L1TriggerKeyList* keyList,
 			 const std::string& tag, // tag for IOV sequence
-			 const int sinceRun ) ;
+			 const edm::RunNumber_t sinceRun ) ;
 
       // Append IOV with sinceRun to IOV sequence with given tag
       void updateIOV( const std::string& tag,
 		      const std::string& payloadToken,
-		      const int sinceRun ) ;
+		      const edm::RunNumber_t sinceRun ) ;
 
     protected:
         /* Helper method that maps tag with iovToken */

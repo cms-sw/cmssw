@@ -38,7 +38,9 @@ std::string DataWriter::findTokenForTag (const std::string & tag)
     return tagToken;
 }
 
-void DataWriter::writeKey (L1TriggerKey * key, const std::string & tag, const int sinceRun)
+void DataWriter::writeKey (L1TriggerKey * key,
+			   const std::string & tag,
+			   const edm::RunNumber_t sinceRun)
 {
     // writting key as bit more complicated. At this time we have to worry
     // about such things if the key already exists or not
@@ -67,8 +69,12 @@ void DataWriter::writeKey (L1TriggerKey * key, const std::string & tag, const in
     // finally insert new IOV
     if( requireMapping )
       {
-	// insert() sets till-time, not since-time -- will this work?
-	editor->insert (sinceRun, ref.token ());
+	editor->create( iov.globalSince() ) ;
+      }
+
+    if( sinceRun == iov.globalSince() )
+      {
+	editor->insert (iov.globalTill(), ref.token ());
       }
     else
       {
@@ -178,7 +184,7 @@ DataWriter::writePayload( const edm::EventSetup& setup,
 void
 DataWriter::writeKeyList( L1TriggerKeyList* keyList,
 			  const std::string& tag,
-			  const int sinceRun )
+			  const edm::RunNumber_t sinceRun )
 {
    // Get IOVToken for given tag
    std::string tagToken = findTokenForTag( tag ) ;
@@ -199,8 +205,16 @@ DataWriter::writeKeyList( L1TriggerKeyList* keyList,
     // Insert new IOV
     if( requireMapping )
       {
-	// insert() sets till-time, not since-time -- will this work?
-	editor->insert( sinceRun, ref.token() ) ;
+	std::cout << "GLOBAL SINCE " << iov.globalSince()
+		  << " SINCE " << sinceRun 
+		  << std::endl ;
+
+	editor->create( iov.globalSince() ) ;
+      }
+
+    if( sinceRun == iov.globalSince() )
+      {
+	editor->insert (iov.globalTill(), ref.token ());
       }
     else
       {
@@ -230,7 +244,7 @@ DataWriter::writeKeyList( L1TriggerKeyList* keyList,
 void
 DataWriter::updateIOV( const std::string& tag,
 		       const std::string& payloadToken,
-		       const int sinceRun )
+		       const edm::RunNumber_t sinceRun )
 {
     std::cout << tag << " PAYLOAD TOKEN " << payloadToken << std::endl ;
 
@@ -251,7 +265,12 @@ DataWriter::updateIOV( const std::string& tag,
     if( requireMapping )
       {
 	// insert() sets till-time, not since-time -- will this work?
-	editor->insert( sinceRun, payloadToken ) ;
+	editor->create( iov.globalSince() ) ;
+      }
+
+    if( sinceRun == iov.globalSince() )
+      {
+	editor->insert (iov.globalTill(), payloadToken );
       }
     else
       {
