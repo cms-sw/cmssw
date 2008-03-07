@@ -19,6 +19,7 @@
 #include "Fireworks/Core/interface/FW3DLegoView.h"
 #include "Fireworks/Core/interface/ElectronsProxySCBuilder.h"
 #include "Fireworks/Core/interface/FWDetailViewManager.h"
+#include "Fireworks/Core/interface/ElectronDetailView.h"
 #include "Fireworks/Core/src/FWListEventItem.h"
 #include "Fireworks/Core/src/FWListEventItemEditor.h"
 #include "Fireworks/Core/src/FWListModel.h"

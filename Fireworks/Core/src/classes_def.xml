@@ -22,5 +22,6 @@
   <class name="FWListModel"/>
   <class name="FWListModelEditor"/>
   <class name="FWDetailViewManager"/>
+  <class name="ElectronDetailView"/>
   <class name="ElectronView"/>
 </lcgdict>
