@@ -1,7 +1,7 @@
 /*
  * \file TBHodoActiveVolumeRawInfoProducer.cc
  *
- * $Id: TBHodoActiveVolumeRawInfoProducer.cc,v 1.2 2007/10/31 09:32:35 crovelli Exp $
+ * $Id: TBHodoActiveVolumeRawInfoProducer.cc,v 1.3 2007/12/18 17:56:15 crovelli Exp $
  *
  */
 
@@ -35,9 +35,9 @@ TBHodoActiveVolumeRawInfoProducer::~TBHodoActiveVolumeRawInfoProducer() {
   event.getByLabel( "g4SimHits", "EcalTBH4BeamHits", pCaloHit);   
   if (pCaloHit.isValid()){ 
     caloHits = pCaloHit.product();                 
-    LogDebug("TBHodoActiveVolumeRawInfoProducer:") << "total # caloHits: " << caloHits->size() ;
+    LogDebug("EcalTBHodo") << "total # caloHits: " << caloHits->size() ;
   } else {
-    edm::LogError("EcalCaloHitError") << "Error! can't get the caloHitContainer " ;
+    edm::LogError("EcalTBHodo") << "Error! can't get the caloHitContainer " ;
   }  
   if (!caloHits){ return; }
 

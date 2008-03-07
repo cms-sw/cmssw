@@ -35,16 +35,7 @@ EcalTBH4BeamSD::EcalTBH4BeamSD(G4String name, const DDCompactView & cpv,
   else {edm::LogWarning("EcalTBSim") << "EcalTBH4BeamSD: ReadoutName not supported\n";}
 
   if (scheme)  setNumberingScheme(scheme);
-  LogDebug("EcalTBSim") 
-    << "***************************************************" 
-    << "\n"
-    << "*                                                 *" 
-    << "\n"
-    << "* Constructing a EcalTBH4BeamSD  with name " << GetName()
-    << "\n"
-    << "*                                                 *"
-    << "\n"
-    << "***************************************************" ;
+  edm::LogInfo("EcalTBSim") << "Constructing a EcalTBH4BeamSD  with name " << GetName();
   edm::LogInfo("EcalTBSim")  << "EcalTBH4BeamSD:: Use of Birks law is set to      " 
 			   << useBirk << "        with the two constants C1 = "
 			   << birk1 << ", C2 = " << birk2;
@@ -75,6 +66,7 @@ double EcalTBH4BeamSD::getEnergyDeposit(G4Step * aStep) {
 }
 
 uint32_t EcalTBH4BeamSD::setDetUnitId(G4Step * aStep) { 
+  getBaseNumber(aStep);
   return (numberingScheme == 0 ? 0 : numberingScheme->getUnitID(theBaseNumber));
 }
 
