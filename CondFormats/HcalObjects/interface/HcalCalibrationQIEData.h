@@ -27,7 +27,7 @@ class HcalCalibrationQIEData: public HcalCondObjectContainer<HcalCalibrationQIEC
   // check if data are sorted
   bool sorted () const {return true;}
   // fill values [capid][range]
-  bool addCoder (const HcalCalibrationQIECoder& fCoder) { addValues(fCoder); return true; }
+  bool addCoder (const HcalCalibrationQIECoder& fCoder) { return addValues(fCoder); }
    // sort values by channelId  
   void sort () {}
 
