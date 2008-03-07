@@ -10,6 +10,8 @@
 #include "DataFormats/PatCandidates/interface/MET.h"
 #include "DataFormats/PatCandidates/interface/Particle.h"
 
+#include "DataFormats/PatCandidates/interface/JetCorrFactors.h"
+
 #include "DataFormats/PatCandidates/interface/StringMap.h"
 #include "DataFormats/PatCandidates/interface/EventHypothesis.h"
 #include "DataFormats/PatCandidates/interface/EventHypothesisLooper.h"
@@ -118,6 +120,11 @@ namespace {
     edm::Ref<std::vector<pat::MET> >            r_met;
     edm::Ref<std::vector<pat::Particle> >       r_part;
 
+    pat::JetCorrFactors jcf;
+    std::vector<pat::JetCorrFactors> v_jcf;
+    edm::Wrapper<pat::JetCorrFactors> w_jcf;
+    edm::ValueMap<pat::JetCorrFactors> vm_jcf;
+    edm::Wrapper<edm::ValueMap<pat::JetCorrFactors> > wvm_jcf;
 
     //=========================================================
     //=== Dictionaries missing in 169pre2, we add them here ===

@@ -1,5 +1,5 @@
 //
-// $Id: PATJetProducer.h,v 1.7 2008/03/05 14:56:50 fronga Exp $
+// $Id$
 //
 
 #ifndef PhysicsTools_PatAlgos_PATJetProducer_h
@@ -13,7 +13,7 @@
    a collection of objects of JetType.
 
   \author   Steven Lowette, Jeremy Andrea
-  \version  $Id: PATJetProducer.h,v 1.7 2008/03/05 14:56:50 fronga Exp $
+  \version  $Id$
 */
 
 
@@ -62,6 +62,7 @@ namespace pat {
       edm::InputTag            genJetSrc_;
       bool                     addPartonJetMatch_;
       edm::InputTag            partonJetSrc_;
+      edm::InputTag            jetCorrFactorsSrc_;
       bool                     addResolutions_;
       bool                     useNNReso_;
       std::string              caliJetResoFile_;

@@ -1,5 +1,5 @@
 //
-// $Id: Jet.cc,v 1.7 2008/02/28 14:29:01 llista Exp $
+// $Id$
 //
 
 #include "DataFormats/PatCandidates/interface/Jet.h"
@@ -52,32 +52,8 @@ int Jet::partonFlavour() const {
 
 
 /// return the correction factor to go to a non-calibrated jet
-float Jet::noCorrF() const {
-  return noCorrF_;
-}
-
-
-/// return the correction factor to go to a uds-calibrated jet
-float Jet::udsCorrF() const {
-  return udsCorrF_;
-}
-
-
-/// return the correction factor to go to a gluon-calibrated jet
-float Jet::gluCorrF() const {
-  return gluCorrF_;
-}
-
-
-/// return the correction factor to go to a c-calibrated jet
-float Jet::cCorrF() const {
-  return cCorrF_;
-}
-
-
-/// return the correction factor to go to a b-calibrated jet
-float Jet::bCorrF() const {
-  return bCorrF_;
+JetCorrFactors Jet::jetCorrFactors() const {
+  return jetCorrF_;
 }
 
 
@@ -92,9 +68,19 @@ JetType Jet::recJet() const {
 /// return the associated non-calibrated jet
 Jet Jet::noCorrJet() const {
   Jet jet(*this);
-  jet.setP4(noCorrF_*this->p4());
+  jet.setP4(noCorrF_ * this->p4());
   // fix the factor to uncalibrate for the fact that we change the scale of the actual jet
-  jet.setScaleCalibFactors(1., udsCorrF_, gluCorrF_, cCorrF_, bCorrF_);
+  jet.setNoCorrFactor(1.);
+  return jet;
+}
+
+
+/// return the associated non-calibrated jet
+Jet Jet::defaultCorrJet() const {
+  Jet jet(*this);
+  jet.setP4(jetCorrF_.scaleDefault() * noCorrF_ * this->p4());
+  // fix the factor to uncalibrate for the fact that we change the scale of the actual jet
+  jet.setNoCorrFactor(1. / jetCorrF_.scaleDefault());
   return jet;
 }
 
@@ -102,9 +88,9 @@ Jet Jet::noCorrJet() const {
 /// return the associated uds-calibrated jet
 Jet Jet::udsCorrJet() const {
   Jet jet(*this);
-  jet.setP4(udsCorrF_*noCorrF_*this->p4());
+  jet.setP4(jetCorrF_.scaleUds() * noCorrF_ * this->p4());
   // fix the factor to uncalibrate for the fact that we change the scale of the actual jet
-  jet.setScaleCalibFactors(1./udsCorrF_, udsCorrF_, gluCorrF_, cCorrF_, bCorrF_);
+  jet.setNoCorrFactor(1. / jetCorrF_.scaleUds());
   return jet;
 }
 
@@ -112,9 +98,9 @@ Jet Jet::udsCorrJet() const {
 /// return the associated gluon-calibrated jet
 Jet Jet::gluCorrJet() const {
   Jet jet(*this);
-  jet.setP4(gluCorrF_*noCorrF_*this->p4());
+  jet.setP4(jetCorrF_.scaleGlu() * noCorrF_ * this->p4());
   // fix the factor to uncalibrate for the fact that we change the scale of the actual jet
-  jet.setScaleCalibFactors(1./gluCorrF_, udsCorrF_, gluCorrF_, cCorrF_, bCorrF_);
+  jet.setNoCorrFactor(1. / jetCorrF_.scaleGlu());
   return jet;
 }
 
@@ -122,9 +108,9 @@ Jet Jet::gluCorrJet() const {
 /// return the associated c-calibrated jet
 Jet Jet::cCorrJet() const {
   Jet jet(*this);
-  jet.setP4(cCorrF_*noCorrF_*this->p4());
+  jet.setP4(jetCorrF_.scaleC() * noCorrF_ * this->p4());
   // fix the factor to uncalibrate for the fact that we change the scale of the actual jet
-  jet.setScaleCalibFactors(1./cCorrF_, udsCorrF_, gluCorrF_, cCorrF_, bCorrF_);
+  jet.setNoCorrFactor(1. / jetCorrF_.scaleC());
   return jet;
 }
 
@@ -133,9 +119,9 @@ Jet Jet::cCorrJet() const {
 Jet Jet::bCorrJet() const {
   Jet jet(*this);
   // set the corrected 4-vector
-  jet.setP4(bCorrF_*noCorrF_*this->p4());
+  jet.setP4(jetCorrF_.scaleB() * noCorrF_ * this->p4());
   // fix the factor to uncalibrate for the fact that we change the scale of the actual jet
-  jet.setScaleCalibFactors(1./bCorrF_, udsCorrF_, gluCorrF_, cCorrF_, bCorrF_);
+  jet.setNoCorrFactor(1. / jetCorrF_.scaleB());
   // set the resolutions assuming this jet to be a b-jet
   jet.setResolutionA(bResA_);
   jet.setResolutionB(bResB_);
@@ -153,14 +139,14 @@ Jet Jet::bCorrJet() const {
 /// return the jet calibrated according to the MC flavour truth
 Jet Jet::mcFlavCorrJet() const {
   // determine the correction factor to use depending on MC flavour truth
-  float corrF = gluCorrF_; // default, also for unidentified flavour
-  if (abs(partonFlavour_) == 1 || abs(partonFlavour_) == 2 || abs(partonFlavour_) == 3) corrF = udsCorrF_;
-  if (abs(partonFlavour_) == 4) corrF = cCorrF_;
-  if (abs(partonFlavour_) == 5) corrF = bCorrF_;
+  float corrF = jetCorrF_.scaleGlu(); // default, also for unidentified flavour
+  if (abs(partonFlavour_) == 1 || abs(partonFlavour_) == 2 || abs(partonFlavour_) == 3) corrF = jetCorrF_.scaleUds();
+  if (abs(partonFlavour_) == 4) corrF = jetCorrF_.scaleC();
+  if (abs(partonFlavour_) == 5) corrF = jetCorrF_.scaleB();
   Jet jet(*this);
-  jet.setP4(corrF*noCorrF_*this->p4());
+  jet.setP4(corrF * noCorrF_ * this->p4());
   // fix the factor to uncalibrate for the fact that we change the scale of the actual jet
-  jet.setScaleCalibFactors(1./corrF, udsCorrF_, gluCorrF_, cCorrF_, bCorrF_);
+  jet.setNoCorrFactor(1. / corrF);
   return jet;
 }
 
@@ -169,9 +155,9 @@ Jet Jet::mcFlavCorrJet() const {
 Jet Jet::wCorrJet() const {
   Jet jet(*this);
   // set the corrected 4-vector weighting for the c-content in W decays
-  jet.setP4((3*udsCorrF_+cCorrF_)/4*noCorrF_*this->p4());
+  jet.setP4((3*jetCorrF_.scaleUds() + jetCorrF_.scaleC()) / 4 * noCorrF_ * this->p4());
   // fix the factor to uncalibrate for the fact that we change the scale of the actual jet
-  jet.setScaleCalibFactors(4./(3*udsCorrF_+cCorrF_), udsCorrF_, gluCorrF_, cCorrF_, bCorrF_);
+  jet.setNoCorrFactor(4. / (3*jetCorrF_.scaleUds() + jetCorrF_.scaleC()));
   return jet;
 }
 
@@ -270,12 +256,14 @@ void Jet::setPartonFlavour(int partonFl) {
 
 
 /// method to set the energy scale correction factors
-void Jet::setScaleCalibFactors(float noCorrF, float udsCorrF, float gluCorrF, float cCorrF, float bCorrF) {
+void Jet::setJetCorrFactors(const JetCorrFactors & jetCorrF) {
+  jetCorrF_ = jetCorrF;
+}
+
+
+/// method to set correction factor to go back to an uncorrected jet
+void Jet::setNoCorrFactor(float noCorrF) {
   noCorrF_ = noCorrF;
-  udsCorrF_ = udsCorrF;
-  gluCorrF_ = gluCorrF;
-  cCorrF_ = cCorrF;
-  bCorrF_ = bCorrF;
 }
 
 

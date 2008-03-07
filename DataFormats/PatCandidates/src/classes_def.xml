@@ -54,6 +54,12 @@
   <class name="pat::METRef" />
   <class name="pat::ParticleRef" />
 
+  <class name="pat::JetCorrFactors" />
+  <class name="std::vector<pat::JetCorrFactors>" />
+  <class name="edm::Wrapper<pat::JetCorrFactors>" />
+  <class name="edm::ValueMap<pat::JetCorrFactors>" />
+  <class name="edm::Wrapper<edm::ValueMap<pat::JetCorrFactors> >" />
+
   <class name="std::pair<std::string,int32_t>" />
   <class name="std::vector<std::pair<std::string,int32_t> >" />
   <class name="StringMap" />
