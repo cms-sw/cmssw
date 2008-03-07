@@ -13,8 +13,8 @@
 #include <string>
 
 //edm
+#include "FWCore/Framework/interface/EventSetup.h"
 #include "DataFormats/Common/interface/Handle.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 //Data Formats
@@ -23,10 +23,6 @@
 #include "DataFormats/SiStripDigi/interface/SiStripDigi.h"
 #include "DataFormats/SiStripDigi/interface/SiStripRawDigi.h"
 //ES Data
-#include "CondFormats/SiStripObjects/interface/SiStripNoises.h"
-#include "CondFormats/SiStripObjects/interface/SiStripPedestals.h"
-#include "CalibFormats/SiStripObjects/interface/SiStripQuality.h"
-
 
 #include <iostream> 
 #include <memory>
@@ -34,8 +30,6 @@
 #include <vector>
 #include "CLHEP/Random/RandFlat.h"
 
-class SiStripPedestalsService;
-class SiStripNoiseService;
 class SiStripPedestalsSubtractor;
 class SiStripFedZeroSuppression;
 class SiStripCommonModeNoiseSubtractor;
@@ -50,7 +44,7 @@ class SiStripZeroSuppressionAlgorithm
 
   /// Runs the algorithm
   void run(std::string RawDigiType, const edm::DetSetVector<SiStripRawDigi>& input,
-	   std::vector< edm::DetSet<SiStripDigi> >& output,edm::ESHandle<SiStripPedestals> &, edm::ESHandle<SiStripNoises> &, edm::ESHandle<SiStripQuality> &);
+	   std::vector< edm::DetSet<SiStripDigi> >& output,const edm::EventSetup& es);
 
  private:
   edm::ParameterSet conf_;

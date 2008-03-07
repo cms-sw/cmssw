@@ -16,35 +16,19 @@
 
 //edm
 #include "FWCore/Framework/interface/EDProducer.h"
-//#include "FWCore/EDProduct/interface/EDProduct.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "DataFormats/Common/interface/Handle.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-//FIXME: the first 2 include are needed??
-//#include "FWCore/Framework/interface/MakerMacros.h"
-//#include "FWCore/ServiceRegistry/interface/Service.h"
 //Data Formats
 #include "DataFormats/Common/interface/DetSet.h"
 #include "DataFormats/Common/interface/DetSetVector.h"
 #include "DataFormats/SiStripDigi/interface/SiStripDigi.h"
 #include "DataFormats/SiStripDigi/interface/SiStripRawDigi.h"
-//ES Data
-//#include "CondFormats/SiStripObjects/interface/SiStripPedestals.h" 
-//#include "CondFormats/DataRecord/interface/SiStripPedestalsRcd.h"
-//#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
-//#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
+
 //ZeroSuppression 
 #include "RecoLocalTracker/SiStripZeroSuppression/interface/SiStripZeroSuppressionAlgorithm.h"
-//SiStripPedestalsService
-#include "CondFormats/DataRecord/interface/SiStripNoisesRcd.h"
-#include "CondFormats/DataRecord/interface/SiStripPedestalsRcd.h"
-#include "CalibTracker/Records/interface/SiStripQualityRcd.h"
-#include "CondFormats/SiStripObjects/interface/SiStripNoises.h"
-#include "CondFormats/SiStripObjects/interface/SiStripPedestals.h"
-#include "CalibFormats/SiStripObjects/interface/SiStripQuality.h"
 
 #include <iostream> 
 #include <memory>

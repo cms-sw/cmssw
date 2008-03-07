@@ -112,7 +112,7 @@ class SiStripClusterInfo {
 		 std::vector<int16_t>&               vadc,
 		 std::vector<int16_t>&             vstrip);
  
-
+  const edm::EventSetup&      es_; 
   edm::ESHandle<SiStripNoises>        noiseHandle_;
   edm::ESHandle<SiStripGain>           gainHandle_;
   edm::ESHandle<SiStripPedestals> pedestalsHandle_;

@@ -23,7 +23,8 @@
 SiStripClusterInfo::SiStripClusterInfo(const uint32_t  cluster_detId,
                                        const SiStripCluster&  cluster, 
                                        const edm::EventSetup&      es,
-				       std::string CMNSubtractionMode) {
+				       std::string CMNSubtractionMode):
+  es_(es){
   
   cluster_ = & cluster;  
   cluster_detId_ = cluster_detId;  
@@ -382,7 +383,7 @@ void SiStripClusterInfo::rawdigi_algorithm(const edm::DetSet<SiStripRawDigi>  ra
     }
     
     //Subtract Pedestals
-    SiStripPedestalsSubtractor_->subtract(rawDigis_ds_,vssRd,pedestalsHandle_);
+    SiStripPedestalsSubtractor_->subtract(rawDigis_ds_,vssRd,es_);
     
     if (edm::isDebugEnabled()){
       std::stringstream sss;
@@ -396,7 +397,7 @@ void SiStripClusterInfo::rawdigi_algorithm(const edm::DetSet<SiStripRawDigi>  ra
     
     //Subtract CMN
     if (validCMNSubtraction_){
-      SiStripCommonModeNoiseSubtractor_->subtract(rawDigis_ds_.id,vssRd,noiseHandle_);
+      SiStripCommonModeNoiseSubtractor_->subtract(rawDigis_ds_.id,vssRd,es_);
       
       if (edm::isDebugEnabled()){
 	std::stringstream sss;

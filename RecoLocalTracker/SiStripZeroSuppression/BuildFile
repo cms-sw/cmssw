@@ -7,7 +7,6 @@
 <use name=DataFormats/SiStripDigi>
 <use name=DataFormats/FEDRawData>
 <use name=DataFormats/SiStripDetId>
-<use name=DataFormats/FEDRawData> 
 
 <use name=CondFormats/DataRecord>
 <use name=CondFormats/SiStripObjects>
@@ -35,7 +34,6 @@
 <use name=DataFormats/SiStripDigi>
 <use name=DataFormats/FEDRawData>
 <use name=DataFormats/SiStripDetId>
-<use name=DataFormats/FEDRawData> 
 
 <use name=CondFormats/DataRecord>
 <use name=CondFormats/SiStripObjects>

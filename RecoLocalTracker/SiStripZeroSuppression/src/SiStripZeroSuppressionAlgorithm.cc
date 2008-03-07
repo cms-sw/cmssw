@@ -67,9 +67,7 @@ SiStripZeroSuppressionAlgorithm::~SiStripZeroSuppressionAlgorithm() {
 void SiStripZeroSuppressionAlgorithm::run(std::string RawDigiType, 
 					  const edm::DetSetVector<SiStripRawDigi>& input,
 					  std::vector< edm::DetSet<SiStripDigi> >& output,
-					  edm::ESHandle<SiStripPedestals> & pedestalsHandle,
-					  edm::ESHandle<SiStripNoises> & noiseHandle,
-					  edm::ESHandle<SiStripQuality> & qualityHandle){
+					  const edm::EventSetup& es){
   
 
   
@@ -89,12 +87,12 @@ void SiStripZeroSuppressionAlgorithm::run(std::string RawDigiType,
       std::vector<int16_t> vssRd((*DSViter).data.size());
 
       if ( RawDigiType == "VirginRaw" ) {
-	SiStripPedestalsSubtractor_->subtract(*DSViter,vssRd,pedestalsHandle);
-	SiStripCommonModeNoiseSubtractor_->subtract(DSViter->id,vssRd,noiseHandle,qualityHandle);
-	SiStripZeroSuppressor_->suppress(vssRd,ssd,noiseHandle,pedestalsHandle);
+	SiStripPedestalsSubtractor_->subtract(*DSViter,vssRd,es);
+	SiStripCommonModeNoiseSubtractor_->subtract(DSViter->id,vssRd,es);
+	SiStripZeroSuppressor_->suppress(vssRd,ssd,es);
       } 
       else if ( RawDigiType == "ProcessedRaw" ){
-	SiStripZeroSuppressor_->suppress((*DSViter),ssd,noiseHandle,pedestalsHandle);	
+	SiStripZeroSuppressor_->suppress((*DSViter),ssd,es);	
       }
       else{
 	//FIXME
