@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Sun Jan  6 23:57:00 EST 2008
-// $Id: ElectronsProxySCBuilder.cc,v 1.8 2008/03/06 15:25:48 chrjones Exp $
+// $Id: ElectronsProxySCBuilder.cc,v 1.9 2008/03/06 22:48:31 jmuelmen Exp $
 //
 
 // system include files
@@ -82,7 +82,8 @@ void ElectronsProxySCBuilder::build (TEveElementList **product)
 	  tList->SetMainColor(m_item->defaultDisplayProperties().color());
 	  gEve->AddElement(tList);
      } else {
-	  tList->DestroyElements();
+	  return;
+// 	  tList->DestroyElements();
      }
      // get electrons
      resetCenter();
