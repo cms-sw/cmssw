@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Sun Jan  6 23:57:00 EST 2008
-// $Id: MuonDetailView.cc,v 1.1 2008/03/07 01:05:15 jmuelmen Exp $
+// $Id: MuonDetailView.cc,v 1.1 2008/03/07 04:01:21 tdaniels Exp $
 //
 
 // system include files
@@ -143,7 +143,7 @@ void MuonDetailView::build (TEveElementList **product, const FWModelId &id)
   const CaloTowerCollection* ctowers(0);
 
   try {
-    towers.getByLabel(*ev, "CaloTowerCollection");
+    towers.getByLabel(*ev, "towerMaker");
     ctowers = towers.ptr();
   }
   catch (...)
@@ -200,9 +200,11 @@ void MuonDetailView::build (TEveElementList **product, const FWModelId &id)
   //      t.fBeta = 1.;
   //  printf("We have %d muons\n",muons->size()); 
   
+  assert((unsigned int)id.index() < muons->size());
 
-  for(reco::MuonCollection::const_iterator muon = muons->begin();
-      muon != muons->end(); ++muon, ++index) {
+//   for(reco::MuonCollection::const_iterator muon = muons->begin();
+//       muon != muons->end(); ++muon, ++index) {
+  if (const reco::Muon *muon = &muons->at(id.index())) {
 
     std::stringstream s;
     s << "muon" << index;
@@ -234,7 +236,7 @@ void MuonDetailView::build (TEveElementList **product, const FWModelId &id)
     
     innerTrack->SetMainColor( m_item->defaultDisplayProperties().color() );
     // For this display, we want to see only the "muons" that make it to the chambers
-    if ( muon->numberOfMatches(reco::Muon::SegmentAndTrackArbitration) < 2 ) continue;
+    if ( muon->numberOfMatches(reco::Muon::SegmentAndTrackArbitration) < 2 ) return;
     innerTrack->MakeTrack();
     muonList->AddElement(innerTrack);
 
