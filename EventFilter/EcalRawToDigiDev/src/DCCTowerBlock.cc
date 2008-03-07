@@ -93,8 +93,6 @@ void DCCTowerBlock::unpackXtalData(uint expStripID, uint expXtalID){
 
       // Check for zs valid Ids 2) if channel-in-strip has increased wrt previous xtal
 
-      if ( stripId >= lastStripId_ ){
-
         if( stripId == lastStripId_ && xtalId <= lastXtalId_ ){
 	  
           edm::LogWarning("EcalRawToDigiDevChId")
@@ -121,7 +119,6 @@ void DCCTowerBlock::unpackXtalData(uint expStripID, uint expXtalID){
 	  return;
 	  
 	}
-      }
       
       // Check for zs valid Ids 3) if strip has increased wrt previous xtal
       else if( stripId < lastStripId_){
