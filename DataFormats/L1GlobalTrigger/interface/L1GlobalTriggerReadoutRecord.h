@@ -85,6 +85,9 @@ public:
     const bool decision(int bxInEventValue) const;
     const bool decision() const;
 
+    const boost::uint16_t finalOR(int bxInEventValue) const;
+    const boost::uint16_t finalOR() const;
+
     const DecisionWord decisionWord(int bxInEventValue) const;
     const DecisionWord decisionWord() const;
     

@@ -68,7 +68,7 @@ const L1GtTechnicalTrigger* L1GtTechnicalTriggerRecord::getTechnicalTrigger(
 
 /// return the technical trigger for ttBitNumber and bxInEvent
 const L1GtTechnicalTrigger* L1GtTechnicalTriggerRecord::getTechnicalTrigger(
-        const int ttBitNumber, const int bxInEventVal) const
+        const unsigned int ttBitNumber, const int bxInEventVal) const
 {
 
     for (std::vector<L1GtTechnicalTrigger>::const_iterator itObj =

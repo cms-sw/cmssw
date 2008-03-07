@@ -19,7 +19,6 @@
 
 // system include files
 #include <iomanip>
-#include <bitset>
 
 
 // user include files
@@ -212,6 +211,41 @@ const bool L1GlobalTriggerReadoutRecord::decision() const
     int bxInEventL1Accept = 0;
     return decision(bxInEventL1Accept);
 }
+
+// get final OR for all DAQ partitions
+//    general bxInEvent
+const boost::uint16_t L1GlobalTriggerReadoutRecord::finalOR(int bxInEventValue) const
+{
+
+    for (std::vector<L1GtFdlWord>::const_iterator itBx = m_gtFdlWord.begin();
+            itBx != m_gtFdlWord.end(); ++itBx) {
+
+        if ( (*itBx).bxInEvent() == bxInEventValue ) {
+            return (*itBx).finalOR();
+        }
+    }
+
+    // if bunch cross not found, throw exception (action: SkipEvent)
+    // TODO re-evaluate action
+
+    //    throw cms::Exception("NotFound")
+    LogTrace("L1GlobalTriggerReadoutRecord")
+    << "\nError: requested GtFdlWord for bxInEvent = " << bxInEventValue
+    << " does not exist.\n"
+    << "Can not return finalOR for this bx!\n"
+    << std::endl;
+
+    return 0;
+}
+
+//    bxInEvent = 0
+const boost::uint16_t L1GlobalTriggerReadoutRecord::finalOR() const
+{
+
+    int bxInEventL1Accept = 0;
+    return finalOR(bxInEventL1Accept);
+}
+
 
 // get Global Trigger decision word
 
