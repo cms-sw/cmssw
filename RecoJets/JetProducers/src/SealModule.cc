@@ -18,7 +18,7 @@
 
 #include "PtMinJetSelector.h"
 
-#include "GenJetParticleSelector.h"
+#include "GenJetInputParticleSelector.h"
 
 
 using cms::KtJetProducer;
@@ -51,4 +51,4 @@ DEFINE_ANOTHER_FWK_MODULE(PtMinGenJetSelector);
 DEFINE_ANOTHER_FWK_MODULE(PtMinPFJetSelector);
 DEFINE_ANOTHER_FWK_MODULE(PtMinBasicJetSelector);
 
-DEFINE_ANOTHER_FWK_MODULE(GenJetParticleSelector);
+DEFINE_ANOTHER_FWK_MODULE(GenJetInputParticleSelector);

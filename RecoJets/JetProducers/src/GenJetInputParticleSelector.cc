@@ -1,4 +1,4 @@
-/* \class GenJetParticleSelector
+/* \class GenJetInputParticleSelector
 *
 *  Selects particles that are used as input for the GenJet collection.
 *  Logic: select all stable particles, except for neutrinos that come from
@@ -6,15 +6,15 @@
 *
 *  Usage:
 *
-*  module genjetparticles = GenJetParticleSelector {
+*  module genjetparticles = GenJetInputParticleSelector {
 *        InputTag src = genParticles
 *  }
 *
 * \author: Fedor Ratnikov, UMd by suggestion from Filip Moortgat
-* $Id: GenJetParticleSelector.cc,v 1.1 2008/03/06 00:55:36 fedor Exp $
+* $Id: GenJetParticleSelector.cc,v 1.2 2008/03/06 22:42:56 fedor Exp $
 */
 
-#include "GenJetParticleSelector.h"
+#include "GenJetInputParticleSelector.h"
 
 #include <memory>
 
@@ -56,15 +56,16 @@ namespace {
 }
 
 
-GenJetParticleSelector::GenJetParticleSelector (const edm::ParameterSet& ps) 
-  : mSrc(ps.getParameter<edm::InputTag>( "src" ))
+GenJetInputParticleSelector::GenJetInputParticleSelector (const edm::ParameterSet& ps) 
+  : mSrc(ps.getParameter<edm::InputTag>( "src" )),
+    mVerbose (ps.getUntrackedParameter<bool> ("verbose", false))
 {
   produces <reco::GenParticleRefVector> ();
 }
 
-GenJetParticleSelector::~GenJetParticleSelector () {}
+GenJetInputParticleSelector::~GenJetInputParticleSelector () {}
 
-void GenJetParticleSelector::produce(edm::Event& e, const edm::EventSetup& c) {
+void GenJetInputParticleSelector::produce(edm::Event& e, const edm::EventSetup& c) {
   // get input
   edm::Handle<reco::GenParticleCollection> input; 
   e.getByLabel( mSrc, input);
