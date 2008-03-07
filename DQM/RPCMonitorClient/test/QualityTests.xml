@@ -1,123 +1,159 @@
 <TESTSCONFIGURATION>
-<QTEST name="XRangeBelow5" activate="true">
-	<TYPE>ContentsXRangeROOT</TYPE>	
-	<PARAM name="error">0.80</PARAM>
+
+<QTEST name="tTrigOffSet">
+	<TYPE>ContentsYRange</TYPE>	
+	<PARAM name="ymin">-10</PARAM>
+	<PARAM name="ymax">10</PARAM>
+	<PARAM name="error">0.30</PARAM>
 	<PARAM name="warning">0.70</PARAM>
-	<PARAM name="xmin">0.0</PARAM>
-	<PARAM name="xmax">5.0</PARAM>
 </QTEST>
 
-<QTEST name="XRangeBelow3" activate="true">
-	<TYPE>ContentsXRangeROOT</TYPE>	
-	<PARAM name="error">0.80</PARAM>
+<QTEST name="ResidualsDistributionGaussianTest">
+        <TYPE>MeanWithinExpected</TYPE>
+        <PARAM name="error">0.05</PARAM>
+        <PARAM name="warning">0.5</PARAM>
+        <PARAM name="mean">0.0</PARAM>
+        <PARAM name="useRMS">0</PARAM>
+        <PARAM name="useSigma">0</PARAM>
+        <PARAM name="useRange">1</PARAM>
+        <PARAM name="xmin">-0.015</PARAM>
+        <PARAM name="xmax">0.015</PARAM>
+</QTEST>
+
+<QTEST name="ResidualsMeanInRange">
+	<TYPE>ContentsYRange</TYPE>	
+	<PARAM name="ymin">-0.015</PARAM>
+	<PARAM name="ymax">0.015</PARAM>
+	<PARAM name="error">0.30</PARAM>
 	<PARAM name="warning">0.70</PARAM>
-	<PARAM name="xmin">0.0</PARAM>
-	<PARAM name="xmax">3.0</PARAM>
 </QTEST>
 
-<QTEST name="XRangeBetween10and20" activate="false">
-	<TYPE>ContentsXRangeROOT</TYPE>	
-	<PARAM name="error">0.80</PARAM>
+
+<QTEST name="ResidualsSigmaInRange">
+	<TYPE>ContentsYRange</TYPE>	
+	<PARAM name="ymin">0</PARAM>
+	<PARAM name="ymax">0.09</PARAM>
+	<PARAM name="error">0.30</PARAM>
 	<PARAM name="warning">0.70</PARAM>
-	<PARAM name="xmin">10.0</PARAM>
-	<PARAM name="xmax">20.0</PARAM>
 </QTEST>
 
-<QTEST name="XRangeBetween5and10" activate="true">
-	<TYPE>ContentsXRangeROOT</TYPE>	
-	<PARAM name="error">0.80</PARAM>
+
+<QTEST name="EfficiencyInRange">
+	<TYPE>ContentsYRange</TYPE>	
+	<PARAM name="ymin">0,98</PARAM>
+	<PARAM name="ymax">1.00</PARAM>
+	<PARAM name="error">0.30</PARAM>
 	<PARAM name="warning">0.70</PARAM>
-	<PARAM name="xmin">5.0</PARAM>
-	<PARAM name="xmax">10.0</PARAM>
-</QTEST>
-
-<QTEST name="MeanWithinExpected:RMS" activate="true">
-	<TYPE>MeanWithinExpectedROOT</TYPE>
-	<PARAM name="error">0.05</PARAM>
-	<PARAM name="warning">0.5</PARAM>
-	<PARAM name="mean">3.0</PARAM>
-	<PARAM name="useRMS">1</PARAM>
-	<PARAM name="useSigma">0</PARAM>
-	<PARAM name="useRange">0</PARAM>
-	<PARAM name="xmin">0</PARAM>
-	<PARAM name="xmax">0</PARAM>
 </QTEST>
 
 
-<QTEST name="yRangeBetween0and10" activate="false">
-	<TYPE>ContentsYRangeROOT</TYPE>	
-	<PARAM name="error">0.99</PARAM>
-	<PARAM name="warning">0.80</PARAM>
-	<PARAM name="ymin">0.0</PARAM>
-	<PARAM name="ymax">10.0</PARAM>
+<QTEST name="UnassEfficiencyInRange">
+	<TYPE>ContentsYRange</TYPE>	
+	<PARAM name="ymin">0,98</PARAM>
+	<PARAM name="ymax">1.00</PARAM>
+	<PARAM name="error">0.30</PARAM>
+	<PARAM name="warning">0.70</PARAM>
 </QTEST>
 
-<QTEST name="YRangeBetween1000and1002" activate="false">
-	<TYPE>ContentsYRangeROOT</TYPE>	
-	<PARAM name="error">0.99</PARAM>
-	<PARAM name="warning">0.80</PARAM>
-	<PARAM name="ymin">1000</PARAM>
-	<PARAM name="ymax">1002</PARAM>
+
+<QTEST name="OccupancyDiffInRange">
+	<TYPE>DeadChannel</TYPE>	
+	<PARAM name="threshold">0.05</PARAM>
+	<PARAM name="error">0.30</PARAM>
+	<PARAM name="warning">0.70</PARAM>
 </QTEST>
 
-<QTEST name="DeadChannel_0" activate="true">
-	<TYPE>DeadChannelROOT</TYPE>	
-	<PARAM name="error">0.99</PARAM>
-	<PARAM name="warning">0.80</PARAM>
+<QTEST name="DeadChannel_0">
+	<TYPE>DeadChannel</TYPE>	
 	<PARAM name="threshold">0</PARAM>
-</QTEST>
-
-<QTEST name="NoisyChannel_20" activate="true">
-	<TYPE>NoisyChannelROOT</TYPE>	
-	<PARAM name="error">0.80</PARAM>
+	<PARAM name="error">0.30</PARAM>
 	<PARAM name="warning">0.70</PARAM>
-	<PARAM name="tolerance">20</PARAM>
-	<PARAM name="neighbours">10</PARAM>
 </QTEST>
 
 
 
-<LINK name="*Occupancy_*">
+<QTEST name="ChEfficiencyInRangeX">
+	<TYPE>ContentsYRange</TYPE>	
+	<PARAM name="ymin">0,98</PARAM>
+	<PARAM name="ymax">1.00</PARAM>
+	<PARAM name="error">0.30</PARAM>
+	<PARAM name="warning">0.70</PARAM>
+</QTEST>
+
+
+<QTEST name="ChEfficiencyInRangeY">
+	<TYPE>ContentsYRange</TYPE>	
+	<PARAM name="ymin">0,98</PARAM>
+	<PARAM name="ymax">1.00</PARAM>
+	<PARAM name="error">0.30</PARAM>
+	<PARAM name="warning">0.70</PARAM>
+</QTEST>
+
+
+<QTEST name="NoiseMeanInRange">
+	<TYPE>ContentsYRange</TYPE>	
+	<PARAM name="ymin">0.00</PARAM>
+	<PARAM name="ymax">0.02</PARAM>
+	<PARAM name="error">0.30</PARAM>
+	<PARAM name="warning">0.70</PARAM>
+</QTEST>
+
+
+<QTEST name="SectorTrigEffInRangePhi">
+	<TYPE>ContentsYRange</TYPE>	
+	<PARAM name="ymin">0.5</PARAM>
+	<PARAM name="ymax">1.00</PARAM>
+	<PARAM name="error">0.95</PARAM>
+	<PARAM name="warning">0.95</PARAM>
+</QTEST>
+
+
+<LINK name="*tTrigTest*">
+	<TestName activate="true">tTrigOffSet</TestName>
+</LINK>
+
+<LINK name="*hResDist_W*">
+        <TestName activate="true">ResidualsDistributionGaussianTest</TestName>
+</LINK>
+
+<LINK name="*MeanTest*">
+	<TestName activate="true">ResidualsMeanInRange</TestName>
+</LINK>
+
+<LINK name="*SigmaTest*">
+	<TestName activate="true">ResidualsSigmaInRange</TestName>
+</LINK>
+
+<LINK name="*Efficiency_*">
+	<TestName activate="true">EfficiencyInRange</TestName>
+</LINK>
+
+<LINK name="*Efficiency_*">
+	<TestName activate="true">UnassEfficiencyInRange</TestName>
+</LINK>
+
+<LINK name="*OccupancyDiff*">
+	<TestName activate="true">OccupancyDiffInRange</TestName>
+</LINK>
+<LINK name="*Occupancy*">
 	<TestName activate="true">DeadChannel_0</TestName>
-	<TestName activate="true">NoisyChannel_20</TestName>
-</LINK>
-<LINK name="*BXN_*">
-	<TestName activate="true">XRangeBelow3</TestName>
-</LINK>
-<LINK name="*ClusterSize_*">
-	<TestName activate="false">XRangeBetween10and20</TestName>
-</LINK>
-<LINK name="*NumberOfClusters_*">
-	<TestName activate="true">XRangeBelow3</TestName>
 </LINK>
 
 
-<LINK name="*NumberOfDigi_*">
-	<TestName activate="false"></TestName>
-</LINK>
-<LINK name="*MissingHits_*">
-	<TestName activate="false"></TestName>
+<LINK name="*xEfficiency_*">
+	<TestName activate="true">ChEfficiencyInRangeX</TestName>
 </LINK>
 
- <LINK name="*RecHitXPosition*">
-	<TestName activate="true">XRangeBetween10and20</TestName>
+<LINK name="*yEfficiency_*">
+	<TestName activate="true">ChEfficiencyInRangeY</TestName>
 </LINK>
 
- <LINK name="*RecHitYPosition*">
-	<TestName activate="true">XRangeBetween10and20</TestName>
-</LINK>
-<LINK name="*RecHitDX_*">
-	<TestName activate="false">XRangeBetween5and10</TestName>
-</LINK>
-<LINK name="*RecHitDY_*">
-	<TestName activate="false"></TestName>
-</LINK>
-<LINK name="*RecHitDXDY_*">
-	<TestName activate="false"></TestName>
-</LINK>
-<LINK name="*RecHitX_vs_dx_*">
-	<TestName activate="false"></TestName>
+<LINK name="*MeanDigiPerEvent*">
+	<TestName activate="true">NoiseMeanInRange</TestName>
 </LINK>
 
- 
+<LINK name="*TrigEffSec_Phi*">
+	<TestName activate="true">SectorTrigEffInRangePhi</TestName>
+</LINK>
+
 </TESTSCONFIGURATION>
