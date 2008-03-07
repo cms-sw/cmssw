@@ -16,7 +16,7 @@
 //
 // Original Author:  
 //         Created:  Sun Jan  6 23:42:33 EST 2008
-// $Id$
+// $Id: ECalCaloTowerProxyRhoPhiZ2DBuilder.h,v 1.1 2008/02/03 02:57:10 dmytro Exp $
 //
 
 // system include files
@@ -25,6 +25,7 @@
 #include "Fireworks/Core/interface/FWRPZ2DDataProxyBuilder.h"
 #include "DataFormats/CaloTowers/interface/CaloTower.h"
 #include "DataFormats/CaloTowers/interface/CaloTowerFwd.h"
+#include "TEveParamList.h"
 
 // forward declarations
 
@@ -76,6 +77,7 @@ class ECalCaloTowerProxyRhoPhiZ2DBuilder : public FWRPZ2DDataProxyBuilder
       const ECalCaloTowerProxyRhoPhiZ2DBuilder& operator=(const ECalCaloTowerProxyRhoPhiZ2DBuilder&); // stop default
 
       // ---------- member data --------------------------------
+      TEveParamList m_parameters;
 };
 
 

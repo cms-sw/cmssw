@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Sun Jan  6 23:57:00 EST 2008
-// $Id: ECalCaloTowerProxyRhoPhiZ2DBuilder.cc,v 1.4 2008/02/28 18:28:48 dmytro Exp $
+// $Id: ECalCaloTowerProxyRhoPhiZ2DBuilder.cc,v 1.5 2008/02/28 22:52:15 chrjones Exp $
 //
 
 // system include files
@@ -36,7 +36,12 @@
 // constructors and destructor
 //
 ECalCaloTowerProxyRhoPhiZ2DBuilder::ECalCaloTowerProxyRhoPhiZ2DBuilder()
+  :m_parameters("Calo Parameters")
 {
+   m_parameters.IncDenyDestroy();
+   m_parameters.AddParameter( TEveParamList::FloatConfig_t("Scale", 2, 0, 1000) );
+   m_parameters.AddParameter( TEveParamList::BoolConfig_t("ShowEndCaps", kFALSE) );
+   gEve->AddToListTree(&m_parameters, kTRUE);
 }
 
 // ECalCaloTowerProxyRhoPhiZ2DBuilder::ECalCaloTowerProxyRhoPhiZ2DBuilder(const ECalCaloTowerProxyRhoPhiZ2DBuilder& rhs)
@@ -72,7 +77,14 @@ ECalCaloTowerProxyRhoPhiZ2DBuilder::buildRhoPhi(const FWEventItem* iItem,
       std::cout <<"Failed to get CaloTowers"<<std::endl;
       return;
    }
-   tList->AddElement( TEveGeoShape::ImportShapeExtract( getRhoPhiElements("towers", towers, iItem->defaultDisplayProperties().color(), false), 0 ) );
+   double eta_limit = 1.5;
+   if ( m_parameters.GetBoolParameter("ShowEndCaps") ) eta_limit = 1000;
+   tList->AddElement( TEveGeoShape::ImportShapeExtract( getRhoPhiElements("towers", 
+									  towers, 
+									  iItem->defaultDisplayProperties().color(), 
+									  false,
+									  eta_limit)
+							, 0 ) );
 }
 
 void 
@@ -96,7 +108,10 @@ ECalCaloTowerProxyRhoPhiZ2DBuilder::buildRhoZ(const FWEventItem* iItem,
       std::cout <<"Failed to get CaloTowers"<<std::endl;
       return;
    }
-   tList->AddElement( TEveGeoShape::ImportShapeExtract( getRhoZElements("towers", towers, iItem->defaultDisplayProperties().color(), false), 0 ) );
+   tList->AddElement( TEveGeoShape::ImportShapeExtract( getRhoZElements("towers", 
+									towers, 
+									iItem->defaultDisplayProperties().color(), 
+									false), 0 ) );
 }
 
 TEveGeoShapeExtract*
