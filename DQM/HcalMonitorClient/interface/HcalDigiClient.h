@@ -59,6 +59,11 @@ private:
   TH2F* gl_err_geo_;
   TH2F* gl_err_elec_[3];
 
+  TH1F* gl_num_digi_;
+  TH1F* gl_num_bqdigi_;
+  TH1F* gl_bqdigi_frac_;
+  TH1F* gl_capid_t0_;
+
   TH2F* sub_occ_geo_[4][4];
   TH2F* sub_occ_elec_[4][3];
   TH1F* sub_occ_eta_[4];
@@ -66,6 +71,10 @@ private:
 
   TH2F* sub_err_geo_[4];
   TH2F* sub_err_elec_[4][3];
+
+  TH1F* sub_num_bqdigi_[4];
+  TH1F* sub_bqdigi_frac_[4];
+  TH1F* sub_capid_t0_[4];
 
   TH2F* geoRef_;
   
