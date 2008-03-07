@@ -164,7 +164,7 @@ private:
   bool				extract(TObject *obj, const std::string &dir, bool overwrite);
 
   // ---------------------- Booking ------------------------------------
-  MonitorElement *		initialise(MonitorElement *me);
+  MonitorElement *		initialise(MonitorElement *me, const std::string &path);
   MonitorElement *		book(const std::string &dir, const std::string &name,
 				     std::string &path, const char *context);
   template <class HISTO, class COLLATE>

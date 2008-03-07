@@ -282,18 +282,26 @@ DQMStore::dirExists(const std::string &path) const
 //////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////
 MonitorElement *
-DQMStore::initialise(MonitorElement *me)
+DQMStore::initialise(MonitorElement *me, const std::string &path)
 {
   // Initialise quality test information.
   QTestSpecs::iterator qi = qtestspecs_.begin();
   QTestSpecs::iterator qe = qtestspecs_.end();
   for ( ; qi != qe; ++qi)
-    if (qi->first->match(me->data_.name))
+    if (qi->first->match(path))
       me->addQReport(qi->second);
 
-  // If we have a reference, assign it now.
-  MonitorElement *refme = getReferenceME(me);
-  me->data_.reference = refme ? refme->data_.object : 0;
+  // If we have a reference, assign it now.  Note that we can't use
+  // getReferenceME() because "me" hasn't been initialised yet.
+  std::string refpath;
+  refpath.reserve(s_referenceDirName.size() + path.size() + 2);
+  refpath += s_referenceDirName;
+  refpath += '/';
+  refpath += path;
+
+  MEMap::const_iterator refpos = data_.find(refpath);
+  if (refpos != data_.end())
+    me->data_.reference = refpos->second.data_.object;
 
   // Return the monitor element.
   return me;
@@ -328,7 +336,7 @@ DQMStore::book(const std::string &dir, const std::string &name,
   }
 
   // Create and initialise it.
-  return initialise(&data_[path])
+  return initialise(&data_[path], path)
     ->initialise((MonitorElement::Kind) kind, path, h);
 }
 
@@ -343,7 +351,7 @@ DQMStore::book(const std::string &dir, const std::string &name,
       << path << "' already exists";
 
   // Create it and return for initialisation.
-  return initialise(&data_[path]);
+  return initialise(&data_[path], path);
 }
 
 // -------------------------------------------------------------------
