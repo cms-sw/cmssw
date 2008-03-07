@@ -44,7 +44,7 @@ namespace HcalSimpleRecAlgoImpl {
       int capid=digi[i].capid();
       ta = (tool[i]-calibs.pedestal(capid)); // pedestal subtraction
       fc_ampl+=ta; 
-      ta*= (calibs.gain(capid) *calibs.respcorr() ); // fC --> GeV
+      ta*= calibs.respcorrgain(capid) ; // fC --> GeV
       ampl+=ta;
       if(ta>maxA){
 	maxA=ta;
@@ -64,9 +64,9 @@ namespace HcalSimpleRecAlgoImpl {
     } else {
       maxA=fabs(maxA);
       int capid=digi[maxI-1].capid();
-      float t0 = fabs((tool[maxI-1]-calibs.pedestal(capid))*calibs.gain(capid)*calibs.respcorr());
+      float t0 = fabs((tool[maxI-1]-calibs.pedestal(capid))*calibs.respcorrgain(capid) );
       capid=digi[maxI+1].capid();
-      float t2 = fabs((tool[maxI+1]-calibs.pedestal(capid))*calibs.gain(capid)*calibs.respcorr());    
+      float t2 = fabs((tool[maxI+1]-calibs.pedestal(capid))*calibs.respcorrgain(capid) );    
       float wpksamp = (t0 + maxA + t2);
       if (wpksamp!=0) wpksamp=(maxA + 2.0*t2) / wpksamp; 
       time = (maxI - digi.presamples())*25.0 + timeshift_ns_hbheho(wpksamp);
@@ -119,7 +119,7 @@ HFRecHit HcalSimpleRecAlgo::reconstruct(const HFDataFrame& digi, const HcalCoder
   double ampl=0; int maxI = -1; double maxA = -1e10; float ta=0;
   for (int i=firstSample_; i<tool.size() && i<samplesToAdd_+firstSample_; i++) {
     int capid=digi[i].capid();
-    ta = (tool[i]-calibs.pedestal(capid))*calibs.gain(capid)*calibs.respcorr();
+    ta = (tool[i]-calibs.pedestal(capid))*calibs.respcorrgain(capid);
     ampl+=ta;
     if(ta>maxA){
       maxA=ta;
@@ -139,9 +139,9 @@ HFRecHit HcalSimpleRecAlgo::reconstruct(const HFDataFrame& digi, const HcalCoder
   } else {
     maxA=fabs(maxA);  
     int capid=digi[maxI-1].capid();
-    float t0 = fabs((tool[maxI-1]-calibs.pedestal(capid))*calibs.gain(capid)*calibs.respcorr());
+    float t0 = fabs((tool[maxI-1]-calibs.pedestal(capid))*calibs.respcorrgain(capid) );
     capid=digi[maxI+1].capid();
-    float t2 = fabs((tool[maxI+1]-calibs.pedestal(capid))*calibs.gain(capid)*calibs.respcorr());    
+    float t2 = fabs((tool[maxI+1]-calibs.pedestal(capid))*calibs.respcorrgain(capid) );    
     float wpksamp = (t0 + maxA + t2);
     if (wpksamp!=0) wpksamp=(maxA + 2.0*t2) / wpksamp; 
     time = (maxI - digi.presamples())*25.0 + timeshift_ns_hf(wpksamp);

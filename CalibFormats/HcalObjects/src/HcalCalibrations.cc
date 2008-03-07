@@ -4,15 +4,15 @@
     
     Container for retrieved calibration constants for HCAL
    $Author: ratnikov
-   $Date: 2005/10/04 18:05:54 $
-   $Revision: 1.2 $
+   $Date: 2008/03/03 21:41:48 $
+   $Revision: 1.3 $
 */
 
 HcalCalibrations::HcalCalibrations (const float fGain [4], const float fPedestal [4], 
 				    const float fRespCorr) {
   int iCap = 4;
   while (--iCap >= 0) {
-    mGain [iCap] = fGain [iCap];
+    mRespCorrGain [iCap] = fGain [iCap] * fRespCorr;
     mPedestal [iCap] = fPedestal [iCap];
   }
   mRespCorr = fRespCorr;
