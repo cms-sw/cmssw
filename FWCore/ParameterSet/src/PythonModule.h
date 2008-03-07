@@ -1,6 +1,7 @@
 #include "FWCore/ParameterSet/interface/PythonParseTree.h"
 #include "FWCore/ParameterSet/interface/PythonParameterSet.h"
 #include "FWCore/ParameterSet/interface/PythonProcessDesc.h"
+#include "DataFormats/Provenance/interface/EventID.h"
 #include <boost/python.hpp>
 
 using namespace boost::python;
@@ -15,6 +16,11 @@ BOOST_PYTHON_MODULE(libFWCoreParameterSet)
       .def("label",    &edm::InputTag::label, return_value_policy<copy_const_reference>())
       .def("instance", &edm::InputTag::instance, return_value_policy<copy_const_reference>())
       .def("process",  &edm::InputTag::process, return_value_policy<copy_const_reference>())
+  ;
+
+  class_<edm::EventID>("EventID", init<unsigned int, unsigned int>())
+      .def("run",    &edm::EventID::run)
+      .def("event", &edm::EventID::event)
   ;
 
 
@@ -69,6 +75,7 @@ BOOST_PYTHON_MODULE(libFWCoreParameterSet)
     .def("addFileInPath", &PythonParameterSet::addParameter<edm::FileInPath>)
     .def("getFileInPath", &PythonParameterSet::getParameter<edm::FileInPath>)
     .def("newInputTag", &PythonParameterSet::newInputTag)
+    .def("EventID", &PythonParameterSet::newEventID)
     .def("addNewFileInPath", &PythonParameterSet::addNewFileInPath)
     .def("newPSet", &PythonParameterSet::newPSet)
     .def("dump", &PythonParameterSet::dump)

@@ -94,6 +94,11 @@ public:
     return edm::InputTag(label, instance, process);
   }
 
+  edm::EventID newEventID(unsigned int run, unsigned int event) 
+  {
+    return edm::EventID(run, event);
+  }
+
   void addNewFileInPath(bool tracked, std::string const & name, std::string const & value);
 
   PythonParameterSet newPSet() const {return PythonParameterSet();}
