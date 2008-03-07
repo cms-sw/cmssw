@@ -1,8 +1,8 @@
 /*
  * \file EBSummaryClient.cc
  *
- * $Date: 2008/03/07 07:12:53 $
- * $Revision: 1.117 $
+ * $Date: 2008/03/07 07:14:21 $
+ * $Revision: 1.118 $
  * \author G. Della Ricca
  *
 */
@@ -1016,8 +1016,8 @@ void EBSummaryClient::analyze(void){
 
   // The global-summary
   // Integrity, PedestalOnline, Laser, TPG EmulError, Status Flags contribute
-  int nGlobalErrors = 0;
-  int nValidChannels = 0;
+  int nGlobalErrors = 0, nGlobalErrorsEBP = 0, nGlobalErrorsEBM = 0;
+  int nValidChannels = 0, nValidChannelsEBP = 0, nValidChannelsEBM = 0;
   for ( int iex = 1; iex <= 170; iex++ ) {
     for ( int ipx = 1; ipx <= 360; ipx++ ) {
 
@@ -1053,8 +1053,16 @@ void EBSummaryClient::analyze(void){
 
         meGlobalSummary_->setBinContent( ipx, iex, xval );
 
-        if ( xval > -1 ) ++nValidChannels;
-        if ( xval == 0 ) ++nGlobalErrors;
+        if ( xval > -1 ) { 
+	  ++nValidChannels;
+	  if ( iex <= 85 ) ++nValidChannelsEBM;
+	  else ++nValidChannelsEBP;
+	}
+        if ( xval == 0 ) {
+	  ++nGlobalErrors;
+	  if ( iex <= 85 ) ++nGlobalErrorsEBM;
+	  else ++nGlobalErrorsEBP;
+	}
 
       }
 
@@ -1062,11 +1070,19 @@ void EBSummaryClient::analyze(void){
   }
 
   float errorSummary = 1.0 - float(nGlobalErrors)/float(nValidChannels);
-  
+  float errorSummaryEBP = 1.0 - float(nGlobalErrorsEBP)/float(nValidChannelsEBP);
+  float errorSummaryEBM = 1.0 - float(nGlobalErrorsEBM)/float(nValidChannelsEBM);
+
   MonitorElement* me;
 
   me = dbe_->get("EcalBarrel/EventInfo/errorSummary");
   if (me) me->Fill(errorSummary);
+
+  me = dbe_->get("EventInfo/errorSummarySegments/Segment00"); 
+  if (me) me->Fill(errorSummaryEBP);
+
+  me = dbe_->get("EventInfo/errorSummarySegments/Segment01"); 
+  if (me) me->Fill(errorSummaryEBM);
 
   me = dbe_->get("EcalBarrel/EventInfo/errorSummaryPhiEta_EB");
   if (me) {
