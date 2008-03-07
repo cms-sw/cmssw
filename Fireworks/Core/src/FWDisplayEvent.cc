@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Mon Dec  3 08:38:38 PST 2007
-// $Id: FWDisplayEvent.cc,v 1.28 2008/02/29 21:25:09 chrjones Exp $
+// $Id: FWDisplayEvent.cc,v 1.29 2008/03/07 01:05:16 jmuelmen Exp $
 //
 
 // system include files
@@ -92,7 +92,6 @@ FWDisplayEvent::FWDisplayEvent(bool iEnableDebug) :
   rpzViewManager->setGeom(&m_detIdToGeo);
   m_viewManager->add(rpzViewManager);
   m_viewManager->add( boost::shared_ptr<FWViewManagerBase>( new FW3DLegoViewManager(m_guiManager.get())));
-  m_viewManager->add( boost::shared_ptr<FWViewManagerBase>( new ElectronSCViewManager));
    
   m_guiManager->createView("Rho Phi");
   m_guiManager->createView("Rho Z");
