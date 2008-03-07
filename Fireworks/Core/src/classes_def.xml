@@ -10,12 +10,14 @@
   <class name="FWDisplayProperties"/>
   <class name="DetIdToMatrix"/>
   <class name="TracksProxy3DBuilder"/>
+  <class name="TracksRecHitsProxy3DBuilder"/>
   <class name="TEveElementIter"/>
   <class name="FWGUIManager"/>
   <class name="FWGUISubviewArea"/>
   <class name="FW3DLegoView"/>
   <class name="FWConfiguration"/>
   <class name="ElectronsProxySCBuilder"/>
+  <class name="MuonsProxyPUBuilder"/>
   <class name="FWRhoPhiZViewManager"/>
   <class name="FWListEventItem"/>
   <class name="FWListEventItemEditor"/>
