@@ -312,6 +312,10 @@ void HcalDigiClient::getHistograms(){
 
     sprintf(name,"DigiMonitor/%s/%s QIE Data Valid Err Bits",type.c_str(),type.c_str());
     qie_dverr_[i] = getHisto(name, process_, dbe_,debug_,cloneME_);
+    qie_dverr_[i]->GetXaxis()->SetBinLabel(1,"Err=0 DV=0");
+    qie_dverr_[i]->GetXaxis()->SetBinLabel(2,"Err=0 DV=1");
+    qie_dverr_[i]->GetXaxis()->SetBinLabel(3,"Err=1 DV=0");
+    qie_dverr_[i]->GetXaxis()->SetBinLabel(4,"Err=1 DV=1");
 
     sprintf(name,"DigiMonitor/%s/%s # Bad Qual Digis",type.c_str(),type.c_str());
     sub_num_bqdigi_[i] = getHisto(name, process_, dbe_,debug_,cloneME_);
