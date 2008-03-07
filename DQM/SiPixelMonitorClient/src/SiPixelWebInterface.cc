@@ -3,6 +3,7 @@
 #include "DQM/SiPixelMonitorClient/interface/SiPixelInformationExtractor.h"
 #include "DQM/SiPixelMonitorClient/interface/ANSIColors.h"
 #include "DQMServices/Core/interface/DQMStore.h"
+#include "DQMServices/Core/interface/DQMScope.h"
 #include "DQMServices/WebComponents/interface/CgiWriter.h"
 #include "DQMServices/WebComponents/interface/CgiReader.h"
 #include "DQMServices/WebComponents/interface/ConfigBox.h"
@@ -73,6 +74,7 @@ SiPixelWebInterface::~SiPixelWebInterface() {
 // -- Handles requests from WebElements submitting non-default requests 
 //
 void SiPixelWebInterface::handleEDARequest(xgi::Input* in,xgi::Output* out, int niter) {
+  DQMScope enter;
   DQMStore* bei = (*mui_p)->getBEInterface();
   CgiReader reader(in);
   reader.read_form(requestMap_);
