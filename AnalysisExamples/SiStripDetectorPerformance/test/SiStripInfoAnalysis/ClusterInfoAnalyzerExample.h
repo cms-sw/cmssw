@@ -50,8 +50,6 @@
 
 
 //Services
-#include "CommonTools/SiStripZeroSuppression/interface/SiStripPedestalsService.h"
-#include "CommonTools/SiStripZeroSuppression/interface/SiStripNoiseService.h"
 #include "CalibTracker/Records/interface/SiStripDetCablingRcd.h"
 #include "CalibFormats/SiStripObjects/interface/SiStripDetCabling.h"
 

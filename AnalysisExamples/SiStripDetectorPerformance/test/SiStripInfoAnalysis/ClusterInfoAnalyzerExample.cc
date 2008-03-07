@@ -1,6 +1,6 @@
 
 /*
- * $Date: 2008/02/28 14:21:34 $
+ * $Date: 2008/03/03 13:46:42 $
  *
  * \author: Evelyne Delmeire
  */
@@ -43,12 +43,14 @@
 #include "TCanvas.h"
 #include "TPostScript.h"
 
+#include <iostream>
+#include <fstream>
 
   
 //---------------------------------------------------------------------------------------------
 ClusterInfoAnalyzerExample::ClusterInfoAnalyzerExample(edm::ParameterSet const& conf): 
   conf_(conf),
-  theCMNSubtractionMode(conf.getParameter<std::string>( "CMNSubtractionMode" )), 
+  theCMNSubtractionMode(conf.getUntrackedParameter<std::string>( "CMNSubtractionMode" ,"Median")), 
   theTrackSourceLabel(conf.getParameter<edm::InputTag>( "trackSourceLabel" )), 
   theTrackTrackInfoAssocLabel(conf.getParameter<edm::InputTag>( "trackTrackInfoAssocLabel" )),  
   theClusterSourceLabel(conf.getParameter<edm::InputTag>( "clusterSourceLabel" )),        
