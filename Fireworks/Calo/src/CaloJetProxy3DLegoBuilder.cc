@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Sun Jan  6 23:57:00 EST 2008
-// $Id: CaloJetProxy3DLegoBuilder.cc,v 1.3 2008/02/03 02:43:53 dmytro Exp $
+// $Id: CaloJetProxy3DLegoBuilder.cc,v 1.4 2008/03/06 10:17:16 dmytro Exp $
 //
 
 // system include files
@@ -99,7 +99,10 @@ CaloJetProxy3DLegoBuilder::build(const FWEventItem* iItem,
 	   // (*tower)->eta(), (*tower)->phi(), (*tower)->et(),
 	   // product->GetXaxis()->FindFixBin((*tower)->eta()),
 	   // product->GetYaxis()->FindFixBin((*tower)->phi()) );
-	   product->Fill((*tower)->eta(), (*tower)->phi());
+	   if ( dynamic_cast<TH2C*>( product ) )
+	     product->Fill((*tower)->eta(), (*tower)->phi());
+	   else
+	     product->Fill((*tower)->eta(), (*tower)->phi(), 0.01);
 	}
    }
 }

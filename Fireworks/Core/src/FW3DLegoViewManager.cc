@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Sun Jan  6 22:01:27 EST 2008
-// $Id: FW3DLegoViewManager.cc,v 1.13 2008/02/21 20:49:11 chrjones Exp $
+// $Id: FW3DLegoViewManager.cc,v 1.14 2008/03/06 10:17:17 dmytro Exp $
 //
 
 // system include files
@@ -98,7 +98,9 @@ FW3DLegoViewManager::buildView(TGFrame* iParent)
       
       m_highlight_map  = new TH2C("highLego","Highlight distribution",
                               82, fw3dlego::xbins, 72/m_legoRebinFactor, -3.1416, 3.1416);
-      // m_background->Rebin2D();
+      m_background->Rebin2D();
+      m_highlight->Rebin2D();
+      m_highlight_map->Rebin2D();
       m_stack->Add(m_background);
       m_stack->Add(m_highlight);
    }
@@ -122,9 +124,9 @@ FW3DLegoViewManager::newEventAvailable()
 	 proxy != m_modelProxies.end(); ++proxy ) {
       bool firstTime = (proxy->product == 0);
       proxy->builder->build( &(proxy->product) );
-      if ( firstTime && 0!= proxy->product && dynamic_cast<TH2F*>(proxy->product) ) {
-	 // proxy->product->Rebin2D();
-	 m_stack->Add(proxy->product);
+      if ( firstTime && 0!= proxy->product ){
+	 proxy->product->Rebin2D();
+	 if ( dynamic_cast<TH2F*>(proxy->product) ) m_stack->Add(proxy->product);
       }
       
       if ( proxy->product && dynamic_cast<TH2C*>(proxy->product) )
