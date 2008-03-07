@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Wed Mar  5 09:13:47 EST 2008
-// $Id: FWDetailViewManager.cc,v 1.1 2008/03/05 15:07:31 chrjones Exp $
+// $Id: FWDetailViewManager.cc,v 1.2 2008/03/06 22:48:31 jmuelmen Exp $
 //
 
 // system include files
@@ -22,8 +22,8 @@
 #include "TEveScene.h"
 #include "TEveViewer.h"
 #include "Fireworks/Core/interface/FWDetailViewManager.h"
+#include "Fireworks/Core/interface/FWDetailView.h"
 #include "Fireworks/Core/interface/FWModelId.h"
-#include "Fireworks/Core/interface/ElectronsProxySCBuilder.h"
 #include "Fireworks/Core/interface/FWEventItem.h"
 
 //
@@ -65,6 +65,12 @@ FWDetailViewManager::~FWDetailViewManager()
 //
 // member functions
 //
+void FWDetailViewManager::registerDetailView (const std::string &item_name, 
+					      FWDetailView *view)
+{
+     m_viewers[item_name] = view;
+}
+
 void FWDetailViewManager::close_wm ()
 {
      printf("mmmm, flaming death!\n");
@@ -81,8 +87,9 @@ void FWDetailViewManager::close_button ()
 void 
 FWDetailViewManager::openDetailViewFor(const FWModelId &id)
 {
-     printf("opening detail view for event item %x, index %d\n", 
-	    id.item(), id.index());
+     printf("opening detail view for event item %s (%x), index %d\n", 
+	    id.item()->name().c_str(), (unsigned int)id.item(), id.index());
+
      // make a frame
      frame = new // TGTransientFrame(0, gEve->GetBrowser(), 400, 400);
 	  TGMainFrame(0, 400, 420);
@@ -96,7 +103,7 @@ FWDetailViewManager::openDetailViewFor(const FWModelId &id)
      // nv->GetGLViewer()->SetCurrentCamera(TGLViewer::kCameraOrthoXOY);
      nv->GetGLViewer()->SetStyle(TGLRnrCtx::kOutline);
      nv->GetGLViewer()->SetClearColor(kBlack);
-     ns = gEve->SpawnNewScene("Electron");
+     ns = gEve->SpawnNewScene("Detailed view");
      nv->AddScene(ns);
      frame->AddFrame(v->GetFrame(), 
 		     new TGLayoutHints(kLHintsTop | kLHintsExpandX
@@ -110,9 +117,19 @@ FWDetailViewManager::openDetailViewFor(const FWModelId &id)
      frame->SetIconName("Ooogadooga-ICON");
      frame->MapSubwindows();
      frame->MapWindow();
-     
+
+     // find the right viewer for this item
+     std::map<std::string, FWDetailView *>::iterator viewer = 
+	  m_viewers.find(id.item()->name());
+     if (viewer == m_viewers.end()) {
+	  std::cout << "FWDetailViewManager: don't know what detailed view to "
+	       "use for object " << id.item()->name() << std::endl;
+	  assert(viewer != m_viewers.end());
+     }
+
+     // run the viewer
      TEveElementList *list = 0;
-     ElectronsProxySCBuilder::the_electron_sc_proxy->build(&list);
+     viewer->second->build(&list, id);
      gEve->AddElement(list, ns);
 }
 

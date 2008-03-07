@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Mon Dec  3 08:38:38 PST 2007
-// $Id: FWDisplayEvent.cc,v 1.27 2008/02/25 22:47:43 jmuelmen Exp $
+// $Id: FWDisplayEvent.cc,v 1.28 2008/02/29 21:25:09 chrjones Exp $
 //
 
 // system include files
@@ -41,6 +41,7 @@
 #include "Fireworks/Core/interface/FWModelChangeManager.h"
 #include "Fireworks/Core/interface/FWSelectionManager.h"
 #include "Fireworks/Core/interface/FWModelExpressionSelector.h"
+#include "Fireworks/Core/interface/FWDetailViewManager.h"
 #include "Fireworks/Core/interface/ElectronSCViewManager.h"
 #include "DataFormats/FWLite/interface/Event.h"
 
@@ -134,6 +135,12 @@ void FWDisplayEvent::registerProxyBuilder(const std::string& type,
 					  const std::string& proxyBuilderName)
 {
   m_viewManager->registerProxyBuilder(type,proxyBuilderName);
+}
+
+void FWDisplayEvent::registerDetailView (const std::string &item_name, 
+					 FWDetailView *view)
+{
+     m_guiManager->m_detailViewManager->registerDetailView(item_name, view);
 }
 
 //
