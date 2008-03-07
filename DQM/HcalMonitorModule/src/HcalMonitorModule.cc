@@ -3,8 +3,8 @@
 /*
  * \file HcalMonitorModule.cc
  * 
- * $Date: 2008/03/01 00:39:57 $
- * $Revision: 1.50 $
+ * $Date: 2008/03/07 17:47:18 $
+ * $Revision: 1.53 $
  * \author W Fisher
  *
 */
@@ -84,7 +84,7 @@ HcalMonitorModule::HcalMonitorModule(const edm::ParameterSet& ps){
   }
   
   if ( ps.getUntrackedParameter<bool>("DeadCellMonitor", false) ) {
-    if(debug_ || 1>0) cout << "HcalMonitorModule: Dead Cell monitor flag is on...." << endl;
+    if(debug_ ) cout << "HcalMonitorModule: Dead Cell monitor flag is on...." << endl;
     deadMon_ = new HcalDeadCellMonitor();
     deadMon_->setup(ps, dbe_);
   }
