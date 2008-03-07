@@ -46,13 +46,13 @@ AlCaIsoTracksProducer::AlCaIsoTracksProducer(const edm::ParameterSet& iConfig)
   hbheLabel_= iConfig.getParameter<edm::InputTag>("hbheInput");
   
   m_dvCut = iConfig.getUntrackedParameter<double>("vtxCut",0.05);
-  m_ddirCut = iConfig.getUntrackedParameter<double>("coneCut",0.5);
+  m_ddirCut = iConfig.getUntrackedParameter<double>("coneCut",50.);
   m_pCut = iConfig.getUntrackedParameter<double>("pCut",2.);
   m_ptCut = iConfig.getUntrackedParameter<double>("ptCut",1.5);
   m_ecalCut = iConfig.getUntrackedParameter<double>("ecalCut",8.);
   m_histoFlag = iConfig.getUntrackedParameter<int>("histoFlag",0);
   
-  cout<<" Isolation parameter "<< m_ddirCut <<endl;
+  cout<<" Isolation parameter "<< m_ddirCut << " cm"<< endl;
   
 //
 // Parameters for track associator   ===========================
@@ -290,7 +290,7 @@ AlCaIsoTracksProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
 //               double thetaecal1=2.*atan(1.)-asin(2.*exp(etaecal1)/(1.+exp(2.*etaecal1)));
 //               if(etaecal1<0)thetaecal1=-thetaecal1;
 	       
-	       double thetaecal1 = 2*atan(exp(-etaecal));
+	       double thetaecal1 = 2*atan(exp(-etaecal1));
 	       
                if(m_histoFlag==1){
                  IsoHists.Dvertx->Fill(dx);
@@ -321,6 +321,7 @@ AlCaIsoTracksProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
 
                if( ddir < dAngle*factor*factor1 ) {isol = 0; break;}
 	       
+//          cout<<" dAngle "<< dAngle <<endl;	
 	       
             }
 
@@ -335,12 +336,21 @@ AlCaIsoTracksProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
 //        info2 = trackAssociator_.associate(iEvent, iSetup, trackAssociator_.getFreeTrajectoryState(iSetup, *track), parameters_);
 //        double eecal2 = info2.ConeEnergy(ddR,EcalRecHits);
 
+        double dAngleNeut;
+        if (fabs(etaecal)<1.479) dAngleNeut=atan((67.5*pow(129.,-1))*cos(acos(-1.)/2.-thetaecal));
+        else dAngleNeut=atan((67.5*pow(275.,-1))*fabs(cos(thetaecal)));
+		
+        double ddR1=fabs(log(tan(thetaecal/2))-log(tan((thetaecal-dAngleNeut)/2)));
+        double ddR2=fabs(log(tan(thetaecal/2))-log(tan((thetaecal+dAngleNeut)/2)));
+        ddR=fmax(ddR1,ddR2);
 
-	ddR = 0.5;
+//          cout<<" ddR "<< ddR <<endl;	
+	
+//	ddR = 0.5;
+
         double eecal2 = info.coneEnergy(ddR,TrackDetMatchInfo::EcalRecHits);
-	
         double dEring = eecal2-eecal;
-	
+
         if(dEring < m_ecalCut) iflag=1;
         if(m_histoFlag==1){
           IsoHists.Dering->Fill(dEring);
@@ -498,6 +508,7 @@ AlCaIsoTracksProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
 //  cout<<" Point 5 "<<endl;
   iEvent.put( outputPSEColl, "IsoTrackPSEcalRecHitCollection");
 //  cout<<" Point 6 "<<endl;
+
 
 }
 
