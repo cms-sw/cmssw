@@ -42,7 +42,6 @@ void gctTestHfEtSums::fillExpectedHfSums(const RegionsVector& inputRegions)
   static const unsigned NUMBER_OF_RINGS_PER_WHEEL=L1CaloRegionDetId::N_ETA/2;
   static const unsigned MIN_ETA_COUNTS =NUMBER_OF_RINGS_PER_WHEEL - NUMBER_OF_FRWRD_RINGS;
   static const unsigned MIN_ETA_HF_SUMS=NUMBER_OF_RINGS_PER_WHEEL - NUMBER_OF_INNER_RINGS;
-  static const unsigned BIT_SHIFT = L1GctJetCounts::kEtHfSumBitShift;
   static const unsigned MAX_ETSUM_VALUE = L1GctJetCounts::kEtHfSumMaxValue;
   static const unsigned MAX_TOWER_COUNT = 31;
 
@@ -56,10 +55,10 @@ void gctTestHfEtSums::fillExpectedHfSums(const RegionsVector& inputRegions)
       unsigned ring = NUMBER_OF_RINGS_PER_WHEEL - region->id().rctEta() - 1;
       // Split into positive and negative eta
       if (region->id().ieta() < NUMBER_OF_RINGS_PER_WHEEL) {
-        etNegativeEta.at(ring) += region->et() >> BIT_SHIFT;
+        etNegativeEta.at(ring) += region->et();
         ofNegativeEta.at(ring) = ofNegativeEta.at(ring) || region->overFlow();
       } else {
-        etPositiveEta.at(ring) += region->et() >> BIT_SHIFT;
+        etPositiveEta.at(ring) += region->et();
         ofPositiveEta.at(ring) = ofPositiveEta.at(ring) || region->overFlow();
       }
     }

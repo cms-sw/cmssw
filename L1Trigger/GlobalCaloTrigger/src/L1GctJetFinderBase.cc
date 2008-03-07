@@ -260,7 +260,6 @@ L1GctJetFinderBase::hfTowerSumsType L1GctJetFinderBase::calcHfSums() const
 {
   static const UShort NUMBER_OF_FRWRD_RINGS = 4;
   static const UShort NUMBER_OF_INNER_RINGS = 2;
-  static const UShort BIT_SHIFT = L1GctJetCounts::kEtHfSumBitShift;
   std::vector<unsigned> et(NUMBER_OF_INNER_RINGS, 0);
   std::vector<bool>     of(NUMBER_OF_INNER_RINGS, false);
   unsigned nt = 0;
@@ -271,10 +270,10 @@ L1GctJetFinderBase::hfTowerSumsType L1GctJetFinderBase::calcHfSums() const
 
     // Sum HF Et over "inner rings"
     if (i<NUMBER_OF_INNER_RINGS) {
-      et.at(i) += m_inputRegions.at(offset).et() >> BIT_SHIFT;
+      et.at(i) += m_inputRegions.at(offset).et();
       of.at(i) = of.at(i) || m_inputRegions.at(offset).overFlow();
 
-      et.at(i) += m_inputRegions.at(offset+COL_OFFSET).et() >> BIT_SHIFT;
+      et.at(i) += m_inputRegions.at(offset+COL_OFFSET).et();
       of.at(i) = of.at(i) || m_inputRegions.at(offset+COL_OFFSET).overFlow();
     }
     // Count fine grain bits over the whole HF
