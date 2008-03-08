@@ -7,8 +7,8 @@
    (preserve backwards compatibility of methods for this release)
 POOL object to store QIE parameters
 $Author: ratnikov
-$Date: 2008/03/05 10:37:32 $
-$Revision: 1.6 $
+$Date: 2008/03/07 10:10:32 $
+$Revision: 1.7 $
 */
 
 #include <vector>
@@ -29,6 +29,7 @@ class HcalQIEData: public HcalCondObjectContainer<HcalQIECoder>
  public:
 
   // constructor, destructor, and all methods stay the same
+ HcalQIEData():HcalCondObjectContainer<HcalQIECoder>() {}
 
   /// get basic shape
   //   const HcalQIEShape& getShape () const {return mShape;}
