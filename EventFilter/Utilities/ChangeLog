@@ -1,3 +1,9 @@
+2008-03-08  Philipp SCHIEFERDECKER  <philipp.schieferdecker@cern.ch>
+
+	* tag V00-14-04
+	* scripts/edmConfigFromDB: allow several target DBs: --hltdev
+	  (int9r, default), --orcoff, and --test (int2r)
+
 2008-02-29  Emilio Meschi <emilio.meschi@cern.ch>
 
 	* tag V00-14-03
