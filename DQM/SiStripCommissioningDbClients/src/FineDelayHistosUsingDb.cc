@@ -1,12 +1,13 @@
-// Last commit: $Id: FineDelayHistosUsingDb.cc,v 1.6 2008/03/06 13:30:52 delaer Exp $
+// Last commit: $Id: FineDelayHistosUsingDb.cc,v 1.7 2008/03/06 18:16:07 delaer Exp $
 
+#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
+#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "DQM/SiStripCommissioningDbClients/interface/FineDelayHistosUsingDb.h"
 #include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
 #include "DataFormats/SiStripCommon/interface/SiStripFecKey.h"
 #include "DataFormats/SiStripCommon/interface/SiStripFedKey.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
-//#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/CommonDetUnit/interface/GeomDetType.h"
 #include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
 #include <Geometry/CommonTopologies/interface/Topology.h>
@@ -23,7 +24,8 @@ using namespace sistrip;
 FineDelayHistosUsingDb::FineDelayHistosUsingDb( DQMOldReceiver* mui,
 						const DbParams& params )
   : CommissioningHistosUsingDb( params ),
-    SamplingHistograms( mui, FINE_DELAY )
+    SamplingHistograms( mui, FINE_DELAY ),
+    tracker_(0)
 {
   LogTrace(mlDqmClient_) 
     << "[FineDelayHistosUsingDb::" << __func__ << "]"
@@ -36,7 +38,8 @@ FineDelayHistosUsingDb::FineDelayHistosUsingDb( DQMOldReceiver* mui,
 FineDelayHistosUsingDb::FineDelayHistosUsingDb( DQMOldReceiver* mui,
 						SiStripConfigDb* const db ) 
   : CommissioningHistosUsingDb( db ),
-    SamplingHistograms( mui, FINE_DELAY )
+    SamplingHistograms( mui, FINE_DELAY ),
+    tracker_(0)
 {
   LogTrace(mlDqmClient_) 
     << "[FineDelayHistosUsingDb::" << __func__ << "]"
@@ -49,7 +52,8 @@ FineDelayHistosUsingDb::FineDelayHistosUsingDb( DQMOldReceiver* mui,
 FineDelayHistosUsingDb::FineDelayHistosUsingDb( DQMStore* bei,
 						SiStripConfigDb* const db ) 
   : CommissioningHistosUsingDb( db ),
-    SamplingHistograms( bei, FINE_DELAY )
+    SamplingHistograms( bei, FINE_DELAY ),
+    tracker_(0)
 {
   LogTrace(mlDqmClient_) 
     << "[FineDelayHistosUsingDb::" << __func__ << "]"
@@ -63,6 +67,15 @@ FineDelayHistosUsingDb::~FineDelayHistosUsingDb() {
   LogTrace(mlDqmClient_) 
     << "[FineDelayHistosUsingDb::" << __func__ << "]"
     << " Destructing object...";
+}
+
+// -----------------------------------------------------------------------------
+/** */
+void FineDelayHistosUsingDb::configure(const edm::ParameterSet&, const edm::EventSetup& setup) {
+  // get geometry
+  edm::ESHandle<TrackerGeometry> estracker;
+  setup.get<TrackerDigiGeometryRecord>().get(estracker);
+  tracker_=&(* estracker);
 }
 
 // -----------------------------------------------------------------------------
@@ -147,13 +160,6 @@ void FineDelayHistosUsingDb::computeDelays() {
   // Retrieve FED ids from cabling
   std::vector<uint16_t> ids = cabling()->feds() ;
   
-/* TODO: find a way to access the geometry from here 
-  // get geometry
-  edm::ESHandle<TrackerGeometry> estracker;
-  iSetup.get<TrackerDigiGeometryRecord>().get(estracker);
-  tracker_=&(* estracker);
-*/
-
   // loop over the FED ids
   for (std::vector<uint16_t>::const_iterator ifed = ids.begin(); ifed != ids.end(); ++ifed) {
     const std::vector<FedChannelConnection>& conns = cabling()->connections(*ifed);
@@ -163,18 +169,22 @@ void FineDelayHistosUsingDb::computeDelays() {
       if(DetId(iconn->detId()).det()!=DetId::Tracker) continue;
       // retrieve the position of that module in the tracker using the geometry
       // and use it to compute the distance to the reference point set in the configuration
-/* TODO: find a way to access the geometry from here
-      float dist = tracker_->idToDetUnit(DetId(iconn->detId()))->toLocal(referenceP_).mag(); 
-      float tof  = dist/c ;
-      // compute the PLL delay shift for the module as delay + tof 
-      int delay = int(round(bestDelay_+tof));
-      // store that in the map
-      delays_[SiStripFecKey( iconn->fecCrate(),
-                             iconn->fecSlot(),
-                             iconn->fecRing(),
-                             iconn->ccuAddr(),
-                             iconn->ccuChan(), 0 ).key()] = delay;
-*/
+      if(tracker_) {
+        float dist = tracker_->idToDetUnit(DetId(iconn->detId()))->toLocal(referenceP_).mag(); 
+        float tof  = dist/c ;
+        // compute the PLL delay shift for the module as delay + tof 
+        int delay = int(round(bestDelay_+tof));
+        // store that in the map
+        delays_[SiStripFecKey( iconn->fecCrate(),
+                               iconn->fecSlot(),
+                               iconn->fecRing(),
+                               iconn->ccuAddr(),
+                               iconn->ccuChan(), 0 ).key()] = delay;
+      } else {
+        edm::LogError(mlDqmClient_)
+           << "[FineDelayHistosUsingDb::" << __func__ << "]"
+           << " Tracker geometry not initialized. Impossible to compute the delays.";
+      }
     }
   }
 }
