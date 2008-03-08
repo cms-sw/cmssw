@@ -1,4 +1,4 @@
-#include "PhysicsTools/PatAlgos/interface/PATTauCleaner.h"
+#include "PhysicsTools/PatAlgos/plugins/PATTauCleaner.h"
 
 
 template<typename TauIn, typename TauOut, typename TauTag>

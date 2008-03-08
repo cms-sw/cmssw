@@ -1,4 +1,4 @@
-#include "PhysicsTools/PatAlgos/interface/PATMETCleaner.h"
+#include "PhysicsTools/PatAlgos/plugins/PATMETCleaner.h"
 
 template<typename METIn, typename METOut>
 pat::PATMETCleaner<METIn,METOut>::PATMETCleaner(const edm::ParameterSet & iConfig) :

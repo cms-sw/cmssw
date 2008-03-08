@@ -1,4 +1,4 @@
-#include "PhysicsTools/PatAlgos/interface/PATJetCleaner.h"
+#include "PhysicsTools/PatAlgos/plugins/PATJetCleaner.h"
 #include "DataFormats/Common/interface/ValueMap.h"
 
 template<typename JetIn, typename JetOut>
