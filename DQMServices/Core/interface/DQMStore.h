@@ -155,8 +155,10 @@ private:
 					   std::string &path) const;
 
   void				getAllTags(std::vector<std::string> &into) const;
+public:
   std::vector<MonitorElement*>	getAllContents(const std::string &path) const;
   std::vector<MonitorElement*>	getMatchingContents(const std::string &pattern) const;
+private:
 
   // ---------------- Miscellaneous -----------------------------
   void				reset(void);
