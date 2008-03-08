@@ -1,7 +1,7 @@
 //
 // F.Ratnikov (UMd), Aug. 9, 2005
 //
-// $Id: HcalDbService.cc,v 1.18 2008/03/03 16:52:44 rofierzy Exp $
+// $Id: HcalDbService.cc,v 1.19 2008/03/03 21:42:01 rofierzy Exp $
 
 #include "FWCore/Framework/interface/eventsetupdata_registration_macro.h"
 
@@ -63,6 +63,7 @@ bool HcalDbService::makeHcalCalibration (const HcalGenericDetId& fId, HcalCalibr
 
 void HcalDbService::buildCalibrations() {
   // we use the set of ids for pedestals as the master list
+  if ((!mPedestals) || (!mGains) || (!mQIEData) || (!mRespCorrs)) return;
   std::vector<DetId> ids=mPedestals->getAllChannels();
   // clear the calibrations set
   mCalibSet.clear();
