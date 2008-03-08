@@ -5,8 +5,8 @@
  *
  * Class for DT Data Integrity.
  *  
- *  $Date: 2008/01/28 14:35:31 $
- *  $Revision: 1.13 $
+ *  $Date: 2008/03/01 00:39:53 $
+ *  $Revision: 1.14 $
  *
  * \author Marco Zanetti  - INFN Padova
  *
@@ -81,7 +81,6 @@ private:
 
   int neventsDDU;
   int neventsROS25;
-  std::string outputFile;
   double rob_max[25];
   
   //Event counter for the graphs VS time

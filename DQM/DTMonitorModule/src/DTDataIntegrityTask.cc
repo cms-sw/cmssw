@@ -1,8 +1,8 @@
 /*
  * \file DTDataIntegrityTask.cc
  * 
- * $Date: 2008/01/28 14:33:04 $
- * $Revision: 1.34 $
+ * $Date: 2008/03/01 00:39:54 $
+ * $Revision: 1.35 $
  * \author M. Zanetti (INFN Padova), S. Bolognesi (INFN Torino)
  *
  */
@@ -42,9 +42,6 @@ DTDataIntegrityTask::DTDataIntegrityTask(const edm::ParameterSet& ps,edm::Activi
 
   neventsDDU = 0;
   neventsROS25 = 0;
-
-  //Root output file with histograms
-  outputFile = ps.getUntrackedParameter<string>("outputFile", "ROS25Test.root");
 
   parameters = ps;
 
@@ -118,9 +115,6 @@ void DTDataIntegrityTask::postEndJob(){
 
   if(doTimeHisto) TimeHistos("Event_word_vs_time");	
 	
-  if (parameters.getUntrackedParameter<bool>("writeHisto", true))
-    dbe->save(parameters.getUntrackedParameter<string>("outputFile", "ROS25Test.root"));
-
   dbe->rmdir("DT/DataIntegrity");
 
 }
@@ -401,7 +395,7 @@ void DTDataIntegrityTask::bookHistos(string folder, DTROChainCoding code) {
     histoName = "FED" + dduID_s.str() + "_" + folder + rosID_s.str() + "_Event_word_vs_time";
     string fullName = "DT/DataIntegrity/FED" + dduID_s.str() + "/" + folder + rosID_s.str()+ "/" + histoName;
     names.insert (pair<std::string,std::string> (histoType,string(fullName)));
-    (rosHistos[histoType])[code.getROSID()] = dbe->book2D(histoName,histoName,28800,0,28800,100,0,3000);    
+    (rosHistos[histoType])[code.getROSID()] = dbe->book2D(histoName,histoName,1440,0,28800,100,0,3000);    
     
     histoType = "ROB_mean";
     histoName = "FED" + dduID_s.str() + "_" + "ROS" + rosID_s.str() + "_ROB_mean";
@@ -718,11 +712,11 @@ void DTDataIntegrityTask::processROS25(DTROS25Data & data, int ddu, int ros) {
       rosSHistos.find("ROSSummary")->second->Fill(8,code.getROS());
       //     fill ROB Summary plot for that particular ROS
       histoType = "ROSError";
-      if (rosHistos[histoType].find(code.getROS()) != rosHistos[histoType].end())
+      if (rosHistos[histoType].find(code.getROSID()) != rosHistos[histoType].end()) //CB getROS->getROSID
 	(rosHistos.find(histoType)->second).find(code.getROSID())->second->Fill(8,robheader.robID());
       else {
 	bookHistos( string("ROS"), code);
-	(rosHistos.find(histoType)->second).find(code.getROS())->second->Fill(8,robheader.robID());
+	(rosHistos.find(histoType)->second).find(code.getROSID())->second->Fill(8,robheader.robID()); //CB getROS->getROSID
       }
     }
   }
