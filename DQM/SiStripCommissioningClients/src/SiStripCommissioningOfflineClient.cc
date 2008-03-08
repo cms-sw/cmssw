@@ -1,4 +1,4 @@
-// Last commit: $Id: SiStripCommissioningOfflineClient.cc,v 1.33 2008/03/06 13:30:08 delaer Exp $
+// Last commit: $Id: SiStripCommissioningOfflineClient.cc,v 1.34 2008/03/06 18:16:06 delaer Exp $
 
 #include "DQM/SiStripCommissioningClients/interface/SiStripCommissioningOfflineClient.h"
 #include "DataFormats/SiStripCommon/interface/SiStripEnumsAndStrings.h"
@@ -46,7 +46,8 @@ SiStripCommissioningOfflineClient::SiStripCommissioningOfflineClient( const edm:
     runType_(sistrip::UNKNOWN_RUN_TYPE),
     runNumber_(0),
     map_(),
-    plots_()
+    plots_(),
+    parameters_(pset)
 {
   LogTrace(mlDqmClient_)
     << "[SiStripCommissioningOfflineClient::" << __func__ << "]"
@@ -283,7 +284,7 @@ void SiStripCommissioningOfflineClient::beginJob( const edm::EventSetup& setup )
   LogTrace(mlDqmClient_)
     << "[SiStripCommissioningOfflineClient::" << __func__ << "]"
     << " Creating CommissioningHistogram object...";
-  createHistos(); 
+  createHistos(parameters_, setup); 
   if ( histos_ ) {
     LogTrace(mlDqmClient_)
       << "[SiStripCommissioningOfflineClient::" << __func__ << "]"
@@ -394,7 +395,7 @@ void SiStripCommissioningOfflineClient::endJob() {}
 
 // -----------------------------------------------------------------------------
 // 
-void SiStripCommissioningOfflineClient::createHistos() {
+void SiStripCommissioningOfflineClient::createHistos( const edm::ParameterSet& pset, const edm::EventSetup& setup) {
   
   // Check pointer
   if ( histos_ ) {
@@ -439,7 +440,7 @@ void SiStripCommissioningOfflineClient::createHistos() {
       << " Unknown run type!";
     return;
   }
-  
+  histos_->configure(pset,setup);
 }
 
 // -----------------------------------------------------------------------------

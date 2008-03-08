@@ -1,4 +1,4 @@
-// Last commit: $Id: SiStripCommissioningOfflineDbClient.cc,v 1.12 2008/03/04 16:07:08 bainbrid Exp $
+// Last commit: $Id: SiStripCommissioningOfflineDbClient.cc,v 1.13 2008/03/06 13:30:51 delaer Exp $
 
 #include "DQM/SiStripCommissioningDbClients/plugins/SiStripCommissioningOfflineDbClient.h"
 #include "DataFormats/SiStripCommon/interface/SiStripEnumsAndStrings.h"
@@ -58,7 +58,7 @@ SiStripCommissioningOfflineDbClient::~SiStripCommissioningOfflineDbClient() {
 
 // -----------------------------------------------------------------------------
 // 
-void SiStripCommissioningOfflineDbClient::createHistos() {
+void SiStripCommissioningOfflineDbClient::createHistos( const edm::ParameterSet& pset, const edm::EventSetup& setup) {
 
   // Check pointer
   if ( histos_ ) {
@@ -130,8 +130,8 @@ void SiStripCommissioningOfflineDbClient::createHistos() {
       << " Unknown run type!";
     return;
   }
+  histos_->configure(pset,setup);
 
-  // 
   CommissioningHistosUsingDb* tmp = dynamic_cast<CommissioningHistosUsingDb*>(histos_);
   if ( tmp ) { 
     tmp->doUploadConf( uploadConf_ ); 
