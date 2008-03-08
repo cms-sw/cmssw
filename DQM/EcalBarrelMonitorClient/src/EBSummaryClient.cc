@@ -1,8 +1,8 @@
 /*
  * \file EBSummaryClient.cc
  *
- * $Date: 2008/03/07 17:08:10 $
- * $Revision: 1.119 $
+ * $Date: 2008/03/07 17:19:32 $
+ * $Revision: 1.120 $
  * \author G. Della Ricca
  *
 */
@@ -304,11 +304,12 @@ void EBSummaryClient::setup(void) {
 
   dbe_->setCurrentFolder( "EcalBarrel/EventInfo" );
 
-  MonitorElement* meErrorSummaryPhiEta;
+  MonitorElement* me;
+
   sprintf(histo, "errorSummaryPhiEta_EB");
-  meErrorSummaryPhiEta = dbe_->book2D(histo, histo, 72, 0., 72., 34, 0., 34);
-  meErrorSummaryPhiEta->setAxisTitle("jphi", 1);
-  meErrorSummaryPhiEta->setAxisTitle("jeta", 2);
+  me = dbe_->book2D(histo, histo, 72, 0., 72., 34, 0., 34);
+  me->setAxisTitle("jphi", 1);
+  me->setAxisTitle("jeta", 2);
 
 }
 

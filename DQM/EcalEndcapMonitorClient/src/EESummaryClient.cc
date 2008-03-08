@@ -1,8 +1,8 @@
 /*
  * \file EESummaryClient.cc
  *
- * $Date: 2008/03/08 12:33:23 $
- * $Revision: 1.94 $
+ * $Date: 2008/03/08 13:54:52 $
+ * $Revision: 1.95 $
  * \author G. Della Ricca
  *
 */
@@ -457,17 +457,17 @@ void EESummaryClient::setup(void) {
 
   dbe_->setCurrentFolder( "EcalEndcap/EventInfo" );
 
-  MonitorElement* meErrorSummaryXY_EEM;
-  sprintf(histo, "errorSummaryXY_EEM");
-  meErrorSummaryXY_EEM = dbe_->book2D(histo, histo, 20, 0., 20., 20, 0., 20);
-  meErrorSummaryXY_EEM->setAxisTitle("jx", 1);
-  meErrorSummaryXY_EEM->setAxisTitle("jy", 2);
+  MonitorElement* me;
 
-  MonitorElement* meErrorSummaryXY_EEP;
+  sprintf(histo, "errorSummaryXY_EEM");
+  me = dbe_->book2D(histo, histo, 20, 0., 20., 20, 0., 20);
+  me->setAxisTitle("jx", 1);
+  me->setAxisTitle("jy", 2);
+
   sprintf(histo, "errorSummaryXY_EEP");
-  meErrorSummaryXY_EEP = dbe_->book2D(histo, histo, 20, 0., 20., 20, 0., 20);
-  meErrorSummaryXY_EEP->setAxisTitle("jx", 1);
-  meErrorSummaryXY_EEP->setAxisTitle("jy", 2);
+  me = dbe_->book2D(histo, histo, 20, 0., 20., 20, 0., 20);
+  me->setAxisTitle("jx", 1);
+  me->setAxisTitle("jy", 2);
 
 }
 
@@ -1274,6 +1274,7 @@ void EESummaryClient::analyze(void){
    if (me) me->Fill(errorSummaryEEM);
 
    MonitorElement* meside[2];
+
    meside[0] = dbe_->get("EcalEndcap/EventInfo/errorSummaryXY_EEM");
    meside[1] = dbe_->get("EcalEndcap/EventInfo/errorSummaryXY_EEP");
    if (meside[0] && meside[1]) {
