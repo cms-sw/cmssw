@@ -32,7 +32,7 @@ class DCCSCBlock : public DCCFEBlock {
 	 
   protected :
 
-   void unpackXtalData(uint stripID, uint xtalID);
+   int unpackXtalData(uint stripID, uint xtalID);
 	 
    EEDetId                                * pDetId_;
    EEDataFrame                            * pDFId_;

@@ -31,7 +31,7 @@ class DCCTowerBlock : public DCCFEBlock {
 	 
   protected:
 	 
-    void unpackXtalData(uint stripID, uint xtalID);
+    int unpackXtalData(uint stripID, uint xtalID);
 
     std::auto_ptr<EBDigiCollection>     * digis_;
     

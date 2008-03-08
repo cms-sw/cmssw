@@ -40,7 +40,7 @@ class DCCFEBlock : public DCCDataBlockPrototype {
     			
   protected :
 	 
-    virtual void unpackXtalData(uint stripID, uint xtalID){};
+    virtual int unpackXtalData(uint stripID, uint xtalID){      return BLOCK_UNPACKED;};
     
     
     bool zs_;
