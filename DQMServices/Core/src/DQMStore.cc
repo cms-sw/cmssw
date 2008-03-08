@@ -1037,56 +1037,51 @@ DQMStore::extract(TObject *obj, const std::string &dir, bool overwrite)
   std::string path;
   if (TH1F *h = dynamic_cast<TH1F *>(obj))
   {
-    MonitorElement *me = findObject(dir, obj->GetName(), path);
-    if (! me || overwrite)
-    {
-      if (! me) me = book1D(dir, obj->GetName(), h);
+    MonitorElement *me = findObject(dir, h->GetName(), path);
+    if (! me)
+      me = book1D(dir, h->GetName(), h);
+    else if (overwrite)
       me->copyFrom(h);
-    }
     else if (isCollateME(me) || collateHistograms_)
       collate1D(me, h);
   }
   else if (TH2F *h = dynamic_cast<TH2F *>(obj))
   {
-    MonitorElement *me = findObject(dir, obj->GetName(), path);
-    if (! me || overwrite)
-    {
-      if (! me) me = book2D(dir, obj->GetName(), h);
+    MonitorElement *me = findObject(dir, h->GetName(), path);
+    if (! me)
+      me = book2D(dir, h->GetName(), h);
+    else if (overwrite)
       me->copyFrom(h);
-    }
     else if (isCollateME(me) || collateHistograms_)
       collate2D(me, h);
   }
   else if (TH3F *h = dynamic_cast<TH3F *>(obj))
   {
-    MonitorElement *me = findObject(dir, obj->GetName(), path);
-    if (! me || overwrite)
-    {
-      if (! me) me = book3D(dir, obj->GetName(), h);
+    MonitorElement *me = findObject(dir, h->GetName(), path);
+    if (! me)
+      me = book3D(dir, h->GetName(), h);
+    else if (overwrite)
       me->copyFrom(h);
-    }
     else if (isCollateME(me) || collateHistograms_)
       collate3D(me, h);
   }
   else if (TProfile *h = dynamic_cast<TProfile *>(obj))
   {
-    MonitorElement *me = findObject(dir, obj->GetName(), path);
-    if (! me || overwrite)
-    {
-      if (! me) me = bookProfile(dir, obj->GetName(), h);
+    MonitorElement *me = findObject(dir, h->GetName(), path);
+    if (! me)
+      me = bookProfile(dir, h->GetName(), h);
+    else if (overwrite)
       me->copyFrom(h);
-    }
     else if (isCollateME(me) || collateHistograms_)
       collateProfile(me, h);
   }
   else if (TProfile2D *h = dynamic_cast<TProfile2D *>(obj))
   {
-    MonitorElement *me = findObject(dir, obj->GetName(), path);
-    if (! me || overwrite)
-    {
-      if (! me) me = bookProfile2D(dir, obj->GetName(), h);
+    MonitorElement *me = findObject(dir, h->GetName(), path);
+    if (! me)
+      me = bookProfile2D(dir, h->GetName(), h);
+    else if (overwrite)
       me->copyFrom(h);
-    }
     else if (isCollateME(me) || collateHistograms_)
       collateProfile2D(me, h);
   }
@@ -1096,10 +1091,25 @@ DQMStore::extract(TObject *obj, const std::string &dir, bool overwrite)
     lat::RegexpMatch m;
     if (! s_rxmeval.match(obj->GetName(), 0, 0, &m))
     {
-      std::cout << "*** DQMStore: WARNING: cannot extract object '"
-		<< obj->GetName() << "' of type '"
-		<< obj->IsA()->GetName() << "'\n";
-      return false;
+      if (strstr(obj->GetName(), "CMSSW"))
+      {
+	if (verbose_)
+	  std::cout << "Input file version: " << obj->GetName() << std::endl;
+	return true;
+      }
+      else if (strstr(obj->GetName(), "DQMPATCH"))
+      {
+	if (verbose_)
+	  std::cout << "DQM patch version: " << obj->GetName() << std::endl;
+	return true;
+      }
+      else
+      {
+	std::cout << "*** DQMStore: WARNING: cannot extract object '"
+		  << obj->GetName() << "' of type '"
+		  << obj->IsA()->GetName() << "'\n";
+	return false;
+      }
     }
 
     std::string label = m.matchString(obj->GetName(), 1);
@@ -1192,10 +1202,6 @@ DQMStore::extract(TObject *obj, const std::string &dir, bool overwrite)
     TObjString os(s.c_str());
     return extract(&os, dir, overwrite);
   }
-  else if (verbose_ && strstr(obj->GetName(), "CMSSW"))
-    std::cout << "Input file version: " << obj->GetName() << std::endl;
-  else if (verbose_ && strstr(obj->GetName(), "DQMPATCH"))
-    std::cout << "DQM patch version: " << obj->GetName() << std::endl;
   else
   {
     std::cout << "*** DQMStore: WARNING: cannot extract object '"
@@ -1379,10 +1385,18 @@ DQMStore::readDirectory(TFile *file,
       return 0;
 
     // Add prefix.
-    dirpart = prepend + '/' + dirpart;
+    if (dirpart.empty())
+      dirpart = prepend;
+    else
+      dirpart = prepend + '/' + dirpart;
   }
   else if (! prepend.empty())
-    dirpart = prepend + '/' + dirpart;
+  {
+    if (dirpart.empty())
+      dirpart = prepend;
+    else
+      dirpart = prepend + '/' + dirpart;
+  }
 
   // Loop over the contents of this directory in the file.
   TKey *key;
