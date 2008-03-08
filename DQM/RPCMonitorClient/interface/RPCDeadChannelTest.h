@@ -6,8 +6,8 @@
  * *
  *  DQM Test Client
  *
- *  $Date: 2007/09/19 17:43:00 $
- *  $Revision: 1.4 $
+ *  $Date: 2008/03/07 18:16:55 $
+ *  $Revision: 1.1 $
  *  \author 
  *   
  */
@@ -23,10 +23,8 @@
 #include <FWCore/Framework/interface/LuminosityBlock.h>
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
-#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
+#include "DQMServices/Core/interface/MonitorElement.h"
 //#include "DQMServices/Daemon/interface/MonitorDaemon.h"
-//#include "DQMServices/Core/interface/DQMStore.h"
-
 
 #include "Geometry/RPCGeometry/interface/RPCGeometry.h"
 #include "Geometry/CommonDetUnit/interface/GeomDet.h"
@@ -41,8 +39,8 @@
 
 
 class QTestHandle;
-class MonitorUIRoot;
-//class DQMStore;
+class DQMOldReceiver;
+class DQMStore;
 class RPCDetId;
 
 
@@ -94,9 +92,9 @@ private:
   std::ofstream myfile;
   std::ifstream referenceFile_;
 
-  DaqMonitorBEInterface* dbe_;
+  DQMStore* dbe_;
   QTestHandle *qtHandler;
-  MonitorUIRoot * mui_;
+  DQMOldReceiver * mui_;
 
   edm::ParameterSet parameters;
   edm::ESHandle<RPCGeometry> muonGeom;

@@ -4,7 +4,6 @@
 <use name=xdaq>
 <use name=DQMServices/Core>
 <use name=DQMServices/ClientConfig>
-<use name=DQMServices/UI>
 <use name=FWCore/Framework>
 <use name=FWCore/ParameterSet>
 <use name=FWCore/ServiceRegistry>
@@ -15,7 +14,6 @@
 <use name=boost>
 <use name=root> 
 <use name=xdaq>
-<use name=DQMServices/Core>
 <use name=FWCore/Framework>
 <use name=FWCore/ParameterSet>
 <use name=FWCore/ServiceRegistry>

@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2007/09/19 17:42:53 $
- *  $Revision: 1.7 $
+ *  $Date: 2008/03/07 18:14:23 $
+ *  $Revision: 1.1 $
  *  \author
  */
 
@@ -17,12 +17,9 @@
 #include <FWCore/ParameterSet/interface/ParameterSet.h>*/
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include <DQMServices/Core/interface/MonitorElementBaseT.h>
-//#include "DQMServices/Core/interface/MonitorUserInterface.h"
 #include "DQMServices/ClientConfig/interface/QTestHandle.h"
-#include "DQMServices/UI/interface/MonitorUIRoot.h"
-
-//#include "DQMServices/Core/interface/DQMStore.h"
+#include "DQMServices/Core/interface/DQMStore.h"
+#include "DQMServices/Core/interface/DQMOldReceiver.h"
 
 //DataFormats
 
@@ -72,10 +69,11 @@ RPCDeadChannelTest::~RPCDeadChannelTest(){
 void RPCDeadChannelTest::beginJob(const edm::EventSetup& c){
 
  edm::LogVerbatim ("deadChannel") << "[RPCDeadChannelTest]: Begin job";
-  // get hold of back-end interface
-  dbe_ = Service<DaqMonitorBEInterface>().operator->();
   
-  mui_ = new MonitorUIRoot();
+ // get hold of back-end interface
+ dbe_ = Service<DQMStore>().operator->();
+  
+  mui_ = new DQMOldReceiver();
 
   dbe_->setVerbose(1);
   
