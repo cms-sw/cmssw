@@ -1,8 +1,8 @@
 /*
  * \file EESummaryClient.cc
  *
- * $Date: 2008/03/07 17:19:33 $
- * $Revision: 1.93 $
+ * $Date: 2008/03/08 12:33:23 $
+ * $Revision: 1.94 $
  * \author G. Della Ricca
  *
 */
@@ -1201,7 +1201,7 @@ void EESummaryClient::analyze(void){
 
         meGlobalSummary_[0]->setBinContent( jx, jy, xval );
 
-        if ( xval > -1 ) { 
+        if ( xval > -1 ) {
 	  ++nValidChannels;
 	  ++nValidChannelsEEM;
 	}
@@ -1267,10 +1267,10 @@ void EESummaryClient::analyze(void){
    me = dbe_->get("EcalEndcap/EventInfo/errorSummary");
    if (me) me->Fill(errorSummary);
 
-   me = dbe_->get("EventInfo/errorSummarySegments/Segment02"); 
+   me = dbe_->get("EventInfo/errorSummarySegments/Segment02");
    if (me) me->Fill(errorSummaryEEP);
-   
-   me = dbe_->get("EventInfo/errorSummarySegments/Segment03"); 
+
+   me = dbe_->get("EventInfo/errorSummarySegments/Segment03");
    if (me) me->Fill(errorSummaryEEM);
 
    MonitorElement* meside[2];
@@ -1299,7 +1299,7 @@ void EESummaryClient::analyze(void){
 	   int jydcc = (jy-1)/5+1;
 
 	   float xval = meGlobalSummary_[iside]->getBinContent( jx, jy );
-	   
+
 	   if ( xval > -1 ) {
 	     if ( xval != 2 && xval != 5 ) nValidChannelsDCC[iside][jxdcc-1][jydcc-1]++;
 	     if ( xval == 0 ) nGlobalErrorsDCC[iside][jxdcc-1][jydcc-1]++;
@@ -1324,8 +1324,8 @@ void EESummaryClient::analyze(void){
 	   else
 	     xval = 0.0;
 
-	   meside[iside]->setBinContent( jxdcc+1, jydcc+1, xval ); 
-	   
+	   meside[iside]->setBinContent( jxdcc+1, jydcc+1, xval );
+
 	 }
        }
      }
