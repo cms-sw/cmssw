@@ -25,7 +25,7 @@ void DCCTowerBlock::updateCollectors(){
 
 
 
-void DCCTowerBlock::unpackXtalData(uint expStripID, uint expXtalID){
+int DCCTowerBlock::unpackXtalData(uint expStripID, uint expXtalID){
   
   bool errorOnXtal(false);
  
@@ -55,7 +55,7 @@ void DCCTowerBlock::unpackXtalData(uint expStripID, uint expXtalID){
     lastXtalId_++;
     if (lastXtalId_ > NUMB_XTAL) 	{lastXtalId_=1; lastStripId_++;}
     data_ += numbDWInXtalBlock_;
-    return;
+    return BLOCK_UNPACKED;
   }
 
 
@@ -83,19 +83,24 @@ void DCCTowerBlock::unpackXtalData(uint expStripID, uint expXtalID){
 
       errorOnXtal = true;
 
+      lastStripId_ = st;
+      lastXtalId_  = ch;
+      
       // return here, so to skip all following checks
-      lastXtalId_++;
-      if (lastXtalId_ > NUMB_XTAL) 	{lastXtalId_=1; lastStripId_++;}
-      data_ += numbDWInXtalBlock_;
-      return;
+      return SKIP_BLOCK_UNPACKING;
       
     }else{
 
       // Check for zs valid Ids 2) if channel-in-strip has increased wrt previous xtal
-
-        if( stripId == lastStripId_ && xtalId <= lastXtalId_ ){
+      
+      
+      // Check for zs valid Ids 2) if channel-in-strip has increased wrt previous xtal
+      //                        3) if strip has increased wrt previous xtal
+      if( ( stripId == lastStripId_ && xtalId <= lastXtalId_ ) ||
+	  (stripId < lastStripId_))
+	{
 	  
-          edm::LogWarning("EcalRawToDigiDevChId")
+	  edm::LogWarning("EcalRawToDigiDevChId")
             <<"\n For event L1A: "<<event_->l1A()<<", fed "<<mapper_->getActiveDCC()<<" and tower "<<towerId_
             <<"\n Xtal id was expected to increase but it didn't. "
             <<"\n Last valid unpacked xtal was "<<lastXtalId_<<" while current xtal is "<<xtalId<<".";
@@ -111,48 +116,18 @@ void DCCTowerBlock::unpackXtalData(uint expStripID, uint expXtalID){
 	  (*invalidChIds_)->push_back(*pDetId_);
 	  
 	  errorOnXtal = true;
-	
+	  lastStripId_ = st;
+	  lastXtalId_  = ch;
+
 	  // return here, so to skip all following checks
-	  lastXtalId_++;
-	  if (lastXtalId_ > NUMB_XTAL) 	{lastXtalId_=1; lastStripId_++;}
-	  data_ += numbDWInXtalBlock_;
-	  return;
+	  return SKIP_BLOCK_UNPACKING;
 	  
 	}
       
-      // Check for zs valid Ids 3) if strip has increased wrt previous xtal
-      else if( stripId < lastStripId_){
-	
-        edm::LogWarning("EcalRawToDigiDevChId")
-          <<"\n For event L1A: "<<event_->l1A()<<", fed "<<mapper_->getActiveDCC()<<" and tower "<<towerId_
-          <<"\n Strip id was expected to increase but it didn't "
-          <<"\n Last unpacked strip was "<<lastStripId_<<" while current strip is "<<stripId;
-	
-	int st = lastStripId_;
-	int ch = lastXtalId_;
-	ch++;
-	if (ch > NUMB_XTAL)	{ch=1; st++;}
-	if (st >  NUMB_STRIP)	{ch=1; st=1;}
-	
-	// adding channel following the last valid
-	pDetId_ = (EBDetId*) mapper_->getDetIdPointer(towerId_,st,ch);
-	(*invalidChIds_)->push_back(*pDetId_);
-	
-	errorOnXtal = true;
-	
-	
-	// return here, so to skip all following checks
-	lastXtalId_++;
-	if (lastXtalId_ > NUMB_XTAL) 	{lastXtalId_=1; lastStripId_++;}
-	data_ += numbDWInXtalBlock_;
-	return;
-	
-      }
-      
-      // if id not proven, update lastStripId_ and lastXtalId_
+      // if channel id not proven wrong, update lastStripId_ and lastXtalId_
       lastStripId_  = stripId;
       lastXtalId_   = xtalId;
-    }
+    }//end else
   }// end if (zs_)
 
 
@@ -160,7 +135,7 @@ void DCCTowerBlock::unpackXtalData(uint expStripID, uint expXtalID){
 
   // if there is an error on xtal id ignore next error checks  
   // otherwise, assume channel_id is valid and proceed with making and checking the data frame
-  if(errorOnXtal) return;
+  if(errorOnXtal) return SKIP_BLOCK_UNPACKING;
 
   pDetId_ = (EBDetId*) mapper_->getDetIdPointer(towerId_,stripId,xtalId);
   (*digis_)->push_back(*pDetId_);
@@ -173,15 +148,14 @@ void DCCTowerBlock::unpackXtalData(uint expStripID, uint expXtalID){
         xData_++;
         uint data =  (*xData_) & TOWER_DIGI_MASK;
         uint gain =  data>>12;
-
         xtalGains_[i]=gain;
         if(gain == 0){ 
 	    wrongGain = true; 
-	   // continue here to skip part of the loop
-	   // as well as add the error to the collection and write the message 
-	    return;
+	    // continue here to skip part of the loop
+	    // as well as add the error to the collection and write the message 
+	    break;
 	} 
- 
+	
 	df.setSample(i,data);
       }
 	
@@ -199,7 +173,7 @@ void DCCTowerBlock::unpackXtalData(uint expStripID, uint expXtalID){
 	//Point to begin of next xtal Block
 	data_ += numbDWInXtalBlock_;
 	
-	return;
+	return BLOCK_UNPACKED;
 
       }
       
@@ -232,4 +206,6 @@ void DCCTowerBlock::unpackXtalData(uint expStripID, uint expXtalID){
  
       //Point to begin of next xtal Block
       data_ += numbDWInXtalBlock_;
+
+      return BLOCK_UNPACKED;
 }
