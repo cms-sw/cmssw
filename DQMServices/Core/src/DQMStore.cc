@@ -4,6 +4,8 @@
 #include "DQMServices/Core/interface/DQMPatchVersion.h"
 #include "FWCore/Utilities/interface/GetReleaseVersion.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "FWCore/MessageLogger/interface/JobReport.h"
 #include "classlib/utils/RegexpMatch.h"
 #include "classlib/utils/Regexp.h"
 #include "TFile.h"
@@ -1269,17 +1271,17 @@ DQMStore::save(const std::string &filename,
 	       const std::string &path /* = "" */,
 	       int minStatus /* =dqm::qstatus::STATUS_OK */)
 {
+  std::set<std::string>::iterator di, de;
+  MEMap::iterator mi, me = data_.end();
+  DQMNet::QReports::const_iterator qi, qe;
+
   TFile f(filename.c_str(), "RECREATE");
-  TObjString (edm::getReleaseVersion().c_str()).Write(); // write CMSSW version to output file
-  TObjString (getDQMPatchVersion().c_str()).Write(); // write DQM patch version to output file
+  TObjString(edm::getReleaseVersion().c_str()).Write(); // Save CMSSW version
+  TObjString(getDQMPatchVersion().c_str()).Write(); // Save DQM patch version
   if(f.IsZombie())
     throw cms::Exception("DQMStore")
       << "Failed to create file '" << filename << "'";
   f.cd();
-
-  std::set<std::string>::iterator di, de;
-  MEMap::iterator mi, me = data_.end();
-  DQMNet::QReports::const_iterator qi, qe;
 
   // Loop over the directory structure.
   for (di = dirs_.begin(), de = dirs_.end(); di != de; ++di)
@@ -1287,13 +1289,14 @@ DQMStore::save(const std::string &filename,
     if (! path.empty() && ! isSubdirectory(path, *di))
       continue;
 
-    mi = data_.lower_bound(*di);
-    if (mi == me || mi->second.path_ != *di)
-      continue;
-
     // Loop over monitor elements in this directory.
-    for ( ; mi != me && mi->second.path_ == *di; ++mi)
+    mi = data_.lower_bound(*di);
+    for ( ; mi != me && isSubdirectory(*di, mi->second.path_); ++mi)
     {
+      // Skip if it isn't a direct child.
+      if (mi->second.path_ != *di)
+	continue;
+
       // Store reference histograms only if a quality test is attached.
       if (isSubdirectory(s_referenceDirName, mi->first))
       {
@@ -1334,6 +1337,18 @@ DQMStore::save(const std::string &filename,
   }
   
   f.Close();
+
+  // Report the file to job report service.
+  edm::Service<edm::JobReport> jr;
+  if (jr.isAvailable())
+  {
+    std::map<std::string, std::string> info;
+    info["Source"] = "DQMStore";
+    info["FileClass"] = "DQM";
+    jr->reportAnalysisFile(filename, info);
+  }
+
+  // Maybe make some noise.
   if (verbose_)
     std::cout << "DQMStore: saved DQM file '" << filename << "'\n";
 }
