@@ -249,6 +249,14 @@ public:
   TProfile *getTProfile(void) const;
   TProfile2D *getTProfile2D(void) const;
 
+  TObject *getRefRootObject(void) const;
+  TH1 *getRefTH1(void) const;
+  TH1F *getRefTH1F(void) const;
+  TH2F *getRefTH2F(void) const;
+  TH3F *getRefTH3F(void) const;
+  TProfile *getRefTProfile(void) const;
+  TProfile2D *getRefTProfile2D(void) const;
+
   const int &getIntValue(void) const
     {
       assert(kind_ == DQM_KIND_INT);

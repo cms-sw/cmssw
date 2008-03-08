@@ -7,6 +7,32 @@
 #include "TList.h"
 #include <iostream>
 
+static TH1 *
+checkRootObject(const std::string &name, TObject *tobj, const char *func, int reqdim)
+{
+  if (! tobj)
+    throw cms::Exception("MonitorElement")
+      << "Method '" << func << "' cannot be invoked on monitor element '"
+      << name << "' because it is not a ROOT object.";
+
+  TH1 *h = dynamic_cast<TH1 *>(tobj);
+  if (! h)
+    throw cms::Exception("MonitorElement")
+      << "Method '" << func << "' cannot be invoked on monitor element '"
+      << name << "' because it is not a ROOT histogram; it is of type '"
+      << typeid(*tobj).name() << "'";
+
+  int ndim = h->GetDimension();
+  if (reqdim < 0 || reqdim > ndim)
+    throw cms::Exception("MonitorElement")
+      << "Method '" << func << "' cannot be invoked on monitor element '"
+      << name << "' because it requires " << reqdim
+      << " dimensions; this object of type '" << typeid(*h).name()
+      << "' has " << ndim << " dimensions";
+
+  return h;
+}
+
 MonitorElement *
 MonitorElement::initialise(Kind kind, const std::string &path)
 {
@@ -379,29 +405,7 @@ MonitorElement::incompatible(const char *func) const
 
 TH1 *
 MonitorElement::accessRootObject(const char *func, int reqdim) const
-{
-  if (! curvalue_.tobj)
-    throw cms::Exception("MonitorElement")
-      << "Method '" << func << "' cannot be invoked on monitor element '"
-      << data_.name << "' because it is not a ROOT object.";
-
-  TH1 *h = dynamic_cast<TH1 *>(curvalue_.tobj);
-  if (! h)
-    throw cms::Exception("MonitorElement")
-      << "Method '" << func << "' cannot be invoked on monitor element '"
-      << data_.name << "' because it is not a ROOT histogram; it is of type '"
-      << typeid(*curvalue_.tobj).name() << "'";
-
-  int ndim = h->GetDimension();
-  if (reqdim < 0 || reqdim > ndim)
-    throw cms::Exception("MonitorElement")
-      << "Method '" << func << "' cannot be invoked on monitor element '"
-      << data_.name << "' because it requires " << reqdim
-      << " dimensions; this object of type '" << typeid(*h).name()
-      << "' has " << ndim << " dimensions";
-
-  return h;
-}
+{ return checkRootObject(data_.name, curvalue_.tobj, func, reqdim); }
 
 /*** getter methods (wrapper around ROOT methods) ****/
 // 
@@ -1027,7 +1031,6 @@ MonitorElement::copyFrom(TH1 *from)
 
   copyFunctions(from, orig);
 }
-    
 
 // --- Operations on MEs that are normally reset at end of monitoring cycle ---
 void
@@ -1088,6 +1091,7 @@ void
 MonitorElement::clear(void)
 {}
 
+// -------------------------------------------------------------------
 TObject *
 MonitorElement::getRootObject(void) const
 {
@@ -1140,4 +1144,64 @@ MonitorElement::getTProfile2D(void) const
   assert(kind_ == DQM_KIND_TPROFILE2D);
   const_cast<MonitorElement *>(this)->update();
   return dynamic_cast<TProfile2D *>(accessRootObject(__PRETTY_FUNCTION__, 2));
+}
+
+// -------------------------------------------------------------------
+TObject *
+MonitorElement::getRefRootObject(void) const
+{
+  const_cast<MonitorElement *>(this)->update();
+  return data_.reference;
+}
+
+TH1 *
+MonitorElement::getRefTH1(void) const
+{
+  const_cast<MonitorElement *>(this)->update();
+  return checkRootObject(data_.name, data_.reference, __PRETTY_FUNCTION__, 0);
+}
+
+TH1F *
+MonitorElement::getRefTH1F(void) const
+{
+  assert(kind_ == DQM_KIND_TH1F);
+  const_cast<MonitorElement *>(this)->update();
+  return dynamic_cast<TH1F *>
+    (checkRootObject(data_.name, data_.reference, __PRETTY_FUNCTION__, 1));
+}
+
+TH2F *
+MonitorElement::getRefTH2F(void) const
+{
+  assert(kind_ == DQM_KIND_TH2F);
+  const_cast<MonitorElement *>(this)->update();
+  return dynamic_cast<TH2F *>
+    (checkRootObject(data_.name, data_.reference, __PRETTY_FUNCTION__, 2));
+}
+
+TH3F *
+MonitorElement::getRefTH3F(void) const
+{
+  assert(kind_ == DQM_KIND_TH3F);
+  const_cast<MonitorElement *>(this)->update();
+  return dynamic_cast<TH3F *>
+    (checkRootObject(data_.name, data_.reference, __PRETTY_FUNCTION__, 3));
+}
+
+TProfile *
+MonitorElement::getRefTProfile(void) const
+{
+  assert(kind_ == DQM_KIND_TPROFILE);
+  const_cast<MonitorElement *>(this)->update();
+  return dynamic_cast<TProfile *>
+    (checkRootObject(data_.name, data_.reference, __PRETTY_FUNCTION__, 1));
+}
+
+TProfile2D *
+MonitorElement::getRefTProfile2D(void) const
+{
+  assert(kind_ == DQM_KIND_TPROFILE2D);
+  const_cast<MonitorElement *>(this)->update();
+  return dynamic_cast<TProfile2D *>
+    (checkRootObject(data_.name, data_.reference, __PRETTY_FUNCTION__, 2));
 }
