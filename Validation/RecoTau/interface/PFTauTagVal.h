@@ -48,9 +48,8 @@
 #include "TH1F.h"
 #include <vector>
 
+
 #include "DQMServices/Core/interface/DQMStore.h"
-
-
 #include "DQMServices/Core/interface/MonitorElement.h"
 
 
@@ -73,7 +72,7 @@ private:
   std::vector<TLorentzVector> getVectorOfVisibleTauJets(HepMC::GenEvent *theEvent);
   //  std::vector<TLorentzVector> getVectorOfGenJets(edm::Handle< reco::GenJetCollection >& genJets );
   std::vector<HepMC::GenParticle*> getGenStableDecayProducts(const HepMC::GenParticle* particle);
-std::vector<TLorentzVector> getVectorOfGenJets(edm::Handle< reco::GenJetCollection >& genJets );
+  std::vector<TLorentzVector> getVectorOfGenJets(edm::Handle< reco::GenJetCollection >& genJets );
   // ----------- MEMBER DATA--------------------------------
   enum tauDecayModes {kElectron, kMuon, 
 		      kOneProng0pi0, kOneProng1pi0, kOneProng2pi0,
