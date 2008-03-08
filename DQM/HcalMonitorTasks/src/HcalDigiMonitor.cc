@@ -538,7 +538,7 @@ void HcalDigiMonitor::processEvent(const HBHEDigiCollection& hbhe,
     int firsthbcap = -1; int firsthecap = -1;
     for (HBHEDigiCollection::const_iterator j=hbhe.begin(); j!=hbhe.end(); j++){
       const HBHEDataFrame digi = (const HBHEDataFrame)(*j);
-      cond.makeHcalCalibration(digi.id(), &calibs_);
+      calibs_= cond.getHcalCalibrations(digi.id());  // Old method was made private. 
 
       HcalDigiMap::digiStats(digi, calibs_, occThresh_, normVals, digiErr, digiOcc, digiUpset);      
       if((HcalSubdetector)(digi.id().subdet())==HcalBarrel){	

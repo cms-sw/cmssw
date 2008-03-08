@@ -114,7 +114,7 @@ void HcalMTCCMonitor::processEvent(const HBHEDigiCollection& hbhe,
       for (HBHEDigiCollection::const_iterator j=hbhe.begin(); j!=hbhe.end(); j++){
 	const HBHEDataFrame digi = (const HBHEDataFrame)(*j);	
 
-	cond.makeHcalCalibration(digi.id(), &calibs_);
+	calibs_= cond.getHcalCalibrations(digi.id());  // Old method was made private.
 	const HcalQIECoder* channelCoder = cond.getHcalCoder(digi.id());
 	HcalCoderDb coder(*channelCoder, *shape_);
 	CaloSamples tool;
@@ -172,7 +172,7 @@ void HcalMTCCMonitor::processEvent(const HBHEDigiCollection& hbhe,
       for (HODigiCollection::const_iterator j=ho.begin(); j!=ho.end(); j++){
 	const HODataFrame digi = (const HODataFrame)(*j);	
 	
-	cond.makeHcalCalibration(digi.id(), &calibs_);
+	calibs_= cond.getHcalCalibrations(digi.id());  // Old method was made private.
 	const HcalQIECoder* channelCoder = cond.getHcalCoder(digi.id());
 	HcalCoderDb coder(*channelCoder, *shape_);
 	CaloSamples tool;
@@ -256,7 +256,7 @@ void HcalMTCCMonitor::dumpDigi(const HBHEDigiCollection& hbhe, const HODigiColle
       if(digi.id().ieta()<dumpEtaLo_) continue;
       if(digi.id().iphi()<dumpPhiLo_) continue;
 
-      cond.makeHcalCalibration(digi.id(), &calibs_);
+      calibs_= cond.getHcalCalibrations(digi.id());  // Old method was made private.
       const HcalQIECoder* channelCoder = cond.getHcalCoder(digi.id());
       HcalCoderDb coder(*channelCoder, *shape_);
       CaloSamples tool;
@@ -282,7 +282,7 @@ void HcalMTCCMonitor::dumpDigi(const HBHEDigiCollection& hbhe, const HODigiColle
 	  if(digi.id().ieta()!=ieta) continue;
 	  if(digi.id().iphi()!=myPhi) continue;
 	  
-	  cond.makeHcalCalibration(digi.id(), &calibs_);
+	  calibs_= cond.getHcalCalibrations(digi.id());  // Old method was made private.
 	  const HcalQIECoder* channelCoder = cond.getHcalCoder(digi.id());
 	  HcalCoderDb coder(*channelCoder, *shape_);
 	  CaloSamples tool;

@@ -255,7 +255,7 @@ void HcalLEDMonitor::processEvent(const HBHEDigiCollection& hbhe,
     for (HBHEDigiCollection::const_iterator j=hbhe.begin(); j!=hbhe.end(); j++){
       const HBHEDataFrame digi = (const HBHEDataFrame)(*j);
       
-      cond.makeHcalCalibration(digi.id(), &calibs_);
+      calibs_= cond.getHcalCalibrations(digi.id());  // Old method was made private. 
       float en=0;
       float ts =0; float bs=0;
       int maxi=0; float maxa=0;
@@ -307,7 +307,7 @@ void HcalLEDMonitor::processEvent(const HBHEDigiCollection& hbhe,
   try{
     for (HODigiCollection::const_iterator j=ho.begin(); j!=ho.end(); j++){
       const HODataFrame digi = (const HODataFrame)(*j);	
-      cond.makeHcalCalibration(digi.id(), &calibs_);
+      calibs_= cond.getHcalCalibrations(digi.id());  // Old method was made private. 
       float en=0;
       float ts =0; float bs=0;
       int maxi=0; float maxa=0;
@@ -344,7 +344,7 @@ void HcalLEDMonitor::processEvent(const HBHEDigiCollection& hbhe,
   try{
     for (HFDigiCollection::const_iterator j=hf.begin(); j!=hf.end(); j++){
       const HFDataFrame digi = (const HFDataFrame)(*j);
-      cond.makeHcalCalibration(digi.id(), &calibs_);
+      calibs_= cond.getHcalCalibrations(digi.id());  // Old method was made private. 
       float en=0;
       float ts =0; float bs=0;
       int maxi=0; float maxa=0;

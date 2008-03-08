@@ -379,7 +379,7 @@ void HcalDeadCellMonitor::processEvent_digi(const HBHEDigiCollection& hbhedigi,
       for (HBHEDigiCollection::const_iterator j=hbhedigi.begin(); j!=hbhedigi.end(); j++)
 	{
 	  const HBHEDataFrame digi = (const HBHEDataFrame)(*j);
-	  cond.makeHcalCalibration(digi.id(), &calibs_);
+	  calibs_= cond.getHcalCalibrations(digi.id());  // Old method was made private. 
 	  cond.makeHcalCalibrationWidth(digi.id(),&widths);
 
 	  if ((HcalSubdetector)(digi.id().subdet())==HcalBarrel)
@@ -400,7 +400,7 @@ void HcalDeadCellMonitor::processEvent_digi(const HBHEDigiCollection& hbhedigi,
       for (HODigiCollection::const_iterator j=hodigi.begin(); j!=hodigi.end(); j++)
 	{
 	  const HODataFrame digi = (const HODataFrame)(*j);
-	  cond.makeHcalCalibration(digi.id(), &calibs_);
+	  calibs_= cond.getHcalCalibrations(digi.id());  // Old method was made private. 
 	  cond.makeHcalCalibrationWidth(digi.id(),&widths);
 	  HcalDeadCellCheck::CheckForDeadDigis(digi,hoHists,hcalHists,
 					       Nsigma_,minADCcount_,calibs_,widths,m_dbe,baseFolder_);
@@ -416,7 +416,7 @@ void HcalDeadCellMonitor::processEvent_digi(const HBHEDigiCollection& hbhedigi,
       for (HFDigiCollection::const_iterator j=hfdigi.begin(); j!=hfdigi.end(); j++)
 	{
 	  const HFDataFrame digi = (const HFDataFrame)(*j);
-	  cond.makeHcalCalibration(digi.id(), &calibs_);
+	  calibs_= cond.getHcalCalibrations(digi.id());  // Old method was made private. 
 	  cond.makeHcalCalibrationWidth(digi.id(),&widths);
 	  HcalDeadCellCheck::CheckForDeadDigis(digi,hfHists,hcalHists,
 					       Nsigma_,minADCcount_,calibs_,widths,m_dbe,baseFolder_);

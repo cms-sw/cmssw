@@ -172,7 +172,7 @@ void HcalPedestalMonitor::processEvent(const HBHEDigiCollection& hbhe,
       
       const HBHEDataFrame digi = (const HBHEDataFrame)(*j);
       const HcalPedestalWidth* pedw = cond.getPedestalWidth(digi.id());
-      cond.makeHcalCalibration(digi.id(), &calibs_);
+      calibs_= cond.getHcalCalibrations(digi.id());  // Old method was made private.
       detID_.clear(); capID_.clear(); pedVals_.clear();
       if(doFCpeds_){
 	channelCoder_ = cond.getHcalCoder(digi.id());
@@ -229,7 +229,7 @@ void HcalPedestalMonitor::processEvent(const HBHEDigiCollection& hbhe,
     for (HODigiCollection::const_iterator j=ho.begin(); j!=ho.end(); j++){
       const HODataFrame digi = (const HODataFrame)(*j);	
       const HcalPedestalWidth* pedw = cond.getPedestalWidth(digi.id());
-      cond.makeHcalCalibration(digi.id(), &calibs_);
+      calibs_= cond.getHcalCalibrations(digi.id());  // Old method was made private.
       detID_.clear(); capID_.clear(); pedVals_.clear();
       if(doFCpeds_){
 	channelCoder_ = cond.getHcalCoder(digi.id());
@@ -264,7 +264,7 @@ void HcalPedestalMonitor::processEvent(const HBHEDigiCollection& hbhe,
     for (HFDigiCollection::const_iterator j=hf.begin(); j!=hf.end(); j++){
       const HFDataFrame digi = (const HFDataFrame)(*j);	
       const HcalPedestalWidth* pedw = cond.getPedestalWidth(digi.id());
-      cond.makeHcalCalibration(digi.id(), &calibs_);
+      calibs_= cond.getHcalCalibrations(digi.id());  // Old method was made private.
       detID_.clear(); capID_.clear(); pedVals_.clear();
       if(doFCpeds_){
 	channelCoder_ = cond.getHcalCoder(digi.id());
