@@ -85,7 +85,7 @@ int DCCFEBlock::unpack(uint64_t ** data, uint * dwToEnd, bool zs, uint expectedT
       }
     else
       {
-	edm::LogWarning("EcalRawToDigiDevTowerId")
+	edm::LogWarning("EcalRawToDigiDevChId")
 	  <<"\n For event "<<event_->l1A()<<" there's fed: "<< mapper_->getActiveDCC()
 	  <<" activeDcc: "<<mapper_->getActiveSM()
 	  <<" but that activeDcc is not valid.";
@@ -186,7 +186,9 @@ int DCCFEBlock::unpack(uint64_t ** data, uint * dwToEnd, bool zs, uint expectedT
   //point to xtal data
   data_++;
   
-  for(uint numbXtal=1; numbXtal <= numbOfXtalBlocks; numbXtal++){
+  int statusUnpackXtal =0;
+
+  for(uint numbXtal=1; numbXtal <= numbOfXtalBlocks && statusUnpackXtal!= SKIP_BLOCK_UNPACKING; numbXtal++){
 
     // If zs is disabled we know the expected strip and xtal ids
     // Note : this is valid for the EB how about the EE ? -> retieve expected index from mapper
@@ -196,9 +198,15 @@ int DCCFEBlock::unpack(uint64_t ** data, uint * dwToEnd, bool zs, uint expectedT
       expXtalID   =  numbXtal - (expStripID-1)*5;
     }
     
-    unpackXtalData(expStripID,expXtalID);
-   
-  }
+    statusUnpackXtal = unpackXtalData(expStripID,expXtalID);
+    if (statusUnpackXtal== SKIP_BLOCK_UNPACKING)
+      {
+	edm::LogWarning("EcalRawToDigiDev")
+	  <<"\n For event "<<event_->l1A()<<" and fed "<<mapper_->getActiveDCC()
+	  <<"\n The tower "<<towerId_<<" won't be unpacked further";
+      }
+
+  }// end loop over xtals of given FE 
 
   updateEventPointers();
   return BLOCK_UNPACKED;		
