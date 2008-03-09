@@ -80,19 +80,44 @@ HcalCondObjectContainer<Item>::getValues(DetId fId) const
 {
   HcalGenericDetId myId(fId);
   int index = myId.hashedId();
+  //  std::cout << "::::: getting values at index " << index  << ", DetId " << myId << std::endl;
   unsigned int index1 = abs(index); // b/c I'm fed up with compiler warnings about comparison betw. signed and unsigned int
 
   const Item* cell = NULL;
   if (index >= 0)
     switch (myId.genericSubdet() ) {
-    case HcalGenericDetId::HcalGenBarrel: if (index1 < HBcontainer.size()); cell = &(HBcontainer.at(index1) );  break;
-    case HcalGenericDetId::HcalGenEndcap: if (index1 < HEcontainer.size()); cell = &(HEcontainer.at(index1) );  break;
-    case HcalGenericDetId::HcalGenOuter:  if (index1 < HOcontainer.size()); cell = &(HOcontainer.at(index1) );  break;
-    case HcalGenericDetId::HcalGenForward: if (index1 < HFcontainer.size()); cell = &(HFcontainer.at(index1) );  break;
-    case HcalGenericDetId::HcalGenTriggerTower: if (index1 < HTcontainer.size()); cell = &(HTcontainer.at(index1) );  break;
-    case HcalGenericDetId::HcalGenZDC:    if (index1 < ZDCcontainer.size()); cell = &(ZDCcontainer.at(index1) );  break;
-    case HcalGenericDetId::HcalGenCastor: if (index1 < CASTORcontainer.size()); cell = &(CASTORcontainer.at(index1) );  break;
-    case HcalGenericDetId::HcalGenCalibration: if (index1 < CALIBcontainer.size()); cell = &(CALIBcontainer.at(index1) );  break;
+    case HcalGenericDetId::HcalGenBarrel: 
+      if (index1 < HBcontainer.size()) 
+	cell = &(HBcontainer.at(index1) );  
+      break;
+    case HcalGenericDetId::HcalGenEndcap: 
+      if (index1 < HEcontainer.size()) 
+	cell = &(HEcontainer.at(index1) ); 
+      break;
+    case HcalGenericDetId::HcalGenOuter: 
+      if (index1 < HOcontainer.size())
+	cell = &(HOcontainer.at(index1) ); 
+      break;
+    case HcalGenericDetId::HcalGenForward:
+      if (index1 < HFcontainer.size()) 
+	cell = &(HFcontainer.at(index1) ); 
+      break;
+    case HcalGenericDetId::HcalGenTriggerTower: 
+      if (index1 < HTcontainer.size()) 
+	cell = &(HTcontainer.at(index1) ); 
+      break;
+    case HcalGenericDetId::HcalGenZDC:    
+      if (index1 < ZDCcontainer.size()) 
+	cell = &(ZDCcontainer.at(index1) ); 
+      break;
+    case HcalGenericDetId::HcalGenCastor:
+      if (index1 < CASTORcontainer.size()) 
+	cell = &(CASTORcontainer.at(index1) ); 
+      break;
+    case HcalGenericDetId::HcalGenCalibration:
+      if (index1 < CALIBcontainer.size())
+	cell = &(CALIBcontainer.at(index1) ); 
+      break;
     default: break;
     }
   

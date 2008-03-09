@@ -13,7 +13,7 @@
 //
 // Original Author:  Fedor Ratnikov
 //         Created:  Tue Aug  9 19:10:10 CDT 2005
-// $Id: HcalDbProducer.cc,v 1.18 2007/12/20 15:50:18 mansj Exp $
+// $Id: HcalDbProducer.cc,v 1.19 2008/03/03 20:22:36 rofierzy Exp $
 //
 //
 
@@ -93,7 +93,7 @@ void HcalDbProducer::pedestalsCallback (const HcalPedestalsRcd& fRecord) {
   }
 }
 
-  void HcalDbProducer::pedestalWidthsCallback (const HcalPedestalWidthsRcd& fRecord) {
+void HcalDbProducer::pedestalWidthsCallback (const HcalPedestalWidthsRcd& fRecord) {
   edm::ESHandle <HcalPedestalWidths> item;
   fRecord.get (item);
   mService->setData (item.product ());
@@ -104,7 +104,7 @@ void HcalDbProducer::pedestalsCallback (const HcalPedestalsRcd& fRecord) {
 }
 
 
-  void HcalDbProducer::gainsCallback (const HcalGainsRcd& fRecord) {
+void HcalDbProducer::gainsCallback (const HcalGainsRcd& fRecord) {
   edm::ESHandle <HcalGains> item;
   fRecord.get (item);
   mService->setData (item.product ());
@@ -115,7 +115,7 @@ void HcalDbProducer::pedestalsCallback (const HcalPedestalsRcd& fRecord) {
 }
 
 
-  void HcalDbProducer::gainWidthsCallback (const HcalGainWidthsRcd& fRecord) {
+void HcalDbProducer::gainWidthsCallback (const HcalGainWidthsRcd& fRecord) {
   edm::ESHandle <HcalGainWidths> item;
   fRecord.get (item);
   mService->setData (item.product ());

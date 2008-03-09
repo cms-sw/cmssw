@@ -12,6 +12,8 @@
 #include "CalibFormats/HcalObjects/interface/HcalCalibrations.h"
 #include "CalibFormats/HcalObjects/interface/HcalCalibrationWidths.h"
 
+#include "DataFormats/HcalDetId/interface/HcalGenericDetId.h"
+
 #include "RecoLocalCalo/CaloTowersCreator/interface/EScales.h"
 #include <cmath>
 
@@ -37,7 +39,7 @@ bool HcalDbService::makeHcalCalibration (const HcalGenericDetId& fId, HcalCalibr
     if (mPedestalInADC) {
       const HcalQIEShape* shape=getHcalShape();
       const HcalQIECoder* coder=getHcalCoder(fId);
-      if (pedestal && gain && shape && coder) {
+      if (pedestal && gain && shape && coder && respcorr) {
 	float pedTrue[4];
 	for (int i=0; i<4; i++) {
 	  float x=pedestal->getValues()[i];
@@ -69,12 +71,14 @@ void HcalDbService::buildCalibrations() {
   mCalibSet.clear();
   // loop!
   HcalCalibrations tool;
+
+  //  std::cout << " length of id-vector: " << ids.size() << std::endl;
   for (std::vector<DetId>::const_iterator id=ids.begin(); id!=ids.end(); ++id) {
     // make
     bool ok=makeHcalCalibration(*id,&tool);
     // store
     if (ok) mCalibSet.setCalibrations(*id,tool);
-    std::cout << "Hcal calibrations built..." << std::endl;
+    //    std::cout << "Hcal calibrations built... detid no. " << HcalGenericDetId(*id) << std::endl;
   }
 }
 

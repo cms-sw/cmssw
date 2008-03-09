@@ -29,11 +29,9 @@ void HcalCalibrationsSet::setCalibrations(DetId fId, const HcalCalibrations& ca)
     {
       mItems.push_back(Item(fId));
       mItems.at(mItems.size()-1).calib=ca;
-      std::cout << "CalibSet: new calibrations set" << std::endl;
       return;
     }
   cell->calib=ca;
-  std::cout << "CalibSet: calibrations set" << std::endl;
 }
 void HcalCalibrationsSet::sort () {
   if (!sorted_) {
