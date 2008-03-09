@@ -142,6 +142,7 @@ void MuonsProxy3DBuilder::build(const FWEventItem* iItem,
 	     TEveGeoShapeExtract* extract = m_item->getGeom()->getExtract( chamber->id.rawId() );
 	     if(0!=extract) {
 		TEveElement* shape = TEveGeoShape::ImportShapeExtract(extract,0);
+		shape->IncDenyDestroy();
 		shape->SetMainTransparency(50);
 		shape->SetMainColor(iItem->defaultDisplayProperties().color());
 		muonList->AddElement(shape);
