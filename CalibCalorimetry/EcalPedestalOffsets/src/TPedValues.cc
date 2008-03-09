@@ -257,9 +257,9 @@ int TPedValues::makePlots (TFile * rootFile, const std::string & dirName,
               fitFunction.GetParameter(2) << " reduced chi-squared:" << 
               fitFunction.GetChisquare()/fitFunction.GetNDF();
           }
-          LogDebug("EcalPedOffset") << "TPedValues : TGraph for channel:" << xtl+1 << " gain:"
-            << gainHuman << " has " << asseX.size() << " points...back is:" << asseX.back() 
-            << " and front+1 is:" << asseX.front()+1;
+          //LogDebug("EcalPedOffset") << "TPedValues : TGraph for channel:" << xtl+1 << " gain:"
+          //  << gainHuman << " has " << asseX.size() << " points...back is:" << asseX.back() 
+          //  << " and front+1 is:" << asseX.front()+1;
           if((asseX.back()-asseX.front()+1)!=asseX.size())
             edm::LogError("EcalPedOffset") << "TPedValues : Pedestal average not found " <<
               "for all DAC values scanned in channel:" << xtl+1 << " gain:" << gainHuman;

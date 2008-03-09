@@ -2,8 +2,8 @@
 /**
  * \file EcalPedOffset.cc
  *
- * $Date: 2008/03/07 14:53:36 $
- * $Revision: 1.11 $
+ * $Date: 2008/03/09 16:29:14 $
+ * $Revision: 1.12 $
  * \author P. Govoni (pietro.govoni@cernNOSPAM.ch) - originally
  * \author S. Cooper (seth.cooper@cernNOSPAM.ch)
  * Last updated: @DATE@ @AUTHOR@
@@ -286,7 +286,7 @@ void EcalPedOffset::endJob ()
   writeXMLFiles(m_xmlFile);
 
   if (m_plotting != '0') makePlots ();
-  if (m_dbHostName != '0') writeDb ();          
+  if (m_dbHostName != '0') writeDb ();       
 }
 
 
@@ -404,7 +404,10 @@ void EcalPedOffset::writeDb ()
         {
           int fedid = result->first;
           int eid = m_pedValues[fedid]->getCrystalNumber(xtal);
-          
+          // If eid is zero, that crystal was not present in digis
+          if(eid==0)
+            continue;
+
           if (fedid >= 601 && fedid <= 609)
           {
             // Add the FEDid part in for DB
