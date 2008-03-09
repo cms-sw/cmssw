@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Sun Feb 24 14:42:32 EST 2008
-// $Id: FWConfigurationManager.cc,v 1.1 2008/02/25 21:32:27 chrjones Exp $
+// $Id: FWConfigurationManager.cc,v 1.2 2008/02/27 00:52:26 chrjones Exp $
 //
 
 // system include files
@@ -117,7 +117,8 @@ FWConfigurationManager::readFromFile(const std::string& iName) const
 {
    Int_t error=0;
 
-   Int_t value = gROOT->LoadMacro( iName.c_str(), &error );
+   // Int_t value = 
+   gROOT->LoadMacro( iName.c_str(), &error );
    if(0 != error) {
       std::string message("unable to load macro file ");
       message += iName;

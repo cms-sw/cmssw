@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Sat Jan  5 10:56:17 EST 2008
-// $Id: FWViewManagerBase.cc,v 1.5 2008/01/22 16:34:08 chrjones Exp $
+// $Id: FWViewManagerBase.cc,v 1.6 2008/02/03 02:49:40 dmytro Exp $
 //
 
 // system include files
@@ -80,7 +80,8 @@ FWViewManagerBase::createInstanceOf(const TClass* iBaseClass,
       
       //How can I tell if this succeeds or failes? error and value are always 0!
       // I could not make the non-compiled mechanism to work without seg-faults
-      Int_t value = gROOT->LoadMacro( (std::string(iNameOfClass)+".C+").c_str(), &error );
+      // Int_t value = 
+      gROOT->LoadMacro( (std::string(iNameOfClass)+".C+").c_str(), &error );
       c = TClass::GetClass( iNameOfClass );
       if(0==c ) {
 	 std::cerr <<"failed to find "<< iNameOfClass << std::endl;

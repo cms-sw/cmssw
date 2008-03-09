@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Sun Jan  6 23:57:00 EST 2008
-// $Id: MuonDetailView.cc,v 1.1 2008/03/07 04:01:21 tdaniels Exp $
+// $Id: MuonDetailView.cc,v 1.2 2008/03/07 06:56:07 tdaniels Exp $
 //
 
 // system include files
@@ -252,8 +252,8 @@ void MuonDetailView::build (TEveElementList **product, const FWModelId &id)
 
     Int_t nEtaEcal = 3;
     Int_t nPhiEcal = 3;
-    Int_t nEtaHcal = 2;
-    Int_t nPhiHcal = 2;
+    // Int_t nEtaHcal = 2;
+    // Int_t nPhiHcal = 2;
 
     // This is the original from the ElectronsProxySCBuilder.  Mine will be based on 
     // the trackref. 

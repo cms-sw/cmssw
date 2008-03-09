@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Sun Jan  6 23:57:00 EST 2008
-// $Id: MuonsProxyPUBuilder.cc,v 1.4 2008/02/26 02:25:33 tdaniels Exp $
+// $Id: MuonsProxyPUBuilder.cc,v 1.1 2008/03/07 04:01:59 tdaniels Exp $
 //
 
 // system include files
@@ -244,8 +244,8 @@ void MuonsProxyPUBuilder::build (TEveElementList **product)
 
     Int_t nEtaEcal = 3;
     Int_t nPhiEcal = 3;
-    Int_t nEtaHcal = 2;
-    Int_t nPhiHcal = 2;
+    // Int_t nEtaHcal = 2;
+    // Int_t nPhiHcal = 2;
 
     // This is the original from the ElectronsProxySCBuilder.  Mine will be based on 
     // the trackref. 

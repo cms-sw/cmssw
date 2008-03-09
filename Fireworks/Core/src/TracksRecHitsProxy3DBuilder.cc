@@ -15,7 +15,7 @@
 // Original Author:  
 //         Created:  Thu Dec  6 18:01:21 PST 2007
 // Based on
-// $Id: TracksProxy3DBuilder.cc,v 1.5 2008/01/27 01:10:42 dmytro Exp $
+// $Id: TracksRecHitsProxy3DBuilder.cc,v 1.1 2008/03/07 05:39:33 tdaniels Exp $
 // New File:
 // $Id: TracksRecHitsProxy3DBuilder.cc,v 1.0 2008/02/22 10:37:00 Tom Danielson
 //
@@ -124,7 +124,7 @@ void TracksRecHitsProxy3DBuilder::build(const FWEventItem* iItem, TEveElementLis
       //      HitPattern pattern = (*it).HitPattern();
 
       Int_t nHits = (*it).recHitsSize();
-      const reco::HitPattern& p = (*it).hitPattern();
+      // const reco::HitPattern& p = (*it).hitPattern();
       // If we have muon tracks, then this is going to be bad
 
       // Declare point set with size of the overall number of recHits
