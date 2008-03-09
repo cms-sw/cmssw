@@ -217,7 +217,7 @@ void HcaluLUTTPGCoder::update(const HcalDbService& conditions) {
 	   const HcalQIECoder* channelCoder = conditions.getHcalCoder (cell);
 	   HcalCoderDb coder (*channelCoder, *shape);
 	   float ped_ = (calibrations.pedestal(0)+calibrations.pedestal(1)+calibrations.pedestal(2)+calibrations.pedestal(3))/4;
-	   float gain_= (calibrations.gain(0)+calibrations.gain(1)+calibrations.gain(2)+calibrations.gain(3))/4;          
+	   float gain_= (calibrations.respcorrgain(0)+calibrations.respcorrgain(1)+calibrations.respcorrgain(2)+calibrations.respcorrgain(3))/4;          
 	   HBHEDataFrame frame(cell);
 	   frame.setSize(1);
 	   CaloSamples samples(cell, 1);
@@ -246,7 +246,7 @@ void HcaluLUTTPGCoder::update(const HcalDbService& conditions) {
 	   const HcalQIECoder* channelCoder = conditions.getHcalCoder (cell);
 	   HcalCoderDb coder (*channelCoder, *shape);
 	   float ped_ = (calibrations.pedestal(0)+calibrations.pedestal(1)+calibrations.pedestal(2)+calibrations.pedestal(3))/4;
-	   float gain_= (calibrations.gain(0)+calibrations.gain(1)+calibrations.gain(2)+calibrations.gain(3))/4;          
+	   float gain_= (calibrations.respcorrgain(0)+calibrations.respcorrgain(1)+calibrations.respcorrgain(2)+calibrations.respcorrgain(3))/4;          
 	   HBHEDataFrame frame(cell);
 	   frame.setSize(1);
 	   CaloSamples samples(cell, 1);
@@ -272,7 +272,7 @@ void HcaluLUTTPGCoder::update(const HcalDbService& conditions) {
 	   const HcalQIECoder* channelCoder = conditions.getHcalCoder (cell);
 	   HcalCoderDb coder (*channelCoder, *shape);
 	   float ped_ = (calibrations.pedestal(0)+calibrations.pedestal(1)+calibrations.pedestal(2)+calibrations.pedestal(3))/4;
-	   float gain_= (calibrations.gain(0)+calibrations.gain(1)+calibrations.gain(2)+calibrations.gain(3))/4;          
+	   float gain_= (calibrations.respcorrgain(0)+calibrations.respcorrgain(1)+calibrations.respcorrgain(2)+calibrations.respcorrgain(3))/4;          
 
 
 	   HFDataFrame frame(cell);
