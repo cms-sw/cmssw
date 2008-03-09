@@ -2,8 +2,8 @@
 /**
  * \file EcalPedOffset.cc
  *
- * $Date: 2008/03/02 13:52:22 $
- * $Revision: 1.10 $
+ * $Date: 2008/03/07 14:53:36 $
+ * $Revision: 1.11 $
  * \author P. Govoni (pietro.govoni@cernNOSPAM.ch) - originally
  * \author S. Cooper (seth.cooper@cernNOSPAM.ch)
  * Last updated: @DATE@ @AUTHOR@
@@ -194,7 +194,7 @@ void EcalPedOffset::readDACs(edm::Handle<EBDigiCollection> pDigis,
     EBDetId detId = EBDetId(itdigi->id());
     EcalElectronicsId elecId = ecalElectronicsMap_->getElectronicsId(detId);
     int FEDid = 600+elecId.dccId();
-    int  crystalId = detId.ic();
+    int crystalId = detId.ic();
 
     //TODO: Behavior here
     if(DACvalues.find(FEDid)==DACvalues.end())
@@ -215,7 +215,8 @@ void EcalPedOffset::readDACs(edm::Handle<EBDigiCollection> pDigis,
       m_pedValues[FEDid]->insert(gainId,
           crystalId,
           DACvalues[FEDid],
-          ((EBDataFrame)(*itdigi)).sample(iSample).adc());
+          ((EBDataFrame)(*itdigi)).sample(iSample).adc(),
+          crystalId);
     }
     
   } //end loop over digis
@@ -238,8 +239,9 @@ void EcalPedOffset::readDACs(edm::Handle<EEDigiCollection> pDigis,
     EEDetId detId = EEDetId(itdigi->id());
     EcalElectronicsId elecId = ecalElectronicsMap_->getElectronicsId(detId);
     int FEDid = 600+elecId.dccId();
-    int crystalId = 100*elecId.towerId()+5*(elecId.stripId()-1)+elecId.xtalId();
-
+    int crystalId = 25*detId.isc()+detId.ic();
+    int endcapCrystalId = 100*elecId.towerId()+5*(elecId.stripId()-1)+elecId.xtalId();
+    
     //TODO: Behavior here
     if(DACvalues.find(FEDid)==DACvalues.end())
     {
@@ -259,7 +261,8 @@ void EcalPedOffset::readDACs(edm::Handle<EEDigiCollection> pDigis,
       m_pedValues[FEDid]->insert(gainId,
           crystalId,
           DACvalues[FEDid],
-          ((EEDataFrame)(*itdigi)).sample(iSample).adc());
+          ((EEDataFrame)(*itdigi)).sample(iSample).adc(),
+          endcapCrystalId);
     }
     
   } //end loop over digis
@@ -400,11 +403,12 @@ void EcalPedOffset::writeDb ()
         try 
         {
           int fedid = result->first;
-          //FIXME: obtain the correct index for an EE crystal
-          int eid = xtal+1;
-
+          int eid = m_pedValues[fedid]->getCrystalNumber(xtal);
+          
           if (fedid >= 601 && fedid <= 609)
           {
+            // Add the FEDid part in for DB
+            eid = eid+10000*(fedid-600);
             ecid = DBconnection->getEcalLogicID("EE_elec_crystal_number", eid);
           }
           else if (fedid >= 610 && fedid <= 627)
@@ -419,6 +423,8 @@ void EcalPedOffset::writeDb ()
           }
           else if (fedid >= 646 && fedid <= 654)
           {
+            // Add the FEDid part in for DB
+            eid = eid+10000*(fedid-600);
             ecid = DBconnection->getEcalLogicID("EE_elec_crystal_number", eid);
           }
           else
@@ -478,11 +484,14 @@ void EcalPedOffset::writeXMLFiles(std::string fileName)
     // loop over the crystals
     for (int xtal = 0 ; xtal < 1700 ; ++xtal) 
     {
+      int crystalNumber = m_pedValues[smRes->first]->getCrystalNumber(xtal);
+      if(crystalNumber==0)
+        continue;
       xml_outfile << "  <PEDESTAL_OFFSET>\n";
       xml_outfile << "    <HIGH>" << ((smRes->second)->m_DACvalue)[0][xtal] << "</HIGH>\n";
       xml_outfile << "    <MED>" << ((smRes->second)->m_DACvalue)[1][xtal] << "</MED>\n";
       xml_outfile << "    <LOW>" << ((smRes->second)->m_DACvalue)[2][xtal] << "</LOW>\n";
-      xml_outfile << "    <CRYSTAL> "<< xtal+1 << " </CRYSTAL>\n";
+      xml_outfile << "    <CRYSTAL> "<< crystalNumber << " </CRYSTAL>\n";
       xml_outfile << "  </PEDESTAL_OFFSET>" << std::endl;            
     } 
 

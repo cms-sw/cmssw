@@ -19,6 +19,8 @@ TPedValues::TPedValues (double RMSmax, int bestPedestal) :
   m_RMSmax (RMSmax) 
 {
   LogDebug ("EcalPedOffset") << "entering TPedValues ctor ..." ;
+  for(int i=0; i<1700;++i)
+    endcapCrystalNumbers[i] = 0;
 }
 
 
@@ -32,7 +34,9 @@ TPedValues::TPedValues (const TPedValues & orig)
     for (int crystal = 0 ; crystal < 1700 ; ++crystal)
         for (int DAC = 0 ; DAC < 256 ; ++DAC)
           m_entries[gain][crystal][DAC] = orig.m_entries[gain][crystal][DAC] ;
-  
+
+  for(int i=0; i<1700;++i)
+    endcapCrystalNumbers[i] = orig.endcapCrystalNumbers[i];
 }
 
 
@@ -43,7 +47,8 @@ TPedValues::~TPedValues () {}
 void TPedValues::insert (const int gainId, 
                          const int crystal, 
                          const int DAC, 
-                         const int pedestal) 
+                         const int pedestal,
+                         const int endcapIndex) 
 {
 //  assert (gainId > 0) ;
 //  assert (gainId < 4) ;
@@ -70,6 +75,7 @@ void TPedValues::insert (const int gainId,
       return ;    
     }
   m_entries[gainId-1][crystal-1][DAC].insert (pedestal) ;
+  endcapCrystalNumbers[crystal-1] = endcapIndex;
   return ;
 }
     
@@ -230,7 +236,7 @@ int TPedValues::makePlots (TFile * rootFile, const std::string & dirName,
           else if (gain ==1) gainHuman =6;
           else if (gain ==2) gainHuman =1;
           else               gainHuman =-1;
-          sprintf (name,"XTL%04d_GAIN%02d",(xtl+1),gainHuman) ;
+          sprintf (name,"XTL%04d_GAIN%02d",endcapCrystalNumbers[xtl],gainHuman) ;
           graph.GetXaxis()->SetTitle("DAC value");
           graph.GetYaxis()->SetTitle("Average pedestal ADC");
           graph.Fit("fitFunction","RWQ");
@@ -251,6 +257,9 @@ int TPedValues::makePlots (TFile * rootFile, const std::string & dirName,
               fitFunction.GetParameter(2) << " reduced chi-squared:" << 
               fitFunction.GetChisquare()/fitFunction.GetNDF();
           }
+          LogDebug("EcalPedOffset") << "TPedValues : TGraph for channel:" << xtl+1 << " gain:"
+            << gainHuman << " has " << asseX.size() << " points...back is:" << asseX.back() 
+            << " and front+1 is:" << asseX.front()+1;
           if((asseX.back()-asseX.front()+1)!=asseX.size())
             edm::LogError("EcalPedOffset") << "TPedValues : Pedestal average not found " <<
               "for all DAC values scanned in channel:" << xtl+1 << " gain:" << gainHuman;
@@ -260,12 +269,9 @@ int TPedValues::makePlots (TFile * rootFile, const std::string & dirName,
   
   return 0 ;
 }
-     
 
-//! create a plot of the DAC pedestal trend
-//int TPedValues::makePlots (const std::string & rootFileName, const std::string & dirName) const 
-//{
-//  TFile saving (rootFileName.c_str (),"APPEND") ;
-//  return makePlots (&saving,dirName) ;  
-//}
-
+// Look up the crystal number in the EE schema and return it
+int TPedValues::getCrystalNumber(int xtal) const
+{
+  return endcapCrystalNumbers[xtal];
+}
