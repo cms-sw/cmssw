@@ -70,6 +70,7 @@ HcalCondObjectContainer<Item>::initContainer(int container)
     case HcalGenericDetId::HcalGenZDC: for (int i=0; i<22; i++) ZDCcontainer.push_back(emptyItem); break;
     case HcalGenericDetId::HcalGenCalibration: for (int i=0; i<1386; i++) CALIBcontainer.push_back(emptyItem); break;
     case HcalGenericDetId::HcalGenCastor: for (int i=0; i<1; i++) CASTORcontainer.push_back(emptyItem); break;
+    default: break;
     }
 }
 
@@ -79,22 +80,25 @@ HcalCondObjectContainer<Item>::getValues(DetId fId) const
 {
   HcalGenericDetId myId(fId);
   int index = myId.hashedId();
+  unsigned int index1 = abs(index); // b/c I'm fed up with compiler warnings about comparison betw. signed and unsigned int
 
-  const Item* cell;
-  switch (myId.genericSubdet() ) {
-  case HcalGenericDetId::HcalGenBarrel: cell = &(HBcontainer.at(index) );  break;
-  case HcalGenericDetId::HcalGenEndcap: cell = &(HEcontainer.at(index) );  break;
-  case HcalGenericDetId::HcalGenOuter: cell = &(HOcontainer.at(index) );  break;
-  case HcalGenericDetId::HcalGenForward: cell = &(HFcontainer.at(index) );  break;
-  case HcalGenericDetId::HcalGenTriggerTower: cell = &(HTcontainer.at(index) );  break;
-  case HcalGenericDetId::HcalGenZDC: cell = &(ZDCcontainer.at(index) );  break;
-  case HcalGenericDetId::HcalGenCastor: cell = &(CASTORcontainer.at(index) );  break;
-  case HcalGenericDetId::HcalGenCalibration: cell = &(CALIBcontainer.at(index) );  break;
-  default: cell = NULL; break;
-  }
+  const Item* cell = NULL;
+  if (index >= 0)
+    switch (myId.genericSubdet() ) {
+    case HcalGenericDetId::HcalGenBarrel: if (index1 < HBcontainer.size()); cell = &(HBcontainer.at(index1) );  break;
+    case HcalGenericDetId::HcalGenEndcap: if (index1 < HEcontainer.size()); cell = &(HEcontainer.at(index1) );  break;
+    case HcalGenericDetId::HcalGenOuter:  if (index1 < HOcontainer.size()); cell = &(HOcontainer.at(index1) );  break;
+    case HcalGenericDetId::HcalGenForward: if (index1 < HFcontainer.size()); cell = &(HFcontainer.at(index1) );  break;
+    case HcalGenericDetId::HcalGenTriggerTower: if (index1 < HTcontainer.size()); cell = &(HTcontainer.at(index1) );  break;
+    case HcalGenericDetId::HcalGenZDC:    if (index1 < ZDCcontainer.size()); cell = &(ZDCcontainer.at(index1) );  break;
+    case HcalGenericDetId::HcalGenCastor: if (index1 < CASTORcontainer.size()); cell = &(CASTORcontainer.at(index1) );  break;
+    case HcalGenericDetId::HcalGenCalibration: if (index1 < CALIBcontainer.size()); cell = &(CALIBcontainer.at(index1) );  break;
+    default: break;
+    }
   
-  Item emptyItem;
-  if (cell->rawId() == emptyItem.rawId() ) 
+  //  Item emptyItem;
+  //  if (cell->rawId() == emptyItem.rawId() ) 
+  if ((!cell) || (cell->rawId() != fId ) )
     throw cms::Exception ("Conditions not found") 
       << "Unavailable Conditions for cell " << myId;
   return cell;
@@ -136,9 +140,10 @@ HcalCondObjectContainer<Item>::exists(DetId fId) const
   default: return false; break;
   }
   
-  Item emptyItem;
+  //  Item emptyItem;
   if (cell)
-    if (cell->rawId() != emptyItem.rawId() ) 
+    //    if (cell->rawId() != emptyItem.rawId() ) 
+    if (cell->rawId() == fId ) 
       return true;
 
   return false;

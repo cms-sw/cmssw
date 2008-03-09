@@ -1,7 +1,7 @@
 //
 // F.Ratnikov (UMd), Aug. 9, 2005
 //
-// $Id: HcalDbService.cc,v 1.19 2008/03/03 21:42:01 rofierzy Exp $
+// $Id: HcalDbService.cc,v 1.20 2008/03/08 13:58:20 rofierzy Exp $
 
 #include "FWCore/Framework/interface/eventsetupdata_registration_macro.h"
 
@@ -52,7 +52,7 @@ bool HcalDbService::makeHcalCalibration (const HcalGenericDetId& fId, HcalCalibr
 	return true; 
       }
     } else {
-      if (pedestal && gain) {
+      if (pedestal && gain && respcorr) {
 	*fObject = HcalCalibrations (gain->getValues (), pedestal->getValues (), respcorr->getValue() );
 	return true;
       }
@@ -74,6 +74,7 @@ void HcalDbService::buildCalibrations() {
     bool ok=makeHcalCalibration(*id,&tool);
     // store
     if (ok) mCalibSet.setCalibrations(*id,tool);
+    std::cout << "Hcal calibrations built..." << std::endl;
   }
 }
 

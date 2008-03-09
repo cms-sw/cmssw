@@ -2,6 +2,7 @@
 #include "DataFormats/HcalDetId/interface/HcalGenericDetId.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include <algorithm>
+#include <iostream>
 
 
 HcalCalibrationsSet::HcalCalibrationsSet() 
@@ -24,8 +25,13 @@ const HcalCalibrations& HcalCalibrationsSet::getCalibrations(const DetId fId) co
 void HcalCalibrationsSet::setCalibrations(DetId fId, const HcalCalibrations& ca) {
   sorted_=false;
   std::vector<Item>::iterator cell=std::find(mItems.begin(),mItems.end(),Item(fId)); //slow, but guaranteed
-  if (cell==mItems.end()) mItems.push_back(Item(fId));
+  if (cell==mItems.end()) 
+    {
+      mItems.push_back(Item(fId));
+      mItems.at(mItems.size()-1).calib=ca;
+    }
   cell->calib=ca;
+  std::cout << "CalibSet: calibrations set" << std::endl;
 }
 void HcalCalibrationsSet::sort () {
   if (!sorted_) {

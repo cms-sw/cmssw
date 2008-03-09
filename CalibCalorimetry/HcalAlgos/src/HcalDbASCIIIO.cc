@@ -1,7 +1,7 @@
 
 //
 // F.Ratnikov (UMd), Oct 28, 2005
-// $Id: HcalDbASCIIIO.cc,v 1.35 2008/03/03 16:45:01 rofierzy Exp $
+// $Id: HcalDbASCIIIO.cc,v 1.36 2008/03/05 10:31:18 rofierzy Exp $
 //
 #include <vector>
 #include <string>
@@ -94,15 +94,15 @@ bool getHcalObject (std::istream& fInput, T* fObject, S* fCondObject) {
     }
     DetId id = getId (items);
     
-    if (fObject->exists(id) )
-      edm::LogWarning("Redefining Channel") << "line: " << buffer << "\n attempts to redefine data. Ignored" << std::endl;
-    else
-      {
+//    if (fObject->exists(id) )
+//      edm::LogWarning("Redefining Channel") << "line: " << buffer << "\n attempts to redefine data. Ignored" << std::endl;
+//    else
+//      {
 	fCondObject = new S(id, atof (items [4].c_str()), atof (items [5].c_str()), 
 			   atof (items [6].c_str()), atof (items [7].c_str()));
 	fObject->addValues(*fCondObject);
 	delete fCondObject;
-      }
+	//      }
   }
 
   return true;
@@ -143,14 +143,14 @@ bool getHcalSingleFloatObject (std::istream& fInput, T* fObject, S* fCondObject)
     }
     DetId id = getId (items);
     
-    if (fObject->exists(id) )
-      edm::LogWarning("Redefining Channel") << "line: " << buffer << "\n attempts to redefine data. Ignored" << std::endl;
-    else
-      {
+//    if (fObject->exists(id) )
+//      edm::LogWarning("Redefining Channel") << "line: " << buffer << "\n attempts to redefine data. Ignored" << std::endl;
+//    else
+//      {
 	fCondObject = new S(id, atof (items [4].c_str()) );
 	fObject->addValues(*fCondObject);
 	delete fCondObject;
-      }
+	//      }
   }
   return true;
 }
@@ -188,14 +188,14 @@ bool getHcalSingleIntObject (std::istream& fInput, T* fObject, S* fCondObject) {
     }
     DetId id = getId (items);
     
-    if (fObject->exists(id) )
-      edm::LogWarning("Redefining Channel") << "line: " << buffer << "\n attempts to redefine data. Ignored" << std::endl;
-    else
-      {
+//    if (fObject->exists(id) )
+//      edm::LogWarning("Redefining Channel") << "line: " << buffer << "\n attempts to redefine data. Ignored" << std::endl;
+//    else
+//      {
 	fCondObject = new S(id, atoi (items [4].c_str()) );
 	fObject->addValues(*fCondObject);
 	delete fCondObject;
-      }
+	//      }
   }
   return true;
 }
@@ -247,10 +247,10 @@ bool HcalDbASCIIIO::getObject (std::istream& fInput, HcalPedestalWidths* fObject
     }
     DetId id = getId (items);
 
-    if (fObject->exists(id) )
-      edm::LogWarning("Redefining Channel") << "line: " << buffer << "\n attempts to redefine data. Ignored" << std::endl;
-    else
-      {
+//    if (fObject->exists(id) )
+//      edm::LogWarning("Redefining Channel") << "line: " << buffer << "\n attempts to redefine data. Ignored" << std::endl;
+//    else
+//      {
 	HcalPedestalWidth values(id);
 	values.setSigma (0, 0, atof (items [4].c_str()));
 	values.setSigma (1, 0, atof (items [5].c_str()));
@@ -263,7 +263,7 @@ bool HcalDbASCIIIO::getObject (std::istream& fInput, HcalPedestalWidths* fObject
 	values.setSigma (3, 2, atof (items [12].c_str()));
 	values.setSigma (3, 3, atof (items [13].c_str()));
 	fObject->addValues(values);
-      }
+	//      }
   }
   return true;
 }
