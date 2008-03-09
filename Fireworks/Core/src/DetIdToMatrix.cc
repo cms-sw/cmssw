@@ -154,11 +154,15 @@ TEveGeoShapeExtract* DetIdToMatrix::getExtract(const char* path, const char* nam
    return extract;
 }
 
-TEveGeoShapeExtract* DetIdToMatrix::getExtract( unsigned int id ) const
+TEveGeoShapeExtract* DetIdToMatrix::getExtract( unsigned int id,
+						bool corrected /* = false */ ) const
 {
    std::ostringstream s;
    s << id;
-   return getExtract( getPath(id), s.str().c_str(), getMatrix(id) );
+   if ( corrected )
+     return getExtract( getPath(id), s.str().c_str(), getMatrix(id) );
+   else
+     return getExtract( getPath(id), s.str().c_str() );
 }
 
 TEveGeoShapeExtract* DetIdToMatrix::getAllExtracts(const char* elementListName /*= "CMS"*/) const

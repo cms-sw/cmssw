@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Sun Jan  6 23:57:00 EST 2008
-// $Id: ElectronDetailView.cc,v 1.9 2008/03/06 22:48:31 jmuelmen Exp $
+// $Id: ElectronDetailView.cc,v 1.1 2008/03/07 01:05:15 jmuelmen Exp $
 //
 
 // system include files
@@ -177,7 +177,7 @@ void ElectronDetailView::build (TEveElementList **product, const FWModelId &id)
 		     size = hit->energy();
 	       }
 	       const TGeoHMatrix *matrix = m_item->getGeom()->getMatrix(k->rawId());
-	       TEveGeoShapeExtract* extract = m_item->getGeom()->getExtract(k->rawId() );
+	       TEveGeoShapeExtract* extract = m_item->getGeom()->getExtract(k->rawId(), /*corrected*/ true  );
 	       assert(extract != 0);
 	       TEveTrans t = extract->GetTrans();
 	       t.MoveLF(3, - size / 2);

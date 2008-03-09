@@ -37,7 +37,7 @@ class DetIdToMatrix
    // extract globally positioned shape for stand alone use
    // note: transformations are fixed for known differences
    //       between Sim and Reco geometries
-   TEveGeoShapeExtract* getExtract( unsigned int id ) const;
+   TEveGeoShapeExtract* getExtract( unsigned int id, bool corrected = false  ) const;
    
    // extract globally positioned shape for stand alone use
    // note: if matrix is not provided, it will be extracted from

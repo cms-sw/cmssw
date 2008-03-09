@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Sun Jan  6 23:57:00 EST 2008
-// $Id: ElectronsProxySCBuilder.cc,v 1.9 2008/03/06 22:48:31 jmuelmen Exp $
+// $Id: ElectronsProxySCBuilder.cc,v 1.10 2008/03/07 00:18:14 jmuelmen Exp $
 //
 
 // system include files
@@ -202,7 +202,7 @@ void ElectronsProxySCBuilder::build (TEveElementList **product)
 		     size = hit->energy();
 	       }
 	       const TGeoHMatrix *matrix = m_item->getGeom()->getMatrix(k->rawId());
-	       TEveGeoShapeExtract* extract = m_item->getGeom()->getExtract(k->rawId() );
+	       TEveGeoShapeExtract* extract = m_item->getGeom()->getExtract(k->rawId(), /*corrected*/ true );
 	       assert(extract != 0);
 	       TEveTrans t = extract->GetTrans();
 	       t.MoveLF(3, - size / 2);
