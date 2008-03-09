@@ -37,7 +37,8 @@ int DCCFEBlock::unpack(uint64_t ** data, uint * dwToEnd, bool zs, uint expectedT
   if( (*dwToEnd_)<1){
    edm::LogWarning("EcalRawToDigiDevTowerSize")
       <<"\n Unable to unpack Tower block for event "<<event_->l1A()<<" in fed "<<mapper_->getActiveDCC()
-      <<"\n The end of event was reached !";
+      <<"\n The end of event was reached "
+      <<"\n(or, previously, pointers intended to navigate outside of FedBlock (based on block sizes), and were stopped by setting dwToEnd_ to zero)"    ;
     //TODO : add this to a dcc event size collection error?
     return STOP_EVENT_UNPACKING;
   }
