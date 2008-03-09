@@ -74,7 +74,7 @@ void TrackCategories::byHistory()
   EncodedEventId eventId = tracer_.simParticle()->eventId();
   
   // Check for signal events.	
-  if ( eventId.bunchCrossing() && eventId.event() )
+  if ( !eventId.bunchCrossing() && !eventId.event() )
   {
     flags_[SignalEvent] = true;
     // Check for PV, SV, TV
