@@ -1,4 +1,4 @@
-// $Id: StorageManager.cc,v 1.44 2008/03/03 23:31:36 hcheung Exp $
+// $Id: StorageManager.cc,v 1.44.2.1 2008/03/07 20:38:24 biery Exp $
 
 #include <iostream>
 #include <iomanip>
@@ -87,6 +87,7 @@ StorageManager::StorageManager(xdaq::ApplicationStub * s)
   fsm_(this), 
   reasonForFailedState_(),
   ah_(0), 
+  exactFileSizeTest_(false),
   pushMode_(false), 
   collateDQM_(false),
   archiveDQM_(false),
@@ -181,6 +182,7 @@ StorageManager::StorageManager(xdaq::ApplicationStub * s)
   setupLabel_         = smParameter_ -> setupLabel();
   highWaterMark_      = smParameter_ -> highWaterMark();
   lumiSectionTimeOut_ = smParameter_ -> lumiSectionTimeOut();
+  exactFileSizeTest_  = smParameter_ -> exactFileSizeTest();
 
   ispace->fireItemAvailable("closeFileScript",    &closeFileScript_);
   ispace->fireItemAvailable("notifyTier0Script",  &notifyTier0Script_);
@@ -193,6 +195,7 @@ StorageManager::StorageManager(xdaq::ApplicationStub * s)
   ispace->fireItemAvailable("setupLabel",         &setupLabel_);
   ispace->fireItemAvailable("highWaterMark",      &highWaterMark_);
   ispace->fireItemAvailable("lumiSectionTimeOut", &lumiSectionTimeOut_);
+  ispace->fireItemAvailable("exactFileSizeTest",  &exactFileSizeTest_);
 
   // added for Event Server
   maxESEventRate_ = 1.0;  // hertz
@@ -2280,6 +2283,7 @@ void StorageManager::setupFlashList()
   is->fireItemAvailable("setupLabel",           &setupLabel_);
   is->fireItemAvailable("highWaterMark",        &highWaterMark_);
   is->fireItemAvailable("lumiSectionTimeOut",   &lumiSectionTimeOut_);
+  is->fireItemAvailable("exactFileSizeTest",    &exactFileSizeTest_);
   is->fireItemAvailable("maxESEventRate",       &maxESEventRate_);
   is->fireItemAvailable("activeConsumerTimeout",&activeConsumerTimeout_);
   is->fireItemAvailable("idleConsumerTimeout",  &idleConsumerTimeout_);
@@ -2328,6 +2332,7 @@ void StorageManager::setupFlashList()
   is->addItemRetrieveListener("setupLabel",           this);
   is->addItemRetrieveListener("highWaterMark",        this);
   is->addItemRetrieveListener("lumiSectionTimeOut",   this);
+  is->addItemRetrieveListener("exactFileSizeTest",    this);
   is->addItemRetrieveListener("maxESEventRate",       this);
   is->addItemRetrieveListener("activeConsumerTimeout",this);
   is->addItemRetrieveListener("idleConsumerTimeout",  this);
@@ -2437,6 +2442,7 @@ bool StorageManager::configuring(toolbox::task::WorkLoop* wl)
     smParameter_ -> setsetupLabel(setupLabel_.toString());
     smParameter_ -> sethighWaterMark(highWaterMark_.value_);
     smParameter_ -> setlumiSectionTimeOut(lumiSectionTimeOut_.value_);
+    smParameter_ -> setExactFileSizeTest(exactFileSizeTest_.value_);
 
     // check output locations and scripts before we continue
     try {

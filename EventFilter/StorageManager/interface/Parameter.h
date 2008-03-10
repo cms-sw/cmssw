@@ -2,7 +2,7 @@
 #define STOR_PARAMETER_H
 
 // Created by Markus Klute on 2007 Jan 29.
-// $Id: Parameter.h,v 1.3 2007/08/18 06:04:56 hcheung Exp $
+// $Id: Parameter.h,v 1.3.2.1 2008/03/07 20:36:33 biery Exp $
 
 // holds configuration parameter for StorageManager
 
@@ -29,7 +29,8 @@ namespace stor
         setupLabel_("mtcc"),
 	maxFileSize_(-1),
         highWaterMark_(0.9),
-        lumiSectionTimeOut_(10.0)
+        lumiSectionTimeOut_(10.0),
+        exactFileSizeTest_(false)
 	{
 	  hostName_ = toolbox::net::getHostName();
 	}
@@ -47,6 +48,7 @@ namespace stor
       std::string setupLabel()         {return setupLabel_;}
       double highWaterMark()           {return highWaterMark_;}
       double lumiSectionTimeOut()      {return lumiSectionTimeOut_;}
+      bool exactFileSizeTest()         {return exactFileSizeTest_;}
 
       int initialSafetyLevel()         {return initialSafetyLevel_;}
 
@@ -62,6 +64,7 @@ namespace stor
       void setsetupLabel        (std::string x) {setupLabel_=x;}
       void sethighWaterMark          (double x) {highWaterMark_=x;}
       void setlumiSectionTimeOut     (double x) {lumiSectionTimeOut_=x;}
+      void setExactFileSizeTest        (bool x) {exactFileSizeTest_=x;}
 
       void initialSafetyLevel   (int i)         {initialSafetyLevel_=i;}
 
@@ -80,6 +83,7 @@ namespace stor
       int    maxFileSize_; 
       double highWaterMark_;
       double lumiSectionTimeOut_;
+      bool exactFileSizeTest_;
     }; 
 }
 

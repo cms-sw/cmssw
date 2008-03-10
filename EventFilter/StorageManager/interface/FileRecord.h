@@ -1,7 +1,7 @@
 #ifndef FILERECORD_H
 #define FILERECORD_H
 
-// $Id: FileRecord.h,v 1.2 2007/02/05 16:39:40 klute Exp $
+// $Id: FileRecord.h,v 1.3.2.1 2008/03/07 20:41:29 biery Exp $
 #include <EventFilter/StorageManager/interface/Parameter.h>
 #include <boost/shared_ptr.hpp>
 #include <string>
@@ -75,6 +75,7 @@ namespace edm {
       boost::shared_ptr<stor::Parameter> smParameter_;     // 
       
       void   checkDirectory(std::string);
+      double calcPctDiff(long long, long long);
    };
 
  
