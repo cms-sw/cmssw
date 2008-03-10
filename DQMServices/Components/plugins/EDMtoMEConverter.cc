@@ -2,8 +2,8 @@
  *  
  *  See header file for description of class
  *
- *  $Date: 2008/02/11 23:22:56 $
- *  $Revision: 1.4 $
+ *  $Date: 2008/02/21 03:26:48 $
+ *  $Revision: 1.5 $
  *  \author M. Strang SUNY-Buffalo
  */
 
@@ -59,16 +59,12 @@ EDMtoMEConverter::EDMtoMEConverter(const edm::ParameterSet & iPSet) :
 
   count.clear();
   countf = 0;
-
-  fileData.clear();
   
 } // end constructor
 
 EDMtoMEConverter::~EDMtoMEConverter() 
 {
   if (outputfile.size() != 0 && dbe) {
-    if (jobRepSvc.isAvailable()) jobRepSvc->
-				   reportAnalysisFile(outputfile,fileData); 
     dbe->save(outputfile);
   }
 } // end destructor
@@ -176,7 +172,16 @@ void EDMtoMEConverter::endRun(const edm::Run& iRun,
 	for (unsigned int j = 0; j < tags.size(); ++j) {
 	  dbe->tag(me1[i]->getFullname(),tags[j]);
 	}
-	
+
+	/*
+	if (i == 0) {
+	  std::cout << "Release is " << metoedmobject[i].release << std::endl;
+	  std::cout << "Run is " << metoedmobject[i].run << std::endl;
+	  std::cout << "DataTier is " << metoedmobject[i].datatier 
+		    << std::endl;
+	}
+	*/
+
       } // end loop thorugh metoedmobject
     } // end TH1F creation
     

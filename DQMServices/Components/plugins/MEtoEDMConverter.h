@@ -6,8 +6,8 @@
  *  Class to take dqm monitor elements and convert into a
  *  ROOT dataformat stored in Run tree of edm file
  *
- *  $Date: 2008/02/13 22:40:49 $
- *  $Revision: 1.3 $
+ *  $Date: 2008/02/21 03:26:48 $
+ *  $Revision: 1.4 $
  *  \author M. Strang SUNY-Buffalo
  */
 
@@ -23,6 +23,7 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/Utilities/interface/GetReleaseVersion.h"
 
 //DQM services
 #include "DQMServices/Core/interface/DQMStore.h"
@@ -68,6 +69,9 @@ private:
     std::vector<std::string> name;
     std::vector<std::vector<uint32_t> > tags;
     std::vector<T> object;
+    std::vector<std::string> release;
+    std::vector<int> run;
+    std::vector<std::string> datatier;
   };
 
   

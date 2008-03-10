@@ -3,8 +3,8 @@
  *  
  *  See header file for description of class
  *
- *  $Date: 2008/02/21 03:26:48 $
- *  $Revision: 1.4 $
+ *  $Date: 2008/02/27 21:09:14 $
+ *  $Revision: 1.5 $
  *  \author M. Strang SUNY-Buffalo
  */
 
@@ -208,11 +208,63 @@ MEtoEDMConverter::beginRun(edm::Run& iRun, const edm::EventSetup& iSetup)
 	<< "Processing run " << nrun << " (" << count.size() << " runs total)";
     }
   }
+
+  // clear contents of monitor elements
+  std::vector<MonitorElement *>::iterator mmi, mme;
+  std::vector<MonitorElement *> items(dbe->getAllContents(""));
+  for (mmi = items.begin (), mme = items.end (); mmi != mme; ++mmi) {
+    MonitorElement *me = *mmi;
+
+    switch (me->kind())
+    {
+    case MonitorElement::DQM_KIND_INT:
+      break;
+
+    case MonitorElement::DQM_KIND_REAL:
+      break;
+
+    case MonitorElement::DQM_KIND_STRING:
+      break;
+
+    case MonitorElement::DQM_KIND_TH1F:
+      me->Reset();
+      break;
+
+    case MonitorElement::DQM_KIND_TH2F:
+      me->Reset();
+      break;
+
+    case MonitorElement::DQM_KIND_TH3F:
+      me->Reset();
+      break;
+
+    case MonitorElement::DQM_KIND_TPROFILE:
+      me->Reset();
+      break;
+
+    case MonitorElement::DQM_KIND_TPROFILE2D:
+      me->Reset();
+      break;
+
+    default:
+      edm::LogError(MsgLoggerCat)
+	<< "ERROR: The DQM object '" << me->getFullname()
+	<< "' is neither a ROOT object nor a recognised "
+	<< "simple object.\n";
+      continue;
+    }
+
+  } // end loop through monitor elements
 }
 
 void
 MEtoEDMConverter::endRun(edm::Run& iRun, const edm::EventSetup& iSetup)
 {
+
+  int run = iRun.run();
+  std::string release = edm::getReleaseVersion();
+  std::string datatier = "dummy";
+
   mestorage<TH1F> TH1FME;
   mestorage<TH2F> TH2FME;
   mestorage<TH3F> TH3FME;
@@ -249,6 +301,9 @@ MEtoEDMConverter::endRun(edm::Run& iRun, const edm::EventSetup& iSetup)
       IntME.object.push_back(me->getIntValue());
       IntME.name.push_back(me->getFullname());
       IntME.tags.push_back(me->getTags());
+      IntME.release.push_back(release);
+      IntME.run.push_back(run);
+      IntME.datatier.push_back(datatier);
       break;
 
     case MonitorElement::DQM_KIND_REAL:
@@ -259,6 +314,9 @@ MEtoEDMConverter::endRun(edm::Run& iRun, const edm::EventSetup& iSetup)
       FloatME.object.push_back(me->getFloatValue());
       FloatME.name.push_back(me->getFullname());
       FloatME.tags.push_back(me->getTags());
+      FloatME.release.push_back(release);
+      FloatME.run.push_back(run);
+      FloatME.datatier.push_back(datatier);
       break;
 
     case MonitorElement::DQM_KIND_STRING:
@@ -269,6 +327,9 @@ MEtoEDMConverter::endRun(edm::Run& iRun, const edm::EventSetup& iSetup)
       StringME.object.push_back(me->getStringValue());
       StringME.name.push_back(me->getFullname());
       StringME.tags.push_back(me->getTags());
+      StringME.release.push_back(release);
+      StringME.run.push_back(run);
+      StringME.datatier.push_back(datatier);
       break;
 
     case MonitorElement::DQM_KIND_TH1F:
@@ -277,7 +338,9 @@ MEtoEDMConverter::endRun(edm::Run& iRun, const edm::EventSetup& iSetup)
       TH1FME.object.push_back(*me->getTH1F());
       TH1FME.name.push_back(me->getFullname());
       TH1FME.tags.push_back(me->getTags());
-      me->Reset();
+      TH1FME.release.push_back(release);
+      TH1FME.run.push_back(run);
+      TH1FME.datatier.push_back(datatier);
       break;
 
     case MonitorElement::DQM_KIND_TH2F:
@@ -286,7 +349,9 @@ MEtoEDMConverter::endRun(edm::Run& iRun, const edm::EventSetup& iSetup)
       TH2FME.object.push_back(*me->getTH2F());
       TH2FME.name.push_back(me->getFullname());
       TH2FME.tags.push_back(me->getTags());
-      me->Reset();
+      TH2FME.release.push_back(release);
+      TH2FME.run.push_back(run);
+      TH2FME.datatier.push_back(datatier);
       break;
 
     case MonitorElement::DQM_KIND_TH3F:
@@ -295,7 +360,9 @@ MEtoEDMConverter::endRun(edm::Run& iRun, const edm::EventSetup& iSetup)
       TH3FME.object.push_back(*me->getTH3F());
       TH3FME.name.push_back(me->getFullname());
       TH3FME.tags.push_back(me->getTags());
-      me->Reset();
+      TH3FME.release.push_back(release);
+      TH3FME.run.push_back(run);
+      TH3FME.datatier.push_back(datatier);
       break;
 
     case MonitorElement::DQM_KIND_TPROFILE:
@@ -304,7 +371,9 @@ MEtoEDMConverter::endRun(edm::Run& iRun, const edm::EventSetup& iSetup)
       TProfileME.object.push_back(*me->getTProfile());
       TProfileME.name.push_back(me->getFullname());
       TProfileME.tags.push_back(me->getTags());
-      me->Reset();
+      TProfileME.release.push_back(release);
+      TProfileME.run.push_back(run);
+      TProfileME.datatier.push_back(datatier);
       break;
 
     case MonitorElement::DQM_KIND_TPROFILE2D:
@@ -313,7 +382,9 @@ MEtoEDMConverter::endRun(edm::Run& iRun, const edm::EventSetup& iSetup)
       TProfile2DME.object.push_back(*me->getTProfile2D());
       TProfile2DME.name.push_back(me->getFullname());
       TProfile2DME.tags.push_back(me->getTags());
-      me->Reset();
+      TProfile2DME.release.push_back(release);
+      TProfile2DME.run.push_back(run);
+      TProfile2DME.datatier.push_back(datatier);
       break;
 
     default:
@@ -328,44 +399,53 @@ MEtoEDMConverter::endRun(edm::Run& iRun, const edm::EventSetup& iSetup)
   // produce objects to put in events
   if (! TH1FME.object.empty()) {
     std::auto_ptr<MEtoEDM<TH1F> > pOut1(new MEtoEDM<TH1F>);
-    pOut1->putMEtoEdmObject(TH1FME.name,TH1FME.tags,TH1FME.object);
+    pOut1->putMEtoEdmObject(TH1FME.name,TH1FME.tags,TH1FME.object,
+			    TH1FME.release,TH1FME.run,TH1FME.datatier);
     iRun.put(pOut1,fName);
   }
   if (! TH2FME.object.empty()) {
     std::auto_ptr<MEtoEDM<TH2F> > pOut2(new MEtoEDM<TH2F>);
-    pOut2->putMEtoEdmObject(TH2FME.name,TH2FME.tags,TH2FME.object);
+    pOut2->putMEtoEdmObject(TH2FME.name,TH2FME.tags,TH2FME.object,
+			    TH2FME.release,TH2FME.run,TH2FME.datatier);
     iRun.put(pOut2,fName);
   }
   if (! TH3FME.object.empty()) {
     std::auto_ptr<MEtoEDM<TH3F> > pOut3(new MEtoEDM<TH3F>);
-    pOut3->putMEtoEdmObject(TH3FME.name,TH3FME.tags,TH3FME.object);
+    pOut3->putMEtoEdmObject(TH3FME.name,TH3FME.tags,TH3FME.object,
+			    TH3FME.release,TH3FME.run,TH3FME.datatier);
     iRun.put(pOut3,fName);
   }
   if (! TProfileME.object.empty()) {
     std::auto_ptr<MEtoEDM<TProfile> > pOut4(new MEtoEDM<TProfile>);
-    pOut4->putMEtoEdmObject(TProfileME.name,TProfileME.tags,TProfileME.object);
+    pOut4->putMEtoEdmObject(TProfileME.name,TProfileME.tags,TProfileME.object,
+			    TProfileME.release,TProfileME.run,
+			    TProfileME.datatier);
     iRun.put(pOut4,fName);
   }
   if (! TProfile2DME.object.empty()) {
     std::auto_ptr<MEtoEDM<TProfile2D> > pOut5(new MEtoEDM<TProfile2D>);
     pOut5->putMEtoEdmObject(TProfile2DME.name,TProfile2DME.tags, 
-			    TProfile2DME.object);
+			    TProfile2DME.object,TProfile2DME.release,
+			    TProfile2DME.run,TProfile2DME.datatier);
     iRun.put(pOut5,fName);
   }
   if (! FloatME.object.empty()) {
     std::auto_ptr<MEtoEDM<double> > pOut6(new MEtoEDM<double>);
-    pOut6->putMEtoEdmObject(FloatME.name,FloatME.tags,FloatME.object);
+    pOut6->putMEtoEdmObject(FloatME.name,FloatME.tags,FloatME.object,
+			    FloatME.release,FloatME.run,FloatME.datatier);
     iRun.put(pOut6,fName);
   }
   if (! IntME.object.empty()) {
     std::auto_ptr<MEtoEDM<int> > pOut7(new MEtoEDM<int>);
-    pOut7->putMEtoEdmObject(IntME.name,IntME.tags,IntME.object);
+    pOut7->putMEtoEdmObject(IntME.name,IntME.tags,IntME.object,
+			    IntME.release,IntME.run,IntME.datatier);
     iRun.put(pOut7,fName);
   }
   if (! StringME.object.empty()) {
     std::auto_ptr<MEtoEDM<TString> > 
       pOut8(new MEtoEDM<TString>);
-    pOut8->putMEtoEdmObject(StringME.name,StringME.tags,StringME.object);
+    pOut8->putMEtoEdmObject(StringME.name,StringME.tags,StringME.object,
+			    StringME.release,StringME.run,StringME.datatier);
     iRun.put(pOut8,fName);
   }
 }
