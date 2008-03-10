@@ -153,7 +153,7 @@ void HcalRecHitsMaker::init(const edm::EventSetup &es,bool doDigis,bool doMiscal
 	    {
 	      HcalDetId myDetId(it->first);
 	      float icalconst=it->second;
-	      miscalib_[myDetId.hashed_index()]=refactor_mean_+(icalconst-1.)*refactor_;
+	      miscalib_[myDetId.hashed_index()]=refactor_mean_+(icalconst-refactor_mean_)*refactor_;
 	    }
 	}
     }
