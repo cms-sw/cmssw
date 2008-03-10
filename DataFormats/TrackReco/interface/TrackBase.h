@@ -46,7 +46,7 @@
  * 
  * \author Thomas Speer, Luca Lista, Pascal Vanlaer, Juan Alcaraz
  *
- * \version $Id: TrackBase.h,v 1.61 2008/02/27 23:53:31 vlimant Exp $
+ * \version $Id: TrackBase.h,v 1.62 2008/03/03 23:27:47 vlimant Exp $
  *
  */
 
@@ -80,7 +80,7 @@ namespace reco {
     /// track algorithm
     enum TrackAlgorithm { undefAlgorithm=0, ctf=1, rs=2, cosmics=3, beamhalo=4, iter1=5, iter2=6, iter3=7 };
     /// track quality
-    enum TrackQuality { undefQuality=-1, loose=0, tight=1 };
+    enum TrackQuality { undefQuality=-1, loose=0, tight=1, highPurity=2 };
     
     /// default constructor
     TrackBase();
