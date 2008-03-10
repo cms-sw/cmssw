@@ -7,7 +7,7 @@
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDProducer.h"
-
+#include "DataFormats/TrackReco/interface/Track.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -39,6 +39,7 @@ class TrajectorySmoother;
 class TrackerGeometry;
 class TrajectoryStateOnSurface;
 
+
 class GoodSeedProducer : public edm::EDProducer {
   typedef TrajectoryStateOnSurface TSOS;
    public:
@@ -52,7 +53,7 @@ class GoodSeedProducer : public edm::EDProducer {
  
       ///Find the bin in pt and eta
       int getBin(float,float);
-     int getBin(float);
+      int getBin(float);
       void PSforTMVA(math::XYZTLorentzVector mom,
 		     math::XYZTLorentzVector pos);
       // ----------member data ---------------------------
@@ -106,6 +107,7 @@ class GoodSeedProducer : public edm::EDProducer {
       edm::InputTag pfCLusTagPSLabel_;
       edm::InputTag pfCLusTagECLabel_;
       std::vector<edm::InputTag> tracksContainers_;
+      
 
       std::string fitterName_;
       std::string smootherName_;
@@ -114,6 +116,10 @@ class GoodSeedProducer : public edm::EDProducer {
       static PFResolutionMap* resMapEtaECAL_;
       static PFResolutionMap* resMapPhiECAL_;
 
+      ///TRACK QUALITY
+      bool useQuality_;
+      reco::TrackBase::TrackQuality trackQuality_;
+	
       ///READER FOR TMVA
       TMVA::Reader *reader;
 

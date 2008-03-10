@@ -16,8 +16,6 @@
 #include "DataFormats/ParticleFlowReco/interface/PFRecTrack.h"
 #include "DataFormats/ParticleFlowReco/interface/PFRecTrackFwd.h"
 #include "DataFormats/TrajectorySeed/interface/PropagationDirection.h"
-#include "DataFormats/TrackReco/interface/Track.h"
-
 #include "TrackingTools/PatternTools/interface/TrajectoryFitter.h"
 #include "TrackingTools/PatternTools/interface/TrajectorySmoother.h"
 #include "TrackingTools/Records/interface/TransientRecHitRecord.h"  
@@ -30,6 +28,7 @@
 
 using namespace edm;
 using namespace std;
+using namespace reco;
 PFResolutionMap* GoodSeedProducer::resMapEtaECAL_ = 0;                                        
 PFResolutionMap* GoodSeedProducer::resMapPhiECAL_ = 0;
 
@@ -84,10 +83,16 @@ GoodSeedProducer::GoodSeedProducer(const ParameterSet& iConfig):
   
   if(produceCkfPFT_){
     LogDebug("GoodSeedProducer")<<"PFTracks from CKF tracks will be produced ";
-    produces<reco::PFRecTrackCollection>();
+    produces<PFRecTrackCollection>();
   }
-  
-  
+
+
+  useQuality_   = iConfig.getParameter<bool>("UseQuality");
+  string tkQuality = iConfig.getParameter<string>("TrackQuality");
+
+  if (tkQuality=="highPurity") trackQuality_=TrackBase::highPurity;
+  if (tkQuality=="tight") trackQuality_=TrackBase::tight;
+
   useTmva_= iConfig.getUntrackedParameter<bool>("UseTMVA",false);
 }
 
@@ -116,8 +121,8 @@ GoodSeedProducer::produce(Event& iEvent, const EventSetup& iSetup)
   //Create empty output collections
   auto_ptr<TrajectorySeedCollection> output_preid(new TrajectorySeedCollection);
   auto_ptr<TrajectorySeedCollection> output_nopre(new TrajectorySeedCollection);
-  auto_ptr< reco::PFRecTrackCollection > 
-    pOutputPFRecTrackCollection(new reco::PFRecTrackCollection);
+  auto_ptr< PFRecTrackCollection > 
+    pOutputPFRecTrackCollection(new PFRecTrackCollection);
   
   
   //Tracking Tools
@@ -126,11 +131,11 @@ GoodSeedProducer::produce(Event& iEvent, const EventSetup& iSetup)
 
   //Handle input collections
   //ECAL clusters	      
-  Handle<reco::PFClusterCollection> theECPfClustCollection;
+  Handle<PFClusterCollection> theECPfClustCollection;
   iEvent.getByLabel(pfCLusTagECLabel_,theECPfClustCollection);
   
-  vector<reco::PFCluster> basClus;
-  vector<reco::PFCluster>::const_iterator iklus;
+  vector<PFCluster> basClus;
+  vector<PFCluster>::const_iterator iklus;
   for (iklus=theECPfClustCollection.product()->begin();
        iklus!=theECPfClustCollection.product()->end();
        iklus++){
@@ -138,7 +143,7 @@ GoodSeedProducer::produce(Event& iEvent, const EventSetup& iSetup)
   }
   
   //PS clusters
-  Handle<reco::PFClusterCollection> thePSPfClustCollection;
+  Handle<PFClusterCollection> thePSPfClustCollection;
   iEvent.getByLabel(pfCLusTagPSLabel_,thePSPfClustCollection);
   
   ps1Clus.clear();
@@ -157,9 +162,9 @@ GoodSeedProducer::produce(Event& iEvent, const EventSetup& iSetup)
   for (uint istr=0; istr<tracksContainers_.size();istr++){
     
     //Track collection
-    Handle<reco::TrackCollection> tkRefCollection;
+    Handle<TrackCollection> tkRefCollection;
     iEvent.getByLabel(tracksContainers_[istr], tkRefCollection);
-    reco::TrackCollection  Tk=*(tkRefCollection.product());
+    TrackCollection  Tk=*(tkRefCollection.product());
     
     //Trajectory collection
     Handle<vector<Trajectory> > tjCollection;
@@ -171,12 +176,14 @@ GoodSeedProducer::produce(Event& iEvent, const EventSetup& iSetup)
                                 <<tracksContainers_[istr] <<" to be analyzed "
                                 <<Tj.size();
     
+
     //loop over the track collection
     for(uint i=0;i<Tk.size();i++){		
-
+      if (useQuality_ &&
+	  (!(Tk[i].quality(trackQuality_)))) continue;
       int ipteta=getBin(Tk[i].eta(),Tk[i].pt());
       int ibin=ipteta*8;
-      reco::TrackRef trackRef(tkRefCollection, i);
+      TrackRef trackRef(tkRefCollection, i);
       TrajectorySeed Seed=Tj[i].seed();
       
       float PTOB=Tj[i].lastMeasurement().updatedState().globalMomentum().mag();
@@ -214,10 +221,10 @@ GoodSeedProducer::produce(Event& iEvent, const EventSetup& iSetup)
       if(theOutParticle.getSuccess()!=0){
 	bool isBelowPS=(fabs(theOutParticle.vertex().eta())>1.65) ? true :false;	
 	
-	for(vector<reco::PFCluster>::const_iterator aClus = basClus.begin();
+	for(vector<PFCluster>::const_iterator aClus = basClus.begin();
 	    aClus != basClus.end(); aClus++) {
 	  double ecalShowerDepth
-	    = reco::PFCluster::getDepthCorrection(aClus->energy(),
+	    = PFCluster::getDepthCorrection(aClus->energy(),
 						  isBelowPS,
 						  false);
 	  
@@ -400,8 +407,8 @@ GoodSeedProducer::produce(Event& iEvent, const EventSetup& iSetup)
 	else   output_preid->push_back(Seed);
 	if(produceCkfPFT_){
 	  
-	  reco::PFRecTrack pftrack( trackRef->charge(), 
-				    reco::PFRecTrack::KF_ELCAND, 
+	  PFRecTrack pftrack( trackRef->charge(), 
+				    PFRecTrack::KF_ELCAND, 
 				    i, trackRef );
 	  bool valid = pfTransformer_->addPoints( pftrack, *trackRef, Tj[i] );
 	  if(valid)
@@ -413,8 +420,8 @@ GoodSeedProducer::produce(Event& iEvent, const EventSetup& iSetup)
 	}
 	if(produceCkfPFT_){
 
-	  reco::PFRecTrack pftrack( trackRef->charge(), 
-				    reco::PFRecTrack::KF, 
+	  PFRecTrack pftrack( trackRef->charge(), 
+				    PFRecTrack::KF, 
 				    i, trackRef );
 
 	  bool valid = pfTransformer_->addPoints( pftrack, *trackRef, Tj[i] );
@@ -519,7 +526,7 @@ void GoodSeedProducer::PSforTMVA(XYZTLorentzVector mom,XYZTLorentzVector pos ){
 	 PFGeometry::outerRadius(PFGeometry::PS1))) {
       float enPScl1=0;
       float chi1=100;
-      vector<reco::PFCluster>::const_iterator ips;
+      vector<PFCluster>::const_iterator ips;
       for (ips=ps1Clus.begin(); ips!=ps1Clus.end();ips++){
 	float ax=((*ips).positionXYZ().x()-v1.x())/0.114;
 	float ay=((*ips).positionXYZ().y()-v1.y())/2.43;
