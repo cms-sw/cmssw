@@ -280,6 +280,7 @@ double ECalSD::getBirkL3(G4Step* aStep) {
     double rkb     = birk1/density;
     weight         = 1. - birkSlope*log(rkb*dedx);
     if (weight < birkCut) weight = birkCut;
+    else if (weight > 1.) weight = 1.;
     LogDebug("EcalSim") << "ECalSD::getBirkL3 in " << mat->GetName()
                         << " Charge " << charge << " dE/dx " << dedx
                         << " Birk Const " << rkb << " Weight = " << weight 
