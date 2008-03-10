@@ -1669,10 +1669,10 @@ void PFRootEventManager::particleFlow() {
   pfBlocks_ = pfBlockAlgo_.transferBlocks();
 
 
-  edm::OrphanHandle< reco::PFBlockCollection > blockh( pfBlocks_.get(), 
-                                                       edm::ProductID(5) );  
+//   edm::OrphanHandle< reco::PFBlockCollection > blockh( pfBlocks_.get(), 
+//                                                        edm::ProductID(5) );  
   
-  pfAlgo_.reconstructParticles( blockh );
+  pfAlgo_.reconstructParticles( *pfBlocks_.get() );
   //   pfAlgoOther_.reconstructParticles( blockh );
   if( debug_) cout<< pfAlgo_<<endl;
   pfCandidates_ = pfAlgo_.transferCandidates();
@@ -2226,7 +2226,6 @@ void  PFRootEventManager::print(ostream& out,int maxNLines ) const {
   }
   if(printPFCandidates_) {
     out<<"Particle Flow Candidates =================================="<<endl;
-    out<<pfAlgo_<<endl;
     for(unsigned i=0; i<pfCandidates_->size(); i++) {
       out<<i<<" " <<(*pfCandidates_)[i]<<endl;
     }    
