@@ -5,8 +5,8 @@
  *
  * Algo for reconstructing 4d segment in DT using a Meantimer approach
  *  
- * $Date: 2006/05/04 09:17:36 $
- * $Revision: 1.6 $
+ * $Date: 2007/07/09 13:58:28 $
+ * $Revision: 1.1 $
  * \author Stefano Lacaprara - INFN Legnaro <stefano.lacaprara@pd.infn.it>
  * \author Riccardo Bellan - INFN TO <riccardo.bellan@cern.ch>
  *
@@ -46,7 +46,7 @@ class DTMeantimerPatternReco4D : public DTRecSegment4DBaseAlgo {
   DTMeantimerPatternReco4D(const edm::ParameterSet& pset) ;
   
   /// Destructor
-  virtual ~DTMeantimerPatternReco4D(){};
+  virtual ~DTMeantimerPatternReco4D();
     
   /// Operations  
   virtual edm::OwnVector<DTRecSegment4D> reconstruct();
