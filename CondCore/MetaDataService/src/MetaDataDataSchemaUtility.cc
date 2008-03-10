@@ -1,7 +1,6 @@
 #include "CondCore/MetaDataService/interface/MetaDataSchemaUtility.h"
 #include "CondCore/MetaDataService/interface/MetaDataNames.h"
 #include "CondCore/MetaDataService/interface/MetaDataExceptions.h"
-#include "CondCore/DBCommon/interface/Exception.h"
 #include "CondCore/DBCommon/interface/CoralTransaction.h"
 #include "RelationalAccess/SchemaException.h"
 #include "RelationalAccess/ISchema.h"
@@ -14,24 +13,37 @@
 #include "CoralBase/AttributeList.h"
 #include "CoralBase/AttributeSpecification.h"
 #include "CoralBase/Attribute.h"
-cond::MetaDataSchemaUtility::MetaDataSchemaUtility(const CoralTransaction& coraldb){
+cond::MetaDataSchemaUtility::MetaDataSchemaUtility(cond::CoralTransaction& coraldb):m_coraldb(coraldb){
 }
+cond::MetaDataSchemaUtility::~MetaDataSchemaUtility(){}
+
 void
 cond::MetaDataSchemaUtility::create(){
- coral::ISchema& schema=m_coraldb.nominalSchema();
-  coral::TableDescription description;
-  description.setName( tabname );
-  description.insertColumn(  cond::MetaDataNames::tagColumn(), coral::AttributeSpecification::typeNameForId( typeid(std::string)) );
-  description.insertColumn( cond::MetaDataNames::tokenColumn(), coral::AttributeSpecification::typeNameForId( typeid(std::string)) );
-  description.insertColumn( cond::MetaDataNames::timetypeColumn(), coral::AttributeSpecification::typeNameForId( typeid(int)) );
-  std::vector<std::string> cols;
-  cols.push_back( cond::MetaDataNames::tagColumn() );
-  description.setPrimaryKey(cols);
-  description.setNotNullConstraint( cond::MetaDataNames::tokenColumn() );
-  coral::ITable& table=schema.createTable(description);
-  table.privilegeManager().grantToPublic( coral::ITablePrivilegeManager::Select);
+  try{
+    coral::ISchema& schema=m_coraldb.nominalSchema();
+    coral::TableDescription description;
+    description.setName( cond::MetaDataNames::metadataTable() );
+    description.insertColumn(  cond::MetaDataNames::tagColumn(), coral::AttributeSpecification::typeNameForId( typeid(std::string)) );
+    description.insertColumn( cond::MetaDataNames::tokenColumn(), coral::AttributeSpecification::typeNameForId( typeid(std::string)) );
+    description.insertColumn( cond::MetaDataNames::timetypeColumn(), coral::AttributeSpecification::typeNameForId( typeid(int)) );
+    std::vector<std::string> cols;
+    cols.push_back( cond::MetaDataNames::tagColumn() );
+    description.setPrimaryKey(cols);
+    description.setNotNullConstraint( cond::MetaDataNames::tokenColumn() );
+    coral::ITable& table=schema.createTable(description);
+    table.privilegeManager().grantToPublic( coral::ITablePrivilegeManager::Select);
+  }catch( const coral::TableAlreadyExistingException& er ){
+    //must catch and ignore this exception!!
+    //std::cout<<"table alreay existing, not creating a new one"<<std::endl;
+  }
 }
 void
 cond::MetaDataSchemaUtility::drop(){
-  
+  coral::ISchema& schema=m_coraldb.nominalSchema();
+  try{
+    schema.dropTable(cond::MetaDataNames::metadataTable());
+  }catch(coral::TableNotExistingException& er){
+    //must catch and ignore this exception!!
+    //ok do nothing
+  }
 }

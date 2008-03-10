@@ -44,7 +44,7 @@ namespace cond{
     void deleteEntryByTag( const std::string& tag );
   private:
     // create metadata table
-    void createTable(const std::string& tabname);
+    //void createTable(const std::string& tabname);
     cond::CoralTransaction& m_coraldb;
   };
 }

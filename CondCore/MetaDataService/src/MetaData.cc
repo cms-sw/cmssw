@@ -1,4 +1,5 @@
 #include "CondCore/MetaDataService/interface/MetaData.h"
+#include "CondCore/MetaDataService/interface/MetaDataSchemaUtility.h"
 #include "CondCore/MetaDataService/interface/MetaDataNames.h"
 #include "CondCore/MetaDataService/interface/MetaDataExceptions.h"
 #include "CondCore/DBCommon/interface/Exception.h"
@@ -21,15 +22,9 @@ cond::MetaData::~MetaData(){
 }
 bool 
 cond::MetaData::addMapping(const std::string& name, const std::string& iovtoken, cond::TimeType timetype ){
+  cond::MetaDataSchemaUtility ut(m_coraldb);
   try{
-    try{
-      this->createTable( cond::MetaDataNames::metadataTable() );
-    }catch( const coral::TableAlreadyExistingException& er ){
-      //must ignore this exception!!
-      //std::cout<<"table alreay existing, not creating a new one"<<std::endl;
-    }catch( const std::exception& er ){
-      throw cond::Exception(std::string("MetaData::addMapping error: ")+er.what());
-    }
+    ut.create();
     coral::ITable& mytable=m_coraldb.nominalSchema().tableHandle(cond::MetaDataNames::metadataTable());
     coral::AttributeList rowBuffer;
     coral::ITableDataEditor& dataEditor = mytable.dataEditor();
@@ -39,7 +34,6 @@ cond::MetaData::addMapping(const std::string& name, const std::string& iovtoken,
     rowBuffer[cond::MetaDataNames::timetypeColumn()].data<int>()=timetype;
     dataEditor.insertRow( rowBuffer );
   }catch( const coral::DuplicateEntryInUniqueKeyException& er ){
-    ///do not remove ! must ignore this exception!!!
     throw cond::MetaDataDuplicateEntryException("addMapping",name);
   }catch(std::exception& er){
     throw cond::Exception(std::string("MetaData::addMapping error: ")+er.what());
@@ -126,7 +120,7 @@ cond::MetaData::getEntryByTag( const std::string& tagname, cond::MetaDataEntry& 
   }
   return;
 }
-
+/*
 void 
 cond::MetaData::createTable(const std::string& tabname){
   coral::ISchema& schema=m_coraldb.nominalSchema();
@@ -142,6 +136,7 @@ cond::MetaData::createTable(const std::string& tabname){
   coral::ITable& table=schema.createTable(description);
   table.privilegeManager().grantToPublic( coral::ITablePrivilegeManager::Select);
 }
+*/
 bool cond::MetaData::hasTag( const std::string& name ) const{
   bool result=false;
   try{
