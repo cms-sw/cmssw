@@ -38,6 +38,7 @@ CSCValidation::CSCValidation(const ParameterSet& pset){
   theFile->mkdir("recHits");
   theFile->mkdir("Segments");
   theFile->mkdir("Calib");
+  theFile->mkdir("PedestalNoise");
   theFile->cd();
 
 
