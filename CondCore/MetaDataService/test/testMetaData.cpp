@@ -3,6 +3,7 @@
 #include "CondCore/DBCommon/interface/DBSession.h"
 #include "CondCore/DBCommon/interface/Exception.h"
 #include "CondCore/MetaDataService/interface/MetaData.h"
+#include "CondCore/MetaDataService/interface/MetaDataSchemaUtility.h"
 #include "CondCore/DBCommon/interface/Time.h"
 #include <string>
 #include <vector>
@@ -67,12 +68,16 @@ int main(){
     std::vector<std::string> alltags;
     metadata_svc.listAllTags(alltags);
     coralTransaction.commit();
+    coralTransaction.start(false);
+    cond::MetaDataSchemaUtility ut(coralTransaction);
+    ut.drop();
+    ut.drop();
+    coralTransaction.commit();
     myconnection.disconnect();
     std::copy (alltags.begin(),
 	       alltags.end(),
 	       std::ostream_iterator<std::string>(std::cout,"\n")
 	       );
-    
     delete session;
   }catch(cond::Exception& er){
     std::cout<<er.what()<<std::endl;
