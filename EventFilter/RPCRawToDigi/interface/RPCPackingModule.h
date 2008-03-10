@@ -16,9 +16,9 @@ namespace edm {class ParameterSet;}
 namespace edm {class EventSetup; }
 namespace edm {class Event; }
 
-static RPCReadOutMapping* cabling;
 class FEDRawData;
 class RPCRecordFormatter;
+static RPCReadOutMapping * cabling; 
 
 class RPCPackingModule : public edm::EDProducer {
 public:
