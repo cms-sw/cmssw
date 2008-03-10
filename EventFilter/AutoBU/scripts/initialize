@@ -350,10 +350,11 @@ if ($doEP) {
     for ($i=0;$i<$doEP;$i++) {
 	$port = $EPport + $i;
 	$appabrev = "EP".$i;
-	print CTL makeCtlCommand("Stop",$EPappname,$appabrev,$hostname,$port,5);
+	print CTL makeCtlCommand("Stop",$EPappname,$appabrev,$hostname,$port,0);
     }
 }
 if ($doSM) {
+    print CTL "`sleep 5`;\n\n";
     print CTL makeCtlCommand("Stop",$SMappname,"SM",$hostname,$SMport,0);
 }
 close (CTL);
@@ -371,10 +372,11 @@ if ($doEP) {
     for ($i=0;$i<$doEP;$i++) {
 	$port = $EPport + $i;
 	$appabrev = "EP".$i;
-	print CTL makeCtlCommand("Halt",$EPappname,$appabrev,$hostname,$port,1);
+	print CTL makeCtlCommand("Halt",$EPappname,$appabrev,$hostname,$port,0);
     }
 }
 if ($doSM) {
+    print CTL "`sleep 1`;\n\n";
     print CTL makeCtlCommand("Halt",$SMappname,"SM",$hostname,$SMport,0);
 }
 close (CTL);
