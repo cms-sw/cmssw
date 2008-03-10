@@ -5,67 +5,62 @@
 using pat::JetSelector;
 
 //______________________________________________________________________________
-template<typename Jet>
-JetSelector<Jet>::JetSelector( const edm::ParameterSet& config ) :
-  selectionType_( config.getParameter<std::string>("type"))
+template<typename JetType>
+JetSelector<JetType>::JetSelector( const pat::JetSelection& config ) :
+  config_( config )
 {
 
-  if (selectionType_=="JetMETLikelihood") 
-    value_ = config.getParameter<double>("value");
-  else 
-    value_ = -1;  
-
-
-  if (selectionType_=="custom") {
+  if (config_.selectionType=="custom") {
     CaloJetSelector_ = std::auto_ptr<CaloJetSelector>( 
-                              new CaloJetSelector(config) );
+                                new CaloJetSelector(config) );
     //PFJetSelector_ = std::auto_ptr<PFJetSelector>( 
     //                          new PFJetSelector(config) );
   }
+
 }
 
 
 //______________________________________________________________________________
 template<typename JetType>
-const unsigned int 
+const pat::ParticleStatus 
 JetSelector<JetType>::filter( const unsigned int&        index, 
                               const edm::View<JetType>& Jets,
                               const JetValueMap * JetMap
                           ) const
 {
 
-  bool result = BAD;
+  ParticleStatus result = BAD;
 
-  if (selectionType_=="none")  {
+  if (config_.selectionType=="none")  {
 
     result = GOOD;
   }
-  else if (selectionType_=="JetMETLikelihood" && JetMap!=0)  {
+  else if (config_.selectionType=="JetMETLikelihood" && JetMap!=0)  {
     ///Using the JetRejectorTool, for details see
     ///https://twiki.cern.ch/twiki/bin/view/CMS/JetRejectorTool 
     const double likelihood = (*JetMap)[ Jets.refAt(index) ];
-    result = ( likelihood > value_ );
+    if ( likelihood > config_.value ) result = GOOD;
+    else result = BAD;
   } 
-  else if ( selectionType_ == "custom" ) {
+  else if ( config_.selectionType == "custom" ) {
 
     const JetType& Jet = Jets[index];
     const reco::CaloJet * caloJet = 0;
     const reco::PFJet   * pfJet   = 0;
     caloJet = dynamic_cast<const reco::CaloJet*>(&Jet);
-    pfJet   = dynamic_cast<const reco::PFJet*>(  &Jet);
-
     ///specific selection for CaloJets
     if (caloJet) result = CaloJetSelector_->filter( *caloJet );
-
-
-    ///specific selection for PFJets
-    //not implemented yet!
-    //if (pfJet) result = PFJetSelector_->filter(  *pfJet);
+    else {
+      ///specific selection for PFJets
+      pfJet   = dynamic_cast<const reco::PFJet*>(  &Jet);
+      //FIXME: not implemented yet!
+      //if (pfJet) result = PFJetSelector_->filter(  *pfJet);
+    }
 
   }  else
     // Throw! unknown configuration
     throw edm::Exception(edm::errors::Configuration) 
-          << "Unknown Jet ID selection " << selectionType_;
+      << "Unknown Jet ID selection " << config_.selectionType;
 
 
   return result;

@@ -14,7 +14,7 @@
     (An adapter exists for use in CMSSW: reco::modules::ParameterAdapter< pat::ElectronSelector >.)
 
     \author F.J. Ronga (ETH Zurich)
-    \version $Id: ElectronSelector.h,v 1.6 2008/02/13 10:30:35 fronga Exp $
+    \version $Id: ElectronSelector.h,v 1.7 2008/03/05 14:50:33 fronga Exp $
 **/
 
 #include <string>
@@ -29,11 +29,12 @@ namespace pat {
 
   /// Structure defining the electron selection
   struct ElectronSelection {
-    std::string       selectionType; ///< Choose selection type (see PATElectronCleaner)
+    std::string selectionType; ///< Choose selection type (see PATElectronCleaner)
     
     double value; ///< Cut value for likelihood or neural net
     
-    // Cuts for "custom" selection type
+    /// @name Cuts for "custom" selection type:
+    //@{
     double HoverEBarmax;        double HoverEEndmax;
     double SigmaEtaEtaBarmax;   double SigmaEtaEtaEndmax;
     double SigmaPhiPhiBarmax;   double SigmaPhiPhiEndmax;
@@ -44,8 +45,8 @@ namespace pat {
     double EoverPOutBarmin;     double EoverPOutEndmin;
     double InvEMinusInvPBarmax; double InvEMinusInvPEndmax;
     double E9overE25Barmin;     double E9overE25Endmin;
-    bool   doBremEoverPcomp;    ///< custom: apply cut on comparison between brem and E/P
-    
+    bool   doBremEoverPcomp;    ///< switch to apply cut on comparison between brem and E/P
+    //@}
   };
 
   class ElectronSelector {

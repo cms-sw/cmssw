@@ -14,7 +14,7 @@
     (An adapter exists for use in CMSSW: reco::modules::ParameterAdapter< pat::MuonSelector >.)
 
     \author F.J. Ronga (ETH Zurich)
-    \version $Id: MuonSelector.h,v 1.2 2008/02/13 10:30:36 fronga Exp $
+    \version $Id: MuonSelector.h,v 1.3 2008/03/05 14:50:33 fronga Exp $
 */
 
 #include <string>
@@ -29,10 +29,12 @@ namespace pat {
   struct MuonSelection {
     std::string selectionType; ///< Choose selection type (see PATMuonCleaner)
     
-    // Cuts for "custom" selection type
+    /// @name Cuts for "custom" selection type:
+    //@{
     double dPbyPmax;
     double chi2max;
     int    nHitsMin;
+    //@}
   };
 
 

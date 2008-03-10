@@ -2,69 +2,40 @@
 #define PhysicsTools_PatUtils_CaloJetSelector_h
 
 /**
-    \class pat::CaloJetSelector CaloJetSelector.h "PhysicsTools/PatUtils/CaloJetSelector.h"
+   \class pat::CaloJetSelector CaloJetSelector.h "PhysicsTools/PatUtils/CaloJetSelector.h"
     \brief Selects good Jets
    
-    The Jet selector returns a flag (passed=0) based on one of the possible
-    selections: either eId-based (cut, likelihood, neural net) or custom (user-defined
-    set of cuts). This is driven by the configuration parameters.
-      PSet configuration = {
-        string type = "none | cut | likelihood | neuralnet | custom"
-        [ double value = xxx  // likelihood/neuralnet cut value ]
-        [ // List of custom cuts
-          double ... = xxx
-          double ... = xxx
-          double ... = xxx 
-        ]
-      }
-   
-    This class is based upon the ElectronSelector by F. Ronga
-   
+    The calo jet selector returns a flag (see pat::ParticleStatus) based on one of the possible
+    selections. It is called by the generic JetSelector in case of "custom" selection.
+
     \author C. Autermann (Uni Hamburg)
-    \version $Id: CaloJetSelector.h,v 1.3 2008/03/03 16:45:29 lowette Exp $
+    \version $Id: CaloJetSelector.h,v 1.4 2008/03/05 14:51:02 fronga Exp $
 **/
 
 #include <string>
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/JetReco/interface/CaloJet.h"
+#include "PhysicsTools/PatUtils/interface/JetSelection.h"
+
+#include "PhysicsTools/PatUtils/interface/ParticleCode.h"
 
 namespace pat {
 
-  enum JetType { GOOD = 0, BAD = 1, ELSE = 2}; //bool would be propably enough
-  
   class CaloJetSelector {
 
 
   public:
-    CaloJetSelector( const edm::ParameterSet& config );
+    CaloJetSelector( const JetSelection& config ) : config_( config ) {}
     ~CaloJetSelector() {}
 
     /// Returns 0 if Jet matches criteria, a flag otherwise.
     /// Criteria depend on the selector's configuration.
-    const unsigned int 
+    const ParticleStatus
     filter( const reco::CaloJet& Jet ) const;
 
   private:
 
-    /// Custom selection cuts
-    ///SUSY-Analyzer:
-    double EMFmin_;                    double EMFmax_;
-    //double EoverPmax_;               //necessary??
-    double Etamax_;
-    //double PTrackoverPJetmin_;       //not defined for CaloJets
-    //int    NTracksmin_;              //not defined for CaloJets
-
-    ///used variables JetRejectorTool:
-    double Ptmin_;
-    double EMvsHadFmin_;               double EMvsHadFmax_;
-    double HadFmin_;                   double HadFmax_;
-    double N90min_;                    double N90max_;
-    double NCaloTowersmin_;            double NCaloTowersmax_;
-    double HighestTowerOverJetmin_;    double HighestTowerOverJetmax_;
-    double RWidthmin_;                 double RWidthmax_;
-    double PtJetOverArea_min_;         double PtJetOverArea_max_;
-    double PtTowerOverArea_min_;       double PtTowerOverArea_max_;
-
+    JetSelection config_;
+    
   }; // class
   
 } // namespace
