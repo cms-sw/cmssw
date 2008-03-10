@@ -55,6 +55,7 @@ private:
   std::string l1extramc_,particleMapSource_,mctruth_; 
   std::string ecalDigisLabel_,hcalDigisLabel_;
   std::string gtReadoutRecord_,gtObjectMap_; 
+  std::string gctCounts_; 
 
   int errCnt;
   const int errMax(){return 100;}

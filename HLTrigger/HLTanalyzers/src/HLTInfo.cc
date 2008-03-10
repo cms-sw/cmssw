@@ -118,6 +118,14 @@ void HLTInfo::setup(const edm::ParameterSet& pSet, TTree* HltTree) {
   HltTree->Branch("L1MetTot",&mettot,"L1MetTot/F");
   HltTree->Branch("L1MetHad",&methad,"L1MetHad/F");
 
+  // L1GctJetCounts
+  HltTree->Branch("L1HfRing0EtSumPositiveEta",&l1hfRing0EtSumPositiveEta,"L1HfRing0EtSumPositiveEta/F");
+  HltTree->Branch("L1HfRing1EtSumPositiveEta",&l1hfRing1EtSumPositiveEta,"L1HfRing1EtSumPositiveEta/F");
+  HltTree->Branch("L1HfRing0EtSumNegativeEta",&l1hfRing0EtSumNegativeEta,"L1HfRing0EtSumNegativeEta/F");
+  HltTree->Branch("L1HfRing1EtSumNegativeEta",&l1hfRing1EtSumNegativeEta,"L1HfRing1EtSumNegativeEta/F");
+  HltTree->Branch("L1HfTowerCountPositiveEta",&l1hfTowerCountPositiveEta,"L1HfTowerCountPositiveEta/F");
+  HltTree->Branch("L1HfTowerCountNegativeEta",&l1hfTowerCountNegativeEta,"L1HfTowerCountNegativeEta/F");
+  
 }
 
 /* **Analyze the event** */
@@ -133,6 +141,7 @@ void HLTInfo::analyze(/*const HLTFilterObjectWithRefs& hltobj,*/
 //		      const l1extra::L1ParticleMapCollection& L1MapColl,
 		      const L1GlobalTriggerReadoutRecord& L1GTRR,
 		      const L1GlobalTriggerObjectMapRecord& L1GTOMRec,
+		      const L1GctJetCounts& L1GctCounts,
 		      TTree* HltTree) {
 
 //   std::cout << " Beginning HLTInfo " << std::endl;
@@ -383,4 +392,40 @@ void HLTInfo::analyze(/*const HLTFilterObjectWithRefs& hltobj,*/
     if (_Debug) std::cout << "%HLTInfo -- No L1 GT ReadoutRecord or ObjectMapRecord" << std::endl;
   }
 
+  // Minbias triggers from GCT
+  // Jet Count 	 Quantity
+  //   6 	HFTowerCountPositiveEta
+  //   7 	HFTowerCountNegativeEta
+  //   8 	HFRing0EtSumPositiveEta
+  //   9 	HFRing0EtSumNegativeEta
+  //  10 	HFRing1EtSumPositiveEta
+  //  11 	HFRing1EtSumNegativeEta
+  //
+  // LSB for feature bits = 0.125 GeV.
+  // The default LSB for the ring sums is 0.5 GeV.
+  
+  if (&L1GctCounts) {
+    /*
+    for (int i=6;i<=11;i++) {
+      std::cout<<i<<" "<<L1GctCounts.count(i)<<std::endl;
+    }
+    std::cout<<"A "<<L1GctCounts.hfTowerCountPositiveEta()<<std::endl;
+    std::cout<<"B "<<L1GctCounts.hfTowerCountNegativeEta()<<std::endl;
+    std::cout<<"C "<<L1GctCounts.hfRing0EtSumPositiveEta()<<std::endl;
+    std::cout<<"D "<<L1GctCounts.hfRing0EtSumNegativeEta()<<std::endl;
+    std::cout<<"E "<<L1GctCounts.hfRing1EtSumPositiveEta()<<std::endl;
+    std::cout<<"F "<<L1GctCounts.hfRing1EtSumNegativeEta()<<std::endl;
+    */
+    
+    l1hfTowerCountPositiveEta = L1GctCounts.hfTowerCountPositiveEta();
+    l1hfTowerCountNegativeEta = L1GctCounts.hfTowerCountNegativeEta();
+    l1hfRing0EtSumPositiveEta = L1GctCounts.hfRing0EtSumPositiveEta();
+    l1hfRing0EtSumNegativeEta = L1GctCounts.hfRing0EtSumNegativeEta();
+    l1hfRing1EtSumPositiveEta = L1GctCounts.hfRing1EtSumPositiveEta();
+    l1hfRing1EtSumNegativeEta = L1GctCounts.hfRing1EtSumNegativeEta();
+  } else {
+    if (_Debug) std::cout << "%HLTInfo -- No L1 GctJetCounts" << std::endl;
+  }
+
+  
 }

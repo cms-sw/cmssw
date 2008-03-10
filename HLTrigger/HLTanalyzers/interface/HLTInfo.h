@@ -74,8 +74,9 @@ public:
 	       const l1extra::L1JetParticleCollection& l1exttaujet,
 	       const l1extra::L1EtMissParticleCollection& l1extmet,
 //	       const l1extra::L1ParticleMapCollection& l1mapcoll,
-	       const L1GlobalTriggerReadoutRecord& L1GTRR,
-	       const L1GlobalTriggerObjectMapRecord& L1GTOMRec,
+	       const L1GlobalTriggerReadoutRecord& l1GTRR,
+	       const L1GlobalTriggerObjectMapRecord& l1GTOMRec,
+	       const L1GctJetCounts& l1GctCounts,
 	       TTree* tree);
 
 private:
@@ -91,7 +92,10 @@ private:
   float met, metphi, mettot, methad;
   int L1EvtCnt,HltEvtCnt,nhltpart,nl1extiem,nl1extnem,nl1extmu,nl1extjetc,nl1extjetf,nl1extjt,nl1exttau;
   int *trigflag, *l1flag, *l1extmuiso, *l1extmumip, *l1extmufor, *l1extmurpc, *l1extmuqul;
-
+  float l1hfRing0EtSumNegativeEta,l1hfRing1EtSumNegativeEta;
+  float l1hfRing0EtSumPositiveEta,l1hfRing1EtSumPositiveEta;
+  float l1hfTowerCountPositiveEta,l1hfTowerCountNegativeEta;
+  
   // input variables
   bool _Debug;
 
