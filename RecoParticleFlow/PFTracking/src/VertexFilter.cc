@@ -164,7 +164,7 @@ VertexFilter::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     
     if (hasAVertex){
       Track track =(*itc);
-      track.setQuality(trackQuality_);
+      if(useQuality_)  track.setQuality(trackQuality_);
       //tracks and trajectories
       selTracks->push_back( track );
       outputTJ->push_back( *traj );
