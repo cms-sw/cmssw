@@ -209,10 +209,15 @@ L1Comparator::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
     iEvent.getByLabel(m_DEsource[DTP][0],dtp_th_data_);
     iEvent.getByLabel(m_DEsource[DTP][1],dtp_th_emul_);
   }
-  L1MuDTChambPhDigiCollection const* dtp_ph_data = dtp_ph_data_->getContainer();
-  L1MuDTChambPhDigiCollection const* dtp_ph_emul = dtp_ph_emul_->getContainer();
-  L1MuDTChambThDigiCollection const* dtp_th_data = dtp_th_data_->getContainer();
-  L1MuDTChambThDigiCollection const* dtp_th_emul = dtp_th_emul_->getContainer();
+  L1MuDTChambPhDigiCollection const* dtp_ph_data = 0; 
+  L1MuDTChambPhDigiCollection const* dtp_ph_emul = 0; 
+  L1MuDTChambThDigiCollection const* dtp_th_data = 0; 
+  L1MuDTChambThDigiCollection const* dtp_th_emul = 0; 
+
+  if(dtp_ph_data_.isValid()) dtp_ph_data = dtp_ph_data_->getContainer();
+  if(dtp_ph_emul_.isValid()) dtp_ph_emul = dtp_ph_emul_->getContainer();
+  if(dtp_th_data_.isValid()) dtp_th_data = dtp_th_data_->getContainer();
+  if(dtp_th_emul_.isValid()) dtp_th_emul = dtp_th_emul_->getContainer();
 
   // -- DTF [drift tube track finder]
   edm::Handle<L1MuRegionalCandCollection> dtf_data;
@@ -559,7 +564,7 @@ L1Comparator::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   }
 
   //reset flags...
-  for(int i=0; i<DEnsys; i++) isValid[i]=true;
+  //for(int i=0; i<DEnsys; i++) isValid[i]=true;
 
   if(verbose())
     std::cout << "L1Comparator start processing the collections.\n" << std::flush;
@@ -596,8 +601,16 @@ L1Comparator::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   // >>---- GLT ---- <<  
   GltDEDigi gltdigimon;
   
-  if(m_doSys[GLT]) {
-    if(dumpEvent_) {
+  if(m_doSys[GLT] && isValid[GMT] ) {
+
+    ///tmp: for getting a clean dump (avoid empty entries)
+    bool prt = false; 
+    if(!m_dumpMode)
+      prt = false;
+    else if(m_dumpMode==-1)
+      prt=true;
+
+    if(dumpEvent_ && prt) {
       m_dumpFile << "\nEntry: " << nevt_ 
 		 << " (event:"  << evtNum_
 		 << " | run:"   << runNum_ 
