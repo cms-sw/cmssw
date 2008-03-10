@@ -5,6 +5,7 @@
 #include <map>
 #include <memory>
 //#include <iterator>
+#include <cassert>
 
 #include "CLHEP/Matrix/GenMatrix.h"
 #include "CLHEP/Matrix/Matrix.h"

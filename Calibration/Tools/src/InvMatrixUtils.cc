@@ -1,8 +1,8 @@
 /** 
-    $Date: 2008/01/23 10:59:55 $
-    $Revision: 1.1.2.1 $
-    $Id: InvMatrixUtils.cc,v 1.1.2.1 2008/01/23 10:59:55 govoni Exp $ 
-    \author $Author: govoni $
+    $Date: 2008/02/25 17:42:41 $
+    $Revision: 1.2 $
+    $Id: InvMatrixUtils.cc,v 1.2 2008/02/25 17:42:41 malberti Exp $ 
+    \author $Author: malberti $
 */
 
 #include "Calibration/Tools/interface/InvMatrixUtils.h"
@@ -18,6 +18,7 @@
 #include <fstream>
 #include <sstream>
 #include <vector>
+#include <cassert>
 
 /** set the style for the printout*/
 void setStyle ()
