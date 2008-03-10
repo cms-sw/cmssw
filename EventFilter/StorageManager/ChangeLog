@@ -1,8 +1,18 @@
-2008-03-03  Emilio Meschi <emilio.meschi@cern.ch>
+2008-03-10  Harry Cheung <cheung@fnal.gov>
 
-	* tag V03-09-07
-	* modifications to override stream maxSize from xdaq 
-	
+	* tag V03-10-02
+	* Changes to throw exception when a write error is encountered
+
+2008-03-10  Emilio Meschi <emilio.meschi@cern.ch>
+
+	* tag V03-10-01 (was tagged V03-09-07 but in Main trunk so deleted)
+	* modifications to override stream maxSize from xdaq
+
+2008-03-04  Harry Cheung <cheung@fnal.gov>
+
+	* tag V03-10-00
+	* modifications for DQM core services needed in 20X
+
 2008-03-03  Harry Cheung <cheung@fnal.gov>
 
 	* tag V03-09-06 
