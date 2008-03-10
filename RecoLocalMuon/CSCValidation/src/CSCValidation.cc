@@ -101,6 +101,20 @@ CSCValidation::CSCValidation(const ParameterSet& pset){
   hStripStrip3  = new TH1F("hStripStrip3","strip number station 3",81,-0.5,80.5);
   hStripStrip4  = new TH1F("hStripStrip4","strip number station 4",81,-0.5,80.5);
 
+  //Pedestal Noise Plots
+  hStripPed = new TH1F("hStripPed","Pedestal Noise Distribution",50,-25.,25.);
+  hStripPedME11 = new TH1F("hStripPedME11","Pedestal Noise Distribution Chamber ME11 ",50,-25.,25.);
+  hStripPedME12 = new TH1F("hStripPedME12","Pedestal Noise Distribution Chamber ME12 ",50,-25.,25.);
+  hStripPedME13 = new TH1F("hStripPedME13","Pedestal Noise Distribution Chamber ME13 ",50,-25.,25.);
+  hStripPedME21 = new TH1F("hStripPedME21","Pedestal Noise Distribution Chamber ME21 ",50,-25.,25.);
+  hStripPedME22 = new TH1F("hStripPedME22","Pedestal Noise Distribution Chamber ME22 ",50,-25.,25.);
+  hStripPedME31 = new TH1F("hStripPedME31","Pedestal Noise Distribution Chamber ME31 ",50,-25.,25.);
+  hStripPedME32 = new TH1F("hStripPedME32","Pedestal Noise Distribution Chamber ME32 ",50,-25.,25.);
+  hStripPedME41 = new TH1F("hStripPedME41","Pedestal Noise Distribution Chamber ME41 ",50,-25.,25.);
+  hStripPedME42 = new TH1F("hStripPedME42","Pedestal Noise Distribution Chamber ME42 ",50,-25.,25.);
+  hPedvsStrip = new TH2F("hPedvsStrip","Pedestal Noise Distribution",4000000,1000000.,5000000.,50,-25.,25.);
+
+
   // tmp efficiency histos
   hSSTE = new TH1F("hSSTE","hSSTE",20,0,20);
   hRHSTE = new TH1F("hRHSTE","hRHSTE",20,0,20);
@@ -275,6 +289,22 @@ CSCValidation::~CSCValidation(){
   hStripStrip2->Write();
   hStripStrip3->Write();
   hStripStrip4->Write();
+  theFile->cd();
+
+
+  //Pedestal Noise
+  theFile->cd("PedestalNoise");
+  hStripPed->Write();
+  hStripPedME11->Write();
+  hStripPedME12->Write();
+  hStripPedME13->Write();
+  hStripPedME21->Write();
+  hStripPedME22->Write();
+  hStripPedME31->Write();
+  hStripPedME32->Write();
+  hStripPedME41->Write();
+  hStripPedME42->Write();
+  hPedvsStrip->Write();
   theFile->cd();
 
   // recHits
@@ -587,6 +617,73 @@ void CSCValidation::analyze(const Event & event, const EventSetup& eventSetup){
   }
   if (nStripsFired > 0) {hStripNFired->Fill(nStripsFired);}
     
+
+  //=======================================================
+  //
+  // Look at the Pedestal Noise Distributions
+  //
+  //=======================================================
+
+  for (CSCStripDigiCollection::DigiRangeIterator j=strips->begin(); j!=strips->end(); j++) {
+    CSCDetId id = (CSCDetId)(*j).first;
+    int kEndcap  = id.endcap();
+    if (kEndcap == 2) kEndcap = -1;
+    int kRing    = id.ring();
+    int kStation = id.station();
+    int kChamber = id.chamber();
+    int kLayer   = id.layer();
+    std::vector<CSCStripDigi>::const_iterator digiItr = (*j).second.first;
+    std::vector<CSCStripDigi>::const_iterator last = (*j).second.second;
+    for( ; digiItr != last; ++digiItr) {
+      int myStrip = digiItr->getStrip();
+      std::vector<int> myADCVals = digiItr->getADCCounts();
+      float TotalADC = getSignal(*strips, id, myStrip);
+      bool thisStripFired = false;
+      float thisPedestal = 0.5*(float)(myADCVals[0]+myADCVals[1]);
+      float thisSignal = (1./6)*(myADCVals[2]+myADCVals[3]+myADCVals[4]+myADCVals[5]+myADCVals[6]+myADCVals[7]);
+      float threshold = 13.3;
+      if(kStation == 1 && kRing == 4)
+	{
+	  kRing = 1;
+	  if(myStrip <= 16) myStrip += 64; // no trapping for any bizarreness
+	}
+      int globalStrip = kEndcap*( kStation*1000000 + kRing*100000 + kChamber*1000 + kLayer*100 + myStrip);
+      if (TotalADC > threshold) { thisStripFired = true;}
+      if (!thisStripFired){
+	float ADC = thisSignal - thisPedestal;
+	hStripPed->Fill(ADC);
+	hPedvsStrip->Fill(globalStrip,ADC);
+	if (kStation == 1 && kRing == 1 ) {
+	  hStripPedME11->Fill(ADC);
+	}
+	if (kStation == 1 && kRing == 2) {
+	  hStripPedME12->Fill(ADC);
+	}
+	if (kStation == 1 && kRing == 3) {
+	  hStripPedME13->Fill(ADC);
+	}
+	if (kStation == 2 && kRing == 1) {
+	  hStripPedME21->Fill(ADC);
+	}
+	if (kStation == 2 && kRing == 2) {
+	  hStripPedME22->Fill(ADC);
+	}
+        if (kStation == 3 && kRing == 1) {
+	  hStripPedME31->Fill(ADC);
+	}
+	if (kStation == 3 && kRing == 2) {
+	  hStripPedME32->Fill(ADC);
+	}
+        if (kStation == 4 && kRing == 1) {
+	  hStripPedME41->Fill(ADC);
+	}
+	if (kStation == 4 && kRing == 2) {
+	  hStripPedME42->Fill(ADC);
+	}
+      }
+    }
+  }
+
 
 
   // ==============================================
@@ -1246,6 +1343,75 @@ void CSCValidation::doEfficiencies(edm::Handle<CSCRecHit2DCollection> recHits, e
     }
   }
 
+}
+
+//---------------------------------------------------------------------------------------
+// Given a set of digis, the CSCDetId, and the central strip of your choosing, returns
+// the avg. Signal-Pedestal for 6 time bin x 5 strip .
+//
+// Author: P. Jindal
+//---------------------------------------------------------------------------------------
+
+float CSCValidation::getSignal(const CSCStripDigiCollection&
+ stripdigis, CSCDetId idCS, int centerStrip){
+
+  float SigADC[5];
+  float TotalADC = 0;
+  SigADC[0] = 0;
+  SigADC[1] = 0;
+  SigADC[2] = 0;
+  SigADC[3] = 0;
+  SigADC[4] = 0;
+
+ 
+  // Loop over strip digis 
+  CSCStripDigiCollection::DigiRangeIterator sIt;
+  
+  for (sIt = stripdigis.begin(); sIt != stripdigis.end(); sIt++){
+    CSCDetId id = (CSCDetId)(*sIt).first;
+    if (id == idCS){
+
+      // First, find the Signal-Pedestal for center strip
+      vector<CSCStripDigi>::const_iterator digiItr = (*sIt).second.first;
+      vector<CSCStripDigi>::const_iterator last = (*sIt).second.second;
+      for ( ; digiItr != last; ++digiItr ) {
+        int thisStrip = digiItr->getStrip();
+        if (thisStrip == (centerStrip)){
+	  std::vector<int> myADCVals = digiItr->getADCCounts();
+          float thisPedestal = 0.5*(float)(myADCVals[0]+myADCVals[1]);
+	  float thisSignal = (myADCVals[2]+myADCVals[3]+myADCVals[4]+myADCVals[5]+myADCVals[6]+myADCVals[7]);
+	  SigADC[0] = thisSignal - 6*thisPedestal;
+	}
+     // Now,find the Signal-Pedestal for neighbouring 4 strips
+        if (thisStrip == (centerStrip+1)){
+	  std::vector<int> myADCVals = digiItr->getADCCounts();
+          float thisPedestal = 0.5*(float)(myADCVals[0]+myADCVals[1]);
+	  float thisSignal = (myADCVals[2]+myADCVals[3]+myADCVals[4]+myADCVals[5]+myADCVals[6]+myADCVals[7]);
+	  SigADC[1] = thisSignal - 6*thisPedestal;
+	}
+        if (thisStrip == (centerStrip+2)){
+	  std::vector<int> myADCVals = digiItr->getADCCounts();
+          float thisPedestal = 0.5*(float)(myADCVals[0]+myADCVals[1]);
+	  float thisSignal = (myADCVals[2]+myADCVals[3]+myADCVals[4]+myADCVals[5]+myADCVals[6]+myADCVals[7]);
+	  SigADC[2] = thisSignal - 6*thisPedestal;
+	}
+        if (thisStrip == (centerStrip-1)){
+	  std::vector<int> myADCVals = digiItr->getADCCounts();
+          float thisPedestal = 0.5*(float)(myADCVals[0]+myADCVals[1]);
+	  float thisSignal = (myADCVals[2]+myADCVals[3]+myADCVals[4]+myADCVals[5]+myADCVals[6]+myADCVals[7]);
+	  SigADC[3] = thisSignal - 6*thisPedestal;
+	}
+        if (thisStrip == (centerStrip-2)){
+	  std::vector<int> myADCVals = digiItr->getADCCounts();
+          float thisPedestal = 0.5*(float)(myADCVals[0]+myADCVals[1]);
+	  float thisSignal = (myADCVals[2]+myADCVals[3]+myADCVals[4]+myADCVals[5]+myADCVals[6]+myADCVals[7]);
+	  SigADC[4] = thisSignal - 6*thisPedestal;
+	}
+      }
+      TotalADC = 0.2*(SigADC[0]+SigADC[1]+SigADC[2]+SigADC[3]+SigADC[4]);
+    }
+  }
+  return TotalADC;
 }
 
 void CSCValidation::getEfficiency(float bin, float Norm, std::vector<float> &eff){

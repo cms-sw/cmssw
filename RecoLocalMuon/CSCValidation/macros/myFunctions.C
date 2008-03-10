@@ -49,6 +49,40 @@ void Compare1DPlots1(std::string histoname, TFile* f1, TFile* f2, std::string hi
 
 }
 
+/*
+void Compare2DPlots1(std::string histoname, TFile* f1, TFile* f2, std::string histotitle, std::string savename){
+
+  TH1F *h1  = (TH2F*)f1->Get(histoname.c_str());
+  TH1F *h2  = (TH2F*)f2->Get(histoname.c_str());
+
+  TCanvas *c = new TCanvas("c","my canvas",1);
+  gStyle->SetHistFillColor(92);
+  gStyle->SetFrameFillColor(4000);
+  gStyle->SetTitleW(0.3);
+  gStyle->SetTitleH(0.07);
+  gPad->SetFillColor(4000);
+  c->SetFillStyle(4000);
+  gStyle->SetOptStat(10);
+  h1->UseCurrentStyle();
+  h2->UseCurrentStyle();
+  h2->SetFillColor(52);
+
+  h1->SetTitle(histotitle.c_str());
+  h1->GetXaxis()->SetLabelSize(0.04);
+  h1->GetYaxis()->SetLabelSize(0.04);
+  h1->GetXaxis()->SetTitleOffset(0.7);
+  h1->GetXaxis()->SetTitleSize(0.06);
+  h1->GetXaxis()->SetNdivisions(208,kTRUE);
+
+  h1->Draw();
+  h2->Draw("same e");
+
+  c->Update();
+  c->Print(savename.c_str());
+
+}
+*/
+
 void Compare1DPlots2(std::string histoname1, std::string histoname2, TFile* f1, TFile* f2, std::string t1, std::string t2, std::string savename){
 
   // This macro compares two sets of CSCLocalValidn histograms.

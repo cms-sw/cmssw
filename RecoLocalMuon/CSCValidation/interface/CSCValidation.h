@@ -119,6 +119,7 @@ private:
   // some useful functions
   float      fitX(HepMatrix sp, HepMatrix ep);
   HepMatrix  getCharge3x3(const CSCStripDigiCollection& stripdigis, CSCDetId idRH, int centerStrip);
+  float      getSignal(const CSCStripDigiCollection& stripdigis, CSCDetId idRH, int centerStrip);
   float      getTiming(const CSCStripDigiCollection& stripdigis, CSCDetId idRH, int centerStrip);
   void       doEfficiencies(edm::Handle<CSCRecHit2DCollection> recHits, edm::Handle<CSCSegmentCollection> cscSegments);
   void       getEfficiency(float bin, float Norm, std::vector<float> &eff);
@@ -182,6 +183,19 @@ private:
   TH1F *hStripStrip2;
   TH1F *hStripStrip3;
   TH1F *hStripStrip4;
+
+  TH1F *hStripPed; 
+  TH1F *hStripPedME11; 
+  TH1F *hStripPedME12; 
+  TH1F *hStripPedME13; 
+  TH1F *hStripPedME14; 
+  TH1F *hStripPedME21; 
+  TH1F *hStripPedME22; 
+  TH1F *hStripPedME31; 
+  TH1F *hStripPedME32; 
+  TH1F *hStripPedME41; 
+  TH1F *hStripPedME42; 
+  TH2F *hPedvsStrip;
 
   TH1F *hRHCodeBroad;
   TH1F *hRHCodeNarrow1;

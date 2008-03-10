@@ -98,8 +98,18 @@ cat > ${MACRO}<<EOF
   Compare1DPlots2("Segments/hSnHits3","Segments/hSnHits4",f1,f2,"recHits per Segment (Station 3)","recHits per Segment (Station 4)","seg_nhits_3a4.gif");
   Compare1DPlots2("Segments/hSnSegments","Segments/hSnhits",f1,f2,"Segments per Event","recHits per Segment (all stations)","seg_nhits_all.gif");
 
- 
-  //produce efficiency plots
+  /*
+  //produce noise plots
+  Compare1DPlots1("Digis/hStripPed",f1,f2,"Pedestal Noise Distribution","hStripPed_all.gif");
+  Compare2DPlots1("Digis/hPedvsStrip",f1,f2,"Pedestal Noise Distribution","hStripPedvStrip.gif");
+  Compare1DPlots2("Digis/hStripPedME11","Digis/hStripPedME11",f1,f2,"Pedestal Noise Distribution (ME11a)","Pedestal Noise Distribution (ME11b)","hStripPed_ME11.gif");
+  Compare1DPlots2("Digis/hStripPedME12","Digis/hStripPedME13",f1,f2,"Pedestal Noise Distribution (ME12)","Pedestal Noise Distribution (ME13)","hStripPed_ME12_ME13.gif");
+  Compare1DPlots2("Digis/hStripPedME21","Digis/hStripPedME22",f1,f2,"Pedestal Noise Distribution (ME21)","Pedestal Noise Distribution (ME22)","hStripPed_ME21_ME22.gif");
+  Compare1DPlots2("Digis/hStripPedME31","Digis/hStripPedME32",f1,f2,"Pedestal Noise Distribution (ME31)","Pedestal Noise Distribution (ME32)","hStripPed_ME31_ME32.gif");
+  Compare1DPlots2("Digis/hStripPedME41","Digis/hStripPedME42",f1,f2,"Pedestal Noise Distribution (ME41)","Pedestal Noise Distribution (ME42)","hStripPed_ME41_ME42.gif");   
+  */
+
+  //produce efficiency plots (this needs work)
   Compare1DPlots2("recHits/hRHEff","Segments/hSEff",f1,f2,"recHit Efficiency","Segment Efficiency","efficiency.gif");
 
 
