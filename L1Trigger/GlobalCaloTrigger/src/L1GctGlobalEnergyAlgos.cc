@@ -6,6 +6,7 @@
 #include "FWCore/Utilities/interface/Exception.h"
 
 #include <iostream>
+#include <cassert>
 
 using std::ostream;
 using std::endl;

@@ -5,6 +5,7 @@
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctEmLeafCard.h"
 
 #include <iostream>
+#include <cassert>
 
 
 L1GctElectronFinalSort::L1GctElectronFinalSort(bool iso, L1GctEmLeafCard* posEtaCard,
