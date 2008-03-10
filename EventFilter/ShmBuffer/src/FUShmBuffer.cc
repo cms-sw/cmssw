@@ -41,7 +41,6 @@ FUShmBuffer::FUShmBuffer(bool         segmentationMode,
 			 unsigned int recoCellSize,
 			 unsigned int dqmCellSize)
   : segmentationMode_(segmentationMode)
-  , nClients_(0)
   , nClientsMax_(16)
   , nRawCells_(nRawCells)
   , rawCellPayloadSize_(rawCellSize)
@@ -212,6 +211,8 @@ void FUShmBuffer::initialize(unsigned int shmid,unsigned int semid)
 //______________________________________________________________________________
 void FUShmBuffer::reset()
 {
+  nClients_=0;
+
   // setup ipc semaphores
   sem_init(0,1);          // lock (binary)
   sem_init(1,nRawCells_); // raw  write semaphore

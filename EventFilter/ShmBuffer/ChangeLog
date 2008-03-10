@@ -1,3 +1,9 @@
+2008-03-10  Philipp SCHIEFERDECKER  <philipp.schieferdecker@cern.ch>
+
+	* tag V00-06-01
+	* fix registration of several EP process ids: nClients_ set to 0
+	in reset(), _NOT_ ctor
+
 2008-01-26  Philipp SCHIEFERDECKER  <philipp.schieferdecker@cern.ch>
 
 	* tag V00-06-00
