@@ -119,12 +119,12 @@ void HLTInfo::setup(const edm::ParameterSet& pSet, TTree* HltTree) {
   HltTree->Branch("L1MetHad",&methad,"L1MetHad/F");
 
   // L1GctJetCounts
-  HltTree->Branch("L1HfRing0EtSumPositiveEta",&l1hfRing0EtSumPositiveEta,"L1HfRing0EtSumPositiveEta/F");
-  HltTree->Branch("L1HfRing1EtSumPositiveEta",&l1hfRing1EtSumPositiveEta,"L1HfRing1EtSumPositiveEta/F");
-  HltTree->Branch("L1HfRing0EtSumNegativeEta",&l1hfRing0EtSumNegativeEta,"L1HfRing0EtSumNegativeEta/F");
-  HltTree->Branch("L1HfRing1EtSumNegativeEta",&l1hfRing1EtSumNegativeEta,"L1HfRing1EtSumNegativeEta/F");
-  HltTree->Branch("L1HfTowerCountPositiveEta",&l1hfTowerCountPositiveEta,"L1HfTowerCountPositiveEta/F");
-  HltTree->Branch("L1HfTowerCountNegativeEta",&l1hfTowerCountNegativeEta,"L1HfTowerCountNegativeEta/F");
+  HltTree->Branch("L1HfRing0EtSumPositiveEta",&l1hfRing0EtSumPositiveEta,"L1HfRing0EtSumPositiveEta/I");
+  HltTree->Branch("L1HfRing1EtSumPositiveEta",&l1hfRing1EtSumPositiveEta,"L1HfRing1EtSumPositiveEta/I");
+  HltTree->Branch("L1HfRing0EtSumNegativeEta",&l1hfRing0EtSumNegativeEta,"L1HfRing0EtSumNegativeEta/I");
+  HltTree->Branch("L1HfRing1EtSumNegativeEta",&l1hfRing1EtSumNegativeEta,"L1HfRing1EtSumNegativeEta/I");
+  HltTree->Branch("L1HfTowerCountPositiveEta",&l1hfTowerCountPositiveEta,"L1HfTowerCountPositiveEta/I");
+  HltTree->Branch("L1HfTowerCountNegativeEta",&l1hfTowerCountNegativeEta,"L1HfTowerCountNegativeEta/I");
   
 }
 
@@ -417,12 +417,12 @@ void HLTInfo::analyze(/*const HLTFilterObjectWithRefs& hltobj,*/
     std::cout<<"F "<<L1GctCounts.hfRing1EtSumNegativeEta()<<std::endl;
     */
     
-    l1hfTowerCountPositiveEta = L1GctCounts.hfTowerCountPositiveEta();
-    l1hfTowerCountNegativeEta = L1GctCounts.hfTowerCountNegativeEta();
-    l1hfRing0EtSumPositiveEta = L1GctCounts.hfRing0EtSumPositiveEta();
-    l1hfRing0EtSumNegativeEta = L1GctCounts.hfRing0EtSumNegativeEta();
-    l1hfRing1EtSumPositiveEta = L1GctCounts.hfRing1EtSumPositiveEta();
-    l1hfRing1EtSumNegativeEta = L1GctCounts.hfRing1EtSumNegativeEta();
+    l1hfTowerCountPositiveEta = (int)L1GctCounts.hfTowerCountPositiveEta();
+    l1hfTowerCountNegativeEta = (int)L1GctCounts.hfTowerCountNegativeEta();
+    l1hfRing0EtSumPositiveEta = (int)L1GctCounts.hfRing0EtSumPositiveEta();
+    l1hfRing0EtSumNegativeEta = (int)L1GctCounts.hfRing0EtSumNegativeEta();
+    l1hfRing1EtSumPositiveEta = (int)L1GctCounts.hfRing1EtSumPositiveEta();
+    l1hfRing1EtSumNegativeEta = (int)L1GctCounts.hfRing1EtSumNegativeEta();
   } else {
     if (_Debug) std::cout << "%HLTInfo -- No L1 GctJetCounts" << std::endl;
   }
