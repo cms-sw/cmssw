@@ -3,7 +3,7 @@
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDProducer.h"
-
+#include "DataFormats/TrackReco/interface/Track.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
@@ -32,5 +32,6 @@ class VertexFilter : public edm::EDProducer {
   float distrho;
   float chi_cut;
 
-  
+  bool useQuality_;
+  reco::TrackBase::TrackQuality trackQuality_;
 };

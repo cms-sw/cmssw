@@ -1,5 +1,5 @@
 #include "RecoParticleFlow/PFTracking/interface/VertexFilter.h"
-#include "DataFormats/TrackReco/interface/Track.h"
+
 #include "DataFormats/TrackReco/interface/TrackExtra.h"
 #include "DataFormats/TrackReco/interface/TrackExtraFwd.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
@@ -13,14 +13,16 @@
 //
 
 
-
+  using namespace edm;
+  using namespace reco;
+  using namespace std;
 
 VertexFilter::VertexFilter(const edm::ParameterSet& iConfig)
 {
 
-  produces<reco::TrackCollection>();
+  produces<TrackCollection>();
   produces<TrackingRecHitCollection>();
-  produces<reco::TrackExtraCollection>();
+  produces<TrackExtraCollection>();
   produces<std::vector<Trajectory> >();
   produces<TrajTrackAssociationCollection>();
 
@@ -31,6 +33,12 @@ VertexFilter::VertexFilter(const edm::ParameterSet& iConfig)
   distz = iConfig.getParameter<double>("DistZFromVertex");
   distrho = iConfig.getParameter<double>("DistRhoFromVertex");
   chi_cut = iConfig.getParameter<double>("ChiCut");
+
+  useQuality_   = iConfig.getParameter<bool>("UseQuality");
+  string tkQuality = iConfig.getParameter<string>("TrackQuality");
+
+  if (tkQuality=="highPurity") trackQuality_=TrackBase::highPurity;
+  if (tkQuality=="tight") trackQuality_=TrackBase::tight;
 
 }
 
@@ -52,9 +60,7 @@ VertexFilter::~VertexFilter()
 void
 VertexFilter::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
-  using namespace edm;
-  using namespace reco;
-  using namespace std;
+
   
   auto_ptr<TrackCollection> selTracks(new TrackCollection);
   auto_ptr<TrackingRecHitCollection> selHits(new TrackingRecHitCollection);
@@ -72,7 +78,7 @@ VertexFilter::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   
   Handle<TrackCollection> tkCollection;  
   iEvent.getByLabel( tkTag, tkCollection);
-  const reco::TrackCollection*  tC = tkCollection.product();
+  const TrackCollection*  tC = tkCollection.product();
   TrackCollection::const_iterator itxc;
   TrackCollection::const_iterator firstTrack = tC->begin();
   TrackCollection::const_iterator lastTrack = tC->end();
@@ -82,7 +88,7 @@ VertexFilter::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   iEvent.getByLabel(tkTag,assoMap);
 
   iEvent.getByLabel( vtxTag            , vtxCollection);
-  const reco::VertexCollection*  vxC = vtxCollection.product(); 
+  const VertexCollection*  vxC = vtxCollection.product(); 
   VertexCollection::const_iterator ivxc;
   VertexCollection::const_iterator firstVertex = vxC->begin();
   VertexCollection::const_iterator lastVertex = vxC->end();
@@ -130,7 +136,7 @@ VertexFilter::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   TrajTrackAssociationCollection::const_iterator lastAssoc = assoMap->end();
   for( ; it != lastAssoc; ++it ) {
     const Ref<vector<Trajectory> > traj = it->key;
-    const reco::TrackRef itc = it->val;
+    const TrackRef itc = it->val;
     math::XYZPoint gp1=itc->vertex();
     bool hasAVertex=false;
     unsigned foundHits = itc->recHitsSize();
@@ -158,6 +164,7 @@ VertexFilter::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     
     if (hasAVertex){
       Track track =(*itc);
+      track.setQuality(trackQuality_);
       //tracks and trajectories
       selTracks->push_back( track );
       outputTJ->push_back( *traj );
@@ -181,7 +188,7 @@ VertexFilter::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
   for ( unsigned index = 0; index<nTracks; ++index ) { 
 
-    reco::Track& aTrack = selTracks->at(index);
+    Track& aTrack = selTracks->at(index);
     TrackExtra aTrackExtra(aTrack.outerPosition(),
 			   aTrack.outerMomentum(),
 			   aTrack.outerOk(),
@@ -207,7 +214,7 @@ VertexFilter::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   //CORRECT REF TO TRACK
   OrphanHandle<TrackExtraCollection> theRecoTrackExtras = iEvent.put(selTrackExtras); 
   for ( unsigned index = 0; index<nTracks; ++index ) { 
-    const reco::TrackExtraRef theTrackExtraRef(theRecoTrackExtras,index);
+    const TrackExtraRef theTrackExtraRef(theRecoTrackExtras,index);
     (selTracks->at(index)).setExtra(theTrackExtraRef);
   }
 
