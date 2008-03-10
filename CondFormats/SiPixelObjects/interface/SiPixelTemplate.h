@@ -27,7 +27,7 @@
 #define SiPixelTemplate_h 1
 
 #include<vector>
-
+#include<cassert>
 
 struct SiPixelTemplateEntry { //!< Basic template entry corresponding to a single set of track angles 
   int runnum;              //!< number of pixelav run used to generate this entry 
