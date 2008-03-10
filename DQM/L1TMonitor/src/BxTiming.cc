@@ -106,8 +106,10 @@ BxTiming::beginJob(const edm::EventSetup&) {
     hBxOccyOneFed = new MonitorElement*[nfed_];
     dbe->setCurrentFolder(histFolder_+"SingleFed/");
     for(int i=0; i<nfed_; i++) {
-      lbl.clear();lbl+="BxOccyOneFed"; lbl+=i;
+      lbl.clear(); lbl+="BxOccyOneFed";
+      char *ii = new char[1000]; std::sprintf(ii,"%d",i);lbl+=ii;
       hBxOccyOneFed[i] = dbe->book1D(lbl.data(),lbl.data(),norb,0,norb);
+      delete ii;
     }
     
   }
