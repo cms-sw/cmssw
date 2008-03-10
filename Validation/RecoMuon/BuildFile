@@ -7,6 +7,7 @@
 <use name=CommonTools/Statistics>
 <use name=RecoVertex/VertexTools>
 <use name=RecoVertex/KalmanVertexFit>
+<use name=PhysicsTools/UtilAlgos>
 
 <use name=SimTracker/TrackAssociation>
 <use name=SimTracker/Records>
