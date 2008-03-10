@@ -14,14 +14,6 @@ module l1GmtEmulDigis = L1MuGlobalMuonTrigger {
     InputTag RPCbCandidates = gtUnpack:RPCb //l1RpcEmulDigis:RPCb
     InputTag RPCfCandidates = gtUnpack:RPCf //l1RpcEmulDigis:RPCf
     InputTag MipIsoData = L1RCTRegionSumsEmCands
-
-#include "L1Trigger/GlobalMuonTrigger/data/gmtDigis.cfi"
-module gmtDigis = L1MuGlobalMuonTrigger {
-    InputTag DTCandidates   = gtUnpack:DT   //dttfDigis:DT
-    InputTag CSCCandidates  = gtUnpack:CSC  //csctfDigis:CSC
-    InputTag RPCbCandidates = gtUnpack:RPCb //rpcTriggerDigis:RPCb
-    InputTag RPCfCandidates = gtUnpack:RPCf //rpcTriggerDigis:RPCf
-
     untracked int32 Debug   = 0
     int32 BX_min            = -4            // bx's to be processed
     int32 BX_max            =  4
