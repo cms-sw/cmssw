@@ -18,6 +18,7 @@
 # include <map>
 # include <sstream>
 # include <iomanip>
+# include <cassert>
 
 # ifndef DQM_ROOT_METHODS
 #  define DQM_ROOT_METHODS 1

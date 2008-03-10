@@ -9,6 +9,7 @@
 # include <sstream>
 # include <string>
 # include <map>
+# include <cassert>
 
 class MonitorElement;
 class Comp2RefChi2;			typedef Comp2RefChi2 Comp2RefChi2ROOT;

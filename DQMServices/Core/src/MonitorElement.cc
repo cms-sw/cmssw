@@ -6,6 +6,7 @@
 #include "TMath.h"
 #include "TList.h"
 #include <iostream>
+#include <cassert>
 
 static TH1 *
 checkRootObject(const std::string &name, TObject *tobj, const char *func, int reqdim)
