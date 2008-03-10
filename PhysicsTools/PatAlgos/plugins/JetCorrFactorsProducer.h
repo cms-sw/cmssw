@@ -1,5 +1,5 @@
 //
-// $Id$
+// $Id: JetCorrFactorsProducer.h,v 1.1 2008/03/07 18:52:56 lowette Exp $
 //
 
 #ifndef PhysicsTools_PatAlgos_JetCorrFactorsProducer_h
@@ -18,7 +18,7 @@
    created in the PAT Layer-1.
 
   \author   Steven Lowette
-  \version  $Id$
+  \version  $Id: JetCorrFactorsProducer.h,v 1.1 2008/03/07 18:52:56 lowette Exp $
 */
 
 
@@ -29,6 +29,8 @@
 
 #include "DataFormats/PatCandidates/interface/JetCorrFactors.h"
 #include "DataFormats/Common/interface/ValueMap.h"
+
+#include <string>
 
 
 namespace pat {
@@ -48,7 +50,12 @@ namespace pat {
     private:
 
       // configurables
-      edm::InputTag            jetsSrc_;
+      edm::InputTag jetsSrc_;
+      std::string defaultJetCorrService_;
+      std::string udsJetCorrService_;
+      std::string gluJetCorrService_;
+      std::string cJetCorrService_;
+      std::string bJetCorrService_;
 
   };
 
