@@ -1,4 +1,4 @@
-// $Id: ServiceManager.cc,v 1.5 2008/01/29 21:22:56 biery Exp $
+// $Id: ServiceManager.cc,v 1.6 2008/03/03 20:23:30 biery Exp $
 
 #include <EventFilter/StorageManager/interface/ServiceManager.h>
 #include "EventFilter/StorageManager/interface/Configurator.h"
@@ -69,6 +69,7 @@ void ServiceManager::manageInitMsg(std::string catalog, uint32 disks, std::strin
             stream->setSourceId(sourceId);
             stream->setFileName(smParameter_ -> fileName());
             stream->setFilePath(smParameter_ -> filePath());
+            stream->setMaxFileSize(smParameter_ -> maxFileSize());
             stream->setMathBoxPath(smParameter_ -> mailboxPath());
             stream->setSetupLabel(smParameter_ -> setupLabel());
             stream->setHighWaterMark(smParameter_ -> highWaterMark());

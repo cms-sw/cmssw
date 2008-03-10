@@ -1,4 +1,4 @@
-// $Id: StorageManager.cc,v 1.43 2008/03/03 20:34:06 biery Exp $
+// $Id: StorageManager.cc,v 1.44 2008/03/03 23:31:36 hcheung Exp $
 
 #include <iostream>
 #include <iomanip>
@@ -176,6 +176,7 @@ StorageManager::StorageManager(xdaq::ApplicationStub * s)
   fileCatalog_        = smParameter_ -> fileCatalog(); 
   fileName_           = smParameter_ -> fileName();
   filePath_           = smParameter_ -> filePath();
+  maxFileSize_        = smParameter_ -> maxFileSize();
   mailboxPath_        = smParameter_ -> mailboxPath();
   setupLabel_         = smParameter_ -> setupLabel();
   highWaterMark_      = smParameter_ -> highWaterMark();
@@ -187,6 +188,7 @@ StorageManager::StorageManager(xdaq::ApplicationStub * s)
   ispace->fireItemAvailable("fileCatalog",        &fileCatalog_);
   ispace->fireItemAvailable("fileName",           &fileName_);
   ispace->fireItemAvailable("filePath",           &filePath_);
+  ispace->fireItemAvailable("maxFileSize",        &maxFileSize_);
   ispace->fireItemAvailable("mailboxPath",        &mailboxPath_);
   ispace->fireItemAvailable("setupLabel",         &setupLabel_);
   ispace->fireItemAvailable("highWaterMark",      &highWaterMark_);
@@ -2430,6 +2432,7 @@ bool StorageManager::configuring(toolbox::task::WorkLoop* wl)
     smParameter_ -> setFileCatalog(fileCatalog_.toString());
     smParameter_ -> setfileName(fileName_.toString());
     smParameter_ -> setfilePath(filePath_.toString());
+    smParameter_ -> setmaxFileSize(maxFileSize_.value_);
     smParameter_ -> setmailboxPath(mailboxPath_.toString());
     smParameter_ -> setsetupLabel(setupLabel_.toString());
     smParameter_ -> sethighWaterMark(highWaterMark_.value_);
@@ -2864,7 +2867,6 @@ bool StorageManager::monitoring(toolbox::task::WorkLoop* wl)
 	    if(streams_.find(sname) == streams_.end())
 	      streams_.insert(pair<string,streammon>(sname,streammon()));
 	  }
-	//int streamssize =  streams_.size();  // unused variable
 	
       }
       for(ismap it = streams_.begin(); it != streams_.end(); it++)

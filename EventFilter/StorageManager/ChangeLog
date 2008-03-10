@@ -1,3 +1,8 @@
+2008-03-03  Emilio Meschi <emilio.meschi@cern.ch>
+
+	* tag V03-09-07
+	* modifications to override stream maxSize from xdaq 
+	
 2008-03-03  Harry Cheung <cheung@fnal.gov>
 
 	* tag V03-09-06 

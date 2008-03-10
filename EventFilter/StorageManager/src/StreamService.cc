@@ -1,4 +1,4 @@
-// $Id: StreamService.cc,v 1.4 2008/02/21 14:24:56 biery Exp $
+// $Id: StreamService.cc,v 1.5 2008/02/27 16:00:52 meschi Exp $
 
 #include <EventFilter/StorageManager/interface/StreamService.h>
 #include <EventFilter/StorageManager/interface/ProgressMarker.h>
@@ -327,6 +327,15 @@ std::list<std::string> StreamService::getCurrentFileList()
   return files_;
 }
 
+//
+// *** override maxSize from cfg if xdaq parameter was set 
+//
+ void StreamService::setMaxFileSize(int x)
+ {
+   maxFileSizeInMB_ = x;
+   if(maxFileSizeInMB_ > 0)
+     maxSize_ = 1048576 * (long long) maxFileSizeInMB_;
+ }
 
 //
 // *** get the current time

@@ -2,7 +2,7 @@
 #define STOR_PARAMETER_H
 
 // Created by Markus Klute on 2007 Jan 29.
-// $Id: Parameter.h,v 1.2 2007/02/05 16:39:40 klute Exp $
+// $Id: Parameter.h,v 1.3 2007/08/18 06:04:56 hcheung Exp $
 
 // holds configuration parameter for StorageManager
 
@@ -27,6 +27,7 @@ namespace stor
         filePath_("/scratch2/cheung"),
         mailboxPath_("/scratch2/cheung/mbox"),
         setupLabel_("mtcc"),
+	maxFileSize_(-1),
         highWaterMark_(0.9),
         lumiSectionTimeOut_(10.0)
 	{
@@ -41,6 +42,7 @@ namespace stor
       std::string host()               {return hostName_;}
       std::string fileName()           {return fileName_;}
       std::string filePath()           {return filePath_;}
+      int    maxFileSize()             {return maxFileSize_;} 
       std::string mailboxPath()        {return mailboxPath_;}
       std::string setupLabel()         {return setupLabel_;}
       double highWaterMark()           {return highWaterMark_;}
@@ -55,6 +57,7 @@ namespace stor
       void setSmInstance        (std::string x) {smInstance_=x;}
       void setfileName          (std::string x) {fileName_=x;}
       void setfilePath          (std::string x) {filePath_=x;}
+      void setmaxFileSize               (int x) {maxFileSize_=x;}
       void setmailboxPath       (std::string x) {mailboxPath_=x;}
       void setsetupLabel        (std::string x) {setupLabel_=x;}
       void sethighWaterMark          (double x) {highWaterMark_=x;}
@@ -74,6 +77,7 @@ namespace stor
       std::string filePath_;
       std::string mailboxPath_;
       std::string setupLabel_;
+      int    maxFileSize_; 
       double highWaterMark_;
       double lumiSectionTimeOut_;
     }; 
