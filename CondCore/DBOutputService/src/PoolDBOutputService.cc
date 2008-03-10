@@ -7,13 +7,14 @@
 #include "CondCore/IOVService/interface/IOVService.h"
 #include "CondCore/IOVService/interface/IOVEditor.h"
 #include "CondCore/IOVService/interface/IOVIterator.h"
-#include "CondCore/IOVService/interface/IOVNames.h"
+//#include "CondCore/IOVService/interface/IOVNames.h"
+#include "CondCore/IOVService/interface/IOVSchemaUtility.h"
 //#include "CondCore/DBCommon/interface/ConnectMode.h"
 #include "CondCore/DBCommon/interface/Exception.h"
 #include "CondCore/DBCommon/interface/ConfigSessionFromParameterSet.h"
 #include "CondCore/DBCommon/interface/SessionConfiguration.h"
 #include "CondCore/DBOutputService/interface/Exception.h"
-#include "CondCore/DBCommon/interface/ObjectRelationalMappingUtility.h"
+//#include "CondCore/DBCommon/interface/ObjectRelationalMappingUtility.h"
 #include "CondCore/DBCommon/interface/DBSession.h"
 //#include "FWCore/Framework/interface/IOVSyncValue.h"
 
@@ -103,12 +104,15 @@ cond::service::PoolDBOutputService::initDB()
   if(m_dbstarted) return;
   cond::CoralTransaction& coraldb=m_connection->coralTransaction();
   try{
-    coraldb.start(false); 
-    cond::ObjectRelationalMappingUtility* mappingUtil=new cond::ObjectRelationalMappingUtility(&(coraldb.coralSessionProxy()) );
-    if( !mappingUtil->existsMapping(cond::IOVNames::iovMappingVersion()) ){
+    coraldb.start(false);
+    IOVSchemaUtility ut(coraldb);
+    ut.create();
+    /*cond::ObjectRelationalMappingUtility* mappingUtil=new cond::ObjectRelationalMappingUtility(&(coraldb.coralSessionProxy()) );
+      if( !mappingUtil->existsMapping(cond::IOVNames::iovMappingVersion()) ){
       mappingUtil->buildAndStoreMappingFromBuffer(cond::IOVNames::iovMappingXML());
-    }
-    delete mappingUtil;
+      }
+      delete mappingUtil;
+    */
     cond::MetaData metadata(coraldb);
     for(std::map<size_t,cond::service::serviceCallbackRecord>::iterator it=m_callbacks.begin(); it!=m_callbacks.end(); ++it){
       //std::string iovtoken;
