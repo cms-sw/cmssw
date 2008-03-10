@@ -10,6 +10,6 @@ bool RecordBX::matchType(const DataRecord & record)
 std::string RecordBX::print() const 
 {
   std::ostringstream str; 
-  str <<"BX,   bx = "<<bx(); 
+  str <<" BX,    bx = "<<bx(); 
   return str.str(); 
 }
