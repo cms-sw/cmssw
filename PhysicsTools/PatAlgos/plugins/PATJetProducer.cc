@@ -1,5 +1,5 @@
 //
-// $Id$
+// $Id: PATJetProducer.cc,v 1.1.2.3 2008/03/10 18:28:00 lowette Exp $
 //
 
 #include "PhysicsTools/PatAlgos/plugins/PATJetProducer.h"
@@ -11,7 +11,7 @@
 #include "DataFormats/Common/interface/Association.h"
 #include "DataFormats/Candidate/interface/CandAssociation.h"
 
-#include "JetMETCorrections/Objects/interface/JetCorrector.h"
+#include "DataFormats/BTauReco/interface/JetTagFwd.h"
 #include "DataFormats/BTauReco/interface/JetTag.h"
 #include "DataFormats/BTauReco/interface/TrackProbabilityTagInfo.h"
 //#include "DataFormats/BTauReco/interface/TrackProbabilityTagInfoFwd.h"
