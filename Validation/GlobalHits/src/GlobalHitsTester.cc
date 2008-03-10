@@ -31,18 +31,31 @@ GlobalHitsTester::GlobalHitsTester(const edm::ParameterSet& iPSet) :
     meTestProfile2 = 0;
     Random = new TRandom3();
     
-    dbe->setCurrentFolder("GlobalHitsV/GlobalTestV");
-
+    dbe->setCurrentFolder("GlobalTestV/String");
     meTestString = dbe->bookString("TestString","Hello World" );
+
+    dbe->setCurrentFolder("GlobalTestV/Int");
     meTestInt = dbe->bookInt("TestInt");
+
+    dbe->setCurrentFolder("GlobalTestV/Float");
     meTestFloat = dbe->bookFloat("TestFloat");
+
+    dbe->setCurrentFolder("GlobalTestV/TH1F");
     meTestTH1F = dbe->book1D("Random1D", "Random1D", 100, -10., 10.);
+
+    dbe->setCurrentFolder("GlobalTestV/TH2F");
     meTestTH2F = dbe->book2D("Random2D", "Random2D", 100, -10, 10., 100, -10., 
 			     10.);
+
+    dbe->setCurrentFolder("GlobalTestV/TH3F");
     meTestTH3F = dbe->book3D("Random3D", "Random3D", 100, -10., 10., 100, 
 			     -10., 10., 100, -10., 10.);
+
+    dbe->setCurrentFolder("GlobalTestV/TProfile");
     meTestProfile1 = dbe->bookProfile("Profile1", "Profile1", 100, -10., 10., 
 				      100, -10., 10.);
+
+    dbe->setCurrentFolder("GlobalTestV/TProfile2D");
     meTestProfile2 = dbe->bookProfile2D("Profile2", "Profile2", 100, -10., 
 					10., 100, -10, 10., 100, -10., 10.);
 
