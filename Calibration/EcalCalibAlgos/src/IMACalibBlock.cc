@@ -1,8 +1,8 @@
 /**
-    $Date: 2008/01/23 11:04:55 $
-    $Revision: 1.1.2.1 $
-    $Id: IMACalibBlock.cc,v 1.1.2.1 2008/01/23 11:04:55 govoni Exp $ 
-    \author $Author: govoni $
+    $Date: 2008/02/25 17:53:09 $
+    $Revision: 1.2 $
+    $Id: IMACalibBlock.cc,v 1.2 2008/02/25 17:53:09 malberti Exp $ 
+    \author $Author: malberti $
 */
 
 #include "Calibration/EcalCalibAlgos/interface/IMACalibBlock.h"
@@ -10,7 +10,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "TH1F.h"
 #include "TFile.h"
-
+#include <cassert>
 
 // -----------------------------------------------------
 
