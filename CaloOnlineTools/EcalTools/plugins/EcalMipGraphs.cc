@@ -13,7 +13,7 @@
 //
 // Original Author:  Seth COOPER
 //         Created:  Th Nov 22 5:46:22 CEST 2007
-// $Id: EcalMipGraphs.cc,v 1.11 2007/12/19 14:32:12 franzoni Exp $
+// $Id: EcalMipGraphs.cc,v 1.1 2008/01/22 22:20:49 scooper Exp $
 //
 //
 
@@ -69,7 +69,6 @@ EcalMipGraphs::EcalMipGraphs(const edm::ParameterSet& iConfig) :
   }
   
   for (int i=0; i<10; i++)        abscissa[i] = i;
-  eventsAndSeedCrys_ = new TNtuple("eventsSeedCrys","Events and Seed Crys Mapping","LV1A:ic:fed");
 }
 
 
@@ -88,6 +87,16 @@ EcalMipGraphs::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
   int ievt = iEvent.id().event();
   int graphCount = 0;
+  
+  if(runNum_==-1)
+  {
+    runNum_ = iEvent.id().run();
+    fileName_+=intToString(runNum_);
+    fileName_+=".graph.root";
+    file = TFile::Open(fileName_.c_str(),"RECREATE");
+    eventsAndSeedCrys_ = new TNtuple("eventsSeedCrys","Events and Seed Crys Mapping","LV1A:ic:fed");
+  }
+
   //We only want the 3x3's for this event...
   listAllChannels.clear();
   auto_ptr<EcalElectronicsMapping> ecalElectronicsMap(new EcalElectronicsMapping);
@@ -213,21 +222,12 @@ EcalMipGraphs::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
       + "_FED" + intToString(FEDid);
     string title = "Event" + intToString(ievt) + "_ic" + intToString(ic)
       + "_" + sliceName;
-    
     oneGraph.SetTitle(title.c_str());
     oneGraph.SetName(name.c_str());
     graphs.push_back(oneGraph);
     graphCount++;
   }
   
-  if(runNum_==-1)
-  {
-    runNum_ = iEvent.id().run();
-    fileName_+=intToString(runNum_);
-    fileName_+=".graph.root";
-    file = TFile::Open(fileName_.c_str(),"RECREATE");
-  }
-
   if(graphs.size()==0)
     return;
   
