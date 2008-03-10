@@ -784,7 +784,7 @@ void FUEventProcessor::initEventProcessor()
   //fill macrostate legend information
   unsigned int i = 0;
   std::stringstream oss;
-  for(i = (unsigned int)edm::event_processor::sInit; i <= (unsigned int)edm::event_processor::sInvalid; i++)
+  for(i = (unsigned int)edm::event_processor::sInit; i < (unsigned int)edm::event_processor::sInvalid; i++)
     {
       oss << i << "=" << evtProcessor_->stateName((edm::event_processor::State) i) << " ";
     }
@@ -797,22 +797,24 @@ void FUEventProcessor::initEventProcessor()
   unsigned int outcount = 0;
   oss2 << 0 << "=In ";
   modmap_["IN"]=0;
-  for(i = 0; i < descs_.size(); i++)
-    {
-      if(descs_[i]->moduleName() != "ShmStreamConsumer")
-	{
-	  oss2 << i+1 << "=" << descs_[i]->moduleLabel() << " ";
-	  modmap_[descs_[i]->moduleLabel()]=i+1;
-	}
-    }
   for(unsigned int j = 0; j < descs_.size(); j++)
     {
       if(descs_[j]->moduleName() == "ShmStreamConsumer") // find something better than hardcoding name
 	{ 
 	  outcount++;
-	  oss2 << i << "=Out" << outcount << " ";
-	  modmap_[descs_[j]->moduleLabel()]=i;
+	  oss2 << outcount << "=Out" << outcount << " ";
+	  modmap_[descs_[j]->moduleLabel()]=outcount;
 	  i++;
+	}
+    }
+  unsigned int modcount = 0;
+  for(i = 0; i < descs_.size(); i++)
+    {
+      if(descs_[i]->moduleName() != "ShmStreamConsumer")
+	{
+	  modcount++;
+	  oss2 << outcount+modcount << "=" << descs_[i]->moduleLabel() << " ";
+	  modmap_[descs_[i]->moduleLabel()]=outcount+modcount;
 	}
     }
   micro_state_legend_ = oss2.str();
