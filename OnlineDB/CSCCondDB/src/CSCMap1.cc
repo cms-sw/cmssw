@@ -243,7 +243,7 @@
     item->ddu_slot = stmt->getInt(4);
     item->dcc_fifo = stmt->getString(5);
     item->fiber_crate = stmt->getInt(7);
-    item->fiber_pos = stmt->getInt(7);
+    item->fiber_pos = stmt->getInt(8);
     item->fiber_socket = stmt->getString(9);
     int chamberid = stmt->getInt(14);
 
