@@ -1,4 +1,4 @@
-#include "Fireworks/Muons/interface/MuonsProxy3DBuilder.h"
+#include "Fireworks/Muons/interface/MuonsProxyRhoPhiZ2DBuilder.h"
 #include "TEveTrack.h"
 #include "TEveTrackPropagator.h"
 #include "TEveManager.h"
@@ -12,17 +12,28 @@
 #include "Fireworks/Core/interface/TEveElementIter.h"
 #include "TColor.h"
 #include "TEvePolygonSetProjected.h"
+#include "DataFormats/MuonDetId/interface/MuonSubdetId.h"
+#include "Fireworks/Core/interface/DetIdToMatrix.h"
 
-MuonsProxy3DBuilder::MuonsProxy3DBuilder()
+MuonsProxyRhoPhiZ2DBuilder::MuonsProxyRhoPhiZ2DBuilder()
 {
 }
 
-MuonsProxy3DBuilder::~MuonsProxy3DBuilder()
+MuonsProxyRhoPhiZ2DBuilder::~MuonsProxyRhoPhiZ2DBuilder()
 {
 }
 
-void MuonsProxy3DBuilder::build(const FWEventItem* iItem, 
-				TEveElementList** product)
+void MuonsProxyRhoPhiZ2DBuilder::buildRhoPhi(const FWEventItem* iItem, TEveElementList** product)
+{
+   build(iItem, product, false);
+}
+
+void MuonsProxyRhoPhiZ2DBuilder::buildRhoZ(const FWEventItem* iItem, TEveElementList** product)
+{
+   build(iItem, product, true);
+}
+
+void MuonsProxyRhoPhiZ2DBuilder::build(const FWEventItem* iItem, TEveElementList** product, bool showEndcap)
 {
    TEveElementList* tList = *product;
 
@@ -129,6 +140,8 @@ void MuonsProxy3DBuilder::build(const FWEventItem* iItem,
 	//need to use auto_ptr since the segmentSet may not be passed to muonList
 	std::auto_ptr<TEveStraightLineSet> segmentSet(new TEveStraightLineSet);
 	segmentSet->SetLineWidth(4);
+	segmentSet->SetMainColor(iItem->defaultDisplayProperties().color());
+
 	std::vector<reco::MuonChamberMatch>::const_iterator chamber = matches.begin();
 	for ( ; chamber != matches.end(); ++ chamber )
 	  {
@@ -138,16 +151,18 @@ void MuonsProxy3DBuilder::build(const FWEventItem* iItem,
 	     localTrajectoryPoint[2] = 0;
 	     
 	     DetId id = chamber->id;
-	     const TGeoHMatrix* matrix = m_item->getGeom()->getMatrix( chamber->id.rawId() );
-	     /* TEveGeoShapeExtract* extract = m_item->getGeom()->getExtract( chamber->id.rawId() );
-	     if(0!=extract) {
-		TEveElement* shape = TEveGeoShape::ImportShapeExtract(extract,0);
-		shape->IncDenyDestroy();
-		shape->SetMainTransparency(50);
-		shape->SetMainColor(iItem->defaultDisplayProperties().color());
-		muonList->AddElement(shape);
+	     if ( id.subdetId() != MuonSubdetId::CSC || showEndcap ) {
+		TEveGeoShapeExtract* extract = m_item->getGeom()->getExtract( chamber->id.rawId() );
+		if(0!=extract) {
+		   TEveElement* shape = TEveGeoShape::ImportShapeExtract(extract,0);
+		   shape->IncDenyDestroy();
+		   shape->SetMainTransparency(50);
+		   shape->SetMainColor(iItem->defaultDisplayProperties().color());
+		   muonList->AddElement(shape);
+		}
 	     }
-             */ 
+	     
+	     const TGeoHMatrix* matrix = m_item->getGeom()->getMatrix( chamber->id.rawId() );
 	     if ( matrix ) {
 		// make muon segment 20 cm long along local z-axis
 		matrix->LocalToMaster( localTrajectoryPoint, globalTrajectoryPoint );

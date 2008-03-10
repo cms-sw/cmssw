@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Sun Jan  6 22:01:27 EST 2008
-// $Id: FW3DLegoViewManager.cc,v 1.15 2008/03/07 03:42:58 dmytro Exp $
+// $Id: FW3DLegoViewManager.cc,v 1.16 2008/03/07 09:06:49 dmytro Exp $
 //
 
 // system include files
@@ -148,8 +148,6 @@ FW3DLegoViewManager::newEventAvailable()
 	 }
       }
    }
-   
-  std::cout << "stack: " << m_stack << std::endl; 
    
   m_stack->GetHistogram()->GetXaxis()->SetTitle("#eta");
   m_stack->GetHistogram()->GetXaxis()->SetTitleColor(Color_t(kYellow));
