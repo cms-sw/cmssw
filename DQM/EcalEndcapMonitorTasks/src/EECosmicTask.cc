@@ -1,8 +1,8 @@
 /*
  * \file EECosmicTask.cc
  *
- * $Date: 2008/02/23 09:56:56 $
- * $Revision: 1.31 $
+ * $Date: 2008/02/29 15:08:13 $
+ * $Revision: 1.32 $
  * \author G. Della Ricca
  *
 */
@@ -259,10 +259,12 @@ void EECosmicTask::analyze(const Event& e, const EventSetup& c){
           int icryX = id.ix()+column-1;
           int icryY = id.iy()+row-1;
           if ( EEDetId::validDetId(icryX, icryY, iz) ) {
-            EEDetId Xtals3x3 = EEDetId(icryX, icryY, iz, EEDetId::XYMODE);
-            float neighbourEnergy = hits->find(Xtals3x3)->energy();
-            e3x3 += neighbourEnergy;
-            if( neighbourEnergy > xval ) isSeed = false;
+            EEDetId id0 = EEDetId(icryX, icryY, iz, EEDetId::XYMODE);
+            if ( hits->find(id0) != hits->end() ) {
+              float neighbourEnergy = hits->find(id0)->energy();
+              e3x3 += neighbourEnergy;
+              if( neighbourEnergy > xval ) isSeed = false;
+            }
           }
         }
 
