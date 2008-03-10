@@ -1,8 +1,8 @@
 /*
  * \file EcalEndcapMonitorClient.cc
  *
- * $Date: 2008/02/29 09:07:22 $
- * $Revision: 1.159 $
+ * $Date: 2008/02/29 15:06:21 $
+ * $Revision: 1.160 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -1468,7 +1468,7 @@ void EcalEndcapMonitorClient::analyze(void){
 
     if ( begin_run_ && ! end_run_ ) {
 
-      bool update = ( jevt_ < 3 || jevt_ % 100 == 0 );
+      bool update = ( jevt_ < 3 || jevt_ % 1000 == 0 );
 
       if ( update || status_ == "begin-of-run" || status_ == "end-of-run" || forced_update_ ) {
 
