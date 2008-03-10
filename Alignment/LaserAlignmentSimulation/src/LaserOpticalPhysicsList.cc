@@ -1,8 +1,8 @@
 /** \file LaserOpticalPhysicsList.cc
  *  
  *
- *  $Date: 2007/06/11 14:44:29 $
- *  $Revision: 1.3 $
+ *  $Date: 2007/12/04 23:53:08 $
+ *  $Revision: 1.4 $
  *  \author Maarten Thomas
  */
 
@@ -40,7 +40,7 @@ LaserOpticalPhysicsList::~LaserOpticalPhysicsList()
   if ( theBoundaryProcess != 0 )    { delete theBoundaryProcess; }
   if ( theRayleighScattering != 0 ) { delete theRayleighScattering; }
   if ( theAbsorptionProcess != 0 )  { delete theAbsorptionProcess; }
-  if ( theCerenkovProcess != 0 )    { delete theCerenkovProcess; }
+//  if ( theCerenkovProcess != 0 )    { delete theCerenkovProcess; }
   if ( theScintProcess != 0 )       { delete theScintProcess; }
   if (verboseLevel > 0)
     std::cout << " done " << std::endl;
@@ -61,7 +61,7 @@ void LaserOpticalPhysicsList::ConstructProcess()
     std::cout << "<LaserOpticalPhysicsList::ConstructProcess()>: constructing the physics ... " << std::endl;
 
   theScintProcess = new G4Scintillation();
-  theCerenkovProcess=new G4Cerenkov();
+//  theCerenkovProcess=new G4Cerenkov();
   theAbsorptionProcess=new G4OpAbsorption();
   theRayleighScattering=new G4OpRayleigh();
   theBoundaryProcess=new G4OpBoundaryProcess("OpBoundary");
@@ -89,10 +89,10 @@ void LaserOpticalPhysicsList::ConstructProcess()
     {
       G4ParticleDefinition* particle = theParticleIterator->value();
       pManager = particle->GetProcessManager();
-      if(theCerenkovProcess->IsApplicable(*particle))
-	{
-	  pManager->AddContinuousProcess(theCerenkovProcess);
-	}
+//      if(theCerenkovProcess->IsApplicable(*particle))
+//	{
+//	  pManager->AddContinuousProcess(theCerenkovProcess);
+//	}
       if(theScintProcess->IsApplicable(*particle))
 	{
 	  pManager->AddProcess(theScintProcess);
