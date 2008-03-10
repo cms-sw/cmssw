@@ -543,7 +543,11 @@ class Process(object):
     def _findPreferred(self, esname, d):
         # is esname a name in the dictionary?
         if esname in d:
-            self.__setattr__(esname, ESPrefer(d[esname].type_()))
+            typ = d[esname].type_()
+            if typ == esname:
+                self.__setattr__( esname+"_prefer", ESPrefer(typ) )
+            else:
+                self.__setattr__( esname+"_prefer", ESPrefer(typ, esname) )
             return True
         else:
             # maybe it's an unnamed ESModule?
@@ -553,7 +557,7 @@ class Process(object):
                   if found:
                       raise RuntimeError("More than one ES module for "+esname)
                   found = True
-                  self.add_( ESPrefer(d[esname].type_()) )
+                  self.__setattr__(esname+"_prefer",  ESPrefer(d[esname].type_()) )
             return found
          
 def include(fileName):
