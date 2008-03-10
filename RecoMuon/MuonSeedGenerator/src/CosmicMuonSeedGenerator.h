@@ -4,8 +4,8 @@
 /** \class CosmicMuonSeedGenerator
  *  SeedGenerator for Cosmic Muon
  *
- *  $Date: 2007/03/30 16:00:21 $
- *  $Revision: 1.10 $
+ *  $Date: 2008/02/19 18:05:11 $
+ *  $Revision: 1.11 $
  *  \author Chang Liu - Purdue University 
  */
 
@@ -53,9 +53,6 @@ class CosmicMuonSeedGenerator: public edm::EDProducer {
   /// create TrajectorySeed from MuonTransientTrackingRecHit 
   std::vector<TrajectorySeed> createSeed(const MuonTransientTrackingRecHit::MuonRecHitPointer&,
                                          const edm::EventSetup&) const;
-
-  /// compare direction of  two vectors
-  float deltaEtaPhi(const GlobalVector&,const GlobalVector&) const;
 
   /// check if two rechits are correlated
   bool areCorrelated(const MuonTransientTrackingRecHit::MuonRecHitPointer&,

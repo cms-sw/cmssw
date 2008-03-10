@@ -2,8 +2,8 @@
 /**
  *  CosmicMuonSeedGenerator
  *
- *  $Date: 2007/03/30 16:00:26 $
- *  $Revision: 1.20 $
+ *  $Date: 2008/02/19 18:05:08 $
+ *  $Revision: 1.21 $
  *
  *  \author Chang Liu - Purdue University 
  *
@@ -31,6 +31,7 @@
 
 #include "TrackingTools/DetLayers/interface/DetLayer.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h"
+#include "DataFormats/Math/interface/deltaR.h"
 
 #include <vector>
 
@@ -85,28 +86,7 @@ void CosmicMuonSeedGenerator::produce(edm::Event& event, const edm::EventSetup& 
   // get the CSC layers
   vector<DetLayer*> cscForwardLayers = theMuonLayers->forwardCSCLayers();
   vector<DetLayer*> cscBackwardLayers = theMuonLayers->backwardCSCLayers();
-    
-  // Backward (z<0) EndCap disk
-  const DetLayer* ME4Bwd = cscBackwardLayers[4];
-  const DetLayer* ME3Bwd = cscBackwardLayers[3];
-  const DetLayer* ME2Bwd = cscBackwardLayers[2];
-  const DetLayer* ME12Bwd = cscBackwardLayers[1];
-  const DetLayer* ME11Bwd = cscBackwardLayers[0];
-  
-  // Forward (z>0) EndCap disk
-  const DetLayer* ME11Fwd = cscForwardLayers[0];
-  const DetLayer* ME12Fwd = cscForwardLayers[1];
-  const DetLayer* ME2Fwd = cscForwardLayers[2];
-  const DetLayer* ME3Fwd = cscForwardLayers[3];
-  const DetLayer* ME4Fwd = cscForwardLayers[4];
      
-  // barrel
-  const DetLayer* MB4DL = dtLayers[3];
-  const DetLayer* MB3DL = dtLayers[2];
-  const DetLayer* MB2DL = dtLayers[1];
-  const DetLayer* MB1DL = dtLayers[0];
-  
-  // instantiate the accessor
   MuonDetLayerMeasurements muonMeasurements(theDTRecSegmentLabel,theCSCRecSegmentLabel,
 					    InputTag(),
 					    theEnableDTFlag,theEnableCSCFlag,false);
@@ -115,62 +95,31 @@ void CosmicMuonSeedGenerator::produce(edm::Event& event, const edm::EventSetup& 
 
   MuonRecHitContainer allHits;
 
-  // ------------        EndCap disk z<0
-  MuonRecHitContainer RHBME4 = muonMeasurements.recHits(ME4Bwd);
-  MuonRecHitContainer RHBME3 = muonMeasurements.recHits(ME3Bwd);
-  MuonRecHitContainer RHBME2 = muonMeasurements.recHits(ME2Bwd);
-  MuonRecHitContainer RHBME12 = muonMeasurements.recHits(ME12Bwd);
-  MuonRecHitContainer RHBME11 = muonMeasurements.recHits(ME11Bwd);
+  for (vector<DetLayer*>::reverse_iterator idtlayer = dtLayers.rbegin();
+       idtlayer != dtLayers.rend(); ++idtlayer) {
 
-  // ------------        EndCap disk z>0 
-  MuonRecHitContainer RHFME4 = muonMeasurements.recHits(ME4Fwd);
-  MuonRecHitContainer RHFME3 = muonMeasurements.recHits(ME3Fwd);
-  MuonRecHitContainer RHFME2 = muonMeasurements.recHits(ME2Fwd);
-  MuonRecHitContainer RHFME12 = muonMeasurements.recHits(ME12Fwd);
-  MuonRecHitContainer RHFME11 = muonMeasurements.recHits(ME11Fwd);
+       MuonRecHitContainer RHMB = muonMeasurements.recHits(*idtlayer);
+       allHits.insert(allHits.end(),RHMB.begin(),RHMB.end());
 
-  // ------------        Barrel
-  MuonRecHitContainer RHMB4 = muonMeasurements.recHits(MB4DL);
-  MuonRecHitContainer RHMB3 = muonMeasurements.recHits(MB3DL);
-  MuonRecHitContainer RHMB2 = muonMeasurements.recHits(MB2DL);
-  MuonRecHitContainer RHMB1 = muonMeasurements.recHits(MB1DL);
-
-  LogTrace(category)<<"RecHits: Barrel outsideIn "
-                   <<RHMB4.size()<<" : "
-                   <<RHMB3.size()<<" : "
-                   <<RHMB2.size()<<" : "
-                   <<RHMB1.size()<<" .\n"
-                   <<"RecHits: Forward Endcap outsideIn "
-                   <<RHFME4.size()<<" : "
-                   <<RHFME3.size()<<" : "
-                   <<RHFME2.size()<<" : "
-                   <<RHFME12.size()<<" : "
-                   <<RHFME11.size()<<" .\n"
-                   <<"RecHits: Backward Endcap outsideIn "
-                   <<RHBME4.size()<<" : "
-                   <<RHBME3.size()<<" : "
-                   <<RHBME2.size()<<" : "
-                   <<RHBME12.size()<<" : "
-                   <<RHBME11.size()<<" .\n"; 
-
-  allHits.insert(allHits.end(),RHMB4.begin(),RHMB4.end());
-  allHits.insert(allHits.end(),RHMB3.begin(),RHMB3.end());
-  allHits.insert(allHits.end(),RHMB2.begin(),RHMB2.end());
-  allHits.insert(allHits.end(),RHMB1.begin(),RHMB1.end());
+  }
 
   stable_sort(allHits.begin(),allHits.end(),DecreasingGlobalY());
 
-  allHits.insert(allHits.end(),RHFME4.begin(),RHFME4.end());
-  allHits.insert(allHits.end(),RHFME3.begin(),RHFME3.end());
-  allHits.insert(allHits.end(),RHFME2.begin(),RHFME2.end());
-  allHits.insert(allHits.end(),RHFME12.begin(),RHFME12.end());
-  allHits.insert(allHits.end(),RHFME11.begin(),RHFME11.end());
+  for (vector<DetLayer*>::reverse_iterator icsclayer = cscForwardLayers.rbegin();
+       icsclayer != cscForwardLayers.rend(); ++icsclayer) {
 
-  allHits.insert(allHits.end(),RHBME4.begin(),RHBME4.end());
-  allHits.insert(allHits.end(),RHBME3.begin(),RHBME3.end());
-  allHits.insert(allHits.end(),RHBME2.begin(),RHBME2.end());
-  allHits.insert(allHits.end(),RHBME12.begin(),RHBME12.end());
-  allHits.insert(allHits.end(),RHBME11.begin(),RHBME11.end());
+       MuonRecHitContainer RHMF = muonMeasurements.recHits(*icsclayer);
+       allHits.insert(allHits.end(),RHMF.begin(),RHMF.end());
+
+  }
+
+  for (vector<DetLayer*>::reverse_iterator icsclayer = cscBackwardLayers.rbegin();
+       icsclayer != cscBackwardLayers.rend(); ++icsclayer) {
+
+       MuonRecHitContainer RHMF = muonMeasurements.recHits(*icsclayer);
+       allHits.insert(allHits.end(),RHMF.begin(),RHMF.end());
+
+  }
 
   LogTrace(category)<<"all RecHits: "<<allHits.size();
 
@@ -360,12 +309,12 @@ bool CosmicMuonSeedGenerator::areCorrelated(const MuonRecHitPointer& lhs, const 
 
   GlobalVector dis = pos2 - pos1;
 
-  if ( (deltaEtaPhi(dir1,dir2) < 0.1 || deltaEtaPhi(dir1,-dir2) < 0.1 ) 
+  if ( (deltaR<double>(dir1.eta(), dir1.phi(), dir2.eta(), dir2.phi()) < 0.1 || deltaR<double>(dir1.eta(), dir1.phi(), -dir2.eta(), -dir2.phi()) < 0.1 ) 
         && dis.mag() < 5.0 )
      result = true;
 
-  if ( (deltaEtaPhi(dir1,dir2) < 0.1 ||deltaEtaPhi(dir1,-dir2) < 0.1 ) && 
-      (deltaEtaPhi(dir1,dis) < 0.1 || deltaEtaPhi(dir2,dis) < 0.1) ) 
+  if ( (deltaR<double>(dir1.eta(), dir1.phi(), dir2.eta(), dir2.phi()) < 0.1 || deltaR<double>(dir1.eta(), dir1.phi(), -dir2.eta(), -dir2.phi()) < 0.1 ) &&
+       (deltaR<double>(dir1.eta(), dir1.phi(), dis.eta(), dis.phi()) < 0.1 || deltaR<double>(dir2.eta(), dir2.phi(), dis.eta(), dis.phi()) < 0.1 ) )
      result = true;
 
   if ( fabs(dir1.eta()) > 4.0 || fabs(dir2.eta()) > 4.0 ) {
@@ -382,18 +331,6 @@ bool CosmicMuonSeedGenerator::areCorrelated(const MuonRecHitPointer& lhs, const 
   return result;
 }
 
-float CosmicMuonSeedGenerator::deltaEtaPhi(const GlobalVector& lhs, const GlobalVector& rhs) const {
-
-    float phi1 = lhs.phi();
-    float eta1 = lhs.eta();
-
-    float phi2 = rhs.phi();
-    float eta2 = rhs.eta();
-    float deltaR = sqrt((phi1-phi2)*(phi1-phi2)+(eta1-eta2)*(eta1-eta2));
-    return deltaR;
-
-}
-
 bool CosmicMuonSeedGenerator::leftIsBetter(const MuonTransientTrackingRecHit::MuonRecHitPointer& lhs,
                     const MuonTransientTrackingRecHit::MuonRecHitPointer& rhs) const{
 
@@ -403,5 +340,3 @@ bool CosmicMuonSeedGenerator::leftIsBetter(const MuonTransientTrackingRecHit::Mu
      else return false;
 
 }
-
-
