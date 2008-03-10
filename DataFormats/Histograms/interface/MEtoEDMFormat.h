@@ -6,8 +6,8 @@
  *  DataFormat class to hold the information from a ME tranformed into
  *  ROOT objects as appropriate
  *
- *  $Date: 2008/02/05 23:45:49 $
- *  $Revision: 1.2 $
+ *  $Date: 2008/02/27 13:14:15 $
+ *  $Revision: 1.3 $
  *  \author M. Strang SUNY-Buffalo
  */
 
@@ -39,33 +39,42 @@ class MEtoEDM
     std::string	name;
     TagList 	tags;
     T	        object;
+    std::string release;
+    int run;
+    std::string datatier;
   };
 
   typedef std::vector<MEtoEDMObject> MEtoEdmObjectVector;
 
   void putMEtoEdmObject(const std::vector<std::string> &name,
 			const std::vector<TagList> &tags,
-			const std::vector<T> &object)
+			const std::vector<T> &object,
+			const std::vector<std::string> &release,
+			const std::vector<int> &run,
+			const std::vector<std::string> &datatier)
     {
       MEtoEdmObject.resize(name.size());
       for (unsigned int i = 0; i < name.size(); ++i) {
 	MEtoEdmObject[i].name = name[i];
 	MEtoEdmObject[i].tags = tags[i];
 	MEtoEdmObject[i].object = object[i];
+	MEtoEdmObject[i].release = release[i];
+	MEtoEdmObject[i].run = run[i];
+	MEtoEdmObject[i].datatier = datatier[i];
       }
     }
 
   const MEtoEdmObjectVector & getMEtoEdmObject() const
     { return MEtoEdmObject; }
 
-  bool mergeProduct(const MEtoEDM<T> &newMEtoEDM)
-    {
-      const MEtoEdmObjectVector &newMEtoEDMObject = newMEtoEDM.getMEtoEdmObject();
-      for (unsigned int i = 0; i < MEtoEdmObject.size(); ++i) {
-        MEtoEdmObject[i].object.Add(&newMEtoEDMObject[i].object);
-      }
-      return true;
+  bool mergeProduct(const MEtoEDM<T> &newMEtoEDM) {
+    const MEtoEdmObjectVector &newMEtoEDMObject = 
+      newMEtoEDM.getMEtoEdmObject();
+    for (unsigned int i = 0; i < MEtoEdmObject.size(); ++i) {
+      MEtoEdmObject[i].object.Add(&newMEtoEDMObject[i].object);
     }
+    return true;
+  }
 
  private:
 
