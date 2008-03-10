@@ -1,15 +1,31 @@
 <lcgdict>
   <class name="L1MuScale"/>
   <class name="L1MuTriggerScales"/>
+  <class name="L1MuGMTParameters"/>
   <class name="L1MuGMTScales"/>
   <class name="L1CaloEtScale"/>
   <class name="L1GctJetCounterSetup"/>
+  <class name="L1GctJetCounterSetup::cutDescription"/>
+  <class name="std::vector<L1GctJetCounterSetup::cutDescription>"/>
+  <class name="std::vector<std::vector<L1GctJetCounterSetup::cutDescription> >"/>
   <class name="L1GctJetEtCalibrationFunction"/>
+  <class name="std::vector<std::vector<double> >"/>
   <class name="L1GctJetFinderParams"/>
+  <class name="std::map<int,int>"/>
+  <class name="std::map<int,int>::value_type"/>
+  <class name="L1MuDTExtLut::LUT"/>
+  <class name="std::vector<L1MuDTExtLut::LUT>"/>
   <class name="L1MuDTExtLut"/>
+  <class name="std::vector<std::map<int,int> >"/>
   <class name="L1MuDTPhiLut"/>
   <class name="L1MuDTPtaLut"/>
+  <class name="L1MuDTEtaPattern"/>
+  <class name="std::map<int,L1MuDTEtaPattern>"/>
+  <class name="std::map<int,L1MuDTEtaPattern>::value_type"/>
   <class name="L1MuDTEtaPatternLut"/>
+  <class name="std::pair<int,std::vector<int> >"/>
+  <class name="std::map<std::pair<int,int>,std::pair<int,std::vector<int> > >"/>
+  <class name="std::map<std::pair<int,int>,std::pair<int,std::vector<int> > >::value_type"/>
   <class name="L1MuDTQualPatternLut"/>
   <class name="L1CSCTPParameters"/>
   <class name="L1MuCSCTFConfiguration"/>
@@ -29,6 +45,8 @@
   <class name="BitArray<16>"/>
   <class name="BitArray<8>"/>
   <class name="BitArray<9>"/>
+  <class name="std::map<DTBtiId,DTConfigBti>"/>
+  <class name="std::map<DTTracoId,DTConfigTraco>"/>
   <class name="std::map<DTChamberId,std::map<DTBtiId,DTConfigBti> >"/>
   <class name="std::map<DTChamberId,std::map<DTTracoId,DTConfigTraco> >"/>
   <class name="std::map<DTChamberId,DTConfigTSTheta>"/>
@@ -49,9 +67,11 @@
   <class name="L1GtPrescaleFactors"/>
   <class name="L1GtTriggerMask"/>
   <class name="L1GtBoard"/>
+  <class name="std::vector<L1GtPsbQuad>"/>
   <class name="L1GtBoardMaps"/>
   <class name="std::vector<L1GtBoard>"/>
   <class name="std::map<std::string, L1GtCondition*>"/>
+  <class name="std::vector<std::map<std::string, L1GtCondition*> >"/>
   <class name="std::map<std::string, L1GtAlgorithm*>"/>
   <class name="L1GtTriggerMenu"/>
 

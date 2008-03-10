@@ -1,6 +1,7 @@
 #include "CondFormats/L1TObjects/interface/BitArray.h"
 #include "CondFormats/L1TObjects/interface/L1MuScale.h"
 #include "CondFormats/L1TObjects/interface/L1MuTriggerScales.h"
+#include "CondFormats/L1TObjects/interface/L1MuGMTParameters.h"
 #include "CondFormats/L1TObjects/interface/L1MuGMTScales.h"
 #include "CondFormats/L1TObjects/interface/L1CaloEtScale.h"
 #include "CondFormats/L1TObjects/interface/L1GctJetCounterSetup.h"
@@ -41,6 +42,9 @@
 
 namespace {
   namespace {
-    std::map< std::string, std::map< std::string, std::string > > dummy ;
+    std::map< std::string, std::map< std::string, std::string > > dummy0 ;
+    std::map<DTBtiId,DTConfigBti> dummy1 ;
+    std::map<DTTracoId,DTConfigTraco> dummy2 ;
+    std::vector<L1MuDTExtLut::LUT> dummy3 ;
   }
 }
