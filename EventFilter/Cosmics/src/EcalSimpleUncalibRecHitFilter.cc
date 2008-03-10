@@ -13,7 +13,7 @@
 //
 // Original Author:  Giovanni FRANZONI
 //         Created:  Wed Sep 19 16:21:29 CEST 2007
-// $Id: EcalSimpleUncalibRecHitFilter.cc,v 1.1 2007/11/07 17:29:09 meridian Exp $
+// $Id: EcalSimpleUncalibRecHitFilter.cc,v 1.1 2007/11/12 16:21:14 mzanetti Exp $
 //
 //
 
@@ -23,7 +23,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDFilter.h"
+#include "HLTrigger/HLTcore/interface/HLTFilter.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -38,7 +38,7 @@
 // class declaration
 //
 
-class EcalSimpleUncalibRecHitFilter : public edm::EDFilter {
+class EcalSimpleUncalibRecHitFilter : public HLTFilter {
    public:
       explicit EcalSimpleUncalibRecHitFilter(const edm::ParameterSet&);
       ~EcalSimpleUncalibRecHitFilter();
