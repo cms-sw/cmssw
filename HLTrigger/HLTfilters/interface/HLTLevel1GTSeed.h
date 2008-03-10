@@ -38,7 +38,7 @@
 
 // forward declarations
 class L1GtTriggerMenu;
-
+class L1GtTriggerMask;
 
 // class declaration
 class HLTLevel1GTSeed : public HLTFilter
@@ -64,9 +64,10 @@ private:
     /// for a new L1 Trigger menu
     void updateAlgoLogicParser(const L1GtTriggerMenu*);
 
-    /// update the tokenResult members from m_l1AlgoLogicParserin 
+    /// update the tokenResult members from m_l1AlgoLogicParser 
     /// for a new event
-    void updateAlgoLogicParser(const std::vector<bool>&);
+    void updateAlgoLogicParser(const std::vector<bool>& gtWord, 
+            const std::vector<unsigned int>& triggerMask, const int physicsDaqPartition);
     
     /// for seeding via technical triggers, convert the "name" to tokenNumber
     /// (seeding via bit numbers)
@@ -81,10 +82,22 @@ private:
     
     // cached stuff
 
-    // trigger menu
+    /// trigger menu
     const L1GtTriggerMenu* m_l1GtMenu;
     unsigned long long m_l1GtMenuCacheID;
 
+    /// trigger masks
+    const L1GtTriggerMask* m_l1GtTmAlgo;
+    unsigned long long m_l1GtTmAlgoCacheID;
+ 
+    const L1GtTriggerMask* m_l1GtTmTech;
+    unsigned long long m_l1GtTmTechCacheID;
+    
+    std::vector<unsigned int> m_triggerMaskAlgoTrig;
+    std::vector<unsigned int> m_triggerMaskTechTrig;
+
+    //
+    
     /// logic parser for m_l1SeedsLogicalExpression
     L1GtLogicParser m_l1AlgoLogicParser;
 
