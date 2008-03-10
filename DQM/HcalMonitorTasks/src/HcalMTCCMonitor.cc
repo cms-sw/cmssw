@@ -126,7 +126,7 @@ void HcalMTCCMonitor::processEvent(const HBHEDigiCollection& hbhe,
 	  int capid=digi[i].capid();
 	  ta = (tool[i]-calibs_.pedestal(capid)); // pedestal subtraction
 	  fc_ampl+=ta; 
-	  ta*=calibs_.gain(capid); // fC --> GeV
+	  ta*= calibs_.respcorrgain(capid); // fC --> GeV
 	  if(ta>maxA){
 	    maxA=ta;
 	    maxI=i;
@@ -138,14 +138,14 @@ void HcalMTCCMonitor::processEvent(const HBHEDigiCollection& hbhe,
 	int capid=0;
 	if(maxI!=0){
 	  capid=digi[maxI-1].capid();
-	  m1 = (tool[maxI-1]-calibs_.pedestal(capid))*calibs_.gain(capid);
+	  m1 = (tool[maxI-1]-calibs_.pedestal(capid))*calibs_.respcorrgain(capid);
 	}
 	capid=digi[maxI].capid();
-	z = (tool[maxI]-calibs_.pedestal(capid))*calibs_.gain(capid);
+	z = (tool[maxI]-calibs_.pedestal(capid))*calibs_.respcorrgain(capid);
 	
 	if(maxI!=(tool.size()-1)){
 	  capid=digi[maxI+1].capid();
-	  p1 = (tool[maxI+1]-calibs_.pedestal(capid))*calibs_.gain(capid);
+	  p1 = (tool[maxI+1]-calibs_.pedestal(capid))*calibs_.respcorrgain(capid);
 	}
 	
 	mtime = m1*(maxI-1) + z*maxI + p1*(maxI+1);
@@ -184,7 +184,7 @@ void HcalMTCCMonitor::processEvent(const HBHEDigiCollection& hbhe,
 	  int capid=digi[i].capid();
 	  ta = (tool[i]-calibs_.pedestal(capid)); // pedestal subtraction
 	  fc_ampl+=ta; 
-	  ta*=calibs_.gain(capid); // fC --> GeV
+	  ta*=calibs_.respcorrgain(capid); // fC --> GeV
 	  if(ta>maxA){
 	    maxA=ta;
 	    maxI=i;
@@ -196,14 +196,14 @@ void HcalMTCCMonitor::processEvent(const HBHEDigiCollection& hbhe,
 	int capid=0;
 	if(maxI!=0){
 	  capid=digi[maxI-1].capid();
-	  m1 = (tool[maxI-1]-calibs_.pedestal(capid))*calibs_.gain(capid);
+	  m1 = (tool[maxI-1]-calibs_.pedestal(capid))*calibs_.respcorrgain(capid);
 	}
 	capid=digi[maxI].capid();
-	z = (tool[maxI]-calibs_.pedestal(capid))*calibs_.gain(capid);
+	z = (tool[maxI]-calibs_.pedestal(capid))*calibs_.respcorrgain(capid);
 	
 	if(maxI!=(tool.size()-1)){
 	  capid=digi[maxI+1].capid();
-	  p1 = (tool[maxI+1]-calibs_.pedestal(capid))*calibs_.gain(capid);
+	  p1 = (tool[maxI+1]-calibs_.pedestal(capid))*calibs_.respcorrgain(capid);
 	}
 	
 	mtime = m1*(maxI-1) + z*maxI + p1*(maxI+1);
