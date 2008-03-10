@@ -20,6 +20,7 @@
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 
+#include "DataFormats/MuonReco/interface/MuonFwd.h"
 
 #include "FWCore/ParameterSet/interface/FileInPath.h"
 
@@ -34,6 +35,9 @@ PFBlockProducer::PFBlockProducer(const edm::ParameterSet& iConfig) {
   // use configuration file to setup input/output collection names
   inputTagRecTracks_ 
     = iConfig.getParameter<InputTag>("RecTracks");
+
+  inputTagRecMuons_ 
+    = iConfig.getParameter<InputTag>("RecMuons");
 
   inputTagPFNuclear_ 
     = iConfig.getParameter<InputTag>("PFNuclear");
@@ -163,13 +167,25 @@ void PFBlockProducer::produce(Event& iEvent,
   
   Handle< reco::PFRecTrackCollection > recTracks;
   
-  // LogDebug("PFBlockProducer")<<"get HCAL clusters"<<endl;
+  // LogDebug("PFBlockProducer")<<"get reco tracks"<<endl;
   bool found = iEvent.getByLabel(inputTagRecTracks_, recTracks);
     
   if(!found )
     LogError("PFBlockProducer")<<" cannot get rectracks: "
 			       <<inputTagRecTracks_<<endl;
+
+  // get recmuons
+
+  Handle< reco::MuonCollection > recMuons;
+
+  // LogDebug("PFBlockProducer")<<"get reco muons"<<endl;
+  found = iEvent.getByLabel(inputTagRecMuons_, recMuons);
   
+  if(!found )
+    LogError("PFBlockProducer")<<" cannot get recmuons: "
+			       <<inputTagRecMuons_<<endl;
+
+
   // get PFNuclearInteractions
 
   Handle< reco::PFNuclearInteractionCollection > pfNuclears;
