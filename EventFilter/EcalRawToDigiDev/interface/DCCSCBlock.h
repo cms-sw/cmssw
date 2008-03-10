@@ -40,9 +40,10 @@ class DCCSCBlock : public DCCFEBlock {
    std::auto_ptr<EEDigiCollection>        * digis_;
 
    // to restructure as common collections to DCCTowerBlock, to inherit from DCCFEBlock
-   std::auto_ptr<EEDetIdCollection>       * invalidGains_;
-   std::auto_ptr<EEDetIdCollection>       * invalidGainsSwitch_ ;
-   std::auto_ptr<EEDetIdCollection>       * invalidChIds_;
+   // backporting to be 18x compatible
+   /*    std::auto_ptr<EEDetIdCollection>       * invalidGains_; */
+   /*    std::auto_ptr<EEDetIdCollection>       * invalidGainsSwitch_ ; */
+   /*    std::auto_ptr<EEDetIdCollection>       * invalidChIds_; */
     
 };
 
