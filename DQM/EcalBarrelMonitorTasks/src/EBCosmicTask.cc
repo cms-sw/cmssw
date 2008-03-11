@@ -1,8 +1,8 @@
 /*
  * \file EBCosmicTask.cc
  *
- * $Date: 2008/02/29 15:04:12 $
- * $Revision: 1.94 $
+ * $Date: 2008/03/10 21:17:44 $
+ * $Revision: 1.95 $
  * \author G. Della Ricca
  *
 */
@@ -253,9 +253,9 @@ void EBCosmicTask::analyze(const Event& e, const EventSetup& c){
           int icryEta = id.ieta()+column-1;
           int icryPhi = id.iphi()+row-1;
           if ( EBDetId::validDetId(icryEta, icryPhi) ) {
-            EBDetId id0 = EBDetId(icryEta, icryPhi, EBDetId::ETAPHIMODE);
-            if ( hits->find(id0) != hits->end() ) {
-              float neighbourEnergy = hits->find(id0)->energy();
+            EBDetId id3x3 = EBDetId(icryEta, icryPhi, EBDetId::ETAPHIMODE);
+            if( hits->find(id3x3) != hits->end() ) {
+              float neighbourEnergy = hits->find(id3x3)->energy();
               e3x3 += neighbourEnergy;
               if( neighbourEnergy > xval ) isSeed = false;
             }
