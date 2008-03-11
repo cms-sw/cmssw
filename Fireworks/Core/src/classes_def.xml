@@ -32,4 +32,6 @@
   <class name="FWParameterSetterBase"/>
   <class name="FWDoubleParameterSetter"/>
   <class name="FWDoubleParameter"/>
+  <class name="FWLongParameterSetter"/>
+  <class name="FWLongParameter"/>
 </lcgdict>

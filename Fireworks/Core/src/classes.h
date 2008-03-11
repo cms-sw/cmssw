@@ -33,6 +33,9 @@
 #include "Fireworks/Core/interface/FWParameterSetterBase.h"
 #include "Fireworks/Core/src/FWDoubleParameterSetter.h"
 #include "Fireworks/Core/interface/FWDoubleParameter.h"
+#include "Fireworks/Core/src/FWLongParameterSetter.h"
+#include "Fireworks/Core/interface/FWLongParameter.h"
+
 
 namespace {
    struct Fireworks_Core {
