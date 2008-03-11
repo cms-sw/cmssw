@@ -1,0 +1,73 @@
+#!/usr/bin/env python
+import os,os.path,string
+import sys
+import xml.parsers.expat
+from optparse import OptionParser
+def start_element(name, attrs):
+    print 'Start element:', name, attrs
+def end_element(name):
+    print 'End element:', name
+def char_data(data):
+    print 'Character data:', repr(data)
+
+p = xml.parsers.expat.ParserCreate()
+p.StartElementHandler = start_element
+p.EndElementHandler = end_element
+p.CharacterDataHandler = char_data
+
+class bootstrap:
+    def __init__(self):
+        """
+        Prepare schema for one or many database schema.
+        usage: %prog [options]
+        -f, --dbconfig : DB configuration file with absolute path(default hardcoded in CondTools/OracleDBA/dbconfig/dbconfiguration.xml)
+        -P, --authPath : path to authentication.xml(default .)
+        -c, --connect : connect string to DB to set up (default in dbconfig)
+        -a, --all : Set up all schemas in DB configuration file(default)
+        -D, --Detector : Set up only schema identified with given Detector entry in the DBConfiguration file
+        --fake : Don't actually do anything, only print commands
+        -v, --verbose: verbose mode
+        -h, --help: print usage
+        """
+        self.__verbose=False
+        self.__fake=False
+        self.__all=True
+        self.__registry={}
+        self.__authpath='.'
+        self.__commands=[]
+    def parsedbconfig(self):
+        """
+        Parse dbconfig xml to fill in self.__registry
+        """
+    def parsecmdln(self):
+        """
+        Parse commandline
+        """
+        usage = "usage: \%prog [options] \n"
+        parser = OptionParser()
+        parser.add_option("-f","--dbconfig",action="store",dest="dbconfig",
+                          help="( DB configuration file with absolute path required )")
+        parser.add_option("-P","--authPath",action="store",dest="authpath",
+                          help="path to authentication.xml(default .)")
+        parser.add_option("-c","--connect",action="store",dest="connect",
+                          help="DB to set up (default in dbconfig)")
+        parser.add_option("-a","--all",action="store_true",dest="all",
+                          help="Set up all schemas in DB configuration file(default)")
+        parser.add_option("-D","--Detector",action="store",dest="Detector",
+                          help="Set up only schema identified with given Detector entry in the DBConfiguration file")
+        parser.add_option("--fake",action="store_true",dest="fake",
+                          help="Don't actually do anything, only print commands")
+        parser.add_option("-v","--verbose",action="store_true",dest="verbose",
+                          help="verbose mode")
+        (options, args) = parser.parse_args()
+        
+    def execute(self):
+        '''execute sequence
+        '''
+        
+if __name__ == "__main__":
+    me=bootstrapdetector()    
+    me.parsecmdln()
+    me.execute()
+
+
