@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Feb 11 11:06:40 EST 2008
-// $Id: FWGUIManager.cc,v 1.11 2008/03/06 22:48:31 jmuelmen Exp $
+// $Id: FWGUIManager.cc,v 1.12 2008/03/11 02:50:38 chrjones Exp $
 //
 
 // system include files
@@ -28,6 +28,8 @@
 //EVIL, no accessor for the editor yet
 //#define protected public
 #include "TEveBrowser.h"
+#include "TBrowser.h"
+
 //#undef protected
 #include "TEveManager.h"
 #include "TEveGedEditor.h"
@@ -257,8 +259,18 @@ m_code(0)
       browser->GetTabLeft()->RemoveTab(0);
       browser->GetTabLeft()->RemoveTab(0);
       browser->GetTabRight()->RemoveTab(0);
+      //hid the command tab
+      //browser->GetTabBottom()->RemoveTab(0);
+      //Code from Bertrand
+      TGCompositeFrame* cf = const_cast<TGCompositeFrame*>(dynamic_cast<const TGCompositeFrame*>(browser->GetTabBottom()->GetParent()));
+      
+      assert(0!=cf);
+      Int_t width = cf->GetWidth();
+      //0 for height appears to be ignored
+      cf->Resize(width,1);
    }
-   
+   //without this call the bottom tab is still shown until something forces a redraw
+   browser->Layout();
 }
 
 // FWGUIManager::FWGUIManager(const FWGUIManager& rhs)
