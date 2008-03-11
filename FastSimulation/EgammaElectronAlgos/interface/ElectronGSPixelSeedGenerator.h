@@ -11,6 +11,7 @@
  *
  ************************************************************/
 
+#include "RecoEgamma/EgammaElectronAlgos/interface/ElectronSeedGenerator.h"
 #include "DataFormats/EgammaReco/interface/ElectronPixelSeedFwd.h"  
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
 #include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
@@ -38,7 +39,7 @@ class PropagatorWithMaterial;
 class KFUpdator;
 class GSPixelHitMatcher;
 
-class ElectronGSPixelSeedGenerator
+class ElectronGSPixelSeedGenerator : public ElectronSeedGenerator
 {
 public:
 
@@ -51,19 +52,7 @@ public:
 
   enum mode{HLT, offline, unknown};  //to be used later
 
-  ElectronGSPixelSeedGenerator(
-			       float iephimin1,
-			       float iephimax1,
-			       float ipphimin1,
-			       float ipphimax1,
-			       float iphimin2,
-			       float iphimax2,
-			       float izmin2,
-			       float izmax2,
-			       bool  idynamicphiroad,
-			       double SCEtCut,
-			       double pTMin
-			       );
+  ElectronGSPixelSeedGenerator(const edm::ParameterSet &pset,double pTMin);
 
   ~ElectronGSPixelSeedGenerator();
 
@@ -72,7 +61,8 @@ public:
   void setupES(const edm::EventSetup& setup);
 
   void run(edm::Event&, 
-	   const edm::Handle<reco::SuperClusterCollection>& clusters,  
+	   // const edm::Handle<reco::SuperClusterCollection>& clusters,  
+	   const reco::SuperClusterRefVector &sclRefs,
 	   const SiTrackerGSMatchedRecHit2DCollection*,
 	   const edm::SimTrackContainer*,
 	   reco::ElectronPixelSeedCollection&);
@@ -87,19 +77,20 @@ public:
 			  ConstRecHitPointer innerhit, 
 			  const GlobalPoint& vertexPos);
 
-  float ephimin1;
-  float ephimax1;
-  float pphimin1;
-  float pphimax1;
-  float phimin2, phimax2;
-  float zmin1, zmax1, zmin2, zmax2;
-  bool dynamicphiroad;
-  double SCEtCut_;
+  bool dynamicphiroad_;
+
+  float lowPtThreshold_;
+  float highPtThreshold_;
+  float sizeWindowENeg_;   
+  float phimin2_,phimax2_;
+  float deltaPhi1Low_, deltaPhi1High_;
+  float deltaPhi2_;
+  
+  double zmin1_, zmax1_;
   double pTMin2;
   math::XYZPoint BSPosition_;  
 
   GSPixelHitMatcher *myGSPixelMatcher;
-  mode theMode_;
 
   const MagneticField* theMagField;
   const MagneticFieldMap* theMagneticFieldMap;

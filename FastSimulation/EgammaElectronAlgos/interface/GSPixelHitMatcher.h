@@ -43,7 +43,7 @@ class GSPixelHitMatcher{
   typedef TransientTrackingRecHit::RecHitContainer      RecHitContainer;
   
 
-  GSPixelHitMatcher(float,float,float,float,float,float,float,float);
+  GSPixelHitMatcher(float,float,float,float,float,float,float,float,float,float,float,float,bool);
 
   virtual ~GSPixelHitMatcher();
 
@@ -96,8 +96,7 @@ class GSPixelHitMatcher{
 		 GlobalPoint& theHit);
  
   bool zCompatible(double zVertex, double zPrior, 
-		   double zmin, double zmax,
-		   bool barrel); 
+		   double zmin, double zmax);
 
   void set1stLayerZRange(double zmin1, double zmax1) { 
     z1max = zmax1; 
@@ -112,7 +111,11 @@ class GSPixelHitMatcher{
   float pphi1min, pphi1max;
   float phi2min, phi2max;
   float z1min, z1max;
-  float z2min, z2max;
+  float z2minB, z2maxB;
+  float r2minF, r2maxF;
+  float rMinI, rMaxI; 
+  bool searchInTIDTEC;
+
   const TrackerGeometry* theTrackerGeometry;
   const MagneticField* theMagneticField;
   const GeometricSearchTracker* theGeomSearchTracker;

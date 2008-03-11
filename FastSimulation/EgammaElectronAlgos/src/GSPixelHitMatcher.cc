@@ -29,18 +29,23 @@
 GSPixelHitMatcher::GSPixelHitMatcher(float ephi1min, float ephi1max, 
 				     float pphi1min, float pphi1max, 
 				     float phi2min, float phi2max, 
-				     float z2min, float z2max) 
-    :
-    ephi1min(ephi1min), ephi1max(ephi1max), 
-    pphi1min(pphi1min), pphi1max(pphi1max), 
-    phi2min(phi2min), phi2max(phi2max), 
-    z2min(z2min), z2max(z2max), 
-    theTrackerGeometry(0),
-    theMagneticField(0),
-    theGeomSearchTracker(0),
-    _theGeometry(0),
-    thePixelLayers(6,static_cast<TrackerLayer*>(0)),
-    vertex(0.) {}
+				     float z2minB, float z2maxB,
+				     float r2minF, float r2maxF,
+				     float rMinI, float rMaxI, 
+				     bool searchInTIDTEC) :
+  ephi1min(ephi1min), ephi1max(ephi1max), 
+  pphi1min(pphi1min), pphi1max(pphi1max), 
+  phi2min(phi2min), phi2max(phi2max), 
+  z2minB(z2minB), z2maxB(z2maxB), 
+  r2minF(r2minF), r2maxF(r2maxF),
+  rMinI(rMinI), rMaxI(rMaxI), 
+  searchInTIDTEC(searchInTIDTEC),
+  theTrackerGeometry(0),
+  theMagneticField(0),
+  theGeomSearchTracker(0),
+  _theGeometry(0),
+  thePixelLayers(6,static_cast<TrackerLayer*>(0)),
+  vertex(0.) {}
 
 GSPixelHitMatcher::~GSPixelHitMatcher() { }
 
@@ -49,17 +54,17 @@ GSPixelHitMatcher::setES(const MagneticFieldMap* aFieldMap,
 			 const TrackerGeometry* aTrackerGeometry, 
 			 const GeometricSearchTracker* geomSearchTracker,
 			 const TrackerInteractionGeometry* interactionGeometry) {
-
+  
   // initialize the tracker geometry and the magnetic field map
   theTrackerGeometry = aTrackerGeometry; 
   //theMagneticField = aMagField;
   theGeomSearchTracker = geomSearchTracker;
   _theGeometry = interactionGeometry;
   theFieldMap = aFieldMap;
-
+  
   // Initialize (if not already done) the simplified magnetic field geometry
   // MagneticFieldMap::instance( theMagneticField, _theGeometry );
- 
+  
   // The pixel layers in the simplified geometry 
   unsigned layer = 1;
   std::list<TrackerLayer>::const_iterator cyliter = _theGeometry->cylinderBegin();
@@ -74,15 +79,16 @@ GSPixelHitMatcher::setES(const MagneticFieldMap* aFieldMap,
 
 std::vector< std::pair<GSPixelHitMatcher::ConstRecHitPointer, 
 		       GSPixelHitMatcher::ConstRecHitPointer> > 
-GSPixelHitMatcher::compatibleHits(const GlobalPoint& thePos,
+GSPixelHitMatcher::compatibleHits(
+				  const GlobalPoint& thePos,
 				  const GlobalPoint& theVertex,
 				  float energy,
 				  std::vector<ConstRecHitPointer>& thePixelRecHits) { 
-
+  
   std::vector< std::pair<GSPixelHitMatcher::ConstRecHitPointer, 
-                         GSPixelHitMatcher::ConstRecHitPointer> > result;
+    GSPixelHitMatcher::ConstRecHitPointer> > result;
   LogDebug("") << "[GSPixelHitMatcher::compatibleHits] entering .. ";
-
+  
   double zCluster = thePos.z();
   double rCluster = thePos.perp();
   
@@ -96,7 +102,7 @@ GSPixelHitMatcher::compatibleHits(const GlobalPoint& thePos,
   // The corresponding RawParticles (to be propagated for e- and e+
   ParticlePropagator myElec(theMom,theVert,-1.,theFieldMap);
   ParticlePropagator myPosi(theMom,theVert,+1.,theFieldMap); 
- 
+  
   // Propagate the e- and the e+ hypothesis to the nominal vertex
   // by modifying the pT direction in an appropriate manner.
   myElec.propagateToNominalVertex(theNominalVertex);
@@ -108,18 +114,18 @@ GSPixelHitMatcher::compatibleHits(const GlobalPoint& thePos,
   
   for ( unsigned firstHit=0; firstHit<nHits-1; ++firstHit ) { 
     for ( unsigned secondHit=firstHit+1; secondHit<nHits; ++secondHit ) {      
-
+      
       // Is there a seed associated to this pair of Pixel hits?
       thereIsASeed = isASeed(myElec,myPosi,theVertex,
 			     rCluster,zCluster,
 			     thePixelRecHits[firstHit],
 			     thePixelRecHits[secondHit]);
       if ( !thereIsASeed ) continue;
-
+      
       result.push_back(std::pair<GSPixelHitMatcher::ConstRecHitPointer,
-		                 GSPixelHitMatcher::ConstRecHitPointer>
-		                   (thePixelRecHits[firstHit],
-		                    thePixelRecHits[secondHit]));
+		       GSPixelHitMatcher::ConstRecHitPointer>
+		       (thePixelRecHits[firstHit],
+			thePixelRecHits[secondHit]));
       
     }
   }
@@ -150,7 +156,7 @@ bool GSPixelHitMatcher::isASeed(const ParticlePropagator& myElec,
     firstHitLayer = 0;
     std::cout << "Warning !!! This pixel hit is neither PXB nor PXF" << std::endl;
   }
-
+  
   // Second hit
   const DetId& detId2 = hit2->geographicalId();
   unsigned int subdetId2 = detId2.subdetId(); 
@@ -164,22 +170,24 @@ bool GSPixelHitMatcher::isASeed(const ParticlePropagator& myElec,
     secondHitLayer = 0;
     std::cout << "Warning !!! This pixel hit is neither PXB nor PXF" << std::endl;
   }
-
+  
   if ( firstHitLayer == secondHitLayer ) return false;
-
+  
   // Refine the Z vertex by imposing the track to pass 
   // through the first RecHit, and check compatibility
   const GeomDet* geomDet1( theTrackerGeometry->idToDet(detId1) );
   GlobalPoint firstHit = geomDet1->surface().toGlobal(hit1->localPosition());
   double zVertexPred = zVertex(zCluster, rCluster, firstHit);
-  bool z1ok = zCompatible(zVertexPred,0.,z1min,z1max,firstHitLayer<4);
+  bool z1ok = zCompatible(zVertexPred,0.,z1min,z1max);
   if ( !z1ok ) return false;
   
   // Do the same with the second RecHit ...
   const GeomDet* geomDet2( theTrackerGeometry->idToDet(detId2) );
   GlobalPoint secondHit = geomDet2->surface().toGlobal(hit2->localPosition());
   double zVertexPred2 = zVertex(zCluster, rCluster, secondHit);
-  bool z2ok = zCompatible(zVertexPred2,zVertexPred,z2min,z2max,secondHitLayer<4);
+  bool z2ok = secondHitLayer<4 ?
+    zCompatible(zVertexPred2,zVertexPred,z2minB,z2maxB) : 
+    zCompatible(zVertexPred2,zVertexPred,r2minF,r2maxF);
   vertex = zVertexPred2;
   if ( !z2ok ) return false; 
 
@@ -265,22 +273,15 @@ GSPixelHitMatcher::zVertex(double zCluster,
 
 bool
 GSPixelHitMatcher::zCompatible(double zVertex, double zPrior, 
-			       double zmin, double zmax,
-			       bool barrel) 
+			       double zmin, double zmax)
 {
   
   bool success = true;
-
+  
   double deltaZ = zVertex - zPrior;
-
+  
   // Check the z compatibility with the prior hypothesis
-  // Double the tolerance in the forward layer
-  if ( barrel ) {
-    if ( deltaZ > zmax || deltaZ < zmin ) success = false;
-  }
-  else {
-    if ( deltaZ > 2.*zmax || deltaZ < 2.*zmin) success = false;
-  }
+  if ( deltaZ > zmax || deltaZ < zmin ) success = false;
 
   return success;
       

@@ -12,6 +12,7 @@
 <use name=Geometry/Records>
 <use name=Geometry/TrackerGeometryBuilder>
 <use name=MagneticField/Records>
+<use name=RecoEgamma/EgammaElectronAlgos>
 <use name=RecoTracker/Record>
 <use name=RecoTracker/TkSeedGenerator>
 <use name=SimDataFormats/Track>
@@ -24,6 +25,7 @@
   <use name=DataFormats/Math>
   <use name=DataFormats/TrackerRecHit2D>
   <use name=SimDataFormats/Track>
+  <use name=RecoEgamma/EgammaElectronAlgos>
   <use name=TrackingTools/TrajectoryState>
   <use name=TrackingTools/TransientTrackingRecHit>
   <lib name=FastSimulationEgammaElectronAlgos>

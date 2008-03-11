@@ -21,6 +21,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "FastSimulation/EgammaElectronAlgos/interface/GSPixelHitMatcher.h" 
 #include "FastSimulation/EgammaElectronAlgos/interface/ElectronGSPixelSeedGenerator.h" 
@@ -46,28 +47,41 @@
 #include <vector>
 
 ElectronGSPixelSeedGenerator::ElectronGSPixelSeedGenerator(
-  float iephimin1, float iephimax1,
-  float ipphimin1, float ipphimax1,
-  float iphimin2, float iphimax2,
-  float izmin2, float izmax2,
-  bool idynamicphiroad,
-  double SCEtCut,
+  const edm::ParameterSet &pset,
   double pTMin)
-  : 
-  ephimin1(iephimin1), ephimax1(iephimax1), 
-  pphimin1(ipphimin1), pphimax1(ipphimax1), 
-  phimin2(iphimin2), phimax2(iphimax2),
-  zmin2(izmin2), zmax2(izmax2),
-  dynamicphiroad(idynamicphiroad),
-  SCEtCut_(SCEtCut),
+  :   
+  dynamicphiroad_(pset.getParameter<bool>("dynamicPhiRoad")),
+  lowPtThreshold_(pset.getParameter<double>("LowPtThreshold")),
+  highPtThreshold_(pset.getParameter<double>("HighPtThreshold")),
+  sizeWindowENeg_(pset.getParameter<double>("SizeWindowENeg")),
+  phimin2_(pset.getParameter<double>("PhiMin2")),      
+  phimax2_(pset.getParameter<double>("PhiMax2")),
+  deltaPhi1Low_(pset.getParameter<double>("DeltaPhi1Low")),
+  deltaPhi1High_(pset.getParameter<double>("DeltaPhi1High")),
+  deltaPhi2_(pset.getParameter<double>("DeltaPhi2")),
   pTMin2(pTMin*pTMin),
   myGSPixelMatcher(0),
-  theMode_(unknown), 
   theUpdator(0), thePropagator(0), 
   //   theMeasurementTracker(0), 
   //   theNavigationSchool(0)
   theSetup(0), pts_(0)
-{}
+{
+  // Instantiate the pixel hit matcher
+  myGSPixelMatcher = new GSPixelHitMatcher(pset.getParameter<double>("ePhiMin1"), 
+					   pset.getParameter<double>("ePhiMax1"),
+					   pset.getParameter<double>("pPhiMin1"),
+					   pset.getParameter<double>("pPhiMax1"),		
+					   pset.getParameter<double>("PhiMin2"),
+					   pset.getParameter<double>("PhiMax2"),
+					   pset.getParameter<double>("z2MinB"),
+					   pset.getParameter<double>("z2MaxB"),
+					   pset.getParameter<double>("r2MinF"),
+					   pset.getParameter<double>("r2MaxF"),
+					   pset.getParameter<double>("rMinI"),
+					   pset.getParameter<double>("rMaxI"),
+					   pset.getParameter<bool>("searchInTIDTEC"));
+
+}
 
 ElectronGSPixelSeedGenerator::~ElectronGSPixelSeedGenerator() {
 
@@ -105,14 +119,6 @@ void ElectronGSPixelSeedGenerator::setupES(const edm::EventSetup& setup) {
   theMagneticFieldMap = &(*fieldMap);
 
   thePropagator = new PropagatorWithMaterial(alongMomentum,.1057,&(*theMagField)); 
-  //  theNavigationSchool   = new SimpleNavigationSchool(&(*theGeomSearchTracker),&(*theMagField));
-
-  //  edm::ESHandle<MeasurementTracker>    measurementTrackerHandle;
-  //  setup.get<CkfComponentsRecord>().get(measurementTrackerHandle);
-  //  theMeasurementTracker = measurementTrackerHandle.product();
-
-  //  myMatchEle->setES(&(*theMagField),theMeasurementTracker);
-  //  myMatchPos->setES(&(*theMagField),theMeasurementTracker);
 
   myGSPixelMatcher->setES(theMagneticFieldMap,
 			  theTrackerGeometry,
@@ -123,14 +129,17 @@ void ElectronGSPixelSeedGenerator::setupES(const edm::EventSetup& setup) {
 
 void  ElectronGSPixelSeedGenerator::run(
   edm::Event& e, 
-  const edm::Handle<reco::SuperClusterCollection>& clusters,  
+  // const edm::Handle<reco::SuperClusterCollection>& clusters,  
+  const reco::SuperClusterRefVector &sclRefs,
   const SiTrackerGSMatchedRecHit2DCollection* theGSRecHits,
   const edm::SimTrackContainer* theSimTracks,
   reco::ElectronPixelSeedCollection & out) {
 
   // Get the beam spot
   edm::Handle<reco::BeamSpot> recoBeamSpotHandle;
-  e.getByType(recoBeamSpotHandle);
+  e.getByLabel("offlineBeamSpot",recoBeamSpotHandle); 
+
+  // Get its position
   BSPosition_ = recoBeamSpotHandle->position();
   double sigmaZ=recoBeamSpotHandle->sigmaZ();
   double sigmaZ0Error=recoBeamSpotHandle->sigmaZ0Error();
@@ -214,15 +223,12 @@ void  ElectronGSPixelSeedGenerator::run(
     
     // Loop over clusters 
 
-    unsigned csize = clusters->size();
+    unsigned csize = sclRefs.size();
     for  (unsigned int i=0;i<csize;++i) {
-      
-      edm::Ref<reco::SuperClusterCollection> theClusB(clusters,i);
       
       // Find the pixel seeds (actually only the best one is returned)
       LogDebug ("run") << "new cluster, calling addAseedFromThisCluster";
-      if (theClusB->energy()/cosh(theClusB->eta())>SCEtCut_)    
-	addASeedToThisCluster(theClusB,thePixelRecHits,myPixelSeeds[i]);
+      addASeedToThisCluster(sclRefs[i],thePixelRecHits,myPixelSeeds[i]);
       
     }
 
@@ -240,33 +246,10 @@ void  ElectronGSPixelSeedGenerator::run(
     }
   }
 
-  if(theMode_==offline) LogDebug ("run") << "(offline)";
-  
   LogDebug ("run") << ": For event "<<e.id();
-  LogDebug ("run") <<"Nr of superclusters: "<<clusters->size()
+  LogDebug ("run") <<"Nr of superclusters: "<<sclRefs.size()
 		   <<", no. of ElectronPixelSeeds found  = " << out.size();
   
-}
-
-void ElectronGSPixelSeedGenerator::setup(bool off)
-{
-
-  if(theMode_==unknown)
-    {
-      // Instantiate the pixel hit matcher
-      LogDebug("") << "ElectronGSPixelSeedGenerator, phi limits: " 
-		   << ephimin1 << ", " << ephimax1 << ", "
-		   << pphimin1 << ", " << pphimax1;
-      myGSPixelMatcher = new GSPixelHitMatcher( 
-			       ephimin1, ephimax1, 
-			       pphimin1, pphimax1,
-			       phimin2,  phimax2,
-			       zmin2, zmax2);
-      //      myMatchPos = new PixelHitMatcher( pphimin1, pphimax1, pphimin2, pphimax2, 
-      //					zmin1, zmax1, zmin2, zmax2);
-      if(off) theMode_=offline; else theMode_ = HLT;
-    }
-
 }
 
 void ElectronGSPixelSeedGenerator::addASeedToThisCluster(
@@ -286,48 +269,26 @@ void ElectronGSPixelSeedGenerator::addASeedToThisCluster(
 	       << "and position: " << clusterPos;
 
   //Here change the deltaPhi window of the first pixel layer in function of the seed pT
-  if (dynamicphiroad)
-    {
-      float clusterEnergyT = clusterEnergy*sin(seedCluster->position().theta()) ;
+  if (dynamicphiroad_) {
+    float clusterEnergyT = clusterEnergy*sin(seedCluster->position().theta()) ;
+    
+    float deltaPhi1 = 0.875/clusterEnergyT + 0.055; 
+    if (clusterEnergyT < lowPtThreshold_) deltaPhi1= deltaPhi1Low_;
+    if (clusterEnergyT > highPtThreshold_) deltaPhi1= deltaPhi1High_;
+    
+    float ephimin1 = -deltaPhi1*sizeWindowENeg_ ;
+    float ephimax1 =  deltaPhi1*(1.-sizeWindowENeg_);
+    float pphimin1 = -deltaPhi1*(1.-sizeWindowENeg_);
+    float pphimax1 =  deltaPhi1*sizeWindowENeg_;
+    
+    float phimin2  = -deltaPhi2_/2. ;
+    float phimax2  =  deltaPhi2_/2,;
+    
+    myGSPixelMatcher->set1stLayer(ephimin1,ephimax1,pphimin1,pphimax1);
+    myGSPixelMatcher->set2ndLayer(phimin2,phimax2);
+    
+  }
 
-      float deltaPhi1 = 1.4/clusterEnergyT ;
-      float deltaPhi2 = 0.07/clusterEnergyT ;
-      float ephimin1 = -deltaPhi1*0.625 ;
-      float ephimax1 =  deltaPhi1*0.375 ;
-      float pphimin1 = -deltaPhi1*0.375 ;
-      float pphimax1 =  deltaPhi1*0.625 ;
-      float phimin2  = -deltaPhi2*0.5 ;
-      float phimax2  =  deltaPhi2*0.5 ;
-
-      if (clusterEnergyT < 5) {
-
-	ephimin1 = -0.280*0.625 ;
-	ephimax1 =  0.280*0.375 ;
-	pphimin1 = -0.280*0.375 ;
-	pphimax1 =  0.280*0.625 ;
-	phimin2  = -0.007 ;
-	phimin2  =  0.007 ;
-
-      } else if (clusterEnergyT > 35) {
-	
-	ephimin1 = -0.040*0.625 ;
-	ephimax1 =  0.040*0.375 ;
-	pphimin1 = -0.040*0.375 ;
-	pphimax1 =  0.040*0.625 ;
-	phimin2  = -0.001 ;
-	phimax2  =  0.001 ;
-	
-      }
-
-      //      myMatchEle->set1stLayer(ephimin1,ephimax1);
-      //      myMatchPos->set1stLayer(pphimin1,pphimax1);
-      //      myMatchEle->set2ndLayer(phimin2,phimax2);
-      //      myMatchPos->set2ndLayer(phimin2,phimax2);
-
-      myGSPixelMatcher->set1stLayer(ephimin1,ephimax1,pphimin1,pphimax1);
-      myGSPixelMatcher->set2ndLayer(phimin2,phimax2);
-
-    }
 
 
   PropagationDirection dir = alongMomentum;

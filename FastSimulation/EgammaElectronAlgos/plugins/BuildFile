@@ -5,6 +5,11 @@
  <use name=FWCore/MessageLogger>
  <use name=FWCore/ParameterSet>
  <use name=FastSimulation/EgammaElectronAlgos>
+ <use name=Geometry/CaloGeometry>
+ <use name=Geometry/Records>
+ <use name=RecoCaloTools/MetaCollections>
+ <use name=RecoEgamma/EgammaElectronAlgos>
+ <use name=RecoEgamma/EgammaTools>
  <use name=SimDataFormats/Track>
  <flags EDM_PLUGIN=1>
 </library>
