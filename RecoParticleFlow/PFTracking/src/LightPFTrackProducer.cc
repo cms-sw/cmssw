@@ -15,6 +15,11 @@ LightPFTrackProducer::LightPFTrackProducer(const ParameterSet& iConfig):
 
   tracksContainers_ = 
     iConfig.getParameter< vector < InputTag > >("TkColList");
+
+
+  useQuality_   = iConfig.getParameter<bool>("UseQuality");
+  trackQuality_=reco::TrackBase::qualityByName(iConfig.getParameter<std::string>("TrackQuality"));
+
 }
 
 LightPFTrackProducer::~LightPFTrackProducer()
@@ -37,7 +42,9 @@ LightPFTrackProducer::produce(Event& iEvent, const EventSetup& iSetup)
     iEvent.getByLabel(tracksContainers_[istr], tkRefCollection);
     reco::TrackCollection  Tk=*(tkRefCollection.product());
     for(uint i=0;i<Tk.size();i++){
-      reco::TrackRef trackRef(tkRefCollection, i);
+      if (useQuality_ &&
+	  (!(Tk[i].quality(trackQuality_)))) continue;
+     reco::TrackRef trackRef(tkRefCollection, i);
       reco::PFRecTrack pftrack( trackRef->charge(), 
        				reco::PFRecTrack::KF, 
        				i, trackRef );
