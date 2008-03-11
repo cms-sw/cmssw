@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Mar  3 17:20:20 EST 2008
-// $Id: FWListModel.h,v 1.2 2008/03/05 16:47:32 chrjones Exp $
+// $Id: FWListModel.h,v 1.3 2008/03/05 19:57:37 chrjones Exp $
 //
 
 // system include files
@@ -24,11 +24,12 @@
 #include "TNamed.h"
 // user include files
 #include "Fireworks/Core/interface/FWModelId.h"
+#include "Fireworks/Core/src/FWListItemBase.h"
 
 // forward declarations
 class TObject;
 
-class FWListModel : public TEveElement, public TNamed
+class FWListModel : public TEveElement, public TNamed, public FWListItemBase
 {
 
    public:
@@ -46,7 +47,9 @@ class FWListModel : public TEveElement, public TNamed
 
       virtual Bool_t CanEditMainColor() const;
       virtual Bool_t SingleRnrState() const;
-   
+
+      virtual bool doSelection(bool iToggleSelection);
+
       void openDetailView() const;
    private:
       FWListModel(const FWListModel&); // stop default

@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Mar 10 09:02:41 CDT 2008
-// $Id$
+// $Id: FWListViewObject.h,v 1.1 2008/03/11 02:45:43 chrjones Exp $
 //
 
 // system include files
@@ -24,11 +24,12 @@
 #include "TNamed.h"
 
 // user include files
+#include "Fireworks/Core/src/FWListItemBase.h"
 
 // forward declarations
 class FWViewBase;
 
-class FWListViewObject : public TEveElement, public TNamed
+class FWListViewObject : public TEveElement, public TNamed, public FWListItemBase
 {
 
    public:
@@ -42,6 +43,7 @@ class FWListViewObject : public TEveElement, public TNamed
       // ---------- static member functions --------------------
 
       // ---------- member functions ---------------------------
+      virtual bool doSelection(bool iToggleSelection);
 
       ClassDef(FWListViewObject,0);
 

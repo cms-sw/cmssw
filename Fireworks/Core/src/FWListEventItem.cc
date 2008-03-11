@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Feb 28 11:13:37 PST 2008
-// $Id: FWListEventItem.cc,v 1.6 2008/03/05 20:33:21 chrjones Exp $
+// $Id: FWListEventItem.cc,v 1.7 2008/03/11 19:11:40 chrjones Exp $
 //
 
 // system include files
@@ -73,6 +73,12 @@ FWListEventItem::~FWListEventItem()
 //
 // member functions
 //
+bool 
+FWListEventItem::doSelection(bool iToggleSelection)
+{
+   return true;
+}
+
 void 
 FWListEventItem::SetMainColor(Color_t iColor)
 {
@@ -162,7 +168,7 @@ FWListEventItem::modelsChanged( const std::set<FWModelId>& iModels )
       }
       if(modelChanged) {
          (*itElement)->ElementChanged();
-         (*itElement)->UpdateItems();
+         (*itElement)->UpdateItems();  //needed to force list tree to update immediately
       }
    }
    

@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Feb 11 10:52:24 EST 2008
-// $Id: FWGUIManager.h,v 1.8 2008/03/06 22:48:31 jmuelmen Exp $
+// $Id: FWGUIManager.h,v 1.9 2008/03/11 02:49:58 chrjones Exp $
 //
 
 // system include files
@@ -141,6 +141,8 @@ class FWGUIManager : public FWConfigurable
       TGListTree* m_listTree;
       TEveGedEditor* m_editor;
       TEveElementList* m_views;
+   
+      TEveElement* m_editableSelected;
 
       FWSummaryManager* m_summaryManager;
 

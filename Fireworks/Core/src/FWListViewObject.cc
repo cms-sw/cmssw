@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Mar 10 09:02:44 CDT 2008
-// $Id$
+// $Id: FWListViewObject.cc,v 1.1 2008/03/11 02:45:43 chrjones Exp $
 //
 
 // system include files
@@ -61,6 +61,11 @@ FWListViewObject::~FWListViewObject()
 //
 // member functions
 //
+bool 
+FWListViewObject::doSelection(bool iToggleSelection)
+{
+   return true;
+}
 
 //
 // const member functions

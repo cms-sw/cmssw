@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Feb 11 11:06:40 EST 2008
-// $Id: FWGUIManager.cc,v 1.12 2008/03/11 02:50:38 chrjones Exp $
+// $Id: FWGUIManager.cc,v 1.13 2008/03/11 18:39:01 chrjones Exp $
 //
 
 // system include files
@@ -49,6 +49,7 @@
 #include "Fireworks/Core/interface/FWEventItem.h"
 
 #include "Fireworks/Core/src/FWListViewObject.h"
+#include "Fireworks/Core/src/FWListModel.h"
 
 //
 // constants, enums and typedefs
@@ -71,7 +72,8 @@ m_selectionManager(iSelMgr),
 m_eiManager(iEIMgr),
 m_continueProcessingEvents(false),
 m_waitForUserAction(true),
-m_code(0)
+m_code(0),
+m_editableSelected(0)
 {
    m_selectionManager->selectionChanged_.connect(boost::bind(&FWGUIManager::selectionChanged,this,_1));
    m_eiManager->newItem_.connect(boost::bind(&FWGUIManager::newItem,
@@ -282,6 +284,7 @@ FWGUIManager::~FWGUIManager()
 {
    delete m_summaryManager;
    delete m_detailViewManager;
+   delete m_editableSelected;
 }
 
 //
@@ -402,6 +405,21 @@ FWGUIManager::unselectAll()
 void 
 FWGUIManager::selectionChanged(const FWSelectionManager& iSM)
 {
+   if(0 !=iSM.selected().size() ) {
+      delete m_editableSelected;
+      FWListModel* model = new FWListModel(*(iSM.selected().begin()));
+      const FWEventItem::ModelInfo& info =iSM.selected().begin()->item()->modelInfo(iSM.selected().begin()->index());
+      model->SetMainColor(info.displayProperties().color());
+      model->SetRnrState(info.displayProperties().isVisible());
+      m_editableSelected = model;
+      m_editor->DisplayElement(m_editableSelected);
+   } else {
+      if(m_editor->GetEveElement() == m_editableSelected) {
+         m_editor->DisplayElement(0);
+      }
+      delete m_editableSelected;
+      m_editableSelected=0;
+   }
    m_unselectAllButton->SetEnabled( 0 !=iSM.selected().size() );
 }
 
@@ -489,12 +507,16 @@ void
 FWGUIManager::itemClicked(TGListTreeItem *item, Int_t btn,  UInt_t mask, Int_t x, Int_t y)
 {
    TEveElement* el = static_cast<TEveElement*>(item->GetUserData());
+   FWListItemBase* lib = dynamic_cast<FWListItemBase*>(el);
+   //assert(0!=lib);
    if(1==btn) {
-      gEve->GetSelection()->UserPickedElement(el,mask&kKeyControlMask);
-      
-      //NOTE: editor should be decided by looking at FWSelectionManager and NOT directly from clicking
-      // in the list
-      m_editor->DisplayElement(el);
+      if(lib && lib->doSelection(mask&kKeyControlMask) ) {
+         gEve->GetSelection()->UserPickedElement(el,mask&kKeyControlMask);
+         
+         //NOTE: editor should be decided by looking at FWSelectionManager and NOT directly from clicking
+         // in the list
+         m_editor->DisplayElement(el);
+      }
    }
 }
 void 

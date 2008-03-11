@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Mar  3 17:20:14 EST 2008
-// $Id: FWListModel.cc,v 1.4 2008/03/05 19:57:41 chrjones Exp $
+// $Id: FWListModel.cc,v 1.5 2008/03/06 22:48:31 jmuelmen Exp $
 //
 
 // system include files
@@ -22,6 +22,7 @@
 #include "Fireworks/Core/interface/FWEventItem.h"
 #include "Fireworks/Core/interface/FWGUIManager.h"
 #include "Fireworks/Core/interface/FWDetailViewManager.h"
+#include "Fireworks/Core/interface/FWSelectionManager.h"
 
 
 //
@@ -69,6 +70,18 @@ FWListModel::~FWListModel()
 //
 // member functions
 //
+bool 
+FWListModel::doSelection(bool iToggleSelection)
+{
+   if(iToggleSelection) {
+      m_id.toggleSelect();
+   } else {
+      m_id.item()->selectionManager()->clearSelection();
+      m_id.select();
+   }
+   return false;
+}
+
 void 
 FWListModel::SetMainColor(Color_t iColor)
 {

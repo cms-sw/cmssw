@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Feb 28 11:05:02 PST 2008
-// $Id: FWListEventItem.h,v 1.3 2008/03/05 18:39:32 chrjones Exp $
+// $Id: FWListEventItem.h,v 1.4 2008/03/05 19:57:41 chrjones Exp $
 //
 
 // system include files
@@ -24,13 +24,14 @@
 #include "TEveElement.h"
 
 // user include files
+#include "Fireworks/Core/src/FWListItemBase.h"
 
 // forward declarations
 class FWEventItem;
 class FWDetailViewManager;
 class FWModelId;
 
-class FWListEventItem : public TEveElementList
+class FWListEventItem : public TEveElementList, public FWListItemBase
 {
 
    public:
@@ -50,6 +51,8 @@ class FWListEventItem : public TEveElementList
    ClassDef(FWListEventItem,0);
 
       void openDetailViewFor(int index) const;
+      virtual bool doSelection(bool iToggleSelection);
+   
    private:
       void itemChanged(const FWEventItem*);
       void modelsChanged( const std::set<FWModelId>& );
