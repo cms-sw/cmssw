@@ -74,7 +74,7 @@ std::ostream& operator<< (std::ostream& s, const TrackingVertex & v) {
   s << "Vertex Position & Event #" << v.position() << " " << v.eventId().bunchCrossing() << "." << v.eventId().event() << endl;
   s << " Associated with " << v.daughterTracks().size() << " tracks" << endl;
   for (genv_iterator genV = v.genVertices_begin(); genV != v.genVertices_end(); ++genV) {
-    s << " HepMC vertex position " << (*(*genV)).position() << endl;
+    s << " HepMC vertex position " << (*(*genV)).position().x() << ","<< (*(*genV)).position().y() << (*(*genV)).position().z()  << endl;
   }
 
   for (g4v_iterator g4V = v.g4Vertices_begin(); g4V != v.g4Vertices_end(); ++g4V) {
