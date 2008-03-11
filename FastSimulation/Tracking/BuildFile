@@ -3,6 +3,7 @@
 <use name=DataFormats/SiPixelDetId>
 <use name=DataFormats/SiStripDetId>
 <use name=DataFormats/TrackerRecHit2D>
+<use name=FastSimulation/TrackerSetup>
 <use name=Geometry/CommonDetUnit>
 <use name=Geometry/TrackerGeometryBuilder>
 <export>

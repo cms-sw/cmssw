@@ -25,6 +25,8 @@ class TrackerInteractionGeometry
 
  public:
 
+  enum FirstCylinders { PXB=0,PXD=3,TIB=5,TID=9,TOB=12,TEC=18 };
+
   /// Constructor : get the configurable parameters
   TrackerInteractionGeometry(const edm::ParameterSet& trackerMaterial,
 			     const GeometricSearchTracker* geomSearchTracker);

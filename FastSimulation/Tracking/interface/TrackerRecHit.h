@@ -59,6 +59,9 @@ public:
   /// The Ring Number
   inline unsigned int ringNumber() const { return theRingNumber; }
 
+  /// The global layer number in the nested cylinder geometry
+  unsigned int cylinderNumber() const { return theCylinderNumber; }
+
   /// Is it a forward hit ?
   inline bool isForward() const { return forward; }
 
@@ -132,6 +135,7 @@ public:
   unsigned int theSubDetId; 
   unsigned int theLayerNumber;
   unsigned int theRingNumber;
+  unsigned int theCylinderNumber;
   double theLocalError;
   double theLargerError;
   bool forward;
