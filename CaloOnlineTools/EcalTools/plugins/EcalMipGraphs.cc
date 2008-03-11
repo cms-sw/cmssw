@@ -13,7 +13,7 @@
 //
 // Original Author:  Seth COOPER
 //         Created:  Th Nov 22 5:46:22 CEST 2007
-// $Id: EcalMipGraphs.cc,v 1.1 2008/01/22 22:20:49 scooper Exp $
+// $Id: EcalMipGraphs.cc,v 1.2 2008/03/10 18:42:28 scooper Exp $
 //
 //
 
@@ -52,8 +52,12 @@ EcalMipGraphs::EcalMipGraphs(const edm::ParameterSet& iConfig) :
   defaultMaskedEBs.push_back("none");
   maskedEBs_ =  iConfig.getUntrackedParameter<vector<string> >("maskedEBs",defaultMaskedEBs);
   
-  fedMap = new EcalFedMap();
+  fedMap_ = new EcalFedMap();
 
+  string title1 = "Jitter for all FEDs";
+  string name1 = "JitterAllFEDs";
+  allFedsTimingHist_ = new TH1F(name1.c_str(),title1.c_str(),14,-7,7);
+  
   // load up the maskedFED list with the proper FEDids
   if(maskedFEDs_[0]==-1)
   {
@@ -63,7 +67,7 @@ EcalMipGraphs::EcalMipGraphs(const edm::ParameterSet& iConfig) :
       maskedFEDs_.clear();
       for(vector<string>::const_iterator ebItr = maskedEBs_.begin(); ebItr != maskedEBs_.end(); ++ebItr)
       {
-        maskedFEDs_.push_back(fedMap->getFedFromSlice(*ebItr));
+        maskedFEDs_.push_back(fedMap_->getFedFromSlice(*ebItr));
       }
     }
   }
@@ -93,7 +97,7 @@ EcalMipGraphs::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     runNum_ = iEvent.id().run();
     fileName_+=intToString(runNum_);
     fileName_+=".graph.root";
-    file = TFile::Open(fileName_.c_str(),"RECREATE");
+    file_ = TFile::Open(fileName_.c_str(),"RECREATE");
     eventsAndSeedCrys_ = new TNtuple("eventsSeedCrys","Events and Seed Crys Mapping","LV1A:ic:fed");
   }
 
@@ -183,6 +187,16 @@ EcalMipGraphs::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
         listAllChannels.insert(*itr);
       }
     }
+    
+    TH1F* timingHist = FEDsAndTimingHists_[FEDid];
+    if(timingHist==0)
+    {
+      initHists(FEDid);
+      timingHist = FEDsAndTimingHists_[FEDid];
+    }
+    
+    timingHist->Fill(hit.jitter());
+    allFedsTimingHist_->Fill(hit.jitter());
   }
 
   // retrieving crystal digi from Event
@@ -205,7 +219,7 @@ EcalMipGraphs::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     int ic = (*chnlItr).ic();
     EcalElectronicsId elecId = ecalElectronicsMap->getElectronicsId(*chnlItr);
     int FEDid = 600+elecId.dccId();
-    string sliceName = fedMap->getSliceFromFed(FEDid);
+    string sliceName = fedMap_->getSliceFromFed(FEDid);
     //int hashedIndex = (*chnlItr).hashedIndex();
     //EBDataFrame df = (*digis)[hashedIndex];
     
@@ -237,7 +251,7 @@ EcalMipGraphs::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 void EcalMipGraphs::writeGraphs()
 {
   int graphCount = 0;
-  file->cd();
+  file_->cd();
   std::vector<TGraph>::iterator gr_it;
   for (gr_it = graphs.begin(); gr_it !=  graphs.end(); gr_it++ )
   {
@@ -254,6 +268,19 @@ void EcalMipGraphs::writeGraphs()
   
 
 
+// insert the hist map into the map keyed by FED number
+void EcalMipGraphs::initHists(int FED)
+{
+  using namespace std;
+  
+  string title1 = "Jitter for ";
+  title1.append(fedMap_->getSliceFromFed(FED));
+  string name1 = "JitterFED";
+  name1.append(intToString(FED));
+  TH1F* timingHist = new TH1F(name1.c_str(),title1.c_str(),14,-7,7);
+  FEDsAndTimingHists_[FED] = timingHist;
+  FEDsAndTimingHists_[FED]->SetDirectory(0);
+}
 
 // ------------ method called once each job just before starting event loop  ------------
 void 
@@ -267,7 +294,19 @@ EcalMipGraphs::endJob()
 {
   writeGraphs();
   eventsAndSeedCrys_->Write();
-  file->Close();
+  for(map<int,TH1F*>::const_iterator itr = FEDsAndTimingHists_.begin();
+      itr != FEDsAndTimingHists_.end(); ++itr)
+  {
+    TH1F* hist = itr->second;
+    if(hist!=0)
+      hist->Write();
+    else
+    {
+      cerr << "EcalPedHists: Error: This shouldn't happen!" << endl;
+    }
+  }
+  allFedsTimingHist_->Write();
+  file_->Close();
   std::string channels;
   for(std::vector<int>::const_iterator itr = maskedChannels_.begin();
       itr != maskedChannels_.end(); ++itr)

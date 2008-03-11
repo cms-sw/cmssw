@@ -13,7 +13,7 @@
 //
 // Original Author:  Seth COOPER
 //         Created:  Th Nov 22 5:46:22 CEST 2007
-// $Id: EcalMipGraphs.cc,v 1.11 2007/12/19 14:32:12 franzoni Exp $
+// $Id: EcalMipGraphs.h,v 1.1 2008/01/22 22:20:50 scooper Exp $
 //
 //
 
@@ -66,6 +66,7 @@ class EcalMipGraphs : public edm::EDAnalyzer {
       virtual void endJob() ;
       std::string intToString(int num);
       void writeGraphs();
+      void initHists(int);
 
     // ----------member data ---------------------------
 
@@ -86,9 +87,12 @@ class EcalMipGraphs : public edm::EDAnalyzer {
   std::vector<int> maskedChannels_;
   std::vector<int> maskedFEDs_;
   std::vector<std::string> maskedEBs_;
-
-  TFile* file;
+  std::map<int,TH1F*> FEDsAndTimingHists_;
+  
+  TH1F* allFedsTimingHist_;
+  
+  TFile* file_;
   TNtuple* eventsAndSeedCrys_;
-  EcalFedMap* fedMap;
+  EcalFedMap* fedMap_;
   
 };
