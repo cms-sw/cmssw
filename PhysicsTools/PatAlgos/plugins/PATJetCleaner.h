@@ -1,5 +1,5 @@
 //
-// $Id: PATJetCleaner.h,v 1.5 2008/03/05 14:56:50 fronga Exp $
+// $Id: PATJetCleaner.h,v 1.1 2008/03/06 09:23:10 llista Exp $
 //
 
 #ifndef PhysicsTools_PatAlgos_PATJetCleaner_h
@@ -13,7 +13,7 @@
    a collection of objects of JetType.
 
   \author   Steven Lowette, Jeremy Andrea
-  \version  $Id: PATJetCleaner.h,v 1.5 2008/03/05 14:56:50 fronga Exp $
+  \version  $Id: PATJetCleaner.h,v 1.1 2008/03/06 09:23:10 llista Exp $
 */
 
 #include "FWCore/Framework/interface/EDProducer.h"
@@ -31,6 +31,7 @@
 #include "PhysicsTools/Utilities/interface/EtComparator.h"
 #include "PhysicsTools/PatUtils/interface/JetSelector.h"
 #include "PhysicsTools/PatUtils/interface/JetSelector.icc"
+#include "PhysicsTools/PatUtils/interface/JetSelection.h"
 
 namespace pat {
 
@@ -59,11 +60,13 @@ namespace pat {
   
        ///Jet Selection  similar to Electrons
       edm::ParameterSet selectionCfg_;  ///< Defines all about the selection
-      std::string       selectionType_; ///< Selection type (none, custom, cut,...)
-      bool              doSelection_;   ///< Only false if type = "none"
       
       typedef JetSelector<JetIn> JetSelectorType;
       std::auto_ptr<JetSelectorType> selector_;   ///< Actually performs the selection
+
+      /// Helper method to fill configuration selection struct
+      // Because I wasn't able to use the ParameterAdapter here (templates...)
+      const JetSelection fillSelection_( const edm::ParameterSet & iConfig);
 
   };
 
