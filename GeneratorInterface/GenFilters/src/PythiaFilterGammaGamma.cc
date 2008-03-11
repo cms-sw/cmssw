@@ -1,7 +1,8 @@
 #include "GeneratorInterface/GenFilters/interface/PythiaFilterGammaGamma.h"
 #include "DataFormats/Math/interface/LorentzVector.h"
 #include "Math/GenVector/VectorUtil.h"
-#include "CLHEP/HepMC/GenParticle.h"
+//#include "CLHEP/HepMC/GenParticle.h"
+#include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
 
 #include "TFile.h"
 #include "TLorentzVector.h"
