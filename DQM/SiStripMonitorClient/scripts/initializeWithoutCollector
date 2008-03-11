@@ -473,7 +473,7 @@ sub makeCtlDestroy
           . "start configure enable halt stop gennums.txt"
           . " summaryCatalog.txt test.root`;\n\n";
     $result = $result . "`rm -rf  \*.cfg sistrip_qualitytest_config.xml`;\n\n"; 
-    $result = $result . "`rm -rf Online.html loader.html \*.root "
+    $result = $result . "`rm -rf Online.html loader.html \*.root \*.coor "
           . " TrackerMapFrame.html TrackerMapPlot.html TrackerMapSelection.html "
           . " fedtrackermap.html "
           . " css_files js_files images WebLib.js `;\n\n";

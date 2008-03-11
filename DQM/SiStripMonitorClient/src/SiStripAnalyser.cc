@@ -1,8 +1,8 @@
 /*
  * \file SiStripAnalyser.cc
  * 
- * $Date: 2008/02/21 23:17:49 $
- * $Revision: 1.25 $
+ * $Date: 2008/03/01 00:37:15 $
+ * $Revision: 1.26 $
  * \author  S. Dutta INFN-Pisa
  *
  */
@@ -20,6 +20,12 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "DQMServices/Core/interface/DQMStore.h"
+
+#include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
+#include "DataFormats/SiStripDetId/interface/TECDetId.h"
+#include "DataFormats/SiStripDetId/interface/TIBDetId.h"
+#include "DataFormats/SiStripDetId/interface/TOBDetId.h"
+#include "DataFormats/SiStripDetId/interface/TIDDetId.h"
 
 #include "CondFormats/DataRecord/interface/SiStripFedCablingRcd.h"
 #include "CondFormats/SiStripObjects/interface/SiStripFedCabling.h"
@@ -40,6 +46,7 @@
 #include "cgicc/HTMLClasses.h"
 
 #include <iostream>
+#include <iomanip>
 #include <stdio.h>
 #include <string>
 #include <sstream>
@@ -227,8 +234,11 @@ void SiStripAnalyser::fillGlobalStatus() {
   // get connected detectors
   std::vector<uint32_t> SelectedDetIds;
   detCabling_->addActiveDetectorsRawIds(SelectedDetIds);
-  int nDetsWithError = 0;
+  int nDetsWithErr = 0;
   int nDetsTotal = 0;
+  int nSubDetsWithErr[6] = {0, 0, 0, 0, 0, 0};
+  int nSubDetsTotal[6]   = {0, 0, 0, 0, 0, 0};
+
   for (std::vector<uint32_t>::const_iterator idetid=SelectedDetIds.begin(), iEnd=SelectedDetIds.end();idetid!=iEnd;++idetid){    
     uint32_t detId = *idetid;
     if (detId == 0 || detId == 0xFFFFFFFF){
@@ -236,7 +246,7 @@ void SiStripAnalyser::fillGlobalStatus() {
         << "Wrong DetId !!!!!! " <<  detId << " Neglecting !!!!!! ";
       continue;
     }
-    nDetsTotal++;
+    StripSubdetector subdet(*idetid);
     vector<MonitorElement*> detector_mes = dqmStore_->get(detId);
     int error_me = 0;
     for (vector<MonitorElement *>::const_iterator it = detector_mes.begin();
@@ -247,12 +257,70 @@ void SiStripAnalyser::fillGlobalStatus() {
       int istat =  SiStripUtility::getMEStatus((*it)); 
       if (istat == dqm::qstatus::ERROR)  error_me++;
     }
-    if (error_me > 0) nDetsWithError++;
+    nDetsTotal++;
+        
+    if (error_me > 0) {
+     nDetsWithErr++;
+    }
+    switch (subdet.subdetId()) 
+      {
+      case StripSubdetector::TIB:
+	{
+	  nSubDetsTotal[0]++;
+	  if (error_me > 0) nSubDetsWithErr[0]++;
+	  break;       
+	}
+      case StripSubdetector::TID:
+	{
+	  TIDDetId tidId(detId);
+	  if (tidId.isZPlusSide()) {
+	    nSubDetsTotal[1]++;
+	    if (error_me > 0) nSubDetsWithErr[1]++;
+	  }  else if (tidId.isZMinusSide()) {
+	    nSubDetsTotal[2]++;
+	    if (error_me > 0) nSubDetsWithErr[2]++;
+	  }
+	  break;       
+	}
+      case StripSubdetector::TOB:
+	{
+	  nSubDetsTotal[3]++;
+	  if (error_me > 0) nSubDetsWithErr[3]++;
+	  break;       
+	}
+      case StripSubdetector::TEC:
+	{
+	  TECDetId tecId(detId);
+	  if (tecId.isZPlusSide()) {
+	    nSubDetsTotal[4]++;
+	    if (error_me > 0) nSubDetsWithErr[4]++;
+	  }  else if (tecId.isZMinusSide()) {
+	    nSubDetsTotal[5]++;
+	    if (error_me > 0) nSubDetsWithErr[5]++;
+	  }
+	  break;       
+	}
+      }
   }
-  gStatus = 1 - nDetsWithError*1.0/nDetsTotal;
+  gStatus = (1 - nDetsWithErr*1.0/nDetsTotal) *100.0;
   dqmStore_->cd();
   MonitorElement* err_summ_me = dqmStore_->get("SiStrip/EventInfo/errorSummary");
   if(err_summ_me) err_summ_me->Fill(gStatus);
+  for (unsigned int i = 0; i < 6; i++) {
+    ostringstream hname;
+    hname << setiosflags(ios::fixed);
+    hname.fill('0');
+    hname << "SiStrip/EventInfo/errorSummarySegments/Segment" << setw(2) << i;
+    
+    MonitorElement* seg_me = dqmStore_->get(hname.str());
+    if (seg_me) {
+      float eff = -1.0;
+      if (nSubDetsTotal[i] > 0) {
+	eff = (1 - nSubDetsWithErr[i] * 1.0 / nSubDetsTotal[i]) *100.0 ;
+      }
+      seg_me->Fill(eff);
+    }
+  }
 }
 
 #include "FWCore/Framework/interface/MakerMacros.h"

@@ -1,6 +1,7 @@
 #include "DQM/SiStripMonitorClient/interface/SiStripWebInterface.h"
 #include "DQM/SiStripMonitorClient/interface/SiStripInformationExtractor.h"
 #include "DQMServices/Core/interface/DQMStore.h"
+#include "DQMServices/Core/interface/DQMScope.h"
 #include "DQMServices/WebComponents/interface/CgiWriter.h"
 #include "DQMServices/WebComponents/interface/CgiReader.h"
 #include "CalibFormats/SiStripObjects/interface/SiStripDetCabling.h"
@@ -32,6 +33,7 @@ SiStripWebInterface::~SiStripWebInterface() {
 // -- Handles requests from WebElements submitting non-default requests 
 //
 void SiStripWebInterface::handleAnalyserRequest(xgi::Input* in,xgi::Output* out, const edm::ESHandle<SiStripDetCabling>& detcabling, int niter) {
+  DQMScope enter;
   // put the request information in a multimap...
   //  std::multimap<std::string, std::string> requestMap_;
   CgiReader reader(in);

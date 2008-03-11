@@ -380,14 +380,12 @@ void SiStripInformationExtractor::plotHistosFromLayout(DQMStore * dqm_store){
 	  
           string hname = hist1->GetTitle();
 	  string ref_path = "SiStrip/Reference/" + it->first + "/" +hname;
-	  
           tTitle.DrawTextNDC(0.1, 0.92, hname.c_str());
 	  MonitorElement* me_ref = dqm_store->get(ref_path);
 	  if (me_ref) {
 	    TH1* hist1_ref = me_ref->getTH1();
 	    if (hist1_ref) {
-//	      cout << ref_path << " " << hist1_ref->GetEntries() << " " << endl;
-	      hist1_ref->SetLineColor(3);
+     	      hist1_ref->SetLineColor(3);
               hist1_ref->SetMarkerColor(3);
               if (hname.find("Summary") != string::npos) hist1_ref->DrawCopy("same");
               else hist1_ref->DrawNormalized("same", hist1->GetEntries());
@@ -523,8 +521,8 @@ void SiStripInformationExtractor::plotHistos(multimap<string,string>& req_map,
 	hist2->SetFillColor(1);
 	if (dopt.find("projection") != string::npos) {
 	  string ptit = hist2->GetTitle();
-	  ptit += " (y-projection)";
-	  TH1F thproj(hist2->GetName(),ptit.c_str(),hist2->GetNbinsY(), 
+	  ptit += "-Yprojection";
+	  TH1F thproj(ptit.c_str(),ptit.c_str(),hist2->GetNbinsY(), 
 		      hist2->GetYaxis()->GetXmin(),hist2->GetYaxis()->GetXmax());
 	  thproj.GetXaxis()->SetTitle(ptit.c_str());
 	  for (int j = 1; j < hist2->GetNbinsY()+1; j++) {
@@ -543,8 +541,8 @@ void SiStripInformationExtractor::plotHistos(multimap<string,string>& req_map,
 	if (dopt.find("projection") != string::npos) {
 	  
 	  string ptit = hist1->GetTitle();
-	  ptit += " (y-projection)";
-	  TH1F thproj(prof->GetName(),ptit.c_str(),100, 
+	  ptit += "-Yprojection";
+	  TH1F thproj(ptit.c_str(),ptit.c_str(),100, 
 		      0.0,prof->GetMaximum()*1.2);
 	  thproj.GetXaxis()->SetTitle(ptit.c_str());
 	  for (int i = 1; i < prof->GetNbinsX()+1; i++) {
@@ -558,7 +556,7 @@ void SiStripInformationExtractor::plotHistos(multimap<string,string>& req_map,
 	setDrawingOption(hist1, xlow, xhigh);
 	if (dopt.find("projection") != string::npos || sflag) {
 	  string ptit = hist1->GetTitle();
-	  ptit += " (y-projection)";
+	  ptit += "-Yprojection";
 	  TH1F thproj(hist1->GetName(),ptit.c_str(),100, 
 		      0.0,hist1->GetMaximum()*1.2);
 	  thproj.GetXaxis()->SetTitle(ptit.c_str());
@@ -628,8 +626,8 @@ void SiStripInformationExtractor::plotHisto(multimap<string,string>& req_map,
       hist2->SetFillColor(1);
       if (dopt.find("projection") != string::npos) {
 	string ptit = hist2->GetTitle();
-	ptit += " (y-projection)";
-	TH1F thproj(hist2->GetName(),ptit.c_str(),hist2->GetNbinsY(), 
+	ptit += "-Yprojection";
+	TH1F thproj(ptit.c_str(),ptit.c_str(),hist2->GetNbinsY(), 
 		    hist2->GetYaxis()->GetXmin(),hist2->GetYaxis()->GetXmax());
 	thproj.GetXaxis()->SetTitle(ptit.c_str());
 	for (int j = 1; j < hist2->GetNbinsY()+1; j++) {
@@ -648,8 +646,8 @@ void SiStripInformationExtractor::plotHisto(multimap<string,string>& req_map,
       if (dopt.find("projection") != string::npos) {
 	
 	string ptit = hist1->GetTitle();
-	ptit += " (y-projection)";
-	TH1F thproj(prof->GetName(),ptit.c_str(),100, 
+	ptit += "-Yprojection";
+	TH1F thproj(ptit.c_str(),ptit.c_str(),100, 
 		    0.0,prof->GetMaximum()*1.2);
 	thproj.GetXaxis()->SetTitle(ptit.c_str());
 	for (int i = 1; i < prof->GetNbinsX()+1; i++) {
@@ -662,8 +660,8 @@ void SiStripInformationExtractor::plotHisto(multimap<string,string>& req_map,
       hist1 = me->getTH1F();
       if (dopt.find("projection") != string::npos || sflag) {
 	string ptit = hist1->GetTitle();
-	ptit += " (y-projection)";
-	TH1F thproj(hist1->GetName(),ptit.c_str(),100, 
+	ptit += "-Yprojection";
+	TH1F thproj(ptit.c_str(),ptit.c_str(),100, 
 		    0.0,hist1->GetMaximum()*1.2);
 	thproj.GetXaxis()->SetTitle(ptit.c_str());
 	for (int i = 1; i < hist1->GetNbinsX()+1; i++) {
@@ -892,8 +890,9 @@ void SiStripInformationExtractor::fillImageBuffer() {
   TImage *image = imgdump.GetImage();
 
   char *buf;
- int sz;
+  int sz = 0;
   image->GetImageBuffer(&buf, &sz);         /* raw buffer */
+
 
   pictureBuffer_.str("");
   for (int i = 0; i < sz; i++)
@@ -1173,7 +1172,6 @@ void SiStripInformationExtractor::fillNamedImageBuffer(std::string name) {
   // 114 - stands for "no write on Close"
   TImageDump imgdump("tmp.png", 114);
   canvas_->Paint();
-
  // get an internal image which will be automatically deleted
  // in the imgdump destructor
   TImage *image = imgdump.GetImage();
@@ -1191,15 +1189,17 @@ void SiStripInformationExtractor::fillNamedImageBuffer(std::string name) {
   int sz = 0;
   image->GetImageBuffer(&buf, &sz);         /* raw buffer */
 
-  pictureBuffer_.str("");
-  for (int i = 0; i < sz; i++) pictureBuffer_ << buf[i];
-  
+  ostringstream local_str;
+  for (int i = 0; i < sz; i++) {
+   local_str << buf[i];
+  }
+
   //  delete [] buf;
   ::free(buf); // buf is allocated via realloc() by a C language AfterStep library invoked by the
                // default (and so far only) TImage implementation in root, TASImage.
   
   if (hasNamedImage(name)) namedPictureBuffer_.erase(name);
-  namedPictureBuffer_[name] = pictureBuffer_.str();
+  namedPictureBuffer_[name] = local_str.str();
 }
 //------------------------------------------------------------------------------
 /*! \brief (Documentation under construction).
@@ -1207,10 +1207,10 @@ void SiStripInformationExtractor::fillNamedImageBuffer(std::string name) {
  *  This method 
  */
 const ostringstream& SiStripInformationExtractor::getNamedImage(string name) {
-
   pictureBuffer_.str("");
   map<string, string>::const_iterator cPos = namedPictureBuffer_.find(name);
   if (cPos == namedPictureBuffer_.end()) { 
+    pictureBuffer_ << " plot does not exist ";
   } else pictureBuffer_ << cPos->second;
   return pictureBuffer_;
 }
