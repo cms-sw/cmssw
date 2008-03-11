@@ -11,6 +11,8 @@ CSCALCTHeader::CSCALCTHeader(int chamberType) { //constructor for digi->raw pack
   static int activeFEBsForChamberType[11] = {0,7,7,0xf,7,0x7f, 0xf,0x3f,0xf,0x3f,0xf};
   static int nTBinsForChamberType[11] = {7,7,7,7,7,7,7,7,7,7,7};
   header2006.flag_0 = 0xC;
+  header2006.flag_1 = 0;
+  header2006.reserved_1 = 0;
   header2006.lctChipRead = activeFEBsForChamberType[chamberType];
   header2006.activeFEBs = header2006.lctChipRead;
   header2006.nTBins = nTBinsForChamberType[chamberType];

@@ -90,7 +90,7 @@ CSCEventData::CSCEventData(unsigned short * buf){
 
   //now let's try to find and unpack the DMBTrailer
   bool dmbTrailerReached= false;
-  for (int i=0; i<8000; ++i) {
+  for (int i=0; i<12000; ++i) {//8000 max for cfeb + 1980ALCT + 287 TMB
     dmbTrailerReached =
       (*(i+pos) & 0xF000) == 0xF000 && (*(i+pos+1) & 0xF000) == 0xF000
       && (*(i+pos+2) & 0xF000) == 0xF000 && (*(i+pos+3) & 0xF000) == 0xF000

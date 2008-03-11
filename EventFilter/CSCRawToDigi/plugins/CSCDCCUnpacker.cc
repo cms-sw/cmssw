@@ -169,8 +169,8 @@ void CSCDCCUnpacker::produce(edm::Event & e, const edm::EventSetup& c){
 	const short unsigned int *data = (short unsigned int *)fedData.data();
 
 	/*short unsigned * buf = (short unsigned int *)fedData.data();
-	  std::cout <<std::endl<<length/2<<" words of data:"<<std::endl;
-	  for (int i=0;i<length/2;i++) {
+	std::cout <<std::endl<<length/2<<" words of data:"<<std::endl;
+	for (int i=0;i<length/2;i++) {
 	  printf("%04x %04x %04x %04x\n",buf[i+3],buf[i+2],buf[i+1],buf[i]);
 	  i+=3;
 	  }*/
