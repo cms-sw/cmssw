@@ -24,8 +24,9 @@ bool cond::ObjectRelationalMappingUtility::existsMapping(const std::string& vers
   if(!mappingPersistency.existsMappingDatabase()) return false;
   return m_mappingutil->existsMapping(version);
 }
-/*
-void cond::ObjectRelationalMappingUtility::removeMapping(const std::string& version){
-  m_mappingutil->removeMapping(version);
+
+void cond::ObjectRelationalMappingUtility::removeMapping(const std::string& version,bool removeTables){
+  m_mappingutil->removeMapping(version,removeTables);
 }
-*/
+
+
