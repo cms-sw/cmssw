@@ -34,4 +34,5 @@ class VertexFilter : public edm::EDProducer {
 
   bool useQuality_;
   reco::TrackBase::TrackQuality trackQuality_;
+  reco::TrackBase::TrackAlgorithm trackAlgo_;
 };
