@@ -8,12 +8,13 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Feb 19 10:33:25 EST 2008
-// $Id: FWRhoPhiZView.cc,v 1.3 2008/02/26 02:27:19 chrjones Exp $
+// $Id: FWRhoPhiZView.cc,v 1.4 2008/02/29 21:14:59 chrjones Exp $
 //
 
 // system include files
 #include <algorithm>
 #include <boost/bind.hpp>
+#include <boost/numeric/conversion/converter.hpp>
 #include <iostream>
 #include "TEveProjectionManager.h"
 #include "TEveScene.h"
@@ -25,6 +26,7 @@
 #include "TEveElement.h"
 #include "TEveProjectionBases.h"
 #include "TEvePolygonSetProjected.h"
+#include "TEveProjections.h"
 
 // user include files
 #include "Fireworks/Core/interface/FWRhoPhiZView.h"
@@ -77,11 +79,17 @@ static TEveElement* doReplication(TEveProjectionManager* iMgr, TEveElement* iFro
 // constructors and destructor
 //
 FWRhoPhiZView::FWRhoPhiZView(TGFrame* iParent,const std::string& iName, const TEveProjection::EPType_e& iProjType) :
-m_typeName(iName)
+m_typeName(iName),
+m_distortion(this,"distortion",0.,0.,20.)
 {
    m_projMgr = new TEveProjectionManager;
    m_projMgr->SetProjection(iProjType);
+   m_projMgr->GetProjection()->SetFixedRadius(700);
    gEve->AddToListTree(m_projMgr,kTRUE);
+   
+   //m_distortion.changed_.connect(boost::bind(&TEveProjection::SetDistortion, m_projMgr->GetProjection(),
+     //                                        boost::bind(toFloat,_1)));
+   m_distortion.changed_.connect(boost::bind(&FWRhoPhiZView::doDistortion,this,_1));
    
    m_pad = new TEvePad;
    TGLEmbeddedViewer* ev = new TGLEmbeddedViewer(iParent, m_pad);
@@ -126,6 +134,16 @@ FWRhoPhiZView::~FWRhoPhiZView()
 //
 // member functions
 //
+void 
+FWRhoPhiZView::doDistortion(double iAmount)
+{
+   //Following code used in TEveProjectionManagerEditor
+   m_projMgr->GetProjection()->SetDistortion(iAmount*0.001);
+   m_projMgr->UpdateName();
+   m_projMgr->ProjectChildren();
+}
+
+
 void 
 FWRhoPhiZView::resetCamera()
 {

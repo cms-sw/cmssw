@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Feb 19 10:33:21 EST 2008
-// $Id: FWRhoPhiZView.h,v 1.2 2008/02/21 20:38:39 chrjones Exp $
+// $Id: FWRhoPhiZView.h,v 1.3 2008/02/26 02:27:19 chrjones Exp $
 //
 
 // system include files
@@ -26,6 +26,7 @@
 
 // user include files
 #include "Fireworks/Core/interface/FWViewBase.h"
+#include "Fireworks/Core/interface/FWDoubleParameter.h"
 
 // forward declarations
 class TEvePad;
@@ -56,6 +57,7 @@ class FWRhoPhiZView : public FWViewBase
       //returns the new element created from this import
       TEveElement* importElements(TEveElement*);
    private:
+      void doDistortion(double);
       FWRhoPhiZView(const FWRhoPhiZView&); // stop default
 
       const FWRhoPhiZView& operator=(const FWRhoPhiZView&); // stop default
@@ -69,6 +71,7 @@ class FWRhoPhiZView : public FWViewBase
       std::string m_typeName;
       TEveScene* m_scene;
 
+      FWDoubleParameter m_distortion;
 };
 
 
