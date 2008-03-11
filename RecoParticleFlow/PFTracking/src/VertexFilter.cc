@@ -35,10 +35,30 @@ VertexFilter::VertexFilter(const edm::ParameterSet& iConfig)
   chi_cut = iConfig.getParameter<double>("ChiCut");
 
   useQuality_   = iConfig.getParameter<bool>("UseQuality");
-  string tkQuality = iConfig.getParameter<string>("TrackQuality");
+  trackQuality_=TrackBase::qualityByName(iConfig.getParameter<std::string>("TrackQuality"));
+  string tkAlgorithm =iConfig.getParameter<string>("TrackAlgorithm");
 
-  if (tkQuality=="highPurity") trackQuality_=TrackBase::highPurity;
-  if (tkQuality=="tight") trackQuality_=TrackBase::tight;
+
+  trackAlgo_ = reco::TrackBase::undefAlgorithm;
+  if (tkAlgorithm == "ctf")
+    trackAlgo_ = reco::TrackBase::ctf;
+  else if (tkAlgorithm == "rs")
+    trackAlgo_ = reco::TrackBase::rs;
+  else if (tkAlgorithm == "beamhalo")
+    trackAlgo_ = reco::TrackBase::beamhalo;
+  else if (tkAlgorithm == "cosmics")
+    trackAlgo_ = reco::TrackBase::cosmics;
+  else if (tkAlgorithm == "iter1")
+    trackAlgo_ = reco::TrackBase::iter1;
+  else if (tkAlgorithm == "iter2")
+    trackAlgo_ = reco::TrackBase::iter2;
+  else if (tkAlgorithm == "iter3")
+    trackAlgo_ = reco::TrackBase::iter3;
+  //MIchele da rimuovere  
+  //#  string tkQuality = iConfig.getParameter<string>("TrackQuality");
+
+  //  if (tkQuality=="highPurity") trackQuality_=TrackBase::highPurity;
+  //  if (tkQuality=="tight") trackQuality_=TrackBase::tight;
 
 }
 
@@ -165,6 +185,7 @@ VertexFilter::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     if (hasAVertex){
       Track track =(*itc);
       if(useQuality_)  track.setQuality(trackQuality_);
+      track.setAlgorithm(trackAlgo_);
       //tracks and trajectories
       selTracks->push_back( track );
       outputTJ->push_back( *traj );

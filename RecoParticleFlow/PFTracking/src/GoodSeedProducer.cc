@@ -88,10 +88,7 @@ GoodSeedProducer::GoodSeedProducer(const ParameterSet& iConfig):
 
 
   useQuality_   = iConfig.getParameter<bool>("UseQuality");
-  string tkQuality = iConfig.getParameter<string>("TrackQuality");
-
-  if (tkQuality=="highPurity") trackQuality_=TrackBase::highPurity;
-  if (tkQuality=="tight") trackQuality_=TrackBase::tight;
+  trackQuality_=TrackBase::qualityByName(iConfig.getParameter<std::string>("TrackQuality"));
 
   useTmva_= iConfig.getUntrackedParameter<bool>("UseTMVA",false);
 }
