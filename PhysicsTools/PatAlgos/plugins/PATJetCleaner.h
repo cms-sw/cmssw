@@ -1,5 +1,5 @@
 //
-// $Id: PATJetCleaner.h,v 1.1 2008/03/06 09:23:10 llista Exp $
+// $Id: PATJetCleaner.h,v 1.2 2008/03/11 07:14:14 fronga Exp $
 //
 
 #ifndef PhysicsTools_PatAlgos_PATJetCleaner_h
@@ -13,7 +13,7 @@
    a collection of objects of JetType.
 
   \author   Steven Lowette, Jeremy Andrea
-  \version  $Id: PATJetCleaner.h,v 1.1 2008/03/06 09:23:10 llista Exp $
+  \version  $Id: PATJetCleaner.h,v 1.2 2008/03/11 07:14:14 fronga Exp $
 */
 
 #include "FWCore/Framework/interface/EDProducer.h"
@@ -21,7 +21,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/InputTag.h"
 
-#include "PhysicsTools/PatAlgos/interface/CleanerHelper.h"
+#include "PhysicsTools/PatAlgos/plugins/CleanerHelper.h"
 #include "PhysicsTools/PatAlgos/interface/OverlapHelper.h"
 
 #include "DataFormats/JetReco/interface/Jet.h"

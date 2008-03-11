@@ -1,4 +1,4 @@
-#include "PhysicsTools/PatAlgos/interface/PATCandMatcher.h"
+#include "PhysicsTools/PatAlgos/plugins/PATCandMatcher.h"
 #include "PhysicsTools/PatAlgos/interface/PATMatchSelector.h"
 #include "PhysicsTools/PatUtils/interface/PATMatchByDRDPt.h"
 #include "PhysicsTools/PatUtils/interface/PATMatchLessByDPt.h"

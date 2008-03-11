@@ -1,7 +1,7 @@
 #ifndef PhysicsTools_PatAlgos_PATMuonCleaner_h
 #define PhysicsTools_PatAlgos_PATMuonCleaner_h
 //
-// $Id: PATMuonCleaner.h,v 1.7 2008/03/05 17:34:45 fronga Exp $
+// $Id: PATMuonCleaner.h,v 1.1 2008/03/06 09:23:10 llista Exp $
 //
 
 /**
@@ -29,7 +29,7 @@
   The actual selection is performed by the MuonSelector.
 
   \author   Giovanni Petrucciani (from PATMuonProducer by Steven Lowette, Roger Wolf)
-  \version  $Id: PATMuonCleaner.h,v 1.7 2008/03/05 17:34:45 fronga Exp $
+  \version  $Id: PATMuonCleaner.h,v 1.1 2008/03/06 09:23:10 llista Exp $
 */
 
 
@@ -38,7 +38,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/InputTag.h"
 
-#include "PhysicsTools/PatAlgos/interface/CleanerHelper.h"
+#include "PhysicsTools/PatAlgos/plugins/CleanerHelper.h"
 #include "DataFormats/MuonReco/interface/MuonFwd.h"
 #include "DataFormats/MuonReco/interface/Muon.h"
 

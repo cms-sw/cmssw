@@ -1,5 +1,5 @@
 //
-// $Id: PATElectronCleaner.h,v 1.10 2008/03/05 17:34:34 fronga Exp $
+// $Id: PATElectronCleaner.h,v 1.1 2008/03/06 09:23:10 llista Exp $
 //
 
 #ifndef PhysicsTools_PatAlgos_PATElectronCleaner_h
@@ -37,7 +37,7 @@
   The actual selection is performed by the ElectronSelector.
 
   \author   Steven Lowette, James Lamb
-  \version  $Id: PATElectronCleaner.h,v 1.10 2008/03/05 17:34:34 fronga Exp $
+  \version  $Id: PATElectronCleaner.h,v 1.1 2008/03/06 09:23:10 llista Exp $
 */
 
 
@@ -46,7 +46,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/InputTag.h"
 
-#include "PhysicsTools/PatAlgos/interface/CleanerHelper.h"
+#include "PhysicsTools/PatAlgos/plugins/CleanerHelper.h"
 #include "DataFormats/EgammaCandidates/interface/PixelMatchGsfElectronFwd.h"
 #include "DataFormats/EgammaCandidates/interface/PixelMatchGsfElectron.h"
 #include "DataFormats/EgammaReco/interface/ClusterShapeFwd.h"
@@ -75,10 +75,10 @@ namespace pat {
       edm::InputTag electronSrc_;
       bool          removeDuplicates_;
 
-      pat::helper::CleanerHelper< reco::PixelMatchGsfElectron, 
-                                  reco::PixelMatchGsfElectron,
-                                  reco::PixelMatchGsfElectronCollection, 
-                                  GreaterByPt<reco::PixelMatchGsfElectron> > helper_;
+      pat::helper::CleanerHelper<reco::PixelMatchGsfElectron, 
+	                         reco::PixelMatchGsfElectron,
+                                 reco::PixelMatchGsfElectronCollection, 
+	                         GreaterByPt<reco::PixelMatchGsfElectron> > helper_;
 
       pat::DuplicatedElectronRemover duplicateRemover_;  
     
@@ -109,33 +109,30 @@ namespace reco {
         const std::string& selectionType = cfg.getParameter<std::string>("type");
         config_.selectionType = selectionType;
         if ( selectionType == "likelihood" || selectionType == "neuralnet" )
-          {
-            config_.value = cfg.getParameter<double>("value");
-          }
-        else if ( selectionType == "custom" )
-          {
-            config_.HoverEBarmax        = cfg.getParameter<double>("HoverEBarmax");
-            config_.SigmaEtaEtaBarmax   = cfg.getParameter<double>("SigmaEtaEtaBarmax");
-            config_.SigmaPhiPhiBarmax   = cfg.getParameter<double>("SigmaPhiPhiBarmax");
-            config_.DeltaEtaInBarmax    = cfg.getParameter<double>("DeltaEtaInBarmax");
-            config_.DeltaPhiInBarmax    = cfg.getParameter<double>("DeltaPhiInBarmax");
-            config_.DeltaPhiOutBarmax   = cfg.getParameter<double>("DeltaPhiOutBarmax");
-            config_.EoverPInBarmin      = cfg.getParameter<double>("EoverPInBarmin");
-            config_.EoverPOutBarmin     = cfg.getParameter<double>("EoverPOutBarmin");
-            config_.InvEMinusInvPBarmax = cfg.getParameter<double>("InvEMinusInvPBarmax");
-            config_.E9overE25Barmin     = cfg.getParameter<double>("E9overE25Barmin");
-            config_.HoverEEndmax        = cfg.getParameter<double>("HoverEEndmax");
-            config_.SigmaEtaEtaEndmax   = cfg.getParameter<double>("SigmaEtaEtaEndmax");
-            config_.SigmaPhiPhiEndmax   = cfg.getParameter<double>("SigmaPhiPhiEndmax");
-            config_.DeltaEtaInEndmax    = cfg.getParameter<double>("DeltaEtaInEndmax");
-            config_.DeltaPhiInEndmax    = cfg.getParameter<double>("DeltaPhiInEndmax");
-            config_.DeltaPhiOutEndmax   = cfg.getParameter<double>("DeltaPhiOutEndmax");
-            config_.EoverPInEndmin      = cfg.getParameter<double>("EoverPInEndmin");
-            config_.EoverPOutEndmin     = cfg.getParameter<double>("EoverPOutEndmin");
-            config_.InvEMinusInvPEndmax = cfg.getParameter<double>("InvEMinusInvPEndmax");
-            config_.E9overE25Endmin     = cfg.getParameter<double>("E9overE25Endmin");
-            config_.doBremEoverPcomp    = cfg.getParameter<bool>  ("doBremEoverPcomp");
-          }
+	  config_.value = cfg.getParameter<double>("value");
+        else if ( selectionType == "custom" ) {
+	  config_.HoverEBarmax        = cfg.getParameter<double>("HoverEBarmax");
+	  config_.SigmaEtaEtaBarmax   = cfg.getParameter<double>("SigmaEtaEtaBarmax");
+	  config_.SigmaPhiPhiBarmax   = cfg.getParameter<double>("SigmaPhiPhiBarmax");
+	  config_.DeltaEtaInBarmax    = cfg.getParameter<double>("DeltaEtaInBarmax");
+	  config_.DeltaPhiInBarmax    = cfg.getParameter<double>("DeltaPhiInBarmax");
+	  config_.DeltaPhiOutBarmax   = cfg.getParameter<double>("DeltaPhiOutBarmax");
+	  config_.EoverPInBarmin      = cfg.getParameter<double>("EoverPInBarmin");
+	  config_.EoverPOutBarmin     = cfg.getParameter<double>("EoverPOutBarmin");
+	  config_.InvEMinusInvPBarmax = cfg.getParameter<double>("InvEMinusInvPBarmax");
+	  config_.E9overE25Barmin     = cfg.getParameter<double>("E9overE25Barmin");
+	  config_.HoverEEndmax        = cfg.getParameter<double>("HoverEEndmax");
+	  config_.SigmaEtaEtaEndmax   = cfg.getParameter<double>("SigmaEtaEtaEndmax");
+	  config_.SigmaPhiPhiEndmax   = cfg.getParameter<double>("SigmaPhiPhiEndmax");
+	  config_.DeltaEtaInEndmax    = cfg.getParameter<double>("DeltaEtaInEndmax");
+	  config_.DeltaPhiInEndmax    = cfg.getParameter<double>("DeltaPhiInEndmax");
+	  config_.DeltaPhiOutEndmax   = cfg.getParameter<double>("DeltaPhiOutEndmax");
+	  config_.EoverPInEndmin      = cfg.getParameter<double>("EoverPInEndmin");
+	  config_.EoverPOutEndmin     = cfg.getParameter<double>("EoverPOutEndmin");
+	  config_.InvEMinusInvPEndmax = cfg.getParameter<double>("InvEMinusInvPEndmax");
+	  config_.E9overE25Endmin     = cfg.getParameter<double>("E9overE25Endmin");
+	  config_.doBremEoverPcomp    = cfg.getParameter<bool>  ("doBremEoverPcomp");
+	}
         return pat::ElectronSelector( config_ );
       }
     };

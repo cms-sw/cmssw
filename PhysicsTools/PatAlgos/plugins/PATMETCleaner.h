@@ -1,5 +1,5 @@
 //
-// $Id: PATMETCleaner.h,v 1.2 2008/03/05 14:56:50 fronga Exp $
+// $Id: PATMETCleaner.h,v 1.1 2008/03/06 09:23:10 llista Exp $
 //
 
 #ifndef PhysicsTools_PatAlgos_PATMETCleaner_h
@@ -13,7 +13,7 @@
    a collection of objects of METType.
 
   \author   Steven Lowette, Jeremy Andrea
-  \version  $Id: PATMETCleaner.h,v 1.2 2008/03/05 14:56:50 fronga Exp $
+  \version  $Id: PATMETCleaner.h,v 1.1 2008/03/06 09:23:10 llista Exp $
 */
 
 #include "FWCore/Framework/interface/EDProducer.h"
@@ -21,7 +21,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/InputTag.h"
 
-#include "PhysicsTools/PatAlgos/interface/CleanerHelper.h"
+#include "PhysicsTools/PatAlgos/plugins/CleanerHelper.h"
 
 #include "DataFormats/METReco/interface/MET.h"
 #include "DataFormats/METReco/interface/CaloMET.h"
