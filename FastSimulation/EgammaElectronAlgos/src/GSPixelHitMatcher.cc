@@ -19,6 +19,7 @@
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "FastSimulation/TrackerSetup/interface/TrackerInteractionGeometry.h"
 #include "FastSimulation/TrackerSetup/interface/TrackerLayer.h"
+#include "FastSimulation/Tracking/interface/TrackerRecHit.h"
 #include "FastSimulation/ParticlePropagator/interface/ParticlePropagator.h"
 #include "DataFormats/SiPixelDetId/interface/PXBDetId.h"
 #include "DataFormats/SiPixelDetId/interface/PXFDetId.h"
@@ -44,7 +45,7 @@ GSPixelHitMatcher::GSPixelHitMatcher(float ephi1min, float ephi1max,
   theMagneticField(0),
   theGeomSearchTracker(0),
   _theGeometry(0),
-  thePixelLayers(6,static_cast<TrackerLayer*>(0)),
+  thePixelLayers(50,static_cast<TrackerLayer*>(0)),
   vertex(0.) {}
 
 GSPixelHitMatcher::~GSPixelHitMatcher() { }
@@ -70,20 +71,17 @@ GSPixelHitMatcher::setES(const MagneticFieldMap* aFieldMap,
   std::list<TrackerLayer>::const_iterator cyliter = _theGeometry->cylinderBegin();
   for ( ; cyliter != _theGeometry->cylinderEnd() ; ++cyliter ) {
     if ( layer != cyliter->layerNumber() ) continue;
-    thePixelLayers.push_back(&(*cyliter));
-    thePixelLayers[layer] = &(*cyliter);
-    if ( layer++ == 5 ) break;
+    thePixelLayers[layer++] = &(*cyliter);
   }
   
 }
 
 std::vector< std::pair<GSPixelHitMatcher::ConstRecHitPointer, 
 		       GSPixelHitMatcher::ConstRecHitPointer> > 
-GSPixelHitMatcher::compatibleHits(
-				  const GlobalPoint& thePos,
+GSPixelHitMatcher::compatibleHits(const GlobalPoint& thePos,
 				  const GlobalPoint& theVertex,
 				  float energy,
-				  std::vector<ConstRecHitPointer>& thePixelRecHits) { 
+				  std::vector<TrackerRecHit>& theHits) { 
   
   std::vector< std::pair<GSPixelHitMatcher::ConstRecHitPointer, 
     GSPixelHitMatcher::ConstRecHitPointer> > result;
@@ -110,22 +108,28 @@ GSPixelHitMatcher::compatibleHits(
   
   // Look for an appropriate see in the pixel detector
   bool thereIsASeed = false;
-  unsigned nHits = thePixelRecHits.size();
+  unsigned nHits = theHits.size();
   
   for ( unsigned firstHit=0; firstHit<nHits-1; ++firstHit ) { 
     for ( unsigned secondHit=firstHit+1; secondHit<nHits; ++secondHit ) {      
-      
+
       // Is there a seed associated to this pair of Pixel hits?
       thereIsASeed = isASeed(myElec,myPosi,theVertex,
 			     rCluster,zCluster,
-			     thePixelRecHits[firstHit],
-			     thePixelRecHits[secondHit]);
+			     theHits[firstHit],
+			     theHits[secondHit]);
+
       if ( !thereIsASeed ) continue;
       
-      result.push_back(std::pair<GSPixelHitMatcher::ConstRecHitPointer,
-		       GSPixelHitMatcher::ConstRecHitPointer>
-		       (thePixelRecHits[firstHit],
-			thePixelRecHits[secondHit]));
+      ConstRecHitPointer theFirstHit = 
+	GenericTransientTrackingRecHit::build(theHits[firstHit].geomDet(),
+					      theHits[firstHit].hit());
+      ConstRecHitPointer theSecondHit = 
+	GenericTransientTrackingRecHit::build(theHits[secondHit].geomDet(),
+					      theHits[secondHit].hit());
+      result.push_back(std::pair<
+		       GSPixelHitMatcher::ConstRecHitPointer,
+		       GSPixelHitMatcher::ConstRecHitPointer>(theFirstHit,theSecondHit));
       
     }
   }
@@ -138,68 +142,48 @@ bool GSPixelHitMatcher::isASeed(const ParticlePropagator& myElec,
 				const GlobalPoint& theVertex,
 				double rCluster,
 				double zCluster,
-				ConstRecHitPointer hit1,
-				ConstRecHitPointer hit2) {
+				const TrackerRecHit& hit1,
+				const TrackerRecHit& hit2) {
   
   // Check that the two hits are not on the same layer
-  unsigned firstHitLayer, secondHitLayer;
-  // First hit:
-  const DetId& detId1 = hit1->geographicalId();
-  unsigned int subdetId1 = detId1.subdetId(); 
-  if ( subdetId1 ==  PixelSubdetector::PixelBarrel ) { 
-    PXBDetId pxbid1(detId1.rawId()); 
-    firstHitLayer = pxbid1.layer();  
-  } else if ( subdetId1 ==  PixelSubdetector::PixelEndcap ) { 
-    PXFDetId pxfid1(detId1.rawId()); 
-    firstHitLayer = pxfid1.disk()+3;
-  } else {
-    firstHitLayer = 0;
-    std::cout << "Warning !!! This pixel hit is neither PXB nor PXF" << std::endl;
+  if ( hit2.isOnTheSameLayer(hit1) ) return false;
+
+  // Check that the first hit is on PXB or PXD
+  if ( hit1.subDetId() > 2 ) return false;
+
+  // Impose the track to originate from zVertex = 0. and check the 
+  // compatibility with the first hit (beam spot constraint)
+  GlobalPoint firstHit = hit1.globalPosition();
+  bool rzok = checkRZCompatibility(zCluster, rCluster, 0., z1min, z1max, firstHit, hit1.subDetId()>1);
+  if ( !rzok ) return false;
+  
+  // Refine the Z vertex by imposing the track to pass through the first RecHit, 
+  // and check the compatibility with the second rechit 
+  GlobalPoint secondHit = hit2.globalPosition(); 
+  rzok = false;
+
+  // The orgin Z vertex for thet track passing through the first rechit
+  vertex = zVertex(zCluster, rCluster, firstHit);
+
+  // Compute R (forward) or Z (barrel) predicted for the second hit and check compatibility
+  if ( hit2.subDetId() == 1 ) {
+    rzok = checkRZCompatibility(zCluster, rCluster, vertex, z2minB, z2maxB, secondHit, false);
+  } else if ( hit2.subDetId() == 2 ) {  
+    rzok = checkRZCompatibility(zCluster, rCluster, vertex, r2minF, r2maxF, secondHit, true);
+  } else { 
+    rzok = checkRZCompatibility(zCluster, rCluster, vertex, rMinI, rMaxI, secondHit, true);
   }
-  
-  // Second hit
-  const DetId& detId2 = hit2->geographicalId();
-  unsigned int subdetId2 = detId2.subdetId(); 
-  if ( subdetId2 ==  PixelSubdetector::PixelBarrel ) { 
-    PXBDetId pxbid2(detId2.rawId()); 
-    secondHitLayer = pxbid2.layer();  
-  } else if ( subdetId2 ==  PixelSubdetector::PixelEndcap ) { 
-    PXFDetId pxfid2(detId2.rawId()); 
-    secondHitLayer = pxfid2.disk()+3;
-  } else {
-    secondHitLayer = 0;
-    std::cout << "Warning !!! This pixel hit is neither PXB nor PXF" << std::endl;
-  }
-  
-  if ( firstHitLayer == secondHitLayer ) return false;
-  
-  // Refine the Z vertex by imposing the track to pass 
-  // through the first RecHit, and check compatibility
-  const GeomDet* geomDet1( theTrackerGeometry->idToDet(detId1) );
-  GlobalPoint firstHit = geomDet1->surface().toGlobal(hit1->localPosition());
-  double zVertexPred = zVertex(zCluster, rCluster, firstHit);
-  bool z1ok = zCompatible(zVertexPred,0.,z1min,z1max);
-  if ( !z1ok ) return false;
-  
-  // Do the same with the second RecHit ...
-  const GeomDet* geomDet2( theTrackerGeometry->idToDet(detId2) );
-  GlobalPoint secondHit = geomDet2->surface().toGlobal(hit2->localPosition());
-  double zVertexPred2 = zVertex(zCluster, rCluster, secondHit);
-  bool z2ok = secondHitLayer<4 ?
-    zCompatible(zVertexPred2,zVertexPred,z2minB,z2maxB) : 
-    zCompatible(zVertexPred2,zVertexPred,r2minF,r2maxF);
-  vertex = zVertexPred2;
-  if ( !z2ok ) return false; 
+  if ( !rzok ) return false;
 
   // Propagate the inferred electron (positron) to the first layer,
   // check the compatibility with the first hit, and propagate back
   // to the nominal vertex with the hit constraint
   ParticlePropagator elec(myElec);
   ParticlePropagator posi(myPosi);
-  bool elec1 = propagateToLayer(elec,theVertex,firstHit,zVertexPred,
-				ephi1min,ephi1max,firstHitLayer);
-  bool posi1 = propagateToLayer(posi,theVertex,firstHit,zVertexPred,
-				pphi1min,pphi1max,firstHitLayer);
+  bool elec1 = propagateToLayer(elec,theVertex,firstHit,
+				ephi1min,ephi1max,hit1.cylinderNumber());
+  bool posi1 = propagateToLayer(posi,theVertex,firstHit,
+				pphi1min,pphi1max,hit1.cylinderNumber());
   
   // Neither the electron not the positron hypothesis work...
   if ( !elec1 && !posi1 ) return false;
@@ -207,11 +191,11 @@ bool GSPixelHitMatcher::isASeed(const ParticlePropagator& myElec,
   // Otherwise, propagate to the second layer, check the compatibility
   // with the second hit and propagate back to the nominal vertex with 
   // the hit constraint
-  bool elec2 = elec1 && propagateToLayer(elec,theVertex,secondHit,zVertexPred2,
-					 phi2min,phi2max,secondHitLayer);
+  bool elec2 = elec1 && propagateToLayer(elec,theVertex,secondHit,
+					 phi2min,phi2max,hit2.cylinderNumber());
   
-  bool posi2 = posi1 && propagateToLayer(posi,theVertex,secondHit,zVertexPred2,
-					 phi2min,phi2max,secondHitLayer);
+  bool posi2 = posi1 && propagateToLayer(posi,theVertex,secondHit,
+					 phi2min,phi2max,hit2.cylinderNumber());
   
   if ( !elec2 && !posi2 ) return false;
 
@@ -223,12 +207,11 @@ bool
 GSPixelHitMatcher::propagateToLayer(ParticlePropagator& myPart,
 				    const GlobalPoint& theVertex,
 				    GlobalPoint& theHit,
-				    double zVertex,
 				    double phimin, double phimax,
 				    unsigned layer) {
 
   // Set the z position of the particle to the predicted one
-  XYZTLorentzVector theNominalVertex(theVertex.x(), theVertex.y(), zVertex, 0.);
+  XYZTLorentzVector theNominalVertex(theVertex.x(), theVertex.y(), vertex, 0.);
   myPart.setVertex(theNominalVertex);
 
   // Propagate the inferred electron (positron) to the first layer
@@ -271,26 +254,37 @@ GSPixelHitMatcher::zVertex(double zCluster,
 
 }
 
+
 bool
-GSPixelHitMatcher::zCompatible(double zVertex, double zPrior, 
-			       double zmin, double zmax)
+GSPixelHitMatcher::checkRZCompatibility(double zCluster,double rCluster, 
+					double zVertex, 
+					float rzMin, float rzMax,
+					GlobalPoint& theHit, 
+					bool forward) 
 {
-  
-  bool success = true;
-  
-  double deltaZ = zVertex - zPrior;
-  
-  // Check the z compatibility with the prior hypothesis
-  if ( deltaZ > zmax || deltaZ < zmin ) success = false;
 
-  return success;
-      
+  // The hit position
+  double zHit = theHit.z();
+  double rHit = theHit.perp();
+
+  // Compute the intersection of a line joining the cluster position 
+  // and the predicted z origin (zVertex) with the layer hit 
+  // (returns R for a forward layer, and Z for a barrel layer)
+  double checkRZ = forward ?
+    (zHit-zVertex)/(zCluster-zVertex) * rCluster
+    :
+    zVertex + rHit * (zCluster-zVertex)/rCluster;
+
+  // This value is then compared to check with the actual hit position 
+  // (in R for a forward layer, in Z for a barrel layer)
+
+  return forward ?
+    checkRZ+rzMin < rHit && rHit < checkRZ+rzMax 
+    :
+    checkRZ+rzMin < zHit && zHit < checkRZ+rzMax;
+    
 }
 
-float GSPixelHitMatcher::getVertex(){
-
-  return vertex;
-}
 
 
 

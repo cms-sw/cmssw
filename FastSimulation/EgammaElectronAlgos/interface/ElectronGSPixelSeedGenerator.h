@@ -38,6 +38,7 @@ class TrackerInteractionGeometry;
 class PropagatorWithMaterial;
 class KFUpdator;
 class GSPixelHitMatcher;
+class TrackerRecHit;
 
 class ElectronGSPixelSeedGenerator : public ElectronSeedGenerator
 {
@@ -70,7 +71,7 @@ public:
  private:
 
   void addASeedToThisCluster(edm::Ref<reco::SuperClusterCollection> seedCluster,
-			     std::vector<ConstRecHitPointer>&,
+			     std::vector<TrackerRecHit>& theHits,
 			     std::vector<reco::ElectronPixelSeed>&);
 
   bool prepareElTrackSeed(ConstRecHitPointer outerhit,
@@ -85,7 +86,8 @@ public:
   float phimin2_,phimax2_;
   float deltaPhi1Low_, deltaPhi1High_;
   float deltaPhi2_;
-  
+  bool searchInTIDTEC;
+
   double zmin1_, zmax1_;
   double pTMin2;
   math::XYZPoint BSPosition_;  

@@ -30,6 +30,7 @@ class TrackerGeometry;
 class GeometricSearchTracker;
 class TrackerInteractionGeometry;
 class TrackerLayer;
+class TrackerRecHit;
 class TrackingRecHit;
 class ParticlePropagator;
 class MagneticFieldMap;
@@ -56,9 +57,9 @@ class GSPixelHitMatcher{
     compatibleHits(const GlobalPoint& xmeas,
 		   const GlobalPoint& vprim,
 		   float energy,
-		   std::vector<ConstRecHitPointer>& thePixelRecHits);
+		   std::vector<TrackerRecHit>& theHits);
 
-  float getVertex();
+  inline double getVertex() { return vertex; }
 
   void set1stLayer (float ephimin, float ephimax,
 		    float pphimin, float pphimax) {
@@ -80,13 +81,12 @@ class GSPixelHitMatcher{
 	       const GlobalPoint& theVertex,
 	       double rCluster,
 	       double zCluster,
-	       ConstRecHitPointer hit1,
-	       ConstRecHitPointer hit2);
+	       const TrackerRecHit& hit1,
+	       const TrackerRecHit& hit2);
   
   bool propagateToLayer(ParticlePropagator& myPart,
 			const GlobalPoint& theVertex,
 			GlobalPoint& theHit,
-			double zVertex,
 			double phimin, 
 			double phimax,
 			unsigned layer);
@@ -95,9 +95,13 @@ class GSPixelHitMatcher{
 		 double rCluster,
 		 GlobalPoint& theHit);
  
-  bool zCompatible(double zVertex, double zPrior, 
-		   double zmin, double zmax);
-
+  bool checkRZCompatibility(double zCluster,double rCluster, 
+			    double zVertex, 
+			    float rzMin, float rzMax,
+			    GlobalPoint& theHit, 
+			    bool forward);
+ 
+ 
   void set1stLayerZRange(double zmin1, double zmax1) { 
     z1max = zmax1; 
     z1min = zmin1; 
@@ -122,7 +126,7 @@ class GSPixelHitMatcher{
   const TrackerInteractionGeometry* _theGeometry; 
   const MagneticFieldMap* theFieldMap;
   std::vector<const TrackerLayer*> thePixelLayers;
-  float vertex;
+  double vertex;
 
 
 };

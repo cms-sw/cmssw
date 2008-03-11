@@ -40,6 +40,7 @@
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 #include "FastSimulation/TrackerSetup/interface/TrackerInteractionGeometryRecord.h"
 #include "FastSimulation/ParticlePropagator/interface/MagneticFieldMapRecord.h"
+#include "FastSimulation/Tracking/interface/TrackerRecHit.h"
 
 #include "TrackingTools/KalmanUpdators/interface/KFUpdator.h"
 #include "TrackingTools/MaterialEffects/interface/PropagatorWithMaterial.h"
@@ -67,6 +68,7 @@ ElectronGSPixelSeedGenerator::ElectronGSPixelSeedGenerator(
   theSetup(0), pts_(0)
 {
   // Instantiate the pixel hit matcher
+  searchInTIDTEC = pset.getParameter<bool>("searchInTIDTEC");
   myGSPixelMatcher = new GSPixelHitMatcher(pset.getParameter<double>("ePhiMin1"), 
 					   pset.getParameter<double>("ePhiMax1"),
 					   pset.getParameter<double>("pPhiMin1"),
@@ -118,7 +120,7 @@ void ElectronGSPixelSeedGenerator::setupES(const edm::EventSetup& setup) {
   setup.get<MagneticFieldMapRecord>().get(fieldMap);
   theMagneticFieldMap = &(*fieldMap);
 
-  thePropagator = new PropagatorWithMaterial(alongMomentum,.1057,&(*theMagField)); 
+  thePropagator = new PropagatorWithMaterial(alongMomentum,.000511,&(*theMagField)); 
 
   myGSPixelMatcher->setES(theMagneticFieldMap,
 			  theTrackerGeometry,
@@ -175,43 +177,28 @@ void  ElectronGSPixelSeedGenerator::run(
     // Request a minimum number of RecHits (total and in the pixel detector)
     unsigned numberOfRecHits = 0;
     
-    // The vector of pixel rechis
+    // The vector of rechits for seeding
 
-    // Now save a collection of Pixel hits for seeding electrons
+    // Now save a collection of Pixel +TEC +TID hits for seeding electrons
     std::vector<unsigned> layerHit(6,static_cast<unsigned>(0));
-    const SiTrackerGSMatchedRecHit2D *hit;
-    std::vector<ConstRecHitPointer> thePixelRecHits;
+    // const SiTrackerGSMatchedRecHit2D *hit;
+    TrackerRecHit currentHit;
+    std::vector<TrackerRecHit> theHits;
     for ( iterRecHit = theRecHitRangeIteratorBegin; 
 	  iterRecHit != theRecHitRangeIteratorEnd; 
 	  ++iterRecHit) { 
       ++numberOfRecHits;
-      hit = &(*iterRecHit);
-      const DetId& detId = iterRecHit->geographicalId();
-      unsigned int theSubdetId = detId.subdetId(); 
-      // Pixel hits only
-      if( theSubdetId == PixelSubdetector::PixelBarrel || 
-	  theSubdetId == PixelSubdetector::PixelEndcap ) { 
-
-	// Check the layer hit (1-2-3 for barrel, 4-5 for forward)
-	unsigned theHitLayer = 0;
-	if ( theSubdetId ==  PixelSubdetector::PixelBarrel ) { 
-	  PXBDetId pxbid(detId.rawId()); 
-	  theHitLayer = pxbid.layer();  
-	} else if ( theSubdetId ==  PixelSubdetector::PixelEndcap ) { 
-	  PXFDetId pxfid(detId.rawId()); 
-	  theHitLayer = pxfid.disk()+3;
-	}
-
-	// Keep only the first hit on a given layer (i.e., ignore overlaps)
-	if ( !layerHit[theHitLayer] ) { 
-	  layerHit[theHitLayer] = 1;
-	  // Build the hit
-	  const GeomDet* geomDet( theTrackerGeometry->idToDet(detId) );
-	  ConstRecHitPointer aTrackingRecHit = 
-	    GenericTransientTrackingRecHit::build(geomDet,&(*iterRecHit));
-	  // Save the hit
-	  thePixelRecHits.push_back(aTrackingRecHit);
-	}
+      
+      currentHit = TrackerRecHit(&(*iterRecHit),theTrackerGeometry);
+      if ( ( currentHit.subDetId() <= 2 ) ||  // Pixel Hits
+	   ( searchInTIDTEC && (  // Add TID/TEC (optional)
+	   ( currentHit.subDetId() == 3 && 
+	     currentHit.ringNumber() < 3 && 
+	     currentHit.layerNumber() < 3 ) || // TID first two rings, first two layers
+	   ( currentHit.subDetId() == 6 && 
+	     currentHit.ringNumber() < 3 && 
+	     currentHit.layerNumber() < 3 ) ) ) ) { // TEC first two rings, first two layers
+	theHits.push_back(currentHit);
       }
     }    
 
@@ -219,7 +206,7 @@ void  ElectronGSPixelSeedGenerator::run(
     if ( numberOfRecHits < 3 ) continue;
 
     // At least 2 pixel hits
-    if ( thePixelRecHits.size() < 2 ) continue;
+    if ( theHits.size() < 2 ) continue;
     
     // Loop over clusters 
 
@@ -228,7 +215,7 @@ void  ElectronGSPixelSeedGenerator::run(
       
       // Find the pixel seeds (actually only the best one is returned)
       LogDebug ("run") << "new cluster, calling addAseedFromThisCluster";
-      addASeedToThisCluster(sclRefs[i],thePixelRecHits,myPixelSeeds[i]);
+      addASeedToThisCluster(sclRefs[i],theHits,myPixelSeeds[i]);
       
     }
 
@@ -254,7 +241,7 @@ void  ElectronGSPixelSeedGenerator::run(
 
 void ElectronGSPixelSeedGenerator::addASeedToThisCluster(
   edm::Ref<reco::SuperClusterCollection> seedCluster, 
-  std::vector<ConstRecHitPointer>& thePixelRecHits,
+  std::vector<TrackerRecHit>& theHits,
   std::vector<reco::ElectronPixelSeed>& result)
 {
   float clusterEnergy = seedCluster->energy();
@@ -295,10 +282,10 @@ void ElectronGSPixelSeedGenerator::addASeedToThisCluster(
    
   // Find the best pixel pair compatible with the cluster
   std::vector<std::pair<ConstRecHitPointer,ConstRecHitPointer> > compatPixelHits = 
-    myGSPixelMatcher->compatibleHits(clusterPos, vertexPos, clusterEnergy, thePixelRecHits);
+    myGSPixelMatcher->compatibleHits(clusterPos, vertexPos, clusterEnergy, theHits);
 
   // The corresponding origin vertex
-  float vertexZ = myGSPixelMatcher->getVertex();
+  double vertexZ = myGSPixelMatcher->getVertex();
   GlobalPoint theVertex(BSPosition_.x(),BSPosition_.y(),vertexZ); 
  
   // Create the Electron pixel seed.
