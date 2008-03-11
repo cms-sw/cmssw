@@ -58,8 +58,9 @@ int main()
   std::string outputModuleLabel = "HLTOutput";
 
   InitMsgBuilder init(&buf[0],buf.size(),12,
-                      Version(4,(const uint8*)psetid),
-                      (const char*)reltag, processName.c_str(), outputModuleLabel.c_str(),
+                      Version(5,(const uint8*)psetid),
+                      (const char*)reltag, processName.c_str(),
+                      outputModuleLabel.c_str(),
                       hlt_names,hlt_names,l1_names);
 
   init.setDescLength(sizeof(test_value));
