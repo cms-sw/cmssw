@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Feb 28 11:13:37 PST 2008
-// $Id: FWListEventItem.cc,v 1.5 2008/03/05 19:57:40 chrjones Exp $
+// $Id: FWListEventItem.cc,v 1.6 2008/03/05 20:33:21 chrjones Exp $
 //
 
 // system include files
@@ -162,6 +162,7 @@ FWListEventItem::modelsChanged( const std::set<FWModelId>& iModels )
       }
       if(modelChanged) {
          (*itElement)->ElementChanged();
+         (*itElement)->UpdateItems();
       }
    }
    
