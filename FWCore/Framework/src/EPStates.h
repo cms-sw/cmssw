@@ -2,7 +2,7 @@
 #define Framework_EPStates_h
 
 /*
-$Id: EPStates.h,v 1.2 2008/01/02 23:52:41 wdd Exp $
+$Id: EPStates.h,v 1.3 2008/02/27 20:08:12 wmtan Exp $
 
 The state machine that controls the processing of runs, luminosity
 blocks, events, and loops is implemented using the boost statechart
@@ -224,6 +224,7 @@ namespace statemachine {
 
     bool beginRunCalled() const;
     int currentRun() const;
+    bool runException() const;
     void setupCurrentRun();
     void beginRun(int run);
     void endRun(int run);
@@ -234,6 +235,7 @@ namespace statemachine {
     edm::IEventProcessor & ep_;
     bool beginRunCalled_;
     int currentRun_;
+    bool runException_;
   };
 
   class HandleLumis;
@@ -311,6 +313,7 @@ namespace statemachine {
     bool currentLumiEmpty_;
     int currentLumi_;
     std::vector<int> unhandledLumis_;
+    bool lumiException_;
   };
 
   class HandleEvent;

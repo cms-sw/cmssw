@@ -1,5 +1,5 @@
 
-// $Id: EPStates.cc,v 1.3 2008/01/09 23:45:55 wdd Exp $
+// $Id: EPStates.cc,v 1.4 2008/02/27 20:08:12 wmtan Exp $
 
 #include "FWCore/Framework/src/EPStates.h"
 #include "FWCore/Framework/interface/IEventProcessor.h"
@@ -185,7 +185,8 @@ namespace statemachine {
     my_base(ctx),
     ep_(context< Machine >().ep()),
     beginRunCalled_(false),
-    currentRun_(INVALID_RUN) { }
+    currentRun_(INVALID_RUN),
+    runException_(false) { }
 
   HandleRuns::~HandleRuns() {
     finalizeRun();
@@ -193,9 +194,14 @@ namespace statemachine {
 
   bool HandleRuns::beginRunCalled() const { return beginRunCalled_; }
   int HandleRuns::currentRun() const { return currentRun_; }
+  bool HandleRuns::runException() const { return runException_; }
 
   void HandleRuns::setupCurrentRun() {
+
+    runException_ = true;
     currentRun_ = ep_.readAndCacheRun();
+    runException_ = false;
+
     if (context< Machine >().handleEmptyRuns()) {
       beginRun(currentRun());
     }
@@ -203,12 +209,18 @@ namespace statemachine {
 
   void HandleRuns::beginRun(int run) {
     beginRunCalled_ = true;
+
+    runException_ = true;
     ep_.smBeginRun(run);
+    runException_ = false;
   }
 
   void HandleRuns::endRun(int run) {
     beginRunCalled_ = false;
+
+    runException_ = true;
     ep_.smEndRun(run);
+    runException_ = false;
   }
 
   void HandleRuns::finalizeRun(const Run &) {
@@ -216,6 +228,9 @@ namespace statemachine {
   }
 
   void HandleRuns::finalizeRun() {
+
+    if (runException_) return;
+
     if (beginRunCalled_) endRun(currentRun());
     if (context< Machine >().fileMode() == SPARSE) {
       ep_.writeRun(currentRun_);
@@ -317,7 +332,8 @@ namespace statemachine {
     my_base(ctx),
     ep_(context< Machine >().ep()),
     currentLumiEmpty_(true),
-    currentLumi_(INVALID_LUMI)
+    currentLumi_(INVALID_LUMI),
+    lumiException_(false)
   { 
     checkInvariant();
   }
@@ -342,16 +358,24 @@ namespace statemachine {
   }
 
   void HandleLumis::setupCurrentLumi() {
+
+    lumiException_ = true;
     currentLumi_ = ep_.readAndCacheLumi();
+    lumiException_ = false;
+
     currentLumiEmpty_ = true;
   }
 
   void HandleLumis::finalizeAllLumis() {
+    if (lumiException_ || context< HandleRuns >().runException()) return;
     finalizeLumi();
     finalizeOutstandingLumis();
   }
 
   void HandleLumis::finalizeLumi() {
+
+    lumiException_ = true;
+
     if (currentLumiEmpty_) {
       if (context< Machine >().handleEmptyLumis()) {
         if (context< HandleRuns >().beginRunCalled()) {
@@ -384,9 +408,14 @@ namespace statemachine {
       }
     }
     currentLumi_ = INVALID_LUMI;
+
+    lumiException_ = false;
   }
 
   void HandleLumis::finalizeOutstandingLumis() {
+
+    lumiException_ = true;
+
     int run = context< HandleRuns >().currentRun();
     for (std::vector<int>::const_iterator iter = unhandledLumis_.begin();
          iter != unhandledLumis_.end();
@@ -399,13 +428,19 @@ namespace statemachine {
       }
     }
     unhandledLumis_.clear();
+
+    lumiException_ = false;
   }
 
   void HandleLumis::markLumiNonEmpty() {
     if (currentLumiEmpty_) {
       finalizeOutstandingLumis();
       int run = context< HandleRuns >().currentRun();
+
+      lumiException_ = true;
       ep_.beginLumi(run, currentLumi());
+      lumiException_ = false;
+
       currentLumiEmpty_ = false;
     }
   }
