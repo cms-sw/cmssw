@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Wed Mar  5 11:00:48 EST 2008
-// $Id$
+// $Id: FWModelId.cc,v 1.1 2008/03/05 16:45:04 chrjones Exp $
 //
 
 // system include files
@@ -68,6 +68,9 @@ void
 FWModelId::unselect() const { if(m_item) {m_item->unselect(m_index);}}
 void 
 FWModelId::select() const { if(m_item) {m_item->select(m_index);}}
+
+void 
+FWModelId::toggleSelect() const { if(m_item) {m_item->toggleSelect(m_index);}}
 
 //
 // static member functions
