@@ -28,15 +28,11 @@ class TrackingParticle : public reco::Particle {
   typedef edm::Ref<edm::HepMCProduct, HepMC::GenParticle >       GenParticleRef;
   typedef GenParticleRefVector::iterator                         genp_iterator;
   typedef       std::vector<SimTrack>::const_iterator             g4t_iterator;
-//  typedef TrackPSimHitRefToBaseVector::const_iterator            pSH_iterator;
 
   typedef std::vector<TrackingVertex>                TrackingVertexCollection;
   typedef edm::Ref<TrackingVertexCollection>         TrackingVertexRef;
   typedef edm::RefVector<TrackingVertexCollection>   TrackingVertexRefVector;
   typedef TrackingVertexRefVector::iterator   tv_iterator;
-
-//  typedef TrackPSimHitRefVector::iterator                      pSH_iterator;
-//  typedef std::map<int, TrackPSimHitRefVector>                         TrackIdPSimHitMap;
 
   /// default constructor
   TrackingParticle() { }
@@ -81,7 +77,6 @@ class TrackingParticle : public reco::Particle {
   const TrackingVertexRefVector& decayVertices() const { return decayVertices_; }
   tv_iterator decayVertices_begin()       const { return decayVertices_.begin(); }
   tv_iterator decayVertices_end()         const { return decayVertices_.end(); }
-//  TrackingVertexRef decayVertex() const { return decayVertex_; } // Removed in 1.4
   int matchedHit() const {return matchedHit_;}
 
  private:
@@ -103,9 +98,7 @@ class TrackingParticle : public reco::Particle {
 
 // Source and decay vertices
   TrackingVertexRef       parentVertex_;
-  TrackingVertexRefVector  decayVertices_; // Re-instated in 1.4.0
-//  TrackingVertexRef  decayVertex_;       // Removed in 1.4.0
-
+  TrackingVertexRefVector  decayVertices_;
 };
 
 #endif // SimDataFormats_TrackingParticle_H

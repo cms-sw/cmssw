@@ -1,5 +1,4 @@
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingParticle.h"
-//#include "SimDataFormats/TrackingAnalysis/interface/TrackingVertexFwd.h"
 
 typedef std::vector<TrackingVertex>                TrackingVertexCollection;
 typedef edm::Ref<TrackingVertexCollection>         TrackingVertexRef;
@@ -21,10 +20,6 @@ void TrackingParticle::addGenParticle( const edm::Ref<edm::HepMCProduct, HepMC::
 void TrackingParticle::addG4Track( const SimTrack& t) {
   g4Tracks_.push_back(t);
 }
-
-//void TrackingParticle::addPSimHit( const TrackPSimHitRef& ref){
-//  trackPSimHit_.push_back(ref);
-//}
 
 void TrackingParticle::addPSimHit( const PSimHit& hit){
   trackPSimHit_.push_back(hit);
@@ -59,8 +54,7 @@ void TrackingParticle::setParentVertex(const TrackingVertexRef &ref) {
 }
 
 void TrackingParticle::addDecayVertex(const TrackingVertexRef &ref){
-//  decayVertex_ = ref;
-    decayVertices_.push_back(ref); // Restored for 1.4
+    decayVertices_.push_back(ref);
 }
 
 void TrackingParticle::clearParentVertex() {
