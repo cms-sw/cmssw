@@ -1,8 +1,8 @@
 /*
  * \file EBCosmicTask.cc
  *
- * $Date: 2008/03/11 07:10:29 $
- * $Revision: 1.96 $
+ * $Date: 2008/03/11 07:13:44 $
+ * $Revision: 1.97 $
  * \author G. Della Ricca
  *
 */
@@ -265,8 +265,9 @@ void EBCosmicTask::analyze(const Event& e, const EventSetup& c){
         // find the jitter of the seed
         float jitter = -999.;
         if ( isSeed ) {
-          EcalUncalibratedRecHitCollection::const_iterator uhitItr = uhits->find( hitItr->detid() );
-          jitter = uhitItr->jitter();
+          if ( uhits->find(id) != uhits->end() ) {
+            jitter = uhits->find(id)->jitter();
+          }
         }
 
         if ( xval >= lowThreshold_ ) {
