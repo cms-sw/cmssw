@@ -1298,14 +1298,16 @@ bool FUShmBuffer::setEvtTimeStamp(unsigned int index,time_t timeStamp)
 //______________________________________________________________________________
 bool FUShmBuffer::setClientPrcId(pid_t prcId)
 {
+  lock();
   assert(nClients_<nClientsMax_);
   pid_t *prcid=(pid_t*)((unsigned int)this+clientPrcIdOffset_);
   for (unsigned int i=0;i<nClients_;i++) {
-    if ((*prcid)==prcId) return false;
+    if ((*prcid)==prcId) { unlock();  return false; }
     prcid++;
   }
   nClients_++;
   *prcid=prcId;
+  unlock();
   return true;
 }
 
@@ -1313,13 +1315,22 @@ bool FUShmBuffer::setClientPrcId(pid_t prcId)
 //______________________________________________________________________________
 bool FUShmBuffer::removeClientPrcId(pid_t prcId)
 {
+  lock();
   pid_t *prcid=(pid_t*)((unsigned int)this+clientPrcIdOffset_);
+
+  cout<<"removeClientPrcId("<<prcId<<")"<<endl;
+  for (unsigned int i=0;i<nClients_;i++) cout<<clientPrcId(i)<<endl;
+					   
   unsigned int iClient(0);
   while (iClient<=nClients_&&(*prcid)!=prcId) { prcid++; iClient++; }
   assert(iClient!=nClients_);
   pid_t* next=prcid; next++;
   while (iClient<nClients_-1) { *prcid=*next; prcid++; next++; }
   nClients_--;
+
+  for (unsigned int i=0;i<nClients_;i++) cout<<clientPrcId(i)<<endl;
+
+  unlock();
   return true;
 }
 
