@@ -23,6 +23,7 @@
   <class name="FWListEventItemEditor"/>
   <class name="FWListModel"/>
   <class name="FWListModelEditor"/>
+  <class name="FWListItemBase"/>
   <class name="FWDetailViewManager"/>
   <class name="ElectronDetailView"/>
   <class name="MuonDetailView"/>
