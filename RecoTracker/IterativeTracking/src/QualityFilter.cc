@@ -24,11 +24,7 @@ QualityFilter::QualityFilter(const edm::ParameterSet& iConfig)
   produces<TrajTrackAssociationCollection>();
 
   tkTag  = iConfig.getParameter<edm::InputTag>("recTracks");
-  string tkQuality = iConfig.getParameter<string>("TrackQuality");
-
-  if (tkQuality=="highPurity") trackQuality_=TrackBase::highPurity;
-  if (tkQuality=="tight") trackQuality_=TrackBase::tight;
-  if (tkQuality=="loose") trackQuality_=TrackBase::loose;
+  trackQuality_=TrackBase::qualityByName(iConfig.getParameter<std::string>("TrackQuality"));
 }
 
 
