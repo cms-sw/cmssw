@@ -317,6 +317,31 @@ def _makeLabeledVInputTag(s,loc,toks):
         cms.untracked(p)
     return (toks[0][1],p)
 
+def _makeLabeledEventID(s,loc,toks):
+    """create an EventID parameter from the tokens"""
+    tracked = True
+    if len(toks[0])==4:
+        tracked = False
+        del toks[0][0]
+    p = cms.EventID(int(toks[0][2][0]), int(toks[0][2][1]))
+    if not tracked:
+        cms.untracked(p)
+    return (toks[0][1],p)
+
+def _makeLabeledVEventID(s,loc,toks):
+    """create an VEventID parameter from the tokens"""
+    tracked = True
+    if len(toks[0])==4:
+        tracked = False
+        del toks[0][0]
+    values = list(iter(toks[0][2]))
+    items = [cms.EventID(*x) for x in values]
+    p = cms.VEventID(*items)
+    if not tracked:
+        cms.untracked(p)
+    return (toks[0][1],p)
+
+
 def _makeDictFromList(values):
     values = _validateLabelledList(values)
     values = _findAndHandleParameterIncludes(values)
@@ -599,6 +624,10 @@ vinputTagParameter =pp.Group(untracked+pp.Keyword("VInputTag")+label+_equalTo
                              +_scopeEnd
                           ).setParseAction(_makeLabeledVInputTag)
 
+eventIDParameter = pp.Group(untracked+pp.Keyword("EventID")+label+_equalTo 
+                     + pp.Group( pp.Word(pp.nums) + pp.Suppress(':') + pp.Word(pp.nums) ) 
+                   ).setParseAction(_makeLabeledEventID)
+
 #since PSet and VPSets can contain themselves, we must declare them as 'Forward'
 PSetParameter = pp.Forward()
 VPSetParameter = pp.Forward()
@@ -616,7 +645,7 @@ using = pp.Group(pp.Keyword("using")+letterstart).setParseAction(_makeUsing)
 include = pp.Group(pp.Keyword("include").suppress()+quotedString).setParseAction(_makeInclude)
 
 # blocks and includes need to be included in case they're in fragments
-parameter = simpleParameter|stringParameter|vsimpleParameter|fileInPathParameter|vstringParameter|inputTagParameter|vinputTagParameter|PSetParameter|VPSetParameter|secsourceParameter|block|include
+parameter = simpleParameter|stringParameter|vsimpleParameter|fileInPathParameter|vstringParameter|inputTagParameter|vinputTagParameter|eventIDParameter|PSetParameter|VPSetParameter|secsourceParameter|block|include
 
 scopedParameters = _scopeBegin+pp.Group(pp.ZeroOrMore(parameter|using|include))+_scopeEnd
 #now we can actually say what PSet and VPSet are
@@ -1715,6 +1744,13 @@ if __name__=="__main__":
             d=dict(iter(t))
             self.assertEqual(type(d['blah']),cms.VInputTag)
             self.assertEqual(d['blah'],[cms.InputTag('abc'),cms.InputTag('def')])
+
+            t=onlyParameters.parseString("EventID eid= 1:2")
+            d=dict(iter(t))
+            self.assertEqual(type(d['eid']),cms.EventID)
+            self.assertEqual(d['eid'].run(), 1)
+            self.assertEqual(d['eid'].event(), 2)
+
             
             t=onlyParameters.parseString("PSet blah = {}")
             d=dict(iter(t))
