@@ -1,4 +1,4 @@
-#include "PhysicsTools/PatAlgos/interface/AnythingToValueMap.h"
+#include "PhysicsTools/PatAlgos/plugins/AnythingToValueMap.h"
 #include "DataFormats/JetReco/interface/Jet.h"
 //#include "DataFormats/BTauReco/interface/JetTagFwd.h"
 //#include "DataFormats/BTauReco/interface/JetTag.h"
