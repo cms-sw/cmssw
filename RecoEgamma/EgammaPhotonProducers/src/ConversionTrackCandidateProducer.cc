@@ -66,6 +66,8 @@ ConversionTrackCandidateProducer::ConversionTrackCandidateProducer(const edm::Pa
   OutInTrackSuperClusterAssociationCollection_ = conf_.getParameter<std::string>("outInTrackCandidateSCAssociationCollection");
   InOutTrackSuperClusterAssociationCollection_ = conf_.getParameter<std::string>("inOutTrackCandidateSCAssociationCollection");
 
+  hbheLabel_        = conf_.getParameter<std::string>("hbheModule");
+  hbheInstanceName_ = conf_.getParameter<std::string>("hbheInstance");
   hOverEConeSize_   = conf_.getParameter<double>("hOverEConeSize");
   maxHOverE_        = conf_.getParameter<double>("maxHOverE");
   minSCEt_        = conf_.getParameter<double>("minSCEt");
