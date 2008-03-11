@@ -1317,19 +1317,12 @@ bool FUShmBuffer::removeClientPrcId(pid_t prcId)
 {
   lock();
   pid_t *prcid=(pid_t*)((unsigned int)this+clientPrcIdOffset_);
-
-  cout<<"removeClientPrcId("<<prcId<<")"<<endl;
-  for (unsigned int i=0;i<nClients_;i++) cout<<clientPrcId(i)<<endl;
-					   
   unsigned int iClient(0);
   while (iClient<=nClients_&&(*prcid)!=prcId) { prcid++; iClient++; }
   assert(iClient!=nClients_);
   pid_t* next=prcid; next++;
-  while (iClient<nClients_-1) { *prcid=*next; prcid++; next++; }
+  while (iClient<nClients_-1) { *prcid=*next; prcid++; next++; iClient++; }
   nClients_--;
-
-  for (unsigned int i=0;i<nClients_;i++) cout<<clientPrcId(i)<<endl;
-
   unlock();
   return true;
 }
