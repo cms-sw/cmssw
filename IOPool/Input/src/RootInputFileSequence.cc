@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: RootInputFileSequence.cc,v 1.2 2008/02/28 20:54:43 wmtan Exp $
+$Id: RootInputFileSequence.cc,v 1.3 2008/03/01 17:48:14 wmtan Exp $
 ----------------------------------------------------------------------*/
 #include "RootInputFileSequence.h"
 #include "PoolSource.h"
@@ -39,6 +39,7 @@ namespace edm {
     startAtLumi_(pset.getUntrackedParameter<unsigned int>("firstLuminosityBlock", 1U)),
     startAtEvent_(pset.getUntrackedParameter<unsigned int>("firstEvent", 1U)),
     eventsToSkip_(pset.getUntrackedParameter<unsigned int>("skipEvents", 0U)),
+    whichLumisToSkip_(/* pset.getUntrackedParameter<std::vector<LuminosityBlockID> >("lumisToSkip", std::vector<LuminosityBlockID>()) */ ),
     skipBadFiles_(pset.getUntrackedParameter<bool>("skipBadFiles", false)),
     forcedRunOffset_(0),
     setRun_(pset.getUntrackedParameter<unsigned int>("setRunNumber", 0)) {
@@ -122,7 +123,8 @@ namespace edm {
     if (filePtr && !filePtr->IsZombie()) {
       rootFile_ = RootFileSharedPtr(new RootFile(fileIter_->fileName(), catalog_.url(),
 	  processConfiguration(), fileIter_->logicalFileName(), filePtr,
-	  startAtRun_, startAtLumi_, startAtEvent_, eventsToSkip_, remainingEvents(),
+	  startAtRun_, startAtLumi_, startAtEvent_, eventsToSkip_, whichLumisToSkip_,
+	  remainingEvents(),
 	  forcedRunOffset_));
       fileIndexes_[fileIter_ - fileIterBegin_] = rootFile_->fileIndexSharedPtr();
     } else {
@@ -286,7 +288,7 @@ namespace edm {
       return InputSource::IsFile;
     }
     if (rootFile_) {
-      FileIndex::EntryType entryType = rootFile_->getEntryTypeSkippingDups();
+      FileIndex::EntryType entryType = rootFile_->getNextEntryTypeWanted();
       if (entryType == FileIndex::kEvent) {
         return InputSource::IsEvent;
       } else if (entryType == FileIndex::kLumi) {

@@ -5,7 +5,7 @@
 
 RootFile.h // used by ROOT input sources
 
-$Id: RootFile.h,v 1.51 2008/03/04 00:05:02 paterno Exp $
+$Id: RootFile.h,v 1.52 2008/03/05 05:55:30 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -21,6 +21,7 @@ $Id: RootFile.h,v 1.51 2008/03/04 00:05:02 paterno Exp $
 #include "DataFormats/Provenance/interface/EventAuxiliary.h"
 #include "DataFormats/Provenance/interface/EventProcessHistoryID.h"
 #include "DataFormats/Provenance/interface/LuminosityBlockAuxiliary.h"
+#include "DataFormats/Provenance/interface/LuminosityBlockID.h"
 #include "DataFormats/Provenance/interface/ProductStatus.h"
 #include "DataFormats/Provenance/interface/RunAuxiliary.h"
 #include "DataFormats/Provenance/interface/FileFormatVersion.h"
@@ -48,6 +49,7 @@ namespace edm {
 	     LuminosityBlockNumber_t const& startAtLumi,
 	     EventNumber_t const& startAtEvent,
 	     unsigned int eventsToSkip,
+	     std::vector<LuminosityBlockID> const& whichLumisToSkip,
 	     int remainingEvents,
 	     int forcedRunOffset);
     void reportOpened();
@@ -92,6 +94,7 @@ namespace edm {
     bool nextEventEntry() {return eventTree_.next();}
     FileIndex::EntryType getEntryType() const;
     FileIndex::EntryType getEntryTypeSkippingDups();
+    FileIndex::EntryType getNextEntryTypeWanted();
     boost::shared_ptr<FileIndex> fileIndexSharedPtr() const {
       return fileIndexSharedPtr_;
     }
@@ -129,6 +132,7 @@ namespace edm {
     LuminosityBlockNumber_t startAtLumi_;
     EventNumber_t startAtEvent_;
     unsigned int eventsToSkip_;
+    std::vector<LuminosityBlockID> whichLumisToSkip_;
     bool fastClonable_; 
     JobReport::Token reportToken_;
     EventAuxiliary eventAux_;
