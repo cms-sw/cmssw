@@ -446,6 +446,26 @@ class VInputTag(_ValidatingParameterListBase):
            cppTags.append(i.cppTag(parameterSet))
         parameterSet.addVInputTag(self.isTracked(), myname, cppTags)
 
+class VEventID(_ValidatingParameterListBase):
+    def __init__(self,*arg,**args):
+        super(VEventID,self).__init__(*arg,**args)
+    @staticmethod
+    def _itemIsValid(item):
+        return EventID._isValid(item)
+    def configValueForItem(self,item,options):
+        return EventID.formatValueForConfig(item)
+    def pythonValueForItem(self,item, options):
+        return item.dumpPython(options)
+    @staticmethod
+    def _valueFromString(value):
+        return VEventID(*_ValidatingParameterListBase._itemsFromStrings(value,EventID._valueFromString))
+    def insertInto(self, parameterSet, myname):
+        cppTags = list()
+        for i in self:
+           cppTags.append(i.cppTag(parameterSet))
+        parameterSet.addVEventID(self.isTracked(), myname, cppTags)
+
+
 
 
 class VPSet(_ValidatingParameterListBase,_ConfigureComponent,_Labelable):
