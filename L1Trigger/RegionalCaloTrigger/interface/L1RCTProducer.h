@@ -31,5 +31,7 @@ class L1RCTProducer : public edm::EDProducer
   bool useHcal;
   edm::InputTag ecalDigisLabel;
   edm::InputTag hcalDigisLabel;
+  unsigned preSamples;
+  unsigned postSamples;
 };
 #endif
