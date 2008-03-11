@@ -24,6 +24,8 @@ namespace l1t
 class WriterProxy
 {
     public:
+        virtual ~WriterProxy() {}
+
         /* Saves record and type from given event setup to pool DB. This method should not worry
          * about such things as IOV and so on. It should return new payload token and then
          * the framework would take care of it.
@@ -44,6 +46,8 @@ template<class Record, class Type>
 class WriterProxyT : public WriterProxy
 {
     public:
+        virtual ~WriterProxyT() {}
+
         /* This method requires that Record and Type supports copy constructor */
         virtual std::string save (const edm::EventSetup & setup, cond::PoolTransaction & pool) const
         {

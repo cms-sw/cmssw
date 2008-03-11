@@ -20,22 +20,9 @@
  */
 class L1TriggerKey
 {
-protected:
-    /* Mapping from records and types to tokens.
-     * I as unvable to make type std::map<std::pair<std::string, std::string>, std::string> persistent
-     * so record and type are concatanated with @ sign and resulting string is used as a key.
-     */
-
-  // wsun 03/2008: instead of tokens, store the configuration keys instead.
-/*     typedef std::map<std::string, std::string> RecordsToToken; */
-/*     RecordsToToken recordsToToken; */
-    typedef std::map<std::string, std::string> RecordToKey;
-    RecordToKey m_recordToKey;
-
-
-    // wsun 03/2008: add data member for TSC key
-    std::string m_tscKey ;
 public:
+    typedef std::map<std::string, std::string> RecordToKey;
+
     // Constructors
     L1TriggerKey () {}
 
@@ -63,6 +50,21 @@ public:
 
     const RecordToKey& recordToKeyMap() const
       { return m_recordToKey ; }
+
+protected:
+    /* Mapping from records and types to tokens.
+     * I as unvable to make type std::map<std::pair<std::string, std::string>, std::string> persistent
+     * so record and type are concatanated with @ sign and resulting string is used as a key.
+     */
+
+  // wsun 03/2008: instead of tokens, store the configuration keys instead.
+/*     typedef std::map<std::string, std::string> RecordsToToken; */
+/*     RecordsToToken recordsToToken; */
+    RecordToKey m_recordToKey;
+
+
+    // wsun 03/2008: add data member for TSC key
+    std::string m_tscKey ;
 };
 
 #endif
