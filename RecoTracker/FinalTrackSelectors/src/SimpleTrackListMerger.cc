@@ -7,9 +7,9 @@
 // Original Author: Steve Wagner, stevew@pizero.colorado.edu
 // Created:         Sat Jan 14 22:00:00 UTC 2006
 //
-// $Author: arizzi $
-// $Date: 2008/03/04 08:56:58 $
-// $Revision: 1.7 $
+// $Author: mangano $
+// $Date: 2008/03/04 14:36:28 $
+// $Revision: 1.8 $
 //
 
 #include <memory>
@@ -342,14 +342,7 @@ namespace cms
     i=-1;
     for (reco::TrackCollection::const_iterator track=tC1.begin(); track!=tC1.end(); track++){
       i++;  if (!selected1[i])continue;
-        reco::Track * theTrack = new reco::Track(track->chi2(),
-						 (short unsigned)track->ndof(),
-						 track->innerPosition(),
-						 track->innerMomentum(),
-						 track->charge(),
-						 track->innerStateCovariance(),
-						 track->algo());
-						    
+      reco::Track * theTrack = new reco::Track(*track);
       //fill the TrackCollection
       reco::TrackExtraRef theTrackExtraRef=track->extra();    
       theTrack->setExtra(theTrackExtraRef);    
@@ -362,14 +355,7 @@ namespace cms
     i=-1;
     for (reco::TrackCollection::const_iterator track=tC2.begin(); track!=tC2.end(); track++){
       i++;  if (!selected2[i])continue;
-        reco::Track * theTrack = new reco::Track(track->chi2(),
-						 (short unsigned)track->ndof(),
-						 track->innerPosition(),
-						 track->innerMomentum(),
-						 track->charge(),
-						 track->innerStateCovariance(),
-						 track->algo());
-						    
+      reco::Track * theTrack = new reco::Track(*track);
       //fill the TrackCollection
       reco::TrackExtraRef theTrackExtraRef=track->extra();    
       theTrack->setExtra(theTrackExtraRef);    
