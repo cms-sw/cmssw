@@ -14,7 +14,7 @@
     (An adapter exists for use in CMSSW: reco::modules::ParameterAdapter< pat::ElectronSelector >.)
 
     \author F.J. Ronga (ETH Zurich)
-    \version $Id: ElectronSelector.h,v 1.7 2008/03/05 14:50:33 fronga Exp $
+    \version $Id: ElectronSelector.h,v 1.8 2008/03/10 14:23:58 fronga Exp $
 **/
 
 #include <string>
@@ -66,8 +66,8 @@ namespace pat {
     const ParticleStatus
     filter( const unsigned int&          index,
             const edm::View<Electron>&   electrons,
-            const ElectronIDmap&         electronIDs = 0,
-            const reco::ClusterShape*    clusterShape = 0
+            const ElectronIDmap&         electronIDs,
+            const reco::ClusterShape*    clusterShape
             ) const;
     
 
