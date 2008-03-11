@@ -158,10 +158,10 @@ class string(_SimpleParameterTypeBase):
 
 
 class EventID(_ParameterTypeBase):
-    def __init(self, run, ev):
+    def __init__(self, run, ev):
         super(EventID,self).__init__()
         self.__run = run
-        self.__event = event
+        self.__event = ev
     def run(self):
         return self.__run
     def event(self):
@@ -174,7 +174,7 @@ class EventID(_ParameterTypeBase):
         """only used for cfg-parsing"""
         return double(float(value))
     def pythonValue(self, options=PrintOptions()):
-        return self.__run+ ', '+self.__event
+        return str(self.__run)+ ', '+str(self.__event)
     def cppID(self, parameterSet):
         return parameterSet.newEventID(self.run(), self.event())
     def insertInto(self, parameterSet, myname):
@@ -582,5 +582,9 @@ if __name__ == "__main__":
 """)
             s1=SecSource("PoolSource",type=int32(1))
             self.assertEqual(s1.type.value(),1)
+        def testEventID(self):
+            eid = EventID(2, 3)
+            self.assertEqual( repr(eid), "cms.EventID(2, 3)" )
+
             
     unittest.main()
