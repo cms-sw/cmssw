@@ -1,5 +1,5 @@
-#ifndef FWCore_Utilities_TRandomAdaptor_h
-#define FWCore_Utilities_TRandomAdaptor_h
+#ifndef IOMC_RandomEngine_TRandomAdaptor_h
+#define IOMC_RandomEngine_TRandomAdaptor_h
 
 #include "CLHEP/Random/defs.h"
 #include "CLHEP/Random/RandomEngine.h"
@@ -10,77 +10,81 @@
 
 #include <cmath>
 
-class TRandomAdaptor : public CLHEP::HepRandomEngine {
+namespace edm {
 
-public:
+  class TRandomAdaptor : public CLHEP::HepRandomEngine {
 
-  // Constructors and destructor.
-  TRandomAdaptor() : trand_(new TRandom3()) {}
-  TRandomAdaptor( long seed ) : trand_(new TRandom3(seed)) {}
-  TRandomAdaptor( int rowIndex, int colIndex ) : trand_(new TRandom3(rowIndex*colIndex-1)) {}
-  TRandomAdaptor( std::istream & is );
-  virtual ~TRandomAdaptor() { delete trand_; }
+  public:
 
-  // Copy constructor and operator=.
-  TRandomAdaptor( const TRandomAdaptor & p ) { TRandom3* tmp = new TRandom3();
-                                                                   *tmp = *(p.trand_);
-                                                                   this->trand_ = tmp; }
+    // Constructors and destructor.
+    TRandomAdaptor() : trand_(new TRandom3()) {}
+    TRandomAdaptor( long seed ) : trand_(new TRandom3(seed)) {}
+    TRandomAdaptor( int rowIndex, int colIndex ) : trand_(new TRandom3(rowIndex*colIndex-1)) {}
+    TRandomAdaptor( std::istream & is );
+    virtual ~TRandomAdaptor() { delete trand_; }
 
-  TRandomAdaptor & operator=( const TRandomAdaptor & p ) { TRandom3* tmp = new TRandom3();
-                                                                   *tmp = *(p.trand_);
-                                                                   this->trand_ = tmp;
-                                                                   return *this; }
+    // Copy constructor and operator=.
+    TRandomAdaptor( const TRandomAdaptor & p ) { TRandom3* tmp = new TRandom3();
+                                                                     *tmp = *(p.trand_);
+                                                                     this->trand_ = tmp; }
 
-  // Returns a pseudo random number in ]0,1[ (i. e., excluding the end points).
-  double flat() { return trand_->Rndm(); }
+    TRandomAdaptor & operator=( const TRandomAdaptor & p ) { TRandom3* tmp = new TRandom3();
+                                                                     *tmp = *(p.trand_);
+                                                                     this->trand_ = tmp;
+                                                                     return *this; }
 
-  // Fills an array "vect" of specified size with flat random values.
-  void flatArray(const int size, double* vect) { trand_->RndmArray(size,vect); }
+    // Returns a pseudo random number in ]0,1[ (i. e., excluding the end points).
+    double flat() { return trand_->Rndm(); }
 
-  // Sets the state of the algorithm according to seed.
-  void setSeed(long seed, int) { trand_->SetSeed(seed); }
+    // Fills an array "vect" of specified size with flat random values.
+    void flatArray(const int size, double* vect) { trand_->RndmArray(size,vect); }
 
-  // Sets the state of the algorithm according to the zero terminated
-  // array of seeds. It is allowed to ignore one or many seeds in this array.
-  void setSeeds(const long * seeds, int) { trand_->SetSeed(seeds[0]); }
+    // Sets the state of the algorithm according to seed.
+    void setSeed(long seed, int) { trand_->SetSeed(seed); }
 
-  // Saves the current engine status in the named file
-  void saveStatus( const char filename[] = "TRandom.conf") const { trand_->WriteRandom(filename); }
+    // Sets the state of the algorithm according to the zero terminated
+    // array of seeds. It is allowed to ignore one or many seeds in this array.
+    void setSeeds(const long * seeds, int) { trand_->SetSeed(seeds[0]); }
 
-  // Reads from named file the the last saved engine status and restores it.
-  void restoreStatus( const char filename[] = "TRandom.conf" ) { trand_->ReadRandom(filename); }
+    // Saves the current engine status in the named file
+    void saveStatus( const char filename[] = "TRandom.conf") const { trand_->WriteRandom(filename); }
 
-  // Dumps the current engine status on the screen.
-  void showStatus() const { trand_->Dump(); }
+    // Reads from named file the the last saved engine status and restores it.
+    void restoreStatus( const char filename[] = "TRandom.conf" ) { trand_->ReadRandom(filename); }
 
-  // Returns a float flat ]0,1[
-  operator float() { return (float)(trand_->Rndm()); }
+    // Dumps the current engine status on the screen.
+    void showStatus() const { trand_->Dump(); }
 
-  // Returns an unsigned int (32-bit) flat 
-  operator unsigned int() { return (unsigned int)((trand_->Rndm())*exponent_bit_32); }
+    // Returns a float flat ]0,1[
+    operator float() { return (float)(trand_->Rndm()); }
 
-  virtual std::ostream & put (std::ostream & os) const;
-  virtual std::istream & get (std::istream & is);
-  std::string beginTag ( ) { return std::string(trand_->GetName())+std::string("-begin"); }
-  virtual std::istream & getState ( std::istream & is );
+    // Returns an unsigned int (32-bit) flat 
+    operator unsigned int() { return (unsigned int)((trand_->Rndm())*exponent_bit_32); }
 
-  // Returns the engine name as a string
-  std::string name() const { return std::string("T")+std::string(trand_->GetName()); }
-  static std::string engineName() { return std::string("TRandomAdaptor"); }
+    virtual std::ostream & put (std::ostream & os) const;
+    virtual std::istream & get (std::istream & is);
+    std::string beginTag ( ) { return std::string(trand_->GetName())+std::string("-begin"); }
+    virtual std::istream & getState ( std::istream & is );
 
-  std::vector<unsigned long> put () const;
-  bool get (const std::vector<unsigned long> & v);
-  bool getState (const std::vector<unsigned long> & v) { return get(v); }
+    // Returns the engine name as a string
+    std::string name() const { return std::string("T")+std::string(trand_->GetName()); }
+    static std::string engineName() { return std::string("TRandomAdaptor"); }
 
-  // In case all else fails, let the user talk directly to the engine
-  TRandom3* getRootEngine() { return trand_; }
+    std::vector<unsigned long> put () const;
+    bool get (const std::vector<unsigned long> & v);
+    bool getState (const std::vector<unsigned long> & v) { return get(v); }
 
-private:
+    // In case all else fails, let the user talk directly to the engine
+    TRandom3* getRootEngine() { return trand_; }
 
-  void Grumble(std::string errortext) const;
+  private:
 
-  TRandom3* trand_;
+    void Grumble(std::string errortext) const;
 
-}; // TRandomAdaptor
+    TRandom3* trand_;
 
-#endif // FWCore_Utilities_TRandomAdaptor_h
+  }; // TRandomAdaptor
+
+}  // namespace edm
+
+#endif // IOMC_RandomEngine_TRandomAdaptor_h
