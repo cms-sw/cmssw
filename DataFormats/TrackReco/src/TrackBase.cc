@@ -29,3 +29,13 @@ TrackBase::~TrackBase() {
 TrackBase::CovarianceMatrix & TrackBase::fill( CovarianceMatrix & v ) const {
   return fillCovariance( v, covariance_ );
 }
+
+TrackBase::TrackQuality TrackBase::qualityByName(const std::string &name){
+  if (name ==  "loose")    return loose;
+  else if (name ==  "tight")    return tight;
+  else if (name ==  "highPurity")    return highPurity;
+  else if (name ==  "undefQuality")  return undefQuality;
+  else return undefQuality; // better this or throw() ?
+}
+
+

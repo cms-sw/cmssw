@@ -46,7 +46,7 @@
  * 
  * \author Thomas Speer, Luca Lista, Pascal Vanlaer, Juan Alcaraz
  *
- * \version $Id: TrackBase.h,v 1.62 2008/03/03 23:27:47 vlimant Exp $
+ * \version $Id: TrackBase.h,v 1.63 2008/03/10 20:51:11 burkett Exp $
  *
  */
 
@@ -223,7 +223,7 @@ namespace reco {
     bool quality(const TrackQuality ) const;
     void setQuality(const TrackQuality, bool set=true); 
     static std::string qualityName(TrackQuality);
-
+    static TrackQuality qualityByName(const std::string &name);
   private:
     /// chi-squared
     float chi2_;
@@ -298,11 +298,13 @@ namespace reco {
     switch(q)
       {
       case undefQuality: return "undefQuality";
-      case loose: return "loose";
-      case tight: return "tight";
+      case loose:        return "loose";
+      case tight:        return "tight";
+      case highPurity:   return "highPurity";
       }
     return "undefQuality";
   }
+
 
 }
 
