@@ -1,5 +1,5 @@
 //
-// $Id: PATTauCleaner.h,v 1.7 2008/03/05 14:56:50 fronga Exp $
+// $Id: PATTauCleaner.h,v 1.1 2008/03/06 09:23:11 llista Exp $
 //
 
 #ifndef PhysicsTools_PatAlgos_PATTauCleaner_h
@@ -13,7 +13,7 @@
    a collection of objects of TauType.
 
   \author   Steven Lowette, Christophe Delaere
-  \version  $Id: PATTauCleaner.h,v 1.7 2008/03/05 14:56:50 fronga Exp $
+  \version  $Id: PATTauCleaner.h,v 1.1 2008/03/06 09:23:11 llista Exp $
 */
 
 
@@ -22,7 +22,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/InputTag.h"
 
-#include "PhysicsTools/PatAlgos/interface/CleanerHelper.h"
+#include "PhysicsTools/PatAlgos/plugins/CleanerHelper.h"
 #include "PhysicsTools/PatAlgos/interface/OverlapHelper.h"
 
 #include "DataFormats/TauReco/interface/BaseTau.h"
