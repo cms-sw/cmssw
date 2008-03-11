@@ -13,7 +13,7 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: ElectronPixelSeedGenerator.cc,v 1.43 2008/03/03 17:10:15 uberthon Exp $
+// $Id: ElectronPixelSeedGenerator.cc,v 1.44 2008/03/04 17:00:28 uberthon Exp $
 //
 //
 #include "RecoEgamma/EgammaElectronAlgos/interface/PixelHitMatcher.h" 
@@ -207,7 +207,7 @@ void ElectronPixelSeedGenerator::seedsFromThisCluster( edm::Ref<reco::SuperClust
       float pphimax1 =  deltaPhi1*sizeWindowENeg_;
 
       float phimin2  = -deltaPhi2_/2. ;
-      float phimax2  =  deltaPhi2_/2,;
+      float phimax2  =  deltaPhi2_/2. ;
 
       myMatchEle->set1stLayer(ephimin1,ephimax1);
       myMatchPos->set1stLayer(pphimin1,pphimax1);
