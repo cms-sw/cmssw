@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Feb 11 10:52:24 EST 2008
-// $Id: FWGUIManager.h,v 1.7 2008/03/05 15:17:53 chrjones Exp $
+// $Id: FWGUIManager.h,v 1.8 2008/03/06 22:48:31 jmuelmen Exp $
 //
 
 // system include files
@@ -25,6 +25,7 @@
 #include "Rtypes.h"
 
 // user include files
+#include "Fireworks/Core/interface/FWConfigurable.h"
 
 // forward declarations
 class TGPictureButton;
@@ -48,7 +49,7 @@ class TEveGedEditor;
 class FWSummaryManager;
 class FWDetailViewManager;
 
-class FWGUIManager
+class FWGUIManager : public FWConfigurable
 {
 
    public:
@@ -57,6 +58,10 @@ class FWGUIManager
                    bool iDebugInterface = false);
       virtual ~FWGUIManager();
 
+      //configuration management interface
+      void addTo(FWConfiguration&) const;
+      void setFrom(const FWConfiguration&);
+   
       // ---------- const member functions ---------------------
       bool waitingForUserAction() const;
 
