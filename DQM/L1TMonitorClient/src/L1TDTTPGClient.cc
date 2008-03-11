@@ -118,7 +118,7 @@ void L1TDTTPGClient::endLuminosityBlock(const edm::LuminosityBlock& lumiSeg,
 }			  
 //--------------------------------------------------------
 void L1TDTTPGClient::analyze(const Event& e, const EventSetup& context){
-   cout << "L1TDTTPGClient::analyze" << endl;
+//   cout << "L1TDTTPGClient::analyze" << endl;
    counterEvt_++;
    if (prescaleEvt_<1) return;
    if (prescaleEvt_>0 && counterEvt_%prescaleEvt_ != 0) return;
