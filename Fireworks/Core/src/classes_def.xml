@@ -27,4 +27,9 @@
   <class name="ElectronDetailView"/>
   <class name="MuonDetailView"/>
   <class name="ElectronView"/>
+  <class name="FWListViewObject"/>
+  <class name="FWListViewObjectEditor"/>
+  <class name="FWParameterSetterBase"/>
+  <class name="FWDoubleParameterSetter"/>
+  <class name="FWDoubleParameter"/>
 </lcgdict>
