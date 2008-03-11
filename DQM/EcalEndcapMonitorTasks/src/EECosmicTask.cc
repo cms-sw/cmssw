@@ -1,8 +1,8 @@
 /*
  * \file EECosmicTask.cc
  *
- * $Date: 2008/03/10 21:17:45 $
- * $Revision: 1.33 $
+ * $Date: 2008/03/11 07:10:27 $
+ * $Revision: 1.34 $
  * \author G. Della Ricca
  *
 */
@@ -227,8 +227,8 @@ void EECosmicTask::analyze(const Event& e, const EventSetup& c){
 
         int iz = 0;
 
-        if( ism >=  1 && ism <=  9 ) iz = -1;
-        if( ism >= 10 && ism <= 18 ) iz = +1;
+        if ( ism >=  1 && ism <=  9 ) iz = -1;
+        if ( ism >= 10 && ism <= 18 ) iz = +1;
 
         map<int, EcalDCCHeaderBlock>::iterator i = dccMap.find(ism);
         if ( i == dccMap.end() ) continue;
@@ -260,17 +260,17 @@ void EECosmicTask::analyze(const Event& e, const EventSetup& c){
           int icryY = id.iy()+row-1;
           if ( EEDetId::validDetId(icryX, icryY, iz) ) {
             EEDetId id3x3 = EEDetId(icryX, icryY, iz, EEDetId::XYMODE);
-            if( hits->find(id3x3) != hits->end() ) {
+            if ( hits->find(id3x3) != hits->end() ) {
               float neighbourEnergy = hits->find(id3x3)->energy();
               e3x3 += neighbourEnergy;
-              if( neighbourEnergy > xval ) isSeed = false;
+              if ( neighbourEnergy > xval ) isSeed = false;
             }
           }
         }
 
         // find the jitter of the seed
         float jitter = -999.;
-        if( isSeed ) {
+        if ( isSeed ) {
           EcalUncalibratedRecHitCollection::const_iterator uhitItr = uhits->find( hitItr->detid() );
           jitter = uhitItr->jitter();
         }

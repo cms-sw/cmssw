@@ -1,8 +1,8 @@
 /*
  * \file EBCosmicTask.cc
  *
- * $Date: 2008/03/10 21:17:44 $
- * $Revision: 1.95 $
+ * $Date: 2008/03/11 07:10:29 $
+ * $Revision: 1.96 $
  * \author G. Della Ricca
  *
 */
@@ -254,17 +254,17 @@ void EBCosmicTask::analyze(const Event& e, const EventSetup& c){
           int icryPhi = id.iphi()+row-1;
           if ( EBDetId::validDetId(icryEta, icryPhi) ) {
             EBDetId id3x3 = EBDetId(icryEta, icryPhi, EBDetId::ETAPHIMODE);
-            if( hits->find(id3x3) != hits->end() ) {
+            if ( hits->find(id3x3) != hits->end() ) {
               float neighbourEnergy = hits->find(id3x3)->energy();
               e3x3 += neighbourEnergy;
-              if( neighbourEnergy > xval ) isSeed = false;
+              if ( neighbourEnergy > xval ) isSeed = false;
             }
           }
         }
 
         // find the jitter of the seed
         float jitter = -999.;
-        if( isSeed ) {
+        if ( isSeed ) {
           EcalUncalibratedRecHitCollection::const_iterator uhitItr = uhits->find( hitItr->detid() );
           jitter = uhitItr->jitter();
         }
