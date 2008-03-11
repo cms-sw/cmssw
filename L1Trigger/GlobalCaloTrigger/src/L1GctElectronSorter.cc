@@ -63,7 +63,7 @@ void L1GctElectronSorter::setInputEmCand(const L1CaloEmCand& cand){
   // that they arrive on the cable, using the index() method.
   unsigned crate = cand.rctCrate();
   unsigned input = ( (m_id==4) ? (crate%9) : (crate%9 - 4) );
-  unsigned i = input*4 + cand.index();
+  unsigned i = input*4 + (3-cand.index());
   assert (m_inputCands.at(i).rank()==0);
   m_inputCands.at(i) = cand;
 }
