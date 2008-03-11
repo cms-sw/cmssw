@@ -27,12 +27,12 @@ class FixedMatrixBremRecoveryClusterAlgo
   
   enum VerbosityLevel { pDEBUG = 0, pWARNING = 1, pINFO = 2, pERROR = 3 }; 
 
-  FixedMatrixBremRecoveryClusterAlgo(double eb_sc_road_etasize = 0.06, // Search window in eta - Barrel
+  FixedMatrixBremRecoveryClusterAlgo(const edm::ParameterSet &bremRecoveryPset,
+			  double eb_sc_road_etasize = 0.06, // Search window in eta - Barrel
 			  double eb_sc_road_phisize = 0.80, // Search window in phi - Barrel
 			  double ec_sc_road_etasize = 0.14, // Search window in eta - Endcap
 			  double ec_sc_road_phisize = 0.40, // Search window in eta - Endcap
 			  bool dynamicPhiRoad = true,
-                          const edm::ParameterSet &bremRecoveryPset,
 			  double theSeedTransverseEnergyThreshold = 0.40,
 			  VerbosityLevel the_verbosity = pERROR
 			  )
