@@ -6,9 +6,9 @@
  * 
  * \author Paolo Azzurri, Giovanni Petrucciani 
  *
- * \version $Revision: 1.4 $
+ * \version $Revision: 1.5 $
  *
- * $Id: AnalyticalTrackSelector.h,v 1.4 2008/02/19 19:42:07 pioppi Exp $
+ * $Id: AnalyticalTrackSelector.h,v 1.5 2008/03/03 11:34:54 paoloa Exp $
  *
  */
 
@@ -58,6 +58,13 @@ namespace reco { namespace modules {
             bool copyExtras_;
             /// copy also trajectories and trajectory->track associations
             bool copyTrajectories_;
+
+            /// save all the tracks
+            bool keepAllTracks_;
+            /// do I have to set a quality bit?
+            bool setQualityBit_;
+            TrackBase::TrackQuality qualityToSet_;
+
             /// vertex cuts
             int32_t vtxNumber_;
             size_t  vtxTracks_;

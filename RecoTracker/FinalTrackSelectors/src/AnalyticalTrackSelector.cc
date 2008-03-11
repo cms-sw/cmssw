@@ -11,6 +11,11 @@ AnalyticalTrackSelector::AnalyticalTrackSelector( const edm::ParameterSet & cfg 
     vertices_( cfg.getParameter<edm::InputTag>( "vertices" ) ),
     copyExtras_(cfg.getUntrackedParameter<bool>("copyExtras", false)),
     copyTrajectories_(cfg.getUntrackedParameter<bool>("copyTrajectories", false)),
+    keepAllTracks_( cfg.exists("keepAllTracks") ?
+                         cfg.getParameter<bool>("keepAllTracks") :
+                         false ),  // as this is what you expect from a well behaved selector
+    setQualityBit_( false ),
+    qualityToSet_( TrackBase::undefQuality ),
     vtxNumber_( cfg.getParameter<int32_t>("vtxNumber") ),
     vtxTracks_( cfg.getParameter<uint32_t>("vtxTracks") ),
     vtxChi2Prob_( cfg.getParameter<double>("vtxChi2Prob") ),
@@ -20,8 +25,20 @@ AnalyticalTrackSelector::AnalyticalTrackSelector( const edm::ParameterSet & cfg 
     d0_par2_(cfg.getParameter< std::vector<double> >("d0_par2")),
     dz_par2_(cfg.getParameter< std::vector<double> >("dz_par2")),
     min_layers_(cfg.getParameter<uint32_t>("minNumberLayers") )
+
 {
- 
+    if (cfg.exists("qualityBit")) {
+        std::string qualityStr = cfg.getParameter<std::string>("qualityBit");
+        if (qualityStr != "") {
+            setQualityBit_ = true;
+            qualityToSet_  = TrackBase::qualityByName(cfg.getParameter<std::string>("qualityBit"));
+        }
+    }
+    if (keepAllTracks_ && !setQualityBit_) throw cms::Exception("Configuration") << 
+            "If you set 'keepAllTracks' to true, you must specify which qualityBit to set.\n";
+    if (setQualityBit_ && (qualityToSet_ == TrackBase::undefQuality)) throw cms::Exception("Configuration") <<
+            "You can't set the quality bit " << cfg.getParameter<std::string>("qualityBit") << " as it is 'undefQuality' or unknown.\n";
+
     std::string alias( cfg.getParameter<std::string>( "@module_label" ) );
 	produces<reco::TrackCollection>().setBranchAlias( alias + "Tracks");
 	if (copyExtras_) {
@@ -80,12 +97,12 @@ void AnalyticalTrackSelector::produce( edm::Event& evt, const edm::EventSetup& e
     for (TrackCollection::const_iterator it = hSrcTrack->begin(), ed = hSrcTrack->end(); it != ed; ++it, ++current) {
         const Track & trk = * it;
         bool ok = select(vertexBeamSpot, trk, points); 
-      
         if (!ok) {
             if (copyTrajectories_) trackRefs_[current] = reco::TrackRef();
-            continue;
+            if (!keepAllTracks_) continue;
         }
-		selTracks_->push_back( Track( trk ) ); // clone and store
+	selTracks_->push_back( Track( trk ) ); // clone and store
+        if (ok && setQualityBit_) selTracks_->back().setQuality(qualityToSet_);
         if (!copyExtras_) continue;
 
         // TrackExtras
