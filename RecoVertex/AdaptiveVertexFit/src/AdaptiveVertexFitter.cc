@@ -517,7 +517,12 @@ AdaptiveVertexFitter::fit(const vector<RefCountedVertexTrack> & tracks,
           = globalVTracks.begin(); i != globalVTracks.end(); i++)
     {
       // cout << "  -- fVtx pos=" << fVertex.position() << " cxx=" << fVertex.error().cxx() << " ndf=" << fVertex.degreesOfFreedom() << " add " << (**i).weight() << endl;
-      nVertex = theUpdator->add( fVertex, *i );
+      try {
+        nVertex = theUpdator->add( fVertex, *i );
+      } catch ( cms::Exception & c ) {
+        edm::LogWarning("AdaptiveVertexFitter" ) << "when updating, received " << c.what()
+                                                 << " final result might miss the info of a track.";
+      }
       // cout << "  +- fVtx pos=" << fVertex.position() << " cxx=" << fVertex.error().cxx() << " ndf=" << fVertex.degreesOfFreedom() << endl;
       if (nVertex.isValid()) {
         if ( (**i).weight() >= theWeightThreshold )
