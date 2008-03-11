@@ -4,6 +4,7 @@
 #include "CondCore/DBCommon/interface/CoralTransaction.h"
 cond::IOVSchemaUtility::IOVSchemaUtility(cond::CoralTransaction& coraldb):m_coraldb(coraldb){
 }
+cond::IOVSchemaUtility::~IOVSchemaUtility(){}
 void 
 cond::IOVSchemaUtility::create(){
   cond::ObjectRelationalMappingUtility mappingUtil(&(m_coraldb.coralSessionProxy()) );
