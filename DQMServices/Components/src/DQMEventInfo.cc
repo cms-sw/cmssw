@@ -2,9 +2,9 @@
  * \file DQMEventInfo.cc
  * \author M. Zanetti - CERN PH
  * Last Update:
- * $Date: 2008/02/21 03:26:49 $
- * $Revision: 1.15 $
- * $Author: lat $
+ * $Date: 2008/03/04 22:29:06 $
+ * $Revision: 1.16 $
+ * $Author: ameyer $
  *
  */
 
@@ -95,7 +95,8 @@ void DQMEventInfo::analyze(const Event& e, const EventSetup& c){
   runId_->Fill(e.id().run());
   lumisecId_->Fill(e.luminosityBlock());
   eventId_->Fill(e.id().event());
-  unsigned int ts_lo = (e.time().value()&0xFFFFFFFF);
+//  unsigned int ts_lo = (e.time().value()&0xFFFFFFFF);
+  unsigned int ts_lo = (e.time().value()/(double)0xffffffff);
   eventTimeStamp_->Fill(ts_lo);
 
   pEvent_++;
