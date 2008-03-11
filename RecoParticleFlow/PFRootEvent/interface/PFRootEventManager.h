@@ -281,15 +281,15 @@ class PFRootEventManager {
   bool trackInsideGCut( const reco::PFTrack& track ) const;
   
   /// rechit mask set to true for rechits inside TCutG
-  void fillRecHitMask( vector<bool>& mask, 
+  void fillRecHitMask( std::vector<bool>& mask, 
                        const reco::PFRecHitCollection& rechits ) const;
                        
   /// cluster mask set to true for rechits inside TCutG
-  void fillClusterMask( vector<bool>& mask, 
+  void fillClusterMask( std::vector<bool>& mask, 
                         const reco::PFClusterCollection& clusters ) const;
 
   /// track mask set to true for rechits inside TCutG
-  void fillTrackMask( vector<bool>& mask, 
+  void fillTrackMask( std::vector<bool>& mask, 
                       const reco::PFRecTrackCollection& tracks ) const;
                        
   /// find the closest PFSimParticle to a point (eta,phi) in a given detector
@@ -460,7 +460,7 @@ class PFRootEventManager {
   reco::GenJetCollection genJetsCMSSW_;
 
   /// calo Jets
-  std::vector<CaloJet> caloJetsCMSSW_;
+  std::vector<reco::CaloJet> caloJetsCMSSW_;
   /// input file
   TFile*     file_; 
 

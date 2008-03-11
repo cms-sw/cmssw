@@ -7,7 +7,6 @@
 
 
 
-using namespace std;
 
 class PFJetAlgorithm {
 
@@ -16,14 +15,14 @@ class PFJetAlgorithm {
   class Jet {
     
   private:
-    const vector<TLorentzVector>*              fAllVecs;
+    const std::vector<TLorentzVector>*              fAllVecs;
     
     TLorentzVector  fMomentum;
-    vector<int>    fVecIndexes;
+    std::vector<int>    fVecIndexes;
 
   public:
     Jet() : fAllVecs(0) {}
-    Jet( int i, const vector<TLorentzVector>* allvecs) : fAllVecs(allvecs) {
+    Jet( int i, const std::vector<TLorentzVector>* allvecs) : fAllVecs(allvecs) {
       Add(i);
     }
     ~Jet() {}
@@ -42,7 +41,7 @@ class PFJetAlgorithm {
     }
 
     const TLorentzVector& GetMomentum() const {return fMomentum;}
-    const vector<int>&    GetIndexes() const {return fVecIndexes;}
+    const std::vector<int>&    GetIndexes() const {return fVecIndexes;}
 
     friend ostream& operator<<(ostream& out, const PFJetAlgorithm::Jet& jet);
   };
@@ -50,10 +49,10 @@ class PFJetAlgorithm {
 
  private:
 
-  const vector<TLorentzVector>*              fAllVecs;
-  vector< PFJetAlgorithm::Jet >              fJets;
-  vector< int >                              fAssignedVecs; 
-  map<double,  int, greater<double> >        fEtOrderedSeeds;
+  const std::vector<TLorentzVector>*              fAllVecs;
+  std::vector< PFJetAlgorithm::Jet >              fJets;
+  std::vector< int >                              fAssignedVecs; 
+  std::map<double,  int, std::greater<double> >   fEtOrderedSeeds;
   
 
   double                                    fConeAngle;
@@ -64,8 +63,8 @@ class PFJetAlgorithm {
  public:
 
 
-  typedef map< double, PFJetAlgorithm::Jet, greater<double> >::iterator IJ;
-  typedef  map<double, int, greater<double> >::const_iterator IV;
+  typedef std::map< double, PFJetAlgorithm::Jet, std::greater<double> >::iterator IJ;
+  typedef  std::map<double, int, std::greater<double> >::const_iterator IV;
 
   PFJetAlgorithm() : fConeAngle(0.5), fSeedEt(2),  fConeMerge(0.5) {}
 
@@ -77,8 +76,8 @@ class PFJetAlgorithm {
 
   virtual ~PFJetAlgorithm() {}
 
-  const vector< PFJetAlgorithm::Jet >& 
-    FindJets( const vector<TLorentzVector>* vecs);
+  const std::vector< PFJetAlgorithm::Jet >& 
+    FindJets( const std::vector<TLorentzVector>* vecs);
 
 
   void SetConeAngle(double coneAngle) {fConeAngle = coneAngle;}
@@ -97,10 +96,12 @@ class PFJetAlgorithm {
   } 
 
   void CleanUp();
-  void MergeJets(map< double, PFJetAlgorithm::Jet, greater<double> >& etjets);
+  void 
+    MergeJets(std::map< double, PFJetAlgorithm::Jet, 
+	      std::greater<double> >& etjets);
 
   double GetConeAngle() const { return fConeAngle;}
-  const vector< PFJetAlgorithm::Jet >& GetJets() const { return fJets;}
+  const std::vector< PFJetAlgorithm::Jet >& GetJets() const { return fJets;}
 };
 
 #endif
