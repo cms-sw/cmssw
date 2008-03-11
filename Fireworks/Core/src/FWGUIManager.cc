@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Feb 11 11:06:40 EST 2008
-// $Id: FWGUIManager.cc,v 1.10 2008/03/05 19:57:03 chrjones Exp $
+// $Id: FWGUIManager.cc,v 1.11 2008/03/06 22:48:31 jmuelmen Exp $
 //
 
 // system include files
@@ -45,6 +45,8 @@
 #include "Fireworks/Core/interface/FWViewBase.h"
 
 #include "Fireworks/Core/interface/FWEventItem.h"
+
+#include "Fireworks/Core/src/FWListViewObject.h"
 
 //
 // constants, enums and typedefs
@@ -199,11 +201,6 @@ m_code(0)
          }
          frmMain->AddFrame(vf);
 
-	 TGTextButton *ele_butt = new TGTextButton(frmMain, "Electron view");
-	 frmMain->AddFrame(ele_butt, new TGLayoutHints(kLHintsTop | kLHintsExpandX));
-// 	 ele_butt->Connect("Clicked()", "ElectronView", m_electronView, "event()");
-	 ele_butt->Connect("Clicked()", "FWGUIManager", this, "makeElectronView()");
-
          frmMain->MapSubwindows();
          frmMain->Resize();
          frmMain->MapWindow();
@@ -326,9 +323,10 @@ FWGUIManager::createView(const std::string& iName)
    if(itFind == m_nameToViewBuilder.end()) {
       throw std::runtime_error(std::string("Unable to create view named ")+iName+" because it is unknown");
    }
-   addFrameHoldingAView((itFind->second(parentForNextView()))->frame());
+   FWViewBase* view = itFind->second(parentForNextView());
+   addFrameHoldingAView(view->frame());
    
-   TEveElementList* lst = new TEveElementList(iName.c_str(),"");
+   FWListViewObject* lst = new FWListViewObject(iName.c_str(),view);
    lst->AddIntoListTree(m_listTree,m_views);
    
 }
@@ -498,6 +496,15 @@ FWGUIManager::itemKeyPress(TGListTreeItem *entry, UInt_t keysym, UInt_t mask)
 
 void 
 FWGUIManager::itemBelowMouse(TGListTreeItem* item, UInt_t)
+{
+}
+
+void 
+FWGUIManager::addTo(FWConfiguration&) const
+{
+}
+void 
+FWGUIManager::setFrom(const FWConfiguration&)
 {
 }
 
