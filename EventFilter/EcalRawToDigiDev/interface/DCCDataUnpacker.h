@@ -89,15 +89,15 @@ public :
   void setInvalidChIdsCollection( std::auto_ptr<EBDetIdCollection>                    * x )
   { invalidChIds_           = x; }
 
-  // EE - backporting to be 18x compatible 
-  /*   void setInvalidEEGainsCollection( std::auto_ptr<EEDetIdCollection>                    * x ) */
-  /*   { invalidEEGains_           = x; } */
+  // EE 
+  void setInvalidEEGainsCollection( std::auto_ptr<EEDetIdCollection>                    * x )
+  { invalidEEGains_           = x; }
   
-  /*   void setInvalidEEGainsSwitchCollection( std::auto_ptr<EEDetIdCollection>              * x ) */
-  /*   { invalidEEGainsSwitch_     = x; } */
-  
-  /*   void setInvalidEEChIdsCollection( std::auto_ptr<EEDetIdCollection>                    * x ) */
-  /*   { invalidEEChIds_           = x; } */
+  void setInvalidEEGainsSwitchCollection( std::auto_ptr<EEDetIdCollection>              * x )
+  { invalidEEGainsSwitch_     = x; }
+ 
+  void setInvalidEEChIdsCollection( std::auto_ptr<EEDetIdCollection>                    * x )
+  { invalidEEChIds_           = x; }
   // EE 
  
   void setInvalidTTIdsCollection( std::auto_ptr<EcalElectronicsIdCollection>         * x )
@@ -153,15 +153,15 @@ public :
   std::auto_ptr<EBDetIdCollection>            * invalidChIdsCollection()
   { return invalidChIds_;          }
 
-  //EE - backporting to be 18x compatible 
-  //  std::auto_ptr<EEDetIdCollection>            * invalidEEGainsCollection()
-  //  { return invalidEEGains_;          }
+  //EE
+  std::auto_ptr<EEDetIdCollection>            * invalidEEGainsCollection()
+  { return invalidEEGains_;          }
   
-  //  std::auto_ptr<EEDetIdCollection>            * invalidEEGainsSwitchCollection()
-  //  { return invalidEEGainsSwitch_;    }
+  std::auto_ptr<EEDetIdCollection>            * invalidEEGainsSwitchCollection()
+  { return invalidEEGainsSwitch_;    }
   
-  //  std::auto_ptr<EEDetIdCollection>            * invalidEEChIdsCollection()
-  //  { return invalidEEChIds_;          }
+  std::auto_ptr<EEDetIdCollection>            * invalidEEChIdsCollection()
+  { return invalidEEChIds_;          }
   //EE
 
   std::auto_ptr<EcalElectronicsIdCollection> * invalidTTIdsCollection()
@@ -206,10 +206,10 @@ protected :
   std::auto_ptr<EBDetIdCollection>           * invalidGains_;
   std::auto_ptr<EBDetIdCollection>           * invalidGainsSwitch_;
   std::auto_ptr<EBDetIdCollection>           * invalidChIds_;
-  //EE - backporting to be 18x compatible 
-  /*   std::auto_ptr<EEDetIdCollection>           * invalidEEGains_; */
-  /*   std::auto_ptr<EEDetIdCollection>           * invalidEEGainsSwitch_; */
-  /*   std::auto_ptr<EEDetIdCollection>           * invalidEEChIds_; */
+  //EE
+  std::auto_ptr<EEDetIdCollection>           * invalidEEGains_;
+  std::auto_ptr<EEDetIdCollection>           * invalidEEGainsSwitch_;
+  std::auto_ptr<EEDetIdCollection>           * invalidEEChIds_;
   //EE
   std::auto_ptr<EBSrFlagCollection>          * ebSrFlags_;
   std::auto_ptr<EESrFlagCollection>          * eeSrFlags_;
