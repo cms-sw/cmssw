@@ -230,7 +230,11 @@ void PixelCalibConfiguration::buildROCAndModuleLists(const PixelNameTranslation*
 	assert( translation != 0 );
 	assert( detconfig != 0 );
 	
-	if ( rocAndModuleListsBuilt_ ) return;
+	if ( rocAndModuleListsBuilt_ )
+	{
+		buildObjectsDependingOnTheNameTranslation(translation);
+		return;
+	}
 	
 	// Build the ROC set from the instructions.
 	std::set<PixelROCName> rocSet;
