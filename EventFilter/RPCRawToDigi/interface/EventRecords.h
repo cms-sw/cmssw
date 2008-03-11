@@ -11,8 +11,8 @@ namespace rpcrawtodigi {
 class EventRecords {
 public:
 
-  EventRecords(int bx=0) 
-    : theTriggerBX(bx), 
+  EventRecords(int triggerbx=0) 
+    : theTriggerBX(triggerbx), 
       theValidBX(false), theValidLN(false), theValidCD(false)
   {}
 
