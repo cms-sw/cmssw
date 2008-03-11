@@ -22,8 +22,8 @@ namespace cond{
     //void listMappings( std::vector<std::string>& mappinglist );
 
     bool existsMapping(const std::string& version);
-
-    //void removeMapping(const std::string& version);
+    
+    void removeMapping(const std::string& version,bool removeTables=true);
 
   private:
     pool::ObjectRelationalMappingUtilities* m_mappingutil;
