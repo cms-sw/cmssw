@@ -10,12 +10,12 @@ using namespace reco;
 using namespace std;
 
 
-PFBlockElementGsfTrack::PFBlockElementGsfTrack(const PFRecTrackRef& Gsfref, const PFRecTrackRef& Kfref, TrackType tracktype ) : 
+PFBlockElementGsfTrack::PFBlockElementGsfTrack(const PFRecTrackRef& Gsfref, const PFRecTrackRef& Kfref, TrackType tracktype, const math::XYZTLorentzVector& Pin, const math::XYZTLorentzVector& Pout ) : 
   PFBlockElementTrack( Kfref, tracktype  ),
   GsftrackRefPF_( Gsfref ), 
   GsftrackRef_( Gsfref->trackRef() ),
-  Pin_(Pin()),
-  Pout_(Pout()){}
+  Pin_(Pin),
+  Pout_(Pout){}
 
 
 void PFBlockElementGsfTrack::Dump(ostream& out, 

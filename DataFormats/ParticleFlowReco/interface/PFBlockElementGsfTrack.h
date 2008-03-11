@@ -18,7 +18,7 @@ namespace reco {
 
     PFBlockElementGsfTrack() {} 
 
-    PFBlockElementGsfTrack(const PFRecTrackRef& Gsfref, const PFRecTrackRef& Kfref, TrackType tracktype);
+    PFBlockElementGsfTrack(const PFRecTrackRef& Gsfref, const PFRecTrackRef& Kfref, TrackType tracktype, const math::XYZTLorentzVector& Pin, const math::XYZTLorentzVector& Pout);
 
     PFBlockElement* clone() const { return new PFBlockElementGsfTrack(*this); }
     
