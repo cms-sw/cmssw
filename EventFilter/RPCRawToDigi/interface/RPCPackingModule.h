@@ -18,7 +18,6 @@ namespace edm {class Event; }
 
 class FEDRawData;
 class RPCRecordFormatter;
-static RPCReadOutMapping * cabling; 
 
 class RPCPackingModule : public edm::EDProducer {
 public:
@@ -40,6 +39,7 @@ private:
 
 private:
   unsigned long eventCounter_;
+  const RPCReadOutMapping * cabling; 
 
 };
 #endif

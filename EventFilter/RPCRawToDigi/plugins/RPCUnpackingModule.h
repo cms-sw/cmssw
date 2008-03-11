@@ -5,8 +5,8 @@
 /** \class RPCUnpackingModule
  *  Driver class for unpacking RPC raw data (DCC format)
  *
- *  $Date: 2007/04/20 15:41:48 $
- *  $Revision: 1.1 $
+ *  $Date: 2007/10/08 16:16:33 $
+ *  $Revision: 1.2 $
  *  \author Ilaria Segoni - CERN
  */
 
@@ -15,7 +15,6 @@
 #include "CondFormats/RPCObjects/interface/RPCReadOutMapping.h"
 
 namespace edm { class Event; class EventSetup; }
-static RPCReadOutMapping* RPCCabling;
 
 class RPCUnpackingModule: public edm::EDProducer {
 public:
@@ -34,6 +33,7 @@ public:
 private:
   edm::InputTag dataLabel_;
   unsigned long eventCounter_;
+  const RPCReadOutMapping* RPCCabling;
 };
 
 
