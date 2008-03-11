@@ -1,3 +1,8 @@
+2008-03-11  Philipp SCHIEFERDECKER  <philipp.schieferdecker@cern.ch>
+
+	* tag V00-06-02
+	* bug fix for deregistration of client process ids
+
 2008-03-10  Philipp SCHIEFERDECKER  <philipp.schieferdecker@cern.ch>
 
 	* tag V00-06-01
