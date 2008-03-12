@@ -1,9 +1,9 @@
 /** \class EcalRecalibRecHitProducer
  *   produce ECAL rechits from uncalibrated rechits
  *
- *  $Id: EcalRecalibRecHitProducer.cc,v 1.1 2008/03/03 17:37:27 ferriff Exp $
- *  $Date: 2008/03/03 17:37:27 $
- *  $Revision: 1.1 $
+ *  $Id: EcalRecalibRecHitProducer.cc,v 1.2 2008/03/03 23:44:45 ferriff Exp $
+ *  $Date: 2008/03/03 23:44:45 $
+ *  $Revision: 1.2 $
  *  \author Shahram Rahatlou, University of Rome & INFN, March 2006
  *
  **/
@@ -39,8 +39,8 @@ EcalRecalibRecHitProducer::EcalRecalibRecHitProducer(const edm::ParameterSet& ps
 
    EBRecHitCollection_ = ps.getParameter<edm::InputTag>("EBRecHitCollection");
    EERecHitCollection_ = ps.getParameter<edm::InputTag>("EERecHitCollection");
-   EBRecalibRecHitCollection_        = ps.getParameter<std::string>("EBRecalibRechitCollection");
-   EERecalibRecHitCollection_        = ps.getParameter<std::string>("EERecalibRechitCollection");
+   EBRecalibRecHitCollection_        = ps.getParameter<std::string>("EBRecalibRecHitCollection");
+   EERecalibRecHitCollection_        = ps.getParameter<std::string>("EERecalibRecHitCollection");
    doEnergyScale_             = ps.getParameter<bool>("doEnergyScale");
    doIntercalib_              = ps.getParameter<bool>("doIntercalib");
    doLaserCorrections_        = ps.getParameter<bool>("doLaserCorrections");
