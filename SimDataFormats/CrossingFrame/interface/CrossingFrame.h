@@ -9,166 +9,203 @@
  *
  * \version   1st Version July 2005
  * \version   2nd Version Sep 2005
+ * \version   3rd Version Nov 2007
  *
  ************************************************************/
-
-#include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
-#include "SimDataFormats/CaloHit/interface/PCaloHitContainer.h"
-#include "SimDataFormats/Track/interface/SimTrackContainer.h"
-#include "SimDataFormats/Vertex/interface/SimVertexContainer.h"
 
 #include "DataFormats/Provenance/interface/EventID.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include <vector>
 #include <string>
-#include <map>
+#include <iostream>
 #include <utility>
+#include <algorithm>
 
-  class CrossingFrame 
-    { 
+template <class T> 
+class CrossingFrame 
+{ 
 
-    public:
-      // con- and destructors
+ public:
+  // con- and destructors
 
-      CrossingFrame():  bunchSpace_(75), firstCrossing_(0), lastCrossing_(0) {;}
-      CrossingFrame(int minb, int maxb, int bunchsp, std::vector<std::string> simHitSubdetectors,std::vector<std::string> caloSubdetectors);
+  CrossingFrame():  firstCrossing_(0), lastCrossing_(0), bunchSpace_(75),subdet_(""),maxNbSources_(0) {;}
+  CrossingFrame(int minb, int maxb, int bunchsp, std::string subdet ,unsigned int maxNbSources);
 
-      ~CrossingFrame();
+  ~CrossingFrame() {;}
 
-     
+  void swap(CrossingFrame& other);
 
-      // methods FIXME: add methods should be private, and CrossingFrame friend of MixingModule
-      void addSignalSimHits(const std::string subdet, const edm::PSimHitContainer *);
-      void addSignalCaloHits(const std::string subdet, const edm::PCaloHitContainer *);
-      void addSignalTracks(const edm::SimTrackContainer *);
-      void addSignalVertices(const edm::SimVertexContainer *);
+  CrossingFrame& operator=(CrossingFrame const& rhs);
 
-      void addPileupSimHits(const int bcr, const std::string subdet, const edm::PSimHitContainer *, int evtId, bool checkTof=false, bool high=false);
-      void addPileupCaloHits(const int bcr, const std::string subdet, const edm::PCaloHitContainer *, int evtId);
-      void addPileupTracks(const int bcr, const edm::SimTrackContainer *,  int evtId, int vertexoffset);
-      void addPileupVertices(const int bcr, const edm::SimVertexContainer *, int evtId);      
-      void print(int level=0) const ;
-      void setEventID(edm::EventID id) {id_=id;}
+  void addSignals(const std::vector<T> * vec,edm::EventID id);
 
-      //getters
-      edm::EventID getEventID() const {return id_;}
-      std::pair<int,int> getBunchRange() const {return std::pair<int,int>(firstCrossing_,lastCrossing_);}
-      int getBunchSpace() const {return bunchSpace_;}
-      //signal???      bool knownDetector  (const std::string subdet) const {return signalSimHits_.count(subdet) ? true : signalCaloHits_.count(subdet);}
-      bool knownDetector  (const std::string subdet) const {return pileupSimHits_.count(subdet) ? true : pileupCaloHits_.count(subdet);}
-      std::string getType(std::string subdet) {
-	if (signalSimHits_.count(subdet)) return std::string("PSimHit");
-        else if (signalCaloHits_.count(subdet)) return std::string("PCaloHit"); 
-	else return std::string();}
+  void addPileups(const int bcr,const std::vector<T> * vec, unsigned int evtId,int vertexoffset=0,bool checkTof=false,bool high=false);
+  
+  void print(int level=0) const ;
+  void setBcrOffset() {
+    pileupOffsetsBcr_.push_back(pileups_.size());
+  }
+  void setSourceOffset(const unsigned int s) {
+    pileupOffsetsSource_[s].push_back(pileups_.size());
+  }
 
-      //getters for collections ...FIXME, should not be necessary, use iterators
-      void getSignal(const std::string & subdet, const std::vector<PSimHit>* &v) const {
-	std::map <std::string, edm::PSimHitContainer>::const_iterator it=signalSimHits_.find(subdet);
-	if (it==signalSimHits_.end()){
-	  edm::LogWarning("")<<" Subdetector "<<subdet<<" not present in CrossingFrame!";
-	  v=0;
-	}else {
-	  v=&((*it).second);
-	}
-      }
-      void getSignal(const std::string & subdet, const std::vector<PCaloHit>* &v) const {
-	std::map <std::string, edm::PCaloHitContainer>::const_iterator it=signalCaloHits_.find(subdet);
-	if (it==signalCaloHits_.end()){
-	  edm::LogWarning("")<<" Subdetector "<<subdet<<" not present in CrossingFrame!";
-	  v=0;
-	}else {
-	  v=&((*it).second);
-	}
-      }
-      void getSignal(const std::string & subdet , const std::vector<SimTrack>* &v) const { v=&signalTracks_;}
-      void getSignal(const std::string & subdet, const std::vector<SimVertex>* &v) const { v=&signalVertices_;}
+  //getters
+  edm::EventID getEventID() const {return id_;}
+  std::pair<int,int> getBunchRange() const {return std::pair<int,int>(firstCrossing_,lastCrossing_);}
+  int getBunchSpace() const {return bunchSpace_;}
+  int getBunchCrossing(unsigned int ip) const;
+  int getSourceType(unsigned int ip) const;
+  void getSignal(typename std::vector<T>::const_iterator &first,typename std::vector<T>::const_iterator &last) const {
+    first=signals_.begin();
+    last=signals_.end();
+  }
+  void getPileups(typename std::vector<T>::const_iterator &first, typename std::vector<T>::const_iterator &last) const;
+  unsigned int getNrSignals() const {return signals_.size();} 
+  unsigned int getNrPileups() const {return pileups_.size();} 
+  unsigned int getNrPileups(int bcr) const {
+    return bcr==lastCrossing_ ? pileups_.size()-pileupOffsetsBcr_[lastCrossing_-firstCrossing_] :pileupOffsetsBcr_[bcr-firstCrossing_+1]- pileupOffsetsBcr_[bcr-firstCrossing_];} 
 
-      void getPileups(const std::string & subdet, const std::vector<std::vector<PSimHit> >*& v) const { 
-	std::map <std::string, std::vector<edm::PSimHitContainer> >::const_iterator it=pileupSimHits_.find(subdet);
-	if (it==pileupSimHits_.end()){
-	  edm::LogWarning("")<<" Subdetector "<<subdet<<" not present in CrossingFrame!";
-	  v=0;
-	}else {
-	  v=&((*it).second);
-	}
-      }
- 
+  // get object in pileup when position in the vector is known (for DigiSimLink typically)
+  const T& getObject(unsigned int ip) const { return pileups_[ip];}
 
-      void getPileups(const std::string & subdet, const std::vector<std::vector<PCaloHit> > * &v) const {
-	std::map <std::string, std::vector<edm::PCaloHitContainer> >::const_iterator it=pileupCaloHits_.find(subdet);
-	if (it==pileupCaloHits_.end()){
-	  edm::LogWarning("")<<" Subdetector "<<subdet<<" not present in CrossingFrame!";
-	  v=0;
-	}else {
-	  v=&((*it).second);
-	}
-      }
-      void getPileups(const std::string & subdet, const std::vector<std::vector<SimTrack> > * &v) const { v=&pileupTracks_;}
-      void getPileups(const std::string & subdet, const std::vector<std::vector<SimVertex> > * &v) const { v=&pileupVertices_;}
-
-      // getters with bcr argument
-      const std::vector<SimTrack> &getPileupTracks(const int bcr) const {
-	int myBcr=bcr;
-        if ( bcr<firstCrossing_ || bcr >lastCrossing_ ) {
-	  edm::LogWarning("")<<" BunchCrossing nr "<<bcr<<" does not exist! Taking bcr="<<firstCrossing_;
-	  myBcr=firstCrossing_ ;}
-	return pileupTracks_[myBcr-firstCrossing_];} 
-
-      const std::vector<SimVertex> &getPileupVertices(const int bcr) const {
-	int myBcr=bcr;
-        if ( bcr<firstCrossing_ || bcr >lastCrossing_ ) {
-	  edm::LogWarning("")<<" BunchCrossing nr "<<bcr<<" does not exist! Taking bcr="<<firstCrossing_;
-	  myBcr=firstCrossing_ ;}
-	return pileupVertices_[myBcr-firstCrossing_];} 
-
-      // getters for nr of objects - mind that objects are stored in vectors from 0 on!
-      unsigned int getNrSignalTracks() const { return signalTracks_.size();}
-      unsigned int getNrPileupTracks(const int bcr) const {if ( bcr<firstCrossing_ || bcr >lastCrossing_ ) {
-	edm::LogWarning("")<<" BunchCrossing nr "<<bcr<<" does not exist!";
-	return 0;}
-      else return pileupTracks_[bcr-firstCrossing_].size();}
-      unsigned int getNrSignalVerticess() const { return signalVertices_.size();}
-      unsigned int getNrPileupVertices(int bcr) const {if ( bcr<firstCrossing_ || bcr >lastCrossing_ ) {
-	edm::LogWarning("")<<" BunchCrossing nr "<<bcr<<" does not exist!";
-	return 0;}
-      else return pileupVertices_[bcr-firstCrossing_].size();}
-      
-      unsigned int getNrSignalSimHits(const std::string subdet) const;
-      unsigned int getNrSignalCaloHits(const std::string subdet) const ;
-      unsigned int getNrPileupSimHits(const std::string subdet, const int bcr) const ;
-      unsigned int getNrPileupCaloHits(const std::string subdet, const int bcr) const ;
-
-      // limits for tof to be considered for trackers
-      static const int lowTrackTof; //nsec
-      static const int highTrackTof;
-      static const int minLowTof;
-      static const int limHighLowTof;
+  // limits for tof to be considered for trackers
+  static const int lowTrackTof; //nsec
+  static const int highTrackTof;
+  static const int minLowTof;
+  static const int limHighLowTof;
 					    
-    private:
-      void clear();
+ private:
+  // please update the swap() function below if any data members are added.
+  // general information
+  int firstCrossing_;
+  int lastCrossing_;
+  int bunchSpace_;  //in nsec
+  std::string subdet_;  // for PSimHits/PCaloHits
+  edm::EventID id_; // event id of the signal event
 
-      edm::EventID id_;
-      int bunchSpace_;  //in nsec
-      int firstCrossing_;
-      int lastCrossing_;
+  // for playback option
+  edm::EventID idFirstPileup_;   // EventId fof the first pileup event used for this signal event
+  unsigned int pileupFileNr_;    // ordinal number of the pileup file this event was in
 
-      // signal
-      std::map <std::string, edm::PSimHitContainer> signalSimHits_;
-      std::map <std::string, edm::PCaloHitContainer> signalCaloHits_;
-      edm::SimTrackContainer signalTracks_;
-      edm::SimVertexContainer signalVertices_;
+  unsigned int maxNbSources_;
 
-      //pileup
-      std::map <std::string, std::vector<edm::PSimHitContainer> > pileupSimHits_;
-      std::map <std::string, std::vector<edm::PCaloHitContainer> > pileupCaloHits_;
-      std::vector<edm::SimTrackContainer>  pileupTracks_;
-      std::vector<edm::SimVertexContainer> pileupVertices_;
+  // signal
+  std::vector<T>  signals_; 
 
-    };
+  //pileup
+  std::vector<T>  pileups_;  
+  std::vector<unsigned int> pileupOffsetsBcr_;
+  std::vector< std::vector<unsigned int> > pileupOffsetsSource_; //one per source
+};
+
+//==============================================================================
+//                              implementations
+//==============================================================================
+
+template <class T> 
+CrossingFrame<T>::CrossingFrame(int minb, int maxb, int bunchsp, std::string subdet ,unsigned int maxNbSources):firstCrossing_(minb), lastCrossing_(maxb), bunchSpace_(bunchsp),subdet_(subdet),maxNbSources_(maxNbSources) {
+ pileupOffsetsSource_.resize(maxNbSources_);
+ for (unsigned int i=0;i<maxNbSources_;++i)
+   pileupOffsetsSource_[i].reserve(-firstCrossing_+lastCrossing_+1);
+
+//FIXME: should we force around 0 or so??
+  pileupOffsetsBcr_.reserve(-firstCrossing_+lastCrossing_+1);
+}
+
+template <typename T>
+inline
+void
+CrossingFrame<T>::swap(CrossingFrame<T>& other) {
+  std::swap(firstCrossing_, other.firstCrossing_);
+  std::swap(lastCrossing_, other.lastCrossing_);
+  std::swap(bunchSpace_, other.bunchSpace_);
+  subdet_.swap(other.subdet_);
+  std::swap(id_, other.id_);
+  std::swap(idFirstPileup_, other.idFirstPileup_);
+  std::swap(pileupFileNr_, other.pileupFileNr_);
+  std::swap(maxNbSources_, other.maxNbSources_);
+  signals_.swap(other.signals_);
+  pileups_.swap(other.pileups_);
+  pileupOffsetsBcr_.swap(other.pileupOffsetsBcr_);
+  /*   for (std::vector<unsigned int> *p = pileupOffsetsSource_, */
+  /* 				 *po = other.pileupOffsetsSource_; */
+  /* 				 p < pileupOffsetsSource_ + maxNbSources_; */
+  /* 				 ++p, ++po) { */
+  /*     p->swap(*po); */
+  /*   } */
+  pileupOffsetsSource_.resize(maxNbSources_);
+  for (unsigned int i=0;i<pileupOffsetsSource_.size();++i) { 
+    pileupOffsetsSource_[i].swap(other.pileupOffsetsSource_[i]);
+  }
+}
+
+template <typename T>
+inline
+CrossingFrame<T>&
+CrossingFrame<T>::operator=(CrossingFrame<T> const& rhs) {
+  CrossingFrame<T> temp(rhs);
+  this->swap(temp);
+  return *this;
+}
+
+template <class T> 
+void CrossingFrame<T>::addSignals(const std::vector<T> * vec,edm::EventID id){
+  id_=id;
+  signals_=*vec;
+}
+
+template <class T>  
+void  CrossingFrame<T>::getPileups(typename std::vector<T>::const_iterator &first,typename std::vector<T>::const_iterator &last) const {
+  first=pileups_.begin();
+  last=pileups_.end();
+}
+
+template <class T> 
+void CrossingFrame<T>::print(int level) const {
+}
+
+template <class T> 
+int  CrossingFrame<T>::getSourceType(unsigned int ip) const {
+  // decide to which source belongs object with index ip in the pileup vector
+  // pileup=0, cosmics=1, beam halo+ =2, beam halo- =3 forward =4
+  unsigned int bcr= getBunchCrossing(ip)-firstCrossing_; //starts at 0
+  for (unsigned int i=0;i<pileupOffsetsSource_.size()-1;++i) {
+    if (ip>=(pileupOffsetsSource_[i])[bcr] && ip <(pileupOffsetsSource_[i+1])[bcr]) return i;
+  }
+  return pileupOffsetsSource_.size()-1;
+}
+
+template <class T>   
+int CrossingFrame<T>::getBunchCrossing(unsigned int ip) const {
+  // return the bcr for a certain position in the pileup vector
+    for (unsigned int ii=1;ii<pileupOffsetsBcr_.size();ii++){
+      if (ip>=pileupOffsetsBcr_[ii-1] && ip<pileupOffsetsBcr_[ii]) return ii+firstCrossing_-1;
+    }
+    if (ip<pileups_.size()) return lastCrossing_;
+    else return 999;
+}
+
+
+// Free swap function
+template <typename T>
+inline
+void
+swap(CrossingFrame<T>& lhs, CrossingFrame<T>& rhs) {
+  lhs.swap(rhs);
+}
 
 #include<iosfwd>
 #include<iostream>
-std::ostream &operator<<(std::ostream& o, const CrossingFrame & c);
+
+template <class T>
+std::ostream &operator<<(std::ostream& o, const CrossingFrame<T>& cf)
+{
+  std::pair<int,int> range=cf.getBunchRange();
+  o <<"\nCrossingFrame for subdet "<<cf.getEventID()<<",  bunchrange = "<<range.first<<","<<range.second
+    <<", bunchSpace "<<cf.getBunchSpace();
+
+  return o;
+}
 
 #endif 
