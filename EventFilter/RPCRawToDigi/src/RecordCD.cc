@@ -5,12 +5,12 @@
 using namespace rpcrawtodigi;
 using namespace std;
 
-RecordCD::RecordCD(int chamber, int partitionNumber, int eod, int halfP, 
+RecordCD::RecordCD(int lbInLink, int partitionNumber, int eod, int halfP, 
   const std::vector<int> & packedStrips) : DataRecord(0)
 {
   theData = 0;
 
-  theData |= (chamber <<CHAMBER_SHIFT);
+  theData |= (lbInLink <<CHAMBER_SHIFT);
 
   theData |= (partitionNumber<<PARTITION_NUMBER_SHIFT);
 
@@ -26,7 +26,7 @@ RecordCD::RecordCD(int chamber, int partitionNumber, int eod, int halfP,
   theData |= (partitionData<<PARTITION_DATA_SHIFT);
 }
 
-int RecordCD::chamber() const
+int RecordCD::lbInLink() const
 {
   return (theData >> CHAMBER_SHIFT ) & CHAMBER_MASK ;
 }

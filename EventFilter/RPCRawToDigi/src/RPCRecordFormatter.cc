@@ -1,8 +1,8 @@
 /** \file
  * Implementation of class RPCRecordFormatter
  *
- *  $Date: 2008/01/22 19:12:36 $
- *  $Revision: 1.30 $
+ *  $Date: 2008/03/10 12:07:53 $
+ *  $Revision: 1.31 $
  *
  * \author Ilaria Segoni
  */
@@ -71,12 +71,12 @@ std::vector<EventRecords> RPCRecordFormatter::recordPack(
       RecordSLD lbr( tbLinkInputNumber, rmb);   
 
       // CD record
-      int chamberInLink = eleIndex.lbNumInLink;
+      int lbInLink = eleIndex.lbNumInLink;
       int eod = 0;
       int halfP = 0;
       int packedStrip = lbPackedStrip.packedStrip();     
       int partitionNumber = packedStrip/8; 
-      RecordCD cdr(chamberInLink, partitionNumber, eod, halfP, vector<int>(1,packedStrip) );
+      RecordCD cdr(lbInLink, partitionNumber, eod, halfP, vector<int>(1,packedStrip) );
 
       result.push_back(  EventRecords(trigger_BX, bxr, lbr, cdr) );
     }
@@ -96,7 +96,7 @@ void RPCRecordFormatter::recordUnpack(
   eleIndex.dccId = currentFED;
   eleIndex.dccInputChannelNum = currentRMB;
   eleIndex.tbLinkInputNum = currentTbLinkInputNumber;
-  eleIndex.lbNumInLink = event.recordCD().chamber();
+  eleIndex.lbNumInLink = event.recordCD().lbInLink();
 
   if(readoutMapping == 0) return;
   const LinkBoardSpec* linkBoard = readoutMapping->location(eleIndex);

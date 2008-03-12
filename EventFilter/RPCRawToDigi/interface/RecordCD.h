@@ -50,7 +50,7 @@ public:
   }
 
   // more precisly - link board in link number
-  int chamber() const;
+  int lbInLink() const;
 
   int partitionNumber() const;
   int eod() const;

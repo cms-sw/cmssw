@@ -244,7 +244,7 @@ void LinkDataXMLReader::startElement(const XMLCh* const uri,
     int current_BX =  trigger_BX + local_bx;
 //    edm::LogInfo(" ")<<" local_bx "<<local_bx<<" current_BX "<<current_BX;
 //    std::cout<<" local_bx "<<local_bx<<" current_BX "<<current_BX<<endl;
-    BXRecord bxr(current_BX);
+    RecordBX bxr(current_BX);
 
     // TB 
     int tbLinkInputNumber = opticalLinkNum;    
@@ -260,7 +260,7 @@ edm::LogInfo(" ")
         <<" hp: "<<halfPartition
 	<<" raw data: "<<hex<<partitionData<<dec;
 
-    TBRecord tbr( tbLinkInputNumber, rmb);   
+    RecordSLD tbr( tbLinkInputNumber, rmb);   
 
     // LB record
   uint16_t theData = 0;
@@ -287,7 +287,7 @@ edm::LogInfo(" ")
   theData |= (lbNum<<LB_SHIFT);
   theData |= (partitionData<<PARTITION_DATA_SHIFT);
 
-   LBRecord lbr(theData);
+   RecordCD  lbr(theData);
 /*
     cout<<"lbr.Data.lbNumber: "<<lbr.lbData().lbNumber()<<endl;
     cout<<"lbr.Data.lbData: "<<hex<<lbr.lbData().lbData()<<dec<<endl;
@@ -330,8 +330,8 @@ FEDRawData *  LinkDataXMLReader::rawData(int fedId,  const vector<EventRecords> 
   DataRecord empty;
   typedef vector<EventRecords>::const_iterator IR;
   for (IR ir = result.begin(), irEnd =  result.end() ; ir != irEnd; ++ir) {
-    Word64 w = ( ( (Word64(ir->bxRecord().data()) << 16) | ir->tbRecord().data() ) << 16
-                    | ir->lbRecord().data() ) << 16 | empty.data();
+    Word64 w = ( ( (Word64(ir->recordBX().data()) << 16) | ir->recordSLD().data() ) << 16
+                    | ir->recordCD().data() ) << 16 | empty.data();
     dataWords.push_back(w);
   }
 
