@@ -6,5 +6,10 @@
 par  Yield 10000.0   100   0 100000  free
 par  Mass     91.2     1  70    110  free
 par  Gamma     2.5     1   1      5  free
+fix Mass
+set Mass 91.180
+minimize
+migrad
+release Mass
 minimize
 migrad

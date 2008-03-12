@@ -63,10 +63,31 @@ namespace fit {
     }
     void fixParameter(const std::string & name) {
       size_t i = parameterIndex(name);
+      parMap_[i].second.fixed = true;
       if(initialized_) {
 	minuit_->FixParameter(i);
       }
-      parMap_[i].second.fixed = true;
+    }
+    void releaseParameter(const std::string & name) {
+      size_t i = parameterIndex(name);
+      parMap_[i].second.fixed = false;
+      if(initialized_) {
+	minuit_->Release(i);
+      }
+    }
+    void setParameter(const std::string & name, double val) {
+      size_t i = parameterIndex(name);
+      parameter_t & par = parMap_[i].second;
+      par.val = val;
+      if(initialized_) {
+	int ierflg = 0;      
+	minuit_->mnparm(i, name, par.val, par.err, par.min, par.max, ierflg);
+	if(ierflg != 0)
+	  throw edm::Exception(edm::errors::Configuration)
+	    << "RootMinuit: error in setting parameter " << i 
+	    << " value = " << par.val << " error = " << par.err
+	    << " range = [" << par.min << ", " << par.max << "]\n";
+      }
     }
     int getNumberOfFreeParameters() { 
       init();
@@ -129,7 +150,7 @@ namespace fit {
 	  << "RootMinuit: can't find parameter " << name << "\n";
       return p->second;
     }
-    void init() { 
+    void init() {
       if(initialized_) return;
       minuit_.reset(new TMinuit(parMap_.size()));
       double arglist[10];

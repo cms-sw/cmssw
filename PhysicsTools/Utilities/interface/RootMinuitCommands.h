@@ -13,6 +13,9 @@
 #include<boost/tokenizer.hpp>
 
 const char * kParameter = "par";
+const char * kFix = "fix";
+const char * kRelease = "release";
+const char * kSet = "set";
 const char * kMinimize = "minimize";
 const char * kMigrad = "migrad";
 
@@ -84,18 +87,32 @@ namespace fit {
 		   << " [" << par.min << ", " << par.max << "],"
 		   << " err: " << par.err
 		   << endl;
-	  } else if(*i == kMinimize) {
+	  } else if(*i == kFix || *i == kRelease) {
 	    command com;
-	    com.name = kMinimize;
+	    com.name = *i;
+	    string arg = *(++i);
+	    com.stringArgs.push_back(arg);
 	    commands_.push_back(com);
-	    if(verbose_)
-	      cout << ">>> " << com.name << endl;
-	  } else if(*i == kMigrad) {
+	    if(verbose_) {
+	      cout << ">>> "; com.print(cout); cout << endl;
+	    }
+	  } else if(*i == kSet) {
 	    command com;
-	    com.name = kMigrad;
+	    com.name = *i;
+	    string arg = *(++i);
+	    com.stringArgs.push_back(arg);
+	    com.doubleArgs.push_back(string2double(*(++i)));
 	    commands_.push_back(com);
-	    if(verbose_)
-	      cout << ">>> " << com.name << endl;
+	    if(verbose_) {
+	      cout << ">>> "; com.print(cout); cout << endl;
+	    }
+	  }else if(*i == kMinimize || *i == kMigrad) {
+	    command com;
+	    com.name = *i;
+	    commands_.push_back(com);
+	    if(verbose_) {
+	      cout << ">>> "; com.print(cout); cout << endl;
+	    }
 	  } else {
 	    throw edm::Exception(edm::errors::Configuration)
 	      << "RootMinuitCommands: unkonwn command:: " << *i
@@ -139,8 +156,14 @@ namespace fit {
 	}
 	if(c->name == kMinimize)
 	  minuit.minimize();
-	if(c->name == kMigrad)
+	else if(c->name == kMigrad)
 	  minuit.migrad();
+	else if(c->name == kFix) 
+	  minuit.fixParameter(c->stringArgs[0]);
+	else if(c->name == kRelease) 
+	  minuit.releaseParameter(c->stringArgs[0]);
+	else if(c->name == kSet)
+	  minuit.setParameter(c->stringArgs[0], c->doubleArgs[0]);
       }
     }
   private:
@@ -149,8 +172,14 @@ namespace fit {
     std::map<std::string, size_t> parIndices_;
     struct command {
       std::string name;
-      void print(std::ostream& cout) const {
+      std::vector<std::string> stringArgs;
+      std::vector<double> doubleArgs;
+     void print(std::ostream& cout) const {
 	cout << name;
+	for(size_t i = 0; i != stringArgs.size(); ++i)
+	  cout << " string args: " << stringArgs[i];
+	for(size_t i = 0; i != doubleArgs.size(); ++i)
+	  cout << " double args: " << doubleArgs[i];
       }
     };
     std::vector<command> commands_;
