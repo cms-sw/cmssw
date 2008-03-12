@@ -1,5 +1,5 @@
 //
-// $Id: PATMuonProducer.h,v 1.5 2008/03/05 14:56:50 fronga Exp $
+// $Id: PATMuonProducer.h,v 1.1 2008/03/06 09:23:10 llista Exp $
 //
 
 #ifndef PhysicsTools_PatAlgos_PATMuonProducer_h
@@ -13,7 +13,7 @@
    a collection of objects of MuonType.
 
   \author   Steven Lowette, Roger Wolf
-  \version  $Id: PATMuonProducer.h,v 1.5 2008/03/05 14:56:50 fronga Exp $
+  \version  $Id: PATMuonProducer.h,v 1.1 2008/03/06 09:23:10 llista Exp $
 */
 
 
@@ -58,6 +58,7 @@ namespace pat {
       bool          addResolutions_;
       bool          useNNReso_;
       std::string   muonResoFile_;
+      bool          doIsoFromDeposit_;
       bool          doTrkIso_;
       bool          doCalIso_;
       edm::InputTag trackIsoSrc_;
