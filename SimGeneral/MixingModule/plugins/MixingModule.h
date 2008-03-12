@@ -21,19 +21,11 @@
 #include "FWCore/Framework/interface/Selector.h"
 
 #include "SimDataFormats/CrossingFrame/interface/CrossingFrame.h"
-#include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
-#include "SimDataFormats/CaloHit/interface/PCaloHitContainer.h"
-#include "SimDataFormats/Track/interface/SimTrackContainer.h"
-#include "SimDataFormats/Vertex/interface/SimVertexContainer.h"
-#include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
-
 #include "DataFormats/Provenance/interface/ProductID.h"
 #include "DataFormats/Common/interface/Handle.h"
-
 #include <vector>
 #include <string>
 
-class CrossingFramePlaybackInfo;
 
 namespace edm
 {
@@ -49,38 +41,21 @@ namespace edm
 
       virtual void beginJob(edm::EventSetup const&iSetup);
 
-      // limits for tof to be considered for trackers
-      static const int lowTrackTof; //nsec
-      static const int highTrackTof;
-      static const int limHighLowTof;
- 
     private:
+
       virtual void put(edm::Event &e) ;
       virtual void createnewEDProduct();
       virtual void addSignals(const edm::Event &e); 
       virtual void addPileups(const int bcr, edm::Event*,unsigned int EventId);
-      virtual void setBcrOffset();
-      virtual void setSourceOffset(const unsigned int s);
-      virtual void getSubdetectorNames();
-      virtual void setEventStartInfo(const unsigned int s); // set in CF-s
-      virtual void getEventStartInfo(edm::Event & e, const unsigned int s); // fill in in base class
 
-      // internally used information : subdetectors present in input
+      // internally used information
       std::vector<std::string> simHitSubdetectors_;
       std::vector<std::string> caloSubdetectors_;
-      // to distinguish simHitSubdetectors for tracker/non-tracker
-      // this is necessary to know which ones have to be checked for ToF
       std::vector<std::string> trackerHighLowPids_;
       std::vector<std::string> nonTrackerPids_;
+      CrossingFrame *simcf_;
 
-      // in this map we put the CrossingFrame objects that were created per event
-      std::map<std::string,CrossingFrame<PSimHit> * > cfSimHits_;
-      std::map<std::string,CrossingFrame<PCaloHit> * > cfCaloHits_;
-      CrossingFrame<SimTrack> *cfTracks_;
-      CrossingFrame<SimVertex> *cfVertices_;
-      CrossingFrame<HepMCProduct> *cfHepMC_;
-
-      CrossingFramePlaybackInfo *playbackInfo_;
+      unsigned int eventId_; //=0 for signal, from 1-n for pileup events
 
       Selector * sel_;
       std::string label_;
