@@ -72,10 +72,10 @@ bool SiPixelTemplate::pushfile(int filenum)
       << std::setw(4) << std::setfill('0') << std::right << filenum << ".out" << std::ends;
  std::string tempf = tout.str();
  
- std::cout << "tempf = " << tempf << std::endl;
+// std::cout << "tempf = " << tempf << std::endl;
  edm::FileInPath file( tempf.c_str() );
  tempfile = (file.fullPath()).c_str();
- std::cout << "tempfile = " << tempfile << std::endl;
+// std::cout << "tempfile = " << tempfile << std::endl;
  
  //  open the template file 
 
@@ -105,11 +105,11 @@ bool SiPixelTemplate::pushfile(int filenum)
 			
 	if(in_file.fail()) {std::cout << "Error reading file, no template load" << std::endl; return false;}
 	
-    std::cout << "Template ID = " << theCurrentTemp.head.ID << ", NBy = " << theCurrentTemp.head.NBy << ", NByx = " << theCurrentTemp.head.NByx 
-		 << ", NBxx = " << theCurrentTemp.head.NBxx << ", NFy = " << theCurrentTemp.head.NFy << ", NFyx = " << theCurrentTemp.head.NFyx
-		 << ", NFxx = " << theCurrentTemp.head.NFxx << ", bias voltage " << theCurrentTemp.head.vbias << ", temperature "
-		 << theCurrentTemp.head.temperature << ", fluence " << theCurrentTemp.head.fluence << ", Q-scaling factor " << theCurrentTemp.head.qscale
-		 << ", 1/2 threshold " << theCurrentTemp.head.s50 << ", Template Version " << theCurrentTemp.head.templ_version << std::endl;    
+//    std::cout << "Template ID = " << theCurrentTemp.head.ID << ", NBy = " << theCurrentTemp.head.NBy << ", NByx = " << theCurrentTemp.head.NByx 
+//		 << ", NBxx = " << theCurrentTemp.head.NBxx << ", NFy = " << theCurrentTemp.head.NFy << ", NFyx = " << theCurrentTemp.head.NFyx
+//		 << ", NFxx = " << theCurrentTemp.head.NFxx << ", bias voltage " << theCurrentTemp.head.vbias << ", temperature "
+//		 << theCurrentTemp.head.temperature << ", fluence " << theCurrentTemp.head.fluence << ", Q-scaling factor " << theCurrentTemp.head.qscale
+//		 << ", 1/2 threshold " << theCurrentTemp.head.s50 << ", Template Version " << theCurrentTemp.head.templ_version << std::endl;    
 			
 	if(theCurrentTemp.head.templ_version != code_version) {std::cout << "code expects version " << code_version << ", no template load" << std::endl; return false;}
 		 
