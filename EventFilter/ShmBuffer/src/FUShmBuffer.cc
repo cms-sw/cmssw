@@ -417,8 +417,8 @@ void FUShmBuffer::discardRecoCell(unsigned int iCell)
   FUShmRecoCell* cell=recoCell(iCell);
   unsigned int iRawCell=cell->rawCellIndex();
   if (iRawCell<nRawCells_) {
-    evt::State_t state=evtState(iRawCell);
-    assert(state==evt::SENT);
+    //evt::State_t state=evtState(iRawCell);
+    //assert(state==evt::SENT);
     scheduleRawCellForDiscard(iRawCell);
   }
   cell->clear();

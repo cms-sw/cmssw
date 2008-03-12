@@ -1,3 +1,9 @@
+2008-03-12  Philipp SCHIEFERDECKER  <philipp.schieferdecker@cern.ch>
+
+	* tag V00-06-03
+	* bugfix: remove assert statement from
+	FUShmBuffer::discardRecoEvent()
+
 2008-03-11  Philipp SCHIEFERDECKER  <philipp.schieferdecker@cern.ch>
 
 	* tag V00-06-02
