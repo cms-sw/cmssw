@@ -87,7 +87,9 @@ L1GlobalTriggerGTL::L1GlobalTriggerGTL() :
     m_gtlDecisionWord.reset();
 
     m_candL1Mu->reserve(L1GlobalTriggerReadoutSetup::NumberL1Muons);
-
+    
+    // initialize cached IDs
+    m_l1GtMenuCacheID = 0ULL;
 }
 
 // destructor
