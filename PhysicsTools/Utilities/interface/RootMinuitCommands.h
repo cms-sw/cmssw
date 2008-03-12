@@ -14,6 +14,7 @@
 
 const char * kParameter = "par";
 const char * kMinimize = "minimize";
+const char * kMigrad = "migrad";
 
 namespace fit {
   template<class Function>
@@ -88,7 +89,13 @@ namespace fit {
 	    com.name = kMinimize;
 	    commands_.push_back(com);
 	    if(verbose_)
-	      cout << ">>> " << kMinimize << endl;
+	      cout << ">>> " << com.name << endl;
+	  } else if(*i == kMigrad) {
+	    command com;
+	    com.name = kMigrad;
+	    commands_.push_back(com);
+	    if(verbose_)
+	      cout << ">>> " << com.name << endl;
 	  } else {
 	    throw edm::Exception(edm::errors::Configuration)
 	      << "RootMinuitCommands: unkonwn command:: " << *i
@@ -132,6 +139,8 @@ namespace fit {
 	}
 	if(c->name == kMinimize)
 	  minuit.minimize();
+	if(c->name == kMigrad)
+	  minuit.migrad();
       }
     }
   private:

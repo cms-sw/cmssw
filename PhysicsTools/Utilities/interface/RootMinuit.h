@@ -39,25 +39,25 @@ namespace fit {
     }
     double getParameter(const std::string & name, double & err) {
       double val;
-      if(!initialized_) init();
+      init();
       minuit_->GetParameter(parameterIndex(name), val, err);
       return val;
     }
     double getParameter(const std::string & name) {
       double val, err;
-      if(!initialized_) init();
+      init();
       minuit_->GetParameter(parameterIndex(name), val, err);
       return val;
     }
     double getParameterError(const std::string & name, double & val) {
       double err;
-      if(!initialized_) init();
+      init();
       minuit_->GetParameter(parameterIndex(name), val, err);
       return err;
     }
     double getParameterError(const std::string & name) {
       double val, err;
-      if(!initialized_) init();
+      init();
       minuit_->GetParameter(parameterIndex(name), val, err);
       return err;
     }
@@ -69,11 +69,24 @@ namespace fit {
       parMap_[i].second.fixed = true;
     }
     int getNumberOfFreeParameters() { 
-      if(!initialized_) init();
+      init();
       return minuit_->GetNumFreePars();
     }
     double minimize() {
-      if(!initialized_) init();
+      init();
+      double arglist[10];
+      arglist[0] = 5000;
+      arglist[1] = 0.1;
+      int ierflag;
+      minuit_->mnexcm("MINIMIZE", arglist, 2, ierflag);
+      if ( ierflag != 0 ) std::cerr << "ERROR in minimize!!" << std::endl;
+      if(verbose_) minuit_->mnmatu(1); //Prints the covariance matrix
+      double m = minValue();
+      if(verbose_) minuit_->mnprin(3, m);
+      return m;
+    }
+    double migrad() {
+      init();
       double arglist[10];
       arglist[0] = 5000;
       arglist[1] = 0.1;
@@ -81,13 +94,16 @@ namespace fit {
       minuit_->mnexcm("MIGRAD", arglist, 2, ierflag);
       if ( ierflag != 0 ) std::cerr << "ERROR in migrad!!" << std::endl;
       if(verbose_) minuit_->mnmatu(1); //Prints the covariance matrix
+      double m = minValue();
+      if(verbose_) minuit_->mnprin(3, m);
+      return m;
+    }
+    double minValue() {
+      init();
+      int ierflag;
       double edm, errdef;
       int nvpar, nparx;
       minuit_->mnstat(minValue_, edm, errdef, nvpar, nparx, ierflag);
-      if(verbose_) minuit_->mnprin(3, minValue_);
-      return minValue_;
-    }
-    double minValue() const {
       return minValue_;
     }
   private:
