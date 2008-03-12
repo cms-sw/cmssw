@@ -13,7 +13,7 @@
 //
 // Original Author:  Seth COOPER
 //         Created:  Th Nov 22 5:46:22 CEST 2007
-// $Id: EcalMipGraphs.cc,v 1.2 2008/03/10 18:42:28 scooper Exp $
+// $Id: EcalMipGraphs.cc,v 1.3 2008/03/11 11:00:12 scooper Exp $
 //
 //
 
@@ -36,6 +36,7 @@ using namespace std;
 EcalMipGraphs::EcalMipGraphs(const edm::ParameterSet& iConfig) :
   EcalUncalibratedRecHitCollection_ (iConfig.getParameter<edm::InputTag>("EcalUncalibratedRecHitCollection")),
   EBDigis_ (iConfig.getParameter<edm::InputTag>("EBDigiCollection")),
+  headerProducer_ (iConfig.getParameter<edm::InputTag> ("headerProducer")),
   runNum_(-1),
   side_ (iConfig.getUntrackedParameter<int>("side", 3)),
   givenSeedCry_ (iConfig.getUntrackedParameter<int>("seedCry",0)),
@@ -73,6 +74,8 @@ EcalMipGraphs::EcalMipGraphs(const edm::ParameterSet& iConfig) :
   }
   
   for (int i=0; i<10; i++)        abscissa[i] = i;
+  naiveEvtNum_ = 0;
+
 }
 
 
@@ -89,9 +92,25 @@ EcalMipGraphs::~EcalMipGraphs()
 void
 EcalMipGraphs::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
+
+  // get the headers
+  // (one header for each supermodule)
+  edm::Handle<EcalRawDataCollection> DCCHeaders;
+  iEvent.getByLabel(headerProducer_, DCCHeaders);
+  map<int,EcalDCCHeaderBlock> FEDsAndDCCHeaders_;
+
+  for (EcalRawDataCollection::const_iterator headerItr= DCCHeaders->begin();
+		  headerItr != DCCHeaders->end (); 
+		  ++headerItr) 
+  {
+    FEDsAndDCCHeaders_[headerItr->id()+600] = *headerItr;
+  }
+
   int ievt = iEvent.id().event();
   int graphCount = 0;
   
+  naiveEvtNum_++;
+
   if(runNum_==-1)
   {
     runNum_ = iEvent.id().run();
@@ -180,7 +199,8 @@ EcalMipGraphs::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     
     if(hashedIndex == givenSeedCry_ || (!givenSeedCry_ && ampli > threshold_))
     {
-      eventsAndSeedCrys_->Fill(ievt, ic, FEDid);
+      eventsAndSeedCrys_->Fill(naiveEvtNum_, ic, FEDid);
+      crysAndAmplitudesMap_[hashedIndex] = ampli;
       vector<DetId> neighbors = caloTopo->getWindow(ebDet,side_,side_);
       for(vector<DetId>::const_iterator itr = neighbors.begin(); itr != neighbors.end(); ++itr)
       {
@@ -220,22 +240,40 @@ EcalMipGraphs::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     EcalElectronicsId elecId = ecalElectronicsMap->getElectronicsId(*chnlItr);
     int FEDid = 600+elecId.dccId();
     string sliceName = fedMap_->getSliceFromFed(FEDid);
-    //int hashedIndex = (*chnlItr).hashedIndex();
+    int hashedIndex = (*chnlItr).hashedIndex();
     //EBDataFrame df = (*digis)[hashedIndex];
     
     //cout << "the detId is: " << (*chnlItr).rawId() << endl;
     //cout << "the detId found: " << df.id().rawId() << endl;
     
+    
+    int gainId = FEDsAndDCCHeaders_[FEDid].getMgpaGain();
+    int gainHuman;
+    if      (gainId ==1) gainHuman =12;
+    else if (gainId ==2) gainHuman =6;
+    else if (gainId ==3) gainHuman =1;
+    else                 gainHuman =-1; 
+
+    int sample0GainId = EBDataFrame(*digiItr).sample(0).gainId();
     for (int i=0; (unsigned int)i< (*digiItr).size() ; ++i ) {
       EBDataFrame df(*digiItr); 
-      ordinate[i] = df.sample(i).adc();
+      ordinate[i] = df.sample(i).adc(); // accounf for possible gain !=12?
+      if(df.sample(i).gainId()!=sample0GainId)
+        LogWarning("EcalMipGraphs") << "Gain switch detected in evt:" <<
+          naiveEvtNum_ << " sample:" << i << " ic:" << ic << " FED:" << FEDid;
     }
 
     TGraph oneGraph(10, abscissa,ordinate);
-    string name = "Graph_ev" + intToString(ievt) + "_ic" + intToString(ic)
+    string name = "Graph_ev" + intToString(naiveEvtNum_) + "_ic" + intToString(ic)
       + "_FED" + intToString(FEDid);
-    string title = "Event" + intToString(ievt) + "_ic" + intToString(ic)
-      + "_" + sliceName;
+    string gainString = (gainId==1) ? "Free" : intToString(gainHuman);
+    string title = "Event" + intToString(naiveEvtNum_) + "_lv1a" + intToString(ievt) +
+      "_ic" + intToString(ic) + "_" + sliceName + "_gain" + gainString;
+    map<int,float>::const_iterator itr;
+    itr = crysAndAmplitudesMap_.find(hashedIndex);
+    if(itr!=crysAndAmplitudesMap_.end())
+      title+="_Amp"+intToString((int)itr->second);
+    
     oneGraph.SetTitle(title.c_str());
     oneGraph.SetName(name.c_str());
     graphs.push_back(oneGraph);
@@ -302,7 +340,7 @@ EcalMipGraphs::endJob()
       hist->Write();
     else
     {
-      cerr << "EcalPedHists: Error: This shouldn't happen!" << endl;
+      cerr << "EcalMipGraphs: Error: This shouldn't happen!" << endl;
     }
   }
   allFedsTimingHist_->Write();

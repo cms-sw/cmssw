@@ -13,7 +13,7 @@
 //
 // Original Author:  Seth COOPER
 //         Created:  Th Nov 22 5:46:22 CEST 2007
-// $Id: EcalMipGraphs.h,v 1.1 2008/01/22 22:20:50 scooper Exp $
+// $Id: EcalMipGraphs.h,v 1.2 2008/03/11 11:00:12 scooper Exp $
 //
 //
 
@@ -37,6 +37,7 @@
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/EcalRawData/interface/EcalRawDataCollections.h"
+#include "DataFormats/EcalRawData/interface/EcalDCCHeaderBlock.h"
 
 #include "Geometry/EcalMapping/interface/EcalElectronicsMapping.h"
 #include "Geometry/CaloTopology/interface/CaloTopology.h"
@@ -72,6 +73,8 @@ class EcalMipGraphs : public edm::EDAnalyzer {
 
   edm::InputTag EcalUncalibratedRecHitCollection_;
   edm::InputTag EBDigis_;
+  edm::InputTag headerProducer_;
+
   int runNum_;
   int side_;
   int givenSeedCry_;
@@ -88,11 +91,13 @@ class EcalMipGraphs : public edm::EDAnalyzer {
   std::vector<int> maskedFEDs_;
   std::vector<std::string> maskedEBs_;
   std::map<int,TH1F*> FEDsAndTimingHists_;
+  std::map<int,float> crysAndAmplitudesMap_;
   
   TH1F* allFedsTimingHist_;
   
   TFile* file_;
   TNtuple* eventsAndSeedCrys_;
   EcalFedMap* fedMap_;
-  
+ 
+  int naiveEvtNum_; 
 };
