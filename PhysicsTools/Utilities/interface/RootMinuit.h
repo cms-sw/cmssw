@@ -22,40 +22,6 @@ namespace fit {
       initialized_(false), minValue_(0), verbose_(verbose) { 
       f_ = f;
     }
-    void init() { 
-      if(initialized_) return;
-      minuit_.reset(new TMinuit(parMap_.size()));
-      double arglist[10];
-      int ierflg = 0;      
-      if (! verbose_) {
-	arglist[0] = -1;
-	minuit_->mnexcm("SET PRINT", arglist, 1, ierflg); 
-	if (ierflg != 0) 
-	  throw edm::Exception(edm::errors::Configuration)
-	    << "RootMinuit: error in calling SET PRINT\n";
-      }     
-      arglist[0] = 1;
-      minuit_->mnexcm("SET ERR", arglist, 1, ierflg);
-      if (ierflg != 0) 
-	throw edm::Exception(edm::errors::Configuration)
-	  << "RootMinuit: error in calling SET ERR\n";
-
-      size_t i = 0;
-      typename parameterVector_t::const_iterator p = parMap_.begin(), end = parMap_.end();
-      for(; p != end; ++p, ++i) {
-	const std::string & name = p->first;
-	const parameter_t & par = p->second;
-	minuit_->mnparm(i, name, par.val, par.err, par.min, par.max, ierflg);
-	if(ierflg != 0)
-	  throw edm::Exception(edm::errors::Configuration)
-	    << "RootMinuit: error in setting parameter " << i 
-	    << " value = " << par.val << " error = " << par.err
-	    << " range = [" << par.min << ", " << par.max << "]\n";
-	if(par.fixed)
-	  minuit_->FixParameter(i);
-      }
-      initialized_ = true;
-    }
     void addParameter(const std::string & name, boost::shared_ptr<double> val, double err, double min, double max) {
       pars_.push_back(val);
       parameter_t par;
@@ -112,8 +78,6 @@ namespace fit {
       arglist[0] = 5000;
       arglist[1] = 0.1;
       int ierflag;
-      fPars_= & pars_; 
-      minuit_->SetFCN(fcn_);
       minuit_->mnexcm("MIGRAD", arglist, 2, ierflag);
       if ( ierflag != 0 ) std::cerr << "ERROR in migrad!!" << std::endl;
       if(verbose_) minuit_->mnmatu(1); //Prints the covariance matrix
@@ -148,6 +112,42 @@ namespace fit {
 	throw edm::Exception(edm::errors::Configuration)
 	  << "RootMinuit: can't find parameter " << name << "\n";
       return p->second;
+    }
+    void init() { 
+      if(initialized_) return;
+      minuit_.reset(new TMinuit(parMap_.size()));
+      double arglist[10];
+      int ierflg = 0;      
+      if (! verbose_) {
+	arglist[0] = -1;
+	minuit_->mnexcm("SET PRINT", arglist, 1, ierflg); 
+	if (ierflg != 0) 
+	  throw edm::Exception(edm::errors::Configuration)
+	    << "RootMinuit: error in calling SET PRINT\n";
+      }     
+      arglist[0] = 1;
+      minuit_->mnexcm("SET ERR", arglist, 1, ierflg);
+      if (ierflg != 0) 
+	throw edm::Exception(edm::errors::Configuration)
+	  << "RootMinuit: error in calling SET ERR\n";
+
+      size_t i = 0;
+      typename parameterVector_t::const_iterator p = parMap_.begin(), end = parMap_.end();
+      for(; p != end; ++p, ++i) {
+	const std::string & name = p->first;
+	const parameter_t & par = p->second;
+	minuit_->mnparm(i, name, par.val, par.err, par.min, par.max, ierflg);
+	if(ierflg != 0)
+	  throw edm::Exception(edm::errors::Configuration)
+	    << "RootMinuit: error in setting parameter " << i 
+	    << " value = " << par.val << " error = " << par.err
+	    << " range = [" << par.min << ", " << par.max << "]\n";
+	if(par.fixed)
+	  minuit_->FixParameter(i);
+      }
+      fPars_= & pars_; 
+      minuit_->SetFCN(fcn_);
+      initialized_ = true;
     }
   };
   
