@@ -52,12 +52,12 @@ namespace edm
 	caloSubdetectors_.push_back(desc.productInstanceName_);
 	LogInfo("Constructor") <<"Adding calo container "<<desc.productInstanceName_ <<" for pileup treatment";
       }
-      else if (!desc.friendlyClassName_.compare(0,7,"PSimHit") && desc.productInstanceName_.compare(0,11,"TrackerHits")) {
+      else if (!desc.friendlyClassName_.compare(0,8,"PSimHits") && desc.productInstanceName_.compare(0,11,"TrackerHits")) {
 	simHitSubdetectors_.push_back(desc.productInstanceName_);
 	nonTrackerPids_.push_back(desc.productInstanceName_);
         LogInfo("Constructor") <<"Adding simhit container "<<desc.productInstanceName_ <<" for pileup treatment";
       }
-      else if (!desc.friendlyClassName_.compare(0,7,"PSimHit") && !desc.productInstanceName_.compare(0,11,"TrackerHits")) {
+      else if (!desc.friendlyClassName_.compare(0,8,"PSimHits") && !desc.productInstanceName_.compare(0,11,"TrackerHits")) {
 	simHitSubdetectors_.push_back(desc.productInstanceName_);
 	// here we store the tracker subdetector name  for low and high part
 	int slow=(desc.productInstanceName_).find("LowTof");
