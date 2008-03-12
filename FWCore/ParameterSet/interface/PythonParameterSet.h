@@ -99,6 +99,11 @@ public:
     return edm::EventID(run, event);
   }
 
+  edm::LuminosityBlockID newLuminosityBlockID(unsigned int run, unsigned int lumi) 
+  {
+    return edm::LuminosityBlockID(run, lumi);
+  }
+
   void addNewFileInPath(bool tracked, std::string const & name, std::string const & value);
 
   PythonParameterSet newPSet() const {return PythonParameterSet();}

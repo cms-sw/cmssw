@@ -1,5 +1,5 @@
 // ----------------------------------------------------------------------
-// $Id: types.cc,v 1.14 2007/06/14 04:56:00 wmtan Exp $
+// $Id: types.cc,v 1.15 2007/08/20 22:24:05 rpw Exp $
 //
 // definition of type encoding/decoding functions
 // ----------------------------------------------------------------------
@@ -783,6 +783,73 @@ bool
     std::string encodedEventID;
     encode(encodedEventID, *idItr);
     strings.push_back(encodedEventID);
+  }
+  encode(to, strings);
+  return true;
+}
+
+
+
+
+// ----------------------------------------------------------------------
+// LuminosityBlockID
+// ----------------------------------------------------------------------
+
+bool
+  edm::decode(edm::LuminosityBlockID& to, std::string const& from)
+{
+  std::vector<std::string> tokens = edm::pset::tokenize(from, ":");
+  assert(tokens.size() == 2);
+  unsigned int run = strtoul(tokens[0].c_str(), 0, 0);
+  unsigned int lumi = strtoul(tokens[1].c_str(), 0, 0);
+  to = edm::LuminosityBlockID(run, lumi);
+  return true;
+}  // decode to LuminosityBlockID
+
+
+
+bool
+  edm::encode(std::string& to, const edm::LuminosityBlockID & from)
+{
+  std::ostringstream os;
+  os << from.run() << ":" << from.luminosityBlock();
+  to = os.str();
+  return true;
+}
+
+
+// ----------------------------------------------------------------------
+// VLuminosityBlockID
+// ----------------------------------------------------------------------
+
+bool
+  edm::decode(std::vector<edm::LuminosityBlockID>& to, std::string const& from)
+{
+  std::vector<std::string> strings;
+  decode(strings, from);
+
+  for(std::vector<std::string>::const_iterator stringItr = strings.begin(), stringItrEnd = strings.end();
+      stringItr != stringItrEnd; ++stringItr)
+  {
+    edm::LuminosityBlockID lumiID;
+    decode(lumiID, *stringItr);
+    to.push_back(lumiID);
+  }
+  return true;
+}  // decode to VInputTag
+
+
+
+bool
+  edm::encode(std::string& to, const std::vector<edm::LuminosityBlockID>& from)
+{
+  std::vector<std::string> strings;
+  for(std::vector<edm::LuminosityBlockID>::const_iterator idItr = from.begin(), idItrEnd = from.end();
+      idItr != idItrEnd; ++idItr)
+  {
+    std::string encodedLuminosityBlockID;
+    encode(encodedLuminosityBlockID, *idItr);
+    strings.push_back(encodedLuminosityBlockID);
   }
   encode(to, strings);
   return true;

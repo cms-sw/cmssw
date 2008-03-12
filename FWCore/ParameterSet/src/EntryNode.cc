@@ -94,6 +94,12 @@ namespace edm {
          edm::decode(eventID, value_);
          return Entry(name(), eventID, tracked_);
      }
+     else if (type()=="LuminosityBlockID") {
+         // decodes, then encodes again
+         edm::LuminosityBlockID lumiID;
+         edm::decode(lumiID, value_);
+         return Entry(name(), lumiID, tracked_);
+     }
      else if(type()=="double") {
          double d = strtod(value_.c_str(),&end);
          checkParse(value_, end);

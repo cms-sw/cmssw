@@ -204,6 +204,17 @@ namespace edm {
          }
          return Entry(name(), d, tracked_);
        }
+     else if(type()=="VLuminosityBlockID")
+       {
+         std::vector<edm::LuminosityBlockID> d ;
+         for(ib=k;ib!=ie;++ib)
+         {
+           edm::LuminosityBlockID lumiID;
+           edm::decode(lumiID, *ib);
+           d.push_back( lumiID );
+         }
+         return Entry(name(), d, tracked_);
+       }
      else
        {
          throw edm::Exception(errors::Configuration)

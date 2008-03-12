@@ -3,7 +3,7 @@
 %{
 
 /*
- * $Id: pset_parse.y,v 1.61 2007/09/11 17:55:46 rpw Exp $
+ * $Id: pset_parse.y,v 1.62 2007/11/11 00:24:43 wmtan Exp $
  *
  * Author: Us
  * Date:   4/28/05
@@ -170,6 +170,8 @@ inline std::string toString(char* arg) { std::string s(arg); free(arg); return s
 %token EVENTID_tok
 %token VEVENTID_tok
 %token EVENTIDVALUE_tok
+%token LUMINOSITYBLOCKID_tok
+%token VLUMINOSITYBLOCKID_tok
 %token MODULE_tok
 %token SERVICE_tok
 %token ES_MODULE_tok
@@ -354,6 +356,26 @@ lowlevelnode:    untracked TYPE_tok LETTERSTART_tok EQUAL_tok any
                    StringListPtr value($<_StringList>5);
                    bool tr = $<_bool>1;
                    VEntryNode* en(new VEntryNode("VEventID",name,value,tr,lines));
+                   $<_Node>$ = en;
+                 }
+               |
+                 untracked LUMINOSITYBLOCKID_tok LETTERSTART_tok EQUAL_tok EVENTIDVALUE_tok
+                 {
+                   DBPRINT("lowlevelnode: LUMINOSITYBLOCKID");
+                   bool tr = $<_bool>1;
+                   std::string name(toString($<str>3));
+                   std::string value(toString($<str>5));
+                   EntryNode* en(new EntryNode("LuminosityBlockID",name,value,tr,lines));
+                   $<_Node>$ = en;
+                 }
+               |
+                untracked VLUMINOSITYBLOCKID_tok LETTERSTART_tok EQUAL_tok possiblyblankeventidarray
+                 {
+                   DBPRINT("lowlevelnode: VLUMINOSITYBLOCKID");
+                   std::string name(toString($<str>3));
+                   StringListPtr value($<_StringList>5);
+                   bool tr = $<_bool>1;
+                   VEntryNode* en(new VEntryNode("VLuminosityBlockID",name,value,tr,lines));
                    $<_Node>$ = en;
                  }
                |

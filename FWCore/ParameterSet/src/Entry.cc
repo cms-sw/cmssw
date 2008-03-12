@@ -1,5 +1,5 @@
 // ----------------------------------------------------------------------
-// $Id: Entry.cc,v 1.28 2007/10/24 23:31:08 elmer Exp $
+// $Id: Entry.cc,v 1.29 2008/03/04 22:44:00 rpw Exp $
 //
 // definition of Entry's function members
 // ----------------------------------------------------------------------
@@ -54,6 +54,8 @@ namespace edm {
       table_['v'] = "VInputTag";
       table_['e'] = "VEventID";
       table_['E'] = "EventID";
+      table_['m'] = "VLuminosityBlockID";
+      table_['M'] = "LuminosityBlockID";
 
 
 
@@ -164,6 +166,16 @@ namespace edm {
       case 'e':  {  // VEventID
         std::vector<edm::EventID> val;
         if(!decode(val, rep)) throwEntryError("VEventID", rep);
+        break;
+      }
+      case 'M':  {  // LuminosityBlockID
+        edm::LuminosityBlockID val; 
+        if(!decode(val, rep)) throwEntryError("LuminosityBlockID", rep);
+        break;
+      }
+      case 'm':  {  // VLuminosityBlockID
+        std::vector<edm::LuminosityBlockID> val;
+        if(!decode(val, rep)) throwEntryError("VLuminosityBlockID", rep);
         break;
       }
       case 'D':  {  // Double
@@ -380,6 +392,29 @@ namespace edm {
     name_(name), rep(), type('e'), tracked(is_tracked ? '+' : '-')
   {
     if (!encode(rep, val)) throwEncodeError("VEventID");
+    validate();
+  }
+
+
+
+// ----------------------------------------------------------------------
+//  LuminosityBlockID
+
+  Entry::Entry(std::string const& name, edm::LuminosityBlockID const& val, bool is_tracked) :
+    name_(name), rep(), type('M'), tracked(is_tracked ? '+' : '-')
+  {
+    if (!encode(rep, val)) throwEncodeError("LuminosityBlockID");
+    validate();
+  }
+
+
+// ----------------------------------------------------------------------
+// VLuminosityBlockID
+
+  Entry::Entry(std::string const& name, std::vector<edm::LuminosityBlockID> const& val, bool is_tracked) :
+    name_(name), rep(), type('m'), tracked(is_tracked ? '+' : '-')
+  {
+    if (!encode(rep, val)) throwEncodeError("VLuminosityBlockID");
     validate();
   }
 
@@ -810,6 +845,31 @@ namespace edm {
     if(type != 'e') throwValueError("VEventID");
     std::vector<edm::EventID> val;
     if(!decode(val, rep)) throwEntryError("EventID", rep);
+    return val;
+  }
+
+
+// ----------------------------------------------------------------------
+// LuminosityBlockID
+
+  edm::LuminosityBlockID
+  Entry::getLuminosityBlockID() const
+  {
+    if(type != 'M') throwValueError("LuminosityBlockID");
+    edm::LuminosityBlockID val;
+    if(!decode(val, rep)) throwEntryError("LuminosityBlockID", rep);
+    return val;
+  }
+
+// ----------------------------------------------------------------------
+// VLuminosityBlockID
+
+  std::vector<edm::LuminosityBlockID>
+  Entry::getVLuminosityBlockID() const
+  {
+    if(type != 'm') throwValueError("VLuminosityBlockID");
+    std::vector<edm::LuminosityBlockID> val;
+    if(!decode(val, rep)) throwEntryError("LuminosityBlockID", rep);
     return val;
   }
 

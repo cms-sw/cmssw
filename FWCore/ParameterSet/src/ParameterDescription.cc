@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Aug  2 15:35:43 EDT 2007
-// $Id$
+// $Id: ParameterDescription.cc,v 1.1 2007/09/17 21:04:38 chrjones Exp $
 //
 
 // system include files
@@ -63,6 +63,8 @@ namespace edm {
         TYPE_TO_NAME(VInputTag);
         TYPE_TO_NAME(EventID);
         TYPE_TO_NAME(VEventID);
+        TYPE_TO_NAME(LuminosityBlockID);
+        TYPE_TO_NAME(VLuminosityBlockID);
       default:
         assert(false);
     }

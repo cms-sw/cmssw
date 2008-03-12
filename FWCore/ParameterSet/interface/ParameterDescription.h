@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Aug  2 15:33:46 EDT 2007
-// $Id$
+// $Id: ParameterDescription.h,v 1.1 2007/09/17 21:04:37 chrjones Exp $
 //
 
 // system include files
@@ -40,6 +40,7 @@ namespace edm {
     k_FileInPath,
     k_InputTag,  k_VInputTag,
     k_EventID,   k_VEventID,
+    k_LuminosityBlockID,   k_VLuminosityBlockID,
     k_numParameterTypes
   };
   std::string parameterTypeEnumToString(ParameterTypes);

@@ -1,5 +1,5 @@
 /*
- * $Id: pset_lex.l,v 1.31 2007/07/23 23:42:35 wmtan Exp $
+ * $Id: pset_lex.l,v 1.32 2008/02/07 17:06:19 paterno Exp $
  * Author: Us
  * Date: 4/28/05
  * History:
@@ -104,6 +104,8 @@ comment2        "//".*[\n]?
 "VInputTag"     { return VINPUTTAG_tok; }
 "EventID"       { return EVENTID_tok; }
 "VEventID"      { return VEVENTID_tok; }
+"LuminosityBlockID" { return LUMINOSITYBLOCKID_tok; }
+"VLuminosityBlockID" { return VLUMINOSITYBLOCKID_tok; }
 "module"        { yylval.str = stringDup(yytext); return MODULE_tok; }
 "service"       { yylval.str = stringDup(yytext); return SERVICE_tok; }
 "es_module"     { yylval.str = stringDup(yytext); return ES_MODULE_tok; }
@@ -119,7 +121,7 @@ comment2        "//".*[\n]?
 {letterstart}	{ yylval.str = stringDup(yytext); return LETTERSTART_tok; }
 {dotdelimited}  { yylval.str = stringDup(yytext); return DOTDELIMITED_tok; }
 {producttag}    { yylval.str = stringDup(yytext); return PRODUCTTAG_tok; }
-{eventid}       { yylval.str = stringDup(yytext); return EVENTIDVALUE_tok;}
+{eventid}           { yylval.str = stringDup(yytext); return EVENTIDVALUE_tok;}
 {bangstart}	{ yylval.str = stringDup(yytext); return BANGSTART_tok; }
 {minusinf}      { yylval.str = stringDup(yytext); return MINUSINF_tok; }
 {minusletterstart} {yylval.str = stringDup(yytext); return MINUSLETTERSTART_tok;}
