@@ -9,6 +9,7 @@
 #include "DTVDriftAnalyzer.h"
 #include "ProduceFakeDB.h"
 #include "ShiftTTrigDB.h"
+#include "FakeTTrig.h"
 
 DEFINE_SEAL_MODULE();
 DEFINE_ANOTHER_FWK_MODULE(DumpDBToFile);
@@ -18,5 +19,5 @@ DEFINE_ANOTHER_FWK_MODULE(DTTTrigAnalyzer);
 DEFINE_ANOTHER_FWK_MODULE(DTVDriftAnalyzer);
 DEFINE_ANOTHER_FWK_MODULE(ProduceFakeDB);
 DEFINE_ANOTHER_FWK_MODULE(ShiftTTrigDB);
-
+DEFINE_ANOTHER_FWK_MODULE(FakeTTrig);
 
