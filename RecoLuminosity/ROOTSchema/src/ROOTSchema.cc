@@ -12,6 +12,8 @@ Date: 2007-10-05
 // constructor and destructor
 //
 
+#define DEBUG
+
 ROOTSchema::ROOTSchema(){  
   
   #ifdef DEBUG
@@ -34,4 +36,5 @@ void ROOTSchema::ProcessSection(const HCAL_HLX::LUMI_SECTION &lumiSection){
   CreateTree(lumiSection);  
   FillTree(lumiSection);
   CloseTree();
+  //Concatenate(lumiSection);
 }

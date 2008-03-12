@@ -35,9 +35,11 @@ class ROOTFileBase{
   TFile *m_file;
 
   HCAL_HLX::LUMI_THRESHOLD      *Threshold;
-  HCAL_HLX::LEVEL1_HLT_TRIGGER  *L1HLTrigger;
+  HCAL_HLX::LEVEL1_TRIGGER      *L1Trigger;
+  HCAL_HLX::HLT                 *HLT;
   HCAL_HLX::TRIGGER_DEADTIME    *TriggerDeadtime;
-  
+  HCAL_HLX::LUMI_HF_RING_SET    *RingSet;
+
   HCAL_HLX::LUMI_SECTION_HEADER *Header;
   HCAL_HLX::LUMI_SUMMARY        *Summary;
   HCAL_HLX::LUMI_DETAIL         *Detail;
@@ -57,6 +59,8 @@ class ROOTFileBase{
   void     CreateTree(const HCAL_HLX::LUMI_SECTION &localSection);
   void       FillTree(const HCAL_HLX::LUMI_SECTION &localSection);
   void CloseTree();
+  void Concatenate(const HCAL_HLX::LUMI_SECTION &localSection);
+  void InsertInformation();
 
   template< class T >
     void MakeBranch(const T &in, T **out, int HLXNum);
