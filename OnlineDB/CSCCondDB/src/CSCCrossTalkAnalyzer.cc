@@ -184,11 +184,11 @@ void CSCCrossTalkAnalyzer::analyze(edm::Event const& e, edm::EventSetup const& i
 	  for (int layer = 1; layer <= 6; layer++){
 	    
 	    std::vector<CSCStripDigi> digis = cscData[chamber].stripDigis(layer) ;
-	    const CSCDMBHeader &thisDMBheader = cscData[chamber].dmbHeader();
+	    const CSCDMBHeader * thisDMBheader = cscData[chamber].dmbHeader();
 	    
-            if (thisDMBheader.cfebAvailable()){
-              dmbID[chamber] = cscData[chamber].dmbHeader().dmbID();
-              crateID[chamber] = cscData[chamber].dmbHeader().crateID();
+            if (thisDMBheader->cfebAvailable()){
+              dmbID[chamber] = cscData[chamber].dmbHeader()->dmbID();
+              crateID[chamber] = cscData[chamber].dmbHeader()->crateID();
               if(crateID[chamber] == 255) continue;
 	      
               for (unsigned int i=0; i<digis.size(); i++){

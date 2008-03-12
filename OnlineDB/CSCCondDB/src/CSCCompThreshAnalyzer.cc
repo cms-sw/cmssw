@@ -124,21 +124,21 @@ void CSCCompThreshAnalyzer::analyze(edm::Event const& e, edm::EventSetup const& 
 	 	 
 	 for (i_chamber=0; i_chamber<NChambers; i_chamber++) {//loop over all DMBs  
 	   if (cscData[i_chamber].nclct()) {
-	     CSCCLCTData & clctData = cscData[i_chamber].clctData();
+	     CSCCLCTData * clctData = cscData[i_chamber].clctData();
 	   }else {
 	     std::cout<<" No CLCT!" <<std::endl;
 	     continue;
 	   }
-	   CSCCLCTData & clctData = cscData[i_chamber].clctData();
+	   CSCCLCTData * clctData = cscData[i_chamber].clctData();
 	   for(i_layer = 1; i_layer <= 6; ++i_layer) {//loop over all layers in chambers
-	     std::vector<CSCComparatorDigi> comp = clctData.comparatorDigis(i_layer);
+	     std::vector<CSCComparatorDigi> comp = clctData->comparatorDigis(i_layer);
 	     
-	     const CSCDMBHeader &thisDMBheader = cscData[i_chamber].dmbHeader();
+	     const CSCDMBHeader * thisDMBheader = cscData[i_chamber].dmbHeader();
 	     
-	     if (thisDMBheader.cfebAvailable()){//check that CFEB data exists
+	     if (thisDMBheader->cfebAvailable()){//check that CFEB data exists
 	       
-	       dmbID[i_chamber]   = cscData[i_chamber].dmbHeader().dmbID(); //get DMB ID
-	       crateID[i_chamber] = cscData[i_chamber].dmbHeader().crateID(); //get crate ID
+	       dmbID[i_chamber]   = cscData[i_chamber].dmbHeader()->dmbID(); //get DMB ID
+	       crateID[i_chamber] = cscData[i_chamber].dmbHeader()->crateID(); //get crate ID
 	       if(crateID[i_chamber] == 255) continue; //255 is reserved for old crate
 	      
 	       for (unsigned int i=0; i<comp.size(); i++){//loop over CFEB comparator digis

@@ -133,11 +133,11 @@ void CSCSaturationAnalyzer::analyze(edm::Event const& e, edm::EventSetup const& 
 	  for (int i_layer = 1; i_layer <=6; ++i_layer) {
 	    
 	    std::vector<CSCStripDigi> digis = cscData[i_chamber].stripDigis(i_layer) ;
-	    const CSCDMBHeader &thisDMBheader = cscData[i_chamber].dmbHeader();
+	    const CSCDMBHeader * thisDMBheader = cscData[i_chamber].dmbHeader();
 	    
-	    if (thisDMBheader.cfebAvailable()){
-	      dmbID[i_chamber] = cscData[i_chamber].dmbHeader().dmbID();//get DMB ID
-	      crateID[i_chamber] = cscData[i_chamber].dmbHeader().crateID();//get crate ID
+	    if (thisDMBheader->cfebAvailable()){
+	      dmbID[i_chamber] = cscData[i_chamber].dmbHeader()->dmbID();//get DMB ID
+	      crateID[i_chamber] = cscData[i_chamber].dmbHeader()->crateID();//get crate ID
 	      if(crateID[i_chamber] == 255) continue;
 	      
 	      for (unsigned int i=0; i<digis.size(); i++){

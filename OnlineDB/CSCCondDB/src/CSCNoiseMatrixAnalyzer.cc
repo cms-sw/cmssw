@@ -114,11 +114,11 @@ void CSCNoiseMatrixAnalyzer::analyze(edm::Event const& e, edm::EventSetup const&
 	  
 	  for(int i_layer = 1; i_layer <= LAYERS_ma; ++i_layer) {
 	    std::vector<CSCStripDigi> digis = cscData[i_chamber].stripDigis(i_layer) ;
-	    const CSCDMBHeader &thisDMBheader = cscData[i_chamber].dmbHeader();
+	    const CSCDMBHeader * thisDMBheader = cscData[i_chamber].dmbHeader();
 	    
-	    if (thisDMBheader.cfebAvailable()){
-	      dmbID[i_chamber]   = cscData[i_chamber].dmbHeader().dmbID(); 
-	      crateID[i_chamber] = cscData[i_chamber].dmbHeader().crateID();
+	    if (thisDMBheader->cfebAvailable()){
+	      dmbID[i_chamber]   = cscData[i_chamber].dmbHeader()->dmbID(); 
+	      crateID[i_chamber] = cscData[i_chamber].dmbHeader()->crateID();
 	      if(crateID[i_chamber] == 255) continue; 
 
 	      for (unsigned int i=0; i<digis.size(); i++){

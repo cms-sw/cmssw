@@ -103,12 +103,12 @@ void CSCCFEBConnectivityAnalyzer::analyze(edm::Event const& e, edm::EventSetup c
 	  for(layer = 1; layer <= 6; ++layer) {//loop over all layers in chambers
 	    	    
 	    std::vector<CSCStripDigi> digis = cscData[chamber].stripDigis(layer) ;
-	    const CSCDMBHeader &thisDMBheader = cscData[chamber].dmbHeader();
+	    const CSCDMBHeader * thisDMBheader = cscData[chamber].dmbHeader();
 	     
-	    if (thisDMBheader.cfebAvailable()){//check that CFEB data exists
-	      
-	      dmbID[chamber]   = cscData[chamber].dmbHeader().dmbID(); //get DMB ID
-	      crateID[chamber] = cscData[chamber].dmbHeader().crateID(); //get crate ID
+	    if (thisDMBheader->cfebAvailable()){//check that CFEB data exists
+	    
+	      dmbID[chamber]   = cscData[chamber].dmbHeader()->dmbID(); //get DMB ID
+	      crateID[chamber] = cscData[chamber].dmbHeader()->crateID(); //get crate ID
 	      if(crateID[chamber] == 255) continue; //255 doesn't exist
 	      
 	      for (unsigned int i=0; i<digis.size(); i++){

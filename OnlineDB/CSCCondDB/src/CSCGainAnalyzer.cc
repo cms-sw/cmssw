@@ -135,11 +135,11 @@ void CSCGainAnalyzer::analyze(edm::Event const& e, edm::EventSetup const& iSetup
 	  for (int i_layer = 1; i_layer <=6; ++i_layer) {
 	    
 	    std::vector<CSCStripDigi> digis = cscData[i_chamber].stripDigis(i_layer) ;
-	    const CSCDMBHeader &thisDMBheader = cscData[i_chamber].dmbHeader();
+	    const CSCDMBHeader * thisDMBheader = cscData[i_chamber].dmbHeader();
 	    
-	    if (thisDMBheader.cfebAvailable()){
-	      dmbID[i_chamber] = cscData[i_chamber].dmbHeader().dmbID();//get DMB ID
-	      crateID[i_chamber] = cscData[i_chamber].dmbHeader().crateID();//get crate ID
+	    if (thisDMBheader->cfebAvailable()){
+	      dmbID[i_chamber] = cscData[i_chamber].dmbHeader()->dmbID();//get DMB ID
+	      crateID[i_chamber] = cscData[i_chamber].dmbHeader()->crateID();//get crate ID
 	      if(crateID[i_chamber] == 255) continue;
 	      
 	      for (unsigned int i=0; i<digis.size(); i++){
@@ -220,6 +220,7 @@ CSCGainAnalyzer::~CSCGainAnalyzer(){
   clock = localtime(&(attrib.st_mtime));  
   std::string myTime=asctime(clock);
   std::ofstream myGainsFile(myFileName,std::ios::out);
+  std::ofstream badstripsFile("badstrips.dat",std::ios::out);
   
   ///old DB map
   //cscmap *map = new cscmap();
@@ -258,6 +259,7 @@ CSCGainAnalyzer::~CSCGainAnalyzer(){
 	strips_per_layer=mapitem.strips;
 	chamber_index=mapitem.chamberId;
 	chamber_type = mapitem.chamberLabel;
+	chamber_Index = mapitem.cscIndex;
 
 	std::cout<<"Data is for chamber:: "<<chamber_type<<"  "<<chamber_id<<" in sector:  "<<sector<<" index "<<first_strip_index<<std::endl;
 	
@@ -282,6 +284,14 @@ CSCGainAnalyzer::~CSCGainAnalyzer(){
 		float gainSlope = 0.0;
 		float gainIntercept = 0.0;
 		float chi2      = 0.0;
+		int bad_chan=0;
+		int bad=0;
+		int maxBadChan=0;
+		std::vector<int> BadChan;
+		int flag1=0;
+		int flag2=0;
+		int flag3=0;
+		int pointer=0;
 		
 		//now start at 0.1V and step 0.25 inbetween
 		float charge[NUMBERPLOTTED_ga]={11.2, 39.2, 67.2, 95.2, 123.2, 151.2, 179.2, 207.2, 235.2, 263.2, 291.2, 319.2, 347.2, 375.2, 403.2, 431.2, 459.2, 487.2, 515.2, 543.2};
@@ -332,7 +342,26 @@ CSCGainAnalyzer::~CSCGainAnalyzer(){
 		if (size[cham] != strips_per_layer) flagRun = 1; //bad run
 		if (size[cham] == strips_per_layer) flagRun = 0; //good run 
 		if (counter>size[cham]*LAYERS_ga) counter=0;
+
+		//BadStripChannels!!!!
 		myGainsFile <<"  "<<myIndex-1<<"  "<<gainSlope<<"  "<<gainIntercept<<"  "<<chi2<<std::endl;
+		if(gainSlope<4.0){
+		  gainSlope=0.0;
+		  bad +=bad_chan++;
+		  flag1=1;
+		}
+		maxBadChan=bad;
+		for(bad=0;bad<maxBadChan;bad++){
+		  BadChan[bad]=bad_chan;
+		  pointer = BadChan[bad];
+		}
+
+		if(gainSlope>9.0) flag2=2;
+		
+		if(gainSlope<4.0 || gainSlope>9.0){
+		  badstripsFile<<"  "<<chamber_Index<<"  "<<pointer<<"  "<<bad_chan<<"  "<<j<<"  "<<k<<"  "<<flag1<<"  "<<flag2<<"  "<<flag3<<std::endl;
+		    }
+		
 		calib_evt.slope     = gainSlope;
 		calib_evt.intercept = gainIntercept;
 		calib_evt.chi2      = chi2;
