@@ -96,6 +96,7 @@ BxTiming::beginJob(const edm::EventSetup&) {
     for(int i=0; i<NSYS; i++) {
       lbl.clear();lbl+=SysLabel[i];lbl+="FedBxDiff"; 
       int nfeds = fedRange_[i].second - fedRange_[i].first + 1;
+      nfeds = (nfeds>0)? nfeds:1;
       hBxDiffSysFed[i] = dbe->bookProfile(lbl.data(),lbl.data(), nfeds, 
 					  fedRange_[i].first-0.5, fedRange_[i].second+0.5,
 					  2*dbx+1,-1*dbx-0.5,dbx+0.5);
