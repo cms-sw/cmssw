@@ -260,7 +260,8 @@ bool FUResourceBroker::stopping(toolbox::task::WorkLoop* wl)
 	break;
       }
       else {
-	LOG4CPLUS_DEBUG(log_,"Waiting for ResourceTable to shutdown ("<<++count<<")");
+	count++;
+	LOG4CPLUS_DEBUG(log_,"Waiting for ResourceTable to shutdown ("<<count<<")");
 	::sleep(1);
       }
     }
@@ -301,7 +302,8 @@ bool FUResourceBroker::halting(toolbox::task::WorkLoop* wl)
 	  break;
 	}
 	else {
-	  LOG4CPLUS_DEBUG(log_,++count<<". try to destroy resource table failed ...");
+	  count++;
+	  LOG4CPLUS_DEBUG(log_,count<<". try to destroy resource table failed ...");
 	  ::sleep(1);
 	}
       }
