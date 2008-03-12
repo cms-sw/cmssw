@@ -391,24 +391,40 @@ void myFastSimVal::beginJob( const EventSetup & ) {
   dEta1 = TH1F("dEta1","GenJets dEta with matched CaloJet",200,-0.5,0.5);
   dPt1  = TH1F("dPt1","GenJets dPt with matched CaloJet",200,-100,100);
   dPtFrac1  = TH1F("dPtFrac1","GenJets dPt frac with matched CaloJet",100,-1,1);
+  dPt20Frac1   = TH1F("dPt20Frac1","GenJets dPt frac with matched CaloJet",100,-1,1);
+  dPt40Frac1   = TH1F("dPt40Frac1","GenJets dPt frac with matched CaloJet",100,-1,1);
+  dPt80Frac1   = TH1F("dPt80Frac1","GenJets dPt frac with matched CaloJet",100,-1,1);
+  dPt100Frac1  = TH1F("dPt100Frac1","GenJets dPt frac with matched CaloJet",100,-1,1);
 
   dR2   = TH1F("dR2","GenJets dR with matched CaloJet",100,0,0.5);
   dPhi2 = TH1F("dPhi2","GenJets dPhi with matched CaloJet",200,-0.5,0.5);
   dEta2 = TH1F("dEta2","GenJets dEta with matched CaloJet",200,-0.5,0.5);
   dPt2  = TH1F("dPt2","GenJets dPt with matched CaloJet",200,-100,100);
   dPtFrac2  = TH1F("dPtFrac2","GenJets dPt frac with matched CaloJet",100,-1,1);
+  dPt20Frac2   = TH1F("dPt20Frac2","GenJets dPt frac with matched CaloJet",100,-1,1);
+  dPt40Frac2   = TH1F("dPt40Frac2","GenJets dPt frac with matched CaloJet",100,-1,1);
+  dPt80Frac2   = TH1F("dPt80Frac2","GenJets dPt frac with matched CaloJet",100,-1,1);
+  dPt100Frac2  = TH1F("dPt100Frac2","GenJets dPt frac with matched CaloJet",100,-1,1);
 
   dR3   = TH1F("dR3","GenJets dR with matched CaloJet",100,0,0.5);
   dPhi3 = TH1F("dPhi3","GenJets dPhi with matched CaloJet",200,-0.5,0.5);
   dEta3 = TH1F("dEta3","GenJets dEta with matched CaloJet",200,-0.5,0.5);
   dPt3  = TH1F("dPt3","GenJets dPt with matched CaloJet",200,-100,100);
   dPtFrac3  = TH1F("dPtFrac3","GenJets dPt frac with matched CaloJet",100,-1,1);
+  dPt20Frac3   = TH1F("dPt20Frac3","GenJets dPt frac with matched CaloJet",100,-1,1);
+  dPt40Frac3   = TH1F("dPt40Frac3","GenJets dPt frac with matched CaloJet",100,-1,1);
+  dPt80Frac3   = TH1F("dPt80Frac3","GenJets dPt frac with matched CaloJet",100,-1,1);
+  dPt100Frac3  = TH1F("dPt100Frac3","GenJets dPt frac with matched CaloJet",100,-1,1);
 
   dR4   = TH1F("dR4","GenJets dR with matched CaloJet",100,0,0.5);
   dPhi4 = TH1F("dPhi4","GenJets dPhi with matched CaloJet",200,-0.5,0.5);
   dEta4 = TH1F("dEta4","GenJets dEta with matched CaloJet",200,-0.5,0.5);
   dPt4  = TH1F("dPt4","GenJets dPt with matched CaloJet",200,-100,100);
   dPtFrac4  = TH1F("dPtFrac4","GenJets dPt frac with matched CaloJet",100,-1,1);
+  dPt20Frac4   = TH1F("dPt20Frac4","GenJets dPt frac with matched CaloJet",100,-1,1);
+  dPt40Frac4   = TH1F("dPt40Frac4","GenJets dPt frac with matched CaloJet",100,-1,1);
+  dPt80Frac4   = TH1F("dPt80Frac4","GenJets dPt frac with matched CaloJet",100,-1,1);
+  dPt100Frac4  = TH1F("dPt100Frac4","GenJets dPt frac with matched CaloJet",100,-1,1);
 
   dR12   = TH1F("dR12","dR MidPoint - SISCone",100,0,0.5);
   dPhi12 = TH1F("dPhi12","dPhi MidPoint - SISCone",200,-0.5,0.5);
@@ -1497,7 +1513,21 @@ void myFastSimVal::analyze( const Event& evt, const EventSetup& es ) {
 	   << endl;
       ***/
 
-
+      double dpt = p4cal[jetInd].pt() - p4gen[jetInd].pt();
+      if (fabs(p4gen[jetInd].eta()) < 1.3)  {
+	if ( (p4gen[jetInd].pt() > 20) && (p4gen[jetInd].pt() < 40) ) {
+	  dPt20Frac1.Fill(dpt/p4gen[jetInd].pt());
+	}
+	if ( (p4gen[jetInd].pt() > 40) && (p4gen[jetInd].pt() < 60) ) {
+	  dPt40Frac1.Fill(dpt/p4gen[jetInd].pt());
+	}
+	if ( (p4gen[jetInd].pt() > 80) && (p4gen[jetInd].pt() < 100) ) {
+	  dPt80Frac1.Fill(dpt/p4gen[jetInd].pt());
+	}
+	if ( (p4gen[jetInd].pt() > 100) && (p4gen[jetInd].pt() < 120) ) {
+	  dPt100Frac1.Fill(dpt/p4gen[jetInd].pt());
+	}
+      }
       if ( (p4gen[jetInd].pt() > minJetPt10) && (fabs(p4gen[jetInd].eta()) < 1.3) ) {
 
 	dR1.Fill(dRmin[jetInd]);
@@ -1505,7 +1535,6 @@ void myFastSimVal::analyze( const Event& evt, const EventSetup& es ) {
 	dPhi1.Fill(dphi);
 	double deta = p4cal[jetInd].eta() - p4gen[jetInd].eta();
 	dEta1.Fill(deta);
-	double dpt = p4cal[jetInd].pt() - p4gen[jetInd].pt();
 	dPt1.Fill(dpt);       	
 	dPtFrac1.Fill(dpt/p4gen[jetInd].pt());
 
@@ -1611,6 +1640,21 @@ void myFastSimVal::analyze( const Event& evt, const EventSetup& es ) {
       ***/
 
 
+      double dpt = p4cal[jetInd].pt() - p4gen[jetInd].pt();
+      if (fabs(p4gen[jetInd].eta()) < 1.3)  {
+	if ( (p4gen[jetInd].pt() > 20) && (p4gen[jetInd].pt() < 40) ) {
+	  dPt20Frac2.Fill(dpt/p4gen[jetInd].pt());
+	}
+	if ( (p4gen[jetInd].pt() > 40) && (p4gen[jetInd].pt() < 60) ) {
+	  dPt40Frac2.Fill(dpt/p4gen[jetInd].pt());
+	}
+	if ( (p4gen[jetInd].pt() > 80) && (p4gen[jetInd].pt() < 100) ) {
+	  dPt80Frac2.Fill(dpt/p4gen[jetInd].pt());
+	}
+	if ( (p4gen[jetInd].pt() > 100) && (p4gen[jetInd].pt() < 120) ) {
+	  dPt100Frac2.Fill(dpt/p4gen[jetInd].pt());
+	}
+      }
       if ( (p4gen[jetInd].pt() > minJetPt10) && (fabs(p4gen[jetInd].eta()) < 1.3) )  {
 
 	dR2.Fill(dRmin[jetInd]);
@@ -1618,7 +1662,6 @@ void myFastSimVal::analyze( const Event& evt, const EventSetup& es ) {
 	dPhi2.Fill(dphi);
 	double deta = p4cal[jetInd].eta() - p4gen[jetInd].eta();
 	dEta2.Fill(deta);
-	double dpt = p4cal[jetInd].pt() - p4gen[jetInd].pt();
 	dPt2.Fill(dpt);
 	dPtFrac2.Fill(dpt/p4gen[jetInd].pt());       
 
@@ -1702,6 +1745,23 @@ void myFastSimVal::analyze( const Event& evt, const EventSetup& es ) {
 	   << p4cal[jetInd].phi()    
 	   << endl;
       ***/
+
+      double dpt = p4cal[jetInd].pt() - p4gen[jetInd].pt();
+      if (fabs(p4gen[jetInd].eta()) < 1.3)  {
+	if ( (p4gen[jetInd].pt() > 20) && (p4gen[jetInd].pt() < 40) ) {
+	  dPt20Frac3.Fill(dpt/p4gen[jetInd].pt());
+	}
+	if ( (p4gen[jetInd].pt() > 40) && (p4gen[jetInd].pt() < 60) ) {
+	  dPt40Frac3.Fill(dpt/p4gen[jetInd].pt());
+	}
+	if ( (p4gen[jetInd].pt() > 80) && (p4gen[jetInd].pt() < 100) ) {
+	  dPt80Frac3.Fill(dpt/p4gen[jetInd].pt());
+	}
+	if ( (p4gen[jetInd].pt() > 100) && (p4gen[jetInd].pt() < 120) ) {
+	  dPt100Frac3.Fill(dpt/p4gen[jetInd].pt());
+	}
+      }
+
       if ( (p4gen[jetInd].pt() > minJetPt10) && (fabs(p4gen[jetInd].eta()) < 1.3) ) {
 
 	dR3.Fill(dRmin[jetInd]);
@@ -1709,7 +1769,6 @@ void myFastSimVal::analyze( const Event& evt, const EventSetup& es ) {
 	dPhi3.Fill(dphi);
 	double deta = p4cal[jetInd].eta() - p4gen[jetInd].eta();
 	dEta3.Fill(deta);
-	double dpt = p4cal[jetInd].pt() - p4gen[jetInd].pt();
 	dPt3.Fill(dpt);
 	dPtFrac3.Fill(dpt/p4gen[jetInd].pt());
 
@@ -1793,6 +1852,22 @@ void myFastSimVal::analyze( const Event& evt, const EventSetup& es ) {
       ***/
 
 
+      double dpt = p4cal[jetInd].pt() - p4gen[jetInd].pt();
+      if (fabs(p4gen[jetInd].eta()) < 1.3)  {
+	if ( (p4gen[jetInd].pt() > 20) && (p4gen[jetInd].pt() < 40) ) {
+	  dPt20Frac4.Fill(dpt/p4gen[jetInd].pt());
+	}
+	if ( (p4gen[jetInd].pt() > 40) && (p4gen[jetInd].pt() < 60) ) {
+	  dPt40Frac4.Fill(dpt/p4gen[jetInd].pt());
+	}
+	if ( (p4gen[jetInd].pt() > 80) && (p4gen[jetInd].pt() < 100) ) {
+	  dPt80Frac4.Fill(dpt/p4gen[jetInd].pt());
+	}
+	if ( (p4gen[jetInd].pt() > 100) && (p4gen[jetInd].pt() < 120) ) {
+	  dPt100Frac4.Fill(dpt/p4gen[jetInd].pt());
+	}
+      }
+
       if ( (p4gen[jetInd].pt() > minJetPt10) && (fabs(p4gen[jetInd].eta()) < 1.3) )  {
 
 	dR4.Fill(dRmin[jetInd]);
@@ -1800,7 +1875,6 @@ void myFastSimVal::analyze( const Event& evt, const EventSetup& es ) {
 	dPhi4.Fill(dphi);
 	double deta = p4cal[jetInd].eta() - p4gen[jetInd].eta();
 	dEta4.Fill(deta);
-	double dpt = p4cal[jetInd].pt() - p4gen[jetInd].pt();
 	dPt4.Fill(dpt);
 	dPtFrac4.Fill(dpt/p4gen[jetInd].pt());       
 
