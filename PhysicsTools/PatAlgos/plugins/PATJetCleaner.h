@@ -1,5 +1,5 @@
 //
-// $Id: PATJetCleaner.h,v 1.2 2008/03/11 07:14:14 fronga Exp $
+// $Id: PATJetCleaner.h,v 1.3 2008/03/11 11:02:43 llista Exp $
 //
 
 #ifndef PhysicsTools_PatAlgos_PATJetCleaner_h
@@ -13,7 +13,7 @@
    a collection of objects of JetType.
 
   \author   Steven Lowette, Jeremy Andrea
-  \version  $Id: PATJetCleaner.h,v 1.2 2008/03/11 07:14:14 fronga Exp $
+  \version  $Id: PATJetCleaner.h,v 1.3 2008/03/11 11:02:43 llista Exp $
 */
 
 #include "FWCore/Framework/interface/EDProducer.h"
@@ -44,6 +44,7 @@ namespace pat {
       ~PATJetCleaner();
 
       virtual void produce(edm::Event & iEvent, const edm::EventSetup & iSetup);
+      virtual void endJob();
 
     private:
       // configurables

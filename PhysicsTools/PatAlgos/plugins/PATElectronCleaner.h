@@ -1,5 +1,5 @@
 //
-// $Id: PATElectronCleaner.h,v 1.1 2008/03/06 09:23:10 llista Exp $
+// $Id: PATElectronCleaner.h,v 1.2 2008/03/11 11:03:44 llista Exp $
 //
 
 #ifndef PhysicsTools_PatAlgos_PATElectronCleaner_h
@@ -37,7 +37,7 @@
   The actual selection is performed by the ElectronSelector.
 
   \author   Steven Lowette, James Lamb
-  \version  $Id: PATElectronCleaner.h,v 1.1 2008/03/06 09:23:10 llista Exp $
+  \version  $Id: PATElectronCleaner.h,v 1.2 2008/03/11 11:03:44 llista Exp $
 */
 
 
@@ -53,6 +53,7 @@
 
 #include "PhysicsTools/Utilities/interface/PtComparator.h"
 #include "PhysicsTools/UtilAlgos/interface/ParameterAdapter.h"
+#include "PhysicsTools/PatAlgos/interface/MultiIsolator.h"
 
 #include "PhysicsTools/PatUtils/interface/ElectronSelector.h"
 #include "PhysicsTools/PatUtils/interface/DuplicatedElectronRemover.h"
@@ -68,6 +69,7 @@ namespace pat {
       ~PATElectronCleaner();  
 
       virtual void produce(edm::Event & iEvent, const edm::EventSetup & iSetup);
+      virtual void endJob();
 
     private:
       void removeDuplicates();
@@ -79,6 +81,8 @@ namespace pat {
 	                         reco::PixelMatchGsfElectron,
                                  reco::PixelMatchGsfElectronCollection, 
 	                         GreaterByPt<reco::PixelMatchGsfElectron> > helper_;
+
+      pat::helper::MultiIsolator isolator_;
 
       pat::DuplicatedElectronRemover duplicateRemover_;  
     

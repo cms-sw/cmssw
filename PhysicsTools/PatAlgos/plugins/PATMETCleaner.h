@@ -1,5 +1,5 @@
 //
-// $Id: PATMETCleaner.h,v 1.1 2008/03/06 09:23:10 llista Exp $
+// $Id: PATMETCleaner.h,v 1.2 2008/03/11 11:02:43 llista Exp $
 //
 
 #ifndef PhysicsTools_PatAlgos_PATMETCleaner_h
@@ -13,7 +13,7 @@
    a collection of objects of METType.
 
   \author   Steven Lowette, Jeremy Andrea
-  \version  $Id: PATMETCleaner.h,v 1.1 2008/03/06 09:23:10 llista Exp $
+  \version  $Id: PATMETCleaner.h,v 1.2 2008/03/11 11:02:43 llista Exp $
 */
 
 #include "FWCore/Framework/interface/EDProducer.h"
@@ -41,6 +41,7 @@ namespace pat {
       ~PATMETCleaner();
 
       virtual void produce(edm::Event & iEvent, const edm::EventSetup & iSetup);
+      virtual void endJob();
 
     private:
       // configurables

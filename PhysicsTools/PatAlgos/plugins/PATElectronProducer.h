@@ -1,5 +1,5 @@
 //
-// $Id: PATElectronProducer.h,v 1.8 2008/03/05 14:56:50 fronga Exp $
+// $Id: PATElectronProducer.h,v 1.1 2008/03/06 09:23:10 llista Exp $
 //
 
 #ifndef PhysicsTools_PatAlgos_PATElectronProducer_h
@@ -13,7 +13,7 @@
    a collection of objects of ElectronType.
 
   \author   Steven Lowette, James Lamb
-  \version  $Id: PATElectronProducer.h,v 1.8 2008/03/05 14:56:50 fronga Exp $
+  \version  $Id: PATElectronProducer.h,v 1.1 2008/03/06 09:23:10 llista Exp $
 */
 
 
@@ -22,6 +22,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/InputTag.h"
 #include "DataFormats/Common/interface/View.h"
+#include "DataFormats/Common/interface/ValueMap.h"
 #include "DataFormats/Candidate/interface/CandAssociation.h"
 
 #include "PhysicsTools/Utilities/interface/PtComparator.h"
@@ -58,10 +59,10 @@ namespace pat {
 	                unsigned int idx);
       void setEgammaIso(Electron & anElectron,
                         const edm::Handle<edm::View<ElectronType> > & elecs,
-                        const edm::Handle<reco::CandViewDoubleAssociations> tkIso,
-                        const edm::Handle<reco::CandViewDoubleAssociations>    tkNumIso,
-                        const edm::Handle<reco::CandViewDoubleAssociations> ecalIso,
-                        const edm::Handle<reco::CandViewDoubleAssociations> hcalIso,
+                        const edm::Handle<edm::ValueMap<float> > tkIso,
+                        const edm::Handle<edm::ValueMap<float> >    tkNumIso,
+                        const edm::Handle<edm::ValueMap<float> > ecalIso,
+                        const edm::Handle<edm::ValueMap<float> > hcalIso,
                         unsigned int idx);
 
     private:

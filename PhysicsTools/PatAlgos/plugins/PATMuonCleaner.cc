@@ -1,5 +1,5 @@
 //
-// $Id: PATMuonCleaner.cc,v 1.7 2008/03/05 14:52:23 fronga Exp $
+// $Id: PATMuonCleaner.cc,v 1.1 2008/03/06 09:23:10 llista Exp $
 //
 
 #include "PhysicsTools/PatAlgos/plugins/PATMuonCleaner.h"
@@ -23,12 +23,8 @@ PATMuonCleaner::PATMuonCleaner(const edm::ParameterSet & iConfig) :
   selectionCfg_(iConfig.getParameter<edm::ParameterSet>("selection")),
   selector_(reco::modules::make<MuonSelector>(selectionCfg_))
 {
-  // produces vector of muons
-  produces<std::vector<reco::Muon> >();
-
-  // producers also backmatch to the muons
-  produces<reco::CandRefValueMap>();
-
+  helper_.configure(iConfig);      // learn whether to save good, bad, all, ...
+  helper_.registerProducts(*this); // issue the produces<>() commands
 }
 
 
@@ -59,6 +55,10 @@ void PATMuonCleaner::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
 
 }
 
+void PATMuonCleaner::endJob()  { 
+    edm::LogVerbatim("PATLayer0Summary|PATMuonCleaner") << "PATMuonCleaner end job. Input tag was " << muonSrc_.encode();
+    helper_.endJob(); 
+}
 
 #include "FWCore/Framework/interface/MakerMacros.h"
 DEFINE_FWK_MODULE(PATMuonCleaner);

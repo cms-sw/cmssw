@@ -1,9 +1,10 @@
 //
-// $Id: PATElectronCleaner.cc,v 1.10 2008/03/05 14:52:22 fronga Exp $
+// $Id: PATElectronCleaner.cc,v 1.1 2008/03/06 09:23:10 llista Exp $
 //
 #include "PhysicsTools/PatAlgos/plugins/PATElectronCleaner.h"
 #include "DataFormats/EgammaReco/interface/BasicClusterShapeAssociation.h"
 #include "DataFormats/EgammaReco/interface/BasicCluster.h"
+#include "DataFormats/PatCandidates/interface/Flags.h"
 #include <vector>
 #include <memory>
 
@@ -13,13 +14,13 @@ PATElectronCleaner::PATElectronCleaner(const edm::ParameterSet & iConfig) :
     electronSrc_(iConfig.getParameter<edm::InputTag>("electronSource")),
     removeDuplicates_(iConfig.getParameter<bool>("removeDuplicates")),
     helper_(electronSrc_),
+    isolator_(iConfig.exists("isolation") ? iConfig.getParameter<edm::ParameterSet>("isolation") : edm::ParameterSet() ),
     selectionCfg_(iConfig.getParameter<edm::ParameterSet>("selection")),
     selectionType_(selectionCfg_.getParameter<std::string>("type")),
-    selector_(reco::modules::make<ElectronSelector>(selectionCfg_)) {
-  // produces vector of electrons
-  produces<std::vector<reco::PixelMatchGsfElectron> >();
-  // produces also backmatch to the original electrons
-  produces<reco::CandRefValueMap>();
+    selector_(reco::modules::make<ElectronSelector>(selectionCfg_)) 
+{
+  helper_.configure(iConfig);      // learn whether to save good, bad, all, ...
+  helper_.registerProducts(*this); // issue the produces<>() commands
 }
 
 PATElectronCleaner::~PATElectronCleaner() {
@@ -79,7 +80,7 @@ void PATElectronCleaner::removeDuplicates() {
                                              ed = duplicates->end();
                                 it != ed;
                                 ++it) {
-        helper_.setMark(*it, 1);
+        helper_.setMark(*it, helper_.mark(*it) | pat::Flags::Core::Duplicate);
     }
 }
 
@@ -110,6 +111,11 @@ PATElectronCleaner::getClusterShape_( const reco::GsfElectron* electron,
     }
 
   return seedShpItr->val;
+}
+
+void PATElectronCleaner::endJob() { 
+    edm::LogVerbatim("PATLayer0Summary|PATElectronCleaner") << "PATElectronCleaner end job. Input tag was " << electronSrc_.encode();
+    helper_.endJob(); 
 }
 
 #include "FWCore/Framework/interface/MakerMacros.h"

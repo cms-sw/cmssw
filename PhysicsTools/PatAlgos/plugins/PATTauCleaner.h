@@ -1,5 +1,5 @@
 //
-// $Id: PATTauCleaner.h,v 1.1 2008/03/06 09:23:11 llista Exp $
+// $Id: PATTauCleaner.h,v 1.2 2008/03/11 10:50:21 llista Exp $
 //
 
 #ifndef PhysicsTools_PatAlgos_PATTauCleaner_h
@@ -13,7 +13,7 @@
    a collection of objects of TauType.
 
   \author   Steven Lowette, Christophe Delaere
-  \version  $Id: PATTauCleaner.h,v 1.1 2008/03/06 09:23:11 llista Exp $
+  \version  $Id: PATTauCleaner.h,v 1.2 2008/03/11 10:50:21 llista Exp $
 */
 
 
@@ -48,6 +48,7 @@ namespace pat {
       ~PATTauCleaner();
 
       virtual void produce(edm::Event & iEvent, const edm::EventSetup & iSetup);
+      virtual void endJob();
 
     private:
       // configurables

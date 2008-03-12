@@ -7,10 +7,8 @@ pat::PATJetCleaner<JetIn,JetOut>::PATJetCleaner(const edm::ParameterSet & iConfi
   helper_(jetSrc_),
   selectionCfg_(iConfig.getParameter<edm::ParameterSet>("selection"))
 {
-  // produces vector of electrons
-  produces<std::vector<JetOut> >();
-  // producers also backmatch to the electrons
-  produces<reco::CandRefValueMap>();
+  helper_.configure(iConfig);      // learn whether to save good, bad, all, ...
+  helper_.registerProducts(*this); // issue the produces<>() commands
 
   if (iConfig.exists("JetLikelihoodRejector")) {
     likelihoodRej_   = iConfig.getParameter<edm::InputTag>("JetLikelihoodRejector");
@@ -20,7 +18,8 @@ pat::PATJetCleaner<JetIn,JetOut>::PATJetCleaner(const edm::ParameterSet & iConfi
     doLikelihoodRej_ = false;
   
   if (iConfig.exists("removeOverlaps")) {
-    overlapHelper_ = pat::helper::OverlapHelper(iConfig.getParameter< std::vector<edm::ParameterSet> >("removeOverlaps"));
+    edm::ParameterSet overlapConf = iConfig.getParameter<edm::ParameterSet>("removeOverlaps");
+    overlapHelper_ = pat::helper::OverlapHelper(overlapConf);
   } 
   
 
@@ -69,8 +68,11 @@ void pat::PATJetCleaner<JetIn,JetOut>::produce(edm::Event & iEvent, const edm::E
   helper_.done();
  
 }
-
-
+template<typename JetIn, typename JetOut>
+void pat::PATJetCleaner<JetIn,JetOut>::endJob() { 
+    typename edm::LogVerbatim("PATLayer0Summary|PATJetCleaner") << "PATJetCleaner end job. Input tag was " << jetSrc_.encode();
+    helper_.endJob(); 
+}
 
 template<typename JetIn, typename JetOut>
 const pat::JetSelection

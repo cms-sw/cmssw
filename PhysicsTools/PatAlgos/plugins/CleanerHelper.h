@@ -438,7 +438,9 @@ std::string CleanerHelper<T,T2,Collection,Comparator>::printSummary() {
 template<typename T, typename T2, typename Collection, typename Comparator>
 void CleanerHelper<T,T2,Collection,Comparator>::endJob() {
     if (makeSummary_) {
-        typename edm::LogPrint("PATLayer0Summary|CleanerHelper") << printSummary(); 
+        typename edm::LogVerbatim("PATLayer0Summary|CleanerHelper") << 
+                    "CleanerHelper with InputTag '" << src_.encode() << "'\n" << 
+                    printSummary(); 
         // Fixme: switch to LogVerbatim as soon as I find out how to selectively turn on one LogInfo
         //std::cout << printSummary() << std::endl;
     }

@@ -1,7 +1,7 @@
 #ifndef PhysicsTools_PatAlgos_PATMuonCleaner_h
 #define PhysicsTools_PatAlgos_PATMuonCleaner_h
 //
-// $Id: PATMuonCleaner.h,v 1.1 2008/03/06 09:23:10 llista Exp $
+// $Id: PATMuonCleaner.h,v 1.2 2008/03/11 11:01:08 llista Exp $
 //
 
 /**
@@ -29,7 +29,7 @@
   The actual selection is performed by the MuonSelector.
 
   \author   Giovanni Petrucciani (from PATMuonProducer by Steven Lowette, Roger Wolf)
-  \version  $Id: PATMuonCleaner.h,v 1.1 2008/03/06 09:23:10 llista Exp $
+  \version  $Id: PATMuonCleaner.h,v 1.2 2008/03/11 11:01:08 llista Exp $
 */
 
 
@@ -59,6 +59,7 @@ namespace pat {
       ~PATMuonCleaner();
 
       virtual void produce(edm::Event & iEvent, const edm::EventSetup & iSetup);
+      virtual void endJob();
 
     private:
       // configurables

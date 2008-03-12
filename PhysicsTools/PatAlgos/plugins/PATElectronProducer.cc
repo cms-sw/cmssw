@@ -1,5 +1,5 @@
 //
-// $Id: PATElectronProducer.cc,v 1.12 2008/02/13 18:06:57 adamwo Exp $
+// $Id: PATElectronProducer.cc,v 1.1 2008/03/06 09:23:10 llista Exp $
 //
 
 #include "PhysicsTools/PatAlgos/plugins/PATElectronProducer.h"
@@ -10,6 +10,7 @@
 #include "DataFormats/HepMCCandidate/interface/GenParticleCandidate.h"
 #include "PhysicsTools/Utilities/interface/DeltaR.h"
 #include "DataFormats/Common/interface/Association.h"
+#include "DataFormats/Common/interface/ValueMap.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticleFwd.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 
@@ -93,10 +94,10 @@ void PATElectronProducer::produce(edm::Event & iEvent, const edm::EventSetup & i
     trkIsolation_= new TrackerIsolationPt();
     iEvent.getByLabel(tracksSrc_, tracks);
   }
-  edm::Handle<reco::CandViewDoubleAssociations> tkIso;
-  edm::Handle<reco::CandViewDoubleAssociations> tkNumIso;
-  edm::Handle<reco::CandViewDoubleAssociations> ecalIso;
-  edm::Handle<reco::CandViewDoubleAssociations> hcalIso;
+  edm::Handle<edm::ValueMap<float> > tkIso;
+  edm::Handle<edm::ValueMap<float> > tkNumIso;
+  edm::Handle<edm::ValueMap<float> > ecalIso;
+  edm::Handle<edm::ValueMap<float> > hcalIso;
   if (addEgammaIso_) {
     iEvent.getByLabel(egammaTkIsoSrc_,tkIso);
     iEvent.getByLabel(egammaTkNumIsoSrc_,tkNumIso);
@@ -204,10 +205,10 @@ double PATElectronProducer::electronID(const edm::Handle<edm::View<ElectronType>
 //fill the Electron with the isolation quantities calculated by the egamma producers
 void PATElectronProducer::setEgammaIso(Electron & anElectron,
                                     const edm::Handle<edm::View<ElectronType> > & electrons,
-                                    const edm::Handle<reco::CandViewDoubleAssociations> tkIso,
-                                    const edm::Handle<reco::CandViewDoubleAssociations> tkNumIso,
-                                    const edm::Handle<reco::CandViewDoubleAssociations> ecalIso,
-                                    const edm::Handle<reco::CandViewDoubleAssociations> hcalIso,
+                                    const edm::Handle<edm::ValueMap<float> > tkIso,
+                                    const edm::Handle<edm::ValueMap<float> > tkNumIso,
+                                    const edm::Handle<edm::ValueMap<float> > ecalIso,
+                                    const edm::Handle<edm::ValueMap<float> > hcalIso,
                                     unsigned int idx) {
   //find isolations for elec with index idx
   edm::Ref<std::vector<ElectronType> > elecsRef = electrons->refAt(idx).castTo<edm::Ref<std::vector<ElectronType> > >();

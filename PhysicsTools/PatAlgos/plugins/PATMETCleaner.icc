@@ -5,11 +5,8 @@ pat::PATMETCleaner<METIn,METOut>::PATMETCleaner(const edm::ParameterSet & iConfi
   metSrc_(iConfig.getParameter<edm::InputTag>( "metSource" )),
   helper_(metSrc_)
 {
-  // produces vector of electrons
-  produces<std::vector<METOut> >();
-
-  // producers also backmatch to the electrons
-  produces<reco::CandRefValueMap>();
+  helper_.configure(iConfig);      // learn whether to save good, bad, all, ...
+  helper_.registerProducts(*this); // issue the produces<>() commands
 }
 
 
@@ -37,5 +34,11 @@ void pat::PATMETCleaner<METIn,METOut>::produce(edm::Event & iEvent, const edm::E
 
   helper_.done();
  
+}
+
+template<typename METIn, typename METOut>
+void pat::PATMETCleaner<METIn,METOut>::endJob() { 
+    typename edm::LogVerbatim("PATLayer0Summary|PATMETCleaner") << "PATMETCleaner end job. Input tag was " << metSrc_.encode();
+    helper_.endJob(); 
 }
 

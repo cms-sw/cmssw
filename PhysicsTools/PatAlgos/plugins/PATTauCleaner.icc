@@ -7,13 +7,12 @@ pat::PATTauCleaner<TauIn,TauOut,TauTag>::PATTauCleaner(const edm::ParameterSet &
   tauDiscSrc_(iConfig.getParameter<edm::InputTag>( "tauDiscriminatorSource")),
   helper_(tauSrc_)
 {
-  // produces vector of taus
-  produces<std::vector<TauOut> >();
-  // producers also backmatch to the taus
-  produces<reco::CandRefValueMap>();
+  helper_.configure(iConfig);      // learn whether to save good, bad, all, ...
+  helper_.registerProducts(*this); // issue the produces<>() commands
 
   if (iConfig.exists("removeOverlaps")) {
-    overlapHelper_ = pat::helper::OverlapHelper(iConfig.getParameter< std::vector<edm::ParameterSet> >("removeOverlaps"));
+    edm::ParameterSet overlapConf = iConfig.getParameter<edm::ParameterSet>("removeOverlaps");
+    overlapHelper_ = pat::helper::OverlapHelper(overlapConf);
   }
 }
 
@@ -58,3 +57,8 @@ void pat::PATTauCleaner<TauIn,TauOut,TauTag>::produce(edm::Event & iEvent, const
  
 }
 
+template<typename TauIn, typename TauOut, typename TauTag>
+void pat::PATTauCleaner<TauIn,TauOut,TauTag>::endJob() { 
+    typename edm::LogVerbatim("PATLayer0Summary|PATTauCleaner") << "PATTauCleaner end job. Input tag was " << tauSrc_.encode();
+    helper_.endJob(); 
+}

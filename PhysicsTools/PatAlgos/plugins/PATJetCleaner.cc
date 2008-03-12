@@ -4,8 +4,8 @@
 #include "PhysicsTools/PatAlgos/plugins/PATJetCleaner.icc"
 
 using namespace pat;
-DEFINE_FWK_MODULE(PATBaseJetCleaner);  // Gio: temporarly out
-DEFINE_FWK_MODULE(PATPFJetCleaner);    // Gio: same as above
+//DEFINE_FWK_MODULE(PATBaseJetCleaner);  // Gio: most likely useless
+DEFINE_FWK_MODULE(PATPFJetCleaner);      
 DEFINE_FWK_MODULE(PATCaloJetCleaner);
 
 
