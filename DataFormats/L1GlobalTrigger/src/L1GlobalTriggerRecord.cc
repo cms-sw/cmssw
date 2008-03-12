@@ -37,6 +37,9 @@ L1GlobalTriggerRecord::L1GlobalTriggerRecord(const unsigned int numberPhysTrigge
     
     m_gtDecisionWord.reserve(numberPhysTriggers);
     m_gtTechnicalTriggerWord.reserve(numberTechnicalTriggers);
+
+    m_gtDecisionWordBeforeMask.reserve(numberPhysTriggers);
+    m_gtTechnicalTriggerWordBeforeMask.reserve(numberTechnicalTriggers);
     
 }
 
@@ -46,8 +49,12 @@ L1GlobalTriggerRecord::L1GlobalTriggerRecord(
 {
 
     m_gtGlobalDecision = result.m_gtGlobalDecision;
+    
     m_gtDecisionWord = result.m_gtDecisionWord;
     m_gtTechnicalTriggerWord = result.m_gtTechnicalTriggerWord;
+
+    m_gtDecisionWordBeforeMask = result.m_gtDecisionWordBeforeMask;
+    m_gtTechnicalTriggerWordBeforeMask = result.m_gtTechnicalTriggerWordBeforeMask;
 
 }
 
@@ -67,9 +74,12 @@ L1GlobalTriggerRecord& L1GlobalTriggerRecord::operator=(
     if ( this != &result ) {
 
         m_gtGlobalDecision = result.m_gtGlobalDecision;
+
         m_gtDecisionWord = result.m_gtDecisionWord;
         m_gtTechnicalTriggerWord = result.m_gtTechnicalTriggerWord;
 
+        m_gtDecisionWordBeforeMask = result.m_gtDecisionWordBeforeMask;
+        m_gtTechnicalTriggerWordBeforeMask = result.m_gtTechnicalTriggerWordBeforeMask;
     }
 
     return *this;
@@ -90,6 +100,14 @@ bool L1GlobalTriggerRecord::operator==(
     }
     
     if (m_gtTechnicalTriggerWord != result.m_gtTechnicalTriggerWord) {
+        return false;
+    }
+
+    if (m_gtDecisionWordBeforeMask != result.m_gtDecisionWordBeforeMask) {
+        return false;
+    }
+    
+    if (m_gtTechnicalTriggerWordBeforeMask != result.m_gtTechnicalTriggerWordBeforeMask) {
         return false;
     }
 
@@ -134,6 +152,22 @@ void L1GlobalTriggerRecord::setTechnicalTriggerWord(
 
 }
 
+// set decision word before applying the masks
+void L1GlobalTriggerRecord::setDecisionWordBeforeMask(
+    const DecisionWord& dWordValue)
+{
+
+    m_gtDecisionWordBeforeMask = dWordValue;
+    
+}
+
+void L1GlobalTriggerRecord::setTechnicalTriggerWordBeforeMask(
+        const TechnicalTriggerWord& ttWordValue)
+{
+
+    m_gtTechnicalTriggerWordBeforeMask = ttWordValue;
+
+}
 
 
 // print global decision and algorithm decision word
@@ -182,7 +216,7 @@ void L1GlobalTriggerRecord::printGtDecision(std::ostream& myCout) const
             ritWord != decWord.rend(); ++ritWord) {
 
         myCout << std::endl;
-        myCout << "  DecisionWord (bitset style): bits "
+        myCout << "  DecisionWord after trigger mask (bitset style): bits "
         << iWord*sizeW64 + sizeW64 - 1 << " : " << iWord*sizeW64 << "\n  ";
         myCout << *ritWord;
 
@@ -196,7 +230,7 @@ void L1GlobalTriggerRecord::printGtDecision(std::ostream& myCout) const
 void L1GlobalTriggerRecord::printTechnicalTrigger(std::ostream& myCout) const
 {
 
-    myCout << "\n  Technical triggers (bitset style):    \n  " ;
+    myCout << "\n  Technical triggers after trigger mask  (bitset style):    \n  " ;
 
     int sizeW64 = 64; // 64 bits words
     int iBit = 0;
@@ -230,6 +264,19 @@ void L1GlobalTriggerRecord::reset()
     }
     for (std::vector<bool>::iterator itBit = m_gtTechnicalTriggerWord.begin(); 
         itBit != m_gtTechnicalTriggerWord.end(); ++itBit) {
+        
+        *itBit = false;
+        
+    }
+    for (std::vector<bool>::iterator itBit = m_gtDecisionWordBeforeMask.begin(); 
+        itBit != m_gtDecisionWordBeforeMask.end(); ++itBit) {
+        
+        *itBit = false;
+        
+    }
+
+    for (std::vector<bool>::iterator itBit = m_gtTechnicalTriggerWordBeforeMask.begin(); 
+        itBit != m_gtTechnicalTriggerWordBeforeMask.end(); ++itBit) {
         
         *itBit = false;
         

@@ -63,15 +63,39 @@ public:
 
     /// get Global Trigger decision, decision word and technical trigger word
     /// for bunch cross with L1Accept (BxInEvent = 0) 
-    inline const bool decision() const { return m_gtGlobalDecision; }
-    inline const DecisionWord decisionWord() const { return m_gtDecisionWord; }    
-    inline const TechnicalTriggerWord technicalTriggerWord() const { return m_gtTechnicalTriggerWord; }   
+    inline const bool decision() const
+    {
+        return m_gtGlobalDecision;
+    }
+
+    inline const DecisionWord decisionWord() const
+    {
+        return m_gtDecisionWord;
+    }
+
+    inline const TechnicalTriggerWord technicalTriggerWord() const
+    {
+        return m_gtTechnicalTriggerWord;
+    }
+
+    inline const DecisionWord decisionWordBeforeMask() const
+    {
+        return m_gtDecisionWordBeforeMask;
+    }
+
+    inline const TechnicalTriggerWord technicalTriggerWordBeforeMask() const
+    {
+        return m_gtTechnicalTriggerWordBeforeMask;
+    }   
 
     /// set global decision, decision word and technical trigger word
     /// for bunch cross with L1Accept (BxInEvent = 0) 
     void setDecision(const bool& dValue);
     void setDecisionWord(const DecisionWord& dWordValue);
     void setTechnicalTriggerWord(const TechnicalTriggerWord& ttWordValue);
+
+    void setDecisionWordBeforeMask(const DecisionWord& dWordValue);
+    void setTechnicalTriggerWordBeforeMask(const TechnicalTriggerWord& ttWordValue);
 
     /// print global decision and algorithm decision word
     void printGtDecision(std::ostream& myCout) const;
@@ -101,6 +125,12 @@ private:
 
     /// technical trigger word for L1A bunch cross
     TechnicalTriggerWord m_gtTechnicalTriggerWord;
+
+    /// algorithm decision word for L1A bunch cross before applying the masks
+    DecisionWord m_gtDecisionWordBeforeMask;
+
+    /// technical trigger word for L1A bunch cross before applying the masks
+    TechnicalTriggerWord m_gtTechnicalTriggerWordBeforeMask;
 
 };
 
