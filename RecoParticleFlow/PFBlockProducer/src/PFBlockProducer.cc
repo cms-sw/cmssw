@@ -228,6 +228,7 @@ void PFBlockProducer::produce(Event& iEvent,
   
   
   pfBlockAlgo_.setInput( recTracks, 
+			 recMuons, 
                          pfNuclears,
 			 clustersECAL,
 			 clustersHCAL,
