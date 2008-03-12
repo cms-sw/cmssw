@@ -20,6 +20,7 @@
 // system include files
 #include <memory>
 #include <string>
+#include <vector>
 #include <list>
 
 // user include files
@@ -32,6 +33,12 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "L1Trigger/GlobalTriggerAnalyzer/interface/L1GtTrigReportEntry.h"
+
+// forward declarations
+class L1GtStableParameters;
+class L1GtPrescaleFactors;
+class L1GtTriggerMask;
+class L1GtTriggerMenu;
 
 // class declaration
 
@@ -57,9 +64,64 @@ private:
     virtual void endJob();
 
 private:
+    
+    /// cached stuff
 
-    /// input tag for GT readout collection (DAQ record):
-    edm::InputTag m_l1GtDaqInputTag;
+    /// stable parameters
+    const L1GtStableParameters* m_l1GtStablePar;
+    unsigned long long m_l1GtStableParCacheID;
+
+    /// number of physics triggers
+    unsigned int m_numberPhysTriggers;
+
+    /// number of technical triggers
+    unsigned int m_numberTechnicalTriggers;
+
+    /// number of DAQ partitions
+    unsigned int m_numberDaqPartitions;
+    unsigned int m_numberDaqPartitionsMax;
+    
+    /// prescale factors
+    const L1GtPrescaleFactors* m_l1GtPfAlgo;
+    unsigned long long m_l1GtPfAlgoCacheID;
+
+    const L1GtPrescaleFactors* m_l1GtPfTech;
+    unsigned long long m_l1GtPfTechCacheID;
+       
+    std::vector<int> m_prescaleFactorsAlgoTrig;
+    std::vector<int> m_prescaleFactorsTechTrig;
+
+    /// trigger masks & veto masks
+    const L1GtTriggerMask* m_l1GtTmAlgo;
+    unsigned long long m_l1GtTmAlgoCacheID;
+ 
+    const L1GtTriggerMask* m_l1GtTmTech;
+    unsigned long long m_l1GtTmTechCacheID;
+    
+    const L1GtTriggerMask* m_l1GtTmVetoAlgo;
+    unsigned long long m_l1GtTmVetoAlgoCacheID;
+ 
+    const L1GtTriggerMask* m_l1GtTmVetoTech;
+    unsigned long long m_l1GtTmVetoTechCacheID;
+    
+    std::vector<unsigned int> m_triggerMaskAlgoTrig;
+    std::vector<unsigned int> m_triggerMaskTechTrig;
+
+    std::vector<unsigned int> m_triggerMaskVetoAlgoTrig;
+    std::vector<unsigned int> m_triggerMaskVetoTechTrig;
+
+    // trigger menu
+    const L1GtTriggerMenu* m_l1GtMenu;
+    unsigned long long m_l1GtMenuCacheID;
+   
+
+private:
+
+    /// boolean flag to select the input record
+    bool m_useL1GlobalTriggerRecord;
+
+    /// input tag for GT record (L1 GT DAQ record or L1 GT "lite" record):
+    edm::InputTag m_l1GtRecordInputTag;
 
     /// print verbosity
     int m_printVerbosity;
@@ -73,18 +135,19 @@ private:
     int m_totalEvents;
 
     /// global number of events with error (EDProduct[s] not found)
-    int m_globalNrErrors;
+    std::vector<int> m_globalNrErrors;
 
     /// global number of events accepted by any of the L1 algorithm in any menu
-    int m_globalNrAccepts;
+    std::vector<int> m_globalNrAccepts;
 
-    /// list of individual entries in the report    
+    /// list of individual entries in the report
     std::list<L1GtTrigReportEntry*> m_entryList;
     typedef std::list<L1GtTrigReportEntry*>::const_iterator CItEntry;
     typedef std::list<L1GtTrigReportEntry*>::iterator ItEntry;
     
+    /// index of physics DAQ partition
+    unsigned int m_physicsDaqPartition;
     
-
 };
 
 #endif /*GlobalTriggerAnalyzer_L1GtTrigReport_h*/

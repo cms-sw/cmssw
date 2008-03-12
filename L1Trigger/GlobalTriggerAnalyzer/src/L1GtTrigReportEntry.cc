@@ -24,17 +24,20 @@
 
 // constructor(s)
 L1GtTrigReportEntry::L1GtTrigReportEntry(const std::string& menuName, const std::string& algName,
-    const int prescaleFactor, const int triggerMask) {
+    const int prescaleFactor, const int triggerMask, const int daqPartition) {
 
     m_triggerMenuName = menuName;
     m_algoName = algName;
     m_prescaleFactor = prescaleFactor;
     m_triggerMask = triggerMask;
+    m_daqPartition = daqPartition;
 
     // counters
 
     m_nrEventsAccept = 0;
     m_nrEventsReject = 0;
+    m_nrEventsAcceptBeforeMask = 0;
+    m_nrEventsRejectBeforeMask = 0;
     m_nrEventsError = 0;
 }
 
@@ -52,14 +55,15 @@ L1GtTrigReportEntry::L1GtTrigReportEntry& L1GtTrigReportEntry::operator=(
 
     if ( this != &repEntry ) {
 
-        m_triggerMenuName = repEntry.gtTriggerMenuName();
+        m_triggerMenuName = repEntry.m_triggerMenuName;
 
-        m_algoName = repEntry.gtAlgoName();
+        m_algoName = repEntry.m_algoName;
 
-        m_prescaleFactor = repEntry.gtPrescaleFactor();
+        m_prescaleFactor = repEntry.m_prescaleFactor;
 
-        m_triggerMask = repEntry.gtTriggerMask();
+        m_triggerMask = repEntry.m_triggerMask;
 
+        m_daqPartition = repEntry.m_daqPartition;
     }
 
     return *this;
@@ -70,19 +74,23 @@ L1GtTrigReportEntry::L1GtTrigReportEntry& L1GtTrigReportEntry::operator=(
 bool L1GtTrigReportEntry::operator==(const L1GtTrigReportEntry& repEntry) const
 {
 
-    if (m_triggerMenuName != repEntry.gtTriggerMenuName()) {
+    if (m_triggerMenuName != repEntry.m_triggerMenuName) {
         return false;
     }
 
-    if (m_algoName != repEntry.gtAlgoName()) {
+    if (m_algoName != repEntry.m_algoName) {
         return false;
     }
 
-    if (m_prescaleFactor != repEntry.gtPrescaleFactor()) {
+    if (m_prescaleFactor != repEntry.m_prescaleFactor) {
         return false;
     }
 
-    if (m_triggerMask != repEntry.gtTriggerMask()) {
+    if (m_triggerMask != repEntry.m_triggerMask) {
+        return false;
+    }
+
+    if (m_daqPartition != repEntry.m_daqPartition) {
         return false;
     }
 
@@ -102,14 +110,24 @@ bool L1GtTrigReportEntry::operator!=(const L1GtTrigReportEntry& result) const
 // member functions
 
 /// increase # of events accepted/rejected for this entry
-void L1GtTrigReportEntry::addValidEntry(const bool algResult) {
+void L1GtTrigReportEntry::addValidEntry(const bool algResultAfterMask,
+        const bool algResultBeforeMask)
+{
 
-    if (algResult) {
+    if (algResultAfterMask) {
         m_nrEventsAccept++;
     }
     else {
         m_nrEventsReject++;
     }
+    
+    if (algResultBeforeMask) {
+        m_nrEventsAcceptBeforeMask++;
+    }
+    else {
+        m_nrEventsRejectBeforeMask++;
+    }
+        
 }
 
 /// increase # of events with error 
