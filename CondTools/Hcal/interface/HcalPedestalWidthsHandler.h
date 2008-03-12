@@ -30,10 +30,12 @@ class HcalPedestalWidthsHandler : public popcon::PopConSourceHandler<HcalPedesta
   ~HcalPedestalWidthsHandler();
   HcalPedestalWidthsHandler(edm::ParameterSet const &);
 
+  void initObject(HcalPedestalWidths*);
+
  private:
   unsigned int sinceTime;
   edm::FileInPath fFile;
-
+  HcalPedestalWidths* myDBObject;
   std::string m_name;
 
 };

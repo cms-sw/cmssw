@@ -30,10 +30,12 @@ class HcalElectronicsMapHandler : public popcon::PopConSourceHandler<HcalElectro
   ~HcalElectronicsMapHandler();
   HcalElectronicsMapHandler(edm::ParameterSet const &);
 
+  void initObject(HcalElectronicsMap*);
+
  private:
   unsigned int sinceTime;
   edm::FileInPath fFile;
-
+  HcalElectronicsMap* myDBObject;
   std::string m_name;
 
 };

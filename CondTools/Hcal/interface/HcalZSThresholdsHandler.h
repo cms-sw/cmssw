@@ -30,10 +30,12 @@ class HcalZSThresholdsHandler : public popcon::PopConSourceHandler<HcalZSThresho
   ~HcalZSThresholdsHandler();
   HcalZSThresholdsHandler(edm::ParameterSet const &);
 
+  void initObject(HcalZSThresholds*);
+
  private:
   unsigned int sinceTime;
   edm::FileInPath fFile;
-
+  HcalZSThresholds* myDBObject;
   std::string m_name;
 
 };

@@ -30,10 +30,12 @@ class HcalRespCorrsHandler : public popcon::PopConSourceHandler<HcalRespCorrs>
   ~HcalRespCorrsHandler();
   HcalRespCorrsHandler(edm::ParameterSet const &);
 
+  void initObject(HcalRespCorrs*);
+
  private:
   unsigned int sinceTime;
   edm::FileInPath fFile;
-
+  HcalRespCorrs* myDBObject;
   std::string m_name;
 
 };

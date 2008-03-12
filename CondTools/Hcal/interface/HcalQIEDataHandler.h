@@ -30,10 +30,12 @@ class HcalQIEDataHandler : public popcon::PopConSourceHandler<HcalQIEData>
   ~HcalQIEDataHandler();
   HcalQIEDataHandler(edm::ParameterSet const &);
 
+  void initObject(HcalQIEData*);
+
  private:
   unsigned int sinceTime;
   edm::FileInPath fFile;
-
+  HcalQIEData* myDBObject;
   std::string m_name;
 
 };

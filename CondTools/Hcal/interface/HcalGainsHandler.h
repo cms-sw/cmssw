@@ -30,10 +30,12 @@ class HcalGainsHandler : public popcon::PopConSourceHandler<HcalGains>
   ~HcalGainsHandler();
   HcalGainsHandler(edm::ParameterSet const &);
 
+  void initObject(HcalGains*);
+
  private:
   unsigned int sinceTime;
   edm::FileInPath fFile;
-
+  HcalGains* myDBObject;
   std::string m_name;
 
 };

@@ -39,7 +39,7 @@ void HcalPedestalsCheck::analyze(const edm::Event& ev, const edm::EventSetup& es
     std::cout << "--- Dumping Pedestals - reference ---" << std::endl;
     HcalDbASCIIIO::dumpObject (outStream, (*myRefPeds) );
   }
-  if(!(dumpupdate.compare("null"))==0){
+  if(!(dumpupdate.compare("null")==0)){
     std::ofstream outStream2(dumpupdate.c_str());
     std::cout << "--- Dumping Pedestals - updated ---" << std::endl;
     HcalDbASCIIIO::dumpObject (outStream2, (*myNewPeds) );

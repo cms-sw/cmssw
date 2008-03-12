@@ -30,10 +30,12 @@ class HcalChannelQualityHandler : public popcon::PopConSourceHandler<HcalChannel
   ~HcalChannelQualityHandler();
   HcalChannelQualityHandler(edm::ParameterSet const &);
 
+  void initObject(HcalChannelQuality*);
+
  private:
   unsigned int sinceTime;
   edm::FileInPath fFile;
-
+  HcalChannelQuality* myDBObject;
   std::string m_name;
 
 };

@@ -30,10 +30,12 @@ class HcalPedestalsHandler : public popcon::PopConSourceHandler<HcalPedestals>
   ~HcalPedestalsHandler();
   HcalPedestalsHandler(edm::ParameterSet const &);
 
+  void initObject(HcalPedestals*);
+
  private:
   unsigned int sinceTime;
   edm::FileInPath fFile;
-
+  HcalPedestals* myDBObject;
   std::string m_name;
 
 };

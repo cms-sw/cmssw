@@ -30,10 +30,12 @@ class HcalGainWidthsHandler : public popcon::PopConSourceHandler<HcalGainWidths>
   ~HcalGainWidthsHandler();
   HcalGainWidthsHandler(edm::ParameterSet const &);
 
+  void initObject(HcalGainWidths*);
+
  private:
   unsigned int sinceTime;
   edm::FileInPath fFile;
-
+  HcalGainWidths* myDBObject;
   std::string m_name;
 
 };
