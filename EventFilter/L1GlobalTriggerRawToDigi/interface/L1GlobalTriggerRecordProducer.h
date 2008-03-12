@@ -31,6 +31,7 @@
 #include "FWCore/ParameterSet/interface/InputTag.h"
 
 // forward declarations
+class L1GtTriggerMask;
 
 // class declaration
 class L1GlobalTriggerRecordProducer : public edm::EDProducer
@@ -52,6 +53,20 @@ private:
 
     ///
     virtual void endJob();
+
+private:
+    
+    /// cached stuff
+
+    /// trigger masks
+    const L1GtTriggerMask* m_l1GtTmAlgo;
+    unsigned long long m_l1GtTmAlgoCacheID;
+ 
+    const L1GtTriggerMask* m_l1GtTmTech;
+    unsigned long long m_l1GtTmTechCacheID;
+    
+    std::vector<unsigned int> m_triggerMaskAlgoTrig;
+    std::vector<unsigned int> m_triggerMaskTechTrig;
 
 private:
 
