@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Thu Dec  6 17:49:54 PST 2007
-// $Id: FWRPZ2DDataProxyBuilder.cc,v 1.4 2008/02/26 19:35:30 chrjones Exp $
+// $Id: FWRPZ2DDataProxyBuilder.cc,v 1.5 2008/02/29 21:18:05 chrjones Exp $
 //
 
 // system include files
@@ -24,6 +24,7 @@
 #include "Fireworks/Core/interface/FWEventItem.h"
 #include "Fireworks/Core/interface/FWModelId.h"
 
+#include "Fireworks/Core/src/changeElementAndChildren.h"
 
 //
 // constants, enums and typedefs
@@ -149,28 +150,6 @@ FWRPZ2DDataProxyBuilder::modelChangesRhoZ(const FWModelIds& iIds)
                              this,
                              iIds,
                              _1));
-}
-
-static void
-changeElementAndChildren(TEveElement* iElement, 
-                         const FWEventItem::ModelInfo& iInfo)
-{
-   iElement->SetMainColor(iInfo.displayProperties().color());
-   //for now, if selected make the item white
-   if(iInfo.isSelected() xor iElement->GetSelectedLevel()==1) {
-      if(iInfo.isSelected()) {         
-         gEve->GetSelection()->AddElement(iElement);
-      } else {
-         gEve->GetSelection()->RemoveElement(iElement);
-      }
-   }
-   
-   for(TEveElement::List_i itElement = iElement->BeginChildren(),
-       itEnd = iElement->EndChildren();
-       itElement != itEnd;
-       ++itElement) {
-      changeElementAndChildren(*itElement, iInfo);
-   }
 }
 
 static 
