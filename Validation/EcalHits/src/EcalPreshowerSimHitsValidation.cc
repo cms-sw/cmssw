@@ -92,10 +92,10 @@ EcalPreshowerSimHitsValidation::EcalPreshowerSimHitsValidation(const edm::Parame
     sprintf (histo, "ES hits energy layer 2 z-" ) ;
     meESEnergyHits2zm_ = dbe_->book1D(histo, histo, 100, 0., 0.05 ) ;
 
-    sprintf (histo, "ES E1+0.7*E2 z+" ) ;
+    sprintf (histo, "ES E1+07E2 z+" ) ;
     meE1alphaE2zp_ = dbe_->book1D(histo, histo, 100, 0., 0.05);
 
-    sprintf (histo, "ES E1+0.7*E2 z-" ) ;
+    sprintf (histo, "ES E1+07E2 z-" ) ;
     meE1alphaE2zm_ = dbe_->book1D(histo, histo, 100, 0., 0.05);
 
     sprintf (histo, "EE vs ES z+" ) ;
@@ -237,3 +237,5 @@ void EcalPreshowerSimHitsValidation::analyze(const edm::Event& e, const edm::Eve
   }
 }
 
+
+//  LocalWords:  EcalSimHitsValidation
