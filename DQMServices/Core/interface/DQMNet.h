@@ -444,13 +444,20 @@ protected:
 	    << "DEBUG: notifying " << p.peeraddr
 	    << ", full = " << p.updatefull << std::endl;
 
-	Bucket **msg = &p.sendq;
-	while (*msg)
-	  msg = &(*msg)->next;
-	*msg = new Bucket;
-	(*msg)->next = 0;
+	Bucket msg;
+        msg.next = 0;
+	sendObjectListToPeer(&msg, p.updatefull, !p.updated || all, true);
 
-	sendObjectListToPeer(*msg, p.updatefull, !p.updated || all, true);
+	if (! msg.data.empty())
+	{
+	  Bucket **prev = &p.sendq;
+	  while (*prev)
+	     prev = &(*prev)->next;
+
+	  *prev = new Bucket;
+	  (*prev)->next = 0;
+	  (*prev)->data.swap(msg.data);
+	}
 	p.updated = true;
       }
     }

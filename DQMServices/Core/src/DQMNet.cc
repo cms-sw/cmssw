@@ -875,15 +875,22 @@ DQMNet::onPeerData(IOSelectEvent *ev, Peer *p)
 	}
 	else
 	{
-	  // Create response and chain it to the write queue.
-	  Bucket **msg = &p->sendq;
-	  while (*msg)
-	    msg = &(*msg)->next;
-	  *msg = new Bucket;
-	  (*msg)->next = 0;
-
 	  // Decode and process this message.
-	  valid = onMessage(*msg, p, &data[0]+consumed, msglen);
+	  Bucket msg;
+	  msg.next = 0;
+	  valid = onMessage(&msg, p, &data[0]+consumed, msglen);
+
+	  // If we created a response, chain it to the write queue.
+	  if (! msg.data.empty())
+	  {
+	    Bucket **prev = &p->sendq;
+            while (*prev)
+               prev = &(*prev)->next;
+
+            *prev = new Bucket;
+            (*prev)->next = 0;
+            (*prev)->data.swap(msg.data);
+	  }
 	}
 
 	if (! valid)
