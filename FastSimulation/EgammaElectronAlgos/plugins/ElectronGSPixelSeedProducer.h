@@ -37,7 +37,7 @@ class ElectronGSPixelSeedProducer : public edm::EDProducer
   
  private:
 
-  void filterClusters(const reco::SuperClusterCollection* superClusters,
+  void filterClusters(const edm::Handle<reco::SuperClusterCollection>& superClusters,
 		      HBHERecHitMetaCollection* mhbhe, 
 		      reco::SuperClusterRefVector& sclRefs);
 

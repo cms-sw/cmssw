@@ -122,7 +122,7 @@ void ElectronGSPixelSeedProducer::produce(edm::Event& e, const edm::EventSetup& 
   
     if (algo=="") {
       reco::SuperClusterRefVector clusterRefs;
-      filterClusters(&(*clusters),mhbhe,clusterRefs);
+      filterClusters(clusters,mhbhe,clusterRefs);
       ElectronGSPixelSeedGenerator* theMatcher = (ElectronGSPixelSeedGenerator*)matcher_;
       theMatcher->run(e,clusterRefs,theGSRecHits,theSimTracks,*seeds);
     } else { 
@@ -137,7 +137,7 @@ void ElectronGSPixelSeedProducer::produce(edm::Event& e, const edm::EventSetup& 
 
 
 void 
-ElectronGSPixelSeedProducer::filterClusters(const reco::SuperClusterCollection* superClusters,
+ElectronGSPixelSeedProducer::filterClusters(const edm::Handle<reco::SuperClusterCollection>& superClusters,
 					    HBHERecHitMetaCollection*mhbhe, 
 					    reco::SuperClusterRefVector &sclRefs) 
 {
