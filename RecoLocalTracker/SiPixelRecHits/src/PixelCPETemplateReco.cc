@@ -309,8 +309,7 @@ PixelCPETemplateReco::localError( const SiPixelCluster& cluster,
 	}
       else
 	{
-	  cout << " PixelCPETemplateReco::localError: Something wrong with pixel edge flag !!!" << endl;
-	  assert(0);
+	  throw cms::Exception(" PixelCPETemplateReco::localError: Something wrong with pixel edge flag !!!");
 	}
     }
   else 

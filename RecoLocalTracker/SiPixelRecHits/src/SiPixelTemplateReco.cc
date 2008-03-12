@@ -1,5 +1,5 @@
 //
-//  SiPixelTemplateReco.cc (Version 3.42)
+//  SiPixelTemplateReco.cc (Version 3.43)
 //
 //  Add goodness-of-fit to algorithm, include single pixel clusters in chi2 calculation
 //  Try "decapitation" of large single pixels
@@ -17,6 +17,7 @@
 //  Add qscale to match charge scales
 //  Return error if no pixels in cluster
 //  Replace 4 cout's with LogError's
+//  Add LogDebug I/O to report various common errors
 //
 //  Created by Morris Swartz on 10/27/06.
 //  Copyright 2006 __TheJohnsHopkinsUniversity__. All rights reserved.
@@ -36,14 +37,18 @@
 #ifndef SI_PIXEL_TEMPLATE_STANDALONE
 #include "RecoLocalTracker/SiPixelRecHits/interface/SiPixelTemplateReco.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#define LogError(x) edm::LogError(x)
+#define LOGERROR(x) edm::LogError(x)
+#define LOGDEBUG(x) LogDebug(x)
+#define ENDL " "
 #else
 #include "SiPixelTemplateReco.h"
+static int theVerboseLevel = {2};
+#define LOGERROR(x) std::cout << x << ": "
+#define LOGDEBUG(x) std::cout << x << ": "
+#define ENDL std::endl
 #endif
 
 static int theVerboseLevel = {2};
-#define LogDebug(x) std::cout << x << ": "
-#define LogError(x) std::cout << x << ": "
 
 using namespace SiPixelTemplateReco;
 
@@ -112,11 +117,20 @@ int SiPixelTemplateReco::PixelTempReco2D(int id, bool fpix, float cotalpha, floa
     
 // Check that the cluster container is (up to) a 7x21 matrix and matches the dimensions of the double pixel flags
 
-	if(cluster.num_dimensions() != 2) {return 3;}
+	if(cluster.num_dimensions() != 2) {
+	   LOGERROR("SiPixelTemplateReco") << "input cluster container (BOOST Multiarray) has wrong number of dimensions" << ENDL;	
+	   return 3;
+	}
 	nclusx = cluster.size();
 	nclusy = cluster.num_elements()/nclusx;
-	if(nclusx != xdouble.size()) {return 4;}
-	if(nclusy != ydouble.size()) {return 5;}
+	if(nclusx != xdouble.size()) {
+	   LOGERROR("SiPixelTemplateReco") << "input cluster container x-size is not equal to double pixel flag container size" << ENDL;	
+	   return 4;
+	}
+	if(nclusy != ydouble.size()) {
+	   LOGERROR("SiPixelTemplateReco") << "input cluster container y-size is not equal to double pixel flag container size" << ENDL;	
+	   return 5;
+	}
 	
 // enforce maximum size	
 	
@@ -216,15 +230,16 @@ int SiPixelTemplateReco::PixelTempReco2D(int id, bool fpix, float cotalpha, floa
 // Make sure cluster is continuous
 
 	if((lypix-fypix+1) != nypix || nypix == 0) { 
+	   LOGDEBUG("SiPixelTemplateReco") << "y-length of pixel cluster doesn't agree with number of pixels above threshold" << ENDL;
 	   if (theVerboseLevel > 2) {
-          LogDebug("SiPixelTemplateReco") <<
+          LOGDEBUG("SiPixelTemplateReco") <<
            "ysum[0-9] = " << ysum[0] << ", " << ysum[1] << ", " << ysum[2] << ", " << ysum[3] << ", " << ysum[4] << ", "
-		                  << ysum[5] << ", " << ysum[6] << ", " << ysum[7] << ", " << ysum[8] << ", " << ysum[9] << std::endl;
-          LogDebug("SiPixelTemplateReco") <<
+		                  << ysum[5] << ", " << ysum[6] << ", " << ysum[7] << ", " << ysum[8] << ", " << ysum[9] << ENDL;
+          LOGDEBUG("SiPixelTemplateReco") <<
            "ysum[10-19] = " << ysum[10] << ", " << ysum[11] << ", " << ysum[12] << ", " << ysum[13] << ", " << ysum[14] << ", "
-		                  << ysum[15] << ", " << ysum[16] << ", " << ysum[17] << ", " << ysum[18] << ", " << ysum[19] << std::endl;
-          LogDebug("SiPixelTemplateReco") <<
-           "ysum[20-24] = " << ysum[20] << ", " << ysum[21] << ", " << ysum[22] << ", " << ysum[23] << ", " << ysum[24] << std::endl;
+		                  << ysum[15] << ", " << ysum[16] << ", " << ysum[17] << ", " << ysum[18] << ", " << ysum[19] << ENDL;
+          LOGDEBUG("SiPixelTemplateReco") <<
+           "ysum[20-24] = " << ysum[20] << ", " << ysum[21] << ", " << ysum[22] << ", " << ysum[23] << ", " << ysum[24] << ENDL;
        }
 	
 	   return 1; 
@@ -233,15 +248,16 @@ int SiPixelTemplateReco::PixelTempReco2D(int id, bool fpix, float cotalpha, floa
 // If cluster is longer than max template size, technique fails
 
 	if(nypix > 21) { 
+	   LOGDEBUG("SiPixelTemplateReco") << "y-length of pixel cluster is larger than maximum template size" << ENDL;
 	   if (theVerboseLevel > 2) {
-          LogDebug("SiPixelTemplateReco") <<
+          LOGDEBUG("SiPixelTemplateReco") <<
            "ysum[0-9] = " << ysum[0] << ", " << ysum[1] << ", " << ysum[2] << ", " << ysum[3] << ", " << ysum[4] << ", "
-		                  << ysum[5] << ", " << ysum[6] << ", " << ysum[7] << ", " << ysum[8] << ", " << ysum[9] << std::endl;
-          LogDebug("SiPixelTemplateReco") <<
+		                  << ysum[5] << ", " << ysum[6] << ", " << ysum[7] << ", " << ysum[8] << ", " << ysum[9] << ENDL;
+          LOGDEBUG("SiPixelTemplateReco") <<
            "ysum[10-19] = " << ysum[10] << ", " << ysum[11] << ", " << ysum[12] << ", " << ysum[13] << ", " << ysum[14] << ", "
-		                  << ysum[15] << ", " << ysum[16] << ", " << ysum[17] << ", " << ysum[18] << ", " << ysum[19] << std::endl;
-          LogDebug("SiPixelTemplateReco") <<
-           "ysum[20-24] = " << ysum[20] << ", " << ysum[21] << ", " << ysum[22] << ", " << ysum[23] << ", " << ysum[24] << std::endl;
+		                  << ysum[15] << ", " << ysum[16] << ", " << ysum[17] << ", " << ysum[18] << ", " << ysum[19] << ENDL;
+          LOGDEBUG("SiPixelTemplateReco") <<
+           "ysum[20-24] = " << ysum[20] << ", " << ysum[21] << ", " << ysum[22] << ", " << ysum[23] << ", " << ysum[24] << ENDL;
        }
 	
 	   return 6; 
@@ -310,10 +326,11 @@ int SiPixelTemplateReco::PixelTempReco2D(int id, bool fpix, float cotalpha, floa
 
 	if((lxpix-fxpix+1) != nxpix) { 
 	
+	   LOGDEBUG("SiPixelTemplateReco") << "x-length of pixel cluster doesn't agree with number of pixels above threshold" << ENDL;
 	   if (theVerboseLevel > 2) {
-          LogDebug("SiPixelTemplateReco") <<
+          LOGDEBUG("SiPixelTemplateReco") <<
            "xsum[0-10] = " << xsum[0] << ", " << xsum[1] << ", " << xsum[2] << ", " << xsum[3] << ", " << xsum[4] << ", "
-		                  << xsum[5] << ", " << xsum[6] << ", " << xsum[7] << ", " << xsum[8] << ", " << xsum[9] << ", " << xsum[10] << std::endl;
+		                  << xsum[5] << ", " << xsum[6] << ", " << xsum[7] << ", " << xsum[8] << ", " << xsum[9] << ", " << xsum[10] << ENDL;
        }
 
 	   return 2; 
@@ -323,10 +340,11 @@ int SiPixelTemplateReco::PixelTempReco2D(int id, bool fpix, float cotalpha, floa
 
 	if(nxpix > 7) { 
 	
+	   LOGDEBUG("SiPixelTemplateReco") << "x-length of pixel cluster is larger than maximum template size" << ENDL;
 	   if (theVerboseLevel > 2) {
-          LogDebug("SiPixelTemplateReco") <<
+          LOGDEBUG("SiPixelTemplateReco") <<
            "xsum[0-10] = " << xsum[0] << ", " << xsum[1] << ", " << xsum[2] << ", " << xsum[3] << ", " << xsum[4] << ", "
-		                  << xsum[5] << ", " << xsum[6] << ", " << xsum[7] << ", " << xsum[8] << ", " << xsum[9] << ", " << xsum[10] << std::endl;
+		                  << xsum[5] << ", " << xsum[6] << ", " << xsum[7] << ", " << xsum[8] << ", " << xsum[9] << ", " << xsum[10] << ENDL;
        }
 
 	   return 7; 
@@ -396,10 +414,10 @@ int SiPixelTemplateReco::PixelTempReco2D(int id, bool fpix, float cotalpha, floa
 	if(qtotal < 0.95*templ.qmin()) {qbin = 4;}
 	
 	if (theVerboseLevel > 9) {
-       LogDebug("SiPixelTemplateReco") <<
+       LOGDEBUG("SiPixelTemplateReco") <<
         "ID = " << id << " FPix = " << fpix << 
          " cot(alpha) = " << cotalpha << " cot(beta) = " << cotbeta << 
-         " nclusx = " << nclusx << " nclusy = " << nclusy << std::endl;
+         " nclusx = " << nclusx << " nclusy = " << nclusy << ENDL;
     }
 
 	
@@ -431,14 +449,14 @@ int SiPixelTemplateReco::PixelTempReco2D(int id, bool fpix, float cotalpha, floa
 	}
 	
 	if (theVerboseLevel > 9) {
-       LogDebug("SiPixelTemplateReco") <<
+       LOGDEBUG("SiPixelTemplateReco") <<
         "fypix " << fypix << " lypix = " << lypix << 
          " fybin = " << fybin << " lybin = " << lybin << 
-         " djy = " << djy << " logypx = " << logypx << std::endl;
-       LogDebug("SiPixelTemplateReco") <<
+         " djy = " << djy << " logypx = " << logypx << ENDL;
+       LOGDEBUG("SiPixelTemplateReco") <<
         "fxpix " << fxpix << " lxpix = " << lxpix << 
          " fxbin = " << fxbin << " lxbin = " << lxbin << 
-         " djx = " << djx << " logxpx = " << logxpx << std::endl;
+         " djx = " << djx << " logxpx = " << logxpx << ENDL;
     }
        	
 // Now do the copies
@@ -508,7 +526,7 @@ int SiPixelTemplateReco::PixelTempReco2D(int id, bool fpix, float cotalpha, floa
 			     sa2 += ytemp[j][i]*ytemp[j][i]/ysig2[i];
 		     }
 		     rat=ssa/ss2;
-		     if(rat <= 0.) {LogError("SiPixelTemplateReco") << "illegal chi2ymin normalization = " << rat << std::endl; rat = 1.;}
+		     if(rat <= 0.) {LOGERROR("SiPixelTemplateReco") << "illegal chi2ymin normalization = " << rat << ENDL; rat = 1.;}
 		     chi2ybin[j]=ss2-2.*ssa/rat+sa2/(rat*rat);
 		  }
 		  if(chi2ybin[j] < chi2ymin) {
@@ -522,8 +540,8 @@ int SiPixelTemplateReco::PixelTempReco2D(int id, bool fpix, float cotalpha, floa
 	}
 	
 	if (theVerboseLevel > 9) {
-       LogDebug("SiPixelTemplateReco") <<
-        "minbin " << minbin << " chi2ymin = " << chi2ymin << std::endl;
+       LOGDEBUG("SiPixelTemplateReco") <<
+        "minbin " << minbin << " chi2ymin = " << chi2ymin << ENDL;
     }
 	
 // Do not apply final template pass to 1-pixel clusters (use calibrated offset) 
@@ -607,7 +625,7 @@ int SiPixelTemplateReco::PixelTempReco2D(int id, bool fpix, float cotalpha, floa
 	   
 // Do goodness of fit test in y  
 	   
-	   if(rnorm <= 0.) {LogError("SiPixelTemplateReco") << "illegal chi2y normalization = " << rnorm << std::endl; rnorm = 1.;}
+	   if(rnorm <= 0.) {LOGERROR("SiPixelTemplateReco") << "illegal chi2y normalization = " << rnorm << ENDL; rnorm = 1.;}
 	   chi2y=ss2-2./rnorm*ssa-2./rnorm*rat*ssba+(sa2+2.*rat*saba+rat*rat*sba2)/(rnorm*rnorm)-templ.chi2ymin(binq);
 	   if(chi2y < 0.0) {chi2y = 0.0;}
 	   meany = templ.chi2yavg(binq);
@@ -679,7 +697,7 @@ int SiPixelTemplateReco::PixelTempReco2D(int id, bool fpix, float cotalpha, floa
 			     sa2 += xtemp[j][i]*xtemp[j][i]/xsig2[i];
 			 }
 		     rat=ssa/ss2;
-		     if(rat <= 0.) {LogError("SiPixelTemplateReco") << "illegal chi2ymin normalization = " << rat << std::endl; rat = 1.;}
+		     if(rat <= 0.) {LOGERROR("SiPixelTemplateReco") << "illegal chi2ymin normalization = " << rat << ENDL; rat = 1.;}
 		     chi2xbin[j]=ss2-2.*ssa/rat+sa2/(rat*rat);
 		  }
 		  if(chi2xbin[j] < chi2xmin) {
@@ -693,8 +711,8 @@ int SiPixelTemplateReco::PixelTempReco2D(int id, bool fpix, float cotalpha, floa
 	}
 	
 	if (theVerboseLevel > 9) {
-       LogDebug("SiPixelTemplateReco") <<
-        "minbin " << minbin << " chi2xmin = " << chi2xmin << std::endl;
+       LOGDEBUG("SiPixelTemplateReco") <<
+        "minbin " << minbin << " chi2xmin = " << chi2xmin << ENDL;
     }
 
 // Do not apply final template pass to 1-pixel clusters (use calibrated offset)
@@ -776,7 +794,7 @@ int SiPixelTemplateReco::PixelTempReco2D(int id, bool fpix, float cotalpha, floa
 	   
 // Do goodness of fit test in x  
 	   
-	   if(rnorm <= 0.) {LogError("SiPixelTemplateReco") << "illegal chi2x normalization = " << rnorm << std::endl; rnorm = 1.;}
+	   if(rnorm <= 0.) {LOGERROR("SiPixelTemplateReco") << "illegal chi2x normalization = " << rnorm << ENDL; rnorm = 1.;}
 	   chi2x=ss2-2./rnorm*ssa-2./rnorm*rat*ssba+(sa2+2.*rat*saba+rat*rat*sba2)/(rnorm*rnorm)-templ.chi2xmin(binq);
 	   if(chi2x < 0.0) {chi2x = 0.0;}
 	   meanx = templ.chi2xavg(binq);

@@ -1,5 +1,5 @@
 //
-//  SiPixelTemplateReco.cc (Version 3.42)
+//  SiPixelTemplateReco.cc (Version 3.43)
 //
 //  Add goodness-of-fit to algorithm, include single pixel clusters in chi2 calculation
 //  Try "decapitation" of large single pixels
@@ -17,6 +17,7 @@
 //  Add qscale to match charge scales
 //  Return error if no pixels in cluster
 //  Replace 4 cout's with LogError's
+//  Add LogDebug I/O to report various common errors
 //
 //  Created by Morris Swartz on 10/27/06.
 //  Copyright 2006 __TheJohnsHopkinsUniversity__. All rights reserved.
