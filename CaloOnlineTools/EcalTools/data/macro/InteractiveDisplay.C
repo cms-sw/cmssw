@@ -66,9 +66,11 @@
   }
   can.cd((width*height+1)/2);
   can.Update();
-  TCanvas canB("next","next",10,50,180,200);
-  TButton *but = new TButton (" next ",".x $CMSSW_BASE/src/CaloOnlineTools/EcalTools/data/macro/DrawGraphs.C",0,0,1,1);
+  TCanvas canB("navigation","navigation",10,50,180,200);
+  TButton *but = new TButton ("Next",".x $CMSSW_BASE/src/CaloOnlineTools/EcalTools/data/macro/DrawGraphs.C",0,0,1,.5);
   but->Draw();
+  TButton *butPrev = new TButton ("Prev",".x $CMSSW_BASE/src/CaloOnlineTools/EcalTools/data/macro/DrawGraphsPrev.C",0,.5,1,1);
+  butPrev->Draw();
 }
 //return 0;
 //  

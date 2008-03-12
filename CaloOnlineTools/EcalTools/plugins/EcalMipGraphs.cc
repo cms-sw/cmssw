@@ -13,7 +13,7 @@
 //
 // Original Author:  Seth COOPER
 //         Created:  Th Nov 22 5:46:22 CEST 2007
-// $Id: EcalMipGraphs.cc,v 1.3 2008/03/11 11:00:12 scooper Exp $
+// $Id: EcalMipGraphs.cc,v 1.4 2008/03/12 17:29:36 scooper Exp $
 //
 //
 
@@ -228,19 +228,24 @@ EcalMipGraphs::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
       //find digi we need  -- can't get find() to work; need DataFrame(DetId det) to work? 
       //TODO: use find(), launching it twice over EB and EE collections
 
-    EBDigiCollection::const_iterator digiItr = digis->begin();
-    while(digiItr != digis->end() && ((*digiItr).id()!=*chnlItr))
-    {
-      ++digiItr;
-    }
-    if(digiItr==digis->end())
-      continue;
-
     int ic = (*chnlItr).ic();
     EcalElectronicsId elecId = ecalElectronicsMap->getElectronicsId(*chnlItr);
     int FEDid = 600+elecId.dccId();
     string sliceName = fedMap_->getSliceFromFed(FEDid);
     int hashedIndex = (*chnlItr).hashedIndex();
+    EBDigiCollection::const_iterator digiItr = digis->begin();
+    
+    while(digiItr != digis->end() && ((*digiItr).id()!=*chnlItr))
+    {
+      ++digiItr;
+    }
+    if(digiItr==digis->end())
+    {
+      LogWarning("EcalMipGraphs") << "Cannot find digi for ic:" << ic
+        << " FED:" << FEDid << " evt:" << naiveEvtNum_;
+      continue;
+    }
+    
     //EBDataFrame df = (*digis)[hashedIndex];
     
     //cout << "the detId is: " << (*chnlItr).rawId() << endl;
