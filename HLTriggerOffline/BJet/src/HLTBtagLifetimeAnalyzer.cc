@@ -1,10 +1,13 @@
 #include <memory>
-#include <iostream>
 #include <string>
+#include <iostream>
+#include <sstream>
+#include <iomanip>
 
 #include <TFile.h>
 #include <TH1.h>
 #include <TH3.h>
+#include <Math/GenVector/VectorUtil.h>
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
@@ -15,45 +18,31 @@
 #include "DataFormats/Common/interface/View.h"
 #include "DataFormats/JetReco/interface/Jet.h"
 #include "DataFormats/JetReco/interface/JetTracksAssociation.h"
+#include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
-
-/*
-# configuration for HLTBtagLifetimeAnalyzer
-
-module hltBtagLifetimeAnalyzer = HLTBtagLifetimeAnalyzer {
-  InputTag  vertex = pixelVertices
-  PSet      vertexConfiguration = {
-    double maxZ = 20        // cm
-    double maxR =  0.05     // cm
-  }
-
-  VPSet levels = { {
-    string   name   = "L2_jets"
-    string   title  = "L2 Jets"
-    InputTag jets   = iterativeCone5CaloJets::HLT
-  }, {
-    string   name   = "L25_jets"
-    string   title  = "Jets before L2.5"
-    InputTag jets   = hltBLifetimeL25Jets::HLT
-    InputTag tracks = hltBLifetimeL25Associator::HLT
-  }, {
-    ...
-  } }
-
-  PSet jetConfiguration = {
-    double maxEnergy = 300  // GeV
-    double maxEta    =   5  // pseudorapidity
-  }
-
-  string outputFile = "plots.root"
-}
-*/
+#include "DataFormats/BTauReco/interface/JetTag.h"
+#include "SimDataFormats/JetMatching/interface/JetFlavour.h"
+#include "SimDataFormats/JetMatching/interface/JetFlavourMatching.h"
 
 static const unsigned int jetEnergyBins   =  100;
 static const unsigned int jetGeometryBins =  100;
 static const unsigned int vertex1DBins    = 1000;
 static const unsigned int vertex3DBins    =  100;
+
+// find the index of the object key of an association vector closest to a given jet, within a given distance
+template <typename T, typename V>
+int closestJet(const reco::Jet & jet, const edm::AssociationVector<T, V> & association, double distance) {
+  int closest = -1;
+  for (unsigned int i = 0; i < association.size(); ++i) {
+    double d = ROOT::Math::VectorUtil::DeltaR(jet.momentum(), association[i].first->momentum());
+    if (d < distance) {
+      distance = d;
+      closest  = i;
+    }
+  }
+  return closest;
+}
 
 // jet plots (for each step)
 struct JetPlots {
@@ -165,46 +154,151 @@ struct JetPlots {
 };
 
 
+typedef unsigned int            flavour_t;
+typedef std::vector<flavour_t>  flavours_t;
+struct FlavouredJetPlots {
+
+  std::vector<flavours_t>   m_flavours;
+  std::vector<std::string>  m_labels;
+  std::vector<JetPlots>     m_plots;
+  
+  void init(
+      const std::string & name, 
+      const std::string & title, 
+      const std::vector<flavours_t> & flavours, 
+      const std::vector<std::string> & labels,
+      unsigned int energyBins, 
+      double minEnergy, 
+      double maxEnergy, 
+      unsigned int geometryBins, 
+      double maxEta, 
+      bool hasTracks = false
+  ) {
+    m_flavours = flavours;
+    m_labels = labels; m_labels.push_back("other");
+    m_plots.resize( m_flavours.size() + 1);
+    for (unsigned int i = 0; i <= m_flavours.size(); ++i)
+      m_plots[i].init(name + "_" + m_labels[i], title + " (" + m_labels[i] + ")", energyBins, minEnergy, maxEnergy, geometryBins, maxEta, hasTracks);
+  }
+
+  void fill(const reco::Jet & jet, flavour_t flavour) {
+    bool match = false;
+    for (unsigned int i = 0; i < m_flavours.size(); ++i) {
+      if (std::find(m_flavours[i].begin(), m_flavours[i].end(), flavour) != m_flavours[i].end()) {
+        m_plots[i].fill(jet);
+        match = true;
+      }
+    }
+    if (not match)
+      m_plots[m_flavours.size()].fill(jet);
+  }
+  
+  void fill(const reco::Jet & jet, const reco::TrackRefVector & tracks, flavour_t flavour) {
+    bool match = false;
+    for (unsigned int i = 0; i < m_flavours.size(); ++i) {
+      if (std::find(m_flavours[i].begin(), m_flavours[i].end(), flavour) != m_flavours[i].end()) {
+        m_plots[i].fill(jet, tracks);
+        match = true;
+      }
+    }
+    if (not match)
+      m_plots[m_flavours.size()].fill(jet);
+  }
+  
+  void save(TDirectory & file) {
+    for (unsigned int i = 0; i <= m_flavours.size(); ++i)
+      m_plots[i].save(file);
+  }
+
+  FlavouredJetPlots efficiency(const FlavouredJetPlots & denominator) {
+    FlavouredJetPlots efficiency;
+    efficiency.m_flavours = m_flavours;
+    efficiency.m_labels = m_labels;
+    efficiency.m_plots.resize(m_flavours.size());
+    for (unsigned int i = 0; i <= m_flavours.size(); ++i)
+      efficiency.m_plots[i] = m_plots[i].efficiency( denominator.m_plots[i] );
+    return efficiency;
+  }
+};
+
+struct OfflineJetPlots {
+
+  std::vector<double>       m_cuts;
+  std::vector<std::string>  m_labels;
+  std::vector<JetPlots>     m_plots;
+
+  void init(
+      const std::string & name, 
+      const std::string & title, 
+      const std::vector<double> & cuts, 
+      const std::vector<std::string> & labels, 
+      unsigned int energyBins, 
+      double minEnergy, 
+      double maxEnergy, 
+      unsigned int geometryBins, 
+      double maxEta, 
+      bool hasTracks = false
+  ) {
+    m_cuts = cuts;
+    m_labels = labels;
+    m_plots.resize( m_cuts.size() );
+    for (unsigned int i = 0; i < m_cuts.size(); ++i)
+      m_plots[i].init(name + "_" + m_labels[i], title + " (" + m_labels[i] + ")", energyBins, minEnergy, maxEnergy, geometryBins, maxEta, hasTracks);
+  }
+  
+  void fill(const reco::Jet & jet, double discriminant) {
+    for (unsigned int i = 0; i < m_cuts.size(); ++i)
+      if (discriminant >= m_cuts[i])
+        m_plots[i].fill(jet);
+  }
+  
+  void fill(const reco::Jet & jet, const reco::TrackRefVector & tracks, double discriminant) {
+    for (unsigned int i = 0; i < m_cuts.size(); ++i)
+      if (discriminant >= m_cuts[i])
+        m_plots[i].fill(jet, tracks);
+  }
+
+  void save(TDirectory & file) {
+    for (unsigned int i = 0; i < m_cuts.size(); ++i)
+      m_plots[i].save(file);
+  }
+
+  OfflineJetPlots efficiency(const OfflineJetPlots & denominator) {
+    OfflineJetPlots efficiency;
+    efficiency.m_cuts = m_cuts;
+    efficiency.m_labels = m_labels;
+    efficiency.m_plots.resize(m_cuts.size());
+    for (unsigned int i = 0; i < m_cuts.size(); ++i)
+      efficiency.m_plots[i] = m_plots[i].efficiency( denominator.m_plots[i] );
+    return efficiency;
+  }
+};
+
+
 struct VertexPlots {
   VertexPlots() :
-    /*
-    m_3d(0),
-    */
     m_r(0),
     m_z(0)
   { }
 
   void init(const std::string & name, const std::string & title, unsigned int bins, double zRange, double rRange)
   {
-    /*
-    m_3d = new TH3F((name + "_3D").c_str(), (title + " position").c_str(),   bins, -rRange, rRange, bins, -rRange, rRange, bins, -zRange, zRange);
-    */
     m_r  = new TH1F((name + "_R").c_str(),  (title + " R position").c_str(), bins, -rRange, rRange);
     m_z  = new TH1F((name + "_Z").c_str(),  (title + " Z position").c_str(), bins, -zRange, zRange);
   }
     
-
   void fill(const reco::Vertex & vertex)
   {
-    /*
-    m_3d->Fill(vertex.front().x(), vertex.front().y(), vertex.front().z());
-    */
     m_r->Fill(vertex.position().rho());
     m_z->Fill(vertex.z());
   }
 
   void save(TDirectory & file)
   {
-    /*
-    m_3d->SetDirectory(&file);
-    */
     m_r->SetDirectory(&file);
     m_z->SetDirectory(&file);
   }
   
-  /*
-  TH3 * m_3d;
-  */
   TH1 * m_r;
   TH1 * m_z;
 };
@@ -228,9 +322,21 @@ private:
   };
   
   // input collections
-  edm::InputTag             m_trigger;      // HLT event
-  edm::InputTag             m_vertex;       // primary vertex
+  edm::InputTag             m_trigger;          // HLT event
+  edm::InputTag             m_vertex;           // primary vertex
   std::vector<InputData>    m_levels;
+
+  // match to MC truth
+  edm::InputTag             m_mcPartons;        // MC truth match - jet association to partons
+  std::vector<std::string>  m_mcLabels;         // MC truth match - labels
+  std::vector<flavours_t>   m_mcFlavours;       // MC truth match - flavours selection
+  double                    m_mcRadius;         // MC truth match - deltaR association radius
+
+  // match to Offline reco
+  edm::InputTag             m_offlineBJets;     // Offline match - jet association to discriminator
+  std::vector<std::string>  m_offlineLabels;    // Offline match - labels
+  std::vector<double>       m_offlineCuts;      // Offline match - discriminator cuts
+  double                    m_offlineRadius;    // Offline match - deltaR association radius
 
   // plot configuration
   double m_jetMinEnergy;
@@ -241,8 +347,10 @@ private:
   double m_vertexMaxZ;
 
   // plot data
-  VertexPlots           m_vertexPlots;
-  std::vector<JetPlots> m_jetPlots;
+  VertexPlots                       m_vertexPlots;
+  std::vector<JetPlots>             m_jetPlots;
+  std::vector<FlavouredJetPlots>    m_mcPlots;
+  std::vector<OfflineJetPlots>      m_offlinePlots;
 
   // output configuration
   std::string m_outputFile;
@@ -252,6 +360,14 @@ private:
 HLTBtagLifetimeAnalyzer::HLTBtagLifetimeAnalyzer(const edm::ParameterSet & config) :
   m_vertex( config.getParameter<edm::InputTag>("vertex") ),
   m_levels(),
+  m_mcPartons( config.getParameter<edm::InputTag>("mcPartons") ),
+  m_mcLabels(),
+  m_mcFlavours(),
+  m_mcRadius( config.getParameter<double>("mcRadius") ),
+  m_offlineBJets( config.getParameter<edm::InputTag>("offlineBJets") ),
+  m_offlineLabels(),
+  m_offlineCuts(),
+  m_offlineRadius( config.getParameter<double>("offlineRadius") ),
   m_jetMinEnergy(  0. ),    //   0 GeV
   m_jetMaxEnergy( 300. ),   // 300 GeV
   m_jetMaxEta( 5. ),        //  ±5 pseudorapidity units
@@ -259,6 +375,8 @@ HLTBtagLifetimeAnalyzer::HLTBtagLifetimeAnalyzer(const edm::ParameterSet & confi
   m_vertexMaxZ( 15. ),      //  15 cm
   m_vertexPlots(),
   m_jetPlots(),
+  m_mcPlots(),
+  m_offlinePlots(),
   m_outputFile( config.getParameter<std::string>("outputFile") )
 {
   const std::vector<edm::ParameterSet> levels = config.getParameter<std::vector<edm::ParameterSet> >("levels");
@@ -277,6 +395,17 @@ HLTBtagLifetimeAnalyzer::HLTBtagLifetimeAnalyzer(const edm::ParameterSet & confi
   const edm::ParameterSet & vertexConfig = config.getParameter<edm::ParameterSet>("vertexConfiguration");
   m_vertexMaxR = vertexConfig.getParameter<double>("maxR");
   m_vertexMaxZ = vertexConfig.getParameter<double>("maxZ");
+
+  edm::ParameterSet mc = config.getParameter<edm::ParameterSet>("mcFlavours");
+  m_mcLabels = mc.getParameterNamesForType<std::vector<unsigned int> >();
+  for (unsigned int i = 0; i < m_mcLabels.size(); ++i)
+    m_mcFlavours.push_back( mc.getParameter<std::vector<unsigned int> >(m_mcLabels[i]) );
+
+  edm::ParameterSet offline = config.getParameter<edm::ParameterSet>("offlineCuts");
+  m_offlineLabels = offline.getParameterNamesForType<double>();
+  for (unsigned int i = 0; i < m_offlineLabels.size(); ++i)
+    m_offlineCuts.push_back( offline.getParameter<double>(m_offlineLabels[i]) );
+
 }
 
 HLTBtagLifetimeAnalyzer::~HLTBtagLifetimeAnalyzer() 
@@ -286,8 +415,14 @@ HLTBtagLifetimeAnalyzer::~HLTBtagLifetimeAnalyzer()
 void HLTBtagLifetimeAnalyzer::beginJob(const edm::EventSetup & setup) 
 {
   m_jetPlots.resize( m_levels.size() );
-  for (unsigned int i = 0; i < m_levels.size(); ++i)
-    m_jetPlots[i].init( m_levels[i].m_name, m_levels[i].m_title, jetEnergyBins, m_jetMinEnergy, m_jetMaxEnergy, jetGeometryBins, m_jetMaxEta, m_levels[i].m_tracks.label() != "none" );
+  m_mcPlots.resize( m_levels.size() );
+  m_offlinePlots.resize( m_levels.size() );
+  
+  for (unsigned int i = 0; i < m_levels.size(); ++i) {
+    m_jetPlots[i].init(     m_levels[i].m_name, m_levels[i].m_title,                                 jetEnergyBins, m_jetMinEnergy, m_jetMaxEnergy, jetGeometryBins, m_jetMaxEta, m_levels[i].m_tracks.label() != "none" );
+    m_mcPlots[i].init(      m_levels[i].m_name, m_levels[i].m_title, m_mcFlavours,  m_mcLabels,      jetEnergyBins, m_jetMinEnergy, m_jetMaxEnergy, jetGeometryBins, m_jetMaxEta, m_levels[i].m_tracks.label() != "none" );
+    m_offlinePlots[i].init( m_levels[i].m_name, m_levels[i].m_title, m_offlineCuts, m_offlineLabels, jetEnergyBins, m_jetMinEnergy, m_jetMaxEnergy, jetGeometryBins, m_jetMaxEta, m_levels[i].m_tracks.label() != "none" );
+  }
   
   m_vertexPlots.init( "PrimaryVertex", "Primary vertex", vertex1DBins, m_vertexMaxZ, m_vertexMaxR );
 }
@@ -298,6 +433,14 @@ void HLTBtagLifetimeAnalyzer::analyze(const edm::Event & event, const edm::Event
   event.getByLabel(m_vertex, h_vertex);
   if (h_vertex.isValid() and not h_vertex->empty())
     m_vertexPlots.fill(h_vertex->front());
+
+  edm::Handle<reco::JetFlavourMatchingCollection> h_mcPartons;
+  event.getByLabel(m_mcPartons, h_mcPartons);
+  const reco::JetFlavourMatchingCollection & mcPartons = * h_mcPartons;
+  
+  edm::Handle<reco::JetTagCollection> h_offlineBJets;
+  event.getByLabel(m_offlineBJets, h_offlineBJets);
+  const reco::JetTagCollection & offlineBJets = * h_offlineBJets;
 
   for (unsigned int i = 0; i < m_levels.size(); ++i) {
     edm::Handle<edm::View<reco::Jet> >                  h_jets;
@@ -310,14 +453,30 @@ void HLTBtagLifetimeAnalyzer::analyze(const edm::Event & event, const edm::Event
     if (h_jets.isValid()) {
       const edm::View<reco::Jet> & jets = * h_jets;
 
-      if (not h_tracks.isValid()) {
-        // no tracks, fill only the jets
-        for (unsigned int j = 0; j < jets.size(); ++j)
-          m_jetPlots[i].fill( jets[j] );
-      } else {
-        // fill jets and tracks
-        for (unsigned int j = 0; j < jets.size(); ++j)
-          m_jetPlots[i].fill( jets[j], (*h_tracks)[jets.refAt(j)] );
+      for (unsigned int j = 0; j < jets.size(); ++j) {
+        const reco::Jet & jet = jets[j];
+        
+        // match to MC parton
+        int m = closestJet(jet, mcPartons, m_mcRadius);
+        unsigned int flavour = (m != -1) ? mcPartons[m].second.getFlavour() : 0;
+
+        // match to offline reconstruted b jets
+        int o = closestJet(jet, offlineBJets, m_offlineRadius);
+        double discriminator = (o != -1) ? offlineBJets[o].second : -INFINITY;
+
+        if (not h_tracks.isValid()) {
+          // no tracks, fill only the jets
+          m_jetPlots[i].fill( jet );
+          m_mcPlots[i].fill( jet, flavour);
+          m_offlinePlots[i].fill( jet, discriminator );
+        } else {
+          // fill jets and tracks
+          const reco::TrackRefVector & tracks = (*h_tracks)[jets.refAt(j)];
+          m_jetPlots[i].fill( jet, tracks );
+          m_mcPlots[i].fill( jet, tracks, flavour);
+          m_offlinePlots[i].fill( jet, tracks, discriminator );
+        }
+        
       }
     }
 
@@ -328,20 +487,30 @@ void HLTBtagLifetimeAnalyzer::endJob()
 {
   TFile * file = new TFile(m_outputFile.c_str(), "RECREATE");
   
-  for (unsigned int i = 0; i < m_levels.size(); ++i)
+  for (unsigned int i = 0; i < m_levels.size(); ++i) {
     m_jetPlots[i].save(*file);
-  for (unsigned int i = 1; i < m_levels.size(); ++i)
+    m_mcPlots[i].save(*file);
+    m_offlinePlots[i].save(*file);
+  }
+  for (unsigned int i = 1; i < m_levels.size(); ++i) {
     // make step-by-step efficiency plots
     m_jetPlots[i].efficiency( m_jetPlots[i-1] ).save(*file);
-  for (unsigned int i = 2; i < m_levels.size(); ++i)
+    m_mcPlots[i].efficiency( m_mcPlots[i-1] ).save(*file);
+    m_offlinePlots[i].efficiency( m_offlinePlots[i-1] ).save(*file);
+  }
+  for (unsigned int i = 2; i < m_levels.size(); ++i) {
     // make overall plots
     m_jetPlots[i].efficiency( m_jetPlots[0] ).save(*file);
+    m_mcPlots[i].efficiency( m_mcPlots[0] ).save(*file);
+    m_offlinePlots[i].efficiency( m_offlinePlots[0] ).save(*file);
+  }
 
   m_vertexPlots.save(*file);
 
   file->Write();
   file->Close();
 }
+
 
 #include "FWCore/Framework/interface/MakerMacros.h"
 DEFINE_FWK_MODULE(HLTBtagLifetimeAnalyzer);
