@@ -1,8 +1,10 @@
 #
 # Z Mass fit test 
 #
-#     name   value error min    max  fixed?
+#     name   value error min    max  free/fixed
 #----------------------------------
 par  Yield 10000.0   100   0 100000  free
 par  Mass     91.2     1  70    110  free
 par  Gamma     2.5     1   1      5  free
+minimize
+

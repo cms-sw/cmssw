@@ -56,13 +56,14 @@ int main() {
     commands.add(minuit, yield);
     commands.add(minuit, mass);
     commands.add(minuit, gamma);
-    double amin = minuit.minimize();
+    commands.run(minuit);
+    double chiSquared = minuit.minValue();
     cout << "fullBins = " << fullBins 
 	 << "; free pars = " << minuit.getNumberOfFreeParameters() 
 	 << endl;
     unsigned int ndof = fullBins - minuit.getNumberOfFreeParameters();
-    cout << "Chi^2 = " << amin << "/" << ndof << " = " << amin/ndof 
-      //       << "; prob: " << TMath::Prob( amin, ndof )
+    cout << "Chi^2 = " << chiSquared << "/" << ndof << " = " << chiSquared/ndof 
+      //       << "; prob: " << TMath::Prob(chiSquared, ndof)
 	 << endl;
     yield = minuit.getParameter(kYield);
     double dyield = minuit.getParameterError(kYield);

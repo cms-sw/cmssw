@@ -13,6 +13,7 @@
 #include<boost/tokenizer.hpp>
 
 const char * kParameter = "par";
+const char * kMinimize = "minimize";
 
 namespace fit {
   template<class Function>
@@ -82,6 +83,12 @@ namespace fit {
 		   << " [" << par.min << ", " << par.max << "],"
 		   << " err: " << par.err
 		   << endl;
+	  } else if(*i == kMinimize) {
+	    command com;
+	    com.name = kMinimize;
+	    commands_.push_back(com);
+	    if(verbose_)
+	      cout << ">>> " << kMinimize << endl;
 	  } else {
 	    throw edm::Exception(edm::errors::Configuration)
 	      << "RootMinuitCommands: unkonwn command:: " << *i
@@ -114,10 +121,30 @@ namespace fit {
       minuit.addParameter(p, par.err, par.min, par.max);
       if(par.fixed) minuit.fixParameter(name);
     }
+    void run(RootMinuit<Function>& minuit) const {
+      using namespace std;
+      typename vector<command>::const_iterator c = commands_.begin(), end = commands_.end();
+      for(; c != end; ++c) {
+	if(verbose_) {
+	  cout << ">>> minuit command: ";
+	  c->print(cout);
+	  cout << endl;
+	}
+	if(c->name == kMinimize)
+	  minuit.minimize();
+      }
+    }
   private:
     bool verbose_;
     parameterVector_t pars_;
     std::map<std::string, size_t> parIndices_;
+    struct command {
+      std::string name;
+      void print(std::ostream& cout) const {
+	cout << name;
+      }
+    };
+    std::vector<command> commands_;
     double string2double(const std::string & str) const {
       const char * begin = str.c_str();
       char * end;

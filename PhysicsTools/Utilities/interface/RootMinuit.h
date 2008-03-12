@@ -19,10 +19,11 @@ namespace fit {
   class RootMinuit {
   public:
     RootMinuit(Function f, bool verbose = false) : 
-      initialized_(false), verbose_(verbose) { 
+      initialized_(false), minValue_(0), verbose_(verbose) { 
       f_ = f;
     }
     void init() { 
+      if(initialized_) return;
       minuit_.reset(new TMinuit(parMap_.size()));
       double arglist[10];
       int ierflg = 0;      
@@ -107,7 +108,6 @@ namespace fit {
     }
     double minimize() {
       if(!initialized_) init();
-      std::cout << ">>> running fit" << std::endl;
       double arglist[10];
       arglist[0] = 5000;
       arglist[1] = 0.1;
@@ -117,18 +117,20 @@ namespace fit {
       minuit_->mnexcm("MIGRAD", arglist, 2, ierflag);
       if ( ierflag != 0 ) std::cerr << "ERROR in migrad!!" << std::endl;
       if(verbose_) minuit_->mnmatu(1); //Prints the covariance matrix
-      std::cout << ">>> fit completed" << std::endl;
-      double amin, edm, errdef;
+      double edm, errdef;
       int nvpar, nparx;
-      minuit_->mnstat(amin, edm, errdef, nvpar, nparx, ierflag);
-      if(verbose_) minuit_->mnprin(3, amin);
-      return amin;
+      minuit_->mnstat(minValue_, edm, errdef, nvpar, nparx, ierflag);
+      if(verbose_) minuit_->mnprin(3, minValue_);
+      return minValue_;
     }
-
+    double minValue() const {
+      return minValue_;
+    }
   private:
     parameterVector_t parMap_;
     std::map<std::string, size_t> parIndices_;
     bool initialized_;
+    double minValue_;
     std::auto_ptr<TMinuit> minuit_;
     std::vector<boost::shared_ptr<double> > pars_;
     static std::vector<boost::shared_ptr<double> > *fPars_;
