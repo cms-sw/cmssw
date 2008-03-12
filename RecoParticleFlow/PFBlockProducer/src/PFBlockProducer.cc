@@ -181,9 +181,9 @@ void PFBlockProducer::produce(Event& iEvent,
   // LogDebug("PFBlockProducer")<<"get reco muons"<<endl;
   found = iEvent.getByLabel(inputTagRecMuons_, recMuons);
   
-  if(!found )
-    LogError("PFBlockProducer")<<" cannot get recmuons: "
-			       <<inputTagRecMuons_<<endl;
+  //if(!found )
+  //  LogError("PFBlockProducer")<<" cannot get recmuons: "
+  //			       <<inputTagRecMuons_<<endl;
 
 
   // get PFNuclearInteractions
