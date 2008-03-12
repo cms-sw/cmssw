@@ -88,15 +88,16 @@ BxTiming::beginJob(const edm::EventSetup&) {
 
     dbe->setCurrentFolder(histFolder_);
 
-    const int dbx = 100;
+    const int dbx = 10000;
     hBxDiffAllFed = dbe->bookProfile("BxDiffAllFed", "BxDiffAllFed", 
-				     nfed_, 0, nfed_, 2*dbx, -1*dbx,dbx);
+				     nfed_, 0, nfed_, 0, -1*dbx,dbx);
 
     for(int i=0; i<NSYS; i++) {
       lbl.clear();lbl+=SysLabel[i];lbl+="FedBxDiff"; 
       int nfeds = fedRange_[i].second - fedRange_[i].first;
+      nfeds = (nfeds>0)? nfeds+1:1;
       hBxDiffSysFed[i] = dbe->bookProfile(lbl.data(),lbl.data(), nfeds, 
-					  fedRange_[i].first, fedRange_[i].second,
+					  fedRange_[i].first, fedRange_[i].second+1,
 					  2*dbx, -1*dbx,dbx);
     }
 
