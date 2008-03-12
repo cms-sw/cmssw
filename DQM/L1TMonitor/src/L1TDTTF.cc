@@ -1,8 +1,8 @@
 /*
  * \file L1TDTTF.cc
  *
- * $Date: 2007/12/21 17:41:20 $
- * $Revision: 1.8 $
+ * $Date: 2008/03/01 00:40:00 $
+ * $Revision: 1.9 $
  * \author J. Berryhill
  *
  */
@@ -22,7 +22,6 @@ L1TDTTF::L1TDTTF(const ParameterSet& ps)
 
   if(verbose_) cout << "L1TDTTF: constructor...." << endl;
 
-  logFile_.open("L1TDTTF.log");
 
   dbe = NULL;
   if ( ps.getUntrackedParameter<bool>("DQMStore", false) ) 

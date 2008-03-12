@@ -1,8 +1,8 @@
 /*
  * \file L1TLTC.cc
  *
- * $Date: 2007/12/21 17:41:21 $
- * $Revision: 1.5 $
+ * $Date: 2008/03/01 00:40:00 $
+ * $Revision: 1.6 $
  * \author J. Berryhill
  *
  */
@@ -21,7 +21,6 @@ L1TLTC::L1TLTC(const ParameterSet& ps)
 
   if(verbose_) cout << "L1TLTC: constructor...." << endl;
 
-  logFile_.open("L1TLTC.log");
 
   dbe = NULL;
   if ( ps.getUntrackedParameter<bool>("DQMStore", false) ) 

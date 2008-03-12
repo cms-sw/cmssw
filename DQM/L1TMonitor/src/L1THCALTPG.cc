@@ -1,11 +1,14 @@
 /*
  * \file L1THCALTPG.cc
  *
- * $Date: 2007/12/21 17:41:21 $
- * $Revision: 1.8 $
+ * $Date: 2008/03/01 00:40:00 $
+ * $Revision: 1.9 $
  * \author J. Berryhill
  *
  * $Log: L1THCALTPG.cc,v $
+ * Revision 1.9  2008/03/01 00:40:00  lat
+ * DQM core migration.
+ *
  * Revision 1.8  2007/12/21 17:41:21  berryhil
  *
  *
@@ -69,7 +72,6 @@ L1THCALTPG::L1THCALTPG(const ParameterSet& ps)
 
   if(verbose_) std::cout << "L1THCALTPG: constructor...." << std::endl;
 
-  logFile_.open("L1THCALTPG.log");
 
   dbe = NULL;
   if ( ps.getUntrackedParameter<bool>("DQMStore", false) ) 

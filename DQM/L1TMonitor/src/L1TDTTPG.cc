@@ -1,15 +1,21 @@
 /*
  * \file L1TDTTPG.cc
  *
- * $Date: 2008/03/01 00:40:00 $
- * $Revision: 1.16 $
+ * $Date: 2008/03/10 09:29:52 $
+ * $Revision: 1.17 $
  * \author J. Berryhill
  *
  * $Log: L1TDTTPG.cc,v $
+ * Revision 1.17  2008/03/10 09:29:52  lorenzo
+ * added MEs
+ *
  * Revision 1.16  2008/03/01 00:40:00  lat
  * DQM core migration.
  *
  * $Log: L1TDTTPG.cc,v $
+ * Revision 1.17  2008/03/10 09:29:52  lorenzo
+ * added MEs
+ *
  * Revision 1.15  2008/01/22 18:56:01  muzaffar
  * include cleanup. Only for cc/cpp files
  *
@@ -71,7 +77,6 @@ L1TDTTPG::L1TDTTPG(const ParameterSet& ps)
 
   if(verbose_) cout << "L1TDTTPG: constructor...." << endl;
 
-  logFile_.open("L1TDTTPG.log");
 
   dbe = NULL;
   if ( ps.getUntrackedParameter<bool>("DQMStore", false) ) 

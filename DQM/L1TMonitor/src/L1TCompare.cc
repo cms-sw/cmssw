@@ -1,9 +1,12 @@
 /*
  * \file L1TCompare.cc
- * $Id: L1TCompare.cc,v 1.9 2008/01/22 18:56:01 muzaffar Exp $
+ * $Id: L1TCompare.cc,v 1.10 2008/03/01 00:40:00 lat Exp $
  * \author P. Wittich
  * \brief Compare different parts of the trigger chain (e.g., RCT-GCT )
  * $Log: L1TCompare.cc,v $
+ * Revision 1.10  2008/03/01 00:40:00  lat
+ * DQM core migration.
+ *
  * Revision 1.9  2008/01/22 18:56:01  muzaffar
  * include cleanup. Only for cc/cpp files
  *
@@ -105,7 +108,6 @@ L1TCompare::L1TCompare(const ParameterSet & ps) :
   if (verbose())
     std::cout << "L1TCompare: constructor...." << std::endl;
 
-  logFile_.open("L1TCompare.log");
 
   dbe = NULL;
   if (ps.getUntrackedParameter < bool > ("DQMStore", false)) {

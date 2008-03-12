@@ -1,8 +1,8 @@
 /*
  * \file L1TRPCTPG.cc
  *
- * $Date: 2008/01/29 20:41:21 $
- * $Revision: 1.6 $
+ * $Date: 2008/03/01 00:40:12 $
+ * $Revision: 1.7 $
  * \author J. Berryhill
  *
  */
@@ -23,7 +23,6 @@ L1TRPCTPG::L1TRPCTPG(const ParameterSet& ps)
 
   if(verbose_) cout << "L1TRPCTPG: constructor...." << endl;
 
-  logFile_.open("L1TRPCTPG.log");
 
   dbe = NULL;
   if ( ps.getUntrackedParameter<bool>("DQMStore", false) ) 

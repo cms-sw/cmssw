@@ -1,8 +1,8 @@
 /*
  * \file L1TRCT.cc
  *
- * $Date: 2008/01/22 18:56:02 $
- * $Revision: 1.9 $
+ * $Date: 2008/03/01 00:40:00 $
+ * $Revision: 1.10 $
  * \author P. Wittich
  *
  */
@@ -50,7 +50,6 @@ L1TRCT::L1TRCT(const ParameterSet & ps) :
   if (verbose_)
     std::cout << "L1TRCT: constructor...." << std::endl;
 
-  logFile_.open("L1TRCT.log");
 
   dbe = NULL;
   if (ps.getUntrackedParameter < bool > ("DQMStore", false)) {

@@ -1,11 +1,14 @@
 /*
  * \file L1THCALTPGXAna.cc
  *
- * $Date: 2008/02/13 17:50:14 $
- * $Revision: 1.9 $
+ * $Date: 2008/03/01 00:40:00 $
+ * $Revision: 1.10 $
  * \author J. Berryhill
  *
  * $Log: L1THCALTPGXAna.cc,v $
+ * Revision 1.10  2008/03/01 00:40:00  lat
+ * DQM core migration.
+ *
  * Revision 1.9  2008/02/13 17:50:14  aurisano
  * bugfixes
  *
@@ -109,7 +112,6 @@ L1THCALTPGXAna::L1THCALTPGXAna(const ParameterSet& ps)
   //fake cut
   fakeCut_ = ps.getUntrackedParameter<double>("fakeCut",0.0);
 
-  logFile_.open("L1THCALTPGXAna.log");
 
   dbe = NULL;
   if ( ps.getUntrackedParameter<bool>("DQMStore", false) ) 
@@ -221,6 +223,8 @@ void L1THCALTPGXAna::beginJob(const EventSetup& iSetup)
       hcalTpgfgtimediff_ =
 	dbe->book1D("HcalFGtimediff", "Fine grain time diff", fgtdiffbins, fgtdiffmin, fgtdiffmax);
 
+
+      if (0){
       dbe->setCurrentFolder("L1T/L1THCALTPGXAna/EffByChannel");
       //efficiency histos for HBHE
       for (int i=0; i < 56; i++)
@@ -268,6 +272,8 @@ void L1THCALTPGXAna::beginJob(const EventSetup& iSetup)
               hcalEffDen_HF[i][j] = dbe->book1D(hname, htitle, effBins,effMinHF,effMaxHF);
 	    }
 	}
+      }
+
     }  
 }
 
@@ -377,6 +383,7 @@ void L1THCALTPGXAna::analyze(const Event& iEvent, const EventSetup& iSetup)
 
       if (TMath::Abs(ieta) >= 29) rec_e = rec_e/et2e;
 
+      if (0){
       //fill individual num. and den. of efficiency plots
       if (TMath::Abs(ieta) >= 29)
 	{
@@ -417,6 +424,8 @@ void L1THCALTPGXAna::analyze(const Event& iEvent, const EventSetup& iSetup)
 		}
 	    }
 	}
+      }
+
       //fill num. and denom. of efficiency plots
       if (TMath::Abs(ieta) <= 20)
 	{

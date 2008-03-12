@@ -1,11 +1,14 @@
 /*
  * \file L1TGCT.cc
  *
- * $Date: 2008/02/20 18:59:29 $
- * $Revision: 1.18 $
+ * $Date: 2008/03/01 00:40:00 $
+ * $Revision: 1.19 $
  * \author J. Berryhill
  *
  * $Log: L1TGCT.cc,v $
+ * Revision 1.19  2008/03/01 00:40:00  lat
+ * DQM core migration.
+ *
  * Revision 1.18  2008/02/20 18:59:29  tapper
  * Ported GCTMonitor histograms into L1TGCT
  *
@@ -108,7 +111,6 @@ L1TGCT::L1TGCT(const edm::ParameterSet & ps) :
   if (verbose_)
     std::cout << "L1TGCT: constructor...." << std::endl;
 
-  logFile_.open("L1TGCT.log");
 
   dbe = NULL;
   if (ps.getUntrackedParameter < bool > ("DQMStore", false)) {

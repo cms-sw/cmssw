@@ -1,8 +1,8 @@
 /*
  * \file L1TGMT.cc
  *
- * $Date: 2007/12/21 17:41:20 $
- * $Revision: 1.11 $
+ * $Date: 2008/03/01 00:40:00 $
+ * $Revision: 1.12 $
  * \author J. Berryhill, I. Mikulec
  *
  */
@@ -22,7 +22,6 @@ L1TGMT::L1TGMT(const ParameterSet& ps)
 
   if(verbose_) cout << "L1TGMT: constructor...." << endl;
 
-  logFile_.open("L1TGMT.log");
 
   dbe = NULL;
   if ( ps.getUntrackedParameter<bool>("DQMStore", false) ) 

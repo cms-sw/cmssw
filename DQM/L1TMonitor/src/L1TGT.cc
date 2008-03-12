@@ -1,8 +1,8 @@
 /*
  * \file L1TGT.cc
  *
- * $Date: 2008/01/02 11:54:15 $
- * $Revision: 1.13 $
+ * $Date: 2008/03/01 00:40:00 $
+ * $Revision: 1.14 $
  * \author J. Berryhill
  *
  */
@@ -22,8 +22,6 @@ L1TGT::L1TGT(const ParameterSet& ps)
   verbose_ = ps.getUntrackedParameter<bool>("verbose", false);
 
   if(verbose_) cout << "L1TGT: constructor...." << endl;
-
-  logFile_.open("L1TGT.log");
 
   dbe = NULL;
   if ( ps.getUntrackedParameter<bool>("DQMStore", false) ) 
