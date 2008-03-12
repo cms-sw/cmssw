@@ -1,5 +1,5 @@
 //
-// $Id: PATMuonProducer.cc,v 1.9 2008/03/03 20:39:10 slava77 Exp $
+// $Id: PATMuonProducer.cc,v 1.1 2008/03/06 09:23:10 llista Exp $
 //
 
 #include "PhysicsTools/PatAlgos/plugins/PATMuonProducer.h"
@@ -10,6 +10,7 @@
 #include "DataFormats/HepMCCandidate/interface/GenParticleCandidate.h"
 #include "PhysicsTools/Utilities/interface/DeltaR.h"
 #include "DataFormats/RecoCandidate/interface/IsoDeposit.h"
+#include "DataFormats/RecoCandidate/interface/IsoDepositFwd.h"
 #include "DataFormats/MuonReco/interface/Muon.h"
 #include "DataFormats/MuonReco/interface/MuonFwd.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticleFwd.h"
@@ -41,6 +42,8 @@ PATMuonProducer::PATMuonProducer(const edm::ParameterSet & iConfig) {
   useNNReso_     = iConfig.getParameter<bool>         ( "useNNResolutions" );
   muonResoFile_  = iConfig.getParameter<std::string>  ( "muonResoFile" );
   // isolation configurables
+  //! use them only if doIsoFromDeposit is true
+  doIsoFromDeposit_ = iConfig.getParameter<bool>      ( "doIsoFromDeposit" );
   doTrkIso_      = iConfig.getParameter<bool>         ( "doTrkIsolation" );
   doCalIso_      = iConfig.getParameter<bool>         ( "doCalIsolation" );
   trackIsoSrc_   = iConfig.getParameter<edm::InputTag>( "trackIsoSource" );
@@ -81,24 +84,20 @@ void PATMuonProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetu
   if (addGenMatch_) iEvent.getByLabel(genPartSrc_, genMatch);
 
   // prepare isolation calculation
-  /*
-  edm::Handle<reco::MuIsoDepositAssociationMap> trackerIso;
-  if (doTrkIso_) {
-    if (hocalIsoSrc_.label() == "famos") { // switch off for full sim, since we switched back to using muon-obj embedded info
+  edm::Handle<reco::IsoDepositMap> trackerIso;
+  edm::Handle<reco::IsoDepositMap> ecalIso;
+  edm::Handle<reco::IsoDepositMap> hcalIso;
+  edm::Handle<reco::IsoDepositMap> hocalIso;
+  if (doIsoFromDeposit_){
+    if (doTrkIso_) {
       iEvent.getByLabel(trackIsoSrc_, trackerIso);
     }
-  }
-  edm::Handle<reco::MuIsoDepositAssociationMap> ecalIso;
-  edm::Handle<reco::MuIsoDepositAssociationMap> hcalIso;
-  edm::Handle<reco::MuIsoDepositAssociationMap> hocalIso;
-  if (doCalIso_) {
-    if (hocalIsoSrc_.label() == "famos") { // switch off for full sim, since we switched back to using muon-obj embedded info
+    if (doCalIso_) {
       iEvent.getByLabel(ecalIsoSrc_, ecalIso);
       iEvent.getByLabel(hcalIsoSrc_, hcalIso);
-      if (hocalIsoSrc_.label() != "famos") iEvent.getByLabel(hocalIsoSrc_, hocalIso);
+      iEvent.getByLabel(hocalIsoSrc_, hocalIso);
     }
   }
-  */
 
   // prepare LR calculation
   edm::Handle<edm::View<reco::Track> > tracks;
@@ -128,46 +127,32 @@ void PATMuonProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetu
       (*theResoCalc_)(aMuon);
     }
     // do tracker isolation
-    if (doTrkIso_) {
-      std::pair<float, int> sumPtAndNTracks03;
-      if (hocalIsoSrc_.label() != "famos") {
-        // use the muon embedded muon isolation
-        sumPtAndNTracks03.first = 0; //aMuon.getIsolationR03().sumPt;
-        // use the muon isolation from the isolation maps (not yet stored in the 152 reco samples)
-        //const reco::MuIsoDeposit & depTracker = (*trackerIso)[itMuon->combinedMuon()];
-        //// cone hardcoded, corresponds to default in recent CMSSW versions
-        //sumPtAndNTracks03 = depTracker.depositAndCountWithin(0.3);
-      } else {
-	//        const reco::MuIsoDeposit & depTracker = (*trackerIso)[itMuon->track()];
-        // cone hardcoded, corresponds to default in recent CMSSW versions
-        sumPtAndNTracks03 = std::make_pair(0, 0); // depTracker.depositAndCountWithin(0.3);
+    if (doIsoFromDeposit_){
+      if (doTrkIso_) {
+	const reco::IsoDeposit & depTracker = (*trackerIso)[muonsRef];
+	aMuon.setTrackIso(depTracker.depositWithin(0.3));
       }
-      aMuon.setTrackIso(sumPtAndNTracks03.first);
-    }
-    // do calorimeter isolation
-    if (doCalIso_) {
-      if (hocalIsoSrc_.label() != "famos") {
-        // use the muon embedded muon isolation
-        aMuon.setCaloIso( 0 /*aMuon.getIsolationR03().emEt + aMuon.getIsolationR03().hadEt + aMuon.getIsolationR03().hoEt */ );
-        // use the muon isolation from the isolation maps (not yet stored in the 152 reco samples)
-        //const reco::MuIsoDeposit & depEcal = (*ecalIso)[itMuon->combinedMuon()];
-        //const reco::MuIsoDeposit & depHcal = (*hcalIso)[itMuon->combinedMuon()];
-        //const reco::MuIsoDeposit & depHOcal = (*hocalIso)[itMuon->combinedMuon()];
-        //// cone hardcoded, corresponds to default in recent CMSSW versions
-        //aMuon.setCaloIso(depEcal.depositWithin(0.3)+depHcal.depositWithin(0.3)+depHOcal.depositWithin(0.3));
-      } else {
-	/*
-        const reco::MuIsoDeposit & depEcal (*ecalIso)[itMuon->track()];
-        const reco::MuIsoDeposit & depHcal (*hcalIso)[itMuon->track()];
-        // cone hardcoded, corresponds to default in recent CMSSW versions
-        aMuon.setCaloIso(depEcal.depositWithin(0.3)+depHcal.depositWithin(0.3));
-	*/
+      // do calorimeter isolation
+      if (doCalIso_) {
+	const reco::IsoDeposit & depEcal = (*ecalIso)[muonsRef];
+	const reco::IsoDeposit & depHcal = (*hcalIso)[muonsRef];
+	const reco::IsoDeposit & depHOcal = (*hocalIso)[muonsRef];
+	
+	//! take a sumEt in th ehardcoded cone of size 0.3
+	double sumEtCal = depEcal.depositWithin(0.3);
+	sumEtCal += depHcal.depositWithin(0.3);
+	sumEtCal += depHOcal.depositWithin(0.3);
+	aMuon.setCaloIso(sumEtCal);
       }
+    } else { // pick from the muon itself : duplicate data here, since it's all available in the muon itself
+      aMuon.setTrackIso(aMuon.isolationR03().sumPt);
+      aMuon.setCaloIso(aMuon.isolationR03().emEt + aMuon.isolationR03().hadEt + aMuon.isolationR03().hoEt);
     }
+
     // add muon ID info
     if (addMuonID_) {
-//      aMuon.setLeptonID((float) TMath::Prob((Float_t) itMuon->combinedMuon()->chi2(), (Int_t) itMuon->combinedMuon()->ndof()));
-// no combinedMuon in fastsim
+      //      aMuon.setLeptonID((float) TMath::Prob((Float_t) itMuon->combinedMuon()->chi2(), (Int_t) itMuon->combinedMuon()->ndof()));
+      // no combinedMuon in fastsim
       aMuon.setLeptonID((float) TMath::Prob((Float_t) itMuon->track()->chi2(), (Int_t) itMuon->track()->ndof()));
     }
     // add lepton LR info
