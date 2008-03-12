@@ -57,8 +57,8 @@ L1THcalClient::L1THcalClient(const edm::ParameterSet& iConfig)
   output_dir = "L1T/L1THCALTPGXAna/Tests/";
 
   dbe = edm::Service<DQMStore>().operator->();
-  dbe->showDirStructure();
-  dbe->setVerbose(1); 
+  //  dbe->showDirStructure();
+  //  dbe->setVerbose(1); 
 
   LogInfo( "TriggerDQM");
 }
@@ -106,8 +106,8 @@ void L1THcalClient::beginJob(const edm::EventSetup&)
 
 
 
-
-   
+           
+  if (0){ 
       //efficiency histos for HBHE
       for (int i=0; i < 56; i++)
 	{      
@@ -148,6 +148,8 @@ void L1THcalClient::beginJob(const edm::EventSetup&)
 	      hcalEff_HF[i][j] = dbe->book1D(hname, htitle, effBins,effMinHF,effMaxHF);
 	    }
 	}
+     }
+
 }
 
 // ------------ method called once each job just after ending the event loop  ------------
@@ -235,6 +237,8 @@ L1THcalClient::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     }
   double plateau, threshold, width;
 
+  
+  if (0){
   //efficiency histos for HBHE
   for (int i=0; i < 56; i++)
     {
@@ -311,6 +315,7 @@ L1THcalClient::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 	    }
 	}
     }
+  }
 }
 
 void L1THcalClient::calcEff(TH1F *num, TH1F *den, MonitorElement* me)
