@@ -1,7 +1,7 @@
 /*
  * \file EcalRecHitsValidation.cc
  *
- * $Date: 2008/02/15 16:14:30 $
+ * $Date: 2008/02/29 20:48:32 $
  * \author C. Rovelli
  *
 */
@@ -89,58 +89,58 @@ EcalRecHitsValidation::EcalRecHitsValidation(const ParameterSet& ps){
   if ( dbe_ ) {
     dbe_->setCurrentFolder("EcalRecHitsV/EcalRecHitsTask");
     
-    sprintf (histo, "EcalRecHitsTask, Gun Momentum" );    
+    sprintf (histo, "EcalRecHitsTask Gun Momentum" );    
     meGunEnergy_ = dbe_->book1D(histo, histo, 100, 0., 1000.);
   
-    sprintf (histo, "EcalRecHitsTask, Gun Eta" );      
+    sprintf (histo, "EcalRecHitsTask Gun Eta" );      
     meGunEta_ = dbe_->book1D(histo, histo, 700, -3.5, 3.5);
      
-    sprintf (histo, "EcalRecHitsTask, Gun Phi" );  
+    sprintf (histo, "EcalRecHitsTask Gun Phi" );  
     meGunPhi_ = dbe_->book1D(histo, histo, 360, 0., 360.);    
     
-    sprintf (histo, "EcalRecHitsTask, Barrel RecSimHit Ratio");  
+    sprintf (histo, "EcalRecHitsTask Barrel RecSimHit Ratio");  
     meEBRecHitSimHitRatio_ = dbe_->book1D(histo, histo, 80, 0., 2.);   
 
-    sprintf (histo, "EcalRecHitsTask, Endcap RecSimHit Ratio"); 
+    sprintf (histo, "EcalRecHitsTask Endcap RecSimHit Ratio"); 
     meEERecHitSimHitRatio_ = dbe_->book1D(histo, histo, 80, 0., 2.);
 
-    sprintf (histo, "EcalRecHitsTask, Preshower RecSimHit Ratio"); 
+    sprintf (histo, "EcalRecHitsTask Preshower RecSimHit Ratio"); 
     meESRecHitSimHitRatio_ = dbe_->book1D(histo, histo, 80, 0., 2.);
 
-    sprintf (histo, "EcalRecHitsTask, Barrel RecSimHit Ratio gt 3.5 GeV");  
+    sprintf (histo, "EcalRecHitsTask Barrel RecSimHit Ratio gt 3p5 GeV");  
     meEBRecHitSimHitRatioGt35_ = dbe_->book1D(histo, histo, 80, 0.9, 1.1);   
 
-    sprintf (histo, "EcalRecHitsTask, Endcap RecSimHit Ratio gt 3.5 GeV"); 
+    sprintf (histo, "EcalRecHitsTask Endcap RecSimHit Ratio gt 3p5 GeV"); 
     meEERecHitSimHitRatioGt35_ = dbe_->book1D(histo, histo, 80, 0.9, 1.1);
 
-    sprintf (histo, "EcalRecHitsTask, Barrel Unc RecSimHit Ratio");  
+    sprintf (histo, "EcalRecHitsTask Barrel Unc RecSimHit Ratio");  
     meEBUnRecHitSimHitRatio_ = dbe_->book1D(histo, histo, 80, 0., 2.);   
 
-    sprintf (histo, "EcalRecHitsTask, Endcap Unc RecSimHit Ratio"); 
+    sprintf (histo, "EcalRecHitsTask Endcap Unc RecSimHit Ratio"); 
     meEEUnRecHitSimHitRatio_ = dbe_->book1D(histo, histo, 80, 0., 2.);
 
-    sprintf (histo, "EcalRecHitsTask, Barrel Unc RecSimHit Ratio gt 3.5 GeV");  
+    sprintf (histo, "EcalRecHitsTask Barrel Unc RecSimHit Ratio gt 3p5 GeV");  
     meEBUnRecHitSimHitRatioGt35_ = dbe_->book1D(histo, histo, 80, 0.9, 1.1);   
 
-    sprintf (histo, "EcalRecHitsTask, Endcap Unc RecSimHit Ratio gt 3.5 GeV"); 
+    sprintf (histo, "EcalRecHitsTask Endcap Unc RecSimHit Ratio gt 3p5 GeV"); 
     meEEUnRecHitSimHitRatioGt35_ = dbe_->book1D(histo, histo, 80, 0.9, 1.1);
 
-    sprintf (histo, "EcalRecHitsTask, Barrel Rec E5x5");
+    sprintf (histo, "EcalRecHitsTask Barrel Rec E5x5");
     meEBe5x5_ = dbe_->book1D(histo, histo, 4000, 0., 400.);
 
-    sprintf (histo, "EcalRecHitsTask, Barrel Rec E5x5 over Sim E5x5");
+    sprintf (histo, "EcalRecHitsTask Barrel Rec E5x5 over Sim E5x5");
     meEBe5x5OverSimHits_ = dbe_->book1D(histo, histo, 80, 0.9, 1.1);
 
-    sprintf (histo, "EcalRecHitsTask, Barrel Rec E5x5 over gun energy");
+    sprintf (histo, "EcalRecHitsTask Barrel Rec E5x5 over gun energy");
     meEBe5x5OverGun_ = dbe_->book1D(histo, histo, 80, 0.9, 1.1);
 
-    sprintf (histo, "EcalRecHitsTask, Endcap Rec E5x5");
+    sprintf (histo, "EcalRecHitsTask Endcap Rec E5x5");
     meEEe5x5_ = dbe_->book1D(histo, histo, 4000, 0., 400.);
 
-    sprintf (histo, "EcalRecHitsTask, Endcap Rec E5x5 over Sim E5x5");
+    sprintf (histo, "EcalRecHitsTask Endcap Rec E5x5 over Sim E5x5");
     meEEe5x5OverSimHits_ = dbe_->book1D(histo, histo, 80, 0.9, 1.1);
 
-    sprintf (histo, "EcalRecHitsTask, Endcap Rec E5x5 over gun energy");
+    sprintf (histo, "EcalRecHitsTask Endcap Rec E5x5 over gun energy");
     meEEe5x5OverGun_ = dbe_->book1D(histo, histo, 80, 0.9, 1.1);
 
   }
