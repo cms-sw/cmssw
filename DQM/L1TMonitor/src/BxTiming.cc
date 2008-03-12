@@ -54,9 +54,9 @@ BxTiming::beginJob(const edm::EventSetup&) {
   }
 
   std::string lbl("");
-  nfed_ = FEDNumbering::lastFEDId();
+  nfed_ = FEDNumbering::lastFEDId()+1;
   std::string SysLabel[NSYS] = {
-    "ECAL", "HCAL", "GCT", "DTTPG", "DTTF", "CSCTPG", "CSCTF", "RPC", "GT"
+    "ECAL", "HCAL", "GCT", "CSCTPG", "CSCTF", "DTTPG", "DTTF", "RPC", "GT"
   };
   
   std::pair<int,int> fedRange[NSYS] = {
@@ -88,28 +88,28 @@ BxTiming::beginJob(const edm::EventSetup&) {
 
     dbe->setCurrentFolder(histFolder_);
 
-    const int dbx = 10000;
+    const int dbx = 100;
     hBxDiffAllFed = dbe->bookProfile("BxDiffAllFed", "BxDiffAllFed", 
-				     nfed_, 0, nfed_, 0, -1*dbx,dbx);
+				     nfed_, -0.5, nfed_+0.5, 
+                                     2*dbx+1, -1*dbx-0.5,dbx+0.5);
 
     for(int i=0; i<NSYS; i++) {
       lbl.clear();lbl+=SysLabel[i];lbl+="FedBxDiff"; 
-      int nfeds = fedRange_[i].second - fedRange_[i].first;
-      nfeds = (nfeds>0)? nfeds+1:1;
+      int nfeds = fedRange_[i].second - fedRange_[i].first + 1;
       hBxDiffSysFed[i] = dbe->bookProfile(lbl.data(),lbl.data(), nfeds, 
-					  fedRange_[i].first, fedRange_[i].second+1,
-					  2*dbx, -1*dbx,dbx);
+					  fedRange_[i].first-0.5, fedRange_[i].second+0.5,
+					  2*dbx+1,-1*dbx-0.5,dbx+0.5);
     }
 
     const int norb = 3565;
     lbl.clear();lbl+="BxOccyAllFed";
-    hBxOccyAllFed = dbe->book1D(lbl.data(),lbl.data(),norb,0,norb);
+    hBxOccyAllFed = dbe->book1D(lbl.data(),lbl.data(),norb+1,-0.5,norb+0.5);
     hBxOccyOneFed = new MonitorElement*[nfed_];
     dbe->setCurrentFolder(histFolder_+"SingleFed/");
     for(int i=0; i<nfed_; i++) {
       lbl.clear(); lbl+="BxOccyOneFed";
       char *ii = new char[1000]; std::sprintf(ii,"%d",i);lbl+=ii;
-      hBxOccyOneFed[i] = dbe->book1D(lbl.data(),lbl.data(),norb,0,norb);
+      hBxOccyOneFed[i] = dbe->book1D(lbl.data(),lbl.data(),norb+1,-0.5,norb+0.5);
       delete ii;
     }
     
@@ -130,7 +130,7 @@ BxTiming::beginJob(const edm::EventSetup&) {
   hBxOccyAllFed->setAxisTitle(lbl,1);
   for(int i=0; i<nfed_; i++) {
     hBxOccyOneFed[i] ->setAxisTitle("bx",1);
-    lbl.clear(); lbl+=" FED "; lbl+=i; lbl+=" occupancy";
+    lbl.clear(); lbl+=" FED "; char *ii = new char[1000]; std::sprintf(ii,"%d",i);lbl+=ii; lbl+=" occupancy";
     hBxOccyOneFed[i] ->setAxisTitle(lbl,2);
   }
   
