@@ -124,10 +124,10 @@ struct JetPlots {
     efficiency.init(m_name + "_vs_" + denominator.m_name, m_title + " vs. " + denominator.m_title, m_energyBins, m_minEnergy, m_maxEnergy, m_geometryBins, m_maxEta, false);
     if (denominator.m_overall != 0.0) {
       efficiency.m_overall = m_overall / denominator.m_overall;
-      out << std::setw(80) << std::left << denominator.m_title << "efficiency: " << std::setw(6) << std::fixed << std::setprecision(2) << efficiency.m_overall * 100. << "%";
+      out << std::setw(80) << std::left << efficiency.m_title << "efficiency: " << std::right << std::setw(6) << std::fixed << std::setprecision(2) << efficiency.m_overall * 100. << "%";
     } else {
       efficiency.m_overall = NAN;
-      out << std::setw(80) << std::left << denominator.m_title << "efficiency:     NaN";
+      out << std::setw(80) << std::left << efficiency.m_title << "efficiency:     NaN";
     }
     std::cout << out.str() << std::endl;
 
