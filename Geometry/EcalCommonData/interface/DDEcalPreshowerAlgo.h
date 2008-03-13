@@ -7,16 +7,14 @@
 #include "DetectorDescription/Algorithm/interface/DDAlgorithm.h"
 #include "DetectorDescription/Core/interface/DDMaterial.h"
 
-using namespace std;
+class DDEcalPreshowerAlgo : public DDAlgorithm {
 
-class DDEcalPreshowerAlgo : public DDAlgorithm
-{
- public:
+public:
   
   DDMaterial getMaterial(unsigned int i)   const {return DDMaterial(materials_[i]);}
   DDMaterial getLaddMaterial()  const { return DDMaterial(LaddMaterial_) ; }
-  string getLayName(unsigned int i)   const {return layName_[i];}
-  string getLadPrefix(unsigned int i)   const {return ladPfx_[i];}
+  std::string getLayName(unsigned int i)   const {return layName_[i];}
+  std::string getLadPrefix(unsigned int i)   const {return ladPfx_[i];}
 
   DDEcalPreshowerAlgo();
   void initialize(const DDNumericArguments & nArgs,
@@ -26,7 +24,7 @@ class DDEcalPreshowerAlgo : public DDAlgorithm
 		  const DDStringVectorArguments & vsArgs);
   void execute();
 
- private:
+private:
 
   void doLayers();
   void doLadders(); 
@@ -34,28 +32,28 @@ class DDEcalPreshowerAlgo : public DDAlgorithm
   
   int nmat_;                       // number of preshower layers
   double thickness_;               // overall thickness of the preshower envelope
-  vector<string> materials_;       // materials of the presh-layers
-  vector<string> layName_;         // names of the presh-layers
-  vector<string> ladPfx_ ;         // name prefix for ladders
-  string LaddMaterial_;            // ladd material - air
-  vector<double> thickLayers_; 
-  vector<double> abs1stx;
-  vector<double> abs1sty;
-  vector<double> abs2ndx;
-  vector<double> abs2ndy;
-  vector<double> asym_ladd_;
-  vector<double> rminVec; 
-  vector<double> rmaxVec;
-  vector<double> noLaddInCol_;
-  vector<double> startOfFirstLadd_;
-  vector<string> types_l5_;
-  vector<string> types_l4_;
-  vector<double> ladd_l5_map_;
-  vector<double> ladd_l4_map_;
-  vector<string> typeOfLaddRow0;
-  vector<string> typeOfLaddRow1;
-  vector<string> typeOfLaddRow2;
-  vector<string> typeOfLaddRow3;
+  std::vector<std::string> materials_;  // materials of the presh-layers
+  std::vector<std::string> layName_;    // names of the presh-layers
+  std::vector<std::string> ladPfx_ ;    // name prefix for ladders
+  std::string LaddMaterial_;            // ladd material - air
+  std::vector<double> thickLayers_; 
+  std::vector<double> abs1stx;
+  std::vector<double> abs1sty;
+  std::vector<double> abs2ndx;
+  std::vector<double> abs2ndy;
+  std::vector<double> asym_ladd_;
+  std::vector<double> rminVec; 
+  std::vector<double> rmaxVec;
+  std::vector<double> noLaddInCol_;
+  std::vector<double> startOfFirstLadd_;
+  std::vector<std::string> types_l5_;
+  std::vector<std::string> types_l4_;
+  std::vector<double> ladd_l5_map_;
+  std::vector<double> ladd_l4_map_;
+  std::vector<std::string> typeOfLaddRow0;
+  std::vector<std::string> typeOfLaddRow1;
+  std::vector<std::string> typeOfLaddRow2;
+  std::vector<std::string> typeOfLaddRow3;
 
   double zlead1_, zlead2_, zfoam1_, zfoam2_;
   double waf_intra_col_sep, waf_inter_col_sep, waf_active, wedge_length, wedge_offset, zwedge_ceramic_diff, ywedge_ceramic_diff, wedge_angle, box_thick,dee_separation, In_rad_Abs_Al, In_rad_Abs_Pb;

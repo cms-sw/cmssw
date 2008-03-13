@@ -163,7 +163,7 @@ void DDEcalPreshowerAlgo::doLayers()
   
       for (int L=0; L<absz; ++L) {
 	int K=L; 
-	ostringstream  tmp_name_b, tmp_name_b2, tmp_FAl_name_c, tmp_FAl_name_d;
+	std::ostringstream  tmp_name_b, tmp_name_b2, tmp_FAl_name_c, tmp_FAl_name_d;
 	tmp_name_b << getLayName(i) << "L" << K; 
 	tmp_name_b2 << getLayName(i) << "Lb2" << K; 
 
@@ -177,10 +177,10 @@ void DDEcalPreshowerAlgo::doLayers()
 	DDName dd_FAl_name_c(tmp_FAl_name_c.str(),"esalgo");
 	DDName dd_FAl_name_d(tmp_FAl_name_d.str(),"esalgo");
 
-	bdx = abs(abs1stx[K]-abs1stx[K-1])/2; bdy=abs1sty[K];
+	bdx = std::abs(abs1stx[K]-abs1stx[K-1])/2; bdy=abs1sty[K];
 	if(abs1stx[K] < rIn+30*cm) { bdy=abs1sty[K]/2 - 30*cm; cutabsx = K;}
 	
-	if(I==20) { bdx = abs(abs2ndx[K]-abs2ndx[K-1])/2; bdy=abs2ndy[K];}
+	if(I==20) { bdx = std::abs(abs2ndx[K]-abs2ndx[K-1])/2; bdy=abs2ndy[K];}
 	
 	if((abs2ndx[K] < rIn+30*cm) && I==20) { bdy=abs2ndy[K]/2 - 30*cm; cutabsy = K;}
 	
@@ -237,7 +237,7 @@ void DDEcalPreshowerAlgo::doLayers()
       DDLogicalPart layerAl = DDLogicalPart(dd_tmp_name_e,getMaterial(i-1),iner_Al);
       DDpos(layerAl, parent(), 1, DDTranslation(0,0, zpos), DDRotation());
   
-	ostringstream  tmp_Alname_fin;
+	std::ostringstream  tmp_Alname_fin;
 	tmp_Alname_fin << getLayName(i) << "LtmpAl" << absz-1; 
         DDName dd_Alname_fin(tmp_Alname_fin.str(),"esalgo");
 
@@ -256,7 +256,7 @@ void DDEcalPreshowerAlgo::doLayers()
       
       DDpos(layer, parent(), 1, DDTranslation(0.,0., zpos), DDRotation());
       
-      LogDebug("SFGeom")<<" debug : tubs, Logical part: "<<DDLogicalPart(ddname,getMaterial(i),solid)<<endl<<" translation "<<DDTranslation(0.,0.,zpos)<<" rotation "<<DDRotation()<< endl;
+      LogDebug("SFGeom")<<" debug : tubs, Logical part: "<<DDLogicalPart(ddname,getMaterial(i),solid)<<"\n translation "<<DDTranslation(0.,0.,zpos)<<" rotation "<<DDRotation()<< "\n";
     } 
     
     zpos += zHalf; 
@@ -360,14 +360,14 @@ void DDEcalPreshowerAlgo::doLadders() {
       
       if(ladd_not_plain) {   
 	//   	    enb++; 
-	ostringstream tmp_name_5b, tmp_name_5c, tmp_name_5d;
+	std::ostringstream tmp_name_5b, tmp_name_5c, tmp_name_5d;
 	if(ladd_upper) {
 	  
 	  
 	}//upper
 	else {
 	  enb++; 
-	  ostringstream tmp_name_5b, tmp_name_5c, tmp_name_5d;
+	  std::ostringstream tmp_name_5b, tmp_name_5c, tmp_name_5d;
 	  DDName dd_tmp_name_5a(getLadPrefix(2),"esalgo");
 	  tmp_name_5b <<getLadPrefix(3)<< enb;
 	  DDName dd_tmp_name_5b(tmp_name_5b.str(),"esalgo");	    
@@ -444,7 +444,7 @@ void DDEcalPreshowerAlgo::doLadders() {
       ladder_length = micromodule_length + 3*waf_active + 0.1*mm;      
       
       if(ladd_not_plain) {        
-	ostringstream tmp_name_b, tmp_name_c, tmp_name_d;
+	std::ostringstream tmp_name_b, tmp_name_c, tmp_name_d;
 	if(ladd_upper) {
 	  enb++; 
 	  
@@ -600,13 +600,13 @@ void DDEcalPreshowerAlgo::doLadders() {
 
 // Positioning of ladders
 
-  string type;
+  std::string type;
   int icopy[100] = {0};
 
   for(int I=-9; I<=9;++I) {
-    prev_length_=0; int J=abs(I);
+    prev_length_=0; int J=std::abs(I);
     for (int K=0; K<noLaddInCol_[J]; K++) {
-      string type;
+      std::string type;
 
       ladder_new_length_ = micromodule_length + 3*waf_active;
       ladd_shift_ = 4*waf_active;
@@ -676,12 +676,12 @@ void DDEcalPreshowerAlgo::doSens() {
       xpos = -waf_active/2. + i*waf_active/32. + waf_active/64.;
       DDpos(DDLogicalPart("esalgo:SFSX"), DDName("SFWX","esalgo"), i+1, DDTranslation(xpos,0., 0.),DDRotation());
       
-      LogDebug("SFGeom")<<" debug : SFSX, Logical part: "<<DDLogicalPart("esalgo:SFSX")<<endl<<" translation "<<DDTranslation(xpos,0.,0.)<<" rotation "<<DDRotation()<<" copy number= " <<i<<endl;
+      LogDebug("SFGeom")<<" debug : SFSX, Logical part: "<<DDLogicalPart("esalgo:SFSX")<<"\n translation "<<DDTranslation(xpos,0.,0.)<<" rotation "<<DDRotation()<<" copy number= " <<i<<"\n";
       
       ypos = -waf_active/2. + i*waf_active/32. + waf_active/64.;
       DDpos(DDLogicalPart("esalgo:SFSY"),DDName("SFWY","esalgo"), i+1, DDTranslation(0.,ypos, 0.), DDRotation());
       
-      LogDebug("SFGeom")<<" debug : SFSY, Logical part: "<<DDLogicalPart("esalgo:SFSY")<<endl<<" translation "<<DDTranslation(0.,ypos,0.)<<" rotation "<<DDRotation()<< " copy number= " <<i<< endl;
+      LogDebug("SFGeom")<<" debug : SFSY, Logical part: "<<DDLogicalPart("esalgo:SFSY")<<"\n translation "<<DDTranslation(0.,ypos,0.)<<" rotation "<<DDRotation()<< " copy number= " <<i<< "\n";
       
     }
 }
