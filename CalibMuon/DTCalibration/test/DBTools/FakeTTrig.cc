@@ -1,8 +1,8 @@
  /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/01/18 17:48:39 $
- *  $Revision: 1.3 $
+ *  $Date: 2008/03/12 18:20:53 $
+ *  $Revision: 1.1 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -90,9 +90,11 @@ void FakeTTrig::endJob() {
     double timeOfWirePropagation = wirePropComputation(*sl);
     // get the gaussian smearing
     double gaussianSmearing = theGaussianDistribution->fire(0.,smearing);
+    // get the fake tTrig pedestal
+    double pedestral = ps.getUntrackedParameter<double>("fakeTTrigPedestal", 500);
 
     DTSuperLayerId slId = (*sl)->id();
-    double fakeTTrig = 500 + timeOfFly + timeOfWirePropagation + gaussianSmearing;
+    double fakeTTrig = pedestral + timeOfFly + timeOfWirePropagation + gaussianSmearing;
     tTrigMap->set(slId, fakeTTrig, 0, DTTimeUnits::ns);
 
   }
