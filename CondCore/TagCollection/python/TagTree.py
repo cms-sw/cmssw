@@ -17,8 +17,8 @@ class tagTree(object):
     def existTagTreeTable( self ):
         """Check if tree table exists
         """
+        transaction=self.__session.transaction()
         try:
-            transaction=self.__session.transaction()
             transaction.start(True)
             schema = self.__session.nominalSchema()
             result=schema.existsTable(self.__tagTreeTableName)
@@ -31,8 +31,8 @@ class tagTree(object):
     def createTagTreeTable( self ):
         """Create tag tree table. Existing table will be deleted. 
         """
+        transaction=self.__session.transaction()
         try:
-            transaction=self.__session.transaction()
             transaction.start(False)
             schema = self.__session.nominalSchema()
             schema.dropIfExistsTable( self.__tagTreeTableName )
@@ -49,7 +49,7 @@ class tagTree(object):
             self.__tagTreeTableHandle = schema.createTable( description )
             self.__tagTreeTableHandle.privilegeManager().grantToPublic( coral.privilege_Select )
             #create also the associated id table
-            generator=IdGenerator.IdGenerator(schema)
+            generator=IdGenerator.IdGenerator(self.__session.nominalSchema())
             generator.createIDTable(self.__tagTreeIDs,True)
             transaction.commit()
         except Exception, er:
@@ -74,29 +74,24 @@ class tagTree(object):
         duplicate=False
         transaction=self.__session.transaction()
         try:
-            ##start readonly transaction
-            transaction.start(True)
-            condition='nodelabel=:nodelabel'
-            conditionbindDict=coral.AttributeList()
-            conditionbindDict.extend('nodelabel','string')
-            conditionbindDict['nodelabel'].setData(nodelabel)
-            dbop=DBImpl.DBImpl(self.__session.nominalSchema())
-            duplicate=dbop.existRow(self.__tagTreeTableName,condition,conditionbindDict)
-            transaction.commit()
-            if duplicate is False:                
-                if parentLabel != 'ROOT':
+            if parentLabel != 'ROOT':
                     parentNode=self.getNode(parentLabel)
                     if parentNode.empty():
                         raise ValueError,"non-existing parent node "+parentLabel
                     parentid=parentNode.nodeid
                     lft=parentNode.rgt
                     rgt=parentNode.rgt+1
-                transaction.start(False)
+            ##start readonly transaction
+            transaction.start(False)
+            condition='nodelabel=:nodelabel'
+            conditionbindDict=coral.AttributeList()
+            conditionbindDict.extend('nodelabel','string')
+            conditionbindDict['nodelabel'].setData(nodelabel)
+            dbop=DBImpl.DBImpl(self.__session.nominalSchema())
+            duplicate=dbop.existRow(self.__tagTreeTableName,condition,conditionbindDict)
+            if duplicate is False:                
                 generator=IdGenerator.IdGenerator(self.__session.nominalSchema())
-
                 nodeid=generator.getNewID(self.__tagTreeIDs)
-                transaction.commit()
-            ##now start write transaction
             if duplicate is False:                
                 tabrowValueDict={'nodeid':nodeid, 'nodelabel':nodelabel,
                                  'lft':lft, 'rgt':rgt, 'parentid':parentid,
@@ -104,15 +99,11 @@ class tagTree(object):
                                  'globaltill':globaltill
                                  }
                 if parentLabel != 'ROOT':
-                    transaction.start(False)
                     self.__openGap(self.__session.nominalSchema().tableHandle(self.__tagTreeTableName),parentNode.rgt,1 )
-                    transaction.commit()
-                transaction.start(False)
                 dbop.insertOneRow(self.__tagTreeTableName,
                                   self.__tagTreeTableColumns,
                                   tabrowValueDict)
                 generator.incrementNextID(self.__tagTreeIDs)
-                transaction.commit()
             transaction.commit()
         except coral.Exception, er:
             transaction.rollback()
@@ -156,6 +147,7 @@ class tagTree(object):
         except Exception, er:
             transaction.rollback()
             raise Exception, str(er)
+        
     def getNode( self, label='ROOT' ):
         """return result of query "select * from treetable where nodelabel=label" in Node structure \n
         Input: name of the node to get. Default to 'ROOT' \n
@@ -167,13 +159,12 @@ class tagTree(object):
         transaction=self.__session.transaction()
         try:
             transaction.start(True)
-            schema = self.__session.nominalSchema()
-            query = schema.tableHandle(self.__tagTreeTableName).newQuery()
+            query=self.__session.nominalSchema().tableHandle(self.__tagTreeTableName).newQuery()
             condition = 'nodelabel =:nodelabel'
             conditionData = coral.AttributeList()
             conditionData.extend( 'nodelabel','string' )
-            conditionData['nodelabel'].setData(label)
             query.setCondition( condition, conditionData)
+            conditionData['nodelabel'].setData(label)
             cursor = query.execute()
             while ( cursor.next() ):
                 result.tagid=cursor.currentRow()['tagid'].data()
