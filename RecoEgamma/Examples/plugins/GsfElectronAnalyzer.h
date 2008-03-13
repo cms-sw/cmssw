@@ -9,7 +9,7 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: GsfElectronAnalyzer.h,v 1.4 2007/09/12 08:33:27 charlot Exp $
+// $Id: GsfElectronAnalyzer.h,v 1.1 2007/12/08 15:23:00 futyand Exp $
 //
 //
   
@@ -71,6 +71,8 @@ class GsfElectronAnalyzer : public edm::EDAnalyzer
   TH1F *h_ele_simAbsEta_matched;
   TH1F *h_ele_simPt_matched;
 
+  TH1F *h_ele_TIP_all;
+  TH1F *h_ele_EoverP_all;
   TH1F *h_ele_vertexEta_all;
   TH1F *h_ele_vertexPt_all;
 

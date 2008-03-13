@@ -13,7 +13,7 @@
 //
 // Original Author:  Ursula Berthon
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: GsfElectronAnalyzer.cc,v 1.2 2007/12/18 14:15:55 charlot Exp $
+// $Id: GsfElectronAnalyzer.cc,v 1.3 2007/12/31 02:43:12 elmer Exp $
 //
 //
 
@@ -100,6 +100,8 @@ void GsfElectronAnalyzer::beginJob(edm::EventSetup const&iSetup){
   h_ctf_lostHitsVsEta       = new TH2F( "h_ctf_lostHitsVsEta",       "ctf track # lost hits vs eta",   50,-2.5,2.5,10,0.,10.);
   
   // all electrons  
+  h_ele_EoverP_all       = new TH1F( "h_ele_EoverP_all",       "all ele E/p at vertex",  100, 0., 5. );
+  h_ele_TIP_all       = new TH1F( "h_ele_TIP_all",       "all ele tip at vertex",  100, 0., 0.2 );
   h_ele_vertexPt_all       = new TH1F( "h_ele_vertexPt_all",       "all ele p_{T} at vertex",  19, 5., pTmax );
   h_ele_vertexEta_all      = new TH1F( "h_ele_vertexEta_all",      "all ele #eta at vertex",    50, -2.5, 2.5 );
 
@@ -354,6 +356,8 @@ GsfElectronAnalyzer::endJob(){
   h_ctf_lostHitsVsEta->Write();
   
   // all electrons  
+  h_ele_EoverP_all->Write();
+  h_ele_TIP_all->Write();
   h_ele_vertexPt_all->Write();
   h_ele_vertexEta_all->Write();
 
@@ -529,10 +533,14 @@ GsfElectronAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
    gsfIter!=gsfElectrons->end(); gsfIter++){
     // preselect electrons
     if (gsfIter->pt()>maxPt_ || fabs(gsfIter->eta())>maxAbsEta_) continue;
+    double d = gsfIter->gsfTrack()->vertex().x()*gsfIter->gsfTrack()->vertex().x()+
+     gsfIter->gsfTrack()->vertex().y()*gsfIter->gsfTrack()->vertex().y();
+    h_ele_TIP_all     -> Fill( sqrt(d) );
+    h_ele_EoverP_all     -> Fill( gsfIter->eSuperClusterOverP() );
     h_ele_vertexEta_all     -> Fill( gsfIter->eta() );
     h_ele_vertexPt_all      -> Fill( gsfIter->pt() );
   }
-    
+   
   // association mc-reco
   HepMC::GenParticle* genPc=0;
   const HepMC::GenEvent *myGenEvent = hepMC->GetEvent();
@@ -566,16 +574,17 @@ GsfElectronAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
 
       if (pAssSim.perp()> maxPt_ || fabs(pAssSim.eta())> maxAbsEta_) continue;
       
+      // suppress the endcaps
+      //if (fabs(pAssSim.eta()) > 1.5) continue;
+      // select central z
+      //if ( fabs((*mcIter)->production_vertex()->position().z())>50.) continue;
+ 
       eleNum++;
       h_simEta -> Fill( pAssSim.eta() );
       h_simAbsEta -> Fill( fabs(pAssSim.eta()) );
       h_simP   -> Fill( pAssSim.t() );
       h_simPt   -> Fill( pAssSim.perp() );
       	
-      // suppress the endcaps
-      //if (fabs(pAssSim.eta()) > 1.5) continue;
-
- 
       // looking for the best matching gsf electron
       bool okGsfFound = false;
       float gsfOkRatio = 999999.;
@@ -643,7 +652,7 @@ GsfElectronAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
 	h_ele_PoPtrueVsPt       -> Fill( bestGsfElectron.py(), bestGsfElectron.p()/pAssSim.t());
 	if (bestGsfElectron.classification() < 100) h_ele_PoPtrue_barrel       -> Fill( bestGsfElectron.p()/pAssSim.t());
 	if (bestGsfElectron.classification() >= 100) h_ele_PoPtrue_endcaps       -> Fill( bestGsfElectron.p()/pAssSim.t());
-
+/*
 	// supercluster related distributions
 	reco::SuperClusterRef sclRef = bestGsfElectron.superCluster();
         histSclEn_->Fill(sclRef->energy());
@@ -657,7 +666,7 @@ GsfElectronAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
         histSclEta_->Fill(sclRef->eta());
         histSclEtaVsPhi_->Fill(sclRef->phi(),sclRef->eta());
         histSclPhi_->Fill(sclRef->phi());
-
+*/
 	// track related distributions
 	h_ele_foundHits     -> Fill( bestGsfElectron.gsfTrack()->numberOfValidHits() );
 	h_ele_foundHitsVsEta     -> Fill( bestGsfElectron.eta(), bestGsfElectron.gsfTrack()->numberOfValidHits() );
@@ -722,12 +731,14 @@ GsfElectronAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
 	//classes
 	int eleClass = bestGsfElectron.classification();
 	h_ele_classes ->Fill(eleClass);	
+/*
         if (bestGsfElectron.classification() == 0)  histSclEoEtrueGolden_barrel->Fill(sclRef->energy()/pAssSim.t());
         if (bestGsfElectron.classification() == 100)  histSclEoEtrueGolden_endcaps->Fill(sclRef->energy()/pAssSim.t());
         if (bestGsfElectron.classification() == 30)  histSclEoEtrueShowering0_barrel->Fill(sclRef->energy()/pAssSim.t());
         if (bestGsfElectron.classification() == 130)  histSclEoEtrueShowering0_endcaps->Fill(sclRef->energy()/pAssSim.t());
         if (bestGsfElectron.classification() == 31 || bestGsfElectron.classification() == 32  || bestGsfElectron.classification() == 33 || eleClass == 34 )  histSclEoEtrueShowering1234_barrel->Fill(sclRef->energy()/pAssSim.t());
         if (bestGsfElectron.classification() == 131 || bestGsfElectron.classification() == 132 || bestGsfElectron.classification() == 133 || eleClass == 134 )  histSclEoEtrueShowering1234_endcaps->Fill(sclRef->energy()/pAssSim.t());
+*/
 	eleClass = eleClass%100; // get rid of barrel/endcap distinction
         h_ele_eta->Fill(fabs(bestGsfElectron.eta()));
         if (eleClass == 0) h_ele_eta_golden ->Fill(fabs(bestGsfElectron.eta()));
@@ -772,7 +783,7 @@ GsfElectronAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
   
   h_mcNum->Fill(mcNum);
   h_eleNum->Fill(eleNum);
-  
+
 }
 
 
