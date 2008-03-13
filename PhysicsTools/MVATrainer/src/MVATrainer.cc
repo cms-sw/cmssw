@@ -29,6 +29,7 @@
 #include "PhysicsTools/MVATrainer/interface/Source.h"
 #include "PhysicsTools/MVATrainer/interface/SourceVariable.h"
 #include "PhysicsTools/MVATrainer/interface/TrainProcessor.h"
+#include "PhysicsTools/MVATrainer/interface/TrainerMonitoring.h"
 #include "PhysicsTools/MVATrainer/interface/MVATrainer.h"
 
 XERCES_CPP_NAMESPACE_USE
@@ -153,7 +154,7 @@ void TrainInterceptor::init()
 		<< "TrainProcessor \"" << (const char*)proc->getName()
 		<< "\" training iteration starting...";
 
-	proc->trainBegin();
+	proc->doTrainBegin();
 }
 
 double
@@ -179,14 +180,14 @@ TrainInterceptor::intercept(const std::vector<double> *values) const
 	else if (values[1].size() == 1)
 		weight = values[1].front();
 
-	proc->trainData(values + 2, target > 0.5, weight);
+	proc->doTrainData(values + 2, target > 0.5, weight);
 
 	return target;
 }
 
 void TrainInterceptor::finish(bool save)
 {
-	proc->trainEnd();
+	proc->doTrainEnd();
 
 	edm::LogInfo("MVATrainer")
 		<< "... processor \"" << (const char*)proc->getName()
@@ -259,7 +260,7 @@ const AtomicId MVATrainer::kWeightId("__WEIGHT__");
 
 MVATrainer::MVATrainer(const std::string &fileName) :
 	input(0), output(0), name("MVATrainer"),
-	doAutoSave(true), doCleanup(false)
+	doAutoSave(true), doCleanup(false), doMonitoring(false)
 {
 	xml = std::auto_ptr<XMLDocument>(new XMLDocument(fileName));
 
@@ -375,6 +376,9 @@ MVATrainer::MVATrainer(const std::string &fileName) :
 
 MVATrainer::~MVATrainer()
 {
+	if (monitoring.get())
+		monitoring->write();
+
 	for(std::map<AtomicId, Source*>::const_iterator iter = sources.begin();
 	    iter != sources.end(); iter++) {
 		TrainProcessor *proc =
@@ -515,6 +519,21 @@ std::string MVATrainer::trainFileName(const TrainProcessor *proc,
 	return stdStringPrintf(trainFileMask.c_str(),
 	                       (const char*)proc->getName(),
 	                       arg_.c_str(), ext.c_str());
+}
+
+TrainerMonitoring::Module *MVATrainer::bookMonitor(const std::string &name)
+{
+	if (!doMonitoring)
+		return 0;
+
+	if (!monitoring.get()) {
+		std::string fileName = 
+			stdStringPrintf(trainFileMask.c_str(),
+			                "monitoring", "", "root");
+		monitoring.reset(new TrainerMonitoring(fileName));
+	}
+
+	return monitoring->book(name);
 }
 
 SourceVariable *MVATrainer::getVariable(AtomicId source, AtomicId name) const

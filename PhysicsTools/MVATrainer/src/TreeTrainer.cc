@@ -39,6 +39,7 @@ TreeTrainer::~TreeTrainer()
 Calibration::MVAComputer *TreeTrainer::train(const std::string &trainFile)
 {
 	MVATrainer trainer(trainFile);
+	trainer.setMonitoring(true);
 	train(&trainer);
 	return trainer.getCalibration();
 }

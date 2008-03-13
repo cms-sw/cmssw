@@ -29,8 +29,9 @@ MVATrainerLooper::Trainer::Trainer(const edm::ParameterSet &params)
 	std::string trainDescription =
 			params.getUntrackedParameter<std::string>(
 							"trainDescription");
-	bool doLoad = params.getUntrackedParameter<bool>("loadState");
-	bool doSave = params.getUntrackedParameter<bool>("saveState");
+	bool doLoad = params.getUntrackedParameter<bool>("loadState", false);
+	bool doSave = params.getUntrackedParameter<bool>("saveState", false);
+	bool doMonitoring = params.getUntrackedParameter<bool>("monitoring", false);
 
 	trainer = std::auto_ptr<MVATrainer>(new MVATrainer(trainDescription));
 
@@ -39,6 +40,7 @@ MVATrainerLooper::Trainer::Trainer(const edm::ParameterSet &params)
 
 	trainer->setAutoSave(doSave);
 	trainer->setCleanup(!doSave);
+	trainer->setMonitoring(doMonitoring);
 }
 
 // MVATrainerLooper::MVATrainerContainer implementation

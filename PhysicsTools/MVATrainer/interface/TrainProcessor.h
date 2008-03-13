@@ -15,6 +15,9 @@
 #include "PhysicsTools/MVAComputer/interface/ProcessRegistry.h"
 
 #include "PhysicsTools/MVATrainer/interface/Source.h"
+#include "PhysicsTools/MVATrainer/interface/TrainerMonitoring.h"
+
+class TH1F;
 
 namespace PhysicsTools {
 
@@ -32,11 +35,12 @@ class TrainProcessor : public Source,
 		>::Registry<Instance_t, AtomicId> Type;
 	};
 
-	inline TrainProcessor(const char *name,
-	                      const AtomicId *id,
-	                      MVATrainer *trainer) :
-		Source(*id), name(name), trainer(trainer) {}
-	virtual ~TrainProcessor() {}
+	typedef TrainerMonitoring::Module Monitoring;
+
+	TrainProcessor(const char *name,
+	               const AtomicId *id,
+	               MVATrainer *trainer);
+	virtual ~TrainProcessor();
 
 	virtual Variable::Flags getDefaultFlags() const
 	{ return Variable::FLAG_NONE; }
@@ -46,10 +50,10 @@ class TrainProcessor : public Source,
 
 	virtual Calibration::VarProcessor *getCalibration() const = 0;
 
-	virtual void trainBegin() {}
-	virtual void trainData(const std::vector<double> *values,
-	                       bool target, double weight) {}
-	virtual void trainEnd() {}
+	void doTrainBegin();
+	void doTrainData(const std::vector<double> *values,
+	                 bool target, double weight);
+	void doTrainEnd();
 
 	virtual bool load() { return true; }
 	virtual void save() {}
@@ -58,14 +62,26 @@ class TrainProcessor : public Source,
 	inline const char *getId() const { return name.c_str(); }
 
     protected:
+	virtual void trainBegin() {}
+	virtual void trainData(const std::vector<double> *values,
+	                       bool target, double weight) {}
+	virtual void trainEnd() {}
+
 	virtual void *requestObject(const std::string &name) const
 	{ return 0; }
 
 	inline bool exists(const std::string &name)
 	{ return boost::filesystem::exists(name.c_str()); }
 
-	std::string	name;
-	MVATrainer	*trainer;
+	std::string		name;
+	MVATrainer		*trainer;
+	Monitoring		*monitoring;
+
+    private:
+	typedef std::pair<TH1F*, TH1F*> SigBkg;
+
+	std::vector<SigBkg>	monHistos;
+	Monitoring		*monModule;
 };
 
 } // namespace PhysicsTools
