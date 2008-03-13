@@ -15,7 +15,7 @@ void EcalRecHitsPlots( TString inputfile = "EcalRecHitsValidation.root" )
   TF1 *gausa = new TF1 ("gausa","([0]*exp(-1*(x-[1])*(x-[1])/2/[2]/[2]))",0.,5.);
 
   cout << "General validation" << endl;
-  rfile->cd("DQMData/EcalRecHitsTask");
+  rfile->cd("DQMData/EcalRecHitsV/EcalRecHitsTask");
   gDirectory->ls();
   
   Char_t histo[200];
@@ -30,15 +30,15 @@ void EcalRecHitsPlots( TString inputfile = "EcalRecHitsValidation.root" )
   if (1) 
     {
       TH1* meGunEnergy_;
-      rfile->GetObject("DQMData/EcalRecHitsTask/EcalRecHitsTask, Gun Momentum;1",meGunEnergy_);
+      rfile->GetObject("DQMData/EcalRecHitsV/EcalRecHitsTask/EcalRecHitsTask Gun Momentum;1",meGunEnergy_);
       meGunEnergy_;
       
       TH1* meGunEta_;
-      rfile->GetObject("DQMData/EcalRecHitsTask/EcalRecHitsTask, Gun Eta;1",meGunEta_);
+      rfile->GetObject("DQMData/EcalRecHitsV/EcalRecHitsTask/EcalRecHitsTask Gun Eta;1",meGunEta_);
       meGunEta_;
       
       TH1* meGunPhi_; 
-      rfile->GetObject("DQMData/EcalRecHitsTask/EcalRecHitsTask, Gun Phi;1",meGunPhi_);
+      rfile->GetObject("DQMData/EcalRecHitsV/EcalRecHitsTask/EcalRecHitsTask Gun Phi;1",meGunPhi_);
       meGunPhi_; 
       
       
@@ -59,23 +59,23 @@ void EcalRecHitsPlots( TString inputfile = "EcalRecHitsValidation.root" )
   if (1) 
     {
       TH1 *meEBRecHitSimHitRatio_;
-      rfile->GetObject("DQMData/EcalRecHitsTask/EcalRecHitsTask, Barrel RecSimHit Ratio;1",meEBRecHitSimHitRatio_);
+      rfile->GetObject("DQMData/EcalRecHitsV/EcalRecHitsTask/EcalRecHitsTask Barrel RecSimHit Ratio;1",meEBRecHitSimHitRatio_);
       meEBRecHitSimHitRatio_;
       
       TH1 *meEERecHitSimHitRatio_;
-      rfile->GetObject("DQMData/EcalRecHitsTask/EcalRecHitsTask, Endcap RecSimHit Ratio;1",meEERecHitSimHitRatio_);
+      rfile->GetObject("DQMData/EcalRecHitsV/EcalRecHitsTask/EcalRecHitsTask Endcap RecSimHit Ratio;1",meEERecHitSimHitRatio_);
       meEERecHitSimHitRatio_;
 
       TH1 *meESRecHitSimHitRatio_;
-      rfile->GetObject("DQMData/EcalRecHitsTask/EcalRecHitsTask, Preshower RecSimHit Ratio;1",meESRecHitSimHitRatio_);
+      rfile->GetObject("DQMData/EcalRecHitsV/EcalRecHitsTask/EcalRecHitsTask Preshower RecSimHit Ratio;1",meESRecHitSimHitRatio_);
       meESRecHitSimHitRatio_;
 
       TH1 *meEBRecHitSimHitRatioGt35_;
-      rfile->GetObject("DQMData/EcalRecHitsTask/EcalRecHitsTask, Barrel RecSimHit Ratio gt 3.5 GeV;1",meEBRecHitSimHitRatioGt35_);
+      rfile->GetObject("DQMData/EcalRecHitsV/EcalRecHitsTask/EcalRecHitsTask Barrel RecSimHit Ratio gt 3p5 GeV;1",meEBRecHitSimHitRatioGt35_);
       meEBRecHitSimHitRatioGt35_;
       
       TH1 *meEERecHitSimHitRatioGt35_;
-      rfile->GetObject("DQMData/EcalRecHitsTask/EcalRecHitsTask, Endcap RecSimHit Ratio gt 3.5 GeV;1",meEERecHitSimHitRatioGt35_);
+      rfile->GetObject("DQMData/EcalRecHitsV/EcalRecHitsTask/EcalRecHitsTask Endcap RecSimHit Ratio gt 3p5 GeV;1",meEERecHitSimHitRatioGt35_);
       meEERecHitSimHitRatioGt35_;
 
 
@@ -131,77 +131,77 @@ void EcalRecHitsPlots( TString inputfile = "EcalRecHitsValidation.root" )
   // ----------------------------------------------------------
   cout << endl;
   cout << "Barrel validation" << endl;
-  rfile->cd("DQMData/EcalBarrelRecHitsTask");
+  rfile->cd("DQMData/EcalRecHitsV/EcalBarrelRecHitsTask");
   gDirectory->ls();
 
   // Barrel validation
   if (1) 
     {    
       TH2 *meEBUncalibRecHitsOccupancy_;
-      rfile->GetObject("DQMData/EcalBarrelRecHitsTask/EB Occupancy;1",meEBUncalibRecHitsOccupancy_);
+      rfile->GetObject("DQMData/EcalRecHitsV/EcalBarrelRecHitsTask/EB Occupancy;1",meEBUncalibRecHitsOccupancy_);
       meEBUncalibRecHitsOccupancy_;
       
       TH1 *meEBUncalibRecHitsAmplitude_;
-      rfile->GetObject("DQMData/EcalBarrelRecHitsTask/EB Amplitude;1",meEBUncalibRecHitsAmplitude_);
+      rfile->GetObject("DQMData/EcalRecHitsV/EcalBarrelRecHitsTask/EB Amplitude;1",meEBUncalibRecHitsAmplitude_);
       meEBUncalibRecHitsAmplitude_;
       
       TH1 *meEBUncalibRecHitsPedestal_;
-      rfile->GetObject("DQMData/EcalBarrelRecHitsTask/EB Pedestal;1",meEBUncalibRecHitsPedestal_);
+      rfile->GetObject("DQMData/EcalRecHitsV/EcalBarrelRecHitsTask/EB Pedestal;1",meEBUncalibRecHitsPedestal_);
       meEBUncalibRecHitsPedestal_;
       
       TH1 *meEBUncalibRecHitsJitter_;
-      rfile->GetObject("DQMData/EcalBarrelRecHitsTask/EB Jitter;1",meEBUncalibRecHitsJitter_);
+      rfile->GetObject("DQMData/EcalRecHitsV/EcalBarrelRecHitsTask/EB Jitter;1",meEBUncalibRecHitsJitter_);
       meEBUncalibRecHitsJitter_;
       
       TH1 *meEBUncalibRecHitsChi2_;
-      rfile->GetObject("DQMData/EcalBarrelRecHitsTask/EB Chi2;1",meEBUncalibRecHitsChi2_);
+      rfile->GetObject("DQMData/EcalRecHitsV/EcalBarrelRecHitsTask/EB Chi2;1",meEBUncalibRecHitsChi2_);
       meEBUncalibRecHitsChi2_;
 
       TH1 *meEBUncalibRecHitMaxSampleRatio_;
-      rfile->GetObject("DQMData/EcalBarrelRecHitsTask/EB RecHit Max Sample Ratio;1",meEBUncalibRecHitMaxSampleRatio_);
+      rfile->GetObject("DQMData/EcalRecHitsV/EcalBarrelRecHitsTask/EB RecHit Max Sample Ratio;1",meEBUncalibRecHitMaxSampleRatio_);
       meEBUncalibRecHitMaxSampleRatio_;
 
       TH2 *meEBUncalibRecHitsOccupancyGt100adc_;
-      rfile->GetObject("DQMData/EcalBarrelRecHitsTask/EB Occupancy gt 100 adc counts;1",meEBUncalibRecHitsOccupancyGt100adc_);
+      rfile->GetObject("DQMData/EcalRecHitsV/EcalBarrelRecHitsTask/EB Occupancy gt 100 adc counts;1",meEBUncalibRecHitsOccupancyGt100adc_);
       meEBUncalibRecHitsOccupancyGt100adc_;
       
       TH1 *meEBUncalibRecHitsAmplitudeGt100adc_;
-      rfile->GetObject("DQMData/EcalBarrelRecHitsTask/EB Amplitude gt 100 adc counts;1",meEBUncalibRecHitsAmplitudeGt100adc_);
+      rfile->GetObject("DQMData/EcalRecHitsV/EcalBarrelRecHitsTask/EB Amplitude gt 100 adc counts;1",meEBUncalibRecHitsAmplitudeGt100adc_);
       meEBUncalibRecHitsAmplitudeGt100adc_;
       
       TH1 *meEBUncalibRecHitsPedestalGt100adc_;
-      rfile->GetObject("DQMData/EcalBarrelRecHitsTask/EB Pedestal gt 100 adc counts;1",meEBUncalibRecHitsPedestalGt100adc_);
+      rfile->GetObject("DQMData/EcalRecHitsV/EcalBarrelRecHitsTask/EB Pedestal gt 100 adc counts;1",meEBUncalibRecHitsPedestalGt100adc_);
       meEBUncalibRecHitsPedestalGt100adc_;
       
       TH1 *meEBUncalibRecHitsJitterGt100adc_;
-      rfile->GetObject("DQMData/EcalBarrelRecHitsTask/EB Jitter gt 100 adc counts;1",meEBUncalibRecHitsJitterGt100adc_);
+      rfile->GetObject("DQMData/EcalRecHitsV/EcalBarrelRecHitsTask/EB Jitter gt 100 adc counts;1",meEBUncalibRecHitsJitterGt100adc_);
       meEBUncalibRecHitsJitterGt100adc_;
       
       TH1 *meEBUncalibRecHitsChi2Gt100adc_;
-      rfile->GetObject("DQMData/EcalBarrelRecHitsTask/EB Chi2 gt 100 adc counts;1",meEBUncalibRecHitsChi2Gt100adc_);
+      rfile->GetObject("DQMData/EcalRecHitsV/EcalBarrelRecHitsTask/EB Chi2 gt 100 adc counts;1",meEBUncalibRecHitsChi2Gt100adc_);
       meEBUncalibRecHitsChi2Gt100adc_;
 
       TH1 *meEBUncalibRecHitMaxSampleRatioGt100adc_;
-      rfile->GetObject("DQMData/EcalBarrelRecHitsTask/EB RecHit Max Sample Ratio gt 100 adc counts;1",meEBUncalibRecHitMaxSampleRatioGt100adc_);
+      rfile->GetObject("DQMData/EcalRecHitsV/EcalBarrelRecHitsTask/EB RecHit Max Sample Ratio gt 100 adc counts;1",meEBUncalibRecHitMaxSampleRatioGt100adc_);
       meEBUncalibRecHitMaxSampleRatioGt100adc_;
 
       TProfile2D *meEBUncalibRecHitsAmpFullMap_;
-      rfile->GetObject("DQMData/EcalBarrelRecHitsTask/EB Amplitude Full Map;1",meEBUncalibRecHitsAmpFullMap_);
+      rfile->GetObject("DQMData/EcalRecHitsV/EcalBarrelRecHitsTask/EB Amplitude Full Map;1",meEBUncalibRecHitsAmpFullMap_);
       meEBUncalibRecHitsAmpFullMap_;
       
       TProfile2D *meEBUncalibRecHitsPedFullMap_;
-      rfile->GetObject("DQMData/EcalBarrelRecHitsTask/EB Pedestal Full Map;1",meEBUncalibRecHitsPedFullMap_);
+      rfile->GetObject("DQMData/EcalRecHitsV/EcalBarrelRecHitsTask/EB Pedestal Full Map;1",meEBUncalibRecHitsPedFullMap_);
       meEBUncalibRecHitsPedFullMap_;
       
       TProfile2D *meEBUncalibRecHitAmplMap_[36];
       TProfile2D *meEBUncalibRecHitPedMap_[36];
       for (int ii=0; ii<36 ; ii++) 
 	{
-	  sprintf(histo, "DQMData/EcalBarrelRecHitsTask/EB Amp SM%02d;1", ii+1);
+	  sprintf(histo, "DQMData/EcalRecHitsV/EcalBarrelRecHitsTask/EB Amp SM%02d;1", ii+1);
 	  rfile->GetObject(histo,meEBUncalibRecHitAmplMap_[ii]);
 	  meEBUncalibRecHitAmplMap_[ii];
 	  
-	  sprintf(histo, "DQMData/EcalBarrelRecHitsTask/EB Ped SM%02d;1", ii+1);
+	  sprintf(histo, "DQMData/EcalRecHitsV/EcalBarrelRecHitsTask/EB Ped SM%02d;1", ii+1);
 	  rfile->GetObject(histo,meEBUncalibRecHitPedMap_[ii]);
 	  meEBUncalibRecHitPedMap_[ii];
 	}
@@ -272,74 +272,74 @@ void EcalRecHitsPlots( TString inputfile = "EcalRecHitsValidation.root" )
   // -------------------------------------------------------
   cout << endl;
   cout << "Endcap validation" << endl;
-  rfile->cd("DQMData/EcalEndcapRecHitsTask");
+  rfile->cd("DQMData/EcalRecHitsV/EcalEndcapRecHitsTask");
   gDirectory->ls();
 
   // Endcap validation
   if (1) 
     {    
       TH2 *meEEUncalibRecHitsOccupancyPlus_;
-      rfile->GetObject("DQMData/EcalEndcapRecHitsTask/EE+ Occupancy;1",meEEUncalibRecHitsOccupancyPlus_);
+      rfile->GetObject("DQMData/EcalRecHitsV/EcalEndcapRecHitsTask/EE+ Occupancy;1",meEEUncalibRecHitsOccupancyPlus_);
       meEEUncalibRecHitsOccupancyPlus_;
 
       TH2 *meEEUncalibRecHitsOccupancyMinus_;
-      rfile->GetObject("DQMData/EcalEndcapRecHitsTask/EE- Occupancy;1",meEEUncalibRecHitsOccupancyMinus_);
+      rfile->GetObject("DQMData/EcalRecHitsV/EcalEndcapRecHitsTask/EE- Occupancy;1",meEEUncalibRecHitsOccupancyMinus_);
       meEEUncalibRecHitsOccupancyMinus_;
       
       TH1 *meEEUncalibRecHitsAmplitude_;
-      rfile->GetObject("DQMData/EcalEndcapRecHitsTask/EE Amplitude;1",meEEUncalibRecHitsAmplitude_);
+      rfile->GetObject("DQMData/EcalRecHitsV/EcalEndcapRecHitsTask/EE Amplitude;1",meEEUncalibRecHitsAmplitude_);
       meEEUncalibRecHitsAmplitude_;
 
       TH1 *meEEUncalibRecHitsPedestal_;
-      rfile->GetObject("DQMData/EcalEndcapRecHitsTask/EE Pedestal;1",meEEUncalibRecHitsPedestal_);
+      rfile->GetObject("DQMData/EcalRecHitsV/EcalEndcapRecHitsTask/EE Pedestal;1",meEEUncalibRecHitsPedestal_);
       meEEUncalibRecHitsPedestal_;
       
       TH1 *meEEUncalibRecHitsJitter_;
-      rfile->GetObject("DQMData/EcalEndcapRecHitsTask/EE Jitter;1",meEEUncalibRecHitsJitter_);
+      rfile->GetObject("DQMData/EcalRecHitsV/EcalEndcapRecHitsTask/EE Jitter;1",meEEUncalibRecHitsJitter_);
       meEEUncalibRecHitsJitter_;
       
       TH1 *meEEUncalibRecHitsChi2_;
-      rfile->GetObject("DQMData/EcalEndcapRecHitsTask/EE Chi2;1",meEEUncalibRecHitsChi2_);
+      rfile->GetObject("DQMData/EcalRecHitsV/EcalEndcapRecHitsTask/EE Chi2;1",meEEUncalibRecHitsChi2_);
       meEEUncalibRecHitsChi2_;
       
       TH1 *meEEUncalibRecHitMaxSampleRatio_;
-      rfile->GetObject("DQMData/EcalEndcapRecHitsTask/EE RecHit Max Sample Ratio;1",meEEUncalibRecHitMaxSampleRatio_);
+      rfile->GetObject("DQMData/EcalRecHitsV/EcalEndcapRecHitsTask/EE RecHit Max Sample Ratio;1",meEEUncalibRecHitMaxSampleRatio_);
       meEEUncalibRecHitMaxSampleRatio_;
 
       TH2 *meEEUncalibRecHitsOccupancyPlusGt60adc_;
-      rfile->GetObject("DQMData/EcalEndcapRecHitsTask/EE+ Occupancy gt 60 adc counts;1",meEEUncalibRecHitsOccupancyPlusGt60adc_);
+      rfile->GetObject("DQMData/EcalRecHitsV/EcalEndcapRecHitsTask/EE+ Occupancy gt 60 adc counts;1",meEEUncalibRecHitsOccupancyPlusGt60adc_);
       meEEUncalibRecHitsOccupancyPlusGt60adc_;
 
       TH2 *meEEUncalibRecHitsOccupancyMinusGt60adc_;
-      rfile->GetObject("DQMData/EcalEndcapRecHitsTask/EE- Occupancy gt 60 adc counts;1",meEEUncalibRecHitsOccupancyMinusGt60adc_);
+      rfile->GetObject("DQMData/EcalRecHitsV/EcalEndcapRecHitsTask/EE- Occupancy gt 60 adc counts;1",meEEUncalibRecHitsOccupancyMinusGt60adc_);
       meEEUncalibRecHitsOccupancyMinusGt60adc_;
       
       TH1 *meEEUncalibRecHitsAmplitudeGt60adc_;
-      rfile->GetObject("DQMData/EcalEndcapRecHitsTask/EE Amplitude gt 60 adc counts;1",meEEUncalibRecHitsAmplitudeGt60adc_);
+      rfile->GetObject("DQMData/EcalRecHitsV/EcalEndcapRecHitsTask/EE Amplitude gt 60 adc counts;1",meEEUncalibRecHitsAmplitudeGt60adc_);
       meEEUncalibRecHitsAmplitudeGt60adc_;
 
       TH1 *meEEUncalibRecHitsPedestalGt60adc_;
-      rfile->GetObject("DQMData/EcalEndcapRecHitsTask/EE Pedestal gt 60 adc counts;1",meEEUncalibRecHitsPedestalGt60adc_);
+      rfile->GetObject("DQMData/EcalRecHitsV/EcalEndcapRecHitsTask/EE Pedestal gt 60 adc counts;1",meEEUncalibRecHitsPedestalGt60adc_);
       meEEUncalibRecHitsPedestalGt60adc_;
       
       TH1 *meEEUncalibRecHitsJitterGt60adc_;
-      rfile->GetObject("DQMData/EcalEndcapRecHitsTask/EE Jitter gt 60 adc counts;1",meEEUncalibRecHitsJitterGt60adc_);
+      rfile->GetObject("DQMData/EcalRecHitsV/EcalEndcapRecHitsTask/EE Jitter gt 60 adc counts;1",meEEUncalibRecHitsJitterGt60adc_);
       meEEUncalibRecHitsJitterGt60adc_;
       
       TH1 *meEEUncalibRecHitsChi2Gt60adc_;
-      rfile->GetObject("DQMData/EcalEndcapRecHitsTask/EE Chi2 gt 60 adc counts;1",meEEUncalibRecHitsChi2Gt60adc_);
+      rfile->GetObject("DQMData/EcalRecHitsV/EcalEndcapRecHitsTask/EE Chi2 gt 60 adc counts;1",meEEUncalibRecHitsChi2Gt60adc_);
       meEEUncalibRecHitsChi2Gt60adc_;
       
       TH1 *meEEUncalibRecHitMaxSampleRatioGt60adc_;
-      rfile->GetObject("DQMData/EcalEndcapRecHitsTask/EE RecHit Max Sample Ratio gt 60 adc counts;1",meEEUncalibRecHitMaxSampleRatioGt60adc_);
+      rfile->GetObject("DQMData/EcalRecHitsV/EcalEndcapRecHitsTask/EE RecHit Max Sample Ratio gt 60 adc counts;1",meEEUncalibRecHitMaxSampleRatioGt60adc_);
       meEEUncalibRecHitMaxSampleRatioGt60adc_;
 
       TProfile2D *meEEUncalibRecHitsAmpFullMap_;
-      rfile->GetObject("DQMData/EcalEndcapRecHitsTask/EE Amplitude Full Map;1",meEEUncalibRecHitsAmpFullMap_);
+      rfile->GetObject("DQMData/EcalRecHitsV/EcalEndcapRecHitsTask/EE Amplitude Full Map;1",meEEUncalibRecHitsAmpFullMap_);
       meEEUncalibRecHitsAmpFullMap_;
 
       TProfile2D *meEEUncalibRecHitsPedFullMap_;
-      rfile->GetObject("DQMData/EcalEndcapRecHitsTask/EE Pedestal Full Map;1",meEEUncalibRecHitsPedFullMap_);
+      rfile->GetObject("DQMData/EcalRecHitsV/EcalEndcapRecHitsTask/EE Pedestal Full Map;1",meEEUncalibRecHitsPedFullMap_);
       meEEUncalibRecHitsPedFullMap_;
 
 
@@ -400,58 +400,58 @@ void EcalRecHitsPlots( TString inputfile = "EcalRecHitsValidation.root" )
   // ----------------------------------------------------------
   cout << endl;
   cout << "Preshower validation" << endl;
-  rfile->cd("DQMData/EcalPreshowerRecHitsTask");
+  rfile->cd("DQMData/EcalRecHitsV/EcalPreshowerRecHitsTask");
   gDirectory->ls();
   
   // Preshower validation
   if (1) 
     {    
       TH1 *meESRecHitsEnergy_;
-      rfile->GetObject("DQMData/EcalPreshowerRecHitsTask/ES Energy;1",meESRecHitsEnergy_);
+      rfile->GetObject("DQMData/EcalRecHitsV/EcalPreshowerRecHitsTask/ES Energy;1",meESRecHitsEnergy_);
       meESRecHitsEnergy_;
 
       TH1 *meESRecHitsEnergy_zp1st_;
-      rfile->GetObject("DQMData/EcalPreshowerRecHitsTask/ES Energy Plane1 Side+;1",meESRecHitsEnergy_zp1st_);
+      rfile->GetObject("DQMData/EcalRecHitsV/EcalPreshowerRecHitsTask/ES Energy Plane1 Side+;1",meESRecHitsEnergy_zp1st_);
       meESRecHitsEnergy_zp1st_;
 
       TH1 *meESRecHitsEnergy_zp2nd_;
-      rfile->GetObject("DQMData/EcalPreshowerRecHitsTask/ES Energy Plane2 Side+;1",meESRecHitsEnergy_zp2nd_);
+      rfile->GetObject("DQMData/EcalRecHitsV/EcalPreshowerRecHitsTask/ES Energy Plane2 Side+;1",meESRecHitsEnergy_zp2nd_);
       meESRecHitsEnergy_zp2nd_;
 
       TH1 *meESRecHitsEnergy_zm1st_;
-      rfile->GetObject("DQMData/EcalPreshowerRecHitsTask/ES Energy Plane1 Side-;1",meESRecHitsEnergy_zm1st_);
+      rfile->GetObject("DQMData/EcalRecHitsV/EcalPreshowerRecHitsTask/ES Energy Plane1 Side-;1",meESRecHitsEnergy_zm1st_);
       meESRecHitsEnergy_zm1st_;
 
       TH1 *meESRecHitsEnergy_zm2nd_;
-      rfile->GetObject("DQMData/EcalPreshowerRecHitsTask/ES Energy Plane2 Side-;1",meESRecHitsEnergy_zm2nd_);
+      rfile->GetObject("DQMData/EcalRecHitsV/EcalPreshowerRecHitsTask/ES Energy Plane2 Side-;1",meESRecHitsEnergy_zm2nd_);
       meESRecHitsEnergy_zm2nd_;
 
       TH1 *meESRecHitsMultip_;
-      rfile->GetObject("DQMData/EcalPreshowerRecHitsTask/ES Multiplicity;1",meESRecHitsMultip_);
+      rfile->GetObject("DQMData/EcalRecHitsV/EcalPreshowerRecHitsTask/ES Multiplicity;1",meESRecHitsMultip_);
       meESRecHitsMultip_;
 
       TH1 *meESRecHitsMultip_zp1st_;
-      rfile->GetObject("DQMData/EcalPreshowerRecHitsTask/ES Multiplicity Plane1 Side+;1",meESRecHitsMultip_zp1st_);
+      rfile->GetObject("DQMData/EcalRecHitsV/EcalPreshowerRecHitsTask/ES Multiplicity Plane1 Side+;1",meESRecHitsMultip_zp1st_);
       meESRecHitsMultip_zp1st_;
 
       TH1 *meESRecHitsMultip_zp2nd_;
-      rfile->GetObject("DQMData/EcalPreshowerRecHitsTask/ES Multiplicity Plane2 Side+;1",meESRecHitsMultip_zp2nd_);
+      rfile->GetObject("DQMData/EcalRecHitsV/EcalPreshowerRecHitsTask/ES Multiplicity Plane2 Side+;1",meESRecHitsMultip_zp2nd_);
       meESRecHitsMultip_zp2nd_;
 
       TH1 *meESRecHitsMultip_zm1st_;
-      rfile->GetObject("DQMData/EcalPreshowerRecHitsTask/ES Multiplicity Plane1 Side-;1",meESRecHitsMultip_zm1st_);
+      rfile->GetObject("DQMData/EcalRecHitsV/EcalPreshowerRecHitsTask/ES Multiplicity Plane1 Side-;1",meESRecHitsMultip_zm1st_);
       meESRecHitsMultip_zm1st_;
 
       TH1 *meESRecHitsMultip_zm2nd_;
-      rfile->GetObject("DQMData/EcalPreshowerRecHitsTask/ES Multiplicity Plane2 Side-;1",meESRecHitsMultip_zm2nd_);
+      rfile->GetObject("DQMData/EcalRecHitsV/EcalPreshowerRecHitsTask/ES Multiplicity Plane2 Side-;1",meESRecHitsMultip_zm2nd_);
       meESRecHitsMultip_zm2nd_;
 
       TH1 *meESEERecHitsEnergy_zp_;
-      rfile->GetObject("DQMData/EcalPreshowerRecHitsTask/Preshower EE vs ES energy Side+;1",meESEERecHitsEnergy_zp_);
+      rfile->GetObject("DQMData/EcalRecHitsV/EcalPreshowerRecHitsTask/Preshower EE vs ES energy Side+;1",meESEERecHitsEnergy_zp_);
       meESEERecHitsEnergy_zp_;
 
       TH1 *meESEERecHitsEnergy_zm_;
-      rfile->GetObject("DQMData/EcalPreshowerRecHitsTask/Preshower EE vs ES energy Side-;1",meESEERecHitsEnergy_zm_);
+      rfile->GetObject("DQMData/EcalRecHitsV/EcalPreshowerRecHitsTask/Preshower EE vs ES energy Side-;1",meESEERecHitsEnergy_zm_);
       meESEERecHitsEnergy_zm_;
 
       TH2 *meESRecHitsStripOccupancy_zp1st_[32];
@@ -460,19 +460,19 @@ void EcalRecHitsPlots( TString inputfile = "EcalRecHitsValidation.root" )
       TH2 *meESRecHitsStripOccupancy_zm2nd_[32];
       for (int kk=0; kk<32; kk++)
 	{ 
-	  sprintf(histo, "DQMData/EcalPreshowerRecHitsTask/ES Occupancy Plane1 Side+ Strip%02d", kk+1);
+	  sprintf(histo, "DQMData/EcalRecHitsV/EcalPreshowerRecHitsTask/ES Occupancy Plane1 Side+ Strip%02d", kk+1);
 	  rfile->GetObject(histo,meESRecHitsStripOccupancy_zp1st_[kk]);
 	  meESRecHitsStripOccupancy_zp1st_[kk];
 
-	  sprintf(histo, "DQMData/EcalPreshowerRecHitsTask/ES Occupancy Plane2 Side+ Strip%02d", kk+1);
+	  sprintf(histo, "DQMData/EcalRecHitsV/EcalPreshowerRecHitsTask/ES Occupancy Plane2 Side+ Strip%02d", kk+1);
 	  rfile->GetObject(histo,meESRecHitsStripOccupancy_zp2nd_[kk]);
 	  meESRecHitsStripOccupancy_zp2nd_[kk];
 
-	  sprintf(histo, "DQMData/EcalPreshowerRecHitsTask/ES Occupancy Plane1 Side- Strip%02d", kk+1);
+	  sprintf(histo, "DQMData/EcalRecHitsV/EcalPreshowerRecHitsTask/ES Occupancy Plane1 Side- Strip%02d", kk+1);
 	  rfile->GetObject(histo,meESRecHitsStripOccupancy_zm1st_[kk]);
 	  meESRecHitsStripOccupancy_zm1st_[kk];
 
-	  sprintf(histo, "DQMData/EcalPreshowerRecHitsTask/ES Occupancy Plane2 Side- Strip%02d", kk+1);
+	  sprintf(histo, "DQMData/EcalRecHitsV/EcalPreshowerRecHitsTask/ES Occupancy Plane2 Side- Strip%02d", kk+1);
 	  rfile->GetObject(histo,meESRecHitsStripOccupancy_zm2nd_[kk]);
 	  meESRecHitsStripOccupancy_zm2nd_[kk];
 	}
