@@ -1,5 +1,6 @@
 #include "FWCore/ParameterSet/interface/VPSetNode.h"
 #include "FWCore/ParameterSet/interface/PSetNode.h"
+#include "FWCore/ParameterSet/interface/VEntryNode.h"
 #include "FWCore/ParameterSet/interface/Nodes.h"
 #include "FWCore/ParameterSet/interface/Visitor.h"
 #include "FWCore/ParameterSet/interface/ReplaceNode.h"
@@ -120,14 +121,26 @@ namespace edm {
       {
         VPSetNode * replacement = replaceNode->value<VPSetNode>();
 
-        if(replacement == 0) {
-          throw edm::Exception(errors::Configuration)
-            << "Cannot replace entry vector" << name()
-            <<   " with " << replaceNode->type()
-            << "\nfrom " << traceback();
+        if(replacement != 0) 
+        {
+          nodes_ = replacement->nodes_;
         }
-       
-        nodes_ = replacement->nodes_;
+        else 
+        {
+          // maybe it's a blank VEntryNode
+          VEntryNode * ventryNode = replaceNode->value<VEntryNode>();
+          if(ventryNode != 0 && ventryNode->value()->empty())
+          {
+            nodes_->clear();
+          }
+          else 
+          {
+            throw edm::Exception(errors::Configuration)
+              << "Cannot replace entry vector " << name()
+              <<   " with " << replaceNode->type()
+              << "\nfrom " << traceback();
+          }
+        }
       }
       else if(replaceNode->type() == "replaceAppend")
       {
