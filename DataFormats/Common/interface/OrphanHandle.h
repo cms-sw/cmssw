@@ -19,7 +19,7 @@ OrphanHandles can have:
 
 To check validity, one can use the isValid() function.
 
-$Id: OrphanHandle.h,v 1.5 2007/06/14 04:56:29 wmtan Exp $
+$Id: OrphanHandle.h,v 1.6 2007/10/27 11:31:52 elmer Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -33,6 +33,8 @@ namespace edm {
   template <typename T>
   class OrphanHandle {
   public:
+    typedef T element_type;
+
     // Default constructed handles are invalid.
     OrphanHandle();
 
