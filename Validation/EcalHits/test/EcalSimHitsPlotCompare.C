@@ -21,10 +21,10 @@ void EcalSimHitsPlotCompare( TString currentfile   = "EcalSimHitsValidation_new.
   TFile * rfile = new TFile(rfilename);
   TFile * sfile = new TFile(sfilename);
   
-  rfile->cd("DQMData/EcalSimHitsValidation");
+  rfile->cd("DQMData/EcalHitsV/EcalSimHitsValidation");
   gDirectory->ls();
   
-  sfile->cd("DQMData/EcalSimHitsValidation");
+  sfile->cd("DQMData/EcalHitsV/EcalSimHitsValidation");
   gDirectory->ls();
   
   Char_t histo[200];
@@ -43,32 +43,32 @@ void EcalSimHitsPlotCompare( TString currentfile   = "EcalSimHitsValidation_new.
     Ecal->Divide(1,3);
     
     TH1 *meGunEnergy_;
-    rfile->GetObject("DQMData/EcalSimHitsValidation/EcalSimHitsValidation Gun Momentum;1", meGunEnergy_);
+    rfile->GetObject("DQMData/EcalHitsV/EcalSimHitsValidation/EcalSimHitsValidation Gun Momentum;1", meGunEnergy_);
     meGunEnergy_;
     meGunEnergy_->SetLineColor(rcolor);
     
     TH1 *meGunEta_;
-    rfile->GetObject("DQMData/EcalSimHitsValidation/EcalSimHitsValidation Gun Eta;1", meGunEta_);
+    rfile->GetObject("DQMData/EcalHitsV/EcalSimHitsValidation/EcalSimHitsValidation Gun Eta;1", meGunEta_);
     meGunEta_;
     meGunEta_->SetLineColor(rcolor);
     
     TH1 *meGunPhi_; 
-    rfile->GetObject("DQMData/EcalSimHitsValidation/EcalSimHitsValidation Gun Phi;1", meGunPhi_);
+    rfile->GetObject("DQMData/EcalHitsV/EcalSimHitsValidation/EcalSimHitsValidation Gun Phi;1", meGunPhi_);
     meGunPhi_; 
     meGunPhi_->SetLineColor(rcolor); 
     
     TH1 *newmeGunEnergy_;
-    sfile->GetObject("DQMData/EcalSimHitsValidation/EcalSimHitsValidation Gun Momentum;1", newmeGunEnergy_);
+    sfile->GetObject("DQMData/EcalHitsV/EcalSimHitsValidation/EcalSimHitsValidation Gun Momentum;1", newmeGunEnergy_);
     newmeGunEnergy_;
     newmeGunEnergy_->SetLineColor(scolor);
     
     TH1 *newmeGunEta_;
-    sfile->GetObject("DQMData/EcalSimHitsValidation/EcalSimHitsValidation Gun Eta;1", newmeGunEta_);
+    sfile->GetObject("DQMData/EcalHitsV/EcalSimHitsValidation/EcalSimHitsValidation Gun Eta;1", newmeGunEta_);
     newmeGunEta_;
     newmeGunEta_->SetLineColor(scolor);
     
     TH1 *newmeGunPhi_; 
-    sfile->GetObject("DQMData/EcalSimHitsValidation/EcalSimHitsValidation Gun Phi;1", newmeGunPhi_);
+    sfile->GetObject("DQMData/EcalHitsV/EcalSimHitsValidation/EcalSimHitsValidation Gun Phi;1", newmeGunPhi_);
     newmeGunPhi_; 
     newmeGunPhi_->SetLineColor(scolor); 
     
@@ -100,32 +100,32 @@ void EcalSimHitsPlotCompare( TString currentfile   = "EcalSimHitsValidation_new.
     Ecal->Divide(1,3);
     
     TH1 *meEBEnergyFraction_;
-    rfile->GetObject("DQMData/EcalSimHitsValidation/EcalSimHitsValidation Barrel fraction of energy;1",meEBEnergyFraction_);
+    rfile->GetObject("DQMData/EcalHitsV/EcalSimHitsValidation/EcalSimHitsValidation Barrel fraction of energy;1",meEBEnergyFraction_);
     meEBEnergyFraction_;
     meEBEnergyFraction_->SetLineColor(rcolor);
     
     TH1 *meEEEnergyFraction_;
-    rfile->GetObject("DQMData/EcalSimHitsValidation/EcalSimHitsValidation Endcap fraction of energy;1",meEEEnergyFraction_);
+    rfile->GetObject("DQMData/EcalHitsV/EcalSimHitsValidation/EcalSimHitsValidation Endcap fraction of energy;1",meEEEnergyFraction_);
     meEEEnergyFraction_;
     meEEEnergyFraction_->SetLineColor(rcolor);
     
     TH1 *meESEnergyFraction_;
-    rfile->GetObject("DQMData/EcalSimHitsValidation/EcalSimHitsValidation Preshower fraction of energy;1",meESEnergyFraction_);
+    rfile->GetObject("DQMData/EcalHitsV/EcalSimHitsValidation/EcalSimHitsValidation Preshower fraction of energy;1",meESEnergyFraction_);
     meESEnergyFraction_;
     meESEnergyFraction_->SetLineColor(rcolor);
 
     TH1 *newmeEBEnergyFraction_;
-    sfile->GetObject("DQMData/EcalSimHitsValidation/EcalSimHitsValidation Barrel fraction of energy;1",newmeEBEnergyFraction_);
+    sfile->GetObject("DQMData/EcalHitsV/EcalSimHitsValidation/EcalSimHitsValidation Barrel fraction of energy;1",newmeEBEnergyFraction_);
     newmeEBEnergyFraction_;
     newmeEBEnergyFraction_->SetLineColor(scolor);
     
     TH1 *newmeEEEnergyFraction_;
-    sfile->GetObject("DQMData/EcalSimHitsValidation/EcalSimHitsValidation Endcap fraction of energy;1",newmeEEEnergyFraction_);
+    sfile->GetObject("DQMData/EcalHitsV/EcalSimHitsValidation/EcalSimHitsValidation Endcap fraction of energy;1",newmeEEEnergyFraction_);
     newmeEEEnergyFraction_;
     newmeEEEnergyFraction_->SetLineColor(scolor);
     
     TH1 *newmeESEnergyFraction_;
-    sfile->GetObject("DQMData/EcalSimHitsValidation/EcalSimHitsValidation Preshower fraction of energy;1",newmeESEnergyFraction_);
+    sfile->GetObject("DQMData/EcalHitsV/EcalSimHitsValidation/EcalSimHitsValidation Preshower fraction of energy;1",newmeESEnergyFraction_);
     newmeESEnergyFraction_;
     newmeESEnergyFraction_->SetLineColor(scolor);
     
@@ -159,32 +159,32 @@ void EcalSimHitsPlotCompare( TString currentfile   = "EcalSimHitsValidation_new.
     Ecal->Divide(1,3);
     
     TH1 * meEBHits_;
-    rfile->GetObject("DQMData/EcalSimHitsValidation/EB hits multiplicity;1",meEBHits_);
+    rfile->GetObject("DQMData/EcalHitsV/EcalSimHitsValidation/EB hits multiplicity;1",meEBHits_);
     meEBHits_;
     meEBHits_->SetLineColor(rcolor);
     
     TH1 * meEEzpHits_;
-    rfile->GetObject("DQMData/EcalSimHitsValidation/EE+ hits multiplicity;1",meEEzpHits_);
+    rfile->GetObject("DQMData/EcalHitsV/EcalSimHitsValidation/EE+ hits multiplicity;1",meEEzpHits_);
     meEEzpHits_;
     meEEzpHits_->SetLineColor(rcolor);
 
     TH1 * meEEzmHits_;
-    rfile->GetObject("DQMData/EcalSimHitsValidation/EE- hits multiplicity;1",meEEzmHits_);
+    rfile->GetObject("DQMData/EcalHitsV/EcalSimHitsValidation/EE- hits multiplicity;1",meEEzmHits_);
     meEEzmHits_;
     meEEzmHits_->SetLineColor(rcolor);
     
     TH1 * newmeEBHits_;
-    sfile->GetObject("DQMData/EcalSimHitsValidation/EB hits multiplicity;1",newmeEBHits_);
+    sfile->GetObject("DQMData/EcalHitsV/EcalSimHitsValidation/EB hits multiplicity;1",newmeEBHits_);
     newmeEBHits_;
     newmeEBHits_->SetLineColor(scolor);
     
     TH1 * newmeEEzpHits_;
-    sfile->GetObject("DQMData/EcalSimHitsValidation/EE+ hits multiplicity;1",newmeEEzpHits_);
+    sfile->GetObject("DQMData/EcalHitsV/EcalSimHitsValidation/EE+ hits multiplicity;1",newmeEEzpHits_);
     newmeEEzpHits_;
     newmeEEzpHits_->SetLineColor(scolor);
 
     TH1 * newmeEEzmHits_;
-    sfile->GetObject("DQMData/EcalSimHitsValidation/EE- hits multiplicity;1",newmeEEzmHits_);
+    sfile->GetObject("DQMData/EcalHitsV/EcalSimHitsValidation/EE- hits multiplicity;1",newmeEEzmHits_);
     newmeEEzmHits_;
     newmeEEzmHits_->SetLineColor(scolor);
     
@@ -219,32 +219,32 @@ void EcalSimHitsPlotCompare( TString currentfile   = "EcalSimHitsValidation_new.
     Ecal->Divide(1,3);
     
     TH1 *meEBCrystals_;
-    rfile->GetObject("DQMData/EcalSimHitsValidation/EB crystals multiplicity;1",meEBCrystals_);
+    rfile->GetObject("DQMData/EcalHitsV/EcalSimHitsValidation/EB crystals multiplicity;1",meEBCrystals_);
     meEBCrystals_;
     meEBCrystals_->SetLineColor(rcolor);
     
     TH1 *meEEzpCrystals_;
-    rfile->GetObject("DQMData/EcalSimHitsValidation/EE+ crystals multiplicity;1",meEEzpCrystals_);
+    rfile->GetObject("DQMData/EcalHitsV/EcalSimHitsValidation/EE+ crystals multiplicity;1",meEEzpCrystals_);
     meEEzpCrystals_;
     meEEzpCrystals_->SetLineColor(rcolor);
     
     TH1 *meEEzmCrystals_;
-    rfile->GetObject("DQMData/EcalSimHitsValidation/EE- crystals multiplicity;1",meEEzmCrystals_);
+    rfile->GetObject("DQMData/EcalHitsV/EcalSimHitsValidation/EE- crystals multiplicity;1",meEEzmCrystals_);
     meEEzmCrystals_;
     meEEzmCrystals_->SetLineColor(rcolor);
     
     TH1 *newmeEBCrystals_;
-    sfile->GetObject("DQMData/EcalSimHitsValidation/EB crystals multiplicity;1",newmeEBCrystals_);
+    sfile->GetObject("DQMData/EcalHitsV/EcalSimHitsValidation/EB crystals multiplicity;1",newmeEBCrystals_);
     newmeEBCrystals_;
     newmeEBCrystals_->SetLineColor(scolor);
     
     TH1 *newmeEEzpCrystals_;
-    sfile->GetObject("DQMData/EcalSimHitsValidation/EE+ crystals multiplicity;1",newmeEEzpCrystals_);
+    sfile->GetObject("DQMData/EcalHitsV/EcalSimHitsValidation/EE+ crystals multiplicity;1",newmeEEzpCrystals_);
     newmeEEzpCrystals_;
     newmeEEzpCrystals_->SetLineColor(scolor);
     
     TH1 *newmeEEzmCrystals_;
-    sfile->GetObject("DQMData/EcalSimHitsValidation/EE- crystals multiplicity;1",newmeEEzmCrystals_);
+    sfile->GetObject("DQMData/EcalHitsV/EcalSimHitsValidation/EE- crystals multiplicity;1",newmeEEzmCrystals_);
     newmeEEzmCrystals_;
     newmeEEzmCrystals_->SetLineColor(scolor);
   
@@ -280,11 +280,11 @@ void EcalSimHitsPlotCompare( TString currentfile   = "EcalSimHitsValidation_new.
     Ecal->Divide(1,2);
     
     TH2 *meEBoccupancy_;
-    rfile->GetObject("DQMData/EcalSimHitsValidation/EB occupancy;1",meEBoccupancy_);
+    rfile->GetObject("DQMData/EcalHitsV/EcalSimHitsValidation/EB occupancy;1",meEBoccupancy_);
     meEBoccupancy_;
     
     TH2 *newmeEBoccupancy_;
-    sfile->GetObject("DQMData/EcalSimHitsValidation/EB occupancy;1",newmeEBoccupancy_);
+    sfile->GetObject("DQMData/EcalHitsV/EcalSimHitsValidation/EB occupancy;1",newmeEBoccupancy_);
     newmeEBoccupancy_;
     
     if (meEBoccupancy_ && newmeEBoccupancy_){ 
@@ -304,19 +304,19 @@ void EcalSimHitsPlotCompare( TString currentfile   = "EcalSimHitsValidation_new.
     Ecal->Divide(2,2);
     
     TH2 *meEEzpOccupancy_;
-    rfile->GetObject("DQMData/EcalSimHitsValidation/EE+ occupancy",meEEzpOccupancy_);
+    rfile->GetObject("DQMData/EcalHitsV/EcalSimHitsValidation/EE+ occupancy",meEEzpOccupancy_);
     meEEzpOccupancy_;
 
     TH2 *meEEzmOccupancy_;
-    rfile->GetObject("DQMData/EcalSimHitsValidation/EE- occupancy",meEEzmOccupancy_);
+    rfile->GetObject("DQMData/EcalHitsV/EcalSimHitsValidation/EE- occupancy",meEEzmOccupancy_);
     meEEzmOccupancy_;
     
     TH2 *newmeEEzpOccupancy_;
-    sfile->GetObject("DQMData/EcalSimHitsValidation/EE+ occupancy",newmeEEzpOccupancy_);
+    sfile->GetObject("DQMData/EcalHitsV/EcalSimHitsValidation/EE+ occupancy",newmeEEzpOccupancy_);
     newmeEEzpOccupancy_;
 
     TH2 *newmeEEzmOccupancy_;
-    sfile->GetObject("DQMData/EcalSimHitsValidation/EE- occupancy",newmeEEzmOccupancy_);
+    sfile->GetObject("DQMData/EcalHitsV/EcalSimHitsValidation/EE- occupancy",newmeEEzmOccupancy_);
     newmeEEzmOccupancy_;
     
     if (meEEzpOccupancy_ && newmeEEzpOccupancy_){ 
@@ -344,22 +344,22 @@ void EcalSimHitsPlotCompare( TString currentfile   = "EcalSimHitsValidation_new.
     Ecal->Divide(1,2);
     
     TProfile *meEBLongitudinalShower_;
-    rfile->GetObject("DQMData/EcalSimHitsValidation/EB longitudinal shower profile;1",meEBLongitudinalShower_);
+    rfile->GetObject("DQMData/EcalHitsV/EcalSimHitsValidation/EB longitudinal shower profile;1",meEBLongitudinalShower_);
     meEBLongitudinalShower_;
     meEBLongitudinalShower_->SetLineColor(rcolor);
     
     TProfile *meEELongitudinalShower_;
-    rfile->GetObject("DQMData/EcalSimHitsValidation/EE longitudinal shower profile;1",meEELongitudinalShower_);
+    rfile->GetObject("DQMData/EcalHitsV/EcalSimHitsValidation/EE longitudinal shower profile;1",meEELongitudinalShower_);
     meEELongitudinalShower_;
     meEELongitudinalShower_->SetLineColor(rcolor);
     
     TProfile *newmeEBLongitudinalShower_;
-    sfile->GetObject("DQMData/EcalSimHitsValidation/EB longitudinal shower profile;1",newmeEBLongitudinalShower_);
+    sfile->GetObject("DQMData/EcalHitsV/EcalSimHitsValidation/EB longitudinal shower profile;1",newmeEBLongitudinalShower_);
     newmeEBLongitudinalShower_;
     newmeEBLongitudinalShower_->SetLineColor(scolor);
     
     TProfile *newmeEELongitudinalShower_;
-    sfile->GetObject("DQMData/EcalSimHitsValidation/EE longitudinal shower profile;1",newmeEELongitudinalShower_);
+    sfile->GetObject("DQMData/EcalHitsV/EcalSimHitsValidation/EE longitudinal shower profile;1",newmeEELongitudinalShower_);
     newmeEELongitudinalShower_;
     newmeEELongitudinalShower_->SetLineColor(scolor);
     
@@ -384,32 +384,32 @@ void EcalSimHitsPlotCompare( TString currentfile   = "EcalSimHitsValidation_new.
     Ecal->Divide(1,3);
     
     TH1 *meEBhitEnergy_; 
-    rfile->GetObject("DQMData/EcalSimHitsValidation/EB hits energy spectrum;1",meEBhitEnergy_);
+    rfile->GetObject("DQMData/EcalHitsV/EcalSimHitsValidation/EB hits energy spectrum;1",meEBhitEnergy_);
     meEBhitEnergy_; 
     meEBhitEnergy_->SetLineColor(rcolor);
     
     TH1 *meEEzpHitEnergy_; 
-    rfile->GetObject("DQMData/EcalSimHitsValidation/EE+ hits energy spectrum;1",meEEzpHitEnergy_);
+    rfile->GetObject("DQMData/EcalHitsV/EcalSimHitsValidation/EE+ hits energy spectrum;1",meEEzpHitEnergy_);
     meEEzpHitEnergy_; 
     meEEzpHitEnergy_->SetLineColor(rcolor);
 
     TH1 *meEEzmHitEnergy_; 
-    rfile->GetObject("DQMData/EcalSimHitsValidation/EE- hits energy spectrum;1",meEEzmHitEnergy_);
+    rfile->GetObject("DQMData/EcalHitsV/EcalSimHitsValidation/EE- hits energy spectrum;1",meEEzmHitEnergy_);
     meEEzmHitEnergy_; 
     meEEzmHitEnergy_->SetLineColor(rcolor);
     
     TH1 *newmeEBhitEnergy_; 
-    sfile->GetObject("DQMData/EcalSimHitsValidation/EB hits energy spectrum;1",newmeEBhitEnergy_);
+    sfile->GetObject("DQMData/EcalHitsV/EcalSimHitsValidation/EB hits energy spectrum;1",newmeEBhitEnergy_);
     newmeEBhitEnergy_; 
     newmeEBhitEnergy_->SetLineColor(scolor);
     
     TH1 *newmeEEzpHitEnergy_; 
-    sfile->GetObject("DQMData/EcalSimHitsValidation/EE+ hits energy spectrum;1",newmeEEzpHitEnergy_);
+    sfile->GetObject("DQMData/EcalHitsV/EcalSimHitsValidation/EE+ hits energy spectrum;1",newmeEEzpHitEnergy_);
     newmeEEzpHitEnergy_; 
     newmeEEzpHitEnergy_->SetLineColor(scolor);
 
     TH1 *newmeEEzmHitEnergy_; 
-    sfile->GetObject("DQMData/EcalSimHitsValidation/EE- hits energy spectrum;1",newmeEEzmHitEnergy_);
+    sfile->GetObject("DQMData/EcalHitsV/EcalSimHitsValidation/EE- hits energy spectrum;1",newmeEEzmHitEnergy_);
     newmeEEzmHitEnergy_; 
     newmeEEzmHitEnergy_->SetLineColor(scolor);
 
@@ -441,52 +441,52 @@ void EcalSimHitsPlotCompare( TString currentfile   = "EcalSimHitsValidation_new.
 
   if (1) {
     TH1 *meEBe1_; 
-    rfile->GetObject("DQMData/EcalSimHitsValidation/EB E1;1",meEBe1_);
+    rfile->GetObject("DQMData/EcalHitsV/EcalSimHitsValidation/EB E1;1",meEBe1_);
     meEBe1_; 
     meEBe1_->SetLineColor(rcolor);
     
     TH1 *meEBe4_; 
-    rfile->GetObject("DQMData/EcalSimHitsValidation/EB E4;1",meEBe4_);
+    rfile->GetObject("DQMData/EcalHitsV/EcalSimHitsValidation/EB E4;1",meEBe4_);
     meEBe4_; 
     meEBe4_->SetLineColor(rcolor);
     
     TH1 *meEBe9_; 
-    rfile->GetObject("DQMData/EcalSimHitsValidation/EB E9;1",meEBe9_);
+    rfile->GetObject("DQMData/EcalHitsV/EcalSimHitsValidation/EB E9;1",meEBe9_);
     meEBe9_; 
     meEBe9_->SetLineColor(rcolor);
     
     TH1 *meEBe16_; 
-    rfile->GetObject("DQMData/EcalSimHitsValidation/EB E16;1",meEBe16_);
+    rfile->GetObject("DQMData/EcalHitsV/EcalSimHitsValidation/EB E16;1",meEBe16_);
     meEBe16_; 
     meEBe16_->SetLineColor(rcolor);
     
     TH1 *meEBe25_; 
-    rfile->GetObject("DQMData/EcalSimHitsValidation/EB E25;1",meEBe25_);
+    rfile->GetObject("DQMData/EcalHitsV/EcalSimHitsValidation/EB E25;1",meEBe25_);
     meEBe25_; 
     meEBe25_->SetLineColor(rcolor);
 
     TH1 *newmeEBe1_; 
-    sfile->GetObject("DQMData/EcalSimHitsValidation/EB E1;1",newmeEBe1_);
+    sfile->GetObject("DQMData/EcalHitsV/EcalSimHitsValidation/EB E1;1",newmeEBe1_);
     newmeEBe1_; 
     newmeEBe1_->SetLineColor(scolor);
     
     TH1 *newmeEBe4_; 
-    sfile->GetObject("DQMData/EcalSimHitsValidation/EB E4;1",newmeEBe4_);
+    sfile->GetObject("DQMData/EcalHitsV/EcalSimHitsValidation/EB E4;1",newmeEBe4_);
     newmeEBe4_; 
     newmeEBe4_->SetLineColor(scolor);
     
     TH1 *newmeEBe9_; 
-    sfile->GetObject("DQMData/EcalSimHitsValidation/EB E9;1",newmeEBe9_);
+    sfile->GetObject("DQMData/EcalHitsV/EcalSimHitsValidation/EB E9;1",newmeEBe9_);
     newmeEBe9_; 
     newmeEBe9_->SetLineColor(scolor);
     
     TH1 *newmeEBe16_; 
-    sfile->GetObject("DQMData/EcalSimHitsValidation/EB E16;1",newmeEBe16_);
+    sfile->GetObject("DQMData/EcalHitsV/EcalSimHitsValidation/EB E16;1",newmeEBe16_);
     newmeEBe16_; 
     newmeEBe16_->SetLineColor(scolor);
     
     TH1 *newmeEBe25_; 
-    sfile->GetObject("DQMData/EcalSimHitsValidation/EB E25;1",newmeEBe25_);
+    sfile->GetObject("DQMData/EcalHitsV/EcalSimHitsValidation/EB E25;1",newmeEBe25_);
     newmeEBe25_; 
     newmeEBe25_->SetLineColor(scolor);
     
@@ -539,52 +539,52 @@ void EcalSimHitsPlotCompare( TString currentfile   = "EcalSimHitsValidation_new.
   
   if (1) {
     TH1 *meEEe1_; 
-    rfile->GetObject("DQMData/EcalSimHitsValidation/EE E1;1",meEEe1_);
+    rfile->GetObject("DQMData/EcalHitsV/EcalSimHitsValidation/EE E1;1",meEEe1_);
     meEEe1_; 
     meEEe1_->SetLineColor(rcolor);
     
     TH1 *meEEe4_; 
-    rfile->GetObject("DQMData/EcalSimHitsValidation/EE E4;1",meEEe4_);
+    rfile->GetObject("DQMData/EcalHitsV/EcalSimHitsValidation/EE E4;1",meEEe4_);
     meEEe4_; 
     meEEe4_->SetLineColor(rcolor);
     
     TH1 *meEEe9_; 
-    rfile->GetObject("DQMData/EcalSimHitsValidation/EE E9;1",meEEe9_);
+    rfile->GetObject("DQMData/EcalHitsV/EcalSimHitsValidation/EE E9;1",meEEe9_);
     meEEe9_; 
     meEEe9_->SetLineColor(rcolor);
     
     TH1 *meEEe16_; 
-    rfile->GetObject("DQMData/EcalSimHitsValidation/EE E16;1",meEEe16_);
+    rfile->GetObject("DQMData/EcalHitsV/EcalSimHitsValidation/EE E16;1",meEEe16_);
     meEEe16_; 
     meEEe16_->SetLineColor(rcolor);
     
     TH1 *meEEe25_; 
-    rfile->GetObject("DQMData/EcalSimHitsValidation/EE E25;1",meEEe25_);
+    rfile->GetObject("DQMData/EcalHitsV/EcalSimHitsValidation/EE E25;1",meEEe25_);
     meEEe25_; 
     meEEe25_->SetLineColor(rcolor);
 
     TH1 *newmeEEe1_; 
-    sfile->GetObject("DQMData/EcalSimHitsValidation/EE E1;1",newmeEEe1_);
+    sfile->GetObject("DQMData/EcalHitsV/EcalSimHitsValidation/EE E1;1",newmeEEe1_);
     newmeEEe1_; 
     newmeEEe1_->SetLineColor(scolor);
     
     TH1 *newmeEEe4_; 
-    sfile->GetObject("DQMData/EcalSimHitsValidation/EE E4;1",newmeEEe4_);
+    sfile->GetObject("DQMData/EcalHitsV/EcalSimHitsValidation/EE E4;1",newmeEEe4_);
     newmeEEe4_; 
     newmeEEe4_->SetLineColor(scolor);
     
     TH1 *newmeEEe9_; 
-    sfile->GetObject("DQMData/EcalSimHitsValidation/EE E9;1",newmeEEe9_);
+    sfile->GetObject("DQMData/EcalHitsV/EcalSimHitsValidation/EE E9;1",newmeEEe9_);
     newmeEEe9_; 
     newmeEEe9_->SetLineColor(scolor);
     
     TH1 *newmeEEe16_; 
-    sfile->GetObject("DQMData/EcalSimHitsValidation/EE E16;1",newmeEEe16_);
+    sfile->GetObject("DQMData/EcalHitsV/EcalSimHitsValidation/EE E16;1",newmeEEe16_);
     newmeEEe16_; 
     newmeEEe16_->SetLineColor(scolor);
     
     TH1 *newmeEEe25_; 
-    sfile->GetObject("DQMData/EcalSimHitsValidation/EE E25;1",newmeEEe25_);
+    sfile->GetObject("DQMData/EcalHitsV/EcalSimHitsValidation/EE E25;1",newmeEEe25_);
     newmeEEe25_; 
     newmeEEe25_->SetLineColor(scolor);
 
@@ -637,122 +637,122 @@ void EcalSimHitsPlotCompare( TString currentfile   = "EcalSimHitsValidation_new.
 
   if (1) {
     TH1 *meEBe1oe4_; 
-    rfile->GetObject("DQMData/EcalSimHitsValidation/EB E1oE4;1",meEBe1oe4_);
+    rfile->GetObject("DQMData/EcalHitsV/EcalSimHitsValidation/EB E1oE4;1",meEBe1oe4_);
     meEBe1oe4_; 
     meEBe1oe4_->SetLineColor(rcolor);
     
     TH1 *meEBe4oe9_; 
-    rfile->GetObject("DQMData/EcalSimHitsValidation/EB E4oE9;1",meEBe4oe9_);
+    rfile->GetObject("DQMData/EcalHitsV/EcalSimHitsValidation/EB E4oE9;1",meEBe4oe9_);
     meEBe4oe9_; 
     meEBe4oe9_->SetLineColor(rcolor);
     
     TH1 *meEBe9oe16_; 
-    rfile->GetObject("DQMData/EcalSimHitsValidation/EB E9oE16;1",meEBe9oe16_);
+    rfile->GetObject("DQMData/EcalHitsV/EcalSimHitsValidation/EB E9oE16;1",meEBe9oe16_);
     meEBe9oe16_; 
     meEBe9oe16_->SetLineColor(rcolor);
 
     TH1 *meEBe1oe25_; 
-    rfile->GetObject("DQMData/EcalSimHitsValidation/EB E1oE25;1",meEBe1oe25_);
+    rfile->GetObject("DQMData/EcalHitsV/EcalSimHitsValidation/EB E1oE25;1",meEBe1oe25_);
     meEBe1oe25_; 
     meEBe1oe25_->SetLineColor(rcolor);
     
     TH1 *meEBe9oe25_; 
-    rfile->GetObject("DQMData/EcalSimHitsValidation/EB E9oE25;1",meEBe9oe25_);
+    rfile->GetObject("DQMData/EcalHitsV/EcalSimHitsValidation/EB E9oE25;1",meEBe9oe25_);
     meEBe9oe25_; 
     meEBe9oe25_->SetLineColor(rcolor);
     
     TH1 *meEBe16oe25_; 
-    rfile->GetObject("DQMData/EcalSimHitsValidation/EB E16oE25;1",meEBe16oe25_);
+    rfile->GetObject("DQMData/EcalHitsV/EcalSimHitsValidation/EB E16oE25;1",meEBe16oe25_);
     meEBe16oe25_; 
     meEBe16oe25_->SetLineColor(rcolor);
    
     TH1 *newmeEBe1oe4_; 
-    sfile->GetObject("DQMData/EcalSimHitsValidation/EB E1oE4;1",newmeEBe1oe4_);
+    sfile->GetObject("DQMData/EcalHitsV/EcalSimHitsValidation/EB E1oE4;1",newmeEBe1oe4_);
     newmeEBe1oe4_; 
     newmeEBe1oe4_->SetLineColor(scolor);
     
     TH1 *newmeEBe4oe9_; 
-    sfile->GetObject("DQMData/EcalSimHitsValidation/EB E4oE9;1",newmeEBe4oe9_);
+    sfile->GetObject("DQMData/EcalHitsV/EcalSimHitsValidation/EB E4oE9;1",newmeEBe4oe9_);
     newmeEBe4oe9_; 
     newmeEBe4oe9_->SetLineColor(scolor);
     
     TH1 *newmeEBe9oe16_; 
-    sfile->GetObject("DQMData/EcalSimHitsValidation/EB E9oE16;1",newmeEBe9oe16_);
+    sfile->GetObject("DQMData/EcalHitsV/EcalSimHitsValidation/EB E9oE16;1",newmeEBe9oe16_);
     newmeEBe9oe16_; 
     newmeEBe9oe16_->SetLineColor(scolor);
 
     TH1 *newmeEBe1oe25_; 
-    sfile->GetObject("DQMData/EcalSimHitsValidation/EB E1oE25;1",newmeEBe1oe25_);
+    sfile->GetObject("DQMData/EcalHitsV/EcalSimHitsValidation/EB E1oE25;1",newmeEBe1oe25_);
     newmeEBe1oe25_; 
     newmeEBe1oe25_->SetLineColor(scolor);
     
     TH1 *newmeEBe9oe25_; 
-    sfile->GetObject("DQMData/EcalSimHitsValidation/EB E9oE25;1",newmeEBe9oe25_);
+    sfile->GetObject("DQMData/EcalHitsV/EcalSimHitsValidation/EB E9oE25;1",newmeEBe9oe25_);
     newmeEBe9oe25_; 
     newmeEBe9oe25_->SetLineColor(scolor);
     
     TH1 *newmeEBe16oe25_; 
-    sfile->GetObject("DQMData/EcalSimHitsValidation/EB E16oE25;1",newmeEBe16oe25_);
+    sfile->GetObject("DQMData/EcalHitsV/EcalSimHitsValidation/EB E16oE25;1",newmeEBe16oe25_);
     newmeEBe16oe25_; 
     newmeEBe16oe25_->SetLineColor(scolor);
   
     TH1 *meEEe1oe4_; 
-    rfile->GetObject("DQMData/EcalSimHitsValidation/EE E1oE4;1",meEEe1oe4_);
+    rfile->GetObject("DQMData/EcalHitsV/EcalSimHitsValidation/EE E1oE4;1",meEEe1oe4_);
     meEEe1oe4_; 
     meEEe1oe4_->SetLineColor(rcolor);
     
     TH1 *meEEe4oe9_; 
-    rfile->GetObject("DQMData/EcalSimHitsValidation/EE E4oE9;1",meEEe4oe9_);
+    rfile->GetObject("DQMData/EcalHitsV/EcalSimHitsValidation/EE E4oE9;1",meEEe4oe9_);
     meEEe4oe9_; 
     meEEe4oe9_->SetLineColor(rcolor);
     
     TH1 *meEEe9oe16_; 
-    rfile->GetObject("DQMData/EcalSimHitsValidation/EE E9oE16;1",meEEe9oe16_);
+    rfile->GetObject("DQMData/EcalHitsV/EcalSimHitsValidation/EE E9oE16;1",meEEe9oe16_);
     meEEe9oe16_; 
     meEEe9oe16_->SetLineColor(rcolor);
 
     TH1 *meEEe1oe25_; 
-    rfile->GetObject("DQMData/EcalSimHitsValidation/EE E1oE25;1",meEEe1oe25_);
+    rfile->GetObject("DQMData/EcalHitsV/EcalSimHitsValidation/EE E1oE25;1",meEEe1oe25_);
     meEEe1oe25_; 
     meEEe1oe25_->SetLineColor(rcolor);
     
     TH1 *meEEe9oe25_; 
-    rfile->GetObject("DQMData/EcalSimHitsValidation/EE E9oE25;1",meEEe9oe25_);
+    rfile->GetObject("DQMData/EcalHitsV/EcalSimHitsValidation/EE E9oE25;1",meEEe9oe25_);
     meEEe9oe25_; 
     meEEe9oe25_->SetLineColor(rcolor);
     
     TH1 *meEEe16oe25_; 
-    rfile->GetObject("DQMData/EcalSimHitsValidation/EE E16oE25;1",meEEe16oe25_);
+    rfile->GetObject("DQMData/EcalHitsV/EcalSimHitsValidation/EE E16oE25;1",meEEe16oe25_);
     meEEe16oe25_; 
     meEEe16oe25_->SetLineColor(rcolor);
     
     TH1 *newmeEEe1oe4_; 
-    sfile->GetObject("DQMData/EcalSimHitsValidation/EE E1oE4;1",newmeEEe1oe4_);
+    sfile->GetObject("DQMData/EcalHitsV/EcalSimHitsValidation/EE E1oE4;1",newmeEEe1oe4_);
     newmeEEe1oe4_; 
     newmeEEe1oe4_->SetLineColor(scolor);
     
     TH1 *newmeEEe4oe9_; 
-    sfile->GetObject("DQMData/EcalSimHitsValidation/EE E4oE9;1",newmeEEe4oe9_);
+    sfile->GetObject("DQMData/EcalHitsV/EcalSimHitsValidation/EE E4oE9;1",newmeEEe4oe9_);
     newmeEEe4oe9_; 
     newmeEEe4oe9_->SetLineColor(scolor);
     
     TH1 *newmeEEe9oe16_; 
-    sfile->GetObject("DQMData/EcalSimHitsValidation/EE E9oE16;1",newmeEEe9oe16_);
+    sfile->GetObject("DQMData/EcalHitsV/EcalSimHitsValidation/EE E9oE16;1",newmeEEe9oe16_);
     newmeEEe9oe16_; 
     newmeEEe9oe16_->SetLineColor(scolor);
     
     TH1 *newmeEEe1oe25_; 
-    sfile->GetObject("DQMData/EcalSimHitsValidation/EE E1oE25;1",newmeEEe1oe25_);
+    sfile->GetObject("DQMData/EcalHitsV/EcalSimHitsValidation/EE E1oE25;1",newmeEEe1oe25_);
     newmeEEe1oe25_; 
     newmeEEe1oe25_->SetLineColor(scolor);
     
     TH1 *newmeEEe9oe25_; 
-    sfile->GetObject("DQMData/EcalSimHitsValidation/EE E9oE25;1",newmeEEe9oe25_);
+    sfile->GetObject("DQMData/EcalHitsV/EcalSimHitsValidation/EE E9oE25;1",newmeEEe9oe25_);
     newmeEEe9oe25_; 
     newmeEEe9oe25_->SetLineColor(scolor);
 
     TH1 *newmeEEe16oe25_; 
-    sfile->GetObject("DQMData/EcalSimHitsValidation/EE E16oE25;1",newmeEEe16oe25_);
+    sfile->GetObject("DQMData/EcalHitsV/EcalSimHitsValidation/EE E16oE25;1",newmeEEe16oe25_);
     newmeEEe16oe25_; 
     newmeEEe16oe25_->SetLineColor(scolor);
   
@@ -843,42 +843,42 @@ void EcalSimHitsPlotCompare( TString currentfile   = "EcalSimHitsValidation_new.
   // preshower
   if (1) {
     TH1 *meESHits1zp_;
-    rfile->GetObject("DQMData/EcalSimHitsValidation/ES hits layer 1 multiplicity z+", meESHits1zp_ );
+    rfile->GetObject("DQMData/EcalHitsV/EcalSimHitsValidation/ES hits layer 1 multiplicity z+", meESHits1zp_ );
     meESHits1zp_;
     meESHits1zp_->SetLineColor(rcolor);
     
     TH1 *meESHits2zp_;
-    rfile->GetObject("DQMData/EcalSimHitsValidation/ES hits layer 2 multiplicity z+", meESHits2zp_ );
+    rfile->GetObject("DQMData/EcalHitsV/EcalSimHitsValidation/ES hits layer 2 multiplicity z+", meESHits2zp_ );
     meESHits2zp_;
     meESHits2zp_->SetLineColor(rcolor);
     
     TH1 *meESHits1zm_;
-    rfile->GetObject("DQMData/EcalSimHitsValidation/ES hits layer 1 multiplicity z-", meESHits1zm_ );
+    rfile->GetObject("DQMData/EcalHitsV/EcalSimHitsValidation/ES hits layer 1 multiplicity z-", meESHits1zm_ );
     meESHits1zm_;
     meESHits1zm_->SetLineColor(rcolor);
     
     TH1 *meESHits2zm_;
-    rfile->GetObject("DQMData/EcalSimHitsValidation/ES hits layer 2 multiplicity z-", meESHits2zm_ );
+    rfile->GetObject("DQMData/EcalHitsV/EcalSimHitsValidation/ES hits layer 2 multiplicity z-", meESHits2zm_ );
     meESHits2zm_;
     meESHits2zm_->SetLineColor(rcolor);
     
     TH1 *newmeESHits1zp_;
-    sfile->GetObject("DQMData/EcalSimHitsValidation/ES hits layer 1 multiplicity z+", newmeESHits1zp_ );
+    sfile->GetObject("DQMData/EcalHitsV/EcalSimHitsValidation/ES hits layer 1 multiplicity z+", newmeESHits1zp_ );
     newmeESHits1zp_;
     newmeESHits1zp_->SetLineColor(scolor);
     
     TH1 *newmeESHits2zp_;
-    sfile->GetObject("DQMData/EcalSimHitsValidation/ES hits layer 2 multiplicity z+", newmeESHits2zp_ );
+    sfile->GetObject("DQMData/EcalHitsV/EcalSimHitsValidation/ES hits layer 2 multiplicity z+", newmeESHits2zp_ );
     newmeESHits2zp_;
     newmeESHits2zp_->SetLineColor(scolor);
     
     TH1 *newmeESHits1zm_;
-    sfile->GetObject("DQMData/EcalSimHitsValidation/ES hits layer 1 multiplicity z-", newmeESHits1zm_ );
+    sfile->GetObject("DQMData/EcalHitsV/EcalSimHitsValidation/ES hits layer 1 multiplicity z-", newmeESHits1zm_ );
     newmeESHits1zm_;
     newmeESHits1zm_->SetLineColor(scolor);
     
     TH1 *newmeESHits2zm_;
-    sfile->GetObject("DQMData/EcalSimHitsValidation/ES hits layer 2 multiplicity z-", newmeESHits2zm_ );
+    sfile->GetObject("DQMData/EcalHitsV/EcalSimHitsValidation/ES hits layer 2 multiplicity z-", newmeESHits2zm_ );
     newmeESHits2zm_;
     newmeESHits2zm_->SetLineColor(scolor);
     
@@ -923,42 +923,42 @@ void EcalSimHitsPlotCompare( TString currentfile   = "EcalSimHitsValidation_new.
   if(1){
     
     TH1 *meESEnergy1zp_;
-    rfile->GetObject("DQMData/EcalSimHitsValidation/ES hits energy layer 1 z+", meESEnergy1zp_);
+    rfile->GetObject("DQMData/EcalHitsV/EcalSimHitsValidation/ES hits energy layer 1 z+", meESEnergy1zp_);
     meESEnergy1zp_;
     meESEnergy1zp_->SetLineColor(rcolor);
     
     TH1 *meESEnergy2zp_;
-    rfile->GetObject("DQMData/EcalSimHitsValidation/ES hits energy layer 2 z+", meESEnergy2zp_);
+    rfile->GetObject("DQMData/EcalHitsV/EcalSimHitsValidation/ES hits energy layer 2 z+", meESEnergy2zp_);
     meESEnergy2zp_;
     meESEnergy2zp_->SetLineColor(rcolor);
     
     TH1 *meESEnergy1zm_;
-    rfile->GetObject("DQMData/EcalSimHitsValidation/ES hits energy layer 1 z-", meESEnergy1zm_);
+    rfile->GetObject("DQMData/EcalHitsV/EcalSimHitsValidation/ES hits energy layer 1 z-", meESEnergy1zm_);
     meESEnergy1zm_;
     meESEnergy1zm_->SetLineColor(rcolor);
     
     TH1 *meESEnergy2zm_;
-    rfile->GetObject("DQMData/EcalSimHitsValidation/ES hits energy layer 2 z-", meESEnergy2zm_);
+    rfile->GetObject("DQMData/EcalHitsV/EcalSimHitsValidation/ES hits energy layer 2 z-", meESEnergy2zm_);
     meESEnergy2zm_;
     meESEnergy2zm_->SetLineColor(rcolor);
     
     TH1 *newmeESEnergy1zp_;
-    sfile->GetObject("DQMData/EcalSimHitsValidation/ES hits energy layer 1 z+", newmeESEnergy1zp_);
+    sfile->GetObject("DQMData/EcalHitsV/EcalSimHitsValidation/ES hits energy layer 1 z+", newmeESEnergy1zp_);
     newmeESEnergy1zp_;
     newmeESEnergy1zp_->SetLineColor(scolor);
     
     TH1 *newmeESEnergy2zp_;
-    sfile->GetObject("DQMData/EcalSimHitsValidation/ES hits energy layer 2 z+", newmeESEnergy2zp_);
+    sfile->GetObject("DQMData/EcalHitsV/EcalSimHitsValidation/ES hits energy layer 2 z+", newmeESEnergy2zp_);
     newmeESEnergy2zp_;
     newmeESEnergy2zp_->SetLineColor(scolor);
     
     TH1 *newmeESEnergy1zm_;
-    sfile->GetObject("DQMData/EcalSimHitsValidation/ES hits energy layer 1 z-", newmeESEnergy1zm_);
+    sfile->GetObject("DQMData/EcalHitsV/EcalSimHitsValidation/ES hits energy layer 1 z-", newmeESEnergy1zm_);
     newmeESEnergy1zm_;
     newmeESEnergy1zm_->SetLineColor(scolor);
     
     TH1 *newmeESEnergy2zm_;
-    sfile->GetObject("DQMData/EcalSimHitsValidation/ES hits energy layer 2 z-", newmeESEnergy2zm_);
+    sfile->GetObject("DQMData/EcalHitsV/EcalSimHitsValidation/ES hits energy layer 2 z-", newmeESEnergy2zm_);
     newmeESEnergy2zm_;
     newmeESEnergy2zm_->SetLineColor(scolor);
     
@@ -998,62 +998,62 @@ void EcalSimHitsPlotCompare( TString currentfile   = "EcalSimHitsValidation_new.
 
   if(1){
     TH1 *meE1alphaE2zp_;                         
-    rfile->GetObject("DQMData/EcalSimHitsValidation/ES E1+0.7*E2 z+", meE1alphaE2zp_);
+    rfile->GetObject("DQMData/EcalHitsV/EcalSimHitsValidation/ES E1+07E2 z+", meE1alphaE2zp_);
     meE1alphaE2zp_;
     meE1alphaE2zp_->SetLineColor(rcolor);
     
     TH1 *meE1alphaE2zm_;                         
-    rfile->GetObject("DQMData/EcalSimHitsValidation/ES E1+0.7*E2 z-", meE1alphaE2zm_);
+    rfile->GetObject("DQMData/EcalHitsV/EcalSimHitsValidation/ES E1+07E2 z-", meE1alphaE2zm_);
     meE1alphaE2zm_;
     meE1alphaE2zm_->SetLineColor(rcolor);
     
     TH1 *me2eszpOver1eszp_;
-    rfile->GetObject("DQMData/EcalSimHitsValidation/ES ene2oEne1 z+", me2eszpOver1eszp_);
+    rfile->GetObject("DQMData/EcalHitsV/EcalSimHitsValidation/ES ene2oEne1 z+", me2eszpOver1eszp_);
     me2eszpOver1eszp_;
     me2eszpOver1eszp_->SetLineColor(rcolor);
     
     TH1 *me2eszmOver1eszm_;
-    rfile->GetObject("DQMData/EcalSimHitsValidation/ES ene2oEne1 z-", me2eszmOver1eszm_);
+    rfile->GetObject("DQMData/EcalHitsV/EcalSimHitsValidation/ES ene2oEne1 z-", me2eszmOver1eszm_);
     me2eszmOver1eszm_;
     me2eszmOver1eszm_->SetLineColor(rcolor);
 
     TProfile *meEEoverESzp_;                         
-    rfile->GetObject("DQMData/EcalSimHitsValidation/EE vs ES z+", meEEoverESzp_);
+    rfile->GetObject("DQMData/EcalHitsV/EcalSimHitsValidation/EE vs ES z+", meEEoverESzp_);
     meEEoverESzp_;                         
     meEEoverESzp_->SetLineColor(rcolor);
 
     TProfile *meEEoverESzm_;                         
-    rfile->GetObject("DQMData/EcalSimHitsValidation/EE vs ES z-", meEEoverESzm_);
+    rfile->GetObject("DQMData/EcalHitsV/EcalSimHitsValidation/EE vs ES z-", meEEoverESzm_);
     meEEoverESzm_;                         
     meEEoverESzm_->SetLineColor(rcolor);
 
     TH1 *newmeE1alphaE2zp_;                         
-    sfile->GetObject("DQMData/EcalSimHitsValidation/ES E1+0.7*E2 z+", newmeE1alphaE2zp_);
+    sfile->GetObject("DQMData/EcalHitsV/EcalSimHitsValidation/ES E1+07E2 z+", newmeE1alphaE2zp_);
     newmeE1alphaE2zp_;
     newmeE1alphaE2zp_->SetLineColor(scolor);
     
     TH1 *newmeE1alphaE2zm_;                         
-    sfile->GetObject("DQMData/EcalSimHitsValidation/ES E1+0.7*E2 z-", newmeE1alphaE2zm_);
+    sfile->GetObject("DQMData/EcalHitsV/EcalSimHitsValidation/ES E1+07E2 z-", newmeE1alphaE2zm_);
     newmeE1alphaE2zm_;
     newmeE1alphaE2zm_->SetLineColor(scolor);
     
     TH1 *newme2eszpOver1eszp_;
-    sfile->GetObject("DQMData/EcalSimHitsValidation/ES ene2oEne1 z+", newme2eszpOver1eszp_);
+    sfile->GetObject("DQMData/EcalHitsV/EcalSimHitsValidation/ES ene2oEne1 z+", newme2eszpOver1eszp_);
     newme2eszpOver1eszp_;
     newme2eszpOver1eszp_->SetLineColor(scolor);
     
     TH1 *newme2eszmOver1eszm_;
-    sfile->GetObject("DQMData/EcalSimHitsValidation/ES ene2oEne1 z-", newme2eszmOver1eszm_);
+    sfile->GetObject("DQMData/EcalHitsV/EcalSimHitsValidation/ES ene2oEne1 z-", newme2eszmOver1eszm_);
     newme2eszmOver1eszm_;
     newme2eszmOver1eszm_->SetLineColor(scolor);
 
     TProfile *newmeEEoverESzp_;                         
-    sfile->GetObject("DQMData/EcalSimHitsValidation/EE vs ES z+", newmeEEoverESzp_);
+    sfile->GetObject("DQMData/EcalHitsV/EcalSimHitsValidation/EE vs ES z+", newmeEEoverESzp_);
     newmeEEoverESzp_;                         
     newmeEEoverESzp_->SetLineColor(scolor);
 
     TProfile *newmeEEoverESzm_;                         
-    sfile->GetObject("DQMData/EcalSimHitsValidation/EE vs ES z-", newmeEEoverESzm_);
+    sfile->GetObject("DQMData/EcalHitsV/EcalSimHitsValidation/EE vs ES z-", newmeEEoverESzm_);
     newmeEEoverESzm_;                         
     newmeEEoverESzm_->SetLineColor(scolor);
 
