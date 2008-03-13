@@ -57,11 +57,19 @@ void HistoMuon::fill( const Muon *muon, uint iMu )
   h_leptonID_->fill( muon->leptonID(), iMu );
 
   const reco::Muon* recoMuon = muon->originalObject();
-  h_calCompat_->fill( recoMuon->getCaloCompatibility(), iMu );
   h_nChambers_->fill( recoMuon->numberOfChambers(), iMu );
-  h_type_->fill( recoMuon->getType(), iMu );
 
+// For CMSSW 1_6_x
+
+  h_calCompat_->fill( recoMuon->getCaloCompatibility(), iMu );
+  h_type_->fill( recoMuon->getType(), iMu );
   reco::MuonEnergy muEnergy = recoMuon->getCalEnergy();
+
+// For CMSSW 2_0_x
+
+//   h_calCompat_->fill( recoMuon->caloCompatibility(), iMu );
+//   h_type_->fill( recoMuon->type(), iMu );
+//   reco::MuonEnergy muEnergy = recoMuon->calEnergy();
 
   h_caloE_->fill( muEnergy.em+muEnergy.had+muEnergy.ho, iMu );
 
