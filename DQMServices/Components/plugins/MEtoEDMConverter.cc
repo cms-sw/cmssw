@@ -3,8 +3,8 @@
  *  
  *  See header file for description of class
  *
- *  $Date: 2008/02/27 21:09:14 $
- *  $Revision: 1.5 $
+ *  $Date: 2008/03/10 22:25:48 $
+ *  $Revision: 1.6 $
  *  \author M. Strang SUNY-Buffalo
  */
 
@@ -168,6 +168,9 @@ MEtoEDMConverter::MEtoEDMConverter(const edm::ParameterSet & iPSet) :
     produces<MEtoEDM<int>, edm::InRun>(fName);
   if (nString)
     produces<MEtoEDM<TString>, edm::InRun>(fName);
+
+  firstevent = true;
+
 } // end constructor
 
 MEtoEDMConverter::~MEtoEDMConverter() 
@@ -263,7 +266,6 @@ MEtoEDMConverter::endRun(edm::Run& iRun, const edm::EventSetup& iSetup)
 
   int run = iRun.run();
   std::string release = edm::getReleaseVersion();
-  std::string datatier = "dummy";
 
   mestorage<TH1F> TH1FME;
   mestorage<TH2F> TH2FME;
@@ -453,4 +455,12 @@ MEtoEDMConverter::endRun(edm::Run& iRun, const edm::EventSetup& iSetup)
 void
 MEtoEDMConverter::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
+  if (firstevent) {
+    if (iEvent.isRealData()) {
+      datatier = "DATA";
+    } else {
+      datatier = "MC";
+    }
+  }
+
 }

@@ -6,8 +6,8 @@
  *  Class to take dqm monitor elements and convert into a
  *  ROOT dataformat stored in Run tree of edm file
  *
- *  $Date: 2008/02/21 03:26:48 $
- *  $Revision: 1.4 $
+ *  $Date: 2008/03/10 22:25:48 $
+ *  $Revision: 1.5 $
  *  \author M. Strang SUNY-Buffalo
  */
 
@@ -83,6 +83,8 @@ private:
 
   // private statistics information
   std::map<int,int> count;
+  std::string datatier;
+  bool firstevent;
 
 }; // end class declaration
 
