@@ -105,7 +105,7 @@ void CSCCFEBConnectivityAnalyzer::analyze(edm::Event const& e, edm::EventSetup c
 	    std::vector<CSCStripDigi> digis = cscData[chamber].stripDigis(layer) ;
 	    const CSCDMBHeader * thisDMBheader = cscData[chamber].dmbHeader();
 	     
-	    if (thisDMBheader->cfebAvailable()){//check that CFEB data exists
+	    if (cscData[chamber].dmbHeader() && thisDMBheader->cfebAvailable()){//check that CFEB data exists
 	    
 	      dmbID[chamber]   = cscData[chamber].dmbHeader()->dmbID(); //get DMB ID
 	      crateID[chamber] = cscData[chamber].dmbHeader()->crateID(); //get crate ID

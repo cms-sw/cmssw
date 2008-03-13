@@ -135,7 +135,7 @@ void CSCSaturationAnalyzer::analyze(edm::Event const& e, edm::EventSetup const& 
 	    std::vector<CSCStripDigi> digis = cscData[i_chamber].stripDigis(i_layer) ;
 	    const CSCDMBHeader * thisDMBheader = cscData[i_chamber].dmbHeader();
 	    
-	    if (thisDMBheader->cfebAvailable()){
+	    if (cscData[i_chamber].dmbHeader() && thisDMBheader->cfebAvailable()){
 	      dmbID[i_chamber] = cscData[i_chamber].dmbHeader()->dmbID();//get DMB ID
 	      crateID[i_chamber] = cscData[i_chamber].dmbHeader()->crateID();//get crate ID
 	      if(crateID[i_chamber] == 255) continue;

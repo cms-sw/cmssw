@@ -137,7 +137,7 @@ void CSCGainAnalyzer::analyze(edm::Event const& e, edm::EventSetup const& iSetup
 	    std::vector<CSCStripDigi> digis = cscData[i_chamber].stripDigis(i_layer) ;
 	    const CSCDMBHeader * thisDMBheader = cscData[i_chamber].dmbHeader();
 	    
-	    if (thisDMBheader->cfebAvailable()){
+	    if (cscData[i_chamber].dmbHeader() && thisDMBheader->cfebAvailable()){
 	      dmbID[i_chamber] = cscData[i_chamber].dmbHeader()->dmbID();//get DMB ID
 	      crateID[i_chamber] = cscData[i_chamber].dmbHeader()->crateID();//get crate ID
 	      if(crateID[i_chamber] == 255) continue;
@@ -259,7 +259,7 @@ CSCGainAnalyzer::~CSCGainAnalyzer(){
 	strips_per_layer=mapitem.strips;
 	chamber_index=mapitem.chamberId;
 	chamber_type = mapitem.chamberLabel;
-	chamber_Index = mapitem.cscIndex;
+	chamberIndex = mapitem.cscIndex;
 
 	std::cout<<"Data is for chamber:: "<<chamber_type<<"  "<<chamber_id<<" in sector:  "<<sector<<" index "<<first_strip_index<<std::endl;
 	
@@ -359,7 +359,7 @@ CSCGainAnalyzer::~CSCGainAnalyzer(){
 		if(gainSlope>9.0) flag2=2;
 		
 		if(gainSlope<4.0 || gainSlope>9.0){
-		  badstripsFile<<"  "<<chamber_Index<<"  "<<pointer<<"  "<<bad_chan<<"  "<<j<<"  "<<k<<"  "<<flag1<<"  "<<flag2<<"  "<<flag3<<std::endl;
+		  badstripsFile<<"  "<<chamberIndex<<"  "<<pointer<<"  "<<bad_chan<<"  "<<j<<"  "<<k<<"  "<<flag1<<"  "<<flag2<<"  "<<flag3<<std::endl;
 		    }
 		
 		calib_evt.slope     = gainSlope;

@@ -135,7 +135,7 @@ void CSCCompThreshAnalyzer::analyze(edm::Event const& e, edm::EventSetup const& 
 	     
 	     const CSCDMBHeader * thisDMBheader = cscData[i_chamber].dmbHeader();
 	     
-	     if (thisDMBheader->cfebAvailable()){//check that CFEB data exists
+	     if (cscData[i_chamber].dmbHeader() && thisDMBheader->cfebAvailable()){//check that CFEB data exists
 	       
 	       dmbID[i_chamber]   = cscData[i_chamber].dmbHeader()->dmbID(); //get DMB ID
 	       crateID[i_chamber] = cscData[i_chamber].dmbHeader()->crateID(); //get crate ID

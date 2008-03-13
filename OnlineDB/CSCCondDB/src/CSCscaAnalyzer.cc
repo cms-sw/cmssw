@@ -107,7 +107,7 @@ void CSCscaAnalyzer::analyze(edm::Event const& e, edm::EventSetup const& iSetup)
 	for (int chamber = 0; chamber < NChambers; chamber++){
 	  const CSCDMBHeader * thisDMBheader = cscData[chamber].dmbHeader();
 	  
-	  if (thisDMBheader->cfebAvailable()){
+	  if (cscData[chamber].dmbHeader() && thisDMBheader->cfebAvailable()){
 	    dmbID[chamber] = cscData[chamber].dmbHeader()->dmbID();
 	    crateID[chamber] = cscData[chamber].dmbHeader()->crateID();
 	    if(crateID[chamber] == 255) continue;
