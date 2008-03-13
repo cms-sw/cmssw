@@ -5,8 +5,8 @@
  *   information,<BR>
  *   starting from a L2 reonstructed muon and a tracker track.
  *
- *   $Date: 2007/12/28 12:09:34 $
- *   $Revision: 1.0 $
+ *   $Date: 2007/12/28 21:00:27 $
+ *   $Revision: 1.1 $
  *   \author  Patrick Janot - CERN
  */
 
@@ -48,10 +48,6 @@ FastL3MuonProducer::FastL3MuonProducer(const edm::ParameterSet& parameterSet) {
   theL2CollectionLabel = 
     parameterSet.getParameter<edm::InputTag>("MuonCollectionLabel");
   updatedAtVtx = (theL2CollectionLabel.instance() == "UpdatedAtVtx");
-
-  // L2 semi-persistent flag
-  theL2TrajectoryFlag = 
-    parameterSet.getParameter<bool>("MuonTrajectoryAvailable");
 
   // service parameters
   edm::ParameterSet serviceParameters = 
@@ -122,39 +118,27 @@ void FastL3MuonProducer::produce(edm::Event& event, const edm::EventSetup& event
   edm::Handle<std::vector<Trajectory> > L2MuonsTraj;
   std::vector<MuonTrajectoryBuilder::TrackCand> L2TrackCands;
 
-  if ( theL2TrajectoryFlag ) {
+  event.getByLabel(theL2CollectionLabel.label(), L2MuonsTraj);      
+  
+  edm::Handle<TrajTrackAssociationCollection> L2AssoMap;
+  event.getByLabel(theL2CollectionLabel.label(),L2AssoMap);
+  
+  edm::Handle<reco::TrackToTrackMap> updatedL2AssoMap;
+  event.getByLabel(theL2CollectionLabel.label(),updatedL2AssoMap);
+  
+  TrajTrackAssociationCollection::const_iterator it = L2AssoMap->begin();
+  TrajTrackAssociationCollection::const_iterator lt = L2AssoMap->end();
 
-    event.getByLabel(theL2CollectionLabel.label(), L2MuonsTraj);      
+  for( ; it!=lt; ++it){	
     
-    edm::Handle<TrajTrackAssociationCollection> L2AssoMap;
-    event.getByLabel(theL2CollectionLabel.label(),L2AssoMap);
-
-    edm::Handle<reco::TrackToTrackMap> updatedL2AssoMap;
-    event.getByLabel(theL2CollectionLabel.label(),updatedL2AssoMap);
+    const edm::Ref<std::vector<Trajectory> > traj = it->key;
+    const reco::TrackRef tk 
+      = updatedAtVtx && updatedL2AssoMap->find(it->val) != updatedL2AssoMap->end() ? 
+      (*updatedL2AssoMap)[it->val] : it->val;
+    MuonTrajectoryBuilder::TrackCand L2Cand = MuonTrajectoryBuilder::TrackCand(0,tk);
+    if( traj->isValid() ) L2Cand.first = &*traj ;
+    L2TrackCands.push_back(L2Cand);
     
-    TrajTrackAssociationCollection::const_iterator it = L2AssoMap->begin();
-    TrajTrackAssociationCollection::const_iterator lt = L2AssoMap->end();
-    for( ; it!=lt; ++it){	
-
-      const edm::Ref<std::vector<Trajectory> > traj = it->key;
-      const reco::TrackRef tk = updatedAtVtx ? (*updatedL2AssoMap)[it->val] : it->val;
-      MuonTrajectoryBuilder::TrackCand L2Cand = MuonTrajectoryBuilder::TrackCand(0,tk);
-      if( traj->isValid() ) L2Cand.first = &*traj ;
-      L2TrackCands.push_back(L2Cand);
-
-    }
-
-  } else {
-
-    unsigned nMuons = L2Muons->size();
-    for ( unsigned int position = 0; position != nMuons; ++position ) {
-
-      reco::TrackRef L2TrackRef(L2Muons,position);
-      MuonTrajectoryBuilder::TrackCand L2Cand = MuonTrajectoryBuilder::TrackCand(0,L2TrackRef);
-      L2TrackCands.push_back(L2Cand); 
-
-    }
-
   }
 
   theTrackFinder->reconstruct(L2TrackCands, event);      
