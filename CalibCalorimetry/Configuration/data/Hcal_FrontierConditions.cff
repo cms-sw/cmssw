@@ -3,4 +3,4 @@
 #
 #include "CalibCalorimetry/HcalPlugins/data/Hcal_FrontierConditions.cfi"
 include "CalibCalorimetry/HcalPlugins/data/Hcal_FrontierConditions.cff"
-replace es_pool.connect="frontier://Frontier/CMS_COND_18X_HCAL"
+replace es_pool.connect="frontier://FrontierProd/CMS_COND_20X_HCAL"
