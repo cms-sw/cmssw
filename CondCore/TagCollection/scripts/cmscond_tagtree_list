@@ -92,7 +92,7 @@ class tagTreePrinter:
             context.setVerbosityLevel( 'ERROR' )
         svc = coral.ConnectionService( context )
         session = svc.connect( self.__connectstring,accessMode = coral.access_ReadOnly )
-        inv=tagInventory.tagInventory(session)
+        inv=tagInventory.tagInventory(session)        
         if self.__all is True:
             transaction=session.transaction()
             transaction.start(True)
@@ -108,11 +108,13 @@ class tagTreePrinter:
                 mytree=TagTree.tagTree(session,treename)
                 if self.__leaf is True:
                     result=mytree.getAllLeaves()
+                    print '%s\t%s\t%s\t%s\t%s'%('#ID#','#leafNode#','#parent#','#tagname#','#pfn#')
                     for r in result:
-                        if r.parentid !=0:
+                        if r.parentid != 0:
                             parentnode=mytree.getNodeById(r.parentid)
                             parentname=parentnode.nodelabel
-                            print '   leafnode:%s   parent:%s'%(r.nodelabel,parentname)
+                            tagcontent=inv.getEntryById(r.tagid)
+                            print '%s\t%s\t%s\t%s\t%s'%(r.nodeid,r.nodelabel,parentname,tagcontent.tagname,tagcontent.pfn)
                         else:
                             print '   root:%s'%(r.nodelabel)
                 else:
@@ -122,7 +124,8 @@ class tagTreePrinter:
                             parentnode=mytree.getNodeById(r.parentid)
                             parentname=parentnode.nodelabel
                             if r.tagid != 0:
-                               print '   leafnode:%s   parent:%s   tag:%s'%(r.nodelabel,parentname,inv.getEntryById(r.tagid).tagname)
+                               tagcontent=inv.getEntryById(r.tagid)
+                               print '   leafnode:%s   parent:%s   tag:%s  pfn:%s'%(r.nodelabel,parentname,tagcontent.tagname,tagcontent.pfn)
                             else:
                                print '   node:%s   parent:%s'%(r.nodelabel,parentname)
                             
@@ -130,6 +133,7 @@ class tagTreePrinter:
                             print '   root:%s'%(r.nodelabel)
             del session
             return
+        #list node
         mytree=TagTree.tagTree(session,self.__treename)
         try:
             if self.__leaf is True :
@@ -153,7 +157,8 @@ class tagTreePrinter:
                             parentnode=mytree.getNodeById(r.parentid)
                             parentname=parentnode.nodelabel
                             if r.tagid != 0:
-                               print '   leafnode:%s   parent:%s   tag:%s'%(r.nodelabel,parentname,inv.getEntryById(r.tagid).tagname)
+                               tagcontent=inv.getEntryById(r.tagid)
+                               print '   leafnode:%s   parent:%s   tag:%s  pfn:%s'%(r.nodelabel,parentname,tagcontent.tagname,tagcontent.pfn)
                             else:
                                 print 'node:%s   parent:%s'%(r.nodelabel,parentname)
                         else:
@@ -165,7 +170,8 @@ class tagTreePrinter:
                             parentnode=mytree.getNodeById(r.parentid)
                             parentname=parentnode.nodelabel
                             if r.tagid != 0:
-                               print '   leafnode:%s   parent:%s   tag:%s'%(r.nodelabel,parentname,inv.getEntryById(r.tagid).tagname)
+                               tagcontent=inv.getEntryById(r.tagid)
+                               print '   leafnode:%s   parent:%s   tag:%s  pfn:%s'%(r.nodelabel,parentname,tagcontent.tagname, tagcontent.pfn)
                             else:
                                 print 'node:%s   parent:%s'%(r.nodelabel,parentname)
                         else:

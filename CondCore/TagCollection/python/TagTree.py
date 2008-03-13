@@ -12,7 +12,7 @@ class tagTree(object):
         self.__tagInventoryTableName = 'TAGINVENTORY_TABLE'
         self.__tagTreeTableColumns = {'nodeid':'unsigned long', 'nodelabel':'string', 'lft':'unsigned long', 'rgt':'unsigned long', 'parentid':'unsigned long', 'tagid':'unsigned long', 'globalsince':'unsigned long long', 'globaltill':'unsigned long long','comment':'string'}
         self.__tagTreeTableNotNullColumns = ['nodelabel','lft','rgt','parentid']
-        self.__tagTreeTableUniqueColumns = ['nodelabel','lft']
+        self.__tagTreeTableUniqueColumns = ['nodelabel']
         self.__tagTreeTablePK = ('nodeid')
     def existTagTreeTable( self ):
         """Check if tree table exists
@@ -55,56 +55,61 @@ class tagTree(object):
         except Exception, er:
             transaction.rollback()
             raise Exception, str(er)
+        
     def insertNode( self, node, parentLabel='ROOT' ):
         """Append a new node to specified parent. \n
+        Silently ignore duplicate entry \n
         Input: new node. \n
         Input: name of the parent node. \n
         Output: result nodeid  
         """
-        nodeid=0
+        nodeid=node.nodeid
+        nodelabel=node.nodelabel
         parentid=0
-        tagid=0
+        tagid=node.tagid
+        lft=1
+        rgt=2
+        globalsince=node.globalsince
+        globaltill=node.globaltill
+        duplicate=False
         transaction=self.__session.transaction()
         try:
+            ##start readonly transaction
             transaction.start(True)
             schema = self.__session.nominalSchema()
             generator=IdGenerator.IdGenerator(schema)
-            nodeid=generator.getNewID(self.__tagTreeIDs)
-            transaction.commit()
-            if parentLabel == 'ROOT':
-                parentid=0
-            else:
-                parentNode=self.getNode(parentLabel)
-                if parentNode.empty():
-                    raise ValueError,"non-existing parent node "+parentLabel
-                parentid=parentNode.nodeid
-            nodelabel=node.nodelabel
-            globalsince=node.globalsince
-            globaltill=node.globaltill
-            tagid=node.tagid
-            lft=0
-            rgt=0
-            if parentLabel == 'ROOT':
-                lft=1
-                rgt=2
-            else:
-                lft=parentNode.rgt
-                rgt=parentNode.rgt+1
-            tabrowValueDict={'nodeid':nodeid, 'nodelabel':nodelabel,
-                            'lft':lft, 'rgt':rgt, 'parentid':parentid,
-                            'tagid':tagid, 'globalsince':globalsince,
-                            'globaltill':globaltill,'comment':''
-                            }
-            transaction.start(False)
             tableHandle = self.__session.nominalSchema().tableHandle(self.__tagTreeTableName)
-            if parentLabel != 'ROOT':
-                self.__openGap( tableHandle,parentNode.rgt,1 )
+            condition='nodelabel=:nodelabel'
+            conditionbindDict=coral.AttributeList()
+            conditionbindDict.extend('nodelabel','string')
+            conditionbindDict['nodelabel'].setData(nodelabel)
             dbop=DBImpl.DBImpl(schema)
-            dbop.insertOneRow(self.__tagTreeTableName,
-                              self.__tagTreeTableColumns,
-                              tabrowValueDict)
-            generator.incrementNextID(self.__tagTreeIDs)
+            duplicate=dbop.existRow(self.__tagTreeTableName,condition,conditionbindDict)
+            if duplicate is False:
+                nodeid=generator.getNewID(self.__tagTreeIDs)
+                if parentLabel != 'ROOT':
+                    parentNode=self.getNode(parentLabel)
+                    if parentNode.empty():
+                        raise ValueError,"non-existing parent node "+parentLabel
+                    parentid=parentNode.nodeid
+                    lft=parentNode.rgt
+                    rgt=parentNode.rgt+1
             transaction.commit()
+            ##now start write transaction
+            if duplicate is False:                
+                tabrowValueDict={'nodeid':nodeid, 'nodelabel':nodelabel,
+                                 'lft':lft, 'rgt':rgt, 'parentid':parentid,
+                                 'tagid':tagid, 'globalsince':globalsince,
+                                 'globaltill':globaltill,'comment':''
+                                 }
+                transaction.start(False)
+                if parentLabel != 'ROOT':
+                    self.__openGap( tableHandle,parentNode.rgt,1 )
+                dbop.insertOneRow(self.__tagTreeTableName,
+                                  self.__tagTreeTableColumns,
+                                  tabrowValueDict)
+                generator.incrementNextID(self.__tagTreeIDs)
+                transaction.commit()
         except coral.Exception, er:
             transaction.rollback()
             raise Exception, str(er)

@@ -11,7 +11,7 @@ class  tagInventory(object):
         self.__tagInventoryIDName = 'TAGINVENTORY_IDS'
         self.__tagInventoryTableColumns = {'tagid':'unsigned int', 'tagname':'string', 'pfn':'string','recordname':'string', 'objectname':'string', 'labelname':'string','comment':'string'}
         self.__tagInventoryTableNotNullColumns = ['tagname','pfn','recordname','objectname','labelname']
-        self.__tagInventoryTableUniqueColumns = ['tagname']
+        #self.__tagInventoryTableUniqueColumns = ['tagname']
         self.__tagInventoryTablePK = ('tagid')
     def existInventoryTable( self ):
         """Check if inventory table exists
@@ -41,10 +41,12 @@ class  tagInventory(object):
                 description.insertColumn(columnName, columnType)
             for columnName in self.__tagInventoryTableNotNullColumns :
                 description.setNotNullConstraint(columnName,True)
-            for columnName in self.__tagInventoryTableUniqueColumns :
-                description.setUniqueConstraint(columnName)
-            combinedunique=('recordname','objectname','labelname')
-            description.setUniqueConstraint(combinedunique)
+            #for columnName in self.__tagInventoryTableUniqueColumns :
+                #description.setUniqueConstraint(columnName)
+            #combinedunique1=('pfn','recordname','objectname','labelname')
+            #description.setUniqueConstraint(combinedunique1)
+            combinedunique2=('tagname','pfn')
+            description.setUniqueConstraint(combinedunique2)
             description.setPrimaryKey(  self.__tagInventoryTablePK )
             self.__tagInventoryTableHandle = schema.createTable( description )
             self.__tagInventoryTableHandle.privilegeManager().grantToPublic( coral.privilege_Select )
@@ -57,7 +59,7 @@ class  tagInventory(object):
             raise Exception, str(er)
     def addEntry( self, leafNode ):
         """Add entry into the inventory.\n
-        Input: leafNode
+        Input: base tag info. If identical data found already exists, do nothing
         Output: tagid
         """
         tagid=0
@@ -66,27 +68,37 @@ class  tagInventory(object):
             transaction.start(True)
             schema = self.__session.nominalSchema()
             generator=IdGenerator.IdGenerator(schema)
-            tagid=generator.getNewID(self.__tagInventoryIDName)
-            transaction.commit()
-            
-            transaction.start(False)
             dbop=DBImpl.DBImpl(schema)
-            tabrowValueDict={'tagid':tagid,'tagname':leafNode.tagname,'objectname':leafNode.objectname,'pfn':leafNode.pfn,'labelname':leafNode.labelname,'recordname':leafNode.recordname,'comment':leafNode.comment}
-            dbop.insertOneRow(self.__tagInventoryTableName,
-                              self.__tagInventoryTableColumns,
-                              tabrowValueDict)
+            condition='tagname=:tagname'
+            conditionbindDict=coral.AttributeList()
+            conditionbindDict.extend('tagname','string')
+            conditionbindDict['tagname'].setData(leafNode.tagname)
+            if len(leafNode.pfn)!=0:
+                condition+=' AND pfn=:pfn'
+                conditionbindDict.extend('pfn','string')
+                conditionbindDict['pfn'].setData(leafNode.pfn)
+            duplicate=False;
+            duplicate=dbop.existRow(self.__tagInventoryTableName,condition,conditionbindDict)
+            if duplicate is False:
+                tagid=generator.getNewID(self.__tagInventoryIDName)
             transaction.commit()
-            transaction.start(False)
-            generator.incrementNextID(self.__tagInventoryIDName)
-            transaction.commit()
+            if duplicate is False:
+                tabrowValueDict={'tagid':tagid,'tagname':leafNode.tagname,'objectname':leafNode.objectname,'pfn':leafNode.pfn,'labelname':leafNode.labelname,'recordname':leafNode.recordname,'comment':leafNode.comment}
+                transaction.start(False)
+                dbop.insertOneRow(self.__tagInventoryTableName,
+                                  self.__tagInventoryTableColumns,
+                                  tabrowValueDict)
+                generator.incrementNextID(self.__tagInventoryIDName)
+                transaction.commit()
             return tagid
         except Exception, er:
             transaction.rollback()
             raise Exception, str(er)
-    def getEntryByName( self, tagName ):
-        """Get basic tag from inventory by lable.\n
-        Input: tagname
+    def getEntryByName( self, tagName, pfn ):
+        """Get basic tag from inventory by tagName+pfn. pfn can be empty\n
+        Input: tagname,pfn
         Output: leafNode
+        throw if more than one entry is found.
         """
         leafnode = Node.LeafNode()
         transaction=self.__session.transaction()
@@ -95,13 +107,21 @@ class  tagInventory(object):
             query = self.__session.nominalSchema().tableHandle(self.__tagInventoryTableName).newQuery()
             for columnName in self.__tagInventoryTableColumns:
                 query.addToOutputList(columnName)
-            condition = "tagname=:tagname"
             conditionData = coral.AttributeList()
+            condition = "tagname=:tagname"
             conditionData.extend( 'tagname','string' )
             conditionData['tagname'].setData(tagName)
+            if len(pfn)!=0 :
+                condition += " AND pfn=:pfn"
+                conditionData.extend( 'pfn','string' )
+                conditionData['pfn'].setData(pfn)
             query.setCondition(condition,conditionData)
             cursor = query.execute()
+            counter=0
             while ( cursor.next() ):
+                if counter > 0 :
+                    raise ValueError, "tagName "+tagName+" is not unique, please further specify parameter pfn"
+                counter+=1
                 leafnode.tagid=cursor.currentRow()['tagid'].data()
                 leafnode.tagname=cursor.currentRow()['tagname'].data()
                 leafnode.objectname=cursor.currentRow()['objectname'].data()
@@ -134,6 +154,7 @@ class  tagInventory(object):
             query.setCondition( condition, conditionData)
             cursor = query.execute()
             while ( cursor.next() ):
+                #print 'got it'
                 leafnode.tagid=cursor.currentRow()['tagid'].data()
                 leafnode.tagname=cursor.currentRow()['tagname'].data()
                 leafnode.objectname=cursor.currentRow()['objectname'].data()
@@ -255,16 +276,16 @@ if __name__ == "__main__":
         inv.addEntry(tagentry)
         result=inv.getAllEntries()
         print 'get all##\t',result
-        result=inv.getEntryByName('ecalpedestalsfromonline')
+        result=inv.getEntryByName('ecalpedestalsfromonline','oracle://devdb10/CMS_COND_ECAL')
         print 'get ecalpedestalsfromonline##\t',result
-        result=inv.getEntryByName('crap')
+        result=inv.getEntryByName('crap','oracle://devdb10/CMS_COND_ME')
         print 'get crap##\t',result
         result=inv.getEntryById(0)
         print 'get by id 0##\t',result
         inv.deleteEntryByName('ecalpedestalsfromonline')
-        result=inv.getEntryByName('ecalpedestalsfromonline')
+        result=inv.getEntryByName('ecalpedestalsfromonline','oracle://devdb10/CMS_COND_ECAL')
         print 'get ecalpedestalsfromonline##\t',result
-        result=inv.getEntryByName('crap')
+        result=inv.getEntryByName('crap','oracle://devdb10/CMS_COND_ME')
         print 'get crap##\t',result
         del session
     except Exception, e:

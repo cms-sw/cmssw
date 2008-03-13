@@ -7,7 +7,23 @@ class DBImpl(object):
     def __init__( self , schema):
         """Input: coral schema handle.
         """
-        self.__schema = schema        
+        self.__schema = schema
+    def existRow( self, tableName, condition, conditionbindDict):
+        """Return true if one row fulfills the selection criteria
+        """
+        try:
+            tableHandle = self.__schema.tableHandle(tableName)
+            query = tableHandle.newQuery()
+            query.setCondition(condition,conditionbindDict)
+            cursor = query.execute()
+            result=False
+            if  ( cursor.next() ):
+                result=True
+                cursor.close()
+            del query
+            return result
+        except Exception, e:
+            return False
     def insertOneRow( self, tableName, tabrowDefDict, tabrowValueDict ):
         """Insert row 
         """

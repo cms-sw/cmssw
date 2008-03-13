@@ -67,14 +67,16 @@ class tagInventoryPrinter:
         session = svc.connect( self.__connectstring,accessMode = coral.access_Update )
         inv=tagInventory.tagInventory(session)
         try:
+            result=inv.getAllEntries()
             if len(self.__tag)==0:
-                result=inv.getAllEntries()
-                print '%s\t%s\t%s'%('#ID#','#Name#','#Label#')
+                print '%s\t%s\t%s'%('#ID#','#Name#','#pfn#')
                 for r in result:
-                    print '%s\t%s\t%s'%(r.tagid,r.tagname,r.labelname)
+                    print '%s\t%s\t%s'%(r.tagid,r.tagname,r.pfn)
             else:
-                result=inv.getEntryByName(self.__tag)
-                print '%s\t%s\n ##pfn:%s\n ##objectname:%s\n ##recordname:%s\n ##labelname:%s\n ##comment:%s'%(result.tagid,result.tagname,result.pfn,result.objectname,result.recordname,result.labelname,result.comment)
+                print '%s\t%s\t%s\t%s\t%s\t%s\t%s'%('#ID#','#Name#','#pfn#','#objectname#','#recordname#','#label#','#comment#')
+                for item in result:
+                    if item.tagname==self.__tag:
+                        print '%s\t%s\t%s\t%s\t%s\t%s\t%s'%(item.tagid,item.tagname,item.pfn,item.objectname,item.recordname,item.labelname,item.comment)
             del session
         except Exception, e:
             print str(e)
