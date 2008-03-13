@@ -16,7 +16,7 @@
 //
 // Original Author:  
 //         Created:  Thu Jan  3 13:27:29 EST 2008
-// $Id: FWEventItemsManager.h,v 1.5 2008/01/22 16:34:08 chrjones Exp $
+// $Id: FWEventItemsManager.h,v 1.6 2008/02/25 21:32:24 chrjones Exp $
 //
 
 // system include files
@@ -36,7 +36,7 @@ class FWModelChangeManager;
 class FWSelectionManager;
 class DetIdToMatrix;
 
-class FWEventItemsManager : FWConfigurable
+class FWEventItemsManager : public FWConfigurable
 {
    public:
       //does not take ownership of the object to which it points but does keep reference
