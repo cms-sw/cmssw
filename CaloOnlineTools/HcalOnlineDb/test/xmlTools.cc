@@ -575,6 +575,8 @@ int createZSLoader2( string & tag, string & comment, string & zs2HB, string & zs
   int eta_abs, side, phi, depth;
   string subdet;
 
+  RooGKCounter _c(1,100);
+
   try {
     Statement* stmt = _connection -> createStatement();
     std::string query = ("SELECT eta, side, phi, depth, subdetector, cds.version ");
@@ -587,6 +589,7 @@ int createZSLoader2( string & tag, string & comment, string & zs2HB, string & zs
     ResultSet *rs = stmt->executeQuery(query.c_str());
 
     while (rs->next()) {
+    _c . count();
       eta_abs  = rs -> getInt(1);
       side    = rs -> getInt(2);
       phi     = rs -> getInt(3);
