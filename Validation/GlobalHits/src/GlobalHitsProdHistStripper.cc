@@ -2,8 +2,8 @@
  *  
  *  See header file for description of class
  *
- *  $Date: 2008/02/27 18:42:30 $
- *  $Revision: 1.4 $
+ *  $Date: 2008/02/29 20:48:48 $
+ *  $Revision: 1.5 $
  *  \author M. Strang SUNY-Buffalo
  */
 
@@ -27,6 +27,7 @@ GlobalHitsProdHistStripper::GlobalHitsProdHistStripper(const
   frequency = iPSet.getUntrackedParameter<int>("Frequency");
   vtxunit = iPSet.getUntrackedParameter<int>("VtxUnit");
   outputfile = iPSet.getParameter<std::string>("OutputFile");
+  doOutput = iPSet.getParameter<bool>("DoOutput");
   edm::ParameterSet m_Prov =
     iPSet.getParameter<edm::ParameterSet>("ProvenanceLookup");
   getAllProvenances = 
@@ -64,6 +65,7 @@ GlobalHitsProdHistStripper::GlobalHitsProdHistStripper(const
       << "    Frequency      = " << frequency << "\n"
       << "    VtxUnit        = " << vtxunit << "\n"
       << "    OutputFile     = " << outputfile << "\n"
+      << "    DoOutput      = " << doOutput << "\n"
       << "    GetProv        = " << getAllProvenances << "\n"
       << "    PrintProv      = " << printProvenanceInfo << "\n"
       << "===============================\n";
@@ -73,7 +75,8 @@ GlobalHitsProdHistStripper::GlobalHitsProdHistStripper(const
 
 GlobalHitsProdHistStripper::~GlobalHitsProdHistStripper() 
 {
-  if (outputfile.size() != 0 && dbe) dbe->save(outputfile);
+  if (doOutput)
+    if (outputfile.size() != 0 && dbe) dbe->save(outputfile);
 }
 
 void GlobalHitsProdHistStripper::beginJob(const edm::EventSetup& iSetup)

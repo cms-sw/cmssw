@@ -2,8 +2,8 @@
  *  
  *  See header file for description of class
  *
- *  $Date: 2007/12/02 03:53:15 $
- *  $Revision: 1.5 $
+ *  $Date: 2008/02/27 18:42:30 $
+ *  $Revision: 1.6 $
  *  \author M. Strang SUNY-Buffalo
  */
 
@@ -22,6 +22,7 @@ GlobalHitsHistogrammer::GlobalHitsHistogrammer(const edm::ParameterSet& iPSet)
   frequency = iPSet.getUntrackedParameter<int>("Frequency");
   vtxunit = iPSet.getUntrackedParameter<int>("VtxUnit");
   outputfile = iPSet.getParameter<std::string>("OutputFile");
+  doOutput = iPSet.getParameter<bool>("DoOutput");
   edm::ParameterSet m_Prov =
     iPSet.getParameter<edm::ParameterSet>("ProvenanceLookup");
   getAllProvenances = 
@@ -46,6 +47,7 @@ GlobalHitsHistogrammer::GlobalHitsHistogrammer(const edm::ParameterSet& iPSet)
       << "    Frequency     = " << frequency << "\n"
       << "    VtxUnit       = " << vtxunit << "\n"
       << "    OutputFile    = " << outputfile << "\n"
+      << "    DoOutput      = " << doOutput << "\n"
       << "    GetProv       = " << getAllProvenances << "\n"
       << "    PrintProv     = " << printProvenanceInfo << "\n"
       << "    GlobalHitSrc  = " << GlobalHitSrc_.label() 
@@ -508,7 +510,8 @@ GlobalHitsHistogrammer::GlobalHitsHistogrammer(const edm::ParameterSet& iPSet)
 
 GlobalHitsHistogrammer::~GlobalHitsHistogrammer() 
 {
-  if (outputfile.size() != 0 && dbe) dbe->save(outputfile);
+  if (doOutput)
+    if (outputfile.size() != 0 && dbe) dbe->save(outputfile);
 }
 
 void GlobalHitsHistogrammer::beginJob(const edm::EventSetup& iSetup)

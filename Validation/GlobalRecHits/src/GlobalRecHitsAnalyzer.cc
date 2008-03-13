@@ -2,8 +2,8 @@
  *  
  *  See header file for description of class
  *
- *  $Date: 2007/12/02 03:54:27 $
- *  $Revision: 1.5 $
+ *  $Date: 2008/02/27 18:42:31 $
+ *  $Revision: 1.6 $
  *  \author M. Strang SUNY-Buffalo
  *  Testing by Ken Smith
  */
@@ -23,6 +23,7 @@ GlobalRecHitsAnalyzer::GlobalRecHitsAnalyzer(const edm::ParameterSet& iPSet) :
   verbosity = iPSet.getUntrackedParameter<int>("Verbosity");
   frequency = iPSet.getUntrackedParameter<int>("Frequency");
   outputfile = iPSet.getParameter<std::string>("outputFile");
+  doOutput = iPSet.getParameter<bool>("DoOutput");
   edm::ParameterSet m_Prov =
     iPSet.getParameter<edm::ParameterSet>("ProvenanceLookup");
   getAllProvenances = 
@@ -63,6 +64,7 @@ GlobalRecHitsAnalyzer::GlobalRecHitsAnalyzer(const edm::ParameterSet& iPSet) :
       << "    Verbosity      = " << verbosity << "\n"
       << "    Frequency      = " << frequency << "\n"
       << "    OutputFile     = " << outputfile << "\n"
+      << "    DoOutput      = " << doOutput << "\n"
       << "    GetProv        = " << getAllProvenances << "\n"
       << "    PrintProv      = " << printProvenanceInfo << "\n"
       << "    ECalEBSrc      = " << ECalEBSrc_.label() 
@@ -307,7 +309,8 @@ mehRPCResX = dbe->book1D(hname, htitle, 50, -5., 5.);
 
 GlobalRecHitsAnalyzer::~GlobalRecHitsAnalyzer() 
 {
-  if (outputfile.size() != 0 && dbe) dbe->save(outputfile);
+  if (doOutput)
+    if (outputfile.size() != 0 && dbe) dbe->save(outputfile);
 }
 
 void GlobalRecHitsAnalyzer::beginJob(const edm::EventSetup& iSetup)

@@ -5,8 +5,8 @@
  *  
  *  Class to fill dqm monitor elements from existing EDM file
  *
- *  $Date: 2008/02/18 23:07:02 $
- *  $Revision: 1.3 $
+ *  $Date: 2008/02/27 18:42:25 $
+ *  $Revision: 1.4 $
  *  \author M. Strang SUNY-Buffalo
  */
 
@@ -99,6 +99,7 @@ class GlobalHitsHistogrammer : public edm::EDAnalyzer
 
   DQMStore *dbe;
   std::string outputfile;
+  bool doOutput;
 
   edm::InputTag GlobalHitSrc_;
 

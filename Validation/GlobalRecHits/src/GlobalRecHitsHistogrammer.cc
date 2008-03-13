@@ -2,8 +2,8 @@
  *  
  *  See header file for description of class
  *
- *  $Date: 2007/12/02 03:54:27 $
- *  $Revision: 1.4 $
+ *  $Date: 2008/02/27 18:42:33 $
+ *  $Revision: 1.5 $
  *  \author M. Strang SUNY-Buffalo
  *  Testing by Ken Smith
  */
@@ -23,6 +23,7 @@ GlobalRecHitsHistogrammer::GlobalRecHitsHistogrammer(const edm::ParameterSet& iP
   verbosity = iPSet.getUntrackedParameter<int>("Verbosity");
   frequency = iPSet.getUntrackedParameter<int>("Frequency");
   outputfile = iPSet.getParameter<std::string>("outputFile");
+  doOutput = iPSet.getParameter<bool>("DoOutput");
   edm::ParameterSet m_Prov =
     iPSet.getParameter<edm::ParameterSet>("ProvenanceLookup");
   getAllProvenances = 
@@ -64,6 +65,7 @@ GlobalRecHitsHistogrammer::GlobalRecHitsHistogrammer(const edm::ParameterSet& iP
       << "    Verbosity      = " << verbosity << "\n"
       << "    Frequency      = " << frequency << "\n"
       << "    OutputFile     = " << outputfile << "\n"
+      << "    DoOutput      = " << doOutput << "\n"
       << "    GetProv        = " << getAllProvenances << "\n"
       << "    PrintProv      = " << printProvenanceInfo << "\n"
       << "    Global Src     = " << GlobalRecHitSrc_ << "\n"
@@ -284,7 +286,8 @@ mehRPCResX = dbe->book1D(hname, htitle, 50, -5., 5.);
 
 GlobalRecHitsHistogrammer::~GlobalRecHitsHistogrammer() 
 {
-  if (outputfile.size() != 0 && dbe) dbe->save(outputfile);
+  if (doOutput)
+    if (outputfile.size() != 0 && dbe) dbe->save(outputfile);
 }
 
 void GlobalRecHitsHistogrammer::beginJob(const edm::EventSetup& iSetup)

@@ -2,8 +2,8 @@
  *  
  *  See header file for description of class
  *
- *  $Date: 2008/02/27 18:42:19 $
- *  $Revision: 1.8 $
+ *  $Date: 2008/03/04 16:36:03 $
+ *  $Revision: 1.9 $
  *  \author M. Strang SUNY-Buffalo
  */
 
@@ -22,6 +22,7 @@ GlobalDigisAnalyzer::GlobalDigisAnalyzer(const edm::ParameterSet& iPSet) :
   verbosity = iPSet.getUntrackedParameter<int>("Verbosity");
   frequency = iPSet.getUntrackedParameter<int>("Frequency");
   outputfile = iPSet.getParameter<std::string>("outputFile");
+  doOutput = iPSet.getParameter<bool>("DoOutput");
   edm::ParameterSet m_Prov =
     iPSet.getParameter<edm::ParameterSet>("ProvenanceLookup");
   getAllProvenances = 
@@ -55,6 +56,7 @@ GlobalDigisAnalyzer::GlobalDigisAnalyzer(const edm::ParameterSet& iPSet) :
       << "    Verbosity     = " << verbosity << "\n"
       << "    Frequency     = " << frequency << "\n"
       << "    OutputFile   = " << outputfile << "\n"
+      << "    DoOutput      = " << doOutput << "\n"
       << "    GetProv       = " << getAllProvenances << "\n"
       << "    PrintProv     = " << printProvenanceInfo << "\n"
       << "    ECalEBSrc     = " << ECalEBSrc_.label() 
@@ -465,7 +467,8 @@ GlobalDigisAnalyzer::GlobalDigisAnalyzer(const edm::ParameterSet& iPSet) :
  
 GlobalDigisAnalyzer::~GlobalDigisAnalyzer() 
 {
-  if (outputfile.size() != 0 && dbe) dbe->save(outputfile);
+  if (doOutput)
+    if (outputfile.size() != 0 && dbe) dbe->save(outputfile);
 }
 
 void GlobalDigisAnalyzer::beginJob(const edm::EventSetup& iSetup)

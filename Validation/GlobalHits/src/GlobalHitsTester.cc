@@ -5,18 +5,36 @@ GlobalHitsTester::GlobalHitsTester(const edm::ParameterSet& iPSet) :
   fName(""), verbosity(0), frequency(0), vtxunit(0), label(""), 
   getAllProvenances(false), printProvenanceInfo(false), count(0)
 {
+  std::string MsgLoggerCat = "GlobalHitsTester_GlobalHitsTester";
+
   fName = iPSet.getUntrackedParameter<std::string>("Name");
   verbosity = iPSet.getUntrackedParameter<int>("Verbosity");
   frequency = iPSet.getUntrackedParameter<int>("Frequency");
   vtxunit = iPSet.getUntrackedParameter<int>("VtxUnit");
   outputfile = iPSet.getParameter<std::string>("OutputFile");
+  doOutput = iPSet.getParameter<bool>("DoOutput");
   edm::ParameterSet m_Prov =
     iPSet.getParameter<edm::ParameterSet>("ProvenanceLookup");
   getAllProvenances = 
     m_Prov.getUntrackedParameter<bool>("GetAllProvenances");
   printProvenanceInfo = 
     m_Prov.getUntrackedParameter<bool>("PrintProvenanceInfo");
-  
+ 
+  if (verbosity >= 0) {
+    edm::LogInfo(MsgLoggerCat) 
+      << "\n===============================\n"
+      << "Initialized as EDAnalyzer with parameter values:\n"
+      << "    Name          = " << fName << "\n"
+      << "    Verbosity     = " << verbosity << "\n"
+      << "    Frequency     = " << frequency << "\n"
+      << "    VtxUnit       = " << vtxunit << "\n"
+      << "    OutputFile    = " << outputfile << "\n"
+      << "    DoOutput      = " << doOutput << "\n"
+      << "    GetProv       = " << getAllProvenances << "\n"
+      << "    PrintProv     = " << printProvenanceInfo << "\n"
+      << "===============================\n";
+  }
+ 
   dbe = 0;
   dbe = edm::Service<DQMStore>().operator->();
   
@@ -72,7 +90,8 @@ GlobalHitsTester::GlobalHitsTester(const edm::ParameterSet& iPSet) :
 
 GlobalHitsTester::~GlobalHitsTester() 
 {
-  if (outputfile.size() != 0 && dbe) dbe->save(outputfile);
+  if (doOutput)
+    if (outputfile.size() != 0 && dbe) dbe->save(outputfile);
 }
 
 void GlobalHitsTester::beginJob(const edm::EventSetup& iSetup)

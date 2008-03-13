@@ -2,8 +2,8 @@
  *  
  *  See header file for description of class
  *
- *  $Date: 2008/01/12 21:00:19 $
- *  $Revision: 1.5 $
+ *  $Date: 2008/02/27 18:42:24 $
+ *  $Revision: 1.6 $
  *  \author M. Strang SUNY-Buffalo
  */
 
@@ -22,6 +22,7 @@ GlobalDigisHistogrammer::GlobalDigisHistogrammer(const edm::ParameterSet& iPSet)
   verbosity = iPSet.getUntrackedParameter<int>("Verbosity");
   frequency = iPSet.getUntrackedParameter<int>("Frequency");
   outputfile = iPSet.getParameter<std::string>("outputFile");
+  doOutput = iPSet.getParameter<bool>("DoOutput");
   edm::ParameterSet m_Prov =
     iPSet.getParameter<edm::ParameterSet>("ProvenanceLookup");
   getAllProvenances = 
@@ -57,6 +58,7 @@ GlobalDigisHistogrammer::GlobalDigisHistogrammer(const edm::ParameterSet& iPSet)
       << "    Verbosity     = " << verbosity << "\n"
       << "    Frequency     = " << frequency << "\n"
       << "    OutputFile    = " << outputfile << "\n"
+      << "    DoOutput      = " << doOutput << "\n"
       << "    GetProv       = " << getAllProvenances << "\n"
       << "    PrintProv     = " << printProvenanceInfo << "\n"
       << "    Global Src    = " << GlobalDigisSrc_ << "\n"
@@ -418,8 +420,8 @@ mehCSCWiren->setAxisTitle("Count",2);
 
 GlobalDigisHistogrammer::~GlobalDigisHistogrammer() 
 {
-if (outputfile.size() != 0 && dbe) dbe->save(outputfile);
-
+  if (doOutput)
+    if (outputfile.size() != 0 && dbe) dbe->save(outputfile);
 }
 
 void GlobalDigisHistogrammer::beginJob(const edm::EventSetup& iSetup)

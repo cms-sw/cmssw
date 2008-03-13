@@ -7,8 +7,8 @@
  *  containing information about various sub-systems in global coordinates 
  *  with full geometry
  *
- *  $Date: 2008/02/18 23:07:01 $
- *  $Revision: 1.3 $
+ *  $Date: 2008/02/27 18:42:04 $
+ *  $Revision: 1.4 $
  *  \author M. Strang SUNY-Buffalo
  */
 
@@ -80,6 +80,8 @@ class GlobalDigisHistogrammer : public edm::EDAnalyzer
 
   DQMStore *dbe;
   std::string outputfile;
+  bool doOutput;
+
   edm::InputTag GlobalDigisSrc_;
   //edm::InputTag srcGlobalDigis;
 

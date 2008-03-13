@@ -22,6 +22,7 @@ globalhitsanalyze = cms.EDAnalyzer("GlobalHitsAnalyzer",
     ECalESSrc = cms.InputTag("g4SimHits","EcalHitsES",""),
     SiTIDLowSrc = cms.InputTag("g4SimHits","TrackerHitsTIDLowTof",""),
     OutputFile = cms.string('GlobalHitsHistogramsAnalyze.root'),
+    DoOutput = cms.bool(False),                               
     MuonDtSrc = cms.InputTag("g4SimHits","MuonDTHits",""),
     ProvenanceLookup = cms.PSet(
         PrintProvenanceInfo = cms.untracked.bool(False),

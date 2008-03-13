@@ -7,8 +7,8 @@
  *  containing information about various sub-systems in global coordinates 
  *  with full geometry
  *
- *  $Date: 2008/02/18 23:07:03 $
- *  $Revision: 1.4 $
+ *  $Date: 2008/02/27 18:42:30 $
+ *  $Revision: 1.5 $
  *  \author M. Strang SUNY-Buffalo
  */
 
@@ -197,6 +197,7 @@ class GlobalRecHitsAnalyzer : public edm::EDAnalyzer
 
   DQMStore *dbe;
   std::string outputfile;
+  bool doOutput;
 
   // Electromagnetic info
   // ECal info

@@ -3,6 +3,7 @@ import FWCore.ParameterSet.Config as cms
 globaldigisanalyze = cms.EDAnalyzer("GlobalDigisAnalyzer",
     MuCSCStripSrc = cms.InputTag("muonCSCDigis","MuonCSCStripDigi",""),
     outputFile = cms.string('GlobalDigisHistogramsAnalyze.root'),
+    DoOutput = cms.bool(False),
     Name = cms.untracked.string('GlobalDigisAnalyzer'),
     MuCSCWireSrc = cms.InputTag("muonCSCDigis","MuonCSCWireDigi",""),
     Verbosity = cms.untracked.int32(0),
