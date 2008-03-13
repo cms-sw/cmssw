@@ -1,3 +1,8 @@
+2008-03-14  Emilio Meschi  <emilio.meschi@cern.ch>
+
+	* tag V00-09-05
+	* timeout when processKiller disabled now generates info message
+
 2008-03-12  Philipp SCHIEFERDECKER  <philipp.schieferdecker@cern.ch>
 
 	* tag V00-09-04

@@ -620,9 +620,13 @@ bool FUResourceBroker::watching(toolbox::task::WorkLoop* wl)
     time_t tstamp=evt_tstamps[i]; if (tstamp==0) continue;
     double tdiff =difftime(tcurr,tstamp);
     if (tdiff>timeOutSec_) {
-      LOG4CPLUS_ERROR(log_,"evt "<<evt<<" timed out, "<<"kill prc "<<pid);
       if(processKillerEnabled_)
-	kill(pid,9);
+	{
+	  LOG4CPLUS_ERROR(log_,"evt "<<evt<<" timed out, "<<"kill prc " <<pid);
+	  kill(pid,9);
+	}
+      else
+	LOG4CPLUS_INFO(log_,"evt "<<evt<<" under processing for more than " << timeOutSec_ << "sec for process " <<pid);
     }
   }
   
