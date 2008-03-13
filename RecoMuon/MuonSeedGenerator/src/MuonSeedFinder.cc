@@ -1,8 +1,8 @@
 /**
  *  See header file for a description of this class.
  *
- *  $Date: 2007/05/01 18:06:19 $
- *  $Revision: 1.21 $
+ *  $Date: 2007/11/09 02:04:11 $
+ *  $Revision: 1.22 $
  *  \author A. Vitelli - INFN Torino, V.Palichik
  *  \author porting  R. Bellan
  *
@@ -81,7 +81,7 @@ vector<TrajectorySeed> MuonSeedFinder::seeds(const edm::EventSetup& eSetup) cons
     theSeeds.push_back(endcap.seed());
   }
 
-  if(num_bar == 1 && num_endcap > 0)
+  if(num_bar > 0 && num_endcap > 0)
   {
     LogTrace(metname) << "Overlap Seed" << endl;
     std::vector<TrajectorySeed> overlapSeeds = overlap.seeds();
