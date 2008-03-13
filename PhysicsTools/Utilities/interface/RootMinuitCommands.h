@@ -193,10 +193,18 @@ namespace fit {
       std::vector<double> doubleArgs;
      void print(std::ostream& cout) const {
 	cout << name;
-	for(size_t i = 0; i != stringArgs.size(); ++i)
-	  cout << " string args: " << stringArgs[i];
-	for(size_t i = 0; i != doubleArgs.size(); ++i)
-	  cout << " double args: " << doubleArgs[i];
+	if(stringArgs.size() > 0) {
+	  for(size_t i = 0; i != stringArgs.size(); ++i) {
+	    if(i != 0) cout << ",";
+	    cout << " \"" << stringArgs[i] << "\"";
+	  }
+	}
+	if(doubleArgs.size() > 0) {
+	  for(size_t i = 0; i != doubleArgs.size(); ++i) {
+	    if(i != 0) cout << ",";
+	    cout << " " << doubleArgs[i];
+	  }
+	}
       }
     };
     std::vector<command> commands_;

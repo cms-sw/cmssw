@@ -131,6 +131,7 @@ namespace fit {
       minuit_->mnstat(minValue_, edm, errdef, nvpar, nparx, ierflag);
       return minValue_;
     }
+
   private:
     parameterVector_t parMap_;
     std::map<std::string, size_t> parIndices_;
