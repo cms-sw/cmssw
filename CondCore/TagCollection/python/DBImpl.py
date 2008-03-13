@@ -17,13 +17,13 @@ class DBImpl(object):
             query.setCondition(condition,conditionbindDict)
             cursor = query.execute()
             result=False
-            if  ( cursor.next() ):
+            while ( cursor.next() ):
                 result=True
                 cursor.close()
             del query
             return result
         except Exception, e:
-            return False
+            raise Exception, str(e)
     def insertOneRow( self, tableName, tabrowDefDict, tabrowValueDict ):
         """Insert row 
         """

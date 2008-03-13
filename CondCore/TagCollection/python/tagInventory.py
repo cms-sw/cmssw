@@ -10,7 +10,7 @@ class  tagInventory(object):
         self.__tagInventoryTableName = 'TAGINVENTORY_TABLE'
         self.__tagInventoryIDName = 'TAGINVENTORY_IDS'
         self.__tagInventoryTableColumns = {'tagid':'unsigned int', 'tagname':'string', 'pfn':'string','recordname':'string', 'objectname':'string', 'labelname':'string'}
-        self.__tagInventoryTableNotNullColumns = ['tagname','pfn','recordname','objectname','labelname']
+        self.__tagInventoryTableNotNullColumns = ['tagname','pfn','recordname','objectname']
         #self.__tagInventoryTableUniqueColumns = ['tagname']
         self.__tagInventoryTablePK = ('tagid')
     def existInventoryTable( self ):
@@ -45,8 +45,8 @@ class  tagInventory(object):
                 #description.setUniqueConstraint(columnName)
             #combinedunique1=('pfn','recordname','objectname','labelname')
             #description.setUniqueConstraint(combinedunique1)
-            combinedunique2=('tagname','pfn')
-            description.setUniqueConstraint(combinedunique2)
+            #combinedunique2=('tagname','pfn')
+            #description.setUniqueConstraint(combinedunique2)
             description.setPrimaryKey(  self.__tagInventoryTablePK )
             self.__tagInventoryTableHandle = schema.createTable( description )
             self.__tagInventoryTableHandle.privilegeManager().grantToPublic( coral.privilege_Select )
@@ -65,7 +65,7 @@ class  tagInventory(object):
         tagid=0
         try:
             transaction=self.__session.transaction()
-            transaction.start(True)
+            transaction.start(False)
             schema = self.__session.nominalSchema()
             generator=IdGenerator.IdGenerator(schema)
             dbop=DBImpl.DBImpl(schema)
@@ -79,17 +79,18 @@ class  tagInventory(object):
                 conditionbindDict['pfn'].setData(leafNode.pfn)
             duplicate=False;
             duplicate=dbop.existRow(self.__tagInventoryTableName,condition,conditionbindDict)
+            #transaction.commit()
             if duplicate is False:
                 tagid=generator.getNewID(self.__tagInventoryIDName)
-            transaction.commit()
             if duplicate is False:
                 tabrowValueDict={'tagid':tagid,'tagname':leafNode.tagname,'objectname':leafNode.objectname,'pfn':leafNode.pfn,'labelname':leafNode.labelname,'recordname':leafNode.recordname}
-                transaction.start(False)
+                #transaction.start(False)
                 dbop.insertOneRow(self.__tagInventoryTableName,
                                   self.__tagInventoryTableColumns,
                                   tabrowValueDict)
                 generator.incrementNextID(self.__tagInventoryIDName)
-                transaction.commit()
+                #transaction.commit()
+            transaction.commit()
             return tagid
         except Exception, er:
             transaction.rollback()

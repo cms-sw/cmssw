@@ -1,5 +1,5 @@
 [COMMON]
-connect=sqlite_file:GRUMMDB.db
+connect=oracle://devdb10/cms_xiezhen_dev
 
 [TAGINVENTORY]
 tagdata=

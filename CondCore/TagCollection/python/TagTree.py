@@ -33,7 +33,7 @@ class tagTree(object):
         """
         try:
             transaction=self.__session.transaction()
-            transaction.start()
+            transaction.start(False)
             schema = self.__session.nominalSchema()
             schema.dropIfExistsTable( self.__tagTreeTableName )
             description = coral.TableDescription();
@@ -76,17 +76,14 @@ class tagTree(object):
         try:
             ##start readonly transaction
             transaction.start(True)
-            schema = self.__session.nominalSchema()
-            generator=IdGenerator.IdGenerator(schema)
-            tableHandle = self.__session.nominalSchema().tableHandle(self.__tagTreeTableName)
             condition='nodelabel=:nodelabel'
             conditionbindDict=coral.AttributeList()
             conditionbindDict.extend('nodelabel','string')
             conditionbindDict['nodelabel'].setData(nodelabel)
-            dbop=DBImpl.DBImpl(schema)
+            dbop=DBImpl.DBImpl(self.__session.nominalSchema())
             duplicate=dbop.existRow(self.__tagTreeTableName,condition,conditionbindDict)
-            if duplicate is False:
-                nodeid=generator.getNewID(self.__tagTreeIDs)
+            transaction.commit()
+            if duplicate is False:                
                 if parentLabel != 'ROOT':
                     parentNode=self.getNode(parentLabel)
                     if parentNode.empty():
@@ -94,7 +91,11 @@ class tagTree(object):
                     parentid=parentNode.nodeid
                     lft=parentNode.rgt
                     rgt=parentNode.rgt+1
-            transaction.commit()
+                transaction.start(False)
+                generator=IdGenerator.IdGenerator(self.__session.nominalSchema())
+
+                nodeid=generator.getNewID(self.__tagTreeIDs)
+                transaction.commit()
             ##now start write transaction
             if duplicate is False:                
                 tabrowValueDict={'nodeid':nodeid, 'nodelabel':nodelabel,
@@ -102,14 +103,17 @@ class tagTree(object):
                                  'tagid':tagid, 'globalsince':globalsince,
                                  'globaltill':globaltill
                                  }
-                transaction.start(False)
                 if parentLabel != 'ROOT':
-                    self.__openGap( tableHandle,parentNode.rgt,1 )
+                    transaction.start(False)
+                    self.__openGap(self.__session.nominalSchema().tableHandle(self.__tagTreeTableName),parentNode.rgt,1 )
+                    transaction.commit()
+                transaction.start(False)
                 dbop.insertOneRow(self.__tagTreeTableName,
                                   self.__tagTreeTableColumns,
                                   tabrowValueDict)
                 generator.incrementNextID(self.__tagTreeIDs)
                 transaction.commit()
+            transaction.commit()
         except coral.Exception, er:
             transaction.rollback()
             raise Exception, str(er)
@@ -439,7 +443,7 @@ class tagTree(object):
         inputData = coral.AttributeList()
         inputData.extend('parentrgt','unsigned long')
         inputData['parentrgt'].setData(parentrgt)
-        editor = tableHandle.dataEditor()        
+        editor = tableHandle.dataEditor()
         setClause = 'lft=lft+'+str(delta)
         condition = 'lft>:parentrgt'
         editor.updateRows(setClause, condition, inputData)
