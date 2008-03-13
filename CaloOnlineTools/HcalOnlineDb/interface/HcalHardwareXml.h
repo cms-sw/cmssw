@@ -22,7 +22,6 @@
 
 using namespace std;
 
-
 typedef struct _HcalPart
   {
     _HcalPart(){ mode=""; kind_of_part=""; name_label=""; barcode=""; comment=""; attr_name=""; attr_value=""; };
@@ -43,14 +42,17 @@ class HcalHardwareXml : public XMLDOMBlock
  public:
     
   HcalHardwareXml();
+  HcalHardwareXml( std::string _type );
   virtual ~HcalHardwareXml();
   
   int addHardware( std::map<string,map<string,map<string,map<int,string> > > > & hw_map );
-  
+  std::string * getLutXml( std::vector<unsigned int> & _lut );
+
  private:
 
   HcalHardwareXml(const HcalHardwareXml&); // stop default
   const HcalHardwareXml& operator=(const HcalHardwareXml&); // stop default
+
   DOMElement * addPart( DOMElement * parent, HcalPart & part );
 
   DOMElement * partsElem;
