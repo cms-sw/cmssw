@@ -53,6 +53,7 @@ class CSCGainAnalyzer : public edm::EDAnalyzer {
   std::vector<int> newadc; 
   std::string chamber_id;
   int eventNumber,evt,counterzero,chamber_num,sector,i_chamber,i_layer,reportedChambers,first_strip_index,strips_per_layer,chamber_index;
+  int chamberIndex;
   int fff,ret_code,length,strip,misMatch,NChambers,Nddu,record,myNcham;
   time_t rawtime;
   int dmbID[CHAMBERS_ga],crateID[CHAMBERS_ga],size[CHAMBERS_ga]; 
