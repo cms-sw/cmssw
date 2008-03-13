@@ -55,6 +55,7 @@ namespace fit {
 	cout << ">>> configuration file: " << fileName << endl;
       string line;
       lineNumber_ = 0;
+      bool commands = false;
       while(getline(*file, line)) {
 	++lineNumber_;
 	line.erase(line.end() - 1);
@@ -64,6 +65,10 @@ namespace fit {
 	if(tokens.begin()==tokens.end()) continue;
 	if(*(i->begin()) != '#') {
 	  if(*i == kParameter) {
+	    if(commands)
+	      throw edm::Exception(edm::errors::Configuration)
+		<< errorHeader() 
+		<< "please, declare all parameter before all other minuit commands.\n";
 	    string name = nextToken(i, e);
 	    parameter_t par;
 	    par.val = string2double(nextToken(i, e));
@@ -95,6 +100,7 @@ namespace fit {
 		   << " err: " << par.err
 		   << endl;
 	  } else if(*i == kFix || *i == kRelease) {
+	    commands = true;
 	    command com;
 	    com.name = *i;
 	    string arg = nextToken(i, e);
@@ -104,6 +110,7 @@ namespace fit {
 	      cout << ">>> "; com.print(cout); cout << endl;
 	    }
 	  } else if(*i == kSet) {
+	    commands = true;
 	    command com;
 	    com.name = *i;
 	    string arg = nextToken(i, e);
@@ -114,6 +121,7 @@ namespace fit {
 	      cout << ">>> "; com.print(cout); cout << endl;
 	    }
 	  } else if(*i == kMinimize || *i == kMigrad) {
+	    commands = true;
 	    command com;
 	    com.name = *i;
 	    commands_.push_back(com);
