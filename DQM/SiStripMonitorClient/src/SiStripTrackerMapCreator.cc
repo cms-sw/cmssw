@@ -113,10 +113,10 @@ void SiStripTrackerMapCreator::paintTkMap(int det_id, map<MonitorElement*, int>&
     if (it->second > gstatus ) gstatus = it->second;
     SiStripUtility::getMEStatusColor(it->second, icol, tag);   
   }
-  cout << " Detector ID : " << det_id 
-       << " " << comment.str()
-       << " Status : " << gstatus  << endl;
-  
+  if (0) {cout << " Detector ID : " << det_id 
+	       << " " << comment.str()
+	       << " Status : " << gstatus  << endl;
+  }
   trackerMap_->setText(det_id, comment.str());
   int rval, gval, bval;
   SiStripUtility::getMEStatusColor(gstatus, rval, gval, bval);

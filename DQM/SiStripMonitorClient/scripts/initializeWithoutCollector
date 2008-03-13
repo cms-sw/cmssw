@@ -37,15 +37,17 @@ my $pwd = `pwd`; chomp $pwd;
 my $dqm_dir    = $ENV{"CMSSW_BASE"}."/src/DQM/SiStripMonitorClient/test";
 my $dqm_common = $ENV{"CMSSW_RELEASE_BASE"}."/src/DQM/TrackerCommon/test";
 
+my $cfg_file = $ARGV[0];
+print "cfg file name : $cfg_file\n";
 #
 # interpret command line
 #
-foreach $param (@ARGV) {
-    if    ($hostname eq "fillme")    { $hostname=$param; }
-    elsif ($param    eq "-host")     { $hostname="fillme"; }
-
-    else { die ("Unknown parameter $param!\n"); }
-}
+#foreach $param (@ARGV) {
+#    if    ($hostname eq "fillme")    { $hostname=$param; }
+#    elsif ($param    eq "-host")     { $hostname="fillme"; }
+#
+#    else { die ("Unknown parameter $param!\n"); }
+#}
 
 print "hostname = $hostname\n";
 
@@ -63,7 +65,7 @@ print "make directories ...\n";
 #
 print "copy cfg files ...\n";
 
-copy("$dqm_dir/source_client.cfg", "$ENV{PWD}/source_client.cfg");
+copy("$dqm_dir/$cfg_file", "$ENV{PWD}/.");
 copy("$dqm_dir/../data/sistrip_qualitytest_config.xml", "$ENV{PWD}/sistrip_qualitytest_config.xml");
 copy("$dqm_dir/../data/layer.js", "$ENV{PWD}/TkMap/layer.js");
 copy("$dqm_dir/../data/crate.js", "$ENV{PWD}/TkMap/crate.js");
@@ -110,7 +112,7 @@ print XML makeXmlProfileTrailer();
 #
 print "make xdaq  configuration ...\n";
 
-my @properties = ("parameterSet", "string","file:$pwd/source_client.cfg",
+my @properties = ("parameterSet", "string","file:$pwd/$cfg_file",
 		    "collReconnSec","integer","-1",
                     "hasPrescaleService","boolean","false",
                     "isRunNumberSetter","boolean","false",
