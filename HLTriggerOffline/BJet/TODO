@@ -12,6 +12,9 @@ Validation and comparison plots:
  + efficiency of each filter 
     [v] flavour distribution (u,d,s,c,b,g) (uds ?) (udsg ?)
     [v] energy, ET, eta, phi spectra (overall, by flavour)
+ + compute efficiens 
+    [v] per jets
+    [v] per events
 
 Detailed plots:
 
