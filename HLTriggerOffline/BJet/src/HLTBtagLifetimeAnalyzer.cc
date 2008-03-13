@@ -67,15 +67,15 @@ struct JetPlots {
     
     bool sumw2 = TH1::GetDefaultSumw2();
     TH1::SetDefaultSumw2(true);
-    m_jetEnergy = new TH1F((m_name + "_Energy").c_str(), (m_title + " energy").c_str(), m_energyBins,    m_minEnergy, m_maxEnergy);
-    m_jetET     = new TH1F((m_name + "_ET").c_str(),     (m_title + " ET").c_str(),     m_energyBins,    m_minEnergy, m_maxEnergy);
-    m_jetEta    = new TH1F((m_name + "_Eta").c_str(),    (m_title + " eta").c_str(),    m_geometryBins, -m_maxEta,    m_maxEta);
-    m_jetPhi    = new TH1F((m_name + "_Phi").c_str(),    (m_title + " phi").c_str(),    m_geometryBins, -M_PI,        M_PI);
+    m_jetEnergy = new TH1F((m_name + "_jets_energy").c_str(), (m_title + " jets energy").c_str(), m_energyBins,    m_minEnergy, m_maxEnergy);
+    m_jetET     = new TH1F((m_name + "_jets_ET").c_str(),     (m_title + " jets ET").c_str(),     m_energyBins,    m_minEnergy, m_maxEnergy);
+    m_jetEta    = new TH1F((m_name + "_jets_eta").c_str(),    (m_title + " jets eta").c_str(),    m_geometryBins, -m_maxEta,    m_maxEta);
+    m_jetPhi    = new TH1F((m_name + "_jets_phi").c_str(),    (m_title + " jets phi").c_str(),    m_geometryBins, -M_PI,        M_PI);
     if (m_hasTracks) {
-      m_tracksEnergy = new TH1F((m_name + "_Tracks_Energy").c_str(), ("Tracks in " + m_title + " vs. jet energy").c_str(), m_energyBins,    m_minEnergy, m_maxEnergy);
-      m_tracksET     = new TH1F((m_name + "_Tracks_ET").c_str(),     ("Tracks in " + m_title + " vs. jet ET").c_str(),     m_energyBins,    m_minEnergy, m_maxEnergy);
-      m_tracksEta    = new TH1F((m_name + "_Tracks_Eta").c_str(),    ("Tracks in " + m_title + " vs. jet eta").c_str(),    m_geometryBins, -m_maxEta,    m_maxEta);
-      m_tracksPhi    = new TH1F((m_name + "_Tracks_Phi").c_str(),    ("Tracks in " + m_title + " vs. jet phi").c_str(),    m_geometryBins, -M_PI,        M_PI);
+      m_tracksEnergy = new TH1F((m_name + "_tracks_energy").c_str(), ("Tracks in " + m_title + " jets vs. jet energy").c_str(), m_energyBins,    m_minEnergy, m_maxEnergy);
+      m_tracksET     = new TH1F((m_name + "_tracks_ET").c_str(),     ("Tracks in " + m_title + " jets vs. jet ET").c_str(),     m_energyBins,    m_minEnergy, m_maxEnergy);
+      m_tracksEta    = new TH1F((m_name + "_tracks_eta").c_str(),    ("Tracks in " + m_title + " jets vs. jet eta").c_str(),    m_geometryBins, -m_maxEta,    m_maxEta);
+      m_tracksPhi    = new TH1F((m_name + "_tracks_phi").c_str(),    ("Tracks in " + m_title + " jets vs. jet phi").c_str(),    m_geometryBins, -M_PI,        M_PI);
     }
     TH1::SetDefaultSumw2(sumw2);
   }
@@ -339,6 +339,9 @@ private:
   edm::InputTag             m_vertex;           // primary vertex
   std::vector<InputData>    m_levels;
 
+  // counters for per-event efficiencies
+  std::vector<unsigned int> m_events;           // number of jets passing each level
+
   // match to MC truth
   edm::InputTag             m_mcPartons;        // MC truth match - jet association to partons
   std::vector<std::string>  m_mcLabels;         // MC truth match - labels
@@ -373,6 +376,7 @@ private:
 HLTBtagLifetimeAnalyzer::HLTBtagLifetimeAnalyzer(const edm::ParameterSet & config) :
   m_vertex( config.getParameter<edm::InputTag>("vertex") ),
   m_levels(),
+  m_events(),
   m_mcPartons( config.getParameter<edm::InputTag>("mcPartons") ),
   m_mcLabels(),
   m_mcFlavours(),
@@ -427,6 +431,7 @@ HLTBtagLifetimeAnalyzer::~HLTBtagLifetimeAnalyzer()
 
 void HLTBtagLifetimeAnalyzer::beginJob(const edm::EventSetup & setup) 
 {
+  m_events.resize( m_levels.size(), 0 );
   m_jetPlots.resize( m_levels.size() );
   m_mcPlots.resize( m_levels.size() );
   m_offlinePlots.resize( m_levels.size() );
@@ -465,6 +470,8 @@ void HLTBtagLifetimeAnalyzer::analyze(const edm::Event & event, const edm::Event
     
     if (h_jets.isValid()) {
       const edm::View<reco::Jet> & jets = * h_jets;
+      if (jets.size() > 0)
+        ++m_events[l];
 
       for (unsigned int j = 0; j < jets.size(); ++j) {
         const reco::Jet & jet = jets[j];
@@ -498,6 +505,36 @@ void HLTBtagLifetimeAnalyzer::analyze(const edm::Event & event, const edm::Event
 
 void HLTBtagLifetimeAnalyzer::endJob()
 {
+  // compute and print overall per-event efficiencies
+  for (unsigned int i = 0; i < m_levels.size(); ++i) {
+    std::stringstream out;
+    out << std::setw(64) << std::left << ("events passing " + m_levels[i].m_title) << std::right << std::setw(12) << m_events[i];
+    std::cout << out.str() << std::endl;
+  }
+  for (unsigned int i = 1; i < m_levels.size(); ++i) {
+    std::stringstream out;
+    out << std::setw(64) << std::left << ("step efficiency at " + m_levels[i].m_title);
+    if (m_events[i-1] > 0) {
+      double eff = (double) m_events[i] / (double) m_events[i-1];
+      out << std::right << std::setw(11) << std::fixed << std::setprecision(2) << eff * 100. << "%";
+    } else {
+      out << std::right << std::setw(12) << "NaN";
+    }
+    std::cout << out.str() << std::endl;
+  }
+  for (unsigned int i = 1; i < m_levels.size(); ++i) {
+    std::stringstream out;
+    out << std::setw(64) << std::left << ("cumulative efficiency at " + m_levels[i].m_title);
+    if (m_events[0] > 0) {
+      double eff = (double) m_events[i] / (double) m_events[0];
+      out << std::right << std::setw(11) << std::fixed << std::setprecision(2) << eff * 100. << "%";
+    } else {
+      out << std::right << std::setw(12) << "NaN";
+    }
+    std::cout << out.str() << std::endl;
+  }
+  std::cout << std::endl;
+  
   TFile * file = new TFile(m_outputFile.c_str(), "RECREATE");
   
   for (unsigned int i = 0; i < m_levels.size(); ++i) {
