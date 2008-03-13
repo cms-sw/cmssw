@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Mar  3 17:20:20 EST 2008
-// $Id: FWListModel.h,v 1.3 2008/03/05 19:57:37 chrjones Exp $
+// $Id: FWListModel.h,v 1.4 2008/03/11 23:30:04 chrjones Exp $
 //
 
 // system include files
@@ -28,6 +28,7 @@
 
 // forward declarations
 class TObject;
+class FWDisplayProperties;
 
 class FWListModel : public TEveElement, public TNamed, public FWListItemBase
 {
@@ -50,6 +51,7 @@ class FWListModel : public TEveElement, public TNamed, public FWListItemBase
 
       virtual bool doSelection(bool iToggleSelection);
 
+      bool update(const FWDisplayProperties&);
       void openDetailView() const;
    private:
       FWListModel(const FWListModel&); // stop default

@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Mar  3 17:20:14 EST 2008
-// $Id: FWListModel.cc,v 1.5 2008/03/06 22:48:31 jmuelmen Exp $
+// $Id: FWListModel.cc,v 1.6 2008/03/11 23:30:04 chrjones Exp $
 //
 
 // system include files
@@ -81,6 +81,22 @@ FWListModel::doSelection(bool iToggleSelection)
    }
    return false;
 }
+
+bool 
+FWListModel::update(const FWDisplayProperties& iProps)
+{
+   bool wasChanged=false;
+   if(iProps.color() != GetMainColor()) {
+      wasChanged = true;
+      TEveElement::SetMainColor(iProps.color());
+   }
+   if(iProps.isVisible() != GetRnrState() ) {
+      wasChanged=true;
+      TEveElement::SetRnrState(iProps.isVisible());
+   }
+   return wasChanged;
+}
+
 
 void 
 FWListModel::SetMainColor(Color_t iColor)
