@@ -2,7 +2,7 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/02/27 13:57:51 $
+ *  $Date: 2008/03/13 11:11:12 $
  *  $Revision: 1.1 $
  *  \author G. Mila - INFN Torino
  */
@@ -73,13 +73,13 @@ void MuDepositEnergyMonitoring::beginJob(edm::EventSetup const& iSetup) {
   hoNoBin = parameters.getParameter<int>("hoSizeBin");
   hoNoMin = parameters.getParameter<double>("hoSizeMin");
   hoNoMax = parameters.getParameter<double>("hoSizeMax");
-  histname = "hadDepositedEnergy_";
+  histname = "hoDepositedEnergy_";
   hoDepEnergy = dbe->book1D(histname+AlgoName, histname+AlgoName, hoNoBin, hoNoMin, hoNoMax);
 
   hoS9NoBin = parameters.getParameter<int>("hoS9SizeBin");
   hoS9NoMin = parameters.getParameter<double>("hoS9SizeMin");
   hoS9NoMax = parameters.getParameter<double>("hoS9SizeMax");
-  histname = "hadS9DepositedEnergy_";
+  histname = "hoS9DepositedEnergy_";
   hoS9DepEnergy = dbe->book1D(histname+AlgoName, histname+AlgoName, hoS9NoBin, hoS9NoMin, hoS9NoMax);
 
 }
