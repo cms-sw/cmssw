@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Feb 28 11:13:37 PST 2008
-// $Id: FWListEventItem.cc,v 1.7 2008/03/11 19:11:40 chrjones Exp $
+// $Id: FWListEventItem.cc,v 1.8 2008/03/11 23:30:04 chrjones Exp $
 //
 
 // system include files
@@ -82,11 +82,11 @@ FWListEventItem::doSelection(bool iToggleSelection)
 void 
 FWListEventItem::SetMainColor(Color_t iColor)
 {
+   FWChangeSentry sentry(*(m_item->changeManager()));
    FWDisplayProperties prop(iColor,m_item->defaultDisplayProperties().isVisible());
    m_item->setDefaultDisplayProperties(prop);
    TEveElementList::SetMainColor(iColor);
    
-   FWChangeSentry sentry(*(m_item->changeManager()));
    for(int index=0; index <static_cast<int>(m_item->size()); ++index) {
       FWDisplayProperties prop=m_item->modelInfo(index).displayProperties();
       if(iColor !=prop.color()) {
@@ -100,11 +100,11 @@ FWListEventItem::SetMainColor(Color_t iColor)
 void 
 FWListEventItem::SetRnrState(Bool_t rnr)
 {
+   FWChangeSentry sentry(*(m_item->changeManager()));
    FWDisplayProperties prop(m_item->defaultDisplayProperties().color(),rnr);
    m_item->setDefaultDisplayProperties(prop);
    TEveElementList::SetRnrState(rnr);
 
-   FWChangeSentry sentry(*(m_item->changeManager()));
    for(int index=0; index <static_cast<int>(m_item->size()); ++index) {
       FWDisplayProperties prop=m_item->modelInfo(index).displayProperties();
       if(rnr !=prop.isVisible()) {
@@ -136,6 +136,8 @@ FWListEventItem::itemChanged(const FWEventItem* iItem)
 void 
 FWListEventItem::modelsChanged( const std::set<FWModelId>& iModels )
 {
+   //std::cout <<"modelsChanged "<<std::endl;
+   bool aChildChanged = false;
    TEveElement::List_i itElement = this->BeginChildren();
    int index = 0;
    for(FWModelIds::const_iterator it = iModels.begin(), itEnd = iModels.end();
@@ -147,12 +149,11 @@ FWListEventItem::modelsChanged( const std::set<FWModelId>& iModels )
          ++index;
          assert(itElement != this->EndChildren());         
       }
+      //std::cout <<"   "<<index<<std::endl;
       bool modelChanged = false;
       const FWEventItem::ModelInfo& info = it->item()->modelInfo(index);
-      if((*itElement)->GetMainColor() != info.displayProperties().color() ) {
-         (*itElement)->SetMainColor(info.displayProperties().color());
-         modelChanged = true;
-      }
+      FWListModel* model = static_cast<FWListModel*>(*itElement);
+      modelChanged = model->update(info.displayProperties());
       if(info.isSelected() xor (*itElement)->GetSelectedLevel()==1) {
          modelChanged = true;
          if(info.isSelected()) {         
@@ -160,18 +161,18 @@ FWListEventItem::modelsChanged( const std::set<FWModelId>& iModels )
          } else {
             gEve->GetSelection()->RemoveElement(*itElement);
          }
-      }
-      
-      if((*itElement)->GetRnrState() != info.displayProperties().isVisible()) {
-         (*itElement)->SetRnrState(info.displayProperties().isVisible());
-         modelChanged = true;
-      }
+      }      
       if(modelChanged) {
          (*itElement)->ElementChanged();
-         (*itElement)->UpdateItems();  //needed to force list tree to update immediately
+         aChildChanged=true;
+         //(*itElement)->UpdateItems();  //needed to force list tree to update immediately
       }
    }
-   
+   if(aChildChanged) {
+      this->UpdateItems();
+   }
+   //std::cout <<"modelsChanged done"<<std::endl;
+
 }
 
 //
