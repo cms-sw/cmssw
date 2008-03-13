@@ -575,21 +575,37 @@ int createZSLoader2( string & tag, string & comment, string & zs2HB, string & zs
   int eta_abs, side, phi, depth;
   string subdet;
 
+<<<<<<< xmlTools.cc
+  cout << "Preparing to request the LMAP from the database..." << endl;
+
+=======
   RooGKCounter _c(1,100);
 
+>>>>>>> 1.11
   try {
+    cout << "Preparing the query...";
     Statement* stmt = _connection -> createStatement();
     std::string query = ("SELECT eta, side, phi, depth, subdetector, cds.version ");
     query += " FROM CMS_HCL_HCAL_CONDITION_OWNER.HCAL_HARDWARE_LOGICAL_MAPS_V3 lmap";
     query += " join cms_hcl_core_condition_owner.cond_data_sets cds ";
     query += " on cds.condition_data_set_id=lmap.condition_data_set_id ";
     query += toolbox::toString(" WHERE version='%s'", lmap_version . c_str() );
-    
-    //SELECT
-    ResultSet *rs = stmt->executeQuery(query.c_str());
+    cout << " done" << endl;    
 
+    //SELECT
+    cout << "Executing the query...";
+    ResultSet *rs = stmt->executeQuery(query.c_str());
+    cout << " done" << endl;
+
+    RooGKCounter _channels(1,100);
+
+    cout << "Going through HCAL channels..." << endl;
     while (rs->next()) {
+<<<<<<< xmlTools.cc
+      _channels . count();
+=======
     _c . count();
+>>>>>>> 1.11
       eta_abs  = rs -> getInt(1);
       side    = rs -> getInt(2);
       phi     = rs -> getInt(3);
@@ -1076,8 +1092,28 @@ int testDB( string _tag, string _filename )
   db -> connect( _filename, "occi://CMS_HCL_PRTTYPE_HCAL_READER@anyhost/int2r?PASSWORD=HCAL_Reader_88,LHWM_VERSION=22" );
 
   //vector<unsigned int> _lut = db -> getOnlineLUTFromXML( "emap_hcal_emulator_test_luts", 17, 2, 1, 1, 0, 1 );
-  //vector<unsigned int> _lut = db -> getOnlineLUT( _tag, 17, 2, 1, 1, 0, 1 );
+  //vector<unsigned int> _lut = db -> getOnlineLUTFromXML( "GREN_170_realped", 17, 2, 1, 1, 0, 1 );
 
+  struct timeval _t;
+  gettimeofday( &_t, NULL );
+  cout << "before getting a LUT: " << _t . tv_sec << "." << _t . tv_usec << endl;
+  vector<unsigned int> _lut = db -> getOnlineLUT( _tag, 17, 2, 1, 1, 0, 1 );
+  gettimeofday( &_t, NULL );
+  cout << "after getting a LUT: " << _t . tv_sec << "." << _t . tv_usec << endl;
+  _lut = db -> getOnlineLUT( _tag, 15, 2, 1, 1, 0, 1 );
+  gettimeofday( &_t, NULL );
+  cout << "after getting a LUT: " << _t . tv_sec << "." << _t . tv_usec << endl;
+  _lut = db -> getOnlineLUT( _tag, 17, 2, 1, 1, 0, 1 );
+  gettimeofday( &_t, NULL );
+  cout << "after getting a LUT: " << _t . tv_sec << "." << _t . tv_usec << endl;
+  _lut = db -> getOnlineLUT( _tag, 9, 2, 1, 1, 0, 1 );
+  gettimeofday( &_t, NULL );
+  cout << "after getting a LUT: " << _t . tv_sec << "." << _t . tv_usec << endl;
+  _lut = db -> getOnlineLUT( _tag, 0, 2, 1, 1, 0, 1 );
+  gettimeofday( &_t, NULL );
+  cout << "after getting a LUT: " << _t . tv_sec << "." << _t . tv_usec << endl;
+
+  /*
   HcalDetId _hcaldetid( HcalBarrel, -11, 12, 1 );
 
   struct timeval _t;
@@ -1100,12 +1136,16 @@ int testDB( string _tag, string _filename )
   gettimeofday( &_t, NULL );
   cout << "after getting a LUT: " << _t . tv_sec << "." << _t . tv_usec << endl;
 
+  */
+
+
   cout << "LUT length = " << _lut . size() << endl;
   for ( vector<unsigned int>::const_iterator i = _lut . end() - 1; i != _lut . begin()-1; i-- )
     {
       cout << (i-_lut.begin()) << "     " << _lut[(i-_lut.begin())] << endl;
       break;
     }
+
 
   db -> disconnect();
   
