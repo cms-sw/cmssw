@@ -13,7 +13,7 @@
 //
 // Original Author:  Oct 12 08:23
 //         Created:  Wed Oct 12 12:16:04 CDT 2005
-// $Id: Type1MET.cc,v 1.13 2007/08/28 21:21:15 ratnik Exp $
+// $Id: Type1MET.cc,v 1.14 2007/10/09 18:09:44 scurlock Exp $
 //
 //
 
@@ -83,7 +83,7 @@ namespace cms
       }
   }
 
-  DEFINE_FWK_MODULE(Type1MET);  //define this as a plug-in
+  //  DEFINE_FWK_MODULE(Type1MET);  //define this as a plug-in
 
 }//end namespace cms
 
