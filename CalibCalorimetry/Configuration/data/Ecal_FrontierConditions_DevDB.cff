@@ -8,29 +8,27 @@ replace ecalConditions.connect="frontier://FrontierDev/CMS_COND_ECAL"
 
 replace ecalConditions.toGet = {
     { string record = "EcalPedestalsRcd"
-	string tag = "EcalPedestals_trivial" },
+	string tag = "EcalPedestals_mc" },
     { string record = "EcalADCToGeVConstantRcd"
-	string tag = "EcalADCToGeVConstant_trivial" },
+	string tag = "EcalADCToGeVConstant_mc" },
     { string record = "EcalChannelStatusRcd"
-	string tag = "EcalChannelStatus_trivial" },
-    { string record = "EcalMappingElectronicsRcd"
-	string tag = "EcalMappingElectronics_trivial" },
+	string tag = "EcalChannelStatus_mc" },
     { string record = "EcalGainRatiosRcd"
-	string tag = "EcalGainRatios_trivial" },
+	string tag = "EcalGainRatios_mc" },
     { string record = "EcalIntercalibConstantsRcd"
-	string tag = "EcalIntercalibConstants_trivial" },
+	string tag = "EcalIntercalibConstants_mc" },
     { string record = "EcalIntercalibErrorsRcd"
-	string tag = "EcalIntercalibErrors_trivial" },
+	string tag = "EcalIntercalibErrors_mc" },
     { string record = "EcalWeightXtalGroupsRcd"
-	string tag = "EcalWeightXtalGroups_trivial" },
+	string tag = "EcalWeightXtalGroups_mc" },
     { string record = "EcalTBWeightsRcd"
-	string tag = "EcalTBWeights_trivial" },
+	string tag = "EcalTBWeights_mc" },
     { string record = "EcalLaserAlphasRcd" 
-	string tag = "EcalLaserAlphas_trivial" },
+	string tag = "EcalLaserAlphas_mc" },
     { string record = "EcalLaserAPDPNRatiosRcd" 
-	string tag = "EcalLaserAPDPNRatios_trivial" },
+	string tag = "EcalLaserAPDPNRatios_mc" },
     { string record = "EcalLaserAPDPNRatiosRefRcd" 
-	string tag = "EcalLaserAPDPNRatiosRef_trivial" }
+	string tag = "EcalLaserAPDPNRatiosRef_mc" }
 }
 
 
