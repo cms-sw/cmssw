@@ -38,8 +38,6 @@ class CaloGeometryEP : public edm::ESProducer
 
       typename LoaderType::PtrType produce( const IdealGeometryRecord& iRecord ) 
       {
-	 using namespace edm::es;
-
 	 edm::ESHandle< DDCompactView > cpv ;
 	 iRecord.get( cpv ) ;
 
