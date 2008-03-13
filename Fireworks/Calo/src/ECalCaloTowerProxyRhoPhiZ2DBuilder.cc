@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Sun Jan  6 23:57:00 EST 2008
-// $Id: ECalCaloTowerProxyRhoPhiZ2DBuilder.cc,v 1.5 2008/02/28 22:52:15 chrjones Exp $
+// $Id: ECalCaloTowerProxyRhoPhiZ2DBuilder.cc,v 1.6 2008/03/07 09:00:39 dmytro Exp $
 //
 
 // system include files
@@ -20,10 +20,13 @@
 #include "TColor.h"
 #include "TROOT.h"
 
+#include <iostream>
+
 // user include files
 #include "Fireworks/Calo/interface/ECalCaloTowerProxyRhoPhiZ2DBuilder.h"
 #include "Fireworks/Core/interface/FWEventItem.h"
 #include "Fireworks/Core/interface/FW3DLegoDataProxyBuilder.h"
+
 //
 // constants, enums and typedefs
 //
@@ -113,6 +116,7 @@ ECalCaloTowerProxyRhoPhiZ2DBuilder::buildRhoZ(const FWEventItem* iItem,
 									iItem->defaultDisplayProperties().color(), 
 									false), 0 ) );
 }
+
 
 TEveGeoShapeExtract*
 ECalCaloTowerProxyRhoPhiZ2DBuilder::getRhoPhiElements(const char* name, 

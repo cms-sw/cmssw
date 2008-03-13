@@ -16,13 +16,13 @@
 //
 // Original Author:  
 //         Created:  Sun Jan  6 23:42:33 EST 2008
-// $Id$
+// $Id: HCalCaloTowerProxyRhoPhiZ2DBuilder.h,v 1.1 2008/02/03 02:57:10 dmytro Exp $
 //
 
 // system include files
 
 // user include files
-#include "Fireworks/Core/interface/FWRPZ2DDataProxyBuilder.h"
+#include "Fireworks/Calo/interface/BaseCaloTowerProxyRhoPhiZ2DBuilder.h"
 #include "DataFormats/CaloTowers/interface/CaloTower.h"
 #include "DataFormats/CaloTowers/interface/CaloTowerFwd.h"
 
@@ -30,7 +30,7 @@
 
 class TEveGeoShapeExtract;
 
-class HCalCaloTowerProxyRhoPhiZ2DBuilder : public FWRPZ2DDataProxyBuilder
+class HCalCaloTowerProxyRhoPhiZ2DBuilder : public BaseCaloTowerProxyRhoPhiZ2DBuilder
 {
 
    public:

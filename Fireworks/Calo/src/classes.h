@@ -7,3 +7,4 @@
 #include "Fireworks/Calo/interface/CaloJetProxyRhoPhiZ2DBuilder.h"
 #include "Fireworks/Calo/interface/ECalCaloTowerProxyRhoPhiZ2DBuilder.h"
 #include "Fireworks/Calo/interface/HCalCaloTowerProxyRhoPhiZ2DBuilder.h"
+#include "Fireworks/Calo/interface/BaseCaloTowerProxyRhoPhiZ2DBuilder.h"

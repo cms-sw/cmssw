@@ -6,4 +6,5 @@
   <class name="CaloJetProxyRhoPhiZ2DBuilder"/>
   <class name="ECalCaloTowerProxyRhoPhiZ2DBuilder"/>
   <class name="HCalCaloTowerProxyRhoPhiZ2DBuilder"/>
+  <class name="BaseCaloTowerProxyRhoPhiZ2DBuilder"/>
 </lcgdict>
