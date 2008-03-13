@@ -1,8 +1,8 @@
 /*
  * \file EEStatusFlagsTask.cc
  *
- * $Date: 2008/02/23 09:56:56 $
- * $Revision: 1.5 $
+ * $Date: 2008/02/29 15:08:34 $
+ * $Revision: 1.6 $
  * \author G. Della Ricca
  *
 */
@@ -120,6 +120,7 @@ void EEStatusFlagsTask::setup(void){
           meFEchErrors_[i][0]->setBinContent( ix, iy, -1. );
         }
       }
+      meFEchErrors_[i][0]->setEntries( 0 );
 
       sprintf(histo, "EESFT front-end status bits %s", Numbers::sEE(i+1).c_str());
       meFEchErrors_[i][1] = dbe_->book1D(histo, histo, 16, 0., 16.);

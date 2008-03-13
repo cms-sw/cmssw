@@ -1,8 +1,8 @@
 /*
  * \file EBStatusFlagsTask.cc
  *
- * $Date: 2008/02/23 09:56:55 $
- * $Revision: 1.5 $
+ * $Date: 2008/02/29 15:04:41 $
+ * $Revision: 1.6 $
  * \author G. Della Ricca
  *
 */
@@ -118,6 +118,7 @@ void EBStatusFlagsTask::setup(void){
           meFEchErrors_[i][0]->setBinContent( ie, ip, -1. );
         }
       }
+      meFEchErrors_[i][0]->setEntries( 0 );
 
       sprintf(histo, "EBSFT front-end status bits %s", Numbers::sEB(i+1).c_str());
       meFEchErrors_[i][1] = dbe_->book1D(histo, histo, 16, 0., 16.);
