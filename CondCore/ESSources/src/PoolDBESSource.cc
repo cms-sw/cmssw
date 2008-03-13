@@ -292,7 +292,9 @@ PoolDBESSource::setIntervalFor( const edm::eventsetup::EventSetupRecordKey& iKey
   std::ostringstream os;
   if( !iovservice.isValid(leadingToken,abtime) ){
     os<<abtime;
-    throw cond::noDataForRequiredTimeException("PoolDBESSource::setIntervalFor",iKey.name(),os.str());
+    //throw cond::noDataForRequiredTimeException("PoolDBESSource::setIntervalFor",iKey.name(),os.str());
+    oInterval = edm::ValidityInterval::invalidInterval();
+    return;
   }
   std::pair<cond::Time_t, cond::Time_t> validity=iovservice.validity(leadingToken,abtime);
   edm::IOVSyncValue start,stop;
@@ -404,7 +406,7 @@ PoolDBESSource::fillRecordToIOVInfo(){
     iovInfo.timetype=result.timetype;
     coraldb.commit();
     if( iovInfo.token.empty() ){
-      throw cond::Exception("PoolDBESSource::fillrecordToIOVInfo: tag "+iovInfo.tag+std::string(" has empty iov token meaning data do not exist") );
+      throw cond::Exception("PoolDBESSource::fillrecordToIOVInfo: tag "+iovInfo.tag+std::string(" has empty iov token meaning requested tag or data do not exist") );
     }
     
     std::map<std::string,std::vector<cond::IOVInfo> >::iterator pos=m_proxyToIOVInfo.find(proxyname);
