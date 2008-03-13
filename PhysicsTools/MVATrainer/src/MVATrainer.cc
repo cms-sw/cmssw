@@ -629,10 +629,12 @@ void MVATrainer::fillOutputVars(SourceVariableSet &vars, Source *source,
 		Variable::Flags flags = Variable::FLAG_NONE;
 
 		if (XMLDocument::readAttribute<bool>(elem, "optional", true))
-			(int&)flags |= Variable::FLAG_OPTIONAL;
+			flags = (PhysicsTools::Variable::Flags)
+				(flags | Variable::FLAG_OPTIONAL);
 
 		if (XMLDocument::readAttribute<bool>(elem, "multiple", true))
-			(int&)flags |= Variable::FLAG_MULTIPLE;
+			flags = (PhysicsTools::Variable::Flags)
+				(flags | Variable::FLAG_MULTIPLE);
 
 		SourceVariable *var = createVariable(source, name, flags);
 		if (!var)
