@@ -18,17 +18,17 @@
 #=============BEGIN CONFIGURATION=================
 
 #Input root trees for the two cases to be compared 
-setenv NEWFILE ~/scratch0/CMSSW/test/CMSSW_2_0_0_pre2/src/RecoEgamma/Examples/test/photonAnalyzer.root 
-setenv OLDFILE ~/scratch0/CMSSW/newTags/CMSSW_1_6_7/src/RecoEgamma/Examples/test/photonAnalyzer.root
+setenv NEWFILE ~/scratch0/CMSSW_2_0_0_pre4/src/RecoEgamma/Examples/test/gsfElectronHistos_RelVal200pre4SingleElectronPt10.root 
+setenv OLDFILE ~/scratch0/CMSSW_1_6_7/src/RecoEgamma/Examples/test/gsfElectronHistos_RelVal167SingleElectronPt10.root
 
 
 #Release versions to be compared (affects output directory name and html description only)
-setenv NEWRELEASE 200pre2
+setenv NEWRELEASE 200pre4
 setenv OLDRELEASE 167
 #Name of sample (affects output directory name and html description only)
-setenv SAMPLE RelValSingleGammaPt35
+setenv SAMPLE RelValSingleElectronPt10
 #TYPE must be one of PixelMatchGsfElectron, Photon or ConvertedPhoton
-setenv TYPE Photon
+setenv TYPE PixelMatchGsfElectron
 
 #==============END BASIC CONFIGURATION==================
 
@@ -58,12 +58,16 @@ if ( $TYPE == PixelMatchGsfElectron ) then
 
 cat > scaledhistos <<EOF
   h_ele_PoPtrue   
+  h_ele_PoPtrue_barrel   
+  h_ele_PoPtrue_endcaps   
   h_ele_EtaMnEtaTrue   
   h_ele_PhiMnPhiTrue 
   h_ele_vertexP 
   h_ele_vertexPt 
   h_ele_outerP_mode 
   h_ele_outerPt_mode 
+  h_ele_vertexX 
+  h_ele_vertexY 
   h_ele_vertexZ 
   h_ele_EoP 
   h_ele_EoPout 
@@ -77,6 +81,13 @@ cat > scaledhistos <<EOF
   h_ele_lostHits 
   h_ele_PinMnPout_mode 
   h_ele_classes 
+  h_ele_charge
+  h_ele_fbremvsEtamean
+  h_ele_fbremvsEtamode
+  h_ele_EoP_all
+  h_ele_vertexEta_all
+  h_ele_vertexPt_all
+  h_recEleNum
 EOF
 
 cat > unscaledhistos <<EOF
@@ -155,7 +166,6 @@ $i->SetLineWidth(3);
 $i->Draw();
 Double_t nold=$i->GetEntries();
 file_new->cd();
-simplePhotonAnalyzer->cd();
 Double_t nnew=$i->GetEntries();
 $i->SetLineColor(2);
 $i->SetLineWidth(3);
@@ -176,7 +186,6 @@ $i->SetLineColor(4);
 $i->SetLineWidth(3);
 $i->Draw();
 file_new->cd();
-simplePhotonAnalyzer->cd();
 $i->SetLineColor(2);
 $i->SetLineWidth(3);
 $i->Draw("same");
