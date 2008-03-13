@@ -55,6 +55,7 @@ struct JetPlots {
   
   void init(const std::string & name, const std::string & title, unsigned int energyBins, double minEnergy, double maxEnergy, unsigned int geometryBins, double maxEta, bool hasTracks = false)
   {
+    m_overall       = 0.0;
     m_name          = name;
     m_title         = title;
     m_energyBins    = energyBins;
@@ -80,6 +81,7 @@ struct JetPlots {
   }
 
   void fill(const reco::Jet & jet) {
+    ++m_overall;
     m_jetEnergy->Fill(jet.energy());
     m_jetET->Fill(jet.et());
     m_jetEta->Fill(jet.eta());
@@ -116,8 +118,19 @@ struct JetPlots {
 
   JetPlots efficiency(const JetPlots & denominator)
   {
+    std::stringstream out;
+
     JetPlots efficiency;
     efficiency.init(m_name + "_vs_" + denominator.m_name, m_title + " vs. " + denominator.m_title, m_energyBins, m_minEnergy, m_maxEnergy, m_geometryBins, m_maxEta, false);
+    if (denominator.m_overall != 0.0) {
+      efficiency.m_overall = m_overall / denominator.m_overall;
+      out << std::setw(80) << std::left << denominator.m_title << "efficiency: " << std::setw(6) << std::fixed << std::setprecision(2) << efficiency.m_overall * 100. << "%";
+    } else {
+      efficiency.m_overall = NAN;
+      out << std::setw(80) << std::left << denominator.m_title << "efficiency:     NaN";
+    }
+    std::cout << out.str() << std::endl;
+
     efficiency.m_jetEnergy->Divide(m_jetEnergy, denominator.m_jetEnergy, 1., 1., "B");
     efficiency.m_jetEnergy->SetMinimum(0.0);
     efficiency.m_jetEnergy->SetMaximum(1.0);
@@ -141,7 +154,7 @@ struct JetPlots {
   TH1 * m_tracksET;
   TH1 * m_tracksEta;
   TH1 * m_tracksPhi;
-
+  double        m_overall;
   std::string   m_name;
   std::string   m_title;
   unsigned int  m_geometryBins;
@@ -214,7 +227,7 @@ struct FlavouredJetPlots {
     FlavouredJetPlots efficiency;
     efficiency.m_flavours = m_flavours;
     efficiency.m_labels = m_labels;
-    efficiency.m_plots.resize(m_flavours.size());
+    efficiency.m_plots.resize(m_flavours.size() + 1);
     for (unsigned int i = 0; i <= m_flavours.size(); ++i)
       efficiency.m_plots[i] = m_plots[i].efficiency( denominator.m_plots[i] );
     return efficiency;
@@ -442,13 +455,13 @@ void HLTBtagLifetimeAnalyzer::analyze(const edm::Event & event, const edm::Event
   event.getByLabel(m_offlineBJets, h_offlineBJets);
   const reco::JetTagCollection & offlineBJets = * h_offlineBJets;
 
-  for (unsigned int i = 0; i < m_levels.size(); ++i) {
+  for (unsigned int l = 0; l < m_levels.size(); ++l) {
     edm::Handle<edm::View<reco::Jet> >                  h_jets;
     edm::Handle<reco::JetTracksAssociation::Container>  h_tracks;
     
-    event.getByLabel(m_levels[i].m_label, h_jets);
-    if (m_levels[i].m_tracks.label() != "none")
-      event.getByLabel(m_levels[i].m_tracks, h_tracks);
+    event.getByLabel(m_levels[l].m_label, h_jets);
+    if (m_levels[l].m_tracks.label() != "none")
+      event.getByLabel(m_levels[l].m_tracks, h_tracks);
     
     if (h_jets.isValid()) {
       const edm::View<reco::Jet> & jets = * h_jets;
@@ -458,7 +471,7 @@ void HLTBtagLifetimeAnalyzer::analyze(const edm::Event & event, const edm::Event
         
         // match to MC parton
         int m = closestJet(jet, mcPartons, m_mcRadius);
-        unsigned int flavour = (m != -1) ? mcPartons[m].second.getFlavour() : 0;
+        unsigned int flavour = (m != -1) ? abs(mcPartons[m].second.getFlavour()) : 0;
 
         // match to offline reconstruted b jets
         int o = closestJet(jet, offlineBJets, m_offlineRadius);
@@ -466,15 +479,15 @@ void HLTBtagLifetimeAnalyzer::analyze(const edm::Event & event, const edm::Event
 
         if (not h_tracks.isValid()) {
           // no tracks, fill only the jets
-          m_jetPlots[i].fill( jet );
-          m_mcPlots[i].fill( jet, flavour);
-          m_offlinePlots[i].fill( jet, discriminator );
+          m_jetPlots[l].fill( jet );
+          m_mcPlots[l].fill( jet, flavour);
+          m_offlinePlots[l].fill( jet, discriminator );
         } else {
           // fill jets and tracks
           const reco::TrackRefVector & tracks = (*h_tracks)[jets.refAt(j)];
-          m_jetPlots[i].fill( jet, tracks );
-          m_mcPlots[i].fill( jet, tracks, flavour);
-          m_offlinePlots[i].fill( jet, tracks, discriminator );
+          m_jetPlots[l].fill( jet, tracks );
+          m_mcPlots[l].fill( jet, tracks, flavour);
+          m_offlinePlots[l].fill( jet, tracks, discriminator );
         }
         
       }
