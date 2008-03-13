@@ -1,5 +1,5 @@
 //
-// $Id: PATPhotonCleaner.h,v 1.4 2008/03/05 14:56:50 fronga Exp $
+// $Id: PATPhotonCleaner.h,v 1.1 2008/03/06 09:23:11 llista Exp $
 //
 
 #ifndef PhysicsTools_PatAlgos_PATPhotonCleaner_h
@@ -13,7 +13,7 @@
    a collection of objects of PhotonType.
 
   \author   Steven Lowette, Jeremy Andrea
-  \version  $Id: PATPhotonCleaner.h,v 1.4 2008/03/05 14:56:50 fronga Exp $
+  \version  $Id: PATPhotonCleaner.h,v 1.1 2008/03/06 09:23:11 llista Exp $
 */
 
 #include "FWCore/Framework/interface/EDProducer.h"
@@ -21,7 +21,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/InputTag.h"
 
-#include "PhysicsTools/PatAlgos/interface/CleanerHelper.h"
+#include "PhysicsTools/PatAlgos/plugins/CleanerHelper.h"
 
 #include "DataFormats/EgammaCandidates/interface/Photon.h"
 //#include "DataFormats/EgammaCandidates/interface/ConvertedPhoton.h"

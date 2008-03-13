@@ -1,10 +1,10 @@
 //
-// $Id: PATHLTMatcher.cc,v 1.1 2008/02/26 13:59:12 vadler Exp $
+// $Id: PATHLTMatcher.cc,v 1.1 2008/03/06 09:23:10 llista Exp $
 //
 
 
 #include "PhysicsTools/PatAlgos/plugins/PATCandMatcher.h"
-#include "PhysicsTools/PatAlgos/interface/PATHLTMatchSelector.h"
+#include "PhysicsTools/PatAlgos/plugins/PATHLTMatchSelector.h"
 #include "PhysicsTools/PatUtils/interface/PATMatchByDRDPt.h"
 #include "PhysicsTools/PatUtils/interface/PATMatchLessByDPt.h"
 
