@@ -181,6 +181,30 @@ class EventID(_ParameterTypeBase):
         parameterSet.addEventID(self.isTracked(), myname, self.cppID(parameterSet))
 
 
+class LuminosityBlockID(_ParameterTypeBase):
+    def __init__(self, run, block):
+        super(LuminosityBlockID,self).__init__()
+        self.__run = run
+        self.__block = block
+    def run(self):
+        return self.__run
+    def luminosityBlock(self):
+        return self.__block
+    @staticmethod
+    def _isValid(value):
+        return True
+    @staticmethod
+    def _valueFromString(value):
+        """only used for cfg-parsing"""
+        return double(float(value))
+    def pythonValue(self, options=PrintOptions()):
+        return str(self.__run)+ ', '+str(self.__event)
+    def cppID(self, parameterSet):
+        return parameterSet.newLuminosityBlockID(self.run(), self.luminosityBlock())
+    def insertInto(self, parameterSet, myname):
+        parameterSet.addLuminosityBlockID(self.isTracked(), myname, self.cppID(parameterSet))
+
+
 class InputTag(_ParameterTypeBase):
     def __init__(self,moduleLabel,productInstanceLabel='',processName=''):
         super(InputTag,self).__init__()
