@@ -23,6 +23,10 @@ namespace fit {
       f_ = f;
     }
     void addParameter(const std::string & name, boost::shared_ptr<double> val, double err, double min, double max) {
+      if(initialized_)
+	throw edm::Exception(edm::errors::Configuration)
+	  << "RootMinuit: can't add parameter " << name 
+	  << " after minuit initialization\n";      
       pars_.push_back(val);
       parameter_t par;
       par.val = *val;
@@ -179,9 +183,10 @@ namespace fit {
 	    << "RootMinuit: error in setting parameter " << i 
 	    << " value = " << par.val << " error = " << par.err
 	    << " range = [" << par.min << ", " << par.max << "]\n";
-	if(par.fixed)
-	  minuit_->FixParameter(i);
       }
+      for(i = 0, p = parMap_.begin(); p != end; ++p, ++i)
+	if(p->second.fixed)
+	  minuit_->FixParameter(i);
       fPars_= & pars_; 
       minuit_->SetFCN(fcn_);
       initialized_ = true;

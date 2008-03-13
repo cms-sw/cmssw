@@ -9,6 +9,7 @@
 #include <string>
 #include <cstdlib>
 #include <fstream>
+#include <sstream>
 #include <iostream>
 #include<boost/tokenizer.hpp>
 
@@ -53,31 +54,37 @@ namespace fit {
       if (verbose_) 
 	cout << ">>> configuration file: " << fileName << endl;
       string line;
+      lineNumber_ = 0;
       while(getline(*file, line)) {
-	line.erase(line.end()-1);
-	using namespace boost;
-	typedef tokenizer<char_separator<char> > tokenizer;
-	char_separator<char> sep(" ");
+	++lineNumber_;
+	line.erase(line.end() - 1);
+	boost::char_separator<char> sep(" ");
 	tokenizer tokens(line, sep);
 	tokenizer::iterator i = tokens.begin(), e = tokens.end();
 	if(tokens.begin()==tokens.end()) continue;
 	if(*(i->begin()) != '#') {
 	  if(*i == kParameter) {
-	    string name = *(++i);
+	    string name = nextToken(i, e);
 	    parameter_t par;
-	    par.val = string2double(*(++i));
-	    par.err = string2double(*(++i));
-	    par.min = string2double(*(++i));
-	    par.max = string2double(*(++i));
-	    string fixed = *(++i);
-	    if(fixed == "fixed") 
-	      par.fixed = true;
-	    else if(fixed == "free")
+	    par.val = string2double(nextToken(i, e));
+	    par.err = string2double(nextToken(i, e));
+	    par.min = string2double(nextToken(i, e));
+	    par.max = string2double(nextToken(i, e));
+	    tokenizer::iterator j = i; ++j;
+	    if(j != e) {
+	      string fixed = nextToken(i, e);
+	      if(fixed == "fixed") 
+		par.fixed = true;
+	      else if(fixed == "free")
+		par.fixed = false;
+	      else
+		throw edm::Exception(edm::errors::Configuration)
+		  << errorHeader()
+		  << "fix parameter option unknown: " << *i << "\n"
+		  << "valid options are: fixed, free.\n";
+	    } else {
 	      par.fixed = false;
-	    else
-	      throw edm::Exception(edm::errors::Configuration)
-		<< "RootMinuitCommands: fix parameter option unknown: " << *i << "\n"
-		<< "valid options are: fixed, free.\n";
+	    }
 	    pars_.push_back(std::make_pair(name, par));
 	    size_t s = parIndices_.size();
 	    parIndices_[name] = s;
@@ -90,7 +97,7 @@ namespace fit {
 	  } else if(*i == kFix || *i == kRelease) {
 	    command com;
 	    com.name = *i;
-	    string arg = *(++i);
+	    string arg = nextToken(i, e);
 	    com.stringArgs.push_back(arg);
 	    commands_.push_back(com);
 	    if(verbose_) {
@@ -99,14 +106,14 @@ namespace fit {
 	  } else if(*i == kSet) {
 	    command com;
 	    com.name = *i;
-	    string arg = *(++i);
+	    string arg = nextToken(i, e);
 	    com.stringArgs.push_back(arg);
-	    com.doubleArgs.push_back(string2double(*(++i)));
+	    com.doubleArgs.push_back(string2double(nextToken(i, e)));
 	    commands_.push_back(com);
 	    if(verbose_) {
 	      cout << ">>> "; com.print(cout); cout << endl;
 	    }
-	  }else if(*i == kMinimize || *i == kMigrad) {
+	  } else if(*i == kMinimize || *i == kMigrad) {
 	    command com;
 	    com.name = *i;
 	    commands_.push_back(com);
@@ -115,8 +122,8 @@ namespace fit {
 	    }
 	  } else {
 	    throw edm::Exception(edm::errors::Configuration)
-	      << "RootMinuitCommands: unkonwn command:: " << *i
-	      << "\n";
+	      << errorHeader()
+	      << "unkonwn command:: " << *i << "\n";
 	    
 	  }
 	}
@@ -167,7 +174,9 @@ namespace fit {
       }
     }
   private:
+    typedef boost::tokenizer<boost::char_separator<char> > tokenizer;
     bool verbose_;
+    unsigned int lineNumber_;
     parameterVector_t pars_;
     std::map<std::string, size_t> parIndices_;
     struct command {
@@ -201,6 +210,19 @@ namespace fit {
 	throw edm::Exception(edm::errors::Configuration)
 	  << "RootMinuit: can't find parameter " << name << "\n";
       return pars_[p->second].second;
+    }
+    std::string errorHeader() const {
+      std::ostringstream out;
+      out << "RootMinuitCommands config. error, line " << lineNumber_<< ": ";
+      return out.str();
+    }
+    std::string nextToken(typename tokenizer::iterator & i,
+			  const typename tokenizer::iterator & end) const {
+      ++i;
+      if(i == end)
+	throw edm::Exception(edm::errors::Configuration)
+	  << errorHeader() << "missing parameter\n";
+      return *i;
     }
   };
 }
