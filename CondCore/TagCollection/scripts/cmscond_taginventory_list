@@ -73,10 +73,10 @@ class tagInventoryPrinter:
                 for r in result:
                     print '%s\t%s\t%s'%(r.tagid,r.tagname,r.pfn)
             else:
-                print '%s\t%s\t%s\t%s\t%s\t%s\t%s'%('#ID#','#Name#','#pfn#','#objectname#','#recordname#','#label#','#comment#')
+                print '%s\t%s\t%s\t%s\t%s\t%s'%('#ID#','#Name#','#pfn#','#objectname#','#recordname#','#label#')
                 for item in result:
                     if item.tagname==self.__tag:
-                        print '%s\t%s\t%s\t%s\t%s\t%s\t%s'%(item.tagid,item.tagname,item.pfn,item.objectname,item.recordname,item.labelname,item.comment)
+                        print '%s\t%s\t%s\t%s\t%s\t%s'%(item.tagid,item.tagname,item.pfn,item.objectname,item.recordname,item.labelname)
             del session
         except Exception, e:
             print str(e)

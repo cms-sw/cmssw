@@ -10,7 +10,7 @@ class tagTree(object):
         self.__tagTreeTableName = 'TAGTREE_TABLE_'+str.upper(treename)
         self.__tagTreeIDs = 'TAGTREE_'+str.upper(treename)+'_IDS'
         self.__tagInventoryTableName = 'TAGINVENTORY_TABLE'
-        self.__tagTreeTableColumns = {'nodeid':'unsigned long', 'nodelabel':'string', 'lft':'unsigned long', 'rgt':'unsigned long', 'parentid':'unsigned long', 'tagid':'unsigned long', 'globalsince':'unsigned long long', 'globaltill':'unsigned long long','comment':'string'}
+        self.__tagTreeTableColumns = {'nodeid':'unsigned long', 'nodelabel':'string', 'lft':'unsigned long', 'rgt':'unsigned long', 'parentid':'unsigned long', 'tagid':'unsigned long', 'globalsince':'unsigned long long', 'globaltill':'unsigned long long'}
         self.__tagTreeTableNotNullColumns = ['nodelabel','lft','rgt','parentid']
         self.__tagTreeTableUniqueColumns = ['nodelabel']
         self.__tagTreeTablePK = ('nodeid')
@@ -100,7 +100,7 @@ class tagTree(object):
                 tabrowValueDict={'nodeid':nodeid, 'nodelabel':nodelabel,
                                  'lft':lft, 'rgt':rgt, 'parentid':parentid,
                                  'tagid':tagid, 'globalsince':globalsince,
-                                 'globaltill':globaltill,'comment':''
+                                 'globaltill':globaltill
                                  }
                 transaction.start(False)
                 if parentLabel != 'ROOT':

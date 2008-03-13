@@ -131,10 +131,6 @@ class tagInventoryBuilder:
                         tagentry.labelname=item['labelname']
                     else:
                         tagentry.labelname=''
-                    if item.has_key('comment'):
-                        tagentry.comment=item['comment']
-                    else:
-                        tagentry.comment=''
                     inv.addEntry(tagentry)
             del session
         except Exception, e:
