@@ -575,13 +575,8 @@ int createZSLoader2( string & tag, string & comment, string & zs2HB, string & zs
   int eta_abs, side, phi, depth;
   string subdet;
 
-<<<<<<< xmlTools.cc
   cout << "Preparing to request the LMAP from the database..." << endl;
 
-=======
-  RooGKCounter _c(1,100);
-
->>>>>>> 1.11
   try {
     cout << "Preparing the query...";
     Statement* stmt = _connection -> createStatement();
@@ -601,11 +596,7 @@ int createZSLoader2( string & tag, string & comment, string & zs2HB, string & zs
 
     cout << "Going through HCAL channels..." << endl;
     while (rs->next()) {
-<<<<<<< xmlTools.cc
       _channels . count();
-=======
-    _c . count();
->>>>>>> 1.11
       eta_abs  = rs -> getInt(1);
       side    = rs -> getInt(2);
       phi     = rs -> getInt(3);
