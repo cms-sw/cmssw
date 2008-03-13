@@ -51,6 +51,7 @@
 
 // ROOT include files
 #include <TH1D.h>
+#include <TMath.h>
 
 //--- For temporary backwards compatibility
 #define HistoObject HistoGroup

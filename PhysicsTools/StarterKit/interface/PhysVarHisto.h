@@ -18,6 +18,7 @@
 
 // STL include files
 #include <string>
+#include <vector>
 
 // ROOT include files
 #include <TH1D.h>
