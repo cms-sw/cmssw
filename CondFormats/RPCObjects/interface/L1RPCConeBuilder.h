@@ -16,7 +16,7 @@
 //
 // Original Author:  Tomasz Fruboes
 //         Created:  Fri Feb 22 12:27:02 CET 2008
-// $Id$
+// $Id: L1RPCConeBuilder.h,v 1.1 2008/03/03 14:14:15 fruboes Exp $
 //
 
 #include <vector>
@@ -67,18 +67,18 @@ class L1RPCConeBuilder
       void setConeConnectionMap(const TConMap & connMap) { m_coneConnectionMap = connMap;};
       //const TConMap & getConeConnectionMap() const { return m_coneConnectionMap;};
       
-      
-      /*const TStripConVec & getConVec(uint32_t det, unsigned char strip) const 
+      /*
+      const TStripConVec & getConVec(uint32_t det, unsigned char strip) const 
           { 
             //return const_cast<TConMap>(m_coneConnectionMap)[det][strip];
             return m_coneConnectionMap[det][strip];
       };*/
       
       std::pair<TStripConVec::const_iterator, TStripConVec::const_iterator> 
-          getConVec(uint32_t det, unsigned char strip) const 
-      {
-        return std::make_pair(m_coneConnectionMap[det][strip].begin(),m_coneConnectionMap[det][strip].end());
-      }
+          getConVec(uint32_t det, unsigned char strip) const ;
+//      {
+//       return std::make_pair(m_coneConnectionMap[det][strip].begin(),m_coneConnectionMap[det][strip].end());
+//      };
       void setFirstTower(int tow) {m_firstTower = tow;};
       void setLastTower(int tow) {m_lastTower = tow;};
       
@@ -99,7 +99,7 @@ class L1RPCConeBuilder
       TRingsToTowers m_RingsToTowers;
       TRingsToLP m_RingsToLP;
       
-      mutable TConMap m_coneConnectionMap; // mutable needed for std::map [] operator :( ; should be better way
+      TConMap m_coneConnectionMap; // mutable needed for std::map [] operator :( ; should be better way
 };
 
 
