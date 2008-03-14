@@ -1,11 +1,11 @@
-// $Id: Numbers.cc,v 1.49 2008/02/09 18:27:48 dellaric Exp $
+// $Id: Numbers.cc,v 1.50 2008/02/09 19:50:10 dellaric Exp $
 
 /*!
   \file Numbers.cc
   \brief Some "id" conversions
   \author B. Gobbo 
-  \version $Revision: 1.49 $
-  \date $Date: 2008/02/09 18:27:48 $
+  \version $Revision: 1.50 $
+  \date $Date: 2008/02/09 19:50:10 $
 */
 
 #include <sstream>
@@ -299,44 +299,57 @@ int Numbers::iSM( const EEDetId& id ) throw( std::runtime_error ) {
 
 int Numbers::iSM( const EcalTrigTowerDetId& id ) throw( std::runtime_error ) {
 
-  if( Numbers::map ) {
+  EcalSubdetector subdet = Numbers::subDet( id );
 
-    int idcc = Numbers::map->DCCid(id);
+  if( subdet == EcalBarrel ) {
 
-    // EE-
-    if( idcc >=  1 && idcc <=  9 ) return( idcc );
+    if( Numbers::map ) {
 
-    // EB-/EB+
-    if( idcc >= 10 && idcc <= 45 ) return( idcc - 9 );
+      int idcc = Numbers::map->DCCid(id);
 
-    // EE+
-    if( idcc >= 46 && idcc <= 54 ) return( idcc - 45 + 9 );
+      // EB-/EB+
+      if( idcc >= 10 && idcc <= 45 ) return( idcc - 9 );
 
-    std::ostringstream s;
-    s << "Wrong DCC id: dcc = " << idcc;
-    throw( std::runtime_error( s.str() ) );
+      std::ostringstream s;
+      s << "Wrong DCC id: dcc = " << idcc;
+      throw( std::runtime_error( s.str() ) );
 
-  } else {
-
-    EcalSubdetector subdet = Numbers::subDet( id );
-
-    if( subdet == EcalBarrel ) {
+    } else {
 
       return( Numbers::iSM( id.iDCC(), EcalBarrel ) );
 
-    } else if( subdet ==  EcalEndcap) {
+    }
+
+  } else if( subdet ==  EcalEndcap) {
+
+    if( Numbers::map ) {
+
+      int idcc = Numbers::map->DCCid(id);
+
+      // EE-
+      if( idcc >=  1 && idcc <=  9 ) return( idcc );
+
+      // EE+
+      if( idcc >= 46 && idcc <= 54 ) return( idcc - 45 + 9 );
 
       std::ostringstream s;
-      s << "ECAL Geometry not available";
+      s << "Wrong DCC id: dcc = " << idcc;
       throw( std::runtime_error( s.str() ) );
 
     } else {
 
       std::ostringstream s;
-      s << "Invalid subdetector: subdet = " << subdet;
+      s << "ECAL Geometry not available";
       throw( std::runtime_error( s.str() ) );
 
     }
+
+  } else {
+
+    std::ostringstream s;
+    s << "Invalid subdetector: subdet = " << subdet;
+    throw( std::runtime_error( s.str() ) );
+
   }
 
 }
@@ -462,31 +475,40 @@ int Numbers::iTT( const int ism, const EcalSubdetector subdet, const int i1, con
 
 int Numbers::iTT( const EcalTrigTowerDetId& id ) throw( std::runtime_error ) {
 
-  if( Numbers::map ) {
+  EcalSubdetector subdet = Numbers::subDet( id );
 
-    return( Numbers::map->iTT(id) );
+  if( subdet == EcalBarrel ) {
 
-  } else {
+    if( Numbers::map ) {
 
-    EcalSubdetector subdet = Numbers::subDet( id );
+      return( Numbers::map->iTT(id) );
 
-    if( subdet == EcalBarrel ) {
+    } else {
 
       return( id.iTT() );
 
-    } else if( subdet ==  EcalEndcap) {
+    }
+
+  } else if( subdet ==  EcalEndcap) {
+
+    if( Numbers::map ) {
+
+      return( Numbers::map->iTT(id) );
+
+    } else {
 
       std::ostringstream s;
       s << "ECAL Geometry not available";
       throw( std::runtime_error( s.str() ) );
 
-    } else {
-
-      std::ostringstream s;
-      s << "Invalid subdetector: subdet = " << subdet;
-      throw( std::runtime_error( s.str() ) );
-
     }
+
+  } else {
+
+    std::ostringstream s;
+    s << "Invalid subdetector: subdet = " << subdet;
+    throw( std::runtime_error( s.str() ) );
+
   }
 
 }
