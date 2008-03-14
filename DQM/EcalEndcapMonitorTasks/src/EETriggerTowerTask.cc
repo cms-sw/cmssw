@@ -1,8 +1,8 @@
 /*
  * \file EETriggerTowerTask.cc
  *
- * $Date: 2008/02/23 09:56:56 $
- * $Revision: 1.28 $
+ * $Date: 2008/02/29 15:08:58 $
+ * $Revision: 1.29 $
  * \author C. Bernet
  * \author G. Della Ricca
  * \author E. Di Marco
@@ -350,11 +350,11 @@ EETriggerTowerTask::processDigis( const Handle<EcalTrigPrimDigiCollection>&
 
 
     if( compDigis.isValid() ) {
-      EcalTrigPrimDigiCollection::const_iterator compDigiItr = compDigis->find( idt.rawId() );
-
       bool good = true;
       bool goodFlag = true;
       bool goodVeto = true;
+
+      EcalTrigPrimDigiCollection::const_iterator compDigiItr = compDigis->find( idt.rawId() );
       if( compDigiItr != compDigis->end() ) {
         str<<"found corresponding digi! "<<*compDigiItr<<endl;
         if( data.compressedEt() != compDigiItr->compressedEt() ) {

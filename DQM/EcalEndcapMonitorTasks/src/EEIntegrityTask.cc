@@ -1,8 +1,8 @@
 /*
  * \file EEIntegrityTask.cc
  *
- * $Date: 2008/02/23 09:56:56 $
- * $Revision: 1.30 $
+ * $Date: 2008/02/29 15:08:16 $
+ * $Revision: 1.31 $
  * \author G. Della Ricca
  *
  */
@@ -282,7 +282,7 @@ void EEIntegrityTask::analyze(const Event& e, const EventSetup& c){
 
   if ( e.getByLabel(EEDetIdCollection0_, ids0) ) {
 
-    for ( EEDetIdCollection::const_iterator idItr = ids0->begin(); idItr != ids0->end(); ++ idItr ) {
+    for ( EEDetIdCollection::const_iterator idItr = ids0->begin(); idItr != ids0->end(); ++idItr ) {
 
       EEDetId id = (*idItr);
 
@@ -304,7 +304,7 @@ void EEIntegrityTask::analyze(const Event& e, const EventSetup& c){
 
   if ( e.getByLabel(EEDetIdCollection1_, ids1) ) {
 
-    for ( EEDetIdCollection::const_iterator idItr = ids1->begin(); idItr != ids1->end(); ++ idItr ) {
+    for ( EEDetIdCollection::const_iterator idItr = ids1->begin(); idItr != ids1->end(); ++idItr ) {
 
       EEDetId id = (*idItr);
 
@@ -332,7 +332,7 @@ void EEIntegrityTask::analyze(const Event& e, const EventSetup& c){
 
   if ( e.getByLabel(EEDetIdCollection2_, ids2) ) {
 
-    for ( EEDetIdCollection::const_iterator idItr = ids2->begin(); idItr != ids2->end(); ++ idItr ) {
+    for ( EEDetIdCollection::const_iterator idItr = ids2->begin(); idItr != ids2->end(); ++idItr ) {
 
       EEDetId id = (*idItr);
 
@@ -360,7 +360,7 @@ void EEIntegrityTask::analyze(const Event& e, const EventSetup& c){
 
   if ( e.getByLabel(EEDetIdCollection3_, ids3) ) {
 
-    for ( EEDetIdCollection::const_iterator idItr = ids3->begin(); idItr != ids3->end(); ++ idItr ) {
+    for ( EEDetIdCollection::const_iterator idItr = ids3->begin(); idItr != ids3->end(); ++idItr ) {
 
       EEDetId id = (*idItr);
 
@@ -388,7 +388,7 @@ void EEIntegrityTask::analyze(const Event& e, const EventSetup& c){
 
   if ( e.getByLabel(EcalElectronicsIdCollection1_, ids4) ) {
 
-    for ( EcalElectronicsIdCollection::const_iterator idItr = ids4->begin(); idItr != ids4->end(); ++ idItr ) {
+    for ( EcalElectronicsIdCollection::const_iterator idItr = ids4->begin(); idItr != ids4->end(); ++idItr ) {
 
       EcalElectronicsId id = (*idItr);
 
@@ -426,7 +426,7 @@ void EEIntegrityTask::analyze(const Event& e, const EventSetup& c){
 
   if ( e.getByLabel(EcalElectronicsIdCollection2_, ids5) ) {
 
-    for ( EcalElectronicsIdCollection::const_iterator idItr = ids5->begin(); idItr != ids5->end(); ++ idItr ) {
+    for ( EcalElectronicsIdCollection::const_iterator idItr = ids5->begin(); idItr != ids5->end(); ++idItr ) {
 
       EcalElectronicsId id = (*idItr);
 
@@ -464,7 +464,7 @@ void EEIntegrityTask::analyze(const Event& e, const EventSetup& c){
 
   if ( e.getByLabel(EcalElectronicsIdCollection3_, ids6) ) {
 
-    for ( EcalElectronicsIdCollection::const_iterator idItr = ids6->begin(); idItr != ids6->end(); ++ idItr ) {
+    for ( EcalElectronicsIdCollection::const_iterator idItr = ids6->begin(); idItr != ids6->end(); ++idItr ) {
 
       EcalElectronicsId id = (*idItr);
 
@@ -489,7 +489,7 @@ void EEIntegrityTask::analyze(const Event& e, const EventSetup& c){
 
   if ( e.getByLabel(EcalElectronicsIdCollection4_, ids7) ) {
 
-    for ( EcalElectronicsIdCollection::const_iterator idItr = ids7->begin(); idItr != ids7->end(); ++ idItr ) {
+    for ( EcalElectronicsIdCollection::const_iterator idItr = ids7->begin(); idItr != ids7->end(); ++idItr ) {
 
       EcalElectronicsId id = (*idItr);
 
@@ -514,7 +514,7 @@ void EEIntegrityTask::analyze(const Event& e, const EventSetup& c){
 
   if (  e.getByLabel(EcalElectronicsIdCollection5_, ids8) ) {
 
-    for ( EcalElectronicsIdCollection::const_iterator idItr = ids8->begin(); idItr != ids8->end(); ++ idItr ) {
+    for ( EcalElectronicsIdCollection::const_iterator idItr = ids8->begin(); idItr != ids8->end(); ++idItr ) {
 
       EcalElectronicsId id = (*idItr);
 
@@ -546,7 +546,7 @@ void EEIntegrityTask::analyze(const Event& e, const EventSetup& c){
 
   if ( e.getByLabel(EcalElectronicsIdCollection6_, ids9) ) {
 
-    for ( EcalElectronicsIdCollection::const_iterator idItr = ids9->begin(); idItr != ids9->end(); ++ idItr ) {
+    for ( EcalElectronicsIdCollection::const_iterator idItr = ids9->begin(); idItr != ids9->end(); ++idItr ) {
 
       EcalElectronicsId id = (*idItr);
 

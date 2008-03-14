@@ -1,8 +1,8 @@
 /*
  * \file EBTriggerTowerTask.cc
  *
- * $Date: 2008/02/23 09:56:55 $
- * $Revision: 1.64 $
+ * $Date: 2008/02/29 15:04:46 $
+ * $Revision: 1.65 $
  * \author C. Bernet
  * \author G. Della Ricca
  * \author E. Di Marco
@@ -349,11 +349,11 @@ EBTriggerTowerTask::processDigis( const Handle<EcalTrigPrimDigiCollection>&
 
 
     if( compDigis.isValid() ) {
-      EcalTrigPrimDigiCollection::const_iterator compDigiItr = compDigis->find( idt.rawId() );
-
       bool good = true;
       bool goodFlag = true;
       bool goodVeto = true;
+
+      EcalTrigPrimDigiCollection::const_iterator compDigiItr = compDigis->find( idt.rawId() );
       if( compDigiItr != compDigis->end() ) {
         str<<"found corresponding digi! "<<*compDigiItr<<endl;
         if( data.compressedEt() != compDigiItr->compressedEt() ) {
