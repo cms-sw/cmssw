@@ -17,7 +17,7 @@ TrajectoryStateClosestToBeamLineBuilder::operator()
 // 		GlobalVector(0., 0., 1.), 
 		0, &(originalFTS.parameters().magneticField()) ) );
   if (!status) {
-    edm::LogWarning  ("TrackingTools/PatternTools")
+    LogDebug  ("TrackingTools/PatternTools")
       << "TrajectoryStateClosestToBeamLine: Failure in TTMD when searching for PCA of track to beamline.\n"
       << "TrajectoryStateClosestToBeamLine is now invalid.";
     return TrajectoryStateClosestToBeamLine();

@@ -130,14 +130,14 @@ bool TwoTrackMinimumDistanceHelixLine::calculate(
     dPhiH=fctVal/derVal;
     thePhiH -= dPhiH;
     if ((x1-thePhiH)*(thePhiH-x2) < 0.0) {
-      edm::LogWarning ("TwoTrackMinimumDistanceHelixLine")
+      LogDebug ("TwoTrackMinimumDistanceHelixLine")
         << "Jumped out of brackets in root finding. Will be moved closer.";
       thePhiH += (dPhiH*0.8);
     }
     if (fabs(dPhiH) < qual) {return false;}
   }
-  edm::LogWarning ("TwoTrackMinimumDistanceHelixLine")
-    <<"Number of steps exceeded.";
+  LogDebug ("TwoTrackMinimumDistanceHelixLine")
+    <<"Number of steps exceeded. Has not converged.";
   return true;
 }
 
