@@ -1,10 +1,11 @@
-// $Id: reftobasevector_t.cppunit.cc,v 1.9 2007/07/12 12:08:58 llista Exp $
+// $Id: ptrvector_t.cppunit.cc,v 1.1 2007/11/06 20:19:21 chrjones Exp $
 
 #include <algorithm>
 #include <vector>
 #include <iostream>
 
 #include <cppunit/extensions/HelperMacros.h>
+#include "DataFormats/Common/interface/OrphanHandle.h"
 #include "DataFormats/Common/interface/PtrVector.h"
 #include "DataFormats/Common/test/IntValues.h"
 #include "DataFormats/Common/interface/Wrapper.h"
@@ -37,17 +38,6 @@ namespace testPtr {
     virtual int val() const {return 2;}
   };
   
-  template<class T>
-    struct TestHandle {
-      typedef T element_type;
-      TestHandle(const edm::ProductID& iId, const T* iProd) : id_(iId), prod_(iProd) {}
-      const edm::ProductID& id() const { return id_;}
-      const T* product() const { return prod_;}
-    private:
-      edm::ProductID id_;
-      const T* prod_;
-    };
-
     struct TestGetter : public edm::EDProductGetter {
       edm::EDProduct const* hold_;
       edm::EDProduct const* getIt(edm::ProductID const&) const {
@@ -81,11 +71,11 @@ testPtrVector::check()
   std::vector<Inherit1> v1(2,Inherit1());
   std::vector<Inherit2> v2(2,Inherit2());
   
-  TestHandle<std::vector<Inherit1> > h1(ProductID(1), &v1);
+  OrphanHandle<std::vector<Inherit1> > h1(&v1, ProductID(1));
   PtrVector<Inherit1 > rv1;
   rv1.push_back( Ptr<Inherit1 >( h1, 0 ) );
   rv1.push_back( Ptr<Inherit1 >( h1, 1 ) );
-  TestHandle<std::vector<Inherit2> > h2(ProductID(2), &v2);
+  OrphanHandle<std::vector<Inherit2> > h2(&v2, ProductID(2));
   PtrVector<Inherit2 > rv2;
   rv2.push_back( Ptr<Inherit2 >( h2, 0 ) );
   rv2.push_back( Ptr<Inherit2 >( h2, 1 ) );

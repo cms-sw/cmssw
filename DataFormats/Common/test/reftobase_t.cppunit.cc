@@ -1,7 +1,8 @@
-// $Id: reftobase_t.cppunit.cc,v 1.4 2006/08/03 13:07:01 llista Exp $
+// $Id: reftobase_t.cppunit.cc,v 1.5 2007/01/23 00:25:53 wmtan Exp $
 #include <cppunit/extensions/HelperMacros.h>
 #include "DataFormats/Common/interface/RefToBase.h"
 #include "DataFormats/Common/interface/Ref.h"
+#include "DataFormats/Common/interface/OrphanHandle.h"
 
 #include <vector>
 
@@ -28,16 +29,6 @@ namespace testreftobase {
   struct Inherit2 : public Base {
     virtual int val() const {return 2;}
   };
-  
-  template<class T>
-    struct TestHandle {
-      TestHandle(const edm::ProductID& iId, const T* iProd) : id_(iId), prod_(iProd) {}
-      const edm::ProductID& id() const { return id_;}
-      const T* product() const { return prod_;}
-    private:
-      edm::ProductID id_;
-      const T* prod_;
-    };
 }
 
 using namespace testreftobase;
@@ -50,7 +41,7 @@ testRefToBase::check()
   std::vector<Inherit1> v1(2,Inherit1());
   std::vector<Inherit2> v2(2,Inherit2());
   
-  TestHandle<std::vector<Inherit1> > h1(ProductID(1), &v1);
+  OrphanHandle<std::vector<Inherit1> > h1(&v1, ProductID(1));
   Ref<std::vector<Inherit1> > r1(h1, 1);
   RefToBase<Base> b1(r1);
   CPPUNIT_ASSERT(&(*b1) == static_cast<Base*>(&(v1[1])));

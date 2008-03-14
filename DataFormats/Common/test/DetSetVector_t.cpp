@@ -1,5 +1,5 @@
 /*
- *  $Id: DetSetVector_t.cpp,v 1.14 2007/01/23 00:25:53 wmtan Exp $
+ *  $Id: DetSetVector_t.cpp,v 1.15 2007/06/14 04:56:29 wmtan Exp $
  *  CMSSW
  *
  */
@@ -14,6 +14,8 @@
 
 #include "DataFormats/Common/interface/Ref.h"
 #include "DataFormats/Common/interface/DetSetVector.h"
+#include "DataFormats/Common/interface/OrphanHandle.h"
+#include "DataFormats/Provenance/interface/ProductID.h"
 
 #include "FWCore/Utilities/interface/GCCPrerequisite.h"
 #if ! GCC_PREREQUISITE(3,4,4)
@@ -204,16 +206,6 @@ namespace
     getIt(ProductID const&) const { return prod_; }
     edm::Wrapper<T> const* prod_;
   };
-  template<class T>
-  struct MyHandle
-  {
-    typedef T element_type;
-    MyHandle(const T* iProd) : prod_(iProd) { }
-    ProductID id() const {return ProductID(1);}
-    const T* product() const {return prod_;}
-    const T* prod_;
-    const T* operator->() const {return prod_;}
-  };
 }
 
 void refTest()
@@ -257,14 +249,14 @@ void refTest()
   }
 
   {
-    MyHandle<coll_type> pc2(&c);
+    OrphanHandle<coll_type> pc2(&c, ProductID(1));
     RefDet refDet = makeRefToDetSetVector(pc2,det_id_type(3),c[3].data.begin());
     assert(!(v1<*refDet)&&!(*refDet < v1));
   }
 
   try {
     //bad detid
-    MyHandle<coll_type> pc2(&c);
+    OrphanHandle<coll_type> pc2(&c, ProductID(1));
     RefDet refDet = makeRefToDetSetVector(pc2,det_id_type(12),c[3].data.begin());
 
     assert("Failed to throw required exception" == 0);
@@ -277,7 +269,7 @@ void refTest()
 
   try {
     //bad iterator
-    MyHandle<coll_type> pc2(&c);
+    OrphanHandle<coll_type> pc2(&c, ProductID(1));
     RefDet refDet = makeRefToDetSetVector(pc2,det_id_type(1),c[3].data.begin());
 
     assert("Failed to throw required exception" == 0);
