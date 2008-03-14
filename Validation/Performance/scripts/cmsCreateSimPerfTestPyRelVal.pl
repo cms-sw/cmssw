@@ -194,6 +194,7 @@ cd ..\n";
 cd SingleMuMinusPt10_Valgrind
 $cmsSimPyRelVal $ValgrindNumOfEvts "."$CmsDriverCandle{$Candle[3]}"." 89;grep -v DIGI SimulationCandles_"."$CMSSW_VERSION".".txt \>tmp
 mv tmp SimulationCandles_"."$CMSSW_VERSION".".txt
+cp -pR ../SingleMuMinusPt10_TimeSize/MU-_pt10_DIGI.root .
 $cmsRelvalreport -i SimulationCandles_"."$CMSSW_VERSION".".txt -t perfreport_tmp -R -P >& SingleMuMinusPt10.log\n
 cd ..\n";
 
@@ -202,6 +203,9 @@ cd ..\n";
            cd SingleMuMinusPt10_Valgrind;
            $cmsSimPyRelVal $ValgrindNumOfEvts "."$CmsDriverCandle{$Candle[3]}"." 89;grep -v DIGI SimulationCandles_"."$CMSSW_VERSION".".txt \>tmp; 
            mv tmp SimulationCandles_"."$CMSSW_VERSION".".txt;
+           #Adding RECO step, so DIGI root file is needed!
+           #Copying over the DIGI.root file from the TimeSize profiling directory to avoid re-running it
+           cp -pR ../SingleMuMinusPt10_TimeSize/MU-_pt10_DIGI.root .;
            $cmsRelvalreport -i SimulationCandles_"."$CMSSW_VERSION".".txt -t perfreport_tmp -R -P >& SingleMuMinusPt10.log;
            cd .."
 	  );
