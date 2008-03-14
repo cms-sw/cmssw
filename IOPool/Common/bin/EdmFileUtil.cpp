@@ -1,7 +1,7 @@
 //----------------------------------------------------------------------
 // EdmFileUtil.cpp
 //
-// $Id: EdmFileUtil.cpp,v 1.13 2007/08/20 23:21:34 wmtan Exp $
+// $Id: EdmFileUtil.cpp,v 1.14 2007/12/13 18:51:53 wmtan Exp $
 //
 // Author: Chih-hsiang Cheng, LLNL
 //         Chih-Hsiang.Cheng@cern.ch
@@ -128,7 +128,8 @@ int main(int argc, char* argv[]) {
     pset.addUntrackedParameter<std::vector<std::string> >("fileNames", in);
     pset.addUntrackedParameter<std::string>("catalog", catalogIn);
     
-    edm::InputFileCatalog catalog(pset);
+    edm::PoolCatalog poolcat;
+    edm::InputFileCatalog catalog(pset, poolcat);
     std::vector<std::string> const& filesIn = catalog.fileNames();
 
     // Allow user to input multiple files

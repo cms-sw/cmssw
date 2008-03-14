@@ -10,7 +10,8 @@ namespace edm
   StreamerFileReader::StreamerFileReader(edm::ParameterSet const& pset):
     streamerNames_(pset.getUntrackedParameter<std::vector<std::string> >("fileNames"))
   {
-      InputFileCatalog catalog(pset);
+      PoolCatalog poolcat;
+      InputFileCatalog catalog(pset, poolcat);
       streamerNames_ = catalog.fileNames();
 
       if (streamerNames_.size() > 1)
