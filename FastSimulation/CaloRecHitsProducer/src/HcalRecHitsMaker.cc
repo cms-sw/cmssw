@@ -13,7 +13,6 @@
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "DataFormats/HcalDigi/interface/HBHEDataFrame.h"
 #include "CLHEP/GenericFunctions/Erf.hh"
-#include "CalibFormats/HcalObjects/interface/HcalTPGCoder.h"
 #include "CalibFormats/HcalObjects/interface/HcalTPGRecord.h"
 #include "FastSimulation/Utilities/interface/RandomEngine.h"
 #include "CalibFormats/HcalObjects/interface/HcalDbService.h"
@@ -46,6 +45,13 @@ HcalRecHitsMaker::HcalRecHitsMaker(edm::ParameterSet const & p1,edm::ParameterSe
   thresholdHE_ = RecHitsParameters.getParameter<double>("ThresholdHE");
   thresholdHO_ = RecHitsParameters.getParameter<double>("ThresholdHO");
   thresholdHF_ = RecHitsParameters.getParameter<double>("ThresholdHF");
+
+  
+  satHB_ = RecHitsParameters.getParameter<double>("SaturationHB");
+  satHE_ = RecHitsParameters.getParameter<double>("SaturationHE");
+  satHO_ = RecHitsParameters.getParameter<double>("SaturationHO");
+  satHF_ = RecHitsParameters.getParameter<double>("SaturationHF");
+
   refactor_ = RecHitsParameters.getParameter<double> ("Refactor");
   refactor_mean_ = RecHitsParameters.getParameter<double> ("Refactor_mean");
   hcalfileinpath_= RecHitsParameters.getParameter<std::string> ("fileNameHcal");  
@@ -147,7 +153,7 @@ void HcalRecHitsMaker::init(const edm::EventSetup &es,bool doDigis,bool doMiscal
 	    {
 	      HcalDetId myDetId(it->first);
 	      float icalconst=it->second;
-	      miscalib_[myDetId.hashed_index()]=refactor_mean_+(icalconst-1.)*refactor_;
+	      miscalib_[myDetId.hashed_index()]=refactor_mean_+(icalconst-refactor_mean_)*refactor_;
 	    }
 	}
     }
@@ -338,8 +344,12 @@ void HcalRecHitsMaker::loadHcalRecHits(edm::Event &iEvent,HBHERecHitCollection& 
       unsigned cellhashedindex=firedCellsHB_[ihit];
       // Check if it is above the threshold
       if(hcalRecHits_[cellhashedindex]<thresholdHB_) continue; 
+      float energy=hcalRecHits_[cellhashedindex];
+      // poor man saturation
+      if(energy>satHB_) energy=satHB_;
+
       const HcalDetId& detid  = theDetIds_[cellhashedindex];
-      hbheHits.push_back(HBHERecHit(detid,hcalRecHits_[cellhashedindex],0.));      
+      hbheHits.push_back(HBHERecHit(detid,energy,0.));      
       if(doDigis_)
 	{
 	  HBHEDataFrame myDataFrame(detid);
@@ -360,8 +370,12 @@ void HcalRecHitsMaker::loadHcalRecHits(edm::Event &iEvent,HBHERecHitCollection& 
       unsigned cellhashedindex=firedCellsHE_[ihit];
       // Check if it is above the threshold
       if(hcalRecHits_[cellhashedindex]<thresholdHE_) continue; 
+      float energy=hcalRecHits_[cellhashedindex];
+      // poor man saturation
+      if(energy>satHE_) energy=satHE_;
+
       const HcalDetId & detid= theDetIds_[cellhashedindex];
-      hbheHits.push_back(HBHERecHit(detid,hcalRecHits_[cellhashedindex],0.));      
+      hbheHits.push_back(HBHERecHit(detid,energy,0.));      
       if(doDigis_)
 	{
 	  HBHEDataFrame myDataFrame(detid);
@@ -383,8 +397,13 @@ void HcalRecHitsMaker::loadHcalRecHits(edm::Event &iEvent,HBHERecHitCollection& 
       unsigned cellhashedindex=firedCellsHO_[ihit];
       // Check if it is above the threshold
       if(hcalRecHits_[cellhashedindex]<thresholdHO_) continue; 
+
+      float energy=hcalRecHits_[cellhashedindex];
+      // poor man saturation
+      if(energy>satHO_) energy=satHO_;
+
       const HcalDetId&  detid=theDetIds_[cellhashedindex];
-      hoHits.push_back(HORecHit(detid,hcalRecHits_[cellhashedindex],0));
+      hoHits.push_back(HORecHit(detid,energy,0));
     }
   
   // HF
@@ -394,8 +413,13 @@ void HcalRecHitsMaker::loadHcalRecHits(edm::Event &iEvent,HBHERecHitCollection& 
       unsigned cellhashedindex=firedCellsHF_[ihit];
       // Check if it is above the threshold
       if(hcalRecHits_[cellhashedindex]<thresholdHF_) continue; 
+
+      float energy=hcalRecHits_[cellhashedindex];
+      // poor man saturation
+      if(energy>satHF_) energy=satHF_;
+
       const HcalDetId & detid=theDetIds_[cellhashedindex];
-      hfHits.push_back(HFRecHit(detid,hcalRecHits_[cellhashedindex],0.));      
+      hfHits.push_back(HFRecHit(detid,energy,0.));      
       if(doDigis_)
 	{
 	  HFDataFrame myDataFrame(detid);

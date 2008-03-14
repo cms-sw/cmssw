@@ -9,13 +9,9 @@ Toy EDAnalyzer for testing purposes only.
 #include <string>
 #include <iostream>
 #include <map>
-#include "FWCore/Framework/interface/EDAnalyzer.h"
-#include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
-#include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "CondFormats/DTObjects/test/stubs/DTT0Print.h"
 #include "CondFormats/DTObjects/interface/DTT0.h"

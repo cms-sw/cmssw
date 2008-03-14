@@ -6,8 +6,8 @@
 \author Fedor Ratnikov (UMd)
 POOL object to store Pedestal values 4xCapId
 $Author: ratnikov
-$Date: 2007/12/14 13:17:12 $
-$Revision: 1.6 $
+$Date: 2007/01/09 22:49:20 $
+$Revision: 1.4 $
 */
 #include <boost/cstdint.hpp>
 
@@ -29,9 +29,14 @@ class HcalPedestal {
     mValue2 (fCap2),
     mValue3 (fCap3) {}
 
-    uint32_t rawId () const {return mId;}
+    // because of an oracle digestion problem with uint32_t 
+    // use unsigned long long
+  unsigned long long rawId () const {return mId;}
+  //  uint32_t rawId () const {return mId;}
+
  private:
-  uint32_t mId;
+  unsigned long long mId;
+  //  uint32_t mId;
   float mValue0;
   float mValue1;
   float mValue2;

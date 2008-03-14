@@ -93,7 +93,7 @@ void SimpleTHA::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   // Tracking particle information
   edm::Handle<TrackingParticleCollection>  TPCollection;
   // Track collection
-  edm::Handle<edm::View<reco::Track> > trackCollection;
+  edm::Handle<reco::TrackCollection> trackCollection;
 
   // Get tracking particle information from the file.
   iEvent.getByType(TPCollection);
@@ -112,7 +112,7 @@ void SimpleTHA::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   for (std::size_t index = 0; index < trackCollection->size(); index++)
   {
     // Get a pointer to a track per each track in collection
-    edm::RefToBase<reco::Track>  track(trackCollection, index);
+    reco::TrackRef track(trackCollection, index);
 
     // If the track is not fake then get the vertexes
     if (tracer.evaluate(track, association, associationByHits_))

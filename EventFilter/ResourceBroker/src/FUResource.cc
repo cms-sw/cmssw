@@ -42,6 +42,7 @@ using namespace evf;
 
 //______________________________________________________________________________
 bool FUResource::doFedIdCheck_ = true;
+bool FUResource::useEvmBoard_ = true;
 unsigned int FUResource::gtpEvmId_ =  FEDNumbering::getTriggerGTPFEDIds().first;
 unsigned int FUResource::gtpDaqId_ =  FEDNumbering::getTriggerGTPFEDIds().second;
 
@@ -657,11 +658,13 @@ void FUResource::findFEDs() throw (evf::Exception)
     
     if (fedId<1024) fedSize_[fedId]=fedSize;
 
-    //if gtp daq block is available set cell event number to global partition-independent trigger number
-    //this is to be replaced later with partition-dependent event number from evm block
-    if(fedId == gtpDaqId_)
-      if(evf::evtn::daq_board_sense(fedHeaderAddr)) shmCell_->setEvtNumber(evf::evtn::get(fedHeaderAddr, false));
+    //if gtp EVM block is available set cell event number to global partition-independent trigger number
+    //daq block partition-independent event number is left as an option in case of problems
 
+    if(useEvmBoard_ && (fedId == gtpEvmId_))
+      if(evf::evtn::evm_board_sense(fedHeaderAddr)) shmCell_->setEvtNumber(evf::evtn::get(fedHeaderAddr, true));
+    if(!useEvmBoard_ && (fedId == gtpDaqId_))
+      if(evf::evtn::daq_board_sense(fedHeaderAddr)) shmCell_->setEvtNumber(evf::evtn::get(fedHeaderAddr, false));
     // crc check
     if (doCrcCheck_) {
       UInt_t conscheck=fedTrailer->conscheck;

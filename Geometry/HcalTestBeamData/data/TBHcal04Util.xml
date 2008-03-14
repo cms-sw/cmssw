@@ -3,7 +3,7 @@
 
 <SpecParSection label="tbhcal04util.xml" eval="true">
   <SpecPar name="calo">
-   <PartSelector path="//HCal" />
+   <PartSelector path="//Calo" />
    <Parameter name="SensitiveDetector" value="CaloTrkProcessing" eval="false"/>
    <Parameter name="ReadOutName" value="CaloHitsTk" eval="false"/>
    <Parameter name="Calorimeter" value="Calo"       eval="false"/>

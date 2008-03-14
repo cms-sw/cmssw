@@ -17,17 +17,14 @@ class GPFTrack : public GPFBase, public TGraph {
  public:
   GPFTrack(DisplayManager *dm,int view, int ident, 
 	   reco::PFRecTrack *tra, int size, double *x, double *y,
-           double pt,TAttMarker *attm,TAttLine *attl, std::string option);      
+           double pt,int linestyle, int linecolor, std::string option);      
 
   virtual ~GPFTrack() {;}
     
   virtual void     draw();
   double           getPt() { return pt_;}
-  void             setColor();
-  void             setColor(int newcol);
+  void             setColor(int newcolor );
   void             setInitialColor();
-  void             setNewStyle();
-  void             setNewSize();
     
   //overridden ROOT method
   virtual void     Print();     // *MENU*

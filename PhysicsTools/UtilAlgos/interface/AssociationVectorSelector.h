@@ -4,7 +4,7 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: AssociationVectorSelector.h,v 1.1 2008/01/10 15:21:10 llista Exp $
+ * \version $Id$
  */
 
 #include "DataFormats/Common/interface/AssociationVector.h"

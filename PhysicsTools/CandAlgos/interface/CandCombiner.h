@@ -7,9 +7,9 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Revision: 1.16 $
+ * \version $Revision: 1.6 $
  *
- * $Id: CandCombiner.h,v 1.16 2008/01/11 08:13:29 andreasp Exp $
+ * $Id: CandCombiner.h,v 1.6 2007/10/31 14:12:35 llista Exp $
  *
  */
 #include "FWCore/Framework/interface/EDProducer.h"
@@ -23,6 +23,7 @@
 #include "PhysicsTools/UtilAlgos/interface/ParameterAdapter.h"
 #include "PhysicsTools/UtilAlgos/interface/EventSetupInitTrait.h"
 #include "PhysicsTools/Utilities/interface/cutParser.h"
+#include "PhysicsTools/Utilities/interface/MethodMap.h"
 #include "DataFormats/Candidate/interface/Candidate.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 #include <string>
@@ -90,7 +91,7 @@ namespace reco {
     private:
       /// process an event
       void produce( edm::Event& evt, const edm::EventSetup& es ) {
-	Init::init( combiner_.setup(), evt, es );
+	Init::init( combiner_.setup(), es );
 	int n = labels_.size();
 	std::vector<edm::Handle<InputCollection> > colls( n );
 	for( int i = 0; i < n; ++i )

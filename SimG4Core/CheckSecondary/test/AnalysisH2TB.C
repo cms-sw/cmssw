@@ -21,6 +21,8 @@
 #include "TStyle.h"
 #include "TGraph.h"
 
+static unsigned int antiproton=12, proton=13, neutron=14, heavy=15, ions=16;
+
 void AnalyseH2TB(char element[6], char list[10], char ene[6], int sav=0, int nMax=-1, bool debug=false) {
 
   char fname[40];
@@ -36,8 +38,8 @@ void AnalyseH2TB(char element[6], char list[10], char ene[6], int sav=0, int nMa
   TFile *fout = new TFile(ofile, "recreate");
   TH1F *hiKE0[20], *hiKE1[20], *hiKE2[20], *hiCT0[20], *hiCT1[20], *hiCT2[20];
   TH1I *hiMulti[20];
-  TH1F *hiParticle[5][20];
-  TH1F *baryon1, *baryon2;
+  TH1F *hiParticle[5][20], *hiTotalKE[20], *hiMomInclusive[20], *baryon1;
+  TH1F *hProton[2], *hNeutron[2], *hHeavy[2], *hIon[2], *hBaryon[2], *baryon2;;
   char name[60], title[160], ctype[20], ytitle[20];
   double xbin;
 
@@ -45,11 +47,15 @@ void AnalyseH2TB(char element[6], char list[10], char ene[6], int sav=0, int nMa
     if      (ii == 0) sprintf (ctype, "All Particles");
     else              sprintf (ctype, "%s", types[ii-1].c_str());
     
+    sprintf (title, "Inclusive momentum dist: %s in %s at %s GeV (%s)", ctype, element, ene, list);
+    sprintf (name, "hiMomInclusive_%s%s%sGeV(%s)", element, list, ene, ctype);
+    hiMomInclusive[ii] = new TH1F (name, title, 6000, 0., 300.);
+
     for (unsigned int jj=0; jj<5; jj++) {
       sprintf (title, "Particle %i : %s in %s at %s GeV (%s)",jj, ctype, element, ene, list);
       sprintf (name, "Particle%i_KE%s%s%sGeV(%s)",jj,element, list, ene, ctype);
-      if (ii==14) hiParticle[jj][ii] = new TH1F (name, title, 50000, 0., 10.);
-      else        hiParticle[jj][ii] = new TH1F (name, title, 15000, 0., 300.);
+      if (ii==ions) hiParticle[jj][ii] = new TH1F (name, title, 50000, 0., 10.);
+      else        hiParticle[jj][ii] = new TH1F (name, title, 15500, 0., 310.);
       if (debug) std::cout << "hiParticle[" << jj << "][" << ii << "] = " << hiParticle[jj][ii] << " " <<  name << " Particle KE Energy  " << title << "\n"; 
     }
     if (debug) std::cout << "Ctype " << ctype << "\n";
@@ -106,23 +112,30 @@ void AnalyseH2TB(char element[6], char list[10], char ene[6], int sav=0, int nMa
     if (debug) std::cout << "hiCT2[" << ii << "] = " << hiCT2[ii] << " " <<  name << " cos(T#eta) " << title << "\n";
 
     sprintf (name, "Multi%s%s%sGeV(%s)", element, list, ene, ctype);
+    sprintf (title,"%s multiplicity in %s at %s GeV (%s)", ctype, element, ene, list);
     hiMulti[ii] = new TH1I (name, title, 101, -1, 100);
-    hiMulti[ii]->GetXaxis()->SetTitle("multiplicity");
-    if (debug) std::cout << "hiMulti[" << ii << "] = " << hiMulti[ii] << " " <<  name << " Multiplicity " << "\n";
+    hiMulti[ii]->GetXaxis()->SetTitle("Multiplicity");
+    if (debug) std::cout << "hiMulti[" << ii << "] = " << hiMulti[ii] << " " <<  name << " Multiplicity\n";
+
+    sprintf (name, "TotalKE%s%s%sGeV(%s)", element, list, ene, ctype);
+    sprintf (title,"%s (inelastic) in %s at %s GeV (%s)", ctype, element, ene, list);
+    hiTotalKE[ii] = new TH1F (name, title, 15500, 0, 310);
+    sprintf (title, "Total KE carried by %s", ctype);
+    hiTotalKE[ii]->GetXaxis()->SetTitle(title);
+    if (debug) std::cout << "hiTotalKE[" << ii << "] = " << hiTotalKE[ii] << " " <<  name << " " << title << "\n";
   }
 
-  TH1F *hProton[2], *hNeutron[2], *hHeavy[2], *hIon[2], *hBaryon[2];
   for (int i=0; i<2; i++) {
     sprintf(title, "proton%i_%s%s%sGeV(%s)", i, element, list, ene, ctype);
-    hProton[i] = new TH1F(title, title, 15000, 0., 300.);
+    hProton[i] = new TH1F(title, title, 15500, 0., 310.);
     hProton[i]->GetXaxis()->SetTitle("Kinetic Energy (GeV)");
 
     sprintf(title, "neutron%i_%s%s%sGeV(%s)", i, element, list, ene, ctype);
-    hNeutron[i] = new TH1F(title, title, 15000, 0., 300.);
+    hNeutron[i] = new TH1F(title, title, 15500, 0., 310.);
     hNeutron[i]->GetXaxis()->SetTitle("Kinetic Energy (GeV)");
 
     sprintf(title, "heavy%i_%s%s%sGeV(%s)", i, element, list, ene, ctype);
-    hHeavy[i] = new TH1F(title, title, 15000, 0., 300.);
+    hHeavy[i] = new TH1F(title, title, 15500, 0., 310.);
     hHeavy[i]->GetXaxis()->SetTitle("Kinetic Energy (GeV)");
 
     sprintf(title, "ion%i_%s%s%sGeV(%s)", i, element, list, ene, ctype);
@@ -130,14 +143,14 @@ void AnalyseH2TB(char element[6], char list[10], char ene[6], int sav=0, int nMa
     hIon[i]->GetXaxis()->SetTitle("Kinetic Energy (GeV)");
 
     sprintf(title, "baryon%i_%s%s%sGeV(%s)", i, element, list, ene, ctype);
-    hBaryon[i] = new TH1F(title, title, 15000, 0., 300.);
+    hBaryon[i] = new TH1F(title, title, 15500, 0., 310.);
     hBaryon[i]->GetXaxis()->SetTitle("Kinetic Energy (GeV)");
   }
 
   sprintf(title, "baryonX_%s%s%sGeV", element, list, ene);
-  baryon1 = new TH1F("baryon1", title, 15000, 0., 300.);
+  baryon1 = new TH1F("baryon1", title, 15500, 0., 310.);
   sprintf(title, "baryonY_%s%s%sGeV", element, list, ene);
-  baryon2 = new TH1F("baryon2", title, 15000, 0., 300.);
+  baryon2 = new TH1F("baryon2", title, 15500, 0., 310.);
 
   TFile *file = new TFile(fname);
   TTree *tree = (TTree *) file->Get("T1");
@@ -180,10 +193,12 @@ void AnalyseH2TB(char element[6], char list[10], char ene[6], int sav=0, int nMa
 	    std::cout << " Secondary " << k << " Px " << (*px)[k] << " Py " << (*py)[k] << " Pz " << (*pz)[k] << " Mass " << (*mass)[k] << "\n";
 	}
 	
-	//	std::vector<double> pProton, pNeutron, pIon, pHeavy;
 	std::list<double> pProton, pNeutron, pIon, pHeavy;
-	int counter[15];
-	for(int nct=0; nct<15; nct++) counter[nct] = 0;
+	int counter[20];
+	double sumKE[20];
+	for(unsigned int nct=0; nct<=types.size(); nct++) {
+	  counter[nct] = 0; sumKE[nct] = 0;
+	}
 
 	int num = (*nsec)[0];
 	if (debug) std::cout << "Secondaries: " << num << "\n";
@@ -200,14 +215,14 @@ void AnalyseH2TB(char element[6], char list[10], char ene[6], int sav=0, int nMa
 	  double ke = (sqrt (pp + m*m) - m)/1000.;
 	  pp        = sqrt (pp);
 	  double cth= (pp == 0. ? -2. : (pl/pp));
-	  if      (type == 11) pProton.push_back(ke);
-	  else if (type == 12) pNeutron.push_back(ke);
-	  else if (type == 13) pHeavy.push_back(ke);
-	  else if (type == 14) pIon.push_back(ke);
-	  if (type == 11 || type == 12 || type == 13) kBaryon += ke;
+	  if      (type == proton)  pProton.push_back(ke);
+	  else if (type == neutron) pNeutron.push_back(ke);
+	  else if (type == heavy)   pHeavy.push_back(ke);
+	  else if (type == ions)    pIon.push_back(ke);
+	  if (type == proton || type == neutron || type == heavy) kBaryon += ke;
 
 	  partEne[k] = ke; partType[k] = type;
-
+	  hiMomInclusive[type]->Fill(pp/1000.);
 	  if (debug) std::cout << "Entry " << i << " Secondary " << k << " Mass " << (*mass)[k] << " Type " << type << " Cth " << cth << " KE " << ke << "\n";
 	  hiKE0[0]->Fill(ke);
 	  hiCT0[0]->Fill(cth);
@@ -223,23 +238,26 @@ void AnalyseH2TB(char element[6], char list[10], char ene[6], int sav=0, int nMa
 	    hiCT2[0]->Fill(cth);
 	    hiKE2[type]->Fill(ke);
 	    hiCT2[type]->Fill(cth);
-	    counter[0] += 1;
+	    counter[0]    += 1;
 	    counter[type] += 1;
+	    sumKE[0]      += ke;
+	    sumKE[type]   += ke;
 	  }
 	} // loop over particles
 	
-	if (debug) {
-	  std::cout << "Entry " << i << "  ::";
-	  for (int nct=0; nct<15; nct++) 
-	    std::cout << "  [" << nct <<"]:" << counter[nct];
-	  std::cout << "\n";
-	}
+	if (debug) std::cout << "Entry " << i << "  :: Elastic (?) " << isItElastic << "\n";
 
 	if( !isItElastic ) {
 	  
-	  for (int nct=0; nct<15 && nct<=(types.size()); nct++) 
+	  for (unsigned int nct=0; nct<=(types.size()); nct++) {
 	    hiMulti[nct]->Fill(counter[nct]);
-	  
+	    hiTotalKE[nct]->Fill(sumKE[nct]);
+	    if (debug) {
+	      for (unsigned int nct=0; nct<=types.size(); nct++) 
+		std::cout << "  [" << nct <<"]:" << counter[nct] << " KE " << sumKE[nct] << "\n";
+	    }
+	  }
+
 	  list<double>::iterator iter;
 	  double kMaxB=0;
 	  if (pProton.size() > 0) {
@@ -318,47 +336,28 @@ void AnalyseH2TB(char element[6], char list[10], char ene[6], int sav=0, int nMa
 	  bool first = true;
 	  for(int unsigned ii=0; ii<partEne.size(); ii++){
 	    nPart[partType[ii]] += 1;
-	    if(partType[ii]==11 || partType[ii]==12){
+	    if(partType[ii]==proton || partType[ii]==neutron){
 	      if (first)     baryon1->Fill(partEne[ii]);
 	      else           baryon2->Fill(partEne[ii]);
 	      first = false;
 	    }
 
-	    if(partType[ii]==10 || partType[ii]==11 || partType[ii]==12 || partType[ii]==13 || partType[ii]==14){
+	    if(partType[ii]==antiproton || partType[ii]==proton || partType[ii]==neutron || partType[ii]==heavy || partType[ii]==ions) {
 	      nbaryon++;
 	      if(nbaryon == 1) firstBaryon  = true;
 	      if(nbaryon == 2) secondBaryon = true;
 	    }
 
+	    unsigned int ip = partType[ii];
 	    if(firstBaryon) {
 	      if (debug && partEne[ii]>200) std::cout << "nbaryon " << nbaryon << " ii " << ii << "  partType " << partType[ii] << " " << partEne[ii] << "\n";
-	      if (partType[ii] == 10){		
-		if(nPart[10]==1) hiParticle[0][10]->Fill(partEne[ii]);
-	      }	else if (partType[ii] == 11){
-		if(nPart[11]==1) hiParticle[0][11]->Fill(partEne[ii]);
-	      } else if(partType[ii] == 12) {
-		if(nPart[12]==1) hiParticle[0][12]->Fill(partEne[ii]);
-	      } else if(partType[ii] == 13) {
-		if(nPart[13]==1) hiParticle[0][13]->Fill(partEne[ii]);
-	      } else if(partType[ii] == 14){
-		if(nPart[14]==1) hiParticle[0][14]->Fill(partEne[ii]);
-	      }
+	      if(nPart[ip]==1) hiParticle[0][ip]->Fill(partEne[ii]);
 	    }
 
 	    firstBaryon = false;
 	    if(secondBaryon){
 	      if (debug && partEne[ii]>200) std::cout << "nbaryon " << nbaryon << " ii " << ii << "  partType " << partType[ii] << " " << partEne[ii] << "\n";
-	      if (partType[ii] == 10){
-		if(nPart[10]==2) hiParticle[1][10]->Fill(partEne[ii]);
-	      } else if (partType[ii] == 11){
-		if(nPart[11]==2) hiParticle[1][11]->Fill(partEne[ii]);
-	      } else if(partType[ii] == 12) {
-		if(nPart[12]==2) hiParticle[1][12]->Fill(partEne[ii]);
-	      } else if(partType[ii] == 13) {
-		if(nPart[13]==2) hiParticle[1][13]->Fill(partEne[ii]);
-	      } else if(partType[ii] == 14){
-		if(nPart[14]==2) hiParticle[1][14]->Fill(partEne[ii]);
-	      }
+	      hiParticle[1][ip]->Fill(partEne[ii]);
 	    }
 	    secondBaryon = false;
 	  } 
@@ -390,7 +389,7 @@ void AnalyseH2TB(char element[6], char list[10], char ene[6], int sav=0, int nMa
   gStyle->SetOptLogy(1);          gStyle->SetTitleOffset(1.2,"Y");
 
   if (sav < 0) {
-    TCanvas *cc1[15], *cc2[15], *cc3; 
+    TCanvas *cc1[20], *cc2[20], *cc3; 
     cc3 = new TCanvas("c_multiplicity", "c_multiplicity", 800, 800);
     TLegend *leg = new TLegend(0.5, 0.5, 0.8, 0.8);
     for (unsigned int iia=0; iia<=(types.size()); iia++) {
@@ -448,8 +447,10 @@ void AnalyseH2TB(char element[6], char list[10], char ene[6], int sav=0, int nMa
 double rhoL(char element[6]) {
   
   double tmp=0;
-  if      (element == "Brass") tmp = 8.50 * 0.40.;
-  else if (element == "PbWO4") tmp = 8.28 * 0.40.;
+  if      (element == "Brass") tmp = 8.50 * 0.40;
+  else if (element == "PbWO4") tmp = 8.28 * 0.40;
+  else if (element == "H")     tmp = 0.0708 * 12.0;
+  else if (element == "D")     tmp = 0.162  * 6.0;
   return tmp;
 }
 
@@ -458,6 +459,8 @@ double atomicWt(char element[6]) {
   double tmp=0;
   if      (element == "Brass") tmp = 64.228;
   else if (element == "PbWO4") tmp = 455.036;
+  else if (element == "H")     tmp = 1.0079;
+  else if (element == "D")     tmp = 2.01;
   return tmp;
 }
 
@@ -467,14 +470,15 @@ int type(double mass) {
   int    tmp=0;
   if      (m < 0.01)   {tmp = 1;}
   else if (m < 1.00)   {if (mass < 0) tmp = 2; else tmp = 3;}
-  else if (m < 135.00) tmp = 4;
-  else if (m < 140.00) {if (mass < 0) tmp = 5; else tmp = 6;}
-  else if (m < 495.00) {if (mass < 0) tmp = 7; else tmp = 8;}
-  else if (m < 500.00) tmp = 9;
-  else if (m < 938.50) {if (mass < 0) tmp = 10; else tmp = 11;}
-  else if (m < 940.00) tmp = 12;
-  else if (m < 1850.0) {tmp = 13;}
-  else                 {tmp = 14;}
+  else if (m < 115.00) {if (mass < 0) tmp = 4; else tmp = 5;}
+  else if (m < 135.00) tmp = 6;
+  else if (m < 140.00) {if (mass < 0) tmp = 7; else tmp = 8;}
+  else if (m < 495.00) {if (mass < 0) tmp = 9; else tmp = 10;}
+  else if (m < 500.00) tmp = 11;
+  else if (m < 938.50) {if (mass < 0) tmp = 12; else tmp = 13;}
+  else if (m < 940.00) tmp = 14;
+  else if (m < 1850.0) {tmp = 15;}
+  else                 {tmp = 16;}
   //  std::cout << "Mass " << mass << " type " << tmp << "\n";
   return tmp;
 }
@@ -485,6 +489,8 @@ std::vector<std::string> types() {
   tmp.push_back("Photon/Neutrino");
   tmp.push_back("Electron");
   tmp.push_back("Positron");
+  tmp.push_back("MuMinus");
+  tmp.push_back("MuPlus");
   tmp.push_back("Pizero");
   tmp.push_back("Piminus");
   tmp.push_back("Piplus");
@@ -499,3 +505,4 @@ std::vector<std::string> types() {
 
   return tmp;
 }
+

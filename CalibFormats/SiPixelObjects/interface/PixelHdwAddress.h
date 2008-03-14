@@ -46,8 +46,6 @@ namespace pos{
                fedchannel_   == aHdwAddress.fedchannel_ );
     }
 
-    void setAddress(std::string what, int value); // Added by Dario
-
   private:
 
 

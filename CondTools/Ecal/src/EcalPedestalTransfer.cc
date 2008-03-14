@@ -89,13 +89,14 @@ void EcalPedestalTransfer::analyze( const edm::Event& evt, const edm::EventSetup
 
   
   
-//   try {
+  try {
     cout << "Making connection..." << flush;
     econn = new EcalCondDBInterface( sid, user, pass );
     cout << "Done." << endl;
-    //  } catch (runtime_error &e) {
-    if (!econn)
-	throw cms::Exception("OMDS not available");
+  } catch (runtime_error &e) {
+    cerr << e.what() << endl;
+    throw cms::Exception("OMDS not available");
+  } 
   
     
   // loop on offline DB conditions to be transferred as from config file 

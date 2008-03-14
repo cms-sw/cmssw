@@ -6,7 +6,7 @@
 OutputModule: The base class of all "modules" that write Events to an
 output stream.
 
-$Id: OutputModule.h,v 1.69 2008/01/13 01:12:22 wmtan Exp $
+$Id: OutputModule.h,v 1.70 2008/01/15 06:51:49 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -21,6 +21,7 @@ $Id: OutputModule.h,v 1.69 2008/01/13 01:12:22 wmtan Exp $
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/GroupSelector.h"
 #include "FWCore/Framework/interface/OutputModuleDescription.h"
+#include "FWCore/Framework/src/OutputWorker.h"
 #include "FWCore/ParameterSet/interface/ParameterSetfwd.h"
 
 

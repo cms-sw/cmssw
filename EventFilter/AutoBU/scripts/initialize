@@ -24,7 +24,7 @@ my $doSM  = 1;
 my $doDQM = 0;
 
 my $PBfile;
-
+my $EPcfg = "";
 
 # hostname, default
 my $hostname = $ENV{"HOST"};
@@ -34,7 +34,6 @@ my $user     = $ENV{"USER"};
 my $BUport = 40000;
 my $SMport = 40001;
 my $EPport = 40002;
-
 
 my $BUappname = "evf::BU";
 my $RBappname = "evf::FUResourceBroker";
@@ -75,10 +74,12 @@ my $pwd = `pwd`; chomp $pwd;
 foreach $param (@ARGV) {
     if    ($hostname eq "fillme")    { $hostname=$param; }
     elsif ($param    eq "-host")     { $hostname="fillme"; }
+    elsif ($EPcfg    eq "fillme")    { $EPcfg   =$param; }
+    elsif ($param    eq "-cfgEP")    { $EPcfg   ="fillme"; }
     elsif ($PBfile   eq "fillme")    { $PBfile  =$param; }
+    elsif ($param    eq "-playback") { $doPB=1;$PBfile="fillme"; }
     elsif ($doEP     == -1)          { $doEP    =$param; }
     elsif ($param    eq "-nEP")      { $doEP    =    -1; }
-    elsif ($param    eq "-playback") { $doPB=1;$PBfile="fillme"; }
     elsif ($param    eq "-drop")     { $doEP=0;$doSM=0;$doDQM=0;}
     elsif ($param    eq "-noSM")     { $doSM=0; }
     elsif ($param    eq "-noDQM")    { $doDQM=0; }
@@ -86,7 +87,6 @@ foreach $param (@ARGV) {
 }
 
 print "hostname = $hostname\n";
-print "\$doEP=$doEP\n";
 
 if (!$doEP) { $doSM  = 0; }
 if (!$doSM) { $doDQM = 0; }
@@ -111,9 +111,12 @@ print "make directories ...\n";
 #
 print "make cfg files ...\n";
 
-open(CFG,">./cfg/fu.cfg") or die ("Can't open file: $!\n");
-print CFG makeCfgFu($doSM,$doDQM);
-close(CFG);
+if ($EPcfg eq "") {
+    $EPcfg = "$pwd/cfg/fu.cfg";
+    open(CFG,">$EPcfg") or die ("Can't open file: $!\n");
+    print CFG makeCfgFu($doSM,$doDQM);
+    close(CFG);
+}
 
 if ($doSM) {
     open(CFG,">./cfg/sm.cfg") or die ("Can't open file: $!\n");
@@ -169,27 +172,36 @@ my @apps = ($BUappname,$BUlocalid,0,
 
 if ($doSM) { push (@apps,$SMappname); push (@apps,$SMlocalid); push (@apps,0); }
 
+my @BUproperties = ("replay","boolean","false",
+		    "queueSize","unsignedInt","32",
+		    "crc","boolean","true",
+		    "eventBufferSize","unsignedInt","0x400000");
+
+    
 my @PBproperties = ("parameterSet","string","file:$pwd/cfg/playback.cfg",
 		    "hasSharedMemory","boolean","false",
 		    "collReconnSec","integer","-1");
 
 my @RBproperties = ("buClassName", "string",     $BUappname,
-		    "nbRawCells",  "unsignedInt","4",
-		    "nbRecoCells", "unsignedInt","4",
-		    "nbDqmCells",  "unsignedInt","4",
-		    "rawCellSize", "unsignedInt","0x200000",
-		    "recoCellSize","unsignedInt","0x200000",
-		    "dqmCellSize", "unsignedInt","0x200000");
+		    "doCrcCheck", "unsignedInt","1",
+		    "monSleepSec", "unsignedInt","30",
+		    "nbRawCells",  "unsignedInt","32",
+		    "nbRecoCells", "unsignedInt","8",
+		    "nbDqmCells",  "unsignedInt","8",
+		    "rawCellSize", "unsignedInt","0x400000",
+		    "recoCellSize","unsignedInt","0x800000",
+                    "dqmCellSize", "unsignedInt","0x800000");
 
-if (!$doEP) { push (@RBproperties,"doDropEvents","boolean","true"); }
+if (!$doEP) { push (@RPproperties,"doDropEvents","boolean","true"); }
 
-my @EPproperties = ("parameterSet", "string","file:$pwd/cfg/fu.cfg",
-		    "collReconnSec","integer","-1");
+my @EPproperties = ("parameterSet",  "string",      "file:$EPcfg",
+		    "runNumber",     "unsignedInt", "10",
+		    "collReconnSec", "integer",     "-1");
 
 if (!$doSM) { push (@EPproperties,"outputEnabled","boolean","false"); }
 
 my @SMproperties = ("STparameterSet",   "string",     "file:$pwd/cfg/sm.cfg",
-		    "runNumber",        "unsignedInt","0",
+		    "runNumber",        "unsignedInt","10",
 		    "fileCatalog",      "string",     "summaryCatalog.txt",
 		    "filePath",		"string",     "$SMout",
 		    "mailboxPath",      "string",     "$SMout/mbox",
@@ -208,6 +220,7 @@ print XML makeXmlComm(@apps);
 print XML makeXmlContextHeader("BU",$hostname,$BUport);
 if ($doSM) { print XML makeXmlEndpoint($hostname,50000); }
 print XML makeXmlAppHeader(1,$BUappname,$BUlocalid);
+print XML makeXmlAppProperties($BUappname,@BUproperties);
 print XML makeXmlAppTrailer(1,$BUlibpath,$BUlibname);
 if ($doPB) {
     print XML makeXmlAppHeader(1,$EPappname,$PBlocalid);
@@ -269,11 +282,14 @@ foreach  (@commands) {
     open(CMD,">./soap/$_"."RB.xml") or die ("Can't open file: $!\n");
     print CMD makeSoapCommand($hostname,$BUport,$RBlocalid,$_);
     close(CMD);
-    
-    open(CMD,">./soap/$_"."EP.xml") or die ("Can't open file: $!\n");
-    print CMD makeSoapCommand($hostname,$EPport,$EPlocalid,$_);
-    close(CMD);
-    
+
+    for ($i=0;$i<$doEP;$i++) {
+	$port = $EPport + $i;
+	open(CMD,">./soap/$_"."EP".$i.".xml") or die ("Can't open file: $!\n");
+	print CMD makeSoapCommand($hostname,$port,$EPlocalid,$_);
+	close(CMD);
+    }
+
     open(CMD,">./soap/$_"."SM.xml") or die ("Can't open file: $!\n");
     print CMD makeSoapCommand($hostname,$SMport,$SMlocalid,$_);
     close(CMD);
@@ -298,7 +314,11 @@ if ($doPB) {
 print CTL makeCtlCommand("Configure",$BUappname,"BU",$hostname,$BUport,0);
 print CTL makeCtlCommand("Configure",$RBappname,"RB",$hostname,$BUport,0);
 if ($doEP) {
-    print CTL makeCtlCommand("Configure",$EPappname,"EP",$hostname,$EPport,0);
+    for ($i=0;$i<$doEP;$i++) {
+	$port = $EPport + $i;
+	$appabrev = "EP".$i;
+	print CTL makeCtlCommand("Configure",$EPappname,$appabrev,$hostname,$port,0);
+    }
 }
 close (CTL);
 `chmod +x configure`;
@@ -312,7 +332,11 @@ if ($doSM) {
 print CTL makeCtlCommand("Enable",$BUappname,"BU",$hostname,$BUport,0);
 print CTL makeCtlCommand("Enable",$RBappname,"RB",$hostname,$BUport,0);
 if ($doEP) {
-    print CTL makeCtlCommand("Enable",$EPappname,"EP",$hostname,$EPport,0);
+    for ($i=0;$i<$doEP;$i++) {
+	$port = $EPport + $i;
+	$appabrev = "EP".$i;
+	print CTL makeCtlCommand("Enable",$EPappname,$appabrev,$hostname,$port,0);
+    }
 }
 close (CTL);
 `chmod +x enable`;
@@ -323,9 +347,14 @@ print CTL "#!/usr/bin/perl\n\n";
 print CTL makeCtlCommand("Stop",$BUappname,"BU",$hostname,$BUport,10);
 print CTL makeCtlCommand("Stop",$RBappname,"RB",$hostname,$BUport,0);
 if ($doEP) {
-    print CTL makeCtlCommand("Stop",$EPappname,"EP",$hostname,$EPport,5);
+    for ($i=0;$i<$doEP;$i++) {
+	$port = $EPport + $i;
+	$appabrev = "EP".$i;
+	print CTL makeCtlCommand("Stop",$EPappname,$appabrev,$hostname,$port,0);
+    }
 }
 if ($doSM) {
+    print CTL "`sleep 5`;\n\n";
     print CTL makeCtlCommand("Stop",$SMappname,"SM",$hostname,$SMport,0);
 }
 close (CTL);
@@ -340,9 +369,14 @@ if ($doPB) {
     print CTL makeCtlCommand("Halt",$EPappname,"PB",$hostname,$BUport,1);
 }
 if ($doEP) {
-    print CTL makeCtlCommand("Halt",$EPappname,"EP",$hostname,$EPport,1);
+    for ($i=0;$i<$doEP;$i++) {
+	$port = $EPport + $i;
+	$appabrev = "EP".$i;
+	print CTL makeCtlCommand("Halt",$EPappname,$appabrev,$hostname,$port,0);
+    }
 }
 if ($doSM) {
+    print CTL "`sleep 1`;\n\n";
     print CTL makeCtlCommand("Halt",$SMappname,"SM",$hostname,$SMport,0);
 }
 close (CTL);
@@ -372,7 +406,6 @@ for ($i=0;$i<$doEP;$i++) {
     print "\nstart xdaq.exe on $hostname:$port\n";
     `nice -n 15 xdaq.exe -h $hostname -p $port -e xml/profile.xml -c xml/evf.xml >& log/$hostname.$port.log &`;
 }
-
 
 
 ################################################################################
@@ -492,7 +525,7 @@ sub makeCfgFu
     $result = $result . "  }\n\n";
     
     $result = $result . "  service = ModuleWebRegistry {}\n\n";
-    
+
     $result = $result . "  // modules\n\n";
     $result = $result . "  module m1 = StreamThingProducer\n";
     $result = $result . "  {\n";
@@ -551,45 +584,20 @@ sub makeCfgSm
     $result = $result . "  // source\n";
     $result = $result . "  source = FragmentInput { }\n\n";
     $result = $result . "  // endpath\n";
-    $result = $result . "  endpath e1 = { out  }\n";
-    $result = $result . "  endpath e2 = { out2 }\n";
-    $result = $result . "  endpath e3 = { out3 }\n\n\n";
+    $result = $result . "  endpath e1 = { out  }\n\n\n";
     $result = $result . "  // modules\n\n";
     $result = $result . "  module out = EventStreamFileWriter\n";
     $result = $result . "  {\n";
     $result = $result . "    string          streamLabel       =     \"A\"\n";
-    $result = $result . "    int32           maxSize           = 536870912\n";
-    $result = $result . "    untracked PSet SelectEvents = { vstring SelectEvents={\"p1\"}}\n";
+    $result = $result . "    int32           maxSize           = 2048\n";
+    $result = $result . "    untracked PSet SelectEvents = { vstring SelectEvents={\"*\"}}\n";
 
-    $result = $result . "    untracked int32 max_event_size    = 7000000\n";
-    $result = $result . "    untracked int32 max_queue_depth   =       5\n";
-    $result = $result . "    untracked bool  use_compression   =   false\n";
-    $result = $result . "    untracked int32 compression_level =       1\n\n";
+#     $result = $result . "    untracked int32 max_event_size    = 7000000\n";
+#     $result = $result . "    untracked int32 max_queue_depth   =       5\n";
+#     $result = $result . "    untracked bool  use_compression   =   false\n";
+#     $result = $result . "    untracked int32 compression_level =       1\n\n";
     $result = $result . "  }\n\n";
 
-    $result = $result . "  module out2 = EventStreamFileWriter\n";
-    $result = $result . "  {\n";
-    $result = $result . "    string streamLabel =      \"B\"\n";
-    $result = $result . "    int32  maxSize     = 1073741824\n";
-    $result = $result . "    untracked PSet SelectEvents  = { vstring SelectEvents={\"p2\"}}\n";
-
-    $result = $result . "    untracked int32 max_event_size    = 7000000\n";
-    $result = $result . "    untracked int32 max_queue_depth   =       5\n";
-    $result = $result . "    untracked bool use_compression    =   false\n";
-    $result = $result . "    untracked int32 compression_level =       1\n\n";
-    $result = $result . "  }\n\n";
-
-    $result = $result . "  module out3 = EventStreamFileWriter\n";
-    $result = $result . "  {\n";
-    $result = $result . "    string streamLabel        =      \"C\"\n";
-    $result = $result . "    int32  maxSize            = 1073741824\n";
-    $result = $result . "    untracked PSet SelectEvents = { vstring SelectEvents={\"p3\"}}\n";
-
-    $result = $result . "    untracked int32 max_event_size    = 7000000\n";
-    $result = $result . "    untracked int32 max_queue_depth   =       5\n";
-    $result = $result . "    untracked bool use_compression    =   false\n";
-    $result = $result . "    untracked int32 compression_level =       1\n\n";
-    $result = $result . "  }\n\n";
     $result = $result . "}\n";
 }
 

@@ -2,7 +2,7 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: MCTrackMatcher.cc,v 1.4 2007/12/13 21:42:02 llista Exp $
+ * \version $Id: MCTrackMatcher.cc,v 1.3 2007/12/13 21:10:50 llista Exp $
  *
  */
 #include "FWCore/Framework/interface/EDProducer.h"
@@ -48,7 +48,7 @@ void MCTrackMatcher::produce(Event& evt, const EventSetup& es) {
   ESHandle<TrackAssociatorBase> assoc;  
   es.get<TrackAssociatorRecord>().get(associator_,assoc);
   const TrackAssociatorBase * associator = assoc.product();
-  Handle<View<Track> > tracks;
+  Handle<TrackCollection> tracks;
   evt.getByLabel(tracks_, tracks);
   Handle<TrackingParticleCollection> trackingParticles;
   evt.getByLabel(trackingParticles_,trackingParticles);
@@ -62,7 +62,7 @@ void MCTrackMatcher::produce(Event& evt, const EventSetup& es) {
   size_t n = tracks->size();
   vector<int> indices(n,-1);
   for (size_t i = 0; i < n; ++ i ) {
-    RefToBase<Track> track(tracks, i);
+    TrackRef track(tracks, i);
     RecoToSimCollection::const_iterator f = associations.find(track);
     if ( f != associations.end() ) {
       TrackingParticleRef tp = f->val.front().first;

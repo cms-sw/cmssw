@@ -2,10 +2,12 @@
 #include "FWCore/ParameterSet/interface/Visitor.h"
 #include "FWCore/ParameterSet/interface/ReplaceNode.h"
 #include "FWCore/ParameterSet/interface/Entry.h"
+#include "FWCore/ParameterSet/interface/VEntryNode.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ProcessDesc.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 #include <ostream>
+#include <iostream>
 
 namespace edm {
 
@@ -67,9 +69,24 @@ namespace edm {
     void PSetNode::replaceWith(const ReplaceNode * replaceNode)
     {
       PSetNode * replacement = replaceNode->value<PSetNode>();
-      assert(replacement != 0);
-
-      nodes_ = replacement->nodes_;
+      if(replacement != 0)
+      {
+        nodes_ = replacement->nodes_;
+      }
+      else
+      {
+        // maybe it's an empty {}, interpretedf as a VEntry
+        VEntryNode * entries  = replaceNode->value<VEntryNode>();
+        if(entries == 0 || entries->value()->size() != 0) 
+        {
+           throw edm::Exception(errors::Configuration,"PSetError")
+            << " Bad replace for PSet " << name()
+            << "\nIn " << traceback() << std ::endl;
+        }
+        else {
+          nodes_->clear();
+        }
+      }
       setModified(true);
     }
 

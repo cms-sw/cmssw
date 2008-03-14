@@ -1,21 +1,15 @@
-// $Id$
+// $Id: DataProcessManager.cc,v 1.8 2008/02/11 15:02:11 biery Exp $
 
 #include "EventFilter/SMProxyServer/interface/DataProcessManager.h"
 #include "EventFilter/StorageManager/interface/SMCurlInterface.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/DebugMacros.h"
-#include "FWCore/ParameterSet/interface/ProcessDesc.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "IOPool/Streamer/interface/BufferArea.h"
-#include "IOPool/Streamer/interface/Messages.h"
 #include "IOPool/Streamer/interface/OtherMessage.h"
 #include "IOPool/Streamer/interface/ConsRegMessage.h"
-#include "IOPool/Streamer/interface/DQMEventMessage.h"
-#include "IOPool/Streamer/interface/EventMessage.h"
 
 #include "boost/bind.hpp"
-#include "boost/thread/thread.hpp"
-#include "boost/shared_ptr.hpp"
 
 #include "curl/curl.h"
 #include <wait.h>
@@ -34,37 +28,100 @@ namespace
 namespace stor
 {
 
-  DataProcessManager::~DataProcessManager()
-  {
-  }
-
   DataProcessManager::DataProcessManager():
     cmd_q_(edm::getEventBuffer(voidptr_size,50)),
     alreadyRegistered_(false),
-    ser_prods_size_(0),
-    serialized_prods_(1000000),
+    alreadyRegisteredDQM_(false),
+    headerRefetchRequested_(false),
     buf_(2000),
     headerRetryInterval_(5),
-    dqmServiceManager_(new stor::DQMServiceManager())
+    dqmServiceManager_(new stor::DQMServiceManager()),
+    receivedEvents_(0),
+    receivedDQMEvents_(0),
+    samples_(100)
   {
+    // for performance measurements
+    pmeter_ = new stor::SMPerformanceMeter();
     init();
   } 
+
+  DataProcessManager::~DataProcessManager()
+  {
+    delete pmeter_;
+  }
 
   void DataProcessManager::init()
   {
     regpage_ =  "/registerConsumer";
     DQMregpage_ = "/registerDQMConsumer";
+    eventpage_ = "/geteventdata";
+    DQMeventpage_ = "/getDQMeventdata";
     headerpage_ = "/getregdata";
-    consumerName_ = "Unknown";
-    consumerPriority_ = "SMProxyServer";
-    DQMconsumerName_ = "Unknown";
-    DQMconsumerPriority_ =  "SMProxyServer";
+    consumerName_ = stor::PROXY_SERVER_NAME;
+    //consumerPriority_ = "PushMode"; // this means push mode!
+    consumerPriority_ = "Normal";
+    DQMconsumerName_ = stor::PROXY_SERVER_NAME;
+    //DQMconsumerPriority_ =  "PushMode"; // this means push mode!
+    DQMconsumerPriority_ =  "Normal";
+
+    const double MAX_REQUEST_INTERVAL = 300.0;  // seconds
+    double maxEventRequestRate = 10.0; // just a default until set in config action
+    if (maxEventRequestRate < (1.0 / MAX_REQUEST_INTERVAL)) {
+      minEventRequestInterval_ = MAX_REQUEST_INTERVAL;
+    }
+    else {
+      minEventRequestInterval_ = 1.0 / maxEventRequestRate;  // seconds
+    }
+    consumerId_ = (time(0) & 0xffffff);  // temporary - will get from ES later
+
+    //double maxEventRequestRate = pset.getUntrackedParameter<double>("maxDQMEventRequestRate",1.0);
+    maxEventRequestRate = 0.2; // TODO fixme: set this in the XML
+    if (maxEventRequestRate < (1.0 / MAX_REQUEST_INTERVAL)) {
+      minDQMEventRequestInterval_ = MAX_REQUEST_INTERVAL;
+    }
+    else {
+      minDQMEventRequestInterval_ = 1.0 / maxEventRequestRate;  // seconds
+    }
+    DQMconsumerId_ = (time(0) & 0xffffff);  // temporary - will get from ES later
 
     alreadyRegistered_ = false;
+    alreadyRegisteredDQM_ = false;
+    headerRefetchRequested_ = false;
 
     edm::ParameterSet ps = ParameterSet();
+    // TODO fixme: only request event types that are requested by connected consumers?
     consumerPSetString_ = ps.toString();
+    // TODO fixme: only request folders that connected consumers want?
     consumerTopFolderName_ = "*";
+    //consumerTopFolderName_ = "C1";
+    receivedEvents_ = 0;
+    receivedDQMEvents_ = 0;
+    pmeter_->init(samples_);
+    stats_.fullReset();
+  }
+
+  void DataProcessManager::setMaxEventRequestRate(double rate)
+  {
+    const double MAX_REQUEST_INTERVAL = 300.0;  // seconds
+    if(rate <= 0.0) return; // TODO make sure config is checked!
+    if (rate < (1.0 / MAX_REQUEST_INTERVAL)) {
+      minEventRequestInterval_ = MAX_REQUEST_INTERVAL;
+    }
+    else {
+      minEventRequestInterval_ = 1.0 / rate;  // seconds
+    }
+  }
+
+  void DataProcessManager::setMaxDQMEventRequestRate(double rate)
+  {
+    const double MAX_REQUEST_INTERVAL = 300.0;  // seconds
+    if(rate <= 0.0) return; // TODO make sure config is checked!
+    if (rate < (1.0 / MAX_REQUEST_INTERVAL)) {
+      minDQMEventRequestInterval_ = MAX_REQUEST_INTERVAL;
+    }
+    else {
+      minDQMEventRequestInterval_ = 1.0 / rate;  // seconds
+    }
   }
 
   void DataProcessManager::run(DataProcessManager* t)
@@ -100,69 +157,87 @@ namespace stor
   {
     // called with this data process manager's own thread.
     // first register with the SM for each subfarm
-    // TODO to use non-blocking command queue method to process
-    // stop commands while in registration loop: possible with tag in 15x series
-    // using hack where we do not register again after a stopAction()
-    if(!alreadyRegistered_) {
-      bool doneWithRegistration = false;
-      unsigned int count = 0; // keep of count of tries and quite after 5
-      while(!doneWithRegistration && (count < 5))
-      {
-        bool success = registerWithAllSM();
-        if(success) doneWithRegistration = true;
-        else waitBetweenRegTrys();
-        ++count;
-      }
-      if(count >= 5) edm::LogInfo("processCommands") << "Could not register with all SM Servers";
-      else edm::LogInfo("processCommands") << "Registered with all SM Event Servers";
-      // now register as DQM consumers
-      doneWithRegistration = false;
-      count = 0;
-      while(!doneWithRegistration && (count < 5))
-      {
-        bool success = registerWithAllDQMSM();
-        if(success) doneWithRegistration = true;
-        else waitBetweenRegTrys();
-        ++count;
-      }
-      if(count >= 5) edm::LogInfo("processCommands") << "Could not register with all SM DQMEvent Servers";
-      else edm::LogInfo("processCommands") << "Registered with all SM DQMEvent Servers";
-      // now get one INIT header (product registry) and save it
-      bool gotOneHeader = false;
-      count = 0;
-      while(!gotOneHeader && (count < 5))
-      {
-        bool success = getAnyHeaderFromSM();
-        if(success) gotOneHeader = true;
-        else waitBetweenRegTrys();
-        ++count;
-      }
-      if(count >= 5) edm::LogInfo("processCommands") << "Could not get product registry!";
-      else edm::LogInfo("processCommands") << "Got the product registry";
+    bool doneWithRegistration = false;
+    // TODO fixme: improve method of hardcored fixed retries
+    unsigned int count = 0; // keep of count of tries and quit after 255
+    unsigned int maxcount = 255;
+    bool doneWithDQMRegistration = false;
+    unsigned int countDQM = 0; // keep of count of tries and quit after 255
+    bool alreadysaid = false;
+    bool alreadysaidDQM = false;
 
-      alreadyRegistered_ = true;
-    } else {
-      edm::LogInfo("processCommands") << "Reusing SM registration from previous run";
-    }
+    bool gotOneHeader = false;
+    unsigned int countINIT = 0; // keep of count of tries and quit after 255
+    bool alreadysaidINIT = false;
 
-    // just wait for command messages now
-    while(1)
-    {
-      // check for any commands - empty() does not block
-      // the next line blocks until there is an entry in cmd_q
-      edm::EventBuffer::ConsumerBuffer cb(*cmd_q_);
-      MsgCode mc(cb.buffer(),cb.size());
-
-      if(mc.getCode()==MsgCode::DONE) break;
-      // right now we will ignore all other messages
-    }
-    /* --- uncomment this bit instead to process commands without block
-          // then we can stop while registering (possible in 15x series only)
     bool DoneWithJob = false;
     while(!DoneWithJob)
     {
       // work loop
-      sleep(1);
+      // if a header re-fetch has been requested, reset the header vars
+      if (headerRefetchRequested_) {
+        headerRefetchRequested_ = false;
+        gotOneHeader = false;
+        countINIT = 0;
+      }
+      // register as event consumer to all SM senders
+      if(!alreadyRegistered_) {
+        if(!doneWithRegistration)
+        {
+          waitBetweenRegTrys();
+          bool success = registerWithAllSM();
+          if(success) doneWithRegistration = true;
+          ++count;
+        }
+        // TODO fixme: decide what to do after max tries
+        if(count >= maxcount) edm::LogInfo("processCommands") << "Could not register with all SM Servers"
+           << " after " << maxcount << " tries";
+        if(doneWithRegistration && !alreadysaid) {
+          edm::LogInfo("processCommands") << "Registered with all SM Event Servers";
+          alreadysaid = true;
+        }
+        if(doneWithRegistration) alreadyRegistered_ = true;
+      }
+      // now register as DQM consumers
+      if(!alreadyRegisteredDQM_) {
+        if(!doneWithDQMRegistration)
+        {
+          waitBetweenRegTrys();
+          bool success = registerWithAllDQMSM();
+          if(success) doneWithDQMRegistration = true;
+          ++countDQM;
+        }
+        // TODO fixme: decide what to do after max tries
+        if(count >= maxcount) edm::LogInfo("processCommands") << "Could not register with all SM DQMEvent Servers"
+          << " after " << maxcount << " tries";
+        if(doneWithDQMRegistration && !alreadysaidDQM) {
+          edm::LogInfo("processCommands") << "Registered with all SM DQMEvent Servers";
+          alreadysaidDQM = true;
+        }
+        if(doneWithDQMRegistration) alreadyRegisteredDQM_ = true;
+      }
+      // now get one INIT header (product registry) and save it
+      // as long as at least one SMsender registered with
+      // TODO fixme: use the data member for got header to go across runs
+      if(!gotOneHeader)
+      {
+        waitBetweenRegTrys();
+        bool success = getAnyHeaderFromSM();
+        if(success) gotOneHeader = true;
+        ++countINIT;
+      }
+      if(countINIT >= maxcount) edm::LogInfo("processCommands") << "Could not get product registry!"
+          << " after " << maxcount << " tries";
+      if(gotOneHeader && !alreadysaidINIT) {
+        edm::LogInfo("processCommands") << "Got the product registry";
+        alreadysaidINIT = true;
+      }
+      if(alreadyRegistered_ && gotOneHeader && haveHeader()) {
+        getEventFromAllSM();
+      }
+      if(alreadyRegisteredDQM_) {
+        getDQMEventFromAllSM();
+      }
 
       // check for any commands - empty() does not block
       if(!cmd_q_->empty())
@@ -172,12 +247,12 @@ namespace stor
         MsgCode mc(cb.buffer(),cb.size());
 
         if(mc.getCode()==MsgCode::DONE) DoneWithJob = true;
-        // right now we will ignore all messages
+        // right now we will ignore all messages other than DONE
       }
 
-    }    
-    */
-    std::cout << "Received done - stopping" << std::endl;
+    } // done with process loop   
+    edm::LogInfo("processCommands") << "Received done - stopping";
+    if(dqmServiceManager_.get() != NULL) dqmServiceManager_->stop();
   }
 
   void DataProcessManager::addSM2Register(std::string smURL)
@@ -196,6 +271,10 @@ namespace stor
     if(alreadyInList) return;
     smList_.push_back(smURL);
     smRegMap_.insert(std::make_pair(smURL,0));
+    struct timeval lastRequestTime;
+    lastRequestTime.tv_sec = 0;
+    lastRequestTime.tv_usec = 0;
+    lastReqMap_.insert(std::make_pair(smURL,lastRequestTime));
   }
 
   void DataProcessManager::addDQMSM2Register(std::string DQMsmURL)
@@ -213,6 +292,10 @@ namespace stor
     if(alreadyInList) return;
     DQMsmList_.push_back(DQMsmURL);
     DQMsmRegMap_.insert(std::make_pair(DQMsmURL,0));
+    struct timeval lastRequestTime;
+    lastRequestTime.tv_sec = 0;
+    lastRequestTime.tv_usec = 0;
+    lastDQMReqMap_.insert(std::make_pair(DQMsmURL,lastRequestTime));
   }
 
   bool DataProcessManager::registerWithAllSM()
@@ -308,6 +391,9 @@ namespace stor
         ConsRegResponseView respView(&buf_[0]);
         registrationStatus = respView.getStatus();
         consumerId = respView.getConsumerId();
+        if (eventServer_.get() != NULL) {
+          eventServer_->setStreamSelectionTable(respView.getStreamSelectionTable());
+        }
       }
       catch (cms::Exception excpt) {
         const unsigned int MAX_DUMP_LENGTH = 1000;
@@ -461,11 +547,7 @@ namespace stor
     OtherMessageBuilder requestMessage(&msgBuff[0], Header::HEADER_REQUEST,
                                        sizeof(char_uint32));
     uint8 *bodyPtr = requestMessage.msgBody();
-    char_uint32 convertedId;
-    convert(smRegMap_[smURL], convertedId);
-    for (unsigned int idx = 0; idx < sizeof(char_uint32); idx++) {
-      bodyPtr[idx] = convertedId[idx];
-    }
+    convert(smRegMap_[smURL], bodyPtr);
     setopt(han, CURLOPT_POSTFIELDS, requestMessage.startAddress());
     setopt(han, CURLOPT_POSTFIELDSIZE, requestMessage.size());
     struct curl_slist *headers=NULL;
@@ -494,9 +576,98 @@ namespace stor
     // rely on http transfer string of correct length!
     int len = data.d_.length();
     FDEBUG(9) << "getHeaderFromSM received registry len = " << len << std::endl;
-    serialized_prods_.resize(len);
-    for (int i=0; i<len ; i++) serialized_prods_[i] = data.d_[i];
-    ser_prods_size_ = len;
+
+    // check that we've received a valid INIT message
+    // or a set of INIT messages.  Save everything that we receive.
+    bool addedNewInitMsg = false;
+    try
+    {
+      HeaderView hdrView(&data.d_[0]);
+      if (hdrView.code() == Header::INIT)
+      {
+        InitMsgView initView(&data.d_[0]);
+        if (initMsgCollection_->testAndAddIfUnique(initView))
+        {
+          addedNewInitMsg = true;
+        }
+      }
+      else if (hdrView.code() == Header::INIT_SET)
+      {
+        OtherMessageView otherView(&data.d_[0]);
+        bodyPtr = otherView.msgBody();
+        uint32 fullSize = otherView.bodySize();
+        while ((unsigned int) (bodyPtr-otherView.msgBody()) < fullSize)
+        {
+          InitMsgView initView(bodyPtr);
+          if (initMsgCollection_->testAndAddIfUnique(initView))
+          {
+            addedNewInitMsg = true;
+          }
+          bodyPtr += initView.size();
+        }
+      }
+      else
+      {
+        throw cms::Exception("getHeaderFromSM", "DataProcessManager");
+      }
+    }
+    catch (cms::Exception excpt)
+    {
+      const unsigned int MAX_DUMP_LENGTH = 1000;
+      edm::LogError("getHeaderFromSM") << "========================================";
+      edm::LogError("getHeaderFromSM") << "Exception decoding the getRegistryData response!";
+      if (data.d_.length() <= MAX_DUMP_LENGTH) {
+        edm::LogError("getHeaderFromSM") << "Here is the raw text that was returned:";
+        edm::LogError("getHeaderFromSM") << data.d_;
+      }
+      else {
+        edm::LogError("getHeaderFromSM") << "Here are the first " << MAX_DUMP_LENGTH <<
+          " characters of the raw text that was returned:";
+        edm::LogError("getHeaderFromSM") << (data.d_.substr(0, MAX_DUMP_LENGTH));
+      }
+      edm::LogError("getHeaderFromSM") << "========================================";
+      throw excpt;
+    }
+
+    // check if any currently connected consumers have trigger
+    // selection requests that match more than one INIT message
+    if (addedNewInitMsg && eventServer_.get() != NULL)
+    {
+      std::map< uint32, boost::shared_ptr<ConsumerPipe> > consumerTable = 
+        eventServer_->getConsumerTable();
+      std::map< uint32, boost::shared_ptr<ConsumerPipe> >::const_iterator 
+        consumerIter;
+      for (consumerIter = consumerTable.begin();
+           consumerIter != consumerTable.end();
+           consumerIter++)
+      {
+        boost::shared_ptr<ConsumerPipe> consPtr = consumerIter->second;
+        try
+        {
+          Strings consumerSelection = consPtr->getTriggerRequest();
+          initMsgCollection_->getElementForSelection(consumerSelection);
+        }
+        catch (const edm::Exception& excpt)
+        {
+          // store a warning message in the consumer pipe to be
+          // sent to the consumer at the next opportunity
+          consPtr->setRegistryWarning(excpt.what());
+        }
+        catch (const cms::Exception& excpt)
+        {
+          // store a warning message in the consumer pipe to be
+          // sent to the consumer at the next opportunity
+          std::string errorString;
+          errorString.append(excpt.what());
+          errorString.append("\n");
+          errorString.append(initMsgCollection_->getSelectionHelpString());
+          errorString.append("\n\n");
+          errorString.append("*** Please select trigger paths from one and ");
+          errorString.append("only one HLT output module. ***\n");
+          consPtr->setRegistryWarning(errorString);
+        }
+      }
+    }
 
     return true;
   }
@@ -532,17 +703,345 @@ namespace stor
 
   bool DataProcessManager::haveHeader()
   {
-    if(ser_prods_size_ > 0) return true;
+    if(initMsgCollection_->size() > 0) return true;
     return false;
   }
 
-  unsigned int DataProcessManager::headerSize()
+  void DataProcessManager::getEventFromAllSM()
   {
-    return ser_prods_size_;
+    // Try the list of SM in order of registration to get one event
+    // so long as we have the header from SM already
+    if(smList_.size() > 0 && haveHeader()) {
+      double time2wait = 0.0;
+      double sleepTime = 300.0;
+      bool gotOneEvent = false;
+      bool gotOne = false;
+      for(unsigned int i = 0; i < smList_.size(); ++i) {
+        if(smRegMap_[smList_[i] ] > 0) {   // is registered
+          gotOne = getOneEventFromSM(smList_[i], time2wait);
+          if(gotOne) {
+            gotOneEvent = true;
+          } else {
+            if(time2wait < sleepTime && time2wait >= 0.0) sleepTime = time2wait;
+          }
+        }
+      }
+      // check if we need to sleep (to enforce the allowed request rate)
+      // we don't want to ping the StorageManager app too often
+      if(!gotOneEvent) {
+        if(sleepTime > 0.0) usleep(static_cast<int>(1000000 * sleepTime));
+      }
+    }
   }
 
-  std::vector<unsigned char> DataProcessManager::getHeader()
+  double DataProcessManager::getTime2Wait(std::string smURL)
   {
-    return serialized_prods_;
+    // calculate time since last ping of this SM in seconds
+    struct timeval now;
+    struct timezone dummyTZ;
+    gettimeofday(&now, &dummyTZ);
+    double timeDiff = (double) now.tv_sec;
+    timeDiff -= (double) lastReqMap_[smURL].tv_sec;
+    timeDiff += ((double) now.tv_usec / 1000000.0);
+    timeDiff -= ((double) lastReqMap_[smURL].tv_usec / 1000000.0);
+    if (timeDiff < minEventRequestInterval_)
+    {
+      return (minEventRequestInterval_ - timeDiff);
+    }
+    else
+    {
+      return 0.0;
+    }
   }
+
+  void DataProcessManager::setTime2Now(std::string smURL)
+  {
+    struct timeval now;
+    struct timezone dummyTZ;
+    gettimeofday(&now, &dummyTZ);
+    lastReqMap_[smURL] = now;
+  }
+
+  bool DataProcessManager::getOneEventFromSM(std::string smURL, double& time2wait)
+  {
+    // See if we will exceed the request rate, if so just return false
+    // Return values: 
+    //    true = we have an event; false = no event (whatever reason)
+    // time2wait values:
+    //    0.0 = we pinged this SM this time; >0 = did not ping, wait this time
+    // if every SM returns false we sleep some time
+    time2wait = getTime2Wait(smURL);
+    if(time2wait > 0.0) {
+      return false;
+    } else {
+      setTime2Now(smURL);
+    }
+
+    // One single try to get a event from this SM URL
+    stor::ReadData data;
+
+    data.d_.clear();
+    CURL* han = curl_easy_init();
+    if(han==0)
+    {
+      edm::LogError("getOneEventFromSM") << "Could not create curl handle";
+      // this is a fatal error isn't it? Are we catching this? TODO
+      throw cms::Exception("getOneEventFromSM","DataProcessManager")
+          << "Unable to create curl handle\n";
+    }
+    // set the standard http request options
+    std::string url2use = smURL + eventpage_;
+    setopt(han,CURLOPT_URL,url2use.c_str());
+    setopt(han,CURLOPT_WRITEFUNCTION,stor::func);
+    setopt(han,CURLOPT_WRITEDATA,&data);
+
+    // send our consumer ID as part of the event request
+    // The event request body consists of the consumerId and the
+    // number of INIT messages in our collection.  The latter is used
+    // to determine if we need to re-fetch the INIT message collection.
+    char msgBuff[100];
+    OtherMessageBuilder requestMessage(&msgBuff[0], Header::EVENT_REQUEST,
+                                       2 * sizeof(char_uint32));
+    uint8 *bodyPtr = requestMessage.msgBody();
+    convert(smRegMap_[smURL], bodyPtr);
+    bodyPtr += sizeof(char_uint32);
+    convert((uint32) initMsgCollection_->size(), bodyPtr);
+    setopt(han, CURLOPT_POSTFIELDS, requestMessage.startAddress());
+    setopt(han, CURLOPT_POSTFIELDSIZE, requestMessage.size());
+    struct curl_slist *headers=NULL;
+    headers = curl_slist_append(headers, "Content-Type: application/octet-stream");
+    headers = curl_slist_append(headers, "Content-Transfer-Encoding: binary");
+    stor::setopt(han, CURLOPT_HTTPHEADER, headers);
+
+    // send the HTTP POST, read the reply, and cleanup before going on
+    CURLcode messageStatus = curl_easy_perform(han);
+    curl_slist_free_all(headers);
+    curl_easy_cleanup(han);
+
+    if(messageStatus!=0)
+    { 
+      cerr << "curl perform failed for event" << endl;
+      edm::LogError("getOneEventFromSM") << "curl perform failed for event. "
+        << "Could not get event from an already registered Storage Manager"
+        << " at " << smURL;
+      return false;
+    }
+
+    // rely on http transfer string of correct length!
+    int len = data.d_.length();
+    FDEBUG(9) << "getOneEventFromSM received len = " << len << std::endl;
+    if(data.d_.length() == 0)
+    { 
+      return false;
+    }
+
+    buf_.resize(len);
+    for (int i=0; i<len ; i++) buf_[i] = data.d_[i];
+
+    // first check if done message
+    OtherMessageView msgView(&buf_[0]);
+
+    if (msgView.code() == Header::DONE) {
+      // TODO fixme:just print message for now
+      std::cout << " SM " << smURL << " has halted" << std::endl;
+      return false;
+    } else if (msgView.code() == Header::NEW_INIT_AVAILABLE) {
+      std::cout << "Received NEW_INIT_AVAILABLE message" << std::endl;
+      headerRefetchRequested_ = true;
+      return false;
+    } else {
+      // 05-Feb-2008, KAB:  catch (and rethrow) any exceptions decoding
+      // the event data so that we can display the returned HTML and
+      // (hopefully) give the user a hint as to the cause of the problem.
+      try {
+        HeaderView hdrView(&buf_[0]);
+        if (hdrView.code() != Header::EVENT) {
+          throw cms::Exception("getOneEventFromSM", "DataProcessManager");
+        }
+        EventMsgView eventView(&buf_[0]);
+        ++receivedEvents_;
+        addMeasurement((unsigned long)data.d_.length());
+        if(eventServer_.get() != NULL) {
+          eventServer_->processEvent(eventView);
+          return true;
+        }
+      }
+      catch (cms::Exception excpt) {
+        const unsigned int MAX_DUMP_LENGTH = 1000;
+        edm::LogError("getOneEventFromSM") << "========================================";
+        edm::LogError("getOneEventFromSM") << "Exception decoding the getEventData response!";
+        if (data.d_.length() <= MAX_DUMP_LENGTH) {
+          edm::LogError("getOneEventFromSM") << "Here is the raw text that was returned:";
+          edm::LogError("getOneEventFromSM") << data.d_;
+        }
+        else {
+          edm::LogError("getOneEventFromSM") << "Here are the first " << MAX_DUMP_LENGTH <<
+            " characters of the raw text that was returned:";
+          edm::LogError("getOneEventFromSM") << (data.d_.substr(0, MAX_DUMP_LENGTH));
+        }
+        edm::LogError("getOneEventFromSM") << "========================================";
+        throw excpt;
+      }
+    }
+    return false;
+  }
+
+  void DataProcessManager::getDQMEventFromAllSM()
+  {
+    // Try the list of SM in order of registration to get one event
+    // so long as we have the header from SM already
+    if(smList_.size() > 0) {
+      double time2wait = 0.0;
+      double sleepTime = 300.0;
+      bool gotOneEvent = false;
+      bool gotOne = false;
+      for(unsigned int i = 0; i < smList_.size(); ++i) {
+        if(DQMsmRegMap_[smList_[i] ] > 0) {   // is registered
+          gotOne = getOneDQMEventFromSM(smList_[i], time2wait);
+          if(gotOne) {
+            gotOneEvent = true;
+          } else {
+            if(time2wait < sleepTime && time2wait >= 0.0) sleepTime = time2wait;
+          }
+        }
+      }
+      // check if we need to sleep (to enforce the allowed request rate)
+      // we don't want to ping the StorageManager app too often
+      // TODO fixme: Cannot sleep for DQM as this is a long time usually
+      //             and we block the event request poll if we sleep!
+      //             have to find out how to ensure the correct poll rate
+      if(!gotOneEvent) {
+        //if(sleepTime > 0.0) usleep(static_cast<int>(1000000 * sleepTime));
+      }
+    }
+  }
+
+  double DataProcessManager::getDQMTime2Wait(std::string smURL)
+  {
+    // calculate time since last ping of this SM in seconds
+    struct timeval now;
+    struct timezone dummyTZ;
+    gettimeofday(&now, &dummyTZ);
+    double timeDiff = (double) now.tv_sec;
+    timeDiff -= (double) lastDQMReqMap_[smURL].tv_sec;
+    timeDiff += ((double) now.tv_usec / 1000000.0);
+    timeDiff -= ((double) lastDQMReqMap_[smURL].tv_usec / 1000000.0);
+    if (timeDiff < minDQMEventRequestInterval_)
+    {
+      return (minDQMEventRequestInterval_ - timeDiff);
+    }
+    else
+    {
+      return 0.0;
+    }
+  }
+
+  void DataProcessManager::setDQMTime2Now(std::string smURL)
+  {
+    struct timeval now;
+    struct timezone dummyTZ;
+    gettimeofday(&now, &dummyTZ);
+    lastDQMReqMap_[smURL] = now;
+  }
+
+  bool DataProcessManager::getOneDQMEventFromSM(std::string smURL, double& time2wait)
+  {
+    // See if we will exceed the request rate, if so just return false
+    // Return values: 
+    //    true = we have an event; false = no event (whatever reason)
+    // time2wait values:
+    //    0.0 = we pinged this SM this time; >0 = did not ping, wait this time
+    // if every SM returns false we sleep some time
+    time2wait = getDQMTime2Wait(smURL);
+    if(time2wait > 0.0) {
+      return false;
+    } else {
+      setDQMTime2Now(smURL);
+    }
+
+    // One single try to get a event from this SM URL
+    stor::ReadData data;
+
+    data.d_.clear();
+    CURL* han = curl_easy_init();
+    if(han==0)
+    {
+      edm::LogError("getOneDQMEventFromSM") << "Could not create curl handle";
+      // this is a fatal error isn't it? Are we catching this? TODO
+      throw cms::Exception("getOneDQMEventFromSM","DataProcessManager")
+          << "Unable to create curl handle\n";
+    }
+    // set the standard http request options
+    std::string url2use = smURL + DQMeventpage_;
+    setopt(han,CURLOPT_URL,url2use.c_str());
+    setopt(han,CURLOPT_WRITEFUNCTION,stor::func);
+    setopt(han,CURLOPT_WRITEDATA,&data);
+
+    // send our consumer ID as part of the event request
+    char msgBuff[100];
+    OtherMessageBuilder requestMessage(&msgBuff[0], Header::DQMEVENT_REQUEST,
+                                       sizeof(char_uint32));
+    uint8 *bodyPtr = requestMessage.msgBody();
+    convert(DQMsmRegMap_[smURL], bodyPtr);
+    setopt(han, CURLOPT_POSTFIELDS, requestMessage.startAddress());
+    setopt(han, CURLOPT_POSTFIELDSIZE, requestMessage.size());
+    struct curl_slist *headers=NULL;
+    headers = curl_slist_append(headers, "Content-Type: application/octet-stream");
+    headers = curl_slist_append(headers, "Content-Transfer-Encoding: binary");
+    stor::setopt(han, CURLOPT_HTTPHEADER, headers);
+
+    // send the HTTP POST, read the reply, and cleanup before going on
+    CURLcode messageStatus = curl_easy_perform(han);
+    curl_slist_free_all(headers);
+    curl_easy_cleanup(han);
+
+    if(messageStatus!=0)
+    { 
+      cerr << "curl perform failed for DQM event" << endl;
+      edm::LogError("getOneDQMEventFromSM") << "curl perform failed for DQM event. "
+        << "Could not get DQMevent from an already registered Storage Manager"
+        << " at " << smURL;
+      return false;
+    }
+
+    // rely on http transfer string of correct length!
+    int len = data.d_.length();
+    FDEBUG(9) << "getOneDQMEventFromSM received len = " << len << std::endl;
+    if(data.d_.length() == 0)
+    { 
+      return false;
+    }
+
+    buf_.resize(len);
+    for (int i=0; i<len ; i++) buf_[i] = data.d_[i];
+
+    // first check if done message
+    OtherMessageView msgView(&buf_[0]);
+
+    if (msgView.code() == Header::DONE) {
+      // TODO fixme:just print message for now
+      std::cout << " SM " << smURL << " has halted" << std::endl;
+      return false;
+    } else {
+      DQMEventMsgView dqmEventView(&buf_[0]);
+      ++receivedDQMEvents_;
+      addMeasurement((unsigned long)data.d_.length());
+      if(dqmServiceManager_.get() != NULL) {
+          dqmServiceManager_->manageDQMEventMsg(dqmEventView);
+          return true;
+      }
+    }
+    return false;
+  }
+
+//////////// ***  Performance //////////////////////////////////////////////////////////
+  void DataProcessManager::addMeasurement(unsigned long size)
+  {
+    // for bandwidth performance measurements
+    if(pmeter_->addSample(size))
+    {
+       stats_ = pmeter_->getStats();
+    }
+}
+
 }

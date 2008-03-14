@@ -1,8 +1,8 @@
 /*
  * \file EELaserTask.cc
  *
- * $Date: 2008/01/05 09:35:49 $
- * $Revision: 1.34 $
+ * $Date: 2008/01/22 19:47:15 $
+ * $Revision: 1.37 $
  * \author G. Della Ricca
  *
 */
@@ -11,13 +11,10 @@
 #include <fstream>
 #include <vector>
 
-#include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
-#include "DQMServices/Daemon/interface/MonitorDaemon.h"
 
 #include "DataFormats/EcalRawData/interface/EcalRawDataCollections.h"
 #include "DataFormats/EcalDetId/interface/EEDetId.h"
@@ -125,7 +122,7 @@ void EELaserTask::setup(void){
 
   init_ = true;
 
-  Char_t histo[200];
+  char histo[200];
 
   if ( dbe_ ) {
     dbe_->setCurrentFolder("EcalEndcap/EELaserTask");
@@ -674,8 +671,6 @@ void EELaserTask::analyze(const Event& e, const EventSetup& c){
       int iy = id.iy();
 
       int ism = Numbers::iSM( id );
-
-      if ( ism >= 1 && ism <= 9 ) ix = 101 - ix;
 
       map<int, EcalDCCHeaderBlock>::iterator i = dccMap.find(ism);
       if ( i == dccMap.end() ) continue;

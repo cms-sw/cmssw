@@ -1,12 +1,11 @@
 /** \file
  *
- *  $Date: 2005/10/06 18:25:22 $
- *  $Revision: 1.3 $
+ *  $Date: 2007/10/08 12:45:28 $
+ *  $Revision: 1.1 $
  *  \author N. Amapane - CERN
  */
 
 #include <EventFilter/Utilities/interface/FEDTrailer.h>
-#include "interface/shared/fed_trailer.h"
 
 #define FED_MORE_TRAILERS  0x00000008
 #define FED_TCTRLID        0xA0000000

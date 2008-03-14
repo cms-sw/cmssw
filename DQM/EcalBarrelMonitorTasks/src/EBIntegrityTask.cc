@@ -1,8 +1,8 @@
 /*
  * \file EBIntegrityTask.cc
  *
- * $Date: 2008/01/05 09:34:56 $
- * $Revision: 1.58 $
+ * $Date: 2008/01/26 20:13:54 $
+ * $Revision: 1.61 $
  * \author G. Della Ricca
  *
  */
@@ -17,7 +17,6 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
-#include "DQMServices/Daemon/interface/MonitorDaemon.h"
 
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
 
@@ -89,7 +88,7 @@ void EBIntegrityTask::setup(void){
 
   init_ = true;
 
-  Char_t histo[200];
+  char histo[200];
 
   if ( dbe_ ) {
     dbe_->setCurrentFolder("EcalBarrel/EBIntegrityTask");
@@ -134,8 +133,8 @@ void EBIntegrityTask::setup(void){
     for (int i = 0; i < 36; i++) {
       sprintf(histo, "EBIT TTId %s", Numbers::sEB(i+1).c_str());
       meIntegrityTTId[i] = dbe_->book2D(histo, histo, 17, 0., 17., 4, 0., 4.);
-      meIntegrityTTId[i]->setAxisTitle("ieta", 1);
-      meIntegrityTTId[i]->setAxisTitle("iphi", 2);
+      meIntegrityTTId[i]->setAxisTitle("ieta'", 1);
+      meIntegrityTTId[i]->setAxisTitle("iphi'", 2);
       dbe_->tag(meIntegrityTTId[i], i+1);
     }
 
@@ -144,8 +143,8 @@ void EBIntegrityTask::setup(void){
     for (int i = 0; i < 36; i++) {
       sprintf(histo, "EBIT TTBlockSize %s", Numbers::sEB(i+1).c_str());
       meIntegrityTTBlockSize[i] = dbe_->book2D(histo, histo, 17, 0., 17., 4, 0., 4.);
-      meIntegrityTTBlockSize[i]->setAxisTitle("ieta", 1);
-      meIntegrityTTBlockSize[i]->setAxisTitle("iphi", 2);
+      meIntegrityTTBlockSize[i]->setAxisTitle("ieta'", 1);
+      meIntegrityTTBlockSize[i]->setAxisTitle("iphi'", 2);
       dbe_->tag(meIntegrityTTBlockSize[i], i+1);
     }
 

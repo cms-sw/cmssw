@@ -23,8 +23,6 @@
 #include "TrackingTools/TrackAssociator/interface/TrackAssociatorParameters.h"
 #include "TrackingTools/TrackAssociator/interface/TrackDetectorAssociator.h"
 
-#include "PhysicsTools/Utilities/interface/deltaR.h"
-
 using namespace edm;
 using namespace std;
 using namespace reco;
@@ -92,7 +90,7 @@ MuIsoDeposit JetExtractor::deposit( const Event & event, const EventSetup& event
   //use calo towers    
   CaloJetCollection::const_iterator jetCI = caloJetsH->begin();
   for (; jetCI != caloJetsH->end(); ++jetCI){
-    double deltar0 = reco::deltaR(muon,*jetCI);
+    double deltar0 = deltaR(muon,*jetCI);
     if (deltar0>theDR_Max) continue;
     if (jetCI->et() < theThreshold ) continue;
 
@@ -105,7 +103,7 @@ MuIsoDeposit JetExtractor::deposit( const Event & event, const EventSetup& event
     double sumEtExcluded = 0;
     for (;jetTowCI != jetConstituents.end(); ++ jetTowCI){
       bool isExcluded = false;
-      double deltaRLoc = reco::deltaR(vetoDirection, *jetCI);
+      double deltaRLoc = deltaR(vetoDirection, *jetCI);
       if (deltaRLoc < theDR_Veto){
 	isExcluded = true;
       }
@@ -137,5 +135,22 @@ MuIsoDeposit JetExtractor::deposit( const Event & event, const EventSetup& event
 
   return depJet;
 
+}
+
+double JetExtractor::PhiInRange(const double& phi) {
+      double phiout = phi;
+
+      if( phiout > 2*M_PI || phiout < -2*M_PI) {
+            phiout = fmod( phiout, 2*M_PI);
+      }
+      if (phiout <= -M_PI) phiout += 2*M_PI;
+      else if (phiout >  M_PI) phiout -= 2*M_PI;
+
+      return phiout;
+}
+
+template <class T, class U>
+double JetExtractor::deltaR(const T& t, const U& u) {
+      return sqrt(pow(t.eta()-u.eta(),2) +pow(PhiInRange(t.phi()-u.phi()),2));
 }
 

@@ -53,13 +53,14 @@ int main()
   l1_names.push_back("t18");  l1_names.push_back("t19");
   l1_names.push_back("t20");
 
-  char reltag[]="CMSSW_0_6_0_pre45";
+  char reltag[]="CMSSW_0_8_0_pre7";
   std::string processName = "HLT";
+  std::string outputModuleLabel = "HLTOutput";
 
   InitMsgBuilder init(&buf[0],buf.size(),12,
                       Version(4,(const uint8*)psetid),
-                      (const char*)reltag, processName.c_str(),
-                      hlt_names,l1_names);
+                      (const char*)reltag, processName.c_str(), outputModuleLabel.c_str(),
+                      hlt_names,hlt_names,l1_names);
 
   init.setDescLength(sizeof(test_value));
   std::copy(&test_value[0],&test_value[0]+sizeof(test_value),
@@ -104,9 +105,9 @@ int main()
   //Lets Build 10 Events ad then Write them into Streamer/Index file.
   
   for (uint32 eventId = 2000; eventId != 2000+NO_OF_EVENTS; ++eventId) {
-    EventMsgBuilder emb(&buf[0],buf.size(),45,eventId,2,
+    EventMsgBuilder emb(&buf[0],buf.size(),45,eventId,2,0xdeadbeef,
                       l1bit,hltbits,hltsize);            
-    emb.setReserved(78);
+    emb.setOrigDataSize(78);
     emb.setEventLength(sizeof(test_value_event));
     std::copy(&test_value_event[0],&test_value_event[0]+sizeof(test_value_event),
              emb.eventAddr());

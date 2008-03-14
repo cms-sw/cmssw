@@ -1,7 +1,6 @@
 #include "EventFilter/EcalRawToDigiDev/interface/DCCMemBlock.h"
 #include "EventFilter/EcalRawToDigiDev/interface/DCCEventBlock.h"
 #include "EventFilter/EcalRawToDigiDev/interface/DCCDataUnpacker.h"
-#include "EventFilter/EcalRawToDigiDev/interface/DCCEventBlock.h"
 #include <stdio.h>
 #include "EventFilter/EcalRawToDigiDev/interface/EcalElectronicsMapper.h"
 
@@ -101,10 +100,11 @@ int DCCMemBlock::unpack(uint64_t ** data, uint * dwToEnd, uint expectedTowerID){
   if(sync_){
     uint dccBx = ( event_->l1A())&TOWER_BX_MASK;
     uint dccL1 = ( event_->bx() )&TOWER_L1_MASK;
-    if( dccBx != bx_ || dccL1 != l1_ ){
+    // accounting for counters starting from 0 in ECAL FE, while from 1 in CSM
+    if( dccBx != bx_ || dccL1 != (l1_+1) ){
       edm::LogWarning("EcalRawToDigiDevMemBlock")
-        <<"\nSynchronization error for Mem block in event "<<event_->l1A()<<" with bx "<<event_->bx()
-	<<" in fed <<"<<mapper_->getActiveDCC()<<"\nMem local l1A is  "<<l1_<<" Mem local bx is "<<bx_;
+        <<"\nSynchronization error for Mem block in event with DCC L1A: "<<event_->l1A()<<" with DCC bx: "<<event_->bx()
+	<<" in fed: <<"<<mapper_->getActiveDCC()<<"\nMem local L1A is: "<<l1_<<" Mem local bx is: "<<bx_;
       //Note : add to error collection ?
       // need of a new collection
       return STOP_EVENT_UNPACKING;

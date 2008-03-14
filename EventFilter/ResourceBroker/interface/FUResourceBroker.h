@@ -200,7 +200,9 @@ namespace evf {
     xdata::UnsignedInteger32 monSleepSec_;
     xdata::UnsignedInteger32 watchSleepSec_;
     xdata::UnsignedInteger32 timeOutSec_;
-    
+    xdata::Boolean           processKillerEnabled_;
+    xdata::Boolean           useEvmBoard_;
+
     xdata::String            reasonForFailed_;
     
 

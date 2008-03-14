@@ -11,7 +11,6 @@
 #include <sstream>
 #include <ios>
 #include <assert.h>
-#include <stdio.h>
 
 using namespace std;
 using namespace pos;
@@ -64,155 +63,155 @@ PixelDetectorConfig::PixelDetectorConfig(std::string filename):
   PixelConfigBase("","",""){
 
 
-  if (filename[filename.size()-1]=='t'){
+    if (filename[filename.size()-1]=='t'){
 
-    std::ifstream in(filename.c_str());
+	std::ifstream in(filename.c_str());
 
-    if (!in.good()){
-      std::cout << "[PixelDetectorConfig::PixelDetectorConfig()]\t\tCould not open:"<<filename<<std::endl;
-      assert(0);
-    }
-    else {
-      std::cout << "[PixelDetectorConfig::PixelDetectorConfig()]\t\tOpened:"<<filename<<std::endl;
-    }
-	
-    if (in.eof()){
-      std::cout << "[PixelDetectorConfig::PixelDetectorConfig()]\t\teof before reading anything!"<<std::endl;
-      ::abort();
-    }
-
-	
-    modules_.clear();
-	
-    std::string module;
-	
-    in >> module;
-
-    if (module=="Rocs:") {
-      //new format with list of ROCs.
-      std::string rocname;
-      in >> rocname;
-      while (!in.eof()){
-	//cout << "Read rocname:"<<rocname<<endl;
-	PixelROCName roc(rocname);
-	PixelModuleName module(rocname);
-	if (!containsModule(module)) {
-	  modules_.push_back(module);
+	if (!in.good()){
+	    std::cout << "Could not open:"<<filename<<std::endl;
+	    assert(0);
 	}
-	std::string line;
-	getline(in,line);
-	//cout << "Read line:'"<<line<<"'"<<endl;
-	istringstream instring(line);
-	PixelROCStatus rocstatus;
-	std::string status;
-	while (!instring.eof()) {
-	  instring >> status;
-// 	  cout << "Read status:"<<status<<endl;
-	  if (status!=""){
-	    rocstatus.set(status);
+	else {
+	    std::cout << "Opened:"<<filename<<std::endl;
+	}
+	
+	if (in.eof()){
+	    std::cout << "eof before reading anything!"<<std::endl;
+	    ::abort();
+	}
+
+	
+	modules_.clear();
+	
+	std::string module;
+	
+	in >> module;
+
+	if (module=="Rocs:") {
+	  //new format with list of ROCs.
+	  std::string rocname;
+	  in >> rocname;
+	  while (!in.eof()){
+	    //cout << "Read rocname:"<<rocname<<endl;
+	    PixelROCName roc(rocname);
+	    PixelModuleName module(rocname);
+	    if (!containsModule(module)) {
+	      modules_.push_back(module);
+	    }
+	    std::string line;
+	    getline(in,line);
+	    //cout << "Read line:'"<<line<<"'"<<endl;
+	    istringstream instring(line);
+	    PixelROCStatus rocstatus;
+	    std::string status;
+	    while (!instring.eof()) {
+	      instring >> status;
+	      //cout << "Read status:"<<status<<endl;
+	      if (status!=""){
+		rocstatus.set(status);
+	      }
+	    }
+	    rocs_[roc]=rocstatus;
+	    in >> rocname;
 	  }
+	  return;
 	}
-	rocs_[roc]=rocstatus;
-	in >> rocname;
-      }
-      return;
+	
+
+	//std::cout << "Read module:"<<module<<std::endl;
+
+	if (in.eof()) std::cout << "eof after reading first module name"
+				<< std::endl;
+
+	while (!in.eof()){
+
+	  //std::cout << "Read module:"<<module<<std::endl;
+
+	    PixelModuleName moduleName(module);
+
+	    modules_.push_back(moduleName);
+	    
+	    in >> module;
+	    
+	    assert(modules_.size()<10000);
+	    
+	}
+	
+	in.close();
+
     }
+    else{
+
+	assert(0);
+
+/*
+	std::ifstream in(filename.c_str(),std::ios::binary);
+
+	if (!in.good()){
+	    std::cout << "Could not open:"<<filename<<std::endl;
+	    assert(0);
+	}
+	else {
+	    std::cout << "Opened:"<<filename<<std::endl;
+	}
+
+        char nchar;
+
+	in.read(&nchar,1);
 	
+       	std::string s1;
 
-    //std::cout << "Read module:"<<module<<std::endl;
+        //wrote these lines of code without ref. needs to be fixed
+	for(int i=0;i< nchar; i++){
+	    char c;
+	    in >>c;
+	    s1.push_back(c);
+	}
 
-    if (in.eof()) std::cout << "[PixelDetectorConfig::PixelDetectorConfig()]\t\teof after reading first module name"
-			    << std::endl;
+	//std::cout << "READ ROC name:"<<s1<<std::endl;
 
-    while (!in.eof()){
+	dacsettings_.clear();
 
-      //std::cout << "Read module:"<<module<<std::endl;
 
-      PixelModuleName moduleName(module);
+	while (!in.eof()){
 
-      modules_.push_back(moduleName);
+	    //std::cout << "PixelDetectorConfig::PixelDetectorConfig read s1:"<<s1<<std::endl;
+
+	    PixelROCName rocid(s1);
+
+	    //td::cout << "PixelDetectorConfig::PixelDetectorConfig read rocid:"<<rocid<<std::endl;
 	    
-      in >> module;
-	    
-      assert(modules_.size()<10000);
-	    
-    }
-	
-    in.close();
-
-  }
-  else{
-
-    assert(0);
-
-    /*
-      std::ifstream in(filename.c_str(),std::ios::binary);
-
-      if (!in.good()){
-      std::cout << "Could not open:"<<filename<<std::endl;
-      assert(0);
-      }
-      else {
-      std::cout << "Opened:"<<filename<<std::endl;
-      }
-
-      char nchar;
-
-      in.read(&nchar,1);
-	
-      std::string s1;
-
-      //wrote these lines of code without ref. needs to be fixed
-      for(int i=0;i< nchar; i++){
-      char c;
-      in >>c;
-      s1.push_back(c);
-      }
-
-      //std::cout << "READ ROC name:"<<s1<<std::endl;
-
-      dacsettings_.clear();
-
-
-      while (!in.eof()){
-
-      //std::cout << "PixelDetectorConfig::PixelDetectorConfig read s1:"<<s1<<std::endl;
-
-      PixelROCName rocid(s1);
-
-      //td::cout << "PixelDetectorConfig::PixelDetectorConfig read rocid:"<<rocid<<std::endl;
-	    
-      PixelROCDetectorConfig tmp;
+	    PixelROCDetectorConfig tmp;
       
-      tmp.readBinary(in, rocid);
+	    tmp.readBinary(in, rocid);
 
-      dacsettings_.push_back(tmp);
-
-
-      in.read(&nchar,1);
-
-      s1.clear();
-
-      if (in.eof()) continue;
-
-      //wrote these lines of code without ref. needs to be fixed
-      for(int i=0;i< nchar; i++){
-      char c;
-      in >>c;
-      s1.push_back(c);
-      }
+	    dacsettings_.push_back(tmp);
 
 
-      }
+	    in.read(&nchar,1);
 
-      in.close();
+	    s1.clear();
 
-    */
+	    if (in.eof()) continue;
 
-  }
+	    //wrote these lines of code without ref. needs to be fixed
+	    for(int i=0;i< nchar; i++){
+		char c;
+		in >>c;
+		s1.push_back(c);
+	    }
 
 
-  //std::cout << "Read dac settings for "<<dacsettings_.size()<<" ROCs"<<std::endl;
+	}
+
+	in.close();
+
+*/
+
+    }
+
+
+    //std::cout << "Read dac settings for "<<dacsettings_.size()<<" ROCs"<<std::endl;
 
 
 }
@@ -232,85 +231,67 @@ PixelModuleName PixelDetectorConfig::getModule(unsigned int i) const {
 std::set <unsigned int> PixelDetectorConfig::getFEDs(PixelNameTranslation* translation) const 
 {
 
-  std::set <unsigned int> feds;
-  assert(modules_.size()!=0);
-  std::vector<PixelModuleName>::const_iterator imodule=modules_.begin();
+	std::set <unsigned int> feds;
+	assert(modules_.size()!=0);
+	std::vector<PixelModuleName>::const_iterator imodule=modules_.begin();
 	
-  for (;imodule!=modules_.end();++imodule) {
-    const std::vector<PixelHdwAddress> *module_hdwaddress=translation->getHdwAddress(*imodule);
-    for (unsigned int i=0;i<module_hdwaddress->size();i++){
-      unsigned int fednumber=(*module_hdwaddress)[i].fednumber();
-      feds.insert(fednumber);
-    }
-  }
+	for (;imodule!=modules_.end();++imodule) {
+        	const std::vector<PixelHdwAddress> *module_hdwaddress=translation->getHdwAddress(*imodule);
+		for (unsigned int i=0;i<module_hdwaddress->size();i++){
+		  unsigned int fednumber=(*module_hdwaddress)[i].fednumber();
+		  feds.insert(fednumber);
+		}
+	}
 	
-  return feds;
+	return feds;
 }
 
 
 // Returns the FED numbers and channels within each FED that are used
 std::map <unsigned int, std::set<unsigned int> > PixelDetectorConfig::getFEDsAndChannels(PixelNameTranslation* translation) const
 {
-  //	  FED Number                channels
+//	  FED Number                channels
 
-  std::map <unsigned int, std::set<unsigned int> > fedsChannels;
-  assert(modules_.size()!=0);
-  std::vector<PixelModuleName>::const_iterator imodule=modules_.begin();
+	std::map <unsigned int, std::set<unsigned int> > fedsChannels;
+	assert(modules_.size()!=0);
+	std::vector<PixelModuleName>::const_iterator imodule=modules_.begin();
 
-  for (;imodule!=modules_.end();++imodule) {
-    const std::vector<PixelHdwAddress> *module_hdwaddress=translation->getHdwAddress(*imodule);
-    assert(module_hdwaddress!=0);
-    for (unsigned int i=0;i<module_hdwaddress->size();i++){
-      unsigned int fednumber=(*module_hdwaddress)[i].fednumber();
-      unsigned int fedchannel=(*module_hdwaddress)[i].fedchannel();
-      fedsChannels[fednumber].insert(fedchannel);
-    }
-  }
+	for (;imodule!=modules_.end();++imodule) {
+		const std::vector<PixelHdwAddress> *module_hdwaddress=translation->getHdwAddress(*imodule);
+		assert(module_hdwaddress!=0);
+		for (unsigned int i=0;i<module_hdwaddress->size();i++){
+		  unsigned int fednumber=(*module_hdwaddress)[i].fednumber();
+		  unsigned int fedchannel=(*module_hdwaddress)[i].fedchannel();
+		  fedsChannels[fednumber].insert(fedchannel);
+		}
+	}
 
-  return fedsChannels;
+	return fedsChannels;
 }
  
 bool PixelDetectorConfig::containsModule(const PixelModuleName& moduleToFind) const
 {
-  for ( std::vector<PixelModuleName>::const_iterator modules_itr = modules_.begin(); modules_itr != modules_.end(); modules_itr++ )
-    {
-      if ( *modules_itr == moduleToFind ) return true;
-    }
-  return false;
+	for ( std::vector<PixelModuleName>::const_iterator modules_itr = modules_.begin(); modules_itr != modules_.end(); modules_itr++ )
+	{
+		if ( *modules_itr == moduleToFind ) return true;
+	}
+	return false;
 }
 
-// modified by MR on 11-01-2008 15:06:51
+
 void PixelDetectorConfig::writeASCII(std::string dir) const {
 
   if (dir!="") dir+="/";
   std::string filename=dir+"detectconfig.dat";
 
-  std::ofstream out(filename.c_str(), std::ios_base::out) ;
-  if(!out) {
-    std::cout << "[PixelDetectorConfig::writeASCII()] Could not open file " << filename << " for write" << std::endl ;
-    exit(1);
+  std::ofstream out(filename.c_str());
+
+  std::vector<PixelModuleName>::const_iterator imodule=modules_.begin();
+
+  for (;imodule!=modules_.end();++imodule) {
+    out << *imodule << std::endl;
   }
 
-
-  if(rocs_.size() == 0) 
-    {
-      std::vector<PixelModuleName>::const_iterator imodule=modules_.begin();
-      
-      for (;imodule!=modules_.end();++imodule) 
-	{
-	  out << *imodule << std::endl;
-	}
-    } 
-  else 
-    {
-      out << "Rocs:" << endl ;
-      std::map<PixelROCName, PixelROCStatus>::const_iterator irocs = rocs_.begin();
-      for(; irocs != rocs_.end() ; irocs++)
-	{
-	  out << (irocs->first).rocname() << " " << (irocs->second).statusName() << endl ;
-	}
-    }
-  
   out.close();
 
 }

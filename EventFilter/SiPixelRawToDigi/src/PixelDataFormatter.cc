@@ -1,11 +1,7 @@
 #include "EventFilter/SiPixelRawToDigi/interface/PixelDataFormatter.h"
-#include "EventFilter/SiPixelRawToDigi/interface/ErrorChecker.h"
 
-#include "CondFormats/SiPixelObjects/interface/SiPixelFedCablingMap.h"
 #include "CondFormats/SiPixelObjects/interface/SiPixelFrameConverter.h"
 
-#include "DataFormats/SiPixelDigi/interface/PixelDigi.h"
-#include "DataFormats/SiPixelRawData/interface/SiPixelRawDataError.h"
 #include "DataFormats/FEDRawData/interface/FEDRawData.h"
 #include "DataFormats/FEDRawData/interface/FEDHeader.h"
 #include "DataFormats/FEDRawData/interface/FEDTrailer.h"

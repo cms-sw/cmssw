@@ -17,7 +17,7 @@
 
 HLTPixelIsolTrackFilter::HLTPixelIsolTrackFilter(const edm::ParameterSet& iConfig)
 {
-  candTag_ = iConfig.getUntrackedParameter<edm::InputTag> ("candTag");
+  candTag_ = iConfig.getParameter<edm::InputTag> ("candTag");
   minpttrack = iConfig.getParameter<double> ("MinPtTrack");
   maxptnearby  = iConfig.getParameter<double> ("MaxPtNearby");
   maxetatrack  = iConfig.getParameter<double> ("MaxEtaTrack");

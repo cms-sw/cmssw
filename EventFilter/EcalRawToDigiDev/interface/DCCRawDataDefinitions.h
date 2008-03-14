@@ -2,12 +2,6 @@
 #define DCCRAWDATADEFINITIONS_
 
 
-
-
-
-
-
-
 enum globalFieds{
 
   BLOCK_UNPACKED = 0, 
@@ -44,17 +38,20 @@ enum globalFieds{
   TCC_EB_NUMBTTS       = 68,
   TCCID_SMID_SHIFT_EB  = 27,
   
-  //ARRAY SIZES
   NUMB_SM             = 54,
   NUMB_FE             = 68,
   NUMB_TCC            = 108,
   NUMB_XTAL           = 5,
-  NUMB_STRIP          = 5
-  
-  
-    
-  
-  
+  NUMB_STRIP          = 5,
+
+  NUMB_SM_EE_MIN_MIN  = 1,
+  NUMB_SM_EE_MIN_MAX  = 9,
+  NUMB_SM_EB_MIN_MIN  = 10,
+  NUMB_SM_EB_MIN_MAX  = 27,
+  NUMB_SM_EB_PLU_MIN  = 28,
+  NUMB_SM_EB_PLU_MAX  = 45,
+  NUMB_SM_EE_PLU_MIN  = 46,
+  NUMB_SM_EE_PLU_MAX  = 54
 
 };
 
@@ -106,19 +103,29 @@ enum headerFields{
 };		
 
 
+/* 1st TTC Command */
+/*                 Half :       1 bits: 7                 1st Half (0), 2nd Half (1) */
+/*                 TE           1 bit : 6                 Test Enable Identifier */
+/*                 Type         2 bits: 5-4               Laser (00), LED (01) Test pulse (10), Pedestal (11) */
+/*                 Color        2 bits: 3-2               Blue (00), Red(01), Infrared (10), Green (11) */
+
+/* 2nd TCC Command */
+/*                 DCC #:     6 bits: 5-0.              DCC 1 to 54. Zero means all DCC */
+
+
 enum detailedTriggerTypeFields{ 
 
    H_DCCID_B            = 0,
    H_DCCID_MASK         = 0x3F,
 
-   H_HALF_B             = 6,
-   H_HALF_MASK          = 0x3,
+   H_WAVEL_B            = 6,
+   H_WAVEL_MASK         = 0x3,
 
    H_TR_TYPE_B          = 8,
    H_TR_TYPE_MASK       = 0x7,
 
-   H_WAVEL_B            = 11,
-   H_WAVEL_MASK         = 0x7
+   H_HALF_B             = 11,
+   H_HALF_MASK          = 0x1
 
 };
 
@@ -168,7 +175,6 @@ enum tccFields{
    TCC_TS_B            = 55
 
 };
-
 
 
 enum srpFields{

@@ -83,16 +83,15 @@ void popcon::EcalH2PedestalsHandler::getNewObjects()
 	// here we retrieve all the runs after the last from online DB 
 
 	cout << "Retrieving run list from ONLINE DB ... " << endl;
-	
-	cout << "Making connection..." << flush;
-	econn = new EcalCondDBInterface( m_sid, m_user, m_pass );
-	cout << "Done." << endl;
-
-	if (!econn)
-	  {
-	    cout << " connection parameters " <<m_sid <<"/"<<m_user<<"/"<<m_pass<<endl;
-	    throw cms::Exception("OMDS not available");
-	  } 
+	try {
+	  cout << "Making connection..." << flush;
+	  econn = new EcalCondDBInterface( m_sid, m_user, m_pass );
+	  cout << "Done." << endl;
+	} catch (runtime_error &e) {
+	  cout << " connection parameters " <<m_sid <<"/"<<m_user<<"/"<<m_pass<<endl;
+	  cerr << e.what() << endl;
+	  throw cms::Exception("OMDS not available");
+	} 
 
 	// these are the online conditions DB classes 
 	RunList my_runlist ;

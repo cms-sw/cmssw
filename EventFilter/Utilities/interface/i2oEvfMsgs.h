@@ -14,16 +14,17 @@
    define communication protocoll between FUResourceBroker ('FU') and
    StorageManager ('SM').
    
-   $Id: i2oStorageManagerMsg.h,v 1.11 2007/02/14 00:58:58 hcheung Exp $
+   $Id: i2oEvfMsgs.h,v 1.1 2007/03/21 21:05:03 schiefer Exp $
 */
 
 // I2O function codes: *_SM_* / *_FU_* according to who *receives* the message
 #define I2O_SM_PREAMBLE     0x001a
 #define I2O_SM_DATA         0x001b
-#define I2O_SM_OTHER        0x001c
-#define I2O_SM_DQM          0x001d
-#define I2O_FU_DATA_DISCARD 0x001e
-#define I2O_FU_DQM_DISCARD  0x001f
+#define I2O_SM_ERROR        0x001c
+#define I2O_SM_OTHER        0x001d
+#define I2O_SM_DQM          0x001e
+#define I2O_FU_DATA_DISCARD 0x001f
+#define I2O_FU_DQM_DISCARD  0x0020
 
 //
 // RunNumber_t and EventNumber_t are unsigned long variables
@@ -97,6 +98,7 @@ typedef struct _I2O_SM_DATA_MESSAGE_FRAME : _I2O_SM_MULTIPART_MESSAGE_FRAME
   U32   fuID;
   U32   runID;
   U32   eventID;
+  U32   outModID;
   char* dataPtr() const {
     return (char*)this+sizeof(_I2O_SM_DATA_MESSAGE_FRAME);
   }

@@ -7,8 +7,8 @@
  *      within cylinders
  *
  *
- *  $Date: 2007/12/16 07:34:34 $
- *  $Revision: 1.9 $
+ *  $Date: 2007/08/16 20:00:23 $
+ *  $Revision: 1.7 $
  *  \author Chang Liu  -  Purdue University
  */
 
@@ -36,8 +36,7 @@ CosmicMuonSmoother::CosmicMuonSmoother(const ParameterSet& par, const MuonServic
   theUpdator     = new KFUpdator;
   theUtilities   = new CosmicMuonUtilities; 
   theEstimator   = new Chi2MeasurementEstimator(200.0);
-  thePropagatorAlongName = par.getParameter<string>("PropagatorAlong");
-  thePropagatorOppositeName = par.getParameter<string>("PropagatorOpposite");
+  thePropagatorName = par.getParameter<string>("Propagator");
 
   category_ = "Muon|RecoMuon|CosmicMuon|CosmicMuonSmoother";
 
@@ -158,35 +157,18 @@ vector<Trajectory> CosmicMuonSmoother::fit(const TrajectorySeed& seed,
       LogTrace(category_)<< "Error: invalid hit.";
       continue;
     }
-   if (currTsos.isValid())  {
-     LogTrace(category_)<<"current pos "<<currTsos.globalPosition()
-                       <<"mom "<<currTsos.globalMomentum();
-    } else {
-      LogTrace(category_)<<"current state invalid";
-    }
-
-    predTsos = propagatorAlong()->propagate(currTsos, (**ihit).det()->surface());
-    LogTrace(category_)<<"predicted state propagate directly "<<predTsos.isValid();
+    predTsos = propagator()->propagate(currTsos, (**ihit).det()->surface());
 
     if ( !predTsos.isValid() ) {
-      LogTrace(category_)<<"predicted state using stepPropa"<<(*ihit)->globalPosition();
-      predTsos = theUtilities->stepPropagate(currTsos, (*ihit), *propagatorAlong());
+       predTsos = theUtilities->stepPropagate(currTsos, (*ihit), *propagator());
     }
-   if (predTsos.isValid())  {
-      LogTrace(category_)<<"predicted pos "<<predTsos.globalPosition()
-                       <<"mom "<<predTsos.globalMomentum();
-    } else {
-      LogTrace(category_)<<"predicted state invalid";
-    }
-
     if ( !predTsos.isValid() ) {
-      LogTrace(category_)<< "Error: predTsos is still invalid forward fit.";
       //return vector<Trajectory>();
     } else if ( (**ihit).isValid() ) {
       // update
       TransientTrackingRecHit::RecHitPointer preciseHit = (**ihit).clone(predTsos);
 
-      if ( !preciseHit->isValid() ) {
+      if (preciseHit->isValid() == false) {
         currTsos = predTsos;
         myTraj.push(TrajectoryMeasurement(predTsos, *ihit));
       } else {
@@ -200,15 +182,6 @@ vector<Trajectory> CosmicMuonSmoother::fit(const TrajectorySeed& seed,
     }
 
   }
-
-  std::vector<TrajectoryMeasurement> mytms = myTraj.measurements();
-  LogTrace(category_)<<"fit result "<<mytms.size();
-  for (std::vector<TrajectoryMeasurement>::const_iterator itm = mytms.begin();
-       itm != mytms.end(); ++itm ) {
-       LogTrace(category_)<<"updated pos "<<itm->updatedState().globalPosition()
-                       <<"mom "<<itm->updatedState().globalMomentum();
-       }
-
 
   return vector<Trajectory>(1, myTraj);
 
@@ -286,29 +259,13 @@ vector<Trajectory> CosmicMuonSmoother::smooth(const Trajectory& t) const {
   for ( vector<TrajectoryMeasurement>::reverse_iterator itm = avtm.rbegin() + 1; 
         itm != avtm.rend() - 1; ++itm ) {
 
-   if (currTsos.isValid())  {
-     LogTrace(category_)<<"current pos "<<currTsos.globalPosition()
-                       <<"mom "<<currTsos.globalMomentum();
-    } else {
-      LogTrace(category_)<<"current state invalid";
-    }
-
-    predTsos = propagatorOpposite()->propagate(currTsos,(*itm).recHit()->det()->surface());
+    predTsos = propagator()->propagate(currTsos,(*itm).recHit()->det()->surface());
 
     if ( !predTsos.isValid() ) {
-      LogTrace(category_)<<"predicted state using stepPropa"<<(*itm).recHit()->globalPosition();
-      predTsos = theUtilities->stepPropagate(currTsos, (*itm).recHit(), *propagatorOpposite());
-    }
-
-   if (predTsos.isValid())  {
-      LogTrace(category_)<<"predicted pos "<<predTsos.globalPosition()
-                       <<"mom "<<predTsos.globalMomentum();
-    } else {
-      LogTrace(category_)<<"predicted state invalid";
+       predTsos = theUtilities->stepPropagate(currTsos, (*itm).recHit(), *propagator());
     }
 
     if ( !predTsos.isValid() ) {
-      LogTrace(category_)<< "Error: predTsos is still invalid backward smooth.";
       //return vector<Trajectory>();
     } else if ( (*itm).recHit()->isValid() ) {
       //update
@@ -351,7 +308,7 @@ vector<Trajectory> CosmicMuonSmoother::smooth(const Trajectory& t) const {
   }
 
   // last smoothed TrajectoryMeasurement is last filtered
-  predTsos = propagatorOpposite()->propagate(currTsos, avtm.front().recHit()->det()->surface());
+  predTsos = propagator()->propagate(currTsos, avtm.front().recHit()->det()->surface());
   
   if ( !predTsos.isValid() ){
     LogTrace(category_)<< "Error: last predict TSOS failed, use original one. ";

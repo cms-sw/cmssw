@@ -8,9 +8,9 @@
 #include <cmath>
 
 namespace reco {
-
-  inline double deltaPhi (double phi1, double phi2) { 
-    double result = phi1 - phi2;
+  template <class T> 
+  T deltaPhi (T phi1, T phi2) { 
+    T result = phi1 - phi2;
     while (result > M_PI) result -= 2*M_PI;
     while (result <= -M_PI) result += 2*M_PI;
     return result;

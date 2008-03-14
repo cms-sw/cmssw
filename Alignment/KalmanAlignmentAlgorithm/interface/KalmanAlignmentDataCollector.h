@@ -28,8 +28,6 @@ public:
   static void fillGraph( std::string graph_name, float x_data, float y_data );
   static void fillGraph( std::string graph_name, int graph_number, float x_data, float y_data );
 
-  static void fillNtuple( std::string ntuple_name, float data );
-
   static void write( void );
   static void write( std::string file_name, std::string mode = "RECREATE" );
 
@@ -44,8 +42,6 @@ private:
   
   void fillTGraph( std::string graph_name, float x_data, float y_data );
   void fillTGraph( std::string graph_name, int graph_number, float x_data, float y_data );
-
-  void fillTNtuple( std::string ntuple_name, float data );
   
   void writeToTFile( void );
   void writeToTFile( std::string file_name, std::string mode = "RECREATE" );
@@ -61,7 +57,7 @@ private:
   std::map< std::string, std::vector< float > > theHistoData;
   std::map< std::string, std::vector< float > > theXGraphData;
   std::map< std::string, std::vector< float > > theYGraphData;
-  std::map< std::string, std::vector< float > > theNtupleData;
+
 };
 
 

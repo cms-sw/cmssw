@@ -3,8 +3,8 @@
 /*
  * \file HcalMonitorModule.cc
  * 
- * $Date: 2007/12/31 18:43:08 $
- * $Revision: 1.48 $
+ * $Date: 2007/11/21 20:45:14 $
+ * $Revision: 1.44 $
  * \author W Fisher
  *
 */
@@ -15,7 +15,6 @@ HcalMonitorModule::HcalMonitorModule(const edm::ParameterSet& ps){
   cout << " *** Hcal Monitor Module ***" << endl;
   cout << endl;
   
-
   irun_=0; ilumisec_=0; ievent_=0; itime_=0;
   actonLS_=false;
   meStatus_=0;  meRunType_=0;
@@ -158,7 +157,6 @@ HcalMonitorModule::~HcalMonitorModule(){
   if(rhMon_!=NULL) { delete rhMon_; rhMon_=NULL; }
   if(tempAnalysis_!=NULL) { delete tempAnalysis_; tempAnalysis_=NULL; }
   delete evtSel_; evtSel_ = NULL;
-
 
 }
 
@@ -307,16 +305,10 @@ void HcalMonitorModule::analyze(const edm::Event& e, const edm::EventSetup& even
 
   // try to get raw data and unpacker report
   edm::Handle<FEDRawDataCollection> rawraw;  
-  e.getByType(rawraw);
-  if (!rawraw.isValid()) {
-    rawOK_=false;
-  }
+  try{e.getByType(rawraw);} catch(exception& ex){ rawOK_=false;};           
   edm::Handle<HcalUnpackerReport> report;  
-
-  e.getByType(report);
-  if (!report.isValid()) {
-    rawOK_=false;
-  } else {
+  try{
+    e.getByType(report);
     if(!fedsListed_){
       const std::vector<int> feds =  (*report).getFedsUnpacked();    
       for(unsigned int f=0; f<feds.size(); f++){
@@ -324,52 +316,27 @@ void HcalMonitorModule::analyze(const edm::Event& e, const edm::EventSetup& even
       }
       fedsListed_ = true;
     }
-  }
+  } catch(exception& ex){ rawOK_=false;};
   
   // try to get digis
   edm::Handle<HBHEDigiCollection> hbhe_digi;
   edm::Handle<HODigiCollection> ho_digi;
   edm::Handle<HFDigiCollection> hf_digi;
   edm::Handle<HcalTrigPrimDigiCollection> tp_digi;
-  e.getByLabel(inputLabelDigi_,hbhe_digi);
-  if (!hbhe_digi.isValid()) {
-    digiOK_=false;
-  }
+  try{e.getByLabel(inputLabelDigi_,hbhe_digi);} catch(exception& ex){digiOK_=false;};
+  try{e.getByLabel(inputLabelDigi_,hf_digi);} catch(exception& ex){digiOK_=false;};
+  try{e.getByLabel(inputLabelDigi_,ho_digi);} catch(exception& ex){digiOK_=false;};
+  try{e.getByLabel(inputLabelDigi_,tp_digi);} catch(exception& ex){tpdOK_=false;};
 
-  e.getByLabel(inputLabelDigi_,hf_digi);
-  if (!hf_digi.isValid()) {
-    digiOK_=false;
-  }
-
-  e.getByLabel(inputLabelDigi_,ho_digi);
-  if (!ho_digi.isValid()) {
-    digiOK_=false;
-  }
-
-  e.getByLabel(inputLabelDigi_,tp_digi);
-  if (!tp_digi.isValid()) {
-    tpdOK_=false;
-  }
 
 
   // try to get rechits
   edm::Handle<HBHERecHitCollection> hb_hits;
   edm::Handle<HORecHitCollection> ho_hits;
   edm::Handle<HFRecHitCollection> hf_hits;
-
-  e.getByLabel(inputLabelRecHitHBHE_,hb_hits);
-  if (!hb_hits.isValid()) {
-    rechitOK_ = false;
-  }
-
-  e.getByLabel(inputLabelRecHitHO_,ho_hits);
-  if (!ho_hits.isValid()) {
-    rechitOK_ = false;
-  }
-  e.getByLabel(inputLabelRecHitHF_,hf_hits);
-  if (!hf_hits.isValid()) {
-    rechitOK_ = false;
-  }
+  try{e.getByLabel(inputLabelRecHitHBHE_,hb_hits);} catch(exception& ex){rechitOK_ = false;}; 
+  try{e.getByLabel(inputLabelRecHitHO_,ho_hits);} catch(exception& ex){rechitOK_ = false;}; 
+  try{e.getByLabel(inputLabelRecHitHF_,hf_hits);} catch(exception& ex){rechitOK_ = false;}; 
 
 
   /// Run the configured tasks, protect against missing products

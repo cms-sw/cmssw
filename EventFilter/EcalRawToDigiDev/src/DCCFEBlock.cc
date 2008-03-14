@@ -1,7 +1,6 @@
 #include "EventFilter/EcalRawToDigiDev/interface/DCCFEBlock.h"
 #include "EventFilter/EcalRawToDigiDev/interface/DCCEventBlock.h"
 #include "EventFilter/EcalRawToDigiDev/interface/DCCDataUnpacker.h"
-#include "EventFilter/EcalRawToDigiDev/interface/DCCEventBlock.h"
 #include <stdio.h>
 #include "EventFilter/EcalRawToDigiDev/interface/EcalElectronicsMapper.h"
 
@@ -38,7 +37,8 @@ int DCCFEBlock::unpack(uint64_t ** data, uint * dwToEnd, bool zs, uint expectedT
   if( (*dwToEnd_)<1){
    edm::LogWarning("EcalRawToDigiDevTowerSize")
       <<"\n Unable to unpack Tower block for event "<<event_->l1A()<<" in fed "<<mapper_->getActiveDCC()
-      <<"\n The end of event was reached !";
+      <<"\n The end of event was reached "
+      <<"\n(or, previously, pointers intended to navigate outside of FedBlock (based on block sizes), and were stopped by setting dwToEnd_ to zero)"    ;
     //TODO : add this to a dcc event size collection error?
     return STOP_EVENT_UNPACKING;
   }
@@ -61,17 +61,38 @@ int DCCFEBlock::unpack(uint64_t ** data, uint * dwToEnd, bool zs, uint expectedT
   //display(cout);
 
 
+  uint activeDCC = mapper_->getActiveSM();
+  
   //check expected trigger tower id
-  if( expTowerID_ != towerId_){
+  if( expTowerID_ != towerId_ &&
+      expTowerID_ <= mapper_->getNumChannelsInDcc(activeDCC) ){
     
     edm::LogWarning("EcalRawToDigiDevTowerId")
       <<"\n For event "<<event_->l1A()<<" and fed "<<mapper_->getActiveDCC()
       <<"\n Expected trigger tower is "<<expTowerID_<<" while "<<towerId_<<" was found "
       <<"\n => Skipping to next tower block...";
 
-    EcalElectronicsId  *  eleTp = mapper_->getTTEleIdPointer(mapper_->getActiveSM()+TCCID_SMID_SHIFT_EB,expTowerID_);
-    (*invalidTTIds_)->push_back(*eleTp);
-
+    // in case of EB, FE is one-to-one with TT
+    // use those EcalElectronicsId for simplicity
+    if(NUMB_SM_EB_MIN_MIN<=activeDCC && activeDCC<=NUMB_SM_EB_PLU_MAX){
+      EcalElectronicsId  *  eleTp = mapper_->getTTEleIdPointer(mapper_->getActiveSM()+TCCID_SMID_SHIFT_EB,expTowerID_);
+      (*invalidTTIds_)->push_back(*eleTp);
+    }// EE
+    else if ( (NUMB_SM_EE_MIN_MIN <=activeDCC && activeDCC<=NUMB_SM_EE_MIN_MAX) ||
+	      (NUMB_SM_EE_PLU_MIN <=activeDCC && activeDCC<=NUMB_SM_EE_PLU_MAX) )
+      {
+	EcalElectronicsId * scEleId = mapper_->getSCElectronicsPointer(activeDCC, expTowerID_);
+	(*invalidTTIds_)->push_back(*scEleId);
+      }
+    else
+      {
+	edm::LogWarning("EcalRawToDigiDevChId")
+	  <<"\n For event "<<event_->l1A()<<" there's fed: "<< mapper_->getActiveDCC()
+	  <<" activeDcc: "<<mapper_->getActiveSM()
+	  <<" but that activeDcc is not valid.";
+      }
+    
+    
     updateEventPointers();
     return SKIP_BLOCK_UNPACKING;     
   }
@@ -83,7 +104,8 @@ int DCCFEBlock::unpack(uint64_t ** data, uint * dwToEnd, bool zs, uint expectedT
 
     uint dccBx = (event_->bx())&TCC_BX_MASK;
     uint dccL1 = (event_->l1A())&TCC_L1_MASK; 
-    if( dccBx != bx_ || dccL1 != l1_ ){
+    // accounting for counters starting from 0 in ECAL FE, while from 1 in CSM
+    if( dccBx != bx_ || dccL1 != (l1_+1) ){
       edm::LogWarning("EcalRawToDigiDevNumTowerBlocks")
 	<<"\n Synchronization error for Tower Block "<<towerId_<<" in event "<<event_->l1A()
 	<<" with bx "<<event_->bx()<<" in fed "<<mapper_->getActiveDCC()
@@ -165,7 +187,9 @@ int DCCFEBlock::unpack(uint64_t ** data, uint * dwToEnd, bool zs, uint expectedT
   //point to xtal data
   data_++;
   
-  for(uint numbXtal=1; numbXtal <= numbOfXtalBlocks; numbXtal++){
+  int statusUnpackXtal =0;
+
+  for(uint numbXtal=1; numbXtal <= numbOfXtalBlocks && statusUnpackXtal!= SKIP_BLOCK_UNPACKING; numbXtal++){
 
     // If zs is disabled we know the expected strip and xtal ids
     // Note : this is valid for the EB how about the EE ? -> retieve expected index from mapper
@@ -175,9 +199,15 @@ int DCCFEBlock::unpack(uint64_t ** data, uint * dwToEnd, bool zs, uint expectedT
       expXtalID   =  numbXtal - (expStripID-1)*5;
     }
     
-    unpackXtalData(expStripID,expXtalID);
-   
-  }
+    statusUnpackXtal = unpackXtalData(expStripID,expXtalID);
+    if (statusUnpackXtal== SKIP_BLOCK_UNPACKING)
+      {
+	edm::LogWarning("EcalRawToDigiDev")
+	  <<"\n For event "<<event_->l1A()<<" and fed "<<mapper_->getActiveDCC()
+	  <<"\n The tower "<<towerId_<<" won't be unpacked further";
+      }
+
+  }// end loop over xtals of given FE 
 
   updateEventPointers();
   return BLOCK_UNPACKED;		

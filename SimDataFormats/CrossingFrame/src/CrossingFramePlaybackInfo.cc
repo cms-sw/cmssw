@@ -1,10 +1,13 @@
 # include "SimDataFormats/CrossingFrame/interface/CrossingFramePlaybackInfo.h"
 
-CrossingFramePlaybackInfo::CrossingFramePlaybackInfo(int minBunch, int maxBunch):minBunch_(minBunch)  
+CrossingFramePlaybackInfo::CrossingFramePlaybackInfo(int minBunch, int maxBunch, unsigned int maxNbSources):maxNbSources_(maxNbSources),minBunch_(minBunch)
 {
   //initialise data structures
   nBcrossings_=maxBunch-minBunch+1;
-  for (unsigned int i=0;i<maxNbSources;++i) {
+  pileupFileNr_.resize(maxNbSources_);
+  idFirstPileup_.resize(maxNbSources_);
+  nrEvents_.resize(maxNbSources_);
+  for (unsigned int i=0;i<maxNbSources_;++i) {
     pileupFileNr_[i].resize(nBcrossings_);
     idFirstPileup_[i].resize(nBcrossings_);
     nrEvents_[i].resize(nBcrossings_);

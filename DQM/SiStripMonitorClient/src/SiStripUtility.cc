@@ -68,7 +68,7 @@ void SiStripUtility::split(const string& str, vector<string>& tokens, const stri
 //
 // -- Get Color code from Status
 //
-void SiStripUtility::getMEStatusColor(int status, int& rval, int&gval, int& bval) {
+void SiStripUtility::getStatusColor(int status, int& rval, int&gval, int& bval) {
   if (status == dqm::qstatus::STATUS_OK) { 
     rval = 0;   gval = 255;   bval = 0; 
   } else if (status == dqm::qstatus::WARNING) { 
@@ -84,7 +84,7 @@ void SiStripUtility::getMEStatusColor(int status, int& rval, int&gval, int& bval
 //
 // -- Get Color code from Status
 //
-void SiStripUtility::getMEStatusColor(int status, int& icol, string& tag) {
+void SiStripUtility::getStatusColor(int status, int& icol, string& tag) {
   if (status == dqm::qstatus::STATUS_OK) { 
     tag = "Ok";
     icol = 3;
@@ -105,7 +105,7 @@ void SiStripUtility::getMEStatusColor(int status, int& icol, string& tag) {
 //
 // -- Get Status of Monitor Element
 //
-int SiStripUtility::getMEStatus(MonitorElement* me) {
+int SiStripUtility::getStatus(MonitorElement* me) {
   int status = 0; 
   if (me->getQReports().size() == 0) {
     status = 0;

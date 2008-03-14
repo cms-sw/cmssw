@@ -8,7 +8,7 @@
  *  The t0 of wires in odd layers are corrected for the relative difference between 
  *  odd and even layers 
  *
- *  $Date: 2007/07/26 07:31:24 $
+ *  $Date: 2006/06/08 15:41:58 $
  *  $Revision: 1.2 $
  *  \author S. Bolognesi - INFN Torino
  */
@@ -66,12 +66,7 @@ private:
   unsigned int nevents;
   //Number of events to be used for the t0 per layer histos
   unsigned int eventsForLayerT0;
-  //Number of events to be used for the t0 reference per wire
-  unsigned int eventsForWireT0;
-
-  //Acceptance of t0 w.r.t. reference peak
-  double tpPeakWidth;
-
+ 
   //The wheels,sector to be calibrated (default All)
   std::string theCalibWheel;
   int selWheel;
@@ -92,10 +87,6 @@ private:
   std::map<DTWireId,double> theRelativeT0PerWire;
   std::map<DTWireId,double> theSigmaT0PerWire;
   std::map<DTWireId,int> nDigiPerWire;
-  std::map<DTWireId,int> nDigiPerWire_ref;
-  std::map<DTWireId,double> mK;
-  std::map<DTWireId,double> mK_ref;
-  std::map<DTWireId,double> qK;
   //Map with histo per wire for the chosen layer
   std::map<DTWireId,TH1I*> theHistoWireMap;
   //Map with mean and RMS of t0 per layer

@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2007/08/29 12:54:30 $
- *  $Revision: 1.5 $
+ *  $Date: 2007/09/04 08:07:26 $
+ *  $Revision: 1.6 $
  *  \author  M. Zanetti - INFN Padova
  *  \revision FRC 060906
  */
@@ -16,7 +16,6 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include <EventFilter/DTRawToDigi/plugins/DTROSErrorNotifier.h>
 #include <EventFilter/DTRawToDigi/plugins/DTTDCErrorNotifier.h>
 
 // Mapping

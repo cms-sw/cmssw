@@ -7,7 +7,7 @@
 //
 // Original Author:  Carsten Noeding
 //         Created:  Mon Mar 19 13:51:22 CDT 2007
-// $Id: ClusterMultiplicityFilter.cc,v 1.3 2007/12/18 16:50:15 gpetrucc Exp $
+// $Id: ClusterMultiplicityFilter.cc,v 1.2 2007/09/17 19:56:34 noeding Exp $
 //
 //
 
@@ -44,9 +44,9 @@ bool ClusterMultiplicityFilter::filter(edm::Event& iEvent, const edm::EventSetup
   const edm::DetSetVector<SiStripCluster> *clusters = 0;
   edm::Handle<edm::DetSetVector<SiStripCluster> > clusterHandle;
   iEvent.getByLabel(clusterCollectionLabel_,clusterHandle);
-  if( !clusterHandle.isValid() ) {
-    throw cms::Exception("CorruptData")
-      << "ClusterMultiplicityFilter requires collection <edm::DetSetVector<SiStripCluster> with label " << clusterCollectionLabel_ << std::endl;
+  if (!clusterHandle.isValid()) {
+    edm::LogWarning("ClusterMultiplicityFilter") << "Collection <edm::DetSetVector<SiStripCluster> with label " << clusterCollectionLabel_ << " cannot be found.";
+    return false;
   }
 
   clusters = clusterHandle.product();

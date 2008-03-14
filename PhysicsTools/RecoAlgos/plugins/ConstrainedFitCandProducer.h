@@ -66,7 +66,7 @@ void ConstrainedFitCandProducer<Fitter, InputCollection, OutputCollection, Init>
   using namespace edm; 
   using namespace reco;
   using namespace std;
-  Init::init(fitter_, evt, es);
+  Init::init(fitter_, es);
   Handle<InputCollection> cands;
   evt.getByLabel(src_, cands);
   auto_ptr<OutputCollection> fitted(new OutputCollection);

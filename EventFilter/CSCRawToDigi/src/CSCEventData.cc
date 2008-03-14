@@ -1,18 +1,10 @@
 #include "EventFilter/CSCRawToDigi/interface/CSCEventData.h"
-#include "EventFilter/CSCRawToDigi/interface/CSCDMBHeader.h"
 #include "EventFilter/CSCRawToDigi/interface/CSCCFEBData.h"
 #include "DataFormats/CSCDigi/interface/CSCStripDigi.h"
-#include "EventFilter/CSCRawToDigi/interface/CSCDMBTrailer.h"
-#include "EventFilter/CSCRawToDigi/interface/CSCCFEBData.h"
-#include "EventFilter/CSCRawToDigi/interface/CSCALCTHeader.h"
-#include "EventFilter/CSCRawToDigi/interface/CSCAnodeData.h"
-#include "EventFilter/CSCRawToDigi/interface/CSCALCTTrailer.h"
-#include "EventFilter/CSCRawToDigi/interface/CSCTMBData.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include <iostream>
 #include <iterator>
-#include <boost/dynamic_bitset.hpp>
 #include "EventFilter/CSCRawToDigi/src/bitset_append.h"
 
 
@@ -70,12 +62,11 @@ CSCEventData::CSCEventData(unsigned short * buf){
 
   if (nalct() ==1)  {
     theALCTHeader = new CSCALCTHeader( pos );
-    pos += theALCTHeader->sizeInWords(); //size of the header
-    
     if(!theALCTHeader->check()){  
       edm::LogError ("CSCEventData") <<"+++WARNING: Corrupt ALCT data - won't attempt to decode";
     } 
     else {
+      pos += theALCTHeader->sizeInWords(); //size of the header
       //fill ALCT Digis
       theALCTHeader->ALCTDigis();    
       theAnodeData = new CSCAnodeData(*theALCTHeader, pos);  
@@ -102,9 +93,13 @@ CSCEventData::CSCEventData(unsigned short * buf){
     //if (nclct()== 1)
     //	cfeb_available_2 = (theTMBData->tmbHeader().ActiveCFEBs() >> icfeb) & 1;
     //if ( (cfeb_available==1)&&(cfeb_available_2 == 1) ) {
+
+    //cfeb_available cannot be trusted - need additional verification!
+
     if ( cfeb_available==1 )   {
       // Fill CFEB data and convert it into cathode digis
       theCFEBData[icfeb] = new CSCCFEBData(icfeb, pos);
+      if (theCFEBData[icfeb]->trailerReached()) break;
       theCFEBData[icfeb]->check();
       pos += theCFEBData[icfeb]->sizeInWords();
     }
@@ -119,6 +114,11 @@ CSCEventData::CSCEventData(unsigned short * buf){
   theDMBTrailer = *( (CSCDMBTrailer *) pos );
   pos += theDMBTrailer.sizeInWords();
   size_ = pos-buf;
+  
+  //check for correct cfebs being reported
+  if ( theDMBHeader.cfebAvailable() &  (theDMBTrailer.cfeb_starttimeout | theDMBTrailer.cfeb_endtimeout) ) {
+    edm::LogError ("CSCEventData") <<"!!!Mismatch between cfebAvailable and cfebTimeout!!!";
+  }
 }
 
 

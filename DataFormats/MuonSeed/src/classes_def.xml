@@ -5,7 +5,7 @@
       <class name="edm::reftobase::IndirectHolder<L2MuonTrajectorySeed>" />
     
       <class name="std::vector<L2MuonTrajectorySeed>" />
-      <class name="edm::Wrapper<std::vector<L2MuonTrajectorySeed> >" />
+      <class name="edm::Wrapper<std::vector<L2MuonTrajectorySeed> >" splitLevel="0"/>
       <class name="edm::Ref<std::vector<L2MuonTrajectorySeed>,L2MuonTrajectorySeed,edm::refhelper::FindUsingAdvance<std::vector<L2MuonTrajectorySeed>,L2MuonTrajectorySeed> >"/>
       <class name="edm::RefProd<std::vector<L2MuonTrajectorySeed> >"/>
       <class name="edm::RefVector<std::vector<L2MuonTrajectorySeed>,L2MuonTrajectorySeed,edm::refhelper::FindUsingAdvance<std::vector<L2MuonTrajectorySeed>,L2MuonTrajectorySeed> >"/>

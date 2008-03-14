@@ -1,8 +1,8 @@
 /*
  * \file EBSummaryClient.cc
  *
- * $Date: 2008/01/20 17:11:37 $
- * $Revision: 1.106 $
+ * $Date: 2008/02/03 10:45:22 $
+ * $Revision: 1.111 $
  * \author G. Della Ricca
  *
 */
@@ -55,7 +55,7 @@ EBSummaryClient::EBSummaryClient(const ParameterSet& ps){
   verbose_ = ps.getUntrackedParameter<bool>("verbose", false);
 
   // enableMonitorDaemon_ switch
-  enableMonitorDaemon_ = ps.getUntrackedParameter<bool>("enableMonitorDaemon", true);
+  enableMonitorDaemon_ = ps.getUntrackedParameter<bool>("enableMonitorDaemon", false);
 
   // enableCleanup_ switch
   enableCleanup_ = ps.getUntrackedParameter<bool>("enableCleanup", false);
@@ -144,7 +144,7 @@ void EBSummaryClient::endRun(void) {
 
 void EBSummaryClient::setup(void) {
 
-  Char_t histo[200];
+  char histo[200];
 
   dbe_->setCurrentFolder( "EcalBarrel/EBSummaryClient" );
 
@@ -177,8 +177,8 @@ void EBSummaryClient::setup(void) {
   if ( meStatusFlags_ ) dbe_->removeElement( meStatusFlags_->getName() );
   sprintf(histo, "EBSFT front-end status summary");
   meStatusFlags_ = dbe_->book2D(histo, histo, 72, 0., 72., 34, -17., 17.);
-  meStatusFlags_->setAxisTitle("jphi", 1);
-  meStatusFlags_->setAxisTitle("jeta", 2);
+  meStatusFlags_->setAxisTitle("jphi'", 1);
+  meStatusFlags_->setAxisTitle("jeta'", 2);
 
   if ( meStatusFlagsErr_ ) dbe_->removeElement( meStatusFlagsErr_->getName() );
   sprintf(histo, "EBSFT front-end status errors summary");
@@ -293,14 +293,14 @@ void EBSummaryClient::setup(void) {
   if( meTriggerTowerEt_ ) dbe_->removeElement( meTriggerTowerEt_->getName() );
   sprintf(histo, "EBTTT Et trigger tower summary");
   meTriggerTowerEt_ = dbe_->book2D(histo, histo, 72, 0., 72., 34, -17., 17.);
-  meTriggerTowerEt_->setAxisTitle("jphi", 1);
-  meTriggerTowerEt_->setAxisTitle("jeta", 2);
+  meTriggerTowerEt_->setAxisTitle("jphi'", 1);
+  meTriggerTowerEt_->setAxisTitle("jeta'", 2);
 
   if( meTriggerTowerEmulError_ ) dbe_->removeElement( meTriggerTowerEmulError_->getName() );
   sprintf(histo, "EBTTT emulator error quality summary");
   meTriggerTowerEmulError_ = dbe_->book2D(histo, histo, 72, 0., 72., 34, -17., 17.);
-  meTriggerTowerEmulError_->setAxisTitle("jphi", 1);
-  meTriggerTowerEmulError_->setAxisTitle("jeta", 2);
+  meTriggerTowerEmulError_->setAxisTitle("jphi'", 1);
+  meTriggerTowerEmulError_->setAxisTitle("jeta'", 2);
 
   if( meGlobalSummary_ ) dbe_->removeElement( meGlobalSummary_->getName() );
   sprintf(histo, "EB global summary");
@@ -819,7 +819,8 @@ void EBSummaryClient::analyze(void){
 
               float xval = me->getBinContent( ie, ip );
 
-              if(xval!=0) hasRealDigi = true;
+              TProfile2D* obj = UtilsClient::getHisto<TProfile2D*>(me);
+              if(obj && obj->GetBinEntries(obj->GetBin( ie, ip ))!=0) hasRealDigi = true;
 
               int iex;
               int ipx;

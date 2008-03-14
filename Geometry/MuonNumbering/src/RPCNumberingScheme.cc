@@ -1,7 +1,6 @@
 #include "Geometry/MuonNumbering/interface/RPCNumberingScheme.h"
 #include "Geometry/MuonNumbering/interface/MuonBaseNumber.h"
 #include "Geometry/MuonNumbering/interface/MuonDDDConstants.h"
-#include "DetectorDescription/Core/interface/DDCompactView.h"
 #include "DataFormats/MuonDetId/interface/RPCDetId.h"
 #include <iostream>
 

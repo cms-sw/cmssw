@@ -25,10 +25,9 @@ class RPCSimTriv : public RPCSim
   ~RPCSimTriv();
 
   void simulate(const RPCRoll* roll,
-		const edm::PSimHitContainer& rpcHits);
-
+		const edm::PSimHitContainer& rpcHits,
+		const RPCGeometry* geo );
   void simulateNoise(const RPCRoll*);
-
 
  private:
   void init(){};

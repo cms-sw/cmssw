@@ -3,6 +3,7 @@
 
 #include <math.h>
 #include <iostream>
+#include <cassert>
 #include "TGraphErrors.h"
 #include "TAxis.h"
 
@@ -180,6 +181,7 @@ int TPedValues::makePlots (TFile * rootFile, const std::string & dirName) const
     // loop over the gains
     for (int gain=0 ; gain<3 ; ++gain)
       {
+        bool doGraph = false;
         double asseX[256] ;  reset (asseX) ;
         double sigmaX[256] ; reset (sigmaX) ;
         double asseY[256] ;  reset (asseY) ;
@@ -191,19 +193,27 @@ int TPedValues::makePlots (TFile * rootFile, const std::string & dirName) const
             sigmaX[dac] = 0 ;
             asseY[dac] = m_entries[gain][xtl][dac].average () ;
             sigmaY[dac] = m_entries[gain][xtl][dac].RMS () ;
-            if (asseY[dac] < -100) sigmaY[dac] = asseY[dac] = 0 ;
-          } // loop over DAC values          
-        TGraphErrors graph (256,asseX,asseY,sigmaX,sigmaY) ;
-        char name[120] ;
-        int gainHuman;
-        if      (gain ==0) gainHuman =12;
-        else if (gain ==1) gainHuman =6;
-        else if (gain ==2) gainHuman =1;
-        else               gainHuman =-1;
-        sprintf (name,"XTL%d_GAIN%d",(xtl+1),gainHuman) ;      
-        graph.GetXaxis()->SetTitle("DAC value");
-        graph.GetYaxis()->SetTitle("Average pedestal ADC");
-        graph.Write (name);
+            if (asseY[dac] < -100)
+              sigmaY[dac] = asseY[dac] = 0 ;
+        
+            // Only do the graph if one of the averages is nonzero
+            if(asseY[dac] != 0)
+              doGraph = true;
+          } // loop over DAC values
+        if(doGraph)
+        {
+          TGraphErrors graph (256,asseX,asseY,sigmaX,sigmaY) ;
+          char name[120] ;
+          int gainHuman;
+          if      (gain ==0) gainHuman =12;
+          else if (gain ==1) gainHuman =6;
+          else if (gain ==2) gainHuman =1;
+          else               gainHuman =-1;
+          sprintf (name,"XTL%04d_GAIN%02d",(xtl+1),gainHuman) ;      
+          graph.GetXaxis()->SetTitle("DAC value");
+          graph.GetYaxis()->SetTitle("Average pedestal ADC");
+          graph.Write (name);
+        }
       } // loop over the gains
         // (loop over the crystals)
 

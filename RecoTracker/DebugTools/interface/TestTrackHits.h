@@ -15,7 +15,7 @@
 //
 // Original Author:  Giuseppe Cerati
 //         Created:  Tue Feb 13 17:29:10 CET 2007
-// $Id: TestTrackHits.h,v 1.3 2007/10/08 22:20:04 cerati Exp $
+// $Id: TestTrackHits.h,v 1.2 2007/09/13 16:46:37 cerati Exp $
 //
 //
 
@@ -79,7 +79,7 @@ private:
   edm::ESHandle<TrajectoryStateUpdator> theUpdator;
   edm::ESHandle<TrackAssociatorBase> trackAssociator;
   edm::Handle<std::vector<Trajectory> > trajCollectionHandle;
-  edm::Handle<edm::View<reco::Track> > trackCollectionHandle;
+  edm::Handle<reco::TrackCollection > trackCollectionHandle;
   edm::Handle<TrajTrackAssociationCollection> trajTrackAssociationCollectionHandle;
   edm::Handle<TrackingParticleCollection> trackingParticleCollectionHandle;
 

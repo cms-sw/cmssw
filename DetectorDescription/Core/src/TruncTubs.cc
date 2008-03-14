@@ -1,7 +1,6 @@
 #include "DetectorDescription/Core/src/TruncTubs.h"
 
 #include "CLHEP/Units/SystemOfUnits.h"
-#include "CLHEP/Units/PhysicalConstants.h"
 
 DDI::TruncTubs::TruncTubs(double zHalf,
               double rIn, double rOut,

@@ -1,8 +1,6 @@
 #include "DetectorDescription/Core/interface/DDComparator.h"
 //#include "DetectorDescription/Core/interface/DDPartSelection.h"
-#include "DetectorDescription/Core/interface/DDExpandedView.h"
 //#include "DetectorDescription/Base/interface/DDException.h"
-#include "DetectorDescription/Base/interface/DDdebug.h"
 
 #include<map>
 #include<iostream>

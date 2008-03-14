@@ -1,3 +1,7 @@
+<use name=DQMServices/CoreROOT>
+<use name=rootcintex>
+<use name=root>
+
 <export>
    <lib name=ValidationRecoTrack>
 </export>

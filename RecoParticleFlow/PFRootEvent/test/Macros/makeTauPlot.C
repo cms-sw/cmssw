@@ -5,10 +5,8 @@
 // 50 GeV taus desintegrating hadronically have been studied
 gROOT->Reset();
 TFile *f = new TFile("tauBenchmark.root");
-TCanvas* c1 = new TCanvas;
 
 h_deltaETvisible_MCPF->SetStats(1); 
-gStyle->SetOptStat("nmeriou");
 h_deltaETvisible_MCPF->GetXaxis()->SetTitle("#DeltaE_{T} (GeV)");
 h_deltaETvisible_MCPF->SetTitle("Tau Benchmark, E_{T}(rec)-E_{T}(true)");
 h_deltaETvisible_MCPF->SetLineColor(2);
@@ -29,7 +27,7 @@ leg->AddEntry(h_deltaETvisible_MCPF,"Particle Flow Jets","l");
 leg->AddEntry(h_deltaETvisible_MCEHT,"caloTower Jets","l");
 leg->Draw();
 
-//c1->Print("tauBenchmark.eps");
-c1->Print("tau50_barrel.gif");
-//gApplication->Terminate();
+c1->Print("tauBenchmark.eps");
+//c1->Print("tauBenchmark.gif");
+gApplication->Terminate();
 }

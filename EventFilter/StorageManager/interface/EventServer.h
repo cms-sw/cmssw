@@ -12,12 +12,13 @@
  * prescale is in effect.
  *
  * 16-Aug-2006 - KAB  - Initial Implementation
- * $Id: EventServer.h,v 1.5 2007/05/16 22:53:44 hcheung Exp $
+ * $Id: EventServer.h,v 1.6 2007/11/09 23:08:34 badgett Exp $
  */
 
 #include <sys/time.h>
 #include <string>
 #include <vector>
+#include <map>
 #include "IOPool/Streamer/interface/MsgTools.h"
 #include "IOPool/Streamer/interface/EventMessage.h"
 #include "EventFilter/StorageManager/interface/ConsumerPipe.h"
@@ -36,9 +37,21 @@ namespace stor
     void addConsumer(boost::shared_ptr<ConsumerPipe> consumer);
     std::map< uint32, boost::shared_ptr<ConsumerPipe> > getConsumerTable();
     boost::shared_ptr<ConsumerPipe> getConsumer(uint32 consumerId);
+
     void processEvent(const EventMsgView &eventView);
     boost::shared_ptr< std::vector<char> > getEvent(uint32 consumerId);
     void clearQueue();
+
+    void setStreamSelectionTable(std::map<std::string, Strings> const& selTable);
+    std::map<std::string, Strings> getStreamSelectionTable()
+    {
+      return streamSelectionTable_;
+    }
+    int getSelectionTableStringSize()
+    {
+      return selTableStringSize_;
+    }
+    Strings updateTriggerSelectionForStreams(Strings const& selectionList);
 
   private:
     // data members for handling a maximum rate of accepted events
@@ -50,8 +63,11 @@ namespace stor
     int disconnectedConsumerTestCounter_;
 
     // consumer lists
-    std::map< uint32, boost::shared_ptr<ConsumerPipe> > consumerTable;
+    std::map< uint32, boost::shared_ptr<ConsumerPipe> > consumerTable_;
     //std::vector<boost::shared_ptr<ConsumerPipe>> vipConsumerList;
+
+    std::map<std::string, Strings> streamSelectionTable_;
+    int selTableStringSize_;
   };
 }
 

@@ -41,6 +41,7 @@ BaseParticlePropagator::init() {
 
 bool 
 BaseParticlePropagator::propagate() { 
+
   //
   // Check that the particle is not already on the cylinder surface
   //
@@ -58,7 +59,7 @@ BaseParticlePropagator::propagate() {
   //
   // Treat neutral particles (or no magnetic field) first 
   //
-  if ( charge() == 0.0 || bField == 0.0 ) {
+  if ( fabs(charge()) < 1E-12 || bField < 1E-12 ) {
 
     //
     // First check that the particle crosses the cylinder
@@ -352,23 +353,74 @@ BaseParticlePropagator::setPropagationConditions(double R, double Z, bool f) {
 }
 
 bool
-BaseParticlePropagator::propagateToClosestApproach(bool first) {
+BaseParticlePropagator::propagateToClosestApproach(double x0, double y0, bool first) {
+
+  // Pre-computed quantities
+  double pT = Pt();
+  double radius = helixRadius(pT);
+  double phi0 = helixStartPhi();
+
+  // The Helix centre coordinates are computed wrt to the z axis
+  // Actually the z axis might be centred on 0,0: it's the beam spot position (x0,y0)!
+  double xC = helixCentreX(radius,phi0);
+  double yC = helixCentreY(radius,phi0);
+  double distz = helixCentreDistToAxis(xC-x0,yC-y0);
+  double dist0 = helixCentreDistToAxis(xC,yC);
+
   //
   // Propagation to point of clostest approach to z axis
   //
-  double r,z;
+  double rz,r0,z;
   if ( charge() != 0.0 && bField != 0.0 ) {
-    r = fabs ( fabs( helixRadius() )
-	       - helixCentreDistToAxis() ) + 0.0000001;
+    rz = fabs ( fabs(radius) - distz ) + std::sqrt(x0*x0+y0*y0) + 0.0000001;
+    r0 = fabs ( fabs(radius) - dist0 ) + 0.0000001;
   } else {
-    r = fabs( Px() * Y() - Py() * X() ) / Pt(); 
+    rz = fabs( Px() * (Y()-y0) - Py() * (X()-x0) ) / Pt(); 
+    r0 = fabs( Px() *  Y()     - Py() *  X() ) / Pt(); 
   }
 
   z = 999999.;
 
-  setPropagationConditions(r , z, first);
+  // Propagate to the first interesection point 
+  // with cylinder of radius sqrt(x0**2+y0**2)
+  setPropagationConditions(rz , z, first);
+  bool done = backPropagate();
 
-  return backPropagate();
+  // Unsuccessful propagation - should not happen!
+  if ( !done ) return done; 
+
+  // The z axis is (0,0) - no need to go further
+  if ( fabs(rz-r0) < 1E-10 ) return done;
+  double dist1 = (X()-x0)*(X()-x0) + (Y()-y0)*(Y()-y0);
+
+  // We are already at closest approach - no need to go further
+  if ( dist1 < 1E-10 ) return done;
+
+  // Keep for later if it happens to be the right solution
+  XYZTLorentzVector vertex1 = vertex();
+  XYZTLorentzVector momentum1 = momentum();
+  
+  // Propagate to the distance of closest approach to (0,0)
+  setPropagationConditions(r0 , z, first);
+  done = backPropagate();
+  if ( !done ) return done; 
+
+  // Propagate to the first interesection point 
+  // with cylinder of radius sqrt(x0**2+y0**2)
+  setPropagationConditions(rz , z, first);
+  done = backPropagate();
+  if ( !done ) return done; 
+  double dist2 = (X()-x0)*(X()-x0) + (Y()-y0)*(Y()-y0);
+
+  // Keep the good solution.
+  if ( dist2 > dist1 ) { 
+    setVertex(vertex1);
+    SetXYZT(momentum1.X(),momentum1.Y(),momentum1.Z(),momentum1.E());
+    dist2 = dist1;
+  }
+
+  // Done
+  return done;
 
 }
 
@@ -519,6 +571,7 @@ bool
 BaseParticlePropagator::propagateToNominalVertex(const XYZTLorentzVector& v) 
 {
 
+
   // Not implemented for neutrals (used for electrons only)
   if ( charge() == 0. || bField == 0.) return false;
 
@@ -534,7 +587,7 @@ BaseParticlePropagator::propagateToNominalVertex(const XYZTLorentzVector& v)
   SetPx(pT*std::cos(phi));
   SetPy(pT*std::sin(phi));
 
-  return propagateToClosestApproach();
+  return propagateToClosestApproach(v.X(),v.Y());
   
 }
 
@@ -662,4 +715,27 @@ BaseParticlePropagator::propagateToBeamCylinder(const XYZTLorentzVector& v, doub
   // Propagate to closest approach to get the Z value (a bit of an overkill)
   return propagateToClosestApproach();
   
+}
+
+double 
+BaseParticlePropagator::xyImpactParameter(double x0, double y0) const {
+
+  double ip=0.;
+  double pT = Pt();
+
+  if ( charge() != 0.0 && bField != 0.0 ) {
+    double radius = helixRadius(pT);
+    double phi0 = helixStartPhi();
+    
+    // The Helix centre coordinates are computed wrt to the z axis
+    double xC = helixCentreX(radius,phi0);
+    double yC = helixCentreY(radius,phi0);
+    double distz = helixCentreDistToAxis(xC-x0,yC-y0);
+    ip = distz - fabs(radius);
+  } else {
+    ip = fabs( Px() * (Y()-y0) - Py() * (X()-x0) ) / pT; 
+  }
+
+  return ip;
+
 }

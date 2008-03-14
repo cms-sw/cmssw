@@ -1,4 +1,3 @@
-#include "FWCore/PluginManager/interface/ModuleDef.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include <EventFilter/CSCRawToDigi/interface/CSCDCCUnpacker.h>
 #include <EventFilter/CSCRawToDigi/interface/DigiAnalyzer.h>

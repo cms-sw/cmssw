@@ -11,7 +11,7 @@ enum ObjType {
   CLUSTERPSID=5,
   CLUSTERIBID=6,
   RECTRACKID=7,
-  SIMPARTICLEID=8
+  SIMPLEPARTID=8
 };   
 
              

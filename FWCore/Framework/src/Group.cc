@@ -1,15 +1,23 @@
 /*----------------------------------------------------------------------
-$Id: Group.cc,v 1.28 2007/10/04 22:45:01 wmtan Exp $
+$Id: Group.cc,v 1.29 2008/01/17 05:14:01 wmtan Exp $
 ----------------------------------------------------------------------*/
 #include <string>
 #include "DataFormats/Common/interface/BasicHandle.h"
 #include "FWCore/Framework/src/Group.h"
 #include "FWCore/Utilities/interface/ReflexTools.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 using ROOT::Reflex::Type;
 using ROOT::Reflex::TypeTemplate;
 
 namespace edm {
+
+  Group::Group() :
+    product_(),
+    provenance_(),
+    unavailable_(false),
+    onDemand_(false) { }
+
 
   Group::Group(std::auto_ptr<Provenance> prov,
 	       bool onDemand) :
@@ -130,4 +138,47 @@ namespace edm {
        << provenance_->productID();
   }
 
+  void
+  Group::mergeGroup(Group * newGroup) {
+
+    if (productUnavailable() && !newGroup->productUnavailable()) {
+      provenance_->branchEntryDescription()->mergeBranchEntryDescription(newGroup->branchEntryDescription());
+      unavailable_ = false;
+      std::swap(product_, newGroup->product_);        
+    }
+    else if (!productUnavailable() && !newGroup->productUnavailable()) {
+
+      provenance_->branchEntryDescription()->mergeBranchEntryDescription(newGroup->branchEntryDescription());
+
+      if (product_->isMergeable()) {
+        product_->mergeProduct(newGroup->product_.get());
+      }
+      else if (product_->hasIsProductEqual()) {
+
+        if (!product_->isProductEqual(newGroup->product_.get())) {
+          edm::LogWarning  ("RunLumiMerging") 
+            << "Group::mergeGroup\n" 
+            << "Two run/lumi products for the same run/lumi which should be equal are not\n"
+            << "Using the first, ignoring the second\n"
+            << "className = " << provenance().className() << "\n"
+            << "moduleLabel = " << moduleLabel() << "\n"
+            << "instance = " << productInstanceName() << "\n"
+            << "process = " << processName() << "\n";
+        }
+      }
+      else {
+        edm::LogWarning  ("RunLumiMerging") 
+          << "Group::mergeGroup\n" 
+          << "Run/lumi product has neither a mergeProduct nor isProductEqual function\n"
+          << "Using the first, ignoring the second in merge\n"
+          << "className = " << provenance().className() << "\n"
+          << "moduleLabel = " << moduleLabel() << "\n"
+          << "instance = " << productInstanceName() << "\n"
+          << "process = " << processName() << "\n";
+      }
+    }
+    else {
+      provenance_->branchEntryDescription()->mergeBranchEntryDescription(newGroup->branchEntryDescription());
+    }
+  }
 }

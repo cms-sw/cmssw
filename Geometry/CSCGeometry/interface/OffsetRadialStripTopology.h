@@ -17,8 +17,7 @@ class OffsetRadialStripTopology : public RadialStripTopology
 {
 public:
 
-  /** Constructor
-   *  Note that yCentre is local y of symmetry centre of strip plane
+  /** Constructor: note that yCentre is local y of symmetry centre of strip plane
    *  _before_ the rotation shift: it is passed directly to RST base.
    */
   OffsetRadialStripTopology( int numberOfStrips, float stripPhiPitch,
@@ -27,35 +26,31 @@ public:
   virtual ~OffsetRadialStripTopology(){};
 
   /** Fraction of a strip offset of layer relative to
-   *  symmetry axis (local y). (This is an _angular_ value)
+   *  symmetry axis (local y). (This is an ANGULAR value)
    */
   virtual float stripOffset( void ) const { return theStripOffset; }
 
   /** LocalPoint for a given strip
    */
   virtual LocalPoint localPosition(float strip) const {
-    // Pass through to base class since otherwise it is shadowed by the localPosition(const MP&).
+    // pass through to base class since otherwise it is shadowed by the localPosition(const MP&).
     // Note that base class version is OK because it uses stripAngle() which is overridden in ORST!
     // Also note that xOfStrip from base class RST also works for ORST for the same reason.
     return RadialStripTopology::localPosition( strip );
   }
 
    /** LocalPoint for a given MeasurementPoint <BR>
-    *
    * What's a MeasurementPoint?  <BR>
-   * A MeasurementPoint is a 2-dim object, with the 1st dim specifying the angular position
-   * in strip widths, and the 2nd dim specifying the fractional distance alone a strip.<BR>
-   *
-   * Thus the 1st dimension measures the
+   * A MeasurementPoint is a 2-dim object.<BR>
+   * The first dimension measures the
    * angular position wrt central line of symmetry of detector,
    * in units of strip (angular) widths (range 0 to total angle subtended
-   * by a detector).
-   * The 2nd dimension measures
+   * by a detector).<BR>
+   * The second dimension measures
    * the fractional position along the strip (range -0.5 to +0.5).<BR>
-   *
    * BEWARE! The components are not Cartesian.<BR>
    * BEWARE! Neither coordinate may correspond to either local x or local y.<BR>
-   * BEWARE! This involves ONLY strip-related measurements, not CSC wires!
+   * BEWARE! This involves ONLY strip-related measurements, not CSC wires! <BR>
    */
   virtual LocalPoint localPosition(const MeasurementPoint&) const;
 

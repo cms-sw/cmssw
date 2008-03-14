@@ -1,4 +1,4 @@
-// $Id: testCompositeCandidate.cc,v 1.5 2007/10/23 17:27:05 llista Exp $
+// $Id: testCompositeCandidate.cc,v 1.4 2007/10/22 14:01:00 llista Exp $
 #include <cppunit/extensions/HelperMacros.h>
 #include "DataFormats/Candidate/interface/LeafCandidate.h"
 #include "DataFormats/Candidate/interface/CompositeCandidate.h"
@@ -75,10 +75,8 @@ void testCompositeCandidate::checkAll() {
     v.push_back(test::DummyCandidate( p1, q1, 0 ));
     reco::CompositeCandidate c;
     for(size_t i = 0; i < v.size(); ++ i )
-      c.addDaughter(v[i]);
-    for(size_t i = 0; i < v.size(); ++ i ) {
-      CPPUNIT_ASSERT(dynamic_cast<const test::DummyCandidate *>(c.daughter(i))!=0);
-    }
+      c.addDaughter( v[i] );
+
     for(int k = 0; k < 2; ++k ) { 
       test::DummyCandSelector select(k);
       size_t n = 0;

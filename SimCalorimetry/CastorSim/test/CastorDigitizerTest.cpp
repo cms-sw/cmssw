@@ -68,7 +68,7 @@ int main() {
   string hitsName = "HcalHits";
   vector<string> caloDets;
 
-  CrossingFrame<PCaloHit> crossingFrame(-5, 5, 25,  hitsName);
+  CrossingFrame<PCaloHit> crossingFrame(-5, 5, 25,  hitsName, 1);
   edm::EventID eventId;
   crossingFrame.addSignals(&hits, eventId);
 

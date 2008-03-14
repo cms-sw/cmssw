@@ -12,6 +12,7 @@ CSCDbStripConditions::CSCDbStripConditions(const edm::ParameterSet & pset)
 : CSCStripConditions(),
   theConditions(),
   theCapacitiveCrosstalk(pset.getParameter<double>("capacativeCrosstalk")),
+  theResistiveCrosstalkScaling(pset.getParameter<double>("resistiveCrosstalkScaling")),
   theGainsConstant(pset.getParameter<double>("gainsConstant")),
   doCorrelatedNoise_(pset.getParameter<bool>("doCorrelatedNoise"))
 {
@@ -55,7 +56,8 @@ void CSCDbStripConditions::crosstalk(const CSCDetId&detId, int channel,
                  double stripLength, bool leftRight,
                  float & capacitive, float & resistive) const
 {
-  resistive = theConditions.crosstalkIntercept(detId, channel, leftRight);
+  resistive = theConditions.crosstalkIntercept(detId, channel, leftRight)
+             * theResistiveCrosstalkScaling;
   float slope = theConditions.crosstalkSlope(detId, channel, leftRight);
   // ns before the peak where slope is max
   float maxSlopeTime = 60.; 

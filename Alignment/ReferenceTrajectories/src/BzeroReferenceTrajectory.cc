@@ -24,7 +24,9 @@ BzeroReferenceTrajectory::BzeroReferenceTrajectory(const TrajectoryStateOnSurfac
   theParameters = asHepVector<5>( refTsos.localParameters().mixedFormatVector() );
   theParameters[0] = 1./theMomentumEstimate;
 
-  LocalTrajectoryParameters locParamWithFixedMomentum( theParameters, refTsos.localParameters().pzSign(), false );
+  LocalTrajectoryParameters locParamWithFixedMomentum( theParameters,
+						       refTsos.localParameters().pzSign(),
+						       refTsos.localParameters().charge() );
 
   const TrajectoryStateOnSurface refTsosWithFixedMomentum(locParamWithFixedMomentum, refTsos.localError(),
 							  refTsos.surface(), magField, beforeSurface);

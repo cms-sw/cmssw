@@ -1,8 +1,8 @@
 /*
  * \file EBBeamCaloTask.cc
  *
- * $Date: 2008/01/04 16:23:49 $
- * $Revision: 1.58 $
+ * $Date: 2008/01/22 19:14:39 $
+ * $Revision: 1.60 $
  * \author A. Ghezzi
  *
  */
@@ -11,13 +11,10 @@
 #include <fstream>
 #include <vector>
 
-#include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
-#include "DQMServices/Daemon/interface/MonitorDaemon.h"
 
 #include "DataFormats/EcalRawData/interface/EcalRawDataCollections.h"
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
@@ -116,7 +113,7 @@ void EBBeamCaloTask::setup(void){
 
   init_ = true;
   profileArranged_= false;
-  Char_t histo[200];
+  char histo[200];
 
   PreviousTableStatus_[0]=0;//let's start with stable...
   PreviousTableStatus_[1]=0;//let's start with stable...

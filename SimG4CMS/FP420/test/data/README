@@ -1,15 +1,11 @@
-1) execute command:
+execute command:
 
-cmsRun runFP420.cfg  
-
-the simfp420event.root and
+cmsRun runFP420.cfg   or
+cmsRun run3DTest.cfg
 TheAnalysis.root will be produced 
 
-use then:
+execute 
+
 root -b z1.C
+
 gv z1.ps
-
-
-2) execute command:
-cmsRun runHecMB.cfg
-the HecMBEvent.root will be produced

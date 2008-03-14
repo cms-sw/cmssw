@@ -19,7 +19,9 @@ class HistogramGenerator : public BaseNumericalRandomGenerator
    HistogramGenerator(TH1 * histo, const RandomEngine* engine) : 
      BaseNumericalRandomGenerator(engine,
 				  histo->GetXaxis()->GetXmin(),
-				  histo->GetXaxis()->GetXmax()),
+				  histo->GetXaxis()->GetXmax(),
+				  100000,
+				  3),
      myHisto(histo),
      theXaxis(histo->GetXaxis()),
      nbins(histo->GetXaxis()->GetNbins())

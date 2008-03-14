@@ -14,7 +14,6 @@
 #include "FastSimulation/Utilities/interface/RandomEngine.h"
 
 // STL
-#include <string>
 
 // #define FAMOS_DEBUG
 

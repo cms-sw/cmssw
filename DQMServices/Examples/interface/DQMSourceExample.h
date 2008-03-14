@@ -5,8 +5,8 @@
  * *
  *  DQM Test Client
  *
- *  $Date: 2007/11/05 11:30:18 $
- *  $Revision: 1.5 $
+ *  $Date: 2007/10/11 22:41:13 $
+ *  $Revision: 1.4 $
  *  \author  M. Zanetti CERN
  *   
  */
@@ -74,8 +74,6 @@ private:
   MonitorElement * f1;
   MonitorElement * s1;
   MonitorElement * p1;
-  TH1F *rooth1;
-  
   float XMIN; float XMAX;
 };
 

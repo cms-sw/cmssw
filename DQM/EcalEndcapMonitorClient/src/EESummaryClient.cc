@@ -1,8 +1,8 @@
 /*
  * \file EESummaryClient.cc
  *
- * $Date: 2008/01/20 17:11:32 $
- * $Revision: 1.82 $
+ * $Date: 2008/02/03 10:50:33 $
+ * $Revision: 1.86 $
  * \author G. Della Ricca
  *
 */
@@ -59,7 +59,7 @@ EESummaryClient::EESummaryClient(const ParameterSet& ps){
   verbose_ = ps.getUntrackedParameter<bool>("verbose", false);
 
   // enableMonitorDaemon_ switch
-  enableMonitorDaemon_ = ps.getUntrackedParameter<bool>("enableMonitorDaemon", true);
+  enableMonitorDaemon_ = ps.getUntrackedParameter<bool>("enableMonitorDaemon", false);
 
   // enableCleanup_ switch
   enableCleanup_ = ps.getUntrackedParameter<bool>("enableCleanup", false);
@@ -169,7 +169,7 @@ void EESummaryClient::endRun(void) {
 
 void EESummaryClient::setup(void) {
 
-  Char_t histo[200];
+  char histo[200];
 
   dbe_->setCurrentFolder( "EcalEndcap/EESummaryClient" );
 
@@ -1047,7 +1047,8 @@ void EESummaryClient::analyze(void){
 
               float xval = me->getBinContent( ix, iy );
 
-              if(xval!=0) hasRealDigi = true;
+              TProfile2D* obj = UtilsClient::getHisto<TProfile2D*>(me);
+              if(obj && obj->GetBinEntries(obj->GetBin( ix, iy ))!=0) hasRealDigi = true;
 
               if ( ism >= 1 && ism <= 9 ) {
                 if ( xval != 0 ) {

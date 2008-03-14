@@ -20,7 +20,7 @@ namespace evf
       virtual ~ModuleWeb(){}
       virtual void defaultWebPage(xgi::Input *in, xgi::Output *out); 
       virtual void publish(xdata::InfoSpace *) = 0;
-    private:
+    protected:
       std::string moduleName_;
     };
 }

@@ -8,6 +8,7 @@
 #include "FastSimDataFormats/PileUpEvents/interface/PUEvent.h"
 
 #include "FastSimulation/PileUpProducer/plugins/PileUpProducer.h"
+#include "FastSimulation/Event/interface/BetaFuncPrimaryVertexGenerator.h"
 #include "FastSimulation/Event/interface/GaussianPrimaryVertexGenerator.h"
 #include "FastSimulation/Event/interface/FlatPrimaryVertexGenerator.h"
 #include "FastSimulation/Event/interface/NoPrimaryVertexGenerator.h"
@@ -72,6 +73,8 @@ PileUpProducer::PileUpProducer(edm::ParameterSet const & p)
     theVertexGenerator = new GaussianPrimaryVertexGenerator(vtx,random);
   else if ( vtxType == "Flat" ) 
     theVertexGenerator = new FlatPrimaryVertexGenerator(vtx,random);
+  else if ( vtxType == "BetaFunc" )
+    theVertexGenerator = new BetaFuncPrimaryVertexGenerator(vtx,random);
   else
     theVertexGenerator = new NoPrimaryVertexGenerator();
 
@@ -301,7 +304,12 @@ void PileUpProducer::produce(edm::Event & iEvent, const edm::EventSetup & es)
   // evt->print();
 
   // Fill the HepMCProduct from the GenEvent
-  if ( evt )  pu_product->addHepMCData( evt );
+  if ( evt )  { 
+    pu_product->addHepMCData( evt );
+    // Boost in case of beam crossing angle
+    TMatrixD* boost = theVertexGenerator->boost();
+    if ( boost ) pu_product->boostToLab(boost,"momentum");
+  }
 
   // Put the HepMCProduct onto the event
   iEvent.put(pu_product,"PileUpEvents");

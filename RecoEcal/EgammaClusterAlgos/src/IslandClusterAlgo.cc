@@ -82,7 +82,7 @@ std::vector<reco::BasicCluster> IslandClusterAlgo::makeClusters(
     
   }
   
-  sort(seeds.begin(), seeds.end(), EcalRecHitLess());
+  sort(seeds.begin(), seeds.end(), ecalRecHitLess());
 
   if (verbosity < pINFO)
     {

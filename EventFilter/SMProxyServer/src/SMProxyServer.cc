@@ -1,4 +1,4 @@
-// $Id: SMProxyServer.cc,v 1.7 2007/10/14 14:40:04 hcheung Exp $
+// $Id: SMProxyServer.cc,v 1.11 2008/02/11 15:02:12 biery Exp $
 
 #include <iostream>
 #include <iomanip>
@@ -122,25 +122,29 @@ SMProxyServer::SMProxyServer(xdaq::ApplicationStub * s)
   //ispace->fireItemAvailable("fileCatalog",        &fileCatalog_);
 
   // added for Event Server
-  maxESEventRate_ = 1.0;  // hertz
+  maxESEventRate_ = 10.0;  // hertz
   ispace->fireItemAvailable("maxESEventRate",&maxESEventRate_);
+  maxEventRequestRate_ = 10.0;  // hertz
+  ispace->fireItemAvailable("maxEventRequestRate",&maxEventRequestRate_);
   activeConsumerTimeout_ = 300;  // seconds
   ispace->fireItemAvailable("activeConsumerTimeout",&activeConsumerTimeout_);
   idleConsumerTimeout_ = 600;  // seconds
   ispace->fireItemAvailable("idleConsumerTimeout",&idleConsumerTimeout_);
-  consumerQueueSize_ = 5;
+  consumerQueueSize_ = 10;
   ispace->fireItemAvailable("consumerQueueSize",&consumerQueueSize_);
   DQMmaxESEventRate_ = 1.0;  // hertz
   ispace->fireItemAvailable("DQMmaxESEventRate",&DQMmaxESEventRate_);
+  maxDQMEventRequestRate_ = 1.0;  // hertz
+  ispace->fireItemAvailable("maxDQMEventRequestRate",&maxDQMEventRequestRate_);
   DQMactiveConsumerTimeout_ = 300;  // seconds
   ispace->fireItemAvailable("DQMactiveConsumerTimeout",&DQMactiveConsumerTimeout_);
   DQMidleConsumerTimeout_ = 600;  // seconds
   ispace->fireItemAvailable("DQMidleConsumerTimeout",&DQMidleConsumerTimeout_);
-  DQMconsumerQueueSize_ = 5;
+  DQMconsumerQueueSize_ = 10;
   ispace->fireItemAvailable("DQMconsumerQueueSize",&DQMconsumerQueueSize_);
 
   // for performance measurements
-  samples_          = 100; // measurements every 25MB (about)
+  samples_          = 20; // measurements every 20 samples
   instantBandwidth_ = 0.;
   instantRate_      = 0.;
   instantLatency_   = 0.;
@@ -162,8 +166,6 @@ SMProxyServer::SMProxyServer(xdaq::ApplicationStub * s)
   outmaxBandwidth_     = 0.;
   outminBandwidth_     = 999999.;
 
-  pmeter_ = new stor::SMPerformanceMeter();
-  pmeter_->init(samples_);
   outpmeter_ = new stor::SMPerformanceMeter();
   outpmeter_->init(samples_);
 
@@ -182,7 +184,6 @@ SMProxyServer::SMProxyServer(xdaq::ApplicationStub * s)
 SMProxyServer::~SMProxyServer()
 {
   delete ah_;
-  delete pmeter_;
   delete outpmeter_;
 }
 
@@ -200,24 +201,10 @@ SMProxyServer::ParameterGet(xoap::MessageReference message)
 //////////// ***  Performance //////////////////////////////////////////////////////////
 void SMProxyServer::addMeasurement(unsigned long size)
 {
-  // for bandwidth performance measurements
-  if ( pmeter_->addSample(size) )
+  // for input bandwidth performance measurements
+  if (dpm_.get() != NULL)
   {
-    // Copy measurements for our record
-    instantBandwidth_ = pmeter_->bandwidth();
-    instantRate_      = pmeter_->rate();
-    instantLatency_   = pmeter_->latency();
-    totalSamples_     = pmeter_->totalsamples();
-    duration_         = pmeter_->duration();
-    meanBandwidth_    = pmeter_->meanbandwidth();
-    meanRate_         = pmeter_->meanrate();
-    meanLatency_      = pmeter_->meanlatency();
-
-    // Determine minimum and maximum instantaneous bandwidth
-    if (instantBandwidth_ > maxBandwidth_)
-      maxBandwidth_ = instantBandwidth_;
-    if (instantBandwidth_ < minBandwidth_)
-      minBandwidth_ = instantBandwidth_;
+    dpm_->addMeasurement(size);
   }
 }
 
@@ -227,20 +214,17 @@ void SMProxyServer::addOutMeasurement(unsigned long size)
   if ( outpmeter_->addSample(size) )
   {
     // Copy measurements for our record
-    outinstantBandwidth_ = outpmeter_->bandwidth();
-    outinstantRate_      = outpmeter_->rate();
-    outinstantLatency_   = outpmeter_->latency();
-    outtotalSamples_     = outpmeter_->totalsamples();
-    outduration_         = outpmeter_->duration();
-    outmeanBandwidth_    = outpmeter_->meanbandwidth();
-    outmeanRate_         = outpmeter_->meanrate();
-    outmeanLatency_      = outpmeter_->meanlatency();
-
-    // Determine minimum and maximum instantaneous bandwidth
-    if (outinstantBandwidth_ > outmaxBandwidth_)
-      outmaxBandwidth_ = outinstantBandwidth_;
-    if (outinstantBandwidth_ < outminBandwidth_)
-      outminBandwidth_ = outinstantBandwidth_;
+    stor::SMPerfStats stats = outpmeter_->getStats();
+    outinstantBandwidth_ = stats.throughput_;
+    outinstantRate_      = stats.rate_;
+    outinstantLatency_   = stats.latency_;
+    outtotalSamples_     = stats.sampleCounter_;
+    outduration_         = stats.allTime_;
+    outmeanBandwidth_    = stats.meanThroughput_;
+    outmeanRate_         = stats.meanRate_;
+    outmeanLatency_      = stats.meanLatency_;
+    outmaxBandwidth_     = stats.maxBandwidth_;
+    outminBandwidth_     = stats.minBandwidth_;
   }
 }
 
@@ -318,20 +302,28 @@ void SMProxyServer::defaultWebPage(xgi::Input *in, xgi::Output *out)
 
   *out << "<table frame=\"void\" rules=\"groups\" class=\"states\">" << endl;
   *out << "<colgroup> <colgroup align=\"right\">"                    << endl;
-        *out << "<tr>" << endl;
-        *out << "<th >" << endl;
-        *out << "State" << endl;
-        *out << "</th>" << endl;
-        *out << "<th>" << endl;
-        *out << fsm_.stateName()->toString() << endl;
-        *out << "</th>" << endl;
-        *out << "</tr>" << endl;
-        *out << "<tr>" << endl;
     *out << "  <tr>"                                                   << endl;
     *out << "    <th colspan=2>"                                       << endl;
     *out << "      " << "Input and Output Statistics"                  << endl;
     *out << "    </th>"                                                << endl;
     *out << "  </tr>"                                                  << endl;
+
+    if (dpm_.get() != NULL)
+    {
+      receivedEvents_ = dpm_->receivedevents();
+      receivedDQMEvents_ = dpm_->receivedDQMevents();
+      stor::SMPerfStats stats = dpm_->getStats();
+      instantBandwidth_ = stats.throughput_;
+      instantRate_      = stats.rate_;
+      instantLatency_   = stats.latency_;
+      totalSamples_     = stats.sampleCounter_;
+      duration_         = stats.allTime_;
+      meanBandwidth_    = stats.meanThroughput_;
+      meanRate_         = stats.meanRate_;
+      meanLatency_      = stats.meanLatency_;
+      maxBandwidth_     = stats.maxBandwidth_;
+      minBandwidth_     = stats.minBandwidth_;
+    }
 
         *out << "<tr>" << endl;
         *out << "<th >" << endl;
@@ -397,7 +389,7 @@ void SMProxyServer::defaultWebPage(xgi::Input *in, xgi::Output *out)
         *out << "  </tr>" << endl;
         *out << "<tr>" << endl;
           *out << "<td >" << endl;
-          *out << "Rate (Frames/s)" << endl;
+          *out << "Rate (Posts/s)" << endl;
           *out << "</td>" << endl;
           *out << "<td align=right>" << endl;
           *out << instantRate_ << endl;
@@ -405,7 +397,7 @@ void SMProxyServer::defaultWebPage(xgi::Input *in, xgi::Output *out)
         *out << "  </tr>" << endl;
         *out << "<tr>" << endl;
           *out << "<td >" << endl;
-          *out << "Latency (us/frame)" << endl;
+          *out << "Latency (us/post)" << endl;
           *out << "</td>" << endl;
           *out << "<td align=right>" << endl;
           *out << instantLatency_ << endl;
@@ -444,7 +436,7 @@ void SMProxyServer::defaultWebPage(xgi::Input *in, xgi::Output *out)
         *out << "  </tr>" << endl;
         *out << "<tr>" << endl;
           *out << "<td >" << endl;
-          *out << "Rate (Frames/s)" << endl;
+          *out << "Rate (Posts/s)" << endl;
           *out << "</td>" << endl;
           *out << "<td align=right>" << endl;
           *out << meanRate_ << endl;
@@ -452,7 +444,7 @@ void SMProxyServer::defaultWebPage(xgi::Input *in, xgi::Output *out)
         *out << "  </tr>" << endl;
         *out << "<tr>" << endl;
           *out << "<td >" << endl;
-          *out << "Latency (us/frame)" << endl;
+          *out << "Latency (us/post)" << endl;
           *out << "</td>" << endl;
           *out << "<td align=right>" << endl;
           *out << meanLatency_ << endl;
@@ -474,7 +466,7 @@ void SMProxyServer::defaultWebPage(xgi::Input *in, xgi::Output *out)
         *out << "  </tr>" << endl;
         *out << "<tr>" << endl;
           *out << "<td >" << endl;
-          *out << "Rate (Frames/s)" << endl;
+          *out << "Rate (Posts/s)" << endl;
           *out << "</td>" << endl;
           *out << "<td align=right>" << endl;
           *out << outinstantRate_ << endl;
@@ -482,7 +474,7 @@ void SMProxyServer::defaultWebPage(xgi::Input *in, xgi::Output *out)
         *out << "  </tr>" << endl;
         *out << "<tr>" << endl;
           *out << "<td >" << endl;
-          *out << "Latency (us/frame)" << endl;
+          *out << "Latency (us/post)" << endl;
           *out << "</td>" << endl;
           *out << "<td align=right>" << endl;
           *out << outinstantLatency_ << endl;
@@ -521,7 +513,7 @@ void SMProxyServer::defaultWebPage(xgi::Input *in, xgi::Output *out)
         *out << "  </tr>" << endl;
         *out << "<tr>" << endl;
           *out << "<td >" << endl;
-          *out << "Rate (Frames/s)" << endl;
+          *out << "Rate (Posts/s)" << endl;
           *out << "</td>" << endl;
           *out << "<td align=right>" << endl;
           *out << outmeanRate_ << endl;
@@ -529,7 +521,7 @@ void SMProxyServer::defaultWebPage(xgi::Input *in, xgi::Output *out)
         *out << "  </tr>" << endl;
         *out << "<tr>" << endl;
           *out << "<td >" << endl;
-          *out << "Latency (us/frame)" << endl;
+          *out << "Latency (us/post)" << endl;
           *out << "</td>" << endl;
           *out << "<td align=right>" << endl;
           *out << outmeanLatency_ << endl;
@@ -550,7 +542,7 @@ void SMProxyServer::defaultWebPage(xgi::Input *in, xgi::Output *out)
   *out << "<colgroup> <colgroup align=\"rigth\">"                    << endl;
     *out << "  <tr>"                                                   << endl;
     *out << "    <th colspan=2>"                                       << endl;
-    *out << "      " << "FU Sender Information"                            << endl;
+    *out << "      " << "SM Sender Information"                            << endl;
     *out << "    </th>"                                                << endl;
     *out << "  </tr>"                                                  << endl;
 
@@ -834,22 +826,42 @@ void SMProxyServer::eventdataWebPage(xgi::Input *in, xgi::Output *out)
     }
     if (eventServer.get() != NULL)
     {
-      boost::shared_ptr< std::vector<char> > bufPtr =
-        eventServer->getEvent(consumerId);
-      if (bufPtr.get() != NULL)
+      // if we've stored a "registry warning" in the consumer pipe, send
+      // that instead of an event so that the consumer can react to
+      // the warning
+      boost::shared_ptr<ConsumerPipe> consPtr =
+        eventServer->getConsumer(consumerId);
+      if (consPtr.get() != NULL && consPtr->hasRegistryWarning())
       {
-        EventMsgView msgView(&(*bufPtr)[0]);
-
-        unsigned char* from = msgView.startAddress();
-        unsigned int dsize = msgView.size();
-        if(dsize > mybuffer_.capacity() ) mybuffer_.resize(dsize);
+        std::vector<char> registryWarning = consPtr->getRegistryWarning();
+        const char* from = &registryWarning[0];
+        unsigned int msize = registryWarning.size();
+        if(mybuffer_.capacity() < msize) mybuffer_.resize(msize);
         unsigned char* pos = (unsigned char*) &mybuffer_[0];
 
-        copy(from,from+dsize,pos);
-        len = dsize;
-        FDEBUG(10) << "sending event " << msgView.event() << std::endl;
-        ++sentEvents_;
-        addOutMeasurement(len);
+        copy(from,from+msize,pos);
+        len = msize;
+        consPtr->clearRegistryWarning();
+      }
+      else
+      {
+        boost::shared_ptr< std::vector<char> > bufPtr =
+          eventServer->getEvent(consumerId);
+        if (bufPtr.get() != NULL)
+        {
+          EventMsgView msgView(&(*bufPtr)[0]);
+
+          unsigned char* from = msgView.startAddress();
+          unsigned int dsize = msgView.size();
+          if(dsize > mybuffer_.capacity() ) mybuffer_.resize(dsize);
+          unsigned char* pos = (unsigned char*) &mybuffer_[0];
+
+          copy(from,from+dsize,pos);
+          len = dsize;
+          FDEBUG(10) << "sending event " << msgView.event() << std::endl;
+          ++sentEvents_;
+          addOutMeasurement(len);
+        }
       }
     }
     
@@ -874,6 +886,8 @@ void SMProxyServer::eventdataWebPage(xgi::Input *in, xgi::Output *out)
 void SMProxyServer::headerdataWebPage(xgi::Input *in, xgi::Output *out)
   throw (xgi::exception::Exception)
 {
+  unsigned int len = 0;
+
   // determine the consumer ID from the header request
   // message, if it is available.
   auto_ptr< vector<char> > httpPostData;
@@ -898,53 +912,71 @@ void SMProxyServer::headerdataWebPage(xgi::Input *in, xgi::Output *out)
   // check we are in the right state
   // first test if SMProxyServer is in Enabled state and registry is filled
   // this must be the case for valid data to be present
-  bool haveHeaderAlready = false;
-  if(dpm_.get() != NULL) haveHeaderAlready = dpm_->haveHeader();
-  if(fsm_.stateName()->toString() == "Enabled" && haveHeaderAlready)
+  if(fsm_.stateName()->toString() == "Enabled" && dpm_.get() != NULL &&
+     dpm_->getInitMsgCollection().get() != NULL &&
+     dpm_->getInitMsgCollection()->size() > 0)
     {
-      if(!dpm_->haveHeader()) // should not get here! (except for threading...)
-	{ // not available yet - return zero length stream, should return MsgCode NOTREADY
-	  int len = 0;
-	  out->getHTTPResponseHeader().addHeader("Content-Type", "application/octet-stream");
-	  out->getHTTPResponseHeader().addHeader("Content-Transfer-Encoding", "binary");
-	  out->write((char*) &mybuffer_[0],len);
-	} 
-      else 
-	{
-	  // overlay an INIT message view on the serialized
-	  // products array so that we can initialize the consumer event selection
-	  unsigned int len = dpm_->headerSize();
-          std::vector<unsigned char> serialized_prods = dpm_->getHeader();
-	  InitMsgView initView(&serialized_prods[0]);
-	  if (dpm_.get() != NULL)
-	    {
-	      boost::shared_ptr<EventServer> eventServer = dpm_->getEventServer();
-	      if (eventServer.get() != NULL)
-		{
-		  boost::shared_ptr<ConsumerPipe> consPtr =
-		    eventServer->getConsumer(consumerId);
-		  if (consPtr.get() != NULL)
-		    {
-		      consPtr->initializeSelection(initView);
-		    }
-		}
-	    }
-          if(len > mybuffer_.capacity() ) mybuffer_.resize(len);
-	  for (int i=0; i<(int)len; i++) mybuffer_[i]=serialized_prods[i];
-	  
-	  out->getHTTPResponseHeader().addHeader("Content-Type", "application/octet-stream");
-	  out->getHTTPResponseHeader().addHeader("Content-Transfer-Encoding", "binary");
-	  out->write((char*) &mybuffer_[0],len);
-	}
-    } 
-  else 
-    {
-      // In wrong state for this message - return zero length stream, should return Msg NOTREADY
-      int len = 0;
-      out->getHTTPResponseHeader().addHeader("Content-Type", "application/octet-stream");
-      out->getHTTPResponseHeader().addHeader("Content-Transfer-Encoding", "binary");
-      out->write((char*) &mybuffer_[0],len);
+      std::string errorString;
+      InitMsgSharedPtr serializedProds;
+      boost::shared_ptr<EventServer> eventServer = dpm_->getEventServer();
+      if (eventServer.get() != NULL)
+      {
+        boost::shared_ptr<ConsumerPipe> consPtr =
+          eventServer->getConsumer(consumerId);
+        if (consPtr.get() != NULL)
+        {
+          boost::shared_ptr<InitMsgCollection> initMsgCollection =
+            dpm_->getInitMsgCollection();
+          try
+          {
+            Strings consumerSelection = consPtr->getTriggerRequest();
+            serializedProds =
+              initMsgCollection->getElementForSelection(consumerSelection);
+            if (serializedProds.get() != NULL)
+            {
+              Strings triggerNameList;
+              InitMsgView initView(&(*serializedProds)[0]);
+              initView.hltTriggerNames(triggerNameList);
+              consPtr->initializeSelection(triggerNameList);
+            }
+          }
+          catch (const edm::Exception& excpt)
+          {
+            errorString = excpt.what();
+          }
+          catch (const cms::Exception& excpt)
+          {
+            errorString.append(excpt.what());
+            errorString.append("\n");
+            errorString.append(initMsgCollection->getSelectionHelpString());
+            errorString.append("\n\n");
+            errorString.append("*** Please select trigger paths from one and ");
+            errorString.append("only one HLT output module. ***\n");
+          }
+        }
+      }
+      if (errorString.length() > 0) {
+        len = errorString.length();
+      }
+      else if (serializedProds.get() != NULL) {
+        len = serializedProds->size();
+      }
+      else {
+        len = 0;
+      }
+      if (mybuffer_.capacity() < len) mybuffer_.resize(len);
+      if (errorString.length() > 0) {
+        const char *errorBytes = errorString.c_str();
+        for (unsigned int i=0; i<len; ++i) mybuffer_[i]=errorBytes[i];
+      }
+      else if (serializedProds.get() != NULL) {
+        for (unsigned int i=0; i<len; ++i) mybuffer_[i]=(*serializedProds)[i];
+      }
     }
+
+  out->getHTTPResponseHeader().addHeader("Content-Type", "application/octet-stream");
+  out->getHTTPResponseHeader().addHeader("Content-Transfer-Encoding", "binary");
+  out->write((char*) &mybuffer_[0],len);
 }
 
 
@@ -998,16 +1030,19 @@ void SMProxyServer::consumerWebPage(xgi::Input *in, xgi::Output *out)
   }
   else
   {
-    // construct a parameter set from the consumer request
-    boost::shared_ptr<edm::ParameterSet>
-      requestParamSet(new edm::ParameterSet(consumerRequest));
+    // fetch the event selection request from the consumer request
+    edm::ParameterSet requestParamSet(consumerRequest);
+    Strings selectionRequest =
+      EventSelector::getEventSelectionVString(requestParamSet);
+    Strings modifiedRequest =
+      eventServer->updateTriggerSelectionForStreams(selectionRequest);
 
     // create the local consumer interface and add it to the event server
     boost::shared_ptr<ConsumerPipe>
       consPtr(new ConsumerPipe(consumerName, consumerPriority,
                                activeConsumerTimeout_.value_,
                                idleConsumerTimeout_.value_,
-                               requestParamSet, consumerHost,
+                               modifiedRequest, consumerHost,
                                consumerQueueSize_));
     eventServer->addConsumer(consPtr);
 
@@ -1057,8 +1092,7 @@ void SMProxyServer::DQMeventdataWebPage(xgi::Input *in, xgi::Output *out)
     in->read(&(*bufPtr)[0], contentLength);
     OtherMessageView requestMessage(&(*bufPtr)[0]);
     // make the change below when a tag of IOPool/Streamer can be used without FW changes
-    //if (requestMessage.code() == Header::DQMEVENT_REQUEST)
-    if (requestMessage.code() == Header::EVENT_REQUEST)
+    if (requestMessage.code() == Header::DQMEVENT_REQUEST)
     {
       uint8 *bodyPtr = requestMessage.msgBody();
       consumerId = convert32(bodyPtr);
@@ -1373,6 +1407,9 @@ void SMProxyServer::setupFlashList()
   //is->fireItemAvailable("nLogicalDisk",         &nLogicalDisk_);
   //is->fireItemAvailable("fileCatalog",          &fileCatalog_);
   is->fireItemAvailable("maxESEventRate",       &maxESEventRate_);
+  is->fireItemAvailable("DQMmaxESEventRate",    &DQMmaxESEventRate_);
+  is->fireItemAvailable("maxEventRequestRate",&maxEventRequestRate_);
+  is->fireItemAvailable("maxDQMEventRequestRate",&maxDQMEventRequestRate_);
   is->fireItemAvailable("activeConsumerTimeout",&activeConsumerTimeout_);
   is->fireItemAvailable("idleConsumerTimeout",  &idleConsumerTimeout_);
   is->fireItemAvailable("consumerQueueSize",    &consumerQueueSize_);
@@ -1412,6 +1449,9 @@ void SMProxyServer::setupFlashList()
   //is->addItemRetrieveListener("nLogicalDisk",         this);
   //is->addItemRetrieveListener("fileCatalog",          this);
   is->addItemRetrieveListener("maxESEventRate",       this);
+  is->addItemRetrieveListener("DQMmaxESEventRate",       this);
+  is->addItemRetrieveListener("maxEventRequestRate",       this);
+  is->addItemRetrieveListener("maxDQMEventRequestRate",       this);
   is->addItemRetrieveListener("activeConsumerTimeout",this);
   is->addItemRetrieveListener("idleConsumerTimeout",  this);
   is->addItemRetrieveListener("consumerQueueSize",    this);
@@ -1432,7 +1472,10 @@ void SMProxyServer::actionPerformed(xdata::Event& e)
     if      (item == "connectedSMs")
       connectedSMs_   = smsenders_.size();
     else if (item == "storedVolume")
-      storedVolume_   = pmeter_->totalvolumemb();
+      if (dpm_.get() != NULL)
+        storedVolume_   = dpm_->totalvolumemb();
+      else
+        storedVolume_   = 0;
     else if (item == "progressMarker")
       progressMarker_ = ProgressMarker::instance()->status();
     is->unlock();
@@ -1467,12 +1510,17 @@ bool SMProxyServer::configuring(toolbox::task::WorkLoop* wl)
     if (DQMmaxESEventRate_ < 0.0)
       DQMmaxESEventRate_ = 0.0;
     
-    // consumer queues are not yet implemented, only one slot is available
-    xdata::Integer cutoff(1);
-    if (consumerQueueSize_ < cutoff)
+    // TODO fixme: determine these two parameters properly
+    xdata::Integer cutoff(20);
+    xdata::Integer mincutoff(10);
+    if (consumerQueueSize_ > cutoff)
       consumerQueueSize_ = cutoff;
-    if (DQMconsumerQueueSize_ < cutoff)
+    if (DQMconsumerQueueSize_ > cutoff)
       DQMconsumerQueueSize_ = cutoff;
+    if (consumerQueueSize_ < mincutoff)
+      consumerQueueSize_ = mincutoff;
+    if (DQMconsumerQueueSize_ < mincutoff)
+      DQMconsumerQueueSize_ = mincutoff;
 
     // set the urn as the consumer name to register with to SM
     std::string url = getApplicationDescriptor()->getContextDescriptor()->getURL();
@@ -1480,6 +1528,8 @@ bool SMProxyServer::configuring(toolbox::task::WorkLoop* wl)
     consumerName_ = url + "/" + urn + "/pushEventData";
     DQMconsumerName_ = url + "/" + urn + "/pushDQMEventData";
     // start a work loop that can process commands (do we need it in push mode?)
+    // TODO fixme: use a pushmode variable to decide to change consumer names
+    //             and not get events on push mode in work loop
     try {
       dpm_.reset(new stor::DataProcessManager());
       
@@ -1489,6 +1539,11 @@ bool SMProxyServer::configuring(toolbox::task::WorkLoop* wl)
       boost::shared_ptr<DQMEventServer>
         DQMeventServer(new DQMEventServer(DQMmaxESEventRate_));
       dpm_->setDQMEventServer(DQMeventServer);
+      boost::shared_ptr<InitMsgCollection>
+        initMsgCollection(new InitMsgCollection());
+      dpm_->setInitMsgCollection(initMsgCollection);
+      dpm_->setMaxEventRequestRate(maxEventRequestRate_);
+      dpm_->setMaxDQMEventRequestRate(maxDQMEventRequestRate_);
 
       dpm_->setCollateDQM(collateDQM_);
       dpm_->setArchiveDQM(archiveDQM_);
@@ -1497,6 +1552,7 @@ bool SMProxyServer::configuring(toolbox::task::WorkLoop* wl)
       dpm_->setFilePrefixDQM(filePrefixDQM_);
       dpm_->setUseCompressionDQM(useCompressionDQM_);
       dpm_->setCompressionLevelDQM(compressionLevelDQM_);
+      dpm_->setSamples(samples_);
 
       // If we are in pull mode, we need to know which Storage Managers to
       // poll for events and DQM events
@@ -1607,6 +1663,9 @@ bool SMProxyServer::stopping(toolbox::task::WorkLoop* wl)
     if (dqmeventServer.get() != NULL) dqmeventServer->clearQueue();
     // do not stop dpm_ as we don't want to register again and get the header again
     // need to redo if we switch to polling for events
+    // switched to polling for events
+    dpm_->stop();
+    dpm_->join();
 
     // should tell StorageManager applications we are stopping in which
     // case we need to register again

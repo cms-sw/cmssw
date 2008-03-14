@@ -18,11 +18,11 @@ using namespace reco;
 using namespace std;
 using namespace JetReco;
 
-//--------------test Mac/afs------------------
+//-----------------------------------------------------------
 
-FWLiteJetProducer::FWLiteJetProducer(){ 
+FWLiteJetProducer::FWLiteJetProducer(){	
 
-  mEtInputCut_=0.5;     
+  mEtInputCut_=0.5;	
   mEInputCut_=0.;
   seedThreshold_=1.0;
   coneRadius_=0.5;
@@ -40,7 +40,7 @@ FWLiteJetProducer::FWLiteJetProducer(){
 
 
 //-----------------------------------------------------------
-FWLiteJetProducer::~FWLiteJetProducer() {       
+FWLiteJetProducer::~FWLiteJetProducer() {  	
   delete algoIC_;
   delete algoMC_;
 }
@@ -52,15 +52,15 @@ void FWLiteJetProducer::updateParameter(){
   if (algoMC_) delete algoMC_;
   algoIC_= new CMSIterativeConeAlgorithm(seedThreshold_,coneRadius_ );
   algoMC_= new CMSMidpointAlgorithm(seedThreshold_, coneRadius_,coneAreaFraction_, 
-                                    maxPairSize_, maxIterations_, overlapThreshold_, 0) ; 
-  algoF_.setPtMin(ptMin_);
-  algoF_.setRParam(rparam_);
+				    maxPairSize_, maxIterations_, overlapThreshold_, 0) ; 
+    algoF_.setPtMin(ptMin_);
+   algoF_.setRParam(rparam_);
   print();
 }
 
 
 //-----------------------------------------------------------
-void FWLiteJetProducer::print() {       
+void FWLiteJetProducer::print() {  	
 
   cout <<"--- FWLiteJetProducer:Print(): ---" << endl;
 
@@ -83,28 +83,22 @@ void FWLiteJetProducer::print() {
 //-----------------------------------------------------------
 void FWLiteJetProducer::applyCuts(const reco::CandidateCollection& Candidates, JetReco::InputCollection* input){
   //!!!!
-//edm::OrphanHandle< reco::CandidateCollection >  CandidateHandle(&(Candidates), edm::ProductID(20001) );
-  input->reserve ( Candidates.size());  
-  //cout<<" Candidate " << CandidateHandle->size()<<Candidates.size() << endl;
-  for (unsigned i = 0; i <Candidates.size() ; i++) {
-    const reco::Candidate* constituent = &Candidates[i];        
+  edm::OrphanHandle< reco::CandidateCollection >  CandidateHandle(&(Candidates), edm::ProductID(10001) );
+  // FIXME - NOT YET WORKING & COMPILING  
+  //  fillInputs (  CandidateHandle, &input, mEtInputCut_, mEInputCut_);
 
-    if ((mEtInputCut_ <= 0 || constituent->et() > mEtInputCut_) &&
-        (mEInputCut_ <= 0 || constituent->energy() > mEInputCut_)) {                    
-      input->push_back (InputItem(constituent,i));                  
-    }
-  }
+
 }
 
 //-----------------------------------------------------------
-void FWLiteJetProducer::makeIterativeConeJets(const InputCollection& fInput, OutputCollection* fOutput){        
+void FWLiteJetProducer::makeIterativeConeJets(const InputCollection& fInput, OutputCollection* fOutput){	
   if (fInput.empty ()) {
     std::cout << "empty input for jet algorithm: bypassing..." << std::endl;
   }
   else {                                      
     algoIC_->run(fInput, & (*fOutput));
-  }     
-}       
+  } 	
+}     	
 
 //-----------------------------------------------------------
 void FWLiteJetProducer::makeFastJets(const InputCollection& fInput, OutputCollection* fOutput){
@@ -113,7 +107,7 @@ void FWLiteJetProducer::makeFastJets(const InputCollection& fInput, OutputCollec
     std::cout << "empty input for jet algorithm: bypassing..." << std::endl;
   }
   else {                                      
-    algoF_.run(fInput, &(*fOutput));
+       algoF_.run(fInput, &(*fOutput));
   } 
 }
 
@@ -131,3 +125,61 @@ void FWLiteJetProducer::makeMidpointJets(const InputCollection& fInput, OutputCo
 
 
 //-----------------------------------------------------------
+ 
+
+namespace {
+  const bool debug = false;
+
+  bool makeCaloJet (const string& fTag) {
+    return fTag == "CaloJet";
+  }
+  bool makePFJet (const string& fTag) {
+    return fTag == "PFJet";
+  }
+  bool makeGenJet (const string& fTag) {
+    return fTag == "GenJet";
+  }
+  bool makeBasicJet (const string& fTag) {
+    return fTag == "BasicJet";
+  }
+
+  bool makeGenericJet (const string& fTag) {
+    return !makeCaloJet (fTag) && makePFJet (fTag) && !makeGenJet (fTag) && !makeBasicJet (fTag);
+  }
+
+  template <class T>  
+  void dumpJets (const T& fJets) {
+    for (unsigned i = 0; i < fJets.size(); ++i) {
+      std::cout << "Jet # " << i << std::endl << fJets[i].print();
+    }
+  }
+
+  class FakeHandle {
+  public:
+    FakeHandle (const CandidateCollection* fCollection, edm::ProductID fId) : mCollection (fCollection), mId (fId) {}
+    edm::ProductID id () const {return mId;} 
+    const CandidateCollection* product () const {return mCollection;}
+  private:
+    const CandidateCollection* mCollection;
+    edm::ProductID mId;
+  };
+
+  template <class HandleC>
+  void fillInputs (const HandleC& fData, JetReco::InputCollection* fInput, double fEtCut, double fECut) {
+    for (unsigned i = 0; i < fData.product ()->size (); i++) {
+      // if clone, trace back till the original
+      CandidateRef constituent (fData, i);
+      while (constituent.isNonnull() && constituent->hasMasterClone ()) {
+	CandidateBaseRef baseRef = constituent->masterClone ();
+	constituent = baseRef.castTo<CandidateRef>();
+      }
+      if (constituent.isNull()) {
+	std::cout<< "Missing MasterClone: Constituent is ignored..." << std::endl;
+      }
+      else if ((fEtCut <= 0 || constituent->et() > fEtCut) &&
+	  (fECut <= 0 || constituent->energy() > fECut)) {
+	//	fInput->push_back (constituent);
+      }
+    }
+  }
+}

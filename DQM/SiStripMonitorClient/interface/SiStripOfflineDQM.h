@@ -40,14 +40,12 @@ class SiStripOfflineDQM: public edm::EDAnalyzer {
 			                    const edm::EventSetup &roEVENT_SETUP);
     virtual void beginJob( const edm::EventSetup &roEVENT);
     virtual void endJob();
-    virtual void endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& eSetup);
- 
-
-
 
   private:
     const bool        bVERBOSE_;
-    bool          bCreateSummary_;
+    const bool        bSAVE_IN_FILE_;
+    const std::string oOUT_FILE_NAME_;
+
     DaqMonitorBEInterface       *poBei_;
     SiStripActionExecutorQTest  oActionExecutor_;
 };

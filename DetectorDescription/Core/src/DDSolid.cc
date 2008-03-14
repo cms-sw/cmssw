@@ -1,9 +1,7 @@
 
 
 #include "DetectorDescription/Base/interface/DDException.h"
-#include "DetectorDescription/Core/interface/DDName.h"
 #include "DetectorDescription/Core/interface/DDSolid.h"
-#include "DetectorDescription/Core/interface/DDSolidShapes.h"
 #include "DetectorDescription/Core/src/Solid.h"
 
 #include "DetectorDescription/Core/src/Box.h"

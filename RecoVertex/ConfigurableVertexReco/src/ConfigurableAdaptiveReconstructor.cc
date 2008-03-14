@@ -8,14 +8,10 @@ namespace {
   {
     edm::ParameterSet ret;
     ret.addParameter<double>("primcut",2.0);
-    ret.addParameter<double>("primT",256.0);
-    ret.addParameter<double>("primr",0.25);
     ret.addParameter<double>("seccut",6.0);
-    ret.addParameter<double>("secT",256.0);
-    ret.addParameter<double>("secr",0.25);
     ret.addParameter<double>("minweight",0.5);
+    ret.addParameter<bool>("smoothing",0);
     ret.addParameter<double>("weightthreshold",0.001 );
-    ret.addParameter<bool>("smoothing",false );
     return ret;
   }
 }
@@ -56,20 +52,10 @@ vector < TransientVertex > ConfigurableAdaptiveReconstructor::vertices (
 }
 
 vector < TransientVertex > ConfigurableAdaptiveReconstructor::vertices ( 
-    const std::vector < reco::TransientTrack > & t,
-    const reco::BeamSpot & s ) const
+    const std::vector < reco::TransientTrack > & t, const reco::BeamSpot & s ) const
 {
   return theRector->vertices ( t, s );
 }
-
-vector < TransientVertex > ConfigurableAdaptiveReconstructor::vertices ( 
-    const std::vector < reco::TransientTrack > & prims,
-    const std::vector < reco::TransientTrack > & secs,
-    const reco::BeamSpot & s ) const
-{
-  return theRector->vertices ( prims, secs, s );
-}
-
 
 
 edm::ParameterSet ConfigurableAdaptiveReconstructor::defaults() const

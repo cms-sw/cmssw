@@ -1,4 +1,3 @@
-#include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/SourceFactory.h"
 #include "CondCore/ESSources/interface/PoolDBESSource.h"
 //define this as a plug-in

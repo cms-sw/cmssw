@@ -1,4 +1,3 @@
-#include "FWCore/PluginManager/interface/PluginManager.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/Event.h"

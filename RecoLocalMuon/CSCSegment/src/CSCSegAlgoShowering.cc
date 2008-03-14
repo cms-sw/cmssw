@@ -103,7 +103,7 @@ CSCSegment CSCSegAlgoShowering::showerSeg( const CSCChamber* theChamber, Chamber
     LocalPoint  lp         = theChamber->toLocal(gp);
 
     float d_x = lp.x() -lpCOM[l_id -1].x();
-    float d_y = lp.y() -lpCOM[l_id -1].y();
+    float d_y = lp.x() -lpCOM[l_id -1].x();
 
     LocalPoint diff(d_x, d_y, 0.);
     

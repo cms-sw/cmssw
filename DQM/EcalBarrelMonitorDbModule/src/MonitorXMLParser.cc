@@ -1,33 +1,22 @@
-// $Id: MonitorXMLParser.cc,v 1.3 2006/06/19 16:00:56 benigno Exp $
+// $Id: MonitorXMLParser.cc,v 1.6 2008/01/22 19:54:04 dellaric Exp $
 
 /*!
   \file MonitorXMLParser.cc
   \brief monitor db xml elements parsing tool
   \author B. Gobbo 
-  \version $Revision: 1.3 $
-  \date $Date: 2006/06/19 16:00:56 $
+  \version $Revision: 1.6 $
+  \date $Date: 2008/01/22 19:54:04 $
 */
 
 #include <xercesc/util/PlatformUtils.hpp>
 
 #include <xercesc/dom/DOMDocument.hpp>
-#include <xercesc/dom/DOMDocumentType.hpp>
-#include <xercesc/dom/DOMImplementation.hpp>
-#include <xercesc/dom/DOMImplementationLS.hpp>
-#include <xercesc/dom/DOMNodeIterator.hpp>
 #include <xercesc/dom/DOMNodeList.hpp>
-#include <xercesc/dom/DOMText.hpp>
 
-#include <xercesc/util/XMLUni.hpp>
-
-#include <string>
 #include <sstream>
 #include <stdexcept>
-#include <vector>
-#include <map>
 
 #include "DQM/EcalBarrelMonitorDbModule/interface/MonitorXMLParser.h"
-//#include "MonitorXMLParser.h"
 
 MonitorXMLParser::MonitorXMLParser( const std::string& fromFile ) {
 
@@ -449,7 +438,7 @@ void MonitorXMLParser::load() throw( std::runtime_error ) {
     char* message = xercesc::XMLString::transcode( e.getMessage() );
     
     std::ostringstream buf ;
-    buf << "Error parsing file: " << message << std::flush;
+    buf << "Error parsing file: " << message << std::endl;
     
     xercesc::XMLString::release( &message );
     
@@ -460,7 +449,7 @@ void MonitorXMLParser::load() throw( std::runtime_error ) {
     char* message = xercesc::XMLString::transcode( e.getMessage() );
     
     std::ostringstream buf;
-    buf << "Encountered DOM Exception: " << message << std::flush;
+    buf << "Encountered DOM Exception: " << message << std::endl;
     
     xercesc::XMLString::release( &message );
       

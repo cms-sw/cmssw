@@ -92,8 +92,7 @@ PixelPortCardConfig::PixelPortCardConfig(std::string filename):
     if ( settingName[settingName.size()-1] == ':' ) settingName.resize( settingName.size()-1 ); // remove ':' from end of string, if it's there
     
     // Special handling for AOHX_GainY
-    if ( settingName.find("AOH") != string::npos && settingName.find("Gain") != string::npos // contains both "AOH" and "Gain"
-      && settingName.find("123") == string::npos && settingName.find("456") == string::npos ) // does not contain "123" or "456"
+    if ( settingName.find("AOH") != string::npos && settingName.find("Gain") != string::npos )
     {
     	string::size_type GainPosition = settingName.find("Gain");
     	unsigned int whichAOH;
@@ -118,8 +117,6 @@ PixelPortCardConfig::PixelPortCardConfig(std::string filename):
     	else if ( whichAOH == 2 && channelOnAOH >= 4 ) i2c_address = k_bpix_AOH2_Gain456_address;
     	else if ( whichAOH == 3 && channelOnAOH <= 3 ) i2c_address = k_bpix_AOH3_Gain123_address;
     	else if ( whichAOH == 3 && channelOnAOH >= 4 ) i2c_address = k_bpix_AOH3_Gain456_address;
-    	else if ( whichAOH == 4 && channelOnAOH <= 3 ) i2c_address = k_bpix_AOH4_Gain123_address;
-    	else if ( whichAOH == 4 && channelOnAOH >= 4 ) i2c_address = k_bpix_AOH4_Gain456_address;
     	else assert(0);
     	
     	// Search for this address in the previously-defined settings.
@@ -205,10 +202,9 @@ void PixelPortCardConfig::fillNameToAddress()
 		nameToAddress_[PortCardSettingNames::k_Delay25_SCL] = PortCardSettingNames::k_fpix_Delay25_SCL_address;
 		nameToAddress_[PortCardSettingNames::k_Delay25_GCR] = PortCardSettingNames::k_fpix_Delay25_GCR_address;
 		
-		nameToAddress_[PortCardSettingNames::k_DOH_Ch0Bias_CLK]  = PortCardSettingNames::k_fpix_DOH_Ch0Bias_CLK_address;
-		nameToAddress_[PortCardSettingNames::k_DOH_Dummy]        = PortCardSettingNames::k_fpix_DOH_Dummy_address;
+		nameToAddress_[PortCardSettingNames::k_DOH_Ch0Bias_CLK] = PortCardSettingNames::k_fpix_DOH_Ch0Bias_CLK_address;
 		nameToAddress_[PortCardSettingNames::k_DOH_Ch1Bias_Data] = PortCardSettingNames::k_fpix_DOH_Ch1Bias_Data_address;
-		nameToAddress_[PortCardSettingNames::k_DOH_Gain_SEU]     = PortCardSettingNames::k_fpix_DOH_Gain_SEU_address;
+		nameToAddress_[PortCardSettingNames::k_DOH_Gain_SEU] = PortCardSettingNames::k_fpix_DOH_Gain_SEU_address;
 	}
 	else if ( type_ == "bpix" )
 	{
@@ -260,10 +256,9 @@ void PixelPortCardConfig::fillNameToAddress()
 		nameToAddress_[PortCardSettingNames::k_Delay25_SCL] = PortCardSettingNames::k_bpix_Delay25_SCL_address;
 		nameToAddress_[PortCardSettingNames::k_Delay25_GCR] = PortCardSettingNames::k_bpix_Delay25_GCR_address;
 		
-		nameToAddress_[PortCardSettingNames::k_DOH_Ch0Bias_CLK]  = PortCardSettingNames::k_bpix_DOH_Ch0Bias_CLK_address;
-		nameToAddress_[PortCardSettingNames::k_DOH_Dummy]        = PortCardSettingNames::k_bpix_DOH_Dummy_address;
+		nameToAddress_[PortCardSettingNames::k_DOH_Ch0Bias_CLK] = PortCardSettingNames::k_bpix_DOH_Ch0Bias_CLK_address;
 		nameToAddress_[PortCardSettingNames::k_DOH_Ch1Bias_Data] = PortCardSettingNames::k_bpix_DOH_Ch1Bias_Data_address;
-		nameToAddress_[PortCardSettingNames::k_DOH_Gain_SEU]     = PortCardSettingNames::k_bpix_DOH_Gain_SEU_address;
+		nameToAddress_[PortCardSettingNames::k_DOH_Gain_SEU] = PortCardSettingNames::k_bpix_DOH_Gain_SEU_address;
 	}
 	else assert(0);
 	
@@ -310,16 +305,16 @@ void PixelPortCardConfig::writeASCII(std::string dir) const {
     {
 		std::string whichAOHString;
 		unsigned int zeroOrThree;
-		if      ( type_=="fpix" && deviceAddress == k_fpix_AOH_Gain123_address )  { whichAOHString = "";  zeroOrThree = 0; }
-		else if ( type_=="fpix" && deviceAddress == k_fpix_AOH_Gain456_address )  { whichAOHString = "";  zeroOrThree = 3; }
-		else if ( type_=="bpix" && deviceAddress == k_bpix_AOH1_Gain123_address ) { whichAOHString = "1"; zeroOrThree = 0; }
-		else if ( type_=="bpix" && deviceAddress == k_bpix_AOH1_Gain456_address ) { whichAOHString = "1"; zeroOrThree = 3; }
-		else if ( type_=="bpix" && deviceAddress == k_bpix_AOH2_Gain123_address ) { whichAOHString = "2"; zeroOrThree = 0; }
-		else if ( type_=="bpix" && deviceAddress == k_bpix_AOH2_Gain456_address ) { whichAOHString = "2"; zeroOrThree = 3; }
-		else if ( type_=="bpix" && deviceAddress == k_bpix_AOH3_Gain123_address ) { whichAOHString = "3"; zeroOrThree = 0; }
-		else if ( type_=="bpix" && deviceAddress == k_bpix_AOH3_Gain456_address ) { whichAOHString = "3"; zeroOrThree = 3; }
-		else if ( type_=="bpix" && deviceAddress == k_bpix_AOH4_Gain123_address ) { whichAOHString = "4"; zeroOrThree = 0; }
-		else if ( type_=="bpix" && deviceAddress == k_bpix_AOH4_Gain456_address ) { whichAOHString = "4"; zeroOrThree = 3; }
+		if      ( deviceAddress == k_fpix_AOH_Gain123_address )  { whichAOHString = "";  zeroOrThree = 0; }
+		else if ( deviceAddress == k_fpix_AOH_Gain456_address )  { whichAOHString = "";  zeroOrThree = 3; }
+		else if ( deviceAddress == k_bpix_AOH1_Gain123_address ) { whichAOHString = "1"; zeroOrThree = 0; }
+		else if ( deviceAddress == k_bpix_AOH1_Gain456_address ) { whichAOHString = "1"; zeroOrThree = 3; }
+		else if ( deviceAddress == k_bpix_AOH2_Gain123_address ) { whichAOHString = "2"; zeroOrThree = 0; }
+		else if ( deviceAddress == k_bpix_AOH2_Gain456_address ) { whichAOHString = "2"; zeroOrThree = 3; }
+		else if ( deviceAddress == k_bpix_AOH3_Gain123_address ) { whichAOHString = "3"; zeroOrThree = 0; }
+		else if ( deviceAddress == k_bpix_AOH3_Gain456_address ) { whichAOHString = "3"; zeroOrThree = 3; }
+		else if ( deviceAddress == k_bpix_AOH4_Gain123_address ) { whichAOHString = "4"; zeroOrThree = 0; }
+		else if ( deviceAddress == k_bpix_AOH4_Gain456_address ) { whichAOHString = "4"; zeroOrThree = 3; }
 		else assert(0);
 		
 		out << "AOH"<<whichAOHString<<"_Gain"<<zeroOrThree+1<<": 0x"<< (((device_[i].second) & 0x03)>>0) << std::endl; // output bits 0 & 1

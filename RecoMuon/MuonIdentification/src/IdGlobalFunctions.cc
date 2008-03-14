@@ -18,7 +18,7 @@ unsigned int muonid::RequiredStationMask( const reco::Muon& muon,
 
 // ------------ method to calculate the calo compatibility for a track with matched muon info  ------------
 float muonid::getCaloCompatibility(const reco::Muon& muon) {
-  return muon.caloCompatibility();
+  return muon.getCaloCompatibility();
 }
 
 // ------------ method to calculate the segment compatibility for a track with matched muon info  ------------

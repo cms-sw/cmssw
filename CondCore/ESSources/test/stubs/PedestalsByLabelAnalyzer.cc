@@ -14,8 +14,6 @@ Toy EDProducers and EDProducts for testing purposes only.
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/Framework/interface/EventSetupRecord.h"
 
 #include "CondFormats/Calibration/interface/Pedestals.h"
 #include "CondFormats/DataRecord/interface/PedestalsRcd.h"

@@ -1,5 +1,4 @@
 #include "DetectorDescription/Core/interface/DDsvalues.h"
-#include "DetectorDescription/Core/interface/DDValue.h"
 
 #include<iostream>
 namespace {

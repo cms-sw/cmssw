@@ -6,7 +6,6 @@
   <use name=CalibFormats/HcalObjects>
   <use name=DataFormats/HcalDigi>
   <use name=Geometry/HcalTowerAlgo>
-  <use name=DataFormats/HcalDetId>
 </export>
 
 <use name=SimCalorimetry/CaloSimAlgos>
@@ -16,6 +15,4 @@
 <use name=DataFormats/HcalDigi>
 <use name=Geometry/HcalTowerAlgo>
 <use name=clhep>
-<use name=rootcore>
-<use name=DataFormats/HcalDetId>
 

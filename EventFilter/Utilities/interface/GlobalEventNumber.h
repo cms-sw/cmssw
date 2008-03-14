@@ -7,13 +7,24 @@ namespace evf{
       const unsigned int DAQ_BOARDID_MASK = 0xffff0000;
       const unsigned int DAQ_BOARDID_SHIFT = 24;
       const unsigned int DAQ_BOARDID_VALUE = 0x11;
+      const unsigned int EVM_BOARDID_OFFSET = 1;
+      const unsigned int EVM_BOARDID_MASK = 0xffff0000;
+      const unsigned int EVM_BOARDID_SHIFT = 24;
+      const unsigned int EVM_BOARDID_VALUE = 0x11;
       const unsigned int EVM_GTFE_BLOCK = 6; //size in 64-bit words
       const unsigned int EVM_TCS_TRIGNR_OFFSET = 5; //offset in 32-bit words
+      const unsigned int EVM_TCS_LSBLNR_OFFSET = 0; //offset in 32-bit words
+      const unsigned int EVM_TCS_LSBLNR_MASK   = 0x0000ffff; // 16 LSB
       unsigned int offset(bool);
       inline bool daq_board_sense(const unsigned char *p)
 	{
 	  return (*(unsigned int*)(p + sizeof(fedh_t) + DAQ_BOARDID_OFFSET * SLINK_WORD_SIZE / 2) >> DAQ_BOARDID_SHIFT) == DAQ_BOARDID_VALUE;
 	}
+      inline bool evm_board_sense(const unsigned char *p)
+	{
+	  return (*(unsigned int*)(p + sizeof(fedh_t) + EVM_BOARDID_OFFSET * SLINK_WORD_SIZE / 2) >> EVM_BOARDID_SHIFT) == EVM_BOARDID_VALUE;
+	}
       unsigned int get(const unsigned char *, bool);
+      unsigned int getlbn(const unsigned char *);
   }
 }

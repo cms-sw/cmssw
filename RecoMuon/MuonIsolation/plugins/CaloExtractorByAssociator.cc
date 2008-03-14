@@ -22,8 +22,6 @@
 #include "TrackingTools/TrackAssociator/interface/TrackAssociatorParameters.h"
 #include "TrackingTools/TrackAssociator/interface/TrackDetectorAssociator.h"
 
-#include "PhysicsTools/Utilities/interface/deltaR.h"
-
 using namespace edm;
 using namespace std;
 using namespace reco;
@@ -145,7 +143,7 @@ std::vector<MuIsoDeposit> CaloExtractorByAssociator::deposits( const Event & eve
     for (; eHitCI != mInfo.ecalRecHits.end(); ++eHitCI){
       const EcalRecHit* eHitCPtr = *eHitCI;
       GlobalPoint eHitPos = caloGeom->getPosition(eHitCPtr->detid());
-      double deltar0 = reco::deltaR(muon, eHitPos);
+      double deltar0 = deltaR(muon, eHitPos);
       double cosTheta = 1./cosh(eHitPos.eta());
       double energy = eHitCPtr->energy();
       double et = energy*cosTheta; 
@@ -153,7 +151,7 @@ std::vector<MuIsoDeposit> CaloExtractorByAssociator::deposits( const Event & eve
 	  || ! (et > theThreshold_E && energy > 3*noiseRecHit(eHitCPtr->detid()))) continue;
 
       bool vetoHit = false;
-      double deltar = reco::deltaR(mInfo.trkGlobPosAtEcal, eHitPos);
+      double deltar = deltaR(mInfo.trkGlobPosAtEcal, eHitPos);
       //! first check if the hit is inside the veto cone by dR-alone
       if (deltar < theDR_Veto_E ){
 	LogDebug("RecoMuon|CaloExtractorByAssociator")
@@ -181,7 +179,7 @@ std::vector<MuIsoDeposit> CaloExtractorByAssociator::deposits( const Event & eve
     for (; hHitCI != mInfo.hcalRecHits.end(); ++hHitCI){
       const HBHERecHit* hHitCPtr = *hHitCI;
       GlobalPoint hHitPos = caloGeom->getPosition(hHitCPtr->detid());
-      double deltar0 = reco::deltaR(muon, hHitPos);
+      double deltar0 = deltaR(muon, hHitPos);
       double cosTheta = 1./cosh(hHitPos.eta());
       double energy = hHitCPtr->energy();
       double et = energy*cosTheta;
@@ -189,7 +187,7 @@ std::vector<MuIsoDeposit> CaloExtractorByAssociator::deposits( const Event & eve
 	  || ! (et > theThreshold_H && energy > 3*noiseRecHit(hHitCPtr->detid()))) continue;
 
       bool vetoHit = false;
-      double deltar = reco::deltaR(mInfo.trkGlobPosAtHcal, hHitPos);
+      double deltar = deltaR(mInfo.trkGlobPosAtHcal, hHitPos);
       //! first check if the hit is inside the veto cone by dR-alone
       if (deltar < theDR_Veto_H ){
 	LogDebug("RecoMuon|CaloExtractorByAssociator")
@@ -217,7 +215,7 @@ std::vector<MuIsoDeposit> CaloExtractorByAssociator::deposits( const Event & eve
     for (; hoHitCI != mInfo.hoRecHits.end(); ++hoHitCI){
       const HORecHit* hoHitCPtr = *hoHitCI;
       GlobalPoint hoHitPos = caloGeom->getPosition(hoHitCPtr->detid());
-      double deltar0 = reco::deltaR(muon, hoHitPos);
+      double deltar0 = deltaR(muon, hoHitPos);
       double cosTheta = 1./cosh(hoHitPos.eta());
       double energy = hoHitCPtr->energy();
       double et = energy*cosTheta;
@@ -225,7 +223,7 @@ std::vector<MuIsoDeposit> CaloExtractorByAssociator::deposits( const Event & eve
 	  || ! (et > theThreshold_HO && energy > 3*noiseRecHit(hoHitCPtr->detid()))) continue;
 
       bool vetoHit = false;
-      double deltar = reco::deltaR(mInfo.trkGlobPosAtHO, hoHitPos);
+      double deltar = deltaR(mInfo.trkGlobPosAtHO, hoHitPos);
       //! first check if the hit is inside the veto cone by dR-alone
       if (deltar < theDR_Veto_HO ){
 	LogDebug("RecoMuon|CaloExtractorByAssociator")
@@ -254,7 +252,7 @@ std::vector<MuIsoDeposit> CaloExtractorByAssociator::deposits( const Event & eve
     std::vector<const CaloTower*>::const_iterator calCI = mInfo.towers.begin();
     for (; calCI != mInfo.towers.end(); ++calCI){
       const CaloTower* calCPtr = *calCI;
-      double deltar0 = reco::deltaR(muon,*calCPtr);
+      double deltar0 = deltaR(muon,*calCPtr);
       if (deltar0>theDR_Max) continue;
     
       //even more copy-pasting .. need to refactor
@@ -270,7 +268,7 @@ std::vector<MuIsoDeposit> CaloExtractorByAssociator::deposits( const Event & eve
       if ((!doEcal) && (!doHcal) && (!doHcal)) continue;
     
       bool vetoTowerEcal = false;
-      double deltarEcal = reco::deltaR(mInfo.trkGlobPosAtEcal, *calCPtr);
+      double deltarEcal = deltaR(mInfo.trkGlobPosAtEcal, *calCPtr);
       //! first check if the tower is inside the veto cone by dR-alone
       if (deltarEcal < theDR_Veto_E ){
 	LogDebug("RecoMuon|CaloExtractorByAssociator")
@@ -280,7 +278,7 @@ std::vector<MuIsoDeposit> CaloExtractorByAssociator::deposits( const Event & eve
 	vetoTowerEcal = true;
       }
       bool vetoTowerHcal = false;
-      double deltarHcal = reco::deltaR(mInfo.trkGlobPosAtHcal, *calCPtr);
+      double deltarHcal = deltaR(mInfo.trkGlobPosAtHcal, *calCPtr);
       //! first check if the tower is inside the veto cone by dR-alone
       if (deltarHcal < theDR_Veto_H ){
 	LogDebug("RecoMuon|CaloExtractorByAssociator")
@@ -290,7 +288,7 @@ std::vector<MuIsoDeposit> CaloExtractorByAssociator::deposits( const Event & eve
 	vetoTowerHcal = true;
       }
       bool vetoTowerHOCal = false;
-      double deltarHOcal = reco::deltaR(mInfo.trkGlobPosAtHO, *calCPtr);
+      double deltarHOcal = deltaR(mInfo.trkGlobPosAtHO, *calCPtr);
       //! first check if the tower is inside the veto cone by dR-alone
       if (deltarHOcal < theDR_Veto_HO ){
 	LogDebug("RecoMuon|CaloExtractorByAssociator")
@@ -336,6 +334,23 @@ std::vector<MuIsoDeposit> CaloExtractorByAssociator::deposits( const Event & eve
 
   return resultDeps;
 
+}
+
+double CaloExtractorByAssociator::PhiInRange(const double& phi) {
+      double phiout = phi;
+
+      if( phiout > 2*M_PI || phiout < -2*M_PI) {
+            phiout = fmod( phiout, 2*M_PI);
+      }
+      if (phiout <= -M_PI) phiout += 2*M_PI;
+      else if (phiout >  M_PI) phiout -= 2*M_PI;
+
+      return phiout;
+}
+
+template <class T, class U>
+double CaloExtractorByAssociator::deltaR(const T& t, const U& u) {
+      return sqrt(pow(t.eta()-u.eta(),2) +pow(PhiInRange(t.phi()-u.phi()),2));
 }
 
 double CaloExtractorByAssociator::noiseEcal(const CaloTower& tower) const {

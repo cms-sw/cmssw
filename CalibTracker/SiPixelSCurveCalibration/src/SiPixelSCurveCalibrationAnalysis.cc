@@ -28,7 +28,6 @@ SiPixelSCurveCalibrationAnalysis::doSetup(const edm::ParameterSet& iConfig)
 {
    std::vector<std::string>     anEmptyDefaultVectorOfStrings;
    plaquettesToSave_            = iConfig.getUntrackedParameter<std::vector<std::string> >("plaquettesToSave", anEmptyDefaultVectorOfStrings);
-   useDetectorHierarchyFolders_ = iConfig.getUntrackedParameter<bool>("useDetectorHierarchyFolders", false);
    saveCurvesThatFlaggedBad_    = iConfig.getUntrackedParameter<bool>("saveCurvesThatFlaggedBad", false);
    write2dHistograms_           = iConfig.getUntrackedParameter<bool>("write2dHistograms", true);
    write2dFitResult_            = iConfig.getUntrackedParameter<bool>("write2dFitResult", true);
@@ -113,10 +112,7 @@ void SiPixelSCurveCalibrationAnalysis::newDetID(uint32_t detid)
    if (insertResult.second)     //indicates successful insertion
    {
       edm::LogInfo("SiPixelSCurveCalibrationAnalysisHistogramReport") << "Histogram Map.insert() returned true!  Booking new histogrames for detID: " << detid;
-      // use detector hierarchy folders if desired
-      if (useDetectorHierarchyFolders_)
-         setDQMDirectory(detid);
-
+      //set DQM directory eventually...
       std::string detIdName = translateDetIdToString(detid);
       if (write2dHistograms_){
          MonitorElement * D2sigma       = bookDQMHistoPlaquetteSummary2D(detIdName + "_sigmas", detIdName + " Sigmas", detid);

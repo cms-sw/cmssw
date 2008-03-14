@@ -1,9 +1,9 @@
 /** \class EcalRecHitProducer
  *   produce ECAL rechits from uncalibrated rechits
  *
- *  $Id: EcalRecHitProducer.cc,v 1.14 2007/09/27 10:14:21 ferriff Exp $
- *  $Date: 2007/09/27 10:14:21 $
- *  $Revision: 1.14 $
+ *  $Id: EcalRecHitProducer.cc,v 1.13 2007/08/06 15:00:14 innocent Exp $
+ *  $Date: 2007/08/06 15:00:14 $
+ *  $Revision: 1.13 $
  *  \author Shahram Rahatlou, University of Rome & INFN, March 2006
  *
  **/
@@ -72,28 +72,24 @@ EcalRecHitProducer::produce(edm::Event& evt, const edm::EventSetup& es) {
    const EBUncalibratedRecHitCollection*  EBuncalibRecHits = 0;
    const EEUncalibratedRecHitCollection*  EEuncalibRecHits = 0; 
 
-   if ( EBuncalibRecHitCollection_.label() != "" && EBuncalibRecHitCollection_.instance() != "" ) {
-           evt.getByLabel( EBuncalibRecHitCollection_, pEBUncalibRecHits);
-           if ( pEBUncalibRecHits.isValid() ) {
-                   EBuncalibRecHits = pEBUncalibRecHits.product(); // get a ptr to the product
+   try {
+     evt.getByLabel( EBuncalibRecHitCollection_, pEBUncalibRecHits);
+     EBuncalibRecHits = pEBUncalibRecHits.product(); // get a ptr to the product
 #ifdef DEBUG
-                   LogDebug("EcalRecHitDebug") << "total # EB uncalibrated rechits: " << EBuncalibRecHits->size();
+     LogDebug("EcalRecHitDebug") << "total # EB uncalibrated rechits: " << EBuncalibRecHits->size();
 #endif
-           } else {
-                   edm::LogError("EcalRecHitError") << "Error! can't get the product " << EBuncalibRecHitCollection_;
-           }
+   } catch (...) {
+     //edm::LogError("EcalRecHitError") << "Error! can't get the product " << EBuncalibRecHitCollection_.c_str() ;
    }
-
-   if ( EEuncalibRecHitCollection_.label() != "" && EEuncalibRecHitCollection_.instance() != "" ) {
-           evt.getByLabel( EEuncalibRecHitCollection_, pEEUncalibRecHits);
-           if ( pEEUncalibRecHits.isValid() ) {
-                   EEuncalibRecHits = pEEUncalibRecHits.product(); // get a ptr to the product
+   
+   try {
+     evt.getByLabel( EEuncalibRecHitCollection_, pEEUncalibRecHits);
+     EEuncalibRecHits = pEEUncalibRecHits.product(); // get a ptr to the product
 #ifdef DEBUG
-                   LogDebug("EcalRecHitDebug") << "total # EE uncalibrated rechits: " << EEuncalibRecHits->size();
+     LogDebug("EcalRecHitDebug") << "total # EE uncalibrated rechits: " << EEuncalibRecHits->size();
 #endif
-           } else {
-                   edm::LogError("EcalRecHitError") << "Error! can't get the product " << EEuncalibRecHitCollection_;
-           }
+   } catch (...) {
+     //edm::LogError("EcalRecHitError") << "Error! can't get the product " << EEuncalibRecHitCollection_.c_str() ;
    }
 
    // collection of rechits to put in the event

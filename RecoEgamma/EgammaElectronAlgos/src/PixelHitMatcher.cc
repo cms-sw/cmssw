@@ -13,7 +13,7 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: PixelHitMatcher.cc,v 1.8 2007/05/09 11:59:21 charlot Exp $
+// $Id: PixelHitMatcher.cc,v 1.10 2008/02/14 22:24:40 charlot Exp $
 //
 //
 
@@ -55,6 +55,9 @@ vector<pair<RecHitWithDist, PixelHitMatcher::ConstRecHitPointer> > PixelHitMatch
 												   const GlobalPoint& vprim,
 										  float energy,
 										  float fcharge) {
+
+  vertex=vprim.z();
+  
   int charge = int(fcharge);
   // return all compatible RecHit pairs (vector< TSiPixelRecHit>)
   vector<pair<RecHitWithDist, ConstRecHitPointer> > result;
@@ -167,18 +170,38 @@ vector<pair<RecHitWithDist, PixelHitMatcher::ConstRecHitPointer> > PixelHitMatch
     // compute the z vertex from the cluster point and the found pixel hit
     double pxHit1z = validMeasurements[i].recHit()->det()->surface().toGlobal(
 									      validMeasurements[i].recHit()->localPosition()).z();
-    double pxHit1r = validMeasurements[i].recHit()->det()->surface().toGlobal(
-									      validMeasurements[i].recHit()->localPosition()).perp();
+//    double pxHit1r = validMeasurements[i].recHit()->det()->surface().toGlobal(
+//									      validMeasurements[i].recHit()->localPosition()).perp();
+    double pxHit1x = validMeasurements[i].recHit()->det()->surface().toGlobal(
+									      validMeasurements[i].recHit()->localPosition()).x();
+    double pxHit1y = validMeasurements[i].recHit()->det()->surface().toGlobal(
+									      validMeasurements[i].recHit()->localPosition()).y();
        
-    double zVertexPred = pxHit1z - pxHit1r*(xmeas.z()-pxHit1z)/
-      (xmeas.perp()-pxHit1r);
-    GlobalPoint vertexPred(0.,0.,zVertexPred);
+//    double zVertexPred = pxHit1z - pxHit1r*(xmeas.z()-pxHit1z)/
+//      (xmeas.perp()-pxHit1r);
+      
+//    double pxHit1phi = validMeasurements[i].recHit()->det()->surface().toGlobal(
+//									     validMeasurements[i].recHit()->localPosition()).phi();
+  
+    double r1diff = (pxHit1x-vprim.x())*(pxHit1x-vprim.x()) + (pxHit1y-vprim.y())*(pxHit1y-vprim.y());
+    r1diff=sqrt(r1diff);
+    double r2diff = (xmeas.x()-pxHit1x)*(xmeas.x()-pxHit1x) + (xmeas.y()-pxHit1y)*(xmeas.y()-pxHit1y);
+    r2diff=sqrt(r2diff);
+    double zVertexPred = pxHit1z - r1diff*(xmeas.z()-pxHit1z)/r2diff;
 
+//    double zVertexRec = vertex;
+//    std::cout << "vertex new calculation " <<  zVertexPred << " and reco vertex " << zVertexRec << std::endl;
+
+    GlobalPoint vertexPred(vprim.x(),vprim.y(),zVertexPred);
     vertex = zVertexPred;
+    
+    // evaluated z vertex is needed for the forward estimator
+    meas2ndFLayer.setVertex(vertex);
+    
     GlobalPoint hitPos( validMeasurements[i].recHit()->det()->surface().toGlobal(
 										 validMeasurements[i].recHit()->localPosition())); 
 
-    FreeTrajectoryState secondFTS=myFTS(theMagField,hitPos,vertexPred,energy, charge);
+    FreeTrajectoryState secondFTS=myFTS(theMagField,hitPos,vertexPred,energy,charge);
 
     PixelMatchNextLayers secondHit(theLayerMeasurements, newLayer, secondFTS,
 				   prop2ndLayer, &meas2ndBLayer,&meas2ndFLayer);
@@ -249,7 +272,6 @@ float PixelHitMatcher::getVertex(){
 
   return vertex;
 }
-
 
 
 

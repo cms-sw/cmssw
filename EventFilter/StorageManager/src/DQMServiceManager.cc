@@ -3,17 +3,14 @@
 //
 // (W.Badgett)
 //
-// $Id: DQMServiceManager.cc,v 1.1.2.3 2007/05/15 01:22:49 hcheung Exp $
+// $Id: DQMServiceManager.cc,v 1.3 2007/06/11 10:04:49 badgett Exp $
 //
 
 #include "FWCore/Utilities/interface/DebugMacros.h"
 #include <EventFilter/StorageManager/interface/DQMServiceManager.h>
-#include <FWCore/Utilities/interface/Exception.h>
 #include "IOPool/Streamer/interface/StreamDQMDeserializer.h"
 #include "IOPool/Streamer/interface/StreamDQMSerializer.h"
 #include "TROOT.h"
-#include "TObjString.h"
-#include "TApplication.h"
 
 using namespace edm;
 using namespace std;

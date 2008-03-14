@@ -43,12 +43,6 @@ std::string dumpMeasurement(const TrajectoryMeasurement & tm)
         <<"p: "<<tm.forwardPredictedState().globalMomentum()<<"\n"
         <<"geomdet pointer from rechit: "<<tm.recHit()->det()<<"\n"
         <<"detId: "<<tm.recHit()->geographicalId().rawId();
-  if (tm.recHit()->isValid()){
-    buffer<<"\n hit global x: "<<tm.recHit()->globalPosition()
-	  <<"\n hit global error: "<<tm.recHit()->globalPositionError().matrix()
-	  <<"\n hit local x:"<<tm.recHit()->localPosition()
-	  <<"\n hit local error"<<tm.recHit()->localPositionError();
-  }
   return buffer.str();
 }
 std::string dumpMeasurements(const std::vector<TrajectoryMeasurement> & v)

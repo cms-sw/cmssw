@@ -28,19 +28,19 @@ namespace cms
     e.getByLabel( Cluster_src_, dsv_SiStripCluster);    
 
     bool TrackNumberSelector_Decision_;
-    e.getByLabel( Track_src_, trackCollection);
-    if (!trackCollection.isValid()) {
-      TrackNumberSelector_Decision_ = true;
-    } else {
+    try{
+      e.getByLabel( Track_src_, trackCollection);
       TrackNumberSelector_Decision_ =TrackNumberSelector();
+    } catch ( ... ) {
+      TrackNumberSelector_Decision_ = true;
     }
 
     bool TriggerSelector_Decision_;
-    e.getByType(ltcdigis);
-    if (!ltcdigis.isValid()) {
-      TriggerSelector_Decision_=true;
-    } else {
+    try{
+      e.getByType(ltcdigis);
       TriggerSelector_Decision_=TriggerSelector();
+    } catch ( ... ) {
+      TriggerSelector_Decision_=true;
     }
 
     bool ClusterNumberSelector_Decision_=ClusterNumberSelector();

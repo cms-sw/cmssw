@@ -36,6 +36,7 @@ void CSCDigiDump::analyze(edm::Event const& e, edm::EventSetup const& c) {
   e.getByLabel(stripDigiTag_, strips);
 
   for (CSCStripDigiCollection::DigiRangeIterator j=strips->begin(); j!=strips->end(); j++) {
+    std::cout << "Strip digis from "<< CSCDetId((*j).first) << std::endl;
     std::vector<CSCStripDigi>::const_iterator digiItr = (*j).second.first;
     std::vector<CSCStripDigi>::const_iterator last = (*j).second.second;
     for( ; digiItr != last; ++digiItr) {

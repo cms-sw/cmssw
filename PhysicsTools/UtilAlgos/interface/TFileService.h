@@ -21,6 +21,7 @@ public:
   ~TFileService();
   /// return opened TFile
   TFile & file() const { return * file_; } 
+  void cd( const std::string & ) const;
 
 private:
   /// pointer to opened TFile

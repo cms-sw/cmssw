@@ -2,9 +2,9 @@
  * \file DQMSourceExample.cc
  * \author C.Leonidopoulos
  * Last Update:
- * $Date: 2008/01/05 20:23:15 $
- * $Revision: 1.10 $
- * $Author: elmer $
+ * $Date: 2007/11/26 16:09:19 $
+ * $Revision: 1.9 $
+ * $Author: ameyer $
  *
  * Description: Simple example showing how to create a DQM Source creating and filling
  * monitoring elements
@@ -53,11 +53,6 @@ counterEvt_(0)
 
 /// book some histograms here
   const int NBINS = 50; XMIN = 0; XMAX = 50;
-  
-  
-  rooth1 = new TH1F("rooth1","rooth1",NBINS,XMIN,XMAX);
-  rooth1->GetXaxis()->SetTitle("X axis title");
-  rooth1->GetYaxis()->SetTitle("Y axis title");
 
   // create and cd into new folder
   dbe_->setCurrentFolder(monitorName_+"C1");
@@ -173,7 +168,6 @@ void DQMSourceExample::analyze(const Event& iEvent,
     {
       float x = gRandom->Uniform(XMAX);
       h1->Fill(x,1./log(x+1));
-      rooth1->Fill(x,1./log(x+1));
       h3->Fill(x, 1);
       h4->Fill(gRandom->Gaus(30, 3), 1.0);
       h5->Fill(gRandom->Poisson(15), 0.5);
@@ -210,11 +204,6 @@ void DQMSourceExample::endLuminosityBlock(const LuminosityBlock& lumiSeg,
 }
 //--------------------------------------------------------
 void DQMSourceExample::endRun(const Run& r, const EventSetup& context){
-
-  
-  dbe_->setCurrentFolder(monitorName_+"C1");
-  // dbe_->clone1D("cloneh1",rooth1);
-
 }
 //--------------------------------------------------------
 void DQMSourceExample::endJob(){

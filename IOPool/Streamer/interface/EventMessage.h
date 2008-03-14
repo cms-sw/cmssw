@@ -1,6 +1,14 @@
 /** Event Message Represented here
 
-code 1 | size 4 | run 4 | event 4 |lumi 4 | reserved 4 |
+Protocol Version 0:
+code 1 | size 4 | run 4 | event 4 | lumi 4 | reserved 4 |
+l1_count 4| l1bits l1_count/8  | 
+hlt_count 4| hltbits hlt_count/4 |
+eventdatalength 4 | eventdata blob {variable} 
+
+Protocol Version 1:
+code 1 | size 4 | protocol version 1 |
+run 4 | event 4 | lumi 4 | origDataSize 4 | outModId 4 |
 l1_count 4| l1bits l1_count/8  | 
 hlt_count 4| hltbits hlt_count/4 |
 eventdatalength 4 | eventdata blob {variable} 
@@ -18,10 +26,12 @@ eventdatalength 4 | eventdata blob {variable}
 struct EventHeader
 {
   Header header_;
+  uint8 protocolVersion_;
   char_uint32 run_;
   char_uint32 event_;
   char_uint32 lumi_;
-  char_uint32 reserved_; // can be used for file num
+  char_uint32 origDataSize_;
+  char_uint32 outModId_;
 };
 
 class EventMsgView
@@ -37,11 +47,12 @@ public:
   uint8* startAddress() const { return buf_; }
   uint32 eventLength() const { return event_len_; }
   uint32 headerSize() const {return event_start_-buf_;}
+  uint32 protocolVersion() const;
   uint32 run() const;
   uint32 event() const;
   uint32 lumi() const;
-
-  uint32 reserved() const;
+  uint32 origDataSize() const;
+  uint32 outModId() const;
 
   void l1TriggerBits(std::vector<bool>& put_here) const;
   void hltTriggerBits(uint8* put_here) const;

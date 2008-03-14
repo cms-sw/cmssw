@@ -1,7 +1,7 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2007/11/02 10:47:13 $
+ *  $Date: 2007/07/11 12:20:59 $
  *  $Revision: 1.1 $
  *  \author S. Bolognesi - INFN Torino
  */
@@ -26,10 +26,13 @@
 #include "CalibMuon/DTCalibration/plugins/DTGeometryParserFromDDD.h"
 
 using namespace std;
-
+//
+// constructors and destructor
+//
 DTFakeT0ESProducer::DTFakeT0ESProducer(const edm::ParameterSet& pset)
 {
   //framework
+
   setWhatProduced(this,&DTFakeT0ESProducer::produce);
   //  setWhatProduced(this,dependsOn(& DTGeometryESModule::parseDDD()));
   findingRecord<DTT0Rcd>();
@@ -40,16 +43,25 @@ DTFakeT0ESProducer::DTFakeT0ESProducer(const edm::ParameterSet& pset)
 }
 
 
-DTFakeT0ESProducer::~DTFakeT0ESProducer(){
+DTFakeT0ESProducer::~DTFakeT0ESProducer()
+{
+ 
+   // do anything here that needs to be done at desctruction time
+   // (e.g. close files, deallocate resources etc.)
+
 }
 
+
+//
+// member functions
+//
 
 // ------------ method called to produce the data  ------------
 DTT0* DTFakeT0ESProducer::produce(const DTT0Rcd& iRecord){
   
   parseDDD(iRecord);
   DTT0* t0Map = new DTT0();
-  
+
   //Loop on layerId-nwires map
  for(map<DTLayerId, pair <unsigned int,unsigned int> >::const_iterator lIdWire = theLayerIdWiresMap.begin();
      lIdWire != theLayerIdWiresMap.end();
@@ -58,7 +70,7 @@ DTT0* DTFakeT0ESProducer::produce(const DTT0Rcd& iRecord){
    int nWires = ((*lIdWire).second).second;
    //Loop on wires of each layer
    for(int wire=0; wire < nWires; wire++){
-     t0Map->set(DTWireId((*lIdWire).first, wire + firstWire), t0Mean, t0Sigma, DTTimeUnits::counts);
+     t0Map->setCellT0(DTWireId((*lIdWire).first, wire + firstWire), t0Mean, t0Sigma, DTTimeUnits::counts);
    }
  }
 
@@ -67,8 +79,12 @@ DTT0* DTFakeT0ESProducer::produce(const DTT0Rcd& iRecord){
 
 void DTFakeT0ESProducer::parseDDD(const DTT0Rcd& iRecord){
 
+  //  MuonNumberingRecord& record//DA DOVE LO PRENDO???? NON REINTRODUCO LA STESSA DIPENDENZA???
+
   edm::ESHandle<DDCompactView> cpv;
   edm::ESHandle<MuonDDDConstants> mdc;
+  //record.getRecord<IdealGeometryRecord>().get(cpv);
+  //record.get( mdc );
 
   iRecord.getRecord<IdealGeometryRecord>().get(cpv);
   iRecord.getRecord<MuonNumberingRecord>().get(mdc);

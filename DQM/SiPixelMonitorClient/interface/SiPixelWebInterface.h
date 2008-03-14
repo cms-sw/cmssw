@@ -7,7 +7,6 @@
 #include "DQMServices/Core/interface/MonitorElement.h"
 class SiPixelActionExecutor;
 class SiPixelInformationExtractor;
-class SiPixelEDAClient;
 
 class SiPixelWebInterface : public WebInterface
 {
@@ -26,8 +25,7 @@ public:
 			 periodicTrackerMapUpdate =  9,
 			 PlotHistogramFromPath    = 10,
 			 PlotHistogramFromLayout     = 11,
-			 PlotErrorOverviewHistogram  = 12,
-			 ComputeGlobalQualityFlag    = 13};
+			 PlotErrorOverviewHistogram  = 12};
 
   SiPixelWebInterface(std::string theContextURL, 
                       std::string theApplicationURL, 
@@ -83,8 +81,6 @@ private:
   xgi::Output * theOut ;
   std::string fileName_;  
   
-  int allMods_;
-  int errorMods_;
   
 protected:
 

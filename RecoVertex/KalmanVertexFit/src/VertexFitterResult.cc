@@ -126,7 +126,7 @@ void VertexFitterResult::fill(const TransientVertex & recVertex,
     std::vector<std::pair<TrackingParticleRef, double> > simFound;
     try {
       const TrackTransientTrack* ttt = dynamic_cast<const TrackTransientTrack*>(recTrack->basicTransientTrack());
-      if ((ttt!=0) && (recSimColl!=0)) simFound = (*recSimColl)[ttt->trackBaseRef()];
+      if ((ttt!=0) && (recSimColl!=0)) simFound = (*recSimColl)[ttt->persistentTrackRef()];
 //       if (recSimColl!=0) simFound = (*recSimColl)[recTrack->persistentTrackRef()];
 //      if (recSimColl!=0) simFound = (*recSimColl)[recTrack];
 

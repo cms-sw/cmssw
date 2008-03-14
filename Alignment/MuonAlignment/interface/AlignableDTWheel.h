@@ -4,21 +4,18 @@
 /** \class AlignableDTWheel
  *  The alignable muon DT wheel.
  *
- *  $Date: 2007/03/02 15:46:12 $
- *  $Revision: 1.5 $
+ *  $Date: 2007/10/08 14:12:01 $
+ *  $Revision: 1.6 $
  *  \author Andre Sznajder - UERJ(Brazil)
  */
 
 
-#include "Geometry/CommonDetUnit/interface/GeomDet.h"
 #include "Alignment/CommonAlignment/interface/Alignable.h"
 #include "Alignment/CommonAlignment/interface/AlignableComposite.h"
 #include "Alignment/CommonAlignment/interface/AlignableSurface.h"
 
 #include "Alignment/MuonAlignment/interface/AlignableDTStation.h"
 
-#include "DataFormats/TrackingRecHit/interface/AlignmentPositionError.h"
-#include "DataFormats/GeometryVector/interface/Basic3DVector.h"
 
 #include <vector>
 
@@ -60,7 +57,7 @@ class AlignableDTWheel : public AlignableComposite
   AlignableDTStation &station(int i);  
   
   /// Return alignable object identifier
-  virtual int alignableObjectId() const { return AlignableObjectId::AlignableDTWheel; }
+  virtual StructureType alignableObjectId() const { return align::AlignableDTWheel; }
 
   /// Printout muon DT wheel information (not recursive)
   friend std::ostream& operator << ( std::ostream&, const AlignableDTWheel& );

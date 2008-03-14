@@ -1,8 +1,8 @@
 /*
  * \file EELedClient.cc
  *
- * $Date: 2008/01/17 09:34:43 $
- * $Revision: 1.50 $
+ * $Date: 2008/02/15 15:26:39 $
+ * $Revision: 1.63 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -19,17 +19,12 @@
 #include "TGraph.h"
 #include "TLine.h"
 
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
-
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-
 #include "DQMServices/UI/interface/MonitorUIRoot.h"
 
-#include "OnlineDB/EcalCondDB/interface/RunTag.h"
-#include "OnlineDB/EcalCondDB/interface/RunIOV.h"
-#include "OnlineDB/EcalCondDB/interface/MonLaserBlueDat.h"
-#include "OnlineDB/EcalCondDB/interface/MonPNBlueDat.h"
+#include "OnlineDB/EcalCondDB/interface/MonLed1Dat.h"
+#include "OnlineDB/EcalCondDB/interface/MonLed2Dat.h"
+#include "OnlineDB/EcalCondDB/interface/MonPNLed1Dat.h"
+#include "OnlineDB/EcalCondDB/interface/MonPNLed2Dat.h"
 #include "OnlineDB/EcalCondDB/interface/RunCrystalErrorsDat.h"
 #include "OnlineDB/EcalCondDB/interface/RunPNErrorsDat.h"
 
@@ -57,7 +52,7 @@ EELedClient::EELedClient(const ParameterSet& ps){
   verbose_ = ps.getUntrackedParameter<bool>("verbose", false);
 
   // enableMonitorDaemon_ switch
-  enableMonitorDaemon_ = ps.getUntrackedParameter<bool>("enableMonitorDaemon", true);
+  enableMonitorDaemon_ = ps.getUntrackedParameter<bool>("enableMonitorDaemon", false);
 
   // enableCleanup_ switch
   enableCleanup_ = ps.getUntrackedParameter<bool>("enableCleanup", false);
@@ -198,7 +193,7 @@ void EELedClient::endRun(void) {
 
 void EELedClient::setup(void) {
 
-  Char_t histo[200];
+  char histo[200];
 
   dbe_->setCurrentFolder( "EcalEndcap/EELedClient" );
 
@@ -494,8 +489,8 @@ bool EELedClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIOV*
 
   EcalLogicID ecid;
 
-  MonLaserBlueDat apd_bl;
-  map<EcalLogicID, MonLaserBlueDat> dataset1_bl;
+  MonLed1Dat vpt_l1;
+  map<EcalLogicID, MonLed1Dat> dataset1_l1;
 
   for ( unsigned int i=0; i<superModules_.size(); i++ ) {
 
@@ -539,82 +534,74 @@ bool EELedClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIOV*
 
         if ( update01 || update02 ) {
 
-          if ( ix == 1 && iy == 1 ) {
+          if ( Numbers::icEE(ism, jx, jy) == 1 ) {
 
             cout << "Preparing dataset for " << Numbers::sEE(ism) << " (ism=" << ism << ")" << endl;
 
-            cout << " A (" << ix << "," << iy << ") " << num01 << " " << mean01 << " " << rms01 << endl;
+            cout << " A (" << Numbers::ix0EE(i+1)+ix << "," << Numbers::iy0EE(i+1)+iy << ") " << num01 << " " << mean01 << " " << rms01 << endl;
 
             cout << endl;
 
           }
 
-          apd_bl.setAPDMean(mean01);
-          apd_bl.setAPDRMS(rms01);
+          vpt_l1.setVPTMean(mean01);
+          vpt_l1.setVPTRMS(rms01);
 
-          apd_bl.setAPDOverPNMean(mean02);
-          apd_bl.setAPDOverPNRMS(rms02);
+          vpt_l1.setVPTOverPNMean(mean02);
+          vpt_l1.setVPTOverPNRMS(rms02);
 
           if ( meg01_[ism-1] && int(meg01_[ism-1]->getBinContent( ix, iy )) % 3 == 1. ) {
-            apd_bl.setTaskStatus(true);
+            vpt_l1.setTaskStatus(true);
           } else {
-            apd_bl.setTaskStatus(false);
+            vpt_l1.setTaskStatus(false);
           }
 
           status = status && UtilsClient::getBinQual(meg01_[ism-1], ix, iy);
 
-          int ic = Numbers::indexEE(ism, ix, iy);
+          int ic = Numbers::indexEE(ism, jx, jy);
 
           if ( ic == -1 ) continue;
 
           if ( econn ) {
-            try {
-              ecid = LogicID::getEcalLogicID("EE_crystal_number", Numbers::iSM(ism, EcalEndcap), ic);
-              dataset1_bl[ecid] = apd_bl;
-            } catch (runtime_error &e) {
-              cerr << e.what() << endl;
-            }
+            ecid = LogicID::getEcalLogicID("EE_crystal_number", Numbers::iSM(ism, EcalEndcap), ic);
+            dataset1_l1[ecid] = vpt_l1;
           }
 
         }
 
         if ( update09 || update10 ) {
 
-          if ( ix == 1 && iy == 1 ) {
+          if ( Numbers::icEE(ism, jx, jy) == 1 ) {
 
             cout << "Preparing dataset for " << Numbers::sEE(ism) << " (ism=" << ism << ")" << endl;
 
-            cout << " B (" << ix << "," << iy << ") " << num09 << " " << mean09 << " " << rms09 << endl;
+            cout << " B (" << Numbers::ix0EE(i+1)+ix << "," << Numbers::iy0EE(i+1)+iy << ") " << num09 << " " << mean09 << " " << rms09 << endl;
 
             cout << endl;
 
           }
 
-          apd_bl.setAPDMean(mean09);
-          apd_bl.setAPDRMS(rms09);
+          vpt_l1.setVPTMean(mean09);
+          vpt_l1.setVPTRMS(rms09);
 
-          apd_bl.setAPDOverPNMean(mean10);
-          apd_bl.setAPDOverPNRMS(rms10);
+          vpt_l1.setVPTOverPNMean(mean10);
+          vpt_l1.setVPTOverPNRMS(rms10);
 
           if ( meg01_[ism-1] && int(meg01_[ism-1]->getBinContent( ix, iy )) % 3 == 1. ) {
-            apd_bl.setTaskStatus(true);
+            vpt_l1.setTaskStatus(true);
           } else {
-            apd_bl.setTaskStatus(false);
+            vpt_l1.setTaskStatus(false);
           }
 
           status = status && UtilsClient::getBinQual(meg01_[ism-1], ix, iy);
 
-          int ic = Numbers::indexEE(ism, ix, iy);
+          int ic = Numbers::indexEE(ism, jx, jy);
 
           if ( ic == -1 ) continue;
 
           if ( econn ) {
-            try {
-              ecid = LogicID::getEcalLogicID("EE_crystal_number", Numbers::iSM(ism, EcalEndcap), ic);
-              dataset1_bl[ecid] = apd_bl;
-            } catch (runtime_error &e) {
-              cerr << e.what() << endl;
-            }
+            ecid = LogicID::getEcalLogicID("EE_crystal_number", Numbers::iSM(ism, EcalEndcap), ic);
+            dataset1_l1[ecid] = vpt_l1;
           }
 
         }
@@ -626,9 +613,8 @@ bool EELedClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIOV*
 
   if ( econn ) {
     try {
-      cout << "Inserting MonLedDat ... " << flush;
-/// FIXME
-///      if ( dataset1_bl.size() != 0 ) econn->insertDataSet(&dataset1_bl, moniov);
+      cout << "Inserting MonLedDat ..." << endl;
+      if ( dataset1_l1.size() != 0 ) econn->insertDataArraySet(&dataset1_l1, moniov);
       cout << "done." << endl;
     } catch (runtime_error &e) {
       cerr << e.what() << endl;
@@ -637,8 +623,8 @@ bool EELedClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIOV*
 
   cout << endl;
 
-  MonPNBlueDat pn_bl;
-  map<EcalLogicID, MonPNBlueDat> dataset2_bl;
+  MonPNLed1Dat pn_l1;
+  map<EcalLogicID, MonPNLed1Dat> dataset2_l1;
 
   for ( unsigned int i=0; i<superModules_.size(); i++ ) {
 
@@ -691,35 +677,31 @@ bool EELedClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIOV*
 
         }
 
-        pn_bl.setADCMeanG1(mean01);
-        pn_bl.setADCRMSG1(rms01);
+        pn_l1.setADCMeanG1(mean01);
+        pn_l1.setADCRMSG1(rms01);
 
-        pn_bl.setPedMeanG1(mean05);
-        pn_bl.setPedRMSG1(rms05);
+        pn_l1.setPedMeanG1(mean05);
+        pn_l1.setPedRMSG1(rms05);
 
-        pn_bl.setADCMeanG16(mean09);
-        pn_bl.setADCRMSG16(rms09);
+        pn_l1.setADCMeanG16(mean09);
+        pn_l1.setADCRMSG16(rms09);
 
-        pn_bl.setPedMeanG16(mean13);
-        pn_bl.setPedRMSG16(rms13);
+        pn_l1.setPedMeanG16(mean13);
+        pn_l1.setPedRMSG16(rms13);
 
         if ( meg05_[ism-1] && int(meg05_[ism-1]->getBinContent( i, 1 )) % 3 == 1. ||
              meg09_[ism-1] && int(meg09_[ism-1]->getBinContent( i, 1 )) % 3 == 1. ) {
-          pn_bl.setTaskStatus(true);
+          pn_l1.setTaskStatus(true);
         } else {
-          pn_bl.setTaskStatus(false);
+          pn_l1.setTaskStatus(false);
         }
 
         status = status && ( UtilsClient::getBinQual(meg05_[ism-1], i, 1) ||
                              UtilsClient::getBinQual(meg09_[ism-1], i, 1) );
 
         if ( econn ) {
-          try {
-            ecid = LogicID::getEcalLogicID("EE_LM_PN", Numbers::iSM(ism, EcalEndcap), i-1);
-            dataset2_bl[ecid] = pn_bl;
-          } catch (runtime_error &e) {
-            cerr << e.what() << endl;
-          }
+          ecid = LogicID::getEcalLogicID("EE_LM_PN", Numbers::iSM(ism, EcalEndcap), i-1);
+          dataset2_l1[ecid] = pn_l1;
         }
 
       }
@@ -730,9 +712,8 @@ bool EELedClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIOV*
 
   if ( econn ) {
     try {
-      cout << "Inserting MonPnDat ... " << flush;
-/// FIXME
-///      if ( dataset2_bl.size() != 0 ) econn->insertDataSet(&dataset2_bl, moniov);
+      cout << "Inserting MonPnDat ..." << endl;
+      if ( dataset2_l1.size() != 0 ) econn->insertDataArraySet(&dataset2_l1, moniov);
       cout << "done." << endl;
     } catch (runtime_error &e) {
       cerr << e.what() << endl;
@@ -781,7 +762,7 @@ void EELedClient::analyze(void){
   EcalErrorMask::fetchDataSet(&mask1);
   EcalErrorMask::fetchDataSet(&mask2);
 
-  Char_t histo[200];
+  char histo[200];
 
   MonitorElement* me;
 
@@ -972,7 +953,7 @@ void EELedClient::analyze(void){
             val = 0.;
           if ( meg01_[ism-1] ) meg01_[ism-1]->setBinContent( ix, iy, val );
 
-          int ic = Numbers::icEE(ism, ix, iy);
+          int ic = Numbers::icEE(ism, jx, jy);
 
           if ( ic != -1 ) {
             if ( mea01_[ism-1] ) {
@@ -996,7 +977,7 @@ void EELedClient::analyze(void){
             val = 0.;
           if ( meg01_[ism-1] ) meg01_[ism-1]->setBinContent( ix, iy, val );
 
-          int ic = Numbers::icEE(ism, ix, iy);
+          int ic = Numbers::icEE(ism, jx, jy);
 
           if ( ic != -1 ) {
             if ( mea05_[ism-1] ) {
@@ -1013,7 +994,7 @@ void EELedClient::analyze(void){
 
         if ( update02 ) {
 
-          int ic = Numbers::icEE(ism, ix, iy);
+          int ic = Numbers::icEE(ism, jx, jy);
 
           if ( ic != -1 ) {
             if ( meaopn01_[ism-1] ) {
@@ -1030,7 +1011,7 @@ void EELedClient::analyze(void){
 
         if ( update14 ) {
 
-          int ic = Numbers::icEE(ism, ix, iy);
+          int ic = Numbers::icEE(ism, jx, jy);
 
           if ( ic != -1 ) {
             if ( meaopn05_[ism-1] ) {
@@ -1047,7 +1028,7 @@ void EELedClient::analyze(void){
 
         if ( update09 ) {
 
-          int ic = Numbers::icEE(ism, ix, iy);
+          int ic = Numbers::icEE(ism, jx, jy);
 
           if ( ic != -1 ) {
             if ( met01_[ism-1] ) {
@@ -1068,7 +1049,7 @@ void EELedClient::analyze(void){
 
         if ( update21 ) {
 
-          int ic = Numbers::icEE(ism, ix, iy);
+          int ic = Numbers::icEE(ism, jx, jy);
 
           if ( ic != -1 ) {
             if ( met05_[ism-1] ) {
@@ -1100,13 +1081,13 @@ void EELedClient::analyze(void){
 
             if ( ! Numbers::validEE(ism, jx, jy) ) continue;
 
-            int ic = Numbers::indexEE(ism, ix, iy);
+            int ic = Numbers::indexEE(ism, jx, jy);
 
             if ( ic == -1 ) continue;
 
             EcalLogicID ecid = m->first;
 
-            if ( ecid.getID1() == Numbers::iSM(ism, EcalEndcap) && ecid.getID2() == ic ) {
+            if ( ecid.getLogicID() == LogicID::getEcalLogicID("EE_crystal_number", Numbers::iSM(ism, EcalEndcap), ic).getLogicID() ) {
               if ( (m->second).getErrorBits() & bits01 ) {
                 if ( meg01_[ism-1] ) {
                   float val = int(meg01_[ism-1]->getBinContent(ix, iy)) % 3;
@@ -1194,7 +1175,7 @@ void EELedClient::analyze(void){
 
           EcalLogicID ecid = m->first;
 
-          if ( ecid.getID1() == Numbers::iSM(ism, EcalEndcap) && ecid.getID2() == i-1 ) {
+          if ( ecid.getLogicID() == LogicID::getEcalLogicID("EE_LM_PN", Numbers::iSM(ism, EcalEndcap), i-1).getLogicID() ) {
             if ( (m->second).getErrorBits() & (bits01|bits02) ) {
               if ( meg05_[ism-1] ) {
                 float val = int(meg05_[ism-1]->getBinContent(i, 1)) % 3;
@@ -1217,13 +1198,15 @@ void EELedClient::analyze(void){
     for ( int i = 1; i <= 10; i++ ) {
 
       if ( hs01_[ism-1] ) {
-        me_hs01_[ism-1]->setBinContent( i, hs01_[ism-1]->GetBinContent(1, i) );
-        me_hs01_[ism-1]->setBinError( i, hs01_[ism-1]->GetBinError(1, i) );
+        int ic = UtilsClient::getFirstNonEmptyChannel( hs01_[ism-1] );
+        me_hs01_[ism-1]->setBinContent( i, hs01_[ism-1]->GetBinContent(ic, i) );
+        me_hs01_[ism-1]->setBinError( i, hs01_[ism-1]->GetBinError(ic, i) );
       }
 
       if ( hs05_[ism-1] ) {
-        me_hs05_[ism-1]->setBinContent( i, hs05_[ism-1]->GetBinContent(426, i) );
-        me_hs05_[ism-1]->setBinError( i, hs05_[ism-1]->GetBinError(426, i) );
+        int ic = UtilsClient::getFirstNonEmptyChannel( hs05_[ism-1] );
+        me_hs05_[ism-1]->setBinContent( i, hs05_[ism-1]->GetBinContent(ic, i) );
+        me_hs05_[ism-1]->setBinError( i, hs05_[ism-1]->GetBinError(ic, i) );
       }
 
     }
@@ -1331,7 +1314,7 @@ void EELedClient::htmlOutput(int run, string htmlDir, string htmlName){
   TH1F* obj1f;
   TProfile* objp;
 
-  // Loop on barrel supermodules
+  // Loop on endcap sectors
 
   for ( unsigned int i=0; i<superModules_.size(); i ++ ) {
 

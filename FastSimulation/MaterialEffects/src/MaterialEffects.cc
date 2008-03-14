@@ -2,7 +2,6 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 //TrackingTools Headers
-#include "TrackingTools/PatternTools/interface/MediumProperties.h"
 
 // Famos Headers
 #include "FastSimulation/Event/interface/FSimEvent.h"
@@ -17,7 +16,6 @@
 #include "FastSimulation/MaterialEffects/interface/NuclearInteractionSimulator.h"
 
 #include <list>
-#include <vector>
 #include <map>
 #include <string>
 
@@ -123,6 +121,13 @@ MaterialEffects::MaterialEffects(const edm::ParameterSet& matEff,
     double pionEnergy 
       = matEff.getParameter<double>("pionEnergy");
 
+    // The algorithm to compute the distance between primary and secondaries
+    // when a nuclear interaction occurs
+    unsigned distAlgo 
+      = matEff.getParameter<unsigned>("distAlgo");
+    double distCut 
+      = matEff.getParameter<double>("distCut");
+
     // The file to read the starting interaction in each files
     // (random reproducibility in case of a crash)
     std::string inputFile 
@@ -181,7 +186,7 @@ MaterialEffects::MaterialEffects(const edm::ParameterSet& matEff,
       new NuclearInteractionSimulator(pionEnergies, pionTypes, pionNames, 
 				      pionMasses, pionPMin, pionEnergy, 
 				      lengthRatio, ratios, idMap, 
-				      inputFile, random);
+				      inputFile, distAlgo, distCut, random);
   }
 
 }
@@ -255,11 +260,19 @@ void MaterialEffects::interact(FSimEvent& mySimEvent,
       int ivertex = mySimEvent.addSimVertex(myTrack.vertex(),itrack);
       
       // This was a hadron that interacted inelastically
+      int idaugh = 0;
       for ( DaughterIter = NuclearInteraction->beginDaughters();
 	    DaughterIter != NuclearInteraction->endDaughters(); 
 	    ++DaughterIter) {
 
-	mySimEvent.addSimTrack(&(*DaughterIter), ivertex);
+	// The daughter in the event
+	int daughId = mySimEvent.addSimTrack(&(*DaughterIter), ivertex);
+	
+	// Store the closest daughter in the mother info (for later tracking purposes)
+	if ( NuclearInteraction->closestDaughterId() == idaugh++ ) {
+	  if ( mySimEvent.track(itrack).vertex().position().Pt() < 4.0 ) 
+	    mySimEvent.track(itrack).setClosestDaughterId(daughId);
+	}
 
       }
       // The hadron is destroyed. Return.

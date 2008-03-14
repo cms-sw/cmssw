@@ -5,7 +5,6 @@
 <use name=FWCore/ServiceRegistry>
 <use name=DQMServices/Core>
 <use name=DataFormats/JetReco>
-<use name=RecoJets/JetAlgorithms>
 <export>
    <lib name=ValidationRecoJets>
    <use name=FWCore/Framework>

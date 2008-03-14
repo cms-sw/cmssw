@@ -1,7 +1,7 @@
 #ifndef _SiPixelInformationExtractor_h_
 #define _SiPixelInformationExtractor_h_
 
-#include "DQMServices/Core/interface/MonitorUIRoot.h"
+#include "DQMServices/UI/interface/MonitorUIRoot.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
 #include "DQM/SiPixelMonitorClient/interface/SiPixelConfigParser.h"
@@ -26,7 +26,6 @@
 #include <vector>
 #include <string>
 #include <map>
-class SiPixelEDAClient;
 
 class SiPixelInformationExtractor {
 
@@ -98,9 +97,6 @@ class SiPixelInformationExtractor {
 				 std::map<std::string,std::map<std::string,std::string> >                & qtestsMap,
 				 std::map<std::string,std::vector<std::string> >    & meQTestsMap);
 
-  void computeGlobalQualityFlag(DaqMonitorBEInterface                   * bei,
-                                int                                       allMods,
-				int                                       errorMods);
 
 
  private:
@@ -127,8 +123,7 @@ class SiPixelInformationExtractor {
                                 std::string                               theName);
   void plotHistos(              std::multimap<std::string, std::string> & req_map, 
                                 std::vector<MonitorElement*>              me_list);
-  void plotHisto(               DaqMonitorBEInterface 			* bei, 
-                                MonitorElement                          * theMe,
+  void plotHisto(               MonitorElement                          * theMe,
                                 std::string                               theName,
 				std::string 				  canvasW,
 				std::string 				  canvasH);
@@ -175,6 +170,7 @@ class SiPixelInformationExtractor {
 			       double                                   & channelFraction);
   
   
+  
   std::ostringstream                     pictureBuffer_ ;
   map<std::string, std::string>          namedPictureBuffer ;
   
@@ -204,6 +200,5 @@ class SiPixelInformationExtractor {
   bool  readQTestMap_;
   bool  readMeMap_;
   bool  flagHotModule_;
-  
 };
 #endif

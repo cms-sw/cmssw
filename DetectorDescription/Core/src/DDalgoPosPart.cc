@@ -10,7 +10,6 @@
 #include "DetectorDescription/ExprAlgo/interface/AlgoPos.h"
 
 // Message logger.
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 void DDalgoPosPart(const DDName & self,
                    const DDName & parent,

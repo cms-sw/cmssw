@@ -1,11 +1,8 @@
 
 #include "DetectorDescription/Core/interface/DDPosPart.h"
-#include "DetectorDescription/Core/interface/DDLogicalPart.h"
 #include "DetectorDescription/Core/interface/DDCompactView.h"
-#include "DetectorDescription/Base/interface/DDdebug.h"
 
 #include <utility>  
-#include <iostream>
 
 void DDpos(const DDLogicalPart & self,
            const DDLogicalPart & mother,

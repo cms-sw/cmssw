@@ -2,8 +2,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2007/03/28 17:01:49 $
- *  $Revision: 1.7 $
+ *  $Date: 2007/01/24 16:04:11 $
+ *  $Revision: 1.6 $
  *  \author G. Cerminara - INFN Torino
  */
 
@@ -54,10 +54,10 @@ void DumpFileToDB::endJob() {
       cout << "key: " << (*keyAndCalibs).first
 	   << " vdrift (cm/ns): " << theCalibFile->meanVDrift((*keyAndCalibs).first)
 	   << " hit reso (cm): " << theCalibFile->sigma_meanVDrift((*keyAndCalibs).first) << endl;
-      mtime->set((*keyAndCalibs).first.superlayerId(),
-		 theCalibFile->meanVDrift((*keyAndCalibs).first), 
-		 theCalibFile->sigma_meanVDrift((*keyAndCalibs).first),
-		 DTTimeUnits::ns);
+      mtime->setSLMtime((*keyAndCalibs).first.superlayerId(),
+			theCalibFile->meanVDrift((*keyAndCalibs).first), 
+			theCalibFile->sigma_meanVDrift((*keyAndCalibs).first),
+			DTTimeUnits::ns);
     }
 
     cout << "[DumpFileToDB]Writing mtime object to DB!" << endl;
@@ -76,10 +76,10 @@ void DumpFileToDB::endJob() {
       cout << "key: " << (*keyAndCalibs).first
 	   << " ttrig_mean (ns): " << theCalibFile->tTrig((*keyAndCalibs).first)
 	   << " ttrig_sigma(ns): " << theCalibFile->sigma_tTrig((*keyAndCalibs).first) << endl;
-      tTrig->set((*keyAndCalibs).first.superlayerId(),
-		 theCalibFile->tTrig((*keyAndCalibs).first), 
-		 theCalibFile->sigma_tTrig((*keyAndCalibs).first),
-		 DTTimeUnits::ns);
+      tTrig->setSLTtrig((*keyAndCalibs).first.superlayerId(),
+			theCalibFile->tTrig((*keyAndCalibs).first), 
+			theCalibFile->sigma_tTrig((*keyAndCalibs).first),
+			DTTimeUnits::ns);
     }
 
     cout << "[DumpFileToDB]Writing ttrig object to DB!" << endl;
@@ -100,10 +100,10 @@ void DumpFileToDB::endJob() {
       cout << "key: " << (*keyAndCalibs).first
 	   << " T0 mean (TDC counts): " << t0mean
 	   << " T0_rms (TDC counts): " << t0rms << endl;
-      tZeroMap->set((*keyAndCalibs).first,
-		    t0mean,
-		    t0rms,
-		    DTTimeUnits::counts );
+      tZeroMap->setCellT0((*keyAndCalibs).first,
+			  t0mean,
+			  t0rms,
+			  DTTimeUnits::counts );
     }
 
     cout << "[DumpFileToDB]Writing tZero object to DB!" << endl;

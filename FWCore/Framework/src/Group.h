@@ -6,7 +6,7 @@
 Group: A collection of information related to a single EDProduct. This
 is the storage unit of such information.
 
-$Id: Group.h,v 1.22 2007/06/14 17:52:18 wmtan Exp $
+$Id: Group.h,v 1.23 2008/01/17 05:14:01 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -23,6 +23,9 @@ namespace edm {
   class BasicHandle;
   class Group {
   public:
+
+    Group();
+
     explicit Group(std::auto_ptr<Provenance> prov,
  	  bool onDemand = false);
 
@@ -97,6 +100,8 @@ namespace edm {
 
     // Return a BasicHandle to this Group.
     BasicHandle makeBasicHandle() const;
+
+    void mergeGroup(Group * newGroup);
 
   private:
     Group(const Group&);

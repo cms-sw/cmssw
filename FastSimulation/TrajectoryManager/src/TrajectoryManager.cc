@@ -6,7 +6,6 @@
 #include "DataFormats/GeometrySurface/interface/BoundCylinder.h"
 #include "DataFormats/GeometrySurface/interface/Surface.h"
 #include "DataFormats/GeometrySurface/interface/TangentPlane.h"
-#include "DataFormats/SiStripDetId/interface/TECDetId.h"
 
 // Tracker reco geometry headers 
 #include "TrackingTools/DetLayers/interface/DetLayer.h"
@@ -542,7 +541,7 @@ TrajectoryManager::makeSinglePSimHit( const GeomDetUnit& det,
 					  anyDirection);
     std::pair<bool,double> path = crossing.pathLength(det.surface());
     if (!path.first) {
-      edm::LogError("FastTracker") << "TrajectoryManager ERROR: crossing with det failed, skipping PSimHit";
+      // edm::LogError("FastTracker") << "TrajectoryManager ERROR: crossing with det failed, skipping PSimHit";
       return  std::pair<double,PSimHit>(0.,PSimHit());
     }
     lpos = det.toLocal( GlobalPoint( crossing.position(path.second)));
@@ -567,9 +566,15 @@ TrajectoryManager::makeSinglePSimHit( const GeomDetUnit& det,
   LocalPoint exit = lpos + halfThick/pZ * lmom;
   float tof = ts.globalPosition().mag() / 30. ; // in nanoseconds, FIXME: very approximate
 
+  // If a hadron suffered a nuclear interaction, just assign the hits of the closest 
+  // daughter to the mother's track.
+  int localTkID = tkID;
+  if ( mySimEvent->track(tkID).mother().closestDaughterId() == tkID )
+    localTkID = mySimEvent->track(tkID).mother().id();
+
   // FIXME: fix the track ID and the particle ID
   PSimHit hit( entry, exit, lmom.mag(), tof, eloss, pID,
-		  det.geographicalId().rawId(), tkID,
+		  det.geographicalId().rawId(), localTkID,
 		  lmom.theta(),
 		  lmom.phi());
 
@@ -673,9 +678,9 @@ TrajectoryManager::makeSinglePSimHit( const GeomDetUnit& det,
   //  the mono and the stereo modules)
 
   double dist = 0.;
-  GlobalPoint IP (mySimEvent->track(tkID).vertex().position().x(),
-		  mySimEvent->track(tkID).vertex().position().y(),
-		  mySimEvent->track(tkID).vertex().position().z());
+  GlobalPoint IP (mySimEvent->track(localTkID).vertex().position().x(),
+		  mySimEvent->track(localTkID).vertex().position().y(),
+		  mySimEvent->track(localTkID).vertex().position().z());
 
   dist = ( fabs(hit.localPosition().x()) > boundX  || 
 	   fabs(hit.localPosition().y()) > boundY ) ?  

@@ -47,7 +47,6 @@ class PFBlockProducer : public edm::EDProducer {
   
 
   edm::InputTag   inputTagRecTracks_;
-  edm::InputTag   inputTagPFNuclear_;
   edm::InputTag   inputTagPFClustersECAL_;
   edm::InputTag   inputTagPFClustersHCAL_;
   edm::InputTag   inputTagPFClustersPS_;
@@ -55,9 +54,6 @@ class PFBlockProducer : public edm::EDProducer {
 
   /// verbose ?
   bool   verbose_;
-
-  /// use NuclearInteractions ?
-  bool   useNuclear_;
 
   
   /// Particle flow block algorithm 

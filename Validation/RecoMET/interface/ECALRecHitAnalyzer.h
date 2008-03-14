@@ -8,7 +8,6 @@
 #include "FWCore/PluginManager/interface/ModuleDef.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
 // user include files
 
 #include "FWCore/Framework/interface/Event.h"
@@ -50,17 +49,12 @@
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
 #include "DataFormats/EgammaCandidates/interface/Photon.h"
 
-#include <memory>
 #include <vector>
 #include <utility>
 #include <ostream>
-#include <fstream>
 #include <string>
 #include <algorithm>
 #include <cmath>
-#include <TLorentzVector.h>
-#include <string>
-#include <map>
 
 #include <TH1.h>
 #include <TH2.h>
@@ -95,17 +89,33 @@ public:
   void BookHistos();
  
  private:
-  // DAQ Tools
-  DaqMonitorBEInterface* dbe_;
-  std::map<std::string, MonitorElement*> me;
-  // Inputs from Configuration
-  std::string outputFile_;
-  std::string geometryFile_;
-  std::string ECALRecHitsLabel_;
-  std::string EBRecHitsLabel_;
-  std::string EERecHitsLabel_;
   bool debug_;
-  bool dumpGeometry_;
+   //Histo Files 
+  TFile *m_DataFile, *m_GeomFile;
+  // Geometry Histograms
+  //--ECAL Barrel
+  TH2F *hEB_ieta_iphi_etaMap;
+  TH2F *hEB_ieta_iphi_phiMap;
+  TH1F *hEB_ieta_detaMap;
+  TH1F *hEB_ieta_dphiMap;
+  //--ECAL +endcaps
+  TH2F *hEEpZ_ix_iy_xMap;
+  TH2F *hEEpZ_ix_iy_yMap;
+  TH2F *hEEpZ_ix_iy_dxMap;
+  TH2F *hEEpZ_ix_iy_dyMap;
+  //--ECAL -endcaps
+  TH2F *hEEmZ_ix_iy_xMap;
+  TH2F *hEEmZ_ix_iy_yMap;
+  TH2F *hEEmZ_ix_iy_dxMap;
+  TH2F *hEEmZ_ix_iy_dyMap;
+
+  // Data Histograms
+  TH2F *hEEpZ_energy_ix_iy;
+  TH2F *hEEmZ_energy_ix_iy;
+  TH2F *hEB_energy_ieta_iphi;
+  TH2F *hEEpZ_Occ_ix_iy;
+  TH2F *hEEmZ_Occ_ix_iy;
+  TH2F *hEB_Occ_ieta_iphi;
 
   int CurrentEvent;
 };

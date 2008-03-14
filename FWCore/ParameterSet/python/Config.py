@@ -5,10 +5,9 @@ from  Options import Options
 options = Options()
 
 
-### imports
-from Mixins import PrintOptions,_SimpleParameterTypeBase, _ParameterTypeBase, _Parameterizable, _ConfigureComponent, _TypedParameterizable
-from Mixins import  _Labelable,  _Unlabelable 
-#from Mixins import _ValidatingListBase
+## imports
+from Mixins import PrintOptions,_ParameterTypeBase,_SimpleParameterTypeBase, _Parameterizable, _ConfigureComponent, _TypedParameterizable, _Labelable,  _Unlabelable,  _ValidatingListBase
+from Mixins import *
 from Types import * 
 from Modules import *
 from SequenceTypes import *
@@ -168,6 +167,9 @@ class Process(object):
         # however, only one of them can take the attribute name and it by rights should go to
         # the module and not the ESPrefer
         if not isinstance(value,ESPrefer):
+            if not self._okToPlace(name, value, self.__dict__):
+                print "WARNING: trying to override definition of process."+name
+                return
             self.__dict__[name]=newValue
         if isinstance(newValue,_Labelable):
             newValue.setLabel(name)
@@ -189,38 +191,61 @@ class Process(object):
         newValue =value.copy()
         newValue._place('',self)
         
+    def _okToPlace(self, name, mod, d):
+        if name in d:
+            # if there's an old copy, and the new one
+            # hasn't been modified, we're done.  Still
+            # not quite safe if something has been defined twice.
+            #  Need to add checks
+            if mod._isModified:
+                if d[name]._isModified:
+                    raise RuntimeError("The module %s has been modified twice" %(name))
+                else:
+                    return True
+            else:
+                return False
+        else:
+            return True
+
+    def _place(self, name, mod, d):
+        if self._okToPlace(name, mod, d):
+            if isinstance(mod, _ModuleSequenceType):
+                d[name] = mod._postProcessFixup(self._cloneToObjectDict)
+            else:
+                d[name] = mod
+
     def _placeOutputModule(self,name,mod):
-        self.__outputmodules[name]=mod
+        self._place(name, mod, self.__outputmodules)
     def _placeProducer(self,name,mod):
-        self.__producers[name]=mod
+        self._place(name, mod, self.__producers)
     def _placeFilter(self,name,mod):
-        self.__filters[name]=mod
+        self._place(name, mod, self.__filters)
     def _placeAnalyzer(self,name,mod):
-        self.__analyzers[name]=mod
+        self._place(name, mod, self.__analyzers)
     def _placePath(self,name,mod):
         try:
-            self.__paths[name]=mod._postProcessFixup(self._cloneToObjectDict)
+            self._place(name, mod, self.__paths)
         except ModuleCloneError, msg:
             context = format_outerframe(4)
             raise Exception("%sThe module %s in path %s is unknown to the process %s." %(context, msg, name, self._Process__name))
     def _placeEndPath(self,name,mod):
         try: 
-            self.__endpaths[name]=mod._postProcessFixup(self._cloneToObjectDict)
+            self._place(name, mod, self.__endpaths)
         except ModuleCloneError, msg:
             context = format_outerframe(4)
             raise Exception("%sThe module %s in endpath %s is unknown to the process %s." %(context, msg, name, self._Process__name))
     def _placeSequence(self,name,mod):
-        self.__sequences[name]=mod._postProcessFixup(self._cloneToObjectDict)
+        self._place(name, mod, self.__sequences)
     def _placeESProducer(self,name,mod):
-        self.__esproducers[name]=mod
+        self._place(name, mod, self.__esproducers)
     def _placeESPrefer(self,name,mod):
-        self.__esprefers[name]=mod
+        self._place(name, mod, self.__esprefers)
     def _placeESSource(self,name,mod):
-        self.__essources[name]=mod
+        self._place(name, mod, self.__essources)
     def _placePSet(self,name,mod):
-        self.__psets[name]=mod
+        self._place(name, mod, self.__psets)
     def _placeVPSet(self,name,mod):
-        self.__vpsets[name]=mod
+        self._place(name, mod, self.__vpsets)
     def _placeSource(self,name,mod):
         """Allow the source to be referenced by 'source' or by type name"""
         if name != 'source':
@@ -234,7 +259,7 @@ class Process(object):
             raise ValueError("The label '"+name+"' can not be used for a Looper.  Only 'looper' is allowed.")
         self.__dict__['_Process__looper'] = mod
     def _placeService(self,typeName,mod):
-        self.__services[typeName]=mod
+        self._place(typeName, mod, self.__services)
         self.__dict__[typeName]=mod
     def load(self, moduleName):
         module = __import__(moduleName)
@@ -477,9 +502,9 @@ class Process(object):
         processPSet.addPSet(False, "@trigger_paths", p)
         # add all these paths
         for triggername in triggerPaths:
-            self.paths_()[triggername].insertInto(processPSet, triggername)
+            self.paths_()[triggername].insertInto(processPSet, triggername, self.sequences_())
         for endpathname in endpaths:
-            self.endpaths_()[endpathname].insertInto(processPSet, endpathname)
+            self.endpaths_()[endpathname].insertInto(processPSet, endpathname, self.sequences_())
         
     def fillProcessDesc(self, processDesc, processPSet):
         processPSet.addString(True, "@process_name", self.name_())
@@ -795,6 +820,22 @@ process.schedule = cms.Schedule(process.p2,process.p)
             self.assertEqual(p.modu.a.value(),1)
             self.assertEqual(p.modu.b.value(),2)
 
+        def testOverride(self):
+            p = Process('test')
+            a = EDProducer("A", a1=int32(0))
+            self.assert_(not a.isModified())
+            a.a1 = 1
+            self.assert_(a.isModified())
+            p.a = a
+            self.assertEqual(p.a.a1.value(), 1)
+            # try adding an unmodified module.  Should ignore
+            p.a = EDProducer("A", a1=int32(2))
+            self.assertEqual(p.a.a1.value(), 1)
+            # try adding a modified module.  Should throw
+            b = EDProducer("A", a1=int32(3))
+            b.a1 = 4
+            self.assertRaises(RuntimeError, setattr, *(p,'a',b))
+            
         def testExamples(self):
             p = Process("Test")
             p.source = Source("PoolSource",fileNames = untracked(string("file:reco.root")))
@@ -844,5 +885,7 @@ process.schedule = cms.Schedule(process.p2,process.p)
    endpath o = {out}
 }""")
             self.assertEqual(process.source.type_(),"PoolSource")
+        def testUB(self):
+            a = UsingBlock('a')
                                
     unittest.main()

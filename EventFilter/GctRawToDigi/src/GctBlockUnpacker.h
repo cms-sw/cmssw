@@ -34,6 +34,7 @@ class GctBlockUnpacker
   /// set collection pointers
   /// when unpacking set these to empty collections that will be filled.
   void setRctEmCollection(L1CaloEmCollection* coll) { rctEm_ = coll; }
+  void setRctCaloRegionCollection(L1CaloRegionCollection * coll) { rctCalo_ = coll; }
   void setIsoEmCollection(L1GctEmCandCollection* coll) { gctIsoEm_ = coll; }
   void setNonIsoEmCollection(L1GctEmCandCollection* coll) { gctNonIsoEm_ = coll; }
   void setInternEmCollection(L1GctInternEmCandCollection* coll) { gctInternEm_ = coll; }
@@ -90,6 +91,7 @@ class GctBlockUnpacker
 
   // collections of RCT objects
   L1CaloEmCollection* rctEm_;  ///< RCT EM cands
+  L1CaloRegionCollection* rctCalo_;  ///< RCT Calo regions
 
   // Output object pointers (collections should be empty, and will be filled)
   L1GctEmCandCollection* gctIsoEm_;  ///< GCT output isolated EM cands.
@@ -104,8 +106,8 @@ class GctBlockUnpacker
 
   // PRIVATE METHODS
   // convert functions for each type of block
-  /// unpack GCT EM Candidates and energy sums.
-  void blockToGctEmCandsAndEnergySums(const unsigned char * d, const GctBlockHeader& hdr);
+  /// unpack GCT EM Candidates
+  void blockToGctEmCand(const unsigned char * d, const GctBlockHeader& hdr);
 
   /// unpack GCT internal EM Candidates
   void blockToGctInternEmCand(const unsigned char * d, const GctBlockHeader& hdr);
@@ -119,9 +121,18 @@ class GctBlockUnpacker
   /// unpack Fibres and RCT EM Candidates
   void blockToFibresAndToRctEmCand(const unsigned char * d, const GctBlockHeader& hdr);
   
-  /// Unpack GCT Jet Candidates and jet counts.
-  void blockToGctJetCandsAndCounts(const unsigned char * d, const GctBlockHeader& hdr);
-
+  /// Unpack GCT Jet Candidates.
+  void blockToGctJetCand(const unsigned char * d, const GctBlockHeader& hdr);
+  
+  /// Unpack GCT Jet Counts
+  void blockToGctJetCounts(const unsigned char * d, const GctBlockHeader& hdr);
+  
+  /// Unpack GCT Energy Sums (Et, Ht, and Missing Et)
+  void blockToGctEnergySums(const unsigned char * d, const GctBlockHeader& hdr);
+  
+  /// Unpack RCT Calo Regions
+  void blockToRctCaloRegions(const unsigned char * d, const GctBlockHeader& hdr);
+  
   /// Do nothing
   void blockDoNothing(const unsigned char * d, const GctBlockHeader& hdr) {}
 

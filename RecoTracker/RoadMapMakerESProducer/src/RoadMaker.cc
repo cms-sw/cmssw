@@ -10,9 +10,9 @@
 // Original Author: Oliver Gutsche, gutsche@fnal.gov
 // Created:         Thu Jan 12 21:00:00 UTC 2006
 //
-// $Author: gutsche $
-// $Date: 2007/06/13 13:56:06 $
-// $Revision: 1.12 $
+// $Author: hlliu $
+// $Date: 2008/01/08 17:42:17 $
+// $Revision: 1.13 $
 //
 
 #include <iostream>
@@ -62,6 +62,8 @@ RoadMaker::RoadMaker(const Rings *rings,
     } else if (structure_==TIFTIBTOB) {
       zBS_ = 5*75.; // cm
     } else if (structure_==TIFTOBTEC) {
+      zBS_ = 5*75.; // cm
+    } else if (structure_==P5) {
       zBS_ = 5*75.; // cm
     }
 
@@ -278,6 +280,9 @@ void RoadMaker::collectInnerSeedRings() {
   } else if(structure_==TIFTOBTEC) {
     collectInnerTOBSeedRings();
     collectInnerTECSeedRings();
+  } else if(structure_==P5) {
+    collectInnerTOBSeedRings();
+    collectInnerTECSeedRings();
   }
 
   LogDebug("RoadSearch") << "collected " << innerSeedRings_.size() << " inner seed rings"; 
@@ -470,6 +475,33 @@ void RoadMaker::collectInnerTECSeedRings() {
     // TEC WHEEL 8
     ring_min[8] = 3;
     ring_max[8] = 4;
+  } else if (structure_==P5) {
+    fw_bw_min = 1;
+    fw_bw_max = 3;
+    // TEC WHEEL 1
+    ring_min[1] = 4;
+    ring_max[1] = 6;
+    // TEC WHEEL 2
+    ring_min[2] = 4;
+    ring_max[2] = 6;
+    // TEC WHEEL 3
+    ring_min[3] = 4;
+    ring_max[3] = 6;
+    // TEC WHEEL 4
+    ring_min[4] = 4;
+    ring_max[4] = 6;
+    // TEC WHEEL 5
+    ring_min[5] = 4;
+    ring_max[5] = 6;
+    // TEC WHEEL 6
+    ring_min[6] = 4;
+    ring_max[6] = 6;
+    // TEC WHEEL 7
+    ring_min[7] = 4;
+    ring_max[7] = 6;
+    // TEC WHEEL 8
+    ring_min[8] = 4;
+    ring_max[8] = 6;
   }
 
   for ( unsigned int fw_bw = fw_bw_min; fw_bw < fw_bw_max; ++fw_bw ) {
@@ -519,7 +551,15 @@ void RoadMaker::collectInnerTOBSeedRings() {
     rod_fw_bw_max   = 3;
     detector_min    = 1;
     detector_max    = 7;
+  } else if (structure_==P5) {
+    layer_min       = 3; 
+    layer_max       = 5;
+    rod_fw_bw_min   = 1;
+    rod_fw_bw_max   = 3;
+    detector_min    = 1;
+    detector_max    = 7;  
   }
+
 
   for ( unsigned int layer = layer_min; layer < layer_max; ++layer ) {
     for ( unsigned int rod_fw_bw = rod_fw_bw_min; rod_fw_bw < rod_fw_bw_max; ++rod_fw_bw ) {
@@ -1233,6 +1273,9 @@ void RoadMaker::collectOuterSeedRings() {
   } else if (structure_==TIFTOBTEC) {
     collectOuterTOBSeedRings();
     collectOuterTECSeedRings();
+  } else if (structure_==P5) {
+    collectOuterTOBSeedRings();
+    collectOuterTECSeedRings();
   }
 
 
@@ -1319,6 +1362,13 @@ void RoadMaker::collectOuterTOBSeedRings() {
     detector_min    = 1;
     detector_max    = 7;
   } else if (structure_==TIFTOBTEC) { 
+    layer_min       = 5; 
+    layer_max       = 7;
+    rod_fw_bw_min   = 1;
+    rod_fw_bw_max   = 3;
+    detector_min    = 1;
+    detector_max    = 7;
+  } else if (structure_==P5) { 
     layer_min       = 5; 
     layer_max       = 7;
     rod_fw_bw_min   = 1;
@@ -1542,10 +1592,29 @@ void RoadMaker::collectOuterTECSeedRings() {
       }
     }
     
+  } else if (structure_==P5) {
+    unsigned int fw_bw_min = 1;
+    unsigned int fw_bw_max = 3;
+    unsigned int wheel_min = 1;
+    unsigned int wheel_max = 10;
+    unsigned int ring_min  = 6;
+    unsigned int ring_max  = 8;
+    
+    for ( unsigned int fw_bw = fw_bw_min; fw_bw < fw_bw_max; ++fw_bw ) {
+      for ( unsigned int wheel = wheel_min; wheel < wheel_max; ++wheel ) {
+	for ( unsigned int ring = ring_min; ring < ring_max; ++ring ) {
+	  const Ring* temp_ring = rings_->getTECRing(fw_bw,wheel,ring);
+	  outerSeedRings_.push_back(temp_ring);
+	  ++counter;
+	  LogDebug("RoadSearch") << "collected TEC outer seed ring with index: " << temp_ring->getindex(); 
+	}
+      }
+    }
+    
   }
 
   LogDebug("RoadSearch") << "collected " << counter << " TEC outer seed rings"; 
-
+  
 }
 
 void RoadMaker::collectOuterSeedRings1() {

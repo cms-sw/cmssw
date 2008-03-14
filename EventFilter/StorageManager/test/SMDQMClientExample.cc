@@ -7,7 +7,7 @@
 
   Description: Example DQM Client 
 
-  $Id: SMDQMClientExample.cc,v 1.3 2007/09/12 11:05:11 hcheung Exp $
+  $Id: SMDQMClientExample.cc,v 1.5 2008/01/22 19:28:37 muzaffar Exp $
 
 */
 
@@ -17,21 +17,17 @@
 #include <iostream>
 
 // user include files
-#include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 
-#include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/Run.h"
 #include "FWCore/Framework/interface/LuminosityBlock.h"
 
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
 #include "DQMServices/UI/interface/MonitorUIRoot.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
-#include <TRandom.h> // this is just the random number generator
 
 using std::cout; using std::endl;
 

@@ -8,7 +8,7 @@
 
 /**
  *  Vertex updator for the Gaussian Sum vertex filter.
- *  (c.f. Th.Speer & R. Fruewirth, Comp.Phys.Comm 174, 935 (2006) )
+ *  (c.f. R. Fruewirth et.al., Comp.Phys.Comm 100 (1997) 1
  */
 
 class GsfVertexUpdator: public VertexUpdator<5> {
@@ -21,7 +21,7 @@ public:
   GsfVertexUpdator(bool limit = false, const GsfVertexMerger * merger = 0);
 /**
  *  Method to add a track to an existing CachingVertex
- *  An invalid vertex is returned in case of problems during the update.
+ *
  */
 
    CachingVertex<5> add(const CachingVertex<5> & oldVertex,
@@ -29,7 +29,7 @@ public:
 
 /**
  *  Method removing already used VertexTrack from existing CachingVertex
- *  This method is not yet implemented.
+ *
  */
 
    CachingVertex<5> remove(const CachingVertex<5> & oldVertex,

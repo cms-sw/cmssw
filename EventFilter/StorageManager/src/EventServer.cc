@@ -2,13 +2,14 @@
  * This class manages the distribution of events to consumers from within
  * the storage manager.
  *
- * $Id: EventServer.cc,v 1.6 2007/07/02 09:51:12 meschi Exp $
+ * $Id: EventServer.cc,v 1.7 2007/11/09 23:09:12 badgett Exp $
  */
 
 #include "EventFilter/StorageManager/interface/EventServer.h"
 #include "FWCore/Utilities/interface/DebugMacros.h"
 
 #include <iostream>
+#include <boost/algorithm/string/case_conv.hpp>
 
 using namespace std;
 using namespace stor;
@@ -45,6 +46,8 @@ EventServer::EventServer(double maximumRate)
 
   // initialize counters
   disconnectedConsumerTestCounter_ = 0;
+
+  selTableStringSize_ = 0;
 }
 
 /**
@@ -61,12 +64,12 @@ EventServer::~EventServer()
 void EventServer::addConsumer(boost::shared_ptr<ConsumerPipe> consumer)
 {
   uint32 consumerId = consumer->getConsumerId();
-  consumerTable[consumerId] = consumer;
+  consumerTable_[consumerId] = consumer;
 }
 
 std::map< uint32, boost::shared_ptr<ConsumerPipe> > EventServer::getConsumerTable()
 {
-  return(consumerTable);
+  return(consumerTable_);
 }
 
 /**
@@ -80,8 +83,8 @@ boost::shared_ptr<ConsumerPipe> EventServer::getConsumer(uint32 consumerId)
 
   // lookup the consumer
   std::map< uint32, boost::shared_ptr<ConsumerPipe> >::const_iterator consIter;
-  consIter = consumerTable.find(consumerId);
-  if (consIter != consumerTable.end())
+  consIter = consumerTable_.find(consumerId);
+  if (consIter != consumerTable_.end())
   {
     consPtr = consIter->second;
   }
@@ -120,8 +123,8 @@ void EventServer::processEvent(const EventMsgView &eventView)
   // to the consumer pipe.
   boost::shared_ptr< vector<char> > bufPtr;
   std::map< uint32, boost::shared_ptr<ConsumerPipe> >::const_iterator consIter;
-  for (consIter = consumerTable.begin();
-       consIter != consumerTable.end();
+  for (consIter = consumerTable_.begin();
+       consIter != consumerTable_.end();
        consIter++)
   {
     // test if the consumer is ready and wants the event
@@ -169,8 +172,8 @@ void EventServer::processEvent(const EventMsgView &eventView)
     // determine which consumers have disconnected
     std::vector<uint32> disconnectList;
     std::map< uint32, boost::shared_ptr<ConsumerPipe> >::const_iterator consIter;
-    for (consIter = consumerTable.begin();
-         consIter != consumerTable.end();
+    for (consIter = consumerTable_.begin();
+         consIter != consumerTable_.end();
          consIter++)
     {
       boost::shared_ptr<ConsumerPipe> consPipe = consIter->second;
@@ -189,7 +192,7 @@ void EventServer::processEvent(const EventMsgView &eventView)
          listIter++)
     {
       uint32 consumerId = *listIter;
-      consumerTable.erase(consumerId);
+      consumerTable_.erase(consumerId);
     }
   }
 }
@@ -204,8 +207,8 @@ boost::shared_ptr< std::vector<char> > EventServer::getEvent(uint32 consumerId)
 
   // lookup the consumer
   std::map< uint32, boost::shared_ptr<ConsumerPipe> >::const_iterator consIter;
-  consIter = consumerTable.find(consumerId);
-  if (consIter != consumerTable.end())
+  consIter = consumerTable_.find(consumerId);
+  if (consIter != consumerTable_.end())
   {
     boost::shared_ptr<ConsumerPipe> consPipe = consIter->second;
     bufPtr = consPipe->getEvent();
@@ -218,11 +221,56 @@ boost::shared_ptr< std::vector<char> > EventServer::getEvent(uint32 consumerId)
 void EventServer::clearQueue()
 {
   std::map< uint32, boost::shared_ptr<ConsumerPipe> >::const_iterator consIter;
-  for (consIter = consumerTable.begin();
-       consIter != consumerTable.end();
+  for (consIter = consumerTable_.begin();
+       consIter != consumerTable_.end();
        consIter++)
   {
     boost::shared_ptr<ConsumerPipe> consPipe = consIter->second;
     consPipe->clearQueue();
   }
+}
+
+void EventServer::setStreamSelectionTable(std::map<std::string, Strings> const& selTable)
+{
+  streamSelectionTable_ = selTable;
+  selTableStringSize_ = 0;
+  std::map<std::string, Strings>::const_iterator mapIter;
+  for (mapIter = selTable.begin(); mapIter != selTable.end(); mapIter++)
+  {
+    std::string streamLabel = mapIter->first;
+    selTableStringSize_ += streamLabel.size();
+    Strings selectionList = mapIter->second;
+    for (unsigned int idx = 0; idx < selectionList.size(); idx++)
+    {
+      std::string selection = selectionList[idx];
+      selTableStringSize_ += selection.size();
+    }
+  }
+}
+
+Strings EventServer::updateTriggerSelectionForStreams(Strings const& selectionList)
+{
+  Strings modifiedList;
+  for (unsigned int idx = 0; idx < selectionList.size(); idx++) {
+    std::string selection = selectionList[idx];
+    std::string lcSelection = boost::algorithm::to_lower_copy(selection);
+    if (lcSelection.find("stream", 0) == 0) {
+      std::string streamLabel = selection.substr(6);
+      std::map<std::string, Strings>::const_iterator mapIter =
+        streamSelectionTable_.find(streamLabel);
+      if (mapIter != streamSelectionTable_.end()) {
+        Strings streamSelectionList = mapIter->second;
+        for (unsigned int jdx = 0; jdx < streamSelectionList.size(); jdx++) {
+          modifiedList.push_back(streamSelectionList.at(jdx));
+        }
+      }
+      else {
+        modifiedList.push_back(selection);
+      }
+    }
+    else {
+      modifiedList.push_back(selection);
+    }
+  }
+  return modifiedList;
 }

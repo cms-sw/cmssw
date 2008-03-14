@@ -10,7 +10,7 @@
 */
 //
 // Original Author:  Monica Vazquez Acosta (CERN)
-// $Id: EgammaHLTPixelMatchElectronAlgo.cc,v 1.9 2007/10/19 17:22:24 ghezzi Exp $
+// $Id: EgammaHLTPixelMatchElectronAlgo.cc,v 1.10 2007/12/10 18:12:46 ghezzi Exp $
 //
 //
 #include "RecoEgamma/EgammaHLTAlgos/interface/EgammaHLTPixelMatchElectronAlgo.h"
@@ -37,6 +37,8 @@
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 
+#include "DataFormats/BeamSpot/interface/BeamSpot.h"
+#include "DataFormats/Math/interface/Point3D.h"
 
 using namespace edm;
 using namespace std;
@@ -82,7 +84,8 @@ void EgammaHLTPixelMatchElectronAlgo::setupES(const edm::EventSetup& es, const e
   */
 
   trackLabel_ = conf.getParameter<string>("TrackLabel");
-  trackInstanceName_ = conf.getParameter<string>("TrackProducer");
+  trackInstanceName_ = conf.getParameter<string>("TrackProducer");//"offlineBeamSpot"
+  BSProducer_ = conf.getParameter<edm::InputTag>("BSProducer");
 }
 
 void  EgammaHLTPixelMatchElectronAlgo::run(Event& e, ElectronCollection & outEle) {
@@ -91,12 +94,19 @@ void  EgammaHLTPixelMatchElectronAlgo::run(Event& e, ElectronCollection & outEle
   edm::Handle<TrackCollection> tracksH;
   e.getByLabel(trackLabel_,trackInstanceName_,tracksH);
 
-  process(tracksH,outEle);
+  //Get the Beam Spot position
+  edm::Handle<reco::BeamSpot> recoBeamSpotHandle;
+  // iEvent.getByType(recoBeamSpotHandle);
+  e.getByLabel(BSProducer_,recoBeamSpotHandle);
+  // gets its position
+  const BeamSpot::Point& BSPosition = recoBeamSpotHandle->position(); 
+  Global3DPoint bs(BSPosition.x(),BSPosition.y(),0);
+  process(tracksH,outEle,bs);
 
   return;
 }
 
-void EgammaHLTPixelMatchElectronAlgo::process(edm::Handle<TrackCollection> tracksH, ElectronCollection & outEle) {
+void EgammaHLTPixelMatchElectronAlgo::process(edm::Handle<TrackCollection> tracksH, ElectronCollection & outEle, Global3DPoint & bs) {
   const TrackCollection *tracks=tracksH.product();
   for (unsigned int i=0;i<tracks->size();++i) {
     const Track & t=(*tracks)[i];
@@ -105,11 +115,12 @@ void EgammaHLTPixelMatchElectronAlgo::process(edm::Handle<TrackCollection> track
     edm::RefToBase<TrajectorySeed> seed = trackRef->extra()->seedRef();
     ElectronPixelSeedRef elseed=seed.castTo<ElectronPixelSeedRef>();
     const SuperClusterRef & scRef=elseed->superCluster();
-    // Get the momentum at vertex (not at the innermost layer)
+    
+        // Get the momentum at vertex (not at the innermost layer)
     TSCPBuilderNoMaterial tscpBuilder;
     TrajectoryStateTransform tsTransform;
     FreeTrajectoryState fts = tsTransform.innerFreeState(t,theMagField.product());
-    TrajectoryStateClosestToPoint tscp = tscpBuilder(fts, Global3DPoint(0,0,0) );
+    TrajectoryStateClosestToPoint tscp = tscpBuilder(fts, bs );
     
     float scale = scRef->energy()/tscp.momentum().mag();
   

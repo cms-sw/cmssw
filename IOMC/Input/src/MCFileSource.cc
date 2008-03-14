@@ -1,11 +1,11 @@
-// $Id: MCFileSource.cc,v 1.9 2007/05/29 21:00:00 weng Exp $
+// $Id:$
 
 /**  
 *  See header file for a description of this class.
 *
 *
-*  $Date: 2007/05/29 21:00:00 $
-*  $Revision: 1.9 $
+*  $Date: 2006/04/19 14:52:03 $
+*  $Revision: 1.8 $
 *  \author Jo. Weng  - CERN, Ph Division & Uni Karlsruhe
 *  \author F.Moortgat - CERN, Ph Division
 */
@@ -20,7 +20,6 @@
 #include "IOMC/Input/interface/HepMCFileReader.h" 
 #include "IOMC/Input/interface/MCFileSource.h"
 #include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
-
 
 
 using namespace edm;

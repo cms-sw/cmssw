@@ -1,8 +1,8 @@
 /*
  * \file EETestPulseClient.cc
  *
- * $Date: 2008/01/17 09:34:43 $
- * $Revision: 1.59 $
+ * $Date: 2008/02/15 15:26:39 $
+ * $Revision: 1.72 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -19,14 +19,8 @@
 #include "TGraph.h"
 #include "TLine.h"
 
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-
 #include "DQMServices/UI/interface/MonitorUIRoot.h"
 
-#include "OnlineDB/EcalCondDB/interface/RunTag.h"
-#include "OnlineDB/EcalCondDB/interface/RunIOV.h"
 #include "OnlineDB/EcalCondDB/interface/MonTestPulseDat.h"
 #include "OnlineDB/EcalCondDB/interface/MonPulseShapeDat.h"
 #include "OnlineDB/EcalCondDB/interface/MonPNMGPADat.h"
@@ -57,7 +51,7 @@ EETestPulseClient::EETestPulseClient(const ParameterSet& ps){
   verbose_ = ps.getUntrackedParameter<bool>("verbose", false);
 
   // enableMonitorDaemon_ switch
-  enableMonitorDaemon_ = ps.getUntrackedParameter<bool>("enableMonitorDaemon", true);
+  enableMonitorDaemon_ = ps.getUntrackedParameter<bool>("enableMonitorDaemon", false);
 
   // enableCleanup_ switch
   enableCleanup_ = ps.getUntrackedParameter<bool>("enableCleanup", false);
@@ -174,7 +168,7 @@ void EETestPulseClient::endRun(void) {
 
 void EETestPulseClient::setup(void) {
 
-  Char_t histo[200];
+  char histo[200];
 
   dbe_->setCurrentFolder( "EcalEndcap/EETestPulseClient" );
 
@@ -431,12 +425,12 @@ bool EETestPulseClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonR
 
         if ( update01 || update02 || update03 ) {
 
-          if ( ix == 1 && iy == 1 ) {
+          if ( Numbers::icEE(ism, jx, jy) == 1 ) {
 
             cout << "Preparing dataset for " << Numbers::sEE(ism) << " (ism=" << ism << ")" << endl;
-            cout << "G01 (" << ix << "," << iy << ") " << num01 << " " << mean01 << " " << rms01 << endl;
-            cout << "G06 (" << ix << "," << iy << ") " << num02 << " " << mean02 << " " << rms02 << endl;
-            cout << "G12 (" << ix << "," << iy << ") " << num03 << " " << mean03 << " " << rms03 << endl;
+            cout << "G01 (" << Numbers::ix0EE(i+1)+ix << "," << Numbers::iy0EE(i+1)+iy << ") " << num01 << " " << mean01 << " " << rms01 << endl;
+            cout << "G06 (" << Numbers::ix0EE(i+1)+ix << "," << Numbers::iy0EE(i+1)+iy << ") " << num02 << " " << mean02 << " " << rms02 << endl;
+            cout << "G12 (" << Numbers::ix0EE(i+1)+ix << "," << Numbers::iy0EE(i+1)+iy << ") " << num03 << " " << mean03 << " " << rms03 << endl;
 
             cout << endl;
 
@@ -463,7 +457,7 @@ bool EETestPulseClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonR
                              UtilsClient::getBinQual(meg02_[ism-1], ix, iy) &&
                              UtilsClient::getBinQual(meg03_[ism-1], ix, iy);
 
-          if ( ix == 1 && iy == 1 ) {
+          if ( Numbers::icEE(ism, jx, jy) == 1 ) {
 
             vector<float> sample01, sample02, sample03;
 
@@ -521,18 +515,14 @@ bool EETestPulseClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonR
 
           }
 
-          int ic = Numbers::indexEE(ism, ix, iy);
+          int ic = Numbers::indexEE(ism, jx, jy);
 
           if ( ic == -1 ) continue;
 
           if ( econn ) {
-            try {
-              ecid = LogicID::getEcalLogicID("EE_crystal_number", Numbers::iSM(ism, EcalEndcap), ic);
-              dataset1[ecid] = adc;
-              if ( ix == 1 && iy == 1 ) dataset2[ecid] = shape;
-            } catch (runtime_error &e) {
-              cerr << e.what() << endl;
-            }
+            ecid = LogicID::getEcalLogicID("EE_crystal_number", Numbers::iSM(ism, EcalEndcap), ic);
+            dataset1[ecid] = adc;
+            if ( Numbers::icEE(ism, jx, jy) == 1 ) dataset2[ecid] = shape;
           }
 
         }
@@ -544,7 +534,7 @@ bool EETestPulseClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonR
 
   if ( econn ) {
     try {
-      cout << "Inserting MonTestPulseDat ... " << flush;
+      cout << "Inserting MonTestPulseDat ..." << endl;
       if ( dataset1.size() != 0 ) econn->insertDataArraySet(&dataset1, moniov);
       if ( dataset2.size() != 0 ) econn->insertDataSet(&dataset2, moniov);
       cout << "done." << endl;
@@ -622,12 +612,8 @@ bool EETestPulseClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonR
                            UtilsClient::getBinQual(meg05_[ism-1], i, 1);
 
         if ( econn ) {
-          try {
-            ecid = LogicID::getEcalLogicID("EE_LM_PN", Numbers::iSM(ism, EcalEndcap), i-1);
-            dataset3[ecid] = pn;
-          } catch (runtime_error &e) {
-            cerr << e.what() << endl;
-          }
+          ecid = LogicID::getEcalLogicID("EE_LM_PN", Numbers::iSM(ism, EcalEndcap), i-1);
+          dataset3[ecid] = pn;
         }
 
       }
@@ -638,7 +624,7 @@ bool EETestPulseClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonR
 
   if ( econn ) {
     try {
-      cout << "Inserting MonPNMGPADat ... " << flush;
+      cout << "Inserting MonPNMGPADat ..." << endl;
       if ( dataset3.size() != 0 ) econn->insertDataArraySet(&dataset3, moniov);
       cout << "done." << endl;
     } catch (runtime_error &e) {
@@ -694,7 +680,7 @@ void EETestPulseClient::analyze(void){
   EcalErrorMask::fetchDataSet(&mask1);
   EcalErrorMask::fetchDataSet(&mask2);
 
-  Char_t histo[200];
+  char histo[200];
 
   MonitorElement* me;
 
@@ -852,7 +838,7 @@ void EETestPulseClient::analyze(void){
             val = 0.;
           if ( meg01_[ism-1] ) meg01_[ism-1]->setBinContent( ix, iy, val );
 
-          int ic = Numbers::icEE(ism, ix, iy);
+          int ic = Numbers::icEE(ism, jx, jy);
 
           if ( ic != -1 ) {
             if ( mea01_[ism-1] ) {
@@ -878,7 +864,7 @@ void EETestPulseClient::analyze(void){
             val = 0.;
           if ( meg02_[ism-1] ) meg02_[ism-1]->setBinContent( ix, iy, val );
 
-          int ic = Numbers::icEE(ism, ix, iy);
+          int ic = Numbers::icEE(ism, jx, jy);
 
           if ( ic != -1 ) {
             if ( mea02_[ism-1] ) {
@@ -904,7 +890,7 @@ void EETestPulseClient::analyze(void){
             val = 0.;
           if ( meg03_[ism-1] ) meg03_[ism-1]->setBinContent( ix, iy, val );
 
-          int ic = Numbers::icEE(ism, ix, iy);
+          int ic = Numbers::icEE(ism, jx, jy);
 
           if ( ic != -1 ) {
             if ( mea03_[ism-1] ) {
@@ -932,13 +918,13 @@ void EETestPulseClient::analyze(void){
 
             if ( ! Numbers::validEE(ism, jx, jy) ) continue;
 
-            int ic = Numbers::indexEE(ism, ix, iy);
+            int ic = Numbers::indexEE(ism, jx, jy);
 
             if ( ic == -1 ) continue;
 
             EcalLogicID ecid = m->first;
 
-            if ( ecid.getID1() == Numbers::iSM(ism, EcalEndcap) && ecid.getID2() == ic ) {
+            if ( ecid.getLogicID() == LogicID::getEcalLogicID("EE_crystal_number", Numbers::iSM(ism, EcalEndcap), ic).getLogicID() ) {
               if ( (m->second).getErrorBits() & bits01 ) {
                 if ( meg01_[ism-1] ) {
                   float val = int(meg01_[ism-1]->getBinContent(ix, iy)) % 3;
@@ -1027,7 +1013,7 @@ void EETestPulseClient::analyze(void){
 
           EcalLogicID ecid = m->first;
 
-          if ( ecid.getID1() == Numbers::iSM(ism, EcalEndcap) && ecid.getID2() == i-1 ) {
+          if ( ecid.getLogicID() == LogicID::getEcalLogicID("EE_LM_PN", Numbers::iSM(ism, EcalEndcap), i-1).getLogicID() ) {
             if ( (m->second).getErrorBits() & (bits01|bits04) ) {
               if ( meg04_[ism-1] ) {
                 float val = int(meg04_[ism-1]->getBinContent(i, 1)) % 3;
@@ -1050,18 +1036,21 @@ void EETestPulseClient::analyze(void){
     for ( int i = 1; i <= 10; i++ ) {
 
       if ( hs01_[ism-1] ) {
-        me_hs01_[ism-1]->setBinContent( i, hs01_[ism-1]->GetBinContent(1, i) );
-        me_hs01_[ism-1]->setBinError( i, hs01_[ism-1]->GetBinError(1, i) );
+        int ic = UtilsClient::getFirstNonEmptyChannel( hs01_[ism-1] );
+        me_hs01_[ism-1]->setBinContent( i, hs01_[ism-1]->GetBinContent(ic, i) );
+        me_hs01_[ism-1]->setBinError( i, hs01_[ism-1]->GetBinError(ic, i) );
       }
 
       if ( hs02_[ism-1] ) {
-        me_hs02_[ism-1]->setBinContent( i, hs02_[ism-1]->GetBinContent(1, i) );
-        me_hs02_[ism-1]->setBinError( i, hs02_[ism-1]->GetBinError(1, i) );
+        int ic = UtilsClient::getFirstNonEmptyChannel( hs02_[ism-1] );
+        me_hs02_[ism-1]->setBinContent( i, hs02_[ism-1]->GetBinContent(ic, i) );
+        me_hs02_[ism-1]->setBinError( i, hs02_[ism-1]->GetBinError(ic, i) );
       }
 
       if ( hs03_[ism-1] ) {
-        me_hs03_[ism-1]->setBinContent( i, hs03_[ism-1]->GetBinContent(1, i) );
-        me_hs03_[ism-1]->setBinError( i, hs03_[ism-1]->GetBinError(1, i) );
+        int ic = UtilsClient::getFirstNonEmptyChannel( hs03_[ism-1] );
+        me_hs03_[ism-1]->setBinContent( i, hs03_[ism-1]->GetBinContent(ic, i) );
+        me_hs03_[ism-1]->setBinError( i, hs03_[ism-1]->GetBinError(ic, i) );
       }
 
     }
@@ -1146,7 +1135,7 @@ void EETestPulseClient::htmlOutput(int run, string htmlDir, string htmlName){
   TH1F* obj1f;
   TProfile* objp;
 
-  // Loop on barrel supermodules
+  // Loop on endcap sectors
 
   for ( unsigned int i=0; i<superModules_.size(); i ++ ) {
 

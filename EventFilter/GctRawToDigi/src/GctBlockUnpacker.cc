@@ -6,6 +6,7 @@
 
 #include "DataFormats/L1GlobalCaloTrigger/interface/L1GctInternEmCand.h"
 #include "DataFormats/L1GlobalCaloTrigger/interface/L1GctEmCand.h"
+#include "DataFormats/L1CaloTrigger/interface/L1CaloRegionDetId.h"
 
 #include <iostream>
 #include <cassert>
@@ -22,11 +23,16 @@ GctBlockUnpacker::BlockIdToEmCandIsoBoundMap GctBlockUnpacker::InternEmIsoBounds
 GctBlockUnpacker::GctBlockUnpacker() :
   srcCardRouting_(),
   rctEm_(0),
+  rctCalo_(0),
   gctIsoEm_(0),
   gctNonIsoEm_(0),
   gctInternEm_(0),
   gctFibres_(0),
-  gctJets_(NUM_JET_CATAGORIES)
+  gctJets_(NUM_JET_CATAGORIES),
+  gctJetCounts_(0),
+  gctEtTotal_(0),
+  gctEtHad_(0),
+  gctEtMiss_(0)
 {
   static bool initClass = true;
   
@@ -41,11 +47,13 @@ GctBlockUnpacker::GctBlockUnpacker() :
 
     // Setup block unpack function map.
     blockUnpackFn_[0x00] = &GctBlockUnpacker::blockDoNothing;
-    blockUnpackFn_[0x58] = &GctBlockUnpacker::blockToGctJetCandsAndCounts;
+    blockUnpackFn_[0x58] = &GctBlockUnpacker::blockToGctJetCand;
     blockUnpackFn_[0x59] = &GctBlockUnpacker::blockDoNothing;
+    blockUnpackFn_[0x5a] = &GctBlockUnpacker::blockToGctJetCounts;
     blockUnpackFn_[0x5f] = &GctBlockUnpacker::blockDoNothing;
-    blockUnpackFn_[0x68] = &GctBlockUnpacker::blockToGctEmCandsAndEnergySums;
+    blockUnpackFn_[0x68] = &GctBlockUnpacker::blockToGctEmCand;
     blockUnpackFn_[0x69] = &GctBlockUnpacker::blockToGctInternEmCand;
+    blockUnpackFn_[0x6a] = &GctBlockUnpacker::blockToGctEnergySums;
     blockUnpackFn_[0x6b] = &GctBlockUnpacker::blockDoNothing;
     blockUnpackFn_[0x6f] = &GctBlockUnpacker::blockDoNothing; 
     blockUnpackFn_[0x80] = &GctBlockUnpacker::blockToGctInternEmCand;
@@ -60,6 +68,7 @@ GctBlockUnpacker::GctBlockUnpacker() :
     blockUnpackFn_[0xc8] = &GctBlockUnpacker::blockToGctInternEmCand;
     blockUnpackFn_[0xc9] = &GctBlockUnpacker::blockToFibresAndToRctEmCand;
     blockUnpackFn_[0xcb] = &GctBlockUnpacker::blockToGctInternEmCand;
+    blockUnpackFn_[0xff] = &GctBlockUnpacker::blockToRctCaloRegions;
     
     // Setup Block ID map for pipeline payload positions of isolated Internal EM Cands.
     InternEmIsoBounds_[0x69] = IsoBoundaryPair(8,15);
@@ -106,21 +115,19 @@ void GctBlockUnpacker::convertBlock(const unsigned char * data, GctBlockHeader& 
 
 
 // Output EM Candidates unpacking
-void GctBlockUnpacker::blockToGctEmCandsAndEnergySums(const unsigned char * d, const GctBlockHeader& hdr)
+void GctBlockUnpacker::blockToGctEmCand(const unsigned char * d, const GctBlockHeader& hdr)
 {
-  LogDebug("GCT") << "Unpacking GCT output EM Cands and Energy Sums" << std::endl;
+  LogDebug("GCT") << "Unpacking GCT output EM Cands" << std::endl;
 
   const unsigned int id = hdr.id();
   const unsigned int nSamples = hdr.nSamples();
 
-  // Re-interpret pointer.  p16 will be pointing at the 16 bit word that
-  // contains the rank0 non-isolated electron of the zeroth time-sample. 
-  const uint16_t * p16 = reinterpret_cast<const uint16_t *>(d);
-
-  // UNPACK EM CANDS
-
-  const unsigned int emCandCatagoryOffset = nSamples * 4;  // Offset to jump from the non-iso electrons to the isolated ones.
+  const unsigned int catagoryOffset = nSamples * 4;  // Offset to jump from the non-iso electrons to the isolated ones.
   const unsigned int timeSampleOffset = nSamples * 2;  // Offset to jump to next candidate pair in the same time-sample.
+
+  // Re-interpret pointer.  p will be pointing at the 16 bit word that
+  // contains the rank0 non-isolated electron of the zeroth time-sample. 
+  const uint16_t * p = reinterpret_cast<const uint16_t *>(d);
 
   for (unsigned int iso=0; iso<2; ++iso)  // loop over non-iso/iso candidate pairs
   {
@@ -133,31 +140,18 @@ void GctBlockUnpacker::blockToGctEmCandsAndEnergySums(const unsigned char * d, c
 
     for (unsigned int bx=0; bx<nSamples; ++bx) // loop over time samples
     {
-      // cand0Offset will give the offset on p16 to get the rank 0 candidate
+      // cand0Offset will give the offset on p to get the rank 0 candidate
       // of the correct catagory and timesample.
-      const unsigned int cand0Offset = iso*emCandCatagoryOffset + bx*2;
+      const unsigned int cand0Offset = iso*catagoryOffset + bx*2;
       
-      em->push_back(L1GctEmCand(p16[cand0Offset], isoFlag, id, 0, bx));  // rank0 electron
-      em->push_back(L1GctEmCand(p16[cand0Offset + timeSampleOffset], isoFlag, id, 1, bx));  // rank1 electron
-      em->push_back(L1GctEmCand(p16[cand0Offset + 1], isoFlag, id, 2, bx));  // rank2 electron
-      em->push_back(L1GctEmCand(p16[cand0Offset + timeSampleOffset + 1], isoFlag, id, 3, bx));  // rank3 electron
+      em->push_back(L1GctEmCand(p[cand0Offset], isoFlag, id, 0, bx));  // rank0 electron
+      em->push_back(L1GctEmCand(p[cand0Offset + timeSampleOffset], isoFlag, id, 1, bx));  // rank1 electron
+      em->push_back(L1GctEmCand(p[cand0Offset + 1], isoFlag, id, 2, bx));  // rank2 electron
+      em->push_back(L1GctEmCand(p[cand0Offset + timeSampleOffset + 1], isoFlag, id, 3, bx));  // rank3 electron
     }
   }
-
-  p16 += emCandCatagoryOffset * 2;  // Move the pointer over the data we've already unpacked.
-  
-  // UNPACK ENERGY SUMS
-  /* NOTE: we are only unpacking one timesample of these, because the 
-   * relevant dataformats do not have timesample support yet. */
-   
-  *gctEtTotal_ = L1GctEtTotal(p16[0]);  // Et total (timesample 0).
-  *gctEtHad_ = L1GctEtHad(p16[1]);  // Et hadronic (timesample 0).
-
-  // 32-bit pointer for getting Missing Et.
-  const uint32_t * p32 = reinterpret_cast<const uint32_t *>(p16);
-
-  *gctEtMiss_ = L1GctEtMiss(p32[nSamples]); // Et Miss (timesample 0).   
 }
+
 
 // Internal EM Candidates unpacking
 void GctBlockUnpacker::blockToGctInternEmCand(const unsigned char * d, const GctBlockHeader& hdr)
@@ -279,21 +273,19 @@ void GctBlockUnpacker::blockToFibresAndToRctEmCand(const unsigned char * d, cons
   this->blockToFibres(d, hdr);
 }
 
-void GctBlockUnpacker::blockToGctJetCandsAndCounts(const unsigned char * d, const GctBlockHeader& hdr)
+void GctBlockUnpacker::blockToGctJetCand(const unsigned char * d, const GctBlockHeader& hdr)
 {
-  LogDebug("GCT") << "Unpacking GCT output Jet Cands and Counts" << std::endl;
+  LogDebug("GCT") << "Unpacking GCT output Jet Cands" << std::endl;
   
   const unsigned int id = hdr.id();  // Capture block ID.
   const unsigned int nSamples = hdr.nSamples();  // Number of time-samples.
   
-  // Re-interpret block payload pointer to 16 bits so it sees one candidate at a time.
-  // p16 points to the start of the block payload, at the rank0 tau jet candidate.
-  const uint16_t * p16 = reinterpret_cast<const uint16_t *>(d);
-
-  // UNPACK JET CANDS
-
-  const unsigned int jetCandCatagoryOffset = nSamples * 4;  // Offset to jump from one jet catagory to the next.
+  const unsigned int catagoryOffset = nSamples * 4;  // Offset to jump from one jet catagory to the next.
   const unsigned int timeSampleOffset = nSamples * 2;  // Offset to jump to next candidate pair in the same time-sample.
+
+  // Re-interpret block payload pointer to 16 bits so it sees one candidate at a time.
+  // p points to the start of the block payload, at the rank0 tau jet candidate.
+  const uint16_t * p = reinterpret_cast<const uint16_t *>(d);
   
   // Loop over the different catagories of jets
   for(unsigned int iCat = 0 ; iCat < NUM_JET_CATAGORIES ; ++iCat)
@@ -306,29 +298,103 @@ void GctBlockUnpacker::blockToGctJetCandsAndCounts(const unsigned char * d, cons
     // Loop over the different timesamples (bunch crossings).
     for(unsigned int bx = 0 ; bx < nSamples ; ++bx)
     {
-      // cand0Offset will give the offset on p16 to get the rank 0 Jet Cand of the correct catagory and timesample.
-      const unsigned int cand0Offset = iCat*jetCandCatagoryOffset + bx*2;
+      // cand0Offset will give the offset on p to get the rank 0 Jet Cand of the correct catagory and timesample.
+      const unsigned int cand0Offset = iCat*catagoryOffset + bx*2;
       
       // Rank 0 Jet.
-      gctJets_.at(iCat)->push_back(L1GctJetCand(p16[cand0Offset], tauflag, forwardFlag, id, 0, bx));
+      gctJets_.at(iCat)->push_back(L1GctJetCand(p[cand0Offset], tauflag, forwardFlag, id, 0, bx));
       // Rank 1 Jet.
-      gctJets_.at(iCat)->push_back(L1GctJetCand(p16[cand0Offset + timeSampleOffset], tauflag, forwardFlag, id, 1, bx));
+      gctJets_.at(iCat)->push_back(L1GctJetCand(p[cand0Offset + timeSampleOffset], tauflag, forwardFlag, id, 1, bx));
       // Rank 2 Jet.
-      gctJets_.at(iCat)->push_back(L1GctJetCand(p16[cand0Offset + 1],  tauflag, forwardFlag, id, 2, bx));
+      gctJets_.at(iCat)->push_back(L1GctJetCand(p[cand0Offset + 1],  tauflag, forwardFlag, id, 2, bx));
       // Rank 3 Jet.
-      gctJets_.at(iCat)->push_back(L1GctJetCand(p16[cand0Offset + timeSampleOffset + 1], tauflag, forwardFlag, id, 3, bx));      
+      gctJets_.at(iCat)->push_back(L1GctJetCand(p[cand0Offset + timeSampleOffset + 1], tauflag, forwardFlag, id, 3, bx));      
     }
   }
+}
+
+void GctBlockUnpacker::blockToGctJetCounts(const unsigned char * d, const GctBlockHeader& hdr)
+{
+  LogDebug("GCT") << "Unpacking GCT output Jet Counts" << std::endl;
   
-  p16 += NUM_JET_CATAGORIES * jetCandCatagoryOffset; // Move the pointer over the data we've already unpacked.
-  
-  // UNPACK JET COUNTS
-  /* NOTE: we are only unpacking one timesample of these, because the 
-   * dataformat for jet counts does not have timesample support yet. */  
+  /* 
+   * Note that we are only unpacking one timesample of these, because the dataformat for
+   * jet counts does not have timesample support. 
+   */
   
   // Re-interpret block payload pointer to 32 bits so it sees six jet counts at a time.
-  const uint32_t * p32 = reinterpret_cast<const uint32_t *>(p16);
+  // p points to the start of the block payload, at the first six jet counts in timesample 0.
+  const uint32_t * p = reinterpret_cast<const uint32_t *>(d);
 
-  // nSamples below gives the offset to the second set of six jet counts in timesample 0.
-  *gctJetCounts_ = L1GctJetCounts(p32[0], p32[nSamples]);
+  // The call to hdr.nSamples() in the below line gives the offset from the start of the block
+  // payload for a 32-bit pointer to get to the second set of six jet counts in timesample 0.
+  *gctJetCounts_ = L1GctJetCounts(p[0], p[hdr.nSamples()]);
+}
+
+void GctBlockUnpacker::blockToGctEnergySums(const unsigned char * d, const GctBlockHeader& hdr)
+{
+  LogDebug("GCT") << "Unpacking GCT output Energy Sums" << std::endl;
+  
+  /* 
+   * Note that we are only unpacking one timesample of these, because the relevant dataformats
+   * do not have timesample support. 
+   */
+  
+  // Re-interpret block payload pointer to both 16 and 32 bits.
+  const uint16_t * p16 = reinterpret_cast<const uint16_t *>(d);  // For getting Et + Ht (16-bit raw data each)
+  const uint32_t * p32 = reinterpret_cast<const uint32_t *>(d);  // For getting Missing Et (32-bit raw data)
+  
+  *gctEtTotal_ = L1GctEtTotal(p16[0]);  // Et total (first 16 bits in block payload for timesample 0)
+  *gctEtHad_ = L1GctEtHad(p16[1]);  // Et hadronic (second 16 bits in block payload for timesample 0)
+  
+  // The call to hdr.nSamples() in the below line gives the offset from the start of the block
+  // payload for a 32-bit pointer to get to the missing Et data in timesample 0.
+  *gctEtMiss_ = L1GctEtMiss(p32[hdr.nSamples()]);    
+}
+
+void GctBlockUnpacker::blockToRctCaloRegions(const unsigned char * d, const GctBlockHeader& hdr)
+{
+  // This method is one giant "temporary" hack for CMSSW_1_8_X.
+  
+  LogDebug("GCT") << "Unpacking RCT Calorimeter Regions" << std::endl;
+  
+  const int nSamples = hdr.nSamples();  // Number of time-samples.
+
+  // Re-interpret block payload pointer to 16 bits
+  const uint16_t * p16 = reinterpret_cast<const uint16_t *>(d);
+  
+  for(unsigned iCrate = 0 ; iCrate < 18 ; ++iCrate)
+  {
+    // Barrel and endcap regions
+    for(unsigned iCard = 0 ; iCard < 7 ; ++iCard)
+    {
+      // Samples
+      for(int16_t iSample = 0 ; iSample < nSamples ; ++iSample)
+      {
+        // Two regions per card (and per 32-bit word).
+        for(unsigned iRegion = 0 ; iRegion < 2 ; ++iRegion)
+        {
+          L1CaloRegionDetId id(iCrate, iCard, iRegion);
+          rctCalo_->push_back(L1CaloRegion(*p16, id.ieta(), id.iphi(), iSample));
+          ++p16; //advance pointer
+        }
+      }
+    }
+    // Forward regions (8 regions numbered 0 through 7, packed in 4 sets of pairs)
+    for(unsigned iRegionPairNum = 0 ; iRegionPairNum < 4 ; ++iRegionPairNum)
+    {
+      // Samples
+      for(int16_t iSample = 0 ; iSample < nSamples ; ++iSample)
+      {
+        // two regions in a pair
+        for(unsigned iPair = 0 ; iPair < 2 ; ++iPair)
+        {
+          // For forward regions, RCTCard=999
+          L1CaloRegionDetId id(iCrate, 999, iRegionPairNum*2 + iPair);
+          rctCalo_->push_back(L1CaloRegion(*p16, id.ieta(), id.iphi(), iSample));
+          ++p16; //advance pointer
+        }
+      }
+    }
+  }
 }

@@ -3,13 +3,14 @@
 
 <ConstantsSection label="TBHcal.xml" eval="true">
  <Constant name="Zmin"         value="0*fm"/>
- <Constant name="HcalEcalZ0"   value="3.750*m"/>
+ <Constant name="HcalEcalZ0"   value="3.8955*m"/>
+ <Constant name="HcalEcalZ1"   value="3.9825*m"/>
  <Constant name="TrackBeamZ2"  value="2.935*m"/>
  <Constant name="CalorBeamZ1"  value="3.180*m"/>
  <Constant name="CalorBeamZ2"  value="5.541*m"/>
  <Constant name="TrackBeamR1"  value="3.10*cm"/>
  <Constant name="TrackBeamR2"  value="7.40*cm"/>
- <Constant name="zRat"         value="([HcalEcalZ0]-[CalorBeamZ2])/
+ <Constant name="zRat"         value="([HcalEcalZ1]-[CalorBeamZ2])/
                                       ([CalorBeamZ1]-[CalorBeamZ2])"/>
  <Constant name="CalorBeamR1"  value="8.00*cm"/>
  <Constant name="CalorBeamR2"  value="8.93*cm"/>
@@ -18,6 +19,7 @@
  <Constant name="rMin1"        value="1.775*m"/>
  <Constant name="rMin2"        value="[CalorBeamR2]+[zRat]*
                                       ([CalorBeamR1]-[CalorBeamR2])"/>
+ <Constant name="rMin3"        value="1.712*m"/>
  <Constant name="Eta"          value="0.5655"/>
  <Constant name="Phi"          value="7.5*deg"/>
 </ConstantsSection>
@@ -32,7 +34,9 @@
  <Polycone name="HCal" startPhi="-10*deg" deltaPhi="40*deg" >
   <ZSection z="[Zmin]"          rMin="[rMin1]"        rMax="[CalorMuonR]" />
   <ZSection z="[HcalEcalZ0]"    rMin="[rMin1]"        rMax="[CalorMuonR]" />
-  <ZSection z="[HcalEcalZ0]"    rMin="[rMin2]"        rMax="[CalorMuonR]" />
+  <ZSection z="[HcalEcalZ0]"    rMin="[rMin3]"        rMax="[CalorMuonR]" />
+  <ZSection z="[HcalEcalZ1]"    rMin="[rMin3]"        rMax="[CalorMuonR]" />
+  <ZSection z="[HcalEcalZ1]"    rMin="[rMin2]"        rMax="[CalorMuonR]" />
   <ZSection z="[CalorBeamZ2]"   rMin="[CalorBeamR2]"  rMax="[CalorMuonR]" />
  </Polycone> 
 </SolidSection>

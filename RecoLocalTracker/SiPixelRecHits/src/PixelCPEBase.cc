@@ -38,8 +38,8 @@ const float degsPerRad = 57.29578;
 //  A fairly boring constructor.  All quantities are DetUnit-dependent, and
 //  will be initialized in setTheDet().
 //-----------------------------------------------------------------------------
-PixelCPEBase::PixelCPEBase(edm::ParameterSet const & conf, const MagneticField *mag, const SiPixelCPEParmErrors *parmErrors) 
-  : theDet(0), nRecHitsTotal_(0), nRecHitsUsedEdge_(0),
+PixelCPEBase::PixelCPEBase(edm::ParameterSet const & conf, const MagneticField *mag) 
+  : nRecHitsTotal_(0), nRecHitsUsedEdge_(0), theDet(0),
     cotAlphaFromCluster_(-99999.0), cotBetaFromCluster_(-99999.0),
     probabilityX_(-99999.0), probabilityY_(-99999.0), qBin_(-99999.0)
 {
@@ -54,9 +54,6 @@ PixelCPEBase::PixelCPEBase(edm::ParameterSet const & conf, const MagneticField *
   //-- Magnetic Field
   magfield_ = mag;
 
-	//-- Parm Errors DB
-	parmErrors_ = parmErrors;
-	
   //-- Switch on/off E.B 
   alpha2Order = conf.getParameter<bool>("Alpha2Order");
 }

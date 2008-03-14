@@ -53,44 +53,50 @@ HtrXmlPattern::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
    std::vector<edm::Handle<HcalTrigPrimDigiCollection> > htp;
    std::vector<edm::Handle<HcalHistogramDigiCollection> > hh;  
 
-   edm::ESHandle<HcalDbService> pSetup;
-   iSetup.get<HcalDbRecord>().get( pSetup );
-   const HcalElectronicsMap* readoutMap=pSetup->getHcalMapping();
+   //// get the mapping
+   //edm::ESHandle<HcalDbService> pSetup;
+   //iSetup.get<HcalDbRecord>().get( pSetup );
+   //const HcalElectronicsMap* readoutMap=pSetup->getHcalMapping();
+
+   //use this until CalibCalorimetry/HcalPlugins/src/HcalHardcodeCalibrations.cc is fixed
+   HcalElectronicsMap map2;
+   HcalDbHardcode::makeHardcodeMap(map2);
    
-   iEvent.getManyByType(hbhe);
-   if (hbhe.empty()) {
-     cout << "No HB/HE Digis." << endl;
-   } else {
+   try {
+     iEvent.getManyByType(hbhe);
      std::vector<edm::Handle<HBHEDigiCollection> >::iterator i;
      for (i=hbhe.begin(); i!=hbhe.end(); i++) {
        const HBHEDigiCollection& c=*(*i);
-   
+
        int count=0;
        for (HBHEDigiCollection::const_iterator j=c.begin(); j!=c.end(); j++) {
-   	 const HcalElectronicsId HEID = readoutMap->lookup(j->id());
-   	 m_tool->Fill(HEID,j);
-   
-   	 if ( count++<m_sets_to_show || m_sets_to_show<0 ) {
-   	   cout << *j << std::endl;
-   	   cout << HEID << endl;
-   	   cout << "count: " << count << endl;
-   	 }
+
+	 //const HcalElectronicsId HEID = readoutMap->lookup(j->id());
+	 const HcalElectronicsId HEID = map2.lookup(j->id());
+	 m_tool->Fill(HEID,j);
+
+	 if ( count++<m_sets_to_show || m_sets_to_show<0 ) {
+	   cout << *j << std::endl;
+	   cout << HEID << endl;
+	   cout << "count: " << count << endl;
+	 }
        }
        if (m_sets_to_show!=0) cout << "HB/HE count: " << count << endl;
      }
-  }
+   } catch (...) {
+     cout << "No HB/HE Digis." << endl;
+   }
   
-   iEvent.getManyByType(hf);
-   if (hf.empty()) {
-     cout << "No HF Digis." << endl;
-  } else {
+   try {
+     iEvent.getManyByType(hf);
      std::vector<edm::Handle<HFDigiCollection> >::iterator i;
      for (i=hf.begin(); i!=hf.end(); i++) {
        const HFDigiCollection& c=*(*i);
    
        int count=0;
        for (HFDigiCollection::const_iterator j=c.begin(); j!=c.end(); j++) {
-   	 const HcalElectronicsId HEID = readoutMap->lookup(j->id());
+	 //const HcalElectronicsId HEID = readoutMap->lookup(j->id());
+   	 const HcalElectronicsId HEID = map2.lookup(j->id());
    	 m_tool->Fill(HEID,j);
    	 
    	 if ( count++<m_sets_to_show || m_sets_to_show<0 ) {
@@ -101,19 +107,20 @@ HtrXmlPattern::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
        }
        if (m_sets_to_show!=0) cout << "HF    count: " << count << endl;
      }
-  }
+   } catch (...) {
+     cout << "No HF Digis." << endl;
+   }
    
-   iEvent.getManyByType(ho);
-   if (ho.empty()) {
-     cout << "No HO Digis." << endl;
-  } else {
+   try {
+     iEvent.getManyByType(ho);
      std::vector<edm::Handle<HODigiCollection> >::iterator i;
      for (i=ho.begin(); i!=ho.end(); i++) {
        const HODigiCollection& c=*(*i);
        
        int count=0;
        for (HODigiCollection::const_iterator j=c.begin(); j!=c.end(); j++) {
-   	 const HcalElectronicsId HEID = readoutMap->lookup(j->id());
+	 //const HcalElectronicsId HEID = readoutMap->lookup(j->id());
+   	 const HcalElectronicsId HEID = map2.lookup(j->id());
    	 m_tool->Fill(HEID,j);
    	 
    	 if ( count++<m_sets_to_show || m_sets_to_show<0 ) {
@@ -124,7 +131,9 @@ HtrXmlPattern::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
        }
        if (m_sets_to_show!=0) cout << "HO    count: " << count << endl;
      }
-  }
+   } catch (...) {
+     cout << "No HO Digis." << endl;
+   }
 
    cout << endl;    
 

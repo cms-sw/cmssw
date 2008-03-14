@@ -1,24 +1,4 @@
 <library file=*.cc name="DQMSiStripCommissioningSourcesPlugins">
   <use name=DQM/SiStripCommissioningSources>
-  <use name=DataFormats/SiStripCommon>
   <flags EDM_PLUGIN=1>
 </library>
-
-<library file=tracking/*.cc name=DQMSiStripCommissioningSourcesTracking>
-  <use name=FWCore/Framework>
-  <use name=Foundation/PluginManager>
-  <use name=FWCore/ParameterSet>
-  <use name=clhep>
-  <use name=root>
-  <use name=boost>
-  <use name=SimDataFormats/TrackingAnalysis>
-  <use name=SimDataFormats/Track>
-  <use name=SimDataFormats/HepMCProduct>
-  <use name=DataFormats/Common>
-  <use name=DataFormats/FEDRawData>
-  <use name=RecoTracker/TkSeedGenerator>
-  <use name=TrackingTools/TrackFitters>
-  <use name=TrackingTools/TransientTrack>
-  <flags EDM_PLUGIN=1>
-</library>
-

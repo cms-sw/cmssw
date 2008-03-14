@@ -1,7 +1,7 @@
 /** \file
  *
- * $Date: 2006/07/03 17:21:22 $
- * $Revision: 1.12 $
+ * $Date: 2007/08/16 07:08:25 $
+ * $Revision: 1.13 $
  * \author Stefano Lacaprara - INFN Legnaro <stefano.lacaprara@pd.infn.it>
  * \author Riccardo Bellan - INFN TO <riccardo.bellan@cern.ch>
  */
@@ -40,7 +40,7 @@ DTRecSegment2DProducer::DTRecSegment2DProducer(const edm::ParameterSet& pset) {
   debug = pset.getUntrackedParameter<bool>("debug"); 
 
   // the name of the 1D rec hits collection
-  theRecHits1DLabel = pset.getParameter<string>("recHits1DLabel");
+  theRecHits1DLabel = pset.getParameter<InputTag>("recHits1DLabel");
 
   if(debug)
     cout << "[DTRecSegment2DProducer] Constructor called" << endl;

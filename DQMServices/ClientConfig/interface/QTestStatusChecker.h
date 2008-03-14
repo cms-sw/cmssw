@@ -7,12 +7,12 @@
  *  MonitorUserInterface) and fills string maps containing the alarms
  *
  * 
- *  $Date: 2007/09/06 13:21:57 $
- *  $Revision: 1.3 $
+ *  $Date: 2007/07/08 21:03:53 $
+ *  $Revision: 1.2.4.1 $
  *  \author Ilaria Segoni
   */
 
-#include "DQMServices/Core/interface/MonitorUIRoot.h"
+#include "DQMServices/UI/interface/MonitorUIRoot.h"
 #include<map>
 #include<string>
 #include<vector>

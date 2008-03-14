@@ -1,16 +1,15 @@
 /**
  * \file AlignmentParameterStore.cc
  *
- *  $Revision: 1.19 $
- *  $Date: 2007/10/08 14:38:16 $
- *  (last update by $Author: cklae $)
+ *  $Revision: 1.21 $
+ *  $Date: 2008/01/22 18:46:13 $
+ *  (last update by $Author: muzaffar $)
  */
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "Alignment/CommonAlignment/interface/Alignable.h"
-#include <boost/cstdint.hpp> 
 #include "Alignment/CommonAlignment/interface/AlignableDetOrUnitPtr.h"
 #include "Alignment/TrackerAlignment/interface/TrackerAlignableId.h"
 
@@ -288,7 +287,10 @@ void AlignmentParameterStore::applyParameters(Alignable* alignable)
 
   // Rotation in local frame
   align::EulerAngles angles = ap->rotation();
-  alignable->rotateInLocalFrame( align::toMatrix(angles) );
+  align::RotationType rot = alignable->surface().toGlobal( align::toMatrix(angles) );
+  align::rectify(rot); // correct for rounding errors
+  alignable->rotateInGlobalFrame(rot);
+//   alignable->rotateInLocalFrame( align::toMatrix(angles) );
 }
 
 

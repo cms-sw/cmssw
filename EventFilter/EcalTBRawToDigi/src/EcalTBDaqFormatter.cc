@@ -1,7 +1,7 @@
 /*
  *
- *  $Date: 2007/12/10 19:55:42 $
- *  $Revision: 1.71 $
+ *  $Date: 2007/12/10 19:32:36 $
+ *  $Revision: 1.70 $
  *  \author  N. Marinelli IASA 
  *  \author G. Della Ricca
  *  \author G. Franzoni
@@ -55,7 +55,7 @@ void EcalTBDaqFormatter::interpretRawData(const FEDRawData & fedData ,
 					  EBDetIdCollection & dccsizecollection,
 					  EcalElectronicsIdCollection & ttidcollection ,  EcalElectronicsIdCollection & blocksizecollection,
 					  EBDetIdCollection & chidcollection , EBDetIdCollection & gaincollection, 
-					  EBDetIdCollection & gainswitchcollection, 
+					  EBDetIdCollection & gainswitchcollection, EBDetIdCollection & gainswitchstaycollection, 
 					  EcalElectronicsIdCollection & memttidcollection,  EcalElectronicsIdCollection &  memblocksizecollection,
 					  EcalElectronicsIdCollection & memgaincollection,  EcalElectronicsIdCollection & memchidcollection,
 					  EcalTrigPrimDigiCollection &tpcollection)
@@ -525,26 +525,57 @@ void EcalTBDaqFormatter::interpretRawData(const FEDRawData & fedData ,
 	      }
 	    }
 
+	    // only discriminating if gain stays the same after the forbidden gain transition
+	    bool wrongGainStaysTheSame=false;
+	    if (firstGainWrong!=-1 && firstGainWrong<9){
+	      short gainWrong = xtalGain[firstGainWrong];
+    
+	      // does wrong gain stay the same after the forbidden transition?
+	      for (unsigned short u=firstGainWrong+1; u<xtalGain.size(); u++){
+
+		if( gainWrong == xtalGain[u]) 
+		  wrongGainStaysTheSame=true; 
+		else
+		  wrongGainStaysTheSame=false; 
+
+	      }// END loop on samples after forbidden transition
+            
+	    }// END OF if firstGainWrong!=0 && firstGainWrong<8
+
+
 	    if (numGainWrong>0) {
 	      gainswitchcollection.push_back(id);
 
-	      edm::LogWarning("EcalTBRawToDigiGainSwitch") << "@SUB=EcalTBDaqFormatter:interpretRawData"
-							<< "channelHasGainSwitchProblem: more than 1 wrong transition";
-	
-	      for (unsigned short i1=0; i1<xtalDataSamples.size(); ++i1 ) {
-		int countADC = 0x00000FFF;
-		countADC &= xtalDataSamples[i1];
-		LogDebug("EcalTBRawToDigi") << "Sample " << i1 << " ADC " << countADC << " Gain " << xtalGain[i1];
-
+	      if (numGainWrong == 1 && (wrongGainStaysTheSame)) {
+              
+		edm::LogWarning("EcalTBRawToDigiGainSwitch") << "@SUB=EcalTBDaqFormatter:interpretRawData"
+							<< "channelHasGainSwitchProblem: wrong transition stays till last sample";
+		
+		gainswitchstaycollection.push_back(id);              
 	      }
+	      else if (numGainWrong>1) {
+		edm::LogWarning("EcalTBRawToDigiGainSwitch") << "@SUB=EcalTBDaqFormatter:interpretRawData"
+							<< "channelHasGainSwitchProblem: more than 1 wrong transition";
+		
+		for (unsigned short i1=0; i1<xtalDataSamples.size(); ++i1 ) {
+		  int countADC = 0x00000FFF;
+		  countADC &= xtalDataSamples[i1];
+		  LogDebug("EcalTBRawToDigi") << "Sample " << i1 << " ADC " << countADC << " Gain " << xtalGain[i1];
+		}
+
+	      }// end 'if there is multiple transition'
+	     
 
 	      // there has been a forbidden gain transition,  dataframe not to go to the Event
               digicollection.pop_back();
 	      continue; //	      expCryInTower already incremented
 
 	    }// END of:   'if there is a forbidden gain transition'
+
+
 	    
 	  }// end loop on crystals within a tower block
+	  
 	  
 	  _expTowersIndex++;
 	}// end: tt1 ... tt68, crystal data

@@ -157,6 +157,12 @@ class FSimTrack : public SimTrack {
   /// Update the vactors of daughter's id
   inline void addDaughter(int i) { daugh_.push_back(i); }
 
+  /// Set the index of the closest charged daughter
+  inline void setClosestDaughterId(int id) { closestDaughterId_ = id; }
+
+  /// Get the index of the closest charged daughter
+  inline int closestDaughterId() const { return closestDaughterId_; }
+
   /// Temporary (until move of SimTrack to Mathcore)
   const XYZTLorentzVector& momentum() const { return momentum_; }
 
@@ -188,6 +194,7 @@ class FSimTrack : public SimTrack {
   RawParticle VFCAL_Entrance;  // the particle at VFCAL entrance
 
   std::vector<int> daugh_; // The indices of the daughters in FSimTrack
+  int closestDaughterId_; // The index of the closest daughter id
 
   const HepPDT::ParticleData* info_; // The PDG info
 

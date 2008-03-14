@@ -4,8 +4,8 @@
 /** \class SiStripAnalyser
  * *
  *  SiStrip SiStripAnalyser
- *  $Date: 2007/12/19 21:14:43 $
- *  $Revision: 1.17 $
+ *  $Date: 2007/12/03 15:45:14 $
+ *  $Revision: 1.15 $
  *  \author  S. Dutta INFN-Pisa
  *   
  */
@@ -28,7 +28,6 @@ class MonitorUserInterface;
 class DaqMonitorBEInterface;
 class SiStripWebInterface;
 class SiStripFedCabling;
-class SiStripDetCabling;
 class SiStripTrackerMapCreator;
  
 class SiStripAnalyser: public edm::EDAnalyzer, public evf::ModuleWeb{
@@ -74,9 +73,9 @@ protected:
 private:
 
   void createFedTrackerMap();
-  void fillGlobalStatus();
 
-  DaqMonitorBEInterface* bei_;
+  DaqMonitorBEInterface* dbe_;
+  MonitorUserInterface* mui_;
 
   SiStripWebInterface* sistripWebInterface_;
 
@@ -90,7 +89,6 @@ private:
 
   edm::ParameterSet tkMapPSet_;
   edm::ESHandle< SiStripFedCabling > fedCabling_;
-  edm::ESHandle< SiStripDetCabling > detCabling_;
   SiStripTrackerMapCreator* trackerMapCreator_;
 
   unsigned long long m_cacheID_;

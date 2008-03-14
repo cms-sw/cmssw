@@ -6,8 +6,8 @@
  * *
  *  DQM Test Client
  *
- *  $Date: 2007/11/27 14:40:29 $
- *  $Revision: 1.8 $
+ *  $Date: 2007/11/07 15:29:28 $
+ *  $Revision: 1.7 $
  *  \author  G. Mila - INFN Torino
  *   
  */
@@ -67,7 +67,6 @@ protected:
 
   /// Get the ME name
   std::string getMEName(const DTSuperLayerId & slID);
-  std::string getMEName2D(const DTSuperLayerId & slID);
 
   void beginLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& context) ;
 
@@ -92,18 +91,14 @@ private:
   // histograms: < detRawID, Histogram >
   std::map< std::pair<int,int> , MonitorElement* > MeanHistos;
   std::map< std::pair<int,int> , MonitorElement* > SigmaHistos;
-  std::map< std::pair<int,int> , MonitorElement* > SlopeHistos;
   std::map< std::string , MonitorElement* > MeanHistosSetRange;
   std::map< std::string , MonitorElement* > SigmaHistosSetRange;
-  std::map< std::string , MonitorElement* > SlopeHistosSetRange;
   std::map< std::string , MonitorElement* > MeanHistosSetRange2D;
   std::map< std::string , MonitorElement* > SigmaHistosSetRange2D;
-  std::map< std::string , MonitorElement* > SlopeHistosSetRange2D;
 
   // wheel summary histograms  
   std::map< int, MonitorElement* > wheelMeanHistos;
   std::map< int, MonitorElement* > wheelSigmaHistos;
-  std::map< int, MonitorElement* > wheelSlopeHistos;
 
 };
 

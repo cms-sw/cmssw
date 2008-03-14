@@ -2,12 +2,7 @@
 #include <memory>
 
 // user include files
-#include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
-#include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 // Conditions database
 #include "FWCore/ServiceRegistry/interface/Service.h"
@@ -19,8 +14,8 @@
 // Alignment
 #include "CondFormats/Alignment/interface/Alignments.h"
 #include "CondFormats/Alignment/interface/AlignmentErrors.h"
-#include "CondFormats/Alignment/interface/AlignmentSorter.h"
 #include "Alignment/MuonAlignment/interface/MuonAlignment.h"
+#include <FWCore/Framework/interface/ESHandle.h> 
 
 //____________________________________________________________________________________
 //
@@ -40,7 +35,7 @@ MuonAlignment::MuonAlignment(const edm::EventSetup& setup  ):
 
   theAlignableMuon = new AlignableMuon( &(*dtGeometry) , &(*cscGeometry) );
 
-  recursiveGetId( theAlignableMuon );
+  theAlignableNavigator = new AlignableNavigator( theAlignableMuon );
   
 }
 
@@ -50,11 +45,7 @@ MuonAlignment::MuonAlignment(const edm::EventSetup& setup  ):
 void MuonAlignment::moveAlignableLocalCoord( DetId& detid, std::vector<float>& displacements, std::vector<float>& rotations ){
 
   // Displace and rotate DT an Alignable associated to a GeomDet or GeomDetUnit
-  MapType::iterator position = theAlignableMap.find( detid );
-  if ( position == theAlignableMap.end() ) 
-    throw cms::Exception("BadLogic") 
-      << "[AlignableNavigator::alignableFromDetId] DetId " << detid.rawId() << " not found";
-  Alignable* theAlignable = position->second;
+  Alignable* theAlignable = theAlignableNavigator->alignableFromDetId( detid );
  
   // Convert local to global diplacements
   LocalVector lvector( displacements.at(0), displacements.at(1), displacements.at(2)); 
@@ -75,11 +66,7 @@ void MuonAlignment::moveAlignableLocalCoord( DetId& detid, std::vector<float>& d
 void MuonAlignment::moveAlignableGlobalCoord( DetId& detid, std::vector<float>& displacements, std::vector<float>& rotations ){
 
   // Displace and rotate DT an Alignable associated to a GeomDet or GeomDetUnit
-  MapType::iterator position = theAlignableMap.find( detid );
-  if ( position == theAlignableMap.end() ) 
-    throw cms::Exception("BadLogic") 
-      << "[AlignableNavigator::alignableFromDetId] DetId " << detid.rawId() << " not found";
-  Alignable* theAlignable = position->second;
+  Alignable* theAlignable = theAlignableNavigator->alignableFromDetId( detid );
  
   // Convert std::vector to GlobalVector
   GlobalVector gvector( displacements.at(0), displacements.at(1), displacements.at(2)); 
@@ -96,8 +83,8 @@ void MuonAlignment::moveAlignableGlobalCoord( DetId& detid, std::vector<float>& 
 
 //____________________________________________________________________________________
 // Code needed to store alignments to DB
-void MuonAlignment::saveToDB( void ){
-   
+
+void MuonAlignment::saveDTtoDB(void) {
    // Call service
   edm::Service<cond::service::PoolDBOutputService> poolDbService;
   if( !poolDbService.isAvailable() ) // Die if not available
@@ -106,8 +93,6 @@ void MuonAlignment::saveToDB( void ){
   // Get alignments and errors
   Alignments*      dt_Alignments       = theAlignableMuon->dtAlignments() ;
   AlignmentErrors* dt_AlignmentErrors  = theAlignableMuon->dtAlignmentErrors();
-  Alignments*      csc_Alignments      = theAlignableMuon->cscAlignments();
-  AlignmentErrors* csc_AlignmentErrors = theAlignableMuon->cscAlignmentErrors();
 
   // Store DT alignments and errors
   if ( poolDbService->isNewTagRequest(theDTAlignRecordName) ){
@@ -129,7 +114,17 @@ void MuonAlignment::saveToDB( void ){
                                                     poolDbService->currentTime(),
                                                     theDTErrorRecordName );
   }							  
+}
 
+void MuonAlignment::saveCSCtoDB(void) {
+   // Call service
+  edm::Service<cond::service::PoolDBOutputService> poolDbService;
+  if( !poolDbService.isAvailable() ) // Die if not available
+	throw cms::Exception("NotAvailable") << "PoolDBOutputService not available";
+
+  // Get alignments and errors
+  Alignments*      csc_Alignments      = theAlignableMuon->cscAlignments();
+  AlignmentErrors* csc_AlignmentErrors = theAlignableMuon->cscAlignmentErrors();
 
   // Store CSC alignments and errors
   if ( poolDbService->isNewTagRequest(theCSCAlignRecordName) ){
@@ -151,25 +146,9 @@ void MuonAlignment::saveToDB( void ){
                                                     poolDbService->currentTime(),
                                                     theCSCErrorRecordName );
   }							  
-
-
-
 }
 
-void MuonAlignment::recursiveGetId( Alignable* alignable ) {
-  // Recursive method to get the detIds of an alignable and its childs
-  // and add the to the map
-
-  if ( alignable->geomDetId().rawId())
-	theAlignableMap.insert( PairType( alignable->geomDetId(), alignable ) );
-
-  std::vector<Alignable*> comp = alignable->components();
-  if ( alignable->alignableObjectId() != AlignableObjectId::AlignableDet
-       || comp.size() > 1 ) { // Non-glued AlignableDets contain themselves
-    for ( std::vector<Alignable*>::iterator it = comp.begin(); it != comp.end(); ++it ) {
-      this->recursiveGetId( *it );
-    }
-  }
-
-
+void MuonAlignment::saveToDB(void) {
+   saveDTtoDB();
+   saveCSCtoDB();
 }

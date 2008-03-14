@@ -1,11 +1,11 @@
-// $Id: LogicID.h,v 1.4 2007/12/18 13:16:31 dellaric Exp $
+// $Id: LogicID.h,v 1.6 2008/01/28 15:41:14 dellaric Exp $
 
 /*!
   \file LogicID.h
   \brief Cache logicID vector from database
   \author B. Gobbo 
-  \version $Revision: 1.4 $
-  \date $Date: 2007/12/18 13:16:31 $
+  \version $Revision: 1.6 $
+  \date $Date: 2008/01/28 15:41:14 $
 */
 
 #ifndef LogicID_H
@@ -13,26 +13,18 @@
 
 #include <vector>
 #include <string>
-#include <map>
 #include <stdexcept>
 
 #include "OnlineDB/EcalCondDB/interface/EcalLogicID.h"
 
-class EcalCondDBInterface;
-
 class LogicID {
 
- public:
+public:
 
-  static void init( EcalCondDBInterface* eConn );
-
-
-  static EcalLogicID getEcalLogicID( std::string name, int id1=0, int id2=0, int id3=0 ) throw( std::runtime_error );
-
- private:
-
-  static bool                                              init_;
-  static std::map< std::string, std::vector<EcalLogicID> > IDmap_;
+static EcalLogicID getEcalLogicID( std::string name,
+                                   int id1 = EcalLogicID::NULLID,
+                                   int id2 = EcalLogicID::NULLID,
+                                   int id3 = EcalLogicID::NULLID ) throw( std::runtime_error );
 
 };
 

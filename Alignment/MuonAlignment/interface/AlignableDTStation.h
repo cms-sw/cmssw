@@ -4,21 +4,18 @@
 /** \class AlignableDTStation
  *  The alignable muon DT station.
  *
- *  $Date: 2007/03/02 15:46:12 $
- *  $Revision: 1.5 $
+ *  $Date: 2007/10/08 14:12:01 $
+ *  $Revision: 1.6 $
  *  \author Andre Sznajder - UERJ(Brazil)
  */
 
 
-#include "Geometry/CommonDetUnit/interface/GeomDet.h"
 #include "Alignment/CommonAlignment/interface/Alignable.h"
 #include "Alignment/CommonAlignment/interface/AlignableComposite.h"
 #include "Alignment/CommonAlignment/interface/AlignableSurface.h"
 
 #include "Alignment/MuonAlignment/interface/AlignableDTChamber.h"
 
-#include "DataFormats/TrackingRecHit/interface/AlignmentPositionError.h"
-#include "DataFormats/GeometryVector/interface/Basic3DVector.h"
 
 #include <vector>
 
@@ -60,7 +57,7 @@ class AlignableDTStation : public AlignableComposite
   AlignableDTChamber &chamber(int i);  
   
   /// Return alignable object identifier
-  virtual int alignableObjectId() const { return AlignableObjectId::AlignableDTStation; }
+  virtual StructureType alignableObjectId() const { return align::AlignableDTStation; }
 
   /// Printout muon DT Station information (not recursive)
   friend std::ostream& operator << ( std::ostream&, const AlignableDTStation& );

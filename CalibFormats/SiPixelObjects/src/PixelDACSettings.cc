@@ -46,13 +46,12 @@ PixelDACSettings::PixelDACSettings(std::string filename):
 	    
 	    PixelROCName rocid(in);
 
-//	    std::cout << "[PixelDACSettings::PixelDACSettings()] DAC setting ROC id:"<<rocid<<std::endl;
+	    //std::cout << "DAC setting ROC id:"<<rocid<<std::endl;
 	    
 	    PixelROCDACSettings tmp;
 
 	    tmp.read(in,rocid);
 	    
-//	    std::cout << "[PixelDACSettings::PixelDACSettings()] DACSetting: " << std::endl << tmp << std::endl ;
 	    dacsettings_.push_back(tmp);
 	    
 	    in >> tag;
@@ -136,11 +135,6 @@ PixelDACSettings::PixelDACSettings(std::string filename):
 
 
 }
-// modified by MR on 10-01-2008 14:48:19
-PixelDACSettings::PixelDACSettings(PixelROCDACSettings &rocname):
-  PixelConfigBase("","","") {
-  dacsettings_.push_back(rocname) ;
-}
 
 PixelDACSettings::PixelDACSettings(std::vector< std::vector<std::string> > &tableMat): PixelConfigBase("","","")
 {
@@ -217,10 +211,10 @@ PixelDACSettings::PixelDACSettings(std::vector< std::vector<std::string> > &tabl
   {
   
    PixelROCDACSettings tmp2 = dacsettings_[w];
-//   std::cout<<tmp2<<std::endl;
+   std::cout<<tmp2<<std::endl;
   }   
-//  std::cout<<"Number of ROCs in the PixelDACSettings::PixelDACSettings(vector <vector<string> >):"<<dacsettings_.size()<<std::endl; 
-//  std::cout << "[PixelDACSettings::PixelDACSettings(std::vector)] before end of constructor" << std::endl ;
+  std::cout<<"Number of ROCs in the PixelDACSettings::PixelDACSettings(vector <vector<string> >):"<<dacsettings_.size()<<std::endl; 
+
 }//end PDSMatrix constructor
 //end added by Umesh
 PixelROCDACSettings PixelDACSettings::getDACSettings(int ROCId) const {
@@ -255,7 +249,7 @@ void PixelDACSettings::writeASCII(std::string dir) const {
   PixelModuleName module(dacsettings_[0].getROCName().rocname());
 
   std::string filename=dir+"/ROC_DAC_module_"+module.modulename()+".dat";
-  std::cout << "[PixelDACSettings::writeASCII()] Writing to file " << filename << std::endl ; 
+   
   std::ofstream out(filename.c_str());
   
   for(unsigned int i=0;i<dacsettings_.size();i++){

@@ -3,7 +3,7 @@
 
 //////////////////////////////////////////////////////////////////////
 //
-// $Id: RootOutputFile.h,v 1.19 2008/01/05 05:28:53 wmtan Exp $
+// $Id: RootOutputFile.h,v 1.20 2008/01/10 17:32:57 wmtan Exp $
 //
 // Class PoolOutputModule. Output module to POOL file
 //
@@ -15,6 +15,7 @@
 #include <memory>
 #include <string>
 #include <iosfwd>
+#include <map>
 #include <vector>
 #include "boost/array.hpp"
 #include "boost/shared_ptr.hpp"
@@ -70,6 +71,13 @@ namespace edm {
 
   private:
     struct OutputItem {
+      class Sorter {
+      public:
+        explicit Sorter(TTree * tree);
+        bool operator() (OutputItem const& lh, OutputItem const& rh) const;
+      private:
+        std::map<std::string, int> treeMap_;
+      };
       OutputItem() : branchDescription_(0), selected_(false) {}
       OutputItem(BranchDescription const* bd, bool sel, bool ren) :
 	branchDescription_(bd), selected_(sel), renamed_(ren), branchEntryDescription_(0), product_(0) {}
@@ -87,7 +95,8 @@ namespace edm {
     typedef boost::array<OutputItemList, NumBranchTypes> OutputItemListArray;
     void fillItemList(Selections const& keptVector,
 		      Selections const& droppedVector,
-		      OutputItemList & outputItemList);
+		      OutputItemList & outputItemList,
+		      TTree * meta);
 
     void fillBranches(BranchType const& branchType, Principal const& principal) const;
 

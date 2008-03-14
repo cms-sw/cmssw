@@ -31,12 +31,13 @@ class DCCTowerBlock : public DCCFEBlock {
 	 
   protected:
 	 
-    void unpackXtalData(uint stripID, uint xtalID);
+    int unpackXtalData(uint stripID, uint xtalID);
 
     std::auto_ptr<EBDigiCollection>     * digis_;
     
     EBDetId                             * pDetId_;
 
+    // to restructure as common collections to DCCSCBlock, to inherit from DCCFEBlock
     std::auto_ptr<EBDetIdCollection>    * invalidGains_;  
     std::auto_ptr<EBDetIdCollection>    * invalidGainsSwitch_ ;
     std::auto_ptr<EBDetIdCollection>    * invalidChIds_;

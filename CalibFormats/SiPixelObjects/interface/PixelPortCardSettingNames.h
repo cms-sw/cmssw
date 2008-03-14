@@ -145,53 +145,49 @@ namespace pos{
     const std::string k_Delay25_SCL = "Delay25_SCL";
     const std::string k_Delay25_GCR = "Delay25_GCR";
     
-    const unsigned int k_Delay25_CR0_offset = 0x0;
-    const unsigned int k_Delay25_CR1_offset = 0x1;
-    const unsigned int k_Delay25_CR2_offset = 0x2;
-    const unsigned int k_Delay25_CR3_offset = 0x3;
-    const unsigned int k_Delay25_CR4_offset = 0x4;
-    const unsigned int k_Delay25_CR5_offset = 0x5;
+    const unsigned int k_Delay25_RDA_offset = 0x0;
+    const unsigned int k_Delay25_RCL_offset = 0x1;
+    const unsigned int k_Delay25_SDA_offset = 0x2;
+    const unsigned int k_Delay25_TRG_offset = 0x3;
+    const unsigned int k_Delay25_SCL_offset = 0x4;
+    const unsigned int k_Delay25_GCR_offset = 0x5;
     
     // Delay25 fpix
     const unsigned int k_fpix_Delay25_base = 0x30;
-    const unsigned int k_fpix_Delay25_RDA_address = k_fpix_Delay25_base + k_Delay25_CR0_offset;
-    const unsigned int k_fpix_Delay25_RCL_address = k_fpix_Delay25_base + k_Delay25_CR1_offset;
-    const unsigned int k_fpix_Delay25_SDA_address = k_fpix_Delay25_base + k_Delay25_CR2_offset;
-    const unsigned int k_fpix_Delay25_TRG_address = k_fpix_Delay25_base + k_Delay25_CR3_offset;
-    const unsigned int k_fpix_Delay25_SCL_address = k_fpix_Delay25_base + k_Delay25_CR4_offset;
-    const unsigned int k_fpix_Delay25_GCR_address = k_fpix_Delay25_base + k_Delay25_CR5_offset;
+    const unsigned int k_fpix_Delay25_RDA_address = k_fpix_Delay25_base + k_Delay25_RDA_offset;
+    const unsigned int k_fpix_Delay25_RCL_address = k_fpix_Delay25_base + k_Delay25_RCL_offset;
+    const unsigned int k_fpix_Delay25_SDA_address = k_fpix_Delay25_base + k_Delay25_SDA_offset;
+    const unsigned int k_fpix_Delay25_TRG_address = k_fpix_Delay25_base + k_Delay25_TRG_offset;
+    const unsigned int k_fpix_Delay25_SCL_address = k_fpix_Delay25_base + k_Delay25_SCL_offset;
+    const unsigned int k_fpix_Delay25_GCR_address = k_fpix_Delay25_base + k_Delay25_GCR_offset;
     
     // Delay25 bpix
     const unsigned int k_bpix_Delay25_base = 0x60;
-    const unsigned int k_bpix_Delay25_RDA_address = k_bpix_Delay25_base + k_Delay25_CR3_offset;
-    const unsigned int k_bpix_Delay25_RCL_address = k_bpix_Delay25_base + k_Delay25_CR0_offset;
-    const unsigned int k_bpix_Delay25_SDA_address = k_bpix_Delay25_base + k_Delay25_CR2_offset;
-    const unsigned int k_bpix_Delay25_TRG_address = k_bpix_Delay25_base + k_Delay25_CR1_offset;
-    const unsigned int k_bpix_Delay25_SCL_address = k_bpix_Delay25_base + k_Delay25_CR4_offset;
-    const unsigned int k_bpix_Delay25_GCR_address = k_bpix_Delay25_base + k_Delay25_CR5_offset;
+    const unsigned int k_bpix_Delay25_RDA_address = k_bpix_Delay25_base + k_Delay25_RDA_offset;
+    const unsigned int k_bpix_Delay25_RCL_address = k_bpix_Delay25_base + k_Delay25_RCL_offset;
+    const unsigned int k_bpix_Delay25_SDA_address = k_bpix_Delay25_base + k_Delay25_SDA_offset;
+    const unsigned int k_bpix_Delay25_TRG_address = k_bpix_Delay25_base + k_Delay25_TRG_offset;
+    const unsigned int k_bpix_Delay25_SCL_address = k_bpix_Delay25_base + k_Delay25_SCL_offset;
+    const unsigned int k_bpix_Delay25_GCR_address = k_bpix_Delay25_base + k_Delay25_GCR_offset;
 
     // DOH
     const std::string k_DOH_Ch0Bias_CLK  = "DOH_Ch0Bias_CLK";
-    const std::string k_DOH_Dummy        = "DOH_Dummy";
     const std::string k_DOH_Ch1Bias_Data = "DOH_Ch1Bias_Data";
     const std::string k_DOH_Gain_SEU     = "DOH_Gain_SEU";
     
     const unsigned int k_DOH_Ch0Bias_CLK_offset  = 0x0;
-    const unsigned int k_DOH_Dummy_offset        = 0x1;
     const unsigned int k_DOH_Ch1Bias_Data_offset = 0x2;
     const unsigned int k_DOH_Gain_SEU_offset     = 0x3;
     
     // DOH fpix
     const unsigned int k_fpix_DOH_base = 0x70;
     const unsigned int k_fpix_DOH_Ch0Bias_CLK_address  = k_fpix_DOH_base + k_DOH_Ch0Bias_CLK_offset;
-    const unsigned int k_fpix_DOH_Dummy_address        = k_fpix_DOH_base + k_DOH_Dummy_offset;
     const unsigned int k_fpix_DOH_Ch1Bias_Data_address = k_fpix_DOH_base + k_DOH_Ch1Bias_Data_offset;
     const unsigned int k_fpix_DOH_Gain_SEU_address     = k_fpix_DOH_base + k_DOH_Gain_SEU_offset;
     
     // DOH bpix
     const unsigned int k_bpix_DOH_base = 0x70;
     const unsigned int k_bpix_DOH_Ch0Bias_CLK_address  = k_bpix_DOH_base + k_DOH_Ch0Bias_CLK_offset;
-    const unsigned int k_bpix_DOH_Dummy_address        = k_bpix_DOH_base + k_DOH_Dummy_offset;
     const unsigned int k_bpix_DOH_Ch1Bias_Data_address = k_bpix_DOH_base + k_DOH_Ch1Bias_Data_offset;
     const unsigned int k_bpix_DOH_Gain_SEU_address     = k_bpix_DOH_base + k_DOH_Gain_SEU_offset;
   }

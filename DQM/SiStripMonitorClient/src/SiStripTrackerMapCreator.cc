@@ -42,6 +42,52 @@ bool SiStripTrackerMapCreator::readConfiguration() {
   return true;
 }
 //
+// -- Browse through monitorable and get values need for TrackerMap
+//
+void SiStripTrackerMapCreator::create(DaqMonitorBEInterface* bei) {
+}
+/*  if (meNames_.size() == 0) return;
+  if (!trackerMap_) trackerMap_ = new SiStripTrackerMap();
+
+  vector<string> tempVec, contentVec;
+  bei->getContents(tempVec);
+  for (vector<string>::iterator it = tempVec.begin();
+       it != tempVec.end(); it++) {
+    if ((*it).find("module_") != string::npos) contentVec.push_back(*it);
+  }
+  tempVec.clear();
+  int ibin = 0;
+  for (vector<string>::iterator it = contentVec.begin();
+       it != contentVec.end(); it++) {
+    ibin++;
+    vector<string> contents;
+    int nval = SiStripUtility::getMEList((*it), contents);
+    if (nval == 0) continue;
+    // get module id
+    string det_id = ((*it).substr((*it).find("module_")+7, 9)).c_str();
+    
+    map<MonitorElement*,int> local_mes;
+    int gstat = 0;
+    //  browse through monitorable; check  if required MEs exist    
+    for (vector<string>::const_iterator ic = contents.begin();
+	      ic != contents.end(); ic++) {
+      int istat = 0;
+      for (vector<string>::const_iterator im = meNames_.begin();
+	   im != meNames_.end(); im++) {
+        string me_name = (*im);
+	if ((*ic).find(me_name) == string::npos) continue;
+        MonitorElement * me = bei->get((*ic));
+        if (!me) continue;
+        istat =  SiStripUtility::getStatus(me); 
+        local_mes.insert(pair<MonitorElement*, int>(me, istat));
+	if (istat > gstat) gstat = istat;
+      }
+    }
+    paintTkMap(atoi(det_id.c_str()), local_mes);
+  }
+  trackerMap_->printonline();  
+  }*/
+//
 // -- Get Tracker Map ME names
 //
 int SiStripTrackerMapCreator::getMENames(vector<string>& me_names) {
@@ -56,7 +102,7 @@ int SiStripTrackerMapCreator::getMENames(vector<string>& me_names) {
 // -- Create Geometric and Fed Tracker Map
 //
 void SiStripTrackerMapCreator::create(const edm::ParameterSet & tkmapPset, 
-           const edm::ESHandle<SiStripFedCabling>& fedcabling, DaqMonitorBEInterface* bei) {
+           const edm::ESHandle<SiStripFedCabling> fedcabling, DaqMonitorBEInterface* bei) {
 
   if (meNames_.size() == 0) return;
   if (!trackerMap_)     trackerMap_    = new SiStripTrackerMap(tkmapPset, fedcabling);
@@ -83,7 +129,7 @@ void SiStripTrackerMapCreator::create(const edm::ParameterSet & tkmapPset,
 	  for (vector<string>::const_iterator im = meNames_.begin();
 	       im != meNames_.end(); im++) {
 	    if (me_name.find(*im) == string::npos) continue;
-	    istat =  SiStripUtility::getMEStatus((*it)); 
+	    istat =  SiStripUtility::getStatus((*it)); 
 	    local_mes.insert(pair<MonitorElement*, int>((*it), istat));
 	  }
         }
@@ -115,7 +161,7 @@ void SiStripTrackerMapCreator::paintTkMap(int det_id, map<MonitorElement*, int>&
     comment <<   mean <<  " : " ;
     // global status 
     if (it->second > gstatus ) gstatus = it->second;
-    SiStripUtility::getMEStatusColor(it->second, icol, tag);   
+    SiStripUtility::getStatusColor(it->second, icol, tag);   
   }
   cout << " Detector ID : " << det_id 
        << " " << comment.str()
@@ -123,6 +169,6 @@ void SiStripTrackerMapCreator::paintTkMap(int det_id, map<MonitorElement*, int>&
   
   trackerMap_->setText(det_id, comment.str());
   int rval, gval, bval;
-  SiStripUtility::getMEStatusColor(gstatus, rval, gval, bval);
+  SiStripUtility::getStatusColor(gstatus, rval, gval, bval);
   trackerMap_->fillc(det_id, rval, gval, bval);
 }

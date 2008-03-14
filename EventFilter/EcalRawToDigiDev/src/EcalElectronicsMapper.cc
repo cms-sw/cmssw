@@ -1,14 +1,8 @@
 #include <FWCore/MessageLogger/interface/MessageLogger.h>
-#include <FWCore/ParameterSet/interface/ParameterSet.h>
 #include <EventFilter/EcalRawToDigiDev/interface/EcalElectronicsMapper.h>
 #include <Geometry/EcalMapping/interface/EcalElectronicsMapping.h>
-#include <FWCore/Utilities/interface/Exception.h>
 #include <DataFormats/EcalDigi/interface/EBSrFlag.h>
 #include <DataFormats/EcalDigi/interface/EESrFlag.h>
-#include <DataFormats/EcalDigi/interface/EBDataFrame.h>
-#include <DataFormats/EcalDigi/interface/EEDataFrame.h>
-#include <DataFormats/EcalDigi/interface/EcalTriggerPrimitiveDigi.h>
-#include <DataFormats/FEDRawData/interface/FEDNumbering.h>
 
 
 EcalElectronicsMapper::EcalElectronicsMapper( uint numbXtalTSamples, uint numbTriggerTSamples)
@@ -33,6 +27,7 @@ mappingBuilder_(0)
       }
       //Reset SC Det Ids
       scDetIds_[sm][fe]=0;
+      scEleIds_[sm][fe]=0;
       srFlags_[sm][fe]=0;
     }
   }
@@ -151,6 +146,7 @@ EcalElectronicsMapper::~EcalElectronicsMapper(){
 
       if(scDetIds_[sm][fe]){ 
         delete scDetIds_[sm][fe];
+        delete scEleIds_[sm][fe];
         delete srFlags_[sm][fe];
       }
 
@@ -428,7 +424,7 @@ void EcalElectronicsMapper::fillMaps(){
 			
           uint tccId = *it;
 			
-	  for(uint feChannel =1; feChannel <= numChannelsInDcc[smId-1]; feChannel++){
+	  for(uint feChannel =1; feChannel <= numChannelsInDcc_[smId-1]; feChannel++){
 
 		 // Builds Ecal Trigger Tower Det Id 
 	       EcalTrigTowerDetId ttDetId = mappingBuilder_->getTrigTowerDetId(tccId, feChannel);
@@ -444,12 +440,14 @@ void EcalElectronicsMapper::fillMaps(){
 	  }
         }
 
-	for(uint feChannel = 1; feChannel <= numChannelsInDcc[smId-1]; feChannel++){
+	for(uint feChannel = 1; feChannel <= numChannelsInDcc_[smId-1]; feChannel++){
 		
 	  //EcalSCDetIds
           EcalScDetId scDetId = mappingBuilder_->getEcalScDetId(smId,feChannel);
-          scDetIds_[smId-1][feChannel-1] = new EcalScDetId(scDetId.rawId());;
+          scDetIds_[smId-1][feChannel-1] = new EcalScDetId(scDetId.rawId());
+	  scEleIds_[smId-1][feChannel-1] = new EcalElectronicsId(smId,feChannel,1,1);
           srFlags_[smId-1][feChannel-1]  = new EESrFlag( EcalScDetId( scDetId.rawId() ) , 0 ); 
+
           std::vector<DetId> ecalDetIds = mappingBuilder_->dccTowerConstituents(smId,feChannel);
           std::vector<DetId>::iterator it;
 				  
@@ -476,7 +474,7 @@ void EcalElectronicsMapper::fillMaps(){
 }
 
 // number of readout channels (TT in EB, SC in EE) in a DCC
-const uint  EcalElectronicsMapper::numChannelsInDcc[NUMB_SM] = {34,32,33,33,32,34,33,34,33,    // EE -
+const uint  EcalElectronicsMapper::numChannelsInDcc_[NUMB_SM] = {34,32,33,33,32,34,33,34,33,    // EE -
 								68,68,68,68,68,68,68,68,68,68, // EB-
 								68,68,68,68,68,68,68,68,
 								68,68,68,68,68,68,68,68,68,68, // EB+

@@ -1,8 +1,8 @@
 /*
  * \file DTDataIntegrityTask.cc
  * 
- * $Date: 2007/11/06 17:31:05 $
- * $Revision: 1.32 $
+ * $Date: 2007/10/10 08:31:09 $
+ * $Revision: 1.31 $
  * \author M. Zanetti (INFN Padova), S. Bolognesi (INFN Torino)
  *
  */
@@ -847,6 +847,11 @@ void DTDataIntegrityTask::processROS25(DTROS25Data & data, int ddu, int ros) {
 
   }
   
+  if ((neventsROS25%parameters.getUntrackedParameter<int>("saveResultsFrequency", 10000)==0) 
+      && (parameters.getUntrackedParameter<bool>("writeHisto", true)) ) 
+    dbe->save(parameters.getUntrackedParameter<string>("outputFile", "ROS25Test.root"));
+  
+
 }
 
 void DTDataIntegrityTask::processFED(DTDDUData & data, const std::vector<DTROS25Data> & rosData, int ddu) {

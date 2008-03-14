@@ -85,12 +85,6 @@ void cleanString(string& title){
     if ( title.substr(i, 6) == " - Run" ){
       title.replace(i, title.size()-i, "");
     }
-    if ( title.substr(i, 4) == "_Run" ){
-      title.replace(i, title.size()-i, "");
-    }
-    if ( title.substr(i, 5) == "__Run" ){
-      title.replace(i, title.size()-i, "");
-    }
   }
 }
 

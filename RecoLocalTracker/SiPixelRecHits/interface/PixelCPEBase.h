@@ -37,11 +37,10 @@
 #include <ext/hash_map>
 
 class MagneticField;
-class SiPixelCPEParmErrors;
 class PixelCPEBase : public PixelClusterParameterEstimator {
  public:
   // PixelCPEBase( const DetUnit& det );
-  PixelCPEBase(edm::ParameterSet const& conf, const MagneticField * mag = 0, const SiPixelCPEParmErrors * parmErrors = 0);
+  PixelCPEBase(edm::ParameterSet const& conf, const MagneticField * mag = 0);
     
   //--------------------------------------------------------------------------
   // Obtain the angles from the position of the DetUnit.
@@ -92,11 +91,6 @@ class PixelCPEBase : public PixelClusterParameterEstimator {
   //--------------------------------------------------------------------------
   inline void setMagField(const MagneticField *mag) const { magfield_ = mag; }
 
-	//--------------------------------------------------------------------------
-	// Allow the database to be set/updated later.
-	//--------------------------------------------------------------------------
-	inline void setDBAccess(const SiPixelCPEParmErrors *parmErrors) const { parmErrors_ = parmErrors; }
-	
 	//--------------------------------------------------------------------------
   // This is where the action happens.
   //--------------------------------------------------------------------------
@@ -186,8 +180,6 @@ class PixelCPEBase : public PixelClusterParameterEstimator {
   int     theVerboseLevel;                    // algorithm's verbosity
 
   mutable const   MagneticField * magfield_;          // magnetic field
-
-	mutable const   SiPixelCPEParmErrors * parmErrors_;
   
   bool  alpha2Order;                          // switch on/off E.B effect.
 

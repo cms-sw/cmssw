@@ -5,7 +5,6 @@
 
 #include "Geometry/HcalCommonData/interface/HcalCellType.h"
 
-#include "CLHEP/Units/PhysicalConstants.h"
 #include "CLHEP/Units/SystemOfUnits.h"
 #include <iomanip>
 

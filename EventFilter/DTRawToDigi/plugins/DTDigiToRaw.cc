@@ -1,7 +1,5 @@
 #include <EventFilter/DTRawToDigi/plugins/DTDigiToRaw.h>
 #include <EventFilter/DTRawToDigi/interface/DTDDUWords.h>
-#include <DataFormats/DTDigi/interface/DTDigiCollection.h>
-#include <DataFormats/FEDRawData/interface/FEDRawDataCollection.h>
 
 #include <math.h>
 #include <iostream>

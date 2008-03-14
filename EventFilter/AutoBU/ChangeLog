@@ -1,3 +1,24 @@
+2008-03-10  Philipp SCHIEFERDECKER  <philipp.schieferdecker@cern.ch>
+
+	* tag V00-06-10
+	* fix to initialize: don't sleep between stop/halt sent to several
+	EPs.
+
+2008-01-25  Marco Zanetti  <marco.zanetti@cern.ch>
+
+	* tag V00-06-08
+	* adjusted BU/RB properties to run in no-options mode.
+	The SM configuration is now such that it accepts events 
+	from all paths.
+
+
+2008-01-25  Philipp SCHIEFERDECKER  <philipp.schieferdecker@cern.ch>
+
+	* tag V00-06-07
+	* add parameter '-cfgEP' for initialize script, where the EP
+	configuration file can be specified instead of autogenerating
+	it. Note that sm.cfg will expect paths p1,p2,p3!
+	
 2008-01-19  Philipp SCHIEFERDECKER  <philipp.schieferdecker@cern.ch>
 
 	* tag V00-06-06

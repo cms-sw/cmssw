@@ -46,13 +46,14 @@ int main()
   l1_names.push_back("t18");  l1_names.push_back("t19");
   l1_names.push_back("t20");
 
-  char reltag[]="CMSSW_0_6_0_pre45";
+  char reltag[]="CMSSW_0_8_0_pre7";
   std::string processName = "HLT";
+  std::string outputModuleLabel = "HLTOutput";
 
   InitMsgBuilder init(&buf[0],buf.size(),12,
-                      Version(4,(const uint8*)psetid),(const char*)reltag,
-		      processName.c_str(),
-                      hlt_names,l1_names);
+                      Version(5,(const uint8*)psetid),(const char*)reltag,
+		      processName.c_str(),outputModuleLabel.c_str(),
+                      hlt_names,hlt_names,l1_names);
 
 
   init.setDescLength(sizeof(test_value));
@@ -72,8 +73,8 @@ int main()
                        Version(view.protocolVersion(),
                                (const uint8*)psetid2),
                        view.releaseTag().c_str(),
-			processName.c_str(),
-                       hlt2,l12);
+                       processName.c_str(),outputModuleLabel.c_str(),
+                       hlt2,hlt2,l12);
 
   init2.setDescLength(view.descLength());
   std::copy(view.descData(),view.descData()+view.size(),
@@ -98,10 +99,10 @@ int main()
   l1bit[2]=false;  l1bit[6]=true;  l1bit[10]=true;  l1bit[14]=false;
   l1bit[3]=false;  l1bit[7]=false;  l1bit[11]=true;  l1bit[15]=true;
 
-  EventMsgBuilder emb(&buf[0],buf.size(),45,2020,2,
+  EventMsgBuilder emb(&buf[0],buf.size(),45,2020,2,0xdeadbeef,
                       l1bit,hltbits,hltsize);
 
-  emb.setReserved(78);
+  emb.setOrigDataSize(78);
   emb.setEventLength(sizeof(test_value));
   std::copy(&test_value[0],&test_value[0]+sizeof(test_value),
             emb.eventAddr());
@@ -119,11 +120,12 @@ int main()
                        eview.run(),
                        eview.event(),
                        eview.lumi(),
+                       eview.outModId(),
                        l1_out,
                        hlt_out,
                        hltsize);
 
-  emb2.setReserved(eview.reserved());
+  emb2.setOrigDataSize(eview.origDataSize());
   emb2.setEventLength(eview.eventLength());
   std::copy(eview.eventData(),eview.eventData()+eview.eventLength(),
             emb2.eventAddr());

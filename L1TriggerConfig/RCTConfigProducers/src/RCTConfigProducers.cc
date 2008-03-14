@@ -13,7 +13,7 @@
 //
 // Original Author:  Sridhara Dasu
 //         Created:  Mon Jul 16 23:48:35 CEST 2007
-// $Id: RCTConfigProducers.cc,v 1.2 2007/12/06 11:08:27 jleonard Exp $
+// $Id: RCTConfigProducers.cc,v 1.1 2007/08/01 13:12:41 dasu Exp $
 //
 //
 
@@ -76,7 +76,6 @@ RCTConfigProducers::RCTConfigProducers(const edm::ParameterSet& iConfig)
 			 iConfig.getParameter<double>("eActivityCut"),
 			 iConfig.getParameter<double>("hActivityCut"),
 			 iConfig.getParameter<double>("eicIsolationThreshold"),
-			 iConfig.getParameter<bool>("ignoreHcalIfNoEcalMip"),
 			 iConfig.getParameter<std::vector< double > >("eGammaECalScaleFactors"),
                          iConfig.getParameter<std::vector< double > >("eGammaHCalScaleFactors"),
                          iConfig.getParameter<std::vector< double > >("jetMETECalScaleFactors"),

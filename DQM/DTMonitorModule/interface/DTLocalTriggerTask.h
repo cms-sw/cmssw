@@ -4,8 +4,8 @@
 /*
  * \file DTLocalTriggerTask.h
  *
- * $Date: 2007/11/19 14:32:02 $
- * $Revision: 1.14 $
+ * $Date: 2007/11/12 18:00:30 $
+ * $Revision: 1.13 $
  * \author M. Zanetti - INFN Padova
  *
 */
@@ -21,6 +21,8 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
+#include "DataFormats/LTCDigi/interface/LTCDigi.h"
+
 #include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
 #include "DQMServices/Core/interface/MonitorElementBaseT.h"
 #include "DQMServices/Daemon/interface/MonitorDaemon.h"
@@ -33,7 +35,6 @@
 class DTGeometry;
 class DTChamberId;
 class DTRecSegment4D;
-class DTLocalTrigger;
 class L1MuDTChambPhDigi;
 class L1MuDTChambThDigi;
 
@@ -62,7 +63,7 @@ class DTLocalTriggerTask: public edm::EDAnalyzer{
   std::pair<float,float> phiRange(const DTChamberId& id);
 
   /// Compute track coordinates using trigger SC sectors
-  void computeCoordinates(const DTRecSegment4D* track, int& scsector, float& phpos, float& phdir, float& zpos, float& zdir);
+  void computeCoordinates(const DTRecSegment4D& track, int& scsector, float& phpos, float& phdir, float& zpos, float& zdir);
 
   /// Convert phi to local x coordinate
   float phi2Pos(const DTChamberId & id, int phi);
@@ -79,9 +80,6 @@ class DTLocalTriggerTask: public edm::EDAnalyzer{
   /// Run analysis using DT 4D segments
   void runSegmentAnalysis(const edm::Event& e, std::string& trigsrc);
 
-  /// Run analysis on ROS data
-  void runDDUvsDCCAnalysis(std::string& trigsrc);
-   
   /// Load DTTF map correction
   void loadDTTFMap();
 
@@ -109,14 +107,14 @@ class DTLocalTriggerTask: public edm::EDAnalyzer{
   std::string outputFile;  
   int nevents;
  
-  int phcode_best[6][5][13];
+  int phcode_best[6][5][13];  
   int dduphcode_best[6][5][13];
   int thcode_best[6][5][13];  
   int dduthcode_best[6][5][13];
   int mapDTTF[6][13][2];
   const L1MuDTChambPhDigi* iphbest[6][5][13];
-  const DTLocalTrigger*    iphbestddu[6][5][13];
   const L1MuDTChambThDigi* ithbest[6][5][13];
+  bool track_flag[6][5][15];
   bool track_ok[6][5][15];
 
   DaqMonitorBEInterface* dbe;

@@ -41,9 +41,6 @@
 // Magnetic Field
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 
-// Error Parametrization DB Record
-#include "CondFormats/DataRecord/interface/SiPixelCPEParmErrorsRcd.h"
-
 using namespace std;
 
 namespace cms
@@ -59,8 +56,7 @@ namespace cms
     ready_(false),        // since we obviously aren't
     src_( conf.getParameter<edm::InputTag>( "src" ) ),
     theVerboseLevel(conf.getUntrackedParameter<int>("VerboseLevel",0)),
-    m_newCont(conf.getUntrackedParameter<bool>("newContainer",false)),
-    errorsFromDB_(conf.getUntrackedParameter<bool>("errorsFromDB",false))
+    m_newCont(conf.getUntrackedParameter<bool>("newContainer",false))
   {
     //--- Declare to the EDM what kind of collections we will be making.
     produces<SiPixelRecHitCollection>();
@@ -82,14 +78,8 @@ namespace cms
   {
     edm::ESHandle<MagneticField> magfield;
     c.get<IdealMagneticFieldRecord>().get(magfield);
-
-    edm::ESHandle<SiPixelCPEParmErrors> parmErrors;
-
-    if(errorsFromDB_) {
-      c.get<SiPixelCPEParmErrorsRcd>().get(parmErrors);
-    }
-	
-    setupCPE(magfield.product(),parmErrors.product());
+    setupCPE(magfield.product());
+  
   }
 
   //---------------------------------------------------------------------------
@@ -128,7 +118,7 @@ namespace cms
   //---------------------------------------------------------------------------
   //!  Set up the specific algorithm we are going to use.  
   //---------------------------------------------------------------------------
-  void SiPixelRecHitConverter::setupCPE(const MagneticField* mag, const SiPixelCPEParmErrors* parmErrors) 
+  void SiPixelRecHitConverter::setupCPE(const MagneticField* mag) 
   {
     cpeName_ = conf_.getParameter<std::string>("CPE");
     
@@ -154,7 +144,7 @@ namespace cms
       } 
     else if ( cpeName_ == "Generic" ) 
       {
-	cpe_ = new PixelCPEGeneric(conf_,mag,parmErrors);
+	cpe_ = new PixelCPEGeneric(conf_,mag);
 	ready_ = true;
       } 
     else 

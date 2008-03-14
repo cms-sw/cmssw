@@ -9,8 +9,6 @@ namespace pos{
     void writefile(){
 
       std::string directory=getenv("PIXELCONFIGURATIONBASE");
-/*       directory+="/PixelConfigDataExamples/"; */
-      directory+="/";
     
       std::string filename=directory+"/configurations.txt";
 

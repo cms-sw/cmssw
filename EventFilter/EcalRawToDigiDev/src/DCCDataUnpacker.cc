@@ -1,7 +1,6 @@
 #include "EventFilter/EcalRawToDigiDev/interface/DCCDataUnpacker.h"
 #include "EventFilter/EcalRawToDigiDev/interface/DCCEBEventBlock.h"
 #include "EventFilter/EcalRawToDigiDev/interface/DCCEEEventBlock.h"
-#include "EventFilter/EcalRawToDigiDev/interface/EcalElectronicsMapper.h"
 
 DCCDataUnpacker::DCCDataUnpacker( 
   EcalElectronicsMapper * mapper, bool hU, bool srpU, bool tccU, bool feU , bool memU, bool syncCheck

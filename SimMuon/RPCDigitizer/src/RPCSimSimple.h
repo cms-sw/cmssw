@@ -25,8 +25,7 @@ class RPCSimSimple : public RPCSim
   ~RPCSimSimple();
 
   void simulate(const RPCRoll* roll,
-		const edm::PSimHitContainer& rpcHits);
-
+		const edm::PSimHitContainer& rpcHits, const RPCGeometry*);
   void simulateNoise(const RPCRoll*);
 
  private:

@@ -2,7 +2,6 @@
 #define Alignment_KalmanAlignmentAlgorithm_KalmanAlignmentUpdator_h
 
 #include "Alignment/CommonAlignment/interface/AlignableNavigator.h"
-#include "Alignment/CommonAlignmentAlgorithm/interface/AlignmentParameterStore.h"
 #include "Alignment/ReferenceTrajectories/interface/TrajectoryFactoryBase.h"
 #include "Alignment/KalmanAlignmentAlgorithm/interface/KalmanAlignmentMetricsUpdator.h"
 

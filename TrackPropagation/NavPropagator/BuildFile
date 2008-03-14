@@ -1,7 +1,6 @@
 <use name=MagneticField/VolumeBasedEngine>
 <use name=TrackPropagation/NavGeometry>
 <use name=TrackPropagation/RungeKutta>
-<use name=TrackingTools/MaterialEffects>
 <use name=FWCore/MessageLogger>
 
 <export>
@@ -9,5 +8,4 @@
   <use name=MagneticField/VolumeBasedEngine>
   <use name=TrackPropagation/NavGeometry>
   <use name=TrackPropagation/RungeKutta>
-  <use name=TrackingTools/MaterialEffects>
 </export>

@@ -6,9 +6,9 @@
    <PartSelector path="//EBRY.*"/>
    <Parameter name="SensitiveDetector" value="EcalSensitiveDetector" eval="false"/>
    <Parameter name="ReadOutName" value="EcalHitsEB" eval="false" />
-   <Parameter name="nxtalEta"     value="85.0"/>
+   <Parameter name="nxtalEta"       value="85.0"/>
    <Parameter name="PhiBaskets"     value="18.0"/>
-   <Parameter name="nxtalPhi"     value="360.0"/>
+   <Parameter name="nxtalPhi"       value="360.0"/>
    <Parameter name="EtaBaskets"     value="25.0"/>
    <Parameter name="EtaBaskets"     value="45.0"/>
    <Parameter name="EtaBaskets"     value="65.0"/>

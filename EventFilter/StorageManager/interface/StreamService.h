@@ -1,7 +1,7 @@
 #ifndef STREAMSERVICE_H
 #define STREAMSERVICE_H
 
-// $Id: StreamService.h,v 1.2 2007/02/05 16:39:40 klute Exp $
+// $Id: StreamService.h,v 1.6 2008/03/10 10:05:57 meschi Exp $
 
 // - handling output files per stream make the problem 1-dimensional 
 // - allows to use different file handling rules per stream
@@ -26,6 +26,8 @@
 #include "EventFilter/StorageManager/interface/OutputService.h"  
 
 #include <boost/shared_ptr.hpp>
+#include "boost/thread/thread.hpp"
+
 #include <string>
 #include <map>
 
@@ -52,6 +54,7 @@ namespace edm {
       void   setSourceId(std::string s)      { sourceId_ = s; }
       void   setFileName(std::string s)      { fileName_ = s; }
       void   setFilePath(std::string s)      { filePath_ = s; }
+      void   setMaxFileSize(int x); 
       void   setMathBoxPath(std::string s)   { mailboxPath_ = s; }
       void   setSetupLabel(std::string s)    { setupLabel_ = s; }
       void   setHighWaterMark(double d)      { highWaterMark_ = d; }
@@ -97,12 +100,17 @@ namespace edm {
       // output module parameter
       std::string fileName_;
       std::string filePath_;
+      int    maxFileSizeInMB_;
       std::string mailboxPath_;
       std::string setupLabel_;
       std::string streamLabel_;
-      int    maxSize_;
+      long long maxSize_;
       double highWaterMark_;
       double lumiSectionTimeOut_;
+
+      //@@EM added lock to handle access to file list by monitoring loop
+      boost::mutex list_lock_;
+
      };
 
 } // edm namespace

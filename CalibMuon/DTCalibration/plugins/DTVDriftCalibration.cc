@@ -2,8 +2,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2007/10/04 10:04:08 $
- *  $Revision: 1.2 $
+ *  $Date: 2007/07/11 12:21:01 $
+ *  $Revision: 1.1 $
  *  \author M. Giunta
  */
 
@@ -386,10 +386,10 @@ void DTVDriftCalibration::endJob() {
 
 	calibValuesFile.addCell(calibValuesFile.getKey(wireId), newConstants);
 
-	mTime->set((wireId.layerId()).superlayerId(),
-		   vDriftAndReso[0],
-		   vDriftAndReso[1],
-		   DTTimeUnits::ns);
+	mTime->setSLMtime((wireId.layerId()).superlayerId(),
+			  vDriftAndReso[0],
+			  vDriftAndReso[1],
+			  DTTimeUnits::ns);
     	if(debug) {
 	  cout << " SL: " << (wireId.layerId()).superlayerId()
 	       << " vDrift = " << vDriftAndReso[0]

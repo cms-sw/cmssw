@@ -1,6 +1,6 @@
 /*
- * $Date: 2007/12/27 13:15:24 $
- * $Revision: 1.10 $
+ * $Date: 2007/12/04 21:39:37 $
+ * $Revision: 1.7 $
  *
  * \author: D. Giordano, domenico.giordano@cern.ch
  * Modified: M.De Mattia 2/3/2007 & R.Castello 5/4/2007 & Susy Borgia 15/11/07
@@ -88,14 +88,11 @@ namespace cms{
     TFileDirectory Tracks = fFile->mkdir("Tracks");
     TFileDirectory Layer = fFile->mkdir("Layer");
 
-    const edm::ParameterSet mapSet = conf_.getParameter<edm::ParameterSet>("MapFlag");
-    if( mapSet.getParameter<bool>("Map_ClusOccOn") ){
-      tkMap_ClusOcc[0]=new TrackerMap( "ClusterOccupancy_onTrack" );
-      tkMap_ClusOcc[1]=new TrackerMap( "ClusterOccupancy_offTrack" );
-      tkMap_ClusOcc[2]=new TrackerMap( "ClusterOccupancy_All" );
-    }  
-    if( mapSet.getParameter<bool>("Map_InvHit") ) 
-      tkInvHit=new TrackerMap("Invalid_Hit");
+    tkMap_ClusOcc[0]=new TrackerMap( "ClusterOccupancy_onTrack" );
+    tkMap_ClusOcc[1]=new TrackerMap( "ClusterOccupancy_offTrack" );
+    tkMap_ClusOcc[2]=new TrackerMap( "ClusterOccupancy_All" );
+    
+    //    tkInvHit=new TrackerMap("Invalid_Hit");
 
     //&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
     // get list of active detectors from SiStripDetCabling 
@@ -440,23 +437,17 @@ namespace cms{
     }    
 
     //TkMap->Save() and Print()
-
-    const edm::ParameterSet mapSett = conf_.getParameter<edm::ParameterSet>("MapFlag");
-    if( mapSett.getParameter<bool>("Map_ClusOccOn") ){
-      tkMap_ClusOcc[0]->save(true,0,0,"ClusterOccupancyMap_onTrack.png");
-      tkMap_ClusOcc[1]->save(true,0,0,"ClusterOccupancyMap_offTrack.png");
-      tkMap_ClusOcc[2]->save(true,0,0,"ClusterOccupancyMap_All.png");
-      
-      tkMap_ClusOcc[0]->print(true,0,0,"ClusterOccupancyMap_onTrack");   
-      tkMap_ClusOcc[1]->print(true,0,0,"ClusterOccupancyMap_offTrack");   
-      tkMap_ClusOcc[2]->print(true,0,0,"ClusterOccupancyMap_All");
-    }
-
-    if( mapSett.getParameter<bool>("Map_InvHit")) {
-      tkInvHit->save(true,0,0,"Inv_Hit_map.png");
-      tkInvHit->print(true,0,0,"Inv_Hit_map");
-    }
+    tkMap_ClusOcc[0]->save(true,0,0,"ClusterOccupancyMap_onTrack.png");
+    tkMap_ClusOcc[1]->save(true,0,0,"ClusterOccupancyMap_offTrack.png");
+    tkMap_ClusOcc[2]->save(true,0,0,"ClusterOccupancyMap_All.png");
     
+    tkMap_ClusOcc[0]->print(true,0,0,"ClusterOccupancyMap_onTrack");   
+    tkMap_ClusOcc[1]->print(true,0,0,"ClusterOccupancyMap_offTrack");   
+    tkMap_ClusOcc[2]->print(true,0,0,"ClusterOccupancyMap_All");
+    
+
+    //    tkInvHit->save(true,0,0,"Inv_Hit_map.png");
+    //    tkInvHit->print(true,0,0,"Inv_Hit_map");
   }  
   //------------------------------------------------------------------------------------------
 
@@ -485,19 +476,24 @@ namespace cms{
     e.getByLabel( ClusterInfo_src_, dsv_SiStripClusterInfo);
     e.getByLabel( Cluster_src_, dsv_SiStripCluster);    
     
-    e.getByLabel(Track_src_, trackCollection);
-    if(trackCollection.isValid()){
-    }else{
-      edm::LogError("ClusterAnalysis")<<"trackCollection not found "<<std::endl;
+    try{
+      e.getByLabel(Track_src_, trackCollection);
+    } catch ( cms::Exception& er ) {
+      edm::LogError("ClusterAnalysis")<<"caught std::exception "<<er.what()<<std::endl;
+      tracksCollection_in_EventTree=false;
+    } catch ( ... ) {
+      edm::LogError("ClusterAnalysis")<<" funny error " <<std::endl;
       tracksCollection_in_EventTree=false;
     }
     
     edm::InputTag TkiTag = conf_.getParameter<edm::InputTag>( "TrackInfo" );  
-    
-    e.getByLabel(TkiTag,tkiTkAssCollection); 
-    if(tkiTkAssCollection.isValid()){
-    }else{
-      edm::LogError("ClusterAnalysis")<<"trackInfo not found "<<std::endl;
+    try{
+      e.getByLabel(TkiTag,tkiTkAssCollection); 
+    } catch ( cms::Exception& er ) {
+      edm::LogError("ClusterAnalysis")<<"caught std::exception "<<er.what()<<std::endl;
+      trackAssociatorCollection_in_EventTree=false;
+    } catch ( ... ) {
+      edm::LogError("ClusterAnalysis")<<" funny error " <<std::endl;
       trackAssociatorCollection_in_EventTree=false;
     }
     
@@ -547,24 +543,24 @@ namespace cms{
   
   void ClusterAnalysis::trackStudy(){
     LogTrace("ClusterAnalysis") << "\n["<<__PRETTY_FUNCTION__<<"]" << std::endl;
-    
+
     const reco::TrackCollection tC = *(trackCollection.product());
-    
+   
     int nTracks=tC.size();
-    
+ 
     edm::LogInfo("ClusterAnalysis") << "Reconstructed "<< nTracks << " tracks" << std::endl ;
-    
+
     int i=0;
     
     edm::LogInfo("ClusterAnalysis") <<"\t\t TrackCollection size "<< trackCollection->size() << std::endl;
     if(trackCollection->size()==0){
       ((TH1F*) Hlist->FindObject("nTracks"))->Fill(trackCollection->size());
       edm::LogInfo("ClusterAnalysis") <<"\t\t TrackCollection size zero!! Histo filled with a "<< trackCollection->size() << std::endl;
-    }
-    
+   }
+
     for (unsigned int track=0;track<trackCollection->size();++track){
       reco::TrackRef trackref = reco::TrackRef(trackCollection, track);
-      
+
       //get the ref to the trackinfo
       reco::TrackInfoRef trackinforef=(*tkiTkAssCollection.product())[trackref];
       // loop on all the track hits
@@ -579,7 +575,7 @@ namespace cms{
 	<<"\n\tFrom EXTRA : "
 	<<"\n\t\touter PT "<< trackref->outerPt()<<std::endl;
       i++;
-      
+ 
       int recHitsSize=trackref->recHitsSize();
       edm::LogInfo("ClusterAnalysis") <<"\t\tNumber of RecHits "<<recHitsSize<<std::endl;
       
@@ -594,52 +590,28 @@ namespace cms{
       
       //------------------------------RESIDUAL at the layer level ------------
       /*	  
-		 LocalPoint stateposition= 
-		 LocalPoint rechitposition= 
-		 fillTH1( stateposition.x() - rechitposition.x(),"res_x"+appString,0);
-		 fillTH1( stateposition.y() - rechitposition.y(),"res_y"+appString,0);
-		 ((TProfile*) Hlist->FindObject("ResidualVsAngle"))->Fill(angle,stateposition.x()- rechitposition.x(),1);
-		 ((TProfile*) Hlist->FindObject("ResidualVsAngle"+appString+"_onTrack"))->Fill(angle,stateposition.x()- rechitposition.x(),1);
-		 
+	    LocalPoint stateposition= 
+	    LocalPoint rechitposition= 
+	    fillTH1( stateposition.x() - rechitposition.x(),"res_x"+appString,0);
+	    fillTH1( stateposition.y() - rechitposition.y(),"res_y"+appString,0);
+	    ((TProfile*) Hlist->FindObject("ResidualVsAngle"))->Fill(angle,stateposition.x()- rechitposition.x(),1);
+	    ((TProfile*) Hlist->FindObject("ResidualVsAngle"+appString+"_onTrack"))->Fill(angle,stateposition.x()- rechitposition.x(),1);
+	    
       */
-      
-      TrackingRecHitRef rechitref=trackref->recHit(2);
-      
-      const uint32_t& ndetid = rechitref->geographicalId().rawId();
-      if (find(ModulesToBeExcluded_.begin(),ModulesToBeExcluded_.end(),ndetid)!=ModulesToBeExcluded_.end()){
-	LogTrace("ClusterAnalysis") << "Modules Excluded" << std::endl;
-	return;
-      }	
-      
-      const edm::ParameterSet mappSet = conf_.getParameter<edm::ParameterSet>("MapFlag");
-      if( mappSet.getParameter<bool>("Map_InvHit") ){
-	edm::LogInfo("TrackInfoAnalyzerExample") << "RecHit type: " << rechitref->getType() << std::endl;  
-	if(!rechitref->isValid()){
-	  edm::LogInfo("TrackInfoAnalyzerExample") <<"The recHit is not valid"<< std::endl;
-	  //inactive??      
-	  if(rechitref->getType() == 2) {
-	    edm::LogInfo("TrackInfoAnalyzerExample") << "inactive rechit found on detid " << ndetid << std::endl;
-	    tkInvHit->fill(ndetid,1); 
-	    tkInvHit->fill(ndetid+1,1);
-	    tkInvHit->fill(ndetid+2,1);
-	  }  
-	}else{
-	  edm::LogInfo("TrackInfoAnalyzerExample") <<"The recHit is valid"<< std::endl;
-	}     
-      }  
       reco::TrackInfo::TrajectoryInfo::const_iterator iter;
-
+            
       for(iter=trackinforef->trajStateMap().begin();iter!=trackinforef->trajStateMap().end();iter++){
-	
+         
 	//trajectory local direction and position on detector
-	LocalVector statedirection=(trackinforef->stateOnDet(Updated,(*iter).first)->parameters()).momentum();
+	LocalVector statedirection;
+
 	LocalPoint  stateposition=(trackinforef->stateOnDet(Updated,(*iter).first)->parameters()).position();
        	
 	std::stringstream ss;
-	ss <<"LocalMomentum: "<<statedirection
+	ss <<"LocalMomentum initialized: "<<statedirection
 	   <<"\nLocalPosition: "<<stateposition
 	   << "\nLocal x-z plane angle: "<<atan2(statedirection.x(),statedirection.z());
-
+		
 	if(trackinforef->type((*iter).first)==Matched){ // get the direction for the components
 	  
 	  const SiStripMatchedRecHit2D* matchedhit=dynamic_cast<const SiStripMatchedRecHit2D*>(&(*(iter)->first));
@@ -663,67 +635,71 @@ namespace cms{
 	    if(statedirection.mag() != 0) RecHitInfo(&(phit->originalHit()),statedirection,trackref);
 	    //stereo side
 	    statedirection= trackinforef->localTrackMomentumOnStereo(Updated,(*iter).first);
-	    if(statedirection.mag() != 0)  RecHitInfo(&(phit->originalHit()),statedirection,trackref);
+	    if(statedirection.mag() != 0) RecHitInfo(&(phit->originalHit()),statedirection,trackref);
 	  }	
-	  
 	}
 	else {
 	  const SiStripRecHit2D* hit=dynamic_cast<const SiStripRecHit2D*>(&(*(iter)->first));
-	  if(hit!=0){
+	  if(hit->isValid()){
 	    ss<<"\nSingle recHit found"<< std::endl;	  
 	    statedirection=(trackinforef->stateOnDet(Updated,(*iter).first)->parameters()).momentum();
 	    if(statedirection.mag() != 0) RecHitInfo(hit,statedirection,trackref);
-
+       
 	  }
- 	}
+	}
 	LogTrace("TrackInfoAnalyzerExample") <<ss.str() << std::endl;
       }
     }
   }
 
   void ClusterAnalysis::RecHitInfo(const SiStripRecHit2D* tkrecHit, LocalVector LV,reco::TrackRef track_ref ){
-    
+
     if(!tkrecHit->isValid()){
-      LogTrace("ClusterAnalysis") <<"\t\t Invalid Hit " << std::endl;
-      return;  
-    }
-    
-    const uint32_t& detid = tkrecHit->geographicalId().rawId();
-    if (find(ModulesToBeExcluded_.begin(),ModulesToBeExcluded_.end(),detid)!=ModulesToBeExcluded_.end()){
-      LogTrace("ClusterAnalysis") << "Modules Excluded" << std::endl;
-      return;
-    }
-    
-    LogTrace("ClusterAnalysis")
-      <<"\n\t\tRecHit on det "<<tkrecHit->geographicalId().rawId()
-      <<"\n\t\tRecHit in LP "<<tkrecHit->localPosition()
-      <<"\n\t\tRecHit in GP "<<tkgeom->idToDet(tkrecHit->geographicalId())->surface().toGlobal(tkrecHit->localPosition()) 
-      <<"\n\t\tRecHit trackLocal vector "<<LV.x() << " " << LV.y() << " " << LV.z() <<std::endl; 
-    
-    //Get SiStripCluster from SiStripRecHit
-    if ( tkrecHit != NULL ){
-      LogTrace("ClusterAnalysis") << "GOOD hit" << std::endl;
-      const SiStripCluster* SiStripCluster_ = &*(tkrecHit->cluster());
-      const SiStripClusterInfo* SiStripClusterInfo_ = MatchClusterInfo(SiStripCluster_,detid);
-      
-      const edm::ParameterSet pset = conf_.getParameter<edm::ParameterSet>("TrackThresholds");
-      if( track_ref->normalizedChi2() < pset.getParameter<double>("maxChi2") && track_ref->recHitsSize() > pset.getParameter<double>("minRecHit") ){	  	    
-	
-	if ( clusterInfos(SiStripClusterInfo_,detid,"_onTrack", LV ) ) {
-	  vPSiStripCluster.push_back(SiStripCluster_);
-	  countOn++;
-	}
-      }
-    }else{
-      LogTrace("ClusterAnalysis") << "NULL hit" << std::endl;
-    }	  
+    LogTrace("ClusterAnalysis") <<"\t\t Invalid Hit " << std::endl;
+    return;  
   }
+  
+  const uint32_t& detid = tkrecHit->geographicalId().rawId();
+  if (find(ModulesToBeExcluded_.begin(),ModulesToBeExcluded_.end(),detid)!=ModulesToBeExcluded_.end()){
+    LogTrace("ClusterAnalysis") << "Modules Excluded" << std::endl;
+    return;
+  }
+  //  if(tkrecHit->getType() == TrackingRecHit::inactive){
+  //    LogTrace("ClusterAnalysis") << "inactive rechit found on detid " << detid << std::endl;
+  //    tkInvHit->fill(detid,1);
+  //  } 
+  
+  LogTrace("ClusterAnalysis")
+    <<"\n\t\tRecHit on det "<<tkrecHit->geographicalId().rawId()
+    <<"\n\t\tRecHit in LP "<<tkrecHit->localPosition()
+    <<"\n\t\tRecHit in GP "<<tkgeom->idToDet(tkrecHit->geographicalId())->surface().toGlobal(tkrecHit->localPosition()) 
+    <<"\n\t\tRecHit trackLocal vector "<<LV.x() << " " << LV.y() << " " << LV.z() <<std::endl; 
+  
+  //Get SiStripCluster from SiStripRecHit
+  if ( tkrecHit != NULL ){
+    LogTrace("ClusterAnalysis") << "GOOD hit" << std::endl;
+    const SiStripCluster* SiStripCluster_ = &*(tkrecHit->cluster());
+    const SiStripClusterInfo* SiStripClusterInfo_ = MatchClusterInfo(SiStripCluster_,detid);
+      
+    const edm::ParameterSet pset = conf_.getParameter<edm::ParameterSet>("TrackThresholds");
+    if( track_ref->normalizedChi2() < pset.getParameter<double>("maxChi2") && track_ref->recHitsSize() > pset.getParameter<double>("minRecHit") ){	  	    
+	
+      if ( clusterInfos(SiStripClusterInfo_,detid,"_onTrack", LV ) ) {
+	vPSiStripCluster.push_back(SiStripCluster_);
+	countOn++;
+      }
+    }
+  }else{
+    LogTrace("ClusterAnalysis") << "NULL hit" << std::endl;
+  }	  
+}
+
   
   //------------------------------------------------------------------------
   
   void ClusterAnalysis::AllClusters(){
-
     LogTrace("ClusterAnalysis") << "Executing AllClusters" << std::endl;
+
     //Loop on Dets
     edm::DetSetVector<SiStripCluster>::const_iterator DSViter=dsv_SiStripCluster->begin();
     for (; DSViter!=dsv_SiStripCluster->end();DSViter++){
@@ -860,12 +836,9 @@ namespace cms{
       iflag=2;
     
     NClus[SubDet_enum][iflag]++;
-
     LogTrace("ClusterAnalysis") << "NClus on detid = " << detid << " " << flag << " is " << NClus[SubDet_enum][iflag] << std::endl;
     //    TrackerMap filling for each flag
-    const edm::ParameterSet _mapSet = conf_.getParameter<edm::ParameterSet>("MapFlag");
-    if( _mapSet.getParameter<bool>("Map_ClusOccOn") )
-      tkMap_ClusOcc[iflag]->fill(detid,1);
+    tkMap_ClusOcc[iflag]->fill(detid,1);
 
     std::stringstream ss;
     const_cast<SiStripClusterInfo*>(cluster)->print(ss);
@@ -1224,32 +1197,32 @@ namespace cms{
       
       
       unsigned int nstrips = _StripGeomDetUnit->specificTopology().nstrips();
-
+      
       //&&&&&&&&&&&&&&
       // Retrieve information for the module
       //&&&&&&&&&&&&&&&&&&     
-      char cdetid[128];
-      sprintf(cdetid,"%d",detid);
-      char aname[128];
-      sprintf(aname,"%s_%d",_StripGeomDetUnit->type().name().c_str(),detid);
-      char SubStr[128];
+       char cdetid[128];
+       sprintf(cdetid,"%d",detid);
+       char aname[128];
+       sprintf(aname,"%s_%d",_StripGeomDetUnit->type().name().c_str(),detid);
+       char SubStr[128];
+    
+       SiStripDetId a(detid);
+       if ( a.subdetId() == 3 ){
+ 	TIBDetId b(detid);
+ 	sprintf(SubStr,"_SingleDet_%d_TIB_%d_%d_%d_%d",detid,b.layer(),b.string()[0],b.string()[1],b.glued());
+       } else if ( a.subdetId() == 4 ) {
+ 	TIDDetId b(detid);
+ 	sprintf(SubStr,"_SingleDet_%d_TID_%d_%d_%d_%d",detid,b.wheel(),b.ring(),b.side(),b.glued());
+       } else if ( a.subdetId() == 5 ) {
+ 	TOBDetId b(detid);
+ 	sprintf(SubStr,"_SingleDet_%d_TOB_%d_%d_%d_%d",detid,b.layer(),b.rod()[0],b.rod()[1],b.glued());
+       } else if ( a.subdetId() == 6 ) {
+ 	TECDetId b(detid);
+ 	sprintf(SubStr,"_SingleDet_%d_TEC_%d_%d_%d_%d_%d",detid,b.wheel(),b.ring(),b.side(),b.glued(),b.stereo());
+       }
       
-      SiStripDetId a(detid);
-      if ( a.subdetId() == 3 ){
-	TIBDetId b(detid);
-	sprintf(SubStr,"_SingleDet_%d_TIB_%d_%d_%d_%d",detid,b.layer(),b.string()[0],b.string()[1],b.glued());
-      } else if ( a.subdetId() == 4 ) {
-	TIDDetId b(detid);
-	sprintf(SubStr,"_SingleDet_%d_TID_%d_%d_%d_%d",detid,b.wheel(),b.ring(),b.side(),b.glued());
-      } else if ( a.subdetId() == 5 ) {
-	TOBDetId b(detid);
-	sprintf(SubStr,"_SingleDet_%d_TOB_%d_%d_%d_%d",detid,b.layer(),b.rod()[0],b.rod()[1],b.glued());
-      } else if ( a.subdetId() == 6 ) {
-	TECDetId b(detid);
-	sprintf(SubStr,"_SingleDet_%d_TEC_%d_%d_%d_%d_%d",detid,b.wheel(),b.ring(),b.side(),b.glued(),b.stereo());
-      }
-      
-      TString appString=TString(SubStr);
+       TString appString=TString(SubStr);
 
       SiStripNoises::Range noiseRange = noiseHandle->getRange(detid);
       SiStripPedestals::Range pedRange = pedestalHandle->getRange(detid);
@@ -1275,7 +1248,6 @@ namespace cms{
 	  edm::LogError("SiStripCondObjDisplay") << "[SiStripCondObjDisplay::endJob]  cms::Exception:  DetName " << name << " " << e.what() ;
 	}
       }
-      
     }
   }
 }

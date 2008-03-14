@@ -3,8 +3,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2007/02/03 16:19:08 $
- *  $Revision: 1.8 $
+ *  $Date: 2007/03/09 14:38:23 $
+ *  $Revision: 1.9 $
  *  \author N. Amapane - INFN Torino
  */
 
@@ -56,7 +56,9 @@ bool MagGeoBuilderFromDDD::debug;
 
 using namespace std;
 
-MagGeoBuilderFromDDD::MagGeoBuilderFromDDD(bool debug_)  {  
+MagGeoBuilderFromDDD::MagGeoBuilderFromDDD(string version_, bool debug_) :
+  version (version_)
+{  
   debug = debug_;
   if (debug) cout << "Constructing a MagGeoBuilderFromDDD" <<endl;
 }
@@ -437,8 +439,6 @@ void MagGeoBuilderFromDDD::buildInterpolator(const volumeHandle * vol, map<strin
   }
 
 
-  // FIXME: should be a configurable parameter
-  string version="grid_85l_030919"; 
   string fullPath;
 
   try {

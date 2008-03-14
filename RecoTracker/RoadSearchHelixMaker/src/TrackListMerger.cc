@@ -8,8 +8,8 @@
 // Created:         Sat Jan 14 22:00:00 UTC 2006
 //
 // $Author: stevew $
-// $Date: 2007/07/20 22:37:13 $
-// $Revision: 1.2 $
+// $Date: 2007/07/16 20:25:35 $
+// $Revision: 1.6 $
 //
 
 #include <memory>
@@ -28,7 +28,6 @@
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
 #include "Geometry/CommonDetUnit/interface/GeomDet.h"
@@ -65,8 +64,6 @@ namespace cms
     double maxNormalizedChisq =  conf_.getParameter<double>("MaxNormalizedChisq");
     double minPT =  conf_.getParameter<double>("MinPT");
     unsigned int minFound = (unsigned int)conf_.getParameter<int>("MinFound");
-    double epsilon =  conf_.getParameter<double>("Epsilon");
-    double shareFrac =  conf_.getParameter<double>("ShareFrac");
   
     //
     // extract tracker geometry
@@ -77,45 +74,15 @@ namespace cms
 //    using namespace reco;
 
     // get Inputs 
-    // if 1 input list doesn't exist, make an empty list, issue a warning, and continue
-    // this allows TrackListMerger to be used as a cleaner only if handed just one list
-    // if both input lists don't exist, will issue 2 warnings and generate an empty output collection
-    //
-    const reco::TrackCollection *TC1 = 0;
-    try {
-      edm::Handle<reco::TrackCollection> trackCollection1;
-      e.getByLabel(trackProducer1, trackCollection1);
-      TC1 = trackCollection1.product();
-      //std::cout << "1st collection " << trackProducer1 << " has "<< TC1->size() << " tracks" << std::endl ;
-    }
-    catch (edm::Exception const& x) {
-      if ( x.categoryCode() == edm::errors::ProductNotFound ) {
-	if ( x.history().size() == 1 ) {
-          static const reco::TrackCollection s_empty;
-          TC1 = &s_empty;
-          edm::LogWarning("TrackListMerger") << "1st TrackCollection " << trackProducer1 << " not found; will only clean 2nd TrackCollection " << trackProducer2 ;
-	}
-      }
-    }
-    const reco::TrackCollection tC1 = *TC1;
+    edm::Handle<reco::TrackCollection> trackCollection1;
+    e.getByLabel(trackProducer1, trackCollection1);
+    const reco::TrackCollection tC1 = *(trackCollection1.product());
+    //std::cout << "1st collection has "<< tC1.size() << " tracks" << std::endl ;
 
-    const reco::TrackCollection *TC2 = 0;
-    try {
-      edm::Handle<reco::TrackCollection> trackCollection2;
-      e.getByLabel(trackProducer2, trackCollection2);
-      TC2 = trackCollection2.product();
-      //std::cout << "2nd collection " << trackProducer2 << " has "<< TC2->size() << " tracks" << std::endl ;
-    }
-    catch (edm::Exception const& x) {
-      if ( x.categoryCode() == edm::errors::ProductNotFound ) {
-	if ( x.history().size() == 1 ) {
-          static const reco::TrackCollection s_empty;
-          TC2 = &s_empty;
-          edm::LogWarning("TrackListMerger") << "2nd TrackCollection " << trackProducer2 << " not found; will only clean 1st TrackCollection " << trackProducer1 ;
-	}
-      }
-    }
-    const reco::TrackCollection tC2 = *TC2;
+    edm::Handle<reco::TrackCollection> trackCollection2;
+    e.getByLabel(trackProducer2, trackCollection2);
+    const reco::TrackCollection tC2 = *(trackCollection2.product());
+    //std::cout << "2nd collection has "<< tC2.size() << " tracks" << std::endl ;
 
     // Step B: create empty output collection
     std::auto_ptr<reco::TrackCollection> output(new reco::TrackCollection);
@@ -134,6 +101,7 @@ namespace cms
   //  quality cuts first
   // 
     int i;
+    float epsilon = 0.0001;
 
     std::vector<int> selected1; for (unsigned int i=0; i<tC1.size(); ++i){selected1.push_back(1);}
 
@@ -219,7 +187,7 @@ namespace cms
         }
         float fi=float(noverlap)/float(track->recHitsSize()); float fj=float(noverlap)/float(track2->recHitsSize());
         //std::cout << " trk1 trk2 nhits1 nhits2 nover " << i << " " << j << " " << track->recHitsSize() << " "  << track2->recHitsSize() << " " << noverlap << " " << fi << " " << fj  <<std::endl;
-        if ((fi>shareFrac)||(fj>shareFrac)){
+        if ((fi>0.66)||(fj>0.66)){
           if (fi<fj){
             selected1[j]=0; 
             //std::cout << " removing 2nd trk in pair " << std::endl;
@@ -262,7 +230,7 @@ namespace cms
         }
         float fi=float(noverlap)/float(track->recHitsSize()); float fj=float(noverlap)/float(track2->recHitsSize());
         //std::cout << " trk1 trk2 nhits1 nhits2 nover " << i << " " << j << " " << track->recHitsSize() << " "  << track2->recHitsSize() << " " << noverlap << " " << fi << " " << fj  <<std::endl;
-        if ((fi>shareFrac)||(fj>shareFrac)){
+        if ((fi>0.66)||(fj>0.66)){
           if (fi<fj){
             selected2[j]=0; 
             //std::cout << " removing 2nd trk in pair " << std::endl;
@@ -306,7 +274,7 @@ namespace cms
         }
         float fi=float(noverlap)/float(track->recHitsSize()); float fj=float(noverlap)/float(track2->recHitsSize());
         //std::cout << " trk1 trk2 nhits1 nhits2 nover " << i << " " << j << " " << track->recHitsSize() << " "  << track2->recHitsSize() << " " << noverlap << " " << fi << " " << fj  <<std::endl;
-        if ((fi>shareFrac)||(fj>shareFrac)){
+        if ((fi>0.66)||(fj>0.66)){
           if (fi<fj){
             selected2[j]=0; 
             //std::cout << " removing L2 trk in pair " << std::endl;
@@ -315,7 +283,7 @@ namespace cms
               selected1[i]=0; 
               //std::cout << " removing L1 trk in pair " << std::endl;
             }else{
-              //std::cout << " removing worst chisq in pair " << track->normalizedChi2() << " " << track2->normalizedChi2() << std::endl;
+              //std::cout << " removing worst chisq in pair " << std::endl;
               if (track->normalizedChi2() > track2->normalizedChi2()){selected1[i]=0;}else{selected2[j]=0;}
             }//end fi > or = fj
           }//end fi < fj

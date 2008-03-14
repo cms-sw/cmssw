@@ -4,8 +4,8 @@
 /** \class MuonDetLayerMeasurements
  *  The class to access recHits and TrajectoryMeasurements from DetLayer.  
  *
- *  $Date: 2006/08/01 15:58:07 $
- *  $Revision: 1.14 $
+ *  $Date: 2007/11/20 19:05:23 $
+ *  $Revision: 1.15 $
  *  \author C. Liu, R. Bellan, N. Amapane
  *
  */
@@ -17,6 +17,8 @@
 #include "RecoMuon/TransientTrackingRecHit/interface/MuonTransientTrackingRecHit.h"
 //#include "TrackingTools/ementDet/interface/TrajectoryMeasurement.h"
 #include "TrackingTools/MeasurementDet/interface/TrajectoryMeasurementGroup.h"
+
+#include "FWCore/ParameterSet/interface/InputTag.h"
 
 #include <vector>
 
@@ -34,13 +36,13 @@ class MuonDetLayerMeasurements {
  public:
 
 
-  MuonDetLayerMeasurements(bool enableDT = true,
+  MuonDetLayerMeasurements(edm::InputTag dtlabel,
+			   edm::InputTag csclabel,
+			   edm::InputTag rpclabel,
+			   bool enableDT = true,
 			   bool enableCSC = true,
-			   bool enableRPC = true,
-			   std::string dtlabel = "dt4DSegments", 
-			   std::string csclabel = "cscSegments",
-			   std::string rpclabel = "rpcRecHits");
-
+			   bool enableRPC = true);
+  
   virtual ~MuonDetLayerMeasurements();
   
   // for a given det and state.  Not clear when the fastMeasurements below
@@ -114,13 +116,15 @@ class MuonDetLayerMeasurements {
   /// check that the event is set, and throw otherwise
   void checkEvent() const;
 
+  
+  edm::InputTag theDTRecHitLabel;
+  edm::InputTag theCSCRecHitLabel;
+  edm::InputTag theRPCRecHitLabel;
+
   bool enableDTMeasurement;
   bool enableCSCMeasurement;
   bool enableRPCMeasurement;
-
-  std::string theDTRecHitLabel;
-  std::string theCSCRecHitLabel;
-  std::string theRPCRecHitLabel;
+  
 
   const edm::Event* theEvent;   
 };

@@ -2,12 +2,12 @@
  *
  *  Implementation of QTestConfigure
  *
- *  $Date: 2007/11/08 10:44:40 $
- *  $Revision: 1.9 $
+ *  $Date: 2007/11/07 16:09:57 $
+ *  $Revision: 1.8 $
  *  \author Ilaria Segoni
  */
 #include "DQMServices/ClientConfig/interface/QTestConfigure.h"
-#include "DQMServices/Core/interface/QCriterionRoot.h"
+#include "DQMServices/QualityTests/interface/QCriterionRoot.h"
 
 bool QTestConfigure::enableTests(std::map<std::string, std::map<std::string, std::string> > tests,DaqMonitorBEInterface *bei){
 	

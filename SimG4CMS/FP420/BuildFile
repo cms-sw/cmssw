@@ -5,7 +5,6 @@
 <use name=SimG4Core/Application>
 <use name=SimG4CMS/Calo>
 <use name=SimDataFormats/SimHitMaker>
-<use name=DataFormats/GeometryVector>
 <use name=SimDataFormats/CaloHit>
 <use name=DetectorDescription/Core>
 <use name=FWCore/Framework>
@@ -14,6 +13,8 @@
 <use name=boost>
 <use name=geant4>
 <use name=root>
+<use name=clhep>
+
 
 <export>
  <lib name=SimG4CMSFP420>

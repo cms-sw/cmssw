@@ -9,7 +9,6 @@
 #include<vector>
 #include<algorithm>
 #include<boost/function.hpp>
-#include<boost/bind.hpp>
 
 template<typename DigiCollection>
 class TestEcalDigi: public CppUnit::TestFixture

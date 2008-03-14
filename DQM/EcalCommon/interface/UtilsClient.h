@@ -1,11 +1,11 @@
-// $Id: UtilsClient.h,v 1.10 2007/12/27 13:28:13 dellaric Exp $
+// $Id: UtilsClient.h,v 1.12 2008/02/15 14:28:50 dellaric Exp $
 
 /*!
   \file UtilsClient.h
   \brief Ecal Monitor Utils for Client
   \author B. Gobbo 
-  \version $Revision: 1.10 $
-  \date $Date: 2007/12/27 13:28:13 $
+  \version $Revision: 1.12 $
+  \date $Date: 2008/02/15 14:28:50 $
 */
 
 #ifndef UtilsClient_H
@@ -30,9 +30,9 @@ class UtilsClient {
 
   /*! \fn template<class T> static T getHisto( const MonitorElement* me, bool clone = false, T ret = 0 )
       \brief Returns the histogram contained by the Monitor Element
-      \param me Monitor Element.
-      \param clone (boolean) if true clone the histogram. 
-      \param ret in case of clonation delete the histogram first.
+      \param me Monitor Element
+      \param clone (boolean) if true clone the histogram 
+      \param ret in case of clonation delete the histogram first
    */
   template<class T> static T getHisto( const MonitorElement* me, bool clone = false, T ret = 0) {
     if( me ) {
@@ -122,11 +122,11 @@ class UtilsClient {
 
   /*! \fn template<class T> static bool getBinStats( const T* histo, const int ix, const int iy, float& num, float& mean, float& rms )
       \brief Returns true if the bin contains good statistical data
-      \param histo input ROOT histogram.
-      \param (ix, iy) input histogram's bin.
-      \param num bin's entries.
-      \param mean bins' mean.
-      \param rms bin's rms.
+      \param histo input ROOT histogram
+      \param (ix, iy) input histogram's bin
+      \param num bin's entries
+      \param mean bins' mean
+      \param rms bin's rms
    */
   template<class T> static bool getBinStats( const T* histo, const int ix, const int iy, float& num, float& mean, float& rms ) {
     num  = -1.; mean = -1.; rms  = -1.;
@@ -148,7 +148,7 @@ class UtilsClient {
 
   /*! \fn template<class T> static bool getBinQual( const T* histo, const int ix, const int iy )
       \brief Returns true if the bin quality is good or masked
-      \param histo input ROOT histogram.
+      \param histo input ROOT histogram
       \param (ix, iy) input histogram's bins
    */
   template<class T> static bool getBinQual( const T* histo, const int ix, const int iy ) {
@@ -158,6 +158,22 @@ class UtilsClient {
       if ( val == 1. || val >= 3 ) return true;
     }
     return false;
+  }
+
+  /*! static int getFirstNonEmptyChannel( TProfile2D* histo )
+      \brief Find the first non empty bin
+      \param histo input ROOT histogram
+   */
+  static int getFirstNonEmptyChannel( TProfile2D* histo ) {
+    if ( histo ) {
+      int ichannel = 1;
+      while ( ichannel <= histo->GetNbinsX() ) {
+        double counts = histo->GetBinContent(ichannel, 1);
+        if ( counts > 0 ) return( ichannel );
+        ichannel++;
+      }
+    }
+    return( 1 );
   }
 
  protected:

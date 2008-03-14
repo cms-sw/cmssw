@@ -1,8 +1,8 @@
 /*
  * \file EBClusterClient.cc
  *
- * $Date: 2008/01/17 09:34:41 $
- * $Revision: 1.49 $
+ * $Date: 2008/01/26 22:47:20 $
+ * $Revision: 1.53 $
  * \author G. Della Ricca
  * \author F. Cossutti
  * \author E. Di Marco
@@ -18,24 +18,9 @@
 #include "TStyle.h"
 #include "TGaxis.h"
 
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-
 #include "DQMServices/UI/interface/MonitorUIRoot.h"
 
-#include "OnlineDB/EcalCondDB/interface/RunTag.h"
-#include "OnlineDB/EcalCondDB/interface/RunIOV.h"
-#include "OnlineDB/EcalCondDB/interface/MonPedestalsOnlineDat.h"
-
-#include "OnlineDB/EcalCondDB/interface/EcalCondDBInterface.h"
-
-#include "CondTools/Ecal/interface/EcalErrorDictionary.h"
-
-#include "DQM/EcalCommon/interface/EcalErrorMask.h"
 #include "DQM/EcalCommon/interface/UtilsClient.h"
-#include "DQM/EcalCommon/interface/LogicID.h"
-#include "DQM/EcalCommon/interface/Numbers.h"
 
 #include <DQM/EcalBarrelMonitorClient/interface/EBClusterClient.h>
 
@@ -52,7 +37,7 @@ EBClusterClient::EBClusterClient(const ParameterSet& ps){
   verbose_ = ps.getUntrackedParameter<bool>("verbose", false);
 
   // enableMonitorDaemon_ switch
-  enableMonitorDaemon_ = ps.getUntrackedParameter<bool>("enableMonitorDaemon", true);
+  enableMonitorDaemon_ = ps.getUntrackedParameter<bool>("enableMonitorDaemon", false);
 
   // enableCleanup_ switch
   enableCleanup_ = ps.getUntrackedParameter<bool>("enableCleanup", false);
@@ -219,7 +204,7 @@ void EBClusterClient::analyze(void){
     if ( verbose_ ) cout << "EBClusterClient: ievt/jevt = " << ievt_ << "/" << jevt_ << endl;
   }
 
-  Char_t histo[200];
+  char histo[200];
 
   MonitorElement* me;
 
@@ -334,10 +319,6 @@ void EBClusterClient::htmlOutput(int run, string htmlDir, string htmlName){
   htmlFile << "<h2>Monitoring task:&nbsp;&nbsp;&nbsp;&nbsp; <span " << endl;
   htmlFile << " style=\"color: rgb(0, 0, 153);\">CLUSTER</span></h2> " << endl;
   htmlFile << "<hr>" << endl;
-  //  htmlFile << "<table border=1><tr><td bgcolor=red>channel has problems in this task</td>" << endl;
-  //  htmlFile << "<td bgcolor=lime>channel has NO problems</td>" << endl;
-  //  htmlFile << "<td bgcolor=yellow>channel is missing</td></table>" << endl;
-  //  htmlFile << "<hr>" << endl;
 
   htmlFile <<  "<a href=\"#bc_plots\"> Basic Clusters plots </a>" << endl;
   htmlFile << "<p>" << endl;

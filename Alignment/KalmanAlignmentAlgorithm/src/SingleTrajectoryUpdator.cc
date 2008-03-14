@@ -1,8 +1,6 @@
 
 #include "Alignment/KalmanAlignmentAlgorithm/interface/SingleTrajectoryUpdator.h"
-#include "Alignment/KalmanAlignmentAlgorithm/interface/KalmanAlignmentDataCollector.h"
-
-#include "Alignment/CommonAlignment/interface/Alignable.h"
+#include "Alignment/CommonAlignmentAlgorithm/interface/AlignmentParameterStore.h" 
 
 #include "Alignment/CommonAlignmentParametrization/interface/CompositeAlignmentDerivativesExtractor.h"
 
@@ -16,12 +14,7 @@ using namespace std;
 
 
 SingleTrajectoryUpdator::SingleTrajectoryUpdator( const edm::ParameterSet & config ) :
-  KalmanAlignmentUpdator( config )
-{
-  theExtraWeight = config.getUntrackedParameter< double >( "ExtraWeight", 1e-4 );
-  theExternalPredictionWeight = config.getUntrackedParameter< double >( "ExternalPredictionWeight", 1. );
-  theCovCheckFlag = config.getUntrackedParameter< bool >( "CheckCovariance", true );
-}
+  KalmanAlignmentUpdator( config ) {}
 
 
 SingleTrajectoryUpdator::~SingleTrajectoryUpdator( void ) {}
@@ -39,8 +32,6 @@ void SingleTrajectoryUpdator::process( const ReferenceTrajectoryPtr & trajectory
 
   vector< AlignableDetOrUnitPtr > currentAlignableDets = navigator->alignablesFromHits( ( *trajectory ).recHits() );
   vector< Alignable* > currentAlignables = alignablesFromAlignableDets( currentAlignableDets, store );
-
-  if ( currentAlignables.size() < theMinNumberOfHits ) return;
 
   delete timer;
   timer = new TimeMe( "Update_Metrics" );
@@ -71,17 +62,17 @@ void SingleTrajectoryUpdator::process( const ReferenceTrajectoryPtr & trajectory
   AlgebraicMatrix mixedAlignmentCov = alignmentParameters.covarianceSubset( additionalAlignables, currentAlignables );
   AlgebraicMatrix alignmentCovSubset = alignmentParameters.covarianceSubset( alignmentParameters.components(), currentAlignables );
 
-  CompositeAlignmentDerivativesExtractor extractor( currentAlignables, currentAlignableDets, trajectory->trajectoryStates() );
+  CompositeAlignmentDerivativesExtractor extractor( currentAlignables, currentAlignableDets, ( *trajectory ).trajectoryStates() );
   AlgebraicVector correctionTerm = extractor.correctionTerm();
   AlgebraicMatrix alignmentDeriv = extractor.derivatives();
   AlgebraicSymMatrix alignmentCov = currentAlignmentCov.similarity( alignmentDeriv );
 
-  AlgebraicVector allMeasurements = trajectory->measurements();
-  AlgebraicSymMatrix measurementCov = trajectory->measurementErrors();
-  AlgebraicVector referenceTrajectory = trajectory->trajectoryPositions();
-  AlgebraicMatrix derivatives = trajectory->derivatives();
+  AlgebraicVector allMeasurements = ( *trajectory ).measurements();
+  AlgebraicSymMatrix measurementCov = ( *trajectory ).measurementErrors();
+  AlgebraicVector referenceTrajectory = ( *trajectory ).trajectoryPositions();
+  AlgebraicMatrix derivatives = ( *trajectory ).derivatives();
 
-  measurementCov += theExtraWeight*AlgebraicSymMatrix( measurementCov.num_row(), 1 );
+  //measurementCov += 1e-4*AlgebraicSymMatrix( measurementCov.num_row(), 1 );
 
   delete timer;
   timer = new TimeMe( "Update_Algo" );
@@ -90,55 +81,29 @@ void SingleTrajectoryUpdator::process( const ReferenceTrajectoryPtr & trajectory
 
   int checkInversion = 0;
 
-  AlgebraicSymMatrix weightMatrix;
-  AlgebraicVector residuals;
-
-  if ( trajectory->parameterErrorsAvailable() ) // Make an update using an external prediction for the track parameters.
+  AlgebraicSymMatrix invMisalignedCov = misalignedCov.inverse( checkInversion );
+  if ( checkInversion != 0 )
   {
-    const AlgebraicSymMatrix& externalParamCov = trajectory->parameterErrors();
-    AlgebraicSymMatrix externalTrackCov = theExternalPredictionWeight*externalParamCov.similarity( derivatives );
-    AlgebraicSymMatrix fullCov = misalignedCov + externalTrackCov;
-
-    weightMatrix = fullCov.inverse( checkInversion );
-    if ( checkInversion != 0 )
-    {
-      cout << "[KalmanAlignment] WARNING: 'AlgebraicSymMatrix fullCov' not invertible." << endl;
-      return;
-    }
-
-    //const AlgebraicVector& trackParameters = trajectory->parameters();
-    //const AlgebraicVector& externalTrackParameters = trajectory->externalPrediction();
-    //AlgebraicVector trackCorrectionTerm = derivatives*( externalTrackParameters - trackParameters );
-    residuals = allMeasurements - referenceTrajectory - correctionTerm;// - trackCorrectionTerm;
+    cout << "[KalmanAlignment] WARNING: 'AlgebraicSymMatrix misalignedCov' not invertible." << endl;
+    return;
   }
-  else // No external prediction for the track parameters available --> give the track parameters weight 0.
+  AlgebraicSymMatrix limitCov1 = ( invMisalignedCov.similarityT( derivatives ) ).inverse( checkInversion );
+  if ( checkInversion != 0 )
   {
-    AlgebraicSymMatrix invMisalignedCov = misalignedCov.inverse( checkInversion );
-    if ( checkInversion != 0 )
-    {
-      cout << "[KalmanAlignment] WARNING: 'AlgebraicSymMatrix misalignedCov' not invertible." << endl;
-      return;
-    }
-    AlgebraicSymMatrix weightMatrix1 = ( invMisalignedCov.similarityT( derivatives ) ).inverse( checkInversion );
-    if ( checkInversion != 0 )
-    {
-      cout << "[KalmanAlignment] WARNING: 'AlgebraicSymMatrix weightMatrix1' not computed." << endl;
-      return;
-    }
-    AlgebraicSymMatrix weightMatrix2 = weightMatrix1.similarity( invMisalignedCov*derivatives );
-
-    weightMatrix = invMisalignedCov - weightMatrix2;
-    residuals = allMeasurements - referenceTrajectory - correctionTerm;
+    cout << "[KalmanAlignment] WARNING: 'AlgebraicSymMatrix limitCov1' not computed." << endl;
+    return;
   }
-
+  AlgebraicSymMatrix limitCov2 = limitCov1.similarity( invMisalignedCov*derivatives );
+  AlgebraicSymMatrix limitCov = invMisalignedCov - limitCov2;
   AlgebraicMatrix fullCovTimesDeriv = alignmentCovSubset*alignmentDeriv.T();
-  AlgebraicMatrix fullGainMatrix = fullCovTimesDeriv*weightMatrix;
+  AlgebraicMatrix fullGainMatrix = fullCovTimesDeriv*limitCov;
   AlgebraicMatrix covTimesDeriv = currentAlignmentCov*alignmentDeriv.T();
-  AlgebraicMatrix gainMatrix = covTimesDeriv*weightMatrix;
+  AlgebraicMatrix gainMatrix = covTimesDeriv*limitCov;
 
   // make updates for the kalman-filter
   // update of parameters
-  AlgebraicVector updatedAlignmentParameters = allAlignmentParameters + fullGainMatrix*residuals;
+  AlgebraicVector updatedAlignmentParameters =
+    allAlignmentParameters + fullGainMatrix*( allMeasurements - correctionTerm - referenceTrajectory );
 
   // update of covariance
   int nCRow = currentAlignmentCov.num_row();
@@ -146,14 +111,14 @@ void SingleTrajectoryUpdator::process( const ReferenceTrajectoryPtr & trajectory
 
   AlgebraicSymMatrix updatedAlignmentCov( nCRow + nARow );
 
-  AlgebraicMatrix gTimesDeriv = weightMatrix*alignmentDeriv;
+  AlgebraicMatrix gTimesDeriv = limitCov*alignmentDeriv;
   AlgebraicMatrix simMat = AlgebraicMatrix( nCRow, nCRow, 1 ) - covTimesDeriv*gTimesDeriv;
   AlgebraicSymMatrix updatedCurrentAlignmentCov = currentAlignmentCov.similarity( simMat ) + measurementCov.similarity( gainMatrix );
 
   AlgebraicMatrix mixedUpdateMat = simMat.T()*simMat.T() + measurementCov.similarity( gTimesDeriv.T() )*currentAlignmentCov;
   AlgebraicMatrix updatedMixedAlignmentCov = mixedAlignmentCov*mixedUpdateMat;
 
-  AlgebraicSymMatrix additionalUpdateMat = misalignedCov.similarity( gTimesDeriv.T() ) - 2.*weightMatrix.similarity( alignmentDeriv.T() );
+  AlgebraicSymMatrix additionalUpdateMat = misalignedCov.similarity( gTimesDeriv.T() ) - 2.*limitCov.similarity( alignmentDeriv.T() );
   AlgebraicSymMatrix updatedAdditionalAlignmentCov = additionalAlignmentCov + additionalUpdateMat.similarity( mixedAlignmentCov );
 
   for ( int nRow=0; nRow<nCRow; nRow++ )
@@ -171,6 +136,7 @@ void SingleTrajectoryUpdator::process( const ReferenceTrajectoryPtr & trajectory
     for ( int nCol=0; nCol<nCRow; nCol++ ) updatedAlignmentCov[nRow+nCRow][nCol] = updatedMixedAlignmentCov[nRow][nCol];
   }
 
+  if ( !checkCovariance( updatedAlignmentCov ) ) throw cms::Exception( "LogicError" );
 
   delete timer;
   timer = new TimeMe( "Clone_Parameters" );
@@ -184,8 +150,6 @@ void SingleTrajectoryUpdator::process( const ReferenceTrajectoryPtr & trajectory
 
   store->updateParameters( *updatedParameters );
   delete updatedParameters;
-
-  if ( !checkCovariance( updatedAlignmentCov ) ) throw cms::Exception( "BadLogic" );
 
   delete timer;
   timer = new TimeMe( "Update_UserVariables" );

@@ -2,8 +2,8 @@
  *
  *  Implementation of  QTestHandle
  *
- *  $Date: 2007/12/17 18:32:13 $
- *  $Revision: 1.6 $
+ *  $Date: 2007/09/06 13:21:57 $
+ *  $Revision: 1.4 $
  *  \author Ilaria Segoni
  */
 
@@ -13,7 +13,7 @@
 #include "DQMServices/ClientConfig/interface/QTestConfigure.h"
 #include "DQMServices/ClientConfig/interface/QTestStatusChecker.h"
 
-#include "DQMServices/Core/interface/MonitorUIRoot.h"
+#include "DQMServices/UI/interface/MonitorUIRoot.h"
 
 QTestHandle::QTestHandle(){
 	qtParser     = new QTestConfigurationParser();
@@ -62,6 +62,7 @@ void QTestHandle::attachTests(DaqMonitorBEInterface * bei){
 	          itr != mapMeToTests.end();++itr){   
 	    
 		std::string meName=itr->first;
+//		bei->subscribe(meName);
 		std::vector<std::string> tests=itr->second;
 		for(std::vector<std::string>::iterator testsItr=tests.begin(); 
 			testsItr!=tests.end(); ++testsItr){

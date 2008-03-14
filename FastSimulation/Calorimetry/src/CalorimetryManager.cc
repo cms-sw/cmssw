@@ -20,7 +20,11 @@
 #include "FastSimulation/Utilities/interface/GammaFunctionGenerator.h"
 #include "FastSimulation/Utilities/interface/LandauFluctuationGenerator.h"
 #include "DataFormats/HcalDetId/interface/HcalSubdetector.h"
-  
+#include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"  
+#include "DataFormats/HcalDetId/interface/HcalDetId.h"
+#include "DataFormats/EcalDetId/interface/EBDetId.h"
+#include "DataFormats/EcalDetId/interface/EEDetId.h"
+
 // STL headers 
 #include <vector>
 #include <iostream>
@@ -37,10 +41,13 @@ using namespace edm;
 typedef math::XYZVector XYZVector;
 typedef math::XYZVector XYZPoint;
 
+std::vector<std::pair<int,float> > CalorimetryManager::myZero_ = std::vector<std::pair<int,float> >
+(1,std::pair<int,float>(0,0.));
+
 CalorimetryManager::CalorimetryManager() : 
   myCalorimeter_(0),
   myHistos(0),
-  random(0)
+  random(0),initialized_(false)
 {;}
 
 CalorimetryManager::CalorimetryManager(FSimEvent * aSimEvent, 
@@ -48,7 +55,7 @@ CalorimetryManager::CalorimetryManager(FSimEvent * aSimEvent,
 				       const RandomEngine* engine)
   : 
   mySimEvent(aSimEvent), 
-  random(engine)
+  random(engine),initialized_(false)
 
 {
 
@@ -56,6 +63,26 @@ CalorimetryManager::CalorimetryManager(FSimEvent * aSimEvent,
   aGammaGenerator = new GammaFunctionGenerator(random);
 
   readParameters(fastCalo);
+
+//  EBMapping_.resize(62000,myZero_);
+//  EEMapping_.resize(20000,myZero_);
+//  HMapping_.resize(10000,myZero_);
+  EBMapping_.resize(62000);
+  EEMapping_.resize(20000);
+  HMapping_.resize(10000);
+  theDetIds_.resize(10000);
+
+  unsigned s=(unfoldedMode_)?5:1;
+  for(unsigned ic=0;ic<62000;++ic)
+    {
+      EBMapping_[ic].reserve(s);
+      if(ic<20000)
+	EEMapping_[ic].reserve(s);
+      if(ic<10000)
+	HMapping_[ic].reserve(s);
+    }
+  
+
 
   myHistos = 0; 
 #ifdef FAMOSDEBUG
@@ -84,6 +111,33 @@ CalorimetryManager::CalorimetryManager(FSimEvent * aSimEvent,
     new HSParameters(fastCalo.getParameter<edm::ParameterSet>("HSParameters"));
 }
 
+void CalorimetryManager::clean()
+{
+  unsigned size=firedCellsEB_.size();
+  for(unsigned ic=0;ic<size;++ic)
+    {
+      EBMapping_[firedCellsEB_[ic]].clear();
+    }
+  firedCellsEB_.clear();
+
+  size=firedCellsEE_.size();
+  for(unsigned ic=0;ic<size;++ic)
+    {
+      EEMapping_[firedCellsEE_[ic]].clear();
+    }
+  firedCellsEE_.clear();
+  
+  size=firedCellsHCAL_.size();
+  for(unsigned ic=0;ic<size;++ic)
+    {
+      HMapping_[firedCellsHCAL_[ic]].clear();
+    }
+  firedCellsHCAL_.clear();
+
+  ESMapping_.clear();
+
+}
+
 CalorimetryManager::~CalorimetryManager()
 {
 #ifdef FAMOSDEBUG
@@ -96,10 +150,22 @@ CalorimetryManager::~CalorimetryManager()
 void CalorimetryManager::reconstruct()
 {
   // Clear the content of the calorimeters 
-  EBMapping_.clear();
-  EEMapping_.clear();
-  ESMapping_.clear();
-  HMapping_.clear();
+  if(!initialized_)
+    {
+      const CaloSubdetectorGeometry* geom=myCalorimeter_->getHcalGeometry();
+      for(int subdetn=1;subdetn<=4;++subdetn)
+	{
+	  std::vector<DetId> ids=geom->getValidDetIds(DetId::Hcal,subdetn);  
+	  for (std::vector<DetId>::iterator i=ids.begin(); i!=ids.end(); i++) 
+	    {
+	      HcalDetId myDetId(*i);
+	      unsigned hi=myDetId.hashed_index();
+	      theDetIds_[hi]=myDetId;
+	    }
+	}
+      initialized_=true;
+    }
+  clean();
 
   LogInfo("FastCalorimetry") << "Reconstructing " << (int) mySimEvent->nTracks() << " tracks." << std::endl;
   for( int fsimi=0; fsimi < (int) mySimEvent->nTracks() ; ++fsimi) {
@@ -310,7 +376,13 @@ void CalorimetryManager::EMShowerSimulation(const FSimTrack& myTrack) {
   std::map<uint32_t,float>::const_iterator endmapitr=myGrid.getHits().end();
   for(mapitr=myGrid.getHits().begin();mapitr!=endmapitr;++mapitr)
     {
-      updateMap(mapitr->first,mapitr->second,(onEcal==1)?EBMapping_:EEMapping_);
+      if(onEcal==1)
+	{
+	  updateMap(EBDetId(mapitr->first).hashedIndex(), mapitr->second,myTrack.id(),EBMapping_,firedCellsEB_);
+	}
+	    
+      else if(onEcal==2)
+	updateMap(EEDetId(mapitr->first).hashedIndex(), mapitr->second,myTrack.id(),EEMapping_,firedCellsEE_);
       //      std::cout << " Adding " <<mapitr->first << " " << mapitr->second <<std::endl; 
     }
 
@@ -318,7 +390,7 @@ void CalorimetryManager::EMShowerSimulation(const FSimTrack& myTrack) {
   endmapitr=myHcalHitMaker.getHits().end();
   for(mapitr=myHcalHitMaker.getHits().begin();mapitr!=endmapitr;++mapitr)
     {
-      updateMap(mapitr->first,mapitr->second,HMapping_);
+      updateMap(HcalDetId(mapitr->first).hashed_index(),mapitr->second,myTrack.id(),HMapping_,firedCellsHCAL_);
       //      std::cout << " Adding " <<mapitr->first << " " << mapitr->second <<std::endl; 
     }
 
@@ -328,7 +400,7 @@ void CalorimetryManager::EMShowerSimulation(const FSimTrack& myTrack) {
       endmapitr=myPreshower->getHits().end();
       for(mapitr=myPreshower->getHits().begin();mapitr!=endmapitr;++mapitr)
 	{
-	  updateMap(mapitr->first,mapitr->second,ESMapping_);
+	  updateMap(mapitr->first,mapitr->second,myTrack.id(),ESMapping_);
 	  //      std::cout << " Adding " <<mapitr->first << " " << mapitr->second <<std::endl; 
 	}
       delete myPreshower;
@@ -421,7 +493,7 @@ void CalorimetryManager::reconstructECAL(const FSimTrack& track) {
   if( hit != 2  || emeas > 0.) 
     if(!detid.null()) 
       {
-	updateMap(detid.rawId(),emeas,HMapping_);
+	updateMap(hdetid.hashed_index(),emeas,track.id(),HMapping_,firedCellsHCAL_);
       }
 
 }
@@ -466,7 +538,10 @@ void CalorimetryManager::reconstructHCAL(const FSimTrack& myTrack)
       
       std::pair<double,double> response =
 	myHDResponse_->responseHCAL(EGen,pathEta,0); // 0=e/gamma
-      emeas = response.first;
+      e     = response.first;              //
+      sigma = response.second;             //
+      emeas = random->gaussShoot(e,sigma); //
+
       //  cout <<  "CalorimetryManager::reconstructHCAL - e/gamma !!!" << std::endl;
       if(debug_)
 	LogDebug("FastCalorimetry") << "CalorimetryManager::reconstructHCAL - e/gamma !!!" << std::endl;
@@ -490,7 +565,7 @@ void CalorimetryManager::reconstructHCAL(const FSimTrack& myTrack)
 
   if(emeas > 0.) {  
     DetId cell = myCalorimeter_->getClosestCell(trackPosition.Vect(),false,false);
-    updateMap(cell.rawId(), emeas, HMapping_);
+    updateMap(HcalDetId(cell).hashed_index(), emeas, myTrack.id(),HMapping_,firedCellsHCAL_);
   }
 }
 
@@ -660,7 +735,12 @@ void CalorimetryManager::HDShowerSimulation(const FSimTrack& myTrack)
 	  if(energy > 0.000001) { 
 	    //////////////////////////////////////////////////////////////////////////////
 	    // EBRYMapping=EBMapping_? EFRYMapping=EEMapping_????
-	    updateMap(mapitr->first,energy,(onECAL==1)?EBMapping_:EEMapping_);
+	    if(onECAL==1)
+		updateMap(EBDetId(mapitr->first).hashedIndex(),energy,myTrack.id(),EBMapping_,firedCellsEB_);
+
+	    else if(onECAL==2)
+	      updateMap(EEDetId(mapitr->first).hashedIndex(),energy,myTrack.id(),EEMapping_,firedCellsEE_);
+
 	    if(debug_)
 	      LogDebug("FastCalorimetry") << " ECAL cell " << mapitr->first << " added,  E = " 
 		   << energy << std::endl;  
@@ -671,7 +751,7 @@ void CalorimetryManager::HDShowerSimulation(const FSimTrack& myTrack)
       // Save HCAL hits
       endmapitr=myHcalHitMaker.getHits().end();
       for(mapitr=myHcalHitMaker.getHits().begin(); mapitr!=endmapitr; ++mapitr) {
-	updateMap(mapitr->first,mapitr->second,HMapping_);
+	updateMap(HcalDetId(mapitr->first).hashed_index(),mapitr->second,myTrack.id(),HMapping_,firedCellsHCAL_);
 	if(debug_)
 	  LogDebug("FastCalorimetry") << " HCAL cell "  
 	       << mapitr->first << " added    E = " 
@@ -686,7 +766,7 @@ void CalorimetryManager::HDShowerSimulation(const FSimTrack& myTrack)
       if(myTrack.onHcal() || myTrack.onVFcal())
 	{
 	  DetId cell = myCalorimeter_->getClosestCell(trackPosition.Vect(),false,false);
-	  updateMap(cell.rawId(),emeas,HMapping_);
+	  updateMap(HcalDetId(cell).hashed_index(),emeas,myTrack.id(),HMapping_,firedCellsHCAL_);
 	  if(debug_)
 	    LogDebug("FastCalorimetry") << " HCAL simple cell "   
 					<< cell.rawId() << " added    E = " 
@@ -755,36 +835,105 @@ void CalorimetryManager::readParameters(const edm::ParameterSet& fastCalo) {
   hdGridSize_ = HCALparameters.getParameter<int>("GridSize");
   hdSimMethod_ = HCALparameters.getParameter<int>("SimMethod");
   //RF
+
+  unfoldedMode_ = fastCalo.getUntrackedParameter<bool>("UnfoldedMode",false);
 }
 
 
-void CalorimetryManager::updateMap(uint32_t cellid,float energy,std::map<unsigned,float>& mymap)
+void CalorimetryManager::updateMap(uint32_t cellid,float energy,int id,std::map<uint32_t,std::vector<std::pair<int,float> > > & mymap)
 {
   //  std::cout << " updateMap " << std::endl;
-  std::map<unsigned,float>::iterator cellitr;
+  std::map<unsigned,std::vector<std::pair<int,float> > >::iterator cellitr;
   cellitr = mymap.find(cellid);
+  if(!unfoldedMode_) id=0;
   if( cellitr==mymap.end())
-    {
-      mymap.insert(std::pair<unsigned,float>(cellid,energy));
+    {      
+      std::vector<std::pair<int,float> > myElement;
+      myElement.push_back(std::pair<int,float> (id,energy));
+      mymap[cellid]=myElement;
     }
   else
     {
-      cellitr->second+=energy;
+      if(!unfoldedMode_)
+	{
+	  cellitr->second[0].second+=energy;
+	}
+      else
+	cellitr->second.push_back(std::pair<int,float>(id,energy));
     }
 }
 
-void CalorimetryManager::loadFromEcalBarrel(edm::PCaloHitContainer & c) const
+void CalorimetryManager::updateMap(int hi,float energy,int tid,std::vector<std::vector<std::pair<int,float> > > & mymap, std::vector<int>& firedCells)
 {
-  std::map<unsigned,float>::const_iterator cellit;
-  std::map<unsigned,float>::const_iterator barrelEnd=EBMapping_.end();
-  //  float sum=0.;
-  for(cellit=EBMapping_.begin();cellit!=barrelEnd;++cellit)
+  // Standard case first : one entry per cell 
+  if(!unfoldedMode_)
     {
-      // Add the PCaloHit. No time, no track number 
-      //      if(DetId(cellit->first).null()) std::cout << " PCaloHit. Ooops null " << std::endl;
-      c.push_back(PCaloHit(cellit->first,cellit->second,0.,0));
+      // if new entry, update the list 
+      if(mymap[hi].size()==0)
+	{
+	  firedCells.push_back(hi);
+	  mymap[hi].push_back(std::pair<int,float>(0,energy));
+	}
+      else
+	mymap[hi][0].second+=energy;
+    }
+  else
+    {
+      //      std::cout << "update map " << mymap[hi].size() << " " << hi << std::setw(8) << std::setprecision(6) <<  energy ;
+      //      std::cout << " " << mymap[hi][0].second << std::endl;
+      // the minimal size is always 1 ; in this case, no push_back 
+      if(mymap[hi].size()==0)
+	{
+	  //	  if(tid==0) std::cout << " Shit ! " << std::endl;
+	  firedCells.push_back(hi);
+	}
+
+      mymap[hi].push_back(std::pair<int,float>(tid,energy));
+    }
+  
+}
+
+void CalorimetryManager::loadFromEcalBarrel(edm::PCaloHitContainer & c) const
+{ 
+  unsigned size=firedCellsEB_.size();
+  //  float sum=0.;
+  for(unsigned ic=0;ic<size;++ic)
+    {
+      int hi=firedCellsEB_[ic];
+      if(!unfoldedMode_)
+	{
+	  c.push_back(PCaloHit(EBDetId::unhashIndex(hi),EBMapping_[hi][0].second,0.,0));
+	  //	  std::cout << "Adding " << hi << " " << EBDetId::unhashIndex(hi) << " " ;
+	  //	  std::cout << EBMapping_[hi][0].second << " " << EBMapping_[hi][0].first << std::endl;
+	}
+      else
+	{
+	  unsigned npart=EBMapping_[hi].size();
+	  for(unsigned ip=0;ip<npart;++ip)
+	    {
+	      c.push_back(PCaloHit(EBDetId::unhashIndex(hi),EBMapping_[hi][ip].second,0.,
+				   EBMapping_[hi][ip].first));
+
+	    }
+	}
+	
       //      sum+=cellit->second;
     }
+  
+//  for(unsigned ic=0;ic<61200;++ic) 
+//    { 
+//      EBDetId myCell(EBDetId::unhashIndex(ic)); 
+//      if(!myCell.null()) 
+//        { 
+//	  float total=0.;
+//	  for(unsigned id=0;id<EBMapping_[ic].size();++id)
+//	    total+=EBMapping_[ic][id].second;
+//	  if(EBMapping_[ic].size()>0)
+//	    std::cout << "Adding " << ic << " " << myCell << " " << std::setprecision(8) <<total << std::endl; 
+//        } 
+//    } 
+
+
   //  std::cout << " SUM : " << sum << std::endl;
   //  std::cout << " Added " <<c.size() << " hits " <<std::endl;
 }
@@ -792,39 +941,66 @@ void CalorimetryManager::loadFromEcalBarrel(edm::PCaloHitContainer & c) const
 
 void CalorimetryManager::loadFromEcalEndcap(edm::PCaloHitContainer & c) const
 {
-  std::map<unsigned,float>::const_iterator cellit;
-  std::map<unsigned,float>::const_iterator endcapEnd=EEMapping_.end();
-  
-  for(cellit=EEMapping_.begin();cellit!=endcapEnd;++cellit)
+  unsigned size=firedCellsEE_.size();
+  //  float sum=0.;
+  for(unsigned ic=0;ic<size;++ic)
     {
-      // Add the PCaloHit. No time, no track number 
-      //      if(DetId(cellit->first).null()) std::cout << " PCaloHit. Ooops null " << std::endl;
-      c.push_back(PCaloHit(cellit->first,cellit->second,0.,0));
+      int hi=firedCellsEE_[ic];
+      if(!unfoldedMode_)
+	c.push_back(PCaloHit(EEDetId::unhashIndex(hi),EEMapping_[hi][0].second,0.,0));
+      else
+	{
+	  unsigned npart=EEMapping_[hi].size();
+	  for(unsigned ip=0;ip<npart;++ip)
+	    c.push_back(PCaloHit(EEDetId::unhashIndex(hi),EEMapping_[hi][ip].second,0.,
+				 EEMapping_[hi][ip].first));
+	}
+	
+      //      sum+=cellit->second;
     }
+  //  std::cout << " SUM : " << sum << std::endl;
+  //  std::cout << " Added " <<c.size() << " hits " <<std::endl;
 }
 
 void CalorimetryManager::loadFromHcal(edm::PCaloHitContainer & c) const
 {
-  std::map<unsigned,float>::const_iterator cellit;
-  std::map<unsigned,float>::const_iterator hcalEnd=HMapping_.end();
-  
-  for(cellit=HMapping_.begin();cellit!=hcalEnd;++cellit)
+  unsigned size=firedCellsHCAL_.size();
+  //  float sum=0.;
+  for(unsigned ic=0;ic<size;++ic)
     {
-      // Add the PCaloHit. No time, no track number
-      //      if(DetId(cellit->first).null()) std::cout << " PCaloHit. Ooops null " << std::endl;
-      c.push_back(PCaloHit(cellit->first,cellit->second,0.,0));
+      int hi=firedCellsHCAL_[ic];
+      if(!unfoldedMode_)
+	c.push_back(PCaloHit(theDetIds_[hi],HMapping_[hi][0].second,0.,0));
+      else
+	{
+	  unsigned npart=HMapping_[hi].size();
+	  for(unsigned ip=0;ip<npart;++ip)
+	    c.push_back(PCaloHit(theDetIds_[hi],HMapping_[hi][ip].second,0.,
+				 HMapping_[hi][ip].first));
+	}
+	
+      //      sum+=cellit->second;
     }
+  //  std::cout << " SUM : " << sum << std::endl;
+  //  std::cout << " Added " <<c.size() << " hits " <<std::endl;
 }
 
 void CalorimetryManager::loadFromPreshower(edm::PCaloHitContainer & c) const
 {
-  std::map<unsigned,float>::const_iterator cellit;
-  std::map<unsigned,float>::const_iterator preshEnd=ESMapping_.end();
+  std::map<uint32_t,std::vector<std::pair< int,float> > >::const_iterator cellit;
+  std::map<uint32_t,std::vector<std::pair <int,float> > >::const_iterator preshEnd=ESMapping_.end();
   
   for(cellit=ESMapping_.begin();cellit!=preshEnd;++cellit)
     {
-      // Add the PCaloHit. No time, no track number
-      //      if(DetId(cellit->first).null()) std::cout << " PCaloHit. Ooops null " << std::endl;
-      c.push_back(PCaloHit(cellit->first,cellit->second,0.,0));
+      if(!unfoldedMode_)	
+	c.push_back(PCaloHit(cellit->first,cellit->second[0].second,0.,0));
+      else
+	{
+	  unsigned npart=cellit->second.size();
+	  for(unsigned ip=0;ip<npart;++ip)
+	    {
+	      c.push_back(PCaloHit(cellit->first,cellit->second[ip].second,0.,cellit->second[ip].first));
+	    }
+	}
     }
 }

@@ -1,3 +1,45 @@
+2008-03-14  Emilio Meschi  <emilio.meschi@cern.ch>
+
+	* tag V00-09-06
+	* default broker to use TCS partition-dependent trigger number
+
+2008-03-14  Emilio Meschi  <emilio.meschi@cern.ch>
+
+	* tag V00-09-05
+	* timeout when processKiller disabled now generates info message
+
+2008-03-12  Philipp SCHIEFERDECKER  <philipp.schieferdecker@cern.ch>
+
+	* tag V00-09-04
+	* do not increment counters within debug messages (reported by
+	Kurt)
+
+2008-02-27  Emilio Meschi  <emilio.meschi@cern.ch>
+
+	* tag V00-09-03
+	* introduced boolean parameter to switch off process killing
+	* set application hyperdaq icon to new location
+
+2008-02-20  Philipp SCHIEFERDECKER  <philipp.schieferdecker@cern.ch>
+
+	* tag V00-09-02
+	* fix bug spotted by Gerry: doFedIdCheck wouldn't be properly
+	propageted to FUResource.
+
+2008-02-13  Philipp SCHIEFERDECKER  <philipp.schieferdecker@cern.ch>
+
+	* tag V00-09-01
+	* fix bug spotted by Kurt
+
+2008-01-26  Philipp SCHIEFERDECKER  <philipp.schieferdecker@cern.ch>
+
+	* tag V00-09-00
+	* FUResourceTable::handleErrorEvent() added, used
+	FUShmBuffer::writeErrorEventData() to transport raw events
+	directamente to the storage manager
+	* SMProxy et al include new parameter 'outModId' for the sending of
+	regular event data
+
 2008-01-19  Philipp SCHIEFERDECKER  <philipp.schieferdecker@cern.ch>
 
 	* tag V00-08-01

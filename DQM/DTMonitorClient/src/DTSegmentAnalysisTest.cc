@@ -3,8 +3,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2007/11/29 13:34:45 $
- *  $Revision: 1.1 $
+ *  $Date: 2007/11/27 14:40:34 $
+ *  $Revision: 1.15 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -215,7 +215,7 @@ string DTSegmentAnalysisTest::getMEName(const DTChamberId & chID, string histoTa
 
 void DTSegmentAnalysisTest::bookHistos(int wh) {
   
-  dbe->setCurrentFolder("DT/Tests/DTSegmentAnalysisTest/SummaryPlot");
+  dbe->setCurrentFolder("DT/Test/DTSegmentAnalysisTest/SummaryPlot");
 
   if(wheelHistos.find(3) == wheelHistos.end()){
     string histoName =  "chi2Summary_testFailedByAtLeast%BadCH";

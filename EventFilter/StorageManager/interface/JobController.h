@@ -1,10 +1,11 @@
 #ifndef HLT_JOB_CNTLER_HPP
 #define HLT_JOB_CNTLER_HPP
-// $Id: JobController.h,v 1.16 2007/04/26 00:58:17 hcheung Exp $
+// $Id: JobController.h,v 1.17 2007/05/16 22:53:45 hcheung Exp $
 
 #include "EventFilter/StorageManager/interface/FragmentCollector.h"
 #include "EventFilter/StorageManager/interface/EventServer.h"
 #include "EventFilter/StorageManager/interface/DQMEventServer.h"
+#include "EventFilter/StorageManager/interface/InitMsgCollection.h"
 
 #include "IOPool/Streamer/interface/EventBuffer.h"
 #include "IOPool/Streamer/interface/EventMessage.h"
@@ -56,6 +57,13 @@ namespace stor
     }
     boost::shared_ptr<DQMEventServer>& getDQMEventServer() { return DQMeventServer_; }
 
+    void setInitMsgCollection(boost::shared_ptr<InitMsgCollection>& imColl)
+    {
+      if (collector_.get() != NULL) collector_->setInitMsgCollection(imColl);
+      initMsgCollection_ = imColl;
+    }
+    boost::shared_ptr<InitMsgCollection>& getInitMsgCollection() { return initMsgCollection_; }
+
     void setNumberOfFileSystems(int disks)    { collector_->setNumberOfFileSystems(disks); }
     void setFileCatalog(std::string catalog)  { collector_->setFileCatalog(catalog); }
     void setSourceId(std::string sourceId)    { collector_->setSourceId(sourceId); }
@@ -80,6 +88,7 @@ namespace stor
     boost::shared_ptr<FragmentCollector> collector_;
     boost::shared_ptr<EventServer> eventServer_;
     boost::shared_ptr<DQMEventServer> DQMeventServer_;
+    boost::shared_ptr<InitMsgCollection> initMsgCollection_;
 
     boost::shared_ptr<boost::thread> me_;
   };

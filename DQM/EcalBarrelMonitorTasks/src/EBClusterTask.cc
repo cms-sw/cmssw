@@ -1,8 +1,8 @@
 /*
  * \file EBClusterTask.cc
  *
- * $Date: 2008/01/11 06:55:10 $
- * $Revision: 1.44 $
+ * $Date: 2008/01/22 20:10:51 $
+ * $Revision: 1.48 $
  * \author G. Della Ricca
  * \author E. Di Marco
  *
@@ -11,21 +11,13 @@
 #include <iostream>
 #include <fstream>
 #include <vector>
+#include <math.h>
 
-#include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
-#include "DQMServices/Daemon/interface/MonitorDaemon.h"
 
-#include "DataFormats/EcalRawData/interface/EcalRawDataCollections.h"
-#include "DataFormats/EcalDetId/interface/EBDetId.h"
-#include "DataFormats/EcalDigi/interface/EBDataFrame.h"
-#include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
-#include "DataFormats/EcalRecHit/interface/EcalUncalibratedRecHit.h"
-#include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 #include "DataFormats/EgammaReco/interface/BasicCluster.h"
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
 #include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
@@ -37,7 +29,7 @@
 
 #include <DQM/EcalBarrelMonitorTasks/interface/EBClusterTask.h>
 
-#include <TLorentzVector.h>
+#include "TLorentzVector.h"
 
 using namespace cms;
 using namespace edm;
@@ -109,7 +101,7 @@ void EBClusterTask::setup(void){
 
   init_ = true;
 
-  Char_t histo[200];
+  char histo[200];
 
   if ( dbe_ ) {
     dbe_->setCurrentFolder("EcalBarrel/EBClusterTask");
@@ -353,7 +345,7 @@ void EBClusterTask::analyze(const Event& e, const EventSetup& c){
 
   if ( e.getByLabel(SuperClusterCollection_, pSuperClusters) ) {
 
-    Int_t nscc = pSuperClusters->size();
+    int nscc = pSuperClusters->size();
     if ( nscc > 0 ) meSCNum_->Fill(float(nscc));
 
     Handle<BasicClusterShapeAssociationCollection> pClusterShapeAssociation;

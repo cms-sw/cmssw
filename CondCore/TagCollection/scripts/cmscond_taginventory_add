@@ -6,6 +6,7 @@ import coral
 from CondCore.TagCollection import Node,tagInventory
 def stripws(myinput):
     result=('').join(myinput.split(' '))
+    result=('').join(result.split('\n'))
     return result
 def converttagdata(value):
     mytagdata={}

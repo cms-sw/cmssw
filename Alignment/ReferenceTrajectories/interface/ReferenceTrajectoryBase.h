@@ -4,7 +4,7 @@
 /**
  * Author     : Gero Flucke (based on code for ORCA by Edmund Widl)
  * date       : 2006/09/17
- * last update: $Date: 2007/12/18 14:58:01 $
+ * last update: $Date: 2007/12/20 17:28:56 $
  * by         : $Author: ewidl $
  *
  * Base class for reference 'trajectories' of single- or multiparticles
@@ -100,21 +100,28 @@ public:
    */
   const AlgebraicVector& parameters() const { return theParameters; }
 
-  /** Returns the covariance matrix of the 'track'-parameters.
+  /** Returns true if the covariance matrix of the 'track'-parameters is set.
    */
   inline bool parameterErrorsAvailable() const { return theParamCovFlag; }
 
+  /** Set the covariance matrix of the 'track'-parameters.
+   */
   inline void setParameterErrors( const AlgebraicSymMatrix& error ) { theParameterCov = error; theParamCovFlag = true; }
 
+  /** Returns the covariance matrix of the 'track'-parameters.
+   */
   inline const AlgebraicSymMatrix& parameterErrors() const { return theParameterCov; }
 
   /** Returns the Tsos at the surfaces of the hits, parallel to recHits()
    */
   const std::vector<TrajectoryStateOnSurface>& trajectoryStates() const { return theTsosVec; }
+
   /** Returns the TransientTrackingRecHits (as ConstRecHitPointer's), 
       order might depend on concrete implementation of inheriting class
    */
   const TransientTrackingRecHit::ConstRecHitContainer& recHits() const { return theRecHits; }
+
+  inline int numberOfHits() const { return theNumberOfHits; }
 
   virtual ReferenceTrajectoryBase* clone() const = 0;
 

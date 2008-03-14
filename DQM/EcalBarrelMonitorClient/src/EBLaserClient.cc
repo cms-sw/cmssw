@@ -1,8 +1,8 @@
 /*
  * \file EBLaserClient.cc
  *
- * $Date: 2008/01/17 09:34:41 $
- * $Revision: 1.209 $
+ * $Date: 2008/02/15 15:26:37 $
+ * $Revision: 1.216 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -17,15 +17,8 @@
 #include "TCanvas.h"
 #include "TStyle.h"
 
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
-
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-
 #include "DQMServices/UI/interface/MonitorUIRoot.h"
 
-#include "OnlineDB/EcalCondDB/interface/RunTag.h"
-#include "OnlineDB/EcalCondDB/interface/RunIOV.h"
 #include "OnlineDB/EcalCondDB/interface/MonLaserBlueDat.h"
 #include "OnlineDB/EcalCondDB/interface/MonLaserGreenDat.h"
 #include "OnlineDB/EcalCondDB/interface/MonLaserIRedDat.h"
@@ -61,7 +54,7 @@ EBLaserClient::EBLaserClient(const ParameterSet& ps){
   verbose_ = ps.getUntrackedParameter<bool>("verbose", false);
 
   // enableMonitorDaemon_ switch
-  enableMonitorDaemon_ = ps.getUntrackedParameter<bool>("enableMonitorDaemon", true);
+  enableMonitorDaemon_ = ps.getUntrackedParameter<bool>("enableMonitorDaemon", false);
 
   // enableCleanup_ switch
   enableCleanup_ = ps.getUntrackedParameter<bool>("enableCleanup", false);
@@ -279,7 +272,7 @@ void EBLaserClient::endRun(void) {
 
 void EBLaserClient::setup(void) {
 
-  Char_t histo[200];
+  char histo[200];
 
   dbe_->setCurrentFolder( "EcalBarrel/EBLaserClient" );
 
@@ -1082,7 +1075,7 @@ bool EBLaserClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIO
 
         if ( update01 || update02 ) {
 
-          if ( ie == 1 && ip == 1 ) {
+          if ( Numbers::icEB(ism, ie, ip) == 1 ) {
 
             cout << "Preparing dataset for " << Numbers::sEB(ism) << " (ism=" << ism << ")" << endl;
 
@@ -1109,19 +1102,15 @@ bool EBLaserClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIO
           int ic = Numbers::indexEB(ism, ie, ip);
 
           if ( econn ) {
-            try {
-              ecid = LogicID::getEcalLogicID("EB_crystal_number", Numbers::iSM(ism, EcalBarrel), ic);
-              dataset1_bl[ecid] = apd_bl;
-            } catch (runtime_error &e) {
-              cerr << e.what() << endl;
-            }
+            ecid = LogicID::getEcalLogicID("EB_crystal_number", Numbers::iSM(ism, EcalBarrel), ic);
+            dataset1_bl[ecid] = apd_bl;
           }
 
         }
 
         if ( update09 || update10 ) {
 
-          if ( ie == 1 && ip == 1 ) {
+          if ( Numbers::icEB(ism, ie, ip) == 1 ) {
 
             cout << "Preparing dataset for " << Numbers::sEB(ism) << " (ism=" << ism << ")" << endl;
 
@@ -1148,19 +1137,15 @@ bool EBLaserClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIO
           int ic = Numbers::indexEB(ism, ie, ip);
 
           if ( econn ) {
-            try {
-              ecid = LogicID::getEcalLogicID("EB_crystal_number", Numbers::iSM(ism, EcalBarrel), ic);
-              dataset1_bl[ecid] = apd_bl;
-            } catch (runtime_error &e) {
-              cerr << e.what() << endl;
-            }
+            ecid = LogicID::getEcalLogicID("EB_crystal_number", Numbers::iSM(ism, EcalBarrel), ic);
+            dataset1_bl[ecid] = apd_bl;
           }
 
         }
 
         if ( update03 || update04 ) {
 
-          if ( ie == 1 && ip == 1 ) {
+          if ( Numbers::icEB(ism, ie, ip) == 1 ) {
 
             cout << "Preparing dataset for " << Numbers::sEB(ism) << " (ism=" << ism << ")" << endl;
 
@@ -1187,19 +1172,15 @@ bool EBLaserClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIO
           int ic = Numbers::indexEB(ism, ie, ip);
 
           if ( econn ) {
-            try {
-              ecid = LogicID::getEcalLogicID("EB_crystal_number", Numbers::iSM(ism, EcalBarrel), ic);
-              dataset1_ir[ecid] = apd_ir;
-            } catch (runtime_error &e) {
-              cerr << e.what() << endl;
-            }
+            ecid = LogicID::getEcalLogicID("EB_crystal_number", Numbers::iSM(ism, EcalBarrel), ic);
+            dataset1_ir[ecid] = apd_ir;
           }
 
         }
 
         if ( update11 || update12 ) {
 
-          if ( ie == 1 && ip == 1 ) {
+          if ( Numbers::icEB(ism, ie, ip) == 1 ) {
 
             cout << "Preparing dataset for " << Numbers::sEB(ism) << " (ism=" << ism << ")" << endl;
 
@@ -1226,19 +1207,15 @@ bool EBLaserClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIO
           int ic = Numbers::indexEB(ism, ie, ip);
 
           if ( econn ) {
-            try {
-              ecid = LogicID::getEcalLogicID("EB_crystal_number", Numbers::iSM(ism, EcalBarrel), ic);
-              dataset1_ir[ecid] = apd_ir;
-            } catch (runtime_error &e) {
-              cerr << e.what() << endl;
-            }
+            ecid = LogicID::getEcalLogicID("EB_crystal_number", Numbers::iSM(ism, EcalBarrel), ic);
+            dataset1_ir[ecid] = apd_ir;
           }
 
         }
 
         if ( update05 || update06 ) {
 
-          if ( ie == 1 && ip == 1 ) {
+          if ( Numbers::icEB(ism, ie, ip) == 1 ) {
 
             cout << "Preparing dataset for " << Numbers::sEB(ism) << " (ism=" << ism << ")" << endl;
 
@@ -1265,19 +1242,15 @@ bool EBLaserClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIO
           int ic = Numbers::indexEB(ism, ie, ip);
 
           if ( econn ) {
-            try {
-              ecid = LogicID::getEcalLogicID("EB_crystal_number", Numbers::iSM(ism, EcalBarrel), ic);
-              dataset1_gr[ecid] = apd_gr;
-            } catch (runtime_error &e) {
-              cerr << e.what() << endl;
-            }
+            ecid = LogicID::getEcalLogicID("EB_crystal_number", Numbers::iSM(ism, EcalBarrel), ic);
+            dataset1_gr[ecid] = apd_gr;
           }
 
         }
 
         if ( update13 || update14 ) {
 
-          if ( ie == 1 && ip == 1 ) {
+          if ( Numbers::icEB(ism, ie, ip) == 1 ) {
 
             cout << "Preparing dataset for " << Numbers::sEB(ism) << " (ism=" << ism << ")" << endl;
 
@@ -1304,19 +1277,15 @@ bool EBLaserClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIO
           int ic = Numbers::indexEB(ism, ie, ip);
 
           if ( econn ) {
-            try {
-              ecid = LogicID::getEcalLogicID("EB_crystal_number", Numbers::iSM(ism, EcalBarrel), ic);
-              dataset1_gr[ecid] = apd_gr;
-            } catch (runtime_error &e) {
-              cerr << e.what() << endl;
-            }
+            ecid = LogicID::getEcalLogicID("EB_crystal_number", Numbers::iSM(ism, EcalBarrel), ic);
+            dataset1_gr[ecid] = apd_gr;
           }
 
         }
 
         if ( update07 || update08 ) {
 
-          if ( ie == 1 && ip == 1 ) {
+          if ( Numbers::icEB(ism, ie, ip) == 1 ) {
 
             cout << "Preparing dataset for " << Numbers::sEB(ism) << " (ism=" << ism << ")" << endl;
 
@@ -1343,19 +1312,15 @@ bool EBLaserClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIO
           int ic = Numbers::indexEB(ism, ie, ip);
 
           if ( econn ) {
-            try {
-              ecid = LogicID::getEcalLogicID("EB_crystal_number", Numbers::iSM(ism, EcalBarrel), ic);
-              dataset1_rd[ecid] = apd_rd;
-            } catch (runtime_error &e) {
-              cerr << e.what() << endl;
-            }
+            ecid = LogicID::getEcalLogicID("EB_crystal_number", Numbers::iSM(ism, EcalBarrel), ic);
+            dataset1_rd[ecid] = apd_rd;
           }
 
         }
 
         if ( update15 || update16 ) {
 
-          if ( ie == 1 && ip == 1 ) {
+          if ( Numbers::icEB(ism, ie, ip) == 1 ) {
 
             cout << "Preparing dataset for " << Numbers::sEB(ism) << " (ism=" << ism << ")" << endl;
 
@@ -1382,12 +1347,8 @@ bool EBLaserClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIO
           int ic = Numbers::indexEB(ism, ie, ip);
 
           if ( econn ) {
-            try {
-              ecid = LogicID::getEcalLogicID("EB_crystal_number", Numbers::iSM(ism, EcalBarrel), ic);
-              dataset1_rd[ecid] = apd_rd;
-            } catch (runtime_error &e) {
-              cerr << e.what() << endl;
-            }
+            ecid = LogicID::getEcalLogicID("EB_crystal_number", Numbers::iSM(ism, EcalBarrel), ic);
+            dataset1_rd[ecid] = apd_rd;
           }
 
         }
@@ -1399,7 +1360,7 @@ bool EBLaserClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIO
 
   if ( econn ) {
     try {
-      cout << "Inserting MonLaserDat ... " << flush;
+      cout << "Inserting MonLaserDat ..." << endl;
       if ( dataset1_bl.size() != 0 ) econn->insertDataArraySet(&dataset1_bl, moniov);
       if ( dataset1_ir.size() != 0 ) econn->insertDataArraySet(&dataset1_ir, moniov);
       if ( dataset1_gr.size() != 0 ) econn->insertDataArraySet(&dataset1_gr, moniov);
@@ -1524,12 +1485,8 @@ bool EBLaserClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIO
                              UtilsClient::getBinQual(meg09_[ism-1], i, 1) );
 
         if ( econn ) {
-          try {
-            ecid = LogicID::getEcalLogicID("EB_LM_PN", Numbers::iSM(ism, EcalBarrel), i-1);
-            dataset2_bl[ecid] = pn_bl;
-          } catch (runtime_error &e) {
-            cerr << e.what() << endl;
-          }
+          ecid = LogicID::getEcalLogicID("EB_LM_PN", Numbers::iSM(ism, EcalBarrel), i-1);
+          dataset2_bl[ecid] = pn_bl;
         }
 
       }
@@ -1570,12 +1527,8 @@ bool EBLaserClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIO
                              UtilsClient::getBinQual(meg10_[ism-1], i, 1) );
 
         if ( econn ) {
-          try {
-            ecid = LogicID::getEcalLogicID("EB_LM_PN", Numbers::iSM(ism, EcalBarrel), i-1);
-            dataset2_ir[ecid] = pn_ir;
-          } catch (runtime_error &e) {
-            cerr << e.what() << endl;
-          }
+          ecid = LogicID::getEcalLogicID("EB_LM_PN", Numbers::iSM(ism, EcalBarrel), i-1);
+          dataset2_ir[ecid] = pn_ir;
         }
 
       }
@@ -1616,12 +1569,8 @@ bool EBLaserClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIO
                              UtilsClient::getBinQual(meg11_[ism-1], i, 1) );
 
         if ( econn ) {
-          try {
-            ecid = LogicID::getEcalLogicID("EB_LM_PN", Numbers::iSM(ism, EcalBarrel), i-1);
-            dataset2_gr[ecid] = pn_gr;
-          } catch (runtime_error &e) {
-            cerr << e.what() << endl;
-          }
+          ecid = LogicID::getEcalLogicID("EB_LM_PN", Numbers::iSM(ism, EcalBarrel), i-1);
+          dataset2_gr[ecid] = pn_gr;
         }
 
       }
@@ -1662,12 +1611,8 @@ bool EBLaserClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIO
                              UtilsClient::getBinQual(meg12_[ism-1], i, 1) );
 
         if ( econn ) {
-          try {
-            ecid = LogicID::getEcalLogicID("EB_LM_PN", Numbers::iSM(ism, EcalBarrel), i-1);
-            dataset2_rd[ecid] = pn_rd;
-          } catch (runtime_error &e) {
-            cerr << e.what() << endl;
-          }
+          ecid = LogicID::getEcalLogicID("EB_LM_PN", Numbers::iSM(ism, EcalBarrel), i-1);
+          dataset2_rd[ecid] = pn_rd;
         }
 
       }
@@ -1678,7 +1623,7 @@ bool EBLaserClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIO
 
   if ( econn ) {
     try {
-      cout << "Inserting MonPnDat ... " << flush;
+      cout << "Inserting MonPnDat ..." << endl;
       if ( dataset2_bl.size() != 0 ) econn->insertDataArraySet(&dataset2_bl, moniov);
       if ( dataset2_ir.size() != 0 ) econn->insertDataArraySet(&dataset2_ir, moniov);
       if ( dataset2_gr.size() != 0 ) econn->insertDataArraySet(&dataset2_gr, moniov);
@@ -1731,7 +1676,7 @@ void EBLaserClient::analyze(void){
   EcalErrorMask::fetchDataSet(&mask1);
   EcalErrorMask::fetchDataSet(&mask2);
 
-  Char_t histo[200];
+  char histo[200];
 
   MonitorElement* me;
 
@@ -2623,7 +2568,7 @@ void EBLaserClient::analyze(void){
 
             int ic = Numbers::indexEB(ism, ie, ip);
 
-            if ( ecid.getID1() == Numbers::iSM(ism, EcalBarrel) && ecid.getID2() == ic ) {
+            if ( ecid.getLogicID() == LogicID::getEcalLogicID("EB_crystal_number", Numbers::iSM(ism, EcalBarrel), ic).getLogicID() ) {
               if ( (m->second).getErrorBits() & bits01 ) {
                 if ( meg01_[ism-1] ) {
                   float val = int(meg01_[ism-1]->getBinContent(ie, ip)) % 3;
@@ -2847,7 +2792,7 @@ void EBLaserClient::analyze(void){
 
           EcalLogicID ecid = m->first;
 
-          if ( ecid.getID1() == Numbers::iSM(ism, EcalBarrel) && ecid.getID2() == i-1 ) {
+          if ( ecid.getLogicID() == LogicID::getEcalLogicID("EB_LM_PN", Numbers::iSM(ism, EcalBarrel), i-1).getLogicID() ) {
             if ( (m->second).getErrorBits() & (bits01|bits02) ) {
               if ( meg05_[ism-1] ) {
                 float val = int(meg05_[ism-1]->getBinContent(i, 1)) % 3;
@@ -2906,43 +2851,51 @@ void EBLaserClient::analyze(void){
     for ( int i = 1; i <= 10; i++ ) {
 
       if ( hs01_[ism-1] ) {
-        me_hs01_[ism-1]->setBinContent( i, hs01_[ism-1]->GetBinContent(1, i) );
-        me_hs01_[ism-1]->setBinError( i, hs01_[ism-1]->GetBinError(1, i) );
+        int ic = UtilsClient::getFirstNonEmptyChannel( hs01_[ism-1] );
+        me_hs01_[ism-1]->setBinContent( i, hs01_[ism-1]->GetBinContent(ic, i) );
+        me_hs01_[ism-1]->setBinError( i, hs01_[ism-1]->GetBinError(ic, i) );
       }
 
       if ( hs02_[ism-1] ) {
-        me_hs02_[ism-1]->setBinContent( i, hs02_[ism-1]->GetBinContent(1, i) );
-        me_hs02_[ism-1]->setBinError( i, hs02_[ism-1]->GetBinError(1, i) );
+        int ic = UtilsClient::getFirstNonEmptyChannel( hs02_[ism-1] );
+        me_hs02_[ism-1]->setBinContent( i, hs02_[ism-1]->GetBinContent(ic, i) );
+        me_hs02_[ism-1]->setBinError( i, hs02_[ism-1]->GetBinError(ic, i) );
       }
 
       if ( hs03_[ism-1] ) {
-        me_hs03_[ism-1]->setBinContent( i, hs03_[ism-1]->GetBinContent(1, i) );
-        me_hs03_[ism-1]->setBinError( i, hs03_[ism-1]->GetBinError(1, i) );
+        int ic = UtilsClient::getFirstNonEmptyChannel( hs03_[ism-1] );
+        me_hs03_[ism-1]->setBinContent( i, hs03_[ism-1]->GetBinContent(ic, i) );
+        me_hs03_[ism-1]->setBinError( i, hs03_[ism-1]->GetBinError(ic, i) );
       }
 
       if ( hs04_[ism-1] ) {
-        me_hs04_[ism-1]->setBinContent( i, hs04_[ism-1]->GetBinContent(1, i) );
-        me_hs04_[ism-1]->setBinError( i, hs04_[ism-1]->GetBinError(1, i) );
+        int ic = UtilsClient::getFirstNonEmptyChannel( hs04_[ism-1] );
+        me_hs04_[ism-1]->setBinContent( i, hs04_[ism-1]->GetBinContent(ic, i) );
+        me_hs04_[ism-1]->setBinError( i, hs04_[ism-1]->GetBinError(ic, i) );
       }
 
       if ( hs05_[ism-1] ) {
-        me_hs05_[ism-1]->setBinContent( i, hs05_[ism-1]->GetBinContent(1681, i) );
-        me_hs05_[ism-1]->setBinError( i, hs05_[ism-1]->GetBinError(1681, i) );
+        int ic = UtilsClient::getFirstNonEmptyChannel( hs05_[ism-1] );
+        me_hs05_[ism-1]->setBinContent( i, hs05_[ism-1]->GetBinContent(ic, i) );
+        me_hs05_[ism-1]->setBinError( i, hs05_[ism-1]->GetBinError(ic, i) );
       }
 
       if ( hs06_[ism-1] ) {
-        me_hs06_[ism-1]->setBinContent( i, hs06_[ism-1]->GetBinContent(1681, i) );
-        me_hs06_[ism-1]->setBinError( i, hs06_[ism-1]->GetBinError(1681, i) );
+        int ic = UtilsClient::getFirstNonEmptyChannel( hs06_[ism-1] );
+        me_hs06_[ism-1]->setBinContent( i, hs06_[ism-1]->GetBinContent(ic, i) );
+        me_hs06_[ism-1]->setBinError( i, hs06_[ism-1]->GetBinError(ic, i) );
       }
 
       if ( hs07_[ism-1] ) {
-        me_hs07_[ism-1]->setBinContent( i, hs07_[ism-1]->GetBinContent(1681, i) );
-        me_hs07_[ism-1]->setBinError( i, hs07_[ism-1]->GetBinError(1681, i) );
+        int ic = UtilsClient::getFirstNonEmptyChannel( hs07_[ism-1] );
+        me_hs07_[ism-1]->setBinContent( i, hs07_[ism-1]->GetBinContent(ic, i) );
+        me_hs07_[ism-1]->setBinError( i, hs07_[ism-1]->GetBinError(ic, i) );
       }
 
       if ( hs08_[ism-1] ) {
-        me_hs08_[ism-1]->setBinContent( i, hs08_[ism-1]->GetBinContent(1681, i) );
-        me_hs08_[ism-1]->setBinError( i, hs08_[ism-1]->GetBinError(1681, i) );
+        int ic = UtilsClient::getFirstNonEmptyChannel( hs08_[ism-1] );
+        me_hs08_[ism-1]->setBinContent( i, hs08_[ism-1]->GetBinContent(ic, i) );
+        me_hs08_[ism-1]->setBinError( i, hs08_[ism-1]->GetBinError(ic, i) );
       }
 
     }

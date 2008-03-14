@@ -5,8 +5,8 @@
  *  Description:
  *       Class to hold configuration identifier for chambers
  *
- *  $Date: 2007/11/24 12:29:51 $
- *  $Revision: 1.1.2.1 $
+ *  $Date: 2007/12/07 15:12:15 $
+ *  $Revision: 1.2 $
  *  \author Paolo Ronchese INFN Padova
  *
  */
@@ -99,7 +99,8 @@ class DTConfigHandler {
   int cachedStringNumber;
   int cachedByteNumber;
 
-  typedef std::map<unsigned int,DTConfigHandler*> handler_map;
+//  typedef std::map<unsigned int,DTConfigHandler*> handler_map;
+  typedef std::map<const DTDBSession*,DTConfigHandler*> handler_map;
   typedef handler_map::const_iterator c_map_iter;
   typedef handler_map::iterator         map_iter;
   static handler_map handlerMap;

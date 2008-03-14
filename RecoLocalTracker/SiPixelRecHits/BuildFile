@@ -9,7 +9,6 @@
 <use name=DataFormats/DetId>
 <use name=DataFormats/Common>
 <use name=CondFormats/SiPixelObjects>
-<use name=CondTools/SiPixel>
 <use name=Geometry/CommonDetUnit>
 <use name=Geometry/TrackerGeometryBuilder>
 <use name=Geometry/TrackerTopology>

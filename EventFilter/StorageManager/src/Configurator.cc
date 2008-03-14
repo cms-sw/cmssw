@@ -1,5 +1,5 @@
 // Created by Markus Klute on 2007 Jan 29.
-// $Id:$
+// $Id: Configurator.cc,v 1.1 2007/02/05 11:19:57 klute Exp $
 
 #include <EventFilter/StorageManager/interface/Configurator.h>
 
@@ -8,31 +8,24 @@ using stor::Parameter;
 using boost::shared_ptr;
 using std::string;
 
-Configurator *insta = 0;
+shared_ptr<Configurator> Configurator::theInstance_;
+boost::mutex Configurator::singletonLock_;
 
 Configurator::Configurator()
 {
-  param = shared_ptr<Parameter>(new Parameter());
+  param_ = shared_ptr<Parameter>(new Parameter());
 }
 
-
-Configurator *Configurator::instance()
-{ // not thread save
-  if (insta == 0) insta = new Configurator();
-  return insta;
+shared_ptr<Configurator> Configurator::instance()
+{
+  boost::mutex::scoped_lock sl(singletonLock_);
+  if (theInstance_.get() == NULL) {
+    theInstance_.reset(new Configurator());
+  }
+  return theInstance_;
 }
 
-
-void Configurator::instance(Configurator *anInstance)
-{ // not thread save
-  delete insta;
-  insta = anInstance;
+shared_ptr<Parameter> Configurator::getParameter()
+{
+  return param_;
 }
-
-
-shared_ptr<Parameter> &Configurator::getParameter() 
-{ 
-  return param;
-}
-
-

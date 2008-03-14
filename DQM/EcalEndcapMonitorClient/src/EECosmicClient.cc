@@ -1,8 +1,8 @@
 /*
  * \file EECosmicClient.cc
  *
- * $Date: 2008/01/17 09:34:42 $
- * $Revision: 1.37 $
+ * $Date: 2008/02/14 11:15:43 $
+ * $Revision: 1.48 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -18,21 +18,12 @@
 #include "TGraph.h"
 #include "TLine.h"
 
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-
 #include "DQMServices/UI/interface/MonitorUIRoot.h"
 
-#include "OnlineDB/EcalCondDB/interface/RunTag.h"
-#include "OnlineDB/EcalCondDB/interface/RunIOV.h"
 #include "OnlineDB/EcalCondDB/interface/MonOccupancyDat.h"
 
 #include "OnlineDB/EcalCondDB/interface/EcalCondDBInterface.h"
 
-#include "CondTools/Ecal/interface/EcalErrorDictionary.h"
-
-#include "DQM/EcalCommon/interface/EcalErrorMask.h"
 #include "DQM/EcalCommon/interface/UtilsClient.h"
 #include "DQM/EcalCommon/interface/LogicID.h"
 #include "DQM/EcalCommon/interface/Numbers.h"
@@ -52,7 +43,7 @@ EECosmicClient::EECosmicClient(const ParameterSet& ps){
   verbose_ = ps.getUntrackedParameter<bool>("verbose", false);
 
   // enableMonitorDaemon_ switch
-  enableMonitorDaemon_ = ps.getUntrackedParameter<bool>("enableMonitorDaemon", true);
+  enableMonitorDaemon_ = ps.getUntrackedParameter<bool>("enableMonitorDaemon", false);
 
   // enableCleanup_ switch
   enableCleanup_ = ps.getUntrackedParameter<bool>("enableCleanup", false);
@@ -72,10 +63,12 @@ EECosmicClient::EECosmicClient(const ParameterSet& ps){
     h01_[ism-1] = 0;
     h02_[ism-1] = 0;
     h03_[ism-1] = 0;
+    h04_[ism-1] = 0;
 
     meh01_[ism-1] = 0;
     meh02_[ism-1] = 0;
     meh03_[ism-1] = 0;
+    meh04_[ism-1] = 0;
 
   }
 
@@ -139,15 +132,18 @@ void EECosmicClient::cleanup(void) {
       if ( h01_[ism-1] ) delete h01_[ism-1];
       if ( h02_[ism-1] ) delete h02_[ism-1];
       if ( h03_[ism-1] ) delete h03_[ism-1];
+      if ( h04_[ism-1] ) delete h04_[ism-1];
     }
 
     h01_[ism-1] = 0;
     h02_[ism-1] = 0;
     h03_[ism-1] = 0;
+    h04_[ism-1] = 0;
 
     meh01_[ism-1] = 0;
     meh02_[ism-1] = 0;
     meh03_[ism-1] = 0;
+    meh04_[ism-1] = 0;
 
   }
 
@@ -211,12 +207,12 @@ bool EECosmicClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunI
 
         if ( update_channel ) {
 
-          if ( ix == 1 && iy == 1 ) {
+          if ( Numbers::icEE(ism, jx, jy) == 1 ) {
 
             cout << "Preparing dataset for " << Numbers::sEE(ism) << " (ism=" << ism << ")" << endl;
 
-            cout << "Sel (" << ix << "," << iy << ") " << num01  << " " << mean01 << " " << rms01  << endl;
-            cout << "Cut (" << ix << "," << iy << ") " << num02  << " " << mean02 << " " << rms02  << endl;
+            cout << "Sel (" << Numbers::ix0EE(i+1)+ix << "," << Numbers::iy0EE(i+1)+iy << ") " << num01  << " " << mean01 << " " << rms01  << endl;
+            cout << "Cut (" << Numbers::ix0EE(i+1)+ix << "," << Numbers::iy0EE(i+1)+iy << ") " << num02  << " " << mean02 << " " << rms02  << endl;
 
             cout << endl;
 
@@ -227,17 +223,13 @@ bool EECosmicClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunI
 
           o.setAvgEnergy(mean01);
 
-          int ic = Numbers::indexEE(ism, ix, iy);
+          int ic = Numbers::indexEE(ism, jx, jy);
 
           if ( ic == -1 ) continue;
 
           if ( econn ) {
-            try {
-              ecid = LogicID::getEcalLogicID("EE_crystal_number", Numbers::iSM(ism, EcalEndcap), ic);
-              dataset[ecid] = o;
-            } catch (runtime_error &e) {
-              cerr << e.what() << endl;
-            }
+            ecid = LogicID::getEcalLogicID("EE_crystal_number", Numbers::iSM(ism, EcalEndcap), ic);
+            dataset[ecid] = o;
           }
 
         }
@@ -249,7 +241,7 @@ bool EECosmicClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunI
 
   if ( econn ) {
     try {
-      cout << "Inserting MonOccupancyDat ... " << flush;
+      cout << "Inserting MonOccupancyDat ..." << endl;
       if ( dataset.size() != 0 ) econn->insertDataArraySet(&dataset, moniov);
       cout << "done." << endl;
     } catch (runtime_error &e) {
@@ -269,7 +261,7 @@ void EECosmicClient::analyze(void){
     if ( verbose_ ) cout << "EECosmicClient: ievt/jevt = " << ievt_ << "/" << jevt_ << endl;
   }
 
-  Char_t histo[200];
+  char histo[200];
 
   MonitorElement* me;
 
@@ -287,10 +279,15 @@ void EECosmicClient::analyze(void){
     h02_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, h02_[ism-1] );
     meh02_[ism-1] = me;
 
-    sprintf(histo, (prefixME_+"EcalEndcap/EECosmicTask/Spectrum/EECT energy spectrum %s").c_str(), Numbers::sEE(ism).c_str());
+    sprintf(histo, (prefixME_+"EcalEndcap/EECosmicTask/Spectrum/EECT 1x1 energy spectrum %s").c_str(), Numbers::sEE(ism).c_str());
     me = dbe_->get(histo);
     h03_[ism-1] = UtilsClient::getHisto<TH1F*>( me, cloneME_, h03_[ism-1] );
     meh03_[ism-1] = me;
+
+    sprintf(histo, (prefixME_+"EcalEndcap/EECosmicTask/Spectrum/EECT 3x3 energy spectrum %s").c_str(), Numbers::sEE(ism).c_str());
+    me = dbe_->get(histo);
+    h04_[ism-1] = UtilsClient::getHisto<TH1F*>( me, cloneME_, h04_[ism-1] );
+    meh04_[ism-1] = me;
 
   }
 
@@ -352,7 +349,7 @@ void EECosmicClient::htmlOutput(int run, string htmlDir, string htmlName){
   labelGrid.SetMarkerSize(1);
   labelGrid.SetMinimum(0.1);
 
-  string imgNameME[3], imgName, meName;
+  string imgNameME[4], imgName, meName;
 
   TCanvas* cMe = new TCanvas("cMe", "Temp", 2*csize, 2*csize);
   TCanvas* cAmp = new TCanvas("cAmp", "Temp", csize, csize);
@@ -360,7 +357,7 @@ void EECosmicClient::htmlOutput(int run, string htmlDir, string htmlName){
   TProfile2D* objp;
   TH1F* obj1f;
 
-  // Loop on barrel supermodules
+  // Loop on endcap sectors
 
   for ( unsigned int i=0; i<superModules_.size(); i ++ ) {
 
@@ -463,6 +460,37 @@ void EECosmicClient::htmlOutput(int run, string htmlDir, string htmlName){
 
     }
 
+    imgNameME[3] = "";
+
+    obj1f = h04_[ism-1];
+
+    if ( obj1f ) {
+
+      meName = obj1f->GetName();
+
+      for ( unsigned int i = 0; i < meName.size(); i++ ) {
+        if ( meName.substr(i, 1) == " " )  {
+          meName.replace(i, 1 ,"_" );
+        }
+      }
+      imgNameME[3] = meName + ".png";
+      imgName = htmlDir + imgNameME[3];
+
+      cAmp->cd();
+      gStyle->SetOptStat("euomr");
+      obj1f->SetStats(kTRUE);
+      if ( obj1f->GetMaximum(histMax) > 0. ) {
+        gPad->SetLogy(1);
+      } else {
+        gPad->SetLogy(0);
+      }
+      obj1f->Draw();
+      cAmp->Update();
+      cAmp->SaveAs(imgName.c_str());
+      gPad->SetLogy(0);
+
+    }
+
     if( i>0 ) htmlFile << "<a href=""#top"">Top</a>" << std::endl;
     htmlFile << "<hr>" << std::endl;
     htmlFile << "<h3><a name="""
@@ -489,10 +517,14 @@ void EECosmicClient::htmlOutput(int run, string htmlDir, string htmlName){
     htmlFile << "cellpadding=\"10\" align=\"center\"> " << endl;
     htmlFile << "<tr align=\"center\">" << endl;
 
-    if ( imgNameME[2].size() != 0 )
-      htmlFile << "<td colspan=\"2\"><img src=\"" << imgNameME[2] << "\"></td>" << endl;
-    else
-      htmlFile << "<td colspan=\"2\"><img src=\"" << " " << "\"></td>" << endl;
+    for ( int iCanvas = 3 ; iCanvas <= 4 ; iCanvas++ ) {
+
+      if ( imgNameME[iCanvas-1].size() != 0 )
+        htmlFile << "<td colspan=\"2\"><img src=\"" << imgNameME[iCanvas-1] << "\"></td>" << endl;
+      else
+        htmlFile << "<td colspan=\"2\"><img src=\"" << " " << "\"></td>" << endl;
+
+    }
 
     htmlFile << "</tr>" << endl;
     htmlFile << "</table>" << endl;

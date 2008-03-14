@@ -2,17 +2,13 @@
 <use name=boost>
 <use name=FWCore/Framework>
 <use name=SimDataFormats/HepMCProduct>
-<use name=SimDataFormats/HiGenData>
 <use name=GeneratorInterface/PyquenInterface>
-
-<lib name=g2c></lib>
-<lib name=m></lib>
+<use name=f77compiler>
 
 <export>
  <lib name=GeneratorInterfaceHydjetInterface>
  <use name=hepmc>
  <use name=FWCore/Framework>
  <use name=SimDataFormats/HepMCProduct>
- <use name=SimDataFormats/HiGenData>
  <use name=GeneratorInterface/PyquenInterface>
 </export>
