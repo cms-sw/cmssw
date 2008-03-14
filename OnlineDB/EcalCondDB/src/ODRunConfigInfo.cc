@@ -27,33 +27,7 @@ ODRunConfigInfo::ODRunConfigInfo()
 ODRunConfigInfo::~ODRunConfigInfo(){}
 
 
-void ODRunConfigInfo::setID(int id){ m_ID = id;  }
-int ODRunConfigInfo::getID(){ return m_ID ;  }
 
-//
-Tm ODRunConfigInfo::getDBTime() const{  return m_db_time;}
-//
-void ODRunConfigInfo::setTag(std::string x) {
-  if (x != m_tag) {
-    m_ID = 0;
-    m_tag = x;
-  }
-}
-std::string ODRunConfigInfo::getTag() const{  return m_tag;}
-//
-void ODRunConfigInfo::setDescription(std::string x) { m_description = x;}
-std::string ODRunConfigInfo::getDescription() const{  return m_description;}
-//
-void ODRunConfigInfo::setVersion(int x){ 
-  if (x != m_version) {
-    m_ID = 0;
-    m_version = x;
-  }
-}
-int ODRunConfigInfo::getVersion()const {return m_version;  }
-//
-void ODRunConfigInfo::setNumberOfSequences(int n){ m_num_seq = n;  }
-int ODRunConfigInfo::getNumberOfSequences()const {return m_num_seq;  }
 //
 RunTypeDef ODRunConfigInfo::getRunTypeDef() const {  return m_runTypeDef;}
 void ODRunConfigInfo::setRunTypeDef(const RunTypeDef runTypeDef)
@@ -75,8 +49,6 @@ void ODRunConfigInfo::setRunModeDef(const RunModeDef runModeDef)
 //
 
 
-
-
 int ODRunConfigInfo::fetchID()
   throw(runtime_error)
 {
@@ -94,7 +66,7 @@ int ODRunConfigInfo::fetchID()
     Statement* stmt = m_conn->createStatement();
     stmt->setSQL("SELECT config_id from ECAL_RUN_CONFIGURATION_DAT "
 		 "WHERE tag = :tag " 
-		 " and version = :version) " );
+		 " and version = :version " );
     stmt->setString(1, m_tag);
     stmt->setInt(2, m_version);
 
@@ -152,9 +124,6 @@ int ODRunConfigInfo::fetchIDFromTagAndVersion()
 
 
 
-
-
-
 void ODRunConfigInfo::setByID(int id) 
   throw(std::runtime_error)
 {
@@ -167,7 +136,8 @@ void ODRunConfigInfo::setByID(int id)
    try {
      Statement* stmt = m_conn->createStatement();
 
-     stmt->setSQL("SELECT tag, version, run_type_def_id, run_mode_def_id, num_of_sequences, description, db_timestamp FROM ECAL_CONFIGURATION_DAT WHERE config_id = :1");
+     stmt->setSQL("SELECT tag, version, run_type_def_id, run_mode_def_id, num_of_sequences, description, db_timestamp"
+		  " FROM ECAL_RUN_CONFIGURATION_DAT WHERE config_id = :1");
      stmt->setInt(1, id);
      
      ResultSet* rset = stmt->executeQuery();
@@ -195,20 +165,33 @@ void ODRunConfigInfo::setByID(int id)
    }
 }
 
-
-
-int ODRunConfigInfo::writeDB()
+void ODRunConfigInfo::prepareWrite()
   throw(runtime_error)
 {
   this->checkConnection();
+
+  try {
+    m_writeStmt = m_conn->createStatement();
+    m_writeStmt->setSQL("INSERT INTO ECAL_RUN_CONFIGURATION_DAT ( tag, version, run_type_def_id, "
+		 " run_mode_def_id, num_of_sequences, description ) "
+		 " VALUES (:1, :2, :3 , :4, :5, :6 )");
+  } catch (SQLException &e) {
+    throw(runtime_error("ODRunConfigInfo::prepareWrite():  "+e.getMessage()));
+  }
+}
+
+
+void ODRunConfigInfo::writeDB()
+  throw(runtime_error)
+{
+  this->checkConnection();
+  this->checkPrepare();
 
   // Validate the data, use infinity-till convention
   DateHandler dh(m_env, m_conn);
 
   try {
     
-
-
     // get the run mode
     m_runModeDef.setConnection(m_env, m_conn);
     int run_mode_id = m_runModeDef.fetchID();
@@ -217,35 +200,26 @@ int ODRunConfigInfo::writeDB()
     m_runTypeDef.setConnection(m_env, m_conn);
     int run_type_id = m_runTypeDef.fetchID();
 
-
     // now insert 
-    Statement* stmt = m_conn->createStatement();
-    
-    stmt->setSQL("INSERT INTO ECAL_RUN_CONFIGURATION_DAT ( tag, version, run_type_def_id, run_mode_def_id, num_of_sequences, description ) "
-		 "VALUES (:1, :2, :3 , :4, :5, :6 )");
 
-    stmt->setString(1, m_tag );
-    stmt->setInt(2, m_version);
-    stmt->setInt(3, run_type_id);
-    stmt->setInt(4, run_mode_id);
-    stmt->setInt(5, m_num_seq);
-    stmt->setString(6, m_description );
+    m_writeStmt->setString(1, this->getTag());
+    m_writeStmt->setInt(2, this->getVersion());
+    m_writeStmt->setInt(3, run_type_id);
+    m_writeStmt->setInt(4, run_mode_id);
+    m_writeStmt->setInt(5, this->getNumberOfSequences());
+    m_writeStmt->setString(6, this->getDescription());
 
-    stmt->executeUpdate();
-
-    m_conn->terminateStatement(stmt);
-
-    int ii=m_ID;
-    setByID(ii);
-    // this is to recover also the time info 
-
+    m_writeStmt->executeUpdate();
 
   } catch (SQLException &e) {
     throw(runtime_error("ODRunConfigInfo::writeDB:  "+e.getMessage()));
   }
+  // Now get the ID
+  if (!this->fetchID()) {
+    throw(runtime_error("ODRunConfigInfo::writeDB  Failed to write"));
+  }
 
   cout<< "ODRunConfigInfo::writeDB>> done inserting ODRunConfigInfo with id="<<m_ID<<endl;
-  return m_ID;
 }
 
 

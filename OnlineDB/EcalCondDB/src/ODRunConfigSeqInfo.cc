@@ -11,7 +11,11 @@ using namespace oracle::occi;
 
 ODRunConfigSeqInfo::ODRunConfigSeqInfo()
 {
+  m_env = NULL;
   m_conn = NULL;
+  m_writeStmt = NULL;
+  m_readStmt = NULL;
+
   m_ID = 0;
   //
   m_ecal_config_id =0;
@@ -21,28 +25,13 @@ ODRunConfigSeqInfo::ODRunConfigSeqInfo()
   m_description="";
 }
 
-
-
 ODRunConfigSeqInfo::~ODRunConfigSeqInfo(){}
 
-
-void ODRunConfigSeqInfo::setID(int id){ m_ID = id;  }
-int ODRunConfigSeqInfo::getID(){ return m_ID ;  }
-
-void ODRunConfigSeqInfo::setDescription(std::string x) { m_description = x;}
-std::string ODRunConfigSeqInfo::getDescription() const{  return m_description;}
-//
-void ODRunConfigSeqInfo::setNumberOfCycles(int n){ m_cycles = n;  }
-int ODRunConfigSeqInfo::getNumberOfCycles()const {return m_cycles;  }
-//
-void ODRunConfigSeqInfo::setSequenceNumber(int n){ m_seq_num = n;  }
-int ODRunConfigSeqInfo::getSequenceNumber()const {return m_seq_num;  }
 //
 RunSeqDef ODRunConfigSeqInfo::getRunSeqDef() const {  return m_run_seq;}
 void ODRunConfigSeqInfo::setRunSeqDef(const RunSeqDef run_seq)
 {
   if (run_seq != m_run_seq) {
-    m_ID = 0;
     m_run_seq = run_seq;
   }
 }
@@ -129,7 +118,7 @@ void ODRunConfigSeqInfo::setByID(int id)
    try {
      Statement* stmt = m_conn->createStatement();
 
-     stmt->setSQL("SELECT ecal_config_id, sequence_num, num_of_cycles, sequence_type_def, description FROM ECAL_sequence_DAT WHERE sequence_id = :1 ");
+     stmt->setSQL("SELECT ecal_config_id, sequence_num, num_of_cycles, sequence_type_def_id, description FROM ECAL_sequence_DAT WHERE sequence_id = :1 ");
      stmt->setInt(1, id);
      
      ResultSet* rset = stmt->executeQuery();
@@ -138,7 +127,7 @@ void ODRunConfigSeqInfo::setByID(int id)
        m_seq_num=rset->getInt(2);
        m_cycles=rset->getInt(3);
        int seq_def_id=rset->getInt(4);
-       m_description= rset->getString(6);
+       m_description= rset->getString(5);
        m_ID = id;
        m_run_seq.setConnection(m_env, m_conn);
        m_run_seq.setByID(seq_def_id);
@@ -151,62 +140,95 @@ void ODRunConfigSeqInfo::setByID(int id)
    }
 }
 
-
-
-int ODRunConfigSeqInfo::writeDB()
+void ODRunConfigSeqInfo::prepareWrite()
   throw(runtime_error)
 {
   this->checkConnection();
+
+  try {
+    m_writeStmt = m_conn->createStatement();
+    m_writeStmt->setSQL("INSERT INTO ECAL_SEQUENCE_DAT ( ecal_config_id, "
+			"sequence_num, num_of_cycles, sequence_type_def_id, description ) "
+			"VALUES (:1, :2, :3 , :4, :5 )");
+  } catch (SQLException &e) {
+    throw(runtime_error("ODCCSConfig::prepareWrite():  "+e.getMessage()));
+  }
+}
+void ODRunConfigSeqInfo::writeDB()
+  throw(runtime_error)
+{
+  this->checkConnection();
+  this->checkPrepare();
+
+
 
   // Validate the data, use infinity-till convention
   DateHandler dh(m_env, m_conn);
 
   try {
-    /*
-    // in case we need to reserve an ID 
-    Statement* stmtq = m_conn->createStatement();
-    stmtq->setSQL("SELECT ecal_sequence_dat_sq.NextVal FROM dual "	);
-    ResultSet* rsetq = stmtq->executeQuery();
-    if (rsetq->next()) {
-    m_ID = rsetq->getInt(1);
-    } else {
-    m_ID = 0;
-    }
-    m_conn->terminateStatement(stmtq);
-    
-    cout<< "ODRunConfigSeqInfo::writeDB>> going to use id "<<m_ID<<endl;
-    */
 
     // get the run mode
     m_run_seq.setConnection(m_env, m_conn);
     int seq_def_id = m_run_seq.fetchID();
 
-    // now insert 
-    Statement* stmt = m_conn->createStatement();
-    stmt->setSQL("INSERT INTO ECAL_SEQUENCE_DAT ( ecal_config_id, sequence_num, num_of_cycles, sequence_type_def, description ) "
-     "VALUES (:1, :2, :3 , :4, :5 )");
-   
-    stmt->setInt(1, m_ecal_config_id );
-    stmt->setInt(2, m_seq_num);
-    stmt->setInt(3, m_cycles);
-    stmt->setInt(4, seq_def_id);
-    stmt->setString(5, m_description );
+    m_writeStmt->setInt(1, this->getEcalConfigId());
+    m_writeStmt->setInt(2, this->getSequenceNumber());
+    m_writeStmt->setInt(3, this->getNumberOfCycles());
+    m_writeStmt->setInt(4,seq_def_id );
+    m_writeStmt->setString(5,this->getDescription() );
 
-    stmt->executeUpdate();
+    m_writeStmt->executeUpdate();
 
-    m_conn->terminateStatement(stmt);
-
-    fetchID();
-
-
-  } catch (SQLException &e) {
-    throw(runtime_error("ODRunConfigSeqInfo::writeDB:  "+e.getMessage()));
+   } catch (SQLException &e) {
+    throw(runtime_error("ODRunConfigSeqInfo::writeDB():  "+e.getMessage()));
   }
-
+  if (!this->fetchID()) {
+    throw(runtime_error("ODRunConfigSeqInfo::writeDB:  Failed to write"));
+  }
   cout<< "ODRunConfigSeqInfo::writeDB>> done inserting ODRunConfigSeqInfo with id="<<m_ID<<endl;
-  return m_ID;
+
 }
 
 
+void ODRunConfigSeqInfo::clear(){
+  m_ecal_config_id =0;
+  m_seq_num =0;
+  m_cycles =0;
+  m_run_seq = RunSeqDef();
+  m_description="";
+}
 
 
+void ODRunConfigSeqInfo::fetchData(ODRunConfigSeqInfo * result)
+  throw(runtime_error)
+{
+  this->checkConnection();
+  result->clear();
+  if(result->getId()==0){
+    throw(runtime_error("ODRunConfigSeqInfo::fetchData(): no Id defined for this record "));
+  }
+
+  try {
+    
+    m_readStmt->setSQL("SELECT ecal_config_id, sequence_num, num_of_cycles, "
+		       "sequence_type_def_id, description FROM ECAL_sequence_DAT WHERE sequence_id = :1 ");
+    
+    m_readStmt->setInt(1, result->getId());
+    ResultSet* rset = m_readStmt->executeQuery();
+    
+    rset->next();
+    
+    result->setEcalConfigId(       rset->getInt(1) );
+    result->setSequenceNumber(        rset->getInt(2) );
+    result->setNumberOfCycles(         rset->getInt(3) );
+    int seq_def_id=rset->getInt(4);
+
+    m_run_seq.setConnection(m_env, m_conn);
+    m_run_seq.setByID(seq_def_id);
+    result->setDescription(   rset->getString(5) );
+    
+    
+  } catch (SQLException &e) {
+    throw(runtime_error("ODRunConfigSeqInfo::fetchData():  "+e.getMessage()));
+  }
+}

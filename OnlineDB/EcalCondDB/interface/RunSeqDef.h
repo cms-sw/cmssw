@@ -20,6 +20,13 @@ class RunSeqDef : public IDef {
   // Methods for user data
   std::string getRunSeq() const;
   void setRunSeq(std::string runseq);
+
+  RunTypeDef getRunTypeDef() const;
+  void setRunTypeDef(const RunTypeDef runTypeDef);
+
+
+
+
   
   // Methods from IUniqueDBObject
   int fetchID() throw(std::runtime_error);

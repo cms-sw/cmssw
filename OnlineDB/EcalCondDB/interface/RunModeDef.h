@@ -20,7 +20,7 @@ class RunModeDef : public IDef {
   std::string getRunMode() const;
   void setRunMode(std::string runmode);
   
-  std::string getDescription() const;
+
 
   // Methods from IUniqueDBObject
   int fetchID() throw(std::runtime_error);
@@ -33,7 +33,7 @@ class RunModeDef : public IDef {
  protected:
   // User data for this def
   std::string m_runMode;
-  std::string m_desc;
+
 
   void fetchAllDefs( std::vector<RunModeDef>* fillVec) throw(std::runtime_error);
 };

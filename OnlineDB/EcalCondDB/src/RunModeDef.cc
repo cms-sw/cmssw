@@ -12,7 +12,7 @@ RunModeDef::RunModeDef()
   m_conn = NULL;
   m_ID = 0;
   m_runMode = "";
-  m_desc = "";
+
 }
 
 
@@ -40,10 +40,6 @@ void RunModeDef::setRunMode(string runmode)
 
 
 
-string RunModeDef::getDescription() const
-{
-  return m_desc;
-}
 
 
   
@@ -59,8 +55,8 @@ int RunModeDef::fetchID()
   
   try {
     Statement* stmt = m_conn->createStatement();
-    stmt->setSQL("SELECT def_id FROM run_mode_def WHERE "
-		 "run_mode   = :1"
+    stmt->setSQL("SELECT def_id FROM ecal_run_mode_def WHERE "
+		 "run_mode_string   = :1"
 		 );
     stmt->setString(1, m_runMode);
 
@@ -89,13 +85,12 @@ void RunModeDef::setByID(int id)
   try {
     Statement* stmt = m_conn->createStatement();
 
-    stmt->setSQL("SELECT run_mode, description FROM run_mode_def WHERE def_id = :1");
+    stmt->setSQL("SELECT run_mode_string FROM ecal_run_mode_def WHERE def_id = :1");
     stmt->setInt(1, id);
 
     ResultSet* rset = stmt->executeQuery();
     if (rset->next()) {
       m_runMode = rset->getString(1);
-      m_desc = rset->getString(2);
     } else {
       throw(runtime_error("RunModeDef::setByID:  Given def_id is not in the database"));
     }
@@ -114,7 +109,7 @@ void RunModeDef::fetchAllDefs( std::vector<RunModeDef>* fillVec)
   this->checkConnection();
   try {
     Statement* stmt = m_conn->createStatement();
-    stmt->setSQL("SELECT def_id FROM run_mode_def ORDER BY def_id");
+    stmt->setSQL("SELECT def_id FROM ecal_run_mode_def ORDER BY def_id");
     ResultSet* rset = stmt->executeQuery();
     
     RunModeDef runModeDef;

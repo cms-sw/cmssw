@@ -1,34 +1,35 @@
 -- creates the tables for the ecal daq configuration 
 -- 12-1-2007
 -- by F. Cavallari and P. Musella
-
+-- updated by FC on 14/3/2008
 -- ********** ECAL_RUN 
 
-CREATE TABLE ECAL_RUN_TYPE_DEF (
+CREATE TABLE RUN_TYPE_DEF (
 	DEF_ID  NUMBER NOT NULL
-     , RUN_TYPE_STRING VARCHAR2(20)
+     , RUN_TYPE VARCHAR2(20),
+        DESCRIPTION VARCHAR2(100)
 );
-ALTER TABLE ECAL_RUN_TYPE_DEF ADD CONSTRAINT ecal_run_type_def_pk PRIMARY KEY (def_id);
-ALTER TABLE ECAL_RUN_TYPE_DEF ADD CONSTRAINT ecal_run_type_def_uk1 UNIQUE (run_type_string);
+ALTER TABLE RUN_TYPE_DEF ADD CONSTRAINT run_type_def_pk PRIMARY KEY (def_id);
+ALTER TABLE RUN_TYPE_DEF ADD CONSTRAINT run_type_def_uk1 UNIQUE (run_type);
 
-CREATE SEQUENCE ecal_run_type_def_sq INCREMENT BY 1 START WITH 1;
-CREATE trigger ecal_run_type_def_trg
-before insert on ECAL_RUN_TYPE_DEF
+CREATE SEQUENCE run_type_def_sq INCREMENT BY 1 START WITH 1;
+CREATE trigger run_type_def_trg
+before insert on RUN_TYPE_DEF
 for each row
 begin
-select ecal_run_type_def_sq.NextVal into :new.def_id from dual;
+select run_type_def_sq.NextVal into :new.def_id from dual;
 end;
 /
 
 prompt FUNCTION get_run_type_def_id;
-create or replace function get_run_type_def_id( run_type IN VARCHAR ) return NUMBER
+create or replace function get_run_type_def_id( a_run_type IN VARCHAR ) return NUMBER
 IS
  	ret NUMBER;
 BEGIN
 	SELECT DEF_ID 
 		INTO 	ret 
-		FROM 	ECAL_RUN_TYPE_DEF 
-		WHERE 	RUN_TYPE_STRING=run_type
+		FROM 	RUN_TYPE_DEF 
+		WHERE 	RUN_TYPE=a_run_type
 	;
 	return (ret);
 END;
@@ -71,12 +72,13 @@ CREATE TABLE ECAL_RUN_CONFIGURATION_DAT (
      , RUN_TYPE_DEF_ID NUMBER NOT NULL
      , RUN_MODE_DEF_ID NUMBER NOT NULL
      , NUM_OF_SEQUENCES NUMBER(22) NULL
-     , DESCRIPTION VARCHAR2(200) NULL     
+     , DESCRIPTION VARCHAR2(200) NULL,
+db_timestamp  TIMESTAMP DEFAULT SYSTIMESTAMP NOT NULL     
 );
 
 ALTER TABLE ECAL_RUN_CONFIGURATION_DAT ADD CONSTRAINT ecal_config_pk PRIMARY KEY (config_id);
 ALTER TABLE ECAL_RUN_CONFIGURATION_DAT ADD CONSTRAINT ecal_config_uk1 UNIQUE (tag, version);
-ALTER TABLE ECAL_RUN_CONFIGURATION_DAT ADD CONSTRAINT ecal_config_fk1 FOREIGN KEY (run_type_def_id) REFERENCES ECAL_RUN_TYPE_DEF (DEF_ID) ;
+ALTER TABLE ECAL_RUN_CONFIGURATION_DAT ADD CONSTRAINT ecal_config_fk1 FOREIGN KEY (run_type_def_id) REFERENCES RUN_TYPE_DEF (DEF_ID) ;
 ALTER TABLE ECAL_RUN_CONFIGURATION_DAT ADD CONSTRAINT ecal_config_fk2 FOREIGN KEY (run_mode_def_id) REFERENCES ECAL_RUN_MODE_DEF (DEF_ID) ;
 
 CREATE SEQUENCE ecal_run_sq INCREMENT BY 1 START WITH 1;
@@ -113,7 +115,7 @@ CREATE TABLE ECAL_SEQUENCE_TYPE_DEF (
         , SEQUENCE_TYPE_STRING VARCHAR2(20)
 );
 ALTER TABLE ECAL_SEQUENCE_TYPE_DEF ADD CONSTRAINT ecal_sequence_type_def_pk  PRIMARY KEY (def_id);
-ALTER TABLE ECAL_SEQUENCE_TYPE_DEF ADD CONSTRAINT ecal_sequence_type_def_fk1 FOREIGN KEY (run_type_def_id) REFERENCES  ECAL_RUN_TYPE_DEF (DEF_ID) ;
+ALTER TABLE ECAL_SEQUENCE_TYPE_DEF ADD CONSTRAINT ecal_sequence_type_def_fk1 FOREIGN KEY (run_type_def_id) REFERENCES  RUN_TYPE_DEF (DEF_ID) ;
 ALTER TABLE ECAL_SEQUENCE_TYPE_DEF ADD CONSTRAINT ecal_sequence_type_def_uk1 UNIQUE (run_type_def_id,sequence_type_string);
 
 CREATE SEQUENCE ecal_sequence_type_def_sq INCREMENT BY 1 START WITH 1;
@@ -126,16 +128,16 @@ end;
 /
 
 prompt FUNCTION get_sequence_type_def_id;
-CREATE OR REPLACE FUNCTION get_sequence_type_def_id( run_type IN VARCHAR, seq_type VARCHAR ) return NUMBER
+CREATE OR REPLACE FUNCTION get_sequence_type_def_id( a_run_type IN VARCHAR, seq_type VARCHAR ) return NUMBER
 IS
 	ret NUMBER;
 BEGIN
 	SELECT s.DEF_ID 
 		INTO 	ret 
 		FROM 	ECAL_SEQUENCE_TYPE_DEF s
-			, ECAL_RUN_TYPE_DEF r
+			, RUN_TYPE_DEF r
 		WHERE 	s.SEQUENCE_TYPE_STRING=seq_type
-			AND r.RUN_TYPE_STRING=run_type
+			AND r.RUN_TYPE=a_run_type
 			AND s.RUN_TYPE_DEF_ID=r.DEF_ID
 	;
 	return (ret);
@@ -257,13 +259,13 @@ CREATE TABLE ECAL_DCC_CONFIGURATION (
 ALTER TABLE ECAL_DCC_CONFIGURATION ADD CONSTRAINT ecal_dcc_config_pk PRIMARY KEY (dcc_configuration_id);
 
 CREATE SEQUENCE ecal_DCC_CONFIG_sq INCREMENT BY 1 START WITH 1;
-CREATE trigger ecal_DCC_CONFIG_trg
-before insert on ECAL_DCC_CONFIGURATION
-for each row
-begin
-select ecal_DCC_CONFIG_sq.NextVal into :new.dcc_configuration_id from dual;
-end;
-/
+-- CREATE trigger ecal_DCC_CONFIG_trg
+-- before insert on ECAL_DCC_CONFIGURATION
+-- for each row
+-- begin
+-- select ecal_DCC_CONFIG_sq.NextVal into :new.dcc_configuration_id from dual;
+-- end;
+-- /
 
 
 CREATE TABLE ECAL_DCC_CYCLE (
@@ -344,13 +346,13 @@ CREATE TABLE ECAL_TTCCI_CONFIGURATION (
 ALTER TABLE ECAL_TTCCI_CONFIGURATION ADD CONSTRAINT ecal_TTCCI_config_pk PRIMARY KEY (TTCCI_configuration_id);
 
 CREATE SEQUENCE ecal_TTCCI_CONFIG_sq INCREMENT BY 1 START WITH 1;
-CREATE trigger ecal_TTCCI_CONFIG_trg
-before insert on ECAL_TTCCI_CONFIGURATION
-for each row
-begin
-select ecal_TTCCI_CONFIG_sq.NextVal into :new.TTCCI_configuration_id from dual;
-end;
-/
+-- CREATE trigger ecal_TTCCI_CONFIG_trg
+-- before insert on ECAL_TTCCI_CONFIGURATION
+-- for each row
+-- begin
+-- select ecal_TTCCI_CONFIG_sq.NextVal into :new.TTCCI_configuration_id from dual;
+-- end;
+-- /
 
 
 CREATE TABLE ECAL_TTCCI_CYCLE (
@@ -538,13 +540,13 @@ CREATE OR REPLACE VIEW ECAL_RUN_CONFIGURATION AS
 select r.CONFIG_ID
      , r.TAG
      , r.VERSION
-     , rtd.RUN_TYPE_STRING RUN_TYPE
+     , rtd.RUN_TYPE RUN_TYPE
      , rmd.RUN_MODE_STRING RUN_MODE
      , r.NUM_OF_SEQUENCES
      , r.DESCRIPTION
 from
 	ECAL_RUN_CONFIGURATION_DAT r
-	, ECAL_RUN_TYPE_DEF rtd
+	, RUN_TYPE_DEF rtd
 	, ECAL_RUN_MODE_DEF rmd
 where
 	r.RUN_TYPE_DEF_ID=rtd.DEF_ID

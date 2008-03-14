@@ -23,19 +23,20 @@ RunSeqDef::~RunSeqDef()
 
 
 
-string RunSeqDef::getRunSeq() const
+string RunSeqDef::getRunSeq() const {  return m_runSeq;}
+
+
+
+void RunSeqDef::setRunSeq(string runseq){    m_runSeq = runseq;}
+
+RunTypeDef RunSeqDef::getRunTypeDef() const
 {
-  return m_runSeq;
+  return m_runType;
 }
 
-
-
-void RunSeqDef::setRunSeq(string runseq)
+void RunSeqDef::setRunTypeDef(const RunTypeDef runTypeDef)
 {
-  if (runseq != m_runSeq) {
-    m_ID = 0;
-    m_runSeq = runseq;
-  }
+    m_runType = runTypeDef;
 }
 
 

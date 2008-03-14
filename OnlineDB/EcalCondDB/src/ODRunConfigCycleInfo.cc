@@ -11,9 +11,13 @@ using namespace oracle::occi;
 
 ODRunConfigCycleInfo::ODRunConfigCycleInfo()
 {
+  m_env = NULL;
   m_conn = NULL;
-  m_ID = 0;
-  //
+  m_writeStmt = NULL;
+  m_readStmt = NULL;
+
+   m_ID=0;
+
   m_sequence_id =0;
   m_cycle_num =0;
   m_tag = "";
@@ -25,25 +29,67 @@ ODRunConfigCycleInfo::ODRunConfigCycleInfo()
 ODRunConfigCycleInfo::~ODRunConfigCycleInfo(){}
 
 
-void ODRunConfigCycleInfo::setID(int id){ m_ID = id;  }
-int ODRunConfigCycleInfo::getID(){ return m_ID ;  }
+void ODRunConfigCycleInfo::clear() {
+  m_sequence_id =0;
+  m_cycle_num =0;
+  m_tag = "";
+  m_description="";
 
-void ODRunConfigCycleInfo::setDescription(std::string x) { m_description = x;}
-std::string ODRunConfigCycleInfo::getDescription() const{  return m_description;}
-//
-void ODRunConfigCycleInfo::setTag(std::string x) { m_tag = x;}
-std::string ODRunConfigCycleInfo::getTag() const{  return m_tag;}
-//
-void ODRunConfigCycleInfo::setSequenceID(int x) { m_sequence_id = x;}
-int ODRunConfigCycleInfo::getSequenceID() const{  return m_sequence_id;}
-//
-void ODRunConfigCycleInfo::setCycleNumber(int n){ m_cycle_num = n;  }
-int ODRunConfigCycleInfo::getCycleNumber()const {return m_cycle_num;  }
-//
+}
+
+void ODRunConfigCycleInfo::prepareWrite()
+  throw(runtime_error)
+{
+  this->checkConnection();
+
+  try {
+    m_writeStmt = m_conn->createStatement();
+    m_writeStmt->setSQL("INSERT INTO ECAL_CYCLE_DAT ( sequence_id , cycle_num, tag, description ) "
+     "VALUES (:1, :2, :3 , :4 )");
+
+  } catch (SQLException &e) {
+    throw(runtime_error("ODRunConfigCycleInfo::prepareWrite():  "+e.getMessage()));
+  }
+}
+
+
+void ODRunConfigCycleInfo::writeDB()
+  throw(runtime_error)
+{
+  this->checkConnection();
+  this->checkPrepare();
+
+  // Validate the data, use infinity-till convention
+  DateHandler dh(m_env, m_conn);
+
+  try {
+
+    m_writeStmt->setInt(1, this->getSequenceID());
+    m_writeStmt->setInt(2, this->getCycleNumber());
+    m_writeStmt->setString(3, this->getTag());
+    m_writeStmt->setString(4, this->getDescription());
+    m_writeStmt->executeUpdate();
 
 
 
-int ODRunConfigCycleInfo::fetchID()
+  } catch (SQLException &e) {
+    throw(runtime_error("ODRunConfigCycleInfo::writeDB:  "+e.getMessage()));
+  }
+  // Now get the ID
+  if (!this->fetchID()) {
+    throw(runtime_error("ODRunConfigCycleInfo::writeDB:  Failed to write"));
+  }
+
+  cout<< "ODRunConfigCycleInfo::writeDB>> done inserting ODRunConfigCycleInfo with id="<<m_ID<<endl;
+
+}
+
+
+
+
+
+
+int ODRunConfigCycleInfo::fetchID() 
   throw(runtime_error)
 {
   // Return from memory if available
@@ -76,6 +122,7 @@ int ODRunConfigCycleInfo::fetchID()
     throw(runtime_error("ODRunConfigCycleInfo::fetchID:  "+e.getMessage()));
   }
   setByID(m_ID);
+
   return m_ID;
 }
 
@@ -141,42 +188,48 @@ void ODRunConfigCycleInfo::setByID(int id)
 }
 
 
-
-int ODRunConfigCycleInfo::writeDB()
+void ODRunConfigCycleInfo::fetchData(ODRunConfigCycleInfo * result)
   throw(runtime_error)
 {
   this->checkConnection();
-
-  // Validate the data, use infinity-till convention
-  DateHandler dh(m_env, m_conn);
-
-  try {
-
-    // now insert 
-    Statement* stmt = m_conn->createStatement();
-    stmt->setSQL("INSERT INTO ECAL_CYCLE_DAT ( sequence_id , cycle_num, tag, description ) "
-     "VALUES (:1, :2, :3 , :4 )");
-   
-    stmt->setInt(1, m_sequence_id);
-    stmt->setInt(2, m_cycle_num);
-    stmt->setString(3, m_tag);
-    stmt->setString(4, m_description );
-
-    stmt->executeUpdate();
-
-    m_conn->terminateStatement(stmt);
-
-    fetchID();
-
-
-  } catch (SQLException &e) {
-    throw(runtime_error("ODRunConfigCycleInfo::writeDB:  "+e.getMessage()));
+  result->clear();
+  if(result->getId()==0){
+    throw(runtime_error("ODRunConfigCycleInfo::fetchData(): no Id defined for this ODCCSConfig "));
   }
 
-  cout<< "ODRunConfigCycleInfo::writeDB>> done inserting ODRunConfigCycleInfo with id="<<m_ID<<endl;
-  return m_ID;
+  try {
+    m_readStmt->setSQL("SELECT sequence_id , cycle_num , tag , description FROM ECAL_cycle_DAT WHERE cycle_id = :1 ");
+
+    m_readStmt->setInt(1, result->getId());
+    ResultSet* rset = m_readStmt->executeQuery();
+
+    rset->next();
+
+    result->setSequenceID(       rset->getInt(1) );
+    result->setCycleNumber(      rset->getInt(2) );
+    result->setTag(              rset->getString(3) );
+    result->setDescription(      rset->getString(4) );
+ 
+  } catch (SQLException &e) {
+    throw(runtime_error("ODRunConfigCycleInfo::fetchData():  "+e.getMessage()));
+  }
 }
 
+ void ODRunConfigCycleInfo::insertConfig()
+  throw(std::runtime_error)
+{
+  try {
 
-
+    prepareWrite();
+    writeDB();
+    m_conn->commit();
+    terminateWriteStatement();
+  } catch (std::runtime_error &e) {
+    m_conn->rollback();
+    throw(e);
+  } catch (...) {
+    m_conn->rollback();
+    throw(std::runtime_error("EcalCondDBInterface::insertDataSet:  Unknown exception caught"));
+  }
+}
 

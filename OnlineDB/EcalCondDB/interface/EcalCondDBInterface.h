@@ -1,7 +1,7 @@
 /***********************************************/
 /* EcalCondDBInterface.h		       */
 /* 					       */
-/* $Id: EcalCondDBInterface.h,v 1.12 2008/02/14 15:31:47 fra Exp $ 	        		       */
+/* $Id: EcalCondDBInterface.h,v 1.13 2008/03/04 14:47:51 fra Exp $ 	        		       */
 /* 					       */
 /* Interface to the Ecal Conditions DB.	       */
 /***********************************************/
@@ -400,6 +400,48 @@ class EcalCondDBInterface : public EcalDBConnection {
       conn->rollback();
       throw(std::runtime_error("EcalCondDBInterface::insertDataSet:  Unknown exception caught"));
     }
+  }
+
+
+ template<class ICONF >
+   void insertConfigSet( ICONF* iconf)
+   throw(std::runtime_error)
+   {
+     try {
+       iconf->setConnection(env, conn);
+       iconf->prepareWrite();
+       
+       // if it has not yet been written then write 
+
+
+	 iconf->writeDB();
+
+      
+       conn->commit();
+       iconf->terminateWriteStatement();
+     } catch (std::runtime_error &e) {
+       conn->rollback();
+       throw(e);
+     } catch (...) {
+       conn->rollback();
+       throw(std::runtime_error("EcalCondDBInterface::insertDataSet:  Unknown exception caught"));
+     }
+   }
+
+  /*
+   *  Fetch a config set
+   */
+  template<class ICONF>
+  void fetchConfigSet( ICONF* iconf)
+    throw(std::runtime_error)
+  {
+
+    iconf->clear();
+    iconf->setConnection(env, conn);
+    iconf->createReadStatement();
+    iconf->fetchData(iconf);
+    iconf->terminateReadStatement();
+
   }
 
 
