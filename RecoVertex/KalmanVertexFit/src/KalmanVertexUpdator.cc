@@ -20,11 +20,11 @@ CachingVertex<N> KalmanVertexUpdator<N>::update(const  CachingVertex<N> & oldVer
   if (!newVertexState.isValid()) return CachingVertex<N>();
 
   float chi1 = oldVertex.totalChiSquared();
-  float chi2 = chi2Increment(oldVertex.vertexState(), newVertexState, 
+  pair <bool, double> chi2P = chi2Increment(oldVertex.vertexState(), newVertexState, 
                              track->linearizedTrack() , weight );
-  if (chi2<0.) return CachingVertex<N>(); // return invalid vertex
+  if (!chi2P.first) return CachingVertex<N>(); // return invalid vertex
 
-  chi1 +=sign * chi2;
+  chi1 +=sign * chi2P.second;
 
 //adding or removing track from the CachingVertex::VertexTracks
   vector<RefCountedVertexTrack> newVertexTracks = oldVertex.tracks();
@@ -148,7 +148,7 @@ KalmanVertexUpdator<N>::positionUpdate (const VertexState & oldVertex,
 
 
 template <unsigned int N>
-double KalmanVertexUpdator<N>::chi2Increment(const VertexState & oldVertex, 
+pair <bool, double>  KalmanVertexUpdator<N>::chi2Increment(const VertexState & oldVertex, 
 	const VertexState & newVertexState,
 	const RefCountedLinearizedTrackState linearizedTrack, 
 	float weight) const 
@@ -173,7 +173,7 @@ double KalmanVertexUpdator<N>::chi2Increment(const VertexState & oldVertex,
   bool ret = s.Invert(); 
   if(!ret) {
     edm::LogWarning("KalmanVertexUpdator") << "S matrix inversion failed";
-    return -1.;
+    return pair <bool, double> (false, -1.);
   }
 
   const AlgebraicVectorN & theResidual = linearizedTrack->constantTerm();
@@ -192,7 +192,7 @@ double KalmanVertexUpdator<N>::chi2Increment(const VertexState & oldVertex,
 //   chi2 += vertexPositionChi2(oldVertex, newVertexPosition);
   chi2 += helper.vertexChi2(oldVertex, newVertexState);
 
-  return chi2;
+  return pair <bool, double> (true, chi2);
 }
 
 template class KalmanVertexUpdator<5>;
