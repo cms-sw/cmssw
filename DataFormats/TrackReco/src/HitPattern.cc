@@ -72,6 +72,26 @@ void HitPattern::setHitPattern(int position, uint32_t pattern) {
 }
 
 uint32_t HitPattern::getHitPattern(int position) const {
+/* Note: you are not taking a consecutive sequence of HitSize bits starting from position*HitSize
+         as the bit order in the words are reversed. 
+         e.g. if position = 0 you take the lowest 10 bits of the first word.
+    
+         I hope this can clarify what is the memory layout of such thing
+
+ straight 01234567890123456789012345678901 | 23456789012345678901234567890123 | 4567
+ (global) 0         1         2         3  | 3       4         5         6    | 6  
+ words    [--------------0---------------] | [--------------1---------------] | [---   
+ word     01234567890123456789012345678901 | 01234567890123456789012345678901 | 0123
+  (str)   0         1         2         3  | 0         1         2         3  | 0
+          [--------------0---------------] | [--------------1---------------] | [---   
+ word     10987654321098765432109876543210 | 10987654321098765432109876543210 | 1098
+  (rev)   32         21        10        0 | 32         21        10        0 | 32  
+ reverse  10987654321098765432109876543210 | 32109876543210987654321098765432 | 5432
+          32         21        10        0 | 6  65        54        43      3   9
+
+         ugly enough, but it's not my fault, I was not even in CMS at that time   [gpetrucc] */
+//#define OLD_HITPATTERN_LOGIC
+#if defined(OLD_HITPATTERN_LOGIC)
   int offset = position * HitSize;
   uint32_t pattern = 0; 
   for (int i=0; i<HitSize; i++) {
@@ -80,7 +100,33 @@ uint32_t HitPattern::getHitPattern(int position) const {
     uint32_t bit = (word >> (pos%32)) & 0x1;
     pattern += bit << i;
   }
+#endif
+#define GIO_HITPATTERN_LOGIC
+#if defined(GIO_HITPATTERN_LOGIC)
+  uint16_t bitEndOffset = (position+1) * HitSize;
+  uint8_t secondWord   = (bitEndOffset >> 5);
+  uint8_t secondWordBits = bitEndOffset & (32-1); // that is, bitEndOffset % 32
+  if (secondWordBits >= 10) { // full block is in this word
+      uint8_t lowBitsToTrash = secondWordBits - HitSize;
+      uint32_t myResult = (hitPattern_[secondWord] >> lowBitsToTrash) & ((1 << HitSize)-1);
+     #if defined(OLD_HITPATTERN_LOGIC)
+      if (pattern != myResult) { abort(); }
+     #endif //both
+      return myResult;
+  } else {
+      uint8_t  firstWordBits   = HitSize - secondWordBits;
+      uint32_t firstWordBlock  = hitPattern_[secondWord-1] >> (32-firstWordBits);
+      uint32_t secondWordBlock = hitPattern_[secondWord] & ((1<<secondWordBits)-1);
+      uint32_t myResult = firstWordBlock + (secondWordBlock << firstWordBits);
+     #if defined(OLD_HITPATTERN_LOGIC)
+      if (pattern != myResult) { abort(); }
+     #endif //both
+      return myResult;
+  }
+#endif
+#ifndef GIO_HITPATTERN_LOGIC
   return pattern;
+#endif
 }
 
 bool HitPattern::trackerHitFilter(uint32_t pattern) const {
@@ -238,9 +284,10 @@ int HitPattern::numberOfValidHits() const {
   int count = 0;
   for (int i=0; i<(PatternSize * 32) / HitSize; i++) {
     uint32_t pattern = getHitPattern(i);
-    if (pattern != 0) {
+    if (pattern == 0) break;
+    //if (pattern != 0) {
       if (validHitFilter(pattern)) count++;
-    }
+    //}
   }
   return count;
 }
@@ -617,6 +664,7 @@ uint32_t HitPattern::getTrackerLayerCase(uint32_t substr, uint32_t layer) const
   for (int i=0; i<(PatternSize * 32) / HitSize; i++)
   {
     uint32_t pattern = getHitPattern(i);
+    if (pattern == 0) break;
     if ((pattern & mask) == tk_substr_layer)
     {
       uint32_t hitType = (pattern >> HitTypeOffset) & HitTypeMask; // 0,1,2,3
