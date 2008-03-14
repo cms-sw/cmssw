@@ -1,11 +1,16 @@
 /*
  * \file L1TDTTPG.cc
  *
- * $Date: 2008/03/10 09:29:52 $
- * $Revision: 1.17 $
+ * $Date: 2008/03/12 17:24:24 $
+ * $Revision: 1.18 $
  * \author J. Berryhill
  *
  * $Log: L1TDTTPG.cc,v $
+ * Revision 1.18  2008/03/12 17:24:24  berryhil
+ *
+ *
+ * eliminated log files, truncated HCALTPGXana histo output
+ *
  * Revision 1.17  2008/03/10 09:29:52  lorenzo
  * added MEs
  *
@@ -13,6 +18,11 @@
  * DQM core migration.
  *
  * $Log: L1TDTTPG.cc,v $
+ * Revision 1.18  2008/03/12 17:24:24  berryhil
+ *
+ *
+ * eliminated log files, truncated HCALTPGXana histo output
+ *
  * Revision 1.17  2008/03/10 09:29:52  lorenzo
  * added MEs
  *
@@ -88,9 +98,6 @@ L1TDTTPG::L1TDTTPG(const ParameterSet& ps)
   outputFile_ = ps.getUntrackedParameter<string>("outputFile", "");
   if ( outputFile_.size() != 0 ) {
     cout << "L1T Monitoring histograms will be saved to " << outputFile_.c_str() << endl;
-  }
-  else{
-    outputFile_ = "L1TDQM.root";
   }
 
   bool disable = ps.getUntrackedParameter<bool>("disableROOToutput", false);

@@ -1,8 +1,8 @@
 /*
  * \file L1TRCT.cc
  *
- * $Date: 2008/03/01 00:40:00 $
- * $Revision: 1.10 $
+ * $Date: 2008/03/12 17:24:24 $
+ * $Revision: 1.11 $
  * \author P. Wittich
  *
  */
@@ -63,9 +63,6 @@ L1TRCT::L1TRCT(const ParameterSet & ps) :
     std::
 	cout << "L1T Monitoring histograms will be saved to " <<
 	outputFile_.c_str() << std::endl;
-  }
-  else {
-    outputFile_ = "L1TDQM.root";
   }
 
   bool disable =

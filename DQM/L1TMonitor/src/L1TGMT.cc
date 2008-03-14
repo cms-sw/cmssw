@@ -1,8 +1,8 @@
 /*
  * \file L1TGMT.cc
  *
- * $Date: 2008/03/01 00:40:00 $
- * $Revision: 1.12 $
+ * $Date: 2008/03/12 17:24:24 $
+ * $Revision: 1.13 $
  * \author J. Berryhill, I. Mikulec
  *
  */
@@ -33,9 +33,6 @@ L1TGMT::L1TGMT(const ParameterSet& ps)
   outputFile_ = ps.getUntrackedParameter<string>("outputFile", "");
   if ( outputFile_.size() != 0 ) {
     cout << "L1T Monitoring histograms will be saved to " << outputFile_.c_str() << endl;
-  }
-  else{
-    outputFile_ = "L1TDQM.root";
   }
 
   bool disable = ps.getUntrackedParameter<bool>("disableROOToutput", false);

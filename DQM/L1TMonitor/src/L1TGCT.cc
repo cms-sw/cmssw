@@ -1,11 +1,16 @@
 /*
  * \file L1TGCT.cc
  *
- * $Date: 2008/03/01 00:40:00 $
- * $Revision: 1.19 $
+ * $Date: 2008/03/12 17:24:24 $
+ * $Revision: 1.20 $
  * \author J. Berryhill
  *
  * $Log: L1TGCT.cc,v $
+ * Revision 1.20  2008/03/12 17:24:24  berryhil
+ *
+ *
+ * eliminated log files, truncated HCALTPGXana histo output
+ *
  * Revision 1.19  2008/03/01 00:40:00  lat
  * DQM core migration.
  *
@@ -122,9 +127,6 @@ L1TGCT::L1TGCT(const edm::ParameterSet & ps) :
   if (outputFile_.size() != 0) {
     std::cout << "L1T Monitoring histograms will be saved to "
 	      << outputFile_ << std::endl;
-  }
-  else {
-    outputFile_ = "L1TDQM.root";
   }
 
   bool disable =

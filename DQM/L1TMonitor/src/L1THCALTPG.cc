@@ -1,11 +1,16 @@
 /*
  * \file L1THCALTPG.cc
  *
- * $Date: 2008/03/01 00:40:00 $
- * $Revision: 1.9 $
+ * $Date: 2008/03/12 17:24:24 $
+ * $Revision: 1.10 $
  * \author J. Berryhill
  *
  * $Log: L1THCALTPG.cc,v $
+ * Revision 1.10  2008/03/12 17:24:24  berryhil
+ *
+ *
+ * eliminated log files, truncated HCALTPGXana histo output
+ *
  * Revision 1.9  2008/03/01 00:40:00  lat
  * DQM core migration.
  *
@@ -83,9 +88,6 @@ L1THCALTPG::L1THCALTPG(const ParameterSet& ps)
   outputFile_ = ps.getUntrackedParameter<std::string>("outputFile", "");
   if ( outputFile_.size() != 0 ) {
     std::cout << "L1T Monitoring histograms will be saved to " << outputFile_.c_str() << std::endl;
-  }
-  else{
-    outputFile_ = "L1TDQM.root";
   }
 
   bool disable = ps.getUntrackedParameter<bool>("disableROOToutput", false);

@@ -1,8 +1,8 @@
 /*
  * \file L1TLTC.cc
  *
- * $Date: 2008/03/01 00:40:00 $
- * $Revision: 1.6 $
+ * $Date: 2008/03/12 17:24:24 $
+ * $Revision: 1.7 $
  * \author J. Berryhill
  *
  */
@@ -32,9 +32,6 @@ L1TLTC::L1TLTC(const ParameterSet& ps)
   outputFile_ = ps.getUntrackedParameter<string>("outputFile", "");
   if ( outputFile_.size() != 0 ) {
     cout << "L1T Monitoring histograms will be saved to " << outputFile_.c_str() << endl;
-  }
-  else{
-    outputFile_ = "L1TDQM.root";
   }
 
   bool disable = ps.getUntrackedParameter<bool>("disableROOToutput", false);

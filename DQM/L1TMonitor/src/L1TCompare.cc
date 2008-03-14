@@ -1,9 +1,14 @@
 /*
  * \file L1TCompare.cc
- * $Id: L1TCompare.cc,v 1.10 2008/03/01 00:40:00 lat Exp $
+ * $Id: L1TCompare.cc,v 1.11 2008/03/12 17:24:24 berryhil Exp $
  * \author P. Wittich
  * \brief Compare different parts of the trigger chain (e.g., RCT-GCT )
  * $Log: L1TCompare.cc,v $
+ * Revision 1.11  2008/03/12 17:24:24  berryhil
+ *
+ *
+ * eliminated log files, truncated HCALTPGXana histo output
+ *
  * Revision 1.10  2008/03/01 00:40:00  lat
  * DQM core migration.
  *
@@ -121,9 +126,6 @@ L1TCompare::L1TCompare(const ParameterSet & ps) :
     std::
 	cout << "L1T Monitoring histograms will be saved to " <<
 	outputFile_.c_str() << std::endl;
-  }
-  else {
-    outputFile_ = "L1TDQM.root";
   }
 
   bool disable =
