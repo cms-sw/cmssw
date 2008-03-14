@@ -13,7 +13,7 @@
 //
 // Original Author:  Brian Drell
 //         Created:  Fri May 18 22:57:40 CEST 2007
-// $Id: V0Fitter.cc,v 1.16 2008/02/05 23:13:34 drell Exp $
+// $Id: V0Fitter.cc,v 1.17 2008/02/14 20:37:29 drell Exp $
 //
 //
 
@@ -49,9 +49,13 @@ V0Fitter::V0Fitter(const edm::ParameterSet& theParameters,
 
   //  -whether to do cuts or store all found V0 
   doPostFitCuts = theParameters.getParameter<bool>(string("doPostFitCuts"));
+  doTkQualCuts = 
+    theParameters.getParameter<bool>(string("doTrackQualityCuts"));
 
   // Second, initialize post-fit cuts
-  chi2Cut = theParameters.getParameter<double>(string("chi2Cut"));
+  chi2Cut = theParameters.getParameter<double>(string("vtxChi2Cut"));
+  tkChi2Cut = theParameters.getParameter<double>(string("tkChi2Cut"));
+  tkNhitsCut = theParameters.getParameter<int>(string("tkNhitsCut"));
   rVtxCut = theParameters.getParameter<double>(string("rVtxCut"));
   vtxSigCut = theParameters.getParameter<double>(string("vtxSignificanceCut"));
   collinCut = theParameters.getParameter<double>(string("collinearityCut"));
@@ -59,7 +63,7 @@ V0Fitter::V0Fitter(const edm::ParameterSet& theParameters,
   lambdaMassCut = theParameters.getParameter<double>(string("lambdaMassCut"));
 
   // FOR DEBUG:
-  initFileOutput();
+  //initFileOutput();
   //--------------------
 
   //std::cout << "Entering V0Producer" << std::endl;
@@ -67,7 +71,7 @@ V0Fitter::V0Fitter(const edm::ParameterSet& theParameters,
   fitAll(iEvent, iSetup);
 
   // FOR DEBUG:
-  cleanupFileOutput();
+  //cleanupFileOutput();
   //--------------------
 
 }
@@ -145,7 +149,34 @@ void V0Fitter::fitAll(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
 
   // Loop over tracks and vertex good charged track pairs
   for(unsigned int trdx1 = 0; trdx1 < theTracks.size(); trdx1++) {
+
+    if( doTkQualCuts 
+	&& theTrackRefs[trdx1]->normalizedChi2() > tkChi2Cut )
+      continue;
+
+    if( doTkQualCuts && theTrackRefs[trdx1]->recHitsSize() ) {
+      trackingRecHit_iterator tk1HitIt = theTrackRefs[trdx1]->recHitsBegin();
+      int nHits1 = 0;
+      for( ; tk1HitIt < theTrackRefs[trdx1]->recHitsEnd(); tk1HitIt++) {
+	if( (*tk1HitIt)->isValid() ) nHits1++;
+      }
+      if( nHits1 < tkNhitsCut ) continue;
+    }
+
+    
     for(unsigned int trdx2 = trdx1 + 1; trdx2 < theTracks.size(); trdx2++) {
+
+      if( doTkQualCuts 
+	  && theTrackRefs[trdx2]->normalizedChi2() > tkChi2Cut ) continue;
+
+      if( doTkQualCuts && theTrackRefs[trdx2]->recHitsSize() ) {
+	trackingRecHit_iterator tk2HitIt = theTrackRefs[trdx2]->recHitsBegin();
+	int nHits2 = 0;
+	for( ; tk2HitIt < theTrackRefs[trdx2]->recHitsEnd(); tk2HitIt++) {
+	  if( (*tk2HitIt)->isValid() ) nHits2++;
+	}
+	if( nHits2 < tkNhitsCut ) continue;
+      }
 
       vector<TransientTrack> transTracks;
 
@@ -206,8 +237,8 @@ void V0Fitter::fitAll(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
 
 
       //std::cout << "Calculated m-pi-pi: " << mass << std::endl;
-      mPiPiMassOut << mass << " "
-		   << (d0_neg < d0_pos? d0_pos : d0_neg) << std::endl;
+      /*mPiPiMassOut << mass << " "
+	<< (d0_neg < d0_pos? d0_pos : d0_neg) << std::endl;*/
       //if( mass > 0.7 ) continue;
 
       //----->> Finished making cuts.
@@ -371,6 +402,7 @@ void V0Fitter::fitAll(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
 	V0Candidate theKshort(0, kShortP4, Particle::Point(0,0,0));
 	V0Candidate theLambda(0, lambdaP4, Particle::Point(0,0,0));
 	V0Candidate theLambdaBar(0, lambdaBarP4, Particle::Point(0,0,0));
+       
 	// The above lines are hardcoded for the origin.  Need to fix.
 
 	// Set the V0Candidates' vertex to the one we found above
@@ -388,16 +420,17 @@ void V0Fitter::fitAll(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
 	thePiPlusCand.setTrack(positiveTrackRef);
 
 	RecoChargedCandidate
-	  theProtonCand(1, Particle::LorentzVector(positiveP.x(),
-						  positiveP.y(), positiveP.z(),
-						  protonE), vtx);
-	theProtonCand.setTrack(positiveTrackRef);
-
-	RecoChargedCandidate
 	  thePiMinusCand(-1, Particle::LorentzVector(negativeP.x(), 
 						 negativeP.y(), negativeP.z(),
 						 piMinusE), vtx);
 	thePiMinusCand.setTrack(negativeTrackRef);
+
+ 
+	RecoChargedCandidate
+	  theProtonCand(1, Particle::LorentzVector(positiveP.x(),
+						 positiveP.y(), positiveP.z(),
+						 protonE), vtx);
+	theProtonCand.setTrack(positiveTrackRef);
 
 	RecoChargedCandidate
 	  theAntiProtonCand(-1, Particle::LorentzVector(negativeP.x(),
@@ -426,9 +459,12 @@ void V0Fitter::fitAll(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
 	addp4.set( theLambdaBar );
 
 	// Store the candidates in a temporary STL vector
-	preCutCands.push_back(theKshort);
-	preCutCands.push_back(theLambda);
-	preCutCands.push_back(theLambdaBar);
+	if(doKshorts)
+	  preCutCands.push_back(theKshort);
+	if(doLambdas) {
+	  preCutCands.push_back(theLambda);
+	  preCutCands.push_back(theLambdaBar);
+	}
 
 
       }
@@ -461,8 +497,9 @@ std::vector<reco::V0Candidate> V0Fitter::getLambdaBars() const {
 void V0Fitter::applyPostFitCuts() {
   //static int eventCounter = 1;
   //std::cout << "Doing applyPostFitCuts()" << std::endl;
-  std::cout << "Starting post fit cuts with " << preCutCands.size()
-	    << " preCutCands" << std::endl;
+  /*std::cout << "Starting post fit cuts with " << preCutCands.size()
+    << " preCutCands" << std::endl;*/
+  std::cout << "!1" << std::endl;
   for(std::vector<reco::V0Candidate>::iterator theIt = preCutCands.begin();
       theIt != preCutCands.end(); theIt++) {
     bool writeVee = false;
@@ -487,9 +524,18 @@ void V0Fitter::applyPostFitCuts() {
     double sigmaRvtxMag =
       sqrt( sig00*(x_*x_) + sig11*(y_*y_) + 2*sig01*(x_*y_) ) / rVtxMag;
 
-    // Get the tracks from the vertex.
-    std::vector<reco::Track> theVtxTrax;
-    if(theIt->vertex().hasRefittedTracks()) {
+    std::cout << "!2" << std::endl;
+    // Get the tracks from the candidates.
+    std::vector<reco::RecoChargedCandidate> v0daughters;
+    std::vector<reco::TrackRef> theVtxTrax;
+    for(unsigned int ii = 0; ii < theIt->numberOfDaughters(); ii++) {
+      v0daughters.push_back( *(dynamic_cast<reco::RecoChargedCandidate *>
+			       (theIt->daughter(ii))) );
+    }
+    for(unsigned int jj = 0; jj < v0daughters.size(); jj++) {
+      theVtxTrax.push_back(v0daughters[jj].track());
+    }
+    /*    if(theIt->vertex().hasRefittedTracks()) {
       theVtxTrax = theIt->vertex().refittedTracks();
     }
     else {
@@ -498,45 +544,49 @@ void V0Fitter::applyPostFitCuts() {
 	reco::TrackRef theRef1 = theTkIt->castTo<reco::TrackRef>();
 	theVtxTrax.push_back(*theRef1);
       }
-    }
+      }*/
 
+    std::cout << "!3" << std::endl;
     using namespace reco;
 
     // If the position of the innermost hit on either of the daughter
-    //   tracks is less than the radial vertex position (minus 3 sigmaRvtx)
+    //   tracks is less than the radial vertex position (minus 4 sigmaRvtx)
     //   then don't keep the vee.
     bool hitsOkay = true;
-    std::cout << "theVtxTrax.size = " << theVtxTrax.size() << std::endl;
+    //std::cout << "theVtxTrax.size = " << theVtxTrax.size() << std::endl;
     if( theVtxTrax.size() == 2 && doPostFitCuts) {
-      if( theVtxTrax[0].recHitsSize() && theVtxTrax[1].recHitsSize() ) {
-	trackingRecHit_iterator tk1HitIt = theVtxTrax[0].recHitsBegin();
-	trackingRecHit_iterator tk2HitIt = theVtxTrax[1].recHitsBegin();
+      if( theVtxTrax[0]->recHitsSize() && theVtxTrax[1]->recHitsSize() ) {
+	trackingRecHit_iterator tk1HitIt = theVtxTrax[0]->recHitsBegin();
+	trackingRecHit_iterator tk2HitIt = theVtxTrax[1]->recHitsBegin();
+	std::cout << "!!4" << std::endl;
 
-	for( ; tk1HitIt < theVtxTrax[0].recHitsEnd(); tk1HitIt++) {
-	  const TrackingRecHit* tk1HitPtr = (*tk1HitIt).get();
+	for( ; tk1HitIt < theVtxTrax[0]->recHitsEnd(); tk1HitIt++) {
 	  if( (*tk1HitIt)->isValid() && hitsOkay) {
+	    std::cout << "!!5" << std::endl;
+	    const TrackingRecHit* tk1HitPtr = (*tk1HitIt).get();
 	    GlobalPoint tk1HitPosition
 	      = trackerGeom->idToDet(tk1HitPtr->
 				     geographicalId())->
 	      surface().toGlobal(tk1HitPtr->localPosition());
+	    std::cout << "!!6" << std::endl;
 	    //std::cout << typeid(*tk1HitPtr).name();<--This is how
 	    //                               we can access the hit type.
 
-	    if( tk1HitPosition.perp() < (rVtxMag - 3.*sigmaRvtxMag) ) {
+	    if( tk1HitPosition.perp() < (rVtxMag - 4.*sigmaRvtxMag) ) {
 	      hitsOkay = false;
 	    }
 	  }
 	}
 
-	for( ; tk2HitIt < theVtxTrax[1].recHitsEnd(); tk2HitIt++) {
-	  const TrackingRecHit* tk2HitPtr = (*tk2HitIt).get();
+	for( ; tk2HitIt < theVtxTrax[1]->recHitsEnd(); tk2HitIt++) {
 	  if( (*tk2HitIt)->isValid() && hitsOkay) {
+	    const TrackingRecHit* tk2HitPtr = (*tk2HitIt).get();
 	    GlobalPoint tk2HitPosition
 	      = trackerGeom->idToDet(tk2HitPtr->
 				     geographicalId())->
 	      surface().toGlobal(tk2HitPtr->localPosition());
 
-	    if( tk2HitPosition.perp() < (rVtxMag - 3.*sigmaRvtxMag) ) {
+	    if( tk2HitPosition.perp() < (rVtxMag - 4.*sigmaRvtxMag) ) {
 	      hitsOkay = false;
 	    }
 	  }
@@ -584,10 +634,10 @@ void V0Fitter::applyPostFitCuts() {
     }
   }
 
-  static int numkshorts = 0;
+  /*static int numkshorts = 0;
   numkshorts += theKshorts.size();
   std::cout << "Ending cuts with " << theKshorts.size() << " K0s, "
-	    << numkshorts << " total." << std::endl;
+  << numkshorts << " total." << std::endl;*/
   //std::cout << "Finished applyPostFitCuts() for event "
   //    << eventCounter << std::endl;
   //eventCounter++;

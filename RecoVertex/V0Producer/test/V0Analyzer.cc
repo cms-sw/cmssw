@@ -13,7 +13,7 @@
 //
 // Original Author:  Brian Drell
 //         Created:  Tue May 22 23:54:16 CEST 2007
-// $Id: V0Analyzer.cc,v 1.3 2008/02/05 21:22:18 drell Exp $
+// $Id: V0Analyzer.cc,v 1.5 2008/02/28 20:07:58 drell Exp $
 //
 //
 
@@ -730,12 +730,12 @@ void V0Analyzer::analyze(const edm::Event& iEvent,
 	    //std::cout << typeid(*tk1HitPtr).name();<--This is how
 	    //                               we can access the hit type.
 
-	    std::cout << ":::" << tk1HitPosition.mag() << ", "
-		      << vtxRSph - 4.*vtxErrorSph << std::endl;
+	    //std::cout << ":::" << tk1HitPosition.mag() << ", "
+	    //<< vtxRSph - 4.*vtxErrorSph << std::endl;
 
 	    if( tk1HitPosition.mag() < (vtxRSph - 4.*vtxErrorSph) ) {
 	      hitsOkay = false;
-	      std::cout << "Flagged on track 1." << std::endl;
+	      //std::cout << "Flagged on track 1." << std::endl;
 	    }
 	  }
 	}
@@ -748,12 +748,12 @@ void V0Analyzer::analyze(const edm::Event& iEvent,
 	      = trackerGeom->idToDet(tk2HitPtr->
 				     geographicalId())->
 	      surface().toGlobal(tk2HitPtr->localPosition());
-	    std::cout << ":::" << tk2HitPosition.mag() << ", "
-		      << vtxRSph - 4.*vtxErrorSph << std::endl;
+	    //std::cout << ":::" << tk2HitPosition.mag() << ", "
+	    //<< vtxRSph - 4.*vtxErrorSph << std::endl;
 
 	    if( tk2HitPosition.mag() < (vtxRSph - 4.*vtxErrorSph) ) {
 	      hitsOkay = false;
-	      std::cout << "Flagged on track 2." << std::endl;
+	      //std::cout << "Flagged on track 2." << std::endl;
 	    }
 	  }
 	}
@@ -791,12 +791,12 @@ void V0Analyzer::analyze(const edm::Event& iEvent,
       step1massHisto->Fill(theKshorts[ksndx].mass(), 1.);
       myRhoEfficiencyHisto->Fill(recoRad, 1.);
       rVtxHisto1->Fill(vtxR, 1.);
-      if(vtxR > 0.1) {
+      //if(vtxR > 0.1) {
       //if(vtxR > 1.) {
 	step2massHisto->Fill(theKshorts[ksndx].mass(), 1.);
 	myRhoEfficiencyHisto2->Fill(recoRad, 1.);
 	vtxSigHisto1->Fill(vtxSig, 1.);
-	if(vtxSig > 10.) {
+	if(vtxSig > 20.) {
 	  step3massHisto->Fill(theKshorts[ksndx].mass(), 1.);
 	  myRhoEfficiencyHisto3->Fill(recoRad, 1.);
 	  if(hitsOkay) {
@@ -806,7 +806,7 @@ void V0Analyzer::analyze(const edm::Event& iEvent,
 	    myRhoEfficiencyHisto4->Fill(recoRad, 1.);
 	  }
 	}
-      }
+	//}
     }
     //}
 
@@ -930,22 +930,72 @@ void V0Analyzer::analyze(const edm::Event& iEvent,
 
 // ------------ method called once each job just after ending the event loop  ------------
 void V0Analyzer::endJob() {
+  static int endJcount = 0;
 
   myEtaEfficiencyHisto->Divide(mySimEtaHisto);
   myRhoEfficiencyHisto->Divide(mySimRhoHisto);
   myRhoEfficiencyHisto2->Divide(mySimRhoHisto);
   myRhoEfficiencyHisto3->Divide(mySimRhoHisto);
   myRhoEfficiencyHisto4->Divide(mySimRhoHisto);
+  
+  myKshortMassHisto->Write();
+  myDecayRadiusHisto->Write();
+  myRefitKshortMassHisto->Write();
+  myRefitDecayRadiusHisto->Write();
+  myNativeParticleMassHisto->Write();
+  myEtaEfficiencyHisto->Write();
+  mySimEtaHisto->Write();
+  myRhoEfficiencyHisto->Write();
+  myRhoEfficiencyHisto2->Write();
+  myRhoEfficiencyHisto3->Write();
+  myRhoEfficiencyHisto4->Write();
+  mySimRhoHisto->Write();
+  myKshortPtHisto->Write();
+  myImpactParameterHisto->Write();
+  myImpactParameterHisto2->Write();
+  myNumSimKshortsHisto->Write();
+  myNumRecoKshortsHisto->Write();
+  myInnermostHitDistanceHisto->Write();
+
+  // Histograms for figuring out the best cuts
+  step1massHisto->Write();
+  step2massHisto->Write();
+  step3massHisto->Write();
+  step4massHisto->Write();
+  
+  vertexChi2Histo->Write();
+  rVtxHisto1->Write();
+  vtxSigHisto1->Write();
+  rVtxHisto2->Write();
+  //simRHisto->Write();
+  vtxSigHisto2->Write();
+  
+  rErrorHisto->Write();
+  tkPtHisto->Write();
+  k0sPtHisto->Write();
+  tkChi2Histo->Write();
+  sqrtTkChi2Histo->Write();
+  tkEtaHisto->Write();
+  kShortEtaHisto->Write();
+  numHitsHisto->Write();
+
+  std::cout << "Writing out histogram file." << std::endl;
+  
+  simTkMpipiHisto->Write();
   //std::cout << "Pointer address: " << theHistoFile << std::endl;
   theHistoFile->Write();
+  theHistoFile->Close();
   delete theHistoFile;
   theHistoFile=0;
+  endJcount++;
+  std::cout << "ENDJCOUNT: " << endJcount << std::endl;
 
   //std::cout << "numDiff1 = " << numDiff1 << ", numDiff2 = "
   //<< numDiff2 << std::endl;
 
   hitsOut << "numDiff1 = " << numDiff1 << ", numDiff2 = "
 	    << numDiff2 << std::endl;
+
 
   hitsOut.close();
 

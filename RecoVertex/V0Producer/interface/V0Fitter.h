@@ -13,7 +13,7 @@
 //
 // Original Author:  Brian Drell
 //         Created:  Fri May 18 22:57:40 CEST 2007
-// $Id: V0Fitter.h,v 1.7 2008/02/05 23:13:32 drell Exp $
+// $Id: V0Fitter.h,v 1.8 2008/02/14 20:37:29 drell Exp $
 //
 //
 
@@ -89,9 +89,12 @@ class V0Fitter {
   bool doLambdas;
 
   bool doPostFitCuts;
+  bool doTkQualCuts;
 
   // Cuts
   double chi2Cut;
+  double tkChi2Cut;
+  int tkNhitsCut;
   double rVtxCut;
   double vtxSigCut;
   double collinCut;
