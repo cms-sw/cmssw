@@ -20,10 +20,6 @@ using namespace std;
 
 namespace {
   static const float initialError = 10000;
-  int debug()
-  {
-    return 0;
-  }
 
   #ifdef STORE_WEIGHTS
   map < RefCountedLinearizedTrackState, int > ids;
@@ -325,6 +321,24 @@ AdaptiveVertexFitter * AdaptiveVertexFitter::clone() const
   return new AdaptiveVertexFitter( * this );
 }
 
+float AdaptiveVertexFitter::getWeight ( float chi2 ) const
+{
+  float weight = theAssProbComputer->weight(chi2);
+
+  if ( weight > 1.0 )
+  {
+    LogWarning("RecoVertex/AdaptiveVertexFitter") << "Weight " << weight << " > 1.0!";
+    weight=1.0;
+  };
+
+  if ( weight < 0.0 )
+  {
+    LogWarning("RecoVertex/AdaptiveVertexFitter") << "Weight " << weight << " < 0.0!";
+    weight=0.0;
+  };
+  return weight;
+}
+
 vector<AdaptiveVertexFitter::RefCountedVertexTrack>
 AdaptiveVertexFitter::reWeightTracks(
                     const vector<RefCountedLinearizedTrackState> & lTracks,
@@ -332,7 +346,6 @@ AdaptiveVertexFitter::reWeightTracks(
 {
   VertexState seed = vertex.vertexState();
   theNr++;
-  if (debug() & 4) cout << "Reweighting tracks... " << endl;
   // GlobalPoint pos = seed.position();
 
   vector<RefCountedVertexTrack> finalTracks;
@@ -343,25 +356,18 @@ AdaptiveVertexFitter::reWeightTracks(
   for(vector<RefCountedLinearizedTrackState>::const_iterator i
         = lTracks.begin(); i != lTracks.end(); i++)
   {
-    double chi2 = theComp->estimate ( vertex, *i );
-    double weight = theAssProbComputer->weight(chi2);
-
-    if ( weight > 1.0 )
-    {
-      LogWarning("RecoVertex/AdaptiveVertexFitter") 
-        << "Weight " << weight << " > 1.0!";
-      weight=1.0;
-    };
-
-    if ( weight < 0.0 )
-    {
-      LogWarning("RecoVertex/AdaptiveVertexFitter") 
-        << "Weight " << weight << " < 0.0!";
-      weight=0.0;
-    };
-
+    float weight=0.;
+    try {
+      float chi2 = theComp->estimate ( vertex, *i );
+      weight=getWeight ( chi2 );
+    } catch ( cms::Exception & c ) {
+      cout << "[AdaptiveVertexFitter] Aiee! " << c.what() << endl;
+      LogWarning("AdaptiveVertexFitter" ) << "When reweighting, a track threw \"" 
+                                          << c.what() << "\". Will add this track with w=0.";
+    }
+    
     RefCountedVertexTrack vTrData
-       = vTrackFactory.vertexTrack(*i, seed, theAssProbComputer->weight(chi2));
+       = vTrackFactory.vertexTrack(*i, seed, weight );
 
     #ifdef STORE_WEIGHTS
     map < string, dataharvester::MultiType > m;
@@ -385,7 +391,6 @@ AdaptiveVertexFitter::weightTracks(
                     const VertexState & seed ) const
 {
   theNr++;
-  if (debug() & 4) cout << "Reweighting tracks... " << endl;
   GlobalPoint pos = seed.position();
 
   vector<RefCountedVertexTrack> finalTracks;
@@ -397,25 +402,18 @@ AdaptiveVertexFitter::weightTracks(
   for(vector<RefCountedLinearizedTrackState>::const_iterator i
         = lTracks.begin(); i != lTracks.end(); i++)
   {
-    double chi2 = computer.estimate ( pos, *i );
-    double weight = theAssProbComputer->weight(chi2);
-
-    if ( weight > 1.0 )
-    {
-      LogWarning("RecoVertex/AdaptiveVertexFitter") 
-        << "Weight " << weight << " > 1.0!";
-      weight=1.0;
-    };
-
-    if ( weight < 0.0 )
-    {
-      LogWarning("RecoVertex/AdaptiveVertexFitter") 
-        << "Weight " << weight << " < 0.0!";
-      weight=0.0;
-    };
+    float weight = 0.;
+    try {
+      float chi2 = computer.estimate ( pos, *i );
+      weight = getWeight ( chi2 );
+    } catch ( cms::Exception & c ) {
+      cout << "[AdaptiveVertexFitter] Aiee! " << c.what() << endl;
+      LogWarning ("AdaptiveVertexFitter" ) << "When weighting a track, track threw \"" << c.what()
+                                           << " will add with w=0.";
+    }
 
     RefCountedVertexTrack vTrData
-       = vTrackFactory.vertexTrack(*i, seed, theAssProbComputer->weight(chi2));
+       = vTrackFactory.vertexTrack(*i, seed, weight );
     #ifdef STORE_WEIGHTS
     map < string, dataharvester::MultiType > m;
     m["chi2"]=chi2;
@@ -461,11 +459,6 @@ AdaptiveVertexFitter::fit(const vector<RefCountedVertexTrack> & tracks,
                           const VertexState & priorSeed,
                           bool withPrior) const
 {
-  /*
-  cout << "[AVF] debug: fitting wp=" << withPrior << " prior czz=" << priorSeed.error().czz() 
-       << ", cxx=" << priorSeed.error().cxx() 
-       << ", cyy=" << priorSeed.error().cyy() << endl;
-       */
   theAssProbComputer->resetAnnealing();
   vector<RefCountedVertexTrack> initialTracks;
   GlobalPoint priorVertexPosition = priorSeed.position();
@@ -494,12 +487,9 @@ AdaptiveVertexFitter::fit(const vector<RefCountedVertexTrack> & tracks,
 
   do {
     ns_trks=0;
-    if (debug() & 8) cout << "lin point convergence step " << lpStep;
-    if (debug() & 8) cout << " vtx pos convergence step " << step << endl;
     CachingVertex<5> fVertex = initialVertex;
     if ((previousPosition - newPosition).transverse() > theMaxLPShift)
     {
-      if (debug() & 4) cout << "[AdaptiveVertexFitter] Relinearization." << endl;
       // relinearize and reweight.
       // (reLinearizeTracks also reweights tracks)
       globalVTracks = reLinearizeTracks( globalVTracks,
@@ -510,20 +500,17 @@ AdaptiveVertexFitter::fit(const vector<RefCountedVertexTrack> & tracks,
       globalVTracks = reWeightTracks( globalVTracks,
                                       returnVertex );
     }
-    // cout << "-- new iteration" << endl;
     // update sequentially the vertex estimate
     CachingVertex<5> nVertex;
     for(vector<RefCountedVertexTrack>::const_iterator i
           = globalVTracks.begin(); i != globalVTracks.end(); i++)
     {
-      // cout << "  -- fVtx pos=" << fVertex.position() << " cxx=" << fVertex.error().cxx() << " ndf=" << fVertex.degreesOfFreedom() << " add " << (**i).weight() << endl;
       try {
         nVertex = theUpdator->add( fVertex, *i );
       } catch ( cms::Exception & c ) {
         edm::LogWarning("AdaptiveVertexFitter" ) << "when updating, received " << c.what()
                                                  << " final result might miss the info of a track.";
       }
-      // cout << "  +- fVtx pos=" << fVertex.position() << " cxx=" << fVertex.error().cxx() << " ndf=" << fVertex.degreesOfFreedom() << endl;
       if (nVertex.isValid()) {
         if ( (**i).weight() >= theWeightThreshold )
         {
@@ -550,10 +537,6 @@ AdaptiveVertexFitter::fit(const vector<RefCountedVertexTrack> & tracks,
       // - we're not yet annealed
          ( ((previousPosition - newPosition).mag() > theMaxShift) ||
            (!(theAssProbComputer->isAnnealed()) ) ) ) ;
-
-  if (debug() ) cout << "[AdaptiveVertexFitter] debug: steps=" << step
-     << " final temp=" << theAssProbComputer->currentTemp() 
-     << " lpsteps=" << lpStep << endl;
 
   if ( theWeightThreshold > 0. &&  ns_trks < 2 && !withPrior ) 
   {

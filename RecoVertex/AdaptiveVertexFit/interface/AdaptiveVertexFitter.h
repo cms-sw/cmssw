@@ -195,6 +195,7 @@ private:
                      const VertexState & priorSeed,
                      bool withPrior) const;
 
+  float getWeight ( float chi2 ) const;
 private:
   float theMaxShift;
   float theMaxLPShift;
