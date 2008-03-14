@@ -13,7 +13,7 @@
 //
 // Original Author:  Brian Drell
 //         Created:  Fri May 18 22:57:40 CEST 2007
-// $Id: V0Fitter.cc,v 1.17 2008/02/14 20:37:29 drell Exp $
+// $Id: V0Fitter.cc,v 1.18 2008/03/14 17:13:23 drell Exp $
 //
 //
 
@@ -499,7 +499,7 @@ void V0Fitter::applyPostFitCuts() {
   //std::cout << "Doing applyPostFitCuts()" << std::endl;
   /*std::cout << "Starting post fit cuts with " << preCutCands.size()
     << " preCutCands" << std::endl;*/
-  std::cout << "!1" << std::endl;
+  //std::cout << "!1" << std::endl;
   for(std::vector<reco::V0Candidate>::iterator theIt = preCutCands.begin();
       theIt != preCutCands.end(); theIt++) {
     bool writeVee = false;
@@ -524,7 +524,7 @@ void V0Fitter::applyPostFitCuts() {
     double sigmaRvtxMag =
       sqrt( sig00*(x_*x_) + sig11*(y_*y_) + 2*sig01*(x_*y_) ) / rVtxMag;
 
-    std::cout << "!2" << std::endl;
+    //std::cout << "!2" << std::endl;
     // Get the tracks from the candidates.
     std::vector<reco::RecoChargedCandidate> v0daughters;
     std::vector<reco::TrackRef> theVtxTrax;
@@ -546,7 +546,7 @@ void V0Fitter::applyPostFitCuts() {
       }
       }*/
 
-    std::cout << "!3" << std::endl;
+    //std::cout << "!3" << std::endl;
     using namespace reco;
 
     // If the position of the innermost hit on either of the daughter
@@ -558,17 +558,17 @@ void V0Fitter::applyPostFitCuts() {
       if( theVtxTrax[0]->recHitsSize() && theVtxTrax[1]->recHitsSize() ) {
 	trackingRecHit_iterator tk1HitIt = theVtxTrax[0]->recHitsBegin();
 	trackingRecHit_iterator tk2HitIt = theVtxTrax[1]->recHitsBegin();
-	std::cout << "!!4" << std::endl;
+	//std::cout << "!!4" << std::endl;
 
 	for( ; tk1HitIt < theVtxTrax[0]->recHitsEnd(); tk1HitIt++) {
 	  if( (*tk1HitIt)->isValid() && hitsOkay) {
-	    std::cout << "!!5" << std::endl;
+	    //std::cout << "!!5" << std::endl;
 	    const TrackingRecHit* tk1HitPtr = (*tk1HitIt).get();
 	    GlobalPoint tk1HitPosition
 	      = trackerGeom->idToDet(tk1HitPtr->
 				     geographicalId())->
 	      surface().toGlobal(tk1HitPtr->localPosition());
-	    std::cout << "!!6" << std::endl;
+	    //std::cout << "!!6" << std::endl;
 	    //std::cout << typeid(*tk1HitPtr).name();<--This is how
 	    //                               we can access the hit type.
 
