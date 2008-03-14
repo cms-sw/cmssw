@@ -21,8 +21,15 @@ class JetProbabilityComputer : public JetTagComputer
      m_trackSign        = parameters.getParameter<int>("trackIpSign");
      m_cutMaxDecayLen   = parameters.getParameter<double>("maximumDecayLength"); 
      m_cutMaxDistToAxis = parameters.getParameter<double>("maximumDistanceToJetAxis"); 
-     m_cutPixelHits     = parameters.getParameter<int>("minimumNumberOfPixelHits");
-
+     //
+     // access track quality class; "any" takes everything
+     //
+     std::string trackQualityType = parameters.getParameter<std::string>("trackQualityClass"); //used
+     m_trackQuality =  reco::TrackBase::qualityByName(trackQualityType);
+     m_useAllQualities = false;
+     if (trackQualityType == "any" || 
+	 trackQualityType == "Any" || 
+	 trackQualityType == "ANY" ) m_useAllQualities = true;
   }
  
   float discriminator(const reco::BaseTagInfo & ti) const 
@@ -43,9 +50,9 @@ class JetProbabilityComputer : public JetTagComputer
           for(std::vector<float>::const_iterator it = allProbabilities.begin(); it!=allProbabilities.end(); ++it, i++)
            {
            if(   fabs(impactParameters[i].distanceToJetAxis) < m_cutMaxDistToAxis  &&        // distance to JetAxis
-                 (impactParameters[i].closestToJetAxis - pv).mag() < m_cutMaxDecayLen &&     // max decay len
-		  (*tracks[i]).hitPattern().numberOfValidPixelHits() >= m_cutPixelHits 
-	        )
+                 (impactParameters[i].closestToJetAxis - pv).mag() < m_cutMaxDecayLen  &&      // max decay len
+  		 (m_useAllQualities  == true || (*tracks[i]).quality(m_trackQuality)) // use selected track qualities
+           )
             {
               float p;
               if(m_trackSign ==0 )
@@ -109,11 +116,12 @@ double jetProbability( const std::vector<float> & v ) const
  private:
    double m_minTrackProb;
    int m_ipType;
-   int m_cutPixelHits;
    double m_deltaR;
    int m_trackSign;
    double  m_cutMaxDecayLen;
    double m_cutMaxDistToAxis;
+   reco::TrackBase::TrackQuality   m_trackQuality;
+   bool m_useAllQualities;
 
 
 };
