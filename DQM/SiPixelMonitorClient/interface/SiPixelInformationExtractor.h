@@ -10,6 +10,9 @@
 #include "DQM/SiPixelMonitorClient/interface/SiPixelLayoutParser.h"
 #include "DQM/SiPixelMonitorClient/interface/SiPixelQTestsParser.h"
 
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/ESHandle.h"
 
 #include "xgi/Utils.h"
 #include "xgi/Method.h"
@@ -17,6 +20,7 @@
 #include "TCanvas.h"
 #include "TPaveText.h"
 #include "TF1.h"
+#include "TH2F.h"
 #include "TGaxis.h"
 #include "qstring.h"
 
@@ -99,11 +103,14 @@ class SiPixelInformationExtractor {
 				 std::map<std::string,std::map<std::string,std::string> >                & qtestsMap,
 				 std::map<std::string,std::vector<std::string> >    & meQTestsMap);
 
-  float computeGlobalQualityFlag(DQMStore                               * bei);
-  float qflag_;
-  int allMods_;
-  int errorMods_;
-
+  void computeGlobalQualityFlag (DQMStore                               * bei,
+                                 bool                                     init);
+  
+  void fillGlobalQualityPlot    (DQMStore                               * bei,
+                                 bool                                     init,
+                                 edm::EventSetup const                  & eSetup);
+  
+  
  private:
 
   void fillBarrelList(        	DQMStore				* bei, 
@@ -205,6 +212,22 @@ class SiPixelInformationExtractor {
   bool  readQTestMap_;
   bool  readMeMap_;
   bool  flagHotModule_;
+  
+  float qflag_, bpix_flag_, shellmI_flag_, shellmO_flag_, shellpI_flag_;
+  float shellpO_flag_, fpix_flag_, hcylmI_flag_, hcylmO_flag_;
+  float hcylpI_flag_, hcylpO_flag_;
+  int allMods_, bpix_mods_, shellmI_mods_, shellmO_mods_, shellpI_mods_;
+  int shellpO_mods_, fpix_mods_, hcylmI_mods_, hcylmO_mods_;
+  int hcylpI_mods_, hcylpO_mods_;
+  int errorMods_, err_bpix_mods_, err_shellmI_mods_, err_shellmO_mods_;
+  int err_shellpI_mods_, err_shellpO_mods_, err_fpix_mods_, err_hcylmI_mods_;
+  int err_hcylmO_mods_, err_hcylpI_mods_, err_hcylpO_mods_; 
+  
+  TH2F * allmodsEtaPhi;
+  TH2F * errmodsEtaPhi;
+  TH2F * goodmodsEtaPhi;
+  int count;
+  int errcount;
   
 };
 #endif

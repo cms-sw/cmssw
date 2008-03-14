@@ -7,6 +7,8 @@
 #include "EventFilter/Utilities/interface/ModuleWeb.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 
+#include "DQM/SiPixelMonitorClient/interface/SiPixelInformationExtractor.h"
+
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/LuminosityBlock.h"
@@ -38,9 +40,9 @@ public:
   //  void handleWebRequest(xgi::Input *in, 
   //                        xgi::Output *out); 
 
-  float qflag_;
-  int allMods_;
-  int errorMods_;
+  //float qflag_;
+  //int allMods_;
+  //int errorMods_;
 
 
 protected:
@@ -64,6 +66,7 @@ private:
 
   edm::ParameterSet parameters;
   SiPixelWebInterface* sipixelWebInterface_;
+  SiPixelInformationExtractor* sipixelInformationExtractor_;
 
   int tkMapFrequency_;
   int summaryFrequency_;

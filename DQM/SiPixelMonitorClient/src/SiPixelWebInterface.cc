@@ -36,7 +36,6 @@ SiPixelWebInterface::SiPixelWebInterface(std::string	      theContextURL,
   tkMapOptions_.push_back("Persistant");
   tkMapOptions_.push_back("Temporary");
   tkMapCreated = false;
-  qflag_=0.;
   createAll();
 
   if (actionExecutor_ == 0) actionExecutor_ = new SiPixelActionExecutor();
@@ -355,7 +354,8 @@ void SiPixelWebInterface::performAction() {
     }
   case SiPixelWebInterface::ComputeGlobalQualityFlag  :
     {
-      qflag_ = infoExtractor_->computeGlobalQualityFlag(bei);
+      bool init=true;
+      infoExtractor_->computeGlobalQualityFlag(bei,init);
       break;
     }
   case SiPixelWebInterface::dumpModIds  :

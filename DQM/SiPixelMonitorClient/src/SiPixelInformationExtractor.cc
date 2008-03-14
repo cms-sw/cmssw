@@ -14,6 +14,13 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DQMServices/WebComponents/interface/CgiReader.h"
 #include "FWCore/ParameterSet/interface/FileInPath.h"
+#include "DataFormats/DetId/interface/DetId.h"
+#include "DataFormats/GeometrySurface/interface/Surface.h"
+#include "Geometry/TrackerNumberingBuilder/interface/GeometricDet.h"
+#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
+#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
+#include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h"
+#include "Geometry/CommonTopologies/interface/PixelTopology.h"
 
 #include "TClass.h"
 #include "TText.h"
@@ -43,6 +50,7 @@
 #include <cstdlib> // for free() - Root can allocate with malloc() - sigh...
  
 using namespace std;
+using namespace edm;
 
 //------------------------------------------------------------------------------
 /*! \brief Constructor of the SiPixelInformationExtractor class.
@@ -2188,8 +2196,8 @@ void SiPixelInformationExtractor::setLines(MonitorElement * me,
 }
 
 
-
-float SiPixelInformationExtractor::computeGlobalQualityFlag(DQMStore * bei)
+void SiPixelInformationExtractor::computeGlobalQualityFlag(DQMStore * bei, 
+                                                           bool init)
 {
 //cout<<"entering SiPixelInformationExtractor::ComputeGlobalQualityFlag"<<endl;
 //   cout << ACRed << ACBold
@@ -2197,17 +2205,39 @@ float SiPixelInformationExtractor::computeGlobalQualityFlag(DQMStore * bei)
 //        << ACPlain
 //        << " Enter" 
 //        << endl ;
-
+  if(init){
+    allMods_=0; errorMods_=0; qflag_=0.; 
+    bpix_mods_=0; err_bpix_mods_=0; bpix_flag_=0.;
+    shellmI_mods_=0; err_shellmI_mods_=0; shellmI_flag_=0.;
+    shellmO_mods_=0; err_shellmO_mods_=0; shellmO_flag_=0.;
+    shellpI_mods_=0; err_shellpI_mods_=0; shellpI_flag_=0.;
+    shellpO_mods_=0; err_shellpO_mods_=0; shellpO_flag_=0.;
+    fpix_mods_=0; err_fpix_mods_=0; fpix_flag_=0.;
+    hcylmI_mods_=0; err_hcylmI_mods_=0; hcylmI_flag_=0.;
+    hcylmO_mods_=0; err_hcylmO_mods_=0; hcylmO_flag_=0.;
+    hcylpI_mods_=0; err_hcylpI_mods_=0; hcylpI_flag_=0.;
+    hcylpO_mods_=0; err_hcylpO_mods_=0; hcylpO_flag_=0.;
+  }
+  
   string currDir = bei->pwd();
   string dname = currDir.substr(currDir.find_last_of("/")+1);
   
   QRegExp rx("Module_");
  
   if(rx.search(dname)!=-1){
-    allMods_++;
-  
+    if(currDir.find("Pixel")!=string::npos) allMods_++;
+    if(currDir.find("Barrel")!=string::npos) bpix_mods_++;
+    if(currDir.find("Shell_mI")!=string::npos) shellmI_mods_++;
+    if(currDir.find("Shell_mO")!=string::npos) shellmO_mods_++;
+    if(currDir.find("Shell_pI")!=string::npos) shellpI_mods_++;
+    if(currDir.find("Shell_pO")!=string::npos) shellpO_mods_++;
+    if(currDir.find("Endcap")!=string::npos) fpix_mods_++;
+    if(currDir.find("HalfCylinder_mI")!=string::npos) hcylmI_mods_++;
+    if(currDir.find("HalfCylinder_mO")!=string::npos) hcylmO_mods_++;
+    if(currDir.find("HalfCylinder_pI")!=string::npos) hcylpI_mods_++;
+    if(currDir.find("HalfCylinder_pO")!=string::npos) hcylpO_mods_++;
+      
     vector<string> meVec = bei->getMEs();
-   
     for (vector<string>::const_iterator it = meVec.begin();
 	 it != meVec.end(); it++) {
       string full_path = currDir + "/" + (*it);
@@ -2220,26 +2250,160 @@ float SiPixelInformationExtractor::computeGlobalQualityFlag(DQMStore * bei)
         selectImage(image_name,my_map);
         if(image_name!="images/LI_green.gif") {
           errorMods_++;
+          if(currDir.find("Pixel")!=string::npos) errorMods_++;
+          if(currDir.find("Barrel")!=string::npos) err_bpix_mods_++;
+          if(currDir.find("Shell_mI")!=string::npos) err_shellmI_mods_++;
+          if(currDir.find("Shell_mO")!=string::npos) err_shellmO_mods_++;
+          if(currDir.find("Shell_pI")!=string::npos) err_shellpI_mods_++;
+          if(currDir.find("Shell_pO")!=string::npos) err_shellpO_mods_++;
+          if(currDir.find("Endcap")!=string::npos) err_fpix_mods_++;
+          if(currDir.find("HalfCylinder_mI")!=string::npos) err_hcylmI_mods_++;
+          if(currDir.find("HalfCylinder_mO")!=string::npos) err_hcylmO_mods_++;
+          if(currDir.find("HalfCylinder_pI")!=string::npos) err_hcylpI_mods_++;
+          if(currDir.find("HalfCylinder_pO")!=string::npos) err_hcylpO_mods_++;
         }	
       }
     }
   }
-  
   if(allMods_>0) qflag_ = (float(allMods_)-float(errorMods_))/float(allMods_);
+  if(bpix_mods_>0) bpix_flag_ = (float(bpix_mods_)-float(err_bpix_mods_))/float(bpix_mods_);
+  if(shellmI_mods_>0) shellmI_flag_ = (float(shellmI_mods_)-float(err_shellmI_mods_))/float(shellmI_mods_);
+  if(shellmO_mods_>0) shellmO_flag_ = (float(shellmO_mods_)-float(err_shellmO_mods_))/float(shellmO_mods_);
+  if(shellpI_mods_>0) shellpI_flag_ = (float(shellpI_mods_)-float(err_shellpI_mods_))/float(shellpI_mods_);
+  if(shellpO_mods_>0) shellpO_flag_ = (float(shellpO_mods_)-float(err_shellpO_mods_))/float(shellpO_mods_);
+  if(fpix_mods_>0) fpix_flag_ = (float(fpix_mods_)-float(err_fpix_mods_))/float(fpix_mods_);
+  if(hcylmI_mods_>0) hcylmI_flag_ = (float(hcylmI_mods_)-float(err_hcylmI_mods_))/float(hcylmI_mods_);
+  if(hcylmO_mods_>0) hcylmO_flag_ = (float(hcylmO_mods_)-float(err_hcylmO_mods_))/float(hcylmO_mods_);
+  if(hcylpI_mods_>0) hcylpI_flag_ = (float(hcylpI_mods_)-float(err_hcylpI_mods_))/float(hcylpI_mods_);
+  if(hcylpO_mods_>0) hcylpO_flag_ = (float(hcylpO_mods_)-float(err_hcylpO_mods_))/float(hcylpO_mods_);
   
   vector<string> subDirVec = bei->getSubdirs();  
   for (vector<string>::const_iterator ic = subDirVec.begin();
        ic != subDirVec.end(); ic++) {
     bei->cd(*ic);
-    computeGlobalQualityFlag(bei);
+    init=false;
+    computeGlobalQualityFlag(bei,init);
     bei->goUp();
   }
   
-//   cout << ACGreen << ACBold
-//        << "[SiPixelInformationExtractor::ComputeGlobalQualityFlag]"
-//        << ACPlain
-//        << " Done" 
-//        << endl ;
-//cout<<"leaving SiPixelInformationExtractor::ComputeGlobalQualityFlag with "<<qflag_<<endl;
-  return qflag_;
+  MonitorElement* errorSummaryME = bei->get("Pixel/EventInfo/errorSummary");
+  if(errorSummaryME) errorSummaryME->Fill(qflag_); 
+  MonitorElement* errorSummaryME_00 = bei->get("Pixel/EventInfo/errorSummarySegments/Segment00");
+  if(errorSummaryME_00) errorSummaryME_00->Fill(bpix_flag_); 
+  MonitorElement* errorSummaryME_01 = bei->get("Pixel/EventInfo/errorSummarySegments/Segment01"); 
+  if(errorSummaryME_01) errorSummaryME_01->Fill(shellmI_flag_); 
+  MonitorElement* errorSummaryME_02 = bei->get("Pixel/EventInfo/errorSummarySegments/Segment02");
+  if(errorSummaryME_02) errorSummaryME_02->Fill(shellmO_flag_); 
+  MonitorElement* errorSummaryME_03 = bei->get("Pixel/EventInfo/errorSummarySegments/Segment03");
+  if(errorSummaryME_03) errorSummaryME_03->Fill(shellpI_flag_); 
+  MonitorElement* errorSummaryME_04 = bei->get("Pixel/EventInfo/errorSummarySegments/Segment04");
+  if(errorSummaryME_04) errorSummaryME_04->Fill(shellpO_flag_); 
+  MonitorElement* errorSummaryME_05 = bei->get("Pixel/EventInfo/errorSummarySegments/Segment05");
+  if(errorSummaryME_05) errorSummaryME_05->Fill(fpix_flag_); 
+  MonitorElement* errorSummaryME_06 = bei->get("Pixel/EventInfo/errorSummarySegments/Segment06");
+  if(errorSummaryME_06) errorSummaryME_06->Fill(hcylmI_flag_); 
+  MonitorElement* errorSummaryME_07 = bei->get("Pixel/EventInfo/errorSummarySegments/Segment07");
+  if(errorSummaryME_07) errorSummaryME_07->Fill(hcylmO_flag_); 
+  MonitorElement* errorSummaryME_08 = bei->get("Pixel/EventInfo/errorSummarySegments/Segment08");
+  if(errorSummaryME_08) errorSummaryME_08->Fill(hcylpI_flag_); 
+  MonitorElement* errorSummaryME_09 = bei->get("Pixel/EventInfo/errorSummarySegments/Segment09");
+  if(errorSummaryME_09) errorSummaryME_09->Fill(hcylpO_flag_); 
+    
 }
+
+void SiPixelInformationExtractor::fillGlobalQualityPlot(DQMStore * bei, bool init, edm::EventSetup const& eSetup)
+{
+  //calculate eta and phi of the modules and fill a 2D plot:
+  
+  if(init){
+    allmodsEtaPhi = new TH2F("allmodsEtaPhi","allmodsEtaPhi",60,-3.,3.,64,-3.2,3.2);
+    errmodsEtaPhi = new TH2F("errmodsEtaPhi","errmodsEtaPhi",60,-3.,3.,64,-3.2,3.2);
+    goodmodsEtaPhi = new TH2F("goodmodsEtaPhi","goodmodsEtaPhi",60,-3.,3.,64,-3.2,3.2);
+    count=0; errcount=0;
+    init=false;
+  }
+  string currDir = bei->pwd();
+  string dname = currDir.substr(currDir.find_last_of("/")+1);
+  
+  QRegExp rx("Module_");
+ 
+  if(rx.search(dname)!=-1){
+    vector<string> meVec = bei->getMEs();
+    float detEta=-5.; float detPhi=-5.;
+    bool first=true; bool once=true;
+    for (vector<string>::const_iterator it = meVec.begin();
+	 it != meVec.end(); it++) {
+      if(!once) continue;
+      string full_path = currDir + "/" + (*it);
+      MonitorElement * me = bei->get(full_path);
+      if (!me) continue;
+      int id;
+      if(first){ id = getDetId(me); first=false; }
+      DetId detid = DetId(id);
+      if(detid.det()!=1) continue;
+      edm::ESHandle<TrackerGeometry> pDD;
+      eSetup.get<TrackerDigiGeometryRecord>().get( pDD );
+      for(TrackerGeometry::DetContainer::const_iterator it = 
+	  pDD->dets().begin(); it != pDD->dets().end(); it++){
+        if(dynamic_cast<PixelGeomDetUnit*>((*it))!=0){
+          DetId detId = (*it)->geographicalId();
+	  if(detId!=detid) continue;
+	  //if(detId.subdetId()!=1) continue;
+          const GeomDetUnit * geoUnit = pDD->idToDetUnit( detId );
+          const PixelGeomDetUnit * pixDet = dynamic_cast<const PixelGeomDetUnit*>(geoUnit);
+	  float detR = pixDet->surface().position().perp();
+	  float detZ = pixDet->surface().position().z();
+	  detPhi = pixDet->surface().position().phi();
+	  detEta = -1.*log(tan(atan2(detR,detZ)/2.));
+	  //cout<<"Module: "<<currDir<<" , Eta= "<<detEta<<" , Phi= "<<detPhi<<endl;
+	  once=false;
+	}
+      }
+    }  
+    //got module ID and eta and phi now! time to count:
+    count++;
+    allmodsEtaPhi->Fill(detEta,detPhi);
+    bool anyerr=false;
+    for (vector<string>::const_iterator it = meVec.begin();
+	 it != meVec.end(); it++){
+      if(anyerr) continue;
+      string full_path = currDir + "/" + (*it);
+      MonitorElement * me = bei->get(full_path);
+      if (!me) continue;
+      if(me->hasError()||me->hasWarning()||me->hasOtherReport()) anyerr=true;
+    }
+    if(anyerr){
+      errcount++;
+      errmodsEtaPhi->Fill(detEta,detPhi);
+    }
+  }
+
+  vector<string> subDirVec = bei->getSubdirs();  
+  for (vector<string>::const_iterator ic = subDirVec.begin();
+       ic != subDirVec.end(); ic++) {
+    bei->cd(*ic);
+    init=false;
+    fillGlobalQualityPlot(bei,init,eSetup);
+    bei->goUp();
+  }
+  
+  MonitorElement* errorSummaryEtaPhi = bei->get("Pixel/EventInfo/errorSummaryEtaPhi");
+  if(errorSummaryEtaPhi){ 
+    float contents=0.;
+    for(int i=1; i!=61; i++)for(int j=1; j!=65; j++){
+      contents = (allmodsEtaPhi->GetBinContent(i,j))-(errmodsEtaPhi->GetBinContent(i,j));
+      goodmodsEtaPhi->SetBinContent(i,j,contents);
+      if(allmodsEtaPhi->GetBinContent(i,j)>0){
+        //contents = allmodsEtaPhi->GetBinContent(i,j);
+	contents = (goodmodsEtaPhi->GetBinContent(i,j))/(allmodsEtaPhi->GetBinContent(i,j));
+      }else{
+        contents = -1.;
+      }
+      errorSummaryEtaPhi->setBinContent(i,j,contents);
+    }
+    errorSummaryEtaPhi->setAxisTitle("Eta",1);
+    errorSummaryEtaPhi->setAxisTitle("Phi",2);
+  }
+  //cout<<"counters: "<<count<<" , "<<errcount<<endl;
+}
+

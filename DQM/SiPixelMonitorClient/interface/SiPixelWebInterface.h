@@ -26,7 +26,7 @@ public:
 			 PlotHistogramFromPath    =  9,
 			 ComputeGlobalQualityFlag = 10,
 			 dumpModIds               = 11};
-
+			 
   SiPixelWebInterface(std::string theContextURL, 
                       std::string theApplicationURL, 
 		      DQMOldReceiver ** _mui_p);
@@ -57,9 +57,6 @@ public:
   bool createTkMap();
   void periodicTkMapUpdate( xgi::Output * out);
    
-  float qflag_;
-  float returnQFlag() {return qflag_;}
-  
 private:
 
   SiPixelActionType theActionFlag;
@@ -75,10 +72,7 @@ private:
   std::multimap<std::string, std::string> requestMap_;
   xgi::Output * theOut ;
   std::string fileName_;  
-  
-  int allMods_;
-  int errorMods_;
-  
+    
 protected:
 
 };

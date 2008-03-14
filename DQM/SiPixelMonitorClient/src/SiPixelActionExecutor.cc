@@ -1023,13 +1023,13 @@ int SiPixelActionExecutor::getTkMapMENames(std::vector<std::string>& names) {
 
 ///// Dump Module paths and IDs on screen:
 void SiPixelActionExecutor::dumpModIds(DQMStore * bei){
-
+//cout<<"Going to dump module IDs now!"<<endl;
   bei->cd();
   dumpBarrelModIds(bei);
   bei->cd();
   dumpEndcapModIds(bei);
   bei->cd();
-
+//cout<<"Done dumping module IDs!"<<endl;
 }
 
 

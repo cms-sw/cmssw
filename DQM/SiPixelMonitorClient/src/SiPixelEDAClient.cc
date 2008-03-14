@@ -61,6 +61,7 @@ SiPixelEDAClient::SiPixelEDAClient(const edm::ParameterSet& ps) :
   // instantiate web interface
   sipixelWebInterface_ = new SiPixelWebInterface("dummy", "dummy", &mui_);
   defaultPageCreated_ = false;
+  sipixelInformationExtractor_ = new SiPixelInformationExtractor();
   
  //cout<<"...leaving  SiPixelEDAClient::SiPixelEDAClient. "<<endl;
 }
@@ -156,17 +157,18 @@ void SiPixelEDAClient::endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, e
     sipixelWebInterface_->performAction();
   }
   //cout << " Checking QTest results " << endl;
-  sipixelWebInterface_->setActionFlag(SiPixelWebInterface::QTestResult);
+/*  sipixelWebInterface_->setActionFlag(SiPixelWebInterface::QTestResult);
   sipixelWebInterface_->performAction();
   
   //cout  << " Checking global Pixel quality flag " << endl;;
   sipixelWebInterface_->setActionFlag(SiPixelWebInterface::ComputeGlobalQualityFlag);
+  sipixelWebInterface_->setSubDetector(SiPixelWebInterface::Pixel);
   sipixelWebInterface_->performAction();
   float GQF = sipixelWebInterface_->returnQFlag();
   bei_->cd();
   MonitorElement* errorSummaryME = bei_->get("Pixel/EventInfo/errorSummary");
   if(errorSummaryME) errorSummaryME->Fill(GQF); 
-    
+*/    
     
          
   // -- Create TrackerMap  according to the frequency
@@ -201,14 +203,14 @@ void SiPixelEDAClient::endRun(edm::Run const& run, edm::EventSetup const& eSetup
   //cout << " Checking QTest results " << endl;
   sipixelWebInterface_->setActionFlag(SiPixelWebInterface::QTestResult);
   sipixelWebInterface_->performAction();
-  //cout  << " Checking global Pixel quality flag " << endl;;
+
+
+  //cout  << " Checking Pixel quality flags " << endl;;
+  bei_->cd();
   sipixelWebInterface_->setActionFlag(SiPixelWebInterface::ComputeGlobalQualityFlag);
   sipixelWebInterface_->performAction();
-  float GQF = sipixelWebInterface_->returnQFlag();
-  bei_->cd();
-  MonitorElement* errorSummaryME = bei_->get("Pixel/EventInfo/errorSummary");
-  if(errorSummaryME) errorSummaryME->Fill(GQF); 
-
+  bool init=true;
+  sipixelInformationExtractor_->fillGlobalQualityPlot(bei_,init,eSetup);
   //cout<<"...leaving SiPixelEDAClient::endRun. "<<endl;
 }
 
