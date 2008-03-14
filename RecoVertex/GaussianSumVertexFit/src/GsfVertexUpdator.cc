@@ -121,13 +121,13 @@ GsfVertexUpdator::createNewComponent(const VertexState & oldVertex,
   if (!newVertex.isValid()) return VertexComponent(newVertex, WeightChi2Pair(0.,0.));
 
   //Chi**2 contribution of the component
-  float chi2 = kalmanVertexUpdator.chi2Increment(oldVertex, newVertex, 
+  pair <bool, double> chi2P = kalmanVertexUpdator.chi2Increment(oldVertex, newVertex, 
   				linTrack, weight);
-  if (chi2 < 0.) return VertexComponent(VertexState(), WeightChi2Pair(0.,0.));
+  if (!chi2P.first) return VertexComponent(VertexState(), WeightChi2Pair(0.,0.));
 //         cout << "Update: "<<oldVertex.position()<<" "<<newVertex.position()<<" "<<chi2
 // 	     <<" "<<linTrack->weightInMixture()<<" "<<weightInMixture<<endl;
 
-  return VertexComponent(newVertex, WeightChi2Pair(weightInMixture, chi2));
+  return VertexComponent(newVertex, WeightChi2Pair(weightInMixture, chi2P.second));
 }
 
 GsfVertexUpdator::VertexChi2Pair GsfVertexUpdator::assembleVertexComponents(
