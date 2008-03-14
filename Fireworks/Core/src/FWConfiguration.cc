@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Feb 22 15:54:29 EST 2008
-// $Id$
+// $Id: FWConfiguration.cc,v 1.1 2008/02/25 21:32:27 chrjones Exp $
 //
 
 // system include files
@@ -171,6 +171,34 @@ operator<<(std::ostream& oTo, const FWConfiguration& iConfig)
          oTo<<".addKeyValue(\""<<it->first<<"\", "<<it->second<<")\n";
       }
    }
+   return oTo;
+}
+
+std::ostream& 
+addToCode(const std::string& iParentVariable,
+          const std::string& iKey,
+          const FWConfiguration& iConfig,
+          std::ostream& oTo)
+{
+   oTo <<"{\n";
+   std::string newVar = iParentVariable+"a";
+   oTo <<"  FWConfiguration "<<newVar<<"("<<iConfig.version()<<");\n";
+   if(iConfig.stringValues()) {
+      for(FWConfiguration::StringValues::const_iterator it = iConfig.stringValues()->begin();
+          it != iConfig.stringValues()->end();
+          ++it) {
+         oTo<<"  "<<newVar<<".addValue(\""<<*it<<"\");\n";
+      }
+   }
+   if(iConfig.keyValues()) {
+      for(FWConfiguration::KeyValues::const_iterator it = iConfig.keyValues()->begin();
+          it != iConfig.keyValues()->end();
+          ++it) {
+         addToCode(newVar,it->first,it->second, oTo);
+      }
+   }
+   oTo<<"  "<< iParentVariable<<".addKeyValue(\""<<iKey<<"\", "<<newVar<<");\n}\n";
+   
    return oTo;
 }
 

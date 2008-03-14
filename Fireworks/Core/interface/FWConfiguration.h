@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Feb 22 15:54:22 EST 2008
-// $Id$
+// $Id: FWConfiguration.h,v 1.1 2008/02/25 21:32:24 chrjones Exp $
 //
 
 // system include files
@@ -73,5 +73,9 @@ class FWConfiguration
 
 std::ostream& operator<<(std::ostream& , const FWConfiguration&);
 
+std::ostream& addToCode(const std::string& iParentVariable,
+                        const std::string& iKey,
+                        const FWConfiguration& iConfig,
+                        std::ostream& ioCode);
 
 #endif
