@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Sun Feb 24 14:42:32 EST 2008
-// $Id: FWConfigurationManager.cc,v 1.2 2008/02/27 00:52:26 chrjones Exp $
+// $Id: FWConfigurationManager.cc,v 1.3 2008/03/09 19:29:31 dmytro Exp $
 //
 
 // system include files
@@ -109,7 +109,18 @@ FWConfigurationManager::writeToFile(const std::string& iName) const
    }
    FWConfiguration top;
    to(top);
-   file <<"FWConfiguration* fwConfig() {\n return new "<<top<<";\n}\n"<<std::flush;
+
+   const std::string topName("top");
+   file <<"FWConfiguration* fwConfig() {\n"
+   <<"  FWConfiguration* "<<topName<<"_p = new FWConfiguration("<<top.version()<<");\n"
+   <<"  FWConfiguration& "<<topName<<" = *"<<topName<<"_p;\n";
+   
+   for(FWConfiguration::KeyValues::const_iterator it = top.keyValues()->begin();
+       it != top.keyValues()->end();
+       ++it) {
+      addToCode(topName,it->first,it->second, file);
+   }
+   file<<"\n  return "<<topName<<"_p;\n}\n"<<std::flush;   
 }
 
 void 
