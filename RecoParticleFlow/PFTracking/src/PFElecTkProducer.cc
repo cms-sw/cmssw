@@ -14,7 +14,9 @@
 // user include files
 #include "RecoParticleFlow/PFTracking/interface/PFElecTkProducer.h"
 #include "RecoParticleFlow/PFTracking/interface/PFTrackTransformer.h"
-
+#include "DataFormats/ParticleFlowReco/interface/PFRecTrack.h"
+#include "DataFormats/ParticleFlowReco/interface/GsfPFRecTrack.h"
+#include "DataFormats/ParticleFlowReco/interface/GsfPFRecTrackFwd.h"
 #include "DataFormats/ParticleFlowReco/interface/PFRecTrack.h"
 #include "DataFormats/GsfTrackReco/interface/GsfTrackFwd.h"
 
@@ -25,6 +27,7 @@
 
 using namespace std;
 using namespace edm;
+using namespace reco;
 PFElecTkProducer::PFElecTkProducer(const ParameterSet& iConfig):
   conf_(iConfig),
   pfTransformer_(0)
@@ -37,7 +40,7 @@ PFElecTkProducer::PFElecTkProducer(const ParameterSet& iConfig):
   pfTrackLabel_ = iConfig.getParameter<InputTag>
     ("PFRecTrackLabel");
 
-  produces<reco::PFRecTrackCollection>();
+  produces<GsfPFRecTrackCollection>();
 
   trajinev_ = iConfig.getParameter<bool>("TrajInEvents");
   modemomentum_ = iConfig.getParameter<bool>("ModeMomentum");
@@ -64,53 +67,58 @@ PFElecTkProducer::produce(Event& iEvent, const EventSetup& iSetup)
 			      <<" in run "<<iEvent.id().run();
 
   //create the empty collections 
-  auto_ptr< reco::PFRecTrackCollection > 
-    gsfPFRecTrackCollection(new reco::PFRecTrackCollection);
+  auto_ptr< GsfPFRecTrackCollection > 
+    gsfPFRecTrackCollection(new GsfPFRecTrackCollection);
 
   
   //read collections of tracks
-  Handle<reco::GsfTrackCollection> gsfelectrons;
+  Handle<GsfTrackCollection> gsfelectrons;
   iEvent.getByLabel(gsfTrackLabel_,gsfelectrons);
 
   //read collections of trajectories
   Handle<vector<Trajectory> > TrajectoryCollection;
  
   //read pfrectrack collection
-  Handle<reco::PFRecTrackCollection> thePfRecTrackCollection;
+  Handle<PFRecTrackCollection> thePfRecTrackCollection;
   iEvent.getByLabel(pfTrackLabel_,thePfRecTrackCollection);
-  const reco::PFRecTrackCollection PfRTkColl = *(thePfRecTrackCollection.product());
+  const PFRecTrackCollection PfRTkColl = *(thePfRecTrackCollection.product());
 
   if (trajinev_){
     iEvent.getByLabel(gsfTrackLabel_,TrajectoryCollection); 
-    reco::GsfTrackCollection gsftracks = *(gsfelectrons.product());
+    GsfTrackCollection gsftracks = *(gsfelectrons.product());
     vector<Trajectory> tjvec= *(TrajectoryCollection.product());
    
     for (uint igsf=0; igsf<gsftracks.size();igsf++) {
 
+      GsfTrackRef trackRef(gsfelectrons, igsf);
+      int kf_ind=FindPfRef(PfRTkColl,gsftracks[igsf]);
 
-      reco::PFRecTrackRef kf_ref(thePfRecTrackCollection,
-			      FindPfRef(PfRTkColl,gsftracks[igsf]));
-      
-      reco::GsfTrackRef trackRef(gsfelectrons, igsf);
-      
-      reco::PFRecTrack pftrack( gsftracks[igsf].charge(), 
+      if (kf_ind>=0) {
+
+	PFRecTrackRef kf_ref(thePfRecTrackCollection,
+			     kf_ind);
+	
+          
+	pftrack_=GsfPFRecTrack( gsftracks[igsf].charge(), 
 				reco::PFRecTrack::GSF, 
 				igsf, trackRef,
 				kf_ref);
-      
-//       bool valid = pfTransformer_->addPoints( pftrack, 
-// 					      gsftracks[igsf] , 
-// 					      tjvec[igsf] );
-      
-      bool validgsfbrem = pfTransformer_->addPointsAndBrems(pftrack, 
-					gsftracks[igsf], 
-					tjvec[igsf],
-					modemomentum_);
-      
-    //   if(valid)
-// 	gsfPFRecTrackCollection->push_back(pftrack);
-      if(validgsfbrem)
-	gsfPFRecTrackCollection->push_back(pftrack);
+      } else  {
+	PFRecTrackRef dummyRef;
+	pftrack_=GsfPFRecTrack( gsftracks[igsf].charge(), 
+				reco::PFRecTrack::GSF, 
+				igsf, trackRef,
+				dummyRef);
+      }
+
+       bool validgsfbrem = pfTransformer_->addPointsAndBrems(pftrack_, 
+							     gsftracks[igsf], 
+							     tjvec[igsf],
+							     modemomentum_);
+       
+ 
+       if(validgsfbrem)
+	 gsfPFRecTrackCollection->push_back(pftrack_);
     }
     iEvent.put(gsfPFRecTrackCollection);
   }else LogError("PFEleTkProducer")<<"No trajectory in the events";
@@ -133,7 +141,6 @@ PFElecTkProducer::FindPfRef(const reco::PFRecTrackCollection  & PfRTkColl,
     uint ish=0;
     if (pft->algoType()==reco::PFRecTrack::KF_ELCAND){
       
-      
       trackingRecHit_iterator  hhit=
 	pft->trackRef()->recHitsBegin();
       trackingRecHit_iterator  hhit_end=
@@ -149,12 +156,14 @@ PFElecTkProducer::FindPfRef(const reco::PFRecTrackCollection  & PfRTkColl,
 	  gsftk.seedRef()->recHits().second;
  	for(;hit!=hit_end;++hit){
 	  if (!(hit->isValid())) continue;
- 	  if (hit->sharesInput(
- 			       (*hhit)->clone() , 
-			       TrackingRecHit::all )) ish++;
-	  
+
+
+	  if((hit->geographicalId()==(*hhit)->clone()->geographicalId())&&
+	     (((*hhit)->clone()->localPosition()-hit->localPosition()).mag()<0.01)) ish++;
  	}	
-      }
+ 
+     }
+
       if (ish>ish_max){
 	ish_max=ish;
 	ibest=i_pf;
