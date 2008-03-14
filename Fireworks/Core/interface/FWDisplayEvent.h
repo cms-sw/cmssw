@@ -16,7 +16,7 @@
 //
 // Original Author:  
 //         Created:  Mon Dec  3 08:34:30 PST 2007
-// $Id: FWDisplayEvent.h,v 1.16 2008/02/29 21:25:08 chrjones Exp $
+// $Id: FWDisplayEvent.h,v 1.17 2008/03/07 01:05:13 jmuelmen Exp $
 //
 
 // system include files
@@ -41,6 +41,7 @@ class FWSelectionManager;
 class FWGUIManager;
 class FWEventItem;
 class FWPhysicsObjectDesc;
+class FWConfigurationManager;
 
 namespace fwlite {
   class Event;
@@ -52,13 +53,16 @@ class FWDisplayEvent
 {
 
    public:
-      FWDisplayEvent(bool iEnableDebug=false);
+   FWDisplayEvent(const std::string& iConfigFileName = std::string(),
+                  bool iEnableDebug=false);
       virtual ~FWDisplayEvent();
 
       // ---------- const member functions ---------------------
       int draw(const fwlite::Event& ) const;
 
       const DetIdToMatrix& getIdToGeo() const { return m_detIdToGeo; }
+   
+      void writeConfigurationFile(const std::string& iFileName) const;
       // ---------- static member functions --------------------
 
       // ---------- member functions ---------------------------
@@ -74,6 +78,7 @@ class FWDisplayEvent
       const FWDisplayEvent& operator=(const FWDisplayEvent&); // stop default
 
       // ---------- member data --------------------------------
+      std::auto_ptr<FWConfigurationManager> m_configurationManager;
       std::auto_ptr<FWModelChangeManager> m_changeManager;
       std::auto_ptr<FWSelectionManager> m_selectionManager;
       std::auto_ptr<FWEventItemsManager> m_eiManager;

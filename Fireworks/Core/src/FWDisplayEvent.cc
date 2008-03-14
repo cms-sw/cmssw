@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Mon Dec  3 08:38:38 PST 2007
-// $Id: FWDisplayEvent.cc,v 1.31 2008/03/07 03:18:02 tdaniels Exp $
+// $Id: FWDisplayEvent.cc,v 1.32 2008/03/07 03:59:14 tdaniels Exp $
 //
 
 // system include files
@@ -46,6 +46,8 @@
 #include "Fireworks/Core/interface/MuonPUViewManager.h"
 #include "DataFormats/FWLite/interface/Event.h"
 
+#include "Fireworks/Core/interface/FWConfigurationManager.h"
+
 
 //
 // constants, enums and typedefs
@@ -58,7 +60,9 @@
 //
 // constructors and destructor
 //
-FWDisplayEvent::FWDisplayEvent(bool iEnableDebug) :
+FWDisplayEvent::FWDisplayEvent(const std::string& iConfigFileName, 
+                               bool iEnableDebug) :
+  m_configurationManager(new FWConfigurationManager),
   m_changeManager(new FWModelChangeManager),
   m_selectionManager(new FWSelectionManager(m_changeManager.get())),
   m_eiManager(new FWEventItemsManager(m_changeManager.get(),
@@ -71,7 +75,9 @@ FWDisplayEvent::FWDisplayEvent(bool iEnableDebug) :
   //connect up the managers
    m_eiManager->newItem_.connect(boost::bind(&FWModelChangeManager::newItemSlot,
                                              m_changeManager.get(), _1) );
-   
+
+  m_configurationManager->add("GUI",m_guiManager.get());
+  m_configurationManager->add("EventItems",m_eiManager.get());
   //m_selectionManager->selectionChanged_.connect(boost::bind(&FWDisplayEvent::selectionChanged,this,_1));
   //figure out where to find macros
   const char* cmspath = gSystem->Getenv("CMSSW_BASE");
@@ -81,7 +87,7 @@ FWDisplayEvent::FWDisplayEvent(bool iEnableDebug) :
   //tell ROOT where to find our macros
   std::string macPath(cmspath);
   macPath += "/src/Fireworks/Core/macros";
-  gROOT->SetMacroPath(macPath.c_str());  
+  gROOT->SetMacroPath((std::string("./:")+macPath).c_str());  
 
   // prepare geometry service
   // ATTN: this should be made configurable
@@ -95,9 +101,13 @@ FWDisplayEvent::FWDisplayEvent(bool iEnableDebug) :
   m_viewManager->add( boost::shared_ptr<FWViewManagerBase>( new FW3DLegoViewManager(m_guiManager.get())));
 //   m_viewManager->add( boost::shared_ptr<FWViewManagerBase>( new MuonPUViewManager));
    
-  m_guiManager->createView("Rho Phi");
-  m_guiManager->createView("Rho Z");
-  m_guiManager->createView("3D Lego");
+  if(iConfigFileName.empty() ) {
+    m_guiManager->createView("Rho Phi");
+    m_guiManager->createView("Rho Z");
+    m_guiManager->createView("3D Lego");
+  } else {
+    m_configurationManager->readFromFile(iConfigFileName);
+  }
 
   m_guiManager->processGUIEvents();
 }
@@ -160,6 +170,12 @@ FWDisplayEvent::draw(const fwlite::Event& iEvent) const
   m_eiManager->setGeom(&m_detIdToGeo);
   m_eiManager->newEvent(&iEvent);
   return m_guiManager->allowInteraction();
+}
+
+void 
+FWDisplayEvent::writeConfigurationFile(const std::string& iFileName) const
+{
+  m_configurationManager->writeToFile(iFileName);
 }
 
 //
