@@ -1,5 +1,10 @@
 2008-03-14  Emilio Meschi  <emilio.meschi@cern.ch>
 
+	* tag V00-09-06
+	* default broker to use TCS partition-dependent trigger number
+
+2008-03-14  Emilio Meschi  <emilio.meschi@cern.ch>
+
 	* tag V00-09-05
 	* timeout when processKiller disabled now generates info message
 
