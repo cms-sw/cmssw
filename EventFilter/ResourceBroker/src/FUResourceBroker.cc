@@ -8,6 +8,7 @@
 
 
 #include "EventFilter/ResourceBroker/interface/FUResourceBroker.h"
+#include "EventFilter/ResourceBroker/interface/FUResource.h"
 #include "EventFilter/ResourceBroker/interface/BUProxy.h"
 #include "EventFilter/ResourceBroker/interface/SMProxy.h"
 
@@ -108,6 +109,7 @@ FUResourceBroker::FUResourceBroker(xdaq::ApplicationStub *s)
   , watchSleepSec_(10)
   , timeOutSec_(30)
   , processKillerEnabled_(true)
+  , useEvmBoard_(true)
   , reasonForFailed_("")
   , nbAllocateSent_(0)
   , nbTakeReceived_(0)
@@ -174,6 +176,7 @@ FUResourceBroker::FUResourceBroker(xdaq::ApplicationStub *s)
 
   // set application icon for hyperdaq
   getApplicationDescriptor()->setAttribute("icon", "/evf/images/rbicon.jpg");
+  FUResource::useEvmBoard_ = useEvmBoard_;
 }
 
 
@@ -697,6 +700,7 @@ void FUResourceBroker::exportParameters()
   gui_->addStandardParam("watchSleepSec",           &watchSleepSec_);
   gui_->addStandardParam("timeOutSec",              &timeOutSec_);
   gui_->addStandardParam("processKillerEnabled",    &processKillerEnabled_);
+  gui_->addStandardParam("useEvmBoard",             &useEvmBoard_);
   gui_->addStandardParam("foundRcmsStateListener",   fsm_.foundRcmsStateListener());
   gui_->addStandardParam("reasonForFailed",         &reasonForFailed_);
   
