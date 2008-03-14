@@ -11,11 +11,13 @@ using namespace std;
 
 
 PFBlockElementGsfTrack::PFBlockElementGsfTrack(const PFRecTrackRef& Gsfref, const PFRecTrackRef& Kfref, TrackType tracktype, const math::XYZTLorentzVector& Pin, const math::XYZTLorentzVector& Pout ) : 
-  PFBlockElementTrack( Kfref, tracktype  ),
+  PFBlockElementTrack( Kfref  ),
   GsftrackRefPF_( Gsfref ), 
   GsftrackRef_( Gsfref->trackRef() ),
   Pin_(Pin),
-  Pout_(Pout){}
+  Pout_(Pout){
+    setTrackType( tracktype, true );
+  }
 
 
 void PFBlockElementGsfTrack::Dump(ostream& out, 
