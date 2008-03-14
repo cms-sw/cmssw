@@ -93,17 +93,25 @@ SiPixelCondObjOfflineBuilder::analyze(const edm::Event& iEvent, const edm::Event
 	     ped  = theCalParameters.p0;
 	     gain = theCalParameters.p1;
 
-	   } else {
-	     ped  = RandGauss::shoot( meanPed_  , rmsPed_  );
-	     gain = RandGauss::shoot( meanGain_ , rmsGain_ );
+	   } 
+	   else{
+	     if(rmsPed_>0) 
+	       ped  = RandGauss::shoot( meanPed_  , rmsPed_  );
+	     else
+	       ped = meanPed_;
+	     if(rmsGain_>0)
+	       gain = RandGauss::shoot( meanGain_ , rmsGain_ );
+	     else
+	       gain = meanGain_;
 	   }
+
 
 // 	   if(i==mycol && j==myrow) {
 	   //	     std::cout << "       Col "<<i<<" Row "<<j<<" Ped "<<ped<<" Gain "<<gain<<std::endl;
 // 	   }
 
- 	   gain =  2.8;
- 	   ped  = 28.2;
+//  	   gain =  2.8;
+//  	   ped  = 28.2;
 
            totalGain    += gain;
            SiPixelGainCalibration_->setDataPedestal( ped , theSiPixelGainCalibration);
