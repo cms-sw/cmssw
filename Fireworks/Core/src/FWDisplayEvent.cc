@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Mon Dec  3 08:38:38 PST 2007
-// $Id: FWDisplayEvent.cc,v 1.32 2008/03/07 03:59:14 tdaniels Exp $
+// $Id: FWDisplayEvent.cc,v 1.33 2008/03/14 03:26:18 chrjones Exp $
 //
 
 // system include files
@@ -76,8 +76,11 @@ FWDisplayEvent::FWDisplayEvent(const std::string& iConfigFileName,
    m_eiManager->newItem_.connect(boost::bind(&FWModelChangeManager::newItemSlot,
                                              m_changeManager.get(), _1) );
 
-  m_configurationManager->add("GUI",m_guiManager.get());
+  m_eiManager->newItem_.connect(boost::bind(&FWViewManagerManager::registerEventItem,
+                                              m_viewManager.get(), _1));
+
   m_configurationManager->add("EventItems",m_eiManager.get());
+  m_configurationManager->add("GUI",m_guiManager.get());
   //m_selectionManager->selectionChanged_.connect(boost::bind(&FWDisplayEvent::selectionChanged,this,_1));
   //figure out where to find macros
   const char* cmspath = gSystem->Getenv("CMSSW_BASE");
@@ -138,8 +141,7 @@ FWDisplayEvent::~FWDisplayEvent()
 //
 void FWDisplayEvent::registerPhysicsObject(const FWPhysicsObjectDesc&iItem)
 {
-  const FWEventItem* newItem = m_eiManager->add(iItem);
-  m_viewManager->registerEventItem(newItem);
+  m_eiManager->add(iItem);
 }
 
 void FWDisplayEvent::registerProxyBuilder(const std::string& type, 
