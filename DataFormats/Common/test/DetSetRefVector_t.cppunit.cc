@@ -1,6 +1,8 @@
-// $Id: DetSetRefVector_t.cppunit.cc,v 1.3 2007/01/19 04:29:07 wmtan Exp $
+// $Id: DetSetRefVector_t.cppunit.cc,v 1.4 2007/01/23 00:25:53 wmtan Exp $
 #include <cppunit/extensions/HelperMacros.h>
+#include "DataFormats/Provenance/interface/ProductID.h"
 #include "DataFormats/Common/interface/DetSetRefVector.h"
+#include "DataFormats/Common/interface/OrphanHandle.h"
 
 
 class testDetSetRefVector : public CppUnit::TestFixture {
@@ -48,16 +50,6 @@ private:
     double        d_;
   };
 
-  template<class T>
-    struct MyHandle {
-      typedef T element_type;
-      MyHandle(const T* iProd) : prod_(iProd) {}
-      edm::ProductID id() const {return edm::ProductID(1);}
-      const T* product() const {return prod_;}
-      const T* prod_;
-      const T* operator->() const {return prod_;}
-    };
-
 }
 
 using namespace testdetsetrefvector;
@@ -84,7 +76,7 @@ testDetSetRefVector::checkConstruction()
   c.insert(d1);
   c.post_insert();
 
-  MyHandle<dsv_type> pc2(&c);
+  edm::OrphanHandle<dsv_type> pc2(&c, edm::ProductID(1));
 
   {
     std::vector<edm::det_id_type> ids;
@@ -143,7 +135,7 @@ testDetSetRefVector::checkFind()
   c.insert(d1);
   c.post_insert();
 
-  MyHandle<dsv_type> pc2(&c);
+  edm::OrphanHandle<dsv_type> pc2(&c, edm::ProductID(1));
 
   {
     std::vector<edm::det_id_type> ids;
