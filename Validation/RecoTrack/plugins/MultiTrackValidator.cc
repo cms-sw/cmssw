@@ -272,8 +272,8 @@ void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup
 	    }
 	  }
 	} // END for (unsigned int f=0; f<pTintervals[w].size()-1; f++){
-	totSIM_hit[w][tp->matchedHit()]++;//FIXME
-	if (rt.size()!=0) totASS_hit[w][tp->matchedHit()]++;
+	totSIM_hit[w][std::min(tp->matchedHit(),nintHit-1)]++;
+	if (rt.size()!=0) totASS_hit[w][std::min(tp->matchedHit(),nintHit-1)]++;
       }
       if (st!=0) h_tracksSIM[w]->Fill(st);
       
@@ -325,8 +325,8 @@ void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup
 	    }	      
 	  }
 	}
- 	totREC_hit[w][track->found()]++;
-	if (tp.size()!=0) totASS2_hit[w][track->found()]++;
+ 	totREC_hit[w][std::min((int)track->found(),nintHit)]++;
+	if (tp.size()!=0) totASS2_hit[w][std::min((int)track->found(),nintHit)]++;
 
 	//Fill other histos
  	try{
@@ -349,7 +349,7 @@ void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup
     
 	  //nchi2 and hits global distributions
 	  h_nchi2[w]->Fill(track->normalizedChi2());
-	  h_nchi2_prob[w]->Fill(TMath::Prob(track->chi2(),track->ndof()));
+	  h_nchi2_prob[w]->Fill(TMath::Prob(track->chi2(),(int)track->ndof()));
 	  h_hits[w]->Fill(track->numberOfValidHits());
 	  h_losthits[w]->Fill(track->numberOfLostHits());
 	  chi2_vs_nhits[w]->Fill(track->numberOfValidHits(),track->normalizedChi2());
