@@ -14,5 +14,9 @@ namespace evf{
     {
       return *(unsigned int*)( p+offset(evm) );
     }
+    unsigned int getlbn(const unsigned char *p)
+    { 
+      return (*(unsigned int*)( p+sizeof(fedh_t) + (EVM_GTFE_BLOCK*2 + EVM_TCS_LSBLNR_OFFSET) * SLINK_WORD_SIZE / 2)) & EVM_TCS_LSBLNR_MASK;
+    }
   }
 }
