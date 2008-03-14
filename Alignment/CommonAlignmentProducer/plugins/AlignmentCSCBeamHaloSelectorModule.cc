@@ -22,8 +22,8 @@ struct CSCBeamHaloConfigSelector {
   const_iterator end() const { return selected_.end(); }
   size_t size() const { return selected_.size(); }
 
-  void select( const edm::Handle<reco::TrackCollection> & c,  const edm::Event & evt)
-  //,   const edm::EventSetup &/*dummy*/)
+  void select( const edm::Handle<reco::TrackCollection> & c,  const edm::Event & evt,
+               const edm::EventSetup &/*dummy*/)
   {
     all_.clear();
     selected_.clear();
