@@ -6,7 +6,7 @@
 
  author: Francisco Yumiceva, Fermilab (yumiceva@fnal.gov)
 
- version $Id: BeamSpotAnalyzer.cc,v 1.1 2007/08/25 19:07:35 yumiceva Exp $
+ version $Id: BeamSpotAnalyzer.cc,v 1.2 2008/03/06 09:45:05 tboccali Exp $
 
 ________________________________________________________________**/
 
@@ -43,9 +43,10 @@ BeamSpotAnalyzer::BeamSpotAnalyzer(const edm::ParameterSet& iConfig)
 
 	outputfilename_ = iConfig.getUntrackedParameter<std::string>("OutputFileName");
 	
-  file_ = new TFile(outputfilename_.c_str(),"RECREATE");
+  file_ = TFile::Open(outputfilename_.c_str(),"RECREATE");
 
   ftree_ = new TTree("mytree","mytree");
+  ftree_->AutoSave();
   
   ftree_->Branch("pt",&fpt,"fpt/D");
   ftree_->Branch("d0",&fd0,"fd0/D");
@@ -98,13 +99,7 @@ BeamSpotAnalyzer::BeamSpotAnalyzer(const edm::ParameterSet& iConfig)
 
 BeamSpotAnalyzer::~BeamSpotAnalyzer()
 {
- 
-  if ( file_ != 0 ) {
-    file_->cd();
-    file_->Write();
-    delete file_;
-  }
-
+ 	
 }
 
 
@@ -259,7 +254,7 @@ BeamSpotAnalyzer::endJob() {
 	// default fit to extract beam spot info
 	BSFitter *myalgo = new BSFitter( fBSvector );
 	reco::BeamSpot beam_default = myalgo->Fit();
-	std::cout << " DEFAULT:" << std::endl;
+	std::cout << "\n RESULTS OF DEFAULT FIT:" << std::endl;
 	std::cout << beam_default << std::endl;
 
 	if (write2DB_) {
@@ -278,6 +273,7 @@ BeamSpotAnalyzer::endJob() {
 			std::cout << " beam width value forced to be " << inputBeamWidth_ << std::endl;
 			pBSObjects->SetBeamWidth(inputBeamWidth_);
 		} else {
+			std::cout << " using default value, 15e-4, for beam width!"<<std::endl;
 			pBSObjects->SetBeamWidth(15.0e-4);
 		}
 		
@@ -291,7 +287,7 @@ BeamSpotAnalyzer::endJob() {
 		  std::cout << "poolDBService available"<<std::endl;
 		  if ( poolDbService->isNewTagRequest( "BeamSpotObjectsRcd" ) ) {
 		    std::cout << "new tag requested" << std::endl;
-		    poolDbService->createNewIOV<BeamSpotObjects>( pBSObjects, poolDbService->currentTime(),poolDbService->endOfTime(),
+		    poolDbService->createNewIOV<BeamSpotObjects>( pBSObjects, poolDbService->beginOfTime(),poolDbService->endOfTime(),
 								  "BeamSpotObjectsRcd"  );
 		  }
 		  else {
@@ -377,6 +373,13 @@ BeamSpotAnalyzer::endJob() {
 	std::cout << "c1 = " << myalgo->GetResPar1() << " +- " << myalgo->GetResPar1Err() << std::endl;
 
 	}
+
+	// let's close everything
+    file_->cd();
+	ftree_->Write();
+	file_->Close();
+    		
+	std::cout << "[BeamSpotAnalyzer] endJob done \n" << std::endl;
 }
 
 //define this as a plug-in
