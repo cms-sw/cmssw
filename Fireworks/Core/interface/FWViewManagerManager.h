@@ -16,11 +16,12 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Jan 15 10:26:23 EST 2008
-// $Id: FWViewManagerManager.h,v 1.2 2008/01/21 01:17:07 chrjones Exp $
+// $Id: FWViewManagerManager.h,v 1.3 2008/01/28 14:02:22 chrjones Exp $
 //
 
 // system include files
 #include <vector>
+#include <map>
 #include <boost/shared_ptr.hpp>
 
 // user include files
@@ -54,7 +55,7 @@ class FWViewManagerManager
       // ---------- member data --------------------------------
       std::vector<boost::shared_ptr<FWViewManagerBase> > m_viewManagers;
       FWModelChangeManager* m_changeManager;
-   
+      std::map<std::string, const FWEventItem*> m_typeToItems; //use this to tell view managers registered after the item
 };
 
 

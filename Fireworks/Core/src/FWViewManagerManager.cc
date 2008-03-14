@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Jan 15 10:27:12 EST 2008
-// $Id: FWViewManagerManager.cc,v 1.3 2008/01/28 14:02:35 chrjones Exp $
+// $Id: FWViewManagerManager.cc,v 1.4 2008/02/03 02:49:40 dmytro Exp $
 //
 
 // system include files
@@ -17,7 +17,7 @@
 // user include files
 #include "Fireworks/Core/interface/FWViewManagerManager.h"
 #include "Fireworks/Core/interface/FWViewManagerBase.h"
-
+#include "Fireworks/Core/interface/FWEventItem.h"
 
 //
 // constants, enums and typedefs
@@ -64,10 +64,17 @@ FWViewManagerManager::add( boost::shared_ptr<FWViewManagerBase> iManager)
 {
    m_viewManagers.push_back(iManager);
    iManager->setChangeManager(m_changeManager);
+   for(std::map<std::string,const FWEventItem*>::iterator it=m_typeToItems.begin(), itEnd=m_typeToItems.end();
+       it != itEnd;
+       ++it) {
+      iManager->newItem(it->second);
+   }
 }
+
 void 
 FWViewManagerManager::registerEventItem(const FWEventItem*iItem)
 {
+   m_typeToItems[iItem->name()]=iItem;
    for(std::vector<boost::shared_ptr<FWViewManagerBase> >::iterator itVM = m_viewManagers.begin();
        itVM != m_viewManagers.end();
        ++itVM) {
@@ -78,13 +85,17 @@ void
 FWViewManagerManager::registerProxyBuilder(const std::string& type, 
                                            const std::string& proxyBuilderName)
 {
-   
+   std::map<std::string,const FWEventItem*>::iterator itFind = m_typeToItems.find(type);
+   const FWEventItem* matchedItem=0;
+   if( itFind != m_typeToItems.end() ) {
+      matchedItem = itFind->second;
+   }
    for(std::vector<boost::shared_ptr<FWViewManagerBase> >::iterator itVM = m_viewManagers.begin();
        itVM != m_viewManagers.end();
        ++itVM) {
       if((*itVM)->useableBuilder(proxyBuilderName)) {
          std::cout <<"REGISTERING "<<type << ", " << proxyBuilderName <<std::endl;
-         (*itVM)->registerProxyBuilder(type,proxyBuilderName);
+         (*itVM)->registerProxyBuilder(type,proxyBuilderName,matchedItem);
          return;
       }
    }
