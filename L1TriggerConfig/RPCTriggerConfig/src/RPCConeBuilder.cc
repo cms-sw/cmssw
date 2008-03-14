@@ -13,7 +13,7 @@
 //
 // Original Author:  Tomasz Maciej Frueboes
 //         Created:  Fri Feb 22 13:57:06 CET 2008
-// $Id$
+// $Id: RPCConeBuilder.cc,v 1.1 2008/03/03 14:30:11 fruboes Exp $
 //
 //
 
@@ -175,8 +175,9 @@ void RPCConeBuilder::buildCones(const edm::ESHandle<RPCGeometry> & rpcGeom ){
      
     //int before = it->second.size();
     
+    it->second.filterOverlapingChambers();    
     it->second.fillWithVirtualStrips();
-    it->second.filterOverlapingChambers();
+
     
     //std::cout << it->first << " " <<  it->second.isReferenceRing() << " " 
      //   << before << " -> " 

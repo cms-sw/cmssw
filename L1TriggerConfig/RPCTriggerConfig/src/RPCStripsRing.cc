@@ -8,7 +8,7 @@
 //
 // Original Author:  Tomasz Fruboes
 //         Created:  Tue Feb 26 15:13:10 CET 2008
-// $Id$
+// $Id: RPCStripsRing.cc,v 1.1 2008/03/03 14:30:14 fruboes Exp $
 //
 
 // system include files
@@ -170,9 +170,76 @@ void RPCStripsRing::filterOverlapingChambers(){
   if (m_region != 0 || m_hwPlane != 4) 
      return;
   
+  typedef std::map<uint32_t,int> TDetId2StripNo;
+  TDetId2StripNo det2stripNo;
   
-  // implement me
   
+  //std::cout << "--------------------- " << getRingId() << std::endl;
+  
+  
+  // Note: we begin in middle of first chamber (ch1), we have to handle that
+  int ch1BegStrips = 0;
+  int ch1EndStrips = 0;
+  
+  // How many strips has each chamber?
+  RPCStripsRing::iterator it = this->begin();
+  uint32_t ch1Det = it->second.m_detRawId;
+  for (; it!=this->end(); ++it){
+    
+    if ( det2stripNo.find(it->second.m_detRawId) == det2stripNo.end()){
+      det2stripNo[it->second.m_detRawId]=1;
+      //std::cout << it->second.m_detRawId << std::endl;
+    } else {
+      ++det2stripNo[it->second.m_detRawId];
+    }
+    
+    if (det2stripNo.size() == 1 && ch1Det == it->second.m_detRawId) {
+      ++ch1BegStrips;
+    } else if (ch1Det == it->second.m_detRawId){
+      ++ch1EndStrips;
+    }
+    
+  }
+  
+  det2stripNo[ch1Det]-=ch1EndStrips;
+  
+ // std::cout << ch1BegStrips << " " << ch1EndStrips << std::endl;
+  
+  //TDetId2StripNo::iterator itIds = det2stripNo.begin();
+  //for(;itIds!=det2stripNo.end();++itIds){
+//    std::cout << itIds->first << " " << itIds->second << std::endl;
+//  }
+  
+  
+  
+  it = this->begin();
+  uint32_t lastDet = it->second.m_detRawId;
+  while ( it!=this->end() ){
+    
+    if (det2stripNo[it->second.m_detRawId] < 0) {
+      throw cms::Exception("RPCInternal") << " RPCStripsRing::filterOverlapingChambers() - no strips left \n";
+    }
+    if ( it->second.m_detRawId == lastDet) {
+      --det2stripNo[lastDet];
+      ++it;
+    } else if (det2stripNo[lastDet] == 0) { // no more strips left in lastDet, proceed to new det
+      
+      if (lastDet == ch1Det) {
+        det2stripNo[ch1Det]+=ch1EndStrips;
+      }
+      
+      lastDet = it->second.m_detRawId;
+      --det2stripNo[lastDet];
+      ++it;
+    } else { // there are still strips in last det, delete current strip
+      --det2stripNo[it->second.m_detRawId];
+      RPCStripsRing::iterator itErase = it;
+      ++it;
+      //std::cout << "Removing strip " <<  it->second.m_detRawId << " " << (int)it->second.m_strip << std::endl;
+      this->erase(itErase); 
+    }
+    
+  }
   
   
 
