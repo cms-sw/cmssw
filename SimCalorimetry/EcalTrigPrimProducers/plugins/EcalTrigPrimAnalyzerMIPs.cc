@@ -225,10 +225,11 @@ void EcalTrigPrimAnalyzerMIPs::analyze(const edm::Event& iEvent, const  edm::Eve
   edm::Handle<EcalTrigPrimDigiCollection> tp;
   iEvent.getByLabel(label_,producer_,tp);
   EcalTPGScale ecalScale;
+  ecalScale.setEventSetup(iSetup) ;
   for (unsigned int i=0;i<tp.product()->size();i++) {
     EcalTriggerPrimitiveDigi d = (*(tp.product()))[i];
     const EcalTrigTowerDetId TPtowid= d.id();
-    float Et = ecalScale.getTPGInGeV(iSetup, d) ; 
+    float Et = ecalScale.getTPGInGeV(d) ; 
     if (d.id().ietaAbs()==27 || d.id().ietaAbs()==28)    Et*=2;
 
     itTT = mapTower.find(TPtowid) ;
