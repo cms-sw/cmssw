@@ -16,7 +16,7 @@
 //
 // Original Author:  
 //         Created:  Sat Jan  5 10:29:00 EST 2008
-// $Id: FWViewManagerBase.h,v 1.6 2008/01/22 16:34:09 chrjones Exp $
+// $Id: FWViewManagerBase.h,v 1.7 2008/01/28 14:02:15 chrjones Exp $
 //
 
 // system include files
@@ -50,8 +50,10 @@ class FWViewManagerBase
       // ---------- member functions ---------------------------
       virtual void newItem(const FWEventItem*) = 0;
 
-      virtual void registerProxyBuilder(const std::string&, 
-					const std::string&) = 0;
+      //iRegisteredItem will be 0 if no item of this type has been registered
+      virtual void registerProxyBuilder(const std::string& iType, 
+					const std::string& iProxyName,
+                                        const FWEventItem* iRegisteredItem) = 0;
       void setGeom(const DetIdToMatrix* geom){ m_detIdToGeo = geom; }
       const DetIdToMatrix* getGeom(const DetIdToMatrix* geom){ return m_detIdToGeo; }
       
