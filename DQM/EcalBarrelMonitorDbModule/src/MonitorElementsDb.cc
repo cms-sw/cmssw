@@ -1,11 +1,11 @@
-// $Id: MonitorElementsDb.cc,v 1.13 2008/02/23 10:42:33 dellaric Exp $
+// $Id: MonitorElementsDb.cc,v 1.14 2008/02/29 15:03:20 dellaric Exp $
 
 /*!
   \file MonitorElementsDb.cc
   \brief Generate a Monitor Element from DB data
   \author B. Gobbo 
-  \version $Revision: 1.13 $
-  \date $Date: 2008/02/23 10:42:33 $
+  \version $Revision: 1.14 $
+  \date $Date: 2008/02/29 15:03:20 $
 */
 
 #include "FWCore/ServiceRegistry/interface/Service.h"
@@ -35,7 +35,7 @@
 
 #include <DQM/EcalBarrelMonitorDbModule/interface/MonitorElementsDb.h>
 
-MonitorElementsDb::MonitorElementsDb( const edm::ParameterSet& ps, std::string xmlFile ){
+MonitorElementsDb::MonitorElementsDb( const edm::ParameterSet& ps, std::string& xmlFile ){
 
   xmlFile_ = xmlFile;
 
@@ -206,7 +206,7 @@ void MonitorElementsDb::analyze( const edm::Event& e, const edm::EventSetup& c, 
 
 }
 
-void MonitorElementsDb::htmlOutput(std::string htmlDir){
+void MonitorElementsDb::htmlOutput(std::string& htmlDir){
 
   gStyle->SetOptStat(0);
   gStyle->SetOptFit();

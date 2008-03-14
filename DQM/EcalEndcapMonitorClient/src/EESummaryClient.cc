@@ -1,8 +1,8 @@
 /*
  * \file EESummaryClient.cc
  *
- * $Date: 2008/03/08 13:54:52 $
- * $Revision: 1.95 $
+ * $Date: 2008/03/08 14:14:20 $
+ * $Revision: 1.96 $
  * \author G. Della Ricca
  *
 */
@@ -1335,7 +1335,7 @@ void EESummaryClient::analyze(void){
 
 }
 
-void EESummaryClient::htmlOutput(int run, string htmlDir, string htmlName){
+void EESummaryClient::htmlOutput(int run, string& htmlDir, string& htmlName){
 
   cout << "Preparing EESummaryClient html output ..." << endl;
 
@@ -2695,7 +2695,7 @@ void EESummaryClient::htmlOutput(int run, string htmlDir, string htmlName){
 
 }
 
-void EESummaryClient::writeMap( std::ofstream& hf, std::string mapname ) {
+void EESummaryClient::writeMap( std::ofstream& hf, const char* mapname ) {
 
   std::map<std::string, std::string> refhtml;
   refhtml["Integrity"] = "EEIntegrityClient.html";

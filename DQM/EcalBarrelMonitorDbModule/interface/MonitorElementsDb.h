@@ -1,4 +1,4 @@
-// $Id: MonitorElementsDb.h,v 1.4 2007/11/27 14:56:41 dellaric Exp $
+// $Id: MonitorElementsDb.h,v 1.5 2008/02/29 15:03:17 dellaric Exp $
 
 #ifndef MonitorElementsDb_H
 #define MonitorElementsDb_H
@@ -7,8 +7,8 @@
   \file MonitorElementsDb.h
   \brief Generate a Monitor Element from DB data
   \author B. Gobbo 
-  \version $Revision: 1.4 $
-  \date $Date: 2007/11/27 14:56:41 $
+  \version $Revision: 1.5 $
+  \date $Date: 2008/02/29 15:03:17 $
 */
 
 
@@ -37,7 +37,7 @@ class MonitorElementsDb{
  public:
 
   /// Constructors
-  MonitorElementsDb(const edm::ParameterSet& ps, std::string xmlFile );
+  MonitorElementsDb(const edm::ParameterSet& ps, std::string& xmlFile );
 
   /// Destructor
   virtual ~MonitorElementsDb();
@@ -54,7 +54,7 @@ class MonitorElementsDb{
   void endJob( void ); 
  
   // HtmlOutput
-  void htmlOutput( std::string htmlDir );
+  void htmlOutput( std::string& htmlDir );
 
   void startSession( void );
 

@@ -4,8 +4,8 @@
 /*
  * \file EEClusterClient.h
  *
- * $Date: 2008/02/23 08:39:25 $
- * $Revision: 1.15 $
+ * $Date: 2008/02/29 15:05:06 $
+ * $Revision: 1.16 $
  * \author G. Della Ricca
  * \author F. Cossutti
  * \author E. Di Marco
@@ -63,7 +63,7 @@ void setup(void);
 void cleanup(void);
 
 /// HtmlOutput
-void htmlOutput(int run, std::string htmlDir, std::string htmlName);
+void htmlOutput(int run, std::string& htmlDir, std::string& htmlName);
 
 /// WriteDB
 bool writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIOV* moniov);

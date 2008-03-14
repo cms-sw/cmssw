@@ -1,8 +1,8 @@
 /*
  * \file EBLaserClient.cc
  *
- * $Date: 2008/02/29 15:02:36 $
- * $Revision: 1.221 $
+ * $Date: 2008/03/01 13:33:49 $
+ * $Revision: 1.222 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -2916,7 +2916,7 @@ void EBLaserClient::analyze(void){
 
 }
 
-void EBLaserClient::htmlOutput(int run, string htmlDir, string htmlName){
+void EBLaserClient::htmlOutput(int run, string& htmlDir, string& htmlName){
 
   cout << "Preparing EBLaserClient html output ..." << endl;
 

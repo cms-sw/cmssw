@@ -4,8 +4,8 @@
 /*
  * \file EBSummaryClient.h
  *
- * $Date: 2008/02/23 08:39:22 $
- * $Revision: 1.28 $
+ * $Date: 2008/02/29 15:02:05 $
+ * $Revision: 1.29 $
  * \author G. Della Ricca
  *
 */
@@ -58,7 +58,7 @@ void setup(void);
 void cleanup(void);
 
 /// HtmlOutput
-void htmlOutput(int run, std::string htmlDir, std::string htmlName);
+void htmlOutput(int run, std::string& htmlDir, std::string& htmlName);
 
 /// WriteDB
 bool writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIOV* moniov);
@@ -72,7 +72,7 @@ inline void setFriends(std::vector<EBClient*> clients) { clients_ = clients; }
 
 private:
 
-void writeMap( std::ofstream& hf, std::string mapname );
+void writeMap( std::ofstream& hf, const char* mapname );
 
 int ievt_;
 int jevt_;

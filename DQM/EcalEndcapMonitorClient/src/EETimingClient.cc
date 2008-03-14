@@ -1,8 +1,8 @@
 /*
  * \file EETimingClient.cc
  *
- * $Date: 2008/02/23 08:39:26 $
- * $Revision: 1.66 $
+ * $Date: 2008/02/29 15:06:17 $
+ * $Revision: 1.67 $
  * \author G. Della Ricca
  *
 */
@@ -447,7 +447,7 @@ void EETimingClient::analyze(void){
 
 }
 
-void EETimingClient::htmlOutput(int run, string htmlDir, string htmlName){
+void EETimingClient::htmlOutput(int run, string& htmlDir, string& htmlName){
 
   cout << "Preparing EETimingClient html output ..." << endl;
 

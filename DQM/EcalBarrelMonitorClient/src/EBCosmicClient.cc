@@ -1,8 +1,8 @@
 /*
  * \file EBCosmicClient.cc
  *
- * $Date: 2008/02/29 15:02:31 $
- * $Revision: 1.104 $
+ * $Date: 2008/03/10 21:31:34 $
+ * $Revision: 1.105 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -278,7 +278,7 @@ void EBCosmicClient::analyze(void){
 
 }
 
-void EBCosmicClient::htmlOutput(int run, string htmlDir, string htmlName){
+void EBCosmicClient::htmlOutput(int run, string& htmlDir, string& htmlName){
 
   cout << "Preparing EBCosmicClient html output ..." << endl;
 

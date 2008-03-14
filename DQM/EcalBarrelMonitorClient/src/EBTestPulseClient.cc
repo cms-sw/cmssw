@@ -1,8 +1,8 @@
 /*
  * \file EBTestPulseClient.cc
  *
- * $Date: 2008/02/23 08:39:24 $
- * $Revision: 1.191 $
+ * $Date: 2008/02/29 15:03:08 $
+ * $Revision: 1.192 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -1014,7 +1014,7 @@ void EBTestPulseClient::analyze(void){
 
 }
 
-void EBTestPulseClient::htmlOutput(int run, string htmlDir, string htmlName){
+void EBTestPulseClient::htmlOutput(int run, string& htmlDir, string& htmlName){
 
   cout << "Preparing EBTestPulseClient html output ..." << endl;
 

@@ -1,8 +1,8 @@
 /*
  * \file EBStatusFlagsClient.cc
  *
- * $Date: 2008/02/29 15:03:05 $
- * $Revision: 1.8 $
+ * $Date: 2008/03/13 11:24:37 $
+ * $Revision: 1.9 $
  * \author G. Della Ricca
  *
 */
@@ -184,7 +184,7 @@ void EBStatusFlagsClient::analyze(void){
 
 }
 
-void EBStatusFlagsClient::htmlOutput(int run, string htmlDir, string htmlName){
+void EBStatusFlagsClient::htmlOutput(int run, string& htmlDir, string& htmlName){
 
   cout << "Preparing EBStatusFlagsClient html output ..." << endl;
 

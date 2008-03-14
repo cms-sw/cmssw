@@ -1,8 +1,8 @@
 /*
  * \file EEStatusFlagsClient.cc
  *
- * $Date: 2008/02/29 15:06:01 $
- * $Revision: 1.10 $
+ * $Date: 2008/03/13 11:24:38 $
+ * $Revision: 1.11 $
  * \author G. Della Ricca
  *
 */
@@ -186,7 +186,7 @@ void EEStatusFlagsClient::analyze(void){
 
 }
 
-void EEStatusFlagsClient::htmlOutput(int run, string htmlDir, string htmlName){
+void EEStatusFlagsClient::htmlOutput(int run, string& htmlDir, string& htmlName){
 
   cout << "Preparing EEStatusFlagsClient html output ..." << endl;
 

@@ -1,8 +1,8 @@
 /*
  * \file EBTriggerTowerClient.cc
  *
- * $Date: 2008/02/23 08:39:24 $
- * $Revision: 1.92 $
+ * $Date: 2008/02/29 15:03:11 $
+ * $Revision: 1.93 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -508,7 +508,7 @@ void EBTriggerTowerClient::analyze(const char* nameext,
 
 }
 
-void EBTriggerTowerClient::htmlOutput(int run, string htmlDir, string htmlName){
+void EBTriggerTowerClient::htmlOutput(int run, string& htmlDir, string& htmlName){
 
   cout << "Preparing EBTriggerTowerClient html output ..." << std::endl;
 

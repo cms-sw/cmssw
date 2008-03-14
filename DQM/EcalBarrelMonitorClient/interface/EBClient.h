@@ -1,11 +1,11 @@
-// $Id: EBClient.h,v 1.15 2008/02/23 08:39:22 dellaric Exp $
+// $Id: EBClient.h,v 1.16 2008/02/29 15:01:48 dellaric Exp $
 
 /*!
   \file EBClient.h
   \brief Ecal Barrel Monitor Client mom class
   \author B. Gobbo
-  \version $Revision: 1.15 $
-  \date $Date: 2008/02/23 08:39:22 $
+  \version $Revision: 1.16 $
+  \date $Date: 2008/02/29 15:01:48 $
 */
 
 
@@ -58,14 +58,14 @@ class EBClient {
   */
   virtual void cleanup(void)      = 0;
 
-  /*! \fn virtual void htmlOutput(int run, std::string htmlDir, std::string htmlName);
+  /*! \fn virtual void htmlOutput(int run, std::string& htmlDir, std::string& htmlName);
     \brief create HTML page
     \param run run number
     \param htmlDir path to HTML file
     \param htmlName HTML file name
 
   */
-  virtual void htmlOutput(int run, std::string htmlDir, std::string htmlName) = 0;
+  virtual void htmlOutput(int run, std::string& htmlDir, std::string& htmlName) = 0;
 
   /*! \fn virtual bool writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIOV* moniov);
     \brief Write data to DataBase

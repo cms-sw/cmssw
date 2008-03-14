@@ -1,8 +1,8 @@
 /*
  * \file EBPedestalClient.cc
  *
- * $Date: 2008/02/23 08:39:24 $
- * $Revision: 1.185 $
+ * $Date: 2008/02/29 15:03:01 $
+ * $Revision: 1.186 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -1063,7 +1063,7 @@ void EBPedestalClient::analyze(void){
 
 }
 
-void EBPedestalClient::htmlOutput(int run, string htmlDir, string htmlName){
+void EBPedestalClient::htmlOutput(int run, string& htmlDir, string& htmlName){
 
   cout << "Preparing EBPedestalClient html output ..." << endl;
 

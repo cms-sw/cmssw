@@ -1,8 +1,8 @@
 /*
  * \file EBOccupancyClient.cc
  *
- * $Date: 2008/02/23 08:50:49 $
- * $Revision: 1.17 $
+ * $Date: 2008/02/29 15:03:00 $
+ * $Revision: 1.18 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -225,7 +225,7 @@ void EBOccupancyClient::analyze(void){
 
 }
 
-void EBOccupancyClient::htmlOutput(int run, string htmlDir, string htmlName){
+void EBOccupancyClient::htmlOutput(int run, string& htmlDir, string& htmlName){
 
   cout << "Preparing EBOccupancyClient html output ..." << endl;
 

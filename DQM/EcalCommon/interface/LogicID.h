@@ -1,11 +1,11 @@
-// $Id: LogicID.h,v 1.6 2008/01/28 15:41:14 dellaric Exp $
+// $Id: LogicID.h,v 1.7 2008/02/09 19:50:04 dellaric Exp $
 
 /*!
   \file LogicID.h
   \brief Cache logicID vector from database
   \author B. Gobbo 
-  \version $Revision: 1.6 $
-  \date $Date: 2008/01/28 15:41:14 $
+  \version $Revision: 1.7 $
+  \date $Date: 2008/02/09 19:50:04 $
 */
 
 #ifndef LogicID_H
@@ -21,7 +21,7 @@ class LogicID {
 
 public:
 
-static EcalLogicID getEcalLogicID( std::string name,
+static EcalLogicID getEcalLogicID( const char* name,
                                    int id1 = EcalLogicID::NULLID,
                                    int id2 = EcalLogicID::NULLID,
                                    int id3 = EcalLogicID::NULLID ) throw( std::runtime_error );

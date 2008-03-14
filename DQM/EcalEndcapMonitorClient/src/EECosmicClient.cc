@@ -1,8 +1,8 @@
 /*
  * \file EECosmicClient.cc
  *
- * $Date: 2008/02/29 15:05:45 $
- * $Revision: 1.51 $
+ * $Date: 2008/03/10 21:31:35 $
+ * $Revision: 1.52 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -289,7 +289,7 @@ void EECosmicClient::analyze(void){
 
 }
 
-void EECosmicClient::htmlOutput(int run, string htmlDir, string htmlName){
+void EECosmicClient::htmlOutput(int run, string& htmlDir, string& htmlName){
 
   cout << "Preparing EECosmicClient html output ..." << endl;
 

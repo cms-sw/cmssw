@@ -1,8 +1,8 @@
 /*
  * \file EELedClient.cc
  *
- * $Date: 2008/02/29 15:05:48 $
- * $Revision: 1.86 $
+ * $Date: 2008/03/01 13:33:50 $
+ * $Revision: 1.69 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -1842,7 +1842,7 @@ void EELedClient::analyze(void){
 
 }
 
-void EELedClient::htmlOutput(int run, string htmlDir, string htmlName){
+void EELedClient::htmlOutput(int run, string& htmlDir, string& htmlName){
 
   cout << "Preparing EELedClient html output ..." << endl;
 

@@ -4,8 +4,8 @@
 /*
  * \file EBBeamHodoClient.h
  *
- * $Date: 2008/02/23 08:39:22 $
- * $Revision: 1.25 $
+ * $Date: 2008/02/29 15:01:47 $
+ * $Revision: 1.26 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -60,7 +60,7 @@ void setup(void);
 void cleanup(void);
 
 /// HtmlOutput
-void htmlOutput(int run, std::string htmlDir, std::string htmlName);
+void htmlOutput(int run, std::string& htmlDir, std::string& htmlName);
 
 /// WriteDB
 bool writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIOV* moniov);

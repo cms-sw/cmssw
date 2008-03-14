@@ -1,8 +1,8 @@
 /*
  * \file EEClusterTask.cc
  *
- * $Date: 2008/02/23 09:56:56 $
- * $Revision: 1.38 $
+ * $Date: 2008/02/29 15:08:09 $
+ * $Revision: 1.39 $
  * \author G. Della Ricca
  * \author E. Di Marco
  *
@@ -416,8 +416,7 @@ void EEClusterTask::analyze(const Event& e, const EventSetup& c){
     int nbcc = pBasicClusters->size();
     if (nbcc>0) meBCNum_->Fill(float(nbcc));
 
-    BasicClusterCollection::const_iterator bCluster;
-    for ( bCluster = pBasicClusters->begin(); bCluster != pBasicClusters->end(); bCluster++ ) {
+    for ( BasicClusterCollection::const_iterator bCluster = pBasicClusters->begin(); bCluster != pBasicClusters->end(); ++bCluster ) {
 
       meBCEne_->Fill(bCluster->energy());
       meBCSiz_->Fill(float(bCluster->getHitsByDetId().size()));
@@ -480,8 +479,7 @@ void EEClusterTask::analyze(const Event& e, const EventSetup& c){
     TLorentzVector sc1_p(0,0,0,0);
     TLorentzVector sc2_p(0,0,0,0);
 
-    SuperClusterCollection::const_iterator sCluster;
-    for ( sCluster = pSuperClusters->begin(); sCluster != pSuperClusters->end(); sCluster++ ) {
+    for ( SuperClusterCollection::const_iterator sCluster = pSuperClusters->begin(); sCluster != pSuperClusters->end(); sCluster++ ) {
 
       // energy, size
       meSCEne_->Fill(sCluster->energy());

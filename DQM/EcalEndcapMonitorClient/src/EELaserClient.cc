@@ -1,8 +1,8 @@
 /*
  * \file EELaserClient.cc
  *
- * $Date: 2008/02/29 15:05:48 $
- * $Revision: 1.86 $
+ * $Date: 2008/03/01 13:33:50 $
+ * $Revision: 1.87 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -3032,7 +3032,7 @@ void EELaserClient::analyze(void){
 
 }
 
-void EELaserClient::htmlOutput(int run, string htmlDir, string htmlName){
+void EELaserClient::htmlOutput(int run, string& htmlDir, string& htmlName){
 
   cout << "Preparing EELaserClient html output ..." << endl;
 

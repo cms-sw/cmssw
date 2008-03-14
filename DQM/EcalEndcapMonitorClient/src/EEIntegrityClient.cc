@@ -2,8 +2,8 @@
 /*
  * \file EEIntegrityClient.cc
  *
- * $Date: 2008/02/23 08:50:49 $
- * $Revision: 1.65 $
+ * $Date: 2008/02/29 15:05:46 $
+ * $Revision: 1.66 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -1037,7 +1037,7 @@ void EEIntegrityClient::analyze(void){
 
 }
 
-void EEIntegrityClient::htmlOutput(int run, string htmlDir, string htmlName){
+void EEIntegrityClient::htmlOutput(int run, string& htmlDir, string& htmlName){
 
   cout << "Preparing EEIntegrityClient html output ..." << endl;
 

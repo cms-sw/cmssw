@@ -1,8 +1,8 @@
 /*
  * \file EEOccupancyClient.cc
  *
- * $Date: 2008/02/23 08:50:49 $
- * $Revision: 1.14 $
+ * $Date: 2008/02/29 15:05:55 $
+ * $Revision: 1.15 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -307,7 +307,7 @@ void EEOccupancyClient::analyze(void){
 
 }
 
-void EEOccupancyClient::htmlOutput(int run, string htmlDir, string htmlName){
+void EEOccupancyClient::htmlOutput(int run, string& htmlDir, string& htmlName){
 
   cout << "Preparing EEOccupancyClient html output ..." << endl;
 

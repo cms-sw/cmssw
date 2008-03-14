@@ -1,8 +1,8 @@
 /*
  * \file EBSummaryClient.cc
  *
- * $Date: 2008/03/07 17:19:32 $
- * $Revision: 1.120 $
+ * $Date: 2008/03/08 14:14:20 $
+ * $Revision: 1.121 $
  * \author G. Della Ricca
  *
 */
@@ -1127,7 +1127,7 @@ void EBSummaryClient::analyze(void){
 
 }
 
-void EBSummaryClient::htmlOutput(int run, string htmlDir, string htmlName){
+void EBSummaryClient::htmlOutput(int run, string& htmlDir, string& htmlName){
 
   cout << "Preparing EBSummaryClient html output ..." << endl;
 
@@ -1925,7 +1925,7 @@ void EBSummaryClient::htmlOutput(int run, string htmlDir, string htmlName){
 
 }
 
-void EBSummaryClient::writeMap( std::ofstream& hf, std::string mapname ) {
+void EBSummaryClient::writeMap( std::ofstream& hf, const char* mapname ) {
 
   std::map<std::string, std::string> refhtml;
   refhtml["Integrity"] = "EBIntegrityClient.html";

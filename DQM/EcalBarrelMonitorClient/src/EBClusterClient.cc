@@ -1,8 +1,8 @@
 /*
  * \file EBClusterClient.cc
  *
- * $Date: 2008/02/23 08:39:23 $
- * $Revision: 1.55 $
+ * $Date: 2008/02/29 15:02:29 $
+ * $Revision: 1.56 $
  * \author G. Della Ricca
  * \author F. Cossutti
  * \author E. Di Marco
@@ -290,7 +290,7 @@ void EBClusterClient::analyze(void){
 
 }
 
-void EBClusterClient::htmlOutput(int run, string htmlDir, string htmlName){
+void EBClusterClient::htmlOutput(int run, string& htmlDir, string& htmlName){
 
   cout << "Preparing EBClusterClient html output ..." << endl;
 

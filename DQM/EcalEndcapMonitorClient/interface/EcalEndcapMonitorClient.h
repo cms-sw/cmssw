@@ -4,8 +4,8 @@
 /*
  * \file EcalEndcapMonitorClient.h
  *
- * $Date: 2008/02/23 14:49:15 $
- * $Revision: 1.33 $
+ * $Date: 2008/02/29 15:05:33 $
+ * $Revision: 1.34 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -101,7 +101,7 @@ inline int getEvtPerRun() { return( jevt_ ); }
 inline int getEvt( void ) { return( evt_ ); }
 inline int getRun( void ) { return( run_ ); }
 
-inline std::string getRunType( void )  { return( runType_ == -1 ? "UNKNOWN" : runTypes_[runType_] ); }
+inline const char* getRunType( void )  { return( runType_ == -1 ? "UNKNOWN" : runTypes_[runType_].c_str() ); }
 
 inline std::vector<std::string> getRunTypes( void ) { return( runTypes_ ); }
 

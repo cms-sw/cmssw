@@ -1,8 +1,8 @@
 /*
  * \file EEPedestalClient.cc
  *
- * $Date: 2008/02/23 08:39:26 $
- * $Revision: 1.65 $
+ * $Date: 2008/02/29 15:05:56 $
+ * $Revision: 1.66 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -1112,7 +1112,7 @@ void EEPedestalClient::analyze(void){
 
 }
 
-void EEPedestalClient::htmlOutput(int run, string htmlDir, string htmlName){
+void EEPedestalClient::htmlOutput(int run, string& htmlDir, string& htmlName){
 
   cout << "Preparing EEPedestalClient html output ..." << endl;
 

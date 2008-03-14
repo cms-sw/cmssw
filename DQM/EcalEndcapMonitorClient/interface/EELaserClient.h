@@ -4,8 +4,8 @@
 /*
  * \file EELaserClient.h
  *
- * $Date: 2008/02/23 08:39:25 $
- * $Revision: 1.16 $
+ * $Date: 2008/02/29 15:05:08 $
+ * $Revision: 1.17 $
  * \author G. Della Ricca
  *
 */
@@ -61,7 +61,7 @@ void setup(void);
 void cleanup(void);
 
 /// HtmlOutput
-void htmlOutput(int run, std::string htmlDir, std::string htmlName);
+void htmlOutput(int run, std::string& htmlDir, std::string& htmlName);
 
 /// WriteDB
 bool writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIOV* moniov);

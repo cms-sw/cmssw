@@ -1,8 +1,8 @@
 /*
  * \file EEClusterClient.cc
  *
- * $Date: 2008/02/23 08:39:25 $
- * $Revision: 1.42 $
+ * $Date: 2008/02/29 15:05:43 $
+ * $Revision: 1.43 $
  * \author G. Della Ricca
  * \author E. Di Marco
  *
@@ -344,7 +344,7 @@ void EEClusterClient::analyze(void){
 
 }
 
-void EEClusterClient::htmlOutput(int run, string htmlDir, string htmlName){
+void EEClusterClient::htmlOutput(int run, string& htmlDir, string& htmlName){
 
   cout << "Preparing EEClusterClient html output ..." << endl;
 

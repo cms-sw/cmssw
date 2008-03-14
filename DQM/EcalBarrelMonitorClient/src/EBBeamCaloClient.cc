@@ -1,8 +1,8 @@
 /*
  * \file EBBeamCaloClient.cc
  *
- * $Date: 2008/02/23 08:39:23 $
- * $Revision: 1.76 $
+ * $Date: 2008/02/29 15:02:25 $
+ * $Revision: 1.77 $
  * \author G. Della Ricca
  * \author A. Ghezzi
  *
@@ -538,7 +538,7 @@ void EBBeamCaloClient::analyze(void){
 
 }
 
-void EBBeamCaloClient::htmlOutput(int run, string htmlDir, string htmlName){
+void EBBeamCaloClient::htmlOutput(int run, string& htmlDir, string& htmlName){
 
   cout << "Preparing EBBeamCaloClient html output ..." << endl;
 

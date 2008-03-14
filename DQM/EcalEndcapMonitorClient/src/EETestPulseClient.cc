@@ -1,8 +1,8 @@
 /*
  * \file EETestPulseClient.cc
  *
- * $Date: 2008/02/23 08:39:26 $
- * $Revision: 1.76 $
+ * $Date: 2008/02/29 15:06:10 $
+ * $Revision: 1.77 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -1061,7 +1061,7 @@ void EETestPulseClient::analyze(void){
 
 }
 
-void EETestPulseClient::htmlOutput(int run, string htmlDir, string htmlName){
+void EETestPulseClient::htmlOutput(int run, string& htmlDir, string& htmlName){
 
   cout << "Preparing EETestPulseClient html output ..." << endl;
 

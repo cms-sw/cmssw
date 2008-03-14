@@ -1,8 +1,8 @@
 /*
  * \file EEBeamHodoClient.cc
  *
- * $Date: 2008/02/23 08:39:25 $
- * $Revision: 1.23 $
+ * $Date: 2008/02/29 15:05:42 $
+ * $Revision: 1.24 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -326,7 +326,7 @@ void EEBeamHodoClient::analyze(void){
 
 }
 
-void EEBeamHodoClient::htmlOutput(int run, string htmlDir, string htmlName){
+void EEBeamHodoClient::htmlOutput(int run, string& htmlDir, string& htmlName){
 
   cout << "Preparing EEBeamHodoClient html output ..." << endl;
 

@@ -1,8 +1,8 @@
 /*
  * \file EBBeamHodoClient.cc
  *
- * $Date: 2008/02/23 08:39:23 $
- * $Revision: 1.54 $
+ * $Date: 2008/02/29 15:02:27 $
+ * $Revision: 1.55 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -326,7 +326,7 @@ void EBBeamHodoClient::analyze(void){
 
 }
 
-void EBBeamHodoClient::htmlOutput(int run, string htmlDir, string htmlName){
+void EBBeamHodoClient::htmlOutput(int run, string& htmlDir, string& htmlName){
 
   cout << "Preparing EBBeamHodoClient html output ..." << endl;
 

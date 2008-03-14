@@ -1,8 +1,8 @@
 /*
  * \file EETriggerTowerClient.cc
  *
- * $Date: 2008/02/23 08:39:26 $
- * $Revision: 1.59 $
+ * $Date: 2008/02/29 15:06:18 $
+ * $Revision: 1.60 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -514,7 +514,7 @@ void EETriggerTowerClient::analyze(const char* nameext,
 
 }
 
-void EETriggerTowerClient::htmlOutput(int run, string htmlDir, string htmlName){
+void EETriggerTowerClient::htmlOutput(int run, string& htmlDir, string& htmlName){
 
   cout << "Preparing EETriggerTowerClient html output ..." << std::endl;
 

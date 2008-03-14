@@ -1,8 +1,8 @@
 /*
  * \file EBClusterTask.cc
  *
- * $Date: 2008/02/23 09:56:54 $
- * $Revision: 1.50 $
+ * $Date: 2008/02/29 15:04:10 $
+ * $Revision: 1.51 $
  * \author G. Della Ricca
  * \author E. Di Marco
  *
@@ -307,32 +307,29 @@ void EBClusterTask::analyze(const Event& e, const EventSetup& c){
     int nbcc = pBasicClusters->size();
     if ( nbcc > 0 ) meBCNum_->Fill(float(nbcc));
 
-    BasicClusterCollection::const_iterator bclusterItr;
-    for ( bclusterItr = pBasicClusters->begin(); bclusterItr != pBasicClusters->end(); ++bclusterItr ) {
+    for ( BasicClusterCollection::const_iterator bCluster = pBasicClusters->begin(); bCluster != pBasicClusters->end(); ++bCluster ) {
 
-      BasicCluster bcluster = *(bclusterItr);
+      meBCEne_->Fill(bCluster->energy());
+      meBCSiz_->Fill(float(bCluster->getHitsByDetId().size()));
 
-      meBCEne_->Fill(bcluster.energy());
-      meBCSiz_->Fill(float(bcluster.getHitsByDetId().size()));
-
-      float xphi = bcluster.phi();
+      float xphi = bCluster->phi();
       if ( xphi > M_PI*(9-1.5)/9 ) xphi = xphi - M_PI*2;
 
-      meBCEneMap_->Fill(xphi, bcluster.eta(), bcluster.energy());
-      meBCEneMapProjEta_->Fill(bcluster.eta(), bcluster.energy());
-      meBCEneMapProjPhi_->Fill(xphi, bcluster.energy());
+      meBCEneMap_->Fill(xphi, bCluster->eta(), bCluster->energy());
+      meBCEneMapProjEta_->Fill(bCluster->eta(), bCluster->energy());
+      meBCEneMapProjPhi_->Fill(xphi, bCluster->energy());
 
-      meBCNumMap_->Fill(xphi, bcluster.eta());
-      meBCNumMapProjEta_->Fill(bcluster.eta());
+      meBCNumMap_->Fill(xphi, bCluster->eta());
+      meBCNumMapProjEta_->Fill(bCluster->eta());
       meBCNumMapProjPhi_->Fill(xphi);
 
-      meBCSizMap_->Fill(xphi, bcluster.eta(), float(bcluster.getHitsByDetId().size()));
-      meBCSizMapProjEta_->Fill(bcluster.eta(), float(bcluster.getHitsByDetId().size()));
-      meBCSizMapProjPhi_->Fill(xphi, float(bcluster.getHitsByDetId().size()));
+      meBCSizMap_->Fill(xphi, bCluster->eta(), float(bCluster->getHitsByDetId().size()));
+      meBCSizMapProjEta_->Fill(bCluster->eta(), float(bCluster->getHitsByDetId().size()));
+      meBCSizMapProjPhi_->Fill(xphi, float(bCluster->getHitsByDetId().size()));
 
-      meBCETMap_->Fill(xphi, bcluster.eta(), float(bcluster.energy()) * sin(bcluster.position().theta()));
-      meBCETMapProjEta_->Fill(bcluster.eta(), float(bcluster.energy()) * sin(bcluster.position().theta()));
-      meBCETMapProjPhi_->Fill(xphi, float(bcluster.energy()) * sin(bcluster.position().theta()));
+      meBCETMap_->Fill(xphi, bCluster->eta(), float(bCluster->energy()) * sin(bCluster->position().theta()));
+      meBCETMapProjEta_->Fill(bCluster->eta(), float(bCluster->energy()) * sin(bCluster->position().theta()));
+      meBCETMapProjPhi_->Fill(xphi, float(bCluster->energy()) * sin(bCluster->position().theta()));
 
     }
 
@@ -359,29 +356,28 @@ void EBClusterTask::analyze(const Event& e, const EventSetup& c){
     TLorentzVector sc1_p(0,0,0,0);
     TLorentzVector sc2_p(0,0,0,0);
 
-    SuperClusterCollection::const_iterator sClusterItr;
-    for(  sClusterItr = pSuperClusters->begin(); sClusterItr != pSuperClusters->end(); ++sClusterItr ) {
+    for ( SuperClusterCollection::const_iterator sCluster = pSuperClusters->begin(); sCluster != pSuperClusters->end(); ++sCluster ) {
 
       // energy, size
-      meSCEne_->Fill( sClusterItr->energy() );
-      meSCSiz_->Fill( float(sClusterItr->clustersSize()) );
+      meSCEne_->Fill( sCluster->energy() );
+      meSCSiz_->Fill( float(sCluster->clustersSize()) );
 
       // seed and shapes
       if ( pClusterShapeAssociation.isValid() ) {
-        const ClusterShapeRef& shape = pClusterShapeAssociation->find(sClusterItr->seed())->val;
+        const ClusterShapeRef& shape = pClusterShapeAssociation->find(sCluster->seed())->val;
         mes1s9_->Fill(shape->eMax()/shape->e3x3());
         mes9s25_->Fill(shape->e3x3()/shape->e5x5());
       }
 
       // look for the two most energetic super clusters
       if ( nscc >= 2 ) {
-	if ( sClusterItr->energy() > sc1_p.Energy() ) {
+	if ( sCluster->energy() > sc1_p.Energy() ) {
 	  sc2_p=sc1_p;
-	  sc1_p.SetPtEtaPhiE(sClusterItr->energy()*sin(sClusterItr->position().theta()),
-			     sClusterItr->eta(), sClusterItr->phi(), sClusterItr->energy());
-	} else if ( sClusterItr->energy() > sc2_p.Energy() ) {
-	  sc2_p.SetPtEtaPhiE(sClusterItr->energy()*sin(sClusterItr->position().theta()),
-			     sClusterItr->eta(), sClusterItr->phi(), sClusterItr->energy());
+	  sc1_p.SetPtEtaPhiE(sCluster->energy()*sin(sCluster->position().theta()),
+			     sCluster->eta(), sCluster->phi(), sCluster->energy());
+	} else if ( sCluster->energy() > sc2_p.Energy() ) {
+	  sc2_p.SetPtEtaPhiE(sCluster->energy()*sin(sCluster->position().theta()),
+			     sCluster->eta(), sCluster->phi(), sCluster->energy());
 	}
       }
     }

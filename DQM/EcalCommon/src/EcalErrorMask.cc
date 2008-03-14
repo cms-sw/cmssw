@@ -1,11 +1,11 @@
-// $Id: EcalErrorMask.cc,v 1.24 2008/02/09 19:50:10 dellaric Exp $
+// $Id: EcalErrorMask.cc,v 1.25 2008/02/21 13:11:22 dellaric Exp $
 
 /*!
   \file EcalErrorMask.cc
   \brief Error mask from text file or database
   \author B. Gobbo
-  \version $Revision: 1.24 $
-  \date $Date: 2008/02/09 19:50:10 $
+  \version $Revision: 1.25 $
+  \date $Date: 2008/02/21 13:11:22 $
 */
 
 #include "OnlineDB/EcalCondDB/interface/EcalCondDBInterface.h"
@@ -44,7 +44,7 @@ std::map<EcalLogicID, RunMemTTErrorsDat>   EcalErrorMask::mapMemTTErrors_;
 
 //----------------------------------------------------------------------------------
 
-void EcalErrorMask::readFile( std::string inFile, bool verbose, bool verifySyntax ) throw( std::runtime_error ) {
+void EcalErrorMask::readFile( std::string& inFile, bool verbose, bool verifySyntax ) throw( std::runtime_error ) {
 
   if( done_ ) {
     throw( std::runtime_error( "already done." ) );
@@ -438,7 +438,7 @@ void EcalErrorMask::readFile( std::string inFile, bool verbose, bool verifySynta
 
 //----------------------------------------------------------------------------------
 
-void EcalErrorMask::writeFile( std::string outFile ) throw( std::runtime_error ) {
+void EcalErrorMask::writeFile( std::string& outFile ) throw( std::runtime_error ) {
 
   std::ifstream inf( outFile.c_str() );
   inf.close();

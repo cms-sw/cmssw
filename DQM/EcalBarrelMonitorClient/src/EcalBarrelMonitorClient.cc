@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorClient.cc
  *
- * $Date: 2008/03/10 22:16:48 $
- * $Revision: 1.402 $
+ * $Date: 2008/03/14 12:50:28 $
+ * $Revision: 1.403 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -519,10 +519,15 @@ void EcalBarrelMonitorClient::initialize(const ParameterSet& ps){
     clients_.push_back( new EBTestPulseClient(ps) );
     clientsNames_.push_back( "TestPulse" );
 
+    clientsRuns_.insert(pair<EBClient*,int>( clients_.back(), EcalDCCHeaderBlock::COSMIC ));
     clientsRuns_.insert(pair<EBClient*,int>( clients_.back(), EcalDCCHeaderBlock::LASER_STD ));
     clientsRuns_.insert(pair<EBClient*,int>( clients_.back(), EcalDCCHeaderBlock::PEDESTAL_STD ));
     clientsRuns_.insert(pair<EBClient*,int>( clients_.back(), EcalDCCHeaderBlock::TESTPULSE_MGPA ));
 
+    clientsRuns_.insert(pair<EBClient*,int>( clients_.back(), EcalDCCHeaderBlock::COSMICS_GLOBAL ));
+    clientsRuns_.insert(pair<EBClient*,int>( clients_.back(), EcalDCCHeaderBlock::PHYSICS_GLOBAL ));
+    clientsRuns_.insert(pair<EBClient*,int>( clients_.back(), EcalDCCHeaderBlock::COSMICS_LOCAL ));
+    clientsRuns_.insert(pair<EBClient*,int>( clients_.back(), EcalDCCHeaderBlock::PHYSICS_LOCAL ));
     clientsRuns_.insert(pair<EBClient*,int>( clients_.back(), EcalDCCHeaderBlock::LASER_GAP ));
     clientsRuns_.insert(pair<EBClient*,int>( clients_.back(), EcalDCCHeaderBlock::TESTPULSE_GAP ));
     clientsRuns_.insert(pair<EBClient*,int>( clients_.back(), EcalDCCHeaderBlock::PEDESTAL_GAP ));
@@ -936,14 +941,14 @@ void EcalBarrelMonitorClient::beginRunDb(void) {
 
   RunTypeDef rundef;
 
-  rundef.setRunType( runType_ == -1 ? "UNKNOWN" : runTypes_[runType_]  );
+  rundef.setRunType( this->getRunType()  );
 
   RunTag runtag;
 
   runtag.setLocationDef(locdef);
   runtag.setRunTypeDef(rundef);
 
-  runtag.setGeneralTag( runType_ == -1 ? "UNKNOWN" : runTypes_[runType_] );
+  runtag.setGeneralTag( this->getRunType() );
 
   // fetch the RunIOV from the DB
 
@@ -1398,7 +1403,7 @@ void EcalBarrelMonitorClient::analyze(void){
     cout << "   CMS  run/event number = " << run_ << "/" << evt_ << endl;
     cout << "   ECAL run/event number = " << ecal_run << "/" << ecal_evt << endl;
     cout << "   ECAL location = " << location_ << endl;
-    cout << "   ECAL run/event type = " << ( runType_ == -1 ? "UNKNOWN" : runTypes_[runType_] ) << "/" << ( evtType_ == -1 ? "UNKNOWN" : runTypes_[evtType_] ) << flush;
+    cout << "   ECAL run/event type = " << this->getRunType() << "/" << ( evtType_ == -1 ? "UNKNOWN" : runTypes_[evtType_] ) << flush;
 
     if ( h_ ) {
       if ( h_->GetEntries() != 0 ) {
@@ -1618,7 +1623,7 @@ void EcalBarrelMonitorClient::htmlOutput( bool current ){
   htmlFile << "<h2>Executed tasks for run:&nbsp&nbsp&nbsp" << endl;
   htmlFile << "<span style=\"color: rgb(0, 0, 153);\">" << run_ <<"</span></h2> " << endl;
   htmlFile << "<h2>Run type:&nbsp&nbsp&nbsp" << endl;
-  htmlFile << "<span style=\"color: rgb(0, 0, 153);\">" << ( runType_ == -1 ? "UNKNOWN" : runTypes_[runType_] ) <<"</span></h2> " << endl;
+  htmlFile << "<span style=\"color: rgb(0, 0, 153);\">" << this->getRunType() <<"</span></h2> " << endl;
   htmlFile << "<hr>" << endl;
 
   htmlFile << "<ul>" << endl;

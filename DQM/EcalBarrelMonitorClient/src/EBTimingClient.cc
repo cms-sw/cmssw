@@ -1,8 +1,8 @@
 /*
  * \file EBTimingClient.cc
  *
- * $Date: 2008/02/23 08:39:24 $
- * $Revision: 1.72 $
+ * $Date: 2008/02/29 15:03:10 $
+ * $Revision: 1.73 $
  * \author G. Della Ricca
  *
 */
@@ -406,7 +406,7 @@ void EBTimingClient::analyze(void){
 
 }
 
-void EBTimingClient::htmlOutput(int run, string htmlDir, string htmlName){
+void EBTimingClient::htmlOutput(int run, string& htmlDir, string& htmlName){
 
   cout << "Preparing EBTimingClient html output ..." << endl;
 

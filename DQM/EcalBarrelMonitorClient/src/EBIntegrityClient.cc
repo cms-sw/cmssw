@@ -2,8 +2,8 @@
 /*
  * \file EBIntegrityClient.cc
  *
- * $Date: 2008/02/23 08:50:49 $
- * $Revision: 1.192 $
+ * $Date: 2008/02/29 15:02:33 $
+ * $Revision: 1.193 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -975,7 +975,7 @@ void EBIntegrityClient::analyze(void){
 
 }
 
-void EBIntegrityClient::htmlOutput(int run, string htmlDir, string htmlName){
+void EBIntegrityClient::htmlOutput(int run, string& htmlDir, string& htmlName){
 
   cout << "Preparing EBIntegrityClient html output ..." << endl;
 
