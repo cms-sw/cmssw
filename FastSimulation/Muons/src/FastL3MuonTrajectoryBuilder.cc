@@ -10,8 +10,8 @@
  *   in the muon system and the tracker.
  *
  *
- *  $Date: 2008/02/14 12:34:38 $
- *  $Revision: 1.4 $
+ *  $Date: 2008/02/24 15:34:11 $
+ *  $Revision: 1.5 $
  *
  *  Authors :
  *  Patrick Janot - CERN
@@ -154,10 +154,6 @@ FastL3MuonTrajectoryBuilder::trajectories(const TrackCand& staCandIn) {
   }
   tkTrajs.clear();  
 
-  for ( std::vector<TrackCand>::const_iterator is = regionalTkTracks.begin(); is != regionalTkTracks.end(); ++is) {
-    delete (*is).first;   
-  }
-
   return result;
   
 }
@@ -236,6 +232,14 @@ FastL3MuonTrajectoryBuilder::findId(const reco::Track& aTrack) const {
   return trackId;
 }
 
+void 
+FastL3MuonTrajectoryBuilder::clear() { 
+  std::vector<TrackCand>::const_iterator is = regionalTkTracks.begin();
+  std::vector<TrackCand>::const_iterator il = regionalTkTracks.end();
+  for ( ; is != il; ++is) {
+    delete (*is).first;   
+  }
+}
 
 
 

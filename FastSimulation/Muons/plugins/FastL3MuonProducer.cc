@@ -5,8 +5,8 @@
  *   information,<BR>
  *   starting from a L2 reonstructed muon and a tracker track.
  *
- *   $Date: 2007/12/28 21:00:27 $
- *   $Revision: 1.1 $
+ *   $Date: 2008/03/13 14:55:58 $
+ *   $Revision: 1.2 $
  *   \author  Patrick Janot - CERN
  */
 
@@ -62,7 +62,7 @@ FastL3MuonProducer::FastL3MuonProducer(const edm::ParameterSet& parameterSet) {
   
   // instantiate the concrete trajectory builder in the Track Finder
   MuonTrackLoader* mtl = new MuonTrackLoader(trackLoaderParameters,theService);
-  FastL3MuonTrajectoryBuilder* l3mtb = new FastL3MuonTrajectoryBuilder(trajectoryBuilderParameters, theService);
+  l3mtb = new FastL3MuonTrajectoryBuilder(trajectoryBuilderParameters, theService);
   theTrackFinder = new MuonTrackFinder(l3mtb, mtl);
 
   theL2SeededTkLabel = trackLoaderParameters.getUntrackedParameter<std::string>("MuonSeededTracksInstance",std::string());
@@ -142,6 +142,7 @@ void FastL3MuonProducer::produce(edm::Event& event, const edm::EventSetup& event
   }
 
   theTrackFinder->reconstruct(L2TrackCands, event);      
+  l3mtb->clear();
   
   /*
   LogTrace(metname)<<"Event loaded"
