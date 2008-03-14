@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Feb 11 11:06:40 EST 2008
-// $Id: FWGUIManager.cc,v 1.13 2008/03/11 18:39:01 chrjones Exp $
+// $Id: FWGUIManager.cc,v 1.14 2008/03/11 23:30:04 chrjones Exp $
 //
 
 // system include files
@@ -50,6 +50,8 @@
 
 #include "Fireworks/Core/src/FWListViewObject.h"
 #include "Fireworks/Core/src/FWListModel.h"
+
+#include "Fireworks/Core/interface/FWConfiguration.h"
 
 //
 // constants, enums and typedefs
@@ -338,12 +340,12 @@ FWGUIManager::createView(const std::string& iName)
    if(itFind == m_nameToViewBuilder.end()) {
       throw std::runtime_error(std::string("Unable to create view named ")+iName+" because it is unknown");
    }
-   FWViewBase* view = itFind->second(parentForNextView());
+   boost::shared_ptr<FWViewBase> view(itFind->second(parentForNextView()));
    addFrameHoldingAView(view->frame());
    
-   FWListViewObject* lst = new FWListViewObject(iName.c_str(),view);
+   FWListViewObject* lst = new FWListViewObject(iName.c_str(),view.get());
    lst->AddIntoListTree(m_listTree,m_views);
-   
+   m_viewBases.push_back(view);
 }
 
 
@@ -534,12 +536,32 @@ FWGUIManager::itemBelowMouse(TGListTreeItem* item, UInt_t)
 }
 
 void 
-FWGUIManager::addTo(FWConfiguration&) const
+FWGUIManager::addTo(FWConfiguration& oTo) const
 {
+   for(std::vector<boost::shared_ptr<FWViewBase> >::const_iterator it = m_viewBases.begin(),
+       itEnd = m_viewBases.end();
+       it != itEnd;
+       ++it) {
+      FWConfiguration temp(1);
+      //(*it)->addTo(temp);
+      oTo.addKeyValue((*it)->typeName(), temp, true);
+   }
 }
 void 
-FWGUIManager::setFrom(const FWConfiguration&)
+FWGUIManager::setFrom(const FWConfiguration& iFrom)
 {
+   const FWConfiguration::KeyValues* keyVals = iFrom.keyValues();
+   assert(0!=keyVals);
+   for(FWConfiguration::KeyValues::const_iterator it = keyVals->begin(),
+       itEnd = keyVals->end();
+       it!=itEnd;
+       ++it) {
+      size_t n = m_viewBases.size();
+      createView(it->first);
+      
+      assert(n+1 == m_viewBases.size());
+      //m_viewBases.back()->setFrom(it->second);
+   }
 }
 
 //

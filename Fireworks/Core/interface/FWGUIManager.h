@@ -16,12 +16,13 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Feb 11 10:52:24 EST 2008
-// $Id: FWGUIManager.h,v 1.9 2008/03/11 02:49:58 chrjones Exp $
+// $Id: FWGUIManager.h,v 1.10 2008/03/11 23:30:05 chrjones Exp $
 //
 
 // system include files
 #include <map>
 #include <boost/function.hpp>
+#include <boost/shared_ptr.hpp>
 #include "Rtypes.h"
 
 // user include files
@@ -146,6 +147,7 @@ class FWGUIManager : public FWConfigurable
 
       FWSummaryManager* m_summaryManager;
 
+      std::vector<boost::shared_ptr<FWViewBase> > m_viewBases;
      // hack for now 
 public: 
      static FWDetailViewManager* m_detailViewManager;
