@@ -45,13 +45,15 @@ $UserWebArea=$ARGV[0];
 	  "IgProf",
 	  "Valgrind"
 	  );
-@Step=( 
+@Step=(
        "SIM",
-       "DIGI"
+       "DIGI",
+       "RECO"
        );
 %StepLowCaps=(
 	      "SIM"=>"sim",
-	      "DIGI"=>"digi"
+	      "DIGI"=>"digi",
+	      "RECO"=>"reco"
 	      );
 %NumOfEvents=( #These numbers are used in the index.html they are not automatically matched to the actual
 	       #ones (one should automate this, by looking into the cmsCreateSimPerfTestPyRelVal.log logfile)
