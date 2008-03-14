@@ -2,7 +2,7 @@
 #define FWCore_Sources_ExternalInputSource_h
 
 /*----------------------------------------------------------------------
-$Id: ExternalInputSource.h,v 1.2 2007/06/14 21:03:40 wmtan Exp $
+$Id: ExternalInputSource.h,v 1.3 2007/08/06 19:53:06 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include <memory>
@@ -24,6 +24,7 @@ namespace edm {
 
 
   private:
+    PoolCatalog poolCatalog_;
     InputFileCatalog catalog_;
   };
 }

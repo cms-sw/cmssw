@@ -1,6 +1,6 @@
 //////////////////////////////////////////////////////////////////////
 //
-// $Id: FileCatalog.cc,v 1.5 2007/08/06 19:53:06 wmtan Exp $
+// $Id: FileCatalog.cc,v 1.6 2007/09/05 21:11:24 wmtan Exp $
 //
 // Original Author: Luca Lista
 // Current Author: Bill Tanenbaum
@@ -11,8 +11,8 @@
 
 namespace edm {
 
-  FileCatalog::FileCatalog() :
-      catalog_(),
+  FileCatalog::FileCatalog(PoolCatalog & poolcat) :
+      catalog_(poolcat.catalog_),
       url_(),
       active_(false) {
   }

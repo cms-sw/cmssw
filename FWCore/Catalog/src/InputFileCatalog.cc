@@ -1,6 +1,6 @@
 //////////////////////////////////////////////////////////////////////
 //
-// $Id: InputFileCatalog.cc,v 1.2 2007/09/05 21:11:24 wmtan Exp $
+// $Id: InputFileCatalog.cc,v 1.3 2008/01/31 02:49:18 wmtan Exp $
 //
 // Original Author: Luca Lista
 // Current Author: Bill Tanenbaum
@@ -19,8 +19,11 @@
 #include <boost/algorithm/string.hpp>
 
 namespace edm {
-  InputFileCatalog::InputFileCatalog(ParameterSet const& pset, std::string const& namesParameter, bool canBeEmpty, bool noThrow) :
-    FileCatalog(),
+  InputFileCatalog::InputFileCatalog(ParameterSet const& pset,
+				     PoolCatalog & poolcat,
+				     std::string const& namesParameter,
+				     bool canBeEmpty, bool noThrow) :
+    FileCatalog(poolcat),
     logicalFileNames_(canBeEmpty ?
 	pset.getUntrackedParameter<std::vector<std::string> >(namesParameter, std::vector<std::string>()) :
 	pset.getUntrackedParameter<std::vector<std::string> >(namesParameter)),

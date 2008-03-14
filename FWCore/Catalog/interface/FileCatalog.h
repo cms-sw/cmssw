@@ -2,7 +2,7 @@
 #define FWCore_Catalog_FileCatalog_h
 //////////////////////////////////////////////////////////////////////
 //
-// $Id: FileCatalog.h,v 1.3 2007/09/05 21:11:22 wmtan Exp $
+// $Id: FileCatalog.h,v 1.4 2008/02/22 19:08:02 wmtan Exp $
 //
 // Class FileCatalog. Common services to manage File catalog
 //
@@ -27,10 +27,15 @@ namespace edm {
     std::string lfn_;
   };
 
+  struct PoolCatalog {
+    PoolCatalog() : catalog_() {}
+    pool::IFileCatalog catalog_;
+  };
+
   class ParameterSet;
   class FileCatalog {
   public:
-    explicit FileCatalog();
+    explicit FileCatalog(PoolCatalog & poolcat);
     virtual ~FileCatalog() = 0;
     void commitCatalog();
     static bool const isPhysical(std::string const& name) {
@@ -42,7 +47,7 @@ namespace edm {
     void setActive() {active_ = true;}
     bool active() const {return active_;}
   private:
-    pool::IFileCatalog catalog_;
+    pool::IFileCatalog& catalog_;
     std::string url_;
     bool active_;
   };

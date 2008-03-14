@@ -2,7 +2,7 @@
 #define FWCore_Catalog_InputFileCatalog_h
 //////////////////////////////////////////////////////////////////////
 //
-// $Id: InputFileCatalog.h,v 1.1 2007/08/06 19:53:57 wmtan Exp $
+// $Id: InputFileCatalog.h,v 1.2 2008/01/31 02:49:16 wmtan Exp $
 //
 // Class InputFileCatalog. Services to manage InputFile catalog
 //
@@ -19,6 +19,7 @@ namespace edm {
   class InputFileCatalog : public FileCatalog {
   public:
     explicit InputFileCatalog(ParameterSet const& pset,
+	 PoolCatalog & poolcat,
 	 std::string const& namesParameter = std::string("fileNames"),
 	 bool canBeEmpty = false,
 	 bool noThrow = false);
