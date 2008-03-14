@@ -15,9 +15,10 @@ KalmanVertexTrackUpdator<N>::update
   trackMatrixPair thePair = 
   	trackRefit(vertex.vertexState(), track->linearizedTrack());
 
-  CachingVertex<N> rVert = updator.remove(vertex, track);
+  VertexState rVert = updator.positionUpdate (vertex.vertexState(), track->linearizedTrack(),
+			track->weight(), -1);
 
-  float smoothedChi2 = helper.vertexChi2(rVert, vertex) +
+  float smoothedChi2 = helper.vertexChi2(rVert, vertex.vertexState()) +
 	helper.trackParameterChi2(track->linearizedTrack(), thePair.first);
 
   return theVTFactory.vertexTrack(track->linearizedTrack(),
