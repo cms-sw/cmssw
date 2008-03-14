@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: RootInputFileSequence.cc,v 1.4 2008/03/11 21:12:43 wmtan Exp $
+$Id: RootInputFileSequence.cc,v 1.5 2008/03/12 19:57:31 wmtan Exp $
 ----------------------------------------------------------------------*/
 #include "RootInputFileSequence.h"
 #include "PoolSource.h"
@@ -399,6 +399,10 @@ namespace edm {
       fileIter_ = fileIterBegin_ + flatDistribution_->fireInt(fileCatalogItems().size());
       initFile(false);
       eventsRemainingInFile_ = rootFile_->eventTree().entries();
+      if (eventsRemainingInFile_ == 0) {
+	throw edm::Exception(edm::errors::FatalRootError) <<
+	   "RootInputFileSequence::readManyRandom_(): Secondary Input file " << fileIter_->fileName() << " contains no events.\n";
+      }
       rootFile_->setAtEventEntry(flatDistribution_->fireInt(eventsRemainingInFile_));
     }
     fileSeqNumber = fileIter_ - fileIterBegin_;
