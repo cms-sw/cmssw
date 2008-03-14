@@ -1283,13 +1283,16 @@ DQMStore::save(const std::string &filename,
       << "Failed to create file '" << filename << "'";
   f.cd();
 
-  char runnumber[10];
-  // if minStatus is large it is interpreted as Runnumber
-  if (minStatus > 10000 || minStatus < 2) sprintf(runnumber,"%09d",minStatus);  
-  else sprintf(runnumber,"%09d",0);
 
-  const std::string run = runnumber;
-  const std::string run_ = "R" + run;
+  bool putrunprefix = false;
+  std::string run ;
+  // if minStatus is large it is interpreted as Runnumber
+  if (minStatus > 10000 || minStatus < 2) {
+     putrunprefix = true;
+     char runnumber[10];
+     sprintf(runnumber,"R%09d",minStatus);  
+     run = runnumber;
+  }
 
   // Loop over the directory structure.
   for (di = dirs_.begin(), de = dirs_.end(); di != de; ++di)
@@ -1319,13 +1322,12 @@ DQMStore::save(const std::string &filename,
 	}
       }
 
-      if (verbose_)
-	std::cout << "DQMStore: saving monitor element '"
+      if (verbose_) std::cout << "DQMStore: saving monitor element '"
 		  << mi->first << "'\n";
 
       // Create the directory.
       gDirectory->cd("/");
-      if(minStatus == dqm::qstatus::STATUS_OK){
+      if(!putrunprefix){
 	  if (di->empty())
 	    cdInto(s_monitorDirName);
 	  else
@@ -1334,16 +1336,15 @@ DQMStore::save(const std::string &filename,
       }
       else {
 	  if (di->empty())
-	    cdInto(run_);
+	    cdInto(run);
 	  else
 	    {
 	      size_t slash = (*di).find('/');
 	      size_t length = (*di).length();
 	      std::string firstpart = (*di).substr(0,slash);
-	      firstpart = firstpart + "/Run summary/";
 	      std::string lastpart = (*di).substr(slash+1,length);
-	      //std::cout << firstpart + lastpart << std::endl;
-	      cdInto(run_ + "/" + firstpart + lastpart);
+	      // std::cout << run + "/" + firstpart + "/Run summary/" + lastpart << std::endl;
+	      cdInto(run + "/" + firstpart + "/Run summary/" + lastpart);
 	    }
       }      
       // Save the object.
