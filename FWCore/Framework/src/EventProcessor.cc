@@ -682,10 +682,17 @@ namespace edm {
     // not modified.
 
     shared_ptr<ParameterSet> parameterSet = processDesc->getProcessPSet();
-    shared_ptr<std::vector<ParameterSet> > pServiceSets = processDesc->getServicesPSets();
-    //makeParameterSets(config, parameterSet, pServiceSets);
+
+    ParameterSet optionsPset(parameterSet->getUntrackedParameter<ParameterSet>("options", ParameterSet()));
+    fileMode_ = optionsPset.getUntrackedParameter<std::string>("fileMode", "DENSE");
+    handleEmptyRuns_ = optionsPset.getUntrackedParameter<bool>("handleEmptyRuns", true);
+    handleEmptyLumis_ = optionsPset.getUntrackedParameter<bool>("handleEmptyLumis", true);
+
     maxEventsPset_ = parameterSet->getUntrackedParameter<ParameterSet>("maxEvents", ParameterSet());
     maxLumisPset_ = parameterSet->getUntrackedParameter<ParameterSet>("maxLuminosityBlocks", ParameterSet());
+
+    shared_ptr<std::vector<ParameterSet> > pServiceSets = processDesc->getServicesPSets();
+    //makeParameterSets(config, parameterSet, pServiceSets);
 
     //create the services
     ServiceToken tempToken(ServiceRegistry::createSet(*pServiceSets, iToken, iLegacy));
@@ -1716,14 +1723,18 @@ namespace edm {
     changeState(mRunCount);
     StatusCode returnCode = epSuccess;
     shouldWeStop_ = false;
+    stateMachineWasInErrorState_ = false;
 
     // make the services available
     ServiceRegistry::Operate operate(serviceToken_);
 
+    statemachine::FileMode fileMode = statemachine::DENSE;
+    if (fileMode_ == std::string("SPARSE")) fileMode = statemachine::SPARSE;
+
     statemachine::Machine machine(this,
-                                  statemachine::DENSE,
-                                  true,
-                                  true);
+                                  fileMode,
+                                  handleEmptyRuns_,
+                                  handleEmptyLumis_);
 
     machine.initiate();
 
@@ -1776,59 +1787,57 @@ namespace edm {
 
     changeState(mFinished);
     toerror.succeeded();
+
+    if (stateMachineWasInErrorState_) {
+      throw cms::Exception("BadState")
+	<< "The boost state machine in the EventProcessor exited after\n"
+	<< "entering the Error state.\n";
+    }
+
     return returnCode;
   }
 
   void EventProcessor::readFile() {
-    // IMPLEMENTATION: OK
     FDEBUG(1) << " \treadFile\n";
     fb_ = input_->readFile();
   }
 
   void EventProcessor::closeInputFile() {
-    // IMPLEMENTATION: OK
     input_->closeFile();
     FDEBUG(1) << "\tcloseInputFile\n";
   }
 
   void EventProcessor::openOutputFiles() {
-    // IMPLEMENTATION: OK
     schedule_->openOutputFiles(*fb_);
     FDEBUG(1) << "\topenOutputFiles\n";
   }
 
   void EventProcessor::closeOutputFiles() {
-    // IMPLEMENTATION: OK
     schedule_->closeOutputFiles();
     FDEBUG(1) << "\tcloseOutputFiles\n";
   }
 
   void EventProcessor::respondToOpenInputFile() {
-    // IMPLEMENTATION: OK
     schedule_->respondToOpenInputFile(*fb_);
     FDEBUG(1) << "\trespondToOpenInputFile\n";
   }
 
   void EventProcessor::respondToCloseInputFile() {
-    // IMPLEMENTATION: OK
     schedule_->respondToCloseInputFile(*fb_);
     FDEBUG(1) << "\trespondToCloseInputFile\n";
   }
 
   void EventProcessor::respondToOpenOutputFiles() {
-    // IMPLEMENTATION: OK
     schedule_->respondToOpenOutputFiles(*fb_);
     FDEBUG(1) << "\trespondToOpenOutputFiles\n";
   }
 
   void EventProcessor::respondToCloseOutputFiles() {
-    // IMPLEMENTATION: OK
     schedule_->respondToCloseOutputFiles(*fb_);
     FDEBUG(1) << "\trespondToCloseOutputFiles\n";
   }
 
   void EventProcessor::startingNewLoop() {
-    // IMPLEMENTATION: OK
     if (looper_) {
       looper_->doStartingNewLoop();
     }
@@ -1836,7 +1845,6 @@ namespace edm {
   }
 
   bool EventProcessor::endOfLoop() {
-    // IMPLEMENTATION: OK
     if (looper_) {
       EDLooper::Status status = looper_->doEndOfLoop(esp_->eventSetup());
       if (status != EDLooper::kContinue) return true;
@@ -1847,20 +1855,17 @@ namespace edm {
   }
 
   void EventProcessor::rewindInput() {
-    // IMPLEMENTATION: OK
     input_->repeat();
     input_->rewind();
     FDEBUG(1) << "\trewind\n";
   }
 
   void EventProcessor::prepareForNextLoop() {
-    // IMPLEMENTATION: OK
     looper_->prepareForNextLoop(esp_.get());
     FDEBUG(1) << "\tprepareForNextLoop\n";
   }
 
   void EventProcessor::writeCache() {
-    // IMPLEMENTATION: OK
     while (!principalCache_.noMoreRuns()) {
       schedule_->writeRun(principalCache_.lowestRun());
       principalCache_.deleteLowestRun();      
@@ -1873,18 +1878,23 @@ namespace edm {
   }
 
   bool EventProcessor::shouldWeCloseOutput() {
-    // IMPLEMENTATION: NOT IMPLEMENTED
+    // NOT IMPLEMENTED YET
     FDEBUG(1) << "\tshouldWeCloseOutput\n";
     return false;
   }
 
   void EventProcessor::doErrorStuff() {
-    // IMPLEMENTATION: NOT KNOWN
     FDEBUG(1) << "\tdoErrorStuff\n";
+    edm::LogError("StateMachine")
+      << "The EventProcessor state machine encountered an unexpected event\n"
+      << "and went to the error state\n"
+      << "Will attempt to terminate processing normally\n"
+      << "(IF using the looper the next loop will be attempted)\n"
+      << "This likely indicates a bug in an input module or corrupted input or both\n";
+    stateMachineWasInErrorState_ = true;
   }
 
   void EventProcessor::smBeginRun(int run) {
-    // IMPLEMENTATION: OK
     RunPrincipal& runPrincipal = principalCache_.runPrincipal(run);
     IOVSyncValue ts(EventID(runPrincipal.run(),0),
                     runPrincipal.beginTime());
@@ -1894,7 +1904,6 @@ namespace edm {
   }
 
   void EventProcessor::smEndRun(int run) {
-    // IMPLEMENTATION: OK
     RunPrincipal& runPrincipal = principalCache_.runPrincipal(run);
     input_->doEndRun(runPrincipal);
     IOVSyncValue ts(EventID(runPrincipal.run(),EventID::maxEventNumber()),
@@ -1905,7 +1914,6 @@ namespace edm {
   }
 
   void EventProcessor::beginLumi(int run, int lumi) {
-    // IMPLEMENTATION: OK
     LuminosityBlockPrincipal& lumiPrincipal = principalCache_.lumiPrincipal(run, lumi);
     IOVSyncValue ts(EventID(lumiPrincipal.run(),0), lumiPrincipal.beginTime());
     EventSetup const& es = esp_->eventSetupForInstance(ts);
@@ -1914,7 +1922,6 @@ namespace edm {
   }
 
   void EventProcessor::endLumi(int run, int lumi) {
-    // IMPLEMENTATION: OK
     LuminosityBlockPrincipal& lumiPrincipal = principalCache_.lumiPrincipal(run, lumi);
     input_->doEndLumi(lumiPrincipal);
     IOVSyncValue ts(EventID(lumiPrincipal.run(),EventID::maxEventNumber()),
@@ -1925,45 +1932,38 @@ namespace edm {
   }
 
   int EventProcessor::readAndCacheRun() {
-    // IMPLEMENTATION: OK
     principalCache_.insert(input_->readRun());
     FDEBUG(1) << "\treadAndCacheRun " << "\n";
     return principalCache_.runPrincipal().run();
   }
 
   int EventProcessor::readAndCacheLumi() {
-    // IMPLEMENTATION: OK
     principalCache_.insert(input_->readLuminosityBlock(principalCache_.runPrincipalPtr()));
     FDEBUG(1) << "\treadAndCacheLumi " << "\n";
     return principalCache_.lumiPrincipal().luminosityBlock();
   }
 
   void EventProcessor::writeRun(int run) {
-    // IMPLEMENTATION: OK
     schedule_->writeRun(principalCache_.runPrincipal(run));
     FDEBUG(1) << "\twriteRun " << run << "\n";
   }
 
   void EventProcessor::deleteRunFromCache(int run) {
-    // IMPLEMENTATION: OK
     principalCache_.deleteRun(run);
     FDEBUG(1) << "\tdeleteRunFromCache " << run << "\n";
   }
 
   void EventProcessor::writeLumi(int run, int lumi) {
-    // IMPLEMENTATION: OK
     schedule_->writeLumi(principalCache_.lumiPrincipal(run, lumi));
     FDEBUG(1) << "\twriteLumi " << run << "/" << lumi << "\n";
   }
 
   void EventProcessor::deleteLumiFromCache(int run, int lumi) {
-    // IMPLEMENTATION: OK
     principalCache_.deleteLumi(run, lumi);
     FDEBUG(1) << "\tdeleteLumiFromCache " << run << "/" << lumi << "\n";
   }
 
   void EventProcessor::readEvent() {
-    // IMPLEMENTATION: OK
     CallPrePost holder(*actReg_);
     sm_evp_ = input_->readEvent(principalCache_.lumiPrincipalPtr());
 
@@ -1971,7 +1971,6 @@ namespace edm {
   }
 
   void EventProcessor::processEvent() {
-    // IMPLEMENTATION: OK
     IOVSyncValue ts(sm_evp_->id(), sm_evp_->time());
     EventSetup const& es = esp_->eventSetupForInstance(ts);
     schedule_->runOneEvent(*sm_evp_, es, BranchActionEvent);
@@ -1985,7 +1984,6 @@ namespace edm {
   }
 
   bool EventProcessor::shouldWeStop() {
-    // IMPLEMENTATION: OK
     FDEBUG(1) << "\tshouldWeStop\n";
     if (shouldWeStop_) return true;
     return schedule_->terminate();
