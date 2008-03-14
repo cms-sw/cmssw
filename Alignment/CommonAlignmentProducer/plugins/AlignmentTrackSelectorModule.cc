@@ -40,8 +40,8 @@ struct TrackConfigSelector {
   const_iterator end() const { return theSelectedTracks.end(); }
   size_t size() const { return theSelectedTracks.size(); }
 
-  void select( const edm::Handle<reco::TrackCollection> & c,  const edm::Event & evt,
-               const edm::EventSetup &/*dummy*/)
+  void select( const edm::Handle<reco::TrackCollection> & c,  const edm::Event & evt)
+  // , const edm::EventSetup &/*dummy*/)
   {
     theSelectedTracks.clear();
     for( reco::TrackCollection::const_iterator i=c.product()->begin();i!=c.product()->end();++i){
