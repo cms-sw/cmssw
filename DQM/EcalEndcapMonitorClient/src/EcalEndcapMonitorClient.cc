@@ -1,8 +1,8 @@
 /*
  * \file EcalEndcapMonitorClient.cc
  *
- * $Date: 2008/02/29 15:06:21 $
- * $Revision: 1.160 $
+ * $Date: 2008/03/10 22:16:49 $
+ * $Revision: 1.161 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -1044,7 +1044,7 @@ void EcalEndcapMonitorClient::beginRunDb(void) {
   cout << endl;
 
   string rt = runiov_.getRunTag().getRunTypeDef().getRunType();
-  if ( rt == "UNKNOWN" ) {
+  if ( strcmp(rt.c_str(), "UNKNOWN") == 0 ) {
     runType_ = -1;
   } else {
     for ( unsigned int i = 0; i < runTypes_.size(); i++ ) {
@@ -1170,11 +1170,11 @@ void EcalEndcapMonitorClient::writeDb(void) {
     bool done = false;
     for ( multimap<EEClient*,int>::iterator j = clientsRuns_.lower_bound(clients_[i]); j != clientsRuns_.upper_bound(clients_[i]); j++ ) {
       if ( h_ && runType_ != -1 && runType_ == (*j).second && !done ) {
-        if ( clientsNames_[i] == "Cosmic" && runType_ != runTypes_[EcalDCCHeaderBlock::COSMIC] && runType_ != runTypes_[EcalDCCHeaderBlock::COSMICS_LOCAL] && runType_ != runTypes_[EcalDCCHeaderBlock::COSMICS_GLOBAL] && h_->GetBinContent(2+EcalDCCHeaderBlock::COSMIC) == 0 && h_->GetBinContent(2+EcalDCCHeaderBlock::COSMICS_LOCAL) == 0 && h_->GetBinContent(2+EcalDCCHeaderBlock::COSMICS_GLOBAL) == 0 ) continue;
-        if ( clientsNames_[i] == "Laser" && runType_ != runTypes_[EcalDCCHeaderBlock::LASER_STD] && runType_ != runTypes_[EcalDCCHeaderBlock::LASER_GAP] && h_->GetBinContent(2+EcalDCCHeaderBlock::LASER_STD) == 0 && h_->GetBinContent(2+EcalDCCHeaderBlock::LASER_GAP) == 0 ) continue;
-        if ( clientsNames_[i] == "Led" && runType_ != runTypes_[EcalDCCHeaderBlock::LED_STD] && runType_ != runTypes_[EcalDCCHeaderBlock::LED_GAP] && h_->GetBinContent(2+EcalDCCHeaderBlock::LED_STD) == 0 && h_->GetBinContent(2+EcalDCCHeaderBlock::LED_GAP) == 0 ) continue;
-        if ( clientsNames_[i] == "Pedestal" && runType_ != runTypes_[EcalDCCHeaderBlock::PEDESTAL_STD] && runType_ != runTypes_[EcalDCCHeaderBlock::PEDESTAL_GAP] && h_->GetBinContent(2+EcalDCCHeaderBlock::PEDESTAL_STD) == 0 && h_->GetBinContent(2+EcalDCCHeaderBlock::PEDESTAL_GAP) == 0 ) continue;
-        if ( clientsNames_[i] == "TestPulse" && runType_ != runTypes_[EcalDCCHeaderBlock::TESTPULSE_MGPA] && runType_ != runTypes_[EcalDCCHeaderBlock::TESTPULSE_GAP] && h_->GetBinContent(2+EcalDCCHeaderBlock::TESTPULSE_MGPA) == 0 && h_->GetBinContent(2+EcalDCCHeaderBlock::TESTPULSE_GAP) == 0 ) continue;
+        if ( strcmp(clientsNames_[i].c_str(), "Cosmic") == 0 && runType_ != runTypes_[EcalDCCHeaderBlock::COSMIC] && runType_ != runTypes_[EcalDCCHeaderBlock::COSMICS_LOCAL] && runType_ != runTypes_[EcalDCCHeaderBlock::COSMICS_GLOBAL] && h_->GetBinContent(2+EcalDCCHeaderBlock::COSMIC) == 0 && h_->GetBinContent(2+EcalDCCHeaderBlock::COSMICS_LOCAL) == 0 && h_->GetBinContent(2+EcalDCCHeaderBlock::COSMICS_GLOBAL) == 0 ) continue;
+        if ( strcmp(clientsNames_[i].c_str(), "Laser") == 0 && runType_ != runTypes_[EcalDCCHeaderBlock::LASER_STD] && runType_ != runTypes_[EcalDCCHeaderBlock::LASER_GAP] && h_->GetBinContent(2+EcalDCCHeaderBlock::LASER_STD) == 0 && h_->GetBinContent(2+EcalDCCHeaderBlock::LASER_GAP) == 0 ) continue;
+        if ( strcmp(clientsNames_[i].c_str(), "Led") == 0 && runType_ != runTypes_[EcalDCCHeaderBlock::LED_STD] && runType_ != runTypes_[EcalDCCHeaderBlock::LED_GAP] && h_->GetBinContent(2+EcalDCCHeaderBlock::LED_STD) == 0 && h_->GetBinContent(2+EcalDCCHeaderBlock::LED_GAP) == 0 ) continue;
+        if ( strcmp(clientsNames_[i].c_str(), "Pedestal") == 0 && runType_ != runTypes_[EcalDCCHeaderBlock::PEDESTAL_STD] && runType_ != runTypes_[EcalDCCHeaderBlock::PEDESTAL_GAP] && h_->GetBinContent(2+EcalDCCHeaderBlock::PEDESTAL_STD) == 0 && h_->GetBinContent(2+EcalDCCHeaderBlock::PEDESTAL_GAP) == 0 ) continue;
+        if ( strcmp(clientsNames_[i].c_str(), "TestPulse") == 0 && runType_ != runTypes_[EcalDCCHeaderBlock::TESTPULSE_MGPA] && runType_ != runTypes_[EcalDCCHeaderBlock::TESTPULSE_GAP] && h_->GetBinContent(2+EcalDCCHeaderBlock::TESTPULSE_MGPA) == 0 && h_->GetBinContent(2+EcalDCCHeaderBlock::TESTPULSE_GAP) == 0 ) continue;
         done = true;
         taskl |= 0x1 << clientsStatus_[clientsNames_[i]];
         cout << " Writing " << clientsNames_[i] << " results to DB " << endl;
@@ -1365,11 +1365,11 @@ void EcalEndcapMonitorClient::analyze(void){
   sprintf(histo, (prefixME_+"EcalEndcap/EcalInfo/STATUS").c_str());
   me = dbe_->get(histo);
   if ( me ) {
-    s = me->valueString();
     status_ = "unknown";
-    if ( s.substr(2,1) == "0" ) status_ = "begin-of-run";
-    if ( s.substr(2,1) == "1" ) status_ = "running";
-    if ( s.substr(2,1) == "2" ) status_ = "end-of-run";
+    s = me->valueString();
+    if ( strcmp(s.c_str(), "i=0") == 0 ) status_ = "begin-of-run";
+    if ( strcmp(s.c_str(), "i=1") == 0 ) status_ = "running";
+    if ( strcmp(s.c_str(), "i=2") == 0 ) status_ = "end-of-run";
     if ( verbose_ ) cout << "Found '" << histo << "'" << endl;
   }
 
@@ -1387,7 +1387,7 @@ void EcalEndcapMonitorClient::analyze(void){
   me = dbe_->get(histo);
   if ( me ) {
     s = me->valueString();
-    sscanf((s.substr(2,s.length()-2)).c_str(), "%d", &ecal_run);
+    sscanf(s.c_str(), "i=%d", &ecal_run);
     if ( verbose_ ) cout << "Found '" << histo << "'" << endl;
   }
 
@@ -1396,7 +1396,7 @@ void EcalEndcapMonitorClient::analyze(void){
   me = dbe_->get(histo);
   if ( me ) {
     s = me->valueString();
-    sscanf((s.substr(2,s.length()-2)).c_str(), "%d", &ecal_evt);
+    sscanf(s.c_str(), "i=%d", &ecal_evt);
     if ( verbose_ ) cout << "Found '" << histo << "'" << endl;
   }
 
@@ -1408,7 +1408,7 @@ void EcalEndcapMonitorClient::analyze(void){
   me = dbe_->get(histo);
   if ( me ) {
     s = me->valueString();
-    evtType_ = atoi(s.substr(2,s.size()-2).c_str());
+    sscanf(s.c_str(), "i=%d", &evtType_);
     if ( runType_ == -1 ) runType_ = evtType_;
     if ( verbose_ ) cout << "Found '" << histo << "'" << endl;
   }
@@ -1424,7 +1424,7 @@ void EcalEndcapMonitorClient::analyze(void){
                 ( jevt_ < 1000 && jevt_ %  100 == 0 ) ||
                 (                 jevt_ % 1000 == 0 );
  
-  if ( update || status_ == "begin-of-run" || status_ == "end-of-run" || forced_update_ ) {
+  if ( update || strcmp(status_.c_str(), "begin-of-run") == 0 || strcmp(status_.c_str(), "end-of-run") == 0 || forced_update_ ) {
 
     cout << " RUN status = \"" << status_ << "\"" << endl;
     cout << "   CMS  run/event number = " << run_ << "/" << evt_ << endl;
@@ -1449,7 +1449,7 @@ void EcalEndcapMonitorClient::analyze(void){
 
   }
 
-  if ( status_ == "begin-of-run" ) {
+  if ( strcmp(status_.c_str(), "begin-of-run") == 0 ) {
 
     if ( run_ != -1 && evt_ != -1 && runType_ != -1 ) {
 
@@ -1464,13 +1464,13 @@ void EcalEndcapMonitorClient::analyze(void){
 
   }
 
-  if ( status_ == "begin-of-run" || status_ == "running" || status_ == "end-of-run" ) {
+  if ( strcmp(status_.c_str(), "begin-of-run") == 0 || strcmp(status_.c_str(), "running") == 0 || strcmp(status_.c_str(), "end-of-run") == 0 ) {
 
     if ( begin_run_ && ! end_run_ ) {
 
       bool update = ( jevt_ < 3 || jevt_ % 1000 == 0 );
 
-      if ( update || status_ == "begin-of-run" || status_ == "end-of-run" || forced_update_ ) {
+      if ( update || strcmp(status_.c_str(), "begin-of-run") == 0 || strcmp(status_.c_str(), "end-of-run") == 0 || forced_update_ ) {
 
         for ( int i=0; i<int(clients_.size()); i++ ) {
           bool done = false;
@@ -1508,7 +1508,7 @@ void EcalEndcapMonitorClient::analyze(void){
 
   }
 
-  if ( status_ == "end-of-run" ) {
+  if ( strcmp(status_.c_str(), "end-of-run") == 0 ) {
 
     if ( run_ != -1 && evt_ != -1 && runType_ != -1 ) {
 
@@ -1527,7 +1527,7 @@ void EcalEndcapMonitorClient::analyze(void){
 
   // run number transition
 
-  if ( status_ == "running" ) {
+  if ( strcmp(status_.c_str(), "running") == 0 ) {
 
     if ( run_ != -1 && evt_ != -1 && runType_ != -1 ) {
 
@@ -1576,7 +1576,7 @@ void EcalEndcapMonitorClient::analyze(void){
 
   // 'running' state without a previous 'begin-of-run' state
 
-  if ( status_ == "running" ) {
+  if ( strcmp(status_.c_str(), "running") == 0 ) {
 
     if ( run_ != -1 && evt_ != -1 && runType_ != -1 ) {
 
@@ -1661,11 +1661,11 @@ void EcalEndcapMonitorClient::htmlOutput( bool current ){
     bool done = false;
     for ( multimap<EEClient*,int>::iterator j = clientsRuns_.lower_bound(clients_[i]); j != clientsRuns_.upper_bound(clients_[i]); j++ ) {
       if ( h_ && runType_ != -1 && runType_ == (*j).second && !done ) {
-        if ( clientsNames_[i] == "Cosmic" && runType_ != runTypes_[EcalDCCHeaderBlock::COSMIC] && runType_ != runTypes_[EcalDCCHeaderBlock::COSMICS_LOCAL] && runType_ != runTypes_[EcalDCCHeaderBlock::COSMICS_GLOBAL] && h_->GetBinContent(2+EcalDCCHeaderBlock::COSMIC) == 0 && h_->GetBinContent(2+EcalDCCHeaderBlock::COSMICS_LOCAL) == 0 && h_->GetBinContent(2+EcalDCCHeaderBlock::COSMICS_GLOBAL) == 0 ) continue;
-        if ( clientsNames_[i] == "Laser" && runType_ != runTypes_[EcalDCCHeaderBlock::LASER_STD] && runType_ != runTypes_[EcalDCCHeaderBlock::LASER_GAP] && h_->GetBinContent(2+EcalDCCHeaderBlock::LASER_STD) == 0 && h_->GetBinContent(2+EcalDCCHeaderBlock::LASER_GAP) == 0 ) continue;
-        if ( clientsNames_[i] == "Led" && runType_ != runTypes_[EcalDCCHeaderBlock::LED_STD] && runType_ != runTypes_[EcalDCCHeaderBlock::LED_GAP] && h_->GetBinContent(2+EcalDCCHeaderBlock::LED_STD) == 0 && h_->GetBinContent(2+EcalDCCHeaderBlock::LED_GAP) == 0 ) continue;
-        if ( clientsNames_[i] == "Pedestal" && runType_ != runTypes_[EcalDCCHeaderBlock::PEDESTAL_STD] && runType_ != runTypes_[EcalDCCHeaderBlock::PEDESTAL_GAP] && h_->GetBinContent(2+EcalDCCHeaderBlock::PEDESTAL_STD) == 0 && h_->GetBinContent(2+EcalDCCHeaderBlock::PEDESTAL_GAP) == 0 ) continue;
-        if ( clientsNames_[i] == "TestPulse" && runType_ != runTypes_[EcalDCCHeaderBlock::TESTPULSE_MGPA] && runType_ != runTypes_[EcalDCCHeaderBlock::TESTPULSE_GAP] && h_->GetBinContent(2+EcalDCCHeaderBlock::TESTPULSE_MGPA) == 0 && h_->GetBinContent(2+EcalDCCHeaderBlock::TESTPULSE_GAP) == 0 ) continue;
+        if ( strcmp(clientsNames_[i].c_str(), "Cosmic") == 0 && runType_ != runTypes_[EcalDCCHeaderBlock::COSMIC] && runType_ != runTypes_[EcalDCCHeaderBlock::COSMICS_LOCAL] && runType_ != runTypes_[EcalDCCHeaderBlock::COSMICS_GLOBAL] && h_->GetBinContent(2+EcalDCCHeaderBlock::COSMIC) == 0 && h_->GetBinContent(2+EcalDCCHeaderBlock::COSMICS_LOCAL) == 0 && h_->GetBinContent(2+EcalDCCHeaderBlock::COSMICS_GLOBAL) == 0 ) continue;
+        if ( strcmp(clientsNames_[i].c_str(), "Laser") == 0 && runType_ != runTypes_[EcalDCCHeaderBlock::LASER_STD] && runType_ != runTypes_[EcalDCCHeaderBlock::LASER_GAP] && h_->GetBinContent(2+EcalDCCHeaderBlock::LASER_STD) == 0 && h_->GetBinContent(2+EcalDCCHeaderBlock::LASER_GAP) == 0 ) continue;
+        if ( strcmp(clientsNames_[i].c_str(), "Led") == 0 && runType_ != runTypes_[EcalDCCHeaderBlock::LED_STD] && runType_ != runTypes_[EcalDCCHeaderBlock::LED_GAP] && h_->GetBinContent(2+EcalDCCHeaderBlock::LED_STD) == 0 && h_->GetBinContent(2+EcalDCCHeaderBlock::LED_GAP) == 0 ) continue;
+        if ( strcmp(clientsNames_[i].c_str(), "Pedestal") == 0 && runType_ != runTypes_[EcalDCCHeaderBlock::PEDESTAL_STD] && runType_ != runTypes_[EcalDCCHeaderBlock::PEDESTAL_GAP] && h_->GetBinContent(2+EcalDCCHeaderBlock::PEDESTAL_STD) == 0 && h_->GetBinContent(2+EcalDCCHeaderBlock::PEDESTAL_GAP) == 0 ) continue;
+        if ( strcmp(clientsNames_[i].c_str(), "TestPulse") == 0 && runType_ != runTypes_[EcalDCCHeaderBlock::TESTPULSE_MGPA] && runType_ != runTypes_[EcalDCCHeaderBlock::TESTPULSE_GAP] && h_->GetBinContent(2+EcalDCCHeaderBlock::TESTPULSE_MGPA) == 0 && h_->GetBinContent(2+EcalDCCHeaderBlock::TESTPULSE_GAP) == 0 ) continue;
         done = true;
         htmlName = "EE" + clientsNames_[i] + "Client.html";
         clients_[i]->htmlOutput(run_, htmlDir, htmlName);
