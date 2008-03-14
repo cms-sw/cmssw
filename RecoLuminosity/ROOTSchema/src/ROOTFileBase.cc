@@ -1,9 +1,28 @@
 #include "RecoLuminosity/ROOTSchema/interface/ROOTFileBase.h"
-#include <TChain.h>
-#include <ctime>
-#include <sys/stat.h>
-#include <sys/types.h>
-#include <fstream>
+
+std::string ROOTFileBase::TimeStampLong(){
+
+  time_t rawtime;
+  time(&rawtime);
+
+  return ctime(&rawtime);
+}
+
+std::string ROOTFileBase::TimeStampShort(){
+
+  time_t rawtime;
+  struct tm* timeinfo;
+
+  rawtime = time(NULL);
+  timeinfo = localtime(&rawtime);
+
+  std::ostringstream out;
+  out << std::setfill('0') << std::setw(4) << timeinfo->tm_year + 1900
+      << std::setfill('0') << std::setw(2) << timeinfo->tm_mon + 1
+      << std::setfill('0') << std::setw(2) << timeinfo->tm_mday;
+
+  return out.str();
+}
 
 ROOTFileBase::ROOTFileBase(){
 #ifdef DEBUG
@@ -64,11 +83,6 @@ void ROOTFileBase::CreateFileName(const HCAL_HLX::LUMI_SECTION &localSection){
   std::cout << "Begin " << __PRETTY_FUNCTION__ << std::endl;
 #endif
 
-  time_t rawtime;
-  struct tm* timeinfo;
-
-  rawtime = time(NULL);
-  timeinfo = localtime(&rawtime);
 
   std::ostringstream outputString;
 
@@ -77,9 +91,7 @@ void ROOTFileBase::CreateFileName(const HCAL_HLX::LUMI_SECTION &localSection){
   mkdir(outputString.str().c_str(), 0777);
 
   outputString << "/CMS_LUMI_RAW_"
-	       << std::setfill('0') << std::setw(4) << timeinfo->tm_year + 1900
-	       << std::setfill('0') << std::setw(2) << timeinfo->tm_mon + 1
-	       << std::setfill('0') << std::setw(2) << timeinfo->tm_mday
+	       << TimeStampShort()
 	       << "_"
 	       << std::setfill('0') << std::setw(9) << localSection.hdr.runNumber
 	       << "_"
@@ -103,17 +115,13 @@ void ROOTFileBase::CreateTree(const HCAL_HLX::LUMI_SECTION & localSection){
 #ifdef DEBUG
   std::cout << "Begin " << __PRETTY_FUNCTION__ << std::endl;
 #endif
-  std::cout << m_file << std::endl;
 
   m_file = new TFile(fileName.c_str(), "UPDATE");  
 
-  std::cout << m_file << std::endl;
-  
   if(!m_file){
     std::cout << " *** Couldn't make or open file: " << fileName << " *** " << std::endl;
     exit(1);
   } 
-  std::cout << m_file << std::endl;
 
   m_file->cd();
   
@@ -241,8 +249,6 @@ void ROOTFileBase::CloseTree(){
   m_file->Write();
   m_file->Close();
 
-  std::cout << m_tree << std::endl;
-
   //delete m_tree; // NO!!! root does this when you delete m_file
 
   if(m_file != NULL){
@@ -250,8 +256,6 @@ void ROOTFileBase::CloseTree(){
     m_file = NULL;
     m_tree = NULL;
   }
-
-  std::cout << m_tree << std::endl;
 
 #ifdef DEBUG
   std::cout << "End " << __PRETTY_FUNCTION__ << std::endl;
@@ -265,6 +269,8 @@ void ROOTFileBase::Concatenate(const HCAL_HLX::LUMI_SECTION& localSection){
 
   std::ostringstream outputString;
   std::string outFileName;
+  std::string tempString;
+  std::vector<std::string> FileList;
 
   time_t rawtime;
   struct tm* timeinfo;
@@ -283,15 +289,30 @@ void ROOTFileBase::Concatenate(const HCAL_HLX::LUMI_SECTION& localSection){
 	       << localSection.hdr.bCMSLive
 	       << ".root";
   outFileName = outputString.str();
+  
+  outputString.str("");
+  outputString << outputDir << "/" << std::setfill('0') << std::setw(9) << localSection.hdr.runNumber;
 
-  TTree *OutputTree;
-  TFile LumiSecFile(fileName.c_str());
-  TTree *oldtree = (TTree*)LumiSecFile.Get("LumiTree");
-  TFile OutputFile(outFileName.c_str(),"UPDATE","CMS Luminosity - Raw Data",1);
- 
-  OutputTree = oldtree->CloneTree(); 			 
-  OutputFile.Write();
-  OutputFile.Close();
+  DIR *dp;
+  struct dirent *ep;
+  dp = opendir(outputString.str().c_str());
+  if(dp != NULL){
+    while (ep = readdir(dp)){
+      tempString = ep->d_name;
+      if(tempString.length() >  3){
+	tempString = outputString.str() + "/" +  tempString;
+	FileList.push_back(tempString);
+	std::cout << tempString << std::endl;
+      }
+    }
+    (void) closedir (dp);
+  }
+
+  TChain Temp("LumiTree");
+  for(unsigned int i = 0; i < FileList.size(); i++){
+    Temp.Add(FileList[i].c_str());
+  }
+  Temp.Merge(outFileName.c_str());
 
 #ifdef DEBUG
   std::cout << "End " << __PRETTY_FUNCTION__ << std::endl;

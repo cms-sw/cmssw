@@ -4,19 +4,31 @@ Adam Hunt - Princeton University
 ahunt@princeton.edu
 
 */
+#include "RecoLuminosity/HLXReadOut/CoreUtils/include/ICTypeDefs.hh"
+#include "RecoLuminosity/HLXReadOut/HLXCoreLibs/include/LumiStructures.hh"
 
 #include <string>
 #include <sstream>
 #include <iostream>
 #include <typeinfo>
 #include <iomanip>
+#include <vector>
+#include <ctime>
+
+#include <stddef.h>
+
+#ifndef __CINT__
+#include <dirent.h>  //CINT hack
+#endif
+
+// mkdir
+#include <sys/types.h>
+#include <sys/stat.h>
 
 #include <TROOT.h>
-#include <TFile.h>
+#include <TChain.h>
 #include <TTree.h>
-
-#include "RecoLuminosity/HLXReadOut/CoreUtils/include/ICTypeDefs.hh"
-#include "RecoLuminosity/HLXReadOut/HLXCoreLibs/include/LumiStructures.hh"
+#include <TFile.h>
 
 class ROOTFileBase{
 
@@ -28,6 +40,8 @@ class ROOTFileBase{
   std::string GetFileName(){ return fileName; }
   std::string GetOutputDir(){ return outputDir; }
   void SetOutputDir(std::string dir){ outputDir = dir; }
+  std::string TimeStampLong();
+  std::string TimeStampShort();
 
  protected:
   
@@ -54,7 +68,7 @@ class ROOTFileBase{
 
   std::string fileName;
   std::string outputDir;
-  
+
   void CreateFileName(const HCAL_HLX::LUMI_SECTION &localSection);
   void     CreateTree(const HCAL_HLX::LUMI_SECTION &localSection);
   void       FillTree(const HCAL_HLX::LUMI_SECTION &localSection);
