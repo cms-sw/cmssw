@@ -1,7 +1,7 @@
 #ifndef PhysicsTools_PatAlgos_PATMuonCleaner_h
 #define PhysicsTools_PatAlgos_PATMuonCleaner_h
 //
-// $Id: PATMuonCleaner.h,v 1.2 2008/03/11 11:01:08 llista Exp $
+// $Id: PATMuonCleaner.h,v 1.3 2008/03/12 16:13:27 gpetrucc Exp $
 //
 
 /**
@@ -29,7 +29,7 @@
   The actual selection is performed by the MuonSelector.
 
   \author   Giovanni Petrucciani (from PATMuonProducer by Steven Lowette, Roger Wolf)
-  \version  $Id: PATMuonCleaner.h,v 1.2 2008/03/11 11:01:08 llista Exp $
+  \version  $Id: PATMuonCleaner.h,v 1.3 2008/03/12 16:13:27 gpetrucc Exp $
 */
 
 
@@ -44,6 +44,8 @@
 
 #include "PhysicsTools/Utilities/interface/PtComparator.h"
 #include "PhysicsTools/UtilAlgos/interface/ParameterAdapter.h"
+
+#include "PhysicsTools/PatAlgos/interface/MultiIsolator.h"
 
 #include "PhysicsTools/PatUtils/interface/MuonSelector.h"
 
@@ -68,6 +70,8 @@ namespace pat {
                                   reco::Muon,
                                   reco::MuonCollection, 
                                   GreaterByPt<reco::Muon> > helper_;
+
+      pat::helper::MultiIsolator isolator_;
 
       edm::ParameterSet selectionCfg_; ///< Defines everything about the selection
       MuonSelector      selector_;     ///< Actually performs the selection

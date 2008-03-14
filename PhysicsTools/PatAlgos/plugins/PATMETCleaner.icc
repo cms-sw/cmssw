@@ -38,7 +38,10 @@ void pat::PATMETCleaner<METIn,METOut>::produce(edm::Event & iEvent, const edm::E
 
 template<typename METIn, typename METOut>
 void pat::PATMETCleaner<METIn,METOut>::endJob() { 
-    typename edm::LogVerbatim("PATLayer0Summary|PATMETCleaner") << "PATMETCleaner end job. Input tag was " << metSrc_.encode();
+    edm::LogVerbatim("PATLayer0Summary|PATMETCleaner") << "PATMETCleaner end job. \n" <<
+            "Input tag was " << metSrc_.encode() <<
+            "\nCleaner summary information:\n" <<
+            helper_.printSummary();
     helper_.endJob(); 
 }
 

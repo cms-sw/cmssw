@@ -4,7 +4,6 @@
 #include "DataFormats/Common/interface/ValueMap.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/Event.h"
-#include <iomanip>
 
 namespace pat { namespace helper {
 class BaseIsolator {
@@ -23,11 +22,7 @@ class BaseIsolator {
             return ok;
         }
         virtual std::string description() const = 0;
-        void print(std::ostream &out) const {
-            using namespace std;
-            out << "Isolation " << description() << " < " << setw(10) << cut_ << 
-                   ": try " << setw(10) << try_ << ", fail " << setw(10) << fail_;
-        }
+        void print(std::ostream &out) const ;
     protected:
         virtual float getValue(const edm::ProductID &id, size_t index) const = 0;
         edm::InputTag input_;

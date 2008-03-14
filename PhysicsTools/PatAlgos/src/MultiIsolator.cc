@@ -1,6 +1,8 @@
 #include "PhysicsTools/PatAlgos/interface/MultiIsolator.h"
 #include "PhysicsTools/PatAlgos/interface/SimpleIsolator.h"
+#include "PhysicsTools/PatAlgos/interface/IsoDepositIsolator.h"
 #include "DataFormats/PatCandidates/interface/Flags.h"
+#include <sstream>
 
 using namespace pat::helper;
 
@@ -36,11 +38,22 @@ MultiIsolator::addIsolator(BaseIsolator *iso, uint32_t mask) {
     masks_.push_back(mask); 
 }
 
+BaseIsolator * 
+MultiIsolator::make(const edm::ParameterSet &conf) {
+    if (conf.empty()) return 0;
+    if (conf.exists("placeholder") && conf.getParameter<bool>("placeholder")) return 0;
+    if (conf.exists("deltaR")) {
+        return new IsoDepositIsolator(conf);
+    } else {
+        return new SimpleIsolator(conf);
+    }
+}
+
+
 void 
 MultiIsolator::addIsolator(const edm::ParameterSet &conf, uint32_t mask) {
-    if (conf.empty()) return;
-    // at the moment, there is just the SimpleIsolator
-    addIsolator(new SimpleIsolator(conf), mask);
+    BaseIsolator * iso = make(conf);
+    if (iso) addIsolator(iso, mask);
 }
 
 
@@ -61,9 +74,17 @@ MultiIsolator::endEvent() {
 void
 MultiIsolator::print(std::ostream &out) const {
     for (boost::ptr_vector<BaseIsolator>::const_iterator it = isolators_.begin(), ed = isolators_.end(); it != ed; ++it) {
+        out << " * ";
         it->print(out); 
-        out << "\n";
+        out << ": Flag " << pat::Flags::bitToString( masks_[it - isolators_.begin()] ) << "\n";
     }    
     out << "\n";
+}
+
+std::string 
+MultiIsolator::printSummary() const {
+    std::ostringstream isoSumm;
+    print(isoSumm);
+    return isoSumm.str();
 }
 

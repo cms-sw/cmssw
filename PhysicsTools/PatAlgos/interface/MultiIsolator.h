@@ -18,8 +18,13 @@ class MultiIsolator {
         // adds an isolator (and takes onwership of the pointer)
         void addIsolator(BaseIsolator *iso, uint32_t mask) ;
 
-         // parses an isolator and adds it to the list
+        // parses an isolator and adds it to the list
         void addIsolator(const edm::ParameterSet &conf, uint32_t mask) ;
+
+        // Parses out an isolator, and returns a pointer to it.
+        // For an empty PSet, it returns a null pointer.
+        // You own the returned pointer!
+        static BaseIsolator * make(const edm::ParameterSet &conf) ;
        
         void beginEvent(const edm::Event &event);
         void endEvent() ; 
@@ -28,6 +33,11 @@ class MultiIsolator {
         uint32_t test(const edm::View<T> &coll, int idx);
 
         void print(std::ostream &out) const ;
+
+        std::string printSummary() const ;
+
+        /// True if it has a non null configuration
+        bool enabled() const  { return !isolators_.empty(); }
     private:
         boost::ptr_vector<BaseIsolator> isolators_;
         std::vector<uint32_t>           masks_;
@@ -38,9 +48,9 @@ class MultiIsolator {
     uint32_t 
     MultiIsolator::test(const edm::View<T> &coll, int idx) {
         uint32_t retval = 0;
-        edm::RefToBase<T> rb = coll->refAt(idx); // edm::Ptr<T> in a shiny new future to come one remote day ;-)
+        edm::RefToBase<T> rb = coll.refAt(idx); // edm::Ptr<T> in a shiny new future to come one remote day ;-)
         for (size_t i = 0, n = isolators_.size(); i < n; ++i) {
-            if (!isolators_[i].test(rb)) retval != masks_[i];
+            if (!isolators_[i].test(rb)) retval |= masks_[i];
         }
         return retval;
     }
