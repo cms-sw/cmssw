@@ -11,7 +11,7 @@
 *  }
 *
 * \author: Fedor Ratnikov, UMd by suggestion from Filip Moortgat
-* $Id: GenJetParticleSelector.cc,v 1.2 2008/03/06 22:42:56 fedor Exp $
+* $Id: GenJetInputParticleSelector.cc,v 1.1 2008/03/07 20:32:37 fedor Exp $
 */
 
 #include "GenJetInputParticleSelector.h"
@@ -42,8 +42,8 @@ namespace {
       pdgId == 39; // Graviton
   }
 
-  inline bool isPromptNeutrino (const reco::GenParticle& part) {
-    if (reco::isNeutrino (part)) {
+  inline bool isPromptNeutrinoOrMuon (const reco::GenParticle& part) {
+    if (reco::isNeutrino (part) || reco::isMuon (part)) {
       const reco::Candidate* mother = part.mother();
       if(mother) {
         int motherid = mother->pdgId();
@@ -75,7 +75,7 @@ void GenJetInputParticleSelector::produce(edm::Event& e, const edm::EventSetup& 
     const reco::GenParticle& part = (*input)[iPart];
     if (part.status () != 1) continue; // not stable
     if (isInvisibleBSMParticle (part)) continue; // invisible BSM
-    if (isPromptNeutrino (part)) continue; // not prompt neutrino
+    if (isPromptNeutrinoOrMuon (part)) continue; // not prompt neutrino or prompt muon
     output->push_back (edm::Ref<reco::GenParticleCollection> (input, iPart));
   }
   e.put (output);
