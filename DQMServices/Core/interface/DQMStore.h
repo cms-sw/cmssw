@@ -107,7 +107,7 @@ public:
   // ---------------------- public I/O --------------------------------------
   void				save(const std::string &filename,
 				     const std::string &path = "",
-				     int minStatus = dqm::qstatus::STATUS_OK);
+                                     int minStatus = dqm::qstatus::STATUS_OK);
   void				open(const std::string &filename,
 				     bool overwrite = false,
 				     const std::string &path ="",

@@ -1283,6 +1283,14 @@ DQMStore::save(const std::string &filename,
       << "Failed to create file '" << filename << "'";
   f.cd();
 
+  char runnumber[10];
+  // if minStatus is large it is interpreted as Runnumber
+  if (minStatus > 10000 || minStatus < 2) sprintf(runnumber,"%09d",minStatus);  
+  else sprintf(runnumber,"%09d",0);
+
+  const std::string run = runnumber;
+  const std::string run_ = "R" + run;
+
   // Loop over the directory structure.
   for (di = dirs_.begin(), de = dirs_.end(); di != de; ++di)
   {
@@ -1317,11 +1325,27 @@ DQMStore::save(const std::string &filename,
 
       // Create the directory.
       gDirectory->cd("/");
-      if (di->empty())
-	cdInto(s_monitorDirName);
-      else
-	cdInto(s_monitorDirName + '/' + *di);
-
+      if(minStatus == dqm::qstatus::STATUS_OK){
+	  if (di->empty())
+	    cdInto(s_monitorDirName);
+	  else
+	    cdInto(s_monitorDirName + '/' + *di);
+	  //	    std::cout << "prepend=\"\" " << s_monitorDirName + '/' + *di << std::endl;
+      }
+      else {
+	  if (di->empty())
+	    cdInto(run_);
+	  else
+	    {
+	      size_t slash = (*di).find('/');
+	      size_t length = (*di).length();
+	      std::string firstpart = (*di).substr(0,slash);
+	      firstpart = firstpart + "/Run summary/";
+	      std::string lastpart = (*di).substr(slash+1,length);
+	      //std::cout << firstpart + lastpart << std::endl;
+	      cdInto(run_ + "/" + firstpart + lastpart);
+	    }
+      }      
       // Save the object.
       mi->second.data_.object->Write();
 

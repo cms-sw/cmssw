@@ -1,9 +1,9 @@
 /*
  * \file DQMFileSaver.cc
  * 
- * $Date: 2008/01/22 18:52:30 $
- * $Revision: 1.7 $
- * $Author: muzaffar $
+ * $Date: 2008/02/21 03:26:49 $
+ * $Revision: 1.8 $
+ * $Author: lat $
  * \author A. Meyer, DESY
  *
  */
@@ -175,7 +175,7 @@ void DQMFileSaver::endRun(const Run& r, const EventSetup& c){
      if(irun_>0) sprintf(run,"%09d", irun_);
      else sprintf(run,"%09d", 0);
      string outFile = dirName_+"/"+fileName_+"_R"+run+".root";
-     dbe_->save(outFile);
+     dbe_->save(outFile,"",irun_);
    }
 }
 
