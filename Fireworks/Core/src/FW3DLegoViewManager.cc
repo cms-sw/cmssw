@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Sun Jan  6 22:01:27 EST 2008
-// $Id: FW3DLegoViewManager.cc,v 1.16 2008/03/07 09:06:49 dmytro Exp $
+// $Id: FW3DLegoViewManager.cc,v 1.17 2008/03/10 07:29:26 dmytro Exp $
 //
 
 // system include files
@@ -179,33 +179,43 @@ FW3DLegoViewManager::newEventAvailable()
                  boost::bind(&FW3DLegoView::draw,_1, m_stack) );
 }
 
+void
+FW3DLegoViewManager::makeProxyBuilderFor(const FWEventItem* iItem)
+{
+   TypeToBuilders::iterator itFind = m_typeToBuilders.find(iItem->name());
+   if(itFind != m_typeToBuilders.end()) {
+      for ( std::vector<std::string>::const_iterator builderName = itFind->second.begin();
+	   builderName != itFind->second.end(); ++builderName )
+      {
+         FW3DLegoDataProxyBuilder* builder = 
+         reinterpret_cast<FW3DLegoDataProxyBuilder*>(
+                                                     createInstanceOf(TClass::GetClass(typeid(FW3DLegoDataProxyBuilder)),
+                                                                      builderName->c_str())
+                                                     );
+         if(0!=builder) {
+            boost::shared_ptr<FW3DLegoDataProxyBuilder> pB( builder );
+            builder->setItem(iItem);
+            m_modelProxies.push_back(FW3DLegoModelProxy(pB) );
+         }
+      }
+   }
+}
+
 void 
 FW3DLegoViewManager::newItem(const FWEventItem* iItem)
 {
-  TypeToBuilders::iterator itFind = m_typeToBuilders.find(iItem->name());
-  if(itFind != m_typeToBuilders.end()) {
-     for ( std::vector<std::string>::const_iterator builderName = itFind->second.begin();
-	   builderName != itFind->second.end(); ++builderName )
-       {
-	  FW3DLegoDataProxyBuilder* builder = 
-	    reinterpret_cast<FW3DLegoDataProxyBuilder*>(
-							createInstanceOf(TClass::GetClass(typeid(FW3DLegoDataProxyBuilder)),
-									 builderName->c_str())
-							);
-	  if(0!=builder) {
-	     boost::shared_ptr<FW3DLegoDataProxyBuilder> pB( builder );
-	     builder->setItem(iItem);
-	     m_modelProxies.push_back(FW3DLegoModelProxy(pB) );
-	  }
-       }
-  }
+   makeProxyBuilderFor(iItem);
 }
 
 void 
 FW3DLegoViewManager::registerProxyBuilder(const std::string& iType,
-					  const std::string& iBuilder)
+					  const std::string& iBuilder,
+                                          const FWEventItem* iItem)
 {
    m_typeToBuilders[iType].push_back(iBuilder);
+   if(0!=iItem) {
+      makeProxyBuilderFor(iItem);
+   }
 }
 
 void 

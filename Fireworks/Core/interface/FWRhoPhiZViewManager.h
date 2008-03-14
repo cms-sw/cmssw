@@ -16,7 +16,7 @@
 //
 // Original Author:  
 //         Created:  Sat Jan  5 11:27:34 EST 2008
-// $Id: FWRhoPhiZViewManager.h,v 1.12 2008/02/29 21:21:18 chrjones Exp $
+// $Id: FWRhoPhiZViewManager.h,v 1.13 2008/03/05 22:31:00 dmytro Exp $
 //
 
 // system include files
@@ -126,7 +126,8 @@ class FWRhoPhiZViewManager : public FWViewManagerBase
       virtual void newItem(const FWEventItem*);
 
       void registerProxyBuilder(const std::string&, 
-				const std::string&);
+				const std::string&,
+                                const FWEventItem*);
  
       FWViewBase* createRhoPhiView(TGFrame* iParent);
       FWViewBase* createRhoZView(TGFrame* iParent);
@@ -148,6 +149,8 @@ class FWRhoPhiZViewManager : public FWViewManagerBase
       void itemChanged(const FWEventItem*);
       void addElements();
       void rerunBuilders();
+  
+      void makeProxyBuilderFor(const FWEventItem* iItem);
    
       void setupGeometry();
       void makeMuonGeometryRhoPhi();
@@ -163,7 +166,7 @@ class FWRhoPhiZViewManager : public FWViewManagerBase
       typedef  std::map<std::string,std::pair<std::string,bool> > TypeToBuilder;
       TypeToBuilder m_typeToBuilder;
       std::vector<boost::shared_ptr<FWRPZModelProxyBase> > m_modelProxies;
-
+   
       TEveProjectionManager* m_rhoPhiGeomProjMgr;
       TEveProjectionManager* m_rhoZGeomProjMgr;
       std::vector<TEveElement*> m_rhoPhiGeom;

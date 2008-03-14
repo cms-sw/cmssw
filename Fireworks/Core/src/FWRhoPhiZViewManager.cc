@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Sat Jan  5 14:08:51 EST 2008
-// $Id: FWRhoPhiZViewManager.cc,v 1.21 2008/02/29 23:38:11 dmytro Exp $
+// $Id: FWRhoPhiZViewManager.cc,v 1.22 2008/03/05 22:31:08 dmytro Exp $
 //
 
 // system include files
@@ -228,6 +228,40 @@ void FWRhoPhiZViewManager::addElements()
    
 }
 
+void
+FWRhoPhiZViewManager::makeProxyBuilderFor(const FWEventItem* iItem)
+{
+   TypeToBuilder::iterator itFind = m_typeToBuilder.find(iItem->name());
+   if(itFind != m_typeToBuilder.end()) {
+      if(itFind->second.second) {
+         std::cout << "\tinterpreting as FWRPZDataProxyBuilder " << std::endl;
+         FWRPZDataProxyBuilder* builder = reinterpret_cast<
+         FWRPZDataProxyBuilder*>( 
+                                 createInstanceOf(TClass::GetClass(typeid(FWRPZDataProxyBuilder)),
+                                                  itFind->second.first.c_str())
+                                 );
+         if(0!=builder) {
+            boost::shared_ptr<FWRPZDataProxyBuilder> pB( builder );
+            builder->setItem(iItem);
+            m_modelProxies.push_back(boost::shared_ptr<FWRPZ3DModelProxy>(new FWRPZ3DModelProxy(pB)) );
+            iItem->itemChanged_.connect(boost::bind(&FWRPZModelProxyBase::itemChanged,&(*(m_modelProxies.back())),_1));
+         }
+      } else {
+         std::cout << "\tinterpreting as FWRPZ2DDataProxyBuilder " << std::endl;
+         FWRPZ2DDataProxyBuilder* builder = reinterpret_cast<
+         FWRPZ2DDataProxyBuilder*>( 
+                                   createInstanceOf(TClass::GetClass(typeid(FWRPZ2DDataProxyBuilder)),
+                                                    itFind->second.first.c_str())
+                                   );
+         if(0!=builder) {
+            boost::shared_ptr<FWRPZ2DDataProxyBuilder> pB( builder );
+            builder->setItem(iItem);
+            m_modelProxies.push_back(boost::shared_ptr<FWRPZ2DModelProxy>(new FWRPZ2DModelProxy(pB) ));
+            iItem->itemChanged_.connect(boost::bind(&FWRPZModelProxyBase::itemChanged,&(*(m_modelProxies.back())),_1));
+         }
+      }
+   }   
+}
 
 void 
 FWRhoPhiZViewManager::newItem(const FWEventItem* iItem)
@@ -236,48 +270,26 @@ FWRhoPhiZViewManager::newItem(const FWEventItem* iItem)
      //std::cout <<"got selection manager"<<std::endl;
      m_selectionManager = iItem->selectionManager();
   }
-  TypeToBuilder::iterator itFind = m_typeToBuilder.find(iItem->name());
-  if(itFind != m_typeToBuilder.end()) {
-     if(itFind->second.second) {
-	std::cout << "\tinterpreting as FWRPZDataProxyBuilder " << std::endl;
-        FWRPZDataProxyBuilder* builder = reinterpret_cast<
-        FWRPZDataProxyBuilder*>( 
-                                createInstanceOf(TClass::GetClass(typeid(FWRPZDataProxyBuilder)),
-                                                 itFind->second.first.c_str())
-                                );
-        if(0!=builder) {
-           boost::shared_ptr<FWRPZDataProxyBuilder> pB( builder );
-           builder->setItem(iItem);
-           m_modelProxies.push_back(boost::shared_ptr<FWRPZ3DModelProxy>(new FWRPZ3DModelProxy(pB)) );
-           iItem->itemChanged_.connect(boost::bind(&FWRPZModelProxyBase::itemChanged,&(*(m_modelProxies.back())),_1));
-        }
-     } else {
-	std::cout << "\tinterpreting as FWRPZ2DDataProxyBuilder " << std::endl;
-        FWRPZ2DDataProxyBuilder* builder = reinterpret_cast<
-        FWRPZ2DDataProxyBuilder*>( 
-                                createInstanceOf(TClass::GetClass(typeid(FWRPZ2DDataProxyBuilder)),
-                                                 itFind->second.first.c_str())
-                                );
-        if(0!=builder) {
-           boost::shared_ptr<FWRPZ2DDataProxyBuilder> pB( builder );
-           builder->setItem(iItem);
-           m_modelProxies.push_back(boost::shared_ptr<FWRPZ2DModelProxy>(new FWRPZ2DModelProxy(pB) ));
-           iItem->itemChanged_.connect(boost::bind(&FWRPZModelProxyBase::itemChanged,&(*(m_modelProxies.back())),_1));
-        }
-     }
-  }
+   makeProxyBuilderFor(iItem);
    iItem->itemChanged_.connect(boost::bind(&FWRhoPhiZViewManager::itemChanged,this,_1));
 }
 
 void 
 FWRhoPhiZViewManager::registerProxyBuilder(const std::string& iType,
-					   const std::string& iBuilder)
+					   const std::string& iBuilder,
+                                           const FWEventItem* iItem)
 {
    bool is3dType = true;
    if(iBuilder.find(kBuilderPrefixes[1]) != std::string::npos) {
       is3dType = false;
    }
    m_typeToBuilder[iType]=make_pair(iBuilder,is3dType);
+   
+   //has the item already been registered? If so then we need to make the proxy builder
+   if(iItem!=0) {
+      std::cout <<"item "<<iType<<" registered before proxy builder"<<std::endl;
+       makeProxyBuilderFor(iItem);
+   }
 }
 
 void 
@@ -304,7 +316,7 @@ FWRhoPhiZViewManager::itemChanged(const FWEventItem*) {
 void
 FWRhoPhiZViewManager::selectionAdded(TEveElement* iElement)
 {
-   //std::cout <<"selection added"<<std::endl;
+   //std::cout <<"selection added "<<iElement<< std::endl;
    if(0!=iElement) {
       void* userData=iElement->GetUserData();
       //std::cout <<"  user data "<<userData<<std::endl;
