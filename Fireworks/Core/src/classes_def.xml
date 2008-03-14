@@ -35,4 +35,5 @@
   <class name="FWDoubleParameter"/>
   <class name="FWLongParameterSetter"/>
   <class name="FWLongParameter"/>
+  <class name="FWConfiguration::KeyValues"/>
 </lcgdict>
