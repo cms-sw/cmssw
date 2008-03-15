@@ -7,8 +7,8 @@
 ///
 ///  \author    : Gero Flucke
 ///  date       : October 2006
-///  $Revision: 1.16 $
-///  $Date: 2008/02/20 18:33:03 $
+///  $Revision: 1.17 $
+///  $Date: 2008/02/26 08:56:45 $
 ///  (last update by $Author: mstoye $)
 
 
@@ -81,7 +81,7 @@ class MillePedeAlignmentAlgorithm : public AlignmentAlgorithmBase
 
   /// recursively adding derivatives and labels, false if problems
   bool globalDerivativesHierarchy(const TrajectoryStateOnSurface &tsos,
-				  Alignable *ali, const AlignableDetOrUnitPtr &alidet, bool hit2D,
+				  Alignable *ali, const AlignableDetOrUnitPtr &alidet,
 				  std::vector<float> &globalDerivativesX,
 				  std::vector<float> &globalDerivativesY,
 				  std::vector<int> &globalLabels,
@@ -89,16 +89,17 @@ class MillePedeAlignmentAlgorithm : public AlignmentAlgorithmBase
 
  // calls Mille and diagonalises the covariance matrx of a Hit if neccesary
   int callMille2D ( const ReferenceTrajectoryBase::ReferenceTrajectoryPtr &refTrajPtr,
- unsigned int iTrajHit, const std::vector<int> &globalLabels, bool twoDHit,const std::vector<float> &globalDerivativesx, const std::vector<float> &globalDerivativesy);
-  void  diagonalize(TMatrixDSym &aHitCovarianceM, TMatrixF &aLocalDerivativesM,TMatrixF &aHitResidualsM,TMatrixF &theGlobalDerivativesM);
+		    unsigned int iTrajHit, const std::vector<int> &globalLabels,
+		    const std::vector<float> &globalDerivativesx,
+		    const std::vector<float> &globalDerivativesy);
+  void  diagonalize(TMatrixDSym &aHitCovarianceM, TMatrixF &aLocalDerivativesM,
+		    TMatrixF &aHitResidualsM,TMatrixF &theGlobalDerivativesM) const;
   // deals with the non matrix format of theFloatBufferX ...
   void makeGlobDerivMatrix(const std::vector<float> &globalDerivativesx, const std::vector<float> &globalDerivativesy,TMatrixF &aGlobalDerivativesM);
 
-
-
-  void callMille(const ReferenceTrajectoryBase::ReferenceTrajectoryPtr &refTrajPtr, 
-		 unsigned int iTrajHit, MeasurementDirection xOrY,
-		 const std::vector<float> &globalDerivatives, const std::vector<int> &globalLabels);
+//   void callMille(const ReferenceTrajectoryBase::ReferenceTrajectoryPtr &refTrajPtr, 
+// 		 unsigned int iTrajHit, MeasurementDirection xOrY,
+// 		 const std::vector<float> &globalDerivatives, const std::vector<int> &globalLabels);
   /// true if hit belongs to 2D detector (currently tracker specific)
   bool is2D(const TransientTrackingRecHit::ConstRecHitPointer &recHit) const;
 
@@ -131,8 +132,8 @@ class MillePedeAlignmentAlgorithm : public AlignmentAlgorithmBase
   PedeSteerer              *thePedeSteer;
   TrajectoryFactoryBase    *theTrajectoryFactory;
   int                       theMinNumHits;
-  double                     theMaximalCor2D; // maximal coreelation allowed for 2D hits. If larger
-  // the 2D measurement gets diagonalized!!!
+  double                    theMaximalCor2D; /// maximal correlation allowed for 2D hits. If larger
+                                              /// the 2D measurement gets diagonalized!!!
   bool                      theUseTrackTsos;
 
   std::vector<float>        theFloatBufferX;

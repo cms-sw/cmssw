@@ -3,8 +3,8 @@
  *
  *  \author    : Gero Flucke
  *  date       : October 2006
- *  $Revision: 1.32 $
- *  $Date: 2008/02/26 09:50:33 $
+ *  $Revision: 1.33 $
+ *  $Date: 2008/03/05 09:35:37 $
  *  (last update by $Author: flucke $)
  */
 
@@ -47,6 +47,7 @@
 
 #include <fstream>
 #include <sstream>
+#include <algorithm>
 
 #include <TMath.h>
 #include <TMatrixDSymEigen.h>
@@ -284,23 +285,20 @@ int MillePedeAlignmentAlgorithm::addMeasurementData
   const ConstRecHitPointer &recHitPtr = refTrajPtr->recHits()[iHit];
   // get AlignableDet/Unit for this hit
   AlignableDetOrUnitPtr alidet(theAlignableNavigator->alignableFromGeomDet(recHitPtr->det()));
-  const bool is2DHit = this->is2D(recHitPtr);
-  if (!this->globalDerivativesHierarchy(tsos, alidet, alidet, is2DHit,// 2x alidet, sic!
-					theFloatBufferX, theFloatBufferY, theIntBuffer,
-					params)) {
+  if (!this->globalDerivativesHierarchy(tsos, alidet, alidet, theFloatBufferX, // 2x alidet, sic!
+					theFloatBufferY, theIntBuffer, params)) {
     return -1; // problem
   } else if (theFloatBufferX.empty()) {
     return 0; // empty for X: no alignable for hit
   } else { 
-      return this->callMille2D(refTrajPtr, iHit, theIntBuffer, is2DHit,
-                               theFloatBufferX, theFloatBufferY); 
+    return this->callMille2D(refTrajPtr, iHit, theIntBuffer, theFloatBufferX, theFloatBufferY);
   }
 }
 
 //____________________________________________________
 bool MillePedeAlignmentAlgorithm
 ::globalDerivativesHierarchy(const TrajectoryStateOnSurface &tsos,
-                             Alignable *ali, const AlignableDetOrUnitPtr &alidet, bool is2DHit,
+                             Alignable *ali, const AlignableDetOrUnitPtr &alidet,
                              std::vector<float> &globalDerivativesX,
                              std::vector<float> &globalDerivativesY,
                              std::vector<int> &globalLabels,
@@ -309,7 +307,7 @@ bool MillePedeAlignmentAlgorithm
   // derivatives and labels are recursively attached
   if (!ali) return true; // no mother might be OK
 
-  if (theMonitor && alidet != ali) theMonitor->fillFrameToFrame(alidet, ali);
+  if (false && theMonitor && alidet != ali) theMonitor->fillFrameToFrame(alidet, ali);
 
   AlignmentParameters *params = ali->alignmentParameters();
   if (params) {
@@ -330,54 +328,52 @@ bool MillePedeAlignmentAlgorithm
         globalDerivativesX.push_back(derivs[iSel][kLocalX]
 				     /thePedeSteer->cmsToPedeFactor(iSel));
         globalLabels.push_back(thePedeLabels->parameterLabel(alignableLabel, iSel));
-        if (is2DHit) {
-	  globalDerivativesY.push_back(derivs[iSel][kLocalY]
-				       /thePedeSteer->cmsToPedeFactor(iSel));
-	}
+	globalDerivativesY.push_back(derivs[iSel][kLocalY]
+				     /thePedeSteer->cmsToPedeFactor(iSel));
       }
     }
     // Exclude mothers if Alignable selected to be no part of a hierarchy:
     if (thePedeSteer->isNoHiera(ali)) return true;
   }
   // Call recursively for mother, will stop if mother == 0:
-  return this->globalDerivativesHierarchy(tsos, ali->mother(), alidet, is2DHit,
+  return this->globalDerivativesHierarchy(tsos, ali->mother(), alidet,
                                           globalDerivativesX, globalDerivativesY,
 					  globalLabels, lowestParams);
 }
 
-//____________________________________________________
-void MillePedeAlignmentAlgorithm
-::callMille(const ReferenceTrajectoryBase::ReferenceTrajectoryPtr &refTrajPtr,
-            unsigned int iTrajHit, MeasurementDirection xOrY,
-            const std::vector<float> &globalDerivatives, const std::vector<int> &globalLabels)
-{
-  const unsigned int xyIndex = iTrajHit*2 + xOrY;
-  // FIXME: here for residuum and sigma we could use KALMAN-Filter results
-  const float residuum =
-    refTrajPtr->measurements()[xyIndex] - refTrajPtr->trajectoryPositions()[xyIndex];
-  const float covariance = refTrajPtr->measurementErrors()[xyIndex][xyIndex];
-  const float sigma = (covariance > 0. ? TMath::Sqrt(covariance) : 0.);
+// //____________________________________________________
+// void MillePedeAlignmentAlgorithm
+// ::callMille(const ReferenceTrajectoryBase::ReferenceTrajectoryPtr &refTrajPtr,
+//             unsigned int iTrajHit, MeasurementDirection xOrY,
+//             const std::vector<float> &globalDerivatives, const std::vector<int> &globalLabels)
+// {
+//   const unsigned int xyIndex = iTrajHit*2 + xOrY;
+//   // FIXME: here for residuum and sigma we could use KALMAN-Filter results
+//   const float residuum =
+//     refTrajPtr->measurements()[xyIndex] - refTrajPtr->trajectoryPositions()[xyIndex];
+//   const float covariance = refTrajPtr->measurementErrors()[xyIndex][xyIndex];
+//   const float sigma = (covariance > 0. ? TMath::Sqrt(covariance) : 0.);
 
-  const AlgebraicMatrix &locDerivMatrix = refTrajPtr->derivatives();
+//   const AlgebraicMatrix &locDerivMatrix = refTrajPtr->derivatives();
 
-  std::vector<float> localDerivs(locDerivMatrix.num_col());
-  for (unsigned int i = 0; i < localDerivs.size(); ++i) {
-    localDerivs[i] = locDerivMatrix[xyIndex][i];
-  }
+//   std::vector<float> localDerivs(locDerivMatrix.num_col());
+//   for (unsigned int i = 0; i < localDerivs.size(); ++i) {
+//     localDerivs[i] = locDerivMatrix[xyIndex][i];
+//   }
 
-  // &(vector[0]) is valid - as long as vector is not empty 
-  // cf. http://www.parashift.com/c++-faq-lite/containers.html#faq-34.3
-  theMille->mille(localDerivs.size(), &(localDerivs[0]),
-		  globalDerivatives.size(), &(globalDerivatives[0]), &(globalLabels[0]),
-		  residuum, sigma);
-  if (theMonitor) {
-    theMonitor->fillDerivatives(refTrajPtr->recHits()[iTrajHit],localDerivs, globalDerivatives,
-				(xOrY == kLocalY));
-    theMonitor->fillResiduals(refTrajPtr->recHits()[iTrajHit],
-			      refTrajPtr->trajectoryStates()[iTrajHit],
-			      iTrajHit, residuum, sigma, (xOrY == kLocalY));
-  }
-}
+//   // &(vector[0]) is valid - as long as vector is not empty 
+//   // cf. http://www.parashift.com/c++-faq-lite/containers.html#faq-34.3
+//   theMille->mille(localDerivs.size(), &(localDerivs[0]),
+// 		  globalDerivatives.size(), &(globalDerivatives[0]), &(globalLabels[0]),
+// 		  residuum, sigma);
+//   if (theMonitor) {
+//     theMonitor->fillDerivatives(refTrajPtr->recHits()[iTrajHit],localDerivs, globalDerivatives,
+// 				(xOrY == kLocalY));
+//     theMonitor->fillResiduals(refTrajPtr->recHits()[iTrajHit],
+// 			      refTrajPtr->trajectoryStates()[iTrajHit],
+// 			      iTrajHit, residuum, sigma, (xOrY == kLocalY));
+//   }
+// }
 
 //____________________________________________________
 bool MillePedeAlignmentAlgorithm::is2D(const ConstRecHitPointer &recHit) const
@@ -391,7 +387,7 @@ bool MillePedeAlignmentAlgorithm::is2D(const ConstRecHitPointer &recHit) const
   } else { // stereo strips  (FIXME: endcap trouble due to non-parallel strips (wedge sensors)?)
     if (dynamic_cast<const ProjectedSiStripRecHit2D*>(recHit->hit())) { // check persistent hit
       // projected: 1D measurement on 'glued' module
-      return false; // (FIXME: if it's the stereo module, x and measurement not parallel...)
+      return false;
     } else {
       return true;
     }
@@ -663,6 +659,7 @@ void MillePedeAlignmentAlgorithm::makeGlobDerivMatrix(const std::vector<float> &
                                                       const std::vector<float> &globalDerivativesy,
                                                       TMatrixF &aGlobalDerivativesM)
 {
+
   for (unsigned int i = 0; i < globalDerivativesx.size(); ++i) {
     aGlobalDerivativesM(0,i) = globalDerivativesx[i];
     aGlobalDerivativesM(1,i) = globalDerivativesy[i]; 
@@ -672,7 +669,7 @@ void MillePedeAlignmentAlgorithm::makeGlobDerivMatrix(const std::vector<float> &
 //__________________________________________________________________________________________________
 void MillePedeAlignmentAlgorithm::diagonalize
 (TMatrixDSym &aHitCovarianceM, TMatrixF &aLocalDerivativesM, TMatrixF &aHitResidualsM,
- TMatrixF &aGlobalDerivativesM)
+ TMatrixF &aGlobalDerivativesM) const
 {
   TMatrixDSymEigen myDiag(aHitCovarianceM);
   TMatrixD aTranfoToDiagonalSystem = myDiag.GetEigenVectors();
@@ -726,60 +723,74 @@ void MillePedeAlignmentAlgorithm
 //__________________________________________________________________________________________________
 int MillePedeAlignmentAlgorithm
 ::callMille2D(const ReferenceTrajectoryBase::ReferenceTrajectoryPtr &refTrajPtr,
-              unsigned int iTrajHit, const std::vector<int> &globalLabels, bool is2DHit,
+              unsigned int iTrajHit, const std::vector<int> &globalLabels,
               const std::vector<float> &globalDerivativesx,
               const std::vector<float> &globalDerivativesy)
 {
-  if((refTrajPtr->recHits()[iTrajHit])->dimension() != 2) {
+  const ConstRecHitPointer aRecHit(refTrajPtr->recHits()[iTrajHit]);
+  if((aRecHit)->dimension() != 2) {
     edm::LogError("Alignment") << "@SUB=MillePedeAlignmentAlgorithm::callMille2D"
                                << "You try to call method for 2D hits for a " 
-                               << (refTrajPtr->recHits()[iTrajHit])->dimension()
+                               << (aRecHit)->dimension()
                                <<  "D Hit. Hit gets ignored!";
     return -1;
   }
 
   TMatrixDSym aHitCovarianceM(2);
   TMatrixF aHitResidualsM(2,1);
-  const AlgebraicMatrix &locDerivMatrix = refTrajPtr->derivatives();
-  TMatrixF aLocalDerivativesM(2,locDerivMatrix.num_col());
-  // below method fills above matrices
+  TMatrixF aLocalDerivativesM(2, refTrajPtr->derivatives().num_col());
+  // below method fills above 3 matrices
   this->addRefTrackData2D(refTrajPtr, iTrajHit, aHitCovarianceM,aHitResidualsM,aLocalDerivativesM);
   TMatrixF aGlobalDerivativesM(2,globalDerivativesx.size());
   this->makeGlobDerivMatrix(globalDerivativesx, globalDerivativesy, aGlobalDerivativesM);
  
   // calculates correlation between Hit measurements
-  double correlation = fabs(aHitCovarianceM(0,1))
-    /(sqrt(aHitCovarianceM(0,0)) * sqrt(aHitCovarianceM(1,1)));
-  if (correlation > theMaximalCor2D) {
+  const double corr = aHitCovarianceM(0,1) / sqrt(aHitCovarianceM(0,0) * aHitCovarianceM(1,1));
+  bool diag = false;
+  if (TMath::Abs(corr) > theMaximalCor2D) {
+    edm::LogError("Alignment") << "@SUB=callMille2D_diag";
     this->diagonalize(aHitCovarianceM, aLocalDerivativesM, aHitResidualsM, aGlobalDerivativesM);
+    diag = true;
   }
- 
-  if (is2DHit) { // for 2d hit both measurements get to mille
-    theMille->mille(aLocalDerivativesM.GetNcols(), aLocalDerivativesM[0].GetPtr(),
-                    aGlobalDerivativesM.GetNcols(), aGlobalDerivativesM[0].GetPtr(),
-                    &(globalLabels[0]), aHitResidualsM(0,0),
-                    static_cast<float>(sqrt(aHitCovarianceM(0,0))));
- 
-    theMille->mille(aLocalDerivativesM.GetNcols(), aLocalDerivativesM[1].GetPtr(),
-                    aGlobalDerivativesM.GetNcols(), aGlobalDerivativesM[1].GetPtr(),
-                    &(globalLabels[0]), aHitResidualsM(1,0),
-                    static_cast<float>(sqrt(aHitCovarianceM(1,1))));
-  } else {
-    if (sqrt(aHitCovarianceM(0,0)) < sqrt(aHitCovarianceM(1,1))) {// checks which measurement has smaller error
-      // 0 measurement is more precise and get filled to mille
-      theMille->mille(aLocalDerivativesM.GetNcols(), aLocalDerivativesM[0].GetPtr(),
-                      aGlobalDerivativesM.GetNcols(), aGlobalDerivativesM[0].GetPtr(),
-                      &(globalLabels[0]), aHitResidualsM(0,0),
-                      static_cast<float>(sqrt(aHitCovarianceM(0,0))));
-    } else {
-      // 1 measurement is more precise and get filled to mille
-      theMille->mille(aLocalDerivativesM.GetNcols(), aLocalDerivativesM[1].GetPtr(),
-                      aGlobalDerivativesM.GetNcols(), aGlobalDerivativesM[1].GetPtr(),
-                      &(globalLabels[0]), aHitResidualsM(1,0),
-                      static_cast<float>(sqrt(aHitCovarianceM(1,1))));
+
+  float newResidX = aHitResidualsM(0,0);
+  float newResidY = aHitResidualsM(1,0);
+  float newHitErrX = TMath::Sqrt(aHitCovarianceM(0,0));
+  float newHitErrY = TMath::Sqrt(aHitCovarianceM(1,1));
+  float *newLocalDerivsX = aLocalDerivativesM[0].GetPtr();
+  float *newLocalDerivsY = aLocalDerivativesM[1].GetPtr();
+  float *newGlobDerivsX  = aGlobalDerivativesM[0].GetPtr();
+  float *newGlobDerivsY  = aGlobalDerivativesM[1].GetPtr();
+  const int nLocal  = aLocalDerivativesM.GetNcols();
+  const int nGlobal = aGlobalDerivativesM.GetNcols();
+
+  if (diag && (newHitErrX > newHitErrY)) { // also for 2D hits?
+    // measurement with smaller error is x-measurement (for !is2D do not fill y-measurement):
+    std::swap(newResidX, newResidY);
+    std::swap(newHitErrX, newHitErrY);
+    std::swap(newLocalDerivsX, newLocalDerivsY);
+    std::swap(newGlobDerivsX, newGlobDerivsY);
+  }
+  
+  // &(globalLabels[0]) is valid - as long as vector is not empty 
+  // cf. http://www.parashift.com/c++-faq-lite/containers.html#faq-34.3
+  theMille->mille(nLocal, newLocalDerivsX, nGlobal, newGlobDerivsX,
+		  &(globalLabels[0]), newResidX, newHitErrX);
+  if (theMonitor) {
+    // theMonitor->fillDerivatives(aRecHit, newLocalDerivsX, newGlobDerivsX, false);
+    theMonitor->fillResiduals(aRecHit, refTrajPtr->trajectoryStates()[iTrajHit],
+			      iTrajHit, newResidX, newHitErrX, false);
+  }
+  const bool isReal2DHit = this->is2D(aRecHit); // strip is 1D (except matched hits)
+  if (isReal2DHit) {
+    theMille->mille(nLocal, newLocalDerivsY, nGlobal, newGlobDerivsY,
+                    &(globalLabels[0]), newResidY, newHitErrY);
+    if (theMonitor) {
+      // theMonitor->fillDerivatives(aRecHit, newLocalDerivsY, newGlobDerivsY, true); // true: y
+      theMonitor->fillResiduals(aRecHit, refTrajPtr->trajectoryStates()[iTrajHit],
+				iTrajHit, newResidY, newHitErrY, true);// true: y
     }
   }
 
-  if (is2DHit) return 2;
-  else return 1;
+  return (isReal2DHit ? 2 : 1);
 }
