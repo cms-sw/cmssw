@@ -12,7 +12,7 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Thu july 6 13:22:06 CEST 2006
-// $Id: GsfElectronAlgo.cc,v 1.13 2008/03/03 17:10:15 uberthon Exp $
+// $Id: GsfElectronAlgo.cc,v 1.14 2008/03/04 17:00:32 uberthon Exp $
 //
 //
 
@@ -104,14 +104,14 @@ GsfElectronAlgo::GsfElectronAlgo(const edm::ParameterSet& conf,
 
   // get nested parameter set for the TransientInitialStateEstimator
   ParameterSet tise_params = conf.getParameter<ParameterSet>("TransientInitialStateEstimatorParameters") ;
-  hbheLabel_ = conf.getParameter<string>("hbheModule");
-  hbheInstanceName_ = conf.getParameter<string>("hbheInstance");
-  trackLabel_ = conf.getParameter<string>("TrackLabel");
-  trackInstanceName_ = conf.getParameter<string>("TrackProducer");
-  assBarrelShapeInstanceName_ = conf.getParameter<string>("AssocShapeBarrelProducer");
-  assBarrelShapeLabel_ = conf.getParameter<string>("AssocShapeBarrelLabel");
-  assEndcapShapeInstanceName_ = conf.getParameter<string>("AssocShapeEndcapProducer");
-  assEndcapShapeLabel_ = conf.getParameter<string>("AssocShapeEndcapLabel");
+  
+  // get input collections
+  hcalRecHits_ = conf.getParameter<edm::InputTag>("hcalRecHits");
+  tracks_ = conf.getParameter<edm::InputTag>("tracks");  
+  barrelClusterShapes_ = conf.getParameter<edm::InputTag>("barrelClusterShapes");
+  endcapClusterShapes_ = conf.getParameter<edm::InputTag>("endcapClusterShapes");
+  barrelSuperClusters_ = conf.getParameter<edm::InputTag>("barrelSuperClusters");
+  endcapSuperClusters_ = conf.getParameter<edm::InputTag>("endcapSuperClusters");
 
   // get type of processing
   processType_=1;
@@ -152,17 +152,17 @@ void  GsfElectronAlgo::run(Event& e, GsfElectronCollection & outEle) {
 
   // get the input 
   edm::Handle<GsfTrackCollection> tracksH;
-  e.getByLabel(trackLabel_,trackInstanceName_,tracksH);
+  e.getByLabel(tracks_,tracksH);
   
   edm::Handle<BasicClusterShapeAssociationCollection> barrelShapeAssocH;
   edm::Handle<BasicClusterShapeAssociationCollection> endcapShapeAssocH;
-  e.getByLabel(assBarrelShapeLabel_,assBarrelShapeInstanceName_,barrelShapeAssocH);
-  e.getByLabel(assEndcapShapeLabel_,assEndcapShapeInstanceName_,endcapShapeAssocH);
+  e.getByLabel(barrelClusterShapes_,barrelShapeAssocH);
+  e.getByLabel(endcapClusterShapes_,endcapShapeAssocH);
 
   // for HoE calculation
   edm::Handle<HBHERecHitCollection> hbhe;
   mhbhe_=0;
-  bool got = e.getByLabel(hbheLabel_,hbheInstanceName_,hbhe);  
+  bool got = e.getByLabel(hcalRecHits_,hbhe);  
   if (got) mhbhe_=  new HBHERecHitMetaCollection(*hbhe);
 
   //Getting the beamspot from the Event:
@@ -175,11 +175,11 @@ void  GsfElectronAlgo::run(Event& e, GsfElectronCollection & outEle) {
   const BasicClusterShapeAssociationCollection *shpAssEndcap=&(*endcapShapeAssocH);
   if (processType_==1) process(tracksH,shpAssBarrel,shpAssEndcap,bsPosition,outEle);
   else {
-        edm::Handle<SuperClusterCollection> superClustersBarrelH; 
-       e.getByLabel("correctedHybridSuperClusters",superClustersBarrelH);
+       edm::Handle<SuperClusterCollection> superClustersBarrelH; 
+       e.getByLabel(barrelSuperClusters_,superClustersBarrelH);
   
        edm::Handle<SuperClusterCollection> superClustersEndcapH; 
-       e.getByLabel("correctedEndcapSuperClustersWithPreshower", superClustersEndcapH);
+       e.getByLabel(endcapSuperClusters_, superClustersEndcapH);
 
   process(tracksH, 
           superClustersBarrelH, 

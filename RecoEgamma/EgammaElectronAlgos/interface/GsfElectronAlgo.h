@@ -106,14 +106,12 @@ public:
   bool applyEtaCorrection_;
   
   // input configuration
-  std::string hbheLabel_;
-  std::string hbheInstanceName_;
-  std::string assBarrelShapeLabel_;
-  std::string assBarrelShapeInstanceName_;
-  std::string assEndcapShapeLabel_;
-  std::string assEndcapShapeInstanceName_;
-  std::string trackLabel_;
-  std::string trackInstanceName_;
+  edm::InputTag barrelSuperClusters_;
+  edm::InputTag endcapSuperClusters_;
+  edm::InputTag barrelClusterShapes_;
+  edm::InputTag endcapClusterShapes_;
+  edm::InputTag tracks_;
+  edm::InputTag hcalRecHits_;
 
   edm::ESHandle<MagneticField>                theMagField;
   edm::ESHandle<CaloGeometry>                 theCaloGeom;

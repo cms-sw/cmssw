@@ -22,8 +22,7 @@
 using namespace std;
 
 SubSeedGenerator::SubSeedGenerator(const edm::ParameterSet& conf) {
-  initialSeedProducer_ = conf.getParameter<std::string>("initialSeedProducer");
-  initialSeedLabel_    = conf.getParameter<std::string>("initialSeedLabel");
+  initialSeeds_               = conf.getParameter<edm::InputTag>("initialSeeds");
   dr_                  = conf.getParameter<double>("seedDr");
   dphi_                = conf.getParameter<double>("seedDPhi");
   deta_                = conf.getParameter<double>("seedDEta");
@@ -45,7 +44,7 @@ void  SubSeedGenerator::run(edm::Event& e, const edm::EventSetup& setup, const e
   
   // get initial TrajectorySeeds
   edm::Handle<TrajectorySeedCollection> theInitialSeedColl;
-  e.getByLabel(initialSeedProducer_, initialSeedLabel_, theInitialSeedColl);
+  e.getByLabel(initialSeeds_, theInitialSeedColl);
   
   //seeds selection
   for(unsigned int i=0; i< superClusters->size(); ++i) {

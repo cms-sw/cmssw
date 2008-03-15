@@ -13,7 +13,7 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: ElectronPixelSeedProducer.cc,v 1.18 2008/03/03 17:09:01 uberthon Exp $
+// $Id: ElectronPixelSeedProducer.cc,v 1.19 2008/03/04 17:03:42 uberthon Exp $
 //
 //
 
@@ -52,13 +52,10 @@ ElectronPixelSeedProducer::ElectronPixelSeedProducer(const edm::ParameterSet& iC
     matcher_= new SubSeedGenerator(pset);
   else matcher_ = new ElectronPixelSeedGenerator(pset);
  
- //  get labels from config'
-  label_[0]=iConfig.getParameter<std::string>("superClusterBarrelProducer");
-  instanceName_[0]=iConfig.getParameter<std::string>("superClusterBarrelLabel");
-  label_[1]=iConfig.getParameter<std::string>("superClusterEndcapProducer");
-  instanceName_[1]=iConfig.getParameter<std::string>("superClusterEndcapLabel");
-  hbheLabel_ = pset.getParameter<std::string>("hbheModule");
-  hbheInstanceName_ = pset.getParameter<std::string>("hbheInstance");
+  //  get collections from config'
+  superClusters_[0]=iConfig.getParameter<edm::InputTag>("barrelSuperClusters");
+  superClusters_[1]=iConfig.getParameter<edm::InputTag>("endcapSuperClusters");
+  hcalRecHits_ = pset.getParameter<edm::InputTag>("hcalRecHits");
 
   //register your products
   produces<ElectronPixelSeedCollection>();
@@ -91,7 +88,7 @@ void ElectronPixelSeedProducer::produce(edm::Event& e, const edm::EventSetup& iS
   // get Hcal Rechit collection
   edm::Handle<HBHERecHitCollection> hbhe;
   HBHERecHitMetaCollection *mhbhe=0;
-  bool got =    e.getByLabel(hbheLabel_,hbheInstanceName_,hbhe);  
+  bool got =    e.getByLabel(hcalRecHits_,hbhe);  
   if (got) mhbhe=  new HBHERecHitMetaCollection(*hbhe);
 
   ElectronPixelSeedCollection *seeds= new ElectronPixelSeedCollection;
@@ -102,7 +99,7 @@ void ElectronPixelSeedProducer::produce(edm::Event& e, const edm::EventSetup& iS
   for (unsigned int i=0; i<2; i++) {  
    // invoke algorithm
     edm::Handle<SuperClusterCollection> clusters;
-    if (e.getByLabel(label_[i],instanceName_[i],clusters))   {
+    if (e.getByLabel(superClusters_[i],clusters))   {
       if (algo_=="") {
 	SuperClusterRefVector clusterRefs;
 	filterClusters(clusters,mhbhe,clusterRefs);
