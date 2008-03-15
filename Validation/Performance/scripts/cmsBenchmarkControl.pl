@@ -39,6 +39,7 @@ for ($Core=0;$Core<$NumberOfCores;$Core++)
 {
     print "Launching cmsBenchmark.pl $Core (i.e. on cpu core $Core)\n";
     $cmsBenchmarklog="cmsBenchmark_cpu".$Core.".log";
-    exec("cmsBenchmark.pl $Core >& $cmsBenchmarklog&");
+    $cmsBenchmark=`cmsBenchmark.pl $Core >& $cmsBenchmarklog &`;
+    print $cmsBenchmark;
 }
 exit;
