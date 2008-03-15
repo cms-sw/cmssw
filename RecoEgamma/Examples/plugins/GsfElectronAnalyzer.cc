@@ -13,7 +13,7 @@
 //
 // Original Author:  Ursula Berthon
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: GsfElectronAnalyzer.cc,v 1.4 2008/03/13 23:08:06 charlot Exp $
+// $Id: GsfElectronAnalyzer.cc,v 1.5 2008/03/15 01:05:52 charlot Exp $
 //
 //
 
@@ -162,12 +162,12 @@ void GsfElectronAnalyzer::beginJob(edm::EventSetup const&iSetup){
   h_ele_vertexTIPVsEta      = new TH2F( "h_ele_vertexTIPVsEta",      "ele TIP vs eta", nbineta2D,etamin,etamax,45,0.,0.15);
   h_ele_vertexTIPVsPhi      = new TH2F( "h_ele_vertexTIPVsPhi",      "ele TIP vs phi", nbinphi2D,phimin,phimax,45,0.,0.15);
   h_ele_vertexTIPVsPt      = new TH2F( "h_ele_vertexTIPVsPt",      "ele TIP vs Pt", nbinpt2D,0.,ptmax,45,0.,0.15);
-  h_ele_PoPtrue        = new TH1F( "h_ele_PoPtrue",        "ele track, P/Ptrue @ vertex", 75,0.,1.5);
-  h_ele_PoPtrueVsEta   = new TH2F( "h_ele_PoPtrueVsEta",        "ele track, P/Ptrue @ vertex vs eta", nbineta2D,etamin,etamax,50,0.,1.5);
-  h_ele_PoPtrueVsPhi   = new TH2F( "h_ele_PoPtrueVsPhi",        "ele track, P/Ptrue @ vertex vs phi", nbinphi2D,phimin,phimax,50,0.,1.5);
-  h_ele_PoPtrueVsPt   = new TH2F( "h_ele_PoPtrueVsPt",        "ele track, P/Ptrue @ vertex vs eta", nbinpt2D,0.,ptmax,50,0.,1.5);
-  h_ele_PoPtrue_barrel         = new TH1F( "h_ele_PoPtrue_barrel",        "ele track, P/Ptrue @ vertex, barrel",75,0.,1.5);
-  h_ele_PoPtrue_endcaps        = new TH1F( "h_ele_PoPtrue_endcaps",        "ele track, P/Ptrue @ vertex, endcaps",75,0.,1.5);
+  h_ele_PoPtrue        = new TH1F( "h_ele_PoPtrue",        "ele P/Ptrue @ vertex", 75,0.,1.5);
+  h_ele_PoPtrueVsEta   = new TH2F( "h_ele_PoPtrueVsEta",        "ele P/Ptrue @ vertex vs eta", nbineta2D,etamin,etamax,50,0.,1.5);
+  h_ele_PoPtrueVsPhi   = new TH2F( "h_ele_PoPtrueVsPhi",        "ele P/Ptrue @ vertex vs phi", nbinphi2D,phimin,phimax,50,0.,1.5);
+  h_ele_PoPtrueVsPt   = new TH2F( "h_ele_PoPtrueVsPt",        "ele P/Ptrue @ vertex vs eta", nbinpt2D,0.,ptmax,50,0.,1.5);
+  h_ele_PoPtrue_barrel         = new TH1F( "h_ele_PoPtrue_barrel",        "ele P/Ptrue @ vertex, barrel",75,0.,1.5);
+  h_ele_PoPtrue_endcaps        = new TH1F( "h_ele_PoPtrue_endcaps",        "ele P/Ptrue @ vertex, endcaps",75,0.,1.5);
   h_ele_EtaMnEtaTrue   = new TH1F( "h_ele_EtaMnEtaTrue",   "ele #eta_{rec} - #eta_{sim} @ vertex",nbindeta,detamin,detamax);
   h_ele_EtaMnEtaTrueVsEta   = new TH2F( "h_ele_EtaMnEtaTrueVsEta",   "ele #eta_{rec} - #eta_{sim} @ vertex vs eta",nbineta2D,etamin,etamax,nbindeta/2,detamin,detamax);
   h_ele_EtaMnEtaTrueVsPhi   = new TH2F( "h_ele_EtaMnEtaTrueVsPhi",   "ele #eta_{rec} - #eta_{sim} @ vertex vs phi",nbinphi2D,phimin,phimax,nbindeta/2,detamin,detamax);
