@@ -60,6 +60,8 @@ cat > scaledhistos <<EOF
   h_ele_PoPtrue   
   h_ele_PoPtrue_barrel   
   h_ele_PoPtrue_endcaps   
+  h_scl_EoEtrue_barrel   
+  h_scl_EoEtrue_endcaps   
   h_ele_EtaMnEtaTrue   
   h_ele_PhiMnPhiTrue 
   h_ele_vertexP 
@@ -82,11 +84,7 @@ cat > scaledhistos <<EOF
   h_ele_PinMnPout_mode 
   h_ele_classes 
   h_ele_charge
-  h_ele_fbremvsEtamean
-  h_ele_fbremvsEtamode
-  h_ele_EoP_all
-  h_ele_vertexEta_all
-  h_ele_vertexPt_all
+  h_ele_EoverP_all
   h_recEleNum
 EOF
 
@@ -94,6 +92,22 @@ cat > unscaledhistos <<EOF
   h_ele_absetaEff
   h_ele_etaEff
   h_ele_ptEff
+  h_ele_phiEff
+  h_ele_zEff
+  h_ele_etaEff_all
+  h_ele_ptEff_all
+  h_ele_PoPtrueVsEta_pfx   
+  h_ele_PoPtrueVsPhi_pfx   
+  h_ele_EtaMnEtaTrueVsEta_pfx  
+  h_ele_PhiMnPhiTrueVsEta_pfx 
+  h_ele_vertexPtVsEta_pfx 
+  h_ele_EoPVsEta_pfx 
+  h_ele_EoPoutVsEta_pfx 
+  h_ele_HoEVsEta_pfx 
+  h_ele_chi2VsEta_pfx 
+  h_ele_foundHitsVsEta_pfx 
+  h_ele_fbremvsEtamean
+  h_ele_fbremvsEtamode
   h_ele_eta_bbremFrac 
   h_ele_eta_goldenFrac 
   h_ele_eta_narrowFrac 

@@ -9,7 +9,7 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: GsfElectronAnalyzer.h,v 1.1 2007/12/08 15:23:00 futyand Exp $
+// $Id: GsfElectronAnalyzer.h,v 1.2 2008/03/13 23:08:06 charlot Exp $
 //
 //
   
@@ -66,10 +66,14 @@ class GsfElectronAnalyzer : public edm::EDAnalyzer
   TH1F *h_simAbsEta;
   TH1F *h_simP;
   TH1F *h_simPt;
+  TH1F *h_simPhi;
+  TH1F *h_simZ;
   
   TH1F *h_ele_simEta_matched;
   TH1F *h_ele_simAbsEta_matched;
   TH1F *h_ele_simPt_matched;
+  TH1F *h_ele_simPhi_matched;
+  TH1F *h_ele_simZ_matched;
 
   TH1F *h_ele_TIP_all;
   TH1F *h_ele_EoverP_all;
@@ -218,15 +222,52 @@ class GsfElectronAnalyzer : public edm::EDAnalyzer
   TH1F *histSclEoEtrueShowering1234_endcaps;
 
   std::string outputFile_; 
-  std::string electronProducer_;
-  std::string electronLabel_;
-  edm::InputTag barrelClusterShapeAssocProducer_;
-  edm::InputTag endcapClusterShapeAssocProducer_;
-  std::string MCTruthProducer_;
+  edm::InputTag electronCollection_;
+  edm::InputTag  mcTruthCollection_;
   
   double maxPt_;
   double maxAbsEta_;
   double deltaR_; 
+  
+  // histos limits and binning
+  double etamin;
+  double etamax;
+  double phimin;
+  double phimax;
+  double ptmax;
+  double pmax;
+  double eopmax;
+  double eopmaxsht;
+  double detamin;
+  double detamax;
+  double dphimin;
+  double dphimax;
+  double detamatchmin;
+  double detamatchmax;
+  double dphimatchmin;
+  double dphimatchmax;
+  double fhitsmax;
+  double lhitsmax;
+  int nbineta;
+  int nbinp;
+  int nbinpt;
+  int nbinpteff;
+  int nbinphi;
+  int nbinp2D;
+  int nbinpt2D;
+  int nbineta2D;
+  int nbinphi2D;
+  int nbineop;
+  int nbineop2D;
+  int nbinfhits;
+  int nbinlhits;
+  int nbinxyz;
+  int nbindeta;
+  int nbindphi;
+  int nbindetamatch;
+  int nbindphimatch;
+  int nbindetamatch2D;
+  int nbindphimatch2D;
   
  };
   
