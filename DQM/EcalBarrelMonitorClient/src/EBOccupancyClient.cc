@@ -1,8 +1,8 @@
 /*
  * \file EBOccupancyClient.cc
  *
- * $Date: 2008/02/29 15:03:00 $
- * $Revision: 1.18 $
+ * $Date: 2008/03/14 14:38:55 $
+ * $Revision: 1.19 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -302,12 +302,7 @@ void EBOccupancyClient::htmlOutput(int run, string& htmlDir, string& htmlName){
 
       meName = obj2f->GetName();
 
-      for ( unsigned int i = 0; i < meName.size(); i++ ) {
-        if ( meName.substr(i, 1) == " " ) {
-          meName.replace(i, 1 ,"_" );
-        }
-      }
-
+      replace(meName.begin(), meName.end(), ' ', '_');
       imgNameMap[iMap] = meName + ".png";
       imgName = htmlDir + imgNameMap[iMap];
 
@@ -332,12 +327,7 @@ void EBOccupancyClient::htmlOutput(int run, string& htmlDir, string& htmlName){
 
       meName = obj1fEta->GetName();
 
-      for ( unsigned int i = 0; i < meName.size(); i++ ) {
-        if ( meName.substr(i, 1) == " " ) {
-          meName.replace(i, 1 ,"_" );
-        }
-      }
-
+      replace(meName.begin(), meName.end(), ' ', '_');
       imgNameProjEta[iMap] = meName + ".png";
       imgName = htmlDir + imgNameProjEta[iMap];
 
@@ -356,12 +346,7 @@ void EBOccupancyClient::htmlOutput(int run, string& htmlDir, string& htmlName){
 
       meName = obj1fPhi->GetName();
 
-      for ( unsigned int i = 0; i < meName.size(); i++ ) {
-        if ( meName.substr(i, 1) == " " ) {
-          meName.replace(i, 1 ,"_" );
-        }
-      }
-
+      replace(meName.begin(), meName.end(), ' ', '_');
       imgNameProjPhi[iMap] = meName + ".png";
       imgName = htmlDir + imgNameProjPhi[iMap];
 
@@ -387,12 +372,7 @@ void EBOccupancyClient::htmlOutput(int run, string& htmlDir, string& htmlName){
 
       meName = obj2f->GetName();
 
-      for ( unsigned int i = 0; i < meName.size(); i++ ) {
-        if ( meName.substr(i, 1) == " " ) {
-          meName.replace(i, 1 ,"_" );
-        }
-      }
-
+      replace(meName.begin(), meName.end(), ' ', '_');
       imgNameMapThr[iMap] = meName + ".png";
       imgName = htmlDir + imgNameMapThr[iMap];
 
@@ -417,12 +397,7 @@ void EBOccupancyClient::htmlOutput(int run, string& htmlDir, string& htmlName){
 
       meName = obj1fEta->GetName();
 
-      for ( unsigned int i = 0; i < meName.size(); i++ ) {
-        if ( meName.substr(i, 1) == " " ) {
-          meName.replace(i, 1 ,"_" );
-        }
-      }
-
+      replace(meName.begin(), meName.end(), ' ', '_');
       imgNameProjEtaThr[iMap] = meName + ".png";
       imgName = htmlDir + imgNameProjEtaThr[iMap];
 
@@ -441,12 +416,7 @@ void EBOccupancyClient::htmlOutput(int run, string& htmlDir, string& htmlName){
 
       meName = obj1fPhi->GetName();
 
-      for ( unsigned int i = 0; i < meName.size(); i++ ) {
-        if ( meName.substr(i, 1) == " " ) {
-          meName.replace(i, 1 ,"_" );
-        }
-      }
-
+      replace(meName.begin(), meName.end(), ' ', '_');
       imgNameProjPhiThr[iMap] = meName + ".png";
       imgName = htmlDir + imgNameProjPhiThr[iMap];
 

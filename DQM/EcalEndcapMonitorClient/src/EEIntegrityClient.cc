@@ -2,8 +2,8 @@
 /*
  * \file EEIntegrityClient.cc
  *
- * $Date: 2008/02/29 15:05:46 $
- * $Revision: 1.66 $
+ * $Date: 2008/03/14 14:38:58 $
+ * $Revision: 1.67 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -1134,11 +1134,7 @@ void EEIntegrityClient::htmlOutput(int run, string& htmlDir, string& htmlName){
 
     meName = obj1f->GetName();
 
-    for ( unsigned int i = 0; i < meName.size(); i++ ) {
-      if ( meName.substr(i, 1) == " " )  {
-        meName.replace(i, 1, "_");
-      }
-    }
+    replace(meName.begin(), meName.end(), ' ', '_');
     imgNameDCC = meName + ".png";
     imgName = htmlDir + imgNameDCC;
 
@@ -1181,11 +1177,7 @@ void EEIntegrityClient::htmlOutput(int run, string& htmlDir, string& htmlName){
 
       meName = obj2f->GetName();
 
-      for ( unsigned int i = 0; i < meName.size(); i++ ) {
-        if ( meName.substr(i, 1) == " " )  {
-          meName.replace(i, 1, "_");
-        }
-      }
+      replace(meName.begin(), meName.end(), ' ', '_');
       imgNameQual = meName + ".png";
       imgName = htmlDir + imgNameQual;
 
@@ -1231,12 +1223,7 @@ void EEIntegrityClient::htmlOutput(int run, string& htmlDir, string& htmlName){
 
       meName = obj2f->GetName();
 
-      for ( unsigned int i = 0; i < meName.size(); i++ ) {
-        if ( meName.substr(i, 1) == " " )  {
-          meName.replace(i, 1, "_");
-        }
-      }
-
+      replace(meName.begin(), meName.end(), ' ', '_');
       imgNameOcc = meName + ".png";
       imgName = htmlDir + imgNameOcc;
 
@@ -1303,11 +1290,7 @@ void EEIntegrityClient::htmlOutput(int run, string& htmlDir, string& htmlName){
 
         meName = obj2f->GetName();
 
-        for ( unsigned int iMe = 0; iMe < meName.size(); iMe++ ) {
-          if ( meName.substr(iMe, 1) == " " )  {
-            meName.replace(iMe, 1, "_");
-          }
-        }
+        replace(meName.begin(), meName.end(), ' ', '_');
         imgNameME[iCanvas-1] = meName + ".png";
         imgName = htmlDir + imgNameME[iCanvas-1];
 
@@ -1355,11 +1338,7 @@ void EEIntegrityClient::htmlOutput(int run, string& htmlDir, string& htmlName){
 
       meName = obj2f->GetName();
 
-      for ( unsigned int i = 0; i < meName.size(); i++ ) {
-        if ( meName.substr(i, 1) == " " )  {
-          meName.replace(i, 1, "_");
-        }
-      }
+      replace(meName.begin(), meName.end(), ' ', '_');
       imgNameQualMem = meName + ".png";
       imgName = htmlDir + imgNameQualMem;
 
@@ -1389,12 +1368,7 @@ void EEIntegrityClient::htmlOutput(int run, string& htmlDir, string& htmlName){
 
       meName = obj2f->GetName();
 
-      for ( unsigned int i = 0; i < meName.size(); i++ ) {
-        if ( meName.substr(i, 1) == " " )  {
-          meName.replace(i, 1, "_");
-        }
-      }
-
+      replace(meName.begin(), meName.end(), ' ', '_');
       imgNameOccMem = meName + ".png";
       imgName = htmlDir + imgNameOccMem;
 
@@ -1446,11 +1420,7 @@ void EEIntegrityClient::htmlOutput(int run, string& htmlDir, string& htmlName){
 
         meName = obj2f->GetName();
 
-        for ( unsigned int iMe = 0; iMe < meName.size(); iMe++ ) {
-          if ( meName.substr(iMe, 1) == " " )  {
-            meName.replace(iMe, 1, "_");
-          }
-        }
+        replace(meName.begin(), meName.end(), ' ', '_');
         imgNameME[iCanvas-1] = meName + ".png";
         imgName = htmlDir + imgNameME[iCanvas-1];
 

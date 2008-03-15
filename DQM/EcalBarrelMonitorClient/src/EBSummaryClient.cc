@@ -1,8 +1,8 @@
 /*
  * \file EBSummaryClient.cc
  *
- * $Date: 2008/03/08 14:14:20 $
- * $Revision: 1.121 $
+ * $Date: 2008/03/14 14:38:55 $
+ * $Revision: 1.122 $
  * \author G. Della Ricca
  *
 */
@@ -1231,11 +1231,7 @@ void EBSummaryClient::htmlOutput(int run, string& htmlDir, string& htmlName){
 
     meName = obj2f->GetName();
 
-    for ( unsigned int i = 0; i < meName.size(); i++ ) {
-      if ( meName.substr(i, 1) == " " )  {
-        meName.replace(i, 1 ,"_" );
-      }
-    }
+    replace(meName.begin(), meName.end(), ' ', '_');
     imgNameMapI = meName + ".png";
     imgName = htmlDir + imgNameMapI;
 
@@ -1266,11 +1262,7 @@ void EBSummaryClient::htmlOutput(int run, string& htmlDir, string& htmlName){
 
     meName = obj2f->GetName();
 
-    for ( unsigned int i = 0; i < meName.size(); i++ ) {
-      if ( meName.substr(i, 1) == " " )  {
-        meName.replace(i, 1 ,"_" );
-      }
-    }
+    replace(meName.begin(), meName.end(), ' ', '_');
     imgNameMapO = meName + ".png";
     imgName = htmlDir + imgNameMapO;
 
@@ -1303,11 +1295,7 @@ void EBSummaryClient::htmlOutput(int run, string& htmlDir, string& htmlName){
 
     meName = obj2f->GetName();
 
-    for ( unsigned int i = 0; i < meName.size(); i++ ) {
-      if ( meName.substr(i, 1) == " " )  {
-        meName.replace(i, 1 ,"_" );
-      }
-    }
+    replace(meName.begin(), meName.end(), ' ', '_');
     imgNameMapDF = meName + ".png";
     imgName = htmlDir + imgNameMapDF;
 
@@ -1338,11 +1326,7 @@ void EBSummaryClient::htmlOutput(int run, string& htmlDir, string& htmlName){
 
     meName = obj2f->GetName();
 
-    for ( unsigned int i = 0; i < meName.size(); i++ ) {
-      if ( meName.substr(i, 1) == " " )  {
-        meName.replace(i, 1 ,"_" );
-      }
-    }
+    replace(meName.begin(), meName.end(), ' ', '_');
     imgNameMapPO = meName + ".png";
     imgName = htmlDir + imgNameMapPO;
 
@@ -1373,11 +1357,7 @@ void EBSummaryClient::htmlOutput(int run, string& htmlDir, string& htmlName){
 
     meName = obj2f->GetName();
 
-    for ( unsigned int i = 0; i < meName.size(); i++ ) {
-      if ( meName.substr(i, 1) == " " )  {
-        meName.replace(i, 1 ,"_" );
-      }
-    }
+    replace(meName.begin(), meName.end(), ' ', '_');
     imgNameMapLL1 = meName + ".png";
     imgName = htmlDir + imgNameMapLL1;
 
@@ -1408,11 +1388,7 @@ void EBSummaryClient::htmlOutput(int run, string& htmlDir, string& htmlName){
 
     meName = obj2f->GetName();
 
-    for ( unsigned int i = 0; i < meName.size(); i++ ) {
-      if ( meName.substr(i, 1) == " " )  {
-        meName.replace(i, 1 ,"_" );
-      }
-    }
+    replace(meName.begin(), meName.end(), ' ', '_');
     imgNameMapLL1_PN = meName + ".png";
     imgName = htmlDir + imgNameMapLL1_PN;
 
@@ -1444,11 +1420,7 @@ void EBSummaryClient::htmlOutput(int run, string& htmlDir, string& htmlName){
 
     meName = obj2f->GetName();
 
-    for ( unsigned int i = 0; i < meName.size(); i++ ) {
-      if ( meName.substr(i, 1) == " " )  {
-        meName.replace(i, 1 ,"_" );
-      }
-    }
+    replace(meName.begin(), meName.end(), ' ', '_');
     imgNameMapP = meName + ".png";
     imgName = htmlDir + imgNameMapP;
 
@@ -1479,11 +1451,7 @@ void EBSummaryClient::htmlOutput(int run, string& htmlDir, string& htmlName){
 
     meName = obj2f->GetName();
 
-    for ( unsigned int i = 0; i < meName.size(); i++ ) {
-      if ( meName.substr(i, 1) == " " )  {
-        meName.replace(i, 1 ,"_" );
-      }
-    }
+    replace(meName.begin(), meName.end(), ' ', '_');
     imgNameMapP_PN = meName + ".png";
     imgName = htmlDir + imgNameMapP_PN;
 
@@ -1516,11 +1484,7 @@ void EBSummaryClient::htmlOutput(int run, string& htmlDir, string& htmlName){
 
     meName = obj2f->GetName();
 
-    for ( unsigned int i = 0; i < meName.size(); i++ ) {
-      if ( meName.substr(i, 1) == " " )  {
-        meName.replace(i, 1 ,"_" );
-      }
-    }
+    replace(meName.begin(), meName.end(), ' ', '_');
     imgNameMapTP = meName + ".png";
     imgName = htmlDir + imgNameMapTP;
 
@@ -1551,11 +1515,7 @@ void EBSummaryClient::htmlOutput(int run, string& htmlDir, string& htmlName){
 
     meName = obj2f->GetName();
 
-    for ( unsigned int i = 0; i < meName.size(); i++ ) {
-      if ( meName.substr(i, 1) == " " )  {
-        meName.replace(i, 1 ,"_" );
-      }
-    }
+    replace(meName.begin(), meName.end(), ' ', '_');
     imgNameMapTP_PN = meName + ".png";
     imgName = htmlDir + imgNameMapTP_PN;
 
@@ -1587,11 +1547,7 @@ void EBSummaryClient::htmlOutput(int run, string& htmlDir, string& htmlName){
 
     meName = obj2f->GetName();
 
-    for ( unsigned int i = 0; i < meName.size(); i++ ) {
-      if ( meName.substr(i, 1) == " " )  {
-        meName.replace(i, 1 ,"_" );
-      }
-    }
+    replace(meName.begin(), meName.end(), ' ', '_');
     imgNameMapC = meName + ".png";
     imgName = htmlDir + imgNameMapC;
 
@@ -1622,11 +1578,7 @@ void EBSummaryClient::htmlOutput(int run, string& htmlDir, string& htmlName){
 
     meName = obj2f->GetName();
 
-    for ( unsigned int i = 0; i < meName.size(); i++ ) {
-      if ( meName.substr(i, 1) == " " )  {
-        meName.replace(i, 1 ,"_" );
-      }
-    }
+    replace(meName.begin(), meName.end(), ' ', '_');
     imgNameMapTM = meName + ".png";
     imgName = htmlDir + imgNameMapTM;
 
@@ -1657,11 +1609,7 @@ void EBSummaryClient::htmlOutput(int run, string& htmlDir, string& htmlName){
 
     meName = obj2f->GetName();
 
-    for ( unsigned int i = 0; i < meName.size(); i++ ) {
-      if ( meName.substr(i, 1) == " " )  {
-        meName.replace(i, 1 ,"_" );
-      }
-    }
+    replace(meName.begin(), meName.end(), ' ', '_');
     imgNameMapTTEmulError = meName + ".png";
     imgName = htmlDir + imgNameMapTTEmulError;
 
@@ -1692,11 +1640,7 @@ void EBSummaryClient::htmlOutput(int run, string& htmlDir, string& htmlName){
 
     meName = obj2f->GetName();
 
-    for ( unsigned int i = 0; i < meName.size(); i++ ) {
-      if ( meName.substr(i, 1) == " " )  {
-        meName.replace(i, 1 ,"_" );
-      }
-    }
+    replace(meName.begin(), meName.end(), ' ', '_');
     imgNameMapTTEt = meName + ".png";
     imgName = htmlDir + imgNameMapTTEt;
 
@@ -1727,11 +1671,7 @@ void EBSummaryClient::htmlOutput(int run, string& htmlDir, string& htmlName){
 
     meName = obj2f->GetName();
 
-    for ( unsigned int i = 0; i < meName.size(); i++ ) {
-      if ( meName.substr(i, 1) == " " )  {
-        meName.replace(i, 1 ,"_" );
-      }
-    }
+    replace(meName.begin(), meName.end(), ' ', '_');
     imgNameMapGS = meName + ".png";
     imgName = htmlDir + imgNameMapGS;
 

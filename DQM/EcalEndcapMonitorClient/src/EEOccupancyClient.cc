@@ -1,8 +1,8 @@
 /*
  * \file EEOccupancyClient.cc
  *
- * $Date: 2008/02/29 15:05:55 $
- * $Revision: 1.15 $
+ * $Date: 2008/03/14 14:38:58 $
+ * $Revision: 1.16 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -411,12 +411,7 @@ void EEOccupancyClient::htmlOutput(int run, string& htmlDir, string& htmlName){
 
         meName = obj2f->GetName();
 
-        for ( unsigned int i = 0; i < meName.size(); i++ ) {
-          if ( meName.substr(i, 1) == " " ) {
-            meName.replace(i, 1 ,"_" );
-          }
-        }
-
+        replace(meName.begin(), meName.end(), ' ', '_');
         imgNameMap[iEE][iMap] = meName + ".png";
         imgName = htmlDir + imgNameMap[iEE][iMap];
 
@@ -454,12 +449,7 @@ void EEOccupancyClient::htmlOutput(int run, string& htmlDir, string& htmlName){
 
         meName = obj1fR->GetName();
 
-        for ( unsigned int i = 0; i < meName.size(); i++ ) {
-          if ( meName.substr(i, 1) == " " ) {
-            meName.replace(i, 1 ,"_" );
-          }
-        }
-
+        replace(meName.begin(), meName.end(), ' ', '_');
         imgNameProjR[iEE][iMap] = meName + ".png";
         imgName = htmlDir + imgNameProjR[iEE][iMap];
 
@@ -478,12 +468,7 @@ void EEOccupancyClient::htmlOutput(int run, string& htmlDir, string& htmlName){
 
         meName = obj1fPhi->GetName();
 
-        for ( unsigned int i = 0; i < meName.size(); i++ ) {
-          if ( meName.substr(i, 1) == " " ) {
-            meName.replace(i, 1 ,"_" );
-          }
-        }
-
+        replace(meName.begin(), meName.end(), ' ', '_');
         imgNameProjPhi[iEE][iMap] = meName + ".png";
         imgName = htmlDir + imgNameProjPhi[iEE][iMap];
 
@@ -512,12 +497,7 @@ void EEOccupancyClient::htmlOutput(int run, string& htmlDir, string& htmlName){
 
         meName = obj2f->GetName();
 
-        for ( unsigned int i = 0; i < meName.size(); i++ ) {
-          if ( meName.substr(i, 1) == " " ) {
-            meName.replace(i, 1 ,"_" );
-          }
-        }
-
+        replace(meName.begin(), meName.end(), ' ', '_');
         imgNameMapThr[iEE][iMap] = meName + ".png";
         imgName = htmlDir + imgNameMapThr[iEE][iMap];
 
@@ -555,12 +535,7 @@ void EEOccupancyClient::htmlOutput(int run, string& htmlDir, string& htmlName){
 
         meName = obj1fR->GetName();
 
-        for ( unsigned int i = 0; i < meName.size(); i++ ) {
-          if ( meName.substr(i, 1) == " " ) {
-            meName.replace(i, 1 ,"_" );
-          }
-        }
-
+        replace(meName.begin(), meName.end(), ' ', '_');
         imgNameProjRThr[iEE][iMap] = meName + ".png";
         imgName = htmlDir + imgNameProjRThr[iEE][iMap];
 
@@ -579,12 +554,7 @@ void EEOccupancyClient::htmlOutput(int run, string& htmlDir, string& htmlName){
 
         meName = obj1fPhi->GetName();
 
-        for ( unsigned int i = 0; i < meName.size(); i++ ) {
-          if ( meName.substr(i, 1) == " " ) {
-            meName.replace(i, 1 ,"_" );
-          }
-        }
-
+        replace(meName.begin(), meName.end(), ' ', '_');
         imgNameProjPhiThr[iEE][iMap] = meName + ".png";
         imgName = htmlDir + imgNameProjPhiThr[iEE][iMap];
 

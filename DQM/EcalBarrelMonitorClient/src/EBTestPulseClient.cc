@@ -1,8 +1,8 @@
 /*
  * \file EBTestPulseClient.cc
  *
- * $Date: 2008/02/29 15:03:08 $
- * $Revision: 1.192 $
+ * $Date: 2008/03/14 14:38:55 $
+ * $Revision: 1.193 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -1122,11 +1122,7 @@ void EBTestPulseClient::htmlOutput(int run, string& htmlDir, string& htmlName){
 
         meName = obj2f->GetName();
 
-        for ( unsigned int i = 0; i < meName.size(); i++ ) {
-          if ( meName.substr(i, 1) == " " )  {
-            meName.replace(i, 1, "_");
-          }
-        }
+        replace(meName.begin(), meName.end(), ' ', '_');
         imgNameQual[iCanvas-1] = meName + ".png";
         imgName = htmlDir + imgNameQual[iCanvas-1];
 
@@ -1169,11 +1165,7 @@ void EBTestPulseClient::htmlOutput(int run, string& htmlDir, string& htmlName){
 
         meName = obj1f->GetName();
 
-        for ( unsigned int i = 0; i < meName.size(); i++ ) {
-          if ( meName.substr(i, 1) == " " )  {
-            meName.replace(i, 1 ,"_" );
-          }
-        }
+        replace(meName.begin(), meName.end(), ' ', '_');
         imgNameAmp[iCanvas-1] = meName + ".png";
         imgName = htmlDir + imgNameAmp[iCanvas-1];
 
@@ -1217,11 +1209,7 @@ void EBTestPulseClient::htmlOutput(int run, string& htmlDir, string& htmlName){
 
         meName = obj1f->GetName();
 
-        for ( unsigned int i = 0; i < meName.size(); i++ ) {
-          if ( meName.substr(i, 1) == " " )  {
-            meName.replace(i, 1, "_");
-          }
-        }
+        replace(meName.begin(), meName.end(), ' ', '_');
         imgNameShape[iCanvas-1] = meName + ".png";
         imgName = htmlDir + imgNameShape[iCanvas-1];
 
@@ -1266,11 +1254,7 @@ void EBTestPulseClient::htmlOutput(int run, string& htmlDir, string& htmlName){
 
         meName = obj2f->GetName();
 
-        for ( unsigned int i = 0; i < meName.size(); i++ ) {
-          if ( meName.substr(i, 1) == " " )  {
-            meName.replace(i, 1, "_");
-          }
-        }
+        replace(meName.begin(), meName.end(), ' ', '_');
         imgNameMEPnQual[iCanvas-1] = meName + ".png";
         imgName = htmlDir + imgNameMEPnQual[iCanvas-1];
 
@@ -1308,11 +1292,7 @@ void EBTestPulseClient::htmlOutput(int run, string& htmlDir, string& htmlName){
 
         meName = objp->GetName();
 
-        for ( unsigned int i = 0; i < meName.size(); i++ ) {
-          if ( meName.substr(i, 1) == " " )  {
-            meName.replace(i, 1 ,"_" );
-          }
-        }
+        replace(meName.begin(), meName.end(), ' ', '_');
         imgNameMEPn[iCanvas-1] = meName + ".png";
         imgName = htmlDir + imgNameMEPn[iCanvas-1];
 
@@ -1352,11 +1332,7 @@ void EBTestPulseClient::htmlOutput(int run, string& htmlDir, string& htmlName){
 
         meName = objp->GetName();
 
-        for ( unsigned int i = 0; i < meName.size(); i++ ) {
-          if ( meName.substr(i, 1) == " " )  {
-            meName.replace(i, 1 ,"_" );
-          }
-        }
+        replace(meName.begin(), meName.end(), ' ', '_');
         imgNameMEPnPed[iCanvas-1] = meName + ".png";
         imgName = htmlDir + imgNameMEPnPed[iCanvas-1];
 
@@ -1394,11 +1370,7 @@ void EBTestPulseClient::htmlOutput(int run, string& htmlDir, string& htmlName){
 
         meName = obj1f->GetName();
 
-        for ( unsigned int i = 0; i < meName.size(); i++ ) {
-          if ( meName.substr(i, 1) == " " )  {
-            meName.replace(i, 1 ,"_" );
-          }
-        }
+        replace(meName.begin(), meName.end(), ' ', '_');
         imgNameMEPnPedRms[iCanvas-1] = meName + ".png";
         imgName = htmlDir + imgNameMEPnPedRms[iCanvas-1];
 

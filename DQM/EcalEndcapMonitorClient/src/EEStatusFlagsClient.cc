@@ -1,8 +1,8 @@
 /*
  * \file EEStatusFlagsClient.cc
  *
- * $Date: 2008/03/13 11:24:38 $
- * $Revision: 1.11 $
+ * $Date: 2008/03/14 14:38:58 $
+ * $Revision: 1.12 $
  * \author G. Della Ricca
  *
 */
@@ -266,11 +266,7 @@ void EEStatusFlagsClient::htmlOutput(int run, string& htmlDir, string& htmlName)
 
       meName = obj2f->GetName();
 
-      for ( unsigned int i = 0; i < meName.size(); i++ ) {
-        if ( meName.substr(i, 1) == " " )  {
-          meName.replace(i, 1, "_");
-        }
-      }
+      replace(meName.begin(), meName.end(), ' ', '_');
       imgNameQual = meName + ".png";
       imgName = htmlDir + imgNameQual;
 
@@ -314,11 +310,7 @@ void EEStatusFlagsClient::htmlOutput(int run, string& htmlDir, string& htmlName)
 
       meName = obj1f->GetName();
 
-      for ( unsigned int i = 0; i < meName.size(); i++ ) {
-        if ( meName.substr(i, 1) == " " )  {
-          meName.replace(i, 1 ,"_" );
-        }
-      }
+      replace(meName.begin(), meName.end(), ' ', '_');
       imgNameBits = meName + ".png";
       imgName = htmlDir + imgNameBits;
 

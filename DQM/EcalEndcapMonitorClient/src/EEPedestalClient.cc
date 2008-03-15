@@ -1,8 +1,8 @@
 /*
  * \file EEPedestalClient.cc
  *
- * $Date: 2008/02/29 15:05:56 $
- * $Revision: 1.66 $
+ * $Date: 2008/03/14 14:38:58 $
+ * $Revision: 1.67 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -1226,11 +1226,7 @@ void EEPedestalClient::htmlOutput(int run, string& htmlDir, string& htmlName){
 
         meName = obj2f->GetName();
 
-        for ( unsigned int i = 0; i < meName.size(); i++ ) {
-          if ( meName.substr(i, 1) == " " )  {
-            meName.replace(i, 1, "_");
-          }
-        }
+        replace(meName.begin(), meName.end(), ' ', '_');
         imgNameQual[iCanvas-1] = meName + ".png";
         imgName = htmlDir + imgNameQual[iCanvas-1];
 
@@ -1289,11 +1285,7 @@ void EEPedestalClient::htmlOutput(int run, string& htmlDir, string& htmlName){
 
         meName = obj1f->GetName();
 
-        for ( unsigned int i = 0; i < meName.size(); i++ ) {
-          if ( meName.substr(i, 1) == " " )  {
-            meName.replace(i, 1 ,"_" );
-          }
-        }
+        replace(meName.begin(), meName.end(), ' ', '_');
         imgNameMean[iCanvas-1] = meName + ".png";
         imgName = htmlDir + imgNameMean[iCanvas-1];
 
@@ -1335,11 +1327,7 @@ void EEPedestalClient::htmlOutput(int run, string& htmlDir, string& htmlName){
 
         meName = obj1f->GetName();
 
-        for ( unsigned int i = 0; i < meName.size(); i++ ) {
-          if ( meName.substr(i, 1) == " " )  {
-            meName.replace(i, 1, "_");
-          }
-        }
+        replace(meName.begin(), meName.end(), ' ', '_');
         imgNameRMS[iCanvas-1] = meName + ".png";
         imgName = htmlDir + imgNameRMS[iCanvas-1];
 
@@ -1381,11 +1369,7 @@ void EEPedestalClient::htmlOutput(int run, string& htmlDir, string& htmlName){
 
         meName = obj2f->GetName();
 
-        for ( unsigned int i = 0; i < meName.size(); i++ ) {
-          if ( meName.substr(i, 1) == " " )  {
-            meName.replace(i, 1, "_");
-          }
-        }
+        replace(meName.begin(), meName.end(), ' ', '_');
         imgName3Sum[iCanvas-1] = meName + ".png";
         imgName = htmlDir + imgName3Sum[iCanvas-1];
 
@@ -1445,11 +1429,7 @@ void EEPedestalClient::htmlOutput(int run, string& htmlDir, string& htmlName){
 
         meName = obj2f->GetName();
 
-        for ( unsigned int i = 0; i < meName.size(); i++ ) {
-          if ( meName.substr(i, 1) == " " )  {
-            meName.replace(i, 1, "_");
-          }
-        }
+        replace(meName.begin(), meName.end(), ' ', '_');
         imgName5Sum[iCanvas-1] = meName + ".png";
         imgName = htmlDir + imgName5Sum[iCanvas-1];
 
@@ -1512,11 +1492,7 @@ void EEPedestalClient::htmlOutput(int run, string& htmlDir, string& htmlName){
 
         meName = obj2f->GetName();
 
-        for ( unsigned int i = 0; i < meName.size(); i++ ) {
-          if ( meName.substr(i, 1) == " " )  {
-            meName.replace(i, 1, "_");
-          }
-        }
+        replace(meName.begin(), meName.end(), ' ', '_');
         imgNameMEPnQual[iCanvas-1] = meName + ".png";
         imgName = htmlDir + imgNameMEPnQual[iCanvas-1];
 
@@ -1554,11 +1530,7 @@ void EEPedestalClient::htmlOutput(int run, string& htmlDir, string& htmlName){
 
         meName = objp->GetName();
 
-        for ( unsigned int i = 0; i < meName.size(); i++ ) {
-          if ( meName.substr(i, 1) == " " )  {
-            meName.replace(i, 1 ,"_" );
-          }
-        }
+        replace(meName.begin(), meName.end(), ' ', '_');
         imgNameMEPnPed[iCanvas-1] = meName + ".png";
         imgName = htmlDir + imgNameMEPnPed[iCanvas-1];
 
@@ -1596,11 +1568,7 @@ void EEPedestalClient::htmlOutput(int run, string& htmlDir, string& htmlName){
 
         meName = obj1f->GetName();
 
-        for ( unsigned int i = 0; i < meName.size(); i++ ) {
-          if ( meName.substr(i, 1) == " " )  {
-            meName.replace(i, 1 ,"_" );
-          }
-        }
+        replace(meName.begin(), meName.end(), ' ', '_');
         imgNameMEPnPedRms[iCanvas-1] = meName + ".png";
         imgName = htmlDir + imgNameMEPnPedRms[iCanvas-1];
 

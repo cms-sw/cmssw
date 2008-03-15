@@ -1,8 +1,8 @@
 /*
  * \file EBBeamCaloClient.cc
  *
- * $Date: 2008/02/29 15:02:25 $
- * $Revision: 1.77 $
+ * $Date: 2008/03/14 14:38:54 $
+ * $Revision: 1.78 $
  * \author G. Della Ricca
  * \author A. Ghezzi
  *
@@ -644,11 +644,8 @@ void EBBeamCaloClient::htmlOutput(int run, string& htmlDir, string& htmlName){
 
     TCanvas* can = new TCanvas("can", "Temp", 2*csize, csize);
     meName = obj2f->GetName();
-    for ( unsigned int i = 0; i < meName.size(); i++ ) {
-      if ( meName.substr(i, 1) == " " )  {
-        meName.replace(i, 1, "_");
-      }
-    }
+
+    replace(meName.begin(), meName.end(), ' ', '_');
     RedGreenSMImg = meName + ".png";
     imgName1 = htmlDir + RedGreenSMImg;
 
@@ -679,11 +676,7 @@ void EBBeamCaloClient::htmlOutput(int run, string& htmlDir, string& htmlName){
     TCanvas* can = new TCanvas("can", "Temp", csize, csize);
     meName = obj2f->GetName();
 
-    for ( unsigned int i = 0; i < meName.size(); i++ ) {
-      if ( meName.substr(i, 1) == " " )  {
-        meName.replace(i, 1, "_");
-      }
-    }
+    replace(meName.begin(), meName.end(), ' ', '_');
     RedGreenImg = meName + ".png";
     imgName1 = htmlDir + RedGreenImg;
 
@@ -718,11 +711,8 @@ void EBBeamCaloClient::htmlOutput(int run, string& htmlDir, string& htmlName){
 
     TCanvas* can = new TCanvas("can", "Temp", 5*csize, csize);
     meName = obj2f->GetName();
-    for ( unsigned int i = 0; i < meName.size(); i++ ) {
-      if ( meName.substr(i, 1) == " " )  {
-        meName.replace(i, 1, "_");
-      }
-    }
+
+    replace(meName.begin(), meName.end(), ' ', '_');
     RedGreenAutoImg = meName + ".png";
     imgName1 = htmlDir + RedGreenAutoImg;
 
@@ -768,11 +758,7 @@ void EBBeamCaloClient::htmlOutput(int run, string& htmlDir, string& htmlName){
     TCanvas* can = new TCanvas("can", "Temp", csize, csize);
     meName = obj1f->GetName();
 
-    for ( unsigned int i = 0; i < meName.size(); i++ ) {
-      if ( meName.substr(i, 1) == " " )  {
-        meName.replace(i, 1, "_");
-      }
-    }
+    replace(meName.begin(), meName.end(), ' ', '_');
     numCryReadImg = meName + ".png";
     imgName1 = htmlDir + numCryReadImg;
 
@@ -796,11 +782,7 @@ void EBBeamCaloClient::htmlOutput(int run, string& htmlDir, string& htmlName){
     TCanvas* can = new TCanvas("can", "Temp", csize, csize);
     meName = obj1f->GetName();
 
-    for ( unsigned int i = 0; i < meName.size(); i++ ) {
-      if ( meName.substr(i, 1) == " " )  {
-        meName.replace(i, 1, "_");
-      }
-    }
+    replace(meName.begin(), meName.end(), ' ', '_');
     cryReadErrImg = meName + ".png";
     imgName1 = htmlDir + cryReadErrImg;
 
@@ -825,11 +807,7 @@ void EBBeamCaloClient::htmlOutput(int run, string& htmlDir, string& htmlName){
     TCanvas* can = new TCanvas("can", "Temp", csize, csize);
     meName = obj1f->GetName();
 
-    for ( unsigned int i = 0; i < meName.size(); i++ ) {
-      if ( meName.substr(i, 1) == " " )  {
-        meName.replace(i, 1, "_");
-      }
-    }
+    replace(meName.begin(), meName.end(), ' ', '_');
     E1MaxCryImg = meName + ".png";
     imgName1 = htmlDir +  E1MaxCryImg;
 
@@ -853,11 +831,7 @@ void EBBeamCaloClient::htmlOutput(int run, string& htmlDir, string& htmlName){
     TCanvas* can = new TCanvas("can", "Temp", csize, csize);
     meName = obj1f->GetName();
 
-    for ( unsigned int i = 0; i < meName.size(); i++ ) {
-      if ( meName.substr(i, 1) == " " )  {
-        meName.replace(i, 1, "_");
-      }
-    }
+    replace(meName.begin(), meName.end(), ' ', '_');
     DesyncImg = meName + ".png";
     imgName1 = htmlDir +  DesyncImg;
 
@@ -890,11 +864,7 @@ void EBBeamCaloClient::htmlOutput(int run, string& htmlDir, string& htmlName){
     TCanvas* can = new TCanvas("can", "Temp", 2*csize, csize);
     meName = obj2f->GetName();
 
-    for ( unsigned int i = 0; i < meName.size(); i++ ) {
-      if ( meName.substr(i, 1) == " " )  {
-        meName.replace(i, 1, "_");
-      }
-    }
+    replace(meName.begin(), meName.end(), ' ', '_');
     cryOnBeamImg = meName + ".png";
     imgName1 = htmlDir + cryOnBeamImg;
 
@@ -926,11 +896,7 @@ void EBBeamCaloClient::htmlOutput(int run, string& htmlDir, string& htmlName){
     TCanvas* can = new TCanvas("can", "Temp", 2*csize, csize);
     meName = obj2f->GetName();
 
-    for ( unsigned int i = 0; i < meName.size(); i++ ) {
-      if ( meName.substr(i, 1) == " " )  {
-        meName.replace(i, 1, "_");
-      }
-    }
+    replace(meName.begin(), meName.end(), ' ', '_');
     cryMaxEneImg = meName + ".png";
     imgName1 = htmlDir + cryMaxEneImg;
 
@@ -975,11 +941,7 @@ void EBBeamCaloClient::htmlOutput(int run, string& htmlDir, string& htmlName){
     TCanvas* can = new TCanvas("can", "Temp", csize, csize);
     meName = obj1f->GetName();
 
-    for ( unsigned int i = 0; i < meName.size(); i++ ) {
-      if ( meName.substr(i, 1) == " " )  {
-        meName.replace(i, 1, "_");
-      }
-    }
+    replace(meName.begin(), meName.end(), ' ', '_');
     ene1Img = meName + ".png";
     imgName1 = htmlDir + ene1Img;
 
@@ -1003,11 +965,7 @@ void EBBeamCaloClient::htmlOutput(int run, string& htmlDir, string& htmlName){
     TCanvas* can = new TCanvas("can", "Temp", csize, csize);
     meName = obj1f->GetName();
 
-    for ( unsigned int i = 0; i < meName.size(); i++ ) {
-      if ( meName.substr(i, 1) == " " )  {
-        meName.replace(i, 1, "_");
-      }
-    }
+    replace(meName.begin(), meName.end(), ' ', '_');
     ene3x3Img = meName + ".png";
     imgName1 = htmlDir + ene3x3Img;
 
@@ -1032,11 +990,7 @@ void EBBeamCaloClient::htmlOutput(int run, string& htmlDir, string& htmlName){
     TCanvas* can = new TCanvas("can", "Temp", csize, csize);
     meName = obj2f->GetName();
 
-    for ( unsigned int i = 0; i < meName.size(); i++ ) {
-      if ( meName.substr(i, 1) == " " )  {
-        meName.replace(i, 1, "_");
-      }
-    }
+    replace(meName.begin(), meName.end(), ' ', '_');
     EBBeamCentered = meName + ".png";
     imgName1 = htmlDir + EBBeamCentered;
 
@@ -1066,11 +1020,7 @@ void EBBeamCaloClient::htmlOutput(int run, string& htmlDir, string& htmlName){
       TCanvas* can = new TCanvas("can", "Temp", csize, csize);
       meName = objp1->GetName();
 
-      for ( unsigned int i = 0; i < meName.size(); i++ ) {
-        if ( meName.substr(i, 1) == " " )  {
-          meName.replace(i, 1, "_");
-        }
-      }
+      replace(meName.begin(), meName.end(), ' ', '_');
       pulseImg[ind] = meName + ".png";
       pulseImgF[ind] = htmlDir + pulseImg[ind] ;
 
@@ -1088,11 +1038,7 @@ void EBBeamCaloClient::htmlOutput(int run, string& htmlDir, string& htmlName){
       TCanvas* can = new TCanvas("can", "Temp", csize, csize);
       meName = obj1f->GetName();
 
-      for ( unsigned int i = 0; i < meName.size(); i++ ) {
-        if ( meName.substr(i, 1) == " " )  {
-          meName.replace(i, 1, "_");
-        }
-      }
+      replace(meName.begin(), meName.end(), ' ', '_');
       gainsImg[ind] = meName + ".png";
       gainsImgF[ind] = htmlDir + gainsImg[ind];
 
@@ -1169,11 +1115,7 @@ void EBBeamCaloClient::htmlOutput(int run, string& htmlDir, string& htmlName){
     TCanvas* can = new TCanvas("can", "Temp", int(1.618*csize), csize);
     meName = obj1f->GetName();
 
-    for ( unsigned int i = 0; i < meName.size(); i++ ) {
-      if ( meName.substr(i, 1) == " " )  {
-        meName.replace(i, 1, "_");
-      }
-    }
+    replace(meName.begin(), meName.end(), ' ', '_');
     cryDoneImg = meName + ".png";
     imgName1 = htmlDir + cryDoneImg;
 
@@ -1197,11 +1139,7 @@ void EBBeamCaloClient::htmlOutput(int run, string& htmlDir, string& htmlName){
     TCanvas* can = new TCanvas("can", "Temp", int(1.618*csize), csize);
     meName = obj1f->GetName();
 
-    for ( unsigned int i = 0; i < meName.size(); i++ ) {
-      if ( meName.substr(i, 1) == " " )  {
-        meName.replace(i, 1, "_");
-      }
-    }
+    replace(meName.begin(), meName.end(), ' ', '_');
     EntriesVScryImg = meName + ".png";
     imgName1 = htmlDir + EntriesVScryImg;
 
@@ -1232,12 +1170,8 @@ void EBBeamCaloClient::htmlOutput(int run, string& htmlDir, string& htmlName){
     TCanvas* can = new TCanvas("can", "Temp", int(1.618*csize), csize);
     meName = objp1->GetName();
 
-    for ( unsigned int i = 0; i < meName.size(); i++ ) {
-      if ( meName.substr(i, 1) == " " )  {
-        meName.replace(i, 1, "_");
-      }
-    }
-     E1vsCryImg = meName + ".png";
+    replace(meName.begin(), meName.end(), ' ', '_');
+    E1vsCryImg = meName + ".png";
     imgName1 = htmlDir +  E1vsCryImg;
 
     can->cd();
@@ -1260,11 +1194,7 @@ void EBBeamCaloClient::htmlOutput(int run, string& htmlDir, string& htmlName){
     TCanvas* can = new TCanvas("can", "Temp", int(1.618*csize), csize);
     meName = objp1->GetName();
 
-    for ( unsigned int i = 0; i < meName.size(); i++ ) {
-      if ( meName.substr(i, 1) == " " )  {
-        meName.replace(i, 1, "_");
-      }
-    }
+    replace(meName.begin(), meName.end(), ' ', '_');
     E3x3vsCryImg = meName + ".png";
     imgName1 = htmlDir +  E3x3vsCryImg;
 
@@ -1297,11 +1227,7 @@ void EBBeamCaloClient::htmlOutput(int run, string& htmlDir, string& htmlName){
     TCanvas* can = new TCanvas("can", "Temp", 3*csize, csize);
     meName = objp1->GetName();
 
-    for ( unsigned int i = 0; i < meName.size(); i++ ) {
-      if ( meName.substr(i, 1) == " " )  {
-        meName.replace(i, 1, "_");
-      }
-    }
+    replace(meName.begin(), meName.end(), ' ', '_');
     cryVSeventImg = meName + ".png";
     imgName1 = htmlDir +  cryVSeventImg;
 
@@ -1353,11 +1279,7 @@ void EBBeamCaloClient::htmlOutput(int run, string& htmlDir, string& htmlName){
     TCanvas* can = new TCanvas("can", "Temp", csize, csize);
     meName = obj1f->GetName();
 
-    for ( unsigned int i = 0; i < meName.size(); i++ ) {
-      if ( meName.substr(i, 1) == " " )  {
-        meName.replace(i, 1, "_");
-      }
-    }
+    replace(meName.begin(), meName.end(), ' ', '_');
     TBmoving = meName + ".png";
     imgName1 = htmlDir +  TBmoving;
 

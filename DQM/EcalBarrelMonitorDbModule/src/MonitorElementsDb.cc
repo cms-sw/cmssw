@@ -1,11 +1,11 @@
-// $Id: MonitorElementsDb.cc,v 1.14 2008/02/29 15:03:20 dellaric Exp $
+// $Id: MonitorElementsDb.cc,v 1.15 2008/03/14 14:38:56 dellaric Exp $
 
 /*!
   \file MonitorElementsDb.cc
   \brief Generate a Monitor Element from DB data
   \author B. Gobbo 
-  \version $Revision: 1.14 $
-  \date $Date: 2008/02/29 15:03:20 $
+  \version $Revision: 1.15 $
+  \date $Date: 2008/03/14 14:38:56 $
 */
 
 #include "FWCore/ServiceRegistry/interface/Service.h"
@@ -59,18 +59,18 @@ MonitorElementsDb::MonitorElementsDb( const edm::ParameterSet& ps, std::string& 
 
       MonitorElement* tmp;
       tmp = 0;
-      if( MEinfo_[i].type == "th1d" ) {
+      if( strcmp(MEinfo_[i].type.c_str(), "th1d") == 0 ) {
         tmp = dbe_->book1D( MEinfo_[i].title, MEinfo_[i].title, MEinfo_[i].xbins, MEinfo_[i].xfrom, MEinfo_[i].xto );
       }
-      else if( MEinfo_[i].type == "th2d" ) {
+      else if( strcmp(MEinfo_[i].type.c_str(), "th2d") == 0 ) {
         tmp = dbe_->book2D( MEinfo_[i].title, MEinfo_[i].title, MEinfo_[i].xbins, MEinfo_[i].xfrom, MEinfo_[i].xto,
         		    MEinfo_[i].ybins, MEinfo_[i].yfrom, MEinfo_[i].yto );
       }
-      else if( MEinfo_[i].type == "tprofile" ) {
+      else if( strcmp(MEinfo_[i].type.c_str(), "tprofile") == 0 ) {
       tmp = dbe_->bookProfile( MEinfo_[i].title, MEinfo_[i].title, MEinfo_[i].xbins, MEinfo_[i].xfrom, MEinfo_[i].xto,
         		       MEinfo_[i].ybins, MEinfo_[i].yfrom, MEinfo_[i].yto );
       }
-      else if( MEinfo_[i].type == "tprofile2d" ) {
+      else if( strcmp(MEinfo_[i].type.c_str(), "tprofile2d") == 0 ) {
         tmp = dbe_->bookProfile2D( MEinfo_[i].title, MEinfo_[i].title, MEinfo_[i].xbins, MEinfo_[i].xfrom, MEinfo_[i].xto,
         			   MEinfo_[i].ybins, MEinfo_[i].yfrom, MEinfo_[i].yto, 
         			   MEinfo_[i].zbins, MEinfo_[i].zfrom, MEinfo_[i].zto );
@@ -134,17 +134,17 @@ void MonitorElementsDb::analyze( const edm::Event& e, const edm::EventSetup& c, 
           coral::IQuery* query = schema.newQuery();
 
           for( unsigned int j=0; j<MEinfo_[i].queries.size(); j++ ) {
-            if( MEinfo_[i].queries[j].query == "addToTableList" ) {
+            if( strcmp(MEinfo_[i].queries[j].query.c_str(), "addToTableList") == 0 ) {
               query->addToTableList( MEinfo_[i].queries[j].arg );
             }
-            else if( MEinfo_[i].queries[j].query == "addToOutputList" ) {
+            else if( strcmp(MEinfo_[i].queries[j].query.c_str(), "addToOutputList") == 0 ) {
               query->addToOutputList( MEinfo_[i].queries[j].arg, MEinfo_[i].queries[j].alias );
               vars.push_back( MEinfo_[i].queries[j].alias );
             }
-            else if( MEinfo_[i].queries[j].query == "setCondition" ) {
+            else if( strcmp(MEinfo_[i].queries[j].query.c_str(), "setCondition") == 0 ) {
               query->setCondition( MEinfo_[i].queries[j].arg, coral::AttributeList() );
             }
-            else if( MEinfo_[i].queries[j].query == "addToOrderList" ) {
+            else if( strcmp(MEinfo_[i].queries[j].query.c_str(), "addToOrderList") == 0 ) {
               query->addToOrderList( MEinfo_[i].queries[j].arg );
             }
           }

@@ -2,8 +2,8 @@
 /*
  * \file EBIntegrityClient.cc
  *
- * $Date: 2008/02/29 15:02:33 $
- * $Revision: 1.193 $
+ * $Date: 2008/03/14 14:38:54 $
+ * $Revision: 1.194 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -1081,11 +1081,7 @@ void EBIntegrityClient::htmlOutput(int run, string& htmlDir, string& htmlName){
 
     meName = obj1f->GetName();
 
-    for ( unsigned int i = 0; i < meName.size(); i++ ) {
-      if ( meName.substr(i, 1) == " " )  {
-        meName.replace(i, 1, "_");
-      }
-    }
+    replace(meName.begin(), meName.end(), ' ', '_');
     imgNameDCC = meName + ".png";
     imgName = htmlDir + imgNameDCC;
 
@@ -1128,11 +1124,7 @@ void EBIntegrityClient::htmlOutput(int run, string& htmlDir, string& htmlName){
 
       meName = obj2f->GetName();
 
-      for ( unsigned int i = 0; i < meName.size(); i++ ) {
-        if ( meName.substr(i, 1) == " " )  {
-          meName.replace(i, 1, "_");
-        }
-      }
+      replace(meName.begin(), meName.end(), ' ', '_');
       imgNameQual = meName + ".png";
       imgName = htmlDir + imgNameQual;
 
@@ -1162,12 +1154,7 @@ void EBIntegrityClient::htmlOutput(int run, string& htmlDir, string& htmlName){
 
       meName = obj2f->GetName();
 
-      for ( unsigned int i = 0; i < meName.size(); i++ ) {
-        if ( meName.substr(i, 1) == " " )  {
-          meName.replace(i, 1, "_");
-        }
-      }
-
+      replace(meName.begin(), meName.end(), ' ', '_');
       imgNameOcc = meName + ".png";
       imgName = htmlDir + imgNameOcc;
 
@@ -1217,11 +1204,7 @@ void EBIntegrityClient::htmlOutput(int run, string& htmlDir, string& htmlName){
 
         meName = obj2f->GetName();
 
-        for ( unsigned int iMe = 0; iMe < meName.size(); iMe++ ) {
-          if ( meName.substr(iMe, 1) == " " )  {
-            meName.replace(iMe, 1, "_");
-          }
-        }
+        replace(meName.begin(), meName.end(), ' ', '_');
         imgNameME[iCanvas-1] = meName + ".png";
         imgName = htmlDir + imgNameME[iCanvas-1];
 
@@ -1255,11 +1238,7 @@ void EBIntegrityClient::htmlOutput(int run, string& htmlDir, string& htmlName){
 
       meName = obj2f->GetName();
 
-      for ( unsigned int i = 0; i < meName.size(); i++ ) {
-        if ( meName.substr(i, 1) == " " )  {
-          meName.replace(i, 1, "_");
-        }
-      }
+      replace(meName.begin(), meName.end(), ' ', '_');
       imgNameQualMem = meName + ".png";
       imgName = htmlDir + imgNameQualMem;
 
@@ -1289,12 +1268,7 @@ void EBIntegrityClient::htmlOutput(int run, string& htmlDir, string& htmlName){
 
       meName = obj2f->GetName();
 
-      for ( unsigned int i = 0; i < meName.size(); i++ ) {
-        if ( meName.substr(i, 1) == " " )  {
-          meName.replace(i, 1, "_");
-        }
-      }
-
+      replace(meName.begin(), meName.end(), ' ', '_');
       imgNameOccMem = meName + ".png";
       imgName = htmlDir + imgNameOccMem;
 
@@ -1341,11 +1315,7 @@ void EBIntegrityClient::htmlOutput(int run, string& htmlDir, string& htmlName){
 
         meName = obj2f->GetName();
 
-        for ( unsigned int iMe = 0; iMe < meName.size(); iMe++ ) {
-          if ( meName.substr(iMe, 1) == " " )  {
-            meName.replace(iMe, 1, "_");
-          }
-        }
+        replace(meName.begin(), meName.end(), ' ', '_');
         imgNameME[iCanvas-1] = meName + ".png";
         imgName = htmlDir + imgNameME[iCanvas-1];
 

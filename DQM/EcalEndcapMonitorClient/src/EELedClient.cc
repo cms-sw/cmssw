@@ -1,8 +1,8 @@
 /*
  * \file EELedClient.cc
  *
- * $Date: 2008/03/01 13:33:50 $
- * $Revision: 1.69 $
+ * $Date: 2008/03/14 14:38:58 $
+ * $Revision: 1.70 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -1996,11 +1996,7 @@ void EELedClient::htmlOutput(int run, string& htmlDir, string& htmlName){
 
         meName = obj2f->GetName();
 
-        for ( unsigned int i = 0; i < meName.size(); i++ ) {
-          if ( meName.substr(i, 1) == " " )  {
-            meName.replace(i, 1, "_");
-          }
-        }
+        replace(meName.begin(), meName.end(), ' ', '_');
         imgNameQual[iCanvas-1] = meName + ".png";
         imgName = htmlDir + imgNameQual[iCanvas-1];
 
@@ -2070,11 +2066,7 @@ void EELedClient::htmlOutput(int run, string& htmlDir, string& htmlName){
 
         meName = obj1f->GetName();
 
-        for ( unsigned int i = 0; i < meName.size(); i++ ) {
-          if ( meName.substr(i, 1) == " " )  {
-            meName.replace(i, 1 ,"_" );
-          }
-        }
+        replace(meName.begin(), meName.end(), ' ', '_');
         imgNameAmp[iCanvas-1] = meName + ".png";
         imgName = htmlDir + imgNameAmp[iCanvas-1];
 
@@ -2128,11 +2120,7 @@ void EELedClient::htmlOutput(int run, string& htmlDir, string& htmlName){
 
         meName = obj1f->GetName();
 
-        for ( unsigned int i = 0; i < meName.size(); i++ ) {
-          if ( meName.substr(i, 1) == " " )  {
-            meName.replace(i, 1 ,"_" );
-          }
-        }
+        replace(meName.begin(), meName.end(), ' ', '_');
         imgNameTim[iCanvas-1] = meName + ".png";
         imgName = htmlDir + imgNameTim[iCanvas-1];
 
@@ -2182,11 +2170,7 @@ void EELedClient::htmlOutput(int run, string& htmlDir, string& htmlName){
 
         meName = obj1f->GetName();
 
-        for ( unsigned int i = 0; i < meName.size(); i++ ) {
-          if ( meName.substr(i, 1) == " " )  {
-            meName.replace(i, 1 ,"_" );
-          }
-        }
+        replace(meName.begin(), meName.end(), ' ', '_');
         imgNameTimav[iCanvas-1] = meName + ".png";
         imgName = htmlDir + imgNameTimav[iCanvas-1];
 
@@ -2239,11 +2223,7 @@ void EELedClient::htmlOutput(int run, string& htmlDir, string& htmlName){
 
         meName = obj1f->GetName();
 
-        for ( unsigned int i = 0; i < meName.size(); i++ ) {
-          if ( meName.substr(i, 1) == " " )  {
-            meName.replace(i, 1 ,"_" );
-          }
-        }
+        replace(meName.begin(), meName.end(), ' ', '_');
         imgNameTimrms[iCanvas-1] = meName + ".png";
         imgName = htmlDir + imgNameTimrms[iCanvas-1];
 
@@ -2295,11 +2275,7 @@ void EELedClient::htmlOutput(int run, string& htmlDir, string& htmlName){
       if ( obj1f ) {
         meName = obj1f->GetName();
 
-        for ( unsigned int i = 0; i < meName.size(); i++ ) {
-          if ( meName.substr(i, 1) == " " )  {
-            meName.replace(i, 1, "_");
-          }
-        }
+        replace(meName.begin(), meName.end(), ' ', '_');
         imgNameShape[iCanvas-1] = meName + ".png";
         imgName = htmlDir + imgNameShape[iCanvas-1];
 
@@ -2352,11 +2328,7 @@ void EELedClient::htmlOutput(int run, string& htmlDir, string& htmlName){
 
         meName = obj1f->GetName();
 
-        for ( unsigned int i = 0; i < meName.size(); i++ ) {
-          if ( meName.substr(i, 1) == " " )  {
-            meName.replace(i, 1, "_");
-          }
-        }
+        replace(meName.begin(), meName.end(), ' ', '_');
         imgNameAmpoPN[iCanvas-1] = meName + ".png";
         imgName = htmlDir + imgNameAmpoPN[iCanvas-1];
 
@@ -2405,11 +2377,7 @@ void EELedClient::htmlOutput(int run, string& htmlDir, string& htmlName){
 
         meName = obj2f->GetName();
 
-        for ( unsigned int i = 0; i < meName.size(); i++ ) {
-          if ( meName.substr(i, 1) == " " )  {
-            meName.replace(i, 1, "_");
-          }
-        }
+        replace(meName.begin(), meName.end(), ' ', '_');
         imgNameMEPnQualG01[iCanvas-1] = meName + ".png";
         imgName = htmlDir + imgNameMEPnQualG01[iCanvas-1];
 
@@ -2455,11 +2423,7 @@ void EELedClient::htmlOutput(int run, string& htmlDir, string& htmlName){
 
         meName = obj2f->GetName();
 
-        for ( unsigned int i = 0; i < meName.size(); i++ ) {
-          if ( meName.substr(i, 1) == " " )  {
-            meName.replace(i, 1, "_");
-          }
-        }
+        replace(meName.begin(), meName.end(), ' ', '_');
         imgNameMEPnQualG16[iCanvas-1] = meName + ".png";
         imgName = htmlDir + imgNameMEPnQualG16[iCanvas-1];
 
@@ -2505,11 +2469,7 @@ void EELedClient::htmlOutput(int run, string& htmlDir, string& htmlName){
 
         meName = objp->GetName();
 
-        for ( unsigned int i = 0; i < meName.size(); i++ ) {
-          if ( meName.substr(i, 1) == " " )  {
-            meName.replace(i, 1 ,"_" );
-          }
-        }
+        replace(meName.begin(), meName.end(), ' ', '_');
         imgNameMEPnG01[iCanvas-1] = meName + ".png";
         imgName = htmlDir + imgNameMEPnG01[iCanvas-1];
 
@@ -2555,11 +2515,7 @@ void EELedClient::htmlOutput(int run, string& htmlDir, string& htmlName){
 
         meName = objp->GetName();
 
-        for ( unsigned int i = 0; i < meName.size(); i++ ) {
-          if ( meName.substr(i, 1) == " " )  {
-            meName.replace(i, 1 ,"_" );
-          }
-        }
+        replace(meName.begin(), meName.end(), ' ', '_');
         imgNameMEPnG16[iCanvas-1] = meName + ".png";
         imgName = htmlDir + imgNameMEPnG16[iCanvas-1];
 
@@ -2607,11 +2563,7 @@ void EELedClient::htmlOutput(int run, string& htmlDir, string& htmlName){
 
         meName = objp->GetName();
 
-        for ( unsigned int i = 0; i < meName.size(); i++ ) {
-          if ( meName.substr(i, 1) == " " )  {
-            meName.replace(i, 1 ,"_" );
-          }
-        }
+        replace(meName.begin(), meName.end(), ' ', '_');
         imgNameMEPnPedG01[iCanvas-1] = meName + ".png";
         imgName = htmlDir + imgNameMEPnPedG01[iCanvas-1];
 
@@ -2657,11 +2609,7 @@ void EELedClient::htmlOutput(int run, string& htmlDir, string& htmlName){
 
         meName = objp->GetName();
 
-        for ( unsigned int i = 0; i < meName.size(); i++ ) {
-          if ( meName.substr(i, 1) == " " )  {
-            meName.replace(i, 1 ,"_" );
-          }
-        }
+        replace(meName.begin(), meName.end(), ' ', '_');
         imgNameMEPnPedG16[iCanvas-1] = meName + ".png";
         imgName = htmlDir + imgNameMEPnPedG16[iCanvas-1];
 
@@ -2707,11 +2655,7 @@ void EELedClient::htmlOutput(int run, string& htmlDir, string& htmlName){
 
         meName = obj1f->GetName();
 
-        for ( unsigned int i = 0; i < meName.size(); i++ ) {
-          if ( meName.substr(i, 1) == " " )  {
-            meName.replace(i, 1 ,"_" );
-          }
-        }
+        replace(meName.begin(), meName.end(), ' ', '_');
         imgNameMEPnRmsPedG01[iCanvas-1] = meName + ".png";
         imgName = htmlDir + imgNameMEPnRmsPedG01[iCanvas-1];
 
@@ -2757,11 +2701,7 @@ void EELedClient::htmlOutput(int run, string& htmlDir, string& htmlName){
 
         meName = obj1f->GetName();
 
-        for ( unsigned int i = 0; i < meName.size(); i++ ) {
-          if ( meName.substr(i, 1) == " " )  {
-            meName.replace(i, 1 ,"_" );
-          }
-        }
+        replace(meName.begin(), meName.end(), ' ', '_');
         imgNameMEPnRmsPedG16[iCanvas-1] = meName + ".png";
         imgName = htmlDir + imgNameMEPnRmsPedG16[iCanvas-1];
 

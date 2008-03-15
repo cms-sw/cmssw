@@ -1,8 +1,8 @@
 /*
  * \file EEBeamHodoClient.cc
  *
- * $Date: 2008/02/29 15:05:42 $
- * $Revision: 1.24 $
+ * $Date: 2008/03/14 14:38:58 $
+ * $Revision: 1.25 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -415,11 +415,7 @@ void EEBeamHodoClient::htmlOutput(int run, string& htmlDir, string& htmlName){
 
       meName = obj1f->GetName();
 
-      for ( unsigned int j = 0; j < meName.size(); j++ ) {
-        if ( meName.substr(j, 1) == " " )  {
-          meName.replace(j, 1, "_");
-        }
-      }
+      replace(meName.begin(), meName.end(), ' ', '_');
       imgNameP = meName + ".png";
       imgName = htmlDir + imgNameP;
 
@@ -442,11 +438,7 @@ void EEBeamHodoClient::htmlOutput(int run, string& htmlDir, string& htmlName){
 
       meName = obj1f->GetName();
 
-      for ( unsigned int j = 0; j < meName.size(); j++ ) {
-        if ( meName.substr(j, 1) == " " )  {
-          meName.replace(j, 1, "_");
-        }
-      }
+      replace(meName.begin(), meName.end(), ' ', '_');
       imgNameR = meName + ".png";
       imgName = htmlDir + imgNameR;
 
@@ -505,11 +497,7 @@ void EEBeamHodoClient::htmlOutput(int run, string& htmlDir, string& htmlName){
 
       meName = obj1f->GetName();
 
-      for ( unsigned int j = 0; j < meName.size(); j++ ) {
-        if ( meName.substr(j, 1) == " " )  {
-          meName.replace(j, 1, "_");
-        }
-      }
+      replace(meName.begin(), meName.end(), ' ', '_');
       imgNameP = meName + ".png";
       imgName = htmlDir + imgNameP;
 
@@ -543,11 +531,7 @@ void EEBeamHodoClient::htmlOutput(int run, string& htmlDir, string& htmlName){
 
     meName = obj2f->GetName();
 
-    for ( unsigned int j = 0; j < meName.size(); j++ ) {
-      if ( meName.substr(j, 1) == " " )  {
-        meName.replace(j, 1, "_");
-      }
-    }
+    replace(meName.begin(), meName.end(), ' ', '_');
     imgNameP = meName + ".png";
     imgName = htmlDir + imgNameP;
 
@@ -600,11 +584,7 @@ void EEBeamHodoClient::htmlOutput(int run, string& htmlDir, string& htmlName){
 
       meName = obj1f->GetName();
 
-      for ( unsigned int j = 0; j < meName.size(); j++ ) {
-        if ( meName.substr(j, 1) == " " )  {
-          meName.replace(j, 1, "_");
-        }
-      }
+      replace(meName.begin(), meName.end(), ' ', '_');
       imgNameP = meName + ".png";
       imgName = htmlDir + imgNameP;
 
@@ -668,11 +648,7 @@ void EEBeamHodoClient::htmlOutput(int run, string& htmlDir, string& htmlName){
 
       meName = obj1f->GetName();
 
-      for ( unsigned int j = 0; j < meName.size(); j++ ) {
-        if ( meName.substr(j, 1) == " " )  {
-          meName.replace(j, 1, "_");
-        }
-      }
+      replace(meName.begin(), meName.end(), ' ', '_');
       imgNameP = meName + ".png";
       imgName = htmlDir + imgNameP;
 
@@ -727,11 +703,7 @@ void EEBeamHodoClient::htmlOutput(int run, string& htmlDir, string& htmlName){
 
       meName = obj1f->GetName();
 
-      for ( unsigned int j = 0; j < meName.size(); j++ ) {
-        if ( meName.substr(j, 1) == " " )  {
-          meName.replace(j, 1, "_");
-        }
-      }
+      replace(meName.begin(), meName.end(), ' ', '_');
       imgNameP = meName + ".png";
       imgName = htmlDir + imgNameP;
 
@@ -794,11 +766,7 @@ void EEBeamHodoClient::htmlOutput(int run, string& htmlDir, string& htmlName){
 
       meName = objp->GetName();
 
-      for ( unsigned int j = 0; j < meName.size(); j++ ) {
-        if ( meName.substr(j, 1) == " " )  {
-          meName.replace(j, 1, "_");
-        }
-      }
+      replace(meName.begin(), meName.end(), ' ', '_');
       imgNameP = meName + ".png";
       imgName = htmlDir + imgNameP;
 
@@ -831,11 +799,7 @@ void EEBeamHodoClient::htmlOutput(int run, string& htmlDir, string& htmlName){
 
       meName = obj2f->GetName();
 
-      for ( unsigned int j = 0; j < meName.size(); j++ ) {
-        if ( meName.substr(j, 1) == " " )  {
-          meName.replace(j, 1, "_");
-        }
-      }
+      replace(meName.begin(), meName.end(), ' ', '_');
       imgNameR = meName + ".png";
       imgName = htmlDir + imgNameR;
 
@@ -881,11 +845,7 @@ void EEBeamHodoClient::htmlOutput(int run, string& htmlDir, string& htmlName){
 
     meName = obj1f->GetName();
 
-    for ( unsigned int j = 0; j < meName.size(); j++ ) {
-      if ( meName.substr(j, 1) == " " )  {
-	meName.replace(j, 1, "_");
-      }
-    }
+    replace(meName.begin(), meName.end(), ' ', '_');
     imgNameP = meName + ".png";
     imgName = htmlDir + imgNameP;
 

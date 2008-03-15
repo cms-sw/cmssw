@@ -1,8 +1,8 @@
 /*
  * \file EETriggerTowerClient.cc
  *
- * $Date: 2008/02/29 15:06:18 $
- * $Revision: 1.60 $
+ * $Date: 2008/03/14 14:38:58 $
+ * $Revision: 1.61 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -572,7 +572,7 @@ void EETriggerTowerClient::htmlOutput(int run, string& htmlDir, string& htmlName
   labelGrid.SetMarkerSize(1);
   labelGrid.SetMinimum(0.1);
 
-  string imgName[3], meName[3], imgMeName[3];
+  string imgMeName[3], imgName, meName;
 
   TCanvas* cMe1 = new TCanvas("cMe1", "Temp", 2*csize, 2*csize);
   //  TCanvas* cMe2 = new TCanvas("cMe2", "Temp", int(1.2*csize), int(1.2*csize));
@@ -604,22 +604,17 @@ void EETriggerTowerClient::htmlOutput(int run, string& htmlDir, string& htmlName
     htmlFile[0] << "<tr align=\"center\">" << std::endl;
 
 
-    imgName[0] = "";
+    imgMeName[0] = "";
 
     obj2f = l01_[ism-1];
 
     if ( obj2f ) {
 
-      meName[0] = obj2f->GetName();
+      meName = obj2f->GetName();
 
-      for ( unsigned int i = 0; i < meName[0].size(); i++ ) {
-        if ( meName[0].substr(i, 1) == " " )  {
-          meName[0].replace(i, 1 ,"_" );
-        }
-      }
-
-      imgName[0] = meName[0] + ".png";
-      imgMeName[0] = htmlDir + imgName[0];
+      replace(meName.begin(), meName.end(), ' ', '_');
+      imgMeName[0] = meName + ".png";
+      imgName = htmlDir + imgMeName[0];
 
       cMe2->cd();
       gStyle->SetOptStat(" ");
@@ -649,20 +644,18 @@ void EETriggerTowerClient::htmlOutput(int run, string& htmlDir, string& htmlName
         }
       }
       cMe2->Update();
-      cMe2->SaveAs(imgMeName[0].c_str());
+      cMe2->SaveAs(imgName.c_str());
     }
 
-
-    htmlFile[0] << "<img src=\"" << imgName[0] << "\"><br>" << std::endl;
+    htmlFile[0] << "<img src=\"" << imgMeName[0] << "\"><br>" << std::endl;
     htmlFile[0] << "</tr>" << std::endl;
     htmlFile[0] << "<br><br>" << std::endl;
-
 
     // ---------------------------  Et plots
 
     for(int iemu=0; iemu<2; iemu++) {
 
-      imgName[iemu] = "";
+      imgMeName[iemu] = "";
 
       obj2p = 0;
       switch ( iemu ) {
@@ -678,16 +671,11 @@ void EETriggerTowerClient::htmlOutput(int run, string& htmlDir, string& htmlName
 
       if ( obj2p ) {
 
-        meName[iemu] = obj2p->GetName();
+        meName = obj2p->GetName();
 
-        for ( unsigned int i = 0; i < meName[iemu].size(); i++ ) {
-          if ( meName[iemu].substr(i, 1) == " " )  {
-            meName[iemu].replace(i, 1 ,"_" );
-          }
-        }
-
-        imgName[iemu] = meName[iemu] + ".png";
-        imgMeName[iemu] = htmlDir + imgName[iemu];
+        replace(meName.begin(), meName.end(), ' ', '_');
+        imgMeName[iemu] = meName + ".png";
+        imgName = htmlDir + imgMeName[iemu];
 
         cMe1->cd();
         gStyle->SetOptStat(" ");
@@ -716,12 +704,12 @@ void EETriggerTowerClient::htmlOutput(int run, string& htmlDir, string& htmlName
           }
         }
         cMe1->Update();
-        cMe1->SaveAs(imgMeName[iemu].c_str());
+        cMe1->SaveAs(imgName.c_str());
       }
     }
 
-    htmlFile[0] << "<td><img src=\"" << imgName[0] << "\"></td>" << std::endl;
-    htmlFile[0] << "<td><img src=\"" << imgName[1] << "\"></td>" << std::endl;
+    htmlFile[0] << "<td><img src=\"" << imgMeName[0] << "\"></td>" << std::endl;
+    htmlFile[0] << "<td><img src=\"" << imgMeName[1] << "\"></td>" << std::endl;
     htmlFile[0] << "</table>" << std::endl;
     htmlFile[0] << "<br>" << std::endl;
 
@@ -766,7 +754,7 @@ void EETriggerTowerClient::htmlOutput(int run, string& htmlDir, string& htmlName
 
       for(int iemu=0; iemu<3; iemu++) {
 
-        imgName[iemu] = "";
+        imgMeName[iemu] = "";
 
         obj2f = 0;
         switch ( iemu ) {
@@ -785,16 +773,11 @@ void EETriggerTowerClient::htmlOutput(int run, string& htmlDir, string& htmlName
 
         if ( obj2f ) {
 
-          meName[iemu] = obj2f->GetName();
+          meName = obj2f->GetName();
 
-          for ( unsigned int i = 0; i < meName[iemu].size(); i++ ) {
-            if ( meName[iemu].substr(i, 1) == " " )  {
-              meName[iemu].replace(i, 1 ,"_" );
-            }
-          }
-
-          imgName[iemu] = meName[iemu] + ".png";
-          imgMeName[iemu] = htmlDir + imgName[iemu];
+          replace(meName.begin(), meName.end(), ' ', '_');
+          imgMeName[iemu] = meName + ".png";
+          imgName = htmlDir + imgMeName[iemu];
 
           counter++;
 
@@ -827,9 +810,9 @@ void EETriggerTowerClient::htmlOutput(int run, string& htmlDir, string& htmlName
             }
           }
           cMe2->Update();
-          cMe2->SaveAs(imgMeName[iemu].c_str());
+          cMe2->SaveAs(imgName.c_str());
 
-          htmlFile[ism] << "<td><img src=\"" << imgName[iemu] << "\"></td>" << std::endl;
+          htmlFile[ism] << "<td><img src=\"" << imgMeName[iemu] << "\"></td>" << std::endl;
           if ( counter%3 == 0 ) htmlFile[ism] << "</tr><tr>" << std::endl;
 
         }
@@ -852,7 +835,7 @@ void EETriggerTowerClient::htmlOutput(int run, string& htmlDir, string& htmlName
 
       for(int iemu=0; iemu<3; iemu++) {
 
-        imgName[iemu] = "";
+        imgMeName[iemu] = "";
 
         obj2f = 0;
         switch ( iemu ) {
@@ -871,16 +854,11 @@ void EETriggerTowerClient::htmlOutput(int run, string& htmlDir, string& htmlName
 
         if ( obj2f ) {
 
-          meName[iemu] = obj2f->GetName();
+          meName = obj2f->GetName();
 
-          for ( unsigned int i = 0; i < meName[iemu].size(); i++ ) {
-            if ( meName[iemu].substr(i, 1) == " " )  {
-              meName[iemu].replace(i, 1 ,"_" );
-            }
-          }
-
-          imgName[iemu] = meName[iemu] + ".png";
-          imgMeName[iemu] = htmlDir + imgName[iemu];
+          replace(meName.begin(), meName.end(), ' ', '_');
+          imgMeName[iemu] = meName + ".png";
+          imgName = htmlDir + imgMeName[iemu];
 
           cMe2->cd();
           gStyle->SetOptStat(" ");
@@ -911,9 +889,9 @@ void EETriggerTowerClient::htmlOutput(int run, string& htmlDir, string& htmlName
             }
           }
           cMe2->Update();
-          cMe2->SaveAs(imgMeName[iemu].c_str());
+          cMe2->SaveAs(imgName.c_str());
 
-          htmlFile[ism] << "<td><img src=\"" << imgName[iemu] << "\"></td>" << std::endl;
+          htmlFile[ism] << "<td><img src=\"" << imgMeName[iemu] << "\"></td>" << std::endl;
         }
       }
       htmlFile[ism] << "</tr><tr>" << std::endl;
@@ -935,18 +913,13 @@ void EETriggerTowerClient::htmlOutput(int run, string& htmlDir, string& htmlName
     //
     //       if ( obj1f1 ) {
     //
-    //         imgName[iemu] = "";
+    //         imgMeName[iemu] = "";
     //
-    //         meName[iemu] = obj1f1->GetName();
+    //         meName = obj1f1->GetName();
     //
-    //         for ( unsigned int i = 0; i < meName[iemu].size(); i++ ) {
-    //           if ( meName[iemu].substr(i, 1) == " " )  {
-    //             meName[iemu].replace(i, 1 ,"_" );
-    //           }
-    //         }
-    //
-    //         imgName[iemu] = meName[iemu] + ".png";
-    //         imgMeName[iemu] = htmlDir + imgName[iemu];
+    //         replace(meName.begin(), meName.end(), ' ', '_');
+    //         imgMeName[iemu] = meName + ".png";
+    //         imgName = htmlDir + imgMeName[iemu];
     //
     //         cMe3->cd();
     //         gStyle->SetOptStat("euomr");
@@ -971,9 +944,9 @@ void EETriggerTowerClient::htmlOutput(int run, string& htmlDir, string& htmlName
     //         }
     //
     //         gStyle->SetStatW( gStyle->GetStatW() / 1.5 );
-    //         cMe3->SaveAs(imgMeName[iemu].c_str());
+    //         cMe3->SaveAs(imgName.c_str());
     //
-    //         htmlFile[ism] << "<td><img src=\"" << imgName[iemu] << "\"></td>" << std::endl;
+    //         htmlFile[ism] << "<td><img src=\"" << imgMeName[iemu] << "\"></td>" << std::endl;
     //
     //       }
     //

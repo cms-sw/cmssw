@@ -1,8 +1,8 @@
 /*
  * \file EEPedestalOnlineClient.cc
  *
- * $Date: 2008/02/29 15:05:58 $
- * $Revision: 1.64 $
+ * $Date: 2008/03/14 14:38:58 $
+ * $Revision: 1.65 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -503,11 +503,7 @@ void EEPedestalOnlineClient::htmlOutput(int run, string& htmlDir, string& htmlNa
 
       meName = obj2f->GetName();
 
-      for ( unsigned int i = 0; i < meName.size(); i++ ) {
-        if ( meName.substr(i, 1) == " " )  {
-          meName.replace(i, 1, "_");
-        }
-      }
+      replace(meName.begin(), meName.end(), ' ', '_');
       imgNameQual = meName + ".png";
       imgName = htmlDir + imgNameQual;
 
@@ -554,11 +550,7 @@ void EEPedestalOnlineClient::htmlOutput(int run, string& htmlDir, string& htmlNa
 
       meName = obj1f->GetName();
 
-      for ( unsigned int i = 0; i < meName.size(); i++ ) {
-        if ( meName.substr(i, 1) == " " )  {
-          meName.replace(i, 1 ,"_" );
-        }
-      }
+      replace(meName.begin(), meName.end(), ' ', '_');
       imgNameMean = meName + ".png";
       imgName = htmlDir + imgNameMean;
 
@@ -588,11 +580,7 @@ void EEPedestalOnlineClient::htmlOutput(int run, string& htmlDir, string& htmlNa
 
       meName = obj1f->GetName();
 
-      for ( unsigned int i = 0; i < meName.size(); i++ ) {
-        if ( meName.substr(i, 1) == " " )  {
-          meName.replace(i, 1, "_");
-        }
-      }
+      replace(meName.begin(), meName.end(), ' ', '_');
       imgNameRMS = meName + ".png";
       imgName = htmlDir + imgNameRMS;
 

@@ -1,8 +1,8 @@
 /*
  * \file EBCosmicClient.cc
  *
- * $Date: 2008/03/10 21:31:34 $
- * $Revision: 1.105 $
+ * $Date: 2008/03/14 14:38:54 $
+ * $Revision: 1.106 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -370,11 +370,7 @@ void EBCosmicClient::htmlOutput(int run, string& htmlDir, string& htmlName){
 
         meName = objp->GetName();
 
-        for ( unsigned int i = 0; i < meName.size(); i++ ) {
-          if ( meName.substr(i, 1) == " " )  {
-            meName.replace(i, 1, "_");
-          }
-        }
+        replace(meName.begin(), meName.end(), ' ', '_');
         imgNameME[iCanvas-1] = meName + ".png";
         imgName = htmlDir + imgNameME[iCanvas-1];
 
@@ -404,11 +400,7 @@ void EBCosmicClient::htmlOutput(int run, string& htmlDir, string& htmlName){
 
       meName = obj1f->GetName();
 
-      for ( unsigned int i = 0; i < meName.size(); i++ ) {
-        if ( meName.substr(i, 1) == " " )  {
-          meName.replace(i, 1 ,"_" );
-        }
-      }
+      replace(meName.begin(), meName.end(), ' ', '_');
       imgNameME[2] = meName + ".png";
       imgName = htmlDir + imgNameME[2];
 
@@ -435,11 +427,7 @@ void EBCosmicClient::htmlOutput(int run, string& htmlDir, string& htmlName){
 
       meName = obj1f->GetName();
 
-      for ( unsigned int i = 0; i < meName.size(); i++ ) {
-        if ( meName.substr(i, 1) == " " )  {
-          meName.replace(i, 1 ,"_" );
-        }
-      }
+      replace(meName.begin(), meName.end(), ' ', '_');
       imgNameME[3] = meName + ".png";
       imgName = htmlDir + imgNameME[3];
 

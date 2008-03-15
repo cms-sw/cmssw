@@ -1,8 +1,8 @@
 /*
  * \file EBClusterClient.cc
  *
- * $Date: 2008/02/29 15:02:29 $
- * $Revision: 1.56 $
+ * $Date: 2008/03/14 14:38:54 $
+ * $Revision: 1.57 $
  * \author G. Della Ricca
  * \author F. Cossutti
  * \author E. Di Marco
@@ -385,11 +385,7 @@ void EBClusterClient::htmlOutput(int run, string& htmlDir, string& htmlName){
 
       meName = obj1f->GetName();
 
-      for ( unsigned int i = 0; i < meName.size(); i++ ) {
-        if ( meName.substr(i, 1) == " " )  {
-          meName.replace(i, 1, "_");
-        }
-      }
+      replace(meName.begin(), meName.end(), ' ', '_');
       imgNameB[iCanvas-1] = meName + ".png";
       imgName = htmlDir + imgNameB[iCanvas-1];
 
@@ -441,11 +437,7 @@ void EBClusterClient::htmlOutput(int run, string& htmlDir, string& htmlName){
 
       meName = objp->GetName();
 
-      for ( unsigned int i = 0; i < meName.size(); i++ ) {
-        if ( meName.substr(i, 1) == " " )  {
-          meName.replace(i, 1 ,"_" );
-        }
-      }
+      replace(meName.begin(), meName.end(), ' ', '_');
       imgNameBMap[iCanvas-1] = meName + ".png";
       imgName = htmlDir + imgNameBMap[iCanvas-1];
 
@@ -503,11 +495,7 @@ void EBClusterClient::htmlOutput(int run, string& htmlDir, string& htmlName){
 
     meName = obj2f->GetName();
 
-    for ( unsigned int i = 0; i < meName.size(); i++ ) {
-      if ( meName.substr(i, 1) == " " )  {
-        meName.replace(i, 1 ,"_" );
-      }
-    }
+    replace(meName.begin(), meName.end(), ' ', '_');
     imgNameBMap[3] = meName + ".png";
     imgName = htmlDir + imgNameBMap[3];
 
@@ -638,11 +626,7 @@ void EBClusterClient::htmlOutput(int run, string& htmlDir, string& htmlName){
 
       meName = obj1f->GetName();
 
-      for ( unsigned int i = 0; i < meName.size(); i++ ) {
-        if ( meName.substr(i, 1) == " " )  {
-          meName.replace(i, 1, "_");
-        }
-      }
+      replace(meName.begin(), meName.end(), ' ', '_');
       imgNameS[iCanvas-1] = meName + ".png";
       imgName = htmlDir + imgNameS[iCanvas-1];
 
@@ -699,12 +683,7 @@ void EBClusterClient::htmlOutput(int run, string& htmlDir, string& htmlName){
 
       meName = obj1f->GetName();
 
-      for ( unsigned int i = 0; i < meName.size(); i++ ) {
-        if ( meName.substr(i, 1) == " " )  {
-          meName.replace(i, 1, "_");
-        }
-      }
-
+      replace(meName.begin(), meName.end(), ' ', '_');
       imgNameHL[iCanvas-1] = meName + ".png";
       imgName = htmlDir + imgNameHL[iCanvas-1];
 

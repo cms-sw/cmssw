@@ -1,8 +1,8 @@
 /*
  * \file EETimingClient.cc
  *
- * $Date: 2008/02/29 15:06:17 $
- * $Revision: 1.67 $
+ * $Date: 2008/03/14 14:38:58 $
+ * $Revision: 1.68 $
  * \author G. Della Ricca
  *
 */
@@ -529,11 +529,7 @@ void EETimingClient::htmlOutput(int run, string& htmlDir, string& htmlName){
 
       meName = obj2f->GetName();
 
-      for ( unsigned int i = 0; i < meName.size(); i++ ) {
-        if ( meName.substr(i, 1) == " " )  {
-          meName.replace(i, 1, "_");
-        }
-      }
+      replace(meName.begin(), meName.end(), ' ', '_');
       imgNameQual = meName + ".png";
       imgName = htmlDir + imgNameQual;
 
@@ -580,11 +576,7 @@ void EETimingClient::htmlOutput(int run, string& htmlDir, string& htmlName){
 
       meName = obj1f->GetName();
 
-      for ( unsigned int i = 0; i < meName.size(); i++ ) {
-        if ( meName.substr(i, 1) == " " )  {
-          meName.replace(i, 1 ,"_" );
-        }
-      }
+      replace(meName.begin(), meName.end(), ' ', '_');
       imgNameTim = meName + ".png";
       imgName = htmlDir + imgNameTim;
 
@@ -616,11 +608,7 @@ void EETimingClient::htmlOutput(int run, string& htmlDir, string& htmlName){
 
       meName = obj1f->GetName();
 
-      for ( unsigned int i = 0; i < meName.size(); i++ ) {
-        if ( meName.substr(i, 1) == " " )  {
-          meName.replace(i, 1 ,"_" );
-        }
-      }
+      replace(meName.begin(), meName.end(), ' ', '_');
       imgNameMean = meName + ".png";
       imgName = htmlDir + imgNameMean;
 
@@ -650,11 +638,7 @@ void EETimingClient::htmlOutput(int run, string& htmlDir, string& htmlName){
 
       meName = obj1f->GetName();
 
-      for ( unsigned int i = 0; i < meName.size(); i++ ) {
-        if ( meName.substr(i, 1) == " " )  {
-          meName.replace(i, 1, "_");
-        }
-      }
+      replace(meName.begin(), meName.end(), ' ', '_');
       imgNameRMS = meName + ".png";
       imgName = htmlDir + imgNameRMS;
 
