@@ -128,14 +128,14 @@ print SCIMARKLARGE $date;
 #With $TimeSizeNumOfEvts events each
 foreach (@Candle)
 {
-    print "mkdir $_ 
-cd $_ 
+    print "mkdir $_"."_cpu".$Core." 
+cd $_"."_cpu".$Core." 
 $cmsSimPyRelVal $TimeSizeNumOfEvts $CmsDriverCandle{$_} 0123
 $cmsRelvalreport -i SimulationCandles_"."$CMSSW_VERSION".".txt -t perfreport_tmp -R -P >& "."$_".".log
 cd ..\n";
     system(
-	   "mkdir $_ ;
-	   cd $_ ;
+	   "mkdir $_"."_cpu".$Core." ;
+	   cd $_"."_cpu".$Core." ;
 	   $cmsSimPyRelVal $TimeSizeNumOfEvts $CmsDriverCandle{$_} 0123;
 	   $cmsRelvalreport -i SimulationCandles_"."$CMSSW_VERSION".".txt -t perfreport_tmp -R -P >& "."$_".".log;
 	   cd .."
