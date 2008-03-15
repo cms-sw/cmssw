@@ -8,13 +8,14 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Feb 11 11:06:40 EST 2008
-// $Id: FWGUIManager.cc,v 1.14 2008/03/11 23:30:04 chrjones Exp $
+// $Id: FWGUIManager.cc,v 1.15 2008/03/14 21:16:15 chrjones Exp $
 //
 
 // system include files
 #include <boost/bind.hpp>
 #include <stdexcept>
 #include <iostream>
+#include <sstream>
 
 #include "TGButton.h"
 #include "TGComboBox.h"
@@ -535,22 +536,91 @@ FWGUIManager::itemBelowMouse(TGListTreeItem* item, UInt_t)
 {
 }
 
+static const std::string kMainWindow("main window");
+static const std::string kViews("views");
+static const std::string kViewArea("view area");
+
 void 
 FWGUIManager::addTo(FWConfiguration& oTo) const
 {
+   FWConfiguration mainWindow(1);
+   {
+      std::stringstream s;
+      s << static_cast<int>(gEve->GetBrowser()->GetWidth());
+      mainWindow.addKeyValue("width",FWConfiguration(s.str()));
+   }
+   {
+      std::stringstream s;
+      s << static_cast<int>(gEve->GetBrowser()->GetHeight());
+      mainWindow.addKeyValue("height",FWConfiguration(s.str()));
+   }
+   oTo.addKeyValue(kMainWindow,mainWindow,true);
+   
+   FWConfiguration views(1);
    for(std::vector<boost::shared_ptr<FWViewBase> >::const_iterator it = m_viewBases.begin(),
        itEnd = m_viewBases.end();
        it != itEnd;
        ++it) {
       FWConfiguration temp(1);
       //(*it)->addTo(temp);
-      oTo.addKeyValue((*it)->typeName(), temp, true);
+      views.addKeyValue((*it)->typeName(), temp, true);
    }
+   oTo.addKeyValue(kViews,views,true);
+   
+   //remember the sizes in the view area
+   TGSplitFrame *frm = m_splitFrame->GetFirst();
+   FWConfiguration viewArea(1);
+   {
+      std::stringstream s;
+      s<< static_cast<int>(frm->GetHeight());
+      viewArea.addValue(s.str());
+   }
+   {
+      frm = m_splitFrame->GetSecond()->GetFirst();
+      std::stringstream s;
+      s<< static_cast<int>(frm->GetWidth());
+      viewArea.addValue(s.str());
+   }
+   {
+      frm = m_splitFrame->GetSecond()->GetSecond();
+      std::stringstream s;
+      s<< static_cast<int>(frm->GetWidth());
+      viewArea.addValue(s.str());
+   } 
+   {
+      int top_height = static_cast<int>(((TGCompositeFrame *)gEve->GetBrowser()->GetTabRight()->GetParent())->GetHeight());
+      std::stringstream s;
+      s<< top_height;
+      viewArea.addValue(s.str());
+   }
+   oTo.addKeyValue(kViewArea,viewArea,true);
 }
+
 void 
 FWGUIManager::setFrom(const FWConfiguration& iFrom)
 {
-   const FWConfiguration::KeyValues* keyVals = iFrom.keyValues();
+   //first is main window
+   const FWConfiguration* mw = iFrom.valueForKey(kMainWindow);
+   assert(mw != 0);
+   int width,height;
+   {
+      const FWConfiguration* cWidth = mw->valueForKey("width");
+      assert(0 != cWidth);
+      std::stringstream s(cWidth->value());
+      s >> width;
+   }
+   {
+      const FWConfiguration* c = mw->valueForKey("height");
+      assert(0 != c);
+      std::stringstream s(c->value());
+      s >> height;
+   }
+   gEve->GetBrowser()->Resize(width,height);
+   
+   //now configure the views
+   const FWConfiguration* views = iFrom.valueForKey(kViews);
+   assert(0!=views);
+   const FWConfiguration::KeyValues* keyVals = views->keyValues();
    assert(0!=keyVals);
    for(FWConfiguration::KeyValues::const_iterator it = keyVals->begin(),
        itEnd = keyVals->end();
@@ -561,6 +631,41 @@ FWGUIManager::setFrom(const FWConfiguration& iFrom)
       
       assert(n+1 == m_viewBases.size());
       //m_viewBases.back()->setFrom(it->second);
+   }
+   
+   //now configure the view area
+   const FWConfiguration* viewArea = iFrom.valueForKey(kViewArea);
+   assert(0!=viewArea);
+
+   // top (main) split frame
+   {
+      int width = m_splitFrame->GetFirst()->GetWidth(), height=0;
+      std::stringstream s(viewArea->value(0));
+      s >> height;
+      m_splitFrame->GetFirst()->Resize(width, height);
+   }
+   // bottom left split frame
+   {
+      int height = m_splitFrame->GetSecond()->GetFirst()->GetHeight(),width=0;
+      std::stringstream s(viewArea->value(1));
+      s >> width;
+      m_splitFrame->GetSecond()->GetFirst()->Resize(width, height);
+   }
+   // bottom center split frame
+   {
+      height = m_splitFrame->GetSecond()->GetSecond()->GetHeight();
+      std::stringstream s(viewArea->value(2));
+      s >> width;
+      m_splitFrame->GetSecond()->GetSecond()->Resize(width, height);
+   }
+   m_splitFrame->Layout();
+ 
+   {
+      int width = ((TGCompositeFrame *)gEve->GetBrowser()->GetTabRight()->GetParent())->GetWidth();
+      int height;
+      std::stringstream s(viewArea->value(3));
+      s >> height;
+      ((TGCompositeFrame *)gEve->GetBrowser()->GetTabRight()->GetParent())->Resize(width, height);
    }
 }
 
