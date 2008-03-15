@@ -12,7 +12,7 @@
 //
 // Author:      Christophe Saout
 // Created:     Sat Apr 24 15:18 CEST 2007
-// $Id: ProcTMVA.cc,v 1.5 2008/01/07 09:10:00 saout Exp $
+// $Id: ProcTMVA.cc,v 1.6 2008/03/05 12:22:04 saout Exp $
 //
 
 #include <string>
@@ -130,7 +130,7 @@ void ProcTMVA::eval(ValueIterator iter, unsigned int n) const
 
 	method->GetVarTransform().GetEventRaw().CopyVarValues(data.GetEvent());
 	method->GetVarTransform().ApplyTransformation(TMVA::Types::kSignal);
-	iter << method->GetMvaValue();
+	iter(method->GetMvaValue());
 }
 
 } // anonymous namespace
