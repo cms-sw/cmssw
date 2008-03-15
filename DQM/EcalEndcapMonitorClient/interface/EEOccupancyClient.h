@@ -4,8 +4,8 @@
 /*
  * \file EEOccupancyClient.h
  *
- * $Date: 2008/02/29 15:05:11 $
- * $Revision: 1.5 $
+ * $Date: 2008/03/14 14:38:57 $
+ * $Revision: 1.6 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -81,8 +81,6 @@ bool cloneME_;
 bool verbose_;
 
 bool enableCleanup_;
-
-std::string prefixME_;
 
 std::vector<int> superModules_;
 

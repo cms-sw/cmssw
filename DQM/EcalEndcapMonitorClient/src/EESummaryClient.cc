@@ -1,8 +1,8 @@
 /*
  * \file EESummaryClient.cc
  *
- * $Date: 2008/03/14 14:38:58 $
- * $Revision: 1.97 $
+ * $Date: 2008/03/15 14:07:46 $
+ * $Revision: 1.98 $
  * \author G. Della Ricca
  *
 */
@@ -56,9 +56,6 @@ EESummaryClient::EESummaryClient(const ParameterSet& ps){
 
   // enableCleanup_ switch
   enableCleanup_ = ps.getUntrackedParameter<bool>("enableCleanup", false);
-
-  // prefix to ME paths
-  prefixME_ = ps.getUntrackedParameter<string>("prefixME", "");
 
   // vector of selected Super Modules (Defaults to all 18).
   superModules_.reserve(18);

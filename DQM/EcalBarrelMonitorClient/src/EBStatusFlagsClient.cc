@@ -1,8 +1,8 @@
 /*
  * \file EBStatusFlagsClient.cc
  *
- * $Date: 2008/03/14 14:38:55 $
- * $Revision: 1.10 $
+ * $Date: 2008/03/15 14:07:44 $
+ * $Revision: 1.11 $
  * \author G. Della Ricca
  *
 */
@@ -36,9 +36,6 @@ EBStatusFlagsClient::EBStatusFlagsClient(const ParameterSet& ps){
 
   // enableCleanup_ switch
   enableCleanup_ = ps.getUntrackedParameter<bool>("enableCleanup", false);
-
-  // prefix to ME paths
-  prefixME_ = ps.getUntrackedParameter<string>("prefixME", "");
 
   // vector of selected Super Modules (Defaults to all 36).
   superModules_.reserve(36);
@@ -170,12 +167,12 @@ void EBStatusFlagsClient::analyze(void){
 
     int ism = superModules_[i];
 
-    sprintf(histo, (prefixME_+"EcalBarrel/EBStatusFlagsTask/FEStatus/EBSFT front-end status %s").c_str(), Numbers::sEB(ism).c_str());
+    sprintf(histo, "EcalBarrel/EBStatusFlagsTask/FEStatus/EBSFT front-end status %s", Numbers::sEB(ism).c_str());
     me = dbe_->get(histo);
     h01_[ism-1] = UtilsClient::getHisto<TH2F*>( me, cloneME_, h01_[ism-1] );
     meh01_[ism-1] = me;
 
-    sprintf(histo, (prefixME_+"EcalBarrel/EBStatusFlagsTask/FEStatus/EBSFT front-end status bits %s").c_str(), Numbers::sEB(ism).c_str());
+    sprintf(histo, "EcalBarrel/EBStatusFlagsTask/FEStatus/EBSFT front-end status bits %s", Numbers::sEB(ism).c_str());
     me = dbe_->get(histo);
     h02_[ism-1] = UtilsClient::getHisto<TH1F*>( me, cloneME_, h02_[ism-1] );
     meh02_[ism-1] = me;

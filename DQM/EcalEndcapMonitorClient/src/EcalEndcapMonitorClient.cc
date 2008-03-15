@@ -1,8 +1,8 @@
 /*
  * \file EcalEndcapMonitorClient.cc
  *
- * $Date: 2008/03/14 12:50:28 $
- * $Revision: 1.162 $
+ * $Date: 2008/03/14 14:38:59 $
+ * $Revision: 1.163 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -219,12 +219,6 @@ void EcalEndcapMonitorClient::initialize(const ParameterSet& ps){
   } else {
     cout << " enableUpdate switch is OFF" << endl;
   }
-
-  // prefix to ME paths
-
-  prefixME_ = ps.getUntrackedParameter<string>("prefixME", "");
-
-  cout << " prefixME is set to '" << prefixME_ << "'" << endl;
 
   // DQM Client name
 
@@ -1362,20 +1356,17 @@ void EcalEndcapMonitorClient::analyze(void){
     if ( enableMonitorDaemon_ ) mui_->doMonitoring();
   }
 
-  char histo[200];
-
   MonitorElement* me;
   string s;
 
-  sprintf(histo, (prefixME_+"EcalEndcap/EcalInfo/STATUS").c_str());
-  me = dbe_->get(histo);
+  me = dbe_->get("EcalEndcap/EcalInfo/STATUS");
   if ( me ) {
     status_ = "unknown";
     s = me->valueString();
     if ( strcmp(s.c_str(), "i=0") == 0 ) status_ = "begin-of-run";
     if ( strcmp(s.c_str(), "i=1") == 0 ) status_ = "running";
     if ( strcmp(s.c_str(), "i=2") == 0 ) status_ = "end-of-run";
-    if ( verbose_ ) cout << "Found '" << histo << "'" << endl;
+    if ( verbose_ ) cout << "Found 'EcalEndcap/EcalInfo/STATUS'" << endl;
   }
 
   if ( inputFile_.size() != 0 ) {
@@ -1388,34 +1379,30 @@ void EcalEndcapMonitorClient::analyze(void){
   }
 
   int ecal_run = -1;
-  sprintf(histo, (prefixME_+"EcalEndcap/EcalInfo/RUN").c_str());
-  me = dbe_->get(histo);
+  me = dbe_->get("EcalEndcap/EcalInfo/RUN");
   if ( me ) {
     s = me->valueString();
     sscanf(s.c_str(), "i=%d", &ecal_run);
-    if ( verbose_ ) cout << "Found '" << histo << "'" << endl;
+    if ( verbose_ ) cout << "Found 'EcalEndcap/EcalInfo/RUN'" << endl;
   }
 
   int ecal_evt = -1;
-  sprintf(histo, (prefixME_+"EcalEndcap/EcalInfo/EVT").c_str());
-  me = dbe_->get(histo);
+  me = dbe_->get("EcalEndcap/EcalInfo/EVT");
   if ( me ) {
     s = me->valueString();
     sscanf(s.c_str(), "i=%d", &ecal_evt);
-    if ( verbose_ ) cout << "Found '" << histo << "'" << endl;
+    if ( verbose_ ) cout << "Found 'EcalEndcap/EcalInfo/EVT'" << endl;
   }
 
-  sprintf(histo, (prefixME_+"EcalEndcap/EcalInfo/EVTTYPE").c_str());
-  me = dbe_->get(histo);
+  me = dbe_->get("EcalEndcap/EcalInfo/EVTTYPE");
   h_ = UtilsClient::getHisto<TH1F*>( me, cloneME_, h_ );
 
-  sprintf(histo, (prefixME_+"EcalEndcap/EcalInfo/RUNTYPE").c_str());
-  me = dbe_->get(histo);
+  me = dbe_->get("EcalEndcap/EcalInfo/RUNTYPE");
   if ( me ) {
     s = me->valueString();
     sscanf(s.c_str(), "i=%d", &evtType_);
     if ( runType_ == -1 ) runType_ = evtType_;
-    if ( verbose_ ) cout << "Found '" << histo << "'" << endl;
+    if ( verbose_ ) cout << "Found 'EcalEndcap/EcalInfo/RUNTYPE'" << endl;
   }
 
   // if the run number from the Event is less than zero,

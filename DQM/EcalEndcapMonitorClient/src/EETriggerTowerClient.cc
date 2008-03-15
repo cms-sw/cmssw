@@ -1,8 +1,8 @@
 /*
  * \file EETriggerTowerClient.cc
  *
- * $Date: 2008/03/14 14:38:58 $
- * $Revision: 1.61 $
+ * $Date: 2008/03/15 14:07:46 $
+ * $Revision: 1.62 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -39,9 +39,6 @@ EETriggerTowerClient::EETriggerTowerClient(const ParameterSet& ps){
 
   // enableCleanup_ switch
   enableCleanup_ = ps.getUntrackedParameter<bool>("enableCleanup", false);
-
-  // prefix to ME paths
-  prefixME_ = ps.getUntrackedParameter<string>("prefixME", "");
 
   // vector of selected Super Modules (Defaults to all 18).
   superModules_.reserve(18);
@@ -371,7 +368,7 @@ void EETriggerTowerClient::analyze(const char* nameext,
 
     int ism = superModules_[i];
 
-    sprintf(histo, (prefixME_+"EcalEndcap/%s/EETTT Et map %s %s").c_str(), folder, nameext, Numbers::sEE(ism).c_str());
+    sprintf(histo, "EcalEndcap/%s/EETTT Et map %s %s", folder, nameext, Numbers::sEE(ism).c_str());
     me = dbe_->get(histo);
     if(!emulated) {
       h01_[ism-1] = UtilsClient::getHisto<TH3F*>( me, cloneME_, h01_[ism-1] );
@@ -382,7 +379,7 @@ void EETriggerTowerClient::analyze(const char* nameext,
       meh02_[ism-1] = me;
     }
 
-    sprintf(histo, (prefixME_+"EcalEndcap/%s/EETTT FineGrainVeto %s %s").c_str(), folder, nameext, Numbers::sEE(ism).c_str());
+    sprintf(histo, "EcalEndcap/%s/EETTT FineGrainVeto %s %s", folder, nameext, Numbers::sEE(ism).c_str());
     me = dbe_->get(histo);
     if(!emulated) {
       i01_[ism-1] = UtilsClient::getHisto<TH3F*>( me, cloneME_, i01_[ism-1] );
@@ -393,7 +390,7 @@ void EETriggerTowerClient::analyze(const char* nameext,
       mei02_[ism-1] = me;
     }
 
-    sprintf(histo, (prefixME_+"EcalEndcap/%s/EETTT Flags %s %s").c_str(), folder, nameext, Numbers::sEE(ism).c_str());
+    sprintf(histo, "EcalEndcap/%s/EETTT Flags %s %s", folder, nameext, Numbers::sEE(ism).c_str());
     me = dbe_->get(histo);
     if(!emulated) {
       j01_[ism-1] = UtilsClient::getHisto<TH3F*>( me, cloneME_, j01_[ism-1] );
@@ -405,17 +402,17 @@ void EETriggerTowerClient::analyze(const char* nameext,
     }
 
     if(!emulated) {
-      sprintf(histo, (prefixME_+"EcalEndcap/%s/EETTT EmulError %s").c_str(), folder, Numbers::sEE(ism).c_str());
+      sprintf(histo, "EcalEndcap/%s/EETTT EmulError %s", folder, Numbers::sEE(ism).c_str());
       me = dbe_->get(histo);
       l01_[ism-1] = UtilsClient::getHisto<TH2F*>( me, cloneME_, l01_[ism-1] );
       mel01_[ism-1] = me;
 
-      sprintf(histo, (prefixME_+"EcalEndcap/%s/EETTT EmulFlagError %s").c_str(), folder, Numbers::sEE(ism).c_str());
+      sprintf(histo, "EcalEndcap/%s/EETTT EmulFlagError %s", folder, Numbers::sEE(ism).c_str());
       me = dbe_->get(histo);
       m01_[ism-1] = UtilsClient::getHisto<TH3F*>( me, cloneME_, m01_[ism-1] );
       mem01_[ism-1] = me;
 
-      sprintf(histo, (prefixME_+"EcalEndcap/%s/EETTT EmulFineGrainVetoError %s").c_str(), folder, Numbers::sEE(ism).c_str());
+      sprintf(histo, "EcalEndcap/%s/EETTT EmulFineGrainVetoError %s", folder, Numbers::sEE(ism).c_str());
       me = dbe_->get(histo);
       n01_[ism-1] = UtilsClient::getHisto<TH3F*>( me, cloneME_, n01_[ism-1] );
       men01_[ism-1] = me;
@@ -424,12 +421,12 @@ void EETriggerTowerClient::analyze(const char* nameext,
 
 //     for (int j=0; j<34; j++) {
 //
-//       sprintf(histo, (prefixME_+"EcalEndcap/EETriggerTowerTask/EnergyMaps/EETTT Et T %s TT%02d").c_str(), ism, j+1);
+//       sprintf(histo, "EcalEndcap/EETriggerTowerTask/EnergyMaps/EETTT Et T %s TT%02d" ism, j+1);
 //       me = dbe_->get(histo);
 //       k01_[ism-1][j] = UtilsClient::getHisto<TH1F*>( me, cloneME_, k01_[ism-1][j] );
 //       mek01_[ism-1][j] = me;
 //
-//       sprintf(histo, (prefixME_+"EcalEndcap/EETriggerTowerTask/EnergyMaps/EETTT Et R %s TT%02d").c_str(), ism, j+1);
+//       sprintf(histo, "EcalEndcap/EETriggerTowerTask/EnergyMaps/EETTT Et R %s TT%02d" ism, j+1);
 //       me = dbe_->get(histo);
 //       k02_[ism-1][j] = UtilsClient::getHisto<TH1F*>( me, cloneME_, k02_[ism-1][j] );
 //       mek02_[ism-1][j] = me;

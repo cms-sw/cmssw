@@ -4,8 +4,8 @@
 /*
  * \file EBSummaryClient.h
  *
- * $Date: 2008/02/29 15:02:05 $
- * $Revision: 1.29 $
+ * $Date: 2008/03/14 14:38:54 $
+ * $Revision: 1.30 $
  * \author G. Della Ricca
  *
 */
@@ -82,8 +82,6 @@ bool cloneME_;
 bool verbose_;
 
 bool enableCleanup_;
-
-std::string prefixME_;
 
 std::vector<int> superModules_;
 

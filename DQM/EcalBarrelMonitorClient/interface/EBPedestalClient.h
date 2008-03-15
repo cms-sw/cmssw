@@ -4,8 +4,8 @@
 /*
  * \file EBPedestalClient.h
  *
- * $Date: 2008/02/29 15:01:55 $
- * $Revision: 1.66 $
+ * $Date: 2008/03/14 14:38:54 $
+ * $Revision: 1.67 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -81,8 +81,6 @@ bool cloneME_;
 bool verbose_;
 
 bool enableCleanup_;
-
-std::string prefixME_;
 
 std::vector<int> superModules_;
 

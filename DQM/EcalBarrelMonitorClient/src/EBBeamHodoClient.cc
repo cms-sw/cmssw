@@ -1,8 +1,8 @@
 /*
  * \file EBBeamHodoClient.cc
  *
- * $Date: 2008/03/14 14:38:54 $
- * $Revision: 1.56 $
+ * $Date: 2008/03/15 14:07:44 $
+ * $Revision: 1.57 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -36,9 +36,6 @@ EBBeamHodoClient::EBBeamHodoClient(const ParameterSet& ps){
 
   // enableCleanup_ switch
   enableCleanup_ = ps.getUntrackedParameter<bool>("enableCleanup", false);
-
-  // prefix to ME paths
-  prefixME_ = ps.getUntrackedParameter<string>("prefixME", "");
 
   // vector of selected Super Modules (Defaults to all 36).
   superModules_.reserve(36);
@@ -238,89 +235,89 @@ void EBBeamHodoClient::analyze(void){
 
   for (int i=0; i<4; i++) {
 
-    sprintf(histo, (prefixME_+"EcalBarrel/EBBeamHodoTask/EBBHT occup %s %02d").c_str(), Numbers::sEB(smId).c_str(), i+1);
+    sprintf(histo, "EcalBarrel/EBBeamHodoTask/EBBHT occup %s %02d", Numbers::sEB(smId).c_str(), i+1);
     me = dbe_->get(histo);
     ho01_[i] = UtilsClient::getHisto<TH1F*>( me, cloneME_, ho01_[i] );
 
-    sprintf(histo, (prefixME_+"EcalBarrel/EBBeamHodoTask/EBBHT raw %s %02d").c_str(), Numbers::sEB(smId).c_str(), i+1);
+    sprintf(histo, "EcalBarrel/EBBeamHodoTask/EBBHT raw %s %02d", Numbers::sEB(smId).c_str(), i+1);
     me = dbe_->get(histo);
     hr01_[i] = UtilsClient::getHisto<TH1F*>( me, cloneME_, hr01_[i] );
 
   }
 
-  sprintf(histo, (prefixME_+"EcalBarrel/EBBeamHodoTask/EBBHT PosX rec %s").c_str(), Numbers::sEB(smId).c_str());
+  sprintf(histo, "EcalBarrel/EBBeamHodoTask/EBBHT PosX rec %s", Numbers::sEB(smId).c_str());
   me = dbe_->get(histo);
   hp01_[0] = UtilsClient::getHisto<TH1F*>( me, cloneME_, hp01_[0] );
 
-  sprintf(histo, (prefixME_+"EcalBarrel/EBBeamHodoTask/EBBHT PosY rec %s").c_str(), Numbers::sEB(smId).c_str());
+  sprintf(histo, "EcalBarrel/EBBeamHodoTask/EBBHT PosY rec %s", Numbers::sEB(smId).c_str());
   me = dbe_->get(histo);
   hp01_[1] = UtilsClient::getHisto<TH1F*>( me, cloneME_, hp01_[1] );
 
-  sprintf(histo, (prefixME_+"EcalBarrel/EBBeamHodoTask/EBBHT PosYX rec %s").c_str(), Numbers::sEB(smId).c_str());
+  sprintf(histo, "EcalBarrel/EBBeamHodoTask/EBBHT PosYX rec %s", Numbers::sEB(smId).c_str());
   me = dbe_->get(histo);
   hp02_ = UtilsClient::getHisto<TH2F*>( me, cloneME_, hp02_ );
 
-  sprintf(histo, (prefixME_+"EcalBarrel/EBBeamHodoTask/EBBHT SloX %s").c_str(), Numbers::sEB(smId).c_str());
+  sprintf(histo, "EcalBarrel/EBBeamHodoTask/EBBHT SloX %s", Numbers::sEB(smId).c_str());
   me = dbe_->get(histo);
   hs01_[0] = UtilsClient::getHisto<TH1F*>( me, cloneME_, hs01_[0] );
 
-  sprintf(histo, (prefixME_+"EcalBarrel/EBBeamHodoTask/EBBHT SloY %s").c_str(), Numbers::sEB(smId).c_str());
+  sprintf(histo, "EcalBarrel/EBBeamHodoTask/EBBHT SloY %s", Numbers::sEB(smId).c_str());
   me = dbe_->get(histo);
   hs01_[1] = UtilsClient::getHisto<TH1F*>( me, cloneME_, hs01_[1] );
 
-  sprintf(histo, (prefixME_+"EcalBarrel/EBBeamHodoTask/EBBHT QualX %s").c_str(), Numbers::sEB(smId).c_str());
+  sprintf(histo, "EcalBarrel/EBBeamHodoTask/EBBHT QualX %s", Numbers::sEB(smId).c_str());
   me = dbe_->get(histo);
   hq01_[0] = UtilsClient::getHisto<TH1F*>( me, cloneME_, hq01_[0] );
 
-  sprintf(histo, (prefixME_+"EcalBarrel/EBBeamHodoTask/EBBHT QualY %s").c_str(), Numbers::sEB(smId).c_str());
+  sprintf(histo, "EcalBarrel/EBBeamHodoTask/EBBHT QualY %s", Numbers::sEB(smId).c_str());
   me = dbe_->get(histo);
   hq01_[1] = UtilsClient::getHisto<TH1F*>( me, cloneME_, hq01_[1] );
 
-  sprintf(histo, (prefixME_+"EcalBarrel/EBBeamHodoTask/EBBHT TDC rec %s").c_str(), Numbers::sEB(smId).c_str());
+  sprintf(histo, "EcalBarrel/EBBeamHodoTask/EBBHT TDC rec %s", Numbers::sEB(smId).c_str());
   me = dbe_->get(histo);
   ht01_ = UtilsClient::getHisto<TH1F*>( me, cloneME_, ht01_ );
 
-  sprintf(histo, (prefixME_+"EcalBarrel/EBBeamHodoTask/EBBHT Hodo-Calo X vs Cry %s").c_str(), Numbers::sEB(smId).c_str());
+  sprintf(histo, "EcalBarrel/EBBeamHodoTask/EBBHT Hodo-Calo X vs Cry %s", Numbers::sEB(smId).c_str());
   me = dbe_->get(histo);
   hc01_[0] = UtilsClient::getHisto<TH1F*>( me, cloneME_, hc01_[0] );
 
-  sprintf(histo, (prefixME_+"EcalBarrel/EBBeamHodoTask/EBBHT Hodo-Calo Y vs Cry %s").c_str(), Numbers::sEB(smId).c_str());
+  sprintf(histo, "EcalBarrel/EBBeamHodoTask/EBBHT Hodo-Calo Y vs Cry %s", Numbers::sEB(smId).c_str());
   me = dbe_->get(histo);
   hc01_[1] = UtilsClient::getHisto<TH1F*>( me, cloneME_, hc01_[1] );
 
-  sprintf(histo, (prefixME_+"EcalBarrel/EBBeamHodoTask/EBBHT TDC-Calo vs Cry %s").c_str(), Numbers::sEB(smId).c_str());
+  sprintf(histo, "EcalBarrel/EBBeamHodoTask/EBBHT TDC-Calo vs Cry %s", Numbers::sEB(smId).c_str());
   me = dbe_->get(histo);
   hc01_[2] = UtilsClient::getHisto<TH1F*>( me, cloneME_, hc01_[2] );
 
-  sprintf(histo, (prefixME_+"EcalBarrel/EBBeamHodoTask/EBBHT Missing Collections %s").c_str(), Numbers::sEB(smId).c_str());
+  sprintf(histo, "EcalBarrel/EBBeamHodoTask/EBBHT Missing Collections %s", Numbers::sEB(smId).c_str());
   me = dbe_->get(histo);
   hm01_ = UtilsClient::getHisto<TH1F*>( me, cloneME_, hm01_ );
 
-  sprintf(histo, (prefixME_+"EcalBarrel/EBBeamHodoTask/EBBHT prof E1 vs X %s").c_str(), Numbers::sEB(smId).c_str());
+  sprintf(histo, "EcalBarrel/EBBeamHodoTask/EBBHT prof E1 vs X %s", Numbers::sEB(smId).c_str());
   me = dbe_->get(histo);
   he01_[0] = UtilsClient::getHisto<TProfile*>( me, cloneME_, he01_[0] );
 
-  sprintf(histo, (prefixME_+"EcalBarrel/EBBeamHodoTask/EBBHT prof E1 vs Y %s").c_str(), Numbers::sEB(smId).c_str());
+  sprintf(histo, "EcalBarrel/EBBeamHodoTask/EBBHT prof E1 vs Y %s", Numbers::sEB(smId).c_str());
   me = dbe_->get(histo);
   he01_[1] = UtilsClient::getHisto<TProfile*>( me, cloneME_, he01_[1] );
 
-  sprintf(histo, (prefixME_+"EcalBarrel/EBBeamHodoTask/EBBHT his E1 vs X %s").c_str(), Numbers::sEB(smId).c_str());
+  sprintf(histo, "EcalBarrel/EBBeamHodoTask/EBBHT his E1 vs X %s", Numbers::sEB(smId).c_str());
   me = dbe_->get(histo);
   he02_[0] = UtilsClient::getHisto<TH2F*>( me, cloneME_, he02_[0] );
 
-  sprintf(histo, (prefixME_+"EcalBarrel/EBBeamHodoTask/EBBHT his E1 vs Y %s").c_str(), Numbers::sEB(smId).c_str());
+  sprintf(histo, "EcalBarrel/EBBeamHodoTask/EBBHT his E1 vs Y %s", Numbers::sEB(smId).c_str());
   me = dbe_->get(histo);
   he02_[1] = UtilsClient::getHisto<TH2F*>( me, cloneME_, he02_[1] );
 
-  sprintf(histo, (prefixME_+"EcalBarrel/EBBeamHodoTask/EBBHT PosX Hodo-Calo %s").c_str(), Numbers::sEB(smId).c_str());
+  sprintf(histo, "EcalBarrel/EBBeamHodoTask/EBBHT PosX Hodo-Calo %s", Numbers::sEB(smId).c_str());
   me = dbe_->get(histo);
   he03_[0] = UtilsClient::getHisto<TH1F*>( me, cloneME_, he03_[0] );
 
-  sprintf(histo, (prefixME_+"EcalBarrel/EBBeamHodoTask/EBBHT PosY Hodo-Calo %s").c_str(), Numbers::sEB(smId).c_str());
+  sprintf(histo, "EcalBarrel/EBBeamHodoTask/EBBHT PosY Hodo-Calo %s", Numbers::sEB(smId).c_str());
   me = dbe_->get(histo);
   he03_[1] = UtilsClient::getHisto<TH1F*>( me, cloneME_, he03_[1] );
 
-  sprintf(histo, (prefixME_+"EcalBarrel/EBBeamHodoTask/EBBHT TimeMax TDC-Calo %s").c_str(), Numbers::sEB(smId).c_str());
+  sprintf(histo, "EcalBarrel/EBBeamHodoTask/EBBHT TimeMax TDC-Calo %s", Numbers::sEB(smId).c_str());
   me = dbe_->get(histo);
   he03_[2] = UtilsClient::getHisto<TH1F*>( me, cloneME_, he03_[2] );
 

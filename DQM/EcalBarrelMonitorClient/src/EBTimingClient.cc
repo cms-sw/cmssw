@@ -1,8 +1,8 @@
 /*
  * \file EBTimingClient.cc
  *
- * $Date: 2008/03/14 14:38:55 $
- * $Revision: 1.74 $
+ * $Date: 2008/03/15 14:07:44 $
+ * $Revision: 1.75 $
  * \author G. Della Ricca
  *
 */
@@ -46,9 +46,6 @@ EBTimingClient::EBTimingClient(const ParameterSet& ps){
 
   // enableCleanup_ switch
   enableCleanup_ = ps.getUntrackedParameter<bool>("enableCleanup", false);
-
-  // prefix to ME paths
-  prefixME_ = ps.getUntrackedParameter<string>("prefixME", "");
 
   // vector of selected Super Modules (Defaults to all 36).
   superModules_.reserve(36);
@@ -328,7 +325,7 @@ void EBTimingClient::analyze(void){
 
     int ism = superModules_[i];
 
-    sprintf(histo, (prefixME_+"EcalBarrel/EBTimingTask/EBTMT timing %s").c_str(), Numbers::sEB(ism).c_str());
+    sprintf(histo, "EcalBarrel/EBTimingTask/EBTMT timing %s", Numbers::sEB(ism).c_str());
     me = dbe_->get(histo);
     h01_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, h01_[ism-1] );
     meh01_[ism-1] = me;

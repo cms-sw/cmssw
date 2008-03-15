@@ -4,8 +4,8 @@
 /*
  * \file EELedClient.h
  *
- * $Date: 2008/03/01 13:33:51 $
- * $Revision: 1.16 $
+ * $Date: 2008/03/14 14:38:57 $
+ * $Revision: 1.17 $
  * \author G. Della Ricca
  *
 */
@@ -80,8 +80,6 @@ bool cloneME_;
 bool verbose_;
 
 bool enableCleanup_;
-
-std::string prefixME_;
 
 std::vector<int> superModules_;
 

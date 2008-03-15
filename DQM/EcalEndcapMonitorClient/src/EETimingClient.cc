@@ -1,8 +1,8 @@
 /*
  * \file EETimingClient.cc
  *
- * $Date: 2008/03/14 14:38:58 $
- * $Revision: 1.68 $
+ * $Date: 2008/03/15 14:07:46 $
+ * $Revision: 1.69 $
  * \author G. Della Ricca
  *
 */
@@ -48,9 +48,6 @@ EETimingClient::EETimingClient(const ParameterSet& ps){
 
   // enableCleanup_ switch
   enableCleanup_ = ps.getUntrackedParameter<bool>("enableCleanup", false);
-
-  // prefix to ME paths
-  prefixME_ = ps.getUntrackedParameter<string>("prefixME", "");
 
   // vector of selected Super Modules (Defaults to all 18).
   superModules_.reserve(18);
@@ -348,7 +345,7 @@ void EETimingClient::analyze(void){
 
     int ism = superModules_[i];
 
-    sprintf(histo, (prefixME_+"EcalEndcap/EETimingTask/EETMT timing %s").c_str(), Numbers::sEE(ism).c_str());
+    sprintf(histo, "EcalEndcap/EETimingTask/EETMT timing %s", Numbers::sEE(ism).c_str());
     me = dbe_->get(histo);
     h01_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, h01_[ism-1] );
     meh01_[ism-1] = me;

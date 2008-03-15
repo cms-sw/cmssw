@@ -4,8 +4,8 @@
 /*
  * \file EECosmicClient.h
  *
- * $Date: 2008/02/29 15:05:07 $
- * $Revision: 1.14 $
+ * $Date: 2008/03/14 14:38:57 $
+ * $Revision: 1.15 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -79,8 +79,6 @@ int jevt_;
 bool cloneME_;
 
 bool verbose_;
-
-std::string prefixME_;
 
 bool enableCleanup_;
 

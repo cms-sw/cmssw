@@ -4,8 +4,8 @@
 /*
  * \file EEBeamCaloClient.h
  *
- * $Date: 2008/02/29 15:05:05 $
- * $Revision: 1.12 $
+ * $Date: 2008/03/14 14:38:57 $
+ * $Revision: 1.13 $
  * \author G. Della Ricca
  * \author A. Ghezzi
  *
@@ -83,8 +83,6 @@ bool cloneME_;
 bool verbose_;
 
 bool enableCleanup_;
-
-std::string prefixME_;
 
 std::vector<int> superModules_;
 

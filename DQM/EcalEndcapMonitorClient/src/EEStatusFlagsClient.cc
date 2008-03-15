@@ -1,8 +1,8 @@
 /*
  * \file EEStatusFlagsClient.cc
  *
- * $Date: 2008/03/14 14:38:58 $
- * $Revision: 1.12 $
+ * $Date: 2008/03/15 14:07:46 $
+ * $Revision: 1.13 $
  * \author G. Della Ricca
  *
 */
@@ -38,9 +38,6 @@ EEStatusFlagsClient::EEStatusFlagsClient(const ParameterSet& ps){
 
   // enableCleanup_ switch
   enableCleanup_ = ps.getUntrackedParameter<bool>("enableCleanup", false);
-
-  // prefix to ME paths
-  prefixME_ = ps.getUntrackedParameter<string>("prefixME", "");
 
   // vector of selected Super Modules (Defaults to all 18).
   superModules_.reserve(18);
@@ -172,12 +169,12 @@ void EEStatusFlagsClient::analyze(void){
 
     int ism = superModules_[i];
 
-    sprintf(histo, (prefixME_+"EcalEndcap/EEStatusFlagsTask/FEStatus/EESFT front-end status %s").c_str(), Numbers::sEE(ism).c_str());
+    sprintf(histo, "EcalEndcap/EEStatusFlagsTask/FEStatus/EESFT front-end status %s", Numbers::sEE(ism).c_str());
     me = dbe_->get(histo);
     h01_[ism-1] = UtilsClient::getHisto<TH2F*>( me, cloneME_, h01_[ism-1] );
     meh01_[ism-1] = me;
 
-    sprintf(histo, (prefixME_+"EcalEndcap/EEStatusFlagsTask/FEStatus/EESFT front-end status bits %s").c_str(), Numbers::sEE(ism).c_str());
+    sprintf(histo, "EcalEndcap/EEStatusFlagsTask/FEStatus/EESFT front-end status bits %s", Numbers::sEE(ism).c_str());
     me = dbe_->get(histo);
     h02_[ism-1] = UtilsClient::getHisto<TH1F*>( me, cloneME_, h02_[ism-1] );
     meh02_[ism-1] = me;

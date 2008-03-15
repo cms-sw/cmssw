@@ -1,8 +1,8 @@
 /*
  * \file EBTriggerTowerClient.cc
  *
- * $Date: 2008/03/14 14:38:55 $
- * $Revision: 1.94 $
+ * $Date: 2008/03/15 14:07:44 $
+ * $Revision: 1.95 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -37,9 +37,6 @@ EBTriggerTowerClient::EBTriggerTowerClient(const ParameterSet& ps){
 
   // enableCleanup_ switch
   enableCleanup_ = ps.getUntrackedParameter<bool>("enableCleanup", false);
-
-  // prefix to ME paths
-  prefixME_ = ps.getUntrackedParameter<string>("prefixME", "");
 
   // vector of selected Super Modules (Defaults to all 36).
   superModules_.reserve(36);
@@ -369,7 +366,7 @@ void EBTriggerTowerClient::analyze(const char* nameext,
 
     int ism = superModules_[i];
 
-    sprintf(histo, (prefixME_+"EcalBarrel/%s/EBTTT Et map %s %s").c_str(), folder, nameext, Numbers::sEB(ism).c_str());
+    sprintf(histo, "EcalBarrel/%s/EBTTT Et map %s %s", folder, nameext, Numbers::sEB(ism).c_str());
     me = dbe_->get(histo);
     if(!emulated) {
       h01_[ism-1] = UtilsClient::getHisto<TH3F*>( me, cloneME_, h01_[ism-1] );
@@ -380,7 +377,7 @@ void EBTriggerTowerClient::analyze(const char* nameext,
       meh02_[ism-1] = me;
     }
 
-    sprintf(histo, (prefixME_+"EcalBarrel/%s/EBTTT FineGrainVeto %s %s").c_str(), folder, nameext, Numbers::sEB(ism).c_str());
+    sprintf(histo, "EcalBarrel/%s/EBTTT FineGrainVeto %s %s", folder, nameext, Numbers::sEB(ism).c_str());
     me = dbe_->get(histo);
     if(!emulated) {
       i01_[ism-1] = UtilsClient::getHisto<TH3F*>( me, cloneME_, i01_[ism-1] );
@@ -391,7 +388,7 @@ void EBTriggerTowerClient::analyze(const char* nameext,
       mei02_[ism-1] = me;
     }
 
-    sprintf(histo, (prefixME_+"EcalBarrel/%s/EBTTT Flags %s %s").c_str(), folder, nameext, Numbers::sEB(ism).c_str());
+    sprintf(histo, "EcalBarrel/%s/EBTTT Flags %s %s", folder, nameext, Numbers::sEB(ism).c_str());
     me = dbe_->get(histo);
     if(!emulated) {
       j01_[ism-1] = UtilsClient::getHisto<TH3F*>( me, cloneME_, j01_[ism-1] );
@@ -403,17 +400,17 @@ void EBTriggerTowerClient::analyze(const char* nameext,
     }
 
     if(!emulated) {
-      sprintf(histo, (prefixME_+"EcalBarrel/%s/EBTTT EmulError %s").c_str(), folder, Numbers::sEB(ism).c_str());
+      sprintf(histo, "EcalBarrel/%s/EBTTT EmulError %s", folder, Numbers::sEB(ism).c_str());
       me = dbe_->get(histo);
       l01_[ism-1] = UtilsClient::getHisto<TH2F*>( me, cloneME_, l01_[ism-1] );
       mel01_[ism-1] = me;
 
-      sprintf(histo, (prefixME_+"EcalBarrel/%s/EBTTT EmulFlagError %s").c_str(), folder, Numbers::sEB(ism).c_str());
+      sprintf(histo, "EcalBarrel/%s/EBTTT EmulFlagError %s", folder, Numbers::sEB(ism).c_str());
       me = dbe_->get(histo);
       m01_[ism-1] = UtilsClient::getHisto<TH3F*>( me, cloneME_, m01_[ism-1] );
       mem01_[ism-1] = me;
 
-      sprintf(histo, (prefixME_+"EcalBarrel/%s/EBTTT EmulFineGrainVetoError %s").c_str(), folder, Numbers::sEB(ism).c_str());
+      sprintf(histo, "EcalBarrel/%s/EBTTT EmulFineGrainVetoError %s", folder, Numbers::sEB(ism).c_str());
       me = dbe_->get(histo);
       n01_[ism-1] = UtilsClient::getHisto<TH3F*>( me, cloneME_, n01_[ism-1] );
       men01_[ism-1] = me;
@@ -422,12 +419,12 @@ void EBTriggerTowerClient::analyze(const char* nameext,
 
 //     for (int j=0; j<68; j++) {
 //
-//       sprintf(histo, (prefixME_+"EcalBarrel/EBTriggerTowerTask/EnergyMaps/EBTTT Et T %s TT%02d").c_str(), ism, j+1);
+//       sprintf(histo, "EcalBarrel/EBTriggerTowerTask/EnergyMaps/EBTTT Et T %s TT%02d" ism, j+1);
 //       me = dbe_->get(histo);
 //       k01_[ism-1][j] = UtilsClient::getHisto<TH1F*>( me, cloneME_, k01_[ism-1][j] );
 //       mek01_[ism-1][j] = me;
 //
-//       sprintf(histo, (prefixME_+"EcalBarrel/EBTriggerTowerTask/EnergyMaps/EBTTT Et R %s TT%02d").c_str(), ism, j+1);
+//       sprintf(histo, "EcalBarrel/EBTriggerTowerTask/EnergyMaps/EBTTT Et R %s TT%02d" ism, j+1);
 //       me = dbe_->get(histo);
 //       k02_[ism-1][j] = UtilsClient::getHisto<TH1F*>( me, cloneME_, k02_[ism-1][j] );
 //       mek02_[ism-1][j] = me;

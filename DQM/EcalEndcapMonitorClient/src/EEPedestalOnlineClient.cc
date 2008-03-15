@@ -1,8 +1,8 @@
 /*
  * \file EEPedestalOnlineClient.cc
  *
- * $Date: 2008/03/14 14:38:58 $
- * $Revision: 1.65 $
+ * $Date: 2008/03/15 14:07:45 $
+ * $Revision: 1.66 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -49,9 +49,6 @@ EEPedestalOnlineClient::EEPedestalOnlineClient(const ParameterSet& ps){
 
   // enableCleanup_ switch
   enableCleanup_ = ps.getUntrackedParameter<bool>("enableCleanup", false);
-
-  // prefix to ME paths
-  prefixME_ = ps.getUntrackedParameter<string>("prefixME", "");
 
   // vector of selected Super Modules (Defaults to all 18).
   superModules_.reserve(18);
@@ -337,7 +334,7 @@ void EEPedestalOnlineClient::analyze(void){
 
     int ism = superModules_[i];
 
-    sprintf(histo, (prefixME_+"EcalEndcap/EEPedestalOnlineTask/Gain12/EEPOT pedestal %s G12").c_str(), Numbers::sEE(ism).c_str());
+    sprintf(histo, "EcalEndcap/EEPedestalOnlineTask/Gain12/EEPOT pedestal %s G12", Numbers::sEE(ism).c_str());
     me = dbe_->get(histo);
     h03_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, h03_[ism-1] );
     meh03_[ism-1] = me;

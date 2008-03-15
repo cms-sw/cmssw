@@ -4,8 +4,8 @@
 /*
  * \file EBLaserClient.h
  *
- * $Date: 2008/02/29 15:01:52 $
- * $Revision: 1.72 $
+ * $Date: 2008/03/14 14:38:54 $
+ * $Revision: 1.73 $
  * \author G. Della Ricca
  *
 */
@@ -80,8 +80,6 @@ bool cloneME_;
 bool verbose_;
 
 bool enableCleanup_;
-
-std::string prefixME_;
 
 std::vector<int> superModules_;
 

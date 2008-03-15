@@ -2,8 +2,8 @@
 /*
  * \file EBIntegrityClient.cc
  *
- * $Date: 2008/03/14 14:38:54 $
- * $Revision: 1.194 $
+ * $Date: 2008/03/15 14:07:44 $
+ * $Revision: 1.195 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -56,9 +56,6 @@ EBIntegrityClient::EBIntegrityClient(const ParameterSet& ps){
 
   // enableCleanup_ switch
   enableCleanup_ = ps.getUntrackedParameter<bool>("enableCleanup", false);
-
-  // prefix to ME paths
-  prefixME_ = ps.getUntrackedParameter<string>("prefixME", "");
 
   // vector of selected Super Modules (Defaults to all 36).
   superModules_.reserve(36);
@@ -671,7 +668,7 @@ void EBIntegrityClient::analyze(void){
 
   MonitorElement* me;
 
-  sprintf(histo, (prefixME_+"EcalBarrel/EBIntegrityTask/EBIT DCC size error").c_str());
+  sprintf(histo, "EcalBarrel/EBIntegrityTask/EBIT DCC size error");
   me = dbe_->get(histo);
   h00_ = UtilsClient::getHisto<TH1F*>( me, cloneME_, h00_ );
 
@@ -679,47 +676,47 @@ void EBIntegrityClient::analyze(void){
 
     int ism = superModules_[i];
 
-    sprintf(histo, (prefixME_+"EcalBarrel/EBOccupancyTask/EBOT digi occupancy %s").c_str(), Numbers::sEB(ism).c_str());
+    sprintf(histo, "EcalBarrel/EBOccupancyTask/EBOT digi occupancy %s", Numbers::sEB(ism).c_str());
     me = dbe_->get(histo);
     h_[ism-1] = UtilsClient::getHisto<TH2F*>( me, cloneME_, h_[ism-1] );
 
-    sprintf(histo, (prefixME_+"EcalBarrel/EBOccupancyTask/EBOT MEM digi occupancy %s").c_str(), Numbers::sEB(ism).c_str());
+    sprintf(histo, "EcalBarrel/EBOccupancyTask/EBOT MEM digi occupancy %s", Numbers::sEB(ism).c_str());
     me = dbe_->get(histo);
     hmem_[ism-1] = UtilsClient::getHisto<TH2F*>( me, cloneME_, hmem_[ism-1] );
 
-    sprintf(histo, (prefixME_+"EcalBarrel/EBIntegrityTask/Gain/EBIT gain %s").c_str(), Numbers::sEB(ism).c_str());
+    sprintf(histo, "EcalBarrel/EBIntegrityTask/Gain/EBIT gain %s", Numbers::sEB(ism).c_str());
     me = dbe_->get(histo);
     h01_[ism-1] = UtilsClient::getHisto<TH2F*>( me, cloneME_, h01_[ism-1] );
 
-    sprintf(histo, (prefixME_+"EcalBarrel/EBIntegrityTask/ChId/EBIT ChId %s").c_str(), Numbers::sEB(ism).c_str());
+    sprintf(histo, "EcalBarrel/EBIntegrityTask/ChId/EBIT ChId %s", Numbers::sEB(ism).c_str());
     me = dbe_->get(histo);
     h02_[ism-1] = UtilsClient::getHisto<TH2F*>( me, cloneME_, h02_[ism-1] );
 
-    sprintf(histo, (prefixME_+"EcalBarrel/EBIntegrityTask/GainSwitch/EBIT gain switch %s").c_str(), Numbers::sEB(ism).c_str());
+    sprintf(histo, "EcalBarrel/EBIntegrityTask/GainSwitch/EBIT gain switch %s", Numbers::sEB(ism).c_str());
     me = dbe_->get(histo);
     h03_[ism-1] = UtilsClient::getHisto<TH2F*>( me, cloneME_, h03_[ism-1] );
 
-    sprintf(histo, (prefixME_+"EcalBarrel/EBIntegrityTask/TTId/EBIT TTId %s").c_str(), Numbers::sEB(ism).c_str());
+    sprintf(histo, "EcalBarrel/EBIntegrityTask/TTId/EBIT TTId %s", Numbers::sEB(ism).c_str());
     me = dbe_->get(histo);
     h04_[ism-1] = UtilsClient::getHisto<TH2F*>( me, cloneME_, h04_[ism-1] );
 
-    sprintf(histo, (prefixME_+"EcalBarrel/EBIntegrityTask/TTBlockSize/EBIT TTBlockSize %s").c_str(), Numbers::sEB(ism).c_str());
+    sprintf(histo, "EcalBarrel/EBIntegrityTask/TTBlockSize/EBIT TTBlockSize %s", Numbers::sEB(ism).c_str());
     me = dbe_->get(histo);
     h05_[ism-1] = UtilsClient::getHisto<TH2F*>( me, cloneME_, h05_[ism-1] );
 
-    sprintf(histo, (prefixME_+"EcalBarrel/EBIntegrityTask/MemChId/EBIT MemChId %s").c_str(), Numbers::sEB(ism).c_str());
+    sprintf(histo, "EcalBarrel/EBIntegrityTask/MemChId/EBIT MemChId %s", Numbers::sEB(ism).c_str());
     me = dbe_->get(histo);
     h06_[ism-1] = UtilsClient::getHisto<TH2F*>( me, cloneME_, h06_[ism-1] );
 
-    sprintf(histo, (prefixME_+"EcalBarrel/EBIntegrityTask/MemGain/EBIT MemGain %s").c_str(), Numbers::sEB(ism).c_str());
+    sprintf(histo, "EcalBarrel/EBIntegrityTask/MemGain/EBIT MemGain %s", Numbers::sEB(ism).c_str());
     me = dbe_->get(histo);
     h07_[ism-1] = UtilsClient::getHisto<TH2F*>( me, cloneME_, h07_[ism-1] );
 
-    sprintf(histo, (prefixME_+"EcalBarrel/EBIntegrityTask/MemTTId/EBIT MemTTId %s").c_str(), Numbers::sEB(ism).c_str());
+    sprintf(histo, "EcalBarrel/EBIntegrityTask/MemTTId/EBIT MemTTId %s", Numbers::sEB(ism).c_str());
     me = dbe_->get(histo);
     h08_[ism-1] = UtilsClient::getHisto<TH2F*>( me, cloneME_, h08_[ism-1] );
 
-    sprintf(histo, (prefixME_+"EcalBarrel/EBIntegrityTask/MemSize/EBIT MemSize %s").c_str(), Numbers::sEB(ism).c_str());
+    sprintf(histo, "EcalBarrel/EBIntegrityTask/MemSize/EBIT MemSize %s", Numbers::sEB(ism).c_str());
     me = dbe_->get(histo);
     h09_[ism-1] = UtilsClient::getHisto<TH2F*>( me, cloneME_, h09_[ism-1] );
 

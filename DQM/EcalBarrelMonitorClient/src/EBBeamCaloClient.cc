@@ -1,8 +1,8 @@
 /*
  * \file EBBeamCaloClient.cc
  *
- * $Date: 2008/03/14 14:38:54 $
- * $Revision: 1.78 $
+ * $Date: 2008/03/15 14:07:44 $
+ * $Revision: 1.79 $
  * \author G. Della Ricca
  * \author A. Ghezzi
  *
@@ -43,9 +43,6 @@ EBBeamCaloClient::EBBeamCaloClient(const ParameterSet& ps){
 
   // enableCleanup_ switch
   enableCleanup_ = ps.getUntrackedParameter<bool>("enableCleanup", false);
-
-  // prefix to ME paths
-  prefixME_ = ps.getUntrackedParameter<string>("prefixME", "");
 
   // vector of selected Super Modules (Defaults to all 36).
   superModules_.reserve(36);
@@ -340,91 +337,88 @@ void EBBeamCaloClient::analyze(void){
   MonitorElement* me = 0;
 
   // MonitorElement* meCD;
-  sprintf(histo, (prefixME_+"EcalBarrel/EBBeamCaloTask/EBBCT crystals done").c_str() );
+  sprintf(histo, "EcalBarrel/EBBeamCaloTask/EBBCT crystals done");
   //meCD = dbe_->get(histo);
   me = dbe_->get(histo);
   hBcryDone_ = UtilsClient::getHisto<TH1F*>( me, cloneME_, hBcryDone_ );
 
   //MonitorElement* meCryInBeam;
-  sprintf(histo, (prefixME_+"EcalBarrel/EBBeamCaloTask/EBBCT crystal on beam").c_str() );
+  sprintf(histo, "EcalBarrel/EBBeamCaloTask/EBBCT crystal on beam");
   //meCryInBeam = dbe_->get(histo);
   me = dbe_->get(histo);
   hBCryOnBeam_ = UtilsClient::getHisto<TH2F*>( me, cloneME_, hBCryOnBeam_);
 
   //MonitorElement* allNeededCry;
-  sprintf(histo, (prefixME_+"EcalBarrel/EBBeamCaloTask/EBBCT all needed crystals readout").c_str() );
+  sprintf(histo, "EcalBarrel/EBBeamCaloTask/EBBCT all needed crystals readout");
   //allNeededCry= dbe_->get(histo);
   me = dbe_->get(histo);
   hBAllNeededCry_ = UtilsClient::getHisto<TH1F*>( me, cloneME_, hBAllNeededCry_);
 
-  sprintf(histo, (prefixME_+"EcalBarrel/EBBeamCaloTask/EBBCT readout crystals number").c_str() );
+  sprintf(histo, "EcalBarrel/EBBeamCaloTask/EBBCT readout crystals number");
   //allNeededCry= dbe_->get(histo);
   me = dbe_->get(histo);
   hBNumReadCry_ = UtilsClient::getHisto<TH1F*>( me, cloneME_, hBNumReadCry_);
 
   //MonitorElement* RecEne3x3;
-  sprintf(histo, (prefixME_+"EcalBarrel/EBBeamCaloTask/EBBCT rec Ene sum 3x3").c_str() );
+  sprintf(histo, "EcalBarrel/EBBeamCaloTask/EBBCT rec Ene sum 3x3");
   //RecEne3x3= dbe_->get(histo);
   me = dbe_->get(histo);
   hBE3x3_ = UtilsClient::getHisto<TH1F*>( me, cloneME_, hBE3x3_);
 
   //MonitorElement* ErrRedCry;
-  sprintf(histo, (prefixME_+"EcalBarrel/EBBeamCaloTask/EBBCT readout crystals errors").c_str() );
+  sprintf(histo, "EcalBarrel/EBBeamCaloTask/EBBCT readout crystals errors");
   //ErrRedCry = dbe_->get(histo);
   me = dbe_->get(histo);
   hBReadCryErrors_ = UtilsClient::getHisto<TH1F*>( me, cloneME_, hBReadCryErrors_);
 
   //  MonitorElement* RecEne1;
-  sprintf(histo, (prefixME_+"EcalBarrel/EBBeamCaloTask/EBBCT rec energy cry 5").c_str() );
+  sprintf(histo, "EcalBarrel/EBBeamCaloTask/EBBCT rec energy cry 5");
   //RecEne1= dbe_->get(histo);
   me = dbe_->get(histo);
   hBEne1_ = UtilsClient::getHisto<TH1F*>( me, cloneME_, hBEne1_);
 
-  sprintf(histo, (prefixME_+"EcalBarrel/EBBeamCaloTask/EBBCT crystal with maximum rec energy").c_str() );
+  sprintf(histo, "EcalBarrel/EBBeamCaloTask/EBBCT crystal with maximum rec energy");
   me = dbe_->get(histo);
   hBMaxEneCry_ = UtilsClient::getHisto<TH2F*>( me, cloneME_, hBMaxEneCry_);
 
-  sprintf(histo, (prefixME_+"EcalBarrel/EBBeamCaloTask/EBBCT average rec energy in the 3x3 array").c_str() );
+  sprintf(histo, "EcalBarrel/EBBeamCaloTask/EBBCT average rec energy in the 3x3 array");
   me = dbe_->get(histo);
   hBE3x3vsCry_ = UtilsClient::getHisto<TProfile*>( me, cloneME_, hBE3x3vsCry_);
 
-  sprintf(histo, (prefixME_+"EcalBarrel/EBBeamCaloTask/EBBCT average rec energy in the single crystal").c_str() );
+  sprintf(histo, "EcalBarrel/EBBeamCaloTask/EBBCT average rec energy in the single crystal");
   me = dbe_->get(histo);
   hBE1vsCry_ = UtilsClient::getHisto<TProfile*>( me, cloneME_, hBE1vsCry_);
 
-  sprintf(histo, (prefixME_+"EcalBarrel/EBBeamCaloTask/EBBCT number of entries").c_str() );
+  sprintf(histo, "EcalBarrel/EBBeamCaloTask/EBBCT number of entries");
   me = dbe_->get(histo);
   hBEntriesvsCry_ = UtilsClient::getHisto<TH1F*>( me, cloneME_, hBEntriesvsCry_);
 
-  sprintf(histo, (prefixME_+"EcalBarrel/EBBeamCaloTask/EBBCT energy deposition in the 3x3").c_str() );
+  sprintf(histo, "EcalBarrel/EBBeamCaloTask/EBBCT energy deposition in the 3x3");
   me = dbe_->get(histo);
   hBBeamCentered_ = UtilsClient::getHisto<TH2F*>( me, cloneME_, hBBeamCentered_);
 
-  sprintf(histo, (prefixME_+"EcalBarrel/EBBeamCaloTask/EBBCT table is moving").c_str() );
+  sprintf(histo, "EcalBarrel/EBBeamCaloTask/EBBCT table is moving");
   me = dbe_->get(histo);
   hbTBmoving_ = UtilsClient::getHisto<TH1F*>( me, cloneME_, hbTBmoving_);
 
-  sprintf(histo, (prefixME_+"EcalBarrel/EBBeamCaloTask/EBBCT crystal in beam vs event").c_str() );
+  sprintf(histo, "EcalBarrel/EBBeamCaloTask/EBBCT crystal in beam vs event");
   me = dbe_->get(histo);
   pBCriInBeamEvents_ =  UtilsClient::getHisto<TProfile*>( me, cloneME_, pBCriInBeamEvents_);
 
-  sprintf(histo, (prefixME_+"EcalBarrel/EBBeamCaloTask/EBBCT E1 in the max cry").c_str() );
+  sprintf(histo, "EcalBarrel/EBBeamCaloTask/EBBCT E1 in the max cry");
   me = dbe_->get(histo);
   hbE1MaxCry_ =  UtilsClient::getHisto<TH1F*>( me, cloneME_, hbE1MaxCry_);
 
-  sprintf(histo, (prefixME_+"EcalBarrel/EBBeamCaloTask/EBBCT Desynchronization vs step").c_str() );
+  sprintf(histo, "EcalBarrel/EBBeamCaloTask/EBBCT Desynchronization vs step");
   me = dbe_->get(histo);
   hbDesync_ =  UtilsClient::getHisto<TH1F*>( me, cloneME_, hbDesync_);
 
-  char me_name[200];
   for(int ind = 0; ind < cryInArray_; ind ++){
-    sprintf(me_name,"EcalBarrel/EBBeamCaloTask/EBBCT pulse profile in G12 cry %01d", ind+1);
-    sprintf(histo, (prefixME_ + me_name).c_str() );
+    sprintf(histo,"EcalBarrel/EBBeamCaloTask/EBBCT pulse profile in G12 cry %01d", ind+1);
     me = dbe_->get(histo);
     hBpulse_[ind] = UtilsClient::getHisto<TProfile*>( me, cloneME_, hBpulse_[ind]);
 
-    sprintf(me_name,"EcalBarrel/EBBeamCaloTask/EBBCT found gains cry %01d", ind+1);
-    sprintf(histo, (prefixME_ + me_name).c_str() );
+    sprintf(histo,"EcalBarrel/EBBeamCaloTask/EBBCT found gains cry %01d", ind+1);
     me = dbe_->get(histo);
     hBGains_[ind] = UtilsClient::getHisto<TH1F*>( me, cloneME_, hBGains_[ind]);
   }

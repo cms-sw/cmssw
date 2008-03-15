@@ -1,8 +1,8 @@
 /*
  * \file EBSummaryClient.cc
  *
- * $Date: 2008/03/14 14:38:55 $
- * $Revision: 1.122 $
+ * $Date: 2008/03/15 14:07:44 $
+ * $Revision: 1.123 $
  * \author G. Della Ricca
  *
 */
@@ -52,9 +52,6 @@ EBSummaryClient::EBSummaryClient(const ParameterSet& ps){
 
   // enableCleanup_ switch
   enableCleanup_ = ps.getUntrackedParameter<bool>("enableCleanup", false);
-
-  // prefix to ME paths
-  prefixME_ = ps.getUntrackedParameter<string>("prefixME", "");
 
   // vector of selected Super Modules (Defaults to all 36).
   superModules_.reserve(36);

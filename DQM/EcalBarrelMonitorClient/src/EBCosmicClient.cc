@@ -1,8 +1,8 @@
 /*
  * \file EBCosmicClient.cc
  *
- * $Date: 2008/03/14 14:38:54 $
- * $Revision: 1.106 $
+ * $Date: 2008/03/15 14:07:44 $
+ * $Revision: 1.107 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -42,9 +42,6 @@ EBCosmicClient::EBCosmicClient(const ParameterSet& ps){
 
   // enableCleanup_ switch
   enableCleanup_ = ps.getUntrackedParameter<bool>("enableCleanup", false);
-
-  // prefix to ME paths
-  prefixME_ = ps.getUntrackedParameter<string>("prefixME", "");
 
   // vector of selected Super Modules (Defaults to all 36).
   superModules_.reserve(36);
@@ -254,22 +251,22 @@ void EBCosmicClient::analyze(void){
 
     int ism = superModules_[i];
 
-    sprintf(histo, (prefixME_+"EcalBarrel/EBCosmicTask/Cut/EBCT energy cut %s").c_str(), Numbers::sEB(ism).c_str());
+    sprintf(histo, "EcalBarrel/EBCosmicTask/Cut/EBCT energy cut %s", Numbers::sEB(ism).c_str());
     me = dbe_->get(histo);
     h01_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, h01_[ism-1] );
     meh01_[ism-1] = me;
 
-    sprintf(histo, (prefixME_+"EcalBarrel/EBCosmicTask/Sel/EBCT energy sel %s").c_str(), Numbers::sEB(ism).c_str());
+    sprintf(histo, "EcalBarrel/EBCosmicTask/Sel/EBCT energy sel %s", Numbers::sEB(ism).c_str());
     me = dbe_->get(histo);
     h02_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, h02_[ism-1] );
     meh02_[ism-1] = me;
 
-    sprintf(histo, (prefixME_+"EcalBarrel/EBCosmicTask/Spectrum/EBCT 1x1 energy spectrum %s").c_str(), Numbers::sEB(ism).c_str());
+    sprintf(histo, "EcalBarrel/EBCosmicTask/Spectrum/EBCT 1x1 energy spectrum %s", Numbers::sEB(ism).c_str());
     me = dbe_->get(histo);
     h03_[ism-1] = UtilsClient::getHisto<TH1F*>( me, cloneME_, h03_[ism-1] );
     meh03_[ism-1] = me;
 
-    sprintf(histo, (prefixME_+"EcalBarrel/EBCosmicTask/Spectrum/EBCT 3x3 energy spectrum %s").c_str(), Numbers::sEB(ism).c_str());
+    sprintf(histo, "EcalBarrel/EBCosmicTask/Spectrum/EBCT 3x3 energy spectrum %s", Numbers::sEB(ism).c_str());
     me = dbe_->get(histo);
     h04_[ism-1] = UtilsClient::getHisto<TH1F*>( me, cloneME_, h04_[ism-1] );
     meh04_[ism-1] = me;

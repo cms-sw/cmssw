@@ -4,8 +4,8 @@
 /*
  * \file EBClusterClient.h
  *
- * $Date: 2008/02/29 15:01:49 $
- * $Revision: 1.22 $
+ * $Date: 2008/03/14 14:38:54 $
+ * $Revision: 1.23 $
  * \author G. Della Ricca
  * \author F. Cossutti
  * \author E. Di Marco
@@ -82,8 +82,6 @@ bool cloneME_;
 bool verbose_;
 
 bool enableCleanup_;
-
-std::string prefixME_;
 
 std::vector<int> superModules_;
 
