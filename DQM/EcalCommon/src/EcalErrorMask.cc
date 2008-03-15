@@ -1,11 +1,11 @@
-// $Id: EcalErrorMask.cc,v 1.25 2008/02/21 13:11:22 dellaric Exp $
+// $Id: EcalErrorMask.cc,v 1.26 2008/03/14 14:38:57 dellaric Exp $
 
 /*!
   \file EcalErrorMask.cc
   \brief Error mask from text file or database
   \author B. Gobbo
-  \version $Revision: 1.25 $
-  \date $Date: 2008/02/21 13:11:22 $
+  \version $Revision: 1.26 $
+  \date $Date: 2008/03/14 14:38:57 $
 */
 
 #include "OnlineDB/EcalCondDB/interface/EcalCondDBInterface.h"
@@ -89,7 +89,7 @@ void EcalErrorMask::readFile( std::string& inFile, bool verbose, bool verifySynt
     std::istringstream is( line );
     std::string s;
     is >> s;
-    if( s == "" ) continue;
+    if( s.size() == 0 ) continue;
 
     if( verbose ) std::cout << is.str() << std::endl;
 
@@ -100,19 +100,19 @@ void EcalErrorMask::readFile( std::string& inFile, bool verbose, bool verifySynt
     std::string ssm; is >> ssm;
     int sm;
 
-    if( ssm.substr( 0, 2 ) == "EB" ) {
-      sm = atoi( ssm.substr(2, ssm.size()-2).c_str() );
-      sm = (sm>0) ? sm : 18-sm;
+    if( strncmp(ssm.c_str(), "EB", 2) == 0 ) {
       subdet = EcalBarrel;
-    }
-    else if( ssm.substr( 0, 2 ) == "EE" ) {
       sm = atoi( ssm.substr(2, ssm.size()-2).c_str() );
       sm = (sm>0) ? sm : 18-sm;
+    }
+    else if( strncmp(ssm.c_str(), "EE", 2) == 0 ) {
       subdet = EcalEndcap;
+      sm = atoi( ssm.substr(2, ssm.size()-2).c_str() );
+      sm = (sm>0) ? sm : 18-sm;
     }
     else {
+      subdet = EcalBarrel;
       sm = atoi( ssm.c_str() );
-      if(sm >= 1 && sm <= 36) subdet = EcalBarrel;
     }
 
     if( ( subdet == EcalBarrel && ( sm < 1 || sm > 36 ) ) ||
@@ -130,7 +130,7 @@ void EcalErrorMask::readFile( std::string& inFile, bool verbose, bool verifySynt
       }
     }
 
-    if( s == "Crystal" ) {
+    if( strcmp(s.c_str(), "Crystal") == 0 ) {
       int ic; is >> ic;
       if( ( subdet == EcalBarrel && ( ic < 1 || ic > 1700 ) ) ||
           ( subdet == EcalEndcap && ( ic < 1 || ic > 100000 ) ) ) {
@@ -184,7 +184,7 @@ void EcalErrorMask::readFile( std::string& inFile, bool verbose, bool verifySynt
         }
       }
     }
-    else if( s == "TT" ) {
+    else if( strcmp(s.c_str(), "TT") == 0 ) {
       int it; is >> it;
       if( ( subdet == EcalBarrel && ( it < 1 || it > 68 ) ) || 
           ( subdet == EcalEndcap && ( it < 1 || it > 34 ) ) ) {
@@ -238,7 +238,7 @@ void EcalErrorMask::readFile( std::string& inFile, bool verbose, bool verifySynt
         }
       }
     }
-    else if( s == "PN" ) {
+    else if( strcmp(s.c_str(), "PN") == 0 ) {
       int ic; is >> ic;
       if( ic < 1 || ic > 10 ) {
         std::ostringstream os;
@@ -291,7 +291,7 @@ void EcalErrorMask::readFile( std::string& inFile, bool verbose, bool verifySynt
         }
       }
     }
-    else if( s == "MemCh" ) {
+    else if( strcmp(s.c_str(), "MemCh") == 0 ) {
       int ic; is >> ic;
       if( ic < 1 || ic > 50 ) {
         std::ostringstream os;
@@ -344,7 +344,7 @@ void EcalErrorMask::readFile( std::string& inFile, bool verbose, bool verifySynt
         }
       }
     }
-    else if( s == "MemTT" ) {
+    else if( strcmp(s.c_str(), "MemTT") == 0 ) {
       int it; is >> it;
       if( it < 69 || it > 70 ) {
         std::ostringstream os;
@@ -447,7 +447,7 @@ void EcalErrorMask::writeFile( std::string& outFile ) throw( std::runtime_error 
     std::cout << "File ";
     std::cout << outFile << " already exists. Should I replace it? [y/n] ";
     std::string yesno; std::cin >> yesno;
-    if( yesno == "n" ) {
+    if( strcmp(yesno.c_str(), "n") == 0 ) {
       throw( std::runtime_error( outFile + " left unchanged." ) );
       return;
     }
