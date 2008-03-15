@@ -9,18 +9,5 @@
   <use name=FWCore/ParameterSet>
   <use name=FWCore/MessageLogger>
   <use name=Alignment/CommonAlignment>
-  <use name=Geometry/DTGeometry>
-  <use name=Geometry/CSCGeometry>
-  <use name=Geometry/Records>
-  <use name=Geometry/DTGeometryBuilder>
-  <use name=Geometry/CSCGeometryBuilder>
-  <use name=Geometry/TrackingGeometryAligner>
-  <use name=CondFormats/AlignmentRecord>
-  <use name=CondFormats/Alignment>
-  <use name=DataFormats/MuonDetId>
-  <use name=FWCore/ServiceRegistry>
-  <use name=CondCore/DBOutputService>
-  <use name=clhep>
   <flags EDM_PLUGIN=1>
 </library>
-

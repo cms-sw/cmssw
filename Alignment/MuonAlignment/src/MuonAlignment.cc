@@ -19,32 +19,48 @@
 #include "Alignment/CommonAlignment/interface/SurveyDet.h"
 #include "Alignment/MuonAlignment/interface/MuonAlignment.h"
 
+#include "Alignment/MuonAlignment/interface/MuonAlignmentOutputXML.h"
+
+#include "Alignment/CommonAlignment/interface/Alignable.h"
+#include "Alignment/CommonAlignment/interface/SurveyDet.h"
+#include "DataFormats/TrackingRecHit/interface/AlignmentPositionError.h"
+#include "DataFormats/GeometryCommonDetAlgo/interface/GlobalError.h"
+
 //____________________________________________________________________________________
 //
-MuonAlignment::MuonAlignment(const edm::EventSetup& setup  ):
-  theDTAlignRecordName( "DTAlignmentRcd" ),
-  theDTErrorRecordName( "DTAlignmentErrorRcd" ),
-  theCSCAlignRecordName( "CSCAlignmentRcd" ),
-  theCSCErrorRecordName( "CSCAlignmentErrorRcd" ),
-  theDTSurveyRecordName( "DTSurveyRcd" ),
-  theDTSurveyErrorRecordName( "DTSurveyErrorRcd" ),
-  theCSCSurveyRecordName( "CSCSurveyRcd" ),
-  theCSCSurveyErrorRecordName( "CSCSurveyErrorRcd" )
+MuonAlignment::MuonAlignment()
+   : theDTAlignRecordName( "DTAlignmentRcd" )
+   , theDTErrorRecordName( "DTAlignmentErrorRcd" )
+   , theCSCAlignRecordName( "CSCAlignmentRcd" )
+   , theCSCErrorRecordName( "CSCAlignmentErrorRcd" )
+   , theDTSurveyRecordName( "DTSurveyRcd" )
+   , theDTSurveyErrorRecordName( "DTSurveyErrorRcd" )
+   , theCSCSurveyRecordName( "CSCSurveyRcd" )
+   , theCSCSurveyErrorRecordName( "CSCSurveyErrorRcd" )
+   , theAlignableMuon( NULL )
+   , theAlignableNavigator( NULL )
+{ }
+
+MuonAlignment::MuonAlignment( const edm::EventSetup& iSetup )
 {
+   MuonAlignment();
 
-  // 1. Retrieve geometry from Event setup and create alignable muon
-  edm::ESHandle<DTGeometry> dtGeometry;
-  edm::ESHandle<CSCGeometry> cscGeometry;
+   edm::ESHandle<DTGeometry> dtGeometry;
+   edm::ESHandle<CSCGeometry> cscGeometry;
+   iSetup.get<MuonGeometryRecord>().get( dtGeometry );     
+   iSetup.get<MuonGeometryRecord>().get( cscGeometry );
 
-  setup.get<MuonGeometryRecord>().get( dtGeometry );     
-  setup.get<MuonGeometryRecord>().get( cscGeometry );
-
-  theAlignableMuon = new AlignableMuon( &(*dtGeometry) , &(*cscGeometry) );
-
-  theAlignableNavigator = new AlignableNavigator( theAlignableMuon );
-  
+   theAlignableMuon = new AlignableMuon( &(*dtGeometry) , &(*cscGeometry) );
+   theAlignableNavigator = new AlignableNavigator( theAlignableMuon );
 }
 
+MuonAlignment::MuonAlignment( const edm::EventSetup& iSetup, const MuonAlignmentInputMethod& input )
+{
+   MuonAlignment();
+
+   theAlignableMuon = input.newAlignableMuon( iSetup );
+   theAlignableNavigator = new AlignableNavigator( theAlignableMuon );
+}
 
 //____________________________________________________________________________________
 //
@@ -88,13 +104,143 @@ void MuonAlignment::moveAlignableGlobalCoord( DetId& detid, std::vector<float>& 
 }
 
 //____________________________________________________________________________________
-// Code needed to store alignments to DB
-
+//
 void MuonAlignment::recursiveList(std::vector<Alignable*> alignables, std::vector<Alignable*> &theList) {
    for (std::vector<Alignable*>::const_iterator alignable = alignables.begin();  alignable != alignables.end();  ++alignable) {
       recursiveList((*alignable)->components(), theList);
       theList.push_back(*alignable);
    }
+}
+
+//____________________________________________________________________________________
+//
+void MuonAlignment::recursiveMap(std::vector<Alignable*> alignables, std::map<align::ID, Alignable*> &theMap, bool allowDetUnit) {
+   for (std::vector<Alignable*>::const_iterator alignable = alignables.begin();  alignable != alignables.end();  ++alignable) {
+      if ((*alignable)->id() != 0) {
+         if (allowDetUnit  ||  (*alignable)->alignableObjectId() != align::AlignableDetUnit) {
+            theMap[(*alignable)->id()] = *alignable;
+         }
+      }
+      recursiveMap((*alignable)->components(), theMap, allowDetUnit);
+   }
+}
+
+//____________________________________________________________________________________
+//
+void MuonAlignment::recursiveStructureMap(std::vector<Alignable*> alignables, std::map<std::pair<align::StructureType, align::ID>, Alignable*> &theMap) {
+   for (std::vector<Alignable*>::const_iterator alignable = alignables.begin();  alignable != alignables.end();  ++alignable) {
+      Alignable *aliid = *alignable;
+      while (aliid->id() == 0) aliid = aliid->components()[0];
+      theMap[std::pair<align::StructureType, align::ID>((*alignable)->alignableObjectId(), aliid->id())] = *alignable;
+      recursiveStructureMap((*alignable)->components(), theMap);
+   }
+}
+
+//____________________________________________________________________________________
+//
+void MuonAlignment::copyAlignmentToSurvey(double shiftErr, double angleErr) {
+   std::map<align::ID, Alignable*> alignableMap;
+   recursiveMap(theAlignableMuon->DTBarrel(), alignableMap, true);
+   recursiveMap(theAlignableMuon->CSCEndcaps(), alignableMap, false);
+
+   // Set the survey error to the alignable error, expanding the matrix as needed
+   AlignmentErrors* dtAlignmentErrors = theAlignableMuon->dtAlignmentErrors();
+   AlignmentErrors* cscAlignmentErrors = theAlignableMuon->cscAlignmentErrors();
+   std::vector<AlignTransformError> alignmentErrors;
+   std::copy(dtAlignmentErrors->m_alignError.begin(), dtAlignmentErrors->m_alignError.end(), std::back_inserter(alignmentErrors));
+   std::copy(cscAlignmentErrors->m_alignError.begin(), cscAlignmentErrors->m_alignError.end(), std::back_inserter(alignmentErrors));
+
+   for (std::vector<AlignTransformError>::const_iterator alignmentError = alignmentErrors.begin();
+	alignmentError != alignmentErrors.end();
+	++alignmentError) {
+      align::ErrorMatrix matrix6x6 = ROOT::Math::SMatrixIdentity();
+      CLHEP::HepSymMatrix matrix3x3 = alignmentError->matrix();
+
+      for (int i = 0;  i < 3;  i++) {
+	 for (int j = 0;  j < 3;  j++) {
+	    matrix6x6(i, j) = matrix3x3(i+1, j+1);
+	 }
+      }
+      matrix6x6(3,3) = angleErr;
+      matrix6x6(4,4) = angleErr;
+      matrix6x6(5,5) = angleErr;
+
+      Alignable *alignable = alignableMap[alignmentError->rawId()];
+      alignable->setSurvey(new SurveyDet(alignable->surface(), matrix6x6));
+   }
+
+   fillGapsInSurvey(shiftErr, angleErr);
+}
+
+//____________________________________________________________________________________
+//
+
+void MuonAlignment::fillGapsInSurvey(double shiftErr, double angleErr) {
+   // get all the ones we missed
+   std::map<std::pair<align::StructureType, align::ID>, Alignable*> alignableStructureMap;
+   recursiveStructureMap(theAlignableMuon->DTBarrel(), alignableStructureMap);
+   recursiveStructureMap(theAlignableMuon->CSCEndcaps(), alignableStructureMap);
+
+   for (std::map<std::pair<align::StructureType, align::ID>, Alignable*>::const_iterator iter = alignableStructureMap.begin();
+	iter != alignableStructureMap.end();
+	++iter) {
+      if (iter->second->survey() == NULL) {
+	 align::ErrorMatrix matrix6x6 = ROOT::Math::SMatrixIdentity();
+	 matrix6x6(0,0) = shiftErr;
+	 matrix6x6(1,1) = shiftErr;
+	 matrix6x6(2,2) = shiftErr;
+	 matrix6x6(3,3) = angleErr;
+	 matrix6x6(4,4) = angleErr;
+	 matrix6x6(5,5) = angleErr;
+	 iter->second->setSurvey(new SurveyDet(iter->second->surface(), matrix6x6));
+      }
+   }
+}
+
+//____________________________________________________________________________________
+//
+void MuonAlignment::recursiveCopySurveyToAlignment(Alignable *alignable) {
+   if (alignable->survey() != NULL) {
+      const SurveyDet *survey = alignable->survey();
+
+      align::PositionType pos = survey->position();
+      align::RotationType rot = survey->rotation();
+
+      align::PositionType oldpos = alignable->globalPosition();
+      align::RotationType oldrot = alignable->globalRotation();
+      alignable->move(GlobalVector(-oldpos.x(), -oldpos.y(), -oldpos.z()));
+      alignable->rotateInGlobalFrame(oldrot.transposed());
+      alignable->rotateInGlobalFrame(rot);
+      alignable->move(GlobalVector(pos.x(), pos.y(), pos.z()));
+
+      align::ErrorMatrix matrix6x6 = survey->errors();  // start from 0,0
+      CLHEP::HepSymMatrix matrix3x3(3);                 // start from 1,1
+      for (int i = 0;  i < 3;  i++) {
+	 for (int j = 0;  j < 3;  j++) {
+	    matrix3x3(i+1, j+1) = matrix6x6(i, j);
+	 }
+      }
+
+      // this sets APEs at this level and all lower levels
+      alignable->setAlignmentPositionError(AlignmentPositionError(GlobalError(matrix3x3)));
+   }
+
+   // do lower levels afterward to thwart the cumulative setting of APEs
+   std::vector<Alignable*> components = alignable->components();
+   for (std::vector<Alignable*>::const_iterator comp = components.begin();  comp != components.end();  ++comp) {
+      recursiveCopySurveyToAlignment(*comp);
+   }
+}
+
+void MuonAlignment::copySurveyToAlignment() {
+   recursiveCopySurveyToAlignment(theAlignableMuon);
+}
+
+//____________________________________________________________________________________
+// Code needed to store alignments to DB
+
+void MuonAlignment::writeXML(const edm::ParameterSet iConfig, const edm::EventSetup &iSetup) {
+   MuonAlignmentOutputXML(iConfig).write(theAlignableMuon, iSetup);
 }
 
 void MuonAlignment::saveDTSurveyToDB(void) {
