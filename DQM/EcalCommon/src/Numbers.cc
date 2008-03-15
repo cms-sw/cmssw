@@ -1,11 +1,11 @@
-// $Id: Numbers.cc,v 1.50 2008/02/09 19:50:10 dellaric Exp $
+// $Id: Numbers.cc,v 1.51 2008/03/14 19:33:50 dellaric Exp $
 
 /*!
   \file Numbers.cc
   \brief Some "id" conversions
   \author B. Gobbo 
-  \version $Revision: 1.50 $
-  \date $Date: 2008/02/09 19:50:10 $
+  \version $Revision: 1.51 $
+  \date $Date: 2008/03/14 19:33:50 $
 */
 
 #include <sstream>
@@ -32,6 +32,8 @@
 const EcalElectronicsMapping* Numbers::map = 0;
 
 bool Numbers::init = false;
+
+#define USEMAP false
 
 //-------------------------------------------------------------------------
 
@@ -246,7 +248,7 @@ int Numbers::iSM( const int ism, const EcalSubdetector subdet ) throw( std::runt
 
 int Numbers::iSM( const EBDetId& id ) throw( std::runtime_error ) {
 
-  if( Numbers::map ) {
+  if( Numbers::map && USEMAP ) {
 
     EcalElectronicsId eid = Numbers::map->getElectronicsId(id);
     int idcc = eid.dccId();
@@ -303,7 +305,7 @@ int Numbers::iSM( const EcalTrigTowerDetId& id ) throw( std::runtime_error ) {
 
   if( subdet == EcalBarrel ) {
 
-    if( Numbers::map ) {
+    if( Numbers::map && USEMAP ) {
 
       int idcc = Numbers::map->DCCid(id);
 
@@ -479,7 +481,7 @@ int Numbers::iTT( const EcalTrigTowerDetId& id ) throw( std::runtime_error ) {
 
   if( subdet == EcalBarrel ) {
 
-    if( Numbers::map ) {
+    if( Numbers::map && USEMAP ) {
 
       return( Numbers::map->iTT(id) );
 
