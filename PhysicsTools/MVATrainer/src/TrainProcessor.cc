@@ -23,13 +23,20 @@ TrainProcessor::~TrainProcessor()
 void TrainProcessor::doTrainBegin()
 {
 	bool booked = false;
+	unsigned int nBins = 50;
 
 	if (!monitoring) {
-		monitoring = trainer->bookMonitor(name + "_" +
-		                                  (const char*)getName());
-		monModule = trainer->bookMonitor(std::string("input_") +
-		                                 (const char*)getName());
-		booked = monitoring != 0;
+		const char *source = getName();
+		if (source) {
+			monitoring = trainer->bookMonitor(name + "_" + source);
+			monModule = trainer->bookMonitor(std::string("input_") +
+			                                 source);
+		} else {
+			monModule = trainer->bookMonitor("output");
+			nBins = 400;
+		}
+
+		booked = monModule != 0;
 	}
 
 	if (booked) {
@@ -43,12 +50,14 @@ void TrainProcessor::doTrainBegin()
 				+ std::string("_")
 				+ (const char*)var->getName();
 			SigBkg pair;
-			pair.first = monModule->book<TH1F>(name + "_bkg",
+			pair.sameBinning = !monitoring;
+			pair.entries[0] = pair.entries[1] = 0;
+			pair.histo[0] = monModule->book<TH1F>(name + "_bkg",
 				(name + "_bkg").c_str(),
-				(name + " background").c_str(), 50, 0, 0);
-			pair.second = monModule->book<TH1F>(name + "_sig",
+				(name + " background").c_str(), nBins, 0, 0);
+			pair.histo[1] = monModule->book<TH1F>(name + "_sig",
 				(name + "_sig").c_str(),
-				(name + " signal").c_str(), 50, 0, 0);
+				(name + " signal").c_str(), nBins, 0, 0);
 			monHistos.push_back(pair);
 		}
 	}
@@ -57,31 +66,48 @@ void TrainProcessor::doTrainBegin()
 }
 
 void TrainProcessor::doTrainData(const std::vector<double> *values,
-                                 bool target, double weight)
+                                 bool target, double weight,
+                                 bool train, bool test)
 {
-	if (monModule) {
-		for(std::vector<SigBkg>::const_iterator iter =
-			monHistos.begin(); iter != monHistos.end(); ++iter) {
-
-			TH1F *histo = target ? iter->second : iter->first;
+	if (monModule && test) {
+		for(std::vector<SigBkg>::iterator iter = monHistos.begin();
+		    iter != monHistos.end(); ++iter) {
 			const std::vector<double> &vals =
 					values[iter - monHistos.begin()];
 			for(std::vector<double>::const_iterator value =
-				vals.begin(); value != vals.end(); ++value)
+				vals.begin(); value != vals.end(); ++value) {
 
-				histo->Fill(*value, weight);
+				iter->histo[target]->Fill(*value, weight);
+				iter->entries[target]++;
+
+				if (iter->sameBinning)
+					iter->histo[!target]->Fill(*value, 0);
+			}
 		}
 	}
 
-	trainData(values, target, weight);
+	if (train)
+		trainData(values, target, weight);
+	if (test)
+		testData(values, target, weight, train);
 }
 
 void TrainProcessor::doTrainEnd()
 {
 	trainEnd();
 
-	if (monModule)
+	if (monModule) {
+		for(std::vector<SigBkg>::const_iterator iter =
+			monHistos.begin(); iter != monHistos.end(); ++iter) {
+
+			if (iter->sameBinning) {
+				iter->histo[0]->SetEntries(iter->entries[0]);
+				iter->histo[1]->SetEntries(iter->entries[1]);
+			}
+		}
+
 		monModule = 0;
+	}
 }
 
 } // namespace PhysicsTools

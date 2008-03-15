@@ -32,6 +32,8 @@ class MVATrainer {
 	inline void setAutoSave(bool autoSave) { doAutoSave = autoSave; }
 	inline void setCleanup(bool cleanup) { doCleanup = cleanup; }
 	inline void setMonitoring(bool monitoring) { doMonitoring = monitoring; }
+	inline void setRandomSeed(UInt_t seed) { randomSeed = seed; }
+	inline void setCrossValidation(double split) { crossValidation = split; }
 
 	void loadState();
 	void saveState();
@@ -96,7 +98,7 @@ class MVATrainer {
 	std::vector<SourceVariable*>		variables;
 	std::vector<AtomicId>			processors;
 	Source					*input;
-	Source					*output;
+	TrainProcessor				*output;
 
 	std::auto_ptr<TrainerMonitoring>	monitoring;
 	std::auto_ptr<XMLDocument>		xml;
@@ -105,6 +107,9 @@ class MVATrainer {
 	bool					doAutoSave;
 	bool					doCleanup;
 	bool					doMonitoring;
+
+	UInt_t					randomSeed;
+	double					crossValidation;
 };
 
 } // namespace PhysicsTools

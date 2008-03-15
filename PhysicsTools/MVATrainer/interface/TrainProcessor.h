@@ -46,13 +46,13 @@ class TrainProcessor : public Source,
 	{ return Variable::FLAG_NONE; }
 
 	virtual void
-	configure(XERCES_CPP_NAMESPACE_QUALIFIER DOMElement *config) = 0;
+	configure(XERCES_CPP_NAMESPACE_QUALIFIER DOMElement *config) {}
 
-	virtual Calibration::VarProcessor *getCalibration() const = 0;
+	virtual Calibration::VarProcessor *getCalibration() const { return 0; }
 
 	void doTrainBegin();
 	void doTrainData(const std::vector<double> *values,
-	                 bool target, double weight);
+	                 bool target, double weight, bool train, bool test);
 	void doTrainEnd();
 
 	virtual bool load() { return true; }
@@ -65,7 +65,9 @@ class TrainProcessor : public Source,
 	virtual void trainBegin() {}
 	virtual void trainData(const std::vector<double> *values,
 	                       bool target, double weight) {}
-	virtual void trainEnd() {}
+	virtual void testData(const std::vector<double> *values,
+	                      bool target, double weight, bool trainedOn) {}
+	virtual void trainEnd() { trained = true; }
 
 	virtual void *requestObject(const std::string &name) const
 	{ return 0; }
@@ -78,8 +80,12 @@ class TrainProcessor : public Source,
 	Monitoring		*monitoring;
 
     private:
-	typedef std::pair<TH1F*, TH1F*> SigBkg;
-
+	struct SigBkg {
+		bool		sameBinning;
+		unsigned long	entries[2];
+		TH1F		*histo[2];
+	};
+		
 	std::vector<SigBkg>	monHistos;
 	Monitoring		*monModule;
 };
