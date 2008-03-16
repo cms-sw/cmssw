@@ -16,23 +16,23 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Feb 21 14:43:25 EST 2008
-// $Id: FWViewBase.h,v 1.1 2008/02/21 20:31:24 chrjones Exp $
+// $Id: FWViewBase.h,v 1.2 2008/03/11 02:47:04 chrjones Exp $
 //
 
 // system include files
 #include <string>
 
 // user include files
-#include "Fireworks/Core/interface/FWParameterizable.h"
+#include "Fireworks/Core/interface/FWConfigurableParameterizable.h"
 
 // forward declarations
 class TGFrame;
 
-class FWViewBase : public FWParameterizable
+class FWViewBase : public FWConfigurableParameterizable
 {
 
    public:
-      FWViewBase();
+      FWViewBase(unsigned int iVersion=1);
       virtual ~FWViewBase();
 
       // ---------- const member functions ---------------------

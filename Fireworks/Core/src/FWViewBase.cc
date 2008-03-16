@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Feb 21 14:43:19 EST 2008
-// $Id$
+// $Id: FWViewBase.cc,v 1.1 2008/02/21 20:31:24 chrjones Exp $
 //
 
 // system include files
@@ -28,7 +28,8 @@
 //
 // constructors and destructor
 //
-FWViewBase::FWViewBase()
+FWViewBase::FWViewBase(unsigned int iVersion):
+FWConfigurableParameterizable(iVersion)
 {
 }
 
