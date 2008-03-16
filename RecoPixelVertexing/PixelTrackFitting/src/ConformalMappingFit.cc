@@ -7,16 +7,19 @@
 //#include "CommonDet/PatternPrimitives/interface/TrajectoryStateOnSurface.h"
 
 //#include "TrackerReco/TkMSParametrization/interface/MultipleScatteringParametrisation.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 using namespace std;
+using namespace edm;
 
 template <class T> T sqr( T t) {return t*t;}
 
-ConformalMappingFit::ConformalMappingFit(const vector<PointXY> & hits)
+ConformalMappingFit::ConformalMappingFit(const vector<PointXY> & hits, const ParameterSet & cfg)
   : theRotation(0), myRotation(false)
 {
   vector<float> errRPhi2( hits.size(), 1.);
   init( hits, errRPhi2);
   theFit.skipErrorCalculationByDefault();
+  if (cfg.exists("fixImpactParameter")) theFit.fixParC(cfg.getParameter<double>("fixImpactParameter"));
 }
 
 /*

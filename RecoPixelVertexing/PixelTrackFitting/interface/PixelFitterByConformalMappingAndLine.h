@@ -7,7 +7,7 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 
-namespace edm {class ParameterSet;}
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 class PixelFitterByConformalMappingAndLine : public PixelFitter {
 public:
@@ -18,5 +18,7 @@ public:
       const edm::EventSetup& es,
       const std::vector<const TrackingRecHit *>& hits, 
       const TrackingRegion& region) const;
+private:
+  edm::ParameterSet theConfig;
 };
 #endif

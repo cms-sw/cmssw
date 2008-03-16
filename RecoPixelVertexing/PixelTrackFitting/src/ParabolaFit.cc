@@ -1,4 +1,5 @@
 #include "ParabolaFit.h"
+#include <iostream>
 using namespace std; 
 template <class T> T sqr( T t) {return t*t;}
 
@@ -38,11 +39,22 @@ const ParabolaFit::Result & ParabolaFit::result( bool doErrors ) const
   Column cC = { F2, F3, F4 };
   Column cY = { F0y, F1y, F2y };
 
+//  if (forceVertex) { cC.r1 = 0; cC.r2 = 0; cC.r3 = 1; }
+
   double det0 = det(cA, cB, cC);
+
+  if ( !hasFixedParC) {
   theResult.parA = det(cY, cB, cC) / det0;
   theResult.parB = det(cA, cY, cC) / det0;
   theResult.parC = det(cA, cB, cY) / det0;
+  } else {
+    Column cCY = {F0y-theResult.parC*F2, F1y-theResult.parC*F3, F2y-theResult.parC*F4};
+    double det0C   = det(cA, cB);
+    theResult.parA = det(cCY, cB) / det0C;
+    theResult.parB = det(cA, cCY) / det0C;
+  } 
 
+  std::cout <<" result: A="<<theResult.parA<<" B="<<theResult.parB<<" C="<<theResult.parC<<endl; 
   double vAA,  vBB,  vCC,  vAB,  vAC,  vBC;
          vAA = vBB = vCC = vAB = vAC = vBC = 0.;
 
@@ -80,7 +92,7 @@ const ParabolaFit::Result & ParabolaFit::result( bool doErrors ) const
 
 double ParabolaFit::chi2() const
 {
-  if (!hasValues) result( doErr );
+  if (!hasValues) return 0.; // result( doErr );
   double mychi2 = 0.;
   for ( vector<Point>::const_iterator 
       ip = points.begin(); ip != points.end(); ip++) {
@@ -96,8 +108,9 @@ double ParabolaFit::fun(double x) const
 
 int ParabolaFit::dof() const
 {
-  int n = points.size();
-  return (n > 3) ? n-3 : 0;
+  int nPar = 3; if (hasFixedParC) nPar--;
+  int nDof = points.size() - nPar;
+  return (nDof > 0) ? nDof : 0;
 }
 
 double ParabolaFit::det(
@@ -109,4 +122,9 @@ double ParabolaFit::det(
          - c1.r3 * c2.r2 * c3.r1
          - c2.r3 * c3.r2 * c1.r1
          - c3.r3 * c1.r2 * c2.r1;
+}
+
+double ParabolaFit::det( const Column & c1, const Column & c2) const
+{
+  return c1.r1*c2.r2 - c1.r2*c2.r1;
 }
