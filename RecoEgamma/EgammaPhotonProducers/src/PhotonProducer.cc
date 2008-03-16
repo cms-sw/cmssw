@@ -284,13 +284,14 @@ void PhotonProducer::fillPhotonCollection(
     math::XYZVector momentum = direction.unit() * aClus->energy();
     double photonEnergy=0;
     if ( r9 > minR9_) {
-      photonEnergy=aClus->energy();
-      
-    } else {
       photonEnergy=seedShapeRef->e5x5();
+    } else {
+      photonEnergy=aClus->energy();
     }
 
     const reco::Particle::LorentzVector  p4(momentum.x(), momentum.y(), momentum.z(), photonEnergy );
+   
+
     
     reco::Photon newCandidate(p4, unconvPos, scRef, seedShapeRef, HoE, hasSeed, vtx);
 
