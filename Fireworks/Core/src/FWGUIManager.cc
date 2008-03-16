@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Feb 11 11:06:40 EST 2008
-// $Id: FWGUIManager.cc,v 1.17 2008/03/16 15:37:56 chrjones Exp $
+// $Id: FWGUIManager.cc,v 1.18 2008/03/16 19:58:39 chrjones Exp $
 //
 
 // system include files
@@ -61,8 +61,6 @@
 //
 // static data member definitions
 //
-// this is a kluge for now -- JMü
-FWDetailViewManager *FWGUIManager::m_detailViewManager = new FWDetailViewManager;
 
 //
 // constructors and destructor
@@ -76,7 +74,8 @@ m_eiManager(iEIMgr),
 m_continueProcessingEvents(false),
 m_waitForUserAction(true),
 m_code(0),
-m_editableSelected(0)
+m_editableSelected(0),
+m_detailViewManager(new FWDetailViewManager)
 {
    m_selectionManager->selectionChanged_.connect(boost::bind(&FWGUIManager::selectionChanged,this,_1));
    m_eiManager->newItem_.connect(boost::bind(&FWGUIManager::newItem,
@@ -338,6 +337,14 @@ FWGUIManager::registerViewBuilder(const std::string& iName,
 }
 
 void 
+FWGUIManager::registerDetailView (const std::string &iItemName, 
+                                  FWDetailView *iView)
+{
+   m_detailViewManager->registerDetailView(iItemName,iView);
+}
+
+
+void 
 FWGUIManager::createView(const std::string& iName)
 {
    NameToViewBuilder::iterator itFind = m_nameToViewBuilder.find(iName);
@@ -413,7 +420,7 @@ FWGUIManager::selectionChanged(const FWSelectionManager& iSM)
 {
    if(0 !=iSM.selected().size() ) {
       delete m_editableSelected;
-      FWListModel* model = new FWListModel(*(iSM.selected().begin()));
+      FWListModel* model = new FWListModel(*(iSM.selected().begin()), m_detailViewManager);
       const FWEventItem::ModelInfo& info =iSM.selected().begin()->item()->modelInfo(iSM.selected().begin()->index());
       model->SetMainColor(info.displayProperties().color());
       model->SetRnrState(info.displayProperties().isVisible());

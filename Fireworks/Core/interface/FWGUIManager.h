@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Feb 11 10:52:24 EST 2008
-// $Id: FWGUIManager.h,v 1.11 2008/03/14 21:16:15 chrjones Exp $
+// $Id: FWGUIManager.h,v 1.12 2008/03/16 15:37:56 chrjones Exp $
 //
 
 // system include files
@@ -49,6 +49,7 @@ class TEveGedEditor;
 
 class FWSummaryManager;
 class FWDetailViewManager;
+class FWDetailView;
 
 class FWGUIManager : public FWConfigurable
 {
@@ -77,6 +78,8 @@ class FWGUIManager : public FWConfigurable
       void registerViewBuilder(const std::string& iName, 
                               ViewBuildFunctor& iBuilder);
    
+      void registerDetailView (const std::string &iItemName, 
+                               FWDetailView *iView);
       void createView(const std::string& iName);
    
       void goForward();
@@ -151,9 +154,8 @@ class FWGUIManager : public FWConfigurable
 
       //views are owned by their individual view managers
       std::vector<FWViewBase* > m_viewBases;
-     // hack for now 
-public: 
-     static FWDetailViewManager* m_detailViewManager;
+
+      FWDetailViewManager* m_detailViewManager;
 };
 
 

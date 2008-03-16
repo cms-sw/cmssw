@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Feb 28 11:13:37 PST 2008
-// $Id: FWListEventItem.cc,v 1.8 2008/03/11 23:30:04 chrjones Exp $
+// $Id: FWListEventItem.cc,v 1.9 2008/03/13 03:00:34 chrjones Exp $
 //
 
 // system include files
@@ -127,7 +127,7 @@ FWListEventItem::itemChanged(const FWEventItem* iItem)
    //std::cout <<"item changed "<<eventItem()->size()<<std::endl;
    this->DestroyElements();
    for(unsigned int index = 0; index < eventItem()->size(); ++index) {
-      FWListModel* model = new FWListModel(FWModelId(eventItem(),index));
+      FWListModel* model = new FWListModel(FWModelId(eventItem(),index), m_detailViewManager);
       this->AddElement( model );
       model->SetMainColor(m_item->defaultDisplayProperties().color());
    }

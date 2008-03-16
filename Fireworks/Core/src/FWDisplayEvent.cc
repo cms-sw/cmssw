@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Mon Dec  3 08:38:38 PST 2007
-// $Id: FWDisplayEvent.cc,v 1.33 2008/03/14 03:26:18 chrjones Exp $
+// $Id: FWDisplayEvent.cc,v 1.34 2008/03/14 21:17:25 chrjones Exp $
 //
 
 // system include files
@@ -153,7 +153,7 @@ void FWDisplayEvent::registerProxyBuilder(const std::string& type,
 void FWDisplayEvent::registerDetailView (const std::string &item_name, 
 					 FWDetailView *view)
 {
-     m_guiManager->m_detailViewManager->registerDetailView(item_name, view);
+     m_guiManager->registerDetailView(item_name, view);
 }
 
 //

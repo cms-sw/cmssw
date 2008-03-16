@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Mar  3 17:20:20 EST 2008
-// $Id: FWListModel.h,v 1.4 2008/03/11 23:30:04 chrjones Exp $
+// $Id: FWListModel.h,v 1.5 2008/03/13 02:58:15 chrjones Exp $
 //
 
 // system include files
@@ -29,12 +29,14 @@
 // forward declarations
 class TObject;
 class FWDisplayProperties;
+class FWDetailViewManager;
 
 class FWListModel : public TEveElement, public TNamed, public FWListItemBase
 {
 
    public:
-      FWListModel(const FWModelId& iId = FWModelId() );
+      FWListModel(const FWModelId& iId = FWModelId(),
+                  FWDetailViewManager* iDVM=0);
       virtual ~FWListModel();
 
       // ---------- const member functions ---------------------
@@ -61,6 +63,7 @@ class FWListModel : public TEveElement, public TNamed, public FWListItemBase
       // ---------- member data --------------------------------
       FWModelId m_id;
       Color_t m_color;
+      FWDetailViewManager* m_detailViewManager;
 };
 
 
