@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Feb 11 11:06:40 EST 2008
-// $Id: FWGUIManager.cc,v 1.15 2008/03/14 21:16:15 chrjones Exp $
+// $Id: FWGUIManager.cc,v 1.16 2008/03/15 23:57:47 chrjones Exp $
 //
 
 // system include files
@@ -238,15 +238,18 @@ m_editableSelected(0)
          TGSplitFrame* sf = m_splitFrame->GetFirst();
          m_viewFrames.push_back(sf);
 
+         unsigned int subviewIndex=0;
          sf = m_splitFrame->GetSecond()->GetFirst();
-         TGCompositeFrame* hf = new FWGUISubviewArea(sf,m_splitFrame);
+         FWGUISubviewArea* hf = new FWGUISubviewArea(subviewIndex++,sf,m_splitFrame);
+         hf->swappedToBigView_.connect(boost::bind(&FWGUIManager::subviewWasSwappedToBig,this,_1));
          m_viewFrames.push_back(hf);
          (sf)->AddFrame(hf,new TGLayoutHints(kLHintsExpandX | 
                                              kLHintsExpandY) );
 
          
          sf=m_splitFrame->GetSecond()->GetSecond();
-         hf = new FWGUISubviewArea(sf,m_splitFrame);
+         hf = new FWGUISubviewArea(subviewIndex++,sf,m_splitFrame);
+         hf->swappedToBigView_.connect(boost::bind(&FWGUIManager::subviewWasSwappedToBig,this,_1));
          m_viewFrames.push_back(hf);
          (sf)->AddFrame(hf,new TGLayoutHints(kLHintsExpandX | 
                                              kLHintsExpandY) );
@@ -341,10 +344,10 @@ FWGUIManager::createView(const std::string& iName)
    if(itFind == m_nameToViewBuilder.end()) {
       throw std::runtime_error(std::string("Unable to create view named ")+iName+" because it is unknown");
    }
-   boost::shared_ptr<FWViewBase> view(itFind->second(parentForNextView()));
+   FWViewBase* view(itFind->second(parentForNextView()));
    addFrameHoldingAView(view->frame());
    
-   FWListViewObject* lst = new FWListViewObject(iName.c_str(),view.get());
+   FWListViewObject* lst = new FWListViewObject(iName.c_str(),view);
    lst->AddIntoListTree(m_listTree,m_views);
    m_viewBases.push_back(view);
 }
@@ -446,6 +449,13 @@ bool
 FWGUIManager::waitingForUserAction() const
 {
    return m_waitForUserAction;
+}
+
+void 
+FWGUIManager::subviewWasSwappedToBig(unsigned int iIndex)
+{
+   //have to add 1 since the main view is the 0th so the first subview is 1
+   std::swap(m_viewBases[0], m_viewBases[iIndex+1]);
 }
 
 //
@@ -557,7 +567,7 @@ FWGUIManager::addTo(FWConfiguration& oTo) const
    oTo.addKeyValue(kMainWindow,mainWindow,true);
    
    FWConfiguration views(1);
-   for(std::vector<boost::shared_ptr<FWViewBase> >::const_iterator it = m_viewBases.begin(),
+   for(std::vector<FWViewBase* >::const_iterator it = m_viewBases.begin(),
        itEnd = m_viewBases.end();
        it != itEnd;
        ++it) {
