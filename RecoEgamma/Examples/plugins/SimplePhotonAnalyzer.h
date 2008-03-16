@@ -3,8 +3,8 @@
 /**\class SimplePhotonAnalyzer
  **
  ** Description: Get Photon collection from the event and make very basic histos
- ** $Date: 2008/02/12 20:40:52 $
- ** $Revision: 1.4 $
+ ** $Date: 2008/02/25 12:32:02 $
+ ** $Revision: 1.5 $
  ** \author Nancy Marinelli, U. of Notre Dame, US
  **
  **/
@@ -57,8 +57,17 @@ class SimplePhotonAnalyzer : public edm::EDAnalyzer {
       TH1F* h1_deltaEtaSC_;
       TH1F* h1_deltaPhiSC_ ;
  
-      
-      TH1F* h1_recEoverTrueE_ ;
+
+      TH1F* h1_e5x5_unconvBarrel_;
+      TH1F* h1_e5x5_unconvEndcap_;
+      TH1F* h1_ePho_convBarrel_;
+      TH1F* h1_ePho_convEndcap_;
+
+
+      TH1F* h1_recEoverTrueEBarrel_ ;
+      TH1F* h1_recEoverTrueEEndcap_ ;
+      TH1F* h1_recESCoverTrueEBarrel_ ;
+      TH1F* h1_recESCoverTrueEEndcap_ ;
       TH1F* h1_deltaEta_;
       TH1F* h1_deltaPhi_ ;
     
@@ -66,8 +75,9 @@ class SimplePhotonAnalyzer : public edm::EDAnalyzer {
       TH1F* h1_pho_E_;
       TH1F* h1_pho_Eta_;
       TH1F* h1_pho_Phi_;
-      TH1F* h1_pho_R9_;
-
+      TH1F* h1_pho_R9Barrel_;
+      TH1F* h1_pho_R9Endcap_;
+    
 
 
 };
