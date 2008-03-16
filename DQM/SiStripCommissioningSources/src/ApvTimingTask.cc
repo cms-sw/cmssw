@@ -68,7 +68,7 @@ void ApvTimingTask::fill( const SiStripEventSummary& summary,
   
   uint32_t pll_fine = summary.pllFine();
   for ( uint16_t coarse = 0; coarse < nBins_/*digis.data.size()*/; coarse++ ) {
-    uint16_t fine = (coarse+1)*24 - pll_fine;
+    uint16_t fine = (coarse+1)*24 - (pll_fine+1);
     updateHistoSet( timing_, fine, digis.data[coarse].adc() );
   }
   
