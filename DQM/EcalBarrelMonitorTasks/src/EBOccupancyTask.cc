@@ -1,8 +1,8 @@
 /*
  * \file EBOccupancyTask.cc
  *
- * $Date: 2008/02/23 09:56:54 $
- * $Revision: 1.55 $
+ * $Date: 2008/02/29 15:04:18 $
+ * $Revision: 1.56 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -331,17 +331,16 @@ void EBOccupancyTask::analyze(const Event& e, const EventSetup& c){
       Handle<EcalRawDataCollection> dcchs;
 
       if ( e.getByLabel(EcalRawDataCollection_, dcchs) ) {
-	
+
 	for ( EcalRawDataCollection::const_iterator dcchItr = dcchs->begin(); dcchItr != dcchs->end(); ++dcchItr ) {
-	  
+
 	  EcalDCCHeaderBlock dcch = (*dcchItr);
-	  
-	  if ( ! ( dcch.id() >= 10 && dcch.id() <= 27 ) &&
-	       ! ( dcch.id() >= 28 && dcch.id() <= 45 ) ) continue;
-	  
+
+          if ( Numbers::subDet( dcch ) != EcalBarrel ) continue;
+
 	  if ( dcch.getRunType() == EcalDCCHeaderBlock::TESTPULSE_MGPA ||
 	       dcch.getRunType() == EcalDCCHeaderBlock::TESTPULSE_GAP ) {
-	    
+
 	    if ( meEBTestPulseDigiOccupancy_ ) meEBTestPulseDigiOccupancy_->Fill( xebphi, xebeta );
 
 	  }
@@ -363,9 +362,9 @@ void EBOccupancyTask::analyze(const Event& e, const EventSetup& c){
 	}
 
       } else {
-	
+
 	LogWarning("EBOccupancyTask") << EcalRawDataCollection_ << " not available";
-	
+
       }
 
     }

@@ -1,8 +1,8 @@
 /*
  * \file EEOccupancyTask.cc
  *
- * $Date: 2008/02/23 09:56:56 $
- * $Revision: 1.41 $
+ * $Date: 2008/02/29 15:08:24 $
+ * $Revision: 1.42 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -47,7 +47,7 @@ EEOccupancyTask::EEOccupancyTask(const ParameterSet& ps){
   EcalPnDiodeDigiCollection_ = ps.getParameter<edm::InputTag>("EcalPnDiodeDigiCollection");
   EcalRecHitCollection_ = ps.getParameter<edm::InputTag>("EcalRecHitCollection");
   EcalTrigPrimDigiCollection_ = ps.getParameter<edm::InputTag>("EcalTrigPrimDigiCollection");
-  EcalRawDataCollection_ = ps.getParameter<edm::InputTag>("EcalRawDataCollection"); 
+  EcalRawDataCollection_ = ps.getParameter<edm::InputTag>("EcalRawDataCollection");
 
   for (int i = 0; i < 18; i++) {
     meOccupancy_[i]    = 0;
@@ -498,17 +498,15 @@ void EEOccupancyTask::analyze(const Event& e, const EventSetup& c){
 
 
       Handle<EcalRawDataCollection> dcchs;
-      
+
       if ( e.getByLabel(EcalRawDataCollection_, dcchs) ) {
-	
+
 	for ( EcalRawDataCollection::const_iterator dcchItr = dcchs->begin(); dcchItr != dcchs->end(); ++dcchItr ) {
-	  
+
 	  EcalDCCHeaderBlock dcch = (*dcchItr);
-	  
-	  if ( ! ( dcch.id() >=  1 && dcch.id() <=  9 ) &&
-	       ! ( dcch.id() >= 46 && dcch.id() <= 54 ) ) continue;
-	
-	  
+
+          if ( Numbers::subDet( dcch ) != EcalEndcap ) continue;
+
 	  if ( dcch.getRunType() == EcalDCCHeaderBlock::TESTPULSE_MGPA ||
 	       dcch.getRunType() == EcalDCCHeaderBlock::TESTPULSE_GAP ) {
 
@@ -556,9 +554,9 @@ void EEOccupancyTask::analyze(const Event& e, const EventSetup& c){
 	}
 
       } else {
-	
+
 	LogWarning("EBOccupancyTask") << EcalRawDataCollection_ << " not available";
-	
+
       }
 
     }
@@ -636,7 +634,7 @@ void EEOccupancyTask::analyze(const Event& e, const EventSetup& c){
         if ( meEERecHitOccupancyProPhi_[1] ) meEERecHitOccupancyProPhi_[1]->Fill( atan2(xeey-50.,xeex-50.) );
       }
 
-      if ( rechitItr->energy() > recHitEnergyMin_ ) { 
+      if ( rechitItr->energy() > recHitEnergyMin_ ) {
 
         if ( ism >= 1 && ism <= 9 ) {
           if ( meEERecHitOccupancyThr_[0] ) meEERecHitOccupancyThr_[0]->Fill( xeex, xeey );
@@ -671,18 +669,18 @@ void EEOccupancyTask::analyze(const Event& e, const EventSetup& c){
       EcalTrigTowerDetId idt = data.id();
 
       if ( Numbers::subDet( idt ) != EcalEndcap ) continue;
-      
+
       int ismt = Numbers::iSM( idt );
-      
+
       vector<DetId> crystals = Numbers::crystals( idt );
-      
+
       for ( unsigned int i=0; i<crystals.size(); i++ ) {
-        
+
         EEDetId id = crystals[i];
-        
+
         int eex = id.ix();
         int eey = id.iy();
-        
+
         if ( ismt >= 1 && ismt <= 9 ) eex = 101 - eex;
 
         float xeex = eex - 0.5;
@@ -699,7 +697,7 @@ void EEOccupancyTask::analyze(const Event& e, const EventSetup& c){
         }
 
         if ( data.compressedEt() > trigPrimEtMin_ ) {
-        
+
           if ( ismt >= 1 && ismt <= 9 ) {
             if ( meEETrigPrimDigiOccupancyThr_[0] ) meEETrigPrimDigiOccupancyThr_[0]->Fill( xeex, xeey );
             if ( meEETrigPrimDigiOccupancyProRThr_[0] ) meEETrigPrimDigiOccupancyProRThr_[0]->Fill( sqrt(pow(xeex-50.,2)+pow(xeey-50.,2)) );
