@@ -20,6 +20,8 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/InputTag.h"
+
 #include "DataFormats/EcalRecHit/interface/EcalRecHit.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 
@@ -56,8 +58,11 @@ class HLTPi0RecHitsFilter : public HLTFilter {
    private:
       // ----------member data ---------------------------
 
- std::string ecalHitsProducer_;
- std::string barrelHits_;
+// std::string ecalHitsProducer_;
+// std::string barrelHits_;
+// replace the 2 strings with 1 InputTag of form label:instance
+   edm::InputTag barrelHits_;
+
  std::string pi0BarrelHits_;
 
  int gammaCandEtaSize_;
