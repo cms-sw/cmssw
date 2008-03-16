@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Feb 11 11:06:40 EST 2008
-// $Id: FWGUIManager.cc,v 1.16 2008/03/15 23:57:47 chrjones Exp $
+// $Id: FWGUIManager.cc,v 1.17 2008/03/16 15:37:56 chrjones Exp $
 //
 
 // system include files
@@ -572,7 +572,7 @@ FWGUIManager::addTo(FWConfiguration& oTo) const
        it != itEnd;
        ++it) {
       FWConfiguration temp(1);
-      //(*it)->addTo(temp);
+      (*it)->addTo(temp);
       views.addKeyValue((*it)->typeName(), temp, true);
    }
    oTo.addKeyValue(kViews,views,true);
@@ -640,7 +640,7 @@ FWGUIManager::setFrom(const FWConfiguration& iFrom)
       createView(it->first);
       
       assert(n+1 == m_viewBases.size());
-      //m_viewBases.back()->setFrom(it->second);
+      m_viewBases.back()->setFrom(it->second);
    }
    
    //now configure the view area
