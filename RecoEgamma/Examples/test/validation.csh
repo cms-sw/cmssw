@@ -118,12 +118,24 @@ else if ( $TYPE == Photon ) then
 
 cat > scaledhistos <<EOF
   scE
+  scEt
   scEta
   scPhi
-  corrPhoE
-  corrPhoEta
-  corrPhoPhi
-  recEoverTrueE
+  deltaEtaSC
+  deltaPhiSC
+  phoE
+  phoEta
+  phoPhi
+  phoR9Barrel
+  phoR9Endcap
+  recEoverTrueEBarrel
+  recEoverTrueEEndcap
+  recESCoverTrueEBarrel
+  recESCoverTrueEEndcap
+  e5x5_unconvBarrelOverEtrue
+  e5x5_unconvEndcapOverEtrue
+  ePho_convBarrelOverEtrue
+  ePho_convEndcapOverEtrue
   deltaEta
   deltaPhi
 EOF
