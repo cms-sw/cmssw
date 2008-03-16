@@ -15,7 +15,9 @@ class OptoScanHistograms : public virtual CommissioningHistograms {
   virtual ~OptoScanHistograms();
   
   void histoAnalysis( bool debug );
-  
+
+  void printAnalyses(); // override
+
 };
 
 #endif // DQM_SiStripCommissioningClients_OptoScanHistograms_H
