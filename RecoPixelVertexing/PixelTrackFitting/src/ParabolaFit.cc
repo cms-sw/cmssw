@@ -3,6 +3,12 @@
 using namespace std; 
 template <class T> T sqr( T t) {return t*t;}
 
+void ParabolaFit::addPoint(double x, double y)
+{
+  hasWeights = false;
+  addPoint(x,y,1.);
+}
+
 void ParabolaFit::addPoint(double x, double y, double w)
 {
   hasValues = false;
@@ -39,8 +45,6 @@ const ParabolaFit::Result & ParabolaFit::result( bool doErrors ) const
   Column cC = { F2, F3, F4 };
   Column cY = { F0y, F1y, F2y };
 
-//  if (forceVertex) { cC.r1 = 0; cC.r2 = 0; cC.r3 = 1; }
-
   double det0 = det(cA, cB, cC);
 
   if ( !hasFixedParC) {
@@ -54,12 +58,19 @@ const ParabolaFit::Result & ParabolaFit::result( bool doErrors ) const
     theResult.parB = det(cA, cCY) / det0C;
   } 
 
-  std::cout <<" result: A="<<theResult.parA<<" B="<<theResult.parB<<" C="<<theResult.parC<<endl; 
+//  std::cout <<" result: A="<<theResult.parA<<" B="<<theResult.parB<<" C="<<theResult.parC<<endl; 
   double vAA,  vBB,  vCC,  vAB,  vAC,  vBC;
          vAA = vBB = vCC = vAB = vAC = vBC = 0.;
 
   hasValues = true;
   if (!doErrors) return theResult;
+
+  if( !hasWeights &&  dof() > 0) {
+//     cout <<" CHI2: " << chi2() <<" DOF: " << dof() << endl;
+     double scale_w = 1./chi2()/dof();
+     for (IT ip = points.begin(); ip != points.end(); ip++) ip->w *= scale_w; 
+//     cout <<" CHI2: " << chi2() <<" DOF: " << dof() << endl;
+  }
   
   for (IT ip = points.begin(); ip != points.end(); ip++) {
 
@@ -92,7 +103,6 @@ const ParabolaFit::Result & ParabolaFit::result( bool doErrors ) const
 
 double ParabolaFit::chi2() const
 {
-  if (!hasValues) return 0.; // result( doErr );
   double mychi2 = 0.;
   for ( vector<Point>::const_iterator 
       ip = points.begin(); ip != points.end(); ip++) {

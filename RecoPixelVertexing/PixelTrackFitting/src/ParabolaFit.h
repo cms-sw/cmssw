@@ -12,9 +12,11 @@ class ParabolaFit {
 public:
   struct Result { double parA, parB, parC; 
                   double varAA, varBB, varCC, varAB, varAC, varBC; } ;
-  ParabolaFit() : doErr(true), hasFixedParC(false), hasValues(false), hasErrors(false) { }
+  ParabolaFit() : 
+      doErr(true), hasFixedParC(false), hasValues(false), hasErrors(false), hasWeights(true) { }
 
-  void addPoint(double x, double y, double weight=1.);
+  void addPoint(double x, double y);
+  void addPoint(double x, double y, double weight);
 
   void skipErrorCalculationByDefault() { doErr = false; }
   void fixParC(double val) { hasFixedParC = true; theResult.parC = val; }
@@ -42,10 +44,11 @@ private:
   double fun(double x) const;
 
 private:
-  struct Point { double x; double y; double w; }; 
-  std::vector<Point> points;
+  mutable struct Point { double x; double y; mutable double w; }; 
+  mutable std::vector<Point> points;
   bool doErr, hasFixedParC;
   mutable bool hasValues, hasErrors;
+  bool hasWeights;
   mutable Result theResult;  
 };
 

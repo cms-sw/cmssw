@@ -13,11 +13,17 @@ using namespace edm;
 
 template <class T> T sqr( T t) {return t*t;}
 
+
 ConformalMappingFit::ConformalMappingFit(const vector<PointXY> & hits, const ParameterSet & cfg)
   : theRotation(0), myRotation(false)
 {
-  vector<float> errRPhi2( hits.size(), 1.);
-  init( hits, errRPhi2);
+  typedef ConformalMappingFit::MappedPoint<double> PointUV;
+  int hits_size = hits.size();
+  for ( int i= 0; i < hits_size; i++) {
+    if (!theRotation) findRot( hits[i] );
+    PointUV point( hits[i], 1., theRotation); 
+    theFit.addPoint( point.u(), point.v());
+  }
   theFit.skipErrorCalculationByDefault();
   if (cfg.exists("fixImpactParameter")) theFit.fixParC(cfg.getParameter<double>("fixImpactParameter"));
 }
@@ -30,8 +36,9 @@ ConformalMappingFit::ConformalMappingFit(
       bool useMultScatt, float pt, float zVtx)
   : theRotation(rot), myRotation(false)
 {
-  vector<PointXY> points;
-  vector<float> errRPhi2;
+//  vector<PointXY> points;
+//  vector<float> errRPhi2;
+  typedef ConformalMappingFit::MappedPoint<double> PointUV;
 
   int hits_size = hits.size();
   for (int i = 0; i < hits_size; i++) {
@@ -47,10 +54,16 @@ ConformalMappingFit::ConformalMappingFit(
       float cotTheta = (p.z()-zVtx)/p.perp();
       err2 += sqr( ms( pt, cotTheta, PixelRecoPointRZ(0.,zVtx) ) );
     }
-    points.push_back( PointXY(p.x(), p.y()) );
-    errRPhi2.push_back(err2);
+
+    PointXY pointXY(p.x(), p.y());
+    if (!theRotation) findRot( pointXY );
+    PointUV pointUV( pointXY, 1./err2, theRotation);
+    theFit.addPoint( pointUV.u(), pointUV.v(), pointUV.weight());
+
+//    points.push_back( PointXY(p.x(), p.y()) );
+//    errRPhi2.push_back(err2);
   }
-  init (points, errRPhi2, rot);
+//  init (points, errRPhi2, rot);
 }
 */
 
