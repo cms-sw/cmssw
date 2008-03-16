@@ -482,17 +482,14 @@ void OptoScanAnalysis::print( std::stringstream& ss, uint32_t gain ) {
   if ( gain >= bias_.size() ) {
     edm::LogWarning(mlCommissioning_)
       << "[" << myName() << "::" << __func__ << "]"
-      << " Unexpected gain setting: " << gain_;
+      << " Unexpected gain setting: " << gain;
     return;
   }
 
   header( ss );
-  if ( gain_ > sistrip::maximum_ ) { 
-    ss << " Warning: invalid gain setting!" << std::endl;
-    ss << " (Monitorables below for gain setting " << gain << ")" << std::endl;
-  }
   ss <<  std::fixed << std::setprecision(2)
      << " Optimum LLD gain setting : " << gain_ << std::endl
+     << " LLD gain setting         : " << gain << std::endl
      << " LLD bias setting         : " << bias_[gain] << std::endl
      << " Measured gain      [V/V] : " << measGain_[gain] << std::endl
      << " Zero light level   [ADC] : " << zeroLight_[gain] << std::endl

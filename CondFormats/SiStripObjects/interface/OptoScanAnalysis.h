@@ -66,7 +66,7 @@ class OptoScanAnalysis : public CommissioningAnalysis {
   // ---------- public print methods ----------
 
   /** Prints analysis results. */
-  void print( std::stringstream&, uint32_t gain_setting = 0 );
+  void print( std::stringstream&, uint32_t gain_setting = sistrip::invalid_ );
   
   /** Overrides base method. */
   void summary( std::stringstream& ) const;
