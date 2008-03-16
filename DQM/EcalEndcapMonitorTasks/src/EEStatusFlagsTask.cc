@@ -1,8 +1,8 @@
 /*
  * \file EEStatusFlagsTask.cc
  *
- * $Date: 2008/02/29 15:08:34 $
- * $Revision: 1.6 $
+ * $Date: 2008/03/13 11:24:38 $
+ * $Revision: 1.7 $
  * \author G. Della Ricca
  *
 */
@@ -196,8 +196,7 @@ void EEStatusFlagsTask::analyze(const Event& e, const EventSetup& c){
 
       EcalDCCHeaderBlock dcch = (*dcchItr);
 
-      if ( ! ( dcch.id() >=  1 && dcch.id() <=  9 ) &&
-           ! ( dcch.id() >= 46 && dcch.id() <= 54 ) ) continue;
+      if ( Numbers::subDet( dcch ) != EcalEndcap ) continue;
 
       int ism = Numbers::iSM( dcch, EcalEndcap );
 

@@ -1,8 +1,8 @@
 /*
  * \file EBStatusFlagsTask.cc
  *
- * $Date: 2008/02/29 15:04:41 $
- * $Revision: 1.6 $
+ * $Date: 2008/03/13 11:24:38 $
+ * $Revision: 1.7 $
  * \author G. Della Ricca
  *
 */
@@ -194,8 +194,7 @@ void EBStatusFlagsTask::analyze(const Event& e, const EventSetup& c){
 
       EcalDCCHeaderBlock dcch = (*dcchItr);
 
-      if ( ! ( dcch.id() >= 10 && dcch.id() <= 27 ) &&
-           ! ( dcch.id() >= 28 && dcch.id() <= 45 ) ) continue;
+      if ( Numbers::subDet( dcch ) != EcalBarrel ) continue;
 
       int ism = Numbers::iSM( dcch, EcalBarrel );
 
