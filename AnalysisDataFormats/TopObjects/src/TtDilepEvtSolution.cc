@@ -1,5 +1,5 @@
 //
-// $Id: TtDilepEvtSolution.cc,v 1.15 2008/01/25 13:34:29 vadler Exp $
+// $Id: TtDilepEvtSolution.cc,v 1.16 2008/02/15 12:10:53 rwolf Exp $
 //
 
 #include "PhysicsTools/Utilities/interface/DeltaR.h"
@@ -76,12 +76,31 @@ reco::Particle TtDilepEvtSolution::getLeptPos() const
 //-------------------------------------------
 // miscellaneous
 //-------------------------------------------
-double TtDilepEvtSolution::getResidual() const
+double TtDilepEvtSolution::getJetResidual() const
 {
   double distance = 0.;
   if(!getGenB() || !getGenBbar()) return distance;
   distance += DeltaR<reco::Particle,reco::GenParticle>()(getCalJetB(),*getGenB());
   distance += DeltaR<reco::Particle,reco::GenParticle>()(getCalJetBbar(),*getGenBbar());
+  return distance;
+}
+
+double TtDilepEvtSolution::getLeptonResidual() const
+{
+  double distance = 0.;
+  if(!getGenLepp() || !getGenLepm()) return distance;
+  if(getWpDecay()=="electron")
+    distance += DeltaR<reco::Particle,reco::GenParticle>()(getElectronp(),*getGenLepp());
+  else if(getWpDecay()=="muon")
+    distance += DeltaR<reco::Particle,reco::GenParticle>()(getMuonp(),*getGenLepp());
+  else if(getWpDecay()=="tau")
+    distance += DeltaR<reco::Particle,reco::GenParticle>()(getTaup(),*getGenLepp());
+  if(getWmDecay()=="electron")
+    distance += DeltaR<reco::Particle,reco::GenParticle>()(getElectronm(),*getGenLepm());
+  else if(getWmDecay()=="muon")
+    distance += DeltaR<reco::Particle,reco::GenParticle>()(getMuonm(),*getGenLepm());
+  else if(getWmDecay()=="tau")
+    distance += DeltaR<reco::Particle,reco::GenParticle>()(getTaum(),*getGenLepm());
   return distance;
 }
 

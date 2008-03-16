@@ -1,5 +1,5 @@
 //
-// $Id: TtDilepEvtSolution.h,v 1.17 2008/01/25 13:32:14 vadler Exp $
+// $Id: TtDilepEvtSolution.h,v 1.18 2008/02/15 12:10:47 rwolf Exp $
 //
 
 #ifndef TopObjects_TtDilepEvtSolution_h
@@ -80,7 +80,9 @@ class TtDilepEvtSolution {
   //-------------------------------------------
   // miscellaneous
   //-------------------------------------------
-  double getResidual()     const;
+  double getJetResidual()    const;
+  double getLeptonResidual() const;
+  double getFullResidual()   const { return getJetResidual()+getFullResidual(); }
   bool   getBestSol()      const { return bestSol_; }
   double getRecTopMass()   const {return topmass_; }
   double getRecWeightMax() const {return weightmax_; }
