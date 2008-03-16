@@ -1,11 +1,11 @@
-// $Id: Numbers.cc,v 1.51 2008/03/14 19:33:50 dellaric Exp $
+// $Id: Numbers.cc,v 1.52 2008/03/15 13:15:39 dellaric Exp $
 
 /*!
   \file Numbers.cc
   \brief Some "id" conversions
-  \author B. Gobbo 
-  \version $Revision: 1.51 $
-  \date $Date: 2008/03/14 19:33:50 $
+  \author B. Gobbo
+  \version $Revision: 1.52 $
+  \date $Date: 2008/03/15 13:15:39 $
 */
 
 #include <sstream>
@@ -99,7 +99,7 @@ std::string Numbers::sEB( const int ism  ) {
 //-------------------------------------------------------------------------
 
 int Numbers::iEE( const int ism ) throw( std::runtime_error ) {
-  
+
   // EE-
   if( ism ==  1 ) return( -7 );
   if( ism ==  2 ) return( -8 );
@@ -686,19 +686,17 @@ int Numbers::inTowersEE[400] = { 0, 0, 0, 0, 0, 0, 0, 3, 13, 17, 34, 30, 20, 0, 
 
 int Numbers::ix0EE( const int ism ) {
 
-  int ix = 0;
+  if( ism == 1 || ism == 15 ) return( -  5 );
+  if( ism == 2 || ism == 14 ) return( +  0 );
+  if( ism == 3 || ism == 13 ) return( + 10 );
+  if( ism == 4 || ism == 12 ) return( + 40 );
+  if( ism == 5 || ism == 11 ) return( + 50 );
+  if( ism == 6 || ism == 10 ) return( + 55 );
+  if( ism == 7 || ism == 18 ) return( + 50 );
+  if( ism == 8 || ism == 17 ) return( + 25 );
+  if( ism == 9 || ism == 16 ) return( +  0 );
 
-  if( ism == 1 || ism == 15 ) ix = -  5;
-  if( ism == 2 || ism == 14 ) ix = +  0;
-  if( ism == 3 || ism == 13 ) ix = + 10;
-  if( ism == 4 || ism == 12 ) ix = + 40;
-  if( ism == 5 || ism == 11 ) ix = + 50;
-  if( ism == 6 || ism == 10 ) ix = + 55;
-  if( ism == 7 || ism == 18 ) ix = + 50;
-  if( ism == 8 || ism == 17 ) ix = + 25;
-  if( ism == 9 || ism == 16 ) ix = +  0;
-
-  return ix;
+  return( + 0 );
 
 }
 
@@ -706,19 +704,17 @@ int Numbers::ix0EE( const int ism ) {
 
 int Numbers::iy0EE( const int ism ) {
 
-  int iy = 0;
+  if( ism == 1 || ism == 10 ) return( + 20 );
+  if( ism == 2 || ism == 11 ) return( + 45 );
+  if( ism == 3 || ism == 12 ) return( + 55 );
+  if( ism == 4 || ism == 13 ) return( + 55 );
+  if( ism == 5 || ism == 14 ) return( + 45 );
+  if( ism == 6 || ism == 15 ) return( + 20 );
+  if( ism == 7 || ism == 16 ) return( +  0 );
+  if( ism == 8 || ism == 17 ) return( -  5 );
+  if( ism == 9 || ism == 18 ) return( +  0 );
 
-  if( ism == 1 || ism == 10 ) iy = + 20;
-  if( ism == 2 || ism == 11 ) iy = + 45;
-  if( ism == 3 || ism == 12 ) iy = + 55; 
-  if( ism == 4 || ism == 13 ) iy = + 55; 
-  if( ism == 5 || ism == 14 ) iy = + 45; 
-  if( ism == 6 || ism == 15 ) iy = + 20;
-  if( ism == 7 || ism == 16 ) iy = +  0;
-  if( ism == 8 || ism == 17 ) iy = -  5;
-  if( ism == 9 || ism == 18 ) iy = +  0;
-
-  return iy;
+  return( + 0 );
 
 }
 
