@@ -1,5 +1,5 @@
 //
-// $Id: TtDilepEvtSolutionMaker.cc,v 1.16 2008/01/18 16:38:55 delaer Exp $
+// $Id: TtDilepEvtSolutionMaker.cc,v 1.17 2008/02/17 11:09:40 rwolf Exp $
 //
 
 #include "PhysicsTools/Utilities/interface/DeltaR.h"
@@ -179,20 +179,9 @@ void TtDilepEvtSolutionMaker::produce(edm::Event & iEvent, const edm::EventSetup
           subset1.push_back(tau);
 	}
       }
-      // if there are more than one tau selected, use the most isolated one
-      float bestIsol = 10.;
-      std::vector<std::vector<pat::Tau>::const_iterator> subset2;
-      for(std::vector<std::vector<pat::Tau>::const_iterator>::const_iterator tau = subset1.begin(); tau < subset1.end(); ++tau) {
-	//FIXME: ecalIsolation missing in pat::Tau
-//         if((*tau)->getEcalIsolation()<0.5) subset2.push_back(*tau);
-// 	else if((*tau)->getEcalIsolation()<bestIsol) {
-// 	  *tauIdx = *tau - taus->begin();
-// 	  bestIsol = (*tau)->getEcalIsolation();
-// 	}
-      }
       // if there are more than one tau with ecalIsol==0, take the smallest E/P
       float bestEP = 100.;
-      for(std::vector<std::vector<pat::Tau>::const_iterator>::const_iterator tau = subset2.begin(); tau < subset2.end(); ++tau) {
+      for(std::vector<std::vector<pat::Tau>::const_iterator>::const_iterator tau = subset1.begin(); tau < subset1.end(); ++tau) {
         if((*tau)->eOverP()<bestEP) {
 	  *tauIdx = *tau - taus->begin();
 	  bestEP = (*tau)->eOverP();
@@ -234,20 +223,9 @@ void TtDilepEvtSolutionMaker::produce(edm::Event & iEvent, const edm::EventSetup
           subset1.push_back(tau);
 	}
       }
-      // if there are more than one tau selected, use the most isolated one
-      float bestIsol = 10.;
-      std::vector<std::vector<pat::Tau>::const_iterator> subset2;
-      for(std::vector<std::vector<pat::Tau>::const_iterator>::const_iterator tau = subset1.begin(); tau < subset1.end(); ++tau) {
-	//FIXME: ecalIsolation missing in pat::Tau
-//         if((*tau)->getEcalIsolation()<0.5) subset2.push_back(*tau);
-// 	else if((*tau)->getEcalIsolation()<bestIsol) {
-// 	  *tauIdx = *tau - taus->begin();
-// 	  bestIsol = (*tau)->getEcalIsolation();
-// 	}
-      }
       // if there are more than one tau with ecalIsol==0, take the smallest E/P
       float bestEP = 100.;
-      for(std::vector<std::vector<pat::Tau>::const_iterator>::const_iterator tau = subset2.begin(); tau < subset2.end(); ++tau) {
+      for(std::vector<std::vector<pat::Tau>::const_iterator>::const_iterator tau = subset1.begin(); tau < subset1.end(); ++tau) {
         if((*tau)->eOverP()<bestEP) {
 	  *tauIdx = *tau - taus->begin();
 	  bestEP = (*tau)->eOverP();
@@ -391,7 +369,7 @@ void TtDilepEvtSolutionMaker::produce(edm::Event & iEvent, const edm::EventSetup
       int bestSol = -1;
       double dR = 0.;
       for(size_t s=0; s<evtsols->size(); s++) {
-        dR = (*evtsols)[s].getResidual();
+        dR = (*evtsols)[s].getJetResidual();
         if(dR<bestSolDR) { bestSolDR = dR; bestSol = s; }
       }
       if(bestSol!=-1) (*evtsols)[bestSol].setBestSol(true);

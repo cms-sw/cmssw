@@ -1,4 +1,4 @@
-// $Id: TtHadKinFitter.cc,v 1.4 2007/10/31 17:21:57 mfhansen Exp $ 
+// $Id: TtHadKinFitter.cc,v 1.5 2008/02/17 11:38:30 rwolf Exp $ 
 
 #include "TopQuarkAnalysis/TopKinFitter/interface/TtHadKinFitter.h"
 
@@ -103,41 +103,41 @@ TtHadEvtSolution TtHadKinFitter::addKinFitInfo(TtHadEvtSolution * asol)
     m6b(2,2) = pow(fitsol.getCalHadbbar().resolutionC(), 2);
     m6b(3,3) = pow(fitsol.getCalHadbbar().resolutionD(), 2);
   } else if (jetParam_ == EtEtaPhi) {
-    m1(0,0) = pow(fitsol.getCalHadp().resolutionET(), 2);
+    m1(0,0) = pow(fitsol.getCalHadp().resolutionEt(), 2);
     m1(1,1) = pow(fitsol.getCalHadp().resolutionEta(), 2);
     m1(2,2) = pow(fitsol.getCalHadp().resolutionPhi(), 2);
-    m2(0,0) = pow(fitsol.getCalHadq().resolutionET(), 2); 
+    m2(0,0) = pow(fitsol.getCalHadq().resolutionEt(), 2); 
     m2(1,1) = pow(fitsol.getCalHadq().resolutionEta(), 2); 
     m2(2,2) = pow(fitsol.getCalHadq().resolutionPhi(), 2);
-    m3(0,0) = pow(fitsol.getCalHadb().resolutionET(), 2); 
+    m3(0,0) = pow(fitsol.getCalHadb().resolutionEt(), 2); 
     m3(1,1) = pow(fitsol.getCalHadb().resolutionEta(), 2); 
     m3(2,2) = pow(fitsol.getCalHadb().resolutionPhi(), 2);
-    m4(0,0) = pow(fitsol.getCalHadj().resolutionET(), 2);
+    m4(0,0) = pow(fitsol.getCalHadj().resolutionEt(), 2);
     m4(1,1) = pow(fitsol.getCalHadj().resolutionEta(), 2);
     m4(2,2) = pow(fitsol.getCalHadj().resolutionPhi(), 2);
-    m5(0,0) = pow(fitsol.getCalHadk().resolutionET(), 2); 
+    m5(0,0) = pow(fitsol.getCalHadk().resolutionEt(), 2); 
     m5(1,1) = pow(fitsol.getCalHadk().resolutionEta(), 2); 
     m5(2,2) = pow(fitsol.getCalHadk().resolutionPhi(), 2);
-    m6(0,0) = pow(fitsol.getCalHadbbar().resolutionET(), 2); 
+    m6(0,0) = pow(fitsol.getCalHadbbar().resolutionEt(), 2); 
     m6(1,1) = pow(fitsol.getCalHadbbar().resolutionEta(), 2); 
     m6(2,2) = pow(fitsol.getCalHadbbar().resolutionPhi(), 2);
   } else if (jetParam_ == EtThetaPhi) {
-    m1(0,0) = pow(fitsol.getCalHadp().resolutionET(), 2);
+    m1(0,0) = pow(fitsol.getCalHadp().resolutionEt(), 2);
     m1(1,1) = pow(fitsol.getCalHadp().resolutionTheta(), 2);
     m1(2,2) = pow(fitsol.getCalHadp().resolutionPhi(), 2);
-    m2(0,0) = pow(fitsol.getCalHadq().resolutionET(), 2); 
+    m2(0,0) = pow(fitsol.getCalHadq().resolutionEt(), 2); 
     m2(1,1) = pow(fitsol.getCalHadq().resolutionTheta(), 2); 
     m2(2,2) = pow(fitsol.getCalHadq().resolutionPhi(), 2);
-    m3(0,0) = pow(fitsol.getCalHadb().resolutionET(), 2); 
+    m3(0,0) = pow(fitsol.getCalHadb().resolutionEt(), 2); 
     m3(1,1) = pow(fitsol.getCalHadb().resolutionTheta(), 2); 
     m3(2,2) = pow(fitsol.getCalHadb().resolutionPhi(), 2);
-    m4(0,0) = pow(fitsol.getCalHadj().resolutionET(), 2);
+    m4(0,0) = pow(fitsol.getCalHadj().resolutionEt(), 2);
     m4(1,1) = pow(fitsol.getCalHadj().resolutionTheta(), 2);
     m4(2,2) = pow(fitsol.getCalHadj().resolutionPhi(), 2);
-    m5(0,0) = pow(fitsol.getCalHadk().resolutionET(), 2); 
+    m5(0,0) = pow(fitsol.getCalHadk().resolutionEt(), 2); 
     m5(1,1) = pow(fitsol.getCalHadk().resolutionTheta(), 2); 
     m5(2,2) = pow(fitsol.getCalHadk().resolutionPhi(), 2);
-    m6(0,0) = pow(fitsol.getCalHadbbar().resolutionET(), 2); 
+    m6(0,0) = pow(fitsol.getCalHadbbar().resolutionEt(), 2); 
     m6(1,1) = pow(fitsol.getCalHadbbar().resolutionTheta(), 2); 
     m6(2,2) = pow(fitsol.getCalHadbbar().resolutionPhi(), 2);
   }
@@ -234,22 +234,22 @@ TtHadEvtSolution TtHadKinFitter::addKinFitInfo(TtHadEvtSolution * asol)
       aFitHadk.setCovMatrix(this->translateCovM(Vk));
       aFitHadbbar.setCovMatrix(this->translateCovM(Vbbar));
 
-      aFitHadp.setResolutionET (sqrt(Vp(0,0)));  
+      aFitHadp.setResolutionEt (sqrt(Vp(0,0)));  
       aFitHadp.setResolutionEta(sqrt(Vp(1,1)));
       aFitHadp.setResolutionPhi(sqrt(Vp(2,2)));
-      aFitHadq.setResolutionET (sqrt(Vq(0,0)));  
+      aFitHadq.setResolutionEt (sqrt(Vq(0,0)));  
       aFitHadq.setResolutionEta(sqrt(Vq(1,1)));
       aFitHadq.setResolutionPhi(sqrt(Vq(2,2)));
-      aFitHadb.setResolutionET (sqrt(Vbh(0,0)));  
+      aFitHadb.setResolutionEt (sqrt(Vbh(0,0)));  
       aFitHadb.setResolutionEta(sqrt(Vbh(1,1)));
       aFitHadb.setResolutionPhi(sqrt(Vbh(2,2)));
-      aFitHadj.setResolutionET (sqrt(Vj(0,0)));  
+      aFitHadj.setResolutionEt (sqrt(Vj(0,0)));  
       aFitHadj.setResolutionEta(sqrt(Vj(1,1)));
       aFitHadj.setResolutionPhi(sqrt(Vj(2,2)));
-      aFitHadk.setResolutionET (sqrt(Vk(0,0)));  
+      aFitHadk.setResolutionEt (sqrt(Vk(0,0)));  
       aFitHadk.setResolutionEta(sqrt(Vk(1,1)));
       aFitHadk.setResolutionPhi(sqrt(Vk(2,2)));
-      aFitHadbbar.setResolutionET (sqrt(Vbbar(0,0)));  
+      aFitHadbbar.setResolutionEt (sqrt(Vbbar(0,0)));  
       aFitHadbbar.setResolutionEta(sqrt(Vbbar(1,1)));
       aFitHadbbar.setResolutionPhi(sqrt(Vbbar(2,2)));
 
@@ -268,22 +268,22 @@ TtHadEvtSolution TtHadKinFitter::addKinFitInfo(TtHadEvtSolution * asol)
       aFitHadk.setCovMatrix(this->translateCovM(Vk));
       aFitHadbbar.setCovMatrix(this->translateCovM(Vbbar));
 
-      aFitHadp.setResolutionET (sqrt(Vp(0,0)));  
+      aFitHadp.setResolutionEt (sqrt(Vp(0,0)));  
       aFitHadp.setResolutionTheta(sqrt(Vp(1,1)));
       aFitHadp.setResolutionPhi(sqrt(Vp(2,2)));
-      aFitHadq.setResolutionET (sqrt(Vq(0,0)));  
+      aFitHadq.setResolutionEt (sqrt(Vq(0,0)));  
       aFitHadq.setResolutionTheta(sqrt(Vq(1,1)));
       aFitHadq.setResolutionPhi(sqrt(Vq(2,2)));
-      aFitHadb.setResolutionET (sqrt(Vbh(0,0)));  
+      aFitHadb.setResolutionEt (sqrt(Vbh(0,0)));  
       aFitHadb.setResolutionTheta(sqrt(Vbh(1,1)));
       aFitHadb.setResolutionPhi(sqrt(Vbh(2,2)));
-      aFitHadj.setResolutionET (sqrt(Vj(0,0)));  
+      aFitHadj.setResolutionEt (sqrt(Vj(0,0)));  
       aFitHadj.setResolutionTheta(sqrt(Vj(1,1)));
       aFitHadj.setResolutionPhi(sqrt(Vj(2,2)));
-      aFitHadk.setResolutionET (sqrt(Vk(0,0)));  
+      aFitHadk.setResolutionEt (sqrt(Vk(0,0)));  
       aFitHadk.setResolutionTheta(sqrt(Vk(1,1)));
       aFitHadk.setResolutionPhi(sqrt(Vk(2,2)));
-      aFitHadbbar.setResolutionET (sqrt(Vbbar(0,0)));  
+      aFitHadbbar.setResolutionEt (sqrt(Vbbar(0,0)));  
       aFitHadbbar.setResolutionTheta(sqrt(Vbbar(1,1)));
       aFitHadbbar.setResolutionPhi(sqrt(Vbbar(2,2)));
     }

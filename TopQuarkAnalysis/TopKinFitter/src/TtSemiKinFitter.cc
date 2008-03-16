@@ -1,5 +1,5 @@
 //
-// $Id: TtSemiKinFitter.cc,v 1.5 2007/09/19 23:08:10 lowette Exp $
+// $Id: TtSemiKinFitter.cc,v 1.6 2008/02/17 11:38:30 rwolf Exp $
 //
 
 #include "TopQuarkAnalysis/TopKinFitter/interface/TtSemiKinFitter.h"
@@ -109,29 +109,29 @@ TtSemiEvtSolution TtSemiKinFitter::addKinFitInfo(TtSemiEvtSolution * asol)
     m4b(2,2) = pow(fitsol.getCalLepb().resolutionC(), 2);
     m4b(3,3) = pow(fitsol.getCalLepb().resolutionD(), 2);
   } else if (jetParam_ == EtEtaPhi) {
-    m1(0,0) = pow(fitsol.getCalHadp().resolutionET(), 2);
+    m1(0,0) = pow(fitsol.getCalHadp().resolutionEt(), 2);
     m1(1,1) = pow(fitsol.getCalHadp().resolutionEta(), 2);
     m1(2,2) = pow(fitsol.getCalHadp().resolutionPhi(), 2);
-    m2(0,0) = pow(fitsol.getCalHadq().resolutionET(), 2); 
+    m2(0,0) = pow(fitsol.getCalHadq().resolutionEt(), 2); 
     m2(1,1) = pow(fitsol.getCalHadq().resolutionEta(), 2); 
     m2(2,2) = pow(fitsol.getCalHadq().resolutionPhi(), 2);
-    m3(0,0) = pow(fitsol.getCalHadb().resolutionET(), 2); 
+    m3(0,0) = pow(fitsol.getCalHadb().resolutionEt(), 2); 
     m3(1,1) = pow(fitsol.getCalHadb().resolutionEta(), 2); 
     m3(2,2) = pow(fitsol.getCalHadb().resolutionPhi(), 2);
-    m4(0,0) = pow(fitsol.getCalLepb().resolutionET(), 2); 
+    m4(0,0) = pow(fitsol.getCalLepb().resolutionEt(), 2); 
     m4(1,1) = pow(fitsol.getCalLepb().resolutionEta(), 2); 
     m4(2,2) = pow(fitsol.getCalLepb().resolutionPhi(), 2);
   } else if (jetParam_ == EtThetaPhi) {
-    m1(0,0) = pow(fitsol.getCalHadp().resolutionET(), 2);
+    m1(0,0) = pow(fitsol.getCalHadp().resolutionEt(), 2);
     m1(1,1) = pow(fitsol.getCalHadp().resolutionTheta(), 2);
     m1(2,2) = pow(fitsol.getCalHadp().resolutionPhi(), 2);
-    m2(0,0) = pow(fitsol.getCalHadq().resolutionET(), 2); 
+    m2(0,0) = pow(fitsol.getCalHadq().resolutionEt(), 2); 
     m2(1,1) = pow(fitsol.getCalHadq().resolutionTheta(), 2); 
     m2(2,2) = pow(fitsol.getCalHadq().resolutionPhi(), 2);
-    m3(0,0) = pow(fitsol.getCalHadb().resolutionET(), 2); 
+    m3(0,0) = pow(fitsol.getCalHadb().resolutionEt(), 2); 
     m3(1,1) = pow(fitsol.getCalHadb().resolutionTheta(), 2); 
     m3(2,2) = pow(fitsol.getCalHadb().resolutionPhi(), 2);
-    m4(0,0) = pow(fitsol.getCalLepb().resolutionET(), 2); 
+    m4(0,0) = pow(fitsol.getCalLepb().resolutionEt(), 2); 
     m4(1,1) = pow(fitsol.getCalLepb().resolutionTheta(), 2); 
     m4(2,2) = pow(fitsol.getCalLepb().resolutionPhi(), 2);
   }
@@ -149,23 +149,23 @@ TtSemiEvtSolution TtSemiKinFitter::addKinFitInfo(TtSemiEvtSolution * asol)
     }
   } else if (lepParam_ == EtEtaPhi) {
     if(fitsol.getDecay()== "electron"){
-      m5(0,0) = pow(fitsol.getRecLepe().resolutionET(), 2);
+      m5(0,0) = pow(fitsol.getRecLepe().resolutionEt(), 2);
       m5(1,1) = pow(fitsol.getRecLepe().resolutionEta(), 2); 
       m5(2,2) = pow(fitsol.getRecLepe().resolutionPhi(), 2);
     }
     if(fitsol.getDecay()== "muon"){
-      m5(0,0) = pow(fitsol.getRecLepm().resolutionET(), 2);
+      m5(0,0) = pow(fitsol.getRecLepm().resolutionEt(), 2);
       m5(1,1) = pow(fitsol.getRecLepm().resolutionEta(), 2); 
       m5(2,2) = pow(fitsol.getRecLepm().resolutionPhi(), 2);
     }
   } else if (lepParam_ == EtThetaPhi) {
     if(fitsol.getDecay()== "electron") {
-      m5(0,0) = pow(fitsol.getRecLepe().resolutionET(), 2);
+      m5(0,0) = pow(fitsol.getRecLepe().resolutionEt(), 2);
       m5(1,1) = pow(fitsol.getRecLepe().resolutionTheta(), 2); 
       m5(2,2) = pow(fitsol.getRecLepe().resolutionPhi(), 2);
     }
     if(fitsol.getDecay()== "muon") {
-      m5(0,0) = pow(fitsol.getRecLepm().resolutionET(), 2);
+      m5(0,0) = pow(fitsol.getRecLepm().resolutionEt(), 2);
       m5(1,1) = pow(fitsol.getRecLepm().resolutionTheta(), 2); 
       m5(2,2) = pow(fitsol.getRecLepm().resolutionPhi(), 2);
     }
@@ -176,11 +176,11 @@ TtSemiEvtSolution TtSemiKinFitter::addKinFitInfo(TtSemiEvtSolution * asol)
     m6(1,1) = pow(fitsol.getCalLepn().resolutionB(), 2);
     m6(2,2) = pow(fitsol.getCalLepn().resolutionC(), 2);
   } else if (metParam_ == EtEtaPhi) {
-    m6(0,0) = pow(fitsol.getRecLepn().resolutionET(), 2);
+    m6(0,0) = pow(fitsol.getRecLepn().resolutionEt(), 2);
     m6(1,1) = pow(fitsol.getRecLepn().resolutionEta(), 2);
     m6(2,2) = pow(fitsol.getRecLepn().resolutionPhi(), 2);
   } else if (metParam_ == EtThetaPhi) {
-    m6(0,0) = pow(fitsol.getRecLepn().resolutionET(), 2);
+    m6(0,0) = pow(fitsol.getRecLepn().resolutionEt(), 2);
     m6(1,1) = pow(fitsol.getRecLepn().resolutionTheta(), 2);
     m6(2,2) = pow(fitsol.getRecLepn().resolutionPhi(), 2);
   }
@@ -250,16 +250,16 @@ TtSemiEvtSolution TtSemiKinFitter::addKinFitInfo(TtSemiEvtSolution * asol)
       aFitHadq.setCovMatrix(this->translateCovM(Vq));
       aFitHadb.setCovMatrix(this->translateCovM(Vbh));
       aFitLepb.setCovMatrix(this->translateCovM(Vbl));
-      aFitHadp.setResolutionET (sqrt(Vp(0,0)));  
+      aFitHadp.setResolutionEt (sqrt(Vp(0,0)));  
       aFitHadp.setResolutionEta(sqrt(Vp(1,1)));
       aFitHadp.setResolutionPhi(sqrt(Vp(2,2)));
-      aFitHadq.setResolutionET (sqrt(Vq(0,0)));  
+      aFitHadq.setResolutionEt (sqrt(Vq(0,0)));  
       aFitHadq.setResolutionEta(sqrt(Vq(1,1)));
       aFitHadq.setResolutionPhi(sqrt(Vq(2,2)));
-      aFitHadb.setResolutionET (sqrt(Vbh(0,0)));  
+      aFitHadb.setResolutionEt (sqrt(Vbh(0,0)));  
       aFitHadb.setResolutionEta(sqrt(Vbh(1,1)));
       aFitHadb.setResolutionPhi(sqrt(Vbh(2,2)));
-      aFitLepb.setResolutionET (sqrt(Vbl(0,0)));  
+      aFitLepb.setResolutionEt (sqrt(Vbl(0,0)));  
       aFitLepb.setResolutionEta(sqrt(Vbl(1,1)));
       aFitLepb.setResolutionPhi(sqrt(Vbl(2,2)));
     } else if (jetParam_ == EtThetaPhi) {
@@ -271,16 +271,16 @@ TtSemiEvtSolution TtSemiKinFitter::addKinFitInfo(TtSemiEvtSolution * asol)
       aFitHadq.setCovMatrix(this->translateCovM(Vq));
       aFitHadb.setCovMatrix(this->translateCovM(Vbh));
       aFitLepb.setCovMatrix(this->translateCovM(Vbl));
-      aFitHadp.setResolutionET (sqrt(Vp(0,0)));  
+      aFitHadp.setResolutionEt (sqrt(Vp(0,0)));  
       aFitHadp.setResolutionTheta(sqrt(Vp(1,1)));
       aFitHadp.setResolutionPhi(sqrt(Vp(2,2)));
-      aFitHadq.setResolutionET (sqrt(Vq(0,0)));  
+      aFitHadq.setResolutionEt (sqrt(Vq(0,0)));  
       aFitHadq.setResolutionTheta(sqrt(Vq(1,1)));
       aFitHadq.setResolutionPhi(sqrt(Vq(2,2)));
-      aFitHadb.setResolutionET (sqrt(Vbh(0,0)));  
+      aFitHadb.setResolutionEt (sqrt(Vbh(0,0)));  
       aFitHadb.setResolutionTheta(sqrt(Vbh(1,1)));
       aFitHadb.setResolutionPhi(sqrt(Vbh(2,2)));
-      aFitLepb.setResolutionET (sqrt(Vbl(0,0)));  
+      aFitLepb.setResolutionEt (sqrt(Vbl(0,0)));  
       aFitLepb.setResolutionTheta(sqrt(Vbl(1,1)));
       aFitLepb.setResolutionPhi(sqrt(Vbl(2,2)));
     }
@@ -293,15 +293,15 @@ TtSemiEvtSolution TtSemiKinFitter::addKinFitInfo(TtSemiEvtSolution * asol)
       aFitLepl.setResolutionB(Vl(1,1));
       aFitLepl.setResolutionC(Vl(2,2));
     } else if (lepParam_ == EtEtaPhi) {
-      aFitLepl.setResolutionET (sqrt(Vl(0,0)));  
+      aFitLepl.setResolutionEt (sqrt(Vl(0,0)));  
       aFitLepl.setResolutionTheta(sqrt(Vl(1,1)));
       aFitLepl.setResolutionPhi(sqrt(Vl(2,2)));
     } else if (lepParam_ == EtThetaPhi) {
-      aFitLepl.setResolutionET (sqrt(Vl(0,0)));  
+      aFitLepl.setResolutionEt (sqrt(Vl(0,0)));  
       aFitLepl.setResolutionTheta(sqrt(Vl(1,1)));
       aFitLepl.setResolutionPhi(sqrt(Vl(2,2)));
     }
-    // read back the MET kinematics and resolutions
+    // read back the MEt kinematics and resolutions
     pat::Particle aFitLepn(reco::Particle(0, math::XYZTLorentzVector(fitLepn_->getCurr4Vec()->X(), fitLepn_->getCurr4Vec()->Y(), fitLepn_->getCurr4Vec()->Z(), fitLepn_->getCurr4Vec()->E()), math::XYZPoint()));   
     TMatrixD Vn(3,3); Vn = (*fitLepn_->getCovMatrixFit()); 
     aFitLepn.setCovMatrix(this->translateCovM(Vn));
@@ -310,11 +310,11 @@ TtSemiEvtSolution TtSemiKinFitter::addKinFitInfo(TtSemiEvtSolution * asol)
       aFitLepn.setResolutionB(Vn(1,1));
       aFitLepn.setResolutionC(Vn(2,2));
     } else if (metParam_ == EtEtaPhi) {
-      aFitLepn.setResolutionET (sqrt(Vn(0,0)));  
+      aFitLepn.setResolutionEt (sqrt(Vn(0,0)));  
       aFitLepn.setResolutionEta(sqrt(Vn(1,1)));
       aFitLepn.setResolutionPhi(sqrt(Vn(2,2)));
     } else if (metParam_ == EtThetaPhi) {
-      aFitLepn.setResolutionET (sqrt(Vn(0,0)));  
+      aFitLepn.setResolutionEt (sqrt(Vn(0,0)));  
       aFitLepn.setResolutionTheta(sqrt(Vn(1,1)));
       aFitLepn.setResolutionPhi(sqrt(Vn(2,2)));
     }

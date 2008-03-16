@@ -1,5 +1,5 @@
 //
-// $Id: StKinFitter.cc,v 1.1 2007/09/19 23:05:34 lowette Exp $
+// $Id: StKinFitter.cc,v 1.2 2008/02/17 11:38:30 rwolf Exp $
 //
 
 #include "PhysicsTools/KinFitter/interface/TKinFitter.h"
@@ -97,17 +97,17 @@ StEvtSolution StKinFitter::addKinFitInfo(StEvtSolution * asol)
     m2b(2,2) = pow(fitsol.getLight ().resolutionC(), 2);
     m2b(3,3) = pow(fitsol.getLight ().resolutionD(), 2);
   } else if (jetParam_ == EtEtaPhi) {
-    m1(0,0) = pow(fitsol.getBottom().resolutionET (), 2);
+    m1(0,0) = pow(fitsol.getBottom().resolutionEt (), 2);
     m1(1,1) = pow(fitsol.getBottom().resolutionEta(), 2);
     m1(2,2) = pow(fitsol.getBottom().resolutionPhi(), 2);
-    m2(0,0) = pow(fitsol.getLight ().resolutionET (), 2); 
+    m2(0,0) = pow(fitsol.getLight ().resolutionEt (), 2); 
     m2(1,1) = pow(fitsol.getLight ().resolutionEta(), 2); 
     m2(2,2) = pow(fitsol.getLight ().resolutionPhi(), 2);
   } else if (jetParam_ == EtThetaPhi) {
-    m1(0,0) = pow(fitsol.getBottom().resolutionET   (), 2);
+    m1(0,0) = pow(fitsol.getBottom().resolutionEt   (), 2);
     m1(1,1) = pow(fitsol.getBottom().resolutionTheta(), 2);
     m1(2,2) = pow(fitsol.getBottom().resolutionPhi  (), 2);
-    m2(0,0) = pow(fitsol.getLight ().resolutionET   (), 2); 
+    m2(0,0) = pow(fitsol.getLight ().resolutionEt   (), 2); 
     m2(1,1) = pow(fitsol.getLight ().resolutionTheta(), 2); 
     m2(2,2) = pow(fitsol.getLight ().resolutionPhi  (), 2);
   }
@@ -125,23 +125,23 @@ StEvtSolution StKinFitter::addKinFitInfo(StEvtSolution * asol)
     }
   } else if (lepParam_ == EtEtaPhi) {
     if(fitsol.getDecay()== "electron"){
-      m3(0,0) = pow(fitsol.getElectron().resolutionET (), 2);
+      m3(0,0) = pow(fitsol.getElectron().resolutionEt (), 2);
       m3(1,1) = pow(fitsol.getElectron().resolutionEta(), 2); 
       m3(2,2) = pow(fitsol.getElectron().resolutionPhi(), 2);
     }
     if(fitsol.getDecay()== "muon"){
-      m3(0,0) = pow(fitsol.getMuon().resolutionET (), 2);
+      m3(0,0) = pow(fitsol.getMuon().resolutionEt (), 2);
       m3(1,1) = pow(fitsol.getMuon().resolutionEta(), 2); 
       m3(2,2) = pow(fitsol.getMuon().resolutionPhi(), 2);
     }
   } else if (lepParam_ == EtThetaPhi) {
     if(fitsol.getDecay()== "electron"){
-      m3(0,0) = pow(fitsol.getElectron().resolutionET   (), 2);
+      m3(0,0) = pow(fitsol.getElectron().resolutionEt   (), 2);
       m3(1,1) = pow(fitsol.getElectron().resolutionTheta(), 2); 
       m3(2,2) = pow(fitsol.getElectron().resolutionPhi  (), 2);
     }
     if(fitsol.getDecay()== "muon"){
-      m3(0,0) = pow(fitsol.getMuon().resolutionET   (), 2);
+      m3(0,0) = pow(fitsol.getMuon().resolutionEt   (), 2);
       m3(1,1) = pow(fitsol.getMuon().resolutionTheta(), 2); 
       m3(2,2) = pow(fitsol.getMuon().resolutionPhi  (), 2);
     }
@@ -152,11 +152,11 @@ StEvtSolution StKinFitter::addKinFitInfo(StEvtSolution * asol)
     m4(1,1) = pow(fitsol.getNeutrino().resolutionB(), 2);
     m4(2,2) = pow(fitsol.getNeutrino().resolutionC(), 2);
   } else if (metParam_ == EtEtaPhi) {
-    m4(0,0) = pow(fitsol.getNeutrino().resolutionET (), 2);
+    m4(0,0) = pow(fitsol.getNeutrino().resolutionEt (), 2);
     m4(1,1) = pow(fitsol.getNeutrino().resolutionEta(), 2);
     m4(2,2) = pow(fitsol.getNeutrino().resolutionPhi(), 2);
   } else if (metParam_ == EtThetaPhi) {
-    m4(0,0) = pow(fitsol.getNeutrino().resolutionET   (), 2);
+    m4(0,0) = pow(fitsol.getNeutrino().resolutionEt   (), 2);
     m4(1,1) = pow(fitsol.getNeutrino().resolutionTheta(), 2);
     m4(2,2) = pow(fitsol.getNeutrino().resolutionPhi  (), 2);
   }
@@ -200,23 +200,23 @@ StEvtSolution StKinFitter::addKinFitInfo(StEvtSolution * asol)
     } else if (jetParam_ == EtEtaPhi) {
       TMatrixD Vb(3,3); Vb = (*fitBottom_->getCovMatrixFit());
       aFitBottom.setCovMatrix(this->translateCovM(Vb));
-      aFitBottom.setResolutionET(Vb(0,0));
+      aFitBottom.setResolutionEt(Vb(0,0));
       aFitBottom.setResolutionEta(Vb(1,1));
       aFitBottom.setResolutionPhi(Vb(2,2));
       TMatrixD Vq(3,3); Vq = (*fitLight_->getCovMatrixFit());
       aFitLight.setCovMatrix(this->translateCovM(Vq));
-      aFitLight.setResolutionET(Vq(0,0));
+      aFitLight.setResolutionEt(Vq(0,0));
       aFitLight.setResolutionEta(Vq(1,1));
       aFitLight.setResolutionPhi(Vq(2,2));
     } else if (jetParam_ == EtThetaPhi) {
       TMatrixD Vb(3,3); Vb = (*fitBottom_->getCovMatrixFit());
       aFitBottom.setCovMatrix(this->translateCovM(Vb));
-      aFitBottom.setResolutionET(Vb(0,0));
+      aFitBottom.setResolutionEt(Vb(0,0));
       aFitBottom.setResolutionTheta(Vb(1,1));
       aFitBottom.setResolutionPhi(Vb(2,2));
       TMatrixD Vq(3,3); Vq = (*fitLight_->getCovMatrixFit());
       aFitLight.setCovMatrix(this->translateCovM(Vq));
-      aFitLight.setResolutionET(Vq(0,0));
+      aFitLight.setResolutionEt(Vq(0,0));
       aFitLight.setResolutionTheta(Vq(1,1));
       aFitLight.setResolutionPhi(Vq(2,2));
     }
@@ -229,11 +229,11 @@ StEvtSolution StKinFitter::addKinFitInfo(StEvtSolution * asol)
       aFitLepton.setResolutionB(Vl(1,1));
       aFitLepton.setResolutionC(Vl(2,2));
     } else if (lepParam_ == EtEtaPhi) {
-      aFitLepton.setResolutionET(Vl(0,0));  
+      aFitLepton.setResolutionEt(Vl(0,0));  
       aFitLepton.setResolutionEta(Vl(1,1));
       aFitLepton.setResolutionPhi(Vl(2,2));
     } else if (lepParam_ == EtThetaPhi) {
-      aFitLepton.setResolutionET(Vl(0,0));  
+      aFitLepton.setResolutionEt(Vl(0,0));  
       aFitLepton.setResolutionTheta(Vl(1,1));
       aFitLepton.setResolutionPhi(Vl(2,2));
     }
@@ -246,11 +246,11 @@ StEvtSolution StKinFitter::addKinFitInfo(StEvtSolution * asol)
       aFitNeutrino.setResolutionB(Vn(1,1));
       aFitNeutrino.setResolutionC(Vn(2,2));
     } else if (metParam_ == EtEtaPhi) {
-      aFitNeutrino.setResolutionET(Vn(0,0));  
+      aFitNeutrino.setResolutionEt(Vn(0,0));  
       aFitNeutrino.setResolutionEta(Vn(1,1));
       aFitNeutrino.setResolutionPhi(Vn(2,2));
     } else if (metParam_ == EtThetaPhi) {
-      aFitNeutrino.setResolutionET(Vn(0,0));  
+      aFitNeutrino.setResolutionEt(Vn(0,0));  
       aFitNeutrino.setResolutionTheta(Vn(1,1));
       aFitNeutrino.setResolutionPhi(Vn(2,2));
     }
