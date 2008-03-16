@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Feb 15 14:13:33 EST 2008
-// $Id$
+// $Id: FWGUISubviewArea.cc,v 1.1 2008/02/15 20:33:03 chrjones Exp $
 //
 
 // system include files
@@ -32,9 +32,10 @@
 //
 // constructors and destructor
 //
-FWGUISubviewArea::FWGUISubviewArea(const TGWindow *iParent, TGSplitFrame* iMainSplit)
+FWGUISubviewArea::FWGUISubviewArea(unsigned int iIndex, const TGWindow *iParent, TGSplitFrame* iMainSplit)
 : TGHorizontalFrame(iParent),
-  m_mainSplit(iMainSplit)
+  m_mainSplit(iMainSplit),
+  m_index(iIndex)
 {
    TGPictureButton* button= new TGPictureButton(this, swapIcon());
    button->SetToolTipText("Swap to big view");
@@ -88,6 +89,8 @@ FWGUISubviewArea::swapToBigView()
    TGCompositeFrame* source = (TGCompositeFrame *)(dynamic_cast<TGFrameElement*>(this->GetList()->Last())->fFrame);
    assert(0!=source);
    TGSplitFrame::SwitchFrames( source, dest, prev);
+   
+   swappedToBigView_(index());
 }
 
 //
