@@ -1,12 +1,12 @@
-// $Id: LogicID.cc,v 1.12 2008/03/14 14:38:57 dellaric Exp $
+// $Id: LogicID.cc,v 1.13 2008/03/15 15:49:13 dellaric Exp $
 
 /*!
   \file LogicID.cc
   \brief Construct EcalLogicIDs
   \author G. Della Ricca
   \author B. Gobbo
-  \version $Revision: 1.12 $
-  \date $Date: 2008/03/14 14:38:57 $
+  \version $Revision: 1.13 $
+  \date $Date: 2008/03/15 15:49:13 $
 */
 
 #include "DQM/EcalCommon/interface/LogicID.h"
@@ -20,9 +20,9 @@
 //-------------------------------------------------------------------------
 
 EcalLogicID LogicID::getEcalLogicID( const char* name,
-                                     int id1,
-                                     int id2,
-                                     int id3 ) throw( std::runtime_error ) {
+                                     const int id1,
+                                     const int id2,
+                                     const int id3 ) throw( std::runtime_error ) {
 
   // EcalBarrel
 
