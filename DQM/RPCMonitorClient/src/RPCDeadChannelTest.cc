@@ -1,39 +1,29 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/03/07 18:14:23 $
- *  $Revision: 1.1 $
- *  \author
+ *  $Date: 2008/03/08 19:15:10 $
+ *  $Revision: 1.2 $
+ *  \author Anna Cimmino
  */
 
 
 #include <DQM/RPCMonitorClient/interface/RPCDeadChannelTest.h>
 
 // Framework
-/*#include <FWCore/Framework/interface/Event.h>
-#include <FWCore/Framework/interface/ESHandle.h>
-#include <FWCore/Framework/interface/MakerMacros.h>
-#include <FWCore/Framework/interface/EventSetup.h>
-#include <FWCore/ParameterSet/interface/ParameterSet.h>*/
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include "DQMServices/ClientConfig/interface/QTestHandle.h"
+//DQM Services
 #include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/DQMOldReceiver.h"
+
 
 //DataFormats
-
 #include <DataFormats/MuonDetId/interface/RPCDetId.h>
-//#include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/RPCDigi/interface/RPCDigi.h"
 #include "DataFormats/RPCDigi/interface/RPCDigiCollection.h"
 
 // Geometry
 #include "Geometry/RPCGeometry/interface/RPCGeomServ.h"
-//#include "Geometry/RPCGeometry/interface/RPCGeometry.h"
 #include "Geometry/CommonDetUnit/interface/GeomDet.h"
-//#include "Geometry/Records/interface/MuonGeometryRecord.h"
-
 
 #include <iostream>
 #include <stdio.h>
@@ -46,56 +36,56 @@
 using namespace edm;
 using namespace std;
 
-RPCDeadChannelTest::RPCDeadChannelTest(const edm::ParameterSet& ps ){
+RPCDeadChannelTest::RPCDeadChannelTest(const ParameterSet& ps ){
  
   edm::LogVerbatim ("deadChannel") << "[RPCDeadChannelTest]: Constructor";
 
   parameters = ps;
-  getQualityTestsFromFile = parameters.getUntrackedParameter<bool> ("getQualityTestsFromFile",false);
+  //  getQualityTestsFromFile = parameters.getUntrackedParameter<bool> ("getQualityTestsFromFile",false);
   prescaleFactor = parameters.getUntrackedParameter<int>("diagnosticPrescale", 1);
-  referenceOldDeadChannels = parameters.getUntrackedParameter<bool> ("getReferenceFile",false);
+  referenceOldChannels = parameters.getUntrackedParameter<bool> ("getReferenceFile",false);
 }
 
 
 RPCDeadChannelTest::~RPCDeadChannelTest(){
 
-  edm::LogVerbatim ("deadChannel") << "[RPCDeadChannelTest]: analyzed " << nevents << " events";
+  //  edm::LogVerbatim ("deadChannel") << "[RPCDeadChannelTest]: analyzed " << nevents << " events";
   
-  delete mui_;
-  delete qtHandler;
+  delete dbe_;
+  //  delete qtHandler;
 }
 
 //called only once
-void RPCDeadChannelTest::beginJob(const edm::EventSetup& c){
+void RPCDeadChannelTest::beginJob(DQMStore * dbe){
 
  edm::LogVerbatim ("deadChannel") << "[RPCDeadChannelTest]: Begin job";
   
  // get hold of back-end interface
- dbe_ = Service<DQMStore>().operator->();
-  
-  mui_ = new DQMOldReceiver();
+ dbe_=dbe;
 
-  dbe_->setVerbose(1);
-  
-  qtHandler = new QTestHandle();
-  
-  //configure quality test using xml file
-  if (getQualityTestsFromFile)
-    qtHandler->configureTests(parameters.getUntrackedParameter<string> ("qtList","QualityTests.xml"),dbe_);
 
-  //get local date and time
-  time_t t = time(0);
-  strftime( dateTime, sizeof(dateTime), "%Y_%m_%d_%H_%M_%S.txt", localtime(&t));
-
-  //open txt file
-  myfile.open(dateTime, ios::app);
-  myfile<<"RUN LUMIBLOCK CHAMBER STRIP TAG RefRUN\n";
-  
-  //get reference file
-  if (referenceOldDeadChannels)
-    referenceFile_.open(parameters.getUntrackedParameter<string> ("referenceFileName","reference.txt").c_str());
 }
 
+
+  //Begin Run
+void RPCDeadChannelTest::beginRun(const Run& r, const EventSetup& c){
+
+ edm::LogVerbatim ("deadChannel") << "[RPCDeadChannelTest]: Begin run";
+ //get local date and time
+ time_t t = time(0);
+ strftime( dateTime, sizeof(dateTime), "DeadCh_%Y_%m_%d_%H_%M_%S.txt", localtime(&t));
+ 
+ //open txt output file
+ myfile.open(dateTime, ios::app);
+ myfile<<"RUN LUMIBLOCK CHAMBER STRIP TAG RefRUN\n";
+ 
+ //get reference file
+ if (referenceOldChannels)
+   referenceFile_.open(parameters.getUntrackedParameter<string> ("referenceFileName","reference.txt").c_str()); 
+
+
+}
+  
 
 
 void RPCDeadChannelTest::beginLuminosityBlock(LuminosityBlock const& lumiSeg, EventSetup const& context) {
@@ -110,8 +100,8 @@ void RPCDeadChannelTest::beginLuminosityBlock(LuminosityBlock const& lumiSeg, Ev
 
 //called at each event
 void RPCDeadChannelTest::analyze(const edm::Event& iEvent, const edm::EventSetup& c){
-  nevents++;
-  edm::LogVerbatim ("deadChannel") << "[RPCDeadChannelTest]: "<<nevents<<" events";
+  // nevents++;
+  // edm::LogVerbatim ("deadChannel") << "[RPCDeadChannelTest]: "<<nevents<<" events";
 
   /// get didgi collection for event
   edm::Handle<RPCDigiCollection> rpcdigis;
@@ -129,7 +119,6 @@ void RPCDeadChannelTest::analyze(const edm::Event& iEvent, const edm::EventSetup
     }
   }// end loop on digi collection
 
-
 }      
 
 
@@ -141,27 +130,13 @@ void RPCDeadChannelTest::endLuminosityBlock(LuminosityBlock const& lumiSeg, Even
   
   // counts number of lumiSegs 
   nLumiSegs = lumiSeg.id().luminosityBlock();
-  
+ 
+ /* 
   //check some statements and prescale Factor
   if( !getQualityTestsFromFile ||  nLumiSegs%prescaleFactor != 0 ) return;
- 
-  edm::LogVerbatim ("deadChannel") <<"[RPCDeadChannelTest]: "<<nLumiSegs<<" updates";
+   */
 
-  
-  edm::LogVerbatim ("deadChannel") << "[RPCDeadChannelTest]: Occupancy tests results";
-
-  //always needed
-  mui_->doMonitoring();
-
-  //attach qTest. Done here because new ME can appear while processing data
-  edm::LogVerbatim ("deadChannel") << "[RPCDeadChannelTest]: Attaching QTests";
-  qtHandler->attachTests(dbe_);
-
-  //run qtest. All tests in xml file will run.   
-  edm::LogVerbatim ("deadChannel") << "[RPCDeadChannelTest]: Running QTests";
-  dbe_->runQTests();
-
-  // Occupancy test
+  // Occupancy test - the test was already performed and attached to the ME. Here we only retreive the results
   string OccupancyTestName = parameters.getUntrackedParameter<string>("OccTestName","DeadChannel_0"); 
   int deadchannel;
   string line,referenceRun,referenceLumiBlock,referenceRoll,referenceStrip, referenceTag, lastreferenceRun,nameRoll;
@@ -185,9 +160,8 @@ void RPCDeadChannelTest::endLuminosityBlock(LuminosityBlock const& lumiSeg, Even
 	    {
 
 	      deadchannel = (* channel).getBin();
-	      //   deadchannel = new String(deadcha);
-	      if(referenceOldDeadChannels && referenceFile_.is_open()){
 
+	      if(referenceOldChannels && referenceFile_.is_open()){
 		int i=1; // line zero has titles -> start from line 1
 		bool flag= false;
 		//read reference file and find already known dead channels  
@@ -229,23 +203,31 @@ void RPCDeadChannelTest::endLuminosityBlock(LuminosityBlock const& lumiSeg, Even
 }
 
 
+
+//End Run
+void RPCDeadChannelTest::endRun(const Run& r, const EventSetup& c){
+  //do nothing
+  myfile.close();
+}
+
+
 void RPCDeadChannelTest::endJob(){
   
-  edm::LogVerbatim ("deadChannel") << "[RPCDeadChannelTest]: endjob called!";
+  /*  edm::LogVerbatim ("deadChannel") << "[RPCDeadChannelTest]: endjob called!";
   if ( parameters.getUntrackedParameter<bool>("writeHisto", true) ) {
     stringstream runNumber; runNumber << run;
     string rootFile = "RPCDeadChannelTest_" + runNumber.str() + ".root";
     dbe_->save(parameters.getUntrackedParameter<string>("outputFile", rootFile));
-  }
+    }*/
 
   //close txt file
-  myfile.close();
+  //  myfile.close();
 
   // dbe_->rmdir("RPC/Tests/RPCDeadChannel");  
 }
 
 
-
+// find ME name using RPC geometry
 MonitorElement* RPCDeadChannelTest::getMEs(RPCDetId & detId) {
   
   MonitorElement* me;
