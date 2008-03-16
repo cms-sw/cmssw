@@ -53,7 +53,7 @@ EcalRawToDigiDev::EcalRawToDigiDev(edm::ParameterSet const& conf):
 
   REGIONAL_(conf.getUntrackedParameter<bool>("DoRegional",false)),
 
-  fedsLabel_(conf.getUntrackedParameter<std::string>("FedLabel","listfeds")),
+  fedsLabel_(conf.getUntrackedParameter<edm::InputTag>("FedLabel",edm::InputTag(":listfeds"))),
 
   myMap_(0),
   
