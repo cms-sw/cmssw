@@ -5,8 +5,8 @@
 //   L1 DT Track Finder Raw-to-Digi
 //
 //
-//   $Date: 2006/06/01 00:00:00 $
-//   $Revision: 1.1 $
+//   $Date: 2008/02/25 15:53:12 $
+//   $Revision: 1.10 $
 //
 //   Author :
 //   J. Troconiz  UAM Madrid
@@ -373,32 +373,46 @@ int DTTFFEDReader::channel( int wheel, int sector,  int bx ){
   if ( sector < 0 || sector > 11) { return myChannel; }
   if ( abs(wheel) > 3)            { return myChannel; }
 
-   myChannel = sector*21 + wheel*3 - bx + 10 ; 
+  myChannel = sector*21 + wheel*3 - bx + 10 ; 
+
+  if (myChannel > 125) myChannel += 2;
 
   return myChannel;
 }
 
 int DTTFFEDReader::bxNr( int channel ){
 
-  if (channel < 0 || channel > 252 ){ return -999; }
+  int myChannel = channel;
 
-  int myBx = 1-(channel%3);
+  if (myChannel > 127) myChannel -= 2;
+
+  if (myChannel < 0 || myChannel > 251 ){ return -999; }
+
+  int myBx = 1-(myChannel%3);
 
   return myBx;
 }
 
 int DTTFFEDReader::sector( int channel ){
 
-  if (channel < 0 || channel > 252 ){ return -999; }
+  int myChannel = channel;
 
-  return channel/21;
+  if (myChannel > 127) myChannel -= 2;
+
+  if (myChannel < 0 || myChannel > 251 ){ return -999; }
+
+  return myChannel/21;
 }
 
 int DTTFFEDReader::wheel( int channel ){
 
-  if (channel < 0 || channel > 252 ){ return -999; }    
+  int myChannel = channel;
 
-  int myWheel = ((channel%21)/3)-3;
+  if (myChannel > 127) myChannel -= 2;
+
+  if (myChannel < 0 || myChannel > 251 ){ return -999; }
+
+  int myWheel = ((myChannel%21)/3)-3;
 
   return myWheel;
 }
