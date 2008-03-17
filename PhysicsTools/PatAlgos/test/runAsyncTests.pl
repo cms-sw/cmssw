@@ -101,7 +101,7 @@ sub printRunning {
     $info{$f}->{'excep'} = $excep;
     $info{$f}->{'exbody'}= $exbody;
     return "\e[32;1m$f\e[37;0m: event $last/" . $info{$f}->{'max'} ." (time ${secs}s, ${lines} output lines, " . 
-        ($excep ? "\e[1;31m$excep exceptions\e[0m" : "\e[32mno exceptions jet\e[0m" ) . ")...";
+        ($excep ? "\e[1;31m$excep exceptions\e[0m" : "\e[32mno exceptions yet\e[0m" ) . ")...";
 }
 
 while (scalar(keys(%done)) < scalar(@CFGs)) {
