@@ -10,7 +10,7 @@
 */
 //
 // Original Author:  Monica Vazquez Acosta (CERN)
-// $Id: EgammaHLTPixelMatchElectronAlgo.cc,v 1.10 2007/12/10 18:12:46 ghezzi Exp $
+// $Id: EgammaHLTPixelMatchElectronAlgo.cc,v 1.11 2008/02/15 16:05:37 ghezzi Exp $
 //
 //
 #include "RecoEgamma/EgammaHLTAlgos/interface/EgammaHLTPixelMatchElectronAlgo.h"
@@ -83,8 +83,10 @@ void EgammaHLTPixelMatchElectronAlgo::setupES(const edm::EventSetup& es, const e
   theCkfTrajectoryBuilder = theTrajectoryBuilderHandle.product();    
   */
 
-  trackLabel_ = conf.getParameter<string>("TrackLabel");
-  trackInstanceName_ = conf.getParameter<string>("TrackProducer");//"offlineBeamSpot"
+  //trackLabel_ = conf.getParameter<string>("TrackLabel");
+  //  trackInstanceName_ = conf.getParameter<string>("TrackProducer");
+  trackProducer_= conf.getParameter<edm::InputTag>("TrackProducer");
+  //"offlineBeamSpot"
   BSProducer_ = conf.getParameter<edm::InputTag>("BSProducer");
 }
 
@@ -92,7 +94,8 @@ void  EgammaHLTPixelMatchElectronAlgo::run(Event& e, ElectronCollection & outEle
 
   // get the input 
   edm::Handle<TrackCollection> tracksH;
-  e.getByLabel(trackLabel_,trackInstanceName_,tracksH);
+  //  e.getByLabel(trackLabel_,trackInstanceName_,tracksH);
+ e.getByLabel(trackProducer_,tracksH);
 
   //Get the Beam Spot position
   edm::Handle<reco::BeamSpot> recoBeamSpotHandle;

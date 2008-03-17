@@ -91,8 +91,9 @@ public:
 
 
   // input configuration
-  std::string trackLabel_;
-  std::string trackInstanceName_;
+  //  std::string trackLabel_;
+  // std::string trackInstanceName_;
+  edm::InputTag trackProducer_; 
   edm::InputTag BSProducer_; 
 
   //  const TrajectoryBuilder*  theCkfTrajectoryBuilder;
