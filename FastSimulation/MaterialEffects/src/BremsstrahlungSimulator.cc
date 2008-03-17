@@ -21,10 +21,12 @@ void
 BremsstrahlungSimulator::compute(ParticlePropagator &Particle)
 {
 
-  // Protection : Just stop the electron if more that 1 radiation lengths.
+  // Protection : Just stop the electron if more than 1 radiation lengths.
   // This case corresponds to an electron entering the layer parallel to 
   // the layer axis - no reliable simulation can be done in that case...
-  if ( radLengths > 1. ) Particle.SetXYZT(0.,0.,0.,0.);
+  // 08/02/06 - pv: increase protection from 1 to 4 X0 for eta>4.8 region
+  // if ( radLengths > 1. ) Particle.SetXYZT(0.,0.,0.,0.);
+  if ( radLengths > 4. ) Particle.SetXYZT(0.,0.,0.,0.);
 
   // Hard brem probability with a photon Energy above photonEnergy.
   xmin = std::max(photonEnergy/Particle.e(),photonFractE);
