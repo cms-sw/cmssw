@@ -6,7 +6,7 @@
 TrajectoryStateClosestToBeamLine
 TrajectoryStateClosestToBeamLineBuilder::operator()
 	(const FreeTrajectoryState& originalFTS,
-	 const reco::BeamSpot& beamSpot)
+	 const reco::BeamSpot& beamSpot) const
 {
   TwoTrackMinimumDistance ttmd;
   bool status = ttmd.calculate( originalFTS.parameters(), 
