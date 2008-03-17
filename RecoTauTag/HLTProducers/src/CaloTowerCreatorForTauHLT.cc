@@ -23,7 +23,7 @@ using namespace l1extra ;
 CaloTowerCreatorForTauHLT::CaloTowerCreatorForTauHLT( const ParameterSet & p ) 
   :
   mVerbose (p.getUntrackedParameter<int> ("verbose", 0)),
-  mtowers (p.getParameter<string> ("towers")),
+  mtowers (p.getParameter<InputTag> ("towers")),
   mCone (p.getParameter<double> ("UseTowersInCone")),
   mTauTrigger (p.getParameter<InputTag> ("TauTrigger")),
 //  ml1seeds (p.getParameter<InputTag> ("l1seeds")),

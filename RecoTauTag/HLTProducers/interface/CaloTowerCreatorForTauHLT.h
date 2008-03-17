@@ -37,7 +37,7 @@ class CaloTowerCreatorForTauHLT : public edm::EDProducer {
   /// verbosity
   int mVerbose;
   /// label of source collection
-  std::string mtowers;
+ edm::InputTag mtowers;
   /// use only towers in cone mCone around L1 candidate for regional jet reco
   double mCone;
   /// label of tau trigger type analysis
