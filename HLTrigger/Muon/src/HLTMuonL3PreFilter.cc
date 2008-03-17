@@ -30,6 +30,7 @@ using namespace reco;
 using namespace trigger;
 
 HLTMuonL3PreFilter::HLTMuonL3PreFilter(const ParameterSet& iConfig) :
+   beamspotTag_   (iConfig.getParameter< edm::InputTag > ("BeamSpotTag")),
    candTag_   (iConfig.getParameter<InputTag > ("CandTag")),
    linksTag_   (iConfig.getParameter<InputTag > ("LinksTag")),
    previousCandTag_   (iConfig.getParameter<InputTag > ("PreviousCandTag")),
@@ -87,7 +88,7 @@ HLTMuonL3PreFilter::filter(Event& iEvent, const EventSetup& iSetup)
    iEvent.getByLabel (previousCandTag_,previousLevelCands);
    BeamSpot beamSpot;
    Handle<BeamSpot> recoBeamSpotHandle;
-   iEvent.getByLabel("offlineBeamSpot",recoBeamSpotHandle);
+   iEvent.getByLabel(beamspotTag_,recoBeamSpotHandle);
    beamSpot = *recoBeamSpotHandle;
 
 

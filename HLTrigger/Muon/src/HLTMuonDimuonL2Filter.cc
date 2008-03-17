@@ -34,7 +34,8 @@ using namespace l1extra;
 //
 // constructors and destructor
 //
-HLTMuonDimuonL2Filter::HLTMuonDimuonL2Filter(const edm::ParameterSet& iConfig) :
+HLTMuonDimuonL2Filter::HLTMuonDimuonL2Filter(const edm::ParameterSet& iConfig):
+   beamspotTag_   (iConfig.getParameter< edm::InputTag > ("BeamSpotTag")),
    candTag_     (iConfig.getParameter< edm::InputTag > ("CandTag")),
    previousCandTag_   (iConfig.getParameter<InputTag > ("PreviousCandTag")),
    linksTag_   (iConfig.getParameter<InputTag > ("SeedTag")),
@@ -109,7 +110,7 @@ HLTMuonDimuonL2Filter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
    iEvent.getByLabel (previousCandTag_,previousLevelCands);
    BeamSpot beamSpot;
    Handle<BeamSpot> recoBeamSpotHandle;
-   iEvent.getByLabel("offlineBeamSpot",recoBeamSpotHandle);
+   iEvent.getByLabel(beamspotTag_,recoBeamSpotHandle);
    beamSpot = *recoBeamSpotHandle;
 
    Handle<L2MuonTrajectorySeedCollection> museeds; 

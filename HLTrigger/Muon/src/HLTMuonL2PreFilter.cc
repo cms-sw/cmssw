@@ -34,6 +34,7 @@ using namespace trigger;
 using namespace l1extra;
 
 HLTMuonL2PreFilter::HLTMuonL2PreFilter(const ParameterSet& iConfig) :
+   beamspotTag_   (iConfig.getParameter< edm::InputTag > ("BeamSpotTag")),
    candTag_   (iConfig.getParameter<InputTag > ("CandTag")),
    linksTag_   (iConfig.getParameter<InputTag > ("SeedTag")),
    previousCandTag_   (iConfig.getParameter<InputTag > ("PreviousCandTag")),
@@ -96,7 +97,7 @@ HLTMuonL2PreFilter::filter(Event& iEvent, const EventSetup& iSetup)
    previousLevelCands->getObjects(TriggerL1Mu,vl1cands);
    BeamSpot beamSpot;
    Handle<BeamSpot> recoBeamSpotHandle;
-   iEvent.getByLabel("offlineBeamSpot",recoBeamSpotHandle);
+   iEvent.getByLabel(beamspotTag_,recoBeamSpotHandle);
    beamSpot = *recoBeamSpotHandle;
   
    // look at all mucands,  check cuts and add to filter object

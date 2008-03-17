@@ -22,6 +22,7 @@ class HLTMuonDimuonL2Filter : public HLTFilter {
       bool triggeredByLevel1(reco::TrackRef& track,edm::Handle<L2MuonTrajectorySeedCollection> &museeds,std::vector<l1extra::L1MuonParticleRef>& vcands);
 
    private:
+      edm::InputTag beamspotTag_ ;
       edm::InputTag candTag_;  // input tag identifying product contains muons
       edm::InputTag previousCandTag_;  // input tag identifying product contains muons passing the previous level
       edm::InputTag linksTag_;  // input tag identifying product contains muons

@@ -21,6 +21,7 @@ class HLTMuonDimuonFilter : public HLTFilter {
       virtual bool filter(edm::Event&, const edm::EventSetup&);
 
    private:
+      edm::InputTag beamspotTag_;  // input tag identifying product contains muons
       edm::InputTag candTag_;  // input tag identifying product contains muons
       
       bool   fast_Accept_;      // flag to save time: stop processing after identification of the first valid pair

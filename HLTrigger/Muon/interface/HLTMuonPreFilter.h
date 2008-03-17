@@ -21,6 +21,7 @@ class HLTMuonPreFilter : public HLTFilter {
       virtual bool filter(edm::Event&, const edm::EventSetup&);
 
    private:
+      edm::InputTag beamspotTag_;  // input tag identifying product contains muons
       edm::InputTag candTag_;  // input tag identifying product contains muons
       
       int    min_N_;            // minimum number of muons to fire the trigger
