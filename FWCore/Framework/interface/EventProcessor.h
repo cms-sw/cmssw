@@ -32,7 +32,7 @@ problems:
   where does the pluginmanager initialize call go?
 
 
-$Id: EventProcessor.h,v 1.56 2008/02/27 17:15:27 wdd Exp $
+$Id: EventProcessor.h,v 1.57 2008/02/27 20:06:01 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -83,6 +83,7 @@ namespace edm {
     class LuminosityBlockSentry;
     class RunSentry;
     class InputFileSentry;
+    class PrePostSourceSignal;
   }
     
   class EventProcessor : public IEventProcessor, private boost::noncopyable
@@ -294,7 +295,7 @@ namespace edm {
 
     // These classes work with the boost statemachine
 
-    virtual StatusCode runToCompletion();
+    virtual StatusCode runToCompletion(bool runWasSet = false);
 
     virtual void readFile();
     virtual void closeInputFile();
@@ -372,6 +373,9 @@ namespace edm {
     void errorState();
     void setupSignal();
 
+    void preSourceSignal();
+    void postSourceSignal();
+
     static void asyncRun(EventProcessor *);
 
     //------------------------------------------------------------------
@@ -420,12 +424,14 @@ namespace edm {
     std::string                                   fileMode_;
     bool                                          handleEmptyRuns_;
     bool                                          handleEmptyLumis_;
+    bool                                          sourceActive_;
 
     friend class EDLooperHelper;
     friend class event_processor::StateSentry;
     friend class event_processor::LuminosityBlockSentry;
     friend class event_processor::RunSentry;
     friend class event_processor::InputFileSentry;
+    friend class event_processor::PrePostSourceSignal;
   }; // class EventProcessor
 
   //--------------------------------------------------------------------

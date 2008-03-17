@@ -182,6 +182,18 @@ namespace edm {
     private:
       statemachine::Machine* m_;
     };
+
+    class PrePostSourceSignal {
+    public:
+      PrePostSourceSignal(EventProcessor* ep): ep_(ep) { 
+        ep_->preSourceSignal();
+      }
+      ~PrePostSourceSignal() {
+        ep_->postSourceSignal();        
+      }    
+    private:
+      EventProcessor* ep_;
+    };
   }
 
   using namespace event_processor;
@@ -591,7 +603,8 @@ namespace edm {
     rp_(),
     lbp_(),
     looper_(),
-    shouldWeStop_(false)
+    shouldWeStop_(false),
+    sourceActive_(false)
   {
     boost::shared_ptr<edm::ProcessDesc> processDesc(new edm::ProcessDesc(config));
     processDesc->addServices(defaultServices, forcedServices);
@@ -629,7 +642,8 @@ namespace edm {
     rp_(),
     lbp_(),
     looper_(),
-    shouldWeStop_(false)
+    shouldWeStop_(false),
+    sourceActive_(false)
   {
     boost::shared_ptr<edm::ProcessDesc> processDesc(new edm::ProcessDesc(config));
     processDesc->addServices(defaultServices, forcedServices);
@@ -667,7 +681,8 @@ namespace edm {
     rp_(),
     lbp_(),
     looper_(),
-    shouldWeStop_(false)
+    shouldWeStop_(false),
+    sourceActive_(false)
   {
     init(processDesc, token, legacy);
   }
@@ -786,8 +801,20 @@ namespace edm {
     
     private:
       ActivityRegistry* a_;
-    };
-  }  
+    }; 
+  }
+
+  void
+  EventProcessor::preSourceSignal() {
+    actReg_->preSourceSignal_();
+    sourceActive_ = true;
+  }
+
+  void
+  EventProcessor::postSourceSignal() {
+    if (sourceActive_) actReg_->postSourceSignal_();
+    sourceActive_ = false;    
+  }
 
   void
   EventProcessor::rewind()
@@ -1481,6 +1508,13 @@ namespace edm {
   void
   EventProcessor::setRunNumber(RunNumber_t runNumber)
   {
+    if (runNumber == 0) {
+      runNumber = 1;
+      LogWarning("Invalid Run")
+        << "EventProcessor::setRunNumber was called with an invalid run number (0)\n"
+	<< "Run number was set to 1 instead\n";
+    }
+
     // inside of beginJob there is a check to see if it has been called before
     beginJob();
     changeState(mSetRun);
@@ -1678,7 +1712,10 @@ namespace edm {
     FDEBUG(2) << "asyncRun starting ......................\n";
 
     try {
-	rc = me->processInputFiles(-1, false, mRunAsync);
+      // rc = me->processInputFiles(-1, false, mRunAsync);
+
+      bool runWasSet = true;
+      rc = me->runToCompletion(runWasSet);
     }
     catch (cms::Exception& e) {
       edm::LogError("FwkJob") << "cms::Exception caught in "
@@ -1715,12 +1752,15 @@ namespace edm {
 
 
   edm::EventProcessor::StatusCode
-  EventProcessor::runToCompletion() {
+  EventProcessor::runToCompletion(bool runWasSet) {
 
     beginJob(); //make sure this was called
 
     StateSentry toerror(this);
-    changeState(mRunCount);
+
+    if (runWasSet) changeState(mRunAsync);
+    else changeState(mRunCount);
+
     StatusCode returnCode = epSuccess;
     shouldWeStop_ = false;
     stateMachineWasInErrorState_ = false;
@@ -1744,7 +1784,10 @@ namespace edm {
 
       InputSource::ItemType itemType;
 
-      while (itemType = input_->nextItemType()) {
+      while (true) {
+
+        PrePostSourceSignal sentry(this);
+        itemType = input_->nextItemType();
 
         FDEBUG(1) << "itemType = " << itemType << "\n";
 
@@ -1763,6 +1806,7 @@ namespace edm {
         }
 
         if (itemType == InputSource::IsStop) {
+          postSourceSignal();
           machine.process_event(statemachine::Stop());
         }
         else if (itemType == InputSource::IsFile) {
@@ -1777,6 +1821,9 @@ namespace edm {
         else if (itemType == InputSource::IsEvent) {
           machine.process_event(statemachine::Event());
         }
+        else if (itemType == InputSource::IsInvalid) {
+          break;
+        }
         if (machine.terminated()) {
 	  FDEBUG(1) << "The state machine reports it has been terminated\n";
           changeState(mInputExhausted);
@@ -1785,7 +1832,8 @@ namespace edm {
       }  // End of loop over state machine events
     } // End of machine sentry scope, stops machine on exceptions
 
-    changeState(mFinished);
+    if (!runWasSet) changeState(mFinished);
+
     toerror.succeeded();
 
     if (stateMachineWasInErrorState_) {
@@ -1800,6 +1848,7 @@ namespace edm {
   void EventProcessor::readFile() {
     FDEBUG(1) << " \treadFile\n";
     fb_ = input_->readFile();
+    postSourceSignal();
   }
 
   void EventProcessor::closeInputFile() {
@@ -1933,12 +1982,14 @@ namespace edm {
 
   int EventProcessor::readAndCacheRun() {
     principalCache_.insert(input_->readRun());
+    postSourceSignal();
     FDEBUG(1) << "\treadAndCacheRun " << "\n";
     return principalCache_.runPrincipal().run();
   }
 
   int EventProcessor::readAndCacheLumi() {
     principalCache_.insert(input_->readLuminosityBlock(principalCache_.runPrincipalPtr()));
+    postSourceSignal();
     FDEBUG(1) << "\treadAndCacheLumi " << "\n";
     return principalCache_.lumiPrincipal().luminosityBlock();
   }
@@ -1964,9 +2015,8 @@ namespace edm {
   }
 
   void EventProcessor::readEvent() {
-    CallPrePost holder(*actReg_);
     sm_evp_ = input_->readEvent(principalCache_.lumiPrincipalPtr());
-
+    postSourceSignal();
     FDEBUG(1) << "\treadEvent\n";
   }
 

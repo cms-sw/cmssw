@@ -2,7 +2,7 @@
 #define FWCore_Framework_MockEventProcessor_h
 
 /*
-$Id: MockEventProcessor.h,v 1.2 2008/01/02 23:52:42 wdd Exp $
+$Id: MockEventProcessor.h,v 1.3 2008/02/27 20:11:06 wmtan Exp $
 
 Version of the Event Processor used for tests of
 the state machine and other tests.
@@ -26,7 +26,7 @@ namespace edm
                        bool handleEmptyRuns,
                        bool handleEmptyLumis);
 
-    virtual StatusCode runToCompletion();
+    virtual StatusCode runToCompletion(bool runWasSet = false);
 
     virtual void readFile();
     virtual void closeInputFile();
