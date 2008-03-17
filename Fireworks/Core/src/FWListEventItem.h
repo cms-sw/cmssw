@@ -16,12 +16,13 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Feb 28 11:05:02 PST 2008
-// $Id: FWListEventItem.h,v 1.4 2008/03/05 19:57:41 chrjones Exp $
+// $Id: FWListEventItem.h,v 1.5 2008/03/11 23:30:04 chrjones Exp $
 //
 
 // system include files
 #include <set>
 #include "TEveElement.h"
+#include "Reflex/Member.h"
 
 // user include files
 #include "Fireworks/Core/src/FWListItemBase.h"
@@ -64,6 +65,7 @@ class FWListEventItem : public TEveElementList, public FWListItemBase
       // ---------- member data --------------------------------
       FWEventItem* m_item;
       FWDetailViewManager* m_detailViewManager;
+      ROOT::Reflex::Member m_memberFunction;
 };
 
 

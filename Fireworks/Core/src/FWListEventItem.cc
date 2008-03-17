@@ -8,14 +8,21 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Feb 28 11:13:37 PST 2008
-// $Id: FWListEventItem.cc,v 1.9 2008/03/13 03:00:34 chrjones Exp $
+// $Id: FWListEventItem.cc,v 1.10 2008/03/16 23:12:51 chrjones Exp $
 //
 
 // system include files
 #include <boost/bind.hpp>
 #include <iostream>
+#include <sstream>
 #include "TEveManager.h"
 #include "TEveSelection.h"
+
+#include "TClass.h"
+#include "Reflex/Type.h"
+#include "Reflex/Member.h"
+#include "Reflex/Object.h"
+#include "Reflex/Base.h"
 
 // user include files
 #include "Fireworks/Core/src/FWListEventItem.h"
@@ -34,6 +41,108 @@
 //
 // static data member definitions
 //
+static
+const std::vector<std::string>&
+defaultMemberFunctionNames()
+{
+   static std::vector<std::string> s_names;
+   if(s_names.empty()){
+      s_names.push_back("pt");
+      s_names.push_back("et");
+      s_names.push_back("energy");
+   }
+   return s_names;
+}
+
+static
+ROOT::Reflex::Member
+recursiveFindMember(const std::string& iName, 
+                    const ROOT::Reflex::Type& iType)
+{
+   using namespace ROOT::Reflex;
+
+   Member temp = iType.MemberByName(iName);
+   if(temp) {return temp;}
+   
+   //try all base classes
+   for(Base_Iterator it = iType.Base_Begin(), itEnd = iType.Base_End();
+       it != itEnd;
+       ++it) {
+      temp = recursiveFindMember(iName,it->ToType());
+      if(temp) {break;}
+   }
+   return temp;
+}
+
+
+static
+ROOT::Reflex::Member
+findDefaultMember(const TClass* iClass) {
+   using namespace ROOT::Reflex;
+   if(0==iClass) {
+      return Member();
+   }
+   
+   Type rType = Type::ByTypeInfo(*(iClass->GetTypeInfo()));
+   assert(rType != Type() );
+   //std::cout <<"Type "<<rType.Name()<<std::endl;
+   
+   Member returnValue;
+   const std::vector<std::string>& names = defaultMemberFunctionNames();
+   for(std::vector<std::string>::const_iterator it = names.begin(), itEnd=names.end();
+       it != itEnd;
+       ++it) {
+      //std::cout <<" trying function "<<*it<<std::endl;
+      Member temp = recursiveFindMember(*it,rType);
+      if(temp) {
+         if(0==temp.FunctionParameterSize(true)) {
+            //std::cout <<"    FOUND "<<temp.Name()<<std::endl;
+            returnValue = temp;
+            break;
+         }
+      }
+   }
+   return returnValue;
+}
+
+namespace {
+   template <class T>
+   std::string valueToString(const std::string& iName, const ROOT::Reflex::Object& iObj) {
+      std::stringstream s;
+      s.setf(std::ios_base::fixed,std::ios_base::floatfield);
+      s.precision(2);
+      s<<iName <<" = "<<*(reinterpret_cast<T*>(iObj.Address()));
+      return s.str();
+   }
+
+   typedef std::string(*FunctionType)(const std::string&,const ROOT::Reflex::Object&);
+   typedef std::map<std::string, FunctionType> TypeToPrintMap;
+    
+   template<typename T>
+   static void addToMap(TypeToPrintMap& iMap) {
+      iMap[typeid(T).name()]=valueToString<T>;
+   }
+}
+
+static
+std::string
+valueFor(const ROOT::Reflex::Object& iObj, const ROOT::Reflex::Member& iMember) {
+   static TypeToPrintMap s_map;
+   if(s_map.empty() ) {
+      addToMap<float>(s_map);
+      addToMap<double>(s_map);
+   }
+
+   ROOT::Reflex::Object val = iMember.Invoke(iObj);
+
+   TypeToPrintMap::iterator itFound =s_map.find(val.TypeOf().TypeInfo().name());
+   if(itFound == s_map.end()) {
+      //std::cout <<" could not print because type is "<<iObj.TypeOf().TypeInfo().name()<<std::endl;
+      return std::string();
+   }
+   
+   return itFound->second(iMember.Name(),val);
+ }
 
 //
 // constructors and destructor
@@ -42,7 +151,8 @@ FWListEventItem::FWListEventItem(FWEventItem* iItem,
                                  FWDetailViewManager* iDV):
 TEveElementList(iItem->name().c_str(),"",kTRUE),
 m_item(iItem),
-m_detailViewManager(iDV)
+m_detailViewManager(iDV),
+m_memberFunction(findDefaultMember(iItem->modelType()))
 {
    m_item->itemChanged_.connect(boost::bind(&FWListEventItem::itemChanged,this,_1));
    m_item->changed_.connect(boost::bind(&FWListEventItem::modelsChanged,this,_1));
@@ -127,7 +237,18 @@ FWListEventItem::itemChanged(const FWEventItem* iItem)
    //std::cout <<"item changed "<<eventItem()->size()<<std::endl;
    this->DestroyElements();
    for(unsigned int index = 0; index < eventItem()->size(); ++index) {
-      FWListModel* model = new FWListModel(FWModelId(eventItem(),index), m_detailViewManager);
+      ROOT::Reflex::Object obj;
+      std::string data;
+      if(m_memberFunction) {
+         //the const_cast is fine since I'm calling a const member function
+         ROOT::Reflex::Object temp(m_memberFunction.DeclaringType(),
+                                   const_cast<void*>(eventItem()->modelData(index)));
+         obj=temp;
+         data = valueFor(obj,m_memberFunction);
+      }
+      FWListModel* model = new FWListModel(FWModelId(eventItem(),index), 
+                                           m_detailViewManager,
+                                           data);
       this->AddElement( model );
       model->SetMainColor(m_item->defaultDisplayProperties().color());
    }
