@@ -16,7 +16,7 @@ L2TauJetsProvider::L2TauJetsProvider(const edm::ParameterSet& iConfig)
 {
   jetSrc = iConfig.getParameter<vtag>("JetSrc");
   l1Particles = iConfig.getParameter<InputTag>("L1Particles");
-  tauTrigger = iConfig.getParameter<string>("L1TauTrigger");
+  tauTrigger = iConfig.getParameter<InputTag>("L1TauTrigger");
   mEt_Min = iConfig.getParameter<double>("EtMin");
 
   

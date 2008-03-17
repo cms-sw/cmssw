@@ -29,7 +29,7 @@ class L2TauJetsProvider: public edm::EDProducer {
   typedef std::vector<edm::InputTag> vtag;
   vtag jetSrc;
   edm::InputTag l1Particles;
-  std::string tauTrigger;
+  edm::InputTag tauTrigger;
   double mEt_Min;
   std::map<int, const reco::CaloJet> myL2L1JetsMap; //first is # L1Tau , second is L2 jets
 };
