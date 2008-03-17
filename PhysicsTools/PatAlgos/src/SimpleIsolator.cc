@@ -5,8 +5,8 @@ using pat::helper::SimpleIsolator;
 using pat::helper::BaseIsolator;
 
 
-SimpleIsolator::SimpleIsolator(const edm::ParameterSet &conf) :
-    BaseIsolator(conf)
+SimpleIsolator::SimpleIsolator(const edm::ParameterSet &conf, bool withCut) :
+    BaseIsolator(conf, withCut)
 {
 }
 

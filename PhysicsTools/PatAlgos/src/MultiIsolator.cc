@@ -7,12 +7,12 @@
 using namespace pat::helper;
 
 
-MultiIsolator::MultiIsolator(const edm::ParameterSet &conf) {
+MultiIsolator::MultiIsolator(const edm::ParameterSet &conf, bool cuts) {
     using pat::Flags;
-    if (conf.exists("tracker")) addIsolator(conf.getParameter<edm::ParameterSet>("tracker"), Flags::Isolation::Tracker);
-    if (conf.exists("ecal"))    addIsolator(conf.getParameter<edm::ParameterSet>("ecal"),    Flags::Isolation::ECal);
-    if (conf.exists("hcal"))    addIsolator(conf.getParameter<edm::ParameterSet>("hcal"),    Flags::Isolation::HCal);
-    if (conf.exists("calo"))    addIsolator(conf.getParameter<edm::ParameterSet>("calo"),    Flags::Isolation::Calo);
+    if (conf.exists("tracker")) addIsolator(conf.getParameter<edm::ParameterSet>("tracker"), cuts, Flags::Isolation::Tracker, pat::TrackerIso);
+    if (conf.exists("ecal"))    addIsolator(conf.getParameter<edm::ParameterSet>("ecal"),    cuts, Flags::Isolation::ECal, pat::ECalIso);
+    if (conf.exists("hcal"))    addIsolator(conf.getParameter<edm::ParameterSet>("hcal"),    cuts, Flags::Isolation::HCal, pat::HCalIso);
+    if (conf.exists("calo"))    addIsolator(conf.getParameter<edm::ParameterSet>("calo"),    cuts, Flags::Isolation::Calo, pat::CaloIso);
     if (conf.exists("calo") && (conf.exists("ecal") || conf.exists("hcal"))) {
         throw cms::Exception("Configuration") << 
             "MultiIsolator: you can't specify both 'calo' isolation and 'ecal'/'hcal', " <<
@@ -26,34 +26,35 @@ MultiIsolator::MultiIsolator(const edm::ParameterSet &conf) {
         }
         uint32_t bit = Flags::Isolation::User1;
         for (std::vector<edm::ParameterSet>::const_iterator it = psets.begin(), ed = psets.end(); it != ed; ++it, bit <<= 1) {
-            addIsolator(*it, bit);
+            addIsolator(*it, cuts, bit, pat::IsolationKeys(pat::UserBaseIso + (it - psets.begin())));
         }
     }
 }
 
 
 void 
-MultiIsolator::addIsolator(BaseIsolator *iso, uint32_t mask) {
+MultiIsolator::addIsolator(BaseIsolator *iso, uint32_t mask, pat::IsolationKeys key) {
     isolators_.push_back(iso);
     masks_.push_back(mask); 
+    keys_.push_back(key);
 }
 
 BaseIsolator * 
-MultiIsolator::make(const edm::ParameterSet &conf) {
+MultiIsolator::make(const edm::ParameterSet &conf, bool withCut) {
     if (conf.empty()) return 0;
     if (conf.exists("placeholder") && conf.getParameter<bool>("placeholder")) return 0;
     if (conf.exists("deltaR")) {
-        return new IsoDepositIsolator(conf);
+        return new IsoDepositIsolator(conf, withCut);
     } else {
-        return new SimpleIsolator(conf);
+        return new SimpleIsolator(conf, withCut);
     }
 }
 
 
 void 
-MultiIsolator::addIsolator(const edm::ParameterSet &conf, uint32_t mask) {
-    BaseIsolator * iso = make(conf);
-    if (iso) addIsolator(iso, mask);
+MultiIsolator::addIsolator(const edm::ParameterSet &conf, bool withCut, uint32_t mask, pat::IsolationKeys key) {
+    BaseIsolator * iso = make(conf, withCut);
+    if (iso) addIsolator(iso, mask, key);
 }
 
 

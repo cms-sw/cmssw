@@ -8,29 +8,35 @@
 #include "PhysicsTools/PatAlgos/interface/BaseIsolator.h"
 #include "boost/ptr_container/ptr_vector.hpp"
 
+#include "DataFormats/PatCandidates/interface/Isolation.h"
+
 namespace pat { namespace helper {
 class MultiIsolator {
     public:
+        typedef std::vector<std::pair<pat::IsolationKeys,float> > IsolationValuePairs;
         MultiIsolator() {}
-        MultiIsolator(const edm::ParameterSet &conf) ;
+        MultiIsolator(const edm::ParameterSet &conf, bool cuts=true) ;
         ~MultiIsolator() {}
 
         // adds an isolator (and takes onwership of the pointer)
-        void addIsolator(BaseIsolator *iso, uint32_t mask) ;
+        void addIsolator(BaseIsolator *iso, uint32_t mask, pat::IsolationKeys key) ;
 
         // parses an isolator and adds it to the list
-        void addIsolator(const edm::ParameterSet &conf, uint32_t mask) ;
+        void addIsolator(const edm::ParameterSet &conf, bool withCut, uint32_t mask, pat::IsolationKeys key) ;
 
         // Parses out an isolator, and returns a pointer to it.
         // For an empty PSet, it returns a null pointer.
         // You own the returned pointer!
-        static BaseIsolator * make(const edm::ParameterSet &conf) ;
+        static BaseIsolator * make(const edm::ParameterSet &conf, bool withCut) ;
        
         void beginEvent(const edm::Event &event);
         void endEvent() ; 
 
         template<typename T>
-        uint32_t test(const edm::View<T> &coll, int idx);
+        uint32_t test(const edm::View<T> &coll, int idx) const;
+
+        template<typename T>
+        void fill(const edm::View<T> &coll, int idx, IsolationValuePairs& isolations) const ;
 
         void print(std::ostream &out) const ;
 
@@ -41,12 +47,12 @@ class MultiIsolator {
     private:
         boost::ptr_vector<BaseIsolator> isolators_;
         std::vector<uint32_t>           masks_;
-
+        std::vector<pat::IsolationKeys> keys_;
 };
 
     template<typename T>
     uint32_t 
-    MultiIsolator::test(const edm::View<T> &coll, int idx) {
+    MultiIsolator::test(const edm::View<T> &coll, int idx) const {
         uint32_t retval = 0;
         edm::RefToBase<T> rb = coll.refAt(idx); // edm::Ptr<T> in a shiny new future to come one remote day ;-)
         for (size_t i = 0, n = isolators_.size(); i < n; ++i) {
@@ -54,6 +60,19 @@ class MultiIsolator {
         }
         return retval;
     }
+
+    template<typename T>
+    void 
+    MultiIsolator::fill(const edm::View<T> &coll, int idx, IsolationValuePairs & isolations) const 
+    {
+        isolations.resize(isolators_.size());
+        edm::RefToBase<T> rb = coll.refAt(idx); 
+        for (size_t i = 0, n = isolators_.size(); i < n; ++i) {
+           isolations[i].first  = keys_[i];
+           isolations[i].second = isolators_[i].getValue(rb); 
+        }
+    }
+
 }} // namespace
 
 #endif

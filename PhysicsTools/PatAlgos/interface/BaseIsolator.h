@@ -10,7 +10,7 @@ class BaseIsolator {
     public:
         typedef edm::ValueMap<float> Isolation;
         BaseIsolator() {}
-        BaseIsolator(const edm::ParameterSet &conf) ;
+        BaseIsolator(const edm::ParameterSet &conf, bool withCut) ;
         virtual ~BaseIsolator() {}
         virtual void beginEvent(const edm::Event &event) = 0;
         virtual void endEvent() = 0;
@@ -21,6 +21,11 @@ class BaseIsolator {
             try_++; if (!ok) fail_++;
             return ok;
         }
+        /// Returns the associated isolation value given any sort of ref
+        template<typename AnyRef> float getValue(const AnyRef &ref) const {
+            return getValue(ref.id(), ref.key());
+        }
+
         virtual std::string description() const = 0;
         void print(std::ostream &out) const ;
     protected:

@@ -11,18 +11,23 @@ class IsoDepositIsolator : public BaseIsolator {
         typedef edm::ValueMap<reco::MuIsoDeposit> Isolation;
  
         IsoDepositIsolator() {}
-        IsoDepositIsolator(const edm::ParameterSet &conf) ;
-        virtual ~IsoDepositIsolator() {}
+        IsoDepositIsolator(const edm::ParameterSet &conf, bool withCut) ;
+        virtual ~IsoDepositIsolator() ;
         virtual void beginEvent(const edm::Event &event) ;
         virtual void endEvent() ;
 
         virtual std::string description() const ;
     protected:
+        enum Mode { Sum, SumRelative, Count };
         edm::Handle<Isolation> handle_;
+
         float deltaR_;
-        virtual float getValue(const edm::ProductID &id, size_t index) const {
-            return handle_->get(id, index).depositWithin(deltaR_);
-        }
+        Mode  mode_;
+        reco::isodeposit::AbsVetos vetos_;
+        bool skipDefaultVeto_;
+
+        virtual float getValue(const edm::ProductID &id, size_t index) const ;
+        
 }; // class IsoDepositIsolator
 } } // namespaces
 

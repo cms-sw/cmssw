@@ -4,9 +4,9 @@
 
 using pat::helper::BaseIsolator;
 
-BaseIsolator::BaseIsolator(const edm::ParameterSet &conf) :
+BaseIsolator::BaseIsolator(const edm::ParameterSet &conf, bool withCut) :
     input_(conf.getParameter<edm::InputTag>("src")),
-    cut_(conf.getParameter<double>("cut")),
+    cut_(withCut ? conf.getParameter<double>("cut") : -2.0),
     try_(0), fail_(0)
 {
 }
