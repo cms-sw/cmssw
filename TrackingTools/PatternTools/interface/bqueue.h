@@ -50,6 +50,8 @@ class _bqueue_itr {
         const _bqueue_itr<T> & operator--() const { it = it->back.get(); return *this; }
         bool operator==(const _bqueue_itr<T> &t2) const  { return t2.it == it; }
         bool operator!=(const _bqueue_itr<T> &t2) const { return t2.it != it; }
+        // so that I can assign a const_iterator to a const_iterator
+        const _bqueue_itr<T> & operator=(const _bqueue_itr<T> &t2) const { it = t2.it; return *this; }
         friend class bqueue<T>;
     private:
         _bqueue_itr(_bqueue_item<T> *t) : it(t) { }
@@ -75,6 +77,12 @@ class bqueue {
         void push_back(const T& val) {
             m_tail = itemptr(new item(this->m_tail, val)); 
             if ((++m_size) == 1) { m_head = m_tail; };
+        }
+        void pop_back() {
+            assert(m_size > 0);
+            --m_size;
+            m_tail = m_tail->back;
+            if (m_size == 0) m_head = m_bound; 
         }
         T & front() { return m_head->value; }
         const T & front() const { return m_head->value; }

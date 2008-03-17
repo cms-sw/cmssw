@@ -89,6 +89,13 @@ public:
    */
   void push( const TrajectoryMeasurement& tm);
 
+    /** Add a new sets of measurements to a Trajectory
+   *  The sorting of hits in the other trajectory must match the one
+   *  inside this trajectory (that is, both along or both opposite to momentum)
+   */
+  void push( const TempTrajectory & segment);
+
+
   /** same as the one-argument push, but the trajectory Chi2 is incremented 
    *  by chi2Increment. Useful e.g. in trajectory smoothing.
    */
@@ -96,7 +103,7 @@ public:
 
   /** Remove the last measurement from the trajectory.
    */
-  //void pop();
+  void pop();
 
   /** Access to the last measurement.
    *  It's the most precise one in a trajectory before smoothing.
@@ -181,8 +188,11 @@ public:
     check(); return theData.back().layer();
   }
 
+  /// Convert to a standard Trajectory 
   Trajectory toTrajectory() const ;
 
+  /// Pops out all the invalid hits on the tail
+  void popInvalidTail() ;
 private:
 
   DataContainer theData;

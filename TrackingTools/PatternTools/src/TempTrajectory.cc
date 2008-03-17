@@ -4,7 +4,6 @@
 
 #include <ext/slist>
 
-/*
 void TempTrajectory::pop() { 
   if (!empty()) {
     if (theData.back().recHit()->isValid())             theNumberOfFoundHits--;
@@ -12,7 +11,6 @@ void TempTrajectory::pop() {
     theData.pop_back();
   }
 }
-*/
 
 // bool Trajectory::inactive( const Det& det) 
 // {
@@ -69,6 +67,19 @@ void TempTrajectory::push( const TrajectoryMeasurement& tm, double chi2Increment
     theDirectionValidity = true;
   }
 }
+
+void TempTrajectory::push( const TempTrajectory& segment) {
+  assert (segment.direction() == theDirection) ;
+    __gnu_cxx::slist<const TrajectoryMeasurement*> list;
+  for (DataContainer::const_iterator it = segment.measurements().rbegin(), ed = segment.measurements().rend(); it != ed; --it) {
+        list.push_front(&(*it));
+  }
+  for(__gnu_cxx::slist<const TrajectoryMeasurement*>::const_iterator it = list.begin(), ed = list.end(); it != ed; ++it) {
+        push(**it);
+  }
+}
+
+
 /*
 Trajectory::RecHitContainer Trajectory::recHits() const {
   RecHitContainer hits;
@@ -122,3 +133,4 @@ Trajectory TempTrajectory::toTrajectory() const {
   }
   return traj;
 }
+
