@@ -1,8 +1,8 @@
 /*
  * \file QualityTester.cc
  *
- * $Date: 2008/01/22 18:52:30 $
- * $Revision: 1.9 $
+ * $Date: 2008/02/21 03:26:49 $
+ * $Revision: 1.10 $
  * \author M. Zanetti - CERN PH
  *
  */
@@ -12,6 +12,7 @@
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
+#include <FWCore/ParameterSet/interface/FileInPath.h>
 #include <stdio.h>
 #include <sstream>
 #include <math.h>
@@ -30,8 +31,10 @@ QualityTester::QualityTester(const ParameterSet& ps)
   qtHandler=new QTestHandle;
 
   // if you use this module, it's non-sense not to provide the QualityTests.xml
-  if (getQualityTestsFromFile)
-    qtHandler->configureTests(ps.getUntrackedParameter<string>("qtList", "QualityTests.xml"),bei);
+  if (getQualityTestsFromFile) {
+    edm::FileInPath qtlist = ps.getUntrackedParameter<edm::FileInPath>("qtList");
+    qtHandler->configureTests(FileInPath(qtlist).fullPath(), bei);
+  }
 }
 
 
