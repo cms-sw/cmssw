@@ -13,7 +13,17 @@ void TracksCompareChain()
 
  TText* te = new TText();
  TFile * rfile = new TFile(rfilename);
+ TDirectory * rdir=gDirectory; 
  TFile * sfile = new TFile(sfilename);
+ TDirectory * sdir=gDirectory; 
+
+ if(rfile->cd("DQMData/RecoTrackV"))rfile->cd("DQMData/RecoTrackV/Track");
+ else rfile->cd("DQMData/Track");
+ rdir=gDirectory;
+
+ if(sfile->cd("DQMData/RecoTrackV"))sfile->cd("DQMData/RecoTrackV/Track");
+ else sfile->cd("DQMData/Track");
+ sdir=gDirectory; 
 
  // create an iterator to loop through all objects(keys) in the  file
  //get release name
@@ -64,15 +74,24 @@ void TracksCompareChain()
  /////////// CTF //////////////////////
  //////////////////////////////////////
  if (ctf){
+   string rdirName,sdirName;
+   if(rdir->cd("cutsReco_AssociatorByHits"))rdirName="cutsReco";
+   else rdirName="cutsCKF";
+   if(sdir->cd("cutsReco_AssociatorByHits"))sdirName="cutsReco";
+   else sdirName="cutsCKF";
    //efficiency&fakerate
-   rfile->GetObject("DQMData/Track/cutsCKF_AssociatorByHits/effic",rh1);
-   sfile->GetObject("DQMData/Track/cutsCKF_AssociatorByHits/effic",sh1);
-   rfile->GetObject("DQMData/Track/cutsCKF_AssociatorByChi2/effic",rc1);
-   sfile->GetObject("DQMData/Track/cutsCKF_AssociatorByChi2/effic",sc1);
-   rfile->GetObject("DQMData/Track/cutsCKF_AssociatorByHits/fakerate",rh2);
-   sfile->GetObject("DQMData/Track/cutsCKF_AssociatorByHits/fakerate",sh2);
-   rfile->GetObject("DQMData/Track/cutsCKF_AssociatorByChi2/fakerate",rc2);
-   sfile->GetObject("DQMData/Track/cutsCKF_AssociatorByChi2/fakerate",sc2);
+   cout<<rdir->GetPath()<<endl;
+   cout<<sdir->GetPath()<<endl;
+   cout<<sdir->ls()<<endl;
+   rdir->GetObject((rdirName+"_AssociatorByHits/effic").c_str(),rh1);
+   cout<<(sdirName+"_AssociatorByHits/effic").c_str()<<endl;
+   sdir->GetObject((sdirName+"_AssociatorByHits/effic").c_str(),sh1);
+   rdir->GetObject((rdirName+"_AssociatorByChi2/effic").c_str(),rc1);
+   sdir->GetObject((sdirName+"_AssociatorByChi2/effic").c_str(),sc1);
+   rdir->GetObject((rdirName+"_AssociatorByHits/fakerate").c_str(),rh2);
+   sdir->GetObject((sdirName+"_AssociatorByHits/fakerate").c_str(),sh2);
+   rdir->GetObject((rdirName+"_AssociatorByChi2/fakerate").c_str(),rc2);
+   sdir->GetObject((sdirName+"_AssociatorByChi2/fakerate").c_str(),sc2);
 
    canvas = new TCanvas("Tracks1","Tracks: efficiency & fakerate",1000,1000);
    TPaveLabel* title = new TPaveLabel(0.1,0.96,0.9,0.99,relinfo);
@@ -82,7 +101,7 @@ void TracksCompareChain()
    graphPad->cd();
 
    if (hit) rh1->GetYaxis()->SetRangeUser(0.7,1.025);
-   if (hit) sh1->GetYaxis()->SetRangeUser(0.7,1.025);
+   //   if (hit) sh1->GetYaxis()->SetRangeUser(0.7,1.025);
    if (chi2)rc1->GetYaxis()->SetRangeUser(0.7,1.025);
    if (chi2)sc1->GetYaxis()->SetRangeUser(0.7,1.025);
 
@@ -190,14 +209,14 @@ void TracksCompareChain()
    canvas->Print("ctf_effic_fake.gif");
 
    //chi2&chi2 probability
-   rfile->GetObject("DQMData/Track/cutsCKF_AssociatorByHits/chi2",rh1);
-   sfile->GetObject("DQMData/Track/cutsCKF_AssociatorByHits/chi2",sh1);
-   rfile->GetObject("DQMData/Track/cutsCKF_AssociatorByChi2/chi2",rc1);
-   sfile->GetObject("DQMData/Track/cutsCKF_AssociatorByChi2/chi2",sc1);
-   rfile->GetObject("DQMData/Track/cutsCKF_AssociatorByHits/chi2_prob",rh2);
-   sfile->GetObject("DQMData/Track/cutsCKF_AssociatorByHits/chi2_prob",sh2);
-   rfile->GetObject("DQMData/Track/cutsCKF_AssociatorByChi2/chi2_prob",rc2);
-   sfile->GetObject("DQMData/Track/cutsCKF_AssociatorByChi2/chi2_prob",sc2);
+   rdir->GetObject((rdirName+"_AssociatorByHits/chi2").c_str(),rh1);
+   sdir->GetObject((sdirName+"_AssociatorByHits/chi2").c_str(),sh1);
+   rdir->GetObject((rdirName+"_AssociatorByChi2/chi2").c_str(),rc1);
+   sdir->GetObject((sdirName+"_AssociatorByChi2/chi2").c_str(),sc1);
+   rdir->GetObject((rdirName+"_AssociatorByHits/chi2_prob").c_str(),rh2);
+   sdir->GetObject((sdirName+"_AssociatorByHits/chi2_prob").c_str(),sh2);
+   rdir->GetObject((rdirName+"_AssociatorByChi2/chi2_prob").c_str(),rc2);
+   sdir->GetObject((sdirName+"_AssociatorByChi2/chi2_prob").c_str(),sc2);
 
    canvas = new TCanvas("Tracks2","Tracks: chi2 & chi2 probability",1000,1000);
    TPaveLabel* title = new TPaveLabel(0.1,0.96,0.9,0.99,relinfo);
@@ -321,18 +340,18 @@ void TracksCompareChain()
    canvas->Print("ctf_chi2_chi2prob.gif");
 
    //meanchi2 and #hits vs eta
-   rfile->GetObject("DQMData/Track/cutsCKF_AssociatorByHits/hits_eta",rh1);
-   sfile->GetObject("DQMData/Track/cutsCKF_AssociatorByHits/hits_eta",sh1);
-   rfile->GetObject("DQMData/Track/cutsCKF_AssociatorByChi2/hits_eta",rc1);
-   sfile->GetObject("DQMData/Track/cutsCKF_AssociatorByChi2/hits_eta",sc1);
-   rfile->GetObject("DQMData/Track/cutsCKF_AssociatorByHits/chi2mean",rh2);
-   sfile->GetObject("DQMData/Track/cutsCKF_AssociatorByHits/chi2mean",sh2);
-   rfile->GetObject("DQMData/Track/cutsCKF_AssociatorByChi2/chi2mean",rc2);
-   sfile->GetObject("DQMData/Track/cutsCKF_AssociatorByChi2/chi2mean",sc2);
-   rfile->GetObject("DQMData/Track/cutsCKF_AssociatorByHits/losthits_eta",rh3);
-   sfile->GetObject("DQMData/Track/cutsCKF_AssociatorByHits/losthits_eta",sh3);
-   rfile->GetObject("DQMData/Track/cutsCKF_AssociatorByChi2/losthits_eta",rc3);
-   sfile->GetObject("DQMData/Track/cutsCKF_AssociatorByChi2/losthits_eta",sc3);
+   rdir->GetObject((rdirName+"_AssociatorByHits/hits_eta").c_str(),rh1);
+   sdir->GetObject((sdirName+"_AssociatorByHits/hits_eta").c_str(),sh1);
+   rdir->GetObject((rdirName+"_AssociatorByChi2/hits_eta").c_str(),rc1);
+   sdir->GetObject((sdirName+"_AssociatorByChi2/hits_eta").c_str(),sc1);
+   rdir->GetObject((rdirName+"_AssociatorByHits/chi2mean").c_str(),rh2);
+   sdir->GetObject((sdirName+"_AssociatorByHits/chi2mean").c_str(),sh2);
+   rdir->GetObject((rdirName+"_AssociatorByChi2/chi2mean").c_str(),rc2);
+   sdir->GetObject((sdirName+"_AssociatorByChi2/chi2mean").c_str(),sc2);
+   rdir->GetObject((rdirName+"_AssociatorByHits/losthits_eta").c_str(),rh3);
+   sdir->GetObject((sdirName+"_AssociatorByHits/losthits_eta").c_str(),sh3);
+   rdir->GetObject((rdirName+"_AssociatorByChi2/losthits_eta").c_str(),rc3);
+   sdir->GetObject((sdirName+"_AssociatorByChi2/losthits_eta").c_str(),sc3);
 
    canvas = new TCanvas("Tracks3","Tracks: chi2 and #hits vs eta",1000,1000);
    TPaveLabel* title = new TPaveLabel(0.1,0.96,0.9,0.99,relinfo);
@@ -485,18 +504,18 @@ void TracksCompareChain()
    canvas->Print("ctf_hitseta_chi2mean.gif");
 
    //pull Pt, Qoverp, Phi
-   rfile->GetObject("DQMData/Track/cutsCKF_AssociatorByHits/pullPt",rh1);
-   sfile->GetObject("DQMData/Track/cutsCKF_AssociatorByHits/pullPt",sh1);
-   rfile->GetObject("DQMData/Track/cutsCKF_AssociatorByChi2/pullPt",rc1);
-   sfile->GetObject("DQMData/Track/cutsCKF_AssociatorByChi2/pullPt",sc1);
-   rfile->GetObject("DQMData/Track/cutsCKF_AssociatorByHits/pullQoverp",rh2);
-   sfile->GetObject("DQMData/Track/cutsCKF_AssociatorByHits/pullQoverp",sh2);
-   rfile->GetObject("DQMData/Track/cutsCKF_AssociatorByChi2/pullQoverp",rc2);
-   sfile->GetObject("DQMData/Track/cutsCKF_AssociatorByChi2/pullQoverp",sc2);
-   rfile->GetObject("DQMData/Track/cutsCKF_AssociatorByHits/pullPhi",rh3);
-   sfile->GetObject("DQMData/Track/cutsCKF_AssociatorByHits/pullPhi",sh3);
-   rfile->GetObject("DQMData/Track/cutsCKF_AssociatorByChi2/pullPhi",rc3);
-   sfile->GetObject("DQMData/Track/cutsCKF_AssociatorByChi2/pullPhi",sc3);
+   rdir->GetObject((rdirName+"_AssociatorByHits/pullPt").c_str(),rh1);
+   sdir->GetObject((sdirName+"_AssociatorByHits/pullPt").c_str(),sh1);
+   rdir->GetObject((rdirName+"_AssociatorByChi2/pullPt").c_str(),rc1);
+   sdir->GetObject((sdirName+"_AssociatorByChi2/pullPt").c_str(),sc1);
+   rdir->GetObject((rdirName+"_AssociatorByHits/pullQoverp").c_str(),rh2);
+   sdir->GetObject((sdirName+"_AssociatorByHits/pullQoverp").c_str(),sh2);
+   rdir->GetObject((rdirName+"_AssociatorByChi2/pullQoverp").c_str(),rc2);
+   sdir->GetObject((sdirName+"_AssociatorByChi2/pullQoverp").c_str(),sc2);
+   rdir->GetObject((rdirName+"_AssociatorByHits/pullPhi").c_str(),rh3);
+   sdir->GetObject((sdirName+"_AssociatorByHits/pullPhi").c_str(),sh3);
+   rdir->GetObject((rdirName+"_AssociatorByChi2/pullPhi").c_str(),rc3);
+   sdir->GetObject((sdirName+"_AssociatorByChi2/pullPhi").c_str(),sc3);
 
    canvas = new TCanvas("Tracks4","Tracks: pull of Pt, Qoverp and Phi",1000,1000);
    TPaveLabel* title = new TPaveLabel(0.1,0.96,0.9,0.99,relinfo);
@@ -651,18 +670,18 @@ void TracksCompareChain()
    canvas->Print("ctf_pullPt_Qoverp_Phi.gif");
 
    //pull Dxy, Dz, Theta
-   rfile->GetObject("DQMData/Track/cutsCKF_AssociatorByHits/pullDxy",rh1);
-   sfile->GetObject("DQMData/Track/cutsCKF_AssociatorByHits/pullDxy",sh1);
-   rfile->GetObject("DQMData/Track/cutsCKF_AssociatorByChi2/pullDxy",rc1);
-   sfile->GetObject("DQMData/Track/cutsCKF_AssociatorByChi2/pullDxy",sc1);
-   rfile->GetObject("DQMData/Track/cutsCKF_AssociatorByHits/pullDz",rh2);
-   sfile->GetObject("DQMData/Track/cutsCKF_AssociatorByHits/pullDz",sh2);
-   rfile->GetObject("DQMData/Track/cutsCKF_AssociatorByChi2/pullDz",rc2);
-   sfile->GetObject("DQMData/Track/cutsCKF_AssociatorByChi2/pullDz",sc2);
-   rfile->GetObject("DQMData/Track/cutsCKF_AssociatorByHits/pullTheta",rh3);
-   sfile->GetObject("DQMData/Track/cutsCKF_AssociatorByHits/pullTheta",sh3);
-   rfile->GetObject("DQMData/Track/cutsCKF_AssociatorByChi2/pullTheta",rc3);
-   sfile->GetObject("DQMData/Track/cutsCKF_AssociatorByChi2/pullTheta",sc3);
+   rdir->GetObject((rdirName+"_AssociatorByHits/pullDxy").c_str(),rh1);
+   sdir->GetObject((sdirName+"_AssociatorByHits/pullDxy").c_str(),sh1);
+   rdir->GetObject((rdirName+"_AssociatorByChi2/pullDxy").c_str(),rc1);
+   sdir->GetObject((sdirName+"_AssociatorByChi2/pullDxy").c_str(),sc1);
+   rdir->GetObject((rdirName+"_AssociatorByHits/pullDz").c_str(),rh2);
+   sdir->GetObject((sdirName+"_AssociatorByHits/pullDz").c_str(),sh2);
+   rdir->GetObject((rdirName+"_AssociatorByChi2/pullDz").c_str(),rc2);
+   sdir->GetObject((sdirName+"_AssociatorByChi2/pullDz").c_str(),sc2);
+   rdir->GetObject((rdirName+"_AssociatorByHits/pullTheta").c_str(),rh3);
+   sdir->GetObject((sdirName+"_AssociatorByHits/pullTheta").c_str(),sh3);
+   rdir->GetObject((rdirName+"_AssociatorByChi2/pullTheta").c_str(),rc3);
+   sdir->GetObject((sdirName+"_AssociatorByChi2/pullTheta").c_str(),sc3);
 
    canvas = new TCanvas("Tracks5","Tracks: pull of Dxy, Dz, Theta",1000,1000);
    TPaveLabel* title = new TPaveLabel(0.1,0.96,0.9,0.99,relinfo);
@@ -817,14 +836,14 @@ void TracksCompareChain()
    canvas->Print("ctf_pullDxy_Dz_Theta.gif");
 
    //resolution Pt, Phi
-   rfile->GetObject("DQMData/Track/cutsCKF_AssociatorByHits/sigmapt",rh1);
-   sfile->GetObject("DQMData/Track/cutsCKF_AssociatorByHits/sigmapt",sh1);
-   rfile->GetObject("DQMData/Track/cutsCKF_AssociatorByChi2/sigmapt",rc1);
-   sfile->GetObject("DQMData/Track/cutsCKF_AssociatorByChi2/sigmapt",sc1);
-   rfile->GetObject("DQMData/Track/cutsCKF_AssociatorByHits/sigmaphi",rh2);
-   sfile->GetObject("DQMData/Track/cutsCKF_AssociatorByHits/sigmaphi",sh2);
-   rfile->GetObject("DQMData/Track/cutsCKF_AssociatorByChi2/sigmaphi",rc2);
-   sfile->GetObject("DQMData/Track/cutsCKF_AssociatorByChi2/sigmaphi",sc2);
+   rdir->GetObject((rdirName+"_AssociatorByHits/sigmapt").c_str(),rh1);
+   sdir->GetObject((sdirName+"_AssociatorByHits/sigmapt").c_str(),sh1);
+   rdir->GetObject((rdirName+"_AssociatorByChi2/sigmapt").c_str(),rc1);
+   sdir->GetObject((sdirName+"_AssociatorByChi2/sigmapt").c_str(),sc1);
+   rdir->GetObject((rdirName+"_AssociatorByHits/sigmaphi").c_str(),rh2);
+   sdir->GetObject((sdirName+"_AssociatorByHits/sigmaphi").c_str(),sh2);
+   rdir->GetObject((rdirName+"_AssociatorByChi2/sigmaphi").c_str(),rc2);
+   sdir->GetObject((sdirName+"_AssociatorByChi2/sigmaphi").c_str(),sc2);
 
    canvas = new TCanvas("Tracks6","Tracks: Pt and Phi resolution",1000,1000);
    TPaveLabel* title = new TPaveLabel(0.1,0.96,0.9,0.99,relinfo);
@@ -935,18 +954,18 @@ void TracksCompareChain()
    canvas->Print("ctf_resolPt_Phi.gif");
 
    //resolution Dxy, Dz, Theta
-   rfile->GetObject("DQMData/Track/cutsCKF_AssociatorByHits/sigmadxy",rh1);
-   sfile->GetObject("DQMData/Track/cutsCKF_AssociatorByHits/sigmadxy",sh1);
-   rfile->GetObject("DQMData/Track/cutsCKF_AssociatorByChi2/sigmadxy",rc1);
-   sfile->GetObject("DQMData/Track/cutsCKF_AssociatorByChi2/sigmadxy",sc1);
-   rfile->GetObject("DQMData/Track/cutsCKF_AssociatorByHits/sigmadz",rh2);
-   sfile->GetObject("DQMData/Track/cutsCKF_AssociatorByHits/sigmadz",sh2);
-   rfile->GetObject("DQMData/Track/cutsCKF_AssociatorByChi2/sigmadz",rc2);
-   sfile->GetObject("DQMData/Track/cutsCKF_AssociatorByChi2/sigmadz",sc2);
-   rfile->GetObject("DQMData/Track/cutsCKF_AssociatorByHits/sigmacotTheta",rh3);
-   sfile->GetObject("DQMData/Track/cutsCKF_AssociatorByHits/sigmacotTheta",sh3);
-   rfile->GetObject("DQMData/Track/cutsCKF_AssociatorByChi2/sigmacotTheta",rc3);
-   sfile->GetObject("DQMData/Track/cutsCKF_AssociatorByChi2/sigmacotTheta",sc3);
+   rdir->GetObject((rdirName+"_AssociatorByHits/sigmadxy").c_str(),rh1);
+   sdir->GetObject((sdirName+"_AssociatorByHits/sigmadxy").c_str(),sh1);
+   rdir->GetObject((rdirName+"_AssociatorByChi2/sigmadxy").c_str(),rc1);
+   sdir->GetObject((sdirName+"_AssociatorByChi2/sigmadxy").c_str(),sc1);
+   rdir->GetObject((rdirName+"_AssociatorByHits/sigmadz").c_str(),rh2);
+   sdir->GetObject((sdirName+"_AssociatorByHits/sigmadz").c_str(),sh2);
+   rdir->GetObject((rdirName+"_AssociatorByChi2/sigmadz").c_str(),rc2);
+   sdir->GetObject((sdirName+"_AssociatorByChi2/sigmadz").c_str(),sc2);
+   rdir->GetObject((rdirName+"_AssociatorByHits/sigmacotTheta").c_str(),rh3);
+   sdir->GetObject((sdirName+"_AssociatorByHits/sigmacotTheta").c_str(),sh3);
+   rdir->GetObject((rdirName+"_AssociatorByChi2/sigmacotTheta").c_str(),rc3);
+   sdir->GetObject((sdirName+"_AssociatorByChi2/sigmacotTheta").c_str(),sc3);
 
    canvas = new TCanvas("Tracks7","Tracks: Dxy, Dz, Theta resolution",1000,1000);
    TPaveLabel* title = new TPaveLabel(0.1,0.96,0.9,0.99,relinfo);
@@ -1097,14 +1116,14 @@ void TracksCompareChain()
  //////////////////////////////////////
  if (rs){
    //efficiency&fakerate
-   rfile->GetObject("DQMData/Track/cutsRS_AssociatorByHits/effic",rh1);
-   sfile->GetObject("DQMData/Track/cutsRS_AssociatorByHits/effic",sh1);
-   rfile->GetObject("DQMData/Track/cutsRS_AssociatorByChi2/effic",rc1);
-   sfile->GetObject("DQMData/Track/cutsRS_AssociatorByChi2/effic",sc1);
-   rfile->GetObject("DQMData/Track/cutsRS_AssociatorByHits/fakerate",rh2);
-   sfile->GetObject("DQMData/Track/cutsRS_AssociatorByHits/fakerate",sh2);
-   rfile->GetObject("DQMData/Track/cutsRS_AssociatorByChi2/fakerate",rc2);
-   sfile->GetObject("DQMData/Track/cutsRS_AssociatorByChi2/fakerate",sc2);
+   rdir->GetObject("cutsRS_AssociatorByHits/effic",rh1);
+   sdir->GetObject("cutsRS_AssociatorByHits/effic",sh1);
+   rdir->GetObject("cutsRS_AssociatorByChi2/effic",rc1);
+   sdir->GetObject("cutsRS_AssociatorByChi2/effic",sc1);
+   rdir->GetObject("cutsRS_AssociatorByHits/fakerate",rh2);
+   sdir->GetObject("cutsRS_AssociatorByHits/fakerate",sh2);
+   rdir->GetObject("cutsRS_AssociatorByChi2/fakerate",rc2);
+   sdir->GetObject("cutsRS_AssociatorByChi2/fakerate",sc2);
 
    canvas = new TCanvas("Tracks8","Tracks: efficiency & fakerate",1000,1000);
    TPaveLabel* title = new TPaveLabel(0.1,0.96,0.9,0.99,relinfo);
@@ -1220,14 +1239,14 @@ void TracksCompareChain()
    canvas->Print("rs_effic_fake.gif");
 
    //chi2&chi2 probability
-   rfile->GetObject("DQMData/Track/cutsRS_AssociatorByHits/chi2",rh1);
-   sfile->GetObject("DQMData/Track/cutsRS_AssociatorByHits/chi2",sh1);
-   rfile->GetObject("DQMData/Track/cutsRS_AssociatorByChi2/chi2",rc1);
-   sfile->GetObject("DQMData/Track/cutsRS_AssociatorByChi2/chi2",sc1);
-   rfile->GetObject("DQMData/Track/cutsRS_AssociatorByHits/chi2_prob",rh2);
-   sfile->GetObject("DQMData/Track/cutsRS_AssociatorByHits/chi2_prob",sh2);
-   rfile->GetObject("DQMData/Track/cutsRS_AssociatorByChi2/chi2_prob",rc2);
-   sfile->GetObject("DQMData/Track/cutsRS_AssociatorByChi2/chi2_prob",sc2);
+   rdir->GetObject("cutsRS_AssociatorByHits/chi2",rh1);
+   sdir->GetObject("cutsRS_AssociatorByHits/chi2",sh1);
+   rdir->GetObject("cutsRS_AssociatorByChi2/chi2",rc1);
+   sdir->GetObject("cutsRS_AssociatorByChi2/chi2",sc1);
+   rdir->GetObject("cutsRS_AssociatorByHits/chi2_prob",rh2);
+   sdir->GetObject("cutsRS_AssociatorByHits/chi2_prob",sh2);
+   rdir->GetObject("cutsRS_AssociatorByChi2/chi2_prob",rc2);
+   sdir->GetObject("cutsRS_AssociatorByChi2/chi2_prob",sc2);
 
    canvas = new TCanvas("Tracks9","Tracks: chi2 & chi2 probability",1000,1000);
    TPaveLabel* title = new TPaveLabel(0.1,0.96,0.9,0.99,relinfo);
@@ -1356,18 +1375,18 @@ void TracksCompareChain()
    canvas->Print("rs_chi2_chi2prob.gif");
 
    //meanchi2 and #hits vs eta
-   rfile->GetObject("DQMData/Track/cutsRS_AssociatorByHits/hits_eta",rh1);
-   sfile->GetObject("DQMData/Track/cutsRS_AssociatorByHits/hits_eta",sh1);
-   rfile->GetObject("DQMData/Track/cutsRS_AssociatorByChi2/hits_eta",rc1);
-   sfile->GetObject("DQMData/Track/cutsRS_AssociatorByChi2/hits_eta",sc1);
-   rfile->GetObject("DQMData/Track/cutsRS_AssociatorByHits/chi2mean",rh2);
-   sfile->GetObject("DQMData/Track/cutsRS_AssociatorByHits/chi2mean",sh2);
-   rfile->GetObject("DQMData/Track/cutsRS_AssociatorByChi2/chi2mean",rc2);
-   sfile->GetObject("DQMData/Track/cutsRS_AssociatorByChi2/chi2mean",sc2);
-   rfile->GetObject("DQMData/Track/cutsRS_AssociatorByHits/losthits_eta",rh3);
-   sfile->GetObject("DQMData/Track/cutsRS_AssociatorByHits/losthits_eta",sh3);
-   rfile->GetObject("DQMData/Track/cutsRS_AssociatorByChi2/losthits_eta",rc3);
-   sfile->GetObject("DQMData/Track/cutsRS_AssociatorByChi2/losthits_eta",sc3);
+   rdir->GetObject("cutsRS_AssociatorByHits/hits_eta",rh1);
+   sdir->GetObject("cutsRS_AssociatorByHits/hits_eta",sh1);
+   rdir->GetObject("cutsRS_AssociatorByChi2/hits_eta",rc1);
+   sdir->GetObject("cutsRS_AssociatorByChi2/hits_eta",sc1);
+   rdir->GetObject("cutsRS_AssociatorByHits/chi2mean",rh2);
+   sdir->GetObject("cutsRS_AssociatorByHits/chi2mean",sh2);
+   rdir->GetObject("cutsRS_AssociatorByChi2/chi2mean",rc2);
+   sdir->GetObject("cutsRS_AssociatorByChi2/chi2mean",sc2);
+   rdir->GetObject("cutsRS_AssociatorByHits/losthits_eta",rh3);
+   sdir->GetObject("cutsRS_AssociatorByHits/losthits_eta",sh3);
+   rdir->GetObject("cutsRS_AssociatorByChi2/losthits_eta",rc3);
+   sdir->GetObject("cutsRS_AssociatorByChi2/losthits_eta",sc3);
 
    canvas = new TCanvas("Tracks10","Tracks: chi2 and #hits vs eta",1000,1000);
    TPaveLabel* title = new TPaveLabel(0.1,0.96,0.9,0.99,relinfo);
@@ -1517,18 +1536,18 @@ void TracksCompareChain()
    canvas->Print("rs_hitseta_chi2mean.gif");
    
    //pull Pt, Qoverp, Phi
-   rfile->GetObject("DQMData/Track/cutsRS_AssociatorByHits/pullPt",rh1);
-   sfile->GetObject("DQMData/Track/cutsRS_AssociatorByHits/pullPt",sh1);
-   rfile->GetObject("DQMData/Track/cutsRS_AssociatorByChi2/pullPt",rc1);
-   sfile->GetObject("DQMData/Track/cutsRS_AssociatorByChi2/pullPt",sc1);
-   rfile->GetObject("DQMData/Track/cutsRS_AssociatorByHits/pullQoverp",rh2);
-   sfile->GetObject("DQMData/Track/cutsRS_AssociatorByHits/pullQoverp",sh2);
-   rfile->GetObject("DQMData/Track/cutsRS_AssociatorByChi2/pullQoverp",rc2);
-   sfile->GetObject("DQMData/Track/cutsRS_AssociatorByChi2/pullQoverp",sc2);
-   rfile->GetObject("DQMData/Track/cutsRS_AssociatorByHits/pullPhi",rh3);
-   sfile->GetObject("DQMData/Track/cutsRS_AssociatorByHits/pullPhi",sh3);
-   rfile->GetObject("DQMData/Track/cutsRS_AssociatorByChi2/pullPhi",rc3);
-   sfile->GetObject("DQMData/Track/cutsRS_AssociatorByChi2/pullPhi",sc3);
+   rdir->GetObject("cutsRS_AssociatorByHits/pullPt",rh1);
+   sdir->GetObject("cutsRS_AssociatorByHits/pullPt",sh1);
+   rdir->GetObject("cutsRS_AssociatorByChi2/pullPt",rc1);
+   sdir->GetObject("cutsRS_AssociatorByChi2/pullPt",sc1);
+   rdir->GetObject("cutsRS_AssociatorByHits/pullQoverp",rh2);
+   sdir->GetObject("cutsRS_AssociatorByHits/pullQoverp",sh2);
+   rdir->GetObject("cutsRS_AssociatorByChi2/pullQoverp",rc2);
+   sdir->GetObject("cutsRS_AssociatorByChi2/pullQoverp",sc2);
+   rdir->GetObject("cutsRS_AssociatorByHits/pullPhi",rh3);
+   sdir->GetObject("cutsRS_AssociatorByHits/pullPhi",sh3);
+   rdir->GetObject("cutsRS_AssociatorByChi2/pullPhi",rc3);
+   sdir->GetObject("cutsRS_AssociatorByChi2/pullPhi",sc3);
 
    canvas = new TCanvas("Tracks11","Tracks: pull of Pt, Qoverp and Phi",1000,1000);
    TPaveLabel* title = new TPaveLabel(0.1,0.96,0.9,0.99,relinfo);
@@ -1683,18 +1702,18 @@ void TracksCompareChain()
    canvas->Print("rs_pullPt_Qoverp_Phi.gif");
 
    //pull Dxy, Dz, Theta
-   rfile->GetObject("DQMData/Track/cutsRS_AssociatorByHits/pullDxy",rh1);
-   sfile->GetObject("DQMData/Track/cutsRS_AssociatorByHits/pullDxy",sh1);
-   rfile->GetObject("DQMData/Track/cutsRS_AssociatorByChi2/pullDxy",rc1);
-   sfile->GetObject("DQMData/Track/cutsRS_AssociatorByChi2/pullDxy",sc1);
-   rfile->GetObject("DQMData/Track/cutsRS_AssociatorByHits/pullDz",rh2);
-   sfile->GetObject("DQMData/Track/cutsRS_AssociatorByHits/pullDz",sh2);
-   rfile->GetObject("DQMData/Track/cutsRS_AssociatorByChi2/pullDz",rc2);
-   sfile->GetObject("DQMData/Track/cutsRS_AssociatorByChi2/pullDz",sc2);
-   rfile->GetObject("DQMData/Track/cutsRS_AssociatorByHits/pullTheta",rh3);
-   sfile->GetObject("DQMData/Track/cutsRS_AssociatorByHits/pullTheta",sh3);
-   rfile->GetObject("DQMData/Track/cutsRS_AssociatorByChi2/pullTheta",rc3);
-   sfile->GetObject("DQMData/Track/cutsRS_AssociatorByChi2/pullTheta",sc3);
+   rdir->GetObject("cutsRS_AssociatorByHits/pullDxy",rh1);
+   sdir->GetObject("cutsRS_AssociatorByHits/pullDxy",sh1);
+   rdir->GetObject("cutsRS_AssociatorByChi2/pullDxy",rc1);
+   sdir->GetObject("cutsRS_AssociatorByChi2/pullDxy",sc1);
+   rdir->GetObject("cutsRS_AssociatorByHits/pullDz",rh2);
+   sdir->GetObject("cutsRS_AssociatorByHits/pullDz",sh2);
+   rdir->GetObject("cutsRS_AssociatorByChi2/pullDz",rc2);
+   sdir->GetObject("cutsRS_AssociatorByChi2/pullDz",sc2);
+   rdir->GetObject("cutsRS_AssociatorByHits/pullTheta",rh3);
+   sdir->GetObject("cutsRS_AssociatorByHits/pullTheta",sh3);
+   rdir->GetObject("cutsRS_AssociatorByChi2/pullTheta",rc3);
+   sdir->GetObject("cutsRS_AssociatorByChi2/pullTheta",sc3);
 
    canvas = new TCanvas("Tracks12","Tracks: pull of Dxy, Dz, Theta",1000,1000);
    TPaveLabel* title = new TPaveLabel(0.1,0.96,0.9,0.99,relinfo);
@@ -1849,14 +1868,14 @@ void TracksCompareChain()
    canvas->Print("rs_pullDxy_Dz_Theta.gif");
 
    //resolution Pt, Phi
-   rfile->GetObject("DQMData/Track/cutsRS_AssociatorByHits/sigmapt",rh1);
-   sfile->GetObject("DQMData/Track/cutsRS_AssociatorByHits/sigmapt",sh1);
-   rfile->GetObject("DQMData/Track/cutsRS_AssociatorByChi2/sigmapt",rc1);
-   sfile->GetObject("DQMData/Track/cutsRS_AssociatorByChi2/sigmapt",sc1);
-   rfile->GetObject("DQMData/Track/cutsRS_AssociatorByHits/sigmaphi",rh2);
-   sfile->GetObject("DQMData/Track/cutsRS_AssociatorByHits/sigmaphi",sh2);
-   rfile->GetObject("DQMData/Track/cutsRS_AssociatorByChi2/sigmaphi",rc2);
-   sfile->GetObject("DQMData/Track/cutsRS_AssociatorByChi2/sigmaphi",sc2);
+   rdir->GetObject("cutsRS_AssociatorByHits/sigmapt",rh1);
+   sdir->GetObject("cutsRS_AssociatorByHits/sigmapt",sh1);
+   rdir->GetObject("cutsRS_AssociatorByChi2/sigmapt",rc1);
+   sdir->GetObject("cutsRS_AssociatorByChi2/sigmapt",sc1);
+   rdir->GetObject("cutsRS_AssociatorByHits/sigmaphi",rh2);
+   sdir->GetObject("cutsRS_AssociatorByHits/sigmaphi",sh2);
+   rdir->GetObject("cutsRS_AssociatorByChi2/sigmaphi",rc2);
+   sdir->GetObject("cutsRS_AssociatorByChi2/sigmaphi",sc2);
 
    canvas = new TCanvas("Tracks13","Tracks: Pt and Phi resolution",1000,1000);
    TPaveLabel* title = new TPaveLabel(0.1,0.96,0.9,0.99,relinfo);
@@ -1967,18 +1986,18 @@ void TracksCompareChain()
    canvas->Print("rs_resolPt_Phi.gif");
 
    //resolution Dxy, Dz, Theta
-   rfile->GetObject("DQMData/Track/cutsRS_AssociatorByHits/sigmadxy",rh1);
-   sfile->GetObject("DQMData/Track/cutsRS_AssociatorByHits/sigmadxy",sh1);
-   rfile->GetObject("DQMData/Track/cutsRS_AssociatorByChi2/sigmadxy",rc1);
-   sfile->GetObject("DQMData/Track/cutsRS_AssociatorByChi2/sigmadxy",sc1);
-   rfile->GetObject("DQMData/Track/cutsRS_AssociatorByHits/sigmadz",rh2);
-   sfile->GetObject("DQMData/Track/cutsRS_AssociatorByHits/sigmadz",sh2);
-   rfile->GetObject("DQMData/Track/cutsRS_AssociatorByChi2/sigmadz",rc2);
-   sfile->GetObject("DQMData/Track/cutsRS_AssociatorByChi2/sigmadz",sc2);
-   rfile->GetObject("DQMData/Track/cutsRS_AssociatorByHits/sigmacotTheta",rh3);
-   sfile->GetObject("DQMData/Track/cutsRS_AssociatorByHits/sigmacotTheta",sh3);
-   rfile->GetObject("DQMData/Track/cutsRS_AssociatorByChi2/sigmacotTheta",rc3);
-   sfile->GetObject("DQMData/Track/cutsRS_AssociatorByChi2/sigmacotTheta",sc3);
+   rdir->GetObject("cutsRS_AssociatorByHits/sigmadxy",rh1);
+   sdir->GetObject("cutsRS_AssociatorByHits/sigmadxy",sh1);
+   rdir->GetObject("cutsRS_AssociatorByChi2/sigmadxy",rc1);
+   sdir->GetObject("cutsRS_AssociatorByChi2/sigmadxy",sc1);
+   rdir->GetObject("cutsRS_AssociatorByHits/sigmadz",rh2);
+   sdir->GetObject("cutsRS_AssociatorByHits/sigmadz",sh2);
+   rdir->GetObject("cutsRS_AssociatorByChi2/sigmadz",rc2);
+   sdir->GetObject("cutsRS_AssociatorByChi2/sigmadz",sc2);
+   rdir->GetObject("cutsRS_AssociatorByHits/sigmacotTheta",rh3);
+   sdir->GetObject("cutsRS_AssociatorByHits/sigmacotTheta",sh3);
+   rdir->GetObject("cutsRS_AssociatorByChi2/sigmacotTheta",rc3);
+   sdir->GetObject("cutsRS_AssociatorByChi2/sigmacotTheta",sc3);
 
    canvas = new TCanvas("Tracks14","Tracks: Dxy, Dz, Theta resolution",1000,1000);
    TPaveLabel* title = new TPaveLabel(0.1,0.96,0.9,0.99,relinfo);
