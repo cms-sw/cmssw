@@ -13,7 +13,7 @@
 //
 // Original Author:  Traczyk Piotr
 //         Created:  Thu Oct 11 15:01:28 CEST 2007
-// $Id: BetaFromTOF.cc,v 1.12 2008/01/16 17:54:12 ptraczyk Exp $
+// $Id: BetaFromTOF.cc,v 1.13 2008/03/14 12:04:50 ptraczyk Exp $
 //
 //
 
@@ -125,7 +125,7 @@ class BetaFromTOF : public edm::EDProducer {
       edm::InputTag DTSegmentTags_; 
 
   unsigned int theHitsMin;
-  bool debug,onlyMatched;
+  bool debug;
 
   Handle<reco::TrackCollection> TKTrackCollection;
   Handle<reco::TrackCollection> STATrackCollection;
@@ -151,9 +151,7 @@ BetaFromTOF::BetaFromTOF(const edm::ParameterSet& iConfig)
   MuonTags_(iConfig.getUntrackedParameter<edm::InputTag>("Muons")),
   DTSegmentTags_(iConfig.getUntrackedParameter<edm::InputTag>("DTsegments")),
   theHitsMin(iConfig.getParameter<int>("HitsMin")),
-  debug(iConfig.getParameter<bool>("debug")),
-  onlyMatched(iConfig.getParameter<bool>("OnlyMatched"))
- 
+  debug(iConfig.getParameter<bool>("debug")) 
 {
   // service parameters
   ParameterSet serviceParameters = iConfig.getParameter<ParameterSet>("ServiceParameters");
@@ -347,7 +345,7 @@ BetaFromTOF::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
       invbeta=0;
       // calculate the value and error of 1/beta from the complete set of 1D hits
       if (debug)
-        cout << " Points for global fit: " << totalWeight << endl;
+        cout << " Points for global fit: " << dstnc.size() << endl;
 
       // inverse beta - weighted average of the contributions from individual hits
       for (unsigned int i=0;i<dstnc.size();i++) {
