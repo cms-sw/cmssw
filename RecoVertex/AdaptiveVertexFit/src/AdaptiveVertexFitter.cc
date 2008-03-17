@@ -392,6 +392,9 @@ AdaptiveVertexFitter::weightTracks(
 {
   theNr++;
   GlobalPoint pos = seed.position();
+  /** track weighting, as opposed to re-weighting, must always 
+   * be done with a reset annealer! */
+  theAssProbComputer->resetAnnealing();
 
   vector<RefCountedVertexTrack> finalTracks;
   VertexTrackFactory<5> vTrackFactory;
