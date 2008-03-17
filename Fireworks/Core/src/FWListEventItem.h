@@ -16,11 +16,12 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Feb 28 11:05:02 PST 2008
-// $Id: FWListEventItem.h,v 1.5 2008/03/11 23:30:04 chrjones Exp $
+// $Id: FWListEventItem.h,v 1.6 2008/03/17 14:20:06 chrjones Exp $
 //
 
 // system include files
 #include <set>
+#include <vector>
 #include "TEveElement.h"
 #include "Reflex/Member.h"
 
@@ -31,6 +32,7 @@
 class FWEventItem;
 class FWDetailViewManager;
 class FWModelId;
+class FWListModel;
 
 class FWListEventItem : public TEveElementList, public FWListItemBase
 {
@@ -66,6 +68,7 @@ class FWListEventItem : public TEveElementList, public FWListItemBase
       FWEventItem* m_item;
       FWDetailViewManager* m_detailViewManager;
       ROOT::Reflex::Member m_memberFunction;
+      std::vector<FWListModel*> m_indexOrderedItems;
 };
 
 

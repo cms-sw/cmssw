@@ -8,13 +8,14 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Feb 28 11:13:37 PST 2008
-// $Id: FWListEventItem.cc,v 1.10 2008/03/16 23:12:51 chrjones Exp $
+// $Id: FWListEventItem.cc,v 1.11 2008/03/17 14:20:06 chrjones Exp $
 //
 
 // system include files
 #include <boost/bind.hpp>
 #include <iostream>
 #include <sstream>
+#include <map>
 #include "TEveManager.h"
 #include "TEveSelection.h"
 
@@ -116,32 +117,66 @@ namespace {
    }
 
    typedef std::string(*FunctionType)(const std::string&,const ROOT::Reflex::Object&);
-   typedef std::map<std::string, FunctionType> TypeToPrintMap;
+   typedef std::map<std::string, FunctionType> TypeToStringMap;
     
    template<typename T>
-   static void addToMap(TypeToPrintMap& iMap) {
+   static void addToStringMap(TypeToStringMap& iMap) {
       iMap[typeid(T).name()]=valueToString<T>;
    }
+
+   template <class T>
+   double valueToDouble(const ROOT::Reflex::Object& iObj) {
+      return double(*(reinterpret_cast<T*>(iObj.Address())));
+   }
+   
+   typedef double(*DoubleFunctionType)(const ROOT::Reflex::Object&);
+   typedef std::map<std::string, DoubleFunctionType> TypeToDoubleMap;
+   
+   template<typename T>
+   static void addToDoubleMap(TypeToDoubleMap& iMap) {
+      iMap[typeid(T).name()]=valueToDouble<T>;
+   }
+   
 }
 
 static
 std::string
-valueFor(const ROOT::Reflex::Object& iObj, const ROOT::Reflex::Member& iMember) {
-   static TypeToPrintMap s_map;
+stringValueFor(const ROOT::Reflex::Object& iObj, const ROOT::Reflex::Member& iMember) {
+   static TypeToStringMap s_map;
    if(s_map.empty() ) {
-      addToMap<float>(s_map);
-      addToMap<double>(s_map);
+      addToStringMap<float>(s_map);
+      addToStringMap<double>(s_map);
    }
-
+   
    ROOT::Reflex::Object val = iMember.Invoke(iObj);
-
-   TypeToPrintMap::iterator itFound =s_map.find(val.TypeOf().TypeInfo().name());
+   
+   TypeToStringMap::iterator itFound =s_map.find(val.TypeOf().TypeInfo().name());
    if(itFound == s_map.end()) {
       //std::cout <<" could not print because type is "<<iObj.TypeOf().TypeInfo().name()<<std::endl;
       return std::string();
    }
    
    return itFound->second(iMember.Name(),val);
+}
+
+static
+double
+doubleValueFor(const ROOT::Reflex::Object& iObj, const ROOT::Reflex::Member& iMember) {
+   static TypeToDoubleMap s_map;
+   if(s_map.empty() ) {
+      addToDoubleMap<float>(s_map);
+      addToDoubleMap<double>(s_map);
+   }
+
+   ROOT::Reflex::Object val = iMember.Invoke(iObj);
+
+   TypeToDoubleMap::iterator itFound =s_map.find(val.TypeOf().TypeInfo().name());
+   if(itFound == s_map.end()) {
+      //std::cout <<" could not print because type is "<<iObj.TypeOf().TypeInfo().name()<<std::endl;
+      return -999.0;
+   }
+   
+   return itFound->second(val);
  }
 
 //
@@ -236,22 +271,35 @@ FWListEventItem::itemChanged(const FWEventItem* iItem)
 {
    //std::cout <<"item changed "<<eventItem()->size()<<std::endl;
    this->DestroyElements();
+   m_indexOrderedItems.clear();
+   m_indexOrderedItems.reserve(eventItem()->size());
+   typedef std::map<double, FWListModel*, std::greater<double> > OrderedMap;
+   OrderedMap orderedMap;
    for(unsigned int index = 0; index < eventItem()->size(); ++index) {
       ROOT::Reflex::Object obj;
       std::string data;
+      double doubleData=index;
       if(m_memberFunction) {
          //the const_cast is fine since I'm calling a const member function
          ROOT::Reflex::Object temp(m_memberFunction.DeclaringType(),
                                    const_cast<void*>(eventItem()->modelData(index)));
          obj=temp;
-         data = valueFor(obj,m_memberFunction);
+         data = stringValueFor(obj,m_memberFunction);
+         doubleData = doubleValueFor(obj,m_memberFunction);
       }
       FWListModel* model = new FWListModel(FWModelId(eventItem(),index), 
                                            m_detailViewManager,
                                            data);
-      this->AddElement( model );
+      m_indexOrderedItems.push_back(model);
+      orderedMap.insert(std::make_pair(doubleData, model));
       model->SetMainColor(m_item->defaultDisplayProperties().color());
    }
+   for(OrderedMap::iterator it = orderedMap.begin(), itEnd = orderedMap.end();
+       it != itEnd;
+       ++it) {
+      this->AddElement( it->second );
+   }
+
 }
 
 void 
@@ -259,32 +307,27 @@ FWListEventItem::modelsChanged( const std::set<FWModelId>& iModels )
 {
    //std::cout <<"modelsChanged "<<std::endl;
    bool aChildChanged = false;
-   TEveElement::List_i itElement = this->BeginChildren();
-   int index = 0;
    for(FWModelIds::const_iterator it = iModels.begin(), itEnd = iModels.end();
        it != itEnd;
-       ++it,++itElement,++index) {
-      assert(itElement != this->EndChildren());         
-      while(index < it->index()) {
-         ++itElement;
-         ++index;
-         assert(itElement != this->EndChildren());         
-      }
+       ++it) {
+      int index = it->index();
+      assert(index < static_cast<int>(m_indexOrderedItems.size()));
+      FWListModel* element = m_indexOrderedItems[index];
       //std::cout <<"   "<<index<<std::endl;
       bool modelChanged = false;
       const FWEventItem::ModelInfo& info = it->item()->modelInfo(index);
-      FWListModel* model = static_cast<FWListModel*>(*itElement);
+      FWListModel* model = element;
       modelChanged = model->update(info.displayProperties());
-      if(info.isSelected() xor (*itElement)->GetSelectedLevel()==1) {
+      if(info.isSelected() xor element->GetSelectedLevel()==1) {
          modelChanged = true;
          if(info.isSelected()) {         
-            gEve->GetSelection()->AddElement(*itElement);
+            gEve->GetSelection()->AddElement(element);
          } else {
-            gEve->GetSelection()->RemoveElement(*itElement);
+            gEve->GetSelection()->RemoveElement(element);
          }
       }      
       if(modelChanged) {
-         (*itElement)->ElementChanged();
+         element->ElementChanged();
          aChildChanged=true;
          //(*itElement)->UpdateItems();  //needed to force list tree to update immediately
       }
