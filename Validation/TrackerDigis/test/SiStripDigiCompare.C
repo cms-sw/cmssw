@@ -10,10 +10,18 @@ void SiStripDigiCompare()
 
  TText* te = new TText();
  TFile * rfile = new TFile(rfilename);
+ TDirectory * rdir=gDirectory; 
  TFile * sfile = new TFile(sfilename);
+ TDirectory * sdir=gDirectory; 
 
- rfile->cd("DQMData/TrackerDigis/Strip");
- sfile->cd("DQMData/TrackerDigis/Strip");
+ if(rfile->cd("DQMData/TrackerDigisV"))rfile->cd("DQMData/TrackerDigisV/TrackerDigis/Strip");
+ else rfile->cd("DQMData/TrackerDigis/Strip");
+ rdir=gDirectory;
+
+ if(sfile->cd("DQMData/TrackerDigisV"))sfile->cd("DQMData/TrackerDigisV/TrackerDigis/Strip");
+ else sfile->cd("DQMData/TrackerDigis/Strip");
+ sdir=gDirectory; 
+
 TLegend leg(0.3, 0.83, 0.55, 0.90);
  //Get list of Keys from the Reference file.
   TList* ref_list = rfile->GetListOfKeys() ;
@@ -81,9 +89,9 @@ TLegend leg(0.3, 0.83, 0.55, 0.90);
    TH1* newmeNdigiTIB_[4];
 
    for (Int_t i=0; i<4; i++){
-      sprintf(histo,"DQMData/TrackerDigis/Strip/ndigi_tib_layer_%d_zm;1",i+1);
-      rfile->GetObject(histo ,meNdigiTIB_[i]);
-      sfile->GetObject(histo ,newmeNdigiTIB_[i]);
+      sprintf(histo,"ndigi_tib_layer_%d_zm;1",i+1);
+      rdir->GetObject(histo ,meNdigiTIB_[i]);
+      sdir->GetObject(histo ,newmeNdigiTIB_[i]);
       meNdigiTIB_[i];
       newmeNdigiTIB_[i];
       Strip->cd(i+1);
@@ -112,9 +120,9 @@ TLegend leg(0.3, 0.83, 0.55, 0.90);
    TH1* newmeNdigiTIB_[4];
 
    for (Int_t i=0; i<4; i++){
-      sprintf(histo,"DQMData/TrackerDigis/Strip/ndigi_tib_layer_%d_zp;1",i+1);
-      rfile->GetObject(histo ,meNdigiTIB_[i]);
-      sfile->GetObject(histo ,newmeNdigiTIB_[i]);
+      sprintf(histo,"ndigi_tib_layer_%d_zp;1",i+1);
+      rdir->GetObject(histo ,meNdigiTIB_[i]);
+      sdir->GetObject(histo ,newmeNdigiTIB_[i]);
       meNdigiTIB_[i];
       newmeNdigiTIB_[i];
       Strip->cd(i+1);
@@ -144,9 +152,9 @@ TLegend leg(0.3, 0.83, 0.55, 0.90);
    TH1* newmeAdcTIB_[12];
 
    for (Int_t i=0; i<3; i++){
-      sprintf(histo,"DQMData/TrackerDigis/Strip/adc_tib_layer1_extmodule%d_zp;1",i+1);
-      rfile->GetObject(histo ,meAdcTIB_[i]);
-      sfile->GetObject(histo ,newmeAdcTIB_[i]);
+      sprintf(histo,"adc_tib_layer1_extmodule%d_zp;1",i+1);
+      rdir->GetObject(histo ,meAdcTIB_[i]);
+      sdir->GetObject(histo ,newmeAdcTIB_[i]);
       meAdcTIB_[i];
       newmeAdcTIB_[i];
       Strip->cd(i+1);
@@ -166,9 +174,9 @@ TLegend leg(0.3, 0.83, 0.55, 0.90);
 
   
   for (Int_t i=3; i<6; i++){
-      sprintf(histo,"DQMData/TrackerDigis/Strip/adc_tib_layer1_intmodule%d_zp;1",i-2);
-      rfile->GetObject(histo ,meAdcTIB_[i]);
-      sfile->GetObject(histo ,newmeAdcTIB_[i]);
+      sprintf(histo,"adc_tib_layer1_intmodule%d_zp;1",i-2);
+      rdir->GetObject(histo ,meAdcTIB_[i]);
+      sdir->GetObject(histo ,newmeAdcTIB_[i]);
       meAdcTIB_[i];
       newmeAdcTIB_[i];
       Strip->cd(i+1);
@@ -186,9 +194,9 @@ TLegend leg(0.3, 0.83, 0.55, 0.90);
 
    }
    for (Int_t i=6; i<9; i++){
-      sprintf(histo,"DQMData/TrackerDigis/Strip/adc_tib_layer1_extmodule%d_zm;1",i-5);
-      rfile->GetObject(histo ,meAdcTIB_[i]);
-      sfile->GetObject(histo ,newmeAdcTIB_[i]);
+      sprintf(histo,"adc_tib_layer1_extmodule%d_zm;1",i-5);
+      rdir->GetObject(histo ,meAdcTIB_[i]);
+      sdir->GetObject(histo ,newmeAdcTIB_[i]);
       meAdcTIB_[i];
       newmeAdcTIB_[i];
       Strip->cd(i+1);
@@ -207,9 +215,9 @@ TLegend leg(0.3, 0.83, 0.55, 0.90);
    }
 
   for (Int_t i=9; i<12; i++){
-      sprintf(histo,"DQMData/TrackerDigis/Strip/adc_tib_layer1_intmodule%d_zm;1",i-8);
-      rfile->GetObject(histo ,meAdcTIB_[i]);
-      sfile->GetObject(histo ,newmeAdcTIB_[i]);
+      sprintf(histo,"adc_tib_layer1_intmodule%d_zm;1",i-8);
+      rdir->GetObject(histo ,meAdcTIB_[i]);
+      sdir->GetObject(histo ,newmeAdcTIB_[i]);
       meAdcTIB_[i];
       newmeAdcTIB_[i];
       Strip->cd(i+1);
@@ -239,9 +247,9 @@ TLegend leg(0.3, 0.83, 0.55, 0.90);
    TH1* newmeAdcTIB_[12];
 
    for (Int_t i=0; i<3; i++){
-      sprintf(histo,"DQMData/TrackerDigis/Strip/strip_tib_layer1_extmodule%d_zp;1",i+1);
-      rfile->GetObject(histo ,meAdcTIB_[i]);
-      sfile->GetObject(histo ,newmeAdcTIB_[i]);
+      sprintf(histo,"strip_tib_layer1_extmodule%d_zp;1",i+1);
+      rdir->GetObject(histo ,meAdcTIB_[i]);
+      sdir->GetObject(histo ,newmeAdcTIB_[i]);
       meAdcTIB_[i];
       newmeAdcTIB_[i];
       Strip->cd(i+1);
@@ -260,9 +268,9 @@ TLegend leg(0.3, 0.83, 0.55, 0.90);
    }
 
   for (Int_t i=3; i<6; i++){
-      sprintf(histo,"DQMData/TrackerDigis/Strip/strip_tib_layer1_intmodule%d_zp;1",i-2);
-      rfile->GetObject(histo ,meAdcTIB_[i]);
-      sfile->GetObject(histo ,newmeAdcTIB_[i]);
+      sprintf(histo,"strip_tib_layer1_intmodule%d_zp;1",i-2);
+      rdir->GetObject(histo ,meAdcTIB_[i]);
+      sdir->GetObject(histo ,newmeAdcTIB_[i]);
       meAdcTIB_[i];
       newmeAdcTIB_[i];
       Strip->cd(i+1);
@@ -280,9 +288,9 @@ TLegend leg(0.3, 0.83, 0.55, 0.90);
 
    }
    for (Int_t i=6; i<9; i++){
-      sprintf(histo,"DQMData/TrackerDigis/Strip/strip_tib_layer1_extmodule%d_zm;1",i-5);
-      rfile->GetObject(histo ,meAdcTIB_[i]);
-      sfile->GetObject(histo ,newmeAdcTIB_[i]);
+      sprintf(histo,"strip_tib_layer1_extmodule%d_zm;1",i-5);
+      rdir->GetObject(histo ,meAdcTIB_[i]);
+      sdir->GetObject(histo ,newmeAdcTIB_[i]);
       meAdcTIB_[i];
       newmeAdcTIB_[i];
       Strip->cd(i+1);
@@ -301,9 +309,9 @@ TLegend leg(0.3, 0.83, 0.55, 0.90);
    }
 
   for (Int_t i=9; i<12; i++){
-      sprintf(histo,"DQMData/TrackerDigis/Strip/strip_tib_layer1_intmodule%d_zm;1",i-8);
-      rfile->GetObject(histo ,meAdcTIB_[i]);
-      sfile->GetObject(histo ,newmeAdcTIB_[i]);
+      sprintf(histo,"strip_tib_layer1_intmodule%d_zm;1",i-8);
+      rdir->GetObject(histo ,meAdcTIB_[i]);
+      sdir->GetObject(histo ,newmeAdcTIB_[i]);
       meAdcTIB_[i];
       newmeAdcTIB_[i];
       Strip->cd(i+1);
@@ -334,9 +342,9 @@ TLegend leg(0.3, 0.83, 0.55, 0.90);
    TH1* newmeAdcTIB_[12];
 
    for (Int_t i=0; i<3; i++){
-      sprintf(histo,"DQMData/TrackerDigis/Strip/adc_tib_layer2_extmodule%d_zp;1",i+1);
-      rfile->GetObject(histo ,meAdcTIB_[i]);
-      sfile->GetObject(histo ,newmeAdcTIB_[i]);
+      sprintf(histo,"adc_tib_layer2_extmodule%d_zp;1",i+1);
+      rdir->GetObject(histo ,meAdcTIB_[i]);
+      sdir->GetObject(histo ,newmeAdcTIB_[i]);
       meAdcTIB_[i];
       newmeAdcTIB_[i];
       Strip->cd(i+1);
@@ -355,9 +363,9 @@ TLegend leg(0.3, 0.83, 0.55, 0.90);
    }
 
   for (Int_t i=3; i<6; i++){
-      sprintf(histo,"DQMData/TrackerDigis/Strip/adc_tib_layer2_intmodule%d_zp;1",i-2);
-      rfile->GetObject(histo ,meAdcTIB_[i]);
-      sfile->GetObject(histo ,newmeAdcTIB_[i]);
+      sprintf(histo,"adc_tib_layer2_intmodule%d_zp;1",i-2);
+      rdir->GetObject(histo ,meAdcTIB_[i]);
+      sdir->GetObject(histo ,newmeAdcTIB_[i]);
       meAdcTIB_[i];
       newmeAdcTIB_[i];
       Strip->cd(i+1);
@@ -375,9 +383,9 @@ TLegend leg(0.3, 0.83, 0.55, 0.90);
 
    }
    for (Int_t i=6; i<9; i++){
-      sprintf(histo,"DQMData/TrackerDigis/Strip/adc_tib_layer2_extmodule%d_zm;1",i-5);
-      rfile->GetObject(histo ,meAdcTIB_[i]);
-      sfile->GetObject(histo ,newmeAdcTIB_[i]);
+      sprintf(histo,"adc_tib_layer2_extmodule%d_zm;1",i-5);
+      rdir->GetObject(histo ,meAdcTIB_[i]);
+      sdir->GetObject(histo ,newmeAdcTIB_[i]);
       meAdcTIB_[i];
       newmeAdcTIB_[i];
       Strip->cd(i+1);
@@ -396,9 +404,9 @@ TLegend leg(0.3, 0.83, 0.55, 0.90);
    }
 
   for (Int_t i=9; i<12; i++){
-      sprintf(histo,"DQMData/TrackerDigis/Strip/adc_tib_layer2_intmodule%d_zm;1",i-8);
-      rfile->GetObject(histo ,meAdcTIB_[i]);
-      sfile->GetObject(histo ,newmeAdcTIB_[i]);
+      sprintf(histo,"adc_tib_layer2_intmodule%d_zm;1",i-8);
+      rdir->GetObject(histo ,meAdcTIB_[i]);
+      sdir->GetObject(histo ,newmeAdcTIB_[i]);
       meAdcTIB_[i];
       newmeAdcTIB_[i];
       Strip->cd(i+1);
@@ -428,9 +436,9 @@ TLegend leg(0.3, 0.83, 0.55, 0.90);
    TH1* newmeAdcTIB_[12];
 
    for (Int_t i=0; i<3; i++){
-      sprintf(histo,"DQMData/TrackerDigis/Strip/strip_tib_layer2_extmodule%d_zp;1",i+1);
-      rfile->GetObject(histo ,meAdcTIB_[i]);
-      sfile->GetObject(histo ,newmeAdcTIB_[i]);
+      sprintf(histo,"strip_tib_layer2_extmodule%d_zp;1",i+1);
+      rdir->GetObject(histo ,meAdcTIB_[i]);
+      sdir->GetObject(histo ,newmeAdcTIB_[i]);
       meAdcTIB_[i];
       newmeAdcTIB_[i];
       Strip->cd(i+1);
@@ -449,9 +457,9 @@ TLegend leg(0.3, 0.83, 0.55, 0.90);
    }
 
   for (Int_t i=3; i<6; i++){
-      sprintf(histo,"DQMData/TrackerDigis/Strip/strip_tib_layer2_intmodule%d_zp;1",i-2);
-      rfile->GetObject(histo ,meAdcTIB_[i]);
-      sfile->GetObject(histo ,newmeAdcTIB_[i]);
+      sprintf(histo,"strip_tib_layer2_intmodule%d_zp;1",i-2);
+      rdir->GetObject(histo ,meAdcTIB_[i]);
+      sdir->GetObject(histo ,newmeAdcTIB_[i]);
       meAdcTIB_[i];
       newmeAdcTIB_[i];
       Strip->cd(i+1);
@@ -469,9 +477,9 @@ TLegend leg(0.3, 0.83, 0.55, 0.90);
 
    }
    for (Int_t i=6; i<9; i++){
-      sprintf(histo,"DQMData/TrackerDigis/Strip/strip_tib_layer2_extmodule%d_zm;1",i-5);
-      rfile->GetObject(histo ,meAdcTIB_[i]);
-      sfile->GetObject(histo ,newmeAdcTIB_[i]);
+      sprintf(histo,"strip_tib_layer2_extmodule%d_zm;1",i-5);
+      rdir->GetObject(histo ,meAdcTIB_[i]);
+      sdir->GetObject(histo ,newmeAdcTIB_[i]);
       meAdcTIB_[i];
       newmeAdcTIB_[i];
       Strip->cd(i+1);
@@ -490,9 +498,9 @@ TLegend leg(0.3, 0.83, 0.55, 0.90);
    }
 
   for (Int_t i=9; i<12; i++){
-      sprintf(histo,"DQMData/TrackerDigis/Strip/strip_tib_layer2_intmodule%d_zm;1",i-8);
-      rfile->GetObject(histo ,meAdcTIB_[i]);
-      sfile->GetObject(histo ,newmeAdcTIB_[i]);
+      sprintf(histo,"strip_tib_layer2_intmodule%d_zm;1",i-8);
+      rdir->GetObject(histo ,meAdcTIB_[i]);
+      sdir->GetObject(histo ,newmeAdcTIB_[i]);
       meAdcTIB_[i];
       newmeAdcTIB_[i];
       Strip->cd(i+1);
@@ -523,9 +531,9 @@ TLegend leg(0.3, 0.83, 0.55, 0.90);
    TH1* newmeAdcTIB_[12];
 
    for (Int_t i=0; i<3; i++){
-      sprintf(histo,"DQMData/TrackerDigis/Strip/adc_tib_layer3_extmodule%d_zp;1",i+1);
-      rfile->GetObject(histo ,meAdcTIB_[i]);
-      sfile->GetObject(histo ,newmeAdcTIB_[i]);
+      sprintf(histo,"adc_tib_layer3_extmodule%d_zp;1",i+1);
+      rdir->GetObject(histo ,meAdcTIB_[i]);
+      sdir->GetObject(histo ,newmeAdcTIB_[i]);
       meAdcTIB_[i];
       newmeAdcTIB_[i];
       Strip->cd(i+1);
@@ -544,9 +552,9 @@ TLegend leg(0.3, 0.83, 0.55, 0.90);
    }
 
   for (Int_t i=3; i<6; i++){
-      sprintf(histo,"DQMData/TrackerDigis/Strip/adc_tib_layer3_intmodule%d_zp;1",i-2);
-      rfile->GetObject(histo ,meAdcTIB_[i]);
-      sfile->GetObject(histo ,newmeAdcTIB_[i]);
+      sprintf(histo,"adc_tib_layer3_intmodule%d_zp;1",i-2);
+      rdir->GetObject(histo ,meAdcTIB_[i]);
+      sdir->GetObject(histo ,newmeAdcTIB_[i]);
       meAdcTIB_[i];
       newmeAdcTIB_[i];
       Strip->cd(i+1);
@@ -564,9 +572,9 @@ TLegend leg(0.3, 0.83, 0.55, 0.90);
 
    }
    for (Int_t i=6; i<9; i++){
-      sprintf(histo,"DQMData/TrackerDigis/Strip/adc_tib_layer3_extmodule%d_zm;1",i-5);
-      rfile->GetObject(histo ,meAdcTIB_[i]);
-      sfile->GetObject(histo ,newmeAdcTIB_[i]);
+      sprintf(histo,"adc_tib_layer3_extmodule%d_zm;1",i-5);
+      rdir->GetObject(histo ,meAdcTIB_[i]);
+      sdir->GetObject(histo ,newmeAdcTIB_[i]);
       meAdcTIB_[i];
       newmeAdcTIB_[i];
       Strip->cd(i+1);
@@ -585,9 +593,9 @@ TLegend leg(0.3, 0.83, 0.55, 0.90);
    }
 
   for (Int_t i=9; i<12; i++){
-      sprintf(histo,"DQMData/TrackerDigis/Strip/adc_tib_layer3_intmodule%d_zm;1",i-8);
-      rfile->GetObject(histo ,meAdcTIB_[i]);
-      sfile->GetObject(histo ,newmeAdcTIB_[i]);
+      sprintf(histo,"adc_tib_layer3_intmodule%d_zm;1",i-8);
+      rdir->GetObject(histo ,meAdcTIB_[i]);
+      sdir->GetObject(histo ,newmeAdcTIB_[i]);
       meAdcTIB_[i];
       newmeAdcTIB_[i];
       Strip->cd(i+1);
@@ -617,9 +625,9 @@ TLegend leg(0.3, 0.83, 0.55, 0.90);
    TH1* newmeAdcTIB_[12];
 
    for (Int_t i=0; i<3; i++){
-      sprintf(histo,"DQMData/TrackerDigis/Strip/strip_tib_layer3_extmodule%d_zp;1",i+1);
-      rfile->GetObject(histo ,meAdcTIB_[i]);
-      sfile->GetObject(histo ,newmeAdcTIB_[i]);
+      sprintf(histo,"strip_tib_layer3_extmodule%d_zp;1",i+1);
+      rdir->GetObject(histo ,meAdcTIB_[i]);
+      sdir->GetObject(histo ,newmeAdcTIB_[i]);
       meAdcTIB_[i];
       newmeAdcTIB_[i];
       Strip->cd(i+1);
@@ -638,9 +646,9 @@ TLegend leg(0.3, 0.83, 0.55, 0.90);
    }
 
   for (Int_t i=3; i<6; i++){
-      sprintf(histo,"DQMData/TrackerDigis/Strip/strip_tib_layer3_intmodule%d_zp;1",i-2);
-      rfile->GetObject(histo ,meAdcTIB_[i]);
-      sfile->GetObject(histo ,newmeAdcTIB_[i]);
+      sprintf(histo,"strip_tib_layer3_intmodule%d_zp;1",i-2);
+      rdir->GetObject(histo ,meAdcTIB_[i]);
+      sdir->GetObject(histo ,newmeAdcTIB_[i]);
       meAdcTIB_[i];
       newmeAdcTIB_[i];
       Strip->cd(i+1);
@@ -658,9 +666,9 @@ TLegend leg(0.3, 0.83, 0.55, 0.90);
 
    }
    for (Int_t i=6; i<9; i++){
-      sprintf(histo,"DQMData/TrackerDigis/Strip/strip_tib_layer3_extmodule%d_zm;1",i-5);
-      rfile->GetObject(histo ,meAdcTIB_[i]);
-      sfile->GetObject(histo ,newmeAdcTIB_[i]);
+      sprintf(histo,"strip_tib_layer3_extmodule%d_zm;1",i-5);
+      rdir->GetObject(histo ,meAdcTIB_[i]);
+      sdir->GetObject(histo ,newmeAdcTIB_[i]);
       meAdcTIB_[i];
       newmeAdcTIB_[i];
       Strip->cd(i+1);
@@ -679,9 +687,9 @@ TLegend leg(0.3, 0.83, 0.55, 0.90);
    }
 
   for (Int_t i=9; i<12; i++){
-      sprintf(histo,"DQMData/TrackerDigis/Strip/strip_tib_layer3_intmodule%d_zm;1",i-8);
-      rfile->GetObject(histo ,meAdcTIB_[i]);
-      sfile->GetObject(histo ,newmeAdcTIB_[i]);
+      sprintf(histo,"strip_tib_layer3_intmodule%d_zm;1",i-8);
+      rdir->GetObject(histo ,meAdcTIB_[i]);
+      sdir->GetObject(histo ,newmeAdcTIB_[i]);
       meAdcTIB_[i];
       newmeAdcTIB_[i];
       Strip->cd(i+1);
@@ -713,9 +721,9 @@ TLegend leg(0.3, 0.83, 0.55, 0.90);
    TH1* newmeAdcTIB_[12];
 
    for (Int_t i=0; i<3; i++){
-      sprintf(histo,"DQMData/TrackerDigis/Strip/adc_tib_layer4_extmodule%d_zp;1",i+1);
-      rfile->GetObject(histo ,meAdcTIB_[i]);
-      sfile->GetObject(histo ,newmeAdcTIB_[i]);
+      sprintf(histo,"adc_tib_layer4_extmodule%d_zp;1",i+1);
+      rdir->GetObject(histo ,meAdcTIB_[i]);
+      sdir->GetObject(histo ,newmeAdcTIB_[i]);
       meAdcTIB_[i];
       newmeAdcTIB_[i];
       Strip->cd(i+1);
@@ -734,9 +742,9 @@ TLegend leg(0.3, 0.83, 0.55, 0.90);
   }
 
   for (Int_t i=3; i<6; i++){
-      sprintf(histo,"DQMData/TrackerDigis/Strip/adc_tib_layer4_intmodule%d_zp;1",i-2);
-      rfile->GetObject(histo ,meAdcTIB_[i]);
-      sfile->GetObject(histo ,newmeAdcTIB_[i]);
+      sprintf(histo,"adc_tib_layer4_intmodule%d_zp;1",i-2);
+      rdir->GetObject(histo ,meAdcTIB_[i]);
+      sdir->GetObject(histo ,newmeAdcTIB_[i]);
       meAdcTIB_[i];
       newmeAdcTIB_[i];
       Strip->cd(i+1);
@@ -753,9 +761,9 @@ TLegend leg(0.3, 0.83, 0.55, 0.90);
       leg.Draw();
    }
    for (Int_t i=6; i<9; i++){
-      sprintf(histo,"DQMData/TrackerDigis/Strip/adc_tib_layer4_extmodule%d_zm;1",i-5);
-      rfile->GetObject(histo ,meAdcTIB_[i]);
-      sfile->GetObject(histo ,newmeAdcTIB_[i]);
+      sprintf(histo,"adc_tib_layer4_extmodule%d_zm;1",i-5);
+      rdir->GetObject(histo ,meAdcTIB_[i]);
+      sdir->GetObject(histo ,newmeAdcTIB_[i]);
       meAdcTIB_[i];
       newmeAdcTIB_[i];
       Strip->cd(i+1);
@@ -774,9 +782,9 @@ TLegend leg(0.3, 0.83, 0.55, 0.90);
    }
 
   for (Int_t i=9; i<12; i++){
-      sprintf(histo,"DQMData/TrackerDigis/Strip/adc_tib_layer4_intmodule%d_zm;1",i-8);
-      rfile->GetObject(histo ,meAdcTIB_[i]);
-      sfile->GetObject(histo ,newmeAdcTIB_[i]);
+      sprintf(histo,"adc_tib_layer4_intmodule%d_zm;1",i-8);
+      rdir->GetObject(histo ,meAdcTIB_[i]);
+      sdir->GetObject(histo ,newmeAdcTIB_[i]);
       meAdcTIB_[i];
       newmeAdcTIB_[i];
       Strip->cd(i+1);
@@ -806,9 +814,9 @@ TLegend leg(0.3, 0.83, 0.55, 0.90);
    TH1* newmeAdcTIB_[12];
 
    for (Int_t i=0; i<3; i++){
-      sprintf(histo,"DQMData/TrackerDigis/Strip/strip_tib_layer4_extmodule%d_zp;1",i+1);
-      rfile->GetObject(histo ,meAdcTIB_[i]);
-      sfile->GetObject(histo ,newmeAdcTIB_[i]);
+      sprintf(histo,"strip_tib_layer4_extmodule%d_zp;1",i+1);
+      rdir->GetObject(histo ,meAdcTIB_[i]);
+      sdir->GetObject(histo ,newmeAdcTIB_[i]);
       meAdcTIB_[i];
       newmeAdcTIB_[i];
       Strip->cd(i+1);
@@ -827,9 +835,9 @@ TLegend leg(0.3, 0.83, 0.55, 0.90);
    }
 
   for (Int_t i=3; i<6; i++){
-      sprintf(histo,"DQMData/TrackerDigis/Strip/strip_tib_layer4_intmodule%d_zp;1",i-2);
-      rfile->GetObject(histo ,meAdcTIB_[i]);
-      sfile->GetObject(histo ,newmeAdcTIB_[i]);
+      sprintf(histo,"strip_tib_layer4_intmodule%d_zp;1",i-2);
+      rdir->GetObject(histo ,meAdcTIB_[i]);
+      sdir->GetObject(histo ,newmeAdcTIB_[i]);
       meAdcTIB_[i];
       newmeAdcTIB_[i];
       Strip->cd(i+1);
@@ -847,9 +855,9 @@ TLegend leg(0.3, 0.83, 0.55, 0.90);
 
    }
    for (Int_t i=6; i<9; i++){
-      sprintf(histo,"DQMData/TrackerDigis/Strip/strip_tib_layer4_extmodule%d_zm;1",i-5);
-      rfile->GetObject(histo ,meAdcTIB_[i]);
-      sfile->GetObject(histo ,newmeAdcTIB_[i]);
+      sprintf(histo,"strip_tib_layer4_extmodule%d_zm;1",i-5);
+      rdir->GetObject(histo ,meAdcTIB_[i]);
+      sdir->GetObject(histo ,newmeAdcTIB_[i]);
       meAdcTIB_[i];
       newmeAdcTIB_[i];
       Strip->cd(i+1);
@@ -868,9 +876,9 @@ TLegend leg(0.3, 0.83, 0.55, 0.90);
    }
 
   for (Int_t i=9; i<12; i++){
-      sprintf(histo,"DQMData/TrackerDigis/Strip/strip_tib_layer4_intmodule%d_zm;1",i-8);
-      rfile->GetObject(histo ,meAdcTIB_[i]);
-      sfile->GetObject(histo ,newmeAdcTIB_[i]);
+      sprintf(histo,"strip_tib_layer4_intmodule%d_zm;1",i-8);
+      rdir->GetObject(histo ,meAdcTIB_[i]);
+      sdir->GetObject(histo ,newmeAdcTIB_[i]);
       meAdcTIB_[i];
       newmeAdcTIB_[i];
       Strip->cd(i+1);
@@ -906,9 +914,9 @@ TLegend leg(0.3, 0.83, 0.55, 0.90);
    TH1* newmeNdigiTOB_[6];
 
    for (Int_t i=0; i<6; i++){
-      sprintf(histo,"DQMData/TrackerDigis/Strip/ndigi_tob_layer_%d_zm;1",i+1);
-      rfile->GetObject(histo ,meNdigiTOB_[i]);
-      sfile->GetObject(histo ,newmeNdigiTOB_[i]);
+      sprintf(histo,"ndigi_tob_layer_%d_zm;1",i+1);
+      rdir->GetObject(histo ,meNdigiTOB_[i]);
+      sdir->GetObject(histo ,newmeNdigiTOB_[i]);
       meNdigiTOB_[i];
       newmeNdigiTOB_[i];
       Strip->cd(i+1);
@@ -937,9 +945,9 @@ TLegend leg(0.3, 0.83, 0.55, 0.90);
    TH1* newmeNdigiTOB_[6];
 
    for (Int_t i=0; i<6; i++){
-      sprintf(histo,"DQMData/TrackerDigis/Strip/ndigi_tob_layer_%d_zp;1",i+1);
-      rfile->GetObject(histo ,meNdigiTOB_[i]);
-      sfile->GetObject(histo ,newmeNdigiTOB_[i]);
+      sprintf(histo,"ndigi_tob_layer_%d_zp;1",i+1);
+      rdir->GetObject(histo ,meNdigiTOB_[i]);
+      sdir->GetObject(histo ,newmeNdigiTOB_[i]);
       meNdigiTOB_[i];
       newmeNdigiTOB_[i];
       Strip->cd(i+1);
@@ -971,9 +979,9 @@ TLegend leg(0.3, 0.83, 0.55, 0.90);
    TH1* newmeAdcTOB_[12];
 
    for (Int_t i=0; i<6; i++){
-      sprintf(histo,"DQMData/TrackerDigis/Strip/adc_tob_layer1_module%d_zp;1",i+1);
-      rfile->GetObject(histo ,meAdcTOB_[i]);
-      sfile->GetObject(histo ,newmeAdcTOB_[i]);
+      sprintf(histo,"adc_tob_layer1_module%d_zp;1",i+1);
+      rdir->GetObject(histo ,meAdcTOB_[i]);
+      sdir->GetObject(histo ,newmeAdcTOB_[i]);
       meAdcTOB_[i];
       newmeAdcTOB_[i];
       Strip->cd(i+1);
@@ -991,9 +999,9 @@ TLegend leg(0.3, 0.83, 0.55, 0.90);
 
    }
    for (Int_t i=6; i<12; i++){
-      sprintf(histo,"DQMData/TrackerDigis/Strip/adc_tob_layer1_module%d_zm;1",i-5);
-      rfile->GetObject(histo ,meAdcTOB_[i]);
-      sfile->GetObject(histo ,newmeAdcTOB_[i]);
+      sprintf(histo,"adc_tob_layer1_module%d_zm;1",i-5);
+      rdir->GetObject(histo ,meAdcTOB_[i]);
+      sdir->GetObject(histo ,newmeAdcTOB_[i]);
       meAdcTOB_[i];
       newmeAdcTOB_[i];
       Strip->cd(i+1);
@@ -1023,9 +1031,9 @@ TLegend leg(0.3, 0.83, 0.55, 0.90);
    TH1* newmeAdcTOB_[12];
 
    for (Int_t i=0; i<6; i++){
-      sprintf(histo,"DQMData/TrackerDigis/Strip/strip_tob_layer1_module%d_zp;1",i+1);
-      rfile->GetObject(histo ,meAdcTOB_[i]);
-      sfile->GetObject(histo ,newmeAdcTOB_[i]);
+      sprintf(histo,"strip_tob_layer1_module%d_zp;1",i+1);
+      rdir->GetObject(histo ,meAdcTOB_[i]);
+      sdir->GetObject(histo ,newmeAdcTOB_[i]);
       meAdcTOB_[i];
       newmeAdcTOB_[i];
       Strip->cd(i+1);
@@ -1043,9 +1051,9 @@ TLegend leg(0.3, 0.83, 0.55, 0.90);
 
    }
    for (Int_t i=6; i<12; i++){
-      sprintf(histo,"DQMData/TrackerDigis/Strip/strip_tob_layer1_module%d_zm;1",i-5);
-      rfile->GetObject(histo ,meAdcTOB_[i]);
-      sfile->GetObject(histo ,newmeAdcTOB_[i]);
+      sprintf(histo,"strip_tob_layer1_module%d_zm;1",i-5);
+      rdir->GetObject(histo ,meAdcTOB_[i]);
+      sdir->GetObject(histo ,newmeAdcTOB_[i]);
       meAdcTOB_[i];
       newmeAdcTOB_[i];
       Strip->cd(i+1);
@@ -1075,9 +1083,9 @@ TLegend leg(0.3, 0.83, 0.55, 0.90);
    TH1* newmeAdcTOB_[12];
 
    for (Int_t i=0; i<6; i++){
-      sprintf(histo,"DQMData/TrackerDigis/Strip/adc_tob_layer2_module%d_zp;1",i+1);
-      rfile->GetObject(histo ,meAdcTOB_[i]);
-      sfile->GetObject(histo ,newmeAdcTOB_[i]);
+      sprintf(histo,"adc_tob_layer2_module%d_zp;1",i+1);
+      rdir->GetObject(histo ,meAdcTOB_[i]);
+      sdir->GetObject(histo ,newmeAdcTOB_[i]);
       meAdcTOB_[i];
       newmeAdcTOB_[i];
       Strip->cd(i+1);
@@ -1095,9 +1103,9 @@ TLegend leg(0.3, 0.83, 0.55, 0.90);
 
    }
    for (Int_t i=6; i<12; i++){
-      sprintf(histo,"DQMData/TrackerDigis/Strip/adc_tob_layer2_module%d_zm;1",i-5);
-      rfile->GetObject(histo ,meAdcTOB_[i]);
-      sfile->GetObject(histo ,newmeAdcTOB_[i]);
+      sprintf(histo,"adc_tob_layer2_module%d_zm;1",i-5);
+      rdir->GetObject(histo ,meAdcTOB_[i]);
+      sdir->GetObject(histo ,newmeAdcTOB_[i]);
       meAdcTOB_[i];
       newmeAdcTOB_[i];
       Strip->cd(i+1);
@@ -1127,9 +1135,9 @@ TLegend leg(0.3, 0.83, 0.55, 0.90);
    TH1* newmeAdcTOB_[12];
 
    for (Int_t i=0; i<6; i++){
-      sprintf(histo,"DQMData/TrackerDigis/Strip/strip_tob_layer2_module%d_zp;1",i+1);
-      rfile->GetObject(histo ,meAdcTOB_[i]);
-      sfile->GetObject(histo ,newmeAdcTOB_[i]);
+      sprintf(histo,"strip_tob_layer2_module%d_zp;1",i+1);
+      rdir->GetObject(histo ,meAdcTOB_[i]);
+      sdir->GetObject(histo ,newmeAdcTOB_[i]);
       meAdcTOB_[i];
       newmeAdcTOB_[i];
       Strip->cd(i+1);
@@ -1147,9 +1155,9 @@ TLegend leg(0.3, 0.83, 0.55, 0.90);
 
    }
    for (Int_t i=6; i<12; i++){
-      sprintf(histo,"DQMData/TrackerDigis/Strip/strip_tob_layer2_module%d_zm;1",i-5);
-      rfile->GetObject(histo ,meAdcTOB_[i]);
-      sfile->GetObject(histo ,newmeAdcTOB_[i]);
+      sprintf(histo,"strip_tob_layer2_module%d_zm;1",i-5);
+      rdir->GetObject(histo ,meAdcTOB_[i]);
+      sdir->GetObject(histo ,newmeAdcTOB_[i]);
       meAdcTOB_[i];
       newmeAdcTOB_[i];
       Strip->cd(i+1);
@@ -1180,9 +1188,9 @@ TLegend leg(0.3, 0.83, 0.55, 0.90);
    TH1* newmeAdcTOB_[12];
 
    for (Int_t i=0; i<6; i++){
-      sprintf(histo,"DQMData/TrackerDigis/Strip/adc_tob_layer3_module%d_zp;1",i+1);
-      rfile->GetObject(histo ,meAdcTOB_[i]);
-      sfile->GetObject(histo ,newmeAdcTOB_[i]);
+      sprintf(histo,"adc_tob_layer3_module%d_zp;1",i+1);
+      rdir->GetObject(histo ,meAdcTOB_[i]);
+      sdir->GetObject(histo ,newmeAdcTOB_[i]);
       meAdcTOB_[i];
       newmeAdcTOB_[i];
       Strip->cd(i+1);
@@ -1200,9 +1208,9 @@ TLegend leg(0.3, 0.83, 0.55, 0.90);
 
    }
    for (Int_t i=6; i<12; i++){
-      sprintf(histo,"DQMData/TrackerDigis/Strip/adc_tob_layer3_module%d_zm;1",i-5);
-      rfile->GetObject(histo ,meAdcTOB_[i]);
-      sfile->GetObject(histo ,newmeAdcTOB_[i]);
+      sprintf(histo,"adc_tob_layer3_module%d_zm;1",i-5);
+      rdir->GetObject(histo ,meAdcTOB_[i]);
+      sdir->GetObject(histo ,newmeAdcTOB_[i]);
       meAdcTOB_[i];
       newmeAdcTOB_[i];
       Strip->cd(i+1);
@@ -1232,9 +1240,9 @@ TLegend leg(0.3, 0.83, 0.55, 0.90);
    TH1* newmeAdcTOB_[12];
 
    for (Int_t i=0; i<6; i++){
-      sprintf(histo,"DQMData/TrackerDigis/Strip/strip_tob_layer3_module%d_zp;1",i+1);
-      rfile->GetObject(histo ,meAdcTOB_[i]);
-      sfile->GetObject(histo ,newmeAdcTOB_[i]);
+      sprintf(histo,"strip_tob_layer3_module%d_zp;1",i+1);
+      rdir->GetObject(histo ,meAdcTOB_[i]);
+      sdir->GetObject(histo ,newmeAdcTOB_[i]);
       meAdcTOB_[i];
       newmeAdcTOB_[i];
       Strip->cd(i+1);
@@ -1252,9 +1260,9 @@ TLegend leg(0.3, 0.83, 0.55, 0.90);
 
    }
    for (Int_t i=6; i<12; i++){
-      sprintf(histo,"DQMData/TrackerDigis/Strip/strip_tob_layer3_module%d_zm;1",i-5);
-      rfile->GetObject(histo ,meAdcTOB_[i]);
-      sfile->GetObject(histo ,newmeAdcTOB_[i]);
+      sprintf(histo,"strip_tob_layer3_module%d_zm;1",i-5);
+      rdir->GetObject(histo ,meAdcTOB_[i]);
+      sdir->GetObject(histo ,newmeAdcTOB_[i]);
       meAdcTOB_[i];
       newmeAdcTOB_[i];
       Strip->cd(i+1);
@@ -1285,9 +1293,9 @@ TLegend leg(0.3, 0.83, 0.55, 0.90);
    TH1* newmeAdcTOB_[12];
 
    for (Int_t i=0; i<6; i++){
-      sprintf(histo,"DQMData/TrackerDigis/Strip/adc_tob_layer4_module%d_zp;1",i+1);
-      rfile->GetObject(histo ,meAdcTOB_[i]);
-      sfile->GetObject(histo ,newmeAdcTOB_[i]);
+      sprintf(histo,"adc_tob_layer4_module%d_zp;1",i+1);
+      rdir->GetObject(histo ,meAdcTOB_[i]);
+      sdir->GetObject(histo ,newmeAdcTOB_[i]);
       meAdcTOB_[i];
       newmeAdcTOB_[i];
       Strip->cd(i+1);
@@ -1305,9 +1313,9 @@ TLegend leg(0.3, 0.83, 0.55, 0.90);
 
    }
    for (Int_t i=6; i<12; i++){
-      sprintf(histo,"DQMData/TrackerDigis/Strip/adc_tob_layer4_module%d_zm;1",i-5);
-      rfile->GetObject(histo ,meAdcTOB_[i]);
-      sfile->GetObject(histo ,newmeAdcTOB_[i]);
+      sprintf(histo,"adc_tob_layer4_module%d_zm;1",i-5);
+      rdir->GetObject(histo ,meAdcTOB_[i]);
+      sdir->GetObject(histo ,newmeAdcTOB_[i]);
       meAdcTOB_[i];
       newmeAdcTOB_[i];
       Strip->cd(i+1);
@@ -1337,9 +1345,9 @@ TLegend leg(0.3, 0.83, 0.55, 0.90);
    TH1* newmeAdcTOB_[12];
 
    for (Int_t i=0; i<6; i++){
-      sprintf(histo,"DQMData/TrackerDigis/Strip/strip_tob_layer4_module%d_zp;1",i+1);
-      rfile->GetObject(histo ,meAdcTOB_[i]);
-      sfile->GetObject(histo ,newmeAdcTOB_[i]);
+      sprintf(histo,"strip_tob_layer4_module%d_zp;1",i+1);
+      rdir->GetObject(histo ,meAdcTOB_[i]);
+      sdir->GetObject(histo ,newmeAdcTOB_[i]);
       meAdcTOB_[i];
       newmeAdcTOB_[i];
       Strip->cd(i+1);
@@ -1357,9 +1365,9 @@ TLegend leg(0.3, 0.83, 0.55, 0.90);
 
    }
    for (Int_t i=6; i<12; i++){
-      sprintf(histo,"DQMData/TrackerDigis/Strip/strip_tob_layer4_module%d_zm;1",i-5);
-      rfile->GetObject(histo ,meAdcTOB_[i]);
-      sfile->GetObject(histo ,newmeAdcTOB_[i]);
+      sprintf(histo,"strip_tob_layer4_module%d_zm;1",i-5);
+      rdir->GetObject(histo ,meAdcTOB_[i]);
+      sdir->GetObject(histo ,newmeAdcTOB_[i]);
       meAdcTOB_[i];
       newmeAdcTOB_[i];
       Strip->cd(i+1);
@@ -1389,9 +1397,9 @@ TLegend leg(0.3, 0.83, 0.55, 0.90);
    TH1* newmeAdcTOB_[12];
 
    for (Int_t i=0; i<6; i++){
-      sprintf(histo,"DQMData/TrackerDigis/Strip/adc_tob_layer5_module%d_zp;1",i+1);
-      rfile->GetObject(histo ,meAdcTOB_[i]);
-      sfile->GetObject(histo ,newmeAdcTOB_[i]);
+      sprintf(histo,"adc_tob_layer5_module%d_zp;1",i+1);
+      rdir->GetObject(histo ,meAdcTOB_[i]);
+      sdir->GetObject(histo ,newmeAdcTOB_[i]);
       meAdcTOB_[i];
       newmeAdcTOB_[i];
       Strip->cd(i+1);
@@ -1409,9 +1417,9 @@ TLegend leg(0.3, 0.83, 0.55, 0.90);
 
    }
    for (Int_t i=6; i<12; i++){
-      sprintf(histo,"DQMData/TrackerDigis/Strip/adc_tob_layer5_module%d_zm;1",i-5);
-      rfile->GetObject(histo ,meAdcTOB_[i]);
-      sfile->GetObject(histo ,newmeAdcTOB_[i]);
+      sprintf(histo,"adc_tob_layer5_module%d_zm;1",i-5);
+      rdir->GetObject(histo ,meAdcTOB_[i]);
+      sdir->GetObject(histo ,newmeAdcTOB_[i]);
       meAdcTOB_[i];
       newmeAdcTOB_[i];
       Strip->cd(i+1);
@@ -1441,9 +1449,9 @@ TLegend leg(0.3, 0.83, 0.55, 0.90);
    TH1* newmeAdcTOB_[12];
 
    for (Int_t i=0; i<6; i++){
-      sprintf(histo,"DQMData/TrackerDigis/Strip/strip_tob_layer5_module%d_zp;1",i+1);
-      rfile->GetObject(histo ,meAdcTOB_[i]);
-      sfile->GetObject(histo ,newmeAdcTOB_[i]);
+      sprintf(histo,"strip_tob_layer5_module%d_zp;1",i+1);
+      rdir->GetObject(histo ,meAdcTOB_[i]);
+      sdir->GetObject(histo ,newmeAdcTOB_[i]);
       meAdcTOB_[i];
       newmeAdcTOB_[i];
       Strip->cd(i+1);
@@ -1461,9 +1469,9 @@ TLegend leg(0.3, 0.83, 0.55, 0.90);
 
    }
    for (Int_t i=6; i<12; i++){
-      sprintf(histo,"DQMData/TrackerDigis/Strip/strip_tob_layer5_module%d_zm;1",i-5);
-      rfile->GetObject(histo ,meAdcTOB_[i]);
-      sfile->GetObject(histo ,newmeAdcTOB_[i]);
+      sprintf(histo,"strip_tob_layer5_module%d_zm;1",i-5);
+      rdir->GetObject(histo ,meAdcTOB_[i]);
+      sdir->GetObject(histo ,newmeAdcTOB_[i]);
       meAdcTOB_[i];
       newmeAdcTOB_[i];
       Strip->cd(i+1);
@@ -1494,9 +1502,9 @@ TLegend leg(0.3, 0.83, 0.55, 0.90);
    TH1* newmeAdcTOB_[12];
 
    for (Int_t i=0; i<6; i++){
-      sprintf(histo,"DQMData/TrackerDigis/Strip/adc_tob_layer6_module%d_zp;1",i+1);
-      rfile->GetObject(histo ,meAdcTOB_[i]);
-      sfile->GetObject(histo ,newmeAdcTOB_[i]);
+      sprintf(histo,"adc_tob_layer6_module%d_zp;1",i+1);
+      rdir->GetObject(histo ,meAdcTOB_[i]);
+      sdir->GetObject(histo ,newmeAdcTOB_[i]);
       meAdcTOB_[i];
       newmeAdcTOB_[i];
       Strip->cd(i+1);
@@ -1514,9 +1522,9 @@ TLegend leg(0.3, 0.83, 0.55, 0.90);
 
    }
    for (Int_t i=6; i<12; i++){
-      sprintf(histo,"DQMData/TrackerDigis/Strip/adc_tob_layer6_module%d_zm;1",i-5);
-      rfile->GetObject(histo ,meAdcTOB_[i]);
-      sfile->GetObject(histo ,newmeAdcTOB_[i]);
+      sprintf(histo,"adc_tob_layer6_module%d_zm;1",i-5);
+      rdir->GetObject(histo ,meAdcTOB_[i]);
+      sdir->GetObject(histo ,newmeAdcTOB_[i]);
       meAdcTOB_[i];
       newmeAdcTOB_[i];
       Strip->cd(i+1);
@@ -1546,9 +1554,9 @@ TLegend leg(0.3, 0.83, 0.55, 0.90);
    TH1* newmeAdcTOB_[12];
 
    for (Int_t i=0; i<6; i++){
-      sprintf(histo,"DQMData/TrackerDigis/Strip/strip_tob_layer6_module%d_zp;1",i+1);
-      rfile->GetObject(histo ,meAdcTOB_[i]);
-      sfile->GetObject(histo ,newmeAdcTOB_[i]);
+      sprintf(histo,"strip_tob_layer6_module%d_zp;1",i+1);
+      rdir->GetObject(histo ,meAdcTOB_[i]);
+      sdir->GetObject(histo ,newmeAdcTOB_[i]);
       meAdcTOB_[i];
       newmeAdcTOB_[i];
       Strip->cd(i+1);
@@ -1566,9 +1574,9 @@ TLegend leg(0.3, 0.83, 0.55, 0.90);
 
    }
    for (Int_t i=6; i<12; i++){
-      sprintf(histo,"DQMData/TrackerDigis/Strip/strip_tob_layer6_module%d_zm;1",i-5);
-      rfile->GetObject(histo ,meAdcTOB_[i]);
-      sfile->GetObject(histo ,newmeAdcTOB_[i]);
+      sprintf(histo,"strip_tob_layer6_module%d_zm;1",i-5);
+      rdir->GetObject(histo ,meAdcTOB_[i]);
+      sdir->GetObject(histo ,newmeAdcTOB_[i]);
       meAdcTOB_[i];
       newmeAdcTOB_[i];
       Strip->cd(i+1);
@@ -1599,9 +1607,9 @@ TLegend leg(0.3, 0.83, 0.55, 0.90);
    TH1* newmeNdigiTID_[3];
 
    for (Int_t i=0; i<3; i++){
-      sprintf(histo,"DQMData/TrackerDigis/Strip/ndigi_tid_wheel_%d_zm;1",i+1);
-      rfile->GetObject(histo ,meNdigiTID_[i]);
-      sfile->GetObject(histo ,newmeNdigiTID_[i]);
+      sprintf(histo,"ndigi_tid_wheel_%d_zm;1",i+1);
+      rdir->GetObject(histo ,meNdigiTID_[i]);
+      sdir->GetObject(histo ,newmeNdigiTID_[i]);
       meNdigiTID_[i];
       newmeNdigiTID_[i];
       Strip->cd(i+1);
@@ -1631,9 +1639,9 @@ if (1) {
    TH1* newmeNdigiTID_[3];
 
    for (Int_t i=0; i<3; i++){
-      sprintf(histo,"DQMData/TrackerDigis/Strip/ndigi_tid_wheel_%d_zp;1",i+1);
-      rfile->GetObject(histo ,meNdigiTID_[i]);
-      sfile->GetObject(histo ,newmeNdigiTID_[i]);
+      sprintf(histo,"ndigi_tid_wheel_%d_zp;1",i+1);
+      rdir->GetObject(histo ,meNdigiTID_[i]);
+      sdir->GetObject(histo ,newmeNdigiTID_[i]);
       meNdigiTID_[i];
       newmeNdigiTID_[i];
       Strip->cd(i+1);
@@ -1663,9 +1671,9 @@ if (1) {
    TH1* newmeAdcTID_[6];
 
    for (Int_t i=0; i<3; i++){
-      sprintf(histo,"DQMData/TrackerDigis/Strip/adc_tid_wheel1_ring%d_zp;1",i+1);
-      rfile->GetObject(histo ,meAdcTID_[i]);
-      sfile->GetObject(histo ,newmeAdcTID_[i]);
+      sprintf(histo,"adc_tid_wheel1_ring%d_zp;1",i+1);
+      rdir->GetObject(histo ,meAdcTID_[i]);
+      sdir->GetObject(histo ,newmeAdcTID_[i]);
       meAdcTID_[i];
       newmeAdcTID_[i];
       Strip->cd(i+1);
@@ -1684,9 +1692,9 @@ if (1) {
    }
 
    for (Int_t i=3; i<6; i++){
-      sprintf(histo,"DQMData/TrackerDigis/Strip/adc_tid_wheel1_ring%d_zm;1",i-2);
-      rfile->GetObject(histo ,meAdcTID_[i]);
-      sfile->GetObject(histo ,newmeAdcTID_[i]);
+      sprintf(histo,"adc_tid_wheel1_ring%d_zm;1",i-2);
+      rdir->GetObject(histo ,meAdcTID_[i]);
+      sdir->GetObject(histo ,newmeAdcTID_[i]);
       meAdcTID_[i];
       newmeAdcTID_[i];
       Strip->cd(i+1);
@@ -1714,9 +1722,9 @@ if (1) {
    TH1* newmeAdcTID_[6];
 
    for (Int_t i=0; i<3; i++){
-      sprintf(histo,"DQMData/TrackerDigis/Strip/strip_tid_wheel1_ring%d_zp;1",i+1);
-      rfile->GetObject(histo ,meAdcTID_[i]);
-      sfile->GetObject(histo ,newmeAdcTID_[i]);
+      sprintf(histo,"strip_tid_wheel1_ring%d_zp;1",i+1);
+      rdir->GetObject(histo ,meAdcTID_[i]);
+      sdir->GetObject(histo ,newmeAdcTID_[i]);
       meAdcTID_[i];
       newmeAdcTID_[i];
       Strip->cd(i+1);
@@ -1735,9 +1743,9 @@ if (1) {
    }
 
    for (Int_t i=3; i<6; i++){
-      sprintf(histo,"DQMData/TrackerDigis/Strip/strip_tid_wheel1_ring%d_zm;1",i-2);
-      rfile->GetObject(histo ,meAdcTID_[i]);
-      sfile->GetObject(histo ,newmeAdcTID_[i]);
+      sprintf(histo,"strip_tid_wheel1_ring%d_zm;1",i-2);
+      rdir->GetObject(histo ,meAdcTID_[i]);
+      sdir->GetObject(histo ,newmeAdcTID_[i]);
       meAdcTID_[i];
       newmeAdcTID_[i];
       Strip->cd(i+1);
@@ -1765,9 +1773,9 @@ if (1) {
    TH1* newmeAdcTID_[6];
 
    for (Int_t i=0; i<3; i++){
-      sprintf(histo,"DQMData/TrackerDigis/Strip/adc_tid_wheel2_ring%d_zp;1",i+1);
-      rfile->GetObject(histo ,meAdcTID_[i]);
-      sfile->GetObject(histo ,newmeAdcTID_[i]);
+      sprintf(histo,"adc_tid_wheel2_ring%d_zp;1",i+1);
+      rdir->GetObject(histo ,meAdcTID_[i]);
+      sdir->GetObject(histo ,newmeAdcTID_[i]);
       meAdcTID_[i];
       newmeAdcTID_[i];
       Strip->cd(i+1);
@@ -1786,9 +1794,9 @@ if (1) {
    }
 
    for (Int_t i=3; i<6; i++){
-      sprintf(histo,"DQMData/TrackerDigis/Strip/adc_tid_wheel2_ring%d_zm;1",i-2);
-      rfile->GetObject(histo ,meAdcTID_[i]);
-      sfile->GetObject(histo ,newmeAdcTID_[i]);
+      sprintf(histo,"adc_tid_wheel2_ring%d_zm;1",i-2);
+      rdir->GetObject(histo ,meAdcTID_[i]);
+      sdir->GetObject(histo ,newmeAdcTID_[i]);
       meAdcTID_[i];
       newmeAdcTID_[i];
       Strip->cd(i+1);
@@ -1816,9 +1824,9 @@ if (1) {
    TH1* newmeAdcTID_[6];
 
    for (Int_t i=0; i<3; i++){
-      sprintf(histo,"DQMData/TrackerDigis/Strip/strip_tid_wheel2_ring%d_zp;1",i+1);
-      rfile->GetObject(histo ,meAdcTID_[i]);
-      sfile->GetObject(histo ,newmeAdcTID_[i]);
+      sprintf(histo,"strip_tid_wheel2_ring%d_zp;1",i+1);
+      rdir->GetObject(histo ,meAdcTID_[i]);
+      sdir->GetObject(histo ,newmeAdcTID_[i]);
       meAdcTID_[i];
       newmeAdcTID_[i];
       Strip->cd(i+1);
@@ -1837,9 +1845,9 @@ if (1) {
    }
 
    for (Int_t i=3; i<6; i++){
-      sprintf(histo,"DQMData/TrackerDigis/Strip/strip_tid_wheel2_ring%d_zm;1",i-2);
-      rfile->GetObject(histo ,meAdcTID_[i]);
-      sfile->GetObject(histo ,newmeAdcTID_[i]);
+      sprintf(histo,"strip_tid_wheel2_ring%d_zm;1",i-2);
+      rdir->GetObject(histo ,meAdcTID_[i]);
+      sdir->GetObject(histo ,newmeAdcTID_[i]);
       meAdcTID_[i];
       newmeAdcTID_[i];
       Strip->cd(i+1);
@@ -1867,9 +1875,9 @@ if (1) {
    TH1* newmeAdcTID_[6];
 
    for (Int_t i=0; i<3; i++){
-      sprintf(histo,"DQMData/TrackerDigis/Strip/adc_tid_wheel3_ring%d_zp;1",i+1);
-      rfile->GetObject(histo ,meAdcTID_[i]);
-      sfile->GetObject(histo ,newmeAdcTID_[i]);
+      sprintf(histo,"adc_tid_wheel3_ring%d_zp;1",i+1);
+      rdir->GetObject(histo ,meAdcTID_[i]);
+      sdir->GetObject(histo ,newmeAdcTID_[i]);
       meAdcTID_[i];
       newmeAdcTID_[i];
       Strip->cd(i+1);
@@ -1887,9 +1895,9 @@ if (1) {
    }
 
    for (Int_t i=3; i<6; i++){
-      sprintf(histo,"DQMData/TrackerDigis/Strip/adc_tid_wheel3_ring%d_zm;1",i-2);
-      rfile->GetObject(histo ,meAdcTID_[i]);
-      sfile->GetObject(histo ,newmeAdcTID_[i]);
+      sprintf(histo,"adc_tid_wheel3_ring%d_zm;1",i-2);
+      rdir->GetObject(histo ,meAdcTID_[i]);
+      sdir->GetObject(histo ,newmeAdcTID_[i]);
       meAdcTID_[i];
       newmeAdcTID_[i];
       Strip->cd(i+1);
@@ -1916,9 +1924,9 @@ if (1) {
    TH1* newmeAdcTID_[6];
 
    for (Int_t i=0; i<3; i++){
-      sprintf(histo,"DQMData/TrackerDigis/Strip/strip_tid_wheel3_ring%d_zp;1",i+1);
-      rfile->GetObject(histo ,meAdcTID_[i]);
-      sfile->GetObject(histo ,newmeAdcTID_[i]);
+      sprintf(histo,"strip_tid_wheel3_ring%d_zp;1",i+1);
+      rdir->GetObject(histo ,meAdcTID_[i]);
+      sdir->GetObject(histo ,newmeAdcTID_[i]);
       meAdcTID_[i];
       newmeAdcTID_[i];
       Strip->cd(i+1);
@@ -1936,9 +1944,9 @@ if (1) {
    }
 
    for (Int_t i=3; i<6; i++){
-      sprintf(histo,"DQMData/TrackerDigis/Strip/strip_tid_wheel3_ring%d_zm;1",i-2);
-      rfile->GetObject(histo ,meAdcTID_[i]);
-      sfile->GetObject(histo ,newmeAdcTID_[i]);
+      sprintf(histo,"strip_tid_wheel3_ring%d_zm;1",i-2);
+      rdir->GetObject(histo ,meAdcTID_[i]);
+      sdir->GetObject(histo ,newmeAdcTID_[i]);
       meAdcTID_[i];
       newmeAdcTID_[i];
       Strip->cd(i+1);
@@ -1966,9 +1974,9 @@ if (1) {
    TH1* newmeNdigiTEC_[9];
 
    for (Int_t i=0; i<9; i++){
-      sprintf(histo,"DQMData/TrackerDigis/Strip/ndigi_tec_wheel_%d_zm;1",i+1);
-      rfile->GetObject(histo ,meNdigiTEC_[i]);
-      sfile->GetObject(histo ,newmeNdigiTEC_[i]);
+      sprintf(histo,"ndigi_tec_wheel_%d_zm;1",i+1);
+      rdir->GetObject(histo ,meNdigiTEC_[i]);
+      sdir->GetObject(histo ,newmeNdigiTEC_[i]);
       meNdigiTEC_[i];
       newmeNdigiTEC_[i];
       Strip->cd(i+1);
@@ -1997,9 +2005,9 @@ if (1) {
    TH1* newmeNdigiTEC_[9];
 
    for (Int_t i=0; i<9; i++){
-      sprintf(histo,"DQMData/TrackerDigis/Strip/ndigi_tec_wheel_%d_zp;1",i+1);
-      rfile->GetObject(histo ,meNdigiTEC_[i]);
-      sfile->GetObject(histo ,newmeNdigiTEC_[i]);
+      sprintf(histo,"ndigi_tec_wheel_%d_zp;1",i+1);
+      rdir->GetObject(histo ,meNdigiTEC_[i]);
+      sdir->GetObject(histo ,newmeNdigiTEC_[i]);
       meNdigiTEC_[i];
       newmeNdigiTEC_[i];
       Strip->cd(i+1);
@@ -2029,9 +2037,9 @@ if (1) {
    TH1* newmeAdcTEC_[7];
 
    for (Int_t i=0; i<7; i++){
-      sprintf(histo,"DQMData/TrackerDigis/Strip/adc_tec_wheel1_ring%d_zm;1",i+1);
-      rfile->GetObject(histo ,meAdcTEC_[i]);
-      sfile->GetObject(histo ,newmeAdcTEC_[i]);
+      sprintf(histo,"adc_tec_wheel1_ring%d_zm;1",i+1);
+      rdir->GetObject(histo ,meAdcTEC_[i]);
+      sdir->GetObject(histo ,newmeAdcTEC_[i]);
       meAdcTEC_[i];
       newmeAdcTEC_[i];
       Strip->cd(i+1);
@@ -2059,9 +2067,9 @@ if (1) {
    TH1* newmeStripTEC_[7];
  
    for (Int_t i=0; i<7; i++){
-      sprintf(histo,"DQMData/TrackerDigis/Strip/strip_tec_wheel1_ring%d_zm;1",i+1);
-      rfile->GetObject(histo ,meStripTEC_[i]);
-      sfile->GetObject(histo ,newmeStripTEC_[i]);
+      sprintf(histo,"strip_tec_wheel1_ring%d_zm;1",i+1);
+      rdir->GetObject(histo ,meStripTEC_[i]);
+      sdir->GetObject(histo ,newmeStripTEC_[i]);
       meStripTEC_[i];
       newmeStripTEC_[i];
       Strip->cd(i+1);
@@ -2089,9 +2097,9 @@ if (1) {
    TH1* newmeAdcTEC_[7];
 
    for (Int_t i=0; i<7; i++){
-      sprintf(histo,"DQMData/TrackerDigis/Strip/adc_tec_wheel2_ring%d_zm;1",i+1);
-      rfile->GetObject(histo ,meAdcTEC_[i]);
-      sfile->GetObject(histo ,newmeAdcTEC_[i]);
+      sprintf(histo,"adc_tec_wheel2_ring%d_zm;1",i+1);
+      rdir->GetObject(histo ,meAdcTEC_[i]);
+      sdir->GetObject(histo ,newmeAdcTEC_[i]);
       meAdcTEC_[i];
       newmeAdcTEC_[i];
       Strip->cd(i+1);
@@ -2119,9 +2127,9 @@ if (1) {
    TH1* newmeStripTEC_[7];
  
    for (Int_t i=0; i<7; i++){
-      sprintf(histo,"DQMData/TrackerDigis/Strip/strip_tec_wheel2_ring%d_zm;1",i+1);
-      rfile->GetObject(histo ,meStripTEC_[i]);
-      sfile->GetObject(histo ,newmeStripTEC_[i]);
+      sprintf(histo,"strip_tec_wheel2_ring%d_zm;1",i+1);
+      rdir->GetObject(histo ,meStripTEC_[i]);
+      sdir->GetObject(histo ,newmeStripTEC_[i]);
       meStripTEC_[i];
       newmeStripTEC_[i];
       Strip->cd(i+1); 
@@ -2151,9 +2159,9 @@ if (1) {
    TH1* newmeAdcTEC_[7];
 
    for (Int_t i=0; i<7; i++){
-      sprintf(histo,"DQMData/TrackerDigis/Strip/adc_tec_wheel3_ring%d_zm;1",i+1);
-      rfile->GetObject(histo ,meAdcTEC_[i]);
-      sfile->GetObject(histo ,newmeAdcTEC_[i]);
+      sprintf(histo,"adc_tec_wheel3_ring%d_zm;1",i+1);
+      rdir->GetObject(histo ,meAdcTEC_[i]);
+      sdir->GetObject(histo ,newmeAdcTEC_[i]);
       meAdcTEC_[i];
       newmeAdcTEC_[i];
       Strip->cd(i+1);
@@ -2181,9 +2189,9 @@ if (1) {
    TH1* newmeStripTEC_[7];
  
    for (Int_t i=0; i<7; i++){
-      sprintf(histo,"DQMData/TrackerDigis/Strip/strip_tec_wheel3_ring%d_zm;1",i+1);
-      rfile->GetObject(histo ,meStripTEC_[i]);
-      sfile->GetObject(histo ,newmeStripTEC_[i]);
+      sprintf(histo,"strip_tec_wheel3_ring%d_zm;1",i+1);
+      rdir->GetObject(histo ,meStripTEC_[i]);
+      sdir->GetObject(histo ,newmeStripTEC_[i]);
       meStripTEC_[i];
       newmeStripTEC_[i];
       Strip->cd(i+1); 
@@ -2213,9 +2221,9 @@ if (1) {
    TH1* newmeAdcTEC_[6];
 
    for (Int_t i=0; i<6; i++){
-      sprintf(histo,"DQMData/TrackerDigis/Strip/adc_tec_wheel4_ring%d_zm;1",i+1);
-      rfile->GetObject(histo ,meAdcTEC_[i]);
-      sfile->GetObject(histo ,newmeAdcTEC_[i]);
+      sprintf(histo,"adc_tec_wheel4_ring%d_zm;1",i+1);
+      rdir->GetObject(histo ,meAdcTEC_[i]);
+      sdir->GetObject(histo ,newmeAdcTEC_[i]);
       meAdcTEC_[i];
       newmeAdcTEC_[i];
       Strip->cd(i+1);
@@ -2243,9 +2251,9 @@ if (1) {
    TH1* newmeStripTEC_[6];
  
    for (Int_t i=0; i<6; i++){
-      sprintf(histo,"DQMData/TrackerDigis/Strip/strip_tec_wheel4_ring%d_zm;1",i+1);
-      rfile->GetObject(histo ,meStripTEC_[i]);
-      sfile->GetObject(histo ,newmeStripTEC_[i]);
+      sprintf(histo,"strip_tec_wheel4_ring%d_zm;1",i+1);
+      rdir->GetObject(histo ,meStripTEC_[i]);
+      sdir->GetObject(histo ,newmeStripTEC_[i]);
       meStripTEC_[i];
       newmeStripTEC_[i];
       Strip->cd(i+1); 
@@ -2275,9 +2283,9 @@ if (1) {
    TH1* newmeAdcTEC_[6];
 
    for (Int_t i=0; i<6; i++){
-      sprintf(histo,"DQMData/TrackerDigis/Strip/adc_tec_wheel5_ring%d_zm;1",i+1);
-      rfile->GetObject(histo ,meAdcTEC_[i]);
-      sfile->GetObject(histo ,newmeAdcTEC_[i]);
+      sprintf(histo,"adc_tec_wheel5_ring%d_zm;1",i+1);
+      rdir->GetObject(histo ,meAdcTEC_[i]);
+      sdir->GetObject(histo ,newmeAdcTEC_[i]);
       meAdcTEC_[i];
       newmeAdcTEC_[i];
       Strip->cd(i+1);
@@ -2305,9 +2313,9 @@ if (1) {
    TH1* newmeStripTEC_[6];
  
    for (Int_t i=0; i<6; i++){
-      sprintf(histo,"DQMData/TrackerDigis/Strip/strip_tec_wheel5_ring%d_zm;1",i+1);
-      rfile->GetObject(histo ,meStripTEC_[i]);
-      sfile->GetObject(histo ,newmeStripTEC_[i]);
+      sprintf(histo,"strip_tec_wheel5_ring%d_zm;1",i+1);
+      rdir->GetObject(histo ,meStripTEC_[i]);
+      sdir->GetObject(histo ,newmeStripTEC_[i]);
       meStripTEC_[i];
       newmeStripTEC_[i];
       Strip->cd(i+1); 
@@ -2337,9 +2345,9 @@ if (1) {
    TH1* newmeAdcTEC_[6];
 
    for (Int_t i=0; i<6; i++){
-      sprintf(histo,"DQMData/TrackerDigis/Strip/adc_tec_wheel6_ring%d_zm;1",i+1);
-      rfile->GetObject(histo ,meAdcTEC_[i]);
-      sfile->GetObject(histo ,newmeAdcTEC_[i]);
+      sprintf(histo,"adc_tec_wheel6_ring%d_zm;1",i+1);
+      rdir->GetObject(histo ,meAdcTEC_[i]);
+      sdir->GetObject(histo ,newmeAdcTEC_[i]);
       meAdcTEC_[i];
       newmeAdcTEC_[i];
       Strip->cd(i+1);
@@ -2367,9 +2375,9 @@ if (1) {
    TH1* newmeStripTEC_[6];
  
    for (Int_t i=0; i<6; i++){
-      sprintf(histo,"DQMData/TrackerDigis/Strip/strip_tec_wheel6_ring%d_zm;1",i+1);
-      rfile->GetObject(histo ,meStripTEC_[i]);
-      sfile->GetObject(histo ,newmeStripTEC_[i]);
+      sprintf(histo,"strip_tec_wheel6_ring%d_zm;1",i+1);
+      rdir->GetObject(histo ,meStripTEC_[i]);
+      sdir->GetObject(histo ,newmeStripTEC_[i]);
       meStripTEC_[i];
       newmeStripTEC_[i];
       Strip->cd(i+1); 
@@ -2399,9 +2407,9 @@ if (1) {
    TH1* newmeAdcTEC_[5];
 
    for (Int_t i=0; i<5; i++){
-      sprintf(histo,"DQMData/TrackerDigis/Strip/adc_tec_wheel7_ring%d_zm;1",i+1);
-      rfile->GetObject(histo ,meAdcTEC_[i]);
-      sfile->GetObject(histo ,newmeAdcTEC_[i]);
+      sprintf(histo,"adc_tec_wheel7_ring%d_zm;1",i+1);
+      rdir->GetObject(histo ,meAdcTEC_[i]);
+      sdir->GetObject(histo ,newmeAdcTEC_[i]);
       meAdcTEC_[i];
       newmeAdcTEC_[i];
       Strip->cd(i+1);
@@ -2429,9 +2437,9 @@ if (1) {
    TH1* newmeStripTEC_[5];
  
    for (Int_t i=0; i<5; i++){
-      sprintf(histo,"DQMData/TrackerDigis/Strip/strip_tec_wheel7_ring%d_zm;1",i+1);
-      rfile->GetObject(histo ,meStripTEC_[i]);
-      sfile->GetObject(histo ,newmeStripTEC_[i]);
+      sprintf(histo,"strip_tec_wheel7_ring%d_zm;1",i+1);
+      rdir->GetObject(histo ,meStripTEC_[i]);
+      sdir->GetObject(histo ,newmeStripTEC_[i]);
       meStripTEC_[i];
       newmeStripTEC_[i];
       Strip->cd(i+1); 
@@ -2461,9 +2469,9 @@ if (1) {
    TH1* newmeAdcTEC_[5];
 
    for (Int_t i=0; i<5; i++){
-      sprintf(histo,"DQMData/TrackerDigis/Strip/adc_tec_wheel8_ring%d_zm;1",i+1);
-      rfile->GetObject(histo ,meAdcTEC_[i]);
-      sfile->GetObject(histo ,newmeAdcTEC_[i]);
+      sprintf(histo,"adc_tec_wheel8_ring%d_zm;1",i+1);
+      rdir->GetObject(histo ,meAdcTEC_[i]);
+      sdir->GetObject(histo ,newmeAdcTEC_[i]);
       meAdcTEC_[i];
       newmeAdcTEC_[i];
       Strip->cd(i+1);
@@ -2491,9 +2499,9 @@ if (1) {
    TH1* newmeStripTEC_[5];
  
    for (Int_t i=0; i<5; i++){
-      sprintf(histo,"DQMData/TrackerDigis/Strip/strip_tec_wheel8_ring%d_zm;1",i+1);
-      rfile->GetObject(histo ,meStripTEC_[i]);
-      sfile->GetObject(histo ,newmeStripTEC_[i]);
+      sprintf(histo,"strip_tec_wheel8_ring%d_zm;1",i+1);
+      rdir->GetObject(histo ,meStripTEC_[i]);
+      sdir->GetObject(histo ,newmeStripTEC_[i]);
       meStripTEC_[i];
       newmeStripTEC_[i];
       Strip->cd(i+1); 
@@ -2523,9 +2531,9 @@ if (1) {
    TH1* newmeAdcTEC_[4];
 
    for (Int_t i=0; i<4; i++){
-      sprintf(histo,"DQMData/TrackerDigis/Strip/adc_tec_wheel9_ring%d_zm;1",i+1);
-      rfile->GetObject(histo ,meAdcTEC_[i]);
-      sfile->GetObject(histo ,newmeAdcTEC_[i]);
+      sprintf(histo,"adc_tec_wheel9_ring%d_zm;1",i+1);
+      rdir->GetObject(histo ,meAdcTEC_[i]);
+      sdir->GetObject(histo ,newmeAdcTEC_[i]);
       meAdcTEC_[i];
       newmeAdcTEC_[i];
       Strip->cd(i+1);
@@ -2553,9 +2561,9 @@ if (1) {
    TH1* newmeStripTEC_[4];
  
    for (Int_t i=0; i<4; i++){
-      sprintf(histo,"DQMData/TrackerDigis/Strip/strip_tec_wheel9_ring%d_zm;1",i+1);
-      rfile->GetObject(histo ,meStripTEC_[i]);
-      sfile->GetObject(histo ,newmeStripTEC_[i]);
+      sprintf(histo,"strip_tec_wheel9_ring%d_zm;1",i+1);
+      rdir->GetObject(histo ,meStripTEC_[i]);
+      sdir->GetObject(histo ,newmeStripTEC_[i]);
       meStripTEC_[i];
       newmeStripTEC_[i];
       Strip->cd(i+1); 
@@ -2585,9 +2593,9 @@ if (1) {
    TH1* newmeAdcTEC_[7];
 
    for (Int_t i=0; i<7; i++){
-      sprintf(histo,"DQMData/TrackerDigis/Strip/adc_tec_wheel1_ring%d_zp;1",i+1);
-      rfile->GetObject(histo ,meAdcTEC_[i]);
-      sfile->GetObject(histo ,newmeAdcTEC_[i]);
+      sprintf(histo,"adc_tec_wheel1_ring%d_zp;1",i+1);
+      rdir->GetObject(histo ,meAdcTEC_[i]);
+      sdir->GetObject(histo ,newmeAdcTEC_[i]);
       meAdcTEC_[i];
       newmeAdcTEC_[i];
       Strip->cd(i+1);
@@ -2615,9 +2623,9 @@ if (1) {
    TH1* newmeStripTEC_[7];
  
    for (Int_t i=0; i<7; i++){
-      sprintf(histo,"DQMData/TrackerDigis/Strip/strip_tec_wheel1_ring%d_zp;1",i+1);
-      rfile->GetObject(histo ,meStripTEC_[i]);
-      sfile->GetObject(histo ,newmeStripTEC_[i]);
+      sprintf(histo,"strip_tec_wheel1_ring%d_zp;1",i+1);
+      rdir->GetObject(histo ,meStripTEC_[i]);
+      sdir->GetObject(histo ,newmeStripTEC_[i]);
       meStripTEC_[i];
       newmeStripTEC_[i];
       Strip->cd(i+1); 
@@ -2646,9 +2654,9 @@ if (1) {
    TH1* newmeAdcTEC_[7];
 
    for (Int_t i=0; i<7; i++){
-      sprintf(histo,"DQMData/TrackerDigis/Strip/adc_tec_wheel2_ring%d_zp;1",i+1);
-      rfile->GetObject(histo ,meAdcTEC_[i]);
-      sfile->GetObject(histo ,newmeAdcTEC_[i]);
+      sprintf(histo,"adc_tec_wheel2_ring%d_zp;1",i+1);
+      rdir->GetObject(histo ,meAdcTEC_[i]);
+      sdir->GetObject(histo ,newmeAdcTEC_[i]);
       meAdcTEC_[i];
       newmeAdcTEC_[i];
       Strip->cd(i+1);
@@ -2676,9 +2684,9 @@ if (1) {
    TH1* newmeStripTEC_[7];
  
    for (Int_t i=0; i<7; i++){
-      sprintf(histo,"DQMData/TrackerDigis/Strip/strip_tec_wheel2_ring%d_zp;1",i+1);
-      rfile->GetObject(histo ,meStripTEC_[i]);
-      sfile->GetObject(histo ,newmeStripTEC_[i]);
+      sprintf(histo,"strip_tec_wheel2_ring%d_zp;1",i+1);
+      rdir->GetObject(histo ,meStripTEC_[i]);
+      sdir->GetObject(histo ,newmeStripTEC_[i]);
       meStripTEC_[i];
       newmeStripTEC_[i];
       Strip->cd(i+1); 
@@ -2708,9 +2716,9 @@ if (1) {
    TH1* newmeAdcTEC_[7];
 
    for (Int_t i=0; i<7; i++){
-      sprintf(histo,"DQMData/TrackerDigis/Strip/adc_tec_wheel3_ring%d_zp;1",i+1);
-      rfile->GetObject(histo ,meAdcTEC_[i]);
-      sfile->GetObject(histo ,newmeAdcTEC_[i]);
+      sprintf(histo,"adc_tec_wheel3_ring%d_zp;1",i+1);
+      rdir->GetObject(histo ,meAdcTEC_[i]);
+      sdir->GetObject(histo ,newmeAdcTEC_[i]);
       meAdcTEC_[i];
       newmeAdcTEC_[i];
       Strip->cd(i+1);
@@ -2738,9 +2746,9 @@ if (1) {
    TH1* newmeStripTEC_[7];
  
    for (Int_t i=0; i<7; i++){
-      sprintf(histo,"DQMData/TrackerDigis/Strip/strip_tec_wheel3_ring%d_zp;1",i+1);
-      rfile->GetObject(histo ,meStripTEC_[i]);
-      sfile->GetObject(histo ,newmeStripTEC_[i]);
+      sprintf(histo,"strip_tec_wheel3_ring%d_zp;1",i+1);
+      rdir->GetObject(histo ,meStripTEC_[i]);
+      sdir->GetObject(histo ,newmeStripTEC_[i]);
       meStripTEC_[i];
       newmeStripTEC_[i];
       Strip->cd(i+1); 
@@ -2770,9 +2778,9 @@ if (1) {
    TH1* newmeAdcTEC_[6];
 
    for (Int_t i=0; i<6; i++){
-      sprintf(histo,"DQMData/TrackerDigis/Strip/adc_tec_wheel4_ring%d_zp;1",i+1);
-      rfile->GetObject(histo ,meAdcTEC_[i]);
-      sfile->GetObject(histo ,newmeAdcTEC_[i]);
+      sprintf(histo,"adc_tec_wheel4_ring%d_zp;1",i+1);
+      rdir->GetObject(histo ,meAdcTEC_[i]);
+      sdir->GetObject(histo ,newmeAdcTEC_[i]);
       meAdcTEC_[i];
       newmeAdcTEC_[i];
       Strip->cd(i+1);
@@ -2800,9 +2808,9 @@ if (1) {
    TH1* newmeStripTEC_[6];
  
    for (Int_t i=0; i<6; i++){
-      sprintf(histo,"DQMData/TrackerDigis/Strip/strip_tec_wheel4_ring%d_zp;1",i+1);
-      rfile->GetObject(histo ,meStripTEC_[i]);
-      sfile->GetObject(histo ,newmeStripTEC_[i]);
+      sprintf(histo,"strip_tec_wheel4_ring%d_zp;1",i+1);
+      rdir->GetObject(histo ,meStripTEC_[i]);
+      sdir->GetObject(histo ,newmeStripTEC_[i]);
       meStripTEC_[i];
       newmeStripTEC_[i];
       Strip->cd(i+1); 
@@ -2832,9 +2840,9 @@ if (1) {
    TH1* newmeAdcTEC_[6];
 
    for (Int_t i=0; i<6; i++){
-      sprintf(histo,"DQMData/TrackerDigis/Strip/adc_tec_wheel5_ring%d_zp;1",i+1);
-      rfile->GetObject(histo ,meAdcTEC_[i]);
-      sfile->GetObject(histo ,newmeAdcTEC_[i]);
+      sprintf(histo,"adc_tec_wheel5_ring%d_zp;1",i+1);
+      rdir->GetObject(histo ,meAdcTEC_[i]);
+      sdir->GetObject(histo ,newmeAdcTEC_[i]);
       meAdcTEC_[i];
       newmeAdcTEC_[i];
       Strip->cd(i+1);
@@ -2862,9 +2870,9 @@ if (1) {
    TH1* newmeStripTEC_[6];
  
    for (Int_t i=0; i<6; i++){
-      sprintf(histo,"DQMData/TrackerDigis/Strip/strip_tec_wheel5_ring%d_zp;1",i+1);
-      rfile->GetObject(histo ,meStripTEC_[i]);
-      sfile->GetObject(histo ,newmeStripTEC_[i]);
+      sprintf(histo,"strip_tec_wheel5_ring%d_zp;1",i+1);
+      rdir->GetObject(histo ,meStripTEC_[i]);
+      sdir->GetObject(histo ,newmeStripTEC_[i]);
       meStripTEC_[i];
       newmeStripTEC_[i];
       Strip->cd(i+1); 
@@ -2894,9 +2902,9 @@ if (1) {
    TH1* newmeAdcTEC_[6];
 
    for (Int_t i=0; i<6; i++){
-      sprintf(histo,"DQMData/TrackerDigis/Strip/adc_tec_wheel6_ring%d_zp;1",i+1);
-      rfile->GetObject(histo ,meAdcTEC_[i]);
-      sfile->GetObject(histo ,newmeAdcTEC_[i]);
+      sprintf(histo,"adc_tec_wheel6_ring%d_zp;1",i+1);
+      rdir->GetObject(histo ,meAdcTEC_[i]);
+      sdir->GetObject(histo ,newmeAdcTEC_[i]);
       meAdcTEC_[i];
       newmeAdcTEC_[i];
       Strip->cd(i+1);
@@ -2924,9 +2932,9 @@ if (1) {
    TH1* newmeStripTEC_[6];
  
    for (Int_t i=0; i<6; i++){
-      sprintf(histo,"DQMData/TrackerDigis/Strip/strip_tec_wheel6_ring%d_zp;1",i+1);
-      rfile->GetObject(histo ,meStripTEC_[i]);
-      sfile->GetObject(histo ,newmeStripTEC_[i]);
+      sprintf(histo,"strip_tec_wheel6_ring%d_zp;1",i+1);
+      rdir->GetObject(histo ,meStripTEC_[i]);
+      sdir->GetObject(histo ,newmeStripTEC_[i]);
       meStripTEC_[i];
       newmeStripTEC_[i];
       Strip->cd(i+1); 
@@ -2956,9 +2964,9 @@ if (1) {
    TH1* newmeAdcTEC_[5];
 
    for (Int_t i=0; i<5; i++){
-      sprintf(histo,"DQMData/TrackerDigis/Strip/adc_tec_wheel7_ring%d_zp;1",i+1);
-      rfile->GetObject(histo ,meAdcTEC_[i]);
-      sfile->GetObject(histo ,newmeAdcTEC_[i]);
+      sprintf(histo,"adc_tec_wheel7_ring%d_zp;1",i+1);
+      rdir->GetObject(histo ,meAdcTEC_[i]);
+      sdir->GetObject(histo ,newmeAdcTEC_[i]);
       meAdcTEC_[i];
       newmeAdcTEC_[i];
       Strip->cd(i+1);
@@ -2986,9 +2994,9 @@ if (1) {
    TH1* newmeStripTEC_[5];
  
    for (Int_t i=0; i<5; i++){
-      sprintf(histo,"DQMData/TrackerDigis/Strip/strip_tec_wheel7_ring%d_zp;1",i+1);
-      rfile->GetObject(histo ,meStripTEC_[i]);
-      sfile->GetObject(histo ,newmeStripTEC_[i]);
+      sprintf(histo,"strip_tec_wheel7_ring%d_zp;1",i+1);
+      rdir->GetObject(histo ,meStripTEC_[i]);
+      sdir->GetObject(histo ,newmeStripTEC_[i]);
       meStripTEC_[i];
       newmeStripTEC_[i];
       Strip->cd(i+1); 
@@ -3017,9 +3025,9 @@ if (1) {
    TH1* newmeAdcTEC_[5];
 
    for (Int_t i=0; i<5; i++){
-      sprintf(histo,"DQMData/TrackerDigis/Strip/adc_tec_wheel8_ring%d_zp;1",i+1);
-      rfile->GetObject(histo ,meAdcTEC_[i]);
-      sfile->GetObject(histo ,newmeAdcTEC_[i]);
+      sprintf(histo,"adc_tec_wheel8_ring%d_zp;1",i+1);
+      rdir->GetObject(histo ,meAdcTEC_[i]);
+      sdir->GetObject(histo ,newmeAdcTEC_[i]);
       meAdcTEC_[i];
       newmeAdcTEC_[i];
       Strip->cd(i+1);
@@ -3047,9 +3055,9 @@ if (1) {
    TH1* newmeStripTEC_[5];
  
    for (Int_t i=0; i<5; i++){
-      sprintf(histo,"DQMData/TrackerDigis/Strip/strip_tec_wheel8_ring%d_zp;1",i+1);
-      rfile->GetObject(histo ,meStripTEC_[i]);
-      sfile->GetObject(histo ,newmeStripTEC_[i]);
+      sprintf(histo,"strip_tec_wheel8_ring%d_zp;1",i+1);
+      rdir->GetObject(histo ,meStripTEC_[i]);
+      sdir->GetObject(histo ,newmeStripTEC_[i]);
       meStripTEC_[i];
       newmeStripTEC_[i];
       Strip->cd(i+1); 
@@ -3079,9 +3087,9 @@ if (1) {
    TH1* newmeAdcTEC_[4];
 
    for (Int_t i=0; i<4; i++){
-      sprintf(histo,"DQMData/TrackerDigis/Strip/adc_tec_wheel9_ring%d_zp;1",i+1);
-      rfile->GetObject(histo ,meAdcTEC_[i]);
-      sfile->GetObject(histo ,newmeAdcTEC_[i]);
+      sprintf(histo,"adc_tec_wheel9_ring%d_zp;1",i+1);
+      rdir->GetObject(histo ,meAdcTEC_[i]);
+      sdir->GetObject(histo ,newmeAdcTEC_[i]);
       meAdcTEC_[i];
       newmeAdcTEC_[i];
       Strip->cd(i+1);
@@ -3109,9 +3117,9 @@ if (1) {
    TH1* newmeStripTEC_[4];
  
    for (Int_t i=0; i<4; i++){
-      sprintf(histo,"DQMData/TrackerDigis/Strip/strip_tec_wheel9_ring%d_zp;1",i+1);
-      rfile->GetObject(histo ,meStripTEC_[i]);
-      sfile->GetObject(histo ,newmeStripTEC_[i]);
+      sprintf(histo,"strip_tec_wheel9_ring%d_zp;1",i+1);
+      rdir->GetObject(histo ,meStripTEC_[i]);
+      sdir->GetObject(histo ,newmeStripTEC_[i]);
       meStripTEC_[i];
       newmeStripTEC_[i];
       Strip->cd(i+1); 
