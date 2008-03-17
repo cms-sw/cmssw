@@ -46,7 +46,13 @@ SiPixelCondObjOfflineBuilder::analyze(const edm::Event& iEvent, const edm::Event
    //
    // Instantiate Gain calibration offset and define pedestal/gain range
    //
-   SiPixelGainCalibration_ = new SiPixelGainCalibrationOffline(0., 50, 0., 10.);
+   // note: the hard-coded range values are also used in random generation. That is why they're defined here
+   
+   float minped=0.;
+   float maxped=50.;
+   float mingain=0.;
+   float maxgain=10.;
+   SiPixelGainCalibration_ = new SiPixelGainCalibrationOffline(minped,maxped,mingain,maxgain);
 
 
    edm::ESHandle<TrackerGeometry> pDD;
@@ -95,12 +101,19 @@ SiPixelCondObjOfflineBuilder::analyze(const edm::Event& iEvent, const edm::Event
 
 	   } 
 	   else{
-	     if(rmsPed_>0) 
+	     if(rmsPed_>0) {
 	       ped  = RandGauss::shoot( meanPed_  , rmsPed_  );
+	       while(ped<minped || ped>maxped)
+		 ped= RandGauss::shoot (meanPed_  , rmsPed_);
+	     }
 	     else
 	       ped = meanPed_;
-	     if(rmsGain_>0)
+	     if(rmsGain_>0){
 	       gain = RandGauss::shoot( meanGain_ , rmsGain_ );
+	       while(gain<mingain || gain>maxgain)
+		 gain = RandGauss::shoot( meanGain_ , rmsGain_ );
+		 
+	     }
 	     else
 	       gain = meanGain_;
 	   }
