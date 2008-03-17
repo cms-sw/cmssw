@@ -1,5 +1,5 @@
 //
-// $Id: PATPhotonProducer.h,v 1.2 2008/03/05 14:56:50 fronga Exp $
+// $Id: PATPhotonProducer.h,v 1.1 2008/03/06 09:23:11 llista Exp $
 //
 
 #ifndef PhysicsTools_PatAlgos_PATPhotonProducer_h
@@ -13,7 +13,7 @@
    a collection of objects of PhotonType.
 
   \author   Steven Lowette
-  \version  $Id: PATPhotonProducer.h,v 1.2 2008/03/05 14:56:50 fronga Exp $
+  \version  $Id: PATPhotonProducer.h,v 1.1 2008/03/06 09:23:11 llista Exp $
 */
 
 
@@ -25,6 +25,8 @@
 
 #include "DataFormats/PatCandidates/interface/Photon.h"
 
+
+#include "PhysicsTools/PatAlgos/interface/MultiIsolator.h"
 
 namespace pat {
 
@@ -47,6 +49,9 @@ namespace pat {
       edm::InputTag photonSrc_;
       // tools
       GreaterByEt<Photon> eTComparator_;
+
+      pat::helper::MultiIsolator isolator_; 
+      pat::helper::MultiIsolator::IsolationValuePairs isolatorTmpStorage_; // better here than recreate at each event
 
   };
 
