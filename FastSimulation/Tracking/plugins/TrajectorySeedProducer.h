@@ -61,7 +61,7 @@ class TrajectorySeedProducer : public edm::EDProducer
   std::vector<double> maxZ0;
   std::vector<unsigned> minRecHits;
   edm::InputTag hitProducer;
-
+  edm::InputTag theBeamSpot;
 
   bool seedCleaning;
   bool rejectOverlaps;

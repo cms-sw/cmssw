@@ -41,6 +41,9 @@
 TrajectorySeedProducer::TrajectorySeedProducer(const edm::ParameterSet& conf) 
 {  
 
+  // The input tag for the beam spot
+  theBeamSpot = conf.getParameter<edm::InputTag>("beamSpot");
+
   // The name of the TrajectorySeed Collections
   seedingAlgo = conf.getParameter<std::vector<std::string> >("seedingAlgo");
   for ( unsigned i=0; i<seedingAlgo.size(); ++i )
@@ -256,7 +259,7 @@ TrajectorySeedProducer::produce(edm::Event& e, const edm::EventSetup& es) {
   
   // Beam spot
   edm::Handle<reco::BeamSpot> recoBeamSpotHandle;
-  e.getByLabel("offlineBeamSpot",recoBeamSpotHandle); 
+  e.getByLabel(theBeamSpot,recoBeamSpotHandle); 
   math::XYZPoint BSPosition_ = recoBeamSpotHandle->position();
   double sigmaZ=recoBeamSpotHandle->sigmaZ();
   double sigmaZ0Error=recoBeamSpotHandle->sigmaZ0Error();

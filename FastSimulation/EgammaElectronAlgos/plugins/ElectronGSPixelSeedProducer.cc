@@ -52,7 +52,9 @@ ElectronGSPixelSeedProducer::ElectronGSPixelSeedProducer(const edm::ParameterSet
   if (algo=="FilteredSeed") 
     matcher_= new SubSeedGenerator(pset);
   else
-    matcher_ = new ElectronGSPixelSeedGenerator(pset,iConfig.getParameter<double>("pTMin"));
+    matcher_ = new ElectronGSPixelSeedGenerator(pset,
+						iConfig.getParameter<double>("pTMin"),
+						iConfig.getParameter<edm::InputTag>("beamSpot"));
 					      
  //  get labels from config'
   clusters_[0]=iConfig.getParameter<edm::InputTag>("superClusterBarrel");

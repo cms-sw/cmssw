@@ -53,7 +53,9 @@ public:
 
   enum mode{HLT, offline, unknown};  //to be used later
 
-  ElectronGSPixelSeedGenerator(const edm::ParameterSet &pset,double pTMin);
+  ElectronGSPixelSeedGenerator(const edm::ParameterSet &pset,
+			       double pTMin,
+			       const edm::InputTag& beamSpot);
 
   ~ElectronGSPixelSeedGenerator();
 
@@ -104,6 +106,7 @@ public:
   PropagatorWithMaterial * thePropagator;
 
   const edm::EventSetup *theSetup; 
+  const edm::InputTag theBeamSpot;
   TrajectoryStateTransform transformer_; 
   PRecHitContainer recHits_; 
   PTrajectoryStateOnDet* pts_; 

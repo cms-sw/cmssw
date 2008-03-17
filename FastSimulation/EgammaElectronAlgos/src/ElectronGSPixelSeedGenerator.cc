@@ -49,7 +49,8 @@
 
 ElectronGSPixelSeedGenerator::ElectronGSPixelSeedGenerator(
   const edm::ParameterSet &pset,
-  double pTMin)
+  double pTMin, 
+  const edm::InputTag& beamSpot)
   :   
   dynamicphiroad_(pset.getParameter<bool>("dynamicPhiRoad")),
   lowPtThreshold_(pset.getParameter<double>("LowPtThreshold")),
@@ -65,7 +66,7 @@ ElectronGSPixelSeedGenerator::ElectronGSPixelSeedGenerator(
   theUpdator(0), thePropagator(0), 
   //   theMeasurementTracker(0), 
   //   theNavigationSchool(0)
-  theSetup(0), pts_(0)
+  theSetup(0), theBeamSpot(beamSpot), pts_(0)
 {
   // Instantiate the pixel hit matcher
   searchInTIDTEC = pset.getParameter<bool>("searchInTIDTEC");
@@ -139,7 +140,7 @@ void  ElectronGSPixelSeedGenerator::run(
 
   // Get the beam spot
   edm::Handle<reco::BeamSpot> recoBeamSpotHandle;
-  e.getByLabel("offlineBeamSpot",recoBeamSpotHandle); 
+  e.getByLabel(theBeamSpot,recoBeamSpotHandle); 
 
   // Get its position
   BSPosition_ = recoBeamSpotHandle->position();
