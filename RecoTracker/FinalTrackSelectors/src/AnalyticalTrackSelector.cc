@@ -110,7 +110,7 @@ void AnalyticalTrackSelector::produce( edm::Event& evt, const edm::EventSetup& e
                     trk.innerPosition(), trk.innerMomentum(), trk.innerOk(),
                     trk.outerStateCovariance(), trk.outerDetId(),
                     trk.innerStateCovariance(), trk.innerDetId(),
-                    trk.seedDirection() ) );
+                    trk.seedDirection(), trk.seedRef() ) );
         selTracks_->back().setExtra( TrackExtraRef( rTrackExtras_, selTrackExtras_->size() - 1) );
         TrackExtra & tx = selTrackExtras_->back();
         // TrackingRecHits
