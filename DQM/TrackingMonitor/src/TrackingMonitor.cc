@@ -218,3 +218,4 @@ void TrackingMonitor::endJob(void) {
     dqmStore_->save(outputFileName);
   }
 }
+DEFINE_FWK_MODULE(TrackingMonitor);
