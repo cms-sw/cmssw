@@ -13,7 +13,7 @@
 //
 // Original Author:  Rizzi Andrea
 //         Created:  Mon Sep 24 09:30:06 CEST 2007
-// $Id: HSCPAnalyzer.cc,v 1.22 2008/01/31 14:28:27 arizzi Exp $
+// $Id: HSCPAnalyzer.cc,v 1.23 2008/01/31 16:03:13 arizzi Exp $
 //
 //
 
@@ -171,8 +171,6 @@ HSCPStandardPlots::HSCPStandardPlots(TFileDirectory  subDir)
   h_deltaBeta = subDir.make<TH1F>("delta_beta","Delta Beta", 200,-1,1);
   h_deltaBetaInv =  subDir.make<TH1F>("delta_betaInv","Delta BetaInv", 200,-3,3);
 
-
-
   h_tofBeta = subDir.make<TH1F>( "tof_beta"  , " tof beta  ",100,0,1);
   h_tofInvBeta = subDir.make<TH1F>( "tof_Invbeta"  , " tof beta  ",500,0,5);
   h_tofInvBetaErr = subDir.make<TH1F>( "tof_inv_beta_err"  , " tof beta err  ",100,0,1);
@@ -208,7 +206,6 @@ void HSCPStandardPlots::fill(const HSCParticle & hscp, double w)
   h_deltaBeta->Fill(1./hscp.dt.second.invBeta-1./sqrt(hscp.tk.invBeta2),w);
   h_deltaBetaInv->Fill(hscp.dt.second.invBeta-sqrt(hscp.tk.invBeta2),w);
 
-
   h_massVsMass->Fill(hscp.massDt(),hscp.massTk(),w);
   h_massVsBeta->Fill(avgMass,2./(sqrt(hscp.tk.invBeta2Fit)+hscp.dt.second.invBeta),w);
   h_massVsPtError->Fill(avgMass,log10(hscp.tk.track->ptError()),w);
@@ -221,7 +218,7 @@ void HSCPStandardPlots::fill(const HSCParticle & hscp, double w)
   h_tofBeta->Fill(1./hscp.dt.second.invBeta,w);
   h_tofInvBetaErr->Fill(hscp.dt.second.invBetaErr,w);
   h_tofInvBeta->Fill(hscp.dt.second.invBeta,w);
-if(hscp.dt.second.invBeta !=0 && hscp.dt.second.invBetaErr !=0 && hscp.dt.second.invBetaErr < 1000. )  h_tofBetaPull->Fill((hscp.dt.second.invBeta-1)/hscp.dt.second.invBetaErr,w);
+  if(hscp.dt.second.invBeta !=0 && hscp.dt.second.invBetaErr !=0 && hscp.dt.second.invBetaErr < 1000. )  h_tofBetaPull->Fill((hscp.dt.second.invBeta-1)/hscp.dt.second.invBetaErr,w);
 
 }
 
@@ -241,7 +238,6 @@ class HSCPAnalyzer : public edm::EDAnalyzer {
       bool m_haveSimTracks;
       bool m_useWeights;
        
-
       TH1F * h_pt;
 // RECO DEDX
       TH1F * h_dedxMassSel;
@@ -263,11 +259,21 @@ class HSCPAnalyzer : public edm::EDAnalyzer {
 	
 // RECO TOF
       TH2F * h_tofBetap;
+      TH2F * h_tofBetaPullp;
       TH2F * h_tofMassp;
       TH1F * h_tofMass;
       TH1F * h_tofMass2;
       TH1F * h_tofBeta;
+      TH1F * h_tofBetaErr;
+      TH1F * h_tofBetaPull;
+      TH1F * h_tofBetaPullCut;
+      TH2F * h_tofBetapCut;
+      TH1F * h_tofMassCut;
       TH1F * h_tofBetaCut;
+      TH2F * h_tofBetaPullpCut;
+      TH1F * h_tofPtSta;
+      TH1F * h_tofPtComb;
+
 //ANALYSIS
       TH1F * h_pSpectrumAfterSelection[6]; 
       TH1F * h_massAfterSelection[6];
@@ -435,9 +441,10 @@ Handle< double > genFilterEff;
    }
 
   for(int i=0;i<40;i++) if(cuts[i]) cuts[i]->newEvent(w);
-   tot+=w;
-   //Sel before cuts
-   selectedAfterCut[0]+=w;
+  tot+=w;
+  
+  //Sel before cuts
+  selectedAfterCut[0]+=w;
 
    Handle<reco::MuonCollection> pIn;
    iEvent.getByLabel("muons",pIn);
@@ -456,50 +463,55 @@ Handle< double > genFilterEff;
 
    int i=0;
    reco::MuonCollection::const_iterator muonIt = muons.begin();
-   for(; muonIt != muons.end() ; ++muonIt)
-    {
-      TrackRef tkMuon = muonIt->track();
-      TrackRef staMuon = muonIt->standAloneMuon();
-      TrackRef combMuon = muonIt->combinedMuon();
-      if(tkMuon.isNonnull())     tkMuons.push_back(tkMuon);
-      if(staMuon.isNonnull())    staMuons.push_back(staMuon);
-      if(combMuon.isNonnull())   combMuons.push_back(combMuon);
+   
+   for(; muonIt != muons.end() ; ++muonIt) {
+     TrackRef tkMuon = muonIt->track();
+     TrackRef staMuon = muonIt->standAloneMuon();
+     TrackRef combMuon = muonIt->combinedMuon();
+     if(tkMuon.isNonnull())     tkMuons.push_back(tkMuon);
+     if(staMuon.isNonnull())    staMuons.push_back(staMuon);
+     if(combMuon.isNonnull())   combMuons.push_back(combMuon);
 
-      double p=0;
-      if(tkMuon.isNonnull())
-        {
-           double pt=tkMuon->pt();
-           h_pt->Fill(tkMuon->pt(),w); 
-           if(combMuon.isNonnull()) pt=combMuon->pt();
-           if(pt>100) highptmu=true;
-            p= tkMuon->p();
-     	}
-     if(staMuon.isNonnull())        p= staMuon->p();
-     //FIXME: tobeused as default
-//     if(combMuon.isNonnull()) p=combMuon->p();
+     double p=0;
+     if(tkMuon.isNonnull()) {
+       double pt=tkMuon->pt();
+       h_pt->Fill(tkMuon->pt(),w); 
+       if(combMuon.isNonnull()) pt=combMuon->pt();
+       if(pt>100) highptmu=true;
+       p= tkMuon->p();
+     }
+     if(staMuon.isNonnull()) { 
+       p=staMuon->p();
+       h_tofPtSta->Fill(p,w);
+     }  
+     if(combMuon.isNonnull()) {
+       //FIXME: tobeused as default
+       //p=combMuon->p();
+       h_tofPtComb->Fill(combMuon->p(),w);
+     }  
 
-      double invbeta = betaReco[i].second.invBeta;
-      double mass = p*sqrt(invbeta*invbeta-1);
-      double mass2 = p*p*(invbeta*invbeta-1);
-           
-      cout << " Muon p: " << p << " invBeta: " << invbeta << " Mass: " << mass << endl;
-      h_tofBeta->Fill(1./invbeta , w);
+     double invbeta = betaReco[i].second.invBeta;
+     double invbetaerr = betaReco[i].second.invBetaErr;
+     double mass = p*sqrt(invbeta*invbeta-1);
+     double mass2 = p*p*(invbeta*invbeta-1);
+       
+     cout << " Muon p: " << p << " invBeta: " << invbeta << " Mass: " << mass << endl;
 
-      if( betaReco[i].second.invBetaErr < 0.07)  h_tofBetaCut->Fill(1./invbeta , w);
+     if( betaReco[i].second.invBetaErr < 0.07)  h_tofBetaCut->Fill(1./invbeta , w);
 
-      h_tofBeta->Fill(1./invbeta , w);
- 
-      h_tofBetap->Fill(p,invbeta,w);
-      h_tofMassp->Fill(p,mass,w);
-      h_tofMass->Fill(mass,w);
-      h_tofMass2->Fill(mass2,w);
-      tofMass.push_back(mass);
-      tofP.push_back(p);
-      tofValue.push_back(invbeta);
-      i++;
-
-    }
-
+     h_tofBeta->Fill(invbeta,w);
+     h_tofBetaErr->Fill(invbetaerr,w);
+     h_tofBetaPull->Fill((invbeta-1.)/invbetaerr,w);
+     h_tofBetaPullp->Fill(p,(invbeta-1.)/invbetaerr,w);
+     h_tofBetap->Fill(p,invbeta,w);
+     h_tofMassp->Fill(p,mass,w);
+     h_tofMass->Fill(mass,w);
+     h_tofMass2->Fill(mass2,w);
+     tofMass.push_back(mass);
+     tofP.push_back(p);
+     tofValue.push_back(invbeta);
+     i++;
+   }
 
    std::sort(tkMuons.begin()  , tkMuons.end()  ,PtSorter());
    std::sort(staMuons.begin() , staMuons.end() ,PtSorter());
@@ -631,7 +643,7 @@ if(find_if(tofMass.begin(), tofMass.end(), bind2nd(greater<float>(), 100.))!= to
 
 
 
-for(int i=0; i < candidates.size();i++)
+for(unsigned int i=0; i < candidates.size();i++)
 {
 //  if(nosel && dt080 && tk080 &&) cuts[7]->passed(candidates[i],w);
 //  if(nosel && dt080 && tk080 &&) cuts[8]->passed(candidates[i],w);
@@ -672,7 +684,7 @@ if(found && found2 && found3)   selectedAfterCut[7]+=w;
 
 
 
-for(int i=0; i < candidates.size();i++)
+for(unsigned int i=0; i < candidates.size();i++)
 {
   h_betaVsBeta->Fill(candidates[i].dt.second.invBeta,sqrt(candidates[i].tk.invBeta2),w);
 
@@ -898,13 +910,25 @@ HSCPAnalyzer::beginJob(const edm::EventSetup&)
   h_dedxMassMu =  subDir.make<TH1F>( "massMu"  , "Mass muons (dedx, 1 mu with pt>100 in the event)", 100,  0., 1500.);
   h_dedxMassMuVsPtError =  subDir.make<TH2F>( "massMu_vs_PtError"  , "Mass muons vs pt error (dedx, 1 mu with pt>100 in the event)", 100,  0., 1500.,50,0,1);
 //------------ RECO TOF ----------------
+
   TFileDirectory subDirTof = fs->mkdir( "RecoTOF" );
-  h_tofBetap =  subDirTof.make<TH2F>("tof_beta_p","1/#beta vs p",100,0,1500,100,minBeta,maxBeta );
-  h_tofMassp =  subDirTof.make<TH2F>("tof_mass_p","Mass vs p", 100,0,1500,100,0,1000);
+  h_tofBetap =  subDirTof.make<TH2F>("tof_beta_p","1/#beta vs p",100,0,1000,100,minBeta,maxBeta );
+  h_tofBetaPullp =  subDirTof.make<TH2F>("tof_beta_pull_p","1/#beta pull vs p",100,0,1000,100,-5.,5 );
+  h_tofMassp =  subDirTof.make<TH2F>("tof_mass_p","Mass vs p", 100,0,1000,100,0,1000);
   h_tofMass =  subDirTof.make<TH1F>("tof_mass","Mass from DT TOF",100,0,1000);
   h_tofMass2 =  subDirTof.make<TH1F>("tof_mass2","Mass squared from DT TOF",100,-10000,100000);
-  h_tofBeta = subDirTof.make<TH1F>( "tof_beta"  , " tof beta  ",100,0,1);
-  h_tofBetaCut = subDirTof.make<TH1F>( "tof_beta_cut"  , " tof beta cut  ",100,0,1);
+  h_tofBeta =  subDirTof.make<TH1F>("tof_beta","1/#beta",100,minBeta,maxBeta);
+  h_tofBetaErr =  subDirTof.make<TH1F>("tof_beta_err","#Delta 1/#beta",100,0,.5);
+  h_tofBetaPull = subDirTof.make<TH1F>("tof_beta_pull","(1/#beta-1)/(#Delta 1/#beta)",100,-5.,5.);
+  h_tofPtSta =  subDirTof.make<TH1F>("tof_pt_sta","StandAlone reconstructed muon p_{t}",100,0,300);
+  h_tofPtComb =  subDirTof.make<TH1F>("tof_pt_comb","Global reconstructed muon p_{t}",100,50,150);
+
+  h_tofMassCut =  subDirTof.make<TH1F>("tof_mass_cut","Mass from DT TOF (cut)",100,0,1000);
+  h_tofBetaCut =  subDirTof.make<TH1F>("tof_beta_cut","1/#beta (cut)",100,minBeta,maxBeta);
+  h_tofBetaPullCut = subDirTof.make<TH1F>("tof_beta_pull_cut","(1/#beta-1)/(#Delta 1/#beta)",100,-5.,5.);
+  h_tofBetapCut =  subDirTof.make<TH2F>("tof_beta_p_cut","1/#beta vs p (cut)",100,0,1000,100,minBeta,maxBeta );
+  h_tofBetaPullpCut =  subDirTof.make<TH2F>("tof_beta_pull_p_cut","1/#beta pull vs p (cut)",100,0,1000,100,-5.,5 );
+
 
 //-------- Analysis ----------------
  TFileDirectory subDirAn =  fs->mkdir( "Analysis" );
