@@ -1,4 +1,4 @@
-// Last commit: $Id: SiStripConfigDb.h,v 1.43 2008/03/03 21:41:41 bainbrid Exp $
+// Last commit: $Id: SiStripConfigDb.h,v 1.44 2008/03/06 17:42:45 delaer Exp $
 
 #ifndef OnlineDB_SiStripConfigDb_SiStripConfigDb_h
 #define OnlineDB_SiStripConfigDb_SiStripConfigDb_h
@@ -228,6 +228,8 @@ class SiStripConfigDb {
   friend class ApvTimingHistosUsingDb;
   friend class OptoScanHistosUsingDb;
   friend class PedestalsHistosUsingDb;
+  friend class PedsOnlyHistosUsingDb;
+  friend class NoiseHistosUsingDb;
   friend class VpspScanHistosUsingDb;
   friend class LatencyHistosUsingDb;
   friend class FineDelayHistosUsingDb;
