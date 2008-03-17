@@ -52,7 +52,7 @@ EgammaHLTHybridClusterProducer::EgammaHLTHybridClusterProducer(const edm::Parame
 
   basicclusterCollection_ = ps.getParameter<std::string>("basicclusterCollection");
   superclusterCollection_ = ps.getParameter<std::string>("superclusterCollection");
-  hitproducer_ = ps.getParameter<std::string>("ecalhitproducer");
+  hitproducer_ = ps.getParameter<edm::InputTag>("ecalhitproducer");
   hitcollection_ =ps.getParameter<std::string>("ecalhitcollection");
 
 
@@ -104,7 +104,7 @@ void EgammaHLTHybridClusterProducer::produce(edm::Event& evt, const edm::EventSe
   // get the hit collection from the event:
   edm::Handle<EcalRecHitCollection> rhcHandle;
   //  evt.getByType(rhcHandle);
-  evt.getByLabel(hitproducer_, hitcollection_, rhcHandle);
+  evt.getByLabel(hitproducer_.label(), hitcollection_, rhcHandle);
   if (!(rhcHandle.isValid())) 
     {
       if (debugL <= HybridClusterAlgo::pINFO)

@@ -42,8 +42,8 @@ class EgammaHLTIslandClusterProducer : public edm::EDProducer
       bool doEndcaps_;
       bool doIsolated_;
 
-      std::string barrelHitProducer_;
-      std::string endcapHitProducer_;
+      edm::InputTag barrelHitProducer_;
+      edm::InputTag endcapHitProducer_;
       std::string barrelHitCollection_;
       std::string endcapHitCollection_;
 

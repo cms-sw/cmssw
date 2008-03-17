@@ -53,8 +53,8 @@ EgammaHLTIslandClusterProducer::EgammaHLTIslandClusterProducer(const edm::Parame
   doIsolated_   = ps.getParameter<bool>("doIsolated");
 
   // Parameters to identify the hit collections
-  barrelHitProducer_   = ps.getParameter<std::string>("barrelHitProducer");
-  endcapHitProducer_   = ps.getParameter<std::string>("endcapHitProducer");
+  barrelHitProducer_   = ps.getParameter<edm::InputTag>("barrelHitProducer");
+  endcapHitProducer_   = ps.getParameter<edm::InputTag>("endcapHitProducer");
   barrelHitCollection_ = ps.getParameter<std::string>("barrelHitCollection");
   endcapHitCollection_ = ps.getParameter<std::string>("endcapHitCollection");
 
@@ -223,12 +223,12 @@ void EgammaHLTIslandClusterProducer::produce(edm::Event& evt, const edm::EventSe
       //&&endcapRegions.size()!=0
       ) {
 
-    clusterizeECALPart(evt, es, endcapHitProducer_, endcapHitCollection_, endcapClusterCollection_, endcapRegions, IslandClusterAlgo::endcap);
+    clusterizeECALPart(evt, es, endcapHitProducer_.label(), endcapHitCollection_, endcapClusterCollection_, endcapRegions, IslandClusterAlgo::endcap);
   }
   if (doBarrel_ 
       //&& barrelRegions.size()!=0
       ) {
-    clusterizeECALPart(evt, es, barrelHitProducer_, barrelHitCollection_, barrelClusterCollection_, barrelRegions, IslandClusterAlgo::barrel);
+    clusterizeECALPart(evt, es, barrelHitProducer_.label(), barrelHitCollection_, barrelClusterCollection_, barrelRegions, IslandClusterAlgo::barrel);
   }
   nEvt_++;
 }
