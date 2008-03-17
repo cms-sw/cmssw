@@ -36,7 +36,7 @@ void SeedValidator::beginJob( const EventSetup & setup) {
 
       dbe_->cd();
       InputTag algo = label[www];
-      string dirName="Seed/";
+      string dirName="RecoTrackV/Seed/";
       if (algo.process()!="")
 	dirName+=algo.process()+"_";
       if(algo.label()!="")
