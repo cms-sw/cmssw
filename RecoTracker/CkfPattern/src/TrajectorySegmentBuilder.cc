@@ -23,7 +23,7 @@
 
 using namespace std;
 
-TrajectorySegmentBuilder::TrajectoryContainer
+TrajectorySegmentBuilder::TempTrajectoryContainer
 TrajectorySegmentBuilder::segments (const TSOS startingState)
 {
   //
@@ -50,11 +50,11 @@ TrajectorySegmentBuilder::segments (const TSOS startingState)
   if ( theDbgFlg ) {
     int ntot(1);
     for (vector<TMG>::const_iterator ig=measGroups.begin();
-	 ig!=measGroups.end(); ig++) {
+	 ig!=measGroups.end(); ++ig) {
       int ngrp(0);
       const vector<TM>& measurements = ig->measurements();
       for ( vector<TM>::const_iterator im=measurements.begin();
-	    im!=measurements.end(); im++ ) {
+	    im!=measurements.end(); ++im ) {
 	if ( im->recHit()->isValid() )  ngrp++;
       }
       cout << " " << ngrp;
@@ -63,10 +63,10 @@ TrajectorySegmentBuilder::segments (const TSOS startingState)
     cout << endl;
     cout << "TrajectorySegmentBuilder::partialTrajectories:: det ids & hit types / group" << endl;
     for (vector<TMG>::const_iterator ig=measGroups.begin();
-	 ig!=measGroups.end(); ig++) {
+	 ig!=measGroups.end(); ++ig) {
       const vector<TM>& measurements = ig->measurements();
       for ( vector<TM>::const_iterator im=measurements.begin();
-	    im!=measurements.end(); im++ ) {
+	    im!=measurements.end(); ++im ) {
 	if ( im!=measurements.begin() )  cout << " / ";
 	if ( im->recHit()->det() )
 	  cout << im->recHit()->det()->geographicalId().rawId() << " "
@@ -97,7 +97,7 @@ TrajectorySegmentBuilder::segments (const TSOS startingState)
 //   }
 #endif
 
-  TrajectoryContainer candidates = 
+  TempTrajectoryContainer candidates = 
     addGroup(startingTrajectory,measGroups.begin(),measGroups.end());
 
   if (theDbgFlg) cout << "TSB: back with " << candidates.size() << " candidates" << endl;
@@ -140,7 +140,7 @@ void TrajectorySegmentBuilder::updateTrajectory (TempTrajectory& traj,
 }
 
 
-TrajectorySegmentBuilder::TrajectoryContainer
+TrajectorySegmentBuilder::TempTrajectoryContainer
 TrajectorySegmentBuilder::addGroup (TempTrajectory& traj,
 				    vector<TMG>::const_iterator begin,
 				    vector<TMG>::const_iterator end)
@@ -148,9 +148,9 @@ TrajectorySegmentBuilder::addGroup (TempTrajectory& traj,
   if ( begin==end ) {
     if (theDbgFlg) cout << "TSB::addGroup : no groups left" << endl;
     if ( traj.empty() )
-      return vector<Trajectory>();
+      return vector<TempTrajectory>();
     else
-      return vector<Trajectory>(1,traj.toTrajectory());
+      return vector<TempTrajectory>(1,traj);
   }
   
   if (theDbgFlg) cout << "TSB::addGroup : traj.size() = " << traj.measurements().size()
@@ -180,12 +180,12 @@ TrajectorySegmentBuilder::addGroup (TempTrajectory& traj,
 			<< updatedTrajectories.size() << " trajectories" << endl;
   }
 
-  vector<Trajectory> result;
+  vector<TempTrajectory> result;
   for ( TempTrajectoryContainer::iterator it=updatedTrajectories.begin();
-	it!=updatedTrajectories.end(); it++ ) {
+	it!=updatedTrajectories.end(); ++it ) {
     if (theDbgFlg) cout << "TSB::addGroup : trying to extend candidate at "
 			<< &(*it) << " size " << it->measurements().size() << endl;
-    vector<Trajectory> finalTrajectories = addGroup(*it,begin+1,end);
+    vector<TempTrajectory> finalTrajectories = addGroup(*it,begin+1,end);
     if (theDbgFlg) cout << "TSB::addGroup : " << finalTrajectories.size()
 			<< " finalised candidates before cleaning" << endl;
     //B.M. to be ported later
@@ -209,7 +209,7 @@ TrajectorySegmentBuilder::updateCandidates (TempTrajectory& traj,
   // generate updated candidates with all valid hits
   //
   for ( vector<TM>::const_iterator im=measurements.begin();
-	im!=measurements.end(); im++ ) {
+	im!=measurements.end(); ++im ) {
     if ( im->recHit()->isValid() ) {
       TempTrajectory newTraj(traj);
       updateTrajectory(newTraj,*im);
@@ -231,7 +231,7 @@ TrajectorySegmentBuilder::updateCandidatesWithBestHit (TempTrajectory& traj,
   vector<TM>::const_iterator ibest = measurements.end();
   bool bestIsValid = false;
   for ( vector<TM>::const_iterator im=measurements.begin();
-	im!=measurements.end(); im++ ) {
+	im!=measurements.end(); ++im ) {
     if ( im->recHit()->isValid() ) {
         if (!bestIsValid || (ibest==measurements.end()) || (im->estimate()<ibest->estimate()) )  {
             ibest = im;
@@ -310,7 +310,7 @@ TrajectorySegmentBuilder::redoMeasurements (const TempTrajectory& traj,
   //
   // set layer in TM, because the Det cannot do it
   //
-  for(vector<TM>::const_iterator tmpIt=tmpResult.begin();tmpIt!=tmpResult.end();tmpIt++){
+  for(vector<TM>::const_iterator tmpIt=tmpResult.begin();tmpIt!=tmpResult.end();++tmpIt){
     if ( tmpIt->recHit()->isValid() )
       result.push_back(  TrajectoryMeasurement(tmpIt->predictedState(),tmpIt->recHit(),tmpIt->estimate(),&theLayer)  );
   }
@@ -321,7 +321,7 @@ TrajectorySegmentBuilder::redoMeasurements (const TempTrajectory& traj,
 void 
 TrajectorySegmentBuilder::updateWithInvalidHit (TempTrajectory& traj,
 						const vector<TMG>& groups,
-						TrajectoryContainer& candidates) const
+						TempTrajectoryContainer& candidates) const
 {
   //
   // first try to find an inactive hit with dets crossed by the prediction,
@@ -329,11 +329,11 @@ TrajectorySegmentBuilder::updateWithInvalidHit (TempTrajectory& traj,
   //
   // loop over groups
   for ( int iteration=0; iteration<2; iteration++ ) {
-    for ( vector<TMG>::const_iterator ig=groups.begin(); ig!=groups.end(); ig++) {
+    for ( vector<TMG>::const_iterator ig=groups.begin(); ig!=groups.end(); ++ig) {
       // loop over measurements
       const vector<TM>& measurements = ig->measurements();
       for ( vector<TM>::const_reverse_iterator im=measurements.rbegin();
-	    im!=measurements.rend(); im++ ) {
+	    im!=measurements.rend(); ++im ) {
 	ConstRecHitPointer hit = im->recHit();
 	if ( hit->getType()==TrackingRecHit::valid ||
 	     hit->getType()==TrackingRecHit::missing )  continue;
@@ -347,9 +347,11 @@ TrajectorySegmentBuilder::updateWithInvalidHit (TempTrajectory& traj,
 	       (predState.isValid() &&
 		hit->det()->surface().bounds().inside(predState.localPosition())) ) {
 	    // add the hit
-	    TempTrajectory newTraj(traj);
+	    /*TempTrajectory newTraj(traj);
 	    updateTrajectory(newTraj,*im);
-	    candidates.push_back(newTraj.toTrajectory());
+	    candidates.push_back(newTraj);  // FIXME: avoid useless copy */
+            candidates.push_back(traj); 
+            updateTrajectory(candidates.back(), *im);
 	    if ( theDbgFlg ) cout << "TrajectorySegmentBuilder::updateWithInvalidHit "
 				  << "added inactive hit" << endl;
 	    return;
@@ -367,10 +369,10 @@ TrajectorySegmentBuilder::updateWithInvalidHit (TempTrajectory& traj,
     // loop over groups
     //
     for ( vector<TMG>::const_iterator ig=groups.begin();
-	  ig!=groups.end(); ig++) {
+	  ig!=groups.end(); ++ig) {
       const vector<TM>& measurements = ig->measurements();
       for ( vector<TM>::const_reverse_iterator im=measurements.rbegin();
-	    im!=measurements.rend(); im++ ) {
+	    im!=measurements.rend(); ++im ) {
 	//
 	// only use invalid hits
 	//
@@ -385,9 +387,11 @@ TrajectorySegmentBuilder::updateWithInvalidHit (TempTrajectory& traj,
 	  if ( iteration>0 || (predState.isValid() &&
 			       hit->det()->surface().bounds().inside(predState.localPosition())) ) {
 	    // add invalid hit
-	    TempTrajectory newTraj(traj);
+	    /*TempTrajectory newTraj(traj);
 	    updateTrajectory(newTraj,*im);
-	    candidates.push_back(newTraj.toTrajectory());
+	    candidates.push_back(newTraj);  // FIXME: avoid useless copy */
+            candidates.push_back(traj); 
+            updateTrajectory(candidates.back(), *im);
 	    found = true;
 	    break;
 	  }
@@ -396,9 +400,11 @@ TrajectorySegmentBuilder::updateWithInvalidHit (TempTrajectory& traj,
 	  if ( iteration>0 || (predState.isValid() &&
 			       im->layer()->surface().bounds().inside(predState.localPosition())) ){
 	    // add invalid hit
-	    TempTrajectory newTraj(traj);
+	    /*TempTrajectory newTraj(traj);
 	    updateTrajectory(newTraj,*im);
-	    candidates.push_back(newTraj.toTrajectory());
+	    candidates.push_back(newTraj);  // FIXME: avoid useless copy */
+            candidates.push_back(traj); 
+            updateTrajectory(candidates.back(), *im);
 	    found = true;
 	    break;	    
 	  }
@@ -428,13 +434,13 @@ TrajectorySegmentBuilder::unlockedMeasurements (const vector<TM>& measurements) 
   //RecHitEqualByChannels recHitEqual(false,true);
 
   for ( vector<TM>::const_iterator im=measurements.begin();
-	im!=measurements.end(); im++ ) {
+	im!=measurements.end(); ++im ) {
     ConstRecHitPointer testHit = im->recHit();
     if ( !testHit->isValid() )  continue;
     bool found(false);
     if ( theLockHits ) {
       for ( ConstRecHitContainer::const_iterator ih=theLockedHits.begin();
-	    ih!=theLockedHits.end(); ih++ ) {
+	    ih!=theLockedHits.end(); ++ih ) {
 	if ( (*ih)->hit()->sharesInput(testHit->hit(), TrackingRecHit::all) ) {
 	  found = true;
 	  break;
@@ -458,7 +464,7 @@ TrajectorySegmentBuilder::lockMeasurement (const TM& measurement)
 
 // ================= B.M. to be ported later ===============================
 void
-TrajectorySegmentBuilder::cleanCandidates (vector<Trajectory>& candidates) const
+TrajectorySegmentBuilder::cleanCandidates (vector<TempTrajectory>& candidates) const
 {
   //
   // remove candidates which are subsets of others
@@ -467,7 +473,7 @@ TrajectorySegmentBuilder::cleanCandidates (vector<Trajectory>& candidates) const
   if ( candidates.size()<=1 )  return;
   //RecHitEqualByChannels recHitEqual(false,true);
   //
-  vector<Trajectory> sortedCandidates(candidates);
+  vector<TempTrajectory> sortedCandidates(candidates);
   sort(sortedCandidates.begin(),sortedCandidates.end(),TrajectoryLessByFoundHits());
 //   cout << "SortedCandidates.foundHits";
 //   for ( vector<Trajectory>::iterator i1=sortedCandidates.begin();
@@ -475,34 +481,34 @@ TrajectorySegmentBuilder::cleanCandidates (vector<Trajectory>& candidates) const
 //     cout << " " << i1->foundHits();
 //   cout << endl;
   //
-  for ( vector<Trajectory>::iterator i1=sortedCandidates.begin();
-	i1!=sortedCandidates.end()-1; i1++ ) {
+  for ( vector<TempTrajectory>::iterator i1=sortedCandidates.begin();
+	i1!=sortedCandidates.end()-1; ++i1 ) {
     // get measurements of candidate to be checked
-    vector<TM> measurements1 = i1->measurements();
-    for ( vector<Trajectory>::iterator i2=i1+1;
-	  i2!=sortedCandidates.end(); i2++ ) {
+    const TempTrajectory::DataContainer & measurements1 = i1->measurements();
+    for ( vector<TempTrajectory>::iterator i2=i1+1;
+	  i2!=sortedCandidates.end(); ++i2 ) {
       // no duplicates: two candidates of same size are different
       if ( i2->foundHits()==i1->foundHits() )  continue;
       // get measurements of "reference"
-      vector<TM> measurements2 = i2->measurements();
+      const TempTrajectory::DataContainer & measurements2 = i2->measurements();
       //
       // use the fact that TMs are ordered:
       // start search in trajectory#1 from last hit match found
       //
       bool allFound(true);
-      vector<TM>::const_iterator from2 = measurements2.begin();
-      for ( vector<TM>::const_iterator im1=measurements1.begin();
-	    im1!=measurements1.end(); im1++ ) {
+      TempTrajectory::DataContainer::const_iterator from2 = measurements2.rbegin(), im2end = measurements2.rend();
+      for ( TempTrajectory::DataContainer::const_iterator im1=measurements1.rbegin(),im1end = measurements1.rend();
+	    im1!=im1end; --im1 ) {
 	// redundant protection - segments should not contain invalid RecHits
 	if ( !im1->recHit()->isValid() )  continue;
 	bool found(false);
-	for ( vector<TM>::const_iterator im2=from2;
-	      im2!=measurements2.end(); im2++ ) {
+	for ( TempTrajectory::DataContainer::const_iterator im2=from2;
+	      im2!=im2end; --im2 ) {
 	  // redundant protection - segments should not contain invalid RecHits
 	  if ( !im2->recHit()->isValid() )  continue;
 	  if ( im1->recHit()->hit()->sharesInput(im2->recHit()->hit(), TrackingRecHit::all) ) {
 	    found = true;
-	    from2 = im2 + 1;
+	    from2 = im2; --from2;
 	    break;
 	  }
 	}
@@ -522,7 +528,7 @@ TrajectorySegmentBuilder::cleanCandidates (vector<Trajectory>& candidates) const
   }
 */
   candidates.erase(std::remove_if( candidates.begin(),candidates.end(),
-                                   std::not1(std::mem_fun_ref(&Trajectory::isValid))),
+                                   std::not1(std::mem_fun_ref(&TempTrajectory::isValid))),
  //                                boost::bind(&TempTrajectory::isValid,_1)), 
                                    candidates.end()); 
 #ifdef DBG_TSB

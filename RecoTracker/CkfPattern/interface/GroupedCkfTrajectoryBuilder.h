@@ -97,34 +97,34 @@ private :
 			const TrajectoryFilter* regionalCondition,
 			const Propagator* propagator, 
 			TempTrajectoryContainer& newCand, 
-			TrajectoryContainer& result) const;
+			TempTrajectoryContainer& result) const;
 
   void groupedLimitedCandidates( TempTrajectory& startingTraj, 
 				 const TrajectoryFilter* regionalCondition,
 				 const Propagator* propagator, 
-				 TrajectoryContainer& result) const;
+				 TempTrajectoryContainer& result) const;
 
   /// try to find additional hits in seeding region
   void rebuildSeedingRegion (TempTrajectory& startingTraj,
-			     TrajectoryContainer& result) const ;
+			     TempTrajectoryContainer& result) const ;
 
    //** try to find additional hits in seeding region for a candidate
    //* (returns number of trajectories added) *
   int rebuildSeedingRegion (const std::vector<const TrackingRecHit*>& seedHits,
 			    TempTrajectory& candidate,
-			    TrajectoryContainer& result) const ;
+			    TempTrajectoryContainer& result) const ;
 
   // ** Backward fit of trajectory candidate except seed. Fit result and
   // *  remaining hits are returned in fittedTracks and remainingHits.
   // *  FittedTracks is empty if no fit was done. *
-  void backwardFit (Trajectory& candidate, unsigned int nSeed,
+  void backwardFit (TempTrajectory& candidate, unsigned int nSeed,
 		    const TrajectoryFitter& fitter,
 		    TempTrajectoryContainer& fittedTracks,
 		    std::vector<const TrackingRecHit*>& remainingHits) const;
 
   /// Verifies presence of a RecHits in a range of TrajectoryMeasurements.
-  bool verifyHits (std::vector<TM>::const_iterator tmBegin,
-		   std::vector<TM>::const_iterator tmEnd,
+  bool verifyHits (TempTrajectory::DataContainer::const_iterator rbegin,
+		   size_t maxDepth,
 		   const std::vector<const TrackingRecHit*>& hits) const;
 
   /// intermediate cleaning in the case of grouped measurements

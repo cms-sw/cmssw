@@ -64,7 +64,7 @@ public:
 
   /// new segments within layer
   //std::vector<Trajectory> segments (const TSOS startingState);
-  TrajectoryContainer segments (const TSOS startingState);
+  TempTrajectoryContainer segments (const TSOS startingState);
 
 private:
   /// update of a trajectory with a hit
@@ -90,17 +90,17 @@ private:
 
   /// clean a set of candidates
   //B.M to be ported later
-  void cleanCandidates (std::vector<Trajectory>& candidates) const;
+  void cleanCandidates (std::vector<TempTrajectory>& candidates) const;
 
 // public:
 
-  std::vector<Trajectory> addGroup( TempTrajectory& traj,
+  std::vector<TempTrajectory> addGroup( TempTrajectory& traj,
 			       std::vector<TrajectoryMeasurementGroup>::const_iterator begin,
 			       std::vector<TrajectoryMeasurementGroup>::const_iterator end);
     
   void updateWithInvalidHit (TempTrajectory& traj,
 			     const std::vector<TMG>& groups,
-			     TrajectoryContainer& candidates) const;
+			     TempTrajectoryContainer& candidates) const;
   
 private:
   const MeasurementTracker*     theMeasurementTracker;

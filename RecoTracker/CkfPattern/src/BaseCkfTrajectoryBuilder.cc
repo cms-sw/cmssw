@@ -137,6 +137,18 @@ BaseCkfTrajectoryBuilder::addToResult (TempTrajectory& tmptraj,
   while (!traj.empty() && !traj.lastMeasurement().recHit()->isValid()) traj.pop();
   result.push_back( traj);
 }
+void 
+BaseCkfTrajectoryBuilder::addToResult (TempTrajectory& tmptraj, 
+				       TempTrajectoryContainer& result) const
+{
+  // quality check
+  if ( !qualityFilter(tmptraj) )  return;
+  // discard latest dummy measurements
+  TempTrajectory traj = tmptraj;
+  while (!traj.empty() && !traj.lastMeasurement().recHit()->isValid()) traj.pop();
+  result.push_back( traj );
+}
+
 
 
 BaseCkfTrajectoryBuilder::StateAndLayers

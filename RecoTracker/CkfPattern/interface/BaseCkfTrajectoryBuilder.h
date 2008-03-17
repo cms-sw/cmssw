@@ -99,6 +99,7 @@ public:
   bool qualityFilter( const TempTrajectory& traj) const;
   
   void addToResult( TempTrajectory& traj, TrajectoryContainer& result) const;    
+  void addToResult( TempTrajectory& traj, TempTrajectoryContainer& result) const;    
  
   StateAndLayers findStateAndLayers(const TempTrajectory& traj) const;
 
