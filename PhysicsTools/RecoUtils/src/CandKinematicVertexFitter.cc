@@ -2,8 +2,8 @@
 #include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
 #include "DataFormats/Candidate/interface/VertexCompositeCandidate.h"
 #include "FWCore/Utilities/interface/EDMException.h"
-#include <iostream>
 #include <sstream>
+#include <iostream>
 using namespace reco;
 using namespace std;
 
@@ -30,19 +30,11 @@ void CandKinematicVertexFitter::set(VertexCompositeCandidate & c) const {
   vector<RecoCandidate::TrackType> trackTypes;
   fill(particles, daughters, trackTypes, c);
   assert(particles.size() == daughters.size());
-  cout << ">>> fitting candidate with " << c.numberOfDaughters() << " daughters" << endl;
-  cout << ">>> particles: " << particles.size() <<endl;
-  for(size_t i = 0; i != particles.size(); ++i) {
-    cout << i << ") " << particles[i]->initialState().globalMomentum() ;
-  }
   if(fit(particles)) {
-    cout << ">>> tree is consistent? " << tree_->isConsistent() << endl;
     tree_->movePointerToTheTop();
     RefCountedKinematicVertex vertex = tree_->currentDecayVertex();
-    cout << ">>> vertex valid: " << vertex->vertexIsValid() << endl;
     if(vertex->vertexIsValid()) {
       Candidate::Point vtx(vertex->position());
-      cout << ">>> vertex position: " << vtx << endl;
       c.setVertex(vtx);
       vector<RefCountedKinematicParticle> treeParticles = tree_->daughterParticles();
       vector<RefCountedKinematicParticle>::const_iterator particleIt = treeParticles.begin();
@@ -54,7 +46,7 @@ void CandKinematicVertexFitter::set(VertexCompositeCandidate & c) const {
 	double px = p3.x(), py = p3.y(), pz = p3.z(), p = p3.mag();
 	double energy;
 	Candidate & daughter = * * daughterIt;
-	daughter.setVertex(vtx);
+	if(!daughter.longLived()) daughter.setVertex(vtx);
 	double scale;
 	switch(*trackTypeIt) {
 	case RecoCandidate::gsfTrackType :
@@ -91,7 +83,6 @@ void CandKinematicVertexFitter::fill(vector<RefCountedKinematicParticle> & parti
 				     vector<RecoCandidate::TrackType> & trackTypes,
 				     Candidate & c) const {
   size_t nDau = c.numberOfDaughters();
-  cout << ">>> filling info for candidate with " << nDau << " daughters" << endl;
   for(unsigned int j = 0; j < nDau ; ++j) {
     Candidate * d = c.daughter(j);
     if(d == 0) {
@@ -108,7 +99,6 @@ void CandKinematicVertexFitter::fill(vector<RefCountedKinematicParticle> & parti
     if(d->numberOfDaughters() > 0) {
       VertexCompositeCandidate * vtxDau = dynamic_cast<VertexCompositeCandidate*>(d);
       if(vtxDau!=0 && vtxDau->longLived()) {
-	cout << ">>> daughter is a vtx composite " << endl;
 	fitters_->push_back(CandKinematicVertexFitter(*this));
 	CandKinematicVertexFitter & fitter = fitters_->back();
 	fitter.set(*vtxDau);
@@ -120,20 +110,16 @@ void CandKinematicVertexFitter::fill(vector<RefCountedKinematicParticle> & parti
 	fill(particles, daughters, trackTypes, *d);
     }
     else {
-      cout << ">>> daughter is a leaf" << endl;
       const Track * trk = d->get<const Track *>();
       RecoCandidate::TrackType type = d->get<RecoCandidate::TrackType>();
       if(trk != 0) {
-	cout << ">>> got a track" << endl;
 	TransientTrack trTrk(*trk, bField_);
 	float chi2 = 0, ndof = 0;
 	ParticleMass mass = d->mass();
-	cout << ">>> particle mass: " << mass<< endl;
 	float sigma = mass *1.e-6;
 	particles.push_back(factory_.particle(trTrk, mass, chi2, ndof, sigma));
 	daughters.push_back(d);
 	trackTypes.push_back(type);
-	cout << ">>> track type: " << type<< endl;
       } else {
 	cerr << ">>> warning: candidate of type " << d->pdgId() 
 	     << " has no track reference." << endl;
