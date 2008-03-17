@@ -1,4 +1,4 @@
-#include "DQM/SiStripCommissioningSources/interface/PedestalsTask.h"
+#include "DQM/SiStripCommissioningSources/interface/NoiseTask.h"
 #include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
 #include "DataFormats/SiStripCommon/interface/SiStripHistoTitle.h"
 #include "DQMServices/Core/interface/DQMStore.h"
@@ -12,29 +12,29 @@ using namespace sistrip;
 
 // -----------------------------------------------------------------------------
 //
-PedestalsTask::PedestalsTask( DQMStore* dqm,
-				    const FedChannelConnection& conn ) :
-  CommissioningTask( dqm, conn, "PedestalsTask" ),
+NoiseTask::NoiseTask( DQMStore* dqm,
+		      const FedChannelConnection& conn ) :
+  CommissioningTask( dqm, conn, "NoiseTask" ),
   peds_(),
   cm_()
 {
   LogTrace(mlDqmSource_)
-    << "[PedestalsTask::" << __func__ << "]"
+    << "[NoiseTask::" << __func__ << "]"
     << " Constructing object...";
 }
 
 // -----------------------------------------------------------------------------
 //
-PedestalsTask::~PedestalsTask() {
+NoiseTask::~NoiseTask() {
   LogTrace(mlDqmSource_)
-    << "[PedestalsTask::" << __func__ << "]"
+    << "[NoiseTask::" << __func__ << "]"
     << " Destructing object...";
 }
 
 // -----------------------------------------------------------------------------
 //
-void PedestalsTask::book() {
-  LogTrace(mlDqmSource_) << "[PedestalsTask::" << __func__ << "]";
+void NoiseTask::book() {
+  LogTrace(mlDqmSource_) << "[NoiseTask::" << __func__ << "]";
   
   uint16_t nbins;
   std::string title;
@@ -47,7 +47,7 @@ void PedestalsTask::book() {
   peds_[0].isProfile_ = true;
   
   title = SiStripHistoTitle( sistrip::EXPERT_HISTO, 
-			     sistrip::PEDESTALS, 
+			     sistrip::NOISE, 
 			     sistrip::FED_KEY, 
 			     fedKey(),
 			     sistrip::LLD_CHAN, 
@@ -67,7 +67,7 @@ void PedestalsTask::book() {
   peds_[1].isProfile_ = true;
   
   title = SiStripHistoTitle( sistrip::EXPERT_HISTO, 
-			     sistrip::PEDESTALS, 
+			     sistrip::NOISE, 
 			     sistrip::FED_KEY, 
 			     fedKey(),
 			     sistrip::LLD_CHAN, 
@@ -88,7 +88,7 @@ void PedestalsTask::book() {
   for ( uint16_t iapv = 0; iapv < 2; iapv++ ) { 
     
     title = SiStripHistoTitle( sistrip::EXPERT_HISTO, 
-			       sistrip::PEDESTALS, 
+			       sistrip::NOISE, 
 			       sistrip::FED_KEY, 
 			       fedKey(),
 			       sistrip::APV, 
@@ -107,12 +107,12 @@ void PedestalsTask::book() {
 
 // -----------------------------------------------------------------------------
 //
-void PedestalsTask::fill( const SiStripEventSummary& summary,
-			     const edm::DetSet<SiStripRawDigi>& digis ) {
+void NoiseTask::fill( const SiStripEventSummary& summary,
+		      const edm::DetSet<SiStripRawDigi>& digis ) {
   
   if ( digis.data.size() != peds_[0].vNumOfEntries_.size() ) {
     edm::LogWarning(mlDqmSource_)
-      << "[PedestalsTask::" << __func__ << "]"
+      << "[NoiseTask::" << __func__ << "]"
       << " Unexpected number of digis: " 
       << digis.data.size(); 
     return;
@@ -122,7 +122,14 @@ void PedestalsTask::fill( const SiStripEventSummary& summary,
   uint16_t nbins = peds_[0].vNumOfEntries_.size();
   if ( digis.data.size() < nbins ) { nbins = digis.data.size(); }
 
-  //@@ Inefficient!!!
+  // NEED TO RETRIEVE PEDS FROM DB HERE!!!
+  // NEED TO RETRIEVE PEDS FROM DB HERE!!!
+  // NEED TO RETRIEVE PEDS FROM DB HERE!!!
+
+  //@@ NOISE (AND PEDS?) AND CM ALGORITHMS HERE!!!
+  //@@ NOISE (AND PEDS?) AND CM ALGORITHMS HERE!!!
+  //@@ NOISE (AND PEDS?) AND CM ALGORITHMS HERE!!!
+
   uint16_t napvs = nbins / 128;
   std::vector<uint16_t> cm; cm.resize(napvs,0);
   
@@ -141,13 +148,15 @@ void PedestalsTask::fill( const SiStripEventSummary& summary,
   }
   
   for ( uint16_t ibin = 0; ibin < nbins; ibin++ ) {
-    updateHistoSet( peds_[0], ibin, digis.data[ibin].adc() ); // peds and raw noise
-    updateHistoSet( peds_[1], ibin, (digis.data[ibin].adc()-cm[ibin/128]) ); // residuals and real noise
+    // pedestals
+    updateHistoSet( peds_[0], ibin, digis.data[ibin].adc() ); 
+    // noise (QUICK FIX HERE!)
+    updateHistoSet( peds_[1], ibin, (digis.data[ibin].adc()-cm[ibin/128]) ); //@@ spread is extracted in update() method below! 
   }
   
   if ( cm.size() < cm_.size() ) {
     edm::LogWarning(mlDqmSource_)
-      << "[PedestalsTask::" << __func__ << "]"
+      << "[NoiseTask::" << __func__ << "]"
       << " Fewer CM values than expected: " << cm.size();
   }
   
@@ -158,12 +167,12 @@ void PedestalsTask::fill( const SiStripEventSummary& summary,
 
 // -----------------------------------------------------------------------------
 //
-void PedestalsTask::update() {
+void NoiseTask::update() {
   
-  // Pedestals 
+  // Pedestals and raw noise histogram
   updateHistoSet( peds_[0] );
   
-  // Noise (cannot use HistoSet directly, as want to plot noise as "contents", not "error")
+  // Noise histogram
   TProfile* histo = ExtractTObject<TProfile>().extract( peds_[1].histo_ );
   for ( uint16_t ii = 0; ii < peds_[1].vNumOfEntries_.size(); ++ii ) {
     float entries =  peds_[1].vNumOfEntries_[ii];
@@ -175,7 +184,7 @@ void PedestalsTask::update() {
     }
   }
   
-  // Common mode
+  // Common mode histograms 
   updateHistoSet( cm_[0] );
   updateHistoSet( cm_[1] );
   

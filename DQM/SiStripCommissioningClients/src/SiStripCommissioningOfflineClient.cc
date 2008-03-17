@@ -1,4 +1,4 @@
-// Last commit: $Id: SiStripCommissioningOfflineClient.cc,v 1.34 2008/03/06 18:16:06 delaer Exp $
+// Last commit: $Id: SiStripCommissioningOfflineClient.cc,v 1.35 2008/03/08 17:23:42 delaer Exp $
 
 #include "DQM/SiStripCommissioningClients/interface/SiStripCommissioningOfflineClient.h"
 #include "DataFormats/SiStripCommon/interface/SiStripEnumsAndStrings.h"
@@ -11,6 +11,8 @@
 #include "DQM/SiStripCommissioningClients/interface/OptoScanHistograms.h"
 #include "DQM/SiStripCommissioningClients/interface/VpspScanHistograms.h"
 #include "DQM/SiStripCommissioningClients/interface/PedestalsHistograms.h"
+#include "DQM/SiStripCommissioningClients/interface/PedsOnlyHistograms.h"
+#include "DQM/SiStripCommissioningClients/interface/NoiseHistograms.h"
 #include "DQM/SiStripCommissioningClients/interface/SamplingHistograms.h"
 #include "DQM/SiStripCommissioningClients/interface/CalibrationHistograms.h"
 #include "DQMServices/Core/interface/DQMStore.h"
@@ -421,6 +423,8 @@ void SiStripCommissioningOfflineClient::createHistos( const edm::ParameterSet& p
   else if ( runType_ == sistrip::OPTO_SCAN )            { histos_ = new OptoScanHistograms(    mui_ ); }
   else if ( runType_ == sistrip::VPSP_SCAN )            { histos_ = new VpspScanHistograms(    mui_ ); }
   else if ( runType_ == sistrip::PEDESTALS )            { histos_ = new PedestalsHistograms(   mui_ ); }
+  else if ( runType_ == sistrip::PEDS_ONLY )            { histos_ = new PedsOnlyHistograms(   mui_ ); }
+  else if ( runType_ == sistrip::NOISE )                { histos_ = new NoiseHistograms(   mui_ ); }
   else if ( runType_ == sistrip::APV_LATENCY      ||
             runType_ == sistrip::FINE_DELAY           ) { histos_ = new SamplingHistograms(    mui_,runType_ ); }
   else if ( runType_ == sistrip::CALIBRATION      ||

@@ -99,19 +99,19 @@ void OptoScanAnalysis::extract( const std::vector<TH1*>& histos ) {
 
     // Extract gain setting and digital high/low info
     uint16_t gain = sistrip::invalid_; 
-    if ( title.extraInfo().find(sistrip::gain_) != std::string::npos ) {
+    if ( title.extraInfo().find(sistrip::extrainfo::gain_) != std::string::npos ) {
       std::stringstream ss;
-      ss << title.extraInfo().substr( title.extraInfo().find(sistrip::gain_) + sistrip::gain_.size(), 1 );
+      ss << title.extraInfo().substr( title.extraInfo().find(sistrip::extrainfo::gain_) + sistrip::extrainfo::gain_.size(), 1 );
       ss >> std::dec >> gain;
     }
     uint16_t digital = sistrip::invalid_; 
-    if ( title.extraInfo().find(sistrip::digital_) != std::string::npos ) {
+    if ( title.extraInfo().find(sistrip::extrainfo::digital_) != std::string::npos ) {
       std::stringstream ss;
-      ss << title.extraInfo().substr( title.extraInfo().find(sistrip::digital_) + sistrip::digital_.size(), 1 );
+      ss << title.extraInfo().substr( title.extraInfo().find(sistrip::extrainfo::digital_) + sistrip::extrainfo::digital_.size(), 1 );
       ss >> std::dec >> digital;
     }
     bool baseline_rms = false;
-    if ( title.extraInfo().find(sistrip::baselineRms_) != std::string::npos ) {
+    if ( title.extraInfo().find(sistrip::extrainfo::baselineRms_) != std::string::npos ) {
       baseline_rms = true;
     }
     
@@ -423,9 +423,9 @@ void OptoScanAnalysis::summary( std::stringstream& ss ) const {
   sistrip::RunType type = SiStripEnumsAndStrings::runType( myName() );
 
   std::stringstream extra1,extra2,extra3; 
-  extra1 << sistrip::gain_ << gain() << sistrip::digital_ << "0";
-  extra2 << sistrip::gain_ << gain() << sistrip::digital_ << "1";
-  extra3 << sistrip::gain_ << gain() << sistrip::baselineRms_;
+  extra1 << sistrip::extrainfo::gain_ << gain() << sistrip::extrainfo::digital_ << "0";
+  extra2 << sistrip::extrainfo::gain_ << gain() << sistrip::extrainfo::digital_ << "1";
+  extra3 << sistrip::extrainfo::gain_ << gain() << sistrip::extrainfo::baselineRms_;
   
   std::string title1 = SiStripHistoTitle( sistrip::EXPERT_HISTO, 
 					  type,

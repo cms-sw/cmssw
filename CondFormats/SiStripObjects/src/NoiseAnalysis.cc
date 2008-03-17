@@ -1,4 +1,4 @@
-#include "CondFormats/SiStripObjects/interface/PedestalsAnalysis.h"
+#include "CondFormats/SiStripObjects/interface/NoiseAnalysis.h"
 #include "DataFormats/SiStripCommon/interface/SiStripHistoTitle.h"
 #include "DataFormats/SiStripCommon/interface/SiStripEnumsAndStrings.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -12,8 +12,8 @@ using namespace sistrip;
 
 // ----------------------------------------------------------------------------
 // 
-PedestalsAnalysis::PedestalsAnalysis( const uint32_t& key ) 
-  : CommissioningAnalysis(key,"PedestalsAnalysis"),
+NoiseAnalysis::NoiseAnalysis( const uint32_t& key ) 
+  : CommissioningAnalysis(key,"NoiseAnalysis"),
     peds_(2,VFloat(128,sistrip::invalid_)), 
     noise_(2,VFloat(128,sistrip::invalid_)), 
     raw_(2,VFloat(128,sistrip::invalid_)), 
@@ -41,8 +41,8 @@ PedestalsAnalysis::PedestalsAnalysis( const uint32_t& key )
 
 // ----------------------------------------------------------------------------
 // 
-PedestalsAnalysis::PedestalsAnalysis() 
-  : CommissioningAnalysis("PedestalsAnalysis"),
+NoiseAnalysis::NoiseAnalysis() 
+  : CommissioningAnalysis("NoiseAnalysis"),
     peds_(2,VFloat(128,sistrip::invalid_)), 
     noise_(2,VFloat(128,sistrip::invalid_)), 
     raw_(2,VFloat(128,sistrip::invalid_)), 
@@ -70,7 +70,7 @@ PedestalsAnalysis::PedestalsAnalysis()
 
 // ----------------------------------------------------------------------------
 // 
-void PedestalsAnalysis::reset() {
+void NoiseAnalysis::reset() {
   peds_        = VVFloat(2,VFloat(128,sistrip::invalid_)); 
   noise_       = VVFloat(2,VFloat(128,sistrip::invalid_)); 
   raw_         = VVFloat(2,VFloat(128,sistrip::invalid_));
@@ -99,7 +99,7 @@ void PedestalsAnalysis::reset() {
 
 // ----------------------------------------------------------------------------
 // 
-void PedestalsAnalysis::extract( const std::vector<TH1*>& histos ) { 
+void NoiseAnalysis::extract( const std::vector<TH1*>& histos ) { 
 
   // Check number of histograms
   if ( histos.size() != 2 ) {
@@ -118,7 +118,7 @@ void PedestalsAnalysis::extract( const std::vector<TH1*>& histos ) {
     
     // Check run type
     SiStripHistoTitle title( (*ihis)->GetName() );
-    if ( title.runType() != sistrip::PEDESTALS ) {
+    if ( title.runType() != sistrip::NOISE ) {
       addErrorCode(sistrip::unexpectedTask_);
       continue;
     }
@@ -150,7 +150,7 @@ void PedestalsAnalysis::extract( const std::vector<TH1*>& histos ) {
 
 // -----------------------------------------------------------------------------
 // 
-void PedestalsAnalysis::analyse() {
+void NoiseAnalysis::analyse() {
 
   if ( !hPeds_.first ) {
     addErrorCode(sistrip::nullPtr_);
@@ -281,13 +281,13 @@ void PedestalsAnalysis::analyse() {
 
 // ----------------------------------------------------------------------------
 // 
-void PedestalsAnalysis::summary( std::stringstream& ss ) const { 
+void NoiseAnalysis::summary( std::stringstream& ss ) const { 
 
   SiStripFecKey fec_key( fecKey() );
   SiStripFedKey fed_key( fedKey() );
   
   sistrip::RunType type = SiStripEnumsAndStrings::runType( myName() );
-
+  
   std::stringstream extra1,extra2,extra3;
   if ( legacy_ ) {
     extra1 << sistrip::extrainfo::pedsAndRawNoise_; 
@@ -355,7 +355,7 @@ void PedestalsAnalysis::summary( std::stringstream& ss ) const {
 
 // ----------------------------------------------------------------------------
 // 
-bool PedestalsAnalysis::isValid() const {
+bool NoiseAnalysis::isValid() const {
   return ( pedsMean_[0] < sistrip::maximum_ &&
 	   pedsMean_[1] < sistrip::maximum_ &&
 	   pedsSpread_[0] < sistrip::maximum_ &&
@@ -387,7 +387,7 @@ bool PedestalsAnalysis::isValid() const {
 
 // ----------------------------------------------------------------------------
 // 
-void PedestalsAnalysis::print( std::stringstream& ss, uint32_t iapv ) { 
+void NoiseAnalysis::print( std::stringstream& ss, uint32_t iapv ) { 
 
   if ( iapv == 1 || iapv == 2 ) { iapv--; }
   else { iapv = 0; }

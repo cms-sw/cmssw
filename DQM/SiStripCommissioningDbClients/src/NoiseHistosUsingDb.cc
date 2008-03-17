@@ -1,7 +1,7 @@
-// Last commit: $Id: PedestalsHistosUsingDb.cc,v 1.14 2008/03/06 13:30:53 delaer Exp $
+// Last commit: $Id: NoiseHistosUsingDb.cc,v 1.14 2008/03/06 13:30:53 delaer Exp $
 
-#include "DQM/SiStripCommissioningDbClients/interface/PedestalsHistosUsingDb.h"
-#include "CondFormats/SiStripObjects/interface/PedestalsAnalysis.h"
+#include "DQM/SiStripCommissioningDbClients/interface/NoiseHistosUsingDb.h"
+#include "CondFormats/SiStripObjects/interface/NoiseAnalysis.h"
 #include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
 #include "DataFormats/SiStripCommon/interface/SiStripFecKey.h"
 #include "DataFormats/SiStripCommon/interface/SiStripFedKey.h"
@@ -11,58 +11,58 @@ using namespace sistrip;
 
 // -----------------------------------------------------------------------------
 /** */
-PedestalsHistosUsingDb::PedestalsHistosUsingDb( DQMOldReceiver* mui,
-						      const DbParams& params )
+NoiseHistosUsingDb::NoiseHistosUsingDb( DQMOldReceiver* mui,
+					const DbParams& params )
   : CommissioningHistosUsingDb( params ),
-    PedestalsHistograms( mui )
+    NoiseHistograms( mui )
 {
   LogTrace(mlDqmClient_) 
-    << "[PedestalsHistosUsingDb::" << __func__ << "]"
+    << "[NoiseHistosUsingDb::" << __func__ << "]"
     << " Constructing object...";
 }
 
 // -----------------------------------------------------------------------------
 /** */
-PedestalsHistosUsingDb::PedestalsHistosUsingDb( DQMOldReceiver* mui,
-						      SiStripConfigDb* const db )
+NoiseHistosUsingDb::NoiseHistosUsingDb( DQMOldReceiver* mui,
+					SiStripConfigDb* const db )
   : CommissioningHistograms( mui, sistrip::PEDESTALS ),
     CommissioningHistosUsingDb( db, mui, sistrip::PEDESTALS ),
-    PedestalsHistograms( mui )
+    NoiseHistograms( mui )
 {
   LogTrace(mlDqmClient_) 
-    << "[PedestalsHistosUsingDb::" << __func__ << "]"
+    << "[NoiseHistosUsingDb::" << __func__ << "]"
     << " Constructing object...";
 }
 
 // -----------------------------------------------------------------------------
 /** */
-PedestalsHistosUsingDb::PedestalsHistosUsingDb( DQMStore* bei,
-						      SiStripConfigDb* const db ) 
+NoiseHistosUsingDb::NoiseHistosUsingDb( DQMStore* bei,
+					SiStripConfigDb* const db ) 
   : CommissioningHistosUsingDb( db, sistrip::PEDESTALS ),
-    PedestalsHistograms( bei )
+    NoiseHistograms( bei )
 {
   LogTrace(mlDqmClient_) 
-    << "[PedestalsHistosUsingDb::" << __func__ << "]"
+    << "[NoiseHistosUsingDb::" << __func__ << "]"
     << " Constructing object...";
 }
 
 // -----------------------------------------------------------------------------
 /** */
-PedestalsHistosUsingDb::~PedestalsHistosUsingDb() {
+NoiseHistosUsingDb::~NoiseHistosUsingDb() {
   LogTrace(mlDqmClient_) 
-    << "[PedestalsHistosUsingDb::" << __func__ << "]"
+    << "[NoiseHistosUsingDb::" << __func__ << "]"
     << " Destructing object...";
 }
 
 // -----------------------------------------------------------------------------
 /** */
-void PedestalsHistosUsingDb::uploadConfigurations() {
+void NoiseHistosUsingDb::uploadConfigurations() {
   LogTrace(mlDqmClient_) 
-    << "[PedestalsHistosUsingDb::" << __func__ << "]";
+    << "[NoiseHistosUsingDb::" << __func__ << "]";
 
   if ( !db() ) {
     edm::LogError(mlDqmClient_) 
-      << "[PedestalsHistosUsingDb::" << __func__ << "]"
+      << "[NoiseHistosUsingDb::" << __func__ << "]"
       << " NULL pointer to SiStripConfigDb interface!"
       << " Aborting upload...";
     return;
@@ -73,16 +73,16 @@ void PedestalsHistosUsingDb::uploadConfigurations() {
   update( const_cast<SiStripConfigDb::FedDescriptions&>(feds) );
   if ( doUploadConf() ) { 
     edm::LogVerbatim(mlDqmClient_) 
-      << "[PedestalsHistosUsingDb::" << __func__ << "]"
+      << "[NoiseHistosUsingDb::" << __func__ << "]"
       << " Uploading pedestals/noise to DB...";
     db()->uploadFedDescriptions(true); // always major version 
     edm::LogVerbatim(mlDqmClient_) 
-      << "[PedestalsHistosUsingDb::" << __func__ << "]"
+      << "[NoiseHistosUsingDb::" << __func__ << "]"
       << " Completed database upload of " << feds.size() 
       << " FED descriptions!";
   } else {
     edm::LogWarning(mlDqmClient_) 
-      << "[PedestalsHistosUsingDb::" << __func__ << "]"
+      << "[NoiseHistosUsingDb::" << __func__ << "]"
       << " TEST only! No pedestals/noise values will be uploaded to DB...";
   }
   
@@ -90,7 +90,7 @@ void PedestalsHistosUsingDb::uploadConfigurations() {
 
 // -----------------------------------------------------------------------------
 /** */
-void PedestalsHistosUsingDb::update( SiStripConfigDb::FedDescriptions& feds ) {
+void NoiseHistosUsingDb::update( SiStripConfigDb::FedDescriptions& feds ) {
  
   // Iterate through feds and update fed descriptions
   uint16_t updated = 0;
@@ -124,10 +124,10 @@ void PedestalsHistosUsingDb::update( SiStripConfigDb::FedDescriptions& feds ) {
 	// Check if analysis is valid
 	if ( !iter->second->isValid() ) { continue; }
 	
-	PedestalsAnalysis* anal = dynamic_cast<PedestalsAnalysis*>( iter->second );
+	NoiseAnalysis* anal = dynamic_cast<NoiseAnalysis*>( iter->second );
 	if ( !anal ) { 
 	  edm::LogError(mlDqmClient_)
-	    << "[PedestalsHistosUsingDb::" << __func__ << "]"
+	    << "[NoiseHistosUsingDb::" << __func__ << "]"
 	    << " NULL pointer to analysis object!";
 	  continue; 
 	}
@@ -153,7 +153,7 @@ void PedestalsHistosUsingDb::update( SiStripConfigDb::FedDescriptions& feds ) {
       
       } else {
 	edm::LogWarning(mlDqmClient_) 
-	  << "[PedestalsHistosUsingDb::" << __func__ << "]"
+	  << "[NoiseHistosUsingDb::" << __func__ << "]"
 	  << " Unable to find pedestals/noise for FedKey/Id/Ch: " 
 	  << hex << setw(8) << setfill('0') << fed_key.key() << dec << "/"
 	  << (*ifed)->getFedId() << "/"
@@ -170,7 +170,7 @@ void PedestalsHistosUsingDb::update( SiStripConfigDb::FedDescriptions& feds ) {
   }
 
   edm::LogVerbatim(mlDqmClient_) 
-    << "[PedestalsHistosUsingDb::" << __func__ << "]"
+    << "[NoiseHistosUsingDb::" << __func__ << "]"
     << " Updated FED pedestals/noise for " 
     << updated << " channels";
 
@@ -178,12 +178,12 @@ void PedestalsHistosUsingDb::update( SiStripConfigDb::FedDescriptions& feds ) {
 
 // -----------------------------------------------------------------------------
 /** */
-void PedestalsHistosUsingDb::create( SiStripConfigDb::AnalysisDescriptions& desc,
-					Analysis analysis ) {
+void NoiseHistosUsingDb::create( SiStripConfigDb::AnalysisDescriptions& desc,
+				 Analysis analysis ) {
 
 #ifdef USING_NEW_DATABASE_MODEL
 
-  PedestalsAnalysis* anal = dynamic_cast<PedestalsAnalysis*>( analysis->second );
+  NoiseAnalysis* anal = dynamic_cast<NoiseAnalysis*>( analysis->second );
   if ( !anal ) { return; }
   
   SiStripFecKey fec_key( anal->fecKey() );

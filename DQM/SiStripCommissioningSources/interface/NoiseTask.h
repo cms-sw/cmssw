@@ -1,18 +1,18 @@
-#ifndef DQM_SiStripCommissioningSources_PedsAndNoiseTask_h
-#define DQM_SiStripCommissioningSources_PedestalsTask_h
+#ifndef DQM_SiStripCommissioningSources_NoiseTask_h
+#define DQM_SiStripCommissioningSources_NoiseTask_h
 
 #include "DQM/SiStripCommissioningSources/interface/CommissioningTask.h"
 #include <vector>
 
 /**
-   @class PedestalsTask
+   @class NoiseTask
 */
-class PedestalsTask : public CommissioningTask {
+class NoiseTask : public CommissioningTask {
 
  public:
   
-  PedestalsTask( DQMStore*, const FedChannelConnection& );
-  virtual ~PedestalsTask();
+  NoiseTask( DQMStore*, const FedChannelConnection& );
+  virtual ~NoiseTask();
   
  private:
   
@@ -26,5 +26,5 @@ class PedestalsTask : public CommissioningTask {
   
 };
 
-#endif // DQM_SiStripCommissioningSources_PedestalsTask_h
+#endif // DQM_SiStripCommissioningSources_NoiseTask_h
 

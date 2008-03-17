@@ -15,6 +15,8 @@
 #include "DQM/SiStripCommissioningSources/interface/OptoScanTask.h"
 #include "DQM/SiStripCommissioningSources/interface/VpspScanTask.h"
 #include "DQM/SiStripCommissioningSources/interface/PedestalsTask.h"
+#include "DQM/SiStripCommissioningSources/interface/PedsOnlyTask.h"
+#include "DQM/SiStripCommissioningSources/interface/NoiseTask.h"
 #include "DQM/SiStripCommissioningSources/interface/DaqScopeModeTask.h"
 #include "DQM/SiStripCommissioningSources/interface/LatencyTask.h"
 #include "DQM/SiStripCommissioningSources/interface/FineDelayTask.h"
@@ -315,7 +317,9 @@ void SiStripCommissioningSource::analyze( const edm::Event& event,
               task_ == sistrip::CALIBRATION_DECO ||
               task_ == sistrip::CALIBRATION_SCAN ||
               task_ == sistrip::CALIBRATION_SCAN_DECO ||
-	      task_ == sistrip::PEDESTALS ) {
+	      task_ == sistrip::PEDESTALS ||
+	      task_ == sistrip::PEDS_ONLY ||
+	      task_ == sistrip::NOISE ) {
     event.getByLabel( inputModuleLabel_, "VirginRaw", raw );
   } else if ( task_ == sistrip::APV_LATENCY ||
 	      task_ == sistrip::FINE_DELAY ) {
@@ -656,8 +660,15 @@ void SiStripCommissioningSource::createTask( const SiStripEventSummary* const su
   task_ = sistrip::UNDEFINED_RUN_TYPE;
   
   // Retrieve commissioning task from EventSummary
-  if ( summary ) { task_ = summary->runType(); } 
-  else { 
+  if ( summary ) { 
+    task_ = summary->runType(); 
+    std::stringstream ss;
+    ss << "[SiStripCommissioningSource::" << __func__ << "]"
+       << " Identified CommissioningTask from EventSummary to be \"" 
+       << SiStripEnumsAndStrings::runType( task_ )
+       << "\"";
+    LogTrace(mlDqmSource_) << ss.str();
+  } else { 
     task_ = sistrip::UNKNOWN_RUN_TYPE; 
     std::stringstream ss;
     ss << "[SiStripCommissioningSource::" << __func__ << "]"
@@ -669,7 +680,17 @@ void SiStripCommissioningSource::createTask( const SiStripEventSummary* const su
   // Override task with ParameterSet configurable (if defined)
   sistrip::RunType configurable = SiStripEnumsAndStrings::runType( taskConfigurable_ );
   if ( configurable != sistrip::UNDEFINED_RUN_TYPE &&
-       configurable != sistrip::UNKNOWN_RUN_TYPE ) { task_ = configurable; }
+       configurable != sistrip::UNKNOWN_RUN_TYPE ) { 
+    std::stringstream ss;
+    ss << "[SiStripCommissioningSource::" << __func__ << "]"
+       << " Overriding CommissioningTask from EventSummary (\"" 
+       << SiStripEnumsAndStrings::runType( task_ )
+       << "\") with value retrieved from .cfg file (\""
+       << SiStripEnumsAndStrings::runType( configurable )
+       << "\")!";
+    LogTrace(mlDqmSource_) << ss.str();
+    task_ = configurable; 
+  }
   
   // Create ME (std::string) that identifies commissioning task
   dqm()->setCurrentFolder( base_ + sistrip::root_ );
@@ -692,8 +713,9 @@ void SiStripCommissioningSource::createTask( const SiStripEventSummary* const su
   } else {
     std::stringstream ss;
     ss << "[SiStripCommissioningSource::" << __func__ << "]"
-       << " Identified CommissioningTask from EventSummary to be: " 
-       << SiStripEnumsAndStrings::runType( task_ );
+       << " Identified CommissioningTask to be \"" 
+       << SiStripEnumsAndStrings::runType( task_ )
+       << "\"";
     LogTrace(mlDqmSource_) << ss.str();
   }
   
@@ -899,6 +921,8 @@ void SiStripCommissioningSource::createTasks( sistrip::RunType run_type, const e
 	else if ( task_ == sistrip::OPTO_SCAN ) { tasks_[iconn->fedId()][iconn->fedCh()] = new OptoScanTask( dqm(), *iconn ); }
 	else if ( task_ == sistrip::VPSP_SCAN ) { tasks_[iconn->fedId()][iconn->fedCh()] = new VpspScanTask( dqm(), *iconn ); }
 	else if ( task_ == sistrip::PEDESTALS ) { tasks_[iconn->fedId()][iconn->fedCh()] = new PedestalsTask( dqm(), *iconn ); }
+	else if ( task_ == sistrip::PEDS_ONLY ) { tasks_[iconn->fedId()][iconn->fedCh()] = new PedsOnlyTask( dqm(), *iconn ); }
+	else if ( task_ == sistrip::NOISE ) { tasks_[iconn->fedId()][iconn->fedCh()] = new NoiseTask( dqm(), *iconn ); }
 	else if ( task_ == sistrip::DAQ_SCOPE_MODE ) { tasks_[iconn->fedId()][iconn->fedCh()] = new DaqScopeModeTask( dqm(), *iconn ); }
         else if ( task_ == sistrip::APV_LATENCY ) { tasks_[iconn->fedId()][iconn->fedCh()] = new LatencyTask( dqm(), *iconn ); }
         else if ( task_ == sistrip::FINE_DELAY ) { tasks_[iconn->fedId()][iconn->fedCh()] = new FineDelayTask( dqm(), *iconn ); }

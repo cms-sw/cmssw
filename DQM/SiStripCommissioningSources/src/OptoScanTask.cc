@@ -42,11 +42,11 @@ void OptoScanTask::book() {
       
       // Extra info
       std::stringstream extra_info; 
-      extra_info << sistrip::gain_ << igain;
+      extra_info << sistrip::extrainfo::gain_ << igain;
       if ( ihisto == 0 || ihisto == 1 ) {
-	extra_info << sistrip::digital_ << ihisto;
+	extra_info << sistrip::extrainfo::digital_ << ihisto;
       } else {
-	extra_info << sistrip::baselineRms_;
+	extra_info << sistrip::extrainfo::baselineRms_;
       }
 
       // Title

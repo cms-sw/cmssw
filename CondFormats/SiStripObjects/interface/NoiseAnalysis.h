@@ -1,5 +1,5 @@
-#ifndef CondFormats_SiStripObjects_PedestalsAnalysis_H
-#define CondFormats_SiStripObjects_PedestalsAnalysis_H
+#ifndef CondFormats_SiStripObjects_NoiseAnalysis_H
+#define CondFormats_SiStripObjects_NoiseAnalysis_H
 
 #include "CondFormats/SiStripObjects/interface/CommissioningAnalysis.h"
 #include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
@@ -10,21 +10,21 @@
 class TH1;
 
 /** 
-    @class PedestalsAnalysis
+    @class NoiseAnalysis
     @author M. Wingham, R.Bainbridge
     @brief Histogram-based analysis for pedestal run.
 */
-class PedestalsAnalysis : public CommissioningAnalysis {
+class NoiseAnalysis : public CommissioningAnalysis {
   
  public:
 
   // ---------- con(de)structors ----------
 
-  PedestalsAnalysis( const uint32_t& key );
+  NoiseAnalysis( const uint32_t& key );
 
-  PedestalsAnalysis();
+  NoiseAnalysis();
 
-  virtual ~PedestalsAnalysis() {;}
+  virtual ~NoiseAnalysis() {;}
 
   // ---------- public interface ----------
 
@@ -154,28 +154,28 @@ class PedestalsAnalysis : public CommissioningAnalysis {
 
 // ---------- Inline methods ----------
 
-const PedestalsAnalysis::VVFloat& PedestalsAnalysis::peds() const { return peds_; }
-const PedestalsAnalysis::VVFloat& PedestalsAnalysis::noise() const { return noise_; }
-const PedestalsAnalysis::VVFloat& PedestalsAnalysis::raw() const { return raw_; }
+const NoiseAnalysis::VVFloat& NoiseAnalysis::peds() const { return peds_; }
+const NoiseAnalysis::VVFloat& NoiseAnalysis::noise() const { return noise_; }
+const NoiseAnalysis::VVFloat& NoiseAnalysis::raw() const { return raw_; }
 
-const PedestalsAnalysis::VVInt& PedestalsAnalysis::dead() const { return dead_; } 
-const PedestalsAnalysis::VVInt& PedestalsAnalysis::noisy() const { return noisy_; }
+const NoiseAnalysis::VVInt& NoiseAnalysis::dead() const { return dead_; } 
+const NoiseAnalysis::VVInt& NoiseAnalysis::noisy() const { return noisy_; }
 
-const PedestalsAnalysis::VFloat& PedestalsAnalysis::pedsMean() const { return pedsMean_; }
-const PedestalsAnalysis::VFloat& PedestalsAnalysis::pedsSpread() const { return pedsSpread_; }
-const PedestalsAnalysis::VFloat& PedestalsAnalysis::noiseMean() const { return noiseMean_; }
-const PedestalsAnalysis::VFloat& PedestalsAnalysis::noiseSpread() const { return noiseSpread_; }
-const PedestalsAnalysis::VFloat& PedestalsAnalysis::rawMean() const { return rawMean_; }
-const PedestalsAnalysis::VFloat& PedestalsAnalysis::rawSpread() const { return rawSpread_; }
+const NoiseAnalysis::VFloat& NoiseAnalysis::pedsMean() const { return pedsMean_; }
+const NoiseAnalysis::VFloat& NoiseAnalysis::pedsSpread() const { return pedsSpread_; }
+const NoiseAnalysis::VFloat& NoiseAnalysis::noiseMean() const { return noiseMean_; }
+const NoiseAnalysis::VFloat& NoiseAnalysis::noiseSpread() const { return noiseSpread_; }
+const NoiseAnalysis::VFloat& NoiseAnalysis::rawMean() const { return rawMean_; }
+const NoiseAnalysis::VFloat& NoiseAnalysis::rawSpread() const { return rawSpread_; }
 
-const PedestalsAnalysis::VFloat& PedestalsAnalysis::pedsMax() const { return pedsMax_; }
-const PedestalsAnalysis::VFloat& PedestalsAnalysis::pedsMin() const { return pedsMin_; } 
-const PedestalsAnalysis::VFloat& PedestalsAnalysis::noiseMax() const { return noiseMax_; }
-const PedestalsAnalysis::VFloat& PedestalsAnalysis::noiseMin() const { return noiseMin_; }
-const PedestalsAnalysis::VFloat& PedestalsAnalysis::rawMax() const { return rawMax_; }
-const PedestalsAnalysis::VFloat& PedestalsAnalysis::rawMin() const { return rawMin_; }
+const NoiseAnalysis::VFloat& NoiseAnalysis::pedsMax() const { return pedsMax_; }
+const NoiseAnalysis::VFloat& NoiseAnalysis::pedsMin() const { return pedsMin_; } 
+const NoiseAnalysis::VFloat& NoiseAnalysis::noiseMax() const { return noiseMax_; }
+const NoiseAnalysis::VFloat& NoiseAnalysis::noiseMin() const { return noiseMin_; }
+const NoiseAnalysis::VFloat& NoiseAnalysis::rawMax() const { return rawMax_; }
+const NoiseAnalysis::VFloat& NoiseAnalysis::rawMin() const { return rawMin_; }
 
-const PedestalsAnalysis::Histo& PedestalsAnalysis::hPeds() const { return hPeds_; }
-const PedestalsAnalysis::Histo& PedestalsAnalysis::hNoise() const { return hNoise_; }
+const NoiseAnalysis::Histo& NoiseAnalysis::hPeds() const { return hPeds_; }
+const NoiseAnalysis::Histo& NoiseAnalysis::hNoise() const { return hNoise_; }
 
-#endif // CondFormats_SiStripObjects_PedestalsAnalysis_H
+#endif // CondFormats_SiStripObjects_NoiseAnalysis_H
