@@ -11,11 +11,19 @@ void TrackingTruthCompare()
   delete gROOT->GetListOfFiles()->FindObject(sfilename); 
   
   TText* te = new TText();
-  TFile * rfile = new TFile(rfilename);
-  TFile * sfile = new TFile(sfilename);
-  
-  rfile->cd("DQMData/TrackingMCTruth/TrackingParticle");
-  sfile->cd("DQMData/TrackingMCTruth/TrackingParticle");
+ TFile * rfile = new TFile(rfilename);
+ TDirectory * rdir=gDirectory; 
+ TFile * sfile = new TFile(sfilename);
+ TDirectory * sdir=gDirectory; 
+
+ if(rfile->cd("DQMData/TrackingMCTruthV"))rfile->cd("DQMData/TrackingMCTruthV/TrackingMCTruth/TrackingParticle");
+ else rfile->cd("DQMData/TrackingMCTruth/TrackingParticle");
+ rdir=gDirectory;
+ 
+ if(sfile->cd("DQMData/TrackingMCTruthV"))sfile->cd("DQMData/TrackingMCTruthV/TrackingMCTruth/TrackingParticle");
+ else sfile->cd("DQMData/TrackingMCTruth/TrackingParticle");
+ sdir=gDirectory; 
+
   TLegend leg(0.3, 0.83, 0.55, 0.90);
   //Get list of Keys from the Reference file.
   TList* ref_list = rfile->GetListOfKeys() ;
@@ -92,9 +100,9 @@ void TrackingTruthCompare()
     TH1* newmeTPhits;
     TH1* newmeTPmhits;
     
-    sprintf(histo,"DQMData/TrackingMCTruth/TrackingParticle/TPMass");
-    rfile->GetObject( histo,meTPmass);
-    sfile->GetObject(histo,newmeTPmass);
+    sprintf(histo,"TPMass");
+    rdir->GetObject( histo,meTPmass);
+    sdir->GetObject(histo,newmeTPmass);
     meTPmass;
     newmeTPmass;
     TrackingParticleGV->cd(1);
@@ -109,9 +117,9 @@ void TrackingTruthCompare()
     leg.AddEntry(newmeTPmass,cver , "l");
     leg.Draw();
 
-    sprintf(histo,"DQMData/TrackingMCTruth/TrackingParticle/TPCharge");
-    rfile->GetObject( histo,meTPcharge);
-    sfile->GetObject(histo,newmeTPcharge);
+    sprintf(histo,"TPCharge");
+    rdir->GetObject( histo,meTPcharge);
+    sdir->GetObject(histo,newmeTPcharge);
     meTPcharge;
     newmeTPcharge;
     TrackingParticleGV->cd(2);
@@ -126,9 +134,9 @@ void TrackingTruthCompare()
     leg.AddEntry(newmeTPcharge,cver , "l");
     leg.Draw();
     
-    sprintf(histo,"DQMData/TrackingMCTruth/TrackingParticle/TPId");
-    rfile->GetObject( histo,meTPid);
-    sfile->GetObject(histo,newmeTPid);
+    sprintf(histo,"TPId");
+    rdir->GetObject( histo,meTPid);
+    sdir->GetObject(histo,newmeTPid);
     meTPid;
     newmeTPid;
     TrackingParticleGV->cd(3);
@@ -144,9 +152,9 @@ void TrackingTruthCompare()
     leg.Draw();
 
 
-    sprintf(histo,"DQMData/TrackingMCTruth/TrackingParticle/TPProc");
-    rfile->GetObject( histo,meTPproc);
-    sfile->GetObject(histo,newmeTPproc);
+    sprintf(histo,"TPProc");
+    rdir->GetObject( histo,meTPproc);
+    sdir->GetObject(histo,newmeTPproc);
     meTPproc;
     newmeTPproc;
     TrackingParticleGV->cd(4);
@@ -161,9 +169,9 @@ void TrackingTruthCompare()
     leg.AddEntry(newmeTPproc,cver , "l");
     leg.Draw();
 
-    sprintf(histo,"DQMData/TrackingMCTruth/TrackingParticle/TPAllHits");
-    rfile->GetObject( histo,meTPhits);
-    sfile->GetObject(histo,newmeTPhits);
+    sprintf(histo,"TPAllHits");
+    rdir->GetObject( histo,meTPhits);
+    sdir->GetObject(histo,newmeTPhits);
     meTPhits;
     newmeTPhits;
     TrackingParticleGV->cd(5);
@@ -178,9 +186,9 @@ void TrackingTruthCompare()
     leg.AddEntry(newmeTPhits,cver , "l");
     leg.Draw();
 
-    sprintf(histo,"DQMData/TrackingMCTruth/TrackingParticle/TPMatchedHits");
-    rfile->GetObject( histo,meTPmhits);
-    sfile->GetObject(histo,newmeTPmhits);
+    sprintf(histo,"TPMatchedHits");
+    rdir->GetObject( histo,meTPmhits);
+    sdir->GetObject(histo,newmeTPmhits);
     meTPmhits;
     newmeTPmhits;
     TrackingParticleGV->cd(6);
@@ -221,9 +229,9 @@ void TrackingTruthCompare()
    TH1* newmeTPlip;
    TH1* newmeTPtip;
 
-   sprintf(histo,"DQMData/TrackingMCTruth/TrackingParticle/TPPt");
-   rfile->GetObject(histo ,meTPpt);
-   sfile->GetObject(histo ,newmeTPpt);
+   sprintf(histo,"TPPt");
+   rdir->GetObject(histo ,meTPpt);
+   sdir->GetObject(histo ,newmeTPpt);
    meTPpt;
    newmeTPpt;
    TrackingParticleTV->cd(1);
@@ -238,9 +246,9 @@ void TrackingTruthCompare()
    leg.AddEntry(newmeTPpt,cver , "l");
    leg.Draw();
 
-   sprintf(histo,"DQMData/TrackingMCTruth/TrackingParticle/TPEta");
-   rfile->GetObject(histo ,meTPeta);
-   sfile->GetObject(histo ,newmeTPeta);
+   sprintf(histo,"TPEta");
+   rdir->GetObject(histo ,meTPeta);
+   sdir->GetObject(histo ,newmeTPeta);
    meTPeta;
    newmeTPeta;
    TrackingParticleTV->cd(2);
@@ -255,9 +263,9 @@ void TrackingTruthCompare()
    leg.AddEntry(newmeTPeta,cver , "l");
    leg.Draw();
 
-   sprintf(histo,"DQMData/TrackingMCTruth/TrackingParticle/TPPhi");
-   rfile->GetObject(histo ,meTPphi);
-   sfile->GetObject(histo ,newmeTPphi);
+   sprintf(histo,"TPPhi");
+   rdir->GetObject(histo ,meTPphi);
+   sdir->GetObject(histo ,newmeTPphi);
    meTPphi;
    newmeTPphi;
    TrackingParticleTV->cd(3);
@@ -272,9 +280,9 @@ void TrackingTruthCompare()
    leg.AddEntry(newmeTPphi,cver , "l");
    leg.Draw();
    
-   sprintf(histo,"DQMData/TrackingMCTruth/TrackingParticle/TPVtxX");
-   rfile->GetObject(histo ,meTPvtxx);
-   sfile->GetObject(histo ,newmeTPvtxx);
+   sprintf(histo,"TPVtxX");
+   rdir->GetObject(histo ,meTPvtxx);
+   sdir->GetObject(histo ,newmeTPvtxx);
    meTPvtxx;
    newmeTPvtxx;
    TrackingParticleTV->cd(4);
@@ -289,9 +297,9 @@ void TrackingTruthCompare()
    leg.AddEntry(newmeTPvtxx,cver , "l");
    leg.Draw();
 
-   sprintf(histo,"DQMData/TrackingMCTruth/TrackingParticle/TPVtxY");
-   rfile->GetObject(histo ,meTPvtxy);
-   sfile->GetObject(histo ,newmeTPvtxy);
+   sprintf(histo,"TPVtxY");
+   rdir->GetObject(histo ,meTPvtxy);
+   sdir->GetObject(histo ,newmeTPvtxy);
    meTPvtxy;
    newmeTPvtxy;
    TrackingParticleTV->cd(5);
@@ -306,9 +314,9 @@ void TrackingTruthCompare()
    leg.AddEntry(newmeTPvtxy,cver , "l");
    leg.Draw();
 
-   sprintf(histo,"DQMData/TrackingMCTruth/TrackingParticle/TPVtxZ");
-   rfile->GetObject(histo ,meTPvtxz);
-   sfile->GetObject(histo ,newmeTPvtxz);
+   sprintf(histo,"TPVtxZ");
+   rdir->GetObject(histo ,meTPvtxz);
+   sdir->GetObject(histo ,newmeTPvtxz);
    meTPvtxz;
    newmeTPvtxz;
    TrackingParticleTV->cd(6);
@@ -323,9 +331,9 @@ void TrackingTruthCompare()
    leg.AddEntry(newmeTPvtxz,cver , "l");
    leg.Draw();
 
-   sprintf(histo,"DQMData/TrackingMCTruth/TrackingParticle/TPtip");
-   rfile->GetObject(histo ,meTPtip);
-   sfile->GetObject(histo ,newmeTPtip);
+   sprintf(histo,"TPtip");
+   rdir->GetObject(histo ,meTPtip);
+   sdir->GetObject(histo ,newmeTPtip);
    meTPtip;
    newmeTPtip;
    TrackingParticleTV->cd(7);
@@ -340,9 +348,9 @@ void TrackingTruthCompare()
    leg.AddEntry(newmeTPtip,cver , "l");
    leg.Draw();
 
-   sprintf(histo,"DQMData/TrackingMCTruth/TrackingParticle/TPlip");
-   rfile->GetObject(histo ,meTPlip);
-   sfile->GetObject(histo ,newmeTPlip);
+   sprintf(histo,"TPlip");
+   rdir->GetObject(histo ,meTPlip);
+   sdir->GetObject(histo ,newmeTPlip);
    meTPlip;
    newmeTPlip;
    TrackingParticleTV->cd(8);
