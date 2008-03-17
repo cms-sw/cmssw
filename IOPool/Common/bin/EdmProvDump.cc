@@ -3,6 +3,8 @@
 #include "Cintex/Cintex.h"
 
 #include "DataFormats/Provenance/interface/BranchType.h"
+#include "DataFormats/Provenance/interface/EventSelectionID.h"
+#include "DataFormats/Provenance/interface/History.h"
 #include "DataFormats/Provenance/interface/ParameterSetBlob.h"
 #include "DataFormats/Provenance/interface/ParameterSetID.h"
 #include "DataFormats/Provenance/interface/ProcessHistoryRegistry.h"
@@ -205,12 +207,13 @@ private:
   int                      errorCount_;
   edm::ProductRegistry     reg_;
   edm::ProcessHistoryMap   phm_;
-  ParameterSetMap     psm_;
+  ParameterSetMap          psm_;
   HistoryNode              historyGraph_;
 
   void work_();
-  void dumpProcessHistory_();
-  void dumpEventFilteringParameterSet_();
+  void dumpProcessHistory_(TTree& history);
+  void dumpEventFilteringParameterSets_(TTree& history);
+  void dumpParameterSetForID_(edm::ParameterSetID const& id);
 };
 
 ProvenanceDumper::ProvenanceDumper(const char* filename) :
@@ -241,36 +244,72 @@ ProvenanceDumper::exitCode() const
 }
 
 void
-ProvenanceDumper::dumpEventFilteringParameterSet_()
+ProvenanceDumper::dumpEventFilteringParameterSets_(TTree& history)
 {
-  assert(! phm_.empty());
-//   if (id.isValid())
-//     {
-//       ParameterSetMap::const_iterator i = psm_.find(id);
-//       if (i == psm_.end())
-// 	{
-// 	  std::cout << "We are unable to find the corresponding ParameterSet\n";
-// 	  edm::ParameterSet empty;
-// 	  if (id == empty.id())
-// 	    {
-// 	      std::cout << "But it would have been empty anyway\n";
-// 	    }
-// 	}
-//       else
-// 	{
-// 	  std::cout << i->second << '\n';
-// 	}      
-//     }
-//   else
-//     {
-//       std::cout << "This ID is not valid\n";
-//     }
+  // This is how one reads a TTree ...
+  edm::History h; 
+  edm::History* ph = &h;
+
+  history.SetBranchAddress(edm::poolNames::eventHistoryBranchName().c_str(), &ph);
+  if (history.GetEntry(0) <= 0)
+    {
+      std::cout << "No event filtering information is available; the event history tree has no entries\n";
+    }
+  else
+    {
+      edm::EventSelectionIDVector const& ids = h.eventSelectionIDs();
+      edm::EventSelectionIDVector::size_type num_ids = ids.size();
+      if ( num_ids == 0)
+	{
+	  std::cout << "No event filtering information is available.\n";
+	  std::cout << "------------------------------\n";
+	}
+      else
+	{
+	  std::cout << "Event filtering information for "
+		    << num_ids
+		    << " processing steps is available.\n"
+		    << "The ParameterSets will be printed out, "
+		    << "with the oldest printed first.\n";
+	  for (edm::EventSelectionIDVector::size_type i = 0; i != num_ids; ++i)
+	    dumpParameterSetForID_(ids[i]);
+	}
+    }
 }
 
 void
-ProvenanceDumper::dumpProcessHistory_()
+ProvenanceDumper::dumpParameterSetForID_(edm::ParameterSetID const& id)
 {
-  dumpEventFilteringParameterSet_();
+  std::cout << "ParameterSetID: " << id << '\n';
+  if (id.isValid())
+    {
+      ParameterSetMap::const_iterator i = psm_.find(id);
+      if (i == psm_.end())
+ 	{
+ 	  std::cout << "We are unable to find the corresponding ParameterSet\n";
+ 	  edm::ParameterSet empty;
+ 	  if (id == empty.id())
+ 	    {
+ 	      std::cout << "But it would have been empty anyway\n";
+ 	    }
+ 	}
+      else
+ 	{
+	  edm::ParameterSet ps(i->second.pset_);
+ 	  std::cout << ps << '\n';
+ 	}      
+    }
+  else
+    {
+      std::cout << "This ID is not valid\n";
+    }
+  std::cout << "     -------------------------\n";
+}
+
+void
+ProvenanceDumper::dumpProcessHistory_(TTree& history)
+{
+  dumpEventFilteringParameterSets_(history);
   std::cout << "Processing History:"<<std::endl;
   if (1 == phm_.size()) {
     std::cout << phm_.begin()->second;
@@ -343,9 +382,8 @@ ProvenanceDumper::work_() {
   assert(0!=pReg);
   pReg->setFrozen();
 
-  dumpProcessHistory_();
-    
-
+  dumpProcessHistory_(*history);
+  
   std::cout <<"---------Event---------"<<std::endl;
   /*
     for (std::vector<edm::ProcessHistory>::const_iterator it = uniqueLongHistories.begin(),
