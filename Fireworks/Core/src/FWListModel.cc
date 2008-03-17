@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Mar  3 17:20:14 EST 2008
-// $Id: FWListModel.cc,v 1.7 2008/03/13 02:58:14 chrjones Exp $
+// $Id: FWListModel.cc,v 1.8 2008/03/16 23:12:51 chrjones Exp $
 //
 
 // system include files
@@ -37,13 +37,17 @@
 // constructors and destructor
 //
 FWListModel::FWListModel(const FWModelId& iId,
-                         FWDetailViewManager* iDVM):
+                         FWDetailViewManager* iDVM,
+                         const std::string& iData):
 TEveElement(m_color),
 m_id(iId),
  m_detailViewManager(iDVM)
 {
    std::ostringstream s;
    s<<m_id.index();
+   if(not iData.empty()) {
+      s<<": "<<iData;
+   }
    SetElementName(s.str().c_str());
    SetUserData(&m_id);
 }

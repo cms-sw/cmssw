@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Mar  3 17:20:20 EST 2008
-// $Id: FWListModel.h,v 1.5 2008/03/13 02:58:15 chrjones Exp $
+// $Id: FWListModel.h,v 1.6 2008/03/16 23:12:51 chrjones Exp $
 //
 
 // system include files
@@ -36,7 +36,8 @@ class FWListModel : public TEveElement, public TNamed, public FWListItemBase
 
    public:
       FWListModel(const FWModelId& iId = FWModelId(),
-                  FWDetailViewManager* iDVM=0);
+                  FWDetailViewManager* iDVM=0,
+                  const std::string& iData = std::string() );
       virtual ~FWListModel();
 
       // ---------- const member functions ---------------------
