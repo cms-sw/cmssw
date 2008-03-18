@@ -30,7 +30,7 @@ pair<bool,double> HistogramProbabilityEstimator::probability(int ipType,float si
       if(found!=it_end) probabilityHistogram = &found->histogram;
      if(!probabilityHistogram)
        {
-	  edm::LogWarning ("TrackProbability|HistogramMissing") << " PDF Histogram not found for this track" ;
+//	  edm::LogWarning ("TrackProbability|HistogramMissing") << " PDF Histogram not found for this track" ;
        } else {
           trackProbability = 1. - probabilityHistogram->normalizedIntegral(absSignificance);
        } 	     
