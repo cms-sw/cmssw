@@ -1184,6 +1184,8 @@ DQMStore::extract(TObject *obj, const std::string &dir, bool overwrite)
       qv.code = atoi(m.matchString(value, 1).c_str());
       qv.message = m.matchString(value, 2);
       me->addQReport(qv, /* FIXME: getQTest(qv.qtname)? */ 0);
+
+      // FIXME: Update flags?
     }
     else
     {
