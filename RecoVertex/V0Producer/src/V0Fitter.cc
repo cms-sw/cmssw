@@ -13,12 +13,16 @@
 //
 // Original Author:  Brian Drell
 //         Created:  Fri May 18 22:57:40 CEST 2007
-// $Id: V0Fitter.cc,v 1.18 2008/03/14 17:13:23 drell Exp $
+// $Id: V0Fitter.cc,v 1.19 2008/03/14 17:54:39 drell Exp $
 //
 //
 
 #include "RecoVertex/V0Producer/interface/V0Fitter.h"
 #include "PhysicsTools/CandUtils/interface/AddFourMomenta.h"
+
+#include "TrackingTools/TransientTrack/interface/TransientTrackBuilder.h"
+#include "TrackingTools/Records/interface/TransientTrackRecord.h"
+#include "Geometry/CommonDetUnit/interface/GlobalTrackingGeometry.h"
 
 #include <typeinfo>
 
@@ -99,6 +103,7 @@ void V0Fitter::fitAll(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   Handle<reco::TrackCollection> theTrackHandle;
   ESHandle<MagneticField> bFieldHandle;
   ESHandle<TrackerGeometry> trackerGeomHandle;
+  ESHandle<GlobalTrackingGeometry> globTkGeomHandle;
 
 
   // Get the tracks from the event, and get the B-field record
@@ -107,6 +112,10 @@ void V0Fitter::fitAll(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   if( !theTrackHandle->size() ) return;
   iSetup.get<IdealMagneticFieldRecord>().get(bFieldHandle);
   iSetup.get<TrackerDigiGeometryRecord>().get(trackerGeomHandle);
+  iSetup.get<GlobalTrackingGeometryRecord>().get(globTkGeomHandle);
+
+  //edm::ESHandle<TransientTrackBuilder> transTkBuilder;
+  //iSetup.get<TransientTrackRecord>().get("TransientTrackBuilder", transTkBuilder);
 
   trackerGeom = trackerGeomHandle.product();
   magField = bFieldHandle.product();
@@ -133,19 +142,20 @@ void V0Fitter::fitAll(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   //  PARAMETER OF CHARGED DAUGHTER TRACK.
 
   for( unsigned int indx2 = 0; indx2 < theTrackRefs_.size(); indx2++ ) {
-    TransientTrack tmpTk( *(theTrackRefs_[indx2]), &(*bFieldHandle) );
-    TrajectoryStateClosestToBeamLine
+    TransientTrack tmpTk( *(theTrackRefs_[indx2]), &(*bFieldHandle), globTkGeomHandle );
+    //TransientTrack tmpTk( transTkBuilder->build( theTrackRefs_[indx2] ) );
+    /*TrajectoryStateClosestToBeamLine
       tscb( tmpTk.stateAtBeamLine() );
+      std::cout << "Didn't fail on tscb creation." << std::endl;*/
     //if( tscb.transverseImpactParameter().value() > 0.1 ) {
-    if(tscb.transverseImpactParameter().value() > 0.) {//This removes the cut.
+  //    if(tscb.transverseImpactParameter().value() > 0.) {//This removes the cut.
       theTrackRefs.push_back( theTrackRefs_[indx2] );
       theTracks.push_back( *(theTrackRefs_[indx2]) );
       theTransTracks.push_back( tmpTk );
-    }
+      //    }
   }
 
   //----->> Initial cuts finished.
-
 
   // Loop over tracks and vertex good charged track pairs
   for(unsigned int trdx1 = 0; trdx1 < theTracks.size(); trdx1++) {
@@ -162,7 +172,6 @@ void V0Fitter::fitAll(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
       }
       if( nHits1 < tkNhitsCut ) continue;
     }
-
     
     for(unsigned int trdx2 = trdx1 + 1; trdx2 < theTracks.size(); trdx2++) {
 
@@ -184,8 +193,8 @@ void V0Fitter::fitAll(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
       TrackRef negativeTrackRef;
       Track* positiveIter = 0;
       Track* negativeIter = 0;
-      TransientTrack* posTransTkPtr;
-      TransientTrack* negTransTkPtr;
+      TransientTrack* posTransTkPtr = 0;
+      TransientTrack* negTransTkPtr = 0;
 
       // Look at the two tracks we're looping over.  If they're oppositely
       //  charged, load them into the hypothesized positive and negative tracks
@@ -218,7 +227,7 @@ void V0Fitter::fitAll(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
 
       // Assume pion masses and do a wide mass cut.  First, we need the
       //  track momenta.
-      double posESq = positiveIter->momentum().Mag2() + piMassSquared;
+      /*      double posESq = positiveIter->momentum().Mag2() + piMassSquared;
       double negESq = negativeIter->momentum().Mag2() + piMassSquared;
       double posE = sqrt(posESq);
       double negE = sqrt(negESq);
@@ -234,7 +243,7 @@ void V0Fitter::fitAll(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
       TrajectoryStateClosestToBeamLine
 	tscbNeg( negTransTkPtr->stateAtBeamLine() );
       double d0_neg = tscbNeg.transverseImpactParameter().value();
-
+      */
 
       //std::cout << "Calculated m-pi-pi: " << mass << std::endl;
       /*mPiPiMassOut << mass << " "
