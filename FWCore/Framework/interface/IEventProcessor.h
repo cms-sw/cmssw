@@ -2,7 +2,7 @@
 #define FWCore_Framework_IEventProcessor_h
 
 /*
-$Id: IEventProcessor.h,v 1.2 2008/01/02 23:52:40 wdd Exp $
+$Id: IEventProcessor.h,v 1.3 2008/03/17 17:32:43 wdd Exp $
 
 Abstract base class for Event Processors
 
@@ -35,7 +35,7 @@ namespace edm
 
     virtual ~IEventProcessor();
 
-    virtual StatusCode runToCompletion(bool runWasSet = false) = 0;
+    virtual StatusCode runToCompletion(bool onlineStateTransitions) = 0;
 
     virtual void readFile() = 0;
     virtual void closeInputFile() = 0;

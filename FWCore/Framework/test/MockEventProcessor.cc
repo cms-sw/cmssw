@@ -1,6 +1,6 @@
 
 /*
-$Id: MockEventProcessor.cc,v 1.5 2008/02/27 20:11:06 wmtan Exp $
+$Id: MockEventProcessor.cc,v 1.6 2008/03/17 17:32:43 wdd Exp $
 */
 
 #include "FWCore/Framework/test/MockEventProcessor.h"
@@ -39,7 +39,7 @@ namespace edm {
   }
 
   edm::MockEventProcessor::StatusCode
-  MockEventProcessor::runToCompletion(bool runWasSet) {
+  MockEventProcessor::runToCompletion(bool onlineStateTransitions) {
     statemachine::Machine myMachine(this,
                                     fileMode_,
                                     handleEmptyRuns_,

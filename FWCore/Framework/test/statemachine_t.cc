@@ -2,7 +2,7 @@
 
 Test of the statemachine classes.
 
-$Id: statemachine_t.cc,v 1.1 2007/12/10 22:54:19 wdd Exp $
+$Id: statemachine_t.cc,v 1.2 2008/02/27 20:11:06 wmtan Exp $
 
 ----------------------------------------------------------------------*/  
 
@@ -82,7 +82,8 @@ int main(int argc, char* argv[]) {
                                                    handleEmptyRuns,
                                                    handleEmptyLumis);
 
-        mockEventProcessor.runToCompletion();
+        bool onlineStateTransitions = false;
+        mockEventProcessor.runToCompletion(onlineStateTransitions);
       }
     }
   }

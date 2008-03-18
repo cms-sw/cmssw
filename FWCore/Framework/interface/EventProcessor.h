@@ -32,7 +32,7 @@ problems:
   where does the pluginmanager initialize call go?
 
 
-$Id: EventProcessor.h,v 1.57 2008/02/27 20:06:01 wmtan Exp $
+$Id: EventProcessor.h,v 1.58 2008/03/17 17:32:43 wdd Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -295,7 +295,7 @@ namespace edm {
 
     // These classes work with the boost statemachine
 
-    virtual StatusCode runToCompletion(bool runWasSet = false);
+    virtual StatusCode runToCompletion(bool onlineStateTransitions);
 
     virtual void readFile();
     virtual void closeInputFile();

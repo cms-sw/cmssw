@@ -1714,8 +1714,8 @@ namespace edm {
     try {
       // rc = me->processInputFiles(-1, false, mRunAsync);
 
-      bool runWasSet = true;
-      rc = me->runToCompletion(runWasSet);
+      bool onlineStateTransitions = true;
+      rc = me->runToCompletion(onlineStateTransitions);
     }
     catch (cms::Exception& e) {
       edm::LogError("FwkJob") << "cms::Exception caught in "
@@ -1752,13 +1752,13 @@ namespace edm {
 
 
   edm::EventProcessor::StatusCode
-  EventProcessor::runToCompletion(bool runWasSet) {
+  EventProcessor::runToCompletion(bool onlineStateTransitions) {
 
     beginJob(); //make sure this was called
 
     StateSentry toerror(this);
 
-    if (runWasSet) changeState(mRunAsync);
+    if (onlineStateTransitions) changeState(mRunAsync);
     else changeState(mRunCount);
 
     StatusCode returnCode = epSuccess;
@@ -1832,7 +1832,7 @@ namespace edm {
       }  // End of loop over state machine events
     } // End of machine sentry scope, stops machine on exceptions
 
-    if (!runWasSet) changeState(mFinished);
+    if (!onlineStateTransitions) changeState(mFinished);
 
     toerror.succeeded();
 
