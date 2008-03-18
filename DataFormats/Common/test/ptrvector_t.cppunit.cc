@@ -1,11 +1,11 @@
-// $Id: ptrvector_t.cppunit.cc,v 1.1 2007/11/06 20:19:21 chrjones Exp $
+// $Id: ptrvector_t.cppunit.cc,v 1.2 2008/03/14 00:57:32 wmtan Exp $
 
 #include <algorithm>
 #include <vector>
 #include <iostream>
 
 #include <cppunit/extensions/HelperMacros.h>
-#include "DataFormats/Common/interface/OrphanHandle.h"
+#include "DataFormats/Common/interface/TestHandle.h"
 #include "DataFormats/Common/interface/PtrVector.h"
 #include "DataFormats/Common/test/IntValues.h"
 #include "DataFormats/Common/interface/Wrapper.h"
@@ -71,11 +71,11 @@ testPtrVector::check()
   std::vector<Inherit1> v1(2,Inherit1());
   std::vector<Inherit2> v2(2,Inherit2());
   
-  OrphanHandle<std::vector<Inherit1> > h1(&v1, ProductID(1));
+  TestHandle<std::vector<Inherit1> > h1(&v1, ProductID(1));
   PtrVector<Inherit1 > rv1;
   rv1.push_back( Ptr<Inherit1 >( h1, 0 ) );
   rv1.push_back( Ptr<Inherit1 >( h1, 1 ) );
-  OrphanHandle<std::vector<Inherit2> > h2(&v2, ProductID(2));
+  TestHandle<std::vector<Inherit2> > h2(&v2, ProductID(2));
   PtrVector<Inherit2 > rv2;
   rv2.push_back( Ptr<Inherit2 >( h2, 0 ) );
   rv2.push_back( Ptr<Inherit2 >( h2, 1 ) );

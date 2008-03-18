@@ -1,8 +1,8 @@
-// $Id: reftobase_t.cppunit.cc,v 1.5 2007/01/23 00:25:53 wmtan Exp $
+// $Id: reftobase_t.cppunit.cc,v 1.6 2008/03/14 00:57:32 wmtan Exp $
 #include <cppunit/extensions/HelperMacros.h>
 #include "DataFormats/Common/interface/RefToBase.h"
 #include "DataFormats/Common/interface/Ref.h"
-#include "DataFormats/Common/interface/OrphanHandle.h"
+#include "DataFormats/Common/interface/TestHandle.h"
 
 #include <vector>
 
@@ -41,7 +41,7 @@ testRefToBase::check()
   std::vector<Inherit1> v1(2,Inherit1());
   std::vector<Inherit2> v2(2,Inherit2());
   
-  OrphanHandle<std::vector<Inherit1> > h1(&v1, ProductID(1));
+  TestHandle<std::vector<Inherit1> > h1(&v1, ProductID(1));
   Ref<std::vector<Inherit1> > r1(h1, 1);
   RefToBase<Base> b1(r1);
   CPPUNIT_ASSERT(&(*b1) == static_cast<Base*>(&(v1[1])));

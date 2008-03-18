@@ -1,10 +1,10 @@
-// $Id: testAssociationVector.cc,v 1.8 2007/06/14 20:53:12 llista Exp $
+// $Id: testAssociationVector.cc,v 1.9 2008/03/14 00:57:32 wmtan Exp $
 #include <cppunit/extensions/HelperMacros.h>
 #include <algorithm>
 #include <iterator>
 #include <iostream>
 #include "DataFormats/Common/interface/AssociationVector.h"
-#include "DataFormats/Common/interface/OrphanHandle.h"
+#include "DataFormats/Common/interface/TestHandle.h"
 using namespace edm;
 
 class testAssociationVector : public CppUnit::TestFixture {
@@ -28,7 +28,7 @@ void testAssociationVector::checkAll() {
   k.push_back(2.2);
   k.push_back(3.3);
   ProductID const pid(1);
-  OrphanHandle<CKey> handle(&k, pid);
+  TestHandle<CKey> handle(&k, pid);
   RefProd<CKey> ref(handle);
   AssociationVector<RefProd<CKey>, CVal> v(ref);
   v.setValue(0, 1);
@@ -50,7 +50,7 @@ void testAssociationVector::checkAll() {
   CPPUNIT_ASSERT( v[rc1] == 2 );
   CPPUNIT_ASSERT( v[rc2] == 3 );
   ProductID const assocPid(2);
-  OrphanHandle<AssociationVector<RefProd<CKey>, CVal> > assocHandle(&v, assocPid); 
+  TestHandle<AssociationVector<RefProd<CKey>, CVal> > assocHandle(&v, assocPid); 
   Ref<AssociationVector<RefProd<CKey>, CVal> > r1( assocHandle, 0 );
   CPPUNIT_ASSERT(*r1->first == 1.1);
   CPPUNIT_ASSERT(r1->second == 1);

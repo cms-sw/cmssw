@@ -1,8 +1,8 @@
-// $Id: DetSetRefVector_t.cppunit.cc,v 1.4 2007/01/23 00:25:53 wmtan Exp $
+// $Id: DetSetRefVector_t.cppunit.cc,v 1.5 2008/03/14 00:21:07 wmtan Exp $
 #include <cppunit/extensions/HelperMacros.h>
 #include "DataFormats/Provenance/interface/ProductID.h"
 #include "DataFormats/Common/interface/DetSetRefVector.h"
-#include "DataFormats/Common/interface/OrphanHandle.h"
+#include "DataFormats/Common/interface/TestHandle.h"
 
 
 class testDetSetRefVector : public CppUnit::TestFixture {
@@ -76,7 +76,7 @@ testDetSetRefVector::checkConstruction()
   c.insert(d1);
   c.post_insert();
 
-  edm::OrphanHandle<dsv_type> pc2(&c, edm::ProductID(1));
+  edm::TestHandle<dsv_type> pc2(&c, edm::ProductID(1));
 
   {
     std::vector<edm::det_id_type> ids;
@@ -135,7 +135,7 @@ testDetSetRefVector::checkFind()
   c.insert(d1);
   c.post_insert();
 
-  edm::OrphanHandle<dsv_type> pc2(&c, edm::ProductID(1));
+  edm::TestHandle<dsv_type> pc2(&c, edm::ProductID(1));
 
   {
     std::vector<edm::det_id_type> ids;

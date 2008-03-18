@@ -14,7 +14,7 @@
 #include "DataFormats/Common/interface/Ptr.h"
 
 #include "DataFormats/Common/interface/EDProductGetter.h"
-#include "DataFormats/Common/interface/OrphanHandle.h"
+#include "DataFormats/Common/interface/TestHandle.h"
 #include "DataFormats/Common/interface/Wrapper.h"
 
 #include <iostream>
@@ -89,7 +89,7 @@ void testPtr::constructTest() {
      dummyContainer.push_back(dummy);
      dummyContainer.push_back(dummy);
      dummyContainer.push_back(dummy);
-     OrphanHandle<DummyCollection> handle(&dummyContainer, pid);
+     TestHandle<DummyCollection> handle(&dummyContainer, pid);
      Ptr<Dummy> dummyPtr(handle,key);
      
      CPPUNIT_ASSERT(dummyPtr.isAvailable());
@@ -109,7 +109,7 @@ void testPtr::constructTest() {
      dummyContainer.insert(dummy);
      dummyContainer.insert(dummy);
      dummyContainer.insert(dummy);
-     OrphanHandle<DummySet> handle(&dummyContainer, pid);
+     TestHandle<DummySet> handle(&dummyContainer, pid);
      Ptr<Dummy> dummyPtr(handle,key);
      
      CPPUNIT_ASSERT(dummyPtr.isAvailable());
@@ -131,7 +131,7 @@ void testPtr::constructTest() {
      dummyContainer.push_back(dummy);
      dummyContainer.push_back(dummy);
      dummyContainer.push_back(dummy);
-     OrphanHandle<DummyList> handle(&dummyContainer, pid);
+     TestHandle<DummyList> handle(&dummyContainer, pid);
      Ptr<Dummy> dummyPtr(handle,key);
      
      CPPUNIT_ASSERT(dummyPtr.isAvailable());
@@ -153,7 +153,7 @@ void testPtr::constructTest() {
      dummyContainer.push_back(dummy);
      dummyContainer.push_back(dummy);
      dummyContainer.push_back(dummy);
-     OrphanHandle<DummyDeque> handle(&dummyContainer, pid);
+     TestHandle<DummyDeque> handle(&dummyContainer, pid);
      Ptr<Dummy> dummyPtr(handle,key);
      
      CPPUNIT_ASSERT(dummyPtr.isAvailable());
@@ -175,7 +175,7 @@ void testPtr::constructTest() {
      dummyContainer.push_back(dummy);
      dummyContainer.push_back(dummy);
      dummyContainer.push_back(dummy);
-     OrphanHandle<DummyCollection2> handle(&dummyContainer, pid);
+     TestHandle<DummyCollection2> handle(&dummyContainer, pid);
      Ptr<Dummy> dummyPtr(handle,key);
      
      CPPUNIT_ASSERT(dummyPtr.isAvailable());
@@ -204,8 +204,8 @@ void testPtr::comparisonTest() {
    Dummy const dummy;
    DummyCollection dummyContainer;
    dummyContainer.push_back(dummy);
-   OrphanHandle<DummyCollection> handle(&dummyContainer, pid);
-   OrphanHandle<DummyCollection> handle2(&dummyContainer, pid);
+   TestHandle<DummyCollection> handle(&dummyContainer, pid);
+   TestHandle<DummyCollection> handle2(&dummyContainer, pid);
    Ptr<Dummy> dummyPtr1(handle, key);
    Ptr<Dummy> dummyPtr2(handle2, key);
    //PtrProd<DummyCollection> dummyPtrProd1(handle);
@@ -232,7 +232,7 @@ void testPtr::comparisonTest() {
    CPPUNIT_ASSERT(!(dummyPtrNewKey < dummyPtr1));
 
    ProductID const pidOther(4);
-   OrphanHandle<DummyCollection> handleNewPID(&dummyContainer, pidOther);
+   TestHandle<DummyCollection> handleNewPID(&dummyContainer, pidOther);
    Ptr<Dummy> dummyPtrNewPID(handleNewPID, key);
    //PtrProd<DummyCollection> dummyPtrProdNewPID(handleNewPID);
    CPPUNIT_ASSERT(!(dummyPtr1 == dummyPtrNewPID));
@@ -250,7 +250,7 @@ void testPtr::comparisonTest() {
    DummyCollection2 dummyContainer2;
    dummyContainer2.insert(std::make_pair(1, 1.0));
    dummyContainer2.insert(std::make_pair(2, 2.0));
-   OrphanHandle<DummyCollection2> handle2(&dummyContainer2, pid2);
+   TestHandle<DummyCollection2> handle2(&dummyContainer2, pid2);
    Ptr<DummyCollection2> dummyPtr21(handle2, 1);
    Ptr<DummyCollection2> dummyPtr22(handle2, 2);
    CPPUNIT_ASSERT(dummyPtr21 != dummyPtr22);
@@ -262,7 +262,7 @@ void testPtr::comparisonTest() {
    DummyCollection3 dummyContainer3;
    dummyContainer3.insert(std::make_pair(1, 1.0));
    dummyContainer3.insert(std::make_pair(2, 2.0));
-   OrphanHandle<DummyCollection3> handle3(&dummyContainer3, pid3);
+   TestHandle<DummyCollection3> handle3(&dummyContainer3, pid3);
    Ptr<DummyCollection3> dummyPtr31(handle3, 1);
    Ptr<DummyCollection3> dummyPtr32(handle3, 2);
    CPPUNIT_ASSERT(dummyPtr31 != dummyPtr32);
@@ -301,7 +301,7 @@ void testPtr::getTest() {
 
    IntCollection const* wptr = dynamic_cast<IntCollection const*>(wrapper.product());
 
-   OrphanHandle<IntCollection> handle(wptr, pid);
+   TestHandle<IntCollection> handle(wptr, pid);
 
    Ptr<IntValue> ref0(pid, 0,&tester);
    CPPUNIT_ASSERT( !ref0.hasCache());
@@ -334,7 +334,7 @@ void testPtr::getTest() {
      
      SDCollection const* wptr = dynamic_cast<SDCollection const*>(wrapper.product());
      
-     OrphanHandle<SDCollection> handle(wptr, pid);
+     TestHandle<SDCollection> handle(wptr, pid);
      
      Ptr<IntValue> ref0(pid, 0,&tester);
      CPPUNIT_ASSERT( !ref0.hasCache());

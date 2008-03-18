@@ -1,11 +1,11 @@
-// $Id: testValueMapNew.cc,v 1.3 2008/02/06 13:51:15 llista Exp $
+// $Id: testValueMapNew.cc,v 1.4 2008/03/14 00:57:32 wmtan Exp $
 #include <cppunit/extensions/HelperMacros.h>
 #include <algorithm>
 #include <iterator>
 #include <iostream>
 #include "DataFormats/Common/interface/ValueMap.h"
 #include "DataFormats/Common/interface/RefProd.h"
-#include "DataFormats/Common/interface/OrphanHandle.h"
+#include "DataFormats/Common/interface/TestHandle.h"
 using namespace edm;
 
 class testValueMapNew : public CppUnit::TestFixture {
@@ -22,8 +22,8 @@ public:
   void test(const edm::ValueMap<int> &);
   CKey1 v1;
   CKey2 v2;
-  edm::OrphanHandle<CKey1> handleK1;
-  edm::OrphanHandle<CKey2> handleK2;
+  edm::TestHandle<CKey1> handleK1;
+  edm::TestHandle<CKey2> handleK2;
   std::vector<int> w1, w2;
 };
 
@@ -35,7 +35,7 @@ testValueMapNew::testValueMapNew() {
   v1.push_back(3);
   v1.push_back(4);
   ProductID const pidK1(2);
-  handleK1 = edm::OrphanHandle<CKey1>(&v1, pidK1);
+  handleK1 = edm::TestHandle<CKey1>(&v1, pidK1);
 
   v2.push_back(10.);
   v2.push_back(20.);
@@ -43,7 +43,7 @@ testValueMapNew::testValueMapNew() {
   v2.push_back(40.);
   v2.push_back(50.);
   ProductID const pidK2(3);
-  handleK2 = edm::OrphanHandle<CKey2>(&v2, pidK2);
+  handleK2 = edm::TestHandle<CKey2>(&v2, pidK2);
 
   const int ww1[4] = { 2, 1, 0, 2 };
   w1.resize(4);

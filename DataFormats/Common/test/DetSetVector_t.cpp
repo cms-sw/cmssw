@@ -1,5 +1,5 @@
 /*
- *  $Id: DetSetVector_t.cpp,v 1.15 2007/06/14 04:56:29 wmtan Exp $
+ *  $Id: DetSetVector_t.cpp,v 1.16 2008/03/14 00:57:32 wmtan Exp $
  *  CMSSW
  *
  */
@@ -14,7 +14,7 @@
 
 #include "DataFormats/Common/interface/Ref.h"
 #include "DataFormats/Common/interface/DetSetVector.h"
-#include "DataFormats/Common/interface/OrphanHandle.h"
+#include "DataFormats/Common/interface/TestHandle.h"
 #include "DataFormats/Provenance/interface/ProductID.h"
 
 #include "FWCore/Utilities/interface/GCCPrerequisite.h"
@@ -249,14 +249,14 @@ void refTest()
   }
 
   {
-    OrphanHandle<coll_type> pc2(&c, ProductID(1));
+    TestHandle<coll_type> pc2(&c, ProductID(1));
     RefDet refDet = makeRefToDetSetVector(pc2,det_id_type(3),c[3].data.begin());
     assert(!(v1<*refDet)&&!(*refDet < v1));
   }
 
   try {
     //bad detid
-    OrphanHandle<coll_type> pc2(&c, ProductID(1));
+    TestHandle<coll_type> pc2(&c, ProductID(1));
     RefDet refDet = makeRefToDetSetVector(pc2,det_id_type(12),c[3].data.begin());
 
     assert("Failed to throw required exception" == 0);
@@ -269,7 +269,7 @@ void refTest()
 
   try {
     //bad iterator
-    OrphanHandle<coll_type> pc2(&c, ProductID(1));
+    TestHandle<coll_type> pc2(&c, ProductID(1));
     RefDet refDet = makeRefToDetSetVector(pc2,det_id_type(1),c[3].data.begin());
 
     assert("Failed to throw required exception" == 0);

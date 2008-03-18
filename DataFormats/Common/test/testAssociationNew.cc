@@ -1,11 +1,11 @@
-// $Id: testAssociationNew.cc,v 1.3 2008/02/06 10:43:23 llista Exp $
+// $Id: testAssociationNew.cc,v 1.4 2008/03/14 00:57:32 wmtan Exp $
 #include <cppunit/extensions/HelperMacros.h>
 #include <algorithm>
 #include <iterator>
 #include <iostream>
 #include "DataFormats/Common/interface/Association.h"
 #include "DataFormats/Common/interface/RefProd.h"
-#include "DataFormats/Common/interface/OrphanHandle.h"
+#include "DataFormats/Common/interface/TestHandle.h"
 using namespace edm;
 
 class testAssociationNew : public CppUnit::TestFixture {
@@ -24,9 +24,9 @@ public:
   CVal k;
   CKey1 v1;
   CKey2 v2;
-  edm::OrphanHandle<CVal> handleV;
-  edm::OrphanHandle<CKey1> handleK1;
-  edm::OrphanHandle<CKey2> handleK2;
+  edm::TestHandle<CVal> handleV;
+  edm::TestHandle<CKey1> handleK1;
+  edm::TestHandle<CKey2> handleK2;
   std::vector<int> w1, w2;
 };
 
@@ -37,14 +37,14 @@ testAssociationNew::testAssociationNew() {
   k.push_back(2.2);
   k.push_back(3.3);
   ProductID const pidV(1);
-  handleV = edm::OrphanHandle<CVal>(&k, pidV);
+  handleV = edm::TestHandle<CVal>(&k, pidV);
 
   v1.push_back(1);
   v1.push_back(2);
   v1.push_back(3);
   v1.push_back(4);
   ProductID const pidK1(2);
-  handleK1 = edm::OrphanHandle<CKey1>(&v1, pidK1);
+  handleK1 = edm::TestHandle<CKey1>(&v1, pidK1);
 
   v2.push_back(10.);
   v2.push_back(20.);
@@ -52,7 +52,7 @@ testAssociationNew::testAssociationNew() {
   v2.push_back(40.);
   v2.push_back(50.);
   ProductID const pidK2(3);
-  handleK2 = edm::OrphanHandle<CKey2>(&v2, pidK2);
+  handleK2 = edm::TestHandle<CKey2>(&v2, pidK2);
 
   const int ww1[4] = { 2, 1, 0, 2 };
   w1.resize(4);
