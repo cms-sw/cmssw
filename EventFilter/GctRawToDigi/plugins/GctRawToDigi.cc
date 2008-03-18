@@ -14,7 +14,7 @@
 
 // GCT raw data format headers
 #include "EventFilter/GctRawToDigi/src/GctBlockHeader.h"
-//#include "EventFilter/GctRawToDigi/interface/L1GctInternalObject.h"
+#include "EventFilter/GctRawToDigi/src/GctBlockHeaderV2.h"
 
 // GCT input data format headers
 #include "DataFormats/L1CaloTrigger/interface/L1CaloEmCand.h"
@@ -39,15 +39,20 @@ const unsigned GctRawToDigi::MAX_BLOCKS = 128;
 GctRawToDigi::GctRawToDigi(const edm::ParameterSet& iConfig) :
   inputLabel_(iConfig.getParameter<edm::InputTag>("inputLabel")),
   fedId_(iConfig.getParameter<int>("gctFedId")),
+  hltMode_(iConfig.getParameter<bool>("hltMode")),
+  grenCompatibilityMode_(iConfig.getParameter<bool>("grenCompatibilityMode")),
   verbose_(iConfig.getUntrackedParameter<bool>("verbose",false)),
   doEm_(iConfig.getUntrackedParameter<bool>("unpackEm",true)),
   doJets_(iConfig.getUntrackedParameter<bool>("unpackJets",true)),
   doEtSums_(iConfig.getUntrackedParameter<bool>("unpackEtSums",true)),
   doInternEm_(iConfig.getUntrackedParameter<bool>("unpackInternEm",true)),
+  doRct_(iConfig.getUntrackedParameter<bool>("unpackRct",true)),
   doFibres_(iConfig.getUntrackedParameter<bool>("unpackFibres",true)),
-  blockUnpacker_()
+  blockUnpacker_(hltMode_, grenCompatibilityMode_)
 {
   edm::LogInfo("GCT") << "GctRawToDigi will unpack FED Id " << fedId_ << endl;
+  if(grenCompatibilityMode_) { edm::LogInfo("GCT") << "GREN 2007 compatibility mode has been selected." << endl; }
+  if(hltMode_) { edm::LogInfo("GCT") << "HLT unpack mode selected: HLT unpack optimisations will be used." << endl; }
 
   //register the products
   produces<L1CaloEmCollection>();
@@ -80,8 +85,7 @@ GctRawToDigi::~GctRawToDigi()
 //
 
 // ------------ method called to produce the data  ------------
-void
-GctRawToDigi::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
+void GctRawToDigi::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
    using namespace edm;
 
@@ -92,23 +96,23 @@ GctRawToDigi::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
    
    edm::LogInfo("GCT") << "Upacking FEDRawData of size " << std::dec << gctRcd.size() << std::endl;
 
+  bool invalidDataFlag = false;
+  
   // do a simple check of the raw data
-  if (gctRcd.size()<16) {
-      edm::LogWarning("Invalid Data") << "Empty/invalid GCT raw data, size = " << gctRcd.size();
-      return;
-  }
-  else {
-    unpack(gctRcd, iEvent);
+  if (gctRcd.size() < 16)
+  {
+      edm::LogWarning("Empty/Invalid Data") << "Cannot unpack: empty/invalid GCT raw data (size = "
+                                            << gctRcd.size()
+                                            << "). Returning empty collections!";
+      invalidDataFlag = true;
   }
 
+  unpack(gctRcd, iEvent, invalidDataFlag);
 }
 
 
-void GctRawToDigi::unpack(const FEDRawData& d, edm::Event& e)
+void GctRawToDigi::unpack(const FEDRawData& d, edm::Event& e, const bool invalidDataFlag)
 {
-  std::vector<GctBlockHeader> bHdrs; // For storing block headers
-  bHdrs.reserve(16);  // Reserve approx the right amount of space.
-
   // ** DON'T RESERVE SPACE IN VECTORS FOR DEBUG UNPACK ITEMS! **
   
   // Collections for storing GCT input data.  
@@ -132,84 +136,94 @@ void GctRawToDigi::unpack(const FEDRawData& d, edm::Event& e)
   // Fibres
   std::auto_ptr<L1GctFibreCollection> gctFibres( new L1GctFibreCollection() );
 
-  // Setup blockUnpacker
-  blockUnpacker_.setRctEmCollection( rctEm.get() );
-  blockUnpacker_.setIsoEmCollection( gctIsoEm.get() );
-  blockUnpacker_.setNonIsoEmCollection( gctNonIsoEm.get() );
-  blockUnpacker_.setInternEmCollection( gctInternEm.get() );
-  blockUnpacker_.setFibreCollection( gctFibres.get() );
-  blockUnpacker_.setCentralJetCollection( gctCenJets.get() );
-  blockUnpacker_.setForwardJetCollection( gctForJets.get() );
-  blockUnpacker_.setTauJetCollection( gctTauJets.get() );
-  blockUnpacker_.setJetCounts( jetCounts.get() );
-  blockUnpacker_.setEtTotal( etTotResult.get() );
-  blockUnpacker_.setEtHad( etHadResult.get() );
-  blockUnpacker_.setEtMiss( etMissResult.get() );
-
-  // Unpacking variables
-  const unsigned char * data = d.data();
-  unsigned dEnd = d.size()-16; // bytes in payload
-  unsigned dPtr = 8; // data pointer (starts at 8 as there is a 64-bit Slink header at start of packet).
-  bool lost = false;
-
-  // read blocks
-  for (unsigned nb=0; !lost && dPtr<dEnd && nb<MAX_BLOCKS; ++nb)
+  if(invalidDataFlag == false) // Only attempt unpack with valid data
   {
-    // read block header
-    GctBlockHeader blockHead(&data[dPtr]);
-
-    // unpack the block
-    blockUnpacker_.convertBlock(&data[dPtr+4], blockHead);  // dPtr+4 to get to the block data.
-
-    // store the header
-    bHdrs.push_back(blockHead);
-    
-    // advance pointer
-    unsigned blockLen = blockHead.length();
-    unsigned nSamples = blockHead.nSamples();
-    dPtr += 4*(blockLen*nSamples+1); // *4 because blockLen is in 32-bit words, +1 for header
-  }
+    std::vector<GctBlockHeader> bHdrs; // For storing block headers
+    bHdrs.reserve(32);  // Reserve approx the right amount of space.
   
-  // dump summary in verbose mode
-  if (verbose_)
-  {
-    std::ostringstream os;
-    os << "Found " << bHdrs.size() << " GCT internal headers" << endl;
-    for (unsigned i=0; i<bHdrs.size(); ++i) { os << bHdrs[i]<< endl; }
-    os << "Read " << rctEm.get()->size() << " RCT EM candidates" << endl;
-    os << "Read " << gctIsoEm.get()->size() << " GCT iso EM candidates" << endl;
-    os << "Read " << gctNonIsoEm.get()->size() << " GCT non-iso EM candidates" << endl;
-    os << "Read " << gctInternEm.get()->size() << " GCT intermediate EM candidates" << endl;
-    os << "Read " << gctCenJets.get()->size() << " GCT central jet candidates" << endl;
-    os << "Read " << gctForJets.get()->size() << " GCT forward jet candidates" << endl;
-    os << "Read " << gctTauJets.get()->size() << " Gct tau jet candidates" << endl;
-    
-    edm::LogVerbatim("GCT") << os.str();
+    // Setup blockUnpacker
+    blockUnpacker_.setRctEmCollection( rctEm.get() );
+    blockUnpacker_.setIsoEmCollection( gctIsoEm.get() );
+    blockUnpacker_.setNonIsoEmCollection( gctNonIsoEm.get() );
+    blockUnpacker_.setInternEmCollection( gctInternEm.get() );
+    blockUnpacker_.setFibreCollection( gctFibres.get() );
+    blockUnpacker_.setCentralJetCollection( gctCenJets.get() );
+    blockUnpacker_.setForwardJetCollection( gctForJets.get() );
+    blockUnpacker_.setTauJetCollection( gctTauJets.get() );
+    blockUnpacker_.setJetCounts( jetCounts.get() );
+    blockUnpacker_.setEtTotal( etTotResult.get() );
+    blockUnpacker_.setEtHad( etHadResult.get() );
+    blockUnpacker_.setEtMiss( etMissResult.get() );
+  
+    // Unpacking variables
+    const unsigned char * data = d.data();
+    unsigned dEnd = d.size()-16; // bytes in payload
+    unsigned dPtr = 8; // data pointer (starts at 8 as there is a 64-bit Slink header at start of packet).
+    bool lost = false;
+  
+    // read blocks
+    for (unsigned nb=0; !lost && dPtr<dEnd && nb<MAX_BLOCKS; ++nb)
+    {
+      // read block header
+      GctBlockHeader blockHead(&data[dPtr]);
+  
+      // unpack the block
+      blockUnpacker_.convertBlock(&data[dPtr+4], blockHead);  // dPtr+4 to get to the block data.
+  
+      // store the header
+      bHdrs.push_back(blockHead);
+      
+      // advance pointer
+      unsigned blockLen = blockHead.length();
+      unsigned nSamples = blockHead.nSamples();
+      dPtr += 4*(blockLen*nSamples+1); // *4 because blockLen is in 32-bit words, +1 for header
+    }
+  
+    // dump summary in verbose mode
+    if (verbose_)
+    {
+      std::ostringstream os;
+      os << "Found " << bHdrs.size() << " GCT internal headers" << endl;
+      for (unsigned i=0; i<bHdrs.size(); ++i) { os << bHdrs[i]<< endl; }
+      os << "Read " << rctEm->size() << " RCT EM candidates" << endl;
+      os << "Read " << rctCalo->size() << " RCT Calo Regions" << endl;
+      os << "Read " << gctIsoEm->size() << " GCT iso EM candidates" << endl;
+      os << "Read " << gctNonIsoEm->size() << " GCT non-iso EM candidates" << endl;
+      os << "Read " << gctInternEm->size() << " GCT intermediate EM candidates" << endl;
+      os << "Read " << gctCenJets->size() << " GCT central jet candidates" << endl;
+      os << "Read " << gctForJets->size() << " GCT forward jet candidates" << endl;
+      os << "Read " << gctTauJets->size() << " GCT tau jet candidates" << endl;
+      
+      edm::LogVerbatim("GCT") << os.str();
+    }
   }
 
   // put data into the event
-  if (doEm_)
+  if (hltMode_ || doEm_)
   {
-    e.put(rctEm);
     e.put(gctIsoEm, "isoEm");
     e.put(gctNonIsoEm, "nonIsoEm");
   }
-  if (doJets_)
+  if (hltMode_ || doJets_)
   {
-    e.put(rctRgn);
     e.put(gctCenJets,"cenJets");
     e.put(gctForJets,"forJets");
     e.put(gctTauJets,"tauJets");
     e.put(jetCounts);
   }
-  if (doEtSums_)
+  if (hltMode_ || doEtSums_)
   {
     e.put(etTotResult);
     e.put(etHadResult);
     e.put(etMissResult);
   }
-  if (doInternEm_) { e.put(gctInternEm); }
-  if (doFibres_)   { e.put(gctFibres); }
+  if (!hltMode_ && doInternEm_) { e.put(gctInternEm); }
+  if (!hltMode_ && doRct_)
+  {
+    e.put(rctEm);
+    e.put(rctCalo);
+  }
+  if (!hltMode_ && doFibres_)   { e.put(gctFibres); }
 
 }
 

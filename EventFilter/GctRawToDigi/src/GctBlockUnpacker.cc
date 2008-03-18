@@ -19,14 +19,21 @@ GctBlockUnpacker::RctCrateMap GctBlockUnpacker::rctCrate_ = GctBlockUnpacker::Rc
 GctBlockUnpacker::BlockIdToUnpackFnMap GctBlockUnpacker::blockUnpackFn_ = GctBlockUnpacker::BlockIdToUnpackFnMap();
 GctBlockUnpacker::BlockIdToEmCandIsoBoundMap GctBlockUnpacker::InternEmIsoBounds_ = GctBlockUnpacker::BlockIdToEmCandIsoBoundMap();
 
-GctBlockUnpacker::GctBlockUnpacker() :
+GctBlockUnpacker::GctBlockUnpacker(bool hltMode, bool grenCompatibilityMode):
+  hltMode_(hltMode),
+  grenCompatibilityMode_(grenCompatibilityMode),
   srcCardRouting_(),
   rctEm_(0),
+  rctCalo_(0),
   gctIsoEm_(0),
   gctNonIsoEm_(0),
   gctInternEm_(0),
   gctFibres_(0),
-  gctJets_(NUM_JET_CATAGORIES)
+  gctJets_(NUM_JET_CATAGORIES),
+  gctJetCounts_(0),
+  gctEtTotal_(0),
+  gctEtHad_(0),
+  gctEtMiss_(0)
 {
   static bool initClass = true;
   
@@ -39,27 +46,57 @@ GctBlockUnpacker::GctBlockUnpacker() :
     rctCrate_[0xC1] = 4;
     rctCrate_[0xC9] = 0; 
 
-    // Setup block unpack function map.
-    blockUnpackFn_[0x00] = &GctBlockUnpacker::blockDoNothing;
-    blockUnpackFn_[0x58] = &GctBlockUnpacker::blockToGctJetCandsAndCounts;
-    blockUnpackFn_[0x59] = &GctBlockUnpacker::blockDoNothing;
-    blockUnpackFn_[0x5f] = &GctBlockUnpacker::blockDoNothing;
-    blockUnpackFn_[0x68] = &GctBlockUnpacker::blockToGctEmCandsAndEnergySums;
-    blockUnpackFn_[0x69] = &GctBlockUnpacker::blockToGctInternEmCand;
-    blockUnpackFn_[0x6b] = &GctBlockUnpacker::blockDoNothing;
-    blockUnpackFn_[0x6f] = &GctBlockUnpacker::blockDoNothing; 
-    blockUnpackFn_[0x80] = &GctBlockUnpacker::blockToGctInternEmCand;
-    blockUnpackFn_[0x81] = &GctBlockUnpacker::blockToFibresAndToRctEmCand;
-    blockUnpackFn_[0x83] = &GctBlockUnpacker::blockToGctInternEmCand;
-    blockUnpackFn_[0x88] = &GctBlockUnpacker::blockToGctInternEmCand;
-    blockUnpackFn_[0x89] = &GctBlockUnpacker::blockToFibresAndToRctEmCand;
-    blockUnpackFn_[0x8b] = &GctBlockUnpacker::blockToGctInternEmCand;
-    blockUnpackFn_[0xc0] = &GctBlockUnpacker::blockToGctInternEmCand;
-    blockUnpackFn_[0xc1] = &GctBlockUnpacker::blockToFibresAndToRctEmCand;
-    blockUnpackFn_[0xc3] = &GctBlockUnpacker::blockToGctInternEmCand;
-    blockUnpackFn_[0xc8] = &GctBlockUnpacker::blockToGctInternEmCand;
-    blockUnpackFn_[0xc9] = &GctBlockUnpacker::blockToFibresAndToRctEmCand;
-    blockUnpackFn_[0xcb] = &GctBlockUnpacker::blockToGctInternEmCand;
+    // Setup block unpack function map according to compatibility mode
+    if(grenCompatibilityMode_)
+    {
+      blockUnpackFn_[0x00] = &GctBlockUnpacker::blockDoNothing;
+      blockUnpackFn_[0x58] = &GctBlockUnpacker::blockToGctJetCand;
+      blockUnpackFn_[0x59] = &GctBlockUnpacker::blockDoNothing;
+      blockUnpackFn_[0x5a] = &GctBlockUnpacker::blockToGctJetCounts;
+      blockUnpackFn_[0x5f] = &GctBlockUnpacker::blockDoNothing;
+      blockUnpackFn_[0x68] = &GctBlockUnpacker::blockToGctEmCand;
+      blockUnpackFn_[0x69] = &GctBlockUnpacker::blockToGctInternEmCand;
+      blockUnpackFn_[0x6a] = &GctBlockUnpacker::blockToGctEnergySums;
+      blockUnpackFn_[0x6b] = &GctBlockUnpacker::blockDoNothing;
+      blockUnpackFn_[0x6f] = &GctBlockUnpacker::blockDoNothing; 
+      blockUnpackFn_[0x80] = &GctBlockUnpacker::blockToGctInternEmCand;
+      blockUnpackFn_[0x81] = &GctBlockUnpacker::blockToFibresAndToRctEmCand;
+      blockUnpackFn_[0x83] = &GctBlockUnpacker::blockToGctInternEmCand;
+      blockUnpackFn_[0x88] = &GctBlockUnpacker::blockToGctInternEmCand;
+      blockUnpackFn_[0x89] = &GctBlockUnpacker::blockToFibresAndToRctEmCand;
+      blockUnpackFn_[0x8b] = &GctBlockUnpacker::blockToGctInternEmCand;
+      blockUnpackFn_[0xc0] = &GctBlockUnpacker::blockToGctInternEmCand;
+      blockUnpackFn_[0xc1] = &GctBlockUnpacker::blockToFibresAndToRctEmCand;
+      blockUnpackFn_[0xc3] = &GctBlockUnpacker::blockToGctInternEmCand;
+      blockUnpackFn_[0xc8] = &GctBlockUnpacker::blockToGctInternEmCand;
+      blockUnpackFn_[0xc9] = &GctBlockUnpacker::blockToFibresAndToRctEmCand;
+      blockUnpackFn_[0xcb] = &GctBlockUnpacker::blockToGctInternEmCand;
+      blockUnpackFn_[0xff] = &GctBlockUnpacker::blockToRctCaloRegions;
+    }
+    else
+    {
+      blockUnpackFn_[0x00] = &GctBlockUnpacker::blockDoNothing;
+      blockUnpackFn_[0x58] = &GctBlockUnpacker::blockToGctJetCandsAndCounts;
+      blockUnpackFn_[0x59] = &GctBlockUnpacker::blockDoNothing;
+      blockUnpackFn_[0x5f] = &GctBlockUnpacker::blockDoNothing;
+      blockUnpackFn_[0x68] = &GctBlockUnpacker::blockToGctEmCandsAndEnergySums;
+      blockUnpackFn_[0x69] = &GctBlockUnpacker::blockToGctInternEmCand;
+      blockUnpackFn_[0x6b] = &GctBlockUnpacker::blockDoNothing;
+      blockUnpackFn_[0x6f] = &GctBlockUnpacker::blockDoNothing; 
+      blockUnpackFn_[0x80] = &GctBlockUnpacker::blockToGctInternEmCand;
+      blockUnpackFn_[0x81] = &GctBlockUnpacker::blockToFibresAndToRctEmCand;
+      blockUnpackFn_[0x83] = &GctBlockUnpacker::blockToGctInternEmCand;
+      blockUnpackFn_[0x88] = &GctBlockUnpacker::blockToGctInternEmCand;
+      blockUnpackFn_[0x89] = &GctBlockUnpacker::blockToFibresAndToRctEmCand;
+      blockUnpackFn_[0x8b] = &GctBlockUnpacker::blockToGctInternEmCand;
+      blockUnpackFn_[0xc0] = &GctBlockUnpacker::blockToGctInternEmCand;
+      blockUnpackFn_[0xc1] = &GctBlockUnpacker::blockToFibresAndToRctEmCand;
+      blockUnpackFn_[0xc3] = &GctBlockUnpacker::blockToGctInternEmCand;
+      blockUnpackFn_[0xc8] = &GctBlockUnpacker::blockToGctInternEmCand;
+      blockUnpackFn_[0xc9] = &GctBlockUnpacker::blockToFibresAndToRctEmCand;
+      blockUnpackFn_[0xcb] = &GctBlockUnpacker::blockToGctInternEmCand;
+    }
+
     
     // Setup Block ID map for pipeline payload positions of isolated Internal EM Cands.
     InternEmIsoBounds_[0x69] = IsoBoundaryPair(8,15);

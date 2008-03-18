@@ -16,7 +16,7 @@
 //
 // Original Author:  Jim Brooke
 //         Created:  Wed Nov  1 11:57:10 CET 2006
-// $Id: GctRawToDigi.h,v 1.9 2007/07/30 09:58:29 jbrooke Exp $
+// $Id: GctRawToDigi.h,v 1.10 2007/09/18 15:15:57 frazier Exp $
 //
 //
 
@@ -49,7 +49,9 @@ class GctRawToDigi : public edm::EDProducer {
   virtual void produce(edm::Event&, const edm::EventSetup&);
   virtual void endJob() ;
   
-  void unpack(const FEDRawData& d, edm::Event& e);
+  /// Unpacks the raw data
+  /*! \param invalidDataFlag - if true, then won't attempt unpack but just output empty collecions. */
+  void unpack(const FEDRawData& d, edm::Event& e, const bool invalidDataFlag=false);
 
  private: // members
 
@@ -60,14 +62,19 @@ class GctRawToDigi : public edm::EDProducer {
   bool verbose_;              // If true, then debug print out for each event.
 
   // unpacking options
+  bool hltMode_;  // If true, only outputs the GT output data, and only BX = 0.
+  bool grenCompatibilityMode_;  // If true, use old-style (GREN07 era) block headers & pipe format.
   bool doEm_;
   bool doJets_;
   bool doEtSums_;
   bool doInternEm_;
+  bool doRct_;
   bool doFibres_;
 
   // Block to Digi converter
   GctBlockUnpacker blockUnpacker_;
+
+  // If true, the
 
 };
 

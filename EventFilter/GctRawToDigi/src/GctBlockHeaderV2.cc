@@ -7,35 +7,11 @@ using std::map;
 using std::pair;
 using std::string;
 
-GctBlockHeader::GctBlockHeader(const uint32_t data) { d = data; }
-
-GctBlockHeader::GctBlockHeader(const unsigned char * data) {
-  d = data[0] + (data[1]<<8) + (data[2]<<16) + (data[3]<<24);
-}
-
-GctBlockHeader::GctBlockHeader(uint16_t id, uint16_t nsamples, uint16_t bcid, uint16_t evid) {
+GctBlockHeaderV2::GctBlockHeaderV2(uint16_t id, uint16_t nsamples, uint16_t bcid, uint16_t evid):
+  GctBlockHeaderBase()
+{
   d = (id & 0xfff) + ((nsamples&0xf)<<16) + ((bcid&0xfff)<<20) + ((evid&0xf)<<12);
 }
-
-GctBlockHeader::~GctBlockHeader() { }
-
-unsigned int GctBlockHeader::length() const
-{
-  if(!valid()) { return 0; }
-  return blockLength_[this->id()];
-}
-
-std::string GctBlockHeader::name() const
-{
-  if(!valid()) { return "Unknown/invalid block header"; }
-  return blockName_[this->id()];
-}
-
-std::ostream& operator<<(std::ostream& os, const GctBlockHeader& h) {
-  os << "GCT Raw Data Block : " << h.name() << " : ID " << std::hex << h.id() << " : Length : " << h.length() << " : Samples " << h.nSamples() << " : BX " << h.bcId() << " : Event " << h.eventId() << std::dec;
-  return os;
-}
-
 
 /// setup class static to lookup block length
 pair<unsigned, unsigned> a[] = {
@@ -171,7 +147,7 @@ pair<unsigned, unsigned> a[] = {
 //  pair<unsigned, unsigned>(0x783,),
 };
 
-map<unsigned, unsigned> GctBlockHeader::blockLength_(a, a + sizeof(a) / sizeof(a[0]));
+map<unsigned, unsigned> GctBlockHeaderBase::blockLength_(a, a + sizeof(a) / sizeof(a[0]));
 
 /// setup class static to lookup block name
 pair<unsigned, string> b[] = {
@@ -307,5 +283,5 @@ pair<unsigned, string> b[] = {
 //  pair<unsigned, string>(0x783,"WheelNegEtaEnergy: Output")
 };
 
-map<unsigned, string> GctBlockHeader::blockName_(b, b + sizeof(b) / sizeof(b[0]));
+map<unsigned, string> GctBlockHeaderBase::blockName_(b, b + sizeof(b) / sizeof(b[0]));
 

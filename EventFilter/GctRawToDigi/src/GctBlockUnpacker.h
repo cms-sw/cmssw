@@ -18,6 +18,7 @@
 #include "L1Trigger/TextToDigi/src/SourceCardRouting.h"
 
 #include "EventFilter/GctRawToDigi/src/GctBlockHeader.h"
+#include "EventFilter/GctRawToDigi/src/GctBlockHeaderV2.h"
 
 class GctBlockUnpacker
 {
@@ -28,12 +29,17 @@ class GctBlockUnpacker
 
  public:
 
-  GctBlockUnpacker();
-  ~GctBlockUnpacker();
+  /// Constructor.
+  /*! \param hltMode - set true to unpack only BX zero and GCT output data (i.e. to run as quickly as possible).
+   *  \param grenCompatibilityMode - set true for unpacking with old-style (GREN07 era) block headers & pipe format.*/
+  GctBlockUnpacker(bool hltMode = false, bool grenCompatibilityMode=false);
+  
+  ~GctBlockUnpacker(); ///< Destructor.
   
   /// set collection pointers
   /// when unpacking set these to empty collections that will be filled.
   void setRctEmCollection(L1CaloEmCollection* coll) { rctEm_ = coll; }
+  void setRctCaloRegionCollection(L1CaloRegionCollection * coll) { rctCalo_ = coll; }
   void setIsoEmCollection(L1GctEmCandCollection* coll) { gctIsoEm_ = coll; }
   void setNonIsoEmCollection(L1GctEmCandCollection* coll) { gctNonIsoEm_ = coll; }
   void setInternEmCollection(L1GctInternEmCandCollection* coll) { gctInternEm_ = coll; }
@@ -75,6 +81,7 @@ class GctBlockUnpacker
 
 
   // PRIVATE MEMBERS
+
   /// Map to relate capture block ID to the RCT crate the data originated from.
   static RctCrateMap rctCrate_;
 
@@ -85,6 +92,12 @@ class GctBlockUnpacker
    *  Internal EM cands in the pipeline, as this differs with Block ID. */ 
   static BlockIdToEmCandIsoBoundMap InternEmIsoBounds_;
 
+  /// If true, unpack only BX zero and GCT output data (i.e. to run as quickly as possible) 
+  bool hltMode_;
+
+  /// If flag set true, unpack expecting old-style (GREN07 era) block headers & pipe format.
+  bool grenCompatibilityMode_;
+  
   /// Source card mapping info
   SourceCardRouting srcCardRouting_;
 

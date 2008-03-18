@@ -1,33 +1,21 @@
-
 #ifndef GCTBLOCKHEADER_H
 #define GCTBLOCKHEADER_H
 
-#include <vector>
-#include <map>
-#include <ostream>
-#include <string>
+#include "EventFilter/GctRawToDigi/src/GctBlockHeaderBase.h"
 
-// data block header
-// blockId = 7:0
-// nSamples = 11:8 (if nSamples=0xf, use defNSamples_)
-// bcId = 23:12
-// eventId = 31:24
-
-
-
-class GctBlockHeader {
+/// Class representing the first definition of a pipeline block header (GREN 2007 era - kept for backwards compat.) 
+/*! blockId = 7:0,
+ *  nSamples = 11:8 (if nSamples=0xf, use defNSamples_),
+ *  bcId = 23:12,
+ *  eventId = 31:24 */
+class GctBlockHeader : public GctBlockHeaderBase
+{
  public:
-  GctBlockHeader(const uint32_t data=0);
-  GctBlockHeader(const unsigned char * data);
+  GctBlockHeader(const uint32_t data=0):GctBlockHeaderBase(data) {}
+  GctBlockHeader(const unsigned char * data):GctBlockHeaderBase(data) {}
   GctBlockHeader(uint16_t id, uint16_t nsamples, uint16_t bcid, uint16_t evid);
-  ~GctBlockHeader();
+  ~GctBlockHeader() {}
   
-  /// this is a valid block header
-  bool valid() const { return ( blockLength_.find(this->id()) != blockLength_.end() ); }
-
-  /// the raw header data
-  uint32_t data() const { return d; }
-
   /// the block ID
   unsigned int id() const { return d & 0xff; }
 
@@ -39,26 +27,6 @@ class GctBlockHeader {
 
   /// event ID
   unsigned int eventId() const { return (d>>24) & 0xff; }
-
-  /// fundamental block length (for 1 time sample)
-  unsigned int length() const { return blockLength_[this->id()] ; }
-
-  /// block name
-  std::string name() const { return blockName_[this->id()]; }
-
- private:
-  
-  uint32_t d;
-
-  static std::map<unsigned int, unsigned int> blockLength_;  // fundamental size of a block (ie for 1 readout sample)
-  static std::map<unsigned int, std::string> blockName_;  // block name!
-
-
-
 };
-
-std::ostream& operator<<(std::ostream& os, const GctBlockHeader& h);
-
-
 
 #endif
