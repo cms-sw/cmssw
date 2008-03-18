@@ -168,24 +168,20 @@ void make(TDirectory & out, TObject * o) {
       make(*outDir, obj);
     }
   } else if((th1f = dynamic_cast<TH1F*>(o)) != 0) {
-    TAxis * axis = th1f->GetXaxis();
-    TH1F * h = new TH1F(th1f->GetName(), th1f->GetTitle(), th1f->GetNbinsX(), axis->GetXmin(), axis->GetXmax());
+    TH1F *h = (TH1F*) th1f->Clone();
+    h->Reset();   
     h->SetDirectory(&out);
   } else if((th1d = dynamic_cast<TH1D*>(o)) != 0) {
-    TAxis * axis = th1d->GetXaxis();
-    TH1D * h = new TH1D(th1d->GetName(), th1d->GetTitle(), th1d->GetNbinsX(), axis->GetXmin(), axis->GetXmax());
+    TH1D *h = (TH1D*) th1d->Clone();
+    h->Reset();
     h->SetDirectory(&out);
   } else if((th2f = dynamic_cast<TH2F*>(o)) != 0) {
-    TAxis * xAxis = th2f->GetXaxis(), * yAxis = th2f->GetYaxis();
-    TH2F * h = new TH2F(th2f->GetName(), th2f->GetTitle(), 
-			th2f->GetNbinsX(), xAxis->GetXmin(), xAxis->GetXmax(),
-			th2f->GetNbinsX(), yAxis->GetXmin(), yAxis->GetXmax());
+    TH2F *h = (TH2F*) th2f->Clone();
+    h->Reset();   
     h->SetDirectory(&out);
   } else if((th2d = dynamic_cast<TH2D*>(o)) != 0) {
-    TAxis * xAxis = th2d->GetXaxis(), * yAxis = th2d->GetYaxis();
-    TH2D * h = new TH2D(th2d->GetName(), th2d->GetTitle(), 
-			th2d->GetNbinsX(), xAxis->GetXmin(), xAxis->GetXmax(),
-			th2d->GetNbinsX(), yAxis->GetXmin(), yAxis->GetXmax());
+    TH2D *h = (TH2D*) th2d->Clone();
+    h->Reset();   
     h->SetDirectory(&out);
   }
 }
