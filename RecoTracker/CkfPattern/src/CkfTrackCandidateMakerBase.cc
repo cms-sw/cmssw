@@ -44,6 +44,7 @@ namespace cms{
     theTrackCandidateOutput(true),
     theTrajectoryOutput(false),
     useSplitting(conf.getParameter<bool>("useHitsSplitting")),
+    doSeedingRegionRebuilding(conf.getParameter<bool>("doSeedingRegionRebuilding")),
     theTrajectoryBuilderName(conf.getParameter<std::string>("TrajectoryBuilder")), 
     theTrajectoryBuilder(0),
     theTrajectoryCleanerName(conf.getParameter<std::string>("TrajectoryCleaner")), 
@@ -155,7 +156,9 @@ namespace cms{
 			       << " trajectories for this seed ========";
 
 	theTrajectoryCleaner->clean(theTmpTrajectories);
-	theTrajectoryBuilder->rebuildSeedingRegion((*collseed)[j],theTmpTrajectories);      
+
+	if(doSeedingRegionRebuilding)
+	  theTrajectoryBuilder->rebuildSeedingRegion((*collseed)[j],theTmpTrajectories);      
 
 	for(vector<Trajectory>::iterator it=theTmpTrajectories.begin();
 	    it!=theTmpTrajectories.end(); it++){

@@ -42,6 +42,7 @@ namespace cms
     bool theTrackCandidateOutput;
     bool theTrajectoryOutput;
     bool useSplitting;
+    bool doSeedingRegionRebuilding;
 
     std::string theTrajectoryBuilderName;
     const TrajectoryBuilder*  theTrajectoryBuilder;
