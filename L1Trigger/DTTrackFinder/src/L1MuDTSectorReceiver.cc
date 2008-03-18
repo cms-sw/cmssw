@@ -5,8 +5,8 @@
 //   Description: Sector Receiver 
 //
 //
-//   $Date: 2007/02/27 11:44:00 $
-//   $Revision: 1.6 $
+//   $Date: 2008/02/25 16:35:32 $
+//   $Revision: 1.10 $
 //
 //   Author :
 //   N. Neumeister            CERN EP
@@ -118,8 +118,6 @@ void L1MuDTSectorReceiver::receiveDTBXData(int bx, const edm::Event& e) {
       if ( m_sp.ovl() && (reladr/2)%2 != 0 ) continue;
       int wheel  = address2wheel(reladr);
       int sector = address2sector(reladr);     
-      if ( abs(wheel)  != 0 ) continue;
-      //      if ( sector != 0 && sector != 2 ) continue;
       if ( reladr%2 == 0 ) ts = dttrig->chPhiSegm1(wheel,station,sector,bx);
       if ( reladr%2 == 1 ) ts = dttrig->chPhiSegm2(wheel,station,sector,bx);
       if ( ts ) {
@@ -193,8 +191,6 @@ void L1MuDTSectorReceiver::receiveDTBXData(int bx, const edm::Event& e) {
 //
 void L1MuDTSectorReceiver::receiveCSCData(int bx, const edm::Event& e) {
   
-  return;
-
   if ( bx < CSCConstants::MIN_BUNCH || bx > CSCConstants::MAX_BUNCH ) return;
 
   edm::Handle<CSCTriggerContainer<csctf::TrackStub> > csctrig;
