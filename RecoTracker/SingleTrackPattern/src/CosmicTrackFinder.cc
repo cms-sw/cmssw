@@ -60,9 +60,21 @@ namespace cms
     e.getByLabel(seedTag,seed);  
 
   //retrieve PixelRecHits
+    static const SiPixelRecHitCollection s_empty;
+    const SiPixelRecHitCollection *pixelHitCollection = &s_empty;
     edm::Handle<SiPixelRecHitCollection> pixelHits;
-    if (geometry!="MTCC" && (geometry!="CRACK" ))   e.getByLabel(pixelRecHitsTag, pixelHits); //e.getByType(pixelHits);
-    //retrieve StripRecHits
+    if (geometry!="MTCC" && (geometry!="CRACK" )) {
+      if( e.getByLabel(pixelRecHitsTag, pixelHits)) {
+	pixelHitCollection = pixelHits.product();
+      } else {
+	edm::LogWarning("CosmicTrackFinder") << "Collection SiPixelRecHitCollection with InputTag " << pixelRecHitsTag << " cannot be found, using empty collection of same type.";
+      }
+    }
+    
+   
+
+
+ //retrieve StripRecHits
     edm::Handle<SiStripMatchedRecHit2DCollection> matchedrecHits;
     e.getByLabel( matchedrecHitsTag ,matchedrecHits);
     edm::Handle<SiStripRecHit2DCollection> rphirecHits;
@@ -89,7 +101,7 @@ namespace cms
                                    *stereorecHits,
                                    *rphirecHits,
                                    *matchedrecHits,
-                                   *pixelHits,
+				   *pixelHitCollection,
                                    es,
                                    e,
                                    trajoutput);
@@ -98,7 +110,7 @@ namespace cms
                                    *stereorecHits,
                                    *rphirecHits,
                                    *matchedrecHits,
-                                   *pixelHits,
+				   *pixelHitCollection,
                                    es,
                                    e,
                                    trajoutput);
