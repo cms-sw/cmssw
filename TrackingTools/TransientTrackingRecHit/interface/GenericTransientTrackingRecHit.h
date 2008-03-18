@@ -14,6 +14,7 @@ public:
   virtual AlgebraicSymMatrix parametersError() const {return trackingRecHit_->parametersError();}
   virtual AlgebraicMatrix projectionMatrix() const {return trackingRecHit_->projectionMatrix();}
   virtual int dimension() const {return trackingRecHit_->dimension();}
+  virtual void getKfComponents( KfComponentsHolder & holder ) const { trackingRecHit_->getKfComponents(holder); }
 
   virtual LocalPoint localPosition() const {return trackingRecHit_->localPosition();}
   virtual LocalError localPositionError() const {return trackingRecHit_->localPositionError();}
