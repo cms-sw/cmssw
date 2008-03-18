@@ -526,7 +526,7 @@ std::string PixelPortCardConfig::AOHGainStringFromAOHNumber(unsigned int AOHNumb
 	else assert(0);
 }
 
-unsigned int PixelPortCardConfig::getAOHGain(unsigned int AOHNumber) const
+unsigned int PixelPortCardConfig::AOHGainAddressFromAOHNumber(unsigned int AOHNumber) const
 {
 	unsigned int address;
 	if ( type_ == "fpix" )
@@ -569,6 +569,12 @@ unsigned int PixelPortCardConfig::getAOHGain(unsigned int AOHNumber) const
 	}
 	else assert(0);
 	
+	return address;
+}
+
+unsigned int PixelPortCardConfig::getAOHGain(unsigned int AOHNumber) const
+{
+	const unsigned int address = AOHGainAddressFromAOHNumber(AOHNumber);
 	const unsigned int threeGainsValue = getdeviceValuesForAddress(address);
 	
 	if ( AOHNumber%3 == 1 ) return (((threeGainsValue) & 0x03)>>0); // return bits 0 & 1

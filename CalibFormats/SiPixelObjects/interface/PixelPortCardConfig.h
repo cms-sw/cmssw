@@ -51,6 +51,7 @@ namespace pos{
     void setdeviceValues(std::string settingName, unsigned int value);
   
     unsigned int AOHBiasAddressFromAOHNumber(unsigned int AOHNumber) const;
+    unsigned int AOHGainAddressFromAOHNumber(unsigned int AOHNumber) const;
     
     void setAOHGain(unsigned int AOHNumber, unsigned int value) {setAOHGain(AOHGainStringFromAOHNumber(AOHNumber),value);}
     unsigned int getAOHGain(unsigned int AOHNumber) const;
