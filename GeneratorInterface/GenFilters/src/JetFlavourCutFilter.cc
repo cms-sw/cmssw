@@ -44,7 +44,7 @@ JetFlavourCutFilter::printHisto(const HepMC::GenEvent::particle_iterator start,
       //vector< GenParticle * > parents = (*p)->listParents();
       vector< GenParticle * > parents;
       HepMC::GenVertex* inVertex = (*p)->production_vertex();
-      for(std::set<GenParticle*>::const_iterator iter = inVertex->particles_in_const_begin();
+      for(std::vector<GenParticle*>::const_iterator iter = inVertex->particles_in_const_begin();
 	  iter != inVertex->particles_in_const_end();iter++)
 	parents.push_back(*iter);
       
@@ -56,7 +56,7 @@ JetFlavourCutFilter::printHisto(const HepMC::GenEvent::particle_iterator start,
       //vector< GenParticle * > child = (*p)->listChildren();
       vector< GenParticle * > child;
       HepMC::GenVertex* outVertex = (*p)->end_vertex();
-      for(std::set<GenParticle*>::const_iterator iter = outVertex->particles_in_const_begin();
+      for(std::vector<GenParticle*>::const_iterator iter = outVertex->particles_in_const_begin();
 	  iter != outVertex->particles_in_const_end();iter++)
 	child.push_back(*iter);
       
@@ -86,7 +86,7 @@ bool JetFlavourCutFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSet
       //vector< GenParticle * > parents = (*p)->listParents();
       vector< GenParticle * > parents;
       HepMC::GenVertex* inVertex = (*p)->production_vertex();
-      for(std::set<GenParticle*>::const_iterator iter = inVertex->particles_in_const_begin();
+      for(std::vector<GenParticle*>::const_iterator iter = inVertex->particles_in_const_begin();
 	  iter != inVertex->particles_in_const_end();iter++)
 	parents.push_back(*iter);
       
@@ -94,7 +94,7 @@ bool JetFlavourCutFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSet
 
 	vector< GenParticle * > child;
 	HepMC::GenVertex* outVertex = (*z)->end_vertex();
-	for(std::set<GenParticle*>::const_iterator iter = outVertex->particles_in_const_begin();
+	for(std::vector<GenParticle*>::const_iterator iter = outVertex->particles_in_const_begin();
 	    iter != outVertex->particles_in_const_end();iter++)
 	  child.push_back(*iter);
 	
