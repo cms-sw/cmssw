@@ -661,7 +661,7 @@ void FUEventProcessor::initEventProcessor()
   }  
   // add default set of services
   if(!servicesDone_) {
-    internal::addServiceMaybe(*pServiceSets,"DaqMonitorROOTBackEnd");
+    //    internal::addServiceMaybe(*pServiceSets,"DaqMonitorROOTBackEnd");
     //    internal::addServiceMaybe(*pServiceSets,"MonitorDaemon");
     internal::addServiceMaybe(*pServiceSets,"MLlog4cplus");
     internal::addServiceMaybe(*pServiceSets,"MicroStateService");
