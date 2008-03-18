@@ -12,6 +12,7 @@
 <use name=FWCore/ServiceRegistry>
 <use name=FWCore/Utilities>
 <use name=boost>
+<use name=rootcore>
 
 <export>
   <lib name=DQMSiStripCommissioningSources> 

@@ -5,7 +5,6 @@
 #include "DataFormats/Common/interface/DetSet.h"
 #include "DataFormats/SiStripCommon/interface/SiStripEventSummary.h"
 #include "DataFormats/SiStripDigi/interface/SiStripRawDigi.h"
-#include "FWCore/Framework/interface/EventSetup.h"
 #include "boost/cstdint.hpp"
 #include <vector>
 #include <string>
@@ -13,6 +12,7 @@
 
 class DQMStore;
 class MonitorElement;
+namespace edm { class EventSetup; }
 
 /**
    @class CommissioningTask
@@ -77,7 +77,10 @@ class CommissioningTask {
   
   /** Returns the name of this commissioning task. */
   inline const std::string& myName() const;
-  
+
+  /** Define access to the EventSetup. */
+  inline void eventSetup( const edm::EventSetup* );
+
  protected: 
   
   // ---------- Protected methods ----------
@@ -102,6 +105,9 @@ class CommissioningTask {
 
   /** Returns FED key. */
   inline const uint32_t& fedKey() const;
+
+  /** Access to the EventSetup. */
+  inline const edm::EventSetup* const eventSetup() const;
   
  private: 
   
@@ -135,8 +141,10 @@ class CommissioningTask {
   uint32_t fecKey_;
 
   bool booked_;
-
+  
   std::string myName_;
+  
+  const edm::EventSetup* eventSetup_;
   
 };
 
@@ -153,5 +161,7 @@ const FedChannelConnection& CommissioningTask::connection() const { return conne
 const uint32_t& CommissioningTask::fecKey() const { return fecKey_; }
 const uint32_t& CommissioningTask::fedKey() const { return fedKey_; }
 
-#endif // DQM_SiStripCommissioningSources_CommissioningTask_H
+void CommissioningTask::eventSetup( const edm::EventSetup* setup ) { eventSetup_ = setup; }
+const edm::EventSetup* const CommissioningTask::eventSetup() const { return eventSetup_; }
 
+#endif // DQM_SiStripCommissioningSources_CommissioningTask_H

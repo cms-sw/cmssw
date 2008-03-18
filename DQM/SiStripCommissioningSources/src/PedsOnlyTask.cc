@@ -13,7 +13,7 @@ using namespace sistrip;
 // -----------------------------------------------------------------------------
 //
 PedsOnlyTask::PedsOnlyTask( DQMStore* dqm,
-			      const FedChannelConnection& conn ) :
+			    const FedChannelConnection& conn ) :
   CommissioningTask( dqm, conn, "PedsOnlyTask" ),
   peds_()
 {
@@ -86,7 +86,7 @@ void PedsOnlyTask::book() {
 // -----------------------------------------------------------------------------
 //
 void PedsOnlyTask::fill( const SiStripEventSummary& summary,
-			  const edm::DetSet<SiStripRawDigi>& digis ) {
+			 const edm::DetSet<SiStripRawDigi>& digis ) {
   
   if ( digis.data.size() != peds_[0].vNumOfEntries_.size() ) {
     edm::LogWarning(mlDqmSource_)

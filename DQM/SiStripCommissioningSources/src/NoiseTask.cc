@@ -4,6 +4,7 @@
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQM/SiStripCommon/interface/ExtractTObject.h"
 #include "DQM/SiStripCommon/interface/UpdateTProfile.h"
+#include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <algorithm>
 #include <math.h>
@@ -132,7 +133,19 @@ void NoiseTask::fill( const SiStripEventSummary& summary,
 
   uint16_t napvs = nbins / 128;
   std::vector<uint16_t> cm; cm.resize(napvs,0);
-  
+
+  //@@@ NEW ACCESS TO EVENT SETUP TO ACCESS PEDESTALS!!!
+  //@@@ NEW ACCESS TO EVENT SETUP TO ACCESS PEDESTALS!!!
+  //@@@ NEW ACCESS TO EVENT SETUP TO ACCESS PEDESTALS!!!
+  const edm::EventSetup* const setup = eventSetup();
+  if ( setup ) {
+    //@@ do something here
+  } else {
+    edm::LogWarning(mlDqmSource_)
+      << "[NoiseTask::" << __func__ << "]"
+      << " NULL pointer to EventSetup!";
+  }
+
   // Calc common mode for both APVs
   std::vector<uint16_t> adc;
   for ( uint16_t iapv = 0; iapv < napvs; iapv++ ) { 

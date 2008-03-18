@@ -22,7 +22,8 @@ CommissioningTask::CommissioningTask( DQMStore* dqm,
   fedKey_(0),
   fecKey_(0),
   booked_(false),
-  myName_(my_name)
+  myName_(my_name),
+  eventSetup_(0)
 {
   uint16_t fed_ch = connection_.fedCh();
   fedKey_ = SiStripFedKey( connection_.fedId(), 
@@ -75,6 +76,7 @@ CommissioningTask::~CommissioningTask() {
     << " and FedId/Ch: " 
     << connection_.fedId() << "/" 
     << connection_.fedCh();
+  //@@ do not delete EventSetup pointer!
 }
 
 // -----------------------------------------------------------------------------
