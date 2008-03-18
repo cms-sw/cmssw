@@ -1,13 +1,20 @@
 /*
  * \file L1TECALTPG.cc
  *
- * $Date: 2008/03/12 17:24:24 $
- * $Revision: 1.10 $
+ * $Date: 2008/03/14 20:35:46 $
+ * $Revision: 1.11 $
  * \author J. Berryhill
  *
  * - initial version stolen from GCTMonnitor (thanks!) (wittich 02/07)
  *
  * $Log: L1TECALTPG.cc,v $
+ * Revision 1.11  2008/03/14 20:35:46  berryhil
+ *
+ *
+ * stripped out obsolete parameter settings
+ *
+ * rpc tpg restored with correct dn access and dbe handling
+ *
  * Revision 1.10  2008/03/12 17:24:24  berryhil
  *
  *
@@ -81,6 +88,9 @@ L1TECALTPG::L1TECALTPG(const ParameterSet & ps):
 
   // verbosity switch
   verbose_ = ps.getUntrackedParameter < bool > ("verbose", false);
+
+  // ecal endcap switch
+  enableEE_ = ps.getUntrackedParameter < bool > ("enableEE", false);
 
   if (verbose_)
     std::cout << "L1TECALTPG: constructor...." << std::endl;
@@ -180,10 +190,11 @@ void L1TECALTPG::analyze(const Event & e, const EventSetup & c)
   // Get the ECAL TPGs
   edm::Handle < EcalTrigPrimDigiCollection > eeTP;
   edm::Handle < EcalTrigPrimDigiCollection > ebTP;
+  //  e.getByType(ebTP);
   e.getByLabel(ecaltpgSourceB_,ebTP);
   e.getByLabel(ecaltpgSourceE_,eeTP);
-
-  if (!eeTP.isValid()) 
+  
+  if (!eeTP.isValid() && enableEE_) 
   {
     edm::LogInfo("L1TECALTPG") << "can't find EcalTrigPrimCollection with "
       " endcap label " << ecaltpgSourceE_.label() ;
@@ -201,6 +212,7 @@ void L1TECALTPG::analyze(const Event & e, const EventSetup & c)
     std::cout << "L1TECALTPG: barrel size is " << ebTP->size() << std::endl;
     std::cout << "L1TECALTPG: endcap size is " << eeTP->size() << std::endl;
   }
+  
   for (EcalTrigPrimDigiCollection::const_iterator iebTP = ebTP->begin();
        iebTP != ebTP->end(); iebTP++) {
     if ( verbose_ ) {
@@ -214,6 +226,8 @@ void L1TECALTPG::analyze(const Event & e, const EventSetup & c)
     ecalTpRankB_->Fill(iebTP->compressedEt());
 
   }
+  
+  if (enableEE_){
   // endcap
   for (EcalTrigPrimDigiCollection::const_iterator ieeTP = eeTP->begin();
        ieeTP != eeTP->end(); ieeTP++) {
@@ -228,6 +242,6 @@ void L1TECALTPG::analyze(const Event & e, const EventSetup & c)
     ecalTpRankE_->Fill(ieeTP->compressedEt());
 
   }
-
+  }
 
 }
