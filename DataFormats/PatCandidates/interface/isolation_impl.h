@@ -52,9 +52,39 @@ void setHCalIso(float caloIso)   { setIsolation(HCalIso, caloIso);  }
 /// Sets user isolation variable #index
 void setUserIso(float value, uint8_t index=0)  { setIsolation(IsolationKeys(UserBaseIso + index), value); }
 
+
+/// Returns the IsoDeposit associated with some key, or a null pointer if it is not available
+const IsoDeposit * isoDeposit(IsolationKeys key) const {
+    for (IsoDepositPairs::const_iterator it = isoDeposits_.begin(), ed = isoDeposits_.end(); 
+            it != ed; ++it) 
+    {
+        if (it->first == key) return & it->second;
+    }
+    return 0;
+} 
+
+/// Sets the IsoDeposit associated with some key; if it is already existent, it is overwritten.
+void setIsoDeposit(IsolationKeys key, const IsoDeposit &dep) {
+    IsoDepositPairs::iterator it = isoDeposits_.begin(), ed = isoDeposits_.end();
+    for (; it != ed; ++it) {
+        if (it->first == key) { it->second = dep; return; }
+    }
+    isoDeposits_.push_back(std::make_pair(key,dep));
+} 
+
+const IsoDeposit * trackerIsoDeposit() const { return isoDeposit(TrackerIso); }
+const IsoDeposit * ecalIsoDeposit()    const { return isoDeposit(ECalIso); }
+const IsoDeposit * hcalIsoDeposit()    const { return isoDeposit(HCalIso); }
+const IsoDeposit * userIsoDeposit(uint8_t index=0) const { return isoDeposit(IsolationKeys(UserBaseIso + index)); }
+
+void trackerIsoDeposit(const IsoDeposit &dep) { setIsoDeposit(TrackerIso, dep); }
+void ecalIsoDeposit(const IsoDeposit &dep)    { setIsoDeposit(ECalIso, dep); }
+void hcalIsoDeposit(const IsoDeposit &dep)    { setIsoDeposit(HCalIso, dep); }
+void userIsoDeposit(const IsoDeposit &dep, uint8_t index=0) { setIsoDeposit(IsolationKeys(UserBaseIso + index), dep); }
 // ================ PROTECTED ==================
 protected:
-//std::vector<reco::MuIsoDeposit> isoDeposits_;
-std::vector<float>              isolations_;
+typedef std::vector<std::pair<IsolationKeys, reco::MuIsoDeposit> > IsoDepositPairs;
+IsoDepositPairs    isoDeposits_;
+std::vector<float> isolations_;
 
 
