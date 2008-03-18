@@ -1,6 +1,6 @@
 #ifndef CMSUTILS_BEUEUE_H
 #define CMSUTILS_BEUEUE_H
-#include <boost/shared_ptr.hpp>
+#include <boost/intrusive_ptr.hpp>
 
 /**  Backwards linked queue with "head sharing"
 
@@ -19,7 +19,7 @@
        - front() and back(): returns a reference to the first and last element
        - size(), empty(): as expected. size() does not count the items
      
-     Note that boost::shared_ptr is used for items, so they are deleted automatically
+     Note that boost::intrusive_ptr is used for items, so they are deleted automatically
      while avoiding problems if one deletes a queue which shares the head with another one
 
      Disclaimer: I'm not sure the const_iterator is really const-correct..
@@ -28,17 +28,31 @@ namespace cmsutils {
 
 template<class T> class _bqueue_itr;
 template<class T> class bqueue;
+template<class T> class _bqueue_item;
+template<class T> void intrusive_ptr_add_ref(_bqueue_item<T> *it) ;
+template<class T> void intrusive_ptr_release(_bqueue_item<T> *it) ;
 
 template <class T> 
 class _bqueue_item {
         friend class bqueue<T>;
         friend class _bqueue_itr<T>;
+        friend void intrusive_ptr_add_ref<T>(_bqueue_item<T> *it);
+        friend void intrusive_ptr_release<T>(_bqueue_item<T> *it);
+        void addRef() { ++refCount; }
+        void delRef() { if ((--refCount) == 0) delete this; }
     private:
-        _bqueue_item() : back(0), value() { }
-        _bqueue_item(boost::shared_ptr< _bqueue_item<T> > tail, const T &val) : back(tail), value(val) { }
-        boost::shared_ptr< _bqueue_item<T> > back;
+        _bqueue_item() : back(0), value(), refCount(0) { }
+        _bqueue_item(boost::intrusive_ptr< _bqueue_item<T> > tail, const T &val) : back(tail), value(val), refCount(0) { }
+        boost::intrusive_ptr< _bqueue_item<T> > back;
         T value;
+        size_t refCount;
 };
+
+template<class T> inline void intrusive_ptr_add_ref(_bqueue_item<T> *it) { it->addRef(); }
+template<class T> inline void intrusive_ptr_release(_bqueue_item<T> *it) { it->delRef(); }
+//inline void intrusive_ptr_add_ref(const _bqueue_item *it) { it->addRef(); }
+//inline void intrusive_ptr_release(const _bqueue_item *it) { it->delRef(); }
+
 template<class T>
 class _bqueue_itr {
     public:
@@ -65,7 +79,7 @@ class bqueue {
         typedef T value_type;
         typedef unsigned short int size_type;
         typedef _bqueue_item<value_type>       item;
-        typedef boost::shared_ptr< _bqueue_item<value_type> >  itemptr;
+        typedef boost::intrusive_ptr< _bqueue_item<value_type> >  itemptr;
         typedef _bqueue_itr<value_type>       iterator;
         typedef const _bqueue_itr<value_type> const_iterator;
         bqueue() : m_size(0), m_bound(), m_head(m_bound), m_tail(m_bound) { }
