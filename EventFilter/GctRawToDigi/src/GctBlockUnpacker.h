@@ -6,7 +6,6 @@
 #include <map>
 #include <utility>
 #include <memory>
-#include <boost/cstdint.hpp>
 
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
 
@@ -18,6 +17,10 @@
 #include "L1Trigger/TextToDigi/src/SourceCardRouting.h"
 
 #include "EventFilter/GctRawToDigi/src/GctBlockHeaderBase.h"
+
+// *******************************************************************
+// ***  THE UNPACK PROCESS MUST NEVER THROW ANY KIND OF EXCEPTION! *** 
+// *******************************************************************
 
 class GctBlockUnpacker
 {
