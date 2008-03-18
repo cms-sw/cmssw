@@ -406,10 +406,14 @@ void SiStripCommissioningSource::fillCablingHistos( const SiStripEventSummary* c
     // Iterate through FED channels
     for ( uint16_t ichan = 0; ichan < 96; ichan++ ) {
       
+      //       // Retrieve digis for given FED key
+      //       uint32_t fed_key = SiStripFedKey( *ifed, 
+      // 					SiStripFedKey::feUnit(ichan),
+      // 					SiStripFedKey::feChan(ichan) ).key();
+      
       // Retrieve digis for given FED key
-      uint32_t fed_key = SiStripFedKey( *ifed, 
-					SiStripFedKey::feUnit(ichan),
-					SiStripFedKey::feChan(ichan) ).key();
+      uint32_t fed_key = ( ( *ifed & sistrip::invalid_ ) << 16 ) | ( ichan & sistrip::invalid_ );
+      
       std::vector< edm::DetSet<SiStripRawDigi> >::const_iterator digis = raw.find( fed_key );
       if ( digis != raw.end() ) { 
 	if ( digis->data.empty() ) { continue; }
@@ -596,11 +600,14 @@ void SiStripCommissioningSource::fillHistos( const SiStripEventSummary* const su
 
       if ( !(iconn->fedId()) || iconn->fedId() > sistrip::valid_ ) { continue; }
       
+      //       // Create FED key and check if non-zero
+      //       uint32_t fed_key = SiStripFedKey( iconn->fedId(), 
+      // 					SiStripFedKey::feUnit(iconn->fedCh()),
+      // 					SiStripFedKey::feChan(iconn->fedCh()) ).key();
+      
       // Create FED key and check if non-zero
-      uint32_t fed_key = SiStripFedKey( iconn->fedId(), 
-					SiStripFedKey::feUnit(iconn->fedCh()),
-					SiStripFedKey::feChan(iconn->fedCh()) ).key();
-
+      uint32_t fed_key = ( ( iconn->fedId() & sistrip::invalid_ ) << 16 ) | ( iconn->fedCh() & sistrip::invalid_ );
+      
       // Retrieve digis for given FED key and check if found
       std::vector< edm::DetSet<SiStripRawDigi> >::const_iterator digis = raw.find( fed_key ); 
       if ( digis != raw.end() ) { 
