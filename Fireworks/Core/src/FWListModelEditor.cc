@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Mar  3 17:20:28 EST 2008
-// $Id$
+// $Id: FWListModelEditor.cc,v 1.1 2008/03/05 15:07:31 chrjones Exp $
 //
 
 // system include files
@@ -70,6 +70,7 @@ void
 FWListModelEditor::SetModel(TObject* obj)
 {
    m_model = dynamic_cast<FWListModel*>(obj);
+   m_showDetailViewButton->SetEnabled(m_model->hasDetailView());
 }
 
 void 
