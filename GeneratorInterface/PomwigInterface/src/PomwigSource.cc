@@ -473,7 +473,7 @@ bool PomwigSource::produce(Event & e) {
   // if event was killed by HERWIG; skip 
   if(hwevnt.IERROR!=0) return true;
 
-  intCrossSect = 1000.0*survivalProbability*hwevnt.AVWGT;
+  //intCrossSect = 1000.0*survivalProbability*hwevnt.AVWGT;
 
   // -----------------  HepMC converter --------------------
   HepMC::IO_HERWIG conv;
@@ -1287,8 +1287,17 @@ bool PomwigSource::setRngSeeds(int mseed)
 void PomwigSource::endRun(Run & r) {
  
  auto_ptr<GenInfoProduct> giprod (new GenInfoProduct());
+
+ //-----------------------------------------------
+ // compute cross-section (internal HERWIG style)
+ double RNWGT=1./hwevnt.NWGTS;
+ double AVWGT=hwevnt.WGTSUM*RNWGT;
+
+ intCrossSect=1000.*survivalProbability*AVWGT;
+ //-----------------------------------------------
+
  giprod->set_cross_section(intCrossSect);
- cout<<"cross section = "<<intCrossSect<<std::endl;
+ cout<<">>>>> Cross section = " << intCrossSect << std::endl;
  giprod->set_external_cross_section(extCrossSect);
  giprod->set_filter_efficiency(extFilterEff);
  r.put(giprod);
