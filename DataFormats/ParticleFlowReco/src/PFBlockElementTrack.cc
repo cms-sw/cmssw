@@ -13,7 +13,8 @@ using namespace std;
 PFBlockElementTrack::PFBlockElementTrack(const PFRecTrackRef& ref) : 
   PFBlockElement( TRACK ),
   trackRefPF_( ref ), 
-  trackRef_( ref->trackRef() ) {
+  trackRef_( ref->trackRef() ),
+  trackType_(0) {
       nuclInterRef_ = NuclearInteractionRef();
       setTrackType( DEFAULT, true );      
 } 
