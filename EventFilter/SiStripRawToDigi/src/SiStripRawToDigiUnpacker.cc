@@ -4,7 +4,7 @@
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
 #include "DataFormats/FEDRawData/interface/FEDNumbering.h"
 #include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
-#include "DataFormats/SiStripCommon/interface/SiStripFedKey.h"
+//#include "DataFormats/SiStripCommon/interface/SiStripFedKey.h"
 #include "DataFormats/SiStripCommon/interface/SiStripEventSummary.h"
 #include "DataFormats/SiStripDigi/interface/SiStripDigi.h"
 #include "DataFormats/SiStripDigi/interface/SiStripRawDigi.h"
@@ -224,19 +224,27 @@ void SiStripRawToDigiUnpacker::createDigis( const SiStripFedCabling& cabling,
 	handleException( __func__, "Problem using Fed9UAddress" ); 
       } 
       
+      //       // Determine whether FED key is inferred from cabling or channel loop
+      //       uint32_t fed_key = 0;
+      //       SiStripFedKey fed_path;
+      //       if ( summary.runType() == sistrip::FED_CABLING ) {
+      // 	fed_path = SiStripFedKey( *ifed, 
+      // 				  SiStripFedKey::feUnit(chan),
+      // 				  SiStripFedKey::feChan(chan) );
+      //       } else { 
+      // 	fed_path = SiStripFedKey( iconn->fedId(), 
+      // 				  SiStripFedKey::feUnit(iconn->fedCh()),
+      // 				  SiStripFedKey::feChan(iconn->fedCh()) );
+      //       }
+      //       fed_key = fed_path.key();
+      
       // Determine whether FED key is inferred from cabling or channel loop
       uint32_t fed_key = 0;
-      SiStripFedKey fed_path;
       if ( summary.runType() == sistrip::FED_CABLING ) {
-	fed_path = SiStripFedKey( *ifed, 
-				  SiStripFedKey::feUnit(chan),
-				  SiStripFedKey::feChan(chan) );
+	fed_key = ( ( *ifed & sistrip::invalid_ ) << 16 ) | ( chan & sistrip::invalid_ );
       } else { 
-	fed_path = SiStripFedKey( iconn->fedId(), 
-				  SiStripFedKey::feUnit(iconn->fedCh()),
-				  SiStripFedKey::feChan(iconn->fedCh()) );
+	fed_key = ( ( iconn->fedId() & sistrip::invalid_ ) << 16 ) | ( iconn->fedCh() & sistrip::invalid_ );
       }
-      fed_key = fed_path.key();
       
       // Determine whether DetId or FED key should be used to index digi containers
       uint32_t key = ( useFedKey_ || mode == sistrip::FED_SCOPE_MODE ) ? fed_key : iconn->detId();
@@ -731,8 +739,8 @@ void SiStripRawToDigiUnpacker::dumpRawData( uint16_t fed_id,
 
     ss << "Byte->   4 5 6 7 0 1 2 3\n";
     for ( uint32_t i = 0; i < buffer.size()/8; i++ ) {
-      unsigned int temp0 = buffer_u32[i*2] & 0xFFFFFFFF;
-      unsigned int temp1 = buffer_u32[i*2+1] & 0xFFFFFFFF;
+      unsigned int temp0 = buffer_u32[i*2] & sistrip::invalid32_;
+      unsigned int temp1 = buffer_u32[i*2+1] & sistrip::invalid32_;
       if ( !temp0 && !temp1 ) { empty++; }
       else { 
 	if ( empty ) { 
