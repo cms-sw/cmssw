@@ -14,7 +14,7 @@
 //
 // Original Author:  Dave Evans
 //         Created:  Thu Apr 13 15:50:17 CEST 2006
-// $Id: EgammaSCCorrectionMaker.h,v 1.5 2008/02/11 11:32:44 kkaadze Exp $
+// $Id: EgammaSCCorrectionMaker.h,v 1.7 2008/03/03 11:33:52 kkaadze Exp $
 //
 //
 
@@ -51,11 +51,10 @@ class EgammaSCCorrectionMaker : public edm::EDProducer {
      double etThresh_;
      
      // vars to get products
-     std::string rHInputProducer_;
-     std::string rHInputCollection_;
+     edm::InputTag rHInputProducer_;
+     edm::InputTag sCInputProducer_;
+
      reco::AlgoId sCAlgo_;
-     std::string sCInputProducer_;
-     std::string sCInputCollection_;
      std::string outputCollection_;
 
 };

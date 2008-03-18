@@ -34,12 +34,13 @@ class PreshowerClusterProducer : public edm::EDProducer {
   int nEvt_;         // internal counter of events
 
   //clustering parameters:
-  std::string preshHitProducer_;   // name of module/plugin/producer producing hits
-  std::string preshHitCollection_; // secondary name given to collection of hits by hitProducer
-  std::string preshClusterCollectionX_;  // secondary name to be given to collection of cluster produced in this module
+  edm::InputTag preshHitProducer_;         // name of module/plugin/producer producing hits
+  edm::InputTag endcapSClusterProducer_;   // ditto SuperClusters
+
+  // name out output collections
+  std::string preshClusterCollectionX_;  
   std::string preshClusterCollectionY_;  
-  std::string endcapSClusterCollection_;
-  std::string endcapSClusterProducer_;
+
 
   int preshNclust_;
   float preshClustECut;

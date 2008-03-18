@@ -45,12 +45,10 @@ using namespace std;
 PreshowerClusterProducer::PreshowerClusterProducer(const edm::ParameterSet& ps) {
 
   // use configuration file to setup input/output collection names 
-  preshHitProducer_   = ps.getParameter<std::string>("preshRecHitProducer");
-  preshHitCollection_ = ps.getParameter<std::string>("preshRecHitCollection");
+  preshHitProducer_   = ps.getParameter<edm::InputTag>("preshRecHitProducer");
 
   // Name of a SuperClusterCollection to make associations:
-  endcapSClusterCollection_ = ps.getParameter<std::string>("endcapSClusterCollection");
-  endcapSClusterProducer_   = ps.getParameter<std::string>("endcapSClusterProducer");
+  endcapSClusterProducer_   = ps.getParameter<edm::InputTag>("endcapSClusterProducer");
 
   // Output collections:
   preshClusterCollectionX_ = ps.getParameter<std::string>("preshClusterCollectionX");
@@ -109,12 +107,12 @@ void PreshowerClusterProducer::produce(edm::Event& evt, const edm::EventSetup& e
   CaloSubdetectorTopology * topology_p = &topology;
 
  // fetch the product (pSuperClusters)
-  evt.getByLabel(endcapSClusterProducer_, endcapSClusterCollection_, pSuperClusters);   
+  evt.getByLabel(endcapSClusterProducer_, pSuperClusters);   
   const reco::SuperClusterCollection* SClusts = pSuperClusters.product();
   if ( debugL <= PreshowerClusterAlgo::pINFO ) std::cout <<"### Total # Endcap Superclusters: " << SClusts->size() << std::endl;
 
   // fetch the product (RecHits)
-  evt.getByLabel( preshHitProducer_, preshHitCollection_, pRecHits);
+  evt.getByLabel( preshHitProducer_, pRecHits);
   // pointer to the object in the product
   const EcalRecHitCollection* rechits = pRecHits.product(); // EcalRecHitCollection hit_collection = *rhcHandle;
   if ( debugL == PreshowerClusterAlgo::pDEBUG ) std::cout << "PreshowerClusterProducerInfo: ### Total # of preshower RecHits: " 
