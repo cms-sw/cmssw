@@ -1,15 +1,17 @@
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-
 #include "EventFilter/GctRawToDigi/src/GctBlockUnpacker.h"
 
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-
-#include "DataFormats/L1GlobalCaloTrigger/interface/L1GctInternEmCand.h"
-#include "DataFormats/L1GlobalCaloTrigger/interface/L1GctEmCand.h"
-
+// C++ headers
 #include <iostream>
 #include <cassert>
 
+// Framework headers
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+
+// Dataformat headers
+#include "DataFormats/L1GlobalCaloTrigger/interface/L1GctInternEmCand.h"
+#include "DataFormats/L1GlobalCaloTrigger/interface/L1GctEmCand.h"
+
+// Namespace resolution
 using std::cout;
 using std::endl;
 using std::pair;
@@ -114,7 +116,7 @@ GctBlockUnpacker::GctBlockUnpacker(bool hltMode, bool grenCompatibilityMode):
 GctBlockUnpacker::~GctBlockUnpacker() { }
 
 // conversion
-void GctBlockUnpacker::convertBlock(const unsigned char * data, GctBlockHeader& hdr)
+void GctBlockUnpacker::convertBlock(const unsigned char * data, GctBlockHeaderBase& hdr)
 {
   unsigned int id = hdr.id();
   unsigned int nSamples = hdr.nSamples();
@@ -143,7 +145,7 @@ void GctBlockUnpacker::convertBlock(const unsigned char * data, GctBlockHeader& 
 
 
 // Output EM Candidates unpacking
-void GctBlockUnpacker::blockToGctEmCandsAndEnergySums(const unsigned char * d, const GctBlockHeader& hdr)
+void GctBlockUnpacker::blockToGctEmCandsAndEnergySums(const unsigned char * d, const GctBlockHeaderBase& hdr)
 {
   LogDebug("GCT") << "Unpacking GCT output EM Cands and Energy Sums" << std::endl;
 
@@ -197,7 +199,7 @@ void GctBlockUnpacker::blockToGctEmCandsAndEnergySums(const unsigned char * d, c
 }
 
 // Internal EM Candidates unpacking
-void GctBlockUnpacker::blockToGctInternEmCand(const unsigned char * d, const GctBlockHeader& hdr)
+void GctBlockUnpacker::blockToGctInternEmCand(const unsigned char * d, const GctBlockHeaderBase& hdr)
 {
   LogDebug("GCT") << "Unpacking internal EM Cands" << std::endl;
 
@@ -237,7 +239,7 @@ void GctBlockUnpacker::blockToGctInternEmCand(const unsigned char * d, const Gct
 
 // Input EM Candidates unpacking
 // this is the last time I deal the RCT bit assignment travesty!!!
-void GctBlockUnpacker::blockToRctEmCand(const unsigned char * d, const GctBlockHeader& hdr)
+void GctBlockUnpacker::blockToRctEmCand(const unsigned char * d, const GctBlockHeaderBase& hdr)
 {
   LogDebug("GCT") << "Unpacking RCT EM Cands" << std::endl;
 
@@ -291,7 +293,7 @@ void GctBlockUnpacker::blockToRctEmCand(const unsigned char * d, const GctBlockH
 
 
 // Fibre unpacking
-void GctBlockUnpacker::blockToFibres(const unsigned char * d, const GctBlockHeader& hdr)
+void GctBlockUnpacker::blockToFibres(const unsigned char * d, const GctBlockHeaderBase& hdr)
 {
   LogDebug("GCT") << "Unpacking GCT Fibres" << std::endl;
   
@@ -310,13 +312,13 @@ void GctBlockUnpacker::blockToFibres(const unsigned char * d, const GctBlockHead
   } 
 }
 
-void GctBlockUnpacker::blockToFibresAndToRctEmCand(const unsigned char * d, const GctBlockHeader& hdr)
+void GctBlockUnpacker::blockToFibresAndToRctEmCand(const unsigned char * d, const GctBlockHeaderBase& hdr)
 {
   this->blockToRctEmCand(d, hdr);
   this->blockToFibres(d, hdr);
 }
 
-void GctBlockUnpacker::blockToGctJetCandsAndCounts(const unsigned char * d, const GctBlockHeader& hdr)
+void GctBlockUnpacker::blockToGctJetCandsAndCounts(const unsigned char * d, const GctBlockHeaderBase& hdr)
 {
   LogDebug("GCT") << "Unpacking GCT output Jet Cands and Counts" << std::endl;
   

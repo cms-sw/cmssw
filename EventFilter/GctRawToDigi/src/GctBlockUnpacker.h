@@ -17,8 +17,7 @@
 
 #include "L1Trigger/TextToDigi/src/SourceCardRouting.h"
 
-#include "EventFilter/GctRawToDigi/src/GctBlockHeader.h"
-#include "EventFilter/GctRawToDigi/src/GctBlockHeaderV2.h"
+#include "EventFilter/GctRawToDigi/src/GctBlockHeaderBase.h"
 
 class GctBlockUnpacker
 {
@@ -54,7 +53,7 @@ class GctBlockUnpacker
   void setEtMiss(L1GctEtMiss* etMiss) { gctEtMiss_ = etMiss; }
 
   // get digis from block
-  void convertBlock(const unsigned char * d, GctBlockHeader& hdr);
+  void convertBlock(const unsigned char * d, const GctBlockHeaderBase& hdr);
 
  private:
  
@@ -72,7 +71,7 @@ class GctBlockUnpacker
   typedef std::map<unsigned int, IsoBoundaryPair> BlockIdToEmCandIsoBoundMap;
 
   /// Function pointer typdef to a block unpack function.
-  typedef void (GctBlockUnpacker::*PtrToUnpackFn)(const unsigned char *, const GctBlockHeader&);
+  typedef void (GctBlockUnpacker::*PtrToUnpackFn)(const unsigned char *, const GctBlockHeaderBase&);
   /// Typedef for a block ID to unpack function map.
   typedef std::map<unsigned int, PtrToUnpackFn> BlockIdToUnpackFnMap;
 
@@ -119,25 +118,25 @@ class GctBlockUnpacker
   // PRIVATE METHODS
   // convert functions for each type of block
   /// unpack GCT EM Candidates and energy sums.
-  void blockToGctEmCandsAndEnergySums(const unsigned char * d, const GctBlockHeader& hdr);
+  void blockToGctEmCandsAndEnergySums(const unsigned char * d, const GctBlockHeaderBase& hdr);
 
   /// unpack GCT internal EM Candidates
-  void blockToGctInternEmCand(const unsigned char * d, const GctBlockHeader& hdr);
+  void blockToGctInternEmCand(const unsigned char * d, const GctBlockHeaderBase& hdr);
 
   /// unpack RCT EM Candidates
-  void blockToRctEmCand(const unsigned char * d, const GctBlockHeader& hdr);
+  void blockToRctEmCand(const unsigned char * d, const GctBlockHeaderBase& hdr);
 
   /// unpack Fibres
-  void blockToFibres(const unsigned char * d, const GctBlockHeader& hdr);
+  void blockToFibres(const unsigned char * d, const GctBlockHeaderBase& hdr);
   
   /// unpack Fibres and RCT EM Candidates
-  void blockToFibresAndToRctEmCand(const unsigned char * d, const GctBlockHeader& hdr);
+  void blockToFibresAndToRctEmCand(const unsigned char * d, const GctBlockHeaderBase& hdr);
   
   /// Unpack GCT Jet Candidates and jet counts.
-  void blockToGctJetCandsAndCounts(const unsigned char * d, const GctBlockHeader& hdr);
+  void blockToGctJetCandsAndCounts(const unsigned char * d, const GctBlockHeaderBase& hdr);
 
   /// Do nothing
-  void blockDoNothing(const unsigned char * d, const GctBlockHeader& hdr) {}
+  void blockDoNothing(const unsigned char * d, const GctBlockHeaderBase& hdr) {}
 
 };
 

@@ -16,7 +16,7 @@
 //
 // Original Author:  Jim Brooke
 //         Created:  Wed Nov  1 11:57:10 CET 2006
-// $Id: GctRawToDigi.h,v 1.10 2007/09/18 15:15:57 frazier Exp $
+// $Id: GctRawToDigi.h,v 1.11 2008/03/18 01:06:03 frazier Exp $
 //
 //
 
@@ -39,12 +39,16 @@
 // class decleration
 //
 
-class GctRawToDigi : public edm::EDProducer {
- public:
+class GctRawToDigi : public edm::EDProducer
+{
+public:
+
   explicit GctRawToDigi(const edm::ParameterSet&);
   ~GctRawToDigi();
+
   
- private: // methods
+private: // methods
+
   virtual void beginJob(const edm::EventSetup&) ;
   virtual void produce(edm::Event&, const edm::EventSetup&);
   virtual void endJob() ;
@@ -53,28 +57,27 @@ class GctRawToDigi : public edm::EDProducer {
   /*! \param invalidDataFlag - if true, then won't attempt unpack but just output empty collecions. */
   void unpack(const FEDRawData& d, edm::Event& e, const bool invalidDataFlag=false);
 
- private: // members
 
-  static const unsigned MAX_BLOCKS;
+private: // members
+
+  static const unsigned MAX_BLOCKS = 256;
 
   edm::InputTag inputLabel_;  // FED collection label.
   int fedId_;                 // GCT FED ID.
-  bool verbose_;              // If true, then debug print out for each event.
+  const bool verbose_;        // If true, then debug print out for each event.
 
   // unpacking options
-  bool hltMode_;  // If true, only outputs the GT output data, and only BX = 0.
-  bool grenCompatibilityMode_;  // If true, use old-style (GREN07 era) block headers & pipe format.
-  bool doEm_;
-  bool doJets_;
-  bool doEtSums_;
-  bool doInternEm_;
-  bool doRct_;
-  bool doFibres_;
+  const bool hltMode_;  // If true, only outputs the GT output data, and only BX = 0.
+  const bool grenCompatibilityMode_;  // If true, use old-style (GREN07 era) block headers & pipe format.
+  const bool doEm_;
+  const bool doJets_;
+  const bool doEtSums_;
+  const bool doInternEm_;
+  const bool doRct_;
+  const bool doFibres_;
 
   // Block to Digi converter
   GctBlockUnpacker blockUnpacker_;
-
-  // If true, the
 
 };
 

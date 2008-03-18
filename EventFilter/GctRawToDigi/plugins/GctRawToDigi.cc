@@ -32,9 +32,6 @@ using std::cout;
 using std::endl;
 using std::vector;
 
-// Define class constants. 
-const unsigned GctRawToDigi::MAX_BLOCKS = 128;
-
 
 GctRawToDigi::GctRawToDigi(const edm::ParameterSet& iConfig) :
   inputLabel_(iConfig.getParameter<edm::InputTag>("inputLabel")),
@@ -138,7 +135,7 @@ void GctRawToDigi::unpack(const FEDRawData& d, edm::Event& e, const bool invalid
 
   if(invalidDataFlag == false) // Only attempt unpack with valid data
   {
-    std::vector<GctBlockHeader> bHdrs; // For storing block headers
+    std::vector<GctBlockHeaderBase> bHdrs; // For storing block headers
     bHdrs.reserve(32);  // Reserve approx the right amount of space.
   
     // Setup blockUnpacker
@@ -156,27 +153,34 @@ void GctRawToDigi::unpack(const FEDRawData& d, edm::Event& e, const bool invalid
     blockUnpacker_.setEtHad( etHadResult.get() );
     blockUnpacker_.setEtMiss( etMissResult.get() );
   
-    // Unpacking variables
-    const unsigned char * data = d.data();
-    unsigned dEnd = d.size()-16; // bytes in payload
-    unsigned dPtr = 8; // data pointer (starts at 8 as there is a 64-bit Slink header at start of packet).
-    bool lost = false;
-  
+    const unsigned char * data = d.data();  // The 8-bit wide raw-data array.  
+
+    // Data offset - starts at 16 as there is a 64-bit S-Link header followed
+    // by a 64-bit software-controlled header (for pipeline format version
+    // info that is not yet used).
+    unsigned dPtr = 16;
+    
+    if(grenCompatibilityMode_) { dPtr = 8; }  // No software-controlled secondary header in old scheme. 
+    
+    const unsigned dEnd = d.size() - dPtr - 8; // bytes in payload = packet size - initial header(s) - final slink header.
+
     // read blocks
-    for (unsigned nb=0; !lost && dPtr<dEnd && nb<MAX_BLOCKS; ++nb)
+    for (unsigned nb=0; dPtr<dEnd && nb<MAX_BLOCKS; ++nb)
     {
       // read block header
-      GctBlockHeader blockHead(&data[dPtr]);
-  
-      // unpack the block
-      blockUnpacker_.convertBlock(&data[dPtr+4], blockHead);  // dPtr+4 to get to the block data.
+      std::auto_ptr<GctBlockHeaderBase> blockHeader;
+      if(grenCompatibilityMode_) { blockHeader = std::auto_ptr<GctBlockHeader>(new GctBlockHeader(&data[dPtr])); }
+      else { blockHeader = std::auto_ptr<GctBlockHeaderV2>(new GctBlockHeaderV2(&data[dPtr])); }
+      
+       // unpack the block
+      blockUnpacker_.convertBlock(&data[dPtr+4], *blockHeader);  // dPtr+4 to get to the block data.
   
       // store the header
-      bHdrs.push_back(blockHead);
+      bHdrs.push_back(*blockHeader);
       
       // advance pointer
-      unsigned blockLen = blockHead.length();
-      unsigned nSamples = blockHead.nSamples();
+      unsigned blockLen = blockHeader->length();
+      unsigned nSamples = blockHeader->nSamples();
       dPtr += 4*(blockLen*nSamples+1); // *4 because blockLen is in 32-bit words, +1 for header
     }
   
