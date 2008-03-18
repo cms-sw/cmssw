@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Mon Dec  3 08:38:38 PST 2007
-// $Id: FWDisplayEvent.cc,v 1.34 2008/03/14 21:17:25 chrjones Exp $
+// $Id: FWDisplayEvent.cc,v 1.35 2008/03/16 23:12:51 chrjones Exp $
 //
 
 // system include files
@@ -81,6 +81,8 @@ FWDisplayEvent::FWDisplayEvent(const std::string& iConfigFileName,
 
   m_configurationManager->add("EventItems",m_eiManager.get());
   m_configurationManager->add("GUI",m_guiManager.get());
+  m_guiManager->writeToConfigurationFile_.connect(boost::bind(&FWConfigurationManager::writeToFile,
+                                                              m_configurationManager.get(),_1));
   //m_selectionManager->selectionChanged_.connect(boost::bind(&FWDisplayEvent::selectionChanged,this,_1));
   //figure out where to find macros
   const char* cmspath = gSystem->Getenv("CMSSW_BASE");
