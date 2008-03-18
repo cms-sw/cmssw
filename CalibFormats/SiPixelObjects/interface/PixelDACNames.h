@@ -1,5 +1,10 @@
 #ifndef PixelDACNames_h
 #define PixelDACNames_h
+/*! \file CalibFormats/SiPixelObjects/interface/PixelDACNames.h
+*   \brief A dummy class with ALL public variables 
+*
+*   A longer explanation will be placed here later
+*/
 
 #include <string>
 

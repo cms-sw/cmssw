@@ -1,5 +1,11 @@
 #ifndef PixelModuleNameOnline_h
 #define PixelModuleNameOnline_h
+/**
+* \file CalibFormats/SiPixelObjects/interface/PixelModuleName.h
+* \brief This class implements.. 
+*
+*   A longer explanation will be placed here later
+*/
 //
 // This class stores the name and related
 // hardware mapings for a ROC
@@ -12,6 +18,11 @@
 #include <assert.h>
 
 namespace pos{
+/*! \class PixelModuleName PixelModuleName.h "interface/PixelModuleName.h"
+*   \brief This class implements..
+*
+*   A longer explanation will be placed here later
+*/
   class PixelModuleName {
 
   public:

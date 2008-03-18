@@ -1,14 +1,21 @@
 #ifndef PixelROCTrimBits_h
 #define PixelROCTrimBits_h
-//
-//
-//
+/*! \file CalibFormats/SiPixelObjects/interface/PixelROCTrimBits.h
+*   \brief This class implements..
+*
+*    A longer explanation will be placed here later
+*/
 
 #include <fstream>
 #include "CalibFormats/SiPixelObjects/interface/PixelROCName.h"
 #include <string>
 
 namespace pos{
+/*! \class PixelROCTrimBits PixelROCTrimBits.h "interface/PixelROCTrimBits.h"
+*   \brief This class implements..
+*
+*   A longer explanation will be placed here later
+*/
   class PixelROCTrimBits {
 
   public:

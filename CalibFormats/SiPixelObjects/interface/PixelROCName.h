@@ -1,10 +1,10 @@
 #ifndef PixelROCName_h
 #define PixelROCName_h
-//
-// This class stores the name and related
-// hardware mapings for a ROC
-//
-//
+/*! \file CalibFormats/SiPixelObjects/interface/PixelROCName.h
+*   \brief This class stores the name and related hardware mappings for a ROC
+*
+*    A longer explanation will be placed here later
+*/
 
 #include <iostream>
 #include <fstream>
@@ -12,6 +12,11 @@
 #include <assert.h>
 
 namespace pos{
+/*! \class PixelROCName PixelROCName.h "interface/PixelROCName.h"
+*   \brief This class implements..
+*
+*   A longer explanation will be placed here later
+*/
   class PixelROCName {
 
   public:

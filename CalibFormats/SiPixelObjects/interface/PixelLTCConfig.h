@@ -1,10 +1,11 @@
 #ifndef PixelLTCConfig_h
 #define PixelLTCConfig_h
-//
-// This class reads the LTC configuration file
-//
-//
-//
+/**
+*   \file CalibFormats/SiPixelObjects/interface/PixelLTCConfig..h
+*   \brief This class reads the LTC configuration file
+*
+*   A longer explanation will be placed here later
+*/
  
 #include <string>
 #include <map>
@@ -15,6 +16,15 @@
 
 
 namespace pos{
+/*!  \ingroup ConfigurationObjects "Configuration Objects"
+*    
+*  @{
+*
+*  \class PixelLTCConfig PixelLTCConfig.h
+*  \brief This is the documentation about PixelLTCConfig...
+*
+*  This class reads the LTC configuration file
+*/
   class PixelLTCConfig: public PixelConfigBase{
  
   public:
@@ -31,4 +41,5 @@ namespace pos{
 
   };
 }
+/* @} */
 #endif

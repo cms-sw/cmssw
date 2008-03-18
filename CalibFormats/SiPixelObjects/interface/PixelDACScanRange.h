@@ -1,5 +1,10 @@
 #ifndef PixelDACScanRange_h
 #define PixelDACScanRange_h
+/*! \file CalibFormats/SiPixelObjects/interface/PixelConfigurationVerifier.h
+*   \brief This class collects the information about the range of DAC settings used in scans of the DACs
+*
+*   A longer explanation will be placed here later
+*/
 //
 // This class collects the information
 // about the range of DAC settings used
@@ -11,6 +16,11 @@
 #include <string>
 
 namespace pos{
+/*! \class PixelConfigurationVerifier PixelConfigurationVerifier.h "interface/PixelConfigurationVerifier.h"
+*   \brief This class collects the information about the range of DAC settings used in scans of the DACs
+*
+*   A longer explanation will be placed here later
+*/
   class PixelDACScanRange {
 
   public:

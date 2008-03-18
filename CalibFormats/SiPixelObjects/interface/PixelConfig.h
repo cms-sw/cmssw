@@ -1,7 +1,17 @@
 #ifndef PixelConfig_h
 #define PixelConfig_h
+/*! \file CalibFormats/SiPixelObjects/interface/PixelConfig.h
+*   \brief This class implements..
+*
+*   A longer explanation will be placed here later
+*/
 
 namespace pos{
+/*! \class PixelConfig PixelConfig.h "interface/PixelConfig.h"
+*   \brief This class implements..
+*
+*   A longer explanation will be placed here later
+*/
   class PixelConfig {
     
   public:

@@ -1,7 +1,17 @@
 #ifndef PixelConfigList_h
 #define PixelConfigList_h
+/*! \file CalibFormats/SiPixelObjects/interface/PixelConfigList.h
+*   \brief This class implements the configuration key which actually just is an integer.
+*
+*   A longer explanation will be placed here later
+*/
 
 namespace pos{
+/*! \class PixelConfigList PixelConfigList.h "interface/PixelConfigList.h"
+*   \brief This class implements..
+*
+*   A longer explanation will be placed here later
+*/
   class PixelConfigList {
 
   public:

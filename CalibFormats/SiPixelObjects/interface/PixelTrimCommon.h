@@ -1,16 +1,12 @@
 #ifndef PixelTrimACommon_h
 #define PixelTrimACommon_h
-//
-// This class provide an implementation for
-// pixel trim data here you use the same trim
-// values for each pixel on a roc
-//
-// Need to figure out what is 'VMEcommand' below! 
-//
-// All applications should just use this 
-// interface and not care about the specific
-// implementation
-//
+/**
+* \file CalibFormats/SiPixelObjects/interface/PixelTrimCommon.h
+* \brief This class implements..
+*
+*   A longer explanation will be placed here later
+*
+*/
 
 #include <string>
 #include <vector>
@@ -20,6 +16,17 @@
 #include "CalibFormats/SiPixelObjects/interface/PixelNameTranslation.h"
 
 namespace pos{
+/*!  \ingroup TrimObjects "Trim Objects"
+*    \ingroup ConfigurationObjects "Configuration Objects"
+*    
+*  @{
+*
+*  \class PixelTrimCommon PixelTrimCommon.h
+*  \brief This class implements..
+*
+*   A longer explanation will be placed here later
+*
+*/
   class PixelTrimCommon: public PixelTrimBase {
 
   public:

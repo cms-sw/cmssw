@@ -1,11 +1,10 @@
 #ifndef PixelROCStatus_h
 #define PixelROCStatus_h
-//
-// This class keeps the possible non-standard
-// status a ROC can have.
-//
-//
-//
+/*! \file CalibFormats/SiPixelObjects/interface/PixelROCStatus.h
+*   \brief This class keeps the possible non-standard status a ROC can have.
+*
+*    A longer explanation will be placed here later
+*/
 
 #include <stdint.h>
 #include <set>
@@ -13,6 +12,11 @@
 
 namespace pos{
 
+/*! \class PixelROCStatus PixelROCStatus.h "interface/PixelROCStatus.h"
+*   \brief This class implements..
+*
+*   A longer explanation will be placed here later
+*/
   class PixelROCStatus {
 
 

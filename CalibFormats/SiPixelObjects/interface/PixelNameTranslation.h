@@ -1,12 +1,13 @@
 #ifndef PixelNameTranslation_h
 #define PixelNameTranslation_h
-//
-// This class provides a translation from
-// the naming documents standard to specify
-// the ROC to the corresponding set of
-// mfec, mfecchanner, hubaddress portadd and rocid
-//
-//
+/**
+* \file CalibFormats/SiPixelObjects/interface/PixelNameTranslation.h
+* \brief This class provides a translation from the naming documents standard to specify
+*        the ROC to the corresponding set of
+*        mfec, mfecchanner, hubaddress portadd and rocid
+*
+*   A longer explanation will be placed here later
+*/
 
 #include <map>
 #include <string>
@@ -26,6 +27,17 @@ namespace pos{
 
   class PixelDetectorConfig;
 
+/*!  \ingroup ConfigurationObjects "Configuration Objects"
+*    
+*  @{
+*
+*  \class PixelNameTranslation PixelNameTranslation.h
+*  \brief This is the documentation about PixelNameTranslation...
+*
+*   This class provides a translation from the naming documents standard to specify
+*   the ROC to the corresponding set of
+*   mfec, mfecchanner, hubaddress portadd and rocid
+*/
   class PixelNameTranslation: public PixelConfigBase {
 
   public:
@@ -83,4 +95,5 @@ namespace pos{
 
   };
 }
+/* @} */
 #endif

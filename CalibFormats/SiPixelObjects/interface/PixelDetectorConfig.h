@@ -1,5 +1,13 @@
 #ifndef PixelDetectorConfig_h
 #define PixelDetectorConfig_h
+/**
+*   \file CalibFormats/SiPixelObjects/interface/PixelDetectorConfig.h
+*   \brief This class specifies which detector components are used in the 
+*          configuration (and eventually should specify which  xdaq process 
+*          controls which components).
+*
+*   A longer explanation will be placed here later
+*/
 //
 // This class specifies which detector
 // components are used in the configuration
@@ -21,6 +29,13 @@
 #include "CalibFormats/SiPixelObjects/interface/PixelROCStatus.h"
 
 namespace pos{
+/*!  \ingroup ConfigurationObjects "Configuration Objects"
+*    
+*  @{
+*
+*  \class PixelDetectorConfig PixelDetectorConfig.h
+*  \brief This is the documentation about PixelDetectorConfig...
+*/
   class PixelDetectorConfig: public PixelConfigBase {
 
   public:
@@ -55,4 +70,5 @@ namespace pos{
  
   };
 }
+/* @} */
 #endif

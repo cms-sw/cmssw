@@ -1,14 +1,24 @@
 #ifndef PixelTKFECParameters_h
 #define PixelTKFECParameters_h
+/**
+* \file CalibFormats/SiPixelObjects/interface/PixelTKFECConfig.h
+* \brief This class implements..
+*
+*   A longer explanation will be placed here later
+*
+*/
 
 #include <iostream>
 #include <vector>
 #include <string>
 
 namespace pos{
+/*! \class PixelTKFECParameters PixelTKFECParameters.h "interface/PixelTKFECParameters.h"
+*   \brief This class implements..
+*
+*   A longer explanation will be placed here later
+*/
   class PixelTKFECParameters {
-
-
 
   public:
 
@@ -34,4 +44,5 @@ namespace pos{
 
   };
 }
+/* @} */
 #endif

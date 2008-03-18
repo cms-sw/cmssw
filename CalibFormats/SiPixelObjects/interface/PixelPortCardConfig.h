@@ -1,12 +1,11 @@
 #ifndef PixelTKPCIFECConfig_h
 #define PixelTKPCIFECConfig_h
-//
-// This class specifies the settings on the TKPCIFEC
-// and the settings on the portcard
-//
-//
-//
-//
+/**
+* \file CalibFormats/SiPixelObjects/interface/PixelPortCardConfig.h
+* \brief This class specifies the settings on the TKPCIFEC and the settings on the portcard
+*
+*   A longer explanation will be placed here later
+*/
 #include <vector>
 #include <string>
 #include <map>
@@ -15,6 +14,17 @@
 namespace pos{
   using namespace std;
 
+/*!  \ingroup ConfigurationObjects "Configuration Objects"
+*    
+*  @{
+*
+*  \class PixelPortCardConfig PixelPortCardConfig.h
+*  \brief This is the documentation about PixelNameTranslation...
+*
+*   
+*  This class specifies the settings on the TKPCIFEC and the settings on the portcard 
+*   
+*/
   class PixelPortCardConfig: public PixelConfigBase{
 
   public:
@@ -66,4 +76,5 @@ namespace pos{
     std::map<std::string, unsigned int> nameToAddress_; // translation from name to address, filled in by fillNameToAddress();
   };
 }
+/* @} */
 #endif

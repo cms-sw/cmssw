@@ -1,15 +1,23 @@
 #ifndef PixelFECParameters_h
 #define PixelFECParameters_h
+/**
+*   \file CalibFormats/SiPixelObjects/interface/PixelFECParameters.h
+*   \brief This class implements..
+*
+*   A longer explanation will be placed here later
+*/
 
 #include <iostream>
 #include <vector>
 #include <string>
 
 namespace pos{
+/*! \class PixelFECParameters PixelFECParameters.h "interface/PixelFECParameters.h"
+*   \brief This class implements..
+*
+*   A longer explanation will be placed here later
+*/
   class PixelFECParameters {
-
-
-
   public:
 
     PixelFECParameters();

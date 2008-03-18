@@ -1,12 +1,10 @@
 #ifndef PixelROCDACSettings_h
 #define PixelROCDACSettings_h
-//
-// This class provide the data structure for the
-// ROC DAC parameters
-//
-// At this point I do not see a reason to make an
-// abstract layer for this code.
-//
+/*! \file CalibFormats/SiPixelObjects/interface/PixelROCDACSettings.h
+*   \brief This class provide the data structure for the ROC DAC parameters
+*
+*   At this point I do not see a reason to make an abstract layer for this code.
+*/
 
 #include <string>
 #include <iostream>
@@ -18,6 +16,11 @@ namespace pos{
   typedef unsigned char bits8;
   typedef unsigned char bits4;
 
+/*! \class PixelROCDACSettings PixelROCDACSettings.h "interface/PixelROCDACSettings.h"
+*   \brief This class implements..
+*
+*   A longer explanation will be placed here later
+*/
   class PixelROCDACSettings{
 
   public:

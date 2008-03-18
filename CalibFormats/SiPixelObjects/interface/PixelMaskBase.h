@@ -1,16 +1,13 @@
 #ifndef PixelMaskBase_h
 #define PixelMaskBase_h
-//
-// This class provide a base class for the
-// pixel mask data for the pixel FEC configuration
-// This is a pure interface (abstract class) that
-// needs to have an implementation.
-//
-// All applications should just use this 
-// interface and not care about the specific
-// implementation
-//
-//
+/**
+* \file CalibFormats/SiPixelObjects/interface/PixelMaskBase.h
+*
+*  This class provide a base class for the
+*  pixel mask data for the pixel FEC configuration
+*  This is a pure interface (abstract class) that
+*  needs to have an implementation.
+*/
 
 #include "CalibFormats/SiPixelObjects/interface/PixelConfigBase.h"
 #include <vector>
@@ -20,6 +17,22 @@
 #include <iostream>
 
 namespace pos{
+/*!  \ingroup ConfigurationObjects "Configuration Objects"
+*    
+*  @{
+*
+*  \class PixelMaskBase PixelMaskBase.h
+*  \brief This is the documentation about PixelMaskBase...
+*
+*  This class provide a base class for the
+*  pixel mask data for the pixel FEC configuration
+*  This is a pure interface (abstract class) that
+*  needs to have an implementation.
+* 
+*  All applications should just use this 
+*  interface and not care about the specific
+*  implementation
+*/
   class PixelMaskBase: public PixelConfigBase {
 
   public:
@@ -51,4 +64,5 @@ namespace pos{
 
   };
 }
+/* @} */
 #endif

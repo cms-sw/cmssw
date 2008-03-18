@@ -1,13 +1,10 @@
 #ifndef PixelCalibConfiguration_h
 #define PixelCalibConfiguration_h
-//
-// This class inplement the steps
-// that are used in a scan over
-// Threshold and CalDelay
-//
-//
-//
-//
+/*! \file CalibFormats/SiPixelObjects/interface/PixelCalibConfiguration.h
+*   \brief This class implements the steps that are used in a scan over Threshold and CalDelay
+*
+*   A longer explanation will be placed here later
+*/
 
 #include <vector>
 #include <set>
@@ -38,6 +35,18 @@
 namespace pos{
   class PixelHdwAddress;
 
+/*!  \ingroup ConfigurationObjects "Configuration Objects"
+*    \ingroup CalibrationObjects "Calibration Objects"
+*    \brief This class implements the steps that are used in a scan over Threshold and CalDelay
+*
+*    It features a double inheritance, both from ConfigurationObjects and CalibrationObjects
+*
+*  @{
+*
+*   \class PixelCalibConfiguration PixelCalibConfiguration.h "interface/PixelCalibConfiguration.h"
+*
+*   A longer explanation will be placed here later
+*/
   class PixelCalibConfiguration : public PixelCalibBase, public PixelConfigBase {
 
   public:
@@ -241,4 +250,5 @@ namespace pos{
 
   };
 }
+/* @} */
 #endif

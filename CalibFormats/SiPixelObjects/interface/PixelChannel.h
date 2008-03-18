@@ -1,5 +1,10 @@
 #ifndef PixelChannel_h
 #define PixelChannel_h
+/*! \file CalibFormats/SiPixelObjects/interface/PixelChannel.h
+*   \brief This class implements...
+*
+*   A longer explanation will be placed here later
+*/
  
 #include <string>
 #include <iostream>
@@ -9,6 +14,10 @@
 // class holding module name and TBM channel ("A" or "B") associated with a channel
 
 namespace pos{
+/*! \class PixelChannel PixelChannel.h "interface/PixelChannel.h"
+*
+*   A longer explanation will be placed here later
+*/
   class PixelChannel
   {
     public:
@@ -40,4 +49,5 @@ namespace pos{
     PixelTBMChannel TBMChannel_;
   };
 }
+
 #endif

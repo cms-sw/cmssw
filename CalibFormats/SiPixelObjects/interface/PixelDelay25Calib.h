@@ -1,12 +1,11 @@
 #ifndef PixelDELAY25CALIB_h
 #define PixelDELAY25CALIB_h
-//
-// This class manages data and files used
-// in the Delay25 calibration
-//
-//
-//
-//
+/**
+*   \file CalibFormats/SiPixelObjects/interface/PixelDelay25Calib.h
+*   \brief This class manages data and files used in the Delay25 calibration
+*
+*   A longer explanation will be placed here later
+*/
 #include <vector>
 #include <string>
 #include <set>
@@ -15,6 +14,13 @@
 #include "CalibFormats/SiPixelObjects/interface/PixelConfigBase.h"
 
 namespace pos{
+/*!  \ingroup ConfigurationObjects "Configuration Objects"
+*    
+*  @{
+*
+*  \class PixelDelay25Calib PixelDelay25Calib.h
+*  \brief This class manages data and files used in the Delay25 calibration
+*/
   class PixelDelay25Calib : public PixelCalibBase, public PixelConfigBase{
 
   public:
@@ -64,4 +70,5 @@ namespace pos{
 
   };
 }
+/* @} */
 #endif
