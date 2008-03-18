@@ -65,6 +65,9 @@ void SiStripRawToDigiUnpacker::createDigis( const SiStripFedCabling& cabling,
 					    RawDigis& proc_raw,
 					    Digis& zero_suppr ) {
 
+  typedef std::vector<edm::DetSet<SiStripDigi> > digi_work_vector;
+  digi_work_vector zero_suppr_vector;
+
   // Check if FEDs found in cabling map and event data
   if ( cabling.feds().empty() ) {
     edm::LogWarning(mlRawToDigi_)
@@ -242,7 +245,6 @@ void SiStripRawToDigiUnpacker::createDigis( const SiStripFedCabling& cabling,
       uint16_t ipair = ( useFedKey_ || mode == sistrip::FED_SCOPE_MODE ) ? 0 : iconn->apvPairNumber();
 
       if ( mode == sistrip::FED_SCOPE_MODE ) {
-
 	edm::DetSet<SiStripRawDigi>& sm = scope_mode.find_or_insert(key);
 	std::vector<uint16_t> samples; samples.reserve( 1024 ); // theoretical maximum for scope mode length
 
@@ -315,8 +317,11 @@ void SiStripRawToDigiUnpacker::createDigis( const SiStripFedCabling& cabling,
 	}
 
       } else if ( mode == sistrip::FED_ZERO_SUPPR ) { 
-	
-	edm::DetSet<SiStripDigi>& zs = zero_suppr.find_or_insert(key);
+
+        if (zero_suppr_vector.empty()) { zero_suppr_vector.reserve(1000); }
+        zero_suppr_vector.push_back(edm::DetSet<SiStripDigi>(key));
+	edm::DetSet<SiStripDigi>& zs = zero_suppr_vector.back();
+
 	zs.data.reserve(256); // theoretical maximum (768/3, ie, clusters separated by at least 2 strips)
 	try{ 
 	  Fed9U::Fed9UEventIterator fed_iter = const_cast<Fed9U::Fed9UEventChannel&>(fedEvent_->channel( iunit, ichan )).getIterator();
@@ -338,7 +343,10 @@ void SiStripRawToDigiUnpacker::createDigis( const SiStripFedCabling& cabling,
 
       } else if ( mode == sistrip::FED_ZERO_SUPPR_LITE ) { 
 	
-	edm::DetSet<SiStripDigi>& zs = zero_suppr.find_or_insert(key);
+        if (zero_suppr_vector.empty()) { zero_suppr_vector.reserve(1000); }
+        zero_suppr_vector.push_back(edm::DetSet<SiStripDigi>(key));
+	edm::DetSet<SiStripDigi>& zs = zero_suppr_vector.back();
+
 	zs.data.reserve(256); // theoretical maximum (768/3, ie, clusters separated by at least 2 strips)
 	try {
 	  Fed9U::Fed9UEventIterator fed_iter = const_cast<Fed9U::Fed9UEventChannel&>(fedEvent_->channel( iunit, ichan )).getIterator();
@@ -402,7 +410,36 @@ void SiStripRawToDigiUnpacker::createDigis( const SiStripFedCabling& cabling,
   event_++;
   
   if ( first_ ) { first_ = false; }
-  
+ 
+  if (!zero_suppr_vector.empty()) {
+    // step 1: sort
+    std::sort(zero_suppr_vector.begin(), zero_suppr_vector.end());
+    // step 2: build output & merge
+    std::vector<edm::DetSet<SiStripDigi> >::iterator it = zero_suppr_vector.begin(), end = zero_suppr_vector.end();
+    
+    std::vector<edm::DetSet<SiStripDigi> > sorted_and_merged;
+    sorted_and_merged.reserve(zero_suppr_vector.size());
+
+    edm::det_id_type detid, oldid = 0;
+    for (std::vector<edm::DetSet<SiStripDigi> >::iterator it = zero_suppr_vector.begin(), end = zero_suppr_vector.end(); 
+            it != end; ++it) {
+        detid = it->detId();
+        if (oldid == detid) {
+            sorted_and_merged.back().data.insert(sorted_and_merged.back().end(), it->begin(), it->end());
+        } else {
+            sorted_and_merged.push_back(edm::DetSet<SiStripDigi>(detid));
+            sorted_and_merged.back().swap(*it);
+            oldid = detid;
+        }
+    }
+    
+    for (std::vector<edm::DetSet<SiStripDigi> >::iterator it = sorted_and_merged.begin(), end = sorted_and_merged.end(); 
+            it != end; ++it) {
+        std::sort(it->begin(), it->end());
+    }
+    edm::DetSetVector<SiStripDigi> zero_suppr_dsv(sorted_and_merged, true); 
+    zero_suppr.swap(zero_suppr_dsv);
+  } 
 }
 
 // -----------------------------------------------------------------------------
