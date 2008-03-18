@@ -8,7 +8,6 @@
 #include "RecoTracker/CkfPattern/interface/BaseCkfTrajectoryBuilder.h"
 #include "DataFormats/TrajectorySeed/interface/PropagationDirection.h"
 
-//#include "RecoTracker/CkfPattern/interface/TempTrajectory.h"
 #include "TrackingTools/PatternTools/interface/TempTrajectory.h"
 
 #include <vector>
@@ -45,6 +44,15 @@ class GroupedCkfTrajectoryBuilder : public BaseCkfTrajectoryBuilder {
 
   /// trajectories building starting from a seed with a region
   TrajectoryContainer trajectories(const TrajectorySeed&, const TrackingRegion&) const;
+
+  /** trajectories re-building in the seeding region.
+      It looks for additional measurements in the seeding region of the 
+      intial trajectories.
+      Only valid trajectories are returned. Invalid ones are dropped from the input
+      collection.
+  **/
+  void  rebuildSeedingRegion(const TrajectorySeed&,
+			     TrajectoryContainer& result) const ;  
 
   // Access to lower level components
   const TrajectoryStateUpdator&  updator() const    {return *theUpdator;}

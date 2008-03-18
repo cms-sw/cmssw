@@ -118,16 +118,36 @@ GroupedCkfTrajectoryBuilder::trajectories (const TrajectorySeed& seed,
   return buildTrajectories(seed,&regionalCondition);
 }
 
+void  
+GroupedCkfTrajectoryBuilder::rebuildSeedingRegion(const TrajectorySeed& seed,
+						  TrajectoryContainer& result) const {    
+  TempTrajectory startingTraj = createStartingTrajectory( seed);
+  TempTrajectoryContainer work;
+
+  TrajectoryContainer final;
+
+  work.reserve(result.size());
+  for (TrajectoryContainer::iterator traj=result.begin();
+       traj!=result.end(); ++traj) {
+    if(traj->isValid()) work.push_back(TempTrajectory(*traj));
+  }
+
+  rebuildSeedingRegion(startingTraj,work);
+  final.reserve(work.size());
+
+  for (TempTrajectoryContainer::iterator traj=work.begin();
+       traj!=work.end(); ++traj) {
+    final.push_back(traj->toTrajectory());
+  }
+  
+  result.swap(final);
+  
+}
+
 GroupedCkfTrajectoryBuilder::TrajectoryContainer 
 GroupedCkfTrajectoryBuilder::buildTrajectories (const TrajectorySeed& seed,
 						const TrajectoryFilter* regionalCondition) const
 {
-  //B.M. TimeMe tm("GroupedCkfTrajectoryBuilder", false);
-
-  
-  // set the propagation direction
-  //B.M. thePropagator->setPropagationDirection(seed.direction());
-
   TrajectoryContainer result;
   TempTrajectoryContainer work;
 
@@ -139,6 +159,8 @@ GroupedCkfTrajectoryBuilder::buildTrajectories (const TrajectorySeed& seed,
   if ( work.empty() )  return result;
 
 
+
+  /*  rebuilding is de-coupled from standard building
   //
   // try to additional hits in the seeding region
   //
@@ -148,6 +170,8 @@ GroupedCkfTrajectoryBuilder::buildTrajectories (const TrajectorySeed& seed,
     // rebuild part of the trajectory
     rebuildSeedingRegion(startingTraj,work);
   }
+
+  */
 
   result.reserve(work.size());
   for (TempTrajectoryContainer::const_iterator it = work.begin(), ed = work.end(); it != ed; ++it) {
@@ -501,8 +525,8 @@ GroupedCkfTrajectoryBuilder::layers (const TempTrajectory::DataContainer& measur
 }
 
 void
-GroupedCkfTrajectoryBuilder::rebuildSeedingRegion 
-(TempTrajectory& startingTraj, TempTrajectoryContainer& result) const
+GroupedCkfTrajectoryBuilder::rebuildSeedingRegion(TempTrajectory& startingTraj,
+						  TempTrajectoryContainer& result) const
 {
   //
   // Rebuilding of trajectories. Candidates are taken from result,
@@ -569,9 +593,9 @@ GroupedCkfTrajectoryBuilder::rebuildSeedingRegion
 }
 
 int
-GroupedCkfTrajectoryBuilder::rebuildSeedingRegion 
-(const std::vector<const TrackingRecHit*>& seedHits, TempTrajectory& candidate,
- TempTrajectoryContainer& result) const 
+GroupedCkfTrajectoryBuilder::rebuildSeedingRegion(const std::vector<const TrackingRecHit*>& seedHits, 
+						  TempTrajectory& candidate,
+						  TempTrajectoryContainer& result) const 
 {
   //
   // Try to rebuild one candidate in the seeding region.

@@ -83,6 +83,11 @@ public:
     theSeed( new TrajectorySeed(seed) )
   {}
 
+
+  /// construct TempTrajectory from standard Trajectory
+  TempTrajectory( const Trajectory& traj);
+
+
     /** Add a new measurement to a Trajectory.
    *  The Chi2 of the trajectory is incremented by the value
    *  of tm.estimate() . 

@@ -4,6 +4,22 @@
 
 #include <ext/slist>
 
+TempTrajectory::TempTrajectory( const Trajectory& traj):
+  theChiSquared(0), theValid(traj.isValid()),
+  theNumberOfFoundHits(0), theNumberOfLostHits(0),
+  theDirection(traj.direction()), theDirectionValidity(true),
+  theSeed( new TrajectorySeed(traj.seed()) ){
+
+  Trajectory::DataContainer::const_iterator begin=traj.measurements().begin();
+  Trajectory::DataContainer::const_iterator end=traj.measurements().end();
+
+  for(Trajectory::DataContainer::const_iterator it=begin; it!=end; ++it){
+    push(*it);
+  }
+
+
+}
+
 void TempTrajectory::pop() { 
   if (!empty()) {
     if (theData.back().recHit()->isValid())             theNumberOfFoundHits--;

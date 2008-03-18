@@ -3,6 +3,7 @@
 
 #include "TrackingTools/PatternTools/interface/TrajectoryMeasurement.h"
 #include "FWCore/Framework/interface/Event.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 class Trajectory;
 class TrajectorySeed;
@@ -23,6 +24,15 @@ public:
   virtual ~TrajectoryBuilder() {};
 
   virtual TrajectoryContainer trajectories(const TrajectorySeed&) const = 0;
+
+  /** Interface for trajectories re-building in the seeding region method.
+      It has to be correctly implemented in the concrete class
+  **/
+  virtual void  rebuildSeedingRegion(const TrajectorySeed&,
+				     TrajectoryContainer& result) const {    
+    edm::LogWarning("TrajectoryBuilding") 
+      << "WARNING: you are using a trajectory builder which is not overloading the rebuildSeedingRegion method. Default implementation is dummy: output TrajectoryContainer is equal to inputTrajectoryContainer";
+  }
 
   virtual void setEvent(const edm::Event& event) const = 0;
 
