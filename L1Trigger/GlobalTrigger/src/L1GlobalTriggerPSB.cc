@@ -590,74 +590,264 @@ void L1GlobalTriggerPSB::fillPsbBlock(
                 boost::uint16_t localBxNrValue = 0; // FIXME
                 psbWordValue.setLocalBxNr(localBxNrValue);
 
-                // ** fill L1GtfeWord in GT DAQ record
-
-                gtDaqReadoutRecord->setGtPsbWord(psbWordValue);
-
-
-                // get the objects coming to this PSB
+                // get the objects coming to this PSB and the quadruplet index 
+                
+                // two objects writen one after another from the same quadruplet
+                int nrObjRow = 2;
+                
                 std::vector<L1GtPsbQuad> quadInPsb = itBoard->gtQuadInPsb();
+                int nrCables = quadInPsb.size();
+                
+                boost::uint16_t aDataVal = 0;
+                boost::uint16_t bDataVal = 0;
+                
+                int iCable = -1;
                 for (std::vector<L1GtPsbQuad>::const_iterator
                         itQuad = quadInPsb.begin();
                         itQuad != quadInPsb.end(); ++itQuad) {
+                    
+                    iCable++;
+                    
+                    int iAB = (nrCables - iCable - 1)*nrObjRow;
 
                     switch (*itQuad) {
 
                         case TechTr: {
-                                // FIXME write TechTr
+                            // order: 16-bit words
+                            int bitsPerWord = 16;
+
+                            //
+                            int iPair = 0;
+                            aDataVal = 0;
+
+                            int iBit = 0;
+                            boost::uint16_t bitVal = 0;
+
+                            for (int i = 0; i < bitsPerWord; ++i) {
+                                if (m_gtTechnicalTriggers[iBit]) {
+                                    bitVal = 1;
+                                }
+                                else {
+                                    bitVal = 0;
+                                }
+
+                                aDataVal = aDataVal | (bitVal << i);
+                                iBit++;
                             }
+                            psbWordValue.setAData(aDataVal, iAB + iPair);
+
+                            //
+                            bDataVal = 0;
+                            
+                            for (int i = 0; i < bitsPerWord; ++i) {
+                                if (m_gtTechnicalTriggers[iBit]) {
+                                    bitVal = 1;
+                                }
+                                else {
+                                    bitVal = 0;
+                                }
+
+                                bDataVal = bDataVal | (bitVal << i);
+                                iBit++;
+                            }
+                            psbWordValue.setBData(bDataVal, iAB + iPair);
+
+                            //
+                            iPair = 1;
+                            aDataVal = 0;
+
+                            for (int i = 0; i < bitsPerWord; ++i) {
+                                if (m_gtTechnicalTriggers[iBit]) {
+                                    bitVal = 1;
+                                }
+                                else {
+                                    bitVal = 0;
+                                }
+
+                                aDataVal = aDataVal | (bitVal << i);
+                                iBit++;
+                            }
+                            psbWordValue.setAData(aDataVal, iAB + iPair);
+
+                            bDataVal = 0;
+
+                            for (int i = 0; i < bitsPerWord; ++i) {
+                                if (m_gtTechnicalTriggers[iBit]) {
+                                    bitVal = 1;
+                                }
+                                else {
+                                    bitVal = 0;
+                                }
+
+                                bDataVal = bDataVal | (bitVal << i);
+                                iBit++;
+                            }
+                            psbWordValue.setBData(bDataVal, iAB + iPair);
+                        }
 
                             break;
                         case NoIsoEGQ: {
-                                // FIXME write objects in PSB;
+                            for (int iPair = 0; iPair < nrObjRow; ++iPair) {
+                                aDataVal = 
+                                    (static_cast<L1GctEmCand*> ((*m_candL1NoIsoEG)[iPair]))->raw();
+                                psbWordValue.setAData(aDataVal, iAB + iPair);
+                                
+                                bDataVal = 
+                                    (static_cast<L1GctEmCand*> ((*m_candL1NoIsoEG)[iPair + nrObjRow]))->raw();
+                                psbWordValue.setBData(bDataVal, iAB + iPair);                                
+
                             }
+                        }
 
                             break;
                         case IsoEGQ: {
-                                // FIXME write objects in PSB;
+                            for (int iPair = 0; iPair < nrObjRow; ++iPair) {
+                                aDataVal = 
+                                    (static_cast<L1GctEmCand*> ((*m_candL1IsoEG)[iPair]))->raw();
+                                psbWordValue.setAData(aDataVal, iAB + iPair);
+
+                                bDataVal = 
+                                    (static_cast<L1GctEmCand*> ((*m_candL1IsoEG)[iPair + nrObjRow]))->raw();
+                                psbWordValue.setBData(bDataVal, iAB + iPair);
+
                             }
+                        }
 
                             break;
                         case CenJetQ: {
-                                // FIXME write objects in PSB;
+                            for (int iPair = 0; iPair < nrObjRow; ++iPair) {
+                                aDataVal = 
+                                    (static_cast<L1GctJetCand*> ((*m_candL1CenJet)[iPair]))->raw();
+                                psbWordValue.setAData(aDataVal, iAB + iPair);
+
+                                bDataVal = 
+                                    (static_cast<L1GctJetCand*> ((*m_candL1CenJet)[iPair + nrObjRow]))->raw();
+                                psbWordValue.setBData(bDataVal, iAB + iPair);
+
                             }
+                        }
 
                             break;
                         case ForJetQ: {
-                                // FIXME write objects in PSB;
+                            for (int iPair = 0; iPair < nrObjRow; ++iPair) {
+                                aDataVal = 
+                                    (static_cast<L1GctJetCand*> ((*m_candL1ForJet)[iPair]))->raw();
+                                psbWordValue.setAData(aDataVal, iAB + iPair);
+
+                                bDataVal = 
+                                    (static_cast<L1GctJetCand*> ((*m_candL1ForJet)[iPair + nrObjRow]))->raw();
+                                psbWordValue.setBData(bDataVal, iAB + iPair);
+
                             }
+                        }
 
                             break;
                         case TauJetQ: {
-                                // FIXME write objects in PSB;
+                            for (int iPair = 0; iPair < nrObjRow; ++iPair) {
+                                aDataVal = 
+                                    (static_cast<L1GctJetCand*> ((*m_candL1TauJet)[iPair]))->raw();
+                                psbWordValue.setAData(aDataVal, iAB + iPair);
+
+                                bDataVal = 
+                                    (static_cast<L1GctJetCand*> ((*m_candL1TauJet)[iPair + nrObjRow]))->raw();
+                                psbWordValue.setBData(bDataVal, iAB + iPair);
+
                             }
+                        }
 
                             break;
                         case ESumsQ: {
-                                // FIXME write objects in PSB;
-                            }
+                            // order: ETT, ETM et, HTT, ETM phi... hardcoded here
+                            int iPair = 0;
+                            aDataVal = m_candETT->raw();
+                            psbWordValue.setAData(aDataVal, iAB + iPair);
+
+                            bDataVal = m_candHTT->raw();
+                            psbWordValue.setBData(bDataVal, iAB + iPair);
+
+                            //
+                            iPair = 1;
+                            aDataVal = m_candETM->et();
+                            psbWordValue.setAData(aDataVal, iAB + iPair);
+
+                            bDataVal = m_candETM->phi();
+                            psbWordValue.setBData(bDataVal, iAB + iPair);
+                            
+                            
+                        }
 
                             break;
                         case JetCountsQ: {
-                                // FIXME write objects in PSB;
+                            // order: 3 JetCounts per 16-bits word ... hardcoded here
+                            int jetCountsBits = 5; // FIXME get it from event setup
+                            int countsPerWord = 3;
+                            
+                            //
+                            int iPair = 0;
+                            aDataVal = 0;
+                            
+                            int iCount = 0;
+                            
+                            for (int i = 0; i < countsPerWord; ++i) {
+                                aDataVal = aDataVal | 
+                                    ((m_candJetCounts->count(iCount)) << (jetCountsBits*i));
+                                iCount++;
                             }
+                            psbWordValue.setAData(aDataVal, iAB + iPair);
+
+                            //
+                            bDataVal = 0;
+
+                            for (int i = 0; i < countsPerWord; ++i) {
+                                bDataVal = bDataVal | 
+                                    ((m_candJetCounts->count(iCount)) << (jetCountsBits*i));                                
+                                iCount++;
+                            }
+                            psbWordValue.setBData(bDataVal, iAB + iPair);
+
+                            //
+                            iPair = 1;
+                            aDataVal = 0;
+
+                            for (int i = 0; i < countsPerWord; ++i) {
+                                aDataVal = aDataVal | 
+                                    ((m_candJetCounts->count(iCount)) << (jetCountsBits*i));
+                                iCount++;
+                            }
+                            psbWordValue.setAData(aDataVal, iAB + iPair);
+
+                            //
+                            bDataVal = 0;
+                            
+                            for (int i = 0; i < countsPerWord; ++i) {
+                                bDataVal = bDataVal | 
+                                    ((m_candJetCounts->count(iCount)) << (jetCountsBits*i));                                
+                                iCount++;
+                            }
+                            psbWordValue.setBData(bDataVal, iAB + iPair);
+                        }
 
                             break;
                             // FIXME add MIP/Iso bits
                         default: {
-                                // do nothing
-                            }
+                            // do nothing
+                        }
 
                             break;
                     } // end switch (*itQuad)
 
                 } // end for: (itQuad)
 
+                // ** fill L1PsbWord in GT DAQ record
+
+                gtDaqReadoutRecord->setGtPsbWord(psbWordValue);
+
             } // end if (active && PSB)
 
         } // end if (iPosition)
 
     } // end for (itBoard
+
 
 }
 
