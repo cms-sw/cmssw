@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Mar  3 17:20:20 EST 2008
-// $Id: FWListModel.h,v 1.6 2008/03/16 23:12:51 chrjones Exp $
+// $Id: FWListModel.h,v 1.7 2008/03/17 14:18:48 chrjones Exp $
 //
 
 // system include files
@@ -56,6 +56,7 @@ class FWListModel : public TEveElement, public TNamed, public FWListItemBase
 
       bool update(const FWDisplayProperties&);
       void openDetailView() const;
+      bool hasDetailView() const;
    private:
       FWListModel(const FWListModel&); // stop default
 

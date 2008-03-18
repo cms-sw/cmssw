@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Mar  3 17:20:14 EST 2008
-// $Id: FWListModel.cc,v 1.8 2008/03/16 23:12:51 chrjones Exp $
+// $Id: FWListModel.cc,v 1.9 2008/03/17 14:18:48 chrjones Exp $
 //
 
 // system include files
@@ -146,6 +146,11 @@ FWListModel::openDetailView() const
      m_detailViewManager->openDetailViewFor(m_id);
 }
 
+bool 
+FWListModel::hasDetailView() const
+{
+   return m_detailViewManager->haveDetailViewFor(m_id);
+}
 
 //
 // static member functions
