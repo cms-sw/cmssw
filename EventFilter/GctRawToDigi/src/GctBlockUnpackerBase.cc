@@ -1,4 +1,4 @@
-#include "EventFilter/GctRawToDigi/src/GctBlockUnpacker.h"
+#include "EventFilter/GctRawToDigi/src/GctBlockUnpackerBase.h"
 
 // C++ headers
 #include <iostream>
@@ -17,60 +17,76 @@ using std::endl;
 using std::pair;
 
 // INITIALISE STATIC VARIABLES
-GctBlockUnpacker::BlockIdToUnpackFnMap GctBlockUnpacker::blockUnpackFn_ = GctBlockUnpacker::BlockIdToUnpackFnMap();
+GctBlockUnpackerBase::RctCrateMap GctBlockUnpackerBase::rctCrate_ = GctBlockUnpackerBase::RctCrateMap();
+GctBlockUnpackerBase::BlockIdToEmCandIsoBoundMap GctBlockUnpackerBase::InternEmIsoBounds_ = GctBlockUnpackerBase::BlockIdToEmCandIsoBoundMap();
 
-GctBlockUnpacker::GctBlockUnpacker(bool hltMode):
-  GctBlockUnpackerBase(hltMode),
+GctBlockUnpackerBase::GctBlockUnpackerBase(bool hltMode):
+  hltMode_(hltMode),
+  srcCardRouting_(),
+  rctEm_(0),
+  rctCalo_(0),
+  gctIsoEm_(0),
+  gctNonIsoEm_(0),
+  gctInternEm_(0),
+  gctFibres_(0),
+  gctJets_(NUM_JET_CATAGORIES),
+  gctJetCounts_(0),
+  gctEtTotal_(0),
+  gctEtHad_(0),
+  gctEtMiss_(0)
 {
   static bool initClass = true;
   
   if(initClass)
   {
     initClass = false;
+    
+    rctCrate_[0x81] = 13;
+    rctCrate_[0x89] = 9;
+    rctCrate_[0xC1] = 4;
+    rctCrate_[0xC9] = 0; 
 
-    // Setup block unpack function map
-    blockUnpackFn_[0x00] = &GctBlockUnpacker::blockDoNothing;
-    blockUnpackFn_[0x58] = &GctBlockUnpacker::blockToGctJetCand;
-    blockUnpackFn_[0x59] = &GctBlockUnpacker::blockDoNothing;
-    blockUnpackFn_[0x5a] = &GctBlockUnpacker::blockToGctJetCounts;
-    blockUnpackFn_[0x5f] = &GctBlockUnpacker::blockDoNothing;
-    blockUnpackFn_[0x68] = &GctBlockUnpacker::blockToGctEmCand;
-    blockUnpackFn_[0x69] = &GctBlockUnpacker::blockToGctInternEmCand;
-    blockUnpackFn_[0x6a] = &GctBlockUnpacker::blockToGctEnergySums;
-    blockUnpackFn_[0x6b] = &GctBlockUnpacker::blockDoNothing;
-    blockUnpackFn_[0x6f] = &GctBlockUnpacker::blockDoNothing; 
-    blockUnpackFn_[0x80] = &GctBlockUnpacker::blockToGctInternEmCand;
-    blockUnpackFn_[0x81] = &GctBlockUnpacker::blockToFibresAndToRctEmCand;
-    blockUnpackFn_[0x83] = &GctBlockUnpacker::blockToGctInternEmCand;
-    blockUnpackFn_[0x88] = &GctBlockUnpacker::blockToGctInternEmCand;
-    blockUnpackFn_[0x89] = &GctBlockUnpacker::blockToFibresAndToRctEmCand;
-    blockUnpackFn_[0x8b] = &GctBlockUnpacker::blockToGctInternEmCand;
-    blockUnpackFn_[0xc0] = &GctBlockUnpacker::blockToGctInternEmCand;
-    blockUnpackFn_[0xc1] = &GctBlockUnpacker::blockToFibresAndToRctEmCand;
-    blockUnpackFn_[0xc3] = &GctBlockUnpacker::blockToGctInternEmCand;
-    blockUnpackFn_[0xc8] = &GctBlockUnpacker::blockToGctInternEmCand;
-    blockUnpackFn_[0xc9] = &GctBlockUnpacker::blockToFibresAndToRctEmCand;
-    blockUnpackFn_[0xcb] = &GctBlockUnpacker::blockToGctInternEmCand;
-    blockUnpackFn_[0xff] = &GctBlockUnpacker::blockToRctCaloRegions;
+    // Setup Block ID map for pipeline payload positions of isolated Internal EM Cands.
+    InternEmIsoBounds_[0x69] = IsoBoundaryPair(8,15);
+    InternEmIsoBounds_[0x80] = IsoBoundaryPair(0, 9);
+    InternEmIsoBounds_[0x83] = IsoBoundaryPair(0, 1);
+    InternEmIsoBounds_[0x88] = IsoBoundaryPair(0, 7);
+    InternEmIsoBounds_[0x8b] = IsoBoundaryPair(0, 1);
+    InternEmIsoBounds_[0xc0] = IsoBoundaryPair(0, 9);
+    InternEmIsoBounds_[0xc3] = IsoBoundaryPair(0, 1);
+    InternEmIsoBounds_[0xc8] = IsoBoundaryPair(0, 7);
+    InternEmIsoBounds_[0xcb] = IsoBoundaryPair(0, 1);
   }
 }
 
-GctBlockUnpacker::~GctBlockUnpacker() { }
+GctBlockUnpackerBase::~GctBlockUnpackerBase() { }
 
 // conversion
-void GctBlockUnpacker::convertBlock(const unsigned char * data, GctBlockHeaderBase& hdr)
+void GctBlockUnpackerBase::convertBlock(const unsigned char * data, GctBlockHeaderBase& hdr)
 {
-  **** Call some base class method to protect against basic problems ***
+  unsigned int id = hdr.id();
+  unsigned int nSamples = hdr.nSamples();
 
-  // The header validity check above will protect against 
-  // the map::find() method returning the end of the map,
-  // assuming the GctBlockHeader definitions are up-to-date.
-  (this->*blockUnpackFn_.find(id)->second)(data, hdr);  // Calls the correct unpack function, based on block ID.
+  // if the block has no time samples, don't bother
+  if ( nSamples < 1 ) { return; }
+
+  // check block is valid
+  if ( !hdr.valid() )
+  {
+    edm::LogError("GCT") << "Attempting to unpack an unidentified block\n" << hdr << endl;
+    return;     
+  }
+
+  // check block doesn't have too many time samples
+  if ( nSamples >= 0xf ) {
+    edm::LogError("GCT") << "Cannot unpack a block with 15 or more time samples\n" << hdr << endl;
+    return; 
+  }
 }
 
 
 // Output EM Candidates unpacking
-void GctBlockUnpacker::blockToGctEmCandsAndEnergySums(const unsigned char * d, const GctBlockHeaderBase& hdr)
+void GctBlockUnpackerBase::blockToGctEmCandsAndEnergySums(const unsigned char * d, const GctBlockHeaderBase& hdr)
 {
   LogDebug("GCT") << "Unpacking GCT output EM Cands and Energy Sums" << std::endl;
 
@@ -124,7 +140,7 @@ void GctBlockUnpacker::blockToGctEmCandsAndEnergySums(const unsigned char * d, c
 }
 
 // Internal EM Candidates unpacking
-void GctBlockUnpacker::blockToGctInternEmCand(const unsigned char * d, const GctBlockHeaderBase& hdr)
+void GctBlockUnpackerBase::blockToGctInternEmCand(const unsigned char * d, const GctBlockHeaderBase& hdr)
 {
   LogDebug("GCT") << "Unpacking internal EM Cands" << std::endl;
 
@@ -164,7 +180,7 @@ void GctBlockUnpacker::blockToGctInternEmCand(const unsigned char * d, const Gct
 
 // Input EM Candidates unpacking
 // this is the last time I deal the RCT bit assignment travesty!!!
-void GctBlockUnpacker::blockToRctEmCand(const unsigned char * d, const GctBlockHeaderBase& hdr)
+void GctBlockUnpackerBase::blockToRctEmCand(const unsigned char * d, const GctBlockHeaderBase& hdr)
 {
   LogDebug("GCT") << "Unpacking RCT EM Cands" << std::endl;
 
@@ -218,7 +234,7 @@ void GctBlockUnpacker::blockToRctEmCand(const unsigned char * d, const GctBlockH
 
 
 // Fibre unpacking
-void GctBlockUnpacker::blockToFibres(const unsigned char * d, const GctBlockHeaderBase& hdr)
+void GctBlockUnpackerBase::blockToFibres(const unsigned char * d, const GctBlockHeaderBase& hdr)
 {
   LogDebug("GCT") << "Unpacking GCT Fibres" << std::endl;
   
@@ -237,13 +253,13 @@ void GctBlockUnpacker::blockToFibres(const unsigned char * d, const GctBlockHead
   } 
 }
 
-void GctBlockUnpacker::blockToFibresAndToRctEmCand(const unsigned char * d, const GctBlockHeaderBase& hdr)
+void GctBlockUnpackerBase::blockToFibresAndToRctEmCand(const unsigned char * d, const GctBlockHeaderBase& hdr)
 {
   this->blockToRctEmCand(d, hdr);
   this->blockToFibres(d, hdr);
 }
 
-void GctBlockUnpacker::blockToGctJetCandsAndCounts(const unsigned char * d, const GctBlockHeaderBase& hdr)
+void GctBlockUnpackerBase::blockToGctJetCandsAndCounts(const unsigned char * d, const GctBlockHeaderBase& hdr)
 {
   LogDebug("GCT") << "Unpacking GCT output Jet Cands and Counts" << std::endl;
   
@@ -297,7 +313,7 @@ void GctBlockUnpacker::blockToGctJetCandsAndCounts(const unsigned char * d, cons
   *gctJetCounts_ = L1GctJetCounts(p32[0], p32[nSamples]);
 }
 
-void GctBlockUnpacker::blockToGctJetCand_grenCompatibility(const unsigned char * d, const GctBlockHeader& hdr)
+void GctBlockUnpackerBase::blockToGctJetCand_grenCompatibility(const unsigned char * d, const GctBlockHeader& hdr)
 {
   LogDebug("GCT") << "Unpacking GCT output Jet Cands" << std::endl;
   
@@ -337,7 +353,7 @@ void GctBlockUnpacker::blockToGctJetCand_grenCompatibility(const unsigned char *
   }
 }
 
-void GctBlockUnpacker::blockToGctJetCounts_grenCompatibility(const unsigned char * d, const GctBlockHeader& hdr)
+void GctBlockUnpackerBase::blockToGctJetCounts_grenCompatibility(const unsigned char * d, const GctBlockHeader& hdr)
 {
   LogDebug("GCT") << "Unpacking GCT output Jet Counts" << std::endl;
   
