@@ -394,7 +394,9 @@ TrajectorySeedProducer::produce(edm::Event& e, const edm::EventSetup& es) {
       if ( fabs( theParticle.zImpactParameter(x0,y0) - z0 ) > maxZ0[ialgo] ) continue;
       ++nTracksWithD0Z0;
       
-      std::vector<TrackerRecHit> theSeedHits(numberOfHits[ialgo],static_cast<TrackerRecHit>(TrackerRecHit()));
+      std::vector<TrackerRecHit > 
+	theSeedHits(numberOfHits[ialgo],
+		    static_cast<TrackerRecHit >(TrackerRecHit()));
       TrackerRecHit& theSeedHits0 = theSeedHits[0];
       TrackerRecHit& theSeedHits1 = theSeedHits[1];
       TrackerRecHit& theSeedHits2 = theSeedHits[2];

@@ -17,6 +17,10 @@ namespace reco {
   class Track;
 }
 
+class TrackerRecHit;
+
+#include <vector>
+
 class TrackCandidateProducer : public edm::EDProducer
 {
  public:
@@ -33,6 +37,8 @@ class TrackCandidateProducer : public edm::EDProducer
 
   int findId(const reco::Track& aTrack) const;
 
+  void addSplitHits(const TrackerRecHit&, std::vector<TrackerRecHit>&); 
+
  private:
 
   const TrackerGeometry*  theGeometry;
@@ -45,6 +51,7 @@ class TrackCandidateProducer : public edm::EDProducer
   unsigned int maxNumberOfCrossedLayers;
 
   bool rejectOverlaps;
+  bool splitHits;
   bool seedCleaning;
 
 };

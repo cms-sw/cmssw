@@ -68,6 +68,9 @@ TrackCandidateProducer::TrackCandidateProducer(const edm::ParameterSet& conf)
   // Reject overlapping hits?
   rejectOverlaps = conf.getParameter<bool>("OverlapCleaning");
 
+  // Split hits ?
+  splitHits = conf.getParameter<bool>("SplitHits");
+
   // Reject tracks with several seeds ?
   // Typically don't do that at HLT for electrons, but do it otherwise
   seedCleaning = conf.getParameter<bool>("SeedCleaning");
@@ -229,7 +232,7 @@ TrackCandidateProducer::produce(edm::Event& e, const edm::EventSetup& es) {
     
     // A vector of TrackerRecHits belonging to the track and the number of crossed layers
     std::vector<TrackerRecHit> theTrackerRecHits;
-    std::vector<TrackerRecHit> theTrackerRecHitsSplit;
+    // std::vector<TrackerRecHit> theTrackerRecHitsSplit;
     unsigned theNumberOfCrossedLayers = 0;
  
     // The track has indeed been reconstructed already -> Save the pertaining info
@@ -297,130 +300,65 @@ TrackCandidateProducer::produce(edm::Event& e, const edm::EventSetup& es) {
 	// Always add the first seeding rechit anyway
 	if ( !rejectOverlaps || firstRecHit ) {  
 	  
-	  //	  theTrackerRecHits.push_back(theCurrentRecHit);
-	  //add the split version of the first hit
-	  //DO IT HERE
-	  if(theCurrentRecHit.hit()->isMatched() ){
+	  // Split matched hits (if requested / possible )
+	  if ( splitHits && theCurrentRecHit.matchedHit()->isMatched() ) {
 	    
-	    const SiTrackerGSRecHit2D* mHit = theCurrentRecHit.hit()->monoHit();
-	    SiTrackerGSMatchedRecHit2D* monoHit = 
-	      new SiTrackerGSMatchedRecHit2D(mHit->localPosition(), mHit->localPositionError(), mHit->geographicalId(),
-					     mHit->simhitId(), mHit->simtrackId(), mHit->eeId(), mHit->simMultX(),mHit->simMultY());
-	    const SiTrackerGSRecHit2D* sHit = theCurrentRecHit.hit()->stereoHit();
-	    SiTrackerGSMatchedRecHit2D* stereoHit = 
-	      new SiTrackerGSMatchedRecHit2D(sHit->localPosition(), sHit->localPositionError(), sHit->geographicalId(),
-					     sHit->simhitId(), sHit->simtrackId(), sHit->eeId(), sHit->simMultX(),sHit->simMultY());
+	    addSplitHits(theCurrentRecHit,theTrackerRecHits);
+	    
+	  // No splitting   
+	  } else {
+	    
+	    theTrackerRecHits.push_back(theCurrentRecHit);
 
-	    if( mHit->simhitId() < sHit->simhitId() ) {
-
-	      theFirstHitComp  = TrackerRecHit(monoHit,theGeometry);
-	      theSecondHitComp = TrackerRecHit(stereoHit,theGeometry);
-	    }else{
-	      theFirstHitComp  = TrackerRecHit(stereoHit,theGeometry);
-	      theSecondHitComp = TrackerRecHit(monoHit,theGeometry);
-	    }
-	    theTrackerRecHitsSplit.push_back(theFirstHitComp);
-	    theTrackerRecHitsSplit.push_back(theSecondHitComp);
-	  }else{ //if not matched
-	    theTrackerRecHitsSplit.push_back(theCurrentRecHit);
 	  }
-	  //old collection
-	  theTrackerRecHits.push_back(theCurrentRecHit);
 
 	  firstRecHit = false;
 	  
-	  // And now treat the following RecHits if hits in the same layer 
-	  // have to be rejected
+	// And now treat the following RecHits if hits in the same layer 
+	// have to be rejected - The split option is not 
 	} else { 
 	  
 	  // Not the same layer : Add the current hit
-	  if ( theCurrentRecHit.subDetId()    != theTrackerRecHits.back().subDetId() || 
-	       theCurrentRecHit.layerNumber() != theTrackerRecHits.back().layerNumber() ) {
+	  if ( theCurrentRecHit.subDetId()    != thePreviousRecHit.subDetId() || 
+	       theCurrentRecHit.layerNumber() != thePreviousRecHit.layerNumber() ) {
 	    
-	    //this collection will be dropped later on
-	    theTrackerRecHits.push_back(theCurrentRecHit);
-	    
-	    //fill the new collection with the split hits
-	    //IMPORTANT: the order of the hits has to be in the direction of the Track Tajectory
-	    if(theCurrentRecHit.hit()->isMatched() ){
-
-	      const SiTrackerGSRecHit2D* mHit = theCurrentRecHit.hit()->monoHit();
-	      SiTrackerGSMatchedRecHit2D* monoHit = 
-		new SiTrackerGSMatchedRecHit2D(mHit->localPosition(), mHit->localPositionError(), mHit->geographicalId(),
-					       mHit->simhitId(), mHit->simtrackId(), mHit->eeId(), mHit->simMultX(),mHit->simMultY());
-	      const SiTrackerGSRecHit2D* sHit = theCurrentRecHit.hit()->stereoHit();
-	      SiTrackerGSMatchedRecHit2D* stereoHit = 
-		new SiTrackerGSMatchedRecHit2D(sHit->localPosition(), sHit->localPositionError(), sHit->geographicalId(),
-					       sHit->simhitId(), sHit->simtrackId(), sHit->eeId(), sHit->simMultX(),sHit->simMultY());
-
-	      if( (theCurrentRecHit.hit()->monoHit()->simhitId()) <  (theCurrentRecHit.hit()->stereoHit()->simhitId()) ) {
-		
-		theFirstHitComp  = TrackerRecHit(monoHit,theGeometry);
-		theSecondHitComp = TrackerRecHit(stereoHit,theGeometry);
-	      }else{
-		theFirstHitComp  = TrackerRecHit(stereoHit,theGeometry);
-		theSecondHitComp = TrackerRecHit(monoHit,theGeometry);
-	      }
-	      theTrackerRecHitsSplit.push_back(theFirstHitComp);
-	      theTrackerRecHitsSplit.push_back(theSecondHitComp);
+	    // Split matched hits (if requested / possible )
+	    if ( splitHits && theCurrentRecHit.matchedHit()->isMatched() ) {
 	      
-	    }else{
-	      theTrackerRecHitsSplit.push_back(theCurrentRecHit);
+	      addSplitHits(theCurrentRecHit,theTrackerRecHits);
+
+	    // No splitting   	      
+	    } else {
+
 	      theTrackerRecHits.push_back(theCurrentRecHit);
+	    
 	    }
 	    
 	    // Same layer : keep the current hit if better, and drop the other - otherwise do nothing  
-	  } else if ( theCurrentRecHit.localError() < theTrackerRecHits.back().localError() ) { 
+	  } else if ( theCurrentRecHit.localError() < thePreviousRecHit.localError() ) { 
 	    
-	    if(theCurrentRecHit.hit()->isMatched() ){
+	    // Split matched hits (if requested / possible )
+	    if( splitHits && theCurrentRecHit.matchedHit()->isMatched() ){
 
-	      const SiTrackerGSRecHit2D* mHit = theCurrentRecHit.hit()->monoHit();
-	      SiTrackerGSMatchedRecHit2D* monoHit = 
-		new SiTrackerGSMatchedRecHit2D(mHit->localPosition(), mHit->localPositionError(), mHit->geographicalId(),
-					       mHit->simhitId(), mHit->simtrackId(), mHit->eeId(), mHit->simMultX(),mHit->simMultY());
-	      const SiTrackerGSRecHit2D* sHit = theCurrentRecHit.hit()->stereoHit();
-	      SiTrackerGSMatchedRecHit2D* stereoHit = 
-		new SiTrackerGSMatchedRecHit2D(sHit->localPosition(), sHit->localPositionError(), sHit->geographicalId(),
-					       sHit->simhitId(), sHit->simtrackId(), sHit->eeId(), sHit->simMultX(),sHit->simMultY());
-	      
-	      if( (theCurrentRecHit.hit()->monoHit()->simhitId()) <  (theCurrentRecHit.hit()->stereoHit()->simhitId()) ) {
-		
-		theFirstHitComp  = TrackerRecHit(monoHit,theGeometry);
-		theSecondHitComp = TrackerRecHit(stereoHit,theGeometry);
-	      }else{
-		theFirstHitComp  = TrackerRecHit(stereoHit,theGeometry);
-		theSecondHitComp = TrackerRecHit(monoHit,theGeometry);
-	      }
-	      theTrackerRecHitsSplit.back()= theFirstHitComp;
-	      theTrackerRecHitsSplit.push_back(theSecondHitComp);
-	      
-	    }else{
-	      theTrackerRecHitsSplit.back()= theCurrentRecHit;
+	      // Remove the previous hit(s)
+	      theTrackerRecHits.pop_back();
+	      if ( thePreviousRecHit.matchedHit()->isMatched() ) theTrackerRecHits.pop_back();
+
+	      // Replace by the new hits
+	      addSplitHits(theCurrentRecHit,theTrackerRecHits);
+
+	    // No splitting   
+	    } else {
+
+	      // Replace the previous hit by the current hit
 	      theTrackerRecHits.back() = theCurrentRecHit;
+
 	    }
 
-	    /*
-	    std::cout << "Hit number " << theTrackerRecHits.size() << "\tSplit collection " <<  theTrackerRecHitsSplit.size()
-		      << " : The local error is smaller than the previous hit " 
-		      << theCurrentRecHit.localError() << " " 
-		      <<  theTrackerRecHits.back().localError() << " in subdet/layer/ring " 
-		      << theCurrentRecHit.subDetId() << " " 
-		      << theCurrentRecHit.layerNumber() << " " 
-		      << theCurrentRecHit.ringNumber() << " -> REPLACE " << std::endl;
-	    */
-	    
 	  } else { 
 	    
-	    /*
-	    std::cout << "Hit number " << theTrackerRecHits.size()  << "\tSplit collection " <<  theTrackerRecHitsSplit.size()
-		      << " : The local error is larger than the previous hit " 
-		      << theCurrentRecHit.localError() << " " 
-		      << theTrackerRecHits.back().localError() << " in subdet/layer/ring " 
-		      << theCurrentRecHit.subDetId() << " " 
-		      << theCurrentRecHit.layerNumber() << " " 
-		      << theCurrentRecHit.ringNumber() << " -> IGNORE " << std::endl;
-	    */
 	  }
+
 	}
 	
       }
@@ -428,37 +366,37 @@ TrackCandidateProducer::produce(edm::Event& e, const edm::EventSetup& es) {
     }
     
 #ifdef FAMOS_DEBUG
-     std::cout << "Hit number " << theTrackerRecHits.size() << "\tSplit collection " <<  theTrackerRecHitsSplit.size() << std::endl;
+     std::cout << "Hit number " << theTrackerRecHits.size() << std::endl;
 #endif
 
     //replace TrackerRecHit con TrackerRecHitsSplit
     // 1) Create the OwnWector of TrackingRecHits
     edm::OwnVector<TrackingRecHit> recHits;
-    unsigned nTrackerHits = theTrackerRecHitsSplit.size();
+    unsigned nTrackerHits = theTrackerRecHits.size();
     recHits.reserve(nTrackerHits); // To save some time at push_back
 
     for ( unsigned ih=0; ih<nTrackerHits; ++ih ) {
-      TrackingRecHit* aTrackingRecHit = theTrackerRecHitsSplit[ih].hit()->clone();
+      TrackingRecHit* aTrackingRecHit = theTrackerRecHits[ih].hit()->clone();
       recHits.push_back(aTrackingRecHit);
 
 #ifdef FAMOS_DEBUG
-      const DetId& detId = theTrackerRecHitsSplit[ih].hit()->geographicalId();      
+      const DetId& detId = theTrackerRecHits[ih].hit()->geographicalId();      
       std::cout << "Added RecHit from detid " << detId.rawId() 
-		<< " subdet = " << theTrackerRecHitsSplit[ih].subDetId() 
-		<< " layer = " << theTrackerRecHitsSplit[ih].layerNumber()
-		<< " ring = " << theTrackerRecHitsSplit[ih].ringNumber()
-		<< " error = " << theTrackerRecHitsSplit[ih].localError()
+		<< " subdet = " << theTrackerRecHits[ih].subDetId() 
+		<< " layer = " << theTrackerRecHits[ih].layerNumber()
+		<< " ring = " << theTrackerRecHits[ih].ringNumber()
+		<< " error = " << theTrackerRecHits[ih].localError()
 		<< std::endl;
       
       std::cout << "Track/z/r : "
 		<< simTrackId << " " 
-		<< theTrackerRecHitsSplit[ih].globalPosition().z() << " " 
-		<< theTrackerRecHitsSplit[ih].globalPosition().perp() << std::endl;
-
-      std::cout << "Matched : " << theTrackerRecHitsSplit[ih].hit()->isMatched() 
-		<< "Rphi Hit = " <<  theTrackerRecHitsSplit[ih].hit()->monoHit()->simhitId()		 
-		<< "Stereo Hit = " <<  theTrackerRecHitsSplit[ih].hit()->stereoHit()->simhitId()
-		<<std::endl;
+		<< theTrackerRecHits[ih].globalPosition().z() << " " 
+		<< theTrackerRecHits[ih].globalPosition().perp() << std::endl;
+      if ( theTrackerRecHits[ih].matchedHit() && theTrackerRecHits[ih].matchedHit()->isMatched() ) 
+	std::cout << "Matched : " << theTrackerRecHits[ih].matchedHit()->isMatched() 
+		  << "Rphi Hit = " <<  theTrackerRecHits[ih].matchedHit()->monoHit()->simhitId()		 
+		  << "Stereo Hit = " <<  theTrackerRecHits[ih].matchedHit()->stereoHit()->simhitId()
+		  <<std::endl;
 
 #endif
     }
@@ -510,11 +448,11 @@ TrackCandidateProducer::produce(edm::Event& e, const edm::EventSetup& es) {
   }
   
   // Save the track candidates in the event
-  //#ifdef FAMOS_DEBUG
+#ifdef FAMOS_DEBUG
   std::cout << "Saving " 
 	    << output->size() << " track candidates and " 
 	    << recoTracks->size() << " reco::Tracks " << std::endl;
-  //#endif
+#endif
   // Save the track candidates
   e.put(output);
 
@@ -594,3 +532,24 @@ TrackCandidateProducer::findId(const reco::Track& aTrack) const {
   return trackId;
 }
 
+void 
+TrackCandidateProducer::addSplitHits(const TrackerRecHit& theCurrentRecHit,
+				     std::vector<TrackerRecHit>& theTrackerRecHits) { 
+  
+  const SiTrackerGSRecHit2D* mHit = theCurrentRecHit.matchedHit()->monoHit();
+  const SiTrackerGSRecHit2D* sHit = theCurrentRecHit.matchedHit()->stereoHit();
+  
+  // Add the new hits
+  if( mHit->simhitId() < sHit->simhitId() ) {
+    
+    theTrackerRecHits.push_back(TrackerRecHit(mHit,theCurrentRecHit));
+    theTrackerRecHits.push_back(TrackerRecHit(sHit,theCurrentRecHit));
+    
+  } else {
+    
+    theTrackerRecHits.push_back(TrackerRecHit(sHit,theCurrentRecHit));
+    theTrackerRecHits.push_back(TrackerRecHit(mHit,theCurrentRecHit));
+    
+  }
+
+}

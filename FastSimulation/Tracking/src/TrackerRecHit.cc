@@ -1,20 +1,40 @@
 #include "FastSimulation/Tracking/interface/TrackerRecHit.h"
 #include "FastSimulation/TrackerSetup/interface/TrackerInteractionGeometry.h"
 
-
-//TrackerRecHit::TrackerRecHit(const SiTrackerGSRecHit2D* theHit, 
-//		     const TrackerGeometry* theGeometry) :
 TrackerRecHit::TrackerRecHit(const SiTrackerGSMatchedRecHit2D* theHit, 
 			     const TrackerGeometry* theGeometry) :
-  theHit(theHit),
+  theSplitHit(0),
+  theMatchedHit(theHit),
   theSubDetId(0),
   theLayerNumber(0),
   theRingNumber(0),
   theCylinderNumber(0),
   theLocalError(0.),
   theLargerError(0.)
+     
 { 
-  const DetId& theDetId = theHit->geographicalId();
+  init(theGeometry);
+}
+
+TrackerRecHit::TrackerRecHit(const SiTrackerGSRecHit2D* theHit, 
+			     const TrackerGeometry* theGeometry) :
+  theSplitHit(theHit),
+  theMatchedHit(0),
+  theSubDetId(0),
+  theLayerNumber(0),
+  theRingNumber(0),
+  theCylinderNumber(0),
+  theLocalError(0.),
+  theLargerError(0.)
+     
+{ 
+  init(theGeometry);
+}
+
+void
+TrackerRecHit::init(const TrackerGeometry* theGeometry) { 
+
+  const DetId& theDetId = hit()->geographicalId();
   theGeomDet = theGeometry->idToDet(theDetId);
   theSubDetId = theDetId.subdetId(); 
   if ( theSubDetId == StripSubdetector::TIB) { 
@@ -53,9 +73,7 @@ TrackerRecHit::TrackerRecHit(const SiTrackerGSMatchedRecHit2D* theHit,
   
 }
 
-
-
-bool 
+bool
 TrackerRecHit::isOnRequestedDet(const std::vector<unsigned int>& whichDet) const { 
   
   bool isOnDet = false;
@@ -107,3 +125,5 @@ TrackerRecHit::isOnRequestedDet(const std::vector<unsigned int>& whichDet) const
   
   return isOnDet;
 }
+
+

@@ -10,15 +10,12 @@
 #include "DataFormats/SiStripDetId/interface/TIDDetId.h"
 #include "DataFormats/SiStripDetId/interface/TOBDetId.h" 
 #include "DataFormats/SiStripDetId/interface/TECDetId.h" 
-//#include "DataFormats/TrackerRecHit2D/interface/SiTrackerGSRecHit2D.h" 
+#include "DataFormats/TrackerRecHit2D/interface/SiTrackerGSRecHit2D.h" 
 #include "DataFormats/TrackerRecHit2D/interface/SiTrackerGSMatchedRecHit2D.h" 
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 #include "DataFormats/GeometryVector/interface/LocalPoint.h"
 
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
-//#include "DataFormats/GeometrySurface/interface/BoundSurface.h"
-//#include "DataFormats/GeometrySurface/interface/BoundCylinder.h"
-//#include "DataFormats/GeometrySurface/interface/BoundDisk.h"
 
 #include <vector>
 
@@ -28,10 +25,10 @@
 class TrackerRecHit {
 public:
   
-
   /// Default Constructor
   TrackerRecHit() :
-    theHit(0),
+    theSplitHit(0),
+    theMatchedHit(0),
     theGeomDet(0),
     theSubDetId(0),
     theLayerNumber(0),
@@ -39,26 +36,49 @@ public:
     theLocalError(0.),
     theLargerError(0.),
     forward(false) {}
+
+  /// Soft Copy Constructor from private members
+  TrackerRecHit( const SiTrackerGSRecHit2D* theSplitHit, 
+		 const TrackerRecHit& other ) : 
+    theSplitHit(theSplitHit),
+    theMatchedHit(0),
+    theGeomDet(other.geomDet()),
+    theSubDetId(other.subDetId()),
+    theLayerNumber(other.layerNumber()),
+    theRingNumber(other.ringNumber()), 
+    theLocalError(0.),
+    theLargerError(0.),
+    forward(other.isForward()) {}
+
+  /// Constructor from a GSRecHit and the Geometry
+  TrackerRecHit(const SiTrackerGSRecHit2D* theHit, 
+		const TrackerGeometry* theGeometry);
   
-  /// Constructor from private members
-    //  TrackerRecHit(const SiTrackerGSRecHit2D* theHit, 
-    //		const TrackerGeometry* theGeometry);
   TrackerRecHit(const SiTrackerGSMatchedRecHit2D* theHit, 
 		const TrackerGeometry* theGeometry);
 
+  /// Initialization at construction time
+  void init(const TrackerGeometry* theGeometry);
+  
+  // TrackerRecHit(const SiTrackerGSMatchedRecHit2D* theHit, 
+  //		const TrackerGeometry* theGeometry);
+  
   /// The Hit itself
-    //  const SiTrackerGSRecHit2D* hit() const { return theHit; }
-  const SiTrackerGSMatchedRecHit2D* hit() const { return theHit; }
+  //  const SiTrackerGSRecHit2D* hit() const { return theHit; }
+  inline const SiTrackerGSMatchedRecHit2D* matchedHit() const { return theMatchedHit; }
+  inline const SiTrackerGSRecHit2D* splitHit() const { return theSplitHit; }
+  inline const BaseSiTrackerRecHit2DLocalPos* hit() const { 
+    return theSplitHit ? (BaseSiTrackerRecHit2DLocalPos*)theSplitHit : (BaseSiTrackerRecHit2DLocalPos*)theMatchedHit; } 
 
   /// The subdet Id
   inline unsigned int subDetId() const { return theSubDetId; }
-
+  
   /// The Layer Number
   inline unsigned int layerNumber() const { return theLayerNumber; }
-
+  
   /// The Ring Number
   inline unsigned int ringNumber() const { return theRingNumber; }
-
+  
   /// The global layer number in the nested cylinder geometry
   unsigned int cylinderNumber() const { return theCylinderNumber; }
 
@@ -70,11 +90,11 @@ public:
 
   /// The global position
   inline GlobalPoint globalPosition() const { 
-    return theGeomDet->surface().toGlobal(theHit->localPosition());
+    return theGeomDet->surface().toGlobal(hit()->localPosition());
   }
 
   /// The local position
-  inline LocalPoint localPosition() const { return theHit->localPosition(); }
+  inline LocalPoint localPosition() const { return hit()->localPosition(); }
 
   /// Check if the hit is on one of the requested detector
   bool isOnRequestedDet(const std::vector<unsigned int>& whichDet) const;
@@ -94,9 +114,9 @@ public:
     if ( theLocalError != 0. ) return theLocalError;
 
     // Otherwise, compute it!
-    double xx = theHit->localPositionError().xx();
-    double yy = theHit->localPositionError().yy();
-    double xy = theHit->localPositionError().xy();
+    double xx = hit()->localPositionError().xx();
+    double yy = hit()->localPositionError().yy();
+    double xy = hit()->localPositionError().xy();
     double delta = std::sqrt((xx-yy)*(xx-yy)+4.*xy*xy);
     theLocalError = 0.5 * (xx+yy-delta);
     return theLocalError;
@@ -110,9 +130,9 @@ public:
     if ( theLargerError != 0. ) return theLargerError;
 
     // Otherwise, compute it!
-    double xx = theHit->localPositionError().xx();
-    double yy = theHit->localPositionError().yy();
-    double xy = theHit->localPositionError().xy();
+    double xx = hit()->localPositionError().xx();
+    double yy = hit()->localPositionError().yy();
+    double xy = hit()->localPositionError().xy();
     double delta = std::sqrt((xx-yy)*(xx-yy)+4.*xy*xy);
     theLargerError = 0.5 * (xx+yy+delta);
     return theLargerError;
@@ -129,9 +149,9 @@ public:
 
  private:
   
-  // const SiTrackerGSRecHit2D* theHit;
-  const SiTrackerGSMatchedRecHit2D* theHit;
-   const GeomDet* theGeomDet;
+  const SiTrackerGSRecHit2D* theSplitHit;
+  const SiTrackerGSMatchedRecHit2D* theMatchedHit;
+  const GeomDet* theGeomDet;
   unsigned int theSubDetId; 
   unsigned int theLayerNumber;
   unsigned int theRingNumber;
@@ -139,7 +159,8 @@ public:
   double theLocalError;
   double theLargerError;
   bool forward;
-
+  
 };
+
 #endif
 
