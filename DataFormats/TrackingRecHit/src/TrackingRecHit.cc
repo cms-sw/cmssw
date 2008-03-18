@@ -23,3 +23,7 @@ bool TrackingRecHit::sharesInput( const TrackingRecHit* other, SharedInputType w
   throw cms::Exception(msg);
   return false;
 }
+
+void TrackingRecHit::getKfComponents( KfComponentsHolder & holder ) const {
+    holder.genericFill(*this);
+}

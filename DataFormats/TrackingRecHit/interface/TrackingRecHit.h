@@ -5,6 +5,7 @@
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/GeometrySurface/interface/LocalError.h"
 #include "DataFormats/GeometryVector/interface/LocalPoint.h"
+#include "DataFormats/TrackingRecHit/interface/KfComponentsHolder.h"
 
 class TrackingRecHit {
 public:
@@ -33,7 +34,9 @@ public:
   virtual AlgebraicSymMatrix parametersError() const = 0;
   
   virtual AlgebraicMatrix projectionMatrix() const = 0;
-  
+
+  virtual void getKfComponents( KfComponentsHolder & holder ) const ; 
+ 
   virtual int dimension() const = 0;
   
   /// Access to component RecHits (if any)
