@@ -1,5 +1,5 @@
 //
-// $Id: PATPhotonProducer.cc,v 1.1 2008/03/06 09:23:11 llista Exp $
+// $Id: PATPhotonProducer.cc,v 1.2 2008/03/17 17:21:19 gpetrucc Exp $
 //
 
 #include "PhysicsTools/PatAlgos/plugins/PATPhotonProducer.h"
@@ -17,6 +17,21 @@ PATPhotonProducer::PATPhotonProducer(const edm::ParameterSet & iConfig) :
   
   // produces vector of photons
   produces<std::vector<Photon> >();
+
+  if (iConfig.exists("isoDeposits")) {
+     edm::ParameterSet depconf = iConfig.getParameter<edm::ParameterSet>("isoDeposits");
+     if (depconf.exists("tracker")) isoDepositLabels_.push_back(std::make_pair(TrackerIso, depconf.getParameter<edm::InputTag>("tracker")));
+     if (depconf.exists("ecal"))    isoDepositLabels_.push_back(std::make_pair(ECalIso, depconf.getParameter<edm::InputTag>("ecal")));
+     if (depconf.exists("hcal"))    isoDepositLabels_.push_back(std::make_pair(HCalIso, depconf.getParameter<edm::InputTag>("hcal")));
+     if (depconf.exists("user")) {
+        std::vector<edm::InputTag> userdeps = depconf.getParameter<std::vector<edm::InputTag> >("user");
+        std::vector<edm::InputTag>::const_iterator it = userdeps.begin(), ed = userdeps.end();
+        int key = UserBaseIso;
+        for ( ; it != ed; ++it, ++key) {
+            isoDepositLabels_.push_back(std::make_pair(IsolationKeys(key), *it));
+        }
+     }
+  }
 }
 
 PATPhotonProducer::~PATPhotonProducer() {
@@ -29,6 +44,11 @@ void PATPhotonProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSe
   iEvent.getByLabel(photonSrc_, photons);
 
   if (isolator_.enabled()) isolator_.beginEvent(iEvent);
+
+  std::vector<edm::Handle<edm::ValueMap<IsoDeposit> > > deposits(isoDepositLabels_.size());
+  for (size_t j = 0, nd = deposits.size(); j < nd; ++j) {
+    iEvent.getByLabel(isoDepositLabels_[j].second, deposits[j]);
+  }
 
   // loop over photons
   std::vector<Photon> * PATPhotons = new std::vector<Photon>(); 
@@ -46,6 +66,10 @@ void PATPhotonProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSe
         for (IsolationValuePairs::const_reverse_iterator it = isolatorTmpStorage_.rbegin(), ed = isolatorTmpStorage_.rend(); it != ed; ++it) {
             aPhoton.setIsolation(it->first, it->second);
         }
+    }
+
+    for (size_t j = 0, nd = deposits.size(); j < nd; ++j) {
+        aPhoton.setIsoDeposit(isoDepositLabels_[j].first, (*deposits[j])[photonRef]);
     }
 
     // add the Photon to the vector of Photons

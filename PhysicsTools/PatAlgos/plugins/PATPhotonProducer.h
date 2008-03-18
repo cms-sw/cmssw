@@ -1,5 +1,5 @@
 //
-// $Id: PATPhotonProducer.h,v 1.1 2008/03/06 09:23:11 llista Exp $
+// $Id: PATPhotonProducer.h,v 1.2 2008/03/17 17:21:19 gpetrucc Exp $
 //
 
 #ifndef PhysicsTools_PatAlgos_PATPhotonProducer_h
@@ -13,7 +13,7 @@
    a collection of objects of PhotonType.
 
   \author   Steven Lowette
-  \version  $Id: PATPhotonProducer.h,v 1.1 2008/03/06 09:23:11 llista Exp $
+  \version  $Id: PATPhotonProducer.h,v 1.2 2008/03/17 17:21:19 gpetrucc Exp $
 */
 
 
@@ -52,6 +52,8 @@ namespace pat {
 
       pat::helper::MultiIsolator isolator_; 
       pat::helper::MultiIsolator::IsolationValuePairs isolatorTmpStorage_; // better here than recreate at each event
+      std::vector<std::pair<pat::IsolationKeys,edm::InputTag> > isoDepositLabels_;
+
 
   };
 
