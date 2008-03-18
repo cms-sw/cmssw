@@ -19,6 +19,8 @@ public:
   virtual ~TSiStripRecHit2DLocalPos() {}
 
 
+  virtual void getKfComponents( KfComponentsHolder & holder ) const { theHitData.getKfComponents(holder); }
+
   virtual AlgebraicVector parameters() const {return theHitData.parameters();}
   virtual AlgebraicSymMatrix parametersError() const {
     return HelpertRecHit2DLocalPos().parError( theHitData.localPositionError(), *det()); 

@@ -31,6 +31,8 @@ public:
   virtual LocalPoint localPosition() const {return theHitData.localPosition();}
   virtual LocalError localPositionError() const {return theHitData.localPositionError();}
 
+  virtual void getKfComponents( KfComponentsHolder & holder ) const { theHitData.getKfComponents(holder); }
+
   virtual const TrackingRecHit * hit() const {return &theHitData;};
   
   virtual std::vector<const TrackingRecHit*> recHits() const {
