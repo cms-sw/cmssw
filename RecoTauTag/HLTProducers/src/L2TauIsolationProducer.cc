@@ -89,13 +89,9 @@ L2TauIsolationProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
    Handle<CaloJetCollection> l2CaloJets; //Handle to the input (L2TauCaloJets);
 
 
-   try { 
-          iEvent.getByLabel(l2CaloJets_ ,l2CaloJets);//get the handle
-       }
-   catch(...)
-       {
-	 std::cout << "No L2 Calo jet Collection found in the Event" << std::endl;
-       }
+
+   iEvent.getByLabel(l2CaloJets_ ,l2CaloJets);//get the handle
+
 
    //If the JetCrystalsAssociation exists -> RUN The Producer
    if(&(*l2CaloJets))
@@ -189,16 +185,11 @@ L2TauIsolationProducer::getECALHits(const CaloJet& jet,const edm::Event& iEvent,
   Handle<EERecHitCollection> EERecHits;
 
   //Read From File
-  try 
-    {
-      iEvent.getByLabel( EBRecHits_, EBRecHits );
-      iEvent.getByLabel( EERecHits_, EERecHits );
+ 
+  iEvent.getByLabel( EBRecHits_, EBRecHits );
+  iEvent.getByLabel( EERecHits_, EERecHits );
   
-    }
-  catch(...)
-    {
-      
-    }
+ 
 
   //Create a container for the hits
   math::PtEtaPhiELorentzVectorCollection jetRecHits;

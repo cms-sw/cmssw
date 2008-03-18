@@ -42,13 +42,8 @@ L2TauIsolationSelector::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
    using namespace edm;
    Handle<L2TauInfoAssociation> Imap;
    
-      try { 
-             iEvent.getByLabel(associationInput_ ,Imap);//get the handle
-          }
-          catch(...)
-          {
-	    std::cout << "No L2 Info AssociationMap found in the Event" << std::endl;
-          }
+
+   iEvent.getByLabel(associationInput_ ,Imap);//get the handle
 
      if(&(*Imap)) 
        {
