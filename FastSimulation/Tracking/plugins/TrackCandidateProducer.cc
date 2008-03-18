@@ -22,6 +22,7 @@
 #include "TrackingTools/PatternTools/interface/TrajTrackAssociation.h"
 
 #include "FastSimulation/Tracking/interface/TrackerRecHit.h"
+//#include "FastSimulation/Tracking/interface/TrackerRecHitSplit.h"
 
 #include "FastSimulation/Tracking/plugins/TrackCandidateProducer.h"
 
@@ -228,6 +229,7 @@ TrackCandidateProducer::produce(edm::Event& e, const edm::EventSetup& es) {
     
     // A vector of TrackerRecHits belonging to the track and the number of crossed layers
     std::vector<TrackerRecHit> theTrackerRecHits;
+    std::vector<TrackerRecHit> theTrackerRecHitsSplit;
     unsigned theNumberOfCrossedLayers = 0;
  
     // The track has indeed been reconstructed already -> Save the pertaining info
@@ -270,13 +272,16 @@ TrackCandidateProducer::produce(edm::Event& e, const edm::EventSetup& es) {
       bool firstRecHit = true;
       // 
       TrackerRecHit theCurrentRecHit, thePreviousRecHit;
+
+      TrackerRecHit theFirstHitComp, theSecondHitComp;
+
       for ( iterRecHit = theRecHitRangeIteratorBegin; 
 	    iterRecHit != theRecHitRangeIteratorEnd; 
 	    ++iterRecHit) {
 	
 	// Check the number of crossed layers
 	if ( theNumberOfCrossedLayers >= maxNumberOfCrossedLayers ) continue;
-
+	
 	// Get current and previous rechits
 	thePreviousRecHit = theCurrentRecHit;
 	theCurrentRecHit = TrackerRecHit(&(*iterRecHit),theGeometry);
@@ -292,7 +297,36 @@ TrackCandidateProducer::produce(edm::Event& e, const edm::EventSetup& es) {
 	// Always add the first seeding rechit anyway
 	if ( !rejectOverlaps || firstRecHit ) {  
 	  
+	  //	  theTrackerRecHits.push_back(theCurrentRecHit);
+	  //add the split version of the first hit
+	  //DO IT HERE
+	  if(theCurrentRecHit.hit()->isMatched() ){
+	    
+	    const SiTrackerGSRecHit2D* mHit = theCurrentRecHit.hit()->monoHit();
+	    SiTrackerGSMatchedRecHit2D* monoHit = 
+	      new SiTrackerGSMatchedRecHit2D(mHit->localPosition(), mHit->localPositionError(), mHit->geographicalId(),
+					     mHit->simhitId(), mHit->simtrackId(), mHit->eeId(), mHit->simMultX(),mHit->simMultY());
+	    const SiTrackerGSRecHit2D* sHit = theCurrentRecHit.hit()->stereoHit();
+	    SiTrackerGSMatchedRecHit2D* stereoHit = 
+	      new SiTrackerGSMatchedRecHit2D(sHit->localPosition(), sHit->localPositionError(), sHit->geographicalId(),
+					     sHit->simhitId(), sHit->simtrackId(), sHit->eeId(), sHit->simMultX(),sHit->simMultY());
+
+	    if( mHit->simhitId() < sHit->simhitId() ) {
+
+	      theFirstHitComp  = TrackerRecHit(monoHit,theGeometry);
+	      theSecondHitComp = TrackerRecHit(stereoHit,theGeometry);
+	    }else{
+	      theFirstHitComp  = TrackerRecHit(stereoHit,theGeometry);
+	      theSecondHitComp = TrackerRecHit(monoHit,theGeometry);
+	    }
+	    theTrackerRecHitsSplit.push_back(theFirstHitComp);
+	    theTrackerRecHitsSplit.push_back(theSecondHitComp);
+	  }else{ //if not matched
+	    theTrackerRecHitsSplit.push_back(theCurrentRecHit);
+	  }
+	  //old collection
 	  theTrackerRecHits.push_back(theCurrentRecHit);
+
 	  firstRecHit = false;
 	  
 	  // And now treat the following RecHits if hits in the same layer 
@@ -302,69 +336,145 @@ TrackCandidateProducer::produce(edm::Event& e, const edm::EventSetup& es) {
 	  // Not the same layer : Add the current hit
 	  if ( theCurrentRecHit.subDetId()    != theTrackerRecHits.back().subDetId() || 
 	       theCurrentRecHit.layerNumber() != theTrackerRecHits.back().layerNumber() ) {
+	    
+	    //this collection will be dropped later on
 	    theTrackerRecHits.push_back(theCurrentRecHit);
+	    
+	    //fill the new collection with the split hits
+	    //IMPORTANT: the order of the hits has to be in the direction of the Track Tajectory
+	    if(theCurrentRecHit.hit()->isMatched() ){
+
+	      const SiTrackerGSRecHit2D* mHit = theCurrentRecHit.hit()->monoHit();
+	      SiTrackerGSMatchedRecHit2D* monoHit = 
+		new SiTrackerGSMatchedRecHit2D(mHit->localPosition(), mHit->localPositionError(), mHit->geographicalId(),
+					       mHit->simhitId(), mHit->simtrackId(), mHit->eeId(), mHit->simMultX(),mHit->simMultY());
+	      const SiTrackerGSRecHit2D* sHit = theCurrentRecHit.hit()->stereoHit();
+	      SiTrackerGSMatchedRecHit2D* stereoHit = 
+		new SiTrackerGSMatchedRecHit2D(sHit->localPosition(), sHit->localPositionError(), sHit->geographicalId(),
+					       sHit->simhitId(), sHit->simtrackId(), sHit->eeId(), sHit->simMultX(),sHit->simMultY());
+
+	      if( (theCurrentRecHit.hit()->monoHit()->simhitId()) <  (theCurrentRecHit.hit()->stereoHit()->simhitId()) ) {
+		
+		theFirstHitComp  = TrackerRecHit(monoHit,theGeometry);
+		theSecondHitComp = TrackerRecHit(stereoHit,theGeometry);
+	      }else{
+		theFirstHitComp  = TrackerRecHit(stereoHit,theGeometry);
+		theSecondHitComp = TrackerRecHit(monoHit,theGeometry);
+	      }
+	      theTrackerRecHitsSplit.push_back(theFirstHitComp);
+	      theTrackerRecHitsSplit.push_back(theSecondHitComp);
+	      
+	    }else{
+	      theTrackerRecHitsSplit.push_back(theCurrentRecHit);
+	      theTrackerRecHits.push_back(theCurrentRecHit);
+	    }
+	    
 	    // Same layer : keep the current hit if better, and drop the other - otherwise do nothing  
 	  } else if ( theCurrentRecHit.localError() < theTrackerRecHits.back().localError() ) { 
-	    theTrackerRecHits.back() = theCurrentRecHit;
-#ifdef FAMOS_DEBUG
-	    std::cout << "Hit number " << theTrackerRecHits.size() 
+	    
+	    if(theCurrentRecHit.hit()->isMatched() ){
+
+	      const SiTrackerGSRecHit2D* mHit = theCurrentRecHit.hit()->monoHit();
+	      SiTrackerGSMatchedRecHit2D* monoHit = 
+		new SiTrackerGSMatchedRecHit2D(mHit->localPosition(), mHit->localPositionError(), mHit->geographicalId(),
+					       mHit->simhitId(), mHit->simtrackId(), mHit->eeId(), mHit->simMultX(),mHit->simMultY());
+	      const SiTrackerGSRecHit2D* sHit = theCurrentRecHit.hit()->stereoHit();
+	      SiTrackerGSMatchedRecHit2D* stereoHit = 
+		new SiTrackerGSMatchedRecHit2D(sHit->localPosition(), sHit->localPositionError(), sHit->geographicalId(),
+					       sHit->simhitId(), sHit->simtrackId(), sHit->eeId(), sHit->simMultX(),sHit->simMultY());
+	      
+	      if( (theCurrentRecHit.hit()->monoHit()->simhitId()) <  (theCurrentRecHit.hit()->stereoHit()->simhitId()) ) {
+		
+		theFirstHitComp  = TrackerRecHit(monoHit,theGeometry);
+		theSecondHitComp = TrackerRecHit(stereoHit,theGeometry);
+	      }else{
+		theFirstHitComp  = TrackerRecHit(stereoHit,theGeometry);
+		theSecondHitComp = TrackerRecHit(monoHit,theGeometry);
+	      }
+	      theTrackerRecHitsSplit.back()= theFirstHitComp;
+	      theTrackerRecHitsSplit.push_back(theSecondHitComp);
+	      
+	    }else{
+	      theTrackerRecHitsSplit.back()= theCurrentRecHit;
+	      theTrackerRecHits.back() = theCurrentRecHit;
+	    }
+
+	    /*
+	    std::cout << "Hit number " << theTrackerRecHits.size() << "\tSplit collection " <<  theTrackerRecHitsSplit.size()
 		      << " : The local error is smaller than the previous hit " 
 		      << theCurrentRecHit.localError() << " " 
 		      <<  theTrackerRecHits.back().localError() << " in subdet/layer/ring " 
 		      << theCurrentRecHit.subDetId() << " " 
 		      << theCurrentRecHit.layerNumber() << " " 
 		      << theCurrentRecHit.ringNumber() << " -> REPLACE " << std::endl;
-#endif
+	    */
+	    
 	  } else { 
-#ifdef FAMOS_DEBUG
-	    std::cout << "Hit number " << theTrackerRecHits.size() 
+	    
+	    /*
+	    std::cout << "Hit number " << theTrackerRecHits.size()  << "\tSplit collection " <<  theTrackerRecHitsSplit.size()
 		      << " : The local error is larger than the previous hit " 
 		      << theCurrentRecHit.localError() << " " 
-		      <<  theTrackerRecHits.back().localError() << " in subdet/layer/ring " 
+		      << theTrackerRecHits.back().localError() << " in subdet/layer/ring " 
 		      << theCurrentRecHit.subDetId() << " " 
 		      << theCurrentRecHit.layerNumber() << " " 
 		      << theCurrentRecHit.ringNumber() << " -> IGNORE " << std::endl;
-#endif
+	    */
 	  }
 	}
-
+	
       }
-    // End of loop over the track rechits
+      // End of loop over the track rechits
     }
+    
+#ifdef FAMOS_DEBUG
+     std::cout << "Hit number " << theTrackerRecHits.size() << "\tSplit collection " <<  theTrackerRecHitsSplit.size() << std::endl;
+#endif
 
+    //replace TrackerRecHit con TrackerRecHitsSplit
     // 1) Create the OwnWector of TrackingRecHits
     edm::OwnVector<TrackingRecHit> recHits;
-    unsigned nTrackerHits = theTrackerRecHits.size();
+    unsigned nTrackerHits = theTrackerRecHitsSplit.size();
     recHits.reserve(nTrackerHits); // To save some time at push_back
+
     for ( unsigned ih=0; ih<nTrackerHits; ++ih ) {
-      TrackingRecHit* aTrackingRecHit = theTrackerRecHits[ih].hit()->clone();
+      TrackingRecHit* aTrackingRecHit = theTrackerRecHitsSplit[ih].hit()->clone();
       recHits.push_back(aTrackingRecHit);
+
 #ifdef FAMOS_DEBUG
-      const DetId& detId = theTrackerRecHits[ih].hit()->geographicalId();      
+      const DetId& detId = theTrackerRecHitsSplit[ih].hit()->geographicalId();      
       std::cout << "Added RecHit from detid " << detId.rawId() 
-		<< " subdet = " << theTrackerRecHits[ih].subDetId() 
-		<< " layer = " << theTrackerRecHits[ih].layerNumber()
-		<< " ring = " << theTrackerRecHits[ih].ringNumber()
-		<< " error = " << theTrackerRecHits[ih].localError()
+		<< " subdet = " << theTrackerRecHitsSplit[ih].subDetId() 
+		<< " layer = " << theTrackerRecHitsSplit[ih].layerNumber()
+		<< " ring = " << theTrackerRecHitsSplit[ih].ringNumber()
+		<< " error = " << theTrackerRecHitsSplit[ih].localError()
 		<< std::endl;
       
       std::cout << "Track/z/r : "
 		<< simTrackId << " " 
-		<< theTrackerRecHits[ih].globalPosition().z() << " " 
-		<< theTrackerRecHits[ih].globalPosition().perp() << std::endl;
+		<< theTrackerRecHitsSplit[ih].globalPosition().z() << " " 
+		<< theTrackerRecHitsSplit[ih].globalPosition().perp() << std::endl;
+
+      std::cout << "Matched : " << theTrackerRecHitsSplit[ih].hit()->isMatched() 
+		<< "Rphi Hit = " <<  theTrackerRecHitsSplit[ih].hit()->monoHit()->simhitId()		 
+		<< "Stereo Hit = " <<  theTrackerRecHitsSplit[ih].hit()->stereoHit()->simhitId()
+		<<std::endl;
+
 #endif
     }
 
     // Check the number of crossed layers
     if ( theNumberOfCrossedLayers < minNumberOfCrossedLayers ) continue;
 
+
     // Create a track Candidate (now with the reference to the seed!) .
-    TrackCandidate 
+    TrackCandidate  
       newTrackCandidate(recHits, 
 			*aSeed, 
 			aSeed->startingState(), 
 			edm::RefToBase<TrajectorySeed>(theSeeds,seednr));
-    // std::cout << "Track kept for later fit!" << std::endl;
+
+    //std::cout << "Track kept for later fit!" << std::endl;
     
 #ifdef FAMOS_DEBUG
     // Log
@@ -400,15 +510,18 @@ TrackCandidateProducer::produce(edm::Event& e, const edm::EventSetup& es) {
   }
   
   // Save the track candidates in the event
-#ifdef FAMOS_DEBUG
+  //#ifdef FAMOS_DEBUG
   std::cout << "Saving " 
 	    << output->size() << " track candidates and " 
 	    << recoTracks->size() << " reco::Tracks " << std::endl;
-#endif
+  //#endif
   // Save the track candidates
   e.put(output);
 
+
+
   // Save the tracking recHits
+
   edm::OrphanHandle <TrackingRecHitCollection> theRecoHits = e.put(recoHits );
 
   // Create the track extras and add the references to the rechits
