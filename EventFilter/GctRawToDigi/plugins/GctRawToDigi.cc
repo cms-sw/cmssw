@@ -9,6 +9,9 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
+// Self-tidying vector like boost::ptr_vector.
+#include <DataFormats/Common/interface/OwnVector.h>
+
 // Raw data collection headers
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
 
@@ -135,9 +138,6 @@ void GctRawToDigi::unpack(const FEDRawData& d, edm::Event& e, const bool invalid
 
   if(invalidDataFlag == false) // Only attempt unpack with valid data
   {
-    std::vector<GctBlockHeaderBase> bHdrs; // For storing block headers
-    bHdrs.reserve(32);  // Reserve approx the right amount of space.
-  
     // Setup blockUnpacker
     blockUnpacker_.setRctEmCollection( rctEm.get() );
     blockUnpacker_.setRctCaloRegionCollection( rctCalo.get() );
@@ -164,24 +164,26 @@ void GctRawToDigi::unpack(const FEDRawData& d, edm::Event& e, const bool invalid
     
     const unsigned dEnd = d.size() - dPtr - 8; // bytes in payload = packet size - initial header(s) - final slink header.
 
+    edm::OwnVector<GctBlockHeaderBase> bHdrs; // Self-cleaning vector for storing block headers for verbosity print-out.
+
     // read blocks
     for (unsigned nb=0; dPtr<dEnd && nb<MAX_BLOCKS; ++nb)
     {
       // read block header
       std::auto_ptr<GctBlockHeaderBase> blockHeader;
-      if(grenCompatibilityMode_) { blockHeader = std::auto_ptr<GctBlockHeader>(new GctBlockHeader(&data[dPtr])); }
-      else { blockHeader = std::auto_ptr<GctBlockHeaderV2>(new GctBlockHeaderV2(&data[dPtr])); }
+      if(grenCompatibilityMode_) { blockHeader = std::auto_ptr<GctBlockHeaderBase>(new GctBlockHeader(&data[dPtr])); }
+      else { blockHeader = std::auto_ptr<GctBlockHeaderBase>(new GctBlockHeaderV2(&data[dPtr])); }
       
        // unpack the block
       blockUnpacker_.convertBlock(&data[dPtr+4], *blockHeader);  // dPtr+4 to get to the block data.
   
-      // store the header
-      bHdrs.push_back(*blockHeader);
-      
       // advance pointer
       unsigned blockLen = blockHeader->length();
       unsigned nSamples = blockHeader->nSamples();
       dPtr += 4*(blockLen*nSamples+1); // *4 because blockLen is in 32-bit words, +1 for header
+
+      // If verbose, store the header in vector.
+      if(verbose_) { bHdrs.push_back(blockHeader); }
     }
   
     // dump summary in verbose mode
@@ -189,7 +191,7 @@ void GctRawToDigi::unpack(const FEDRawData& d, edm::Event& e, const bool invalid
     {
       std::ostringstream os;
       os << "Found " << bHdrs.size() << " GCT internal headers" << endl;
-      for (unsigned i=0; i<bHdrs.size(); ++i) { os << bHdrs[i]<< endl; }
+      for (unsigned i=0, size = bHdrs.size(); i<size; ++i) { os << bHdrs[i]<< endl; }
       os << "Read " << rctEm->size() << " RCT EM candidates" << endl;
       os << "Read " << rctCalo->size() << " RCT Calo Regions" << endl;
       os << "Read " << gctIsoEm->size() << " GCT iso EM candidates" << endl;
