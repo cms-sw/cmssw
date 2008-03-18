@@ -186,6 +186,9 @@ CSCDCCExaminer::CSCDCCExaminer(void):nERRORS(29),nWARNINGS(5),sERROR(nERRORS),sW
   bDDU_ERR.clear();
   bDDU_WRN.clear();
 
+  dduBuffers.clear();
+  dmbBuffers.clear();
+
   buf_1 = &(tmpbuf[0]);
   buf0  = &(tmpbuf[4]);
   buf1  = &(tmpbuf[8]);
@@ -259,6 +262,8 @@ long CSCDCCExaminer::check(const unsigned short* &buffer, long length){
 	  return length+12;
 	}
 
+    dduBuffers.clear();
+    dmbBuffers.clear();
 
     fDCC_Header  = true;
     bzero(fERROR,   sizeof(bool)*nERRORS);
@@ -384,6 +389,8 @@ long CSCDCCExaminer::check(const unsigned short* &buffer, long length){
       CFEB_SampleCount          = 0;
       CFEB_BSampleCount         = 0;
 
+      dduBuffers[sourceID] = buf_1;
+
       if (modeDDUonly) {
          fDCC_Header  = true;
          bzero(fERROR,   sizeof(bool)*nERRORS);
@@ -483,6 +490,8 @@ long CSCDCCExaminer::check(const unsigned short* &buffer, long length){
       CFEB_CRC                  = 0;
 
       nDMBs++;
+
+      dmbBuffers[sourceID][currentChamber] = buf0;
 
       // Print DMB_ID from DMB Header
       cout<<"DMB="<<setw(2)<<setfill('0')<<(buf0[1]&0x000F)<<" ";

@@ -114,6 +114,10 @@ private:
 
 	//int headerDAV_Active; // Obsolete since 16.09.05
 
+	// data blocks:
+	std::map<short,const unsigned short*>                  dduBuffers; // < DDUsourceID, pointer >
+	std::map<short,std::map<short,const unsigned short*> > dmbBuffers; // < DDUsourceID, < DMBid, pointer > >
+
 public:
 	OStream& output1(void){ return cout; }
 	OStream& output2(void){ return cerr; }
@@ -167,9 +171,12 @@ public:
 	void crcTMB (bool enable);
 	void crcCFEB(bool enable);
 
-        void modeDDU(bool enable);
+	void modeDDU(bool enable);
 
 	short dduSourceID(void){ return sourceID; }
+
+	std::map<short,const unsigned short*>                  DDU_block(void) const { return dduBuffers; }
+	std::map<short,std::map<short,const unsigned short*> > DMB_block(void) const { return dmbBuffers; }
 
 	CSCDCCExaminer(void);
 	~CSCDCCExaminer(void){}
