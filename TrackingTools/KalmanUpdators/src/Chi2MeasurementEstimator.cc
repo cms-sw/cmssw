@@ -19,14 +19,20 @@ Chi2MeasurementEstimator::estimate(const TrajectoryStateOnSurface& tsos,
 template <unsigned int D> std::pair<bool,double> 
 Chi2MeasurementEstimator::estimate(const TrajectoryStateOnSurface& tsos,
 				   const TransientTrackingRecHit& aRecHit) const {
-  typedef typename AlgebraicROOTObject<D>::Vector Vec;
-  typedef typename AlgebraicROOTObject<D>::SymMatrix Mat;
-  
-  MeasurementExtractor me(tsos);
-  Vec r = asSVector<D>(aRecHit.parameters()) - me.measuredParameters<D>(aRecHit);
-  Mat R = asSMatrix<D>(aRecHit.parametersError()) + me.measuredError<D>(aRecHit);
-  //int ierr = ! R.Invert(); // if (ierr != 0) throw exception; // 
+  typedef typename AlgebraicROOTObject<D,5>::Matrix MatD5;
+  typedef typename AlgebraicROOTObject<5,D>::Matrix Mat5D;
+  typedef typename AlgebraicROOTObject<D,D>::SymMatrix SMatDD;
+  typedef typename AlgebraicROOTObject<D>::Vector VecD;
+
+  VecD r, rMeas; SMatDD R, RMeas; 
+  MatD5 dummyProjMatrix;
+
+  KfComponentsHolder holder;
+  holder.template setup<D>(&r, &R, &dummyProjMatrix, &rMeas, &RMeas, tsos.localParameters().vector(), tsos.localError().matrix());
+  aRecHit.getKfComponents(holder);
+ 
+  R += RMeas;
   R.Invert();
-  double est = ROOT::Math::Similarity(r, R);
+  double est = ROOT::Math::Similarity(r - rMeas, R);
   return returnIt(est);
 }
