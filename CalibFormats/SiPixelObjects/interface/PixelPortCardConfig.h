@@ -41,9 +41,15 @@ namespace pos{
     void setdeviceValues(std::string settingName, unsigned int value);
   
     unsigned int AOHBiasAddressFromAOHNumber(unsigned int AOHNumber) const;
+    
+    void setAOHGain(unsigned int AOHNumber, unsigned int value) {setAOHGain(AOHGainStringFromAOHNumber(AOHNumber),value);}
+    unsigned int getAOHGain(unsigned int AOHNumber) const;
   
   private:
     void fillNameToAddress();
+
+    void setAOHGain(std::string settingName, unsigned int value);
+    std::string AOHGainStringFromAOHNumber(unsigned int AOHNumber) const;
 
     std::string portcardname_;
  
