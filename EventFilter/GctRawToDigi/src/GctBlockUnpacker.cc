@@ -371,3 +371,60 @@ void GctBlockUnpacker::blockToGctJetCandsAndCounts(const unsigned char * d, cons
   // nSamples below gives the offset to the second set of six jet counts in timesample 0.
   *gctJetCounts_ = L1GctJetCounts(p32[0], p32[nSamples]);
 }
+
+void GctBlockUnpacker::blockToGctJetCand_grenCompatibility(const unsigned char * d, const GctBlockHeader& hdr)
+{
+  LogDebug("GCT") << "Unpacking GCT output Jet Cands" << std::endl;
+  
+  const unsigned int id = hdr.id();  // Capture block ID.
+  const unsigned int nSamples = hdr.nSamples();  // Number of time-samples.
+  
+  const unsigned int catagoryOffset = nSamples * 4;  // Offset to jump from one jet catagory to the next.
+  const unsigned int timeSampleOffset = nSamples * 2;  // Offset to jump to next candidate pair in the same time-sample.
+
+  // Re-interpret block payload pointer to 16 bits so it sees one candidate at a time.
+  // p points to the start of the block payload, at the rank0 tau jet candidate.
+  const uint16_t * p = reinterpret_cast<const uint16_t *>(d);
+  
+  // Loop over the different catagories of jets
+  for(unsigned int iCat = 0 ; iCat < NUM_JET_CATAGORIES ; ++iCat)
+  {
+    assert(gctJets_.at(iCat)->empty()); // The supplied vector should be empty.
+
+    bool tauflag = (iCat == TAU_JETS);
+    bool forwardFlag = (iCat == FORWARD_JETS);
+    
+    // Loop over the different timesamples (bunch crossings).
+    for(unsigned int bx = 0 ; bx < nSamples ; ++bx)
+    {
+      // cand0Offset will give the offset on p to get the rank 0 Jet Cand of the correct catagory and timesample.
+      const unsigned int cand0Offset = iCat*catagoryOffset + bx*2;
+      
+      // Rank 0 Jet.
+      gctJets_.at(iCat)->push_back(L1GctJetCand(p[cand0Offset], tauflag, forwardFlag, id, 0, bx));
+      // Rank 1 Jet.
+      gctJets_.at(iCat)->push_back(L1GctJetCand(p[cand0Offset + timeSampleOffset], tauflag, forwardFlag, id, 1, bx));
+      // Rank 2 Jet.
+      gctJets_.at(iCat)->push_back(L1GctJetCand(p[cand0Offset + 1],  tauflag, forwardFlag, id, 2, bx));
+      // Rank 3 Jet.
+      gctJets_.at(iCat)->push_back(L1GctJetCand(p[cand0Offset + timeSampleOffset + 1], tauflag, forwardFlag, id, 3, bx));      
+    }
+  }
+}
+
+void GctBlockUnpacker::blockToGctJetCounts_grenCompatibility(const unsigned char * d, const GctBlockHeader& hdr)
+{
+  LogDebug("GCT") << "Unpacking GCT output Jet Counts" << std::endl;
+  
+  /* 
+   * Note that we are only unpacking one timesample of these for now
+   */
+  
+  // Re-interpret block payload pointer to 32 bits so it sees six jet counts at a time.
+  // p points to the start of the block payload, at the first six jet counts in timesample 0.
+  const uint32_t * p = reinterpret_cast<const uint32_t *>(d);
+
+  // The call to hdr.nSamples() in the below line gives the offset from the start of the block
+  // payload for a 32-bit pointer to get to the second set of six jet counts in timesample 0.
+  *gctJetCounts_ = L1GctJetCounts(p[0], p[hdr.nSamples()]);
+}

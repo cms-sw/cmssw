@@ -16,7 +16,7 @@
 //
 // Original Author:  Jim Brooke
 //         Created:  Wed Nov  1 11:57:10 CET 2006
-// $Id: GctRawToDigi.h,v 1.11 2008/03/18 01:06:03 frazier Exp $
+// $Id: GctRawToDigi.h,v 1.12 2008/03/18 02:36:04 frazier Exp $
 //
 //
 
@@ -77,7 +77,7 @@ private: // members
   const bool doFibres_;
 
   // Block to Digi converter
-  GctBlockUnpacker blockUnpacker_;
+  GctBlockUnpackerBase * blockUnpacker_;
 
 };
 

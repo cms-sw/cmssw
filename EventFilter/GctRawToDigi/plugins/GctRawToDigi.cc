@@ -48,10 +48,20 @@ GctRawToDigi::GctRawToDigi(const edm::ParameterSet& iConfig) :
   doInternEm_(iConfig.getUntrackedParameter<bool>("unpackInternEm",true)),
   doRct_(iConfig.getUntrackedParameter<bool>("unpackRct",true)),
   doFibres_(iConfig.getUntrackedParameter<bool>("unpackFibres",true)),
-  blockUnpacker_(hltMode_, grenCompatibilityMode_)
+  blockUnpacker_(0)
 {
   edm::LogInfo("GCT") << "GctRawToDigi will unpack FED Id " << fedId_ << endl;
-  if(grenCompatibilityMode_) { edm::LogInfo("GCT") << "GREN 2007 compatibility mode has been selected." << endl; }
+
+  if(grenCompatibilityMode_)
+  { 
+    edm::LogInfo("GCT") << "GREN 2007 compatibility mode has been selected." << endl;
+    blockUnpacker_ = new GctBlockUnpacker(hltMode_);
+  }
+  else
+  {
+    blockUnpacker_ = new GctBlockUnpackerV2(hltMode_);
+  }
+
   if(hltMode_) { edm::LogInfo("GCT") << "HLT unpack mode selected: HLT unpack optimisations will be used." << endl; }
 
   //register the products
@@ -73,10 +83,9 @@ GctRawToDigi::GctRawToDigi(const edm::ParameterSet& iConfig) :
 
 GctRawToDigi::~GctRawToDigi()
 {
- 
-   // do anything here that needs to be done at destruction time
-   // (e.g. close files, deallocate resources etc.)
-
+  // do anything here that needs to be done at destruction time
+  // (e.g. close files, deallocate resources etc.)
+  delete blockUnpacker_;
 }
 
 
@@ -139,19 +148,19 @@ void GctRawToDigi::unpack(const FEDRawData& d, edm::Event& e, const bool invalid
   if(invalidDataFlag == false) // Only attempt unpack with valid data
   {
     // Setup blockUnpacker
-    blockUnpacker_.setRctEmCollection( rctEm.get() );
-    blockUnpacker_.setRctCaloRegionCollection( rctCalo.get() );
-    blockUnpacker_.setIsoEmCollection( gctIsoEm.get() );
-    blockUnpacker_.setNonIsoEmCollection( gctNonIsoEm.get() );
-    blockUnpacker_.setInternEmCollection( gctInternEm.get() );
-    blockUnpacker_.setFibreCollection( gctFibres.get() );
-    blockUnpacker_.setCentralJetCollection( gctCenJets.get() );
-    blockUnpacker_.setForwardJetCollection( gctForJets.get() );
-    blockUnpacker_.setTauJetCollection( gctTauJets.get() );
-    blockUnpacker_.setJetCounts( jetCounts.get() );
-    blockUnpacker_.setEtTotal( etTotResult.get() );
-    blockUnpacker_.setEtHad( etHadResult.get() );
-    blockUnpacker_.setEtMiss( etMissResult.get() );
+    blockUnpacker_->setRctEmCollection( rctEm.get() );
+    blockUnpacker_->setRctCaloRegionCollection( rctCalo.get() );
+    blockUnpacker_->setIsoEmCollection( gctIsoEm.get() );
+    blockUnpacker_->setNonIsoEmCollection( gctNonIsoEm.get() );
+    blockUnpacker_->setInternEmCollection( gctInternEm.get() );
+    blockUnpacker_->setFibreCollection( gctFibres.get() );
+    blockUnpacker_->setCentralJetCollection( gctCenJets.get() );
+    blockUnpacker_->setForwardJetCollection( gctForJets.get() );
+    blockUnpacker_->setTauJetCollection( gctTauJets.get() );
+    blockUnpacker_->setJetCounts( jetCounts.get() );
+    blockUnpacker_->setEtTotal( etTotResult.get() );
+    blockUnpacker_->setEtHad( etHadResult.get() );
+    blockUnpacker_->setEtMiss( etMissResult.get() );
   
     const unsigned char * data = d.data();  // The 8-bit wide raw-data array.  
 
@@ -175,7 +184,7 @@ void GctRawToDigi::unpack(const FEDRawData& d, edm::Event& e, const bool invalid
       else { blockHeader = std::auto_ptr<GctBlockHeaderBase>(new GctBlockHeaderV2(&data[dPtr])); }
       
        // unpack the block
-      blockUnpacker_.convertBlock(&data[dPtr+4], *blockHeader);  // dPtr+4 to get to the block data.
+      blockUnpacker_->convertBlock(&data[dPtr+4], *blockHeader);  // dPtr+4 to get to the block data.
   
       // advance pointer
       unsigned blockLen = blockHeader->length();

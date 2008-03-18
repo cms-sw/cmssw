@@ -32,9 +32,10 @@ class GctBlockUnpacker
  public:
 
   /// Constructor.
-  /*! \param hltMode - set true to unpack only BX zero and GCT output data (i.e. to run as quickly as possible).
-   *  \param grenCompatibilityMode - set true for unpacking with old-style (GREN07 era) block headers & pipe format.*/
-  GctBlockUnpacker(bool hltMode = false, bool grenCompatibilityMode=false);
+  /*! \param hltMode - set true to unpack only BX zero and GCT output data (i.e. to run as quickly as possible).*/
+  GctBlockUnpacker(bool hltMode = false);
+  
+  static grenCompatibilityMode
   
   ~GctBlockUnpacker(); ///< Destructor.
   
