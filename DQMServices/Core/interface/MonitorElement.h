@@ -77,8 +77,13 @@ public:
   MonitorElement(void);
   ~MonitorElement(void);
 
+  /// Get the type of the monitor element.
   Kind kind(void) const
     { return kind_; }
+
+  /// Get the object flags.
+  uint32_t flags(void) const
+    { return data_.flags; }
 
   /// get name of ME
   const std::string &getName(void) const
@@ -96,6 +101,7 @@ public:
   bool wasUpdated(void) const
     { return data_.flags & DQMNet::DQM_FLAG_NEW; }
 
+  /// Mark the object updated.
   void update(void)
     { data_.flags |= DQMNet::DQM_FLAG_NEW; }
 
@@ -111,12 +117,9 @@ public:
   void Reset(void);
 
   std::string valueString(void) const;
-
-protected:
   std::string tagString(void) const;
   std::string qualityTagString(const DQMNet::QValue &qv) const;
 
-public:
   /// true if at least of one of the quality tests returned an error
   bool hasError(void) const
     { return nqerror_ > 0; }
@@ -224,7 +227,6 @@ private:
   TAxis *getAxis(const char *func, int axis) const;
 
   // ------------ Operations for MEs that are normally never reset ---------
-
   void softReset(void);
   void disableSoftReset(void);
   void addProfiles(TProfile *h1, TProfile *h2, TProfile *sum, float c1, float c2);
