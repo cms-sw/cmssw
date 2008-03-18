@@ -25,6 +25,7 @@ namespace pos{
     PixelChannel(){;}
     PixelChannel(PixelModuleName module, std::string TBMChannel);
     PixelChannel(PixelModuleName module, PixelTBMChannel TBMChannel);
+    PixelChannel(std::string name); // takes a name of the form produced by channelname()
 
     const PixelModuleName& module() const { return module_; }
     std::string modulename() const { return module_.modulename(); }
