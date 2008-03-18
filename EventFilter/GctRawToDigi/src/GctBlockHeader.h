@@ -32,9 +32,11 @@ public:
 protected:
 
   BlockLengthMap& blockLengthMap() { return blockLength_; }
+  const BlockLengthMap& blockLengthMap() const { return blockLength_; }
   
   /// Pure virtual interface for accessing concrete-subclass static blockname map.
   BlockNameMap& blockNameMap() { return blockName_; }
+  const BlockNameMap& blockNameMap() const { return blockName_; }
   
 
 private:
