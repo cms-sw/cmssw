@@ -9,41 +9,56 @@
 /// Abstract base class for block headers.
 class GctBlockHeaderBase
 {
- public:
-  GctBlockHeaderBase(const uint32_t data=0):d(data){};
+public:
+
+  /// Construct with raw 32-bit header.
+  GctBlockHeaderBase(const uint32_t data=0):d(data) {}
+  
+  /// Construct with four 8-bit values.  
   GctBlockHeaderBase(const unsigned char * data);
+  
+  /// Virtual destructor.
   virtual ~GctBlockHeaderBase() {};
   
-  /// this is a valid block header
-  bool valid() const { return ( blockLength_.find(this->id()) != blockLength_.end() ); }
+  /// Returns true if it's valid block header
+  bool valid() const { return ( blockLengthMap().find(this->id()) != blockLengthMap().end() ); }
 
-  /// the raw header data
+  /// Get the raw header data
   uint32_t data() const { return d; }
 
-  /// the block ID
+  /// Get the block ID
   virtual unsigned int id() const = 0;
 
-  /// number of time samples
+  /// Get the number of time samples
   virtual unsigned int nSamples() const = 0;
   
-  /// bunch crossing ID
+  /// Get the bunch crossing ID
   virtual unsigned int bcId() const = 0;
 
-  /// event ID
+  /// Get the event ID
   virtual unsigned int eventId() const = 0;
 
-  /// fundamental block length (for 1 time sample)
+  /// Get the fundamental block length (for 1 time sample)
   unsigned int length() const;
 
-  /// block name
+  /// Get the block name
   std::string name() const;
 
- protected:
- 
-  uint32_t d; /// The header.
+protected:
 
-  static std::map<unsigned int, unsigned int> blockLength_;  // fundamental size of a block (ie for 1 readout sample)
-  static std::map<unsigned int, std::string> blockName_;  // block name!
+  // PROTECTED TYPEDEFS 
+  typedef std::map<unsigned int, unsigned int> BlockLengthMap;
+  typedef std::map<unsigned int, std::string> BlockNameMap;
+ 
+  // PROTECTED MEMBER DATA
+  uint32_t d; /// The header. Yes it really is protected data.
+
+  // PROTECTED METHODS
+  /// Pure virtual interface for accessing concrete-subclass static blocklength map.
+  BlockLengthMap& blockLengthMap() = 0;
+  
+  /// Pure virtual interface for accessing concrete-subclass static blockname map.
+  BlockNameMap& blockNameMap() = 0;
 };
 
 std::ostream& operator<<(std::ostream& os, const GctBlockHeaderBase& h);

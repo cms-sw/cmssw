@@ -15,7 +15,8 @@
 //  31:20  => event_bcid  The bunch crossing the data was recorded.
 class GctBlockHeaderV2 : public GctBlockHeaderBase
 {
- public:
+public:
+
   GctBlockHeaderV2(const uint32_t data=0):GctBlockHeaderBase(data) {}
   GctBlockHeaderV2(const unsigned char * data):GctBlockHeaderBase(data) {}
   GctBlockHeaderV2(uint16_t id, uint16_t nsamples, uint16_t bcid, uint16_t evid);
@@ -32,6 +33,23 @@ class GctBlockHeaderV2 : public GctBlockHeaderBase
 
   /// event ID
   unsigned int eventId() const { return (d>>12) & 0xf; }
+
+
+protected:
+
+  BlockLengthMap& blockLengthMap() { return blockLength_; }
+  
+  /// Pure virtual interface for accessing concrete-subclass static blockname map.
+  BlockNameMap& blockNameMap() { return blockName_; }
+  
+
+private:
+
+  /// Map to translate block number to fundamental size of a block (i.e. for 1 time-sample).
+  static BlockLengthMap blockLength_;
+  
+  /// Map to hold a description for each block number.
+  static BlockNameMap blockName_;
 };
 
 #endif /*GCTBLOCKHEADERV2_H_*/
