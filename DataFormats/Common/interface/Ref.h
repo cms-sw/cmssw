@@ -5,7 +5,7 @@
   
 Ref: A template for a interproduct reference to a member of a product.
 
-$Id: Ref.h,v 1.34 2008/02/15 05:57:03 wmtan Exp $
+$Id: Ref.h,v 1.35 2008/02/15 20:06:17 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 /**
@@ -115,6 +115,10 @@ $Id: Ref.h,v 1.34 2008/02/15 05:57:03 wmtan Exp $
 #include "DataFormats/Common/interface/EDProductfwd.h"
 #include "DataFormats/Common/interface/RefBase.h"
 #include "DataFormats/Common/interface/traits.h"
+#include "DataFormats/Common/interface/Handle.h"
+#include "DataFormats/Common/interface/OrphanHandle.h"
+#include "DataFormats/Common/interface/TestHandle.h"
+
 #include "FWCore/Utilities/interface/GCCPrerequisite.h"
 
 BOOST_MPL_HAS_XXX_TRAIT_DEF(key_compare)
@@ -182,42 +186,51 @@ namespace edm {
     /// Default constructor needed for reading from persistent store. Not for direct use.
     Ref() : ref_() {}
 
-    /** General purpose constructor from handle like object.
-        The templating is artificial.
-        HandleC must have the following methods:
-        id(), returning a ProductID,
-        product(), returning a C*. */
-    template <typename HandleC>
-    Ref(HandleC const& handle, key_type itemKey, bool setNow=true);
+    /// General purpose constructor from handle.
+    Ref(Handle<C> const& handle, key_type itemKey, bool setNow=true);
 
-    /** Constructor for ref to object that is not in an event.
-        An exception will be thrown if an attempt is made to persistify
-        any object containing this Ref.  Also, in the future work will
-        be done to throw an exception if an attempt is made to put any object
-        containing this Ref into an event(or run or lumi). */
+    /// General purpose constructor from orphan handle.
+    Ref(OrphanHandle<C> const& handle, key_type itemKey, bool setNow=true);
+
+    /// Constructor from RefVector and index into collection.
+    //  Note. refvector[index] returns a Ref where index is the index into
+    //  the RefVector. This index argument is the index into the COLLECTION,
+    //  not the index into the RefVector.
+    Ref(RefVector<C, T, F> const& refvector, key_type itemKey, bool setNow=true);
+
+    /// Constructors for ref to object that is not in an event.
+    //  An exception will be thrown if an attempt is made to persistify
+    //  any object containing this Ref.  Also, in the future work will
+    //  be done to throw an exception if an attempt is made to put any object
+    //  containing this Ref into an event(or run or lumi).
     Ref(C const* product, key_type itemKey, bool setNow=true);
 
-    /** Constructor for those users who do not have a product handle,
-        but have a pointer to a product getter (such as the EventPrincipal).
-        prodGetter will ususally be a pointer to the event principal. */
+    /// Constructor from test handle.
+    //  An exception will be thrown if an attempt is made to persistify
+    //  any object containing this Ref.  Also, in the future work will
+    Ref(TestHandle<C> const& handle, key_type itemKey, bool setNow=true);
+
+    /// Constructor for those users who do not have a product handle,
+    /// but have a pointer to a product getter (such as the EventPrincipal).
+    /// prodGetter will ususally be a pointer to the event principal.
     Ref(ProductID const& productID, key_type itemKey, EDProductGetter const* prodGetter) :
       ref_(productID, 0, itemKey, 0, prodGetter, false) {
-      }
+    }
 
-    /** Constructor for use in the various X::fillView(...) functions.
-	It is an error (not diagnosable at compile- or run-time) to call
-	this constructor with a pointer to a T unless the pointed-to T
-	object is already in a collection of type C stored in the
-	Event. The given ProductID must be the id of the collection in
-	the Event. */
+    /// Constructor for use in the various X::fillView(...) functions.
+    //  It is an error (not diagnosable at compile- or run-time) to call
+    //  this constructor with a pointer to a T unless the pointed-to T
+    //  object is already in a collection of type C stored in the
+    //  Event. The given ProductID must be the id of the collection in
+    //  the Event.
     
     Ref(ProductID const& productID, T const* item, key_type item_key, C const* product ) :
       ref_(productID, product, item_key, item, 0, false) { 
-      }
+    }
 
-    /** Constructor that creates an invalid ("null") Ref that is
-	associated with a given product (denoted by that product's
-	ProductID). */
+    /// Constructor that creates an invalid ("null") Ref that is
+    /// associated with a given product (denoted by that product's
+    /// ProductID).
 
     explicit Ref(ProductID const& id) :
       ref_(id, 0, key_traits<key_type>::value, 0, 0, false)
@@ -302,15 +315,10 @@ namespace edm {
 #include "DataFormats/Common/interface/RefItemGet.h"
 
 namespace edm {
-  /** General purpose constructor from handle like object.
-      The templating is artificial.
-      HandleC must have the following methods:
-      id(), returning a ProductID,
-      product(), returning a C*. */
+  /// General purpose constructor from handle.
   template <typename C, typename T, typename F>
-  template <typename HandleC>
   inline
-  Ref<C, T, F>::Ref(HandleC const& handle, key_type itemKey, bool setNow) :
+  Ref<C, T, F>::Ref(Handle<C> const& handle, key_type itemKey, bool setNow) :
       ref_(handle.id(), handle.product(), itemKey, 0, 0, false) {
     checkTypeAtCompileTime(handle.product());
     assert(ref_.item().key() == itemKey);
@@ -318,13 +326,35 @@ namespace edm {
     if (setNow) {ref_.item().setPtr(getPtr_<C, T, F>(ref_.refCore(), ref_.item()));}
   }
 
-  /** Constructor for ref to object that is not in an event.
-      An exception will be thrown if an attempt is made to persistify
-      any object containing this Ref.  Also, in the future work will
-      be done to throw an exception if an attempt is made to put any object
-      containing this Ref into an event(or run or lumi). */
-  /** Note:  It is legal for the referenced object to be put into the event
-      and persistified.  It is this Ref itself that cannot be persistified. */
+  /// General purpose constructor from orphan handle.
+  template <typename C, typename T, typename F>
+  inline
+  Ref<C, T, F>::Ref(OrphanHandle<C> const& handle, key_type itemKey, bool setNow) :
+      ref_(handle.id(), handle.product(), itemKey, 0, 0, false) {
+    checkTypeAtCompileTime(handle.product());
+    assert(ref_.item().key() == itemKey);
+        
+    if (setNow) {ref_.item().setPtr(getPtr_<C, T, F>(ref_.refCore(), ref_.item()));}
+  }
+
+  /// Constructor from RefVector and index int the collection
+  template <typename C, typename T, typename F>
+  inline
+  Ref<C, T, F>::Ref(RefVector<C, T, F> const& refvector, key_type itemKey, bool setNow) :
+      ref_(refvector.id(), refvector.product(), itemKey, 0, 0, refvector.isTransient()) {
+    checkTypeAtCompileTime(refvector.product());
+    assert(ref_.item().key() == itemKey);
+        
+    if (setNow) {ref_.item().setPtr(getPtr_<C, T, F>(ref_.refCore(), ref_.item()));}
+  }
+
+  /// Constructor for refs to object that is not in an event.
+  //  An exception will be thrown if an attempt is made to persistify
+  //  any object containing this Ref.  Also, in the future work will
+  //  be done to throw an exception if an attempt is made to put any object
+  //  containing this Ref into an event(or run or lumi).
+  //  Note:  It is legal for the referenced object to be put into the event
+  //  and persistified.  It is this Ref itself that cannot be persistified.
   template <typename C, typename T, typename F>
   inline
   Ref<C, T, F>::Ref(C const* product, key_type itemKey, bool setNow) :
@@ -334,7 +364,18 @@ namespace edm {
         
     if (setNow && product != 0) {ref_.item().setPtr(getPtr_<C, T, F>(ref_.refCore(), ref_.item()));}
   }
-   
+
+  /// constructor from test handle.
+  //  An exception will be thrown if an attempt is made to persistify any object containing this Ref.
+  template <typename C, typename T, typename F>
+  inline
+  Ref<C, T, F>::Ref(TestHandle<C> const& handle, key_type itemKey, bool setNow) :
+      ref_(handle.id(), handle.product(), itemKey, 0, 0, true) {
+    checkTypeAtCompileTime(handle.product());
+    assert(ref_.item().key() == itemKey);
+        
+    if (setNow) {ref_.item().setPtr(getPtr_<C, T, F>(ref_.refCore(), ref_.item()));}
+  }
 
   /// Constructor from RefProd<C> and key
   template <typename C, typename T, typename F>

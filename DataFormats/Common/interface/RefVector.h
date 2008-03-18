@@ -6,7 +6,7 @@
 RefVector: A template for a vector of interproduct references.
 	Each vector element is a reference to a member of the same product.
 
-$Id: RefVector.h,v 1.35 2008/01/29 08:07:46 llista Exp $
+$Id: RefVector.h,v 1.36 2008/02/15 05:57:03 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -119,7 +119,7 @@ namespace edm {
     bool isAvailable() const {return refVector_.refCore().isAvailable();}
 
     /// Checks if product collection is tansient (i.e. non persistable)
-    bool istransient() const {return refVector_.refCore().isTransient();}
+    bool isTransient() const {return refVector_.refCore().isTransient();}
 
     /// Erase an element from the vector.
     iterator erase(iterator const& pos);
@@ -132,6 +132,9 @@ namespace edm {
 
     /// Copy assignment.
     RefVector& operator=(RefVector const& rhs);
+
+    /// Checks if product is in memory.
+    bool hasProductCache() const {return refVector_.refCore().productPtr() != 0;}
 
     void fillView(ProductID const& id,
 		  std::vector<void const*>& pointers,		 

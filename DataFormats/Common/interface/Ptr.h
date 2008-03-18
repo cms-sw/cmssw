@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Oct 18 14:41:33 CEST 2007
-// $Id: Ptr.h,v 1.5 2008/02/15 20:06:16 wmtan Exp $
+// $Id: Ptr.h,v 1.6 2008/02/16 17:25:48 wmtan Exp $
 //
 
 // system include files
@@ -28,6 +28,9 @@
 #include "DataFormats/Common/interface/traits.h"
 #include "DataFormats/Common/interface/GetProduct.h"
 #include "DataFormats/Common/interface/EDProduct.h"
+#include "DataFormats/Common/interface/Handle.h"
+#include "DataFormats/Common/interface/OrphanHandle.h"
+#include "DataFormats/Common/interface/TestHandle.h"
 
 // forward declarations
 namespace edm {
@@ -39,22 +42,32 @@ namespace edm {
     typedef unsigned long key_type;
     typedef T   value_type;
 
-    /** General purpose constructor from handle like object.
-     id(), returning a ProductID
-     product(), returning a C*. */
-    template <typename HandleC>
-    Ptr(HandleC const& handle, key_type itemKey, bool setNow=true):
+    // General purpose constructor from handle.
+    template <typename C>
+    Ptr(Handle<C> const& handle, key_type itemKey, bool setNow=true):
     core_(handle.id(), getItem_(handle.product(), itemKey), 0, false), key_(itemKey) {}
     
-    /** Constructor for ref to object that is not in an event.
-        An exception will be thrown if an attempt is made to persistify
-        any object containing this Ptr.  Also, in the future work will
-        be done to throw an exception if an attempt is made to put any object
-        containing this Ptr into an event(or run or lumi). */
+    // General purpose constructor from orphan handle.
+    template <typename C>
+    Ptr(OrphanHandle<C> const& handle, key_type itemKey, bool setNow=true):
+    core_(handle.id(), getItem_(handle.product(), itemKey), 0, false), key_(itemKey) {}
+
+    // Constructor for ref to object that is not in an event.
+    // An exception will be thrown if an attempt is made to persistify
+    // any object containing this Ptr.  Also, in the future work will
+    // be done to throw an exception if an attempt is made to put any object
+    // containing this Ptr into an event(or run or lumi).
     template <typename C>
     Ptr(C const* product, key_type itemKey, bool setNow=true):
     core_(ProductID(), product != 0 ? getItem_(product,itemKey) : 0, 0, true),
 	 key_(product != 0 ? itemKey : key_traits<key_type>::value) {}
+
+    // Constructor from test handle.
+    // An exception will be thrown if an attempt is made to persistify
+    // any object containing this Ptr.
+    template <typename C>
+    Ptr(TestHandle<C> const& handle, key_type itemKey, bool setNow=true):
+    core_(handle.id(), getItem_(handle.product(), itemKey), 0, true), key_(itemKey) {}
 
     /** Constructor for those users who do not have a product handle,
      but have a pointer to a product getter (such as the EventPrincipal).

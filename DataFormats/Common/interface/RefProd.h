@@ -5,7 +5,7 @@
   
 Ref: A template for an interproduct reference to a product.
 
-$Id: RefProd.h,v 1.16 2007/11/10 05:39:46 wmtan Exp $
+$Id: RefProd.h,v 1.17 2008/02/15 05:57:03 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -40,6 +40,9 @@ $Id: RefProd.h,v 1.16 2007/11/10 05:39:46 wmtan Exp $
 #include "DataFormats/Common/interface/EDProductfwd.h"
 #include "DataFormats/Common/interface/RefCore.h"
 #include "DataFormats/Provenance/interface/ProductID.h"
+#include "DataFormats/Common/interface/Handle.h"
+#include "DataFormats/Common/interface/OrphanHandle.h"
+#include "DataFormats/Common/interface/TestHandle.h"
 
 namespace edm {
 
@@ -52,13 +55,14 @@ namespace edm {
     /// Default constructor needed for reading from persistent store. Not for direct use.
     RefProd() : product_() {}
 
-    /// General purpose constructor from handle-like object.
-    // The templating is artificial.
-    // HandleC must have the following methods:
-    //   id(),      returning a ProductID,
-    //   product(), returning a C*.
-    template <class HandleC>
-    explicit RefProd(HandleC const& handle) :
+    /// General purpose constructor from handle.
+    explicit RefProd(Handle<C> const& handle) :
+    product_(handle.id(), handle.product(), 0, false) {
+      checkTypeAtCompileTime(handle.product());
+    }
+
+    /// General purpose constructor from orphan handle.
+    explicit RefProd(OrphanHandle<C> const& handle) :
     product_(handle.id(), handle.product(), 0, false) {
       checkTypeAtCompileTime(handle.product());
     }
@@ -67,15 +71,29 @@ namespace edm {
     //  An exception will be thrown if an attempt is made to persistify
     //  any object containing this RefProd.  Also, in the future work will
     //  be done to throw an exception if an attempt is made to put any object
-    //  containing this RefProd into an event(or run or lumi). */
+    //  containing this RefProd into an event(or run or lumi).
     RefProd(C const* product) :
       product_(ProductID(), product, 0, true) {
       checkTypeAtCompileTime(product);
     }
 
+    /// General purpose constructor from test handle.
+    //  An exception will be thrown if an attempt is made to persistify
+    //  any object containing this RefProd.  Also, in the future work will
+    //  be done to throw an exception if an attempt is made to put any object
+    //  containing this RefProd into an event(or run or lumi).
+    explicit RefProd(TestHandle<C> const& handle) :
+    product_(handle.id(), handle.product(), 0, true) {
+      checkTypeAtCompileTime(handle.product());
+    }
+
     /// Constructor from Ref<C,T,F>
     template <typename T, typename F>
     explicit RefProd(Ref<C, T, F> const& ref);
+
+    /// Constructor from RefVector<C,T,F>
+    template <typename T, typename F>
+    explicit RefProd(RefVector<C, T, F> const& ref);
 
     // Constructor for those users who do not have a product handle,
     // but have a pointer to a product getter (such as the EventPrincipal).
@@ -152,12 +170,22 @@ namespace edm {
 #include "DataFormats/Common/interface/RefCoreGet.h"
 
 namespace edm {
+  template<typename C, typename T, typename F>
+  class RefVector;
 
   /// Constructor from Ref.
   template <typename C>
   template <typename T, typename F>
   inline
   RefProd<C>::RefProd(Ref<C, T, F> const& ref) :
+      product_(ref.id(), ref.hasProductCache() ?  ref.product() : 0, ref.productGetter(), ref.isTransient()) 
+  {  }
+
+  /// Constructor from RefVector.
+  template <typename C>
+  template <typename T, typename F>
+  inline
+  RefProd<C>::RefProd(RefVector<C, T, F> const& ref) :
       product_(ref.id(), ref.hasProductCache() ?  ref.product() : 0, ref.productGetter(), ref.isTransient()) 
   {  }
 

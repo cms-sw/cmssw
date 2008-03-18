@@ -23,7 +23,7 @@ to be returned, *not* the ordinal number of the T to be returned.
    DetSet object in a DetSetVector.
 			  ------------------
 
-$Id: DetSetRefVector.h,v 1.8 2007/01/19 04:31:17 wmtan Exp $
+$Id: DetSetRefVector.h,v 1.9 2007/12/21 22:46:50 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -39,6 +39,9 @@ $Id: DetSetRefVector.h,v 1.8 2007/01/19 04:31:17 wmtan Exp $
 
 #include "DataFormats/Common/interface/Ref.h"
 #include "DataFormats/Common/interface/DetSetVector.h"
+#include "DataFormats/Common/interface/Handle.h"
+#include "DataFormats/Common/interface/OrphanHandle.h"
+#include "DataFormats/Common/interface/TestHandle.h"
 
 #include "FWCore/Utilities/interface/GCCPrerequisite.h"
 
@@ -116,8 +119,35 @@ namespace edm {
 
     DetSetRefVector() {}
     
-    template <typename THandle>
-      DetSetRefVector(const THandle& iHandle, const std::vector<det_id_type>& iDets) : sets_() {
+      DetSetRefVector(const Handle<C>& iHandle, const std::vector<det_id_type>& iDets) : sets_() {
+        sets_.reserve(iDets.size());
+        det_id_type sanityCheck = 0;
+        for(std::vector<det_id_type>::const_iterator itDetId = iDets.begin(),
+            itDetIdEnd = iDets.end();
+            itDetId != itDetIdEnd;
+            ++itDetId) {
+          assert(sanityCheck <= *itDetId && "vector of det_id_type was not ordered");
+          sanityCheck = *itDetId;
+          //the last 'false' says to not get the data right now
+          sets_.push_back(ref_type(iHandle, *itDetId, false));
+        }
+      }
+
+      DetSetRefVector(const OrphanHandle<C>& iHandle, const std::vector<det_id_type>& iDets) : sets_() {
+        sets_.reserve(iDets.size());
+        det_id_type sanityCheck = 0;
+        for(std::vector<det_id_type>::const_iterator itDetId = iDets.begin(),
+            itDetIdEnd = iDets.end();
+            itDetId != itDetIdEnd;
+            ++itDetId) {
+          assert(sanityCheck <= *itDetId && "vector of det_id_type was not ordered");
+          sanityCheck = *itDetId;
+          //the last 'false' says to not get the data right now
+          sets_.push_back(ref_type(iHandle, *itDetId, false));
+        }
+      }
+
+      DetSetRefVector(const TestHandle<C>& iHandle, const std::vector<det_id_type>& iDets) : sets_() {
         sets_.reserve(iDets.size());
         det_id_type sanityCheck = 0;
         for(std::vector<det_id_type>::const_iterator itDetId = iDets.begin(),
