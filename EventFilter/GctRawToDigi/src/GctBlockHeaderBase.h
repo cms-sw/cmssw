@@ -60,7 +60,7 @@ protected:
   
   /// Pure virtual interface for accessing concrete-subclass static blockname map.
   virtual BlockNameMap& blockNameMap() = 0;
-  virtual const BlockLengthMap& blockLengthMap() const = 0;
+  virtual const BlockNameMap& blockNameMap() const = 0;
 };
 
 std::ostream& operator<<(std::ostream& os, const GctBlockHeaderBase& h);
