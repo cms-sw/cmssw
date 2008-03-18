@@ -39,9 +39,9 @@ const unsigned GctRawToDigi::MAX_BLOCKS = 128;
 GctRawToDigi::GctRawToDigi(const edm::ParameterSet& iConfig) :
   inputLabel_(iConfig.getParameter<edm::InputTag>("inputLabel")),
   fedId_(iConfig.getParameter<int>("gctFedId")),
+  verbose_(iConfig.getUntrackedParameter<bool>("verbose",false)),
   hltMode_(iConfig.getParameter<bool>("hltMode")),
   grenCompatibilityMode_(iConfig.getParameter<bool>("grenCompatibilityMode")),
-  verbose_(iConfig.getUntrackedParameter<bool>("verbose",false)),
   doEm_(iConfig.getUntrackedParameter<bool>("unpackEm",true)),
   doJets_(iConfig.getUntrackedParameter<bool>("unpackJets",true)),
   doEtSums_(iConfig.getUntrackedParameter<bool>("unpackEtSums",true)),
@@ -117,7 +117,7 @@ void GctRawToDigi::unpack(const FEDRawData& d, edm::Event& e, const bool invalid
   
   // Collections for storing GCT input data.  
   std::auto_ptr<L1CaloEmCollection> rctEm( new L1CaloEmCollection() ); // Input electrons.
-  std::auto_ptr<L1CaloRegionCollection> rctRgn( new L1CaloRegionCollection() ); // Input regions.
+  std::auto_ptr<L1CaloRegionCollection> rctCalo( new L1CaloRegionCollection() ); // Input regions.
   
   // GCT intermediate data
   std::auto_ptr<L1GctInternEmCandCollection> gctInternEm( new L1GctInternEmCandCollection() ); 
@@ -143,6 +143,7 @@ void GctRawToDigi::unpack(const FEDRawData& d, edm::Event& e, const bool invalid
   
     // Setup blockUnpacker
     blockUnpacker_.setRctEmCollection( rctEm.get() );
+    blockUnpacker_.setRctCaloRegionCollection( rctCalo.get() );
     blockUnpacker_.setIsoEmCollection( gctIsoEm.get() );
     blockUnpacker_.setNonIsoEmCollection( gctNonIsoEm.get() );
     blockUnpacker_.setInternEmCollection( gctInternEm.get() );

@@ -103,6 +103,7 @@ class GctBlockUnpacker
 
   // collections of RCT objects
   L1CaloEmCollection* rctEm_;  ///< RCT EM cands
+  L1CaloRegionCollection* rctCalo_;  ///< RCT Calo regions
 
   // Output object pointers (collections should be empty, and will be filled)
   L1GctEmCandCollection* gctIsoEm_;  ///< GCT output isolated EM cands.
