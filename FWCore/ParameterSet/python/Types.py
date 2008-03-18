@@ -208,11 +208,19 @@ class LuminosityBlockID(_ParameterTypeBase):
 class InputTag(_ParameterTypeBase):
     def __init__(self,moduleLabel,productInstanceLabel='',processName=''):
         super(InputTag,self).__init__()
-        if -1 != moduleLabel.find(":"):
-            raise RuntimeError("the module label '"+str(moduleLabel)+"' contains a ':'. If you want to specify more than one label, please pass them as separate arguments.")
         self.__moduleLabel = moduleLabel
         self.__productInstance = productInstanceLabel
         self.__processName=processName
+
+        if -1 != moduleLabel.find(":"):
+        #    raise RuntimeError("the module label '"+str(moduleLabel)+"' contains a ':'. If you want to specify more than one label, please pass them as separate arguments.")
+        # tolerate it, at least for the translation phase
+            toks = moduleLabel.split(":")
+            self.__moduleLabel = toks[0]
+            if len(toks) > 1:
+               self.__productInstance = toks[1]
+            if len(toks) > 2:
+               self.__processName=toks[2]
     def getModuleLabel(self):
         return self.__moduleLabel
     def setModuleLabel(self,label):
