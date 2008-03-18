@@ -11,7 +11,6 @@
 
 #include <typeinfo>
 #include "TrackingTools/KalmanUpdators/interface/Chi2MeasurementEstimator.h"
-#include "TrackingTools/KalmanUpdators/interface/Chi2MeasurementEstimatorForTrackerHits.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 TkStripMeasurementDet::TkStripMeasurementDet( const GeomDet* gdet,
@@ -38,12 +37,10 @@ TkStripMeasurementDet::
 fastMeasurements( const TrajectoryStateOnSurface& stateOnThisDet, 
 		  const TrajectoryStateOnSurface& startingState, 
 		  const Propagator&, 
-		  const MeasurementEstimator& anEstimator) const
+		  const MeasurementEstimator& est) const
 { 
   std::vector<TrajectoryMeasurement> result;
 
-  const MeasurementEstimator *est = & anEstimator;
- 
   if (active_ == false) {
     result.push_back( TrajectoryMeasurement( stateOnThisDet, 
     		InvalidTransientRecHit::build(&geomDet(), TrackingRecHit::inactive), 
@@ -66,10 +63,6 @@ fastMeasurements( const TrajectoryStateOnSurface& stateOnThisDet,
     return result;
   }
   
-  if ( typeid(anEstimator) == typeid(Chi2MeasurementEstimator&) ) {
-      est = new Chi2MeasurementEstimatorForTrackerHits(static_cast<const Chi2MeasurementEstimatorBase&>(anEstimator));
-  }
-
   if(!isRegional){//old implemetation with DetSet
     const_iterator rightCluster = 
       find_if( detSet_->begin(), detSet_->end(), StripClusterAboveU( utraj));
@@ -82,7 +75,7 @@ fastMeasurements( const TrajectoryStateOnSurface& stateOnThisDet,
 	SiStripClusterRef clusterref = edm::makeRefTo( handle_, leftCluster->geographicalId(), leftCluster ); 
 	TransientTrackingRecHit::RecHitPointer recHit = buildRecHit(clusterref, 
 								    stateOnThisDet.localParameters());
-	std::pair<bool,double> diffEst = est->estimate(stateOnThisDet, *recHit);
+	std::pair<bool,double> diffEst = est.estimate(stateOnThisDet, *recHit);
 	if ( diffEst.first ) {
 	  result.push_back( TrajectoryMeasurement( stateOnThisDet, recHit, 
 						   diffEst.second));
@@ -95,7 +88,7 @@ fastMeasurements( const TrajectoryStateOnSurface& stateOnThisDet,
       SiStripClusterRef clusterref = edm::makeRefTo( handle_, rightCluster->geographicalId(), rightCluster ); 
       TransientTrackingRecHit::RecHitPointer recHit = buildRecHit( clusterref, 
 								   stateOnThisDet.localParameters());
-      std::pair<bool,double> diffEst = est->estimate(stateOnThisDet, *recHit);
+      std::pair<bool,double> diffEst = est.estimate(stateOnThisDet, *recHit);
       if ( diffEst.first) {
 	result.push_back( TrajectoryMeasurement( stateOnThisDet, recHit, 
 						 diffEst.second));
@@ -116,7 +109,7 @@ fastMeasurements( const TrajectoryStateOnSurface& stateOnThisDet,
 	SiStripRegionalClusterRef clusterref = edm::makeRefToSiStripLazyGetter(regionalHandle_,leftCluster-regionalHandle_->begin_record());
 	TransientTrackingRecHit::RecHitPointer recHit = buildRecHit(clusterref, 
 								    stateOnThisDet.localParameters());
-	std::pair<bool,double> diffEst = est->estimate(stateOnThisDet, *recHit);
+	std::pair<bool,double> diffEst = est.estimate(stateOnThisDet, *recHit);
 	if ( diffEst.first ) {
 	  result.push_back( TrajectoryMeasurement( stateOnThisDet, recHit, 
 						   diffEst.second));
@@ -130,7 +123,7 @@ fastMeasurements( const TrajectoryStateOnSurface& stateOnThisDet,
       SiStripRegionalClusterRef clusterref = edm::makeRefToSiStripLazyGetter(regionalHandle_,rightCluster-regionalHandle_->begin_record());
       TransientTrackingRecHit::RecHitPointer recHit = buildRecHit( clusterref, 
 								   stateOnThisDet.localParameters());
-      std::pair<bool,double> diffEst = est->estimate(stateOnThisDet, *recHit);
+      std::pair<bool,double> diffEst = est.estimate(stateOnThisDet, *recHit);
       if ( diffEst.first) {
 	result.push_back( TrajectoryMeasurement( stateOnThisDet, recHit, 
 						 diffEst.second));
@@ -158,7 +151,6 @@ fastMeasurements( const TrajectoryStateOnSurface& stateOnThisDet,
       sort( result.begin(), result.end(), TrajMeasLessEstim());
     }
   }
-  if (est != & anEstimator) delete est;
   return result;
 }
 

@@ -15,7 +15,6 @@
 
 #include <typeinfo>
 #include "TrackingTools/KalmanUpdators/interface/Chi2MeasurementEstimator.h"
-#include "TrackingTools/KalmanUpdators/interface/Chi2MeasurementEstimatorForTrackerHits.h"
 
 using namespace std;
 
@@ -116,14 +115,9 @@ TkGluedMeasurementDet::fastMeasurements( const TrajectoryStateOnSurface& stateOn
 {
    if (theMonoDet->isActive() || theStereoDet->isActive()) {
       NonPropagatingDetMeasurements realOne;
-      std::vector<TrajectoryMeasurement> ret;      
-      if ( typeid(est) == typeid(Chi2MeasurementEstimator&) ) {
-          Chi2MeasurementEstimatorForTrackerHits estOpt(static_cast<const Chi2MeasurementEstimator&>(est));;
-          ret = realOne.get( *this, stateOnThisDet, estOpt);
-          //return realOne.get( *this, stateOnThisDet, est);
-      } else { // can't optimize for this
-          ret = realOne.get( *this, stateOnThisDet, est);
-      }
+
+      std::vector<TrajectoryMeasurement> ret = realOne.get( *this, stateOnThisDet, est);      
+
       if (!ret[0].recHit()->isValid()) {
           //LogDebug("TkStripMeasurementDet") << "No hit found on TkGlued. Testing strips...  ";
           const BoundPlane &gluedPlane = geomDet().surface();
