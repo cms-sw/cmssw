@@ -16,7 +16,8 @@ LMFLaserBluePulseDat::LMFLaserBluePulseDat()
   m_writeStmt = NULL;
   m_readStmt = NULL;
 
-  m_fit_method="";
+  //  m_fit_method="";
+  m_fit_method = 0;
   m_ampl = 0;
   m_time = 0;
   m_rise = 0;
@@ -43,7 +44,7 @@ void LMFLaserBluePulseDat::prepareWrite()
   try {
     m_writeStmt = m_conn->createStatement();
     m_writeStmt->setSQL("INSERT INTO lmf_laser_blue_pulse_dat (lmf_iov_id, logic_id, "
-			"fit_method, mtq_ampl, mtq_time, mtq_rise, mtq_fwhm, mtq_fw20, mtq_fw80, mtq_rising ) "
+			"fit_method, mtq_ampl, mtq_time, mtq_rise, mtq_fwhm, mtq_fw20, mtq_fw80, mtq_sliding ) "
 			"VALUES (:1, :2, "
 			":3, :4, :5, :6, :7, :8, :9, :10 )");
   } catch (SQLException &e) {
@@ -69,7 +70,8 @@ void LMFLaserBluePulseDat::writeDB(const EcalLogicID* ecid, const LMFLaserBluePu
     m_writeStmt->setInt(1, iovID);
     m_writeStmt->setInt(2, logicID);
 
-    m_writeStmt->setString(3, item->getFitMethod() );
+    //    m_writeStmt->setString(3, item->getFitMethod() );
+    m_writeStmt->setInt(3, item->getFitMethod() );
     m_writeStmt->setFloat(4, item->getAmplitude() );
     m_writeStmt->setFloat(5, item->getTime() );
     m_writeStmt->setFloat(6, item->getRise() );
@@ -102,7 +104,7 @@ void LMFLaserBluePulseDat::fetchData(std::map< EcalLogicID, LMFLaserBluePulseDat
   try {
 
     m_readStmt->setSQL("SELECT cv.name, cv.logic_id, cv.id1, cv.id2, cv.id3, cv.maps_to, "
-		 "d.fit_method, d.mtq_ampl, d.mtq_time, d.mtq_rise "
+		 "d.fit_method, d.mtq_ampl, d.mtq_time, d.mtq_rise, "
 		 "d.mtq_fwhm, d.mtq_fw20, d.mtq_fw80, d.mtq_sliding "
 		 "FROM channelview cv JOIN lmf_matacq_blue_dat d "
 		 "ON cv.logic_id = d.logic_id AND cv.name = cv.maps_to "
@@ -120,7 +122,8 @@ void LMFLaserBluePulseDat::fetchData(std::map< EcalLogicID, LMFLaserBluePulseDat
 			     rset->getInt(5),        // id3
 			     rset->getString(6));    // maps_to
 
-      dat.setFitMethod( rset->getString(7) );
+      //      dat.setFitMethod( rset->getString(7) );
+      dat.setFitMethod( rset->getInt(7) );
       dat.setAmplitude( rset->getFloat(8) );
       dat.setTime( rset->getFloat(9) );
       dat.setRise( rset->getFloat(10) );

@@ -44,7 +44,7 @@ void LMFLaserConfigDat::prepareWrite()
   try {
     m_writeStmt = m_conn->createStatement();
     m_writeStmt->setSQL("INSERT INTO lmf_laser_config_dat (lmf_iov_id, logic_id, "
-			"wavelenght, vfe_gain, pn_gain, lsr_power, lsr_attenuator, lsr_current, lsr_delay1, lsr_delay2) "
+			"wavelength, vfe_gain, pn_gain, lsr_power, lsr_attenuator, lsr_current, lsr_delay_1, lsr_delay_2) "
 			"VALUES (:1, :2, "
 			":3, :4, :5, :6, :7, :8, :9, :10 )");
   } catch (SQLException &e) {
@@ -70,7 +70,7 @@ void LMFLaserConfigDat::writeDB(const EcalLogicID* ecid, const LMFLaserConfigDat
     m_writeStmt->setInt(1, iovID);
     m_writeStmt->setInt(2, logicID);
 
-    m_writeStmt->setInt(3, item->getWavelenght() );
+    m_writeStmt->setInt(3, item->getWavelength() );
     m_writeStmt->setInt(4, item->getVFEGain() );
     m_writeStmt->setInt(5, item->getPNGain() );
     m_writeStmt->setFloat(6, item->getPower() );
@@ -134,7 +134,7 @@ void LMFLaserConfigDat::writeArrayDB(const std::map< EcalLogicID, LMFLaserConfig
 	dataitem = &(p->second);
 	// dataIface.writeDB( channel, dataitem, iov);
 
-	int x=dataitem->getWavelenght();
+	int x=dataitem->getWavelength();
 	int y=dataitem->getVFEGain();
 	int z=dataitem->getPNGain();
 	float wa=dataitem->getPower();
@@ -231,10 +231,10 @@ void LMFLaserConfigDat::fetchData(std::map< EcalLogicID, LMFLaserConfigDat >* fi
   try {
   
     m_readStmt->setSQL("SELECT cv.name, cv.logic_id, cv.id1, cv.id2, cv.id3, cv.maps_to, "
-		       "d.wavelenght, d.vfe_gain, d.pn_gain, d.lsr_power, d.lsr_attenuator, d.lsr_current, d.lsr_delay1, d.lsr_delay2 "
+		       "d.wavelength, d.vfe_gain, d.pn_gain, d.lsr_power, d.lsr_attenuator, d.lsr_current, d.lsr_delay_1, d.lsr_delay_2 "
 		       "FROM channelview cv JOIN lmf_laser_config_dat d "
-		 "ON cv.logic_id = d.logic_id AND cv.name = cv.maps_to "
-		 "WHERE d.lmf_iov_id = :iov_id");
+		       "ON cv.logic_id = d.logic_id AND cv.name = cv.maps_to "
+		       "WHERE d.lmf_iov_id = :iov_id");
  
     m_readStmt->setInt(1, iovID);
     
@@ -251,7 +251,7 @@ void LMFLaserConfigDat::fetchData(std::map< EcalLogicID, LMFLaserConfigDat >* fi
 			     rset->getString(6));    // maps_to
 
 
-      dat.setWavelenght( rset->getInt(7) );
+      dat.setWavelength( rset->getInt(7) );
       dat.setVFEGain( rset->getInt(7) );
       dat.setPNGain( rset->getInt(7) );
       dat.setPower( rset->getFloat(8) );

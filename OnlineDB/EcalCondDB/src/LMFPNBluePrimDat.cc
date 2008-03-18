@@ -214,7 +214,7 @@ void LMFPNBluePrimDat::fetchData(std::map< EcalLogicID, LMFPNBluePrimDat >* fill
   try {
   
     m_readStmt->setSQL("SELECT cv.name, cv.logic_id, cv.id1, cv.id2, cv.id3, cv.maps_to, "
-		 "d.flag, d.mean, d.rms, d,peak, d.pna_over_pnb_mean, d.pna_over_pnb_rms, d.pna_over_pnB_peak "
+		 "d.flag, d.mean, d.rms, d.peak, d.pna_over_pnb_mean, d.pna_over_pnb_rms, d.pna_over_pnB_peak "
 		 "FROM channelview cv JOIN lmf_laser_blue_PN_PRIM_dat d "
 		 "ON cv.logic_id = d.logic_id AND cv.name = cv.maps_to "
 		 "WHERE d.lmf_iov_id = :iov_id");

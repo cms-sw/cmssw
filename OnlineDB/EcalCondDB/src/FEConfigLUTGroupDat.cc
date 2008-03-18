@@ -72,8 +72,6 @@ void FEConfigLUTGroupDat::writeDB(const EcalLogicID* ecid, const FEConfigLUTGrou
   ub2* z_len= new ub2[nrows];
 
 
-  const EcalLogicID* channel;
-  const FEConfigLUTGroupDat* dataitem;
 
     for(int count=0; count<nrows; count++){
 

@@ -35,9 +35,9 @@ void LMFRunDat::prepareWrite()
   try {
     m_writeStmt = m_conn->createStatement();
     m_writeStmt->setSQL("INSERT INTO lmf_run_dat (lmf_iov_id, logic_id, "
-			"num_events, quality_flag ) "
+			"nevents, quality_flag ) "
 			"VALUES (:lmf_iov_id, :logic_id, "
-			":num_events, :quality_flag ) ");
+			":nevents, :quality_flag ) ");
   } catch (SQLException &e) {
     throw(runtime_error("LMFRunDat::prepareWrite():  "+e.getMessage()));
   }
@@ -87,7 +87,7 @@ void LMFRunDat::fetchData(map< EcalLogicID, LMFRunDat >* fillMap, LMFRunIOV* iov
   try {
 
     m_readStmt->setSQL("SELECT cv.name, cv.logic_id, cv.id1, cv.id2, cv.id3, cv.maps_to, "
-		 "d.num_events, d.quality_flag "
+		 "d.nevents, d.quality_flag "
 		 "FROM channelview cv JOIN lmf_run_dat d "
 		 "ON cv.logic_id = d.logic_id AND cv.name = cv.maps_to "
 		 "WHERE d.lmf_iov_id = :iov_id");

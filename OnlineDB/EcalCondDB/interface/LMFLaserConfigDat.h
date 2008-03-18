@@ -18,8 +18,8 @@ class LMFLaserConfigDat : public IDataItem {
   // User data methods
   inline std::string getTable() { return "LMF_LASER_CONFIG_DAT"; }
 
-  inline void setWavelenght(int x) { m_wl = x; }
-  inline int getWavelenght() const { return m_wl; }
+  inline void setWavelength(int x) { m_wl = x; }
+  inline int getWavelength() const { return m_wl; }
   inline void setVFEGain(int x) { m_vfe_gain = x; }
   inline int getVFEGain() const { return m_vfe_gain; }
   inline void setPNGain(int x) { m_pn_gain = x; }

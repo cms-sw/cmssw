@@ -32,8 +32,10 @@ class LMFLaserBluePulseDat : public IDataItem {
   inline void setSliding(float x) { m_sliding = x; }
   inline float getSliding() const { return m_sliding; }
 
-  inline void setFitMethod(std::string x) { m_fit_method = x; }
-  inline std::string getFitMethod() const { return m_fit_method; }
+//  inline void setFitMethod(std::string x) { m_fit_method = x; }
+//  inline std::string getFitMethod() const { return m_fit_method; }
+  inline void setFitMethod(int x) { m_fit_method = x; }
+  inline int  getFitMethod() const { return m_fit_method; }
   
  private:
   void prepareWrite() 
@@ -46,7 +48,8 @@ class LMFLaserBluePulseDat : public IDataItem {
      throw(std::runtime_error);
 
   // User data
-  std::string m_fit_method;
+//  std::string m_fit_method;
+  int m_fit_method;
   float m_ampl;
   float m_time;
   float m_rise;

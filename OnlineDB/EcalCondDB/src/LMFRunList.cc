@@ -88,7 +88,7 @@ void LMFRunList::fetchRuns()
     m_vec_lmfruniov.reserve(nruns);
     
     Statement* stmt = m_conn->createStatement();
-    stmt->setSQL("SELECT run_iov.run_num, run_iov.run_start, run_iov.run_end, lmf_run_iov.tag_id, lmf_run_iov.run_iov_id, lmf_run_iov.subrun_num, lmf_run_iov.subrun_start, lmf_run_iov.subrun_end, lmf_run_iov.sub_run_type, lmf_run_iov.db_timestamp, lmf_run_iov.lmf_iov_id FROM run_iov, lmf_run_iov "
+    stmt->setSQL("SELECT run_iov.run_num, run_iov.run_start, run_iov.run_end, lmf_run_iov.tag_id, lmf_run_iov.run_iov_id, lmf_run_iov.subrun_num, lmf_run_iov.subrun_start, lmf_run_iov.subrun_end, lmf_run_iov.subrun_type, lmf_run_iov.db_timestamp, lmf_run_iov.lmf_iov_id FROM run_iov, lmf_run_iov "
 		 "WHERE lmf_run_iov.run_iov_id=run_iov.iov_id and run_iov.tag_id = :tag_id  order by run_iov.run_num, lmf_run_iov.subrun_num " );
     stmt->setInt(1, tagID);
 
@@ -198,7 +198,7 @@ void LMFRunList::fetchRuns(int min_run, int max_run)
     m_vec_lmfruniov.reserve(nruns);
     
     Statement* stmt = m_conn->createStatement();
-    stmt->setSQL("SELECT run_iov.run_num, run_iov.run_start, run_iov.run_end, lmf_run_iov.tag_id, lmf_run_iov.run_iov_id, lmf_run_iov.subrun_num, lmf_run_iov.subrun_start, lmf_run_iov.subrun_end, lmf_run_iov.lmf_iov_id, lmf_run_iov.sub_run_type, lmf_run_iov.db_timestamp FROM run_iov, lmf_run_iov "
+    stmt->setSQL("SELECT run_iov.run_num, run_iov.run_start, run_iov.run_end, lmf_run_iov.tag_id, lmf_run_iov.run_iov_id, lmf_run_iov.subrun_num, lmf_run_iov.subrun_start, lmf_run_iov.subrun_end, lmf_run_iov.lmf_iov_id, lmf_run_iov.subrun_type, lmf_run_iov.db_timestamp FROM run_iov, lmf_run_iov "
 		 "WHERE lmf_run_iov.run_iov_id=run_iov.iov_id and run_iov.tag_id = :tag_id "
 		 " and lmf_run_iov.tag_id=:lmftag_id "
 		 " and run_iov.run_num> :min_run and run_iov.run_num< :max_run "
@@ -298,7 +298,7 @@ void LMFRunList::fetchLastNRuns( int max_run, int n_runs  )
     m_vec_lmfruniov.reserve(nruns);
     
     Statement* stmt = m_conn->createStatement();
-    stmt->setSQL("select run_num, run_start, run_end, tag_id, run_iov_id, subrun_num, subrun_start, subrun_end, lmf_iov_id, lmf_db_date, sub_run_type from (SELECT run_iov.run_num, run_iov.run_start, run_iov.run_end, lmf_run_iov.tag_id, lmf_run_iov.run_iov_id, lmf_run_iov.subrun_num, lmf_run_iov.subrun_start, lmf_run_iov.subrun_end, lmf_run_iov.lmf_iov_id as lmf_iov_id, lmf_run_iov.db_timestamp as lmf_db_date, lmf_run_iov.sub_run_type as sub_run_type  FROM run_iov, lmf_run_iov "
+    stmt->setSQL("select run_num, run_start, run_end, tag_id, run_iov_id, subrun_num, subrun_start, subrun_end, lmf_iov_id, lmf_db_date, subrun_type from (SELECT run_iov.run_num, run_iov.run_start, run_iov.run_end, lmf_run_iov.tag_id, lmf_run_iov.run_iov_id, lmf_run_iov.subrun_num, lmf_run_iov.subrun_start, lmf_run_iov.subrun_end, lmf_run_iov.lmf_iov_id as lmf_iov_id, lmf_run_iov.db_timestamp as lmf_db_date, lmf_run_iov.subrun_type as subrun_type  FROM run_iov, lmf_run_iov "
 		 "WHERE lmf_run_iov.run_iov_id=run_iov.iov_id and run_iov.tag_id = :tag_id "
 		 " and lmf_run_iov.tag_id=:lmftag_id "
 		 " and run_iov.run_num< :max_run "

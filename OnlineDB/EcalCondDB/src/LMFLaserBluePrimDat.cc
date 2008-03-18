@@ -33,6 +33,7 @@ LMFLaserBluePrimDat::LMFLaserBluePrimDat()
    m_apdOverPNPeak=0;
    m_Alpha=0;
    m_Beta=0;
+   m_ShapeCor=0;
 }
 
 
@@ -53,9 +54,9 @@ void LMFLaserBluePrimDat::prepareWrite()
     m_writeStmt->setSQL("INSERT INTO lmf_laser_blue_prim_dat (lmf_iov_id, logic_id, "
 			"flag, mean, rms, peak,  apd_over_pnA_mean, apd_over_pnA_rms, apd_over_pnA_peak, "
 			"apd_over_pnB_mean, apd_over_pnB_rms, apd_over_pnB_peak, apd_over_pn_mean, apd_over_pn_rms, apd_over_pn_peak, "
-                        " alpha, beta    ) "
+                        " alpha, beta, shape_cor ) "
 			"VALUES (:1, :2, "
-			":3, :4, :5, :6, :7, :8, :9, :10, :11, :12, :13, :14, :15, :16, :17 )");
+			":3, :4, :5, :6, :7, :8, :9, :10, :11, :12, :13, :14, :15, :16, :17, :18 )");
   } catch (SQLException &e) {
     throw(runtime_error("LMFLaserBluePrimDat::prepareWrite():  "+e.getMessage()));
   }
@@ -94,6 +95,7 @@ void LMFLaserBluePrimDat::writeDB(const EcalLogicID* ecid, const LMFLaserBluePri
     m_writeStmt->setFloat(15, item->getAPDOverPNPeak() );
     m_writeStmt->setFloat(16, item->getAlpha() );
     m_writeStmt->setFloat(17, item->getBeta() );
+    m_writeStmt->setFloat(18, item->getShapeCor() );
   
     m_writeStmt->executeUpdate();
   } catch (SQLException &e) {
@@ -130,6 +132,7 @@ void LMFLaserBluePrimDat::writeArrayDB(const std::map< EcalLogicID, LMFLaserBlue
   float* tt= new float[nrows];
   float* ualpha= new float[nrows];
   float* ubeta= new float[nrows];
+  float* ushapecor= new float[nrows];
 
   ub2* ids_len= new ub2[nrows];
   ub2* iov_len= new ub2[nrows];
@@ -148,6 +151,7 @@ void LMFLaserBluePrimDat::writeArrayDB(const std::map< EcalLogicID, LMFLaserBlue
   ub2* t_len= new ub2[nrows];
   ub2* ualpha_len= new ub2[nrows];
   ub2* ubeta_len= new ub2[nrows];
+  ub2* ushapecor_len= new ub2[nrows];
 
   const EcalLogicID* channel;
   const LMFLaserBluePrimDat* dataitem;
@@ -177,6 +181,7 @@ void LMFLaserBluePrimDat::writeArrayDB(const std::map< EcalLogicID, LMFLaserBlue
 	float t=dataitem->getAPDOverPNPeak();
 	float alpha=dataitem->getAlpha();
 	float beta=dataitem->getBeta();
+	float shapecor=dataitem->getShapeCor();
 
 
 	aa[count]=a;
@@ -194,6 +199,7 @@ void LMFLaserBluePrimDat::writeArrayDB(const std::map< EcalLogicID, LMFLaserBlue
 	tt[count]=t;
 	ualpha[count]=alpha;
 	ubeta[count]=beta;
+	ushapecor[count]=shapecor;
 
 	ids_len[count]=sizeof(ids[count]);
 	iov_len[count]=sizeof(iovid_vec[count]);
@@ -213,6 +219,7 @@ void LMFLaserBluePrimDat::writeArrayDB(const std::map< EcalLogicID, LMFLaserBlue
 	t_len[count]=sizeof(tt[count]);
 	ualpha_len[count]=sizeof(ualpha[count]);
 	ubeta_len[count]=sizeof(ubeta[count]);
+	ushapecor_len[count]=sizeof(ushapecor[count]);
 
 	count++;
      }
@@ -236,6 +243,7 @@ void LMFLaserBluePrimDat::writeArrayDB(const std::map< EcalLogicID, LMFLaserBlue
     m_writeStmt->setDataBuffer(15, (dvoid*)tt,  OCCIFLOAT , sizeof(tt[0]),   t_len );
     m_writeStmt->setDataBuffer(16, (dvoid*)ualpha, OCCIFLOAT , sizeof(ualpha[0]), ualpha_len );
     m_writeStmt->setDataBuffer(17, (dvoid*)ubeta,  OCCIFLOAT , sizeof(ubeta[0]),  ubeta_len );
+    m_writeStmt->setDataBuffer(18, (dvoid*)ushapecor,  OCCIFLOAT , sizeof(ushapecor[0]),  ushapecor_len );
 
     m_writeStmt->executeArrayUpdate(nrows);
 
@@ -256,6 +264,7 @@ void LMFLaserBluePrimDat::writeArrayDB(const std::map< EcalLogicID, LMFLaserBlue
     delete [] ttb;
     delete [] ualpha;
     delete [] ubeta;
+    delete [] ushapecor;
 
     delete [] ids_len;
     delete [] iov_len;
@@ -274,6 +283,7 @@ void LMFLaserBluePrimDat::writeArrayDB(const std::map< EcalLogicID, LMFLaserBlue
     delete [] tb_len;
     delete [] ualpha_len;
     delete [] ubeta_len;
+    delete [] ushapecor_len;
    
 
 
@@ -301,7 +311,7 @@ void LMFLaserBluePrimDat::fetchData(std::map< EcalLogicID, LMFLaserBluePrimDat >
     m_readStmt->setSQL("SELECT cv.name, cv.logic_id, cv.id1, cv.id2, cv.id3, cv.maps_to, "
 		 "d.flag, d.mean, d.rms, d.peak, d.apd_over_pnA_mean, d.apd_over_pnA_rms, d.apd_over_pnA_peak, "
          " d.apd_over_pnB_mean, d.apd_over_pnB_rms,d.apd_over_pnB_peak, d.apd_over_pn_mean, d.apd_over_pn_rms, d.apd_over_pn_peak "
-		 "d.alpha, d.beta "
+		 "d.alpha, d.beta, d.shape_cor "
 		 "FROM channelview cv JOIN lmf_laser_blue_prim_dat d "
 		 "ON cv.logic_id = d.logic_id AND cv.name = cv.maps_to "
 		 "WHERE d.lmf_iov_id = :iov_id");
@@ -340,6 +350,7 @@ void LMFLaserBluePrimDat::fetchData(std::map< EcalLogicID, LMFLaserBluePrimDat >
 
       dat.setAlpha( rset->getFloat(20) );
       dat.setBeta( rset->getFloat(21) );
+      dat.setShapeCor( rset->getFloat(22) );
       p.second = dat;
       fillMap->insert(p);
     }

@@ -63,6 +63,9 @@ class LMFLaserBluePrimDat : public IDataItem {
   inline void setBeta(float x) { m_Beta = x; }
   inline float getBeta() const { return m_Beta; }
 
+  inline void setShapeCor(float x) { m_ShapeCor = x; }
+  inline float getShapeCor() const { return m_ShapeCor; }
+
 
 
  private:
@@ -95,6 +98,7 @@ void writeArrayDB(const std::map< EcalLogicID, LMFLaserBluePrimDat >* data, LMFR
   float m_apdOverPNPeak;
   float m_Alpha;
   float m_Beta;
+  float m_ShapeCor;
   
 };
 
