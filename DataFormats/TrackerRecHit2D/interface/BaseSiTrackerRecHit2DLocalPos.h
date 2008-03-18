@@ -21,6 +21,7 @@ public:
 
   virtual LocalError localPositionError() const{ return err_;}
   
+  virtual void getKfComponents( KfComponentsHolder & holder ) const ; 
  private:
   
   LocalPoint pos_;
