@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Feb 11 11:06:40 EST 2008
-// $Id: FWGUIManager.cc,v 1.18 2008/03/16 19:58:39 chrjones Exp $
+// $Id: FWGUIManager.cc,v 1.19 2008/03/16 23:12:51 chrjones Exp $
 //
 
 // system include files
@@ -26,15 +26,13 @@
 #include "TGSplitFrame.h"
 #include "TGTab.h"
 #include "TGListTree.h"
-//EVIL, no accessor for the editor yet
-//#define protected public
 #include "TEveBrowser.h"
 #include "TBrowser.h"
-
-//#undef protected
+#include "TGMenu.h"
 #include "TEveManager.h"
 #include "TEveGedEditor.h"
 #include "TEveSelection.h"
+#include "TGFileDialog.h"
 
 // user include files
 #include "Fireworks/Core/interface/FWGUIManager.h"
@@ -54,9 +52,12 @@
 
 #include "Fireworks/Core/interface/FWConfiguration.h"
 
+#include "Fireworks/Core/src/accessMenuBar.h"
 //
 // constants, enums and typedefs
 //
+enum {kSaveConfiguration,
+kQuit};
 
 //
 // static data member definitions
@@ -92,6 +93,20 @@ m_detailViewManager(new FWDetailViewManager)
    // browser->MoveResize(f->GetX(), f->GetY(), f->GetWidth(), f->GetHeight());
    // browser->Resize( gClient->GetDisplayWidth(), gClient->GetDisplayHeight() );
    
+   TGMenuBar* menuBar = fireworks::accessMenuBar(browser);
+   menuBar->RemovePopup("Eve");
+   menuBar->RemovePopup("Browser");
+   
+   m_fileMenu = new TGPopupMenu(gClient->GetRoot());
+   m_fileMenu->AddEntry("&Save Configuration As ...",kSaveConfiguration);
+   m_fileMenu->AddSeparator();
+   m_fileMenu->AddEntry("&Quit Root",kQuit);
+   
+   menuBar->AddPopup("&File", m_fileMenu, new TGLayoutHints(kLHintsTop | kLHintsLeft, 0, 4, 0, 0));
+
+   m_fileMenu->Connect("Activated(Int_t)", "FWGUIManager",
+                       this, "handleFileMenu(Int_t)");
+
    //should check to see if already has our tab
    {
       browser->StartEmbedding(TRootBrowser::kLeft);
@@ -552,6 +567,33 @@ void
 FWGUIManager::itemBelowMouse(TGListTreeItem* item, UInt_t)
 {
 }
+
+void 
+FWGUIManager::handleFileMenu(Int_t iIndex)
+{
+   static const char* kSaveFileTypes[] = {"Fireworks Configuration files","*.fwc",
+      "All Files","*",
+   0,0};
+   switch(iIndex) {
+      case kSaveConfiguration:
+      {
+         
+         static TString dir(".");
+         
+         TGFileInfo fi;
+         fi.fFileTypes = kSaveFileTypes;
+         fi.fIniDir    = StrDup(dir);
+         new TGFileDialog(gClient->GetDefaultRoot(), gEve->GetBrowser(),
+                          kFDSave,&fi);
+         dir = fi.fIniDir;
+         writeToConfigurationFile_(fi.fFilename);
+      }
+         break;
+      case kQuit:
+         gApplication->Terminate(0);
+   }
+}
+
 
 static const std::string kMainWindow("main window");
 static const std::string kViews("views");

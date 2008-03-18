@@ -16,13 +16,14 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Feb 11 10:52:24 EST 2008
-// $Id: FWGUIManager.h,v 1.12 2008/03/16 15:37:56 chrjones Exp $
+// $Id: FWGUIManager.h,v 1.13 2008/03/16 23:12:51 chrjones Exp $
 //
 
 // system include files
 #include <map>
 #include <boost/function.hpp>
 #include <boost/shared_ptr.hpp>
+#include <sigc++/signal.h>
 #include "Rtypes.h"
 
 // user include files
@@ -50,6 +51,8 @@ class TEveGedEditor;
 class FWSummaryManager;
 class FWDetailViewManager;
 class FWDetailView;
+
+class  TGPopupMenu;
 
 class FWGUIManager : public FWConfigurable
 {
@@ -101,6 +104,9 @@ class FWGUIManager : public FWConfigurable
       void itemKeyPress(TGListTreeItem *entry, UInt_t keysym, UInt_t mask);
       void itemBelowMouse(TGListTreeItem*, UInt_t);
    
+      void handleFileMenu(Int_t);
+   
+      sigc::signal<void, const std::string&> writeToConfigurationFile_;
    private:
       FWGUIManager(const FWGUIManager&); // stop default
 
@@ -135,6 +141,8 @@ class FWGUIManager : public FWConfigurable
       TGTextEntry* m_selectionExpressionEntry;
       TGTextButton* m_selectionRunExpressionButton;
       TGTextButton* m_unselectAllButton;
+   
+      TGPopupMenu* m_fileMenu;
    
       TGMainFrame* m_mainFrame;
       TGSplitFrame* m_splitFrame;
