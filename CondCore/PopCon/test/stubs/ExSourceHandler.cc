@@ -58,6 +58,9 @@ void popcon::ExPedestalSource::getNewObjects() {
   m_to_transfer.push_back(std::make_pair((Pedestals*)p0,m_since));
   
   unsigned long long since = m_since+m_increment*m_number;
+
+  std::cout<<"last since = "<< since <<std::endl;
+
   unsigned int size = 5;
   for (int j=1; j<(int)m_number;++j) {
     Pedestals * p1 = new Pedestals;

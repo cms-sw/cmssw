@@ -12,6 +12,12 @@
 #include "CondCore/IOVService/interface/IOVEditor.h"
 #include <boost/program_options.hpp>
 #include <iostream>
+
+#include "SealBase/SharedLibrary.h"
+#include "SealBase/SharedLibraryError.h"
+
+
+
 int main( int argc, char** argv ){
   boost::program_options::options_description desc("options");
   boost::program_options::options_description visible("Usage: cmscond_delete_iov [options] \n");
@@ -23,6 +29,7 @@ int main( int argc, char** argv ){
     ("all,a","delete all tags")
     ("tag,t",boost::program_options::value<std::string>(),"delete the specified tag and IOV")
     ("withPayload","delete payload data associated with the specified tag (default off)")
+    ("dictionary,D",boost::program_options::value<std::string>(),"data dictionary(required if withPayload)")
     ("debug,d","switch on debug mode")
     ("help,h", "help message")
     ;
@@ -46,6 +53,7 @@ int main( int argc, char** argv ){
   bool deleteAll=true;
   bool debug=false;
   bool withPayload=false;
+  std::string dictionary;
   std::string tag;
   if(!vm.count("connect")){
     std::cerr <<"[Error] no connect[c] option given \n";
@@ -69,10 +77,28 @@ int main( int argc, char** argv ){
   }
   if(vm.count("withPayload")){
     withPayload=true;
+    if(!vm.count("dictionary")){
+      std::cerr <<"[Error] no dictionary[D] option given \n";
+      std::cerr<<" please do "<<argv[0]<<" --help \n";
+      return 1;
+    }else{
+      dictionary=vm["dictionary"].as<std::string>();
+    }
   }
   if(vm.count("debug")){
     debug=true;
   }
+
+
+  if (!dictionary.empty()) {
+    std::string dictlibrary=seal::SharedLibrary::libname( dictionary );
+    try {
+      seal::SharedLibrary::load( dictlibrary );
+    }catch ( seal::SharedLibraryError *error) {
+      throw std::runtime_error( error->explainSelf().c_str() );
+    }
+  }
+
   
   cond::DBSession* session=new cond::DBSession;
   if( !authPath.empty() ){
