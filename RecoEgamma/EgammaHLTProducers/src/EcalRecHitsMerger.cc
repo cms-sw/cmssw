@@ -33,6 +33,9 @@ EcalRecHitsMerger::EcalRecHitsMerger(const edm::ParameterSet& pset) {
  OutputLabelEB_ = pset.getUntrackedParameter<std::string>("OutputLabel_EB");
  OutputLabelEE_ = pset.getUntrackedParameter<std::string>("OutputLabel_EE");
 
+ InputRecHitEB_ = pset.getUntrackedParameter<std::string>("EcalRecHitCollectionEB");
+ InputRecHitEE_ = pset.getUntrackedParameter<std::string>("EcalRecHitCollectionEE");
+
  produces<EcalRecHitCollection>(OutputLabelEB_);
  produces<EcalRecHitCollection>(OutputLabelEE_);
 
@@ -71,16 +74,16 @@ void EcalRecHitsMerger::produce(edm::Event & e, const edm::EventSetup& iSetup){
    std::string instance = EcalRecHits_done[i].provenance()->productInstanceName();
    std::string module_label = EcalRecHits_done[i].provenance()->moduleLabel();
 
-   if ( module_label != "ecalRegionalEgammaRecHitTmp" && 
-	module_label != "ecalRegionalMuonsRecHitTmp" &&
-	module_label != "ecalRegionalJetsRecHitTmp" &&
- 	module_label != "ecalRegionalTausRecHitTmp" &&
- 	module_label != "ecalRegionalRestRecHitTmp" ) continue;
+   if ( module_label != EgammaSourceEB_.label() && 
+	module_label != MuonsSourceEB_.label() &&
+	module_label != JetsSourceEB_.label() &&
+ 	module_label != TausSourceEB_.label() &&
+ 	module_label != RestSourceEB_.label() ) continue;
 
-   if (instance == "EcalRecHitsEB")  {
+   if (instance == InputRecHitEB_)  {
 	nEB += EcalRecHits_done[i] -> size();
    }
-   else if (instance == "EcalRecHitsEE") {
+   else if (instance == InputRecHitEE_) {
 	nEE += EcalRecHits_done[i] -> size();
    }
 
@@ -95,19 +98,18 @@ void EcalRecHitsMerger::produce(edm::Event & e, const edm::EventSetup& iSetup){
    std::string instance = EcalRecHits_done[i].provenance()->productInstanceName(); 
 
    std::string module_label = EcalRecHits_done[i].provenance()->moduleLabel();
+   if ( module_label != EgammaSourceEB_.label() && 
+	module_label != MuonsSourceEB_.label() &&
+	module_label != JetsSourceEB_.label() &&
+ 	module_label != TausSourceEB_.label() &&
+ 	module_label != RestSourceEB_.label() ) continue;
 
-   if ( module_label != "ecalRegionalEgammaRecHitTmp" &&
-        module_label != "ecalRegionalMuonsRecHitTmp" &&
-        module_label != "ecalRegionalJetsRecHitTmp" &&
-        module_label != "ecalRegionalTausRecHitTmp" &&
-        module_label != "ecalRegionalRestRecHitTmp" ) continue;
-
-   if (instance == "EcalRecHitsEB") {
+    if (instance == InputRecHitEB_) {
 	for (EcalRecHitCollection::const_iterator it=EcalRecHits_done[i]->begin(); it !=EcalRecHits_done[i]->end(); it++) {
 		EBMergedRecHits -> push_back(*it);
   	}
    }
-   else if (instance == "EcalRecHitsEE") {
+   else if (instance == InputRecHitEE_) {
 	for (EcalRecHitCollection::const_iterator it=EcalRecHits_done[i]->begin(); it !=EcalRecHits_done[i]->end(); it++) {
 		EEMergedRecHits -> push_back(*it);
 	}

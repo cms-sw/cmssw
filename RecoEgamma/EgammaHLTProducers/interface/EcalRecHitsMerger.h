@@ -37,6 +37,10 @@ private:
         edm::InputTag JetsSourceEE_ ;
 	edm::InputTag RestSourceEE_ ;
         std::string OutputLabelEE_;
+	
+	std::string InputRecHitEB_;
+	std::string InputRecHitEE_;
+	
 
 	bool debug_ ;
 
