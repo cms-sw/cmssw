@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Wed Mar  5 09:13:43 EST 2008
-// $Id: FWDetailViewManager.h,v 1.2 2008/03/06 22:48:31 jmuelmen Exp $
+// $Id: FWDetailViewManager.h,v 1.3 2008/03/07 01:05:13 jmuelmen Exp $
 //
 
 // system include files
@@ -39,14 +39,15 @@ class FWDetailViewManager
       virtual ~FWDetailViewManager();
 
       // ---------- const member functions ---------------------
+      bool haveDetailViewFor(const FWModelId&) const;
 
       // ---------- static member functions --------------------
 
       // ---------- member functions ---------------------------
       void openDetailViewFor(const FWModelId& );
-     void registerDetailView (const std::string &, FWDetailView *);
-     void close_wm ();
-     void close_button ();
+      void registerDetailView (const std::string &, FWDetailView *);
+      void close_wm ();
+      void close_button ();
 
    private:
       FWDetailViewManager(const FWDetailViewManager&); // stop default

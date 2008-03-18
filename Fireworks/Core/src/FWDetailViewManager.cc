@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Wed Mar  5 09:13:47 EST 2008
-// $Id: FWDetailViewManager.cc,v 1.2 2008/03/06 22:48:31 jmuelmen Exp $
+// $Id: FWDetailViewManager.cc,v 1.3 2008/03/07 01:05:16 jmuelmen Exp $
 //
 
 // system include files
@@ -136,6 +136,11 @@ FWDetailViewManager::openDetailViewFor(const FWModelId &id)
 //
 // const member functions
 //
+bool 
+FWDetailViewManager::haveDetailViewFor(const FWModelId& iId) const
+{
+   return m_viewers.end() != m_viewers.find(iId.item()->name());
+}
 
 //
 // static member functions
