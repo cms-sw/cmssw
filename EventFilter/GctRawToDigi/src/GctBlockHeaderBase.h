@@ -55,10 +55,10 @@ protected:
 
   // PROTECTED METHODS
   /// Pure virtual interface for accessing concrete-subclass static blocklength map.
-  BlockLengthMap& blockLengthMap() = 0;
+  virtual BlockLengthMap& blockLengthMap() = 0;
   
   /// Pure virtual interface for accessing concrete-subclass static blockname map.
-  BlockNameMap& blockNameMap() = 0;
+  virtual BlockNameMap& blockNameMap() = 0;
 };
 
 std::ostream& operator<<(std::ostream& os, const GctBlockHeaderBase& h);
