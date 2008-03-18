@@ -103,6 +103,12 @@ namespace pos{
       return scanValue(iScan(dac), state, roc);
     }
 
+    // This function should not be used -- provided for backwards compatibility only.  It asserts if the scan values for this dac are mixed across different ROCs.
+    unsigned int scanValue(std::string dac, unsigned int state) const {
+      assert( !(dacs_[iScan(dac)].mixValuesAcrossROCs()) );
+      return scanValue(iScan(dac), state, 0, 1);
+    }
+
     unsigned int numberOfScanVariables() const {return dacs_.size();}
 
     bool containsScan(std::string name) const;
