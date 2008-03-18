@@ -13,7 +13,7 @@
 //
 // Original Author:  Ricardo Vasquez
 //         Created:  Thu Feb 28 10:35:28 CST 2008
-// $Id$
+// $Id: CaloTauTagVal.cc,v 1.1 2008/03/08 00:39:48 vasquez Exp $
 //
 //
 
@@ -232,8 +232,8 @@ CaloTauTagVal::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 	  nTrackIsolated_isolationECALhitsEtSum_->Fill((*theCaloTau).isolationECALhitsEtSum());   
 	  nTrackIsolated_signalTracksInvariantMass_->Fill((*theCaloTau).signalTracksInvariantMass());
 	  nTrackIsolated_signalTracks_->Fill((*theCaloTau).signalTracks().size());             
-	
-	  if (!((*theCaloTau).isolationECALhitsEtSum()>0.0)){
+	  //EM isolation
+	  if (!((*theCaloTau).isolationECALhitsEtSum()>5.0)){
 	    nEMIsolated_ptTauJet_->Fill(MCjet->Perp());      	    	    	 
 	    nEMIsolated_etaTauJet_->Fill(MCjet->Eta());    	    	    		 
 	    nEMIsolated_phiTauJet_->Fill(MCjet->Phi()*180.0/TMath::Pi());  		 
