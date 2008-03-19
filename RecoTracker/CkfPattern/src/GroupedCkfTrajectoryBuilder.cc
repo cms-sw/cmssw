@@ -107,15 +107,36 @@ void GroupedCkfTrajectoryBuilder::setEvent(const edm::Event& event) const
 GroupedCkfTrajectoryBuilder::TrajectoryContainer 
 GroupedCkfTrajectoryBuilder::trajectories (const TrajectorySeed& seed) const 
 {
-  return buildTrajectories(seed,0);
+  TrajectoryContainer ret; 
+  ret.reserve(10);
+  buildTrajectories(seed, ret, 0);
+  return ret; 
 }
 
 GroupedCkfTrajectoryBuilder::TrajectoryContainer 
 GroupedCkfTrajectoryBuilder::trajectories (const TrajectorySeed& seed, 
 					   const TrackingRegion& region) const
 {
+  TrajectoryContainer ret; 
+  ret.reserve(10);
   RegionalTrajectoryFilter regionalCondition(region);
-  return buildTrajectories(seed,&regionalCondition);
+  buildTrajectories(seed, ret, &regionalCondition);
+  return ret; 
+}
+
+void 
+GroupedCkfTrajectoryBuilder::trajectories (const TrajectorySeed& seed, GroupedCkfTrajectoryBuilder::TrajectoryContainer &ret) const 
+{
+  buildTrajectories(seed,ret,0);
+}
+
+void
+GroupedCkfTrajectoryBuilder::trajectories (const TrajectorySeed& seed, 
+                                            GroupedCkfTrajectoryBuilder::TrajectoryContainer &ret,
+					    const TrackingRegion& region) const
+{
+  RegionalTrajectoryFilter regionalCondition(region);
+  buildTrajectories(seed,ret,&regionalCondition);
 }
 
 void  
@@ -144,19 +165,19 @@ GroupedCkfTrajectoryBuilder::rebuildSeedingRegion(const TrajectorySeed& seed,
   
 }
 
-GroupedCkfTrajectoryBuilder::TrajectoryContainer 
+void
 GroupedCkfTrajectoryBuilder::buildTrajectories (const TrajectorySeed& seed,
+                                                GroupedCkfTrajectoryBuilder::TrajectoryContainer &result,
 						const TrajectoryFilter* regionalCondition) const
 {
-  TrajectoryContainer result;
-  TempTrajectoryContainer work;
 
   analyseSeed( seed);
 
   TempTrajectory startingTraj = createStartingTrajectory( seed);
 
-  groupedLimitedCandidates( startingTraj, regionalCondition, theForwardPropagator, work);
-  if ( work.empty() )  return result;
+  work_.clear();
+  groupedLimitedCandidates( startingTraj, regionalCondition, theForwardPropagator, work_);
+  if ( work_.empty() )  return ;
 
 
 
@@ -173,18 +194,19 @@ GroupedCkfTrajectoryBuilder::buildTrajectories (const TrajectorySeed& seed,
 
   */
 
-  result.reserve(work.size());
-  for (TempTrajectoryContainer::const_iterator it = work.begin(), ed = work.end(); it != ed; ++it) {
+  result.reserve(work_.size());
+  for (TempTrajectoryContainer::const_iterator it = work_.begin(), ed = work_.end(); it != ed; ++it) {
       result.push_back( it->toTrajectory() );
   }
+
+  work_.clear(); 
+  if (work_.capacity() > work_MaxSize_) {  TempTrajectoryContainer().swap(work_); work_.reserve(work_MaxSize_/2); }
 
   analyseResult(result);
 
 #ifdef DBG_GCTB
   cout << "GroupedCkfTrajectoryBuilder: returning result of size " << result.size() << endl;
 #endif
-
-  return result;
 }
 
 
@@ -396,6 +418,7 @@ GroupedCkfTrajectoryBuilder::groupedIntermediaryClean (TempTrajectoryContainer& 
   if (theTrajectories.empty()) return;  
   //RecHitEqualByChannels recHitEqualByChannels(false, false);
   int firstLayerSize, secondLayerSize;
+  vector<const DetLayer*> firstLayers, secondLayers;
 
   for (TempTrajectoryContainer::iterator firstTraj=theTrajectories.begin();
        firstTraj!=(theTrajectories.end()-1); firstTraj++) {
@@ -403,7 +426,7 @@ GroupedCkfTrajectoryBuilder::groupedIntermediaryClean (TempTrajectoryContainer& 
     if ( (!firstTraj->isValid()) ||
          (!firstTraj->lastMeasurement().recHit()->isValid()) ) continue;
     const TempTrajectory::DataContainer & firstMeasurements = firstTraj->measurements();
-    vector<const DetLayer*> firstLayers = layers(firstMeasurements);
+    layers(firstMeasurements, firstLayers);
     firstLayerSize = firstLayers.size();
     if ( firstLayerSize<4 )  continue;
 
@@ -413,7 +436,7 @@ GroupedCkfTrajectoryBuilder::groupedIntermediaryClean (TempTrajectoryContainer& 
       if ( (!secondTraj->isValid()) ||
            (!secondTraj->lastMeasurement().recHit()->isValid()) ) continue;
       const TempTrajectory::DataContainer & secondMeasurements = secondTraj->measurements();
-      vector<const DetLayer*> secondLayers = layers(secondMeasurements);
+      layers(secondMeasurements, secondLayers);
       secondLayerSize = secondLayers.size();
       //
       // only candidates using the same last 3 layers are compared
@@ -502,12 +525,13 @@ GroupedCkfTrajectoryBuilder::groupedIntermediaryClean (TempTrajectoryContainer& 
                         theTrajectories.end());
 }
 
-vector<const DetLayer*>
-GroupedCkfTrajectoryBuilder::layers (const TempTrajectory::DataContainer& measurements) const 
+void
+GroupedCkfTrajectoryBuilder::layers (const TempTrajectory::DataContainer& measurements,
+                                     vector<const DetLayer*> &result) const 
 {
-  //layer measurements are sorted from last to first
-  vector<const DetLayer*> result;
-  if ( measurements.empty() )  return result;
+  result.clear();
+
+  if ( measurements.empty() )  return ;
 
   result.push_back(measurements.back().layer());
   TempTrajectory::DataContainer::const_iterator ifirst = measurements.rbegin();
@@ -521,7 +545,6 @@ GroupedCkfTrajectoryBuilder::layers (const TempTrajectory::DataContainer& measur
 	if (!*iter) cout << "Warning: null det layer!! " << endl;
   }
 #endif
-  return result;
 }
 
 void

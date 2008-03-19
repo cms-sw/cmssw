@@ -54,19 +54,23 @@ CkfTrajectoryBuilder::TrajectoryContainer
 CkfTrajectoryBuilder::trajectories(const TrajectorySeed& seed) const
 {  
   TrajectoryContainer result;
+  result.reserve(5);
+  trajectories(seed, result);
+  return result;
+}
 
+void
+CkfTrajectoryBuilder::trajectories(const TrajectorySeed& seed, CkfTrajectoryBuilder::TrajectoryContainer &result) const
+{  
   // analyseSeed( seed);
 
   TempTrajectory startingTraj = createStartingTrajectory( seed );
 
   /// limitedCandidates( startingTraj, regionalCondition, result);
   /// FIXME: restore regionalCondition
-
   limitedCandidates( startingTraj, result);
 
   // analyseResult(result);
-
-  return result;
 }
 
 

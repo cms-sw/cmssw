@@ -49,6 +49,8 @@ public:
   
   /// trajectories building starting from a seed
   virtual TrajectoryContainer trajectories(const TrajectorySeed& seed) const;
+  /// trajectories building starting from a seed
+  virtual void trajectories(const TrajectorySeed& seed, TrajectoryContainer &ret) const;
 
   /// set Event for the internal MeasurementTracker data member
   virtual void setEvent(const edm::Event& event) const;

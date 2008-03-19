@@ -138,18 +138,23 @@ namespace cms{
     // Step D: Invoke the building algorithm
     if ((*collseed).size()>0){
 
-      vector<Trajectory> rawResult;
+       vector<Trajectory> rawResult;
+       rawResult.reserve(collseed->size() * 4);
+
       if (theSeedCleaner) theSeedCleaner->init( &rawResult );
       
       // method for debugging
       countSeedsDebugger();
-      
+
+      vector<Trajectory> theTmpTrajectories;
+
       size_t collseed_size = collseed->size(); 
       for (size_t j = 0; j < collseed_size; j++){
-	vector<Trajectory> theTmpTrajectories;
-      
+       
 	if (theSeedCleaner && !theSeedCleaner->good( &((*collseed)[j])) ) continue;
-	theTmpTrajectories = theTrajectoryBuilder->trajectories( (*collseed)[j] );
+
+        theTmpTrajectories.clear();
+	theTrajectoryBuilder->trajectories( (*collseed)[j], theTmpTrajectories );
 	
        
 	LogDebug("CkfPattern") << "======== CkfTrajectoryBuilder returned " << theTmpTrajectories.size()
@@ -167,8 +172,10 @@ namespace cms{
 	    rawResult.push_back(*it);
             if (theSeedCleaner) theSeedCleaner->add( & (*it) );
 	  }
-      
 	}
+
+        theTmpTrajectories.clear();
+        
 	LogDebug("CkfPattern") << "rawResult size after cleaning " << rawResult.size();
       }
       

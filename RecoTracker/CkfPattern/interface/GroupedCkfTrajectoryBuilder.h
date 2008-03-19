@@ -42,8 +42,14 @@ class GroupedCkfTrajectoryBuilder : public BaseCkfTrajectoryBuilder {
   /// trajectories building starting from a seed
   TrajectoryContainer trajectories(const TrajectorySeed&) const;
 
+  /// trajectories building starting from a seed, return in an already allocated vector
+  void trajectories(const TrajectorySeed&, TrajectoryContainer &ret) const;
+
   /// trajectories building starting from a seed with a region
   TrajectoryContainer trajectories(const TrajectorySeed&, const TrackingRegion&) const;
+
+  /// trajectories building starting from a seed with a region
+  void trajectories(const TrajectorySeed&, TrajectoryContainer &ret, const TrackingRegion&) const;
 
   /** trajectories re-building in the seeding region.
       It looks for additional measurements in the seeding region of the 
@@ -95,8 +101,9 @@ private :
   GroupedCkfTrajectoryBuilder& operator= (const GroupedCkfTrajectoryBuilder&);
 
   /// common part of both public trajectory building methods
-  TrajectoryContainer buildTrajectories (const TrajectorySeed&,
-					 const TrajectoryFilter*) const;
+  void buildTrajectories (const TrajectorySeed&,
+                                  TrajectoryContainer &ret,
+	                          const TrajectoryFilter*) const;
   
   inline bool tkxor(bool a, bool b) const {return (a||b) && !(a&&b);}
   // to be ported later
@@ -138,8 +145,10 @@ private :
   /// intermediate cleaning in the case of grouped measurements
   void groupedIntermediaryClean(TempTrajectoryContainer& theTrajectories) const ;
 
-  /// list of layers from a container of TrajectoryMeasurements
-  std::vector<const DetLayer*> layers (const TempTrajectory::DataContainer& measurements) const;
+  /// fills in a list of layers from a container of TrajectoryMeasurements
+  /// the "fillme" vector is cleared beforehand.
+  void layers (const TempTrajectory::DataContainer& measurements,
+               std::vector<const DetLayer*> &fillme) const;
 
   /// change of propagation direction
   inline PropagationDirection oppositeDirection (PropagationDirection dir) const {
@@ -181,6 +190,10 @@ private:
                                      If ==0 the seeding part will remain untouched. */
   unsigned int theMinNrOf2dHitsForRebuild;   
                                 /**< Minimum nr. of non-seed 2D hits required for rebuild. */
+
+
+  mutable TempTrajectoryContainer work_; // Better here than alloc every time
+  enum work_MaxSize_Size_ { work_MaxSize_ = 50 };  // if it grows above this number, it is forced to resize to half this amount when cleared
 };
 
 #endif

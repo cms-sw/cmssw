@@ -145,12 +145,13 @@ TrajectorySegmentBuilder::addGroup (TempTrajectory& traj,
 				    vector<TMG>::const_iterator begin,
 				    vector<TMG>::const_iterator end)
 {
+  vector<TempTrajectory> ret;
   if ( begin==end ) {
+    //std::cout << "TrajectorySegmentBuilder::addGroup" << " traj.empty()=" << traj.empty() << "EMPTY" << std::endl;
     if (theDbgFlg) cout << "TSB::addGroup : no groups left" << endl;
-    if ( traj.empty() )
-      return vector<TempTrajectory>();
-    else
-      return vector<TempTrajectory>(1,traj);
+    if ( !traj.empty() )
+      ret.push_back(traj);
+    return ret;
   }
   
   if (theDbgFlg) cout << "TSB::addGroup : traj.size() = " << traj.measurements().size()
@@ -159,7 +160,7 @@ TrajectorySegmentBuilder::addGroup (TempTrajectory& traj,
 		      << endl;
 
 
-  TempTrajectoryContainer updatedTrajectories;
+  TempTrajectoryContainer updatedTrajectories; updatedTrajectories.reserve(2);
   if ( traj.measurements().empty() ) {
     vector<TM> firstMeasurements = unlockedMeasurements(begin->measurements());
     if ( theBestHitOnly )
@@ -180,24 +181,37 @@ TrajectorySegmentBuilder::addGroup (TempTrajectory& traj,
 			<< updatedTrajectories.size() << " trajectories" << endl;
   }
 
-  vector<TempTrajectory> result;
-  for ( TempTrajectoryContainer::iterator it=updatedTrajectories.begin();
-	it!=updatedTrajectories.end(); ++it ) {
-    if (theDbgFlg) cout << "TSB::addGroup : trying to extend candidate at "
-			<< &(*it) << " size " << it->measurements().size() << endl;
-    vector<TempTrajectory> finalTrajectories = addGroup(*it,begin+1,end);
-    if (theDbgFlg) cout << "TSB::addGroup : " << finalTrajectories.size()
-			<< " finalised candidates before cleaning" << endl;
-    //B.M. to be ported later
-    cleanCandidates(finalTrajectories);
+  if (begin+1 != end) {
+      ret.reserve(4); // a good upper bound
+      for ( TempTrajectoryContainer::iterator it=updatedTrajectories.begin();
+            it!=updatedTrajectories.end(); ++it ) {
+        if (theDbgFlg) cout << "TSB::addGroup : trying to extend candidate at "
+                            << &(*it) << " size " << it->measurements().size() << endl;
+        vector<TempTrajectory> finalTrajectories = addGroup(*it,begin+1,end);
+        if (theDbgFlg) cout << "TSB::addGroup : " << finalTrajectories.size()
+                            << " finalised candidates before cleaning" << endl;
+        //B.M. to be ported later
+        cleanCandidates(finalTrajectories);
 
-    if (theDbgFlg) cout << "TSB::addGroup : got " << finalTrajectories.size()
-			<< " finalised candidates" << endl;
-    result.insert(result.end(),finalTrajectories.begin(),
-		  finalTrajectories.end());
+        if (theDbgFlg) cout << "TSB::addGroup : got " << finalTrajectories.size()
+                            << " finalised candidates" << endl;
+        ret.insert(ret.end(),finalTrajectories.begin(),
+                      finalTrajectories.end());
+      }
+  } else {
+      ret.reserve(updatedTrajectories.size());
+      for (TempTrajectoryContainer::iterator it=updatedTrajectories.begin(); 
+              it!=updatedTrajectories.end(); ++it ) { 
+        if (!it->empty()) ret.push_back(*it);
+      }
   }
 
-  return result;
+  //std::cout << "TrajectorySegmentBuilder::addGroup" << 
+  //             " traj.empty()=" << traj.empty() << 
+  //             " end-begin=" << (end-begin)  <<
+  //             " #updated=" << updatedTrajectories.size() << 
+  //             " #result=" << ret.size() << std::endl;
+  return ret;
 }
 
 void
@@ -211,10 +225,9 @@ TrajectorySegmentBuilder::updateCandidates (TempTrajectory& traj,
   for ( vector<TM>::const_iterator im=measurements.begin();
 	im!=measurements.end(); ++im ) {
     if ( im->recHit()->isValid() ) {
-      TempTrajectory newTraj(traj);
-      updateTrajectory(newTraj,*im);
+      candidates.push_back(traj);
+      updateTrajectory(candidates.back(),*im);
       if ( theLockHits )  lockMeasurement(*im);
-      candidates.push_back(newTraj);
     }
   }
   //
@@ -243,10 +256,9 @@ TrajectorySegmentBuilder::updateCandidatesWithBestHit (TempTrajectory& traj,
 //     }
   }
   if ( ibest!=measurements.end() ) {
-    TempTrajectory newTraj(traj);
-    updateTrajectory(newTraj,*ibest);
     if ( theLockHits )  lockMeasurement(*ibest);
-    candidates.push_back(newTraj);
+    candidates.push_back(traj);
+    updateTrajectory(candidates.back(),*ibest);
     if ( theDbgFlg ) {
       if (bestIsValid) {
           cout << "TSB: found best measurement at " 
