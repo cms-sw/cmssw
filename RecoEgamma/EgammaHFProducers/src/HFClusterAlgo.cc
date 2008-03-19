@@ -281,11 +281,11 @@ void HFClusterAlgo::makeCluster(const HcalDetId& seedid,
   
   clusShp = myClusShp;
   
-  BasicCluster MyBclus(l_3+s_3,xyzclus,chi2,usedHits,algoID);
+  BasicCluster MyBclus(l_3,xyzclus,chi2,usedHits,algoID);
   Bclus=MyBclus;
   
   
-  SuperCluster MySclus(l_3+s_3,xyzclus);
+  SuperCluster MySclus(l_3,xyzclus);
   Sclus=MySclus;
   
 }
