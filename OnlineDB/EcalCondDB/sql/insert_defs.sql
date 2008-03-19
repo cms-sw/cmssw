@@ -11,3 +11,18 @@ INSERT INTO mon_run_outcome_def VALUES (mon_run_outcome_def_sq.NextVal, 'success
 
 @insert_location_data
 @insert_run_type_def
+
+INSERT INTO mon_task_def VALUES (mon_task_def_sq.NextVal, 'CI',0, 'Channel Integrity', 'Channel Integrity Analysis'); 
+INSERT INTO mon_task_def VALUES (mon_task_def_sq.NextVal, 'CS',1, 'Cosmic', 'Cosmic Run Analysis');
+INSERT INTO mon_task_def VALUES (mon_task_def_sq.NextVal, 'LS',2, 'Laser', 'Laser Run Analysis');
+INSERT INTO mon_task_def VALUES (mon_task_def_sq.NextVal, 'PD',3, 'Pedestal', 'Pedestal Run Analysis');
+INSERT INTO mon_task_def VALUES (mon_task_def_sq.NextVal, 'OP',4, 'Online Pedestals', 'Pedestal Analysis from the pre-samples on Any Run');
+INSERT INTO mon_task_def VALUES (mon_task_def_sq.NextVal, 'TP',5, 'Test Pulse','Test Pulse Run Analysis');
+INSERT INTO mon_task_def VALUES (mon_task_def_sq.NextVal, 'BC',6, 'Beam Calo','Beam Run ECAL Analysis');
+INSERT INTO mon_task_def VALUES (mon_task_def_sq.NextVal, 'BH',7, 'Beam Hodo','Beam Run Hodoscope Analysis (Test-beam only)'); 
+INSERT INTO mon_task_def VALUES (mon_task_def_sq.NextVal, 'TT',8, 'TriggerTower', 'Trigger Tower Analysis');
+INSERT INTO mon_task_def VALUES (mon_task_def_sq.NextVal, 'CL',9, 'Cluster', 'Cluster Analysis on Beam Runs'); 
+INSERT INTO mon_task_def VALUES (mon_task_def_sq.NextVal, 'TM',10,'Timing', 'Timing Analysis');
+INSERT INTO mon_task_def VALUES (mon_task_def_sq.NextVal, 'LD',11,'Led','Led Run Analysis (EE)');
+INSERT INTO mon_task_def VALUES (mon_task_def_sq.NextVal, 'SF',12,'Status Flags','Status Flags Analysis');
+INSERT INTO mon_task_def VALUES (mon_task_def_sq.NextVal, 'OC',13,'Occupancy','Occupancy Analysis on Beam Runs');
