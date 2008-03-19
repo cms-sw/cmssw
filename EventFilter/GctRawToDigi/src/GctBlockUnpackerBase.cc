@@ -17,8 +17,6 @@ GctBlockUnpackerBase::RctCrateMap GctBlockUnpackerBase::rctCrate_ = GctBlockUnpa
 GctBlockUnpackerBase::BlockIdToEmCandIsoBoundMap GctBlockUnpackerBase::InternEmIsoBounds_ = GctBlockUnpackerBase::BlockIdToEmCandIsoBoundMap();
 
 GctBlockUnpackerBase::GctBlockUnpackerBase(bool hltMode):
-  hltMode_(hltMode),
-  srcCardRouting_(),
   rctEm_(0),
   rctCalo_(0),
   gctIsoEm_(0),
@@ -29,7 +27,9 @@ GctBlockUnpackerBase::GctBlockUnpackerBase(bool hltMode):
   gctJetCounts_(0),
   gctEtTotal_(0),
   gctEtHad_(0),
-  gctEtMiss_(0)
+  gctEtMiss_(0),
+  hltMode_(hltMode),
+  srcCardRouting_()
 {
   static bool initClass = true;
   
