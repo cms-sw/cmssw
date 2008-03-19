@@ -63,7 +63,8 @@ private:
   };
   
   // input collections
-  edm::InputTag             m_trigger;          // HLT event
+  std::string               m_path;             // HLT path
+  edm::InputTag             m_trigger;          // HLT trigger summary
   edm::InputTag             m_vertex;           // primary vertex
   std::vector<InputData>    m_levels;
 
@@ -102,6 +103,7 @@ private:
 
 
 HLTBtagLifetimeAnalyzer::HLTBtagLifetimeAnalyzer(const edm::ParameterSet & config) :
+  m_path( config.getParameter<std::string>("path") ),
   m_vertex( config.getParameter<edm::InputTag>("vertex") ),
   m_levels(),
   m_events(),
@@ -201,7 +203,11 @@ void HLTBtagLifetimeAnalyzer::analyze(const edm::Event & event, const edm::Event
       if (jets.size() > 0)
         ++m_events[l];
 
+      std::cerr << "--> " << m_path << std::flush; 
       for (unsigned int j = 0; j < jets.size(); ++j) {
+        // event did pass this filter, analyze the content
+        std::cerr << "#" << std::flush;
+        
         const reco::Jet & jet = jets[j];
         
         // match to MC parton
@@ -226,14 +232,18 @@ void HLTBtagLifetimeAnalyzer::analyze(const edm::Event & event, const edm::Event
         }
         
       }
+    } else {
+      // event did not pass this filter, don't check the next ones to avoid bleeding from similar paths
+      std::cerr << std::endl;
+      break;
     }
-
   }
 }
 
 void HLTBtagLifetimeAnalyzer::endJob()
 {
   // compute and print overall per-event efficiencies
+  std::cout << m_path << " HLT Trigger path" << std::endl << std::endl;
   for (unsigned int i = 0; i < m_levels.size(); ++i) {
     std::stringstream out;
     out << std::setw(64) << std::left << ("events passing " + m_levels[i].m_title) << std::right << std::setw(12) << m_events[i];
@@ -263,27 +273,29 @@ void HLTBtagLifetimeAnalyzer::endJob()
   }
   std::cout << std::endl;
   
-  TFile * file = new TFile(m_outputFile.c_str(), "RECREATE");
-  
-  for (unsigned int i = 0; i < m_levels.size(); ++i) {
-    m_jetPlots[i].save(*file);
-    m_mcPlots[i].save(*file);
-    m_offlinePlots[i].save(*file);
-  }
-  for (unsigned int i = 1; i < m_levels.size(); ++i) {
-    // make step-by-step efficiency plots
-    m_jetPlots[i].efficiency( m_jetPlots[i-1] ).save(*file);
-    m_mcPlots[i].efficiency( m_mcPlots[i-1] ).save(*file);
-    m_offlinePlots[i].efficiency( m_offlinePlots[i-1] ).save(*file);
-  }
-  for (unsigned int i = 2; i < m_levels.size(); ++i) {
-    // make overall plots
-    m_jetPlots[i].efficiency( m_jetPlots[0] ).save(*file);
-    m_mcPlots[i].efficiency( m_mcPlots[0] ).save(*file);
-    m_offlinePlots[i].efficiency( m_offlinePlots[0] ).save(*file);
-  }
+  TFile * file = new TFile(m_outputFile.c_str(), "UPDATE");
+  TDirectory * dir = file->mkdir( m_path.c_str(), (m_path + " HLT path").c_str() );
+  if (dir) {
+    for (unsigned int i = 0; i < m_levels.size(); ++i) {
+      m_jetPlots[i].save(*dir);
+      m_mcPlots[i].save(*dir);
+      m_offlinePlots[i].save(*dir);
+    }
+    for (unsigned int i = 1; i < m_levels.size(); ++i) {
+      // make step-by-step efficiency plots
+      m_jetPlots[i].efficiency( m_jetPlots[i-1] ).save(*dir);
+      m_mcPlots[i].efficiency( m_mcPlots[i-1] ).save(*dir);
+      m_offlinePlots[i].efficiency( m_offlinePlots[i-1] ).save(*dir);
+    }
+    for (unsigned int i = 2; i < m_levels.size(); ++i) {
+      // make overall plots
+      m_jetPlots[i].efficiency( m_jetPlots[0] ).save(*dir);
+      m_mcPlots[i].efficiency( m_mcPlots[0] ).save(*dir);
+      m_offlinePlots[i].efficiency( m_offlinePlots[0] ).save(*dir);
+    }
 
-  m_vertexPlots.save(*file);
+    m_vertexPlots.save(*dir);
+  }
 
   file->Write();
   file->Close();
