@@ -64,7 +64,7 @@ void GctBlockUnpacker::convertBlock(const unsigned char * data, const GctBlockHe
   // The header validity check above will protect against 
   // the map::find() method returning the end of the map,
   // assuming the block header definitions are up-to-date.
-  (this->*blockUnpackFn_.find(id)->second)(data, hdr);  // Calls the correct unpack function, based on block ID.
+  (this->*blockUnpackFn_.find(hdr.id())->second)(data, hdr);  // Calls the correct unpack function, based on block ID.
 }
 
 
