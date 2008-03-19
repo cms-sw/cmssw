@@ -26,8 +26,8 @@
 * with older data.
 *
 * \author Robert Frazier
-* $Revision: 1.4 $
-* $Date: 2008/03/19 14:26:18 $
+* $Revision: 1.5 $
+* $Date: 2008/03/19 16:14:58 $
 */ 
 
 
@@ -111,11 +111,11 @@ protected:
 
   // PROTECTED METHODS
  
-  RctCrateMap& rctCrateMap() = 0;  ///< get the RCT crate map.
-  const RctCrateMap& rctCrateMap() const = 0;  ///< get the RCT crate map.
+  virtual RctCrateMap& rctCrateMap() = 0;  ///< get the RCT crate map.
+  virtual const RctCrateMap& rctCrateMap() const = 0;  ///< get the RCT crate map.
 
-  BlockIdToEmCandIsoBoundMap& internEmIsoBounds() = 0;  ///< get the intern EM cand isolated boundary map.
-  const BlockIdToEmCandIsoBoundMap& internEmIsoBounds() const = 0;  ///< get the intern EM cand isolated boundary map.
+  virtual BlockIdToEmCandIsoBoundMap& internEmIsoBounds() = 0;  ///< get the intern EM cand isolated boundary map.
+  virtual const BlockIdToEmCandIsoBoundMap& internEmIsoBounds() const = 0;  ///< get the intern EM cand isolated boundary map.
 
   bool hltMode() const { return hltMode_; }  ///< Protected interface to get HLT optimisation mode flag.
 
