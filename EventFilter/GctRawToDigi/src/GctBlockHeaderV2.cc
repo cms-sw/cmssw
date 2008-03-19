@@ -11,10 +11,10 @@ GctBlockHeaderV2::GctBlockHeaderV2(uint16_t id, uint16_t nsamples, uint16_t bcid
 /// setup class static to lookup block length
 GctBlockHeaderBase::BlockLengthPair initArray3[] = {
   GctBlockHeaderBase::BlockLengthPair(0x000,0),
-  GctBlockHeaderBase::BlockLengthPair(0x583,6),
+  GctBlockHeaderBase::BlockLengthPair(0x583,8),
   GctBlockHeaderBase::BlockLengthPair(0x580,12),
   GctBlockHeaderBase::BlockLengthPair(0x587,4),
-  GctBlockHeaderBase::BlockLengthPair(0x683,4),
+  GctBlockHeaderBase::BlockLengthPair(0x683,6),
   GctBlockHeaderBase::BlockLengthPair(0x680,16),
   GctBlockHeaderBase::BlockLengthPair(0x686,2),
   GctBlockHeaderBase::BlockLengthPair(0x687,4),
