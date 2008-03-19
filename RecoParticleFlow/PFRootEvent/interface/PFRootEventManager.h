@@ -26,6 +26,9 @@
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
 
 #include "DataFormats/Candidate/interface/CandidateFwd.h"
+#include "DataFormats/HepMCCandidate/interface/GenParticle.h"
+#include "DataFormats/HepMCCandidate/interface/GenParticleFwd.h"
+#include "PhysicsTools/CandUtils/interface/pdgIdUtils.h"
 
 #include "DataFormats/EgammaReco/interface/BasicCluster.h"
 #include "DataFormats/CaloTowers/interface/CaloTower.h"
@@ -36,7 +39,7 @@
 #include "RecoParticleFlow/PFAlgo/interface/PFAlgo.h"
 
 #include "RecoParticleFlow/PFRootEvent/interface/PFJetAlgorithm.h"
-// #include "RecoParticleFlow/Benchmark/interface/PFJetBenchmark.h"
+#include "RecoParticleFlow/Benchmark/interface/PFJetBenchmark.h"
 
 #include "RecoParticleFlow/PFRootEvent/interface/FWLiteJetProducer.h"
 #include "DataFormats/JetReco/interface/BasicJetCollection.h"
@@ -378,7 +381,7 @@ class PFRootEventManager {
   TBranch*   MCTruthBranch_;          
 
   /// Gen Particles base Candidates branch
-  TBranch*   genParticleBaseCandidatesBranch_;
+  TBranch*   genParticleforJetsBranch_;
 
   /// Calo Tower base Candidates branch
   TBranch*   caloTowerBaseCandidatesBranch_;
@@ -435,11 +438,15 @@ class PFRootEventManager {
   /// reconstructed pfCandidates 
   std::auto_ptr< reco::PFCandidateCollection > pfCandidates_;
   
-  /// has to be global to print out pfjets constituents
+  /// has to be global to have a lifetime = lifetime of PFJets
   reco::CandidateCollection basePFCandidates_;
 
-  /// gen particle base candidates (input for gen jets)
+  /// gen particle base candidates (input for gen jets new since 1_8_0)
+  reco::GenParticleRefVector genParticleRef_;
+  
+  /// gen particle base candidates (input for gen jets new since 1_8_0)
   reco::CandidateCollection genParticleBaseCandidates_;
+
 
   /// calo tower base candidates (input for calo jets)
   reco::CandidateCollection caloTowerBaseCandidates_;
@@ -493,7 +500,7 @@ class PFRootEventManager {
   PFAlgo          pfAlgo_;
 
   /// PFJet Benchmark
-  // PFJetBenchmark PFJetBenchmark_;
+  PFJetBenchmark PFJetBenchmark_;
 
   /// native jet algorithm 
   /// \todo make concrete
@@ -547,7 +554,7 @@ class PFRootEventManager {
   bool   doParticleFlow_;
 
   /// jets on/off
-  bool   doJets_;
+  int   doJets_;
   
   /// jet algo type
   int    jetAlgoType_;
