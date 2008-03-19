@@ -21,7 +21,7 @@
 
 class HFRecoEcalCandidateAlgo {
 public:
-  HFRecoEcalCandidateAlgo(bool correct, double e9e25Cut,double eCOREe9Cut,double eSeLCut); 
+  HFRecoEcalCandidateAlgo(bool correct, double e9e25Cut,double intercept2DCut); 
   
   /** Analyze the hits */
   void produce(const edm::Handle<reco::SuperClusterCollection>& SuperClusters,
@@ -34,8 +34,8 @@ public:
   
   bool m_correct;
   double m_e9e25Cut;
-  double m_eCOREe9Cut;
-  double m_eSeLCut;
+  double m_intercept2DCut;
+  
 };
 
 #endif 

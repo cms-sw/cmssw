@@ -29,7 +29,7 @@
 
 HFRecoEcalCandidateProducer::HFRecoEcalCandidateProducer(edm::ParameterSet const& conf):
   hfclusters_(conf.getUntrackedParameter<edm::InputTag>("hfclusters")),
-  algo_(conf.getParameter<bool>("Correct"),conf.getParameter<double>("e9e25Cut"),conf.getParameter<double>("eCOREe9Cut"),conf.getParameter<double>("eSeLCut")) {
+  algo_(conf.getParameter<bool>("Correct"),conf.getParameter<double>("e9e25Cut"),conf.getParameter<double>("intercept2DCut")){
 
   produces<reco::RecoEcalCandidateCollection>();
 
@@ -37,10 +37,10 @@ HFRecoEcalCandidateProducer::HFRecoEcalCandidateProducer(edm::ParameterSet const
 
 void HFRecoEcalCandidateProducer::produce(edm::Event & e, edm::EventSetup const& iSetup) {  
   
-  //edm::Handle<reco::HFEMClusterShapeCollection> hf_clus;
+  
   edm::Handle<reco::SuperClusterCollection> super_clus;
   edm::Handle<reco::HFEMClusterShapeAssociationCollection> hf_assoc;
-  //e.getByLabel(hf_clus);
+ 
   e.getByLabel(hfclusters_,super_clus);
   e.getByLabel(hfclusters_,hf_assoc);
 
