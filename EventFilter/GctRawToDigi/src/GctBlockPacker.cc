@@ -1,19 +1,35 @@
 #include "EventFilter/GctRawToDigi/src/GctBlockPacker.h"
 
 // C++ headers
-#include <vector>
+#include <cassert>
 
 // CMSSW headers
-#include "EventFilter/GctRawToDigi/src/GctBlockHeader.h"
+#include "EventFilter/GctRawToDigi/src/GctBlockHeaderV2.h"
 
 // Namespace resolution
 using std::vector;
 
+// INITIALISE STATICS
+GctBlockPacker::RctCrateMap GctBlockPacker::rctCrate_ = GctBlockPacker::RctCrateMap();
 
-GctBlockPacker::GctBlockPacker() {
 
+GctBlockPacker::GctBlockPacker():
+  bcid_(0),
+  evid_(0),
+  srcCardRouting_()
+{
+  static bool initClass = true;
+  
+  if(initClass)
+  {
+    initClass = false;
+    
+    rctCrate_[0x804] = 13;
+    rctCrate_[0x884] = 9;
+    rctCrate_[0xC04] = 4;
+    rctCrate_[0xC84] = 0; 
+  }  
 }
-
 
 GctBlockPacker::~GctBlockPacker() {
 
@@ -23,7 +39,7 @@ GctBlockPacker::~GctBlockPacker() {
 // write GCT internal header
 void GctBlockPacker::writeGctHeader(unsigned char * d, uint16_t id, uint16_t nsamples)
 {
-  uint32_t hdr = GctBlockHeader(id, nsamples, bcid_, evid_).data();
+  uint32_t hdr = GctBlockHeaderV2(id, nsamples, bcid_, evid_).data();
   uint32_t * p = reinterpret_cast<uint32_t*>(const_cast<unsigned char *>(d));
   *p = hdr;
 }
@@ -36,7 +52,7 @@ void GctBlockPacker::writeGctOutJetBlock(unsigned char * d,
                                          const L1GctJetCounts* jetCounts)
 {
   // write header
-  writeGctHeader(d, 0x58, 1);
+  writeGctHeader(d, 0x583, 1);
   
   d=d+4;  // move forward past the block header to the block payload.
 
@@ -75,7 +91,7 @@ void GctBlockPacker::writeGctOutJetBlock(unsigned char * d,
   p32[1] = jetCounts->raw1();  
 }
 
-// Output EM Candidates packing
+// Output EM Candidates and energy sums packing
 void GctBlockPacker::writeGctOutEmAndEnergyBlock(unsigned char * d,
                                                  const L1GctEmCandCollection* iso,
                                                  const L1GctEmCandCollection* nonIso,
@@ -86,7 +102,7 @@ void GctBlockPacker::writeGctOutEmAndEnergyBlock(unsigned char * d,
   unsigned nSamples = 1; // Note: can only currently do SINGLE TIME SAMPLE!
   
   // write header
-  writeGctHeader(d, 0x68, nSamples);  
+  writeGctHeader(d, 0x683, nSamples);  
   
   d=d+4;  // move to the block payload.
 
@@ -124,3 +140,126 @@ void GctBlockPacker::writeGctOutEmAndEnergyBlock(unsigned char * d,
   *p32 = etMiss->raw();  // Et Miss on final 32 bits of block payload.
 }
 
+void GctBlockPacker::writeRctEmCandBlocks(unsigned char * d, const L1CaloEmCollection * rctEm)
+{
+  // This method is one giant "temporary" hack for CMSSW_1_8_X and CMSSW_2_0_0.
+
+  assert(rctEm->size() >= 144);  // Should be 18 crates * 2 types (iso/noniso) * 4 electrons = 144 for 1 bx.
+
+  // Need 18 sets of EM fibre data, since 18 RCT crates  
+  EmuToSfpData emuToSfpData[18];
+
+  // Fill in the input arrays with the data from the digi  
+  for(unsigned i=0, size=rctEm->size(); i < size ; ++i)
+  {
+    const L1CaloEmCand &cand = rctEm->at(i);
+    if(cand.bx() != 0) { continue; }  // Only interested in bunch crossing zero for now!
+    unsigned crateNum = cand.rctCrate();
+    unsigned index = cand.index();
+    
+    // Some error checking.
+    assert(crateNum < 18); // Only 18 RCT crates!
+    assert(index < 4); // Should only be 4 cands of each type per crate!
+    
+    if(cand.isolated())
+    {
+      emuToSfpData[crateNum].eIsoRank[index] = cand.rank();
+      emuToSfpData[crateNum].eIsoCardId[index] = cand.rctCard();
+      emuToSfpData[crateNum].eIsoRegionId[index] = cand.rctRegion();
+    }
+    else
+    {
+      emuToSfpData[crateNum].eNonIsoRank[index] = cand.rank();
+      emuToSfpData[crateNum].eNonIsoCardId[index] = cand.rctCard();
+      emuToSfpData[crateNum].eNonIsoRegionId[index] = cand.rctRegion();
+    }
+    // Note doing nothing with the MIP bit and Q bit arrays as we are not
+    // interested in them; these arrays will contain uninitialised junk
+    // and so you will get out junk for sourcecard output 0 - I.e. don't
+    // trust sfp[0][0] or sfp[1][0] output!. 
+  }
+
+  // Now run the conversion
+  for(unsigned c = 0 ; c < 18 ; ++c)
+  {
+    srcCardRouting_.EMUtoSFP(emuToSfpData[c].eIsoRank, emuToSfpData[c].eIsoCardId, emuToSfpData[c].eIsoRegionId,
+                             emuToSfpData[c].eNonIsoRank, emuToSfpData[c].eNonIsoCardId, emuToSfpData[c].eNonIsoRegionId,
+                             emuToSfpData[c].mipBits, emuToSfpData[c].qBits, emuToSfpData[c].sfp);
+  }
+  
+  // Now pack up the data into the RAW format.
+  RctCrateMap::iterator blockStartCrateIter;
+  for(blockStartCrateIter = rctCrate_.begin() ; blockStartCrateIter != rctCrate_.end() ; ++blockStartCrateIter)
+  {
+    unsigned blockId = blockStartCrateIter->first;
+    unsigned startCrate = blockStartCrateIter->second;
+    unsigned blockLength_32bit = GctBlockHeader::lookupBlockLength(blockId);
+    
+    writeGctHeader(d, blockId, 1);
+    d+=4; // move past header.
+    
+    // Want a 16 bit pointer to push the 16 bit data in.
+    uint16_t * p16 = reinterpret_cast<uint16_t *>(const_cast<unsigned char *>(d));
+    
+    for(unsigned iCrate=startCrate, end=startCrate + blockLength_32bit/3 ; iCrate < end ; ++iCrate)
+    {
+      for(unsigned iOutput = 1 ; iOutput < 4 ; ++iOutput)  // skipping output 0 as that is Q-bit/MIP-bit data.
+      {
+        for(unsigned iCycle = 0 ; iCycle < 2 ; ++iCycle)
+        {
+          *p16 = emuToSfpData[iCrate].sfp[iCycle][iOutput];
+          ++p16;
+        }
+      } 
+    }
+    
+    // Now move d onto the location of the next block header
+    d+=(blockLength_32bit*4);
+  }
+}
+
+void GctBlockPacker::writeRctCaloRegionBlock(unsigned char * d, const L1CaloRegionCollection * rctCalo)
+{
+  // This method is one giant "temporary" hack for CMSSW_1_8_X and CMSSW_2_0_0.
+
+  writeGctHeader(d, 0x0ff, 1);
+  d+=4; // move past header.
+
+  // Want a 16 bit pointer to push the 16 bit data in.
+  uint16_t * p16 = reinterpret_cast<uint16_t *>(const_cast<unsigned char *>(d));
+ 
+  assert(rctCalo->size() >= 396);  // Should be at least 396 calo regions for 1 bx.
+  
+  for(unsigned i=0, size=rctCalo->size(); i < size ; ++i)
+  {
+    const L1CaloRegion &reg = rctCalo->at(i);
+    if(reg.bx() != 0) { continue; }  // Only interested in bunch crossing zero for now!
+    const unsigned crateNum = reg.rctCrate();
+    const unsigned regionIndex = reg.rctRegionIndex();
+    assert(crateNum < 18); // Only 18 RCT crates!
+    
+    // Gotta make the raw data as there currently isn't a method of getting raw from L1CaloRegion
+    const uint16_t raw =  reg.et()                        | 
+                         (reg.overFlow()  ? 0x400  : 0x0) |
+                         (reg.fineGrain() ? 0x800  : 0x0) |
+                         (reg.mip()       ? 0x1000 : 0x0) |
+                         (reg.quiet()     ? 0x2000 : 0x0);
+ 
+    unsigned offset = 0;  // for storing calculated raw data offset.   
+    if(reg.isHbHe())  // Is a barrel/endcap region
+    {
+      const unsigned cardNum = reg.rctCard();
+      assert(cardNum < 7);  // 7 RCT cards per crate for the barrel/endcap
+      assert(regionIndex < 2); // regionIndex less than 2 for barrel/endcap
+      
+      // Calculate position in the raw data from crateNum, cardNum, and regionIndex
+      offset = crateNum*22 + cardNum*2 + regionIndex;
+    }
+    else  // Must be forward region
+    {
+      assert(regionIndex < 8); // regionIndex less than 8 for forward calorimeter.
+      offset = crateNum*22 + 14 + regionIndex;
+    }
+    p16[offset] = raw;  // Write raw data in correct place!
+  }
+}
