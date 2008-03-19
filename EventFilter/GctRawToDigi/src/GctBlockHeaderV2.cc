@@ -143,7 +143,7 @@ GctBlockHeaderBase::BlockLengthPair initArray3[] = {
   GctBlockHeaderBase::BlockLengthPair(0x0ff,198)     // Our temp hack RCT calo block
 };
 
-GctBlockHeader::BlockLengthMap GctBlockHeaderV2::blockLengthV2_(initArray3, initArray3 + sizeof(initArray3) / sizeof(initArray3[0]));
+GctBlockHeaderV2::BlockLengthMap GctBlockHeaderV2::blockLengthV2_(initArray3, initArray3 + sizeof(initArray3) / sizeof(initArray3[0]));
 
 /// setup class static to lookup block name
 GctBlockHeaderBase::BlockNamePair initArray4[] = {
@@ -280,5 +280,5 @@ GctBlockHeaderBase::BlockNamePair initArray4[] = {
   GctBlockHeaderBase::BlockNamePair(0x0ff,"All RCT Calo Regions")  // Our temp hack RCT calo block
 };
 
-GctBlockHeader::BlockNameMap GctBlockHeaderV2::blockNameV2_(initArray4, initArray4 + sizeof(initArray4) / sizeof(initArray4[0]));
+GctBlockHeaderV2::BlockNameMap GctBlockHeaderV2::blockNameV2_(initArray4, initArray4 + sizeof(initArray4) / sizeof(initArray4[0]));
 
