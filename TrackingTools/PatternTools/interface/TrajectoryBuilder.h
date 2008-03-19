@@ -2,10 +2,10 @@
 #define TrackingTools_PatternTools_TrajectoryBuilder_h
 
 #include "TrackingTools/PatternTools/interface/TrajectoryMeasurement.h"
+#include "TrackingTools/PatternTools/interface/Trajectory.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-class Trajectory;
 class TrajectorySeed;
 
 /** The component of track reconstruction that, strating from a seed,
@@ -24,6 +24,11 @@ public:
   virtual ~TrajectoryBuilder() {};
 
   virtual TrajectoryContainer trajectories(const TrajectorySeed&) const = 0;
+
+  virtual void trajectories(const TrajectorySeed& seed, TrajectoryContainer &out) const {
+        TrajectoryContainer ret = trajectories(seed);
+        out.swap(ret);
+  }
 
   /** Interface for trajectories re-building in the seeding region method.
       It has to be correctly implemented in the concrete class
