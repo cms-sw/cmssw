@@ -6,8 +6,8 @@
  *  This is necessary e.g. when the seed introduced a bias (by using
  *  a beam contraint etc.). Ported from ORCA
  *
- *  $Date: 2007/05/09 14:17:57 $
- *  $Revision: 1.9 $
+ *  $Date: 2008/02/11 11:58:46 $
+ *  $Revision: 1.10 $
  *  \author todorov, cerati
  */
 
@@ -55,7 +55,7 @@ private:
   int theMinNumberOfHits;
   bool rejectTracksFlag;
   
-  std::vector<Trajectory> smoothingStep(std::vector<Trajectory>& fitted) const;
+  void smoothingStep(std::vector<Trajectory>& fitted, std::vector<Trajectory> & smoothed) const;
   TrajectoryStateWithArbitraryError   tsosWithError;
   
 };

@@ -18,11 +18,12 @@ KFFittingSmoother::~KFFittingSmoother() {
 
 vector<Trajectory> 
 KFFittingSmoother::fit(const Trajectory& t) const {
-  
-  if(!t.isValid()) return vector<Trajectory>();
-
-  vector<Trajectory> fitted = fitter()->fit(t);
-  return smoothingStep(fitted);
+  vector<Trajectory> smoothed;
+  if(t.isValid()) { 
+    vector<Trajectory> fitted = fitter()->fit(t);
+    smoothingStep(fitted, smoothed);
+  }
+  return smoothed;
 }
 
 vector<Trajectory> KFFittingSmoother::
@@ -32,15 +33,17 @@ fit(const TrajectorySeed& aSeed,
 {
   LogDebug("TrackFitters") << "In KFFittingSmoother::fit";
 
-  if(hits.empty()) return vector<Trajectory>();
+  //if(hits.empty()) return vector<Trajectory>(); // gio: moved later to optimize return value
   
   bool hasoutliers;
   RecHitContainer myHits = hits; 
   vector<Trajectory> smoothed;
   vector<Trajectory> tmp_first;
 
-  do{//if no outliers the fit is done only once
+  do{
+    if(hits.empty()) { smoothed.clear(); break; }
 
+    //if no outliers the fit is done only once
     //for (unsigned int j=0;j<myHits.size();j++) { 
     //if (myHits[j]->det()) 
     //LogTrace("TrackFitters") << "hit #:" << j+1 << " rawId=" << myHits[j]->det()->geographicalId().rawId() 
@@ -57,74 +60,85 @@ fit(const TrajectorySeed& aSeed,
     //call the fitter
     vector<Trajectory> fitted = fitter()->fit(aSeed, myHits, firstPredTsos);
     //call the smoother
-    smoothed = smoothingStep(fitted);
+    smoothed.clear();
+    smoothingStep(fitted, smoothed);
 
-    if (tmp_first.size()==0) tmp_first = smoothed;
+    //if (tmp_first.size()==0) tmp_first = smoothed; moved later
     
-    if (smoothed.size()==0) {
+    if (smoothed.empty()) {
 	if (rejectTracksFlag){
 	  LogTrace("TrackFitters") << "smoothed.size()==0 => trajectory rejected";
-	  return vector<Trajectory>();
+	  //return vector<Trajectory>(); // break is enough to get this
 	} else {
 	  LogTrace("TrackFitters") << "smoothed.size()==0 => returning orignal trajectory" ;
-	  return tmp_first;
+          smoothed.swap(tmp_first); // if first attempt, tmp_first would be empty anyway
 	}
+        break;
     }
 
     if (theEstimateCut>0) {
       if (smoothed[0].foundHits()<theMinNumberOfHits) {
 	if (rejectTracksFlag){
 	  LogTrace("TrackFitters") << "smoothed[0].foundHits()<theMinNumberOfHits => trajectory rejected";
-	  return vector<Trajectory>();
+          smoothed.clear();
+	  //return vector<Trajectory>(); // break is enough
 	} else {
+          // it might be it's the first step
+          if (!tmp_first.empty()) { tmp_first.swap(smoothed); } 
 	  LogTrace("TrackFitters") 
 	    << "smoothed[0].foundHits()<theMinNumberOfHits => returning orignal trajectory with chi2=" 
-	    <<  tmp_first[0].chiSquared() ;
-	  return tmp_first;
+	    <<  smoothed[0].chiSquared() ;
 	}
+        break;
       }
       //check if there are outliers
-      std::vector<TrajectoryMeasurement> vtm = smoothed[0].measurements();
-      for (std::vector<TrajectoryMeasurement>::iterator tm=vtm.begin(); tm!=vtm.end();tm++){
+      const std::vector<TrajectoryMeasurement> & vtm = smoothed[0].measurements();
+      for (std::vector<TrajectoryMeasurement>::const_iterator tm=vtm.begin(); tm!=vtm.end();tm++){
 	double estimate = tm->estimate();
 	if (estimate > cut) {
 	  hasoutliers = true;
 	  cut = estimate;
-	  outlierId = tm->recHit()->det()->geographicalId().rawId();
-	  outlierDet = tm->recHit()->det();
+	  outlierId  = tm->recHit()->geographicalId().rawId();
+          outlierDet = tm->recHit()->det();
 	}
       }
       if (hasoutliers) {//reject outliers
 	for (unsigned int j=0;j<myHits.size();++j) 
-	  if (myHits[j]->det()!=0 && outlierId==myHits[j]->det()->geographicalId().rawId()){
+	  if (outlierId == myHits[j]->geographicalId().rawId()){
 	    LogTrace("TrackFitters") << "Rejecting outlier hit  with estimate " << cut << " at position " 
-				     << j << " with rawId=" << myHits[j]->det()->geographicalId().rawId();
+				     << j << " with rawId=" << myHits[j]->geographicalId().rawId();
 	    LogTrace("TrackFitters") << "The fit will be repeated without the outlier";
-	    myHits.erase(myHits.begin()+j);
-	    myHits.insert(myHits.begin()+j,InvalidTransientRecHit::build(outlierDet, TrackingRecHit::missing) );
+	    myHits[j] = InvalidTransientRecHit::build(outlierDet, TrackingRecHit::missing);
 	  }
       }
     }
+    if ( hasoutliers &&        // otherwise there won't be a 'next' loop where tmp_first could be useful 
+         !rejectTracksFlag &&  // othewrise we won't ever need tmp_first
+         tmp_first.empty() ) { // only at first step
+        smoothed.swap(tmp_first);
+    }
+         
   } while(hasoutliers);
-  LogTrace("TrackFitters") << "no outliers: returning smoothed trajectory with chi2=" 
-			   << smoothed[0].chiSquared() ;
+  if (!smoothed.empty()) {
+      LogTrace("TrackFitters") << "end: returning smoothed trajectory with chi2=" 
+                               << smoothed[0].chiSquared() ;
+  }
   return smoothed;
 }
 
 
-vector<Trajectory> 
-KFFittingSmoother::smoothingStep(vector<Trajectory>& fitted) const
+void 
+KFFittingSmoother::smoothingStep(vector<Trajectory>& fitted, vector<Trajectory> &smoothed) const
 {
-  vector<Trajectory> result; 
-  
+ 
   for(vector<Trajectory>::iterator it = fitted.begin(); it != fitted.end();
       it++) {
-    vector<Trajectory> smoothed = smoother()->trajectories(*it);
-    result.insert(result.end(), smoothed.begin(), smoothed.end());
+    vector<Trajectory> mysmoothed = smoother()->trajectories(*it);
+    smoothed.insert(smoothed.end(), mysmoothed.begin(), mysmoothed.end());
   }
-  LogDebug("TrackFitters") << "In KFFittingSmoother::smoothingStep "<<result.size();
-  return result;
+  LogDebug("TrackFitters") << "In KFFittingSmoother::smoothingStep "<<smoothed.size();
 }
+
 vector<Trajectory> KFFittingSmoother::fit(const TrajectorySeed& aSeed,
 					   const RecHitContainer& hits) const{
 

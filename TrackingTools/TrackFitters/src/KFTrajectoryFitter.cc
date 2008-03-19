@@ -65,7 +65,9 @@ std::vector<Trajectory> KFTrajectoryFitter::fit(const TrajectorySeed& aSeed,
   }
   LogTrace("TrackFitters") << " INITIAL STATE "<< firstPredTsos;
 
-  Trajectory myTraj(aSeed, thePropagator->propagationDirection());
+  std::vector<Trajectory> ret(1, Trajectory(aSeed, thePropagator->propagationDirection()));
+  Trajectory & myTraj = ret.front();
+  myTraj.reserve(hits.size());
 
   TSOS predTsos(firstPredTsos);
   TSOS currTsos;
@@ -168,6 +170,6 @@ std::vector<Trajectory> KFTrajectoryFitter::fit(const TrajectorySeed& aSeed,
   }  
   LogDebug("TrackFitters") << "Found 1 trajectory with " << myTraj.foundHits() << " valid hits\n";
   
-  return std::vector<Trajectory>(1, myTraj);
+  return ret;
 }
 

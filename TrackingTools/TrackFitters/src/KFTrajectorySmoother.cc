@@ -20,20 +20,24 @@ KFTrajectorySmoother::~KFTrajectorySmoother() {
 
 std::vector<Trajectory> 
 KFTrajectorySmoother::trajectories(const Trajectory& aTraj) const {
+  // let's try to get return value optimization
+  // the 'standard' case is when we return 1 tractory
+  std::vector<Trajectory> ret(1, Trajectory(aTraj.seed(), thePropagator->propagationDirection()));
+  Trajectory & myTraj = ret.front();
 
-  if(aTraj.empty()) return std::vector<Trajectory>();
+
+  if(aTraj.empty()) { ret.clear(); return ret; } 
 
   if (  aTraj.direction() == alongMomentum) {
     thePropagator->setPropagationDirection(oppositeToMomentum);
-  }
-  else {
+  } else {
     thePropagator->setPropagationDirection(alongMomentum);
   }
 
-  Trajectory myTraj(aTraj.seed(), thePropagator->propagationDirection());
-
-  std::vector<TM> avtm = aTraj.measurements();
+  const std::vector<TM> & avtm = aTraj.measurements();
   LogDebug("TrackFitters") << "KFTrajectorySmoother::trajectories starting with " << avtm.size() << " HITS\n";
+
+  myTraj.reserve(avtm.size());
 
   for (unsigned int j=0;j<avtm.size();j++) { 
     if (avtm[j].recHit()->det()) 
@@ -50,7 +54,7 @@ KFTrajectorySmoother::trajectories(const Trajectory& aTraj) const {
   TrajectoryStateCombiner combiner;
 
   unsigned int hitcounter = avtm.size();
-  for(std::vector<TM>::reverse_iterator itm = avtm.rbegin(); itm != (avtm.rend()); ++itm,--hitcounter) {
+  for(std::vector<TM>::const_reverse_iterator itm = avtm.rbegin(); itm != (avtm.rend()); ++itm,--hitcounter) {
 
     TransientTrackingRecHit::ConstRecHitPointer hit = itm->recHit();
 
@@ -67,11 +71,11 @@ KFTrajectorySmoother::trajectories(const Trajectory& aTraj) const {
       LogDebug("TrackFitters") << "KFTrajectorySmoother: predicted tsos not valid!";
       if( myTraj.foundHits() >= minHits_ ) {
 	LogDebug("TrackFitters") << " breaking trajectory" << "\n";
-	break;      
       } else {        
-	LogDebug("TrackFitters") << " killing trajectory" << "\n";       
-	return std::vector<Trajectory>();
+	LogDebug("TrackFitters") << " killing trajectory" << "\n";      
+        ret.clear(); 
       }
+      break;      
     }
 
     if(hit->isValid()) {
@@ -124,11 +128,11 @@ KFTrajectorySmoother::trajectories(const Trajectory& aTraj) const {
 	  "TrackingRecHit: " << hit->surface()->toGlobal(hit->localPosition()) << "\n" ;
 	if( myTraj.foundHits() >= minHits_ ) {
 	  LogDebug("TrackFitters") << " breaking trajectory" << "\n";
-	  break;      
 	} else {        
 	  LogDebug("TrackFitters") << " killing trajectory" << "\n";       
-	  return std::vector<Trajectory>();
-	}
+          ret.clear(); 
+        }
+        break;      
       }
 
       TransientTrackingRecHit::RecHitPointer preciseHit = hit->clone(combTsos);
@@ -152,11 +156,11 @@ KFTrajectorySmoother::trajectories(const Trajectory& aTraj) const {
 	  LogDebug("TrackFitters") << "KFTrajectorySmoother: smoothed tsos not valid!";
 	  if( myTraj.foundHits() >= minHits_ ) {
 	    LogDebug("TrackFitters") << " breaking trajectory" << "\n";
-	    break;      
 	  } else {        
 	    LogDebug("TrackFitters") << " killing trajectory" << "\n";       
-	    return std::vector<Trajectory>();
+            ret.clear(); 
 	  }
+          break;
 	}
 	
 	double estimate;
@@ -195,7 +199,7 @@ KFTrajectorySmoother::trajectories(const Trajectory& aTraj) const {
       if(!combTsos.isValid()) {
     	LogDebug("TrackFitters") << 
     	  "KFTrajectorySmoother: combined tsos not valid!";
-    	return std::vector<Trajectory>();
+        ret.clear(); break;
       }
       
       myTraj.push(TM(itm->forwardPredictedState(),
@@ -203,8 +207,8 @@ KFTrajectorySmoother::trajectories(const Trajectory& aTraj) const {
     		     combTsos,
     		     hit));
     }
-  }
+  } // for loop
 
-  return std::vector<Trajectory>(1, myTraj); 
+  return ret; 
   
 }
