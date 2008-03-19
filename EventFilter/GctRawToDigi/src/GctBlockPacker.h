@@ -14,6 +14,9 @@
 #include "DataFormats/L1GlobalCaloTrigger/interface/L1GctEtSums.h"
 #include "DataFormats/L1GlobalCaloTrigger/interface/L1GctJetCounts.h"
 
+// Sourcecard routing
+#include "L1Trigger/TextToDigi/src/SourceCardRouting.h"
+
 
 class GctBlockPacker
 {
@@ -42,15 +45,46 @@ class GctBlockPacker
                                    const L1GctEmCandCollection* nonIso, const L1GctEtTotal* etTotal,
                                    const L1GctEtHad* etHad, const L1GctEtMiss* etMiss);
 
+  /// Writes the 4 RCT EM Candidate blocks.
+  void writeRctEmCandBlocks(unsigned char * d, const L1CaloEmCollection * rctEm);
+
+  /// Writes the giant hack that is the RCT Calo Regions block.
+  void writeRctCaloRegionBlock(unsigned char * d, const L1CaloRegionCollection * rctCalo);
+
  private:
 
   /// An enum for use with central, forward, and tau jet cand collections vector(s).
   /*! Note that the order here mimicks the order in the RAW data format. */
   enum JetCandCatagory { TAU_JETS, FORWARD_JETS, CENTRAL_JETS, NUM_JET_CATAGORIES };
 
+  /// Typedef for mapping block ID to the first RCT crate in that block
+  typedef std::map<unsigned int, unsigned int> RctCrateMap;
+  
   uint32_t bcid_;
   uint32_t evid_;
   
+  /// Source card mapping info
+  SourceCardRouting srcCardRouting_;
+
+  /// Map to relate capture block ID to the RCT crate the data originated from.
+  static RctCrateMap rctCrate_;
+  
+  /// Struct of all data needed for running the emulator to SFP (sourcecard optical output) conversion.
+  struct EmuToSfpData
+  {
+    // Input data.
+    unsigned short eIsoRank[4];
+    unsigned short eIsoCardId[4];
+    unsigned short eIsoRegionId[4];
+    unsigned short eNonIsoRank[4];
+    unsigned short eNonIsoCardId[4];
+    unsigned short eNonIsoRegionId[4];
+    unsigned short mipBits[7][2];
+    unsigned short qBits[7][2];
+    // Output data.
+    unsigned short sfp[2][4]; // [ cycle ] [ output number ]
+  };
+
 };
 
 #endif
