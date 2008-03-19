@@ -554,7 +554,7 @@ class PFRootEventManager {
   bool   doParticleFlow_;
 
   /// jets on/off
-  int   doJets_;
+  bool   doJets_;
   
   /// jet algo type
   int    jetAlgoType_;
