@@ -2,11 +2,16 @@
 
 // C++ headers
 #include <cassert>
+#include <iostream>
 
-// CMSSW headers
+// Framework headers
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+
+// GctRawToDigi headers
 #include "EventFilter/GctRawToDigi/src/GctBlockHeaderV2.h"
 
 // Namespace resolution
+using std::endl;
 using std::vector;
 
 // INITIALISE STATICS
