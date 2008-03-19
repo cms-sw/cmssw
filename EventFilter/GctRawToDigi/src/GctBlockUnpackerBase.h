@@ -26,8 +26,8 @@
 * with older data.
 *
 * \author Robert Frazier
-* $Revision: $
-* $Date: $
+* $Revision: 1.3 $
+* $Date: 2008/03/19 13:35:34 $
 */ 
 
 
@@ -48,7 +48,7 @@ public:
 
   /// Constructor.
   /*! \param hltMode - set true to unpack only BX zero and GCT output data (i.e. to run as quick as possible).*/
-  GctBlockUnpackerBase(bool hltMode = false);
+  explicit GctBlockUnpackerBase(bool hltMode = false);
   
   virtual ~GctBlockUnpackerBase(); ///< Destructor.
   
@@ -100,12 +100,6 @@ protected:
    *  Internal EM cands in the pipeline, as this differs with Block ID. */ 
   static BlockIdToEmCandIsoBoundMap InternEmIsoBounds_;
 
-  /// If true, unpack only BX zero and GCT output data (i.e. to run as quickly as possible) 
-  bool hltMode_;
-
-  /// Source card mapping info
-  SourceCardRouting srcCardRouting_;
-
   // collections of RCT objects
   L1CaloEmCollection* rctEm_;  ///< RCT EM cands
   L1CaloRegionCollection* rctCalo_;  ///< RCT Calo regions
@@ -121,7 +115,10 @@ protected:
   L1GctEtHad* gctEtHad_;  /// Total Ht
   L1GctEtMiss* gctEtMiss_;  /// Missing Et
 
+
   // PROTECTED METHODS
+
+  bool hltMode() const { return hltMode_; }  ///< Protected interface to get HLT optimisation mode flag.
 
   /// Performs checks on the block header to see if the block is possible to unpack or not.
   bool checkBlock(const GctBlockHeaderBase& hdr);
@@ -144,6 +141,16 @@ protected:
   
   /// Do nothing
   void blockDoNothing(const unsigned char * d, const GctBlockHeaderBase& hdr) {}
+
+private:
+
+  // PRIVATE MEMBER DATA
+
+  /// If true, unpack only BX zero and GCT output data (i.e. to run as quickly as possible) 
+  bool hltMode_;
+
+  /// Source card mapping info
+  SourceCardRouting srcCardRouting_;
 
 };
 

@@ -76,9 +76,12 @@ void GctBlockUnpacker::blockToGctJetCand(const unsigned char * d, const GctBlock
   
   const unsigned int id = hdr.id();  // Capture block ID.
   const unsigned int nSamples = hdr.nSamples();  // Number of time-samples.
-  
+
   const unsigned int catagoryOffset = nSamples * 4;  // Offset to jump from one jet catagory to the next.
   const unsigned int timeSampleOffset = nSamples * 2;  // Offset to jump to next candidate pair in the same time-sample.
+
+  unsigned int samplesToUnpack = 1;
+  if(!hltMode()) { samplesToUnpack = nSamples; }  // Only if not running in HLT mode do we want more than 1 timesample. 
 
   // Re-interpret block payload pointer to 16 bits so it sees one candidate at a time.
   // p points to the start of the block payload, at the rank0 tau jet candidate.
@@ -93,7 +96,7 @@ void GctBlockUnpacker::blockToGctJetCand(const unsigned char * d, const GctBlock
     bool forwardFlag = (iCat == FORWARD_JETS);
     
     // Loop over the different timesamples (bunch crossings).
-    for(unsigned int bx = 0 ; bx < nSamples ; ++bx)
+    for(unsigned int bx = 0 ; bx < samplesToUnpack ; ++bx)
     {
       // cand0Offset will give the offset on p to get the rank 0 Jet Cand of the correct catagory and timesample.
       const unsigned int cand0Offset = iCat*catagoryOffset + bx*2;
@@ -114,9 +117,8 @@ void GctBlockUnpacker::blockToGctJetCounts(const unsigned char * d, const GctBlo
 {
   LogDebug("GCT") << "Unpacking GCT output Jet Counts" << std::endl;
   
-  /* 
-   * Note that we are only unpacking one timesample of these, because the dataformat for
-   * jet counts does not have timesample support. 
+  /*
+   * Currently only unpacking one timesample of these!
    */
   
   // Re-interpret block payload pointer to 32 bits so it sees six jet counts at a time.
@@ -139,6 +141,9 @@ void GctBlockUnpacker::blockToGctEmCand(const unsigned char * d, const GctBlockH
   const unsigned int catagoryOffset = nSamples * 4;  // Offset to jump from the non-iso electrons to the isolated ones.
   const unsigned int timeSampleOffset = nSamples * 2;  // Offset to jump to next candidate pair in the same time-sample.
 
+  unsigned int samplesToUnpack = 1;
+  if(!hltMode()) { samplesToUnpack = nSamples; }  // Only if not running in HLT mode do we want more than 1 timesample. 
+
   // Re-interpret pointer.  p will be pointing at the 16 bit word that
   // contains the rank0 non-isolated electron of the zeroth time-sample. 
   const uint16_t * p = reinterpret_cast<const uint16_t *>(d);
@@ -152,7 +157,7 @@ void GctBlockUnpacker::blockToGctEmCand(const unsigned char * d, const GctBlockH
     if (isoFlag) { em = gctIsoEm_; }
     else { em = gctNonIsoEm_; }
 
-    for (unsigned int bx=0; bx<nSamples; ++bx) // loop over time samples
+    for (unsigned int bx=0 ; bx<samplesToUnpack ; ++bx) // loop over time samples
     {
       // cand0Offset will give the offset on p to get the rank 0 candidate
       // of the correct catagory and timesample.
@@ -171,8 +176,7 @@ void GctBlockUnpacker::blockToGctEnergySums(const unsigned char * d, const GctBl
   LogDebug("GCT") << "Unpacking GCT output Energy Sums" << std::endl;
   
   /* 
-   * Note that we are only unpacking one timesample of these, because the relevant dataformats
-   * do not have timesample support. 
+   * Currently only unpacking one timesample of these!
    */
   
   // Re-interpret block payload pointer to both 16 and 32 bits.

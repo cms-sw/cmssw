@@ -83,6 +83,9 @@ bool GctBlockUnpackerBase::checkBlock(const GctBlockHeaderBase& hdr)
 // Internal EM Candidates unpacking
 void GctBlockUnpackerBase::blockToGctInternEmCand(const unsigned char * d, const GctBlockHeaderBase& hdr)
 {
+  // Don't want to do this in HLT optimisation mode!
+  if(hltMode()) { LogDebug("GCT") << "HLT mode - skipping unpack of internal EM Cands" << std::endl; return; }
+  
   LogDebug("GCT") << "Unpacking internal EM Cands" << std::endl;
 
   unsigned int id = hdr.id();
@@ -123,6 +126,9 @@ void GctBlockUnpackerBase::blockToGctInternEmCand(const unsigned char * d, const
 // this is the last time I deal the RCT bit assignment travesty!!!
 void GctBlockUnpackerBase::blockToRctEmCand(const unsigned char * d, const GctBlockHeaderBase& hdr)
 {
+  // Don't want to do this in HLT optimisation mode!
+  if(hltMode()) { LogDebug("GCT") << "HLT mode - skipping unpack of RCT EM Cands" << std::endl; return; }
+  
   LogDebug("GCT") << "Unpacking RCT EM Cands" << std::endl;
 
   unsigned int id = hdr.id();
@@ -177,6 +183,9 @@ void GctBlockUnpackerBase::blockToRctEmCand(const unsigned char * d, const GctBl
 // Fibre unpacking
 void GctBlockUnpackerBase::blockToFibres(const unsigned char * d, const GctBlockHeaderBase& hdr)
 {
+  // Don't want to do this in HLT optimisation mode!
+  if(hltMode()) { LogDebug("GCT") << "HLT mode - skipping unpack of GCT Fibres" << std::endl; return; }
+
   LogDebug("GCT") << "Unpacking GCT Fibres" << std::endl;
   
   unsigned int id = hdr.id();
@@ -202,6 +211,9 @@ void GctBlockUnpackerBase::blockToFibresAndToRctEmCand(const unsigned char * d, 
 
 void GctBlockUnpackerBase::blockToRctCaloRegions(const unsigned char * d, const GctBlockHeaderBase& hdr)
 {
+  // Don't want to do this in HLT optimisation mode!
+  if(hltMode()) { LogDebug("GCT") << "HLT mode - skipping unpack of RCT Calo Regions" << std::endl; return; }
+
   // This method is one giant "temporary" hack whilst waiting for proper
   // pipeline formats for the RCT calo region data.
   

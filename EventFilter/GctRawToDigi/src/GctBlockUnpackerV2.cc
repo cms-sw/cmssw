@@ -181,6 +181,9 @@ void GctBlockUnpackerV2::blockToGctEmCandsAndEnergySums(const unsigned char * d,
   const unsigned int emCandCatagoryOffset = nSamples * 4;  // Offset to jump from the non-iso electrons to the isolated ones.
   const unsigned int timeSampleOffset = nSamples * 2;  // Offset to jump to next candidate pair in the same time-sample.
 
+  unsigned int samplesToUnpack = 1;
+  if(!hltMode()) { samplesToUnpack = nSamples; }  // Only if not running in HLT mode do we want more than 1 timesample. 
+
   for (unsigned int iso=0; iso<2; ++iso)  // loop over non-iso/iso candidate pairs
   {
     bool isoFlag = (iso==1);
@@ -190,7 +193,7 @@ void GctBlockUnpackerV2::blockToGctEmCandsAndEnergySums(const unsigned char * d,
     if (isoFlag) { em = gctIsoEm_; }
     else { em = gctNonIsoEm_; }
 
-    for (unsigned int bx=0; bx<nSamples; ++bx) // loop over time samples
+    for (unsigned int bx=0; bx<samplesToUnpack; ++bx) // loop over time samples
     {
       // cand0Offset will give the offset on p16 to get the rank 0 candidate
       // of the correct catagory and timesample.
@@ -206,8 +209,7 @@ void GctBlockUnpackerV2::blockToGctEmCandsAndEnergySums(const unsigned char * d,
   p16 += emCandCatagoryOffset * 2;  // Move the pointer over the data we've already unpacked.
 
   // UNPACK ENERGY SUMS
-  /* NOTE: we are only unpacking one timesample of these, because the
-   * relevant dataformats do not have timesample support yet. */
+  // NOTE: we are only unpacking one timesample of these currently!
 
   *gctEtTotal_ = L1GctEtTotal(p16[0]);  // Et total (timesample 0).
   *gctEtHad_ = L1GctEtHad(p16[1]);  // Et hadronic (timesample 0).
@@ -234,6 +236,9 @@ void GctBlockUnpackerV2::blockToGctJetCandsAndCounts(const unsigned char * d, co
   const unsigned int jetCandCatagoryOffset = nSamples * 4;  // Offset to jump from one jet catagory to the next.
   const unsigned int timeSampleOffset = nSamples * 2;  // Offset to jump to next candidate pair in the same time-sample.
 
+  unsigned int samplesToUnpack = 1;
+  if(!hltMode()) { samplesToUnpack = nSamples; }  // Only if not running in HLT mode do we want more than 1 timesample. 
+
   // Loop over the different catagories of jets
   for(unsigned int iCat = 0 ; iCat < NUM_JET_CATAGORIES ; ++iCat)
   {
@@ -243,7 +248,7 @@ void GctBlockUnpackerV2::blockToGctJetCandsAndCounts(const unsigned char * d, co
     bool forwardFlag = (iCat == FORWARD_JETS);
 
     // Loop over the different timesamples (bunch crossings).
-    for(unsigned int bx = 0 ; bx < nSamples ; ++bx)
+    for(unsigned int bx = 0 ; bx < samplesToUnpack ; ++bx)
     {
       // cand0Offset will give the offset on p16 to get the rank 0 Jet Cand of the correct catagory and timesample.
       const unsigned int cand0Offset = iCat*jetCandCatagoryOffset + bx*2;
@@ -262,8 +267,7 @@ void GctBlockUnpackerV2::blockToGctJetCandsAndCounts(const unsigned char * d, co
   p16 += NUM_JET_CATAGORIES * jetCandCatagoryOffset; // Move the pointer over the data we've already unpacked.
 
   // UNPACK JET COUNTS
-  /* NOTE: we are only unpacking one timesample of these, because the
-   * dataformat for jet counts does not have timesample support yet. */
+  // NOTE: we are only unpacking one timesample of these currently!
 
   // Re-interpret block payload pointer to 32 bits so it sees six jet counts at a time.
   const uint32_t * p32 = reinterpret_cast<const uint32_t *>(p16);
