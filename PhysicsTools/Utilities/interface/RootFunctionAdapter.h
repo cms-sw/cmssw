@@ -3,6 +3,8 @@
 #include <vector>
 #include <boost/shared_ptr.hpp>
 #include "TF1.h"
+#include "TCanvas.h"
+#include "PhysicsTools/Utilities/interface/Parameter.h"
 
 namespace root {
   namespace helper {
@@ -30,7 +32,7 @@ namespace root {
     struct RootFunctionAdapter {
       RootFunctionAdapter() : f_(0) { }
       RootFunctionAdapter(F & f) : f_(&f) { }
-      void addParameter(boost::shared_ptr<double> par) {
+      void addParameter(const boost::shared_ptr<double> & par) {
 	pars_.push_back(par);
       }
       void setParameters(const double * pars) {
@@ -44,7 +46,7 @@ namespace root {
       size_t numberOfParameters() const {
 	return pars_.size();
       }
-      private:
+    private:
       F * f_;
       std::vector<boost::shared_ptr<double> > pars_;
     };
@@ -56,7 +58,7 @@ namespace root {
 	adapter_ = RootFunctionAdapter<F>(f); 
 	return &fun_; 
       }
-      static void addParameter(boost::shared_ptr<double> par) {
+      static void addParameter(const boost::shared_ptr<double> & par) {
 	adapter_.addParameter(par);
       }
     private:
@@ -80,7 +82,7 @@ namespace root {
   template<typename F>
   typename helper::RootFunctionHelper<F>::root_function 
   function(F& f, 
-	   boost::shared_ptr<double> p0) {
+	   const function::Parameter & p0) {
     typename helper::RootFunctionHelper<F>::root_function 
       fun = helper::RootFunctionHelper<F>::fun(f);
     helper::RootFunctionHelper<F>::addParameter(p0);
@@ -90,8 +92,8 @@ namespace root {
   template<typename F>
   typename helper::RootFunctionHelper<F>::root_function 
     function(F& f, 
-	     boost::shared_ptr<double> p0,
-	     boost::shared_ptr<double> p1) {
+	     const function::Parameter & p0,
+	     const function::Parameter & p1) {
     typename helper::RootFunctionHelper<F>::root_function 
       fun = helper::RootFunctionHelper<F>::fun(f);
     helper::RootFunctionHelper<F>::addParameter(p0);
@@ -102,9 +104,9 @@ namespace root {
   template<typename F>
   typename helper::RootFunctionHelper<F>::root_function 
   function(F& f, 
-	   boost::shared_ptr<double> p0,
-	   boost::shared_ptr<double> p1,
-	   boost::shared_ptr<double> p2) {
+	   const function::Parameter & p0,
+	   const function::Parameter & p1,
+	   const function::Parameter & p2) {
     typename helper::RootFunctionHelper<F>::root_function 
       fun = helper::RootFunctionHelper<F>::fun(f);
     helper::RootFunctionHelper<F>::addParameter(p0);
@@ -135,31 +137,31 @@ namespace root {
 
   template<typename F>
   TF1 tf1(const char * name, F& f, double min, double max,
-	  boost::shared_ptr<double> p0) {
+	  const function::Parameter & p0) {
     TF1 fun(name, root::function(f, p0), min, max, 1);
-    fun.SetParameter(0, *p0);
+    fun.SetParameter(0, *p0.ptr());
     return fun;
   }
 
   template<typename F>
   TF1 tf1(const char * name, F& f, double min, double max,
-	  boost::shared_ptr<double> p0,
-	  boost::shared_ptr<double> p1) {
+	  const function::Parameter & p0,
+	  const function::Parameter & p1) {
     TF1 fun(name, root::function(f, p0, p1), min, max, 2);
-    fun.SetParameter(0, *p0);
-    fun.SetParameter(1, *p1);
+    fun.SetParameter(0, *p0.ptr());
+    fun.SetParameter(1, *p1.ptr());
     return fun;
   }
 
   template<typename F>
   TF1 tf1(const char * name, F& f, double min, double max,
-	  boost::shared_ptr<double> p0,
-	  boost::shared_ptr<double> p1,
-	  boost::shared_ptr<double> p2) {
+	  const function::Parameter & p0,
+	  const function::Parameter & p1,
+	  const function::Parameter & p2) {
     TF1 fun(name, root::function(f, p0, p1, p2), min, max, 3);
-    fun.SetParameter(0, *p0);
-    fun.SetParameter(1, *p1);
-    fun.SetParameter(2, *p2);
+    fun.SetParameter(0, *p0.ptr());
+    fun.SetParameter(1, *p1.ptr());
+    fun.SetParameter(2, *p2.ptr());
     return fun;
   }
 
@@ -170,9 +172,64 @@ namespace root {
     for(size_t i = 0; i < p.size(); ++i)
       fun.SetParameter(i, *p[i]);
     return fun;
+  }  
+
+  inline void plotTF1(const char * name, TF1 & fun, TH1 & histo, 
+		      double min, double max,
+		      Color_t lineColor = kRed, Width_t lineWidth = 1,
+		      Style_t lineStyle = kDashed) {
+    fun.SetLineColor(lineColor);
+    fun.SetLineWidth(lineWidth);
+    fun.SetLineStyle(lineStyle);
+    TCanvas *canvas = new TCanvas("canvas");
+    histo.Draw("e");
+    fun.Draw("same");	
+    std::string plotName = name;
+    canvas->SaveAs(plotName.c_str());
+    canvas->SetLogy();
+    std::string logPlotName = "log_" + plotName;
+    canvas->SaveAs(logPlotName.c_str());
   }
-  
-  namespace helper {
+
+  template<typename F>
+  void plot(const char * name, TH1 & histo, F& f, double min, double max,
+	    Color_t lineColor = kRed, Width_t lineWidth = 1,
+	    Style_t lineStyle = kDashed) {
+    TF1 fun = root::tf1("fun", f, min, max);
+    plotTF1(name, fun, histo, min, max, lineColor, lineWidth, lineStyle);
+  }
+
+  template<typename F>
+  void plot(const char * name, TH1 & histo, F& f, double min, double max,
+	    const function::Parameter & p0,
+	    Color_t lineColor = kRed, Width_t lineWidth = 1,
+	    Style_t lineStyle = kDashed) {
+    TF1 fun = root::tf1("fun", f, min, max, p0);
+    plotTF1(name, fun, histo, min, max, lineColor, lineWidth, lineStyle);
+  }
+
+  template<typename F>
+  void plot(const char * name, TH1 & histo, F& f, double min, double max,
+	    const function::Parameter & p0, 
+	    const function::Parameter & p1,
+	    Color_t lineColor = kRed, Width_t lineWidth = 1,
+	    Style_t lineStyle = kDashed) {
+    TF1 fun = root::tf1("fun", f, min, max, p0, p1);
+    plotTF1(name, fun, histo, min, max, lineColor, lineWidth, lineStyle);
+  }
+
+  template<typename F>
+  void plot(const char * name, TH1 & histo, F& f, double min, double max,
+	    const function::Parameter & p0, 
+	    const function::Parameter & p1,
+	    const function::Parameter & p2,
+	    Color_t lineColor = kRed, Width_t lineWidth = 1,
+	    Style_t lineStyle = kDashed) {
+    TF1 fun = root::tf1("fun", f, min, max, p0, p1, p2);
+    plotTF1(name, fun, histo, min, max, lineColor, lineWidth, lineStyle);
+  }
+
+   namespace helper {
 
     template<typename F>
     struct RootGradientHelper {

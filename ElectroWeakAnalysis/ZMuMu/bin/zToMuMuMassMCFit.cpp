@@ -19,14 +19,13 @@
 #include "TROOT.h"
 #include <boost/shared_ptr.hpp>
 #include <boost/program_options.hpp>
-using namespace boost;
-namespace po = boost::program_options;
-
 #include <iostream>
 #include <algorithm> 
 #include <iterator>
 #include <string>
 #include <vector>
+using namespace boost;	
+namespace po = boost::program_options;
 using namespace std;
 using namespace ::function;
 
@@ -143,23 +142,11 @@ int main(int ac, char *av[]) {
 	cout << "N. deg. of freedom: " << fullBins << endl;
 	fit::RootMinuit<ChiSquared> minuit(chi2, true);
 	minuit.addParameter(yield, 10, 100, 100000);
-	minuit.addParameter( mass, .1, 70., 110);
+	minuit.addParameter(mass, .1, 70., 110);
 	minuit.addParameter(gamma, 1, 1, 10);
 	minuit.minimize();
 	minuit.printFitResults();
-	TF1 fun = root::tf1("fun", f, fMin, fMax, yield, mass, gamma);
-	fun.SetParNames(yield.name().c_str(), mass.name().c_str(), gamma.name().c_str());
-	fun.SetLineColor(kRed);
-	fun.SetLineWidth(2);
-	fun.SetLineStyle(kDashed);
-	TCanvas *canvas = new TCanvas("canvas");
-	zMass->Draw("e");
-	fun.Draw("same");	
-	string epsFilename = "ZMuMuMassMCFitBW_" + v_eps[i];
-	canvas->SaveAs(epsFilename.c_str());
-	canvas->SetLogy();
-	string epsLogFilename = "ZMuMuMassMCFitBW_Log_" + v_eps[i];
-	canvas->SaveAs(epsLogFilename.c_str());
+	root::plot("ZMuMuMassMCFitBW.eps", *zMass, f, fMin, fMax, yield, mass, gamma);
       }
     }
     
