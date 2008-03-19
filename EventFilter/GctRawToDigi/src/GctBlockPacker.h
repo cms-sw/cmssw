@@ -55,7 +55,7 @@ class GctBlockPacker
 
   /// An enum for use with central, forward, and tau jet cand collections vector(s).
   /*! Note that the order here mimicks the order in the RAW data format. */
-  enum JetCandCatagory { TAU_JETS, FORWARD_JETS, CENTRAL_JETS, NUM_JET_CATAGORIES };
+  enum JetCandCatagory { TAU_JETS, FORWARD_JETS, CENTRAL_JETS, NUM_JET_CATEGORIES };
 
   /// Typedef for mapping block ID to the first RCT crate in that block
   typedef std::map<unsigned int, unsigned int> RctCrateMap;

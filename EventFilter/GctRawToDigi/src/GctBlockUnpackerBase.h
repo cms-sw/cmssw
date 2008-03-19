@@ -26,8 +26,8 @@
 * with older data.
 *
 * \author Robert Frazier
-* $Revision: 1.6 $
-* $Date: 2008/03/19 16:20:02 $
+* $Revision: 1.7 $
+* $Date: 2008/03/19 18:12:14 $
 */ 
 
 
@@ -41,7 +41,7 @@ protected:
 
   /// An enum for use with central, forward, and tau jet cand collections vector(s).
   /*! Note that the order here mimicks the order in the RAW data format. */
-  enum JetCandCatagory { TAU_JETS, FORWARD_JETS, CENTRAL_JETS, NUM_JET_CATAGORIES };
+  enum JetCandCatagory { TAU_JETS, FORWARD_JETS, CENTRAL_JETS, NUM_JET_CATEGORIES };
 
 
 public:

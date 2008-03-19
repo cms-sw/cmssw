@@ -61,7 +61,7 @@ void GctBlockPacker::writeGctOutJetBlock(unsigned char * d,
   uint16_t * p16 = reinterpret_cast<uint16_t *>(d);
   
   // Set up a vector of the collections for easy iteration.
-  vector<const L1GctJetCandCollection*> jets(NUM_JET_CATAGORIES);
+  vector<const L1GctJetCandCollection*> jets(NUM_JET_CATEGORIES);
   jets.at(CENTRAL_JETS)=cenJets;
   jets.at(FORWARD_JETS)=forJets;
   jets.at(TAU_JETS)=tauJets;
@@ -70,7 +70,7 @@ void GctBlockPacker::writeGctOutJetBlock(unsigned char * d,
   const unsigned int nextCandPairOffset = 2;  // Offset to jump to next candidate pair.
 
   // Loop over the different catagories of jets
-  for(unsigned int iCat = 0 ; iCat < NUM_JET_CATAGORIES ; ++iCat)
+  for(unsigned int iCat = 0 ; iCat < NUM_JET_CATEGORIES ; ++iCat)
   {
     // cand0Offset will give the offset on p16 to get the rank 0 Jet Cand of the correct catagory.
     const unsigned int cand0Offset = iCat*catagoryOffset;

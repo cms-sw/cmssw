@@ -111,7 +111,7 @@ void GctBlockUnpacker::blockToGctJetCand(const unsigned char * d, const GctBlock
   const uint16_t * p = reinterpret_cast<const uint16_t *>(d);
   
   // Loop over the different catagories of jets
-  for(unsigned int iCat = 0 ; iCat < NUM_JET_CATAGORIES ; ++iCat)
+  for(unsigned int iCat = 0 ; iCat < NUM_JET_CATEGORIES ; ++iCat)
   {
     assert(gctJets_.at(iCat)->empty()); // The supplied vector should be empty.
 

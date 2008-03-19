@@ -264,7 +264,7 @@ void GctBlockUnpackerV2::blockToGctJetCandsAndCounts(const unsigned char * d, co
   if(!hltMode()) { samplesToUnpack = nSamples; }  // Only if not running in HLT mode do we want more than 1 timesample. 
 
   // Loop over the different catagories of jets
-  for(unsigned int iCat = 0 ; iCat < NUM_JET_CATAGORIES ; ++iCat)
+  for(unsigned int iCat = 0 ; iCat < NUM_JET_CATEGORIES ; ++iCat)
   {
     assert(gctJets_.at(iCat)->empty()); // The supplied vector should be empty.
 
@@ -288,7 +288,7 @@ void GctBlockUnpackerV2::blockToGctJetCandsAndCounts(const unsigned char * d, co
     }
   }
 
-  p16 += NUM_JET_CATAGORIES * jetCandCatagoryOffset; // Move the pointer over the data we've already unpacked.
+  p16 += NUM_JET_CATEGORIES * jetCandCatagoryOffset; // Move the pointer over the data we've already unpacked.
 
   // UNPACK JET COUNTS
   // NOTE: we are only unpacking one timesample of these currently!
