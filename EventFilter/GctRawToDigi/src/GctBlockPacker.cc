@@ -248,11 +248,12 @@ void GctBlockPacker::writeRctCaloRegionBlock(unsigned char * d, const L1CaloRegi
 {
   // This method is one giant "temporary" hack for CMSSW_1_8_X and CMSSW_2_0_0.
 
-  if(rctEm->size() == 0 || rctCalo->size()%396 != 0)  // Should be 396 calo regions for 1 bx.
+  if(rctCalo->size() == 0 || rctCalo->size()%396 != 0)  // Should be 396 calo regions for 1 bx.
   {
     edm::LogError("GCT") << "Block pack error: bad L1CaloRegionCollection size detected!\n"
                          << "Aborting packing of RCT Calo Region data!" << endl;
     return;
+  }
 
   writeGctHeader(d, 0x0ff, 1);
   d+=4; // move past header.
