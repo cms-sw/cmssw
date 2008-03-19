@@ -193,7 +193,7 @@ void GctBlockPacker::writeRctEmCandBlocks(unsigned char * d, const L1CaloEmColle
   {
     unsigned blockId = blockStartCrateIter->first;
     unsigned startCrate = blockStartCrateIter->second;
-    unsigned blockLength_32bit = GctBlockHeader::lookupBlockLength(blockId);
+    unsigned blockLength_32bit = GctBlockHeaderV2(blockId, 1, 0, 0).length();
     
     writeGctHeader(d, blockId, 1);
     d+=4; // move past header.
