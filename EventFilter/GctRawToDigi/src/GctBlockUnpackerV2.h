@@ -3,6 +3,18 @@
 
 #include "EventFilter/GctRawToDigi/src/GctBlockUnpackerBase.h"
 
+/*!
+* \class GctBlockUnpackerV2
+* \brief Second version of the block unpacker - unpacks current hardware output.
+* 
+*  Block Unpacker Version 2... complies with Pipeline Formats v20 and
+*  is up to date with the hardware as of 19th March 2008.
+* 
+* \author Robert Frazier
+* $Revision: $
+* $Date: $
+*/ 
+
 // *******************************************************************
 // ***  THE UNPACK PROCESS MUST NEVER THROW ANY KIND OF EXCEPTION! *** 
 // *******************************************************************

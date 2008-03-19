@@ -3,11 +3,26 @@
 
 #include "EventFilter/GctRawToDigi/src/GctBlockHeaderBase.h"
 
-/// Class representing the first definition of a pipeline block header (GREN 2007 era - kept for backwards compat.) 
+/*!
+* \class GctBlockHeader
+* \brief Version 1 of the pipeline block header (deprecated - kept for backwards compatibility)
+* 
+* 
+* \author Robert Frazier
+* $Revision: $
+* $Date: $
+*/ 
+
+//  Bit mapping of the header:
+//  --------------------------
 /*! blockId = 7:0,
  *  nSamples = 11:8 (if nSamples=0xf, use defNSamples_),
  *  bcId = 23:12,
- *  eventId = 31:24 */
+ *  eventId = 31:24
+ */
+
+
+
 class GctBlockHeader : public GctBlockHeaderBase
 {
 public:

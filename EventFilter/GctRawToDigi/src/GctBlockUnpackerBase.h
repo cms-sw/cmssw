@@ -17,6 +17,20 @@
 
 #include "EventFilter/GctRawToDigi/src/GctBlockHeaderBase.h"
 
+/*!
+* \class GctBlockUnpackerBase
+* \brief Abstract base class for common unpack functionality/interface
+* 
+* This class provides the common interface/functionality for the various
+* concrete unpack classes needed to provide backwards compatiblity
+* with older data.
+*
+* \author Robert Frazier
+* $Revision: $
+* $Date: $
+*/ 
+
+
 // *******************************************************************
 // ***  THE UNPACK PROCESS MUST NEVER THROW ANY KIND OF EXCEPTION! *** 
 // *******************************************************************

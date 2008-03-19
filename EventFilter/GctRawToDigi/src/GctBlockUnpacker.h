@@ -3,6 +3,17 @@
 
 #include "EventFilter/GctRawToDigi/src/GctBlockUnpackerBase.h"
 
+/*!
+* \class GctBlockUnpacker
+* \brief Original (now deprecated) concrete unpacker for GREN 2007 era data.
+* 
+* 
+* \author Robert Frazier
+* $Revision: $
+* $Date: $
+*/ 
+
+
 // *******************************************************************
 // ***  THE UNPACK PROCESS MUST NEVER THROW ANY KIND OF EXCEPTION! *** 
 // *******************************************************************

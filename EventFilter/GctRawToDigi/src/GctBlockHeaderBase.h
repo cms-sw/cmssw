@@ -6,7 +6,20 @@
 #include <ostream>
 #include <string>
 
-/// Abstract base class for block headers.
+/*!
+* \class GctBlockHeaderBase
+* \brief Abstract base class for block headers.
+* 
+* This class provides the common interface/functionality for the various
+* concrete block header classes needed to provide backwards compatiblity
+* with older data.
+* 
+* \author Robert Frazier
+* $Revision: $
+* $Date: $
+*/ 
+
+ 
 class GctBlockHeaderBase
 {
 public:
@@ -48,7 +61,9 @@ protected:
 
   // PROTECTED TYPEDEFS 
   typedef std::map<unsigned int, unsigned int> BlockLengthMap;
+  typedef std::pair<unsigned int, unsigned int> BlockLengthPair;
   typedef std::map<unsigned int, std::string> BlockNameMap;
+  typedef std::pair<unsigned int, std::string> BlockNamePair;
  
   // PROTECTED MEMBER DATA
   uint32_t d; /// The header. Yes it really is protected data.
