@@ -58,4 +58,27 @@ function::Difference<A, B> operator-(const A& a, const B& b) {
   return function::Difference<A, B>(a, b);
 }
 
+#include "PhysicsTools/Utilities/interface/Number.h"
+
+#include "PhysicsTools/Utilities/interface/Constant.h"
+
+
+template<typename A>
+function::Difference<A, function::Constant> 
+operator-(const A& a, const function::Parameter& b) {
+  return function::Difference<A, function::Constant>(a, function::Constant(b));
+}
+
+template<typename B>
+function::Difference<function::Number, B> 
+operator-(double a, const B& b) {
+  return function::Difference<function::Number, B>(function::Number(a), b);
+}
+
+function::Difference<function::Number, function::Constant> 
+operator-(double a, const function::Parameter& b) {
+  return function::Difference<function::Number, 
+    function::Constant>(function::Number(a), function::Constant(b));
+}
+
 #endif
