@@ -11,8 +11,8 @@
 *  is up to date with the hardware as of 19th March 2008.
 * 
 * \author Robert Frazier
-* $Revision: $
-* $Date: $
+* $Revision: 1.2 $
+* $Date: 2008/03/19 13:35:34 $
 */ 
 
 // *******************************************************************
@@ -32,6 +32,17 @@ public:
   /// Get digis from the block.
   void convertBlock(const unsigned char * d, const GctBlockHeaderBase& hdr);
 
+
+protected:
+  
+  // PROTECTED METHODS
+  
+  RctCrateMap& rctCrateMap() { return rctCrate_; }  ///< get the RCT crate map.
+  const RctCrateMap& rctCrateMap() const { return rctCrate_; }  ///< get the RCT crate map.
+  
+  BlockIdToEmCandIsoBoundMap& internEmIsoBounds() { return internEmIsoBounds_; }  ///< get the intern EM cand isolated boundary map.
+  const BlockIdToEmCandIsoBoundMap& internEmIsoBounds() const { return internEmIsoBounds_; }  ///< get the intern EM cand isolated boundary map.
+
 private:
   // PRIVATE TYPEDEFS
  
@@ -43,6 +54,13 @@ private:
 
   // PRIVATE MEMBER DATA
   
+  /// Map to relate capture block ID to the RCT crate the data originated from.
+  static RctCrateMap rctCrate_;
+  
+  /*! A map of Block IDs to IsoBoundaryPairs for storing the location of the isolated
+   *  Internal EM cands in the pipeline, as this differs with Block ID. */ 
+  static BlockIdToEmCandIsoBoundMap internEmIsoBounds_;
+
   /// Block ID to unpack function map.
   static BlockIdToUnpackFnMap blockUnpackFn_;
   

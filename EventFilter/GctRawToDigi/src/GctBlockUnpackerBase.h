@@ -26,8 +26,8 @@
 * with older data.
 *
 * \author Robert Frazier
-* $Revision: 1.3 $
-* $Date: 2008/03/19 13:35:34 $
+* $Revision: 1.4 $
+* $Date: 2008/03/19 14:26:18 $
 */ 
 
 
@@ -93,13 +93,6 @@ protected:
 
   // PROTECTED MEMBERS
 
-  /// Map to relate capture block ID to the RCT crate the data originated from.
-  static RctCrateMap rctCrate_;
-
-  /*! A map of Block IDs to IsoBoundaryPairs for storing the location of the isolated
-   *  Internal EM cands in the pipeline, as this differs with Block ID. */ 
-  static BlockIdToEmCandIsoBoundMap InternEmIsoBounds_;
-
   // collections of RCT objects
   L1CaloEmCollection* rctEm_;  ///< RCT EM cands
   L1CaloRegionCollection* rctCalo_;  ///< RCT Calo regions
@@ -117,6 +110,12 @@ protected:
 
 
   // PROTECTED METHODS
+ 
+  RctCrateMap& rctCrateMap() = 0;  ///< get the RCT crate map.
+  const RctCrateMap& rctCrateMap() const = 0;  ///< get the RCT crate map.
+
+  BlockIdToEmCandIsoBoundMap& internEmIsoBounds() = 0;  ///< get the intern EM cand isolated boundary map.
+  const BlockIdToEmCandIsoBoundMap& internEmIsoBounds() const = 0;  ///< get the intern EM cand isolated boundary map.
 
   bool hltMode() const { return hltMode_; }  ///< Protected interface to get HLT optimisation mode flag.
 

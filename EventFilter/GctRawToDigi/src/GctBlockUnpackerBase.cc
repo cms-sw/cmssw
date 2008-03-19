@@ -28,15 +28,6 @@ GctBlockUnpackerBase::GctBlockUnpackerBase(bool hltMode):
   hltMode_(hltMode),
   srcCardRouting_()
 {
-  static bool initClass = true;
-  
-  if(initClass)
-  {
-    initClass = false;
-    
-
-
-  }
 }
 
 GctBlockUnpackerBase::~GctBlockUnpackerBase() { }
