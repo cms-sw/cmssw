@@ -17,19 +17,18 @@
 using namespace std;
 using namespace reco;
 
-HFRecoEcalCandidateAlgo::HFRecoEcalCandidateAlgo(bool correct,double e9e25Cut,double eCOREe9Cut,double eSeLCut) :
+HFRecoEcalCandidateAlgo::HFRecoEcalCandidateAlgo(bool correct,double e9e25Cut,double intercept2DCut) :
   m_correct(correct), 
-  
   m_e9e25Cut(e9e25Cut),
-  m_eCOREe9Cut(eCOREe9Cut),
-  m_eSeLCut(eSeLCut){
+  m_intercept2DCut(intercept2DCut){
+  
 }
 
 RecoEcalCandidate HFRecoEcalCandidateAlgo::correctEPosition(const SuperCluster& original , const HFEMClusterShape& shape) {
-  double energyCorrect=1.07;
-  double etaCorrect=0.0184;
-  double phiAmpCorrect=.00701641;
-  double phiFreqCorrect=6.13245;
+  double energyCorrect=0.811474;
+  double etaCorrect=.0131-.00319*sin(5.08*shape.CellEta());
+  double phiAmpCorrect=-.00404;
+  double phiFreqCorrect=6.331;
 
   double corEnergy= original.energy()/energyCorrect;
   double corEta=original.eta();
@@ -71,8 +70,8 @@ void HFRecoEcalCandidateAlgo::produce(const edm::Handle<SuperClusterCollection>&
       theCand=correctEPosition(supClus,clusShape);
 
     
-    // cuts...  Cuts are still rough estimates and need further fine tuning
-    if ((clusShape.e9e25()> m_e9e25Cut)&&(clusShape.eCOREe9()> m_eCOREe9Cut)&&(clusShape.eSeL()> m_eSeLCut)){
+    // EMID cuts...  
+    if((clusShape.e9e25()> m_e9e25Cut)&&((clusShape.eCOREe9()-(clusShape.eSeL()*1.125)) > m_intercept2DCut)){
       theCand.setSuperCluster(theClusRef);
       RecoECand.push_back(theCand);
     }
