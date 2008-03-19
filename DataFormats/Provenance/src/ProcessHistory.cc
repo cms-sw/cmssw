@@ -33,8 +33,8 @@ namespace edm {
   isAncestor(ProcessHistory const& a, ProcessHistory const& b) {
     if (a.size() >= b.size()) return false;
     typedef ProcessHistory::collection_type::const_iterator const_iterator;
-    const_iterator itB = b.data().begin();
-    for (const_iterator itA = a.data().begin(), itAEnd = a.data().end(); itA != itAEnd; ++itA) {
+    for (const_iterator itA = a.data().begin(), itB = b.data().begin(),
+         itAEnd = a.data().end(); itA != itAEnd; ++itA, ++itB) {
       if (*itA != *itB) return false;
     }
     return true;
