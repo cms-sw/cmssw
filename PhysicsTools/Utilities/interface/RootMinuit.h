@@ -7,6 +7,7 @@
 #include "PhysicsTools/Utilities/interface/ParameterMap.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "TMinuit.h"
+#include "TMath.h"
 #include <boost/shared_ptr.hpp>
 #include <iostream>
 #include <vector>
@@ -93,7 +94,7 @@ namespace fit {
 	    << " range = [" << par.min << ", " << par.max << "]\n";
       }
     }
-    int getNumberOfFreeParameters() { 
+    int numberOfFreeParameters() { 
       init();
       return minuit_->GetNumFreePars();
     }
@@ -131,7 +132,21 @@ namespace fit {
       minuit_->mnstat(minValue_, edm, errdef, nvpar, nparx, ierflag);
       return minValue_;
     }
-
+    void printParameters(std::ostream& cout = std::cout) {
+      std::map<std::string, size_t>::const_iterator i = parIndices_.begin(), end = parIndices_.end();
+      for(; i != end; ++i) {
+	cout << i->first << " = " << *pars_[i->second] 
+	     << " +/- " << getParameterError(i->first) << std::endl;
+      }
+    }
+    void printFitResults(std::ostream& cout = std::cout) {
+      double amin = f_();
+      int ndof = numberOfFreeParameters();
+	cout << "chi-squared/n.d.o.f. = " << amin << "/" << ndof << " = " << amin/ndof 
+	   << "; prob: " << TMath::Prob(amin, ndof)
+	   << std::endl;
+      printParameters(cout);
+    }
   private:
     parameterVector_t parMap_;
     std::map<std::string, size_t> parIndices_;
