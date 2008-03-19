@@ -136,15 +136,16 @@ pair<unsigned, unsigned> a[] = {
   pair<unsigned, unsigned>(0xf8c,8),      // Leaf3JetNegEtaU2: JF1 Raw Input
   pair<unsigned, unsigned>(0xf89,3),      // Leaf3JetNegEtaU2: JF1 Shared Recieved
   pair<unsigned, unsigned>(0xf8a,3),      // Leaf3JetNegEtaU2: JF1 Shared Sent
-  pair<unsigned, unsigned>(0xf8b,10)      // Leaf3JetNegEtaU2: JF1 Output
-//  pair<unsigned, unsigned>(0x300,),       // START OF WHEEL FPGAS
+  pair<unsigned, unsigned>(0xf8b,10),     // Leaf3JetNegEtaU2: JF1 Output
+//  pair<unsigned, unsigned>(0x300,),     // -- START OF WHEEL FPGAS
 //  pair<unsigned, unsigned>(0x303,),
 //  pair<unsigned, unsigned>(0x380,),
 //  pair<unsigned, unsigned>(0x383,),
 //  pair<unsigned, unsigned>(0x700,),
 //  pair<unsigned, unsigned>(0x703,),
 //  pair<unsigned, unsigned>(0x780,),
-//  pair<unsigned, unsigned>(0x783,),
+//  pair<unsigned, unsigned>(0x783,),     // -- END OF WHEEL FPGAS
+  pair<unsigned, unsigned>(0x0ff,198)     // Our temp hack RCT calo block
 };
 
 map<unsigned, unsigned> GctBlockHeaderV2::blockLength_(a, a + sizeof(a) / sizeof(a[0]));
@@ -272,7 +273,7 @@ pair<unsigned, string> b[] = {
   pair<unsigned, string>(0xf8c,"Leaf3JetNegEtaU2: JF1 Raw Input"),
   pair<unsigned, string>(0xf89,"Leaf3JetNegEtaU2: JF1 Shared Recieved"),
   pair<unsigned, string>(0xf8a,"Leaf3JetNegEtaU2: JF1 Shared Sent"),
-  pair<unsigned, string>(0xf8b,"Leaf3JetNegEtaU2: JF1 Output")
+  pair<unsigned, string>(0xf8b,"Leaf3JetNegEtaU2: JF1 Output"),
 //  pair<unsigned, string>(0x300,"WheelPosEtaJet: Input"),
 //  pair<unsigned, string>(0x303,"WheelPosEtaJet: Output"),
 //  pair<unsigned, string>(0x380,"WheelPosEtaEnergy: Input"),
@@ -281,6 +282,7 @@ pair<unsigned, string> b[] = {
 //  pair<unsigned, string>(0x703,"WheelNegEtaJet: Output"),
 //  pair<unsigned, string>(0x780,"WheelNegEtaEnergy: Input"),
 //  pair<unsigned, string>(0x783,"WheelNegEtaEnergy: Output")
+  pair<unsigned, string>(0x0ff,"All RCT Calo Regions")  // Our temp hack RCT calo block
 };
 
 map<unsigned, string> GctBlockHeaderV2::blockName_(b, b + sizeof(b) / sizeof(b[0]));

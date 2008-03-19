@@ -16,10 +16,9 @@
 //
 // Original Author:  Jim Brooke
 //         Created:  Wed Nov  1 11:57:10 CET 2006
-// $Id: GctRawToDigi.h,v 1.12 2008/03/18 02:36:04 frazier Exp $
+// $Id: GctRawToDigi.h,v 1.13 2008/03/18 13:43:33 frazier Exp $
 //
 //
-
 
 // system include files
 #include <memory>
@@ -35,9 +34,10 @@
 
 #include "EventFilter/GctRawToDigi/src/GctBlockUnpacker.h"
 
-//
-// class decleration
-//
+
+// *******************************************************************
+// ***  THE UNPACK PROCESS MUST NEVER THROW ANY KIND OF EXCEPTION! *** 
+// *******************************************************************
 
 class GctRawToDigi : public edm::EDProducer
 {

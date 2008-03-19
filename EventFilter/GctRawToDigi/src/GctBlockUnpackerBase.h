@@ -55,8 +55,8 @@ public:
   void setEtHad(L1GctEtHad* etHad) { gctEtHad_ = etHad; }
   void setEtMiss(L1GctEtMiss* etMiss) { gctEtMiss_ = etMiss; }
 
-  // get digis from block
-  void convertBlock(const unsigned char * d, const GctBlockHeaderBase& hdr);
+  /// Get digis from the block.
+  virtual void convertBlock(const unsigned char * d, const GctBlockHeaderBase& hdr) = 0;
 
 protected:
  
@@ -108,10 +108,11 @@ protected:
   L1GctEtMiss* gctEtMiss_;  /// Missing Et
 
   // PROTECTED METHODS
-  // convert functions for each type of block
-  /// unpack GCT EM Candidates and energy sums.
-  void blockToGctEmCandsAndEnergySums(const unsigned char * d, const GctBlockHeaderBase& hdr);
 
+  /// Performs checks on the block header to see if the block is possible to unpack or not.
+  bool checkBlock(const GctBlockHeaderBase& hdr);
+
+  // convert functions for each type of block
   /// unpack GCT internal EM Candidates
   void blockToGctInternEmCand(const unsigned char * d, const GctBlockHeaderBase& hdr);
 
@@ -124,9 +125,9 @@ protected:
   /// unpack Fibres and RCT EM Candidates
   void blockToFibresAndToRctEmCand(const unsigned char * d, const GctBlockHeaderBase& hdr);
   
-  /// Unpack GCT Jet Candidates and jet counts.
-  void blockToGctJetCandsAndCounts(const unsigned char * d, const GctBlockHeaderBase& hdr);
-
+  /// Unpack RCT Calo Regions
+  void blockToRctCaloRegions(const unsigned char * d, const GctBlockHeaderBase& hdr);
+  
   /// Do nothing
   void blockDoNothing(const unsigned char * d, const GctBlockHeaderBase& hdr) {}
 
