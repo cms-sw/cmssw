@@ -151,7 +151,7 @@ GctDigiToRaw::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   FEDRawData& fedRawData=rawColl->FEDData(fedId_);
  
   // set the size & make pointers to the header, beginning of payload, and footer.
-  const unsigned int rawSize = 80;  // MUST BE MULTIPLE OF 8! (slink packets are 64 bit, but using 8-bit data struct).
+  unsigned int rawSize = 80;  // MUST BE MULTIPLE OF 8! (slink packets are 64 bit, but using 8-bit data struct).
   if(packRctEmThisEvent) { rawSize += 232; }  // Space for RCT EM Cands.
   if(packRctCaloThisEvent) { rawSize += 800; }  // Space for RCT Calo Regions (plus a 32-bit word of padding to make divisible by 8)
   fedRawData.resize(rawSize);
