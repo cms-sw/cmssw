@@ -9,8 +9,8 @@
 // Created:         Tue Oct  3 23:51:34 UTC 2006
 //
 // $Author: gutsche $
-// $Date: 2007/03/07 21:46:48 $
-// $Revision: 1.3 $
+// $Date: 2007/03/30 02:49:36 $
+// $Revision: 1.4 $
 //
 
 #include <iostream>
@@ -785,8 +785,8 @@ void RingMaker::fillTIBGeometryArray() {
     for (int j = 0; j < 3; ++j) {
       for (int k = 0; k < 3; ++k) {
 	for (int l = 0; l < 57; ++l) {
-	  for (int m = 0; l < 4; ++l) {
-	    for (int n =0; m < 3; ++m) {
+	  for (int m = 0; m < 4; ++m) {
+	    for (int n =0; n < 3; ++n) {
 	      tib_[i][j][k][l][m][n] = 0;
 	    }
 	  }
