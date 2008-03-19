@@ -8,12 +8,13 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Feb 19 10:33:25 EST 2008
-// $Id: FWRhoPhiZView.cc,v 1.4 2008/02/29 21:14:59 chrjones Exp $
+// $Id: FWRhoPhiZView.cc,v 1.5 2008/03/11 02:47:27 chrjones Exp $
 //
 
 // system include files
 #include <algorithm>
 #include <boost/bind.hpp>
+#include <boost/shared_ptr.hpp>
 #include <boost/numeric/conversion/converter.hpp>
 #include <iostream>
 #include "TEveProjectionManager.h"
@@ -175,8 +176,14 @@ FWRhoPhiZView::replicateGeomElement(TEveElement* iChild)
 
 //returns the new element created from this import
 TEveElement* 
-FWRhoPhiZView::importElements(TEveElement* iChildren)
+FWRhoPhiZView::importElements(TEveElement* iChildren, float iLayer)
 {
+   float oldLayer = m_projMgr->GetCurrentDepth();
+   m_projMgr->SetCurrentDepth(iLayer);
+   //make sure current depth is reset even if an exception is thrown
+   boost::shared_ptr<TEveProjectionManager> sentry(m_projMgr,
+                                                   boost::bind(&TEveProjectionManager::SetCurrentDepth,
+                                                               _1,oldLayer));
    m_projMgr->ImportElements(iChildren);
    TEveElement::List_i it = m_projMgr->BeginChildren();
    std::advance(it,

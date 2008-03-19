@@ -16,7 +16,7 @@
 //
 // Original Author:  
 //         Created:  Sat Jan  5 11:27:34 EST 2008
-// $Id: FWRhoPhiZViewManager.h,v 1.13 2008/03/05 22:31:00 dmytro Exp $
+// $Id: FWRhoPhiZViewManager.h,v 1.14 2008/03/14 21:11:01 chrjones Exp $
 //
 
 // system include files
@@ -50,9 +50,11 @@ public:
    virtual void clearRhoPhiProjs() = 0;
    virtual void clearRhoZProjs() = 0;
 
+   float layer() const;
 private:
    virtual void itemChangedImp(const FWEventItem*) = 0;
-   
+
+   float m_layer;
 };
 
 class FWRPZ3DModelProxy : public FWRPZModelProxyBase

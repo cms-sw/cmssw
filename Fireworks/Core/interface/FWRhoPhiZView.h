@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Feb 19 10:33:21 EST 2008
-// $Id: FWRhoPhiZView.h,v 1.3 2008/02/26 02:27:19 chrjones Exp $
+// $Id: FWRhoPhiZView.h,v 1.4 2008/03/11 02:47:27 chrjones Exp $
 //
 
 // system include files
@@ -55,7 +55,7 @@ class FWRhoPhiZView : public FWViewBase
       void replicateGeomElement(TEveElement*);
 
       //returns the new element created from this import
-      TEveElement* importElements(TEveElement*);
+      TEveElement* importElements(TEveElement*, float iLayer);
    private:
       void doDistortion(double);
       FWRhoPhiZView(const FWRhoPhiZView&); // stop default

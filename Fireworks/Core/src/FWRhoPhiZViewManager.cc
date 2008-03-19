@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Sat Jan  5 14:08:51 EST 2008
-// $Id: FWRhoPhiZViewManager.cc,v 1.22 2008/03/05 22:31:08 dmytro Exp $
+// $Id: FWRhoPhiZViewManager.cc,v 1.23 2008/03/14 21:11:01 chrjones Exp $
 //
 
 // system include files
@@ -215,14 +215,14 @@ void FWRhoPhiZViewManager::addElements()
           itEnd = m_rhoPhiViews.end();
           it != itEnd;
           ++it) {
-         (*proxy)->addRhoPhiProj( (*it)->importElements((*proxy)->getRhoPhiProduct()));
+         (*proxy)->addRhoPhiProj( (*it)->importElements((*proxy)->getRhoPhiProduct(),(*proxy)->layer()));
       }
       (*proxy)->clearRhoZProjs();
       for(std::vector<boost::shared_ptr<FWRhoPhiZView> >::iterator it = m_rhoZViews.begin(),
           itEnd = m_rhoZViews.end();
           it != itEnd;
           ++it) {
-         (*proxy)->addRhoZProj( (*it)->importElements((*proxy)->getRhoZProduct()));
+         (*proxy)->addRhoZProj( (*it)->importElements((*proxy)->getRhoZProduct(),(*proxy)->layer()));
       }
    }  
    
@@ -384,7 +384,10 @@ void FWRhoPhiZViewManager::makeMuonGeometryRhoPhi()
    }
    TEveElement* el = TEveGeoShape::ImportShapeExtract(container,0);
    el->IncDenyDestroy();
+   float layer = m_rhoPhiGeomProjMgr->GetCurrentDepth();
+   m_rhoPhiGeomProjMgr->SetCurrentDepth(0.);
    m_rhoPhiGeomProjMgr->ImportElements( el );
+   m_rhoPhiGeomProjMgr->SetCurrentDepth(layer);
 	   
    // set background geometry visibility parameters
 	
@@ -464,7 +467,10 @@ void FWRhoPhiZViewManager::makeMuonGeometryRhoZ()
    }
    TEveElement* el = TEveGeoShape::ImportShapeExtract(container,0);
    el->IncDenyDestroy();
+   float layer = m_rhoZGeomProjMgr->GetCurrentDepth();
+   m_rhoZGeomProjMgr->SetCurrentDepth(0.);
    m_rhoZGeomProjMgr->ImportElements( el );
+   m_rhoZGeomProjMgr->SetCurrentDepth(layer);
    
    TEveElementIter rhoZDT(m_rhoZGeomProjMgr,"DT");
    if ( rhoZDT.current() ) {
@@ -567,7 +573,10 @@ void FWRhoPhiZViewManager::makeMuonGeometryRhoZAdvance()
    }
    TEveElement* el = TEveGeoShape::ImportShapeExtract(container,0);
    el->IncDenyDestroy();
+   float layer = m_rhoZGeomProjMgr->GetCurrentDepth();
+   m_rhoZGeomProjMgr->SetCurrentDepth(0.);
    m_rhoZGeomProjMgr->ImportElements( el );
+   m_rhoZGeomProjMgr->SetCurrentDepth(layer);
    
    TEveElementIter rhoZDT(m_rhoZGeomProjMgr,"DT");
    if ( rhoZDT.current() ) {
@@ -693,7 +702,16 @@ void FWRhoPhiZViewManager::estimateProjectionSizeCSC( const TGeoHMatrix* matrix,
 void
 FWRPZModelProxyBase::itemChanged(const FWEventItem* iItem)
 {
+   if(0!=iItem) {
+      m_layer = iItem->layer();
+   }
    this->itemChangedImp(iItem);
+}
+
+float
+FWRPZModelProxyBase::layer() const
+{
+   return m_layer;
 }
 
 void
