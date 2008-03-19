@@ -16,7 +16,7 @@
 //
 // Original Author:  Jim Brooke
 //         Created:  Wed Nov  1 11:57:10 CET 2006
-// $Id: GctRawToDigi.h,v 1.15 2008/03/19 11:46:50 frazier Exp $
+// $Id: GctRawToDigi.h,v 1.16 2008/03/19 18:21:14 frazier Exp $
 //
 //
 
@@ -83,7 +83,7 @@ private: // members
   // Block to Digi converter
   GctBlockUnpackerBase * blockUnpacker_;
 
-  unsigned blockUnpackFailures;
+  unsigned unpackFailures_;
 };
 
 #endif

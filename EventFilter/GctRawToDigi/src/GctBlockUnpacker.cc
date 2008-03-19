@@ -75,7 +75,7 @@ GctBlockUnpacker::GctBlockUnpacker(bool hltMode):
 GctBlockUnpacker::~GctBlockUnpacker() { }
 
 // conversion
-void GctBlockUnpacker::convertBlock(const unsigned char * data, const GctBlockHeaderBase& hdr)
+bool GctBlockUnpacker::convertBlock(const unsigned char * data, const GctBlockHeaderBase& hdr)
 {
   if(!checkBlock(hdr)) { return false; }  // Check the block to see if it's possible to unpack.
 

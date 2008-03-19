@@ -53,7 +53,7 @@ GctRawToDigi::GctRawToDigi(const edm::ParameterSet& iConfig) :
   doRct_(iConfig.getUntrackedParameter<bool>("unpackRct",true)),
   doFibres_(iConfig.getUntrackedParameter<bool>("unpackFibres",true)),
   blockUnpacker_(0),
-  unpackFailures(0)
+  unpackFailures_(0)
 {
   edm::LogInfo("GCT") << "GctRawToDigi will unpack FED Id " << fedId_ << endl;
 
@@ -103,7 +103,7 @@ void GctRawToDigi::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
    using namespace edm;
 
-  if(unpackFailures >= MAX_UNPACK_FAILURES) { return; }  // Skip if reached failure limit already.
+  if(unpackFailures_ >= MAX_UNPACK_FAILURES) { return; }  // Skip if reached failure limit already.
 
    // get raw data collection
    edm::Handle<FEDRawDataCollection> feds;
@@ -186,7 +186,7 @@ void GctRawToDigi::unpack(const FEDRawData& d, edm::Event& e, const bool invalid
     // read blocks
     for (unsigned nb=0; dPtr<dEnd; ++nb)
     {
-      if(nb >= MAX_BLOCKS) { edm::LogError("GCT") << "Reached block limit - bailing out from this event!" << endl; ++unpackFailures; break; }
+      if(nb >= MAX_BLOCKS) { edm::LogError("GCT") << "Reached block limit - bailing out from this event!" << endl; ++unpackFailures_; break; }
       
       // read block header
       std::auto_ptr<GctBlockHeaderBase> blockHeader;
@@ -197,7 +197,7 @@ void GctRawToDigi::unpack(const FEDRawData& d, edm::Event& e, const bool invalid
       if(!blockUnpacker_->convertBlock(&data[dPtr+4], *blockHeader)) // Record if we had an unpack problem then skip rest of event.
       {
         edm::LogError("GCT") << "Encountered block unpack problem - bailing out from this event!" << endl;
-        ++unpackFailures; break;
+        ++unpackFailures_; break;
       } 
   
       // advance pointer
@@ -267,7 +267,7 @@ GctRawToDigi::beginJob(const edm::EventSetup&)
 void 
 GctRawToDigi::endJob()
 {
-  if(unpackFailures >= MAX_UNPACK_FAILURES)
+  if(unpackFailures_ >= MAX_UNPACK_FAILURES)
   {
     edm::LogError("GCT") << "GCT unpacker is bailing - too many unpack errors!" << endl;
   }  
