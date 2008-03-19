@@ -1,11 +1,11 @@
-// $Id: EcalErrorMask.cc,v 1.28 2008/03/19 19:50:01 dellaric Exp $
+// $Id: EcalErrorMask.cc,v 1.29 2008/03/19 19:53:14 dellaric Exp $
 
 /*!
   \file EcalErrorMask.cc
   \brief Error mask from text file or database
   \author B. Gobbo
-  \version $Revision: 1.28 $
-  \date $Date: 2008/03/19 19:50:01 $
+  \version $Revision: 1.29 $
+  \date $Date: 2008/03/19 19:53:14 $
 */
 
 #include "OnlineDB/EcalCondDB/interface/EcalCondDBInterface.h"
@@ -550,6 +550,7 @@ void EcalErrorMask::readDB( EcalCondDBInterface* eConn, RunIOV* runIOV ) throw( 
     RunTag runTag = runIOV->getRunTag();
 
 /*
+    std::cout << std::endl;
     std::cout << " RunCrystalErrorsDat: ";
     try {
       eConn->fetchValidDataSet( &EcalErrorMask::mapCrystalErrors_, &validIOV, &runTag, runIOV->getRunNumber() );
@@ -594,6 +595,7 @@ void EcalErrorMask::readDB( EcalCondDBInterface* eConn, RunIOV* runIOV ) throw( 
 
     string location = runTag.getLocationDef().getLocation();
 
+    std::cout << std::endl;
     std::cout << " RunCrystalErrorsDat: ";
     try {
       eConn->fetchValidDataSet( &EcalErrorMask::mapCrystalErrors_, &validIOV, location, runIOV->getRunNumber() );
