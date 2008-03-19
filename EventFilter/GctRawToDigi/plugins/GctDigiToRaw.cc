@@ -45,13 +45,12 @@ using std::cout;
 using std::endl;
 using std::vector;
 
-//unsigned GctDigiToRaw::MAX_EXCESS = 512;
-//unsigned GctDigiToRaw::MAX_BLOCKS = 128;
-
 
 GctDigiToRaw::GctDigiToRaw(const edm::ParameterSet& iConfig) :
   rctInputLabel_(iConfig.getParameter<edm::InputTag>("rctInputLabel")),
   gctInputLabel_(iConfig.getParameter<edm::InputTag>("gctInputLabel")),
+  packRctEm_(iConfig.getUntrackedParameter<bool>("packRctEm", true)),
+  packRctCalo_(iConfig.getUntrackedParameter<bool>("packRctCalo", true)),
   fedId_(iConfig.getParameter<int>("gctFedId")),
   verbose_(iConfig.getUntrackedParameter<bool>("verbose",false)),
   counter_(0),
@@ -93,10 +92,11 @@ GctDigiToRaw::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   blockPacker_.setBcId(bx);
   blockPacker_.setEvId(eventNumber);
  
-  // The gct input label string
+  // The GCT and RCT input label strings
   const std::string gctInputLabelStr = gctInputLabel_.label();
+  const std::string rctInputLabelStr = rctInputLabel_.label();
   
-  // get digis
+  // get GCT digis
   edm::Handle<L1GctEmCandCollection> isoEm;
   iEvent.getByLabel(gctInputLabelStr, "isoEm", isoEm);
   edm::Handle<L1GctEmCandCollection> nonIsoEm;
@@ -115,8 +115,34 @@ GctDigiToRaw::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   iEvent.getByLabel(gctInputLabelStr, "", etHad);
   edm::Handle<L1GctEtMiss> etMiss;
   iEvent.getByLabel(gctInputLabelStr, "", etMiss);
+
+  // get RCT EM Cand digi
+  bool packRctEmThisEvent = packRctEm_;
   edm::Handle<L1CaloEmCollection> rctEm;
-  iEvent.getByLabel(gctInputLabelStr, "", rctEm); 
+  if(packRctEmThisEvent)
+  {
+    iEvent.getByLabel(rctInputLabelStr, rctEm);
+    if(rctEm.failedToGet())
+    {
+      packRctEmThisEvent = false;
+      edm::LogWarning("GCT") << "RCT EM Candidate packing requested, but failed to get them from event!" << endl;
+    }
+  }
+
+  // get RCT Calo region digi
+  bool packRctCaloThisEvent = packRctCalo_;
+  edm::Handle<L1CaloRegionCollection> rctCalo;
+  if(packRctCaloThisEvent)
+  {
+
+    iEvent.getByLabel(rctInputLabelStr, rctCalo);
+    if(rctCalo.failedToGet())
+    {
+      packRctCaloThisEvent = false;
+      edm::LogWarning("GCT") << "RCT Calo Region packing requested, but failed to get them from event!" << endl;
+    }
+  }
+
   
   // create the raw data collection
   std::auto_ptr<FEDRawDataCollection> rawColl(new FEDRawDataCollection()); 
@@ -126,6 +152,8 @@ GctDigiToRaw::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
  
   // set the size & make pointers to the header, beginning of payload, and footer.
   const unsigned int rawSize = 80;  // MUST BE MULTIPLE OF 8! (slink packets are 64 bit, but using 8-bit data struct).
+  if(packRctEmThisEvent) { rawSize += 232; }  // Space for RCT EM Cands.
+  if(packRctCaloThisEvent) { rawSize += 800; }  // Space for RCT Calo Regions (plus a 32-bit word of padding to make divisible by 8)
   fedRawData.resize(rawSize);
   unsigned char * pHeader = fedRawData.data();  
   unsigned char * pPayload = pHeader + 8;
@@ -138,10 +166,25 @@ GctDigiToRaw::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   // Pack GCT jet output digis
   blockPacker_.writeGctOutJetBlock(pPayload, cenJets.product(), forJets.product(),
                                    tauJets.product(), jetCounts.product());
+  pPayload += 36; //advance payload pointer
   
-  // Pack GCT EM and energy sums digis; payload offset of 36 needed to get to the block header.
-  blockPacker_.writeGctOutEmAndEnergyBlock(pPayload + 36, isoEm.product(), nonIsoEm.product(),
+  // Pack GCT EM and energy sums digis.
+  blockPacker_.writeGctOutEmAndEnergyBlock(pPayload, isoEm.product(), nonIsoEm.product(),
                                            etTotal.product(), etHad.product(), etMiss.product());
+  pPayload += 28; //advance payload pointer
+
+  // Pack RCT EM Cands
+  if(packRctEmThisEvent)
+  {
+    blockPacker_.writeRctEmCandBlocks(pPayload, rctEm.product());
+    pPayload+=232;  //advance payload pointer
+  }
+
+  // Pack RCT Calo Regions
+  if(packRctCaloThisEvent)
+  {
+    blockPacker_.writeRctCaloRegionBlock(pPayload, rctCalo.product());
+  }
   
   // Write CDF footer (exactly as told by Marco Zanetti)
   FEDTrailer fedTrailer(pFooter);
