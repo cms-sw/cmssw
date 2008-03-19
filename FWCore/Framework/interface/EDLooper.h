@@ -8,66 +8,33 @@
 /**\class EDLooper EDLooper.h package/EDLooper.h
 
  Description: Base class for all looping components
-
- Usage:
-    <usage>
-
 */
 //
 // Author:      Valentin Kuznetsov
 // Created:     Wed Jul  5 11:42:17 EDT 2006
-// $Id: EDLooper.h,v 1.6 2007/06/25 23:22:11 wmtan Exp $
-//
-// Revision history
-//
-// $Log: EDLooper.h,v $
-// Revision 1.6  2007/06/25 23:22:11  wmtan
-// Remove unnecessary includes
-//
-// Revision 1.5  2007/06/14 17:52:15  wmtan
-// Remove unnecessary includes
-//
-// Revision 1.4  2007/03/04 06:00:22  wmtan
-// Move Provenance classes to DataFormats/Provenance
-//
-// Revision 1.3  2006/12/19 00:28:17  wmtan
-// changed (u)long to (u)int so that data is the same size on 32 and 64 bit machines
-//
-// Revision 1.2  2006/07/28 13:24:34  valya
-// Modified endOfLoop, now it accepts counter as a second argument. Add EDLooper calls to beginOfJob/endOfJob in EventProcessor
-//
-// Revision 1.1  2006/07/23 01:24:33  valya
-// Add looper support into framework. The base class is EDLooper. All the work done in EventProcessor and EventHelperLooper
+// $Id: EDLooper.h,v 1.7 2008/01/09 23:45:24 wdd Exp $
 //
 
-// system include files
-#include <string>
-#include <set>
-
-// user include files
-#include "DataFormats/Provenance/interface/PassID.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 
-// forward declarations
+#include <set>
 
 namespace edm {
   namespace eventsetup {
     class EventSetupRecordKey;
     class EventSetupProvider;
   }
-class EDLooper
-{
-      // ---------- friend classes and functions ---------------
+  class ActionTable;
 
-   public:
-      // ---------- constants, enums and typedefs --------------
+  class EDLooper
+  {
+    public:
+
       enum Status {kContinue, kStop};
 
-      // ---------- Constructors and destructor ----------------
       EDLooper();
       virtual ~EDLooper();
 
-      // ---------- member functions ---------------------------
       void doStartingNewLoop();
       Status doDuringLoop(edm::EventPrincipal& eventPrincipal, const edm::EventSetup& es);
       Status doEndOfLoop(const edm::EventSetup& es);
@@ -78,44 +45,19 @@ class EDLooper
       virtual Status duringLoop(const edm::Event&, const edm::EventSetup&) = 0; 
       virtual Status endOfLoop(const edm::EventSetup&, unsigned int iCounter) = 0; 
       virtual void endOfJob();
-      void loop(EDLooperHelper& iHelper, unsigned int numberToProcess); 
-      void setLooperName(const std::string& name) {name_=name;};
-      void setLooperPassID(const PassID& id) {passID_=id; processID_=passID_; }
-      PassID getLooperPassID() {return passID_;}
-      std::string getLooperName() {return name_;}
 
-      // ---------- const member functions ---------------------
+      void setActionTable(ActionTable* actionTable) { act_table_ = actionTable; }
+
       virtual std::set<eventsetup::EventSetupRecordKey> modifyingRecords() const;
 
-      // ---------- static member functions --------------------
+    private:
 
-   protected:
-      // ---------- protected member functions -----------------
-
-      // ---------- protected const member functions -----------
-
-   private:
-      // ---------- Constructors and destructor ----------------
       EDLooper( const EDLooper& ); // stop default
-
-      // ---------- assignment operator(s) ---------------------
       const EDLooper& operator=( const EDLooper& ); // stop default
 
-      // ---------- private member functions -------------------
-
-      // ---------- private const member functions -------------
-
-      // ---------- data members -------------------------------
-      std::string name_;
-      PassID passID_, processID_;
       unsigned int iCounter_;
-
-      // ---------- static data members ------------------------
-
-};
-
-// inline function definitions
-
+      ActionTable* act_table_;
+  };
 }
 
-#endif /* FWCORE_FRAMEWORK_EDLOOPER_H */
+#endif

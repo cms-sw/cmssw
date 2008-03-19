@@ -41,7 +41,6 @@
 
 #include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
 #include "FWCore/Framework/interface/Schedule.h"
-#include "FWCore/Framework/interface/EDLooperHelper.h"
 #include "FWCore/Framework/interface/EDLooper.h"
 
 #include "FWCore/Framework/src/EPStates.h"
@@ -561,8 +560,6 @@ namespace edm {
 				    common.processName_, 
 				    common.releaseVersion_, 
 				    common.passID_);
-        vLooper->setLooperName(common.processName_);
-        vLooper->setLooperPassID(common.passID_);
       }
       return vLooper;
     
@@ -751,8 +748,10 @@ namespace edm {
 
     esp_ = makeEventSetupProvider(*parameterSet);
     fillEventSetupProvider(*esp_, *parameterSet, common);
+
     looper_ = fillLooper(*esp_, *parameterSet, common);
-     
+    if (looper_) looper_->setActionTable(&act_table_);
+    
     input_= makeInput(*parameterSet, common, preg_,*actReg_);
     schedule_ = std::auto_ptr<Schedule>
       (new Schedule(*parameterSet,
@@ -839,105 +838,6 @@ namespace edm {
     changeState(mFinished);
     fb_.reset();
   }
-  
-  EventHelperDescription
-  EventProcessor::runOnce(boost::shared_ptr<RunPrincipal>& rp,
-                          boost::shared_ptr<LuminosityBlockPrincipal>& lbp)
-  {
-    
-    try {
-       // Job should be in sJobReady state, then we send mRunCount message and move job sRunning state
-       if(state_ == sJobReady) {
-          changeState(mRunCount);
-       }
-    } catch(...) {
-       actReg_->postEndJobSignal_();
-       throw;
-    }
-    EventHelperDescription evtDesc;
-    if(state_ != sRunning) {
-       return evtDesc;
-    }
-    StateSentry toerror(this);
-
-    //make the services available
-    ServiceRegistry::Operate operate(serviceToken_);
-
-//  Lay on a lock.
-//  N. B. It's a scoped lock so be sure to give it a scope.
-//  That's the reason for the apparently gratuitous { ... }.
-//  They are NOT gratuitous! Bad things will happen without them!
-    {
-      boost::mutex::scoped_lock sl(usr2_lock);
-      if(edm::shutdown_flag) {
-         changeState(mShutdownSignal);
-         toerror.succeeded();
-         return evtDesc;
-      }
-    }
-
-    if (!fb_) {
-      fb_ = beginInputFile();
-      if(!fb_) {
-        changeState(mInputExhausted);
-        toerror.succeeded();
-        return evtDesc;
-      }
-    }
-    if(!rp) {
-      //must be first time
-      bool foundLumi = false;
-      while(not foundLumi) {
-	rp = beginRun();
-        if(!rp) {
-          //reached end
-          changeState(mInputExhausted);
-          toerror.succeeded();
-          return evtDesc;
-        }
-	lbp = beginLuminosityBlock(rp);
-        if(!lbp) {
-	  endRun(rp.get());
-          continue;
-        }
-        break;
-      }
-    }
-    
-    bool doneProcessingEvent = false;
-    while(not doneProcessingEvent &&
-           state_ == sRunning) {
-      std::auto_ptr<EventPrincipal> pep = doOneEvent(lbp);
-      if(0 != pep.get()) {
-        toerror.succeeded();
-        return EventHelperDescription(pep, &esp_->eventSetup());
-      }
-      //handle end of lumi
-      endLuminosityBlock(lbp.get());
-
-      bool foundLumi = false;
-      while(not foundLumi) {
-        //try to get next lumi
-        lbp = beginLuminosityBlock(rp);
-        if(lbp) {
-          foundLumi = true;
-          break;
-        }
-        //handle end of run
-	endRun(rp.get());
-        //try to get next run
-        rp = beginRun();
-        if(!rp) { 
-          //reached end
-          changeState(mInputExhausted);
-          toerror.succeeded();
-          return evtDesc;
-        }
-      }
-    }
-    return evtDesc;
-  }
-  
   
   EventProcessor::StatusCode
   EventProcessor::processEvents(int & numberEventsToProcess) {
@@ -1276,10 +1176,6 @@ namespace edm {
     beginJob(); //make sure this was called
     StatusCode rc = epInputComplete;
     if(looper_) {
-       EDLooperHelper looperHelper(this);
-       looper_->loop(looperHelper,numberEventsToProcess);
-       //make sure we are in the stop state
-       changeState(mStopAsync);
     } else {
        rc = processInputFiles(numberEventsToProcess, repeatable, mRunCount);
     }

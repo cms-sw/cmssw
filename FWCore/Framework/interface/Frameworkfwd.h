@@ -5,7 +5,7 @@
   
 Forward declarations of types in the EDM.
 
-$Id: Frameworkfwd.h,v 1.42 2007/10/31 22:56:29 wmtan Exp $
+$Id: Frameworkfwd.h,v 1.43 2007/11/30 07:06:30 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -20,7 +20,6 @@ namespace edm {
   class EDAnalyzer;
   class EDFilter;
   class EDLooper;
-  class EDLooperHelper;
   class EDProducer;
   class Event;
   class EventPrincipal;
