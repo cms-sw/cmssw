@@ -15,8 +15,8 @@
 * with older data.
 * 
 * \author Robert Frazier
-* $Revision: 1.6 $
-* $Date: 2008/03/19 13:35:34 $
+* $Revision: 1.7 $
+* $Date: 2008/03/19 13:39:58 $
 */ 
 
  
@@ -24,13 +24,6 @@ class GctBlockHeaderBase
 {
 public:
 
-  // PUBLIC TYPEDEFS 
-  typedef std::map<unsigned int, unsigned int> BlockLengthMap;
-  typedef std::pair<unsigned int, unsigned int> BlockLengthPair;
-  typedef std::map<unsigned int, std::string> BlockNameMap;
-  typedef std::pair<unsigned int, std::string> BlockNamePair;
- 
- 
   // PUBLIC METHODS
 
   /// Construct with raw 32-bit header.
@@ -69,6 +62,13 @@ public:
 
 protected:
 
+  // PROTECTED TYPEDEFS 
+  typedef std::map<unsigned int, unsigned int> BlockLengthMap;
+  typedef std::pair<unsigned int, unsigned int> BlockLengthPair;
+  typedef std::map<unsigned int, std::string> BlockNameMap;
+  typedef std::pair<unsigned int, std::string> BlockNamePair;
+ 
+ 
   // PROTECTED MEMBER DATA
   uint32_t d; /// The header. Yes it really is protected data.
 
