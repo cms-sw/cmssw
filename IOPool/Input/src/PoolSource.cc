@@ -1,10 +1,11 @@
 /*----------------------------------------------------------------------
-$Id: PoolSource.cc,v 1.79 2008/02/28 20:54:43 wmtan Exp $
+$Id: PoolSource.cc,v 1.80 2008/03/01 17:48:13 wmtan Exp $
 ----------------------------------------------------------------------*/
 #include "PoolSource.h"
 #include "RootInputFileSequence.h"
 #include "DataFormats/Provenance/interface/ProductRegistry.h"
 #include "FWCore/Framework/interface/EventPrincipal.h"
+#include "FWCore/Framework/interface/FileBlock.h"
 #include "FWCore/Framework/interface/LuminosityBlockPrincipal.h"
 #include "FWCore/Framework/interface/RunPrincipal.h"
 #include "FWCore/Utilities/interface/Exception.h"
@@ -66,7 +67,12 @@ namespace edm {
 
   boost::shared_ptr<FileBlock>
   PoolSource::readFile_() {
-    return(primaryFileSequence_->readFile_());
+    if (secondaryFileSequence_) {
+        boost::shared_ptr<FileBlock> fb = primaryFileSequence_->readFile_();
+	fb->setNotFastCopyable();
+        return fb;
+    }
+    return primaryFileSequence_->readFile_();
   }
 
   void PoolSource::closeFile_() {
