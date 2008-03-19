@@ -12,9 +12,6 @@ using std::cout;
 using std::endl;
 using std::pair;
 
-// INITIALISE STATIC VARIABLES
-GctBlockUnpackerBase::RctCrateMap GctBlockUnpackerBase::rctCrate_ = GctBlockUnpackerBase::RctCrateMap();
-GctBlockUnpackerBase::BlockIdToEmCandIsoBoundMap GctBlockUnpackerBase::InternEmIsoBounds_ = GctBlockUnpackerBase::BlockIdToEmCandIsoBoundMap();
 
 GctBlockUnpackerBase::GctBlockUnpackerBase(bool hltMode):
   rctEm_(0),
@@ -37,21 +34,8 @@ GctBlockUnpackerBase::GctBlockUnpackerBase(bool hltMode):
   {
     initClass = false;
     
-    rctCrate_[0x81] = 13;
-    rctCrate_[0x89] = 9;
-    rctCrate_[0xC1] = 4;
-    rctCrate_[0xC9] = 0; 
 
-    // Setup Block ID map for pipeline payload positions of isolated Internal EM Cands.
-    InternEmIsoBounds_[0x69] = IsoBoundaryPair(8,15);
-    InternEmIsoBounds_[0x80] = IsoBoundaryPair(0, 9);
-    InternEmIsoBounds_[0x83] = IsoBoundaryPair(0, 1);
-    InternEmIsoBounds_[0x88] = IsoBoundaryPair(0, 7);
-    InternEmIsoBounds_[0x8b] = IsoBoundaryPair(0, 1);
-    InternEmIsoBounds_[0xc0] = IsoBoundaryPair(0, 9);
-    InternEmIsoBounds_[0xc3] = IsoBoundaryPair(0, 1);
-    InternEmIsoBounds_[0xc8] = IsoBoundaryPair(0, 7);
-    InternEmIsoBounds_[0xcb] = IsoBoundaryPair(0, 1);
+
   }
 }
 
@@ -93,10 +77,10 @@ void GctBlockUnpackerBase::blockToGctInternEmCand(const unsigned char * d, const
   unsigned int numCandPairs = hdr.length();
 
   // Debug assertion to prevent problems if definitions not up to date.
-  assert(InternEmIsoBounds_.find(id) != InternEmIsoBounds_.end());  
+  assert(internEmIsoBounds().find(id) != internEmIsoBounds().end());  
 
-  unsigned int lowerIsoPairBound = InternEmIsoBounds_[id].first;
-  unsigned int upperIsoPairBound = InternEmIsoBounds_[id].second;
+  unsigned int lowerIsoPairBound = internEmIsoBounds()[id].first;
+  unsigned int upperIsoPairBound = internEmIsoBounds()[id].second;
 
   // Re-interpret pointer to 16 bits so it sees one candidate at a time.
   uint16_t * p = reinterpret_cast<uint16_t *>(const_cast<unsigned char *>(d));
@@ -152,7 +136,7 @@ void GctBlockUnpackerBase::blockToRctEmCand(const unsigned char * d, const GctBl
   unsigned int bx = 0;
 
   // loop over crates
-  for (unsigned int crate=rctCrate_[id]; crate<rctCrate_[id]+length/3; ++crate) {
+  for (unsigned int crate=rctCrateMap()[id]; crate<rctCrateMap()[id]+length/3; ++crate) {
 
     // read SC SFP words
     for (unsigned short iSfp=0 ; iSfp<4 ; ++iSfp) {

@@ -13,8 +13,9 @@ using std::endl;
 using std::pair;
 
 // INITIALISE STATIC VARIABLES
+GctBlockUnpacker::RctCrateMap GctBlockUnpacker::rctCrate_ = GctBlockUnpacker::RctCrateMap();
+GctBlockUnpacker::BlockIdToEmCandIsoBoundMap GctBlockUnpacker::internEmIsoBounds_ = GctBlockUnpacker::BlockIdToEmCandIsoBoundMap();
 GctBlockUnpacker::BlockIdToUnpackFnMap GctBlockUnpacker::blockUnpackFn_ = GctBlockUnpacker::BlockIdToUnpackFnMap();
-
 
 // PUBLIC METHODS
 
@@ -26,6 +27,23 @@ GctBlockUnpacker::GctBlockUnpacker(bool hltMode):
   if(initClass)
   {
     initClass = false;
+
+    // Setup RCT crate map.
+    rctCrate_[0x81] = 13;
+    rctCrate_[0x89] = 9;
+    rctCrate_[0xc1] = 4;
+    rctCrate_[0xc9] = 0; 
+
+    // Setup Block ID map for pipeline payload positions of isolated Internal EM Cands.
+    internEmIsoBounds_[0x69] = IsoBoundaryPair(8,15);
+    internEmIsoBounds_[0x80] = IsoBoundaryPair(0, 9);
+    internEmIsoBounds_[0x83] = IsoBoundaryPair(0, 1);
+    internEmIsoBounds_[0x88] = IsoBoundaryPair(0, 7);
+    internEmIsoBounds_[0x8b] = IsoBoundaryPair(0, 1);
+    internEmIsoBounds_[0xc0] = IsoBoundaryPair(0, 9);
+    internEmIsoBounds_[0xc3] = IsoBoundaryPair(0, 1);
+    internEmIsoBounds_[0xc8] = IsoBoundaryPair(0, 7);
+    internEmIsoBounds_[0xcb] = IsoBoundaryPair(0, 1);
 
     // Setup block unpack function map
     blockUnpackFn_[0x00] = &GctBlockUnpacker::blockDoNothing;
