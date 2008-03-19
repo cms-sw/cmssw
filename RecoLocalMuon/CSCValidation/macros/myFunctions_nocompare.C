@@ -31,8 +31,6 @@ void Compare1DPlots1(std::string histoname, TFile* f1, TFile* f2, std::string hi
   c->SetFillStyle(4000);
   gStyle->SetOptStat(10);
   h1->UseCurrentStyle();
-  h2->UseCurrentStyle();
-  h2->SetFillColor(52);
 
   h1->SetTitle(histotitle.c_str());
   h1->GetXaxis()->SetLabelSize(0.04);
@@ -42,7 +40,6 @@ void Compare1DPlots1(std::string histoname, TFile* f1, TFile* f2, std::string hi
   h1->GetXaxis()->SetNdivisions(208,kTRUE);
 
   h1->Draw();
-  h2->Draw("same e");
 
   c->Update();
   c->Print(savename.c_str());
@@ -96,10 +93,8 @@ void Compare1DPlots2(std::string histoname1, std::string histoname2, TFile* f1, 
   c->Divide(1,2);
   c->cd(1);
   a1->Draw();
-  a2->Draw("same e");
   c->cd(2);
   b1->Draw();
-  b2->Draw("same e1");
 
   c->Update();
   c->Print(savename.c_str());
@@ -162,26 +157,20 @@ void GlobalrHPosfromTree(std::string graphname, TFile* f1, TFile* f2, int statio
   std::string name1 = graphname + " (Ref)";
   std::string name2 = graphname + " (New)";
   TCanvas *c = new TCanvas("c","my canvas",1);
-  c->SetCanvasSize(1300,700);
-  c->Divide(2,1);
+  c->SetCanvasSize(700,700);
   TGraph *graph1 = new TGraph(nstation1,globx1,globy1);
   TGraph *graph2 = new TGraph(nstation2,globx2,globy2);
 
 
-  std::string name1 = graphname + " (Ref)";
-  std::string name2 = graphname + " (New)";
+  std::string name1 = graphname;
+  std::string name2 = graphname;
 
   gStyle->SetTitleW(0.6);
   gStyle->SetTitleH(0.1);
 
-  c->cd(1);
   graph1->SetTitle(name1.c_str());
   graph1->UseCurrentStyle();
   graph1->Draw("AP");
-  c->cd(2);
-  graph2->SetTitle(name2.c_str());
-  graph2->UseCurrentStyle();
-  graph2->Draw("AP");
 
   //c->Update();
   c->Print(savename.c_str());
@@ -240,25 +229,19 @@ void GlobalsegPosfromTree(std::string graphname, TFile* f1, TFile* f2, int stati
     }
   }
 
-  std::string name1 = graphname + " (Ref)";
-  std::string name2 = graphname + " (New)";
+  std::string name1 = graphname;
+  std::string name2 = graphname;
   TCanvas *c = new TCanvas("c","my canvas",1);
-  c->SetCanvasSize(1300,700);
-  c->Divide(2,1);
+  c->SetCanvasSize(700,700);
   TGraph *graph1 = new TGraph(nstation1,globx1,globy1);
   TGraph *graph2 = new TGraph(nstation2,globx2,globy2);
 
   gStyle->SetTitleW(0.6);
   gStyle->SetTitleH(0.1);
 
-  c->cd(1);
   graph1->SetTitle(name1.c_str());
   graph1->UseCurrentStyle();
   graph1->Draw("AP");
-  c->cd(2);
-  graph2->SetTitle(name2.c_str());
-  graph2->UseCurrentStyle();
-  graph2->Draw("AP");
 
   //c->Update();
   c->Print(savename.c_str());

@@ -1,32 +1,32 @@
 #!/bin/bash
 
+# this script will take output histos from CSCValidation and make 'nice' looking .gifs
+#
 # to run this script, do
-# ./makeComparisonPlots.sh <filepath_new> <filepath_ref> <data_type>
-# where <filepath_new> and <filepath_ref> are the paths to the output root files from CSCValiation
+# ./makePlots.sh <filepath> <data_type>
+# where <filepath> is the paths to the output root files from CSCValiation
 # data_type is an int (1 = data ; 2 = MC)
 
-# example:  ./makeComparisonPlots.sh CMSSW_1_8_0_pre8/src/RecoLocalMuon/CSCValidation/test/ CMSSW_1_7_4/src/RecoLocalMuon/CSCValidation/test/ 2
+# example:  ./makeComparisonPlots.sh CMSSW_1_8_0_pre8/src/RecoLocalMuon/CSCValidation/test/ 2
 
 ARG1=$1
 ARG2=$2
-ARG3=$3
 
 MACRO=makePlots.C
 cat > ${MACRO}<<EOF
 
 {
   gROOT->Reset();
-  gROOT->ProcessLine(".L myFunctions.C");
+  gROOT->ProcessLine(".L myFunctions_nocompare.C");
 
-  std::string newReleasePath = "${ARG1}";
-  std::string refReleasePath = "${ARG2}";
-  int datatype = ${ARG3};              // 1 = data, 2 = mc
+  std::string Path = "${ARG1}";
+  int datatype = ${ARG2};              // 1 = data, 2 = mc
 
   TFile *f1;
   TFile *f2;
 
-  f1 = OpenFiles(refReleasePath,datatype);
-  f2 = OpenFiles(newReleasePath,datatype);
+  f1 = OpenFiles(Path,datatype);
+  f2 = OpenFiles(Path,datatype);
 
   //procuce wire and strip digi comparison plots
   Compare1DPlots2("Digis/hStripAll","Digis/hWireAll",f1,f2,"Strip Numbers Fired (All Chambers)","Wire Groups Fired (All Chambers)","digi_stripswires_all.gif");
@@ -57,14 +57,14 @@ cat > ${MACRO}<<EOF
   Compare1DPlots2("Digis/hStripStrip41","Digis/hWireWire41",f1,f2,"Strip Numbers Fired(ME 41)","Wiregroup Numbers Fired (ME 41)","digi_stripswires_41.gif");
   Compare1DPlots2("Digis/hStripStrip42","Digis/hWireWire42",f1,f2,"Strip Numbers Fired(ME 42)","Wiregroup Numbers Fired (ME 42)","digi_stripswires_42.gif");
   Compare1DPlots1("Digis/hWireTBinAll",f1,f2,"Signal Time Bin for All Wires","digi_wireTB.gif");
-
+/*
   //produce pedestal noise plots
   Compare1DPlots2("PedestalNoise/hStripPedME11","PedestalNoise/hStripPedME11",f1,f2,"Pedestal Noise Distribution Chamber ME11","Pedestal Noise Distribution Chamber ME11","noise_ME11.gif");
   Compare1DPlots2("PedestalNoise/hStripPedME12","PedestalNoise/hStripPedME13",f1,f2,"Pedestal Noise Distribution Chamber ME12","Pedestal Noise Distribution Chamber ME13","noise_ME12_ME13.gif");
   Compare1DPlots2("PedestalNoise/hStripPedME21","PedestalNoise/hStripPedME22",f1,f2,"Pedestal Noise Distribution Chamber ME21","Pedestal Noise Distribution Chamber ME22","noise_ME21_ME22.gif");
   Compare1DPlots2("PedestalNoise/hStripPedME31","PedestalNoise/hStripPedME32",f1,f2,"Pedestal Noise Distribution Chamber ME31","Pedestal Noise Distribution Chamber ME32","noise_ME31_ME32.gif");
   Compare1DPlots2("PedestalNoise/hStripPedME41","PedestalNoise/hStripPedME42",f1,f2,"Pedestal Noise Distribution Chamber ME41","Pedestal Noise Distribution Chamber ME42","noise_ME41_ME42.gif");
-
+*/
 
   //produce rechit comparison plots
   Compare1DPlots1("recHits/hRHCodeBroad",f1,f2,"hRHCodeBroad","rH_hRHCodeBroad.gif"); 
