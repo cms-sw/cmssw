@@ -1,8 +1,8 @@
 /*
  * \file EcalEndcapMonitorModule.cc
  *
- * $Date: 2008/02/27 16:03:12 $
- * $Revision: 1.45 $
+ * $Date: 2008/02/29 15:06:57 $
+ * $Revision: 1.46 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -285,6 +285,7 @@ void EcalEndcapMonitorModule::cleanup(void){
     if ( enableEventDisplay_ ) {
 
       dbe_->setCurrentFolder("EcalEndcap/EcalEvent");
+
       for (int i = 0; i < 18; i++) {
 
         if ( meEvent_[i] ) dbe_->removeElement( meEvent_[i]->getName() );

@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorModule.cc
  *
- * $Date: 2008/02/27 16:03:08 $
- * $Revision: 1.169 $
+ * $Date: 2008/02/29 15:03:23 $
+ * $Revision: 1.170 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -285,6 +285,7 @@ void EcalBarrelMonitorModule::cleanup(void){
     if ( enableEventDisplay_ ) {
 
       dbe_->setCurrentFolder("EcalBarrel/EcalEvent");
+
       for (int i = 0; i < 36; i++) {
 
         if ( meEvent_[i] ) dbe_->removeElement( meEvent_[i]->getName() );
