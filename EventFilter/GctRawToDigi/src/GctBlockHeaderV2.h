@@ -38,20 +38,20 @@ public:
 protected:
 
   BlockLengthMap& blockLengthMap() { return blockLength_; }
-  const BlockLengthMap& blockLengthMap() const { return blockLength_; }
+  const BlockLengthMap& blockLengthMap() const { return blockLengthV2_; }
   
   /// Pure virtual interface for accessing concrete-subclass static blockname map.
   BlockNameMap& blockNameMap() { return blockName_; }
-  const BlockNameMap& blockNameMap() const { return blockName_; }
+  const BlockNameMap& blockNameMap() const { return blockNameV2_; }
   
 
 private:
 
   /// Map to translate block number to fundamental size of a block (i.e. for 1 time-sample).
-  static BlockLengthMap blockLength_;
+  static BlockLengthMap blockLengthV2_;
   
   /// Map to hold a description for each block number.
-  static BlockNameMap blockName_;
+  static BlockNameMap blockNameV2_;
 };
 
 #endif /*GCTBLOCKHEADERV2_H_*/

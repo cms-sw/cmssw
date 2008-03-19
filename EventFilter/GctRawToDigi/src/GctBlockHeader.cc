@@ -41,7 +41,7 @@ pair<unsigned, unsigned> a[] = {
   pair<unsigned, unsigned>(0xff,198)  // Our temp hack RCT calo block
 };
 
-map<unsigned, unsigned> GctBlockHeader::blockLength_(a, a + sizeof(a) / sizeof(a[0]));
+GctBlockHeaderBase::BlockLengthMap GctBlockHeader::blockLength_(a, a + sizeof(a) / sizeof(a[0]));
 
 /// setup class static to lookup block name
 pair<unsigned, string> b[] = {
@@ -70,5 +70,5 @@ pair<unsigned, string> b[] = {
   pair<unsigned, string>(0xff,"All RCT Calo Regions")  // Our temp hack RCT calo block
 };
 
-map<unsigned, string> GctBlockHeader::blockName_(b, b + sizeof(b) / sizeof(b[0]));
+GctBlockHeaderBase::BlockNameMap GctBlockHeader::blockName_(b, b + sizeof(b) / sizeof(b[0]));
 
