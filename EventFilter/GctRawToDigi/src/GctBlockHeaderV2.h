@@ -37,11 +37,11 @@ public:
 
 protected:
 
-  BlockLengthMap& blockLengthMap() { return blockLength_; }
+  BlockLengthMap& blockLengthMap() { return blockLengthV2_; }
   const BlockLengthMap& blockLengthMap() const { return blockLengthV2_; }
   
   /// Pure virtual interface for accessing concrete-subclass static blockname map.
-  BlockNameMap& blockNameMap() { return blockName_; }
+  BlockNameMap& blockNameMap() { return blockNameV2_; }
   const BlockNameMap& blockNameMap() const { return blockNameV2_; }
   
 
