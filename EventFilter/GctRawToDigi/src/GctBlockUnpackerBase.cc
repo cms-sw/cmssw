@@ -60,7 +60,6 @@ GctBlockUnpackerBase::~GctBlockUnpackerBase() { }
 // conversion
 bool GctBlockUnpackerBase::checkBlock(const GctBlockHeaderBase& hdr)
 {
-  unsigned int id = hdr.id();
   unsigned int nSamples = hdr.nSamples();
 
   // if the block has no time samples, don't bother
