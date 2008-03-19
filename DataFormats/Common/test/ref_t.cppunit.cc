@@ -9,7 +9,7 @@
 #include <cppunit/extensions/HelperMacros.h>
 #include <vector>
 #include "DataFormats/Common/interface/EDProductGetter.h"
-#include "DataFormats/Common/interface/TestHandle.h"
+#include "DataFormats/Common/interface/OrphanHandle.h"
 
 #include "DataFormats/Common/interface/Ref.h"
 #include "DataFormats/Common/interface/RefProd.h"
@@ -68,7 +68,7 @@ void testRef::constructTest() {
    dummyCollection.push_back(dummy);
    dummyCollection.push_back(dummy);
    dummyCollection.push_back(dummy);
-   TestHandle<DummyCollection> handle(&dummyCollection, pid);
+   OrphanHandle<DummyCollection> handle(&dummyCollection, pid);
    Ref<DummyCollection> dummyRef(handle,key);
    RefProd<DummyCollection> dummyRefProd(handle);
 
@@ -94,8 +94,8 @@ void testRef::comparisonTest() {
    Dummy const dummy;
    DummyCollection dummyCollection;
    dummyCollection.push_back(dummy);
-   TestHandle<DummyCollection> handle(&dummyCollection, pid);
-   TestHandle<DummyCollection> handle2(&dummyCollection, pid);
+   OrphanHandle<DummyCollection> handle(&dummyCollection, pid);
+   OrphanHandle<DummyCollection> handle2(&dummyCollection, pid);
    Ref<DummyCollection> dummyRef1(handle, key);
    Ref<DummyCollection> dummyRef2(handle2, key);
    RefProd<DummyCollection> dummyRefProd1(handle);
@@ -122,7 +122,7 @@ void testRef::comparisonTest() {
    CPPUNIT_ASSERT(!(dummyRefNewKey < dummyRef1));
 
    ProductID const pidOther(4);
-   TestHandle<DummyCollection> handleNewPID(&dummyCollection, pidOther);
+   OrphanHandle<DummyCollection> handleNewPID(&dummyCollection, pidOther);
    Ref<DummyCollection> dummyRefNewPID(handleNewPID, key);
    RefProd<DummyCollection> dummyRefProdNewPID(handleNewPID);
    CPPUNIT_ASSERT(!(dummyRef1 == dummyRefNewPID));
@@ -138,7 +138,7 @@ void testRef::comparisonTest() {
    DummyCollection2 dummyCollection2;
    dummyCollection2.insert(std::make_pair(1, 1.0));
    dummyCollection2.insert(std::make_pair(2, 2.0));
-   TestHandle<DummyCollection2> handle2(&dummyCollection2, pid2);
+   OrphanHandle<DummyCollection2> handle2(&dummyCollection2, pid2);
    Ref<DummyCollection2> dummyRef21(handle2, 1);
    Ref<DummyCollection2> dummyRef22(handle2, 2);
    CPPUNIT_ASSERT(dummyRef21 != dummyRef22);
@@ -150,7 +150,7 @@ void testRef::comparisonTest() {
    DummyCollection3 dummyCollection3;
    dummyCollection3.insert(std::make_pair(1, 1.0));
    dummyCollection3.insert(std::make_pair(2, 2.0));
-   TestHandle<DummyCollection3> handle3(&dummyCollection3, pid3);
+   OrphanHandle<DummyCollection3> handle3(&dummyCollection3, pid3);
    Ref<DummyCollection3> dummyRef31(handle3, 1);
    Ref<DummyCollection3> dummyRef32(handle3, 2);
    CPPUNIT_ASSERT(dummyRef31 != dummyRef32);
@@ -190,7 +190,7 @@ void testRef::getTest() {
 
    IntCollection const* wptr = dynamic_cast<IntCollection const*>(wrapper.product());
 
-   TestHandle<IntCollection> handle(wptr, pid);
+   OrphanHandle<IntCollection> handle(wptr, pid);
 
    Ref<IntCollection> ref0(handle, 0);
    ref0.ref().refCore().setProductGetter(&tester);
