@@ -13,7 +13,7 @@
 //
 // Original Author:  Jim Pivarski
 //         Created:  Sat Feb 16 00:04:55 CST 2008
-// $Id$
+// $Id: MuonGeometryDBConverter.cc,v 1.9 2008/03/15 20:26:46 pivarski Exp $
 //
 //
 
@@ -88,14 +88,14 @@ MuonGeometryDBConverter::MuonGeometryDBConverter(const edm::ParameterSet &iConfi
 
    else if (m_input == std::string("db")) {
       m_dtLabel = iConfig.getParameter<std::string>("dtLabel");
-      m_cscLabel = iConfig.getParameter<std::string>("dtLabel");
+      m_cscLabel = iConfig.getParameter<std::string>("cscLabel");
       m_shiftErr = iConfig.getParameter<double>("shiftErr");
       m_angleErr = iConfig.getParameter<double>("angleErr");
    }
 
    else if (m_input == std::string("surveydb")) {
       m_dtLabel = iConfig.getParameter<std::string>("dtLabel");
-      m_cscLabel = iConfig.getParameter<std::string>("dtLabel");
+      m_cscLabel = iConfig.getParameter<std::string>("cscLabel");
    }
 
    else if (m_input == std::string("scenario")) {
