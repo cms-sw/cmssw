@@ -16,7 +16,7 @@
 //
 // Original Author:  Jim Brooke
 //         Created:  Wed Nov  1 11:57:10 CET 2006
-// $Id: GctRawToDigi.h,v 1.14 2008/03/19 11:34:00 frazier Exp $
+// $Id: GctRawToDigi.h,v 1.15 2008/03/19 11:46:50 frazier Exp $
 //
 //
 
@@ -60,7 +60,11 @@ private: // methods
 
 private: // members
 
+  /// The maximum number of blocks we will try to unpack before thinking something is wrong
   static const unsigned MAX_BLOCKS = 256;
+
+  /// The maximum number of block unpack failures we will tolerate before bailing
+  static const unsigned MAX_UNPACK_FAILURES = 10;
 
   edm::InputTag inputLabel_;  // FED collection label.
   int fedId_;                 // GCT FED ID.
@@ -79,6 +83,7 @@ private: // members
   // Block to Digi converter
   GctBlockUnpackerBase * blockUnpacker_;
 
+  unsigned blockUnpackFailures;
 };
 
 #endif

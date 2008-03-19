@@ -52,7 +52,8 @@ GctRawToDigi::GctRawToDigi(const edm::ParameterSet& iConfig) :
   doInternEm_(iConfig.getUntrackedParameter<bool>("unpackInternEm",true)),
   doRct_(iConfig.getUntrackedParameter<bool>("unpackRct",true)),
   doFibres_(iConfig.getUntrackedParameter<bool>("unpackFibres",true)),
-  blockUnpacker_(0)
+  blockUnpacker_(0),
+  unpackFailures(0)
 {
   edm::LogInfo("GCT") << "GctRawToDigi will unpack FED Id " << fedId_ << endl;
 
@@ -102,6 +103,8 @@ void GctRawToDigi::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
    using namespace edm;
 
+  if(unpackFailures >= MAX_UNPACK_FAILURES) { return; }  // Skip if reached failure limit already.
+
    // get raw data collection
    edm::Handle<FEDRawDataCollection> feds;
    iEvent.getByLabel(inputLabel_, feds);
@@ -111,13 +114,14 @@ void GctRawToDigi::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
   bool invalidDataFlag = false;
   
-  // do a simple check of the raw data
-  if (gctRcd.size() < 16)
+  // do a simple check of the raw data - this will detect empty events
+  if(gctRcd.size() < 16)
   {
       edm::LogWarning("Empty/Invalid Data") << "Cannot unpack: empty/invalid GCT raw data (size = "
                                             << gctRcd.size()
                                             << "). Returning empty collections!";
       invalidDataFlag = true;
+      // Note - this does NOT qualify as an unpack failure - could be empty event.
   }
 
   unpack(gctRcd, iEvent, invalidDataFlag);
@@ -180,15 +184,21 @@ void GctRawToDigi::unpack(const FEDRawData& d, edm::Event& e, const bool invalid
     edm::OwnVector<GctBlockHeaderBase> bHdrs; // Self-cleaning vector for storing block headers for verbosity print-out.
 
     // read blocks
-    for (unsigned nb=0; dPtr<dEnd && nb<MAX_BLOCKS; ++nb)
+    for (unsigned nb=0; dPtr<dEnd; ++nb)
     {
+      if(nb >= MAX_BLOCKS) { edm::LogError("GCT") << "Reached block limit - bailing out from this event!" << endl; ++unpackFailures; break; }
+      
       // read block header
       std::auto_ptr<GctBlockHeaderBase> blockHeader;
       if(grenCompatibilityMode_) { blockHeader = std::auto_ptr<GctBlockHeaderBase>(new GctBlockHeader(&data[dPtr])); }
       else { blockHeader = std::auto_ptr<GctBlockHeaderBase>(new GctBlockHeaderV2(&data[dPtr])); }
       
-       // unpack the block
-      blockUnpacker_->convertBlock(&data[dPtr+4], *blockHeader);  // dPtr+4 to get to the block data.
+      // unpack the block; dPtr+4 is to get to the block data.
+      if(!blockUnpacker_->convertBlock(&data[dPtr+4], *blockHeader)) // Record if we had an unpack problem then skip rest of event.
+      {
+        edm::LogError("GCT") << "Encountered block unpack problem - bailing out from this event!" << endl;
+        ++unpackFailures; break;
+      } 
   
       // advance pointer
       unsigned blockLen = blockHeader->length();
@@ -244,7 +254,6 @@ void GctRawToDigi::unpack(const FEDRawData& d, edm::Event& e, const bool invalid
     e.put(rctCalo);
   }
   if (!hltMode_ && doFibres_)   { e.put(gctFibres); }
-
 }
 
 
@@ -256,7 +265,12 @@ GctRawToDigi::beginJob(const edm::EventSetup&)
 
 // ------------ method called once each job just after ending the event loop  ------------
 void 
-GctRawToDigi::endJob() {
+GctRawToDigi::endJob()
+{
+  if(unpackFailures >= MAX_UNPACK_FAILURES)
+  {
+    edm::LogError("GCT") << "GCT unpacker is bailing - too many unpack errors!" << endl;
+  }  
 }
 
 
