@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Thu Jan  3 14:59:23 EST 2008
-// $Id: FWEventItem.cc,v 1.10 2008/03/01 02:17:49 chrjones Exp $
+// $Id: FWEventItem.cc,v 1.11 2008/03/05 15:11:32 chrjones Exp $
 //
 
 // system include files
@@ -42,7 +42,8 @@ FWEventItem::FWEventItem(FWModelChangeManager* iCM,
 			 const FWDisplayProperties& iProperties,
 			 const std::string& iModuleLabel,
 			 const std::string& iProductInstanceLabel,
-			 const std::string& iProcessName) :
+			 const std::string& iProcessName,
+                         unsigned int iLayer) :
   m_changeManager(iCM),
   m_selectionManager(iSM),
   m_id(iId),
@@ -53,6 +54,7 @@ FWEventItem::FWEventItem(FWModelChangeManager* iCM,
   m_data(0),
   m_collectionOffset(0),
   m_displayProperties(iProperties),
+  m_layer(iLayer),
   m_moduleLabel(iModuleLabel),
   m_productInstanceLabel(iProductInstanceLabel),
   m_processName(iProcessName),
@@ -84,6 +86,7 @@ m_colProxy(m_type->GetCollectionProxy()?m_type->GetCollectionProxy()->Generate()
 m_data(0),
 m_collectionOffset(0),
 m_displayProperties(iDesc.displayProperties()),
+m_layer(iDesc.layer()),
 m_moduleLabel(iDesc.moduleLabel()),
 m_productInstanceLabel(iDesc.productInstanceLabel()),
 m_processName(iDesc.processName()),
@@ -339,6 +342,13 @@ FWEventItem::defaultDisplayProperties() const
 {
   return m_displayProperties;
 }
+
+unsigned int 
+FWEventItem::layer() const
+{
+   return m_layer;
+}
+
 
 unsigned int 
 FWEventItem::id() const

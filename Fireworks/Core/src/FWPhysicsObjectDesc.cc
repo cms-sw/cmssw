@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Jan 15 15:05:02 EST 2008
-// $Id: FWPhysicsObjectDesc.cc,v 1.1 2008/01/15 22:39:41 chrjones Exp $
+// $Id: FWPhysicsObjectDesc.cc,v 1.2 2008/03/01 02:15:42 chrjones Exp $
 //
 
 // system include files
@@ -34,13 +34,15 @@ FWPhysicsObjectDesc::FWPhysicsObjectDesc(const std::string& iName,
                                          const std::string& iModuleLabel,
                                          const std::string& iProductInstanceLabel,
                                          const std::string& iProcessName,
-                                         const std::string& iFilterExpression) :
+                                         const std::string& iFilterExpression,
+                                         unsigned int iLayer) :
 m_name(iName),
 m_type(iClass),
 m_displayProperties(iProperties),
 m_moduleLabel(iModuleLabel),
 m_productInstanceLabel(iProductInstanceLabel),
 m_processName(iProcessName),
+m_layer(iLayer),
 m_filterExpression(iFilterExpression)
 {
 }
@@ -121,6 +123,12 @@ const std::string&
 FWPhysicsObjectDesc::processName() const
 {
    return m_processName;
+}
+
+unsigned int
+FWPhysicsObjectDesc::layer() const 
+{
+   return m_layer;
 }
 
 const std::string&

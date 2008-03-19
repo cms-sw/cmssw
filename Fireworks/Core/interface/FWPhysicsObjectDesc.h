@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Jan 15 15:04:58 EST 2008
-// $Id: FWPhysicsObjectDesc.h,v 1.1 2008/01/15 22:39:42 chrjones Exp $
+// $Id: FWPhysicsObjectDesc.h,v 1.2 2008/03/01 02:15:42 chrjones Exp $
 //
 
 // system include files
@@ -39,7 +39,8 @@ class FWPhysicsObjectDesc
                           const std::string& iModuleLabel = std::string(),
                           const std::string& iProductInstanceLabel = std::string(),
                           const std::string& iProcessName = std::string(),
-                          const std::string& iFilterExpression = std::string());
+                          const std::string& iFilterExpression = std::string(),
+                          unsigned int iLayer=1);
       //virtual ~FWPhysicsObjectDesc();
 
       // ---------- const member functions ---------------------
@@ -51,6 +52,9 @@ class FWPhysicsObjectDesc
       const std::string& moduleLabel() const;
       const std::string& productInstanceLabel() const;
       const std::string& processName() const;
+   
+      //objects with a larger layer number are draw on top of objects with a lower layer number
+      unsigned int layer() const;
    
       const std::string& filterExpression() const;
       // ---------- static member functions --------------------
@@ -76,6 +80,8 @@ class FWPhysicsObjectDesc
       std::string m_productInstanceLabel;
       std::string m_processName;
       
+      unsigned int m_layer;
+   
       std::string m_filterExpression;
 };
 

@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Jan  3 14:02:21 EST 2008
-// $Id: FWEventItem.h,v 1.14 2008/03/01 02:17:48 chrjones Exp $
+// $Id: FWEventItem.h,v 1.15 2008/03/05 17:29:14 chrjones Exp $
 //
 
 // system include files
@@ -73,7 +73,8 @@ class FWEventItem
 		  FWDisplayProperties(),
 		  const std::string& iModuleLabel = std::string(),
 		  const std::string& iProductInstanceLabel = std::string(),
-		  const std::string& iProcessName = std::string());
+		  const std::string& iProcessName = std::string(),
+                  unsigned int iLayer=1);
    
       FWEventItem(FWModelChangeManager* iCM,
                   FWSelectionManager* iSM,
@@ -90,6 +91,8 @@ class FWEventItem
 #endif
       const void* data(const std::type_info&) const;
       const FWDisplayProperties& defaultDisplayProperties() const;
+   
+      unsigned int layer() const;
    
       const std::string& filterExpression() const;
       /**Unique ID for the item. This number starts at 0 and increments by one for each
@@ -165,6 +168,7 @@ class FWEventItem
       mutable const void * m_data;
       size_t m_collectionOffset;
       FWDisplayProperties m_displayProperties;
+      unsigned int m_layer;
       mutable std::vector<ModelInfo> m_itemInfos;
 
       //This will probably moved to a FWEventItemRetriever class
