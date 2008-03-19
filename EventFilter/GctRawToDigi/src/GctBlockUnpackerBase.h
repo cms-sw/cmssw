@@ -26,8 +26,8 @@
 * with older data.
 *
 * \author Robert Frazier
-* $Revision: 1.5 $
-* $Date: 2008/03/19 16:14:58 $
+* $Revision: 1.6 $
+* $Date: 2008/03/19 16:20:02 $
 */ 
 
 
@@ -69,8 +69,8 @@ public:
   void setEtHad(L1GctEtHad* etHad) { gctEtHad_ = etHad; }
   void setEtMiss(L1GctEtMiss* etMiss) { gctEtMiss_ = etMiss; }
 
-  /// Get digis from the block.
-  virtual void convertBlock(const unsigned char * d, const GctBlockHeaderBase& hdr) = 0;
+  /// Get digis from the block - will return true if it succeeds, false otherwise.
+  virtual bool convertBlock(const unsigned char * d, const GctBlockHeaderBase& hdr) = 0;
 
 protected:
  

@@ -9,8 +9,8 @@
 * 
 * 
 * \author Robert Frazier
-* $Revision: 1.19 $
-* $Date: 2008/03/19 13:35:34 $
+* $Revision: 1.20 $
+* $Date: 2008/03/19 16:14:58 $
 */ 
 
 
@@ -28,8 +28,8 @@ public:
   
   ~GctBlockUnpacker(); ///< Destructor.
   
-  /// Get digis from the block.
-  void convertBlock(const unsigned char * d, const GctBlockHeaderBase& hdr);
+  /// Get digis from the block - will return true if it succeeds, false otherwise.
+  bool convertBlock(const unsigned char * d, const GctBlockHeaderBase& hdr);
 
 
 protected:

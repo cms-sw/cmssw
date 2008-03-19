@@ -77,12 +77,14 @@ GctBlockUnpacker::~GctBlockUnpacker() { }
 // conversion
 void GctBlockUnpacker::convertBlock(const unsigned char * data, const GctBlockHeaderBase& hdr)
 {
-  if(!checkBlock(hdr)) { return; }  // Check the block to see if it's possible to unpack.
+  if(!checkBlock(hdr)) { return false; }  // Check the block to see if it's possible to unpack.
 
   // The header validity check above will protect against 
   // the map::find() method returning the end of the map,
   // assuming the block header definitions are up-to-date.
   (this->*blockUnpackFn_.find(hdr.id())->second)(data, hdr);  // Calls the correct unpack function, based on block ID.
+  
+  return true;
 }
 
 
