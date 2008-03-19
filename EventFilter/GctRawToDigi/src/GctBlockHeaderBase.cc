@@ -8,13 +8,13 @@ GctBlockHeaderBase::GctBlockHeaderBase(const unsigned char * data)
 unsigned int GctBlockHeaderBase::length() const
 {
   if(!valid()) { return 0; }
-  return blockLengthMap()[this->id()];
+  return blockLengthMap().find(this->id())->second;
 }
 
 std::string GctBlockHeaderBase::name() const
 {
   if(!valid()) { return "Unknown/invalid block header"; }
-  return blockNameMap()[this->id()];
+  return blockNameMap().find(this->id())->second;
 }
 
 std::ostream& operator<<(std::ostream& os, const GctBlockHeaderBase& h)
