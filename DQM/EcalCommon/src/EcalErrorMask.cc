@@ -1,11 +1,11 @@
-// $Id: EcalErrorMask.cc,v 1.26 2008/03/14 14:38:57 dellaric Exp $
+// $Id: EcalErrorMask.cc,v 1.27 2008/03/15 13:05:49 dellaric Exp $
 
 /*!
   \file EcalErrorMask.cc
   \brief Error mask from text file or database
   \author B. Gobbo
-  \version $Revision: 1.26 $
-  \date $Date: 2008/03/14 14:38:57 $
+  \version $Revision: 1.27 $
+  \date $Date: 2008/03/15 13:05:49 $
 */
 
 #include "OnlineDB/EcalCondDB/interface/EcalCondDBInterface.h"
@@ -550,79 +550,89 @@ void EcalErrorMask::readDB( EcalCondDBInterface* eConn, RunIOV* runIOV ) throw( 
     RunTag runTag = runIOV->getRunTag();
 
 /*
+    std::cout << " RunCrystalErrorsDat: ";
     try {
       eConn->fetchValidDataSet( &EcalErrorMask::mapCrystalErrors_, &validIOV, &runTag, runIOV->getRunNumber() );
-      std::cout << "RunCrystalErrorsDat ";
+      std::cout << "found" << std::endl;
     } catch ( std::runtime_error &e ) {
-      std::cout << "(not found) ";
+      std::cout << "not found" << std::endl;
       throw( std::runtime_error( e.what() ) );
     }
 
     // use the IOV for CrystalErrors as reference
     EcalErrorMask::runNb_ = validIOV.getRunNumber();
 
+    std::cout << " RunTTErrorsDat: ";
     try {
       eConn->fetchValidDataSet( &EcalErrorMask::mapTTErrors_,      &validIOV, &runTag, runIOV->getRunNumber() );
-      std::cout << " RunTTErrorsDat ";
+      std::cout << "found" << std::endl;
     } catch ( std::runtime_error &e ) {
-      std::cout << "(not found) ";
+      std::cout << "not found" << std::endl;
     }
+    std::cout << " RunPNErrorsDat: ";
     try {
       eConn->fetchValidDataSet( &EcalErrorMask::mapPNErrors_,      &validIOV, &runTag, runIOV->getRunNumber() );
-      std::cout << " RunPNErrorsDat ";
+      std::cout << "found" << std::endl;
     } catch ( std::runtime_error &e ) {
-      std::cout << "(not found) ";
+      std::cout << "not found" << std::endl;
     }
+    std::cout << " RunMemChErrorsDat: ";
     try {
       eConn->fetchValidDataSet( &EcalErrorMask::mapMemChErrors_,   &validIOV, &runTag, runIOV->getRunNumber() );
-      std::cout << " RunMemChErrorsDat ";
+      std::cout << "found" << std::endl;
     } catch ( std::runtime_error &e ) {
-      std::cout << "(not found) ";
+      std::cout << "not found" << std::endl;
     }
+    std::cout << " RunMemTTErrorsDat: ";
     try {
       eConn->fetchValidDataSet( &EcalErrorMask::mapMemTTErrors_,   &validIOV, &runTag, runIOV->getRunNumber() );
-      std::cout << " RunMemTTErrorsDat ";
+      std::cout << "found" << std::endl;
     } catch ( std::runtime_error &e ) {
-      std::cout << "(not found) ";
+      std::cout << "not found" << std::endl;
     }
 */
 
     string location = runTag.getLocationDef().getLocation();
 
+    std::cout << " RunCrystalErrorsDat: ";
     try {
       eConn->fetchValidDataSet( &EcalErrorMask::mapCrystalErrors_, &validIOV, location, runIOV->getRunNumber() );
-      std::cout << "RunCrystalErrorsDat ";
+      std::cout << "found" << std::endl;
     } catch ( std::runtime_error &e ) {
-      std::cout << "(not found) ";
+      std::cout << "not found" << std::endl;
       throw( std::runtime_error( e.what() ) );
     }
 
     // use the IOV for CrystalErrors as reference
     EcalErrorMask::runNb_ = validIOV.getRunNumber();
 
+    std::cout << " RunTTErrorsDat: ";
     try {
       eConn->fetchValidDataSet( &EcalErrorMask::mapTTErrors_,      &validIOV, location, runIOV->getRunNumber() );
-      std::cout << " RunTTErrorsDat ";
+      std::cout << "found" << std::endl;
     } catch ( std::runtime_error &e ) {
-      std::cout << "(not found) ";
+      std::cout << "not found" << std::endl;
     }
+    std::cout << " RunPNErrorsDat: ";
     try {
       eConn->fetchValidDataSet( &EcalErrorMask::mapPNErrors_,      &validIOV, location, runIOV->getRunNumber() );
-      std::cout << " RunPNErrorsDat ";
+      std::cout << "found" << std::endl;
     } catch ( std::runtime_error &e ) {
-      std::cout << "(not found) ";
+      std::cout << "not found" << std::endl;
     }
+    std::cout << " RunMemChErrorsDat: ";
     try {
       eConn->fetchValidDataSet( &EcalErrorMask::mapMemChErrors_,   &validIOV, location, runIOV->getRunNumber() );
-      std::cout << " RunMemChErrorsDat ";
+      std::cout << "found" << std::endl;
     } catch ( std::runtime_error &e ) {
-      std::cout << "(not found) ";
+      std::cout << "not found" << std::endl;
     }
+    std::cout << " RunMemTTErrorsDat: ";
     try {
       eConn->fetchValidDataSet( &EcalErrorMask::mapMemTTErrors_,   &validIOV, location, runIOV->getRunNumber() );
-      std::cout << " RunMemTTErrorsDat ";
+      std::cout << "found" << std::endl;
     } catch ( std::runtime_error &e ) {
-      std::cout << "(not found) ";
+      std::cout << "not found" << std::endl;
     }
 
     std::cout << std::endl;
