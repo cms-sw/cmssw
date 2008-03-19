@@ -38,7 +38,7 @@ bool GctBlockUnpackerBase::checkBlock(const GctBlockHeaderBase& hdr)
   unsigned int nSamples = hdr.nSamples();
 
   // if the block has no time samples, don't bother
-  if ( nSamples < 1 ) { return false; }
+  if ( nSamples < 1 ) { return true; }
 
   // check block is valid
   if ( !hdr.valid() )
