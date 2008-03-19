@@ -202,7 +202,7 @@ void GctBlockUnpackerV2::blockToGctEmCandsAndEnergySums(const unsigned char * d,
 
   // UNPACK EM CANDS
 
-  const unsigned int emCandCatagoryOffset = nSamples * 4;  // Offset to jump from the non-iso electrons to the isolated ones.
+  const unsigned int emCandCategoryOffset = nSamples * 4;  // Offset to jump from the non-iso electrons to the isolated ones.
   const unsigned int timeSampleOffset = nSamples * 2;  // Offset to jump to next candidate pair in the same time-sample.
 
   unsigned int samplesToUnpack = 1;
@@ -220,8 +220,8 @@ void GctBlockUnpackerV2::blockToGctEmCandsAndEnergySums(const unsigned char * d,
     for (unsigned int bx=0; bx<samplesToUnpack; ++bx) // loop over time samples
     {
       // cand0Offset will give the offset on p16 to get the rank 0 candidate
-      // of the correct catagory and timesample.
-      const unsigned int cand0Offset = iso*emCandCatagoryOffset + bx*2;
+      // of the correct category and timesample.
+      const unsigned int cand0Offset = iso*emCandCategoryOffset + bx*2;
 
       em->push_back(L1GctEmCand(p16[cand0Offset], isoFlag, id, 0, bx));  // rank0 electron
       em->push_back(L1GctEmCand(p16[cand0Offset + timeSampleOffset], isoFlag, id, 1, bx));  // rank1 electron
@@ -230,7 +230,7 @@ void GctBlockUnpackerV2::blockToGctEmCandsAndEnergySums(const unsigned char * d,
     }
   }
 
-  p16 += emCandCatagoryOffset * 2;  // Move the pointer over the data we've already unpacked.
+  p16 += emCandCategoryOffset * 2;  // Move the pointer over the data we've already unpacked.
 
   // UNPACK ENERGY SUMS
   // NOTE: we are only unpacking one timesample of these currently!
@@ -257,7 +257,7 @@ void GctBlockUnpackerV2::blockToGctJetCandsAndCounts(const unsigned char * d, co
 
   // UNPACK JET CANDS
 
-  const unsigned int jetCandCatagoryOffset = nSamples * 4;  // Offset to jump from one jet catagory to the next.
+  const unsigned int jetCandCategoryOffset = nSamples * 4;  // Offset to jump from one jet category to the next.
   const unsigned int timeSampleOffset = nSamples * 2;  // Offset to jump to next candidate pair in the same time-sample.
 
   unsigned int samplesToUnpack = 1;
@@ -274,8 +274,8 @@ void GctBlockUnpackerV2::blockToGctJetCandsAndCounts(const unsigned char * d, co
     // Loop over the different timesamples (bunch crossings).
     for(unsigned int bx = 0 ; bx < samplesToUnpack ; ++bx)
     {
-      // cand0Offset will give the offset on p16 to get the rank 0 Jet Cand of the correct catagory and timesample.
-      const unsigned int cand0Offset = iCat*jetCandCatagoryOffset + bx*2;
+      // cand0Offset will give the offset on p16 to get the rank 0 Jet Cand of the correct category and timesample.
+      const unsigned int cand0Offset = iCat*jetCandCategoryOffset + bx*2;
 
       // Rank 0 Jet.
       gctJets_.at(iCat)->push_back(L1GctJetCand(p16[cand0Offset], tauflag, forwardFlag, id, 0, bx));
@@ -288,7 +288,7 @@ void GctBlockUnpackerV2::blockToGctJetCandsAndCounts(const unsigned char * d, co
     }
   }
 
-  p16 += NUM_JET_CATEGORIES * jetCandCatagoryOffset; // Move the pointer over the data we've already unpacked.
+  p16 += NUM_JET_CATEGORIES * jetCandCategoryOffset; // Move the pointer over the data we've already unpacked.
 
   // UNPACK JET COUNTS
   // NOTE: we are only unpacking one timesample of these currently!

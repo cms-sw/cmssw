@@ -100,7 +100,7 @@ void GctBlockUnpacker::blockToGctJetCand(const unsigned char * d, const GctBlock
   const unsigned int id = hdr.id();  // Capture block ID.
   const unsigned int nSamples = hdr.nSamples();  // Number of time-samples.
 
-  const unsigned int catagoryOffset = nSamples * 4;  // Offset to jump from one jet catagory to the next.
+  const unsigned int categoryOffset = nSamples * 4;  // Offset to jump from one jet category to the next.
   const unsigned int timeSampleOffset = nSamples * 2;  // Offset to jump to next candidate pair in the same time-sample.
 
   unsigned int samplesToUnpack = 1;
@@ -121,8 +121,8 @@ void GctBlockUnpacker::blockToGctJetCand(const unsigned char * d, const GctBlock
     // Loop over the different timesamples (bunch crossings).
     for(unsigned int bx = 0 ; bx < samplesToUnpack ; ++bx)
     {
-      // cand0Offset will give the offset on p to get the rank 0 Jet Cand of the correct catagory and timesample.
-      const unsigned int cand0Offset = iCat*catagoryOffset + bx*2;
+      // cand0Offset will give the offset on p to get the rank 0 Jet Cand of the correct category and timesample.
+      const unsigned int cand0Offset = iCat*categoryOffset + bx*2;
       
       // Rank 0 Jet.
       gctJets_.at(iCat)->push_back(L1GctJetCand(p[cand0Offset], tauflag, forwardFlag, id, 0, bx));
@@ -161,7 +161,7 @@ void GctBlockUnpacker::blockToGctEmCand(const unsigned char * d, const GctBlockH
   const unsigned int id = hdr.id();
   const unsigned int nSamples = hdr.nSamples();
 
-  const unsigned int catagoryOffset = nSamples * 4;  // Offset to jump from the non-iso electrons to the isolated ones.
+  const unsigned int categoryOffset = nSamples * 4;  // Offset to jump from the non-iso electrons to the isolated ones.
   const unsigned int timeSampleOffset = nSamples * 2;  // Offset to jump to next candidate pair in the same time-sample.
 
   unsigned int samplesToUnpack = 1;
@@ -183,8 +183,8 @@ void GctBlockUnpacker::blockToGctEmCand(const unsigned char * d, const GctBlockH
     for (unsigned int bx=0 ; bx<samplesToUnpack ; ++bx) // loop over time samples
     {
       // cand0Offset will give the offset on p to get the rank 0 candidate
-      // of the correct catagory and timesample.
-      const unsigned int cand0Offset = iso*catagoryOffset + bx*2;
+      // of the correct category and timesample.
+      const unsigned int cand0Offset = iso*categoryOffset + bx*2;
       
       em->push_back(L1GctEmCand(p[cand0Offset], isoFlag, id, 0, bx));  // rank0 electron
       em->push_back(L1GctEmCand(p[cand0Offset + timeSampleOffset], isoFlag, id, 1, bx));  // rank1 electron

@@ -51,6 +51,14 @@ void GctBlockPacker::writeGctOutJetBlock(unsigned char * d,
                                          const L1GctJetCandCollection* tauJets, 
                                          const L1GctJetCounts* jetCounts)
 {
+  if(cenJets->size()<4 || forJets->size()<4 || tauJets->size()<4)  // Simple guard clause to stop crappy data from crashing the packer.
+  {
+    edm::LogError("GCT") << "Block pack error: bad L1GctJetCandCollection size detected!\n"
+                         << "L1GctJetCandCollecion size is too small for at least one of the collections!\n"
+                         << "Aborting packing of GCT Jet Output to GT data!" << endl;
+    return;
+  }
+  
   // write header
   writeGctHeader(d, 0x583, 1);
   
@@ -65,15 +73,15 @@ void GctBlockPacker::writeGctOutJetBlock(unsigned char * d,
   jets.at(CENTRAL_JETS)=cenJets;
   jets.at(FORWARD_JETS)=forJets;
   jets.at(TAU_JETS)=tauJets;
-  
-  const unsigned int catagoryOffset = 4;  // Offset to jump from one jet catagory to the next.
+
+  const unsigned int categoryOffset = 4;  // Offset to jump from one jet category to the next.
   const unsigned int nextCandPairOffset = 2;  // Offset to jump to next candidate pair.
 
   // Loop over the different catagories of jets
   for(unsigned int iCat = 0 ; iCat < NUM_JET_CATEGORIES ; ++iCat)
   {
-    // cand0Offset will give the offset on p16 to get the rank 0 Jet Cand of the correct catagory.
-    const unsigned int cand0Offset = iCat*catagoryOffset;
+    // cand0Offset will give the offset on p16 to get the rank 0 Jet Cand of the correct category.
+    const unsigned int cand0Offset = iCat*categoryOffset;
     
     p16[cand0Offset] = jets.at(iCat)->at(0).raw();  // rank 0 jet
     p16[cand0Offset + nextCandPairOffset] = jets.at(iCat)->at(1).raw(); // rank 1 jet
@@ -99,6 +107,14 @@ void GctBlockPacker::writeGctOutEmAndEnergyBlock(unsigned char * d,
                                                  const L1GctEtHad* etHad,
                                                  const L1GctEtMiss* etMiss)
 {
+  if(iso->size()<4 || nonIso->size()<4)  // Simple guard clause to stop crappy data from crashing the packer.
+  {
+    edm::LogError("GCT") << "Block pack error: bad L1GctEmCandCollection size detected!\n"
+                         << "L1GctEmCandCollection size is too small for at least one of the collections!\n"
+                         << "Aborting packing of GCT EM Cands + EnergySum Output to GT data!" << endl;
+    return;
+  }
+
   unsigned nSamples = 1; // Note: can only currently do SINGLE TIME SAMPLE!
   
   // write header
@@ -144,7 +160,12 @@ void GctBlockPacker::writeRctEmCandBlocks(unsigned char * d, const L1CaloEmColle
 {
   // This method is one giant "temporary" hack for CMSSW_1_8_X and CMSSW_2_0_0.
 
-  assert(rctEm->size() >= 144);  // Should be 18 crates * 2 types (iso/noniso) * 4 electrons = 144 for 1 bx.
+  if(rctEm->size() == 0 || rctEm->size()%144 != 0)  // Should be 18 crates * 2 types (iso/noniso) * 4 electrons = 144 for 1 bx.
+  {
+    edm::LogError("GCT") << "Block pack error: bad L1CaloEmCollection size detected!\n"
+                         << "Aborting packing of RCT EM Cand data!" << endl;
+    return;
+  }
 
   // Need 18 sets of EM fibre data, since 18 RCT crates  
   EmuToSfpData emuToSfpData[18];
@@ -222,14 +243,18 @@ void GctBlockPacker::writeRctCaloRegionBlock(unsigned char * d, const L1CaloRegi
 {
   // This method is one giant "temporary" hack for CMSSW_1_8_X and CMSSW_2_0_0.
 
+  if(rctEm->size() == 0 || rctCalo->size()%396 != 0)  // Should be 396 calo regions for 1 bx.
+  {
+    edm::LogError("GCT") << "Block pack error: bad L1CaloRegionCollection size detected!\n"
+                         << "Aborting packing of RCT Calo Region data!" << endl;
+    return;
+
   writeGctHeader(d, 0x0ff, 1);
   d+=4; // move past header.
 
   // Want a 16 bit pointer to push the 16 bit data in.
   uint16_t * p16 = reinterpret_cast<uint16_t *>(const_cast<unsigned char *>(d));
  
-  assert(rctCalo->size() >= 396);  // Should be at least 396 calo regions for 1 bx.
-  
   for(unsigned i=0, size=rctCalo->size(); i < size ; ++i)
   {
     const L1CaloRegion &reg = rctCalo->at(i);
