@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Fri Mar 14 18:02:33 CDT 2008
-// $Id$
+// $Id: MuonAlignmentOutputXML.cc,v 1.1 2008/03/15 20:26:47 pivarski Exp $
 //
 
 // system include files
@@ -337,20 +337,21 @@ void MuonAlignmentOutputXML::writeComponents(std::vector<Alignable*> &alignables
 
 	 outputFile << "</operation>" << std::endl << std::endl;
 
-	 // write superstructures before substructures: this is important because <setape> overwrites all substructures' APEs
-	 if (ideal != ideals.end()) {
-	    std::vector<Alignable*> components = (*alignable)->components();
-	    std::vector<Alignable*> ideal_components = (*ideal)->components();
-	    writeComponents(components, ideal_components, errors, outputFile, DT);
-	    ++ideal; // important for synchronization in the "for" loop!
-	 }
-	 else {
-	    std::vector<Alignable*> components = (*alignable)->components();
-	    std::vector<Alignable*> dummy;
-	    writeComponents(components, dummy, errors, outputFile, DT);
-	 }
-
       } // end if not suppressed
+
+      // write superstructures before substructures: this is important because <setape> overwrites all substructures' APEs
+      if (ideal != ideals.end()) {
+	 std::vector<Alignable*> components = (*alignable)->components();
+	 std::vector<Alignable*> ideal_components = (*ideal)->components();
+	 writeComponents(components, ideal_components, errors, outputFile, DT);
+	 ++ideal; // important for synchronization in the "for" loop!
+      }
+      else {
+	 std::vector<Alignable*> components = (*alignable)->components();
+	 std::vector<Alignable*> dummy;
+	 writeComponents(components, dummy, errors, outputFile, DT);
+      }
+
    } // end loop over alignables
 }
 
