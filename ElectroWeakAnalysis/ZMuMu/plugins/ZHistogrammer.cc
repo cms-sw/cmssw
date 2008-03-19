@@ -16,7 +16,7 @@ private:
   TH1F *h_invmMuMuMC_;
   //TH1F *h_mZ2vs3MC_, *h_ptZ2vs3MC_, *h_phiZ2vs3MC_, *h_thetaZ2vs3MC_, *h_etaZ2vs3MC_, *h_rapidityZ2vs3MC_;
   TH1F *h_mResZ_, *h_ptResZ_, *h_phiResZ_, *h_thetaResZ_, *h_etaResZ_, *h_rapidityResZ_;
-  TH1F *h_mResZMuMu_;
+  TH1F *h_mResZMuMu_, *h_mRatioZMuMu_;
   TH1F *h_mResZMuMuMC_, *h_mRatioZMuMuMC_;
 };
 
@@ -101,13 +101,17 @@ ZHistogrammer::ZHistogrammer(const ParameterSet& pset) :
   h_rapidityResZ_ = ZResHisto.make<TH1F>("ZRapidityResolution", "Z rapidity Resolution", 
 					 nbinsAng_,  -angMax_, angMax_);
   h_mResZMuMu_ = ZResHisto.make<TH1F>("ZToMuMuRecoMassResolution", 
-				      "Z vs #mu #mu Reco mass Resolution (GeV/c^{2})", 
+				      "Z Reco vs matched final state #mu #mu mass Difference (GeV/c^{2})", 
 				      nbinsMassRes_, -massResMax_, massResMax_);
+  h_mRatioZMuMu_ = ZResHisto.make<TH1F>("ZToMuMuRecoMassRatio", 
+					"Z Reco vs matched final state #mu #mu mass Ratio", 
+					4000, 0, 2);
   h_mResZMuMuMC_ = ZResHisto.make<TH1F>("ZToMuMuMCMassResolution", 
-					"Z vs #mu #mu MC mass Resolution (GeV/c^{2})", 
-					nbinsMassRes_, -massResMax_, massResMax_);
+					"Z vs final state #mu #mu MC mass Difference (GeV/c^{2})", 
+					nbinsMassRes_/2 + 1, -2*massResMax_/nbinsMassRes_, massResMax_);
   h_mRatioZMuMuMC_ = ZResHisto.make<TH1F>("ZToMuMuMCMassRatio", 
-					  "Z vs #mu #mu MC mass Resolution", 200, 0, 2);
+					  "Z vs final state #mu #mu MC mass Ratio", 
+					  2002, 0.999, 2);
 }
 
 void ZHistogrammer::analyze(const edm::Event& event, const edm::EventSetup& setup) { 
@@ -155,6 +159,7 @@ void ZHistogrammer::analyze(const edm::Event& event, const edm::EventSetup& setu
       double invMass = (dau0->p4()+dau1->p4()).mass();
       h_invmMuMu_->Fill(invMass);
       h_mResZMuMu_->Fill(zCand.mass() - invMass);
+      h_mRatioZMuMu_->Fill(zCand.mass()/invMass);
     }
   }
   h_nZMC_->Fill(gen->size());
