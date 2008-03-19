@@ -5,7 +5,7 @@
 
 FileBlock: Properties of an input file.
 
-$Id: FileBlock.h,v 1.4 2007/11/30 07:06:30 wmtan Exp $
+$Id: FileBlock.h,v 1.5 2008/01/21 03:10:49 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -23,12 +23,12 @@ namespace edm {
 	tree_(0), metaTree_(0),
 	lumiTree_(0), lumiMetaTree_(0),
 	runTree_(0), runMetaTree_(0),
-	fastClonable_(false), sortedNewBranchNames_(), oldBranchNames_() {}
+	fastCopyable_(false), sortedNewBranchNames_(), oldBranchNames_() {}
     FileBlock(FileFormatVersion const& version,
 	TTree const* ev, TTree const* meta,
 	TTree const* lumi, TTree const* lumiMeta,
 	TTree const* run, TTree const* runMeta,
-	bool fastClone,
+	bool fastCopy,
 	std::vector<std::string> const& newNames,
 	std::vector<std::string> const& oldNames) :
 	  fileFormatVersion_(version),
@@ -38,7 +38,7 @@ namespace edm {
 	  lumiMetaTree_(const_cast<TTree *>(lumiMeta)), 
 	  runTree_(const_cast<TTree *>(run)), 
 	  runMetaTree_(const_cast<TTree *>(runMeta)), 
-	  fastClonable_(fastClone), 
+	  fastCopyable_(fastCopy), 
 	  sortedNewBranchNames_(newNames),
 	  oldBranchNames_(oldNames) {}
     ~FileBlock() {}
@@ -50,9 +50,11 @@ namespace edm {
     TTree * const lumiMetaTree() const {return lumiMetaTree_;}
     TTree * const runTree() const {return runTree_;}
     TTree * const runMetaTree() const {return runMetaTree_;}
-    bool fastClonable() const {return fastClonable_;}
+    bool fastClonable() const {return fastCopyable_;}
     std::vector<std::string> const& sortedNewBranchNames() const {return sortedNewBranchNames_;}
     std::vector<std::string> const& oldBranchNames() const {return oldBranchNames_;}
+
+    void setNotFastCopyable() {fastCopyable_ = false;}
 
   private:
     FileFormatVersion fileFormatVersion_;
@@ -63,7 +65,7 @@ namespace edm {
     TTree * lumiMetaTree_;
     TTree * runTree_;
     TTree * runMetaTree_;
-    bool fastClonable_;
+    bool fastCopyable_;
     std::vector<std::string> sortedNewBranchNames_;
     std::vector<std::string> oldBranchNames_;
   };
