@@ -38,13 +38,13 @@ bool GctBlockUnpackerBase::checkBlock(const GctBlockHeaderBase& hdr)
   // check block is valid
   if ( !hdr.valid() )
   {
-    edm::LogError("GCT") << "Attempting to unpack an unidentified block\n" << hdr << endl;
+    edm::LogError("GCT") << "Block unpack error: cannot unpack the following unknown/invalid block:\n" << hdr << endl;
     return false;     
   }
 
   // check block doesn't have too many time samples
   if ( hdr.nSamples() >= 0xf ) {
-    edm::LogError("GCT") << "Cannot unpack a block with 15 or more time samples\n" << hdr << endl;
+    edm::LogError("GCT") << "Block unpack error: cannot unpack a block with 15 or more time samples:\n" << hdr << endl;
     return false; 
   }
   return true;

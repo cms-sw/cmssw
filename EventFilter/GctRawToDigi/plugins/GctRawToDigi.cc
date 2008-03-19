@@ -101,16 +101,14 @@ GctRawToDigi::~GctRawToDigi()
 // ------------ method called to produce the data  ------------
 void GctRawToDigi::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
-   using namespace edm;
+  using namespace edm;
 
-  if(unpackFailures_ >= MAX_UNPACK_FAILURES) { return; }  // Skip if reached failure limit already.
-
-   // get raw data collection
-   edm::Handle<FEDRawDataCollection> feds;
-   iEvent.getByLabel(inputLabel_, feds);
-   const FEDRawData& gctRcd = feds->FEDData(fedId_);
-   
-   edm::LogInfo("GCT") << "Upacking FEDRawData of size " << std::dec << gctRcd.size() << std::endl;
+  // get raw data collection
+  edm::Handle<FEDRawDataCollection> feds;
+  iEvent.getByLabel(inputLabel_, feds);
+  const FEDRawData& gctRcd = feds->FEDData(fedId_);
+ 
+  edm::LogInfo("GCT") << "Upacking FEDRawData of size " << std::dec << gctRcd.size() << std::endl;
 
   bool invalidDataFlag = false;
   
@@ -121,7 +119,6 @@ void GctRawToDigi::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
                                             << gctRcd.size()
                                             << "). Returning empty collections!";
       invalidDataFlag = true;
-      // Note - this does NOT qualify as an unpack failure - could be empty event.
   }
 
   unpack(gctRcd, iEvent, invalidDataFlag);
@@ -196,7 +193,7 @@ void GctRawToDigi::unpack(const FEDRawData& d, edm::Event& e, const bool invalid
       // unpack the block; dPtr+4 is to get to the block data.
       if(!blockUnpacker_->convertBlock(&data[dPtr+4], *blockHeader)) // Record if we had an unpack problem then skip rest of event.
       {
-        edm::LogError("GCT") << "Encountered block unpack problem - bailing out from this event!" << endl;
+        edm::LogError("GCT") << "Encountered block unpack error - bailing out from this event!" << endl;
         ++unpackFailures_; break;
       } 
   
@@ -211,7 +208,7 @@ void GctRawToDigi::unpack(const FEDRawData& d, edm::Event& e, const bool invalid
     if (verbose_)
     {
       std::ostringstream os;
-      os << "Found " << bHdrs.size() << " GCT internal headers" << endl;
+      os << "Found " << bHdrs.size() << " GCT block headers" << endl;
       for (unsigned i=0, size = bHdrs.size(); i<size; ++i) { os << bHdrs[i]<< endl; }
       os << "Read " << rctEm->size() << " RCT EM candidates" << endl;
       os << "Read " << rctCalo->size() << " RCT Calo Regions" << endl;
@@ -265,9 +262,10 @@ GctRawToDigi::beginJob(const edm::EventSetup&)
 void 
 GctRawToDigi::endJob()
 {
-  if(unpackFailures_ >= MAX_UNPACK_FAILURES)
+  if(unpackFailures_ > 0)
   {
-    edm::LogError("GCT") << "GCT unpacker is bailing - too many unpack errors!" << endl;
+    edm::LogError("GCT") << "GCT unpacker encountered " << unpackFailures_
+                         << " unpack errors in total during this job!" << endl;
   }  
 }
 
