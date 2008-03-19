@@ -26,8 +26,8 @@ GctBlockPacker::GctBlockPacker():
     
     rctCrate_[0x804] = 13;
     rctCrate_[0x884] = 9;
-    rctCrate_[0xC04] = 4;
-    rctCrate_[0xC84] = 0; 
+    rctCrate_[0xc04] = 4;
+    rctCrate_[0xc84] = 0; 
   }  
 }
 
