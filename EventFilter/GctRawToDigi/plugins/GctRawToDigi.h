@@ -16,7 +16,7 @@
 //
 // Original Author:  Jim Brooke
 //         Created:  Wed Nov  1 11:57:10 CET 2006
-// $Id: GctRawToDigi.h,v 1.13 2008/03/18 13:43:33 frazier Exp $
+// $Id: GctRawToDigi.h,v 1.14 2008/03/19 11:34:00 frazier Exp $
 //
 //
 
@@ -32,7 +32,7 @@
 
 #include "DataFormats/FEDRawData/interface/FEDRawData.h"
 
-#include "EventFilter/GctRawToDigi/src/GctBlockUnpacker.h"
+#include "EventFilter/GctRawToDigi/src/GctBlockUnpackerBase.h"
 
 
 // *******************************************************************

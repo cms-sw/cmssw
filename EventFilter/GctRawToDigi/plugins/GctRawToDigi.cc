@@ -10,7 +10,7 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 // Self-tidying vector like boost::ptr_vector.
-#include <DataFormats/Common/interface/OwnVector.h>
+#include "DataFormats/Common/interface/OwnVector.h"
 
 // Raw data collection headers
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
@@ -29,6 +29,10 @@
 #include "DataFormats/L1GlobalCaloTrigger/interface/L1GctEtSums.h"
 #include "DataFormats/L1GlobalCaloTrigger/interface/L1GctJetCounts.h"
 #include "DataFormats/L1GlobalCaloTrigger/interface/L1GctCollections.h"
+
+// GCT block unpackers
+#include "EventFilter/GctRawToDigi/src/GctBlockUnpacker.h"
+#include "EventFilter/GctRawToDigi/src/GctBlockUnpackerV2.h"
 
 // Namespace resolution
 using std::cout;
