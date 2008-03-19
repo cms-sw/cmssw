@@ -250,14 +250,15 @@ void MuIsoValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& i
 	theMuonData.push_back(muonsHandle->size());
 
 	//Fill historgams concerning muon isolation 
-	for (MuonIterator muon = muonsHandle->begin(); muon != muonsHandle->end(); ++muon ) {
+	uint iMuon=0;
+	for (MuonIterator muon = muonsHandle->begin(); muon != muonsHandle->end(); ++muon, ++iMuon ) {
 		++nMuons;
 		if (muon->combinedMuon().isNull()) continue;
-	
-		MuIsoDepRef& tkDep  = ( *tkIsoHandle)[muon->combinedMuon()];
-		MuIsoDepRef& ecalDep = (*ecalIsoHandle)[muon->combinedMuon()];
-		MuIsoDepRef& hcalDep = (*hcalIsoHandle)[muon->combinedMuon()];
-		MuIsoDepRef& hoDep   = (  *hoIsoHandle)[muon->combinedMuon()];
+		reco::MuonRef muRef(muonsHandle,iMuon);
+		MuIsoDepRef& tkDep  = ( *tkIsoHandle)[muRef];
+		MuIsoDepRef& ecalDep = (*ecalIsoHandle)[muRef];
+		MuIsoDepRef& hcalDep = (*hcalIsoHandle)[muRef];
+		MuIsoDepRef& hoDep   = (  *hoIsoHandle)[muRef];
 
 		RecordData(muon,tkDep,ecalDep,hcalDep,hoDep);
 	}
