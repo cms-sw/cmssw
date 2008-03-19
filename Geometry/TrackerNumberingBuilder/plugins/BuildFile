@@ -1,5 +1,4 @@
 <library file="*.cc" name=GeometryTrackerNumberingBuilderPlugins>
-<use name=DetectorDescription/Core>
 <flags EDM_PLUGIN=1>
 </library>
 

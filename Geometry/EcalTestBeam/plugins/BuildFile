@@ -16,16 +16,5 @@
 <use name=clhep>
 <library file="*.cc" name=GeometryEcalTestBeamPlugins>
   <Flags EDM_PLUGIN=1>
-  <use name=DetectorDescription/Algorithm>
-  <use name=DetectorDescription/Base>
-  <use name=DetectorDescription/Core>
-  <use name=FWCore/Framework>
-  <use name=FWCore/MessageLogger>
-  <use name=FWCore/Utilities>
-  <use name=Geometry/CaloEventSetup>
-  <use name=Geometry/CaloGeometry>
-  <use name=Geometry/EcalCommonData>
-  <use name=Geometry/Records>
-  <use name=boost>
 </library>
  
