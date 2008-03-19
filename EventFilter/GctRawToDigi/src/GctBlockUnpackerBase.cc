@@ -43,7 +43,7 @@ bool GctBlockUnpackerBase::checkBlock(const GctBlockHeaderBase& hdr)
   }
 
   // check block doesn't have too many time samples
-  if ( nSamples >= 0xf ) {
+  if ( hdr.nSamples() >= 0xf ) {
     edm::LogError("GCT") << "Cannot unpack a block with 15 or more time samples\n" << hdr << endl;
     return false; 
   }
