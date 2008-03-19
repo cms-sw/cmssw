@@ -13,3 +13,4 @@ migrad
 release Mass
 minimize
 migrad
+print_all

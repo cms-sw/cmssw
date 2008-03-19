@@ -57,23 +57,6 @@ int main() {
     commands.add(minuit, mass);
     commands.add(minuit, gamma);
     commands.run(minuit);
-    double chiSquared = minuit.minValue();
-    cout << "fullBins = " << fullBins 
-	 << "; free pars = " << minuit.getNumberOfFreeParameters() 
-	 << endl;
-    unsigned int ndof = fullBins - minuit.getNumberOfFreeParameters();
-    cout << "Chi^2 = " << chiSquared << "/" << ndof << " = " << chiSquared/ndof 
-      //       << "; prob: " << TMath::Prob(chiSquared, ndof)
-	 << endl;
-    yield = minuit.getParameter(kYield);
-    double dyield = minuit.getParameterError(kYield);
-    cout << yield << " +/- " << dyield << endl;
-    mass = minuit.getParameter(kMass);
-    double dmass = minuit.getParameterError(kMass);
-    cout << mass << " +/-" << dmass << endl;
-    gamma = minuit.getParameter(kGamma);
-    double dgamma = minuit.getParameterError(kMass);
-    cout << gamma << " +/- " << dgamma << endl;
     fun.SetParameters(yield, mass, gamma);
     fun.SetParNames(yield.name().c_str(), mass.name().c_str(), gamma.name().c_str());
     fun.SetLineColor(kRed);

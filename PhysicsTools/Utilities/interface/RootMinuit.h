@@ -140,7 +140,7 @@ namespace fit {
       }
     }
     void printFitResults(std::ostream& cout = std::cout) {
-      double amin = f_();
+      double amin = minValue();
       int ndof = numberOfFreeParameters();
 	cout << "chi-squared/n.d.o.f. = " << amin << "/" << ndof << " = " << amin/ndof 
 	   << "; prob: " << TMath::Prob(amin, ndof)

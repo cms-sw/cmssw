@@ -19,6 +19,7 @@ const char * kRelease = "release";
 const char * kSet = "set";
 const char * kMinimize = "minimize";
 const char * kMigrad = "migrad";
+const char * kPrintAll = "print_all";
 
 namespace fit {
   template<class Function>
@@ -120,7 +121,7 @@ namespace fit {
 	    if(verbose_) {
 	      cout << ">>> "; com.print(cout); cout << endl;
 	    }
-	  } else if(*i == kMinimize || *i == kMigrad) {
+	  } else if(*i == kMinimize || *i == kMigrad || *i == kPrintAll) {
 	    commands = true;
 	    command com;
 	    com.name = *i;
@@ -173,6 +174,8 @@ namespace fit {
 	  minuit.minimize();
 	else if(c->name == kMigrad)
 	  minuit.migrad();
+	else if(c->name == kPrintAll)
+	  minuit.printFitResults();
 	else if(c->name == kFix) 
 	  minuit.fixParameter(c->stringArgs[0]);
 	else if(c->name == kRelease) 
