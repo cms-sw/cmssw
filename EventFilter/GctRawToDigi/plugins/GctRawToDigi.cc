@@ -201,9 +201,7 @@ void GctRawToDigi::unpack(const FEDRawData& d, edm::Event& e, const bool invalid
       } 
   
       // advance pointer
-      unsigned blockLen = blockHeader->length();
-      unsigned nSamples = blockHeader->nSamples();
-      dPtr += 4*(blockLen*nSamples+1); // *4 because blockLen is in 32-bit words, +1 for header
+      dPtr += 4*(blockHeader->length()*blockHeader->nSamples()+1); // *4 because blockLen is in 32-bit words, +1 for header
 
       // If verbose, store the header in vector.
       if(verbose_) { bHdrs.push_back(blockHeader); }

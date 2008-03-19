@@ -177,6 +177,9 @@ bool GctBlockUnpackerV2::convertBlock(const unsigned char * data, const GctBlock
 {
   if(!checkBlock(hdr)) { return false; }  // Check the block to see if it's possible to unpack.
 
+  // if the block has no time samples, don't bother with it.
+  if ( hdr.nSamples() < 1 ) { return true; }
+
   // The header validity check above will protect against
   // the map::find() method returning the end of the map,
   // assuming the block header definitions are up-to-date.
