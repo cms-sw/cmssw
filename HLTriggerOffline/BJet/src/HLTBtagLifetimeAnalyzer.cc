@@ -1,8 +1,10 @@
 #include <memory>
 #include <string>
 #include <iostream>
+#include <fstream>
 #include <sstream>
 #include <iomanip>
+#include <algorithm>
 
 #include <TFile.h>
 #include <TH1.h>
@@ -15,20 +17,37 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/InputTag.h"
+#include "FWCore/ParameterSet/interface/Registry.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "SimDataFormats/JetMatching/interface/JetFlavour.h"
+#include "SimDataFormats/JetMatching/interface/JetFlavourMatching.h"
 #include "DataFormats/Common/interface/View.h"
+#include "DataFormats/Common/interface/TriggerResults.h"
 #include "DataFormats/JetReco/interface/Jet.h"
 #include "DataFormats/JetReco/interface/JetTracksAssociation.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 #include "DataFormats/BTauReco/interface/JetTag.h"
-#include "SimDataFormats/JetMatching/interface/JetFlavour.h"
-#include "SimDataFormats/JetMatching/interface/JetFlavourMatching.h"
-
+#include "DataFormats/HLTReco/interface/TriggerEvent.h"
+#include "DataFormats/HLTReco/interface/TriggerEventWithRefs.h"
 #include "HLTriggerOffline/BJet/interface/JetPlots.h"
 #include "HLTriggerOffline/BJet/interface/OfflineJetPlots.h"
 #include "HLTriggerOffline/BJet/interface/FlavouredJetPlots.h"
 #include "HLTriggerOffline/BJet/interface/VertexPlots.h"
+
+
+// search the Registry for the ParameterSetID of the ParameterSet describing the given process
+// returns an invalid ID if the process name is not found
+edm::ParameterSetID psetIdForProcess(const std::string & process) {
+  const edm::pset::Registry * registry = edm::pset::Registry::instance();
+  for (edm::pset::Registry::const_iterator i = registry->begin(); i != registry->end(); ++i) {
+    if (i->second.exists("@process_name") and i->second.getParameter<std::string>("@process_name") == process)
+      return i->first;
+  }
+  return edm::ParameterSetID();
+}
+
 
 // find the index of the object key of an association vector closest to a given jet, within a given distance
 template <typename T, typename V>
@@ -55,16 +74,23 @@ public:
   virtual void endJob();
 
 private:
+  bool cachePathDescription(const edm::TriggerResults & triggerResult, const trigger::TriggerEventWithRefs & triggerEvent);
+  bool cachePathDescription(const edm::ParameterSetID & triggerPSetID, const edm::ParameterSetID & processPSetID);
+
+private:
   struct InputData {
-    std::string     m_name;
-    std::string     m_title;
-    edm::InputTag   m_label;
-    edm::InputTag   m_tracks;
+    std::string     m_name;                     // name used for the ROOT plots
+    std::string     m_title;                    // title shown on the plots
+    edm::InputTag   m_filter;                   // filter checked for pass/fail
+    edm::InputTag   m_jets;                     // jet collection used for detailed efficiencies
+    edm::InputTag   m_tracks;                   // track collection, associated to jets
+    unsigned int    m_filterIndex;              // index of the filter relative to its own path
   };
   
   // input collections
-  std::string               m_path;             // HLT path
-  edm::InputTag             m_trigger;          // HLT trigger summary
+  std::string               m_triggerPath;      // HLT path
+  edm::InputTag             m_triggerEvent;     // HLT trigger summary with trigger objects
+  edm::InputTag             m_triggerResults;   // HLT trigger results
   edm::InputTag             m_vertex;           // primary vertex
   std::vector<InputData>    m_levels;
 
@@ -99,11 +125,18 @@ private:
 
   // output configuration
   std::string m_outputFile;
+
+  // leep a cache of the path description
+  std::vector<std::string>          m_pathModules;
+  unsigned int                      m_pathIndex;
+  bool                              m_pathCached;
 };
 
 
 HLTBtagLifetimeAnalyzer::HLTBtagLifetimeAnalyzer(const edm::ParameterSet & config) :
-  m_path( config.getParameter<std::string>("path") ),
+  m_triggerPath( config.getParameter<std::string>("triggerPath") ),
+  m_triggerEvent( config.getParameter<edm::InputTag>("triggerEvent") ),
+  m_triggerResults( config.getParameter<edm::InputTag>("triggerResults") ),
   m_vertex( config.getParameter<edm::InputTag>("vertex") ),
   m_levels(),
   m_events(),
@@ -124,15 +157,19 @@ HLTBtagLifetimeAnalyzer::HLTBtagLifetimeAnalyzer(const edm::ParameterSet & confi
   m_jetPlots(),
   m_mcPlots(),
   m_offlinePlots(),
-  m_outputFile( config.getParameter<std::string>("outputFile") )
+  m_outputFile( config.getParameter<std::string>("outputFile") ),
+  m_pathModules(),
+  m_pathIndex((unsigned int) -1),
+  m_pathCached(false)
 {
   const std::vector<edm::ParameterSet> levels = config.getParameter<std::vector<edm::ParameterSet> >("levels");
   for (unsigned int i = 0; i < levels.size(); ++i) {
     InputData level;
-    level.m_label  = levels[i].getParameter<edm::InputTag>("jets");
-    level.m_name   = levels[i].exists("name")   ? levels[i].getParameter<std::string>("name")  : level.m_label.encode();
-    level.m_title  = levels[i].exists("title")  ? levels[i].getParameter<std::string>("title") : level.m_name;
+    level.m_jets   = levels[i].getParameter<edm::InputTag>("jets");
+    level.m_filter = levels[i].getParameter<edm::InputTag>("filter");
     level.m_tracks = levels[i].exists("tracks") ? levels[i].getParameter<edm::InputTag>("tracks") : edm::InputTag("none");
+    level.m_name   = levels[i].exists("name")   ? levels[i].getParameter<std::string>("name")     : level.m_jets.encode();
+    level.m_title  = levels[i].exists("title")  ? levels[i].getParameter<std::string>("title")    : level.m_name;
     m_levels.push_back(level);
   }
     
@@ -152,7 +189,6 @@ HLTBtagLifetimeAnalyzer::HLTBtagLifetimeAnalyzer(const edm::ParameterSet & confi
   m_offlineLabels = offline.getParameterNamesForType<double>();
   for (unsigned int i = 0; i < m_offlineLabels.size(); ++i)
     m_offlineCuts.push_back( offline.getParameter<double>(m_offlineLabels[i]) );
-
 }
 
 HLTBtagLifetimeAnalyzer::~HLTBtagLifetimeAnalyzer() 
@@ -175,8 +211,107 @@ void HLTBtagLifetimeAnalyzer::beginJob(const edm::EventSetup & setup)
   m_vertexPlots.init( "PrimaryVertex", "Primary vertex", vertex1DBins, m_vertexMaxZ, m_vertexMaxR );
 }
 
+// access and cache the description of the HLT path and filters
+bool HLTBtagLifetimeAnalyzer::cachePathDescription(const edm::TriggerResults & triggerResults, const trigger::TriggerEventWithRefs & triggerEvent) 
+{
+  return cachePathDescription(triggerResults.parameterSetID(), psetIdForProcess(triggerEvent.usedProcessName()));
+}
+  
+// access and cache the description of the HLT path and filters
+bool HLTBtagLifetimeAnalyzer::cachePathDescription(const edm::ParameterSetID & triggerPSetID, const edm::ParameterSetID & processPSetID)
+{
+  if (m_pathCached)
+    return true;
+
+  const edm::pset::Registry * registry = edm::pset::Registry::instance();
+  edm::ParameterSet           pset;
+  std::vector<std::string>    paths;
+
+  if (registry->getMapped(triggerPSetID, pset)) {
+    #if 0
+    std::ofstream out("trigger.pset");
+    out << pset;
+    out.close();
+    #endif
+    paths = pset.getParameter<std::vector<std::string> >("@trigger_paths");
+  } else {
+    std::cerr << "cannot map HLT trigger names to indices" << std::endl;
+    return false;
+  }
+  if (registry->getMapped(processPSetID, pset)) {
+    #if 0
+    std::ofstream out("process.pset");
+    out << pset;
+    out.close();
+    #endif
+    m_pathModules = pset.getParameter<std::vector<std::string> >(m_triggerPath);
+  } else {
+    std::cerr << "cannot find HLT path " << m_triggerPath << " in the process description" << std::endl;
+    return false;
+  }
+
+  for (m_pathIndex = 0; m_pathIndex < paths.size(); ++m_pathIndex)
+    if (paths[m_pathIndex] == m_triggerPath)
+      break;
+  if (m_pathIndex == paths.size()) {
+    std::cerr << "cannot find HLT path " << m_triggerPath << std::endl;
+    return false;
+  }
+
+  // find the filter index for each "level"
+  for (unsigned int l = 0; l < m_levels.size(); ++l) {
+    InputData & level = m_levels[l];
+    std::vector<std::string>::const_iterator i = std::find(m_pathModules.begin(), m_pathModules.end(), level.m_filter.label());
+    if (i != m_pathModules.end()) {
+      level.m_filterIndex = i - m_pathModules.begin();
+      std::cerr << "filter " << level.m_filter.label() << " has index " << level.m_filterIndex << " in path " << m_triggerPath << std::endl;
+    } else {
+      level.m_filterIndex = 0;
+      std::cerr << "filter " << level.m_filter.label() << " not found in path " << m_triggerPath << std::endl;
+    }
+  }
+
+  m_pathCached = true;
+  return true;
+}
+
 void HLTBtagLifetimeAnalyzer::analyze(const edm::Event & event, const edm::EventSetup & setup) 
 {
+  edm::Handle<edm::TriggerResults> h_triggerResults;
+  event.getByLabel(m_triggerResults, h_triggerResults);
+  if (not h_triggerResults.isValid()) {
+    std::cerr << "invalid edm::TriggerResults handle" << std::endl;
+    return;
+  }
+
+  edm::Handle<trigger::TriggerEventWithRefs> h_triggerEvent;
+  event.getByLabel(m_triggerEvent, h_triggerEvent);
+  if (not h_triggerEvent.isValid()) {
+    std::cerr << "invalid trigger::TriggerEventWithRefs handle" << std::endl;
+    return;
+  }
+
+  if (not cachePathDescription(* h_triggerResults, * h_triggerEvent)) {
+    std::cerr << "unable to access trigger informations and description for path " << m_triggerPath << std::endl;
+    return;
+  }
+
+  bool         wasrun   = h_triggerResults->wasrun( m_pathIndex );
+  unsigned int latest   = h_triggerResults->index( m_pathIndex );
+  bool         accepted = h_triggerResults->accept( m_pathIndex );
+  if (latest >= m_pathModules.size()) {
+    std::cerr << "error determinig the path stopping condition: module position exceeds path length" << std::endl;
+    return;
+  }
+
+  // debug information regarding th path status
+  if (not wasrun)
+    std::cout << "  path " << m_triggerPath << " was not run" << std::endl;
+  else if (accepted)
+    std::cout << "  path " << m_triggerPath << " accepted the event" << std::endl;
+  else
+    std::cout << "  path " << m_triggerPath << " rejected the event at module " << m_pathModules[latest] << std::endl;
+
   edm::Handle<reco::VertexCollection> h_vertex;
   event.getByLabel(m_vertex, h_vertex);
   if (h_vertex.isValid() and not h_vertex->empty())
@@ -191,59 +326,65 @@ void HLTBtagLifetimeAnalyzer::analyze(const edm::Event & event, const edm::Event
   const reco::JetTagCollection & offlineBJets = * h_offlineBJets;
 
   for (unsigned int l = 0; l < m_levels.size(); ++l) {
+    const InputData & level = m_levels[l];
+
+    bool passed = accepted or (latest > level.m_filterIndex);               // accepted by this filter
+    bool failed = (not accepted) and (latest == level.m_filterIndex);       // rejected by this filter
+    //bool notrun = (not accepted) and (latest  < level.m_filterIndex);       // did not reach this filter
+    std::cout << "  path " << m_triggerPath << ", filter " << std::setw(32) << std::left << level.m_filter.label() << std::right << (passed ? "passed" : failed ? "failed" : "not run") << std::endl;
+    
     edm::Handle<edm::View<reco::Jet> >                  h_jets;
     edm::Handle<reco::JetTracksAssociation::Container>  h_tracks;
     
-    event.getByLabel(m_levels[l].m_label, h_jets);
-    if (m_levels[l].m_tracks.label() != "none")
-      event.getByLabel(m_levels[l].m_tracks, h_tracks);
+    if (level.m_jets.label() != "none")
+      event.getByLabel(level.m_jets, h_jets);
+    if (level.m_tracks.label() != "none")
+      event.getByLabel(level.m_tracks, h_tracks);
     
-    if (h_jets.isValid()) {
-      const edm::View<reco::Jet> & jets = * h_jets;
-      if (jets.size() > 0)
-        ++m_events[l];
+    if (passed) {
+      // event did pass this filter, analyze the content
+      ++m_events[l];
 
-      std::cerr << "--> " << m_path << std::flush; 
-      for (unsigned int j = 0; j < jets.size(); ++j) {
-        // event did pass this filter, analyze the content
-        std::cerr << "#" << std::flush;
-        
-        const reco::Jet & jet = jets[j];
-        
-        // match to MC parton
-        int m = closestJet(jet, mcPartons, m_mcRadius);
-        unsigned int flavour = (m != -1) ? abs(mcPartons[m].second.getFlavour()) : 0;
+      if (h_jets.isValid()) {
+        const edm::View<reco::Jet> & jets = * h_jets;
+        for (unsigned int j = 0; j < jets.size(); ++j) {
+          const reco::Jet & jet = jets[j];
+          
+          // match to MC parton
+          int m = closestJet(jet, mcPartons, m_mcRadius);
+          unsigned int flavour = (m != -1) ? abs(mcPartons[m].second.getFlavour()) : 0;
 
-        // match to offline reconstruted b jets
-        int o = closestJet(jet, offlineBJets, m_offlineRadius);
-        double discriminator = (o != -1) ? offlineBJets[o].second : -INFINITY;
+          // match to offline reconstruted b jets
+          int o = closestJet(jet, offlineBJets, m_offlineRadius);
+          double discriminator = (o != -1) ? offlineBJets[o].second : -INFINITY;
 
-        if (not h_tracks.isValid()) {
-          // no tracks, fill only the jets
-          m_jetPlots[l].fill( jet );
-          m_mcPlots[l].fill( jet, flavour);
-          m_offlinePlots[l].fill( jet, discriminator );
-        } else {
-          // fill jets and tracks
-          const reco::TrackRefVector & tracks = (*h_tracks)[jets.refAt(j)];
-          m_jetPlots[l].fill( jet, tracks );
-          m_mcPlots[l].fill( jet, tracks, flavour);
-          m_offlinePlots[l].fill( jet, tracks, discriminator );
+          if (not h_tracks.isValid()) {
+            // no tracks, fill only the jets
+            m_jetPlots[l].fill( jet );
+            m_mcPlots[l].fill( jet, flavour);
+            m_offlinePlots[l].fill( jet, discriminator );
+          } else {
+            // fill jets and tracks
+            const reco::TrackRefVector & tracks = (*h_tracks)[jets.refAt(j)];
+            m_jetPlots[l].fill( jet, tracks );
+            m_mcPlots[l].fill( jet, tracks, flavour);
+            m_offlinePlots[l].fill( jet, tracks, discriminator );
+          }
         }
-        
       }
-    } else {
-      // event did not pass this filter, don't check the next ones to avoid bleeding from similar paths
-      std::cerr << std::endl;
+    } else { 
+      // event did not pass this filter, no need to check the following ones
       break;
     }
   }
+
+  std::cout << std::endl;
 }
 
 void HLTBtagLifetimeAnalyzer::endJob()
 {
   // compute and print overall per-event efficiencies
-  std::cout << m_path << " HLT Trigger path" << std::endl << std::endl;
+  std::cout << m_triggerPath << " HLT Trigger path" << std::endl << std::endl;
   for (unsigned int i = 0; i < m_levels.size(); ++i) {
     std::stringstream out;
     out << std::setw(64) << std::left << ("events passing " + m_levels[i].m_title) << std::right << std::setw(12) << m_events[i];
@@ -274,7 +415,7 @@ void HLTBtagLifetimeAnalyzer::endJob()
   std::cout << std::endl;
   
   TFile * file = new TFile(m_outputFile.c_str(), "UPDATE");
-  TDirectory * dir = file->mkdir( m_path.c_str(), (m_path + " HLT path").c_str() );
+  TDirectory * dir = file->mkdir( m_triggerPath.c_str(), (m_triggerPath + " HLT path").c_str() );
   if (dir) {
     for (unsigned int i = 0; i < m_levels.size(); ++i) {
       m_jetPlots[i].save(*dir);

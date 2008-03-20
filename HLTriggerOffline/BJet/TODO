@@ -1,5 +1,3 @@
-TODO PLOTS - steal as much as possible from offline
-
 Validation and comparison plots:
 
  + L1 bits ?
@@ -16,7 +14,8 @@ Validation and comparison plots:
     [v] per jets
     [v] per events
     [ ] make efficiency histograms (useless but nice for presentations)
- + clean up whitespaces
+
+ + complete migration to new HLT data model
 
 Detailed plots:
 

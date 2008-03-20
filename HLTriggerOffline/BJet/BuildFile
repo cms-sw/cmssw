@@ -1,11 +1,13 @@
 <use name=DataFormats/BTauReco>
 <use name=DataFormats/Common>
+<use name=DataFormats/HLTReco>
 <use name=DataFormats/JetReco>
 <use name=DataFormats/Provenance>
 <use name=DataFormats/TrackReco>
 <use name=DataFormats/VertexReco>
 <use name=FWCore/Framework>
 <use name=FWCore/ParameterSet>
+<use name=FWCore/ServiceRegistry>
 <use name=SimDataFormats/JetMatching>
 <use name=rootcore>
 <use name=rootmath>
