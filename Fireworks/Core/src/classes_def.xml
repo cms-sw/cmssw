@@ -26,6 +26,7 @@
   <class name="FWListItemBase"/>
   <class name="FWDetailViewManager"/>
   <class name="ElectronDetailView"/>
+  <class name="TrackDetailView"/>
   <class name="MuonDetailView"/>
   <class name="ElectronView"/>
   <class name="FWListViewObject"/>

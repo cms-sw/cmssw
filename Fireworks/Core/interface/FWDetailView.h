@@ -8,6 +8,9 @@ class FWDetailView {
 public:
      virtual void build (TEveElementList **, const FWModelId &) = 0;
      virtual ~FWDetailView () { }
+
+public:
+     Double_t rotation_center[3]; // la di hack di da
 };
 
 #endif

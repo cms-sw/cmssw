@@ -22,6 +22,7 @@
 #include "Fireworks/Core/interface/MuonsProxyPUBuilder.h"
 #include "Fireworks/Core/interface/FWDetailViewManager.h"
 #include "Fireworks/Core/interface/ElectronDetailView.h"
+#include "Fireworks/Core/interface/TrackDetailView.h"
 #include "Fireworks/Core/interface/MuonDetailView.h"
 #include "Fireworks/Core/src/FWListEventItem.h"
 #include "Fireworks/Core/src/FWListEventItemEditor.h"

@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Wed Mar  5 09:13:47 EST 2008
-// $Id: FWDetailViewManager.cc,v 1.3 2008/03/07 01:05:16 jmuelmen Exp $
+// $Id: FWDetailViewManager.cc,v 1.4 2008/03/18 15:38:26 chrjones Exp $
 //
 
 // system include files
@@ -18,6 +18,7 @@
 #include "TGButton.h"
 #include "TGFrame.h"
 #include "TGLEmbeddedViewer.h"
+#include "TGLScenePad.h"
 #include "TEveManager.h"
 #include "TEveScene.h"
 #include "TEveViewer.h"
@@ -38,6 +39,7 @@
 // constructors and destructor
 //
 FWDetailViewManager::FWDetailViewManager()
+     : frame(0)
 {
 }
 
@@ -91,6 +93,8 @@ FWDetailViewManager::openDetailViewFor(const FWModelId &id)
 	    id.item()->name().c_str(), (unsigned int)id.item(), id.index());
 
      // make a frame
+     if (frame != 0)
+	  frame->CloseWindow();
      frame = new // TGTransientFrame(0, gEve->GetBrowser(), 400, 400);
 	  TGMainFrame(0, 400, 420);
      // connect the close-window button to something useful
@@ -99,7 +103,7 @@ FWDetailViewManager::openDetailViewFor(const FWModelId &id)
      TGLEmbeddedViewer* v = new TGLEmbeddedViewer(frame, 0);
      TEveViewer* nv = new TEveViewer();
      nv->SetGLViewer(v);
-     nv->GetGLViewer()->SetCurrentCamera(TGLViewer::kCameraPerspXOY);
+     nv->GetGLViewer()->SetCurrentCamera(TGLViewer::kCameraOrthoXOY);
      // nv->GetGLViewer()->SetCurrentCamera(TGLViewer::kCameraOrthoXOY);
      nv->GetGLViewer()->SetStyle(TGLRnrCtx::kOutline);
      nv->GetGLViewer()->SetClearColor(kBlack);
@@ -131,6 +135,16 @@ FWDetailViewManager::openDetailViewFor(const FWModelId &id)
      TEveElementList *list = 0;
      viewer->second->build(&list, id);
      gEve->AddElement(list, ns);
+
+#if 1
+//      nv->GetGLViewer()->SetPerspectiveCamera(TGLViewer::kCameraOrthoXOY, 5, 0, viewer->second->rotation_center, 0.5, 0 );
+//      nv->GetGLViewer()->SetPerspectiveCamera(TGLViewer::kCameraOrthoXOY, 5, 0, viewer->second->rotation_center, 0.5, 0 );
+//      nv->GetGLViewer()->CurrentCamera().Reset();
+     nv->GetGLViewer()->SetOrthoCamera(TGLViewer::kCameraOrthoXOY, 5, 0, viewer->second->rotation_center, 0.5, 0 );
+     nv->GetGLViewer()->SetPerspectiveCamera(TGLViewer::kCameraPerspXOY, 5, 0, viewer->second->rotation_center, 0.5, 0 );
+     nv->GetGLViewer()->SetCurrentCamera(TGLViewer::kCameraPerspXOY);
+     nv->GetGLViewer()->CurrentCamera().Reset();
+#endif
 }
 
 //
