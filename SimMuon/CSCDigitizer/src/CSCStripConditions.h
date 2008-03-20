@@ -19,11 +19,13 @@ public:
 
   void setRandomEngine(CLHEP::HepRandomEngine& engine);
 
+  /// superimposes noise, in fC, on the signal
   void noisify(const CSCDetId & detId, CSCAnalogSignal & signal);
 
   virtual void initializeEvent(const edm::EventSetup & es) {}
 
   /// channels count from 1
+  /// gain is the ratio that takes us from fC to ADC.  Nominally around 2
   virtual float gain(const CSCDetId & detId, int channel) const = 0;
   virtual float gainSigma(const CSCDetId & detId, int channel) const = 0;
   virtual float smearedGain(const CSCDetId & detId, int channel) const;
