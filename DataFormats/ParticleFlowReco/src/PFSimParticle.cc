@@ -130,6 +130,8 @@ ostream& reco::operator<<(ostream& out,
 	  case  533: { name = "B*_s0"; break; }
 	  case  543: { name = "B*_c+"; break; }
 	  case -543: { name = "B*_c-"; break; }
+	  case  1114: { name = "Delta-"; break; }
+	  case -1114: { name = "Deltabar+"; break; }
 	  case -2112: { name = "nbar0"; break; }
 	  case  2112: { name = "n"; break; }
 	  case  2114: { name = "Delta0"; break; }
@@ -140,6 +142,8 @@ ostream& reco::operator<<(ostream& out,
 	  case -3112: { name = "Sigmabar+"; break; }
 	  case  3212: { name = "Sigma0"; break; }
 	  case -3212: { name = "Sigmabar0"; break; }
+	  case  3214: { name = "Sigma*0"; break; }
+	  case -3214: { name = "Sigma*bar0"; break; }
 	  case  3222: { name = "Sigma+"; break; }
 	  case -3222: { name = "Sigmabar-"; break; }
 	  case  2212: { name = "p"; break; }
