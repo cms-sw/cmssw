@@ -1,8 +1,8 @@
 /** \file
  *  A simple example of ho to access the magnetic field.
  *
- *  $Date: 2007/04/30 09:19:51 $
- *  $Revision: 1.8 $
+ *  $Date: 2007/04/30 13:04:24 $
+ *  $Revision: 1.9 $
  *  \author N. Amapane - CERN
  */
 
@@ -51,9 +51,9 @@ class testMagneticField : public edm::EDAnalyzer {
     //    number of random points to try
     numberOfPoints = pset.getUntrackedParameter<int>("numberOfPoints", 10000);
     //    outer radius of test cylinder
-    OuterRadius = pset.getUntrackedParameter<double>("OuterRadius",600);
+    OuterRadius = pset.getUntrackedParameter<double>("OuterRadius",900);
     //    half length of test cylinder
-    HalfLength = pset.getUntrackedParameter<double>("HalfLength",600);
+    HalfLength = pset.getUntrackedParameter<double>("HalfLength",1600);
     
   }
 
