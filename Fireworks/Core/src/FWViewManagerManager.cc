@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Jan 15 10:27:12 EST 2008
-// $Id: FWViewManagerManager.cc,v 1.4 2008/02/03 02:49:40 dmytro Exp $
+// $Id: FWViewManagerManager.cc,v 1.5 2008/03/14 21:14:13 chrjones Exp $
 //
 
 // system include files
@@ -85,6 +85,7 @@ void
 FWViewManagerManager::registerProxyBuilder(const std::string& type, 
                                            const std::string& proxyBuilderName)
 {
+   bool foundOwner = false;
    std::map<std::string,const FWEventItem*>::iterator itFind = m_typeToItems.find(type);
    const FWEventItem* matchedItem=0;
    if( itFind != m_typeToItems.end() ) {
@@ -96,10 +97,13 @@ FWViewManagerManager::registerProxyBuilder(const std::string& type,
       if((*itVM)->useableBuilder(proxyBuilderName)) {
          std::cout <<"REGISTERING "<<type << ", " << proxyBuilderName <<std::endl;
          (*itVM)->registerProxyBuilder(type,proxyBuilderName,matchedItem);
-         return;
+         //return;
+         foundOwner = true;
       }
    }
-   std::cout << "rejecting " << type << ", " << proxyBuilderName <<std::endl;
+   if(not foundOwner) {
+      std::cout << "rejecting " << type << ", " << proxyBuilderName <<std::endl;
+   }
 }
 
 //
