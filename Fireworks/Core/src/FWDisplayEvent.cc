@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Mon Dec  3 08:38:38 PST 2007
-// $Id$
+// $Id: FWDisplayEvent.cc,v 1.37 2008/03/20 09:39:26 dmytro Exp $
 //
 
 // system include files
@@ -107,10 +107,8 @@ FWDisplayEvent::FWDisplayEvent(const std::string& iConfigFileName,
   m_viewManager->add(rpzViewManager);
 //   m_viewManager->add( boost::shared_ptr<FWViewManagerBase>( new MuonPUViewManager));
 
-   if ( iNewLego )
-     m_viewManager->add( boost::shared_ptr<FWViewManagerBase>( new FWEveLegoViewManager(m_guiManager.get()) ) );
-   else
-     m_viewManager->add( boost::shared_ptr<FWViewManagerBase>( new FW3DLegoViewManager(m_guiManager.get())));
+  m_viewManager->add( boost::shared_ptr<FWViewManagerBase>( new FWEveLegoViewManager(m_guiManager.get()) ) );
+  m_viewManager->add( boost::shared_ptr<FWViewManagerBase>( new FW3DLegoViewManager(m_guiManager.get())));
    
   if(iConfigFileName.empty() ) {
     m_guiManager->createView("Rho Phi");
@@ -120,7 +118,13 @@ FWDisplayEvent::FWDisplayEvent(const std::string& iConfigFileName,
      else
        m_guiManager->createView("3D Lego");
   } else {
-    m_configurationManager->readFromFile(iConfigFileName);
+    std::string configFileName(iConfigFileName);
+    char* whereConfig = gSystem->Which(TROOT::GetMacroPath(), configFileName.c_str(), kReadPermission);
+    if(0==whereConfig) {
+      configFileName = "default.fwc";
+    }
+    delete [] whereConfig;
+    m_configurationManager->readFromFile(configFileName);
   }
 
   m_guiManager->processGUIEvents();
