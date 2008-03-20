@@ -584,29 +584,23 @@ void HLTMuonGenericRate::FillHistograms(){
       hHLTeff[i]->Scale(100.);
       if (useMuonFromGenerator){
         TH1F *num=(TH1F*) hHLTMCeff[i]->Clone();
-	hHLTMCeff[i]->Clear();
 	hHLTMCeff[i]->Divide(num,hL1MCeff,1.,1.,"B");
 	hHLTMCeff[i]->Scale(100.);
         num=(TH1F*) hHLTetaMC[i]->Clone();
-        hHLTetaMC[i]->Clear();
 	hHLTetaMC[i]->Divide(num,hL1etaMC,1.,1.,"B");
 	hHLTetaMC[i]->Scale(100.);
         num=(TH1F*) hHLTphiMC[i]->Clone();
-        hHLTphiMC[i]->Clear();
 	hHLTphiMC[i]->Divide(num,hL1phiMC,1.,1.,"B");
 	hHLTphiMC[i]->Scale(100.);
       }
       if (useMuonFromReco){
 	TH1F *num=(TH1F*) hHLTRECOeff[i]->Clone();
-	hHLTRECOeff[i]->Clear();
 	hHLTRECOeff[i]->Divide(num,hL1RECOeff,1.,1.,"B");
 	hHLTRECOeff[i]->Scale(100.);
 	num=(TH1F*) hHLTetaRECO[i]->Clone();
-	hHLTetaRECO[i]->Clear();
 	hHLTetaRECO[i]->Divide(num,hL1etaRECO,1.,1.,"B");
 	hHLTetaRECO[i]->Scale(100.);
 	num=(TH1F*) hHLTphiRECO[i]->Clone();
- 	hHLTphiRECO[i]->Clear();
 	hHLTphiRECO[i]->Divide(num,hL1phiRECO,1.,1.,"B");
 	hHLTphiRECO[i]->Scale(100.);
       }
@@ -614,29 +608,23 @@ void HLTMuonGenericRate::FillHistograms(){
   }
   if (useMuonFromGenerator){
     TH1F *num=(TH1F*) hL1MCeff->Clone();
-    hL1MCeff->Clear();
     hL1MCeff->Divide(num,hMCptnor,1.,1.,"B");
     hL1MCeff->Scale(100.);
     num=(TH1F*) hL1etaMC->Clone();
-    hL1etaMC->Clear();
     hL1etaMC->Divide(num,hMCetanor,1.,1.,"B");
     hL1etaMC->Scale(100.);
     num=(TH1F*) hL1phiMC->Clone();
-    hL1phiMC->Clear();
     hL1phiMC->Divide(num,hMCphinor,1.,1.,"B");
     hL1phiMC->Scale(100.);
     }
   if (useMuonFromReco){
     TH1F *num=(TH1F*) hL1RECOeff->Clone();
-    hL1RECOeff->Clear();
     hL1RECOeff->Divide(num,hRECOptnor,1.,1.,"B");
     hL1RECOeff->Scale(100.);
     num=(TH1F*) hL1etaRECO->Clone();
-    hL1etaRECO->Clear();
     hL1etaRECO->Divide(num,hRECOetanor,1.,1.,"B");
     hL1etaRECO->Scale(100.);
     num=(TH1F*) hL1phiRECO->Clone();
-    hL1phiRECO->Clear();
     hL1phiRECO->Divide(num,hRECOphinor,1.,1.,"B");
     hL1phiRECO->Scale(100.);
   }
