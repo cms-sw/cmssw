@@ -1,11 +1,11 @@
-// $Id: EcalErrorMask.cc,v 1.31 2008/03/20 08:26:21 dellaric Exp $
+// $Id: EcalErrorMask.cc,v 1.32 2008/03/20 08:37:07 dellaric Exp $
 
 /*!
   \file EcalErrorMask.cc
   \brief Error mask from text file or database
   \author B. Gobbo
-  \version $Revision: 1.31 $
-  \date $Date: 2008/03/20 08:26:21 $
+  \version $Revision: 1.32 $
+  \date $Date: 2008/03/20 08:37:07 $
 */
 
 #include "OnlineDB/EcalCondDB/interface/EcalCondDBInterface.h"
@@ -210,7 +210,7 @@ void EcalErrorMask::readFile( std::string& inFile, bool verbose, bool verifySynt
       }
       if( bitmask == 0 ) {
         std::ostringstream os;
-        os << "line " << linecount << " --> This Short Description was not found in the Dictionary:" << shortDesc;
+        os << "line " << linecount << " --> This Short Description was not found in the Dictionary: " << shortDesc;
         if( verifySyntax ) {
           std::cerr << os.str() << std::endl;
           nerrors++;
