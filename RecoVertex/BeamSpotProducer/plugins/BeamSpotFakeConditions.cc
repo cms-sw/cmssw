@@ -78,6 +78,13 @@ BeamSpotFakeConditions::produce(const BeamSpotObjectsRcd &record){
 			adummy->Setdxdz(0.);
 			adummy->Setdydz(0.);
 			adummy->SetBeamWidth(31.7e-4);
+			adummy->SetCovariance(0,0,pow(6.96e-05,2));
+			adummy->SetCovariance(1,1,pow(6.74e-5));
+			adummy->SetCovariance(2,2,pow(0.70));
+			adummy->SetCovariance(3,3,pow(0.53));
+			adummy->SetCovariance(4,4,pow(9.74e-6));
+			adummy->SetCovariance(5,5,pow(9.64e-6));
+			adummy->SetCovariance(6,6,pow(2.0e-4));
 		}
 
 		else if ( BeamType == "NominalCollision" ) {
