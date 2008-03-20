@@ -92,7 +92,6 @@ CSCAnalogSignal CSCStripElectronicsSim::makeNoiseSignal(int element) {
   if(doNoise_) {
     theStripConditions->noisify(layerId(), tmpSignal);
   }
-  tmpSignal *= theSpecs->chargePerCount();
   // now rebin it
   std::vector<float> binValues(theNumberOfSamples);
   for(int ibin=0; ibin < theNumberOfSamples; ++ibin) {
