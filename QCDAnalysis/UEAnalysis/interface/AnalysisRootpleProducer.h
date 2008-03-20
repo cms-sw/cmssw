@@ -42,6 +42,7 @@ private:
   //
   
   std::string fOutputFileName;
+  bool onlyRECO;
   std::string mcEvent;
   std::string genJetCollName;
   std::string chgJetCollName;

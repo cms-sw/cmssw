@@ -113,6 +113,7 @@ void AnalysisRootpleProducer::fillCaloJet(float p, float pt, float eta, float ph
 
 AnalysisRootpleProducer::AnalysisRootpleProducer( const ParameterSet& pset )
   : fOutputFileName( pset.getUntrackedParameter<string>("HistOutFile",std::string("TestHiggsMass.root")) ),
+    onlyRECO( pset.getUntrackedParameter<bool>("OnlyRECO",false)),
     mcEvent( pset.getUntrackedParameter<string>("MCEvent",std::string(""))),
     genJetCollName( pset.getUntrackedParameter<string>("GenJetCollectionName",std::string(""))),
     chgJetCollName( pset.getUntrackedParameter<string>("ChgGenJetCollectionName",std::string(""))),
@@ -180,41 +181,78 @@ void AnalysisRootpleProducer::beginJob( const EventSetup& )
 void AnalysisRootpleProducer::analyze( const Event& e, const EventSetup& )
 {
   
-  Handle< HepMCProduct > EvtHandle ;
+  if(!onlyRECO){
+    
+    Handle< HepMCProduct > EvtHandle ;
+    
+    e.getByLabel( mcEvent.c_str(), EvtHandle ) ;
+    
+    const HepMC::GenEvent* Evt = EvtHandle->GetEvent() ;
+    
+    EventKind = Evt->signal_process_id();
+    
+    Handle< CandidateCollection > CandHandleMC ;
+    
+    Handle< GenJetCollection > GenJetsHandle ;
+    Handle< GenJetCollection > ChgGenJetsHandle ;
+    
+    e.getByLabel( chgGenPartCollName.c_str(), CandHandleMC );
+    
+    e.getByLabel(chgJetCollName.c_str(), ChgGenJetsHandle );
+    e.getByLabel(genJetCollName.c_str(), GenJetsHandle );
+    
+    std::vector<math::XYZTLorentzVector> GenPart;
+    
+    std::vector<GenJet> ChgGenJetContainer;
+    std::vector<GenJet> GenJetContainer;
+    
+    GenPart.clear();
+    
+    ChgGenJetContainer.clear();
+    GenJetContainer.clear();
+    
+    if(ChgGenJetsHandle->size()){
+      for(GenJetCollection::const_iterator it=ChgGenJetsHandle->begin();it!=ChgGenJetsHandle->end();it++)
+	ChgGenJetContainer.push_back(*it);
+      std::stable_sort(ChgGenJetContainer.begin(),ChgGenJetContainer.end(),GenJetSort());
+      for(std::vector<GenJet>::const_iterator it = ChgGenJetContainer.begin(); it != ChgGenJetContainer.end(); it++)
+	fillChargedJet(it->p(),it->pt(),it->eta(),it->phi());
+    }
+    
+    if(GenJetsHandle->size()){
+      for(GenJetCollection::const_iterator it=GenJetsHandle->begin();it!=GenJetsHandle->end();it++)
+	GenJetContainer.push_back(*it);
+      std::stable_sort(GenJetContainer.begin(),GenJetContainer.end(),GenJetSort());
+      for(std::vector<GenJet>::const_iterator it = GenJetContainer.begin(); it != GenJetContainer.end(); it++)
+	fillInclusiveJet(it->p(),it->pt(),it->eta(),it->phi());
+  }
+    
+    if(CandHandleMC->size()){
+      for(CandidateCollection::const_iterator it = CandHandleMC->begin();it!=CandHandleMC->end();it++){
+	GenPart.push_back(it->p4());
+      }
+      std::stable_sort(GenPart.begin(),GenPart.end(),GreaterPt());
+      for(std::vector<math::XYZTLorentzVector>::const_iterator it = GenPart.begin(); it != GenPart.end(); it++)
+	fillMCParticles(it->P(),it->Pt(),it->Eta(),it->Phi());
+    }
+    
+  } 
   
-  e.getByLabel( mcEvent.c_str(), EvtHandle ) ;
-  
-  const HepMC::GenEvent* Evt = EvtHandle->GetEvent() ;
-  
-  EventKind = Evt->signal_process_id();
-  
-  Handle< CandidateCollection > CandHandleMC ;
   Handle< CandidateCollection > CandHandleRECO ;
   
-  Handle< GenJetCollection > GenJetsHandle ;
-  Handle< GenJetCollection > ChgGenJetsHandle ;
   Handle< BasicJetCollection > TracksJetsHandle ;
   Handle< CaloJetCollection > RecoCaloJetsHandle ;
   
-  e.getByLabel( chgGenPartCollName.c_str(), CandHandleMC );
   e.getByLabel( tracksCollName.c_str(), CandHandleRECO );
   
   e.getByLabel(recoCaloJetCollName.c_str(), RecoCaloJetsHandle );
-  e.getByLabel(chgJetCollName.c_str(), ChgGenJetsHandle );
-  e.getByLabel(genJetCollName.c_str(), GenJetsHandle );
   e.getByLabel(tracksJetCollName.c_str(), TracksJetsHandle );
   
-  std::vector<math::XYZTLorentzVector> GenPart;
   std::vector<math::XYZTLorentzVector> Tracks;
-  std::vector<GenJet> ChgGenJetContainer;
-  std::vector<GenJet> GenJetContainer;
   std::vector<BasicJet> TracksJetContainer;
   std::vector<CaloJet> RecoCaloJetContainer;
   
-  GenPart.clear();
   Tracks.clear();
-  ChgGenJetContainer.clear();
-  GenJetContainer.clear();
   TracksJetContainer.clear();
   RecoCaloJetContainer.clear();
   
@@ -225,38 +263,13 @@ void AnalysisRootpleProducer::analyze( const Event& e, const EventSetup& )
     for(std::vector<CaloJet>::const_iterator it = RecoCaloJetContainer.begin(); it != RecoCaloJetContainer.end(); it++)
       fillCaloJet(it->p(),it->pt(),it->eta(),it->phi());
   }
-  
-  if(ChgGenJetsHandle->size()){
-    for(GenJetCollection::const_iterator it=ChgGenJetsHandle->begin();it!=ChgGenJetsHandle->end();it++)
-      ChgGenJetContainer.push_back(*it);
-    std::stable_sort(ChgGenJetContainer.begin(),ChgGenJetContainer.end(),GenJetSort());
-    for(std::vector<GenJet>::const_iterator it = ChgGenJetContainer.begin(); it != ChgGenJetContainer.end(); it++)
-      fillChargedJet(it->p(),it->pt(),it->eta(),it->phi());
-  }
-  
-  if(GenJetsHandle->size()){
-    for(GenJetCollection::const_iterator it=GenJetsHandle->begin();it!=GenJetsHandle->end();it++)
-      GenJetContainer.push_back(*it);
-    std::stable_sort(GenJetContainer.begin(),GenJetContainer.end(),GenJetSort());
-    for(std::vector<GenJet>::const_iterator it = GenJetContainer.begin(); it != GenJetContainer.end(); it++)
-      fillInclusiveJet(it->p(),it->pt(),it->eta(),it->phi());
-  }
-  
+    
   if(TracksJetsHandle->size()){
     for(BasicJetCollection::const_iterator it=TracksJetsHandle->begin();it!=TracksJetsHandle->end();it++)
 	TracksJetContainer.push_back(*it);
     std::stable_sort(TracksJetContainer.begin(),TracksJetContainer.end(),BasicJetSort());
     for(std::vector<BasicJet>::const_iterator it = TracksJetContainer.begin(); it != TracksJetContainer.end(); it++)
       fillTracksJet(it->p(),it->pt(),it->eta(),it->phi());
-  }
-  
-  if(CandHandleMC->size()){
-    for(CandidateCollection::const_iterator it = CandHandleMC->begin();it!=CandHandleMC->end();it++){
-      GenPart.push_back(it->p4());
-    }
-    std::stable_sort(GenPart.begin(),GenPart.end(),GreaterPt());
-    for(std::vector<math::XYZTLorentzVector>::const_iterator it = GenPart.begin(); it != GenPart.end(); it++)
-      fillMCParticles(it->P(),it->Pt(),it->Eta(),it->Phi());
   }
   
   if(CandHandleRECO->size()){
