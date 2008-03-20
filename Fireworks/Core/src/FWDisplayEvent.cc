@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Mon Dec  3 08:38:38 PST 2007
-// $Id: FWDisplayEvent.cc,v 1.35 2008/03/16 23:12:51 chrjones Exp $
+// $Id$
 //
 
 // system include files
@@ -35,6 +35,7 @@
 #include "Fireworks/Core/interface/FWDisplayEvent.h"
 #include "Fireworks/Core/interface/FWRhoPhiZViewManager.h"
 #include "Fireworks/Core/interface/FW3DLegoViewManager.h"
+#include "Fireworks/Core/interface/FWEveLegoViewManager.h"
 #include "Fireworks/Core/interface/FWEventItemsManager.h"
 #include "Fireworks/Core/interface/FWViewManagerManager.h"
 #include "Fireworks/Core/interface/FWGUIManager.h"
@@ -61,7 +62,8 @@
 // constructors and destructor
 //
 FWDisplayEvent::FWDisplayEvent(const std::string& iConfigFileName, 
-                               bool iEnableDebug) :
+                               bool iEnableDebug,
+			       bool iNewLego) :
   m_configurationManager(new FWConfigurationManager),
   m_changeManager(new FWModelChangeManager),
   m_selectionManager(new FWSelectionManager(m_changeManager.get())),
@@ -103,13 +105,20 @@ FWDisplayEvent::FWDisplayEvent(const std::string& iConfigFileName,
   boost::shared_ptr<FWViewManagerBase> rpzViewManager( new FWRhoPhiZViewManager(m_guiManager.get()) );
   rpzViewManager->setGeom(&m_detIdToGeo);
   m_viewManager->add(rpzViewManager);
-  m_viewManager->add( boost::shared_ptr<FWViewManagerBase>( new FW3DLegoViewManager(m_guiManager.get())));
 //   m_viewManager->add( boost::shared_ptr<FWViewManagerBase>( new MuonPUViewManager));
+
+   if ( iNewLego )
+     m_viewManager->add( boost::shared_ptr<FWViewManagerBase>( new FWEveLegoViewManager(m_guiManager.get()) ) );
+   else
+     m_viewManager->add( boost::shared_ptr<FWViewManagerBase>( new FW3DLegoViewManager(m_guiManager.get())));
    
   if(iConfigFileName.empty() ) {
     m_guiManager->createView("Rho Phi");
     m_guiManager->createView("Rho Z");
-    m_guiManager->createView("3D Lego");
+    if ( iNewLego )
+       m_guiManager->createView("3D Lego Pro");
+     else
+       m_guiManager->createView("3D Lego");
   } else {
     m_configurationManager->readFromFile(iConfigFileName);
   }

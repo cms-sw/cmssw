@@ -8,14 +8,22 @@
 //
 // Original Author:  
 //         Created:  Thu Dec  6 17:49:54 PST 2007
-// $Id: FW3DLegoDataProxyBuilder.cc,v 1.2 2008/02/03 02:43:55 dmytro Exp $
+// $Id: FW3DLegoDataProxyBuilder.cc,v 1.3.4.2 2008/03/18 01:40:04 dmytro Exp $
 //
 
 // system include files
+#include <boost/bind.hpp>
+#include "TEveElement.h"
+#include "TEveManager.h"
+#include "TEveSelection.h"
 
 // user include files
 #include "Fireworks/Core/interface/FW3DLegoDataProxyBuilder.h"
-
+#include "TH2F.h"
+#include "TEveElement.h"
+#include <iostream>
+#include "Fireworks/Core/interface/FWEventItem.h"
+#include "Fireworks/Core/interface/FWModelId.h"
 
 //
 // constants, enums and typedefs
@@ -46,7 +54,8 @@ namespace fw3dlego
 // constructors and destructor
 //
 FW3DLegoDataProxyBuilder::FW3DLegoDataProxyBuilder():
-  m_item(0)
+  m_item(0),
+  m_elements(0)
 {
 }
 
@@ -77,20 +86,120 @@ FW3DLegoDataProxyBuilder::~FW3DLegoDataProxyBuilder()
 void
 FW3DLegoDataProxyBuilder::setItem(const FWEventItem* iItem)
 {
-  m_item = iItem;
+   m_item = iItem;
+   if(0 != m_item) {
+      m_item->changed_.connect(boost::bind(&FW3DLegoDataProxyBuilder::modelChanges,this,_1));
+   }
+
 }
+
+
+static void
+setUserDataElementAndChildren(TEveElement* iElement, 
+                              void* iInfo)
+{
+   iElement->SetUserData(iInfo);
+   for(TEveElement::List_i itElement = iElement->BeginChildren(),
+       itEnd = iElement->EndChildren();
+       itElement != itEnd;
+       ++itElement) {
+      setUserDataElementAndChildren(*itElement, iInfo);
+   }
+}
+
+static
+void
+setUserData(const FWEventItem* iItem,TEveElementList* iElements, std::vector<FWModelId>& iIds) {
+   if(iElements &&  static_cast<int>(iItem->size()) == iElements->GetNChildren() ) {
+      int index=0;
+      int largestIndex = iIds.size();
+      if(iIds.size()<iItem->size()) {
+         iIds.resize(iItem->size());
+      }
+      std::vector<FWModelId>::iterator itId = iIds.begin();
+      for(TEveElement::List_i it = iElements->BeginChildren(), itEnd = iElements->EndChildren();
+          it != itEnd;
+          ++it,++itId,++index) {
+         if(largestIndex<=index) {
+            *itId=FWModelId(iItem,index);
+         }
+         setUserDataElementAndChildren(*it,&(*itId));
+      }
+   }
+}
+
 
 void
-FW3DLegoDataProxyBuilder::build(TH2** iObject)
+FW3DLegoDataProxyBuilder::build(TObject** iObject)
 {
-  if(0!= m_item) {
-    build(m_item, iObject);
-  }
+   if ( ! m_item ) return;
+   TH2* hist = dynamic_cast<TH2*>(*iObject);
+   if ( ! *iObject || hist ) build(m_item, &hist);
+   if ( hist ) {
+      *iObject = hist;
+      return;
+   }
+   
+   TEveElementList* list = dynamic_cast<TEveElementList*>(*iObject);
+   if ( ! *iObject || list ) build(m_item, &list);
+   if ( list ) {
+      *iObject = list;
+      m_elements = list;
+      setUserData(m_item,list,m_ids);
+   }
 }
-//
-// const member functions
-//
 
-//
-// static member functions
-//
+void 
+FW3DLegoDataProxyBuilder::modelChanges(const FWModelIds& iIds)
+{
+   // printf("number of model ids: %d\n", iIds.size() );
+   FW3DLegoDataProxyBuilder::modelChanges(iIds,m_elements);
+}
+
+static void
+changeElementAndChildren(TEveElement* iElement, 
+                         const FWEventItem::ModelInfo& iInfo)
+{
+   iElement->SetMainColor(iInfo.displayProperties().color());
+   //for now, if selected make the item white
+   if(iInfo.isSelected() xor iElement->GetSelectedLevel()==1) {
+      if(iInfo.isSelected()) {         
+         gEve->GetSelection()->AddElement(iElement);
+      } else {
+         gEve->GetSelection()->RemoveElement(iElement);
+      }
+   }
+
+   for(TEveElement::List_i itElement = iElement->BeginChildren(),
+       itEnd = iElement->EndChildren();
+       itElement != itEnd;
+       ++itElement) {
+      changeElementAndChildren(*itElement, iInfo);
+   }
+}
+
+void 
+FW3DLegoDataProxyBuilder::modelChanges(const FWModelIds& iIds,
+                                    TEveElement* iElements )
+{
+   //std::cout <<"modelChanged "<<m_item->size()<<" "<<iElements->GetNChildren()<<std::endl;
+   if (! iElements) return;
+   assert(m_item && static_cast<int>(m_item->size()) == iElements->GetNChildren() && "can not use default modelChanges implementation");
+   TEveElement::List_i itElement = iElements->BeginChildren();
+   int index = 0;
+   for(FWModelIds::const_iterator it = iIds.begin(), itEnd = iIds.end();
+       it != itEnd;
+       ++it,++itElement,++index) {
+      assert(itElement != iElements->EndChildren());         
+      while(index < it->index()) {
+         ++itElement;
+         ++index;
+         assert(itElement != iElements->EndChildren());         
+      }
+      const FWEventItem::ModelInfo& info = it->item()->modelInfo(index);
+      changeElementAndChildren(*itElement, info);
+      (*itElement)->SetRnrSelf(info.displayProperties().isVisible());
+      (*itElement)->SetRnrChildren(info.displayProperties().isVisible());
+      (*itElement)->ElementChanged();
+   }
+}

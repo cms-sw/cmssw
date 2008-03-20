@@ -1,11 +1,11 @@
-#ifndef Fireworks_Calo_CaloJetProxy3DLegoBuilder_h
-#define Fireworks_Calo_CaloJetProxy3DLegoBuilder_h
+#ifndef Fireworks_Calo_CaloJetProxyTH2LegoBuilder_h
+#define Fireworks_Calo_CaloJetProxyTH2LegoBuilder_h
 // -*- C++ -*-
 //
 // Package:     Calo
-// Class  :     CaloJetProxy3DLegoBuilder
+// Class  :     CaloJetProxyTH2LegoBuilder
 // 
-/**\class CaloJetProxy3DLegoBuilder CaloJetProxy3DLegoBuilder.h Fireworks/Calo/interface/CaloJetProxy3DLegoBuilder.h
+/**\class CaloJetProxyTH2LegoBuilder CaloJetProxyTH2LegoBuilder.h Fireworks/Calo/interface/CaloJetProxyTH2LegoBuilder.h
 
  Description: <one line class summary>
 
@@ -16,7 +16,7 @@
 //
 // Original Author:  
 //         Created:  Sun Jan  6 23:42:33 EST 2008
-// $Id: CaloJetProxy3DLegoBuilder.h,v 1.2 2008/03/06 10:17:15 dmytro Exp $
+// $Id: CaloJetProxyTH2LegoBuilder.h,v 1.3 2008/03/07 09:06:47 dmytro Exp $
 //
 
 // system include files
@@ -26,12 +26,12 @@
 
 // forward declarations
 class TH2F;
-class CaloJetProxy3DLegoBuilder : public FW3DLegoDataProxyBuilder
+class CaloJetProxyTH2LegoBuilder : public FW3DLegoDataProxyBuilder
 {
 
    public:
-      CaloJetProxy3DLegoBuilder();
-      virtual ~CaloJetProxy3DLegoBuilder();
+      CaloJetProxyTH2LegoBuilder();
+      virtual ~CaloJetProxyTH2LegoBuilder();
 
       // ---------- const member functions ---------------------
 
@@ -47,9 +47,9 @@ class CaloJetProxy3DLegoBuilder : public FW3DLegoDataProxyBuilder
       virtual void build(const FWEventItem* iItem, 
 			 TH2** product);
 
-      CaloJetProxy3DLegoBuilder(const CaloJetProxy3DLegoBuilder&); // stop default
+      CaloJetProxyTH2LegoBuilder(const CaloJetProxyTH2LegoBuilder&); // stop default
 
-      const CaloJetProxy3DLegoBuilder& operator=(const CaloJetProxy3DLegoBuilder&); // stop default
+      const CaloJetProxyTH2LegoBuilder& operator=(const CaloJetProxyTH2LegoBuilder&); // stop default
 
       double deltaR( double, double, double, double );
       // ---------- member data --------------------------------

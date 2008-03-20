@@ -22,7 +22,7 @@
 
 <use name=Fireworks/Core>
 
-<flags CXXFLAGS="-g">
+<flags CXXFLAGS="-g -O0">
 <export>
   <lib name=FireworksElectrons>
   <use name=Fireworks/Core>

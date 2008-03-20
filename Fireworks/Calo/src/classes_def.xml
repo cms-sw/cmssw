@@ -1,8 +1,9 @@
 <lcgdict>
   <class name="ECalCaloTowerProxy3DLegoBuilder"/>
   <class name="HCalCaloTowerProxy3DLegoBuilder"/>
-  <class name="CaloJetProxy3DLegoBuilder"/>
-  <class name="CaloJetSelectedProxy3DLegoBuilder"/>
+  <class name="CaloJetProxyTH2LegoBuilder"/>
+  <class name="CaloJetSelectedProxyTH2LegoBuilder"/>
+  <class name="CaloJetProxyEveLegoBuilder"/>
   <class name="CaloJetProxyRhoPhiZ2DBuilder"/>
   <class name="ECalCaloTowerProxyRhoPhiZ2DBuilder"/>
   <class name="HCalCaloTowerProxyRhoPhiZ2DBuilder"/>

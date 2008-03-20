@@ -24,7 +24,7 @@
 <lib name=FTGL> 
 <lib name=RIO> 
 <lib name=Rint>
-<flags CXXFLAGS="-g">
+<flags CXXFLAGS="-g -O0">
 <export>
   <use name=sigcpp>
   <lib name=FireworksCore>

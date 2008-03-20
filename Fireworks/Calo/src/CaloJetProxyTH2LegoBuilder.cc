@@ -1,14 +1,14 @@
 // -*- C++ -*-
 //
 // Package:     Calo
-// Class  :     CaloJetProxy3DLegoBuilder
+// Class  :     CaloJetProxyTH2LegoBuilder
 // 
 // Implementation:
 //     <Notes on implementation>
 //
 // Original Author:  
 //         Created:  Sun Jan  6 23:57:00 EST 2008
-// $Id: CaloJetProxy3DLegoBuilder.cc,v 1.5 2008/03/07 03:42:58 dmytro Exp $
+// $Id: CaloJetProxyTH2LegoBuilder.cc,v 1.6 2008/03/07 09:06:48 dmytro Exp $
 //
 
 // system include files
@@ -16,7 +16,7 @@
 
 
 // user include files
-#include "Fireworks/Calo/interface/CaloJetProxy3DLegoBuilder.h"
+#include "Fireworks/Calo/interface/CaloJetProxyTH2LegoBuilder.h"
 #include "Fireworks/Core/interface/FWEventItem.h"
 
 #include "DataFormats/JetReco/interface/CaloJetfwd.h"
@@ -33,27 +33,27 @@
 //
 // constructors and destructor
 //
-CaloJetProxy3DLegoBuilder::CaloJetProxy3DLegoBuilder()
+CaloJetProxyTH2LegoBuilder::CaloJetProxyTH2LegoBuilder()
   :m_product(0)
 {
 }
 
-// CaloJetProxy3DLegoBuilder::CaloJetProxy3DLegoBuilder(const CaloJetProxy3DLegoBuilder& rhs)
+// CaloJetProxyTH2LegoBuilder::CaloJetProxyTH2LegoBuilder(const CaloJetProxyTH2LegoBuilder& rhs)
 // {
 //    // do actual copying here;
 // }
 
-CaloJetProxy3DLegoBuilder::~CaloJetProxy3DLegoBuilder()
+CaloJetProxyTH2LegoBuilder::~CaloJetProxyTH2LegoBuilder()
 {
 }
 
 //
 // assignment operators
 //
-// const CaloJetProxy3DLegoBuilder& CaloJetProxy3DLegoBuilder::operator=(const CaloJetProxy3DLegoBuilder& rhs)
+// const CaloJetProxyTH2LegoBuilder& CaloJetProxyTH2LegoBuilder::operator=(const CaloJetProxyTH2LegoBuilder& rhs)
 // {
 //   //An exception safe implementation is
-//   CaloJetProxy3DLegoBuilder temp(rhs);
+//   CaloJetProxyTH2LegoBuilder temp(rhs);
 //   swap(rhs);
 //
 //   return *this;
@@ -63,7 +63,7 @@ CaloJetProxy3DLegoBuilder::~CaloJetProxy3DLegoBuilder()
 // member functions
 //
 void 
-CaloJetProxy3DLegoBuilder::build(const FWEventItem* iItem, 
+CaloJetProxyTH2LegoBuilder::build(const FWEventItem* iItem, 
 				       TH2** product)
 {
   if (0==*product) {
@@ -79,7 +79,7 @@ CaloJetProxy3DLegoBuilder::build(const FWEventItem* iItem,
 }
 
 void 
-CaloJetProxy3DLegoBuilder::build(const FWEventItem* iItem, 
+CaloJetProxyTH2LegoBuilder::build(const FWEventItem* iItem, 
 				 TH2* product,
 				 bool selectedFlag )
 {
@@ -110,7 +110,7 @@ CaloJetProxy3DLegoBuilder::build(const FWEventItem* iItem,
    }
 }
 
-void CaloJetProxy3DLegoBuilder::message( int type, int xbin, int ybin )
+void CaloJetProxyTH2LegoBuilder::message( int type, int xbin, int ybin )
 {
    const FWEventItem* iItem = getItem();
    const reco::CaloJetCollection* jets=0;

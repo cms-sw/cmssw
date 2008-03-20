@@ -24,7 +24,7 @@
 
 <use name=Fireworks/Core>
 
-<flags CXXFLAGS="-g">
+<flags CXXFLAGS="-g -O0">
 <export>
   <lib name=FireworksMuons>
   <use name=Fireworks/Core>

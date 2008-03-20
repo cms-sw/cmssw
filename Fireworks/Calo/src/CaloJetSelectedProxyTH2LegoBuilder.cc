@@ -1,14 +1,14 @@
 // -*- C++ -*-
 //
 // Package:     Calo
-// Class  :     CaloJetSelectedProxy3DLegoBuilder
+// Class  :     CaloJetSelectedProxyTH2LegoBuilder
 // 
 // Implementation:
 //     <Notes on implementation>
 //
 // Original Author:  
 //         Created:  Sun Jan  6 23:57:00 EST 2008
-// $Id: CaloJetSelectedProxy3DLegoBuilder.cc,v 1.3 2008/02/03 02:43:53 dmytro Exp $
+// $Id: CaloJetSelectedProxyTH2LegoBuilder.cc,v 1.1 2008/03/06 10:17:15 dmytro Exp $
 //
 
 // system include files
@@ -16,8 +16,8 @@
 
 
 // user include files
-#include "Fireworks/Calo/interface/CaloJetSelectedProxy3DLegoBuilder.h"
-#include "Fireworks/Calo/interface/CaloJetProxy3DLegoBuilder.h"
+#include "Fireworks/Calo/interface/CaloJetSelectedProxyTH2LegoBuilder.h"
+#include "Fireworks/Calo/interface/CaloJetProxyTH2LegoBuilder.h"
 #include "Fireworks/Core/interface/FWEventItem.h"
 
 #include "DataFormats/JetReco/interface/CaloJetfwd.h"
@@ -34,26 +34,26 @@
 //
 // constructors and destructor
 //
-CaloJetSelectedProxy3DLegoBuilder::CaloJetSelectedProxy3DLegoBuilder()
+CaloJetSelectedProxyTH2LegoBuilder::CaloJetSelectedProxyTH2LegoBuilder()
 {
 }
 
-// CaloJetSelectedProxy3DLegoBuilder::CaloJetSelectedProxy3DLegoBuilder(const CaloJetSelectedProxy3DLegoBuilder& rhs)
+// CaloJetSelectedProxyTH2LegoBuilder::CaloJetSelectedProxyTH2LegoBuilder(const CaloJetSelectedProxyTH2LegoBuilder& rhs)
 // {
 //    // do actual copying here;
 // }
 
-CaloJetSelectedProxy3DLegoBuilder::~CaloJetSelectedProxy3DLegoBuilder()
+CaloJetSelectedProxyTH2LegoBuilder::~CaloJetSelectedProxyTH2LegoBuilder()
 {
 }
 
 //
 // assignment operators
 //
-// const CaloJetSelectedProxy3DLegoBuilder& CaloJetSelectedProxy3DLegoBuilder::operator=(const CaloJetSelectedProxy3DLegoBuilder& rhs)
+// const CaloJetSelectedProxyTH2LegoBuilder& CaloJetSelectedProxyTH2LegoBuilder::operator=(const CaloJetSelectedProxyTH2LegoBuilder& rhs)
 // {
 //   //An exception safe implementation is
-//   CaloJetSelectedProxy3DLegoBuilder temp(rhs);
+//   CaloJetSelectedProxyTH2LegoBuilder temp(rhs);
 //   swap(rhs);
 //
 //   return *this;
@@ -63,7 +63,7 @@ CaloJetSelectedProxy3DLegoBuilder::~CaloJetSelectedProxy3DLegoBuilder()
 // member functions
 //
 void 
-CaloJetSelectedProxy3DLegoBuilder::build(const FWEventItem* iItem, 
+CaloJetSelectedProxyTH2LegoBuilder::build(const FWEventItem* iItem, 
 				       TH2** product)
 {
   if (0==*product) {
@@ -72,7 +72,7 @@ CaloJetSelectedProxy3DLegoBuilder::build(const FWEventItem* iItem,
   }
   (*product)->Reset();
   
-  CaloJetProxy3DLegoBuilder::build(iItem,*product,kTRUE);
+  CaloJetProxyTH2LegoBuilder::build(iItem,*product,kTRUE);
 }
 
 //
