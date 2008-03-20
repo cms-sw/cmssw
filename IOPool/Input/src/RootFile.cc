@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: RootFile.cc,v 1.123 2008/03/20 09:39:06 lsexton Exp $
+$Id: RootFile.cc,v 1.124 2008/03/20 18:23:03 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include "RootFile.h"
@@ -239,6 +239,7 @@ namespace edm {
   RootFile::setIfFastClonable(int remainingEvents) const {
     if (fileFormatVersion_.value_ < 3) return false; 
     if (!fileIndex_.eventsSorted()) return false; 
+    if (!whichEventsToProcess_.empty()) return false; 
     if (eventsToSkip_ != 0) return false; 
     if (remainingEvents >= 0 && eventTree_.entries() > remainingEvents) return false;
     if (forcedRunOffset_ != 0) return false; 
