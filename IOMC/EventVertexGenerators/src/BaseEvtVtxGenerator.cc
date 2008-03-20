@@ -1,7 +1,7 @@
 
 /*
-*  $Date: 2007/05/28 10:19:41 $
-*  $Revision: 1.7 $
+*  $Date: 2008/03/18 15:55:36 $
+*  $Revision: 1.8 $
 */
 
 #include "IOMC/EventVertexGenerators/interface/BaseEvtVtxGenerator.h"
@@ -82,28 +82,31 @@ void BaseEvtVtxGenerator::produce( Event& evt, const EventSetup& )
    // cycles 18x & 20x ONLY !
    // 
    std::vector<edm::Handle<edm::HepMCProduct> > AllHepMCEvt;
-   evt.getManyByType(AllHepMCEvt);            
+   evt.getManyByType(AllHepMCEvt);   
+   bool EvtGenFound = false;         
    
    for (unsigned int i = 0; i < AllHepMCEvt.size(); ++i) 
    {
        HepMCEvt = AllHepMCEvt[i];
-       //if ( HepMCEvt.provenance()->product()).moduleLabel() == "evtgenproducer")
-       //{
-       //   break;
-       //}
+       if ( (HepMCEvt.provenance()->product()).moduleLabel() == "evtgenproducer")
+       {
+          EvtGenFound = true ;
+	  break;
+       }
    }
 
    // attempt once more, this time look for basic "source"-made one
    //
-   if (!HepMCEvt.isValid()) 
+   // if (!HepMCEvt.isValid()) 
+   if ( !EvtGenFound )
    {
       for (unsigned int i = 0; i < AllHepMCEvt.size(); ++i) 
       {
          HepMCEvt = AllHepMCEvt[i];
-         //if ( HepMCEvt.provenance()->product()).moduleLabel() == "source" )
-         //{
-         //   break ;
-         //}
+         if ( (HepMCEvt.provenance()->product()).moduleLabel() == "source" )
+         {
+            break ;
+         }
       }
    }
   
