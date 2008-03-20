@@ -27,10 +27,11 @@ ThingsWorker::ThingsWorker(const TList*, TList& out ) {
   
 void 
 ThingsWorker::process( const edm::Event& iEvent ) {
-    std::cout << "processing event " << std::endl;
-    //  chain->GetEntry( entry );
-    using namespace edmtest;
-    edm::Handle<OtherThingCollection> hOThings;
+  std::cout << "processing event " << std::endl;
+  //  chain->GetEntry( entry );
+  using namespace edmtest;
+  edm::Handle<OtherThingCollection> hOThings;
+  try {
     iEvent.getByLabel("OtherThing", "testUserTag", hOThings);
     
     std::cout << ">> other things found:" << hOThings->size() << std::endl;
@@ -49,8 +50,19 @@ ThingsWorker::process( const edm::Event& iEvent ) {
       h_a ->Fill( thing.a );
       std::cout << ">> a:  " << thing.a << std::endl;
     }
-    
+  } catch (cms::Exception& x) {
+    std::cout << std::endl << "Failed with cms::Exception: " << std::endl;
+    std::cout << x.what() << std::endl;
+    exit(10);
+  } catch (std::exception& x) {
+    std::cout << std::endl << "Failed with std::exception" << std::endl;
+    std::cout << x.what() << std::endl;
+    exit(10);
+  } catch (...) {
+    std::cout << std::endl << "Failed with unknown exception" << std::endl;
+    exit(10);
   }
+}
   
 void 
 ThingsWorker::postProcess(TList&)

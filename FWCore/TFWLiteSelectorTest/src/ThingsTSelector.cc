@@ -37,23 +37,37 @@ void ThingsTSelector::process( const edm::Event& iEvent ) {
   //  chain->GetEntry( entry );
   using namespace edmtest;
   edm::Handle<OtherThingCollection> hOThings;
-  iEvent.getByLabel("OtherThing", "testUserTag", hOThings);
 
-  std::cout << ">> other things found:" << hOThings->size() << std::endl;
-  for ( size_t i = 0; i < hOThings->size(); ++i ) {
-    const OtherThing & thing = (*hOThings)[ i ];
-    h_refA ->Fill( thing.ref->a );
-    std::cout << ">> ref->a:  " << thing.ref->a << std::endl;
-  }
+  try {
+    iEvent.getByLabel("OtherThing", "testUserTag", hOThings);
+    std::cout << ">> other things found:" << hOThings->size() << std::endl;
 
-  edm::Handle<ThingCollection> hThings;
-  iEvent.getByLabel("Thing",hThings);
-  const ThingCollection& things = *hThings;
-  std::cout << ">> things found:" << things.size() << std::endl;
-  for ( size_t i = 0; i < things.size(); ++i ) {
-    const Thing & thing = things[ i ];
-    h_a ->Fill( thing.a );
-    std::cout << ">> a:  " << thing.a << std::endl;
+    for ( size_t i = 0; i < hOThings->size(); ++i ) {
+      const OtherThing & thing = (*hOThings)[ i ];
+      h_refA ->Fill( thing.ref->a );
+      std::cout << ">> ref->a:  " << thing.ref->a << std::endl;
+    }
+
+    edm::Handle<ThingCollection> hThings;
+    iEvent.getByLabel("Thing",hThings);
+    const ThingCollection& things = *hThings;
+    std::cout << ">> things found:" << things.size() << std::endl;
+    for ( size_t i = 0; i < things.size(); ++i ) {
+      const Thing & thing = things[ i ];
+      h_a ->Fill( thing.a );
+      std::cout << ">> a:  " << thing.a << std::endl;
+    }
+  } catch (cms::Exception& x) {
+    std::cout << std::endl << "Failed with cms::Exception: " << std::endl;
+    std::cout << x.what() << std::endl;
+    exit(10);
+  } catch (std::exception& x) {
+    std::cout << std::endl << "Failed with std::exception" << std::endl;
+    std::cout << x.what() << std::endl;
+    exit(10);
+  } catch (...) {
+    std::cout << std::endl << "Failed with unknown exception" << std::endl;
+    exit(10);
   }
 
 }
