@@ -1,11 +1,11 @@
-// $Id: EcalErrorMask.cc,v 1.29 2008/03/19 19:53:14 dellaric Exp $
+// $Id: EcalErrorMask.cc,v 1.30 2008/03/19 19:58:19 dellaric Exp $
 
 /*!
   \file EcalErrorMask.cc
   \brief Error mask from text file or database
   \author B. Gobbo
-  \version $Revision: 1.29 $
-  \date $Date: 2008/03/19 19:53:14 $
+  \version $Revision: 1.30 $
+  \date $Date: 2008/03/19 19:58:19 $
 */
 
 #include "OnlineDB/EcalCondDB/interface/EcalCondDBInterface.h"
@@ -445,10 +445,13 @@ void EcalErrorMask::writeFile( std::string& outFile ) throw( std::runtime_error 
   if( !inf.fail() ) {
     std::cout << std::endl;
     std::cout << "File ";
-    std::cout << outFile << " already exists. Should I replace it? [y/n] ";
-    std::string yesno; std::cin >> yesno;
-    if( strcmp(yesno.c_str(), "n") == 0 ) {
+    std::cout << outFile << " already exists. Should I replace it? [y/N] ";
+    std::string yesno;
+    std::cin >> yesno;
+    std::cout << std::endl;
+    if( strcmp(yesno.c_str(), "y") != 0 || strcmp(yesno.c_str(), "Y") != 0 ) {
       throw( std::runtime_error( outFile + " left unchanged." ) );
+      std::cout << std::endl;
       return;
     }
   }
