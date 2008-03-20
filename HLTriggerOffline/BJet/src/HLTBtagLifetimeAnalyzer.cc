@@ -388,7 +388,7 @@ void HLTBtagLifetimeAnalyzer::endJob()
   for (unsigned int i = 0; i < m_levels.size(); ++i) {
     std::stringstream out;
     out << std::setw(64) << std::left << ("events passing " + m_levels[i].m_title) << std::right << std::setw(12) << m_events[i];
-    std::cout << out.str() << std::endl;
+    std::cout << m_triggerPath << ":" << out.str() << std::endl;
   }
   for (unsigned int i = 1; i < m_levels.size(); ++i) {
     std::stringstream out;
@@ -399,7 +399,7 @@ void HLTBtagLifetimeAnalyzer::endJob()
     } else {
       out << std::right << std::setw(12) << "NaN";
     }
-    std::cout << out.str() << std::endl;
+    std::cout << m_triggerPath << ":" << out.str() << std::endl;
   }
   for (unsigned int i = 1; i < m_levels.size(); ++i) {
     std::stringstream out;
@@ -410,7 +410,7 @@ void HLTBtagLifetimeAnalyzer::endJob()
     } else {
       out << std::right << std::setw(12) << "NaN";
     }
-    std::cout << out.str() << std::endl;
+    std::cout << m_triggerPath << ":" << out.str() << std::endl;
   }
   std::cout << std::endl;
   
