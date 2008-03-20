@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: RootFile.cc,v 1.121 2008/03/05 05:55:30 wmtan Exp $
+$Id: RootFile.cc,v 1.122 2008/03/11 21:12:43 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include "RootFile.h"
@@ -49,7 +49,8 @@ namespace edm {
 		     unsigned int eventsToSkip,
 		     std::vector<LuminosityBlockID> const& whichLumisToSkip,
 		     int remainingEvents,
-		     int forcedRunOffset) :
+		     int forcedRunOffset,
+		     std::vector<EventID> const& whichEventsToProcess) :
       file_(fileName),
       logicalFile_(logicalFileName),
       catalog_(catalogName),
@@ -69,6 +70,8 @@ namespace edm {
       startAtEvent_(startAtEvent),
       eventsToSkip_(eventsToSkip),
       whichLumisToSkip_(whichLumisToSkip),
+      whichEventsToProcess_(whichEventsToProcess),
+      eventListIter_(whichEventsToProcess_.begin()),
       fastClonable_(false),
       reportToken_(0),
       eventAux_(),
@@ -194,6 +197,8 @@ namespace edm {
 						 newBranchToOldBranch(prod.branchName()));
     }
 
+    // Sort the EventID list the user supplied so that we can assume it is time ordered
+    sort_all(whichEventsToProcess_);
     // Determine if this file is fast clonable.
     fastClonable_ = setIfFastClonable(remainingEvents);
 
@@ -326,6 +331,13 @@ namespace edm {
     } else if (entryType == FileIndex::kRun) {
       // Skip any runs before the first run specified, startAtRun_.
       RunNumber_t currentRun = (fileIndexIter_->run_ ? fileIndexIter_->run_ : 1U);
+      // Skip any runs before the first run specified in the event list.
+      if (whichEventsToProcess_.size()>0){
+	if (currentRun < eventListIter_->run()){
+	  fileIndexIter_ = fileIndex_.findRunPosition(startAtRun_, false);      
+	  return getNextEntryTypeWanted();
+	}
+      }
       if (currentRun < startAtRun_) {
         fileIndexIter_ = fileIndex_.findRunPosition(startAtRun_, false);      
 	return getNextEntryTypeWanted();
@@ -365,6 +377,17 @@ namespace edm {
           --eventsToSkip_;
         }
 	return getNextEntryTypeWanted();
+      }
+      // If we have a list of events to process and we're here then we've already positioned the file 
+      // to execute the run and lumi entry for the current event in the list so just position to the 
+      // right event and return.
+      if (whichEventsToProcess_.size()>0){
+	 fileIndexIter_ = fileIndex_.findEventPosition(fileIndexIter_->run_,
+						  fileIndexIter_->lumi_,
+						  eventListIter_->event(), 
+						  true);
+	 // for next time around move to the next request
+	 ++eventListIter_;
       }
     }
     return entryType;

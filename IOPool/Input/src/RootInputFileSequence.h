@@ -5,7 +5,7 @@
 
 RootInputFileSequence: This is an InputSource
 
-$Id: RootInputFileSequence.h,v 1.4 2008/03/01 17:48:14 wmtan Exp $
+$Id: RootInputFileSequence.h,v 1.5 2008/03/11 21:12:43 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -91,6 +91,7 @@ namespace edm {
     EventNumber_t startAtEvent_;
     unsigned int eventsToSkip_;
     std::vector<LuminosityBlockID> whichLumisToSkip_;
+    std::vector<EventID> eventsToProcess_;
     bool skipBadFiles_;
     int forcedRunOffset_;
     RunNumber_t setRun_;
