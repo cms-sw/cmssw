@@ -12,6 +12,6 @@
 <use name=Geometry/CaloEventSetup>
 <use name=FWCore/PluginManager>
 <use name=RecoMuon/MuonIsolation>
-  <library file=*.cc name=RecoMuonMuonIsolationProducersPlugins>
+  <library file=*.cc name=RecoMuonMuonIsolationProducersPlugins> 
 </library>
 
