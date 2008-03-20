@@ -331,7 +331,9 @@ void HLTBtagLifetimeAnalyzer::analyze(const edm::Event & event, const edm::Event
     bool passed = accepted or (latest > level.m_filterIndex);               // accepted by this filter
     bool failed = (not accepted) and (latest == level.m_filterIndex);       // rejected by this filter
     //bool notrun = (not accepted) and (latest  < level.m_filterIndex);       // did not reach this filter
+    #ifdef DEBUG
     std::cout << "  path " << m_triggerPath << ", filter " << std::setw(32) << std::left << level.m_filter.label() << std::right << (passed ? "passed" : failed ? "failed" : "not run") << std::endl;
+    #endif
     
     edm::Handle<edm::View<reco::Jet> >                  h_jets;
     edm::Handle<reco::JetTracksAssociation::Container>  h_tracks;
@@ -377,8 +379,9 @@ void HLTBtagLifetimeAnalyzer::analyze(const edm::Event & event, const edm::Event
       break;
     }
   }
-
+  #ifdef DEBUG
   std::cout << std::endl;
+  #endif
 }
 
 void HLTBtagLifetimeAnalyzer::endJob()
