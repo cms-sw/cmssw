@@ -3,8 +3,8 @@
  *  Class to load the product in the event
  *
 
- *  $Date: 2008/02/14 10:25:02 $
- *  $Revision: 1.59 $
+ *  $Date: 2008/02/20 08:47:54 $
+ *  $Revision: 1.60 $
 
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  */
@@ -147,7 +147,7 @@ MuonTrackLoader::loadTracks(const TrajectoryContainer& trajectories,
       if(!trajectoriesSM.empty())
 	trajectory = trajectoriesSM.front();
       else
-	LogWarning(metname)<<"The trajectory has not been smoothed!"<<endl;
+	LogInfo(metname)<<"The trajectory has not been smoothed!"<<endl;
     }
     
     if(theTrajectoryFlag) {
@@ -382,15 +382,15 @@ pair<bool,reco::Track> MuonTrackLoader::buildTrackAtPCA(const Trajectory& trajec
     ftsAtVtx = extrapolationResult.second;
   else{    
     if(TrackerBounds::isInside(innerTSOS.globalPosition())){
-      LogWarning(metname) << "Track in the Tracker: taking the innermost state instead of the state at PCA";
+      LogInfo(metname) << "Track in the Tracker: taking the innermost state instead of the state at PCA";
       ftsAtVtx = *innerTSOS.freeState();
     }
     else{
       if ( theAllowNoVtxFlag ) {
-        LogWarning(metname) << "Propagation to PCA failed, taking the innermost state instead of the state at PCA";
+        LogInfo(metname) << "Propagation to PCA failed, taking the innermost state instead of the state at PCA";
         ftsAtVtx = *innerTSOS.freeState();
       } else {
-        LogWarning(metname) << "Stand Alone track: this track will be rejected";
+        LogInfo(metname) << "Stand Alone track: this track will be rejected";
         return pair<bool,reco::Track>(false,reco::Track());
       }
     }

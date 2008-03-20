@@ -3,8 +3,8 @@
  *  method, the vertex constraint. The vertex constraint is applyed using the Kalman Filter tools used for 
  *  the vertex reconstruction.
  *
- *  $Date: 2007/12/13 15:15:48 $
- *  $Revision: 1.29 $
+ *  $Date: 2008/02/20 08:48:24 $
+ *  $Revision: 1.30 $
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  */
 
@@ -127,7 +127,7 @@ MuonUpdatorAtVertex::propagate(const TrajectoryStateOnSurface &tsos,
   if( result.first.hasError()) 
     return pair<bool,FreeTrajectoryState>(true,result.first);
   else{
-    edm::LogWarning(metname) << "Propagation to the PCA failed!";
+    edm::LogInfo(metname) << "Propagation to the PCA failed!";
     
     // FIXME: returns FreeTrajectoryState() instead of result.first?
     return pair<bool,FreeTrajectoryState>(false,result.first);
@@ -174,7 +174,7 @@ MuonUpdatorAtVertex::propagate(const TrajectoryStateOnSurface &tsos){
     if(result.first.hasError()) 
       return pair<bool,FreeTrajectoryState>(true,result.first);
     else
-      edm::LogWarning(metname) << "Propagation to the PCA failed! Path: "<<result.second;
+      edm::LogInfo(metname) << "Propagation to the PCA failed! Path: "<<result.second;
   }
   return pair<bool,FreeTrajectoryState>(false,FreeTrajectoryState());
 }
@@ -211,7 +211,7 @@ MuonUpdatorAtVertex::update(const reco::TransientTrack & track, edm::Event &even
     result.second = *constrainedTransientTrack.first.impactPointState().freeState();
   }
   else
-    edm::LogWarning(metname) << "Constraint at vertex failed"; 
+    edm::LogInfo(metname) << "Constraint at vertex failed"; 
     
   return result;
 }
@@ -238,7 +238,7 @@ MuonUpdatorAtVertex::propagateWithUpdate(const TrajectoryStateOnSurface &tsos,
     return update(propagationResult.second,event);
   }
   else{
-    edm::LogWarning("Muon|RecoMuon|MuonUpdatorAtVertex") << "Constraint at vertex failed";
+    edm::LogInfo("Muon|RecoMuon|MuonUpdatorAtVertex") << "Constraint at vertex failed";
     return pair<bool,FreeTrajectoryState>(false,FreeTrajectoryState());
   }
 }
@@ -256,7 +256,7 @@ MuonUpdatorAtVertex::propagateWithUpdate(const TrajectoryStateOnSurface &tsos, e
     return update(propagationResult.second,event);
   }
   else{
-    edm::LogWarning("Muon|RecoMuon|MuonUpdatorAtVertex") << "Constraint at vertex failed";
+    edm::LogInfo("Muon|RecoMuon|MuonUpdatorAtVertex") << "Constraint at vertex failed";
     return pair<bool,FreeTrajectoryState>(false,FreeTrajectoryState());
   }
 }
