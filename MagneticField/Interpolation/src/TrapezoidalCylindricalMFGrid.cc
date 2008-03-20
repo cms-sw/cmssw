@@ -134,7 +134,9 @@ void TrapezoidalCylindricalMFGrid::toGridFrame( const LocalPoint& p,
 					      double& a, double& b, double& c) const
 {
   mapping_.rectangle( p.perp(), p.z(), a, c);
-  b = Geom::pi() - p.phi();
+  // FIXME: "OLD" convention of phi.
+  //  b = Geom::pi() - p.phi();
+  b = p.phi();
 }
 
 MFGrid::LocalPoint 
@@ -142,5 +144,7 @@ TrapezoidalCylindricalMFGrid::fromGridFrame( double a, double b, double c) const
 {
   double rtrap, ztrap;
   mapping_.trapezoid( a, c, rtrap, ztrap);
-  return LocalPoint(LocalPoint::Cylindrical(rtrap, Geom::pi() - b, ztrap));
+  // FIXME: "OLD" convention of phi.
+  //  return LocalPoint(LocalPoint::Cylindrical(rtrap, Geom::pi() - b, ztrap));
+  return LocalPoint(LocalPoint::Cylindrical(rtrap, b, ztrap));
 }

@@ -88,7 +88,9 @@ MFGrid::LocalPoint SpecialCylindricalMFGrid::fromGridFrame( double a, double b, 
 {
   double sinPhi = sin(b);
   double R = a*stepSize(sinPhi) + startingPoint(sinPhi);
-  GlobalPoint gp( GlobalPoint::Cylindrical(R, Geom::pi() - b, c));
+  // FIXME: "OLD" convention of phi.
+  //  GlobalPoint gp( GlobalPoint::Cylindrical(R, Geom::pi() - b, c));
+  GlobalPoint gp( GlobalPoint::Cylindrical(R, b, c));
   return frame().toLocal(gp);
 }
 
@@ -98,7 +100,9 @@ void SpecialCylindricalMFGrid::toGridFrame( const LocalPoint& p,
   GlobalPoint gp = frame().toGlobal(p);
   double sinPhi = sin(gp.phi());
   a = (gp.perp()-startingPoint(sinPhi))/stepSize(sinPhi);
-  b = Geom::pi() - gp.phi();
+  // FIXME: "OLD" convention of phi.
+  // b = Geom::pi() - gp.phi();
+  b = gp.phi();
   c = gp.z();
 
 #ifdef DEBUG_GRID
