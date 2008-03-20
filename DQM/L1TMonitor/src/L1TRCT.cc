@@ -1,8 +1,8 @@
 /*
  * \file L1TRCT.cc
  *
- * $Date: 2008/03/12 17:24:24 $
- * $Revision: 1.11 $
+ * $Date: 2008/03/14 20:35:46 $
+ * $Revision: 1.12 $
  * \author P. Wittich
  *
  */
@@ -172,7 +172,7 @@ void L1TRCT::endJob(void)
 {
   if (verbose_)
     std::cout << "L1TRCT: end job...." << std::endl;
-  LogInfo("L1TRCT") << "analyzed " << nev_ << " events";
+  LogInfo("EndJob") << "analyzed " << nev_ << " events";
 
   if (outputFile_.size() != 0 && dbe)
     dbe->save(outputFile_);
@@ -199,7 +199,7 @@ void L1TRCT::analyze(const Event & e, const EventSetup & c)
   e.getByLabel(rctSource_,rgn);
  
   if (!rgn.isValid()) {
-    edm::LogInfo("L1TRCT") << "can't find L1CaloRegionCollection with label "
+    edm::LogInfo("DataNotFound") << "can't find L1CaloRegionCollection with label "
 			       << rctSource_.label() ;
     doHd = false;
   }
@@ -232,7 +232,7 @@ void L1TRCT::analyze(const Event & e, const EventSetup & c)
   e.getByLabel(rctSource_,em);
   
   if (!em.isValid()) {
-    edm::LogInfo("L1TRCT") << "can't find L1CaloEmCollection with label "
+    edm::LogInfo("DataNotFound") << "can't find L1CaloEmCollection with label "
 			       << rctSource_.label() ;
     doEm = false;
   }

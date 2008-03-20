@@ -1,9 +1,16 @@
 /*
  * \file L1TCompare.cc
- * $Id: L1TCompare.cc,v 1.11 2008/03/12 17:24:24 berryhil Exp $
+ * $Id: L1TCompare.cc,v 1.12 2008/03/14 20:35:46 berryhil Exp $
  * \author P. Wittich
  * \brief Compare different parts of the trigger chain (e.g., RCT-GCT )
  * $Log: L1TCompare.cc,v $
+ * Revision 1.12  2008/03/14 20:35:46  berryhil
+ *
+ *
+ * stripped out obsolete parameter settings
+ *
+ * rpc tpg restored with correct dn access and dbe handling
+ *
  * Revision 1.11  2008/03/12 17:24:24  berryhil
  *
  *
@@ -239,7 +246,7 @@ void L1TCompare::endJob(void)
 {
   if (verbose())
     std::cout << "L1TCompare: end job...." << std::endl;
-  LogInfo("L1TCompare") << "analyzed " << nev_ << " events";
+  LogInfo("EndJob") << "analyzed " << nev_ << " events";
 
   if (outputFile_.size() != 0 && dbe)
     dbe->save(outputFile_);
@@ -275,7 +282,7 @@ void L1TCompare::analyze(const Event & e, const EventSetup & c)
   e.getByLabel(rctSource_,em);
   
   if (!em.isValid()) {
-    edm::LogInfo("L1TCompare") << "can't find L1CaloEmCollection with label "
+    edm::LogInfo("DataNotFound") << "can't find L1CaloEmCollection with label "
 			       << rctSource_.label() ;
     return;
   }
@@ -284,7 +291,7 @@ void L1TCompare::analyze(const Event & e, const EventSetup & c)
   e.getByLabel(rctSource_,rctEmRgn);
   
   if (!rctEmRgn.isValid()) {
-    edm::LogInfo("L1TCompare") << "can't find "
+    edm::LogInfo("DataNotFound") << "can't find "
 			       << "L1CaloRegionCollection with label "
 			       << rctSource_.label() ;
     return;
@@ -404,7 +411,7 @@ void L1TCompare::analyze(const Event & e, const EventSetup & c)
   e.getByLabel(ecalTpgSource_,eTP);
   
   if (!eTP.isValid()) {
-    edm::LogInfo("L1TCompare") 
+    edm::LogInfo("DataNotFound") 
       << "can't find EcalTrigPrimCollection with label "
       << ecalTpgSource_.label() ;
     return;

@@ -1,8 +1,8 @@
 /*
  * \file L1TGMT.cc
  *
- * $Date: 2008/03/12 17:24:24 $
- * $Revision: 1.13 $
+ * $Date: 2008/03/14 20:35:46 $
+ * $Revision: 1.14 $
  * \author J. Berryhill, I. Mikulec
  *
  */
@@ -153,7 +153,7 @@ void L1TGMT::beginJob(const EventSetup& c)
 void L1TGMT::endJob(void)
 {
   if(verbose_) cout << "L1TGMT: end job...." << endl;
-  LogInfo("L1TGMT") << "analyzed " << nev_ << " events"; 
+  LogInfo("EndJob") << "analyzed " << nev_ << " events"; 
 
  if ( outputFile_.size() != 0  && dbe ) dbe->save(outputFile_);
 
@@ -170,7 +170,7 @@ void L1TGMT::analyze(const Event& e, const EventSetup& c)
   e.getByLabel(gmtSource_,pCollection);
   
   if (!pCollection.isValid()) {
-    edm::LogInfo("L1TGMT") << "can't find L1MuGMTReadoutCollection with label "
+    edm::LogInfo("DataNotFound") << "can't find L1MuGMTReadoutCollection with label "
     << gmtSource_.label() ;
     return;
   }

@@ -1,8 +1,8 @@
 /*
  * \file L1TFED.cc
  *
- * $Date: 2008/03/12 17:24:24 $
- * $Revision: 1.5 $
+ * $Date: 2008/03/14 20:35:46 $
+ * $Revision: 1.6 $
  * \author J. Berryhill
  *
  */
@@ -86,7 +86,7 @@ void L1TFED::beginJob(const EventSetup& c)
 void L1TFED::endJob(void)
 {
   if(verbose_) cout << "L1TFED: end job...." << endl;
-  LogInfo("L1TFED") << "analyzed " << nev_ << " events"; 
+  LogInfo("EndJob") << "analyzed " << nev_ << " events"; 
 
  if ( outputFile_.size() != 0  && dbe ) dbe->save(outputFile_);
 

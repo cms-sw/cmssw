@@ -1,8 +1,8 @@
 /*
  * \file L1TRPCTF.cc
  *
- * $Date: 2008/03/12 17:24:24 $
- * $Revision: 1.10 $
+ * $Date: 2008/03/14 20:35:46 $
+ * $Revision: 1.11 $
  * \author J. Berryhill
  *
  */
@@ -112,7 +112,7 @@ void L1TRPCTF::beginJob(const EventSetup& c)
 void L1TRPCTF::endJob(void)
 {
   if(verbose_) cout << "L1TRPCTF: end job...." << endl;
-  LogInfo("L1TRPCTF") << "analyzed " << nev_ << " events"; 
+  LogInfo("EndJob") << "analyzed " << nev_ << " events"; 
 
  if ( outputFile_.size() != 0  && dbe ) dbe->save(outputFile_);
 
@@ -129,7 +129,7 @@ void L1TRPCTF::analyze(const Event& e, const EventSetup& c)
   e.getByLabel(rpctfSource_,pCollection);
   
   if (!pCollection.isValid()) {
-    edm::LogInfo("L1TRPCTF") << "can't find L1MuGMTReadoutCollection with label "
+    edm::LogInfo("DataNotFound") << "can't find L1MuGMTReadoutCollection with label "
 			       << rpctfSource_.label() ;
     return;
   }

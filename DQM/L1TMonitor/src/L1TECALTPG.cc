@@ -1,13 +1,18 @@
 /*
  * \file L1TECALTPG.cc
  *
- * $Date: 2008/03/14 20:35:46 $
- * $Revision: 1.11 $
+ * $Date: 2008/03/18 20:31:20 $
+ * $Revision: 1.12 $
  * \author J. Berryhill
  *
  * - initial version stolen from GCTMonnitor (thanks!) (wittich 02/07)
  *
  * $Log: L1TECALTPG.cc,v $
+ * Revision 1.12  2008/03/18 20:31:20  berryhil
+ *
+ *
+ * update of ecal tpg dqm
+ *
  * Revision 1.11  2008/03/14 20:35:46  berryhil
  *
  *
@@ -172,7 +177,7 @@ void L1TECALTPG::endJob(void)
 {
   if (verbose_)
     std::cout << "L1TECALTPG: end job...." << std::endl;
-  LogInfo("L1TECALTPG") << "analyzed " << nev_ << " events";
+  LogInfo("EndJob") << "analyzed " << nev_ << " events";
 
   if (outputFile_.size() != 0 && dbe)
     dbe->save(outputFile_);
@@ -196,13 +201,13 @@ void L1TECALTPG::analyze(const Event & e, const EventSetup & c)
   
   if (!eeTP.isValid() && enableEE_) 
   {
-    edm::LogInfo("L1TECALTPG") << "can't find EcalTrigPrimCollection with "
+    edm::LogInfo("DataNotFound") << "can't find EcalTrigPrimCollection with "
       " endcap label " << ecaltpgSourceE_.label() ;
     return;
   }  
   if (!ebTP.isValid()) 
   {
-    edm::LogInfo("L1TECALTPG") << "can't find EcalTrigPrimCollection with "
+    edm::LogInfo("DataNotFound") << "can't find EcalTrigPrimCollection with "
       " barrel label " << ecaltpgSourceB_.label() ;
     return;
   }

@@ -1,8 +1,8 @@
 /*
  * \file L1TRPCTPG.cc
  *
- * $Date: 2008/03/12 17:24:24 $
- * $Revision: 1.8 $
+ * $Date: 2008/03/14 20:35:46 $
+ * $Revision: 1.9 $
  * \author J. Berryhill
  *
  */
@@ -86,7 +86,7 @@ void L1TRPCTPG::beginJob(const EventSetup& c)
 void L1TRPCTPG::endJob(void)
 {
   if(verbose_) cout << "L1TRPCTPG: end job...." << endl;
-  LogInfo("L1TRPCTPG") << "analyzed " << nev_ << " events"; 
+  LogInfo("EndJob") << "analyzed " << nev_ << " events"; 
 
  if ( outputFile_.size() != 0  && dbe ) dbe->save(outputFile_);
 
@@ -103,7 +103,7 @@ void L1TRPCTPG::analyze(const Event& e, const EventSetup& c)
   edm::ESHandle<RPCGeometry> rpcGeo;
   c.get<MuonGeometryRecord>().get(rpcGeo);
   if (!rpcGeo.isValid()) {
-    edm::LogInfo("L1TRPCTPG") << "can't find RPCGeometry" << endl;
+    edm::LogInfo("DataNotFound") << "can't find RPCGeometry" << endl;
     return;
   }
   char layerLabel[328];
@@ -115,7 +115,7 @@ void L1TRPCTPG::analyze(const Event& e, const EventSetup& c)
   e.getByLabel(rpctpgSource_,rpcdigis);
     
   if (!rpcdigis.isValid()) {
-    edm::LogInfo("L1TRPCTPG") << "can't find RPCDigiCollection with label "<< rpctpgSource_ << endl;
+    edm::LogInfo("DataNotFound") << "can't find RPCDigiCollection with label "<< rpctpgSource_ << endl;
     return;
   }
 
@@ -125,7 +125,7 @@ void L1TRPCTPG::analyze(const Event& e, const EventSetup& c)
   e.getByType(rpcHits);
      
   if (!rpcHits.isValid()) {
-    edm::LogInfo("L1TRPCTPG") << "can't find RPCRecHitCollection of any type" << endl;
+    edm::LogInfo("DataNotFound") << "can't find RPCRecHitCollection of any type" << endl;
     return;
   }  
   }

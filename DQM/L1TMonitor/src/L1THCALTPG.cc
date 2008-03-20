@@ -1,11 +1,18 @@
 /*
  * \file L1THCALTPG.cc
  *
- * $Date: 2008/03/12 17:24:24 $
- * $Revision: 1.10 $
+ * $Date: 2008/03/14 20:35:46 $
+ * $Revision: 1.11 $
  * \author J. Berryhill
  *
  * $Log: L1THCALTPG.cc,v $
+ * Revision 1.11  2008/03/14 20:35:46  berryhil
+ *
+ *
+ * stripped out obsolete parameter settings
+ *
+ * rpc tpg restored with correct dn access and dbe handling
+ *
  * Revision 1.10  2008/03/12 17:24:24  berryhil
  *
  *
@@ -141,7 +148,7 @@ void L1THCALTPG::beginJob(const EventSetup& c)
 void L1THCALTPG::endJob(void)
 {
   if(verbose_) std::cout << "L1THCALTPG: end job...." << std::endl;
-  LogInfo("L1THCALTPG") << "analyzed " << nev_ << " events"; 
+  LogInfo("EndJob") << "analyzed " << nev_ << " events"; 
 
  if ( outputFile_.size() != 0  && dbe ) dbe->save(outputFile_);
 
@@ -157,7 +164,7 @@ void L1THCALTPG::analyze(const Event& e, const EventSetup& c)
   e.getByLabel(hcaltpgSource_, hcalTpgs);
   
   if (!hcalTpgs.isValid()) {
-    edm::LogInfo("L1THCALTPG") << "can't find HCAL TPG's with label "
+    edm::LogInfo("DataNotFound") << "can't find HCAL TPG's with label "
 			       << hcaltpgSource_.label() ;
     return;
   }

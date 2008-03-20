@@ -1,8 +1,8 @@
 /*
  * \file L1TDTTF.cc
  *
- * $Date: 2008/03/12 17:24:24 $
- * $Revision: 1.10 $
+ * $Date: 2008/03/14 20:35:46 $
+ * $Revision: 1.11 $
  * \author J. Berryhill
  *
  */
@@ -112,7 +112,7 @@ void L1TDTTF::beginJob(const EventSetup& c)
 void L1TDTTF::endJob(void)
 {
   if(verbose_) cout << "L1TDTTF: end job...." << endl;
-  LogInfo("L1TDTTF") << "analyzed " << nev_ << " events"; 
+  LogInfo("EndJob") << "analyzed " << nev_ << " events"; 
 
  if ( outputFile_.size() != 0  && dbe ) dbe->save(outputFile_);
 
@@ -129,7 +129,7 @@ void L1TDTTF::analyze(const Event& e, const EventSetup& c)
   e.getByLabel(dttfSource_,pCollection);
   
   if (!pCollection.isValid()) {
-    edm::LogInfo("L1TDTTF") << "can't find L1MuGMTReadoutCollection with label "
+    edm::LogInfo("DataNotFound") << "can't find L1MuGMTReadoutCollection with label "
 			       << dttfSource_.label() ;
     return;
   }

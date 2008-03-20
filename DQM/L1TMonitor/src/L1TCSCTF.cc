@@ -1,8 +1,8 @@
 /*
  * \file L1TCSCTF.cc
  *
- * $Date: 2008/03/12 17:24:24 $
- * $Revision: 1.14 $
+ * $Date: 2008/03/14 20:35:46 $
+ * $Revision: 1.15 $
  * \author J. Berryhill
  *
  */
@@ -112,7 +112,7 @@ void L1TCSCTF::beginJob(const EventSetup& c)
 void L1TCSCTF::endJob(void)
 {
   if(verbose_) cout << "L1TCSCTF: end job...." << endl;
-  LogInfo("L1TCSCTF") << "analyzed " << nev_ << " events"; 
+  LogInfo("EndJob") << "analyzed " << nev_ << " events"; 
 
  if ( outputFile_.size() != 0  && dbe ) dbe->save(outputFile_);
 
@@ -129,7 +129,7 @@ void L1TCSCTF::analyze(const Event& e, const EventSetup& c)
   e.getByLabel(csctfSource_,pCollection);
   
   if (!pCollection.isValid()) {
-    edm::LogInfo("L1TCSCTF") << "can't find L1MuGMTReadoutCollection with label "
+    edm::LogInfo("DataNotFound") << "can't find L1MuGMTReadoutCollection with label "
 			       << csctfSource_.label() ;
     return;
   }

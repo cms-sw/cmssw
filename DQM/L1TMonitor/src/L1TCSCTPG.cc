@@ -1,8 +1,8 @@
 /*
  * \file L1TCSCTPG.cc
  *
- * $Date: 2008/03/12 17:24:24 $
- * $Revision: 1.8 $
+ * $Date: 2008/03/14 20:35:46 $
+ * $Revision: 1.9 $
  * \author J. Berryhill
  *
  */
@@ -94,7 +94,7 @@ void L1TCSCTPG::beginJob(const EventSetup& c)
 void L1TCSCTPG::endJob(void)
 {
   if(verbose_) cout << "L1TCSCTPG: end job...." << endl;
-  LogInfo("L1TCSCTPG") << "analyzed " << nev_ << " events"; 
+  LogInfo("EndJob") << "analyzed " << nev_ << " events"; 
 
  if ( outputFile_.size() != 0  && dbe ) dbe->save(outputFile_);
 
@@ -111,7 +111,7 @@ void L1TCSCTPG::analyze(const Event& e, const EventSetup& c)
   e.getByLabel(csctpgSource_,pCSCTPGcorrlcts);
   
   if (!pCSCTPGcorrlcts.isValid()) {
-    edm::LogInfo("L1CSCTPG") << "can't find CSCCorrelatedLCTDigiCollection with label "
+    edm::LogInfo("DataNotFound") << "can't find CSCCorrelatedLCTDigiCollection with label "
 			       << csctpgSource_.label() ;
     return;
   }

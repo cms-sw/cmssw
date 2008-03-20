@@ -1,11 +1,18 @@
 /*
  * \file L1THCALTPGXAna.cc
  *
- * $Date: 2008/03/12 17:24:24 $
- * $Revision: 1.11 $
+ * $Date: 2008/03/14 20:35:46 $
+ * $Revision: 1.12 $
  * \author J. Berryhill
  *
  * $Log: L1THCALTPGXAna.cc,v $
+ * Revision 1.12  2008/03/14 20:35:46  berryhil
+ *
+ *
+ * stripped out obsolete parameter settings
+ *
+ * rpc tpg restored with correct dn access and dbe handling
+ *
  * Revision 1.11  2008/03/12 17:24:24  berryhil
  *
  *
@@ -283,7 +290,7 @@ void L1THCALTPGXAna::beginJob(const EventSetup& iSetup)
 void L1THCALTPGXAna::endJob(void)
 {
   if(verbose_) std::cout << "L1THCALTPGXAna: end job...." << std::endl;
-  LogInfo("L1THCALTPGXAna") << "analyzed " << nev_ << " events"; 
+  LogInfo("EndJob") << "analyzed " << nev_ << " events"; 
 
  if ( outputFile_.size() != 0  && dbe ) dbe->save(outputFile_);
 
@@ -300,7 +307,7 @@ void L1THCALTPGXAna::analyze(const Event& iEvent, const EventSetup& iSetup)
     
   if (!hcalTpgs.isValid())
     {
-      edm::LogInfo("L1THCALTPGXAna") << "can't find HCAL TPG's with label "
+      edm::LogInfo("DataNotFound") << "can't find HCAL TPG's with label "
 				     << hcaltpgSource_.label() ;
       return;
     }
@@ -312,7 +319,7 @@ void L1THCALTPGXAna::analyze(const Event& iEvent, const EventSetup& iSetup)
    
   if (!hbhe_rec.isValid())
     {
-      edm::LogInfo("L1THCALTPGXAna") << "can't find hbhe rec hits's with label "
+      edm::LogInfo("DataNotFound") << "can't find hbhe rec hits's with label "
                                      << hbherecoSource_.label() ;
       return;
     }
@@ -322,7 +329,7 @@ void L1THCALTPGXAna::analyze(const Event& iEvent, const EventSetup& iSetup)
     
    if (!hf_rec.isValid())
     {
-      edm::LogInfo("L1THCALTPGXAna") << "can't find hf rec hits's with label "
+      edm::LogInfo("DataNotFound") << "can't find hf rec hits's with label "
                                      << hfrecoSource_.label() ;
       return;
     }

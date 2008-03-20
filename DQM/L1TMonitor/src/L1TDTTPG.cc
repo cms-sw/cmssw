@@ -1,11 +1,18 @@
 /*
  * \file L1TDTTPG.cc
  *
- * $Date: 2008/03/12 17:24:24 $
- * $Revision: 1.18 $
+ * $Date: 2008/03/14 20:35:46 $
+ * $Revision: 1.19 $
  * \author J. Berryhill
  *
  * $Log: L1TDTTPG.cc,v $
+ * Revision 1.19  2008/03/14 20:35:46  berryhil
+ *
+ *
+ * stripped out obsolete parameter settings
+ *
+ * rpc tpg restored with correct dn access and dbe handling
+ *
  * Revision 1.18  2008/03/12 17:24:24  berryhil
  *
  *
@@ -18,6 +25,13 @@
  * DQM core migration.
  *
  * $Log: L1TDTTPG.cc,v $
+ * Revision 1.19  2008/03/14 20:35:46  berryhil
+ *
+ *
+ * stripped out obsolete parameter settings
+ *
+ * rpc tpg restored with correct dn access and dbe handling
+ *
  * Revision 1.18  2008/03/12 17:24:24  berryhil
  *
  *
@@ -297,7 +311,7 @@ void L1TDTTPG::beginJob(const EventSetup& c)
 void L1TDTTPG::endJob(void)
 {
   if(verbose_) cout << "L1TDTTPG: end job...." << endl;
-  LogInfo("L1TDTTPG") << "analyzed " << nev_ << " events"; 
+  LogInfo("EndJob") << "analyzed " << nev_ << " events"; 
 
   if ( outputFile_.size() != 0  && dbe ) dbe->save(outputFile_);
 
@@ -314,7 +328,7 @@ void L1TDTTPG::analyze(const Event& e, const EventSetup& c)
   e.getByLabel(dttpgSource_,myL1MuDTChambPhContainer);
   
   if (!myL1MuDTChambPhContainer.isValid()) {
-    edm::LogInfo("L1TDTTPG") << "can't find L1MuDTChambPhContainer with label "
+    edm::LogInfo("DataNotFound") << "can't find L1MuDTChambPhContainer with label "
 			     << dttpgSource_.label() ;
     return;
   }
@@ -325,9 +339,9 @@ void L1TDTTPG::analyze(const Event& e, const EventSetup& c)
   e.getByLabel(dttpgSource_,myL1MuDTChambThContainer);
   
   if (!myL1MuDTChambThContainer.isValid()) {
-    edm::LogInfo("L1TDTTPG") << "can't find L1MuDTChambThContainer with label "
+    edm::LogInfo("DataNotFound") << "can't find L1MuDTChambThContainer with label "
 			     << dttpgSource_.label() ;
-    edm::LogInfo("L1TDTTPG") << "if this fails try to add DATA to the process name." ;
+    edm::LogInfo("DataNotFound") << "if this fails try to add DATA to the process name." ;
 
     return;
   }
@@ -569,7 +583,7 @@ void L1TDTTPG::analyze(const Event& e, const EventSetup& c)
     e.getByLabel(trInputTag,myL1MuDTTrackContainer);
 
   if (!myL1MuDTTrackContainer.isValid()) {
-    edm::LogInfo("L1TDTTPG") << "can't find L1MuDTTrackContainer with label "
+    edm::LogInfo("DataNotFound") << "can't find L1MuDTTrackContainer with label "
                                << dttpgSource_.label() ;
     return;
   }

@@ -1,8 +1,8 @@
 /*
  * \file L1TGT.cc
  *
- * $Date: 2008/03/12 17:24:24 $
- * $Revision: 1.15 $
+ * $Date: 2008/03/14 20:35:46 $
+ * $Revision: 1.16 $
  * \author J. Berryhill
  *
  */
@@ -98,7 +98,7 @@ void L1TGT::beginJob(const EventSetup& c)
 void L1TGT::endJob(void)
 {
   if(verbose_) cout << "L1TGT: end job...." << endl;
-  LogInfo("L1TGT") << "analyzed " << nev_ << " events"; 
+  LogInfo("EndJob") << "analyzed " << nev_ << " events"; 
 
  if ( outputFile_.size() != 0  && dbe ) dbe->save(outputFile_);
 
@@ -122,7 +122,7 @@ void L1TGT::analyze(const Event& e, const EventSetup& c)
      e.getByLabel(gtSource_,myGTReadoutRecord);
      
      if (!myGTReadoutRecord.isValid()) {
-     edm::LogInfo("L1TGT") << "can't find L1GlobalTriggerReadoutRecord with label "
+     edm::LogInfo("DataNotFound") << "can't find L1GlobalTriggerReadoutRecord with label "
 			       << gtSource_.label() ;
      return;
      }

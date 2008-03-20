@@ -1,8 +1,8 @@
 /*
  * \file L1TLTC.cc
  *
- * $Date: 2008/03/12 17:24:24 $
- * $Revision: 1.7 $
+ * $Date: 2008/03/14 20:35:46 $
+ * $Revision: 1.8 $
  * \author J. Berryhill
  *
  */
@@ -87,7 +87,7 @@ void L1TLTC::beginJob(const EventSetup& c)
 void L1TLTC::endJob(void)
 {
   if(verbose_) cout << "L1TLTC: end job...." << endl;
-  LogInfo("L1TLTC") << "analyzed " << nev_ << " events"; 
+  LogInfo("EndJob") << "analyzed " << nev_ << " events"; 
 
  if ( outputFile_.size() != 0  && dbe ) dbe->save(outputFile_);
 
@@ -102,7 +102,7 @@ void L1TLTC::analyze(const Event& e, const EventSetup& c)
   e.getByType(digis);
   
   if (!digis.isValid()) {
-    edm::LogInfo("L1TLTC") << "can't find LTCDigiCollection ";
+    edm::LogInfo("DataNotFound") << "can't find LTCDigiCollection ";
     return;
   }
 
