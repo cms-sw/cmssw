@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Jun 27 17:58:10 EDT 2006
-// $Id: TFWLiteSelectorBasic.cc,v 1.35 2008/01/31 04:57:45 wmtan Exp $
+// $Id: TFWLiteSelectorBasic.cc,v 1.36 2008/02/06 06:24:46 wmtan Exp $
 //
 
 // system include files
@@ -29,6 +29,7 @@
 #include "DataFormats/Provenance/interface/EventAuxiliary.h"
 #include "DataFormats/Provenance/interface/LuminosityBlockAuxiliary.h"
 #include "DataFormats/Provenance/interface/RunAuxiliary.h"
+#include "DataFormats/Provenance/interface/FileFormatVersion.h"
 #include "DataFormats/Common/interface/EDProduct.h"
 #include "FWCore/Utilities/interface/WrappedClassName.h"
 #include "FWCore/Utilities/interface/EDMException.h"
@@ -145,6 +146,7 @@ namespace edm {
       }
       TTree* tree_;
       TTree* metaTree_;
+      TTree* eventHistoryTree_;
       boost::shared_ptr<ProductRegistry> reg_;
       ProcessHistory processNames_;
       boost::shared_ptr<FWLiteDelayedReader> reader_;
@@ -152,6 +154,7 @@ namespace edm {
       ProductMap productMap_;
       std::vector<edm::EntryDescription> prov_;
       std::vector<edm::EntryDescription*> pointerToBranchBuffer_;
+      edm::FileFormatVersion fileFormatVersion_;
     };
   }
 }
@@ -256,7 +259,8 @@ TFWLiteSelectorBasic::Process(Long64_t iEntry) {
       //provBranch->SetAddress(&pProv);
       branch->GetEntry(iEntry);
       //provBranch->GetEntry(iEntry);
-      m_->metaTree_->GetEntry(iEntry);
+      //CDJ turn off reading meta tree until we fix handling of provenance
+      //m_->metaTree_->GetEntry(iEntry);
 
 //NEW      m_->processNames_ = aux.processHistory();
 
@@ -268,6 +272,17 @@ TFWLiteSelectorBasic::Process(Long64_t iEntry) {
 //	 std::cout <<"  "<<*itName<< std::endl;
       //     }
 
+      edm::History history;
+      if (m_->fileFormatVersion_.value_ >= 7) {
+         edm::History* pHistory = &history;
+         TBranch* eventHistoryBranch = m_->eventHistoryTree_->GetBranch(edm::poolNames::eventHistoryBranchName().c_str());
+         if (!eventHistoryBranch)
+            throw edm::Exception(edm::errors::FatalRootError)
+            << "Failed to find history branch in event history tree";
+         eventHistoryBranch->SetAddress(&pHistory);
+         m_->eventHistoryTree_->GetEntry(iEntry);
+         aux.processHistoryID_ = history.processHistoryID();
+      }
       try {
 	 m_->reader_->setEntry(iEntry);
 	 edm::ProcessConfiguration pc;
@@ -278,6 +293,7 @@ TFWLiteSelectorBasic::Process(Long64_t iEntry) {
 	 boost::shared_ptr<edm::LuminosityBlockPrincipal>lbp(
 	    new edm::LuminosityBlockPrincipal(lumiAux, reg, rp, pc));
 	 edm::EventPrincipal ep(aux, reg, lbp, pc, aux.processHistoryID(), m_->reader_);
+         ep.setHistory(history);
          m_->processNames_ = ep.processHistory();
 
 	 using namespace edm;
@@ -328,13 +344,15 @@ TFWLiteSelectorBasic::setupNewFile(TFile& iFile) {
   PsetMap *psetMapPtr = &psetMap;
   edm::ProcessHistoryMap *pHistMapPtr = &pHistMap;
   edm::ModuleDescriptionMap *mdMapPtr = &mdMap;
-  
+  edm::FileFormatVersion* fftPtr = &(m_->fileFormatVersion_);
+   
   TTree* metaDataTree = dynamic_cast<TTree*>(iFile.Get(edm::poolNames::metaDataTreeName().c_str()) );
   if ( 0 != metaDataTree) {
     metaDataTree->SetBranchAddress(edm::poolNames::productDescriptionBranchName().c_str(), &(pReg) );
     metaDataTree->SetBranchAddress(edm::poolNames::parameterSetMapBranchName().c_str(), &psetMapPtr);
     metaDataTree->SetBranchAddress(edm::poolNames::processHistoryMapBranchName().c_str(), &pHistMapPtr);
     metaDataTree->SetBranchAddress(edm::poolNames::moduleDescriptionMapBranchName().c_str(), &mdMapPtr);
+     metaDataTree->SetBranchAddress(edm::poolNames::fileFormatVersionBranchName().c_str(), &fftPtr);
     metaDataTree->GetEntry(0);
     m_->reg_->setFrozen();
   } else {
@@ -386,10 +404,20 @@ TFWLiteSelectorBasic::setupNewFile(TFile& iFile) {
       m_->pointerToBranchBuffer_.push_back( & (*itB));
       void* tmp = &(m_->pointerToBranchBuffer_.back());
       //edm::EntryDescription* tmp = & (*itB);
-      m_->metaTree_->SetBranchAddress( prod.branchName().c_str(), tmp);
+      //CDJ need to fix provenance and be backwards compatible, for now just don't read the branch
+      //m_->metaTree_->SetBranchAddress( prod.branchName().c_str(), tmp);
     }
   }  
   //std::cout <<"Notify end"<<std::endl;
+   
+   if (m_->fileFormatVersion_.value_ >= 7) {
+      m_->eventHistoryTree_ = dynamic_cast<TTree*>(iFile.Get(edm::poolNames::eventHistoryTreeName().c_str()));
+      if(0==m_->eventHistoryTree_) {
+         std::cout <<"could not find TTree "<<edm::poolNames::eventHistoryTreeName() <<std::endl;
+         everythingOK_ = false;
+         return;
+      }
+   }
   everythingOK_ = true;
 }
 
