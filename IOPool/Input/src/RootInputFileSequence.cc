@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: RootInputFileSequence.cc,v 1.5 2008/03/12 19:57:31 wmtan Exp $
+$Id: RootInputFileSequence.cc,v 1.6 2008/03/14 22:15:55 wmtan Exp $
 ----------------------------------------------------------------------*/
 #include "RootInputFileSequence.h"
 #include "PoolSource.h"
@@ -105,7 +105,7 @@ namespace edm {
     if (rootFile_) {
     // Account for events skipped in the file.
       eventsToSkip_ = rootFile_->eventsToSkip();
-      rootFile_->close(true);
+      rootFile_->close(primary());
       rootFile_.reset();
     }
   }
