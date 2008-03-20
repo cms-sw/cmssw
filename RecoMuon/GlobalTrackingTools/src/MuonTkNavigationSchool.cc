@@ -1,12 +1,12 @@
-#include "RecoMuon/GlobalTrackingTools/interface/MuonTkNavigationSchool.h"
-
-/** \class MuonTkNavigationSchool
+/** 
+ *  Class:  MuonTkNavigationSchool
  *
- *  Navigation School for both Muon and Tk
- *  different algo from the one in ORCA
+ *  Navigation School for both the Muon system and
+ *  the Tracker.
+ * 
  *
- *  $Date: 2007/09/25 19:31:52 $
- *  $Revision: 1.1 $
+ *  $Date: 2008/02/05 16:56:23 $
+ *  $Revision: 1.2 $
  *
  * \author : Chang Liu - Purdue University
  * \author : Stefano Lacaprara - INFN Padova
@@ -14,6 +14,20 @@
  *
  */
 
+#include "RecoMuon/GlobalTrackingTools/interface/MuonTkNavigationSchool.h"
+
+//---------------
+// C++ Headers --
+//---------------
+
+#include <functional>
+#include <algorithm>
+#include <map>
+#include <cmath>
+
+//-------------------------------
+// Collaborating Class Headers --
+//-------------------------------
 
 #include "RecoTracker/TkNavigation/interface/SimpleBarrelNavigableLayer.h"
 #include "RecoTracker/TkNavigation/interface/SimpleForwardNavigableLayer.h"
@@ -34,25 +48,27 @@
 #include "Utilities/General/interface/CMSexception.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include <functional>
-#include <algorithm>
-#include <map>
-#include <cmath>
-
 using namespace std;
 
 typedef std::vector<DetLayer*> LayerContainer;
-/* Constructor */
-MuonTkNavigationSchool::MuonTkNavigationSchool(const MuonDetLayerGeometry * muonGeom, const GeometricSearchTracker * trackerGeom, const MagneticField * field) : theMuonDetLayerGeometry(muonGeom), theGeometricSearchTracker(trackerGeom), theMagneticField(field), theBarrelLength(0) {
-  //need to allocate the vector itself, to concatenate the two vectors of DetLayers
+
+//
+// constructor
+//
+MuonTkNavigationSchool::MuonTkNavigationSchool(const MuonDetLayerGeometry* muonGeom, 
+                                               const GeometricSearchTracker* trackerGeom, 
+                                               const MagneticField* field) : 
+   theMuonDetLayerGeometry(muonGeom), theGeometricSearchTracker(trackerGeom), theMagneticField(field) {
+
+  // need to allocate the vector of DetLayers, to concatenate the two vectors of DetLayers
   // it has to be deleted in the destructor
   std::vector<DetLayer*> * allLayers = new std::vector<DetLayer*>();
   allLayers->reserve(muonGeom->allLayers().size()+trackerGeom->allLayers().size());
   allLayers->insert(allLayers->end(), muonGeom->allLayers().begin(), muonGeom->allLayers().end());
   allLayers->insert(allLayers->end(), trackerGeom->allLayers().begin(), trackerGeom->allLayers().end());
-  theAllDetLayersInSystem=allLayers;
+  theAllDetLayersInSystem = allLayers;
   
-  // Get tracker barrel layers
+  // get tracker barrel layers
   std::vector<BarrelDetLayer*> blc = trackerGeom->barrelLayers();
   for ( std::vector<BarrelDetLayer*>::const_iterator i = blc.begin(); i != blc.end(); i++ ) {
      addBarrelLayer(*i);
@@ -71,6 +87,7 @@ MuonTkNavigationSchool::MuonTkNavigationSchool(const MuonDetLayerGeometry * muon
     if ( mbp == 0 ) throw Genexception("Bad BarrelDetLayer");
     addBarrelLayer(mbp);
   }
+
   // get all muon forward (+z) DetLayers (CSC + RPC)
   vector<DetLayer*> endcap = muonGeom->allEndcapLayers();
   for ( vector<DetLayer*>::const_iterator i = endcap.begin(); i != endcap.end(); i++ ) {
@@ -86,6 +103,10 @@ MuonTkNavigationSchool::MuonTkNavigationSchool(const MuonDetLayerGeometry * muon
 
 }
 
+
+//
+// destructor
+//
 MuonTkNavigationSchool::~MuonTkNavigationSchool() {
 
    for_each(theTkBarrelNLC.begin(),theTkBarrelNLC.end(), delete_layer());
@@ -95,11 +116,17 @@ MuonTkNavigationSchool::~MuonTkNavigationSchool() {
    for_each(theMuonForwardNLC.begin(),theMuonForwardNLC.end(), delete_layer());
    for_each(theMuonBackwardNLC.begin(),theMuonBackwardNLC.end(), delete_layer());
 
-   //delete the vector containing all the detlayers
+   // delete the vector containing all the detlayers
    delete theAllDetLayersInSystem;
+
 }
+
+
 /* Operations as NavigationSchool */
 
+//
+//
+//
 vector<NavigableLayer*> MuonTkNavigationSchool::navigableLayers() const {
  
   vector<NavigableLayer*> result;
@@ -195,9 +222,9 @@ void MuonTkNavigationSchool::linkBarrelLayers() {
     plusOne++;
     MapB outerBarrel;
     MapB allOuterBarrel;
-    if ( plusOne != theBarrelLayers.end() ) { outerBarrel.insert(*plusOne);}
+    if ( plusOne != theBarrelLayers.end() ) { outerBarrel.insert(*plusOne); }
     // add all outer barrel layers
-    for ( MapBI iMBI = plusOne; iMBI!= theBarrelLayers.end(); iMBI++){
+    for ( MapBI iMBI = plusOne; iMBI!= theBarrelLayers.end(); iMBI++) {
       allOuterBarrel.insert(*iMBI);
     }
     // then add all compatible backward layers with an eta criteria
@@ -211,7 +238,7 @@ void MuonTkNavigationSchool::linkBarrelLayers() {
       }
     }
 
-    //add the backward next layer with an eta criteria
+    // add the backward next layer with an eta criteria
     MapE outerBackward;
     for (MapEI el  = theBackwardLayers.begin();
                el != theBackwardLayers.end(); el++) {
@@ -245,6 +272,7 @@ void MuonTkNavigationSchool::linkBarrelLayers() {
         break;
       }
     }
+
     // first add next inner barrel layer
     MapBI minusOne(bl);
     MapB innerBarrel;
@@ -258,9 +286,9 @@ void MuonTkNavigationSchool::linkBarrelLayers() {
       minusOne--;
       innerBarrel.insert(*minusOne);
         // add all inner barrel layers
-      for ( MapBI iMBI = minusOne; iMBI != theBarrelLayers.begin(); iMBI--){
-          allInnerBarrel.insert(*iMBI);
-        }
+      for ( MapBI iMBI = minusOne; iMBI != theBarrelLayers.begin(); iMBI--) {
+        allInnerBarrel.insert(*iMBI);
+      }
       allInnerBarrel.insert(*theBarrelLayers.begin());
 
       // then add all compatible backward layers with an eta criteria
@@ -276,7 +304,7 @@ void MuonTkNavigationSchool::linkBarrelLayers() {
       MapEI el = theBackwardLayers.begin();
       if (el->second.isCompatible(range)) {
         float z = (*el).first->specificSurface().position().z();
-        if (fabs(z) < length)  {
+        if (fabs(z) < length) {
           allInnerBackward.insert(*el);
         }
       }
@@ -304,10 +332,10 @@ void MuonTkNavigationSchool::linkBarrelLayers() {
         MuonEtaRange backwardRange(range.min(), (*minusOne).second.min());
         MuonEtaRange forwardRange((*minusOne).second.max(),range.max());
 
-        //add the backward next layer with an eta criteria
+        // add the backward next layer with an eta criteria
         for (MapEI el  = theBackwardLayers.end();
                    el != theBackwardLayers.begin(); el--) {
-          if (el == theBackwardLayers.end()) continue; 
+          if ( el == theBackwardLayers.end() ) continue; 
           if ( (*el).second.isCompatible(backwardRange) ) {
             float z = (*el).first->specificSurface().position().z();
             if (fabs(z) > length) continue;
@@ -327,7 +355,7 @@ void MuonTkNavigationSchool::linkBarrelLayers() {
         // then add forward next layer with an eta criteria
         for (MapEI el  = theForwardLayers.end();
                    el != theForwardLayers.begin(); el--) {
-          if (el == theForwardLayers.end()) continue; 
+          if ( el == theForwardLayers.end() ) continue; 
           if ( (*el).second.isCompatible(forwardRange) ) {
             float z = (*el).first->specificSurface().position().z();
             if (fabs(z) > length) continue;
@@ -338,10 +366,8 @@ void MuonTkNavigationSchool::linkBarrelLayers() {
         }
         el = theForwardLayers.begin();
         if (el->second.isCompatible(forwardRange)) {
-            float z = (*el).first->specificSurface().position().z();
-            if (fabs(z) < length) {
-              innerForward.insert(*el);
-            }
+          float z = (*el).first->specificSurface().position().z();
+          if (fabs(z) < length) innerForward.insert(*el);
         }
       }
     }
@@ -482,7 +508,7 @@ void MuonTkNavigationSchool::linkEndcapLayers(const MapE& layers,
             outerELayers.insert(*l);
             if ( tempR.isInside((*l).second) ) break;
             if ((*l).second.isInside(tempR)) {
-                  //split into 2 pieces
+                  // split into 2 pieces
                   outerOne = l;
                   outerOne++;
                   if (tempR.max() > 0 ) {
@@ -546,7 +572,6 @@ void MuonTkNavigationSchool::linkEndcapLayers(const MapE& layers,
       if ((*iMBI).second.isCompatible(range)) allOuterBLayers.insert(*iMBI);
     }
 
-
     MapE innerELayers;
     MapE allInnerELayers;
     MapB innerBLayers;
@@ -560,7 +585,6 @@ void MuonTkNavigationSchool::linkEndcapLayers(const MapE& layers,
     if (el != layers.begin()) {
       minusOne--;
       outRadius = minusOne->first->specificSurface().outerRadius();
-
       MapEI innerOne;
       for (MapEI iMEI = minusOne; iMEI!=layers.begin(); iMEI--){
         if ( (*iMEI).second.isCompatible(itempR) ) {
@@ -568,7 +592,7 @@ void MuonTkNavigationSchool::linkEndcapLayers(const MapE& layers,
 
           if (itempR.isInside((*iMEI).second)) { checkFurther = false; break; }
           if ((*iMEI).second.isInside(itempR)) { 
-                  //split into 2 pieces
+                  // split into 2 pieces
                   doubleCheck = true; 
                   innerOne = iMEI; 
                   innerOne--; 
@@ -608,25 +632,25 @@ void MuonTkNavigationSchool::linkEndcapLayers(const MapE& layers,
           itempR = itempR.subtract((*layers.begin()).second);
        }
 
-      for (MapEI iMEI = minusOne; iMEI!=layers.begin(); iMEI--){
+      for (MapEI iMEI = minusOne; iMEI!=layers.begin(); iMEI--) {
         if ((*iMEI).second.isCompatible(range)) allInnerELayers.insert(*iMEI);
       }
       if ((*layers.begin()).second.isCompatible(range)) allInnerELayers.insert(*layers.begin());
     } 
     
 
-      for (MapBI iMBI = theBarrelLayers.end(); iMBI!=theBarrelLayers.begin(); iMBI--){
-        if (iMBI == theBarrelLayers.end()) continue;
-        float length = fabs((*iMBI).first->specificSurface().bounds().length()/2.);
-        if (length > fabs(z)) continue;
-        if ((*iMBI).second.isCompatible(range)) allInnerBLayers.insert(*iMBI);
-      }
-      if ((*theBarrelLayers.begin()).second.isCompatible(range)) allInnerBLayers.insert(*theBarrelLayers.begin());
+    for (MapBI iMBI = theBarrelLayers.end(); iMBI!=theBarrelLayers.begin(); iMBI--) {
+      if (iMBI == theBarrelLayers.end()) continue;
+      float length = fabs((*iMBI).first->specificSurface().bounds().length()/2.);
+      if (length > fabs(z)) continue;
+      if ((*iMBI).second.isCompatible(range)) allInnerBLayers.insert(*iMBI);
+    }
+    if ((*theBarrelLayers.begin()).second.isCompatible(range)) allInnerBLayers.insert(*theBarrelLayers.begin());
 
     int k = 0;
     bool hasOverlap2 = false;
     bool hasInsideE = false;
-    for (MapBI iMBI = theBarrelLayers.end(); iMBI!=theBarrelLayers.begin(); iMBI--){
+    for (MapBI iMBI = theBarrelLayers.end(); iMBI!=theBarrelLayers.begin(); iMBI--) {
       if (iMBI == theBarrelLayers.end()) continue;
       float length = fabs((*iMBI).first->specificSurface().bounds().length()/2.);
       if (length > fabs(z)) continue;
@@ -650,7 +674,6 @@ void MuonTkNavigationSchool::linkEndcapLayers(const MapE& layers,
     
     if (el == layers.begin() && (*theBarrelLayers.begin()).second.isCompatible(itempR)) innerBLayers.insert(*theBarrelLayers.begin());
     
-
     ForwardDetLayer* mbp = (*el).first;
     if ( mbp->subDetector() == GeomDetEnumerators::CSC || mbp->subDetector() == GeomDetEnumerators::RPCEndcap ) {
       resultM.push_back(new MuonForwardNavigableLayer(mbp, 
@@ -739,18 +762,17 @@ void MuonTkNavigationSchool::linkEndcapLayers(const MapE& layers,
 
 
 //
+// calculate the length of the barrel
 //
-//
-float MuonTkNavigationSchool::barrelLength() {
+float MuonTkNavigationSchool::barrelLength() const {
 
-  if ( theBarrelLength < 1.) {
+  float length = 0.0;
   for (MapBI i= theBarrelLayers.begin(); i != theBarrelLayers.end(); i++) {
-     if ((*i).first->subDetector() != GeomDetEnumerators::PixelBarrel && (*i).first->subDetector() != GeomDetEnumerators::TIB && (*i).first->subDetector() != GeomDetEnumerators::TOB) continue;
-     theBarrelLength = max(theBarrelLength,(*i).first->surface().bounds().length()/2.f);
-    }
+    if ((*i).first->subDetector() != GeomDetEnumerators::PixelBarrel && (*i).first->subDetector() != GeomDetEnumerators::TIB && (*i).first->subDetector() != GeomDetEnumerators::TOB) continue;
+    length = max(length,(*i).first->surface().bounds().length()/2.f);
   }
 
-  return theBarrelLength;
+  return length;
 
 }
 
