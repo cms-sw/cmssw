@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: RootFile.cc,v 1.122 2008/03/11 21:12:43 wmtan Exp $
+$Id: RootFile.cc,v 1.123 2008/03/20 09:39:06 lsexton Exp $
 ----------------------------------------------------------------------*/
 
 #include "RootFile.h"
@@ -325,6 +325,10 @@ namespace edm {
 
   FileIndex::EntryType
   RootFile::getNextEntryTypeWanted() {
+    if (!whichEventsToProcess_.empty() && eventListIter_ == whichEventsToProcess_.end()) {
+      fileIndexIter_ = fileIndexEnd_;
+      return FileIndex::kEnd;
+    }
     FileIndex::EntryType entryType = getEntryTypeSkippingDups();
     if (entryType == FileIndex::kEnd) {
       return FileIndex::kEnd;
@@ -332,9 +336,9 @@ namespace edm {
       // Skip any runs before the first run specified, startAtRun_.
       RunNumber_t currentRun = (fileIndexIter_->run_ ? fileIndexIter_->run_ : 1U);
       // Skip any runs before the first run specified in the event list.
-      if (whichEventsToProcess_.size()>0){
+      if (!whichEventsToProcess_.empty()) {
 	if (currentRun < eventListIter_->run()){
-	  fileIndexIter_ = fileIndex_.findRunPosition(startAtRun_, false);      
+	  fileIndexIter_ = fileIndex_.findRunPosition(eventListIter_->run(), false);      
 	  return getNextEntryTypeWanted();
 	}
       }
@@ -381,13 +385,18 @@ namespace edm {
       // If we have a list of events to process and we're here then we've already positioned the file 
       // to execute the run and lumi entry for the current event in the list so just position to the 
       // right event and return.
-      if (whichEventsToProcess_.size()>0){
-	 fileIndexIter_ = fileIndex_.findEventPosition(fileIndexIter_->run_,
+      if (!whichEventsToProcess_.empty()){
+	fileIndexIter_ = fileIndex_.findEventPosition(fileIndexIter_->run_,
 						  fileIndexIter_->lumi_,
 						  eventListIter_->event(), 
-						  true);
-	 // for next time around move to the next request
-	 ++eventListIter_;
+						  false);
+	if (fileIndexIter_->event_ != eventListIter_->event()) {
+	  // event was not found.
+	  ++eventListIter_;
+	  return getNextEntryTypeWanted();
+	}
+	// for next time around move to the next request
+	++eventListIter_;
       }
     }
     return entryType;
