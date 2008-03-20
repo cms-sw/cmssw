@@ -8,8 +8,6 @@ void KfComponentsHolder::genericFill_(const TrackingRecHit &hit) {
    typedef typename AlgebraicROOTObject<D,D>::SymMatrix SMatDD;
    typedef typename AlgebraicROOTObject<D>::Vector VecD;
 
-   std::cout << "Called KfComponentsHolder::genericFill_<"<<D<<"> for " << typeid(hit).name() << std::endl;
-
    params<D>()     = asSVector<D>(hit.parameters());
    errors<D>()     = asSMatrix<D>(hit.parametersError());
    projection<D>() = asSMatrix<D,5>(hit.projectionMatrix());
