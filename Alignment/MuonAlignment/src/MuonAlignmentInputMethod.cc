@@ -8,7 +8,7 @@
 //
 // Original Author:  Jim Pivarski
 //         Created:  Thu Mar  6 14:25:07 CST 2008
-// $Id$
+// $Id: MuonAlignmentInputMethod.cc,v 1.1 2008/03/15 20:26:46 pivarski Exp $
 //
 
 // system include files
@@ -57,21 +57,23 @@ MuonAlignmentInputMethod::~MuonAlignmentInputMethod() {}
 //
 
 AlignableMuon *MuonAlignmentInputMethod::newAlignableMuon(const edm::EventSetup& iSetup) const {
-   DTGeometry *dtGeometry = idealDTGeometry(iSetup);
+   boost::shared_ptr<DTGeometry> dtGeometry = idealDTGeometry(iSetup);
    boost::shared_ptr<CSCGeometry> cscGeometry = idealCSCGeometry(iSetup);
 
-   return new AlignableMuon(dtGeometry, &(*cscGeometry));
+   return new AlignableMuon(&(*dtGeometry), &(*cscGeometry));
 }
 
-DTGeometry *MuonAlignmentInputMethod::idealDTGeometry(const edm::EventSetup& iSetup) const {
+boost::shared_ptr<DTGeometry> MuonAlignmentInputMethod::idealDTGeometry(const edm::EventSetup& iSetup) const {
    edm::ESHandle<DDCompactView> cpv;
    iSetup.get<IdealGeometryRecord>().get(cpv);
 
    edm::ESHandle<MuonDDDConstants> mdc;
    iSetup.get<MuonNumberingRecord>().get(mdc);
    DTGeometryBuilderFromDDD DTGeometryBuilder;
- 
-   return DTGeometryBuilder.build(&(*cpv), *mdc);
+
+   boost::shared_ptr<DTGeometry> boost_dtGeometry = boost::shared_ptr<DTGeometry>(DTGeometryBuilder.build(&(*cpv), *mdc));
+
+   return boost_dtGeometry;
 }
 
 boost::shared_ptr<CSCGeometry> MuonAlignmentInputMethod::idealCSCGeometry(const edm::EventSetup& iSetup) const {

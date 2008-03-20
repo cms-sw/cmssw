@@ -8,7 +8,7 @@
 //
 // Original Author:  Jim Pivarski
 //         Created:  Thu Mar  6 17:30:46 CST 2008
-// $Id$
+// $Id: MuonAlignmentInputSurveyDB.cc,v 1.1 2008/03/15 20:26:46 pivarski Exp $
 //
 
 // system include files
@@ -63,7 +63,7 @@ MuonAlignmentInputSurveyDB::~MuonAlignmentInputSurveyDB() {}
 //
 
 AlignableMuon *MuonAlignmentInputSurveyDB::newAlignableMuon(const edm::EventSetup& iSetup) const {
-   DTGeometry *dtGeometry = idealDTGeometry(iSetup);
+   boost::shared_ptr<DTGeometry> dtGeometry = idealDTGeometry(iSetup);
    boost::shared_ptr<CSCGeometry> cscGeometry = idealCSCGeometry(iSetup);
 
    edm::ESHandle<Alignments> dtSurvey;
@@ -75,7 +75,7 @@ AlignableMuon *MuonAlignmentInputSurveyDB::newAlignableMuon(const edm::EventSetu
    iSetup.get<CSCSurveyRcd>().get(m_cscLabel, cscSurvey);
    iSetup.get<CSCSurveyErrorRcd>().get(m_cscLabel, cscSurveyError);
 
-   AlignableMuon *output = new AlignableMuon(dtGeometry, &(*cscGeometry));
+   AlignableMuon *output = new AlignableMuon(&(*dtGeometry), &(*cscGeometry));
 
    unsigned int theSurveyIndex  = 0;
    const Alignments *theSurveyValues = &*dtSurvey;

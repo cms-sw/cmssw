@@ -8,7 +8,7 @@
 //
 // Original Author:  Jim Pivarski
 //         Created:  Mon Mar 10 16:37:40 CDT 2008
-// $Id$
+// $Id: MuonAlignmentInputXML.cc,v 1.1 2008/03/15 20:26:46 pivarski Exp $
 //
 
 // system include files
@@ -224,15 +224,15 @@ void MuonAlignmentInputXML::fillAliToIdeal(std::map<Alignable*, Alignable*> &ali
 }
 
 AlignableMuon *MuonAlignmentInputXML::newAlignableMuon(const edm::EventSetup& iSetup) const {
-   DTGeometry *dtGeometry = idealDTGeometry(iSetup);
+   boost::shared_ptr<DTGeometry> dtGeometry = idealDTGeometry(iSetup);
    boost::shared_ptr<CSCGeometry> cscGeometry = idealCSCGeometry(iSetup);
 
-   AlignableMuon *alignableMuon = new AlignableMuon(dtGeometry, &(*cscGeometry));
+   AlignableMuon *alignableMuon = new AlignableMuon(&(*dtGeometry), &(*cscGeometry));
    std::map<unsigned int, Alignable*> alignableNavigator;  // real AlignableNavigators don't have const methods
    recursiveGetId(alignableNavigator, alignableMuon->DTBarrel());
    recursiveGetId(alignableNavigator, alignableMuon->CSCEndcaps());
 
-   AlignableMuon *ideal_alignableMuon = new AlignableMuon(dtGeometry, &(*cscGeometry));
+   AlignableMuon *ideal_alignableMuon = new AlignableMuon(&(*dtGeometry), &(*cscGeometry));
    std::map<unsigned int, Alignable*> ideal_alignableNavigator;  // real AlignableNavigators don't have const methods
    recursiveGetId(ideal_alignableNavigator, ideal_alignableMuon->DTBarrel());
    recursiveGetId(ideal_alignableNavigator, ideal_alignableMuon->CSCEndcaps());

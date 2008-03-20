@@ -8,7 +8,7 @@
 //
 // Original Author:  Jim Pivarski
 //         Created:  Thu Mar  6 17:30:46 CST 2008
-// $Id$
+// $Id: MuonAlignmentInputDB.cc,v 1.1 2008/03/15 20:26:46 pivarski Exp $
 //
 
 // system include files
@@ -65,7 +65,7 @@ MuonAlignmentInputDB::~MuonAlignmentInputDB() {}
 //
 
 AlignableMuon *MuonAlignmentInputDB::newAlignableMuon(const edm::EventSetup& iSetup) const {
-   DTGeometry *dtGeometry = idealDTGeometry(iSetup);
+   boost::shared_ptr<DTGeometry> dtGeometry = idealDTGeometry(iSetup);
    boost::shared_ptr<CSCGeometry> cscGeometry = idealCSCGeometry(iSetup);
 
    edm::ESHandle<Alignments> dtAlignments;
@@ -81,12 +81,12 @@ AlignableMuon *MuonAlignmentInputDB::newAlignableMuon(const edm::EventSetup& iSe
    iSetup.get<MuonGeometryRecord>().get(globalPositionRcd);
 
    GeometryAligner aligner;
-   aligner.applyAlignments<DTGeometry>(dtGeometry, &(*dtAlignments), &(*dtAlignmentErrors),
+   aligner.applyAlignments<DTGeometry>(&(*dtGeometry), &(*dtAlignments), &(*dtAlignmentErrors),
 				       align::DetectorGlobalPosition(*globalPositionRcd, DetId(DetId::Muon)));
    aligner.applyAlignments<CSCGeometry>(&(*cscGeometry), &(*cscAlignments), &(*cscAlignmentErrors),
 					align::DetectorGlobalPosition(*globalPositionRcd, DetId(DetId::Muon)));
 
-   return new AlignableMuon(dtGeometry, &(*cscGeometry));
+   return new AlignableMuon(&(*dtGeometry), &(*cscGeometry));
 }
 
 //

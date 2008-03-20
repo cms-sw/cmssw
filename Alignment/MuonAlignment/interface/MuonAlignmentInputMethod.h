@@ -16,7 +16,7 @@
 //
 // Original Author:  Jim Pivarski
 //         Created:  Thu Mar  6 14:10:22 CST 2008
-// $Id$
+// $Id: MuonAlignmentInputMethod.h,v 1.1 2008/03/15 20:26:46 pivarski Exp $
 //
 
 // system include files
@@ -45,7 +45,7 @@ class MuonAlignmentInputMethod {
       virtual AlignableMuon *newAlignableMuon(const edm::EventSetup &iSetup) const;
 
    protected:
-      DTGeometry *idealDTGeometry(const edm::EventSetup &iSetup) const;
+      boost::shared_ptr<DTGeometry> idealDTGeometry(const edm::EventSetup &iSetup) const;
       boost::shared_ptr<CSCGeometry> idealCSCGeometry(const edm::EventSetup &iSetup) const;
 
    private:
