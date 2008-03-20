@@ -1,11 +1,11 @@
-// $Id: EcalErrorMask.cc,v 1.30 2008/03/19 19:58:19 dellaric Exp $
+// $Id: EcalErrorMask.cc,v 1.31 2008/03/20 08:26:21 dellaric Exp $
 
 /*!
   \file EcalErrorMask.cc
   \brief Error mask from text file or database
   \author B. Gobbo
-  \version $Revision: 1.30 $
-  \date $Date: 2008/03/19 19:58:19 $
+  \version $Revision: 1.31 $
+  \date $Date: 2008/03/20 08:26:21 $
 */
 
 #include "OnlineDB/EcalCondDB/interface/EcalCondDBInterface.h"
@@ -449,7 +449,7 @@ void EcalErrorMask::writeFile( std::string& outFile ) throw( std::runtime_error 
     std::string yesno;
     std::cin >> yesno;
     std::cout << std::endl;
-    if( strcmp(yesno.c_str(), "y") != 0 || strcmp(yesno.c_str(), "Y") != 0 ) {
+    if( strcmp(yesno.c_str(), "y") != 0 && strcmp(yesno.c_str(), "Y") != 0 ) {
       throw( std::runtime_error( outFile + " left unchanged." ) );
       std::cout << std::endl;
       return;
