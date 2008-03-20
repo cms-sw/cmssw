@@ -1,10 +1,6 @@
 #include "MagneticField/Interpolation/src/RectangularCylindricalMFGrid.h"
 #include "MagneticField/Interpolation/src/binary_ifstream.h"
 #include "MagneticField/Interpolation/src/LinearGridInterpolator3D.h"
-
-// #include "Utilities/Notification/interface/TimingReport.h"
-// #include "Utilities/UI/interface/SimpleConfigurable.h"
-
 #include <iostream>
 
 using namespace std;
@@ -51,9 +47,6 @@ RectangularCylindricalMFGrid::RectangularCylindricalMFGrid( binary_ifstream& inF
 
   grid_ = GridType( gridX, gridY, gridZ, fieldValues);
   
-  // Activate/deactivate timers
-//   static SimpleConfigurable<bool> timerOn(false,"MFGrid:timing");
-//   (*TimingReport::current()).switchOn("MagneticFieldProvider::uncheckedValueInTesla(RectangularCylindricalMFGrid)",timerOn);
 }
 
 void RectangularCylindricalMFGrid::dump() const
@@ -89,7 +82,10 @@ MFGrid::LocalVector RectangularCylindricalMFGrid::uncheckedValueInTesla( const L
       return result;
     }
   }
-  GridType::ValueType value = interpol( R, Geom::pi() - p.phi(), p.z());
+
+  // FIXME: "OLD" convention of phi.
+  // GridType::ValueType value = interpol( R, Geom::pi() - p.phi(), p.z());
+  GridType::ValueType value = interpol( R, p.phi(), p.z());
   return LocalVector(value);
 }
 
@@ -97,11 +93,16 @@ void RectangularCylindricalMFGrid::toGridFrame( const LocalPoint& p,
 					      double& a, double& b, double& c) const
 {
   a = p.perp();
-  b = Geom::pi() - p.phi();
+  // FIXME: "OLD" convention of phi.
+  //  b = Geom::pi() - p.phi();
+  b = p.phi();
   c = p.z();
 }
  
 MFGrid::LocalPoint RectangularCylindricalMFGrid::fromGridFrame( double a, double b, double c) const
 {
-  return LocalPoint( LocalPoint::Cylindrical(a, Geom::pi() - b, c));
+
+  // FIXME: "OLD" convention of phi.
+  //  return LocalPoint( LocalPoint::Cylindrical(a, Geom::pi() - b, c));
+  return LocalPoint( LocalPoint::Cylindrical(a, b, c));
 }
