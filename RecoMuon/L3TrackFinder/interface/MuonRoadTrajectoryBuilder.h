@@ -6,8 +6,8 @@
  *  inner layer of the tracker detector, no RecHit is required on the TrajectorySeed.
  *  Combinatorics between RecHits is made. RecHits are accessed via the MeasurementTracker
  *  
- *  $Date: 2007/08/21 18:10:20 $
- *  $Revision: 1.1 $
+ *  $Date: 2007/09/27 00:48:35 $
+ *  $Revision: 1.2 $
  *  \author Adam Evertt, Jean-Roch Vlimant
  */
 
@@ -65,6 +65,9 @@ class MuonRoadTrajectoryBuilder :public TrajectoryBuilder {
      
    ////process the seed
    std::vector<Trajectory> trajectories(const TrajectorySeed & seed) const ;
+
+   /// process the seed, in a faster manner.
+   void trajectories(const TrajectorySeed & seed, TrajectoryContainer &ret) const ; 
 	 
  private:
 	 

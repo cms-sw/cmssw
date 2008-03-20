@@ -2,7 +2,7 @@
 
 /** \file RecoMuon/
  *
- *  $Date: 2007/06/25 16:37:47 $
+ *  $Date: 2007/08/21 18:10:21 $
  *  $Revision: 1.1 $
  *  \author Adam Evertt, Jean-Roch Vlimant
  */
@@ -116,7 +116,12 @@ bool trajectoryOrder(const MuonRoadTrajectoryBuilder::trajectory & traj1, const 
       else return false; }}
 
 
-
+void MuonRoadTrajectoryBuilder::trajectories(const TrajectorySeed & seed,  TrajectoryContainer &ret) const
+{
+  LogDebug(theCategory)<<"makeTrajectories START";
+  //process the seed through the tracker
+  makeTrajectories(seed,ret);
+}
 
 //reconstruct trajectory for the trajectory seed
 std::vector<Trajectory> MuonRoadTrajectoryBuilder::trajectories(const TrajectorySeed & seed) const 
