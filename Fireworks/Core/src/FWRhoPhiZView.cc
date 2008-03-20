@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Feb 19 10:33:25 EST 2008
-// $Id: FWRhoPhiZView.cc,v 1.5 2008/03/11 02:47:27 chrjones Exp $
+// $Id: FWRhoPhiZView.cc,v 1.6 2008/03/19 15:19:11 chrjones Exp $
 //
 
 // system include files
@@ -81,11 +81,16 @@ static TEveElement* doReplication(TEveProjectionManager* iMgr, TEveElement* iFro
 //
 FWRhoPhiZView::FWRhoPhiZView(TGFrame* iParent,const std::string& iName, const TEveProjection::EPType_e& iProjType) :
 m_typeName(iName),
-m_distortion(this,"distortion",0.,0.,20.)
+m_distortion(this,"distortion",5.,0.,20.)
 {
    m_projMgr = new TEveProjectionManager;
    m_projMgr->SetProjection(iProjType);
-   m_projMgr->GetProjection()->SetFixedRadius(700);
+   //m_projMgr->GetProjection()->SetFixedRadius(700);
+   m_projMgr->GetProjection()->SetDistortion(m_distortion.value()*1e-3);
+   m_projMgr->GetProjection()->SetFixR(200);
+   m_projMgr->GetProjection()->SetFixZ(300);
+   m_projMgr->GetProjection()->SetPastFixRFac(-0.3);
+   m_projMgr->GetProjection()->SetPastFixZFac(-0.3);
    gEve->AddToListTree(m_projMgr,kTRUE);
    
    //m_distortion.changed_.connect(boost::bind(&TEveProjection::SetDistortion, m_projMgr->GetProjection(),
