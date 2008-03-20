@@ -829,6 +829,7 @@ void CSCValHists::fillSegmentHistos(int codeN, int codeB, int nhits, float theta
       hSChiSqProb->Fill(chi2p);
       hSGlobalTheta->Fill(gTheta);
       hSGlobalPhi->Fill(gPhi);
+      hSnhits->Fill(nhits);
       if (st == 1){
         hSCodeNarrow1->Fill(codeN);
         hSGlobal1->Fill(gx,gy);

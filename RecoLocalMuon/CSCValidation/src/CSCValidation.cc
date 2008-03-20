@@ -456,15 +456,21 @@ void CSCValidation::analyze(const Event & event, const EventSetup& eventSetup){
       int kChamber = idRH.chamber();
       int kLayer   = idRH.layer();
 
+      // Find the strip containing this hit
+      CSCRecHit2D::ChannelContainer hitstrips = (*iRH).channels();
+      int nStrips     =  hitstrips.size();
+      int centerid    =  nStrips/2 + 1;
+      int centerStrip =  hitstrips[centerid - 1];
+
       // If this segment has 6 hits, find the position of each hit on the strip in units of stripwidth and store values
       if (nRH == 6){
         float stpos = (*iRH).positionWithinStrip();
         se(kLayer,1) = (*iRH).errorWithinStrip();
         // Take into account half-strip staggering of layers (ME1/1 has no staggering)
-        if (kStation == 1 && (kRing == 1 || kRing == 4)) sp(kLayer,1) = stpos;
+        if (kStation == 1 && (kRing == 1 || kRing == 4)) sp(kLayer,1) = stpos + centerStrip;
         else{
-          if (kLayer == 1 || kLayer == 3 || kLayer == 5) sp(kLayer,1) = stpos;
-          if (kLayer == 2 || kLayer == 4 || kLayer == 6) sp(kLayer,1) = stpos - 0.5;
+          if (kLayer == 1 || kLayer == 3 || kLayer == 5) sp(kLayer,1) = stpos + centerStrip;
+          if (kLayer == 2 || kLayer == 4 || kLayer == 6) sp(kLayer,1) = stpos - 0.5 + centerStrip;
         }
       }
 
