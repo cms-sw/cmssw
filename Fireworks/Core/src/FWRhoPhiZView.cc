@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Feb 19 10:33:25 EST 2008
-// $Id: FWRhoPhiZView.cc,v 1.6 2008/03/19 15:19:11 chrjones Exp $
+// $Id: FWRhoPhiZView.cc,v 1.7 2008/03/20 17:48:17 chrjones Exp $
 //
 
 // system include files
@@ -81,7 +81,7 @@ static TEveElement* doReplication(TEveProjectionManager* iMgr, TEveElement* iFro
 //
 FWRhoPhiZView::FWRhoPhiZView(TGFrame* iParent,const std::string& iName, const TEveProjection::EPType_e& iProjType) :
 m_typeName(iName),
-m_distortion(this,"distortion",5.,0.,20.)
+m_distortion(this,"distortion",0.,0.,20.)
 {
    m_projMgr = new TEveProjectionManager;
    m_projMgr->SetProjection(iProjType);
