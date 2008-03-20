@@ -9,7 +9,7 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: GsfElectronAnalyzer.h,v 1.2 2008/03/13 23:08:06 charlot Exp $
+// $Id: GsfElectronAnalyzer.h,v 1.3 2008/03/15 01:05:52 charlot Exp $
 //
 //
   
@@ -63,17 +63,17 @@ class GsfElectronAnalyzer : public edm::EDAnalyzer
   TH1F *h_gamNum;
   
   TH1F *h_simEta;
+  TH1F *h_simZ;
   TH1F *h_simAbsEta;
   TH1F *h_simP;
   TH1F *h_simPt;
   TH1F *h_simPhi;
-  TH1F *h_simZ;
   
   TH1F *h_ele_simEta_matched;
+  TH1F *h_ele_simZ_matched;
   TH1F *h_ele_simAbsEta_matched;
   TH1F *h_ele_simPt_matched;
   TH1F *h_ele_simPhi_matched;
-  TH1F *h_ele_simZ_matched;
 
   TH1F *h_ele_TIP_all;
   TH1F *h_ele_EoverP_all;
