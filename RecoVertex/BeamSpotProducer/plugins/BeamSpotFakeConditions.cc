@@ -73,10 +73,10 @@ BeamSpotFakeConditions::produce(const BeamSpotObjectsRcd &record){
 		}
 
 		else if ( BeamType == "EarlyCollision" ) {
-			adummy->SetPosition(0.0322,0.,0.);
-			adummy->SetSigmaZ(7.55);
-			adummy->Setdxdz(0.);
-			adummy->Setdydz(0.);
+			adummy->SetPosition(0.032206,-1.97386e-05,-0.282702);
+			adummy->SetSigmaZ(6.73927);
+			adummy->Setdxdz(1.76367e-06);
+			adummy->Setdydz(-2.58129e-05);
 			adummy->SetBeamWidth(31.7e-4);
 			adummy->SetCovariance(0,0,pow(6.96e-05,2));
 			adummy->SetCovariance(1,1,pow(6.74e-5));
