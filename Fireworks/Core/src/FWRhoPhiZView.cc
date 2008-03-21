@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Feb 19 10:33:25 EST 2008
-// $Id: FWRhoPhiZView.cc,v 1.7 2008/03/20 17:48:17 chrjones Exp $
+// $Id: FWRhoPhiZView.cc,v 1.8 2008/03/20 18:18:24 dmytro Exp $
 //
 
 // system include files
@@ -89,8 +89,8 @@ m_distortion(this,"distortion",0.,0.,20.)
    m_projMgr->GetProjection()->SetDistortion(m_distortion.value()*1e-3);
    m_projMgr->GetProjection()->SetFixR(200);
    m_projMgr->GetProjection()->SetFixZ(300);
-   m_projMgr->GetProjection()->SetPastFixRFac(-0.3);
-   m_projMgr->GetProjection()->SetPastFixZFac(-0.3);
+   m_projMgr->GetProjection()->SetPastFixRFac(0.0);
+   m_projMgr->GetProjection()->SetPastFixZFac(0.0);
    gEve->AddToListTree(m_projMgr,kTRUE);
    
    //m_distortion.changed_.connect(boost::bind(&TEveProjection::SetDistortion, m_projMgr->GetProjection(),
