@@ -11,9 +11,6 @@ Date: 2007-10-05
 // constructor and destructor
 //
 
-#define DEBUG
-
-
 ROOTSchema::ROOTSchema(){  
   #ifdef DEBUG
   cout << "In " << __PRETTY_FUNCTION__ << endl;

@@ -1,3 +1,4 @@
+<Flags CXXFLAGS="-O0 -g -DDEBUG">
 <export>
 	<lib name=RecoLuminosityTCPReceiver>
 </export>

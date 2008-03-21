@@ -1,4 +1,4 @@
-<Flags CXXFLAGS="-g">
+<Flags CXXFLAGS="-O0 -g -DDEBUG">
 <use name=rootcintex>
 <use name=rootcore>
 <use name=root>

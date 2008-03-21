@@ -8,8 +8,6 @@
 #include <iostream>
 #include <unistd.h>
 
-#define DEBUG
-
 namespace HCAL_HLX{
 
   TCPReceiver::TCPReceiver(){
