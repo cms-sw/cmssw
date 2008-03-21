@@ -17,7 +17,7 @@ HistoMET::HistoMET( std::string dir,
 
   // book relevant MET histograms 
   addHisto( h_sumEt_              =
-	    new PhysVarHisto("metSumEt",              "MET sumEt",               20, pt1, pt2, currDir_, "", "vD")  );
+	    new PhysVarHisto("metSumEt",              "MET sumEt",               20, 0, 1000, currDir_, "", "vD")  );
   addHisto( h_mEtSig_             =
 	    new PhysVarHisto("metMEtSig",             "MET mEtSig",              20, 0, 20, currDir_, "", "vD")  );
   addHisto( h_eLongitudinal_      =

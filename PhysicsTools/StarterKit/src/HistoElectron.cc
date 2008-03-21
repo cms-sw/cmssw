@@ -13,10 +13,10 @@ HistoElectron::HistoElectron( std::string dir,
   // book relevant electron histograms
 
   addHisto( h_trackIso_      =
-	    new PhysVarHisto("eTrackIso",       "Electron Track Isolation"    , 100, 0, 1, currDir_, "", "vD")
+	    new PhysVarHisto("eTrackIso",       "Electron Track Isolation"    , 100, 0, 10, currDir_, "", "vD")
 	    );
   addHisto( h_caloIso_       =
-	    new PhysVarHisto("eCaloIso",        "Electron Calo Isolation"     , 100, 0, 1, currDir_, "", "vD")
+	    new PhysVarHisto("eCaloIso",        "Electron Calo Isolation"     , 100, -20, 20, currDir_, "", "vD")
 	    );
   addHisto( h_leptonID_      =
 	    new PhysVarHisto("eLeptonID",       "Electron Lepton ID"          , 100, 0, 1, currDir_, "", "vD")
