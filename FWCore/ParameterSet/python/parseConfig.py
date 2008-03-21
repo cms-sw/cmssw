@@ -1357,8 +1357,8 @@ def _dumpCfg(s,loc,toks):
     options = PrintOptions()
     options.isCfg = True
     result = "import FWCore.ParameterSet.Config as cms\n\nprocess = cms.Process(\""+label+"\")\n"
-    print result+dumpPython(values, options)
-    return
+    result += dumpPython(values, options)
+    return result
 
 def _makeProcess(s,loc,toks):
     """create a Process from the tokens"""
@@ -1572,7 +1572,7 @@ def parseCffFile(fileName):
         _fileStack.pop()
 
 def dumpCfg(fileName):
-    cfgDumper.parseFile(_fileFactory(fileName))
+    return cfgDumper.parseFile(_fileFactory(fileName))[0]
 
 
 def dumpCff(fileName):
