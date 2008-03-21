@@ -1,5 +1,5 @@
-#ifndef GlobalTrackingTools_GlobalMuonTrackMatcher_H
-#define GlobalTrackingTools_GlobalMuonTrackMatcher_H
+#ifndef RecoMuon_GlobalTrackingTools_GlobalMuonTrackMatcher_H
+#define RecoMuon_GlobalTrackingTools_GlobalMuonTrackMatcher_H
 
 /** \class GlobalMuonTrackMatcher 
  *
@@ -15,8 +15,8 @@
  * tracker track that is closest in eta-phi space.
  *
  *
- *  $Date: 2008/02/14 16:24:24 $
- *  $Revision: 1.4 $
+ *  $Date: 2008/03/11 01:58:12 $
+ *  $Revision: 1.5 $
  *
  *  \author Chang Liu           Purdue University
  *  \author Adam Everett        Purdue University

@@ -2,11 +2,10 @@
  *  Class: GlobalMuonTrackMatcher
  *
  * 
- *  $Date: 2008/03/05 16:13:04 $
- *  $Revision: 1.7 $
+ *  $Date: 2008/03/11 01:58:35 $
+ *  $Revision: 1.8 $
  *
- *  Authors :
- *  \author Chang Liu  - Purdue University
+ *  \author Chang Liu - Purdue University
  *  \author Norbert Neumeister - Purdue University
  *  \author Adam Everett - Purdue University
  *
@@ -177,42 +176,53 @@ GlobalMuonTrackMatcher::match(const TrackCand& sta,
   
   if ( tracks.empty() ) return result;
 
-  for (vector<TrackCand>::const_iterator is = tracks.begin(); is != tracks.end(); ++is) {    
+  typedef std::pair<TrackCand, TrajectoryStateOnSurface> TrackCandWithTSOS;
+  vector<TrackCandWithTSOS> cands;
+
+  TrajectoryStateOnSurface muonTSOS;
+
+  for (vector<TrackCand>::const_iterator is = tracks.begin(); is != tracks.end(); ++is) {
 
     // propagate to common surface
     std::pair<TrajectoryStateOnSurface, TrajectoryStateOnSurface> tsosPair
       = convertToTSOSMuHit(sta,*is);
 
-    double chi2 = match_Chi2(tsosPair.first,tsosPair.second);
+    muonTSOS = tsosPair.first;
+    cands.push_back(TrackCandWithTSOS(*is,tsosPair.second));
+  }
+
+
+  // try various matching criteria
+  for (vector<TrackCandWithTSOS>::const_iterator is = cands.begin(); is != cands.end(); ++is) {
+
+    double chi2 = match_Chi2(muonTSOS,(*is).second);
  
     if ( chi2 > 0. && chi2 < theMaxChi2 ) {
-      result.push_back(*is);
+      result.push_back((*is).first);
     }
   }
  
   if ( result.empty() ) {
     LogDebug(category) << "MatchChi2 returned 0 results";
-    for (vector<TrackCand>::const_iterator is = tracks.begin(); is != tracks.end(); ++is) {
-      std::pair<TrajectoryStateOnSurface, TrajectoryStateOnSurface> tsosPair
-	= convertToTSOSMuHit(sta,*is);
+    for (vector<TrackCandWithTSOS>::const_iterator is = cands.begin(); is != cands.end(); ++is) {
 
-      double distance = match_D(tsosPair.first,tsosPair.second);
+      double distance = match_D(muonTSOS,(*is).second);
 
       if ( distance > 0. && distance < theDeltaD ) {
-	result.push_back(*is);
+	result.push_back((*is).first);
       }
     }
   }
   
   if ( result.empty() ) {
     LogDebug(category) << "MatchD returned 0 results";
-    for (vector<TrackCand>::const_iterator is = tracks.begin(); is != tracks.end(); ++is) {
-      std::pair<TrajectoryStateOnSurface, TrajectoryStateOnSurface> tsosPair
-	= convertToTSOSMuHit(sta,*is);
+    for (vector<TrackCandWithTSOS>::const_iterator is = cands.begin(); is != cands.end(); ++is) {
 
-      double deltaR = match_Rpos(tsosPair.first,tsosPair.second);
+      double deltaR = match_Rpos(muonTSOS,(*is).second);
 
-      if ( deltaR > 0. && deltaR < theDeltaR ) result.push_back(*is);
+      if ( deltaR > 0. && deltaR < theDeltaR ) {
+        result.push_back((*is).first);
+      }
     }
   }
  
@@ -220,11 +230,11 @@ GlobalMuonTrackMatcher::match(const TrackCand& sta,
     LogDebug(category) << "MatchPos returned 0 results";
     TrackCand returnVal;
     double dR = 10.0;
-    for (vector<TrackCand>::const_iterator is = tracks.begin(); is != tracks.end(); ++is) {
-      double tmpR = match_R_IP(sta,*is);
+    for (vector<TrackCandWithTSOS>::const_iterator is = cands.begin(); is != cands.end(); ++is) {
+      double tmpR = match_R_IP(sta,(*is).first);
       if (tmpR < dR) {
 	dR = tmpR;
-	returnVal = *is;
+	returnVal = (*is).first;
       }
     }
     result.push_back(returnVal);
@@ -431,7 +441,7 @@ GlobalMuonTrackMatcher::match_Chi2(const TrajectoryStateOnSurface& tsos1,
 
   bool ierr = !m.Invert();
  
-  if ( ierr == false ) edm::LogInfo(category) << "Error inverting covariance matrix";
+  if ( !ierr ) edm::LogInfo(category) << "Error inverting covariance matrix";
  
   double est = ROOT::Math::Similarity(v,m);
  
