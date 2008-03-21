@@ -1,56 +1,37 @@
 #!/bin/tcsh
 
-set data = (`cat $1`)
-set iter = $2
+set iter = $1
+set odir = $2
+set data = (`cat $3`)
+set jobs = $#data
+
+cp test/common.cff $odir/
 
 ## Set up config file for each alignment job
 
-@ j = 0 # job index
+if ($jobs > 0) then
+    @ j = 0 # job index
 
-foreach file ($data)
-    @ j++
+    foreach file ($data)
+	@ j++
 
-    mkdir CSA07/job$j
+	mkdir $odir/job$j
 
-    replace "<EVTS>" -1 "<FILE>" $file "<PATH>" $PWD/CSA07/job$j < test/align.tpl > CSA07/job$j/align.cfg
-end
+	replace "<FILE>" $file "<PATH>" $PWD/$odir/job$j < test/align.tpl > $odir/job$j/align.cfg
+    end
+endif
 
 ## Set up config file for collector job
 
-set jobs = $j
-
-mkdir CSA07/main
-replace "<PATH>" $PWD/CSA07 "<JOBS>" $jobs < test/collect.tpl > CSA07/main/collect.cfg
+mkdir $odir/main
+replace "<PATH>" $PWD/$odir "<JOBS>" $jobs < test/collect.tpl > $odir/main/collect.cfg
 
 ## Set up config file for iteration 0
 
-replace "<PATH>" $PWD/CSA07 "<JOBS>" 0 < test/collect.tpl > CSA07/main/initial.cfg
+replace "<PATH>" $PWD/$odir < test/initial.tpl > $odir/main/initial.cfg
 
-cmsRun CSA07/main/initial.cfg >& CSA07/main/collect0
+cmsRun $odir/main/initial.cfg >& $odir/main/initial
 
 ## Submit jobs and iterate
 
-@ i = 0
-
-while ($i < $iter)
-    @ i++
-    @ j = 0
-
-    while ($j < $jobs)
-	@ j++
-
-	cp CSA07/main/IOIteration.root        CSA07/job$j
-	cp CSA07/main/IOAlignedPositions.root CSA07/job$j
-    end
-
-    bsub -q dedicated -R cmscaf -C 0 -B -N -J "align[1-$jobs]" \
-	 -o CSA07/job%I/align$i cmsRun $PWD/CSA07/job\$LSB_JOBINDEX/align.cfg
-
-    sleep 5
-    set id = `bjobs | tail -n1 | awk '{print $1}'`
-
-    bsub -q dedicated -R cmscaf -C 0 -B -N -J collect$i -K -w "done($id)" \
-	 -o CSA07/main/collect$i cmsRun $PWD/CSA07/main/collect.cfg
-end
-
-hadd CSA07/main/histograms.root CSA07/job*/histograms.root >& CSA07/main/mergeHist
+scripts/submitJobs $iter $odir

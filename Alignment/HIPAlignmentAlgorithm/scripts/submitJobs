@@ -1,0 +1,43 @@
+#!/bin/tcsh
+
+set iter = $1
+set odir = $2
+set jobs = `ls -d $odir/job* | wc -l`
+
+## Submit jobs and iterate
+
+@ i = `cat $odir/main/IOIteration.root`
+
+echo "Starting iteration = $i, number of jobs = $jobs\n"
+
+while ($i < $iter)
+    @ i++
+
+    if ($jobs > 0) then
+	@ j = 0 # job index
+
+	while ($j < $jobs)
+	    @ j++
+
+      rm $odir/job$j/*.root
+	    cp $odir/main/IOIteration.root        $odir/job$j
+	    cp $odir/main/IOAlignedPositions.root $odir/job$j
+	end
+
+	bsub -q dedicated -R cmscaf -C 0 -B -N -J "align[1-$jobs]" \
+	     -o $odir/job%I/align$i cmsRun $PWD/$odir/job\$LSB_JOBINDEX/align.cfg
+
+	sleep 5
+	set id = `bjobs | tail -n1 | awk '{print $1}'`
+
+	bsub -q dedicated -R cmscaf -C 0 -B -N -J collect$i -K -w "done($id)" \
+	     -o $odir/main/collect$i cmsRun $PWD/$odir/main/collect.cfg
+    else
+	bsub -q dedicated -R cmscaf -C 0 -B -N -J collect$i -K \
+	     -o $odir/main/collect$i cmsRun $PWD/$odir/main/collect.cfg
+    endif
+
+    if (`bjobs | grep collect$i | awk '{print $3}'` == "EXIT") break
+end
+
+# hadd $odir/main/histograms.root $odir/job*/histograms.root >& $odir/main/mergeHist
