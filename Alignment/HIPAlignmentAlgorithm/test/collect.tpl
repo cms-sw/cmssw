@@ -1,13 +1,8 @@
 process Alignment =
 {
-  include "Alignment/CommonAlignmentProducer/data/AlignmentProducerCSA07.cff"
-
-  service = MessageLogger
-  {
-    untracked vstring destinations = {'cout'}
-
-    untracked PSet cout = { untracked string threshold = 'WARNING' }
-  }
+  include "Alignment/HIPAlignmentAlgorithm/test/common.cff"
+  include "Geometry/CMSCommonData/data/cmsIdealGeometryXML.cfi"
+  include "Geometry/TrackerNumberingBuilder/data/trackerNumberingGeometry.cfi"
 
   source = EmptySource {}
 
@@ -17,19 +12,45 @@ process Alignment =
   replace HIPAlignmentAlgorithm.collectorActive = true
   replace HIPAlignmentAlgorithm.collectorNJobs  = <JOBS>
   replace HIPAlignmentAlgorithm.collectorPath   = '<PATH>'
+  replace HIPAlignmentAlgorithm.minimumNumberOfHits = 0
+  replace HIPAlignmentAlgorithm.maxRelParameterError = 1e99
+/*
+#only if want to use survey
 
-  replace AlignmentProducer.maxLoops = 1
-  replace AlignmentProducer.algoConfig = { using HIPAlignmentAlgorithm }
-  replace AlignmentProducer.monitorConfig.monitors = {}
+  replace HIPAlignmentAlgorithm.surveyResiduals = {'Det', 'Pixel',
+    'TPBLadder', 'TPBLayer', 'TPBHalfBarrel', 'TPBBarrel',
+    'TPEPanel', 'TPEBlade', 'TPEHalfDisk', 'TPEHalfCylinder', 'TPEEndcap'}
 
-/* Not working in collector mode
-  replace AlignmentProducer.monitorConfig.AlignmentMonitorGeneric =
+  es_source survey = PoolDBESSource
   {
-    string outpath = '<PATH>/main/'
-    string outfile = 'histograms.root'
-    bool collectorActive = true
-    int32 collectorNJobs = <JOBS>
-    string collectorPath = '<PATH>'
+    using CondDBSetup
+
+    string connect  = "sqlite_file:/afs/cern.ch/user/n/ntran/public/HIPAlignment/measurementSurvey_StripsIdeal.db"
+    string timetype = "runnumber"
+
+    VPSet toGet =
+    {
+      { string record = "TrackerSurveyRcd"      string tag = "valueTag" },
+      { string record = "TrackerSurveyErrorRcd" string tag = "errorTag" }
+    }
+  }
+  replace survey.catalog = "file:/afs/cern.ch/user/n/ntran/public/HIPAlignment/measurementSurvey_StripsIdeal.xml"	
+  
+  replace AlignmentProducer.useSurvey = true
+
+  replace AlignmentProducer.monitorConfig =
+  {
+    untracked vstring monitors = {'AlignmentMonitorSurvey'}
+
+    untracked PSet AlignmentMonitorSurvey =
+    {
+      string outpath = "<PATH>/main/"
+      string outfile = "histograms.root"
+
+      bool collectorActive = false
+      int32 collectorNJobs = 0
+      string collectorPath = "./"
+    }
   }
 */
 }

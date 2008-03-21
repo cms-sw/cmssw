@@ -1,34 +1,25 @@
 process Alignment =
 {
-  include "Alignment/CommonAlignmentProducer/data/AlignmentProducerCSA07.cff"
+  include "Alignment/HIPAlignmentAlgorithm/test/common.cff"
 
-  service = MessageLogger
-  {
-    untracked vstring destinations = {'cout'}
+  source = PoolSource { untracked vstring fileNames = {<FILE>} }
 
-    untracked PSet cout = { untracked string threshold = 'WARNING' }
-  }
+  untracked PSet maxEvents = { untracked int32 input = -1 }
 
-  source = PoolSource { untracked vstring fileNames = {'<FILE>'} }
+# Patch for track refitter (adapted to alignment needs)
 
-  untracked PSet maxEvents = { untracked int32 input = <EVTS> }
+  include "RecoTracker/TransientTrackingRecHit/data/TransientTrackingRecHitBuilderWithoutRefit.cfi"
+  include "RecoTracker/TrackProducer/data/RefitterWithMaterial.cff"
 
-  replace HIPAlignmentAlgorithm.outpath = '<PATH>/' # must put backslash
-#  replace HIPAlignmentAlgorithm.apeParam = 'none'
+  replace TrackRefitter.src = ALCARECOTkAlZMuMu
+  replace TrackRefitter.TTRHBuilder = "WithoutRefit"
+  replace TrackRefitter.TrajectoryInEvent = true
+  replace ttrhbwor.Matcher = "StandardMatcher" # matching for strip stereo!
+
+  replace HIPAlignmentAlgorithm.outpath = "<PATH>/"
+  replace HIPAlignmentAlgorithm.apeSPar = {0.10, 0.05, 10}
+  replace HIPAlignmentAlgorithm.apeRPar = {1e-3, 5e-4, 10}
   replace HIPAlignmentAlgorithm.minimumNumberOfHits = 0
-#  replace HIPAlignmentAlgorithm.surveyResiduals = {'Panel', 'PixelEndcap'}
-
-  replace AlignmentProducer.maxLoops = 1
-  replace AlignmentProducer.algoConfig = { using HIPAlignmentAlgorithm }
-
-  replace AlignmentProducer.monitorConfig.AlignmentMonitorGeneric =
-  {
-    string outpath = '<PATH>/'
-    string outfile = 'histograms.root'
-    bool collectorActive = false
-    int32 collectorNJobs = 0
-    string collectorPath = './'
-  }
 
   path p = { TrackRefitter }
 }
