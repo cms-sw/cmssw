@@ -9,9 +9,12 @@ class CombinedTSG : public CompositeTSG {
   ~CombinedTSG();
 
   void trackerSeeds(const TrackCand&, const TrackingRegion&, BTSeedCollection &);
+  /// clean from shared hits 
+  virtual std::vector<TrajectorySeed > cleanBySharedInput(const std::vector<TrajectorySeed>&,const std::vector<TrajectorySeed> &);
+
  private:
   std::string theCategory;
-
+  bool firstTime;
 };
 
 #endif
