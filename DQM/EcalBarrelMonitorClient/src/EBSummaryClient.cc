@@ -1,8 +1,8 @@
 /*
  * \file EBSummaryClient.cc
  *
- * $Date: 2008/03/15 14:07:44 $
- * $Revision: 1.123 $
+ * $Date: 2008/03/15 14:50:54 $
+ * $Revision: 1.124 $
  * \author G. Della Ricca
  *
 */
@@ -1076,10 +1076,10 @@ void EBSummaryClient::analyze(void){
   me = dbe_->get("EcalBarrel/EventInfo/errorSummary");
   if (me) me->Fill(errorSummary);
 
-  me = dbe_->get("EventInfo/errorSummarySegments/Segment00");
+  me = dbe_->get("EcalBarrel/EventInfo/errorSummarySegments/Segment00");
   if (me) me->Fill(errorSummaryEBP);
 
-  me = dbe_->get("EventInfo/errorSummarySegments/Segment01");
+  me = dbe_->get("EcalBarrel/EventInfo/errorSummarySegments/Segment01");
   if (me) me->Fill(errorSummaryEBM);
 
   me = dbe_->get("EcalBarrel/EventInfo/errorSummaryPhiEta_EB");

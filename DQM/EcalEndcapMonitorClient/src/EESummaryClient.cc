@@ -1,8 +1,8 @@
 /*
  * \file EESummaryClient.cc
  *
- * $Date: 2008/03/15 14:07:46 $
- * $Revision: 1.98 $
+ * $Date: 2008/03/15 14:50:56 $
+ * $Revision: 1.99 $
  * \author G. Della Ricca
  *
 */
@@ -1264,10 +1264,10 @@ void EESummaryClient::analyze(void){
    me = dbe_->get("EcalEndcap/EventInfo/errorSummary");
    if (me) me->Fill(errorSummary);
 
-   me = dbe_->get("EventInfo/errorSummarySegments/Segment02");
+   me = dbe_->get("EcalEndcap/EventInfo/errorSummarySegments/Segment01");
    if (me) me->Fill(errorSummaryEEP);
 
-   me = dbe_->get("EventInfo/errorSummarySegments/Segment03");
+   me = dbe_->get("EcalEndcap/EventInfo/errorSummarySegments/Segment02");
    if (me) me->Fill(errorSummaryEEM);
 
    MonitorElement* meside[2];
