@@ -1,8 +1,8 @@
 /*
  * \file EEIntegrityTask.cc
  *
- * $Date: 2008/02/29 15:08:16 $
- * $Revision: 1.31 $
+ * $Date: 2008/03/14 14:57:58 $
+ * $Revision: 1.32 $
  * \author G. Della Ricca
  *
  */
@@ -96,7 +96,9 @@ void EEIntegrityTask::setup(void){
     // checking when number of towers in data different than expected from header
     sprintf(histo, "EEIT DCC size error");
     meIntegrityDCCSize = dbe_->book1D(histo, histo, 18, 1, 19.);
-    meIntegrityDCCSize->setAxisTitle("DCC module", 1);
+    for (int i = 0; i < 18; i++) {
+      meIntegrityDCCSize->setBinLabel(i+1, Numbers::sEE(i+1).c_str(), 1);
+    }
 
     // checking when the gain is 0
     dbe_->setCurrentFolder("EcalEndcap/EEIntegrityTask/Gain");

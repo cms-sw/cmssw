@@ -1,8 +1,8 @@
 /*
  * \file EBIntegrityTask.cc
  *
- * $Date: 2008/02/29 15:04:14 $
- * $Revision: 1.64 $
+ * $Date: 2008/03/14 14:57:58 $
+ * $Revision: 1.65 $
  * \author G. Della Ricca
  *
  */
@@ -96,7 +96,9 @@ void EBIntegrityTask::setup(void){
     // checking when number of towers in data different than expected from header
     sprintf(histo, "EBIT DCC size error");
     meIntegrityDCCSize = dbe_->book1D(histo, histo, 36, 1, 37.);
-    meIntegrityDCCSize->setAxisTitle("DCC module", 1);
+    for (int i = 0; i < 36; i++) {
+      meIntegrityDCCSize->setBinLabel(i+1, Numbers::sEB(i+1).c_str(), 1);
+    }
 
     // checking when the gain is 0
     dbe_->setCurrentFolder("EcalBarrel/EBIntegrityTask/Gain");
