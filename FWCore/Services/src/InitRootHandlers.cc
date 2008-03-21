@@ -85,6 +85,12 @@ void RootErrorHandler(int level, bool die, const char* location, const char* mes
       die = true;
     }
 
+    if ((el_message.find("Tree branches") != std::string::npos)
+     && (el_message.find("different numbers of entries") != std::string::npos)) {
+      el_severity = edm::ELseverityLevel::ELsev_fatal;
+      die = true;
+    }
+
 // Feed the message to the MessageLogger... let it choose to suppress or not.
 
   if (el_severity == edm::ELseverityLevel::ELsev_fatal) {
