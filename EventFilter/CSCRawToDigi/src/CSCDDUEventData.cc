@@ -202,13 +202,13 @@ void CSCDDUEventData::unpack_data(unsigned short *buf)
     {
       if (theDDUTrailer.check())
 	{
-	  edm::LogError ("CSCDDUEventData") 
+	  if (debug) edm::LogError ("CSCDDUEventData") 
 	    << "+++ CSCDDUEventData warning: DDU Trailer errors = " << std::hex << errorstat << " +++ ";
-	  decodeStatus(errorstat);
+	  if (debug) decodeStatus(errorstat);
 	} 
       else 
 	{
-	  edm::LogError ("CSCDDUEventData" ) 
+	  if (debug) edm::LogError ("CSCDDUEventData" ) 
 	    << " Unpacking lost DDU trailer - check() failed and 8 8 ffff 8 was not found ";
 	}
     }

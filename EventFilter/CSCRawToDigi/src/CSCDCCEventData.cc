@@ -63,7 +63,7 @@ void CSCDCCEventData::unpack_data(unsigned short *buf)
 	} 
       else
 	{
-	  edm::LogError ("CSCDCCEventData") <<"DDU Data Check failed!  ";
+	  if (debug) edm::LogError ("CSCDCCEventData") <<"DDU Data Check failed!  ";
 	  break;
 	}
       
