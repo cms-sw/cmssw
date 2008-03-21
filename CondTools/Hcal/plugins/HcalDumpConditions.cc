@@ -103,6 +103,10 @@ namespace edmtest
       dumpIt(new HcalGainWidths, new HcalGainWidthsRcd, e,context,"GainWidths");
     if (std::find (mDumpRequest.begin(), mDumpRequest.end(), std::string ("ChannelQuality")) != mDumpRequest.end())
       dumpIt(new HcalChannelQuality, new HcalChannelQualityRcd, e,context,"ChannelQuality");
+    if (std::find (mDumpRequest.begin(), mDumpRequest.end(), std::string ("RespCorrs")) != mDumpRequest.end())
+      dumpIt(new HcalRespCorrs, new HcalRespCorrsRcd, e,context,"RespCorrs");
+    if (std::find (mDumpRequest.begin(), mDumpRequest.end(), std::string ("ZSThresholds")) != mDumpRequest.end())
+      dumpIt(new HcalZSThresholds, new HcalZSThresholdsRcd, e,context,"ZSThresholds");
     
   }
   DEFINE_FWK_MODULE(HcalDumpConditions);
