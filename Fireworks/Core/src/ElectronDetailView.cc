@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Sun Jan  6 23:57:00 EST 2008
-// $Id: ElectronDetailView.cc,v 1.2 2008/03/09 19:10:45 dmytro Exp $
+// $Id: ElectronDetailView.cc,v 1.3 2008/03/20 03:58:07 jmuelmen Exp $
 //
 
 // system include files
@@ -679,8 +679,8 @@ TEveElementList *ElectronDetailView::getEcalCrystals (const DetIdToMatrix &geo,
 	  const double scale = 100;
 	  float rgba[4] = { 1, 0, 0, 1 };
 	  rgba[0] = 1; rgba[1] = rgba[2] = 0;
-	  TGeoBBox *box = new TGeoBBox(0.5 * 0.0172 * scale, 
-				       0.5 * 0.0172 * scale, 
+	  TGeoBBox *box = new TGeoBBox(0.48 * 0.0172 * scale, 
+				       0.48 * 0.0172 * scale, 
 				       0.01, 0);
 	  TEveTrans t_box;
 	  t_box.SetPos(v.Eta() * scale,
@@ -691,7 +691,7 @@ TEveElementList *ElectronDetailView::getEcalCrystals (const DetIdToMatrix &geo,
 	  extract->SetTrans(t_box.Array());
 	  extract->SetRGBA(rgba);
 	  TEveGeoShape *shape = TEveGeoShape::ImportShapeExtract(extract, 0);
- 	  shape->SetMainTransparency(50);
+ 	  shape->SetMainTransparency(80);
 	  ret->AddElement(shape);
      }
      return ret;

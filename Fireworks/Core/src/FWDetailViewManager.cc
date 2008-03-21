@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Wed Mar  5 09:13:47 EST 2008
-// $Id: FWDetailViewManager.cc,v 1.4 2008/03/18 15:38:26 chrjones Exp $
+// $Id: FWDetailViewManager.cc,v 1.5 2008/03/20 03:49:45 jmuelmen Exp $
 //
 
 // system include files
@@ -112,13 +112,13 @@ FWDetailViewManager::openDetailViewFor(const FWModelId &id)
      frame->AddFrame(v->GetFrame(), 
 		     new TGLayoutHints(kLHintsTop | kLHintsExpandX
 				       | kLHintsExpandY));
-     TGTextButton* exit_butt = new TGTextButton(frame, "Eat flaming death");
+     TGTextButton* exit_butt = new TGTextButton(frame, "Close");
      exit_butt->Resize(20, 20);
      exit_butt->Connect("Clicked()", "FWDetailViewManager", this, "close_button()");
      frame->AddFrame(exit_butt, new TGLayoutHints(kLHintsTop | kLHintsExpandX));
      frame->Layout();
-     frame->SetWindowName("Ooogadooga-WINDOW");
-     frame->SetIconName("Ooogadooga-ICON");
+     frame->SetWindowName("Detail View");
+     frame->SetIconName("Detail View Icon");
      frame->MapSubwindows();
      frame->MapWindow();
 
@@ -136,15 +136,15 @@ FWDetailViewManager::openDetailViewFor(const FWModelId &id)
      viewer->second->build(&list, id);
      gEve->AddElement(list, ns);
 
-#if 1
-//      nv->GetGLViewer()->SetPerspectiveCamera(TGLViewer::kCameraOrthoXOY, 5, 0, viewer->second->rotation_center, 0.5, 0 );
-//      nv->GetGLViewer()->SetPerspectiveCamera(TGLViewer::kCameraOrthoXOY, 5, 0, viewer->second->rotation_center, 0.5, 0 );
-//      nv->GetGLViewer()->CurrentCamera().Reset();
-     nv->GetGLViewer()->SetOrthoCamera(TGLViewer::kCameraOrthoXOY, 5, 0, viewer->second->rotation_center, 0.5, 0 );
-     nv->GetGLViewer()->SetPerspectiveCamera(TGLViewer::kCameraPerspXOY, 5, 0, viewer->second->rotation_center, 0.5, 0 );
-     nv->GetGLViewer()->SetCurrentCamera(TGLViewer::kCameraPerspXOY);
-     nv->GetGLViewer()->CurrentCamera().Reset();
-#endif
+
+   //      nv->GetGLViewer()->SetPerspectiveCamera(TGLViewer::kCameraOrthoXOY, 5, 0, viewer->second->rotation_center, 0.5, 0 );
+   //      nv->GetGLViewer()->SetPerspectiveCamera(TGLViewer::kCameraOrthoXOY, 5, 0, viewer->second->rotation_center, 0.5, 0 );
+   //      nv->GetGLViewer()->CurrentCamera().Reset();
+   //     nv->GetGLViewer()->SetOrthoCamera(TGLViewer::kCameraOrthoXOY, 5, 0, viewer->second->rotation_center, 0.5, 0 );
+   // nv->GetGLViewer()->SetPerspectiveCamera(TGLViewer::kCameraPerspXOY, 5, 0, viewer->second->rotation_center, 0.5, 0 );
+   // nv->GetGLViewer()->SetCurrentCamera(TGLViewer::kCameraPerspXOY);
+   nv->GetGLViewer()->CurrentCamera().Reset();
+   nv->GetGLViewer()->UpdateScene();
 }
 
 //
