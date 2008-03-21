@@ -12,7 +12,8 @@ L1GctJetCand::L1GctJetCand() :
   m_data(0),
   m_isTau(false),
   m_isFor(false),
-  m_source(0),
+  m_captureBlock(0),
+  m_captureIndex(0),
   m_bx(0)
 {
 
@@ -23,7 +24,8 @@ L1GctJetCand::L1GctJetCand(uint16_t rawData, bool isTau, bool isFor) :
   m_data(rawData & 0x7fff), // 0x7fff is to mask off bit 15, which is not data that needs to be stored
   m_isTau(isTau),
   m_isFor(isFor),
-  m_source(0),
+  m_captureBlock(0),
+  m_captureIndex(0),
   m_bx(0)
 {
 }
@@ -33,7 +35,8 @@ L1GctJetCand::L1GctJetCand(uint16_t rawData, bool isTau, bool isFor, uint16_t bl
   m_data(rawData & 0x7fff), // 0x7fff is to mask off bit 15, which is not data that needs to be stored
   m_isTau(isTau),
   m_isFor(isFor),
-  m_source( ((block&0xff)<<8) | (index&0xff) ),
+  m_captureBlock(block&0xfff),
+  m_captureIndex(index&0xff),
   m_bx(bx)
 {
 }
@@ -44,7 +47,8 @@ L1GctJetCand::L1GctJetCand(unsigned rank, unsigned phi, unsigned eta, bool isTau
   m_data(0), // overridden below
   m_isTau(isTau),
   m_isFor(isFor),
-  m_source(0),
+  m_captureBlock(0),
+  m_captureIndex(0),
   m_bx(0)
 { 
   m_data = (rank & 0x3f) + ((eta & 0xf)<<6) + ((phi & 0x1f)<<10); 
@@ -56,7 +60,8 @@ L1GctJetCand::L1GctJetCand(unsigned rank, unsigned phi, unsigned eta, bool isTau
   m_data(0), // overridden below
   m_isTau(isTau),
   m_isFor(isFor),
-  m_source( ((block&0xff)<<8) | (index&0xff) ),
+  m_captureBlock(block&0xfff),
+  m_captureIndex(index&0xff),
   m_bx(bx)
 { 
   m_data = (rank & 0x3f) + ((eta & 0xf)<<6) + ((phi & 0x1f)<<10); 

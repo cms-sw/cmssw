@@ -73,10 +73,10 @@ public:
   bool isolated() const { return m_iso; }
 
   /// which capture block did this come from
-  unsigned capBlock() const { return (m_source >> 8) & 0xff; }
+  unsigned capBlock() const { return m_captureBlock; }
 
   /// what index within capture block
-  unsigned capIndex() const { return m_source & 0xff; }
+  unsigned capIndex() const { return m_captureIndex; }
 
   /// get bunch-crossing index
   int16_t bx() const { return m_bx; }
@@ -97,7 +97,8 @@ public:
 
   uint16_t m_data;
   bool m_iso;
-  uint16_t m_source;
+  uint16_t m_captureBlock;
+  uint8_t m_captureIndex;
   int16_t m_bx;
 
  };

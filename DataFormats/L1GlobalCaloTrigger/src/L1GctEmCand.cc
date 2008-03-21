@@ -12,50 +12,55 @@ using std::dec;
 L1GctEmCand::L1GctEmCand() :
   m_data(0),
   m_iso(false),
-  m_source(0),
+  m_captureBlock(0),
+  m_captureIndex(0),
   m_bx(0)
 { 
 
 }
 
-// construct from raw data, no source - used in GT
+// construct from raw data, no source (i.e. no capBlock/capIndex); used in GT
 L1GctEmCand::L1GctEmCand(uint16_t rawData, bool iso) :
   m_data(rawData & 0x7fff), // 0x7fff is to mask off bit 15, which is not data that needs to be stored
   m_iso(iso),
-  m_source(0),
+  m_captureBlock(0),
+  m_captureIndex(0),
   m_bx(0)
- {
+{
 
- }
+}
 
 // construct from raw data with source - used in GCT unpacker
  L1GctEmCand::L1GctEmCand(uint16_t rawData, bool iso, uint16_t block, uint16_t index, int16_t bx) :
    m_data(rawData & 0x7fff), // 0x7fff is to mask off bit 15, which is not data that needs to be stored
    m_iso(iso),
-   m_source( ((block&0xff)<<8) | (index&0xff) ),
+   m_captureBlock(block&0xfff),
+   m_captureIndex(index&0xff),
    m_bx(bx)
- {
+{
 
- }
+}
 
 // construct from content - used in GCT emulator
 // eta = -6 to -0, +0 to +6. Sign is bit 3, 1 means -ve Z, 0 means +ve Z
 L1GctEmCand::L1GctEmCand(unsigned rank, unsigned eta, unsigned phi, bool iso) : 
   m_data(0), // override below
   m_iso(iso),
-  m_source(0),
+  m_captureBlock(0),
+  m_captureIndex(0),
   m_bx(0)
  
 {
   construct(rank, eta, phi);
 }
 
-// construct from content, with source - will be used in GCT emulator one day?
+// construct from content, with source (i.e. capBlock/capIndex); will be used in GCT emulator one day?
 // eta = -6 to -0, +0 to +6. Sign is bit 3, 1 means -ve Z, 0 means +ve Z
 L1GctEmCand::L1GctEmCand(unsigned rank, unsigned eta, unsigned phi, bool iso, uint16_t block, uint16_t index, int16_t bx) : 
   m_data(0), // override below
   m_iso(iso),
-  m_source( ((block&0xff)<<8) | (index&0xff) ),
+  m_captureBlock(block&0xfff),
+  m_captureIndex(index&0xff),
   m_bx(bx)
 {
   construct(rank, eta, phi);
@@ -65,7 +70,8 @@ L1GctEmCand::L1GctEmCand(unsigned rank, unsigned eta, unsigned phi, bool iso, ui
 L1GctEmCand::L1GctEmCand(L1CaloEmCand& c) :
   m_data(0), // override below
   m_iso(c.isolated()),
-  m_source(0),
+  m_captureBlock(0),
+  m_captureIndex(0),
   m_bx(c.bx())
 {
   unsigned eta=((c.regionId().rctEta() & 0x7) | (c.regionId().ieta()<11 ? 0x8 : 0x0));
