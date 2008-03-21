@@ -1,68 +1,73 @@
 /*
  * \class TrackerSeedCleaner
  *  Seeds Cleaner based on direction
- *  $Date: 2008/02/28 22:17:48 $
- *  $Revision: 1.0 $
+ *  $Date: 2008/03/03 15:36:14 $
+ *  $Revision: 1.1 $
     \author A. Grelli -  Purdue University, Pavia University
  */
 
-#include "DataFormats/Common/interface/Handle.h"
-#include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "RecoMuon/TrackerSeedGenerator/interface/TrackerSeedCleaner.h"
+
+//---------------
+// C++ Headers --
+//---------------
+#include <vector>
+
+//-------------------------------
+// Collaborating Class Headers --
+//-------------------------------
 #include "FWCore/Framework/interface/Event.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeed.h"
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
+#include "DataFormats/Math/interface/deltaPhi.h"
 
-#include "RecoMuon/TrackingTools/interface/MuonServiceProxy.h"
-#include "RecoMuon/TrackerSeedGenerator/plugins/TSGFromL2Muon.h"
 #include "TrackingTools/TrajectoryState/interface/FreeTrajectoryState.h"
 #include "TrackingTools/PatternTools/interface/TrajectoryStateClosestToBeamLineBuilder.h"
-#include "TrackingTools/TrajectoryState/interface/PerigeeConversions.h"
-#include "TrackingTools/Records/interface/TransientRecHitRecord.h" 
+#include "TrackingTools/Records/interface/TransientRecHitRecord.h"
+#include "TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h"
 #include "RecoTracker/TkTrackingRegions/interface/RectangularEtaPhiTrackingRegion.h"
 #include "RecoTracker/TkTrackingRegions/interface/TkTrackingRegionsMargin.h"
 #include "RecoTracker/TkMSParametrization/interface/PixelRecoRange.h"
-#include "TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h"
+
+#include "RecoMuon/TrackingTools/interface/MuonServiceProxy.h"
+#include "RecoMuon/TrackerSeedGenerator/plugins/TSGFromL2Muon.h"
 #include "RecoMuon/TrackerSeedGenerator/interface/TrackerSeedGenerator.h"
 #include "RecoMuon/TrackerSeedGenerator/interface/TrackerSeedGeneratorFactory.h"
-#include "RecoMuon/TrackerSeedGenerator/interface/TrackerSeedCleaner.h"
-#include "DataFormats/BeamSpot/interface/BeamSpot.h"
-#include "DataFormats/Math/interface/deltaPhi.h"
-#include <vector>
 
 using namespace std;
 using namespace edm;
 
-// whatever you need for inizialization
+//
+// inizialization
+//
 void TrackerSeedCleaner::init(const MuonServiceProxy *service){
 
   theProxyService = service;
 }
-// Event Setup
+
+//
+//
+//
 void TrackerSeedCleaner::setEvent(const edm::Event& event)
 {
-  theEvent = &event;
+ event.getByLabel(theBeamSpotTag, bsHandle_);
 }
 
-// the cleaner
-std::vector<TrajectorySeed > TrackerSeedCleaner::clean( const reco::TrackRef& muR, const RectangularEtaPhiTrackingRegion& region, tkSeeds& seeds ) {
+//
+// clean seeds
+//
+void TrackerSeedCleaner::clean( const reco::TrackRef& muR, const RectangularEtaPhiTrackingRegion& region, tkSeeds& seeds ) {
  
- const edm::EventSetup & es = theProxyService->eventSetup();
+ theProxyService->eventSetup().get<TransientRecHitRecord>().get(builderName_,theTTRHBuilder);
 
- edm::ESHandle<MagneticField> theMF;
- es.get<IdealMagneticFieldRecord>().get(theMF);
- es.get<TransientRecHitRecord>().get(builderName,theTTRHBuilder);
- 
- LogDebug("TrackerSeedCleaner")<<seeds.size()<<" trajectory seeds to the events before cleaning"<<endl;
+ LogDebug("TrackerSeedCleaner")<<seeds.size()<<" trajectory seeds to the events before cleaning"<<endl; 
 
- //retrieve beam spot information
- edm::Handle<reco::BeamSpot> bsHandle;
- theEvent->getByLabel(theBeamSpotTag, bsHandle);
- //cechk the validity otherwise vertexing
- const reco::BeamSpot & bs = *bsHandle;
+ //check the validity otherwise vertexing
+ const reco::BeamSpot & bs = *bsHandle_;
 
- /*reco track and seeds as argoments. Seeds eta and phi are checked and 
+ /*reco track and seeds as arguments. Seeds eta and phi are checked and 
    based on deviation from L2 eta and phi seed is accepted or not*/  
 
  std::vector<TrajectorySeed > result;
@@ -75,7 +80,7 @@ std::vector<TrajectorySeed > TrackerSeedCleaner::clean( const reco::TrackRef& mu
 
 	//get parameters and errors from the seed state
 	TransientTrackingRecHit::RecHitPointer recHit = theTTRHBuilder->build(&*(seed->recHits().second-1));
-	TrajectoryStateOnSurface state = tsTransform.transientState( seed->startingState(), recHit->surface(), theMF.product());
+	TrajectoryStateOnSurface state = tsTransform.transientState( seed->startingState(), recHit->surface(), theProxyService->magneticField().product());
 
 	TrajectoryStateClosestToBeamLine tsAtClosestApproachSeed = tscblBuilder(*state.freeState(),bs);//as in TrackProducerAlgorithms
 
@@ -91,23 +96,35 @@ std::vector<TrajectorySeed > TrackerSeedCleaner::clean( const reco::TrackRef& mu
 	typedef PixelRecoRange< float > Range;
 	typedef TkTrackingRegionsMargin< float > Margin;
 
-	Range etaRange = region.etaRange();
-	double etaLimit = (fabs(fabs(etaRange.max()) - fabs(etaRange.mean())) <0.05) ? 0.05 : fabs(fabs(etaRange.max()) - fabs(etaRange.mean())) ;
+	Range etaRange   = region.etaRange();
+	double etaLimit  = (fabs(fabs(etaRange.max()) - fabs(etaRange.mean())) <0.05) ? 0.05 : fabs(fabs(etaRange.max()) - fabs(etaRange.mean())) ;
 
 	Margin phiMargin = region.phiMargin();
-	double phiLimit = (phiMargin.right() < 0.05 ) ? 0.05 : phiMargin.right(); 
+	double phiLimit  = (phiMargin.right() < 0.05 ) ? 0.05 : phiMargin.right(); 
+
+        double ptSeed  = pSeed.perp();
+        double ptMin   = (region.ptMin()>3.5) ? 3.5: region.ptMin();
 
         // Clean  
 	bool inEtaRange = etaSeed >= (etaRange.mean() - etaLimit) && etaSeed <= (etaRange.mean() + etaLimit) ;
-	
-	bool inPhiRange = (fabs(deltaPhi(phiSeed,double(region.direction().phi()))) < phiLimit ) ? true : false ;
+	bool inPhiRange = (fabs(deltaPhi(phiSeed,double(region.direction().phi()))) < phiLimit );
 
-        if( inEtaRange && inPhiRange ) {
-	  LogDebug("trackerSeedCleaner")<<"Keeping the seed";
-	  result.push_back(*seed);
-	} else {
-	  seed = seeds.erase(seed);
-	}
+        // pt cleaner
+        bool inPtRange = ptSeed >= ptMin &&  ptSeed<= 2*(muR->pt());
+
+        // use pt and angle cleaners
+        if( inEtaRange && inPhiRange && inPtRange && usePt_Cleaner) {
+
+            result.push_back(*seed);
+            LogDebug("TrackerSeedCleaner")<<" Keeping the seed : this seed passed pt and direction selection";
+        }
+        // use only angle default option
+        if( inEtaRange && inPhiRange && !usePt_Cleaner) {
+
+            result.push_back(*seed);
+            LogDebug("TrackerSeedCleaner")<<" Keeping the seed : this seed passed direction selection";
+
+        }
 	
         LogDebug("TrackerSeedCleaner")<<" eta for current seed "<<etaSeed<<"\n"
                                       <<" phi for current seed "<<phiSeed<<"\n"
@@ -115,9 +132,12 @@ std::vector<TrajectorySeed > TrackerSeedCleaner::clean( const reco::TrackRef& mu
                                       <<" phi for L2 track  "<<muR->phi()<<"\n";
   }
 
-  LogDebug("TrackerSeedCleaner")<<result.size()<<" trajectory seeds to the events afther cleaning"<<endl;
+   //the new seeds collection
+   seeds.swap(result);
 
-  return result;
+   LogDebug("TrackerSeedCleaner")<<seeds.size()<<" trajectory seeds to the events after cleaning"<<endl;
+ 
+   return;
 
 }
 
