@@ -66,7 +66,8 @@ print "make directories ...\n";
 print "copy cfg files ...\n";
 
 copy("$dqm_dir/$cfg_file", "$ENV{PWD}/.");
-copy("$dqm_dir/../data/sistrip_qualitytest_config.xml", "$ENV{PWD}/sistrip_qualitytest_config.xml");
+copy("$dqm_dir/Reference.root", "$ENV{PWD}/Reference.root");
+
 copy("$dqm_dir/../data/layer.js", "$ENV{PWD}/TkMap/layer.js");
 copy("$dqm_dir/../data/crate.js", "$ENV{PWD}/TkMap/crate.js");
 copy("$dqm_dir/../data/viewer.js", "$ENV{PWD}/TkMap/viewer.js");
@@ -474,7 +475,7 @@ sub makeCtlDestroy
     $result = $result . "`rm -rf  soap/ xml/ log/ tmp/sm TkMap/ "
           . "start configure enable halt stop gennums.txt"
           . " summaryCatalog.txt test.root`;\n\n";
-    $result = $result . "`rm -rf  \*.cfg sistrip_qualitytest_config.xml`;\n\n"; 
+    $result = $result . "`rm -rf  \*.cfg`;\n\n"; 
     $result = $result . "`rm -rf Online.html loader.html \*.root \*.coor "
           . " TrackerMapFrame.html TrackerMapPlot.html TrackerMapSelection.html "
           . " fedtrackermap.html "

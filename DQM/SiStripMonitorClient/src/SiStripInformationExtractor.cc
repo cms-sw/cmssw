@@ -325,11 +325,6 @@ void SiStripInformationExtractor::plotHistosFromPath(DQMStore * dqm_store, std::
 //
 void SiStripInformationExtractor::plotHistosFromLayout(DQMStore * dqm_store){
   if (layoutMap.size() == 0) return;
-  if (!readReference_) {
-    string localPath = string("DQM/SiStripMonitorClient/test/Reference.root");
-    dqm_store->open(edm::FileInPath(localPath).fullPath(), false, "", "SiStrip/Reference");
-    readReference_ = true;
-  }
 
   canvas_->SetFixedAspectRatio(kTRUE);
   canvas_->SetCanvasSize(canvasWidth, canvasHeight);
@@ -379,18 +374,16 @@ void SiStripInformationExtractor::plotHistosFromLayout(DQMStore * dqm_store){
 	  hist1->DrawCopy();
 	  
           string hname = hist1->GetTitle();
-	  string ref_path = "SiStrip/Reference/" + it->first + "/" +hname;
           tTitle.DrawTextNDC(0.1, 0.92, hname.c_str());
-	  MonitorElement* me_ref = dqm_store->get(ref_path);
-	  if (me_ref) {
-	    TH1* hist1_ref = me_ref->getTH1();
+          if (me->getRefRootObject()) {
+	    TH1* hist1_ref = me->getRefTH1();
 	    if (hist1_ref) {
-     	      hist1_ref->SetLineColor(3);
-              hist1_ref->SetMarkerColor(3);
-              if (hname.find("Summary") != string::npos) hist1_ref->DrawCopy("same");
-              else hist1_ref->DrawNormalized("same", hist1->GetEntries());
-            }
-	  }
+	      hist1_ref->SetLineColor(3);
+	      hist1_ref->SetMarkerColor(3);
+	      if (hname.find("Summary") != string::npos) hist1_ref->DrawCopy("same");
+	      else hist1_ref->DrawNormalized("same", hist1->GetEntries());
+	    }
+          }
 	}
 	string command = "rm -f " + fname.str();
 	gSystem->Exec(command.c_str());

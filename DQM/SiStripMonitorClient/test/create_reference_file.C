@@ -5,6 +5,10 @@
 #include <TFile.h>
 #include <TH1.h>
 #include <string>
+#include <vector>
+void parseXML(TXMLNode *node, TFile* file1, TDirectory* ts, bool flag);
+void split(const string& str, vector<string>& tokens, const string& delimiters);
+void setPath(TH1* th1, string& path, TDirectory* topDir);
 
 void create_reference_file(string fname1, string fname2)
 {
@@ -17,6 +21,12 @@ void create_reference_file(string fname1, string fname2)
   cout << fname1 << " " << online << endl;
   TFile* file2 = new TFile(fname2.c_str(), "RECREATE");
 
+  TDirectory* td =   file2->mkdir("DQMData");
+  if (!td) {
+    cout << " Can not create directory structure in " << fname2 << endl;
+    return;
+  }
+
   TDOMParser *domParser = new TDOMParser();
 
   domParser->SetValidate(false); // do not validate with DTD
@@ -26,8 +36,7 @@ void create_reference_file(string fname1, string fname2)
 
   TXMLNode *node = domParser->GetXMLDocument()->GetRootNode();
 
-  TDirectory* td;
-  parseXML(node, file1, file2, online, td);
+  parseXML(node, file1, td, online);
 
   delete domParser;
   file1->Close();
@@ -35,7 +44,7 @@ void create_reference_file(string fname1, string fname2)
   file2->Close();
 }
 
-void parseXML(TXMLNode *node, TFile* file1, TFile* file2, bool flag, TDirectory* td)
+void parseXML(TXMLNode *node, TFile* file1, TDirectory* td, bool flag)
 {
   for ( ; node; node = node->GetNextNode()) {
     if (node->GetNodeType() == TXMLNode::kXMLElementNode) { // Element Node
@@ -48,19 +57,15 @@ void parseXML(TXMLNode *node, TFile* file1, TFile* file2, bool flag, TDirectory*
 	while ((attr =(TXMLAttr*)next())) {
 	  string attr_name  = attr->GetName();
 	  string attr_value = attr->GetValue();
-	  cout << attr_name << " : " << attr_value;
-	  if (node_name == "layout") {
-	    td =  dynamic_cast<TDirectory*> (file2->Get(attr_name.c_str()));
-	    if (!td) {
-               td = file2->mkdir(attr_value.c_str());
-            }
-	  }
+	  cout << attr_name << " : " << attr_value << endl;
           if (node_name == "monitorable") {
             string path, fname;
-            if (flag) path = "DQMData/" + attr_value;
-	    else path = attr_value.replace(0,13,"DQMData");
+            path = "DQMData/" + attr_value;
             TH1F* th1 = dynamic_cast<TH1F*> ( file1->Get(path.c_str()));
-            if (th1)   th1->SetDirectory(td);
+            if (th1) {
+              cout << " copying " << th1->GetName() << " to " << attr_value << endl;
+              setPath(th1, attr_value, td);
+            }
             else {
               cout << "\n Requested Histogram does not exist !!! " << endl;
               cout << " ==> " << path << endl;
@@ -77,8 +82,52 @@ void parseXML(TXMLNode *node, TFile* file1, TFile* file2, bool flag, TDirectory*
       cout << "Comment: " << node->GetContent();
     }
     
-    parseXML(node->GetChildren(), file1, file2, flag, td);
+    parseXML(node->GetChildren(), file1, td, flag);
   }
 }
+//
+// -- Split a given string into a number of strings using given
+//    delimiters and fill a vector with splitted strings
+//
+void split(const string& str, vector<string>& tokens, const string& delimiters) {
+  // Skip delimiters at beginning.
+  string::size_type lastPos = str.find_first_not_of(delimiters, 0);
 
+  // Find first "non-delimiter".
+  string::size_type pos = str.find_first_of(delimiters, lastPos);
+
+  while (string::npos != pos || string::npos != lastPos)  {
+    // Found a token, add it to the vector.
+    tokens.push_back(str.substr(lastPos, pos - lastPos));
+
+    // Skip delimiters.  Note the "not_of"
+    lastPos = str.find_first_not_of(delimiters, pos);
+
+    // Find next "non-delimiter"
+    pos = str.find_first_of(delimiters, lastPos);
+  }
+}
+void setPath(TH1* th1, string& path, TDirectory* topDir) {
+
+  TDirectory* temp_dir  =  dynamic_cast<TDirectory*> (topDir->Get(path.c_str()));
+  if (!temp_dir) {
+    vector<string> names;
+    string tag = "/";
+    split(path, names, tag);
+    temp_dir = topDir;
+    for (unsigned int it = 0; it < names.size()-1;  it++) {
+      string name = names[it];
+      if (name.size() != 0) {
+	TDirectory* td  = dynamic_cast<TDirectory*> (temp_dir->Get(name.c_str()));
+        if (!td) td = temp_dir->mkdir(name.c_str());
+        if (temp_dir) {
+          td->cd();
+          temp_dir = td;
+        }
+      }
+    }     
+    th1->SetDirectory(temp_dir);
+    topDir->cd();
+  }
+}
 

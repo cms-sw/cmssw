@@ -1,19 +1,9 @@
 <Layouts>
-<layout name="GlobalTracks_1">
-  <monitorable name="Track/GlobalParameters/NumberOfTracks_ctf"></monitorable>
-  <monitorable name="Track/GlobalParameters/NumberOfRecHitsPerTrack_ctf"></monitorable>
-  <monitorable name="Track/GlobalParameters/NumberOfTracks_cosmicTF"></monitorable>
-  <monitorable name="Track/GlobalParameters/NumberOfRecHitsPerTrack_cosmicTF"></monitorable>
-  <monitorable name="Track/GlobalParameters/NumberOfTracks_rs"></monitorable>
-  <monitorable name="Track/GlobalParameters/NumberOfRecHitsPerTrack_rs"></monitorable>
-</layout>
-<layout name="GlobalTracks_2">
-  <monitorable name="Track/GlobalParameters/TrackPhi_ctf"></monitorable>
-  <monitorable name="Track/GlobalParameters/TrackEta_ctf"></monitorable>
-  <monitorable name="Track/GlobalParameters/TrackPhi_cosmicTF"></monitorable>
-  <monitorable name="Track/GlobalParameters/TrackEta_cosmicTF"></monitorable>
-  <monitorable name="Track/GlobalParameters/TrackPhi_rs"></monitorable>
-  <monitorable name="Track/GlobalParameters/TrackEta_rs"></monitorable>
+<layout name="GlobalTracks">
+  <monitorable name="Track/GlobalParameters/NumberOfTracks_GenTk"></monitorable>
+  <monitorable name="Track/GlobalParameters/NumberOfRecHitsPerTrack_GenTk"></monitorable>
+  <monitorable name="Track/GlobalParameters/TrackPhi_GenTk"></monitorable>
+  <monitorable name="Track/GlobalParameters/TrackEta_GenTk"></monitorable>
 </layout>
 <layout name="OnTrackCluster">
   <monitorable name="Track/GlobalParameters/OnTrack_TOB_cStoN"></monitorable>
@@ -48,12 +38,26 @@
   <monitorable name="SiStrip/MechanicalView/TEC/side_2/Summary_NumberOfClusters_in_side_2"></monitorable>
   <monitorable name="SiStrip/MechanicalView/TEC/side_2/Summary_ClusterWidth_in_side_2"></monitorable>
 </layout>
+<layout name="TECBSummary">
+  <monitorable name="SiStrip/MechanicalView/TEC/side_1/Summary_CMSubNoiseProfile_in_side_1"></monitorable>
+  <monitorable name="SiStrip/MechanicalView/TEC/side_1/Summary_NoisyStrips_in_side_1"></monitorable>
+  <monitorable name="SiStrip/MechanicalView/TEC/side_1/Summary_NumberOfDigis_in_side_1"></monitorable>
+  <monitorable name="SiStrip/MechanicalView/TEC/side_1/Summary_NumberOfClusters_in_side_1"></monitorable>
+  <monitorable name="SiStrip/MechanicalView/TEC/side_1/Summary_ClusterWidth_in_side_1"></monitorable>
+</layout>
 <layout name="TIDFSummary">
   <monitorable name="SiStrip/MechanicalView/TID/side_2/Summary_CMSubNoiseProfile_in_side_2"></monitorable>
   <monitorable name="SiStrip/MechanicalView/TID/side_2/Summary_NoisyStrips_in_side_2"></monitorable>
   <monitorable name="SiStrip/MechanicalView/TID/side_2/Summary_NumberOfDigis_in_side_2"></monitorable>
   <monitorable name="SiStrip/MechanicalView/TID/side_2/Summary_NumberOfClusters_in_side_2"></monitorable>
   <monitorable name="SiStrip/MechanicalView/TID/side_2/Summary_ClusterWidth_in_side_2"></monitorable>
+</layout>
+<layout name="TIDBSummary">
+  <monitorable name="SiStrip/MechanicalView/TID/side_1/Summary_CMSubNoiseProfile_in_side_1"></monitorable>
+  <monitorable name="SiStrip/MechanicalView/TID/side_1/Summary_NoisyStrips_in_side_1"></monitorable>
+  <monitorable name="SiStrip/MechanicalView/TID/side_1/Summary_NumberOfDigis_in_side_1"></monitorable>
+  <monitorable name="SiStrip/MechanicalView/TID/side_1/Summary_NumberOfClusters_in_side_1"></monitorable>
+  <monitorable name="SiStrip/MechanicalView/TID/side_1/Summary_ClusterWidth_in_side_1"></monitorable>
 </layout>
 
 </Layouts>
