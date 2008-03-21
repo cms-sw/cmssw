@@ -17,7 +17,7 @@
 #include "Geometry/HcalCommonData/interface/HcalNumberingFromDDD.h"
 
 #include "G4String.hh"
-
+#include <map>
 #include <string>
 
 class DDCompactView;
@@ -59,6 +59,8 @@ private:
   void                          getFromParam(G4Step * step);
   void                          getHitPMT(G4Step * step);
   int                           setTrackID(G4Step * step);
+  void                          readWeightFromFile(std::string);
+  double                        layerWeight(int, G4ThreeVector, int, int);
 
   HcalNumberingFromDDD*         numberingFromDDD;
   HcalNumberingScheme*          numberingScheme;
@@ -66,7 +68,7 @@ private:
   HFShower *                    hfshower;
   HFShowerParam *               showerParam;
   HFShowerPMT *                 showerPMT;
-  bool                          useBirk;
+  bool                          useBirk, useLayerWt;
   double                        birk1, birk2, betaThr;
   bool                          useHF, useShowerLibrary, useParam, usePMTHit;
   G4int                         mumPDG, mupPDG; 
@@ -80,6 +82,7 @@ private:
   std::vector<G4Material*>      materials;
   std::vector<G4LogicalVolume*> pmtLV;
   std::vector<G4String>         pmtNames;
+  std::map<uint32_t,double>     layerWeights;
 
 };
 

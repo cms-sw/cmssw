@@ -21,6 +21,10 @@
 #include "G4Track.hh"
 #include "G4ParticleTable.hh"
 
+#include <iostream>
+#include <fstream>
+#include <iomanip>
+
 HCalSD::HCalSD(G4String name, const DDCompactView & cpv,
 	       SensitiveDetectorCatalog & clg, 
                edm::ParameterSet const & p, const SimTrackManager* manager) : 
@@ -44,6 +48,8 @@ HCalSD::HCalSD(G4String name, const DDCompactView & cpv,
   betaThr          = m_HC.getParameter<double>("BetaThreshold");
   useHF            = m_HC.getUntrackedParameter<bool>("UseHF",true);
   bool forTBH2     = m_HC.getUntrackedParameter<bool>("ForTBH2",false);
+  useLayerWt       = m_HC.getUntrackedParameter<bool>("UseLayerWt",false);
+  std::string file = m_HC.getUntrackedParameter<std::string>("WtFile","None");
 
   LogDebug("HcalSim") << "***************************************************" 
 		      << "\n"
@@ -214,6 +220,8 @@ HCalSD::HCalSD(G4String name, const DDCompactView & cpv,
 			    << " pointer " << materials[i];
 
   mumPDG = mupPDG = 0;
+  
+  if (useLayerWt) readWeightFromFile(file);
 }
 
 HCalSD::~HCalSD() { 
@@ -289,6 +297,11 @@ double HCalSD::getEnergyDeposit(G4Step* aStep) {
   int depth = (touch->GetReplicaNumber(0))%10;
   int det   = ((touch->GetReplicaNumber(1))/1000)-3;
   if (depth==0 && (det==0 || det==1)) weight = layer0wt[det];
+  if (useLayerWt) {
+    int lay   = (touch->GetReplicaNumber(0)/10)%100 + 1;
+    G4ThreeVector hitPoint = aStep->GetPreStepPoint()->GetPosition();
+    weight = layerWeight(det+3, hitPoint, depth, lay);
+  }
 
   if (suppressHeavy) {
     G4Track* theTrack = aStep->GetTrack();
@@ -503,7 +516,7 @@ void HCalSD::getFromLibrary (G4Step* aStep) {
     unsigned int unitID    = setDetUnitId(det, hitPoint, depth);
     currentID.setID(unitID, time, primaryID, 0);
    
-    // check if it is in the same unit and timeslice as the previosus one
+    // check if it is in the same unit and timeslice as the previous one
     if (currentID == previousID) {
       updateHit(currentHit);
     } else {
@@ -550,7 +563,7 @@ void HCalSD::hitForFibre (G4Step* aStep) {
       double time            = hfshower->getTSlice(i);
       currentID.setID(unitID, time, primaryID, 0);
 
-      // check if it is in the same unit and timeslice as the previosus one
+      // check if it is in the same unit and timeslice as the previous one
       if (currentID == previousID) {
         updateHit(currentHit);
       } else {
@@ -588,7 +601,7 @@ void HCalSD::getFromParam (G4Step* aStep) {
       unsigned int unitID    = setDetUnitId(det, hitPoint, depth);
       currentID.setID(unitID, time, primaryID, 0);
 
-      // check if it is in the same unit and timeslice as the previosus one
+      // check if it is in the same unit and timeslice as the previous one
       if (currentID == previousID) {
         updateHit(currentHit);
       } else {
@@ -655,7 +668,7 @@ void HCalSD::getHitPMT (G4Step* aStep) {
                         << " GeV with velocity " << beta << " UnitID "
                         << std::hex << unitID << std::dec;
 
-    // check if it is in the same unit and timeslice as the previosus one
+    // check if it is in the same unit and timeslice as the previous one
     if (currentID == previousID) {
       updateHit(currentHit);
     } else {
@@ -681,4 +694,48 @@ int HCalSD::setTrackID (G4Step* aStep) {
     resetForNewPrimary(preStepPoint->GetPosition(), etrack);
 
   return primaryID;
+}
+
+void HCalSD::readWeightFromFile(std::string fName) {
+
+  std::ifstream infile;
+  int entry=0;
+  infile.open(fName.c_str(), std::ios::in);
+  if (infile) {
+    int    det, zside, etaR, phi, lay;
+    double wt;
+    while (infile >> det >> zside >> etaR >> phi >> lay >> wt) {
+      uint32_t id = HcalTestNumbering::packHcalIndex(det,zside,1,etaR,phi,lay);
+      layerWeights.insert(std::pair<uint32_t,double>(id,wt));
+      entry++;
+      LogDebug("HcalSim") << "HCalSD::readWeightFromFile:Entry " << entry
+			  << " ID " << std::hex << id << std::dec << " ("
+			  << det << "/" << zside << "/1/" << etaR << "/"
+			  << phi << "/" << lay << ") Weight " << wt;
+    }
+    infile.close();
+  }
+  edm::LogInfo("HcalSim") << "HCalSD::readWeightFromFile: reads " << entry
+			  << " weights from " << fName;
+  if (entry <= 0) useLayerWt = false;
+}
+
+double HCalSD::layerWeight(int det, G4ThreeVector pos, int depth, int lay) { 
+
+  double wt = 1.;
+  if (numberingFromDDD) {
+    //get the ID's as eta, phi, depth, ... indices
+    HcalNumberingFromDDD::HcalID tmp = numberingFromDDD->unitID(det, pos, 
+								depth, lay);
+    uint32_t id = HcalTestNumbering::packHcalIndex(tmp.subdet, tmp.zside,
+						   1, tmp.etaR, tmp.phis,
+						   tmp.lay);
+    std::map<uint32_t,double>::const_iterator ite = layerWeights.find(id);
+    if (ite != layerWeights.end()) wt = ite->second;
+    LogDebug("HcalSim") << "HCalSD::layerWeight: ID " << std::hex << id 
+			<< std::dec << " (" << tmp.subdet << "/"  << tmp.zside 
+			<< "/1/" << tmp.etaR << "/" << tmp.phis << "/" 
+			<< tmp.lay << ") Weight " << wt;
+  }
+  return wt;
 }
