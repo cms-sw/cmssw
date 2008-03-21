@@ -13,7 +13,7 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: ForwardMeasurementEstimator.cc,v 1.7 2008/02/27 12:54:58 uberthon Exp $
+// $Id: ForwardMeasurementEstimator.cc,v 1.9 2008/02/28 17:52:36 uberthon Exp $
 //
 //
 #include "RecoEgamma/EgammaElectronAlgos/interface/ForwardMeasurementEstimator.h"
@@ -26,14 +26,19 @@
 // zero value indicates incompatible ts - hit pair
 std::pair<bool,double> ForwardMeasurementEstimator::estimate( const TrajectoryStateOnSurface& ts, 
 							      const TransientTrackingRecHit& hit) const {
+  LocalPoint lp = hit.localPosition();
+  GlobalPoint gp = hit.det()->surface().toGlobal( lp);
+  return estimate(ts,gp);
+}
+
+std::pair<bool,double> ForwardMeasurementEstimator::estimate( const TrajectoryStateOnSurface& ts, GlobalPoint &gp) const {
 
   float tsR = ts.globalParameters().position().perp();
   float tsPhi = ts.globalParameters().position().phi();
-  LocalPoint lp = hit.localPosition();
-  GlobalPoint gp = hit.det()->surface().toGlobal( lp);
+
   float rhPhi = gp.phi();
   float rhR = gp.perp();
-
+ 
   float myZ = gp.z();
   
   float rMin = theZRangeMin;
@@ -55,10 +60,10 @@ std::pair<bool,double> ForwardMeasurementEstimator::estimate( const TrajectorySt
    
   if ( phiDiff < myPhimax && phiDiff > myPhimin && 
        rDiff < rMax && rDiff > rMin) {
-     return std::pair<bool,double>(true,1.);
-   } else {
+    return std::pair<bool,double>(true,1.);
+  } else {
     return std::pair<bool,double>(false,0.);
-    }
+  }
 }
 
 bool ForwardMeasurementEstimator::estimate( const TrajectoryStateOnSurface& ts, 

@@ -17,19 +17,24 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: PixelHitMatcher.h,v 1.13 2008/02/28 21:45:32 charlot Exp $
+// $Id: PixelHitMatcher.h,v 1.14 2008/02/29 10:36:49 uberthon Exp $
 //
 //
 
 #include "TrackingTools/TrajectoryState/interface/FreeTrajectoryState.h" 
 #include "TrackingTools/MaterialEffects/interface/PropagatorWithMaterial.h" 
+
 #include "RecoEgamma/EgammaElectronAlgos/interface/BarrelMeasurementEstimator.h" 
 #include "RecoEgamma/EgammaElectronAlgos/interface/ForwardMeasurementEstimator.h" 
 #include "RecoEgamma/EgammaElectronAlgos/interface/PixelMatchStartLayers.h"
 #include "RecoEgamma/EgammaElectronAlgos/interface/FTSFromVertexToPointFactory.h"
+
+#include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
 #include "DataFormats/EgammaReco/interface/ElectronPixelSeed.h" 
+
 #include "RecoTracker/TransientTrackingRecHit/interface/TSiPixelRecHit.h"
 #include "RecoTracker/TkDetLayers/interface/GeometricSearchTracker.h"
+
 #include "CLHEP/Vector/ThreeVector.h"
 #include <vector>
 
@@ -41,6 +46,7 @@ class MeasurementTracker;
 class MagneticField;
 class GeometricSearchTracker;
 class LayerMeasurements;
+class TrackerGeometry;
 
 class RecHitWithDist
 {
@@ -85,9 +91,13 @@ class PixelHitMatcher{
       meas2ndFLayer.setRRange(rMinI,rMaxI);
     }
   virtual ~PixelHitMatcher();
-  void setES(const MagneticField*, const MeasurementTracker *theMeasurementTracker);
+  void setES(const MagneticField*, const MeasurementTracker *theMeasurementTracker, const TrackerGeometry *trackerGeometry);
 
   std::vector<std::pair<RecHitWithDist,ConstRecHitPointer> > compatibleHits(const GlobalPoint& xmeas,
+									    const GlobalPoint& vprim,
+									    float energy,
+									    float charge);
+  std::vector<TrajectorySeed> compatibleSeeds(edm::Handle<TrajectorySeedCollection> &trajectories, const GlobalPoint& xmeas,
 									    const GlobalPoint& vprim,
 									    float energy,
 									    float charge);
@@ -114,10 +124,9 @@ class PixelHitMatcher{
 				       }
  
  private:
-  //vector<TSiPixelRecHit> hitsInTrack;
+
   RecHitContainer hitsInTrack;
 
-  //  float phi1min, phi1max, phi2min, phi2max, z1min, z1max, z2min, z2max;
   std::vector<Hep3Vector> pred1Meas;
   std::vector<Hep3Vector> pred2Meas; 
   FTSFromVertexToPointFactory myFTS;
@@ -131,6 +140,8 @@ class PixelHitMatcher{
   const GeometricSearchTracker *theGeometricSearchTracker;
   const LayerMeasurements *theLayerMeasurements;
   const MagneticField* theMagField;
+  const TrackerGeometry * theTrackerGeometry;
+
   float vertex;
 
   bool searchInTIDTEC_;

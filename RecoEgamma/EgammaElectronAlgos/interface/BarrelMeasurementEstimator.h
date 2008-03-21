@@ -15,7 +15,7 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: BarrelMeasurementEstimator.h,v 1.5 2007/05/22 16:16:10 uberthon Exp $
+// $Id: BarrelMeasurementEstimator.h,v 1.6 2008/02/13 10:41:38 uberthon Exp $
 //
 //
 
@@ -52,7 +52,10 @@ public:
   // zero value indicates incompatible ts - hit pair
   virtual std::pair<bool,double> estimate( const TrajectoryStateOnSurface& ts, 
 			   const TransientTrackingRecHit& hit) const;
-				      //			   const RecHit& hit) const;
+
+  virtual std::pair<bool,double> estimate( const TrajectoryStateOnSurface& ts, 
+	                   GlobalPoint &gp) const;
+
   virtual bool estimate( const TrajectoryStateOnSurface& ts, 
 			 const BoundPlane& plane) const;
 
@@ -60,8 +63,9 @@ public:
     {
       return new BarrelMeasurementEstimator(*this);
     }
-MeasurementEstimator::Local2DVector 
-maximalLocalDisplacement( const TrajectoryStateOnSurface& ts,
+    
+  MeasurementEstimator::Local2DVector 
+  maximalLocalDisplacement( const TrajectoryStateOnSurface& ts,
 			  const BoundPlane& plane) const;
 
 private:
