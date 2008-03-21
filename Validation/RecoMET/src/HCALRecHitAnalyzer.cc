@@ -52,7 +52,7 @@ HCALRecHitAnalyzer::HCALRecHitAnalyzer(const edm::ParameterSet& iConfig)
 
   // Retrieve Information from the Configuration File
   geometryFile_      = iConfig.getUntrackedParameter<std::string>("GeometryFile");
-  outputFile_        = iConfig.getUntrackedParameter<std::string>("OutputFile");
+  // outputFile_        = iConfig.getUntrackedParameter<std::string>("OutputFile");
 
   hBHERecHitsLabel_  = iConfig.getParameter<edm::InputTag>("HBHERecHitsLabel");
   hORecHitsLabel_    = iConfig.getParameter<edm::InputTag>("HORecHitsLabel");
@@ -60,9 +60,9 @@ HCALRecHitAnalyzer::HCALRecHitAnalyzer(const edm::ParameterSet& iConfig)
 
   debug_             = iConfig.getParameter<bool>("Debug");
 
-  if (outputFile_.size() > 0)
-    edm::LogInfo("OutputInfo") << " MET/HCALRecHit Task histograms will be saved to '" << outputFile_.c_str() << "'";
-  else edm::LogInfo("OutputInfo") << " MET/HCALRecHit Task histograms will NOT be saved";
+  //if (outputFile_.size() > 0)
+  //  edm::LogInfo("OutputInfo") << " MET/HCALRecHit Task histograms will be saved to '" << outputFile_.c_str() << "'";
+  //else edm::LogInfo("OutputInfo") << " MET/HCALRecHit Task histograms will NOT be saved";
 
 }
 
@@ -764,8 +764,8 @@ void HCALRecHitAnalyzer::endJob()
 
 
   // Store the DAQ Histograms
-  if (outputFile_.size() > 0 && dbe_)
-    dbe_->save(outputFile_);
+  //if (outputFile_.size() > 0 && dbe_)
+  //  dbe_->save(outputFile_);
 
   // Dump Geometry Info to a File
   if (dumpGeometry_); DumpGeometry();

@@ -51,15 +51,15 @@
 CaloTowerAnalyzer::CaloTowerAnalyzer(const edm::ParameterSet & iConfig)
 {
 
-  outputFile_          = iConfig.getUntrackedParameter<std::string>("OutputFile");
+  // outputFile_          = iConfig.getUntrackedParameter<std::string>("OutputFile");
   geometryFile_        = iConfig.getUntrackedParameter<std::string>("GeometryFile");
   caloTowersLabel_     = iConfig.getParameter<edm::InputTag>("CaloTowersLabel");
   debug_               = iConfig.getParameter<bool>("Debug");
   dumpGeometry_        = iConfig.getParameter<bool>("DumpGeometry");
 
-  if (outputFile_.size() > 0)
-    edm::LogInfo("OutputInfo") << " MET/CaloTower Task histograms will be saved to '" << outputFile_.c_str() << "'";
-  else edm::LogInfo("OutputInfo") << " MET/CaloTower Task histograms will NOT be saved";
+  //  if (outputFile_.size() > 0)
+  //  edm::LogInfo("OutputInfo") << " MET/CaloTower Task histograms will be saved to '" << outputFile_.c_str() << "'";
+  //else edm::LogInfo("OutputInfo") << " MET/CaloTower Task histograms will NOT be saved";
 
 }
 
@@ -354,8 +354,8 @@ void CaloTowerAnalyzer::DumpGeometry()
 void CaloTowerAnalyzer::endJob()
 {
   // Store the DAQ Histograms
-  if (outputFile_.size() > 0 && dbe_)
-    dbe_->save(outputFile_);
+  //if (outputFile_.size() > 0 && dbe_)
+  //  dbe_->save(outputFile_);
 
   // Dump Geometry Info to a File
   if (dumpGeometry_); DumpGeometry();

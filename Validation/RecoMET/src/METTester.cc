@@ -46,13 +46,13 @@
 METTester::METTester(const edm::ParameterSet& iConfig)
 {
 
-  outputFile_              = iConfig.getUntrackedParameter<std::string>("OutputFile");
-  inputMETLabel_           = iConfig.getUntrackedParameter<edm::InputTag>("InputMETLabel");
+  //outputFile_              = iConfig.getUntrackedParameter<std::string>("OutputFile");
+  inputMETLabel_           = iConfig.getParameter<edm::InputTag>("InputMETLabel");
   METType_                 = iConfig.getUntrackedParameter<std::string>("METType");
   
-  if (outputFile_.size() > 0)
-    edm::LogInfo("OutputInfo") << " MET Task histograms will be saved to '" << outputFile_.c_str() << "'";
-  else edm::LogInfo("OutputInfo") << " MET Task histograms will NOT be saved";
+  //if (outputFile_.size() > 0)
+  //  edm::LogInfo("OutputInfo") << " MET Task histograms will be saved to '" << outputFile_.c_str() << "'";
+  //else edm::LogInfo("OutputInfo") << " MET Task histograms will NOT be saved";
   
 }
 
@@ -125,7 +125,7 @@ void METTester::beginJob(const edm::EventSetup& iSetup)
     
     else
       {
-	edm::LogInfo("OutputInfo") << " METType not correctly specified!'" << outputFile_.c_str();
+	edm::LogInfo("OutputInfo") << " METType not correctly specified!'";// << outputFile_.c_str();
       }
   }
 }
@@ -167,6 +167,8 @@ void METTester::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
       double caloEmEtInEB = calomet->emEtInEB();
       double caloEmEtInEE = calomet->emEtInEE();
       double caloEmEtInHF = calomet->emEtInHF();
+
+      edm::LogInfo("OutputInfo") << caloMET << " " << caloSumET << endl;
 
       me["hCaloMEx"]->Fill(caloMEx);
       me["hCaloMEy"]->Fill(caloMEy);
@@ -271,7 +273,7 @@ void METTester::endJob()
 {
 
   // Store the DAQ Histograms
-  if (outputFile_.size() > 0 && dbe_)
-    dbe_->save(outputFile_);
+  //if (outputFile_.size() > 0 && dbe_)
+  //  dbe_->save(outputFile_);
 
 }

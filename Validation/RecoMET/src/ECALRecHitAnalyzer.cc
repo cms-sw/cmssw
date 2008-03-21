@@ -10,23 +10,23 @@ ECALRecHitAnalyzer::ECALRecHitAnalyzer(const edm::ParameterSet& iConfig)
   
   // Retrieve Information from the Configuration File
   geometryFile_      = iConfig.getUntrackedParameter<std::string>("GeometryFile");
-  outputFile_        = iConfig.getUntrackedParameter<std::string>("OutputFile");
+  //outputFile_        = iConfig.getUntrackedParameter<std::string>("OutputFile");
   EBRecHitsLabel_  = iConfig.getParameter<edm::InputTag>("EBRecHitsLabel");
   EERecHitsLabel_    = iConfig.getParameter<edm::InputTag>("EERecHitsLabel");
 
   debug_             = iConfig.getParameter<bool>("Debug");
 
-  if (outputFile_.size() > 0)
-    edm::LogInfo("OutputInfo") << " MET/HCALRecHit Task histograms will be saved to '" << outputFile_.c_str() << "'";
-  else edm::LogInfo("OutputInfo") << " MET/HCALRecHit Task histograms will NOT be saved";
+  // if (outputFile_.size() > 0)
+  //  edm::LogInfo("OutputInfo") << " MET/HCALRecHit Task histograms will be saved to '" << outputFile_.c_str() << "'";
+  //else edm::LogInfo("OutputInfo") << " MET/HCALRecHit Task histograms will NOT be saved";
  
 }
 
 void ECALRecHitAnalyzer::endJob() {
 
   // Store the DAQ Histograms
-  if (outputFile_.size() > 0 && dbe_)
-    dbe_->save(outputFile_);
+  //if (outputFile_.size() > 0 && dbe_)
+  //  dbe_->save(outputFile_);
 } 
 
 void ECALRecHitAnalyzer::beginJob(const edm::EventSetup& iSetup){
