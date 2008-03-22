@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Wed Mar  5 09:13:47 EST 2008
-// $Id: FWDetailViewManager.cc,v 1.6 2008/03/21 03:28:25 dmytro Exp $
+// $Id: FWDetailViewManager.cc,v 1.7 2008/03/22 08:48:58 jmuelmen Exp $
 //
 
 // system include files
@@ -101,7 +101,11 @@ FWDetailViewManager::openDetailViewFor(const FWModelId &id)
      // connect the close-window button to something useful
      frame->Connect("CloseWindow()", "FWDetailViewManager", this, "close_wm()");
      frame->SetCleanup(kDeepCleanup);
-     TGLEmbeddedViewer* v = new TGLEmbeddedViewer(frame, 0);
+     TGHorizontalFrame* hf = new TGHorizontalFrame(frame);
+     frame->AddFrame(hf,new TGLayoutHints(kLHintsLeft | kLHintsTop | kLHintsExpandX | kLHintsExpandY));
+     text_view = new TGTextView(hf,20,20);
+     hf->AddFrame(text_view, new TGLayoutHints(kLHintsLeft|kLHintsTop|kLHintsExpandY));
+     TGLEmbeddedViewer* v = new TGLEmbeddedViewer(hf, 0);
      TEveViewer* nv = new TEveViewer();
      nv->SetGLViewer(v);
      nv->GetGLViewer()->SetCurrentCamera(TGLViewer::kCameraOrthoXOY);
@@ -110,19 +114,13 @@ FWDetailViewManager::openDetailViewFor(const FWModelId &id)
      nv->GetGLViewer()->SetClearColor(kBlack);
      ns = gEve->SpawnNewScene("Detailed view");
      nv->AddScene(ns);
-     frame->AddFrame(v->GetFrame(), 
-		     new TGLayoutHints(kLHintsLeft | kLHintsExpandY));
-     text_view = new TGTextView(frame);
-     frame->AddFrame(text_view, new TGLayoutHints(kLHintsRight | kLHintsExpandY));
+     hf->AddFrame(v->GetFrame(),new TGLayoutHints(kLHintsLeft | kLHintsTop | kLHintsExpandX | kLHintsExpandY)); 
      TGTextButton* exit_butt = new TGTextButton(frame, "Close");
      exit_butt->Resize(20, 20);
      exit_butt->Connect("Clicked()", "FWDetailViewManager", this, "close_button()");
      frame->AddFrame(exit_butt, new TGLayoutHints(kLHintsTop | kLHintsExpandX));
-     frame->Layout();
      frame->SetWindowName("Detail View");
      frame->SetIconName("Detail View Icon");
-     frame->MapSubwindows();
-     frame->MapWindow();
 
      // find the right viewer for this item
      std::map<std::string, FWDetailView *>::iterator viewer = 
@@ -139,7 +137,8 @@ FWDetailViewManager::openDetailViewFor(const FWModelId &id)
      viewer->second->build(&list, id);
      gEve->AddElement(list, ns);
      text_view->Update();
-
+     text_view->Layout();
+     text_view->SetWidth(text_view->ReturnLongestLineWidth()+20);
    //      nv->GetGLViewer()->SetPerspectiveCamera(TGLViewer::kCameraOrthoXOY, 5, 0, viewer->second->rotation_center, 0.5, 0 );
    //      nv->GetGLViewer()->SetPerspectiveCamera(TGLViewer::kCameraOrthoXOY, 5, 0, viewer->second->rotation_center, 0.5, 0 );
    //      nv->GetGLViewer()->CurrentCamera().Reset();
@@ -148,6 +147,11 @@ FWDetailViewManager::openDetailViewFor(const FWModelId &id)
    // nv->GetGLViewer()->SetCurrentCamera(TGLViewer::kCameraPerspXOY);
    nv->GetGLViewer()->CurrentCamera().Reset();
    nv->GetGLViewer()->UpdateScene();
+   
+   frame->Layout();
+   frame->MapSubwindows();
+   frame->MapWindow();
+
 }
 
 //
