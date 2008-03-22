@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorModule.cc
  *
- * $Date: 2008/02/29 15:03:23 $
- * $Revision: 1.170 $
+ * $Date: 2008/03/19 11:28:05 $
+ * $Revision: 1.171 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -206,23 +206,23 @@ void EcalBarrelMonitorModule::setup(void){
       meEBDCC_->setBinLabel(i+1, Numbers::sEB(i+1).c_str(), 1);
     }
 
-    meEBdigis_[0] = dbe_->book1D("EBMM digi number", "EBMM digi number", 100, 0., 61201.);
+    meEBdigis_[0] = dbe_->book1D("EBMM digis number", "EBMM digis number", 100, 0., 61201.);
 
-    meEBdigis_[1] = dbe_->bookProfile("EBMM digi number profile", "EBMM digis number profile", 36, 1, 37., 1700, 0., 1701., "s");
+    meEBdigis_[1] = dbe_->bookProfile("EBMM digis number profile", "EBMM digis number profile", 36, 1, 37., 1700, 0., 1701., "s");
     for (int i = 0; i < 36; i++) {
       meEBdigis_[1]->setBinLabel(i+1, Numbers::sEB(i+1).c_str(), 1);
     }
 
-    meEBhits_[0] = dbe_->book1D("EBMM hit number", "EBMM hit number", 100, 0., 61201.);
+    meEBhits_[0] = dbe_->book1D("EBMM hits number", "EBMM hits number", 100, 0., 61201.);
 
-    meEBhits_[1] = dbe_->bookProfile("EBMM hit number profile", "EBMM hits number profile", 36, 1, 37., 1700, 0., 1701., "s");
+    meEBhits_[1] = dbe_->bookProfile("EBMM hits number profile", "EBMM hits number profile", 36, 1, 37., 1700, 0., 1701., "s");
     for (int i = 0; i < 36; i++) {
       meEBhits_[1]->setBinLabel(i+1, Numbers::sEB(i+1).c_str(), 1);
     }
 
-    meEBtpdigis_[0] = dbe_->book1D("EBMM TP digi number", "EBMM TP digi number", 100, 0., 2449.);
+    meEBtpdigis_[0] = dbe_->book1D("EBMM TP digis number", "EBMM TP digis number", 100, 0., 2449.);
 
-    meEBtpdigis_[1] = dbe_->bookProfile("EBMM TP digi number profile", "EBMM TP digis number profile", 36, 1, 37., 68, 0., 69., "s");
+    meEBtpdigis_[1] = dbe_->bookProfile("EBMM TP digis number profile", "EBMM TP digis number profile", 36, 1, 37., 68, 0., 69., "s");
     for (int i = 0; i < 36; i++) {
       meEBtpdigis_[1]->setBinLabel(i+1, Numbers::sEB(i+1).c_str(), 1);
     }
