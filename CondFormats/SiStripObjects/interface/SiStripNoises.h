@@ -36,6 +36,11 @@ class SiStripNoises {
 		bool put(const uint32_t& detID,InputVector &input);
 		const Range getRange(const uint32_t& detID) const;
 		void getDetIds(std::vector<uint32_t>& DetIds_) const;
+  
+		ContainerIterator getDataVectorBegin()    const {return v_noises.begin();}
+		ContainerIterator getDataVectorEnd()      const {return v_noises.end();}
+		RegistryIterator getRegistryVectorBegin() const {return indexes.begin();}
+		RegistryIterator getRegistryVectorEnd()   const{return indexes.end();}
 
 		float   getNoise  (const uint16_t& strip, const Range& range) const;
 		void    setData(float noise_, std::vector<short>& vped);
