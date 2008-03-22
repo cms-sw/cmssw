@@ -1,8 +1,8 @@
 /*
  * \file EESummaryClient.cc
  *
- * $Date: 2008/03/15 14:50:56 $
- * $Revision: 1.99 $
+ * $Date: 2008/03/21 19:37:12 $
+ * $Revision: 1.100 $
  * \author G. Della Ricca
  *
 */
@@ -1199,13 +1199,13 @@ void EESummaryClient::analyze(void){
         meGlobalSummary_[0]->setBinContent( jx, jy, xval );
 
         if ( xval > -1 ) {
-	  ++nValidChannels;
-	  ++nValidChannelsEEM;
-	}
+          ++nValidChannels;
+          ++nValidChannelsEEM;
+        }
         if ( xval == 0 ) {
-	  ++nGlobalErrors;
-	  ++nGlobalErrorsEEM;
-	}
+          ++nGlobalErrors;
+          ++nGlobalErrorsEEM;
+        }
 
       }
 
@@ -1242,93 +1242,99 @@ void EESummaryClient::analyze(void){
         meGlobalSummary_[1]->setBinContent( jx, jy, xval );
 
         if ( xval > -1 ) {
-	  ++nValidChannels;
-	  ++nValidChannelsEEP;
-	}
+          ++nValidChannels;
+          ++nValidChannelsEEP;
+        }
         if ( xval == 0 ) {
-	  ++nGlobalErrors;
-	  ++nGlobalErrorsEEP;
-	}
+          ++nGlobalErrors;
+          ++nGlobalErrorsEEP;
+        }
 
       }
 
     }
   }
 
-   float errorSummary = 1.0 - float(nGlobalErrors)/float(nValidChannels);
-   float errorSummaryEEP = 1.0 - float(nGlobalErrorsEEP)/float(nValidChannelsEEP);
-   float errorSummaryEEM = 1.0 - float(nGlobalErrorsEEM)/float(nValidChannelsEEM);
+  float errorSummary = -1.0;
+  float errorSummaryEEP = -1.0;
+  float errorSummaryEEM = -1.0;
 
-   MonitorElement* me;
+  if ( nValidChannels != 0 )
+    errorSummary = 1.0 - float(nGlobalErrors)/float(nValidChannels);
+  if ( nValidChannelsEEP != 0 )
+    errorSummaryEEP = 1.0 - float(nGlobalErrorsEEP)/float(nValidChannelsEEP);
+  if ( nValidChannelsEEM != 0 )
+    errorSummaryEEM = 1.0 - float(nGlobalErrorsEEM)/float(nValidChannelsEEM);
 
-   me = dbe_->get("EcalEndcap/EventInfo/errorSummary");
-   if (me) me->Fill(errorSummary);
+  MonitorElement* me;
 
-   me = dbe_->get("EcalEndcap/EventInfo/errorSummarySegments/Segment01");
-   if (me) me->Fill(errorSummaryEEP);
+  me = dbe_->get("EcalEndcap/EventInfo/errorSummary");
+  if (me) me->Fill(errorSummary);
 
-   me = dbe_->get("EcalEndcap/EventInfo/errorSummarySegments/Segment02");
-   if (me) me->Fill(errorSummaryEEM);
+  me = dbe_->get("EcalEndcap/EventInfo/errorSummarySegments/Segment00");
+  if (me) me->Fill(errorSummaryEEP);
 
-   MonitorElement* meside[2];
+  me = dbe_->get("EcalEndcap/EventInfo/errorSummarySegments/Segment01");
+  if (me) me->Fill(errorSummaryEEM);
 
-   meside[0] = dbe_->get("EcalEndcap/EventInfo/errorSummaryXY_EEM");
-   meside[1] = dbe_->get("EcalEndcap/EventInfo/errorSummaryXY_EEP");
-   if (meside[0] && meside[1]) {
+  MonitorElement* meside[2];
 
-     int nValidChannelsDCC[2][20][20];
-     int nGlobalErrorsDCC[2][20][20];
-     int nOutOfGeometryDCC[2][20][20];
-     for ( int jxdcc = 0; jxdcc < 20; jxdcc++ ) {
-       for ( int jydcc = 0; jydcc < 20; jydcc++ ) {
-	 for ( int iside = 0; iside < 2; iside++ ) {
-	   nValidChannelsDCC[iside][jxdcc][jydcc]=0;
-	   nGlobalErrorsDCC[iside][jxdcc][jydcc]=0;
-	   nOutOfGeometryDCC[iside][jxdcc][jydcc]=0;
-	 }
-       }
-     }
+  meside[0] = dbe_->get("EcalEndcap/EventInfo/errorSummaryXY_EEM");
+  meside[1] = dbe_->get("EcalEndcap/EventInfo/errorSummaryXY_EEP");
+  if (meside[0] && meside[1]) {
 
-     for ( int jx = 1; jx <= 100; jx++ ) {
-       for ( int jy = 1; jy <= 100; jy++ ) {
-	 for ( int iside = 0; iside < 2; iside++ ) {
+    int nValidChannelsDCC[2][20][20];
+    int nGlobalErrorsDCC[2][20][20];
+    int nOutOfGeometryDCC[2][20][20];
+    for ( int jxdcc = 0; jxdcc < 20; jxdcc++ ) {
+      for ( int jydcc = 0; jydcc < 20; jydcc++ ) {
+        for ( int iside = 0; iside < 2; iside++ ) {
+          nValidChannelsDCC[iside][jxdcc][jydcc]=0;
+          nGlobalErrorsDCC[iside][jxdcc][jydcc]=0;
+          nOutOfGeometryDCC[iside][jxdcc][jydcc]=0;
+        }
+      }
+    }
 
-	   int jxdcc = (jx-1)/5+1;
-	   int jydcc = (jy-1)/5+1;
+    for ( int jx = 1; jx <= 100; jx++ ) {
+      for ( int jy = 1; jy <= 100; jy++ ) {
+        for ( int iside = 0; iside < 2; iside++ ) {
 
-	   float xval = meGlobalSummary_[iside]->getBinContent( jx, jy );
+          int jxdcc = (jx-1)/5+1;
+          int jydcc = (jy-1)/5+1;
 
-	   if ( xval > -1 ) {
-	     if ( xval != 2 && xval != 5 ) nValidChannelsDCC[iside][jxdcc-1][jydcc-1]++;
-	     if ( xval == 0 ) nGlobalErrorsDCC[iside][jxdcc-1][jydcc-1]++;
-	   }
-	   else {
-	     nOutOfGeometryDCC[iside][jxdcc-1][jydcc-1]++;
-	   }
+          float xval = meGlobalSummary_[iside]->getBinContent( jx, jy );
 
-	 }
-       }
-     }
+          if ( xval > -1 ) {
+            if ( xval != 2 && xval != 5 ) nValidChannelsDCC[iside][jxdcc-1][jydcc-1]++;
+            if ( xval == 0 ) nGlobalErrorsDCC[iside][jxdcc-1][jydcc-1]++;
+          } else {
+            nOutOfGeometryDCC[iside][jxdcc-1][jydcc-1]++;
+          }
 
-     for ( int jxdcc = 0; jxdcc < 20; jxdcc++ ) {
-       for ( int jydcc = 0; jydcc < 20; jydcc++ ) {
-	 for ( int iside = 0; iside < 2; iside++ ) {
+        }
+      }
+    }
 
-	   float xval = -1.0;
-	   if ( nOutOfGeometryDCC[iside][jxdcc][jydcc] < 25 ) {
-	     if ( nValidChannelsDCC[iside][jxdcc][jydcc] != 0 )
-	       xval = 1.0 - float(nGlobalErrorsDCC[iside][jxdcc][jydcc])/float(nValidChannelsDCC[iside][jxdcc][jydcc]);
-	   }
-	   else
-	     xval = 0.0;
+    for ( int jxdcc = 0; jxdcc < 20; jxdcc++ ) {
+      for ( int jydcc = 0; jydcc < 20; jydcc++ ) {
+        for ( int iside = 0; iside < 2; iside++ ) {
 
-	   meside[iside]->setBinContent( jxdcc+1, jydcc+1, xval );
+          float xval = -1.0;
+          if ( nOutOfGeometryDCC[iside][jxdcc][jydcc] < 25 ) {
+            if ( nValidChannelsDCC[iside][jxdcc][jydcc] != 0 )
+              xval = 1.0 - float(nGlobalErrorsDCC[iside][jxdcc][jydcc])/float(nValidChannelsDCC[iside][jxdcc][jydcc]);
+          } else {
+            xval = 0.0;
+          }
 
-	 }
-       }
-     }
+          meside[iside]->setBinContent( jxdcc+1, jydcc+1, xval );
 
-   }
+        }
+      }
+    }
+
+  }
 
 }
 

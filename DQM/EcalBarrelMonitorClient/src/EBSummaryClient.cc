@@ -1,8 +1,8 @@
 /*
  * \file EBSummaryClient.cc
  *
- * $Date: 2008/03/15 14:50:54 $
- * $Revision: 1.124 $
+ * $Date: 2008/03/21 19:37:12 $
+ * $Revision: 1.125 $
  * \author G. Della Ricca
  *
 */
@@ -909,8 +909,7 @@ void EBSummaryClient::analyze(void){
               if(ism<=18) {
                 iex = i;
                 ipx = j+5*(ism-1);
-              }
-              else {
+              } else {
                 iex = i+10;
                 ipx = j+5*(ism-19);
               }
@@ -962,8 +961,7 @@ void EBSummaryClient::analyze(void){
               if(ism<=18) {
                 iex = i;
                 ipx = j+5*(ism-1);
-              }
-              else {
+              } else {
                 iex = i+10;
                 ipx = j+5*(ism-19);
               }
@@ -990,8 +988,7 @@ void EBSummaryClient::analyze(void){
               if(ism<=18) {
                 iex = i;
                 ipx = j+5*(ism-1);
-              }
-              else {
+              } else {
                 iex = i+10;
                 ipx = j+5*(ism-19);
               }
@@ -1067,9 +1064,16 @@ void EBSummaryClient::analyze(void){
     }
   }
 
-  float errorSummary = 1.0 - float(nGlobalErrors)/float(nValidChannels);
-  float errorSummaryEBP = 1.0 - float(nGlobalErrorsEBP)/float(nValidChannelsEBP);
-  float errorSummaryEBM = 1.0 - float(nGlobalErrorsEBM)/float(nValidChannelsEBM);
+  float errorSummary = -1.0;
+  float errorSummaryEBP = -1.0;
+  float errorSummaryEBM = -1.0;
+
+  if ( nValidChannels != 0 )
+    errorSummary = 1.0 - float(nGlobalErrors)/float(nValidChannels);
+  if ( nValidChannelsEBP != 0 )
+    errorSummaryEBP = 1.0 - float(nGlobalErrorsEBP)/float(nValidChannelsEBP);
+  if ( nValidChannelsEBM != 0 )
+    errorSummaryEBM = 1.0 - float(nGlobalErrorsEBM)/float(nValidChannelsEBM);
 
   MonitorElement* me;
 
