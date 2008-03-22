@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Sun Jan  6 23:57:00 EST 2008
-// $Id: ElectronDetailView.cc,v 1.3 2008/03/20 03:58:07 jmuelmen Exp $
+// $Id: ElectronDetailView.cc,v 1.4 2008/03/21 03:28:25 dmytro Exp $
 //
 
 // system include files
@@ -29,6 +29,7 @@
 #include "TEveTrackPropagator.h"
 #include "TEveViewer.h"
 #include "TGLViewer.h"
+#include "TGTextView.h"
 
 // user include files
 #include "Fireworks/Electrons/interface/ElectronsProxy3DBuilder.h"
@@ -48,6 +49,7 @@
 //
 // constants, enums and typedefs
 //
+#define DRAW_LABELS_IN_SEPARATE_VIEW 1
 
 //
 // static data member definitions
@@ -554,6 +556,33 @@ TEveElementList *ElectronDetailView::makeLabels (
      const reco::PixelMatchGsfElectron &electron) 
 {
      TEveElementList *ret = new TEveElementList("electron labels");
+#if DRAW_LABELS_IN_SEPARATE_VIEW
+     // title
+     text_view->AddLine("Electron detailed view");
+     // summary
+     char summary[128];
+     sprintf(summary, "ET = %.1f GeV        eta = %.2f        phi = %.2f",
+	     electron.caloEnergy() / cosh(electron.eta()), 
+	     electron.eta(), electron.phi());
+     text_view->AddLine(summary);
+     // E/p, H/E
+     char hoe[128];
+     sprintf(hoe, "E/p = %.2f        H/E = %.3f",
+	     electron.eSuperClusterOverP(), electron.hadronicOverEm());
+     text_view->AddLine(hoe);
+     // delta phi/eta in 
+     char din[128];
+     sprintf(din, "delta eta in = %.3f        delta phi in = %.3f",
+	     electron.deltaEtaSuperClusterTrackAtVtx(),
+	     electron.deltaPhiSuperClusterTrackAtVtx());
+     text_view->AddLine(din);
+     // delta phi/eta out 
+     char dout[128];
+     sprintf(dout, "delta eta out = %.3f        delta phi out = %.3f",
+	     electron.deltaEtaSeedClusterTrackAtCalo(),
+	     electron.deltaPhiSeedClusterTrackAtCalo());
+     text_view->AddLine(dout);
+#else
      // title
      TEveText* t = new TEveText("Electron detailed view");
      t->PtrMainTrans()->MoveLF(1, rotation_center[0] + 5);
@@ -614,25 +643,26 @@ TEveElementList *ElectronDetailView::makeLabels (
      t->SetFontFile(8);
      t->SetLighting(kTRUE);
      ret->AddElement(t);
+#endif
      // eta, phi axis
      TEveLine *eta_line = new TEveLine;
      eta_line->SetNextPoint(rotation_center[0] - 5, rotation_center[1] - 5, 0);
      eta_line->SetNextPoint(rotation_center[0] - 4.5, rotation_center[1] - 5, 0);
      eta_line->SetLineColor((Color_t)kWhite);
      ret->AddElement(eta_line);
-     t = new TEveText("eta");
-     t->PtrMainTrans()->MoveLF(1, rotation_center[0] - 4.2);
-     t->PtrMainTrans()->MoveLF(2, rotation_center[1] - 5);
-     ret->AddElement(t);
+     TEveText *tt = new TEveText("eta");
+     tt->PtrMainTrans()->MoveLF(1, rotation_center[0] - 4.2);
+     tt->PtrMainTrans()->MoveLF(2, rotation_center[1] - 5);
+     ret->AddElement(tt);
      TEveLine *phi_line = new TEveLine;
      phi_line->SetNextPoint(rotation_center[0] - 5, rotation_center[1] - 5, 0);
      phi_line->SetNextPoint(rotation_center[0] - 5, rotation_center[1] - 4.5, 0);
      phi_line->SetLineColor((Color_t)kWhite);
      ret->AddElement(phi_line);
-     t = new TEveText("phi");
-     t->PtrMainTrans()->MoveLF(1, rotation_center[0] - 5);
-     t->PtrMainTrans()->MoveLF(2, rotation_center[1] - 4.2);
-     ret->AddElement(t);
+     tt = new TEveText("phi");
+     tt->PtrMainTrans()->MoveLF(1, rotation_center[0] - 5);
+     tt->PtrMainTrans()->MoveLF(2, rotation_center[1] - 4.2);
+     ret->AddElement(tt);
      return ret;
 }
 

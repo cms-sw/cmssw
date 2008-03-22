@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Wed Mar  5 09:13:47 EST 2008
-// $Id: FWDetailViewManager.cc,v 1.5 2008/03/20 03:49:45 jmuelmen Exp $
+// $Id: FWDetailViewManager.cc,v 1.6 2008/03/21 03:28:25 dmytro Exp $
 //
 
 // system include files
@@ -19,6 +19,7 @@
 #include "TGFrame.h"
 #include "TGLEmbeddedViewer.h"
 #include "TGLScenePad.h"
+#include "TGTextView.h"
 #include "TEveManager.h"
 #include "TEveScene.h"
 #include "TEveViewer.h"
@@ -75,13 +76,13 @@ void FWDetailViewManager::registerDetailView (const std::string &item_name,
 
 void FWDetailViewManager::close_wm ()
 {
-     printf("mmmm, flaming death!\n");
+//      printf("mmmm, flaming death!\n");
      frame = 0;
 }
 
 void FWDetailViewManager::close_button ()
 {
-     printf("mmmm, flaming death!\n");
+//      printf("mmmm, flaming death!\n");
      frame->CloseWindow();
      frame = 0;
 }
@@ -110,8 +111,9 @@ FWDetailViewManager::openDetailViewFor(const FWModelId &id)
      ns = gEve->SpawnNewScene("Detailed view");
      nv->AddScene(ns);
      frame->AddFrame(v->GetFrame(), 
-		     new TGLayoutHints(kLHintsTop | kLHintsExpandX
-				       | kLHintsExpandY));
+		     new TGLayoutHints(kLHintsLeft | kLHintsExpandY));
+     text_view = new TGTextView(frame);
+     frame->AddFrame(text_view, new TGLayoutHints(kLHintsRight | kLHintsExpandY));
      TGTextButton* exit_butt = new TGTextButton(frame, "Close");
      exit_butt->Resize(20, 20);
      exit_butt->Connect("Clicked()", "FWDetailViewManager", this, "close_button()");
@@ -133,9 +135,10 @@ FWDetailViewManager::openDetailViewFor(const FWModelId &id)
 
      // run the viewer
      TEveElementList *list = 0;
+     viewer->second->setTextView(text_view);
      viewer->second->build(&list, id);
      gEve->AddElement(list, ns);
-
+     text_view->Update();
 
    //      nv->GetGLViewer()->SetPerspectiveCamera(TGLViewer::kCameraOrthoXOY, 5, 0, viewer->second->rotation_center, 0.5, 0 );
    //      nv->GetGLViewer()->SetPerspectiveCamera(TGLViewer::kCameraOrthoXOY, 5, 0, viewer->second->rotation_center, 0.5, 0 );

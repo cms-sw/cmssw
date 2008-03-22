@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Wed Mar  5 09:13:43 EST 2008
-// $Id: FWDetailViewManager.h,v 1.3 2008/03/07 01:05:13 jmuelmen Exp $
+// $Id: FWDetailViewManager.h,v 1.4 2008/03/18 15:38:26 chrjones Exp $
 //
 
 // system include files
@@ -29,6 +29,7 @@ class FWModelId;
 class TEveScene;
 class TEveViewer;
 class TGMainFrame;
+class TGTextView;
 class FWDetailView;
 
 class FWDetailViewManager
@@ -59,6 +60,7 @@ protected:
      TEveScene 		*ns;
      TEveViewer		*nv;
      TGMainFrame	*frame;
+     TGTextView		*text_view;
 
      std::map<std::string, FWDetailView *>	m_viewers;
 };
