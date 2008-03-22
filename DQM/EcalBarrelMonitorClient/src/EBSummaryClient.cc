@@ -1,8 +1,8 @@
 /*
  * \file EBSummaryClient.cc
  *
- * $Date: 2008/03/21 19:37:12 $
- * $Revision: 1.125 $
+ * $Date: 2008/03/22 12:13:25 $
+ * $Revision: 1.126 $
  * \author G. Della Ricca
  *
 */
@@ -1065,15 +1065,15 @@ void EBSummaryClient::analyze(void){
   }
 
   float errorSummary = -1.0;
-  float errorSummaryEBP = -1.0;
   float errorSummaryEBM = -1.0;
+  float errorSummaryEBP = -1.0;
 
   if ( nValidChannels != 0 )
     errorSummary = 1.0 - float(nGlobalErrors)/float(nValidChannels);
-  if ( nValidChannelsEBP != 0 )
-    errorSummaryEBP = 1.0 - float(nGlobalErrorsEBP)/float(nValidChannelsEBP);
   if ( nValidChannelsEBM != 0 )
     errorSummaryEBM = 1.0 - float(nGlobalErrorsEBM)/float(nValidChannelsEBM);
+  if ( nValidChannelsEBP != 0 )
+    errorSummaryEBP = 1.0 - float(nGlobalErrorsEBP)/float(nValidChannelsEBP);
 
   MonitorElement* me;
 
@@ -1081,10 +1081,10 @@ void EBSummaryClient::analyze(void){
   if (me) me->Fill(errorSummary);
 
   me = dbe_->get("EcalBarrel/EventInfo/errorSummarySegments/Segment00");
-  if (me) me->Fill(errorSummaryEBP);
+  if (me) me->Fill(errorSummaryEBM);
 
   me = dbe_->get("EcalBarrel/EventInfo/errorSummarySegments/Segment01");
-  if (me) me->Fill(errorSummaryEBM);
+  if (me) me->Fill(errorSummaryEBP);
 
   me = dbe_->get("EcalBarrel/EventInfo/errorSummaryPhiEta_EB");
   if (me) {

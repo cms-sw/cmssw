@@ -1,8 +1,8 @@
 /*
  * \file EESummaryClient.cc
  *
- * $Date: 2008/03/21 19:37:12 $
- * $Revision: 1.100 $
+ * $Date: 2008/03/22 12:13:25 $
+ * $Revision: 1.101 $
  * \author G. Della Ricca
  *
 */
@@ -1256,15 +1256,15 @@ void EESummaryClient::analyze(void){
   }
 
   float errorSummary = -1.0;
-  float errorSummaryEEP = -1.0;
   float errorSummaryEEM = -1.0;
+  float errorSummaryEEP = -1.0;
 
   if ( nValidChannels != 0 )
     errorSummary = 1.0 - float(nGlobalErrors)/float(nValidChannels);
-  if ( nValidChannelsEEP != 0 )
-    errorSummaryEEP = 1.0 - float(nGlobalErrorsEEP)/float(nValidChannelsEEP);
   if ( nValidChannelsEEM != 0 )
     errorSummaryEEM = 1.0 - float(nGlobalErrorsEEM)/float(nValidChannelsEEM);
+  if ( nValidChannelsEEP != 0 )
+    errorSummaryEEP = 1.0 - float(nGlobalErrorsEEP)/float(nValidChannelsEEP);
 
   MonitorElement* me;
 
@@ -1272,10 +1272,10 @@ void EESummaryClient::analyze(void){
   if (me) me->Fill(errorSummary);
 
   me = dbe_->get("EcalEndcap/EventInfo/errorSummarySegments/Segment00");
-  if (me) me->Fill(errorSummaryEEP);
+  if (me) me->Fill(errorSummaryEEM);
 
   me = dbe_->get("EcalEndcap/EventInfo/errorSummarySegments/Segment01");
-  if (me) me->Fill(errorSummaryEEM);
+  if (me) me->Fill(errorSummaryEEP);
 
   MonitorElement* meside[2];
 
@@ -1283,15 +1283,15 @@ void EESummaryClient::analyze(void){
   meside[1] = dbe_->get("EcalEndcap/EventInfo/errorSummaryXY_EEP");
   if (meside[0] && meside[1]) {
 
-    int nValidChannelsDCC[2][20][20];
-    int nGlobalErrorsDCC[2][20][20];
-    int nOutOfGeometryDCC[2][20][20];
+    int nValidChannelsTT[2][20][20];
+    int nGlobalErrorsTT[2][20][20];
+    int nOutOfGeometryTT[2][20][20];
     for ( int jxdcc = 0; jxdcc < 20; jxdcc++ ) {
       for ( int jydcc = 0; jydcc < 20; jydcc++ ) {
         for ( int iside = 0; iside < 2; iside++ ) {
-          nValidChannelsDCC[iside][jxdcc][jydcc]=0;
-          nGlobalErrorsDCC[iside][jxdcc][jydcc]=0;
-          nOutOfGeometryDCC[iside][jxdcc][jydcc]=0;
+          nValidChannelsTT[iside][jxdcc][jydcc]=0;
+          nGlobalErrorsTT[iside][jxdcc][jydcc]=0;
+          nOutOfGeometryTT[iside][jxdcc][jydcc]=0;
         }
       }
     }
@@ -1306,10 +1306,10 @@ void EESummaryClient::analyze(void){
           float xval = meGlobalSummary_[iside]->getBinContent( jx, jy );
 
           if ( xval > -1 ) {
-            if ( xval != 2 && xval != 5 ) nValidChannelsDCC[iside][jxdcc-1][jydcc-1]++;
-            if ( xval == 0 ) nGlobalErrorsDCC[iside][jxdcc-1][jydcc-1]++;
+            if ( xval != 2 && xval != 5 ) nValidChannelsTT[iside][jxdcc-1][jydcc-1]++;
+            if ( xval == 0 ) nGlobalErrorsTT[iside][jxdcc-1][jydcc-1]++;
           } else {
-            nOutOfGeometryDCC[iside][jxdcc-1][jydcc-1]++;
+            nOutOfGeometryTT[iside][jxdcc-1][jydcc-1]++;
           }
 
         }
@@ -1321,9 +1321,9 @@ void EESummaryClient::analyze(void){
         for ( int iside = 0; iside < 2; iside++ ) {
 
           float xval = -1.0;
-          if ( nOutOfGeometryDCC[iside][jxdcc][jydcc] < 25 ) {
-            if ( nValidChannelsDCC[iside][jxdcc][jydcc] != 0 )
-              xval = 1.0 - float(nGlobalErrorsDCC[iside][jxdcc][jydcc])/float(nValidChannelsDCC[iside][jxdcc][jydcc]);
+          if ( nOutOfGeometryTT[iside][jxdcc][jydcc] < 25 ) {
+            if ( nValidChannelsTT[iside][jxdcc][jydcc] != 0 )
+              xval = 1.0 - float(nGlobalErrorsTT[iside][jxdcc][jydcc])/float(nValidChannelsTT[iside][jxdcc][jydcc]);
           } else {
             xval = 0.0;
           }
