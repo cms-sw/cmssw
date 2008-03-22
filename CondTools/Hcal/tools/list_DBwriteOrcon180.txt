@@ -12,9 +12,9 @@
 # orcon  Pedestals CondTools/Hcal/tools/grmm-r3/peds_fC_with38148.txt  hcal_pedestals_fC_v2_grmm_r3  since  1
 # orcon  Pedestals CondTools/Hcal/tools/grmm-r3/peds_fC_with38426.txt  hcal_pedestals_fC_v2_grmm_r3  since  38175
 # orcon  Pedestals CondTools/Hcal/tools/grmm-r3/peds_fC_with38148.txt  hcal_pedestals_fC_v2_grmm_r3  since  38427
-# orcon  PedestalWidths CondTools/Hcal/tools/grmm-r3/widths_fC_with38148.txt  hcal_widths_fC_v2_grmm_r3  since  1
-# orcon  PedestalWidths CondTools/Hcal/tools/grmm-r3/widths_fC_with38426.txt  hcal_widths_fC_v2_grmm_r3  since  38175
-# orcon  PedestalWidths CondTools/Hcal/tools/grmm-r3/widths_fC_with38148.txt  hcal_widths_fC_v2_grmm_r3  since  38427
+# orcon  PedestalWidths CondTools/Hcal/tools/grmm-r3/widths_fC_with38148.txt  hcal_widths_fC_v2_grmm_r3a  since  1
+# orcon  PedestalWidths CondTools/Hcal/tools/grmm-r3/widths_fC_with38426.txt  hcal_widths_fC_v2_grmm_r3a  since  38175
+# orcon  PedestalWidths CondTools/Hcal/tools/grmm-r3/widths_fC_with38148.txt  hcal_widths_fC_v2_grmm_r3a  since  38427
 
 
 # orcon  Pedestals     CondFormats/HcalObjects/data/GRuMM-pedestals/peds_fC_with37893.txt  hcal_pedestals_fC_v2_grmm_r2  since 1
