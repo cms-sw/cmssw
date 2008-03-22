@@ -210,6 +210,8 @@ class Process(object):
                 d[name] = mod._postProcessFixup(self._cloneToObjectDict)
             else:
                 d[name] = mod
+            if isinstance(mod,_Labelable):
+               mod.setLabel(name)
 
     def _placeOutputModule(self,name,mod):
         self._place(name, mod, self.__outputmodules)
