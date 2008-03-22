@@ -1,7 +1,7 @@
 /**
  *  See header file for a description of this class.
  *
- *  \author Dominique Fortin - UCR
+ *  \author Shih-Chuan Kao, Dominique Fortin - UCR
  *
  */
 
@@ -73,7 +73,6 @@ TrajectorySeed MuonSeedCreator::createSeed(int type, SegmentContainer seg, std::
   //LocalPoint segPos = seg[last]->localPosition();
   LocalPoint segPos;
 
-  //std::cout<<"type= "<<type<<"  multiplicity= "<< badSeedLayer.size() <<std::endl;
   // Compute the pt according to station types used;
   if (type == 1 ) estimatePtCSC(seg, layers, ptmean, sptmean);
   if (type == 2 ) estimatePtOverlap(seg, layers, ptmean, sptmean);
@@ -323,7 +322,7 @@ void MuonSeedCreator::estimatePtCSC(SegmentContainer seg, std::vector<int> layer
 
   unsigned size = seg.size();
 
-  if (size < 2) return;
+  //if (size < 2) return;
   
   int layer0 = layers[0];
   segPos[0] = seg[0]->globalPosition();
@@ -369,22 +368,14 @@ void MuonSeedCreator::estimatePtCSC(SegmentContainer seg, std::vector<int> layer
           spt = ( 0.25 ) * pt;
         }  
         // ME2 is outer-most
-        else if ( (layer1 == 2) && (eta > 1.6) ) {
+        else if ( layer1 == 2  ) {
           pt  = ( 0.7782 - 0.3524*eta + 0.0337*eta*eta) / temp_dphi;
           spt = ( 1.7780 - 1.7289*eta + 0.4915*eta*eta) * pt;
         }
-        else if ( (layer1 == 2) && (eta <= 1.6) ) {
-          pt  = ( -0.5474 + 0.8620*eta - 0.2794*eta*eta) / temp_dphi;
-          spt = (  3.4666 - 4.3546*eta + 1.4666*eta*eta) * pt;
-        }
         // ME3 is outer-most
-        else if ( (layer1 == 3) && (eta > 1.6) ) {
+        else if ( layer1 == 3 ) {
           pt  = ( 1.0537 - 0.5768*eta + 0.08545*eta*eta) / temp_dphi; 
           spt = (-0.1875 + 0.2202*eta + 0.02222*eta*eta) * pt;
-        }
-        else if ( (layer1 == 3) && (eta <= 1.6) ) {
-          pt  = ( -0.6416 + 0.9726*eta - 0.2973*eta*eta) / temp_dphi; 
-          spt = (  2.0256 - 2.0803*eta + 0.6333*eta*eta) * pt;
         }
         // ME4 is outer-most
         else {
@@ -398,20 +389,20 @@ void MuonSeedCreator::estimatePtCSC(SegmentContainer seg, std::vector<int> layer
       // ME1/2,ME1/3 is inner-most
       if ( layer0 == 1 ) {
         // ME2 is outer-most
-        if ( (layer1 == 2) && (eta > 1.6) ) {
-          pt  = ( 0.7782 - 0.3524*eta + 0.0337*eta*eta) / temp_dphi;
-          spt = ( 1.7780 - 1.7289*eta + 0.4915*eta*eta) * pt;
-        }
-        else if ( (layer1 == 2) && (eta <= 1.6) ) {
+        //if ( (layer1 == 2) && (eta > 1.6) ) {
+        //  pt  = ( 0.7782 - 0.3524*eta + 0.0337*eta*eta) / temp_dphi;
+        //  spt = ( 1.7780 - 1.7289*eta + 0.4915*eta*eta) * pt;
+        //}
+        if ( layer1 == 2 ) {
           pt  = ( -0.5474 + 0.8620*eta - 0.2794*eta*eta) / temp_dphi;
           spt = (  3.4666 - 4.3546*eta + 1.4666*eta*eta) * pt;
         }
         // ME3 is outer-most
-        else if ( (layer1 == 3) && (eta > 1.6) ) {
-          pt  = ( 1.0537 - 0.5768*eta + 0.08545*eta*eta) / temp_dphi; 
-          spt = (-0.1875 + 0.2202*eta + 0.02222*eta*eta) * pt;
-        }
-        else if ( (layer1 == 3) && (eta <= 1.6) ) {
+        //else if ( (layer1 == 3) && (eta > 1.6) ) {
+        //  pt  = ( 1.0537 - 0.5768*eta + 0.08545*eta*eta) / temp_dphi; 
+        //  spt = (-0.1875 + 0.2202*eta + 0.02222*eta*eta) * pt;
+        //}
+        else if ( layer1 == 3 ) {
           pt  = ( -0.6416 + 0.9726*eta - 0.2973*eta*eta) / temp_dphi; 
           spt = (  2.0256 - 2.0803*eta + 0.6333*eta*eta) * pt;
         }
@@ -741,40 +732,43 @@ void MuonSeedCreator::estimatePtSingle(SegmentContainer seg, std::vector<int> la
   if ( dpsi > 1.570796 ) {
       dpsi = 3.141592 - dpsi;
   }
+  if (fabs(dpsi) < 0.00005) {
+     dpsi = 0.00005;
+  }
 
   // the 1st layer
   if ( layers[0] == -1 ) {
      // MB10
-     if ( fabs(eta) < 0.26 ) {
+     if ( fabs(eta) < 0.3 ) {
        thePt  =(1.457  + 0.008*fabs(eta) ) / dpsi;
        theSpt =(0.1043 - 0.00188*fabs(eta) )*thePt;
      }
      // MB11
-     if ( fabs(eta) > 0.34 && fabs(eta) < 0.78 ) {
+     if ( fabs(eta) >= 0.3 && fabs(eta) < 0.82 ) {
        thePt  =(1.551  - 0.1719*fabs(eta) ) / dpsi;
        theSpt =(0.105  - 0.0000*fabs(eta) )*thePt;
      }
      // MB12
-     if ( fabs(eta) > 0.86 && fabs(eta) < 1.1 ) {
+     if ( fabs(eta) >= 0.82 && fabs(eta) < 1.2 ) {
        thePt  =(2.232  - 1.005*fabs(eta) ) / dpsi;
        theSpt =(0.120  - 0.000*fabs(eta) )*thePt;
      }
   }
   if ( layers[0] == 1 ) {
      // ME13
-     if ( fabs(eta) > 1.0 && fabs(eta) < 1.12 ) {
+     if ( fabs(eta) > 0.92 && fabs(eta) < 1.16 ) {
        thePt  =(-1.816  + 2.226*fabs(eta) ) / dpsi;
        theSpt =( 4.522  - 3.753*fabs(eta) )*thePt;
      }
      // ME12
-     if ( fabs(eta) > 1.2 && fabs(eta) < 1.64 ) {
+     if ( fabs(eta) >= 1.16 && fabs(eta) <= 1.6 ) {
        thePt  =(0.2128  + 0.5369*fabs(eta) ) / dpsi;
        theSpt =(0.2666  + 0.01795*fabs(eta) )*thePt;
      }
   }
   if ( layers[0] == 0  ) {
      // ME11
-     if ( fabs(eta) > 1.58 && fabs(eta) < 2.4 ) {
+     if ( fabs(eta) > 1.6 && fabs(eta) < 2.45 ) {
        thePt  =( 2.552  - 0.9044*fabs(eta) ) / dpsi;
        theSpt =(-1.742  + 1.156*fabs(eta) )*thePt;
      }
@@ -782,29 +776,29 @@ void MuonSeedCreator::estimatePtSingle(SegmentContainer seg, std::vector<int> la
   // the 2nd layer
   if ( layers[0] == -2 ) {
      // MB20
-     if ( fabs(eta) < 0.22 ) {
+     if ( fabs(eta) < 0.25 ) {
        thePt  =(1.064  - 0.032*fabs(eta) ) / dpsi;
        theSpt =(0.1364 - 0.0054*fabs(eta) )*thePt;
      }
      // MB21
-     if ( fabs(eta) > 0.28 && fabs(eta) < 0.68 ) {
+     if ( fabs(eta) >= 0.25 && fabs(eta) < 0.72 ) {
        thePt  =(1.131  - 0.2012*fabs(eta) ) / dpsi;
        theSpt =(0.117  - 0.0654*fabs(eta) )*thePt;
      }
      // MB22
-     if ( fabs(eta) > 0.74 && fabs(eta) < 1.04 ) {
+     if ( fabs(eta) >= 0.72 && fabs(eta) < 1.04 ) {
        thePt  =(1.567  - 0.809*fabs(eta) ) / dpsi;
        theSpt =(0.0579  + 0.1466*fabs(eta) )*thePt;
      }
   }
   if ( layers[0] == 2 ) {
      // ME22
-     if ( fabs(eta) > 1.02 && fabs(eta) < 1.56 ) {
+     if ( fabs(eta) > 0.95 && fabs(eta) <= 1.6 ) {
        thePt  =(-0.5333  + 0.6436*fabs(eta) ) / dpsi;
        theSpt =( 3.522  - 3.333*fabs(eta) )*thePt;
      }
      // ME21
-     if ( fabs(eta) > 1.62 && fabs(eta) < 2.4 ) {
+     if ( fabs(eta) > 1.6 && fabs(eta) < 2.45 ) {
        thePt  =(0.8672  - 0.2218*fabs(eta) ) / dpsi;
        theSpt =(-1.322  + 1.320*fabs(eta) )*thePt;
      }
@@ -813,17 +807,17 @@ void MuonSeedCreator::estimatePtSingle(SegmentContainer seg, std::vector<int> la
   // the 3rd layer
   if ( layers[0] == -3 ) {
      // MB30
-     if ( fabs(eta) < 0.2 ) {
+     if ( fabs(eta) <= 0.22 ) {
        thePt  =(0.539  + 0.0466*fabs(eta) ) / dpsi;
        theSpt =(0.325  - 0.000*fabs(eta) )*thePt;
      }
      // MB31
-     if ( fabs(eta) > 0.24 && fabs(eta) < 0.58 ) {
+     if ( fabs(eta) > 0.22 && fabs(eta) <= 0.6 ) {
        thePt  =(0.5917  - 0.1479*fabs(eta) ) / dpsi;
        theSpt =(0.2872  + 0.0995*fabs(eta) )*thePt;
      }
      // MB32
-     if ( fabs(eta) > 0.62 && fabs(eta) < 0.9 ) {
+     if ( fabs(eta) > 0.6 && fabs(eta) < 0.95 ) {
        thePt  =(0.6712  - 0.285*fabs(eta) ) / dpsi;
        theSpt =(0.232  + 0.273*fabs(eta) )*thePt;
      }
