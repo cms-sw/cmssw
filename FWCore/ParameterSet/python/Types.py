@@ -601,7 +601,8 @@ if __name__ == "__main__":
             self.assertEqual(it.getModuleLabel(), "label")
             self.assertEqual(it.getProductInstanceLabel(), "")
             self.assertEqual(it.getProcessName(), "proc")
-            self.assertRaises(RuntimeError, InputTag,'foo:bar')
+            # tolerate, at least for translation phase
+            #self.assertRaises(RuntimeError, InputTag,'foo:bar')
             it=InputTag('label',processName='proc')
             self.assertEqual(it.getModuleLabel(), "label")
             self.assertEqual(it.getProductInstanceLabel(), "")
