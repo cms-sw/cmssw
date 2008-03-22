@@ -116,7 +116,7 @@ class _Parameterizable(object):
     def __setParameters(self,parameters):
         for name,value in parameters.iteritems():
             if not isinstance(value,_ParameterTypeBase):
-                raise TypeError
+                self.__raiseBadSetAttr(name)
             self.__dict__[name]=value
             self.__parameterNames.append(name)
     def __setattr__(self,name,value):
@@ -128,7 +128,7 @@ class _Parameterizable(object):
             return
         if not name in self.__dict__:
             if not isinstance(value,_ParameterTypeBase):
-                raise TypeError
+                self.__raiseBadSetAttr(name)
             self.__dict__[name]=value
             self.__parameterNames.append(name)
         param = self.__dict__[name]
@@ -143,6 +143,9 @@ class _Parameterizable(object):
     def __delattr__(self,name):
         super(_Parameterizable,self).__delattr__(name)
         self.__parameterNames.remove(name)
+    @staticmethod
+    def __raiseBadSetAttr(self, name):
+        raise TypeError(name+" does not already exist, so it can only be set to a CMS python configuration type")
     def dumpPython(self, options=PrintOptions()):
         others = []
         usings = []
