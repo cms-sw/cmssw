@@ -1,8 +1,8 @@
 /*
  * \file EcalEndcapMonitorModule.cc
  *
- * $Date: 2008/03/19 11:28:05 $
- * $Revision: 1.47 $
+ * $Date: 2008/03/22 08:32:46 $
+ * $Revision: 1.48 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -206,23 +206,23 @@ void EcalEndcapMonitorModule::setup(void){
       meEEDCC_->setBinLabel(i+1, Numbers::sEE(i+1).c_str(), 1);
     }
 
-    meEEdigis_[0] = dbe_->book1D("EEMM digis number", "EEMM digis number", 100, 0., 13299.);
+    meEEdigis_[0] = dbe_->book1D("EEMM digi number", "EEMM digi number", 100, 0., 13299.);
 
-    meEEdigis_[1] = dbe_->bookProfile("EEMM digis number profile", "EEMM digis number profile", 18, 1, 19., 850, 0., 851., "s");
+    meEEdigis_[1] = dbe_->bookProfile("EEMM digi number profile", "EEMM digi number profile", 18, 1, 19., 850, 0., 851., "s");
     for (int i = 0; i < 18; i++) {
       meEEdigis_[1]->setBinLabel(i+1, Numbers::sEE(i+1).c_str(), 1);
     }
 
-    meEEhits_[0] = dbe_->book1D("EEMM hits number", "EEMM hits number", 100, 0., 13299.);
+    meEEhits_[0] = dbe_->book1D("EEMM hit number", "EEMM hit number", 100, 0., 13299.);
 
-    meEEhits_[1] = dbe_->bookProfile("EEMM hits number profile", "EEMM hits number profile", 18, 1, 19., 850, 0., 851., "s");
+    meEEhits_[1] = dbe_->bookProfile("EEMM hit number profile", "EEMM hit number profile", 18, 1, 19., 850, 0., 851., "s");
     for (int i = 0; i < 18; i++) {
       meEEhits_[1]->setBinLabel(i+1, Numbers::sEE(i+1).c_str(), 1);
     }
 
-    meEEtpdigis_[0] = dbe_->book1D("EEMM TP digis number", "EEMM TP digis number", 100, 0., 631.);
+    meEEtpdigis_[0] = dbe_->book1D("EEMM TP digi number", "EEMM TP digi number", 100, 0., 631.);
 
-    meEEtpdigis_[1] = dbe_->bookProfile("EEMM TP digis number profile", "EEMM TP digis number profile", 18, 1, 19., 34, 0., 35., "s");
+    meEEtpdigis_[1] = dbe_->bookProfile("EEMM TP digi number profile", "EEMM TP digi number profile", 18, 1, 19., 34, 0., 35., "s");
     for (int i = 0; i < 18; i++) {
       meEEtpdigis_[1]->setBinLabel(i+1, Numbers::sEE(i+1).c_str(), 1);
     }
