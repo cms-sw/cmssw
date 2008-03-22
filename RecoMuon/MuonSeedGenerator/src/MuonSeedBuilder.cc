@@ -110,6 +110,7 @@ MuonSeedBuilder::~MuonSeedBuilder(){
 //void MuonSeedBuilder::build( MuonDetLayerMeasurements muonMeasurements, TrajectorySeedCollection& theSeeds ) {
 int MuonSeedBuilder::build( edm::Event& event, const edm::EventSetup& eventSetup, TrajectorySeedCollection& theSeeds ) {
 
+
   // Pass the Magnetic Field to where the seed is create
   muonSeedCreate_->setBField(BField);
 
@@ -119,10 +120,14 @@ int MuonSeedBuilder::build( edm::Event& event, const edm::EventSetup& eventSetup
   std::vector<float> phiOfSeed;
   std::vector<int> nSegOnSeed;
 
-
-  // Instantiate the accessor (get the segments: DT + CSC but not RPC=false)
+ // Instantiate the accessor (get the segments: DT + CSC but not RPC=false)
   MuonDetLayerMeasurements muonMeasurements(theDTSegmentLabel,theCSCSegmentLabel,edm::InputTag(),
                                             enableDTMeasurement,enableCSCMeasurement,false);
+
+ // Instantiate the accessor (get the segments: DT + CSC but not RPC=false)
+ // MuonDetLayerMeasurements muonMeasurements(enableDTMeasurement,enableCSCMeasurement,false,
+ //                                          theDTSegmentLabel.label(),theCSCSegmentLabel.label());
+
 
   // 1) Get the various stations and store segments in containers for each station (layers)
  
@@ -239,7 +244,7 @@ int MuonSeedBuilder::build( edm::Event& event, const edm::EventSetup& eventSetup
     }
  
     unsigned nLayers = layers.size();
-   
+
     if ( nLayers < 2 ) continue; 
 
     TrajectorySeed thisSeed;
@@ -931,7 +936,8 @@ int MuonSeedBuilder::build( edm::Event& event, const edm::EventSetup& eventSetup
   }
 
   // clean the seeds 
-  seedCleaner( eventSetup, sortedSeeds);
+  //std::cout<<" the original seed size is "<< sortedSeeds.size() <<std::endl;
+  seedCleaner(eventSetup,sortedSeeds);
   theSeeds = sortedSeeds;
   goodSeeds = sortedSeeds.size();
 
@@ -1040,30 +1046,33 @@ bool MuonSeedBuilder::foundMatchingSegment( int type, SegmentContainer& protoTra
     //if ( ((*it)->chi2()/dof) > best_chi2 ) continue;
 
     GlobalPoint gp2 = (*it)->globalPosition(); 
+    //GlobalError ge2 = (*it)->globalDirectionError();
+    //GlobalError ge2 = (*it)->globalPositionError();
+    //double rerr  = ge2.rerr(gp2) ;
+
     // Not to get confused:  eta_last is from the previous layer.
     // This is only to find the best set of segments by comparing at the distance layer-by-layer 
     double deltaEtaTest = fabs( gp2.eta() - eta_temp ); 
     double deltaPhiTest = fabs( gp2.phi() - phi_temp );
 
+
     float R = sqrt( deltaEtaTest*deltaEtaTest + deltaPhiTest*deltaPhiTest );
 
-    bool close = ( fabs( R - best_R ) < 0.01  && index!=0 ) ? true:false;
-
-
     bool case1 = ( fabs(deltaEtaTest) < maxdEta && fabs(deltaPhiTest)< maxdPhi ) ? true:false ;
-
     // for DT station 4
     bool case2 = ((*it)->dimension()!= 4) && (fabs(deltaEtaTest)< 0.6) && (fabs(deltaPhiTest)< maxdPhi)? true:false ;
 
-    // reject showering segments which are close enough but not long enough in CSC...
-    if ( type == 1 && close && (*it)->recHits().size() < best_nCSChits ) continue;
+    bool closed = ( fabs( R - best_R ) < 0.01  && index!=0 ) ? true:false;
+
+    // reject showering segments which are closed enough but not long enough in CSC...
+    if ((type == 1) && closed && ((*it)->recHits().size()) < best_nCSChits) continue;
 
     if ( !case1 && !case2  ) continue;
     // pick the segment which is closest to ave/last position 
-    // if they are about the same, pick the one with best chi2/dof
-    if (R < best_R || close ) {
+    // if they are about the same close, pick the one with best chi2/dof
+    if (R < best_R || closed) {
 
-      if ( type ==1 ) { best_nCSChits = ((*it)->recHits().size()); }
+      if (type ==1) { best_nCSChits = ((*it)->recHits().size()); }
       // select smaller chi2/dof
       if ( (*it)->chi2()/dof < best_chi2 ) {
          best_chi2 = (*it)->chi2()/dof ;
@@ -1078,6 +1087,7 @@ bool MuonSeedBuilder::foundMatchingSegment( int type, SegmentContainer& protoTra
             eta_last = gp2.eta();
          }
       }
+
     } 
   }   
 
@@ -1103,7 +1113,6 @@ bool MuonSeedBuilder::foundMatchingSegment( int type, SegmentContainer& protoTra
 
 }
 
-
 double MuonSeedBuilder::etaError(const GlobalPoint gp, double rErr) {
 
   double dHdTheta = 0.0;
@@ -1120,7 +1129,6 @@ double MuonSeedBuilder::etaError(const GlobalPoint gp, double rErr) {
   return etaErr;
 }
 
-
 void MuonSeedBuilder::seedCleaner(const edm::EventSetup& eventSetup, std::vector<TrajectorySeed>& seeds ) {
 
   theService->update(eventSetup);
@@ -1129,9 +1137,10 @@ void MuonSeedBuilder::seedCleaner(const edm::EventSetup& eventSetup, std::vector
   // categorize seeds by comparing overlapping segments
   std::vector<bool> usedSeed(seeds.size(),false);
   std::vector<int>  seedGrp(seeds.size(), 0);
+  std::vector<int>  grpSize;
+  grpSize.clear();
+  grpSize.push_back(0) ;
   int grp = 0; 
-  std::vector<int> badSeeds;
-  badSeeds.clear();
 
   for (unsigned int i= 0; i<seeds.size(); i++){
     
@@ -1139,6 +1148,7 @@ void MuonSeedBuilder::seedCleaner(const edm::EventSetup& eventSetup, std::vector
     grp++;
     usedSeed[i] = true; 
     seedGrp[i]  = grp;
+    grpSize.push_back(1);
 
     for (unsigned int j= i+1; j<seeds.size(); j++){
      
@@ -1153,7 +1163,6 @@ void MuonSeedBuilder::seedCleaner(const edm::EventSetup& eventSetup, std::vector
            DTChamberId MB_Id = DTChamberId( gdet1->geographicalId() );
            if (MB_Id.station() == 4)  continue;
         }
-
         for (edm::OwnVector<TrackingRecHit>::const_iterator rt2 = seeds[j].recHits().first; rt2 != seeds[j].recHits().second; rt2++){
 
             const GeomDet* gdet2 = theService->trackingGeometry()->idToDet( (*rt2).geographicalId() );
@@ -1164,13 +1173,14 @@ void MuonSeedBuilder::seedCleaner(const edm::EventSetup& eventSetup, std::vector
             double dz = gp1.z() - gp2.z() ;
             double dR = sqrt( dx*dx + dy*dy + dz*dz);
 
-            if( dR < 3.0 ) sameseg++;
+            if( dR < 15.0 ) sameseg++;
         }
       }
       //flag and group the used seeds
-      if (sameseg > 1) {
+      if (sameseg > 0) {
          usedSeed[j]=true;
          seedGrp[j]=grp;
+         grpSize[grp]+=1; 
       }
     }
   }
@@ -1187,7 +1197,10 @@ void MuonSeedBuilder::seedCleaner(const edm::EventSetup& eventSetup, std::vector
     int bestseed = -1;
     int grpleader=0;
     bool keep_all = false;
-    
+    //std::cout<<" grp"<<i<<" size= "<< grpSize[i] << std::endl;
+    //double pt1 = -1.0; 
+    //double h1 = -99.0;   
+
     for (unsigned int j= 0; j<seeds.size(); j++){
  
       if ( seedGrp[j]==i ) {
@@ -1210,13 +1223,18 @@ void MuonSeedBuilder::seedCleaner(const edm::EventSetup& eventSetup, std::vector
         
         double dRR = sqrt (ddx*36. + ddy*36 + dxx + dyy ) ; 
         double relErr = fabs(sqrt(err_mx[0]) / pTSOD.parameters().signedInverseMomentum()) ; 
+        //std::cout<<"     seeds "<<j<<" dRErr: "<<dRR<<"  pt= "<<seed_mt<<" dPt:"<<relErr <<" with "<<seeds[j].nHits()<<" segs "<<std::endl;
 
         // this cut only apply for Endcap muon system 
-	if ( (seed_mt <= 5.0 || seed_mt > 5000.0 ) && ( seeds.size()> 4 ) && fabs(seed_xyz.eta()) > 2.1 ) continue;  
+	if ( (seed_mt <= 5.0 || seed_mt > 5000.0 ) && ( grpSize[i] > 1 ) ) continue;
+	//if ( (seed_mt <= 5.0 || seed_mt > 5000.0 ) && ( seeds.size()> 4 ) && fabs(seed_xyz.eta()) > 2.1 ) continue;
 	//if ( (seed_mt <= 5.0 || seed_mt > 5000.0 ) && ( seeds.size()> 6 ) && fabs(seed_xyz.eta()) <=2.1 ) continue;
 
         if ( keep_all ) {
            goodSeeds.push_back(seeds[j]);
+           //h1 = seed_xyz.eta() ;
+           //std::cout<<"keep all best seeds = "<< j ;
+           //std::cout<<"  dRErr: "<<dRR<<"  pt= "<<seed_mt<<" dPt:"<<relErr <<" with "<<seeds[j].nHits()<<" segs @h: "<<h1 <<std::endl;
         } else {
           // pick the one associated with more segments
           if ( seeds[j].nHits() > segSize ) {
@@ -1224,26 +1242,44 @@ void MuonSeedBuilder::seedCleaner(const edm::EventSetup& eventSetup, std::vector
              segSize = seeds[j].nHits();
              dRErr = sqrt (ddx*36. + ddy*36 + dxx + dyy ) ;
              drelE = relErr ;
+             // tmp pt 
+             //pt1 = seed_mt; 
+             //h1 = seed_xyz.eta() ;
           } 
           // or pick the one with better relative error
           else if ( (seeds[j].nHits() == segSize) && (dRErr > dRR) ){
              bestseed = j;
              dRErr = sqrt (ddx*36. + ddy*36 + dxx + dyy);
              drelE = relErr;
+             // tmp pt 
+             //pt1 = seed_mt; 
+             //h1 = seed_xyz.eta();
           } 
           else if ( (seeds[j].nHits() == segSize) && (dRErr == dRR) && (drelE > relErr) ){
              bestseed =j;
              dRErr = sqrt (ddx*36. + ddy*36 + dxx + dyy);
              drelE = relErr;
+             // tmp pt 
+             //pt1 = seed_mt; 
+             //h1 = seed_xyz.eta();
           } else {
-            if (debug) std::cout<<"skip this seed "<<std::endl; 
+            //if (debug) std::cout<<"skip this seed "<<std::endl; 
           }
+          //----------------------------------------------------
         }
+
       }  
     }
-    if ( bestseed > -1 ) goodSeeds.push_back( seeds[bestseed] );
+    //std::cout<<"best seeds = "<< bestseed <<std::endl;
+    if ( bestseed > -1 ) {
+       goodSeeds.push_back( seeds[bestseed] );
+       //std::cout<<"seeds "<<bestseed<<" dRErr: "<<dRErr<<"  pt= "<<pt1<<" dPt:"<<drelE <<" with "<<seeds[bestseed].nHits()<<" segs @h: "<<h1 <<std::endl;
+    }    
   }
+  //std::cout<<" goodSeed size= "<<goodSeeds.size()<<std::endl;
   seeds.clear();
   seeds = goodSeeds ;
+  //std::cout<<" ------------ finished 1 seeds set----------------- " <<std::endl;
+
 }
 
