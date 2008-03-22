@@ -12,8 +12,8 @@
  *   in the muon system and the tracker.
  *
  *
- *  $Date: 2008/02/25 22:17:48 $
- *  $Revision: 1.11 $
+ *  $Date: 2008/03/20 20:52:13 $
+ *  $Revision: 1.12 $
  *
  *  \author N. Neumeister        Purdue University
  *  \author C. Liu               Purdue University
@@ -844,16 +844,18 @@ GlobalTrajectoryBuilderBase::refitTrajectory(const Trajectory& tkTraj) const {
   PTrajectoryStateOnDet garbage1;
   edm::OwnVector<TrackingRecHit> garbage2;
  
-  TrajectoryStateOnSurface innerTsos;
   ConstRecHitContainer trackerRecHits = tkTraj.recHits();
   
   RefitDirection recHitDir = checkRecHitsOrdering(trackerRecHits);
+  //force the rechits to be ordered from outside-in
   if( recHitDir == inToOut ) reverse(trackerRecHits.begin(),trackerRecHits.end());
-  
-  PropagationDirection refitDir = (recHitDir == inToOut) ? oppositeToMomentum : alongMomentum ;
+
+  //force the refit direction to be opposite to momentum due to the rechit ordering  
+  PropagationDirection refitDir =  oppositeToMomentum;
   
   TrajectorySeed seed(garbage1,garbage2,refitDir);
   
+  //take the outermost state as the initial state for refitting
   TrajectoryMeasurement outerTM = (tkTraj.direction() == alongMomentum) ? tkTraj.lastMeasurement() : tkTraj.firstMeasurement();
   TrajectoryStateOnSurface outerTsos = outerTM.updatedState();
   outerTsos.rescaleError(100.);
