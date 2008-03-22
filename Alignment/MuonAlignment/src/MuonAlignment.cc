@@ -28,22 +28,23 @@
 
 //____________________________________________________________________________________
 //
-MuonAlignment::MuonAlignment()
-   : theDTAlignRecordName( "DTAlignmentRcd" )
-   , theDTErrorRecordName( "DTAlignmentErrorRcd" )
-   , theCSCAlignRecordName( "CSCAlignmentRcd" )
-   , theCSCErrorRecordName( "CSCAlignmentErrorRcd" )
-   , theDTSurveyRecordName( "DTSurveyRcd" )
-   , theDTSurveyErrorRecordName( "DTSurveyErrorRcd" )
-   , theCSCSurveyRecordName( "CSCSurveyRcd" )
-   , theCSCSurveyErrorRecordName( "CSCSurveyErrorRcd" )
-   , theAlignableMuon( NULL )
-   , theAlignableNavigator( NULL )
-{ }
+void MuonAlignment::init()
+{
+   theDTAlignRecordName = "DTAlignmentRcd";
+   theDTErrorRecordName = "DTAlignmentErrorRcd";
+   theCSCAlignRecordName = "CSCAlignmentRcd";
+   theCSCErrorRecordName = "CSCAlignmentErrorRcd";
+   theDTSurveyRecordName = "DTSurveyRcd";
+   theDTSurveyErrorRecordName = "DTSurveyErrorRcd";
+   theCSCSurveyRecordName = "CSCSurveyRcd";
+   theCSCSurveyErrorRecordName = "CSCSurveyErrorRcd";
+   theAlignableMuon = NULL;
+   theAlignableNavigator = NULL;
+}
 
 MuonAlignment::MuonAlignment( const edm::EventSetup& iSetup )
 {
-   MuonAlignment();
+   init();
 
    edm::ESHandle<DTGeometry> dtGeometry;
    edm::ESHandle<CSCGeometry> cscGeometry;
@@ -56,7 +57,7 @@ MuonAlignment::MuonAlignment( const edm::EventSetup& iSetup )
 
 MuonAlignment::MuonAlignment( const edm::EventSetup& iSetup, const MuonAlignmentInputMethod& input )
 {
-   MuonAlignment();
+   init();
 
    theAlignableMuon = input.newAlignableMuon( iSetup );
    theAlignableNavigator = new AlignableNavigator( theAlignableMuon );

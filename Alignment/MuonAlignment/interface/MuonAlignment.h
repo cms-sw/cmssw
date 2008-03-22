@@ -4,8 +4,8 @@
 /** \class MuonAlignment
  *  The MuonAlignment helper class for alignment jobs
  *
- *  $Date: 2008/03/04 16:55:36 $
- *  $Revision: 1.10 $
+ *  $Date: 2008/03/15 20:26:46 $
+ *  $Revision: 1.11 $
  *  \author Andre Sznajder - UERJ(Brazil)
  */
 
@@ -18,11 +18,9 @@
 #include "Alignment/CommonAlignment/interface/AlignableNavigator.h"
 #include "Alignment/MuonAlignment/interface/MuonAlignmentInputMethod.h"
 
-class MuonAlignment{
+class MuonAlignment {
 
   public:
-
-      MuonAlignment();
 
       MuonAlignment( const edm::EventSetup& iSetup );
 
@@ -58,6 +56,7 @@ class MuonAlignment{
 
 
   private:
+      void init();
       void recursiveCopySurveyToAlignment(Alignable *alignable);
 
       std::string theDTAlignRecordName, theDTErrorRecordName;
