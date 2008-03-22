@@ -29,8 +29,8 @@ class CrossingFrame
  public:
   // con- and destructors
 
-  CrossingFrame():  firstCrossing_(0), lastCrossing_(0), bunchSpace_(75),subdet_("") {;}
-  CrossingFrame(int minb, int maxb, int bunchsp, std::string subdet );
+  CrossingFrame():  firstCrossing_(0), lastCrossing_(0), bunchSpace_(75),subdet_(""),maxNbSources_(0) {;}
+  CrossingFrame(int minb, int maxb, int bunchsp, std::string subdet ,unsigned int maxNbSources);
 
   ~CrossingFrame() {;}
 
@@ -40,14 +40,14 @@ class CrossingFrame
 
   void addSignals(const std::vector<T> * vec,edm::EventID id);
 
-  void addPileups(const int bcr,const std::vector<T> * vec, unsigned int evtId,int vertexoffset=0,bool checkTof=false);
+  void addPileups(const int bcr,const std::vector<T> * vec, unsigned int evtId,int vertexoffset=0,bool checkTof=false,bool high=false);
   
   void print(int level=0) const ;
   void setBcrOffset() {
     pileupOffsetsBcr_.push_back(pileups_.size());
   }
   void setSourceOffset(const unsigned int s) {
-    pileupOffsetsSource_[s].push_back(pileups_.size());//FIXME: timing
+    pileupOffsetsSource_[s].push_back(pileups_.size());
   }
 
   //getters
@@ -65,6 +65,9 @@ class CrossingFrame
   unsigned int getNrPileups() const {return pileups_.size();} 
   unsigned int getNrPileups(int bcr) const {
     return bcr==lastCrossing_ ? pileups_.size()-pileupOffsetsBcr_[lastCrossing_-firstCrossing_] :pileupOffsetsBcr_[bcr-firstCrossing_+1]- pileupOffsetsBcr_[bcr-firstCrossing_];} 
+
+  // get object in pileup when position in the vector is known (for DigiSimLink typically)
+  const T& getObject(unsigned int ip) const { return pileups_[ip];}
 
   // limits for tof to be considered for trackers
   static const int lowTrackTof; //nsec
@@ -85,7 +88,7 @@ class CrossingFrame
   edm::EventID idFirstPileup_;   // EventId fof the first pileup event used for this signal event
   unsigned int pileupFileNr_;    // ordinal number of the pileup file this event was in
 
-  static const unsigned int maxNbSources =4 ;
+  unsigned int maxNbSources_;
 
   // signal
   std::vector<T>  signals_; 
@@ -93,7 +96,7 @@ class CrossingFrame
   //pileup
   std::vector<T>  pileups_;  
   std::vector<unsigned int> pileupOffsetsBcr_;
-  std::vector<unsigned int> pileupOffsetsSource_[maxNbSources]; //one per source
+  std::vector< std::vector<unsigned int> > pileupOffsetsSource_; //one per source
 };
 
 //==============================================================================
@@ -101,8 +104,12 @@ class CrossingFrame
 //==============================================================================
 
 template <class T> 
-CrossingFrame<T>::CrossingFrame(int minb, int maxb, int bunchsp, std::string subdet ):firstCrossing_(minb), lastCrossing_(maxb), bunchSpace_(bunchsp),subdet_(subdet) {
-  //FIXME: should we force around 0 or so??
+CrossingFrame<T>::CrossingFrame(int minb, int maxb, int bunchsp, std::string subdet ,unsigned int maxNbSources):firstCrossing_(minb), lastCrossing_(maxb), bunchSpace_(bunchsp),subdet_(subdet),maxNbSources_(maxNbSources) {
+ pileupOffsetsSource_.resize(maxNbSources_);
+ for (unsigned int i=0;i<maxNbSources_;++i)
+   pileupOffsetsSource_[i].reserve(-firstCrossing_+lastCrossing_+1);
+
+//FIXME: should we force around 0 or so??
   pileupOffsetsBcr_.reserve(-firstCrossing_+lastCrossing_+1);
 }
 
@@ -117,14 +124,19 @@ CrossingFrame<T>::swap(CrossingFrame<T>& other) {
   std::swap(id_, other.id_);
   std::swap(idFirstPileup_, other.idFirstPileup_);
   std::swap(pileupFileNr_, other.pileupFileNr_);
+  std::swap(maxNbSources_, other.maxNbSources_);
   signals_.swap(other.signals_);
   pileups_.swap(other.pileups_);
   pileupOffsetsBcr_.swap(other.pileupOffsetsBcr_);
-  for (std::vector<unsigned int> *p = pileupOffsetsSource_,
-				 *po = other.pileupOffsetsSource_;
-				 p < pileupOffsetsSource_ + maxNbSources;
-				 ++p, ++po) {
-    p->swap(*po);
+  /*   for (std::vector<unsigned int> *p = pileupOffsetsSource_, */
+  /* 				 *po = other.pileupOffsetsSource_; */
+  /* 				 p < pileupOffsetsSource_ + maxNbSources_; */
+  /* 				 ++p, ++po) { */
+  /*     p->swap(*po); */
+  /*   } */
+  pileupOffsetsSource_.resize(maxNbSources_);
+  for (unsigned int i=0;i<pileupOffsetsSource_.size();++i) { 
+    pileupOffsetsSource_[i].swap(other.pileupOffsetsSource_[i]);
   }
 }
 
@@ -156,13 +168,12 @@ void CrossingFrame<T>::print(int level) const {
 template <class T> 
 int  CrossingFrame<T>::getSourceType(unsigned int ip) const {
   // decide to which source belongs object with index ip in the pileup vector
-  // pileup=0, cosmics=1, beam halo+ =2, beam halo- =3
+  // pileup=0, cosmics=1, beam halo+ =2, beam halo- =3 forward =4
   unsigned int bcr= getBunchCrossing(ip)-firstCrossing_; //starts at 0
-
-    for (unsigned int i=0;i<maxNbSources-1;++i) {
-      if (ip>=(pileupOffsetsSource_[i])[bcr] && ip <(pileupOffsetsSource_[i+1])[bcr]) return i;
-    }
-    return maxNbSources-1;
+  for (unsigned int i=0;i<pileupOffsetsSource_.size()-1;++i) {
+    if (ip>=(pileupOffsetsSource_[i])[bcr] && ip <(pileupOffsetsSource_[i+1])[bcr]) return i;
+  }
+  return pileupOffsetsSource_.size()-1;
 }
 
 template <class T>   

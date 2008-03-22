@@ -29,7 +29,7 @@ int process(const Coll* pt, const DetId& did, unsigned short* buffer, int& presa
   return size;
 }
 
-static unsigned char processTrig(const HcalTrigPrimDigiCollection* pt, const HcalTrigTowerDetId& tid, unsigned short* buffer, int exppresamples, int expsize) {
+static unsigned char processTrig(const HcalTrigPrimDigiCollection* pt, const HcalTrigTowerDetId& tid, unsigned short* buffer) {
   if (pt==0) return 0;
   int size=0;
   HcalTrigPrimDigiCollection::const_iterator i=pt->find(tid);
@@ -37,19 +37,10 @@ static unsigned char processTrig(const HcalTrigPrimDigiCollection* pt, const Hca
     int presamples=i->presamples();
     int samples=i->size();
 
-    // rare care of no precision digis, but trig prim digis
-    if (expsize<0) expsize=samples;
-    if (exppresamples<0) exppresamples=presamples;
-    // we must match samples and presamples with zero tps
-    for (int j=0; j<expsize; j++)
-      buffer[j]=0;
-    
-    int offset=exppresamples-presamples;
-
-    for (int j=0; j<samples; j++) 
-      if (j+offset>=0 && j+offset<expsize)
-	buffer[j+offset]=(*i)[j].raw();
-    size=expsize;
+    for (int j=0; j<samples; j++) {
+       buffer[j]=(*i)[j].raw();
+       if (j==presamples) buffer[j]|=0x0200;
+    }
   }
   return size;
 }
@@ -91,7 +82,7 @@ void HcalPacker::pack(int fedid, int dccnumber,
   std::vector<unsigned short> trigdata(HcalHTRData::CHANNELS_PER_SPIGOT*HcalHTRData::MAXIMUM_SAMPLES_PER_CHANNEL);
   std::vector<unsigned char> preclen(HcalHTRData::CHANNELS_PER_SPIGOT);
   std::vector<unsigned char> triglen(HcalHTRData::CHANNELS_PER_SPIGOT);
-  const int HTRFormatVersion=1;
+  static const int HTRFormatVersion=3;
 
   HcalHTRData spigots[15];
   // loop over all valid channels in the given dcc, spigot by spigot.
@@ -144,18 +135,21 @@ void HcalPacker::pack(int fedid, int dccnumber,
 	HcalTriggerPrimitiveSample idCvt(0,0,slb,slbchan);
 	unsigned short chanid=idCvt.raw()&0xF800;
 	triglen[linear]=0;
-	
-	HcalElectronicsId partialEid(dccnumber,spigot,slb,slbchan,0,0,0);
+
+	HcalElectronicsId partialEid(slbchan,slb,spigot,dccnumber,0,0,0);
 	// does this partial id exist?
 	HcalElectronicsId fullEid;
 	HcalTrigTowerDetId tid;
-	if (!emap.lookup(partialEid,fullEid,tid)) continue;
+	if (!emap.lookup(partialEid,fullEid,tid)) {
+//	  std::cout << "TPGPACK : no match for " << partialEid << std::endl;
+	  continue;
+	}  //else std::cout << "TPGPACK : converted " << partialEid << " to " << fullEid << "/" << tid << std::endl;
           
 	// finally, what about a trigger channel?
 	if (!tid.null()) {
 	  unsigned short* trigbase=&(trigdata[linear*HcalHTRData::MAXIMUM_SAMPLES_PER_CHANNEL]);
-	  triglen[linear]=processTrig(inputs.tpCont,tid,trigbase,samples,presamples);
-	  if (samples<0 && triglen[linear]>0) samples=triglen[linear];
+	  triglen[linear]=processTrig(inputs.tpCont,tid,trigbase);
+	  
 	  for (unsigned char q=0; q<triglen[linear]; q++)
 	    trigbase[q]=(trigbase[q]&0x7FF)|chanid;
 	}

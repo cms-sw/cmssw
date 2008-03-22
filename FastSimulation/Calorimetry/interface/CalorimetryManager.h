@@ -6,7 +6,7 @@
 // FastSimulation headers
 #include "FastSimulation/Particle/interface/RawParticle.h"
 #include "FastSimulation/Calorimetry/interface/HCALResponse.h"
-
+#include "DataFormats/DetId/interface/DetId.h"
 #include "FastSimulation/Utilities/interface/FamosDebug.h"
 
 // For the uint32_t
@@ -39,12 +39,6 @@ class CalorimetryManager{
   // Does the real job
   void reconstruct();
 
-   // access method to calorimeter info
-  inline std::map<uint32_t,float>& getESMapping() { return ESMapping_;}
-  inline std::map<uint32_t,float>& getEBMapping() { return EBMapping_;}
-  inline std::map<uint32_t,float>& getEEMapping() { return EEMapping_;}
-  inline std::map<uint32_t,float>& getHMapping() { return HMapping_;}
-
     // Return the address of the Calorimeter 
   CaloGeometryHelper * getCalorimeter() const {return myCalorimeter_;}
 
@@ -72,7 +66,11 @@ class CalorimetryManager{
   // Read the parameters 
   void readParameters(const edm::ParameterSet& fastCalo);
 
-  void updateMap(uint32_t cellid,float energy,std::map<uint32_t,float>& mymap);
+  void updateMap(uint32_t cellid,float energy,int id,std::map<uint32_t,std::vector<std::pair<int,float> > >& mymap);
+
+  void updateMap(int hi,float energy,int id,std::vector<std::vector<std::pair<int,float> > > & mymap,std::vector<int> & firedCells);
+
+  void clean(); 
 
  private:
   FSimEvent* mySimEvent;
@@ -83,12 +81,23 @@ class CalorimetryManager{
   HCALResponse* myHDResponse_;
   HSParameters * myHSParameters_;
 
-  std::map<unsigned,float> EBMapping_;
-  std::map<unsigned,float> EEMapping_;
-  std::map<unsigned,float> HMapping_;
-  std::map<unsigned,float> ESMapping_;
-  
+  // In the not unfolded case (standard) the most inner vector will be of size = 1 
+  // the preshower does not have hashed_indices, hence the map 
+  std::vector<std::vector<std::pair<int,float> > > EBMapping_;
+  std::vector<std::vector<std::pair<int,float> > > EEMapping_;
+  std::vector<std::vector<std::pair<int,float> > > HMapping_;
+  std::map<uint32_t,std::vector<std::pair<int,float> > > ESMapping_;
+
+  std::vector<int> firedCellsEB_;
+  std::vector<int> firedCellsEE_;
+  std::vector<int> firedCellsHCAL_;
+
+  // this is bad, the same information already exists in CaloRecHitsProducers
+  // should make a es_producer of CaloGeometryTools 
+  std::vector<DetId> theDetIds_;
   bool debug_;
+
+  bool unfoldedMode_;
 
   /// A few pointers to save time
   RawParticle myElec;
@@ -112,5 +121,7 @@ class CalorimetryManager{
   const LandauFluctuationGenerator* aLandauGenerator;
   GammaFunctionGenerator* aGammaGenerator;
 
+  static std::vector<std::pair<int, float> > myZero_;
+  bool initialized_;
 };
 #endif

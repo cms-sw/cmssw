@@ -43,7 +43,7 @@ class GSPixelHitMatcher{
   typedef TransientTrackingRecHit::RecHitContainer      RecHitContainer;
   
 
-  GSPixelHitMatcher(float,float,float,float,float,float,float,float,float,float);
+  GSPixelHitMatcher(float,float,float,float,float,float,float,float);
 
   virtual ~GSPixelHitMatcher();
 
@@ -77,12 +77,14 @@ class GSPixelHitMatcher{
 
   bool isASeed(const ParticlePropagator& myElec,
 	       const ParticlePropagator& myPosi,
+	       const GlobalPoint& theVertex,
 	       double rCluster,
 	       double zCluster,
 	       ConstRecHitPointer hit1,
 	       ConstRecHitPointer hit2);
   
   bool propagateToLayer(ParticlePropagator& myPart,
+			const GlobalPoint& theVertex,
 			GlobalPoint& theHit,
 			double zVertex,
 			double phimin, 
@@ -97,6 +99,11 @@ class GSPixelHitMatcher{
 		   double zmin, double zmax,
 		   bool barrel); 
 
+  void set1stLayerZRange(double zmin1, double zmax1) { 
+    z1max = zmax1; 
+    z1min = zmin1; 
+  }  
+
  private:
 
   RecHitContainer hitsInTrack;
@@ -104,7 +111,8 @@ class GSPixelHitMatcher{
   float ephi1min, ephi1max;
   float pphi1min, pphi1max;
   float phi2min, phi2max;
-  float z1min, z1max, z2min, z2max;
+  float z1min, z1max;
+  float z2min, z2max;
   const TrackerGeometry* theTrackerGeometry;
   const MagneticField* theMagneticField;
   const GeometricSearchTracker* theGeomSearchTracker;

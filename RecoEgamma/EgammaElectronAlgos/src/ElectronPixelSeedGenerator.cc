@@ -13,7 +13,7 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: ElectronPixelSeedGenerator.cc,v 1.30 2007/10/19 11:44:55 uberthon Exp $
+// $Id: ElectronPixelSeedGenerator.cc,v 1.35 2008/02/13 13:27:56 uberthon Exp $
 //
 //
 #include "RecoEgamma/EgammaElectronAlgos/interface/PixelHitMatcher.h" 
@@ -24,11 +24,13 @@
 #include "RecoTracker/Record/interface/TrackerRecoGeometryRecord.h"
 #include "RecoTracker/TkSeedGenerator/interface/FastHelix.h"
 #include "RecoTracker/TkNavigation/interface/SimpleNavigationSchool.h"
+#include "RecoTracker/Record/interface/CkfComponentsRecord.h"
 #include "RecoTracker/Record/interface/NavigationSchoolRecord.h"
 
 #include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
 #include "DataFormats/SiPixelCluster/interface/SiPixelCluster.h"
+#include "DataFormats/BeamSpot/interface/BeamSpot.h"
 
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
@@ -51,19 +53,20 @@
 ElectronPixelSeedGenerator::ElectronPixelSeedGenerator(float iephimin1, float iephimax1,
 			                               float ipphimin1, float ipphimax1,
 			                               float ipphimin2, float ipphimax2,
-						       float izmin1, float izmax1,
+						       //						       float izmin1, float izmax1,
 						       float izmin2, float izmax2,
                                                        bool idynamicphiroad, double SCEtCut)
  : ephimin1(iephimin1), ephimax1(iephimax1), pphimin1(ipphimin1), pphimax1(ipphimax1), pphimin2(ipphimin2),	
-   pphimax2(ipphimax2),zmin1(izmin1),zmax1(izmax1),zmin2(izmin2),zmax2(izmax2),dynamicphiroad(idynamicphiroad),SCEtCut_(SCEtCut),
+   pphimax2(ipphimax2),
+   zmin2(izmin2),zmax2(izmax2),dynamicphiroad(idynamicphiroad),SCEtCut_(SCEtCut),
    myMatchEle(0), myMatchPos(0),theUpdator(0), thePropagator(0), theMeasurementTracker(0), 
    theNavigationSchool(0), theSetup(0), pts_(0)
 {
       // Instantiate the pixel hit matchers
       LogDebug("") << "ElectronPixelSeedGenerator, phi limits: " << ephimin1 << ", " << ephimax1 << ", "
 		   << pphimin1 << ", " << pphimax1;
-      myMatchEle = new PixelHitMatcher( ephimin1, ephimax1, pphimin2, pphimax2, zmin1, zmax1, zmin2, zmax2);
-      myMatchPos = new PixelHitMatcher( pphimin1, pphimax1, pphimin2, pphimax2, zmin1, zmax1, zmin2, zmax2);
+      myMatchEle = new PixelHitMatcher( ephimin1, ephimax1, pphimin2, pphimax2, zmin2, zmax2);
+      myMatchPos = new PixelHitMatcher( pphimin1, pphimax1, pphimin2, pphimax2, zmin2, zmax2);
 }
 
 ElectronPixelSeedGenerator::~ElectronPixelSeedGenerator() {
@@ -98,6 +101,19 @@ void ElectronPixelSeedGenerator::setupES(const edm::EventSetup& setup) {
 }
 
 void  ElectronPixelSeedGenerator::run(edm::Event& e, const edm::EventSetup& setup, const edm::Handle<reco::SuperClusterCollection> &clusters, reco::ElectronPixelSeedCollection & out){
+
+  //Getting the beamspot from the Event:
+  edm::Handle<reco::BeamSpot> recoBeamSpotHandle;
+  e.getByType(recoBeamSpotHandle);
+
+  // gets its position
+  BSPosition_ = recoBeamSpotHandle->position();
+  double sigmaZ=recoBeamSpotHandle->sigmaZ();
+  double sigmaZ0Error=recoBeamSpotHandle->sigmaZ0Error();
+  double sq=sqrt(sigmaZ*sigmaZ+sigmaZ0Error*sigmaZ0Error);
+  zmin1=BSPosition_.z()-3*sq;
+  zmax1=BSPosition_.z()+3*sq;
+
   theSetup= &setup; 
 
   theMeasurementTracker->updatePixels(e);
@@ -121,10 +137,14 @@ void ElectronPixelSeedGenerator::seedsFromThisCluster( edm::Ref<reco::SuperClust
   GlobalPoint clusterPos(seedCluster->position().x(),
 			 seedCluster->position().y(), 
 			 seedCluster->position().z());
-  const GlobalPoint vertexPos(0.,0.,0.);
+
+  const GlobalPoint vertexPos(BSPosition_.x(),BSPosition_.y(),BSPosition_.z());
   LogDebug("") << "[ElectronPixelSeedGenerator::seedsFromThisCluster] new supercluster with energy: " << clusterEnergy;
   LogDebug("") << "[ElectronPixelSeedGenerator::seedsFromThisCluster] and position: " << clusterPos;
 
+  myMatchEle->set1stLayerZRange(zmin1,zmax1);
+  myMatchPos->set1stLayerZRange(zmin1,zmax1);
+  
   //Here change the deltaPhi window of the first pixel layer in function of the seed pT
   if (dynamicphiroad)
     {
@@ -174,8 +194,7 @@ void ElectronPixelSeedGenerator::seedsFromThisCluster( edm::Ref<reco::SuperClust
   std::vector<std::pair<RecHitWithDist,ConstRecHitPointer> > elePixelHits = 
     myMatchEle->compatibleHits(clusterPos,vertexPos, clusterEnergy, aCharge);
   float vertexZ = myMatchEle->getVertex();
-  GlobalPoint eleVertex(0.,0.,vertexZ); 
- 
+  GlobalPoint eleVertex(BSPosition_.x(),BSPosition_.y(),vertexZ);
   int isEle = 0;
   if (!elePixelHits.empty() ) {
     LogDebug("") << "[ElectronPixelSeedGenerator::seedsFromThisCluster] electron compatible hits found ";
@@ -200,7 +219,7 @@ void ElectronPixelSeedGenerator::seedsFromThisCluster( edm::Ref<reco::SuperClust
     myMatchPos->compatibleHits(clusterPos,vertexPos, clusterEnergy, aCharge);
   vertexZ = myMatchPos->getVertex();
    
-  GlobalPoint posVertex(0.,0.,vertexZ); 
+  GlobalPoint posVertex(BSPosition_.x(),BSPosition_.y(),vertexZ);
   if (!posPixelHits.empty() ) {
     LogDebug("") << "[ElectronPixelSeedGenerator::seedsFromThisCluster] positron compatible hits found ";
     isEle == 1 ? isEle = 3 : isEle = 2;

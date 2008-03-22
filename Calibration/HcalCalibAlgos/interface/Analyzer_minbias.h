@@ -30,6 +30,7 @@
 #include "DataFormats/CaloTowers/interface/CaloTowerDetId.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
+//#include "CalibFormats/HcalObjects/interface/HcalDbService.h"
 #include "TFile.h"
 #include "TH1.h"
 #include "TH2.h"
@@ -104,6 +105,13 @@ class Analyzer_minbias : public edm::EDAnalyzer {
    
 // Calo geometry    
   const CaloGeometry* geo;
+//  edm::ESHandle<HcalDbService> conditions;
+  std::string nameprod;
+  edm::InputTag  hbhereco;
+  edm::InputTag  horeco;
+  edm::InputTag  hfreco;
+  bool useMCInfo;
+  
   std::vector<HcalDetId> theHcalId;
 //  CaloMiscalibMapHcal mapHcal_;  
   std::string hcalfile_;

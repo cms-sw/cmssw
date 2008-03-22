@@ -1,5 +1,5 @@
 // Original author: A. Ulyanov
-// $Id: CMSIterativeConeAlgorithm.cc,v 1.12 2007/09/20 21:05:02 fedor Exp $
+// $Id: CMSIterativeConeAlgorithm.cc,v 1.11 2007/08/20 17:53:33 fedor Exp $
 
 #include "RecoJets/JetAlgorithms/interface/CMSIterativeConeAlgorithm.h"
 
@@ -31,8 +31,8 @@ void CMSIterativeConeAlgorithm::run(const InputCollection& fInput, OutputCollect
   //find jets
   while( !input.empty() && input.front()->et() > theSeedThreshold ) {
     //cone centre 
-    double eta0=input.front()->p4().eta();
-    double phi0=input.front()->p4().phi();
+    double eta0=input.front()->eta();
+    double phi0=input.front()->phi();
     //protojet properties
     double eta=0;
     double phi=0;
@@ -47,8 +47,6 @@ void CMSIterativeConeAlgorithm::run(const InputCollection& fInput, OutputCollect
       for(list<InputItem>::iterator inp=input.begin();
 	  inp!=input.end();inp++){
 	InputItem tower = *inp;	
-	std::cout << "p4 eta/phi/eta/phi: " << eta0 << '/' << phi0 << '/' << tower->p4().eta() << '/' << tower->p4().phi() << std::endl;
-	std::cout << "eta/phi/eta/phi: " << eta0 << '/' << phi0 << '/' << tower->eta() << '/' << tower->phi() << std::endl;
 	if( deltaR2(eta0,phi0,tower->eta(),tower->phi()) < 
 	    theConeRadius*theConeRadius) {
           cone.push_back(inp);

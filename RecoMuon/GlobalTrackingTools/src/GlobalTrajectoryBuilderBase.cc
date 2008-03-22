@@ -13,8 +13,8 @@
  *   in the muon system and the tracker.
  *
  *
- *  $Date: 2007/10/31 22:18:21 $
- *  $Revision: 1.5 $
+ *  $Date$
+ *  $Revision$
  *
  *  Authors :
  *  N. Neumeister            Purdue University
@@ -91,10 +91,12 @@ GlobalTrajectoryBuilderBase::GlobalTrajectoryBuilderBase(const edm::ParameterSet
 
   theCategory = par.getUntrackedParameter<string>("Category", "Muon|RecoMuon|GlobalMuon|GlobalTrajectoryBuilderBase");
 
-  ParameterSet refitterPSet = par.getParameter<ParameterSet>("RefitterParameters");
 
-  theLayerMeasurements = new MuonDetLayerMeasurements();
-
+  theLayerMeasurements = new MuonDetLayerMeasurements(par.getParameter<InputTag>("DTRecSegmentLabel"),
+						      par.getParameter<InputTag>("CSCRecSegmentLabel"),
+						      par.getParameter<InputTag>("RPCRecSegmentLabel"));
+  
+  
   string stateOnTrackerOutProp = par.getParameter<string>("StateOnTrackerBoundOutPropagator");
 
   ParameterSet trackMatcherPSet = par.getParameter<ParameterSet>("GlobalMuonTrackMatcher");

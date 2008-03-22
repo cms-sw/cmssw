@@ -10,7 +10,6 @@
 
 #include "SimGeneral/HepPDTRecord/interface/ParticleDataTable.h"
 
-#include "MagneticField/Engine/interface/MagneticField.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 
 //#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
@@ -24,7 +23,6 @@
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "Geometry/CaloEventSetup/interface/CaloTopologyRecord.h"
 //#include "Geometry/CaloTopology/interface/CaloTopology.h"
-#include "DetectorDescription/Core/interface/DDCompactView.h"
 
 // HepMC headers
 //#include "HepMC/GenEvent.h"

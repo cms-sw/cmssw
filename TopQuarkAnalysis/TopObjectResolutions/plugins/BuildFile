@@ -1,5 +1,0 @@
-<use name=TopQuarkAnalysis/TopObjectResolutions>
-
-<library file="*.cc" name=TopQuarkAnalysisTopObjectResolutionsPlugins>
-  <flags EDM_PLUGIN=1>
-</library>

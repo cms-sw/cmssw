@@ -1,3 +1,33 @@
+2008-03-12  Philipp SCHIEFERDECKER  <philipp.schieferdecker@cern.ch>
+
+	* tag V00-06-03
+	* bugfix: remove assert statement from
+	FUShmBuffer::discardRecoEvent()
+
+2008-03-11  Philipp SCHIEFERDECKER  <philipp.schieferdecker@cern.ch>
+
+	* tag V00-06-02
+	* bug fix for deregistration of client process ids
+
+2008-03-10  Philipp SCHIEFERDECKER  <philipp.schieferdecker@cern.ch>
+
+	* tag V00-06-01
+	* fix registration of several EP process ids: nClients_ set to 0
+	in reset(), _NOT_ ctor
+
+2008-01-26  Philipp SCHIEFERDECKER  <philipp.schieferdecker@cern.ch>
+
+	* tag V00-06-00
+	* add 'outModId' to FUShmRecoCell
+	* add outModId to interface of FUShmBuffer::writeRecoEventData()
+	* add new function 'FUShmBuffer::writeErrorEventData'
+
+2008-01-25  Philipp SCHIEFERDECKER  <philipp.schieferdecker@cern.ch>
+
+	* tag V00-05-01
+	* fix to allow for the same (raw) event to be written (reco)
+	several times.
+
 2007-12-20  Philipp SCHIEFERDECKER  <philipp.schieferdecker@cern.ch>
 
 	* tag V00-05-00

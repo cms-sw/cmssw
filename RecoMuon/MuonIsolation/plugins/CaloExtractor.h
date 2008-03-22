@@ -54,6 +54,12 @@ private:
   // Determine noise for HCAL and ECAL (take some defaults for the time being)
   double noiseEcal(const CaloTower& tower) const;
   double noiseHcal(const CaloTower& tower) const;
+
+  // Function to ensure that phi and theta are in range
+  static double PhiInRange(const double& phi);
+
+  // DeltaR function
+  template <class T, class U> static double deltaR(const T& t, const U& u);
 };
 
 }

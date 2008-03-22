@@ -3,7 +3,6 @@
 #include "CLHEP/Units/SystemOfUnits.h"
 #include <sstream>
 #include <strstream>
-#include <string>
 
 /*
 UnitConverter::UnitConverter(const G4BestUnit & bu)

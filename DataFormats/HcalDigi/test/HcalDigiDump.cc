@@ -1,10 +1,7 @@
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "DataFormats/Common/interface/Handle.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/Framework/interface/EventSetup.h"
 #include "DataFormats/HcalDigi/interface/HcalDigiCollections.h"
-#include "FWCore/Framework/interface/Selector.h"
 #include <iostream>
 
 using namespace std;
@@ -12,8 +9,8 @@ using namespace std;
 
 /** \class HcalDigiDump
       
-$Date: 2007/04/10 23:07:29 $
-$Revision: 1.11 $
+$Date: 2008/01/22 19:12:09 $
+$Revision: 1.13 $
 \author J. Mans - Minnesota
 */
 class HcalDigiDump : public edm::EDAnalyzer {
@@ -34,6 +31,7 @@ void HcalDigiDump::analyze(edm::Event const& e, edm::EventSetup const& c) {
   std::vector<edm::Handle<CastorDigiCollection> > castor;
   std::vector<edm::Handle<HcalCalibDigiCollection> > hc;
   std::vector<edm::Handle<HcalTrigPrimDigiCollection> > htp;
+  std::vector<edm::Handle<HOTrigPrimDigiCollection> > hotp;
   std::vector<edm::Handle<HcalHistogramDigiCollection> > hh;  
 
   try {
@@ -83,6 +81,20 @@ void HcalDigiDump::analyze(edm::Event const& e, edm::EventSetup const& c) {
       const HcalTrigPrimDigiCollection& c=*(*i);
       
       for (HcalTrigPrimDigiCollection::const_iterator j=c.begin(); j!=c.end(); j++)
+	cout << *j << std::endl;
+
+    }
+  } catch (...) {
+    cout << "No HCAL Trigger Primitive Digis." << endl;
+  }
+
+  try {
+    e.getManyByType(hotp);
+    std::vector<edm::Handle<HOTrigPrimDigiCollection> >::iterator i;
+    for (i=hotp.begin(); i!=hotp.end(); i++) {
+      const HOTrigPrimDigiCollection& c=*(*i);
+      
+      for (HOTrigPrimDigiCollection::const_iterator j=c.begin(); j!=c.end(); j++)
 	cout << *j << std::endl;
 
     }

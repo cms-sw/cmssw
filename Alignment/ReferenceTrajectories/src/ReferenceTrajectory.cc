@@ -1,6 +1,6 @@
 //  Author     : Gero Flucke (based on code by Edmund Widl replacing ORCA's TkReferenceTrack)
 //  date       : 2006/09/17
-//  last update: $Date: 2007/12/14 16:50:24 $
+//  last update: $Date: 2008/02/15 15:38:47 $
 //  by         : $Author: ewidl $
 
 #include "Alignment/ReferenceTrajectories/interface/ReferenceTrajectory.h"
@@ -26,7 +26,6 @@
 #include "TrackingTools/MaterialEffects/interface/MultipleScatteringUpdator.h"
 #include "TrackingTools/MaterialEffects/interface/EnergyLossUpdator.h"
 #include "TrackingTools/MaterialEffects/interface/CombinedMaterialEffectsUpdator.h"
-
 
 //__________________________________________________________________________________
 
@@ -126,10 +125,12 @@ bool ReferenceTrajectory::construct(const TrajectoryStateOnSurface &refTsos,
     // the updated state contains only the uncertainties due to interactions in the current layer.
     const TrajectoryStateOnSurface tmpTsos(theTsosVec.back().localParameters(), zeroErrors,
 					   theTsosVec.back().surface(), magField, beforeSurface);
-    const TrajectoryStateOnSurface updatedTsos =
-      aMaterialEffectsUpdator->updateState(tmpTsos, alongMomentum);
-    previousChangeInCurvature[0][0] = updatedTsos.localParameters().signedInverseMomentum() 
+    const TrajectoryStateOnSurface updatedTsos = aMaterialEffectsUpdator->updateState(tmpTsos, propDir);
+    if ( theTsosVec.back().localParameters().charge() )
+    {
+      previousChangeInCurvature[0][0] = updatedTsos.localParameters().signedInverseMomentum() 
 	/ theTsosVec.back().localParameters().signedInverseMomentum();
+    }
     
     // get multiple-scattering covariance-matrix
     allDeltaParameterCovs.push_back( asHepMatrix<5>(updatedTsos.localError().matrix()) );

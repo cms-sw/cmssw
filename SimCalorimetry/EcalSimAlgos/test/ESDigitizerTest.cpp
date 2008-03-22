@@ -30,7 +30,7 @@ int main() {
   string ESName = "EcalHitsES";
 
   edm::EventID id;
-  CrossingFrame<PCaloHit> crossingFrame(-5, 5, 25, ESName);
+  CrossingFrame<PCaloHit> crossingFrame(-5, 5, 25, ESName, 1);
   crossingFrame.addSignals(&ESHits,id);
 
   EcalSimParameterMap parameterMap;

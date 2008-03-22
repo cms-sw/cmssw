@@ -12,8 +12,8 @@ DEFINE_ANOTHER_FWK_MODULE(QualityTester);
 DEFINE_ANOTHER_FWK_MODULE(DQMFileSaver);
 
 // module converting between ME and ROOT in Run tree of edm file
-#include "DQMServices/Components/plugins/MEtoROOTConverter.h"
-DEFINE_ANOTHER_FWK_MODULE(MEtoROOTConverter);
-#include "DQMServices/Components/plugins/ROOTtoMEConverter.h"
-DEFINE_ANOTHER_FWK_MODULE(ROOTtoMEConverter);
+#include "DQMServices/Components/plugins/MEtoEDMConverter.h"
+DEFINE_ANOTHER_FWK_MODULE(MEtoEDMConverter);
+#include "DQMServices/Components/plugins/EDMtoMEConverter.h"
+DEFINE_ANOTHER_FWK_MODULE(EDMtoMEConverter);
 

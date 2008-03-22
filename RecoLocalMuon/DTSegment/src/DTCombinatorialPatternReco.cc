@@ -41,12 +41,12 @@ DTRecSegment2DBaseAlgo(pset), theAlgoName("DTCombinatorialPatternReco")
   debug = pset.getUntrackedParameter<bool>("debug"); //true;
   theUpdator = new DTSegmentUpdator(pset);
   theCleaner = new DTSegmentCleaner(pset);
+  string theHitAlgoName = pset.getParameter<string>("recAlgo");
+  usePairs = !(theHitAlgoName=="DTNoDriftAlgo");
 }
 
 /// Destructor
 DTCombinatorialPatternReco::~DTCombinatorialPatternReco() {
-  delete theUpdator;
-  delete theCleaner;
 }
 
 /* Operations */ 
@@ -244,7 +244,7 @@ DTCombinatorialPatternReco::findCompatibleHits(const LocalPoint& posIni,
 
     DTEnums::DTCellSide lrcode;
     if (isCompatible.first && isCompatible.second) 
-      lrcode=DTEnums::undefLR;
+      usePairs ? lrcode=DTEnums::undefLR : lrcode=DTEnums::Left ; // if not usePairs then only use single side 
     else if (isCompatible.first) 
       lrcode=DTEnums::Left;
     else if (isCompatible.second) 

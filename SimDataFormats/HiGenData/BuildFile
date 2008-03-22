@@ -1,9 +1,0 @@
-<use name=rootrflx> 
-<use name=hepmc>
-<use name=FWCore/Framework>
-<use name=DataFormats/Common>
-<use name=SimDataFormats/HepMCProduct>
-<export>
-  <lib name=SimDataFormatsHiGenData>
-  <use name=hepmc>
-</export>

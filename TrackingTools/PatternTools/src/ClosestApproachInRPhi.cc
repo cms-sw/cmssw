@@ -3,71 +3,80 @@
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
-bool ClosestApproachInRPhi::calculate(const TrajectoryStateOnSurface & sta, 
-			      const TrajectoryStateOnSurface & stb) 
+pair<GlobalPoint, GlobalPoint> 
+ClosestApproachInRPhi::points(const TrajectoryStateOnSurface & sta, 
+			      const TrajectoryStateOnSurface & stb) const 
 {
   TrackCharge chargeA = sta.charge(); TrackCharge chargeB = stb.charge();
   GlobalVector momentumA = sta.globalMomentum();
   GlobalVector momentumB = stb.globalMomentum();
   GlobalPoint positionA = sta.globalPosition();
   GlobalPoint positionB = stb.globalPosition();
-  paramA = sta.globalParameters();
-  paramB = stb.globalParameters();
 
-  return calculate(chargeA, momentumA, positionA, chargeB, momentumB, positionB, 
+  return points(chargeA, momentumA, positionA, chargeB, momentumB, positionB, 
   	sta.freeState()->parameters().magneticField());
 }
 
 
-bool ClosestApproachInRPhi::calculate(const FreeTrajectoryState & sta, 
-			      const FreeTrajectoryState & stb)
+pair<GlobalPoint, GlobalPoint> 
+ClosestApproachInRPhi::points(const FreeTrajectoryState & sta, 
+			      const FreeTrajectoryState & stb) const 
 {
   TrackCharge chargeA = sta.charge(); TrackCharge chargeB = stb.charge();
   GlobalVector momentumA = sta.momentum();
   GlobalVector momentumB = stb.momentum();
   GlobalPoint positionA = sta.position();
   GlobalPoint positionB = stb.position();
-  paramA = sta.parameters();
-  paramB = stb.parameters();
 
-  return calculate(chargeA, momentumA, positionA, chargeB, momentumB, positionB,
+  return points(chargeA, momentumA, positionA, chargeB, momentumB, positionB,
 	sta.parameters().magneticField());
-}
-
-pair<GlobalPoint, GlobalPoint> ClosestApproachInRPhi::points() const
-{
-  if (!status_)
-    throw cms::Exception("TrackingTools/PatternTools","ClosestApproachInRPhi::could not compute track crossing. Check status before calling this method!");
-  return  pair<GlobalPoint, GlobalPoint> (posA, posB);
 }
 
 
 GlobalPoint 
-ClosestApproachInRPhi::crossingPoint() const
+ClosestApproachInRPhi::crossingPoint(const TrajectoryStateOnSurface & sta, 
+				     const TrajectoryStateOnSurface & stb) 
+const 
 {
-  if (!status_)
-    throw cms::Exception("TrackingTools/PatternTools","ClosestApproachInRPhi::could not compute track crossing. Check status before calling this method!");
-  return GlobalPoint((posA.x() + posB.x())/2., 
-		     (posA.y() + posB.y())/2., 
-		     (posA.z() + posB.z())/2.);
+  pair<GlobalPoint, GlobalPoint> pts = points(sta, stb);
+  return GlobalPoint((pts.first.x() + pts.second.x())/2., 
+		     (pts.first.y() + pts.second.y())/2., 
+		     (pts.first.z() + pts.second.z())/2.);
 }
 
 
-float ClosestApproachInRPhi::distance() const
-{
-  if (!status_)
-    throw cms::Exception("TrackingTools/PatternTools","ClosestApproachInRPhi::could not compute track crossing. Check status before calling this method!");
-  return (posB - posA).mag();
+GlobalPoint 
+ClosestApproachInRPhi::crossingPoint(const FreeTrajectoryState & sta, 
+				     const FreeTrajectoryState & stb) const {
+  pair<GlobalPoint, GlobalPoint> pts = points(sta, stb);
+  return GlobalPoint((pts.first.x() + pts.second.x())/2., 
+		     (pts.first.y() + pts.second.y())/2., 
+		     (pts.first.z() + pts.second.z())/2.);
 }
 
 
-bool ClosestApproachInRPhi::calculate(const TrackCharge & chargeA, 
+float ClosestApproachInRPhi::distance(const TrajectoryStateOnSurface & sta, 
+				      const TrajectoryStateOnSurface & stb) 
+const 
+{
+  return (points(sta, stb).second - points(sta, stb).first).mag();
+}
+
+
+float ClosestApproachInRPhi::distance(const FreeTrajectoryState & sta, 
+				      const FreeTrajectoryState & stb) const {
+  return (points(sta, stb).second - points(sta, stb).first).mag();
+}
+
+
+pair<GlobalPoint, GlobalPoint> 
+ClosestApproachInRPhi::points(const TrackCharge & chargeA, 
 			      const GlobalVector & momentumA, 
 			      const GlobalPoint & positionA, 
 			      const TrackCharge & chargeB, 
 			      const GlobalVector & momentumB, 
 			      const GlobalPoint & positionB,
-			      const MagneticField& magField) 
+			      const MagneticField& magField) const 
 {
 
   // centres and radii of track circles
@@ -79,10 +88,6 @@ bool ClosestApproachInRPhi::calculate(const TrackCharge & chargeA,
   // points of closest approach in transverse plane
   double xg1, yg1, xg2, yg2;
   int flag = transverseCoord(xca, yca, ra, xcb, ycb, rb, xg1, yg1, xg2, yg2);
-  if (flag == 0) {
-    status_ = false;
-    return false;
-  }
 
   double xga, yga, zga, xgb, ygb, zgb;
 
@@ -110,20 +115,34 @@ bool ClosestApproachInRPhi::calculate(const TrackCharge & chargeA,
     zgb = zCoord(momentumB, positionB, rb, xcb, ycb, xgb, ygb);
   }
 
-  posA = GlobalPoint(xga, yga, zga);
-  posB = GlobalPoint(xgb, ygb, zgb);
-  status_ = true;
-  return true;
+  GlobalPoint pa(xga, yga, zga);
+  GlobalPoint pb(xgb, ygb, zgb);
+  pair<GlobalPoint, GlobalPoint> pts(pa, pb);
+  return pts;
 }
 
 pair <GlobalTrajectoryParameters, GlobalTrajectoryParameters>
-ClosestApproachInRPhi::trajectoryParameters () const
+ClosestApproachInRPhi::trajectoryParameters ( 
+    const FreeTrajectoryState & sta, 
+    const FreeTrajectoryState & stb ) const
 {
-  if (!status_)
-    throw cms::Exception("TrackingTools/PatternTools","ClosestApproachInRPhi::could not compute track crossing. Check status before calling this method!");
+  pair<GlobalPoint, GlobalPoint> pts= points ( sta, stb );
   pair <GlobalTrajectoryParameters, GlobalTrajectoryParameters> 
-    ret ( trajectoryParameters ( posA, paramA ),
-          trajectoryParameters ( posB, paramB ) );
+    ret ( trajectoryParameters ( pts.first , sta.parameters() ),
+          trajectoryParameters ( pts.second, stb.parameters() ) );
+  return ret;
+}
+
+
+pair <GlobalTrajectoryParameters, GlobalTrajectoryParameters>
+ClosestApproachInRPhi::trajectoryParameters ( 
+    const TrajectoryStateOnSurface & sta, 
+    const TrajectoryStateOnSurface & stb ) const
+{
+  pair<GlobalPoint, GlobalPoint> pts= points ( sta, stb );
+  pair <GlobalTrajectoryParameters, GlobalTrajectoryParameters> 
+    ret ( trajectoryParameters ( pts.first , sta.globalParameters() ),
+          trajectoryParameters ( pts.second, stb.globalParameters() ) );
   return ret;
 }
 
@@ -199,7 +218,7 @@ ClosestApproachInRPhi::transverseCoord(double cxa, double cya, double ra,
 
   double d_ab = sqrt((cxb - cxa)*(cxb - cxa) + (cyb - cya)*(cyb - cya));
   if (d_ab == 0) { // concentric circles
-    return 0;
+    throw cms::Exception("TrackingTools/PatternTools","ClosestApproachInRPhi::could not compute track crossing");
   }
   // elements of rotation matrix
   double u = (cxb - cxa) / d_ab;
@@ -241,7 +260,7 @@ ClosestApproachInRPhi::transverseCoord(double cxa, double cya, double ra,
     x1 = sign*ra; y1 = 0; x2 = d_ab + sign*rb; y2 = 0;
   }
   else {
-    return 0;
+    throw cms::Exception("TrackingTools/PatternTools","ClosestApproachInRPhi::could not compute track crossing");
   }
 
   // intersection points in global frame, transverse plane

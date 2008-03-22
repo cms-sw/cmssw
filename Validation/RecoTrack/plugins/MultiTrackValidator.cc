@@ -1,5 +1,5 @@
 #include "Validation/RecoTrack/interface/MultiTrackValidator.h"
-#include "Validation/Tools/interface/FitSlicesYTool.h"
+#include "Validation/RecoTrack/interface/FitSlicesYTool.h"
 
 #include "FWCore/Framework/interface/MakerMacros.h"
 
@@ -14,7 +14,12 @@
 
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingParticle.h"
 
+#if ROOT_VERSION_CODE >= ROOT_VERSION(5,15,0)
+#include "Math/ProbFuncMathCore.h"
+#else
 #include "Math/ProbFuncMathMore.h"
+#endif
+
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "TrackingTools/TrajectoryState/interface/FreeTrajectoryState.h"
 #include "TrackingTools/PatternTools/interface/TSCPBuilderNoMaterial.h"
@@ -210,8 +215,6 @@ void MultiTrackValidator::beginJob( const EventSetup & setup) {
 
 void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup& setup){
 
-  using namespace reco;
-
   edm::LogInfo("TrackValidator") << "\n====================================================" << "\n"
 				 << "Analyzing new event" << "\n"
 				 << "====================================================\n" << "\n";
@@ -235,7 +238,7 @@ void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup
       //
       //get collections from the event
       //
-      edm::Handle<View<Track> > trackCollection;
+      edm::Handle<reco::TrackCollection> trackCollection;
       event.getByLabel(label[www], trackCollection);
       
       //associate tracks
@@ -263,9 +266,9 @@ void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup
 	h_etaSIM[w]->Fill(tp->momentum().eta());
 	h_vertposSIM[w]->Fill(sqrt(tp->vertex().perp2()));
 
-	std::vector<std::pair<RefToBase<Track>, double> > rt;
+	std::vector<std::pair<edm::Ref<reco::TrackCollection>, double> > rt;
 	if(simRecColl.find(tp) != simRecColl.end()){
-	  rt = (std::vector<std::pair<RefToBase<Track>, double> >) simRecColl[tp];
+	  rt = simRecColl[tp];
 	  if (rt.size()!=0) {
 	    ats++;
 	    edm::LogVerbatim("TrackValidator") << "TrackingParticle #" << st 
@@ -311,8 +314,8 @@ void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup
 					 << ": " << trackCollection->size() << "\n";
       int at=0;
       int rT=0;
-      for(View<Track>::size_type i=0; i<trackCollection->size(); ++i){
-	RefToBase<Track> track(trackCollection, i);
+      for(reco::TrackCollection::size_type i=0; i<trackCollection->size(); ++i){
+	edm::Ref<reco::TrackCollection> track(trackCollection, i);
 	rT++;
 
 	std::vector<std::pair<TrackingParticleRef, double> > tp;
@@ -360,7 +363,7 @@ void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup
 	    //association chi2
 	    double assocChi2 = -tp.begin()->second;//in association map is stored -chi2
 	    h_assochi2[www]->Fill(assocChi2);
-	    h_assochi2_prob[www]->Fill(chisquared_prob((assocChi2)*5,5));
+	    h_assochi2_prob[www]->Fill(ROOT::Math::chisquared_prob((assocChi2)*5,5));
 	  }
 	  else if (associators[ww]=="TrackAssociatorByHits"){
 	    double fraction = tp.begin()->second;
@@ -370,7 +373,7 @@ void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup
     
 	  //nchi2 and hits global distributions
 	  h_nchi2[w]->Fill(track->normalizedChi2());
-	  h_nchi2_prob[w]->Fill(chisquared_prob(track->chi2(),track->ndof()));
+	  h_nchi2_prob[w]->Fill(ROOT::Math::chisquared_prob(track->chi2(),track->ndof()));
 	  h_hits[w]->Fill(track->numberOfValidHits());
 	  h_losthits[w]->Fill(track->numberOfLostHits());
 	  chi2_vs_nhits[w]->Fill(track->numberOfValidHits(),track->normalizedChi2());

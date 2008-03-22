@@ -238,6 +238,18 @@ foreach (@Candle)
 		print DIGICFG "  \}\n\n";
 		next;  #To avoid writing $$NewFileLine = "";
 	    }
+	    #3.3-Adding this correction since RelVal are no more maintained and still using VtxGauss:
+	    if ($_=~/include \"Configuration\/StandardSequences\/data\/VtxSmearedGauss.cff\"/)
+	    {
+		print SIMCFG "\#".$_;
+		print SIMCFG " include \"Configuration\/StandardSequences\/data\/VtxSmearedBetafuncEarlyCollision.cff\"\n";
+		if ($DumpG4)
+		{
+		    print GSIMCFG "\#".$_;
+		    print GSIMCFG " include \"Configuration\/StandardSequences\/data\/VtxSmearedBetafuncEarlyCollision.cff\"\n";
+		}
+		next;
+	    }
 	    #4-Comment out steps p0,p1,p2,p3,p4 depending on the step:
 	    if (($_=~/path p0 = \{pgen\}/)||($_=~/path p1 = \{psim\}/)) 
 	    {

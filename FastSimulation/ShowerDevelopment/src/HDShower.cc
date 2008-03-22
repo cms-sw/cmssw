@@ -44,22 +44,26 @@ HDShower::HDShower(const RandomEngine* engine,
   //  FASTCalorimeter * myCalorimeter= FASTCalorimeter::instance();
 
   // Values taken from FamosGeneric/FamosCalorimeter/src/FASTCalorimeter.cc
-  lossesOpt      = myParam->hsParameters()->getHDlossesOpt();
-  nDepthSteps    = myParam->hsParameters()->getHDnDepthSteps();
-  nTRsteps       = myParam->hsParameters()->getHDnTRsteps();
-  transParam     = myParam->hsParameters()->getHDtransParam();
-  eSpotSize      = myParam->hsParameters()->getHDeSpotSize();
-  depthStep      = myParam->hsParameters()->getHDdepthStep();
-  criticalEnergy = myParam->hsParameters()->getHDcriticalEnergy();
-  maxTRfactor    = myParam->hsParameters()->getHDmaxTRfactor();
-  balanceEH      = myParam->hsParameters()->getHDbalanceEH();
+  lossesOpt       = myParam->hsParameters()->getHDlossesOpt();
+  nDepthSteps     = myParam->hsParameters()->getHDnDepthSteps();
+  nTRsteps        = myParam->hsParameters()->getHDnTRsteps();
+  transParam      = myParam->hsParameters()->getHDtransParam();
+  eSpotSize       = myParam->hsParameters()->getHDeSpotSize();
+  depthStep       = myParam->hsParameters()->getHDdepthStep();
+  criticalEnergy  = myParam->hsParameters()->getHDcriticalEnergy();
+  maxTRfactor     = myParam->hsParameters()->getHDmaxTRfactor();
+  balanceEH       = myParam->hsParameters()->getHDbalanceEH();
+  hcalDepthFactor = myParam->hsParameters()->getHDhcalDepthFactor();
 
   // Special tr.size fluctuations 
-  transParam *= (1. + random->flatShoot());
+  transParam *= (1. + random->flatShoot()); 
+
+  // Special long. fluctuations
+  hcalDepthFactor +=  0.05 * (2.* random->flatShoot() - 1.);
 
   transFactor = 1.;   // normally 1, in HF - might be smaller 
-                     // to take into account
-                     // a narrowness of the HF shower (Cherenkov light) 
+                      // to take into account
+                      // a narrowness of the HF shower (Cherenkov light) 
 
   // simple protection ...
   if(e < 0) e = 0.;
@@ -97,16 +101,17 @@ HDShower::HDShower(const RandomEngine* engine,
 
 
   if(debug == 2 )
-    LogDebug("FastCalorimetry") << " HDShower : " << std::endl 
-         << "       Energy   " <<              e << std::endl     
-         << "      lossesOpt " <<      lossesOpt << std::endl  
-         << "    nDepthSteps " <<    nDepthSteps << std::endl
-         << "       nTRsteps " <<       nTRsteps << std::endl
-         << "     transParam " <<     transParam << std::endl
-         << "      eSpotSize " <<      eSpotSize << std::endl
-         << " criticalEnergy " << criticalEnergy << std::endl
-         << "    maxTRfactor " <<    maxTRfactor << std::endl
-         << "      balanceEH " <<      balanceEH << std::endl;
+    LogDebug("FastCalorimetry") <<  " HDShower : " << std::endl 
+         << "       Energy   "  <<               e << std::endl     
+         << "      lossesOpt "  <<       lossesOpt << std::endl  
+         << "    nDepthSteps "  <<     nDepthSteps << std::endl
+         << "       nTRsteps "  <<        nTRsteps << std::endl
+         << "     transParam "  <<      transParam << std::endl
+         << "      eSpotSize "  <<       eSpotSize << std::endl
+         << " criticalEnergy "  <<  criticalEnergy << std::endl
+         << "    maxTRfactor "  <<     maxTRfactor << std::endl
+         << "      balanceEH "  <<       balanceEH << std::endl
+         << "hcalDepthFactor "  << hcalDepthFactor << std::endl;
 
 
   double alpEM1 = theParam->alpe1();
@@ -269,7 +274,7 @@ HDShower::HDShower(const RandomEngine* engine,
          << "          ECAL = " << depthECAL  << std::endl
          << "           GAP = " << depthGAP   << std::endl
          << "          HCAL = " << depthHCAL  << std::endl
-         << "starting point = " << depthStart << std::endl; 
+         << "  starting point = " << depthStart << std::endl; 
 
   if( onEcal ) {
     if(debug) LogDebug("FastCalorimetry") << " FamosHDShower : onECAL" << std::endl;
@@ -322,7 +327,7 @@ HDShower::HDShower(const RandomEngine* engine,
   else {   // Forward 
     if(debug)  LogDebug("FastCalorimetry") << " FamosHDShower : forward" << std::endl;
     sum1 += depthStart;
-    //    transFactor = 0.5;   // makes narower tresverse size of shower     
+    transFactor = 0.5;   // makes narower tresverse size of shower     
   }
  
   for (int i = 0; i < nmoresteps ; i++) {
@@ -360,21 +365,23 @@ void HDShower::makeSteps(int nsteps) {
 
   int count = 0;
   for (int i = 0; i < nsteps; i++) {    
-
+    
     double deplam = lamdepth[i] - 0.5 * lamstep[i];
     double depx0  = x0depth[i]  - 0.5 * lamstep[i] / x0curr[i]; 
     double     x = betEM * depx0;
     double     y = betHD * deplam;
-
-   if(debug == 2)
-     LogDebug("FastCalorimetry") << " FamosHDShower::makeSteps " << " - step " << i
-	  << "   depx0, x = " << depx0 << ", " << x 
-	  << "   deplam, y = " << deplam << ", " << y << std::endl;
+    
+    if(debug == 2)
+      LogDebug("FastCalorimetry") << " FamosHDShower::makeSteps " 
+                                  << " - step " << i
+				  << "   depx0, x = " << depx0 << ", " << x 
+				  << "   deplam, y = " << deplam << ", "
+				  << y << std::endl;
     
     double est = (part * betEM * gam(x,alpEM) * lamcurr[i] /
 		  (x0curr[i] * tgamEM) + 
 		  (1.-part) * betHD * gam(y,alpHD) / tgamHD) * lamstep[i];
-
+    
     // protection ...
     if(est < 0.) {
       LogDebug("FastCalorimetry") << "*** FamosHDShower::makeSteps " << " - negative step energy !!!" 
@@ -479,9 +486,13 @@ bool HDShower::compute() {
     for (int i = 0; i < numLongit ; i++) {
       
       double currentDepthL0 = lamtotal[i] - 0.5 * lamstep[i];
+      // vary the longitudinal profile if needed
+      if(detector[i] != 1) currentDepthL0 *= hcalDepthFactor;                     
       if(debug)
-	LogDebug("FastCalorimetry") << " FamosHDShower::compute - detector = " << detector[i]
-	     << "    currentDepthL0 = " << currentDepthL0 << std::endl;
+	LogDebug("FastCalorimetry") << " FamosHDShower::compute - detector = "
+				    << detector[i]
+				    << "  currentDepthL0 = " 
+				    << currentDepthL0 << std::endl;
       
       double maxTRsize   = maxTRfactor * rlamStep[i];     // in lambda units
       double rbinsize    = maxTRsize / nTRsteps; 
@@ -500,8 +511,13 @@ bool HDShower::compute() {
 	       << " theHcalHitMaker->setDepth(currentDepthL0) is " 
 	       << setHDdepth << std::endl;
 	
-	if(!setHDdepth) continue;    
-
+	if(!setHDdepth) 
+	  {
+	    currentDepthL0 -= lamstep[i];
+	    setHDdepth =  theHcalHitMaker->setDepth(currentDepthL0);
+	  }
+	if(!setHDdepth) continue;
+	
 	theHcalHitMaker->setSpotEnergy(espot);        
       }
       else {

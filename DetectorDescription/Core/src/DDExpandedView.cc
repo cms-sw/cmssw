@@ -2,7 +2,6 @@
 #include "DetectorDescription/Core/interface/DDComparator.h"
 //#include "DetectorDescription/Core/interface/DDMaterial.h"
 //#include "DetectorDescription/Core/interface/DDSolid.h"
-#include "DetectorDescription/Core/interface/DDPosData.h"
 #include "DetectorDescription/Base/interface/DDdebug.h"
 
 /** 
@@ -85,7 +84,6 @@ int DDExpandedView::copyno() const
 }
 
   
-#include<iostream>
 namespace {
 
   struct Counter {

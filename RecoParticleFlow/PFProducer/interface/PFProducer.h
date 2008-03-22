@@ -40,7 +40,6 @@ class PFProducer : public edm::EDProducer {
 
   /// verbose ?
   bool   verbose_;
-  bool   debug_;
 
   /// particle flow algorithm
   PFAlgo      pfAlgo_;

@@ -10,7 +10,7 @@
 //		to direct use of LogInfo.
 //
 // Original Author:  Marc Paterno
-// $Id: JobReport.cc,v 1.28 2007/10/29 17:04:17 chrjones Exp $
+// $Id: JobReport.cc,v 1.29 2007/11/07 03:58:22 wmtan Exp $
 //
 
 
@@ -595,6 +595,30 @@ namespace edm
     }
   }
    
+
+  void 
+  JobReport::reportAnalysisFile(std::string const& fileName, std::map<std::string, std::string> const& fileData) {
+
+    if(impl_->ost_) {
+      std::ostream& msg = *(impl_->ost_);
+      //std::ostringstream msg;
+      msg << "<AnalysisFile>\n"
+	  << "  <FileName>" << fileName <<"</FileName>\n";
+      
+      std::map<std::string, std::string>::const_iterator pos;
+      for (pos = fileData.begin(); pos != fileData.end(); ++pos){
+        msg <<  "  <" << pos->first 
+	    <<  "  Value=\"" << pos->second  << "\" />"
+	    <<  "\n";
+      }
+      
+      msg << "</AnalysisFile>\n";
+      //LogError("FwkJob") << msg.str();
+      msg <<std::flush;
+    }
+
+
+  }
 
 
   void 

@@ -4,12 +4,13 @@
 /** \class DTRecSegment4DProducer
  *  Builds the segments in the DT chambers.
  *
- *  $Date: 2006/04/21 14:25:38 $
- *  $Revision: 1.2 $
+ *  $Date: 2006/05/04 14:24:21 $
+ *  $Revision: 1.3 $
  * \author Riccardo Bellan - INFN Torino <riccardo.bellan@cern.ch>
  */
 
 #include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/ParameterSet/interface/InputTag.h"
 
 namespace edm {
   class ParameterSet;
@@ -39,9 +40,9 @@ private:
   // Switch on verbosity
   bool debug;
 
-  std::string theRecHits1DLabel;
+  edm::InputTag theRecHits1DLabel;
   //static std::string theAlgoName;
-  std::string theRecHits2DLabel;
+  edm::InputTag theRecHits2DLabel;
   // The 4D-segments reconstruction algorithm
   DTRecSegment4DBaseAlgo* the4DAlgo;
 };

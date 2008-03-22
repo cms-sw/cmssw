@@ -85,72 +85,38 @@ void PixelROCDACSettings::getDACs(std::map<std::string, unsigned int>& dacs) con
     dacs["ChipContReg"] = ChipContReg_;
 }
 
-// Added by Dario
-void PixelROCDACSettings::setDACs(std::map<std::string, unsigned int>& dacs) 
-{
-    Vdd_	 = dacs["Vdd"	     ] ;
-    Vana_	 = dacs["Vana"       ] ;    
-    Vsf_	 = dacs["Vsf"	     ] ;     
-    Vcomp_	 = dacs["Vcomp"      ] ;     
-    Vleak_	 = dacs["Vleak"      ] ;     
-    VrgPr_	 = dacs["VrgPr"      ] ;     
-    VwllPr_	 = dacs["VwllPr"     ] ;    
-    VrgSh_	 = dacs["VrgSh"      ] ;     
-    VwllSh_	 = dacs["VwllSh"     ] ;    
-    VHldDel_	 = dacs["VHldDel"    ] ;   
-    Vtrim_	 = dacs["Vtrim"      ] ;     
-    VcThr_	 = dacs["VcThr"      ] ;     
-    VIbias_bus_  = dacs["VIbiasbus"  ] ;
-    VIbias_sf_   = dacs["VIbiassf"   ] ; 
-    VOffsetOp_   = dacs["VOffsetOp"  ] ; 
-    VbiasOp_	 = dacs["VbiasOp"    ] ;   
-    VOffsetRO_   = dacs["VOffsetRO"  ] ; 
-    VIon_	 = dacs["VIon"       ] ;      
-    VIbias_PH_   = dacs["VIbiasPH"   ] ; 
-    VIbias_DAC_  = dacs["VIbiasDAC"  ] ;
-    VIbias_roc_  = dacs["VIbiasroc"  ] ;
-    VIColOr_	 = dacs["VIColOr"    ] ;   
-    Vnpix_	 = dacs["Vnpix"      ] ;     
-    VsumCol_	 = dacs["VsumCol"    ] ;   
-    Vcal_	 = dacs["Vcal"       ] ;      
-    CalDel_	 = dacs["CalDel"     ] ;    
-    TempRange_   = dacs["TempRange"  ] ; 
-    WBC_	 = dacs["WBC"	     ] ;
-    ChipContReg_ = dacs["ChipContReg"] ;
-}
-
 void PixelROCDACSettings::setDAC(unsigned int dacaddress, unsigned int dacvalue) 
 {
 	switch (dacaddress) {
-		case   1: Vdd_         = dacvalue;  break;
-		case   2: Vana_        = dacvalue;  break;
-		case   3: Vsf_         = dacvalue;  break;
-		case   4: Vcomp_       = dacvalue;  break;
-		case   5: Vleak_       = dacvalue;  break;
-		case   6: VrgPr_       = dacvalue;  break;
-		case   7: VwllPr_      = dacvalue;  break;
-		case   8: VrgSh_       = dacvalue;  break;
-		case   9: VwllSh_      = dacvalue;  break;
-		case  10: VHldDel_     = dacvalue;  break;
-		case  11: Vtrim_       = dacvalue;  break;
-		case  12: VcThr_       = dacvalue;  break;
-		case  13: VIbias_bus_  = dacvalue;  break;
-		case  14: VIbias_sf_   = dacvalue;  break;
-		case  15: VOffsetOp_   = dacvalue;  break;
-		case  16: VbiasOp_     = dacvalue;  break;
-		case  17: VOffsetRO_   = dacvalue;  break;
-		case  18: VIon_        = dacvalue;  break;
-		case  19: VIbias_PH_   = dacvalue;  break;
-		case  20: VIbias_DAC_  = dacvalue;  break;
-		case  21: VIbias_roc_  = dacvalue;  break;
-		case  22: VIColOr_     = dacvalue;  break;
-		case  23: Vnpix_       = dacvalue;  break;
-		case  24: VsumCol_     = dacvalue;  break;
-		case  25: Vcal_        = dacvalue;  break;
-		case  26: CalDel_      = dacvalue;  break;
-	        case  27: TempRange_   = dacvalue;  break;
-		case 254: WBC_         = dacvalue;  break;
-		case 253: ChipContReg_ = dacvalue;  break;
+		case 1: Vdd_=dacvalue; break;
+		case 2: Vana_=dacvalue; break;
+		case 3: Vsf_=dacvalue; break;
+		case 4: Vcomp_=dacvalue; break;
+		case 5: Vleak_=dacvalue; break;
+		case 6: VrgPr_=dacvalue; break;
+		case 7: VwllPr_=dacvalue; break;
+		case 8: VrgSh_=dacvalue; break;
+		case 9: VwllSh_=dacvalue; break;
+		case 10: VHldDel_=dacvalue; break;
+		case 11: Vtrim_=dacvalue; break;
+		case 12: VcThr_=dacvalue; break;
+		case 13: VIbias_bus_=dacvalue; break;
+		case 14: VIbias_sf_=dacvalue; break;
+		case 15: VOffsetOp_=dacvalue; break;
+		case 16: VbiasOp_=dacvalue; break;
+		case 17: VOffsetRO_=dacvalue; break;
+		case 18: VIon_=dacvalue; break;
+		case 19: VIbias_PH_=dacvalue; break;
+		case 20: VIbias_DAC_=dacvalue; break;
+		case 21: VIbias_roc_=dacvalue; break;
+		case 22: VIColOr_=dacvalue; break;
+		case 23: Vnpix_=dacvalue; break;
+		case 24: VsumCol_=dacvalue; break;
+		case 25: Vcal_=dacvalue; break;
+		case 26: CalDel_=dacvalue; break;
+	        case 27: TempRange_=dacvalue; break;
+		case 254: WBC_=dacvalue; break;
+		case 253: ChipContReg_=dacvalue; break;
 		default: cout<<"DAC Address "<<dacaddress<<" does not exist!"<<endl;
 	}
 
@@ -233,37 +199,38 @@ int PixelROCDACSettings::readBinary(ifstream& in, const PixelROCName& rocid){
 
 void PixelROCDACSettings::writeASCII(ostream& out) const{
 
-    out << "ROC:           " << rocid_.rocname()   <<endl;
+    out << "ROC:           "<<rocid_.rocname()<<endl;
 
-    out << "Vdd:           " << (int)Vdd_	   <<endl;
-    out << "Vana:          " << (int)Vana_	   <<endl;
-    out << "Vsf:           " << (int)Vsf_	   <<endl;
-    out << "Vcomp:         " << (int)Vcomp_	   <<endl;
-    out << "Vleak:         " << (int)Vleak_	   <<endl;
-    out << "VrgPr:         " << (int)VrgPr_	   <<endl;
-    out << "VwllPr:        " << (int)VwllPr_	   <<endl;
-    out << "VrgSh:         " << (int)VrgSh_	   <<endl;
-    out << "VwllSh:        " << (int)VwllSh_	   <<endl;
-    out << "VHldDel:       " << (int)VHldDel_	   <<endl;
-    out << "Vtrim:         " << (int)Vtrim_	   <<endl;
-    out << "VcThr:         " << (int)VcThr_	   <<endl;
-    out << "VIbias_bus:    " << (int)VIbias_bus_   <<endl;
-    out << "VIbias_sf:     " << (int)VIbias_sf_    <<endl;
-    out << "VOffsetOp:     " << (int)VOffsetOp_    <<endl;
-    out << "VbiasOp:       " << (int)VbiasOp_	   <<endl;
-    out << "VOffsetRO:     " << (int)VOffsetRO_    <<endl;
-    out << "VIon:          " << (int)VIon_	   <<endl;
-    out << "VIbias_PH:     " << (int)VIbias_PH_    <<endl;
-    out << "VIbias_DAC:    " << (int)VIbias_DAC_   <<endl;
-    out << "VIbias_roc:    " << (int)VIbias_roc_   <<endl;
-    out << "VIColOr:       " << (int)VIColOr_	   <<endl;
-    out << "Vnpix:         " << (int)Vnpix_	   <<endl;
-    out << "VsumCol:       " << (int)VsumCol_      <<endl;
-    out << "Vcal:          " << (int)Vcal_	   <<endl;
-    out << "CalDel:        " << (int)CalDel_	   <<endl;
-    out << "TempRange:     " << (int)TempRange_    <<endl;
-    out << "WBC:           " << (int)WBC_	   <<endl;
-    out << "ChipContReg:   " << (int)ChipContReg_  <<endl;
+    out << "Vdd:           "<<(int)Vdd_<<endl;
+    out << "Vana:          "<<(int)Vana_<<endl;
+    out << "Vsf:           "<<(int)Vsf_<<endl;
+    out << "Vcomp:         "<<(int)Vcomp_<<endl;
+    out << "Vleak:         "<<(int)Vleak_<<endl;
+    out << "VrgPr:         "<<(int)VrgPr_<<endl;
+    out << "VwllPr:        "<<(int)VwllPr_<<endl;
+    out << "VrgSh:         "<<(int)VrgSh_<<endl;
+    out << "VwllSh:        "<<(int)VwllSh_<<endl;
+    out << "VHldDel:       "<<(int)VHldDel_<<endl;
+    out << "Vtrim:         "<<(int)Vtrim_<<endl;
+    out << "VcThr:         "<<(int)VcThr_<<endl;
+    out << "VIbias_bus:    "<<(int)VIbias_bus_<<endl;
+    out << "VIbias_sf:     "<<(int)VIbias_sf_<<endl;
+    out << "VOffsetOp:     "<<(int)VOffsetOp_<<endl;
+    out << "VbiasOp:       "<<(int)VbiasOp_<<endl;
+    out << "VOffsetRO:     "<<(int)VOffsetRO_<<endl;
+    out << "VIon:          "<<(int)VIon_<<endl;
+    out << "VIbias_PH:     "<<(int)VIbias_PH_<<endl;
+    out << "VIbias_DAC:    "<<(int)VIbias_DAC_<<endl;
+    out << "VIbias_roc:    "<<(int)VIbias_roc_<<endl;
+    out << "VIColOr:       "<<(int)VIColOr_<<endl;
+    out << "Vnpix:         "<<(int)Vnpix_<<endl;
+    out << "VsumCol:       "<<(int)VsumCol_<<endl;
+    out << "Vcal:          "<<(int)Vcal_<<endl;
+    out << "CalDel:        "<<(int)CalDel_<<endl;
+    out << "TempRange:     "<<(int)TempRange_<<endl;
+    out << "WBC:           "<<(int)WBC_<<endl;
+    out << "ChipContReg:   "<<(int)ChipContReg_<<endl;	
+
 
 }
 

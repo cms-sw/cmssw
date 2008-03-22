@@ -8,26 +8,26 @@ https://twiki.cern.ch/twiki/bin/view/CMS/SWGuideFastSimTags
 https://twiki.cern.ch/twiki/bin/view/CMS/SWGuideFastSimulation in the "Supported tags section" )
 
 - General:
-Many new features have been added. See below.
+  - Many new features have been added. See below.
 
 - Main changes and new features:
-Adapt to new EgammaElectron algos
-New min-bias event files
-First version of the MuonSimHitProducer
-Tracker material tuned to latest geometry
-TrackerInteractionGeometry and MagneticFieldMap now fully configurable ESProducer's
-New parameterization for muons
-New parameterization for Tracker RecHit's
-Outlier rejection in reconstructed tracks
-Implementation of iterative tracking
-One-step HCAL miscalibration (using hashedIndex)
-Added functionalities to the ECAL miscalibration
-Integration of all L1 (Calo and Muon) and HLT paths (JetMET, Egamma, Muon, Tau, b, xchannel, special) in their cff form
-Apply a workaround to correct a  HCAL/HE geometry problem
+  - Adapt to new EgammaElectron algos
+  - New min-bias event files
+  - First version of the MuonSimHitProducer
+  - Tracker material tuned to latest geometry
+  - TrackerInteractionGeometry and MagneticFieldMap now fully configurable ESProducer's
+  - New parameterization for muons
+  - New parameterization for Tracker RecHit's
+  - Outlier rejection in reconstructed tracks
+  - Implementation of iterative tracking
+  - One-step HCAL miscalibration (using hashedIndex)
+  - Added functionalities to the ECAL miscalibration
+  - Integration of all L1 (Calo and Muon) and HLT paths (JetMET, Egamma, Muon, Tau, b, xchannel, special) in their cff form
+  - Apply a workaround to correct a  HCAL/HE geometry problem
 - Major bug fixes:
 
 - Known issues:
-None as of now. Please check on the twiki page.
+  - None as of now. Please check on the twiki page.
 
 
 <hr>

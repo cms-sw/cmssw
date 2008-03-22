@@ -2,8 +2,8 @@
  *  See header file for a description of this class.
  *  
  *
- *  $Date: 2007/06/08 12:00:47 $
- *  $Revision: 1.1 $
+ *  $Date$
+ *  $Revision$
  *
  *  \author: D. Pagano - University of Pavia & INFN Pavia
  */
@@ -92,7 +92,8 @@ void RPCSeedGenerator::produce(edm::Event& event, const edm::EventSetup& eSetup)
   const DetLayer* RB11L = RPCBarrelLayers[0];
 
 
-  MuonDetLayerMeasurements muonMeasurements(false, false, true, theRPCRecHits.label());
+  MuonDetLayerMeasurements muonMeasurements(edm::InputTag(),edm::InputTag(), theRPCRecHits,
+					    false, false, true);
 
   
   MuonRecHitContainer list11 = muonMeasurements.recHits(RB11L,event);

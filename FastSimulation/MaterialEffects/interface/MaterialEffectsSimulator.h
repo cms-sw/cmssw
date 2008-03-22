@@ -65,6 +65,9 @@ class MaterialEffectsSimulator
   /// A vector orthogonal to another one (because it's not in XYZTLorentzVector)
   XYZVector orthogonal(const XYZVector&) const; 
 
+  /// The id of the closest charged daughter (filled for nuclear interactions only)
+  inline int closestDaughterId() { return theClosestChargedDaughterId; } 
+
  private:
 
   /// Overloaded in all material effects updtators
@@ -83,6 +86,8 @@ class MaterialEffectsSimulator
   GlobalVector theNormalVector;
 
   const RandomEngine* random;
+
+  int theClosestChargedDaughterId;
 
 };
 

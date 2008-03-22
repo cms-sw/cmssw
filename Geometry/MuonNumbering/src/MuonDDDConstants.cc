@@ -1,16 +1,10 @@
 #include "Geometry/MuonNumbering/interface/MuonDDDConstants.h"
 
-#include <string>
-#include <iostream>
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
-#include "DetectorDescription/Base/interface/DDException.h"
-#include "DetectorDescription/ExprAlgo/interface/ExprEvalSingleton.h"
-#include "DetectorDescription/Core/interface/DDCompactView.h"
 #include "DetectorDescription/Core/interface/DDValue.h"
-#include "DetectorDescription/Core/interface/DDSpecifics.h"
 #include "DetectorDescription/Core/interface/DDFilteredView.h"
 
 

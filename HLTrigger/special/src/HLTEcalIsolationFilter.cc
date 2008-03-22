@@ -14,7 +14,7 @@
 
 HLTEcalIsolationFilter::HLTEcalIsolationFilter(const edm::ParameterSet& iConfig)
 {
-  candTag_ = iConfig.getUntrackedParameter<edm::InputTag> ("EcalIsolatedParticleSource");
+  candTag_ = iConfig.getParameter<edm::InputTag> ("EcalIsolatedParticleSource");
   maxhitout = iConfig.getParameter<int> ("MaxNhitOuterCone");
   maxhitin  = iConfig.getParameter<int> ("MaxNhitInnerCone");
   maxenin = iConfig.getParameter<double> ("MaxEnergyInnerCone");

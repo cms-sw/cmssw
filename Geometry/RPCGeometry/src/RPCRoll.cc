@@ -1,7 +1,5 @@
 #include "Geometry/RPCGeometry/interface/RPCRoll.h"
 #include "Geometry/RPCGeometry/interface/RPCRollSpecs.h"
-#include "Geometry/RPCGeometry/interface/RPCChamber.h"
-#include "Geometry/CommonTopologies/interface/RectangularStripTopology.h"
 #include "Geometry/CommonTopologies/interface/TrapezoidalStripTopology.h"
 
 

@@ -7,6 +7,11 @@
 #include "FWCore/Utilities/interface/Algorithms.h"
 #include <iostream>
 #include <iterator>
+#include "TBuffer.h"
+#include "DataFormats/Streamer/interface/StreamedProducts.h"
+#include "IOPool/Streamer/interface/ClassFiller.h"
+
+using namespace edm;
 
 void dumpInitHeader(const InitMsgView* view)
 {
@@ -17,6 +22,9 @@ void dumpInitHeader(const InitMsgView* view)
     << "proto = " << view->protocolVersion() << "\n"
     << "release = " << view->releaseTag() << "\n"
     << "processName = " << view->processName() << "\n";
+  if (view->protocolVersion() >= 5) {
+    std::cout << "outModuleLabel = " << view->outputModuleLabel() << "\n";
+  }
 
 
   //PSet 16 byte non-printable representation, stored in message.
@@ -31,16 +39,25 @@ void dumpInitHeader(const InitMsgView* view)
   std::string hexy = r1.toString();
   std::cout << "PSetID= " << hexy << std::endl;
 
-  Strings vhltnames,vl1names;
+  Strings vhltnames,vhltselections,vl1names;
   view->hltTriggerNames(vhltnames);
+  if (view->protocolVersion() >= 5) {
+    view->hltTriggerSelections(vhltselections);
+  }
   view->l1TriggerNames(vl1names);
 
   std::cout << "HLT names :- \n ";
   edm::copy_all(vhltnames,std::ostream_iterator<std::string>(std::cout,"\n"));
 
+  if (view->protocolVersion() >= 5) {
+    std::cout << "HLT selections :- \n ";
+    edm::copy_all(vhltselections,std::ostream_iterator<std::string>(std::cout,"\n"));
+  }
+
   std::cout << "L1 names :- \n ";
   edm::copy_all(vl1names,std::ostream_iterator<std::string>(std::cout,"\n"));
   std::cout << "\n";
+  std::cout.flush();
 
 }
 
@@ -53,12 +70,45 @@ void dumpInitView(const InitMsgView* view)
   //const uint8* pos = view->descData();
   //std::copy(pos,pos+view->descLength(),std::ostream_iterator<uint8>(std::cout,""));
   //std::cout << "\n";
+  std::cout.flush();
 
 }
 
 void dumpStartMsg(const InitMsgView* view)
 {
   dumpInitHeader(view);
+  std::cout.flush();
+}
+
+void dumpInitVerbose(const InitMsgView* view)
+{
+  std::cout << ">>>>> INIT Message Dump (begin) >>>>>" << std::endl;
+  dumpInitHeader(view);
+
+  TClass* desc = getTClass(typeid(SendJobHeader));
+  TBuffer xbuf(TBuffer::kRead, view->descLength(),
+               (char*)view->descData(), kFALSE);
+  std::auto_ptr<SendJobHeader> sd((SendJobHeader*)xbuf.ReadObjectAny(desc));
+
+  if (sd.get() == 0) {
+    std::cout << "Unable to determine the product registry - "
+              << "Registry deserialization error." << std::endl;
+  }
+  else {
+    std::cout << "Branch Descriptions:" << std::endl;
+    SendDescs descs = sd->descs_;
+    SendDescs::const_iterator iDesc(descs.begin()), eDesc(descs.end());
+    while (iDesc != eDesc) {
+      BranchDescription branchDesc = *iDesc;
+      branchDesc.init();
+      //branchDesc.write(std::cout);
+      std::cout << branchDesc.branchName() << std::endl;
+      iDesc++;
+    }
+  }
+
+  std::cout << "<<<<< INIT Message Dump (end) <<<<<" << std::endl;
+  std::cout.flush();
 }
 
 void dumpInit(uint8* buf)
@@ -70,6 +120,7 @@ void dumpInit(uint8* buf)
   //const uint8* pos = view.descData();
   //std::copy(pos,pos+view.descLength(),std::ostream_iterator<uint8>(std::cout,""));
   //std::cout << "\n";
+  std::cout.flush();
 }
 
 void printBits(unsigned char c){
@@ -85,10 +136,12 @@ void dumpEventHeader(const EventMsgView* eview)
 {
   std::cout << "code=" << eview->code() << "\n"
        << "size=" << eview->size() << "\n"
+       << "protocolVersion=" << eview->protocolVersion() << "\n"
        << "run=" << eview->run() << "\n"
        << "event=" << eview->event() << "\n"
        << "lumi=" << eview->lumi() << "\n"
-       << "reserved=" << eview->reserved() << "\n"
+       << "origDataSize=" << eview->origDataSize() << "\n"
+       << "outModId=0x" << std::hex << eview->outModId() << std::dec << "\n"
        << "event length=" << eview->eventLength() << "\n";
 
   std::vector<bool> l1_out;
@@ -112,6 +165,7 @@ void dumpEventHeader(const EventMsgView* eview)
     printBits(hlt_out[i]);
   //std::copy(&hlt_out[0],&hlt_out[0]+bytesForHLT,std::ostream_iterator<char>(std::cout,""));
   std::cout << ")\n";
+  std::cout.flush();
  }
 
 void dumpEventView(const EventMsgView* eview)
@@ -122,12 +176,14 @@ void dumpEventView(const EventMsgView* eview)
   //std::copy(&edata[0],&edata[0]+eview->eventLength(),
   //     std::ostream_iterator<char>(std::cout,""));
   //std::cout << ")\n";
+  std::cout.flush();
 
 }
 
 void dumpEventIndex(const EventMsgView* eview)
 {
   dumpEventHeader(eview);
+  std::cout.flush();
 }
 
 void dumpEvent(uint8* buf)
@@ -141,6 +197,7 @@ void dumpEvent(uint8* buf)
   //std::copy(&edata[0],&edata[0]+eview.eventLength(),
   //     std::ostream_iterator<char>(std::cout,""));
   //std::cout << ")\n";
+  std::cout.flush();
 
 }
 

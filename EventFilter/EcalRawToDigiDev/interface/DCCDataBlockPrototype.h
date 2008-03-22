@@ -1,4 +1,4 @@
- #ifndef DCCDATABLOCKPROTOTYPE_HH
+#ifndef DCCDATABLOCKPROTOTYPE_HH
 #define DCCDATABLOCKPROTOTYPE_HH
 
 /*
@@ -6,8 +6,8 @@
  * Prototype for ECAL data block unpacking
  * \file DCCDataBlockPrototype.h
  *
- * $Date: 2007/04/10 17:33:48 $
- * $Revision: 1.4 $
+ * $Date: 2008/02/11 23:36:06 $
+ * $Revision: 1.6 $
  * \author N. Almeida
  *
 */
@@ -53,7 +53,13 @@ class DCCDataBlockPrototype {
      //cout<<"\n dwToEne...   "<<*dwToEnd_;    
 
       *datap_   += blockLength_;
-      *dwToEnd_ -= blockLength_; 
+
+      // preventing pointers from navigating wildly outside of fedBlock
+      if((*dwToEnd_)>=blockLength_) 
+        *dwToEnd_ -= blockLength_; 
+      else 
+        *dwToEnd_ = 0; 
+
     }
     
     uint getLength(){ return blockLength_; }

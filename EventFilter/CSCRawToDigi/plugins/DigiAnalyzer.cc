@@ -4,31 +4,17 @@
  * ripped from Jeremy's and Rick's analyzers
  *   
  */
-#include <iostream>
-#include "FWCore/Framework/interface/EDAnalyzer.h"
-#include "FWCore/Framework/interface/Event.h"
-#include "DataFormats/Common/interface/Handle.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "DataFormats/CSCDigi/interface/CSCWireDigiCollection.h"
 #include "EventFilter/CSCRawToDigi/interface/DigiAnalyzer.h"
 #include "DataFormats/CSCDigi/interface/CSCWireDigi.h"
 #include "DataFormats/CSCDigi/interface/CSCStripDigi.h"
 #include "DataFormats/CSCDigi/interface/CSCStripDigiCollection.h"
-#include "DataFormats/CSCDigi/interface/CSCComparatorDigi.h"
 #include "DataFormats/CSCDigi/interface/CSCComparatorDigiCollection.h"
-#include "DataFormats/CSCDigi/interface/CSCALCTDigi.h"
 #include "DataFormats/CSCDigi/interface/CSCALCTDigiCollection.h"
-#include "DataFormats/CSCDigi/interface/CSCDDUStatusDigi.h"
 #include "DataFormats/CSCDigi/interface/CSCDDUStatusDigiCollection.h"
-#include "DataFormats/CSCDigi/interface/CSCCLCTDigi.h"
 #include "DataFormats/CSCDigi/interface/CSCCLCTDigiCollection.h"
-#include "DataFormats/CSCDigi/interface/CSCRPCDigi.h"
 #include "DataFormats/CSCDigi/interface/CSCRPCDigiCollection.h"
-#include "DataFormats/CSCDigi/interface/CSCCorrelatedLCTDigi.h"
 #include "DataFormats/CSCDigi/interface/CSCCorrelatedLCTDigiCollection.h"
-#include "EventFilter/CSCRawToDigi/interface/CSCDDUHeader.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 

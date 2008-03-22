@@ -12,7 +12,6 @@
 #include "EventFilter/StorageManager/interface/ESRingBuffer.h"
 
 #include "FWCore/Utilities/interface/DebugMacros.h"
-#include "FWCore/Utilities/interface/Exception.h"
 
 using namespace stor;
 using namespace edm;

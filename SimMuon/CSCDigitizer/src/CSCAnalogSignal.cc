@@ -2,6 +2,11 @@
 #include <iostream>
 
 // =================================
+float CSCAnalogSignal::peakTime() const {
+  size_t imax = std::max_element(theBinValues.begin(), theBinValues.end()) - theBinValues.begin();
+  return imax/invBinSize + theTimeOffset;
+}
+
 
 std::ostream & operator<<(std::ostream & stream, const CSCAnalogSignal & signal) {
   stream << "CSCAnalogSignal: Element " << signal.theElement

@@ -26,11 +26,9 @@
 #include "DataFormats/ParticleFlowReco/interface/PFTrajectoryPoint.h"
 #include "DataFormats/ParticleFlowReco/interface/PFBlockElement.h"
 #include "DataFormats/ParticleFlowReco/interface/PFBlockElementTrack.h"
-#include "DataFormats/ParticleFlowReco/interface/PFBlockElementTrackNuclear.h"
 #include "DataFormats/ParticleFlowReco/interface/PFBlockElementCluster.h"
 #
 #include "DataFormats/ParticleFlowReco/interface/PFBlock.h"
-#include "DataFormats/ParticleFlowReco/interface/PFNuclearInteraction.h"
 
 namespace { 
   namespace {
@@ -67,15 +65,6 @@ namespace {
     edm::Wrapper< std::vector<reco::PFBlock> >           dummy16;
     edm::Ref< std::vector<reco::PFBlock>, reco::PFBlock, edm::refhelper::FindUsingAdvance< std::vector<reco::PFBlock>, reco::PFBlock> >  dummy18;
     edm::Ref<std::vector<reco::PFRecTrack>,reco::PFRecTrack,edm::refhelper::FindUsingAdvance<std::vector<reco::PFRecTrack>,reco::PFRecTrack> > dummy19;
-    edm::RefVector<std::vector<reco::PFRecTrack>,reco::PFRecTrack,edm::refhelper::FindUsingAdvance<std::vector<reco::PFRecTrack>,reco::PFRecTrack> > dummy19b;
     edm::Ref<std::vector<reco::PFCluster>,reco::PFCluster,edm::refhelper::FindUsingAdvance<std::vector<reco::PFCluster>,reco::PFCluster> > dummy20;
-
-    /* NuclearInteraction stuffs  */
-    reco::PFNuclearInteraction                                dummy21;
-    std::vector<reco::PFNuclearInteraction>                   dummy22;
-    edm::Wrapper<std::vector<reco::PFNuclearInteraction> >    dummy23;
-    edm::Ref<std::vector<reco::PFNuclearInteraction> >        dummy24;
-    edm::RefProd<std::vector<reco::PFNuclearInteraction> >    dummy25;
-    edm::RefVector<std::vector<reco::PFNuclearInteraction> >  dummy26;
   }
 }

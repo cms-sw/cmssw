@@ -38,10 +38,10 @@ WebGUI::WebGUI(xdaq::Application* app,StateMachine* fsm)
   , itemGroupListener_(0)
   , parametersExported_(false)
   , countersAddedToParams_(false)
-  , largeAppIcon_("/rubuilder/fu/images/fu64x64.gif")
-  , smallAppIcon_("/rubuilder/fu/images/fu32x32.gif")
-  , smallDbgIcon_("/rubuilder/bu/images/debug32x32.gif")
-  , smallCtmIcon_("/rubuilder/bu/images/debug32x32.gif")
+  , largeAppIcon_("/evf/images/rbicon.jpg")
+  , smallAppIcon_("/evf/images/rbicon.jpg")
+  , smallDbgIcon_("/evf/images/bugicon.jpg")
+  , smallCtmIcon_("/evf/images/spoticon.jpg")
   , hyperDAQIcon_("/hyperdaq/images/HyperDAQ.jpg")
 {
   // initialize application information
@@ -54,7 +54,7 @@ WebGUI::WebGUI(xdaq::Application* app,StateMachine* fsm)
   urn_     ="/"+app_->getApplicationDescriptor()->getURN();
   
   std::stringstream oss2;
-  oss2<<"urn:xdaq-monitorable-"<<appClass<<"-"<<instance;
+  oss2<<"urn:xdaq-monitorable-"<<appClass;
   string monInfoSpaceName=oss2.str();
   toolbox::net::URN urn = app_->createQualifiedInfoSpace(monInfoSpaceName);
   

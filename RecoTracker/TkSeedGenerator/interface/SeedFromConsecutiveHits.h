@@ -63,10 +63,8 @@ class SeedFromConsecutiveHits{
 		  const edm::ParameterSet& p
 		  );
 
-  CurvilinearTrajectoryError initialError( const TrackingRecHit* outerHit,
-					   const TrackingRecHit* innerHit,
-					   const GlobalPoint& vertexPos,
-					   const GlobalError& vertexErr);
+  CurvilinearTrajectoryError initialError(
+		   const GlobalPoint& vertexPos, const GlobalError& vertexErr, float sinTheta);
 
   TrajectoryStateTransform transformer;
   TransientTrackingRecHit::ConstRecHitPointer outrhit;

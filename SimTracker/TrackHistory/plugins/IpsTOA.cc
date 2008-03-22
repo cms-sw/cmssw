@@ -15,7 +15,7 @@
 //
 // Original Author:  Victor Bazterra
 //         Created:  Tue Mar 13 14:15:40 CDT 2007
-// $Id: IpsTOA.cc,v 1.3 2007/10/27 21:45:29 dlange Exp $
+// $Id: IpsTOA.cc,v 1.2 2007/10/10 19:02:53 bazterra Exp $
 //
 //
 
@@ -263,7 +263,7 @@ IpsTOA::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   iEvent.getByType(TPCollection);
 
   // Track collection
-  edm::Handle<edm::View<reco::Track> > trackCollection;
+  edm::Handle<reco::TrackCollection> trackCollection;
   iEvent.getByLabel(trackCollection_,trackCollection);
 
   // Track impact parameters tag info
@@ -492,15 +492,13 @@ IpsTOA::LoopOverTrackCountingInfo(
       for(std::size_t k=j; k<i; k++)
       {        
         // If the track is not fake then get the orginal particles
-
-	edm::RefToBase<reco::Track> track(tracks[indexes[k]]);
-	if (tracer.evaluate(track, association, associationByHits_))
-	  {
-	    const HepMC::GenParticle * particle = tracer.particle();
-	    // If the origin can be determined then take the first particle as the original
-	    if (particle)
-	      Count(particle->barcode(), particle->pdg_id());
-	  }
+        if (tracer.evaluate(tracks[indexes[k]], association, associationByHits_))
+        {
+          const HepMC::GenParticle * particle = tracer.particle();
+          // If the origin can be determined then take the first particle as the original
+          if (particle)
+            Count(particle->barcode(), particle->pdg_id());
+        }
         else
           Count(0,0);
       }

@@ -17,7 +17,6 @@
 
 #include "FastSimulation/CaloGeometryTools/interface/DistanceToCell.h"
 #include "FastSimulation/CaloGeometryTools/interface/Crystal.h"
-#include "FastSimulation/Utilities/interface/FamosDebug.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 

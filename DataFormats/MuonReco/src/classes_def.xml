@@ -18,7 +18,6 @@
   <class name="edm::Wrapper<edm::RefVector<std::vector<reco::MuonTrackLinks>,reco::MuonTrackLinks,edm::refhelper::FindUsingAdvance<std::vector<reco::MuonTrackLinks>,reco::MuonTrackLinks> > >"/>
   
   <class name="reco::MuonEnergy"/>
-  <class name="reco::MuonTime"/>
   <class name="reco::MuonChamberMatch"/>
   <class name="reco::MuonSegmentMatch"/>
   <class name="std::vector<reco::MuonChamberMatch>"/>

@@ -9,6 +9,7 @@
 #include "RecoVertex/VertexTools/interface/VertexDistanceXY.h"
 #include "RecoVertex/VertexPrimitives/interface/VertexException.h"
 #include <algorithm>
+//#include "RecoVertex/PrimaryVertexProducer/interface/BeamTransientTrack.h"
 
 using namespace reco;
 
@@ -125,104 +126,127 @@ PrimaryVertexProducerAlgorithm::vertices(const vector<reco::TransientTrack> & tr
         return theFinder.vertices( tracks );
   }
   vector<TransientVertex> pvs;
+  try {
 
 
-  // select tracks
-  vector<TransientTrack> seltks;
+    // select tracks
+    vector<TransientTrack> seltks;
 
-  for (vector<reco::TransientTrack>::const_iterator itk = tracks.begin();
-       itk != tracks.end(); itk++) {
-    if (theTrackFilter(*itk)) seltks.push_back(*itk);
-  }
-
-  if(fVerbose){
-    cout << "PrimaryVertexProducerAlgorithm::vertices  selected tracks=" << seltks.size() << endl;
-  }
-
-  // clusterize tracks in Z
-  vector< vector<reco::TransientTrack> > clusters = 
-    theTrackClusterizer.clusterize(seltks);
-
-
-  // look for primary vertices in each cluster
-  vector<TransientVertex> pvCand;
-  int nclu=0;
-  for (vector< vector<reco::TransientTrack> >::const_iterator iclus
-	 = clusters.begin(); iclus != clusters.end(); iclus++) {
+    for (vector<reco::TransientTrack>::const_iterator itk = tracks.begin();
+	 itk != tracks.end(); itk++) {
+      if (theTrackFilter(*itk)) seltks.push_back(*itk);
+    }
 
     if(fVerbose){
-      cout << "PrimaryVertexProducerAlgorithm::vertices  cluster =" 
-	   << nclu << "  tracks" << (*iclus).size() << endl;
-
-      std::cout << "cluster tracks " << std::endl;
+      cout << "PrimaryVertexProducerAlgorithm::vertices  selected tracks=" << seltks.size() << endl;
     }
 
-    if( fUseBeamConstraint &&((*iclus).size()>0) ){
-      if (fVerbose){cout <<  "constrained fit with "<< (*iclus).size() << " tracks"  << endl;}
-      try { // the vertex fitter may throw an exception, don't remove this try/catch (yet)
-	TransientVertex v = theFitter->vertex(*iclus, beamSpot);
-	if (v.isValid()) pvCand.push_back(v);
+    // clusterize tracks in Z
+    vector< vector<reco::TransientTrack> > clusters = 
+      theTrackClusterizer.clusterize(seltks);
 
-	if (fVerbose){
-	  cout << "beamspot   x="<< beamVertexState.position().x() 
-	       << " y=" << beamVertexState.position().y()
-	       << " z=" << beamVertexState.position().z()
-	       << " dx=" << sqrt(beamVertexState.error().cxx())
-	       << " dy=" << sqrt(beamVertexState.error().cyy())
-	       << " dz=" << sqrt(beamVertexState.error().czz())
-	       << std::endl;
-	  if (v.isValid()) cout << "x,y,z=" << v.position().x() <<" " << v.position().y() << " " <<  v.position().z() << endl;
-	  else cout <<"Invalid fitted vertex\n";
-	}
-      }  catch (std::exception & err) {
-	edm::LogInfo("RecoVertex/PrimaryVertexProducerAlgorithm") 
-	  << "Exception while fitting vertex: " 
-	  << "\n" << err.what() << "\n";
-      }
-
-    }else if((*iclus).size()>1){
-      if (fVerbose){cout <<  "unconstrained fit with "<< (*iclus).size() << " tracks"  << endl;}
-      try { // the vertex fitter may throw an exception, don't remove this try/catch (yet)
-
-	TransientVertex v = theFitter->vertex(*iclus); 
-	if (v.isValid()) pvCand.push_back(v);
-
-	if (fVerbose){
-	  if (v.isValid()) cout << "x,y,z=" << v.position().x() <<" " << v.position().y() << " " <<  v.position().z() << endl;
-	  else cout <<"Invalid fitted vertex\n";
-	}
-      }  catch (std::exception & err) {
-	edm::LogInfo("RecoVertex/PrimaryVertexProducerAlgorithm") 
-	  << "Exception while fitting vertex: " 
-	  << "\n" << err.what() << "\n";
-      }
-    }else if (fVerbose){
-      cout <<  "cluster dropped" << endl;
-    }
-
-
-    nclu++;
-  }// end of cluster loop
-
-
-  if(fVerbose){
-    cout << "PrimaryVertexProducerAlgorithm::vertices  candidates =" << pvCand.size() << endl;
-  }
-
-  // select vertices compatible with beam
-  int npv=0;
-  for (vector<TransientVertex>::const_iterator ipv = pvCand.begin();
-       ipv != pvCand.end(); ipv++) {
+    /*
     if(fVerbose){
-      cout << "PrimaryVertexProducerAlgorithm::vertices cand " << npv++ << " sel=" <<
-	theVertexSelector(*ipv,beamVertexState) << "   z="  << ipv->position().z() << endl;
+      cout << "PrimaryVertexProducerAlgorithm::vertices  clusters       =" << clusters.size() << endl;
+      int i=0;
+      for (vector< vector<reco::TransientTrack> >::const_iterator iclus
+	     = clusters.begin(); iclus != clusters.end(); iclus++) {
+	cout << "PrimaryVertexProducerAlgorithm::vertices  cluster  " 
+	     << i++ << ")  tracks =" << (*iclus).size() << endl;
+      }
     }
-    if (theVertexSelector(*ipv,beamVertexState)) pvs.push_back(*ipv);
-  }
+    */
 
-  // sort vertices by pt**2  vertex (aka signal vertex tagging)
-  sort(pvs.begin(), pvs.end(), VertexHigherPtSquared());
+    // look for primary vertices in each cluster
+    vector<TransientVertex> pvCand;
+    int nclu=0;
+    for (vector< vector<reco::TransientTrack> >::const_iterator iclus
+	   = clusters.begin(); iclus != clusters.end(); iclus++) {
+
+      if(fVerbose){
+	cout << "PrimaryVertexProducerAlgorithm::vertices  cluster =" 
+	     << nclu << "  tracks" << (*iclus).size() << endl;
+
+	std::cout << "cluster tracks " << std::endl;
+// 	for(vector<reco::TransientTrack>::const_iterator t=(*iclus).begin();
+// 	    t!=(*iclus).end(); ++t){
+// 	  std::cout << (*t).initialFreeState()
+// 		    << std::endl;
+// 	}
+      }
+
+      if( fUseBeamConstraint &&((*iclus).size()>0) ){
+	if (fVerbose){cout <<  "constrained fit with "<< (*iclus).size() << " tracks"  << endl;}
+	try {
+          TransientVertex v = theFitter->vertex(*iclus, beamSpot);
+
+	  if (fVerbose){
+	    cout << "beamspot   x="<< beamVertexState.position().x() 
+		 << " y=" << beamVertexState.position().y()
+		 << " z=" << beamVertexState.position().z()
+		 << " dx=" << sqrt(beamVertexState.error().cxx())
+		 << " dy=" << sqrt(beamVertexState.error().cyy())
+		 << " dz=" << sqrt(beamVertexState.error().czz())
+		 << std::endl;
+	    if (v.isValid()) cout << "x,y,z=" << v.position().x() <<" " << v.position().y() << " " <<  v.position().z() << endl;
+	      else cout <<"Invalid fitted vertex\n";
+	  }
+	  if (v.isValid()) pvCand.push_back(v);
+	}  catch (std::exception & err) {
+	  edm::LogInfo("RecoVertex/PrimaryVertexProducerAlgorithm") 
+	    << "Exception while fitting vertex: " 
+	    << "\n" << err.what() << "\n";
+	}
+
+      }else if((*iclus).size()>1){
+	if (fVerbose){cout <<  "unconstrained fit with "<< (*iclus).size() << " tracks"  << endl;}
+	try {
+
+	  TransientVertex v = theFitter->vertex(*iclus); 
+	  if (fVerbose){
+	    if (v.isValid()) cout << "x,y,z=" << v.position().x() <<" " << v.position().y() << " " <<  v.position().z() << endl;
+	      else cout <<"Invalid fitted vertex\n";
+	  }
+	  if (v.isValid()) pvCand.push_back(v);
+	}  catch (std::exception & err) {
+	  edm::LogInfo("RecoVertex/PrimaryVertexProducerAlgorithm") 
+	    << "Exception while fitting vertex: " 
+	    << "\n" << err.what() << "\n";
+	}
+      }else if (fVerbose){
+	cout <<  "cluster dropped" << endl;
+      }
+
+
+      nclu++;
+    }// end of cluster loop
+
+
+    if(fVerbose){
+      cout << "PrimaryVertexProducerAlgorithm::vertices  candidates =" << pvCand.size() << endl;
+    }
+
+    // select vertices compatible with beam
+    int npv=0;
+    for (vector<TransientVertex>::const_iterator ipv = pvCand.begin();
+	 ipv != pvCand.end(); ipv++) {
+      if(fVerbose){
+	cout << "PrimaryVertexProducerAlgorithm::vertices cand " << npv++ << " sel=" <<
+	  theVertexSelector(*ipv,beamVertexState) << "   z="  << ipv->position().z() << endl;
+	  //theVertexSelector(*ipv) << "   z="  << ipv->position().z() << endl;
+      }
+      if (theVertexSelector(*ipv,beamVertexState)) pvs.push_back(*ipv);
+      //if (theVertexSelector(*ipv)) pvs.push_back(*ipv);
+    }
+
+    // sort vertices by pt**2  vertex (aka signal vertex tagging)
+    sort(pvs.begin(), pvs.end(), VertexHigherPtSquared());
   
+  }  catch (std::exception & err) {
+    edm::LogInfo("RecoVertex/PrimaryVertexProducerAlgorithm") 
+      << "Exception while reconstructing tracker PV: " 
+      << "\n" << err.what() << "\n";
+  } 
 
   return pvs;
   

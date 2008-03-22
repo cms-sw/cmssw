@@ -39,7 +39,9 @@ public:
   void  trackerSeeds(const TrackCand&, const TrackingRegion&, BTSeedCollection&);
 
 private:
-  //concrete implementation
+  //  virtual void run(TrajectorySeedCollection &seeds, 
+  //	     const edm::Event &ev, const edm::EventSetup &es, const TrackingRegion& region);
+ //concrete implementation
   void makeSeeds_0(const reco::Track &,std::vector<TrajectorySeed> &);
   void makeSeeds_1(const reco::Track &,std::vector<TrajectorySeed> &);
   void makeSeeds_2(const reco::Track &,std::vector<TrajectorySeed> &);
@@ -47,12 +49,6 @@ private:
   void makeSeeds_4(const reco::Track &,std::vector<TrajectorySeed> &);
 
 private:
-  bool IPfts(const reco::Track &, FreeTrajectoryState &);
-
-  void adjust(FreeTrajectoryState &);
-  void adjust(TrajectoryStateOnSurface &);
-  bool theAdjustAtIp;
-
   void pushTrajectorySeed(const reco::Track & muon, std::vector<DetLayer::DetWithState > & compatible, PropagationDirection direction, std::vector<TrajectorySeed>& result)const;
   edm::ParameterSet theConfig;
 

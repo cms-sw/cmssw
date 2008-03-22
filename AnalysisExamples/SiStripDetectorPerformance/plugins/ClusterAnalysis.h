@@ -128,7 +128,7 @@ namespace cms{
       std::vector<const SiStripCluster*> vPSiStripCluster;
 
       edm::Service<TFileService> fFile;
-
+      
       std::map<std::pair<std::string,uint32_t>,bool> DetectedLayers;
 
       TString name;
@@ -140,11 +140,6 @@ namespace cms{
       int32_t psfilemode_;    
 
       THashList* Hlist;
-      std::string ClusOccMap_on_;
-      std::string ClusOccMap_off_;
-      std::string ClusOccMap_All_; 
-      std::string Inv_Hit_; 
-
       TrackerMap* tkMap_ClusOcc[3];//0 for onTrack, 1 for offTrack, 2 for All
       TrackerMap* tkInvHit;      
       int runNb;

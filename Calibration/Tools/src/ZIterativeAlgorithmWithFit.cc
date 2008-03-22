@@ -9,25 +9,15 @@
 #include "Calibration/Tools/interface/ZIterativeAlgorithmWithFit.h"
 #include "Calibration/Tools/interface/EcalRingCalibrationTools.h"
 
-#include "DataFormats/EgammaCandidates/interface/Electron.h"
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
-#include "DataFormats/TrackReco/interface/Track.h"
 
 #include <TMath.h>
-#include <TCanvas.h> 
-#include "TH1.h"
-#include "TH2.h"
 #include "TF1.h"
-#include "TH1F.h"
 #include "TMinuit.h"
-#include "TGraphErrors.h"
-#include "THStack.h"
-#include "TLegend.h"
 
 
 #include <fstream>
 #include <iostream>
-#include <vector>
 
 //#include "Tools.C"
 

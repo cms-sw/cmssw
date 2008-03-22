@@ -9,7 +9,6 @@
 // Message logger.
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include<iostream>
 
 //#include "DetectorDescription/ExprAlgo/interface/ExprEvalSingleton.h"
 

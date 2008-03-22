@@ -3,7 +3,6 @@
 #include "DetectorDescription/Base/interface/DDException.h"
 #include "DetectorDescription/Core/interface/DDSplit.h"
 #include "DetectorDescription/Base/interface/Singleton.h"
-#include "DetectorDescription/Base/interface/DDdebug.h"
 
 #include <sstream>
 

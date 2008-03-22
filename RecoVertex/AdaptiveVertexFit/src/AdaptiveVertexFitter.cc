@@ -93,10 +93,14 @@ void AdaptiveVertexFitter::setParameters( double maxshift, double maxlpshift,
 
 void AdaptiveVertexFitter::setParameters ( const edm::ParameterSet & s )
 {
+  try {
     setParameters ( s.getParameter<double>("maxshift"),
                     s.getParameter<double>("maxlpshift"),
                     s.getParameter<int>("maxstep"),
                     s.getParameter<double>("weightthreshold") );
+  } catch ( ... ) {
+    edm::LogWarning("") << "setParameters failed!";
+  };
 }
 
 CachingVertex<5>
@@ -108,7 +112,12 @@ AdaptiveVertexFitter::vertex(const vector<reco::TransientTrack> & tracks) const
   };
   // Linearization Point
   GlobalPoint linP(0.,0.,0.);
+  try {
     linP = theLinP->getLinearizationPoint(tracks);
+  } catch (...) {
+    cout << "[AdaptiveVertexFitter] LinPt Finder threw exception" 
+         << endl;
+  };
   // Initial vertex seed, with a very large error matrix
   AlgebraicSymMatrix we(3,1);
   GlobalError error( we * initialError );
@@ -179,7 +188,12 @@ AdaptiveVertexFitter::vertex(const vector<reco::TransientTrack> & tracks,
   if (tracks.size() > 1) {
     // Linearization Point search if there are more than 1 track
     GlobalPoint linP(0.,0.,0.);
+    try {
       linP = theLinP->getLinearizationPoint(tracks);
+    } catch (...) {
+      cout << "[AdaptiveVertexFitter] LinPt Finder threw exception" 
+           << endl;
+    }
     AlgebraicSymMatrix we(3,1);
     // AlgebraicSymMatrix33 we;
     // we(0,0)=1; we(1,1)=1; we(2,2);
@@ -506,6 +520,10 @@ AdaptiveVertexFitter::fit(const vector<RefCountedVertexTrack> & tracks,
         };
       } catch ( exception & e ) {
         cout << "[AdaptiveVertexFitter] warning: updator throws " << e.what() << endl;
+        cout << "[AdaptiveVertexFitter] (your vertex might just have lost one good track)"
+             << endl;
+      } catch (...) {
+        cout << "[AdaptiveVertexFitter] warning: updator threw exception!" << endl;
         cout << "[AdaptiveVertexFitter] (your vertex might just have lost one good track)"
              << endl;
       };

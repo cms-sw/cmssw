@@ -15,7 +15,6 @@
 #include "Geometry/CaloTopology/interface/EcalBarrelHardcodedTopology.h"
 #include "RecoEcal/EgammaCoreTools/interface/PositionCalc.h"
 #include "RecoEcal/EgammaCoreTools/interface/EcalEtaPhiRegion.h"
-#include "RecoEcal/EgammaCoreTools/interface/EcalRecHitLess.h"
 
 // C/C++ headers
 #include <string>
@@ -23,6 +22,17 @@
 #include <set>
 
 typedef std::map<DetId, EcalRecHit> RecHitsMap;
+
+// Less than operator for sorting EcalRecHits according to energy.
+class ecalRecHitLess : public std::binary_function<EcalRecHit, EcalRecHit, bool> 
+{
+ public:
+  bool operator()(EcalRecHit x, EcalRecHit y) 
+    { 
+      return (x.energy() > y.energy()); 
+    }
+};
+
 
 class IslandClusterAlgo 
 {

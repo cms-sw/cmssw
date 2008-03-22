@@ -34,28 +34,18 @@ my $libname = "libEventFilterProcessor.so";
 
 my $pwd = `pwd`; chomp $pwd;
 
-
 my $dqm_dir = $ENV{"CMSSW_BASE"}."/src/DQM/SiStripMonitorClient/test";
-## For CMSSW_1_7_X
-my $dqm_common = $ENV{"CMSSW_BASE"}."/src/DQM/TrackerCommon/test";
-## for  CMSSW_1_8_X 
-## my $dqm_common = $ENV{"CMSSW_RELEASE_BASE"}."/src/DQM/TrackerCommon/test";
-
-
-my $mode = $ARGV[0];
-my $cfg_file = "source_client_".$mode.".cfg";
-print "cfg file name : $cfg_file\n";
 
 
 #
 # interpret command line
 #
-#foreach $param (@ARGV) {
-#    if    ($hostname eq "fillme")    { $hostname=$param; }
-#    elsif ($param    eq "-host")     { $hostname="fillme"; }
-#
-#    else { die ("Unknown parameter $param!\n"); }
-#}
+foreach $param (@ARGV) {
+    if    ($hostname eq "fillme")    { $hostname=$param; }
+    elsif ($param    eq "-host")     { $hostname="fillme"; }
+
+    else { die ("Unknown parameter $param!\n"); }
+}
 
 print "hostname = $hostname\n";
 
@@ -72,7 +62,7 @@ print "make directories ...\n";
 #
 print "copy cfg files ...\n";
 
-copy("$dqm_dir/$cfg_file", "$ENV{PWD}/$cfg_file");
+copy("$dqm_dir/sistrip_gren.cfg", "$ENV{PWD}/sistrip_gren.cfg");
 
 
 
@@ -118,7 +108,7 @@ print XML makeXmlProfileTrailer();
 #
 print "make xdaq  configuration ...\n";
 
-my @properties = ("parameterSet", "string","file:$pwd/$cfg_file",
+my @properties = ("parameterSet", "string","file:$pwd/sistrip_gren.cfg",
 		    "collReconnSec","integer","-1",
 		    "hasPrescaleService","boolean","false",
                     "isRunNumberSetter","boolean","false",
@@ -211,13 +201,9 @@ copy("$dqm_dir/TrackerMapPlot.html", "$ENV{PWD}/.");
 $SERVED_DIR="http://$hostname:40000/temporary";
 system qq[perl], qq[-pi -e], qq[s#SERVED_DIRECTORY_URL#$SERVED_DIR#], qq[$ENV{PWD}/WebLib.js]; 
 
-system qq[cp], qq[-r], qq[$dqm_common/js_files], qq[$ENV{PWD}/js_files];
-system qq[cp], qq[-r], qq[$dqm_common/css_files], qq[$ENV{PWD}/css_files];
-system qq[cp], qq[-r], qq[$dqm_common/images], qq[$ENV{PWD}/images];
-copy("$dqm_dir/js_files/CommonActions.js", "$ENV{PWD}/js_files/CommonActions.js");
-copy("$dqm_dir/js_files/RequestHistos.js", "$ENV{PWD}/js_files/RequestHistos.js");
-copy("$dqm_dir/js_files/sistrip_svgmap.js", "$ENV{PWD}/js_files/sistrip_svgmap.js");
-copy("$dqm_dir/css_files/style.css", "$ENV{PWD}/css_files/style.css");
+system qq[cp], qq[-r], qq[$dqm_dir/js_files], qq[$ENV{PWD}/js_files];
+system qq[cp], qq[-r], qq[$dqm_dir/css_files], qq[$ENV{PWD}/css_files];
+system qq[cp], qq[-r], qq[$dqm_dir/images], qq[$ENV{PWD}/images];
 
 #
 # start processes

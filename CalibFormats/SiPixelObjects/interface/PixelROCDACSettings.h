@@ -41,9 +41,7 @@ namespace pos{
     void getDACs(std::vector<unsigned int>& dacs) const;
     void getDACs(std::map<std::string, unsigned int>& dacs) const;
 
-
     void setDAC(unsigned int dacaddress, unsigned int dacvalue);
-    void setDACs(std::map<std::string, unsigned int>& dacs) ;
 
     void checkTag(std::string tag, 
 		  std::string dacName,

@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2006/07/13 12:04:31 $
- *  $Revision: 1.5 $
+ *  $Date: 2007/08/16 07:08:23 $
+ *  $Revision: 1.6 $
  *  \author M. Maggi -- INFN Bari
 */
 
@@ -37,7 +37,7 @@ RPCRecHitProducer::RPCRecHitProducer(const ParameterSet& config){
 
   produces<RPCRecHitCollection>();
 
-  theRPCDigiLabel = config.getParameter<string>("rpcDigiLabel");
+  theRPCDigiLabel = config.getParameter<InputTag>("rpcDigiLabel");
   
   // Get the concrete reconstruction algo from the factory
   string theAlgoName = config.getParameter<string>("recAlgo");

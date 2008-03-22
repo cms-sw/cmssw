@@ -53,9 +53,9 @@ TrackMix::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     
     // get RECO tracks from the event
     // `tks` can be used as a ptr to a reco::TrackCollection
-    edm::Handle<edm::View<reco::Track> > tks;
+    edm::Handle<reco::GsfTrackCollection> tks;
     iEvent.getByLabel(gsfTrackLabel_, tks);
-    edm::Handle<edm::View<reco::Track> > tks2;
+    edm::Handle<reco::TrackCollection> tks2;
     iEvent.getByLabel(ckfTrackLabel_, tks2);
 
     cout << "got " << (*tks).size() << " gsf tracks " << endl;

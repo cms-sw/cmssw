@@ -40,8 +40,7 @@ namespace edmtest
    CSCGainsDBReadAnalyzer::analyze(const edm::Event& e, const edm::EventSetup& context)
   {
     using namespace edm::eventsetup;
-    std::ofstream DBGainsFile("dbgains.dat",std::ios::out);
-    int counter=0;
+    // Context is not used.
     std::cout <<" I AM IN RUN NUMBER "<<e.id().run() <<std::endl;
     std::cout <<" ---EVENT NUMBER "<<e.id().event() <<std::endl;
     edm::ESHandle<CSCDBGains> pGains;
@@ -51,8 +50,9 @@ namespace edmtest
     std::vector<CSCDBGains::Item>::const_iterator it;
     
     for( it=mygains->gains.begin();it!=mygains->gains.end(); ++it ){
-      counter++;
-      DBGainsFile<<counter<<"  "<<it->gain_slope<<"  "<<it->gain_intercept<<"  "<<it->gain_chi2<<std::endl;
+      // no global variables
+      //  counter++;
+      //DBGainsFile<<counter<<"  "<<it->gain_slope<<"  "<<it->gain_intercept<<"  "<<it->gain_chi2<<std::endl;
 
     }
   }

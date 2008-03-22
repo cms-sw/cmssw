@@ -30,7 +30,7 @@ class QReport
  protected:
   /// to be used when unpacking quality reports (ie. in ReceiverBase class)
   QReport(std::string qtname);
-  /// to be used by DaqMonitorBEInterface class 
+  /// to be used by DaqMonitorROOTBackEnd class 
   /// (when QCriterion added to MonitorElement object)
   QReport(QCriterion * qc);
   ///
@@ -77,6 +77,8 @@ class QReport
   /// for running the quality test
   friend class MonitorElement;
   /// for setting QReport parameters after receiving report
+  friend class DaqMonitorROOTBackEnd;
+  /// for calling resetUpdate
   friend class DaqMonitorBEInterface;
 }; 
 

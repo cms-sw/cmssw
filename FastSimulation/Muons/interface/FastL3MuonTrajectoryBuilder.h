@@ -4,8 +4,8 @@
 /** \class FastL3MuonTrajectoryBuilder
  *  class to build muon trajectory from STA L2 muons and tracker tracks
  *
- *  $Date: 2007/12/28 21:00:27 $
- *  $Revision: 1.1 $
+ *  $Date: 2008/01/08 17:43:49 $
+ *  $Revision: 1.2 $
  *
  *  \author Patrick Janot - CERN 
  */
@@ -45,6 +45,9 @@ class FastL3MuonTrajectoryBuilder : public GlobalTrajectoryBuilderBase {
 
     /// pass the Event to the algo at each event
     virtual void setEvent(const edm::Event&);
+
+    /// clear memory
+    void clear();
 
   private:
   

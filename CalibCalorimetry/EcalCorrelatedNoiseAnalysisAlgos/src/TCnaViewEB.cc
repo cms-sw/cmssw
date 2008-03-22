@@ -1,6 +1,6 @@
 //---------Author's Name: B.Fabbro DSM/DAPNIA/SPP CEA-Saclay
 //---------Copyright: Those valid for CEA sofware
-//---------Modified: 20/07/2007
+//---------Modified: 04/07/2007
 
 #include "CalibCalorimetry/EcalCorrelatedNoiseAnalysisAlgos/interface/TCnaViewEB.h"
 
@@ -3882,7 +3882,7 @@ void TCnaViewEB::HistoPlot(TH1D* h_his0,
 	  SetParametersCanvas(QuantityCode); xMemoPlotSame = 0;
 	}
 
-      //............................ cases fMemoPlotxxx = 1  (HistoPlot)
+      //............................ cases fMemoPlotxxx = 1
 
       if(GetMemoFlag(QuantityCode) == "Busy")
 	{
@@ -3897,7 +3897,6 @@ void TCnaViewEB::HistoPlot(TH1D* h_his0,
       NoiseCorrel->Divide(1, 1, 0.001 , 0.125);
       gPad->cd(1);
       main_subpad = gPad;
-      main_subpad->SetPad(0.001,0.125,0.990,0.95);   // PROVISOIRE (20/07/07) <= CA MARCHE !
       xMemoPlotSame = 0;
     }
   
@@ -4440,14 +4439,12 @@ void TCnaViewEB::PutAllPavesViewSuperModule(TCnaReadEB*  MyRootFile)
   fcom_bot_right = PutPaveTakenEvents(MyRootFile);
 }
 
-void TCnaViewEB::PutAllPavesViewHisto(TCnaReadEB*   MyRootFile,   TEBNumbering*   MyNumbering,
+void TCnaViewEB::PutAllPavesViewHisto(TCnaReadEB*     MyRootFile,   TEBNumbering*  MyNumbering,
 				      const TString QuantityCode,
 				      const Int_t&  SMtower_X,    const Int_t&    TowEcha,
 				      const Int_t&  sample,       const TString   opt_plot)
 {
 // Put all the paves of a histo view according to QuantityCode
-
-  gStyle->SetTextColor(ColorDefinition("noir"));
 
   ftitle_g1      = PutPaveGeneralComment();
 

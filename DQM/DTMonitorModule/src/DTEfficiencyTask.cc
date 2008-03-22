@@ -3,8 +3,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2007/11/06 17:34:40 $
- *  $Revision: 1.9 $
+ *  $Date: 2007/10/09 14:39:17 $
+ *  $Revision: 1.8 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -98,7 +98,6 @@ void DTEfficiencyTask::endJob(){
   
 
 void DTEfficiencyTask::analyze(const edm::Event& event, const edm::EventSetup& setup) {
-
 
   if(debug)
     cout << "[DTEfficiencyTask] Analyze #Run: " << event.id().run()
@@ -200,6 +199,7 @@ void DTEfficiencyTask::analyze(const edm::Event& event, const edm::EventSetup& s
 	copy(zRecHits.begin(), zRecHits.end(), back_inserter(recHits1D));
       }
 
+
       // Skip the segment if it has more than 1 hit on the same layer
       vector<DTWireId> wireMap; 
       for(vector<DTRecHit1D>::const_iterator recHit1D = recHits1D.begin();
@@ -207,7 +207,6 @@ void DTEfficiencyTask::analyze(const edm::Event& event, const edm::EventSetup& s
 	  recHit1D++) {
 	wireMap.push_back((*recHit1D).wireId());
       }
-
       bool hitsOnSameLayer = false;
       for(vector<DTWireId>::const_iterator channelId = wireMap.begin();
 	  channelId != wireMap.end(); channelId++) {
@@ -294,7 +293,6 @@ void DTEfficiencyTask::analyze(const edm::Event& event, const edm::EventSetup& s
 	    }
 	  }
 	}
-
 	// Loop over segment 1D RecHit
 	map<DTLayerId, int> NumWireMap; 
 	for(vector<DTRecHit1D>::const_iterator recHit = recHits1D.begin();
@@ -303,13 +301,12 @@ void DTEfficiencyTask::analyze(const edm::Event& event, const edm::EventSetup& s
 	  layerMap[(*recHit).wireId().layerId()]= true;
 	  NumWireMap[(*recHit).wireId().layerId()]= (*recHit).wireId().wire();
 	}
-
 	DTLayerId missLayerId;
 	//Loop over the map and find the layer without hits
 	for(map<DTLayerId, bool>::const_iterator iter = layerMap.begin();
 	    iter != layerMap.end(); iter++) {
 	  if(!(*iter).second) missLayerId = (*iter).first;
-	}
+	  }
 	if(debug)
 	  cout << "[DTEfficiencyTask] Layer without recHits is: " << missLayerId << endl;
 	// -------------------------------------------------------
@@ -334,7 +331,7 @@ void DTEfficiencyTask::analyze(const edm::Event& event, const edm::EventSetup& s
 	  if(wireId.layerId() == missLayerId) {
 	    if(missLayerId.superlayerId().superlayer() == 1 || missLayerId.superlayerId().superlayer() == 3 ) {
 	      if(fabs(segPosAtZLayer.x() - (*wireAndPos).second) < 2.1)
-		missWireId = wireId;  
+		missWireId = wireId;
 	    } else {
 	      if(fabs(segPosAtZLayer.y() - (*wireAndPos).second) < 2.1)
 		missWireId = wireId;
@@ -375,10 +372,7 @@ void DTEfficiencyTask::analyze(const edm::Event& event, const edm::EventSetup& s
 	  LayerID = (*recHit).wireId().layerId();
 	  NumWireMap[LayerID]= (*recHit).wireId().wire();
 	}
-	for(map<DTLayerId, int>::const_iterator iter = NumWireMap.begin();
-	    iter != NumWireMap.end(); iter++) {
-	  fillHistos((*iter).first, dtGeom->layer((*iter).first)->specificTopology().firstChannel(), dtGeom->layer((*iter).first)->specificTopology().lastChannel(), NumWireMap[(*iter).first]);
-	}
+	fillHistos(LayerID, dtGeom->layer(LayerID)->specificTopology().firstChannel(), dtGeom->layer(LayerID)->specificTopology().lastChannel(), NumWireMap[LayerID]);
       }
 
     } // End of loop over the 4D segments inside a sigle chamber

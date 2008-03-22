@@ -4,7 +4,7 @@
  * event server part of the storage manager.
  *
  * 16-Aug-2006 - KAB  - Initial Implementation
- * $Id: ConsumerPipe.cc,v 1.14 2007/11/29 17:04:00 wmtan Exp $
+ * $Id: ConsumerPipe.cc,v 1.18 2008/02/11 15:16:43 biery Exp $
  */
 
 #include "EventFilter/StorageManager/interface/ConsumerPipe.h"
@@ -33,13 +33,13 @@ boost::mutex ConsumerPipe::rootIdLock_;
  */
 ConsumerPipe::ConsumerPipe(std::string name, std::string priority,
                            int activeTimeout, int idleTimeout,
-                           boost::shared_ptr<edm::ParameterSet> parameterSet,
+                           Strings triggerSelection,
                            std::string hostName, int queueSize):
   han_(curl_easy_init()),
   headers_(),
   consumerName_(name),consumerPriority_(priority),
   events_(0),
-  requestParamSet_(parameterSet),
+  triggerSelection_(triggerSelection),
   hostName_(hostName),
   pushEventFailures_(0),
   maxQueueSize_(queueSize)
@@ -50,7 +50,18 @@ ConsumerPipe::ConsumerPipe(std::string name, std::string priority,
   lastEventRequestTime_ = time(NULL);
   initializationDone = false;
   pushMode_ = false;
-  if(consumerPriority_.compare("SMProxyServer") == 0) pushMode_ = true;
+  if(consumerPriority_.compare("PushMode") == 0) pushMode_ = true;
+  registryWarningWasReported_ = false;
+
+  // determine if we're connected to a proxy server
+  consumerIsProxyServer_ = false;
+  //if (consumerName_ == PROXY_SERVER_NAME)
+  if (consumerName_.find("urn") != std::string::npos &&
+      consumerName_.find("xdaq") != std::string::npos &&
+      consumerName_.find("pushEventData") != std::string::npos)
+  {
+    consumerIsProxyServer_ = true;
+  }
 
   // assign the consumer ID
   boost::mutex::scoped_lock scopedLockForRootId(rootIdLock_);
@@ -60,7 +71,7 @@ ConsumerPipe::ConsumerPipe(std::string name, std::string priority,
   if(han_==0)
   {
     edm::LogError("ConsumerPipe") << "Could not create curl handle";
-    std::cout << "Could not create curl handle" << std::endl;
+    //std::cout << "Could not create curl handle" << std::endl;
     // throw exception here when we can make the SM go to a fail state from
     // another thread
   } else {
@@ -99,29 +110,17 @@ uint32 ConsumerPipe::getConsumerId() const
 
 /**
  * Initializes the event selection for this consumer based on the
- * list of available triggers stored in the specified InitMsgView
- * and the request ParameterSet that was specified in the constructor.
+ * specified full list of triggers and the request ParameterSet
+ * that was specified in the constructor.
  */
-void ConsumerPipe::initializeSelection(InitMsgView const& initView)
+void ConsumerPipe::initializeSelection(Strings const& fullTriggerList)
 {
   FDEBUG(5) << "Initializing consumer pipe, ID = " <<
     consumerId_ << std::endl;
 
-  // fetch the list of trigger names from the init message
-  Strings triggerNameList;
-  initView.hltTriggerNames(triggerNameList);
-
-  // TODO fake the process name (not yet available from the init message?)
-  std::string processName = "HLT";
-
-  /* ---printout the trigger names in the INIT message
-  std::cout << ">>>>>>>>>>>Trigger names:" << std::endl;
-  for(int i=0; i< triggerNameList.size(); ++i)
-    std::cout<< ">>>>>>>>>>>  name = " << triggerNameList[i] << std::endl;
-  */
   // create our event selector
-  eventSelector_.reset(new EventSelector(requestParamSet_->getUntrackedParameter("SelectEvents", ParameterSet()),
-					 triggerNameList));
+  eventSelector_.reset(new EventSelector(triggerSelection_,
+					 fullTriggerList));
   // indicate that initialization is complete
   initializationDone = true;
 
@@ -339,4 +338,27 @@ void ConsumerPipe::clearQueue()
 {
   boost::mutex::scoped_lock scopedLockForEventQueue(eventQueueLock_);
   eventQueue_.clear();
+}
+
+std::vector<std::string> ConsumerPipe::getTriggerRequest() const
+{
+  return triggerSelection_;
+}
+
+void ConsumerPipe::setRegistryWarning(std::string const& message)
+{
+  // convert the string to a vector of char and then pass off the work
+  std::vector<char> warningBuff(message.size());;
+  std::copy(message.begin(), message.end(), warningBuff.begin());
+  setRegistryWarning(warningBuff);
+}
+
+void ConsumerPipe::setRegistryWarning(std::vector<char> const& message)
+{
+  // assign the registry warning text before setting the warning flag
+  // to avoid race conditions in which the hasRegistryWarning() method
+  // would return true but the message hasn't been set (simpler than
+  // adding a mutex for the warning message string)
+  registryWarningMessage_ = message;
+  registryWarningWasReported_ = true;
 }

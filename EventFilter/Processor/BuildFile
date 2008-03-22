@@ -7,7 +7,6 @@
 <use name=EventFilter/Utilities>
 <use name=EventFilter/Modules>
 <use name=EventFilter/Message2log4cplus>
-<use name=DQMServices/Daemon>
 <use name=boost>
 <use name=xdaq>
 

@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorModule.cc
  *
- * $Date: 2008/01/20 16:41:47 $
- * $Revision: 1.164 $
+ * $Date: 2008/01/22 19:47:11 $
+ * $Revision: 1.166 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -17,8 +17,8 @@
 #include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 
-#include "DQMServices/Daemon/interface/MonitorDaemon.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
+#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
 
 #include <DQM/EcalCommon/interface/Numbers.h>
 
@@ -99,17 +99,6 @@ EcalBarrelMonitorModule::EcalBarrelMonitorModule(const ParameterSet& ps){
     LogInfo("EcalBarrelMonitor") << " enableCleanup switch is ON";
   } else {
     LogInfo("EcalBarrelMonitor") << " enableCleanup switch is OFF";
-  }
-
-  // MonitorDaemon switch
-  enableMonitorDaemon_ = ps.getUntrackedParameter<bool>("enableMonitorDaemon", true);
-
-  if ( enableMonitorDaemon_ ) {
-    LogInfo("EcalBarrelMonitor") << " enableMonitorDaemon switch is ON";
-    Service<MonitorDaemon> daemon;
-    daemon.operator->();
-  } else {
-    LogInfo("EcalBarrelMonitor") << " enableMonitorDaemon switch is OFF";
   }
 
   // EventDisplay switch
@@ -205,9 +194,7 @@ void EcalBarrelMonitorModule::setup(void){
   // this should give enough time to our control MEs to reach the Collector,
   // and then hopefully the Client
 
-  if ( enableMonitorDaemon_ ) sleep(5);
-
-  Char_t histo[20];
+  char histo[20];
 
   if ( dbe_ ) {
     dbe_->setCurrentFolder("EcalBarrel/EcalInfo");
@@ -326,8 +313,6 @@ void EcalBarrelMonitorModule::endJob(void) {
 
   // we should always sleep at least a little ...
 
-  if ( enableMonitorDaemon_ ) sleep(5);
-
   if ( init_ ) this->cleanup();
 
 }
@@ -413,10 +398,6 @@ void EcalBarrelMonitorModule::analyze(const Event& e, const EventSetup& c){
 
   // this should give enough time to all the MEs to reach the Collector,
   // and then hopefully the Client, even for short runs
-
-  if ( ievt_ == 1 ) {
-    if ( enableMonitorDaemon_ ) sleep(5);
-  }
 
   Handle<EBDigiCollection> digis;
 

@@ -11,7 +11,7 @@ L1GctJet::L1GctJet(uint16_t rawsum, unsigned eta, unsigned phi, bool forwardJet,
   m_rawsum(rawsum),
   m_id(eta, phi),
   m_forwardJet(forwardJet),
-  m_tauVeto(tauVeto)
+  m_tauVeto(tauVeto || forwardJet)
 {
 
 }
@@ -66,7 +66,7 @@ void L1GctJet::setupJet(uint16_t rawsum, unsigned eta, unsigned phi, bool forwar
   m_rawsum = rawsum;
   m_id = temp;
   m_forwardJet = forwardJet;
-  m_tauVeto = tauVeto;
+  m_tauVeto = tauVeto || forwardJet;
 }
 
 /// eta value as encoded in hardware at the GCT output
@@ -105,7 +105,8 @@ unsigned L1GctJet::calibratedEt(const L1GctJetEtCalibrationLut* lut) const
 uint16_t L1GctJet::lutValue(const L1GctJetEtCalibrationLut* lut) const
 {
   unsigned addrBits = m_rawsum | (rctEta() << L1GctJetEtCalibrationLut::JET_ENERGY_BITWIDTH);
-  if (!m_tauVeto) {
+  // Set the MSB for tau jets
+  if (!m_tauVeto && !m_forwardJet) {
     addrBits |= 1 << (L1GctJetEtCalibrationLut::JET_ENERGY_BITWIDTH+4);
   }
   uint16_t address = static_cast<uint16_t>(addrBits);

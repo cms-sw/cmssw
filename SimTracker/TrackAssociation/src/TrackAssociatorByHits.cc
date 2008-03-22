@@ -54,7 +54,7 @@ TrackAssociatorByHits::~TrackAssociatorByHits()
 //
 
 RecoToSimCollection  
-TrackAssociatorByHits::associateRecoToSim(edm::Handle<edm::View<reco::Track> >& trackCollectionH,
+TrackAssociatorByHits::associateRecoToSim(edm::Handle<reco::TrackCollection>& trackCollectionH,
 					  edm::Handle<TrackingParticleCollection>&  TPCollectionH,     
 					  const edm::Event * e ) const{
 
@@ -69,12 +69,12 @@ TrackAssociatorByHits::associateRecoToSim(edm::Handle<edm::View<reco::Track> >& 
   
   const TrackingParticleCollection tPC   = *(TPCollectionH.product());
 
-  const  edm::View<reco::Track>   tC = *(trackCollectionH.product()); 
+  const  reco::TrackCollection  tC = *(trackCollectionH.product()); 
   
   
   //get the ID of the recotrack  by hits 
   int tindex=0;
-  for (edm::View<reco::Track>::const_iterator track=tC.begin(); track!=tC.end(); track++, tindex++) {
+  for (reco::TrackCollection::const_iterator track=tC.begin(); track!=tC.end(); track++, tindex++) {
     matchedIds.clear();
     int ri=0;//valid rechits
     for (trackingRecHit_iterator it = track->recHitsBegin();  it != track->recHitsEnd(); it++){
@@ -186,7 +186,7 @@ TrackAssociatorByHits::associateRecoToSim(edm::Handle<edm::View<reco::Track> >& 
 	if(quality > theMinHitCut){
 	  if(!AbsoluteNumberOfHits && quality>1.) std::cout << " **** fraction > 1 " << " nshared = " << nshared 
 							    << "rechits = " << ri << " hit found " << track->found() <<  std::endl;
-	  outputCollection.insert(edm::RefToBase<Track>(trackCollectionH,tindex), 
+	  outputCollection.insert(reco::TrackRef(trackCollectionH,tindex), 
 				  std::make_pair(edm::Ref<TrackingParticleCollection>(TPCollectionH, tpindex),
 						 quality));
 	  LogTrace("TrackAssociator") << "reco::Track number " << tindex  
@@ -207,7 +207,7 @@ TrackAssociatorByHits::associateRecoToSim(edm::Handle<edm::View<reco::Track> >& 
 
 
 SimToRecoCollection  
-TrackAssociatorByHits::associateSimToReco(edm::Handle<edm::View<reco::Track> >& trackCollectionH,
+TrackAssociatorByHits::associateSimToReco(edm::Handle<reco::TrackCollection>& trackCollectionH,
 					  edm::Handle<TrackingParticleCollection>&  
 					  TPCollectionH, 
 					  const edm::Event * e ) const{
@@ -229,11 +229,11 @@ TrackAssociatorByHits::associateSimToReco(edm::Handle<edm::View<reco::Track> >& 
   //  }
   //}
   
-  const  edm::View<reco::Track>   tC = *(trackCollectionH.product()); 
+  const  reco::TrackCollection  tC = *(trackCollectionH.product()); 
 
   //get the ID of the recotrack  by hits 
   int tindex=0;
-  for (edm::View<reco::Track>::const_iterator track=tC.begin(); track!=tC.end(); track++, tindex++) {
+  for (reco::TrackCollection::const_iterator track=tC.begin(); track!=tC.end(); track++, tindex++) {
     LogTrace("TrackAssociator") << " hits of track with pt =" << track->pt() << " # valid=" << track->found(); 
     matchedIds.clear();
     int ri=0;
@@ -419,7 +419,7 @@ TrackAssociatorByHits::associateSimToReco(edm::Handle<edm::View<reco::Track> >& 
 				    << " nrechit = " << ri;
 	if (quality>theMinHitCut) {
 	  outputCollection.insert(edm::Ref<TrackingParticleCollection>(TPCollectionH, tpindex), 
-				  std::make_pair(edm::RefToBase<Track>(trackCollectionH,tindex),quality));
+				  std::make_pair(reco::TrackRef(trackCollectionH,tindex),quality));
 	  edm::LogVerbatim("TrackAssociator") << "TrackingParticle number " << tpindex 
 					      << " associated to track with pt=" << track->pt() 
 					      << " with hit quality =" << quality ;

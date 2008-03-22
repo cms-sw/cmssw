@@ -11,7 +11,7 @@
  *         David Dagenhart
  *
  * \version   1st Version June 7 2007
- * $Id$
+ * $Id: LumiSummary.h,v 1.1 2007/07/13 20:13:02 wdd Exp $
  *
  ************************************************************/
  
@@ -22,21 +22,21 @@ class LumiSummary {
 
     /// default constructor
     LumiSummary():
-      avginslumi_(-99.),
-      avginslumierr_(-99.),
+      avginsdellumi_(-99.),
+      avginsdellumierr_(-99.),
       lumisecqual_(-1),
       deadfrac_(-99.),
       lsnumber_(-1)
     { }
 
     /// set default constructor
-    LumiSummary(double avginslumi, double avginslumierr,
+    LumiSummary(float avginsdellumi, float avginsdellumierr,
 	        int lumisecqual,
-                double deadfrac, int lsnumber,
+                float deadfrac, int lsnumber,
                 const std::vector<int>& l1ratecounter, const std::vector<int>& l1scaler,
                 const std::vector<int>& hltratecounter, const std::vector<int>& hltscaler,
                 const std::vector<int>& hltinput):
-      avginslumi_(avginslumi), avginslumierr_(avginslumierr), 
+      avginsdellumi_(avginsdellumi), avginsdellumierr_(avginsdellumierr), 
       lumisecqual_(lumisecqual),
       deadfrac_(deadfrac), lsnumber_(lsnumber),
       l1ratecounter_(l1ratecounter), l1scaler_(l1scaler),
@@ -47,14 +47,14 @@ class LumiSummary {
     /// destructor
     ~LumiSummary(){}
 	 
-    double avgInsLumi() const { return avginslumi_; }
+    float avgInsDelLumi() const { return avginsdellumi_; }
   
-    double avgInsLumiErr() const { return avginslumierr_; }
+    float avgInsDelLumiErr() const { return avginsdellumierr_; }
   
     int    lumiSecQual() const { return lumisecqual_; }
 
-    double deadFrac() const { return deadfrac_; }
-    double liveFrac() const { return (1.0 - deadfrac_); }
+    float deadFrac() const { return deadfrac_; }
+    float liveFrac() const { return (1.0f - deadfrac_); }
  
     int    lsNumber() const { return lsnumber_; }
 
@@ -74,12 +74,16 @@ class LumiSummary {
     const std::vector<int>&    hltScaler() const {return hltscaler_;}
     const std::vector<int>&    hltInput() const {return hltinput_;}
 
+    float avgInsRecLumi() const { return avginsdellumi_ * liveFrac(); }
+  
+    float avgInsRecLumiErr() const { return avginsdellumierr_ * liveFrac(); }
+  
   private :
 
-    double avginslumi_;
-    double avginslumierr_;
+    float avginsdellumi_;
+    float avginsdellumierr_;
     int    lumisecqual_;
-    double deadfrac_;
+    float deadfrac_;
     int    lsnumber_;
 
     std::vector<int> l1ratecounter_;

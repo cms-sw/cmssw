@@ -100,7 +100,7 @@ class double(_SimpleParameterTypeBase):
         """only used for cfg-parsing"""
         return double(float(value))
     def insertInto(self, parameterSet, myname):
-        parameterSet.addDouble(self.isTracked(), myname, self.value())
+        parameterSet.addDouble(self.isTracked(), myname, float(self.value()))
 
 
 import __builtin__
@@ -156,14 +156,71 @@ class string(_SimpleParameterTypeBase):
         #    value = ''
         parameterSet.addString(self.isTracked(), myname, value)
 
+
+class EventID(_ParameterTypeBase):
+    def __init__(self, run, ev):
+        super(EventID,self).__init__()
+        self.__run = run
+        self.__event = ev
+    def run(self):
+        return self.__run
+    def event(self):
+        return self.__event
+    @staticmethod
+    def _isValid(value):
+        return True
+    @staticmethod
+    def _valueFromString(value):
+        """only used for cfg-parsing"""
+        return double(float(value))
+    def pythonValue(self, options=PrintOptions()):
+        return str(self.__run)+ ', '+str(self.__event)
+    def cppID(self, parameterSet):
+        return parameterSet.newEventID(self.run(), self.event())
+    def insertInto(self, parameterSet, myname):
+        parameterSet.addEventID(self.isTracked(), myname, self.cppID(parameterSet))
+
+
+class LuminosityBlockID(_ParameterTypeBase):
+    def __init__(self, run, block):
+        super(LuminosityBlockID,self).__init__()
+        self.__run = run
+        self.__block = block
+    def run(self):
+        return self.__run
+    def luminosityBlock(self):
+        return self.__block
+    @staticmethod
+    def _isValid(value):
+        return True
+    @staticmethod
+    def _valueFromString(value):
+        """only used for cfg-parsing"""
+        return double(float(value))
+    def pythonValue(self, options=PrintOptions()):
+        return str(self.__run)+ ', '+str(self.__event)
+    def cppID(self, parameterSet):
+        return parameterSet.newLuminosityBlockID(self.run(), self.luminosityBlock())
+    def insertInto(self, parameterSet, myname):
+        parameterSet.addLuminosityBlockID(self.isTracked(), myname, self.cppID(parameterSet))
+
+
 class InputTag(_ParameterTypeBase):
     def __init__(self,moduleLabel,productInstanceLabel='',processName=''):
         super(InputTag,self).__init__()
-        if -1 != moduleLabel.find(":"):
-            raise RuntimeError("the module label '"+str(moduleLabel)+"' contains a ':'. If you want to specify more than one label, please pass them as separate arguments.")
         self.__moduleLabel = moduleLabel
         self.__productInstance = productInstanceLabel
         self.__processName=processName
+
+        if -1 != moduleLabel.find(":"):
+        #    raise RuntimeError("the module label '"+str(moduleLabel)+"' contains a ':'. If you want to specify more than one label, please pass them as separate arguments.")
+        # tolerate it, at least for the translation phase
+            toks = moduleLabel.split(":")
+            self.__moduleLabel = toks[0]
+            if len(toks) > 1:
+               self.__productInstance = toks[1]
+            if len(toks) > 2:
+               self.__processName=toks[2]
     def getModuleLabel(self):
         return self.__moduleLabel
     def setModuleLabel(self,label):
@@ -180,9 +237,20 @@ class InputTag(_ParameterTypeBase):
         self.__processName = label
     processName = property(getProcessName,setProcessName,"process name for the product")
     def configValue(self, options=PrintOptions()):
-        return self.__moduleLabel+':'+self.__productInstance+':'+self.__processName
+        result = self.__moduleLabel
+        if self.__productInstance != "" or self.__processName != "":
+            result += ':' + self.__productInstance
+        if self.__processName != "":
+            result += ':' + self.__processName
+        if result == "":
+            result = '\"\"'
+        return result;
     def pythonValue(self, options=PrintOptions()):
-        colonedValue = "\""+self.configValue(options)+"\""
+        cfgValue = self.configValue(options)
+        # empty strings already have quotes
+        if cfgValue == '\"\"':
+            return cfgValue
+        colonedValue = "\""+cfgValue+"\""
         # change label:instance:process to "label","instance","process"
         return colonedValue.replace(":","\",\"")
     @staticmethod
@@ -410,6 +478,26 @@ class VInputTag(_ValidatingParameterListBase):
            cppTags.append(i.cppTag(parameterSet))
         parameterSet.addVInputTag(self.isTracked(), myname, cppTags)
 
+class VEventID(_ValidatingParameterListBase):
+    def __init__(self,*arg,**args):
+        super(VEventID,self).__init__(*arg,**args)
+    @staticmethod
+    def _itemIsValid(item):
+        return EventID._isValid(item)
+    def configValueForItem(self,item,options):
+        return EventID.formatValueForConfig(item)
+    def pythonValueForItem(self,item, options):
+        return item.dumpPython(options)
+    @staticmethod
+    def _valueFromString(value):
+        return VEventID(*_ValidatingParameterListBase._itemsFromStrings(value,EventID._valueFromString))
+    def insertInto(self, parameterSet, myname):
+        cppTags = list()
+        for i in self:
+           cppTags.append(i.cppTag(parameterSet))
+        parameterSet.addVEventID(self.isTracked(), myname, cppTags)
+
+
 
 
 class VPSet(_ValidatingParameterListBase,_ConfigureComponent,_Labelable):
@@ -474,7 +562,7 @@ if __name__ == "__main__":
             v[1:1]=[5]
             self.assertEqual(len(v),4)
             self.assertEqual([1,5,4,2],list(v))
-            self.assertEqual(repr(v), "cms.vint32(1,5,4,2)")
+            self.assertEqual(repr(v), "cms.vint32(1, 5, 4, 2)")
             self.assertRaises(TypeError,v.append,('blah'))
         def testbool(self):
             b = bool(True)
@@ -513,14 +601,15 @@ if __name__ == "__main__":
             self.assertEqual(it.getModuleLabel(), "label")
             self.assertEqual(it.getProductInstanceLabel(), "")
             self.assertEqual(it.getProcessName(), "proc")
-            self.assertRaises(RuntimeError, InputTag,'foo:bar')
+            # tolerate, at least for translation phase
+            #self.assertRaises(RuntimeError, InputTag,'foo:bar')
             it=InputTag('label',processName='proc')
             self.assertEqual(it.getModuleLabel(), "label")
             self.assertEqual(it.getProductInstanceLabel(), "")
             self.assertEqual(it.getProcessName(), "proc")
             self.assertEqual(repr(it), "cms.InputTag(\"label\",\"\",\"proc\")")
             vit = VInputTag(InputTag("label1"), InputTag("label2"))
-            self.assertEqual(repr(vit), "cms.VInputTag(cms.InputTag(\"label1\",\"\",\"\"),cms.InputTag(\"label2\",\"\",\"\"))")
+            self.assertEqual(repr(vit), "cms.VInputTag(cms.InputTag(\"label1\"), cms.InputTag(\"label2\"))")
         def testPSet(self):
             p1 = PSet(anInt = int32(1), a = PSet(b = int32(1)))
             self.assertRaises(ValueError, PSet, "foo")
@@ -546,5 +635,9 @@ if __name__ == "__main__":
 """)
             s1=SecSource("PoolSource",type=int32(1))
             self.assertEqual(s1.type.value(),1)
+        def testEventID(self):
+            eid = EventID(2, 3)
+            self.assertEqual( repr(eid), "cms.EventID(2, 3)" )
+
             
     unittest.main()

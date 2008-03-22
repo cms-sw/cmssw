@@ -1,5 +1,5 @@
-#ifndef PixelCalibConfiguration_h
-#define PixelCalibConfiguration_h
+#ifndef PixelCalib_h
+#define PixelCalib_h
 //
 // This class inplement the steps
 // that are used in a scan over
@@ -84,8 +84,6 @@ namespace pos{
     unsigned int nConfigurations() const { assert(rocAndModuleListsBuilt_); return nPixelPatterns()*nScanPoints()*nROC();}
     unsigned int nTriggersTotal() const {return nConfigurations()*nTriggersPerPattern();}
 
-    bool noHits() const; // returns true if no hits will be produced ("Rows:" and "Cols:" empty)
-
     unsigned int scanValue(unsigned int iscan, unsigned int state) const;
     unsigned int scanValue(std::string dac, unsigned int state) const{
       return scanValue(iScan(dac),state);
@@ -95,10 +93,6 @@ namespace pos{
     unsigned int scanCounter(std::string dac, unsigned int state) const{
       return scanCounter(iScan(dac),state);
     }
-
-    unsigned int numberOfScanVariables() const {return dacs_.size();}
-
-    std::string scanName(unsigned int iscan) const {return dacs_[iscan].name();}
 
     double scanValueMin(unsigned int iscan) const {return dacs_[iscan].first();}
     double scanValueMin(std::string dac) const {return scanValueMin(iScan(dac));}

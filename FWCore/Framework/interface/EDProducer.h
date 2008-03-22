@@ -6,12 +6,13 @@
 EDProducer: The base class of "modules" whose main purpose is to insert new
 EDProducts into an Event.
 
-$Id: EDProducer.h,v 1.21 2008/01/13 01:12:21 wmtan Exp $
+$Id: EDProducer.h,v 1.22 2008/01/15 06:51:45 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
 #include "FWCore/Framework/interface/ProducerBase.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/src/WorkerT.h"
 #include "DataFormats/Provenance/interface/ModuleDescription.h"
 #include "FWCore/ParameterSet/interface/ParameterSetfwd.h"
 

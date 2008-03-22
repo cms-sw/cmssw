@@ -2,7 +2,7 @@
 
 Test program for edm::Ref use in ROOT.
 
-$Id: ref_t.cppunit.cpp,v 1.15 2007/10/22 19:55:26 chrjones Exp $
+$Id: ref_t.cppunit.cpp,v 1.16 2007/12/15 00:22:48 wmtan Exp $
  ----------------------------------------------------------------------*/
 
 #include <iostream>
@@ -15,7 +15,6 @@ $Id: ref_t.cppunit.cpp,v 1.15 2007/10/22 19:55:26 chrjones Exp $
 #include "TSystem.h"
 #include "TChain.h"
 #include "DataFormats/TestObjects/interface/OtherThingCollection.h"
-#include "DataFormats/TestObjects/interface/ThingCollection.h"
 #include "DataFormats/Provenance/interface/BranchType.h"
 #include "FWCore/Utilities/interface/TestHelper.h"
 

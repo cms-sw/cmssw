@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #
-# $Id: checkdeps,v 1.2 2007/09/12 22:08:46 dlange Exp $
+# $Id: checkdeps,v 1.4 2008/02/25 10:57:44 elmer Exp $
 #
 # Created by: David Lange
 #             LLNL
@@ -16,14 +16,23 @@ use Cwd;
 #     print that list.
 
 #if any argument, print help and exit 
+
+my $runAddpkg=0;
+ 
 foreach my $arg (@ARGV) {
-    print "checkdeps:\n";
-    print "   Utility to check your local development area against the CMSSW release.\n";
-    print "   Any modified header files are found and the package dependencies of \n";
-    print "   these files will be returned. addpkg-ing these packages and rebuilding them\n";
-    print "   should provide a full and consistent build.\n";
-    print "\nUsage: No arguments are expected\n"; 
-    exit;
+    if ( $arg eq "-a" ) {
+	$runAddpkg=1;
+    }
+    else{
+	print "checkdeps:\n";
+	print "   Utility to check your local development area against the CMSSW release.\n";
+	print "   Any modified header files are found and the package dependencies of \n";
+	print "   these files will be returned. addpkg-ing these packages and rebuilding them\n";
+	print "   should provide a full and consistent build.\n";
+	print "\nUsage: \n";
+	print "   -a will checkout the packages into your development area (done by addpkg)\n\n";
+	exit;
+    }
 }
 
 if ( $ENV{'LOCALRT'} eq "" ) {
@@ -93,7 +102,7 @@ foreach my $package (@packages) {
     chdir("$package");
     my $reltag=`addpkg -q $package`;
     my @sp1=split(' ',$reltag);
-    $reltag=$sp1[4];
+    $reltag=$sp1[1];
     my $diffs=`cvs -q -n update -r $reltag`;
     my @diffs=split('\n',$diffs);
     foreach my $diff (@diffs) {
@@ -130,13 +139,21 @@ foreach my $file (@changedFiles) {
 
 my @t=sort(@recompileList);
 my $len=scalar(@t);
-print "Packages to check out and compile:\n";
-my $ii=0;
+if ( $runAddpkg == 0 ) {
+    print "Packages to check out and compile:\n";
+}
+else{
+    print "Checking out these packages\n";
+}
+
 if ( $len > 0 ) {
     foreach my $i (@t) {
-	$ii++;
 	print "$i\n";
-
+    }
+    if ( $runAddpkg == 1 ) {
+	foreach my $i (@t) {
+	    system("addpkg $i");
+	}
     }
 }
 else{

@@ -8,6 +8,7 @@
 #include "EventFilter/Utilities/interface/Exception.h"
 
 
+#include "DataFormats/Provenance/interface/ModuleDescription.h"
 #include "FWCore/Framework/interface/TriggerReport.h"
 #include "FWCore/PrescaleService/interface/PrescaleService.h"
 
@@ -26,6 +27,9 @@
 #include "xgi/exception/Exception.h"
 
 #include <sys/time.h>
+
+#include <vector>
+#include <map>
 
 namespace edm {
   class EventProcessor;
@@ -92,6 +96,8 @@ namespace evf
     void defaultWebPage(xgi::Input *in,xgi::Output *out)
       throw(xgi::exception::Exception);
     void taskWebPage(xgi::Input *,xgi::Output *,const std::string &);
+    void spotlightWebPage(xgi::Input *,xgi::Output *)
+      throw(xgi::exception::Exception);
     void moduleWeb(xgi::Input *in,xgi::Output *out) throw(xgi::exception::Exception);
     void modulePs(xgi::Input  *in, xgi::Output *out)throw(xgi::exception::Exception);
     void microState(xgi::Input *in,xgi::Output *out)throw(xgi::exception::Exception);
@@ -142,6 +148,8 @@ namespace evf
     xdata::Boolean                   hasPrescaleService_;
     xdata::Boolean                   isRunNumberSetter_;
     bool                             outprev_;
+    std::vector<edm::ModuleDescription const*> descs_; //module description array
+    std::map<std::string,int>        modmap_;
     
     // dqm monitor thread configuration
     xdata::String                    dqmCollectorAddr_;
@@ -171,6 +179,17 @@ namespace evf
     xdata::UnsignedInteger32         nbProcessed_;
     xdata::UnsignedInteger32         nbAccepted_;
     xdata::InfoSpace                *monitorInfoSpace_;
+
+    // flahslist variables, alt
+    xdata::Integer                   epMAltState_;
+    xdata::Integer                   epmAltState_;
+    xdata::InfoSpace                *monitorInfoSpaceAlt_;
+
+    // flahslist variables, legend
+    xdata::String                    macro_state_legend_;
+    xdata::String                    micro_state_legend_;
+    xdata::InfoSpace                *monitorInfoSpaceLegend_;
+
     
     // HyperDAQ related
     Css                              css_;

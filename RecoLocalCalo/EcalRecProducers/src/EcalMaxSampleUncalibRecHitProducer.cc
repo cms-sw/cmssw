@@ -1,8 +1,8 @@
 /** \class EcalMaxSampleUncalibRecHitProducer
  *   produce ECAL uncalibrated rechits from dataframes 
  *
- *  $Id: EcalMaxSampleUncalibRecHitProducer.cc,v 1.1 2007/10/08 08:01:47 ferriff Exp $
- *  $Date: 2007/10/08 08:01:47 $
+ *  $Id: EcalMaxSampleUncalibRecHitProducer.cc,v 1.24 2007/08/06 15:03:39 innocent Exp $
+ *  $Date: 2007/08/06 15:03:39 $
  *  $Revision: 1.1 $
  *  \author G. Franzoni, E. Di Marco
  *
@@ -49,24 +49,20 @@ EcalMaxSampleUncalibRecHitProducer::produce(edm::Event& evt, const edm::EventSet
   const EBDigiCollection* EBdigis =0;
   const EEDigiCollection* EEdigis =0;
 
-  if ( EBdigiCollection_.label() != "" && EBdigiCollection_.instance() != "" ) {
-          evt.getByLabel( EBdigiCollection_, pEBDigis);
-          if ( pEBDigis.isValid() ) {
-                  EBdigis = pEBDigis.product(); // get a ptr to the produc
-                  edm::LogInfo("EcalUncalibRecHitInfo") << "total # EBdigis: " << EBdigis->size() ;
-          } else {
-                  edm::LogError("EcalUncalibRecHitError") << "Error! can't get the product " << EBdigiCollection_;
-          }
+  try {
+    evt.getByLabel( EBdigiCollection_, pEBDigis);
+    EBdigis = pEBDigis.product(); // get a ptr to the produc
+    edm::LogInfo("EcalUncalibRecHitInfo") << "total # EBdigis: " << EBdigis->size() ;
+  } catch (...) {
+    // edm::LogError("EcalUncalibRecHitError") << "Error! can't get the product " << EBdigiCollection_.c_str() ;
   }
 
-  if ( EEdigiCollection_.label() != "" && EEdigiCollection_.instance() != "" ) {
-          evt.getByLabel( EEdigiCollection_, pEEDigis);
-          if ( pEEDigis.isValid() ) {
-                  EEdigis = pEEDigis.product(); // get a ptr to the product
-                  edm::LogInfo("EcalUncalibRecHitInfo") << "total # EEdigis: " << EEdigis->size() ;
-          } else {
-                  edm::LogError("EcalUncalibRecHitError") << "Error! can't get the product " << EEdigiCollection_;
-          }
+  try {
+    evt.getByLabel( EEdigiCollection_, pEEDigis);
+    EEdigis = pEEDigis.product(); // get a ptr to the product
+    edm::LogInfo("EcalUncalibRecHitInfo") << "total # EEdigis: " << EEdigis->size() ;
+  } catch (...) {
+    //edm::LogError("EcalUncalibRecHitError") << "Error! can't get the product " << EEdigiCollection_.c_str() ;
   }
 
   // collection of reconstructed ampltudes to put in the event

@@ -60,7 +60,7 @@ namespace evf {
     UInt_t nbBytes(bool reset=true);
 
     evf::FUShmRawCell* shmCell() { return shmCell_; }
-    
+    static bool useEvmBoard_;    
     
   private:
     //
@@ -99,6 +99,7 @@ namespace evf {
     
     evf::FUShmRawCell* shmCell_;
     
+
     static unsigned int gtpDaqId_;
     static unsigned int gtpEvmId_;
 

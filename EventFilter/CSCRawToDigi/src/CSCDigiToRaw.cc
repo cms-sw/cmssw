@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2007/11/01 17:56:03 $
- *  $Revision: 1.16 $
+ *  $Date: 2008/02/04 21:37:08 $
+ *  $Revision: 1.19 $
  *  \author A. Tumanov - Rice
  */
 
@@ -9,20 +9,15 @@
 #include "EventFilter/CSCRawToDigi/src/CSCDigiToRaw.h"
 #include "EventFilter/CSCRawToDigi/interface/CSCEventData.h"
 #include "EventFilter/CSCRawToDigi/interface/CSCDCCEventData.h"
-#include "DataFormats/CSCDigi/interface/CSCStripDigiCollection.h"
-#include "DataFormats/CSCDigi/interface/CSCWireDigiCollection.h"
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
 #include "DataFormats/FEDRawData/interface/FEDRawData.h"
 #include "DataFormats/FEDRawData/interface/FEDNumbering.h"
 #include <boost/dynamic_bitset.hpp>
 #include "EventFilter/CSCRawToDigi/src/bitset_append.h"
-#include <FWCore/Framework/interface/Event.h>
 #include <DataFormats/FEDRawData/interface/FEDHeader.h>
 #include <DataFormats/FEDRawData/interface/FEDTrailer.h>
 #include "EventFilter/Utilities/interface/Crc.h"
 #include "CondFormats/CSCObjects/interface/CSCChamberMap.h"
-#include "CondFormats/DataRecord/interface/CSCChamberMapRcd.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <algorithm>
 
 
@@ -46,6 +41,11 @@ CSCDigiToRaw::fillChamberDataMap(const CSCStripDigiCollection & stripDigis,
     {
       CSCDetId const cscDetId=(*j).first;
       CSCDetId chamberID =cscDetId.chamberId();
+     
+      bool me1a = (CSCDetId::station(cscDetId)==1) && (CSCDetId::ring(cscDetId)==4);
+      bool zplus = (CSCDetId::endcap(cscDetId) == 1);
+      bool me1b = (CSCDetId::station(cscDetId)==1) && (CSCDetId::ring(cscDetId)==1);
+
       //std::cout<<"strip id"<<cscDetId<<std::endl;
       // find the entry into the map
       map<CSCDetId, CSCEventData>::iterator chamberMapItr = chamberMap.find(chamberID);
@@ -75,7 +75,12 @@ CSCDigiToRaw::fillChamberDataMap(const CSCStripDigiCollection & stripDigis,
       std::vector<CSCStripDigi>::const_iterator last = (*j).second.second;
       for( ; digiItr != last; ++digiItr) 
         {
-          cscData.add(*digiItr, cscDetId.layer() );    
+	  CSCStripDigi digi = *digiItr;
+	  int strip = digi.getStrip();
+	  if ( me1a && zplus ) { digi.setStrip(17-strip); } // 1-16 -> 16-1
+	  if ( me1b && !zplus) { digi.setStrip(65-strip);} // 1-64 -> 64-1
+	  if ( me1a ) { strip = digi.getStrip(); digi.setStrip(strip+64);} // reset back 1-16 to 65-80 digi
+          cscData.add(digi, cscDetId.layer() );    
         }
     }
   //repeat the same for wire digis

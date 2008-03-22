@@ -65,7 +65,7 @@ KVFTest::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     
   // get RECO tracks from the event
   // `tks` can be used as a ptr to a reco::TrackCollection
-  edm::Handle<edm::View<reco::Track> > tks;
+  edm::Handle<reco::TrackCollection> tks;
   iEvent.getByLabel(trackLabel_, tks);
   if (!tks.isValid()) {
     edm::LogInfo("RecoVertex/KVFTest") 

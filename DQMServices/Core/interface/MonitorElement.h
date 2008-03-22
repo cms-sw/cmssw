@@ -239,6 +239,7 @@ class MonitorElement
   std::vector<QReport *> qothers_;
 
   friend class DaqMonitorBEInterface;
+  friend class CollateMET;
   /// for setting parent_ pointer and de-allocating memory
   friend class MonitorElementRootFolder;
 };

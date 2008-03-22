@@ -88,7 +88,7 @@ align::RotationType align::diffRot(const GlobalVectors& current,
 // This is because dr = -r and r * dr is all zero.
 // This is not a problem since we are dealing with small angles in alignment.
 
-  static const double tolerance = 1e-12;
+  static const double tolerance = 1e-8;
 
   RotationType rot; // rotation from nominal to current; init to identity
 
@@ -132,9 +132,9 @@ align::RotationType align::diffRot(const GlobalVectors& current,
 
     EulerAngles dOmega = CLHEP::solve(I, rhs);
 
-    rot *= toMatrix(dOmega); // add to rotation
-
     if (dOmega.normsq() < tolerance) break; // converges, so exit loop
+
+    rot *= toMatrix(dOmega); // add to rotation
 
   // Not yet converge; move current vectors to new positions and find dr
 

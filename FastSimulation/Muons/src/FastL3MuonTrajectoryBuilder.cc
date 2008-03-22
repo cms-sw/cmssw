@@ -10,8 +10,8 @@
  *   in the muon system and the tracker.
  *
  *
- *  $Date: 2008/01/08 17:43:50 $
- *  $Revision: 1.2 $
+ *  $Date: 2008/02/14 12:34:38 $
+ *  $Revision: 1.4 $
  *
  *  Authors :
  *  Patrick Janot - CERN
@@ -41,11 +41,8 @@
 #include "RecoMuon/TrackingTools/interface/MuonServiceProxy.h"
 #include "RecoMuon/GlobalTrackingTools/interface/GlobalMuonTrackMatcher.h"
 
-#include "RecoTracker/Record/interface/NavigationSchoolRecord.h"
-
 #include "TrackingTools/TrajectoryCleaning/interface/TrajectoryCleanerBySharedHits.h"
 #include "TrackingTools/PatternTools/interface/TrajTrackAssociation.h"
-#include "TrackingTools/DetLayers/interface/NavigationSetter.h"
 
 // Tracker RecHits and Tracks
 #include "DataFormats/TrackReco/interface/Track.h"
@@ -97,12 +94,6 @@ void FastL3MuonTrajectoryBuilder::setEvent(const edm::Event& event) {
     
   GlobalTrajectoryBuilderBase::setEvent(event);
   theEvent = &event;
-    
-  // retrieve navigation school
-  edm::ESHandle<NavigationSchool> nav;
-  GlobalTrajectoryBuilderBase::service()->eventSetup().get<NavigationSchoolRecord>().get("SimpleNavigationSchool", nav);
-  // set the correct navigation    
-  if(nav.isValid()) NavigationSetter setter(*nav.product());
     
   // Retrieve tracker tracks for muons
   regionalTkTracks = makeTkCandCollection(dummyStaCand);
@@ -170,12 +161,6 @@ FastL3MuonTrajectoryBuilder::trajectories(const TrackCand& staCandIn) {
   }
   tkTrajs.clear();  
 
-  if ( !theTkTrajsAvailableFlag ) {
-    for ( std::vector<TrackCand>::const_iterator is = regionalTkTracks.begin(); is != regionalTkTracks.end(); ++is) {
-      delete (*is).first;   
-    }
-  }
-
   return result;
   
 }
@@ -213,7 +198,7 @@ FastL3MuonTrajectoryBuilder::makeTkCandCollection(const TrackCand& staCand) cons
       edm::Ref<std::vector<Trajectory> > aTrajectoryRef = anAssociation->key;
       reco::TrackRef aTrackRef = anAssociation->val;
       int recoTrackId = findId(*aTrackRef);
-      if ( recoTrackId == simTrack.trackId() ) {
+      if ( recoTrackId == (int)(simTrack.trackId()) ) {
 	tkCandColl.push_back(TrackCand(new Trajectory((*aTrajectoryRef)),reco::TrackRef()));
 	break;
       }
@@ -254,6 +239,14 @@ FastL3MuonTrajectoryBuilder::findId(const reco::Track& aTrack) const {
   return trackId;
 }
 
+void 
+FastL3MuonTrajectoryBuilder::clear() { 
+  std::vector<TrackCand>::const_iterator is = regionalTkTracks.begin();
+  std::vector<TrackCand>::const_iterator il = regionalTkTracks.end();
+  for ( ; is != il; ++is) {
+    delete (*is).first;   
+  }
+}
 
 
 

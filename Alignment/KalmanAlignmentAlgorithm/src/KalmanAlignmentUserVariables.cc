@@ -1,12 +1,13 @@
 
 #include "Alignment/KalmanAlignmentAlgorithm/interface/KalmanAlignmentUserVariables.h"
+#include <boost/cstdint.hpp> 
 #include "Alignment/KalmanAlignmentAlgorithm/interface/KalmanAlignmentDataCollector.h"
 
-#include "Alignment/CommonAlignment/interface/Utilities.h"
+#include "Alignment/CommonAlignment/interface/AlignableObjectId.h"
 #include "Alignment/CommonAlignment/interface/AlignmentParameters.h"
+#include "Alignment/CommonAlignment/interface/Utilities.h"
 
 using namespace std;
-
 
 KalmanAlignmentUserVariables::KalmanAlignmentUserVariables( Alignable* parent,
 							    TrackerAlignableId* alignableId,
@@ -15,24 +16,24 @@ KalmanAlignmentUserVariables::KalmanAlignmentUserVariables( Alignable* parent,
     theNumberOfHits( 0 ),
     theNumberOfUpdates( 0 ),
     theUpdateFrequency( frequency ),
-    theFirstUpdate( true ),
-    theAlignmentFlag( false )
+    theFirstUpdate( true )
 {
   if ( parent && alignableId )
   {
+    static AlignableObjectId idMap;
+
     pair< int, int > typeAndLayer = alignableId->typeAndLayerFromDetId( parent->id() );
 
     int iType = typeAndLayer.first;
     int iLayer = typeAndLayer.second;
-    int iId = parent->id();
+    align::ID iId = parent->id();
 
-    string strName = string( "ObjectId" ) + toString( parent->alignableObjectId() ) + string( "_" );
+    string strName = idMap.typeToName( parent->alignableObjectId() ) + string( "_" );
     string strType = string( "Type" ) + toString( iType ) + string( "_" );
     string strLayer = string( "Layer" ) + toString( iLayer ) + string( "_" );
     string strId =  string( "Id" ) + toString( iId );
 
-    theTypeAndLayer = strType + strLayer;
-    theIdentifier = theTypeAndLayer + strName + strId;
+    theIdentifier = strType + strLayer + strName + strId;
   }
   else if ( parent )
   {
@@ -48,13 +49,13 @@ void KalmanAlignmentUserVariables::update( bool enforceUpdate )
   {
     ++theNumberOfUpdates;
 
-    if ( ( ( theNumberOfUpdates % theUpdateFrequency == 0  ) || enforceUpdate ) )
+    if ( theNumberOfUpdates%theUpdateFrequency == 0 || theFirstUpdate || enforceUpdate )
     {
-      const AlgebraicVector parameters = theParentAlignable->alignmentParameters()->selectedParameters();
-      const AlgebraicSymMatrix covariance = theParentAlignable->alignmentParameters()->selectedCovariance();
-      const vector< bool >& selector = theParentAlignable->alignmentParameters()->selector();
+      AlgebraicVector parameters = theParentAlignable->alignmentParameters()->selectedParameters();
+      AlgebraicSymMatrix covariance = theParentAlignable->alignmentParameters()->selectedCovariance();
+      vector< bool > selector = theParentAlignable->alignmentParameters()->selector();
 
-      AlgebraicVector trueParameters( extractTrueParameters() );
+      AlgebraicVector trueParameters = extractTrueParameters();
 
       const int nParameter = 6;
       int selected = 0;
@@ -63,212 +64,33 @@ void KalmanAlignmentUserVariables::update( bool enforceUpdate )
       {
 	if ( selector[i] )
 	{
-	  string parameterId = selectedParameter( i ) + string( "_" ) + theIdentifier;
+	  string parameterId = selectedParameter( i ) + theIdentifier;
 
 	  if ( theFirstUpdate )
 	  {
-	    KalmanAlignmentDataCollector::fillGraph( string("LocalDelta") + parameterId, 0, -trueParameters[i]/selectedScaling(i) );
-	    KalmanAlignmentDataCollector::fillGraph( string("LocalSigma") + parameterId, 0, sqrt(covariance[selected][selected])/selectedScaling(i) );
+	    KalmanAlignmentDataCollector::fillGraph( string("Delta") + parameterId, 0,
+						     -trueParameters[i]/selectedScaling(i) );
+
+	    KalmanAlignmentDataCollector::fillGraph( string("Sigma") + parameterId, 0,
+						     sqrt(covariance[selected][selected])/selectedScaling(i) );
 	  }
+	  else
+	  {
+	    KalmanAlignmentDataCollector::fillGraph( string("Delta") + parameterId, theNumberOfUpdates,
+						     (parameters[selected]-trueParameters[i])/selectedScaling(i) );
 
-	  KalmanAlignmentDataCollector::fillGraph( string("LocalDelta") + parameterId, theNumberOfUpdates, (parameters[selected]-trueParameters[i])/selectedScaling(i) );
-	  KalmanAlignmentDataCollector::fillGraph( string("LocalSigma") + parameterId, theNumberOfUpdates, sqrt(covariance[selected][selected])/selectedScaling(i) );
+	    KalmanAlignmentDataCollector::fillGraph( string("Sigma") + parameterId, theNumberOfUpdates,
+						     sqrt(covariance[selected][selected])/selectedScaling(i) );
 
+	  }
 	  selected++;
 	}
       }
 
       if ( theFirstUpdate ) theFirstUpdate = false;
-
-//       const AlgebraicVector& parameters = theParentAlignable->alignmentParameters()->parameters();
-//       const AlgebraicSymMatrix& covariance = theParentAlignable->alignmentParameters()->covariance();
-
-//       const AlignableSurface& surface = theParentAlignable->surface();
-
-//       // Get global euler angles.
-//       align::EulerAngles localEulerAngles( parameters.sub( 4, 6 ) );
-//       const align::RotationType localRotation = align::toMatrix( localEulerAngles );
-//       const align::RotationType globalRotation = surface.toGlobal( localRotation );
-//       align::EulerAngles globalEulerAngles = align::toAngles( globalRotation );
-
-//       // Get global shifts.
-//       align::LocalVector localShifts( parameters[0], parameters[1], parameters[2] );
-//       align::GlobalVector globalShifts( surface.toGlobal( localShifts ) );
-
-//       const int nParameter = 6;
-//       AlgebraicVector globalParameters( nParameter );
-//       globalParameters[0] = globalShifts.x();
-//       globalParameters[1] = globalShifts.y();
-//       globalParameters[2] = globalShifts.z();
-//       globalParameters[3] = globalEulerAngles[0];
-//       globalParameters[4] = globalEulerAngles[1];
-//       globalParameters[5] = globalEulerAngles[2];
-
-//       AlgebraicVector trueParameters( extractTrueParameters() );
-      
-//       for ( int i = 0; i < nParameter; ++i )
-//       {
-// 	string parameterId = selectedParameter( i ) + string( "_" ) + theIdentifier;
-
-// 	if ( theFirstUpdate )
-// 	{
-// 	  KalmanAlignmentDataCollector::fillGraph( string("GlobalDelta") + parameterId, 0, -trueParameters[i]/selectedScaling(i) );
-// 	  KalmanAlignmentDataCollector::fillGraph( string("LocalSigma") + parameterId, 0, sqrt(covariance[i][i])/selectedScaling(i) );
-// 	}
-
-// 	KalmanAlignmentDataCollector::fillGraph( string("GlobalDelta") + parameterId, theNumberOfUpdates, (globalParameters[i]-trueParameters[i])/selectedScaling(i) );
-// 	KalmanAlignmentDataCollector::fillGraph( string("LocalSigma") + parameterId, theNumberOfUpdates, sqrt(covariance[i][i])/selectedScaling(i) );
-//       }
-
-//       if ( theFirstUpdate ) theFirstUpdate = false;
     }
   }
 }
-
-
-void KalmanAlignmentUserVariables::update( const AlignmentParameters* param )
-{
-  if ( theParentAlignable )
-  {
-    ++theNumberOfUpdates;
-
-    const AlgebraicVector& parameters = param->selectedParameters();
-    const AlgebraicSymMatrix& covariance = param->selectedCovariance();
-    const vector< bool >& selector = param->selector();
-
-    AlgebraicVector trueParameters( extractTrueParameters() );
-
-    const int nParameter = 6;
-    int selected = 0;
-      
-    for ( int i = 0; i < nParameter; ++i )
-    {
-      if ( selector[i] )
-      {
-	string parameterId = selectedParameter( i ) + string( "_" ) + theIdentifier;
-
-	KalmanAlignmentDataCollector::fillGraph( string("Delta") + parameterId, theNumberOfUpdates, (parameters[selected]-trueParameters[i])/selectedScaling(i) );
-	KalmanAlignmentDataCollector::fillGraph( string("Sigma") + parameterId, theNumberOfUpdates, sqrt(covariance[selected][selected])/selectedScaling(i) );
-
-	selected++;
-      }
-    }
-
-    if ( theFirstUpdate ) theFirstUpdate = false;
-  }
-}
-
-
-void KalmanAlignmentUserVariables::histogramParameters( string histoNamePrefix )
-{
-  if ( theParentAlignable )
-  {
-    AlgebraicVector parameters = theParentAlignable->alignmentParameters()->selectedParameters();
-    AlgebraicSymMatrix covariance = theParentAlignable->alignmentParameters()->selectedCovariance();
-    vector< bool > selector = theParentAlignable->alignmentParameters()->selector();
-
-    AlgebraicVector trueParameters = extractTrueParameters();
-
-    const int nParameter = 6;
-    int selected = 0;
-
-    for ( int i = 0; i < nParameter; ++i )
-    {
-      if ( selector[i] )
-      {
-	string startHistoName = histoNamePrefix + theTypeAndLayer + string( "_Start" ) + selectedParameter( i );
-	KalmanAlignmentDataCollector::fillHistogram( startHistoName, -trueParameters[i]/selectedScaling(i) );
-
-	string deltaHistoName = histoNamePrefix + theTypeAndLayer + string( "_Delta" ) + selectedParameter( i );
-	KalmanAlignmentDataCollector::fillHistogram( deltaHistoName, (parameters[selected]-trueParameters[i])/selectedScaling(i) );
-
-	string pullsHistoName = histoNamePrefix + theTypeAndLayer + string( "_Pulls" ) + selectedParameter( i );
-	KalmanAlignmentDataCollector::fillHistogram( pullsHistoName, (parameters[selected]-trueParameters[i])/sqrt(covariance[selected][selected]) );
-
-	startHistoName = histoNamePrefix + string( "_Start" ) + selectedParameter( i );
-	KalmanAlignmentDataCollector::fillHistogram( startHistoName, -trueParameters[i]/selectedScaling(i) );
-
-	deltaHistoName = histoNamePrefix + string( "_Delta" ) + selectedParameter( i );
-	KalmanAlignmentDataCollector::fillHistogram( deltaHistoName, (parameters[selected]-trueParameters[i])/selectedScaling(i) );
-
-	pullsHistoName = histoNamePrefix + string( "_Pulls" ) + selectedParameter( i );
-	KalmanAlignmentDataCollector::fillHistogram( pullsHistoName, (parameters[selected]-trueParameters[i])/sqrt(covariance[selected][selected]) );
-
-	selected++;
-      }
-    }
-
-
-//     const AlgebraicVector& parameters = theParentAlignable->alignmentParameters()->parameters();
-
-//     const AlignableSurface& surface = theParentAlignable->surface();
-
-//     // Get global euler angles.
-//     align::EulerAngles localEulerAngles( parameters.sub( 4, 6 ) );
-//     const align::RotationType localRotation = align::toMatrix( localEulerAngles );
-//     const align::RotationType globalRotation = surface.toGlobal( localRotation );
-//     align::EulerAngles globalEulerAngles = align::toAngles( globalRotation );
-
-//     // Get global shifts.
-//     align::LocalVector localShifts( parameters[0], parameters[1], parameters[2] );
-//     align::GlobalVector globalShifts( surface.toGlobal( localShifts ) );
-
-//     const int nParameter = 6;
-//     AlgebraicVector globalParameters( nParameter );
-//     globalParameters[0] = globalShifts.x();
-//     globalParameters[1] = globalShifts.y();
-//     globalParameters[2] = globalShifts.z();
-//     globalParameters[3] = globalEulerAngles[0];
-//     globalParameters[4] = globalEulerAngles[1];
-//     globalParameters[5] = globalEulerAngles[2];
-
-//     AlgebraicVector trueParameters( extractTrueParameters() );
-
-//     KalmanAlignmentDataCollector::fillGraph( "y_vs_dx", theParentAlignable->globalPosition().y(), trueParameters[0]-globalParameters[0] );
-//     KalmanAlignmentDataCollector::fillGraph( "r_vs_dx", theParentAlignable->globalPosition().perp(), trueParameters[0]-globalParameters[0] );
-//     KalmanAlignmentDataCollector::fillGraph( "y_vs_dx_true", theParentAlignable->globalPosition().y(), trueParameters[0] );
-      
-//     for ( int i = 0; i < nParameter; ++i )
-//     {
-//       string startHistoName = histoNamePrefix + string( "_Start" ) + selectedParameter( i );
-//       KalmanAlignmentDataCollector::fillHistogram( startHistoName, -trueParameters[i]/selectedScaling(i) );
-
-//       string deltaHistoName = histoNamePrefix + string( "_Delta" ) + selectedParameter( i );
-//       KalmanAlignmentDataCollector::fillHistogram( deltaHistoName, (globalParameters[i]-trueParameters[i])/selectedScaling(i) );
-
-//       string valueHistoName = histoNamePrefix + string( "_Value" ) + selectedParameter( i );
-//       KalmanAlignmentDataCollector::fillHistogram( valueHistoName, globalParameters[i]/selectedScaling(i) );
-
-//       startHistoName = histoNamePrefix + theTypeAndLayer + string( "_Start" ) + selectedParameter( i );
-//       KalmanAlignmentDataCollector::fillHistogram( startHistoName, -trueParameters[i]/selectedScaling(i) );
-
-//       deltaHistoName = histoNamePrefix + theTypeAndLayer + string( "_Delta" ) + selectedParameter( i );
-//       KalmanAlignmentDataCollector::fillHistogram( deltaHistoName, (globalParameters[i]-trueParameters[i])/selectedScaling(i) );
-
-//       valueHistoName = histoNamePrefix + theTypeAndLayer + string( "_Value" ) + selectedParameter( i );
-//       KalmanAlignmentDataCollector::fillHistogram( valueHistoName, globalParameters[i]/selectedScaling(i) );
-//     }
-  }
-}
-
-
-void KalmanAlignmentUserVariables::fixAlignable( void )
-{
-  AlignmentParameters* oldParameters = theParentAlignable->alignmentParameters();
-  AlgebraicSymMatrix fixedCovariance = 1e-6*oldParameters->covariance();
-  AlignmentParameters* newParameters = oldParameters->clone( oldParameters->parameters(), fixedCovariance );
-  theParentAlignable->setAlignmentParameters( newParameters );
-}
-
-
-void KalmanAlignmentUserVariables::unfixAlignable( void )
-{
-  AlignmentParameters* oldParameters = theParentAlignable->alignmentParameters();
-  AlgebraicSymMatrix fixedCovariance = 1e6*oldParameters->covariance();
-  AlignmentParameters* newParameters = oldParameters->clone( oldParameters->parameters(), fixedCovariance );
-  theParentAlignable->setAlignmentParameters( newParameters );
-}
-
 
 const AlgebraicVector KalmanAlignmentUserVariables::extractTrueParameters( void ) const
 {
@@ -295,22 +117,6 @@ const AlgebraicVector KalmanAlignmentUserVariables::extractTrueParameters( void 
   trueParameters[4] = -localEulerAngles[1];
   trueParameters[5] = -localEulerAngles[2];
 
-//   // get global rotation
-//   const align::RotationType& globalRotation = theParentAlignable->rotation();
-//   // get euler angles (global frame)
-//   align::EulerAngles globalEulerAngles = align::toAngles( globalRotation );
-
-//   // get global shifts
-//   align::GlobalVector globalShifts( globalRotation.multiplyInverse( theParentAlignable->displacement().basicVector() ) );
-
-//   AlgebraicVector trueParameters( 6 );
-//   trueParameters[0] = -globalShifts.x();
-//   trueParameters[1] = -globalShifts.y();
-//   trueParameters[2] = -globalShifts.z();
-//   trueParameters[3] = -globalEulerAngles[0];
-//   trueParameters[4] = -globalEulerAngles[1];
-//   trueParameters[5] = -globalEulerAngles[2];
-
   return trueParameters;
 }
 
@@ -320,27 +126,30 @@ const string KalmanAlignmentUserVariables::selectedParameter( const int& selecte
   switch ( selected )
   {
   case 0:
-    return string( "X" );
+    return string( "X_" );
     break;
   case 1:
-    return string( "Y" );
+    return string( "Y_" );
     break;
   case 2:
-    return string( "Z" );
+    return string( "Z_" );
     break;
   case 3:
-    return string( "Alpha" );
+    return string( "Alpha_" );
     break;
   case 4:
-    return string( "Beta" );
+    return string( "Beta_" );
     break;
   case 5:
-    return string( "Gamma" );
+    return string( "Gamma_" );
     break;
   default:
-    throw cms::Exception( "OutOfRange" ) << "[KalmanAlignmentUserVariables::selectedParameter] "
-					 << "Index out of range (selector = " << selected << ")";
+    cout << "[KalmanAlignmentUserVariables::selectedParameter] Index out of range (selector = " << selected << ")" << endl;
+    return toString( selected ) + string( "_" );
+    break;
   }
+
+  return string( "YouShouldNeverEverSeeThis_" );
 }
 
 
@@ -348,7 +157,6 @@ const float KalmanAlignmentUserVariables::selectedScaling( const int& selected )
 {
   const float micron = 1e-4;
   const float millirad = 1e-3;
-  //const float murad = 1e-6;
 
   switch ( selected )
   {
@@ -361,7 +169,6 @@ const float KalmanAlignmentUserVariables::selectedScaling( const int& selected )
   case 4:
   case 5:
     return millirad;
-    //return murad;
     break;
   default:
     cout << "[KalmanAlignmentUserVariables::selectedScaling] Index out of range (selector = " << selected << ")" << endl;

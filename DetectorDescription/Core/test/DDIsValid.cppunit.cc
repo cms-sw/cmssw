@@ -1,6 +1,5 @@
 #include "DetectorDescription/Core/interface/DDName.h"
 #include "DetectorDescription/Core/interface/DDLogicalPart.h"
-#include "DetectorDescription/Core/src/LogicalPart.h"
 
 #include <cppunit/extensions/HelperMacros.h>
 #include<fstream>

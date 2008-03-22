@@ -7,7 +7,6 @@
 <use name=FWCore/ServiceRegistry>
 <use name=CondCore/DBCommon>
 <use name=CondCore/DBOutputService>
-<use name=CondCore/PopCon>
 <use name=clhep>
 <flags EDM_PLUGIN=1>
 <export>
@@ -18,7 +17,6 @@
   <use name=CondFormats/DataRecord> 
   <use name=CondCore/DBCommon>
   <use name=CondCore/DBOutputService>
-  <use name=CondCore/PopCon>
 </export>
 
 

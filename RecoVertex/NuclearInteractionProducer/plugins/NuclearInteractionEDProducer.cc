@@ -68,14 +68,24 @@ NuclearInteractionEDProducer::produce(edm::Event& iEvent, const edm::EventSetup&
          TrajectoryRef  trajRef( primaryTrajectoryCollection, i );
 
          /// 1. Get the primary track from the trajectory
-         TrajTrackAssociationCollection::const_iterator itPrimTrack = refMap.find( trajRef );
-         if( itPrimTrack == refMap.end() || (itPrimTrack->val).isNull() ) continue;
-         const reco::TrackRef& primary_track = itPrimTrack->val;
+         reco::TrackRef primary_track;
+         try {
+           primary_track = refMap[ trajRef ];
+         }
+         catch ( const edm::Exception& event ) {         
+                LogDebug("NuclearInteractionMaker") << "No tracks associated to the current trajectory by the TrackRefitter \n";
+         }
+       
+         if( primary_track.isNull() ) continue;
 
          /// 2. Get the seeds from the trajectory
-         TrajectoryToSeedsMap::const_iterator itSeeds = nuclMap.find( trajRef );
-         if( itSeeds == nuclMap.end() || (itSeeds->val).isNull()) continue; 
-         const TrajectorySeedRefVector& seeds = itSeeds->val;
+         TrajectorySeedRefVector seeds;
+         try {
+            seeds = nuclMap[ trajRef ];
+         }
+         catch ( const edm::Exception& event) {}
+
+         if( seeds.isNull() )  continue; 
 
          /// 3. Get the secondary tracks
          reco::TrackRefVector secondary_tracks;

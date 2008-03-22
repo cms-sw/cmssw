@@ -1,5 +1,5 @@
 
-// $Id$
+// $Id: LumiSummary.cc,v 1.1 2007/07/13 20:13:03 wdd Exp $
 
 #include "DataFormats/Luminosity/interface/LumiSummary.h"
 
@@ -23,12 +23,14 @@ std::ostream& operator<<(std::ostream& s, const LumiSummary& lumiSummary) {
 
   s << "\nDumping LumiSummary\n\n";
 
-  s << "  avgInsLumi = " << lumiSummary.avgInsLumi() << "\n";
-  s << "  avgInsLumiErr = " << lumiSummary.avgInsLumiErr() << "\n";
+  s << "  avgInsDelLumi = " << lumiSummary.avgInsDelLumi() << "\n";
+  s << "  avgInsDelLumiErr = " << lumiSummary.avgInsDelLumiErr() << "\n";
   s << "  lumiSecQual = " << lumiSummary.lumiSecQual() << "\n";
   s << "  deadFrac = " << lumiSummary.deadFrac() << "\n";
   s << "  liveFrac = " << lumiSummary.liveFrac() << "\n";
-  s << "  lsNumber = " << lumiSummary.lsNumber() << "\n\n";
+  s << "  lsNumber = " << lumiSummary.lsNumber() << "\n";
+  s << "  avgInsRecLumi = " << lumiSummary.avgInsRecLumi() << "\n";
+  s << "  avgInsRecLumiErr = " << lumiSummary.avgInsRecLumiErr() << "\n\n";
 
   s << setw(15) << "l1ratecounter";
   s << setw(15) << "l1scaler";

@@ -116,9 +116,9 @@ void CVRTest::analyze( const edm::Event & iEvent,
   vector < TransientVertex > vtces = vrec_->vertices ( ttks );
   printVertices ( vtces );
 
-  // cout << "[CVRTest] fit w beamspot constraint" << endl;
-  // vector < TransientVertex > bvtces = vrec_->vertices ( ttks, *bs );
-  // printVertices ( bvtces );
+  cout << "[CVRTest] fit w beamspot constraint" << endl;
+  vector < TransientVertex > bvtces = vrec_->vertices ( ttks, *bs );
+  printVertices ( bvtces );
 }
 
 //define this as a plug-in

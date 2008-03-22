@@ -1,8 +1,8 @@
 /*
  * \file EEStatusFlagsClient.cc
  *
- * $Date: 2008/01/17 09:34:43 $
- * $Revision: 1.2 $
+ * $Date: 2008/02/07 13:39:02 $
+ * $Revision: 1.7 $
  * \author G. Della Ricca
  *
 */
@@ -17,23 +17,9 @@
 #include "TGraph.h"
 #include "TLine.h"
 
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-
 #include "DQMServices/UI/interface/MonitorUIRoot.h"
 
-#include "OnlineDB/EcalCondDB/interface/RunTag.h"
-#include "OnlineDB/EcalCondDB/interface/RunIOV.h"
-#include "OnlineDB/EcalCondDB/interface/RunCrystalErrorsDat.h"
-
-#include "OnlineDB/EcalCondDB/interface/EcalCondDBInterface.h"
-
-#include "CondTools/Ecal/interface/EcalErrorDictionary.h"
-
-#include "DQM/EcalCommon/interface/EcalErrorMask.h"
 #include "DQM/EcalCommon/interface/UtilsClient.h"
-#include "DQM/EcalCommon/interface/LogicID.h"
 #include "DQM/EcalCommon/interface/Numbers.h"
 
 #include <DQM/EcalEndcapMonitorClient/interface/EEStatusFlagsClient.h>
@@ -51,7 +37,7 @@ EEStatusFlagsClient::EEStatusFlagsClient(const ParameterSet& ps){
   verbose_ = ps.getUntrackedParameter<bool>("verbose", false);
 
   // enableMonitorDaemon_ switch
-  enableMonitorDaemon_ = ps.getUntrackedParameter<bool>("enableMonitorDaemon", true);
+  enableMonitorDaemon_ = ps.getUntrackedParameter<bool>("enableMonitorDaemon", false);
 
   // enableCleanup_ switch
   enableCleanup_ = ps.getUntrackedParameter<bool>("enableCleanup", false);
@@ -180,7 +166,7 @@ void EEStatusFlagsClient::analyze(void){
     if ( verbose_ ) cout << "EEStatusFlagsClient: ievt/jevt = " << ievt_ << "/" << jevt_ << endl;
   }
 
-  Char_t histo[200];
+  char histo[200];
 
   MonitorElement* me;
 
@@ -266,7 +252,7 @@ void EEStatusFlagsClient::htmlOutput(int run, string htmlDir, string htmlName){
   TH2F* obj2f;
   TH1F* obj1f;
 
-  // Loop on barrel supermodules
+  // Loop on endcap sectors
 
   for ( unsigned int i=0; i<superModules_.size(); i ++ ) {
 

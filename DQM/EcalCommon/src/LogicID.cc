@@ -1,65 +1,97 @@
-// $Id: LogicID.cc,v 1.5 2007/12/18 13:32:19 dellaric Exp $
+// $Id: LogicID.cc,v 1.9 2008/02/09 19:50:10 dellaric Exp $
 
 /*!
   \file LogicID.cc
-  \brief Cache logicID vector from database
-  \author B. Gobbo 
-  \version $Revision: 1.5 $
-  \date $Date: 2007/12/18 13:32:19 $
+  \brief Construct EcalLogicIDs
+  \author G. Della Ricca
+  \author B. Gobbo
+  \version $Revision: 1.9 $
+  \date $Date: 2008/02/09 19:50:10 $
 */
 
-#include "OnlineDB/EcalCondDB/interface/EcalCondDBInterface.h"
 #include "DQM/EcalCommon/interface/LogicID.h"
 
-bool                                              LogicID::init_ = false;
-std::map< std::string, std::vector<EcalLogicID> > LogicID::IDmap_;
+//-------------------------------------------------------------------------
+
+// WARNING:
+// this file depends on the content of
+// OnlineDB/EcalCondDB/perl/lib/CondDB/channelView.pm
 
 //-------------------------------------------------------------------------
 
-void LogicID::init( EcalCondDBInterface* eConn ) {
+EcalLogicID LogicID::getEcalLogicID( std::string name,
+                                     int id1,
+                                     int id2,
+                                     int id3 ) throw( std::runtime_error ) {
 
-  IDmap_[ "EB_crystal_number" ] = eConn->getEcalLogicIDSet( "EB_crystal_number", 1, 36,  1, 1700 );
-  IDmap_[ "EB_mem_channel" ]    = eConn->getEcalLogicIDSet( "EB_mem_channel",    1, 36,  1,   50 );
-  IDmap_[ "EB_trigger_tower" ]  = eConn->getEcalLogicIDSet( "EB_trigger_tower",  1, 36,  1,   68 );
-  IDmap_[ "EB_LM_PN" ]          = eConn->getEcalLogicIDSet( "EB_LM_PN",          1, 36,  0,    9 );
-  IDmap_[ "EB_mem_TT" ]         = eConn->getEcalLogicIDSet( "EB_mem_TT",         1, 36, 69,   70 );
-  IDmap_[  "ECAL" ].push_back( eConn->getEcalLogicID( "ECAL" ) );
+  // EcalBarrel
 
-  init_ = true;
+  if( name == "EB" ) {
+    return( EcalLogicID( "EB",
+                         1000000000 ) );
+  }
+  if( name == "EB_crystal_number" ) {
+    return( EcalLogicID( "EB_crystal_number",
+                         1011000000+10000*id1+id2,
+                         id1,
+                         id2 ) );
+  }
+  if( name == "EB_trigger_tower" ) {
+    return( EcalLogicID( "EB_trigger_tower",
+                         1021000000+10000*id1+id2,
+                         id1,
+                         id2 ) );
+  }
+  if( name == "EB_mem_channel" ) {
+    return( EcalLogicID( "EB_mem_channel",
+                         1191000000+10000*id1+id2,
+                         id1,
+                         id2 ) );
+  }
+  if( name == "EB_mem_TT" ) {
+    return( EcalLogicID( "EB_mem_TT",
+                         1181000000+10000*id1+id2,
+                         id1,
+                         id2 ) );
+  }
+  if( name == "EB_LM_PN" ) {
+    return( EcalLogicID( "EB_LM_PN",
+                         1131000000+10000*id1+id2,
+                         id1,
+                         id2 ) );
+  }
+
+  // EcalEndcap
+
+  if( name == "EE" ) {
+    return( EcalLogicID( "EE",
+                         2000000000 ) );
+  }
+  if( name == "EE_crystal_number" ) {
+    return( EcalLogicID( "EE_crystal_number",
+                         2010000000+1000000*((id1>=1&&id1<=9)?2:0)+1000*int(id2/1000)+int(id2%1000),
+                         (id1>=1&&id1<=9)?+1:-1,
+                         int(id2/1000),
+                         int(id2%1000) ) );
+  }
+  if( name == "EE_readout_tower" ) {
+    return( EcalLogicID( "EE_readout_tower",
+                         2000000000+100*((id1>=1&&id1<=9)?(646+(id1-1)):(601+(id1-9)))+id2,
+                         ((id1>=1&&id1<=9)?(646+(id1-1)):(601+(id1-9))),
+                         id2 ) );
+  }
+  if( name == "EE_mem_channel" ) {
+    return( EcalLogicID( "EE_mem_channel", EcalLogicID::NULLID ) );
+  }
+  if( name == "EE_mem_TT" ) {
+    return( EcalLogicID( "EE_mem_TT", EcalLogicID::NULLID ) );
+  }
+  if( name == "EE_LM_PN" ) {
+    return( EcalLogicID( "EE_mem_TT", EcalLogicID::NULLID ) );
+  }
+
+  throw( std::runtime_error( "Unknown 'name': " + name ) );
+  return( EcalLogicID( std::string( "" ), EcalLogicID::NULLID ) );
 
 }
 
-//-------------------------------------------------------------------------
-
-EcalLogicID LogicID::getEcalLogicID( std::string name, int id1, int id2, int id3 ) throw( std::runtime_error ) {
-
-  if( init_ ) {
-    if( name == "EB_crystal_number" ) {
-      return( IDmap_[ name ][ 1700*(id1-1)+id2-1 ] );
-    }
-    else if( name == "EB_mem_channel" ) {
-      return( IDmap_[ name ][ 50*(id1-1)+id2-1 ] );
-    }
-    else if( name == "EB_trigger_tower" ) {
-      return( IDmap_[ name ][ 68*(id1-1)+id2-1 ] );
-    }
-    else if( name == "EB_LM_PN" ) {
-      return( IDmap_[ name ][ 10*(id1-1)+id2 ] );
-    }
-    else if( name == "EB_mem_TT" ) {
-      return( IDmap_[ name ][ 2*(id1-1)+id2-69 ] );
-    }
-    else if( name == "ECAL" ) {
-      return( IDmap_[ name ][ 0 ] );
-    }
-    else {
-      throw( std::runtime_error( "Unknown 'name': " + name ) );
-      return( EcalLogicID( std::string( "" ), EcalLogicID::NULLID ) );
-    }
-  }
-  else {
-    throw( std::runtime_error( "LogicID static object not yet initialized." ) );
-    return ( EcalLogicID( std::string( "" ), EcalLogicID::NULLID ) );
-  }
-
-}

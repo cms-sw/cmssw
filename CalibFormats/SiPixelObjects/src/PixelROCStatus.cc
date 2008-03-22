@@ -8,6 +8,7 @@
 #include <stdint.h>
 #include <set>
 #include <iostream>
+#include <cassert>
 #include "CalibFormats/SiPixelObjects/interface/PixelROCStatus.h"
 
 using namespace std;
@@ -31,11 +32,11 @@ PixelROCStatus::PixelROCStatus(const std::set<ROCstatus>& stat){
 PixelROCStatus::~PixelROCStatus(){}
     
 void PixelROCStatus::set(ROCstatus stat){
-  bits_=bits_^(1>>stat);
+  bits_=bits_&(1>>stat);
 }
 
 void PixelROCStatus::clear(ROCstatus stat){
-  bits_=bits_&(0>>stat);
+  bits_=bits_&(1>>stat);
 }
 
 
@@ -50,28 +51,15 @@ void PixelROCStatus::set(ROCstatus stat, bool mode){
 }
 
 
-bool PixelROCStatus::get(ROCstatus stat) const{
+bool PixelROCStatus::get(ROCstatus stat){
   return bits_&(1>>stat);
 }
 
-string PixelROCStatus::statusName(ROCstatus stat) const{
+string PixelROCStatus::statusName(ROCstatus stat){
   if (stat==off) return "off";
   if (stat==noHits) return "noHits";
   assert(0);
   return "";
-}
-
-// modified by MR on 11-01-2008 15:06:28
-string PixelROCStatus::statusName() const {
-  string result = "" ;
-  for (ROCstatus istat=off; istat!=nStatus; istat=ROCstatus(istat+1))
-    {
-      if (get(istat))
-	{
-	  result += " " + statusName(istat) ;
-	}
-    }
-  return result ;
 }
 
 void PixelROCStatus::set(const string& statName){

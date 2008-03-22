@@ -10,7 +10,7 @@
   file in DQMServices/Daemon/test, but modified to include another top level
   folder, to remove the 1 sec wait, and to do the fitting without printout.
 
-  $Id: DQMMessageAnalyzer.cc,v 1.2 2007/04/25 21:34:34 afaq Exp $
+  $Id: DQMMessageAnalyzer.cc,v 1.4 2008/01/22 19:28:37 muzaffar Exp $
 
 */
 
@@ -22,7 +22,6 @@
 #include <math.h>
 
 // user include files
-#include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 
 #include "FWCore/Framework/interface/Event.h"

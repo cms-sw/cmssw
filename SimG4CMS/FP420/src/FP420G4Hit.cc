@@ -130,7 +130,7 @@ void         FP420G4Hit::setHadr (double e)         { hadr     = e; }
 double       FP420G4Hit::getIncidentEnergy() const  {return theIncidentEnergy; }
 void         FP420G4Hit::setIncidentEnergy (double e){theIncidentEnergy  = e; }
 
-unsigned int  FP420G4Hit::getTrackID() const         {return theTrackID; }
+G4int          FP420G4Hit::getTrackID() const         {return theTrackID; }
 void         FP420G4Hit::setTrackID (int i)         { theTrackID = i; }
 
 unsigned int FP420G4Hit::getUnitID() const          {return theUnitID; }

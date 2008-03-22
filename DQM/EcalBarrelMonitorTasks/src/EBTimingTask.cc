@@ -1,8 +1,8 @@
 /*
  * \file EBTimingTask.cc
  *
- * $Date: 2007/12/28 17:00:46 $
- * $Revision: 1.27 $
+ * $Date: 2008/01/22 19:14:39 $
+ * $Revision: 1.29 $
  * \author G. Della Ricca
  *
 */
@@ -11,18 +11,12 @@
 #include <fstream>
 #include <vector>
 
-#include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
-#include "DQMServices/Daemon/interface/MonitorDaemon.h"
 
-#include "DataFormats/EcalRawData/interface/EcalRawDataCollections.h"
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
-#include "DataFormats/EcalDigi/interface/EBDataFrame.h"
-#include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
 #include "DataFormats/EcalRecHit/interface/EcalUncalibratedRecHit.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 
@@ -72,7 +66,7 @@ void EBTimingTask::setup(void){
 
   init_ = true;
 
-  Char_t histo[200];
+  char histo[200];
 
   if ( dbe_ ) {
     dbe_->setCurrentFolder("EcalBarrel/EBTimingTask");

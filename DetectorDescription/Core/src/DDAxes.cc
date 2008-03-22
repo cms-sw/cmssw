@@ -1,6 +1,4 @@
 
-#include <string>
-#include <map>
 
 #include "DetectorDescription/Core/interface/DDAxes.h"
 

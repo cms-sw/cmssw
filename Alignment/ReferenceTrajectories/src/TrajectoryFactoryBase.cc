@@ -23,20 +23,21 @@ TrajectoryFactoryBase::TrajectoryFactoryBase( const edm::ParameterSet & config )
 TrajectoryFactoryBase::~TrajectoryFactoryBase( void ) {}
 
 
+
 const TrajectoryFactoryBase::TrajectoryInput
 TrajectoryFactoryBase::innermostStateAndRecHits( const ConstTrajTrackPair & track ) const
 {
-  TrajectoryFactoryBase::TrajectoryInput result; // pair of TSOS and ConstRecHitContainer
+  TrajectoryInput result;
 
   // get the trajectory measurements in the correct order, i.e. reverse if needed
   Trajectory::DataContainer trajectoryMeasurements 
     = this->orderedTrajectoryMeasurements( *track.first );
   Trajectory::DataContainer::iterator itM = trajectoryMeasurements.begin();
 
-  // get the innermost valid state
+  // get the innermost valid trajectory state - the corresponding hit must be o.k. as well
   while ( itM != trajectoryMeasurements.end() )
   {
-    if ( ( *itM ).updatedState().isValid() ) break;
+    if ( ( *itM ).updatedState().isValid() && useRecHit( ( *itM ).recHit() ) ) break;
     ++itM;
   }
   if ( itM != trajectoryMeasurements.end() ) result.first = ( *itM ).updatedState();
@@ -72,6 +73,12 @@ const Trajectory::DataContainer TrajectoryFactoryBase::orderedTrajectoryMeasurem
   }
 
   return original;
+}
+
+
+bool TrajectoryFactoryBase::sameSurface( const Surface& s1, const Surface& s2 ) const
+{
+  return ( s1.eta() == s2.eta() ) && ( s1.phi() == s2.phi() ) && ( s1.position().perp() == s2.position().perp() );
 }
 
 

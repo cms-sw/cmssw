@@ -5,7 +5,6 @@
 
 using namespace reco;
 using namespace std;
-using namespace edm;
 
 TransientTrack TransientTrackBuilder::build (const Track * t) const {
   return TransientTrack(*t, theField, theTrackingGeometry);
@@ -64,24 +63,6 @@ TransientTrackBuilder::build (const edm::Handle<reco::GsfTrackCollection> & trkC
 }
 
 vector<TransientTrack> 
-TransientTrackBuilder::build (const edm::Handle<edm::View<Track> > & trkColl) const
-{
-  vector<TransientTrack> ttVect;
-  ttVect.reserve((*trkColl).size());
-  for (unsigned int i = 0; i < (*trkColl).size() ; i++) {
-    const Track * trk = &(*trkColl)[i];
-    const GsfTrack * gsfTrack = dynamic_cast<const GsfTrack *>(trk);
-    if (!gsfTrack) {
-      ttVect.push_back( TransientTrack(
-	  new GsfTransientTrack(RefToBase<Track>(trkColl, i).castTo<GsfTrackRef>(), theField, theTrackingGeometry)) );
-    } else { // gsf
-      ttVect.push_back(TransientTrack(RefToBase<Track>(trkColl, i).castTo<TrackRef>(), theField, theTrackingGeometry));
-    }
-  }
-  return ttVect;
-}
-
-vector<TransientTrack> 
 TransientTrackBuilder::build ( const edm::Handle<reco::TrackCollection> & trkColl,
 	const reco::BeamSpot & beamSpot) const
 {
@@ -94,17 +75,6 @@ TransientTrackBuilder::build ( const edm::Handle<reco::TrackCollection> & trkCol
 
 vector<TransientTrack> 
 TransientTrackBuilder::build (const edm::Handle<reco::GsfTrackCollection> & trkColl,
-	const reco::BeamSpot & beamSpot) const
-{
-  vector<TransientTrack> ttVect = build(trkColl);
-  for (unsigned int i = 0; i < ttVect.size() ; i++) {
-    ttVect[i].setBeamSpot(beamSpot);
-  }
-  return ttVect;
-}
-
-vector<TransientTrack> 
-TransientTrackBuilder::build (const edm::Handle<edm::View<Track> > & trkColl,
 	const reco::BeamSpot & beamSpot) const
 {
   vector<TransientTrack> ttVect = build(trkColl);

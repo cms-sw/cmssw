@@ -60,8 +60,7 @@ MillePedeAlignmentAlgorithm::MillePedeAlignmentAlgorithm(const edm::ParameterSet
   theConfig(cfg), theMode(this->decodeMode(theConfig.getUntrackedParameter<std::string>("mode"))),
   theDir(theConfig.getUntrackedParameter<std::string>("fileDir")),
   theAlignmentParameterStore(0), theAlignables(), theAlignableNavigator(0),
-  theMonitor(0), theMille(0), thePedeLabels(0), thePedeSteer(0),
-  theTrajectoryFactory(0),
+  theMonitor(0), theMille(0), thePedeSteer(0), theTrajectoryFactory(0),
   theMinNumHits(cfg.getParameter<int>("minNumHits")),
   theUseTrackTsos(cfg.getParameter<bool>("useTrackTsos"))
 {
@@ -79,7 +78,6 @@ MillePedeAlignmentAlgorithm::~MillePedeAlignmentAlgorithm()
   delete theMille;
   delete theMonitor;
   delete thePedeSteer;
-  delete thePedeLabels;
   delete theTrajectoryFactory;
 }
 
@@ -97,21 +95,10 @@ void MillePedeAlignmentAlgorithm::initialize(const edm::EventSetup &setup,
   theAlignableNavigator = new AlignableNavigator(tracker, muon);
   theAlignmentParameterStore = store;
   theAlignables = theAlignmentParameterStore->alignables();
-  thePedeLabels = new PedeLabeler(tracker, muon);
-
-  // If requested, directly read in and apply result of previous pede run:
-  if (theConfig.getParameter<bool>("readPedeInput")) {
-    edm::LogInfo("Alignment") << "@SUB=MillePedeAlignmentAlgorithm::initialize"
-                              << "Apply MillePede constants defined by PSet 'pedeReaderInput'.";
-    this->readFromPede("pedeReaderInput", false); // false: do not erase SelectionUserVariables
-    theAlignmentParameterStore->applyParameters();
-    // Following needed to shut up later warning from checkAliParams? Test!
-    // theAlignmentParameterStore->resetParameters();  FIXME
-  }
 
   edm::ParameterSet pedeSteerCfg(theConfig.getParameter<edm::ParameterSet>("pedeSteerer"));
-  thePedeSteer = new PedeSteerer(tracker, muon, theAlignmentParameterStore, thePedeLabels,
-				 pedeSteerCfg, theDir, !this->isMode(myPedeSteerBit));
+  thePedeSteer = new PedeSteerer(tracker, muon, theAlignmentParameterStore, pedeSteerCfg, theDir,
+				 !this->isMode(myPedeSteerBit));
   // After (!) PedeSteerer which uses the SelectionUserVariables attached to the parameters:
   this->buildUserVariables(theAlignables); // for hit statistics and/or pede result
 
@@ -164,7 +151,7 @@ void MillePedeAlignmentAlgorithm::terminate()
   }
   
   if (this->isMode(myPedeReadBit)) {
-    if (!pedeOk || !this->readFromPede("pedeReader", true)) {
+    if (!pedeOk || !this->readFromPede()) {
       edm::LogError("Alignment") << "@SUB=MillePedeAlignmentAlgorithm::terminate"
                                  << "Problems running pede or reading result, but applying!";
     }
@@ -186,8 +173,6 @@ void MillePedeAlignmentAlgorithm::terminate()
   theMonitor = 0;
   delete thePedeSteer;
   thePedeSteer = 0;
-  delete thePedeLabels;
-  thePedeLabels = 0;
   delete theTrajectoryFactory;
   theTrajectoryFactory = 0;
 }
@@ -211,6 +196,9 @@ void MillePedeAlignmentAlgorithm::run(const edm::EventSetup &setup,
   ConstTrajTrackPairCollection::const_iterator iTrajTrack = tracks.begin();
   for (RefTrajColl::const_iterator iRefTraj = trajectories.begin(), iRefTrajE = trajectories.end();
        iRefTraj != iRefTrajE; ++iRefTraj) {
+    RefTrajColl::value_type refTrajPtr = *iRefTraj; 
+    if (!refTrajPtr->isValid()) continue; // currently e.g. if any invalid hit (FIXME for cosmic?)
+    
     if (canUseTrack) {
       if (!this->orderedTsos((*iTrajTrack).first, trackTsos)) continue; // first is Trajectory*
       if (theMonitor) theMonitor->fillTrack((*iTrajTrack).second); // second is reco::Track*
@@ -219,9 +207,6 @@ void MillePedeAlignmentAlgorithm::run(const edm::EventSetup &setup,
       trackTsos.resize((*iTrajTrack).second->recHitsSize());
     }
 
-    RefTrajColl::value_type refTrajPtr = *iRefTraj; 
-    if (!refTrajPtr->isValid()) continue; // currently e.g. if any invalid hit (FIXME for cosmic?)
-    
     std::vector<AlignmentParameters*> parVec(refTrajPtr->recHits().size());//to add hits if all fine
     std::vector<bool> validHitVecY(refTrajPtr->recHits().size()); // collect hit statistics...
     int nValidHitsX = 0;                                // ...assuming that there are no y-only hits
@@ -313,7 +298,7 @@ bool MillePedeAlignmentAlgorithm
   if (params) {
     if (!lowestParams) lowestParams = params; // set parameters of lowest level
 
-    const unsigned int alignableLabel = thePedeLabels->alignableLabel(ali);
+    const unsigned int alignableLabel = thePedeSteer->labels().alignableLabel(ali);
     if (0 == alignableLabel) { // FIXME: what about regardAllHits in Markus' code?
       edm::LogWarning("Alignment") << "@SUB=MillePedeAlignmentAlgorithm::globalDerivativesHierarchy"
                                    << "Label not found, skip Alignable.";
@@ -327,7 +312,7 @@ bool MillePedeAlignmentAlgorithm
       if (selPars[iSel]) {
         globalDerivativesX.push_back(derivs[iSel][kLocalX]
 				     /thePedeSteer->cmsToPedeFactor(iSel));
-        globalLabels.push_back(thePedeLabels->parameterLabel(alignableLabel, iSel));
+        globalLabels.push_back(thePedeSteer->labels().parameterLabel(alignableLabel, iSel));
         if (is2DHit) {
 	  globalDerivativesY.push_back(derivs[iSel][kLocalY]
 				       /thePedeSteer->cmsToPedeFactor(iSel));
@@ -397,14 +382,13 @@ bool MillePedeAlignmentAlgorithm::is2D(const ConstRecHitPointer &recHit) const
 }
 
 //__________________________________________________________________________________________________
-bool MillePedeAlignmentAlgorithm::readFromPede(const std::string &psetName, bool setUserVars)
+bool MillePedeAlignmentAlgorithm::readFromPede()
 {
   bool allEmpty = this->areEmptyParams(theAlignables);
   
-  PedeReader reader(theConfig.getParameter<edm::ParameterSet>(psetName),
-		    *thePedeSteer, *thePedeLabels);
+  PedeReader reader(theConfig.getParameter<edm::ParameterSet>("pedeReader"), *thePedeSteer);
   std::vector<Alignable*> alis;
-  bool okRead = reader.read(alis, setUserVars);
+  bool okRead = reader.read(alis);
   bool numMatch = true;
 
   std::stringstream out("Read ");

@@ -4,14 +4,16 @@
 
 EventMsgBuilder::EventMsgBuilder(void* buf, uint32 size,
                                  uint32 run, uint32 event, uint32 lumi,
-                                 std::vector<bool>& l1_bits,
+                                 uint32 outModId, std::vector<bool>& l1_bits,
                                  uint8* hlt_bits, uint32 hlt_bit_count):
   buf_((uint8*)buf),size_(size)
 {
   EventHeader* h = (EventHeader*)buf_;
+  h->protocolVersion_ = 5;
   convert(run,h->run_);
   convert(event,h->event_);
   convert(lumi,h->lumi_);
+  convert(outModId,h->outModId_);
   uint8* pos = buf_ + sizeof(EventHeader);
 
   // l1 count
@@ -44,10 +46,10 @@ EventMsgBuilder::EventMsgBuilder(void* buf, uint32 size,
   setEventLength(0);
 }
 
-void EventMsgBuilder::setReserved(uint32 value)
+void EventMsgBuilder::setOrigDataSize(uint32 value)
 {
   EventHeader* h = (EventHeader*)buf_;
-  convert(value,h->reserved_);
+  convert(value,h->origDataSize_);
 }
 
 void EventMsgBuilder::setEventLength(uint32 len)

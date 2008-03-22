@@ -1,3 +1,29 @@
+2008-03-18  Emilio Meschi  <emilio.meschi@cern.ch>
+
+	* tag V01-02-03
+	* removed obsolete DQM stuff
+
+2008-03-07  Emilio Meschi  <emilio.meschi@cern.ch>
+
+	* tag V01-02-02
+	* fix flashlists and small fix to monitoring 
+
+2008-02-29  Emilio Meschi  <emilio.meschi@cern.ch>
+
+        * tag V01-02-01
+	* fixed defaultWebPage crash in halted
+	* Now calls explicitly beginJob in configuring
+	* call clear of ModuleWebRegistry at halting if present
+
+2008-02-27  Emilio Meschi  <emilio.meschi@cern.ch>
+
+	* tag V01-02-00
+	* add state transition E->F when edm failure detected 
+	* added separate flashlists for numerical microstates and legenda
+	* split web page in two, moved module description vector to data member
+	* use TimeProfilerService to get timing info in web page
+	* updated icons
+	
 2007-11-28  Emilio Meschi  <emilio.meschi@cern.ch>
 
 	* tag V01-01-04

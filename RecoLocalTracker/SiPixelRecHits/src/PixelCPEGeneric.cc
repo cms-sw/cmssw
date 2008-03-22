@@ -19,21 +19,13 @@ const double HALF_PI = 1.57079632679489656;
 //!  The constructor.
 //-----------------------------------------------------------------------------
 PixelCPEGeneric::PixelCPEGeneric(edm::ParameterSet const & conf, 
-				       const MagneticField *mag, const SiPixelCPEParmErrors *parmErrors) 
-  : PixelCPEBase(conf, mag, parmErrors)
+				       const MagneticField *mag) 
+  : PixelCPEBase(conf, mag)
 {
   if (theVerboseLevel > 0) 
     LogDebug("PixelCPEGeneric") 
       << " constructing a generic algorithm for ideal pixel detector.\n"
       << " CPEGeneric:: VerboseLevel = " << theVerboseLevel;
-
-  //dfehling  
-  the_eff_charge_cut_lowX = conf.getUntrackedParameter<double>("eff_charge_cut_lowX");
-  the_eff_charge_cut_lowY = conf.getUntrackedParameter<double>("eff_charge_cut_lowY");
-  the_eff_charge_cut_highX = conf.getUntrackedParameter<double>("eff_charge_cut_highX");
-  the_eff_charge_cut_highY = conf.getUntrackedParameter<double>("eff_charge_cut_highY");
-  the_size_cutX = conf.getUntrackedParameter<double>("size_cutX");
-  the_size_cutY = conf.getUntrackedParameter<double>("size_cutY");
 }
 
 
@@ -120,9 +112,9 @@ PixelCPEGeneric::localPosition(const SiPixelCluster& cluster,
 			      thePitchX,
 			      theTopol->isItBigPixelInX( cluster.minPixelRow() ),
 			      theTopol->isItBigPixelInX( cluster.maxPixelRow() ),
-			      the_eff_charge_cut_lowX,
-                              the_eff_charge_cut_highX,
-                              the_size_cutX,           // cut for eff charge width &&&
+			      1.0,
+			      2.0,
+			      4.0,   // cut for eff charge width &&&
 			      cotAlphaFromCluster_ );  // returned to us
 
 
@@ -137,9 +129,9 @@ PixelCPEGeneric::localPosition(const SiPixelCluster& cluster,
 			      thePitchY,   // 0.5 * lorentz shift (may be 0)
 			      theTopol->isItBigPixelInY( cluster.minPixelCol() ),
 			      theTopol->isItBigPixelInY( cluster.maxPixelCol() ),
-			      the_eff_charge_cut_lowY,
-                              the_eff_charge_cut_highY,
-                              the_size_cutY,           // cut for eff charge width &&&
+			      1.0,
+			      2.0,
+			      3.0,    // cut for eff charge width  &&&
 			      cotBetaFromCluster_ );   // returned to us
 
 
@@ -192,7 +184,7 @@ generic_position_formula( int size,                //!< Size of this projection.
   //--- Predicted charge width from geometry
   double W_pred = 
     theThickness * cot_angle                     // geometric correction (in cm)
-    - 2 * half_lorentz_shift;                    // (in cm) &&& check fpix!  
+    + 2 * half_lorentz_shift;                    // (in cm) &&& check fpix!  
   
 
   //--- Total length of the two edge pixels (first+last)
@@ -333,55 +325,8 @@ collect_edge_charges(const SiPixelCluster& cluster,  //!< input, the cluster
   return;
 } 
 
-//------------------------------------------------------------------
-//  localError() calls measurementError() after computing size and 
-//  edge (flag) along x and y.
-//------------------------------------------------------------------
-LocalError  
-PixelCPEGeneric::localError( const SiPixelCluster& cluster, const GeomDetUnit & det)const 
-{
-  setTheDet( det );
 
-  //--- Default is the maximum error used for edge clusters.
-  float xerr = thePitchX / sqrt(12.);
-  float yerr = thePitchY / sqrt(12.);
 
-  //--- Are we near either of the edges?
-  // Use edge methods from the Toplogy class
-  int maxPixelCol = cluster.maxPixelCol();
-  int maxPixelRow = cluster.maxPixelRow();
-  int minPixelCol = cluster.minPixelCol();
-  int minPixelRow = cluster.minPixelRow();       
-  // edge method moved to topologu class
-  bool edgex = (theTopol->isItEdgePixelInX(minPixelRow)) ||
-    (theTopol->isItEdgePixelInX(maxPixelRow));
-  bool edgey = (theTopol->isItEdgePixelInY(minPixelCol)) ||
-    (theTopol->isItEdgePixelInY(maxPixelCol));
-  
-  // Gavril: check if this rechit contains big pixels, 03/27/07
-  bool bigInX = theTopol->containsBigPixelInX(minPixelRow, maxPixelRow);
-  bool bigInY = theTopol->containsBigPixelInY(minPixelCol, maxPixelCol);
-
-  if (edgex && edgey) {
-    //--- Both axes on the edge, no point in calling PixelErrorParameterization,
-    //--- just return the max errors on both.
-    // return LocalError(xerr*xerr, 0,yerr*yerr);
-  } else {
-    pair<float,float> errPair = 
-      dbErrors_->getError(parmErrors_, thePart, cluster.sizeX(), cluster.sizeY(),
-				                  alpha_, beta_, bigInX, bigInY); // Gavril: add big pixel flags, 03/27/07
-    if (!edgex) xerr = errPair.first;
-    if (!edgey) yerr = errPair.second;
-  }       
-
-  if (theVerboseLevel > 9) {
-    LogDebug("PixelCPEParmError") <<
-      "Sizex = " << cluster.sizeX() << " Sizey = " << cluster.sizeY() << 
-      " Edgex = " << edgex          << " Edgey = " << edgey << 
-      " ErrX = " << xerr            << " ErrY  = " << yerr;
-  }
-  return LocalError(xerr*xerr, 0,yerr*yerr);
-}
 
 //=================  ONLY OLD ERROR STUFF BELOW  ==========================
 
@@ -402,7 +347,7 @@ PixelCPEGeneric::localError( const SiPixelCluster& cluster, const GeomDetUnit & 
 //-------------------------------------------------------------------------
 //  Hit error in the local frame
 //-------------------------------------------------------------------------
-/*LocalError  
+LocalError  
 PixelCPEGeneric::localError( const SiPixelCluster& cluster, 
 				const GeomDetUnit & det) const {
   setTheDet( det );
@@ -418,7 +363,7 @@ PixelCPEGeneric::localError( const SiPixelCluster& cluster,
    (cluster.maxPixelCol()==(theNumOfCol-1));*/
 
   // Use edge methods from the Toplogy class
-/*  int maxPixelCol = cluster.maxPixelCol();
+  int maxPixelCol = cluster.maxPixelCol();
   int maxPixelRow = cluster.maxPixelRow();
   int minPixelCol = cluster.minPixelCol();
   int minPixelRow = cluster.minPixelRow();       
@@ -450,7 +395,7 @@ PixelCPEGeneric::err2X(bool& edgex, int& sizex) const
 // Assign maximum error
   // if edge cluster the maximum error is assigned: Pitch/sqrt(12)=43mu
   //  float xerr = 0.0043; 
-	/*  float xerr = thePitchX/3.464;
+  float xerr = thePitchX/3.464;
   //
   // Pixels not at the edge: errors parameterized as function of the cluster size
   // V.Chiochia - 12/4/06
@@ -488,21 +433,19 @@ PixelCPEGeneric::err2X(bool& edgex, int& sizex) const
   }
   return xerr*xerr;
 }
-*/
+
 
 //-----------------------------------------------------------------------------
 // Position error estimate in Y (square returned).
 //-----------------------------------------------------------------------------
-/*
 float 
-
 PixelCPEGeneric::err2Y(bool& edgey, int& sizey) const
 {
 // Assign maximum error
 // if edge cluster the maximum error is assigned: Pitch/sqrt(12)=43mu
 //  float yerr = 0.0043;
-/* float yerr = thePitchY/3.464; 
-	  if (!edgey){
+  float yerr = thePitchY/3.464; 
+  if (!edgey){
     if (thePart == GeomDetEnumerators::PixelBarrel) { // Barrel
       if ( sizey == 1) {
 	yerr = 0.00375;     // 37.5um 
@@ -532,7 +475,7 @@ PixelCPEGeneric::err2Y(bool& edgey, int& sizey) const
   }
   return yerr*yerr;
 }
-	*/
+
 
 
 

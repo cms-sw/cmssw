@@ -1,14 +1,7 @@
 
 #include "EventFilter/StorageManager/interface/JobController.h"
-#include "FWCore/ServiceRegistry/interface/ServiceToken.h"
-#include "FWCore/Framework/interface/InputSource.h"
-#include "IOPool/Streamer/interface/Messages.h"
-#include "DataFormats/Streamer/interface/StreamedProducts.h"
-#include "IOPool/Streamer/interface/Utilities.h"
 
 #include "boost/bind.hpp"
-#include "boost/thread/thread.hpp"
-#include "boost/shared_ptr.hpp"
 
 using namespace std;
 using namespace edm;

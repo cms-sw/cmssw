@@ -19,10 +19,6 @@ class NuclearVertexBuilder {
 
   private :
        FreeTrajectoryState getTrajectory(const reco::TrackRef& track);
-       bool FillVertexWithCrossingPoint(const reco::TrackRef& primTrack, const reco::TrackRefVector& secTracks);
-       bool FillVertexWithAdaptVtxFitter(const reco::TrackRef& primTrack, const reco::TrackRefVector& secTracks);
-       void FillVertexWithLastPrimHit(const reco::TrackRef& primTrack, const reco::TrackRefVector& secTracks);
-
        reco::Vertex  the_vertex;
 
        const MagneticField * theMagField;

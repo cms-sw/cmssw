@@ -1,18 +1,15 @@
 /** \class CSCTMBData
  *
- *  $Date: 2007/09/25 14:52:38 $
- *  $Revision: 1.17 $
+ *  $Date: 2007/10/17 18:23:48 $
+ *  $Revision: 1.18 $
  *  \author A. Tumanov - Rice
  */
 
 #include "EventFilter/CSCRawToDigi/interface/CSCTMBData.h"
-#include "EventFilter/CSCRawToDigi/interface/CSCTMBScope.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include <iostream>
-#include <bitset>
 #include <cstdio>
-#include <boost/dynamic_bitset.hpp>
 #include "EventFilter/CSCRawToDigi/src/bitset_append.h"
 
 bool CSCTMBData::debug =false;

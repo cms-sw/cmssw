@@ -2,8 +2,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2007/07/12 07:25:47 $
- *  $Revision: 1.2 $
+ *  $Date: 2007/07/11 12:21:01 $
+ *  $Revision: 1.1 $
  *  \author M. Giunta
  */
 
@@ -120,10 +120,10 @@ void DTVDriftWriter::analyze(const Event & event, const EventSetup& eventSetup) 
       }
       calibValuesFile.addCell(calibValuesFile.getKey(wireId), newConstants);
 
-      theMTime->set(slId,
-		    vDriftAndReso[0],
-		    vDriftAndReso[1],
-		    DTTimeUnits::ns);
+      theMTime->setSLMtime(slId,
+			   vDriftAndReso[0],
+			   vDriftAndReso[1],
+			   DTTimeUnits::ns);
       if(debug) {
 	cout << " SL: " << slId
 	     << " vDrift = " << vDriftAndReso[0]

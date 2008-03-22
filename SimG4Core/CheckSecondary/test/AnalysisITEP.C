@@ -20,12 +20,15 @@
 #include "TStyle.h"
 #include "TGraph.h"
 
-void AnalyseITEP(char element[2], char list[10], char ene[6], int scan=1, char plot='Y') {
+void AnalyseITEP(char element[2], char list[10], char ene[6], char part[2]="p", int scan=1, char plot='Y') {
 
   static double massP = 938.272;
+  static double massN = 939.565;
   static double pi  = 3.1415926;
   static double deg = pi/180.;
   static double dcth= 0.05, de=0.02;
+  double massp = massP;
+  if (part == "n" || part == "N") massp = massN;
   char fname[40];
   sprintf (fname, "%s%s%sGeV.root", element, list, ene);
 
@@ -33,7 +36,7 @@ void AnalyseITEP(char element[2], char list[10], char ene[6], int scan=1, char p
   double atwt = atomicWt(element);
   cout << fname << " rhoL " << rhol << " atomic weight " << atwt << "\n";
   std::vector<double> angles = angleScan(scan);
-  std::vector<double> energies = energyScan();
+  std::vector<double> energies = energyScan(part);
 
   TH1F *hiK0 = new TH1F ("hiK0", "All Protons",                  800,0.,8.);
   TH1F *hiK1 = new TH1F ("hiK1", "Elastic Scattered Protons",    800,0.,8.);
@@ -113,11 +116,11 @@ void AnalyseITEP(char element[2], char list[10], char ene[6], int scan=1, char p
 	}
 
 	for (int k=0; k<(*nsec)[0]; k++) {
-	  if (abs((*mass)[k]-massP) < 0.01) { // This is a proton
+	  if (abs((*mass)[k]-massp) < 0.01) { // This is a proton
 	    double pl = (*py)[k];
 	    double pt = ((*px)[k])*((*px)[k])+((*pz)[k])*((*pz)[k]);
 	    double pp = (pt+pl*pl);
-	    double ke = (sqrt (pp + massP*massP) - massP)/1000.;
+	    double ke = (sqrt (pp + massp*massp) - massp)/1000.;
 	    pp        = sqrt (pp);
 	    double cth= (pp == 0. ? -2. : (pl/pp));
 	    double wt = (pp == 0. ?  0. : (1000./pp));
@@ -345,9 +348,14 @@ std::vector<double> angleScan(int scan) {
   return tmp;
 }
 
-std::vector<double> energyScan() {
+std::vector<double> energyScan(char part[2]) {
 
   std::vector<double> tmp;
+  if (part == "n" || part == "N") {
+    tmp.push_back(0.01);
+    tmp.push_back(0.03);
+    tmp.push_back(0.05);
+  }
   tmp.push_back(0.07);
   tmp.push_back(0.09);
   tmp.push_back(0.11);

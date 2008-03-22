@@ -60,9 +60,8 @@ bool PixelVZeroFinder::checkTrackPair(const reco::Track& posTrack,
   FreeTrajectoryState negTraj = getTrajectory(negTrack);
 
   // Closest approach
-  bool status = theApproach->calculate(posTraj,negTraj);
   pair<GlobalTrajectoryParameters, GlobalTrajectoryParameters>  
-    gtp = theApproach->trajectoryParameters();
+    gtp = theApproach->trajectoryParameters(posTraj,negTraj);
 
   // Closest points
   pair<GlobalPoint, GlobalPoint>

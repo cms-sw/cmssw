@@ -1,5 +1,4 @@
 #include "FWCore/PluginManager/interface/ModuleDef.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ServiceRegistry/interface/ServiceMaker.h"
 #include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
 #include "CondCore/DBOutputService/interface/PopConDBOutputService.h"

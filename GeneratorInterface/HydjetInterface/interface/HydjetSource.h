@@ -1,7 +1,7 @@
 #ifndef HydjetSource_h
 #define HydjetSource_h
 
-// $Id: HydjetSource.h,v 1.12 2008/01/09 16:59:24 yilmaz Exp $
+// $Id: HydjetSource.h,v 1.7 2007/05/21 14:49:07 mironov Exp $
 
 /** \class HydjetSource
 *
@@ -15,7 +15,6 @@
 
 #include "FWCore/Framework/interface/GeneratedInputSource.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "SimDataFormats/HiGenData/interface/SubEvent.h"
 #include <map>
 #include <string>
 #include <vector>
@@ -24,7 +23,6 @@
 namespace HepMC {
   class GenEvent;
   class GenParticle;
-  class GenVertex;
 }
 
 namespace edm
@@ -36,64 +34,38 @@ namespace edm
 
   private:
     void						add_heavy_ion_rec(HepMC::GenEvent *evt);
-    HepMC::GenParticle*	                                build_hyjet( int index, int barcode );	
-    HepMC::GenVertex*                                   build_hyjet_vertex(int i, int id);
+    bool						build_vertices(int i, std::vector<HepMC::GenParticle*>& luj_entries,
+                                                                       HepMC::GenEvent* evt);
+    HepMC::GenParticle*	build_particle( int index );	
+    bool						call_hyjgive(const std::string& iParm);
     bool						call_pygive(const std::string& iParm);
     void						clear();
-    bool						get_hard_particles(HepMC::GenEvent* evt, std::vector<SubEvent>& subs);
-    bool                                                get_soft_particles(HepMC::GenEvent* evt, std::vector<SubEvent>& subs);
-    bool                                                call_hyinit(double energy, double a, int ifb, double bmin,
-								    double bmax,double bfix,int nh);
-    bool						hydjet_init(const ParameterSet &pset);
+    bool						get_hydjet_particles(HepMC::GenEvent* evt);
+    bool						hyjhydro_init(const ParameterSet &pset);
     bool						hyjpythia_init(const ParameterSet &pset);
     inline double			                nuclear_radius() const;
     virtual bool                                        produce(Event & e);
     
     HepMC::GenEvent *evt;
-    double            abeamtarget_;           // beam/target atomic mass number 
-    double            bfixed_;                // fixed impact param (fm); valid only if cflag_=0
-    double            bmax_;                  // max impact param; 
+    float            abeamtarget_;            // beam/target atomic mass number 
+    float            bfixed_;                 // fixed impact param (fm); valid only if cflag_=0
+    float            bmax_;                   // max impact param; 
                                               // units of nucl radius
-    double            bmin_;                  // min impact param; 
+    float            bmin_;                   // min impact param; 
                                               // units of nucl radius
-    int               cflag_;                 // centrality flag 
+    int              cflag_;                  // centrality flag 
                                               // =  0 fixed impact param, 
                                               // <> 0 between bmin and bmax
-    double            comenergy;              // collision energy   
-    bool              doradiativeenloss_;     //! DEFAULT = true
-    bool              docollisionalenloss_;   //! DEFAULT = true   
-    double            fracsoftmult_;          // fraction of soft hydro induced hadronic multiplicity
-                                              // proportional to no of nucleon participants
-                                              // (1-fracsoftmult_)--- fraction of soft 
-                                              // multiplicity proportional to the numebr 
-                                              // of nucleon-nucleon binary collisions
-                                              // DEFAULT=1., allowed range [0.01,1]
-    double            hadfreeztemp_;          // hadron freez-out temperature
-                                              // DEFAULT=0.14MeV, allowed ranges [0.08,0.2]MeV
-    std::string       hymode_;                // Hydjet running mode
-    unsigned int      maxEventsToPrint_;      // Events to print if verbosity  
-    double            maxlongy_;              // max longitudinal collective rapidity: 
-                                              // controls width of eta-spectra
-                                              // DEFAULT=4, allowed range [0.01,7.0]
-    double            maxtrany_;              // max transverse collective rapidity: 
-                                              // controls slope of low-pt spectra
-                                              // DEFAULT=1.5, allowed range [0.01,3.0]
-    int               nsub_;
-    int               nhard_;                 // multiplicity of PYTHIA(+PYQUEN)-induced particles in event              
-    int               nmultiplicity_;         // mean soft multiplicity in central PbPb
+    float            comenergy;               // collision energy   
+    std::string      hymode_;                 // Hydjet running mode
+    unsigned int     maxEventsToPrint_;       // Events to print if verbosity      
+    int              nhard_;                  //!multiplicity of PYTHIA(+PYQUEN)-induced particles in event              
+    int              nmultiplicity_;          // mean soft multiplicity in central PbPb
                                               // automatically calculated for other centralitie and beams         
-    int               nsoft_;                 // multiplicity of HYDRO-induced particles in event 
-    unsigned int      nquarkflavor_;          //! number of active quark flavors in qgp
-                                              //! DEFAULT=0; allowed values: 0,1,2,3.    
-    unsigned int      pythiaPylistVerbosity_; // pythia verbosity; def=1 
-    double            qgpt0_;                 // initial temperature of QGP
-                                              // DEFAULT = 1GeV; allowed range [0.2,2.0]GeV; 
-    double            qgptau0_;               // proper time of QGP formation
-                                              // DEFAULT = 0.1 fm/c; allowed range [0.01,10.0]fm/
-    unsigned int      shadowingswitch_;       // shadowing switcher
-                                              // 1-ON, 0-OFF
-    double            signn_;                 // inelastic nucleon nucleon cross section [mb]
-                                              // DEFAULT= 58 mb
+    int              nsoft_;                  //!multiplicity of HYDRO-induced particles in event     
+    double           ptmin_;                  // min transverse  mom of the hard scattering
+    unsigned int     pythiaPylistVerbosity_;  // pythia verbosity; def=1 
+
   };
 
 double HydjetSource::nuclear_radius() const

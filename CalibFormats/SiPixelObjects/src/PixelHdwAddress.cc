@@ -53,8 +53,8 @@ std::ostream& pos::operator<<(std::ostream& s, const PixelHdwAddress& pixelroc){
     s<< "fecnumber   :"<<pixelroc.fecnumber_<<std::endl;
     s<< "mfec        :"<<pixelroc.mfec_<<std::endl;
     s<< "mfecchannel :"<<pixelroc.mfecchannel_<<std::endl;
-    s<< "portaddress :"<<pixelroc.portaddress_<<std::endl;
-    s<< "hubaddress  :"<<pixelroc.hubaddress_<<std::endl;
+    s<< "portadderss :"<<pixelroc.portaddress_<<std::endl;
+    s<< "hubadderss  :"<<pixelroc.hubaddress_<<std::endl;
     s<< "rocid       :"<<pixelroc.rocid_<<std::endl;
     s<< "fednumber   :"<<pixelroc.fednumber_<<std::endl;
     s<< "fedchannel  :"<<pixelroc.fedchannel_<<std::endl;
@@ -78,34 +78,4 @@ const PixelHdwAddress& PixelHdwAddress::operator=(const PixelHdwAddress& aROC){
 
     return *this;
 
-}
-
-//====================================================================================
-// Added by Dario
-void PixelHdwAddress::setAddress(std::string what, int value)
-{
-    if(        what == "fecnumber"   )
-    {
-      fecnumber_    =  value;
-    } else if( what == "mfec"        ) { 
-      mfec_         =  value ;
-    } else if( what == "mfecchannel" ) {
-      mfecchannel_  =  value ;
-    } else if( what == "portaddress" ) {
-      portaddress_  =  value ;
-    } else if( what == "hubaddress"  ) {
-      hubaddress_   =  value ;
-    } else if( what == "rocid"       ) {
-      rocid_        =  value ;
-    } else if( what == "fednumber"   ) {
-      fednumber_    =  value ;
-    } else if( what == "fedchannel"  ) {
-      fedchannel_   =  value ;
-    } else if( what == "fedrocnumber") {
-      fedrocnumber_ =  value ;
-    } else {
-      std::cout << "[PixelHdwAddress::setAddress()]\tCould not set a value for " << what 
-                << " (invalid keyword)" << std::endl ;
-      assert(0) ;
-    }
 }

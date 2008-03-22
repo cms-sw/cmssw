@@ -3,6 +3,9 @@
 #include "PhysicsTools/Utilities/src/OrCombiner.h"
 #include "PhysicsTools/Utilities/src/NotCombiner.h"
 #include "FWCore/Utilities/interface/EDMException.h"
+#ifdef BOOST_SPIRIT_DEBUG 
+#include <iostream>
+#endif
 using namespace reco::parser;
 
 void ExpressionSetter::operator()( const char *, const char * ) const {
@@ -10,4 +13,8 @@ void ExpressionSetter::operator()( const char *, const char * ) const {
     throw edm::Exception( edm::errors::LogicError )
       << "When trying parse an expression, expression stack is empty!";
   expr_ = exprStack_.back();
+
+#ifdef BOOST_SPIRIT_DEBUG 
+  BOOST_SPIRIT_DEBUG_OUT << "expression set" << std::endl;
+#endif
 }

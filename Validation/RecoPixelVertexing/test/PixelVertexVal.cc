@@ -45,11 +45,10 @@ private:
   edm::ParameterSet conf_; 
   int verbose_;
   std::map<std::string, TH1*> h;
-  TFile * rootFile;
 };
 
 PixelVertexVal::PixelVertexVal(const edm::ParameterSet& conf)
-  : conf_(conf),rootFile(0)
+  : conf_(conf)
 {
   edm::LogInfo("PixelVertexVal")<<" CTOR";
 }
@@ -57,16 +56,12 @@ PixelVertexVal::PixelVertexVal(const edm::ParameterSet& conf)
 PixelVertexVal::~PixelVertexVal()
 {
   edm::LogInfo("PixelVertexVal")<<" DTOR";
-  delete rootFile;
 }
 
 void PixelVertexVal::beginJob(const edm::EventSetup& es) {
   // How noisy?
   verbose_ = conf_.getUntrackedParameter<unsigned int>("Verbosity",0);
 
-  std::string file = conf_.getUntrackedParameter<std::string>("HistoFile","pixelVertexHistos.root");
-//  const char* cwd= gDirectory->GetPath();
-  rootFile  = new TFile(file.c_str(),"RECREATE");
 
   // validation histos
   h["h_Nbvtx"]= new TH1F("h_nbvtx","nb vertices in event",16,0.,16.);
@@ -136,8 +131,10 @@ void PixelVertexVal::analyze(
     float dz =  pv.position().z() - z_PV;
     h["h_ResZ"]->Fill( dz ); 
     h["h_PullZ"]->Fill( dz/pv.zError() );
+
+    for (reco::Vertex::trackRef_iterator it=pv.tracks_begin(); it != pv.tracks_end(); it++) {
 //    for (reco::Vertex::track_iterator it=pv.tracks_begin(); it != pv.tracks_end(); it++) {
-    for (reco::TrackRefVector::iterator it=pv.tracks_begin(); it != pv.tracks_end(); it++) {
+//    for (reco::TrackRefVector::iterator it=pv.tracks_begin(); it != pv.tracks_end(); it++) {
       //h["h_TrkRes"]->Fill((*it)->dz());
       h["h_TrkRes"]->Fill((*it)->vertex().z() - pv.position().z());
     }
@@ -146,7 +143,15 @@ void PixelVertexVal::analyze(
 }
 
 void PixelVertexVal::endJob() {
-  if (rootFile) rootFile->Write();
+  std::string file = conf_.getUntrackedParameter<std::string>("HistoFile","pixelVertexHistos.root");
+  TFile rootFile(file.c_str(),"RECREATE");
+  for (std::map<std::string, TH1*>::const_iterator ih= h.begin(); ih != h.end(); ++ih) {
+    TH1 * histo = (*ih).second;
+    histo->Write();
+    delete histo; 
+  }
+  rootFile.Close();
+  h.clear();
 }
 
 DEFINE_FWK_MODULE(PixelVertexVal);

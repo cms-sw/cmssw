@@ -1,7 +1,6 @@
 #include <iostream>
 #include <fstream>
 
-#include "DetectorDescription/Core/interface/DDTransform.h"
 #include "DetectorDescription/Base/interface/DDTranslation.h"
 #include "DetectorDescription/Base/interface/DDRotationMatrix.h"
 #include "CLHEP/Vector/Rotation.h"

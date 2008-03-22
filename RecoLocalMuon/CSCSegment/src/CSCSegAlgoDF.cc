@@ -18,7 +18,9 @@
 #include "CommonTools/Statistics/interface/ChiSquaredProbability.h"
 
 #include "CSCSegAlgoPreClustering.h"
+#include "CSCSegAlgoHitPruning.h"
 #include "CSCSegAlgoShowering.h"
+
 
 #include <algorithm>
 #include <cmath>
@@ -43,9 +45,9 @@ CSCSegAlgoDF::CSCSegAlgoDF(const edm::ParameterSet& ps) : CSCSegmentAlgorithm(ps
   minHitsForPreClustering= ps.getParameter<int>("minHitsForPreClustering");
   nHitsPerClusterIsShower= ps.getParameter<int>("nHitsPerClusterIsShower");
   Pruning                = ps.getUntrackedParameter<bool>("Pruning");
-  maxRatioResidual       = ps.getParameter<double>("maxRatioResidualPrune");
 
   preCluster_            = new CSCSegAlgoPreClustering( ps );
+  hitPruning_            = new CSCSegAlgoHitPruning( ps );
   showering_             = new CSCSegAlgoShowering( ps );
 }
 
@@ -55,6 +57,7 @@ CSCSegAlgoDF::CSCSegAlgoDF(const edm::ParameterSet& ps) : CSCSegmentAlgorithm(ps
  */
 CSCSegAlgoDF::~CSCSegAlgoDF() {
   delete preCluster_;
+  delete hitPruning_;
   delete showering_;
 }
 
@@ -89,7 +92,17 @@ std::vector<CSCSegment> CSCSegAlgoDF::run(const CSCChamber* aChamber, ChamberHit
     segments_temp.insert( segments_temp.end(), segs.begin(), segs.end() ); 
   }
 
-  return segments_temp; 
+
+  // Prune bad hits off segments
+  std::vector<CSCSegment> segments;  
+
+  if ( Pruning ) {
+    std::vector<CSCSegment> segs = hitPruning_->pruneBadHits(theChamber, segments_temp);
+    segments.insert( segments.end(), segs.begin(), segs.end() );
+  } else {
+    segments.insert( segments.end(), segments_temp.begin(), segments_temp.end() );
+  }
+  return segments; 
 }
 
 
@@ -113,20 +126,11 @@ std::vector<CSCSegment> CSCSegAlgoDF::buildSegments(ChamberHitContainer rechits)
   if ( nHitInChamber < 3 ) return segmentInChamber;
 
   LayerIndex layerIndex( nHitInChamber );
-
-  unsigned nLayers = 0;
-  int old_layer = -1;   
+  
   for ( unsigned int i = 0; i < nHitInChamber; i++ ) {    
-    int this_layer = rechits[i]->cscDetId().layer();
-    layerIndex[i] = this_layer;
-    if ( this_layer != old_layer ) {
-      old_layer = this_layer;
-      nLayers++;   
-    }
+    layerIndex[i] = rechits[i]->cscDetId().layer();
   }
   
-  if ( nLayers < 3 ) return segmentInChamber;
-
   double z1 = theChamber->layer(1)->position().z();
   double z6 = theChamber->layer(6)->position().z();
   
@@ -144,7 +148,7 @@ std::vector<CSCSegment> CSCSegAlgoDF::buildSegments(ChamberHitContainer rechits)
   }
 
   // Showering muon
-  if ( preClustering && int(nHitInChamber) > nHitsPerClusterIsShower && nLayers > 5 ) {
+  if ( preClustering && int(nHitInChamber) > nHitsPerClusterIsShower ) {
     CSCSegment segShower = showering_->showerSeg(theChamber, rechits);
     segmentInChamber.push_back(segShower);
     return segmentInChamber;
@@ -204,25 +208,22 @@ std::vector<CSCSegment> CSCSegAlgoDF::buildSegments(ChamberHitContainer rechits)
 	
       // Check no. of hits on segment to see if segment is large enough
       bool segok = true;
-      unsigned iadd = ( nHitInChamber > 10 )? iadd = 1 : 0;
-
+      unsigned iadd = ( nHitInChamber > 9 )? iadd = 1 : 0;
+      if (nHitInChamber > 30 ) iadd++;  
       if (protoSegment.size() < minHitsPerSegment+iadd) segok = false;
   
-      if ( Pruning && segok ) pruneFromResidual();
-
       // Check if segment satisfies chi2 requirement
       if (protoChi2 > chi2Max) segok = false;
 
       if ( segok ) {
 
         // Fill segment properties
-       
+
         // Local direction
         double dz   = 1./sqrt(1. + protoSlope_u*protoSlope_u + protoSlope_v*protoSlope_v);
-        double dx   = dz * protoSlope_u;
-        double dy   = dz * protoSlope_v;
+        double dx   = dz*protoSlope_u;
+        double dy   = dz*protoSlope_v;
         LocalVector localDir(dx,dy,dz);
-      
         // localDir may need sign flip to ensure it points outward from IP  
         double globalZpos    = ( theChamber->toGlobal( protoIntercept ) ).z();
         double globalZdir    = ( theChamber->toGlobal( localDir ) ).z();
@@ -231,13 +232,13 @@ std::vector<CSCSegment> CSCSegAlgoDF::buildSegments(ChamberHitContainer rechits)
 
         // Error matrix
         AlgebraicSymMatrix protoErrors = calculateError();     
-        CSCSegment temp(protoSegment, protoIntercept, protoDirection, protoErrors, protoChi2); 
 
+        CSCSegment temp(protoSegment, protoIntercept, protoDirection, protoErrors, protoChi2); 
+              
         segmentInChamber.push_back(temp); 
 
         if (nHitInChamber-protoSegment.size() < 3) return segmentInChamber; 
         if (segmentInChamber.size() > 4) return segmentInChamber;
-
         // Flag used hits
         flagHitsAsUsed(rechits);
       } 
@@ -627,75 +628,4 @@ AlgebraicSymMatrix CSCSegAlgoDF::calculateError() const {
   // off-diagonal elements remain unchanged 
   return a;    
 } 
-
-
-
-// Try to clean up segments by quickly looking at residuals
-void CSCSegAlgoDF::pruneFromResidual(){
-
-  // Only prune if have at least 5 hits 
-  if ( protoSegment.size() < 5 ) return ;
-
-
-  // Now Study residuals
-      
-  float maxResidual = 0.;
-  float sumResidual = 0.;
-  int nHits = 0;
-  int badIndex = -1;
-  int j = 0;
-
-
-  ChamberHitContainer::const_iterator ih;
-
-  for ( ih = protoSegment.begin(); ih != protoSegment.end(); ++ih ) {
-    const CSCRecHit2D& hit = (**ih);
-    const CSCLayer* layer  = theChamber->layer(hit.cscDetId().layer());
-    GlobalPoint gp         = layer->toGlobal(hit.localPosition());
-    LocalPoint lp          = theChamber->toLocal(gp);
-
-    double u = lp.x();
-    double v = lp.y();
-    double z = lp.z();
-
-    double du = protoIntercept.x() + protoSlope_u * z - u;
-    double dv = protoIntercept.y() + protoSlope_v * z - v;
-
-    float residual = sqrt(du*du + dv*dv);
-
-    sumResidual += residual;
-    nHits++;
-    if ( residual > maxResidual ) {
-      maxResidual = residual;
-      badIndex = j;
-    }
-    j++;
-  }
-
-  float corrAvgResidual = (sumResidual - maxResidual)/(nHits -1);
-
-  // Keep all hits 
-  if ( maxResidual/corrAvgResidual < maxRatioResidual ) return;
-
-
-  // Drop worse hit and recompute segment properties + fill
-
-  ChamberHitContainer newProtoSegment;
-
-  j = 0;
-  for ( ih = protoSegment.begin(); ih != protoSegment.end(); ++ih ) {
-    if ( j != badIndex ) newProtoSegment.push_back(*ih);
-    j++;
-  }
-  
-  protoSegment.clear();
-
-  for ( ih = newProtoSegment.begin(); ih != newProtoSegment.end(); ++ih ) {
-    protoSegment.push_back(*ih);
-  }
-
-  // Update segment parameters
-  updateParameters();
-
-}
 

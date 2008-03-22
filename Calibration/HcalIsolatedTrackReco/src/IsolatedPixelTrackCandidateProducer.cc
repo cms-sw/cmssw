@@ -4,11 +4,8 @@
 
 // Class header file
 #include "Calibration/HcalIsolatedTrackReco/interface/IsolatedPixelTrackCandidateProducer.h"
-#include "DataFormats/HcalIsolatedTrack/interface/IsolatedPixelTrackCandidate.h"
 #include "DataFormats/HcalIsolatedTrack/interface/IsolatedPixelTrackCandidateFwd.h"
 // Framework
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/EventSetup.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -17,7 +14,6 @@
 #include "DataFormats/Common/interface/TriggerResults.h"
 // L1Extra
 #include "DataFormats/L1Trigger/interface/L1EmParticle.h"
-#include "DataFormats/L1Trigger/interface/L1JetParticle.h"
 #include "DataFormats/L1Trigger/interface/L1JetParticleFwd.h"
 ///
 
@@ -38,14 +34,14 @@
 
 IsolatedPixelTrackCandidateProducer::IsolatedPixelTrackCandidateProducer(const edm::ParameterSet& config){
    
-  l1eTauJetsSource_=config.getUntrackedParameter<edm::InputTag>("L1eTauJetsSource");
+  l1eTauJetsSource_=config.getParameter<edm::InputTag>("L1eTauJetsSource");
   tauAssocCone_=config.getParameter<double>("tauAssociationCone"); 
   tauUnbiasCone_ = config.getParameter<double>("tauUnbiasCone");
-  pixelTracksSource_=config.getUntrackedParameter<edm::InputTag>("PixelTracksSource");
+  pixelTracksSource_=config.getParameter<edm::InputTag>("PixelTracksSource");
   pixelIsolationConeSize_=config.getParameter<double>("PixelIsolationConeSize");
-  hltGTseedlabel_=config.getUntrackedParameter<edm::InputTag>("L1GTSeedLabel");
-  l1GtObjectMapSource_ = config.getUntrackedParameter<edm::InputTag> ("L1GtObjectMapSource");
-  ecalFilterLabel_ = config.getUntrackedParameter<edm::InputTag>("ecalFilterLabel");
+  hltGTseedlabel_=config.getParameter<edm::InputTag>("L1GTSeedLabel");
+  l1GtObjectMapSource_ = config.getParameter<edm::InputTag> ("L1GtObjectMapSource");
+  ecalFilterLabel_ = config.getParameter<edm::InputTag>("ecalFilterLabel");
   
   
   // Register the product

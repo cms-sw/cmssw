@@ -137,10 +137,12 @@ template<> inline L1DataEmulDigi
 DEutils<L1GctEmCandCollection>::DEDigi(col_cit itd,  col_cit itm, int aflag) {
   int cid = de_type();
   int errt = aflag;
-  //phi: 0..17; eta: 0..21
-  // bring it to global coordinates
-  double x1 = (aflag!=4) ? itd->regionId().iphi() : itm->regionId().iphi();
-  double x2 = (aflag!=4) ? itd->regionId().ieta() : itm->regionId().ieta();
+  //phi: 0..17; eta: -6..-0,+0..+6; eta sign:1(z-),0(z+)
+  // bring it to global coordinates 0..21 below
+  double x1 = (aflag!=4) ? itd->phiIndex() : itm->phiIndex();
+  unsigned deta = (itd->etaSign()==1 ? 10-(itd->etaIndex()&0x7) : 11+(itd->etaIndex()&0x7) );
+  unsigned eeta = (itm->etaSign()==1 ? 10-(itm->etaIndex()&0x7) : 11+(itm->etaIndex()&0x7) );
+  double x2 = (aflag!=4) ? deta : eeta;
   L1DataEmulDigi digi(dedefs::GCT,cid, x1,x2,0., errt);
   unsigned int dw = (aflag==4)?0:itd->raw();
   unsigned int ew = (aflag==3)?0:itm->raw();
@@ -754,7 +756,6 @@ inline std::string DEutils<HcalTrigPrimDigiCollection>::print(col_cit it) const 
      << ", ieta:" << std::setw(2) << it->id().ietaAbs()
      << ", iphi:" << std::setw(2) << it->id().iphi()
      << std::endl;
-  //ss << *it << std::endl;
   return ss.str();
 }
 
@@ -764,16 +765,12 @@ inline std::string DEutils<L1CaloEmCollection>::print(col_cit it) const {
   ss << "0x" << std::setw(4) << std::setfill('0') << std::hex << it->raw() 
      << ", rank=0x"<< std::setw(2) << std::hex << it->rank()
      << std::setfill(' ') << std::dec 
-     << ", region:"<< std::setw(1) << it->rctRegion() 
-     << ", card:"  << std::setw(1) << it->rctCard() 
-     << ", crate:" << std::setw(2) << it->rctCrate()
-     << ", ieta:"  << std::setw(2) << it->regionId().ieta() //0..21
-     << ", iphi:"  << std::setw(2) << it->regionId().iphi() //0..17
-    //<< ", eta:"   << std::setw(2) << it->regionId().rctEta() //0..10
-    //<< ", phi:"   << std::setw(2) << it->regionId().rctPhi() //0..1
-     << ", iso:"   << std::setw(1) << it->isolated()
-     << ", index:" << std::setw(1) << it->index() 
-     << ", bx:"    << it->bx()
+     << ", region="<< std::setw(1) << it->rctRegion() 
+     << ", card="  << std::setw(1) << it->rctCard() 
+     << ", crate=" << std::setw(2) << it->rctCrate()
+     << ", iso="   << std::setw(1) << it->isolated()
+     << ", index=" << std::setw(1) << it->index() 
+     << ", bx="    << it->bx()
      << std::endl;
   //ss << *it;
   return ss.str();
@@ -790,37 +787,15 @@ inline std::string DEutils<L1CaloRegionCollection>::print(col_cit it) const {
 template <> 
 inline std::string DEutils<L1GctEmCandCollection>::print(col_cit it) const {
   std::stringstream ss;
-  //get rct index
-  //int ieta = (it->etaIndex()&0x7); ieta = it->etaSign() ? 10-ieta:11+ieta; 
   ss << "0x" << std::setw(4) << std::setfill('0') << std::hex << it->raw() 
-     << ", rank=0x"<< std::setw(2) << std::hex << it->rank()
-     << std::setfill(' ') << std::dec 
-     << ", etaSign:"   <<  it->etaSign() 
-     << ", eta:"       << (it->etaIndex()&0x7)           //0..6
-     << ", phi:"      << std::setw(2) << it->phiIndex()  //0..17
-     << " (ieta:" << std::setw(2) << it->regionId().ieta() //0..21
-     << ",iphi:"  << std::setw(2) << it->regionId().iphi() << ")" //0..17
-     << ", iso:"       <<  it->isolated()
-     << ", cap block:" << std::setw(3) << it->capBlock() 
-     << ", index:"     <<  it->capIndex() 
-     << ", bx:"        <<  it->bx()
-     << std::endl;
-  //<< " " << *it << std::dec << std::endl;
+     << *it << std::dec << std::endl;
   return ss.str();
 }
-
-/*notes on rct/gct indices
- ieta: 0 .. 11 .. 21  ->  rctEta: 10 .. 0 .. 10   ie: ieta<11?10-ieta:ieta-11
- gct from rct  eta: rctEta&0x7 (7..0..7) | etaSign(==ieta<11)
- rct from gct  eta: +-(0..7) -> 3..18  ie: sign?10-eta:eta+11
- rct iphi = gct phi
-*/
-
 template <> 
 inline std::string DEutils<L1GctJetCandCollection>::print(col_cit it) const {
   std::stringstream ss;
   ss << "0x" << std::setw(4) << std::setfill('0') << std::hex << it->raw() 
-     << " " << *it << std::dec << std::endl; 
+     << *it << std::dec << std::endl; 
   return ss.str();
 }
 

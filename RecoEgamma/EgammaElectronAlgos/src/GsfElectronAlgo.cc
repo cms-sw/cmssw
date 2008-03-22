@@ -7,12 +7,12 @@
 
  Description: top algorithm producing TrackCandidate and Electron objects from supercluster
               driven pixel seeded Ckf tracking
-
+ 
 */
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Thu july 6 13:22:06 CEST 2006
-// $Id: GsfElectronAlgo.cc,v 1.1 2007/12/08 15:16:05 futyand Exp $
+// $Id: GsfElectronAlgo.cc,v 1.7 2008/02/25 10:40:03 uberthon Exp $
 //
 //
 
@@ -64,6 +64,7 @@
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 #include "DataFormats/GeometryVector/interface/GlobalVector.h"
+#include "DataFormats/BeamSpot/interface/BeamSpot.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -85,12 +86,14 @@ GsfElectronAlgo::GsfElectronAlgo(const edm::ParameterSet& conf,
                                                double minEOverPBarrel, double minEOverPEndcaps,
                                                double hOverEConeSize, double maxHOverE, 
                                                double maxDeltaEta, double maxDeltaPhi, 
-					       bool highPtPresel, double highPtMin):  
+					       bool highPtPresel, double highPtMin,
+   				               bool applyEtaCorrection):  
   maxEOverPBarrel_(maxEOverPBarrel), maxEOverPEndcaps_(maxEOverPEndcaps), 
   minEOverPBarrel_(minEOverPBarrel), minEOverPEndcaps_(minEOverPEndcaps), 
   hOverEConeSize_(hOverEConeSize), maxHOverE_(maxHOverE), 
   maxDeltaEta_(maxDeltaEta), maxDeltaPhi_(maxDeltaPhi),
-  highPtPreselection_(highPtPresel), highPtMin_(highPtMin)
+  highPtPreselection_(highPtPresel), highPtMin_(highPtMin),
+  applyEtaCorrection_(applyEtaCorrection)
 {   
  // this is the new version allowing to configurate the algo
   // interfaces still need improvement!!
@@ -157,10 +160,15 @@ void  GsfElectronAlgo::run(Event& e, GsfElectronCollection & outEle) {
   e.getByLabel(assBarrelShapeLabel_,assBarrelShapeInstanceName_,barrelShapeAssocH);
   e.getByLabel(assEndcapShapeLabel_,assEndcapShapeInstanceName_,endcapShapeAssocH);
 
+  //Getting the beamspot from the Event:
+  edm::Handle<reco::BeamSpot> recoBeamSpotHandle;
+  e.getByType(recoBeamSpotHandle);
+  const math::XYZPoint bsPosition = recoBeamSpotHandle->position();
+
   // create electrons 
   const BasicClusterShapeAssociationCollection *shpAssBarrel=&(*barrelShapeAssocH);
   const BasicClusterShapeAssociationCollection *shpAssEndcap=&(*endcapShapeAssocH);
-  if (processType_==1) process(tracksH,shpAssBarrel,shpAssEndcap,mhbhe,outEle);
+  if (processType_==1) process(tracksH,shpAssBarrel,shpAssEndcap,mhbhe,bsPosition,outEle);
   else {
         edm::Handle<SuperClusterCollection> superClustersBarrelH; 
        e.getByLabel("correctedHybridSuperClusters",superClustersBarrelH);
@@ -173,6 +181,7 @@ void  GsfElectronAlgo::run(Event& e, GsfElectronCollection & outEle) {
           superClustersEndcapH,   
           shpAssBarrel,shpAssEndcap   ,
           mhbhe,  
+          bsPosition,
           outEle);
   }
 
@@ -192,12 +201,12 @@ void  GsfElectronAlgo::run(Event& e, GsfElectronCollection & outEle) {
   LogDebug("GsfElectronAlgo") << str.str();
   return;
 }
-
 void GsfElectronAlgo::process(edm::Handle<GsfTrackCollection> tracksH,
 		        const BasicClusterShapeAssociationCollection *shpAssBarrel,
 		        const BasicClusterShapeAssociationCollection *shpAssEndcap,
                         HBHERecHitMetaCollection *mhbhe,
-				     GsfElectronCollection & outEle) {
+                        const math::XYZPoint &bsPosition,
+                        GsfElectronCollection & outEle) {
  
   BasicClusterShapeAssociationCollection::const_iterator seedShpItr;
 
@@ -228,7 +237,7 @@ void GsfElectronAlgo::process(edm::Handle<GsfTrackCollection> tracksH,
     hOverE(scRef,mhbhe);
 
     // calculate Trajectory StatesOnSurface....
-    if (!calculateTSOS(t,theClus)) continue;
+    if (!calculateTSOS(t,theClus,bsPosition)) continue;
     vtxMom_=computeMode(vtxTSOS_);
     sclPos_=sclTSOS_.globalPosition();
     if (preSelection(theClus)) {
@@ -276,7 +285,7 @@ bool GsfElectronAlgo::preSelection(const SuperCluster& clus)
   double phiclu = clus.phi();
   double phitrk = sclPos_.phi();
   double dphi = phiclu-phitrk;
-  if (fabs(dphi)>CLHEP::pi) dphi = dphi < 0? CLHEP::pi2 + dphi : dphi - CLHEP::pi2;
+  if (fabs(dphi)>CLHEP::pi) dphi = dphi < 0? CLHEP::twopi + dphi : dphi - CLHEP::twopi;
   LogDebug("") << "delta phi : " << dphi;
   if (fabs(dphi) > maxDeltaPhi_) return false;
   LogDebug("") << "Delta phi criteria is satisfied ";
@@ -454,7 +463,7 @@ void GsfElectronAlgo::createElectron(const SuperClusterRef & scRef,const GsfTrac
       ElectronClassification theClassifier;
       theClassifier.correct(ele);
       ElectronEnergyCorrector theEnCorrector;
-      theEnCorrector.correct(ele);
+      theEnCorrector.correct(ele, applyEtaCorrection_);
       ElectronMomentumCorrector theMomCorrector;
       theMomCorrector.correct(ele,vtxTSOS_);
       outEle.push_back(ele);
@@ -481,16 +490,16 @@ const SuperClusterRef GsfElectronAlgo::getTrSuperCluster(const GsfTrackRef & tra
     return elseed->superCluster();
 }
 
-bool  GsfElectronAlgo::calculateTSOS(const GsfTrack &t,const SuperCluster & theClus){
+bool  GsfElectronAlgo::calculateTSOS(const GsfTrack &t,const SuperCluster & theClus,const math::XYZPoint & bsPosition){
 
     //at innermost point
     innTSOS_ = mtsTransform_->innerStateOnSurface(t, *(trackerHandle_.product()), theMagField.product());
     if (!innTSOS_.isValid()) return false;
 
     //at vertex
-    // innermost state propagation to the nominal vertex
-    vtxTSOS_ =
-      TransverseImpactPointExtrapolator(*geomPropBw_).extrapolate(innTSOS_,GlobalPoint(0,0,0));
+ // innermost state propagation to the beam spot position
+    vtxTSOS_
+          = TransverseImpactPointExtrapolator(*geomPropBw_).extrapolate(innTSOS_,GlobalPoint(bsPosition.x(),bsPosition.y(),bsPosition.z()));
     if (!vtxTSOS_.isValid()) vtxTSOS_=innTSOS_;
 
     //at seed
@@ -517,6 +526,7 @@ void GsfElectronAlgo::process(edm::Handle<GsfTrackCollection> tracksH,
                             const reco::BasicClusterShapeAssociationCollection *shpAssBarrel,
 	                    const reco::BasicClusterShapeAssociationCollection *shpAssEndcap,
                             HBHERecHitMetaCollection *mhbhe,
+                            const math::XYZPoint &bsPosition,  
                             GsfElectronCollection & outEle) {
   
   BasicClusterShapeAssociationCollection::const_iterator seedShpItr;
@@ -582,7 +592,7 @@ void GsfElectronAlgo::process(edm::Handle<GsfTrackCollection> tracksH,
       hOverE(scRef,mhbhe);
 
       // calculate Trajectory StatesOnSurface....
-      if (!calculateTSOS((*trackRef),theClus)) continue;
+      if (!calculateTSOS((*trackRef),theClus,bsPosition)) continue;
 
       vtxMom_=computeMode(vtxTSOS_);
       sclPos_=sclTSOS_.globalPosition();
@@ -610,6 +620,11 @@ GsfElectronAlgo::superClusterMatching(reco::SuperClusterRef sc, edm::Handle<reco
     math::XYZVector clusterGlobalDir(sc->x() - track->vx(), sc->y() - track->vy(), sc->z() - track->vz());
     //math::XYZVector clusterGlobalPos(sc->x(), sc->y(), sc->z());
     
+    double clusEt = sc->energy()*sin(clusterGlobalDir.theta());
+    double clusEstimatedCurvature = clusEt/0.3/4*100;  //4 tesla (temporary solution)
+    double DphiBending = sc->position().rho()/2./clusEstimatedCurvature; //ecal radius
+
+
     double tmpDr = ROOT::Math::VectorUtil::DeltaR(clusterGlobalDir, trackGlobalDir);
     if ( !(tmpDr < minDr) ) continue;
 
@@ -628,11 +643,13 @@ GsfElectronAlgo::superClusterMatching(reco::SuperClusterRef sc, edm::Handle<reco
     //    double eOverPout = sc->seed()->energy()/seedMom.mag();
  
     double Deta = fabs(clusterGlobalDir.eta() - trackGlobalDir.eta());
-    double Dphi = fabs(acos(cos(clusterGlobalDir.phi() - trackGlobalDir.phi())));
+    double dPhi = fabs(acos(cos(clusterGlobalDir.phi() - trackGlobalDir.phi())));
+    float dPhi1 = fabs(dPhi - DphiBending);
+    float dPhi2 = fabs(dPhi + DphiBending);
 
     //    if( !(eOverPout>0.5) ) continue;
     if( !(eOverPin<5) )  continue;
-    if( !(Dphi < 0.2) )  continue;
+    if( !(min(dPhi1,dPhi2) < 0.1) )  continue;
     if( !(Deta < 0.02) ) continue;
 
     //    cout << " in matchbox, dphi, deta: " << Dphi << " , " << Deta << endl;

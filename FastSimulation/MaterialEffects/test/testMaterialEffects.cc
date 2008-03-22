@@ -1,5 +1,4 @@
 // user include files
-#include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 
 #include "FWCore/Framework/interface/Event.h"
@@ -14,15 +13,11 @@
 #include "FastSimulation/Event/interface/FSimTrack.h"
 #include "FastSimulation/Event/interface/FSimVertex.h"
 #include "FastSimulation/Particle/interface/ParticleTable.h"
-#include "FastSimulation/Utilities/interface/Histos.h"
 
 #include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include <vector>
 #include <string>
-#include "TH2.h"
-#include "TFile.h"
-#include "TCanvas.h"
 
 class testMaterialEffects : public edm::EDAnalyzer {
 public :

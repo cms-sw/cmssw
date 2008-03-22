@@ -20,19 +20,22 @@
 #include "TStyle.h"
 #include "TGraph.h"
 
-const int models=5, nEnergy1=7, nEnergy2=10;
+const int models=5, nEnergy1=7, nEnergy2=10, nEnergy3=8;
 std::string Models[5]      = {"LEP", "QGSP", "FTFP", "QGSC", "Bertini"};
 int         colModel[5]    = {1, 2, 6, 3, 7};
 int         symbModel[5]   = {24, 29, 25, 27, 26};
-double      energyScan1[7] = {6.2, 6.5, 7.0, 7.5, 8.2, 8.5, 9.0};
+double      keproton[4]    = {0.09, 0.15, 0.19, 0.23};
+double      keneutron[4]   = {0.07, 0.11, 0.15, 0.17};
+double      energyScan1[7] = {6.0, 6.5, 7.0, 7.5, 8.2, 8.5, 9.0};
 double      energyScan2[10]= {1.0, 2.0, 3.0,  5.0, 6.0, 6.5,
 			      7.0, 7.5, 8.25, 9.0};
 
-void plotData(char element[2], char ene[6], char angle[6], int save=0) {
+void plotData(char element[2], char ene[6], char angle[6], 
+	      char beam[8]="proton", char particle[8]="neutron", int save=0) {
 
   char file1[50], file2[50];
-  sprintf (file1, "itep/data/%s%sGeV%sdeg.dat",  element, ene, angle);
-  sprintf (file2, "itep/data/%s%sGeV%sdeg.dat2", element, ene, angle);
+  sprintf (file1, "itep/%s/%s/%s%sGeV%sdeg.dat",  beam, particle, element, ene, angle);
+  sprintf (file2, "itep/%s/%s/%s%sGeV%sdeg.dat2", beam, particle, element, ene, angle);
   cout << file1 << "  " << file2 << "\n";
   ifstream infile1, infile2;
   infile1.open(file1);
@@ -76,10 +79,11 @@ void plotData(char element[2], char ene[6], char angle[6], int save=0) {
   dify /= n;
   std::cout << "Chi-Square = " << chi2 << "/" << n << " Mean Difference = " << diff/n << "\n";
 
-  setStyle();
+  setStyle(); gStyle->SetOptStat(1111);
+
   char name[30], title[60];
   sprintf (name, "%s%sGeV%sdeg", element, ene, angle);
-  sprintf (title, "p+%s at %s GeV (#theta = %s^{o})", element, ene, angle);
+  sprintf (title, "%s from p+%s at %s GeV (#theta = %s^{o})", particle, element, ene, angle);
   TCanvas* c1  = new TCanvas("c1",name,400,300); c1->SetLeftMargin(0.15);
   TGraph*  gr1 = new TGraphErrors(q1,x1,y1,0,stater1);
   gr1->SetTitle(""); gr1->SetMarkerColor(4);  // blue
@@ -132,36 +136,37 @@ void plotData(char element[2], char ene[6], char angle[6], int save=0) {
 }
 
 void plotKE4(char element[2], char ene[6], int first=0, int logy=0, int save=0,
-	     char beam[8]="proton") {
+	     char beam[8]="proton", char particle[8]="proton") {
 
   setStyle();  
   TCanvas *myc = new TCanvas("myc","",800,600); myc->Divide(2,2);
 
   myc->cd(1); if (logy != 0) gPad->SetLogy(1); gPad->SetLeftMargin(0.15);
-  plotKE(element, ene, " 59.1", first, logy, beam);
+  plotKE(element, ene, " 59.1", first, logy, beam, particle);
   myc->cd(2); if (logy != 0) gPad->SetLogy(1); gPad->SetLeftMargin(0.15);
-  plotKE(element, ene, " 89.0", first, logy, beam);
+  plotKE(element, ene, " 89.0", first, logy, beam, particle);
   myc->cd(3); if (logy != 0) gPad->SetLogy(1); gPad->SetLeftMargin(0.15);
-  plotKE(element, ene, "119.0", first, logy, beam);
+  plotKE(element, ene, "119.0", first, logy, beam, particle);
   myc->cd(4); if (logy != 0) gPad->SetLogy(1); gPad->SetLeftMargin(0.15);
-  plotKE(element, ene, "159.6", first, logy, beam);
+  plotKE(element, ene, "159.6", first, logy, beam, particle);
 
   char fname[40];
   if (save != 0) {
-    if (save > 0) sprintf (fname, "%s%s%sGeV_1.eps", beam, element, ene);
-    else          sprintf (fname, "%s%s%sGeV_1.jpg", beam, element, ene);
+    if (save > 0) sprintf (fname, "%s%sto%sat%sGeV_1.eps", beam, element, particle, ene);
+    else          sprintf (fname, "%s%sto%sat%sGeV_1.jpg", beam, element, particle, ene);
     myc->SaveAs(fname);
   }
 
 }
 
 void plotKE1(char element[2], char ene[6], char angle[6], int first=0, 
-	     int logy=0, int save=0 , char beam[8]="proton") {
+	     int logy=0, int save=0 , char beam[8]="proton", 
+	     char particle[8]="proton") {
 
   setStyle();
   TCanvas *myc = new TCanvas("myc","",800,600); myc->SetLeftMargin(0.15);
   if (logy != 0) gPad->SetLogy(1);
-  plotKE(element, ene, angle, first, logy, beam);
+  plotKE(element, ene, angle, first, logy, beam, particle);
 
   char anglx[6], fname[40];
   int nx = 0;
@@ -169,22 +174,24 @@ void plotKE1(char element[2], char ene[6], char angle[6], int first=0,
     if (angle[i] != ' ') { anglx[nx] = angle[i]; nx++;}
   }
   if (save != 0) {
-    if (save > 0) sprintf (fname, "%s%s%sGeV%sdeg.eps", beam, element, ene, anglx);
-    else          sprintf (fname, "%s%s%sGeV%sdeg.jpg", beam, element, ene, anglx);
+    if (save > 0) sprintf (fname, "%s%sto%sat%sGeV%sdeg.eps", beam, element, particle, ene, anglx);
+    else          sprintf (fname, "%s%sto%sat%sGeV%sdeg.jpg", beam, element, particle, ene, anglx);
     myc->SaveAs(fname);
   }
 }
 
 void plotKE(char element[2], char ene[6], char angle[6], int first=0, 
-	    int logy=0, char beam[8]="proton") {
+	    int logy=0, char beam[8]="proton", char particle[8]="proton") {
 
-  char fname[40], list[10], hname[40];
+  char fname[40], list[10], hname[40], titlx[50];
   TH1F *hi[5];
   int i=0, icol=1;
+  sprintf (titlx, "Kinetic Energy of %s (GeV)", particle);
   double  ymx0=1, ymi0=100., xlow=0.06, xhigh=0.26;
+  if (particle == "neutron") {xlow= 0.0; xhigh=0.20;}
   for (i=0; i<models; i++) {
     sprintf (list, "%s", Models[i].c_str()); icol = colModel[i];
-    sprintf (fname, "root/%s/%s%s%sGeV_1.root", beam, element, list, ene);
+    sprintf (fname, "root/%s/%s/%s%s%sGeV_1.root", beam, particle, element, list, ene);
     sprintf (hname, "KE0%s%s%sGeV%s", element, list, ene, angle);
     TFile *file = new TFile(fname);
     hi[i] = (TH1F*) file->Get(hname);
@@ -199,6 +206,7 @@ void plotKE(char element[2], char ene[6], char angle[6], int first=0,
       }
     }
     hi[i]->GetXaxis()->SetRangeUser(xlow, xhigh); hi[i]->SetTitle("");
+    hi[i]->GetXaxis()->SetTitle(titlx);
     hi[i]->SetLineStyle(1);  hi[i]->SetLineWidth(2); hi[i]->SetLineColor(icol);
     //    file->Close();
   }
@@ -208,7 +216,7 @@ void plotKE(char element[2], char ene[6], char angle[6], int first=0,
   for (i=0; i<6; i++) {
     if (angle[i] != ' ') { anglx[nx] = angle[i]; nx++;}
   }
-  sprintf (fname, "itep/%s/%s%sGeV%sdeg.dat", beam, element, ene, anglx);
+  sprintf (fname, "itep/%s/%s/%s%sGeV%sdeg.dat", beam, particle, element, ene, anglx);
   //  std::cout << "Reads data from file " << fname << "\n";
   ifstream infile;
   infile.open(fname);
@@ -240,16 +248,18 @@ void plotKE(char element[2], char ene[6], char angle[6], int first=0,
   }
   gr1->Draw("p");
 
-  TLegend *leg1 = new TLegend(0.50,0.60,0.90,0.90);
+  TLegend *leg1 = new TLegend(0.42,0.70,0.90,0.90);
   for (i=0; i<models; i++) {
     sprintf (list, "%s", Models[i].c_str()); 
     leg1->AddEntry(hi[i],list,"F");
   }
-  char header[50], beamx[8];
+  char header[80], beamx[8], partx[2];
   if      (beam == "piplus")  sprintf (beamx, "#pi^{+}");
   else if (beam == "piminus") sprintf (beamx, "#pi^{-}");
   else                        sprintf (beamx, "p");
-  sprintf (header,"%s+%s at %s GeV (#theta = %s^{o})",beamx,element,ene,angle);
+  if      (particle == "neutron") sprintf (partx, "n");
+  else                            sprintf (partx, "p");
+  sprintf (header,"%s+%s #rightarrow %s+X at %s GeV (#theta = %s^{o})", beamx, element, partx, ene, angle);
   leg1->SetHeader(header); leg1->SetFillColor(0);
   leg1->SetTextSize(0.04);
   leg1->Draw();
@@ -257,46 +267,45 @@ void plotKE(char element[2], char ene[6], char angle[6], int first=0,
 }
 
 void plotCT4(char element[2], char ene[6], int first=0, int scan=1, int logy=0,
-	     int save=0, char beam[8]="proton") {
+	     int save=0, char beam[8]="proton", char particle[8]="proton") {
 
   setStyle();
   TCanvas *myc = new TCanvas("myc","",800,600); myc->Divide(2,2);
 
-  myc->cd(1); if (logy != 0) gPad->SetLogy(1); gPad->SetLeftMargin(0.15);
-  plotCT(element, ene, 0.09, first, scan, logy, beam); 
-  myc->cd(2); if (logy != 0) gPad->SetLogy(1); gPad->SetLeftMargin(0.15);
-  plotCT(element, ene, 0.15, first, scan, logy, beam); 
-  myc->cd(3); if (logy != 0) gPad->SetLogy(1); gPad->SetLeftMargin(0.15);
-  plotCT(element, ene, 0.19, first, scan, logy, beam); 
-  myc->cd(4); if (logy != 0) gPad->SetLogy(1); gPad->SetLeftMargin(0.15);
-  plotCT(element, ene, 0.23, first, scan, logy, beam); 
+  for (int i=0; i<4; i++) {
+    myc->cd(i+1); if (logy != 0) gPad->SetLogy(1); gPad->SetLeftMargin(0.15);
+    double ke = keproton[i];
+    if (particle == "neutron") ke = keneutron[i];
+    plotCT(element, ene, ke, first, scan, logy, beam, particle); 
+  }
 
   char fname[40];
   if (save != 0) {
-    if (save > 0) sprintf (fname, "%s%s%sGeV_2.eps", beam, element, ene);
-    else          sprintf (fname, "%s%s%sGeV_2.jpg", beam, element, ene);
+    if (save > 0) sprintf (fname, "%s%sto%sat%sGeV_2.eps", beam, element, particle, ene);
+    else          sprintf (fname, "%s%sto%sat%sGeV_2.jpg", beam, element, particle, ene);
     myc->SaveAs(fname);
   }
 }
 
 void plotCT1(char element[2], char ene[6], double ke, int first=0, int scan=1,
-	     int logy=0, int save=0, char beam[8]="proton") {
+	     int logy=0, int save=0, char beam[8]="proton", 
+	     char particle[8]="proton") {
 
   setStyle();
   TCanvas *myc = new TCanvas("myc","",800,600); myc->SetLeftMargin(0.15);
   if (logy != 0) gPad->SetLogy(1);
-  plotCT(element, ene, ke, first, scan, logy, beam);
+  plotCT(element, ene, ke, first, scan, logy, beam, particle);
 
   char fname[40];
   if (save != 0) {
-    if (save > 0) sprintf (fname, "%s%s%sGeV%4.2fGeV.eps",beam,element,ene,ke);
-    else          sprintf (fname, "%s%s%sGeV%4.2fGeV.jpg",beam,element,ene,ke);
+    if (save > 0) sprintf (fname, "%s%sto%sat%sGeV%4.2fGeV.eps", beam, element, particle, ene, ke);
+    else          sprintf (fname, "%s%sto%sat%sGeV%4.2fGeV.jpg", beam, element, particle, ene, ke);
     myc->SaveAs(fname);
   }
 }
 
 void plotCT(char element[2], char ene[6], double ke, int first=0, int scan=1,
-	    int logy=0, char beam[8]="proton") {
+	    int logy=0, char beam[8]="proton", char particle[8]="proton") {
 
   static double pi  = 3.1415926;
   static double deg = pi/180.; 
@@ -311,7 +320,7 @@ void plotCT(char element[2], char ene[6], double ke, int first=0, int scan=1,
   double  ymx0=1, ymi0=100., xlow=-1.0, xhigh=1.0;
   for (i=0; i<models; i++) {
     sprintf (list, "%s", Models[i].c_str()); icol = colModel[i];
-    sprintf (fname, "root/%s/%s%s%sGeV_1.root", beam, element, list, ene);
+    sprintf (fname, "root/%s/%s/%s%s%sGeV_1.root", beam, particle, element, list, ene);
     sprintf (hname, "CT0%s%s%sGeV%4.2f", element, list, ene, ke);
     TFile *file = new TFile(fname);
     hi[i] = (TH1F*) file->Get(hname);
@@ -325,12 +334,13 @@ void plotCT(char element[2], char ene[6], double ke, int first=0, int scan=1,
 	if (yy < ymi0 && yy > 0) ymi0 = yy;
       }
     }
+    //    std::cout << "Y limit " << ymi0 << " " << ymx0 << " after " << i;
     hi[i]->GetXaxis()->SetRangeUser(xlow, xhigh); hi[i]->SetTitle("");
     hi[i]->SetLineStyle(1);  hi[i]->SetLineWidth(2); hi[i]->SetLineColor(icol);
     //    file->Close();
   }
 
-  int     q1;
+  int     q1, kk0=0;
   float   m1, r1, x1[30], y1[30], stater1[30], syser1[30];
 
   for (int kk=0; kk<nn; kk++) {
@@ -340,7 +350,7 @@ void plotCT(char element[2], char ene[6], double ke, int first=0, int scan=1,
     for (i=0; i<6; i++) {
       if (angle[i] != ' ') { anglx[nx] = angle[i]; nx++;}
     }
-    sprintf (fname, "itep/%s/%s%sGeV%sdeg.dat", beam, element, ene, anglx);
+    sprintf (fname, "itep/%s/%s/%s%sGeV%sdeg.dat", beam, particle, element, ene, anglx);
     ifstream infile;
     infile.open(fname);
   
@@ -349,20 +359,21 @@ void plotCT(char element[2], char ene[6], double ke, int first=0, int scan=1,
       float xx1, yy1, stater, syser;
       infile >> xx1 >> yy1 >> stater >> syser;
       if (xx1 > ke-0.001 && xx1 < ke+0.001) {
-	y1[kk] = yy1; stater1[kk] = stater; syser1[kk] = syser;
+	x1[kk0] = cos(deg*angles[kk]);
+	y1[kk0] = yy1; stater1[kk0] = stater; syser1[kk0] = syser;
 	syser *= yy1;
 	double err = sqrt(syser*syser+stater*stater);
-	stater1[kk] = err;
+	stater1[kk0] = err; 
+	if (y1[kk0]+stater1[kk0] > ymx0) ymx0 = y1[kk0]+stater1[kk0];
+	if (y1[kk0]-stater1[kk0] < ymi0 && y1[kk0]-stater1[kk0] > 0) ymi0 = y1[kk0]-stater1[kk0];
+	kk0++;
       }
     }
     infile.close();
-    x1[kk] = cos(deg*angles[kk]);
-    if (y1[kk]+stater1[kk] > ymx0) ymx0 = y1[kk]+stater1[kk];
-    if (y1[kk]-stater1[kk] < ymi0 && y1[kk]-stater1[kk] > 0) ymi0 = y1[kk]-stater1[kk];
     //    std::cout << kk << " File " << fname << " X " << x1[kk] << " Y " << y1[kk] << " DY " << stater1[kk] << "\n";
   }
 
-  TGraph*  gr1 = new TGraphErrors(nn,x1,y1,0,stater1);
+  TGraph*  gr1 = new TGraphErrors(kk0,x1,y1,0,stater1);
   gr1->SetMarkerColor(4);  gr1->SetMarkerStyle(22);
   gr1->SetMarkerSize(1.6);
 
@@ -378,16 +389,18 @@ void plotCT(char element[2], char ene[6], double ke, int first=0, int scan=1,
   }
   gr1->Draw("p");
 
-  TLegend *leg1 = new TLegend(0.15,0.60,0.60,0.90);
+  TLegend *leg1 = new TLegend(0.15,0.70,0.62,0.90);
   for (i=0; i<models; i++) {
     sprintf (list, "%s", Models[i].c_str());
     leg1->AddEntry(hi[i],list,"F");
   }
-  char header[50], beamx[8];
+  char header[80], beamx[8], partx[2];
   if      (beam == "piplus")  sprintf (beamx, "#pi^{+}");
   else if (beam == "piminus") sprintf (beamx, "#pi^{-}");
   else                        sprintf (beamx, "p");
-  sprintf (header, "%s+%s at %s GeV (KE = %4.2f GeV)", beamx,element, ene, ke);
+  if      (particle == "neutron") sprintf (partx, "n");
+  else                            sprintf (partx, "p");
+  sprintf (header, "%s+%s #rightarrow %s+X at %s GeV (%4.2f GeV)", beamx, element, partx, ene, ke);
   leg1->SetHeader(header); leg1->SetFillColor(0);
   leg1->SetTextSize(0.04);
   leg1->Draw();
@@ -395,35 +408,35 @@ void plotCT(char element[2], char ene[6], double ke, int first=0, int scan=1,
 }
 
 void plotBE4(char element[2], int logy=0, int scan=1, int save=0, 
-	     char beam[8]="proton") {
+	     char beam[8]="proton", char particle[8]="proton") {
 
   setStyle();
   TCanvas *myc = new TCanvas("myc","",800,600); myc->Divide(2,2);
 
   myc->cd(1); if (logy != 0) gPad->SetLogy(1); gPad->SetLeftMargin(0.15);
-  plotBE(element, " 59.1", 0.11, logy, scan, beam);
+  plotBE(element, " 59.1", 0.11, logy, scan, beam, particle);
   myc->cd(2); if (logy != 0) gPad->SetLogy(1); gPad->SetLeftMargin(0.15);
-  plotBE(element, " 59.1", 0.21, logy, scan, beam);
+  plotBE(element, " 59.1", 0.21, logy, scan, beam, particle);
   myc->cd(3); if (logy != 0) gPad->SetLogy(1); gPad->SetLeftMargin(0.15);
-  plotBE(element, "119.0", 0.11, logy, scan, beam);
+  plotBE(element, "119.0", 0.11, logy, scan, beam, particle);
   myc->cd(4); if (logy != 0) gPad->SetLogy(1); gPad->SetLeftMargin(0.15);
-  plotBE(element, "119.0", 0.21, logy, scan, beam);
+  plotBE(element, "119.0", 0.21, logy, scan, beam, particle);
 
   char fname[40];
   if (save != 0) {
-    if (save > 0) sprintf (fname, "%s%s_1.eps", beam, element);
-    else          sprintf (fname, "%s%s_1.jpg", beam, element);
+    if (save > 0) sprintf (fname, "%s%sto%s_1.eps", beam, element, particle);
+    else          sprintf (fname, "%s%sto%s_1.jpg", beam, element, particle);
     myc->SaveAs(fname);
   }
 }
 
 void plotBE1(char element[2], char angle[6], double ke, int logy=0, int scan=1,
-	     int save=0, char beam[8]="proton") {
+	     int save=0, char beam[8]="proton", char particle[8]="proton") {
 
   setStyle();
   TCanvas *myc = new TCanvas("myc","",800,600); myc->SetLeftMargin(0.15);
   if (logy != 0) gPad->SetLogy(1);
-  plotBE(element, angle, ke, logy, scan, beam);
+  plotBE(element, angle, ke, logy, scan, beam, particle);
 
   char anglx[6], fname[40];
   int i=0, nx=0;
@@ -431,22 +444,25 @@ void plotBE1(char element[2], char angle[6], double ke, int logy=0, int scan=1,
     if (angle[i] != ' ') { anglx[nx] = angle[i]; nx++;}
   }
   if (save != 0) {
-    if (save>0) sprintf (fname, "%s%s%sdeg%4.2fGeV.eps",beam,element,anglx,ke);
-    else        sprintf (fname, "%s%s%sdeg%4.2fGeV.jpg",beam,element,anglx,ke);
+    if (save>0) sprintf (fname, "%s%sto%sat%sdeg%4.2fGeV.eps", beam, element, particle, anglx, ke);
+    else        sprintf (fname, "%s%sto%sat%sdeg%4.2fGeV.jpg", beam, element, particle, anglx, ke);
     myc->SaveAs(fname);
   }
 }
 
 void plotBE(char element[2], char angle[6], double ke, int logy=0, int scan=1,
-	    char beam[8]="proton") {
+	    char beam[8]="proton", char particle[8]="proton") {
 
   double ene[15];
   int    nene=0;
   if (scan <= 1) {
     nene = nEnergy1;
     for (int i=0; i<nene; i++) ene[i] = energyScan1[i];
-  } else {
+  } else if (scan == 2) {
     nene = nEnergy2;
+    for (int i=0; i<nene; i++) ene[i] = energyScan2[i];
+  } else {
+    nene = nEnergy3;
     for (int i=0; i<nene; i++) ene[i] = energyScan2[i];
   }
  
@@ -459,17 +475,25 @@ void plotBE(char element[2], char angle[6], double ke, int logy=0, int scan=1,
   TGraph *gr[4];
   char fname[40], list[10], hname[40];
   int j=0, icol=1, ityp=20;
-  double  ymx0=1, ymi0=100., xmi=5.0, xmx=10.0;
+  double  ymx0=1, ymi0=10000., xmi=5.0, xmx=10.0;
+  if (scan > 1) { 
+    xmi = 0.5;
+    xmx = 9.5;
+  }
   for (i=0; i<models; i++) {
     sprintf (list, "%s", Models[i].c_str()); 
     icol = colModel[i]; ityp = symbModel[i];
     double yt[15];
     for (j=0; j<nene; j++) {
-      sprintf (fname, "root/%s/%s%s%3.1fGeV_1.root", beam,element, list,ene[j]);
+      sprintf (fname, "root/%s/%s/%s%s%3.1fGeV_1.root", beam, particle, element, list, ene[j]);
       sprintf (hname, "KE0%s%s%3.1fGeV%s", element, list, ene[j], angle);
       TFile *file = new TFile(fname);
       TH1F *hi = (TH1F*) file->Get(hname);
-      //       std::cout << "Get " << hname << " from " << fname <<" as " << hi <<"\n";
+      if (hi == 0) {
+	sprintf (hname, "KE0%s%s%4.2fGeV%s", element, list, ene[j], angle);
+	hi = (TH1F*) file->Get(hname);
+      }
+      //      std::cout << "Get " << hname << " from " << fname <<" as " << hi <<"\n";
       int    nk=0, nx = hi->GetNbinsX();
       double yy0=0;
       for (int k=1; k <= nx; k++) {
@@ -479,9 +503,10 @@ void plotBE(char element[2], char angle[6], double ke, int logy=0, int scan=1,
 	  nk++;
 	}
       }
-      if (nk > 0 ) yy0 /= nk;
-      if (yy0 > ymx0)            ymx0 = yy0;
-      if (yy0 < ymi0 && yy0 > 0) ymi0 = yy0;
+      if (nk > 0 )                 yy0 /= nk;
+      if (yy0 > ymx0)              ymx0 = yy0;
+      if (yy0 < ymi0 && yy0 > 0.1) ymi0 = yy0;
+      //      std::cout << hname << " # " << nk << " Y " << yy0 << " min " << ymi0 << " max " << ymx0 << "\n";
       yt[j] = yy0;
       file->Close();
     }
@@ -491,14 +516,12 @@ void plotBE(char element[2], char angle[6], double ke, int logy=0, int scan=1,
     gr[i]->SetMarkerColor(icol);  gr[i]->SetMarkerStyle(ityp); 
     gr[i]->GetXaxis()->SetTitle("Beam Energy (GeV)");
     //    cout << "Graph " << i << " with " << nene << " points\n";
-    //    for (j=0; j<nene; j++)
-    //      cout << j << " x " << ene[j] << " y " << yt[j] << "\n";
+    //    for (j=0; j<nene; j++) cout << j << " x " << ene[j] << " y " << yt[j] << "\n";
   }
 
   double ye[15], dy[15];
   for (j=0; j<nene; j++) {
-    sprintf (fname, "itep/%s/%s%3.1fGeV%sdeg.dat", beam, element, ene[j], 
-	     anglx);
+    sprintf (fname, "itep/%s/%s/%s%3.1fGeV%sdeg.dat", beam, particle, element, ene[j], anglx);
     //    cout << "Reads data from file " << fname << "\n";
     ifstream infile;
     infile.open(fname);
@@ -520,14 +543,17 @@ void plotBE(char element[2], char angle[6], double ke, int logy=0, int scan=1,
     if (ye[j]-dy[j] < ymi0 && ye[j]-dy[j] > 0) ymi0 = ye[j]-dy[j];
   }
   //  cout << "Graph Data with " << nene << " points\n";
-  //  for (j=0; j<nene; j++)
-  //    cout << j << " x " << ene[j] << " y " << ye[j] << " +- " << dy[j] << "\n";
+  //  for (j=0; j<nene; j++) cout << j << " x " << ene[j] << " y " << ye[j] << " +- " << dy[j] << "\n";
   TGraph*  gr1 = new TGraphErrors(nene,ene,ye,0,dy);
   gr1->SetMarkerColor(1);  gr1->SetMarkerStyle(22);
   gr1->SetMarkerSize(1.6);
 
-  if (logy == 0) {ymx0 *= 1.8; ymi0 *= 0.8;}
-  else           {ymx0 *= 50.0; ymi0 *= 0.2; }
+  if (logy == 0) {
+    ymx0 *= 1.8; ymi0 *= 0.8;
+  } else {
+    ymx0 *= 50.0; ymi0 *= 0.2;
+    if (scan > 1) ymx0 *= 4;
+  }
   for (i = 0; i<models; i++) {
     gr[i]->GetYaxis()->SetRangeUser(ymi0,ymx0);
     gr[i]->GetXaxis()->SetRangeUser(xmi,xmx);
@@ -540,17 +566,18 @@ void plotBE(char element[2], char angle[6], double ke, int logy=0, int scan=1,
   for (i=0; i<models; i++)
     gr[i]->Draw("lp");
   
-  TLegend *leg1 = new TLegend(0.45,0.60,0.90,0.90);
+  TLegend *leg1 = new TLegend(0.35,0.60,0.90,0.90);
   for (i=0; i<models; i++) {
     sprintf (list, "%s", Models[i].c_str());
     leg1->AddEntry(gr[i],list,"LP");
   }
-  char header[50], beamx[8];
+  char header[80], beamx[8], partx[2];
   if      (beam == "piplus")  sprintf (beamx, "#pi^{+}");
   else if (beam == "piminus") sprintf (beamx, "#pi^{-}");
   else                        sprintf (beamx, "p");
-  sprintf (header, "%s+%s at (KE = %3.1f GeV, #theta = %s^{o})", beamx, 
-	   element, ke, angle);
+  if      (particle == "neutron") sprintf (partx, "n");
+  else                            sprintf (partx, "p");
+  sprintf (header, "%s+%s #rightarrow %s+X at (KE = %3.1f GeV, #theta = %s^{o})", beamx, element, partx, ke, angle);
   leg1->SetHeader(header); leg1->SetFillColor(0);
   leg1->SetTextSize(0.04);
   leg1->Draw();

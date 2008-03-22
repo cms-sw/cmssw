@@ -67,9 +67,7 @@ class FWLiteJetProducer{
   /// 
   double getPtMin (){return ptMin_ ;}
   ///
-  double getRParam(){return  rparam_;}
-  ///
-  bool getDebug(){return  debug_;}
+  double getRParam(){return  rparam_;} 
 
   // Set methods --------------------------------------------   
   /// Minimum ET for jet constituents
@@ -89,8 +87,7 @@ class FWLiteJetProducer{
   /// ????
   void setOverlapThreshold(double aOverlapThreshold) {overlapThreshold_=aOverlapThreshold;}
   void setPtMin (double aPtMin){ptMin_=aPtMin;}
-  void setRParam (double aRparam){rparam_=aRparam;}
-  void setDebug(bool aDebug){debug_=aDebug;}  
+  void setRParam (double aRparam){rparam_=aRparam;}  
 
   // jets parameters ----------------------------------------
  private:       
@@ -112,7 +109,6 @@ class FWLiteJetProducer{
   double overlapThreshold_;
   double ptMin_;
   double rparam_;
-  bool debug_;
   
 };
 #endif

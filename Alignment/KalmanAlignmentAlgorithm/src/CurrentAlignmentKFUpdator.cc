@@ -1,3 +1,4 @@
+#include "DataFormats/GeometrySurface/interface/Surface.h" 
 #include "Alignment/KalmanAlignmentAlgorithm/interface/CurrentAlignmentKFUpdator.h"
 
 #include "Alignment/CommonAlignment/interface/Alignable.h"

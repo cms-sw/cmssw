@@ -8,7 +8,7 @@
 <use name=DataFormats/EcalDetId>
 <use name=DataFormats/HcalDetId>
 <use name=DataFormats/DetId>
-
+<use name=DataFormats/HcalCalibObjects>
 <use name=DataFormats/EcalDigi>
 <use name=DataFormats/HcalDigi>
 <use name=DataFormats/EcalRecHit>
@@ -17,7 +17,7 @@
 <use name=CondFormats/HcalObjects>
 <use name=Geometry/EcalPreshowerAlgo>
 <use name=DataFormats/Math>
-
+<use name=DataFormats/JetReco>
 <use name=Geometry/CaloTopology>
 <use name=Geometry/CaloGeometry>
 <use name=Geometry/CaloEventSetup>
@@ -48,7 +48,7 @@
    <use name=DataFormats/HcalRecHit>
    <use name=CondFormats/HcalObjects>
    <use name=CondFormats/HcalObjects>
-
+   <use name=DataFormats/JetReco>
    <use name=Geometry/EcalPreshowerAlgo>
    <use name=DataFormats/Math>
 

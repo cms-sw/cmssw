@@ -12,6 +12,7 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "DataFormats/Common/interface/EDProduct.h"
 #include "RecoTracker/SingleTrackPattern/interface/CosmicTrajectoryBuilder.h"
+#include "RecoTracker/SingleTrackPattern/interface/CRackTrajectoryBuilder.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "TrackingTools/PatternTools/interface/Trajectory.h"
 #include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHit.h"
@@ -79,6 +80,7 @@ namespace cms
 
   private:
     CosmicTrajectoryBuilder cosmicTrajectoryBuilder_;
+    CRackTrajectoryBuilder  crackTrajectoryBuilder_;
     edm::ParameterSet conf_;
     std::string geometry;
     bool trinevents;

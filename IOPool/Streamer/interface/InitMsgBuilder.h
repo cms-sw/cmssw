@@ -12,8 +12,10 @@ public:
   InitMsgBuilder(void* msg_mem, uint32 size,
                  uint32 run, const Version& v,
                  const char* release_tag,
-		 const char* process_name,
+                 const char* process_name,
+                 const char* output_module_label,
                  const Strings& hlt_names,
+                 const Strings& hlt_selections,
                  const Strings& l1_names);
 
   uint8* startAddress() const { return buf_; }
@@ -25,8 +27,6 @@ public:
   uint32 bufferSize() const {return size_;}
 
 private:
-  uint8* fillNames(const Strings& names, uint8* pos);
-  
   uint8* buf_;
   uint32 size_;
   uint8* desc_addr_;

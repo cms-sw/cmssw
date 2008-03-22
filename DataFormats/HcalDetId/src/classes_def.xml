@@ -6,4 +6,5 @@
   <class name="HcalOtherDetId"/>
   <class name="HcalZDCDetId"/>
   <class name="HcalCastorDetId"/>
+  <class name="std::vector<HcalElectronicsId>"/>
 </lcgdict>

@@ -6,6 +6,7 @@ import coral
 from CondCore.TagCollection import Node,TagTree,tagInventory
 def stripws(myinput):
     result=('').join(myinput.split(' '))
+    result=('').join(result.split('\n')) 
     return result
 class tagTreeRootBuilder:
     def __init__(self):

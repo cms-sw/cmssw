@@ -1,9 +1,0 @@
-<Flags CXXFLAGS="-g">
-<use name=rootcintex>
-<use name=rootcore>
-<use name=root>
-<export>
-	<lib name=RecoLuminosityROOTSchema>
-	<use name=rootcore>
-	<use name=root>
-</export>

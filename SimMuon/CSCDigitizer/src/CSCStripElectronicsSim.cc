@@ -34,7 +34,8 @@ CSCStripElectronicsSim::CSCStripElectronicsSim(const edm::ParameterSet & p)
   theComparatorClockJump(2),
   sca_time_bin_size(50.),
   sca_peak_bin(p.getParameter<int>("scaPeakBin")),
-  theComparatorTimeBinOffset(p.getParameter<double>("comparatorTimeBinOffset"))
+  theComparatorTimeBinOffset(p.getParameter<double>("comparatorTimeBinOffset")),
+  theComparatorTimeOffset(p.getParameter<double>("comparatorTimeOffset"))
 {
 
   if(doCrosstalk_) {
@@ -140,7 +141,8 @@ CSCStripElectronicsSim::runComparator(std::vector<CSCComparatorDigi> & result) {
     // icomp =0->1,2,  =1->3,4,  =2->5,6, ...
     const CSCAnalogSignal & signal1 = find(readoutElement(iComparator*2 + 1));
     const CSCAnalogSignal & signal2 = find(readoutElement(iComparator*2 + 2));
-    for(float time = theSignalStartTime; time < theSignalStopTime-theComparatorWait; 
+    for(float time = theSignalStartTime +theComparatorTimeOffset; 
+        time < theSignalStopTime-theComparatorWait; 
         time += theSamplingTime) 
     {
       if(comparatorReading(signal1, time) > theComparatorThreshold
@@ -186,9 +188,9 @@ CSCStripElectronicsSim::runComparator(std::vector<CSCComparatorDigi> & result) {
          }
          if(strip != 0) {
 
-           int timeBin = (int)((comparatorTime-theTimingOffset)/theBunchSpacing + theComparatorTimeBinOffset);
-//           int timeBin = (int)((comparatorTime-theTimingOffset)/theBunchSpacing) 
-//                         + theComparatorTimeBinOffset;
+           float bxFloat = (comparatorTime-theTimingOffset)/theBunchSpacing
+                           + theComparatorTimeBinOffset + theOffsetOfBxZero;
+
 
       // Comparator digi as of Nov-2006 adapted to real data: time word has 16 bits with set bit
       // flagging appropriate bunch crossing, and bx 0 corresponding to 9th bit i.e.
@@ -203,10 +205,9 @@ CSCStripElectronicsSim::runComparator(std::vector<CSCComparatorDigi> & result) {
 
       // Parameter theOffsetOfBxZero = 9 @@WARNING! This offset may be changed (hardware)!
 
-           int nBitsToOffset = timeBin + theOffsetOfBxZero;
            int timeWord = 0; // and this will remain if too early or late
-           if ( (nBitsToOffset>= 0) && (nBitsToOffset<16) ) 
- 	       timeWord = (1 << nBitsToOffset ); // set appropriate bit
+           if ( (bxFloat>= 0) && (bxFloat<16) ) 
+ 	       timeWord = (1 << static_cast<int>(bxFloat) ); // set appropriate bit
 
            CSCComparatorDigi newDigi(strip, output, timeWord);
            result.push_back(newDigi);

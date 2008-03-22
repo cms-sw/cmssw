@@ -67,7 +67,6 @@
     <field name="transientVector_" transient="true"/>
     <field name="fixed_" transient="true"/>
   </class>
-  <class name="reco::CandRefValueMap" /> 
 
   <class name="std::vector<reco::Particle>" />
   <class name="std::vector<reco::Candidate *>" />
@@ -81,11 +80,8 @@
   <class name="edm::Wrapper<reco::CandMatchMap>" />
   <class name="edm::Wrapper<reco::CandViewMatchMap>" />
   <class name="edm::Wrapper<reco::CandMatchMapMany>" /> 
-  <class name="edm::Wrapper<reco::CandRefValueMap>" /> 
   <class pattern="edm::AssociationMap<*>::const_iterator" />
   <class pattern="edm::Wrapper<edm::AssociationVector<*>"/>
-  <class name="edm::Association<edm::OwnVector<reco::Candidate,edm::ClonePolicy<reco::Candidate> > >" />
-  <class name="edm::Wrapper<edm::Association<edm::OwnVector<reco::Candidate,edm::ClonePolicy<reco::Candidate> > > >" />
 
   <class name="reco::CompositeCandidateCollection" />
   <class name="edm::Wrapper<reco::CompositeCandidateCollection>" />

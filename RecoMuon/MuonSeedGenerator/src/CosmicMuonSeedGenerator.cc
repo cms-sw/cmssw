@@ -2,8 +2,8 @@
 /**
  *  CosmicMuonSeedGenerator
  *
- *  $Date: 2007/03/10 20:36:05 $
- *  $Revision: 1.19 $
+ *  $Date$
+ *  $Revision$
  *
  *  \author Chang Liu - Purdue University 
  *
@@ -50,10 +50,10 @@ CosmicMuonSeedGenerator::CosmicMuonSeedGenerator(const edm::ParameterSet& pset){
   theEnableCSCFlag = pset.getUntrackedParameter<bool>("EnableCSCMeasurement",true);
 
   if(theEnableDTFlag)
-    theDTRecSegmentLabel = pset.getUntrackedParameter<string>("DTRecSegmentLabel");
+    theDTRecSegmentLabel = pset.getUntrackedParameter<InputTag>("DTRecSegmentLabel");
 
   if(theEnableCSCFlag)
-    theCSCRecSegmentLabel = pset.getUntrackedParameter<string>("CSCRecSegmentLabel");
+    theCSCRecSegmentLabel = pset.getUntrackedParameter<InputTag>("CSCRecSegmentLabel");
 
   // the maximum number of TrajectorySeed
   theMaxSeeds = pset.getParameter<int>("MaxSeeds");
@@ -107,8 +107,9 @@ void CosmicMuonSeedGenerator::produce(edm::Event& event, const edm::EventSetup& 
   const DetLayer* MB1DL = dtLayers[0];
   
   // instantiate the accessor
-  MuonDetLayerMeasurements muonMeasurements(theEnableDTFlag,theEnableCSCFlag,false, 
-				    theDTRecSegmentLabel,theCSCRecSegmentLabel);
+  MuonDetLayerMeasurements muonMeasurements(theDTRecSegmentLabel,theCSCRecSegmentLabel,
+					    InputTag(),
+					    theEnableDTFlag,theEnableCSCFlag,false);
 
   muonMeasurements.setEvent(event);
 

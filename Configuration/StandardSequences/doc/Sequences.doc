@@ -13,54 +13,50 @@
 </center>
 
 
-\section desc Configuration/StandardSequences 
-This package contains the standard configuration fragments (*.cff) for most common use cases and options.
+\section desc ConfigurationStandardSequences Package which contains the Standard Simulation and Reconstruction Sequences
+This package contains standard configuration fragments (*.cff) for most common use cases and options. 
 
-\section files Standard Configuration Fragments
+\subsection files Configuration Fragments
 
-\subsection gen Generator Sequences
-<a href="http://cmssw.cvs.cern.ch/cgi-bin/cmssw.cgi/CMSSW/Configuration/StandardSequences/data/Generator.cff"> Generator.cff</a> is 
-the default configuration fragment for CMSSW Event Generation.
+- \b Reconstruction.cff : Standard configuration fragment for Reconstruction
+- \b Simulation.cff : Standard configuration fragment for Simulation
 
-\subsection sim Simulation Sequences
+\subsection additional Additional Files
 
-<a href="http://cmssw.cvs.cern.ch/cgi-bin/cmssw.cgi/CMSSW/Configuration/StandardSequences/data/Simulation.cff"> Simulation.cff</a> is 
-the default configuration fragment for CMSSW Simulation. Requires setup of random seeds for all components
- in play (see below). Consists of the following:
+- \b Vertex includes: in order to allow an easy configuration of the Vertex Smearing, 4 Configuration Fragments are provided. The user is supposed to include one and only one among:
+ - VtxSmearedNoSmear.cff: disables vertex smearing. Actually, it smears, but by fractions of a micron.
+ - VtxSmearedGauss.cff: vertex smearing as in ORCA. On the transverse plane, 15 um gaussian smearing. Longitudinally (z), 5.3 cm gaussian smearing. This is the \b ADVICED option
+ - VtxSmearedFlat.cff: flat vertex smearing. On the transverse plane, 15 um flat smearing. Longitudinally (z), 5.3 cm flat smearing.
+ - VtxSmearedBeamProfile.cff: vertex smearing which resembles beam profile.
 
-- <b> psim = { <a href="https://twiki.cern.ch/twiki/bin/view/CMS/SWGuideSimulation#SimDefSeq">VtxSmeared</a> & <a href="https://twiki.cern.ch/twiki/bin/view/CMS/SWGuideSimulation#SimDefSeq">g4SimHits</a> } </b>
- - Includes modeling of the IR spread (see details below) and full-scale Geant4-based simulation of particles passage 
-   through CMS detector, in the presence of the magnetic field. CMS detector description and magnetic field record are 
-   included in the configuration together with the simulation module (<a href="http://cmssw.cvs.cern.ch/cgi-bin/cmssw.cgi/CMSSW/SimG4Core/Configuration/data/SimG4Core.cff">SimG4Core/Configuration/data/SimG4Core.cff</a>)
-- <b> pdigi = { mix, doAllDigi, trackingParticles }</b>
- - Includes modeling of pileup (see details below), detector electronics responce for all detector subsystems, and
-   association of generator particles and vertices with Geant4-simulated tracks and vertices.
-   Specifically, modeling of detector electronics response is composed of 3 (sub)sequences:
- - <b> doAllDigi = { <a href="https://twiki.cern.ch/twiki/bin/view/CMS/SWGuideSimulation#DigiDefSeq">trDigi</a> & <a href="https://twiki.cern.ch/twiki/bin/view/CMS/SWGuideSimulation#DigiDefSeq">calDigi</a> & <a href="https://twiki.cern.ch/twiki/bin/view/CMS/SWGuideSimulation#DigiDefSeq">muonDigi</a> } </b>
-  - Includes digitization of Tracker Pixels and Tracker Strips (<a href="http://cmssw.cvs.cern.ch/cgi-bin/cmssw.cgi/CMSSW/SimTracker/Configuration/data/SimTracker.cff">SimTracker/Configuration/data/SimTracker.cff</a>), 
-    of the ECAL Barrel and EndCap, HCAL HB, HE, HO (<a href="http://cmssw.cvs.cern.ch/cgi-bin/cmssw.cgi/CMSSW/SimCalorimetry/Configuration/data/SimCalorimetry.cff">SimCalorimetry/Configuration/data/SimCalorimetry.cff</a>), and
-    of the Muon DT, CSC and RPC (<a href="http://cmssw.cvs.cern.ch/cgi-bin/cmssw.cgi/CMSSW/SimMuon/Configuration/data/SimMuon.cff">SimMuon/Configuration/data/SimMuon.cff</a>). All included configuration fragments
-    contain required geometry setup for a given detector subsystem.
+- \b Mixing includes: three options are given to the user, who has to choose one and only one among:
+ - MixingNoPileUp.cff: no pile up at all.
+ - MixingLowLumiPileUp.cff: piles up 5.0 events on average (Poisson statistics), in bunches from -5 to +3. 
+ - MixingHighLumiPileUp.cff: piles up 25.0 events on average (Poisson statistics), in bunches from -5 to +3.
+
+- \c Additional includes (for HLT/OnSel MC production) 
+ - HLTtable.cff: High-Level Trigger table in form of paths
+ - MixingLowLumiPileUp_OnSel.cff: piles up 5.0 events on average (Poisson statistics), IN-TIME PU (for OnSel/HLT studies)
+ - MixingLowLumiPileUp_OnSel.cff: piles up 25.0 events on average (Poisson statistics), IN-TIME PU (for OnSel/HLT studies)
+ - MixingStartUpLumiPileUp_OnSel.cff: piles up 2.0 events on average (Poisson statistics), IN-TIME PU (for OnSel/HLT studies)
+ - StandardFragment_OnSel.cff: Configuration fragment for GEN-SIM i.e. VtxSmeared and GEANT simulation only.
+
+\subsection seq Simulation Sequences
+
+(to be filled)
 
 \subsection seq1 Reconstruction Sequences
 
-<a href="http://cmssw.cvs.cern.ch/cgi-bin/cmssw.cgi/CMSSW/Configuration/StandardSequences/data/Reconstruction.cff"> Reconstruction.cff</a> is
-the default configuration fragment for CMSSW Reconstruction. Changes with time and is defined looking at the various needs wrt algorithms, 
-space on disk, time available for reconstruction. 
-At the moment, the standard \b reconstruction sequence is composed of (please note that at least the distinction between 
-global/highlevel reconstruction does not really reflect functional aspects):
+- \b reconstruction : this is the only default for CMSSW Reconstruction. Changes with time and is defined looking at the various needs wrt algorithms, space on disk, time available for reconstruction. At the moment, the standard \b reconstruction sequence is composed of (please note that at least the distinction between global/highlevel reconstruction does not really reflect functional aspects)
 
-- <b> localreco =  {<a href="https://twiki.cern.ch/twiki/bin/view/CMS/SWGuideTrackReco#DefSeq">trackerlocalreco</a>, <a href="https://twiki.cern.ch/twiki/bin/view/CMS/SWGuideMuonSystemReco#DefSeq">muonlocalreco</a>, calolocalreco}</b>
- - Local reconstruction simulation-compatible (no frontier, no oracle) for all the subdetectors. 
-   It includes Tracker Strip, Tracker Pixels, Muon DT, Muon CSC, Muon RPC, ECAL Barrel and EndCap, HCAL HO, HE, HB.
-- <b> globalreco = {<a href="https://twiki.cern.ch/twiki/bin/view/CMS/SWGuideTrackReco#DefSeq">ckftracks</a>,  <a href="https://twiki.cern.ch/twiki/bin/view/CMS/SWGuideMuonReco#DefSeq">muonreco</a>, <a href="https://twiki.cern.ch/twiki/bin/view/CMS/SWGuideEcalReco#DefSeq">ecalClusters</a>, <a href="https://twiki.cern.ch/twiki/bin/view/CMS/SWGuideEcalReco#DefSeq">caloTowersRec</a>, <a href="https://twiki.cern.ch/twiki/bin/view/CMS/SWGuideEcalReco#DefSeq">recoJets</a>, <a href="https://twiki.cern.ch/twiki/bin/view/CMS/SWGuideEcalReco#DefSeq">recoGenJets</a>, <a href="https://twiki.cern.ch/twiki/bin/view/CMS/SWGuideEcalReco#DefSeq">metreco</a>}</b>
- - Global reconstruction is the reconstruction within only one subdetector. The standard sequence include only 
-   CKF Global Tracking, Muon Reconstruction (STA Muons and Mu+Tk Muons), ECAL Clusterization (Island+Hybrid), 
-   Calorimetric Towers, Reconstructed Jets (MidPoint+KT) and Missing ET.
-- <b> highlevelreco = {recopixelvertexing, vertexreco, jetTracksAssociator, btagging, coneIsolationTauJetTags}</b>
- - High Level reconstruction. With the caveat as in the previous paragraph, this sequence considers modules which need 
-   information from more than a subdetector. The current sequence includes tracking and vertexing with only pixels, 
-   vertexing with full tracking, b tagging with track counting, and tau tagging with cone isolation.
+ \subsubsection  lr  localreco =  {trackerlocalreco, muonlocalreco, calolocalreco}
+ Local reconstruction simulation-compatible (no frontier, no oracle) for all the subdetectors. It includes Tracker Strip, Tracker Pixels, Muon DT, Muon CSC, Muon RPC, ECAL Barrel and EndCap, HCAL HO, HE, HB.
+
+\subsubsection gr  globalreco = {ckftracks, muonreco, ecalClusters, caloTowersRec, recoJets, recoGenJets, metreco}
+Global reconstruction is the reconstruction within only one subdetector. The standard sequence include only CKF Global Tracking, Muon Reconstruction (STA Muons and Mu+Tk Muons), ECAL Clusterization (Island+Hybrid), Calorimetric Towers, Reconstructed Jets (MidPoint+KT) and Missing ET.
+
+\subsubsection hlr  highlevelreco = {recopixelvertexing, vertexreco, jetTracksAssociator, btagging, coneIsolationTauJetTags}
+High Level reconstruction. With the caveat as in the previous paragraph, this sequence considers modules which need information from more than a subdetector. The current sequence includes tracking and vertexing with only pixels, vertexing with full tracking, b tagging with track counting, and tau tagging with cone isolation.
 
 - \b reconstruction_plusRS : the same as the default, with Road Search global tracking activated.
 
@@ -68,51 +64,9 @@ global/highlevel reconstruction does not really reflect functional aspects):
 
 - \b reconstruction_plusRS_plus_GSF : the same as the default, with Gaussian Sum Filter and Road Search global trackings activated.
 
-\section additional Additional Files
-
-- <b> Random Seeds</b> include: currently, seeds are given for physics events generation or read-in (source) and 
-  detector simulation 
- - <a href="http://cmssw.cvs.cern.ch/cgi-bin/cmssw.cgi/CMSSW/Configuration/StandardSequences/data/SimulationRandomNumberGeneratorSeeds.cff"> 
-   SimulationRandomNumberGeneratorSeeds.cff</a>: seeds for source, vertex smearing, Geant4-based simulation of
-   particles interactions with CMS detector materials, modeling of mixing, and modeling of electronics response 
-   for all CMS detector subsystems.
-
-- \b Vertex includes: in order to allow an easy configuration of the Vertex Smearing, 4 Configuration Fragments are provided. 
-  The user is supposed to include one and only one among:
- - <a href="http://cmssw.cvs.cern.ch/cgi-bin/cmssw.cgi/CMSSW/Configuration/StandardSequences/data/VtxSmearedNoSmear.cff">
-   VtxSmearedNoSmear.cff</a>: disables vertex smearing. Actually, it smears, but by fractions of a micron.
- - <a href="http://cmssw.cvs.cern.ch/cgi-bin/cmssw.cgi/CMSSW/Configuration/StandardSequences/data/VtxSmearedGauss.cff">
-   VtxSmearedGauss.cff</a>: vertex smearing as in ORCA. On the transverse plane, 15 um gaussian smearing. Longitudinally (z), 
-   5.3 cm gaussian smearing. This is the \b ADVICED option
- - <a href="http://cmssw.cvs.cern.ch/cgi-bin/cmssw.cgi/CMSSW/Configuration/StandardSequences/data/VtxSmearedFlat.cff">
-   VtxSmearedFlat.cff</a>: flat vertex smearing. On the transverse plane, 15 um flat smearing. Longitudinally (z), 5.3 cm flat smearing.
- - <a href="http://cmssw.cvs.cern.ch/cgi-bin/cmssw.cgi/CMSSW/Configuration/StandardSequences/data/VtxSmearedBeamProfile.cff">
-   VtxSmearedBeamProfile.cff</a>: vertex smearing which resembles beam profile.
-
-- \b Mixing includes: three options are given to the user, who has to choose one and only one among:
- - <a href="http://cmssw.cvs.cern.ch/cgi-bin/cmssw.cgi/CMSSW/Configuration/StandardSequences/data/MixingNoPileUp.cff">
-   MixingNoPileUp.cff</a>: no pile up at all.
- - <a href="http://cmssw.cvs.cern.ch/cgi-bin/cmssw.cgi/CMSSW/Configuration/StandardSequences/data/MixingLowLumiPileUp.cff">
-   MixingLowLumiPileUp.cff</a>: piles up 5.0 events on average (Poisson statistics), in bunches from -5 to +3. 
- - <a href="http://cmssw.cvs.cern.ch/cgi-bin/cmssw.cgi/CMSSW/Configuration/StandardSequences/data/MixingHighLumiPileUp.cff">
-   MixingHighLumiPileUp.cff</a>: piles up 25.0 events on average (Poisson statistics), in bunches from -5 to +3.
-
-- \b Additional includes (for HLT/OnSel MC production) 
- - <a href="http://cmssw.cvs.cern.ch/cgi-bin/cmssw.cgi/CMSSW/Configuration/StandardSequences/data/HLTtable.cff">
-   HLTtable.cff</a>: High-Level Trigger table in form of paths
- - <a href="http://cmssw.cvs.cern.ch/cgi-bin/cmssw.cgi/CMSSW/Configuration/StandardSequences/data/MixingLowLumiPileUp_OnSel.cff">
-   MixingLowLumiPileUp_OnSel.cff</a>: piles up 5.0 events on average (Poisson statistics), IN-TIME PU (for OnSel/HLT studies)
- - <a href="http://cmssw.cvs.cern.ch/cgi-bin/cmssw.cgi/CMSSW/Configuration/StandardSequences/data/MixingHighLumiPileUp_OnSel.cff">
-   MixingHighLumiPileUp_OnSel.cff</a>: piles up 25.0 events on average (Poisson statistics), IN-TIME PU (for OnSel/HLT studies)
- - <a href="http://cmssw.cvs.cern.ch/cgi-bin/cmssw.cgi/CMSSW/Configuration/StandardSequences/data/MixingStartUpLumiPileUp_OnSel.cff">
-   MixingStartUpLumiPileUp_OnSel.cff</a>: piles up 2.0 events on average (Poisson statistics), IN-TIME PU (for OnSel/HLT studies)
- - <a href="http://cmssw.cvs.cern.ch/cgi-bin/cmssw.cgi/CMSSW/Configuration/StandardSequences/data/StandardFragment_OnSel.cff">
-   StandardFragment_OnSel.cff</a>: Configuration fragment for GEN-SIM i.e. VtxSmeared and GEANT simulation only.
-
-
 <hr>
 
-Last updated: @DATE@ K. Lassila-Perini
+Last updated: @DATE@ Tulika Bose
 
 
 */

@@ -4,25 +4,19 @@
 /** \class AlignableCSCCEndcap
  *  The alignable muon CSC endcap.
  *
- *  $Date: 2007/03/02 15:46:12 $
- *  $Revision: 1.5 $
+ *  $Date: 2007/10/08 14:12:01 $
+ *  $Revision: 1.6 $
  *  \author Andre Sznajder - UERJ(Brazil)
  */
 
 
-#include "Geometry/CommonDetUnit/interface/GeomDet.h"
 #include "Alignment/CommonAlignment/interface/Alignable.h"
 #include "Alignment/CommonAlignment/interface/AlignableComposite.h"
 #include "Alignment/CommonAlignment/interface/AlignableSurface.h"
 
 #include "Alignment/MuonAlignment/interface/AlignableCSCStation.h"
 
-#include "CondFormats/Alignment/interface/Alignments.h"
-#include "CondFormats/Alignment/interface/AlignmentErrors.h"
-#include "CondFormats/Alignment/interface/AlignmentSorter.h"
 
-#include "DataFormats/TrackingRecHit/interface/AlignmentPositionError.h"
-#include "DataFormats/GeometryVector/interface/Basic3DVector.h"
 
 #include <vector>
 
@@ -64,7 +58,7 @@ class AlignableCSCEndcap : public AlignableComposite
   AlignableCSCStation &station(int i);  
   
   /// Return alignable object identifier
-  virtual int alignableObjectId() const { return AlignableObjectId::AlignableCSCEndcap; }
+  virtual StructureType alignableObjectId() const { return align::AlignableCSCEndcap; }
 
   /// Printout muon End Cap information (not recursive)
   friend std::ostream& operator << ( std::ostream&, const AlignableCSCEndcap& );

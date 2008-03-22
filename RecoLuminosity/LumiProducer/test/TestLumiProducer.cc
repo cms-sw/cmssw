@@ -78,7 +78,7 @@ namespace edmtest
 
     // A small value to allow for machine precision variations when
     // comparing small numbers.
-    double epsilon = 0.0000001;
+    double epsilon = 0.001;
 
     for (int i = 0; i < 5; ++i) {
 
@@ -120,8 +120,10 @@ namespace edmtest
       }
     }
 
-    if ( (fabs(lumiSummary->avgInsLumi()    - 1.0)  > epsilon) ||
-         (fabs(lumiSummary->avgInsLumiErr() - 2.0)  > epsilon) ||
+    if ( (fabs(lumiSummary->avgInsDelLumi()    - 1.0)  > epsilon) ||
+         (fabs(lumiSummary->avgInsDelLumiErr() - 2.0)  > epsilon) ||
+         (fabs(lumiSummary->avgInsRecLumi()    - 1.0 * 0.95)  > epsilon) ||
+         (fabs(lumiSummary->avgInsRecLumiErr() - 2.0 * 0.95)  > epsilon) ||
          (fabs(lumiSummary->deadFrac()      - 0.05) > epsilon) ||
          (fabs(lumiSummary->liveFrac()      - 0.95) > epsilon) ||
          (lumiSummary->lumiSecQual() != 3) ||

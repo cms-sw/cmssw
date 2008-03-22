@@ -1,8 +1,8 @@
 /*
  * \file EBTestPulseClient.cc
  *
- * $Date: 2008/01/17 09:34:41 $
- * $Revision: 1.179 $
+ * $Date: 2008/02/15 15:26:37 $
+ * $Revision: 1.187 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -17,14 +17,8 @@
 #include "TCanvas.h"
 #include "TStyle.h"
 
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-
 #include "DQMServices/UI/interface/MonitorUIRoot.h"
 
-#include "OnlineDB/EcalCondDB/interface/RunTag.h"
-#include "OnlineDB/EcalCondDB/interface/RunIOV.h"
 #include "OnlineDB/EcalCondDB/interface/MonTestPulseDat.h"
 #include "OnlineDB/EcalCondDB/interface/MonPulseShapeDat.h"
 #include "OnlineDB/EcalCondDB/interface/MonPNMGPADat.h"
@@ -55,7 +49,7 @@ EBTestPulseClient::EBTestPulseClient(const ParameterSet& ps){
   verbose_ = ps.getUntrackedParameter<bool>("verbose", false);
 
   // enableMonitorDaemon_ switch
-  enableMonitorDaemon_ = ps.getUntrackedParameter<bool>("enableMonitorDaemon", true);
+  enableMonitorDaemon_ = ps.getUntrackedParameter<bool>("enableMonitorDaemon", false);
 
   // enableCleanup_ switch
   enableCleanup_ = ps.getUntrackedParameter<bool>("enableCleanup", false);
@@ -172,7 +166,7 @@ void EBTestPulseClient::endRun(void) {
 
 void EBTestPulseClient::setup(void) {
 
-  Char_t histo[200];
+  char histo[200];
 
   dbe_->setCurrentFolder( "EcalBarrel/EBTestPulseClient" );
 
@@ -411,7 +405,7 @@ bool EBTestPulseClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonR
 
         if ( update01 || update02 || update03 ) {
 
-          if ( ie == 1 && ip == 1 ) {
+          if ( Numbers::icEB(ism, ie, ip) == 1 ) {
 
             cout << "Preparing dataset for " << Numbers::sEB(ism) << " (ism=" << ism << ")" << endl;
             cout << "G01 (" << ie << "," << ip << ") " << num01 << " " << mean01 << " " << rms01 << endl;
@@ -443,7 +437,7 @@ bool EBTestPulseClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonR
                              UtilsClient::getBinQual(meg02_[ism-1], ie, ip) &&
                              UtilsClient::getBinQual(meg03_[ism-1], ie, ip);
 
-          if ( ie == 1 && ip == 1 ) {
+          if ( Numbers::icEB(ism, ie, ip) == 1 ) {
 
             vector<float> sample01, sample02, sample03;
 
@@ -504,13 +498,9 @@ bool EBTestPulseClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonR
           int ic = Numbers::indexEB(ism, ie, ip);
 
           if ( econn ) {
-            try {
-              ecid = LogicID::getEcalLogicID("EB_crystal_number", Numbers::iSM(ism, EcalBarrel), ic);
-              dataset1[ecid] = adc;
-              if ( ie == 1 && ip == 1 ) dataset2[ecid] = shape;
-            } catch (runtime_error &e) {
-              cerr << e.what() << endl;
-            }
+            ecid = LogicID::getEcalLogicID("EB_crystal_number", Numbers::iSM(ism, EcalBarrel), ic);
+            dataset1[ecid] = adc;
+            if ( Numbers::icEB(ism, ie, ip) == 1 ) dataset2[ecid] = shape;
           }
 
         }
@@ -522,7 +512,7 @@ bool EBTestPulseClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonR
 
   if ( econn ) {
     try {
-      cout << "Inserting MonTestPulseDat ... " << flush;
+      cout << "Inserting MonTestPulseDat ..." << endl;
       if ( dataset1.size() != 0 ) econn->insertDataArraySet(&dataset1, moniov);
       if ( dataset2.size() != 0 ) econn->insertDataSet(&dataset2, moniov);
       cout << "done." << endl;
@@ -600,12 +590,8 @@ bool EBTestPulseClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonR
                            UtilsClient::getBinQual(meg05_[ism-1], i, 1);
 
         if ( econn ) {
-          try {
-            ecid = LogicID::getEcalLogicID("EB_LM_PN", Numbers::iSM(ism, EcalBarrel), i-1);
-            dataset3[ecid] = pn;
-          } catch (runtime_error &e) {
-            cerr << e.what() << endl;
-          }
+          ecid = LogicID::getEcalLogicID("EB_LM_PN", Numbers::iSM(ism, EcalBarrel), i-1);
+          dataset3[ecid] = pn;
         }
 
       }
@@ -616,7 +602,7 @@ bool EBTestPulseClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonR
 
   if ( econn ) {
     try {
-      cout << "Inserting MonPNMGPADat ... " << flush;
+      cout << "Inserting MonPNMGPADat ..." << endl;
       if ( dataset3.size() != 0 ) econn->insertDataArraySet(&dataset3, moniov);
       cout << "done." << endl;
     } catch (runtime_error &e) {
@@ -672,7 +658,7 @@ void EBTestPulseClient::analyze(void){
   EcalErrorMask::fetchDataSet(&mask1);
   EcalErrorMask::fetchDataSet(&mask2);
 
-  Char_t histo[200];
+  char histo[200];
 
   MonitorElement* me;
 
@@ -890,7 +876,7 @@ void EBTestPulseClient::analyze(void){
 
             int ic = Numbers::indexEB(ism, ie, ip);
 
-            if ( ecid.getID1() == Numbers::iSM(ism, EcalBarrel) && ecid.getID2() == ic ) {
+            if ( ecid.getLogicID() == LogicID::getEcalLogicID("EB_crystal_number", Numbers::iSM(ism, EcalBarrel), ic).getLogicID() ) {
               if ( (m->second).getErrorBits() & bits01 ) {
                 if ( meg01_[ism-1] ) {
                   float val = int(meg01_[ism-1]->getBinContent(ie, ip)) % 3;
@@ -979,7 +965,7 @@ void EBTestPulseClient::analyze(void){
 
           EcalLogicID ecid = m->first;
 
-          if ( ecid.getID1() == Numbers::iSM(ism, EcalBarrel) && ecid.getID2() == i-1 ) {
+          if ( ecid.getLogicID() == LogicID::getEcalLogicID("EB_LM_PN", Numbers::iSM(ism, EcalBarrel), i-1).getLogicID() ) {
             if ( (m->second).getErrorBits() & (bits01|bits04) ) {
               if ( meg04_[ism-1] ) {
                 float val = int(meg04_[ism-1]->getBinContent(i, 1)) % 3;
@@ -998,22 +984,25 @@ void EBTestPulseClient::analyze(void){
       }
 
     }
-
+  
     for ( int i = 1; i <= 10; i++ ) {
 
       if ( hs01_[ism-1] ) {
-        me_hs01_[ism-1]->setBinContent( i, hs01_[ism-1]->GetBinContent(1, i) );
-        me_hs01_[ism-1]->setBinError( i, hs01_[ism-1]->GetBinError(1, i) );
+        int ic = UtilsClient::getFirstNonEmptyChannel( hs01_[ism-1] );
+        me_hs01_[ism-1]->setBinContent( i, hs01_[ism-1]->GetBinContent(ic, i) );
+        me_hs01_[ism-1]->setBinError( i, hs01_[ism-1]->GetBinError(ic, i) );
       }
 
       if ( hs02_[ism-1] ) {
-        me_hs02_[ism-1]->setBinContent( i, hs02_[ism-1]->GetBinContent(1, i) );
-        me_hs02_[ism-1]->setBinError( i, hs02_[ism-1]->GetBinError(1, i) );
+        int ic = UtilsClient::getFirstNonEmptyChannel( hs02_[ism-1] );
+        me_hs02_[ism-1]->setBinContent( i, hs02_[ism-1]->GetBinContent(ic, i) );
+        me_hs02_[ism-1]->setBinError( i, hs02_[ism-1]->GetBinError(ic, i) );
       }
 
       if ( hs03_[ism-1] ) {
-        me_hs03_[ism-1]->setBinContent( i, hs03_[ism-1]->GetBinContent(1, i) );
-        me_hs03_[ism-1]->setBinError( i, hs03_[ism-1]->GetBinError(1, i) );
+        int ic = UtilsClient::getFirstNonEmptyChannel( hs03_[ism-1] );
+        me_hs03_[ism-1]->setBinContent( i, hs03_[ism-1]->GetBinContent(ic, i) );
+        me_hs03_[ism-1]->setBinError( i, hs03_[ism-1]->GetBinError(ic, i) );
       }
 
     }

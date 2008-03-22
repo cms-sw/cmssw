@@ -5,7 +5,7 @@
  * \file EcalPedOffset.h
  * \class EcalPedOffset
  * \brief calculate the best DAC value to obtain a pedestal = 200
- * $Date: 2007/10/29 13:09:00 $
+ * $Date: 2007/12/13 23:13:30 $
  * $Revision: 1.1 $
  * \author P. Govoni (pietro.govoni@cernNOSPAM.ch)
  *
@@ -18,9 +18,14 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
+
 #include "CalibCalorimetry/EcalPedestalOffsets/interface/TPedValues.h"
 #include "CalibCalorimetry/EcalPedestalOffsets/interface/TPedResult.h"
-#include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
+
+class EBDigiCollection;
+class EEDigiCollection;
+
+class EcalElectronicsMapping;
 
 class EcalPedOffset: public edm::EDAnalyzer
 {
@@ -53,7 +58,9 @@ class EcalPedOffset: public edm::EDAnalyzer
 
 
   private:
- 
+
+    const EcalElectronicsMapping* ecalElectronicsMap_;
+
     std::string intToString(int num);
     void readDACs(edm::Handle<EBDigiCollection> pDigis, std::map<int,int> DACvalues);
     void readDACs(edm::Handle<EEDigiCollection> pDigis, std::map<int,int> DACvalues);

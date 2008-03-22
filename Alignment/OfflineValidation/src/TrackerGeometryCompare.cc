@@ -268,63 +268,34 @@ void TrackerGeometryCompare::compareGeometries(Alignable* refAli, Alignable* cur
 
 	const std::vector<Alignable*>& refComp = refAli->components();
 	const std::vector<Alignable*>& curComp = curAli->components();
-	
+
 	unsigned int nComp = refComp.size();
 	//only perform for designate levels
 	bool useLevel = false;
 	for (unsigned int i = 0; i < theLevels.size(); ++i){
 		if (refAli->alignableObjectId() == theLevels[i]) useLevel = true;
 	}
-	
-	//another added level for difference between det and detunit
-	//if ((refAli->alignableObjectId()==2)&&(nComp == 1)) useLevel = false;
-	
-	//coordinate matching, etc etc
+
 	if (useLevel){
-		//std::cout << "ali identifiers: " << refAli->id() << ", " << refAli->alignableObjectId() << std::endl;
-		//std::cout << "diff pos" << (refAli->globalPosition() - curAli->globalPosition()) << std::endl;
-		//std::cout <<"z";
-		Hep3Vector Rtotal, Wtotal;
-		Rtotal.set(0.,0.,0.); Wtotal.set(0.,0.,0.);
-		
-		for (int i = 0; i < 100; i++){
-			AlgebraicVector diff = align::diffAlignables(refAli,curAli);
-			Hep3Vector dR(diff[0],diff[1],diff[2]);
-			Rtotal+=dR;
-			Hep3Vector dW(diff[3],diff[4],diff[5]);
-			HepRotation rot(Wtotal.unit(),Wtotal.mag());
-			HepRotation drot(dW.unit(),dW.mag());
-			rot*=drot;
-			Wtotal.set(rot.axis().x()*rot.delta(), rot.axis().y()*rot.delta(), rot.axis().z()*rot.delta());
-			//std::cout << "a";
-			//if (refAli->alignableObjectId() == 1) std::cout << "DIFF: " << diff << std::endl;
-			align::moveAlignable(curAli, diff);
-			float tolerance = 1e-7;
-			AlgebraicVector check = align::diffAlignables(refAli,curAli);
-			align::GlobalVector checkR(check[0],check[1],check[2]);
-			align::GlobalVector checkW(check[3],check[4],check[5]);
-			DetId detid(refAli->id());
-			if ((checkR.mag() > tolerance)||(checkW.mag() > tolerance)){
-				edm::LogInfo("CopareGeoms") << "Tolerance Exceeded!(alObjId: " << refAli->alignableObjectId()
-				<< ", rawId: " << refAli->geomDetId().rawId()
-				<< ", subdetId: "<< detid.subdetId() << "): " << diff;
-			}
-			else{
-				break;
-			}
+		AlgebraicVector diff = align::diffAlignables(refAli,curAli);
+		//if (refAli->alignableObjectId() == 1) std::cout << "DIFF: " << diff << std::endl;
+		fillTree(refAli, diff);
+		align::moveAlignable(curAli, diff);
+		float tolerance = 1e-7;
+		diff = align::diffAlignables(refAli,curAli);
+		align::GlobalVector check1(diff[0],diff[1],diff[2]);
+		align::GlobalVector check2(diff[3],diff[4],diff[5]);
+		DetId detid(refAli->id());
+		if ((check1.mag() > tolerance)||(check2.mag() > tolerance)){
+			edm::LogInfo("CopareGeoms") << "Tolerance Exceeded!(alObjId: " << refAli->alignableObjectId()
+																	<< ", rawId: " << refAli->geomDetId().rawId()
+																	<< ", subdetId: "<< detid.subdetId() << "): " << diff;
 		}
-		
-		AlgebraicVector TRtot(6);
-		TRtot(1) = Rtotal.x(); TRtot(2) = Rtotal.y(); TRtot(3) = Rtotal.z();
-		TRtot(4) = Wtotal.x(); TRtot(5) = Wtotal.y(); TRtot(6) = Wtotal.z();
-		fillTree(refAli, TRtot);
-		
-		
+
 	}
 	
-	//another added level for difference between det and detunit
-	for (unsigned int i = 0; i < nComp; ++i) compareGeometries(refComp[i],curComp[i]);
 
+	for (unsigned int i = 0; i < nComp; ++i) compareGeometries(refComp[i],curComp[i]);
 
 }
 

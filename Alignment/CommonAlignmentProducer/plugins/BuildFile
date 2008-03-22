@@ -4,8 +4,12 @@
 <use name=CondFormats/Alignment>
 <use name=CondFormats/AlignmentRecord>
 <library file=FakeAlignmentProducer.cc>
-  <flags EDM_PLUGIN=1>
+  <use name=CondFormats/Alignment>
+  <use name=CondFormats/AlignmentRecord>
+  <use name=FWCore/Framework>
+  <use name=FWCore/MessageLogger>
   <use name=boost>
+  <flags EDM_PLUGIN=1>
 </library>
 
 <library file=AlignmentProducer.cc>
@@ -44,9 +48,44 @@
  <flags EDM_PLUGIN=1>
 </library>
 
+<library file=AlignmentCSCOverlapSelectorModule.cc>
+ <use name=Alignment/CommonAlignmentProducer>
+ <use name=PhysicsTools/RecoAlgos>
+ <use name=PhysicsTools/UtilAlgos>
+ <flags EDM_PLUGIN=1>
+</library>
+
+<library file=AlignmentCSCBeamHaloSelectorModule.cc>
+ <use name=Alignment/CommonAlignmentProducer>
+ <use name=PhysicsTools/RecoAlgos>
+ <use name=PhysicsTools/UtilAlgos>
+ <flags EDM_PLUGIN=1>
+</library>
+
 <library file=AlignmentSeedSelectorModule.cc>
  <use name=Alignment/CommonAlignmentProducer>
  <use name=PhysicsTools/RecoAlgos>
  <use name=PhysicsTools/UtilAlgos>
+ <flags EDM_PLUGIN=1>
+</library>
+
+<library file=StraightMuonCutProducer.cc>
+ <use name=Alignment/CommonAlignmentProducer>
+ <use name=PhysicsTools/RecoAlgos>
+ <use name=FWCore/ServiceRegistry>
+ <use name=PhysicsTools/UtilAlgos>
+ <use name=DataFormats/TrackReco>
+ <use name=DataFormats/MuonDetId>
+ <use name=DataFormats/MuonReco>
+ <use name=DataFormats/TrackingRecHit>
+ <use name=TrackingTools/TrackRefitter>
+ <use name=TrackingTools/PatternTools>
+ <use name=TrackingTools/GeomPropagators>
+ <use name=Geometry/DTGeometry>
+ <use name=Geometry/CSCGeometry>
+ <use name=TrackingTools/Records>
+ <use name=Geometry/Records>
+ <use name=MagneticField/Engine>
+ <use name=MagneticField/Records>
  <flags EDM_PLUGIN=1>
 </library>
