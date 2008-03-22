@@ -248,9 +248,12 @@ class _TypedParameterizable(_Parameterizable):
             result += ",\n"+_Parameterizable.dumpPython(self,options)+options.indentation() + ")\n"
         else:
             # too big.  Need to dump externally
+            #NOTE: in future should explore just creating a dict
+            #  {'foo':cms.uint32(1), .... }
+            # and pass it to the constructor using the **{...} notation
             label = ""
             try:
-               label = self.label()
+               label = "process."+self.label()
             except:
                label = "FIX-THIS"
             result += ")\n" + self.dumpPythonAttributes(label, options)
