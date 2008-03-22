@@ -106,8 +106,10 @@ std::vector<Trajectory> OutInConversionTrackFinder::tracks(const TrajectorySeedC
   
   
   int goodSeed=0;  
+  std::vector<Trajectory> theTmpTrajectories;
   for(TrajectorySeedCollection::const_iterator iSeed=outInSeeds.begin(); iSeed!=outInSeeds.end();iSeed++){
 
+    theTmpTrajectories.clear();
     
     if (!theSeedCleaner_ || theSeedCleaner_->good(&(*iSeed))) {
       goodSeed++;
@@ -117,14 +119,11 @@ std::vector<Trajectory> OutInConversionTrackFinder::tracks(const TrajectorySeedC
       const GeomDet* tmpDet  = theMeasurementTracker_->geomTracker()->idToDet( tmpId );
       GlobalVector gv = tmpDet->surface().toGlobal( iSeed->startingState().parameters().momentum() );
       
-      
       //      std::cout << " OutInConversionTrackFinder::tracks hits in the seed " << iSeed->nHits() << "\n";
       LogDebug("OutInConversionTrackFinder") << " OutInConversionTrackFinder::tracks seed starting state position  " << iSeed->startingState().parameters().position() << " momentum " <<  iSeed->startingState().parameters().momentum() << " charge " << iSeed->startingState().parameters().charge() << " R " << gv.perp() << " eta " << gv.eta() << " phi " << gv.phi() << "\n";
       
       
-      std::vector<Trajectory> theTmpTrajectories;
-      
-      theTmpTrajectories = theCkfTrajectoryBuilder_->trajectories(*iSeed);
+      theCkfTrajectoryBuilder_->trajectories(*iSeed, theTmpTrajectories);
       
       LogDebug("OutInConversionTrackFinder") << "OutInConversionTrackFinder::track returned " << theTmpTrajectories.size() << " trajectories" << "\n";
       
