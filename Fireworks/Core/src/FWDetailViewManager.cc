@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Wed Mar  5 09:13:47 EST 2008
-// $Id: FWDetailViewManager.cc,v 1.7 2008/03/22 08:48:58 jmuelmen Exp $
+// $Id: FWDetailViewManager.cc,v 1.8 2008/03/22 19:23:08 chrjones Exp $
 //
 
 // system include files
@@ -137,8 +137,8 @@ FWDetailViewManager::openDetailViewFor(const FWModelId &id)
      viewer->second->build(&list, id);
      gEve->AddElement(list, ns);
      text_view->Update();
-     text_view->Layout();
      text_view->SetWidth(text_view->ReturnLongestLineWidth()+20);
+     text_view->Layout();
    //      nv->GetGLViewer()->SetPerspectiveCamera(TGLViewer::kCameraOrthoXOY, 5, 0, viewer->second->rotation_center, 0.5, 0 );
    //      nv->GetGLViewer()->SetPerspectiveCamera(TGLViewer::kCameraOrthoXOY, 5, 0, viewer->second->rotation_center, 0.5, 0 );
    //      nv->GetGLViewer()->CurrentCamera().Reset();
@@ -150,6 +150,8 @@ FWDetailViewManager::openDetailViewFor(const FWModelId &id)
    
    frame->Layout();
    frame->MapSubwindows();
+   //running the Layout after the MapSubwindows makes the sub areas render properly from the start
+   frame->Layout();
    frame->MapWindow();
 
 }
