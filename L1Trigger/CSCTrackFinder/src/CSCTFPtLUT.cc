@@ -394,7 +394,7 @@ void CSCTFPtLUT::readLUT()
       PtLUT.open(pt_lut_file.fullPath().c_str(), std::ios::binary);
       PtLUT.seekg(0, std::ios::end);
       int length = PtLUT.tellg();;
-      if( length == (1<<CSCBitWidths::kPtAddressWidth) )
+      if( length == (1<<CSCBitWidths::kPtAddressWidth)*sizeof(short) )
 	{
 	  PtLUT.seekg(0, std::ios::beg);
 	  PtLUT.read(reinterpret_cast<char*>(pt_lut),length);
