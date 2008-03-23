@@ -141,7 +141,13 @@ parser.add_option("--fileout",
                         "assigned. The form is <type>_<energy>_<step>.root.",
                    default="", #to be changed in the default form later
                    dest="fileout")
-                   
+
+parser.add_option("--writeraw",
+                  help="In addition to the nominal output, write a file with just raw",
+                  action="store_true",
+                  default=False,
+                  dest="writeraw")
+
 parser.add_option( "--dirin",
                    help="The infile directory.",
                    default="",
@@ -257,7 +263,8 @@ prec_step = {"ALL":"",
              "DIGI":"SIM",
              "RECO":"DIGI",
              "ANA":"RECO",
-             "DIGI2RAW":"DIGI"}
+             "DIGI2RAW":"DIGI",
+             "RAW2DIGI":"DIGI2RAW"}
 
 trimmedStep=''
 isFirst=0
@@ -289,6 +296,22 @@ if options.fileout=="":
         options.fileout+="_ana"    
     options.fileout+=".root"
 
+#if desired, just add _rawonly to the end of the output file name
+fileraw=''
+if options.writeraw:
+    fileraw=options.dirout
+    wrSP=options.fileout.split('.')
+    wrSPLen=len(wrSP)
+    counter=0
+    for w in wrSP:
+        counter=counter+1
+        if ( counter < wrSPLen ):
+            if ( counter == 1):
+                fileraw=fileraw+w
+            else:    
+                fileraw=fileraw+'.'+w
+        else:
+            fileraw=fileraw+'_rawonly.'+w
 
 # File where to dump the python cfg file
 python_config_filename=''
@@ -369,6 +392,7 @@ releasevalidation=("""+options.relval+""")
 # Input and output file names
 infile_name='"""+options.dirin+options.filein+"""'
 outfile_name='"""+options.dirout+options.fileout+"""'
+rawfile_name='"""+fileraw+"""'
 # The step
 step='"""+str(options.step)+"""'
 # Omit the output in a root file

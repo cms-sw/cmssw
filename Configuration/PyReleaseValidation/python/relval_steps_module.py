@@ -146,6 +146,20 @@ def digi2raw(process,name):
     
     return process
 
+def raw2digi(process,name):
+    '''
+    Enrich the schedule with raw2digistep
+    '''     
+    func_id=mod_id+"["+sys._getframe().f_code.co_name+"]"
+    
+    process.raw2digi_step=cms.Path(getattr(process,name))
+    if not user_schedule:
+        process.schedule.append(process.raw2digi_step)
+    
+    common.log ('%s adding step ...'%func_id)
+    
+    return process
+
 def offlinedqm(process,name):
     '''
     Enrich the schedule with offline dqm

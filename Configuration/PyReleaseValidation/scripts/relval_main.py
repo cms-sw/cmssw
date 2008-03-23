@@ -43,6 +43,7 @@ step_dict={'GEN':steps.gen,
            'RECO':steps.reco,
            'L1':steps.l1_trigger,
            'DIGI2RAW':steps.digi2raw,
+           'RAW2DIGI':steps.raw2digi,
            'ANA':steps.ana,
            'DQM':steps.offlinedqm,
            'FASTSIM':steps.fastsim,
@@ -54,7 +55,8 @@ dataTier_dict={'GEN':'GEN',
                'DIGI':'DIGI',
                'RECO':'RECO',
                'L1':'L1',
-               'DIGI2RAW':'DIGI2RAW',
+               'DIGI2RAW':'RAW',
+               'RAW2DIGI':'DIGI',
                'ANA':'RECO',
                'DQM':'RECO',
                'FASTSIM':'RECO',
@@ -66,6 +68,7 @@ pathName_dict={'GEN':'pgen',
                'RECO':'reconstruction',
                'L1':'L1Emulator',
                'DIGI2RAW':'DigiToRaw',
+               'RAW2DIGI':'RawToDigi',
                'ANA':'analysis',
                'DQM':'offlinedqm',
                'FASTSIM':'fastsim',
@@ -126,6 +129,7 @@ for s in step_list:
             process=steps.gen(process,'pgen',step,evt_type,energy,evtnumber)           
         else:
             process.source = common.event_input(infile_name) 
+            process=step_dict[step](process,pathname)                      
         isFirst=1
     else:    
         process=step_dict[step](process,pathname)                      
@@ -136,7 +140,11 @@ if output_flag:
         (process, outfile_name, dataTier_dict[step])
     if not user_schedule:
         process.schedule.append(process.outpath)  
-                                                                        
+    if ( rawfile_name!='' ):
+        print 'Add raw file' + rawfile_name
+        process = common.raw_output\
+                  (process, rawfile_name)
+        process.schedule.append(process.outpath_raw)  
 
 # Add metadata for production                                    
 process.configurationMetadata=common.build_production_info(evt_type, energy, evtnumber) 
