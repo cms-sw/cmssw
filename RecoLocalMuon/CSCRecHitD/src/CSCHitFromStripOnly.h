@@ -87,12 +87,10 @@ class CSCHitFromStripOnly
   std::vector<int> theStrips;
   
   // The cuts for forming the strip hits are described in the data/.cfi file
-  bool debug;
   bool useCalib;
-  int theClusterSize;
+  static const int theClusterSize = 3;
   float theThresholdForAPeak;
   float theThresholdForCluster;
-  bool useCleanStripCollection;
   //bool isData;
 
   /// These are the gain correction weights and X-talks read in from database.

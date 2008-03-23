@@ -60,10 +60,8 @@ class CSCHitFromWireOnly
   int theTime;
   int theLastChannel;
   
-  bool debug;
   int deltaT;
   //int clusterSize;
-  bool useCleanWireCollection;
 };
 
 #endif

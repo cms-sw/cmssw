@@ -41,7 +41,6 @@
 CSCXonStrip_MatchGatti::CSCXonStrip_MatchGatti(const edm::ParameterSet& ps) :
    recoConditions_( 0 ){
 
-  debug                      = ps.getUntrackedParameter<bool>("CSCDebug");
   useCalib                   = ps.getUntrackedParameter<bool>("CSCUseCalibrations");
   xtalksOffset               = ps.getUntrackedParameter<double>("CSCStripxtalksOffset");
   noise_level                 = ps.getUntrackedParameter<double>("NoiseLevel"); 
@@ -274,7 +273,7 @@ void CSCXonStrip_MatchGatti::setupMatrix() {
     cross_talks_inv(3,3) = cross_talks(3,3) = xt_lr2[iTime];
     cross_talks_inv.invert(err);
     if (err != 0) {
-      std::cout<<" Failed to invert XTalks matrix. Bad..."<<std::endl;
+      LogTrace("CSCRecHit")<<" Failed to invert XTalks matrix. Inaccurate cross-talk correction..."<<"\n";
     }
     //---- "charge" is XT-corrected charge
     charge = chargeSignal[0][iTime]*cross_talks_inv(1,1) + chargeSignal[1][iTime]*cross_talks_inv(1,2) + 
@@ -353,9 +352,10 @@ double CSCXonStrip_MatchGatti::estimated2GattiCorrection(double x_estimated, flo
   int stripDown = int(10.*stripWidth) - min_SW; // 0 is at min strip width calculated
   int stripUp = stripDown + 1;
   if(stripUp>n_SW-1){
-    if(stripUp>n_SW){
-      std::cout<<" Is strip width = "<<stripWidth<<" OK?" <<std::endl;
-    }
+    //---- to be checked...
+    //if(stripUp>n_SW){
+      //std::cout<<" Is strip width = "<<stripWidth<<" OK?" <<std::endl;
+    //}
     stripUp = n_SW-1;
   }
 

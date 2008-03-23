@@ -30,9 +30,8 @@
 
 CSCHitFromStripOnly::CSCHitFromStripOnly( const edm::ParameterSet& ps ) : recoConditions_(0) {
   
-  debug                      = ps.getUntrackedParameter<bool>("CSCDebug");
   useCalib                   = ps.getUntrackedParameter<bool>("CSCUseCalibrations");
-  theClusterSize             = ps.getUntrackedParameter<int>("CSCStripClusterSize");
+  //theClusterSize             = ps.getUntrackedParameter<int>("CSCStripClusterSize");
   theThresholdForAPeak       = ps.getUntrackedParameter<double>("CSCStripPeakThreshold");
   theThresholdForCluster     = ps.getUntrackedParameter<double>("CSCStripClusterChargeCut");
 
@@ -171,7 +170,7 @@ CSCStripHitData CSCHitFromStripOnly::makeStripData(int centerStrip, int offset) 
     adc[1] = 0.1;
     adc[2] = 0.1;
     adc[3] = 0.1;
-    std::cout << "[CSCHitFromStripOnly::makeStripData] Tmax out of range: contact CSC expert!!!" << std::endl;
+    LogTrace("CSCRecHit")  << "[CSCHitFromStripOnly::makeStripData] Tmax out of range: contact CSC expert!!!" << "\n";
   }
   
   if ( offset == 0 ) {
@@ -402,8 +401,9 @@ float CSCHitFromStripOnly::findHitOnStripPosition( const std::vector<CSCStripHit
     strips_adc.push_back( w2 );
     strips_adc.push_back( w3 );
 
-    if ( data[i].x() < 1 ) std::cout << "problem in indexing of strip, strip id is: " << data[i].x() << std::endl;
- 
+    if ( data[i].x() < 1 ){
+      LogTrace("CSCRecHit") << "problem in indexing of strip, strip id is: " << data[i].x() << "\n";
+    } 
     sum_w += w1;
     sum   += w1 * data[i].x();
   }

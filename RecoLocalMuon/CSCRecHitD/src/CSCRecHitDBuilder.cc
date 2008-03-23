@@ -38,9 +38,7 @@ CSCRecHitDBuilder::CSCRecHitDBuilder( const edm::ParameterSet& ps ) : geom_(0) {
 
 
   useCalib               = ps.getUntrackedParameter<bool>("CSCUseCalibrations");  
-  debug                  = ps.getUntrackedParameter<bool>("CSCDebug");
   stripWireDeltaT        = ps.getUntrackedParameter<int>("CSCstripWireDeltaTime");
-  makePseudo2DHits       = ps.getUntrackedParameter<bool>("CSCproduce1DHits");
   
   hitsFromStripOnly_     = new CSCHitFromStripOnly( ps ); 
   hitsFromWireOnly_      = new CSCHitFromWireOnly( ps );  
@@ -94,7 +92,7 @@ void CSCRecHitDBuilder::build( const CSCStripDigiCollection* stripdc, const CSCW
     clean_woc.put( id, rhv.begin(), rhv.end() );
   }
 
-  if ( debug ) std::cout << "Done producing wire hits " << std::endl;
+  LogTrace("CSCRecHit") << "Done producing wire hits " << "\n";
 
   // Make collection of strip only hits
   
@@ -115,7 +113,7 @@ void CSCRecHitDBuilder::build( const CSCStripDigiCollection* stripdc, const CSCW
     clean_soc.put( id, rhv.begin(), rhv.end() );
   }
 
-  if ( debug ) std::cout << "Done producing strip hits " << std::endl;
+  LogTrace("CSCRecHit") << "Done producing strip hits " << "\n";
 
 
   // Now create 2-D hits by looking at superposition of strip and wire hit in a layer
@@ -200,8 +198,8 @@ void CSCRecHitDBuilder::build( const CSCStripDigiCollection* stripdc, const CSCW
 
         // Build 2D hit for all possible strip-wire pairs 
         // overlapping within this layer
-        if (debug) std::cout << "# strip hits in layer: " << cscStripHit.size() << "  " 
-                             << "# wire hits in layer: "  << cscWireHit.size()  << std::endl;
+        LogTrace("CSCRecHit")<< "# strip hits in layer: " << cscStripHit.size() << "  " 
+                             << "# wire hits in layer: "  << cscWireHit.size()  << "\n";
 
         for (unsigned i = 0; i != cscStripHit.size(); ++i ) {
           const CSCStripHit s_hit = cscStripHit[i];
@@ -229,8 +227,7 @@ void CSCRecHitDBuilder::build( const CSCStripDigiCollection* stripdc, const CSCW
     old_id = sDetId;
   }
 
-  if ( debug ) std::cout << "Done producing 2D-hits " << std::endl;
-  if ( debug ) std::cout << "number of hits : " << oc.size()<< std::endl;
+  LogTrace("CSCRecHit") << "Done producing 2D-hits. Number of hits : " << oc.size()<< "\n";
 
 }
 

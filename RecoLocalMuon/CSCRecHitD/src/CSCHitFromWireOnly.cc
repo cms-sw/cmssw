@@ -23,7 +23,6 @@
 
 CSCHitFromWireOnly::CSCHitFromWireOnly( const edm::ParameterSet& ps ) {
   
-  debug                  = ps.getUntrackedParameter<bool>("CSCDebug");
   deltaT                 = ps.getUntrackedParameter<int>("CSCWireClusterDeltaT");
   //clusterSize            = ps.getUntrackedParameter<int>("CSCWireClusterMaxSize");
 }

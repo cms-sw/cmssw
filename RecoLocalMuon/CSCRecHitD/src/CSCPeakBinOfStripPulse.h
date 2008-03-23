@@ -31,7 +31,6 @@ class CSCPeakBinOfStripPulse
 
  private:
 
-  bool debug; 
 
 };
 

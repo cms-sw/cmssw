@@ -52,7 +52,6 @@ class CSCMake2DRecHit
   
  private:
   
-  bool debug;
   bool useCalib;
   int stripWireDeltaTime;
   bool useGatti;
