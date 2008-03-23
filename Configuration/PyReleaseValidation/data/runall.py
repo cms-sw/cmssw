@@ -52,7 +52,7 @@ def main(argv) :
         if opt == "--nproc" :
             np=arg
         
-    commands_file=open('cmsDriver_commands.txt','r')
+    commands_file=open('cmsDriver_commands_v2.txt','r')
     lines=commands_file.readlines()
     commands_file.close()
     

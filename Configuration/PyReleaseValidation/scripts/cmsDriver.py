@@ -5,6 +5,7 @@
 import optparse
 import sys
 import os
+import Configuration.PyReleaseValidation
 
 #---------------------------------------------------------
 
@@ -183,7 +184,7 @@ parser.add_option("--dump_cfg",
                        "language. It is printed on stdout.",
                   action="store_true",
                   default=False,
-                  dest="dump_cfg_flag")
+                  dest="dump_cfg")
 
 parser.add_option("--dump_python",
                   help="Dump the config file in python "+\
@@ -238,12 +239,15 @@ if len(sys.argv)==1:
 
 options.evt_type=sys.argv[1]
 
-if not options.evt_type in type_energy_dict.keys():
-    raise "Event Type: ","Unrecognised event type."
+#if not options.evt_type in type_energy_dict.keys():
+#    raise "Event Type: ","Unrecognised event type."
 
 if options.energy==None:
-  options.energy=type_energy_dict[options.evt_type]
-
+    if options.evt_type in type_energy_dict.keys():
+        options.energy=type_energy_dict[options.evt_type]
+    else:
+        options.energy=''
+        
 # Build the IO files if necessary.
 # The default form of the files is:
 # <type>_<energy>_<step>.root
@@ -255,18 +259,30 @@ prec_step = {"ALL":"",
              "ANA":"RECO",
              "DIGI2RAW":"DIGI"}
 
-first_step=options.step.split(',')[0]             
+trimmedStep=''
+isFirst=0
+step_list=options.step.split(',')
+for s in step_list:
+    stepSP=s.split(':')
+    step=stepSP[0]
+    if ( isFirst==0 ):
+        trimmedStep=step
+        isFirst=1
+    else:
+        trimmedStep=trimmedStep+','+step
+        
+first_step=trimmedStep.split(',')[0]             
 if options.filein=="" and not first_step in ("ALL","GEN"):
     if options.dirin=="":
         options.dirin="file:"
     options.filein=options.evt_type+"_"+options.energy+\
-     "_"+prec_step[options.step]+".root"
+     "_"+prec_step[trimmedStep]+".root"
 
      
 if options.fileout=="":
     options.fileout=options.evt_type+"_"+\
                     options.energy+\
-                    "_"+options.step
+                    "_"+trimmedStep
     if options.PU_flag:
         options.fileout+="_PU"
     if options.analysis_flag:
@@ -279,12 +295,23 @@ python_config_filename=''
 if options.dump_python:
     python_config_filename=options.evt_type+"_"+\
                               options.energy+\
-                              "_"+options.step
+                              "_"+trimmedStep
     if options.PU_flag:
         python_config_filename+="_PU"
     if options.analysis_flag:
         python_config_filename+="_ana"
     python_config_filename+=".py"
+
+cfg_config_filename=''
+if options.dump_cfg:
+    cfg_config_filename=options.evt_type+"_"+\
+                              options.energy+\
+                              "_"+trimmedStep
+    if options.PU_flag:
+        cfg_config_filename+="_PU"
+    if options.analysis_flag:
+        cfg_config_filename+="_ana"
+    cfg_config_filename+=".cfg"
     
 #prepare new step3 list:
 newstep3list=[]
@@ -296,7 +323,7 @@ if not options.dump_dsetname_flag:
     print_options(options)  
 
 #set process name:
-ext_process_name=options.evt_type+options.energy+options.step
+ext_process_name=options.evt_type+options.energy+trimmedStep
 
 
 if options.dump_dsetname_flag:
@@ -325,7 +352,7 @@ cfgfile="""
 # Process Parameters
 
 # The name of the process
-process_name='""" +options.step.replace(',','')+ """'
+process_name='""" +trimmedStep.replace(',','')+ """'
 ext_process_name='""" +ext_process_name+ """'
 # The type of the process. Please see the complete list of 
 # available processes.
@@ -363,7 +390,7 @@ user_schedule="""+str(options.user_schedule)+"""
 # Enable verbosity
 dbg_flag=True
 # Dump the oldstyle cfg file.
-dump_cfg_flag="""+str(options.dump_cfg_flag)+"""
+dump_cfg='"""+cfg_config_filename+"""'
 # Dump the python cfg file.
 dump_python='"""+python_config_filename+"""'
 # Dump a pickle object of the process on disk.
@@ -397,7 +424,7 @@ if options.dump_pickle!='':
     executable='python'
 
 command=['/bin/sh', '-c', 'exec ']
-pyrelvalmain=pyrelvalcodedir+"/relval_main.py"
+pyrelvalmain="`which relval_main.py`"
 if options.prefix!="": 
     command[2] += options.prefix + ' '
 command[2] += executable + ' ' + pyrelvalmain
