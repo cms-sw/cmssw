@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Feb 19 10:33:21 EST 2008
-// $Id: FWRhoPhiZView.h,v 1.4 2008/03/11 02:47:27 chrjones Exp $
+// $Id: FWRhoPhiZView.h,v 1.5 2008/03/19 15:19:11 chrjones Exp $
 //
 
 // system include files
@@ -34,6 +34,7 @@ class TEveViewer;
 class TGLEmbeddedViewer;
 class TEveProjectionManager;
 class TGFrame;
+class TGLMatrix;
 
 class FWRhoPhiZView : public FWViewBase
 {
@@ -47,17 +48,21 @@ class FWRhoPhiZView : public FWViewBase
       // ---------- const member functions ---------------------
       TGFrame* frame() const;
       const std::string& typeName() const;
+      virtual void addTo(FWConfiguration&) const;
+
       // ---------- static member functions --------------------
 
       // ---------- member functions ---------------------------
       void resetCamera();
       void destroyElements();
       void replicateGeomElement(TEveElement*);
+      virtual void setFrom(const FWConfiguration&);
 
       //returns the new element created from this import
       TEveElement* importElements(TEveElement*, float iLayer);
    private:
       void doDistortion(double);
+      void doZoom(double);
       FWRhoPhiZView(const FWRhoPhiZView&); // stop default
 
       const FWRhoPhiZView& operator=(const FWRhoPhiZView&); // stop default
@@ -72,6 +77,9 @@ class FWRhoPhiZView : public FWViewBase
       TEveScene* m_scene;
 
       FWDoubleParameter m_distortion;
+      // camera parameters
+      double* m_cameraZoom;
+      TGLMatrix* m_cameraMatrix;
 };
 
 

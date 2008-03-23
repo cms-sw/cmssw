@@ -8,8 +8,12 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Feb 19 10:33:25 EST 2008
-// $Id: FWRhoPhiZView.cc,v 1.8 2008/03/20 18:18:24 dmytro Exp $
+// $Id: FWRhoPhiZView.cc,v 1.9 2008/03/21 03:58:06 dmytro Exp $
 //
+
+#define private public
+#include "TGLOrthoCamera.h"
+#undef private
 
 // system include files
 #include <algorithm>
@@ -17,6 +21,7 @@
 #include <boost/shared_ptr.hpp>
 #include <boost/numeric/conversion/converter.hpp>
 #include <iostream>
+#include <sstream>
 #include "TEveProjectionManager.h"
 #include "TEveScene.h"
 #include "TGLViewer.h"
@@ -29,8 +34,10 @@
 #include "TEvePolygonSetProjected.h"
 #include "TEveProjections.h"
 
+
 // user include files
 #include "Fireworks/Core/interface/FWRhoPhiZView.h"
+#include "Fireworks/Core/interface/FWConfiguration.h"
 
 
 //
@@ -81,7 +88,9 @@ static TEveElement* doReplication(TEveProjectionManager* iMgr, TEveElement* iFro
 //
 FWRhoPhiZView::FWRhoPhiZView(TGFrame* iParent,const std::string& iName, const TEveProjection::EPType_e& iProjType) :
 m_typeName(iName),
-m_distortion(this,"distortion",0.,0.,20.)
+m_distortion(this,"distortion",0.,0.,20.),
+m_cameraZoom(0),
+m_cameraMatrix(0)
 {
    m_projMgr = new TEveProjectionManager;
    m_projMgr->SetProjection(iProjType);
@@ -104,6 +113,11 @@ m_distortion(this,"distortion",0.,0.,20.)
    nv->SetGLViewer(ev);
    nv->IncDenyDestroy();
    ev->SetCurrentCamera(TGLViewer::kCameraOrthoXOY);
+   if ( TGLOrthoCamera* camera = dynamic_cast<TGLOrthoCamera*>( &(ev->CurrentCamera()) ) ) {
+      m_cameraZoom = & (camera->fZoom);
+      m_cameraMatrix = const_cast<TGLMatrix*>(&(camera->GetCamTrans()));
+   }
+   
    TEveScene* ns = gEve->SpawnNewScene(iName.c_str());
    m_scene = ns;
    nv->AddScene(ns);
@@ -149,6 +163,17 @@ FWRhoPhiZView::doDistortion(double iAmount)
    m_projMgr->ProjectChildren();
 }
 
+/*
+void 
+FWRhoPhiZView::doZoom(double iValue)
+{
+   if ( TGLOrthoCamera* camera = dynamic_cast<TGLOrthoCamera*>( & (m_viewer->GetGLViewer()->CurrentCamera()) ) ) {
+      // camera->SetZoom( iValue );
+      camera->fZoom = iValue;
+      m_viewer->GetGLViewer()->RequestDraw();
+   }
+}
+*/
 
 void 
 FWRhoPhiZView::resetCamera()
@@ -196,6 +221,35 @@ FWRhoPhiZView::importElements(TEveElement* iChildren, float iLayer)
    return *it;
 }
 
+void 
+FWRhoPhiZView::setFrom(const FWConfiguration& iFrom)
+{
+   // take care of parameters
+   FWConfigurableParameterizable::setFrom(iFrom);
+   
+   // retrieve camera parameters
+   // zoom
+   assert(m_cameraZoom);
+   std::string zoomName("cameraZoom"); zoomName += typeName();
+   assert( 0!=iFrom.valueForKey(zoomName) );
+   std::istringstream s(iFrom.valueForKey(zoomName)->value());
+   s>>(*m_cameraZoom);
+   
+   // transformation matrix
+   assert(m_cameraMatrix);
+   std::string matrixName("cameraMatrix");
+   for ( unsigned int i = 0; i < 16; ++i ){
+      std::ostringstream os;
+      os << i;
+      const FWConfiguration* value = iFrom.valueForKey( matrixName + os.str() + typeName() );
+      assert( value );
+      std::istringstream s(value->value());
+      s>>((*m_cameraMatrix)[i]);
+   }
+   m_viewer->GetGLViewer()->RequestDraw();
+}
+
+
 //
 // const member functions
 //
@@ -210,6 +264,33 @@ FWRhoPhiZView::typeName() const
 {
    return m_typeName;
 }
+
+void 
+FWRhoPhiZView::addTo(FWConfiguration& iTo) const
+{
+   // take care of parameters
+   FWConfigurableParameterizable::addTo(iTo);
+   
+   // store camera parameters
+   // zoom
+   assert(m_cameraZoom);
+   std::ostringstream s;
+   s<<(*m_cameraZoom);
+   std::string name("cameraZoom");
+   iTo.addKeyValue(name+typeName(),FWConfiguration(s.str()));
+   
+   // transformation matrix
+   assert(m_cameraMatrix);
+   std::string matrixName("cameraMatrix");
+   for ( unsigned int i = 0; i < 16; ++i ){
+      std::ostringstream osIndex;
+      osIndex << i;
+      std::ostringstream osValue;
+      osValue << (*m_cameraMatrix)[i];
+      iTo.addKeyValue(matrixName+osIndex.str()+typeName(),FWConfiguration(osValue.str()));
+   }
+}
+
 
 //
 // static member functions
