@@ -13,7 +13,7 @@
 //
 // Original Author:  Jim Pivarski
 //         Created:  Sat Feb 16 00:04:55 CST 2008
-// $Id: MuonGeometryDBConverter.cc,v 1.9 2008/03/15 20:26:46 pivarski Exp $
+// $Id: MuonGeometryDBConverter.cc,v 1.10 2008/03/19 15:08:54 pivarski Exp $
 //
 //
 
@@ -51,6 +51,7 @@ class MuonGeometryDBConverter : public edm::EDAnalyzer {
       virtual void analyze(const edm::Event&, const edm::EventSetup&);
       virtual void endJob() ;
 
+      bool m_done;
       std::string m_input, m_output;
       
       std::string m_dtLabel, m_cscLabel;
@@ -73,7 +74,8 @@ class MuonGeometryDBConverter : public edm::EDAnalyzer {
 // constructors and destructor
 //
 MuonGeometryDBConverter::MuonGeometryDBConverter(const edm::ParameterSet &iConfig)
-   : m_input(iConfig.getParameter<std::string>("input"))
+   : m_done(false)
+   , m_input(iConfig.getParameter<std::string>("input"))
    , m_output(iConfig.getParameter<std::string>("output"))
 {
    ////////////////////////////////////////////////////////////////////
@@ -134,64 +136,69 @@ MuonGeometryDBConverter::~MuonGeometryDBConverter() { }
 // ------------ method called to for each event  ------------
 void
 MuonGeometryDBConverter::analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup) {
-   throw cms::Exception("BadConfig") << "Set maxEvents.input to 0.  (Your output is okay.)" << std::endl;
+   if (!m_done) {
+      MuonAlignment *muonAlignment = NULL;
+
+      if (m_input == std::string("ideal")) {
+	 MuonAlignmentInputMethod inputMethod;
+	 muonAlignment = new MuonAlignment(iSetup, inputMethod);
+      }
+
+      else if (m_input == std::string("db")) {
+	 MuonAlignmentInputDB inputMethod(m_dtLabel, m_cscLabel);
+	 muonAlignment = new MuonAlignment(iSetup, inputMethod);
+	 muonAlignment->copyAlignmentToSurvey(m_shiftErr, m_angleErr);
+      }
+
+      else if (m_input == std::string("surveydb")) {
+	 MuonAlignmentInputSurveyDB inputMethod(m_dtLabel, m_cscLabel);
+	 muonAlignment = new MuonAlignment(iSetup, inputMethod);
+	 muonAlignment->copySurveyToAlignment();
+      }
+   
+      else if (m_input == std::string("scenario")) {
+	 MuonAlignmentInputMethod inputMethod;
+	 muonAlignment = new MuonAlignment(iSetup, inputMethod);
+
+	 MuonScenarioBuilder muonScenarioBuilder(muonAlignment->getAlignableMuon());
+	 muonScenarioBuilder.applyScenario(m_misalignmentScenario);
+	 muonAlignment->copyAlignmentToSurvey(m_shiftErr, m_angleErr);
+      }
+
+      else if (m_input == std::string("xml")) {
+	 MuonAlignmentInputXML inputMethod(m_fileName);
+	 muonAlignment = new MuonAlignment(iSetup, inputMethod);
+	 muonAlignment->fillGapsInSurvey(m_shiftErr, m_angleErr);
+      }
+
+      /////////////
+
+      if (m_output == std::string("none")) {}
+
+      else if (m_output == std::string("db")) {
+	 muonAlignment->saveToDB();
+      }
+
+      else if (m_output == std::string("surveydb")) {
+	 muonAlignment->saveSurveyToDB();
+      }
+
+      else if (m_output == std::string("xml")) {
+	 muonAlignment->writeXML(m_outputXML, iSetup);
+      }
+
+      delete muonAlignment;
+
+      m_done = true;
+   } // end if not done
+   else {
+      throw cms::Exception("BadConfig") << "Set maxEvents.input to 1.  (Your output is okay.)" << std::endl;
+   }
 }
 
 // ------------ method called once each job just before starting event loop  ------------
 void
-MuonGeometryDBConverter::beginJob(const edm::EventSetup &iSetup) {
-   MuonAlignment *muonAlignment = NULL;
-
-   if (m_input == std::string("ideal")) {
-      MuonAlignmentInputMethod inputMethod;
-      muonAlignment = new MuonAlignment(iSetup, inputMethod);
-   }
-
-   else if (m_input == std::string("db")) {
-      MuonAlignmentInputDB inputMethod(m_dtLabel, m_cscLabel);
-      muonAlignment = new MuonAlignment(iSetup, inputMethod);
-      muonAlignment->copyAlignmentToSurvey(m_shiftErr, m_angleErr);
-   }
-
-   else if (m_input == std::string("surveydb")) {
-      MuonAlignmentInputSurveyDB inputMethod(m_dtLabel, m_cscLabel);
-      muonAlignment = new MuonAlignment(iSetup, inputMethod);
-      muonAlignment->copySurveyToAlignment();
-   }
-   
-   else if (m_input == std::string("scenario")) {
-      MuonAlignmentInputMethod inputMethod;
-      muonAlignment = new MuonAlignment(iSetup, inputMethod);
-
-      MuonScenarioBuilder muonScenarioBuilder(muonAlignment->getAlignableMuon());
-      muonScenarioBuilder.applyScenario(m_misalignmentScenario);
-      muonAlignment->copyAlignmentToSurvey(m_shiftErr, m_angleErr);
-   }
-
-   else if (m_input == std::string("xml")) {
-      MuonAlignmentInputXML inputMethod(m_fileName);
-      muonAlignment = new MuonAlignment(iSetup, inputMethod);
-      muonAlignment->fillGapsInSurvey(m_shiftErr, m_angleErr);
-   }
-
-   /////////////
-
-   if (m_output == std::string("none")) {}
-
-   else if (m_output == std::string("db")) {
-      muonAlignment->saveToDB();
-   }
-
-   else if (m_output == std::string("surveydb")) {
-      muonAlignment->saveSurveyToDB();
-   }
-
-   else if (m_output == std::string("xml")) {
-      muonAlignment->writeXML(m_outputXML, iSetup);
-   }
-
-   delete muonAlignment;
-}
+MuonGeometryDBConverter::beginJob(const edm::EventSetup &iSetup) {}
 
 // ------------ method called once each job just after ending the event loop  ------------
 void
