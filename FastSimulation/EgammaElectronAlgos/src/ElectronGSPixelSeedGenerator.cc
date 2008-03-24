@@ -269,8 +269,8 @@ void ElectronGSPixelSeedGenerator::addASeedToThisCluster(
     float pphimin1 = -deltaPhi1*(1.-sizeWindowENeg_);
     float pphimax1 =  deltaPhi1*sizeWindowENeg_;
     
-    float phimin2  = -deltaPhi2_/2. ;
-    float phimax2  =  deltaPhi2_/2,;
+    float phimin2  = -deltaPhi2_/2.;
+    float phimax2  =  deltaPhi2_/2.;
     
     myGSPixelMatcher->set1stLayer(ephimin1,ephimax1,pphimin1,pphimax1);
     myGSPixelMatcher->set2ndLayer(phimin2,phimax2);
