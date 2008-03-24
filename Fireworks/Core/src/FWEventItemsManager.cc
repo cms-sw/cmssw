@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Fri Jan  4 10:38:18 EST 2008
-// $Id: FWEventItemsManager.cc,v 1.7 2008/01/28 13:58:30 chrjones Exp $
+// $Id: FWEventItemsManager.cc,v 1.8 2008/02/25 21:32:27 chrjones Exp $
 //
 
 // system include files
@@ -116,6 +116,7 @@ static const std::string kType("type");
 static const std::string kModuleLabel("moduleLabel");
 static const std::string kProductInstanceLabel("productInstanceLabel");
 static const std::string kProcessName("processName");
+static const std::string kFilterExpression("filterExpression");
 static const std::string kColor("color");
 static const std::string kIsVisible("isVisible");
 static const std::string kTrue("t");
@@ -135,6 +136,7 @@ FWEventItemsManager::addTo(FWConfiguration& iTo) const
       conf.addKeyValue(kModuleLabel,FWConfiguration((*it)->moduleLabel()));
       conf.addKeyValue(kProductInstanceLabel, FWConfiguration((*it)->productInstanceLabel()));
       conf.addKeyValue(kProcessName, FWConfiguration((*it)->processName()));
+      conf.addKeyValue(kFilterExpression, FWConfiguration((*it)->filterExpression()));
       std::ostringstream os;
       os << (*it)->defaultDisplayProperties().color();
       conf.addKeyValue(kColor, FWConfiguration(os.str()));
@@ -160,8 +162,9 @@ FWEventItemsManager::setFrom(const FWConfiguration& iFrom)
       const std::string& moduleLabel = (*keyValues)[1].second.value();
       const std::string& productInstanceLabel = (*keyValues)[2].second.value();
       const std::string& processName = (*keyValues)[3].second.value();
-      const std::string& sColor = (*keyValues)[4].second.value();
-      const bool isVisible = (*keyValues)[5].second.value() == kTrue;
+      const std::string& filterExpression = (*keyValues)[4].second.value();
+      const std::string& sColor = (*keyValues)[5].second.value();
+      const bool isVisible = (*keyValues)[6].second.value() == kTrue;
 
       std::istringstream is(sColor);
       Color_t color;
@@ -174,7 +177,8 @@ FWEventItemsManager::setFrom(const FWConfiguration& iFrom)
                                disp,
                                moduleLabel,
                                productInstanceLabel,
-                               processName);
+                               processName,
+			       filterExpression);
       add(desc);
    }
 }
