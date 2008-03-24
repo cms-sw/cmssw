@@ -1,12 +1,10 @@
 #include "RecoMuon/TrackerSeedGenerator/plugins/CombinedTSG.h"
-#include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHit.h"
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHit.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include <map>
 #include <vector>
-
-using namespace std;
 
 //constructor
 CombinedTSG::CombinedTSG(const edm::ParameterSet & par) : CompositeTSG(par) {

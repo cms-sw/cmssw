@@ -3,22 +3,12 @@
 
 #include "RecoMuon/TrackerSeedGenerator/interface/TrackerSeedGenerator.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-
-#include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/Framework/interface/EventSetup.h"
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeed.h"
-#include "DataFormats/TrackReco/interface/Track.h"
-
-#include "FWCore/ServiceRegistry/interface/Service.h"
-#include "PhysicsTools/UtilAlgos/interface/TFileService.h"
 
 #include <TH1.h>
 
 class TrackingRegion;
 class MuonServiceProxy;
-
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 class CompositeTSG : public TrackerSeedGenerator {
 

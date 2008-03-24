@@ -1,10 +1,11 @@
 #include "RecoMuon/TrackerSeedGenerator/plugins/DualByEtaTSG.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 DualByEtaTSG::DualByEtaTSG(const edm::ParameterSet &pset) : SeparatingTSG(pset){
   theCategory ="DualByEtaTSG";
   theEtaSeparation = pset.getParameter<double>("etaSeparation");
   if (nTSGs()!=2)
-    {edm::LogError("DualTSG")<<"not two seed generators provided";}
+    {edm::LogError(theCategory)<<"not two seed generators provided";}
 }
 
 uint DualByEtaTSG::selectTSG(const TrackCand & muonTrackCand, const TrackingRegion& region)
