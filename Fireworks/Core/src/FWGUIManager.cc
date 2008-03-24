@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Feb 11 11:06:40 EST 2008
-// $Id: FWGUIManager.cc,v 1.19 2008/03/16 23:12:51 chrjones Exp $
+// $Id: FWGUIManager.cc,v 1.20 2008/03/18 23:50:45 chrjones Exp $
 //
 
 // system include files
@@ -49,6 +49,7 @@
 
 #include "Fireworks/Core/src/FWListViewObject.h"
 #include "Fireworks/Core/src/FWListModel.h"
+#include "Fireworks/Core/src/FWListMultipleModels.h"
 
 #include "Fireworks/Core/interface/FWConfiguration.h"
 
@@ -433,13 +434,17 @@ FWGUIManager::unselectAll()
 void 
 FWGUIManager::selectionChanged(const FWSelectionManager& iSM)
 {
-   if(0 !=iSM.selected().size() ) {
+   if(1 ==iSM.selected().size() ) {
       delete m_editableSelected;
       FWListModel* model = new FWListModel(*(iSM.selected().begin()), m_detailViewManager);
       const FWEventItem::ModelInfo& info =iSM.selected().begin()->item()->modelInfo(iSM.selected().begin()->index());
       model->SetMainColor(info.displayProperties().color());
       model->SetRnrState(info.displayProperties().isVisible());
       m_editableSelected = model;
+      m_editor->DisplayElement(m_editableSelected);
+   } else if(1<iSM.selected().size()) {
+      delete m_editableSelected;
+      m_editableSelected = new FWListMultipleModels(iSM.selected());
       m_editor->DisplayElement(m_editableSelected);
    } else {
       if(m_editor->GetEveElement() == m_editableSelected) {
