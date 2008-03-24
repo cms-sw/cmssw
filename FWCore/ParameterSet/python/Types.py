@@ -204,23 +204,10 @@ class LuminosityBlockID(_ParameterTypeBase):
     def insertInto(self, parameterSet, myname):
         parameterSet.addLuminosityBlockID(self.isTracked(), myname, self.cppID(parameterSet))
 
-
 class InputTag(_ParameterTypeBase):
     def __init__(self,moduleLabel,productInstanceLabel='',processName=''):
         super(InputTag,self).__init__()
-        self.__moduleLabel = moduleLabel
-        self.__productInstance = productInstanceLabel
-        self.__processName=processName
-
-        if -1 != moduleLabel.find(":"):
-        #    raise RuntimeError("the module label '"+str(moduleLabel)+"' contains a ':'. If you want to specify more than one label, please pass them as separate arguments.")
-        # tolerate it, at least for the translation phase
-            toks = moduleLabel.split(":")
-            self.__moduleLabel = toks[0]
-            if len(toks) > 1:
-               self.__productInstance = toks[1]
-            if len(toks) > 2:
-               self.__processName=toks[2]
+        self._setValues(moduleLabel, productInstanceLabel, processName)
     def getModuleLabel(self):
         return self.__moduleLabel
     def setModuleLabel(self,label):
@@ -274,7 +261,22 @@ class InputTag(_ParameterTypeBase):
         parts = string.split(":")
         return InputTag(*parts)
     def setValue(self,v):
-        self = InputTag._valueFromString(v)
+        self._setValues(v)
+    def _setValues(self,moduleLabel,productInstanceLabel='',processName=''):
+        self.__moduleLabel = moduleLabel
+        self.__productInstance = productInstanceLabel
+        self.__processName=processName
+
+        if -1 != moduleLabel.find(":"):
+        #    raise RuntimeError("the module label '"+str(moduleLabel)+"' contains a ':'. If you want to specify more than one label, please pass them as separate arguments.")
+        # tolerate it, at least for the translation phase
+            toks = moduleLabel.split(":")
+            self.__moduleLabel = toks[0]
+            if len(toks) > 1:
+               self.__productInstance = toks[1]
+            if len(toks) > 2:
+               self.__processName=toks[2]
+
     # convert to the wrapper class for C++ InputTags
     def cppTag(self, parameterSet):
         return parameterSet.newInputTag(self.getModuleLabel(),
