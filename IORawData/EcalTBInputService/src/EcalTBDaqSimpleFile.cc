@@ -126,5 +126,5 @@ bool EcalTBDaqSimpleFile::checkEndOfFile()
 //Check if the position in file is EOF
 void EcalTBDaqSimpleFile::close()
 {
-//  infile_.close();
+  infile_.close();
 }
