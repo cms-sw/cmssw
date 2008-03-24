@@ -32,8 +32,8 @@ class EcalTBDaqRFIOFile : public EcalTBDaqFile {
  protected:
 
   std::string filename_;
-  FILE* infile_;
   bool isBinary_;
+  FILE* infile_;
 
 };
 #endif
