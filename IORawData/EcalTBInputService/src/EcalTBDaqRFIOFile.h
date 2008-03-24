@@ -3,6 +3,9 @@
 
 #include "IORawData/EcalTBInputService/src/EcalTBDaqFile.h"
 
+#include <string>
+#include <stdio.h>
+
 using namespace std;
 
 class EcalTBDaqRFIOFile : public EcalTBDaqFile {
