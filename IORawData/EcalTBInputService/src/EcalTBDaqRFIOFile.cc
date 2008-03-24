@@ -163,5 +163,8 @@ bool EcalTBDaqRFIOFile::checkEndOfFile()
 //Check if the position in file is EOF
 void EcalTBDaqRFIOFile::close()
 {
-//  rfio_fclose(infile_);
+  if (infile_) {
+    rfio_fclose(infile_);
+    infile_ = 0;
+  }
 }
