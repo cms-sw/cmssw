@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: RootFile.cc,v 1.124 2008/03/20 18:23:03 wmtan Exp $
+$Id: RootFile.cc,v 1.125 2008/03/20 18:47:47 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include "RootFile.h"
@@ -153,12 +153,12 @@ namespace edm {
         std::string newFriendlyName = friendlyname::friendlyName(prod.className());
 	if (newFriendlyName == prod.friendlyClassName_) {
 	  prod.init();
-          newReg->addProduct(prod);
+          newReg->copyProduct(prod);
 	} else {
           BranchDescription newBD(prod);
           newBD.friendlyClassName_ = newFriendlyName;
 	  newBD.init();
-          newReg->addProduct(newBD);
+          newReg->copyProduct(newBD);
 	  // Need to call init to get old branch name.
 	  prod.init();
 	  newBranchToOldBranch_.insert(std::make_pair(newBD.branchName(), prod.branchName()));
