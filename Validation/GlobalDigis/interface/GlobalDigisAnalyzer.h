@@ -7,8 +7,8 @@
  *  containing information about various sub-systems in global coordinates 
  *  with full geometry
  *
- *  $Date: 2008/02/27 18:41:59 $
- *  $Revision: 1.6 $
+ *  $Date: 2008/03/13 21:15:52 $
+ *  $Revision: 1.7 $
  *  \author M. Strang SUNY-Buffalo
  */
 
@@ -93,6 +93,11 @@
 #include "DataFormats/RPCDigi/interface/RPCDigiCollection.h"
 #include "DataFormats/MuonDetId/interface/RPCDetId.h"
 #include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
+
+#include "Geometry/CommonTopologies/interface/RectangularStripTopology.h"
+#include "Geometry/CommonTopologies/interface/TrapezoidalStripTopology.h"
+#include "DataFormats/GeometryVector/interface/GlobalPoint.h"
+#include "DataFormats/GeometryVector/interface/LocalPoint.h"
 
 // event info
 //#include "SimDataFormats/ValidationFormats/interface/PValidationFormats.h"
