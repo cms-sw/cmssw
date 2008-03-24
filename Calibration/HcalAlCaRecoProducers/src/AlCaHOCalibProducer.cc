@@ -39,7 +39,7 @@ Ring 0 L0 : Width Tray 6:266.6, 5&4:325.6, 3:330.6, 2:341.6, 1:272.6
 //
 // Original Author:  Gobinda Majumder
 //         Created:  Fri Jul  6 17:17:21 CEST 2007
-// $Id$
+// $Id: AlCaHOCalibProducer.cc,v 1.2 2008/02/26 08:19:56 kodolova Exp $
 //
 //
 
@@ -270,8 +270,9 @@ AlCaHOCalibProducer::AlCaHOCalibProducer(const edm::ParameterSet& iConfig)
   for (int i=0; i<10; i++) {ho_time[i] = hb_time[i] = 0.0;}
 
   char title[200];
+  theFile = new TFile(theRootFileName.c_str(), "RECREATE");
   if (m_hotime) {
-    theFile = new TFile(theRootFileName.c_str(), "RECREATE");
+//    theFile = new TFile(theRootFileName.c_str(), "RECREATE");
     theFile->cd();
     for (int j=0; j<netamx; j++) {
       for (int i=0; i<nphimx; i++) {
@@ -308,8 +309,9 @@ AlCaHOCalibProducer::~AlCaHOCalibProducer()
    // (e.g. close files, deallocate resources etc.)
 
   // Write the histos to file
-
+  cout<<" Start destructor AlCaHOCalibProducer "<<m_hotime<<endl;
   if (m_hotime) {
+   cout<<" Write histos in AlCaHOCalibProducer "<<endl;
     theFile->cd();
     for (int i=0;i<nphimx; i++) {
       for (int j=0; j<netamx; j++) {
@@ -317,7 +319,9 @@ AlCaHOCalibProducer::~AlCaHOCalibProducer()
 	hopedtime[j][i]->Scale(10./max(1.,hopedtime[j][i]->GetEntries()));
       }
     }
+   cout<<" End of writing histos in AlCaHOCalibProducer "<<endl;
   }
+//  cout<<" What to do with theFile "<<endl;
   theFile->Write();
   theFile->Close();
 
@@ -1051,7 +1055,7 @@ AlCaHOCalibProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   //  cout <<"hostore size "<<hostore->size()<<" "<<iEvent.id().run()<<endl;
   //  cout <<"AlCaHOCalibProducer event # "<<Nevents<<" Run # "<<iEvent.id().run()<<" Evt # "<<iEvent.id().event()<<" "<<hostore->size()<<endl;
 
-
+  // cout<<" HO store size "<<endl;
   if (hostore->size()>0) iEvent.put(hostore, "HOCalibVariableCollection");
 
 
@@ -1094,14 +1098,14 @@ AlCaHOCalibProducer::beginJob(const edm::EventSetup& iSetup)
 // ------------ method called once each job just after ending the event loop  ------------
 void 
 AlCaHOCalibProducer::endJob() {
-
+  cout<<" Start AlCaHOCalibProducer::endJob "<<endl;
   cout <<"ho_time ";
   for (int i=0; i<10; i++) { cout <<ho_time[i]<<" ";} 
   cout<<endl;
   cout <<"hb_time ";
   for (int i=0; i<10; i++) { cout <<hb_time[i]<<" ";} 
   cout<<endl;
-
+  cout<<" End of  AlCaHOCalibProducer::endJob "<<endl;
 }
 
 
