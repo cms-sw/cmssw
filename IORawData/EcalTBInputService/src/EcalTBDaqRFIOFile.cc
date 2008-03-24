@@ -163,7 +163,5 @@ bool EcalTBDaqRFIOFile::checkEndOfFile()
 //Check if the position in file is EOF
 void EcalTBDaqRFIOFile::close()
 {
-//   int closed = rfio_fclose(infile_);
-//   if ( closed < 0 ) 
-//     LogError("EcalTBDaqRFIOFile") << "@SUB=EcalTBDaqRFIOFile:: Unable to close " << filename_ ;
+//  rfio_fclose(infile_);
 }
