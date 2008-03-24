@@ -851,6 +851,8 @@ process.schedule = cms.Schedule(process.p2,process.p)
             p.foos = EDProducer("FooProducer")
             p.bars = EDProducer("BarProducer", foos=InputTag("foos"))
             p.out = OutputModule("PoolOutputModule",fileName=untracked(string("file:foos.root")))
+            p.bars.foos = 'Foosball'
+            self.assertEqual(p.bars.foos, InputTag('Foosball'))
             p.p = Path(p.foos*p.bars)
             p.e = EndPath(p.out)
             p.add_(Service("MessageLogger"))
