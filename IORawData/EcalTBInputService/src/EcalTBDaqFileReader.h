@@ -33,9 +33,6 @@ class EcalTBDaqFileReader  {
   /// Destructor
   virtual ~EcalTBDaqFileReader();
 
-  //Return the instance of the reader
-  //  static EcalTBDaqFileReader * instance();
-
   //Set the initialization bit
   void setInitialized(bool value);
   //Check if initialized or not

@@ -15,24 +15,9 @@
 
 using namespace std;
 using namespace edm;
-//using namespace raw;
-
-// EcalTBDaqFileReader * EcalTBDaqFileReader::instance_=0;
-
-// EcalTBDaqFileReader * EcalTBDaqFileReader::instance(){
-
-//   if (instance_== 0) {
-//     instance_ = new EcalTBDaqFileReader();
-//   }
-//   return instance_;
-
-// }
-
 
 EcalTBDaqFileReader::EcalTBDaqFileReader(): initialized_(false), inputFile_(0) { 
-
   LogDebug("EcalTBInputService") << "@SUB=EcalTBDaqFileReader";
-  //   if(instance_ == 0) instance_ = this;
 
 }
 
@@ -45,11 +30,7 @@ EcalTBDaqFileReader::~EcalTBDaqFileReader(){
     inputFile_->close();
     delete inputFile_;
   }
-  //   instance_=0;
 
-  //Cleaning the event
-  if (cachedData_.fedData)
-    delete[] cachedData_.fedData;
 }
 
 void EcalTBDaqFileReader::setInitialized(bool value){initialized_=value;}
