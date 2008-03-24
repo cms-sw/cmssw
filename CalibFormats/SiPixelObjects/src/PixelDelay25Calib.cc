@@ -138,9 +138,10 @@ int PixelDelay25Calib::getNextOrigRDa(int n) {
   return vecOrigRDa_.at(n);
 }
 
-void PixelDelay25Calib::openFiles(std::string portcardName, std::string moduleName) {
-  graph_ = "graph_"+portcardName+"_"+moduleName+".dat";
-  good_ = "good_"+portcardName+"_"+moduleName+".dat";
+void PixelDelay25Calib::openFiles(std::string portcardName, std::string moduleName, std::string path) {
+  if (path!="") path+="/";
+  graph_ = path+"graph_"+portcardName+"_"+moduleName+".dat";
+  good_ = path+"good_"+portcardName+"_"+moduleName+".dat";
   graphout_.open(graph_.c_str());
   goodout_.open(good_.c_str());
   return;

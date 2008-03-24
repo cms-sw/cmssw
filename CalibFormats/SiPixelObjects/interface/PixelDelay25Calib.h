@@ -39,7 +39,8 @@ namespace pos{
     int getNumberTests() {return numTests_;}
     int getNextOrigSDa(int n);
     int getNextOrigRDa(int n);
-    void openFiles(std::string portcardName, std::string moduleName);
+    void openFiles(std::string portcardName, std::string moduleName, 
+		   std::string path="");
     void writeSettings(std::string portcardName, std::string moduleName);
     void writeFiles(std::string tmp);
     void writeFiles(int currentSDa, int currentRDa, int number);
