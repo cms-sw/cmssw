@@ -8,6 +8,8 @@
 
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
+#include "DataFormats/BeamSpot/interface/BeamSpot.h"
+#include "FWCore/ParameterSet/interface/InputTag.h"
 
 class GlobalTrackingRegionWithVerticesProducer : public TrackingRegionProducer
 {
@@ -19,9 +21,10 @@ public:
 
     thePtMin            = regionPSet.getParameter<double>("ptMin");
     theOriginRadius     = regionPSet.getParameter<double>("originRadius");
-    theOriginHalfLength = regionPSet.getParameter<double>("originHalfLength");
-    theOriginZPos       = regionPSet.getParameter<double>("originZPos");
+    theNSigmaZ          = regionPSet.getParameter<double>("nSigmaZ");
+    theBeamSpotTag      = regionPSet.getParameter<edm::InputTag>("beamSpot");
     thePrecise          = regionPSet.getParameter<bool>("precise"); 
+
     theSigmaZVertex     = regionPSet.getParameter<double>("sigmaZVertex");
     theFixedError       = regionPSet.getParameter<double>("fixedError");
 
@@ -36,42 +39,46 @@ public:
     (const edm::Event& ev, const edm::EventSetup&) const
   {
     std::vector<TrackingRegion* > result;
+
+    GlobalPoint theOrigin;
+    edm::Handle<reco::BeamSpot> bsHandle;
+    ev.getByLabel( theBeamSpotTag, bsHandle);
+    double bsSigmaZ;
+    if(bsHandle.isValid()) {
+      const reco::BeamSpot & bs = *bsHandle; 
+      bsSigmaZ = theNSigmaZ*bs.sigmaZ();
+      theOrigin = GlobalPoint(bs.x0(), bs.y0(), bs.z0());
+    }else{
+      throw cms::Exception("Seeding") << "ERROR: input beamSpot is not valid in GlobalTrackingRegionWithVertices";
+    }
+
     if(theUseFoundVertices)
     {
-      // Get originZPos from list of vertices (first or all)
       edm::Handle<reco::VertexCollection> vertexCollection;
-      //    std::string vertexCollName = iConfig_.getParameter<std::string>("VertexCollection");
       ev.getByLabel(vertexCollName,vertexCollection);
-      //  ev.getByLabel("pixelVertices",vertexCollection);
-
-      //std::cout << "=== DEBUG, vertexCollection->size(): " << vertexCollection->size() << std::endl;
 
       if(vertexCollection->size() > 0) {
 	for(reco::VertexCollection::const_iterator iV=vertexCollection->begin(); iV != vertexCollection->end() ; iV++) {
-	  //	std::cerr << " [TrackProducer] using vertex at z=" << iV->z() << std::endl;
-	  //std::cout << "=== DEBUG, iV->zError(): " << iV->zError() << std::endl;
-	  double theOriginZPos_       = iV->z();
+	  GlobalPoint theOrigin_       = GlobalPoint(iV->x(),iV->y(),iV->z());
 	  double theOriginHalfLength_; 
 	  if(!theUseFixedError) {
-	    theOriginHalfLength_ = (iV->zError())*theSigmaZVertex; // correspond a theSigmaZVertex fois l'erreur sur le vertex cf. 15.9 pour le beamspot
+	    theOriginHalfLength_ = (iV->zError())*theSigmaZVertex; 
 	  }
 	  if(theUseFixedError) {
 	    theOriginHalfLength_ = theFixedError;
 	  }
-
-	  result.push_back( new GlobalTrackingRegion(thePtMin, theOriginRadius, theOriginHalfLength_, theOriginZPos_, thePrecise) );
+	  result.push_back( new GlobalTrackingRegion(thePtMin, theOrigin_, theOriginRadius, theOriginHalfLength_, thePrecise) );
 	}
       }
       
       else {
-        result.push_back( new GlobalTrackingRegion(thePtMin, theOriginRadius, theOriginHalfLength, theOriginZPos, thePrecise) );
+        result.push_back( new GlobalTrackingRegion(thePtMin, theOrigin, theOriginRadius, bsSigmaZ, thePrecise) );
       }
     }
     else
     {
       result.push_back(
-        new GlobalTrackingRegion(thePtMin, theOriginRadius,
-            theOriginHalfLength, theOriginZPos, thePrecise) );
+        new GlobalTrackingRegion(thePtMin, theOrigin, theOriginRadius, bsSigmaZ, thePrecise) );
     }
 
     return result;
@@ -80,8 +87,9 @@ public:
 private:
   double thePtMin; 
   double theOriginRadius; 
-  double theOriginHalfLength; 
-  double theOriginZPos;
+  double theNSigmaZ;
+  edm::InputTag theBeamSpotTag;
+
   double theSigmaZVertex;
   double theFixedError;
   bool thePrecise;
@@ -89,6 +97,8 @@ private:
   bool theUseFoundVertices;
   bool theUseFixedError;
   std::string vertexCollName;
+
+
 };
 
 #endif 
