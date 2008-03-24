@@ -32,6 +32,12 @@ EcalTBDaqFileReader::~EcalTBDaqFileReader(){
     inputFile_=0;
   }
 
+  //Cleaning the event
+  if (cachedData_.len > 0) {
+    delete[] cachedData_.fedData;
+    cachedData_.len = 0;
+  }
+
 }
 
 void EcalTBDaqFileReader::setInitialized(bool value){initialized_=value;}
@@ -76,8 +82,10 @@ bool EcalTBDaqFileReader::fillDaqEventData() {
   const int MAXFEDID = 1024;
 
   //Cleaning the event before filling
-  if (cachedData_.fedData)
+  if (cachedData_.len > 0) {
     delete[] cachedData_.fedData;
+    cachedData_.len = 0;
+  }
 
   pair<int,int> fedInfo;  //int =FED id, int = event data length 
   try 
