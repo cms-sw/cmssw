@@ -1,4 +1,5 @@
 #include "RecoMuon/TrackerSeedGenerator/plugins/SeparatingTSG.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 SeparatingTSG::SeparatingTSG(const edm::ParameterSet &pset):CompositeTSG(pset){}
 
