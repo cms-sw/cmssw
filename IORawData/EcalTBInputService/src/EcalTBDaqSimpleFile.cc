@@ -128,6 +128,5 @@ void EcalTBDaqSimpleFile::close()
 {
   if (infile_) {
     infile_.close();
-    infile_ = 0;
   }
 }
