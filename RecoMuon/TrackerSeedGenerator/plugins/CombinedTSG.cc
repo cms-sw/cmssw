@@ -53,6 +53,7 @@ void CombinedTSG::trackerSeeds(const TrackCand & muonTrackCand, const TrackingRe
 
 
 
+
 // clean pairs seeds if in triplets
 std::vector<TrajectorySeed> CombinedTSG::cleanBySharedInput(const std::vector<TrajectorySeed> & seedTr,const std::vector<TrajectorySeed> & seedPair)
 {
@@ -60,19 +61,21 @@ std::vector<TrajectorySeed> CombinedTSG::cleanBySharedInput(const std::vector<Tr
   // loop over triplets
   std::vector<TrajectorySeed> result;
 
-  for(TrajectorySeedCollection::const_iterator s1 = seedTr.begin(); s1 != seedTr.end(); ++s1){
-     //rechits from seed
+  std::vector<bool> maskPairs = std::vector<bool>(seedPair.size(),true);
+  int iPair = 0;
 
+  for(TrajectorySeedCollection::const_iterator s1 = seedPair.begin(); s1 != seedPair.end(); ++s1){
+     //rechits from seed
      TrajectorySeed::range r1 = s1->recHits();
      if(s1->nHits()==0) continue ;
-     for(TrajectorySeedCollection::const_iterator s2 = seedPair.begin(); s2 != seedPair.end(); ++s2){
+     for(TrajectorySeedCollection::const_iterator s2 = seedTr.begin(); s2 != seedTr.end(); ++s2){
         //empty
         if(s2->nHits()==0) continue ;
 
         TrajectorySeed::range r2 = s2->recHits();
         TrajectorySeed::const_iterator h2 = r2.first;
 
-        //number of shared hits;   
+        //number of shared hits;
         int shared = 0;
 
         for(;h2 < r2.second;h2++){
@@ -81,13 +84,21 @@ std::vector<TrajectorySeed> CombinedTSG::cleanBySharedInput(const std::vector<Tr
              LogDebug(theCategory)<< shared<< " shared hits counter if 2 erease the seed.";
           }
         }
-        if(shared!=2) result.push_back(*s2) ;
-          
-     }//end pairs loop
-    
-   }// end triplets loop
 
+        if(shared ==2) {
+           maskPairs[iPair] = false;
+        }
+
+     }//end triplets loop
+     ++iPair;
+   }// end pairs loop
+
+   iPair = 0;
+   //remove pairs in triplets
+   for(TrajectorySeedCollection::const_iterator s1 = seedPair.begin(); s1 != seedPair.end(); ++s1){
+      if (maskPairs[iPair]) result.push_back(*s1);
+      ++iPair;
+   }
    return result;
 
 }
-
