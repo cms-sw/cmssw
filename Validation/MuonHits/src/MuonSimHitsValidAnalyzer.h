@@ -12,9 +12,13 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
 #include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
 #include "DataFormats/GeometrySurface/interface/BoundPlane.h"
 #include "DataFormats/DetId/interface/DetId.h"
+
+#include "DQMServices/Core/interface/DQMStore.h"
+#include "DQMServices/Core/interface/MonitorElement.h"
 
 /// muon CSC, DT and RPC geometry info
 #include "Geometry/Records/interface/MuonGeometryRecord.h"
@@ -48,6 +52,9 @@
 
 class TH1F;
 class TFile;
+
+namespace edm {
+  class ParameterSet; class Event; class EventSetup;}
 
 class MuonSimHitsValidAnalyzer : public edm::EDAnalyzer
 {
@@ -96,6 +103,9 @@ class MuonSimHitsValidAnalyzer : public edm::EDAnalyzer
   TFile *theCSCFile;
   TFile *theRPCFile;
 
+  // Switch for debug output
+  bool verbose_;
+
 
   /// G4MC info
   int nRawGenPart;
@@ -118,6 +128,124 @@ class MuonSimHitsValidAnalyzer : public edm::EDAnalyzer
   edm::InputTag DTHitsSrc_;
   edm::InputTag RPCHitsSrc_;                                                
   
+  // DaqMonitor element
+  DQMStore* dbeDT_;
+  DQMStore* dbeCSC_; 
+  DQMStore* dbeRPC_;
+
+
+  // Monitor elements
+  // DT
+  MonitorElement* meAllDTHits;
+  MonitorElement* meMuDTHits;
+  MonitorElement* meToF;
+  MonitorElement* meEnergyLoss;
+  MonitorElement* meMomentumMB1;
+  MonitorElement* meMomentumMB4;
+  MonitorElement* meLossMomIron;
+  MonitorElement* meLocalXvsZ;
+  MonitorElement* meLocalXvsY;
+  MonitorElement* meGlobalXvsZ;
+  MonitorElement* meGlobalXvsY;
+  MonitorElement* meGlobalXvsZWm2;
+  MonitorElement* meGlobalXvsZWm1;
+  MonitorElement* meGlobalXvsZW0;
+  MonitorElement* meGlobalXvsZWp1;
+  MonitorElement* meGlobalXvsZWp2;
+  MonitorElement* meGlobalXvsYWm2;
+  MonitorElement* meGlobalXvsYWm1;
+  MonitorElement* meGlobalXvsYW0;
+  MonitorElement* meGlobalXvsYWp1;
+  MonitorElement* meGlobalXvsYWp2;
+  MonitorElement* meWheelOccup;
+  MonitorElement* meStationOccup;
+  MonitorElement* meSectorOccup;
+  MonitorElement* meSuperLOccup;
+  MonitorElement* meLayerOccup;
+  MonitorElement* meWireOccup;
+  MonitorElement* mePathMuon;
+  MonitorElement* meChamberOccup;
+  MonitorElement* meHitRadius;
+  MonitorElement* meCosTheta;
+  MonitorElement* meGlobalEta;
+  MonitorElement* meGlobalPhi;
+
+  //CSC
+  MonitorElement* meAllCSCHits;
+  MonitorElement* meMuCSCHits;
+  MonitorElement* meEnergyLoss_111;
+  MonitorElement* meToF_311;  
+  MonitorElement* meEnergyLoss_112;
+  MonitorElement* meToF_312;
+  MonitorElement* meEnergyLoss_113;
+  MonitorElement* meToF_313;
+  MonitorElement* meEnergyLoss_114;
+  MonitorElement* meToF_314;
+  MonitorElement* meEnergyLoss_121;
+  MonitorElement* meToF_321;
+  MonitorElement* meEnergyLoss_122;
+  MonitorElement* meToF_322;
+  MonitorElement* meEnergyLoss_131;
+  MonitorElement* meToF_331;
+  MonitorElement* meEnergyLoss_132;
+  MonitorElement* meToF_332;
+  MonitorElement* meEnergyLoss_141;
+  MonitorElement* meToF_341;
+  MonitorElement* meEnergyLoss_211;
+  MonitorElement* meToF_411;
+  MonitorElement* meEnergyLoss_212;
+  MonitorElement* meToF_412;
+  MonitorElement* meEnergyLoss_213;
+  MonitorElement* meToF_413;
+  MonitorElement* meEnergyLoss_214;
+  MonitorElement* meToF_414;
+  MonitorElement* meEnergyLoss_221;
+  MonitorElement* meToF_421;
+  MonitorElement* meEnergyLoss_222;
+  MonitorElement* meToF_422;
+  MonitorElement* meEnergyLoss_231;
+  MonitorElement* meToF_431;
+  MonitorElement* meEnergyLoss_232;
+  MonitorElement* meToF_432;
+  MonitorElement* meEnergyLoss_241;
+  MonitorElement* meToF_441;
+
+  //RPC
+  MonitorElement* meAllRPCHits;
+  MonitorElement* meMuRPCHits;
+  MonitorElement* meRegionOccup;
+  MonitorElement* meRingOccBar;
+  MonitorElement* meRingOccEndc;
+  MonitorElement* meStatOccBar;
+  MonitorElement* meStatOccEndc;
+  MonitorElement* meSectorOccBar;
+  MonitorElement* meSectorOccEndc;
+  MonitorElement* meLayerOccBar;
+  MonitorElement* meLayerOccEndc;
+  MonitorElement* meSubSectOccBar;
+  MonitorElement* meSubSectOccEndc;
+  MonitorElement* meRollOccBar;
+  MonitorElement* meRollOccEndc;
+  MonitorElement* meElossBar;
+  MonitorElement* meElossEndc;
+  MonitorElement* mepathRPC;
+  MonitorElement* meMomRB1;
+  MonitorElement* meMomRB4;
+  MonitorElement* meLossMomBar;
+  MonitorElement* meMomRE1;
+  MonitorElement* meMomRE4;
+  MonitorElement* meLossMomEndc; 
+  MonitorElement* meLocalXvsYBar;
+  MonitorElement* meGlobalXvsZBar;
+  MonitorElement* meGlobalXvsYBar;
+  MonitorElement* meLocalXvsYEndc;
+  MonitorElement* meGlobalXvsZEndc;
+  MonitorElement* meGlobalXvsYEndc;
+  MonitorElement* meHitRadiusBar;
+  MonitorElement* meCosThetaBar;
+  MonitorElement* meHitRadiusEndc;
+  MonitorElement* meCosThetaEndc;
+
 
   /// private statistics information
   unsigned int count;

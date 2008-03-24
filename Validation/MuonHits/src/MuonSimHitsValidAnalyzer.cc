@@ -1,5 +1,4 @@
 #include "Validation/MuonHits/src/MuonSimHitsValidAnalyzer.h"
-#include "Validation/MuonHits/interface/HistoMgr.h"
 
 #include "TFile.h"
 #include "TTree.h"
@@ -8,6 +7,9 @@
 
 #include <iostream>
 #include <string>
+
+using namespace edm;
+using namespace std;
 
 
 MuonSimHitsValidAnalyzer::MuonSimHitsValidAnalyzer(const edm::ParameterSet& iPSet) :
@@ -29,14 +31,14 @@ MuonSimHitsValidAnalyzer::MuonSimHitsValidAnalyzer(const edm::ParameterSet& iPSe
    nRawGenPart = 0;
  // ROOT Histos output files
   DToutputFile_ =  iPSet.getUntrackedParameter<std::string>("DT_outputFile", ""); 
-  CSCoutputFile_ =  iPSet.getUntrackedParameter<std::string>("CSC_outputFile", "");
-  RPCoutputFile_ =  iPSet.getUntrackedParameter<std::string>("RPC_outputFile", "");
+//  CSCoutputFile_ =  iPSet.getUntrackedParameter<std::string>("CSC_outputFile", "");
+//  RPCoutputFile_ =  iPSet.getUntrackedParameter<std::string>("RPC_outputFile", "");
 
 
   /// get labels for input tags
-   CSCHitsSrc_ = iPSet.getParameter<edm::InputTag>("CSCHitsSrc");
+ //  CSCHitsSrc_ = iPSet.getParameter<edm::InputTag>("CSCHitsSrc");
    DTHitsSrc_  = iPSet.getParameter<edm::InputTag>("DTHitsSrc");
-   RPCHitsSrc_ = iPSet.getParameter<edm::InputTag>("RPCHitsSrc");
+ //  RPCHitsSrc_ = iPSet.getParameter<edm::InputTag>("RPCHitsSrc");
 
   /// use value of first digit to determine default output level (inclusive)
   /// 0 is none, 1 is basic, 2 is fill output, 3 is gather output
@@ -53,18 +55,73 @@ MuonSimHitsValidAnalyzer::MuonSimHitsValidAnalyzer(const edm::ParameterSet& iPSe
       << "    Label     = " << label << "\n"
       << "    GetProv   = " << getAllProvenances << "\n"
       << "    PrintProv = " << printProvenanceInfo << "\n"
-      << "    CSCHitsSrc=  " <<CSCHitsSrc_.label() 
-      << ":" << CSCHitsSrc_.instance() << "\n"
+  //    << "    CSCHitsSrc=  " <<CSCHitsSrc_.label() 
+  //    << ":" << CSCHitsSrc_.instance() << "\n"
       << "    DTHitsSrc =  " <<DTHitsSrc_.label()
       << ":" << DTHitsSrc_.instance() << "\n"
-      << "    RPCHitsSrc=  " <<RPCHitsSrc_.label()
-      << ":" << RPCHitsSrc_.instance() << "\n"
+ //     << "    RPCHitsSrc=  " <<RPCHitsSrc_.label()
+ //     << ":" << RPCHitsSrc_.instance() << "\n"
       << "===============================\n";
   }
 
+   // ----------------------
+  // get hold of back-end interface DT
+  dbeDT_ = 0;
+  dbeDT_ = Service<DQMStore>().operator->();
+  if ( dbeDT_ ) {
+    if ( verbose_ ) {
+      dbeDT_->setVerbose(1);
+    } else {
+      dbeDT_->setVerbose(0);
+    }
+  }
+  if ( dbeDT_ ) {
+    if ( verbose_ ) dbeDT_->showDirStructure();
+  }
+
+  // ----------------------
+
+
  bookHistos_DT();
+
+/*
+   // get hold of back-end interface CSC
+  dbeCSC_ = 0;
+  dbeCSC_ = Service<DQMStore>().operator->();
+  if ( dbeCSC_ ) {
+    if ( verbose_ ) {
+      dbeCSC_->setVerbose(1);
+    } else {
+      dbeCSC_->setVerbose(0);
+    }
+  }
+  if ( dbeCSC_ ) {
+    if ( verbose_ ) dbeCSC_->showDirStructure();
+  }
+
+  // ----------------------
+
  bookHistos_CSC();
+
+   // get hold of back-end interface RPC
+  dbeRPC_ = 0;
+  dbeRPC_ = Service<DQMStore>().operator->();
+  if ( dbeRPC_ ) {
+    if ( verbose_ ) {
+      dbeRPC_->setVerbose(1);
+    } else {
+      dbeRPC_->setVerbose(0);
+    }
+  }
+  if ( dbeRPC_ ) {
+    if ( verbose_ ) dbeRPC_->showDirStructure();
+  }
+
+  // ----------------------
+
  bookHistos_RPC();
+*/
+
  pow6=1000000.0; 
  mom4 =0.;
  mom1 = 0; 
@@ -82,8 +139,8 @@ MuonSimHitsValidAnalyzer::MuonSimHitsValidAnalyzer(const edm::ParameterSet& iPSe
 MuonSimHitsValidAnalyzer::~MuonSimHitsValidAnalyzer() 
 {
  theDTFile->Close();
- theCSCFile->Close();
- theRPCFile->Close();
+// theCSCFile->Close();
+// theRPCFile->Close();
 }
 
 void MuonSimHitsValidAnalyzer::beginJob(const edm::EventSetup& iSetup)
@@ -93,242 +150,579 @@ void MuonSimHitsValidAnalyzer::beginJob(const edm::EventSetup& iSetup)
 
 void MuonSimHitsValidAnalyzer::bookHistos_DT()
 {
-  HistoMgr* hmgr = HistoMgr::getInstance();
-  string hnam;
+  meAllDTHits =0 ;
+  meMuDTHits =0 ;
+  meToF =0 ;
+  meEnergyLoss =0 ;
+  meMomentumMB1 =0 ;
+  meMomentumMB4 =0 ;
+  meLossMomIron =0 ;
+  meLocalXvsZ =0 ;
+  meLocalXvsY =0 ;
+  meGlobalXvsZ =0 ;
+  meGlobalXvsY =0 ;
+  meGlobalXvsZWm2 =0 ;
+  meGlobalXvsZWm1 =0 ; 
+  meGlobalXvsZW0 =0 ;
+  meGlobalXvsZWp1 =0 ;
+  meGlobalXvsZWp2 =0 ;
+  meGlobalXvsYWm2 =0 ;
+  meGlobalXvsYWm1 =0 ;
+  meGlobalXvsYW0 =0 ;
+  meGlobalXvsYWp1 =0 ;
+  meGlobalXvsYWp2 =0 ;
+  meWheelOccup =0 ;
+  meStationOccup =0 ;
+  meSectorOccup =0 ;
+  meSuperLOccup =0 ;
+  meLayerOccup =0 ;
+  meWireOccup =0 ;
+  mePathMuon =0 ;
+  meChamberOccup =0 ;
+  meHitRadius =0 ;
+  meCosTheta =0 ;
+  meGlobalEta =0 ;
+  meGlobalPhi =0 ;
 
-   theDTFile = new TFile(DToutputFile_.c_str(),"RECREATE");
-   theDTFile->cd();
+  theDTFile = new TFile(DToutputFile_.c_str(),"RECREATE");
+  theDTFile->cd();
 
-   hnam = ("Number_of_all_DT_hits " );
-   hmgr->addHisto1( 1000, new TH1F(hnam.c_str(),hnam.c_str(), 150, 1.0, 151.0) );
+  Char_t histo_n[100];
+  Char_t histo_t[100];
 
-   hnam = ("Number_of_muon_DT_hits" );
-   hmgr->addHisto1( 1020, new TH1F(hnam.c_str(),hnam.c_str(),50, 1.0, 51.0) );
-
-   hnam = ("Tof_of_hits " );
-   hmgr->addHisto1( 1001, new TH1F(hnam.c_str(),hnam.c_str(), 100, -0.5, 50.) );
-   
-   hnam = ("DT_energy_loss" );
-   hmgr->addHisto1( 1002, new TH1F(hnam.c_str(),hnam.c_str(), 100, 0.0, 10.0) );
-
-   hnam = ("Momentum_at_MB1" );
-   hmgr->addHisto1( 1003, new TH1F(hnam.c_str(),hnam.c_str(), 100, 10.0, 200.0) );
-
-   hnam = ("Momentum_at_MB4" );
-   hmgr->addHisto1( 1004, new TH1F(hnam.c_str(),hnam.c_str(), 100, 10.0, 200.0) );
-
-   hnam = ("Loss_of_muon_Momentum_in_Iron" );
-   hmgr->addHisto1( 1005, new TH1F(hnam.c_str(),hnam.c_str(), 80, 0.0, 40.0) );
-
-   hnam = ("Local_x-coord_vs_local_z-coord_of_muon_hit" );
-   hmgr->addHisto2(1006, new TH2F(hnam.c_str(),hnam.c_str(), 100, -150., 150., 100, -0.8, 0.8 ) );
-
-   hnam = ("local_x-coord_vs_local_y-coord_of_muon_hit" );
-   hmgr->addHisto2(1007, new TH2F(hnam.c_str(),hnam.c_str(), 100, -150., 150., 100, -150., 150. ) );
-
-   hnam = ("Global_x-coord_vs_global_z-coord_of_muon_hit" );
-   hmgr->addHisto2(1008, new TH2F(hnam.c_str(),hnam.c_str(), 100, -800., 800., 100, -800., 800. ) );
-
-   hnam = ("Global_x-coord_vs_global_y-coord_of_muon_hit" );
-   hmgr->addHisto2(1009, new TH2F(hnam.c_str(),hnam.c_str(), 100, -800., 800., 100, -800., 800. ) ) ;
-
-   hnam = ("Wheel_occupancy" );
-   hmgr->addHisto1( 1010, new TH1F(hnam.c_str(),hnam.c_str(), 10, -5.0, 5.0) );
-
-   hnam = ("Station_occupancy" );
-   hmgr->addHisto1( 1011,  new TH1F(hnam.c_str(),hnam.c_str(), 6, 0., 6.0) );
-   
-   hnam = ("Sector_occupancy" );
-   hmgr->addHisto1( 1012,  new TH1F(hnam.c_str(),hnam.c_str(), 20, 0., 20.) );
+  if ( dbeDT_ ) {
+    dbeDT_->setCurrentFolder("MuonDTHitsV/DTHitsValidationTask");
  
-   hnam = ("SuperLayer_occupancy" );
-   hmgr->addHisto1( 1013, new TH1F(hnam.c_str(),hnam.c_str(), 5, 0., 5.) );
-
-   hnam = ("Layer_occupancy" );
-   hmgr->addHisto1( 1014, new TH1F(hnam.c_str(),hnam.c_str(), 6, 0., 6.) );
-
-   hnam = ("Wire_occupancy" );
-   hmgr->addHisto1( 1015, new TH1F(hnam.c_str(),hnam.c_str(), 100, 0., 100.) );
-
-   hnam = ("path_followed_by_muon" );
-   hmgr->addHisto1( 1016, new TH1F(hnam.c_str(),hnam.c_str(), 160, 0., 160.) );
+    sprintf (histo_n, "Number_of_all_DT_hits" );
+    sprintf (histo_t, "Number_of_all_DT_hits" );
+    meAllDTHits = dbeDT_->book1D(histo_n, histo_t,  150, 1.0, 151.0) ;
  
-   hnam = ("chamber_occupancy" );
-   hmgr->addHisto1( 1017, new TH1F(hnam.c_str(),hnam.c_str(), 251, 0., 251.) );
+    sprintf (histo_n, "Number_of_muon_DT_hits" );
+    sprintf (histo_t, "Number_of_muon_DT_hits" );
+    meMuDTHits  = dbeDT_->book1D(histo_n, histo_t, 50, 1.0, 51.0);
 
-   hnam = ("radius_of_hit");
-   hmgr->addHisto1( 1018,new TH1F(hnam.c_str(),hnam.c_str(), 100, 0., 1200. ));
+    sprintf (histo_n, "Tof_of_hits " );
+    sprintf (histo_t, "Tof_of_hits " );
+    meToF = dbeDT_->book1D(histo_n, histo_t, 100, -0.5, 50.) ;
 
-   hnam = ("costheta_of_hit" );
-   hmgr->addHisto1( 1019,new TH1F(hnam.c_str(),hnam.c_str(), 100, -1., 1.) );
+    sprintf (histo_n, "DT_energy_loss" );
+    sprintf (histo_t, "DT_energy_loss" );
+    meEnergyLoss  = dbeDT_->book1D(histo_n, histo_t, 100, 0.0, 10.0);
 
-   hnam = ("global_eta_of_hit" );
-   hmgr->addHisto1( 1022,new TH1F(hnam.c_str(),hnam.c_str(), 60, -2.7, 2.7 ) );
+    sprintf (histo_n, "Momentum_at_MB1" );
+    sprintf (histo_t, "Momentum_at_MB1" );
+    meMomentumMB1 = dbeDT_->book1D(histo_n, histo_t, 100, 10.0, 200.0);
 
-   hnam = ("global_phi_of_hit" );
-   hmgr->addHisto1( 1021, new TH1F(hnam.c_str(),hnam.c_str(), 60, -3.14, 3.14) ) ;
+    sprintf (histo_n, "Momentum_at_MB4" );
+    sprintf (histo_t, "Momentum_at_MB4" );
+    meMomentumMB4 = dbeDT_->book1D(histo_n, histo_t, 100, 10.0, 200.0) ;
 
-//   theDTFile->ls();
+    sprintf (histo_n, "Loss_of_muon_Momentum_in_Iron" );
+    sprintf (histo_t, "Loss_of_muon_Momentum_in_Iron" );
+    meLossMomIron  = dbeDT_->book1D(histo_n, histo_t, 80, 0.0, 40.0) ;
+
+    sprintf (histo_n, "Local_x-coord_vs_local_z-coord_of_muon_hit" );    
+    sprintf (histo_t, "Local_x-coord_vs_local_z-coord_of_muon_hit" );
+    meLocalXvsZ = dbeDT_->book2D(histo_n, histo_t,100, -150., 150., 100, -0.8, 0.8 ) ;
+
+    sprintf (histo_n, "local_x-coord_vs_local_y-coord_of_muon_hit" );
+    sprintf (histo_t, "local_x-coord_vs_local_y-coord_of_muon_hit" );
+    meLocalXvsY = dbeDT_->book2D(histo_n, histo_t, 100, -150., 150., 100, -150., 150. );
+
+    sprintf (histo_n, "Global_x-coord_vs_global_z-coord_of_muon_hit" );
+    sprintf (histo_t, "Global_x-coord_vs_global_z-coord_of_muon_hit" );
+    meGlobalXvsZ = dbeDT_->book2D(histo_n, histo_t, 100, -800., 800., 100, -800., 800. ) ;
+
+    sprintf (histo_n, "Global_x-coord_vs_global_y-coord_of_muon_hit" );
+    sprintf (histo_t, "Global_x-coord_vs_global_y-coord_of_muon_hit" );
+    meGlobalXvsY = dbeDT_->book2D(histo_n, histo_t, 100, -800., 800., 100, -800., 800. ) ; 
+
+//   New histos
+
+    sprintf (histo_n, "Global_x-coord_vs_global_z-coord_of_muon_hit_w-2" );
+    sprintf (histo_t, "Global_x-coord_vs_global_z-coord_of_muon_hit_w-2" );
+    meGlobalXvsZWm2 = dbeDT_->book2D(histo_n, histo_t, 100, -800., 800., 100, -800., 800. );
+
+    sprintf (histo_n, "Global_x-coord_vs_global_y-coord_of_muon_hit_w-2" );
+    sprintf (histo_t, "Global_x-coord_vs_global_y-coord_of_muon_hit_w-2" );
+    meGlobalXvsYWm2 = dbeDT_->book2D(histo_n, histo_t,  100, -800., 800., 100, -800., 800. );
+ 
+    sprintf (histo_n, "Global_x-coord_vs_global_z-coord_of_muon_hit_w-1" );
+    sprintf (histo_t, "Global_x-coord_vs_global_z-coord_of_muon_hit_w-1" );
+    meGlobalXvsZWm1 = dbeDT_->book2D(histo_n, histo_t, 100, -800., 800., 100, -800., 800. );
+
+    sprintf (histo_n, "Global_x-coord_vs_global_y-coord_of_muon_hit_w-1" );
+    sprintf (histo_t, "Global_x-coord_vs_global_y-coord_of_muon_hit_w-1" );
+    meGlobalXvsYWm1 = dbeDT_->book2D(histo_n, histo_t,  100, -800., 800., 100, -800., 800. );
+  
+    sprintf (histo_n, "Global_x-coord_vs_global_z-coord_of_muon_hit_w0" );
+    sprintf (histo_t, "Global_x-coord_vs_global_z-coord_of_muon_hit_w0" );
+    meGlobalXvsZW0 = dbeDT_->book2D(histo_n, histo_t, 100, -800., 800., 100, -800., 800. );
+
+    sprintf (histo_n, "Global_x-coord_vs_global_y-coord_of_muon_hit_w0" );
+    sprintf (histo_t, "Global_x-coord_vs_global_y-coord_of_muon_hit_w0" );
+    meGlobalXvsYW0 = dbeDT_->book2D(histo_n, histo_t,  100, -800., 800., 100, -800., 800. );
+
+    sprintf (histo_n, "Global_x-coord_vs_global_z-coord_of_muon_hit_w1" );
+    sprintf (histo_t, "Global_x-coord_vs_global_z-coord_of_muon_hit_w1" );
+    meGlobalXvsZWp1 = dbeDT_->book2D(histo_n, histo_t, 100, -800., 800., 100, -800., 800. );
+
+    sprintf (histo_n, "Global_x-coord_vs_global_y-coord_of_muon_hit_w1" );
+    sprintf (histo_t, "Global_x-coord_vs_global_y-coord_of_muon_hit_w1" );
+    meGlobalXvsYWp1 = dbeDT_->book2D(histo_n, histo_t,  100, -800., 800., 100, -800., 800. );
+
+    sprintf (histo_n, "Global_x-coord_vs_global_z-coord_of_muon_hit_w2" );
+    sprintf (histo_t, "Global_x-coord_vs_global_z-coord_of_muon_hit_w2" );
+    meGlobalXvsZWp2 = dbeDT_->book2D(histo_n, histo_t, 100, -800., 800., 100, -800., 800. );
+
+    sprintf (histo_n, "Global_x-coord_vs_global_y-coord_of_muon_hit_w2" );
+    sprintf (histo_t, "Global_x-coord_vs_global_y-coord_of_muon_hit_w2" );
+    meGlobalXvsYWp2 = dbeDT_->book2D(histo_n, histo_t,  100, -800., 800., 100, -800., 800. );
+
+//
+
+    sprintf (histo_n, "Wheel_occupancy" );
+    sprintf (histo_t, "Wheel_occupancy" );
+    meWheelOccup = dbeDT_->book1D(histo_n, histo_t, 10, -5.0, 5.0) ;
+
+    sprintf (histo_n, "Station_occupancy" );
+    sprintf (histo_t, "Station_occupancy" );
+    meStationOccup = dbeDT_->book1D(histo_n, histo_t, 6, 0., 6.0) ; 
+
+    sprintf (histo_n, "Sector_occupancy" );
+    sprintf (histo_t, "Sector_occupancy" );
+    meSectorOccup = dbeDT_->book1D(histo_n, histo_t, 20, 0., 20.) ;
+
+    sprintf (histo_n, "SuperLayer_occupancy" );
+    sprintf (histo_t, "SuperLayer_occupancy" );
+    meSuperLOccup = dbeDT_->book1D(histo_n, histo_t, 5, 0., 5.) ;
+
+    sprintf (histo_n, "Layer_occupancy" );
+    sprintf (histo_t, "Layer_occupancy" );
+    meLayerOccup = dbeDT_->book1D(histo_n, histo_t,6, 0., 6.) ;
+
+    sprintf (histo_n, "Wire_occupancy" );
+    sprintf (histo_t, "Wire_occupancy" );
+    meWireOccup = dbeDT_->book1D(histo_n, histo_t, 100, 0., 100.) ;
+
+    sprintf (histo_n, "path_followed_by_muon" );
+    sprintf (histo_t, "path_followed_by_muon" );
+    mePathMuon = dbeDT_->book1D(histo_n, histo_t, 160, 0., 160.) ;
+ 
+    sprintf (histo_n, "chamber_occupancy" ); 
+    sprintf (histo_t, "chamber_occupancy" );
+    meChamberOccup = dbeDT_->book1D(histo_n, histo_t,  251, 0., 251.) ;
+
+    sprintf (histo_n, "radius_of_hit");
+    sprintf (histo_t, "radius_of_hit");
+    meHitRadius = dbeDT_->book1D(histo_n, histo_t, 100, 0., 1200. );
+
+    sprintf (histo_n, "costheta_of_hit" ); 
+    sprintf (histo_t, "costheta_of_hit" );
+    meCosTheta = dbeDT_->book1D(histo_n, histo_t,  100, -1., 1.) ;
+
+    sprintf (histo_n, "global_eta_of_hit" );
+    sprintf (histo_t, "global_eta_of_hit" );
+    meGlobalEta = dbeDT_->book1D(histo_n, histo_t, 60, -2.7, 2.7 ); 
+ 
+    sprintf (histo_n, "global_phi_of_hit" ); 
+    sprintf (histo_t, "global_phi_of_hit" );
+    meGlobalPhi = dbeDT_->book1D(histo_n, histo_t, 60, -3.14, 3.14);
+
+  }
+
 }
 
 void MuonSimHitsValidAnalyzer::bookHistos_RPC()
 {
-   HistoMgr* hmgr = HistoMgr::getInstance();
-   string hnam;
-
-   theRPCFile = new TFile(RPCoutputFile_.c_str(),"RECREATE");
-   theRPCFile->cd();
-
-
-   hnam = ("Number_of_all_RPC_hits" );
-   hmgr->addHisto1( 3000, new TH1F(hnam.c_str(),hnam.c_str(), 100, 1.0, 101.0) );
-
-   hnam = ("Region_occupancy");
-   hmgr->addHisto1( 3001, new TH1F(hnam.c_str(),hnam.c_str(), 6, -3.0, 3.0) );
- 
-   hnam = ("Ring_occupancy_barrel");
-   hmgr->addHisto1( 3002, new TH1F(hnam.c_str(),hnam.c_str(),8, -3., 5.0) );
-
-   hnam = ("Ring_occupancy_endcaps");
-   hmgr->addHisto1( 3003, new TH1F(hnam.c_str(),hnam.c_str(),8, -3., 5.0) );
-
-   hnam = ("Station_occupancy_barrel");
-   hmgr->addHisto1( 3004, new TH1F(hnam.c_str(),hnam.c_str(), 8, 0., 8.) );
-
-   hnam = ("Station_occupancy_endcaps" );
-   hmgr->addHisto1( 3005, new TH1F(hnam.c_str(),hnam.c_str(), 8, 0., 8.) );
-
-   hnam = ("Sector_occupancy_barrel" );
-   hmgr->addHisto1( 3006, new TH1F(hnam.c_str(),hnam.c_str(), 16, 0., 16.) );
-
-   hnam = ("Sector_occupancy_endcaps" );
-   hmgr->addHisto1( 3007, new TH1F(hnam.c_str(),hnam.c_str(), 16, 0., 16.) ); 
-
-   hnam = ("Layer_occupancy_barrel" );
-   hmgr->addHisto1( 3008, new TH1F(hnam.c_str(),hnam.c_str(), 4, 0., 4.) );
-
-   hnam = ("Layer_occupancy_endcaps" );
-   hmgr->addHisto1( 3009, new TH1F(hnam.c_str(),hnam.c_str(), 4, 0., 4.) );
-
-   hnam = ("Subsector_occupancy_barrel" );
-   hmgr->addHisto1( 3010, new TH1F(hnam.c_str(),hnam.c_str(), 10, 0., 10.) );
-
-   hnam = ("Subsector_occupancy_endcaps" );
-   hmgr->addHisto1( 3011, new TH1F(hnam.c_str(),hnam.c_str(), 10, 0., 10.) );
-
-   hnam = ("Roll_occupancy_barrel" );
-   hmgr->addHisto1( 3012, new TH1F(hnam.c_str(),hnam.c_str(), 6, 0., 6.) );
-
-   hnam = ("Roll_occupancy_endcaps" );
-   hmgr->addHisto1( 3013, new TH1F(hnam.c_str(),hnam.c_str(), 6, 0., 6.) );
-
-   hnam = ("RPC_energy_loss_barrel" );
-   hmgr->addHisto1( 3014, new TH1F(hnam.c_str(),hnam.c_str(), 50, 0.0, 10.0) );
-
-   hnam = ("RPC_energy_loss_endcaps" );
-   hmgr->addHisto1( 3015, new TH1F(hnam.c_str(),hnam.c_str(), 50, 0.0, 10.0)  );
-
-   hnam = ("path_followed_by_muon" );
-   hmgr->addHisto1( 3016, new TH1F(hnam.c_str(),hnam.c_str(), 160, 0., 160.) );
-
-   hnam = ("Momentum_at_RB1") ;
-   hmgr->addHisto1( 3017, new TH1F(hnam.c_str(),hnam.c_str(), 80, 10.0, 200.0) );
-
-   hnam = ("Momentum_at_RB4") ;
-   hmgr->addHisto1( 3018, new TH1F(hnam.c_str(),hnam.c_str(), 80, 10.0, 200.0) );
-
-   hnam = ("Loss_of_muon_Momentum_in_Iron_barrel" );
-   hmgr->addHisto1( 3019, new TH1F(hnam.c_str(),hnam.c_str(), 80, 0.0, 40.0) );
-
-   hnam = ("Momentum_at_RE1");
-   hmgr->addHisto1( 3020, new TH1F(hnam.c_str(),hnam.c_str(), 100, 10.0, 300.0) );
-
-   hnam = ("Momentum_at_RE4") ;
-   hmgr->addHisto1( 3021, new TH1F(hnam.c_str(),hnam.c_str(), 100, 10.0, 300.0) );
-
-   hnam = ("Loss_of_muon_Momentum_in_Iron_endcap" );
-   hmgr->addHisto1( 3022, new TH1F(hnam.c_str(),hnam.c_str(), 80, 0.0, 40.0) );
-
-   hnam = ("local_x-coord_vs_local_y-coord_of_muon_hit") ;
-   hmgr->addHisto2( 3023, new TH2F(hnam.c_str(),hnam.c_str(), 100, -150., 150., 100, -100., 100. ) );
-
-   hnam = ("Global_z-coord_vs_global_x-coord_of_muon_hit_barrel" );
-   hmgr->addHisto2( 3024, new TH2F(hnam.c_str(),hnam.c_str(), 100, -800., 800., 100, -800., 800. ) );
-
-   hnam = ("Global_x-coord_vs_global_y-coord_of_muon_hit_barrel" );
-   hmgr->addHisto2( 3025, new TH2F(hnam.c_str(),hnam.c_str(), 100, -800., 800., 100, -800., 800. ) );
-
-   hnam = ("radius_of_hit_barrel" );
-   hmgr->addHisto1( 3026, new TH1F(hnam.c_str(),hnam.c_str(), 100, 0., 1200.) );
-
-   hnam = ("radius_of_hit_endcaps" );
-   hmgr->addHisto1( 3027, new TH1F(hnam.c_str(),hnam.c_str(), 100, 0., 1300.) );
-
-   hnam = ("costheta_of_hit_barrel" ) ;
-   hmgr->addHisto1( 3028, new TH1F(hnam.c_str(),hnam.c_str(), 100, -1., 1.) );
-
-   hnam = ("costheta_of_hit_endcaps" );
-   hmgr->addHisto1( 3029, new TH1F(hnam.c_str(),hnam.c_str(), 100, -1., 1.) );
-
-   hnam = ("Global_z-coord_vs_global_x-coord_of_muon_hit_endcaps" );
-   hmgr->addHisto2( 3030, new TH2F(hnam.c_str(),hnam.c_str(), 100, -1200., 1200., 100, -800., 800. ) );
-
-   hnam = ("Global_x-coord_vs_global_y-coord_of_muon_hit_endcaps" );
-   hmgr->addHisto2( 3031, new TH2F(hnam.c_str(),hnam.c_str(), 100, -800., 800., 100, -800., 800. ) ); 
-
-   hnam = ("Number_of_muon_RPC_hits" );
-   hmgr->addHisto1( 3032, new TH1F(hnam.c_str(),hnam.c_str(), 50, 1.0, 51.0) );
+  meAllRPCHits = 0 ;
+  meMuRPCHits = 0 ; 
+  meRegionOccup = 0 ;
+  meRingOccBar = 0 ;
+  meRingOccEndc = 0 ;
+  meStatOccBar = 0 ;
+  meStatOccEndc = 0 ;
+  meSectorOccBar = 0 ;
+  meSectorOccEndc = 0 ;
+  meLayerOccBar = 0 ;
+  meLayerOccEndc = 0 ;
+  meSubSectOccBar = 0 ;
+  meSubSectOccEndc = 0 ;
+  meRollOccBar = 0 ;
+  meRollOccEndc = 0 ;
+  meElossBar = 0 ;
+  meElossEndc = 0 ;
+  mepathRPC = 0 ;
+  meMomRB1 = 0 ;
+  meMomRB4 = 0 ;
+  meLossMomBar = 0 ;
+  meMomRE1 = 0 ;
+  meMomRE4 = 0 ;
+  meLossMomEndc = 0 ;
+  meLocalXvsYBar = 0 ;
+  meGlobalXvsZBar = 0 ;
+  meGlobalXvsYBar = 0 ;
+  meLocalXvsYEndc = 0 ;
+  meGlobalXvsZEndc = 0 ;
+  meGlobalXvsYEndc = 0 ;
+  meHitRadiusBar = 0 ;
+  meCosThetaBar = 0 ;
+  meHitRadiusEndc = 0 ;
+  meCosThetaEndc = 0 ;
   
-//   theRPCFile->ls();
+  theRPCFile = new TFile(RPCoutputFile_.c_str(),"RECREATE");
+  theRPCFile->cd();
+ 
+  Char_t histo_n[100];
+  Char_t histo_t[100];
+
+   if ( dbeRPC_ ) {
+    dbeRPC_->setCurrentFolder("MuonRPCHitsV/RPCHitsValidationTask");
+
+    sprintf (histo_n, "Number_of_all_RPC_hits" );
+    sprintf (histo_t, "Number_of_all_RPC_hits" );
+    meAllRPCHits = dbeRPC_->book1D(histo_n, histo_t,  100, 1.0, 101.0) ;
+
+    sprintf (histo_n, "Number_of_muon_RPC_hits" );
+    sprintf (histo_t, "Number_of_muon_RPC_hits" );
+    meMuRPCHits = dbeRPC_->book1D(histo_n, histo_t,  50, 1., 51.);
+
+    sprintf (histo_n, "Region_occupancy");
+    sprintf (histo_t, "Region_occupancy");
+    meRegionOccup  = dbeRPC_->book1D(histo_n, histo_t, 6, -3.0, 3.0) ;
+
+    sprintf (histo_n, "Ring_occupancy_barrel");
+    sprintf (histo_t, "Ring_occupancy_barrel");
+    meRingOccBar = dbeRPC_->book1D(histo_n, histo_t, 8, -3., 5.0) ;
+
+    sprintf (histo_n, "Ring_occupancy_endcaps");
+    sprintf (histo_t, "Ring_occupancy_endcaps");
+    meRingOccEndc = dbeRPC_->book1D(histo_n, histo_t, 8, -3., 5.0) ;
+ 
+    sprintf (histo_n, "Station_occupancy_barrel");
+    sprintf (histo_t, "Station_occupancy_barrel");
+    meStatOccBar = dbeRPC_->book1D(histo_n, histo_t, 8, 0., 8.);
+
+    sprintf (histo_n, "Station_occupancy_endcaps" );
+    sprintf (histo_t, "Station_occupancy_endcaps" );
+    meStatOccEndc = dbeRPC_->book1D(histo_n, histo_t, 8, 0., 8.);
+
+    sprintf (histo_n, "Sector_occupancy_barrel" );
+    sprintf (histo_t, "Sector_occupancy_barrel" );
+    meSectorOccBar = dbeRPC_->book1D(histo_n, histo_t, 16, 0., 16.) ;
+ 
+    sprintf (histo_n, "Sector_occupancy_endcaps" ); 
+    sprintf (histo_t, "Sector_occupancy_endcaps" );
+    meSectorOccEndc = dbeRPC_->book1D(histo_n, histo_t, 16, 0., 16.) ;
+
+    sprintf (histo_n, "Layer_occupancy_barrel" );
+    sprintf (histo_t, "Layer_occupancy_barrel" );
+    meLayerOccBar = dbeRPC_->book1D(histo_n, histo_t,4, 0., 4.) ;
+
+    sprintf (histo_n, "Layer_occupancy_endcaps" );
+    sprintf (histo_t, "Layer_occupancy_endcaps" );
+    meLayerOccEndc = dbeRPC_->book1D(histo_n, histo_t,4, 0., 4.) ;
+  
+    sprintf (histo_n, "Subsector_occupancy_barrel" );
+    sprintf (histo_t, "Subsector_occupancy_barrel" );
+    meSubSectOccBar = dbeRPC_->book1D(histo_n, histo_t, 10, 0., 10.) ;
+
+    sprintf (histo_n, "Subsector_occupancy_endcaps" );
+    sprintf (histo_t, "Subsector_occupancy_endcaps" );
+    meSubSectOccEndc = dbeRPC_->book1D(histo_n, histo_t, 10, 0., 10.) ;
+
+    sprintf (histo_n, "Roll_occupancy_barrel" );
+    sprintf (histo_t, "Roll_occupancy_barrel" );
+    meRollOccBar = dbeRPC_->book1D(histo_n, histo_t,  6, 0., 6.) ;
+
+    sprintf (histo_n, "Roll_occupancy_endcaps" );
+    sprintf (histo_t, "Roll_occupancy_endcaps" );
+    meRollOccEndc = dbeRPC_->book1D(histo_n, histo_t,  6, 0., 6.) ;
+ 
+    sprintf (histo_n, "RPC_energy_loss_barrel" );   
+    sprintf (histo_t, "RPC_energy_loss_barrel" );
+    meElossBar = dbeRPC_->book1D(histo_n, histo_t, 50, 0.0, 10.0) ;
+
+    sprintf (histo_n, "RPC_energy_loss_endcaps" );
+    sprintf (histo_t, "RPC_energy_loss_endcaps" );
+    meElossEndc = dbeRPC_->book1D(histo_n, histo_t, 50, 0.0, 10.0) ;
+
+    sprintf (histo_n, "path_followed_by_muon" );
+    sprintf (histo_t, "path_followed_by_muon" );
+    mepathRPC = dbeRPC_->book1D(histo_n, histo_t, 160, 0., 160.) ;
+
+    sprintf (histo_n, "Momentum_at_RB1") ;
+    sprintf (histo_t, "Momentum_at_RB1") ;
+    meMomRB1 = dbeRPC_->book1D(histo_n, histo_t, 80, 10.0, 200.0) ;
+
+    sprintf (histo_n, "Momentum_at_RB4") ;
+    sprintf (histo_t, "Momentum_at_RB4") ;
+    meMomRB4 = dbeRPC_->book1D(histo_n, histo_t, 80, 10.0, 200.0) ;
+
+    sprintf (histo_n, "Loss_of_muon_Momentum_in_Iron_barrel" );
+    sprintf (histo_t, "Loss_of_muon_Momentum_in_Iron_barrel" );
+    meLossMomBar = dbeRPC_->book1D(histo_n, histo_t,  80, 0.0, 40.0) ;
+
+    sprintf (histo_n, "Momentum_at_RE1");
+    sprintf (histo_t, "Momentum_at_RE1");
+    meMomRE1 = dbeRPC_->book1D(histo_n, histo_t,  100, 10.0, 300.0);
+
+    sprintf (histo_n, "Momentum_at_RE4");
+    sprintf (histo_t, "Momentum_at_RE4");
+    meMomRE4 = dbeRPC_->book1D(histo_n, histo_t,  100, 10.0, 300.0);
+ 
+    sprintf (histo_n, "Loss_of_muon_Momentum_in_Iron_endcap" );
+    sprintf (histo_t, "Loss_of_muon_Momentum_in_Iron_endcap" );
+    meLossMomEndc = dbeRPC_->book1D(histo_n, histo_t, 80, 0.0, 40.0) ;
+
+    sprintf (histo_n, "local_x-coord_vs_local_y-coord_of_muon_hit") ;
+    sprintf (histo_t, "local_x-coord_vs_local_y-coord_of_muon_hit") ;
+    meLocalXvsYBar = dbeRPC_->book2D(histo_n, histo_t, 100, -150., 150., 100, -100., 100. );
+
+    sprintf (histo_n, "Global_z-coord_vs_global_x-coord_of_muon_hit_barrel" );
+    sprintf (histo_t, "Global_z-coord_vs_global_x-coord_of_muon_hit_barrel" );
+    meGlobalXvsZBar = dbeRPC_->book2D(histo_n, histo_t, 100, -800., 800., 100, -800., 800. );
+ 
+    sprintf (histo_n, "Global_x-coord_vs_global_y-coord_of_muon_hit_barrel" );
+    sprintf (histo_t, "Global_x-coord_vs_global_y-coord_of_muon_hit_barrel" );
+    meGlobalXvsYBar = dbeRPC_->book2D(histo_n, histo_t, 100, -800., 800., 100, -800., 800. );
+
+    sprintf (histo_n, "radius_of_hit_barrel" );
+    sprintf (histo_t, "radius_of_hit_barrel" );
+    meHitRadiusBar = dbeRPC_->book1D(histo_n, histo_t, 100, 0., 1200.) ;
+
+    sprintf (histo_n, "radius_of_hit_endcaps" );
+    sprintf (histo_t, "radius_of_hit_endcaps" );
+    meHitRadiusEndc = dbeRPC_->book1D(histo_n, histo_t, 100, 0., 1300.) ;
+
+    sprintf (histo_n, "costheta_of_hit_barrel" ) ;
+    sprintf (histo_t, "costheta_of_hit_barrel" ) ;
+    meCosThetaBar = dbeRPC_->book1D(histo_n, histo_t,  100, -1., 1.);
+
+    sprintf (histo_n, "costheta_of_hit_endcaps" );
+    sprintf (histo_t, "costheta_of_hit_endcaps" );
+    meCosThetaEndc = dbeRPC_->book1D(histo_n, histo_t,  100, -1., 1.);
+
+    sprintf (histo_n, "Global_z-coord_vs_global_x-coord_of_muon_hit_endcaps" );
+    sprintf (histo_t, "Global_z-coord_vs_global_x-coord_of_muon_hit_endcaps" );
+    meGlobalXvsZEndc = dbeRPC_->book2D(histo_n, histo_t,  100, -1200., 1200., 100, -800., 800. ) ;
+
+    sprintf (histo_n, "Global_x-coord_vs_global_y-coord_of_muon_hit_endcaps" );
+    sprintf (histo_t, "Global_x-coord_vs_global_y-coord_of_muon_hit_endcaps" );
+    meGlobalXvsYEndc = dbeRPC_->book2D(histo_n, histo_t, 100, -800., 800., 100, -800., 800. );
+
+  } 
+
 }
 
 void MuonSimHitsValidAnalyzer::bookHistos_CSC()
 {
-   HistoMgr* hmgr = HistoMgr::getInstance();
-   string hnam;
+  meAllCSCHits =0 ;
+  meMuCSCHits =0 ;
+  meEnergyLoss_111 =0 ;
+  meToF_311 =0 ;
+  meEnergyLoss_112 =0 ;
+  meToF_312 =0 ;
+  meEnergyLoss_113 =0 ;
+  meToF_313 =0 ;
+  meEnergyLoss_114 =0 ;
+  meToF_314 =0 ;
+  meEnergyLoss_121 =0 ;
+  meToF_321 =0 ;
+  meEnergyLoss_122 =0 ;
+  meToF_322 =0 ;
+  meEnergyLoss_131 =0 ;
+  meToF_331 =0 ;
+  meEnergyLoss_132 =0 ;
+  meToF_332 =0 ;
+  meEnergyLoss_141 =0 ;
+  meToF_341 =0 ;
+  meEnergyLoss_211 =0 ;
+  meToF_411 =0 ;
+  meEnergyLoss_212 =0 ;
+  meToF_412 =0 ;
+  meEnergyLoss_213 =0 ;
+  meToF_413 =0 ;
+  meEnergyLoss_214 =0 ;
+  meToF_414 =0 ;
+  meEnergyLoss_221 =0 ;
+  meToF_421 =0 ;
+  meEnergyLoss_222 =0 ;
+  meToF_422 =0 ;
+  meEnergyLoss_231 =0 ;
+  meToF_431 =0 ;
+  meEnergyLoss_232 =0 ;
+  meToF_432 =0 ;
+  meEnergyLoss_241 =0 ;
+  meToF_441 =0 ;
+ 
 
    theCSCFile = new TFile(CSCoutputFile_.c_str(),"RECREATE");
    theCSCFile->cd();
+
+   Char_t histo_n[100];
+   Char_t histo_t[100];
+
+   if ( dbeCSC_ ) {
+    dbeCSC_->setCurrentFolder("MuonCSCHitsV/CSCHitsValidationTask");
  
-   hnam = ("Number_of_all_CSC_hits " );
-   hmgr->addHisto1( 2000, new TH1F(hnam.c_str(),hnam.c_str(), 100, 1.0, 101.0) );
+    sprintf (histo_n, "Number_of_all_CSC_hits " );
+    sprintf (histo_t, "Number_of_all_CSC_hits " );
+    meAllCSCHits = dbeCSC_->book1D(histo_n, histo_t,  100, 1.0, 101.0) ;
 
-   hnam = ("Number_of_muon_CSC_hits" );
-   hmgr->addHisto1( 2001, new TH1F(hnam.c_str(),hnam.c_str(), 50, 1.0, 51.0) );
+    sprintf (histo_n, "Number_of_muon_CSC_hits" );
+    sprintf (histo_t, "Number_of_muon_CSC_hits" );
+    meMuCSCHits = dbeCSC_->book1D(histo_n, histo_t, 50, 1.0, 51.0); 
 
-   char labelh[10];
-   char histoName[40];
-   char histoNametof[40];
+    sprintf (histo_n, "111__energy_loss");
+    sprintf (histo_t, "111__energy_loss");
+    meEnergyLoss_111 = dbeCSC_->book1D(histo_n, histo_t,50, 0.0, 50.0) ;
 
-   for ( int k = 1; k <3 ; ++k) {
-     for ( int i = 1; i<5 ; ++i)  {
-       for ( int j = 1; j<5 ; ++j)  {
-              
-           if (i != 1 && j>2 ) continue;
-           if (i == 4 && j>1 ) continue;  
+    sprintf (histo_n, "311_tof");
+    sprintf (histo_t, "311_tof");
+    meToF_311 = dbeCSC_->book1D(histo_n, histo_t, 60, 0.0, 60.0) ;
 
-           int idhisto_ener = 2000+ k*100+ i*10+j;
-           int idhisto = idhisto_ener - 2000;
-           sprintf(labelh,"ME%d", idhisto) ; 
-           strcpy(histoName, labelh);
-           strcat(histoName,"_energy_loss");
-           hnam = (histoName);
-           hmgr->addHisto1(idhisto_ener, new TH1F(hnam.c_str(),hnam.c_str(),50, 0.0, 50.0) );
+    sprintf (histo_n, "112__energy_loss");
+    sprintf (histo_t, "112__energy_loss");
+    meEnergyLoss_112 = dbeCSC_->book1D(histo_n, histo_t,50, 0.0, 50.0) ;
 
-           int idhisto_tof = idhisto_ener+200; 
-           strcpy(histoNametof, labelh);
-           strcat(histoNametof,"_tof"); 
+    sprintf (histo_n, "312_tof");
+    sprintf (histo_t, "312_tof");
+    meToF_312 = dbeCSC_->book1D(histo_n, histo_t, 60, 0.0, 60.0) ;
 
-           hnam = (histoNametof);
-           hmgr->addHisto1(idhisto_tof,new TH1F(hnam.c_str(),hnam.c_str(), 60, 0.0, 60.0) ); 
-       }
-     }
+    sprintf (histo_n, "113__energy_loss");
+    sprintf (histo_t, "113__energy_loss");
+    meEnergyLoss_111 = dbeCSC_->book1D(histo_n, histo_t,50, 0.0, 50.0) ;
+
+    sprintf (histo_n, "313_tof");
+    sprintf (histo_t, "313_tof");
+    meToF_313 = dbeCSC_->book1D(histo_n, histo_t, 60, 0.0, 60.0) ;
+ 
+    sprintf (histo_n, "114__energy_loss");
+    sprintf (histo_t, "114__energy_loss");
+    meEnergyLoss_114 = dbeCSC_->book1D(histo_n, histo_t,50, 0.0, 50.0) ;
+
+    sprintf (histo_n, "314_tof");
+    sprintf (histo_t, "314_tof");
+    meToF_314 = dbeCSC_->book1D(histo_n, histo_t, 60, 0.0, 60.0) ;
+
+    sprintf (histo_n, "121__energy_loss");
+    sprintf (histo_t, "121__energy_loss");
+    meEnergyLoss_121 = dbeCSC_->book1D(histo_n, histo_t,50, 0.0, 50.0) ;
+
+    sprintf (histo_n, "321_tof");
+    sprintf (histo_t, "321_tof");
+    meToF_321 = dbeCSC_->book1D(histo_n, histo_t, 60, 0.0, 60.0) ;
+
+    sprintf (histo_n, "122__energy_loss");
+    sprintf (histo_t, "122__energy_loss");
+    meEnergyLoss_122 = dbeCSC_->book1D(histo_n, histo_t,50, 0.0, 50.0) ;
+
+    sprintf (histo_n, "322_tof");
+    sprintf (histo_t, "322_tof");
+    meToF_322 = dbeCSC_->book1D(histo_n, histo_t, 60, 0.0, 60.0) ;
+
+    sprintf (histo_n, "131__energy_loss");
+    sprintf (histo_t, "131__energy_loss");
+    meEnergyLoss_131 = dbeCSC_->book1D(histo_n, histo_t,50, 0.0, 50.0) ;
+
+    sprintf (histo_n, "331_tof");
+    sprintf (histo_t, "331_tof");
+    meToF_331 = dbeCSC_->book1D(histo_n, histo_t, 60, 0.0, 60.0) ;
+
+    sprintf (histo_n, "132__energy_loss");
+    sprintf (histo_t, "132__energy_loss");
+    meEnergyLoss_132 = dbeCSC_->book1D(histo_n, histo_t,50, 0.0, 50.0) ;
+
+    sprintf (histo_n, "332_tof");
+    sprintf (histo_t, "332_tof");
+    meToF_332 = dbeCSC_->book1D(histo_n, histo_t, 60, 0.0, 60.0) ;
+
+    sprintf (histo_n, "141__energy_loss");
+    sprintf (histo_t, "141__energy_loss");
+    meEnergyLoss_141 = dbeCSC_->book1D(histo_n, histo_t,50, 0.0, 50.0) ;
+
+    sprintf (histo_n, "341_tof");
+    sprintf (histo_t, "341_tof");
+    meToF_341 = dbeCSC_->book1D(histo_n, histo_t, 60, 0.0, 60.0) ;
+
+    
+    
+    sprintf (histo_n, "211__energy_loss");
+    sprintf (histo_t, "211__energy_loss");
+    meEnergyLoss_211 = dbeCSC_->book1D(histo_n, histo_t,50, 0.0, 50.0) ;
+
+    sprintf (histo_n, "411_tof");
+    sprintf (histo_t, "411_tof");
+    meToF_411 = dbeCSC_->book1D(histo_n, histo_t, 60, 0.0, 60.0) ;
+
+    sprintf (histo_n, "212__energy_loss");
+    sprintf (histo_t, "212__energy_loss");
+    meEnergyLoss_212 = dbeCSC_->book1D(histo_n, histo_t,50, 0.0, 50.0) ;
+
+    sprintf (histo_n, "412_tof");
+    sprintf (histo_t, "412_tof");
+    meToF_412 = dbeCSC_->book1D(histo_n, histo_t, 60, 0.0, 60.0) ;
+
+    sprintf (histo_n, "213__energy_loss");
+    sprintf (histo_t, "213__energy_loss");
+    meEnergyLoss_211 = dbeCSC_->book1D(histo_n, histo_t,50, 0.0, 50.0) ;
+
+    sprintf (histo_n, "413_tof");
+    sprintf (histo_t, "413_tof");
+    meToF_413 = dbeCSC_->book1D(histo_n, histo_t, 60, 0.0, 60.0) ;
+
+    sprintf (histo_n, "214__energy_loss");
+    sprintf (histo_t, "214__energy_loss");
+    meEnergyLoss_214 = dbeCSC_->book1D(histo_n, histo_t,50, 0.0, 50.0) ;
+
+    sprintf (histo_n, "414_tof");
+    sprintf (histo_t, "414_tof");
+    meToF_414 = dbeCSC_->book1D(histo_n, histo_t, 60, 0.0, 60.0) ;
+
+    sprintf (histo_n, "221__energy_loss");
+    sprintf (histo_t, "221__energy_loss");
+    meEnergyLoss_221 = dbeCSC_->book1D(histo_n, histo_t,50, 0.0, 50.0) ;
+
+    sprintf (histo_n, "421_tof");
+    sprintf (histo_t, "421_tof");
+    meToF_421 = dbeCSC_->book1D(histo_n, histo_t, 60, 0.0, 60.0) ;
+
+    sprintf (histo_n, "222__energy_loss");
+    sprintf (histo_t, "222__energy_loss");
+    meEnergyLoss_222 = dbeCSC_->book1D(histo_n, histo_t,50, 0.0, 50.0) ;
+
+    sprintf (histo_n, "422_tof");
+    sprintf (histo_t, "422_tof");
+    meToF_422 = dbeCSC_->book1D(histo_n, histo_t, 60, 0.0, 60.0) ;
+
+    sprintf (histo_n, "231__energy_loss");
+    sprintf (histo_t, "231__energy_loss");
+    meEnergyLoss_231 = dbeCSC_->book1D(histo_n, histo_t,50, 0.0, 50.0) ;
+
+    sprintf (histo_n, "431_tof");
+    sprintf (histo_t, "431_tof");
+    meToF_431 = dbeCSC_->book1D(histo_n, histo_t, 60, 0.0, 60.0) ;
+
+    sprintf (histo_n, "232__energy_loss");
+    sprintf (histo_t, "232__energy_loss");
+    meEnergyLoss_232 = dbeCSC_->book1D(histo_n, histo_t,50, 0.0, 50.0) ;
+
+    sprintf (histo_n, "432_tof");
+    sprintf (histo_t, "432_tof");
+    meToF_432 = dbeCSC_->book1D(histo_n, histo_t, 60, 0.0, 60.0) ;
+
+    sprintf (histo_n, "241__energy_loss");
+    sprintf (histo_t, "241__energy_loss");
+    meEnergyLoss_241 = dbeCSC_->book1D(histo_n, histo_t,50, 0.0, 50.0) ;
+
+    sprintf (histo_n, "441_tof");
+    sprintf (histo_t, "441_tof");
+    meToF_441 = dbeCSC_->book1D(histo_n, histo_t, 60, 0.0, 60.0) ;
+
    }
-//  theCSCFile->ls();
+
 }
-
-
-
 
 void MuonSimHitsValidAnalyzer::saveHistos_DT()
 {
@@ -336,12 +730,17 @@ void MuonSimHitsValidAnalyzer::saveHistos_DT()
 
   DTHistos = 1000;
   theDTFile->cd();
-  
-  HistoMgr* hmgr = HistoMgr::getInstance();
+   
+  if ( dbeDT_ ) {
+    dbeDT_->setCurrentFolder("MuonDTHitsV/DTHitsValidationTask");
+    cout << " DTFile.size " << DToutputFile_.size() << " dbeDT " << dbeDT_ << endl;
+    dbeDT_->save(DToutputFile_);
+  } 
+
 //  gDirectory->pwd();
 //  theDTFile->ls();
 // theDTFile->GetList()->ls();
-  hmgr->save(DTHistos); 
+//  hmgr->save(DTHistos); 
 }
 
 void MuonSimHitsValidAnalyzer::saveHistos_RPC()
@@ -350,11 +749,19 @@ void MuonSimHitsValidAnalyzer::saveHistos_RPC()
   RPCHistos = 3000;
   theRPCFile->cd();
 
-  HistoMgr* hmgr = HistoMgr::getInstance();
+  if ( dbeRPC_ ) {
+    dbeRPC_->setCurrentFolder("MuonRPCHitsV/RPCHitsValidationTask");
+    cout << " RPCFile.size " << RPCoutputFile_.size() << " dbeRPC " << dbeRPC_ << endl;
+    dbeRPC_->save(RPCoutputFile_);
+  }
+
+
+
+
 //  gDirectory->pwd();
 //  theRPCFile->ls();
 //  theRPCFile->GetList()->ls();
-  hmgr->save(RPCHistos);
+//  hmgr->save(RPCHistos);
 }
 
 void MuonSimHitsValidAnalyzer::saveHistos_CSC()
@@ -363,18 +770,25 @@ void MuonSimHitsValidAnalyzer::saveHistos_CSC()
   CSCHistos = 2000;
   theCSCFile->cd();
  
-  HistoMgr* hmgr = HistoMgr::getInstance();
+  if ( dbeCSC_ ) {
+    dbeCSC_->setCurrentFolder("MuonCSCHitsV/CSCHitsValidationTask");
+    cout << " CSCFile.size " << CSCoutputFile_.size() << " dbeCSC " << dbeCSC_ << endl;
+    dbeCSC_->save(CSCoutputFile_);
+  }
+
+
+
 //  gDirectory->pwd();
 //  theCSCFile->ls();
 //  theCSCFile->GetList()->ls();
-     hmgr->save(CSCHistos);
+//     hmgr->save(CSCHistos);
 }
 
 void MuonSimHitsValidAnalyzer::endJob()
 {
   saveHistos_DT();
-  saveHistos_CSC();
-  saveHistos_RPC(); 
+//  saveHistos_CSC();
+//  saveHistos_RPC(); 
   if (verbosity > 0)
     edm::LogInfo ("MuonSimHitsValidAnalyzer::endJob") 
       << "Terminating having processed " << count << " events.";
@@ -431,9 +845,9 @@ void MuonSimHitsValidAnalyzer::analyze(const edm::Event& iEvent,
   /// call fill functions
 
   /// gather CSC, DT and RPC information from event
-    fillCSC(iEvent, iSetup);
+//    fillCSC(iEvent, iSetup);
     fillDT(iEvent, iSetup);
-    fillRPC(iEvent, iSetup);
+ //   fillRPC(iEvent, iSetup);
 
   if (verbosity > 0)
     edm::LogInfo ("MuonSimHitsValidAnalyzer::analyze")
@@ -447,7 +861,6 @@ void MuonSimHitsValidAnalyzer::analyze(const edm::Event& iEvent,
 void MuonSimHitsValidAnalyzer::fillCSC(const edm::Event& iEvent, 
 				 const edm::EventSetup& iSetup)
 {
-  HistoMgr* hmgr = HistoMgr::getInstance();
 
   TString eventout;
   if (verbosity > 0)
@@ -478,7 +891,7 @@ void MuonSimHitsValidAnalyzer::fillCSC(const edm::Event& iEvent,
   }
 
   nummu_CSC =0;
-  hmgr->getHisto1(2000)->Fill( MuonCSCContainer->size() );
+  meAllCSCHits->Fill( MuonCSCContainer->size() );
 
   /// cycle through container
   int i = 0, j = 0;
@@ -516,6 +929,7 @@ void MuonSimHitsValidAnalyzer::fillCSC(const edm::Event& iEvent,
 
       nummu_CSC++;
 
+ /* Comment out for the moment
       const CSCDetId& id=CSCDetId(itHit->detUnitId());
 
       int cscid=id.endcap()*100000 + id.station()*10000 +
@@ -525,7 +939,7 @@ void MuonSimHitsValidAnalyzer::fillCSC(const edm::Event& iEvent,
 
       hmgr->getHisto1(iden+2000)->Fill( itHit->energyLoss()*pow6 );
       hmgr->getHisto1(iden+2200)->Fill( itHit->tof() );
-
+ */
       }
     } else {
       edm::LogWarning("MuonSimHitsValidAnalyzer::fillCSC")
@@ -543,7 +957,7 @@ void MuonSimHitsValidAnalyzer::fillCSC(const edm::Event& iEvent,
     eventout += j;
   }  
 
-   hmgr->getHisto1(2001)->Fill( (float) nummu_CSC );
+   meMuCSCHits->Fill( (float) nummu_CSC );
 
   if (verbosity > 0)
     edm::LogInfo("MuonSimHitsValidAnalyzer::fillCSC") << eventout << "\n";
@@ -555,7 +969,6 @@ void MuonSimHitsValidAnalyzer::fillCSC(const edm::Event& iEvent,
 void MuonSimHitsValidAnalyzer::fillDT(const edm::Event& iEvent, 
 				 const edm::EventSetup& iSetup)
 {
- HistoMgr* hmgr = HistoMgr::getInstance();
  TString eventout;
   if (verbosity > 0)
     eventout = "\nGathering DT info:";  
@@ -587,7 +1000,8 @@ void MuonSimHitsValidAnalyzer::fillDT(const edm::Event& iEvent,
   touch1 = 0;
   touch4 = 0;
   nummu_DT = 0 ;
-  hmgr->getHisto1(1000)->Fill( MuonDTContainer->size() );
+
+  meAllDTHits->Fill( MuonDTContainer->size() );
 
   /// cycle through container
   int i = 0, j = 0;
@@ -624,8 +1038,8 @@ void MuonSimHitsValidAnalyzer::fillDT(const edm::Event& iEvent,
       if ( abs(itHit->particleType()) == 13 ) {
 
        nummu_DT++;
-       hmgr->getHisto1(1001)->Fill( itHit->tof() );
-       hmgr->getHisto1(1002)->Fill( itHit->energyLoss()*pow6 );     
+       meToF->Fill( itHit->tof() );
+       meEnergyLoss->Fill( itHit->energyLoss()*pow6 );     
 
        iden = itHit->detUnitId();
        
@@ -636,20 +1050,20 @@ void MuonSimHitsValidAnalyzer::fillDT(const edm::Event& iEvent,
        layer = ((iden>>10) & 0x7 ) ;
        wire = ((iden>>3) & 0x7f ) ;
 
-       hmgr->getHisto1(1010)->Fill((float)wheel);
-       hmgr->getHisto1(1011)->Fill((float) station);
-       hmgr->getHisto1(1012)->Fill((float) sector);
-       hmgr->getHisto1(1013)->Fill((float) superlayer);
-       hmgr->getHisto1(1014)->Fill((float) layer);
-       hmgr->getHisto1(1015)->Fill((float) wire);
+       meWheelOccup->Fill((float)wheel);
+       meStationOccup->Fill((float) station);
+       meSectorOccup->Fill((float) sector);
+       meSuperLOccup->Fill((float) superlayer);
+       meLayerOccup->Fill((float) layer);
+       meWireOccup->Fill((float) wire);
 
    // Define a quantity to take into account station, splayer and layer being hit.
        path = (station-1) * 40 + superlayer * 10 + layer;
-       hmgr->getHisto1(1016)->Fill((float) path); 
+       mePathMuon->Fill((float) path); 
 
    // Define a quantity to take into chamber being hit.
        pathchamber = (wheel+2) * 50 + (station-1) * 12 + sector;
-       hmgr->getHisto1(1017)->Fill((float) pathchamber);
+       meChamberOccup->Fill((float) pathchamber);
 
    /// Muon Momentum at MB1
        if (station == 1 )
@@ -657,7 +1071,7 @@ void MuonSimHitsValidAnalyzer::fillDT(const edm::Event& iEvent,
          if (touch1 == 0)
          {
           mom1=itHit->pabs();  
-          hmgr->getHisto1(1003)->Fill(mom1);
+          meMomentumMB1->Fill(mom1);
           touch1 = 1;
          }
         }
@@ -669,19 +1083,19 @@ void MuonSimHitsValidAnalyzer::fillDT(const edm::Event& iEvent,
          {
           mom4=itHit->pabs();
           touch4 = 1;
-          hmgr->getHisto1(1004)->Fill(mom4);
+          meMomentumMB4->Fill(mom4);
           if (touch1 == 1 )
           {
-           hmgr->getHisto1(1005)->Fill(mom1-mom4);
+           meLossMomIron->Fill(mom1-mom4);
           }
          } 
         }
 
    /// X-Local Coordinate vs Z-Local Coordinate
-       hmgr->getHisto2(1006)->Fill(itHit->localPosition().x(), itHit->localPosition().z() ); 
+       meLocalXvsZ->Fill(itHit->localPosition().x(), itHit->localPosition().z() ); 
    
    /// X-Local Coordinate vs Y-Local Coordinate
-       hmgr->getHisto2(1007)->Fill(itHit->localPosition().x(), itHit->localPosition().y() );
+       meLocalXvsY->Fill(itHit->localPosition().x(), itHit->localPosition().y() );
 
    /// Global Coordinates
        
@@ -699,13 +1113,35 @@ void MuonSimHitsValidAnalyzer::fillDT(const edm::Event& iEvent,
       globposx = radius*sinteta*cos(globposphi); 
       globposy = radius*sinteta*sin(globposphi);
 
-      hmgr->getHisto2(1008)->Fill(globposz, globposx);
-      hmgr->getHisto2(1009)->Fill(globposx, globposy); 
+      meGlobalXvsZ->Fill(globposz, globposx);
+      meGlobalXvsY->Fill(globposx, globposy); 
 
-      hmgr->getHisto1(1018)->Fill(radius);
-      hmgr->getHisto1(1019)->Fill(costeta);
-      hmgr->getHisto1(1022)->Fill(globposeta);
-      hmgr->getHisto1(1021)->Fill(globposphi);
+//  New Histos
+      if (wheel == -2) {
+      meGlobalXvsZWm2->Fill(globposz, globposx);
+      meGlobalXvsYWm2->Fill(globposx, globposy);
+      }
+      if (wheel == -1) {
+      meGlobalXvsZWm1->Fill(globposz, globposx);
+      meGlobalXvsYWm1->Fill(globposx, globposy);
+      }
+      if (wheel == 0) {
+      meGlobalXvsZW0->Fill(globposz, globposx);
+      meGlobalXvsYW0->Fill(globposx, globposy);
+      }
+      if (wheel == 1) {
+      meGlobalXvsZWp1->Fill(globposz, globposx);
+      meGlobalXvsYWp1->Fill(globposx, globposy);
+      }
+      if (wheel == 2) {
+      meGlobalXvsZWp2->Fill(globposz, globposx);
+      meGlobalXvsYWp2->Fill(globposx, globposy);
+      }
+// 
+      meHitRadius->Fill(radius);
+      meCosTheta->Fill(costeta);
+      meGlobalEta->Fill(globposeta);
+      meGlobalPhi->Fill(globposphi);
 
       }
     } else {
@@ -723,7 +1159,7 @@ void MuonSimHitsValidAnalyzer::fillDT(const edm::Event& iEvent,
     eventout += "\n          Number of DT muon Hits collected:......... ";
     eventout += j;
   }  
-  hmgr->getHisto1(1020)->Fill( (float) nummu_DT );
+  meMuDTHits->Fill( (float) nummu_DT );
    
   if (verbosity > 0)
     edm::LogInfo("MuonSimHitsValidAnalyzer::fillDT") << eventout << "\n";
@@ -734,7 +1170,6 @@ return;
 void MuonSimHitsValidAnalyzer::fillRPC(const edm::Event& iEvent, 
 				 const edm::EventSetup& iSetup)
 {
-  HistoMgr* hmgr = HistoMgr::getInstance();
   TString eventout;
   if (verbosity > 0)
     eventout = "\nGathering RPC info:";  
@@ -769,7 +1204,7 @@ void MuonSimHitsValidAnalyzer::fillRPC(const edm::Event& iEvent,
   touche4 = 0; 
   nummu_RPC = 0 ;
 
-  hmgr->getHisto1(3000)->Fill( MuonRPCContainer->size() );
+  meAllRPCHits->Fill( MuonRPCContainer->size() );
 
   /// cycle through container
   int i = 0, j = 0;
@@ -826,34 +1261,34 @@ void MuonSimHitsValidAnalyzer::fillRPC(const edm::Event& iEvent,
        subsector =  ( ((iden>>12) & 0X7) + 1 ) ;   //  ! Beware: mask says 0x7 !!
        roll =  ( (iden>>15) & 0X7)  ;
   
-       hmgr->getHisto1(3001)->Fill((float)region);                  // Region
+       meRegionOccup->Fill((float)region);                  // Region
        if (region == 0 )   // Barrel
         {  
-          hmgr->getHisto1(3002)->Fill((float) ring);  
-          hmgr->getHisto1(3004)->Fill((float) station); 
-          hmgr->getHisto1(3006)->Fill((float) sector);
-          hmgr->getHisto1(3008)->Fill((float) layer);
-          hmgr->getHisto1(3010)->Fill((float) subsector);
-          hmgr->getHisto1(3012)->Fill((float) roll);
+          meRingOccBar->Fill((float) ring);  
+          meStatOccBar->Fill((float) station); 
+          meSectorOccBar->Fill((float) sector);
+          meLayerOccBar->Fill((float) layer);
+          meSubSectOccBar->Fill((float) subsector);
+          meRollOccBar->Fill((float) roll);
 
-          hmgr->getHisto1(3014)->Fill(itHit->energyLoss()*pow6 );
+          meElossBar->Fill(itHit->energyLoss()*pow6 );
         }
        if (region != 0 )   // Endcaps
         {
-           hmgr->getHisto1(3003)->Fill((float)ring);
-           hmgr->getHisto1(3005)->Fill((float) station);
-           hmgr->getHisto1(3007)->Fill((float) sector);
-           hmgr->getHisto1(3009)->Fill((float) layer);
-           hmgr->getHisto1(3011)->Fill((float) subsector);
-           hmgr->getHisto1(3013)->Fill((float) roll);  
+           meRingOccEndc->Fill((float)ring);
+           meStatOccEndc->Fill((float) station);
+           meSectorOccEndc->Fill((float) sector);
+           meLayerOccEndc->Fill((float) layer);
+           meSubSectOccEndc->Fill((float) subsector);
+           meRollOccEndc->Fill((float) roll);  
 
-           hmgr->getHisto1(3015)->Fill(itHit->energyLoss()*pow6 );
+           meElossEndc->Fill(itHit->energyLoss()*pow6 );
         } 
 
    // Define a quantity to take into account station, splayer and layer being hit.
         path = (region+1) * 50 + (ring+2) * 10 + (station -1) *2+ layer;
         if (region != 0) path -= 10 ;
-        hmgr->getHisto1(3016)->Fill((float)path);
+        mepathRPC->Fill((float)path);
 
   /// Muon Momentum at RB1 (Barrel)
         if ( region == 0 )  //  BARREL
@@ -863,7 +1298,7 @@ void MuonSimHitsValidAnalyzer::fillRPC(const edm::Event& iEvent,
           if (touch1 == 0)
           {
            mom1=itHit->pabs();
-           hmgr->getHisto1(3017)->Fill(mom1);
+           meMomRB1->Fill(mom1);
            touch1 = 1;
           }
          }
@@ -874,12 +1309,12 @@ void MuonSimHitsValidAnalyzer::fillRPC(const edm::Event& iEvent,
           if ( touch4 == 0)
           { 
            mom4=itHit->pabs();
-           hmgr->getHisto1(3018)->Fill(mom4);
+           meMomRB4->Fill(mom4);
            touch4 = 1;
 /// Loss of Muon Momentum in Iron (between RB1_layer1 and RB4)
            if (touch1 == 1 )
             {
-             hmgr->getHisto1(3019)->Fill(mom1-mom4);
+             meLossMomBar->Fill(mom1-mom4);
             }
           }
          }
@@ -893,7 +1328,7 @@ void MuonSimHitsValidAnalyzer::fillRPC(const edm::Event& iEvent,
           if (touche1 == 0)
           {
            mome1=itHit->pabs();
-           hmgr->getHisto1(3020)->Fill(mome1);
+           meMomRE1->Fill(mome1);
            touche1 = 1;
           }
          }  
@@ -903,19 +1338,19 @@ void MuonSimHitsValidAnalyzer::fillRPC(const edm::Event& iEvent,
           if ( touche4 == 0)
           {
            mome4=itHit->pabs();
-           hmgr->getHisto1(3021)->Fill(mome4);
+           meMomRE4->Fill(mome4);
            touche4 = 1;
  /// Loss of Muon Momentum in Iron (between RE1_layer1 and RE4) 
            if (touche1 == 1 )
             {
-             hmgr->getHisto1(3022)->Fill(mome1-mome4); 
+             meLossMomEndc->Fill(mome1-mome4); 
             } 
           }
          }
        }  // End of Endcaps 
 
   //  X-Local Coordinate vs Y-Local Coordinate
-       hmgr->getHisto2(3023)->Fill(itHit->localPosition().x(), itHit->localPosition().y() );
+       meLocalXvsYBar->Fill(itHit->localPosition().x(), itHit->localPosition().y() );
 
   /// X-Global Coordinate vs Z-Global Coordinate
        globposz =  bsurf.toGlobal(itHit->localPosition()).z();
@@ -931,17 +1366,17 @@ void MuonSimHitsValidAnalyzer::fillRPC(const edm::Event& iEvent,
 
        if (region == 0 ) // Barrel 
         { 
-         hmgr->getHisto1(3026)->Fill(radius);
-         hmgr->getHisto1(3028)->Fill(costeta);
-         hmgr->getHisto2(3024)->Fill(globposz, globposx);
-         hmgr->getHisto2(3025)->Fill(globposx, globposy);
+         meHitRadiusBar->Fill(radius);
+         meCosThetaBar->Fill(costeta);
+         meGlobalXvsZBar->Fill(globposz, globposx);
+         meGlobalXvsYBar->Fill(globposx, globposy);
         } 
        if (region != 0 ) // Endcaps
         {
-         hmgr->getHisto1(3027)->Fill(radius); 
-         hmgr->getHisto1(3029)->Fill(costeta);
-         hmgr->getHisto2(3030)->Fill(globposz, globposx);
-         hmgr->getHisto2(3031)->Fill(globposx, globposy);
+         meHitRadiusEndc->Fill(radius); 
+         meCosThetaEndc->Fill(costeta);
+         meGlobalXvsZEndc->Fill(globposz, globposx);
+         meGlobalXvsYEndc->Fill(globposx, globposy);
         }  
 
       }
@@ -962,7 +1397,7 @@ void MuonSimHitsValidAnalyzer::fillRPC(const edm::Event& iEvent,
     eventout += j;
   }  
 
-  hmgr->getHisto1(3032)->Fill( (float) nummu_RPC );
+  meMuRPCHits->Fill( (float) nummu_RPC );
 
   if (verbosity > 0)
     edm::LogInfo("MuonSimHitsValidAnalyzer::fillRPC") << eventout << "\n";

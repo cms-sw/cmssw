@@ -4,19 +4,20 @@
 #  setenv REFFILE "./muonsimvalid_DT_hist_ref.root"
 #  setenv CURFILE "./muonsimvalid_DT_hist.root"
 
-   setenv REFFILE "./DTSimHitsPlots_ref.root"
-   setenv CURFILE "./DTSimHitsPlots.root"
+   setenv REFFILE "./DTSimHitsPlots_180.root"
+#   setenv CURFILE "./DTSimHitsPlots_relval.root"
+   setenv CURFILE "./DTSimHitsPlots_200pre4.root"
 
  root -b -p -q DoCompare_DT.C
 
-   setenv REFFILE "./CSCSimHitsPlots_ref.root"
-   setenv CURFILE "./CSCSimHitsPlots.root"
+#   setenv REFFILE "./CSCSimHitsPlots_140slc4.root"
+   setenv CURFILE "./CSCSimHitsPlots_170pre11.root"
 
- root -b -p -q DoCompare_CSC.C
+# root -b -p -q DoCompare_CSC.C
 
-   setenv REFFILE "./RPCSimHitsPlots_ref.root"
-   setenv CURFILE "./RPCSimHitsPlots.root"
+   setenv REFFILE "./RPCSimHitsPlots_140slc4.root"
+   setenv CURFILE "./RPCSimHitsPlots_170pre11.root"
 
- root -b -p -q DoCompare_RPC.C 
+# root -b -p -q DoCompare_RPC.C 
 
 
