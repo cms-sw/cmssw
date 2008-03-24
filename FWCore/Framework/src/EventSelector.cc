@@ -26,6 +26,10 @@
 // 5- M Fischler 3/3/08 testSelectionOverlap and maskTriggerResults appropriate
 //			for the new forms of pathspecs
 //
+// 6 - K Biery 03/24/08 modified maskTriggerResults (no longer static) to
+//                      avoid performance penalty of creating a new
+//                      EventSelector instance for each call (in static case)
+//
 
 
 #include "FWCore/Framework/interface/EventSelector.h"
@@ -756,9 +760,7 @@ namespace edm
    * trigger result object contains only path status values that "pass"
    * the selection criteria.
    *
-   * @param pathspecs The trigger selection list (vector of string).
    * @param inputResults The raw trigger results object that will be masked.
-   * @param fullTriggerList The full list of trigger names (vector of string).
    * @return a copy of the input trigger results object with only the path
    *         status results that match the trigger selection.
    * @throws edm::Exception if the number of paths in the TriggerResults
@@ -767,12 +769,10 @@ namespace edm
    *         full trigger list.
    */
   boost::shared_ptr<TriggerResults>
-  EventSelector::maskTriggerResults(Strings const& pathspecs,
-                                    TriggerResults const& inputResults,
-                                    Strings const& fullTriggerList)
+  EventSelector::maskTriggerResults(TriggerResults const& inputResults)
   {
     // fetch and validate the total number of paths
-    unsigned int fullTriggerCount = fullTriggerList.size();
+    unsigned int fullTriggerCount = nTriggerNames_;
     unsigned int N = fullTriggerCount;
     if (fullTriggerCount != inputResults.size())
     {
@@ -783,19 +783,13 @@ namespace edm
         << "full trigger list (" << fullTriggerCount << ").\n";
     }
 
-    // Create an eventSelector based on these pathspecs.
-    // NOte:  In a future optimization, this is probably going to happen
-    // in the caller of this, so we don't create the selector every time.
-    // The arguement passed will then be selector; little else will change here.
-    EventSelector selector(pathspecs, fullTriggerList);
-
     // create a suitable global status object to work with, all in Ready state
     HLTGlobalStatus mask(fullTriggerCount);
     
     // Deal with must_fail acceptors that would cause selection
-    for (unsigned int m = 0; m < selector.all_must_fail_.size(); ++m) {
+    for (unsigned int m = 0; m < this->all_must_fail_.size(); ++m) {
       std::vector<bool>  
-        f = expandDecisionList (selector.all_must_fail_[m],false,N);
+        f = expandDecisionList (this->all_must_fail_[m],false,N);
       bool all_fail = true;
       for (unsigned int ipath = 0; ipath < N; ++ipath) {        
 	if  ( (f[ipath]) && (inputResults [ipath].state() != hlt::Fail) ) { 
@@ -811,9 +805,9 @@ namespace edm
 	}
       }
     }
-    for (unsigned int m = 0; m < selector.all_must_fail_noex_.size(); ++m) {
+    for (unsigned int m = 0; m < this->all_must_fail_noex_.size(); ++m) {
       std::vector<bool>  
-        f = expandDecisionList (selector.all_must_fail_noex_[m],false,N);
+        f = expandDecisionList (this->all_must_fail_noex_[m],false,N);
       bool all_fail = true;
       for (unsigned int ipath = 0; ipath < N; ++ipath) {        
 	if  ( (f[ipath]) && (inputResults [ipath].state() != hlt::Fail) ) { 
@@ -832,15 +826,15 @@ namespace edm
     
     // Deal with normal acceptors that would cause selection
     std::vector<bool> 
-      aPassAbs = expandDecisionList (selector.absolute_acceptors_,true,N);
+      aPassAbs = expandDecisionList (this->absolute_acceptors_,true,N);
     std::vector<bool> 
-      aPassCon = expandDecisionList (selector.conditional_acceptors_,true,N);
+      aPassCon = expandDecisionList (this->conditional_acceptors_,true,N);
     std::vector<bool> 
-      aFailAbs = expandDecisionList (selector.absolute_acceptors_,false,N);
+      aFailAbs = expandDecisionList (this->absolute_acceptors_,false,N);
     std::vector<bool> 
-      aFailCon = expandDecisionList (selector.conditional_acceptors_,false,N);
+      aFailCon = expandDecisionList (this->conditional_acceptors_,false,N);
     std::vector<bool> 
-      aExc = expandDecisionList (selector.exception_acceptors_,true,N);
+      aExc = expandDecisionList (this->exception_acceptors_,true,N);
     for (unsigned int ipath = 0; ipath < N; ++ipath) {
       hlt::HLTState s = inputResults [ipath].state();  
       if ( ((aPassAbs[ipath]) && (s == hlt::Pass))

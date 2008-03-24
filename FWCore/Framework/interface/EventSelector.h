@@ -3,7 +3,7 @@
 
 /*
   Author: Jim Kowalkowski 01-02-06
-  $Id: EventSelector.h,v 1.11 2008/02/11 16:21:32 fischler Exp $
+  $Id: EventSelector.h,v 1.12 2008/03/04 00:55:58 fischler Exp $
 
  */
 
@@ -64,10 +64,8 @@ namespace edm
       testSelectionOverlap(Strings const& pathspec1,
                            Strings const& pathspec2,
                            Strings const& fullTriggerList);
-    static boost::shared_ptr<TriggerResults>
-      maskTriggerResults(Strings const& pathspecs,
-                         TriggerResults const& inputResults,
-                         Strings const& fullTriggerList);
+    boost::shared_ptr<TriggerResults>
+      maskTriggerResults(TriggerResults const& inputResults);
     static std::vector<std::string>
       getEventSelectionVString(edm::ParameterSet const& pset);
 

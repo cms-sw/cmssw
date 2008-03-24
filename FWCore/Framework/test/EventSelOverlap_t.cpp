@@ -161,8 +161,9 @@ void maskTest ( PathSpecifiers const & ps,
 
   // obtain the answer from maskTriggerResults
    
+  EventSelector selector (ps.path, trigger_path_names);
   boost::shared_ptr<TriggerResults> sptr =
-    EventSelector::maskTriggerResults (ps.path, results, trigger_path_names);
+    selector.maskTriggerResults (results);
   TriggerResults maskTR = *sptr;
   
   // Extract the HLTPathStatus "bits" from the results.  A TriggerResults is
