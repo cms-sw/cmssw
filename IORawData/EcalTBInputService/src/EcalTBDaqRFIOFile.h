@@ -10,7 +10,7 @@ class EcalTBDaqRFIOFile : public EcalTBDaqFile {
  public:
 
   /// Constructor
-  EcalTBDaqRFIOFile(): filename_(), infile_() {};
+  EcalTBDaqRFIOFile(): filename_(), infile_(), isBinary_() {};
 
   /// Constructor
   EcalTBDaqRFIOFile(const std::string& filename, const bool& isBinary);
@@ -33,6 +33,7 @@ class EcalTBDaqRFIOFile : public EcalTBDaqFile {
 
   std::string filename_;
   FILE* infile_;
+  bool isBinary_;
 
 };
 #endif
