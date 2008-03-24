@@ -1,7 +1,7 @@
 #ifndef IOPool_Streamer_StreamerOutputModule_h
 #define IOPool_Streamer_StreamerOutputModule_h
 
-// $Id: StreamerOutputModule.h,v 1.35 2008/01/29 20:21:40 biery Exp $
+// $Id: StreamerOutputModule.h,v 1.36 2008/02/20 22:15:25 wdd Exp $
 
 #include "FWCore/RootAutoLibraryLoader/interface/RootAutoLibraryLoader.h"
 #include "FWCore/Utilities/interface/Exception.h"
@@ -141,8 +141,8 @@ namespace edm
     std::vector<unsigned char> hltbits_;
     uint32 origSize_;
 
-    Strings hltTriggerNames_;
     Strings hltTriggerSelections_;
+    boost::shared_ptr<EventSelector> maskingSelector_;
   }; //end-of-class-def
 
  
@@ -251,8 +251,10 @@ std::auto_ptr<InitMsgBuilder> StreamerOutputModule<Consumer>::serializeRegistry(
     //Setting protocol version V
     Version v(5,(uint8*)toplevel.compactForm().c_str());
 
-    hltTriggerNames_ = edm::getAllTriggerNames();
-    hltsize_ = hltTriggerNames_.size();
+    Strings hltTriggerNames = edm::getAllTriggerNames();
+    hltsize_ = hltTriggerNames.size();
+    maskingSelector_.reset(new EventSelector(hltTriggerSelections_,
+                                             hltTriggerNames));
 
     //L1 stays dummy as of today
     Strings l1_names;  //3
@@ -267,7 +269,7 @@ std::auto_ptr<InitMsgBuilder> StreamerOutputModule<Consumer>::serializeRegistry(
         new InitMsgBuilder(&prod_reg_buf_[0], prod_reg_buf_.size(),
                            run, v, edm::getReleaseVersion().c_str() , processName.c_str(),
                            description().moduleLabel().c_str(),
-                           hltTriggerNames_, hltTriggerSelections_, l1_names));
+                           hltTriggerNames, hltTriggerSelections_, l1_names));
 
     // the translator already has the product registry (selections_),
     // so it just needs to serialize it to the init message.
@@ -290,9 +292,7 @@ void StreamerOutputModule<Consumer>::setHltMask(EventPrincipal const& e)
     if (prod.isValid())
     {
       boost::shared_ptr<TriggerResults> maskedResults =
-        EventSelector::maskTriggerResults(hltTriggerSelections_,
-                                          *prod,
-                                          hltTriggerNames_);
+        maskingSelector_->maskTriggerResults(*prod);
       for(std::vector<unsigned char>::size_type i=0; i != hltsize_ ; ++i) {
         vHltState.push_back(((maskedResults->at(i)).state()));
       }
