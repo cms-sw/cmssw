@@ -200,21 +200,26 @@ MonitorElement* SiStripSummaryCreator::getSummaryME(DQMStore* dqm_store,
 	TH1* hist1 = me->getTH1();
 	if (hist1) {
 	  hist1->Reset();
-	  hist1->LabelsOption("uv");
 	  return me;
 	}
       }
     }
   }
+  map<int, string> tags;
   if (!me) {
     int nBins = 0;
     vector<string> subdirs = dqm_store->getSubdirs();
-    map<int, string> tags;
-    
     // set # of bins of the histogram
     if (htype == "mean" || htype == "Mean" ) {
        nBins = subdirs.size();
        me = dqm_store->book1D(sum_name,sum_name,nBins,0.5,nBins+0.5);
+       int ibin = 0;
+       for (vector<string>::const_iterator it = subdirs.begin();
+          it != subdirs.end(); it++) {
+       string subdir_name = (*it).substr((*it).find_last_of("/")+1);
+       ibin++;
+       tags.insert(pair<int,string>(ibin, (subdir_name)));        
+       }
     } else if (htype == "bin-by-bin" || htype == "Bin-by-Bin") {
       for (vector<string>::const_iterator it = subdirs.begin();
 	   it != subdirs.end(); it++) {
@@ -259,18 +264,20 @@ MonitorElement* SiStripSummaryCreator::getSummaryME(DQMStore* dqm_store,
         }
       }
     }
-    // Set the axis title 
-    if (me && me->kind() == MonitorElement::DQM_KIND_TH1F) {
-      TH1F* hist = me->getTH1F();
-      if (hist) {
-       if (name.find("NoisyStrips") != string::npos) hist->GetYaxis()->SetTitle("Noisy Strips (%)");
-       else hist->GetYaxis()->SetTitle(name.c_str());
-      }
-    }   
-    for (map<int,string>::const_iterator ic = tags.begin();
-      ic != tags.end(); ic++) {
-      me->setBinLabel(ic->first, ic->second);
+  }
+  // Set the axis title 
+  if (me && me->kind() == MonitorElement::DQM_KIND_TH1F 
+      && (htype != "sum" || htype != "Sum")) {
+    TH1F* hist = me->getTH1F();
+    if (hist) {
+      if (name.find("NoisyStrips") != string::npos) hist->GetYaxis()->SetTitle("Noisy Strips (%)");
+      else hist->GetYaxis()->SetTitle(name.c_str());
     }
+    for (map<int,string>::const_iterator ic = tags.begin();
+         ic != tags.end(); ic++) {
+      hist->GetXaxis()->SetBinLabel(ic->first, (ic->second).c_str());
+    }
+    hist->LabelsOption("uv");
   }
   return me;
 }

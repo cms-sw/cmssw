@@ -1,5 +1,6 @@
 #include "DQM/SiStripMonitorClient/interface/SiStripTrackerMapCreator.h"
 #include "CommonTools/TrackerMap/interface/TrackerMap.h"
+#include "DQM/SiStripCommon/interface/SiStripFolderOrganizer.h"
 #include "DQM/SiStripMonitorClient/interface/SiStripUtility.h"
 #include "DQM/SiStripMonitorClient/interface/SiStripConfigParser.h"
 #include "DQMServices/Core/interface/DQMStore.h"
@@ -61,17 +62,19 @@ void SiStripTrackerMapCreator::create(const edm::ParameterSet & tkmapPset,
   const vector<uint16_t>& feds = fedcabling->feds(); 
   uint32_t detId_save = 0;
   map<MonitorElement*,int> local_mes;
+  SiStripFolderOrganizer folder_organizer;
   for(vector<unsigned short>::const_iterator ifed = feds.begin(); 
                       ifed < feds.end(); ifed++){
     const std::vector<FedChannelConnection> fedChannels = fedcabling->connections( *ifed );
     for(std::vector<FedChannelConnection>::const_iterator iconn = fedChannels.begin(); iconn < fedChannels.end(); iconn++){
       
       uint32_t detId = iconn->detId();
-      if (detId == 0) continue;
+      if (detId == 0 || detId == 0xFFFFFFFF)  continue;
       if (detId_save != detId) {
         detId_save = detId;
         local_mes.clear();
-        vector<MonitorElement*> all_mes = dqm_store->get(detId);
+        folder_organizer.setDetectorFolder(detId);
+        vector<MonitorElement*> all_mes = dqm_store->getContents(dqm_store->pwd());
 	for (vector<MonitorElement *>::const_iterator it = all_mes.begin();
 	     it!= all_mes.end(); it++) {
 	  if (!(*it)) continue;

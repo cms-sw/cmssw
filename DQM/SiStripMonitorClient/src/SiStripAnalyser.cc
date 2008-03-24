@@ -1,8 +1,8 @@
 /*
  * \file SiStripAnalyser.cc
  * 
- * $Date: 2008/03/01 00:37:15 $
- * $Revision: 1.26 $
+ * $Date: 2008/03/11 19:20:12 $
+ * $Revision: 1.27 $
  * \author  S. Dutta INFN-Pisa
  *
  */
@@ -32,6 +32,7 @@
 #include "CalibTracker/Records/interface/SiStripDetCablingRcd.h"
 #include "CalibFormats/SiStripObjects/interface/SiStripDetCabling.h"
 
+#include "DQM/SiStripCommon/interface/SiStripFolderOrganizer.h"
 #include "DQM/SiStripMonitorClient/interface/SiStripWebInterface.h"
 #include "DQM/SiStripMonitorClient/interface/SiStripActionExecutor.h"
 #include "DQM/SiStripMonitorClient/interface/SiStripUtility.h"
@@ -239,15 +240,18 @@ void SiStripAnalyser::fillGlobalStatus() {
   int nSubDetsWithErr[6] = {0, 0, 0, 0, 0, 0};
   int nSubDetsTotal[6]   = {0, 0, 0, 0, 0, 0};
 
+  SiStripFolderOrganizer folder_organizer;
   for (std::vector<uint32_t>::const_iterator idetid=SelectedDetIds.begin(), iEnd=SelectedDetIds.end();idetid!=iEnd;++idetid){    
     uint32_t detId = *idetid;
     if (detId == 0 || detId == 0xFFFFFFFF){
-      edm::LogError("SiStripMonitorPedestals") <<"SiStripMonitorPedestals::createMEs: " 
-        << "Wrong DetId !!!!!! " <<  detId << " Neglecting !!!!!! ";
+      edm::LogError("SiStripAnalyser") 
+                          << "SiStripAnalyser::fillGlobalStatus : " 
+                          << "Wrong DetId !!!!!! " <<  detId << " Neglecting !!!!!! ";
       continue;
     }
     StripSubdetector subdet(*idetid);
-    vector<MonitorElement*> detector_mes = dqmStore_->get(detId);
+    folder_organizer.setDetectorFolder(detId);     
+    vector<MonitorElement*> detector_mes = dqmStore_->getContents(dqmStore_->pwd());
     int error_me = 0;
     for (vector<MonitorElement *>::const_iterator it = detector_mes.begin();
 	 it!= detector_mes.end(); it++) {
@@ -257,6 +261,7 @@ void SiStripAnalyser::fillGlobalStatus() {
       int istat =  SiStripUtility::getMEStatus((*it)); 
       if (istat == dqm::qstatus::ERROR)  error_me++;
     }
+    dqmStore_->cd();
     nDetsTotal++;
         
     if (error_me > 0) {

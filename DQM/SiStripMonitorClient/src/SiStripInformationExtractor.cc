@@ -3,6 +3,8 @@
 #include "DQMServices/Core/interface/QTest.h"
 #include "DQMServices/Core/interface/QReport.h"
 #include "CalibFormats/SiStripObjects/interface/SiStripDetCabling.h"
+
+#include "DQM/SiStripCommon/interface/SiStripFolderOrganizer.h"
 #include "DQM/SiStripMonitorClient/interface/SiStripUtility.h"
 #include "DQM/SiStripMonitorClient/interface/SiStripLayoutParser.h"
 #include "DQM/SiStripMonitorClient/interface/SiStripConfigParser.h"
@@ -176,8 +178,10 @@ void SiStripInformationExtractor::printAlarmList(DQMStore * dqm_store, ostringst
 // 
 void SiStripInformationExtractor::selectSingleModuleHistos(DQMStore * dqm_store, string mid, vector<string>& names, vector<MonitorElement*>& mes) {
   mes.clear();
-  unsigned int tag = atoi(mid.c_str());
-  vector<MonitorElement*> all_mes = dqm_store->get(tag);
+  uint32_t detId  = static_cast<uint32_t>(atoi(mid.c_str()));
+  SiStripFolderOrganizer folder_organizer;
+  folder_organizer.setDetectorFolder(detId);     
+  vector<MonitorElement*> all_mes = dqm_store->getContents(dqm_store->pwd());
   if (all_mes.size() == 0) return; 
   for (vector<MonitorElement *>::const_iterator it = all_mes.begin();
        it!= all_mes.end(); it++) {
@@ -191,6 +195,7 @@ void SiStripInformationExtractor::selectSingleModuleHistos(DQMStore * dqm_store,
       }
     }
   }
+  dqm_store->cd();
 }
 //
 // --  Get Selected Monitor Elements
@@ -717,11 +722,7 @@ void SiStripInformationExtractor::readModuleAndHistoList(DQMStore* dqm_store, co
   uint32_t aDetId  = 0;
   for (std::vector<uint32_t>::const_iterator idetid=SelectedDetIds.begin(), iEnd=SelectedDetIds.end();idetid!=iEnd;++idetid){    
     uint32_t detId = *idetid;
-    if (detId == 0 || detId == 0xFFFFFFFF){
-      edm::LogError("SiStripMonitorPedestals") <<"SiStripMonitorPedestals::createMEs: " 
-					       << "Wrong DetId !!!!!! " <<  detId << " Neglecting !!!!!! ";
-      continue;
-    }
+    if (detId == 0 || detId == 0xFFFFFFFF) continue;
     if (aDetId == 0) aDetId = detId;
     ostringstream detIdStr;
     detIdStr << detId;
@@ -730,7 +731,10 @@ void SiStripInformationExtractor::readModuleAndHistoList(DQMStore* dqm_store, co
   *out << "</ModuleList>" << endl;
   // Fill Histo list
   *out << "<HistoList>" << endl;
-  vector<MonitorElement*> detector_mes = dqm_store->get(aDetId);
+
+  SiStripFolderOrganizer folder_organizer;
+  folder_organizer.setDetectorFolder(aDetId);     
+  vector<MonitorElement*> detector_mes = dqm_store->getContents(dqm_store->pwd());
   for (vector<MonitorElement *>::const_iterator it = detector_mes.begin();
        it!= detector_mes.end(); it++) {
     MonitorElement * me = (*it);     
@@ -739,8 +743,9 @@ void SiStripInformationExtractor::readModuleAndHistoList(DQMStore* dqm_store, co
     string hname = hname_full.substr(0, hname_full.find("__det__"));
     *out << "<Histo>" << hname << "</Histo>" << endl;     
   }
-   *out << "</HistoList>" << endl;
-   *out << "</ModuleAndHistoList>" << endl;
+  dqm_store->cd();
+  *out << "</HistoList>" << endl;
+  *out << "</ModuleAndHistoList>" << endl;
 
   /*   std::vector<std::string> hnames;
    std::vector<std::string> mod_names;
@@ -1013,15 +1018,19 @@ void SiStripInformationExtractor::readQTestSummary(DQMStore* dqm_store, string t
   int nTotalWarning = 0;
   int nDetsTotal = 0;
   ostringstream qtest_summary, lite_summary;
+  
+  SiStripFolderOrganizer folder_organizer;
   for (std::vector<uint32_t>::const_iterator idetid=SelectedDetIds.begin(), iEnd=SelectedDetIds.end();idetid!=iEnd;++idetid){    
     uint32_t detId = *idetid;
     if (detId == 0 || detId == 0xFFFFFFFF){
-      edm::LogError("SiStripMonitorPedestals") <<"SiStripMonitorPedestals::createMEs: " 
-					       << "Wrong DetId !!!!!! " <<  detId << " Neglecting !!!!!! ";
+      edm::LogError("SiStripInformationExtractor") 
+                  <<"SiStripInformationExtractor::readQTestSummary: " 
+                  << "Wrong DetId !!!!!! " <<  detId << " Neglecting !!!!!! ";
       continue;
     }
     nDetsTotal++;
-    vector<MonitorElement*> detector_mes = dqm_store->get(detId);
+    folder_organizer.setDetectorFolder(detId);     
+    vector<MonitorElement*> detector_mes = dqm_store->getContents(dqm_store->pwd());
     int error_me = 0;
     int warning_me = 0;
     for (vector<MonitorElement *>::const_iterator it = detector_mes.begin();
@@ -1050,6 +1059,7 @@ void SiStripInformationExtractor::readQTestSummary(DQMStore* dqm_store, string t
                     << " Result  : "  << mess_str.substr(mess_str.find(")")+2) << endl;
       } 
     }
+    dqm_store->cd();
     if (error_me > 0)   {
       nDetsWithError++;
       nTotalError += error_me;
