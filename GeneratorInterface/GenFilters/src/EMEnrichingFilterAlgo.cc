@@ -34,15 +34,17 @@ EMEnrichingFilterAlgo::EMEnrichingFilterAlgo(const edm::ParameterSet& iConfig) {
   ECALBARRELRADIUS_=129.0;
   ECALENDCAPZ_=304.5;
 
-  seedThresholdBarrel_=(float) iConfig.getParameter<double>("seedThresholdBarrel");
-  clusterThresholdBarrel_=(float) iConfig.getParameter<double>("clusterThresholdBarrel");
-  coneSizeBarrel_=(float) iConfig.getParameter<double>("coneSizeBarrel");
-  seedThresholdEndcap_=(float) iConfig.getParameter<double>("seedThresholdEndcap");
-  clusterThresholdEndcap_=(float) iConfig.getParameter<double>("clusterThresholdEndcap");
-  coneSizeEndcap_=(float) iConfig.getParameter<double>("coneSizeEndcap");
+  
+  
   isoGenParETMin_=(float) iConfig.getParameter<double>("isoGenParETMin");
   isoGenParConeSize_=(float) iConfig.getParameter<double>("isoGenParConeSize");
-  
+  clusterThreshold_=(float) iConfig.getParameter<double>("clusterThreshold");
+  isoConeSize_=(float) iConfig.getParameter<double>("isoConeSize");
+  hOverEMax_=(float) iConfig.getParameter<double>("hOverEMax");
+  tkIsoMax_=(float) iConfig.getParameter<double>("tkIsoMax");
+  caloIsoMax_=(float) iConfig.getParameter<double>("caloIsoMax");
+  requireTrackMatch_=iConfig.getParameter<bool>("requireTrackMatch");
+    
 
 }
 
@@ -52,15 +54,6 @@ EMEnrichingFilterAlgo::~EMEnrichingFilterAlgo() {
 
 bool EMEnrichingFilterAlgo::filter(const edm::Event& iEvent, const edm::EventSetup& iSetup)  {
 
-//   cout <<  seedThresholdBarrel_<<endl;
-//   cout <<  clusterThresholdBarrel_<<endl;
-//   cout <<  coneSizeBarrel_<<endl;
-//   cout <<  seedThresholdEndcap_<<endl;
-//   cout <<  clusterThresholdEndcap_<<endl;
-//   cout <<  coneSizeEndcap_<<endl;
-//   cout <<  isoGenParETMin_<<endl;
-//   cout <<  isoGenParConeSize_<<endl;
-
 
   Handle<reco::GenParticleCollection> genParsHandle;
   iEvent.getByLabel("genParticles",genParsHandle);
@@ -69,14 +62,15 @@ bool EMEnrichingFilterAlgo::filter(const edm::Event& iEvent, const edm::EventSet
   //bending of traj. of charged particles under influence of B-field
   std::vector<reco::GenParticle> genParsCurved=applyBFieldCurv(genPars,iSetup);
 
-    bool result1=filterPhotonElectronSeed(seedThresholdBarrel_,
-				       clusterThresholdBarrel_,
-				       coneSizeBarrel_,
-				       seedThresholdEndcap_,
-				       clusterThresholdEndcap_,
-				       coneSizeEndcap_,
-				       genParsCurved);
-
+  bool result1=filterPhotonElectronSeed(clusterThreshold_,
+					isoConeSize_,
+					hOverEMax_,
+					tkIsoMax_,
+					caloIsoMax_,
+					requireTrackMatch_,
+					genPars,
+					genParsCurved);
+    
   bool result2=filterIsoGenPar(isoGenParETMin_,isoGenParConeSize_,genPars,genParsCurved);
 
 
@@ -90,66 +84,116 @@ bool EMEnrichingFilterAlgo::filter(const edm::Event& iEvent, const edm::EventSet
 
 //filter that uses clustering around photon and electron seeds
 //only electrons, photons, charged pions, and charged kaons are clustered
-//if a cluster is found with eT above the given threshold, the function returns true
+//additional requirements:
+
+
 //seed threshold, total threshold, and cone size/shape are specified separately for the barrel and the endcap
-//if "conesize" argument is given as -1, a strip elongated in phi is used
-//in the endcap a strip in phi is not possible, only a cone in xy
-//the strip is 0.4 in phi by 0.04 in eta
-bool EMEnrichingFilterAlgo::filterPhotonElectronSeed(float seedthreshold, 
-						     float clusterthreshold, 
-						     float conesize,
-						     float seedthresholdendcap, 
-						     float clusterthresholdendcap, 
-						     float conesizeendcap,
-						     const std::vector<reco::GenParticle> &genPars) {
-  
+bool EMEnrichingFilterAlgo::filterPhotonElectronSeed(float clusterthreshold,
+						 float isoConeSize,
+						 float hOverEMax,
+						 float tkIsoMax,
+						 float caloIsoMax,
+						 bool requiretrackmatch,
+						 const std::vector<reco::GenParticle> &genPars,
+						 const std::vector<reco::GenParticle> &genParsCurved) {
+
+  float seedthreshold=5;
+  float conesizeendcap=15;
+
   bool retval=false;
   
   vector<reco::GenParticle> seeds;
   //find electron and photon seeds - must have E>seedthreshold GeV
-  for (uint32_t is=0;is<genPars.size();is++) {
-    reco::GenParticle gp=genPars.at(is);
+  for (uint32_t is=0;is<genParsCurved.size();is++) {
+    reco::GenParticle gp=genParsCurved.at(is);
     if (gp.status()!=1 || fabs(gp.eta()) > FILTER_ETA_MAX_ || fabs(gp.eta()) < FILTER_ETA_MIN_) continue;
     int absid=abs(gp.pdgId());
     if (absid!=11 && absid!=22) continue;
     if (gp.et()>seedthreshold) seeds.push_back(gp);
   }
   
-  //for every seed, try to cluster stable particles about it in cone of specified size  
+  bool matchtrack=false;
+  
+  //for every seed, try to cluster stable particles about it in cone
   for (uint32_t is=0;is<seeds.size();is++) {
-    float eInCone=0;
+    float eTInCone=0;//eT associated to the electron cluster
+    float tkIsoET=0;//tracker isolation energy
+    float caloIsoET=0;//calorimeter isolation energy
+    float hadET=0;//isolation energy from heavy hadrons that goes in the same area as the "electron" - so contributes to H/E
     bool isBarrel=fabs(seeds.at(is).eta())<ECALBARRELMAXETA_;
-    for (uint32_t ig=0;ig<genPars.size();ig++) {
-      reco::GenParticle gp=genPars.at(ig);
+    for (uint32_t ig=0;ig<genParsCurved.size();ig++) {
+      reco::GenParticle gp=genParsCurved.at(ig);
+      reco::GenParticle gpUnCurv=genPars.at(ig);//for tk isolation, p at vertex
       if (gp.status()!=1) continue;
       int gpabsid=abs(gp.pdgId());
-      if (gpabsid!=22 && gpabsid!=11 && gpabsid != 211 && gpabsid!= 321) continue;
-      if (gp.energy()<5) continue;
-      //treat barrel and endcap differently      
+      if (gp.et()<1) continue;//ignore very soft particles
+      //BARREL
       if (isBarrel) {
 	float dr=deltaR(seeds.at(is),gp);
 	float dphi=deltaPhi(seeds.at(is).phi(),gp.phi());
 	float deta=fabs(seeds.at(is).eta()-gp.eta());
-	if (dr<conesize || (conesize<0 && deta<0.02 && dphi<0.2)) eInCone+=gp.et();
+	if (deta<0.03 && dphi<0.2) {
+	  if (gpabsid==22 || gpabsid==11 || gpabsid==211 || gpabsid==321) {
+	    //contributes to electron
+	    eTInCone+=gp.et();
+	    //check for a matched track with at least 5 GeV
+	    if ((gpabsid==11 || gpabsid==211 || gpabsid==321) && gp.et()>5) matchtrack=true;
+	  } else {
+	    //contributes to H/E
+	    hadET+=gp.et();
+	  }
+	} else {
+	  float drUnCurv=deltaR(seeds.at(is),gpUnCurv);
+	  if ((gp.charge()==0 && dr<isoConeSize && gpabsid!=22) ||
+	      (gp.charge()!=0 && drUnCurv<isoConeSize)) {      
+	    //contributes to calo isolation energy
+	    caloIsoET+=gp.et();
+	  }
+	  if (gp.charge()!=0 && drUnCurv<isoConeSize) {
+	    //contributes to track isolation energy
+	    tkIsoET+=gp.et();
+	  }
+	}
+	//ENDCAP
       } else {
 	float drxy=deltaRxyAtEE(seeds.at(is),gp);
+	float dr=deltaR(seeds.at(is),gp);//the isolation is done in dR
 	if (drxy<conesizeendcap) {
-	  eInCone+=gp.et();
+	  if (gpabsid==22 || gpabsid==11 || gpabsid==211 || gpabsid==321) {
+	    //contributes to electron
+	    eTInCone+=gp.et();
+	    //check for a matched track with at least 5 GeV
+	    if ((gpabsid==11 || gpabsid==211 || gpabsid==321) && gp.et()>5) matchtrack=true;
+	  } else {
+	    //contributes to H/E
+	    hadET+=gp.et();
+	  }
+	} else {
+	  float drUnCurv=deltaR(seeds.at(is),gpUnCurv);
+	  if ((gp.charge()==0 && dr<isoConeSize && gpabsid!=22) ||
+	      (gp.charge()!=0 && drUnCurv<isoConeSize)) {
+	    //contributes to calo isolation energy
+	    caloIsoET+=gp.et();
+	  }
+	  if (gp.charge()!=0 && drUnCurv<isoConeSize) {
+	    //contributes to track isolation energy
+	    tkIsoET+=gp.et();
+	  }
 	}
       }
     }
-    if (isBarrel && eInCone>clusterthreshold) {
-      retval=true;
-      break;
-    }
-    if (!isBarrel && eInCone>clusterthresholdendcap){
-      retval=true;
+
+    if (eTInCone>clusterthreshold && (!requiretrackmatch || matchtrack)) {
+      //       cout <<"isoET: "<<isoET<<endl;
+      if (hadET/eTInCone<hOverEMax && tkIsoET<tkIsoMax && caloIsoET<caloIsoMax) retval=true;
       break;
     }
   }
   
   return retval;
 }
+
+
 
 
 //make new genparticles vector taking into account the bending of charged particles in the b field
