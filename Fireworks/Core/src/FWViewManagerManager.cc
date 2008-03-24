@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Jan 15 10:27:12 EST 2008
-// $Id: FWViewManagerManager.cc,v 1.5 2008/03/14 21:14:13 chrjones Exp $
+// $Id: FWViewManagerManager.cc,v 1.6 2008/03/20 20:14:35 chrjones Exp $
 //
 
 // system include files
@@ -74,6 +74,10 @@ FWViewManagerManager::add( boost::shared_ptr<FWViewManagerBase> iManager)
 void 
 FWViewManagerManager::registerEventItem(const FWEventItem*iItem)
 {
+   if ( m_typeToItems.find(iItem->name()) != m_typeToItems.end() ) {
+      printf("WARNING: item %s was already registered. Request ignored.\n", iItem->name().c_str() );
+      return;
+   }
    m_typeToItems[iItem->name()]=iItem;
    for(std::vector<boost::shared_ptr<FWViewManagerBase> >::iterator itVM = m_viewManagers.begin();
        itVM != m_viewManagers.end();
