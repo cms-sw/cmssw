@@ -4,16 +4,24 @@
 /** \class FastL3MuonTrajectoryBuilder
  *  class to build muon trajectory from STA L2 muons and tracker tracks
  *
- *  $Date: 2008/02/24 15:34:10 $
- *  $Revision: 1.3 $
+ *  $Date: 2008/03/14 19:12:06 $
+ *  $Revision: 1.4 $
  *
  *  \author Patrick Janot - CERN 
  */
+
+//for debug only 
+//#define FAMOS_DEBUG
 
 #include "RecoMuon/GlobalTrackingTools/interface/GlobalTrajectoryBuilderBase.h"
 #include "TrackingTools/PatternTools/interface/TrajectoryBuilder.h"
 
 #include "TrackingTools/DetLayers/interface/NavigationSchool.h"
+#ifdef FAMOS_DEBUG
+#include "DQMServices/Core/interface/DQMStore.h"
+#include "DQMServices/Core/interface/MonitorElement.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
+#endif
 
 namespace edm {
   class ParameterSet; 
@@ -77,6 +85,14 @@ class FastL3MuonTrajectoryBuilder : public GlobalTrajectoryBuilderBase {
     edm::InputTag theTrackerTrajectoryCollection;
     edm::InputTag theSimModule;
     const edm::Event* theEvent;
+
+#ifdef FAMOS_DEBUG
+    DQMStore * dbe;
+    MonitorElement* simuMuons;
+    MonitorElement* matchMuons;
+    MonitorElement* refitMuons;
+#endif
+
 };
 #endif
 

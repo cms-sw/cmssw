@@ -12,6 +12,7 @@
 <use name=TrackingTools/PatternTools>
 <use name=TrackingTools/TrajectoryCleaning>
 <use name=Utilities/General>
+#<use name=DQMServices/Core>
 <export>
   <use name=RecoMuon/GlobalTrackingTools>
   <use name=TrackingTools/DetLayers>
