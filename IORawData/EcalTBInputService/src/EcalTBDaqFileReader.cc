@@ -29,6 +29,7 @@ EcalTBDaqFileReader::~EcalTBDaqFileReader(){
   if(inputFile_) {
     inputFile_->close();
     delete inputFile_;
+    inputFile_=0;
   }
 
 }
@@ -55,6 +56,7 @@ void EcalTBDaqFileReader::initialize(const string & file, bool isBinary){
     if(inputFile_) {
       inputFile_->close();
       delete inputFile_;
+      inputFile_=0;
     }
   }
 
