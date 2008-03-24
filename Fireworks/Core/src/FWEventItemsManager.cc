@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Fri Jan  4 10:38:18 EST 2008
-// $Id: FWEventItemsManager.cc,v 1.8 2008/02/25 21:32:27 chrjones Exp $
+// $Id: FWEventItemsManager.cc,v 1.9 2008/03/24 07:10:01 dmytro Exp $
 //
 
 // system include files
@@ -121,6 +121,7 @@ static const std::string kColor("color");
 static const std::string kIsVisible("isVisible");
 static const std::string kTrue("t");
 static const std::string kFalse("f");
+static const std::string kLayer("layer");
 
 void 
 FWEventItemsManager::addTo(FWConfiguration& iTo) const
@@ -137,10 +138,17 @@ FWEventItemsManager::addTo(FWConfiguration& iTo) const
       conf.addKeyValue(kProductInstanceLabel, FWConfiguration((*it)->productInstanceLabel()));
       conf.addKeyValue(kProcessName, FWConfiguration((*it)->processName()));
       conf.addKeyValue(kFilterExpression, FWConfiguration((*it)->filterExpression()));
-      std::ostringstream os;
-      os << (*it)->defaultDisplayProperties().color();
-      conf.addKeyValue(kColor, FWConfiguration(os.str()));
+      {
+         std::ostringstream os;
+         os << (*it)->defaultDisplayProperties().color();
+         conf.addKeyValue(kColor, FWConfiguration(os.str()));
+      }
       conf.addKeyValue(kIsVisible, FWConfiguration((*it)->defaultDisplayProperties().isVisible()?kTrue:kFalse));
+      {
+         std::ostringstream os;
+         os << (*it)->layer();
+         conf.addKeyValue(kLayer,FWConfiguration(os.str()));
+      }
       iTo.addKeyValue((*it)->name(), conf, true);
    }
 }
@@ -171,14 +179,19 @@ FWEventItemsManager::setFrom(const FWConfiguration& iFrom)
       is >> color;
       
       FWDisplayProperties disp(color, isVisible);
-      
+
+      unsigned int layer;
+      const std::string& sLayer =(*keyValues)[7].second.value();
+      std::istringstream isl(sLayer);
+      isl >> layer;
       FWPhysicsObjectDesc desc(name,
                                TClass::GetClass(type.c_str()),
                                disp,
                                moduleLabel,
                                productInstanceLabel,
                                processName,
-			       filterExpression);
+			       filterExpression,
+                               layer);
       add(desc);
    }
 }
