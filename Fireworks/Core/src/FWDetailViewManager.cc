@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Wed Mar  5 09:13:47 EST 2008
-// $Id: FWDetailViewManager.cc,v 1.9 2008/03/22 20:14:38 chrjones Exp $
+// $Id: FWDetailViewManager.cc,v 1.10 2008/03/24 01:51:06 jmuelmen Exp $
 //
 
 // system include files
@@ -100,7 +100,7 @@ FWDetailViewManager::openDetailViewFor(const FWModelId &id)
      if (frame != 0)
 	  frame->CloseWindow();
      frame = new // TGTransientFrame(0, gEve->GetBrowser(), 400, 400);
-	  TGMainFrame(0, 800, 400);
+	  TGMainFrame(0, 800, 600);
      // connect the close-window button to something useful
      frame->Connect("CloseWindow()", "FWDetailViewManager", this, "close_wm()");
      frame->SetCleanup(kDeepCleanup);
@@ -156,9 +156,9 @@ FWDetailViewManager::openDetailViewFor(const FWModelId &id)
    //      nv->GetGLViewer()->SetPerspectiveCamera(TGLViewer::kCameraOrthoXOY, 5, 0, viewer->second->rotation_center, 0.5, 0 );
    //      nv->GetGLViewer()->SetPerspectiveCamera(TGLViewer::kCameraOrthoXOY, 5, 0, viewer->second->rotation_center, 0.5, 0 );
    //      nv->GetGLViewer()->CurrentCamera().Reset();
-   //     nv->GetGLViewer()->SetOrthoCamera(TGLViewer::kCameraOrthoXOY, 5, 0, viewer->second->rotation_center, 0.5, 0 );
+     nv->GetGLViewer()->SetOrthoCamera(TGLViewer::kCameraOrthoXOY, 2, 10, viewer->second->rotation_center, 0.5, 0 );
    // nv->GetGLViewer()->SetPerspectiveCamera(TGLViewer::kCameraPerspXOY, 5, 0, viewer->second->rotation_center, 0.5, 0 );
-   // nv->GetGLViewer()->SetCurrentCamera(TGLViewer::kCameraPerspXOY);
+     nv->GetGLViewer()->SetCurrentCamera(TGLViewer::kCameraOrthoXOY);
    nv->GetGLViewer()->CurrentCamera().Reset();
    nv->GetGLViewer()->UpdateScene();
    

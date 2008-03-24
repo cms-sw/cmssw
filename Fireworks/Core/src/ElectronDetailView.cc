@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Sun Jan  6 23:57:00 EST 2008
-// $Id: ElectronDetailView.cc,v 1.5 2008/03/22 08:48:58 jmuelmen Exp $
+// $Id: ElectronDetailView.cc,v 1.6 2008/03/24 01:50:44 jmuelmen Exp $
 //
 
 // system include files
@@ -389,7 +389,7 @@ void ElectronDetailView::build_projected (TEveElementList **product,
 	       getHitsByDetId();
 	  for (std::vector<DetId>::const_iterator k = detids.begin();
 	       k != detids.end(); ++k) {
-	       double size = 1; // default size
+	       double size = 50; // default size
 	       if ( hits ){
 		  EcalRecHitCollection::const_iterator hit = hits->find(*k);
 		  if (hit != hits->end()) 
@@ -544,7 +544,8 @@ void ElectronDetailView::build_projected (TEveElementList **product,
  	  TEveElementList *all_crystals = 
  	       getEcalCrystals(*m_item->getGeom(), 
  			       i->superCluster()->position().eta(), 
-			       i->superCluster()->position().phi());
+			       i->superCluster()->position().phi(),
+			       5, 20);
  	  all_crystals->SetMainColor((Color_t)kMagenta);
  	  tList->AddElement(all_crystals);
      }
@@ -559,6 +560,9 @@ TEveElementList *ElectronDetailView::makeLabels (
      text_view->AddLine("Electron detailed view"); 
      text_view->AddLine("");
      // summary
+     if (electron.charge() > 0)
+	  text_view->AddLine("charge = +1");
+     else text_view->AddLine("charge = -1");
      char summary[128];
      sprintf(summary, "%s = %.1f GeV %10s = %.2f %10s = %.2f",
 	     "ET", electron.caloEnergy() / cosh(electron.eta()), 
@@ -573,13 +577,13 @@ TEveElementList *ElectronDetailView::makeLabels (
      text_view->AddLine(hoe);
      // delta phi/eta in 
      char din[128];
-     sprintf(din, "delta eta in = %.3f %15s = %.3f",
+     sprintf(din, "delta eta in = %.3f %16s = %.3f",
 	     electron.deltaEtaSuperClusterTrackAtVtx(),
 	     "delta phi in", electron.deltaPhiSuperClusterTrackAtVtx());
      text_view->AddLine(din);
      // delta phi/eta out 
      char dout[128];
-     sprintf(dout, "delta eta out = %.3f %15s = %.3f",
+     sprintf(dout, "delta eta out = %.3f %16s = %.3f",
 	     electron.deltaEtaSeedClusterTrackAtCalo(),
 	     "delta phi out", electron.deltaPhiSeedClusterTrackAtCalo());
      text_view->AddLine(dout);
@@ -655,22 +659,22 @@ TEveElementList *ElectronDetailView::makeLabels (
 #endif
      // eta, phi axis
      TEveLine *eta_line = new TEveLine;
-     eta_line->SetNextPoint(rotation_center[0] - 5, rotation_center[1] - 5, 0);
-     eta_line->SetNextPoint(rotation_center[0] - 4.5, rotation_center[1] - 5, 0);
+     eta_line->SetNextPoint(rotation_center[0] - 15, rotation_center[1] - 40, 0);
+     eta_line->SetNextPoint(rotation_center[0] - 10, rotation_center[1] - 40, 0);
      eta_line->SetLineColor((Color_t)kWhite);
      ret->AddElement(eta_line);
      TEveText *tt = new TEveText("eta");
-     tt->PtrMainTrans()->MoveLF(1, rotation_center[0] - 4.2);
-     tt->PtrMainTrans()->MoveLF(2, rotation_center[1] - 5);
+     tt->PtrMainTrans()->MoveLF(1, rotation_center[0] - 9);
+     tt->PtrMainTrans()->MoveLF(2, rotation_center[1] - 40);
      ret->AddElement(tt);
      TEveLine *phi_line = new TEveLine;
-     phi_line->SetNextPoint(rotation_center[0] - 5, rotation_center[1] - 5, 0);
-     phi_line->SetNextPoint(rotation_center[0] - 5, rotation_center[1] - 4.5, 0);
+     phi_line->SetNextPoint(rotation_center[0] - 15, rotation_center[1] - 40, 0);
+     phi_line->SetNextPoint(rotation_center[0] - 15, rotation_center[1] - 35, 0);
      phi_line->SetLineColor((Color_t)kWhite);
      ret->AddElement(phi_line);
      tt = new TEveText("phi");
-     tt->PtrMainTrans()->MoveLF(1, rotation_center[0] - 5);
-     tt->PtrMainTrans()->MoveLF(2, rotation_center[1] - 4.2);
+     tt->PtrMainTrans()->MoveLF(1, rotation_center[0] - 15);
+     tt->PtrMainTrans()->MoveLF(2, rotation_center[1] - 34);
      ret->AddElement(tt);
      return ret;
 }
