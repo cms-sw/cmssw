@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Sun Jan  6 23:57:00 EST 2008
-// $Id: ElectronDetailView.cc,v 1.4 2008/03/21 03:28:25 dmytro Exp $
+// $Id: ElectronDetailView.cc,v 1.5 2008/03/22 08:48:58 jmuelmen Exp $
 //
 
 // system include files
@@ -302,7 +302,6 @@ void ElectronDetailView::build_3d (TEveElementList **product, const FWModelId &i
 	  tList->AddElement(pinposition);
 	  TEveElementList *all_crystals = 
 	       fw::getEcalCrystals(hits, *m_item->getGeom(), sc.Eta(), sc.Phi());
-	  float rgba[4] = { 1, 0, 0.2, 1 };
 	  all_crystals->SetMainColor((Color_t)kMagenta);
 	  tList->AddElement(all_crystals);
      }
@@ -374,7 +373,6 @@ void ElectronDetailView::build_projected (TEveElementList **product,
      float rgba[4] = { 1, 0, 0, 1 };
      if (const reco::PixelMatchGsfElectron *i = &electrons->at(id.index())) {
 	  assert(i->gsfTrack().isNonnull());
-	  const int charge = i->gsfTrack()->charge();
 	  assert(i->superCluster().isNonnull());
 	  TEveElementList* container = new TEveElementList("supercluster");
 	  TEveElementList *seed_boxes = 
@@ -405,11 +403,11 @@ void ElectronDetailView::build_projected (TEveElementList **product,
 	       if (k->subdetId() != EcalBarrel) 
 		    continue;
 	       TEveElementList *boxes = non_seed_boxes;
-	       rgba[0] = 1; rgba[1] = rgba[2] = 0;
+	       rgba[0] = rgba[1] = 1; rgba[2] = 0;
 	       if (find(seed_detids.begin(), seed_detids.end(), *k) != 
 		   seed_detids.end()) {
 		    boxes = seed_boxes;
-		    rgba[0] = rgba[1] = 1; rgba[2] = 0;
+		    rgba[0] = 1; rgba[1] = rgba[2] = 0;
 	       } 
 	       TGeoBBox *box = new TGeoBBox(0.1 * sqrt(size), 
 					    0.1 * sqrt(size), 
@@ -527,7 +525,7 @@ void ElectronDetailView::build_projected (TEveElementList **product,
 	  pinposition->SetNextPoint((i->caloPosition().eta() - i->deltaEtaSuperClusterTrackAtVtx()) * scale,
 				    rotation_center[1] + 20,
 				    0);
-	  pinposition->SetMarkerStyle(20);
+	  pinposition->SetMarkerStyle(28);
 	  pinposition->SetLineColor(kRed);
 	  tList->AddElement(pinposition);
 	  pinposition = new TEveLine("pin position", 1);
@@ -537,7 +535,7 @@ void ElectronDetailView::build_projected (TEveElementList **product,
 	  pinposition->SetNextPoint(rotation_center[0] + 20,
 				    (i->caloPosition().phi() - i->deltaPhiSuperClusterTrackAtVtx()) * scale,
 				    0);
-	  pinposition->SetMarkerStyle(20);
+	  pinposition->SetMarkerStyle(28);
 	  pinposition->SetLineColor(kRed);
 	  tList->AddElement(pinposition);
 #endif
@@ -558,30 +556,41 @@ TEveElementList *ElectronDetailView::makeLabels (
      TEveElementList *ret = new TEveElementList("electron labels");
 #if DRAW_LABELS_IN_SEPARATE_VIEW
      // title
-     text_view->AddLine("Electron detailed view");
+     text_view->AddLine("Electron detailed view"); 
+     text_view->AddLine("");
      // summary
      char summary[128];
-     sprintf(summary, "ET = %.1f GeV        eta = %.2f        phi = %.2f",
-	     electron.caloEnergy() / cosh(electron.eta()), 
-	     electron.eta(), electron.phi());
+     sprintf(summary, "%s = %.1f GeV %10s = %.2f %10s = %.2f",
+	     "ET", electron.caloEnergy() / cosh(electron.eta()), 
+	     "eta", electron.eta(), 
+	     "phi", electron.phi());
      text_view->AddLine(summary);
      // E/p, H/E
      char hoe[128];
-     sprintf(hoe, "E/p = %.2f        H/E = %.3f",
-	     electron.eSuperClusterOverP(), electron.hadronicOverEm());
+     sprintf(hoe, "E/p = %.2f %13s = %.3f",
+	     electron.eSuperClusterOverP(), 
+	     "H/E", electron.hadronicOverEm());
      text_view->AddLine(hoe);
      // delta phi/eta in 
      char din[128];
-     sprintf(din, "delta eta in = %.3f        delta phi in = %.3f",
+     sprintf(din, "delta eta in = %.3f %15s = %.3f",
 	     electron.deltaEtaSuperClusterTrackAtVtx(),
-	     electron.deltaPhiSuperClusterTrackAtVtx());
+	     "delta phi in", electron.deltaPhiSuperClusterTrackAtVtx());
      text_view->AddLine(din);
      // delta phi/eta out 
      char dout[128];
-     sprintf(dout, "delta eta out = %.3f        delta phi out = %.3f",
+     sprintf(dout, "delta eta out = %.3f %15s = %.3f",
 	     electron.deltaEtaSeedClusterTrackAtCalo(),
-	     electron.deltaPhiSeedClusterTrackAtCalo());
+	     "delta phi out", electron.deltaPhiSeedClusterTrackAtCalo());
      text_view->AddLine(dout);
+     // legend
+     text_view->AddLine("");
+     text_view->AddLine("      red cross: track outer helix extrapolation");
+     text_view->AddLine("     blue cross: track inner helix extrapolation");
+     text_view->AddLine("      red point: seed cluster centroid");
+     text_view->AddLine("     blue point: supercluster centroid");
+     text_view->AddLine("   red crystals: seed cluster");
+     text_view->AddLine("yellow crystals: other clusters");
 #else
      // title
      TEveText* t = new TEveText("Electron detailed view");
@@ -707,8 +716,7 @@ TEveElementList *ElectronDetailView::getEcalCrystals (const DetIdToMatrix &geo,
 	  }
 // 	  printf("adding\n");
 	  const double scale = 100;
-	  float rgba[4] = { 1, 0, 0, 1 };
-	  rgba[0] = 1; rgba[1] = rgba[2] = 0;
+	  float rgba[4] = { 1, 1, 0, 1 };
 	  TGeoBBox *box = new TGeoBBox(0.48 * 0.0172 * scale, 
 				       0.48 * 0.0172 * scale, 
 				       0.01, 0);
