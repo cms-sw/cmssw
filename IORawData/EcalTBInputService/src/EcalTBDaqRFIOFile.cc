@@ -7,8 +7,8 @@
 #include <stdio.h>
 
 #include <iosfwd>
-#include <iostream>
 #include <algorithm>
+#include <iostream>
 
 extern "C" {
   extern int rfio_open  (const char *path, int flags, int mode);
@@ -36,6 +36,7 @@ EcalTBDaqRFIOFile::EcalTBDaqRFIOFile(const std::string& filename, const bool& is
 	}
       infile_ = rfio_fopen((char*)filename.c_str(), "r");
     }// end if binary
+
   else
     {
       LogInfo("EcalTBDaqRFIOFile") << "@SUB=EcalTBDaqRFIOFile::initialize" << "Opening ASCII file " << filename;
@@ -68,6 +69,7 @@ bool EcalTBDaqRFIOFile::getEventData(FedDataPair& data) {
     // 	 << " (max size in byte is " << maxEventSizeInBytes_ << ")"<< endl;
     if (size > EcalTBDaqFile::maxEventSizeInBytes_){
       LogWarning("EcalTBDaqRFIOFile") << "@SUB=EcalTBDaqRFIOFile::getEventData" << "event size larger than allowed";
+      return false;
     }
   
 
@@ -130,6 +132,7 @@ bool EcalTBDaqRFIOFile::getEventData(FedDataPair& data) {
       }
       buf+=1;
       len++;
+
     }// end loop importing data word by word
 
     //    cout << " Number of 32 words in the event " << len << endl;
@@ -140,6 +143,7 @@ bool EcalTBDaqRFIOFile::getEventData(FedDataPair& data) {
     //fedData = reinterpret_cast<unsigned char*>(tmp);
     data.fedData = reinterpret_cast<unsigned char*>(tmp);
 
+
   }// end in case of ASCII file
 
   return true;
@@ -148,7 +152,6 @@ bool EcalTBDaqRFIOFile::getEventData(FedDataPair& data) {
 //Check if the position in file is EOF
 bool EcalTBDaqRFIOFile::checkEndOfFile()
 {
-  //  cout << "  EcalTBDaqFileReader::checkEndOfFile " << endl;
   //unsigned char * buf = new unsigned char;
   long curr=rfio_ftell(infile_);
   rfio_fseek(infile_,0,SEEK_END);
