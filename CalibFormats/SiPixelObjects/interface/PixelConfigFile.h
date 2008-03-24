@@ -96,6 +96,13 @@ namespace pos{
       getAlias().writefile();
     }
 
+    static std::vector< std::pair< std::string, unsigned int> > getVersions(pos::PixelConfigKey key){
+
+      PixelConfigList& configs=getConfig();
+      PixelConfig& theConfig=configs[key.key()];
+      return theConfig.versions();
+      
+    }
 
     static void addVersionAlias(std::string path, unsigned int version, std::string alias){
 

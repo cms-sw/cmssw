@@ -54,7 +54,9 @@ namespace pos{
       return -1;
     }
 
-    
+    std::vector<std::pair<std::string,unsigned int> > versions(){
+      return versions_;
+    }
 
   private:
    
