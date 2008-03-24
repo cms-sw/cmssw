@@ -24,7 +24,7 @@ using namespace edm;
 
 EcalTBDaqRFIOFile::EcalTBDaqRFIOFile(const std::string& filename, const bool& isBinary) : filename_(filename), isBinary_(isBinary)
 {
-  if ( isBinary )
+  if ( isBinary_ )
     {
       // case of binary input data file
       LogInfo("EcalTBDaqRFIOFile") << "@SUB=EcalTBDaqRFIOFile::initialize" << "Opening binary data file " << filename;
