@@ -7,11 +7,12 @@
 
    \original author Stefano ARGIRO
    \current author Bill Tanenbaum
-   \version $Id: ProductRegistry.h,v 1.4 2007/05/26 18:55:11 wmtan Exp $
+   \version $Id: ProductRegistry.h,v 1.5 2007/06/14 03:38:30 wmtan Exp $
    \date 19 Jul 2005
 */
 
 #include <map>
+#include <set>
 #include <iosfwd>
 #include <string>
 #include <vector>
@@ -36,14 +37,7 @@ namespace edm {
   class ProductRegistry {
 
   public:
-    ProductRegistry() : 
-      productList_(),
-      nextID_(1),
-      maxID_(0),
-      frozen_(false),
-      constProductList_(),
-      productLookup_(),
-      elementLookup_() {}
+    ProductRegistry();
 
     virtual ~ProductRegistry() {}
 
@@ -129,6 +123,9 @@ namespace edm {
     mutable TypeLookup productLookup_; // 1->many
     mutable TypeLookup elementLookup_; // 1->many
     
+    // Fix some product ID's to facilitate merging.
+    std::map<std::string, unsigned int> fixedProductIDs_;
+    std::set<unsigned int> preExistingFixedProductIDs_;
   };
 
   inline

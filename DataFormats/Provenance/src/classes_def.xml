@@ -21,6 +21,8 @@
    <field name="constProductList_" transient="true"/>
    <field name="productLookup_" transient="true"/>
    <field name="elementLookup_" transient="true"/>
+   <field name="fixedProductIDs_" transient="true"/>
+   <field name="preExistingFixedProductIDs_" transient="true"/>
  </class>
  <class name="std::map<edm::BranchKey,edm::BranchDescription>"/>
  <class name="std::pair<edm::BranchKey,edm::BranchDescription>"/>

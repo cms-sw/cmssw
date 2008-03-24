@@ -4,11 +4,11 @@
 
    \Original author Stefano ARGIRO
    \Current author Bill Tanenbaum
-   \version $Id: ProductRegistry.cc,v 1.6 2007/07/09 07:29:20 llista Exp $
+   \version $Id: ProductRegistry.cc,v 1.7 2008/02/07 00:43:07 wmtan Exp $
    \date 19 Jul 2005
 */
 
-static const char CVSId[] = "$Id: ProductRegistry.cc,v 1.6 2007/07/09 07:29:20 llista Exp $";
+static const char CVSId[] = "$Id: ProductRegistry.cc,v 1.7 2008/02/07 00:43:07 wmtan Exp $";
 
 
 #include "DataFormats/Provenance/interface/ProductRegistry.h"
@@ -19,6 +19,24 @@ static const char CVSId[] = "$Id: ProductRegistry.cc,v 1.6 2007/07/09 07:29:20 l
 #include <sstream>
 
 namespace edm {
+
+  ProductRegistry::ProductRegistry() :
+      productList_(),
+      nextID_(1),
+      maxID_(0),
+      frozen_(false),
+      constProductList_(),
+      productLookup_(),
+      elementLookup_(),
+      fixedProductIDs_(),
+      preExistingFixedProductIDs_() {
+        fixedProductIDs_.insert(std::make_pair(std::string("FEDRawDataCollection_rawDataCollector_"), 1U));
+        fixedProductIDs_.insert(std::make_pair(std::string("edmTriggerResults_TriggerResults_"), 2U));
+        fixedProductIDs_.insert(std::make_pair(std::string("triggerTriggerEvent_triggerSummaryAOD_"), 3U));
+        fixedProductIDs_.insert(std::make_pair(std::string("triggerTriggerEventWithRefs_triggerSummaryRAW_"), 4U));
+	nextID_ += fixedProductIDs_.size();
+  }
+
   void
   ProductRegistry::addProduct(BranchDescription const& productDesc,
 			      bool fromListener) {
@@ -27,8 +45,21 @@ namespace edm {
     checkDictionaries(productDesc.fullClassName(), productDesc.transient());
     productList_.insert(std::make_pair(BranchKey(productDesc), productDesc));
     addCalled(productDesc,fromListener);
+    // we must now check if this product must use a fixed product ID.
+    if (preExistingFixedProductIDs_.size() < fixedProductIDs_.size()) {
+      // NOTE: Not the full branch name.
+      std::string branchName = productDesc.friendlyClassName() + '_' +
+                               productDesc.moduleLabel() + '_';
+      std::map<std::string, unsigned int>::const_iterator it = fixedProductIDs_.find(branchName);
+      if (it != fixedProductIDs_.end()) {
+	if (preExistingFixedProductIDs_.find(it->second) == preExistingFixedProductIDs_.end()) {
+	  // The ID is fixed, and not already in use. Use fixed ID.
+          productList_[BranchKey(productDesc)].productID_.id_ = it->second;
+	}
+      }
+    }
   }
-  
+ 
   void
   ProductRegistry::copyProduct(BranchDescription const& productDesc) {
     throwIfFrozen();
@@ -39,6 +70,11 @@ namespace edm {
       productList_.insert(std::make_pair(k, productDesc));
       if (productDesc.productID().id_ >= nextID_) {
         nextID_ = productDesc.productID().id_ + 1;
+      }
+      // If the product ID is small enough to be a fixed ID,
+      // save the fact that the ID is already used.
+      if (productDesc.productID().id_ <= fixedProductIDs_.size()) {
+        preExistingFixedProductIDs_.insert(productDesc.productID().id_);
       }
     } else {
       assert(combinable(iter->second, productDesc));
