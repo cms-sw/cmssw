@@ -8,11 +8,12 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Wed Mar  5 09:13:47 EST 2008
-// $Id: FWDetailViewManager.cc,v 1.8 2008/03/22 19:23:08 chrjones Exp $
+// $Id: FWDetailViewManager.cc,v 1.9 2008/03/22 20:14:38 chrjones Exp $
 //
 
 // system include files
 #include <stdio.h>
+// #include <GL/gl.h>
 
 // user include files
 #include "TGButton.h"
@@ -20,6 +21,8 @@
 #include "TGLEmbeddedViewer.h"
 #include "TGLScenePad.h"
 #include "TGTextView.h"
+// #include "TGLUtil.h"
+#include "TGLLightSet.h"
 #include "TEveManager.h"
 #include "TEveScene.h"
 #include "TEveViewer.h"
@@ -97,7 +100,7 @@ FWDetailViewManager::openDetailViewFor(const FWModelId &id)
      if (frame != 0)
 	  frame->CloseWindow();
      frame = new // TGTransientFrame(0, gEve->GetBrowser(), 400, 400);
-	  TGMainFrame(0, 400, 420);
+	  TGMainFrame(0, 800, 400);
      // connect the close-window button to something useful
      frame->Connect("CloseWindow()", "FWDetailViewManager", this, "close_wm()");
      frame->SetCleanup(kDeepCleanup);
@@ -131,6 +134,17 @@ FWDetailViewManager::openDetailViewFor(const FWModelId &id)
 	  assert(viewer != m_viewers.end());
      }
 
+     // get better lighting
+//      TGLCapabilitySwitch sw(GL_LIGHTING, false);
+     TGLLightSet *light_set = nv->GetGLViewer()->GetLightSet();
+//      light_set->SetLight(TGLLightSet::kLightFront	, false);
+//      light_set->SetLight(TGLLightSet::kLightTop	, true);
+//      light_set->SetLight(TGLLightSet::kLightBottom	, false);
+//      light_set->SetLight(TGLLightSet::kLightLeft	, false);
+//      light_set->SetLight(TGLLightSet::kLightRight	, false);
+//      light_set->SetLight(TGLLightSet::kLightMask	, false);
+     light_set->SetLight(TGLLightSet::kLightSpecular	, false);
+     
      // run the viewer
      TEveElementList *list = 0;
      viewer->second->setTextView(text_view);
