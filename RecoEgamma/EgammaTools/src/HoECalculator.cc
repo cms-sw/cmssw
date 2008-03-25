@@ -43,7 +43,7 @@ double HoECalculator::getHoE(GlobalPoint pclu, float ecalEnergy, const edm::Even
   e.getByLabel("hbhereco","",hbhe);
   const HBHERecHitCollection* hithbhe_ = hbhe.product();
 
-  double HoE;
+  double HoE=0.;
   const CaloGeometry& geometry = *theCaloGeom_ ;
   const CaloSubdetectorGeometry *geometry_p ; 
   geometry_p = geometry.getSubdetectorGeometry (DetId::Hcal,4) ;
@@ -54,8 +54,10 @@ double HoECalculator::getHoE(GlobalPoint pclu, float ecalEnergy, const edm::Even
   f.add(hithbhe_);
   CaloRecHitMetaCollection::const_iterator iterRecHit ; 
   iterRecHit = f.find(hcalDetId) ;
-  hcalEnergy = iterRecHit->energy() ;
-  HoE = hcalEnergy/ecalEnergy ;
+  if (iterRecHit!=f.end()) {
+    hcalEnergy = iterRecHit->energy() ;
+    HoE = hcalEnergy/ecalEnergy ;
+  }
 
   return HoE ;
 }
@@ -63,15 +65,16 @@ double HoECalculator::getHoE(GlobalPoint pclu, float ecalEnergy, const edm::Even
 double HoECalculator::getHoE(GlobalPoint pos, float energy,
 			     HBHERecHitMetaCollection *mhbhe) {
   
-  double HoE=0;
+  double HoE=0.;
 
   if (mhbhe) {
     const CaloSubdetectorGeometry *geometry_p ; 
     geometry_p =  theCaloGeom_->getSubdetectorGeometry (DetId::Hcal,4) ;
     HcalDetId dB= geometry_p->getClosestCell(pos);
     CaloRecHitMetaCollectionV::const_iterator i=mhbhe->find(dB);
-
-    HoE =  i->energy()/energy;
+    if (i!=mhbhe->end()) {
+      HoE =  i->energy()/energy;
+    }
   }
   return HoE ;
 
