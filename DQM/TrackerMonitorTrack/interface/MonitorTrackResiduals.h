@@ -11,7 +11,7 @@ Monitoring source for track residuals on each detector module
 */
 // Original Author:  Israel Goitom
 //         Created:  Fri May 26 14:12:01 CEST 2006
-// $Id: MonitorTrackResiduals.h,v 1.11 2008/02/15 14:53:35 dutta Exp $
+// $Id: MonitorTrackResiduals.h,v 1.12 2008/03/01 11:24:56 dutta Exp $
 #include <memory>
 #include <fstream>
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -33,12 +33,17 @@ class MonitorTrackResiduals : public edm::EDAnalyzer {
       virtual void endJob(void);
 
       virtual void analyze(const edm::Event&, const edm::EventSetup&);
-   private:
-  std::map<uint32_t, MonitorElement *> detModules;
-//  unsigned int minTracks_;
-  DQMStore * dqmStore_;
-  edm::ParameterSet conf_;
-
-  HistoClass HitResidual;
+      
+      std::pair<std::string,int32_t> GetSubDetAndLayer(const uint32_t& detid);
+      
+ private:
+      
+      DQMStore * dqmStore_;
+      edm::ParameterSet conf_;
+      edm::ParameterSet Parameters;
+      std::map< std::pair<std::string,int32_t>, MonitorElement* > m_SubdetLayerResiduals;
+      std::map< std::pair<std::string,int32_t>, MonitorElement* > m_SubdetLayerNormedResiduals;
+      HistoClass HitResidual;
+      HistoClass NormedHitResiduals;
 };
 #endif
