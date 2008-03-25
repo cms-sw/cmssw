@@ -26,6 +26,7 @@ public:
  
   /// MeasurementTracker overloaded function
   void update( const edm::Event&) const;
+  void updateStrips( const edm::Event& event) const;
 
   typedef edm::SiStripLazyGetter<SiStripCluster> LazyGetter;
   typedef edm::SiStripRefGetter<SiStripCluster> RefGetter;

@@ -170,6 +170,31 @@ void OnDemandMeasurementTracker::define( const edm::Handle< LazyGetter> & theLaz
   }//loop over know elementindex
 }
 
+void OnDemandMeasurementTracker::updateStrips( const edm::Event& event) const 
+{
+  // avoid to update twice from the same event
+  static unsigned int lastEventNumber =0;
+  static unsigned int lastRunNumber =0;
+  
+  bool oncePerEvent= !( (lastEventNumber == event.id().event()) && (lastRunNumber   == event.id().run() ) ) ; // check once per event
+  bool failedToGet = false;
+  if (!oncePerEvent)
+    failedToGet = theRefGetterH.failedToGet() || theLazyGetterH.failedToGet();
+
+  if (oncePerEvent || failedToGet)
+    {
+      lastEventNumber = event.id().event();
+      lastRunNumber = event.id().run();
+      LogDebug(category_)<<"Updating siStrip on event: "<< (uint) event.id().run() <<" : "<<(uint) event.id().event();
+      
+      //get the ref getter back from the event
+      std::string stripClusterProducer = pset_.getParameter<std::string>("stripClusterProducer");
+      event.getByLabel(stripClusterProducer,theRefGetterH);
+      
+      std::string stripLazyGetter = pset_.getParameter<std::string>("stripLazyGetterProducer");
+      event.getByLabel(stripLazyGetter,theLazyGetterH);
+    }
+}
 
 void OnDemandMeasurementTracker::update( const edm::Event& event) const
 {
@@ -178,28 +203,20 @@ void OnDemandMeasurementTracker::update( const edm::Event& event) const
   //  update the pixel using MeasurementTracekr specific function
   //  retreive the RefGetter from the event: the very one that has been pass to define(...) and put into the event
 
-  // avoid to update twice from the same event
-  static unsigned int lastEventNumber =0;
-  static unsigned int lastRunNumber =0;
-  if( (lastEventNumber == event.id().event()) && 
-      (lastRunNumber   == event.id().run() )     ) return;
-  lastEventNumber = event.id().event();
-  lastRunNumber = event.id().run();
-  LogDebug(category_)<<"Updating on event: "<<lastRunNumber<<" : "<<lastEventNumber;
-  
   if (!PixelOnDemand_) {
     LogDebug(category_)<<"pixel are not OnDemand. updating them a la MeasurmentTracker.";
-    updatePixels(event);}
+    MeasurementTracker::updatePixels(event);}
+  else{
+    edm::LogError(category_)<<"trying to update siPixel as on-demand. Not Implemented yet.";
+  }
+
   if (!StripOnDemand_) {
     LogDebug(category_)<<"strip are not OnDemand. updating them a la MeasurmentTracker.";
-    updateStrips(event);}
-
-  //get the ref getter back from the event
-  std::string stripClusterProducer = pset_.getParameter<std::string>("stripClusterProducer");
-  event.getByLabel(stripClusterProducer,theRefGetterH);
-
-  std::string stripLazyGetter = pset_.getParameter<std::string>("stripLazyGetterProducer");
-  event.getByLabel(stripLazyGetter,theLazyGetterH);
+    MeasurementTracker::updateStrips(event);}
+  else{
+    LogDebug(category_)<<"strip are OnDemand. updating them a la OnDemandMeasurmentTracker."; 
+    updateStrips(event);
+  }
 }
 
 #include <sstream>
