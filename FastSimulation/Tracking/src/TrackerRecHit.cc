@@ -94,7 +94,7 @@ TrackerRecHit::isOnRequestedDet(const std::vector<unsigned int>& whichDet) const
       
     case 3:
       //Inner Barrel
-      isOnDet = theSubDetId==3 && theLayerNumber < 3;
+      isOnDet = theSubDetId==3 && theLayerNumber < 4;
       break;
       
     case 4:
