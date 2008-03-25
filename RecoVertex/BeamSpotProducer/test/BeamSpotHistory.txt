@@ -1,0 +1,21 @@
+
+DB History of reconstructed beam spot
++++++++++++++++++++++++++++++++++++++
+
+
+===================================================
+2_0_0_pre4
+
+Recalculated beam spot due to DB migration. 
+Sample used RelValQCD_Pt_50_80
+Run over 1500 events.
+
+Tags: "EarlyCollision" and "EarlyCollision_mc"
+
+===================================================
+
+18X, 16X
+
+tags: "EarlyCollision", "NominalCollision", 
+"NominalCollision1", ...
+
