@@ -1,13 +1,15 @@
 <?xml version='1.0' encoding="UTF-8"?>
-<!DOCTYPE Mapping SYSTEM "InMemory">
-<Mapping version="DTConfigData-1.0" >
-  <Class table="DTCONFIGDATA" id_columns="OBJECT_ID" name="DTConfigData" >
-    <Primitive column="CONFIG_ID" name="cfgId" />
-    <Container table="DT_CFGDATA" id_columns="OBJECT_ID" name="dataList" position_column="DATA_ID" >
-      <Primitive column="CONFIG_DATA" name="value_type" />
-    </Container >
-    <Container table="DT_CFGLINK" id_columns="OBJECT_ID" name="linkList" position_column="LINK_ID" >
-      <Primitive column="CONFIG_LINK" name="value_type" />
-    </Container >
-  </Class >
-</Mapping >
+<!DOCTYPE PoolDatabase SYSTEM "InMemory">
+ <PoolDatabase >
+  <PoolContainer name="DTConfigData" >
+   <Class table="DTCONFIGDATA" id_columns="OBJECT_ID" name="DTConfigData" mapping_version="DTConfigData-1.0" >
+     <Primitive column="CONFIG_ID" name="cfgId" />
+     <Container table="DT_CFGDATA" id_columns="OBJECT_ID" name="dataList" position_column="DATA_ID" >
+       <Primitive column="CONFIG_DATA" name="value_type" />
+     </Container >
+     <Container table="DT_CFGLINK" id_columns="OBJECT_ID" name="linkList" position_column="LINK_ID" >
+       <Primitive column="CONFIG_LINK" name="value_type" />
+     </Container >
+   </Class >
+  </PoolContainer >
+ </PoolDatabase >

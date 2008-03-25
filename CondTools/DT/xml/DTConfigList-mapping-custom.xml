@@ -1,16 +1,18 @@
 <?xml version='1.0' encoding="UTF-8"?>
-<!DOCTYPE Mapping SYSTEM "InMemory">
-<Mapping version="DTConfigList-1.0" >
-  <Class table="DTCONFIGLIST" id_columns="LIST_ID" name="DTConfigList" >
-    <Primitive column="DATAVERSION" name="dataVersion" />
-    <Container table="DT_CFGREF" id_columns="LIST_ID" name="dataList" position_column="LINK_ID" >
-      <Object table="DT_CFGREF" id_columns="LINK_ID LIST_ID" name="value_type" >
-        <Primitive column="CONFIG_ID" name="first" />
-        <Object table="DT_CFGREF" id_columns="LINK_ID LIST_ID" name="second" >
-          <Primitive column="TOKEN_ID" name="id" />
-          <Primitive column="TOKEN_REF" name="ref" />
-        </Object >
-      </Object >
-    </Container >
-  </Class >
-</Mapping >
+<!DOCTYPE PoolDatabase SYSTEM "InMemory">
+ <PoolDatabase >
+  <PoolContainer name="DTConfigList" >
+   <Class table="DTCONFIGLIST" id_columns="LIST_ID" name="DTConfigList" mapping_version="DTConfigList-1.0" >
+     <Primitive column="DATAVERSION" name="dataVersion" />
+     <Container table="DT_CFGREF" id_columns="LIST_ID" name="dataList" position_column="LINK_ID" >
+       <Object name="value_type" >
+         <Primitive column="CONFIG_ID" name="first" />
+         <Object name="second" >
+           <Primitive column="TOKEN_ID" name="id" />
+           <Primitive column="TOKEN_REF" name="ref" />
+         </Object >
+       </Object >
+     </Container >
+   </Class >
+  </PoolContainer >
+ </PoolDatabase >
