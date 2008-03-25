@@ -24,6 +24,7 @@
 #include "GeneratorInterface/GenFilters/interface/PythiaFilterIsolatedTrack.h"
 #include "GeneratorInterface/GenFilters/interface/BCToEFilter.h"
 #include "GeneratorInterface/GenFilters/interface/EMEnrichingFilter.h"
+#include "GeneratorInterface/GenFilters/interface/MCDecayingPionKaonFilter.h"
 
 
 
@@ -52,5 +53,6 @@ DEFINE_SEAL_MODULE();
   DEFINE_ANOTHER_FWK_MODULE(PythiaFilterIsolatedTrack);
   DEFINE_ANOTHER_FWK_MODULE(BCToEFilter);
   DEFINE_ANOTHER_FWK_MODULE(EMEnrichingFilter);
+  DEFINE_ANOTHER_FWK_MODULE(MCDecayingPionKaonFilter);
 
 
