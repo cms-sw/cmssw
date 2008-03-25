@@ -9,8 +9,8 @@
  *
  * \author: Philipp Wagner
  *
- * $Date: 2008/03/03 19:31:59 $
- * $Revision: 1.7 $
+ * $Date$
+ * $Revision$
  *
  */
 
@@ -835,7 +835,7 @@ bool L1GtVhdlWriterCore::processAlgorithmMap(std::vector< std::map<int, std::str
         L1GtVhdlTemplateFile dummy;
 
         // get the logical expression
-        std::string logicalExpr = algoIter->second->algoLogicalExpression();
+        std::string logicalExpr = (algoIter->second).algoLogicalExpression();
         std::vector<std::string> conditions;
 
         dummy.getConditionsFromAlgo(logicalExpr, conditions);
@@ -851,7 +851,7 @@ bool L1GtVhdlWriterCore::processAlgorithmMap(std::vector< std::map<int, std::str
            
             std::vector<ConditionMap> * conditionMapCp = const_cast< std::vector<ConditionMap>* >(conditionMap_);
             
-            L1GtCondition* cond = (*conditionMapCp).at(algoIter->second->algoChipNumber())[conditions.at(i)];
+            L1GtCondition* cond = (*conditionMapCp).at((algoIter->second).algoChipNumber())[conditions.at(i)];
 
             // check weather condition exists
             if (cond!=NULL)
@@ -872,19 +872,19 @@ bool L1GtVhdlWriterCore::processAlgorithmMap(std::vector< std::map<int, std::str
         orderConditionChip.push_back(2);
         orderConditionChip.push_back(1);
 
-        int pin = algoIter->second->algoOutputPin(2, 96, orderConditionChip);
+        int pin = (algoIter->second).algoOutputPin(2, 96, orderConditionChip);
 
         //msg(int2str(pin));
 
         if (pin<0)
             pin*=-1;
 
-        if (algoIter->second->algoChipNumber()==0)
+        if ((algoIter->second).algoChipNumber()==0)
         {
             algorithmsChip1[pin]=logicalExpr;
             if (debugMode_)
                 algorithmsChip1[pin]+=("-- "+logicalExprCopy);
-        } else if (algoIter->second->algoChipNumber()==1)
+        } else if ((algoIter->second).algoChipNumber()==1)
         {
             algorithmsChip2[pin]=logicalExpr;
             if (debugMode_)

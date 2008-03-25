@@ -31,16 +31,8 @@
 // base class
 #include "L1TriggerConfig/L1GtConfigProducers/interface/L1GtXmlParserTags.h"
 
-#include "CondFormats/L1TObjects/interface/L1GtFwd.h"
-#include "CondFormats/L1TObjects/interface/L1GtTriggerMenuFwd.h"
-
 #include "CondFormats/L1TObjects/interface/L1GtCondition.h"
 #include "CondFormats/L1TObjects/interface/L1GtAlgorithm.h"
-
-#include "CondFormats/L1TObjects/interface/L1GtMuonTemplate.h"
-#include "CondFormats/L1TObjects/interface/L1GtCaloTemplate.h"
-#include "CondFormats/L1TObjects/interface/L1GtEnergySumTemplate.h"
-#include "CondFormats/L1TObjects/interface/L1GtJetCountsTemplate.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/MessageLogger/interface/MessageDrop.h"
@@ -99,21 +91,77 @@ void L1GtTriggerMenuXmlParser::setGtNumberL1JetCounts(const unsigned int& number
 }
 
 
-/// set the trigger menu name
-void L1GtTriggerMenuXmlParser::setGtTriggerMenuName(const std::string& menuName) {
-    m_triggerMenuName = menuName;
-}
-
-
 // set the condition maps
 void L1GtTriggerMenuXmlParser::setGtConditionMap(const std::vector<ConditionMap>& condMap) {
     m_conditionMap = condMap;
 }
 
+// set the trigger menu name
+void L1GtTriggerMenuXmlParser::setGtTriggerMenuName(const std::string& menuName) {
+    m_triggerMenuName = menuName;
+}
+
+// get / set the vectors containing the conditions
+void L1GtTriggerMenuXmlParser::setVecMuonTemplate(
+        const std::vector<std::vector<L1GtMuonTemplate> >& vecMuonTempl) {
+    
+    m_vecMuonTemplate = vecMuonTempl;
+}
+
+void L1GtTriggerMenuXmlParser::setVecCaloTemplate(
+        const std::vector<std::vector<L1GtCaloTemplate> >& vecCaloTempl) {
+    
+    m_vecCaloTemplate = vecCaloTempl;
+}
+
+void L1GtTriggerMenuXmlParser::setVecEnergySumTemplate(
+        const std::vector<std::vector<L1GtEnergySumTemplate> >& vecEnergySumTempl) {
+    
+    m_vecEnergySumTemplate = vecEnergySumTempl;
+}
+
+void L1GtTriggerMenuXmlParser::setVecJetCountsTemplate(
+        const std::vector<std::vector<L1GtJetCountsTemplate> >& vecJetCountsTempl) {
+    
+    m_vecJetCountsTemplate = vecJetCountsTempl;
+}
+
+void L1GtTriggerMenuXmlParser::setVecCorrelationTemplate(
+        const std::vector<std::vector<L1GtCorrelationTemplate> >& vecCorrelationTempl) {
+    
+    m_vecCorrelationTemplate = vecCorrelationTempl;
+}
+
+// set the vectors containing the conditions for correlation templates
+//
+void L1GtTriggerMenuXmlParser::setCorMuonTemplate(
+        const std::vector<std::vector<L1GtMuonTemplate> >& corMuonTempl) {
+    
+    m_corMuonTemplate = corMuonTempl;
+}
+
+void L1GtTriggerMenuXmlParser::setCorCaloTemplate(
+        const std::vector<std::vector<L1GtCaloTemplate> >& corCaloTempl) {
+    
+    m_corCaloTemplate = corCaloTempl;
+}
+
+void L1GtTriggerMenuXmlParser::setCorEnergySumTemplate(
+        const std::vector<std::vector<L1GtEnergySumTemplate> >& corEnergySumTempl) {
+    
+    m_corEnergySumTemplate = corEnergySumTempl;
+}
+
+
+
+
 // set the algorithm map
 void L1GtTriggerMenuXmlParser::setGtAlgorithmMap(const AlgorithmMap& algoMap) {
     m_algorithmMap = algoMap;
 }
+
+//
+
 
 // parse def.xml and vme.xml files
 void L1GtTriggerMenuXmlParser::parseXmlFile(const std::string& defXmlFile,
@@ -124,6 +172,16 @@ void L1GtTriggerMenuXmlParser::parseXmlFile(const std::string& defXmlFile,
     // resize the vector of condition maps
     // the number of condition chips should be correctly set before calling parseXmlFile
     m_conditionMap.resize(m_numberConditionChips);
+    
+    m_vecMuonTemplate.resize(m_numberConditionChips);
+    m_vecCaloTemplate.resize(m_numberConditionChips);
+    m_vecEnergySumTemplate.resize(m_numberConditionChips);
+    m_vecJetCountsTemplate.resize(m_numberConditionChips);
+    
+    m_vecCorrelationTemplate.resize(m_numberConditionChips);
+    m_corMuonTemplate.resize(m_numberConditionChips);
+    m_corCaloTemplate.resize(m_numberConditionChips);
+    m_corEnergySumTemplate.resize(m_numberConditionChips);
     
     // set the name of the trigger menu: defXmlFile, stripped of absolute path and .xml
     std::string::iterator itString;
@@ -877,9 +935,9 @@ void L1GtTriggerMenuXmlParser::clearMaps() {
 
 // insertConditionIntoMap - safe insert of condition into condition map.
 // if the condition name already exists, do not insert it and return false
-bool L1GtTriggerMenuXmlParser::insertConditionIntoMap(L1GtCondition* cond, const int chipNr) {
+bool L1GtTriggerMenuXmlParser::insertConditionIntoMap(const L1GtCondition& cond, const int chipNr) {
 
-    std::string cName = cond->condName();
+    std::string cName = cond.condName();
     //LogTrace("L1GtTriggerMenuXmlParser")
     //<< "    Trying to insert condition \"" << cName << "\" in the condition map." ;
 
@@ -890,7 +948,7 @@ bool L1GtTriggerMenuXmlParser::insertConditionIntoMap(L1GtCondition* cond, const
         return false;
     }
 
-    (m_conditionMap[chipNr])[cName] = cond;
+    //(m_conditionMap[chipNr])[cName] = cond;
     //LogTrace("L1GtTriggerMenuXmlParser")
     //<< "      OK - condition inserted!"
     //<< std::endl;
@@ -901,9 +959,9 @@ bool L1GtTriggerMenuXmlParser::insertConditionIntoMap(L1GtCondition* cond, const
 }
 
 // insert an algorithm into algorithm map
-bool L1GtTriggerMenuXmlParser::insertAlgorithmIntoMap(L1GtAlgorithm* alg) {
+bool L1GtTriggerMenuXmlParser::insertAlgorithmIntoMap(const L1GtAlgorithm& alg) {
 
-    std::string algName = alg->algoName();
+    std::string algName = alg.algoName();
     //LogTrace("L1GtTriggerMenuXmlParser")
     //<< "    Trying to insert algorithm \"" << algName << "\" in the algorithm map." ;
 
@@ -915,7 +973,7 @@ bool L1GtTriggerMenuXmlParser::insertAlgorithmIntoMap(L1GtAlgorithm* alg) {
     }
 
     // bit number less than zero or greater than maximum number of algorithms 
-    int bitNumber = alg->algoBitNumber();
+    int bitNumber = alg.algoBitNumber();
     if ((bitNumber < 0) || (bitNumber >= static_cast<int>(m_numberPhysTriggers))) {
         LogTrace("L1GtTriggerMenuXmlParser") << "      Bit number " << bitNumber
             << " outside allowed range [0, " << m_numberPhysTriggers
@@ -932,7 +990,7 @@ bool L1GtTriggerMenuXmlParser::insertAlgorithmIntoMap(L1GtAlgorithm* alg) {
     }
 
     // chip number outside allowed values
-    int chipNr = alg->algoChipNumber(static_cast<int>(m_numberConditionChips),
+    int chipNr = alg.algoChipNumber(static_cast<int>(m_numberConditionChips),
         static_cast<int>(m_pinsOnConditionChip), m_orderConditionChip);
 
     if ((chipNr < 0) || (chipNr > static_cast<int>(m_numberConditionChips))) {
@@ -943,7 +1001,7 @@ bool L1GtTriggerMenuXmlParser::insertAlgorithmIntoMap(L1GtAlgorithm* alg) {
     }
 
     // output pin outside allowed values
-    int outputPin = alg->algoOutputPin(static_cast<int>(m_numberConditionChips),
+    int outputPin = alg.algoOutputPin(static_cast<int>(m_numberConditionChips),
         static_cast<int>(m_pinsOnConditionChip), m_orderConditionChip);
 
     if ((outputPin < 0) || (outputPin > static_cast<int>(m_pinsOnConditionChip))) {
@@ -956,10 +1014,10 @@ bool L1GtTriggerMenuXmlParser::insertAlgorithmIntoMap(L1GtAlgorithm* alg) {
     // no two algorithms on the same chip can have the same output pin
     for (CItAlgo itAlgo = m_algorithmMap.begin(); itAlgo != m_algorithmMap.end(); itAlgo++) {
 
-        int iPin = (itAlgo->second)->algoOutputPin( static_cast<int>(m_numberConditionChips),
+        int iPin = (itAlgo->second).algoOutputPin( static_cast<int>(m_numberConditionChips),
             static_cast<int>(m_pinsOnConditionChip), m_orderConditionChip);
         std::string iName = itAlgo->first;
-        int iChip = (itAlgo->second)->algoChipNumber(static_cast<int>(m_numberConditionChips),
+        int iChip = (itAlgo->second).algoChipNumber(static_cast<int>(m_numberConditionChips),
             static_cast<int>(m_pinsOnConditionChip), m_orderConditionChip);
 
         if ( (outputPin == iPin) && (chipNr == iChip)) {
@@ -1483,30 +1541,31 @@ bool L1GtTriggerMenuXmlParser::parseMuon(XERCES_CPP_NAMESPACE::DOMNode* node,
 
     // now create a new CondMuonition
 
-    L1GtMuonTemplate* muonCond = new L1GtMuonTemplate(name);
+    L1GtMuonTemplate muonCond(name);
 
-    muonCond->setCondType(cType);
-    muonCond->setObjectType(objType);
-    muonCond->setCondGEq(gEq);
-    muonCond->setCondChipNr(chipNr);
+    muonCond.setCondType(cType);
+    muonCond.setObjectType(objType);
+    muonCond.setCondGEq(gEq);
+    muonCond.setCondChipNr(chipNr);
 
-    muonCond->setConditionParameter(objParameter, corrParameter);
+    muonCond.setConditionParameter(objParameter, corrParameter);
 
     if (edm::isDebugEnabled() ) {
         std::ostringstream myCoutStream;
-        muonCond->print(myCoutStream);
+        muonCond.print(myCoutStream);
         LogTrace("L1GtTriggerMenuXmlParser") << myCoutStream.str() << "\n" << std::endl;
     }
 
-    // insert condition into the map
+    // insert condition into the map and into muon template vector
     if ( !insertConditionIntoMap(muonCond, chipNr)) {
-
-        delete muonCond;
-
         edm::LogError("L1GtTriggerMenuXmlParser") << "    Error: duplicate condition (" << name
             << ")" << std::endl;
 
         return false;
+    } else {
+        
+        (m_vecMuonTemplate[chipNr]).push_back(muonCond);
+        
     }
 
     //
@@ -1698,19 +1757,19 @@ bool L1GtTriggerMenuXmlParser::parseCalo(XERCES_CPP_NAMESPACE::DOMNode* node,
 
     // now create a new calo condition
 
-    L1GtCaloTemplate* caloCond = new L1GtCaloTemplate(name);
+    L1GtCaloTemplate caloCond(name);
 
-    caloCond->setCondType(cType);
-    caloCond->setObjectType(objType);
-    caloCond->setCondGEq(gEq);
-    caloCond->setCondChipNr(chipNr);
+    caloCond.setCondType(cType);
+    caloCond.setObjectType(objType);
+    caloCond.setCondGEq(gEq);
+    caloCond.setCondChipNr(chipNr);
 
-    caloCond->setConditionParameter(objParameter, corrParameter);
+    caloCond.setConditionParameter(objParameter, corrParameter);
 
     if (edm::isDebugEnabled() ) {
 
         std::ostringstream myCoutStream;
-        caloCond->print(myCoutStream);
+        caloCond.print(myCoutStream);
         LogTrace("L1GtTriggerMenuXmlParser") << myCoutStream.str() << "\n" << std::endl;
 
     }
@@ -1718,13 +1777,16 @@ bool L1GtTriggerMenuXmlParser::parseCalo(XERCES_CPP_NAMESPACE::DOMNode* node,
     // insert condition into the map
     if ( !insertConditionIntoMap(caloCond, chipNr)) {
 
-        delete caloCond;
-
         edm::LogError("L1GtTriggerMenuXmlParser") << "    Error: duplicate condition (" << name
             << ")" << std::endl;
 
         return false;
+    } else {
+        
+        (m_vecCaloTemplate[chipNr]).push_back(caloCond);
+        
     }
+
 
     //
     return true;
@@ -1890,19 +1952,19 @@ bool L1GtTriggerMenuXmlParser::parseEnergySum(XERCES_CPP_NAMESPACE::DOMNode* nod
 
     // now create a new energySum condition
 
-    L1GtEnergySumTemplate* energySumCond = new L1GtEnergySumTemplate(name);
+    L1GtEnergySumTemplate energySumCond(name);
 
-    energySumCond->setCondType(cType);
-    energySumCond->setObjectType(objType);
-    energySumCond->setCondGEq(gEq);
-    energySumCond->setCondChipNr(chipNr);
+    energySumCond.setCondType(cType);
+    energySumCond.setObjectType(objType);
+    energySumCond.setCondGEq(gEq);
+    energySumCond.setCondChipNr(chipNr);
 
-    energySumCond->setConditionParameter(objParameter);
+    energySumCond.setConditionParameter(objParameter);
 
     if (edm::isDebugEnabled() ) {
 
         std::ostringstream myCoutStream;
-        energySumCond->print(myCoutStream);
+        energySumCond.print(myCoutStream);
         LogTrace("L1GtTriggerMenuXmlParser") << myCoutStream.str() << "\n" << std::endl;
 
     }
@@ -1910,13 +1972,16 @@ bool L1GtTriggerMenuXmlParser::parseEnergySum(XERCES_CPP_NAMESPACE::DOMNode* nod
     // insert condition into the map
     if ( !insertConditionIntoMap(energySumCond, chipNr)) {
 
-        delete energySumCond;
-
         edm::LogError("L1GtTriggerMenuXmlParser") << "    Error: duplicate condition (" << name
             << ")" << std::endl;
 
         return false;
+    } else {
+        
+        (m_vecEnergySumTemplate[chipNr]).push_back(energySumCond);
+        
     }
+
 
     //
     return true;
@@ -2074,19 +2139,19 @@ bool L1GtTriggerMenuXmlParser::parseJetCounts(XERCES_CPP_NAMESPACE::DOMNode* nod
 
     // now create a new JetCounts condition
 
-    L1GtJetCountsTemplate* jetCountsCond = new L1GtJetCountsTemplate(name);
+    L1GtJetCountsTemplate jetCountsCond(name);
 
-    jetCountsCond->setCondType(cType);
-    jetCountsCond->setObjectType(objType);
-    jetCountsCond->setCondGEq(gEq);
-    jetCountsCond->setCondChipNr(chipNr);
+    jetCountsCond.setCondType(cType);
+    jetCountsCond.setObjectType(objType);
+    jetCountsCond.setCondGEq(gEq);
+    jetCountsCond.setCondChipNr(chipNr);
 
-    jetCountsCond->setConditionParameter(objParameter);
+    jetCountsCond.setConditionParameter(objParameter);
 
     if (edm::isDebugEnabled() ) {
 
         std::ostringstream myCoutStream;
-        jetCountsCond->print(myCoutStream);
+        jetCountsCond.print(myCoutStream);
         LogTrace("L1GtTriggerMenuXmlParser") << myCoutStream.str() << "\n" << std::endl;
 
     }
@@ -2094,13 +2159,16 @@ bool L1GtTriggerMenuXmlParser::parseJetCounts(XERCES_CPP_NAMESPACE::DOMNode* nod
     // insert condition into the map
     if ( !insertConditionIntoMap(jetCountsCond, chipNr)) {
 
-        delete jetCountsCond;
-
         edm::LogError("L1GtTriggerMenuXmlParser") << "    Error: duplicate condition (" << name
             << ")" << std::endl;
 
         return false;
+    } else {
+        
+        (m_vecJetCountsTemplate[chipNr]).push_back(jetCountsCond);
+        
     }
+
 
     //
     return true;
@@ -2335,21 +2403,19 @@ bool L1GtTriggerMenuXmlParser::workAlgorithm(XERCES_CPP_NAMESPACE::DOMNode* node
     //<< std::endl;
 
     // create a new algorithm and insert it into algorithm map
-    L1GtAlgorithm* alg = new L1GtAlgorithm(algName, logExpression, bitNumber);
-    alg->setAlgoChipNumber(static_cast<int>(chipNr));
+    L1GtAlgorithm alg(algName, logExpression, bitNumber);
+    alg.setAlgoChipNumber(static_cast<int>(chipNr));
 
     if (edm::isDebugEnabled() ) {
 
         std::ostringstream myCoutStream;
-        alg->print(myCoutStream);
+        alg.print(myCoutStream);
         LogTrace("L1GtTriggerMenuXmlParser") << myCoutStream.str() << "\n" << std::endl;
 
     }
 
     // insert algorithm into the map
     if ( !insertAlgorithmIntoMap(alg)) {
-
-        delete alg;
 
         return false;
     }

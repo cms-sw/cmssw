@@ -105,9 +105,6 @@ boost::shared_ptr<L1GtTriggerMenu> L1GtTriggerMenuXmlProducer::produceGtTriggerM
     const L1GtTriggerMenuRcd& l1MenuRecord)
 {
 
-    boost::shared_ptr<L1GtTriggerMenu> pL1GtTriggerMenu =
-        boost::shared_ptr<L1GtTriggerMenu>( new L1GtTriggerMenu() );
-
     // get the parameters needed from other records
     const L1GtStableParametersRcd& stableParametersRcd =
         l1MenuRecord.getRecord<L1GtStableParametersRcd>();
@@ -133,8 +130,18 @@ boost::shared_ptr<L1GtTriggerMenu> L1GtTriggerMenuXmlProducer::produceGtTriggerM
 
     // transfer the condition map and algorithm map from parser to L1GtTriggerMenu
 
-    pL1GtTriggerMenu->setGtTriggerMenuName(gtXmlParser.gtTriggerMenuName());
-    pL1GtTriggerMenu->setGtConditionMap(gtXmlParser.gtConditionMap());
+    boost::shared_ptr<L1GtTriggerMenu> pL1GtTriggerMenu = boost::shared_ptr<L1GtTriggerMenu>( 
+                new L1GtTriggerMenu(gtXmlParser.gtTriggerMenuName(), numberConditionChips,
+                        gtXmlParser.vecMuonTemplate(), 
+                        gtXmlParser.vecCaloTemplate(), 
+                        gtXmlParser.vecEnergySumTemplate(), 
+                        gtXmlParser.vecJetCountsTemplate(),
+                        gtXmlParser.vecCorrelationTemplate(),
+                        gtXmlParser.corMuonTemplate(),
+                        gtXmlParser.corCaloTemplate(),
+                        gtXmlParser.corEnergySumTemplate()) );
+
+
     pL1GtTriggerMenu->setGtAlgorithmMap(gtXmlParser.gtAlgorithmMap());
 
     //LogDebug("L1GtConfigProducers")
