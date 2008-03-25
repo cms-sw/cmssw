@@ -66,6 +66,10 @@ namespace pos{
       return tmp;
     }
 
+    static std::vector<std::string> getVersionAliases(std::string path){
+      return getAlias().getVersionAliases(path);
+    }
+
     static std::map<std::string, unsigned int> getAliases_map(){
       PixelAliasList& aliases=getAlias();
       std::map<std::string, unsigned int> tmp;
@@ -180,6 +184,57 @@ namespace pos{
       return aliases;
 
     }
+
+
+
+    //Returns the path the the configuration data.
+    static std::string getPath(std::string path, PixelConfigKey key){
+
+      unsigned int theKey=key.key();
+    
+      assert(theKey<=getConfig().size());
+    
+      unsigned int last=path.find_last_of("/");
+      assert(last!=std::string::npos);
+    
+      std::string base=path.substr(0,last);
+      std::string ext=path.substr(last+1);
+    
+      unsigned int slashpos=base.find_last_of("/");
+      if (slashpos==std::string::npos) {
+	std::cout << "[pos::PixelConfigFile::getPath()]\t\t\tOn path:"                <<path               <<std::endl;
+	std::cout << "[pos::PixelConfigFile::getPath()]\t\t\tRecall that you need a trailing /"            <<std::endl;
+	::abort();
+      }
+    
+      std::string dir=base.substr(slashpos+1);
+    
+//      std::cout << "[pos::PixelConfigFile::get()]\t\t\tExtracted dir:" <<dir <<std::endl;
+//      std::cout << "[pos::PixelConfigFile::get()]\t\t\tExtracted base:"<<base<<std::endl;
+//      std::cout << "[pos::PixelConfigFile::get()]\t\t\tExtracted ext :"<<ext <<std::endl;
+    
+      unsigned int version;
+      int err=getConfig()[theKey].find(dir,version);   
+      // assert(err==0);
+      if(0!=err) 
+	{
+	  return "";
+	}
+    
+      std::ostringstream s1;
+      s1 << version;
+      std::string strversion=s1.str();
+
+      static std::string directory;
+      directory=getenv("PIXELCONFIGURATIONBASE");
+    
+      std::string fullpath=directory+"/"+dir+"/"+strversion+"/";
+    
+      return fullpath;
+    }
+
+
+
     
     //Returns a pointer to the data found in the path with configuration key.
     template <class T>
@@ -473,6 +528,7 @@ namespace pos{
     }
     //----- End of method added by Dario (March 10, 2008)
 
+
     //Returns a pointer to the data found in the path with configuration key.
     template <class T>
       static void get(T* &data, std::string path, unsigned int version){
@@ -498,7 +554,7 @@ namespace pos{
       //std::cout << "[pos::PixelConfigFile::get()]\t\t\tExtracted ext :"<<ext<<std::endl;
     
       ostringstream s1;
-      s1 << version<<(char)(0);
+      s1 << version;
       std::string strversion=s1.str();
 
       static std::string directory;
@@ -661,7 +717,6 @@ namespace pos{
       do{
 	version++;
 	std::ostringstream s1;
-/* 	s1 << version <<(char)(0); */
 	s1 << version  ;
 	std::string strversion=s1.str();
 	dir=directory+strversion;

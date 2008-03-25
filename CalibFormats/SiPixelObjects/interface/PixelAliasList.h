@@ -136,6 +136,7 @@ namespace pos{
       in.close();
     }
 
+
     void insertAlias(PixelConfigAlias& anAlias){
       for(unsigned int i=0;i<pixelConfigAliases_.size();i++){
 	if (pixelConfigAliases_[i].name()==anAlias.name()){
@@ -176,6 +177,18 @@ namespace pos{
 	  }
 	}
       }
+    }
+
+    std::vector<std::string> getVersionAliases(std::string path){
+      std::vector<std::string> tmp;
+      for(unsigned int i=0;i<pixelVersionAliases_.size();i++){
+	std::cout << "path alias:"<<pixelVersionAliases_[i].path()
+		  << pixelVersionAliases_[i].alias() << std::endl;
+	if (pixelVersionAliases_[i].path()==path){
+	  tmp.push_back(pixelVersionAliases_[i].alias());
+	}
+      }
+      return tmp;
     }
 
 
