@@ -2,7 +2,7 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/03/13 11:11:12 $
+ *  $Date: 2008/03/18 12:01:19 $
  *  $Revision: 1.1 $
  *  \author G. Mila - INFN Torino
  */
@@ -15,6 +15,8 @@
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/MuonReco/interface/Muon.h"
 #include "DataFormats/MuonReco/interface/MuonFwd.h" 
+#include "DataFormats/TrajectorySeed/interface/TrajectorySeed.h"
+#include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
@@ -34,9 +36,15 @@ MuonAnalyzer::MuonAnalyzer(const edm::ParameterSet& pSet) {
 
   // STA Cosmic Muon Collection Label
   theSTACollectionLabel = parameters.getParameter<edm::InputTag>("CosmicsCollectionLabel");
+
+  // Seeds Collection Label
+  theSeedsCollectionLabel = parameters.getParameter<edm::InputTag>("seedsCollectionLabel");
   
   // do the analysis on muon energy
   theMuEnergyAnalyzer = new MuonEnergyDepositAnalyzer(parameters.getParameter<ParameterSet>("muonEnergyAnalysis"));
+
+  // do the analysis on seeds
+  theSeedsAnalyzer = new MuonSeedsAnalyzer(parameters.getParameter<ParameterSet>("seedsAnalysis"));
 
 }
 
@@ -51,6 +59,7 @@ void MuonAnalyzer::beginJob(edm::EventSetup const& iSetup) {
   dbe->setVerbose(1);
 
   theMuEnergyAnalyzer->beginJob(iSetup, dbe);
+  theSeedsAnalyzer->beginJob(iSetup, dbe);
 
 }
 
@@ -64,10 +73,18 @@ void MuonAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
    iEvent.getByLabel(theSTACollectionLabel,muons);
 
    for (reco::MuonCollection::const_iterator recoMu = muons->begin(); recoMu!=muons->end(); ++recoMu){
-     
      cout<<"[MuonAnalyzer] Call to the muon energy analyzer"<<endl;
      theMuEnergyAnalyzer->analyze(iEvent, iSetup, *recoMu);
+   }
 
+
+   // Take the seeds container
+   edm::Handle<TrajectorySeedCollection> seeds;
+   iEvent.getByLabel(theSeedsCollectionLabel, seeds);
+
+   for(TrajectorySeedCollection::const_iterator seed = seeds->begin(); seed != seeds->end(); ++seed){
+     cout<<"[MuonAnalyzer] Call to the seeds analyzer"<<endl;
+     theSeedsAnalyzer->analyze(iEvent, iSetup, *seed);
    }
 
 }
