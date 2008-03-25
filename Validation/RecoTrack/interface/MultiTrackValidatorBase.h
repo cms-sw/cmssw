@@ -4,8 +4,8 @@
 /** \class MultiTrackValidatorBase
  *  Base class for analyzers that produces histrograms to validate Track Reconstruction performances
  *
- *  $Date: 2008/03/01 16:02:26 $
- *  $Revision: 1.4 $
+ *  $Date: 2008/03/03 16:47:08 $
+ *  $Revision: 1.5 $
  *  \author cerati
  */
 
@@ -37,7 +37,6 @@ class MultiTrackValidatorBase {
  public:
   /// Constructor
   MultiTrackValidatorBase(const edm::ParameterSet& pset):
-    dbe_(0),
     sim(pset.getParameter<std::string>("sim")),
     label(pset.getParameter< std::vector<edm::InputTag> >("label")),
     bsSrc(pset.getParameter< edm::InputTag >("beamSpot")),
@@ -70,6 +69,7 @@ class MultiTrackValidatorBase {
 	me->setBinContent(bin+1,h1->GetBinContent(bin+1));
 	me->setBinError(bin+1,h1->GetBinError(bin+1));
       }
+      delete h1;
     } else {
       throw cms::Exception("MultiTrackValidator") << "Different number of bins!";
     }
@@ -194,14 +194,14 @@ class MultiTrackValidatorBase {
   std::vector<MonitorElement*> h_ptSIM, h_etaSIM, h_tracksSIM, h_vertposSIM;
 
   //1D
-  std::vector<MonitorElement*> h_tracks, h_fakes, h_nchi2, h_nchi2_prob, h_hits, h_charge;
+  std::vector<MonitorElement*> h_tracks, h_fakes, h_hits, h_charge;
   std::vector<MonitorElement*> h_effic, h_efficPt, h_fakerate, h_fakeratePt, h_recoeta, h_assoceta, h_assoc2eta, h_simuleta;
   std::vector<MonitorElement*>  h_effic_vs_hit, h_fake_vs_hit;
   std::vector<MonitorElement*> h_recopT, h_assocpT, h_assoc2pT, h_simulpT;
   std::vector<MonitorElement*> h_pt, h_eta, h_pullTheta,h_pullPhi,h_pullDxy,h_pullDz,h_pullQoverp;
 
   //2D  
-  std::vector<MonitorElement*> etares_vs_eta, nrec_vs_nsim;
+  std::vector<MonitorElement*> nrec_vs_nsim;
 
   //assoc hits
   std::vector<MonitorElement*> h_assocFraction, h_assocSharedHit;
