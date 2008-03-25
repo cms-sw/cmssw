@@ -15,7 +15,7 @@ class JetProbabilityComputer : public JetTagComputer
  public:
   JetProbabilityComputer(const edm::ParameterSet  & parameters )
   { 
-     m_ipType           = parameters.getParameter<int>("impactParamterType");
+     m_ipType           = parameters.getParameter<int>("impactParameterType");
      m_minTrackProb     = parameters.getParameter<double>("minimumProbability");
      m_deltaR           = parameters.getParameter<double>("deltaR");
      m_trackSign        = parameters.getParameter<int>("trackIpSign");

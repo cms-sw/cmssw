@@ -14,7 +14,7 @@ class TrackCountingComputer : public JetTagComputer
   TrackCountingComputer(const edm::ParameterSet  & parameters )
   {
      m_nthTrack         = parameters.getParameter<int>("nthTrack");
-     m_ipType           = parameters.getParameter<int>("impactParamterType");
+     m_ipType           = parameters.getParameter<int>("impactParameterType");
      m_deltaR           = parameters.getParameter<double>("deltaR");
      m_cutMaxDecayLen   = parameters.getParameter<double>("maximumDecayLength"); //used
      m_cutMaxDistToAxis = parameters.getParameter<double>("maximumDistanceToJetAxis"); //used
