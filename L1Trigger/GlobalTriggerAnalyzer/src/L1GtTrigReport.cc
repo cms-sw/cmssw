@@ -408,7 +408,7 @@ void L1GtTrigReport::analyze(const edm::Event& iEvent, const edm::EventSetup& ev
             itAlgo != algorithmMap.end(); itAlgo++) {
 
             std::string algName = itAlgo->first;
-            int algBitNumber = (itAlgo->second)->algoBitNumber();
+            int algBitNumber = (itAlgo->second).algoBitNumber();
             
             // the result before applying the trigger masks is available 
             // in both L1GlobalTriggerReadoutRecord or L1GlobalTriggerRecord
@@ -481,7 +481,7 @@ void L1GtTrigReport::analyze(const edm::Event& iEvent, const edm::EventSetup& ev
             itAlgo != algorithmMap.end(); itAlgo++) {
 
             std::string algName = itAlgo->first;
-            int algBitNumber = (itAlgo->second)->algoBitNumber();
+            int algBitNumber = (itAlgo->second).algoBitNumber();
 
             int prescaleFactor = m_prescaleFactorsAlgoTrig.at(algBitNumber);
 
