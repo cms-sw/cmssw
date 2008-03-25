@@ -74,12 +74,6 @@ public:
  protected:
   const edm::ParameterSet& pset_;
 
-  mutable unsigned int lastEventNumberPixels;
-  mutable unsigned int lastEventNumberStrips;
-  mutable unsigned int lastRunNumberPixels;
-  mutable unsigned int lastRunNumberStrips;
-
-
   mutable DetContainer                        theDetMap;
   mutable std::vector<TkStripMeasurementDet*> theStripDets;
   mutable std::vector<TkPixelMeasurementDet*> thePixelDets;

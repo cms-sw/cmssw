@@ -48,6 +48,8 @@
 #include <DataFormats/GeometrySurface/interface/BoundPlane.h>
 #include "DataFormats/Math/interface/deltaR.h"
 
+#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "RecoTracker/MeasurementDet/interface/UpdaterService.h"
 
 using namespace std;
 
@@ -172,19 +174,13 @@ void OnDemandMeasurementTracker::define( const edm::Handle< LazyGetter> & theLaz
 
 void OnDemandMeasurementTracker::updateStrips( const edm::Event& event) const 
 {
-  // avoid to update twice from the same event
-  static unsigned int lastEventNumber =0;
-  static unsigned int lastRunNumber =0;
-  
-  bool oncePerEvent= !( (lastEventNumber == event.id().event()) && (lastRunNumber   == event.id().run() ) ) ; // check once per event
+  bool oncePerEvent= edm::Service<UpdaterService>()->checkOnce("OnDemandMeasurementTracker::updateStrips");
   bool failedToGet = false;
   if (!oncePerEvent)
     failedToGet = theRefGetterH.failedToGet() || theLazyGetterH.failedToGet();
 
   if (oncePerEvent || failedToGet)
     {
-      lastEventNumber = event.id().event();
-      lastRunNumber = event.id().run();
       LogDebug(category_)<<"Updating siStrip on event: "<< (uint) event.id().run() <<" : "<<(uint) event.id().event();
       
       //get the ref getter back from the event
