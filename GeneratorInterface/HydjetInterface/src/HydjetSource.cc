@@ -1,5 +1,5 @@
 /*
- * $Id: HydjetSource.cc,v 1.15 2008/01/16 14:47:18 yilmaz Exp $
+ * $Id: HydjetSource.cc,v 1.16 2008/01/28 15:32:03 yilmaz Exp $
  *
  * Interface to the HYDJET generator, produces HepMC events
  *
@@ -420,13 +420,21 @@ bool HydjetSource::produce(Event & e)
   edm::LogInfo("HYDJETinTemp") << "##### HYDJET: QGP init temperature, T0 ="<<pyqpar.T0u;
   edm::LogInfo("HYDJETinTau") << "##### HYDJET: QGP formation time,tau0 ="<<pyqpar.tau0u;
 
-
   // generate a HYDJET event
-  HYEVNT();
-
-  nsoft_    = hyfpar.nhyd;
+  int ntry = 0;
+  while(nsoft_ == 0 && nhard_ == 0){
+     if(ntry > 100){
+	edm::LogError("HydjetEmptyEvent") << "##### HYDJET: No Particles generated, Number of tries ="<<ntry;
+	return false;
+     }else{
+	HYEVNT();
+	nsoft_    = hyfpar.nhyd;
+	nhard_    = hyfpar.npyt;
+	ntry++;
+     }
+  }
+  
   nsub_     = hyjpar.njet;
-  nhard_    = hyfpar.npyt;
 
   std::vector<SubEvent> subvector;
 
