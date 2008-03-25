@@ -22,7 +22,25 @@ BxTiming::BxTiming(const edm::ParameterSet& iConfig) {
     ("HistFile","");
   histFolder_ = iConfig.getUntrackedParameter<std::string>
     ("HistFolder", "L1T/BXSynch/");
-  
+
+  listGtBits_ = iConfig.getUntrackedParameter<std::vector<int> > ("GtBitList", std::vector<int>(1,0));
+  if(listGtBits_.size()==1 && listGtBits_.at(0)==-1) {
+    int ngtbits = 128;
+    listGtBits_.reserve(ngtbits); 
+    for(int i=0; i<ngtbits; i++) 
+      listGtBits_[i]=i;
+  }
+
+  if(verbose()) {
+    std::cout << "BxTiming: gt bits set for timing dqm:";
+    std::cout << "nbits:" << listGtBits_.size() << " list: " ;
+    for(size_t i=0; i!=listGtBits_.size(); i++) 
+      std::cout << listGtBits_.at(i) << " " ;
+    std::cout << "\n" << std::flush;
+  }
+
+  nfed_ = FEDNumbering::lastFEDId()+1;
+
   dbe = NULL;
   if (iConfig.getUntrackedParameter<bool>("DQMStore", false)) { 
     dbe = edm::Service<DQMStore>().operator->();
@@ -54,7 +72,6 @@ BxTiming::beginJob(const edm::EventSetup&) {
   }
 
   std::string lbl("");
-  nfed_ = FEDNumbering::lastFEDId()+1;
   std::string SysLabel[NSYS] = {
     "ECAL", "HCAL", "GCT", "CSCTPG", "CSCTF", "DTTPG", "DTTF", "RPC", "GT"
   };
@@ -78,6 +95,7 @@ BxTiming::beginJob(const edm::EventSetup&) {
     if(fedRef_>=fedRange_[i].first && fedRef_<=fedRange_[i].second)
       {fedRefSys=i; break;}
   std::string refName("");
+  std::string spreadLabel[nspr_] = {"Spread","Min", "Max"};
   if(fedRefSys>=0)
     refName+=SysLabel[fedRefSys];
   else
@@ -88,10 +106,17 @@ BxTiming::beginJob(const edm::EventSetup&) {
 
     dbe->setCurrentFolder(histFolder_);
 
-    const int dbx = 100;
+    const int dbx = nbig_;
     hBxDiffAllFed = dbe->bookProfile("BxDiffAllFed", "BxDiffAllFed", 
 				     nfed_, -0.5, nfed_+0.5, 
                                      2*dbx+1, -1*dbx-0.5,dbx+0.5);
+
+    for(int i=0; i<nspr_; i++) {
+      lbl.clear();lbl+="BxDiffAllFed";lbl+=spreadLabel[i];
+      hBxDiffAllFedSpread[i] = dbe->book1D(lbl.data(),lbl.data(), nfed_, -0.5, nfed_+0.5); 
+      lbl.clear();lbl+="BxOccyAllFed";lbl+=spreadLabel[i];
+      hBxOccyAllFedSpread[i] = dbe->book1D(lbl.data(),lbl.data(), nfed_, -0.5, nfed_+0.5); 
+    }
 
     for(int i=0; i<NSYS; i++) {
       lbl.clear();lbl+=SysLabel[i];lbl+="FedBxDiff"; 
@@ -102,24 +127,48 @@ BxTiming::beginJob(const edm::EventSetup&) {
 					  2*dbx+1,-1*dbx-0.5,dbx+0.5);
     }
 
-    const int norb = 3565;
     lbl.clear();lbl+="BxOccyAllFed";
-    hBxOccyAllFed = dbe->book1D(lbl.data(),lbl.data(),norb+1,-0.5,norb+0.5);
+    hBxOccyAllFed = dbe->book1D(lbl.data(),lbl.data(),norb_+1,-0.5,norb_+0.5);
     hBxOccyOneFed = new MonitorElement*[nfed_];
     dbe->setCurrentFolder(histFolder_+"SingleFed/");
     for(int i=0; i<nfed_; i++) {
       lbl.clear(); lbl+="BxOccyOneFed";
       char *ii = new char[1000]; std::sprintf(ii,"%d",i);lbl+=ii;
-      hBxOccyOneFed[i] = dbe->book1D(lbl.data(),lbl.data(),norb+1,-0.5,norb+0.5);
+      hBxOccyOneFed[i] = dbe->book1D(lbl.data(),lbl.data(),norb_+1,-0.5,norb_+0.5);
       delete ii;
     }
-    
+
+    dbe->setCurrentFolder(histFolder_);
+    for(int i=0; i<nttype_; i++) {
+      lbl.clear();lbl+="BxOccyGtTrigType";
+      char *ii = new char[10]; std::sprintf(ii,"%d",i+1);lbl+=ii;
+      hBxOccyGtTrigType[i] = dbe->book1D(lbl.data(),lbl.data(),norb_+1,-0.5,norb_+0.5);
+    }
+
+    dbe->setCurrentFolder(histFolder_+"SingleBit/");
+    for(int i=0; i<NSYS; i++) {
+      hBxOccyTrigBit[i] = new MonitorElement*[listGtBits_.size()];
+      for(size_t j=0; j<listGtBits_.size(); j++) {
+      	lbl.clear();lbl+=SysLabel[i];lbl+="BxOccyGtBit"; 
+      	char *ii = new char[1000]; std::sprintf(ii,"%d",listGtBits_.at(j)); lbl+=ii;
+      	hBxOccyTrigBit[i][j] = dbe->book1D(lbl.data(),lbl.data(),norb_+1,-0.5,norb_+0.5);
+      }
+    }
+
   }
   
   /// labeling (cosmetics added here)
   hBxDiffAllFed->setAxisTitle("FED ID",1);
   lbl.clear(); lbl+="BX(fed)-BX("; lbl+=refName; lbl+=")";
   hBxDiffAllFed->setAxisTitle(lbl,2);
+  for(int i=0; i<nspr_; i++) {
+    lbl.clear(); lbl+="BX(fed)-BX("; lbl+=refName; lbl+=") "+spreadLabel[i];
+    hBxDiffAllFedSpread[i]->setAxisTitle("FED ID",1);
+    hBxDiffAllFedSpread[i]->setAxisTitle(lbl,2);
+    lbl.clear(); lbl+="Bx FED occupancy"; lbl+=" "; lbl+=spreadLabel[i]; 
+    hBxOccyAllFedSpread[i]->setAxisTitle("FED ID",1); 
+    hBxOccyAllFedSpread[i]->setAxisTitle(lbl,2);
+  }
   for(int i=0; i<NSYS; i++) {
     lbl.clear(); lbl+=SysLabel[i]; lbl+=" FED ID";
     hBxDiffSysFed[i]->setAxisTitle(lbl,1);
@@ -128,12 +177,35 @@ BxTiming::beginJob(const edm::EventSetup&) {
   }
   hBxOccyAllFed->setAxisTitle("bx",1);
   lbl.clear(); lbl+="Combined FED occupancy";
-  hBxOccyAllFed->setAxisTitle(lbl,1);
+  hBxOccyAllFed->setAxisTitle(lbl,2);
   for(int i=0; i<nfed_; i++) {
     hBxOccyOneFed[i] ->setAxisTitle("bx",1);
     lbl.clear(); lbl+=" FED "; char *ii = new char[1000]; std::sprintf(ii,"%d",i);lbl+=ii; lbl+=" occupancy";
     hBxOccyOneFed[i] ->setAxisTitle(lbl,2);
+    delete ii;
   }
+  for(int i=0; i<nttype_; i++) {
+    hBxOccyGtTrigType[i]->setAxisTitle("bx",1);
+    lbl.clear(); lbl+="GT occupancy for trigger type "; char *ii = new char[10]; std::sprintf(ii,"%d",i+1);lbl+=ii;
+    hBxOccyGtTrigType[i]->setAxisTitle(lbl,2);
+  }
+  
+  for(int i=0; i<NSYS; i++) {
+    for(size_t j=0; j<listGtBits_.size(); j++) {
+      hBxOccyTrigBit[i][j]->setAxisTitle("bx",1);
+      lbl.clear();lbl+=SysLabel[i];lbl+=" Bx occupancy for Trigger bit "; 
+      char *ii = new char[10]; std::sprintf(ii,"%d",listGtBits_.at(j)); lbl+=ii;
+      hBxOccyTrigBit[i][j]->setAxisTitle(lbl,2);
+    }
+  }
+  
+
+  /// initialize counters  
+  for(int i=0; i<nfed_;i++) {
+    nBxDiff[i][0]=0; nBxDiff[i][1]=nbig_; nBxDiff[i][2]=-1*nbig_;
+    nBxOccy[i][0]=0; nBxOccy[i][1]=nbig_; nBxOccy[i][2]=-1*nbig_;
+  }
+
   
   if(verbose())
     std::cout << "BxTiming::beginJob()  end.\n" << std::flush;
@@ -170,11 +242,35 @@ BxTiming::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   // get the GT bits
   edm::Handle<L1GlobalTriggerReadoutRecord> gtdata;
   iEvent.getByLabel(gtSource_, gtdata);
+  std::vector<bool> gtbits;
+  int ngtbits = 128;
+  gtbits.reserve(ngtbits); for(int i=0; i<ngtbits; i++) gtbits[i]=false;
   if(gtdata.isValid())
-    std::vector<bool> gtbits = gtdata->decisionWord();
+    gtbits = gtdata->decisionWord();
+  
+  if(gtbits.size()==0) {
+    gtbits.push_back(true); // gtdata->decision();
+    if(verbose())
+      std::cout << "BxTiming::analyze() | unexpected empty decision bits!";
+  }
+
+  if(verbose()) {
+    std::cout << "BxTiming::analyze()  gt data valid:" << (int)(gtdata.isValid()?0:1)
+	      << " decision word size:" << (int)(gtbits.size()) << "  bits: ";
+    for(size_t i=0; i!=gtbits.size(); i++) {
+      int ii = gtbits.at(i)? 1:0;
+      std::cout << ii;
+    }
+    std::cout << ".\n" << std::flush;
+  }
+
 
   // get reference bx
   int bxRef = FEDHeader(rawdata->FEDData(fedRef_).data()).bxID();
+
+  // triggerType
+  //trigger types: physics (1), calibration (2), random (3), traced physics (5),  test (6) 
+  int ttype = FEDHeader(rawdata->FEDData(813).data()).triggerType();
 
   // loop over feds
   for (int i = 0; i<FEDNumbering::lastFEDId(); i++){
@@ -185,16 +281,79 @@ BxTiming::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
     //int lvl1id = header.lvl1ID();//Level-1 event number generated by the TTC system
     int bx = header.bxID(); // The bunch crossing number
 
-    hBxDiffAllFed->Fill(i,bx-bxRef);
+    int bxDiff = bx-bxRef; // deviation from reference bx
+
+    //min
+    if(nBxDiff[i][1]>bxDiff) nBxDiff[i][1] = bxDiff;
+    if(nBxOccy[i][1]>bx    ) nBxOccy[i][1] = bx;
+    //max
+    if(nBxDiff[i][2]<bxDiff) nBxDiff[i][2] = bxDiff;
+    if(nBxOccy[i][2]<bx    ) nBxOccy[i][2] = bx;
+
+    if(verbose())
+      std::cout << " fed:" <<  i 
+		<< " bx:" << bx 
+		<< " bxRef:" << bxRef
+		<< " diff:" << bxDiff 
+		<< " nBxDiff"<<" del:"<<nBxDiff[i][0]<<" min:"<<nBxDiff[i][1]<<" max:"<<nBxDiff[i][2]
+		<< " nBxOccy"<<" del:"<<nBxOccy[i][0]<<" min:"<<nBxOccy[i][1]<<" max:"<<nBxOccy[i][2]
+		<< "\n" << std::flush;
+
+    hBxDiffAllFed->Fill(i,bxDiff);
     for(int j=0; j<NSYS; j++)
       if(i>=fedRange_[j].first && i<=fedRange_[j].second)
-	hBxDiffSysFed[j]->Fill(i,bx-bxRef);
+	hBxDiffSysFed[j]->Fill(i,bxDiff);
 
+    for(size_t k=0; k!=listGtBits_.size(); k++) {
+      if((int)gtbits.size() <= listGtBits_.at(k)) {
+	if(verbose()) 
+	  std::cout << "BxTiming analyze | problem with vector size!\n" << std::endl;
+	continue;
+      }
+      else if(!gtbits.at(listGtBits_.at(k))) 
+	continue;
+      for(int j=0; j<NSYS; j++) {
+	if(i>=fedRange_[j].first && i<=fedRange_[j].second) {
+	  hBxOccyTrigBit[j][k]->Fill(bx);
+	}
+      }
+    }
+
+    if(i>=fedRange_[GLT].first && i<=fedRange_[GLT].second) //GT fed
+      if(ttype<nttype_)
+	hBxOccyGtTrigType[ttype-1]->Fill(bx);
+
+    if(ttype!=1) continue; //skip if not a physics trigger
     hBxOccyAllFed->Fill(bx);
     hBxOccyOneFed[i]->Fill(bx);
 
   }
+
+  for(int i=0; i<nfed_;i++) for(int j=1; j<3;j++) nBxOccy[i][j]=norb_-nBxOccy[i][j];
   
+  for(int i=0; i<nfed_;i++) {
+    nBxDiff[i][0]=nBxDiff[i][2]-nBxDiff[i][1]; 
+    nBxOccy[i][0]=nBxOccy[i][2]-nBxOccy[i][1];
+    if(nBxDiff[i][0]<0 || nBxOccy[i][0]<0) continue;
+    for(int j=0; j<nspr_; j++) {
+      hBxDiffAllFedSpread[j]->setBinContent(i,nBxDiff[i][j]);      
+      hBxOccyAllFedSpread[j]->setBinContent(i,nBxOccy[i][j]);      
+    }
+    if(verbose())
+      std::cout << "BxTiming fed:" << i 
+		<< " Bx-Bx(" << fedRef_ << ")::" 
+		<< " del:" << nBxDiff[i][0]
+		<< " min:" << nBxDiff[i][1]
+		<< " max:" << nBxDiff[i][2]
+		<< " Occy: "
+		<< " del:" << nBxOccy[i][0]
+		<< " min:" << nBxOccy[i][1]
+		<< " max:" << nBxOccy[i][2]
+		<<"\n" << std::flush;
+
+  }
+
+
   if(verbose())
     std::cout << "BxTiming::analyze() end.\n" << std::flush;
 }

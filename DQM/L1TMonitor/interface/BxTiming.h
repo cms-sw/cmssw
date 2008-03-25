@@ -58,17 +58,34 @@ class BxTiming : public edm::EDAnalyzer {
   DQMStore* dbe;
  
   // readout l1 systems
-  enum nsys {NSYS=9}; 
+  static const int norb_ = 3565;  // bx per orbit
+  static const int nbig_ = 10000; // larger than bx spread
+  static const int nttype_ = 6;   // number of trigger types (physics, cal,...)
+
+  std::vector<int>  listGtBits_;  // selected gt bit numbers for synch monitoring
+
+  enum nsys {NSYS=9};
   enum syslist {ETP=0, HTP, GCT, CTP, CTF, DTP, DTF, RPC, GLT};
   std::pair<int,int> fedRange_[NSYS];
   int nfed_;   // number of feds
   int fedRef_; // reference fed
 
+  // bx spread counters
+  static const int nspr_=3; // delta, min, max  
+  int nBxDiff[1500][nspr_];
+  int nBxOccy[1500][nspr_];
+
   /// histograms
-  MonitorElement* hBxDiffAllFed;
-  MonitorElement* hBxDiffSysFed[NSYS];
-  MonitorElement* hBxOccyAllFed;
-  MonitorElement**hBxOccyOneFed;
+  MonitorElement* hBxDiffAllFed;              // bx shift wrt reference fed, for all feds
+  MonitorElement* hBxDiffSysFed[NSYS];        // bx shift wrt reference fed, per subsystem
+  MonitorElement* hBxOccyAllFed;              // bx occupancy, for all fed's
+  MonitorElement**hBxOccyOneFed;              // bx occupancy, per each fed
+					      
+  MonitorElement* hBxDiffAllFedSpread[nspr_]; // bx shift wrt ref fed: mean shift, min, max
+  MonitorElement* hBxOccyAllFedSpread[nspr_]; // bx occupancy: mean shift, min, max
+
+  MonitorElement* hBxOccyGtTrigType[nttype_]; // gt bx occupancy per trigger type
+  MonitorElement**hBxOccyTrigBit[NSYS];       // subsystem bx occupancy per selected trigger bit 
 
 };
 
