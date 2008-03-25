@@ -330,9 +330,9 @@ void L1GlobalTriggerGTL::run(edm::Event& iEvent, const edm::EventSetup& evSetup,
     for (CItAlgo itAlgo = algorithmMap.begin(); itAlgo != algorithmMap.end(); itAlgo++) {
 
         L1GtAlgorithmEvaluation gtAlg(itAlgo->second);
-        gtAlg.evaluateAlgorithm((itAlgo->second)->algoChipNumber(), conditionResultMaps);
+        gtAlg.evaluateAlgorithm((itAlgo->second).algoChipNumber(), conditionResultMaps);
 
-        int algBitNumber = (itAlgo->second)->algoBitNumber();
+        int algBitNumber = (itAlgo->second).algoBitNumber();
         bool algResult = gtAlg.gtAlgoResult();
 
         if (algResult) {
@@ -364,7 +364,7 @@ void L1GlobalTriggerGTL::run(edm::Event& iEvent, const edm::EventSetup& evSetup,
 
         if (edm::isDebugEnabled() ) {
             std::ostringstream myCout;
-            (itAlgo->second)->print(myCout);
+            (itAlgo->second).print(myCout);
             gtAlg.print(myCout);
 
             LogTrace("L1GlobalTriggerGTL") << myCout.str() << std::endl;

@@ -54,11 +54,11 @@ L1GtAlgorithmEvaluation::L1GtAlgorithmEvaluation() :
 }
 
 /// constructor from an algorithm from event setup
-L1GtAlgorithmEvaluation::L1GtAlgorithmEvaluation(const L1GtAlgorithm* alg) :
+L1GtAlgorithmEvaluation::L1GtAlgorithmEvaluation(const L1GtAlgorithm& alg) :
     L1GtLogicParser() {
 
-    m_logicalExpression = alg->algoLogicalExpression();
-    m_rpnVector = alg->algoRpnVector();
+    m_logicalExpression = alg.algoLogicalExpression();
+    m_rpnVector = alg.algoRpnVector();
     
     m_algoResult = false;
 
