@@ -13,7 +13,7 @@
 //
 // Original Author:  Jim Pivarski
 //         Created:  Wed Feb 20 10:56:46 CST 2008
-// $Id$
+// $Id: StraightMuonCutProducer.cc,v 1.1 2008/02/20 22:51:36 pivarski Exp $
 //
 //
 
@@ -289,8 +289,8 @@ StraightMuonCutProducer::endJob() {
       output << "block StraightMuonCutStage2Params = {" << std::endl;
       for (std::map<int, std::string>::const_iterator chamber = m_chamber.begin();  chamber != m_chamber.end();  ++chamber) {
 	 if (m_hist[chamber->first]->GetEntries() > m_minHits) {
-	    output << "    " << chamber->second << "_mean = " << m_hist[chamber->first]->GetMean() << std::endl;
-	    output << "    " << chamber->second << "_stdev = " << m_hist[chamber->first]->GetRMS() << std::endl;
+	    output << "    double " << chamber->second << "_mean = " << m_hist[chamber->first]->GetMean() << std::endl;
+	    output << "    double " << chamber->second << "_stdev = " << m_hist[chamber->first]->GetRMS() << std::endl;
 	    m_histmeans->Fill(m_hist[chamber->first]->GetMean());
 	    m_histstdevs->Fill(m_hist[chamber->first]->GetRMS());
 	 }
