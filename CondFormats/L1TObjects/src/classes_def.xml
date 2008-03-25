@@ -67,12 +67,11 @@
   <class name="L1GtPrescaleFactors"/>
   <class name="L1GtTriggerMask"/>
   <class name="L1GtBoard"/>
-  <class name="std::vector<L1GtPsbQuad>"/>
   <class name="L1GtBoardMaps"/>
   <class name="std::vector<L1GtBoard>"/>
-  <class name="std::map<std::string, L1GtCondition*>"/>
-  <class name="std::vector<std::map<std::string, L1GtCondition*> >"/>
-  <class name="std::map<std::string, L1GtAlgorithm*>"/>
-  <class name="L1GtTriggerMenu"/>
+  <class name="std::map<std::string, L1GtAlgorithm>"/>
+  <class name="L1GtTriggerMenu">
+    <field name="m_conditionMap" transient="true" />
+  </class>
 
 </lcgdict>

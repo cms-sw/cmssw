@@ -28,7 +28,7 @@
 typedef std::map<std::string, L1GtCondition*> ConditionMap;
 
 /// map containing the algorithms
-typedef std::map<std::string, L1GtAlgorithm*> AlgorithmMap;
+typedef std::map<std::string, L1GtAlgorithm> AlgorithmMap;
 
 /// iterators through map containing the conditions
 typedef ConditionMap::const_iterator CItCond;

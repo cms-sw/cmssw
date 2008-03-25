@@ -24,10 +24,8 @@
 #include <iomanip>
 
 // user include files
-
 //   base class
 
-#include "CondFormats/L1TObjects/interface/L1GtFwd.h"
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutSetupFwd.h"
 
 // forward declarations
@@ -47,10 +45,13 @@ L1GtCorrelationTemplate::L1GtCorrelationTemplate()
     int nObjects = nrObjects();
 
     if (nObjects > 0) {
-        m_objectCondition.reserve(nObjects);
         m_objectType.reserve(nObjects);
     }
 
+    m_cond0Category = CondNull;
+    m_cond1Category = CondNull;
+    m_cond0Index = -1;
+    m_cond1Index = -1;
 
 }
 
@@ -67,42 +68,42 @@ L1GtCorrelationTemplate::L1GtCorrelationTemplate(const std::string& cName)
     int nObjects = nrObjects();
 
     if (nObjects > 0) {
-        m_objectCondition.reserve(nObjects);
         m_objectType.reserve(nObjects);
     }
 
+    m_cond0Category = CondNull;
+    m_cond1Category = CondNull;
+    m_cond0Index = -1;
+    m_cond1Index = -1;
+
 }
 
-//   from condition name and two existing conditions
+//   from condition name, the category of first sub-condition, the category of the 
+//   second sub-condition, the index of first sub-condition in the cor* vector,
+//   the index of second sub-condition in the cor* vector
 L1GtCorrelationTemplate::L1GtCorrelationTemplate(const std::string& cName,
-        const L1GtCondition& cond0, const L1GtCondition& cond1)
-        : L1GtCondition(cName)
+        const L1GtConditionCategory& cond0Cat,
+        const L1GtConditionCategory& cond1Cat, 
+        const int cond0Index,
+        const int cond1index) :
+    L1GtCondition(cName), 
+            m_cond0Category(cond0Cat),
+            m_cond1Category(cond1Cat),
+            m_cond0Index(cond0Index),
+            m_cond1Index(cond1index)
+
 {
 
     m_condCategory = CondCorrelation;
-    m_condType = Type2cor;
-    m_condChipNr = -1;
-
-
-    // check that both conditions are of correct types
-    // (two objects of different type, with spatial correlations)
-    // TODO FIXME
+    m_condType = Type2cor; 
+    m_condChipNr = -1; 
 
     // there are in fact two objects
     int nObjects = nrObjects();
 
-    if (nObjects > 0) {
-        m_objectCondition.reserve(nObjects);
+    if (nObjects> 0) {
         m_objectType.resize(nObjects);
-
-        std::vector<L1GtObject> objVec = cond0.objectType();
-        m_objectType[0] = objVec[0];
-
-        objVec = cond1.objectType();
-        m_objectType[1] = objVec[1];
-
     }
-
 }
 
 // copy constructor
@@ -126,14 +127,34 @@ L1GtCorrelationTemplate& L1GtCorrelationTemplate::operator= (const L1GtCorrelati
     return *this;
 }
 
+// set the category of the two sub-conditions
+void L1GtCorrelationTemplate::setCond0Category(
+        const L1GtConditionCategory& condCateg) {
+    
+    m_cond0Category = condCateg;
+}
 
-// setConditionParameter - set the parameters of the condition
-void L1GtCorrelationTemplate::setConditionParameter(
-    const std::vector<L1GtCondition>& objCondition,
-    const CorrelationParameter& corrParameter)
-{
+void L1GtCorrelationTemplate::setCond1Category(
+        const L1GtConditionCategory& condCateg) {
+    
+    m_cond1Category = condCateg;
+}
 
-    m_objectCondition = objCondition;
+
+// set the index of the two sub-conditions in the cor* vector from menu
+void L1GtCorrelationTemplate::setCond0Index(const int& condIndex) {
+    m_cond0Index = condIndex;
+}
+
+void L1GtCorrelationTemplate::setCond1Index(const int& condIndex) {
+    m_cond1Index = condIndex;
+}
+
+
+// set the correlation parameters of the condition
+void L1GtCorrelationTemplate::setCorrelationParameter(
+        const CorrelationParameter& corrParameter) {
+
     m_correlationParameter = corrParameter;
 
 }
@@ -145,15 +166,13 @@ void L1GtCorrelationTemplate::print(std::ostream& myCout) const
 
     L1GtCondition::print(myCout);
 
-    int nObjects = nrObjects();
+    myCout << "\n  First sub-condition category:  " << m_cond0Category <<  std::endl;
+    myCout <<   "  Second sub-condition category: " << m_cond1Category <<  std::endl;
 
-    for (int i = 0; i < nObjects; i++) {
+    myCout << "\n  First sub-condition index:  " << m_cond0Index <<  std::endl;
+    myCout <<   "  Second sub-condition index: " << m_cond1Index <<  std::endl;
 
-        m_objectCondition[i].print(myCout);
-
-    }
-
-    myCout << "  Correlation parameters " << "[ hex ]" <<  std::endl;
+    myCout << "\n  Correlation parameters " << "[ hex ]" <<  std::endl;
 
 
     myCout << "    deltaEtaRange      = "
@@ -178,7 +197,11 @@ void L1GtCorrelationTemplate::copy(const L1GtCorrelationTemplate& cp)
     m_condGEq      = cp.condGEq();
     m_condChipNr   = cp.condChipNr();
 
-    m_objectCondition = *(cp.objectCondition());
+    m_cond0Category = cp.cond0Category();
+    m_cond1Category = cp.cond1Category();
+    m_cond0Index = cp.cond0Index();
+    m_cond1Index = cp.cond1Index();
+
     m_correlationParameter = *(cp.correlationParameter());
 
 }
