@@ -41,7 +41,7 @@ CaloTowersCreator::CaloTowersCreator(const edm::ParameterSet& conf) :
 	conf.getParameter<double>("EcutTower"),
 	conf.getParameter<double>("EBSumThreshold"),
 	conf.getParameter<double>("EESumThreshold"),
-	true), // always uses HO!
+	conf.getParameter<bool>("UseHO")),
   hbheLabel_(conf.getParameter<edm::InputTag>("hbheInput")),
   hoLabel_(conf.getParameter<edm::InputTag>("hoInput")),
   hfLabel_(conf.getParameter<edm::InputTag>("hfInput")),

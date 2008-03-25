@@ -4,6 +4,8 @@
 #include "RecoParticleFlow/PFRootEvent/interface/PFRootEventManager.h"
 #include "DataFormats/JetReco/interface/BasicJet.h"
 #include "DataFormats/JetReco/interface/BasicJetfwd.h"
+#include "DataFormats/JetReco/interface/PFJet.h"
+#include "DataFormats/JetReco/interface/PFJetfwd.h"
 #include "DataFormats/JetReco/interface/CaloJet.h"
 #include "DataFormats/JetReco/interface/CaloJetfwd.h"
 #include "DataFormats/RecoCandidate/interface/RecoCaloTowerCandidate.h" 
@@ -72,7 +74,7 @@ class JetPFRootEventManager : public PFRootEventManager {
 	/// Vector to read in CMSSW calo jets
 	std::auto_ptr<std::vector<reco::CaloJet> >  reccalojets_;
 	/// Vector to read in CMSSW PFJets
-	std::auto_ptr<std::vector<reco::BasicJet> >recpfjets_;  
+	std::auto_ptr<std::vector<reco::PFJet> >recpfjets_;  
 	std::auto_ptr<reco::CandidateCollection> test_;
 	/// options file parser 
 	IO*        options_;
@@ -96,6 +98,7 @@ class JetPFRootEventManager : public PFRootEventManager {
 	double overlapThreshold_;
 	double ptMin_;
 	double rparam_;
+	int algoType_;
 	bool   jetsDebugCMSSW_;
 	FWLiteJetProducer* jetMaker_;
 };

@@ -43,7 +43,8 @@ CalIsolationAlgo<T1,C2>::~CalIsolationAlgo() {
 template <typename T1, typename C2> double CalIsolationAlgo<T1,C2>::
 operator()(const T1 & cand, const C2 & elements) const {
   const GlobalPoint Vertex(cand.vx(), cand.vy(), cand.vz());//@@check if this is [cm]!
-  GlobalVector Cand(cand.pt(), cand.eta(), cand.phi()); 
+  //GlobalVector Cand(cand.pt(), cand.eta(), cand.phi()); 
+  GlobalVector Cand(cand.px(), cand.py(), cand.pz()); 
 
   ///Extrapolate charged particles from their vertex to the point of entry into the
   ///calorimeter, if this is requested in the cfg file.

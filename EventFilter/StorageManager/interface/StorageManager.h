@@ -10,7 +10,7 @@
 
      See CMS EventFilter wiki page for further notes.
 
-   $Id: StorageManager.h,v 1.15 2007/06/11 12:24:55 badgett Exp $
+   $Id: StorageManager.h,v 1.18 2007/08/18 06:04:56 hcheung Exp $
 */
 
 #include <string>
@@ -96,6 +96,8 @@ namespace stor {
     void stopAction();
     void haltAction();
 
+    void checkDirectoryOK(std::string dir);
+
     void defaultWebPage
       (xgi::Input *in, xgi::Output *out) throw (xgi::exception::Exception);
     void css(xgi::Input *in, xgi::Output *out) throw (xgi::exception::Exception)
@@ -117,7 +119,9 @@ namespace stor {
 
     void parseFileEntry(std::string in, std::string &out, unsigned int &nev, unsigned int &sz);
 	
+    // *** state machine related
     evf::StateMachine fsm_;
+    std::string       reasonForFailedState_;
 
     edm::AssertHandler *ah_;
     edm::service::MessageServicePresence theMessageServicePresence;
@@ -128,6 +132,12 @@ namespace stor {
 
     xdata::Boolean pushmode2proxy_;
     xdata::Integer nLogicalDisk_;
+    xdata::String  fileName_;
+    xdata::String  filePath_;
+    xdata::String  mailboxPath_;
+    xdata::String  setupLabel_;
+    xdata::Double  highWaterMark_;
+    xdata::Double  lumiSectionTimeOut_;
     xdata::String  fileCatalog_;
 
     xdata::String  closeFileScript_;

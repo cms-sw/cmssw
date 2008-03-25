@@ -2,7 +2,7 @@
 #define FWCore_Sources_RawInputSource_h
 
 /*----------------------------------------------------------------------
-$Id: RawInputSource.h,v 1.2 2007/06/14 21:03:40 wmtan Exp $
+$Id: RawInputSource.h,v 1.5 2007/07/31 23:58:55 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include <memory>

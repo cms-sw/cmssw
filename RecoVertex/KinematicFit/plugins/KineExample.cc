@@ -151,10 +151,28 @@ KineExample::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
      * The reconstructed decay tree is a result of the kinematic fit
      * The KinematicParticleVertexFitter fits the final state particles to their vertex and
      * reconstructs the decayed state
+     * It is a two-step fit: First the J/Psi->MuMu fit, then the Bs->J/Psi Mu Mu fit.
      */
       KinematicParticleVertexFitter fitter;
-      RefCountedKinematicTree vertexFitTree = fitter.fit(allParticles);
+      RefCountedKinematicTree jpVertexFitTree = fitter.fit(muonParticles);
+      cout << "Nbr of parts for J/Psi fit: " << muonParticles.size() <<endl;
+  for (unsigned int i=0;i< muonParticles.size();++i) {
+    printout(muonParticles[i]);
+  }
+      printout(jpVertexFitTree);
 
+      jpVertexFitTree->movePointerToTheTop();
+      RefCountedKinematicParticle jpsi_vFit_part = jpVertexFitTree->currentParticle();
+      vector<RefCountedKinematicParticle> vFitParticles = phiParticles;
+      vFitParticles.push_back(jpsi_vFit_part);
+      cout << "Nbr of parts for Bs fit: " << vFitParticles.size() <<endl;
+  for (unsigned int i=0;i< vFitParticles.size();++i) {
+    printout(vFitParticles[i]);
+  }
+      RefCountedKinematicTree vertexFitTree = fitter.fit(vFitParticles);
+
+
+      cout << "Vertex fit done:\n";
       printout(vertexFitTree);
 
     /////Example of global fit:
@@ -234,24 +252,25 @@ void KineExample::printout(const RefCountedKinematicVertex& myVertex) const
 
 void KineExample::printout(const RefCountedKinematicParticle& myParticle) const
 {
-  cout << "Particle: \n";
+  cout << "Particle: ";
 //accessing the reconstructed Bs meson parameters:
   AlgebraicVector bs_par = myParticle->currentState().kinematicParameters().vector();
 
 //and their joint covariance matrix:
   AlgebraicMatrix bs_er = myParticle->currentState().kinematicParametersError().matrix();
   cout << "Momentum at vertex: " << myParticle->currentState().globalMomentum ()<<endl;
-  cout << "Parameters at vertex: " << myParticle->currentState().kinematicParameters().vector()<<endl;
+  //cout << "Parameters at vertex: " << myParticle->currentState().kinematicParameters().vector()<<endl;
 }
 
 void KineExample::printout(const RefCountedKinematicTree& myTree) const
 {
-
+  cout << "Tree info:\n";
 //accessing the tree components, move pointer to top
   myTree->movePointerToTheTop();
 
 //We are now at the top of the decay tree getting the B_s reconstructed KinematicPartlcle
   RefCountedKinematicParticle b_s = myTree->currentParticle();
+  cout << "The mother ";
   printout(b_s);
 
 // The B_s decay vertex
@@ -261,18 +280,19 @@ void KineExample::printout(const RefCountedKinematicTree& myTree) const
   // Get all the children of Bs:
   //In this way, the pointer is not moved
   vector< RefCountedKinematicParticle > bs_children = myTree->finalStateParticles();
-
+  cout << "The children, all final states (not moving the pointer): "<< bs_children.size()<<endl;
   for (unsigned int i=0;i< bs_children.size();++i) {
     printout(bs_children[i]);
   }
 
 //Now navigating down the tree , pointer is moved:
+  cout << "The direct children, first generation only  (moving the pointer): \n";
   bool child = myTree->movePointerToTheFirstChild();
 
-  if(child) while (myTree->movePointerToTheNextChild()) {
+  if(child) do {
     RefCountedKinematicParticle aChild = myTree->currentParticle();
     printout(aChild);
-  }
+  } while (myTree->movePointerToTheNextChild());
 }
 
 //Returns the first vertex in the list.

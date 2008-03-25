@@ -1,13 +1,14 @@
 #include "DataFormats/Provenance/interface/BranchDescription.h"
 #include "DataFormats/Provenance/interface/ModuleDescription.h"
 #include "FWCore/Utilities/interface/Exception.h"
-#include "Reflex/Type.h"
+#include "FWCore/Utilities/interface/WrappedClassName.h"
 #include <ostream>
 #include <sstream>
+#include <stdlib.h>
 
 /*----------------------------------------------------------------------
 
-$Id: BranchDescription.cc,v 1.1 2007/03/04 04:48:09 wmtan Exp $
+$Id: BranchDescription.cc,v 1.6 2007/10/09 07:04:30 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -25,10 +26,14 @@ namespace edm {
     processConfigurationIDs_(),
     branchAliases_(),
     branchName_(),
+    wrappedName_(),
     produced_(false),
     present_(true),
     provenancePresent_(true),
-    transient_(false)
+    transient_(false),
+    type_(),
+    splitLevel_(invalidSplitLevel),
+    basketSize_(invalidBasketSize)
   {
     // do not call init here! It will result in an exception throw.
   }
@@ -54,10 +59,14 @@ namespace edm {
     processConfigurationIDs_(),
     branchAliases_(aliases),
     branchName_(),
+    wrappedName_(),
     produced_(true),
     present_(true),
     provenancePresent_(true),
-    transient_(false) 
+    transient_(false),
+    type_(),
+    splitLevel_(invalidSplitLevel),
+    basketSize_(invalidBasketSize)
   {
     psetIDs_.insert(modDesc.parameterSetID());
     processConfigurationIDs_.insert(modDesc.processConfigurationID());
@@ -89,15 +98,23 @@ namespace edm {
     processConfigurationIDs_(procConfigIDs),
     branchAliases_(aliases),
     branchName_(),
+    wrappedName_(),
     produced_(true),
     present_(true),
     provenancePresent_(true),
-    transient_(false) {
+    transient_(false),
+    type_(),
+    splitLevel_(invalidSplitLevel),
+    basketSize_(invalidBasketSize)
+  {
     init();
   }
 
   void
   BranchDescription::init() const {
+    if (!branchName_.empty()) {
+      return;	// already called
+    }
     throwIfInvalid_();
 
     char const underscore('_');
@@ -123,12 +140,41 @@ namespace edm {
       << "' contains an underscore ('_'), which is illegal in a process name.\n";
     }
 
-    branchName_ = friendlyClassName() + underscore + moduleLabel() + underscore +
-      productInstanceName() + underscore + processName() + period;
+    branchName_.reserve(friendlyClassName().size() +
+			moduleLabel().size() +
+			productInstanceName().size() +
+			processName().size() + 4);
+    branchName_ += friendlyClassName();
+    branchName_ += underscore;
+    branchName_ += moduleLabel();
+    branchName_ += underscore;
+    branchName_ += productInstanceName();
+    branchName_ += underscore;
+    branchName_ += processName();
+    branchName_ += period;
 
     ROOT::Reflex::Type t = ROOT::Reflex::Type::ByName(fullClassName());
     ROOT::Reflex::PropertyList p = t.Properties();
     transient_ = (p.HasProperty("persistent") ? p.PropertyAsString("persistent") == std::string("false") : false);
+
+    wrappedName_ = wrappedClassName(fullClassName());
+    type_ = ROOT::Reflex::Type::ByName(wrappedName_);
+    ROOT::Reflex::PropertyList wp = type_.Properties();
+    if (wp.HasProperty("splitLevel")) {
+	splitLevel_ = strtol(wp.PropertyAsString("splitLevel").c_str(), 0, 0);
+	if (splitLevel_ < 0) {
+          throw cms::Exception("IllegalSplitLevel") << "' An illegal ROOT split level of " <<
+	  splitLevel_ << " is specified for class " << wrappedName_ << ".'\n";
+	}
+	++splitLevel_; //Compensate for wrapper
+    }
+    if (wp.HasProperty("basketSize")) {
+	basketSize_ = strtol(wp.PropertyAsString("basketSize").c_str(), 0, 0);
+	if (basketSize_ <= 0) {
+          throw cms::Exception("IllegalBasketSize") << "' An illegal ROOT basket size of " <<
+	  basketSize_ << " is specified for class " << wrappedName_ << "'.\n";
+	}
+    }
   }
 
   ParameterSetID const&

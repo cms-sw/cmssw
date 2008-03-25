@@ -19,7 +19,23 @@
 #include "DataFormats/L1Trigger/interface/L1JetParticle.h"
 #include "DataFormats/L1Trigger/interface/L1EtMissParticle.h"
 #include "DataFormats/L1Trigger/interface/L1ParticleMap.h"
+#include "DataFormats/L1GlobalMuonTrigger/interface/L1MuGMTExtendedCand.h"
 #include "DataFormats/Candidate/interface/Candidate.h"
+
+#include "L1Trigger/RegionalCaloTrigger/interface/L1RCTProducer.h" 
+
+#include "DataFormats/L1CaloTrigger/interface/L1CaloCollections.h"
+#include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
+#include "DataFormats/HcalDigi/interface/HcalDigiCollections.h"
+/* #include "CalibFormats/CaloTPG/interface/CaloTPGTranscoder.h" */
+/* #include "CalibFormats/CaloTPG/interface/CaloTPGRecord.h" */
+/* #include "CondFormats/L1TObjects/interface/L1CaloEtScale.h" */
+/* #include "CondFormats/DataRecord/interface/L1EmEtScaleRcd.h" */
+/* #include "CondFormats/L1TObjects/interface/L1RCTParameters.h" */
+/* #include "CondFormats/DataRecord/interface/L1RCTParametersRcd.h" */
+/* #include "L1Trigger/RegionalCaloTrigger/interface/L1RCT.h" */
+/* #include "L1Trigger/RegionalCaloTrigger/interface/L1RCTLookupTables.h"  */
+
 
 #include "HLTrigger/HLTanalyzers/interface/JetUtil.h"
 
@@ -40,7 +56,7 @@ public:
   void setup(const edm::ParameterSet& pSet, TTree* tree);
 
   /** Analyze the Data */
-  void analyze(const HLTFilterObjectWithRefs& hltobj,
+  void analyze(/*const HLTFilterObjectWithRefs& hltobj,*/
 	       const edm::TriggerResults& hltresults,
 	       const l1extra::L1EmParticleCollection& l1extemi,
 	       const l1extra::L1EmParticleCollection& l1extemn,
@@ -49,6 +65,7 @@ public:
 	       const l1extra::L1JetParticleCollection& l1extjetf,
 	       const l1extra::L1JetParticleCollection& l1exttaujet,
 	       const l1extra::L1EtMissParticle& l1extmet,
+	       const l1extra::L1ParticleMapCollection& l1mapcoll,
 	       TTree* tree);
 
 private:
@@ -62,8 +79,8 @@ private:
   float *l1extjtfet, *l1extjtfe, *l1extjtfeta, *l1extjtfphi;
   float *l1exttauet, *l1exttaue, *l1exttaueta, *l1exttauphi;
   float met, metphi, mettot, methad;
-  int evtCount,nhltpart,nl1extiem,nl1extnem,nl1extmu,nl1extjetc,nl1extjetf,nl1extjt,nl1exttau;
-  int *trigflag, *l1extmuiso, *l1extmumip;
+  int L1EvtCnt,HltEvtCnt,nhltpart,nl1extiem,nl1extnem,nl1extmu,nl1extjetc,nl1extjetf,nl1extjt,nl1exttau;
+  int *trigflag, *l1flag, *l1extmuiso, *l1extmumip, *l1extmufor, *l1extmurpc, *l1extmuqul;
 
   // input variables
   bool _Debug;

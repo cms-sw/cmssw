@@ -2,8 +2,8 @@
 /*
  * \file EBIntegrityClient.cc
  *
- * $Date: 2007/06/24 09:41:11 $
- * $Revision: 1.151 $
+ * $Date: 2007/08/09 12:24:18 $
+ * $Revision: 1.153 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -369,26 +369,12 @@ void EBIntegrityClient::cleanup(void) {
 
 }
 
-bool EBIntegrityClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIOV* moniov, int ism) {
+bool EBIntegrityClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIOV* moniov) {
 
   bool status = true;
 
-  UtilsClient::printBadChannels(qth01_[ism-1]);
-  UtilsClient::printBadChannels(qth02_[ism-1]);
-  UtilsClient::printBadChannels(qth03_[ism-1]);
-  UtilsClient::printBadChannels(qth04_[ism-1]);
-  UtilsClient::printBadChannels(qth05_[ism-1]);
-  UtilsClient::printBadChannels(qth06_[ism-1]);
-
-  UtilsClient::printBadChannels(qth07_[ism-1]);
-  UtilsClient::printBadChannels(qth08_[ism-1]);
-  UtilsClient::printBadChannels(qth09_[ism-1]);
-  UtilsClient::printBadChannels(qth10_[ism-1]);
-
-//  UtilsClient::printBadChannels(qtg01_[ism-1]);
-//  UtilsClient::printBadChannels(qtg02_[ism-1]);
-
   EcalLogicID ecid;
+
   MonCrystalConsistencyDat c1;
   map<EcalLogicID, MonCrystalConsistencyDat> dataset1;
   MonTTConsistencyDat c2;
@@ -398,152 +384,334 @@ bool EBIntegrityClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonR
   MonMemTTConsistencyDat c4;
   map<EcalLogicID, MonMemTTConsistencyDat> dataset4;
 
-  float num00;
+  for ( unsigned int i=0; i<superModules_.size(); i++ ) {
 
-  num00 = 0.;
+    int ism = superModules_[i];
 
-  bool update0 = false;
+    cout << " SM=" << ism << endl;
 
-  if ( h00_ ) {
-    num00  = h00_->GetBinContent(ism);
-    if ( num00 > 0 ) update0 = true;
-  }
+    UtilsClient::printBadChannels(qth01_[ism-1]);
+    UtilsClient::printBadChannels(qth02_[ism-1]);
+    UtilsClient::printBadChannels(qth03_[ism-1]);
+    UtilsClient::printBadChannels(qth04_[ism-1]);
+    UtilsClient::printBadChannels(qth05_[ism-1]);
+    UtilsClient::printBadChannels(qth06_[ism-1]);
 
-  float num01, num02, num03, num04;
+    UtilsClient::printBadChannels(qth07_[ism-1]);
+    UtilsClient::printBadChannels(qth08_[ism-1]);
+    UtilsClient::printBadChannels(qth09_[ism-1]);
+    UtilsClient::printBadChannels(qth10_[ism-1]);
 
-  for ( int ie = 1; ie <= 85; ie++ ) {
-    for ( int ip = 1; ip <= 20; ip++ ) {
+//    UtilsClient::printBadChannels(qtg01_[ism-1]);
+//    UtilsClient::printBadChannels(qtg02_[ism-1]);
 
-      num01 = num02 = num03 = num04 = 0.;
+    float num00;
 
-      bool update1 = false;
+    num00 = 0.;
 
-      float numTot = -1.;
+    bool update0 = false;
 
-      if ( h_[ism-1] ) numTot = h_[ism-1]->GetBinContent(ie, ip);
+    if ( h00_ ) {
+      num00  = h00_->GetBinContent(ism);
+      if ( num00 > 0 ) update0 = true;
+    }
 
-      if ( h01_[ism-1] ) {
-        num01  = h01_[ism-1]->GetBinContent(ie, ip);
-        if ( num01 > 0 ) update1 = true;
-      }
+    float num01, num02, num03, num04;
 
-      if ( h02_[ism-1] ) {
-        num02  = h02_[ism-1]->GetBinContent(ie, ip);
-        if ( num02 > 0 ) update1 = true;
-      }
+    for ( int ie = 1; ie <= 85; ie++ ) {
+      for ( int ip = 1; ip <= 20; ip++ ) {
 
-      if ( h03_[ism-1] ) {
-        num03  = h03_[ism-1]->GetBinContent(ie, ip);
-        if ( num03 > 0 ) update1 = true;
-      }
+        num01 = num02 = num03 = num04 = 0.;
 
-      if ( h04_[ism-1] ) {
-        num04  = h04_[ism-1]->GetBinContent(ie, ip);
-        if ( num04 > 0 ) update1 = true;
-      }
+        bool update1 = false;
 
-      if ( update0 || update1 ) {
+        float numTot = -1.;
 
-        if ( ie == 1 && ip == 1 ) {
+        if ( h_[ism-1] ) numTot = h_[ism-1]->GetBinContent(ie, ip);
 
-          cout << "Preparing dataset for SM=" << ism << endl;
+        if ( h01_[ism-1] ) {
+          num01  = h01_[ism-1]->GetBinContent(ie, ip);
+          if ( num01 > 0 ) update1 = true;
+        }
 
-          cout << "(" << ie << "," << ip << ") " << num00 << " " << num01 << " " << num02 << " " << num03 << " " << num04 << endl;
+        if ( h02_[ism-1] ) {
+          num02  = h02_[ism-1]->GetBinContent(ie, ip);
+          if ( num02 > 0 ) update1 = true;
+        }
 
-          cout << endl;
+        if ( h03_[ism-1] ) {
+          num03  = h03_[ism-1]->GetBinContent(ie, ip);
+          if ( num03 > 0 ) update1 = true;
+        }
+
+        if ( h04_[ism-1] ) {
+          num04  = h04_[ism-1]->GetBinContent(ie, ip);
+          if ( num04 > 0 ) update1 = true;
+        }
+
+        if ( update0 || update1 ) {
+
+          if ( ie == 1 && ip == 1 ) {
+
+            cout << "Preparing dataset for SM=" << ism << endl;
+
+            cout << "(" << ie << "," << ip << ") " << num00 << " " << num01 << " " << num02 << " " << num03 << " " << num04 << endl;
+
+            cout << endl;
+
+          }
+
+          c1.setProcessedEvents(int(numTot));
+          c1.setProblematicEvents(int(num01+num02+num03+num04));
+          c1.setProblemsGainZero(int(num01));
+          c1.setProblemsID(int(num02));
+          c1.setProblemsGainSwitch(int(num03+num04));
+
+          bool val;
+
+          val = true;
+          if ( numTot > 0 ) {
+            float errorRate1 = num00 / numTot;
+            if ( errorRate1 > threshCry_ )
+              val = false;
+            errorRate1 = ( num01 + num02 + num03 + num04 ) / numTot / 4.;
+            if ( errorRate1 > threshCry_ )
+              val = false;
+          } else {
+            if ( num00 > 0 )
+              val = false;
+            if ( ( num01 + num02 + num03 + num04 ) > 0 )
+              val = false;
+          }
+          c1.setTaskStatus(val);
+
+          int ic = (ip-1) + 20*(ie-1) + 1;
+
+          if ( econn ) {
+            try {
+              ecid = LogicID::getEcalLogicID("EB_crystal_number", Numbers::iSM(ism, EcalBarrel), ic);
+              dataset1[ecid] = c1;
+            } catch (runtime_error &e) {
+              cerr << e.what() << endl;
+            }
+          }
+
+          status = status && val;
 
         }
 
-        c1.setProcessedEvents(int(numTot));
-        c1.setProblematicEvents(int(num01+num02+num03+num04));
-        c1.setProblemsGainZero(int(num01));
-        c1.setProblemsID(int(num02));
-        c1.setProblemsGainSwitch(int(num03+num04));
+      }
+    }
 
-        bool val;
+    float num05, num06;
 
-        val = true;
-        if ( numTot > 0 ) {
-          float errorRate1 = num00 / numTot;
-          if ( errorRate1 > threshCry_ )
-            val = false;
-          errorRate1 = ( num01 + num02 + num03 + num04 ) / numTot / 4.;
-          if ( errorRate1 > threshCry_ )
-            val = false;
-        } else {
-          if ( num00 > 0 )
-            val = false;
-          if ( ( num01 + num02 + num03 + num04 ) > 0 )
-            val = false;
-        }
-        c1.setTaskStatus(val);
+    for ( int iet = 1; iet <= 17; iet++ ) {
+      for ( int ipt = 1; ipt <= 4; ipt++ ) {
 
-        int ic = (ip-1) + 20*(ie-1) + 1;
+        num05 = num06 = 0.;
 
-        if ( econn ) {
-          try {
-            ecid = LogicID::getEcalLogicID("EB_crystal_number", Numbers::iSM(ism), ic);
-            dataset1[ecid] = c1;
-          } catch (runtime_error &e) {
-            cerr << e.what() << endl;
+        bool update1 = false;
+
+        float numTot = -1.;
+
+        if ( h_[ism-1] ) {
+          numTot = 0.;
+          for ( int ie = 1 + 5*(iet-1); ie <= 5*iet; ie++ ) {
+            for ( int ip = 1 + 5*(ipt-1); ip <= 5*ipt; ip++ ) {
+              numTot += h_[ism-1]->GetBinContent(ie, ip);
+            }
           }
         }
 
-        status = status && val;
+        if ( h05_[ism-1] ) {
+          num05  = h05_[ism-1]->GetBinContent(iet, ipt);
+          if ( num05 > 0 ) update1 = true;
+        }
+
+        if ( h06_[ism-1] ) {
+          num06  = h06_[ism-1]->GetBinContent(iet, ipt);
+          if ( num06 > 0 ) update1 = true;
+        }
+
+        if ( update0 || update1 ) {
+
+          if ( iet == 1 && ipt == 1 ) {
+
+            cout << "Preparing dataset for SM=" << ism << endl;
+
+            cout << "(" << iet << "," << ipt << ") " << num00 << " " << num05 << " " << num06 << endl;
+
+            cout << endl;
+
+          }
+
+          c2.setProcessedEvents(int(numTot));
+          c2.setProblematicEvents(int(num05+num06));
+          c2.setProblemsID(int(num05));
+          c2.setProblemsSize(int(num06));
+          c2.setProblemsLV1(int(-1.));
+          c2.setProblemsBunchX(int(-1.));
+
+          bool val;
+
+          val = true;
+          if ( numTot > 0 ) {
+            float errorRate2 = num00 / numTot;
+            if ( errorRate2 > threshCry_ )
+              val = false;
+            errorRate2 = ( num05 + num06 ) / numTot / 2.;
+            if ( errorRate2 > threshCry_ )
+              val = false;
+          } else {
+            if ( num00 > 0 )
+              val = false;
+            if ( ( num05 + num06 ) > 0 )
+              val = false;
+          }
+          c2.setTaskStatus(val);
+
+          int itt = (ipt-1) + 4*(iet-1) + 1;
+
+          if ( econn ) {
+            try {
+              ecid = LogicID::getEcalLogicID("EB_trigger_tower", Numbers::iSM(ism, EcalBarrel), itt);
+              dataset2[ecid] = c2;
+            } catch (runtime_error &e) {
+              cerr << e.what() << endl;
+            }
+          }
+
+          status = status && val;
+
+        }
 
       }
-
     }
-  }
 
-  float num05, num06;
+    float num07, num08;
 
-  for ( int iet = 1; iet <= 17; iet++ ) {
-    for ( int ipt = 1; ipt <= 4; ipt++ ) {
+    for ( int ie = 1; ie <= 10; ie++ ) {
+      for ( int ip = 1; ip <= 5; ip++ ) {
 
-      num05 = num06 = 0.;
+        num07 = num08 = 0.;
+
+        bool update1 = false;
+
+        float numTot = -1.;
+
+        if ( hmem_[ism-1] ) numTot = hmem_[ism-1]->GetBinContent(ie, ip);
+
+        if ( h07_[ism-1] ) {
+          num07  = h07_[ism-1]->GetBinContent(ie, ip);
+          if ( num07 > 0 ) update1 = true;
+        }
+
+        if ( h08_[ism-1] ) {
+          num08  = h08_[ism-1]->GetBinContent(ie, ip);
+          if ( num08 > 0 ) update1 = true;
+        }
+
+        if ( update0 || update1 ) {
+
+          if ( ie == 1 && ip == 1 ) {
+
+            cout << "Preparing dataset for mem of SM=" << ism << endl;
+
+            cout << "(" << ie << "," << ip << ") " << num07 << " " << num08 << endl;
+
+            cout << endl;
+
+          }
+
+          c3.setProcessedEvents( int (numTot));
+          c3.setProblematicEvents(int (num07+num08));
+          c3.setProblemsID(int (num07) );
+          c3.setProblemsGainZero(int (num08));
+          // c3.setProblemsGainSwitch(int prob);
+
+          bool val;
+
+          val = true;
+          if ( numTot > 0 ) {
+            float errorRate1 = num00 / numTot;
+            if ( errorRate1 > threshCry_ )
+              val = false;
+            errorRate1 = ( num07 + num08 ) / numTot / 2.;
+            if ( errorRate1 > threshCry_ )
+              val = false;
+          } else {
+            if ( num00 > 0 )
+             val = false;
+            if ( ( num07 + num08 ) > 0 )
+              val = false;
+          }
+          c3. setTaskStatus(val);
+
+          int ic = EBIntegrityClient::chNum[ (ie-1)%5 ][ (ip-1) ] + (ie-1)/5 * 25;
+
+          if ( econn ) {
+            try {
+              ecid = LogicID::getEcalLogicID("EB_mem_channel", Numbers::iSM(ism, EcalBarrel), ic);
+              dataset3[ecid] = c3;
+            } catch (runtime_error &e) {
+              cerr << e.what() << endl;
+            }
+          }
+
+          status = status && val;
+
+        }
+
+      }
+    }
+
+    float num09, num10;
+
+    for ( int iet = 1; iet <= 2; iet++ ) {
+
+      num09 = num10 = 0.;
 
       bool update1 = false;
 
       float numTot = -1.;
 
-      if ( h_[ism-1] ) {
+      if ( hmem_[ism-1] ) {
         numTot = 0.;
         for ( int ie = 1 + 5*(iet-1); ie <= 5*iet; ie++ ) {
-          for ( int ip = 1 + 5*(ipt-1); ip <= 5*ipt; ip++ ) {
-            numTot += h_[ism-1]->GetBinContent(ie, ip);
+          for ( int ip = 1 ; ip <= 5; ip++ ) {
+            numTot += hmem_[ism-1]->GetBinContent(ie, ip);
           }
         }
       }
 
-      if ( h05_[ism-1] ) {
-        num05  = h05_[ism-1]->GetBinContent(iet, ipt);
-        if ( num05 > 0 ) update1 = true;
+      if ( h09_[ism-1] ) {
+        num09  = h09_[ism-1]->GetBinContent(iet, 1);
+        if ( num09 > 0 ) update1 = true;
       }
 
-      if ( h06_[ism-1] ) {
-        num06  = h06_[ism-1]->GetBinContent(iet, ipt);
-        if ( num06 > 0 ) update1 = true;
+      if ( h10_[ism-1] ) {
+        num10  = h10_[ism-1]->GetBinContent(iet, 1);
+        if ( num10 > 0 ) update1 = true;
       }
 
       if ( update0 || update1 ) {
 
-        if ( iet == 1 && ipt == 1 ) {
+        if ( iet == 1 ) {
 
           cout << "Preparing dataset for SM=" << ism << endl;
 
-          cout << "(" << iet << "," << ipt << ") " << num00 << " " << num05 << " " << num06 << endl;
+          cout << "(" << iet <<  ") " << num09 << " " << num10 << endl;
 
           cout << endl;
 
         }
 
-        c2.setProcessedEvents(int(numTot));
-        c2.setProblematicEvents(int(num05+num06));
-        c2.setProblemsID(int(num05));
-        c2.setProblemsSize(int(num06));
-        c2.setProblemsLV1(int(-1.));
-        c2.setProblemsBunchX(int(-1.));
+        c4.setProcessedEvents( int(numTot) );
+        c4.setProblematicEvents( int(num09 + num10) );
+        c4.setProblemsID( int(num09) );
+        c4.setProblemsSize(int (num10) );
+        // setProblemsLV1(int LV1);
+        // setProblemsBunchX(int bunchX);
 
         bool val;
 
@@ -552,23 +720,23 @@ bool EBIntegrityClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonR
           float errorRate2 = num00 / numTot;
           if ( errorRate2 > threshCry_ )
             val = false;
-          errorRate2 = ( num05 + num06 ) / numTot / 2.;
+          errorRate2 = ( num09 + num10 ) / numTot / 2.;
           if ( errorRate2 > threshCry_ )
             val = false;
         } else {
           if ( num00 > 0 )
             val = false;
-          if ( ( num05 + num06 ) > 0 )
+          if ( ( num09 + num10 ) > 0 )
             val = false;
         }
-        c2.setTaskStatus(val);
+        c4.setTaskStatus(val);
 
-        int itt = (ipt-1) + 4*(iet-1) + 1;
+        int itt = 68 + iet;
 
         if ( econn ) {
           try {
-            ecid = LogicID::getEcalLogicID("EB_trigger_tower", Numbers::iSM(ism), itt);
-            dataset2[ecid] = c2;
+            ecid = LogicID::getEcalLogicID("EB_mem_TT", Numbers::iSM(ism, EcalBarrel), itt);
+            dataset4[ecid] = c4;
           } catch (runtime_error &e) {
             cerr << e.what() << endl;
           }
@@ -577,165 +745,6 @@ bool EBIntegrityClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonR
         status = status && val;
 
       }
-
-    }
-  }
-
-  float num07, num08;
-
-  for ( int ie = 1; ie <= 10; ie++ ) {
-    for ( int ip = 1; ip <= 5; ip++ ) {
-
-      num07 = num08 = 0.;
-
-      bool update1 = false;
-
-      float numTot = -1.;
-
-      if ( hmem_[ism-1] ) numTot = hmem_[ism-1]->GetBinContent(ie, ip);
-
-      if ( h07_[ism-1] ) {
-        num07  = h07_[ism-1]->GetBinContent(ie, ip);
-        if ( num07 > 0 ) update1 = true;
-      }
-
-      if ( h08_[ism-1] ) {
-        num08  = h08_[ism-1]->GetBinContent(ie, ip);
-        if ( num08 > 0 ) update1 = true;
-      }
-
-      if ( update0 || update1 ) {
-
-        if ( ie == 1 && ip == 1 ) {
-
-          cout << "Preparing dataset for mem of SM=" << ism << endl;
-
-          cout << "(" << ie << "," << ip << ") " << num07 << " " << num08 << endl;
-
-          cout << endl;
-
-        }
-
-        c3.setProcessedEvents( int (numTot));
-        c3.setProblematicEvents(int (num07+num08));
-        c3.setProblemsID(int (num07) );
-        c3.setProblemsGainZero(int (num08));
-        // c3.setProblemsGainSwitch(int prob);
-
-        bool val;
-
-        val = true;
-        if ( numTot > 0 ) {
-          float errorRate1 = num00 / numTot;
-          if ( errorRate1 > threshCry_ )
-            val = false;
-          errorRate1 = ( num07 + num08 ) / numTot / 2.;
-          if ( errorRate1 > threshCry_ )
-            val = false;
-        } else {
-          if ( num00 > 0 )
-           val = false;
-          if ( ( num07 + num08 ) > 0 )
-            val = false;
-        }
-        c3. setTaskStatus(val);
-
-        int ic = EBIntegrityClient::chNum[ (ie-1)%5 ][ (ip-1) ] + (ie-1)/5 * 25;
-
-        if ( econn ) {
-          try {
-            ecid = LogicID::getEcalLogicID("EB_mem_channel", Numbers::iSM(ism), ic);
-            dataset3[ecid] = c3;
-          } catch (runtime_error &e) {
-            cerr << e.what() << endl;
-          }
-        }
-
-        status = status && val;
-
-      }
-
-    }
-  }
-
-  float num09, num10;
-
-  for ( int iet = 1; iet <= 2; iet++ ) {
-
-    num09 = num10 = 0.;
-
-    bool update1 = false;
-
-    float numTot = -1.;
-
-    if ( hmem_[ism-1] ) {
-      numTot = 0.;
-      for ( int ie = 1 + 5*(iet-1); ie <= 5*iet; ie++ ) {
-        for ( int ip = 1 ; ip <= 5; ip++ ) {
-          numTot += hmem_[ism-1]->GetBinContent(ie, ip);
-        }
-      }
-    }
-
-    if ( h09_[ism-1] ) {
-      num09  = h09_[ism-1]->GetBinContent(iet, 1);
-      if ( num09 > 0 ) update1 = true;
-    }
-
-    if ( h10_[ism-1] ) {
-      num10  = h10_[ism-1]->GetBinContent(iet, 1);
-      if ( num10 > 0 ) update1 = true;
-    }
-
-    if ( update0 || update1 ) {
-
-      if ( iet == 1 ) {
-
-        cout << "Preparing dataset for SM=" << ism << endl;
-
-        cout << "(" << iet <<  ") " << num09 << " " << num10 << endl;
-
-        cout << endl;
-
-      }
-
-      c4.setProcessedEvents( int(numTot) );
-      c4.setProblematicEvents( int(num09 + num10) );
-      c4.setProblemsID( int(num09) );
-      c4.setProblemsSize(int (num10) );
-      // setProblemsLV1(int LV1);
-      // setProblemsBunchX(int bunchX);
-
-      bool val;
-
-      val = true;
-      if ( numTot > 0 ) {
-        float errorRate2 = num00 / numTot;
-        if ( errorRate2 > threshCry_ )
-          val = false;
-        errorRate2 = ( num09 + num10 ) / numTot / 2.;
-        if ( errorRate2 > threshCry_ )
-          val = false;
-      } else {
-        if ( num00 > 0 )
-          val = false;
-        if ( ( num09 + num10 ) > 0 )
-          val = false;
-      }
-      c4.setTaskStatus(val);
-
-      int itt = 68 + iet;
-
-      if ( econn ) {
-        try {
-          ecid = LogicID::getEcalLogicID("EB_mem_TT", Numbers::iSM(ism), itt);
-          dataset4[ecid] = c4;
-        } catch (runtime_error &e) {
-          cerr << e.what() << endl;
-        }
-      }
-
-      status = status && val;
 
     }
 
@@ -1328,7 +1337,7 @@ void EBIntegrityClient::analyze(void){
 
             int ic = (ip-1) + 20*(ie-1) + 1;
 
-            if ( ecid.getID1() == Numbers::iSM(ism) && ecid.getID2() == ic ) {
+            if ( ecid.getID1() == Numbers::iSM(ism, EcalBarrel) && ecid.getID2() == ic ) {
               if ( (m->second).getErrorBits() & bits01 ) {
                 if ( meg01_[ism-1] ) {
                   float val = int(meg01_[ism-1]->getBinContent(ie, ip)) % 3;
@@ -1350,7 +1359,7 @@ void EBIntegrityClient::analyze(void){
             int ipt = 1 + ((ip-1)/5);
             int itt = (ipt-1) + 4*(iet-1) + 1;
 
-            if ( ecid.getID1() == Numbers::iSM(ism) && ecid.getID2() == itt ) {
+            if ( ecid.getID1() == Numbers::iSM(ism, EcalBarrel) && ecid.getID2() == itt ) {
               if ( (m->second).getErrorBits() & bits02 ) {
                 if ( meg01_[ism-1] ) {
                   float val = int(meg01_[ism-1]->getBinContent(ie, ip)) % 3;
@@ -1457,7 +1466,7 @@ void EBIntegrityClient::analyze(void){
 
             int ic = EBIntegrityClient::chNum[ (ie-1)%5 ][ (ip-1) ] + (ie-1)/5 * 25;
 
-            if ( ecid.getID1() == Numbers::iSM(ism) && ecid.getID2() == ic ) {
+            if ( ecid.getID1() == Numbers::iSM(ism, EcalBarrel) && ecid.getID2() == ic ) {
               if ( (m->second).getErrorBits() & bits01 ) {
                 if ( meg02_[ism-1] ) {
                   float val = int(meg02_[ism-1]->getBinContent(ie, ip)) % 3;
@@ -1477,7 +1486,7 @@ void EBIntegrityClient::analyze(void){
             int iet = 1 + ((ie-1)/5);
             int itt = 68 + iet;
 
-            if ( ecid.getID1() == Numbers::iSM(ism) && ecid.getID2() == itt ) {
+            if ( ecid.getID1() == Numbers::iSM(ism, EcalBarrel) && ecid.getID2() == itt ) {
               if ( (m->second).getErrorBits() & bits02 ) {
                 if ( meg02_[ism-1] ) {
                   float val = int(meg02_[ism-1]->getBinContent(ie, ip)) % 3;
@@ -1590,10 +1599,10 @@ void EBIntegrityClient::htmlOutput(int run, string htmlDir, string htmlName){
 
   string imgNameDCC, imgNameOcc, imgNameQual,imgNameOccMem, imgNameQualMem, imgNameME[10], imgName, meName;
 
-  TCanvas* cDCC = new TCanvas("cDCC", "Temp", 2*csize, csize);
-  TCanvas* cOcc = new TCanvas("cOcc", "Temp", 2*csize, csize);
-  TCanvas* cQual = new TCanvas("cQual", "Temp", 2*csize, csize);
-  TCanvas* cMe = new TCanvas("cMe", "Temp", 2*csize, csize);
+  TCanvas* cDCC = new TCanvas("cDCC", "Temp", 3*csize, csize);
+  TCanvas* cOcc = new TCanvas("cOcc", "Temp", 3*csize, csize);
+  TCanvas* cQual = new TCanvas("cQual", "Temp", 3*csize, csize);
+  TCanvas* cMe = new TCanvas("cMe", "Temp", 3*csize, csize);
   TCanvas* cMeMem = new TCanvas("cMeMem", "Temp", 2*csize, csize);
 
   TH1F* obj1f;

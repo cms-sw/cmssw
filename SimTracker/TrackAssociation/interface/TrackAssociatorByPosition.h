@@ -4,8 +4,8 @@
 /** \class TrackAssociatorByPosition
  *  Class that performs the association of reco::Tracks and TrackingParticles based on position in muon detector
  *
- *  $Date: 2007/03/26 16:15:58 $
- *  $Revision: 1.15 $
+ *  $Date: 2007/07/11 19:41:52 $
+ *  $Revision: 1.1 $
  *  \author vlimant
  */
 
@@ -42,7 +42,9 @@ class TrackAssociatorByPosition : public TrackAssociatorBase {
      theQCut = iConfig.getParameter<double>("QCut");
      std::string  meth= iConfig.getParameter<std::string>("method");
      if (meth=="chi2"){ theMethod =0; }
-     else if (meth=="dr"){theMethod =1;}
+     else if (meth=="dist"){theMethod =1;}
+     else if (meth=="momdr"){theMethod = 2;}
+     else if (meth=="posdr"){theMethod = 3;}
      else{
        edm::LogError("TrackAssociatorByPosition")<<meth<<" mothed not recognized. Use dr or chi2.";     }
    };

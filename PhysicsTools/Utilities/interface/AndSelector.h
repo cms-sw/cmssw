@@ -4,7 +4,7 @@
  *
  * \author Luca Lista, INFN
  *
- * $Id: AndSelector.h,v 1.4 2007/05/15 16:07:53 llista Exp $
+ * $Id: AndSelector.h,v 1.5 2007/06/18 18:33:53 llista Exp $
  */
 
 namespace helpers {
@@ -39,6 +39,10 @@ struct AndSelector<S1, S2, helpers::NullAndOperand, helpers::NullAndOperand, hel
   bool operator()( const T & t ) const { 
     return s1_( t ) && s2_( t );
   }
+  template<typename T1, typename T2>
+  bool operator()( const T1 & t1, const T2 & t2 ) const { 
+    return s1_( t1 ) && s2_( t2 );
+  }
 private:
   S1 s1_;
   S2 s2_;
@@ -51,6 +55,10 @@ struct AndSelector<S1, S2, S3, helpers::NullAndOperand, helpers::NullAndOperand>
   template<typename T>
   bool operator()( const T & t ) const { 
     return s1_( t ) && s2_( t ) && s3_( t );
+  }
+  template<typename T1, typename T2, typename T3>
+  bool operator()( const T1 & t1,  const T2 & t2,  const T3 & t3 ) const {
+    return s1_( t1 ) && s2_( t2 ) && s3_( t3 );
   }
 private:
   S1 s1_;
@@ -65,6 +73,10 @@ struct AndSelector<S1, S2, S3, S4, helpers::NullAndOperand> {
   template<typename T>
   bool operator()( const T & t ) const { 
     return s1_( t ) && s2_( t ) && s3_( t ) && s4_( t );
+  }
+  template<typename T1, typename T2, typename T3, typename T4>
+  bool operator()( const T1 & t1,  const T2 & t2,  const T3 & t3, const T4 & t4 ) const {
+    return s1_( t1 ) && s2_( t2 ) && s3_( t3 ) && s4_( t4 );
   }
 private:
   S1 s1_;

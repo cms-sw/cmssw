@@ -21,9 +21,9 @@
  * The class derives from DetPositioner, a friend class of
  * GeomDet, which allows to move the GeomDet. 
  *
- *  $Date: 2007/06/24 01:08:20 $
- *  $Revision: 1.25 $
- *  (last update by $Author: cklae $)
+ *  $Date: 2007/06/21 16:18:27 $
+ *  $Revision: 1.24 $
+ *  (last update by $Author: flucke $)
  */
 
 class AlignmentParameters;
@@ -49,7 +49,7 @@ public:
 
   /// Constructor for a composite with given rotation.
   /// Position is found (later) from average of daughters' positions.
-  Alignable( const DetId&, const RotationType& );
+  Alignable( uint32_t id, const RotationType& );
 
   /// Destructor
   virtual ~Alignable();
@@ -67,10 +67,11 @@ public:
   virtual Alignables components() const = 0;
 
   /// Return number of direct components
-  const int size() const { return components().size(); }
+  inline const int size() const { return components().size(); }
 
-  /// Return the list of lowest daughters (non-composites) of Alignable
-  const Alignables& deepComponents() const { return theDeepComponents; }
+  /// Get the terminals (lowest daughters that are not composites) of
+  /// Alignable. Add to existing result which is passed by reference.
+  void deepComponents( std::vector<const Alignable*>& result ) const;
   void deepComponents( std::vector<Alignable*>& result );
 
   /// Provide all components, subcomponents, subsub... etc. of Alignable
@@ -163,8 +164,12 @@ public:
   /// Return the alignable type identifier
   virtual int alignableObjectId() const = 0;
 
-  /// Return the DetId of the associated GeomDet (0 by default)
+  /// Return the DetId of the associated GeomDet (0 by default).
+  /// This should be removed. Ultimately we need only one ID.
   const DetId& geomDetId() const { return theDetId; }
+
+  /// Return the ID of Alignable.
+  uint32_t id() const { return theId; }
 
   /// Recursive printout of alignable information
   virtual void dump() const = 0;
@@ -188,15 +193,15 @@ protected:
 
 protected:
 
-  DetId theDetId;
+  DetId theDetId; // used to check if Alignable is associated to a GeomDet
+                  // ugly way to keep AlignableNavigator happy for now
+
+  uint32_t theId; // real ID as int, above DetId should be removed
 
   AlignableSurface theSurface; // Global position and orientation of surface
 
   GlobalVector theDisplacement; // total linear displacement
   RotationType theRotation;     // total angular displacement
-
-  Alignables theDeepComponents; // list of lowest daughters
-                                // contain itself if Alignable is a unit
 
 private:
 

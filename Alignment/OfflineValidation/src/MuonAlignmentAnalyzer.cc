@@ -3,8 +3,8 @@
  *  Makes histograms of high level Muon objects/quantities
  *  for Alignment Scenarios/DB comparison
  *
- *  $Date: 2007/07/16 18:03:37 $
- *  $Revision: 1.4 $
+ *  $Date: 2007/07/19 17:53:06 $
+ *  $Revision: 1.5 $
  *  \author J. Fernandez - IFCA (CSIC-UC) <Javier.Fernandez@cern.ch>
  */
 
@@ -40,10 +40,8 @@
 #include "DataFormats/CSCRecHit/interface/CSCSegment.h"
 #include "DataFormats/CSCRecHit/interface/CSCSegmentCollection.h"
 #include "TrackingTools/GeomPropagators/interface/Propagator.h"
-#include "TrackingTools/GeomPropagators/interface/AnalyticalPropagator.h"
 #include "TrackPropagation/SteppingHelixPropagator/interface/SteppingHelixPropagator.h"
 
-#include "TFile.h"
 #include "TH1F.h"
 #include "TH2F.h"
 #include "TLorentzVector.h"
@@ -59,16 +57,18 @@ MuonAlignmentAnalyzer::MuonAlignmentAnalyzer(const ParameterSet& pset){
   theRecHits4DTagDT = pset.getParameter<edm::InputTag>("RecHits4DDTCollectionTag");
   theRecHits2DTagCSC = pset.getParameter<edm::InputTag>("RecHits2DCSCCollectionTag");
   
-  theRootFileName = pset.getUntrackedParameter<string>("rootFileName");
-
   theDataType = pset.getUntrackedParameter<string>("DataType");
+  ptRangeMin = pset.getUntrackedParameter<unsigned int>("ptRangeMin");
+  ptRangeMax = pset.getUntrackedParameter<unsigned int>("ptRangeMax");
+  invMassRangeMin = pset.getUntrackedParameter<unsigned int>("invMassRangeMin");
+  invMassRangeMax = pset.getUntrackedParameter<unsigned int>("invMassRangeMax");
 
   doSAplots = pset.getUntrackedParameter<bool>("doSAplots");
   doGBplots = pset.getUntrackedParameter<bool>("doGBplots");
   doResplots = pset.getUntrackedParameter<bool>("doResplots");
  
   if(theDataType != "RealData" && theDataType != "SimData")
-    edm::LogError("MuonAlignmentAnalyzer") << "Error in Data Type!!"<<endl;
+    edm::LogError("MuonAlignmentAnalyzer")  << "Error in Data Type!!"<<endl;
 
   numberOfSimTracks=0;
   numberOfSARecTracks=0;
@@ -81,326 +81,287 @@ MuonAlignmentAnalyzer::~MuonAlignmentAnalyzer(){
 }
 
 void MuonAlignmentAnalyzer::beginJob(const EventSetup& eventSetup){
-  // Create the root file
-  theFile = new TFile(theRootFileName.c_str(), "RECREATE");
-  theFile->cd();
+
+  eventSetup.get<IdealMagneticFieldRecord>().get(theMGField);
+  
+  //Create the propagator
+  if(doResplots)  thePropagator = new SteppingHelixPropagator(&*theMGField, alongMomentum);
+
 
 // Define and book histograms for SA and GB muon quantities/objects
 
-//# muons per event
-  hNmuonsGB = new TH1F("GBNmuons","Nmuons",10,0,10);
-  hNmuonsSA = new TH1F("SANmuons","Nmuons",10,0,10);
-  hNmuonsSim = new TH1F("SimNmuons","Nmuons",10,0,10);
+  if(doGBplots) {
+  hGBNmuons = fs->make<TH1F>("GBNmuons","Nmuons",10,0,10);
+  hGBNmuons_Barrel = fs->make<TH1F>("GBNmuons_Barrel","Nmuons",10,0,10);
+  hGBNmuons_Endcap = fs->make<TH1F>("GBNmuons_Endcap","Nmuons",10,0,10);
+  hGBNhits = fs->make<TH1F>("GBNhits","Nhits",100,0,100);
+  hGBNhits_Barrel = fs->make<TH1F>("GBNhits_Barrel","Nhits",100,0,100);
+  hGBNhits_Endcap = fs->make<TH1F>("GBNhits_Endcap","Nhits",100,0,100);
+  hGBPTRec = fs->make<TH1F>("GBpTRec","p_{T}^{rec}",ptRangeMax-ptRangeMin,ptRangeMin,ptRangeMax);
+  hGBPTRec_Barrel = fs->make<TH1F>("GBpTRec_Barrel","p_{T}^{rec}",ptRangeMax-ptRangeMin,ptRangeMin,ptRangeMax);
+  hGBPTRec_Endcap = fs->make<TH1F>("GBpTRec_Endcap","p_{T}^{rec}",ptRangeMax-ptRangeMin,ptRangeMin,ptRangeMax);
+  hGBPTvsEta = fs->make<TH2F> ("GBPTvsEta","p_{T}^{rec} VS #eta",100,-2.5,2.5,ptRangeMax-ptRangeMin,ptRangeMin,ptRangeMax);
+  hGBPTvsPhi = fs->make<TH2F> ("GBPTvsPhi","p_{T}^{rec} VS #phi",100,-3.1416,3.1416,ptRangeMax-ptRangeMin,ptRangeMin,ptRangeMax);
+  hGBPhivsEta = fs->make<TH2F> ("GBPhivsEta","#phi VS #eta",100,-2.5,2.5,100,-3.1416,3.1416);
 
-// ############     pt    ####################
-  hGBPTRec = new TH1F("GBpTRec","p_{T}^{rec}",300,0,300);
-  hSAPTRec = new TH1F("SApTRec","p_{T}^{rec}",300,0,300);
-  hPTSim = new TH1F("pTSim","p_{T}^{gen} ",300,0,300);
-
-  hGBPTvsEta = new TH2F("GBPTvsEta","p_{T}^{rec} VS #eta",100,-2.5,2.5,300,0,300);
-  hGBPTvsPhi = new TH2F("GBPTvsPhi","p_{T}^{rec} VS #phi",100,-6,6,300,0,300);
-
-  hSAPTvsEta = new TH2F("SAPTvsEta","p_{T}^{rec} VS #eta",100,-2.5,2.5,300,0,300);
-  hSAPTvsPhi = new TH2F("SAPTvsPhi","p_{T}^{rec} VS #phi",100,-6,6,300,0,300);
-
-  hSimPTvsEta = new TH2F("SimPTvsEta","p_{T}^{gen} VS #eta",100,-2.5,2.5,300,0,300);
-  hSimPTvsPhi = new TH2F("SimPTvsPhi","p_{T}^{gen} VS #phi",100,-6,6,300,0,300);
-
-//pT rec - pT gen
-  hSAPTDiff = new TH1F("SApTDiff","p_{T}^{rec} - p_{T}^{gen} ",250,-120,120);
-  hGBPTDiff = new TH1F("GBpTDiff","p_{T}^{rec} - p_{T}^{gen} ",250,-120,120);
-
-  hSAPTDiffvsEta = new TH2F("SAPTDiffvsEta","p_{T}^{rec} - p_{T}^{gen} VS #eta",100,-2.5,2.5,250,-120,120);
-  hSAPTDiffvsPhi = new TH2F("SAPTDiffvsPhi","p_{T}^{rec} - p_{T}^{gen} VS #phi",100,-6,6,250,-120,120);
-
-  hGBPTDiffvsEta = new TH2F("GBPTDiffvsEta","p_{T}^{rec} - p_{T}^{gen} VS #eta",100,-2.5,2.5,250,-120,120);
-  hGBPTDiffvsPhi = new TH2F("GBPTDiffvsPhi","p_{T}^{rec} - p_{T}^{gen} VS #phi",100,-6,6,250,-120,120);
-
-// pT resolution
-  hSAPTres = new TH1F("SApTRes","pT Resolution",100,-2,2);
-  hSAinvPTres = new TH1F("SAinvPTRes","1/pT Resolution",100,-2,2);
-  hGBPTres = new TH1F("GBpTRes","pT Resolution",100,-2,2);
-  hGBinvPTres = new TH1F("GBinvPTRes","1/pT Resolution",100,-2,2);
+  if(theDataType == "SimData"){
+  hGBPTDiff = fs->make<TH1F>("GBpTDiff","p_{T}^{rec} - p_{T}^{gen} ",250,-120,120);
+  hGBPTDiffvsEta = fs->make<TH2F> ("GBPTDiffvsEta","p_{T}^{rec} - p_{T}^{gen} VS #eta",100,-2.5,2.5,250,-120,120);
+  hGBPTDiffvsPhi = fs->make<TH2F> ("GBPTDiffvsPhi","p_{T}^{rec} - p_{T}^{gen} VS #phi",100,-3.1416,3.1416,250,-120,120);
+  hGBPTres = fs->make<TH1F>("GBpTRes","pT Resolution",100,-2,2);
+  hGBPTres_Barrel = fs->make<TH1F>("GBpTRes_Barrel","pT Resolution",100,-2,2);
+  hGBPTres_Endcap = fs->make<TH1F>("GBpTRes_Endcap","pT Resolution",100,-2,2);
+  hGBinvPTres = fs->make<TH1F>("GBinvPTRes","#sigma (q/p_{T}) Resolution",100,-2,2);  
+  hGBinvPTvsEta = fs->make<TH2F> ("GBinvPTvsEta","#sigma (q/p_{T}) VS #eta",100,-2.5,2.5,100,-2,2);
+  hGBinvPTvsPhi = fs->make<TH2F> ("GBinvPTvsPhi","#sigma (q/p_{T}) VS #phi",100,-3.1416,3.1416,100,-2,2);
+  hGBinvPTvsNhits = fs->make<TH2F> ("GBinvPTvsNhits","#sigma (q/p_{T}) VS Nhits",100,0,100,100,-2,2);
+  }
   
-  hGBinvPTvsEta = new TH2F("GBinvPTvsEta","1/p_{T}^{rec} VS #eta",100,-2.5,2.5,100,-2,2);
-  hGBinvPTvsPhi = new TH2F("GBinvPTvsPhi","1/p_{T}^{rec} VS #phi",100,-6,6,100,-2,2);
+  hGBChi2 = fs->make<TH1F>("GBChi2","Chi2",200,0,200);
+  hGBChi2_Barrel = fs->make<TH1F>("GBChi2_Barrel","Chi2",200,0,200);
+  hGBChi2_Endcap  = fs->make<TH1F>("GBChi2_Endcap ","Chi2",200,0,200);
+  hGBInvM = fs->make<TH1F>("GBInvM","M_{inv}^{rec}",invMassRangeMax-invMassRangeMin,invMassRangeMin,invMassRangeMax);
+  hGBInvM_Barrel = fs->make<TH1F>("GBInvM_Barrel","M_{inv}^{rec}",invMassRangeMax-invMassRangeMin,invMassRangeMin,invMassRangeMax);
+  hGBInvM_Endcap  = fs->make<TH1F>("GBInvM_Endcap ","M_{inv}^{rec}",invMassRangeMax-invMassRangeMin,invMassRangeMin,invMassRangeMax);
+  hGBInvM_Overlap = fs->make<TH1F>("GBInvM_Overlap","M_{inv}^{rec}",invMassRangeMax-invMassRangeMin,invMassRangeMin,invMassRangeMax);
+  }
+  
+  
+  if(doSAplots) {
+  hSANmuons = fs->make<TH1F>("SANmuons","Nmuons",10,0,10);
+  hSANmuons_Barrel = fs->make<TH1F>("SANmuons_Barrel","Nmuons",10,0,10);
+  hSANmuons_Endcap = fs->make<TH1F>("SANmuons_Endcap","Nmuons",10,0,10);
+  hSANhits = fs->make<TH1F>("SANhits","Nhits",100,0,100);
+  hSANhits_Barrel = fs->make<TH1F>("SANhits_Barrel","Nhits",100,0,100);
+  hSANhits_Endcap = fs->make<TH1F>("SANhits_Endcap","Nhits",100,0,100);
+  hSAPTRec = fs->make<TH1F>("SApTRec","p_{T}^{rec}",ptRangeMax-ptRangeMin,ptRangeMin,ptRangeMax);
+  hSAPTRec_Barrel = fs->make<TH1F>("SApTRec_Barrel","p_{T}^{rec}",ptRangeMax-ptRangeMin,ptRangeMin,ptRangeMax);
+  hSAPTRec_Endcap = fs->make<TH1F>("SApTRec_Endcap","p_{T}^{rec}",ptRangeMax-ptRangeMin,ptRangeMin,ptRangeMax);
+  hSAPTvsEta = fs->make<TH2F> ("SAPTvsEta","p_{T}^{rec} VS #eta",100,-2.5,2.5,ptRangeMax-ptRangeMin,ptRangeMin,ptRangeMax);
+  hSAPTvsPhi = fs->make<TH2F> ("SAPTvsPhi","p_{T}^{rec} VS #phi",100,-3.1416,3.1416,ptRangeMax-ptRangeMin,ptRangeMin,ptRangeMax);
+  hSAPhivsEta = fs->make<TH2F> ("SAPhivsEta","#phi VS #eta",100,-2.5,2.5,100,-3.1416,3.1416);
 
-  hSAinvPTvsEta = new TH2F("SAinvPTvsEta","1/p_{T}^{rec} VS #eta",100,-2.5,2.5,100,-2,2);
-  hSAinvPTvsPhi = new TH2F("SAinvPTvsPhi","1/p_{T}^{rec} VS #phi",100,-6,6,100,-2,2);
+  if(theDataType == "SimData"){
+  hSAPTDiff = fs->make<TH1F>("SApTDiff","p_{T}^{rec} - p_{T}^{gen} ",250,-120,120);
+  hSAPTDiffvsEta = fs->make<TH2F> ("SAPTDiffvsEta","p_{T}^{rec} - p_{T}^{gen} VS #eta",100,-2.5,2.5,250,-120,120);
+  hSAPTDiffvsPhi = fs->make<TH2F> ("SAPTDiffvsPhi","p_{T}^{rec} - p_{T}^{gen} VS #phi",100,-3.1416,3.1416,250,-120,120);
+  hSAPTres = fs->make<TH1F>("SApTRes","pT Resolution",100,-2,2);
+  hSAPTres_Barrel = fs->make<TH1F>("SApTRes_Barrel","pT Resolution",100,-2,2);
+  hSAPTres_Endcap = fs->make<TH1F>("SApTRes_Endcap","pT Resolution",100,-2,2);
+  hSAinvPTres = fs->make<TH1F>("SAinvPTRes","1/pT Resolution",100,-2,2);
+
+  hSAinvPTvsEta = fs->make<TH2F> ("SAinvPTvsEta","#sigma (q/p_{T}) VS #eta",100,-2.5,2.5,100,-2,2);
+  hSAinvPTvsPhi = fs->make<TH2F> ("SAinvPTvsPhi","#sigma (q/p_{T}) VS #phi",100,-3.1416,3.1416,100,-2,2);
+  hSAinvPTvsNhits = fs->make<TH2F> ("SAinvPTvsNhits","#sigma (q/p_{T}) VS Nhits",100,0,100,100,-2,2);
+}
+  hSAInvM = fs->make<TH1F>("SAInvM","M_{inv}^{rec}",invMassRangeMax-invMassRangeMin,invMassRangeMin,invMassRangeMax);
+  hSAInvM_Barrel = fs->make<TH1F>("SAInvM_Barrel","M_{inv}^{rec}",invMassRangeMax-invMassRangeMin,invMassRangeMin,invMassRangeMax);
+  hSAInvM_Endcap = fs->make<TH1F>("SAInvM_Endcap","M_{inv}^{rec}",invMassRangeMax-invMassRangeMin,invMassRangeMin,invMassRangeMax);
+  hSAInvM_Overlap = fs->make<TH1F>("SAInvM_Overlap","M_{inv}^{rec}",invMassRangeMax-invMassRangeMin,invMassRangeMin,invMassRangeMax);
+  hSAChi2 = fs->make<TH1F>("SAChi2","Chi2",200,0,200);
+  hSAChi2_Barrel = fs->make<TH1F>("SAChi2_Barrel","Chi2",200,0,200);
+  hSAChi2_Endcap = fs->make<TH1F>("SAChi2_Endcap","Chi2",200,0,200);
+  }
 
 
-// #######Invariant mass #############
-// invariant mass for dimuons
-  hGBInvM = new TH1F("GBInvM","M_{inv}^{rec}",200,0,200);
-  hSAInvM = new TH1F("SAInvM","M_{inv}^{rec}",200,0,200);
-  hSimInvM = new TH1F("SimInvM","M_{inv}^{gen} ",200,0,200);
+  if(theDataType == "SimData"){
+  hSimNmuons = fs->make<TH1F>("SimNmuons","Nmuons",10,0,10);
+  hSimNmuons_Barrel = fs->make<TH1F>("SimNmuons_Barrel","Nmuons",10,0,10);
+  hSimNmuons_Endcap = fs->make<TH1F>("SimNmuons_Endcap","Nmuons",10,0,10);
+  hSimPT = fs->make<TH1F>("SimPT","p_{T}^{gen} ",ptRangeMax-ptRangeMin,ptRangeMin,ptRangeMax);
+  hSimPT_Barrel = fs->make<TH1F>("SimPT_Barrel","p_{T}^{gen} ",ptRangeMax-ptRangeMin,ptRangeMin,ptRangeMax);
+  hSimPT_Endcap = fs->make<TH1F>("SimPT_Endcap","p_{T}^{gen} ",ptRangeMax-ptRangeMin,ptRangeMin,ptRangeMax);
+  hSimPTvsEta = fs->make<TH2F> ("SimPTvsEta","p_{T}^{gen} VS #eta",100,-2.5,2.5,ptRangeMax-ptRangeMin,ptRangeMin,ptRangeMax);
+  hSimPTvsPhi = fs->make<TH2F> ("SimPTvsPhi","p_{T}^{gen} VS #phi",100,-3.1416,3.1416,ptRangeMax-ptRangeMin,ptRangeMin,ptRangeMax);
+  hSimPhivsEta = fs->make<TH2F> ("SimPhivsEta","#phi VS #eta",100,-2.5,2.5,100,-3.1416,3.1416);
+  hSimInvM = fs->make<TH1F>("SimInvM","M_{inv}^{gen} ",invMassRangeMax-invMassRangeMin,invMassRangeMin,invMassRangeMax);
+  hSimInvM_Barrel = fs->make<TH1F>("SimInvM_Barrel","M_{inv}^{rec}",invMassRangeMax-invMassRangeMin,invMassRangeMin,invMassRangeMax);
+  hSimInvM_Endcap = fs->make<TH1F>("SimInvM_Endcap","M_{inv}^{gen} ",invMassRangeMax-invMassRangeMin,invMassRangeMin,invMassRangeMax);
+  hSimInvM_Overlap = fs->make<TH1F>("SimInvM_Overlap","M_{inv}^{gen} ",invMassRangeMax-invMassRangeMin,invMassRangeMin,invMassRangeMax);
+  }
 
-// Invariant Mass distributions in Barrel (eta<1.04) region
-  hGBInvM_Barrel = new TH1F("GBInvM_Barrel","M_{inv}^{rec}",200,0,200);
-  hSAInvM_Barrel = new TH1F("SAInvM_Barrel","M_{inv}^{rec}",200,0,200);
-  hSimInvM_Barrel = new TH1F("SimInvM_Barrel","M_{inv}^{rec}",200,0,200);
-
- // Chi2 of Track
-  hGBChi2 = new TH1F("GBChi2","Chi2",200,0,200);
-  hSAChi2 = new TH1F("SAChi2","Chi2",200,0,200);
-
+  if(doResplots){
 // All DT and CSC chambers 
-  hResidualRPhiDT = new TH1F("hResidualRPhiDT","hResidualRPhiDT",200,-10,10);
-  hResidualPhiDT = new TH1F("hResidualPhiDT","hResidualPhiDT",100,-1,1);
-  hResidualZDT = new TH1F("hResidualZDT","hResidualZDT",200,-10,10);
-  hResidualRPhiCSC = new TH1F("hResidualRPhiCSC","hResidualRPhiCSC",200,-10,10);
-  hResidualPhiCSC = new TH1F("hResidualPhiCSC","hResidualPhiCSC",100,-1,1);
-  hResidualZCSC = new TH1F("hResidualZCSC","hResidualZCSC",200,-10,10);
+  hResidualRPhiDT = fs->make<TH1F>("hResidualRPhiDT","hResidualRPhiDT",200,-10,10);
+  hResidualPhiDT = fs->make<TH1F>("hResidualPhiDT","hResidualPhiDT",100,-1,1);
+  hResidualZDT = fs->make<TH1F>("hResidualZDT","hResidualZDT",200,-10,10);
+  hResidualRPhiCSC = fs->make<TH1F>("hResidualRPhiCSC","hResidualRPhiCSC",200,-10,10);
+  hResidualPhiCSC = fs->make<TH1F>("hResidualPhiCSC","hResidualPhiCSC",100,-1,1);
+  hResidualZCSC = fs->make<TH1F>("hResidualZCSC","hResidualZCSC",200,-10,10);
 
 // DT Wheels
-  hResidualRPhiDT_W[0]=new TH1F("hResidualRPhiDT_W-2","hResidualRPhiDT_W-2",200,-10,10);
-  hResidualPhiDT_W[0]=new TH1F("hResidualPhiDT_W-2","hResidualPhiDT_W-2",200,-1,1);
-  hResidualZDT_W[0] = new TH1F("hResidualZDT_W-2","hResidualZDT_W-2",200,-10,10);
-  hResidualRPhiDT_W[1]=new TH1F("hResidualRPhiDT_W-1","hResidualRPhiDT_W-1",200,-10,10);
-  hResidualPhiDT_W[1]=new TH1F("hResidualPhiDT_W-1","hResidualPhiDT_W-1",200,-1,1);
-  hResidualZDT_W[1] = new TH1F("hResidualZDT_W-1","hResidualZDT_W-1",200,-10,10);
-  hResidualRPhiDT_W[2]=new TH1F("hResidualRPhiDT_W0","hResidualRPhiDT_W0",200,-10,10);
-  hResidualPhiDT_W[2]=new TH1F("hResidualPhiDT_W0","hResidualPhiDT_W0",200,-1,1);
-  hResidualZDT_W[2] = new TH1F("hResidualZDT_W0","hResidualZDT_W0",200,-10,10);
-  hResidualRPhiDT_W[3]=new TH1F("hResidualRPhiDT_W1","hResidualRPhiDT_W1",200,-10,10);
-  hResidualPhiDT_W[3]=new TH1F("hResidualPhiDT_W1","hResidualPhiDT_W1",200,-1,1);
-  hResidualZDT_W[3] = new TH1F("hResidualZDT_W1","hResidualZDT_W1",200,-10,10);
-  hResidualRPhiDT_W[4]=new TH1F("hResidualRPhiDT_W2","hResidualRPhiDT_W2",200,-10,10);
-  hResidualPhiDT_W[4]=new TH1F("hResidualPhiDT_W2","hResidualPhiDT_W2",200,-1,1);
-  hResidualZDT_W[4] = new TH1F("hResidualZDT_W2","hResidualZDT_W2",200,-10,10);
+  hResidualRPhiDT_W[0]=fs->make<TH1F>("hResidualRPhiDT_W-2","hResidualRPhiDT_W-2",200,-10,10);
+  hResidualPhiDT_W[0]=fs->make<TH1F>("hResidualPhiDT_W-2","hResidualPhiDT_W-2",200,-1,1);
+  hResidualZDT_W[0] = fs->make<TH1F>("hResidualZDT_W-2","hResidualZDT_W-2",200,-10,10);
+  hResidualRPhiDT_W[1]=fs->make<TH1F>("hResidualRPhiDT_W-1","hResidualRPhiDT_W-1",200,-10,10);
+  hResidualPhiDT_W[1]=fs->make<TH1F>("hResidualPhiDT_W-1","hResidualPhiDT_W-1",200,-1,1);
+  hResidualZDT_W[1] = fs->make<TH1F>("hResidualZDT_W-1","hResidualZDT_W-1",200,-10,10);
+  hResidualRPhiDT_W[2]=fs->make<TH1F>("hResidualRPhiDT_W0","hResidualRPhiDT_W0",200,-10,10);
+  hResidualPhiDT_W[2]=fs->make<TH1F>("hResidualPhiDT_W0","hResidualPhiDT_W0",200,-1,1);
+  hResidualZDT_W[2] = fs->make<TH1F>("hResidualZDT_W0","hResidualZDT_W0",200,-10,10);
+  hResidualRPhiDT_W[3]=fs->make<TH1F>("hResidualRPhiDT_W1","hResidualRPhiDT_W1",200,-10,10);
+  hResidualPhiDT_W[3]=fs->make<TH1F>("hResidualPhiDT_W1","hResidualPhiDT_W1",200,-1,1);
+  hResidualZDT_W[3] = fs->make<TH1F>("hResidualZDT_W1","hResidualZDT_W1",200,-10,10);
+  hResidualRPhiDT_W[4]=fs->make<TH1F>("hResidualRPhiDT_W2","hResidualRPhiDT_W2",200,-10,10);
+  hResidualPhiDT_W[4]=fs->make<TH1F>("hResidualPhiDT_W2","hResidualPhiDT_W2",200,-1,1);
+  hResidualZDT_W[4] = fs->make<TH1F>("hResidualZDT_W2","hResidualZDT_W2",200,-10,10);
 
 // DT Stations
-  hResidualRPhiDT_MB[0]=new TH1F("hResidualRPhiDT_MB-2/1","hResidualRPhiDT_MB-2/1",200,-10,10);
-  hResidualPhiDT_MB[0]=new TH1F("hResidualPhiDT_MB-2/1","hResidualPhiDT_MB-2/1",200,-1,1);
-  hResidualZDT_MB[0] = new TH1F("hResidualZDT_MB-2/1","hResidualZDT_MB-2/1",200,-10,10);
-  hResidualRPhiDT_MB[1]=new TH1F("hResidualRPhiDT_MB-2/2","hResidualRPhiDT_MB-2/2",200,-10,10);
-  hResidualPhiDT_MB[1]=new TH1F("hResidualPhiDT_MB-2/2","hResidualPhiDT_MB-2/2",200,-1,1);
-  hResidualZDT_MB[1] = new TH1F("hResidualZDT_MB-2/2","hResidualZDT_MB-2/2",200,-10,10);
-  hResidualRPhiDT_MB[2]=new TH1F("hResidualRPhiDT_MB-2/3","hResidualRPhiDT_MB-2/3",200,-10,10);
-  hResidualPhiDT_MB[2]=new TH1F("hResidualPhiDT_MB-2/3","hResidualPhiDT_MB-2/3",200,-1,1);
-  hResidualZDT_MB[2] = new TH1F("hResidualZDT_MB-2/3","hResidualZDT_MB-2/3",200,-10,10);
-  hResidualRPhiDT_MB[3]=new TH1F("hResidualRPhiDT_MB-2/4","hResidualRPhiDT_MB-2/4",200,-10,10);
-  hResidualPhiDT_MB[3]=new TH1F("hResidualPhiDT_MB-2/4","hResidualPhiDT_MB-2/4",200,-1,1);
-  hResidualZDT_MB[3] = new TH1F("hResidualZDT_MB-2/4","hResidualZDT_MB-2/4",200,-10,10);
-  hResidualRPhiDT_MB[4]=new TH1F("hResidualRPhiDT_MB-1/1","hResidualRPhiDT_MB-1/1",200,-10,10);
-  hResidualPhiDT_MB[4]=new TH1F("hResidualPhiDT_MB-1/1","hResidualPhiDT_MB-1/1",200,-1,1);
-  hResidualZDT_MB[4] = new TH1F("hResidualZDT_MB-1/1","hResidualZDT_MB-1/1",200,-10,10);
-  hResidualRPhiDT_MB[5]=new TH1F("hResidualRPhiDT_MB-1/2","hResidualRPhiDT_MB-1/2",200,-10,10);
-  hResidualPhiDT_MB[5]=new TH1F("hResidualPhiDT_MB-1/2","hResidualPhiDT_MB-1/2",200,-1,1);
-  hResidualZDT_MB[5] = new TH1F("hResidualZDT_MB-1/2","hResidualZDT_MB-1/2",200,-10,10);
-  hResidualRPhiDT_MB[6]=new TH1F("hResidualRPhiDT_MB-1/3","hResidualRPhiDT_MB-1/3",200,-10,10);
-  hResidualPhiDT_MB[6]=new TH1F("hResidualPhiDT_MB-1/3","hResidualPhiDT_MB-1/3",200,-1,1);
-  hResidualZDT_MB[6] = new TH1F("hResidualZDT_MB-1/3","hResidualZDT_MB-1/3",200,-10,10);
-  hResidualRPhiDT_MB[7]=new TH1F("hResidualRPhiDT_MB-1/4","hResidualRPhiDT_MB-1/4",200,-10,10);
-  hResidualPhiDT_MB[7]=new TH1F("hResidualPhiDT_MB-1/4","hResidualPhiDT_MB-1/4",200,-1,1);
-  hResidualZDT_MB[7] = new TH1F("hResidualZDT_MB-1/4","hResidualZDT_MB-1/4",200,-10,10);
-  hResidualRPhiDT_MB[8]=new TH1F("hResidualRPhiDT_MB0/1","hResidualRPhiDT_MB0/1",200,-10,10);
-  hResidualPhiDT_MB[8]=new TH1F("hResidualPhiDT_MB0/1","hResidualPhiDT_MB0/1",200,-1,1);
-  hResidualZDT_MB[8] = new TH1F("hResidualZDT_MB0/1","hResidualZDT_MB0/1",200,-10,10);
-  hResidualRPhiDT_MB[9]=new TH1F("hResidualRPhiDT_MB0/2","hResidualRPhiDT_MB0/2",200,-10,10);
-  hResidualPhiDT_MB[9]=new TH1F("hResidualPhiDT_MB0/2","hResidualPhiDT_MB0/2",200,-1,1);
-  hResidualZDT_MB[9] = new TH1F("hResidualZDT_MB0/2","hResidualZDT_MB0/2",200,-10,10);
-  hResidualRPhiDT_MB[10]=new TH1F("hResidualRPhiDT_MB0/3","hResidualRPhiDT_MB0/3",200,-10,10);
-  hResidualPhiDT_MB[10]=new TH1F("hResidualPhiDT_MB0/3","hResidualPhiDT_MB0/3",200,-1,1);
-  hResidualZDT_MB[10] = new TH1F("hResidualZDT_MB0/3","hResidualZDT_MB0/3",200,-10,10);
-  hResidualRPhiDT_MB[11]=new TH1F("hResidualRPhiDT_MB0/4","hResidualRPhiDT_MB0/4",200,-10,10);
-  hResidualPhiDT_MB[11]=new TH1F("hResidualPhiDT_MB0/4","hResidualPhiDT_MB0/4",200,-1,1);
-  hResidualZDT_MB[11] = new TH1F("hResidualZDT_MB0/4","hResidualZDT_MB0/4",200,-10,10);
-  hResidualRPhiDT_MB[12]=new TH1F("hResidualRPhiDT_MB1/1","hResidualRPhiDT_MB1/1",200,-10,10);
-  hResidualPhiDT_MB[12]=new TH1F("hResidualPhiDT_MB1/1","hResidualPhiDT_MB1/1",200,-1,1);
-  hResidualZDT_MB[12] = new TH1F("hResidualZDT_MB1/1","hResidualZDT_MB1/1",200,-10,10);
-  hResidualRPhiDT_MB[13]=new TH1F("hResidualRPhiDT_MB1/2","hResidualRPhiDT_MB1/2",200,-10,10);
-  hResidualPhiDT_MB[13]=new TH1F("hResidualPhiDT_MB1/2","hResidualPhiDT_MB1/2",200,-1,1);
-  hResidualZDT_MB[13] = new TH1F("hResidualZDT_MB1/2","hResidualZDT_MB1/2",200,-10,10);
-  hResidualRPhiDT_MB[14]=new TH1F("hResidualRPhiDT_MB1/3","hResidualRPhiDT_MB1/3",200,-10,10);
-  hResidualPhiDT_MB[14]=new TH1F("hResidualPhiDT_MB1/3","hResidualPhiDT_MB1/3",200,-1,1);
-  hResidualZDT_MB[14] = new TH1F("hResidualZDT_MB1/3","hResidualZDT_MB1/3",200,-10,10);
-  hResidualRPhiDT_MB[15]=new TH1F("hResidualRPhiDT_MB1/4","hResidualRPhiDT_MB1/4",200,-10,10);
-  hResidualPhiDT_MB[15]=new TH1F("hResidualPhiDT_MB1/4","hResidualPhiDT_MB1/4",200,-1,1);
-  hResidualZDT_MB[15] = new TH1F("hResidualZDT_MB1/4","hResidualZDT_MB1/4",200,-10,10);
-  hResidualRPhiDT_MB[16]=new TH1F("hResidualRPhiDT_MB2/1","hResidualRPhiDT_MB2/1",200,-10,10);
-  hResidualPhiDT_MB[16]=new TH1F("hResidualPhiDT_MB2/1","hResidualPhiDT_MB2/1",200,-1,1);
-  hResidualZDT_MB[16] = new TH1F("hResidualZDT_MB2/1","hResidualZDT_MB2/1",200,-10,10);
-  hResidualRPhiDT_MB[17]=new TH1F("hResidualRPhiDT_MB2/2","hResidualRPhiDT_MB2/2",200,-10,10);
-  hResidualPhiDT_MB[17]=new TH1F("hResidualPhiDT_MB2/2","hResidualPhiDT_MB2/2",200,-1,1);
-  hResidualZDT_MB[17] = new TH1F("hResidualZDT_MB2/2","hResidualZDT_MB2/2",200,-10,10);
-  hResidualRPhiDT_MB[18]=new TH1F("hResidualRPhiDT_MB2/3","hResidualRPhiDT_MB2/3",200,-10,10);
-  hResidualPhiDT_MB[18]=new TH1F("hResidualPhiDT_MB2/3","hResidualPhiDT_MB2/3",200,-1,1);
-  hResidualZDT_MB[18] = new TH1F("hResidualZDT_MB2/3","hResidualZDT_MB2/3",200,-10,10);
-  hResidualRPhiDT_MB[19]=new TH1F("hResidualRPhiDT_MB2/4","hResidualRPhiDT_MB2/4",200,-10,10);
-  hResidualPhiDT_MB[19]=new TH1F("hResidualPhiDT_MB2/4","hResidualPhiDT_MB2/4",200,-1,1);
-  hResidualZDT_MB[19] = new TH1F("hResidualZDT_MB2/4","hResidualZDT_MB2/4",200,-10,10);
+  hResidualRPhiDT_MB[0]=fs->make<TH1F>("hResidualRPhiDT_MB-2/1","hResidualRPhiDT_MB-2/1",200,-10,10);
+  hResidualPhiDT_MB[0]=fs->make<TH1F>("hResidualPhiDT_MB-2/1","hResidualPhiDT_MB-2/1",200,-1,1);
+  hResidualZDT_MB[0] = fs->make<TH1F>("hResidualZDT_MB-2/1","hResidualZDT_MB-2/1",200,-10,10);
+  hResidualRPhiDT_MB[1]=fs->make<TH1F>("hResidualRPhiDT_MB-2/2","hResidualRPhiDT_MB-2/2",200,-10,10);
+  hResidualPhiDT_MB[1]=fs->make<TH1F>("hResidualPhiDT_MB-2/2","hResidualPhiDT_MB-2/2",200,-1,1);
+  hResidualZDT_MB[1] = fs->make<TH1F>("hResidualZDT_MB-2/2","hResidualZDT_MB-2/2",200,-10,10);
+  hResidualRPhiDT_MB[2]=fs->make<TH1F>("hResidualRPhiDT_MB-2/3","hResidualRPhiDT_MB-2/3",200,-10,10);
+  hResidualPhiDT_MB[2]=fs->make<TH1F>("hResidualPhiDT_MB-2/3","hResidualPhiDT_MB-2/3",200,-1,1);
+  hResidualZDT_MB[2] = fs->make<TH1F>("hResidualZDT_MB-2/3","hResidualZDT_MB-2/3",200,-10,10);
+  hResidualRPhiDT_MB[3]=fs->make<TH1F>("hResidualRPhiDT_MB-2/4","hResidualRPhiDT_MB-2/4",200,-10,10);
+  hResidualPhiDT_MB[3]=fs->make<TH1F>("hResidualPhiDT_MB-2/4","hResidualPhiDT_MB-2/4",200,-1,1);
+  hResidualZDT_MB[3] = fs->make<TH1F>("hResidualZDT_MB-2/4","hResidualZDT_MB-2/4",200,-10,10);
+  hResidualRPhiDT_MB[4]=fs->make<TH1F>("hResidualRPhiDT_MB-1/1","hResidualRPhiDT_MB-1/1",200,-10,10);
+  hResidualPhiDT_MB[4]=fs->make<TH1F>("hResidualPhiDT_MB-1/1","hResidualPhiDT_MB-1/1",200,-1,1);
+  hResidualZDT_MB[4] = fs->make<TH1F>("hResidualZDT_MB-1/1","hResidualZDT_MB-1/1",200,-10,10);
+  hResidualRPhiDT_MB[5]=fs->make<TH1F>("hResidualRPhiDT_MB-1/2","hResidualRPhiDT_MB-1/2",200,-10,10);
+  hResidualPhiDT_MB[5]=fs->make<TH1F>("hResidualPhiDT_MB-1/2","hResidualPhiDT_MB-1/2",200,-1,1);
+  hResidualZDT_MB[5] = fs->make<TH1F>("hResidualZDT_MB-1/2","hResidualZDT_MB-1/2",200,-10,10);
+  hResidualRPhiDT_MB[6]=fs->make<TH1F>("hResidualRPhiDT_MB-1/3","hResidualRPhiDT_MB-1/3",200,-10,10);
+  hResidualPhiDT_MB[6]=fs->make<TH1F>("hResidualPhiDT_MB-1/3","hResidualPhiDT_MB-1/3",200,-1,1);
+  hResidualZDT_MB[6] = fs->make<TH1F>("hResidualZDT_MB-1/3","hResidualZDT_MB-1/3",200,-10,10);
+  hResidualRPhiDT_MB[7]=fs->make<TH1F>("hResidualRPhiDT_MB-1/4","hResidualRPhiDT_MB-1/4",200,-10,10);
+  hResidualPhiDT_MB[7]=fs->make<TH1F>("hResidualPhiDT_MB-1/4","hResidualPhiDT_MB-1/4",200,-1,1);
+  hResidualZDT_MB[7] = fs->make<TH1F>("hResidualZDT_MB-1/4","hResidualZDT_MB-1/4",200,-10,10);
+  hResidualRPhiDT_MB[8]=fs->make<TH1F>("hResidualRPhiDT_MB0/1","hResidualRPhiDT_MB0/1",200,-10,10);
+  hResidualPhiDT_MB[8]=fs->make<TH1F>("hResidualPhiDT_MB0/1","hResidualPhiDT_MB0/1",200,-1,1);
+  hResidualZDT_MB[8] = fs->make<TH1F>("hResidualZDT_MB0/1","hResidualZDT_MB0/1",200,-10,10);
+  hResidualRPhiDT_MB[9]=fs->make<TH1F>("hResidualRPhiDT_MB0/2","hResidualRPhiDT_MB0/2",200,-10,10);
+  hResidualPhiDT_MB[9]=fs->make<TH1F>("hResidualPhiDT_MB0/2","hResidualPhiDT_MB0/2",200,-1,1);
+  hResidualZDT_MB[9] = fs->make<TH1F>("hResidualZDT_MB0/2","hResidualZDT_MB0/2",200,-10,10);
+  hResidualRPhiDT_MB[10]=fs->make<TH1F>("hResidualRPhiDT_MB0/3","hResidualRPhiDT_MB0/3",200,-10,10);
+  hResidualPhiDT_MB[10]=fs->make<TH1F>("hResidualPhiDT_MB0/3","hResidualPhiDT_MB0/3",200,-1,1);
+  hResidualZDT_MB[10] = fs->make<TH1F>("hResidualZDT_MB0/3","hResidualZDT_MB0/3",200,-10,10);
+  hResidualRPhiDT_MB[11]=fs->make<TH1F>("hResidualRPhiDT_MB0/4","hResidualRPhiDT_MB0/4",200,-10,10);
+  hResidualPhiDT_MB[11]=fs->make<TH1F>("hResidualPhiDT_MB0/4","hResidualPhiDT_MB0/4",200,-1,1);
+  hResidualZDT_MB[11] = fs->make<TH1F>("hResidualZDT_MB0/4","hResidualZDT_MB0/4",200,-10,10);
+  hResidualRPhiDT_MB[12]=fs->make<TH1F>("hResidualRPhiDT_MB1/1","hResidualRPhiDT_MB1/1",200,-10,10);
+  hResidualPhiDT_MB[12]=fs->make<TH1F>("hResidualPhiDT_MB1/1","hResidualPhiDT_MB1/1",200,-1,1);
+  hResidualZDT_MB[12] = fs->make<TH1F>("hResidualZDT_MB1/1","hResidualZDT_MB1/1",200,-10,10);
+  hResidualRPhiDT_MB[13]=fs->make<TH1F>("hResidualRPhiDT_MB1/2","hResidualRPhiDT_MB1/2",200,-10,10);
+  hResidualPhiDT_MB[13]=fs->make<TH1F>("hResidualPhiDT_MB1/2","hResidualPhiDT_MB1/2",200,-1,1);
+  hResidualZDT_MB[13] = fs->make<TH1F>("hResidualZDT_MB1/2","hResidualZDT_MB1/2",200,-10,10);
+  hResidualRPhiDT_MB[14]=fs->make<TH1F>("hResidualRPhiDT_MB1/3","hResidualRPhiDT_MB1/3",200,-10,10);
+  hResidualPhiDT_MB[14]=fs->make<TH1F>("hResidualPhiDT_MB1/3","hResidualPhiDT_MB1/3",200,-1,1);
+  hResidualZDT_MB[14] = fs->make<TH1F>("hResidualZDT_MB1/3","hResidualZDT_MB1/3",200,-10,10);
+  hResidualRPhiDT_MB[15]=fs->make<TH1F>("hResidualRPhiDT_MB1/4","hResidualRPhiDT_MB1/4",200,-10,10);
+  hResidualPhiDT_MB[15]=fs->make<TH1F>("hResidualPhiDT_MB1/4","hResidualPhiDT_MB1/4",200,-1,1);
+  hResidualZDT_MB[15] = fs->make<TH1F>("hResidualZDT_MB1/4","hResidualZDT_MB1/4",200,-10,10);
+  hResidualRPhiDT_MB[16]=fs->make<TH1F>("hResidualRPhiDT_MB2/1","hResidualRPhiDT_MB2/1",200,-10,10);
+  hResidualPhiDT_MB[16]=fs->make<TH1F>("hResidualPhiDT_MB2/1","hResidualPhiDT_MB2/1",200,-1,1);
+  hResidualZDT_MB[16] = fs->make<TH1F>("hResidualZDT_MB2/1","hResidualZDT_MB2/1",200,-10,10);
+  hResidualRPhiDT_MB[17]=fs->make<TH1F>("hResidualRPhiDT_MB2/2","hResidualRPhiDT_MB2/2",200,-10,10);
+  hResidualPhiDT_MB[17]=fs->make<TH1F>("hResidualPhiDT_MB2/2","hResidualPhiDT_MB2/2",200,-1,1);
+  hResidualZDT_MB[17] = fs->make<TH1F>("hResidualZDT_MB2/2","hResidualZDT_MB2/2",200,-10,10);
+  hResidualRPhiDT_MB[18]=fs->make<TH1F>("hResidualRPhiDT_MB2/3","hResidualRPhiDT_MB2/3",200,-10,10);
+  hResidualPhiDT_MB[18]=fs->make<TH1F>("hResidualPhiDT_MB2/3","hResidualPhiDT_MB2/3",200,-1,1);
+  hResidualZDT_MB[18] = fs->make<TH1F>("hResidualZDT_MB2/3","hResidualZDT_MB2/3",200,-10,10);
+  hResidualRPhiDT_MB[19]=fs->make<TH1F>("hResidualRPhiDT_MB2/4","hResidualRPhiDT_MB2/4",200,-10,10);
+  hResidualPhiDT_MB[19]=fs->make<TH1F>("hResidualPhiDT_MB2/4","hResidualPhiDT_MB2/4",200,-1,1);
+  hResidualZDT_MB[19] = fs->make<TH1F>("hResidualZDT_MB2/4","hResidualZDT_MB2/4",200,-10,10);
 
 
 // CSC Stations
-  hResidualRPhiCSC_ME[0]=new TH1F("hResidualRPhiCSC_ME-4/1","hResidualRPhiCSC_ME-4/1",200,-10,10);
-  hResidualPhiCSC_ME[0]=new TH1F("hResidualPhiCSC_ME-4/1","hResidualPhiCSC_ME-4/1",200,-1,1);
-  hResidualZCSC_ME[0] = new TH1F("hResidualZCSC_ME-4/1","hResidualZCSC_ME-4/1",200,-10,10);
-  hResidualRPhiCSC_ME[1]=new TH1F("hResidualRPhiCSC_ME-4/2","hResidualRPhiCSC_ME-4/2",200,-10,10);
-  hResidualPhiCSC_ME[1]=new TH1F("hResidualPhiCSC_ME-4/2","hResidualPhiCSC_ME-4/2",200,-1,1);
-  hResidualZCSC_ME[1] = new TH1F("hResidualZCSC_ME-4/2","hResidualZCSC_ME-4/2",200,-10,10);
-  hResidualRPhiCSC_ME[2]=new TH1F("hResidualRPhiCSC_ME-3/1","hResidualRPhiCSC_ME-3/1",200,-10,10);
-  hResidualPhiCSC_ME[2]=new TH1F("hResidualPhiCSC_ME-3/1","hResidualPhiCSC_ME-3/1",200,-1,1);
-  hResidualZCSC_ME[2] = new TH1F("hResidualZCSC_ME-3/1","hResidualZCSC_ME-3/1",200,-10,10);
-  hResidualRPhiCSC_ME[3]=new TH1F("hResidualRPhiCSC_ME-3/2","hResidualRPhiCSC_ME-3/2",200,-10,10);
-  hResidualPhiCSC_ME[3]=new TH1F("hResidualPhiCSC_ME-3/2","hResidualPhiCSC_ME-3/2",200,-1,1);
-  hResidualZCSC_ME[3] = new TH1F("hResidualZCSC_ME-3/2","hResidualZCSC_ME-3/2",200,-10,10);
-  hResidualRPhiCSC_ME[4]=new TH1F("hResidualRPhiCSC_ME-2/1","hResidualRPhiCSC_ME-2/1",200,-10,10);
-  hResidualPhiCSC_ME[4]=new TH1F("hResidualPhiCSC_ME-2/1","hResidualPhiCSC_ME-2/1",200,-1,1);
-  hResidualZCSC_ME[4] = new TH1F("hResidualZCSC_ME-2/1","hResidualZCSC_ME-2/1",200,-10,10);
-  hResidualRPhiCSC_ME[5]=new TH1F("hResidualRPhiCSC_ME-2/2","hResidualRPhiCSC_ME-2/2",200,-10,10);
-  hResidualPhiCSC_ME[5]=new TH1F("hResidualPhiCSC_ME-2/2","hResidualPhiCSC_ME-2/2",200,-1,1);
-  hResidualZCSC_ME[5] = new TH1F("hResidualZCSC_ME-2/2","hResidualZCSC_ME-2/2",200,-10,10);
-  hResidualRPhiCSC_ME[6]=new TH1F("hResidualRPhiCSC_ME-1/1","hResidualRPhiCSC_ME-1/1",200,-10,10);
-  hResidualPhiCSC_ME[6]=new TH1F("hResidualPhiCSC_ME-1/1","hResidualPhiCSC_ME-1/1",200,-1,1);
-  hResidualZCSC_ME[6] = new TH1F("hResidualZCSC_ME-1/1","hResidualZCSC_ME-1/1",200,-10,10);
-  hResidualRPhiCSC_ME[7]=new TH1F("hResidualRPhiCSC_ME-1/2","hResidualRPhiCSC_ME-1/2",200,-10,10);
-  hResidualPhiCSC_ME[7]=new TH1F("hResidualPhiCSC_ME-1/2","hResidualPhiCSC_ME-1/2",200,-1,1);
-  hResidualZCSC_ME[7] = new TH1F("hResidualZCSC_ME-1/2","hResidualZCSC_ME-1/2",200,-10,10);
-  hResidualRPhiCSC_ME[8]=new TH1F("hResidualRPhiCSC_ME-1/3","hResidualRPhiCSC_ME-1/3",200,-10,10);
-  hResidualPhiCSC_ME[8]=new TH1F("hResidualPhiCSC_ME-1/3","hResidualPhiCSC_ME-1/3",200,-1,1);
-  hResidualZCSC_ME[8] = new TH1F("hResidualZCSC_ME-1/3","hResidualZCSC_ME-1/3",200,-10,10);
-  hResidualRPhiCSC_ME[9]=new TH1F("hResidualRPhiCSC_ME1/1","hResidualRPhiCSC_ME1/1",200,-10,10);
-  hResidualPhiCSC_ME[9]=new TH1F("hResidualPhiCSC_ME1/1","hResidualPhiCSC_ME1/1",100,-1,1);
-  hResidualZCSC_ME[9] = new TH1F("hResidualZCSC_ME1/1","hResidualZCSC_ME1/1",200,-10,10);
-  hResidualRPhiCSC_ME[10]=new TH1F("hResidualRPhiCSC_ME1/2","hResidualRPhiCSC_ME1/2",200,-10,10);
-  hResidualPhiCSC_ME[10]=new TH1F("hResidualPhiCSC_ME1/2","hResidualPhiCSC_ME1/2",200,-1,1);
-  hResidualZCSC_ME[10] = new TH1F("hResidualZCSC_ME1/2","hResidualZCSC_ME1/2",200,-10,10);
-  hResidualRPhiCSC_ME[11]=new TH1F("hResidualRPhiCSC_ME1/3","hResidualRPhiCSC_ME1/3",200,-10,10);
-  hResidualPhiCSC_ME[11]=new TH1F("hResidualPhiCSC_ME1/3","hResidualPhiCSC_ME1/3",200,-1,1);
-  hResidualZCSC_ME[11] = new TH1F("hResidualZCSC_ME1/3","hResidualZCSC_ME1/3",200,-10,10);
-  hResidualRPhiCSC_ME[12]=new TH1F("hResidualRPhiCSC_ME2/1","hResidualRPhiCSC_ME2/1",200,-10,10);
-  hResidualPhiCSC_ME[12]=new TH1F("hResidualPhiCSC_ME2/1","hResidualPhiCSC_ME2/1",200,-1,1);
-  hResidualZCSC_ME[12] = new TH1F("hResidualZCSC_ME2/1","hResidualZCSC_ME2/1",200,-10,10);
-  hResidualRPhiCSC_ME[13]=new TH1F("hResidualRPhiCSC_ME2/2","hResidualRPhiCSC_ME2/2",200,-10,10);
-  hResidualPhiCSC_ME[13]=new TH1F("hResidualPhiCSC_ME2/2","hResidualPhiCSC_ME2/2",200,-1,1);
-  hResidualZCSC_ME[13] = new TH1F("hResidualZCSC_ME2/2","hResidualZCSC_ME2/2",200,-10,10);
-  hResidualRPhiCSC_ME[14]=new TH1F("hResidualRPhiCSC_ME3/1","hResidualRPhiCSC_ME3/1",200,-10,10);
-  hResidualPhiCSC_ME[14]=new TH1F("hResidualPhiCSC_ME3/1","hResidualPhiCSC_ME3/1",200,-1,1);
-  hResidualZCSC_ME[14] = new TH1F("hResidualZCSC_ME3/1","hResidualZCSC_ME3/1",200,-10,10);
-  hResidualRPhiCSC_ME[15]=new TH1F("hResidualRPhiCSC_ME3/2","hResidualRPhiCSC_ME3/2",200,-10,10);
-  hResidualPhiCSC_ME[15]=new TH1F("hResidualPhiCSC_ME3/2","hResidualPhiCSC_ME3/2",200,-1,1);
-  hResidualZCSC_ME[15] = new TH1F("hResidualZCSC_ME3/2","hResidualZCSC_ME3/2",200,-10,10);
-  hResidualRPhiCSC_ME[16]=new TH1F("hResidualRPhiCSC_ME4/1","hResidualRPhiCSC_ME4/1",200,-10,10);
-  hResidualPhiCSC_ME[16]=new TH1F("hResidualPhiCSC_ME4/1","hResidualPhiCSC_ME4/1",200,-1,1);
-  hResidualZCSC_ME[16] = new TH1F("hResidualZCSC_ME4/1","hResidualZCSC_ME4/1",200,-10,10);
-  hResidualRPhiCSC_ME[17]=new TH1F("hResidualRPhiCSC_ME4/2","hResidualRPhiCSC_ME4/2",200,-10,10);
-  hResidualPhiCSC_ME[17]=new TH1F("hResidualPhiCSC_ME4/2","hResidualPhiCSC_ME4/2",200,-1,1);
-  hResidualZCSC_ME[17] = new TH1F("hResidualZCSC_ME4/2","hResidualZCSC_ME4/2",200,-10,10);
-
+  hResidualRPhiCSC_ME[0]=fs->make<TH1F>("hResidualRPhiCSC_ME-4/1","hResidualRPhiCSC_ME-4/1",200,-10,10);
+  hResidualPhiCSC_ME[0]=fs->make<TH1F>("hResidualPhiCSC_ME-4/1","hResidualPhiCSC_ME-4/1",200,-1,1);
+  hResidualZCSC_ME[0] = fs->make<TH1F>("hResidualZCSC_ME-4/1","hResidualZCSC_ME-4/1",200,-10,10);
+  hResidualRPhiCSC_ME[1]=fs->make<TH1F>("hResidualRPhiCSC_ME-4/2","hResidualRPhiCSC_ME-4/2",200,-10,10);
+  hResidualPhiCSC_ME[1]=fs->make<TH1F>("hResidualPhiCSC_ME-4/2","hResidualPhiCSC_ME-4/2",200,-1,1);
+  hResidualZCSC_ME[1] = fs->make<TH1F>("hResidualZCSC_ME-4/2","hResidualZCSC_ME-4/2",200,-10,10);
+  hResidualRPhiCSC_ME[2]=fs->make<TH1F>("hResidualRPhiCSC_ME-3/1","hResidualRPhiCSC_ME-3/1",200,-10,10);
+  hResidualPhiCSC_ME[2]=fs->make<TH1F>("hResidualPhiCSC_ME-3/1","hResidualPhiCSC_ME-3/1",200,-1,1);
+  hResidualZCSC_ME[2] = fs->make<TH1F>("hResidualZCSC_ME-3/1","hResidualZCSC_ME-3/1",200,-10,10);
+  hResidualRPhiCSC_ME[3]=fs->make<TH1F>("hResidualRPhiCSC_ME-3/2","hResidualRPhiCSC_ME-3/2",200,-10,10);
+  hResidualPhiCSC_ME[3]=fs->make<TH1F>("hResidualPhiCSC_ME-3/2","hResidualPhiCSC_ME-3/2",200,-1,1);
+  hResidualZCSC_ME[3] = fs->make<TH1F>("hResidualZCSC_ME-3/2","hResidualZCSC_ME-3/2",200,-10,10);
+  hResidualRPhiCSC_ME[4]=fs->make<TH1F>("hResidualRPhiCSC_ME-2/1","hResidualRPhiCSC_ME-2/1",200,-10,10);
+  hResidualPhiCSC_ME[4]=fs->make<TH1F>("hResidualPhiCSC_ME-2/1","hResidualPhiCSC_ME-2/1",200,-1,1);
+  hResidualZCSC_ME[4] = fs->make<TH1F>("hResidualZCSC_ME-2/1","hResidualZCSC_ME-2/1",200,-10,10);
+  hResidualRPhiCSC_ME[5]=fs->make<TH1F>("hResidualRPhiCSC_ME-2/2","hResidualRPhiCSC_ME-2/2",200,-10,10);
+  hResidualPhiCSC_ME[5]=fs->make<TH1F>("hResidualPhiCSC_ME-2/2","hResidualPhiCSC_ME-2/2",200,-1,1);
+  hResidualZCSC_ME[5] = fs->make<TH1F>("hResidualZCSC_ME-2/2","hResidualZCSC_ME-2/2",200,-10,10);
+  hResidualRPhiCSC_ME[6]=fs->make<TH1F>("hResidualRPhiCSC_ME-1/1","hResidualRPhiCSC_ME-1/1",200,-10,10);
+  hResidualPhiCSC_ME[6]=fs->make<TH1F>("hResidualPhiCSC_ME-1/1","hResidualPhiCSC_ME-1/1",200,-1,1);
+  hResidualZCSC_ME[6] = fs->make<TH1F>("hResidualZCSC_ME-1/1","hResidualZCSC_ME-1/1",200,-10,10);
+  hResidualRPhiCSC_ME[7]=fs->make<TH1F>("hResidualRPhiCSC_ME-1/2","hResidualRPhiCSC_ME-1/2",200,-10,10);
+  hResidualPhiCSC_ME[7]=fs->make<TH1F>("hResidualPhiCSC_ME-1/2","hResidualPhiCSC_ME-1/2",200,-1,1);
+  hResidualZCSC_ME[7] = fs->make<TH1F>("hResidualZCSC_ME-1/2","hResidualZCSC_ME-1/2",200,-10,10);
+  hResidualRPhiCSC_ME[8]=fs->make<TH1F>("hResidualRPhiCSC_ME-1/3","hResidualRPhiCSC_ME-1/3",200,-10,10);
+  hResidualPhiCSC_ME[8]=fs->make<TH1F>("hResidualPhiCSC_ME-1/3","hResidualPhiCSC_ME-1/3",200,-1,1);
+  hResidualZCSC_ME[8] = fs->make<TH1F>("hResidualZCSC_ME-1/3","hResidualZCSC_ME-1/3",200,-10,10);
+  hResidualRPhiCSC_ME[9]=fs->make<TH1F>("hResidualRPhiCSC_ME1/1","hResidualRPhiCSC_ME1/1",200,-10,10);
+  hResidualPhiCSC_ME[9]=fs->make<TH1F>("hResidualPhiCSC_ME1/1","hResidualPhiCSC_ME1/1",100,-1,1);
+  hResidualZCSC_ME[9] = fs->make<TH1F>("hResidualZCSC_ME1/1","hResidualZCSC_ME1/1",200,-10,10);
+  hResidualRPhiCSC_ME[10]=fs->make<TH1F>("hResidualRPhiCSC_ME1/2","hResidualRPhiCSC_ME1/2",200,-10,10);
+  hResidualPhiCSC_ME[10]=fs->make<TH1F>("hResidualPhiCSC_ME1/2","hResidualPhiCSC_ME1/2",200,-1,1);
+  hResidualZCSC_ME[10] = fs->make<TH1F>("hResidualZCSC_ME1/2","hResidualZCSC_ME1/2",200,-10,10);
+  hResidualRPhiCSC_ME[11]=fs->make<TH1F>("hResidualRPhiCSC_ME1/3","hResidualRPhiCSC_ME1/3",200,-10,10);
+  hResidualPhiCSC_ME[11]=fs->make<TH1F>("hResidualPhiCSC_ME1/3","hResidualPhiCSC_ME1/3",200,-1,1);
+  hResidualZCSC_ME[11] = fs->make<TH1F>("hResidualZCSC_ME1/3","hResidualZCSC_ME1/3",200,-10,10);
+  hResidualRPhiCSC_ME[12]=fs->make<TH1F>("hResidualRPhiCSC_ME2/1","hResidualRPhiCSC_ME2/1",200,-10,10);
+  hResidualPhiCSC_ME[12]=fs->make<TH1F>("hResidualPhiCSC_ME2/1","hResidualPhiCSC_ME2/1",200,-1,1);
+  hResidualZCSC_ME[12] = fs->make<TH1F>("hResidualZCSC_ME2/1","hResidualZCSC_ME2/1",200,-10,10);
+  hResidualRPhiCSC_ME[13]=fs->make<TH1F>("hResidualRPhiCSC_ME2/2","hResidualRPhiCSC_ME2/2",200,-10,10);
+  hResidualPhiCSC_ME[13]=fs->make<TH1F>("hResidualPhiCSC_ME2/2","hResidualPhiCSC_ME2/2",200,-1,1);
+  hResidualZCSC_ME[13] = fs->make<TH1F>("hResidualZCSC_ME2/2","hResidualZCSC_ME2/2",200,-10,10);
+  hResidualRPhiCSC_ME[14]=fs->make<TH1F>("hResidualRPhiCSC_ME3/1","hResidualRPhiCSC_ME3/1",200,-10,10);
+  hResidualPhiCSC_ME[14]=fs->make<TH1F>("hResidualPhiCSC_ME3/1","hResidualPhiCSC_ME3/1",200,-1,1);
+  hResidualZCSC_ME[14] = fs->make<TH1F>("hResidualZCSC_ME3/1","hResidualZCSC_ME3/1",200,-10,10);
+  hResidualRPhiCSC_ME[15]=fs->make<TH1F>("hResidualRPhiCSC_ME3/2","hResidualRPhiCSC_ME3/2",200,-10,10);
+  hResidualPhiCSC_ME[15]=fs->make<TH1F>("hResidualPhiCSC_ME3/2","hResidualPhiCSC_ME3/2",200,-1,1);
+  hResidualZCSC_ME[15] = fs->make<TH1F>("hResidualZCSC_ME3/2","hResidualZCSC_ME3/2",200,-10,10);
+  hResidualRPhiCSC_ME[16]=fs->make<TH1F>("hResidualRPhiCSC_ME4/1","hResidualRPhiCSC_ME4/1",200,-10,10);
+  hResidualPhiCSC_ME[16]=fs->make<TH1F>("hResidualPhiCSC_ME4/1","hResidualPhiCSC_ME4/1",200,-1,1);
+  hResidualZCSC_ME[16] = fs->make<TH1F>("hResidualZCSC_ME4/1","hResidualZCSC_ME4/1",200,-10,10);
+  hResidualRPhiCSC_ME[17]=fs->make<TH1F>("hResidualRPhiCSC_ME4/2","hResidualRPhiCSC_ME4/2",200,-10,10);
+  hResidualPhiCSC_ME[17]=fs->make<TH1F>("hResidualPhiCSC_ME4/2","hResidualPhiCSC_ME4/2",200,-1,1);
+  hResidualZCSC_ME[17] = fs->make<TH1F>("hResidualZCSC_ME4/2","hResidualZCSC_ME4/2",200,-10,10);
+  }
 
 }
 
 void MuonAlignmentAnalyzer::endJob(){
-  // Write the histos to file
-  theFile->cd();
 
-    edm::LogInfo("MuonAlignmentAnalyzer") << "----------------- " << endl << endl;
 
-  if(theDataType == "SimData"){
-    edm::LogInfo("MuonAlignmentAnalyzer") << "Number of Sim tracks: " << numberOfSimTracks << endl << endl;
-  hNmuonsSim->Write();
-  hPTSim->Write();
-  hSimInvM->Write();
-  hSimInvM_Barrel->Write();
-  hSimPTvsEta->Write();
-  hSimPTvsPhi->Write();
-  }
+    edm::LogInfo("MuonAlignmentAnalyzer")  << "----------------- " << endl << endl;
 
-  if(doSAplots){
-    edm::LogInfo("MuonAlignmentAnalyzer") << "Number of SA Reco tracks: " << numberOfSARecTracks << endl << endl;
-  hNmuonsSA->Write();
-  if(theDataType == "SimData"){
-  hSAPTres->Write();
-  hSAinvPTres->Write();
-  hSAinvPTvsEta->Write();
-  hSAinvPTvsPhi->Write();
-  hSAPTDiff->Write();
-  hSAPTDiffvsEta->Write();
-  hSAPTDiffvsPhi->Write();
-	}
-  hSAPTvsEta->Write();
-  hSAPTvsPhi->Write();
-  hSAPTRec->Write();
-  hSAInvM->Write();
-  hSAInvM_Barrel->Write();
-  hSAChi2->Write();
-	}
+  if(theDataType == "SimData")
+    edm::LogInfo("MuonAlignmentAnalyzer")  << "Number of Sim tracks: " << numberOfSimTracks << endl << endl;
 
-  if(doGBplots){
-  edm::LogInfo("MuonAlignmentAnalyzer") << "Number of GB Reco tracks: " << numberOfGBRecTracks << endl << endl;
-  hNmuonsGB->Write();
-  if(theDataType == "SimData"){
-  hGBPTres->Write();
-  hGBPTDiff->Write();
-  hGBPTDiffvsEta->Write();
-  hGBPTDiffvsPhi->Write();
-  hGBinvPTres->Write();
-  hGBinvPTvsEta->Write();
-  hGBinvPTvsPhi->Write();
-	}
-  hGBPTRec->Write();
-  hGBPTvsEta->Write();
-  hGBPTvsPhi->Write();
-  hGBInvM->Write();
-  hGBInvM_Barrel->Write();
-  hGBChi2->Write();
-   }
+  if(doSAplots)
+    edm::LogInfo("MuonAlignmentAnalyzer")  << "Number of SA Reco tracks: " << numberOfSARecTracks << endl << endl;
+
+  if(doGBplots)
+  edm::LogInfo("MuonAlignmentAnalyzer")  << "Number of GB Reco tracks: " << numberOfGBRecTracks << endl << endl;
 
   if(doResplots){
-  edm::LogInfo("MuonAlignmentAnalyzer") << "Number of Hits considered for residuals: " << numberOfHits << endl << endl;
 
-    for(std::vector<TH1F *>::iterator myIt = unitsRPhi.begin(); myIt != unitsRPhi.end(); myIt++) {
-      (*myIt)->Write();
-    } 
-    for(std::vector<TH1F *>::iterator myIt = unitsPhi.begin(); myIt != unitsPhi.end(); myIt++) {
-      (*myIt)->Write();
-    } 
-    for(std::vector<TH1F *>::iterator myIt = unitsZ.begin(); myIt != unitsZ.end(); myIt++) {
-      (*myIt)->Write();
-    } 
+  delete thePropagator;
 
-  hResidualRPhiDT->Write(); 
-  hResidualPhiDT->Write(); 
-  hResidualZDT->Write(); 
-  hResidualRPhiCSC->Write(); 
-  hResidualPhiCSC->Write(); 
-  hResidualZCSC->Write(); 
-  
-  for (int j=0; j<20; j++){
+  edm::LogInfo("MuonAlignmentAnalyzer")  << "Number of Hits considered for residuals: " << numberOfHits << endl << endl;
 
-	if(j<5){
-  hResidualRPhiDT_W[j]->Write();
-  hResidualPhiDT_W[j]->Write();
-  hResidualZDT_W[j]->Write();	
-	}
-	if(j<18){
-  hResidualRPhiCSC_ME[j]->Write();
-  hResidualPhiCSC_ME[j]->Write();
-  hResidualZCSC_ME[j]->Write();
-  	}
-  hResidualRPhiDT_MB[j]->Write();
-  hResidualPhiDT_MB[j]->Write();
-  hResidualZDT_MB[j]->Write();
   }
-}
 
-  theFile->Close();
 }
  
 
 void MuonAlignmentAnalyzer::analyze(const Event & event, const EventSetup& eventSetup){
   
   
-  ESHandle<MagneticField> theMGField;
-  eventSetup.get<IdealMagneticFieldRecord>().get(theMGField);
 
   ESHandle<GlobalTrackingGeometry> theTrackingGeometry;
   eventSetup.get<GlobalTrackingGeometryRecord>().get(theTrackingGeometry);
   
   GlobalVector p1,p2;
-  std::vector< double > simPar[3] ; //pt,eta,phi
-  int i=0;
+  std::vector< double > simPar[4] ; //pt,eta,phi,charge
   
 
 // ######### if data= MC, do Simulation Plots#####
@@ -408,6 +369,7 @@ void MuonAlignmentAnalyzer::analyze(const Event & event, const EventSetup& event
   double simEta=0;
   double simPt=0;
   double simPhi=0;
+  int i=0, ie=0,ib=0;
 
   // Get the SimTrack collection from the event
     Handle<SimTrackContainer> simTracks;
@@ -416,7 +378,6 @@ void MuonAlignmentAnalyzer::analyze(const Event & event, const EventSetup& event
 
     SimTrackContainer::const_iterator simTrack;
 
-	i=0;
     for (simTrack = simTracks->begin(); simTrack != simTracks->end(); ++simTrack){
       if (abs((*simTrack).type()) == 13) {
 	i++;
@@ -424,29 +385,36 @@ void MuonAlignmentAnalyzer::analyze(const Event & event, const EventSetup& event
 	simEta=(*simTrack).momentum().eta();
 	simPhi=(*simTrack).momentum().phi();
 	numberOfSimTracks++;
-	hPTSim->Fill(simPt);
+	hSimPT->Fill(simPt);
+	if(abs(simEta)<1.04) {hSimPT_Barrel->Fill(simPt);ib++;}
+	else {hSimPT_Endcap->Fill(simPt);ie++;}
 	hSimPTvsEta->Fill(simEta,simPt);
 	hSimPTvsPhi->Fill(simPhi,simPt);
+	hSimPhivsEta->Fill(simEta,simPhi);
 
-	simPar[0].push_back(simPt);
+        simPar[0].push_back(simPt);
 	simPar[1].push_back(simEta);
 	simPar[2].push_back(simPhi);
-
+        simPar[3].push_back((*simTrack).charge());
 	
 //	Save the muon pair
         if(i==1)  p1=GlobalVector((*simTrack).momentum().x(),(*simTrack).momentum().y(),(*simTrack).momentum().z());
     	if(i==2)  p2=GlobalVector((*simTrack).momentum().x(),(*simTrack).momentum().y(),(*simTrack).momentum().z());
      }    
     }
-	hNmuonsSim->Fill(i);
+	hSimNmuons->Fill(i);
+	hSimNmuons_Barrel->Fill(ib);
+	hSimNmuons_Endcap->Fill(ie);
 
-  if(i==2){
+ if(i>1){ // Take 2 first muons :-(
   TLorentzVector mu1(p1.x(), p1.y(), p1.z(), p1.mag());
   TLorentzVector mu2(p2.x(), p2.y(), p2.z(), p2.mag());
   TLorentzVector pair = mu1 + mu2;
   double Minv = pair.M();
   hSimInvM->Fill(Minv);
   if(abs(p1.eta())<1.04 && abs(p2.eta())<1.04) hSimInvM_Barrel->Fill(Minv);
+  else if(abs(p1.eta())>=1.04 && abs(p2.eta())>=1.04) hSimInvM_Endcap->Fill(Minv);
+  else  hSimInvM_Overlap->Fill(Minv);  
   }
 
   } //simData
@@ -458,6 +426,8 @@ void MuonAlignmentAnalyzer::analyze(const Event & event, const EventSetup& event
   double SArecPt=0.;
   double SAeta=0.;
   double SAphi=0.;
+  int i=0, ie=0,ib=0;
+  double ich=0;
 
   // Get the RecTrack collection from the event
   Handle<reco::TrackCollection> staTracks;
@@ -466,16 +436,20 @@ void MuonAlignmentAnalyzer::analyze(const Event & event, const EventSetup& event
 
   reco::TrackCollection::const_iterator staTrack;
 
-  i=0;
   for (staTrack = staTracks->begin(); staTrack != staTracks->end(); ++staTrack){
-    i++;
-    
+    i++;    
     
     SArecPt = (*staTrack).pt();
-    hSAPTRec->Fill(SArecPt);
     SAeta = (*staTrack).eta();
     SAphi = (*staTrack).phi();
+    ich= (*staTrack).charge();
+
+    hSAPTRec->Fill(SArecPt);
+    hSAPhivsEta->Fill(SAeta,SAphi);
     hSAChi2->Fill((*staTrack).chi2());
+    hSANhits->Fill((*staTrack).recHitsSize());
+    if(abs(SAeta)<1.04) {hSAPTRec_Barrel->Fill(SArecPt); hSAChi2_Barrel->Fill((*staTrack).chi2()); hSANhits_Barrel->Fill((*staTrack).recHitsSize()); ib++;}
+    else {hSAPTRec_Endcap->Fill(SArecPt); hSAChi2_Endcap->Fill((*staTrack).chi2()); hSANhits_Endcap->Fill((*staTrack).recHitsSize()); ie++;}
 
 // save the muon pair
     if(i==1)  p1=GlobalVector((*staTrack).momentum().x(),(*staTrack).momentum().y(),(*staTrack).momentum().z());
@@ -483,38 +457,53 @@ void MuonAlignmentAnalyzer::analyze(const Event & event, const EventSetup& event
 
    
     if(SArecPt && theDataType == "SimData"){  
-	
+
+     double candDeltaR= -999.0, deltaR;
+     int iCand=0;
+     if(simPar[0].size()>0){
      for(unsigned int  iSim = 0; iSim <simPar[0].size(); iSim++) {
-     double simPt=simPar[0][iSim];
-     if(sqrt((SAeta-simPar[1][iSim])*(SAeta-simPar[1][iSim])+(SAphi-simPar[2][iSim])*(SAphi-simPar[2][iSim]))<0.3){
+     deltaR=sqrt((SAeta-simPar[1][iSim])*(SAeta-simPar[1][iSim])+(SAphi-simPar[2][iSim])*(SAphi-simPar[2][iSim]));
+     if(candDeltaR<0 || deltaR<candDeltaR) {
+        candDeltaR=deltaR;
+        iCand=iSim;
+        }
+     }}
+	
+     double simPt=simPar[0][iCand];
       hSAPTres->Fill( (SArecPt-simPt)/simPt);
+    	if(abs(SAeta)<1.04) hSAPTres_Barrel->Fill((SArecPt-simPt)/simPt);
+	else hSAPTres_Endcap->Fill((SArecPt-simPt)/simPt);
 
       hSAPTDiff->Fill(SArecPt-simPt);
 
       hSAPTDiffvsEta->Fill(SAeta,SArecPt-simPt);
       hSAPTDiffvsPhi->Fill(SAphi,SArecPt-simPt);
+	double ptInvRes= ( ich/SArecPt - simPar[3][iCand]/simPt)/ (simPar[3][iCand]/simPt);
+      hSAinvPTres->Fill( ptInvRes);
 
-      hSAinvPTres->Fill( ( 1/SArecPt - 1/simPt)/ (1/simPt));
-
-      hSAinvPTvsEta->Fill(SAeta,( 1/SArecPt - 1/simPt)/ (1/simPt));
-      hSAinvPTvsPhi->Fill(SAphi,( 1/SArecPt - 1/simPt)/ (1/simPt));
-	}}
-    }
+      hSAinvPTvsEta->Fill(SAeta,ptInvRes);
+      hSAinvPTvsPhi->Fill(SAphi,ptInvRes);
+      hSAinvPTvsNhits->Fill((*staTrack).recHitsSize(),ptInvRes);
+      }
 
       hSAPTvsEta->Fill(SAeta,SArecPt);
       hSAPTvsPhi->Fill(SAphi,SArecPt);
 }
 
-	hNmuonsSA->Fill(i);
+	hSANmuons->Fill(i);
+	hSANmuons_Barrel->Fill(ib);
+	hSANmuons_Endcap->Fill(ie);
 
-  if(i==2){
+  if(i>1){ // Take 2 first muons :-(
   TLorentzVector mu1(p1.x(), p1.y(), p1.z(), p1.mag());
   TLorentzVector mu2(p2.x(), p2.y(), p2.z(), p2.mag());
   TLorentzVector pair = mu1 + mu2;
   double Minv = pair.M();
   hSAInvM->Fill(Minv);
   if(abs(p1.eta())<1.04 && abs(p2.eta())<1.04) hSAInvM_Barrel->Fill(Minv);
-  }
+  else if(abs(p1.eta())>=1.04 && abs(p2.eta())>=1.04) hSAInvM_Endcap->Fill(Minv);
+  else hSAInvM_Overlap->Fill(Minv);
+  } // 2 first muons
 
   }//end doSAplots
 
@@ -531,9 +520,10 @@ void MuonAlignmentAnalyzer::analyze(const Event & event, const EventSetup& event
   double GBrecPt = 0; 
   double GBeta = 0;
   double GBphi = 0;
+  double ich =0;
+  int i=0, ie=0,ib=0;
 
   reco::TrackCollection::const_iterator glbTrack;
-	i=0;
 
   for (glbTrack = glbTracks->begin(); glbTrack != glbTracks->end(); ++glbTrack){
     i++;
@@ -541,32 +531,48 @@ void MuonAlignmentAnalyzer::analyze(const Event & event, const EventSetup& event
     GBrecPt = (*glbTrack).pt(); 
     GBeta = (*glbTrack).eta();
     GBphi = (*glbTrack).phi();
+    ich=   (*glbTrack).charge();
     
+    hGBPTRec->Fill(GBrecPt);
+    hGBPhivsEta->Fill(GBeta,GBphi);
+    hGBChi2->Fill((*glbTrack).chi2());
+    hGBNhits->Fill((*glbTrack).recHitsSize());
+    if(abs(GBeta)<1.04) {hGBPTRec_Barrel->Fill(GBrecPt); hGBChi2_Barrel->Fill((*glbTrack).chi2()); hGBNhits_Barrel->Fill((*glbTrack).recHitsSize()); ib++;}
+    else {hGBPTRec_Endcap->Fill(GBrecPt); hGBChi2_Endcap->Fill((*glbTrack).chi2()); hGBNhits_Endcap->Fill((*glbTrack).recHitsSize()); ie++;}
+  
 // save the muon pair
     if(i==1)  p1=GlobalVector((*glbTrack).momentum().x(),(*glbTrack).momentum().y(),(*glbTrack).momentum().z());
     if(i==2)  p2=GlobalVector((*glbTrack).momentum().x(),(*glbTrack).momentum().y(),(*glbTrack).momentum().z());
 
-  
-    hGBPTRec->Fill(GBrecPt);
-    hGBChi2->Fill((*glbTrack).chi2());
-   
-
-    if(GBrecPt && theDataType == "SimData"){  
+    if(GBrecPt && theDataType == "SimData"){ 
+     double candDeltaR= -999.0, deltaR;
+     int iCand=0;
+     if(simPar[0].size()>0){
      for(unsigned int  iSim = 0; iSim <simPar[0].size(); iSim++) {
-     double simPt=simPar[0][iSim];
-     if(sqrt((GBeta-simPar[1][iSim])*(GBeta-simPar[1][iSim])+(GBphi-simPar[2][iSim])*(GBphi-simPar[2][iSim]))<0.3){
+     deltaR=sqrt((GBeta-simPar[1][iSim])*(GBeta-simPar[1][iSim])+(GBphi-simPar[2][iSim])*(GBphi-simPar[2][iSim]));
+     if(candDeltaR<0 || deltaR<candDeltaR) {
+	candDeltaR=deltaR;
+	iCand=iSim;
+	}
+     }}
+
+     double simPt=simPar[0][iCand];
 	
       hGBPTres->Fill( (GBrecPt-simPt)/simPt);
+    	if(abs(GBeta)<1.04) hGBPTres_Barrel->Fill((GBrecPt-simPt)/simPt);
+	else hGBPTres_Endcap->Fill((GBrecPt-simPt)/simPt);
 
       hGBPTDiff->Fill(GBrecPt-simPt);
 
       hGBPTDiffvsEta->Fill(GBeta,GBrecPt-simPt);
       hGBPTDiffvsPhi->Fill(GBphi,GBrecPt-simPt);
 
-      hGBinvPTres->Fill( ( 1/GBrecPt - 1/simPt)/ (1/simPt));
-      hGBinvPTvsEta->Fill(GBeta,( 1/GBrecPt - 1/simPt)/ (1/simPt));
-      hGBinvPTvsPhi->Fill(GBphi,( 1/GBrecPt - 1/simPt)/ (1/simPt));
-	}}
+       double ptInvRes= ( ich/GBrecPt - simPar[3][iCand]/simPt)/ (simPar[3][iCand]/simPt);
+      hGBinvPTres->Fill( ptInvRes);
+
+      hGBinvPTvsEta->Fill(GBeta,ptInvRes);
+      hGBinvPTvsPhi->Fill(GBphi,ptInvRes);
+      hGBinvPTvsNhits->Fill((*glbTrack).recHitsSize(),ptInvRes);
     } 
 
 
@@ -575,16 +581,21 @@ void MuonAlignmentAnalyzer::analyze(const Event & event, const EventSetup& event
 
   }
 
-	hNmuonsGB->Fill(i);
+	hGBNmuons->Fill(i);
+	hGBNmuons_Barrel->Fill(ib);
+	hGBNmuons_Endcap->Fill(ie);
 
-  if(i==2){
+   if(i>1){ // Take 2 first muons :-(
   TLorentzVector mu1(p1.x(), p1.y(), p1.z(), p1.mag());
   TLorentzVector mu2(p2.x(), p2.y(), p2.z(), p2.mag());
   TLorentzVector pair = mu1 + mu2;
   double Minv = pair.M();
   hGBInvM->Fill(Minv);
   if(abs(p1.eta())<1.04 && abs(p2.eta())<1.04)   hGBInvM_Barrel->Fill(Minv);
+  else if(abs(p1.eta())>=1.04 && abs(p2.eta())>=1.04) hGBInvM_Endcap->Fill(Minv);
+  else hGBInvM_Overlap->Fill(Minv);
   }
+
 } //end doGBplots
 
 
@@ -606,9 +617,6 @@ void MuonAlignmentAnalyzer::analyze(const Event & event, const EventSetup& event
   event.getByLabel(theRecHits2DTagCSC, all2DSegmentsCSC);
   CSCSegmentCollection::const_iterator segmentCSC;
   
-  //Create the propagator
-    Propagator *thePropagator = new SteppingHelixPropagator(&*theMGField, alongMomentum);
-
    //Vectors used to perform the matching between Segments and hits from Track
   std::vector< std::vector<int> > indexCollectionDT;
   std::vector< std::vector<int> > indexCollectionCSC;
@@ -765,13 +773,28 @@ void MuonAlignmentAnalyzer::analyze(const Event & event, const EventSetup& event
             int wheel=0,station=0,sector=0;
             int endcap=0,ring=0,chamber=0;
 
+	// Fill generic histograms
             //If it's a DT
             if(det == 1) {
               DTChamberId myChamber(rawId);
               wheel=myChamber.wheel();
               station = myChamber.station();
               sector=myChamber.sector();
-            } else if (det==2){
+
+  	        hResidualRPhiDT->Fill(residualRPhi);
+        	hResidualPhiDT->Fill(residualPhi);
+            	hResidualZDT->Fill(residualZ);
+
+                int index = wheel+2;
+                hResidualRPhiDT_W[index]->Fill(residualRPhi);
+                hResidualPhiDT_W[index]->Fill(residualPhi);
+                hResidualZDT_W[index]->Fill(residualZ);
+                index=wheel*4+station+7;
+                hResidualRPhiDT_MB[index]->Fill(residualRPhi);
+                hResidualPhiDT_MB[index]->Fill(residualPhi);
+                hResidualZDT_MB[index]->Fill(residualZ);
+            } 
+	    else if (det==2){
               CSCDetId myChamber(rawId);
               endcap= myChamber.endcap();
               station = myChamber.station();
@@ -779,9 +802,22 @@ void MuonAlignmentAnalyzer::analyze(const Event & event, const EventSetup& event
               ring = myChamber.ring();
               chamber=myChamber.chamber();
 
-            }
+                hResidualRPhiCSC->Fill(residualRPhi);
+                hResidualPhiCSC->Fill(residualPhi);
+                hResidualZCSC->Fill(residualZ);
 
-	  if(newDetector) {
+                int index=2*station+ring+7;
+                if(station==-1) {index=5+ring;
+				if(ring==4) index=6;}
+                if(station==1) {index=8+ring;
+				if(ring==4) index=9;}
+                hResidualRPhiCSC_ME[index]->Fill(residualRPhi);
+                hResidualPhiCSC_ME[index]->Fill(residualPhi);
+                hResidualZCSC_ME[index]->Fill(residualZ);
+
+            }
+// Fill individual chamber histograms
+  if(newDetector) {
 	    
 	    //Create an RawIdDetector, fill it and push it into the collection 
 	    detectorCollection.push_back(rawId);
@@ -805,52 +841,27 @@ void MuonAlignmentAnalyzer::analyze(const Event & event, const EventSetup& event
 	      break;
 	    }
 
-	//create histograms
+	//create new histograms
 
 	    char nameOfHistoRPhi[50];
 	    char nameOfHistoPhi[50];
 	    char nameOfHistoZ[50];
-
 	
 	    if(det==1){ // DT
 	    sprintf(nameOfHistoRPhi, "ResidualRPhi_W%ldMB%1dS%1d",wheel,station,sector );
 	    sprintf(nameOfHistoPhi, "ResidualPhi_W%ldMB%1dS%1d",wheel,station,sector);
 	    sprintf(nameOfHistoZ, "ResidualZ_W%ldMB%1dS%1d",wheel,station,sector);
-	    hResidualRPhiDT->Fill(residualRPhi);
-	    hResidualPhiDT->Fill(residualPhi);
-	    hResidualZDT->Fill(residualZ);			
-
-		int index = wheel+2;
-		hResidualRPhiDT_W[index]->Fill(residualRPhi);
-		hResidualPhiDT_W[index]->Fill(residualPhi);
-		hResidualZDT_W[index]->Fill(residualZ);
-		index=wheel*4+station+7;
-                hResidualRPhiDT_MB[index]->Fill(residualRPhi);
-                hResidualPhiDT_MB[index]->Fill(residualPhi);
-                hResidualZDT_MB[index]->Fill(residualZ);
-
 	    }
 	    else if(det==2){ //CSC
 	    sprintf(nameOfHistoRPhi, "ResidualRPhi_ME%ldR%1dCh%1d",station,ring,chamber );
 	    sprintf(nameOfHistoPhi, "ResidualPhi_ME%ldR%1dCh%1d",station,ring,chamber);
 	    sprintf(nameOfHistoZ, "ResidualZ_ME%ldR%1dCh%1d",station,ring,chamber);
-	    hResidualRPhiCSC->Fill(residualRPhi);
-	    hResidualPhiCSC->Fill(residualPhi);
-	    hResidualZCSC->Fill(residualZ);
 
-		int index=2*station+ring+7;
-			if(ring==4) ring=1;
-		if(station==-1) index=5+ring;
-		if(station==1) index=8+ring;
-                hResidualRPhiCSC_ME[index]->Fill(residualRPhi);
-                hResidualPhiCSC_ME[index]->Fill(residualPhi);
-		hResidualZCSC_ME[index]->Fill(residualZ);	    		
-
-		}		    
+	    }		    
 	    
-	    TH1F *histoRPhi = new TH1F(nameOfHistoRPhi, nameOfHistoRPhi, 100, -2.0*range, 2.0*range);
-	    TH1F *histoPhi = new TH1F(nameOfHistoPhi, nameOfHistoPhi, 100, -0.1*range, 0.1*range);
-	    TH1F *histoZ = new TH1F(nameOfHistoZ, nameOfHistoZ, 100, -2.0*range, 2.0*range);
+	    TH1F *histoRPhi = fs->make<TH1F>(nameOfHistoRPhi, nameOfHistoRPhi, 100, -2.0*range, 2.0*range);
+	    TH1F *histoPhi = fs->make<TH1F>(nameOfHistoPhi, nameOfHistoPhi, 100, -0.1*range, 0.1*range);
+	    TH1F *histoZ = fs->make<TH1F>(nameOfHistoZ, nameOfHistoZ, 100, -2.0*range, 2.0*range);
 
 	    histoRPhi->Fill(residualRPhi);
 	    histoPhi->Fill(residualPhi);
@@ -860,39 +871,13 @@ void MuonAlignmentAnalyzer::analyze(const Event & event, const EventSetup& event
 	    unitsPhi.push_back(histoPhi);
 	    unitsZ.push_back(histoZ);
 
-	    } 
+	    } // new detector
 	    else {
 	    //If the detector was not new, just fill the histogram
 	    unitsRPhi.at(position)->Fill(residualRPhi);
 	    unitsPhi.at(position)->Fill(residualPhi);
 	    unitsZ.at(position)->Fill(residualZ);
 		
-            if(det==1){ // DT
-            hResidualRPhiDT->Fill(residualRPhi);
-            hResidualPhiDT->Fill(residualPhi);
-            hResidualZDT->Fill(residualZ);
-	    	int index = wheel+2;
-		hResidualRPhiDT_W[index]->Fill(residualRPhi);
-		hResidualPhiDT_W[index]->Fill(residualPhi);
-		hResidualZDT_W[index]->Fill(residualZ);
-		index=wheel*4+station+7;
-            	hResidualRPhiDT_MB[index]->Fill(residualRPhi);
-                hResidualPhiDT_MB[index]->Fill(residualPhi);
-                hResidualZDT_MB[index]->Fill(residualZ);
-	    }
-	    else if(det==2){ //CSC
-            hResidualRPhiCSC->Fill(residualRPhi);
-            hResidualPhiCSC->Fill(residualPhi);
-            hResidualZCSC->Fill(residualZ);
-	    	int index=2*station+ring+7;
-		if(ring==4) ring=1;
-		if(station==-1) index=5+ring;
-		if(station==1) index=8+ring;
-                hResidualRPhiCSC_ME[index]->Fill(residualRPhi);
-                hResidualPhiCSC_ME[index]->Fill(residualPhi);
-		hResidualZCSC_ME[index]->Fill(residualZ);	    		
-	    }	
-	    
 	  }
 	  countPoints++;
 	
@@ -900,7 +885,7 @@ void MuonAlignmentAnalyzer::analyze(const Event & event, const EventSetup& event
 
 
 	}catch(...) {
-	  edm::LogError("MuonAlignmentAnalyzer")<<" Error!! Exception in propagator catched" << endl;
+	  edm::LogError("MuonAlignmentAnalyzer") <<" Error!! Exception in propagator catched" << endl;
 	  continue;
 	}
 

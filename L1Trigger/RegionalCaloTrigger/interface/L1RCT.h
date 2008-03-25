@@ -84,15 +84,15 @@ class L1RCT {
     crates.at(i).printEICEdges(j);
   }
 
-  L1CaloEmCollection getIsolatedEGObjects(int crate);
+  L1CaloEmCollection getIsolatedEGObjects(unsigned crate);
 
-  L1CaloEmCollection getNonisolatedEGObjects(int crate);
+  L1CaloEmCollection getNonisolatedEGObjects(unsigned crate);
 
-  std::vector<unsigned short> getJetRegions(int crate){
+  std::vector<unsigned short> getJetRegions(unsigned crate){
     return crates.at(crate).getJetRegions();
   }
 
-  std::vector<L1CaloRegion> getRegions(int crate);
+  std::vector<L1CaloRegion> getRegions(unsigned crate);
 
   // Helper methods to convert from trigger tower (iphi, ieta) to RCT (crate, card, tower)
   // Static methods that are globally accessible for now -- this should be designed better!

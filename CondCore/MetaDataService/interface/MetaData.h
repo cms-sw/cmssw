@@ -2,11 +2,14 @@
 #define CondCore_MetaDataService_METADATA_H
 #include <string>
 #include <vector>
+namespace coral{
+  class ISessionProxy;
+}
 namespace cond{
-  class CoralTransaction;
+  class RelationalStorageManager;
   class MetaData {
   public:
-    explicit MetaData( cond::CoralTransaction& coraldb );
+    explicit MetaData( cond::RelationalStorageManager& coraldb );
     ~MetaData();
     bool addMapping(const std::string& name, const std::string& token);
     bool replaceToken(const std::string& name, const std::string& newtoken);
@@ -18,8 +21,8 @@ namespace cond{
     void deleteEntryByTag( const std::string& tag );
   private:
     void createTable(const std::string& tabname);
-    cond::CoralTransaction& m_coraldb;
+    cond::RelationalStorageManager& m_coraldb;
+    coral::ISessionProxy* m_proxy;
   };
 }
 #endif
- 

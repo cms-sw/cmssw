@@ -14,7 +14,7 @@ process.source = cms.Source( "PoolSource",
 )
 
 process.printTree = cms.EDAnalyzer( "ParticleTreeDrawer",
-  src =cms.InputTag( "genParticleCandidates" ),
+  src =cms.InputTag( "genParticles" ),
 #    printP4 = cms.untracked.bool( True ),
 #    printPtEtaPhi = cms.untracked.bool( True ),
 #    printStatus = cms.untracked.bool( True ),
@@ -23,7 +23,7 @@ process.printTree = cms.EDAnalyzer( "ParticleTreeDrawer",
 )
 	
 process.printDecay = cms.EDAnalyzer( "ParticleDecayDrawer",
-  src = cms.InputTag( "genParticleCandidates" ),
+  src = cms.InputTag( "genParticles" ),
 #    untracked bool printP4 = true
 #    untracked bool printPtEtaPhi = true
   status = cms.untracked.vint32( 3 )

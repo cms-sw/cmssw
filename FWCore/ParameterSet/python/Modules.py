@@ -1,15 +1,19 @@
 from Mixins import _ConfigureComponent
 from Mixins import _Unlabelable, _Labelable
-from Mixins import _TypedParameterizable 
+from Mixins import _TypedParameterizable, PrintOptions
 from SequenceTypes import _Sequenceable
 
 from ExceptionHandling import *
-
 class Service(_ConfigureComponent,_TypedParameterizable,_Unlabelable):
     def __init__(self,type_,*arg,**kargs):
         super(Service,self).__init__(type_,*arg,**kargs)
     def _placeImpl(self,name,proc):
         proc._placeService(self.type_(),self)
+    def insertInto(self, processDesc):
+        newpset = processDesc.newPSet()
+        newpset.addString(True, "@service_type", self.type_())
+        self.insertContentsInto(newpset)
+        processDesc.addService(newpset)
 
 
 class ESSource(_ConfigureComponent,_TypedParameterizable,_Unlabelable,_Labelable):
@@ -19,6 +23,14 @@ class ESSource(_ConfigureComponent,_TypedParameterizable,_Unlabelable,_Labelable
         if name == '':
             name=self.type_()
         proc._placeESSource(name,self)
+    def moduleLabel_(self,myname):
+       result = myname
+       if self.type_() == myname:
+           result = ""
+       return result
+    def nameInProcessDesc_(self, myname):
+       result = self.type_() + "@" + self.moduleLabel_(myname)
+       return result
 
 
 class ESProducer(_ConfigureComponent,_TypedParameterizable,_Unlabelable,_Labelable):
@@ -28,16 +40,51 @@ class ESProducer(_ConfigureComponent,_TypedParameterizable,_Unlabelable,_Labelab
         if name == '':
             name=self.type_()
         proc._placeESProducer(name,self)
+    def moduleLabel_(self,myname):
+       result = myname
+       if self.type_() == myname:
+           result = ''
+       return result
+    def nameInProcessDesc_(self, myname):
+       result = self.type_() + "@" + self.moduleLabel_(myname)
+       return result
 
 
 class ESPrefer(_ConfigureComponent,_TypedParameterizable,_Unlabelable,_Labelable):
-    def __init__(self,type_,*arg,**kargs):
-        super(ESPrefer,self).__init__(type_,*arg,**kargs)
+    def __init__(self,type_,targetLabel=''):
+        super(ESPrefer,self).__init__(type_)
+        self._targetLabel = targetLabel
+        if targetLabel is None:
+            self._targetLabel = str('')
     def _placeImpl(self,name,proc):
-        if name == '':
-            name=self.type_()
         proc._placeESPrefer(name,self)
-
+    def nameInProcessDesc_(self, myname):
+        # the C++ parser can give it a name like "label@prefer".  Get rid of that.
+        return "esprefer_" + self.type_() + "@" + self._targetLabel
+    def copy(self):
+        returnValue = ESPrefer.__new__(type(self))
+        returnValue.__init__(self.type_(), self._targetLabel)
+        return returnValue
+    def moduleLabel_(self, myname):
+        return self._targetLabel
+    def dumpPythonAs(self, label, options=PrintOptions()):
+       result = options.indentation()
+       basename = self._targetLabel
+       if basename == '':
+           basename = self.type_()
+       if options.isCfg:
+           # do either type or label
+           result += 'process.prefer(\"'+basename+'\")\n'
+       else:
+           # use the base class Module
+           result += 'es_prefer_'+basename+' = cms.ESPrefer(\"'+self.type_()+'\"'
+           if self._targetLabel != '':
+              result += ',\"'+self._targetLabel+'\"'
+           result += ')\n'
+       return result
+    def dumpConfig(self, options):
+       result = options.indentation() + 'es_prefer '+ self._targetLabel+ ' = ' + self.type_() + '{}\n'
+       return result
 
 class _Module(_ConfigureComponent,_TypedParameterizable,_Labelable,_Sequenceable):
     """base class for classes which denote framework event based 'modules'"""
@@ -86,6 +133,10 @@ class Source(_ConfigureComponent,_TypedParameterizable):
         super(Source,self).__init__(type_,*arg,**kargs)
     def _placeImpl(self,name,proc):
         proc._placeSource(name,self)
+    def moduleLabel_(self,myname):
+        return "@main_input"
+    def nameInProcessDesc_(self,myname):
+        return "@main_input"
 
 
 class Looper(_ConfigureComponent,_TypedParameterizable):
@@ -93,11 +144,17 @@ class Looper(_ConfigureComponent,_TypedParameterizable):
         super(Looper,self).__init__(type_,*arg,**kargs)
     def _placeImpl(self,name,proc):
         proc._placeLooper(name,self)
+    def moduleLabel_(self,myname):
+        return "@main_looper"
+    def nameInProcessDesc_(self, myname):
+        return "@main_looper"
+
 
 
 if __name__ == "__main__":
     import unittest
     from Types import *
+    from SequenceTypes import *
     class TestModules(unittest.TestCase):
         def testEDAnalyzer(self):
             empty = EDAnalyzer("Empty")
@@ -109,11 +166,35 @@ if __name__ == "__main__":
             self.assertEqual(aCopy.bar.value(), "it")
             withType = EDAnalyzer("Test",type = int32(1))
             self.assertEqual(withType.type.value(),1)
+            block = PSet(i = int32(9))
+            m = EDProducer("DumbProducer", block, j = int32(10))
+            self.assertEqual(9, m.i.value())
+            self.assertEqual(10, m.j.value())
+            juicer = ESPrefer("JuiceProducer")
+            options = PrintOptions()
+            options.isCfg = True
+            self.assertEqual(juicer.dumpPythonAs("juicer", options), "process.prefer(\"juicer\")")
+            options.isCfg = False
+            self.assertEqual(juicer.dumpPythonAs("juicer", options), "es_prefer_juicer = cms.ESPrefer(\"JuiceProducer\")\n")
+
+
         
         def testService(self):
             empty = Service("Empty")
             withParam = Service("Parameterized",foo=untracked(int32(1)), bar = untracked(string("it")))
             self.assertEqual(withParam.foo.value(), 1)
             self.assertEqual(withParam.bar.value(), "it")
+            self.assertEqual(empty.dumpPython(), "cms.Service(\"Empty\")\n")
+            self.assertEqual(withParam.dumpPython(), "cms.Service(\"Parameterized\",\n    foo = cms.untracked.int32(1),\n    bar = cms.untracked.string(\'it\')\n)\n")
+        def testSequences(self):
+            m = EDProducer("MProducer")
+            n = EDProducer("NProducer")
+            m.setLabel("m")
+            n.setLabel("n")
+            s1 = Sequence(m*n)
+            options = PrintOptions()
+            print s1.dumpPython(options)
+
+
 
     unittest.main()

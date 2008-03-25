@@ -10,9 +10,9 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Revision: 1.6 $
+ * \version $Revision: 1.8 $
  *
- * $Id: ObjectCounter.h,v 1.6 2006/03/03 13:11:15 llista Exp $
+ * $Id: ObjectCounter.h,v 1.8 2006/04/27 13:11:26 llista Exp $
  *
  */
 #include "FWCore/Framework/interface/EDAnalyzer.h"
@@ -67,15 +67,15 @@ void ObjectCounter<C>::endJob() {
 template<typename C>
 void ObjectCounter<C>::analyze( const edm::Event& evt, const edm::EventSetup& ) {
   edm::Handle<C> h;
-  try {
-    evt.getByLabel( src_, h );
+  evt.getByLabel( src_, h );
+  if (!h.isValid()) {
+    std::cerr << ">>> product: " << src_ << " not found" << std::endl;
+  } else {
     int n = h->size();
     nSum_ += n;
     n2Sum_ += ( n * n );
-  } catch ( ... ) {
-    std::cerr << ">>> product: " << src_ << " not found" << std::endl;
   }
   ++ n_;
- }
+}
 
 #endif

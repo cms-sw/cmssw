@@ -5,8 +5,8 @@
  *  Tracker Seed Generator by propagating and updating a standAlone muon
  *  to the first 2 (or 1) rechits it meets in tracker system 
  *
- *  $Date: 2007/07/10 16:57:54 $
- *  $Revision: 1.4 $
+ *  $Date: 2007/05/16 20:21:49 $
+ *  $Revision: 1.2 $
  *  \author Chang Liu - Purdue University 
  */
 
@@ -33,7 +33,7 @@ public:
 
   virtual ~TSGFromPropagation();
 
-  void  trackerSeeds(const TrackCand&, const TrackingRegion&, std::vector<TrajectorySeed>&);
+  std::vector<TrajectorySeed> trackerSeeds(const TrackCand&, const TrackingRegion&);
     
   void init(const MuonServiceProxy*);
 
@@ -95,12 +95,6 @@ private:
   edm::ParameterSet theConfig;
 
   double theMaxChi2;
-
-  unsigned int theMaxSeeds;
-
-  double theErrorReset;
-
-  bool theVtxFlag;
 
   std::string thePropagatorName;
 

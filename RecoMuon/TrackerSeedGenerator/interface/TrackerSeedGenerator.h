@@ -28,7 +28,7 @@ public:
   /// destructor
   virtual ~TrackerSeedGenerator() {}
 
-  virtual void trackerSeeds(const TrackCand&, const TrackingRegion&, BTSeedCollection &);
+  virtual BTSeedCollection trackerSeeds(const TrackCand&, const TrackingRegion&);
     
   virtual void setEvent(const edm::Event&);
 

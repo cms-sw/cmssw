@@ -51,6 +51,7 @@ friend class RPCVHDLConeMaker;
     
   public:
     RPCRingFromRolls();
+    void fixGeo(bool fixGeo) {m_fixRPCGeo = fixGeo;};
     ~RPCRingFromRolls();
     
     bool addDetId(RPCDetInfo detInfo);
@@ -91,6 +92,7 @@ friend class RPCVHDLConeMaker;
     bool m_isRefPlane;  ///< tells if detIds from this curl form a reference plane
     bool m_didVirtuals;
     bool m_didFiltering;
+    bool m_fixRPCGeo;
     RPCLinks m_links;
     
     

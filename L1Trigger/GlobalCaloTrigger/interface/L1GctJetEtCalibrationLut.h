@@ -7,6 +7,7 @@
 #include "L1Trigger/GlobalCaloTrigger/src/L1GctLut.h"
 
 class L1GctJetEtCalibrationFunction;
+class L1CaloEtScale;
 
 /*!
  * \author Robert Frazier & Greg Heath
@@ -28,13 +29,18 @@ class L1GctJetEtCalibrationLut : public L1GctLut<JET_ET_CAL_LUT_ADD_BITS,JET_ET_
  public:
   static const int NAddress;
   static const int NData;
-  static const unsigned JET_ENERGY_BITWIDTH;
-  //  static L1GctJetEtCalibrationLut* setupLut(const L1GctJetEtCalibrationFunction* lutfn);
-  L1GctJetEtCalibrationLut(const L1GctJetEtCalibrationFunction* lutfn=0);
+  static const unsigned JET_ENERGY_BITWIDTH;   ///< Input bitwidth of jet energy; must be 10 or more
+
+  L1GctJetEtCalibrationLut();
   virtual ~L1GctJetEtCalibrationLut();
 
-  void setFunction(const L1GctJetEtCalibrationFunction* lutfn);
+  // set components
+  void setFunction(const L1GctJetEtCalibrationFunction * const lutfn);
+  void setOutputEtScale(const L1CaloEtScale * const scale);
+
+  // get components
   const L1GctJetEtCalibrationFunction* getFunction() const { return m_lutFunction; }
+  const L1CaloEtScale* getOutputEtScale() const { return m_outputEtScale; }
 
   /// Overload << operator
   friend std::ostream& operator << (std::ostream& os, const L1GctJetEtCalibrationLut& lut);
@@ -47,6 +53,7 @@ class L1GctJetEtCalibrationLut : public L1GctLut<JET_ET_CAL_LUT_ADD_BITS,JET_ET_
  private:
 
   const L1GctJetEtCalibrationFunction* m_lutFunction;
+  const L1CaloEtScale * m_outputEtScale;
 
 };
 

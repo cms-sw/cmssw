@@ -1,10 +1,9 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "FWCore/MessageLogger/interface/MessageLoggerQ.h"
 
 namespace edm {
 
 void LogStatistics() { 
-  edm::MessageLoggerQ::SUM ( ); // trigger summary info
+  edm::MessageLoggerQ::MLqSUM ( ); // trigger summary info
 }
 
 LogDebug_ dummyLogDebugObject_( "dummy_id", __FILE__, __LINE__ );
@@ -20,6 +19,20 @@ bool isInfoEnabled() {
 
 bool isWarningEnabled() {
   return( edm::MessageDrop::instance()->warningEnabled );
+}
+
+void HaltMessageLogging() {
+  edm::MessageLoggerQ::MLqSHT ( ); // Shut the logger up
+}
+
+void FlushMessageLog() {
+  edm::MessageLoggerQ::MLqFLS ( ); // Flush the message log queue
+}
+
+void GroupLogStatistics(std::string const & category) {
+  std::string * cat_p = new std::string(category);
+  edm::MessageLoggerQ::MLqGRP (cat_p); // Indicate a group summary category
+  // Note that the scribe will be responsible for deleting cat_p
 }
 
 }  // namespace edm

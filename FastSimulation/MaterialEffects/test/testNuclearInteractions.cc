@@ -45,16 +45,21 @@ private:
   TTree* nuTree;
   TFile* outFile;
   int ObjectNumber;
-  std::string simModuleLabel_;  
+  std::string simModuleLabel_;
+  // Histograms
   DaqMonitorBEInterface * dbe;
-  // TH2F * h100;
   std::vector<MonitorElement*> h0;
   std::vector<MonitorElement*> h1;
   std::vector<MonitorElement*> h2;
   std::vector<MonitorElement*> h3;
   std::vector<MonitorElement*> h4;
   std::vector<MonitorElement*> h5;
+  std::vector<MonitorElement*> h6;
+  std::vector<MonitorElement*> h7;
+  std::vector<MonitorElement*> h8;
+  std::vector<MonitorElement*> h9;
   std::vector<MonitorElement*> htmp;
+  std::vector<MonitorElement*> totalCharge;
 
   std::vector< std::vector<MonitorElement*> > h100;
   std::vector< std::vector<MonitorElement*> > h200;
@@ -67,6 +72,9 @@ private:
   std::vector< std::vector<double> > subTrackerLength;
   std::vector<double> tmpRadius;
   std::vector<double> tmpLength;
+
+  std::vector<unsigned> stoppedPions;
+  std::vector<unsigned> interactingPions;
   /*
   std::vector<MonitorElement*> h6;
   std::vector<MonitorElement*> h7;
@@ -84,6 +92,7 @@ private:
 
   int totalNEvt;
   int totalNU;
+  int maxNU;
 
 };
 
@@ -95,9 +104,16 @@ testNuclearInteractions::testNuclearInteractions(const edm::ParameterSet& p) :
   h3(2,static_cast<MonitorElement*>(0)),
   h4(2,static_cast<MonitorElement*>(0)),
   h5(2,static_cast<MonitorElement*>(0)),
+  h6(2,static_cast<MonitorElement*>(0)),
+  h7(2,static_cast<MonitorElement*>(0)),
+  h8(2,static_cast<MonitorElement*>(0)),
+  h9(2,static_cast<MonitorElement*>(0)),
   htmp(2,static_cast<MonitorElement*>(0)),
+  totalCharge(2,static_cast<MonitorElement*>(0)),
   tmpRadius(2,static_cast<double>(0.)),
   tmpLength(2,static_cast<double>(0.)),
+  stoppedPions(2,static_cast<unsigned>(0)),
+  interactingPions(2,static_cast<unsigned>(0)),
   /*
   h6(2,static_cast<MonitorElement*>(0)),
   h7(2,static_cast<MonitorElement*>(0)),
@@ -122,7 +138,9 @@ testNuclearInteractions::testNuclearInteractions(const edm::ParameterSet& p) :
 
   // Do we save the nuclear interactions?
   saveNU = p.getParameter<bool>("SaveNuclearInteractions");
-  std::cout << "Nuclear Interactions will be saved ! " << std::endl;
+  maxNU = p.getParameter<unsigned>("MaxNumberOfNuclearInteractions");
+  if ( saveNU ) 
+    std::cout << "Nuclear Interactions will be saved ! " << std::endl;
 
   // For the full sim
   mySimEvent[0] = new FSimEvent(particleFilter_);
@@ -165,6 +183,14 @@ testNuclearInteractions::testNuclearInteractions(const edm::ParameterSet& p) :
   h4[1] = dbe->book1D("FecmFast", "Fast c.m. energy fraction",100,0.,2.);
   h5[0] = dbe->book1D("FmomFull", "Full momemtum",100,0.,10.);
   h5[1] = dbe->book1D("FmomFast", "Fast momemtum",100,0.,10.);
+  h6[0] = dbe->book1D("DeltaEFull4", "Full DeltaE",2000,-1.,4.);
+  h6[1] = dbe->book1D("DeltaEFast4", "Fast DetlaE",2000,-1.,4.);
+  h7[0] = dbe->book1D("DeltaEFull3", "Full DeltaE 3 daugh",2000,-1.,4.);
+  h7[1] = dbe->book1D("DeltaEFast3", "Fast DetlaE 3 daugh",2000,-1.,4.);
+  h8[0] = dbe->book1D("DeltaMFull4", "Full DeltaE",2000,-10.,40.);
+  h8[1] = dbe->book1D("DeltaMFast4", "Fast DetlaE",2000,-10.,40.);
+  h9[0] = dbe->book1D("DeltaMFull3", "Full DeltaE 3 daugh",2000,-10.,40.);
+  h9[1] = dbe->book1D("DeltaMFast3", "Fast DetlaE 3 daugh",2000,-10.,40.);
   /*
   h6[0] = dbe->book2D("radioFullRem1", "Full Tracker radiography", 1000, 0.,320.,1000,0., 150. );
   h6[1] = dbe->book2D("radioFastRem1", "Fast Tracker radiography", 1000, 0.,320.,1000,0., 150. );
@@ -185,6 +211,8 @@ testNuclearInteractions::testNuclearInteractions(const edm::ParameterSet& p) :
   // Beam Pipe
   htmp[0] = dbe->book1D("BeamPipeFull", "Full Beam Pipe",120,0.,3.);
   htmp[1] = dbe->book1D("BeamPipeFast", "Fast Beam Pipe",120,0.,3.);
+  totalCharge[0] = dbe->book1D("ChargeFull", "Total Charge (full)",19,-9.5,9.5);
+  totalCharge[1] = dbe->book1D("ChargeFast", "Total Charge (fast)",19,-9.5,9.5);
   tmpRadius[0] = 3.8;
   tmpRadius[1] = 3.05;
   tmpLength[0] = 999.;
@@ -654,6 +682,9 @@ testNuclearInteractions::testNuclearInteractions(const edm::ParameterSet& p) :
 
 testNuclearInteractions::~testNuclearInteractions()
 {
+  std::cout << "Number of stopped pions : " << stoppedPions[0] << " " << stoppedPions[1] << " " << std::endl;
+  std::cout << "Number of interac pions : " << interactingPions[0] << " " << interactingPions[1] << " " << std::endl;
+
   dbe->save(outputFileName);
 
   if ( saveNU ) {
@@ -707,16 +738,16 @@ testNuclearInteractions::produce(edm::Event& iEvent, const edm::EventSetup& iSet
   
   //  std::cout << "Fill fast event " << std::endl;
   /* */
-  if ( !saveNU ) { 
+  //  if ( !saveNU ) { 
     edm::Handle<std::vector<SimTrack> > fastSimTracks;
     iEvent.getByLabel("famosSimHits",fastSimTracks);
     edm::Handle<std::vector<SimVertex> > fastSimVertices;
     iEvent.getByLabel("famosSimHits",fastSimVertices);
     mySimEvent[1]->fill( *fastSimTracks, *fastSimVertices );
-  }
+  //}
   /* */
   
-  //  mySimEvent[0]->print();
+  //mySimEvent[0]->print();
   XYZTLorentzVector theProtonMomentum(0.,0.,0.,0.986);
 
   // Save the object number count for a new NUevent
@@ -735,13 +766,18 @@ testNuclearInteractions::produce(edm::Event& iEvent, const edm::EventSetup& iSet
     //    const std::vector<FSimVertex>& fsimVertices = *(mySimEvent[ievt]->vertices() );
     //    if ( !fsimVertices.size() ) continue;
     if ( !mySimEvent[ievt]->nVertices() ) continue; 
+    const FSimTrack& thePion = mySimEvent[ievt]->track(0);
 
     //    h1[ievt]->Fill(fsimVertices.size());
     //    if ( fsimVertices.size() == 1 ) continue;  
     h1[ievt]->Fill(mySimEvent[ievt]->nVertices());
+    // Count stopping particles
+    if ( mySimEvent[ievt]->nVertices() == 1 ) { 
+      if ( thePion.trackerSurfaceMomentum().e() < 1E-10 ) ++stoppedPions[ievt];
+    }
     if ( mySimEvent[ievt]->nVertices() == 1 ) continue;  
 
-    FSimVertex& thePionVertex = mySimEvent[ievt]->vertex(1);
+    const FSimVertex& thePionVertex = mySimEvent[ievt]->vertex(1);
 
     double zed = thePionVertex.position().z();
     double radius = thePionVertex.position().pt();
@@ -751,7 +787,7 @@ testNuclearInteractions::produce(edm::Event& iEvent, const edm::EventSetup& iSet
 		        thePionVertex.position().pt());
 
     // Pion's number of daughters
-    FSimTrack& thePion = mySimEvent[ievt]->track(0);
+    // FSimTrack& thePion = mySimEvent[ievt]->track(0);
  
     unsigned ndaugh = thePionVertex.nDaughters();
     h2[ievt]->Fill(ndaugh);
@@ -768,23 +804,79 @@ testNuclearInteractions::produce(edm::Event& iEvent, const edm::EventSetup& iSet
       lastDaughter = thePionVertex.daughters()[thePionVertex.nDaughters()-1];
       firstDaughter = thePionVertex.daughters()[0];
     }
+    // Reject charged pion/kaon leptonic decays (already simulated in FAMOS)
+    //    if ( thePionVertex.nDaughters() == 1 ) { 
+    //      const FSimTrack& myDaugh = mySimEvent[ievt]->track(firstDaughter);
+    //      if (abs(myDaugh.type()) == 11 || abs(myDaugh.type()) == 13 ) return;
+    //    } 
+    
+    XYZTLorentzVector totMoth = thePion.momentum();
+    XYZTLorentzVector totDaugh(0.,0.,0.,0.);
+    // double qMoth = thePion.charge();
+    // double qDaugh = 0;
+    unsigned nleptons=0;
+    unsigned nothers=0;
+    if(!(firstDaughter<0||lastDaughter<0)) {
+      for(int idaugh=firstDaughter;idaugh<=lastDaughter;++idaugh) {
+	const FSimTrack& myDaugh = mySimEvent[ievt]->track(idaugh);
+	totDaugh += myDaugh.momentum();
+	//  qDaugh += myDaugh.charge();
+	// Count the leptons
+	if ( abs(myDaugh.type()) == 11 || abs(myDaugh.type()) == 13 ) ++nleptons;
+	// Count the hadrons
+	if ( abs(myDaugh.type()) != 111 && abs(myDaugh.type()) != 211 ) ++nothers;
+      }
+    }
 
-    // Reject pion decays (already simulated in FAMOS)
-    if ( thePionVertex.nDaughters() == 1 ) { 
-      FSimTrack myDaugh = mySimEvent[ievt]->track(firstDaughter);
-      if (abs(myDaugh.type()) == 11 || abs(myDaugh.type()) == 13 ) return;
-    } 
+    // Reject decays (less than one/four daughters, for pions and kaons)
+    if ( ( abs(thePion.type()) == 211 && ndaugh == 1) || 
+	 ( abs(thePion.type()) == 130 && ndaugh < 4 ) || 
+	 ( abs(thePion.type()) == 321 && ndaugh < 4 ) ) { 
+
+      double diffE = (totMoth-totDaugh).E();
+      double diffP = std::sqrt((totMoth-totDaugh).Vect().Mag2());
+      double diffm = totMoth.M2()-totDaugh.M2();
+      // double diffQ = qMoth-qDaugh;
+      // Neutral particles (K0L) don't experience dE/dx nor multiple scattering nor B deflection. 
+      // E,p are conserved!
+      if ( abs(thePion.type()) == 130 && fabs(diffE) < 1E-5 && diffP < 1E-5 ) return; 
+      // Low-multiplicity final states with one electron or one muon 
+      // usually don't come from an interaction. All pions are taken care
+      // of by this cut
+      if ( nleptons == 1 ) return;
+      // Reserve of tricks in case it does not work
+      /*
+      BaseParticlePropagator pDaugh(totDaugh,thePion.endVertex().position(),qDaugh);
+      double d0 = pDaugh.xyImpactParameter();
+      double z0 = pDaugh.zImpactParameter();
+      pDaugh.propagateToNominalVertex();
+      diffP = std::sqrt((totMoth-pDaugh.Momentum()).Vect().Mag2());
+      */
+      // Charge kaons may experience dE/dx and multiple scattering -> relax the cuts
+      h7[ievt]->Fill(diffE);
+      h9[ievt]->Fill(diffm);
+      if ( abs(thePion.type()) != 211 &&      // Ignore pions 
+	   diffE > -1E-5 && diffE < 0.1 &&    // Small deltaE - to be checked as f(E)
+	   nothers == 0 ) return;             // Only pions in the decays
+      h6[ievt]->Fill(diffE);
+      h8[ievt]->Fill(diffm);
+    }  
+
+    if ( ndaugh )
+      ++interactingPions[ievt];
+    else  
+      ++stoppedPions[ievt];
 
     // Find the daughters, and boost them.
     if(!(firstDaughter<0||lastDaughter<0)) {
-	  
+
       // Compute the boost for the cm frame, and the cm energy.
       XYZTLorentzVector theBoost = thePion.momentum()+theProtonMomentum;
       double ecm = theBoost.mag();
       theBoost /=  theBoost.e();
       RawParticle theTotal(XYZTLorentzVector(0.,0.,0.,0.));
 
-      if ( ievt == 0 && saveNU ) {
+      if ( ievt == 0 && saveNU && totalNEvt < maxNU) {
 	NUEvent::NUInteraction interaction;
 	interaction.first = nuEvent->nParticles();
 	interaction.last = interaction.first + lastDaughter - firstDaughter;
@@ -792,17 +884,19 @@ testNuclearInteractions::produce(edm::Event& iEvent, const edm::EventSetup& iSet
 	++totalNU;
       }
 
+      double qTot = 0.;
       for(int idaugh=firstDaughter;idaugh<=lastDaughter;++idaugh) {
 
 	// Boost the tracks
-	FSimTrack myDaugh = mySimEvent[ievt]->track(idaugh);
+	const FSimTrack& myDaugh = mySimEvent[ievt]->track(idaugh);
+	qTot += myDaugh.charge();
 	//	std::cout << "Daughter " << idaugh << " " << myDaugh << std::endl;
         RawParticle theMom(myDaugh.momentum());
 	theMom.boost(-theBoost.x(),-theBoost.y(),-theBoost.z());
 	theTotal += theMom;
 
  	// Save the fully simulated tracks
-	if ( ievt == 0 && saveNU ) { 
+	if ( ievt == 0 && saveNU && totalNEvt <= maxNU) { 
 	  NUEvent::NUParticle particle;
 	  particle.px = theMom.px()/ecm;
 	  particle.py = theMom.py()/ecm;
@@ -815,10 +909,14 @@ testNuclearInteractions::produce(edm::Event& iEvent, const edm::EventSetup& iSet
 	}
       }
 
+
       // Save some histograms
       h3[ievt]->Fill(ecm);
       h4[ievt]->Fill(theTotal.mag()/ecm);
       h5[ievt]->Fill(sqrt(theTotal.Vect().mag2()));
+
+      // Total charge of daughters
+      totalCharge[ievt]->Fill(qTot);
 
       // Fill the individual layer histograms !
       bool filled = false;
@@ -853,10 +951,10 @@ testNuclearInteractions::produce(edm::Event& iEvent, const edm::EventSetup& iSet
     }
     
     // Save the fully simulated tracks from the nuclear interaction
-    if ( ievt == 0 && saveNU ) {
+    if ( ievt == 0 && saveNU && totalNEvt <= maxNU ) {
       //      std::cout << "Saved " << nuclSimTracks->size() 
       //		<< " simTracks in the Event" << std::endl;
-      iEvent.put(nuclSimTracks);
+      // iEvent.put(nuclSimTracks);
 
       //      std::cout << "Number of interactions in nuEvent = "
       //		<< nuEvent->nInteractions() << std::endl;

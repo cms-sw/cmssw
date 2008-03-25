@@ -1,9 +1,8 @@
-// $Id: testRangeMap.cc,v 1.12 2006/03/20 17:32:00 tboccali Exp $
+// $Id: testRangeMap.cc,v 1.13 2007/01/22 23:56:59 wmtan Exp $
 #include <cppunit/extensions/HelperMacros.h>
 #include "DataFormats/Common/interface/RangeMap.h"
 #include "DataFormats/Common/interface/CopyPolicy.h"
 
-#include "DataFormats/DetId/interface/DetId.h"
 
 
 class testRangeMap : public CppUnit::TestFixture {

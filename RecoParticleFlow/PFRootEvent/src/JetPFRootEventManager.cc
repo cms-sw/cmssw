@@ -47,7 +47,7 @@ JetPFRootEventManager::JetPFRootEventManager(const char* file):
   caloTowersCand_(new edm::OwnVector<reco::Candidate, edm::ClonePolicy<reco::Candidate> >),
   particleFlowCand_(new edm::OwnVector<reco::Candidate, edm::ClonePolicy<reco::Candidate> >),
   reccalojets_(new vector<reco::CaloJet>),   
-  recpfjets_(new vector<reco::BasicJet>),
+  recpfjets_(new vector<reco::PFJet>),
   test_(new edm::OwnVector<reco::Candidate, edm::ClonePolicy<reco::Candidate> >){		
 	
   options_ = 0;	
@@ -72,6 +72,7 @@ JetPFRootEventManager::~JetPFRootEventManager() {
 void JetPFRootEventManager::print() { 	
   if (jetMaker_)  jetMaker_->print();
   cout <<"Opt: jetsDebugCMSSW " << jetsDebugCMSSW_  <<endl; 
+  cout <<"Opt: algoType " << algoType_  <<endl; 
 } 
 
 //-----------------------------------------------------------
@@ -191,7 +192,9 @@ void JetPFRootEventManager::readOptions(const char* file, bool refresh) {
 	
   /// jets options ---------------------------------;
   jetsDebugCMSSW_ = false;
-  options_->GetOpt("CMSSWjets", "jetsDebugCMSSW", jetsDebugCMSSW_); 
+  options_->GetOpt("CMSSWjets", "jetsDebugCMSSW", jetsDebugCMSSW_);
+  algoType_=3; //FastJet as Default
+  options_->GetOpt("CMSSWjets", "Algo", algoType_);
   mEtInputCut_ = 0.5;
   options_->GetOpt("CMSSWjets", "EtInputCut",  mEtInputCut_);		
   mEInputCut_ = 0.;
@@ -225,7 +228,7 @@ void JetPFRootEventManager::readOptions(const char* file, bool refresh) {
   jetMaker_->setOverlapThreshold(overlapThreshold_) ;
   jetMaker_->setPtMin (ptMin_);
   jetMaker_->setRParam (rparam_);
-
+  jetMaker_->updateParameter();
 
     if (jetsDebugCMSSW_) {      
       print();
@@ -269,9 +272,19 @@ void JetPFRootEventManager::makeFWLiteJets(const reco::CandidateCollection& Cand
   JetReco::InputCollection input;
   vector <ProtoJet> output;
   jetMaker_->applyCuts (Candidates, &input);	 
-	
-  /// Produce jet collection using CMS Iterative Cone Algorithm	
-  jetMaker_->makeFastJets(input, &output);
+  if (algoType_==1) {// ICone 
+    /// Produce jet collection using CMS Iterative Cone Algorithm	
+   jetMaker_->makeIterativeConeJets(input, &output);
+  }
+  if (algoType_==2) {// MCone
+    jetMaker_->makeMidpointJets(input, &output);
+  }	
+  if (algoType_==3) {// Fastjet
+    jetMaker_->makeFastJets(input, &output);  
+  }
+  if((algoType_>3)||(algoType_<0)) {
+    cout<<"Unknown Jet Algo ! " <<algoType_ << endl;
+  }
   if (jetsDebugCMSSW_)cout<<"Proto Jet Size " <<output.size()<<endl;
   vector <ProtoJet>::const_iterator protojet = output.begin ();
   if (jetsDebugCMSSW_){	

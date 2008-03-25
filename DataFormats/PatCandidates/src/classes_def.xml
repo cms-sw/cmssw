@@ -1,0 +1,128 @@
+<lcgdict>
+
+  <!-- To check: -->
+  <!-- These dont belong here, and maybe they already exist in the meantime -->
+  <class name="std::pair<int, float>" />
+  <class name="std::pair<float, float>" />
+  <class name="std::pair<std::string, float>" />
+  <class name="std::vector<std::pair<int, float> > " />
+  <class name="std::vector<std::vector<std::pair<int, float> > >" />
+  <class name="std::vector<std::pair<float, float> >" />
+  <class name="std::pair<unsigned int, std::vector<unsigned int> >" />
+  <class name="std::vector<std::pair<std::string, float> >" />
+  <class name="std::vector<std::pair<unsigned int, float> >" />
+  <class name="std::pair<unsigned int, float>" />
+  <class name="std::vector<std::pair<std::string, reco::JetTagRef> >" />
+  <class name="std::pair<std::string, reco::JetTagRef>" />
+
+  <class name="pat::PATObject<pat::ElectronType>" />
+  <class name="pat::PATObject<pat::MuonType>" />
+  <class name="pat::PATObject<pat::TauType>" />
+  <class name="pat::PATObject<pat::PhotonType>" />
+  <class name="pat::PATObject<pat::JetType>" />
+  <class name="pat::PATObject<pat::METType>" />
+  <class name="pat::PATObject<pat::ParticleType>" />
+  <class name="pat::Lepton<pat::ElectronType>" />
+  <class name="pat::Lepton<pat::MuonType>" />
+  <class name="pat::Lepton<pat::TauType>" />
+  <class name="pat::Electron" />
+  <class name="pat::Muon" />
+  <class name="pat::Tau" />
+  <class name="pat::Photon" />
+  <class name="pat::Jet" />
+  <class name="pat::MET" />
+  <class name="pat::Particle" />
+  <class name="std::vector<pat::Electron>" />
+  <class name="std::vector<pat::Muon>" />
+  <class name="std::vector<pat::Tau>" />
+  <class name="std::vector<pat::Photon>" />
+  <class name="std::vector<pat::Jet>" />
+  <class name="std::vector<pat::MET>" />
+  <class name="std::vector<pat::Particle>" />
+  <class name="edm::Wrapper<std::vector<pat::Electron> >" />
+  <class name="edm::Wrapper<std::vector<pat::Muon> >" />
+  <class name="edm::Wrapper<std::vector<pat::Tau> >" />
+  <class name="edm::Wrapper<std::vector<pat::Photon> >" />
+  <class name="edm::Wrapper<std::vector<pat::Jet> >" />
+  <class name="edm::Wrapper<std::vector<pat::MET> >" />
+  <class name="edm::Wrapper<std::vector<pat::Particle> >" />
+  <class name="pat::ElectronRef" />
+  <class name="pat::MuonRef" />
+  <class name="pat::TauRef" />
+  <class name="pat::PhotonRef" />
+  <class name="pat::JetRef" />
+  <class name="pat::METRef" />
+  <class name="pat::ParticleRef" />
+
+  <class name="pat::JetCorrFactors" />
+  <class name="std::vector<pat::JetCorrFactors>" />
+  <class name="edm::Wrapper<pat::JetCorrFactors>" />
+  <class name="edm::ValueMap<pat::JetCorrFactors>" />
+  <class name="edm::Wrapper<edm::ValueMap<pat::JetCorrFactors> >" />
+
+  <class name="std::pair<std::string,int32_t>" />
+  <class name="std::vector<std::pair<std::string,int32_t> >" />
+  <class name="StringMap" />
+  <class name="edm::Wrapper<StringMap>" />
+
+  <class name="std::pair<std::string,edm::RefToBase<reco::Candidate> >" />
+  <class name="std::vector<std::pair<std::string,edm::RefToBase<reco::Candidate> > >" />
+  <class name="pat::EventHypothesis" />
+  <class name="std::vector<pat::EventHypothesis>" />
+  <class name="edm::Wrapper<std::vector<pat::EventHypothesis> >" />
+
+  <class name="edm::reftobase::RefHolder<edm::Ref<std::vector<reco::MET>,reco::MET,edm::refhelper::FindUsingAdvance<std::vector<reco::MET>,reco::MET> > >" />
+  <class name="edm::reftobase::RefHolder<edm::Ref<std::vector<reco::CaloMET>,reco::CaloMET,edm::refhelper::FindUsingAdvance<std::vector<reco::CaloMET>,reco::CaloMET> > >" />
+  <class name="edm::reftobase::RefHolder<edm::Ref<std::vector<reco::GenMET>,reco::GenMET,edm::refhelper::FindUsingAdvance<std::vector<reco::GenMET>,reco::GenMET> > >" />
+
+  <class name="std::vector<reco::JetTagRef> "/>
+  <class name="edm::ValueMap<reco::JetTagRef>" />
+  <class name="edm::Wrapper<edm::ValueMap<reco::JetTagRef> >" />
+
+  <class name="edm::Association<reco::GenJetCollection>" />
+  <class name="edm::Wrapper<edm::Association<reco::GenJetCollection> >" />
+
+   <class name="edm::RefToBase<pat::ElectronType>" />
+   <class name="edm::reftobase::BaseHolder<pat::ElectronType>" />
+   <class name="edm::reftobase::IndirectHolder<pat::ElectronType>" />
+   <class name="edm::reftobase::Holder<pat::ElectronType, pat::ElectronTypeRef>" />
+   <class name="edm::reftobase::Holder<pat::ElectronType, pat::ElectronRef>" />
+   <class name="edm::reftobase::RefHolder<pat::ElectronRef>" />
+   <class name="edm::RefToBase<pat::MuonType>" />
+   <class name="edm::reftobase::BaseHolder<pat::MuonType>" />
+   <class name="edm::reftobase::IndirectHolder<pat::MuonType>" />
+   <class name="edm::reftobase::Holder<pat::MuonType, pat::MuonTypeRef>" />
+   <class name="edm::reftobase::Holder<pat::MuonType, pat::MuonRef>" />
+   <class name="edm::reftobase::RefHolder<pat::MuonRef>" />
+   <class name="edm::RefToBase<pat::TauType>" />
+   <class name="edm::reftobase::BaseHolder<pat::TauType>" />
+   <class name="edm::reftobase::IndirectHolder<pat::TauType>" />
+   <class name="edm::reftobase::Holder<pat::TauType, pat::TauTypeRef>" />
+   <class name="edm::reftobase::Holder<pat::TauType, pat::TauRef>" />
+   <class name="edm::reftobase::RefHolder<pat::TauRef>" />
+   <class name="edm::RefToBase<pat::PhotonType>" />
+   <class name="edm::reftobase::BaseHolder<pat::PhotonType>" />
+   <class name="edm::reftobase::IndirectHolder<pat::PhotonType>" />
+   <class name="edm::reftobase::Holder<pat::PhotonType, pat::PhotonTypeRef>" />
+   <class name="edm::reftobase::Holder<pat::PhotonType, pat::PhotonRef>" />
+   <class name="edm::reftobase::RefHolder<pat::PhotonRef>" />
+   <class name="edm::RefToBase<pat::JetType>" />
+   <class name="edm::reftobase::BaseHolder<pat::JetType>" />
+   <class name="edm::reftobase::IndirectHolder<pat::JetType>" />
+   <class name="edm::reftobase::Holder<pat::JetType, pat::JetTypeRef>" />
+   <class name="edm::reftobase::Holder<pat::JetType, pat::JetRef>" />
+   <class name="edm::reftobase::RefHolder<pat::JetRef>" />
+   <class name="edm::RefToBase<pat::METType>" />
+   <class name="edm::reftobase::BaseHolder<pat::METType>" />
+   <class name="edm::reftobase::IndirectHolder<pat::METType>" />
+   <class name="edm::reftobase::Holder<pat::METType, pat::METTypeRef>" />
+   <class name="edm::reftobase::Holder<pat::METType, pat::METRef>" />
+   <class name="edm::reftobase::RefHolder<pat::METRef>" />
+   <class name="edm::RefToBase<pat::ParticleType>" />
+   <class name="edm::reftobase::BaseHolder<pat::ParticleType>" />
+   <class name="edm::reftobase::IndirectHolder<pat::ParticleType>" />
+   <class name="edm::reftobase::Holder<pat::ParticleType, pat::ParticleTypeRef>" />
+   <class name="edm::reftobase::Holder<pat::ParticleType, pat::ParticleRef>" />
+   <class name="edm::reftobase::RefHolder<pat::ParticleRef>" />
+</lcgdict>
+

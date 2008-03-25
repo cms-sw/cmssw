@@ -1,0 +1,5 @@
+<use name=PhysicsTools/Utilities>
+<export>
+  <lib name=ElectroWeakAnalysisZMuMu>
+  <use name=PhysicsTools/Utilities>
+</export>

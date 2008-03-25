@@ -1,7 +1,7 @@
 /** \file RPCRingFromRolls.cc
  *
- *  $Date: 2007/01/30 08:12:54 $
- *  $Revision: 1.7 $
+ *  $Date: 2007/04/13 16:40:10 $
+ *  $Revision: 1.8 $
  *  \author Tomasz Fruboes
  */
 #include "L1Trigger/RPCTrigger/interface/RPCRingFromRolls.h"
@@ -585,13 +585,21 @@ void RPCRingFromRolls::doVirtualStrips(){
     if ( isRefPlane() && m_hwPlane==6)
        stripsToAdd++; 
     
+    double dphi1 = dphi;
+    if (m_fixRPCGeo){
+      if ( m_curlId == 6105 || m_curlId == 6106 || m_curlId == 6107 ){
+         stripsToAdd+=5; 
+         dphi1 = delta/(stripsToAdd+1);
+      }
+    }
+
     stripCords sc;
     sc.m_detRawId = rawDetIDLast;
     sc.m_stripNo = 0;
     sc.m_isVirtual = true;
     for (int i = 0;i<stripsToAdd;i++){
         sc.m_stripNo--;
-        newVirtualStrips[phiMaxLast+dphi*(i+1)]=sc;
+        newVirtualStrips[phiMaxLast+dphi1*(i+1)]=sc;
         m_virtStripsInRingFromRolls++;
     }
   } // loop over dets end 

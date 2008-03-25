@@ -3,7 +3,6 @@
 
 
 SiLinearChargeCollectionDrifter::SiLinearChargeCollectionDrifter(double dc,
-								 double tm,
 								 double cdr,
 								 double dv,
 								 double av){
@@ -11,7 +10,6 @@ SiLinearChargeCollectionDrifter::SiLinearChargeCollectionDrifter(double dc,
   // Everything which does not depend on the specific det
   //
   diffusionConstant = dc;
-  temperature = tm;
   chargeDistributionRMS = cdr;
   depletionVoltage = dv;
   appliedVoltage = av;

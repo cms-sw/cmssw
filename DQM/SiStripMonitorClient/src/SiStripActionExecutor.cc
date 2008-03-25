@@ -1,10 +1,16 @@
 #include "DQM/SiStripMonitorClient/interface/SiStripActionExecutor.h"
 #include "DQM/SiStripMonitorClient/interface/SiStripUtility.h"
-#include "DQM/SiStripMonitorClient/interface/TrackerMapCreator.h"
+#include "DQM/SiStripMonitorClient/interface/SiStripSummaryCreator.h"
 #include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
+#include "DQMServices/Core/interface/MonitorUserInterface.h"
+
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DQM/SiStripCommon/interface/ExtractTObject.h"
 #include "FWCore/ParameterSet/interface/FileInPath.h"
+
+#include "TH1F.h"
+#include "TH2F.h"
+#include "TProfile.h"
 
 #include <iostream>
 using namespace std;
@@ -14,7 +20,7 @@ using namespace std;
 SiStripActionExecutor::SiStripActionExecutor() {
   edm::LogInfo("SiStripActionExecutor") << 
     " Creating SiStripActionExecutor " << "\n" ;
-  configParser_ = 0;
+  //  configParser_ = 0;
   qtHandler_ = 0;
   summaryCreator_= 0;
   collationDone = false;
@@ -25,84 +31,55 @@ SiStripActionExecutor::SiStripActionExecutor() {
 SiStripActionExecutor::~SiStripActionExecutor() {
   edm::LogInfo("SiStripActionExecutor") << 
     " Deleting SiStripActionExecutor " << "\n" ;
-  if (configParser_) delete configParser_;
+  //  if (configParser_) delete configParser_;
   if (qtHandler_) delete qtHandler_;
   if (summaryCreator_) delete   summaryCreator_;
-
 }
 //
 // -- Read Configurationn File
 //
 void SiStripActionExecutor::readConfiguration() {
-  string localPath = string("DQM/SiStripMonitorClient/test/sistrip_monitorelement_config.xml");
-  if (configParser_ == 0) {
-    configParser_ = new SiStripConfigParser();
-    configParser_->getDocument(edm::FileInPath(localPath).fullPath());
+  
+  if (!summaryCreator_) {
+    summaryCreator_ = new SiStripSummaryCreator();
   }
+  summaryCreator_->readConfiguration();
 }
 //
 // -- Read Configurationn File
 //
-bool SiStripActionExecutor::readConfiguration(int& tkmap_freq, int& sum_freq) {
-  string localPath = string("DQM/SiStripMonitorClient/test/sistrip_monitorelement_config.xml");
-  if (configParser_ == 0) {
-    configParser_ = new SiStripConfigParser();
-    configParser_->getDocument(edm::FileInPath(localPath).fullPath());
-  }
-  if (!configParser_->getFrequencyForTrackerMap(tkmap_freq)){
-    cout << "SiStripActionExecutor::readConfiguration: Failed to read TrackerMap configuration parameters!! ";
-    return false;
-  }
-  if (!configParser_->getFrequencyForSummary(sum_freq)){
-    cout << "SiStripActionExecutor::readConfiguration: Failed to read Summary configuration parameters!! ";
-    return false;
-  }
-  return true;
+bool SiStripActionExecutor::readConfiguration(int& sum_freq) {
+  readConfiguration();
+  sum_freq = summaryCreator_->getFrequency();
+  if (sum_freq == -1) return false;
+  else return true;
 }
 //
-// -- Create Tracker Map
+// -- Create and Fill Tracker Map
 //
-void SiStripActionExecutor::createTkMap(MonitorUserInterface* mui) {
-  string tkmap_name;
-  vector<string> me_names;
-  if (!configParser_->getMENamesForTrackerMap(tkmap_name, tkMapMENames)){
-    cout << "SiStripActionExecutor::createTkMap: Failed to read TrackerMap configuration parameters!! ";
-    return;
-  }
-  cout << " # of MEs in Tk Map " << tkMapMENames.size() << endl;
- 
-  // Create and Fill the Tracker Map
-  mui->cd();
-  if (collationDone) mui->cd("Collector/Collated/SiStrip");
-
-  TrackerMapCreator tkmap_creator;
-  tkmap_creator.create(mui, tkMapMENames);
-  
-  mui->cd();  
-}
-// -- Browse through the Folder Structure
+//void SiStripActionExecutor::createTkMap(DaqMonitorBEInterface* bei) {
+//  bei->cd();
+//  if (collationDone) bei->cd("Collector/Collated/SiStrip");
 //
-void SiStripActionExecutor::createSummary(MonitorUserInterface* mui) {
-  if (!summaryCreator_) summaryCreator_ = new SiStripSummaryCreator();
-
-  map<string,string> summary_mes;
-  if (!configParser_->getMENamesForSummary(summary_mes)) {
-    cout << "SiStripActionExecutor::createSummary: Failed to read Summary configuration parameters!! ";
-    return;
-  }
-  summaryCreator_->setSummaryMENames(summary_mes);
-  mui->cd();
+//  tkMapCreator_->create(bei);
+//  
+//  bei->cd();  
+//}
+// -- Create and Fill Summary Monitor Elements
+//
+void SiStripActionExecutor::createSummary(DaqMonitorBEInterface* bei) {
+  bei->cd();
   if (collationDone) {
     cout << " Creating Summary with Collated Monitor Elements " << endl;
-    mui->cd("Collector/Collated/SiStrip");
-    summaryCreator_->createSummary(mui);
-    mui->cd();
-  } else summaryCreator_->createSummary(mui);
+    bei->cd("Collector/Collated/SiStrip");
+    summaryCreator_->createSummary(bei);
+    bei->cd();
+  } else summaryCreator_->createSummary(bei);
 }
 //
 // -- Setup Quality Tests 
 //
-void SiStripActionExecutor::setupQTests(MonitorUserInterface * mui) {
+void SiStripActionExecutor::setupQTests(MonitorUserInterface* mui) {
   mui->cd();
   if (collationDone) mui->cd("Collector/Collated/SiStrip");
   string localPath = string("DQM/SiStripMonitorClient/test/sistrip_qualitytest_config.xml");
@@ -120,11 +97,11 @@ void SiStripActionExecutor::setupQTests(MonitorUserInterface * mui) {
 //
 //
 //
-void SiStripActionExecutor::createCollation(MonitorUserInterface * mui){
-  string currDir = mui->pwd();
+void SiStripActionExecutor::createCollation(MonitorUserInterface* mui){
+  string currDir = mui->getBEInterface()->pwd();
   map<string, vector<string> > collation_map;
   vector<string> contentVec;
-  mui->getContents(contentVec);
+  mui->getBEInterface()->getContents(contentVec);
 
   for (vector<string>::iterator it = contentVec.begin();
       it != contentVec.end(); it++) {
@@ -137,7 +114,7 @@ void SiStripActionExecutor::createCollation(MonitorUserInterface * mui){
       
       string me_path = dir_path + (*ic);
       string path = dir_path.substr(dir_path.find("SiStrip"),dir_path.size());
-      MonitorElement* me = mui->get( me_path );
+      MonitorElement* me =  mui->getBEInterface()->get( me_path );
       TProfile* prof = ExtractTObject<TProfile>().extract( me );
       TH1F* hist1 = ExtractTObject<TH1F>().extract( me );
       TH2F* hist2 = ExtractTObject<TH2F>().extract( me );
@@ -168,21 +145,17 @@ void SiStripActionExecutor::createCollation(MonitorUserInterface * mui){
 //
 // -- Save Monitor Elements in a file
 //      
-void SiStripActionExecutor::saveMEs(MonitorUserInterface* mui, string fname){
+void SiStripActionExecutor::saveMEs(DaqMonitorBEInterface* bei, string fname){
   if (collationDone) {
-    mui->save(fname,"Collector/Collated");
+    bei->save(fname,"Collector/Collated");
   } else {
-     mui->save(fname,mui->pwd(),90);
+     bei->save(fname,bei->pwd(),90);
   }
 }
 //
 // -- Get TkMap ME names
 //
-int SiStripActionExecutor::getTkMapMENames(std::vector<std::string>& names) {
-  if (tkMapMENames.size() == 0) return 0;
-  for (vector<string>::iterator it = tkMapMENames.begin();
-       it != tkMapMENames.end(); it++) {
-    names.push_back(*it) ;
-  }
-  return names.size();
-}
+//int SiStripActionExecutor::getTkMapMENames(std::vector<std::string>& names) {
+//  int nval = tkMapCreator_->getMENames(names);
+//  return nval;
+//}

@@ -5,8 +5,8 @@
 //   Description:   Dump GMT readout
 //                  
 //                
-//   $Date: 2007/03/14 08:56:33 $
-//   $Revision: 1.8 $
+//   $Date: 2007/04/02 15:45:39 $
+//   $Revision: 1.9 $
 //
 //   I. Mikulec            HEPHY Vienna
 //
@@ -114,6 +114,7 @@ void L1MuGMTDump::analyze(const edm::Event& e, const edm::EventSetup& es) {
   int igmt = 0;
   vector<L1MuGMTReadoutRecord> gmt_records = gmtrc->getRecords();
   vector<L1MuGMTReadoutRecord>::const_iterator igmtrr;
+
   for(igmtrr=gmt_records.begin(); igmtrr!=gmt_records.end(); igmtrr++) {
 
     vector<L1MuRegionalCand>::const_iterator iter1;
@@ -125,7 +126,7 @@ void L1MuGMTDump::analyze(const edm::Event& e, const edm::EventSetup& es) {
 
     rmc = igmtrr->getDTBXCands();
     for(iter1=rmc.begin(); iter1!=rmc.end(); iter1++) {
-      if ( idt < MAXDTBX ) {
+      if ( idt < MAXDTBX && !(*iter1).empty() ) {
 	bxd[idt]=(*iter1).bx();
 	ptd[idt]=(*iter1).ptValue();
 	chad[idt]=(*iter1).chargeValue();
@@ -146,7 +147,7 @@ void L1MuGMTDump::analyze(const edm::Event& e, const edm::EventSetup& es) {
 
     rmc = igmtrr->getCSCCands();
     for(iter1=rmc.begin(); iter1!=rmc.end(); iter1++) {
-      if ( icsc < MAXCSC ) {
+      if ( icsc < MAXCSC && !(*iter1).empty() ) {
 	bxc[icsc]=(*iter1).bx();
 	ptc[icsc]=(*iter1).ptValue();
 	chac[icsc]=(*iter1).chargeValue();
@@ -166,7 +167,7 @@ void L1MuGMTDump::analyze(const edm::Event& e, const edm::EventSetup& es) {
     //
     rmc = igmtrr->getBrlRPCCands();
     for(iter1=rmc.begin(); iter1!=rmc.end(); iter1++) {
-      if ( irpcb < MAXRPC ) {
+      if ( irpcb < MAXRPC && !(*iter1).empty() ) {
 	bxrb[irpcb]=(*iter1).bx();
 	ptrb[irpcb]=(*iter1).ptValue();
 	charb[irpcb]=(*iter1).chargeValue();
@@ -183,7 +184,7 @@ void L1MuGMTDump::analyze(const edm::Event& e, const edm::EventSetup& es) {
     //
     rmc = igmtrr->getFwdRPCCands();
     for(iter1=rmc.begin(); iter1!=rmc.end(); iter1++) {
-      if ( irpcf < MAXRPC ) {
+      if ( irpcf < MAXRPC && !(*iter1).empty() ) {
 	bxrf[irpcf]=(*iter1).bx();
 	ptrf[irpcf]=(*iter1).ptValue();
 	charf[irpcf]=(*iter1).chargeValue();
@@ -202,7 +203,7 @@ void L1MuGMTDump::analyze(const edm::Event& e, const edm::EventSetup& es) {
     vector<L1MuGMTExtendedCand>::const_iterator gmt_iter;
     vector<L1MuGMTExtendedCand> exc = igmtrr->getGMTCands();
     for(gmt_iter=exc.begin(); gmt_iter!=exc.end(); gmt_iter++) {
-      if ( igmt < MAXGMT ) {
+      if ( igmt < MAXGMT && !(*gmt_iter).empty() ) {
 	bxg[igmt]=(*gmt_iter).bx();
 	ptg[igmt]=(*gmt_iter).ptValue();
 	chag[igmt]=(*gmt_iter).charge();

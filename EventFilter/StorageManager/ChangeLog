@@ -1,3 +1,33 @@
+2007-08-22  Emilio Meschi <Emilio.Meschi@cern.ch>
+
+	* tag V03-07-02
+	* fixed icon paths in application web page
+
+2007-08-19  Harry Cheung <cheung@fnal.gov>
+
+	* tag V03-07-01
+        * Check that output base path, mailbox path, and perl script files 
+          actually exist during configure action, go into fail state if
+          any of these do not exist.
+
+2007-08-18  Harry Cheung <cheung@fnal.gov>
+
+	* tag V03-07-00
+        * changes to move parameters out of streamer output modules and
+          allow default values. So online parameters are in the SM XDAQ XML file
+          while offline parameters have defaults and can be missing from the
+          config file. The parameters common to all streams appear in the XML
+          file, while each specific stay in the SM config file.
+        * Change to allow the Storage Manager main thread to see the status of
+          the FragmentCollector thread, and print out error messages for problems.
+          Can later do cleanup and change to a fail state is desired.
+
+2007-08-16  Harry Cheung <cheung@fnal.gov>
+
+	* tag V03-06-00
+        * changes to enter a failed state on problem with an action and
+          reporting the state and reason for failure in application web page
+
 2007-06-30  Harry Cheung <cheung@fnal.gov>
 
 	* tag V03-04-08

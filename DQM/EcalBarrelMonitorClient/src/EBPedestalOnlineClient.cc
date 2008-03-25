@@ -1,8 +1,8 @@
 /*
  * \file EBPedestalOnlineClient.cc
  *
- * $Date: 2007/05/22 15:05:47 $
- * $Revision: 1.91 $
+ * $Date: 2007/08/09 12:24:18 $
+ * $Revision: 1.93 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -258,66 +258,75 @@ void EBPedestalOnlineClient::cleanup(void) {
 
 }
 
-bool EBPedestalOnlineClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIOV* moniov, int ism) {
+bool EBPedestalOnlineClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIOV* moniov) {
 
   bool status = true;
 
-  UtilsClient::printBadChannels(qth03_[ism-1]);
-
-//  UtilsClient::printBadChannels(qtg03_[ism-1]);
-
   EcalLogicID ecid;
+
   MonPedestalsOnlineDat p;
   map<EcalLogicID, MonPedestalsOnlineDat> dataset;
 
-  float num03;
-  float mean03;
-  float rms03;
+  for ( unsigned int i=0; i<superModules_.size(); i++ ) {
 
-  for ( int ie = 1; ie <= 85; ie++ ) {
-    for ( int ip = 1; ip <= 20; ip++ ) {
+    int ism = superModules_[i];
 
-      bool update03;
+    cout << " SM=" << ism << endl;
 
-      update03 = UtilsClient::getBinStats(h03_[ism-1], ie, ip, num03, mean03, rms03);
+    UtilsClient::printBadChannels(qth03_[ism-1]);
 
-      if ( update03 ) {
+//    UtilsClient::printBadChannels(qtg03_[ism-1]);
 
-        if ( ie == 1 && ip == 1 ) {
+    float num03;
+    float mean03;
+    float rms03;
 
-          cout << "Preparing dataset for SM=" << ism << endl;
+    for ( int ie = 1; ie <= 85; ie++ ) {
+      for ( int ip = 1; ip <= 20; ip++ ) {
 
-          cout << "G12 (" << ie << "," << ip << ") " << num03  << " " << mean03 << " " << rms03  << endl;
+        bool update03;
 
-          cout << endl;
+        update03 = UtilsClient::getBinStats(h03_[ism-1], ie, ip, num03, mean03, rms03);
 
-        }
+        if ( update03 ) {
 
-        p.setADCMeanG12(mean03);
-        p.setADCRMSG12(rms03);
+          if ( ie == 1 && ip == 1 ) {
 
-        if ( meg03_[ism-1] && int(meg03_[ism-1]->getBinContent( ie, ip )) % 3 == 1 ) {
-          p.setTaskStatus(true);
-        } else {
-          p.setTaskStatus(false);
-        }
+            cout << "Preparing dataset for SM=" << ism << endl;
 
-        status = status && UtilsClient::getBinQual(meg03_[ism-1], ie, ip);
+            cout << "G12 (" << ie << "," << ip << ") " << num03  << " " << mean03 << " " << rms03  << endl;
 
-        int ic = (ip-1) + 20*(ie-1) + 1;
+            cout << endl;
 
-        if ( econn ) {
-          try {
-            ecid = LogicID::getEcalLogicID("EB_crystal_number", Numbers::iSM(ism), ic);
-            dataset[ecid] = p;
-          } catch (runtime_error &e) {
-            cerr << e.what() << endl;
           }
+
+          p.setADCMeanG12(mean03);
+          p.setADCRMSG12(rms03);
+
+          if ( meg03_[ism-1] && int(meg03_[ism-1]->getBinContent( ie, ip )) % 3 == 1 ) {
+            p.setTaskStatus(true);
+          } else {
+            p.setTaskStatus(false);
+          }
+
+          status = status && UtilsClient::getBinQual(meg03_[ism-1], ie, ip);
+
+          int ic = (ip-1) + 20*(ie-1) + 1;
+
+          if ( econn ) {
+            try {
+              ecid = LogicID::getEcalLogicID("EB_crystal_number", Numbers::iSM(ism, EcalBarrel), ic);
+              dataset[ecid] = p;
+            } catch (runtime_error &e) {
+              cerr << e.what() << endl;
+            }
+          }
+
         }
 
       }
-
     }
+
   }
 
   if ( econn ) {
@@ -530,7 +539,7 @@ void EBPedestalOnlineClient::analyze(void){
 
             int ic = (ip-1) + 20*(ie-1) + 1;
 
-            if ( ecid.getID1() == Numbers::iSM(ism) && ecid.getID2() == ic ) {
+            if ( ecid.getID1() == Numbers::iSM(ism, EcalBarrel) && ecid.getID2() == ic ) {
               if ( (m->second).getErrorBits() & bits03 ) {
                 if ( meg03_[ism-1] ) {
                   float val = int(meg03_[ism-1]->getBinContent(ie, ip)) % 3;
@@ -616,7 +625,7 @@ void EBPedestalOnlineClient::htmlOutput(int run, string htmlDir, string htmlName
 
   string imgNameQual, imgNameMean, imgNameRMS, imgName, meName;
 
-  TCanvas* cQual = new TCanvas("cQual", "Temp", 2*csize, csize);
+  TCanvas* cQual = new TCanvas("cQual", "Temp", 3*csize, csize);
   TCanvas* cMean = new TCanvas("cMean", "Temp", csize, csize);
   TCanvas* cRMS = new TCanvas("cRMS", "Temp", csize, csize);
 

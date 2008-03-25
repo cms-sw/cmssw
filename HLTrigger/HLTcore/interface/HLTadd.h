@@ -27,3 +27,23 @@ std::pair<int,int> pmid() const {
   }
   return pm;
 }
+
+/*
+const std::string* pathName() const {
+  edm::CurrentProcessingContext const* cpc(currentContext());
+  if (cpc!=0) {
+    return cpc->pathName();
+  } else {
+    return 0;
+  }
+}
+
+const std::string* moduleLabel() const {
+  edm::CurrentProcessingContext const* cpc(currentContext());
+  if (cpc!=0) {
+    return cpc->moduleLabel();
+  } else {
+    return 0;
+  }
+}
+*/

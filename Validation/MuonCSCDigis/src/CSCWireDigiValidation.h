@@ -7,9 +7,7 @@
 class CSCWireDigiValidation : public CSCBaseValidation
 {
 public:
-  CSCWireDigiValidation(DaqMonitorBEInterface* dbe, 
-                        const edm::InputTag & inputTag,
-                        bool doSim);
+  CSCWireDigiValidation(DaqMonitorBEInterface* dbe, const edm::InputTag & inputTag);
   ~CSCWireDigiValidation();
   void analyze(const edm::Event&, const edm::EventSetup&);
   void beginJob(const edm::EventSetup&) {}
@@ -19,7 +17,7 @@ public:
                       const CSCLayer * layer, int chamberType);
 
  private:
-  bool theDoSimFlag;
+
   MonitorElement* theTimeBinPlots[10];
   MonitorElement* theNDigisPerLayerPlots[10];
   MonitorElement* theResolutionPlots[10];

@@ -3,7 +3,6 @@
 <use name=TrackingTools/GeomPropagators>
 <use name=FWCore/Framework>
 <use name=FWCore/MessageLogger>
-<use name=SimG4Core/Geant4e>
 <export>
    <lib name=TrackPropagationGeant4e>
 </export>

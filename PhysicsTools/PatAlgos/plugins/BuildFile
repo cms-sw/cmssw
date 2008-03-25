@@ -1,0 +1,21 @@
+<export></export>
+<library name=PhysicsToolsPatAlgos_plugins file=*.cc>
+  <use name=PhysicsTools/PatAlgos>
+  <use name=FWCore/Framework>
+  <use name=FWCore/ParameterSet>
+  <use name=FWCore/MessageLogger>
+  <use name=FWCore/MessageService>
+  <use name=DataFormats/PatCandidates>
+  <use name=DataFormats/BTauReco>
+  <use name=DataFormats/TrackReco>
+  <use name=DataFormats/Candidate>
+  <use name=DataFormats/L1Trigger>
+  <use name=AnalysisDataFormats/Egamma>
+  <use name=PhysicsTools/PatUtils>
+  <use name=PhysicsTools/JetCharge>
+  <use name=RecoBTag/MCTools>
+  <use name=RecoMuon/MuonIdentification>
+  <use name=JetMETCorrections/Objects>
+  <use name=TrackingTools/TransientTrack>
+  <use name=root>
+</library>

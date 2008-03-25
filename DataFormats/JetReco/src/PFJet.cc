@@ -1,10 +1,9 @@
 // PFJet.cc
 // Fedor Ratnikov UMd
-// $Id: PFJet.cc,v 1.3 2007/05/08 05:34:59 fedor Exp $
+// $Id: PFJet.cc,v 1.4 2007/05/19 04:26:35 fedor Exp $
 #include <sstream>
 
 #include "FWCore/Utilities/interface/Exception.h"
-#include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
 
 //Own header file
 #include "DataFormats/JetReco/interface/PFJet.h"
@@ -25,25 +24,26 @@ PFJet::PFJet (const LorentzVector& fP4,
     m_specific (fSpecific)
 {}
 
-reco::PFBlockRef PFJet::getPFBlock (const reco::Candidate* fConstituent) {
-  if (fConstituent) {
-    const PFCandidate* candidate = dynamic_cast <const PFCandidate*> (fConstituent);
-    if (candidate) {
-      throw cms::Exception("Not implemented") << "PFJet::getPFBlock is not implemented";
-    }
-    else {
-      throw cms::Exception("Invalid Constituent") << "PFJet constituent is not of PFCandidate type";
-    }
+const reco::PFCandidate* PFJet::getPFCandidate (const reco::Candidate* fConstituent) {
+  if (!fConstituent) return 0;
+  const reco::Candidate* base = fConstituent;
+  if (fConstituent->hasMasterClone ()) 
+    base = fConstituent->masterClone().get();
+  if (!base) return 0; // not in the event
+  const PFCandidate* candidate = dynamic_cast <const PFCandidate*> (base);
+  if (!candidate) {
+    throw cms::Exception("Invalid Constituent") << "PFJet constituent is not of PFCandidate type."
+						<< "Actual type is " << typeid (*base).name();
   }
-  return PFBlockRef ();
+  return candidate;
 }
 
-reco::PFBlockRef PFJet::getConstituent (unsigned fIndex) const {
-  return getPFBlock (daughter (fIndex));
+const reco::PFCandidate* PFJet::getConstituent (unsigned fIndex) const {
+  return getPFCandidate (daughter (fIndex));
 }
 
-std::vector <PFBlockRef> PFJet::getConstituents () const {
-  std::vector <PFBlockRef> result;
+std::vector <const reco::PFCandidate*> PFJet::getConstituents () const {
+  std::vector <const reco::PFCandidate*> result;
   for (unsigned i = 0;  i <  numberOfDaughters (); i++) result.push_back (getConstituent (i));
   return result;
 }
@@ -64,15 +64,22 @@ std::string PFJet::print () const {
       << "      charged/neutral em energy: " << chargedEmEnergy () << '/' << neutralEmEnergy () << std::endl
       << "      charged muon energy: " << chargedMuEnergy () << '/' << std::endl
       << "      charged/neutral multiplicity: " << chargedMultiplicity () << '/' << neutralMultiplicity () << std::endl;
-  out << "      PF Blocks: Nothing specific is implemented" << std::endl;
-//   std::vector <PFBlockRef> towers = getConstituents ();
-//   for (unsigned i = 0; i < towers.size (); i++) {
-//     if (towers[i].get ()) {
-//       out << "      #" << i << " " << *(towers[i]) << std::endl;
-//     }
-//     else {
-//       out << "      #" << i << " PF Block is not available in the event"  << std::endl;
-//     }
-//   }
+  out << "      PFCandidate constituents:" << std::endl;
+  std::vector <const PFCandidate*> constituents = getConstituents ();
+  for (unsigned i = 0; i < constituents.size (); ++i) {
+    if (constituents[i]) {
+      out << "      # " << i << " " << *(constituents[i]) << std::endl;
+      reco::PFBlockRef block = constituents[i]->blockRef();
+      if (block.isNonnull()) {
+	out << "            " << *block << std::endl;
+      }
+      else {
+	out << "            PFBlock is not available in the event" << std::endl;
+      }
+    }
+    else {
+      out << "      #" << i << " PFCandidate is not available in the event"  << std::endl;
+    }
+  }
   return out.str ();
 }

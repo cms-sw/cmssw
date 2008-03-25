@@ -5,7 +5,7 @@
   
 RefVectorBase: Base class for a vector of interproduct references.
 
-$Id: RefVectorBase.h,v 1.11 2007/03/29 22:57:25 wmtan Exp $
+$Id: RefVectorBase.h,v 1.14 2008/02/15 05:57:03 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -27,7 +27,7 @@ namespace edm {
 
     explicit RefVectorBase(ProductID const& productID, void const* prodPtr = 0,
                            EDProductGetter const* prodGetter = 0) :
-      product_(productID, prodPtr, prodGetter), items_() {}
+      product_(productID, prodPtr, prodGetter, false), items_() {}
 
     /// Destructor
     ~RefVectorBase() {}
@@ -45,7 +45,7 @@ namespace edm {
     size_type size() const {return items_.size();}
 
     void pushBack(RefCore const& product, RefItem<KEY> const& item_) {
-      checkProduct(product, product_);
+      product_.pushBackItem(product, true);
       items_.push_back(item_);
     }
 
@@ -68,8 +68,15 @@ namespace edm {
 
     /// swap two vectors
     void swap(RefVectorBase<KEY> & other) {
-      std::swap(product_, other.product_);
+      product_.swap(other.product_);
       items_.swap(other.items_);
+    }
+
+    /// Copy assignment
+    RefVectorBase& operator=(RefVectorBase const& rhs) {
+      RefVectorBase temp(rhs);
+      this->swap(temp);
+      return *this;
     }
 
   private:

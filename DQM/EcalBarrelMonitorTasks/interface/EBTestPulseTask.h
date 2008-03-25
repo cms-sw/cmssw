@@ -4,9 +4,10 @@
 /*
  * \file EBTestPulseTask.h
  *
- * $Date: 2007/04/05 13:56:46 $
- * $Revision: 1.23 $
+ * $Date: 2007/04/05 14:53:59 $
+ * $Revision: 1.24 $
  * \author G. Della Ricca
+ * \author G. Franzoni
  *
 */
 
@@ -62,10 +63,6 @@ MonitorElement* meShapeMapG12_[36];
 MonitorElement* meAmplMapG01_[36];
 MonitorElement* meAmplMapG06_[36];
 MonitorElement* meAmplMapG12_[36];
-
-MonitorElement* meAmplErrorMapG01_[36];
-MonitorElement* meAmplErrorMapG06_[36];
-MonitorElement* meAmplErrorMapG12_[36];
 
 MonitorElement* mePnAmplMapG01_[36];
 MonitorElement* mePnAmplMapG16_[36];

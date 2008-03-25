@@ -4,8 +4,8 @@
  *     Main EDProducer for the DTTPG
  *
  *
- *   $Date: 2007/04/27 08:52:21 $
- *   $Revision: 1.7 $
+ *   $Date: 2007/05/21 13:13:25 $
+ *   $Revision: 1.8 $
  *
  *   \author C. Battilana
  *
@@ -52,16 +52,14 @@ DTTrigProd::DTTrigProd(const ParameterSet& pset): my_trig(0) {
   my_debug = pset.getUntrackedParameter<bool>("debug");
   my_DTTFnum = pset.getParameter<bool>("DTTFSectorNumbering");
   //my_BXoffset = pset.getParameter<int>("BXOffset");
-  if (my_DTTFnum) 
-    cout << "[DTTrigProd] Using DTTF Sector Numbering" << endl;
+  //if (my_DTTFnum) 
+  //  cout << "[DTTrigProd] Using DTTF Sector Numbering" << endl;
   //my_trig = new DTTrig(pset.getParameter<ParameterSet>("DTTPGParameters"));
 
 }
 
 DTTrigProd::~DTTrigProd(){
 
-  if (my_debug)
-    cout <<" [DTTrigProd] Deleting DTTPG class instance" <<endl;
   if (my_trig != 0) delete my_trig;
 
 }

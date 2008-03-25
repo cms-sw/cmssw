@@ -7,7 +7,7 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: Particle.h,v 1.13 2007/03/05 08:56:51 llista Exp $
+ * \version $Id: Particle.h,v 1.25.2.2 2007/11/26 10:10:29 llista Exp $
  *
  */
 #include "DataFormats/Math/interface/Point3D.h"
@@ -22,17 +22,24 @@ namespace reco {
     typedef int Charge;
     /// Lorentz vector
     typedef math::XYZTLorentzVector LorentzVector;
+    /// Lorentz vector
+    typedef math::PtEtaPhiMLorentzVector PolarLorentzVector;
     /// point in the space
     typedef math::XYZPoint Point;
     /// point in the space
     typedef math::XYZVector Vector;
     /// default constructor
-    Particle() : hasCacheSet_( false ) { }
+    Particle() { }
     /// constructor from values
     Particle( Charge q, const LorentzVector & p4, const Point & vertex = Point( 0, 0, 0 ),
 	      int pdgId = 0, int status = 0, bool integerCharge = true ) : 
-      qx3_( q ), p4_( p4 ), vertex_( vertex ), pdgId_( pdgId ), status_( status ),
-      hasCacheSet_( false ) { 
+      qx3_( q ), p4_( p4 ), vertex_( vertex ), pdgId_( pdgId ), status_( status ) { 
+      if ( integerCharge ) qx3_ *= 3;
+    }
+    /// constructor from values
+    Particle( Charge q, const PolarLorentzVector & p4, const Point & vertex = Point( 0, 0, 0 ),
+	      int pdgId = 0, int status = 0, bool integerCharge = true ) : 
+      qx3_( q ), p4_( p4 ), vertex_( vertex ), pdgId_( pdgId ), status_( status ) { 
       if ( integerCharge ) qx3_ *= 3;
     }
     /// destructor
@@ -47,6 +54,8 @@ namespace reco {
     void setThreeCharge( Charge qx3 ) { qx3_ = qx3; }
     /// four-momentum Lorentz vector
     const LorentzVector & p4() const { return p4_; }
+    /// four-momentum Lorentz vector
+    PolarLorentzVector polarP4() const { return PolarLorentzVector(p4_); }
     /// spatial momentum vector
     Vector momentum() const { return p4_.Vect(); }
     /// boost vector to boost a Lorentz vector 
@@ -59,13 +68,13 @@ namespace reco {
     /// transverse energy
     double et() const { return p4_.Et(); }  
     /// mass
-    double mass() const { cache(); return p4Cache_.M(); }
+    double mass() const { return p4_.M(); }
     /// mass squared
-    double massSqr() const { cache(); return p4Cache_.M2(); }
+    double massSqr() const { return p4_.M2(); }
     /// transverse mass
-    double mt() const { cache(); return p4Cache_.Mt(); }
+    double mt() const { return p4_.Mt(); }
     /// transverse mass squared
-    double mtSqr() const { cache(); return p4Cache_.Mt2(); }
+    double mtSqr() const { return p4_.Mt2(); }
     /// x coordinate of momentum vector
     double px() const { return p4_.Px(); }
     /// y coordinate of momentum vector
@@ -73,19 +82,25 @@ namespace reco {
     /// z coordinate of momentum vector
     double pz() const { return p4_.Pz(); }
     /// transverse momentum
-    double pt() const { cache(); return p4Cache_.Pt(); }
+    double pt() const { return p4_.Pt(); }
     /// momentum azimuthal angle
-    double phi() const { cache(); return p4Cache_.Phi(); }
+    double phi() const { return p4_.Phi(); }
     /// momentum polar angle
     double theta() const { return p4_.Theta(); }
     /// momentum pseudorapidity
-    double eta() const { cache(); return p4Cache_.Eta(); }
+    double eta() const { return p4_.Eta(); }
     /// repidity
-    double rapidity() const { cache(); return p4Cache_.Rapidity(); }
+    double rapidity() const { return p4_.Rapidity(); }
     /// repidity
-    double y() const { cache(); return p4Cache_.Rapidity(); }
+    double y() const { return p4_.Rapidity(); }
     /// set 4-momentum
     void setP4( const LorentzVector & p4 ) { p4_ = p4; }
+    void setP4( const PolarLorentzVector & p4 ) { p4_ = p4; }
+    void setPz( double pz ) { p4_.SetPz(pz); }
+    void setMass( double m ) { 
+      PolarLorentzVector pp4 = polarP4(); pp4.SetM(m);
+      p4_ = pp4;
+    }
     /// vertex position
     const Point & vertex() const { return vertex_; }
     /// x coordinate of vertex position
@@ -104,6 +119,12 @@ namespace reco {
     int status() const { return status_; }
     /// set status word
     void setStatus( int status ) { status_ = status; }
+    /// long lived flag
+    static const unsigned int longLivedTag;
+    /// set long lived flag
+    void setLongLived() { status_ |= longLivedTag; }
+    /// is long lived?
+    bool longLived() const { return status_ & longLivedTag; }
 
   protected:
     /// electric charge
@@ -116,19 +137,6 @@ namespace reco {
     int pdgId_;
     /// status word
     int status_;
-    /// THE FOLLOWING SHOULD BE CHANGED IN 1.7.0
-    /// internal cache type for polar coordinates
-    typedef math::PtEtaPhiMLorentzVector LorentzVectorCache;
-    /// internal cache for p4
-    mutable LorentzVectorCache p4Cache_;
-    /// has cache been set?
-    mutable bool hasCacheSet_;
-    /// set internal cache
-    void cache() const { 
-      if ( hasCacheSet_ ) return;
-      p4Cache_ = p4_;
-      hasCacheSet_ = true;
-    }
   };
 
 }

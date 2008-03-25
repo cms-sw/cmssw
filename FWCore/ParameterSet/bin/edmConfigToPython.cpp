@@ -3,7 +3,6 @@
 #include <string>
 #include <vector>
 
-#include "boost/shared_ptr.hpp"
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/ParameterSet/interface/parse.h"
 #include "FWCore/ParameterSet/interface/ParseTree.h"

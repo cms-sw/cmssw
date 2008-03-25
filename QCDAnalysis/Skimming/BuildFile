@@ -11,8 +11,6 @@
 <use name=DataFormats/JetReco>
 <use name=clhep> 
 <use name=root>
-
-<flags SEALPLUGIN=1>
 <export>
    <lib name=QCDAnalysisSkimming>
 </export>

@@ -7,10 +7,7 @@
 <use name=CondCore/DBOutputService>
 <use name=CondFormats/EcalObjects>
 <use name=CondFormats/DataRecord>
-<use name=OnlineDB/EcalCondDB>
 
-
-<flags EDM_PLUGIN=1>
 <export>
 <lib name=CondToolsEcal>
 <use name=FWCore/Framework>

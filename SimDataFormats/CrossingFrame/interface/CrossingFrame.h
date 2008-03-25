@@ -44,7 +44,7 @@
       void addSignalTracks(const edm::SimTrackContainer *);
       void addSignalVertices(const edm::SimVertexContainer *);
 
-      void addPileupSimHits(const int bcr, const std::string subdet, const edm::PSimHitContainer *, int evtId, bool checkTof);
+      void addPileupSimHits(const int bcr, const std::string subdet, const edm::PSimHitContainer *, int evtId, bool checkTof=false, bool high=false);
       void addPileupCaloHits(const int bcr, const std::string subdet, const edm::PCaloHitContainer *, int evtId);
       void addPileupTracks(const int bcr, const edm::SimTrackContainer *,  int evtId, int vertexoffset);
       void addPileupVertices(const int bcr, const edm::SimVertexContainer *, int evtId);      

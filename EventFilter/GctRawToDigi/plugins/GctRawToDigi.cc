@@ -41,8 +41,12 @@ unsigned GctRawToDigi::MAX_BLOCKS = 128;
 
 
 GctRawToDigi::GctRawToDigi(const edm::ParameterSet& iConfig) :
-  fedId_(iConfig.getParameter<int>("GctFedId")),
-  verbose_(iConfig.getUntrackedParameter<bool>("Verbose",false)),
+  inputLabel_(iConfig.getParameter<edm::InputTag>("inputLabel")),
+  fedId_(iConfig.getParameter<int>("gctFedId")),
+  verbose_(iConfig.getUntrackedParameter<bool>("verbose",false)),
+  doEm_(iConfig.getUntrackedParameter<bool>("unpackEm",true)),
+  doJets_(iConfig.getUntrackedParameter<bool>("unpackJets",true)),
+  doEtSums_(iConfig.getUntrackedParameter<bool>("unpackEtSums",true)),
   doInternEm_(iConfig.getUntrackedParameter<bool>("unpackInternEm",true)),
   doFibres_(iConfig.getUntrackedParameter<bool>("unpackFibres",true))
 {
@@ -86,9 +90,9 @@ GctRawToDigi::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
    using namespace edm;
 
-   // get raw data collection (by type?!?)
+   // get raw data collection
    edm::Handle<FEDRawDataCollection> feds;
-   iEvent.getByType(feds);
+   iEvent.getByLabel(inputLabel_, feds);
    const FEDRawData& gctRcd = feds->FEDData(fedId_);
    
    edm::LogInfo("GCT") << "Upacking FEDRawData of size " << std::dec << gctRcd.size() << std::endl;
@@ -149,31 +153,23 @@ void GctRawToDigi::unpack(const FEDRawData& d, edm::Event& e) {
   // read blocks
   for (unsigned nb=0; !lost && dPtr<dEnd && nb<MAX_BLOCKS; nb++) {
 
-    // 1 read block header
+    // read block header
     GctBlockHeader blockHead(&data[dPtr]);
-    unsigned id = blockHead.id();
 
-    // 2 get block size (in 32 bit words)
-    unsigned blockLen = blockUnpacker_.blockLength(id);
+    // unpack the block
+    blockUnpacker_.convertBlock(&data[dPtr+4], blockHead);
+
+    // store the header
+    bHdrs.push_back(blockHead);
+    
+    // advance pointer
+    unsigned blockLen = blockHead.length();
     unsigned nSamples = blockHead.nSamples();
-
-    // 3 if block recognised, unpack it and store header
-    if ( blockUnpacker_.validBlock(id) ) {
-      blockUnpacker_.convertBlock(&data[dPtr+4], id, nSamples);  // pass pointer to first word in block payload
-      bHdrs.push_back(blockHead);
-      dPtr += 4*(blockLen*nSamples+1); // *4 because blockLen is in 32-bit words, +1 for header
-    }
-    else {  // otherwise bail out
-      lost = true;
-      std::ostringstream os;
-      os << "Unrecognised data block at byte " << dPtr << ". Bailing out" << endl;
-      os << blockHead << endl;
-      edm::LogError("GCT") << os.str();
-    }
+    dPtr += 4*(blockLen*nSamples+1); // *4 because blockLen is in 32-bit words, +1 for header
     
   }
-
-  // print info (to be removed!)
+  
+  // dump summary in verbose mode
   if (verbose_) {
     std::ostringstream os;
     os << "Found " << bHdrs.size() << " GCT internal headers" << endl;
@@ -190,14 +186,19 @@ void GctRawToDigi::unpack(const FEDRawData& d, edm::Event& e) {
 
 
   // put data into the event
-  e.put(rctEm);
-  e.put(rctRgn);
-  e.put(gctIsoEm, "isoEm");
-  e.put(gctNonIsoEm, "nonIsoEm");
-  e.put(gctCenJets,"cenJets");
-  e.put(gctForJets,"forJets");
-  e.put(gctTauJets,"tauJets");
-
+  if (doEm_) {
+    e.put(rctEm);
+    e.put(gctIsoEm, "isoEm");
+    e.put(gctNonIsoEm, "nonIsoEm");
+  }
+  if (doJets_) {
+    e.put(rctRgn);
+    e.put(gctCenJets,"cenJets");
+    e.put(gctForJets,"forJets");
+    e.put(gctTauJets,"tauJets");
+  }
+  if (doEtSums_) {
+  }
   if (doInternEm_) {
     e.put(gctInternEm);
   }

@@ -9,8 +9,10 @@
 #include "DataFormats/JetReco/interface/JetTrackMatch.h"
 #include "DataFormats/JetReco/interface/JetToFloatAssociation.h"
 #include "DataFormats/Common/interface/Wrapper.h"
-
 #include "DataFormats/Common/interface/RefToBase.h"
+ #include "DataFormats/Common/interface/RefToBaseProd.h"
+#include "DataFormats/Common/interface/RefHolder.h"
+#include "DataFormats/Common/interface/Holder.h"
 
 using namespace reco;
 
@@ -63,10 +65,31 @@ namespace {
     JetToFloatAssociation::Objects         j2f_oo;
     edm::Wrapper<JetToFloatAssociation::Container>  j2f_c_w;
 
-    // RefToBase Holders for Jets
-    edm::reftobase::Holder<reco::Jet, reco::CaloJetRef> rb_cj;
-    edm::reftobase::Holder<reco::Jet, reco::GenJetRef>  rb_gj;
-    edm::reftobase::Holder<reco::Jet, reco::PFJetRef>   rb_pfj;
+    edm::RefToBase<reco::Jet>  rbj1;
+    edm::reftobase::IndirectHolder<reco::Jet> rbj3;
+    edm::reftobase::Holder<reco::Jet, reco::CaloJetRef> rbj4;
+    edm::reftobase::Holder<reco::Candidate,edm::RefToBase<reco::Jet> >  rtbb6;
+    edm::RefToBaseProd<reco::Jet>   bp_jrtbp;
+
+    edm::reftobase::Holder<reco::Candidate, reco::CaloJetRef> hccj1;
+    edm::reftobase::RefHolder<reco::CaloJetRef> rhch1;
+    edm::reftobase::VectorHolder<reco::Candidate, reco::CaloJetRefVector> vhccj1;
+    edm::reftobase::RefVectorHolder<reco::CaloJetRefVector> rvhcj1;
+
+    edm::reftobase::Holder<reco::Candidate, reco::GenJetRef> hcgj1;
+    edm::reftobase::RefHolder<reco::GenJetRef> rhgj1;
+    edm::reftobase::VectorHolder<reco::Candidate, reco::GenJetRefVector> vhcgj1;
+    edm::reftobase::RefVectorHolder<reco::GenJetRefVector> rvhgj1;
+
+    edm::reftobase::Holder<reco::Candidate, reco::BasicJetRef> hcbj1;
+    edm::reftobase::RefHolder<reco::BasicJetRef> rhbj1;
+    edm::reftobase::VectorHolder<reco::Candidate, reco::BasicJetRefVector> vhbj1;
+    edm::reftobase::RefVectorHolder<reco::BasicJetRefVector> rvhbj1;
+
+    edm::reftobase::Holder<reco::Candidate, reco::PFJetRef> hcpj1;
+    edm::reftobase::RefHolder<reco::PFJetRef> rhpj1;
+    edm::reftobase::VectorHolder<reco::Candidate, reco::PFJetRefVector> vhpj1;
+    edm::reftobase::RefVectorHolder<reco::PFJetRefVector> rvhpj1;
   }
 }
 #endif

@@ -302,6 +302,7 @@ AlCaPi0BasicClusterRecHitsProducer::produce(edm::Event& iEvent, const edm::Event
   timers.pop_and_push(timerName);
   
   timers.clear_stack();
-  
+
+  delete recHitsEB_map;
   
 }

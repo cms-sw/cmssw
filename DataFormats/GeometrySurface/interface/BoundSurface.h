@@ -18,8 +18,6 @@
 
 #include "DataFormats/GeometrySurface/interface/Bounds.h"
 
-#include "DataFormats/GeometrySurface/interface/BoundSpan.h"
-
 
 class BoundSurface : public virtual Surface {
 public:
@@ -27,55 +25,37 @@ public:
   BoundSurface( const PositionType& pos, 
 		const RotationType& rot, 
 		const Bounds* bounds) :
-    Surface( pos, rot),  m_phiSpan(0.,0.),m_zSpan(0.,0.),
-    theBounds( bounds->clone()) { computeSpan();}
+    Surface( pos, rot), theBounds( bounds->clone()) {}
 
   BoundSurface( const PositionType& pos, 
 		const RotationType& rot, 
 		const Bounds& bounds) :
-    Surface( pos, rot),  m_phiSpan(0.,0.),m_zSpan(0.,0.),
-    theBounds( bounds.clone()) { computeSpan();}
+    Surface( pos, rot), theBounds( bounds.clone()) {}
 
   BoundSurface( const PositionType& pos, 
 		const RotationType& rot, 
 		const Bounds* bounds, 
 		MediumProperties* mp) :
-    Surface( pos, rot, mp),  m_phiSpan(0.,0.),m_zSpan(0.,0.),
-    theBounds( bounds->clone()) { computeSpan();}
+    Surface( pos, rot, mp), theBounds( bounds->clone()) {}
 
   BoundSurface( const PositionType& pos, 
 		const RotationType& rot, 
 		const Bounds& bounds, 
 		MediumProperties* mp) :
-    Surface( pos, rot, mp),  m_phiSpan(0.,0.),m_zSpan(0.,0.),
-    theBounds( bounds.clone()) { computeSpan();}
+    Surface( pos, rot, mp), theBounds( bounds.clone()) {}
 
   BoundSurface( const BoundSurface& iToCopy) :
-    Surface( iToCopy ), 
-    m_phiSpan(iToCopy.m_phiSpan),
-    theBounds( iToCopy.theBounds->clone() ) {}
+    Surface( iToCopy ),
+      theBounds( iToCopy.theBounds->clone() ) {}
 
   const BoundSurface& operator=(const BoundSurface& iRHS ) {
-    Surface::operator=(iRHS);
-    m_phiSpan=iRHS.m_phiSpan;
-    theBounds.reset( iRHS.theBounds->clone() );
+    theBounds = std::auto_ptr<Bounds>( iRHS.theBounds->clone() );
     return *this;
   }
 
   const Bounds& bounds() const { return *theBounds;}
 
-  std::pair<float,float> const & phiSpan() const { return m_phiSpan;}
-  std::pair<float,float> const & zSpan() const { return m_zSpan;}
-
-protected:
-  friend  void boundSpan::computeSpan(BoundSurface& plane);
-  void computeSpan();
-
 private:
-
-  std::pair<float,float> m_phiSpan;
-  std::pair<float,float> m_zSpan;
-
   //own_ptr<Bounds,OwnerPolicy::Clone> theBounds;
   std::auto_ptr<Bounds> theBounds;
 };

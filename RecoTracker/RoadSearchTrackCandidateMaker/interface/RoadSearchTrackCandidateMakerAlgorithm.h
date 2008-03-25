@@ -13,8 +13,8 @@
 // Created:         Wed Mar 15 13:00:00 UTC 2006
 //
 // $Author: gutsche $
-// $Date: 2007/07/08 20:32:39 $
-// $Revision: 1.11 $
+// $Date: 2007/07/10 03:05:52 $
+// $Revision: 1.12 $
 //
 
 #include <string>
@@ -34,6 +34,13 @@
 #include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHit.h"
 #include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHitBuilder.h"
 #include "TrackingTools/PatternTools/interface/TrajectoryMeasurement.h"
+#include "TrackingTools/TrajectoryState/interface/FreeTrajectoryState.h"
+#include "TrackingTools/PatternTools/interface/Trajectory.h"
+
+#include "TrackingTools/GeomPropagators/interface/AnalyticalPropagator.h"
+#include "TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h"
+#include "TrackingTools/TrajectoryCleaning/interface/TrajectoryCleaner.h"
+#include "TrackingTools/TrajectoryCleaning/interface/TrajectoryCleanerBySharedHits.h"
 
 class TrajectoryStateUpdator;
 class MeasurementEstimator;
@@ -70,7 +77,31 @@ class RoadSearchTrackCandidateMakerAlgorithm
 				     const SiStripRecHitMatcher* theHitMatcher,
                                      edm::OwnVector<TrackingRecHit>& theHits);
 
+  //  bool chooseStartingLayers( RoadSearchCloud::RecHitVector& recHits, int layer0,
+  bool chooseStartingLayers( std::vector<std::pair<const DetLayer*, RoadSearchCloud::RecHitVector > >& RecHitsByLayer,
+			     int layer0,
+			     const std::multimap<int, const DetLayer*>& layer_map,
+			     std::set<const DetLayer*>& good_layers,
+			     std::vector<const DetLayer*>& middle_layers ,
+			     RoadSearchCloud::RecHitVector& recHits_middle);
 
+
+  FreeTrajectoryState initialTrajectory(const edm::EventSetup& es,
+					const TrackingRecHit* InnerHit, 
+					const TrackingRecHit* OuterHit);
+
+  Trajectory createSeedTrajectory(FreeTrajectoryState& fts,
+				  const TrackingRecHit* InnerHit, 
+				  const DetLayer* innerHitLayer);
+
+
+  std::vector<Trajectory> extrapolateTrajectory(const Trajectory& inputTrajectory,
+						RoadSearchCloud::RecHitVector& theLayerHits,
+						const DetLayer* innerHitLayer,
+						const TrackingRecHit* outerHit,
+						const DetLayer* outerHitLayer);
+
+  TrackCandidateCollection PrepareTrackCandidates(std::vector<Trajectory>& theTrajectories);
 
  private:
   edm::ParameterSet conf_;
@@ -81,18 +112,33 @@ class RoadSearchTrackCandidateMakerAlgorithm
   int MinChunkLength_;
   int nFoundMin_;
 
+
+
+
   std::string measurementTrackerName_;
   
   bool debug_;
   
   const MeasurementTracker*  theMeasurementTracker;
-  const TrackerGeometry* geom;
+  const TrackerGeometry* trackerGeom;
   const TransientTrackingRecHitBuilder* ttrhBuilder;
+  const MagneticField* magField;
   
   PropagatorWithMaterial* thePropagator;
   PropagatorWithMaterial* theRevPropagator;
+  AnalyticalPropagator*   theAnalyticalPropagator;
   TrajectoryStateUpdator* theUpdator;
   MeasurementEstimator* theEstimator;
+  SiStripRecHitMatcher* theHitMatcher;
+
+  TrajectoryStateTransform* theTransformer;
+  TrajectoryCleanerBySharedHits* theTrajectoryCleaner;
+
+    const DetLayer* layers[128];
+    bool lstereo[128];
+    int nhits_l[128];
+    int nlayers ;
+
 };
 
 #endif

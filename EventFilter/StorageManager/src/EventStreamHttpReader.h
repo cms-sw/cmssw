@@ -1,13 +1,12 @@
 #ifndef STREAMER_EVENTSTREAMHTTPREADER_H
 #define STREAMER_EVENTSTREAMHTTPREADER_H
 
-// $Id$
+// $Id: EventStreamHttpReader.h,v 1.13 2007/05/16 22:55:03 hcheung Exp $
 
 #include "IOPool/Streamer/interface/EventBuffer.h"
-#include "IOPool/Streamer/interface/StreamDeserializer.h"
+#include "IOPool/Streamer/interface/StreamerInputSource.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/Provenance/interface/ProductRegistry.h"
-#include "IOPool/Streamer/interface/StreamerInputSource.h"
 
 #include <vector>
 #include <memory>

@@ -2,8 +2,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2007/03/12 00:53:39 $
- *  $Revision: 1.2 $
+ *  $Date: 2006/08/04 10:34:02 $
+ *  $Revision: 1.1 $
  *  \author S. Bolognesi and G. Cerminara - INFN Torino
  */
 
@@ -177,7 +177,6 @@ DTHitQualityUtils::findMuSimSegmentDirAndPos(const pair<const PSimHit*, const PS
   GlobalPoint inGlobalPos = layerIn->toGlobal(innermostMuSimHit->localPosition());
   GlobalPoint outGlobalPos = layerOut->toGlobal(outermostMuSimHit->localPosition());
   LocalVector simHitDirection = (muonGeom->idToDet(detId))->toLocal(inGlobalPos - outGlobalPos);
-  simHitDirection = -simHitDirection.unit();
 
   //SimHit position extrapolated at z=0 in the Det RF
   LocalPoint outLocalPos = (muonGeom->idToDet(detId))->toLocal(outGlobalPos);

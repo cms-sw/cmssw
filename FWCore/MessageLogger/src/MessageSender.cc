@@ -44,5 +44,5 @@ MessageSender::~MessageSender()
   if (!drop) std::cerr << "MessageSender::~MessageSender() - Null drop pointer \n";
 #endif
 
-  MessageLoggerQ::LOG(errorobj_p);
+  MessageLoggerQ::MLqLOG(errorobj_p);
 }

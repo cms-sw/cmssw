@@ -7,13 +7,13 @@
  */
 #include "PhysicsTools/CandUtils/interface/CandMatcher.h"
 
-template<typename C>
-class MCCandMatcher : public CandMatcherBase<C> {
+template<typename C1, typename C2 = C1>
+class MCCandMatcher : public CandMatcherBase<C1, C2> {
 public:
   /// constructor
-  explicit MCCandMatcher( const typename CandMatcherBase<C>::map_vector & maps );
+  explicit MCCandMatcher( const typename CandMatcherBase<C1, C2>::map_vector & maps );
   /// constructor
-  explicit MCCandMatcher( const typename CandMatcherBase<C>::map_type & map );
+  explicit MCCandMatcher( const typename CandMatcherBase<C1, C2>::map_type & map );
   /// destructor
   virtual ~MCCandMatcher();
 private:
@@ -26,24 +26,24 @@ private:
 #include "PhysicsTools/HepMCCandAlgos/interface/MCCandMatcher.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticleCandidate.h"
 
-template<typename C>
-MCCandMatcher<C>::MCCandMatcher( const typename CandMatcherBase<C>::map_vector & maps ) :
-  CandMatcherBase<C>( maps ) {
-  CandMatcherBase<C>::initMaps();
+template<typename C1, typename C2>
+MCCandMatcher<C1, C2>::MCCandMatcher( const typename CandMatcherBase<C1, C2>::map_vector & maps ) :
+  CandMatcherBase<C1, C2>( maps ) {
+  CandMatcherBase<C1, C2>::initMaps();
 }
 
-template<typename C>
-MCCandMatcher<C>::MCCandMatcher( const typename CandMatcherBase<C>::map_type & map ) :
-  CandMatcherBase<C>( map ) {
-  CandMatcherBase<C>::initMaps();
+template<typename C1, typename C2>
+MCCandMatcher<C1, C2>::MCCandMatcher( const typename CandMatcherBase<C1, C2>::map_type & map ) :
+  CandMatcherBase<C1, C2>( map ) {
+  CandMatcherBase<C1, C2>::initMaps();
 }
 
-template<typename C>
-MCCandMatcher<C>::~MCCandMatcher() {
+template<typename C1, typename C2>
+MCCandMatcher<C1, C2>::~MCCandMatcher() {
 }
 
-template<typename C>
-std::vector<const reco::Candidate *> MCCandMatcher<C>::getDaughters( const reco::Candidate * c ) const {
+template<typename C1, typename C2>
+std::vector<const reco::Candidate *> MCCandMatcher<C1, C2>::getDaughters( const reco::Candidate * c ) const {
   using namespace std;
   using namespace reco;
   vector<const Candidate *> v;
@@ -68,8 +68,8 @@ std::vector<const reco::Candidate *> MCCandMatcher<C>::getDaughters( const reco:
   return v;
 }
 
-template<typename C>
-bool MCCandMatcher<C>::compositePreselect( const reco::Candidate & c, const reco::Candidate & m ) const {
+template<typename C1, typename C2>
+bool MCCandMatcher<C1, C2>::compositePreselect( const reco::Candidate & c, const reco::Candidate & m ) const {
   // IMPORTANT: select a mother if the number 
   // daughters of c is <= the number of daughters
   // of the matched mom. This is needed because

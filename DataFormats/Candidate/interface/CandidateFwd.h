@@ -23,6 +23,8 @@ namespace edm {
 #include "DataFormats/Common/interface/RefToBase.h"
 #include "DataFormats/Common/interface/RefToBaseVector.h"
 #include "DataFormats/Common/interface/RefToBaseProd.h"
+#include "DataFormats/Common/interface/Ptr.h"
+#include "DataFormats/Common/interface/View.h"
 
 namespace reco {
   /// collection of Candidate objects
@@ -39,8 +41,10 @@ namespace reco {
   typedef edm::RefProd<CandidateCollection> CandidateRefProd;
   /// vector of references to objects in the same collection of Candidate objects via base type
   typedef edm::RefToBaseProd<Candidate> CandidateBaseRefProd;
-  /// iterator over a vector of references Candidate objects
-  typedef CandidateRefVector::iterator candidate_iterator;
+  /// view of a collection containing candidates
+  typedef edm::View<Candidate> CandidateView;
+  /// persistent reference to an object in a collection of Candidate objects
+  typedef edm::Ptr<Candidate> CandidatePtr;
 }
 
 #endif

@@ -10,7 +10,8 @@
 #include "Geometry/CSCGeometry/interface/CSCChamberSpecs.h"
 #include "Geometry/CSCGeometry/interface/CSCLayerGeometry.h"
 #include "CLHEP/Units/PhysicalConstants.h"
-#include<list>
+#include <list>
+#include <cassert>
 
 // This is CSCStripElectronicsSim.cc
 
@@ -33,7 +34,8 @@ CSCStripElectronicsSim::CSCStripElectronicsSim(const edm::ParameterSet & p)
   theComparatorClockJump(2),
   sca_time_bin_size(50.),
   sca_peak_bin(p.getParameter<int>("scaPeakBin")),
-  theComparatorTimeBinOffset(p.getParameter<int>("comparatorTimeBinOffset"))
+  theComparatorTimeBinOffset(p.getParameter<double>("comparatorTimeBinOffset")),
+  theComparatorTimeOffset(p.getParameter<double>("comparatorTimeOffset"))
 {
 
   if(doCrosstalk_) {
@@ -117,11 +119,10 @@ float CSCStripElectronicsSim::comparatorReading(const CSCAnalogSignal & signal,
 }
 
 
-std::vector<CSCComparatorDigi> 
-CSCStripElectronicsSim::runComparator() {
+void
+CSCStripElectronicsSim::runComparator(std::vector<CSCComparatorDigi> & result) {
   // first, make a list of all the comparators we actually
   // need to run
-  std::vector<CSCComparatorDigi> result;
   std::list<int> comparatorsWithSignal;
   CSCSignalMap::iterator signalMapItr;
   for(signalMapItr = theSignalMap.begin();
@@ -140,7 +141,10 @@ CSCStripElectronicsSim::runComparator() {
     // icomp =0->1,2,  =1->3,4,  =2->5,6, ...
     const CSCAnalogSignal & signal1 = find(readoutElement(iComparator*2 + 1));
     const CSCAnalogSignal & signal2 = find(readoutElement(iComparator*2 + 2));
-    for(float time = theSignalStartTime; time < theSignalStopTime-theComparatorWait; time += theSamplingTime) {
+    for(float time = theSignalStartTime +theComparatorTimeOffset; 
+        time < theSignalStopTime-theComparatorWait; 
+        time += theSamplingTime) 
+    {
       if(comparatorReading(signal1, time) > theComparatorThreshold
       || comparatorReading(signal2, time) > theComparatorThreshold) {
 	 // wait a bit, so we can run the comparator at the signal peak
@@ -161,38 +165,33 @@ CSCStripElectronicsSim::runComparator() {
          const CSCAnalogSignal * mainSignal = 0;
          // pick the higher of the two strips in the pair
          if(height1 > height2) {
+           mainSignal = &signal1;
            float leftStrip = 0.;
            if(iComparator > 0)  {
              leftStrip = comparatorReading(find(readoutElement(iComparator*2)), time); 
            }
            // if this strip is higher than either of its neighbors, make a comparator digi
-           if(leftStrip < height1) {
+           if(leftStrip < height1 && height1 > theComparatorThreshold) {
              output = (leftStrip < height2);
              strip = iComparator*2 + 1;
-             mainSignal = &signal1;
            }
          } else {
+           mainSignal = &signal2;
            float rightStrip = 0.;
            if(iComparator*2+3 <= nElements) {
              rightStrip = comparatorReading(find(readoutElement(iComparator*2+3)), time);
            }
-           if(rightStrip < height2) {
+           if(rightStrip < height2 && height2 > theComparatorThreshold) {
              output = (height1 < rightStrip);
              strip = iComparator*2 + 2;
-             mainSignal = &signal2;
            }
          }
          if(strip != 0) {
 
-           // decide how long this comparator and neighboring ones will be locked for
-           float lockingTime = time + theComparatorDeadTime;
-           // really should be zero, but strip signal doesn't go negative yet
-           float resetThreshold = 1;
-           while(lockingTime < theSignalStopTime
-              && mainSignal->getValue(lockingTime) > resetThreshold) {
-             lockingTime += theSamplingTime;
-           }
-           int timeBin = (int)((comparatorTime-theTimingOffset)/theBunchSpacing) + theComparatorTimeBinOffset;
+           float bxFloat = (comparatorTime-theTimingOffset)/theBunchSpacing
+                           + theComparatorTimeBinOffset + theOffsetOfBxZero;
+
+
       // Comparator digi as of Nov-2006 adapted to real data: time word has 16 bits with set bit
       // flagging appropriate bunch crossing, and bx 0 corresponding to 9th bit i.e.
 
@@ -206,21 +205,28 @@ CSCStripElectronicsSim::runComparator() {
 
       // Parameter theOffsetOfBxZero = 9 @@WARNING! This offset may be changed (hardware)!
 
-           int nBitsToOffset = timeBin + theOffsetOfBxZero;
            int timeWord = 0; // and this will remain if too early or late
-           if ( (nBitsToOffset>= 0) && (nBitsToOffset<16) ) 
- 	       timeWord = (1 << nBitsToOffset ); // set appropriate bit
+           if ( (bxFloat>= 0) && (bxFloat<16) ) 
+ 	       timeWord = (1 << static_cast<int>(bxFloat) ); // set appropriate bit
 
            CSCComparatorDigi newDigi(strip, output, timeWord);
            result.push_back(newDigi);
-           time = lockingTime;
          }
+
+         // wait for the comparator to reset
+         time += theComparatorDeadTime;
+         // really should be zero, but strip signal doesn't go negative yet
+         float resetThreshold = 1;
+         while(time < theSignalStopTime
+            && mainSignal->getValue(time) > resetThreshold) {
+           time += theSamplingTime;
+         }
+
        } // if over threshold
     } // loop over time samples
   }  // loop over comparators  
   // sort by time
   sort(result.begin(), result.end());
-  return result;
 }
 
 
@@ -318,9 +324,11 @@ void CSCStripElectronicsSim::fillDigis(CSCStripDigiCollection & digis,
     addCrosstalk();
   } 
 
-  std::vector<CSCComparatorDigi> comparatorOutputs = runComparator();
+  std::vector<CSCComparatorDigi> comparatorOutputs;
+  runComparator(comparatorOutputs);
   // copy these to the result
-  CSCComparatorDigiCollection::Range range(comparatorOutputs.begin(), comparatorOutputs.end());
+  CSCComparatorDigiCollection::Range range(comparatorOutputs.begin(), 
+                                           comparatorOutputs.end());
   comparators.put(range, layerId());
 
   double startTime = theTimingOffset 
@@ -329,10 +337,11 @@ void CSCStripElectronicsSim::fillDigis(CSCStripDigiCollection & digis,
   std::list<int> keyStrips = getKeyStrips(comparatorOutputs);
   std::list<int> stripsToDo = channelsToRead(keyStrips);
   std::vector<CSCStripDigi> stripDigis;
+  stripDigis.reserve(stripsToDo.size());
   for(std::list<int>::const_iterator stripItr = stripsToDo.begin();
       stripItr != stripsToDo.end(); ++stripItr)
   {
-    stripDigis.push_back( createDigi(*stripItr, startTime) );
+    createDigi(*stripItr, startTime, stripDigis);
   }
 
   CSCStripDigiCollection::Range stripRange(stripDigis.begin(), stripDigis.end());
@@ -345,12 +354,15 @@ void CSCStripElectronicsSim::addCrosstalk() {
   // without messing up any iterators
   std::vector<CSCAnalogSignal> realSignals;
   realSignals.reserve(theSignalMap.size());
-  for(CSCSignalMap::iterator mapI = theSignalMap.begin(); mapI != theSignalMap.end(); ++mapI) {
+  CSCSignalMap::iterator mapI = theSignalMap.begin(), mapEnd = theSignalMap.end();
+  for( ; mapI != mapEnd; ++mapI) {
     realSignals.push_back((*mapI).second);
   }
   sort(realSignals.begin(), realSignals.end(), SortSignalsByTotal);
-  for(std::vector<CSCAnalogSignal>::iterator realSignalItr = realSignals.begin();
-      realSignalItr != realSignals.end(); ++realSignalItr) {
+  std::vector<CSCAnalogSignal>::iterator realSignalItr = realSignals.begin(),
+                                         realSignalsEnd = realSignals.end();
+  for( ; realSignalItr != realSignalsEnd;  ++realSignalItr)
+  {
     int thisStrip = (*realSignalItr).getElement();
     // add it to each neighbor
     if(thisStrip > 1) {
@@ -384,7 +396,7 @@ void CSCStripElectronicsSim::addCrosstalk(const CSCAnalogSignal & signal,
 }
 
 
-CSCStripDigi CSCStripElectronicsSim::createDigi(int channel, float startTime)
+void CSCStripElectronicsSim::createDigi(int channel, float startTime, std::vector<CSCStripDigi> & result)
 {
   const CSCAnalogSignal & signal = find(channel);
   // fill in the sca information
@@ -402,10 +414,9 @@ CSCStripDigi CSCStripElectronicsSim::createDigi(int channel, float startTime)
   // do saturation of 12-bit ADC
   doSaturation(newDigi);
 
+  result.push_back(newDigi);
   addLinks(channelIndex(channel));
   LogTrace("CSCStripElectronicsSim") << newDigi;
-
-  return newDigi;
 }
 
 

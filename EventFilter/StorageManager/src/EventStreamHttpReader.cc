@@ -17,7 +17,7 @@
                 Manager or specify a maximum number of events for
                 the client to read through a maxEvents parameter.
 
-  $Id: EventStreamHttpReader.cc,v 1.19 2007/05/16 22:55:03 hcheung Exp $
+  $Id: EventStreamHttpReader.cc,v 1.20 2007/06/06 23:35:08 wmtan Exp $
 */
 
 #include "EventFilter/StorageManager/src/EventStreamHttpReader.h"
@@ -29,6 +29,7 @@
 #include "IOPool/Streamer/interface/OtherMessage.h"
 #include "IOPool/Streamer/interface/ConsRegMessage.h"
 #include "EventFilter/StorageManager/interface/ConsumerPipe.h"
+#include "FWCore/Framework/interface/EventPrincipal.h"
 
 #include <algorithm>
 #include <iterator>
@@ -90,7 +91,7 @@ namespace edm
 
     std::auto_ptr<SendJobHeader> p = readHeader();
     SendDescs & descs = p->descs_;
-    mergeWithRegistry(descs, productRegistryUpdate());
+    mergeWithRegistry(descs);
 
     // next taken from IOPool/Streamer/EventStreamFileReader
     // jbk - the next line should not be needed
@@ -235,7 +236,7 @@ namespace edm
     } else {
       events_read_++;
       EventMsgView eventView(&buf_[0]);
-      return deserializeEvent(eventView,productRegistry());
+      return deserializeEvent(eventView);
     }
   }
 

@@ -5,7 +5,7 @@
   
 Ref: A template for an interproduct reference to a product.
 
-$Id: RefProd.h,v 1.11 2007/07/09 07:28:49 llista Exp $
+$Id: RefProd.h,v 1.16 2007/11/10 05:39:46 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -13,11 +13,11 @@ $Id: RefProd.h,v 1.11 2007/07/09 07:28:49 llista Exp $
 //  This defines the public interface to the class RefProd<T>.
 //
 //  ProductID productID		is the product ID of the collection. (0 is invalid)
-//  const RefProd<T> & ref		is another RefProd<T>
+//  RefProd<T> const& ref	is another RefProd<T>
 
 //  Constructors
     RefProd(); // Default constructor
-    RefProd(const RefProd<T> & ref);	// Copy constructor  (default, not explicitly specified)
+    RefProd(RefProd<T> const& ref);	// Copy constructor  (default, not explicitly specified)
 
     RefProd(Handle<T> const& handle);
     RefProd(ProductID pid, EDProductGetter const* prodGetter);
@@ -26,7 +26,7 @@ $Id: RefProd.h,v 1.11 2007/07/09 07:28:49 llista Exp $
     virtual ~RefProd() {}
 
 // Operators and methods
-    RefProd<T>& operator=(const RefProd<T> &);	// assignment (default, not explicitly specified)
+    RefProd<T>& operator=(RefProd<T> const&);	// assignment (default, not explicitly specified)
     T const& operator*() const;			// dereference
     T const* operator->() const;		// member dereference
     bool operator==(RefProd<T> const& ref) const;	// equality
@@ -59,8 +59,18 @@ namespace edm {
     //   product(), returning a C*.
     template <class HandleC>
     explicit RefProd(HandleC const& handle) :
-    product_(handle.id(), handle.product(), 0) {
+    product_(handle.id(), handle.product(), 0, false) {
       checkTypeAtCompileTime(handle.product());
+    }
+
+    /// Constructor for ref to object that is not in an event.
+    //  An exception will be thrown if an attempt is made to persistify
+    //  any object containing this RefProd.  Also, in the future work will
+    //  be done to throw an exception if an attempt is made to put any object
+    //  containing this RefProd into an event(or run or lumi). */
+    RefProd(C const* product) :
+      product_(ProductID(), product, 0, true) {
+      checkTypeAtCompileTime(product);
     }
 
     /// Constructor from Ref<C,T,F>
@@ -71,14 +81,14 @@ namespace edm {
     // but have a pointer to a product getter (such as the EventPrincipal).
     // prodGetter will ususally be a pointer to the event principal.
     RefProd(ProductID const& productID, EDProductGetter const* prodGetter) :
-      product_(productID, 0, prodGetter) {
+      product_(productID, 0, prodGetter, false) {
     }
 
     /// Destructor
     ~RefProd() {}
 
     /// Dereference operator
-    product_type const&  operator*() const;
+    product_type const& operator*() const;
 
     /// Member dereference operator
     product_type const* operator->() const;
@@ -100,13 +110,13 @@ namespace edm {
     }
 
     /// Checks for null
-    bool isNull() const {return !isNonnull(); }
+    bool isNull() const {return !isNonnull();}
 
     /// Checks for non-null
-    bool isNonnull() const {return id().isValid(); }
+    bool isNonnull() const {return product_.isNonnull();}
 
     /// Checks for null
-    bool operator!() const {return isNull(); }
+    bool operator!() const {return isNull();}
 
     /// Accessor for product ID.
     ProductID id() const {return product_.id();}
@@ -116,6 +126,18 @@ namespace edm {
 
     /// Checks if product is in memory.
     bool hasCache() const {return product_.productPtr() != 0;}
+
+    /// Checks if product is in memory.
+    bool hasProductCache() const {return hasCache();}
+
+    /// Checks if collection is in memory or available
+    /// in the Event. No type checking is done.
+    bool isAvailable() const {return product_.isAvailable();}
+
+    /// Checks if this RefProd is transient (i.e. not persistable).
+    bool isTransient() const {return product_.isTransient();}
+
+    void swap(RefProd<C> &);
 
   private:
     // Compile time check that the argument is a C* or C const*
@@ -136,10 +158,7 @@ namespace edm {
   template <typename T, typename F>
   inline
   RefProd<C>::RefProd(Ref<C, T, F> const& ref) :
-      product_(ref.id(), 
-	       ref.hasProductCache() ? 
-	       ref.product() : 
-	       0, ref.productGetter()) 
+      product_(ref.id(), ref.hasProductCache() ?  ref.product() : 0, ref.productGetter(), ref.isTransient()) 
   {  }
 
   /// Dereference operator
@@ -155,6 +174,13 @@ namespace edm {
   C const* RefProd<C>::operator->() const {
     return edm::template getProduct<C>(product_);
   } 
+
+
+  template<typename C>
+  inline
+  void RefProd<C>::swap(RefProd<C> & other) {
+    std::swap(product_, other.product_);
+  }
 
   template <typename C>
   inline
@@ -176,6 +202,12 @@ namespace edm {
   operator< (RefProd<C> const& lhs, RefProd<C> const& rhs) {
     return (lhs.refCore() < rhs.refCore());
   }
+
+  template<typename C>
+  inline
+  void swap(edm::RefProd<C> const& lhs, edm::RefProd<C> const& rhs ) {
+    lhs.swap(rhs);
+  }
 }
 
 #include "DataFormats/Common/interface/HolderToVectorTrait.h"
@@ -187,8 +219,12 @@ namespace edm {
     struct RefProdHolderToVector {
       static  std::auto_ptr<BaseVectorHolder<T> > makeVectorHolder() {
 	throw edm::Exception(errors::InvalidReference)
-	  << "attempting to make a BaseVectorHolder<T> from a RefProd<C>.";
+	  << "attempting to make a BaseVectorHolder<T> from a RefProd<C>.\n";
       }
+      static std::auto_ptr<RefVectorHolderBase> makeVectorBaseHolder() {
+	throw edm::Exception(errors::InvalidReference)
+          << "attempting to make a RefVectorHolderBase from a RefProd<C>.\n";
+       }
     };
 
     template<typename C, typename T>
@@ -199,7 +235,11 @@ namespace edm {
     struct RefProdRefHolderToRefVector {
       static  std::auto_ptr<RefVectorHolderBase> makeVectorHolder() {
 	throw edm::Exception(errors::InvalidReference)
-	  << "attempting to make a RefVectorHolderBase from a RefProd<C>.";
+	  << "attempting to make a RefVectorHolderBase from a RefProd<C>.\n";
+      }
+      static  std::auto_ptr<RefVectorHolderBase> makeVectorBaseHolder() {
+	throw edm::Exception(errors::InvalidReference)
+	  << "attempting to make a RefVectorHolderBase from a RefProd<C>.\n";
       }
     };
 

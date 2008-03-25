@@ -1,24 +1,95 @@
 <MonElementConfiguration> 
 <TkMap name="Summary Map" update_frequency="200">
-     <MonElement name="ndigis"></MonElement> 
-     <MonElement name="adc"></MonElement> 
+     <MonElement name="ndigis">         </MonElement> 
+     <MonElement name="adc">            </MonElement> 
+     <MonElement name="nclusters">      </MonElement>
+     <MonElement name="y">              </MonElement>
+     <MonElement name="x">              </MonElement>
+     <MonElement name="charge">         </MonElement>
+     <MonElement name="size">           </MonElement>
+     <MonElement name="sizeX">          </MonElement>
+     <MonElement name="sizeY">          </MonElement>
+     <MonElement name="minrow">         </MonElement>
+     <MonElement name="maxrow">         </MonElement>
+     <MonElement name="mincol">         </MonElement>
+     <MonElement name="maxcol">         </MonElement>
+     <MonElement name="residualX_RMS">  </MonElement>
+     <MonElement name="residualY_RMS">  </MonElement>
+     <MonElement name="residualX_mean"> </MonElement>
+     <MonElement name="residualY_mean"> </MonElement>
 </TkMap>
 <SummaryPlot>
 <SubStructureBarrelLevel name="Ladder_" update_frequency="300"> 
-     <MonElement name="ndigis"></MonElement> 
-     <MonElement name="adc"></MonElement> 
+     <MonElement name="ndigis">    </MonElement> 
+     <MonElement name="adc">       </MonElement> 
+     <MonElement name="nclusters"> </MonElement>
+     <MonElement name="y">         </MonElement>
+     <MonElement name="x">         </MonElement>
+     <MonElement name="charge">    </MonElement>
+     <MonElement name="size">      </MonElement>
+     <MonElement name="sizeX">     </MonElement>
+     <MonElement name="sizeY">     </MonElement>
+     <MonElement name="minrow">    </MonElement>
+     <MonElement name="maxrow">    </MonElement>
+     <MonElement name="mincol">    </MonElement>
+     <MonElement name="maxcol">    </MonElement>
+     <MonElement name="residualX"> </MonElement>
+     <MonElement name="residualY"> </MonElement>
 </SubStructureBarrelLevel> 
 <SubStructureGrandBarrelLevel name="Layer_" update_frequency="300"> 
-     <MonElement name="ndigis"></MonElement> 
-     <MonElement name="adc"></MonElement> 
+     <MonElement name="ndigis">         </MonElement> 
+     <MonElement name="adc">            </MonElement> 
+     <MonElement name="nclusters">      </MonElement>
+     <MonElement name="y">              </MonElement>
+     <MonElement name="x">              </MonElement>
+     <MonElement name="charge">         </MonElement>
+     <MonElement name="size">           </MonElement>
+     <MonElement name="sizeX">          </MonElement>
+     <MonElement name="sizeY">          </MonElement>
+     <MonElement name="minrow">         </MonElement>
+     <MonElement name="maxrow">         </MonElement>
+     <MonElement name="mincol">         </MonElement>
+     <MonElement name="maxcol">         </MonElement>
+     <MonElement name="residualX_RMS">  </MonElement>
+     <MonElement name="residualY_RMS">  </MonElement>
+     <MonElement name="residualX_mean"> </MonElement>
+     <MonElement name="residualY_mean"> </MonElement>
 </SubStructureGrandBarrelLevel> 
 <SubStructureEndcapLevel name="Panel_" update_frequency="300"> 
-     <MonElement name="ndigis"></MonElement> 
-     <MonElement name="adc"></MonElement> 
+     <MonElement name="ndigis">    </MonElement> 
+     <MonElement name="adc">       </MonElement> 
+     <MonElement name="nclusters"> </MonElement>
+     <MonElement name="y">         </MonElement>
+     <MonElement name="x">         </MonElement>
+     <MonElement name="charge">    </MonElement>
+     <MonElement name="size">      </MonElement>
+     <MonElement name="sizeX">     </MonElement>
+     <MonElement name="sizeY">     </MonElement>
+     <MonElement name="minrow">    </MonElement>
+     <MonElement name="maxrow">    </MonElement>
+     <MonElement name="mincol">    </MonElement>
+     <MonElement name="maxcol">    </MonElement>
+     <MonElement name="residualX"> </MonElement>
+     <MonElement name="residualY"> </MonElement>
 </SubStructureEndcapLevel> 
 <SubStructureGrandEndcapLevel name="Blade_" update_frequency="300"> 
-     <MonElement name="ndigis"></MonElement> 
-     <MonElement name="adc"></MonElement> 
+     <MonElement name="ndigis">         </MonElement> 
+     <MonElement name="adc">            </MonElement> 
+     <MonElement name="nclusters">      </MonElement>
+     <MonElement name="y">              </MonElement>
+     <MonElement name="x">              </MonElement>
+     <MonElement name="charge">         </MonElement>
+     <MonElement name="size">           </MonElement>
+     <MonElement name="sizeX">          </MonElement>
+     <MonElement name="sizeY">          </MonElement>
+     <MonElement name="minrow">         </MonElement>
+     <MonElement name="maxrow">         </MonElement>
+     <MonElement name="mincol">         </MonElement>
+     <MonElement name="maxcol">         </MonElement>
+     <MonElement name="residualX_RMS">  </MonElement>
+     <MonElement name="residualY_RMS">  </MonElement>
+     <MonElement name="residualX_mean"> </MonElement>
+     <MonElement name="residualY_mean"> </MonElement>
 </SubStructureGrandEndcapLevel> 
 </SummaryPlot>
 

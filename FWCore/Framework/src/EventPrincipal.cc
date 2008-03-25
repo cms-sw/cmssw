@@ -13,26 +13,15 @@ namespace edm {
 	ProcessConfiguration const& pc,
         bool isReal,
         EventAuxiliary::ExperimentType eType,
+	int bunchXing,
+	int storeNumber,
 	ProcessHistoryID const& hist,
 	boost::shared_ptr<DelayedReader> rtrv) :
 	  Base(reg, pc, hist, rtrv),
-	  aux_(id, time, lbp->luminosityBlock(), isReal, eType),
+	  aux_(id, time, lbp->luminosityBlock(), isReal, eType, bunchXing, storeNumber),
 	  luminosityBlockPrincipal_(lbp),
-	  unscheduledHandler_() { }
-
-  EventPrincipal::EventPrincipal(EventID const& id,
-	Timestamp const& time,
-	boost::shared_ptr<ProductRegistry const> reg,
-	LuminosityBlockNumber_t lumi,
-	ProcessConfiguration const& pc,
-        bool isReal,
-        EventAuxiliary::ExperimentType eType,
-	ProcessHistoryID const& hist,
-	boost::shared_ptr<DelayedReader> rtrv) :
-	  Base(reg, pc, hist, rtrv),
-	  aux_(id, time, lumi, isReal, eType),
-	  luminosityBlockPrincipal_(new LuminosityBlockPrincipal(lumi, reg, id.run(), pc)),
-	  unscheduledHandler_() { }
+	  unscheduledHandler_() {
+	  }
 
   RunPrincipal const&
   EventPrincipal::runPrincipal() const {

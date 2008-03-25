@@ -13,14 +13,13 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Jun 24 14:33:04 EDT 2005
-// $Id: WhatsItESProducer.cc,v 1.8 2006/02/13 23:01:31 wmtan Exp $
+// $Id: WhatsItESProducer.cc,v 1.10 2007/07/30 19:15:54 chrjones Exp $
 //
 //
 
 
 // system include files
 #include <memory>
-#include "boost/shared_ptr.hpp"
 
 // user include files
 #include "FWCore/Framework/interface/ModuleFactory.h"
@@ -47,6 +46,7 @@ class WhatsItESProducer : public edm::ESProducer {
       ReturnType produce(const GadgetRcd &);
    private:
       // ----------member data ---------------------------
+      std::string dataLabel_;
 };
 
 //
@@ -60,7 +60,8 @@ class WhatsItESProducer : public edm::ESProducer {
 //
 // constructors and destructor
 //
-WhatsItESProducer::WhatsItESProducer(const edm::ParameterSet& /*iConfig*/)
+WhatsItESProducer::WhatsItESProducer(const edm::ParameterSet& iConfig)
+: dataLabel_(iConfig.exists("doodadLabel")? iConfig.getParameter<std::string>("doodadLabel"):std::string(""))
 {
    //the following line is needed to tell the framework what
    // data is being produced
@@ -90,7 +91,7 @@ WhatsItESProducer::produce(const GadgetRcd& iRecord)
    using namespace edmtest;
 
    edm::ESHandle<Doodad> doodad;
-   iRecord.get(doodad);
+   iRecord.get(dataLabel_,doodad);
    
    std::auto_ptr<WhatsIt> pWhatsIt(new WhatsIt) ;
 

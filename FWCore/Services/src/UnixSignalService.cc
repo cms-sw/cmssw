@@ -13,6 +13,7 @@ namespace edm {
                                        edm::ActivityRegistry& registry)
   {
     edm::installCustomHandler(SIGUSR2,edm::ep_sigusr2);
+    edm::installCustomHandler(SIGINT ,edm::ep_sigusr2);
   }
 
   UnixSignalService::~UnixSignalService() {}

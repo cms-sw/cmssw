@@ -84,19 +84,19 @@ namespace edmtest
 
       if ( (fabs(lumiDetails->lumiEtSum(i)     - (100.0 + i)) > epsilon) ||
            (fabs(lumiDetails->lumiEtSumErr(i)  - (200.0 + i)) > epsilon) ||
-           (fabs(lumiDetails->lumiEtSumQual(i) - (300.0 + i)) > epsilon) ||
+           (lumiDetails->lumiEtSumQual(i) != (300 + i)) ||
            (fabs(lumiDetails->lumiOcc(i)       - (400.0 + i)) > epsilon) ||
            (fabs(lumiDetails->lumiOccErr(i)    - (500.0 + i)) > epsilon) ||
-           (fabs(lumiDetails->lumiOccQual(i)   - (600.0 + i)) > epsilon) ) {
+           (lumiDetails->lumiOccQual(i) != (600 + i)) ) {
 	std::cerr << "TestLumiProducer: Values read from LumiDetails object do not match input values (1)\n";
         abort();
       }    
       if ( (fabs(lumiDetails->lumiEtSum()[i]     - (100.0 + i)) > epsilon) ||
            (fabs(lumiDetails->lumiEtSumErr()[i]  - (200.0 + i)) > epsilon) ||
-           (fabs(lumiDetails->lumiEtSumQual()[i] - (300.0 + i)) > epsilon) ||
+           (lumiDetails->lumiEtSumQual()[i] != (300 + i)) ||
            (fabs(lumiDetails->lumiOcc()[i]       - (400.0 + i)) > epsilon) ||
            (fabs(lumiDetails->lumiOccErr()[i]    - (500.0 + i)) > epsilon) ||
-           (fabs(lumiDetails->lumiOccQual()[i]   - (600.0 + i)) > epsilon) ) {
+           (lumiDetails->lumiOccQual()[i] != (600 + i)) ) {
 	std::cerr << "TestLumiProducer: Values read from LumiDetails object do not match input values (2)\n";
         abort();
       }    

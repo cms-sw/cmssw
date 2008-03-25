@@ -16,6 +16,7 @@
 #include "FastSimulation/MaterialEffects/interface/MaterialEffectsSimulator.h"
 
 #include <vector>
+#include <map>
 #include <string>
 #include <fstream>
 
@@ -34,13 +35,17 @@ class NuclearInteractionSimulator : public MaterialEffectsSimulator
  public:
 
   /// Constructor
-  NuclearInteractionSimulator(std::vector<std::string>& inputFiles,
-			    std::vector<double>& pionEnergies,
-			    double pionEnergy,
-			    double lengthRatio,
-			    std::vector<double> ratioRatio,
-			    std::string inputFile,
-			    const RandomEngine* engine);
+  NuclearInteractionSimulator(std::vector<double>& pionEnergies,
+			      std::vector<int>& pionTypes,
+			      std::vector<std::string>& pionNames,
+			      std::vector<double>& pionMasses,
+			      std::vector<double>& pionPMin,
+			      double pionEnergy,
+			      std::vector<double>& lengthRatio,
+			      std::vector< std::vector<double> >& ratios,
+			      std::map<int,int >& idMap,
+			      std::string inputFile,
+			      const RandomEngine* engine);
 
   /// Default Destructor
   ~NuclearInteractionSimulator();
@@ -49,30 +54,44 @@ class NuclearInteractionSimulator : public MaterialEffectsSimulator
   void save();
 
   /// Read former nuclear interaction (from previous run)
-  void read(std::string inputFile);
+  bool read(std::string inputFile);
 
  private:
 
   /// Generate a nuclear interaction according to the probability that it happens
   void compute(ParticlePropagator& Particle);
 
-  std::vector<std::string> theFileNames;
-  std::vector<double> thePionCM;
-  double thePionEnergy;
-  double theLengthRatio;
-  std::vector<double> theRatios;
+  /// Return a hashed index for a given pid
+  unsigned index(int thePid);
 
-  std::vector<TFile*> theFiles;
-  std::vector<TTree*> theTrees;
-  std::vector<TBranch*> theBranches;
-  std::vector<NUEvent*> theNUEvents;
-  std::vector<unsigned> theCurrentEntry;
-  std::vector<unsigned> theCurrentInteraction;
-  std::vector<unsigned> theNumberOfEntries;
-  std::vector<unsigned> theNumberOfInteractions;
+  std::vector<double> thePionEN;
+  std::vector<int> thePionID;
+  std::vector<std::string> thePionNA;
+  std::vector<double> thePionMA;
+  std::vector<double> thePionPMin;
+  double thePionEnergy;
+  std::vector<double> theLengthRatio;
+  std::vector< std::vector<double> > theRatios;
+
+  std::vector< std::vector<TFile*> > theFiles;
+  std::vector< std::vector<TTree*> > theTrees;
+  std::vector< std::vector<TBranch*> > theBranches;
+  std::vector< std::vector<NUEvent*> > theNUEvents;
+  std::vector< std::vector<unsigned> > theCurrentEntry;
+  std::vector< std::vector<unsigned> > theCurrentInteraction;
+  std::vector< std::vector<unsigned> > theNumberOfEntries;
+  std::vector< std::vector<unsigned> > theNumberOfInteractions;
+  std::vector< std::vector<std::string> > theFileNames;
+  std::vector< std::vector<double> > thePionCM;
+  
+  std::map< int, int > theIDMap;
+  unsigned ien4;
 
   std::ofstream myOutputFile;
   unsigned myOutputBuffer;
+  
+
+
 
   //  DaqMonitorBEInterface * dbe;
   //  MonitorElement* htot;

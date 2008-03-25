@@ -9,8 +9,8 @@ class ESSample {
  public:
 
   ESSample() { theSample = 0; }
-  ESSample(uint16_t data) { theSample = data; }
-  ESSample(int adc);
+  ESSample(const uint16_t& data) { theSample = data; }
+  ESSample(const int& adc);
     
   /// get the raw word
   uint16_t raw() const { return theSample; }

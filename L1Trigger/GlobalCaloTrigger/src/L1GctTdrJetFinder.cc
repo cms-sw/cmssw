@@ -78,10 +78,12 @@ void L1GctTdrJetFinder::findJets()
         m_outputJets.at(jetNum).setDetId(calcJetPosition(centreIndex));
         if(row < COL_OFFSET-4)  //if we are not in the HF, perform tauVeto analysis
         {
+          m_outputJets.at(jetNum).setForward(false);
           m_outputJets.at(jetNum).setTauVeto(calcJetTauVeto(centreIndex,heBoundary));
         }
         else //can't be a tau jet because we are in the HF
         {
+          m_outputJets.at(jetNum).setForward(true);
           m_outputJets.at(jetNum).setTauVeto(true);
         }
         ++jetNum;

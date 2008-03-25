@@ -19,6 +19,7 @@
 <use name=TrackingTools/TrajectoryParametrization>
 <use name=TrackingTools/TrajectoryState>
 <use name=TrackingTools/TransientTrackingRecHit>
+<use name=RecoPixelVertexing/PixelTrackFitting>
 
 <flags EDM_PLUGIN=1>
 

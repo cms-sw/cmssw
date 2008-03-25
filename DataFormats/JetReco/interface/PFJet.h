@@ -10,7 +10,7 @@
  * in addition to generic Jet parameters
  *
  * \author Fedor Ratnikov, UMd, Apr 24, 2007
-  * \version   $Id: PFJet.h,v 1.4 2007/05/08 21:36:51 fedor Exp $
+  * \version   $Id: PFJet.h,v 1.5 2007/05/19 04:26:33 fedor Exp $
  ************************************************************/
 
 
@@ -18,6 +18,11 @@
 #include "DataFormats/ParticleFlowReco/interface/PFBlockFwd.h"
 
 #include "DataFormats/JetReco/interface/PFJetfwd.h"
+#include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
+#include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
+#include "DataFormats/ParticleFlowReco/interface/PFBlock.h"
+#include "DataFormats/Candidate/interface/CompositeRefBaseCandidate.h"
+
 
 namespace reco {
 class PFJet : public Jet {
@@ -85,13 +90,12 @@ class PFJet : public Jet {
   float muonMultiplicity () const {return m_specific.mMuonMultiplicity;}
 
  
-  /// convert generic constituent to specific type
-  static reco::PFBlockRef getPFBlock (const reco::Candidate* fConstituent);
+ /// convert generic constituent to specific type
+  static const reco::PFCandidate* getPFCandidate (const reco::Candidate* fConstituent);
   /// get specific constituent
-  reco::PFBlockRef getConstituent (unsigned fIndex) const;
+  const reco::PFCandidate* getConstituent (unsigned fIndex) const;
   /// get all constituents
-  std::vector <reco::PFBlockRef> getConstituents () const;
-  
+  std::vector <const reco::PFCandidate*> getConstituents () const;  
   // block accessors
   
   const Specific& getSpecific () const {return m_specific;}

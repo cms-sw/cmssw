@@ -24,8 +24,10 @@ namespace edm {
   class ParameterSet;
 } 
 
-class ParticlePropagator;
-class RandomEngine;
+namespace HepMC { 
+  class GenEvent;
+}
+
 class FSimEvent;
 
 class PileUpSimulator
@@ -33,27 +35,18 @@ class PileUpSimulator
  public:
 
   /// Constructor
-  PileUpSimulator(FSimEvent* aSimEvent, 
-		  edm::ParameterSet const & p,
-		  const RandomEngine* engine);
+  PileUpSimulator(FSimEvent* aSimEvent);
 
   /// Default Destructor
   ~PileUpSimulator();
 
   /// Produce N minimum bias events, and add them to the FSimEvent
-  void produce();
-
-  /// Save current minbias configuration (for later use)
-  void save();
-
-  /// Read former minbias configuration (from previous run)
-  void read(std::string inputFile);
+  void produce(const HepMC::GenEvent* pu);
 
  private:
 
   double averageNumber_;
   FSimEvent* mySimEvent;
-  const RandomEngine* random;
   std::vector<std::string> theFileNames;
   std::string inputFile;
   unsigned theNumberOfFiles;

@@ -2,7 +2,7 @@
 #define Common_RefHolderBase_h
 /* \class edm::reftobase::Base
  *
- * $Id: RefHolderBase.h,v 1.1 2007/07/02 13:03:03 llista Exp $
+ * $Id: RefHolderBase.h,v 1.4 2007/08/15 03:23:19 wmtan Exp $
  *
  */
 #include "Reflex/Type.h"
@@ -20,6 +20,7 @@ namespace edm {
       virtual RefHolderBase* clone() const = 0;
 
       virtual ProductID id() const = 0;
+      virtual size_t key() const = 0;
 
       // Check to see if the Ref hidden in 'rhs' is equal to the Ref
       // hidden in 'this'. They can not be equal if they are of
@@ -35,6 +36,9 @@ namespace edm {
 					  std::string& msg) const = 0;
 
       virtual std::auto_ptr<RefVectorHolderBase> makeVectorHolder() const = 0;
+      virtual EDProductGetter const* productGetter() const = 0;
+      virtual bool hasProductCache() const = 0;
+      virtual void const * product() const = 0;
 
     private:
       // "cast" the real type of the element (the T of contained Ref),

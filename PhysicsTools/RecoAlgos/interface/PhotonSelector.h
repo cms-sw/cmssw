@@ -7,9 +7,9 @@
  * 
  * \author Luca Lista, INFN
  *
- * \version $Revision: 1.5 $
+ * \version $Revision: 1.6 $
  *
- * $Id: PhotonSelector.h,v 1.5 2006/12/07 11:28:31 llista Exp $
+ * $Id: PhotonSelector.h,v 1.6 2007/03/14 12:22:11 llista Exp $
  *
  */
 
@@ -20,7 +20,7 @@
 namespace helper {
   struct PhotonCollectionStoreManager {
     typedef reco::PhotonCollection collection;
-    PhotonCollectionStoreManager() :
+    PhotonCollectionStoreManager(const edm::Handle<reco::PhotonCollection>&) :
       selPhotons_( new reco::PhotonCollection ),
       selSuperClusters_( new reco::SuperClusterCollection ) {
     }

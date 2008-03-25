@@ -20,12 +20,16 @@ public:
   /// destructor
   ~TFileService();
   /// return opened TFile
-  TFile & file() const { return * file_; } 
-  void cd( const std::string & ) const;
+  TFile & file() const { return * file_; }
+
+  /// Hook for writing info into JR
+  void afterBeginJob();
 
 private:
   /// pointer to opened TFile
   TFile * file_;
+  std::string fileName_;
+  bool fileNameRecorded_;
   // set current directory according to module name and prepair to create directory
   void setDirectoryName( const edm::ModuleDescription & desc );
 };

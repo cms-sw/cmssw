@@ -8,6 +8,7 @@
 
 #include "RecoLocalCalo/EcalRecAlgos/interface/EcalUncalibRecHitRecWeightsAlgo.h"
 #include "DataFormats/EcalDigi/interface/EBDataFrame.h"
+#include "DataFormats/EcalDigi/interface/EEDataFrame.h"
 #include "TBDataFormats/EcalTBObjects/interface/EcalTBTDCRecInfo.h"
 #include "CondFormats/EcalObjects/interface/EcalWeight.h"
 
@@ -24,12 +25,15 @@ class EcalTBWeightUncalibRecHitProducer : public edm::EDProducer {
 
     std::string digiProducer_; // name of module/plugin/producer making digis
     std::string EBdigiCollection_; // secondary name given to collection of digis
+    std::string EEdigiCollection_; // secondary name given to collection of digis
     std::string tdcRecInfoCollection_; // secondary name given to collection of digis
     std::string tdcRecInfoProducer_; // secondary name given to collection of digis
 
     std::string EBhitCollection_; // secondary name to be given to collection of hit
+    std::string EEhitCollection_; // secondary name to be given to collection of hit
 
     EcalUncalibRecHitRecWeightsAlgo<EBDataFrame> EBalgo_;
+    EcalUncalibRecHitRecWeightsAlgo<EEDataFrame> EEalgo_;
 
 /*     HepMatrix makeMatrixFromVectors(const std::vector< std::vector<EcalWeight> >& vecvec); */
 /*     HepMatrix makeDummySymMatrix(int size); */

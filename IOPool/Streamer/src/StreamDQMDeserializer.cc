@@ -8,7 +8,7 @@
 #include "FWCore/Utilities/interface/DebugMacros.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "IOPool/Streamer/interface/StreamDQMDeserializer.h"
-#include "IOPool/Streamer/interface/StreamDeserializer.h"
+#include "IOPool/Streamer/interface/StreamerInputSource.h"
 #include <iostream>
 
 namespace edm
@@ -60,7 +60,7 @@ namespace edm
     if (originalSize != 0)
       {
         unsigned int actualSize =
-          StreamDeserializer::uncompressBuffer(bufPtr, bufLen,
+          StreamerInputSource::uncompressBuffer(bufPtr, bufLen,
                                                decompressBuffer_,
                                                originalSize);
         bufPtr = &decompressBuffer_[0];

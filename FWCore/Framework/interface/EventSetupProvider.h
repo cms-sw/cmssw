@@ -58,6 +58,8 @@ class EventSetupProvider
 
       // ---------- member functions ---------------------------
       EventSetup const& eventSetupForInstance(const IOVSyncValue&);
+
+      EventSetup const& eventSetup() const {return eventSetup_;}
      
       //called by specializations of EventSetupRecordProviders
       template<class T>

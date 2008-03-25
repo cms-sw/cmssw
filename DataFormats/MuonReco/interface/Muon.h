@@ -10,7 +10,7 @@
  *
  * \author Luca Lista, Claudio Campagnari, Dmytro Kovalskyi, Jake Ribnik
  *
- * \version $Id: Muon.h,v 1.33 2007/05/16 09:32:37 dmytro Exp $
+ * \version $Id: Muon.h,v 1.37 2007/10/06 00:26:25 dmytro Exp $
  *
  */
 #include "DataFormats/RecoCandidate/interface/RecoCandidate.h"
@@ -85,7 +85,24 @@ namespace reco {
     /// same as above for given number of sigmas
     unsigned int stationGapMaskPull( float sigmaCut = 3. ) const;
      
-     
+    /// muon type - type of the algorithm that reconstructed this muon
+    /// multiple algorithms can reconstruct the same muon
+    static const unsigned int GlobalMuon     =  1<<1;
+    static const unsigned int TrackerMuon    =  1<<2;
+    static const unsigned int StandAloneMuon =  1<<3;
+    static const unsigned int CaloMuon =  1<<4;
+    void setType( unsigned int type ) {}
+    unsigned int getType() const { 
+       unsigned int type(0);
+       if ( isMatchesValid() ) type |= TrackerMuon;
+       if ( combinedMuon_.isNonnull() ) type |= ( GlobalMuon | StandAloneMuon );
+       return type;
+    }
+    bool isGlobalMuon()     const { return getType() & GlobalMuon; }
+    bool isTrackerMuon()    const { return getType() & TrackerMuon; }
+    bool isStandAloneMuon() const { return getType() & StandAloneMuon; }
+    bool isCaloMuon() const { return getType() & CaloMuon; }
+    
   private:
     /// check overlap with another candidate
     virtual bool overlap( const Candidate & ) const;
@@ -110,7 +127,7 @@ namespace reco {
     /// Isolation information for two cones with dR=0.3 and dR=0.5
     MuonIsolation isolationR03_;
     MuonIsolation isolationR05_;
-     
+
     // FixMe: Still missing trigger information
 
     /// get vector of muon chambers for given station and detector

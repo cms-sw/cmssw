@@ -2,7 +2,7 @@
 
 Test of the EventPrincipal class.
 
-$Id: eventprincipal_t.cppunit.cc,v 1.42 2007/06/06 23:33:49 wmtan Exp $
+$Id: eventprincipal_t.cppunit.cc,v 1.44 2007/08/07 22:10:55 wmtan Exp $
 
 ----------------------------------------------------------------------*/  
 #include <map>
@@ -25,14 +25,14 @@ $Id: eventprincipal_t.cppunit.cc,v 1.42 2007/06/06 23:33:49 wmtan Exp $
 #include "DataFormats/TestObjects/interface/ToyProducts.h"
 #include "DataFormats/Common/interface/BasicHandle.h"
 #include "FWCore/Framework/interface/EventPrincipal.h"
+#include "FWCore/Framework/interface/LuminosityBlockPrincipal.h"
+#include "FWCore/Framework/interface/RunPrincipal.h"
 #include "FWCore/Framework/interface/Selector.h"
 #include "FWCore/Utilities/interface/TypeID.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/Utilities/interface/GetPassID.h"
 #include "FWCore/Utilities/interface/GetReleaseVersion.h"
-#include "FWCore/Utilities/interface/PretendToUse.h"
-#include "FWCore/Utilities/interface/value_ptr.h"
 
 typedef edm::BasicHandle handle;
 
@@ -202,7 +202,9 @@ void testeventprincipal::setUp()
     assert(process);
     edm::Timestamp now(1234567UL);
     boost::shared_ptr<edm::ProductRegistry const> preg = boost::shared_ptr<edm::ProductRegistry const>(pProductRegistry_);
-    pEvent_  = new edm::EventPrincipal(eventID_, now, preg, 1, *process, true);
+    boost::shared_ptr<edm::RunPrincipal> rp(new edm::RunPrincipal(eventID_.run(), now, now, preg, *process));
+    boost::shared_ptr<edm::LuminosityBlockPrincipal>lbp(new edm::LuminosityBlockPrincipal(1, now, now, preg, rp, *process));
+    pEvent_  = new edm::EventPrincipal(eventID_, now, preg, lbp, *process, true);
     pEvent_->put(product, provenance);
   }
   

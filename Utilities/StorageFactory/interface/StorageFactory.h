@@ -35,7 +35,7 @@ public:
     bool		check (const std::string &url,
 		    	       seal::IOOffset *size = 0);
 
-private:
+protected:
     typedef std::map<std::string, StorageMaker *> MakerTable;
 
     StorageFactory (void);

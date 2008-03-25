@@ -26,7 +26,8 @@ TrackAssociatorByPositionESProducer::TrackAssociatorByPositionESProducer(const e
 {
    //the following line is needed to tell the framework what
    // data is being produced
-   setWhatProduced(this,"TrackAssociatorByPosition");
+  std::string cname = iConfig.getParameter<std::string>("ComponentName");
+   setWhatProduced(this,cname);
 
    //now do what ever other initialization is needed
    conf_=iConfig;

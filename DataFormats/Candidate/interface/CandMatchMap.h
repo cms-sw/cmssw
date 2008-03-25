@@ -8,6 +8,7 @@
  */
 #include "DataFormats/Common/interface/AssociationMap.h"
 #include "DataFormats/Common/interface/OneToOne.h"
+#include "DataFormats/Common/interface/OneToOneGeneric.h"
 #include "DataFormats/Candidate/interface/Candidate.h"
 
 namespace reco {
@@ -16,6 +17,12 @@ namespace reco {
                           reco::CandidateCollection
             > 
           > CandMatchMap;
+
+  typedef edm::AssociationMap<
+            edm::OneToOneGeneric<reco::CandidateView, 
+                                 reco::CandidateView
+            > 
+          > CandViewMatchMap;
 }
 
 #endif

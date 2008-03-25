@@ -1,0 +1,31 @@
+<ROOT>
+  <HEADER>
+    <TYPE>
+      <EXTENSION_TABLE_NAME>HCAL_TRIG_PRIM_LOOKUP_TABLES</EXTENSION_TABLE_NAME>
+      <NAME>HCAL trigger primitive lookup table</NAME>
+    </TYPE>
+     <RUN mode="no-run" />
+  </HEADER>
+ 
+<!-- Tags secton -->        
+    <ELEMENTS>
+        <DATA_SET id="-1"/>
+        <IOV id="1">
+            <INTERVAL_OF_VALIDITY_BEGIN>0</INTERVAL_OF_VALIDITY_BEGIN>
+            <INTERVAL_OF_VALIDITY_END>1</INTERVAL_OF_VALIDITY_END>
+        </IOV>
+        <TAG id="2" mode="auto">
+            <TAG_NAME>my-trig-lut-test-v2</TAG_NAME>
+            <DETECTOR_NAME>HCAL</DETECTOR_NAME>
+            <COMMENT_DESCRIPTION>Sample Tags</COMMENT_DESCRIPTION>
+        </TAG>
+    </ELEMENTS>
+
+    <MAPS>
+        <TAG idref="2">
+            <IOV idref="1">
+                <DATA_SET idref="-1" />
+            </IOV>
+        </TAG>
+    </MAPS>
+</ROOT>

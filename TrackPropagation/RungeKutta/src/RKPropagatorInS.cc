@@ -11,7 +11,7 @@
 #include "TrackPropagation/RungeKutta/interface/CartesianStateAdaptor.h"
 #include "TrackingTools/GeomPropagators/interface/StraightLineCylinderCrossing.h"
 #include "MagneticField/VolumeGeometry/interface/MagVolume.h"
-
+#include "TrackingTools/GeomPropagators/interface/PropagationDirectionFromPath.h"
 #include "TrackPropagation/RungeKutta/interface/FrameChanger.h"
 #include "TrackingTools/GeomPropagators/interface/StraightLinePlaneCrossing.h"
 #include "TrackPropagation/RungeKutta/interface/AnalyticalErrorPropagation.h"
@@ -27,9 +27,10 @@ RKPropagatorInS::propagateWithPath(const FreeTrajectoryState& fts,
   GlobalParametersWithPath gp =  propagateParametersOnPlane( fts, plane);
   if (!gp) return TsosWP(TrajectoryStateOnSurface(),0.);
   else {
+    SurfaceSide side = PropagationDirectionFromPath()(gp.s(),propagationDirection())==alongMomentum 
+      ? beforeSurface : afterSurface;
     AnalyticalErrorPropagation errorprop;
-    return errorprop( fts, plane, SurfaceSideDefinition::beforeSurface,
-		      gp.parameters(),gp.s());
+    return errorprop( fts, plane, side, gp.parameters(),gp.s());
   }
 }
 
@@ -39,9 +40,10 @@ RKPropagatorInS::propagateWithPath (const FreeTrajectoryState& fts, const Cylind
   GlobalParametersWithPath gp =  propagateParametersOnCylinder( fts, cyl);
   if (!gp) return TsosWP(TrajectoryStateOnSurface(),0.);
   else {
+    SurfaceSide side = PropagationDirectionFromPath()(gp.s(),propagationDirection())==alongMomentum 
+      ? beforeSurface : afterSurface;
     AnalyticalErrorPropagation errorprop;
-    return errorprop( fts, cyl, SurfaceSideDefinition::beforeSurface,
-		      gp.parameters(),gp.s());
+    return errorprop( fts, cyl, side, gp.parameters(),gp.s());
   }
   
 }

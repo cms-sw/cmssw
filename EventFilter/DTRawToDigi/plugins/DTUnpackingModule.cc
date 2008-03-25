@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2007/04/26 18:53:06 $
- *  $Revision: 1.24 $
+ *  $Date: 2007/05/07 16:16:40 $
+ *  $Revision: 1.3 $
  *  \author S. Argiro - N. Amapane - M. Zanetti 
  * FRC 060906
  */
@@ -70,7 +70,6 @@ DTUnpackingModule::DTUnpackingModule(const edm::ParameterSet& ps) :
 }
 
 DTUnpackingModule::~DTUnpackingModule(){
-  cout<<"[DTUnpackingModule]: Destructor"<<endl;
   delete unpacker;
 }
 
@@ -121,8 +120,8 @@ void DTUnpackingModule::produce(Event & e, const EventSetup& context){
  				 feddata.size(), id, mapping, product, product2);
       
       numOfEvents++;      
-      if (numOfEvents%eventScanning == 0) 
-	cout<<"[DTUnpackingModule]: "<<numOfEvents<<" events analyzed"<<endl;
+      //if (numOfEvents%eventScanning == 0) 
+      //  cout<<"[DTUnpackingModule]: "<<numOfEvents<<" events analyzed"<<endl;
       
     }
   }

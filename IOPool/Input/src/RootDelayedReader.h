@@ -5,7 +5,7 @@
 
 RootDelayedReader.h // used by ROOT input sources
 
-$Id: RootDelayedReader.h,v 1.9 2007/05/29 19:34:09 wmtan Exp $
+$Id: RootDelayedReader.h,v 1.10 2007/06/14 22:02:15 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -36,6 +36,7 @@ namespace edm {
     RootDelayedReader & operator=(RootDelayedReader const&); // disable assignment
     virtual std::auto_ptr<EDProduct> getProduct(BranchKey const& k, EDProductGetter const* ep) const;
     virtual std::auto_ptr<BranchEntryDescription> getProvenance(BranchKey const& k) const;
+    virtual boost::shared_ptr<TFile const> filePtrImpl() const {return filePtr_;}
     BranchMap const& branches() const {return *branches_;}
     EntryNumber const entryNumber_;
     boost::shared_ptr<BranchMap const> branches_;

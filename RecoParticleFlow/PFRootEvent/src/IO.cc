@@ -147,10 +147,15 @@ bool IO::GetOpt(const char* tag, const char* key, string& value) const {
   istringstream in(data.c_str());  
   in.get(cstr,sLinesize);
 
+
   value = cstr;
   if(!value.empty()) {
+    // remove leading spaces
     int pos = value.find_first_not_of(" \t");
     value = value.substr(pos);
+    // remove trailing spaces
+    pos = value.find_last_not_of(" \t");
+    value = value.substr(0,pos+1);
   }
   if(!value.empty()) return true;
   else return false;

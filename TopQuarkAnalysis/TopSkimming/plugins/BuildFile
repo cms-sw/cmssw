@@ -1,7 +1,29 @@
-<library file=TtDecayChannelFilter.cc>
+<library file=TopDiLeptonFilter.cc name=TopSkimPlugins>
   <use name=FWCore/Framework>
   <use name=FWCore/ParameterSet>
   <use name=DataFormats/Candidate>
+  <use name=DataFormats/MuonReco>
+  <use name=DataFormats/EgammaCandidates>
   <use name=DataFormats/HepMCCandidate>
-  <use name=TopQuarkAnalysis/TopSkimming>
 </library>
+
+<library file=TopLeptonTauFilter.cc>
+  <use name=FWCore/Framework>
+  <use name=FWCore/ParameterSet>
+  <use name=DataFormats/JetReco>
+  <use name=DataFormats/METReco>
+  <use name=DataFormats/MuonReco>
+  <use name=DataFormats/EgammaCandidates>
+</library>
+
+<library file=PtMinPixelMatchGsfElectronCountFilter.cc>
+  <use name=PhysicsTools/UtilAlgos>
+  <use name=DataFormats/EgammaCandidates>
+</library>
+
+<library file=JetTagCountFilter.cc name=JetTagCountFilter>
+  <use name=FWCore/Framework>
+  <use name=FWCore/ParameterSet>
+  <use name=rootmath>
+</library> 
+

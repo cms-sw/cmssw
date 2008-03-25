@@ -1,28 +1,42 @@
+#include <algorithm>
 #include <cstdlib>
 #include <cstddef>
 #include <cstring>
-#include <memory>
 #include <set>
 
 #include "PhysicsTools/MVAComputer/interface/AtomicId.h"
 
-namespace PhysicsTools {
+namespace { // anonymous
+	struct StringLess {
+		bool operator()(const char *id1, const char *id2) const
+		{ return std::strcmp(id1, id2) < 0; }
+	};
 
-struct StringLess {
-	bool operator()(const char *id1, const char *id2) const
-	{ return std::strcmp(id1, id2) < 0; }
-};
+	class IdCache {
+	    public:
+		~IdCache();
 
-static std::multiset<const char *, StringLess> idSet;
-static std::allocator<char> stringAllocator;
+		inline const char *findOrInsert(const char *string) throw();
 
-const char *AtomicId::lookup(const char *string) throw()
+	    private:
+		typedef std::multiset<const char *, StringLess> IdSet;
+
+		IdSet				idSet;
+		static std::allocator<char>	stringAllocator;
+	};
+} // anonymous namespace
+
+IdCache::~IdCache()
 {
-	if (!string)
-		return 0;
+	for(std::multiset<const char*, StringLess>::iterator iter =
+	    idSet.begin(); iter != idSet.end(); iter++)
+		stringAllocator.deallocate(const_cast<char*>(*iter),
+		                           std::strlen(*iter));
+}
 
-	std::set<const char *, StringLess>::iterator pos =
-						idSet.lower_bound(string);
+const char *IdCache::findOrInsert(const char *string) throw()
+{
+	IdSet::iterator pos = idSet.lower_bound(string);
 	if (pos != idSet.end() && std::strcmp(*pos, string) == 0)
 		return *pos;
 
@@ -33,6 +47,22 @@ const char *AtomicId::lookup(const char *string) throw()
 	idSet.insert(pos, unique);
 
 	return unique;
+}
+
+namespace PhysicsTools {
+
+static IdCache &getAtomicIdCache()
+{
+	static IdCache atomicIdCache;
+	return atomicIdCache;
+}
+
+const char *AtomicId::lookup(const char *string) throw()
+{
+	if (string)
+		return getAtomicIdCache().findOrInsert(string);
+
+	return 0;
 }
 
 } // namespace PhysicsTools

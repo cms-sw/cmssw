@@ -7,12 +7,13 @@
  * 
  * \author Luca Lista, INFN
  *
- * \version $Revision: 1.15 $
+ * \version $Revision: 1.18 $
  *
- * $Id: TrackSelector.h,v 1.15 2006/12/07 11:28:31 llista Exp $
+ * $Id: TrackSelector.h,v 1.18 2007/09/18 13:50:55 ratnik Exp $
  *
  */
 #include "DataFormats/TrackReco/interface/Track.h"
+#include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/TrackReco/interface/TrackExtra.h"
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
 #include "PhysicsTools/UtilAlgos/interface/ObjectSelector.h"
@@ -20,7 +21,7 @@
 namespace helper {
   struct TrackCollectionStoreManager {
     typedef reco::TrackCollection collection;
-    TrackCollectionStoreManager() :
+    TrackCollectionStoreManager(const edm::Handle<reco::TrackCollection>&) :
       selTracks_( new reco::TrackCollection ),
       selTrackExtras_( new reco::TrackExtraCollection ),
       selHits_( new TrackingRecHitCollection ) {
@@ -39,7 +40,8 @@ namespace helper {
 	selTrackExtras_->push_back( TrackExtra( trk.outerPosition(), trk.outerMomentum(), trk.outerOk(),
 						trk.innerPosition(), trk.innerMomentum(), trk.innerOk(),
 						trk.outerStateCovariance(), trk.outerDetId(),
-						trk.innerStateCovariance(), trk.innerDetId() ) );
+						trk.innerStateCovariance(), trk.innerDetId(),
+						trk.seedDirection() ) );
 	TrackExtra & tx = selTrackExtras_->back();
 	for( trackingRecHit_iterator hit = trk.recHitsBegin(); hit != trk.recHitsEnd(); ++ hit ) {
 	  selHits_->push_back( (*hit)->clone() );

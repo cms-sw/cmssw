@@ -35,12 +35,13 @@ WebGUI::WebGUI(xdaq::Application* app,StateMachine* fsm)
   , log_(app->getApplicationContext()->getLogger())
   , appInfoSpace_(0)
   , monInfoSpace_(0)
+  , itemGroupListener_(0)
   , parametersExported_(false)
   , countersAddedToParams_(false)
-  , largeAppIcon_("/daq/evb/examples/fu/images/fu64x64.gif")
-  , smallAppIcon_("/daq/evb/examples/fu/images/fu32x32.gif")
-  , smallDbgIcon_("/daq/evb/bu/images/debug32x32.gif")
-  , hyperDAQIcon_("/daq/xdaq/hyperdaq/images/HyperDAQ.jpg")
+  , largeAppIcon_("/rubuilder/fu/images/fu64x64.gif")
+  , smallAppIcon_("/rubuilder/fu/images/fu32x32.gif")
+  , smallDbgIcon_("/rubuilder/bu/images/debug32x32.gif")
+  , hyperDAQIcon_("/hyperdaq/images/HyperDAQ.jpg")
 {
   // initialize application information
   string       appClass=app_->getApplicationDescriptor()->getClassName();
@@ -58,12 +59,17 @@ WebGUI::WebGUI(xdaq::Application* app,StateMachine* fsm)
   
   appInfoSpace_=app_->getApplicationInfoSpace();
   monInfoSpace_=xdata::getInfoSpaceFactory()->get(urn.toString());
-  
+  app_->getApplicationDescriptor()->setAttribute("icon",largeAppIcon_);
 
   // bind xgi callbacks
   xgi::bind(this,&WebGUI::defaultWebPage,"defaultWebPage");
   xgi::bind(this,&WebGUI::debugWebPage,  "debugWebPage");
   xgi::bind(this,&WebGUI::css,           "styles.css");
+
+  // set itemGroupListener
+  itemGroupListener_ = dynamic_cast<xdata::ActionListener*>(app_);
+  if (0!=itemGroupListener_)
+    appInfoSpace()->addGroupRetrieveListener(itemGroupListener_);
 }
 
 
@@ -256,36 +262,6 @@ void WebGUI::addItemChangedListener(CString_t& name,xdata::ActionListener* l)
 
 
 //______________________________________________________________________________
-void WebGUI::addItemRetrieveListener(CString_t& name,xdata::ActionListener* l)
-{
-  if (!parametersExported_) {
-    LOG4CPLUS_ERROR(log_,"Can't add ItemRetrieveListener for parameter '"<<name
-		    <<"' before WebGUI::exportParameters() is called.");
-    return;
-  }
-  
-  try {
-    appInfoSpace()->addItemRetrieveListener(name,l);
-    updateParams_.push_back(make_pair(name,l));
-  }
-  catch (xcept::Exception) {
-    LOG4CPLUS_ERROR(log_,"failed to add ItemRetrieveListener to "
-		    <<"application infospace for parameter '"<<name<<"'.");
-  }
-  
-  if (isMonitorParam(name)) {
-    try {
-      monInfoSpace()->addItemRetrieveListener(name,l);
-    }
-    catch (xcept::Exception) {
-      LOG4CPLUS_ERROR(log_,"failed to add ItemRetrieveListener to "
-		      <<"monitor infospace for parameter '"<<name<<"'.");
-    }
-  }
-}
-
-
-//______________________________________________________________________________
 void WebGUI::lockInfoSpaces()
 {
   appInfoSpace()->lock();
@@ -362,9 +338,10 @@ bool WebGUI::isMonitorParam(CString_t& name)
 //______________________________________________________________________________
 void WebGUI::updateParams()
 {
-  UpdateVec_t::iterator it;
-  for (it=updateParams_.begin();it!=updateParams_.end();++it)
-    appInfoSpace()->fireItemValueRetrieve(it->first,it->second);
+  if (0!=itemGroupListener_) {
+    std::list<std::string> emptyList;
+    appInfoSpace()->fireItemGroupRetrieve(emptyList,itemGroupListener_);
+  }
 }
 
 

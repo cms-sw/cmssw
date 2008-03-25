@@ -23,7 +23,6 @@ Toy EDProducers and EDProducts for testing purposes only.
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
@@ -419,16 +418,109 @@ namespace edmtest {
       {
  	assert( guts[i-1].data > guts[i].data);
       }
-    detset item(1); // this will get DetID 1
-    item.data = guts;
 
     std::auto_ptr<product_type> p(new product_type());
-    p->insert(item);
-    
+    int n=0;
+    for (int id=1;id<size_;++id) {
+      ++n;
+      detset item(id); // this will get DetID id
+      item.data.insert(item.data.end(),guts.begin(),guts.begin()+n);     
+      p->insert(item);
+    }
+
     // Put the product into the Event, thus sorting it ... or not,
     // depending upon the product type.
     e.put(p);
   }
+
+  //--------------------------------------------------------------------
+  //
+  // Produces two products: (new DataSetVector)
+  //    DSTVSimpleProduct
+  //    DSTVSimpleDerivedProduct
+  //
+  class DSTVProducer : public edm::EDProducer 
+  {
+  public:
+
+    explicit DSTVProducer(edm::ParameterSet const& p) :
+      size_(p.getParameter<int>("size"))
+    {
+      produces<DSTVSimpleProduct>();
+      produces<DSTVSimpleDerivedProduct>();
+      assert(size_ > 1);
+    }
+    
+    explicit DSTVProducer(int i) : size_(i)
+    {
+      produces<DSTVSimpleProduct>();
+      produces<DSTVSimpleDerivedProduct>();
+      assert(size_ > 1);
+    }
+
+    virtual ~DSTVProducer() { }
+
+    virtual void produce(edm::Event& e, edm::EventSetup const&);
+
+  private:
+    template <class PROD> void make_a_product(edm::Event& e);
+    void fill_a_data(DSTVSimpleProduct::data_type & d, int i);
+    void fill_a_data(DSTVSimpleDerivedProduct::data_type & d, int i);
+    
+    int size_;
+  };
+  
+  void
+  DSTVProducer::produce(edm::Event& e, 
+			edm::EventSetup const& /* unused */)
+  {
+    this->make_a_product<DSTVSimpleProduct>(e);
+    this->make_a_product<DSTVSimpleDerivedProduct>(e);
+  }
+  
+  
+  void 
+  DSTVProducer::fill_a_data(DSTVSimpleDerivedProduct::data_type & d, int i)
+  {
+    d.key = size_ - i;
+    d.value = 1.5 * i;
+  }
+  
+  void 
+  DSTVProducer::fill_a_data(DSTVSimpleProduct::data_type & d, int i)
+  {
+    d.data=size_ - i;
+  }
+  
+  template <class PROD>
+  void
+  DSTVProducer::make_a_product(edm::Event& e)
+  {
+    typedef PROD                     product_type;
+    //FIXME
+    typedef typename product_type::FastFiller detset;
+    typedef typename detset::value_type       value_type;
+    typedef typename detset::id_type       id_type;
+    
+    
+    
+    std::auto_ptr<product_type> p(new product_type());
+    product_type & v = *p;
+    
+    int n=0;
+    for (id_type id=1;id<static_cast<id_type>(size_);++id) {
+      ++n;
+      detset item(v,id); // this will get DetID id
+      item.resize(n);
+      for (int i=0;i<n;++i)
+	fill_a_data(item[i],i);
+    }
+    
+    // Put the product into the Event, thus sorting is not done by magic, 
+    // up to one user-line
+    e.put(p);
+  }
+  
 
   //--------------------------------------------------------------------
   //
@@ -714,8 +806,8 @@ namespace edmtest {
     // manipulate them via an interface different from
     // DetSet, just so that we can make sure the collection
     // is sorted.
-    std::vector<value_type> after( h->begin()->data.begin(),
-				   h->begin()->data.end() );
+    std::vector<value_type> after( (h->end()-1)->data.begin(),
+				   (h->end()-1)->data.end() );
     typedef std::vector<value_type>::size_type size_type;
     
 
@@ -743,8 +835,8 @@ namespace edmtest {
     // manipulate them via an interface different from
     // DetSet, just so that we can make sure the collection
     // is not sorted.
-    std::vector<value_type> after( h->begin()->data.begin(),
-				   h->begin()->data.end() );
+    std::vector<value_type> after(  (h->end()-1)->data.begin(),
+				    (h->end()-1)->data.end() );
     typedef std::vector<value_type>::size_type size_type;
     
 
@@ -764,6 +856,7 @@ using edmtest::SCSimpleProducer;
 using edmtest::OVSimpleProducer;
 using edmtest::VSimpleProducer;
 using edmtest::AVSimpleProducer;
+using edmtest::DSTVProducer;
 using edmtest::DSVProducer;
 using edmtest::IntTestAnalyzer;
 using edmtest::SCSimpleAnalyzer;
@@ -783,6 +876,7 @@ DEFINE_FWK_MODULE(OVSimpleProducer);
 DEFINE_FWK_MODULE(VSimpleProducer);
 DEFINE_FWK_MODULE(AVSimpleProducer);
 DEFINE_FWK_MODULE(DSVProducer);
+DEFINE_FWK_MODULE(DSTVProducer);
 DEFINE_FWK_MODULE(IntTestAnalyzer);
 DEFINE_FWK_MODULE(SCSimpleAnalyzer);
 DEFINE_FWK_MODULE(DSVAnalyzer);

@@ -67,7 +67,6 @@ namespace evf {
     void resetCounters();
     
     void addItemChangedListener(CString_t& name,xdata::ActionListener* l);
-    void addItemRetrieveListener(CString_t& name,xdata::ActionListener* l);
 
     void lockInfoSpaces();
     void unlockInfoSpaces();
@@ -102,33 +101,33 @@ namespace evf {
     //
     // member data
     //
-    xdaq::Application *app_;
-    StateMachine      *fsm_;
-    Css                css_;
-    Logger             log_;
+    xdaq::Application     *app_;
+    StateMachine          *fsm_;
+    Css                    css_;
+    Logger                 log_;
 
-    std::string        sourceId_;
-    std::string        urn_;
+    std::string            sourceId_;
+    std::string            urn_;
     
-    xdata::InfoSpace  *appInfoSpace_;
-    xdata::InfoSpace  *monInfoSpace_;
+    xdata::InfoSpace      *appInfoSpace_;
+    xdata::InfoSpace      *monInfoSpace_;
 
-    ParamVec_t         standardParams_;
-    ParamVec_t         monitorParams_;
-    ParamVec_t         debugParams_;
-    CounterVec_t       standardCounters_;
-    CounterVec_t       monitorCounters_;
-    CounterVec_t       debugCounters_;
+    xdata::ActionListener *itemGroupListener_;
     
-    UpdateVec_t        updateParams_;
+    ParamVec_t             standardParams_;
+    ParamVec_t             monitorParams_;
+    ParamVec_t             debugParams_;
+    CounterVec_t           standardCounters_;
+    CounterVec_t           monitorCounters_;
+    CounterVec_t           debugCounters_;
+    
+    bool                   parametersExported_;
+    bool                   countersAddedToParams_;
 
-    bool               parametersExported_;
-    bool               countersAddedToParams_;
-
-    std::string        largeAppIcon_;
-    std::string        smallAppIcon_;
-    std::string        smallDbgIcon_;
-    std::string        hyperDAQIcon_;
+    std::string            largeAppIcon_;
+    std::string            smallAppIcon_;
+    std::string            smallDbgIcon_;
+    std::string            hyperDAQIcon_;
 
   };
   

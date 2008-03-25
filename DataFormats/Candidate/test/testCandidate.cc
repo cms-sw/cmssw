@@ -1,4 +1,4 @@
-// $Id: testCandidate.cc,v 1.5 2006/12/11 10:12:02 llista Exp $
+// $Id: testCandidate.cc,v 1.8 2007/10/15 12:44:33 llista Exp $
 #include <cppunit/extensions/HelperMacros.h>
 #include "DataFormats/Candidate/interface/LeafCandidate.h"
 #include "DataFormats/Candidate/interface/Candidate.h"
@@ -65,7 +65,7 @@ void testCandidate::checkAll() {
   int x = 123, y0 = 111, y1 = 222;
   std::auto_ptr<reco::Candidate> c( new test::DummyCandidate1( p, q, x, y0, y1 ) );
   CPPUNIT_ASSERT( c->charge() == q );
-  CPPUNIT_ASSERT( c->p4() == p );
+  CPPUNIT_ASSERT( (c->p4() - p).M2() < 1.e-4 );
   CPPUNIT_ASSERT( c->numberOfDaughters() == 0 );
   CPPUNIT_ASSERT( c->get<test::DummyComponent>().x == x );
   CPPUNIT_ASSERT( c->numberOf<test::DummyComponent2>() == 2 );

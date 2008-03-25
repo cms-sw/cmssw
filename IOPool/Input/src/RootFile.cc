@@ -1,16 +1,14 @@
 /*----------------------------------------------------------------------
-$Id: RootFile.cc,v 1.71 2007/06/28 23:11:22 wmtan Exp $
+$Id: RootFile.cc,v 1.86 2007/10/08 23:25:55 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include "RootFile.h"
-#include "Inputfwd.h"
 
 #include "DataFormats/Provenance/interface/BranchDescription.h"
 #include "DataFormats/Provenance/interface/BranchType.h"
 #include "FWCore/Framework/interface/EventPrincipal.h"
 #include "FWCore/Framework/interface/LuminosityBlockPrincipal.h"
 #include "FWCore/Framework/interface/RunPrincipal.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DataFormats/Provenance/interface/ProductRegistry.h"
 #include "DataFormats/Provenance/interface/ParameterSetBlob.h"
 #include "DataFormats/Provenance/interface/ModuleDescriptionRegistry.h"
@@ -31,6 +29,20 @@ $Id: RootFile.cc,v 1.71 2007/06/28 23:11:22 wmtan Exp $
 #include "Rtypes.h"
 
 namespace edm {
+  namespace {
+    void
+    kludgeZeroRun(RunID *id) {
+      if (id->run() == 0) (*id) = RunID(1);
+    }
+    void
+    kludgeZeroRun(LuminosityBlockID *id) {
+      if (id->run() == 0) (*id) = LuminosityBlockID(1, id->luminosityBlock());
+    }
+    void
+    kludgeZeroRun(EventID *id) {
+      if (id->run() == 0) (*id) = EventID(1, id->event());
+    }
+  }
 //---------------------------------------------------------------------
   RootFile::RootFile(std::string const& fileName,
 		     std::string const& catalogName,
@@ -50,8 +62,7 @@ namespace edm {
       lumiTree_(filePtr_, InLumi),
       runTree_(filePtr_, InRun),
       treePointers_(),
-      productRegistry_(),
-      luminosityBlockPrincipal_() {
+      productRegistry_() {
     treePointers_[InEvent] = &eventTree_;
     treePointers_[InLumi]  = &lumiTree_;
     treePointers_[InRun]   = &runTree_;
@@ -97,14 +108,20 @@ namespace edm {
       for (ProductRegistry::ProductList::const_iterator it = prodList.begin(), itEnd = prodList.end();
            it != itEnd; ++it) {
         BranchDescription const& prod = it->second;
-	//need to call init to cause the branch name to be recalculated
-	prod.init();
-        BranchDescription newBD(prod);
-        newBD.friendlyClassName_ = friendlyname::friendlyName(newBD.className());
-
-        newBD.init();
-        newReg->addProduct(newBD);
-	newBranchToOldBranch[newBD.branchName()] = prod.branchName();
+        std::string newFriendlyName = friendlyname::friendlyName(prod.className());
+	if (newFriendlyName == prod.friendlyClassName_) {
+	  prod.init();
+          newReg->addProduct(prod);
+	  newBranchToOldBranch[prod.branchName()] = prod.branchName();
+	} else {
+          BranchDescription newBD(prod);
+          newBD.friendlyClassName_ = newFriendlyName;
+	  newBD.init();
+          newReg->addProduct(newBD);
+	  // Need to call init to get old branch name.
+	  prod.init();
+	  newBranchToOldBranch[newBD.branchName()] = prod.branchName();
+	}
       }
       // freeze the product registry
       newReg->setFrozen();
@@ -168,11 +185,30 @@ namespace edm {
   }
 
   void
-  RootFile::close() {
-    // Do not close the TFile explicitly because a delayed reader may still be using it.
-    // The shared pointers will take care of closing and deleting it.
+  RootFile::close(bool reallyClose) {
+    if (reallyClose) {
+    filePtr_->Close();
+    }
     Service<JobReport> reportSvc;
     reportSvc->inputFileClosed(reportToken_);
+  }
+
+  void
+  RootFile::fillEventAuxiliary() {
+    if (fileFormatVersion_.value_ >= 3) {
+      EventAuxiliary *pEvAux = &eventAux_;
+      eventTree().fillAux<EventAuxiliary>(pEvAux);
+    } else {
+      // for backward compatibility.
+      EventAux eventAux;
+      EventAux *pEvAux = &eventAux;
+      eventTree().fillAux<EventAux>(pEvAux);
+      conversion(eventAux, eventAux_);
+      if (eventAux_.luminosityBlock_ == 0 || fileFormatVersion_.value_ <= 1) {
+        eventAux_.luminosityBlock_ = 1;
+      }
+    }
+    kludgeZeroRun(&eventAux_.id_);
   }
 
   // readEvent() is responsible for creating, and setting up, the
@@ -189,30 +225,19 @@ namespace edm {
   //  when it is asked to do so.
   //
   std::auto_ptr<EventPrincipal>
-  RootFile::readEvent(boost::shared_ptr<ProductRegistry const> pReg,
-boost::shared_ptr<LuminosityBlockPrincipal> lbp) {
+  RootFile::readEvent(boost::shared_ptr<ProductRegistry const> pReg, boost::shared_ptr<LuminosityBlockPrincipal> lbp) {
     if (!eventTree().next()) {
       return std::auto_ptr<EventPrincipal>(0);
     }
-    if (fileFormatVersion_.value_ >= 3) {
-      EventAuxiliary *pEvAux = &eventAux_;
-      eventTree().fillAux<EventAuxiliary>(pEvAux);
-    } else {
-      // for backward compatibility.
-      EventAux eventAux;
-      EventAux *pEvAux = &eventAux;
-      eventTree().fillAux<EventAux>(pEvAux);
-      conversion(eventAux, eventAux_);
-      if (fileFormatVersion_.value_ <= 1) {
-        eventAux_.luminosityBlock_ = 1;
-      }
-    }
+    fillEventAuxiliary();
 
     if (lbp.get() == 0) {
 	boost::shared_ptr<RunPrincipal> rp(
-	  new RunPrincipal(eventAux_.run(), pReg, processConfiguration_));
+	  new RunPrincipal(eventAux_.run(), eventAux_.time(), eventAux_.time(), pReg, processConfiguration_));
 	lbp = boost::shared_ptr<LuminosityBlockPrincipal>(
 	  new LuminosityBlockPrincipal(eventAux_.luminosityBlock(),
+				       eventAux_.time(),
+				       eventAux_.time(),
 				       pReg,
 				       rp,
 				       processConfiguration_));
@@ -226,9 +251,15 @@ boost::shared_ptr<LuminosityBlockPrincipal> lbp) {
     }
     // We're not done ... so prepare the EventPrincipal
     std::auto_ptr<EventPrincipal> thisEvent(new EventPrincipal(
-                eventID(), eventAux_.time(), pReg,
-		lbp, processConfiguration_, eventAux_.isRealData(), eventAux_.experimentType(),
-		eventAux_.processHistoryID_, eventTree().makeDelayedReader()));
+                eventID(),
+		eventAux_.time(), pReg,
+		lbp, processConfiguration_,
+		eventAux_.isRealData(),
+		eventAux_.experimentType(),
+		eventAux_.bunchCrossing(),
+                eventAux_.storeNumber(),
+		eventAux_.processHistoryID_,
+		eventTree().makeDelayedReader()));
 
     // Create a group in the event for each product
     eventTree().fillGroups(thisEvent->groupGetter());
@@ -249,9 +280,14 @@ boost::shared_ptr<LuminosityBlockPrincipal> lbp) {
       EventAux eventAux;
       EventAux *pEvAux = &eventAux;
       eventTree().fillAux<EventAux>(pEvAux);
+      kludgeZeroRun(&eventAux.id_);
       // back up, so event will not be skipped.
       eventTree().previous();
-      return boost::shared_ptr<RunPrincipal>(new RunPrincipal(eventAux.id_.run(), pReg, processConfiguration_));
+      return boost::shared_ptr<RunPrincipal>(
+          new RunPrincipal(eventAux.id_.run(),
+	  eventAux.time_,
+	  Timestamp::invalidTimestamp(), pReg,
+	  processConfiguration_));
     }
     if (!runTree().next()) {
       return boost::shared_ptr<RunPrincipal>();
@@ -264,9 +300,22 @@ boost::shared_ptr<LuminosityBlockPrincipal> lbp) {
       RunAux *pRunAux = &runAux;
       runTree().fillAux<RunAux>(pRunAux);
       conversion(runAux, runAux_);
+    } 
+    kludgeZeroRun(&runAux_.id_);
+    if (runAux_.beginTime() == Timestamp::invalidTimestamp()) {
+      // RunAuxiliary did not contain a valid timestamp.  Take it from the next event.
+      if (eventTree().next()) {
+        fillEventAuxiliary();
+        // back up, so event will not be skipped.
+        eventTree().previous();
+      }
+      runAux_.beginTime_ = eventAux_.time(); 
+      runAux_.endTime_ = Timestamp::invalidTimestamp();
     }
     boost::shared_ptr<RunPrincipal> thisRun(
 	new RunPrincipal(runAux_.run(),
+			 runAux_.beginTime(),
+			 runAux_.endTime(),
 			 pReg,
 			 processConfiguration_,
 			 runAux_.processHistoryID_,
@@ -286,6 +335,7 @@ boost::shared_ptr<LuminosityBlockPrincipal> lbp) {
       EventAux eventAux;
       EventAux *pEvAux = &eventAux;
       eventTree().fillAux<EventAux>(pEvAux);
+      kludgeZeroRun(&eventAux.id_);
       // back up, so event will not be skipped.
       eventTree().previous();
       if (eventAux.id_.run() != rp->run()) {
@@ -294,7 +344,12 @@ boost::shared_ptr<LuminosityBlockPrincipal> lbp) {
       }
       // Prior to support of lumi blocks, always use 1 for lumi block number.
       return boost::shared_ptr<LuminosityBlockPrincipal>(
-	new LuminosityBlockPrincipal(1, pReg, rp, processConfiguration_));
+	new LuminosityBlockPrincipal(1,
+				     eventAux.time_,
+				     Timestamp::invalidTimestamp(),
+				     pReg,
+				     rp,
+				     processConfiguration_));
     }
     if (!lumiTree().next()) {
       return boost::shared_ptr<LuminosityBlockPrincipal>();
@@ -308,15 +363,30 @@ boost::shared_ptr<LuminosityBlockPrincipal> lbp) {
       lumiTree().fillAux<LuminosityBlockAux>(pLumiAux);
       conversion(lumiAux, lumiAux_);
     }
+    kludgeZeroRun(&lumiAux_.id_);
 
     if (lumiAux_.run() != rp->run()) {
       // The lumi block is in a different run.  Back up, and return a null pointer.
       lumiTree().previous();
       return boost::shared_ptr<LuminosityBlockPrincipal>();
     }
+    if (lumiAux_.beginTime() == Timestamp::invalidTimestamp()) {
+      // LuminosityBlockAuxiliary did not contain a timestamp. Take it from the next event.
+      if (eventTree().next()) {
+        fillEventAuxiliary();
+        // back up, so event will not be skipped.
+        eventTree().previous();
+      }
+      lumiAux_.beginTime_ = eventAux_.time();
+      lumiAux_.endTime_ = Timestamp::invalidTimestamp();
+    }
     boost::shared_ptr<LuminosityBlockPrincipal> thisLumi(
-	new LuminosityBlockPrincipal(lumiAux_.luminosityBlock(), pReg, rp, processConfiguration_,
-		lumiAux_.processHistoryID_, lumiTree().makeDelayedReader()));
+	new LuminosityBlockPrincipal(lumiAux_.luminosityBlock(),
+				     lumiAux_.beginTime(),
+				     lumiAux_.endTime(),
+				     pReg, rp, processConfiguration_,
+				     lumiAux_.processHistoryID_,
+				     lumiTree().makeDelayedReader()));
     // Create a group in the lumi for each product
     lumiTree().fillGroups(thisLumi->groupGetter());
     return thisLumi;

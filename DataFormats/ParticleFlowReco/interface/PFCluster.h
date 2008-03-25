@@ -3,6 +3,7 @@
 
 #include "Math/GenVector/PositionVector3D.h"
 #include "DataFormats/Math/interface/Point3D.h"
+#include "Rtypes.h" 
 
 #include "DataFormats/ParticleFlowReco/interface/PFRecHitFraction.h"
 
@@ -47,7 +48,7 @@ namespace reco {
 
     /// constructor
     PFCluster(int layer, double energy,
-	      double x, double y, double z );
+              double x, double y, double z );
 
     /// copy constructor
     PFCluster(const PFCluster& other);
@@ -60,7 +61,7 @@ namespace reco {
     
     /// add a given fraction of the rechit
     void addRecHitFraction( const reco::PFRecHitFraction& frac);
-						
+                                                
     /// vector of rechit fractions
     const std::vector< reco::PFRecHitFraction >& recHitFractions() const 
       { return rechits_; }
@@ -85,7 +86,7 @@ namespace reco {
 
     /// \todo move to PFClusterTools
     static double getDepthCorrection(double energy, bool isBelowPS = false,
-				     bool isHadron = false);
+                                     bool isHadron = false);
 
     /// set cluster color (for the PFRootEventManager display)
     void         setColor(int color) {color_ = color;}
@@ -94,19 +95,19 @@ namespace reco {
     int          color() const {return color_;}
   
     //C remove this
-/*     PFCluster& operator+=(const PFCluster&); */
+    /*     PFCluster& operator+=(const PFCluster&); */
 
     PFCluster& operator=(const PFCluster&);
 
     friend    std::ostream& operator<<(std::ostream& out, 
-				       const PFCluster& cluster);
+                                       const PFCluster& cluster);
     /// counter
     static unsigned     instanceCounter_;
 
     /// \todo move to PFClusterTools
     static void setDepthCorParameters(int mode, 
-				      double a, double b, 
-				      double ap, double bp ) {
+                                      double a, double b, 
+                                      double ap, double bp ) {
       depthCorMode_ = mode;
       depthCorA_ = a; 
       depthCorB_ = b; 

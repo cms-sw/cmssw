@@ -4,8 +4,8 @@
 /*
  * \file EETimingClient.h
  *
- * $Date: 2007/04/02 16:15:35 $
- * $Revision: 1.1 $
+ * $Date: 2007/05/12 09:39:05 $
+ * $Revision: 1.2 $
  * \author G. Della Ricca
  *
 */
@@ -73,7 +73,7 @@ void cleanup(void);
 void htmlOutput(int run, string htmlDir, string htmlName);
 
 /// WriteDB
-bool writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIOV* moniov, int ism);
+bool writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIOV* moniov);
 
 /// Get Functions
 inline int getEvtPerJob() { return ievt_; }
@@ -119,6 +119,8 @@ MonitorElement* mer01_[18];
 float expectedMean_;
 float discrepancyMean_;
 float RMSThreshold_;
+
+MEContentsTH2FWithinRangeROOT* qtg01_[36];
 
 };
 

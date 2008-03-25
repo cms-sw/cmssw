@@ -5,7 +5,7 @@
   
 Forward declarations of types in the EDM.
 
-$Id: Frameworkfwd.h,v 1.39 2007/05/29 19:30:46 wmtan Exp $
+$Id: Frameworkfwd.h,v 1.40 2007/06/06 16:27:43 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -31,7 +31,7 @@ namespace edm {
   class InputSourceDescription;
   class LuminosityBlock;
   class LuminosityBlockPrincipal;
-  struct NoDelayedReader;
+  class NoDelayedReader;
   class OutputModule;
   class ParameterSet;
   class Principal;

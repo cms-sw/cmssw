@@ -280,4 +280,6 @@ void LagrangeParentParticleFitter::readParameters()
 //  static SimpleConfigurable<int>
 //    maxStepConfigurable(10,"LagrangeParentParticleFitter:maximumNumberOfIterations");
 //  theMaxStep = maxStepConfigurable.value();
+  theMaxDiff = 0.01;
+  theMaxStep = 10;
 }

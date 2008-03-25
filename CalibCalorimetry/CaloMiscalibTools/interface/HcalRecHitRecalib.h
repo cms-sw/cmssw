@@ -15,8 +15,8 @@
 */
 //
 // Original Author:  Luca Malgeri
-//         Created:  $Date: 2006/11/06 14:51:18 $
-// $Id: HcalRecHitRecalib.h,v 1.1 2006/11/06 14:51:18 malgeri Exp $
+//         Created:  $Date: 2006/11/21 16:47:46 $
+// $Id: HcalRecHitRecalib.h,v 1.3 2006/11/21 16:47:46 malgeri Exp $
 //
 //
 
@@ -62,9 +62,13 @@ class HcalRecHitRecalib : public edm::EDProducer {
   std::string RecalibHBHEHits_;
   std::string RecalibHFHits_;
   std::string RecalibHOHits_;
+
   std::string hcalfile_;
+  std::string hcalfileinpath_;
 
   CaloMiscalibMapHcal mapHcal_;
+  double refactor_;
+  double refactor_mean_;
 
 };
 #endif

@@ -25,13 +25,17 @@ class EMECALShowerParametrization
 			      const PreshowerLayer1Properties* layer1,
 			      const PreshowerLayer2Properties* layer2,
 			      const std::vector<double>& coreIntervals,
-			      const std::vector<double>& tailIntervals) : 
+			      const std::vector<double>& tailIntervals,
+			      double RCFact=1.,
+			      double RTFact=1.) : 
     theECAL(ecal),  
     theHCAL(hcal),
     theLayer1(layer1), 
     theLayer2(layer2),
     theCore(coreIntervals),
-    theTail(tailIntervals)  {}
+    theTail(tailIntervals),
+    theRcfactor(RCFact),
+    theRtfactor(RTFact){}
 
   virtual ~EMECALShowerParametrization() { }
 
@@ -71,13 +75,13 @@ class EMECALShowerParametrization
   }
 
   inline double rT(double tau,double E) const {
-    return k1() * ( std::exp(k3()*(tau-k2()))+
-		    std::exp(k4(E)*(tau-k2())) );
+    return theRtfactor*k1() * ( std::exp(k3()*(tau-k2()))+
+				std::exp(k4(E)*(tau-k2())) );
   }
   
   inline double rC(double tau, double E) const {
-    return z1(E) + z2()*tau;
-  }
+    return theRcfactor*(z1(E) + z2()*tau);
+  }                            
 
   inline const ECALProperties* ecalProperties() const { 
     return theECAL; 
@@ -108,6 +112,9 @@ class EMECALShowerParametrization
 
   const std::vector<double>& theCore;
   const std::vector<double>& theTail;
+
+  double theRcfactor;
+  double theRtfactor;
 
   double p1() const { return 2.632-0.00094*theECAL->theZeff(); }
   double p2() const { return 0.401+0.00187*theECAL->theZeff(); }

@@ -1,10 +1,10 @@
-// $Id: StorageManager.cc,v 1.22 2007/07/03 17:50:32 klute Exp $
+// $Id: StorageManager.cc,v 1.27 2007/08/19 07:31:45 hcheung Exp $
 
 #include <iostream>
 #include <iomanip>
 #include <sstream>
 #include <vector>
-#include <sys/statfs.h>
+#include <sys/stat.h>
 
 #include "EventFilter/StorageManager/interface/StorageManager.h"
 #include "EventFilter/StorageManager/interface/ConsumerPipe.h"
@@ -32,7 +32,7 @@
 #include "IOPool/Streamer/interface/HLTInfo.h"
 #include "IOPool/Streamer/interface/Utilities.h"
 #include "IOPool/Streamer/interface/TestFileReader.h"
-#include "IOPool/Streamer/interface/StreamDeserializer.h"
+#include "IOPool/Streamer/interface/StreamerInputSource.h"
 
 #include "xcept/tools.h"
 
@@ -50,6 +50,11 @@
 #include "xoap/domutils.h"
 
 #include "xdata/InfoSpaceFactory.h"
+
+namespace stor {
+extern bool getSMFC_exceptionStatus();
+extern std::string getSMFC_reason4Exception();
+}
 
 using namespace edm;
 using namespace std;
@@ -78,6 +83,7 @@ StorageManager::StorageManager(xdaq::ApplicationStub * s)
   throw (xdaq::exception::Exception) :
   xdaq::Application(s),
   fsm_(this), 
+  reasonForFailedState_(),
   ah_(0), 
   pushMode_(false), 
   collateDQM_(false),
@@ -167,11 +173,23 @@ StorageManager::StorageManager(xdaq::ApplicationStub * s)
   notifyTier0Script_  = smParameter_ -> notifyTier0Script();
   insertFileScript_   = smParameter_ -> insertFileScript();  
   fileCatalog_        = smParameter_ -> fileCatalog(); 
+  fileName_           = smParameter_ -> fileName();
+  filePath_           = smParameter_ -> filePath();
+  mailboxPath_        = smParameter_ -> mailboxPath();
+  setupLabel_         = smParameter_ -> setupLabel();
+  highWaterMark_      = smParameter_ -> highWaterMark();
+  lumiSectionTimeOut_ = smParameter_ -> lumiSectionTimeOut();
 
   ispace->fireItemAvailable("closeFileScript",    &closeFileScript_);
   ispace->fireItemAvailable("notifyTier0Script",  &notifyTier0Script_);
   ispace->fireItemAvailable("insertFileScript",   &insertFileScript_);
   ispace->fireItemAvailable("fileCatalog",        &fileCatalog_);
+  ispace->fireItemAvailable("fileName",           &fileName_);
+  ispace->fireItemAvailable("filePath",           &filePath_);
+  ispace->fireItemAvailable("mailboxPath",        &mailboxPath_);
+  ispace->fireItemAvailable("setupLabel",         &setupLabel_);
+  ispace->fireItemAvailable("highWaterMark",      &highWaterMark_);
+  ispace->fireItemAvailable("lumiSectionTimeOut", &lumiSectionTimeOut_);
 
   // added for Event Server
   ser_prods_size_ = 0;
@@ -309,8 +327,8 @@ void StorageManager::receiveRegistryMessage(toolbox::mem::Reference *ref)
       // cannot test byte for byte the serialized registry
       InitMsgView testmsg(regPtr);
       InitMsgView refmsg(&serialized_prods_[0]);
-      std::auto_ptr<edm::SendJobHeader> header = StreamDeserializer::deserializeRegistry(testmsg);
-      std::auto_ptr<edm::SendJobHeader> refheader = StreamDeserializer::deserializeRegistry(refmsg);
+      std::auto_ptr<edm::SendJobHeader> header = StreamerInputSource::deserializeRegistry(testmsg);
+      std::auto_ptr<edm::SendJobHeader> refheader = StreamerInputSource::deserializeRegistry(refmsg);
       // should test this well to see if a try block is needed for next line
       if(edm::registryIsSubset(*header, *refheader)) {  // using clunky method
         FDEBUG(9) << "copyAndTestRegistry: Received registry is okay" << std::endl;
@@ -724,6 +742,17 @@ void StorageManager::addMeasurement(unsigned long size)
     if (instantBandwidth_ < minBandwidth_)
       minBandwidth_ = instantBandwidth_;
   }
+
+  // TODO fixme: Find a better place to put this testing of the Fragment Collector thread status!
+  // leave this for now until we have the transition available and have clean up code
+  if(stor::getSMFC_exceptionStatus()) {
+    // there was a fatal exception in the Fragmentation Collector and
+    // we want to go to a fail state
+    //reasonForFailedState_  = stor::getSMFC_reason4Exception();
+    //fsm_.fireFailed(reasonForFailedState_,this);
+    edm::LogError("StorageManager") << "Fatal problem in FragmentCollector thread detected! \n"
+       << stor::getSMFC_reason4Exception();
+  }
 }
 
 //////////// *** Default web page //////////////////////////////////////////////////////////
@@ -743,7 +772,7 @@ void StorageManager::defaultWebPage(xgi::Input *in, xgi::Output *out)
     *out << "  <td align=\"left\">"                                    << endl;
     *out << "    <img"                                                 << endl;
     *out << "     align=\"middle\""                                    << endl;
-    *out << "     src=\"/daq/evb/examples/fu/images/fu64x64.gif\""     << endl;
+    *out << "     src=\"/rubuilder/fu/images/fu64x64.gif\""     << endl;
     *out << "     alt=\"main\""                                        << endl;
     *out << "     width=\"64\""                                        << endl;
     *out << "     height=\"64\""                                       << endl;
@@ -751,13 +780,14 @@ void StorageManager::defaultWebPage(xgi::Input *in, xgi::Output *out)
     *out << "    <b>"                                                  << endl;
     *out << getApplicationDescriptor()->getClassName() << " instance "
          << getApplicationDescriptor()->getInstance()                  << endl;
+    *out << "      " << fsm_.stateName()->toString()                   << endl;
     *out << "    </b>"                                                 << endl;
     *out << "  </td>"                                                  << endl;
     *out << "  <td width=\"32\">"                                      << endl;
     *out << "    <a href=\"/urn:xdaq-application:lid=3\">"             << endl;
     *out << "      <img"                                               << endl;
     *out << "       align=\"middle\""                                  << endl;
-    *out << "       src=\"/daq/xdaq/hyperdaq/images/HyperDAQ.jpg\""    << endl;
+    *out << "       src=\"/hyperdaq/images/HyperDAQ.jpg\""    << endl;
     *out << "       alt=\"HyperDAQ\""                                  << endl;
     *out << "       width=\"32\""                                      << endl;
     *out << "       height=\"32\""                                      << endl;
@@ -771,7 +801,7 @@ void StorageManager::defaultWebPage(xgi::Input *in, xgi::Output *out)
          << "/debug\">"                   << endl;
     *out << "      <img"                                               << endl;
     *out << "       align=\"middle\""                                  << endl;
-    *out << "       src=\"/daq/evb/bu/images/debug32x32.gif\""         << endl;
+    *out << "       src=\"/rubuilder/fu/images/debug32x32.gif\""         << endl;
     *out << "       alt=\"debug\""                                     << endl;
     *out << "       width=\"32\""                                      << endl;
     *out << "       height=\"32\""                                     << endl;
@@ -779,6 +809,17 @@ void StorageManager::defaultWebPage(xgi::Input *in, xgi::Output *out)
     *out << "    </a>"                                                 << endl;
     *out << "  </td>"                                                  << endl;
     *out << "</tr>"                                                    << endl;
+    if(fsm_.stateName()->value_ == "Failed")
+    {
+      *out << "<tr>"					     << endl;
+      *out << " <td>"					     << endl;
+      *out << "<textarea rows=" << 5 << " cols=60 scroll=yes";
+      *out << " readonly title=\"Reason For Failed\">"		     << endl;
+      *out << reasonForFailedState_                                  << endl;
+      *out << "</textarea>"                                          << endl;
+      *out << " </td>"					     << endl;
+      *out << "</tr>"					     << endl;
+    }
     *out << "</table>"                                                 << endl;
 
   *out << "<hr/>"                                                    << endl;
@@ -999,7 +1040,7 @@ void StorageManager::fusenderWebPage(xgi::Input *in, xgi::Output *out)
     *out << "  <td align=\"left\">"                                    << endl;
     *out << "    <img"                                                 << endl;
     *out << "     align=\"middle\""                                    << endl;
-    *out << "     src=\"/daq/evb/examples/fu/images/fu64x64.gif\""     << endl;
+    *out << "     src=\"/rubuilder/fu/images/fu64x64.gif\""     << endl;
     *out << "     alt=\"main\""                                        << endl;
     *out << "     width=\"64\""                                        << endl;
     *out << "     height=\"64\""                                       << endl;
@@ -1007,13 +1048,14 @@ void StorageManager::fusenderWebPage(xgi::Input *in, xgi::Output *out)
     *out << "    <b>"                                                  << endl;
     *out << getApplicationDescriptor()->getClassName() << " instance "
          << getApplicationDescriptor()->getInstance()                  << endl;
+    *out << "      " << fsm_.stateName()->toString()                   << endl;
     *out << "    </b>"                                                 << endl;
     *out << "  </td>"                                                  << endl;
     *out << "  <td width=\"32\">"                                      << endl;
     *out << "    <a href=\"/urn:xdaq-application:lid=3\">"             << endl;
     *out << "      <img"                                               << endl;
     *out << "       align=\"middle\""                                  << endl;
-    *out << "       src=\"/daq/xdaq/hyperdaq/images/HyperDAQ.jpg\""    << endl;
+    *out << "       src=\"/hyperdaq/images/HyperDAQ.jpg\""    << endl;
     *out << "       alt=\"HyperDAQ\""                                  << endl;
     *out << "       width=\"32\""                                      << endl;
     *out << "       height=\"32\""                                      << endl;
@@ -1027,7 +1069,7 @@ void StorageManager::fusenderWebPage(xgi::Input *in, xgi::Output *out)
          << "/debug\">"                   << endl;
     *out << "      <img"                                               << endl;
     *out << "       align=\"middle\""                                  << endl;
-    *out << "       src=\"/daq/evb/bu/images/debug32x32.gif\""         << endl;
+    *out << "       src=\"/rubuilder/fu/images/debug32x32.gif\""         << endl;
     *out << "       alt=\"debug\""                                     << endl;
     *out << "       width=\"32\""                                      << endl;
     *out << "       height=\"32\""                                     << endl;
@@ -1035,6 +1077,17 @@ void StorageManager::fusenderWebPage(xgi::Input *in, xgi::Output *out)
     *out << "    </a>"                                                 << endl;
     *out << "  </td>"                                                  << endl;
     *out << "</tr>"                                                    << endl;
+    if(fsm_.stateName()->value_ == "Failed")
+    {
+      *out << "<tr>"					     << endl;
+      *out << " <td>"					     << endl;
+      *out << "<textarea rows=" << 5 << " cols=60 scroll=yes";
+      *out << " readonly title=\"Reason For Failed\">"		     << endl;
+      *out << reasonForFailedState_                                  << endl;
+      *out << "</textarea>"                                          << endl;
+      *out << " </td>"					     << endl;
+      *out << "</tr>"					     << endl;
+    }
     *out << "</table>"                                                 << endl;
 
   *out << "<hr/>"                                                    << endl;
@@ -1289,7 +1342,7 @@ void StorageManager::streamerOutputWebPage(xgi::Input *in, xgi::Output *out)
     *out << "  <td align=\"left\">"                                    << endl;
     *out << "    <img"                                                 << endl;
     *out << "     align=\"middle\""                                    << endl;
-    *out << "     src=\"/daq/evb/examples/fu/images/fu64x64.gif\""     << endl;
+    *out << "     src=\"/rubuilder/fu/images/fu64x64.gif\""     << endl;
     *out << "     alt=\"main\""                                        << endl;
     *out << "     width=\"64\""                                        << endl;
     *out << "     height=\"64\""                                       << endl;
@@ -1297,13 +1350,14 @@ void StorageManager::streamerOutputWebPage(xgi::Input *in, xgi::Output *out)
     *out << "    <b>"                                                  << endl;
     *out << getApplicationDescriptor()->getClassName() << " instance "
          << getApplicationDescriptor()->getInstance()                  << endl;
+    *out << "      " << fsm_.stateName()->toString()                   << endl;
     *out << "    </b>"                                                 << endl;
     *out << "  </td>"                                                  << endl;
     *out << "  <td width=\"32\">"                                      << endl;
     *out << "    <a href=\"/urn:xdaq-application:lid=3\">"             << endl;
     *out << "      <img"                                               << endl;
     *out << "       align=\"middle\""                                  << endl;
-    *out << "       src=\"/daq/xdaq/hyperdaq/images/HyperDAQ.jpg\""    << endl;
+    *out << "       src=\"/hyperdaq/images/HyperDAQ.jpg\""    << endl;
     *out << "       alt=\"HyperDAQ\""                                  << endl;
     *out << "       width=\"32\""                                      << endl;
     *out << "       height=\"32\""                                      << endl;
@@ -1317,7 +1371,7 @@ void StorageManager::streamerOutputWebPage(xgi::Input *in, xgi::Output *out)
          << "/debug\">"                   << endl;
     *out << "      <img"                                               << endl;
     *out << "       align=\"middle\""                                  << endl;
-    *out << "       src=\"/daq/evb/bu/images/debug32x32.gif\""         << endl;
+    *out << "       src=\"/rubuilder/fu/images/debug32x32.gif\""       << endl;
     *out << "       alt=\"debug\""                                     << endl;
     *out << "       width=\"32\""                                      << endl;
     *out << "       height=\"32\""                                     << endl;
@@ -1325,6 +1379,17 @@ void StorageManager::streamerOutputWebPage(xgi::Input *in, xgi::Output *out)
     *out << "    </a>"                                                 << endl;
     *out << "  </td>"                                                  << endl;
     *out << "</tr>"                                                    << endl;
+    if(fsm_.stateName()->value_ == "Failed")
+    {
+      *out << "<tr>"					     << endl;
+      *out << " <td>"					     << endl;
+      *out << "<textarea rows=" << 5 << " cols=60 scroll=yes";
+      *out << " readonly title=\"Reason For Failed\">"		     << endl;
+      *out << reasonForFailedState_                                  << endl;
+      *out << "</textarea>"                                          << endl;
+      *out << " </td>"					     << endl;
+      *out << "</tr>"					     << endl;
+    }
     *out << "</table>"                                                 << endl;
 
     *out << "<hr/>"                                                    << endl;
@@ -1831,6 +1896,12 @@ void StorageManager::setupFlashList()
   is->fireItemAvailable("compressionLevelDQM",  &compressionLevelDQM_);
   is->fireItemAvailable("nLogicalDisk",         &nLogicalDisk_);
   is->fireItemAvailable("fileCatalog",          &fileCatalog_);
+  is->fireItemAvailable("fileName",             &fileName_);
+  is->fireItemAvailable("filePath",             &filePath_);
+  is->fireItemAvailable("mailboxPath",          &mailboxPath_);
+  is->fireItemAvailable("setupLabel",           &setupLabel_);
+  is->fireItemAvailable("highWaterMark",        &highWaterMark_);
+  is->fireItemAvailable("lumiSectionTimeOut",   &lumiSectionTimeOut_);
   is->fireItemAvailable("maxESEventRate",       &maxESEventRate_);
   is->fireItemAvailable("activeConsumerTimeout",&activeConsumerTimeout_);
   is->fireItemAvailable("idleConsumerTimeout",  &idleConsumerTimeout_);
@@ -1873,6 +1944,12 @@ void StorageManager::setupFlashList()
   is->addItemRetrieveListener("compressionLevelDQM",  this);
   is->addItemRetrieveListener("nLogicalDisk",         this);
   is->addItemRetrieveListener("fileCatalog",          this);
+  is->addItemRetrieveListener("fileName",             this);
+  is->addItemRetrieveListener("filePath",             this);
+  is->addItemRetrieveListener("mailboxPath",          this);
+  is->addItemRetrieveListener("setupLabel",           this);
+  is->addItemRetrieveListener("highWaterMark",        this);
+  is->addItemRetrieveListener("lumiSectionTimeOut",   this);
   is->addItemRetrieveListener("maxESEventRate",       this);
   is->addItemRetrieveListener("activeConsumerTimeout",this);
   is->addItemRetrieveListener("idleConsumerTimeout",  this);
@@ -1930,8 +2007,10 @@ bool StorageManager::configuring(toolbox::task::WorkLoop* wl)
     }
     catch(cms::Exception& e)
     {
-	XCEPT_RAISE (toolbox::fsm::exception::Exception, 
-		     e.explainSelf());
+      reasonForFailedState_ = e.explainSelf();
+      fsm_.fireFailed(reasonForFailedState_,this);
+      return false;
+      //XCEPT_RAISE (toolbox::fsm::exception::Exception, e.explainSelf());
     }
     
     // give the JobController a configuration string and
@@ -1951,7 +2030,29 @@ bool StorageManager::configuring(toolbox::task::WorkLoop* wl)
     smParameter_ -> setNotifyTier0Script(notifyTier0Script_.toString());
     smParameter_ -> setInsertFileScript(insertFileScript_.toString());
     smParameter_ -> setFileCatalog(fileCatalog_.toString());
-    
+    smParameter_ -> setfileName(fileName_.toString());
+    smParameter_ -> setfilePath(filePath_.toString());
+    smParameter_ -> setmailboxPath(mailboxPath_.toString());
+    smParameter_ -> setsetupLabel(setupLabel_.toString());
+    smParameter_ -> sethighWaterMark(highWaterMark_.value_);
+    smParameter_ -> setlumiSectionTimeOut(lumiSectionTimeOut_.value_);
+
+    // check output locations and scripts before we continue
+    try {
+      checkDirectoryOK(filePath_.toString());
+      checkDirectoryOK(mailboxPath_.toString());
+      checkDirectoryOK(closeFileScript_.toString());
+      checkDirectoryOK(notifyTier0Script_.toString());
+      checkDirectoryOK(insertFileScript_.toString());
+    }
+    catch(cms::Exception& e)
+    {
+      reasonForFailedState_ = e.explainSelf();
+      fsm_.fireFailed(reasonForFailedState_,this);
+      //XCEPT_RAISE (toolbox::fsm::exception::Exception, e.explainSelf());
+      return false;
+    }
+
     if (maxESEventRate_ < 0.0)
       maxESEventRate_ = 0.0;
     if (DQMmaxESEventRate_ < 0.0)
@@ -1990,20 +2091,26 @@ bool StorageManager::configuring(toolbox::task::WorkLoop* wl)
       jc_->setDQMEventServer(DQMeventServer);
     }
     catch(cms::Exception& e)
-      {
-	XCEPT_RAISE (toolbox::fsm::exception::Exception, 
-		     e.explainSelf());
-      }
+    {
+      reasonForFailedState_ = e.explainSelf();
+      fsm_.fireFailed(reasonForFailedState_,this);
+      //XCEPT_RAISE (toolbox::fsm::exception::Exception, e.explainSelf());
+      return false;
+    }
     catch(std::exception& e)
-      {
-	XCEPT_RAISE (toolbox::fsm::exception::Exception, 
-		     e.what());
-      }
+    {
+      reasonForFailedState_  = e.what();
+      fsm_.fireFailed(reasonForFailedState_,this);
+      //XCEPT_RAISE (toolbox::fsm::exception::Exception, e.what());
+      return false;
+    }
     catch(...)
-      {
-	XCEPT_RAISE (toolbox::fsm::exception::Exception, 
-		     "Unknown Exception");
-      }
+    {
+      reasonForFailedState_  = "Unknown Exception while configuring";
+      fsm_.fireFailed(reasonForFailedState_,this);
+      //XCEPT_RAISE (toolbox::fsm::exception::Exception, "Unknown Exception");
+      return false;
+    }
     
     
     LOG4CPLUS_INFO(getApplicationLogger(),"Finished configuring!");
@@ -2011,8 +2118,9 @@ bool StorageManager::configuring(toolbox::task::WorkLoop* wl)
     fsm_.fireEvent("ConfigureDone",this);
   }
   catch (xcept::Exception &e) {
-    string msg = "configuring FAILED: " + (string)e.what();
-    fsm_.fireFailed(msg,this);
+    reasonForFailedState_ = "configuring FAILED: " + (string)e.what();
+    fsm_.fireFailed(reasonForFailedState_,this);
+    return false;
   }
 
   return false;
@@ -2036,8 +2144,15 @@ bool StorageManager::enabling(toolbox::task::WorkLoop* wl)
     fsm_.fireEvent("EnableDone",this);
   }
   catch (xcept::Exception &e) {
-    string msg = "enabling FAILED: " + (string)e.what();
-    fsm_.fireFailed(msg,this);
+    reasonForFailedState_ = "enabling FAILED: " + (string)e.what();
+    fsm_.fireFailed(reasonForFailedState_,this);
+    return false;
+  }
+  catch(...)
+  {
+    reasonForFailedState_  = "Unknown Exception while enabling";
+    fsm_.fireFailed(reasonForFailedState_,this);
+    return false;
   }
   
   return false;
@@ -2056,8 +2171,15 @@ bool StorageManager::stopping(toolbox::task::WorkLoop* wl)
     fsm_.fireEvent("StopDone",this);
   }
   catch (xcept::Exception &e) {
-    string msg = "stopping FAILED: " + (string)e.what();
-    fsm_.fireFailed(msg,this);
+    reasonForFailedState_ = "stopping FAILED: " + (string)e.what();
+    fsm_.fireFailed(reasonForFailedState_,this);
+    return false;
+  }
+  catch(...)
+  {
+    reasonForFailedState_  = "Unknown Exception while stopping";
+    fsm_.fireFailed(reasonForFailedState_,this);
+    return false;
   }
   
   return false;
@@ -2076,8 +2198,15 @@ bool StorageManager::halting(toolbox::task::WorkLoop* wl)
     fsm_.fireEvent("HaltDone",this);
   }
   catch (xcept::Exception &e) {
-    string msg = "halting FAILED: " + (string)e.what();
-    fsm_.fireFailed(msg,this);
+    reasonForFailedState_ = "halting FAILED: " + (string)e.what();
+    fsm_.fireFailed(reasonForFailedState_,this);
+    return false;
+  }
+  catch(...)
+  {
+    reasonForFailedState_  = "Unknown Exception while halting";
+    fsm_.fireFailed(reasonForFailedState_,this);
+    return false;
   }
   
   return false;
@@ -2133,6 +2262,20 @@ void StorageManager::haltAction()
   {
     boost::mutex::scoped_lock sl(halt_lock_);
     jc_.reset();
+  }
+}
+
+void StorageManager::checkDirectoryOK(std::string path)
+{
+  struct stat buf;
+
+  int retVal = stat(path.c_str(), &buf);
+  if(retVal !=0 )
+  {
+    edm::LogError("StorageManager") << "Directory or file " << path
+                                    << " does not exist. Error=" << errno ;
+    throw cms::Exception("StorageManager","checkDirectoryOK")
+            << "Directory or file " << path << " does not exist. Error=" << errno << std::endl;
   }
 }
 

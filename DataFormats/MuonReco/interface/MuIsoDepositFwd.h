@@ -5,6 +5,11 @@
 #include "DataFormats/Common/interface/RefProd.h"
 #include "DataFormats/Common/interface/RefVector.h"
 #include "DataFormats/Common/interface/AssociationMap.h"
+#include "DataFormats/Common/interface/AssociationVector.h"
+#include "DataFormats/Common/interface/ValueMap.h"
+
+
+#include "DataFormats/Candidate/interface/CandidateFwd.h"
 
 namespace reco {
   class MuIsoDeposit;
@@ -24,6 +29,13 @@ namespace reco {
   typedef edm::AssociationMap<edm::OneToValue<TrackCollection,int> > MuIsoIntAssociationMap;
   typedef edm::AssociationMap<edm::OneToValue<TrackCollection,float> > MuIsoFloatAssociationMap;
   typedef edm::AssociationMap<edm::OneToValue<TrackCollection,reco::MuIsoDeposit> > MuIsoDepositAssociationMap;
+  
+  typedef edm::AssociationVector<CandidateBaseRefProd,MuIsoDepositCollection > MuIsoDepositAssociationVectorToCandidateView;
+  typedef edm::AssociationVector<CandidateBaseRefProd,MuIsoDepositCollection > CandIsoDepositAssociationVector;
+  typedef CandIsoDepositAssociationVector::value_type CandIsoDepositAssociationPair;
+
+  typedef edm::ValueMap<reco::MuIsoDeposit> IsoDepositMap;
+
 }
 
 #endif

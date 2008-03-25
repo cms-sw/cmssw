@@ -15,9 +15,6 @@ public:
   MultiVertexBSeeder ( double nsigma=50. );
   std::vector<TransientVertex> vertices(
       const std::vector<reco::TransientTrack> &) const; 
-  std::vector<TransientVertex> vertices(
-      const std::vector<reco::TransientTrack> &,
-      const reco::BeamSpot & ) const; 
 
   MultiVertexBSeeder * clone() const;
 

@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: PoolSource.cc,v 1.54 2007/06/25 20:53:32 wmtan Exp $
+$Id: PoolSource.cc,v 1.64 2007/10/08 21:39:23 wmtan Exp $
 ----------------------------------------------------------------------*/
 #include "PoolSource.h"
 #include "RootFile.h"
@@ -8,9 +8,8 @@ $Id: PoolSource.cc,v 1.54 2007/06/25 20:53:32 wmtan Exp $
 
 #include "FWCore/Catalog/interface/FileCatalog.h"
 #include "FWCore/Framework/interface/EventPrincipal.h"
-#include "FWCore/Framework/interface/LuminosityBlockPrincipal.h"
-#include "FWCore/Framework/interface/RunPrincipal.h"
 #include "DataFormats/Provenance/interface/ProductRegistry.h"
+#include "DataFormats/Provenance/interface/RunID.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/RandomNumberGenerator.h"
@@ -32,6 +31,8 @@ namespace edm {
     if (matchMode == std::string("strict")) matchMode_ = BranchDescription::Strict;
     ClassFiller();
     if (primary()) {
+      TFile *filePtr = (fileIter_->fileName().empty() ? 0 : TFile::Open(fileIter_->fileName().c_str()));
+      if (filePtr != 0) filePtr->Close();
       init(*fileIter_);
       updateProductRegistry();
       setInitialPosition(pset);
@@ -50,7 +51,7 @@ namespace edm {
 
   void
   PoolSource::endJob() {
-    rootFile_->close();
+    rootFile_->close(true);
     delete flatDistribution_;
   }
 
@@ -92,8 +93,6 @@ namespace edm {
 
   void PoolSource::init(FileCatalogItem const& file) {
     TTree::SetMaxTreeSize(kMaxLong64);
-    TFile *filePtr = (file.fileName().empty() ? 0 : TFile::Open(file.fileName().c_str()));
-    if (filePtr != 0) filePtr->Close();
     rootFile_ = RootFileSharedPtr(new RootFile(file.fileName(), catalog().url(),
 	processConfiguration(), file.logicalFileName()));
   }
@@ -125,7 +124,7 @@ namespace edm {
       }
     }
 
-    rootFile_->close();
+    rootFile_->close(primary());
 
     init(*fileIter_);
 
@@ -152,7 +151,7 @@ namespace edm {
     }
     --fileIter_;
 
-    rootFile_->close();
+    rootFile_->close(primary());
 
     init(*fileIter_);
 
@@ -207,7 +206,9 @@ namespace edm {
 
   std::auto_ptr<EventPrincipal>
   PoolSource::read() {
-    if (!next()) {
+    if (next()) {
+      previous();
+    } else {
       if (!primary()) {
 	repeat();
       }

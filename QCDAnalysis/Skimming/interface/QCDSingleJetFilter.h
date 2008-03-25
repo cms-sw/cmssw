@@ -5,9 +5,8 @@
  *  by Andreas Oehler (andreas.oehler@cern.ch)
  *
  Filter to select on pt of the jet with hightest Pt
- can do a random prescale (requires RandomNumber Service)
+ can do a random prescale (requires RandomNumber Service)[deactivated]
  
- Up to now tested with CMSSW_1_3_1, CMSSW_1_3_3 and CMSSW_1_3_5
  */
 
 // user include files
@@ -19,9 +18,11 @@
 #include <FWCore/Framework/interface/Event.h>
 #include "FWCore/ParameterSet/interface/InputTag.h"
 
-namespace CLHEP {
-  class RandFlat;
-}
+
+//RandomGenerator Service taken out
+//namespace CLHEP {
+//  class RandFlat;
+//}
 
 class QCDSingleJetFilter : public edm::EDFilter {
   
@@ -40,8 +41,9 @@ class QCDSingleJetFilter : public edm::EDFilter {
  private:
 
   bool debug;
-  CLHEP::RandFlat *theFlatDistrib;
-  double theMinPt,thePreScale;
+  //CLHEP::RandFlat *theFlatDistrib;
+  double theMinPt;
+    //,thePreScale;
   edm::InputTag theTriggerJetCollectionA,theTrigCollB;
 };
 

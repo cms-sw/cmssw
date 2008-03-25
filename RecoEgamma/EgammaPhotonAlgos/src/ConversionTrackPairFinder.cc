@@ -235,6 +235,38 @@ std::map<std::vector<reco::TransientTrack>, reco::SuperCluster>  ConversionTrack
   }
   
 
+
+  for( iMap1 =   scTrkAssocMap.begin(); iMap1 !=   scTrkAssocMap.end(); ++iMap1) {
+    int nFound=0;
+    for (  std::map<std::vector<reco::TransientTrack>, reco::SuperCluster>::const_iterator iPair= allPairSCAss.begin(); iPair!= allPairSCAss.end(); ++iPair ) {
+      //      std::cout << " ConversionTrackPairFinder Final pair Map " << (iPair->first).size() << " SC Energy " << (iPair->second).energy() << " eta " << (iPair->second).eta() << " phi " <<  (iPair->second).phi() << "\n";  
+      
+      
+      if (  (   (iMap1->second).energy() - (iPair->second).energy() < 0.001  )  &&
+	    (   fabs( ((iMap1->second)).eta() -   ((iPair->second)).eta() ) < 0.001 )      &&
+	    (   fabs( ((iMap1->second)).phi() -   ((iPair->second)).phi() ) < 0.001 )   ) {
+	
+        nFound++;	
+	
+      } 
+      
+    }      
+    
+    if ( nFound == 0) {
+      //  std::cout << " ConversionTrackPairFinder This SC is not included in the final map of pairs  I include it now  !!! Track charge " <<   (iMap1->first).charge() << " Num of RecHits " <<  ((iMap1->first)).recHitsSize() << " inner momentum " <<  ((iMap1->first)).track().innerMomentum() << " Ass SC " << (iMap1->second).energy() <<  "\n";  
+      
+      thePair.clear();               
+      thePair.push_back(iMap1->first);
+      
+      allPairs.push_back ( thePair );
+      allPairSCAss[thePair]= iMap1->second; 
+    }
+
+
+  }
+
+
+
   return allPairSCAss;
  
 

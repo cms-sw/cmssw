@@ -4,8 +4,8 @@
 /*
  * \file EBSummaryClient.h
  *
- * $Date: 2007/06/08 10:05:21 $
- * $Revision: 1.10 $
+ * $Date: 2007/07/18 09:37:55 $
+ * $Revision: 1.11 $
  * \author G. Della Ricca
  *
 */
@@ -72,7 +72,7 @@ void cleanup(void);
 void htmlOutput(int run, string htmlDir, string htmlName);
 
 /// WriteDB
-bool writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIOV* moniov, int ism);
+bool writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIOV* moniov);
 
 /// Get Functions
 inline int getEvtPerJob() { return ievt_; }

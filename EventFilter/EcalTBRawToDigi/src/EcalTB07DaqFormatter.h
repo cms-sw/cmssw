@@ -2,8 +2,8 @@
 #define EcalTB07DaqFormatter_H
 /** \class EcalTB07DaqFormatter
  *
- *  $Date: 2007/07/05 07:22:48 $
- *  $Revision: 1.2 $
+ *  $Date: 2007/07/11 17:35:56 $
+ *  $Revision: 1.3 $
  *  \author N. Marinelli  IASA-Athens
  *  \author G. Della Ricca
  *  \author G. Franzoni
@@ -30,7 +30,7 @@ class EcalTB07DaqFormatter   {
 
  public:
 
-  EcalTB07DaqFormatter(edm::FileInPath tbTowerStripChannelMapFile, edm::FileInPath tbTowerMapFile, std::string tbName);
+  EcalTB07DaqFormatter(std::string tbName, int a[68][5][5], int b[71], int c[201]);
   virtual ~EcalTB07DaqFormatter(){LogDebug("EcalTB07RawToDigi") << "@SUB=EcalTB07DaqFormatter" << "\n"; };
 
   void  interpretRawData( const FEDRawData & data , EBDigiCollection& digicollection , EEDigiCollection& eeDigiCollection, 
@@ -62,8 +62,6 @@ class EcalTB07DaqFormatter   {
   int tbStatusToLocation_[71];
   int tbTowerIDToLocation_[201];
   std::string tbName_;
-
-  bool getTBMaps(edm::FileInPath tbStripChannelMapFile, edm::FileInPath tbTowerMapFile);
 
   int getEE_ix(int tower, int strip, int ch);
   int getEE_iy(int tower, int strip, int ch);

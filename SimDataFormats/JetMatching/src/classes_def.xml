@@ -1,5 +1,9 @@
 <lcgdict>
-  <class pattern="edm::AssociationVector<*>">
+  <class name="JetFlavourMatchingCollectionBase">
+    <field name="transientVector_" transient="true"/>
+    <field name="fixed_" transient="true"/>
+  </class>
+  <class name="JetFlavourMatchingCollection">
     <field name="transientVector_" transient="true"/>
     <field name="fixed_" transient="true"/>
   </class>
@@ -7,7 +11,7 @@
   <class name="JetFlavourMatchingRefProd"/>
   <class name="JetFlavourMatchingRefVector"/>
   <class name="edm::Wrapper<JetFlavourMatchingCollection>"/>
-   <class name="std::pair<reco::CaloJetRef, int>"/>
-<!-- <class name="std::pair<edm::Ref<std::vector<reco::CaloJet, std::allocator<reco::CaloJet> >, reco::CaloJet, edm::refhelper::FindUsingAdvance<std::vector<reco::CaloJet, std::allocator<reco::CaloJet> >, reco::CaloJet> >, int>"/>
---> 
+  
+  <class name="std::pair<reco::CaloJetRef, int>"/>
+  <class name="std::vector<std::pair<reco::CaloJetRef, int> >" />
 </lcgdict>

@@ -9,6 +9,9 @@
  * \author Patrick Janot
  */
 
+
+#include <set>
+
 namespace edm { 
   class ParameterSet;
 }
@@ -30,6 +33,7 @@ private:
   double cos2Max, cos2PreshMin, cos2PreshMax;
   XYZTLorentzVector mainVertex;
 
+  std::set<int>   forbiddenPdgCodes;
 };
 
 #endif

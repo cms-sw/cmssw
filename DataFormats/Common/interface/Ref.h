@@ -5,7 +5,7 @@
   
 Ref: A template for a interproduct reference to a member of a product.
 
-$Id: Ref.h,v 1.29 2007/07/12 12:08:57 llista Exp $
+$Id: Ref.h,v 1.34 2008/02/15 05:57:03 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 /**
@@ -190,11 +190,18 @@ namespace edm {
     template <typename HandleC>
     Ref(HandleC const& handle, key_type itemKey, bool setNow=true);
 
+    /** Constructor for ref to object that is not in an event.
+        An exception will be thrown if an attempt is made to persistify
+        any object containing this Ref.  Also, in the future work will
+        be done to throw an exception if an attempt is made to put any object
+        containing this Ref into an event(or run or lumi). */
+    Ref(C const* product, key_type itemKey, bool setNow=true);
+
     /** Constructor for those users who do not have a product handle,
         but have a pointer to a product getter (such as the EventPrincipal).
         prodGetter will ususally be a pointer to the event principal. */
     Ref(ProductID const& productID, key_type itemKey, EDProductGetter const* prodGetter) :
-      ref_(productID, 0, itemKey, 0, prodGetter) {
+      ref_(productID, 0, itemKey, 0, prodGetter, false) {
       }
 
     /** Constructor for use in the various X::fillView(...) functions.
@@ -204,15 +211,16 @@ namespace edm {
 	Event. The given ProductID must be the id of the collection in
 	the Event. */
     
-    Ref(ProductID const& productID, T const* item, key_type item_key) :
-      ref_(productID, 0, item_key, item, 0) { }
+    Ref(ProductID const& productID, T const* item, key_type item_key, C const* product ) :
+      ref_(productID, product, item_key, item, 0, false) { 
+      }
 
     /** Constructor that creates an invalid ("null") Ref that is
 	associated with a given product (denoted by that product's
 	ProductID). */
 
     explicit Ref(ProductID const& id) :
-      ref_(id, 0, key_traits<key_type>::value, 0, 0)
+      ref_(id, 0, key_traits<key_type>::value, 0, 0, false)
     { }
 
     /// Constructor from RefProd<C> and key
@@ -267,6 +275,13 @@ namespace edm {
 
     bool hasCache() const {return ref_.item().ptr() != 0;}
 
+    /// Checks if collection is in memory or available
+    /// in the Event. No type checking is done.
+    bool isAvailable() const {return ref_.refCore().isAvailable();}
+
+    /// Checks if this ref is transient (i.e. not persistable).
+    bool isTransient() const {return ref_.refCore().isTransient();}
+
   private:
     // Constructor from member of RefVector
     Ref(RefCore const& refCore, RefItem<key_type> const& item) : 
@@ -296,18 +311,36 @@ namespace edm {
   template <typename HandleC>
   inline
   Ref<C, T, F>::Ref(HandleC const& handle, key_type itemKey, bool setNow) :
-      ref_(handle.id(), handle.product(), itemKey) {
+      ref_(handle.id(), handle.product(), itemKey, 0, 0, false) {
     checkTypeAtCompileTime(handle.product());
     assert(ref_.item().key() == itemKey);
         
     if (setNow) {ref_.item().setPtr(getPtr_<C, T, F>(ref_.refCore(), ref_.item()));}
   }
 
+  /** Constructor for ref to object that is not in an event.
+      An exception will be thrown if an attempt is made to persistify
+      any object containing this Ref.  Also, in the future work will
+      be done to throw an exception if an attempt is made to put any object
+      containing this Ref into an event(or run or lumi). */
+  /** Note:  It is legal for the referenced object to be put into the event
+      and persistified.  It is this Ref itself that cannot be persistified. */
+  template <typename C, typename T, typename F>
+  inline
+  Ref<C, T, F>::Ref(C const* product, key_type itemKey, bool setNow) :
+      ref_(ProductID(), product, product != 0 ? itemKey : key_traits<key_type>::value, 0, 0, true) {
+    checkTypeAtCompileTime(product);
+    assert(ref_.item().key() == (product != 0 ? itemKey : key_traits<key_type>::value));
+        
+    if (setNow && product != 0) {ref_.item().setPtr(getPtr_<C, T, F>(ref_.refCore(), ref_.item()));}
+  }
+   
+
   /// Constructor from RefProd<C> and key
   template <typename C, typename T, typename F>
   inline
   Ref<C, T, F>::Ref(RefProd<C> const& refProd, key_type itemKey) :
-      ref_(refProd.id(), refProd.refCore().productPtr(), itemKey, 0, refProd.refCore().productGetter()) {
+      ref_(refProd.id(), refProd.refCore().productPtr(), itemKey, 0, refProd.refCore().productGetter(), refProd.refCore().isTransient()) {
     assert(ref_.item().key() == itemKey);
     if (0 != refProd.refCore().productPtr()) {
       ref_.item().setPtr(getPtr_<C, T, F>(ref_.refCore(), ref_.item()));
@@ -364,7 +397,7 @@ namespace edm {
 #endif
     /// the definition and use of compare_key<> guarantees that the ordering of Refs within
       /// a collection will be identical to the ordering of the referenced objects in the collection.
-      return (lhs.id() == rhs.id() ? compare_key<C>(lhs.key(), rhs.key()) : lhs.id() < rhs.id());
+      return (lhs.ref().refCore() == rhs.ref().refCore() ? compare_key<C>(lhs.key(), rhs.key()) : lhs.ref().refCore() < rhs.ref().refCore());
   }
 
 }
@@ -384,6 +417,12 @@ namespace edm {
 	                  typename REF::value_type, 
                        	  typename REF::finder_type> REFV;
 	return std::auto_ptr<BaseVectorHolder<T> >( new VectorHolder<T, REFV> );
+      }
+      static  std::auto_ptr<RefVectorHolderBase> makeVectorBaseHolder() {
+	typedef RefVector<typename REF::product_type,
+	                  typename REF::value_type, 
+                       	  typename REF::finder_type> REFV;
+	return std::auto_ptr<RefVectorHolderBase>( new RefVectorHolder<REFV> );
       }
     };
 

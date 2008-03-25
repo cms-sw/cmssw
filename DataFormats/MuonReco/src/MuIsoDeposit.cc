@@ -1,4 +1,5 @@
 #include "DataFormats/MuonReco/interface/MuIsoDeposit.h"
+#include "DataFormats/MuonReco/interface/MuIsoDepositVetos.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include <sstream>
@@ -77,7 +78,7 @@ std::pair<double,int> MuIsoDeposit::depositAndCountWithin(double coneSize, const
     bool vetoed = false;
     for ( IV iv = allVetos.begin(); iv < ivEnd; ++iv) {
       Direction dirDep = theDirection+im->first;
-      if (dirDep.deltaR(iv->vetoDir) < iv->dR) vetoed = true; 
+     if (dirDep.deltaR(iv->vetoDir) < iv->dR) vetoed = true; 
     }  
     if (!vetoed && im->second > threshold){
       result += im->second;
@@ -114,6 +115,42 @@ std::pair<double,int> MuIsoDeposit::depositAndCountWithin(Direction dir, double 
   }
   return std::pair<double,int>(result,count);
 }
+
+std::pair<double,int>  MuIsoDeposit::depositAndCountWithin(double coneSize, const AbsVetos& vetos, bool skipDepositVeto) const 
+{
+  using namespace reco::isodeposit;
+  double result = 0;
+  int count =  0;
+  typedef AbsVetos::const_iterator IV;
+
+  IV ivEnd = vetos.end();
+
+  Distance maxDistance = {coneSize,999.};
+  typedef DepositsMultimap::const_iterator IM;
+  IM imLoc = theDeposits.upper_bound( maxDistance ); 
+  for (IM im = theDeposits.begin(); im != imLoc; ++im) {
+    bool vetoed = false;
+    Direction dirDep = theDirection+im->first;
+    for ( IV iv = vetos.begin(); iv < ivEnd; ++iv) {
+      if ((*iv)->veto(dirDep.eta(), dirDep.phi(), im->second)) { vetoed = true;  break; }
+    }
+    if (!vetoed) {
+       if (skipDepositVeto || (dirDep.deltaR(theVeto.vetoDir) > theVeto.dR)) {
+          result += im->second;
+		  count++;
+        }
+    }
+  }
+  return std::pair<double,int>(result,count);
+}
+
+
+double MuIsoDeposit::depositWithin(double coneSize, const AbsVetos& vetos, bool skipDepositVeto) const 
+{
+	return depositAndCountWithin(coneSize, vetos, skipDepositVeto).first;
+}
+
+
 
 std::string MuIsoDeposit::print() const
 {

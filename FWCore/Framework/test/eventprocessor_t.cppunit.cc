@@ -2,7 +2,7 @@
 
 Test of the EventProcessor class.
 
-$Id: eventprocessor_t.cppunit.cc,v 1.28 2007/05/08 03:18:40 wmtan Exp $
+$Id: eventprocessor_t.cppunit.cc,v 1.29 2007/07/16 21:30:05 wdd Exp $
 
 ----------------------------------------------------------------------*/  
 #include <exception>
@@ -16,7 +16,6 @@ $Id: eventprocessor_t.cppunit.cc,v 1.28 2007/05/08 03:18:40 wmtan Exp $
 #define private public
 #include "FWCore/ServiceRegistry/interface/ServiceRegistry.h"
 #undef private
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "FWCore/Framework/interface/EventProcessor.h"
 #include "FWCore/Utilities/interface/Exception.h"
@@ -26,7 +25,6 @@ $Id: eventprocessor_t.cppunit.cc,v 1.28 2007/05/08 03:18:40 wmtan Exp $
 
 #include "FWCore/PluginManager/interface/ProblemTracker.h"
 
-#include "FWCore/Framework/interface/Frameworkfwd.h"
 
 #include "DataFormats/Provenance/interface/ModuleDescription.h"
 

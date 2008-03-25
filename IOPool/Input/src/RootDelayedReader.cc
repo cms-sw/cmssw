@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: RootDelayedReader.cc,v 1.11 2007/05/29 19:34:07 wmtan Exp $
+$Id: RootDelayedReader.cc,v 1.16 2007/10/06 04:06:42 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include "RootDelayedReader.h"
@@ -7,8 +7,7 @@ $Id: RootDelayedReader.cc,v 1.11 2007/05/29 19:34:07 wmtan Exp $
 #include "DataFormats/Provenance/interface/BranchKey.h"
 #include "DataFormats/Provenance/interface/BranchEntryDescription.h"
 #include "DataFormats/Common/interface/EDProduct.h"
-#include "Reflex/Type.h"
-#include "Reflex/Object.h"
+#include "TClass.h"
 #include "TBranch.h"
 
 namespace edm {
@@ -25,8 +24,8 @@ namespace edm {
     SetRefStreamer(ep);
     input::EventBranchInfo const& branchInfo = branches().find(k)->second;
     TBranch *br = branchInfo.productBranch_;
-    ROOT::Reflex::Object object = branchInfo.type.Construct();
-    std::auto_ptr<EDProduct> p(static_cast<EDProduct *>(object.Address()));
+    TClass *cp = gROOT->GetClass(branchInfo.branchDescription_.wrappedName().c_str());
+    std::auto_ptr<EDProduct> p(static_cast<EDProduct *>(cp->New()));
     EDProduct *pp = p.get();
     br->SetAddress(&pp);
     br->GetEntry(entryNumber_);

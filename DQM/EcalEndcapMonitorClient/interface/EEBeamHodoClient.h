@@ -4,8 +4,8 @@
 /*
  * \file EEBeamHodoClient.h
  *
- * $Date: 2007/03/26 17:35:04 $
- * $Revision: 1.15 $
+ * $Date: 2007/04/02 16:15:35 $
+ * $Revision: 1.1 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -76,7 +76,7 @@ void cleanup(void);
 void htmlOutput(int run, string htmlDir, string htmlName);
 
 /// WriteDB
-bool writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIOV* moniov, int ism);
+bool writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIOV* moniov);
 
 /// Get Functions
 inline int getEvtPerJob() { return ievt_; }

@@ -1,12 +1,11 @@
 /*----------------------------------------------------------------------
   
-$Id: EDProduct.cc,v 1.5 2007/05/16 22:32:00 paterno Exp $
+$Id: EDProduct.cc,v 1.8 2007/10/22 19:45:40 chrjones Exp $
 
 ----------------------------------------------------------------------*/
 
 #include "DataFormats/Common/interface/EDProduct.h"
 #include "DataFormats/Provenance/interface/ProductID.h"
-#include "DataFormats/Common/interface/RefVectorHolderBase.h"
 
 namespace edm {
   EDProduct::EDProduct() {}
@@ -26,4 +25,20 @@ namespace edm {
 
     do_fillView(id, pointers, helpers);
   }
+  
+  void EDProduct::setPtr(const std::type_info& iToType,
+                         unsigned long iIndex,
+                         void const*& oPtr) const
+  {
+    do_setPtr(iToType, iIndex, oPtr);
+  }
+  
+  void 
+  EDProduct::fillPtrVector(const std::type_info& iToType,
+                              const std::vector<unsigned long>& iIndicies,
+                              std::vector<void const*>& oPtr) const
+  {
+    do_fillPtrVector(iToType, iIndicies, oPtr);
+  }
+  
 }

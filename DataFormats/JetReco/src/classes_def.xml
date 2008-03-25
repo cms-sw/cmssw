@@ -66,7 +66,30 @@
   <class name="edm::RefToBase<reco::Jet>" />
   <class name="edm::reftobase::BaseHolder<reco::Jet>" />
   <class name="edm::reftobase::Holder<reco::Jet, reco::CaloJetRef>" />
-  <class name="edm::reftobase::Holder<reco::Jet, reco::GenJetRef>" />
-  <class name="edm::reftobase::Holder<reco::Jet, reco::PFJetRef>" />
-  
+  <class name="edm::reftobase::IndirectHolder<reco::Jet>" />
+  <class name="edm::reftobase::Holder<reco::Candidate,edm::RefToBase<reco::Jet> > "/> 
+  <class name="edm::RefToBaseProd<reco::Jet>" >
+        <field name="view_" transient="true" />
+  </class>
+
+  <class name="edm::reftobase::Holder<reco::Candidate, reco::CaloJetRef>" />
+  <class name="edm::reftobase::RefHolder<reco::CaloJetRef>" />
+  <class name="edm::reftobase::VectorHolder<reco::Candidate, reco::CaloJetRefVector>" />
+  <class name="edm::reftobase::RefVectorHolder<reco::CaloJetRefVector>" />
+
+  <class name="edm::reftobase::Holder<reco::Candidate, reco::GenJetRef>" />
+  <class name="edm::reftobase::RefHolder<reco::GenJetRef>" />
+  <class name="edm::reftobase::VectorHolder<reco::Candidate, reco::GenJetRefVector>" />
+  <class name="edm::reftobase::RefVectorHolder<reco::GenJetRefVector>" />
+
+  <class name="edm::reftobase::Holder<reco::Candidate, reco::BasicJetRef>" />
+  <class name="edm::reftobase::RefHolder<reco::BasicJetRef>" />
+  <class name="edm::reftobase::VectorHolder<reco::Candidate, reco::BasicJetRefVector>" />
+  <class name="edm::reftobase::RefVectorHolder<reco::BasicJetRefVector>" />
+
+  <class name="edm::reftobase::Holder<reco::Candidate, reco::PFJetRef>" />
+  <class name="edm::reftobase::RefHolder<reco::PFJetRef>" />
+  <class name="edm::reftobase::VectorHolder<reco::Candidate, reco::PFJetRefVector>" />
+  <class name="edm::reftobase::RefVectorHolder<reco::PFJetRefVector>" />
+
 </lcgdict>

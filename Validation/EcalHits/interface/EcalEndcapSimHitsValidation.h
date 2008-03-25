@@ -81,6 +81,9 @@ private:
  
  std::string outputFile_;
 
+ int myEntries;
+ float eRLength[26];
+
  MonitorElement* meEEzpHits_;
  MonitorElement* meEEzmHits_;
 

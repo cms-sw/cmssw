@@ -8,7 +8,7 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: TrackExtra.h,v 1.14 2007/01/31 08:51:35 llista Exp $
+ * \version $Id: TrackExtra.h,v 1.20 2007/07/30 13:26:45 bellan Exp $
  *
  */
 #include <Rtypes.h>
@@ -36,13 +36,13 @@ namespace reco {
     typedef unsigned int index;
 
     /// default constructor
-    TrackExtra() { }
+    TrackExtra(): seedDir_(anyDirection) { }
     /// constructor from outermost position and momentum
     TrackExtra( const Point & outerPosition, const Vector & outerMomentum, bool ok ,
 		const Point & innerPosition, const Vector & innerMomentum, bool iok,
 		const CovarianceMatrix& outerState, unsigned int outerId,
 		const CovarianceMatrix& innerState, unsigned int innerId, 
-		PropagationDirection& seedDir);
+		PropagationDirection seedDir);
     /// outermost hit position
     const Point & outerPosition() const { return outerPosition_; }
     /// momentum vector at outermost hit position

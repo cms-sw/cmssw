@@ -1,7 +1,8 @@
-#include "RecoBTau/JetTagComputer/interface/JetTagComputer.h"
+#include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/BTauReco/interface/TrackProbabilityTagInfo.h"
 #include "DataFormats/BTauReco/interface/TrackIPTagInfo.h"
 #include "Math/GenVector/VectorUtil.h"
+#include "RecoBTau/JetTagComputer/interface/JetTagComputer.h"
 
 class JetProbabilityComputer : public JetTagComputer
 {
@@ -37,8 +38,9 @@ class JetProbabilityComputer : public JetTagComputer
               {
                 if(*it <=0 ) p= -*it; else continue; 
               } 
-                double delta  = ROOT::Math::VectorUtil::DeltaR((*tkip->jet()).p4().Vect(), (*tracks[i]).momentum());
-              if(delta < m_deltaR)
+                double delta  = -2.; 
+                if(m_deltaR > 0) delta = ROOT::Math::VectorUtil::DeltaR((*tkip->jet()).p4().Vect(), (*tracks[i]).momentum());
+              if(delta < m_deltaR || m_deltaR <= 0)
              probabilities.push_back(p);
            }
            return jetProbability(probabilities); 

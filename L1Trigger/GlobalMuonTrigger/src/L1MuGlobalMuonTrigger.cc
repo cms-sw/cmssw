@@ -5,8 +5,8 @@
 //   Description: L1 Global Muon Trigger
 //
 //
-//   $Date: 2007/04/10 09:59:19 $
-//   $Revision: 1.6 $
+//   $Date: 2007/07/06 15:35:37 $
+//   $Revision: 1.7 $
 //
 //   Author :
 //   Norbert Neumeister              CERN EP
@@ -132,6 +132,12 @@ L1MuGlobalMuonTrigger::~L1MuGlobalMuonTrigger() {
 
   if(m_config) delete m_config;
   m_config = 0;
+
+  // copied from produce() by Jim B, 7 Aug 2007
+  std::vector<L1MuGMTReadoutRecord*>::iterator irr = m_ReadoutRingbuffer.begin();
+  for ( ;irr!=m_ReadoutRingbuffer.end(); irr++) delete (*irr);
+  m_ReadoutRingbuffer.clear();
+  // end Jim B edit
 
 }
 

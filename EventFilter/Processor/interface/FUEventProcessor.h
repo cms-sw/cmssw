@@ -168,10 +168,13 @@ namespace evf
     xdata::String                    epmState_;
     xdata::UnsignedInteger32         nbProcessed_;
     xdata::UnsignedInteger32         nbAccepted_;
-    xdata::InfoSpace                *mispace;
+    xdata::InfoSpace                *monitorInfoSpace_;
     
     // HyperDAQ related
     Css                              css_;
+
+    // Misc
+    std::string                      reasonForFailedState_;
     
   };
   

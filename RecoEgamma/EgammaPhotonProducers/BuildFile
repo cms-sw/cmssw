@@ -16,10 +16,6 @@
 <use name=RecoTracker/MeasurementDet>
 <use name=RecoTracker/CkfPattern>
 <use name=RecoTracker/TrackProducer>
-<use name=SimDataFormats/HepMCProduct>
-<use name=SimDataFormats/TrackingHit>
-<use name=SimDataFormats/Track>
-<use name=SimDataFormats/Vertex>
 <use name=clhep>
  <flags EDM_PLUGIN=1>
 <export>
@@ -41,9 +37,5 @@
   <use name=RecoTracker/MeasurementDet>
   <use name=RecoTracker/CkfPattern>
   <use name=RecoTracker/TrackProducer>
-  <use name=SimDataFormats/HepMCProduct>
-  <use name=SimDataFormats/TrackingHit>
-  <use name=SimDataFormats/Track>
-  <use name=SimDataFormats/Vertex>
   <use name=clhep>
 </export>
