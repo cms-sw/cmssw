@@ -2,7 +2,7 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/03/18 11:59:59 $
+ *  $Date: 2008/03/25 17:19:18 $
  *  $Revision: 1.1 $
  *  \author G. Mila - INFN Torino
  */
@@ -162,6 +162,8 @@ void MuonSeedsAnalyzer::beginJob(edm::EventSetup const& iSetup, DaqMonitorBEInte
 
 
 void MuonSeedsAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup, const TrajectorySeed& seed) {
+
+  theService->update(iSetup);
 
   TrajectoryStateOnSurface seedTSOS = getSeedTSOS(seed);
   AlgebraicSymMatrix66 errors = seedTSOS.cartesianError().matrix();
