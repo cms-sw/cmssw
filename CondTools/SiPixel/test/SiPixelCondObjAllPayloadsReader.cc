@@ -82,6 +82,36 @@ SiPixelCondObjAllPayloadsReader::analyze(const edm::Event& iEvent, const edm::Ev
   
   edm::LogInfo("SiPixelCondObjAllPayloadsReader") <<"[SiPixelCondObjAllPayloadsReader::analyze] ---> PIXEL Modules  " << nmodules  << std::endl;
   edm::LogInfo("SiPixelCondObjAllPayloadsReader") <<"[SiPixelCondObjAllPayloadsReader::analyze] ---> PIXEL Channels " << nchannels << std::endl;
+
+  fFile->cd();
+  _TH1F_Gains_sum = new TH1F("Summary_Gain","Gain Summary", vdetId_.size()+1,0,vdetId_.size()+1);
+  _TH1F_Pedestals_sum = new TH1F("Summary_Pedestal","Pedestal Summary", vdetId_.size()+1,0,vdetId_.size()+1);
+ 
+  // Loop over DetId's
+  int ibin=1;
+  for (std::vector<uint32_t>::const_iterator detid_iter=vdetId_.begin();detid_iter!=vdetId_.end();detid_iter++){
+    uint32_t detid = *detid_iter;
+
+    DetId detIdObject(detid);
+
+    std::map<uint32_t,TH1F*>::iterator p_iter =  _TH1F_Pedestals_m.find(detid);
+    std::map<uint32_t,TH1F*>::iterator g_iter =  _TH1F_Gains_m.find(detid);
+    _TH1F_Gains_sum->SetBinContent(ibin,g_iter->second->GetMean());
+    _TH1F_Gains_sum->SetBinError(ibin,g_iter->second->GetRMS());
+    _TH1F_Pedestals_sum->SetBinContent(ibin,p_iter->second->GetMean());
+    _TH1F_Pedestals_sum->SetBinError(ibin,p_iter->second->GetRMS());
+    if(ibin==1){
+      fFile->cd();
+      _TH1F_Pedestals_all = (TH1F*) p_iter->second->Clone("PedestalsAll");
+      _TH1F_Gains_all = (TH1F*) g_iter->second->Clone("GainAll");
+    }
+    else{
+      _TH1F_Pedestals_all->Add(p_iter->second,1.);
+      _TH1F_Gains_all->Add(g_iter->second,1.);
+    }
+    ibin++;
+  }
+    
   fFile->ls();
   fFile->Write();
   fFile->Close();    

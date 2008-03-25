@@ -46,7 +46,11 @@ SiPixelCondObjForHLTBuilder::analyze(const edm::Event& iEvent, const edm::EventS
    //
    // Instantiate Gain calibration offset and define pedestal/gain range
    //
-   SiPixelGainCalibration_ = new SiPixelGainCalibrationForHLT(0., 50, 0., 10.);
+   float mingain=0;
+   float maxgain=10;
+   float minped=0;
+   float maxped=50;
+   SiPixelGainCalibration_ = new SiPixelGainCalibrationForHLT(minped,maxped,mingain,maxgain);
 
 
    edm::ESHandle<TrackerGeometry> pDD;
@@ -96,12 +100,18 @@ SiPixelCondObjForHLTBuilder::analyze(const edm::Event& iEvent, const edm::EventS
 
 	   } 
 	   else{
-	     if(rmsPed_>0) 
+	     if(rmsPed_>0) {
 	       ped  = RandGauss::shoot( meanPed_  , rmsPed_  );
+	       while(ped<minped || ped>maxped)
+		 ped  = RandGauss::shoot( meanPed_  , rmsPed_  );
+	     }
 	     else
 	       ped = meanPed_;
-	     if(rmsGain_>0)
+	     if(rmsGain_>0){
 	       gain = RandGauss::shoot( meanGain_ , rmsGain_ );
+	       while(gain<mingain || gain>maxgain)
+		 gain = RandGauss::shoot( meanGain_ , rmsGain_ );
+	     }
 	     else
 	       gain = meanGain_;
 	   }
