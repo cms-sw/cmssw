@@ -8,8 +8,8 @@
 // Created:         Mon Feb  5 21:24:36 UTC 2007
 //
 // $Author: gutsche $
-// $Date: 2007/03/01 08:16:18 $
-// $Revision: 1.2 $
+// $Date: 2007/03/07 21:46:51 $
+// $Revision: 1.3 $
 //
 
 
@@ -17,6 +17,7 @@
 
 #include "RecoTracker/RoadSearchSeedFinder/test/RoadSearchSeedDumper.h"
 
+#include "DataFormats/RoadSearchSeed/interface/RoadSearchSeedCollection.h"
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
 
 #include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
@@ -47,9 +48,9 @@ void RoadSearchSeedDumper::analyze(const edm::Event& e, const edm::EventSetup& e
 
     
   // Step A: Get Inputs 
-  edm::Handle<TrajectorySeedCollection> seedHandle;
+  edm::Handle<RoadSearchSeedCollection> seedHandle;
   e.getByLabel(roadSearchSeedsInputTag_, seedHandle);
-  const TrajectorySeedCollection *seeds = seedHandle.product();
+  const RoadSearchSeedCollection *seeds = seedHandle.product();
 
   // get tracker geometry
   edm::ESHandle<TrackerGeometry> trackerHandle;
@@ -77,18 +78,18 @@ void RoadSearchSeedDumper::analyze(const edm::Event& e, const edm::EventSetup& e
 	 << std::endl;
 
   unsigned int nseed=0;
-  for ( TrajectorySeedCollection::const_iterator seed = seeds->begin(), seedsEnd = seeds->end();
+  for ( RoadSearchSeedCollection::const_iterator seed = seeds->begin(), seedsEnd = seeds->end();
 	seed != seedsEnd; 
 	++seed ) {
 
     output << "Seed: " << ++nseed << std::endl;
     
     unsigned int nhit = 0;
-    for ( TrajectorySeed::const_iterator hit = seed->recHits().first , hitEnd = seed->recHits().second;
-	  hit != hitEnd;
+    
+    for (RoadSearchSeed::HitVector::const_iterator hit = seed->begin() ; hit != seed->end();
 	  ++hit ) {
-      DetId id = hit->geographicalId();
-      GlobalPoint outer = tracker->idToDet(id)->surface().toGlobal(hit->localPosition());
+      DetId id = (*hit)->geographicalId();
+      GlobalPoint outer = tracker->idToDet(id)->surface().toGlobal((*hit)->localPosition());
       const Ring *ring = rings->getRing(RoadSearchDetIdHelper::ReturnRPhiId(id));
       output<< "Hit: " << ++nhit << " " << id.rawId() << " " << ring->getindex() << " "
 	    << outer.perp() << " " << outer.phi() 
