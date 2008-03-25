@@ -39,7 +39,7 @@ Ring 0 L0 : Width Tray 6:266.6, 5&4:325.6, 3:330.6, 2:341.6, 1:272.6
 //
 // Original Author:  Gobinda Majumder
 //         Created:  Fri Jul  6 17:17:21 CEST 2007
-// $Id: AlCaHOCalibProducer.cc,v 1.2 2008/02/26 08:19:56 kodolova Exp $
+// $Id: AlCaHOCalibProducer.cc,v 1.3 2008/03/24 18:19:54 kodolova Exp $
 //
 //
 
@@ -270,9 +270,17 @@ AlCaHOCalibProducer::AlCaHOCalibProducer(const edm::ParameterSet& iConfig)
   for (int i=0; i<10; i++) {ho_time[i] = hb_time[i] = 0.0;}
 
   char title[200];
+<<<<<<< AlCaHOCalibProducer.cc
   theFile = new TFile(theRootFileName.c_str(), "RECREATE");
+  
+=======
+  theFile = new TFile(theRootFileName.c_str(), "RECREATE");
+>>>>>>> 1.3
   if (m_hotime) {
+<<<<<<< AlCaHOCalibProducer.cc
+=======
 //    theFile = new TFile(theRootFileName.c_str(), "RECREATE");
+>>>>>>> 1.3
     theFile->cd();
     for (int j=0; j<netamx; j++) {
       for (int i=0; i<nphimx; i++) {
