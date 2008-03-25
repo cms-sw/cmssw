@@ -49,7 +49,7 @@ void ESRecHitProducer::produce(edm::Event& e, const edm::EventSetup& es)
   // run the algorithm
   ESDigiCollection::const_iterator i;
   for (i=digi->begin(); i!=digi->end(); i++) {    
-    rec->push_back(algo_->reconstruct(*i, true));
+    rec->push_back(algo_->reconstruct(*i, false));
   }
 
   e.put(rec,rechitCollection_);
