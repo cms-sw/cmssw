@@ -104,6 +104,11 @@ public:
     void setTcsWord(const L1TcsWord&);
 
     /// get the vector of L1GtFdlWord
+    const std::vector<L1GtFdlWord> gtFdlVector() const
+    {
+        return m_gtFdlWord;
+    }
+
     std::vector<L1GtFdlWord>& gtFdlVector()
     {
         return m_gtFdlWord;

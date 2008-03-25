@@ -131,6 +131,11 @@ public:
     void setGtfeWord(const L1GtfeWord&);
 
     /// get the vector of L1GtFdlWord
+    const std::vector<L1GtFdlWord> gtFdlVector() const
+    {
+        return m_gtFdlWord;
+    }
+
     std::vector<L1GtFdlWord>& gtFdlVector()
     {
         return m_gtFdlWord;
@@ -144,6 +149,11 @@ public:
     void setGtFdlWord(const L1GtFdlWord&);
 
     /// get the vector of L1GtPsbWord
+    const std::vector<L1GtPsbWord> gtPsbVector() const
+    {
+        return m_gtPsbWord;
+    }
+
     std::vector<L1GtPsbWord>& gtPsbVector()
     {
         return m_gtPsbWord;
