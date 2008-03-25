@@ -189,9 +189,8 @@ void HLTMuonTime::analyze(const Event & event ){
   //get the timing info
   Handle<EventTime> evtTime;
   LogDebug("HLTMuonVal") << "About to try"<< theTimerLabel;  
-  try {
-      event.getByLabel(theTimerLabel, evtTime);
-  } catch (...) {
+  event.getByLabel(theTimerLabel, evtTime); 
+  if (evtTime.failedToGet()){
     LogWarning("HLTMuonVal") << "!!!!!!!!! No timer run with label"<< theTimerLabel;
     TimerIn=false;
     return;
