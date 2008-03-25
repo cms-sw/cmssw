@@ -3,6 +3,7 @@
   <use name=FWCore/Framework>
   <use name=FWCore/ParameterSet>
   <use name=DataFormats/HepMCCandidate>
+  <use name=DataFormats/JetReco>
   <use name=DataFormats/WrappedStdDictionaries>
   <use name=SimDataFormats/HepMCProduct>
   <use name=SimGeneral/HepPDTRecord>
