@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Feb 11 11:06:40 EST 2008
-// $Id: FWGUIManager.cc,v 1.20 2008/03/18 23:50:45 chrjones Exp $
+// $Id: FWGUIManager.cc,v 1.21 2008/03/24 18:02:14 chrjones Exp $
 //
 
 // system include files
@@ -731,6 +731,7 @@ FWGUIManager::setFrom(const FWConfiguration& iFrom)
       s >> height;
       ((TGCompositeFrame *)gEve->GetBrowser()->GetTabRight()->GetParent())->Resize(width, height);
    }
+   gEve->GetBrowser()->Layout();
 }
 
 //
