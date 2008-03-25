@@ -3,9 +3,9 @@
  *
  *  \author    : Gero Flucke
  *  date       : October 2006
- *  $Revision: 1.12 $
- *  $Date: 2007/12/31 00:34:05 $
- *  (last update by $Author: elmer $)
+ *  $Revision: 1.13 $
+ *  $Date: 2008/02/20 18:30:59 $
+ *  (last update by $Author: mstoye $)
  */
 
 #include "DataFormats/GeometrySurface/interface/Surface.h" 
@@ -675,18 +675,16 @@ void MillePedeMonitor::fillRefTrajectory(const ReferenceTrajectoryBase::Referenc
 
 //____________________________________________________________________
 void MillePedeMonitor::fillDerivatives(const ConstRecHitPointer &recHit,
-				       const std::vector<float> &localDerivs,
-				       const std::vector<float> &globalDerivs, bool isY)
+				       const float *localDerivs, unsigned int nLocal,
+				       const float *globalDerivs, unsigned int nGlobal)
 {
-  // isY == false: x-measurements
-  // isY == true:  y-measurements
   const double phi = recHit->det()->position().phi();
 
   static const int iLocPar = this->GetIndex(myDerivHists2D, "localDerivsPar");
   static const int iLocPhi = this->GetIndex(myDerivHists2D, "localDerivsPhi");
   static const int iLocParLog = this->GetIndex(myDerivHists2D, "localDerivsParLog");
   static const int iLocPhiLog = this->GetIndex(myDerivHists2D, "localDerivsPhiLog");
-  for (unsigned int i = 0; i < localDerivs.size(); ++i) {
+  for (unsigned int i = 0; i < nLocal; ++i) {
     myDerivHists2D[iLocPar]->Fill(i, localDerivs[i]);
     myDerivHists2D[iLocPhi]->Fill(phi, localDerivs[i]);
     if (localDerivs[i]) {
@@ -700,7 +698,7 @@ void MillePedeMonitor::fillDerivatives(const ConstRecHitPointer &recHit,
   static const int iGlobParLog = this->GetIndex(myDerivHists2D, "globalDerivsParLog");
   static const int iGlobPhiLog = this->GetIndex(myDerivHists2D, "globalDerivsPhiLog");
 //   static const int iGlobPhiLog2 = this->GetIndex(myDerivHists2D, "globalDerivsPhiLog2");
-  for (unsigned int i = 0; i < globalDerivs.size(); ++i) {
+  for (unsigned int i = 0; i < nGlobal; ++i) {
     myDerivHists2D[iGlobPar]->Fill(i, globalDerivs[i]);
     myDerivHists2D[iGlobPhi]->Fill(phi, globalDerivs[i]);
     if (globalDerivs[i]) {

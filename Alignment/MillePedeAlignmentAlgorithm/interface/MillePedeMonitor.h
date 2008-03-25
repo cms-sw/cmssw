@@ -7,8 +7,8 @@
 ///
 ///  \author    : Gero Flucke
 ///  date       : October 2006
-///  $Revision: 1.4.2.3 $
-///  $Date: 2007/07/12 15:30:54 $
+///  $Revision: 1.8 $
+///  $Date: 2007/07/12 17:32:38 $
 ///  (last update by $Author: flucke $)
 
 #include "DataFormats/CLHEP/interface/AlgebraicObjects.h"
@@ -52,8 +52,8 @@ class MillePedeMonitor
   void fillUsedTrack(const reco::Track *track, unsigned int nHitX, unsigned int nHitY);//, const Trajectory *traj);
   void fillRefTrajectory(const ReferenceTrajectoryBase::ReferenceTrajectoryPtr &refTrajPtr);
   void fillDerivatives(const TransientTrackingRecHit::ConstRecHitPointer &recHit,
-		       const std::vector<float> &localDerivs,
-		       const std::vector<float> &globalDerivs, bool isY);
+		       const float *localDerivs, unsigned int nLocal,
+		       const float *globalDerivs, unsigned int nGlobal);
   void fillResiduals(const TransientTrackingRecHit::ConstRecHitPointer &recHit,
 		     const TrajectoryStateOnSurface &tsos, unsigned int nHit,
 		     float residuum, float sigma, bool isY);

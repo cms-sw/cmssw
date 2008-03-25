@@ -3,8 +3,8 @@
  *
  *  \author    : Gero Flucke
  *  date       : October 2006
- *  $Revision: 1.33 $
- *  $Date: 2008/03/05 09:35:37 $
+ *  $Revision: 1.34 $
+ *  $Date: 2008/03/15 01:01:42 $
  *  (last update by $Author: flucke $)
  */
 
@@ -748,7 +748,6 @@ int MillePedeAlignmentAlgorithm
   const double corr = aHitCovarianceM(0,1) / sqrt(aHitCovarianceM(0,0) * aHitCovarianceM(1,1));
   bool diag = false;
   if (TMath::Abs(corr) > theMaximalCor2D) {
-    edm::LogError("Alignment") << "@SUB=callMille2D_diag";
     this->diagonalize(aHitCovarianceM, aLocalDerivativesM, aHitResidualsM, aGlobalDerivativesM);
     diag = true;
   }
@@ -777,7 +776,7 @@ int MillePedeAlignmentAlgorithm
   theMille->mille(nLocal, newLocalDerivsX, nGlobal, newGlobDerivsX,
 		  &(globalLabels[0]), newResidX, newHitErrX);
   if (theMonitor) {
-    // theMonitor->fillDerivatives(aRecHit, newLocalDerivsX, newGlobDerivsX, false);
+    theMonitor->fillDerivatives(aRecHit, newLocalDerivsX, nLocal, newGlobDerivsX, nGlobal);
     theMonitor->fillResiduals(aRecHit, refTrajPtr->trajectoryStates()[iTrajHit],
 			      iTrajHit, newResidX, newHitErrX, false);
   }
@@ -786,7 +785,7 @@ int MillePedeAlignmentAlgorithm
     theMille->mille(nLocal, newLocalDerivsY, nGlobal, newGlobDerivsY,
                     &(globalLabels[0]), newResidY, newHitErrY);
     if (theMonitor) {
-      // theMonitor->fillDerivatives(aRecHit, newLocalDerivsY, newGlobDerivsY, true); // true: y
+      theMonitor->fillDerivatives(aRecHit, newLocalDerivsY, nLocal, newGlobDerivsY, nGlobal);
       theMonitor->fillResiduals(aRecHit, refTrajPtr->trajectoryStates()[iTrajHit],
 				iTrajHit, newResidY, newHitErrY, true);// true: y
     }
