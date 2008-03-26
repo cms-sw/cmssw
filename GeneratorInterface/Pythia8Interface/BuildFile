@@ -4,7 +4,7 @@
 <use name=hepmc>
 <use name=lhapdf>
 <use name=clhep> 
-<use name=pythia8_105>
+<use name=pythia8_107>
 <use name=pythia6>
 
 <flags EDM_PLUGIN=1>
@@ -16,7 +16,7 @@
  <use name=hepmc>
  <use name=lhapdf>
  <use name=clhep> 
- <use name=pythia8_105>
+ <use name=pythia8_107>
  <use name=pythia6>
 </export>
 
