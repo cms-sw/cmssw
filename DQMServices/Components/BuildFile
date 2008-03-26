@@ -5,16 +5,7 @@
 <use name=FWCore/ParameterSet>
 <use name=FWCore/ServiceRegistry>
 <use name=FWCore/Sources>
-<use name=xdaq>
 <export>
-  <use name=DQMServices/ClientConfig>
-  <use name=DQMServices/Core>
-  <use name=EventFilter/Utilities>
-  <use name=FWCore/Framework>
-  <use name=FWCore/ParameterSet>
-  <use name=FWCore/ServiceRegistry>
-  <use name=FWCore/Sources>
-  <use name=xdaq>
   <lib name=DQMServicesComponents>
 </export>
 
