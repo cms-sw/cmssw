@@ -13,7 +13,7 @@
 //
 // Original Author:  Erik Butz
 //         Created:  Tue Dec 11 14:03:05 CET 2007
-// $Id$
+// $Id: TrackerOfflineValidation.cc,v 1.1 2008/02/27 17:34:40 ebutz Exp $
 //
 //
 
@@ -210,16 +210,16 @@ TrackerOfflineValidation::beginJob(const edm::EventSetup& es)
   v_trackprofiles.push_back(fs->make<TProfile>("h_chi2_vs_phi","#chi^{2} vs. #phi;#phi_{Track};#LT #chi^{2} #GT",100,-3.15,3.15));		  
   v_trackprofiles.push_back(fs->make<TProfile>("h_normchi2_vs_phi","#chi^{2}/ndof vs. #phi;#phi_{Track};#LT #chi^{2}/ndof #GT",100,-3.15,3.15));  
   v_trackprofiles.push_back(fs->make<TProfile>("h_chi2_vs_eta","#chi^{2} vs. #eta;#eta_{Track};#LT #chi^{2} #GT",100,-3.15,3.15));		  
-  v_trackprofiles.push_back(fs->make<TProfile>("h_normchi2_vs_eta","#chi^{2}/ndof vs. #phi;#phi_{Track};#LT #chi^{2}/ndof #GT",100,-3.15,3.15));  
+  v_trackprofiles.push_back(fs->make<TProfile>("h_normchi2_vs_eta","#chi^{2}/ndof vs. #eta;#eta_{Track};#LT #chi^{2}/ndof #GT",100,-3.15,3.15));  
 
-  v_track2Dhistos.push_back(fs->make<TH2F>("h2_d0_vs_phi","Transverse Impact Parameter vs. #phi;#phi_{Track};#LT d_{0} #GT",100, -3.15, 3.15, 100,-1.,1.) );  
-  v_track2Dhistos.push_back(fs->make<TH2F>("h2_dz_vs_phi","Longitudinal Impact Parameter vs. #phi;#phi_{Track};#LT d_{z} #GT",100, -3.15, 3.15, 100,-100.,100.));
-  v_track2Dhistos.push_back(fs->make<TH2F>("h2_d0_vs_eta","Transverse Impact Parameter vs. #eta;#eta_{Track};#LT d_{0} #GT",100, -3.15, 3.15, 100,-1.,1.));  
-  v_track2Dhistos.push_back(fs->make<TH2F>("h2_dz_vs_eta","Longitudinal Impact Parameter vs. #eta;#eta_{Track};#LT d_{z} #GT",100, -3.15, 3.15, 100,-100.,100.));
-  v_track2Dhistos.push_back(fs->make<TH2F>("h2_chi2_vs_phi","#chi^{2} vs. #phi;#phi_{Track};#LT #chi^{2} #GT",100, -3.15, 3.15, 500, 0., 500.));		  
-  v_track2Dhistos.push_back(fs->make<TH2F>("h2_normchi2_vs_phi","#chi^{2}/ndof vs. #phi;#phi_{Track};#LT #chi^{2}/ndof #GT",100, -3.15, 3.15, 100, 0., 10.));  
-  v_track2Dhistos.push_back(fs->make<TH2F>("h2_chi2_vs_eta","#chi^{2} vs. #eta;#eta_{Track};#LT #chi^{2} #GT",100, -3.15, 3.15, 500, 0., 500.));		  
-  v_track2Dhistos.push_back(fs->make<TH2F>("h2_normchi2_vs_eta","#chi^{2}/ndof vs. #phi;#phi_{Track};#LT #chi^{2}/ndof #GT",100,-3.15,3.15, 100, 0., 10.));  
+  v_track2Dhistos.push_back(fs->make<TH2F>("h2_d0_vs_phi","Transverse Impact Parameter vs. #phi;#phi_{Track};d_{0}",100, -3.15, 3.15, 100,-1.,1.) );  
+  v_track2Dhistos.push_back(fs->make<TH2F>("h2_dz_vs_phi","Longitudinal Impact Parameter vs. #phi;#phi_{Track};d_{z}",100, -3.15, 3.15, 100,-100.,100.));
+  v_track2Dhistos.push_back(fs->make<TH2F>("h2_d0_vs_eta","Transverse Impact Parameter vs. #eta;#eta_{Track};d_{0}",100, -3.15, 3.15, 100,-1.,1.));  
+  v_track2Dhistos.push_back(fs->make<TH2F>("h2_dz_vs_eta","Longitudinal Impact Parameter vs. #eta;#eta_{Track};d_{z}",100, -3.15, 3.15, 100,-100.,100.));
+  v_track2Dhistos.push_back(fs->make<TH2F>("h2_chi2_vs_phi","#chi^{2} vs. #phi;#phi_{Track};#chi^{2}",100, -3.15, 3.15, 500, 0., 500.));		  
+  v_track2Dhistos.push_back(fs->make<TH2F>("h2_normchi2_vs_phi","#chi^{2}/ndof vs. #phi;#phi_{Track};#chi^{2}/ndof",100, -3.15, 3.15, 100, 0., 10.));  
+  v_track2Dhistos.push_back(fs->make<TH2F>("h2_chi2_vs_eta","#chi^{2} vs. #eta;#eta_{Track};#chi^{2}",100, -3.15, 3.15, 500, 0., 500.));		  
+  v_track2Dhistos.push_back(fs->make<TH2F>("h2_normchi2_vs_eta","#chi^{2}/ndof vs. #eta;#eta_{Track};#chi^{2}/ndof",100,-3.15,3.15, 100, 0., 10.));  
 
   Parameters = parset_.getParameter<edm::ParameterSet>("TH1ResModules");
   int32_t i_residuals_Nbins =  Parameters.getParameter<int32_t>("Nbinx");
