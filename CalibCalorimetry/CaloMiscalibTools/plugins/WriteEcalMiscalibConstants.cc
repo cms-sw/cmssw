@@ -13,7 +13,7 @@
 //
 // Original Author:  Stephanie BEAUCERON
 //         Created:  Tue May 15 16:23:21 CEST 2007
-// $Id: WriteEcalMiscalibConstants.cc,v 1.1 2007/07/14 21:25:59 malgeri Exp $
+// $Id: WriteEcalMiscalibConstants.cc,v 1.2 2008/01/22 18:52:16 muzaffar Exp $
 //
 //
 
@@ -83,7 +83,7 @@ WriteEcalMiscalibConstants::analyze(const edm::Event& iEvent, const edm::EventSe
   if( poolDbService.isAvailable() ){
     if ( poolDbService->isNewTagRequest(newTagRequest_) ){
       std::cout<<" Creating a  new one "<<std::endl;
-      poolDbService->createNewIOV<const EcalIntercalibConstants>( Mcal, poolDbService->endOfTime(),newTagRequest_);
+      poolDbService->createNewIOV<const EcalIntercalibConstants>( Mcal, poolDbService->beginOfTime(), poolDbService->endOfTime(),newTagRequest_);
       std::cout<<"Done" << std::endl;
     }else{
       std::cout<<"Old One "<<std::endl;

@@ -87,10 +87,11 @@ bool MiscalibReaderFromXML::parseXMLMiscalibFile(std::string configFile){
 	DOMDocument* doc = parser->getDocument();
 	assert(doc);
 
-        
-unsigned int linkTagsNum = doc->getElementsByTagName(_toDOMS("Cell"))->getLength();
+        unsigned int linkTagsNum = doc->getElementsByTagName(_toDOMS("Cell"))->getLength();
         std::cout << "Read number of Cells = " << linkTagsNum << std::endl;
-        
+
+        if(linkTagsNum==0) std::cout <<"Number of Cells in file is 0 - probably bad file format"<<std::endl;
+
         int count=0;	
 	for (unsigned int i=0; i<linkTagsNum; i++){
 			
@@ -121,12 +122,12 @@ unsigned int linkTagsNum = doc->getElementsByTagName(_toDOMS("Cell"))->getLength
 		caloMap_.addCell(cell,scalingfactor);
 		} else  
 		{
-		std::cout << "Null received" << std::endl;
+		  //		std::cout << "Null received" << std::endl;
 		}
 		
 	}
  
-	//        std::cout << "Numero celle =" << count << std::endl;
+	       std::cout << "Number of good Cells =" << count << std::endl;
 	return false;
 
 }

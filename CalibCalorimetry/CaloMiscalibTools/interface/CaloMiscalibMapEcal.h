@@ -27,6 +27,7 @@ void prefillMap(){
    for(int iEta=-EBDetId::MAX_IETA; iEta<=EBDetId::MAX_IETA ;++iEta) {
      if(iEta==0) continue;
      for(int iPhi=EBDetId::MIN_IPHI; iPhi<=EBDetId::MAX_IPHI; ++iPhi) {
+
        try 
 	 {
 	   EBDetId ebdetid(iEta,iPhi);
@@ -64,11 +65,47 @@ map_.setValue(cell.rawId(),scaling_factor);
 
 void print()
  {
- 
-// std::map<uint32_t,float>::const_iterator it;
-// 
-//   for(it=map_.getMap().begin();it!=map_.getMap().end();it++){
-//   }
+
+   int icount=0;
+   for(int iEta=-EBDetId::MAX_IETA; iEta<=EBDetId::MAX_IETA ;++iEta) {
+     if(iEta==0) continue;
+     for(int iPhi=EBDetId::MIN_IPHI; iPhi<=EBDetId::MAX_IPHI; ++iPhi) {
+       if (EBDetId::validDetId(iEta,iPhi))
+	 {
+	   EBDetId ebdetid(iEta,iPhi);
+	   EcalIntercalibConstantMap::const_iterator icalit= map_.find(ebdetid.rawId());
+	   EcalIntercalibConstant icalconst;
+	   icalconst = (*icalit);
+	   
+	   icount++;
+	   if(icount%230==0){
+	     std::cout<< "here is value for chan eta/phi "<<iEta<<"/"<<iPhi<<"="<<icalconst<<std::endl;}
+	 }
+     }
+   }
+   for(int iX=EEDetId::IX_MIN; iX<=EEDetId::IX_MAX ;++iX) {
+     for(int iY=EEDetId::IY_MIN; iY<=EEDetId::IY_MAX; ++iY) {
+       if (EEDetId::validDetId(iX,iY,1))
+	 {
+	   EEDetId eedetidpos(iX,iY,1);
+	   EcalIntercalibConstantMap::const_iterator icalit= map_.find(eedetidpos.rawId());
+           EcalIntercalibConstant icalconst;
+           icalconst = (*icalit);
+
+	   EEDetId eedetidneg(iX,iY,1);
+	   EcalIntercalibConstantMap::const_iterator icalit2= map_.find(eedetidneg.rawId());
+           EcalIntercalibConstant icalconst2;
+           icalconst2 = (*icalit2);
+
+
+	   icount++;
+	   if(icount%230==0){
+
+	     std::cout<< "here is value for chan x/y "<<iX<<"/"<<iY<<" pos side is ="<<icalconst<< " and neg side is= "<< icalconst2<<std::endl;}
+
+	 }
+     }
+   }
  
 }
 

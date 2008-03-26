@@ -18,8 +18,12 @@ EEDetId MiscalibReaderFromXMLEcalEndcap::getCellFromAttributes(int ix, int iy, i
 
        try 
          {
-           EEDetId cell(ix,iy,iz);
-           return cell;
+	   if (EEDetId::validDetId(ix, iy, iz)) {
+	     EEDetId cell(ix,iy,iz);
+	     return cell;
+	   } else {
+	     return (EEDetId) NULL;
+	   }
          }
     
            catch (...)

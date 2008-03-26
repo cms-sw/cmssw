@@ -13,7 +13,7 @@
 //
 // Original Author:  Lorenzo AGOSTINO
 //         Created:  Wed May 31 10:37:45 CEST 2006
-// $Id: CaloMiscalibTools.cc,v 1.2 2007/09/11 13:44:41 malgeri Exp $
+// $Id: CaloMiscalibTools.cc,v 1.3 2008/01/22 18:52:16 muzaffar Exp $
 //
 // Modified       : Luca Malgeri 
 // Date:          : 11/09/2006 
@@ -49,6 +49,10 @@ CaloMiscalibTools::CaloMiscalibTools(const edm::ParameterSet& iConfig)
   
   barrelfile_=barrelfiletmp.fullPath();
   endcapfile_=endcapfiletmp.fullPath();
+
+  std::cout <<"Barrel file is:"<< barrelfile_<<std::endl;
+  std::cout <<"endcap file is:"<< endcapfile_<<std::endl;
+
 
    // added by Zhen (changed since 1_2_0)
    setWhatProduced(this,&CaloMiscalibTools::produce);
