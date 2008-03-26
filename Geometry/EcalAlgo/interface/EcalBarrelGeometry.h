@@ -1,13 +1,20 @@
 #ifndef EcalBarrelGeometry_h
 #define EcalBarrelGeometry_h
 
+#include "Geometry/CaloGeometry/interface/EZArrayFL.h"
 #include "Geometry/EcalCommonData/interface/EcalBarrelNumberingScheme.h"
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
+#include "DataFormats/EcalDetId/interface/EEDetId.h"
+#include "DataFormats/EcalDetId/interface/EBDetId.h"
 #include <vector>
 
 class EcalBarrelGeometry : public CaloSubdetectorGeometry 
 {
    public:
+
+      typedef EZArrayFL<EEDetId> OrderedListOfEEDetId ; // like an stl vector: begin(), end(), [i]
+
+      typedef std::vector<OrderedListOfEEDetId*>  VecOrdListEEDetIdPtr ;
 
       typedef EcalBarrelNumberingScheme NumberingScheme ;
 
@@ -31,7 +38,9 @@ class EcalBarrelGeometry : public CaloSubdetectorGeometry
 
       void setEtaBaskets( const std::vector<int>& EtaBaskets ) { _EtaBaskets=EtaBaskets ; }
 
-      void setBasketSizeInPhi( const int& PhiBaskets )         { _PhiBaskets=PhiBaskets ; }  
+      void setBasketSizeInPhi( const int& PhiBaskets )         { _PhiBaskets=PhiBaskets ; }
+
+      const OrderedListOfEEDetId* getClosestEndcapCells( EBDetId id ) const ;
 
       // Get closest cell, etc...
       virtual DetId getClosestCell( const GlobalPoint& r ) const ;
@@ -58,6 +67,10 @@ class EcalBarrelGeometry : public CaloSubdetectorGeometry
       
       /** size of one basket in phi */
       int _PhiBaskets;
+
+      mutable EZMgrFL<EEDetId>*     m_borderMgr ;
+
+      mutable VecOrdListEEDetIdPtr* m_borderPtrVec ;
 };
 
 

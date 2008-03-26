@@ -6,10 +6,22 @@
 #include <CLHEP/Geometry/Plane3D.h>
 
 EcalEndcapGeometry::EcalEndcapGeometry() :
-  _nnmods(0 ),_nncrys(0)
-{}
+   _nnmods ( 0 ) ,
+   _nncrys ( 0 ) ,
+   m_borderMgr ( 0 ),
+   m_borderPtrVec ( 0 ) 
+{
+}
 
-EcalEndcapGeometry::~EcalEndcapGeometry() {}
+EcalEndcapGeometry::~EcalEndcapGeometry() 
+{
+   for( unsigned int i ( 0 ) ; i != m_borderPtrVec->size() ; ++i )
+   {
+      delete (*m_borderPtrVec)[i] ;
+   }
+   delete m_borderPtrVec ;
+   delete m_borderMgr ;
+}
 
 void 
 EcalEndcapGeometry::initialize()
@@ -305,3 +317,47 @@ EcalEndcapGeometry::getCells( const GlobalPoint& r,
    }
    return dis;
 }
+
+const EcalEndcapGeometry::OrderedListOfEBDetId*
+EcalEndcapGeometry::getClosestBarrelCells( EEDetId id ) const
+{
+   OrderedListOfEBDetId* ptr ( 0 ) ;
+   if( 0 != id.rawId() )
+   {
+      const float phi ( 370. +
+			getGeometry( id )->getPosition().phi().degrees() );
+      const int iPhi ( 1 + int(phi)%360 ) ;
+      const int iz ( id.zside() ) ;
+      if( 0 == m_borderMgr )
+      {
+	 m_borderMgr = new EZMgrFL<EBDetId>( 720*9, 9 ) ;
+      }
+      if( 0 == m_borderPtrVec )
+      {
+	 m_borderPtrVec = new VecOrdListEBDetIdPtr() ;
+	 m_borderPtrVec->reserve( 720 ) ;
+	 for( unsigned int i ( 0 ) ; i != 720 ; ++i )
+	 {
+	    const int kz     ( 360>i ? -1 : 1 ) ;
+	    const int iEta   ( kz*85 ) ;
+	    const int iEtam1 ( kz*84 ) ;
+	    const int iEtam2 ( kz*83 ) ;
+	    const int jPhi   ( i%360 + 1 ) ;
+	    OrderedListOfEBDetId& olist ( *new OrderedListOfEBDetId( m_borderMgr ) );
+	    olist[0]=EBDetId( iEta  ,        jPhi     ) ;
+	    olist[1]=EBDetId( iEta  , myPhi( jPhi+1 ) ) ;
+	    olist[2]=EBDetId( iEta  , myPhi( jPhi-1 ) ) ;
+	    olist[3]=EBDetId( iEtam1,        jPhi     ) ;
+	    olist[4]=EBDetId( iEtam1, myPhi( jPhi+1 ) ) ;
+	    olist[5]=EBDetId( iEtam1, myPhi( jPhi-1 ) ) ;
+	    olist[6]=EBDetId( iEta  , myPhi( jPhi+2 ) ) ;
+	    olist[7]=EBDetId( iEta  , myPhi( jPhi-2 ) ) ;
+	    olist[8]=EBDetId( iEtam2,        jPhi     ) ;
+	    m_borderPtrVec->push_back( &olist ) ;
+	 }
+      }
+      ptr = (*m_borderPtrVec)[ ( iPhi - 1 ) + ( 0>iz ? 0 : 360 ) ] ;
+   }
+   return ptr ;
+}
+

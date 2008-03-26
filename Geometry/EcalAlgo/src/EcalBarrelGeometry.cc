@@ -12,15 +12,24 @@
 
 using namespace std;
 
-EcalBarrelGeometry::EcalBarrelGeometry() :_nnxtalEta(0),
-					  _nnxtalPhi(0 ),
-					  _PhiBaskets(0)
+EcalBarrelGeometry::EcalBarrelGeometry() :
+   _nnxtalEta     ( 0 ) ,
+   _nnxtalPhi     ( 0 ) ,
+   _PhiBaskets    ( 0 ) ,
+   m_borderMgr    ( 0 ),
+   m_borderPtrVec ( 0 ) 
 {
 }
 
 
 EcalBarrelGeometry::~EcalBarrelGeometry() 
 {
+   for( unsigned int i ( 0 ) ; i != m_borderPtrVec->size() ; ++i )
+   {
+      delete (*m_borderPtrVec)[i] ;
+   }
+   delete m_borderPtrVec ;
+   delete m_borderMgr ;
 }
 
 // Get closest cell, etc...
@@ -329,4 +338,66 @@ EcalBarrelGeometry::getCells( const GlobalPoint& r,
       }
    }
    return dis;
+}
+
+const EcalBarrelGeometry::OrderedListOfEEDetId* 
+EcalBarrelGeometry::getClosestEndcapCells( EBDetId id ) const
+{
+   OrderedListOfEEDetId* ptr ( 0 ) ;
+   if( 0 != id.rawId() )
+   {
+      const int iPhi     ( id.iphi() ) ;
+
+      const int iz       ( id.ieta()>0 ? 1 : -1 ) ;
+      const EEDetId eeid ( EEDetId::idOuterRing( iPhi, iz ) ) ;
+
+      const int ix ( eeid.ix() ) ;
+      const int iy ( eeid.iy() ) ;
+
+      const int iq ( eeid.iquadrant() ) ;
+      const int xout ( 1==iq || 4==iq ? 1 : -1 ) ;
+      const int yout ( 1==iq || 2==iq ? 1 : -1 ) ;
+      if( 0 == m_borderMgr )
+      {
+	 m_borderMgr = new EZMgrFL<EEDetId>( 720*9, 9 ) ;
+      }
+      if( 0 == m_borderPtrVec )
+      {
+	 m_borderPtrVec = new VecOrdListEEDetIdPtr() ;
+	 m_borderPtrVec->reserve( 720 ) ;
+	 for( unsigned int i ( 0 ) ; i != 720 ; ++i )
+	 {
+	    const int kz ( 360>i ? -1 : 1 ) ;
+	    const EEDetId eeid ( EEDetId::idOuterRing( i%360+1, kz ) ) ;
+
+	    const int jx ( eeid.ix() ) ;
+	    const int jy ( eeid.iy() ) ;
+
+	    OrderedListOfEEDetId& olist ( *new OrderedListOfEEDetId( m_borderMgr ) );
+	    int il ( 0 ) ;
+
+	    for( unsigned int k ( 1 ) ; k <= 25 ; ++k )
+	    {
+	       const int kx ( 1==k || 2==k || 3==k || 12==k || 13==k ? 0 :
+			      ( 4==k || 6==k || 8==k || 15==k || 20==k ? 1 :
+				( 5==k || 7==k || 9==k || 16==k || 19==k ? -1 :
+				  ( 10==k || 14==k || 21==k || 22==k || 25==k ? 2 : -2 )))) ;
+	       const int ky ( 1==k || 4==k || 5==k || 10==k || 11==k ? 0 :
+			      ( 2==k || 6==k || 7==k || 14==k || 17==k ? 1 :
+				( 3==k || 8==k || 9==k || 18==k || 21==k ? -1 :
+				  ( 12==k || 15==k || 16==k || 22==k || 23==k ? 2 : -2 )))) ;
+
+	       if( 8>=il && EEDetId::validDetId( jx + kx*xout ,
+						 jy + ky*yout , kz ) ) 
+	       {
+		  olist[il++]=EEDetId( jx + kx*xout ,
+				       jy + ky*yout , kz ) ;
+	       }
+	    }
+	    m_borderPtrVec->push_back( &olist ) ;
+	 }
+      }
+      ptr = (*m_borderPtrVec)[ iPhi - 1 + ( 0>iz ? 0 : 360 ) ] ;
+   }
+   return ptr ;
 }
