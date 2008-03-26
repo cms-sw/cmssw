@@ -1,9 +1,9 @@
 /*
  * \file DQMFileSaver.cc
  * 
- * $Date: 2008/02/21 03:26:49 $
- * $Revision: 1.8 $
- * $Author: lat $
+ * $Date: 2008/03/14 14:34:05 $
+ * $Revision: 1.9 $
+ * $Author: ameyer $
  * \author A. Meyer, DESY
  *
  */
@@ -16,6 +16,8 @@
 #include <stdio.h>
 #include <sstream>
 #include <math.h>
+
+#include "classlib/utils/StringOps.h"
 
 using namespace std;
 
@@ -57,7 +59,16 @@ void DQMFileSaver::initialize(){
   saveAtJobEnd_ = parameters_.getUntrackedParameter<bool>("saveAtJobEnd",false);
   (saveAtJobEnd_)? edm::LogVerbatim ("DQMFileSaver") << "===> save at Job end " << endl :
                    edm::LogVerbatim ("DQMFileSaver") << "===> NO save at Job end " << endl ; 
-  
+
+  saveAsValidation_ = parameters_.getUntrackedParameter<bool>("saveAsValidation",false);
+  (saveAsValidation_)? edm::LogVerbatim ("DQMFileSaver") << "===> save at Job end " << endl :
+                       edm::LogVerbatim ("DQMFileSaver") << "===> NO save at Job end " << endl ;
+  // Desable the run transition in case of validation
+  if (saveAsValidation_) {
+     saveAtRunEnd_ = false;
+     saveAtJobEnd_ = false;
+  }
+ 
   // Base filename for the contents of this job
   fileName_ = "DQM_"+parameters_.getUntrackedParameter<string>("fileName","YourSubsystemName");
   edm::LogVerbatim ("DQMFileSaver") << "===>DQM Output file name = " << fileName_ << endl;
@@ -184,5 +195,16 @@ void DQMFileSaver::endJob() {
    if (saveAtJobEnd_) {
      string outFile = dirName_+"/"+fileName_+".root";
      dbe_->save(outFile);
-   }   
+   }
+   else if (saveAsValidation_)  {
+     dbe_->cd();
+     // Get release as the first subdirectory in the head 
+     string release = dbe_->getSubdirs()[0];
+     // Go into the release directory
+     dbe_->cd(release);
+     // Get dataset as the first subdirectory in the release 
+     string dataset = lat::StringOps::split(dbe_->getSubdirs()[0],"/")[1];
+     string outFile = dirName_+"/DQM__"+release+"__"+dataset+".root";
+     dbe_->save(outFile);
+   }      
 }

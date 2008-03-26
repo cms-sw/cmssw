@@ -2,23 +2,23 @@
  *  
  *  See header file for description of class
  *
- *  $Date: 2008/02/21 03:26:48 $
- *  $Revision: 1.5 $
+ *  $Date: 2008/03/10 22:25:47 $
+ *  $Revision: 1.6 $
  *  \author M. Strang SUNY-Buffalo
  */
 
 #include "DQMServices/Components/plugins/EDMtoMEConverter.h"
 
 EDMtoMEConverter::EDMtoMEConverter(const edm::ParameterSet & iPSet) :
-  fName(""), verbosity(0), frequency(0)
+  verbosity(0), frequency(0)
 {
   std::string MsgLoggerCat = "EDMtoMEConverter_EDMtoMEConverter";
   
   // get information from parameter set
-  fName = iPSet.getUntrackedParameter<std::string>("Name");
+  name = iPSet.getUntrackedParameter<std::string>("Name");
   verbosity = iPSet.getUntrackedParameter<int>("Verbosity");
-  outputfile = iPSet.getParameter<std::string>("Outputfile");
   frequency = iPSet.getUntrackedParameter<int>("Frequency");
+  dataset = iPSet.getUntrackedParameter<std::string>("Dataset");
   
   // use value of first digit to determine default output level (inclusive)
   // 0 is none, 1 is basic, 2 is fill output, 3 is gather output
@@ -40,9 +40,8 @@ EDMtoMEConverter::EDMtoMEConverter(const edm::ParameterSet & iPSet) :
     edm::LogInfo(MsgLoggerCat) 
       << "\n===============================\n"
       << "Initialized as EDAnalyzer with parameter values:\n"
-      << "    Name          = " << fName << "\n"
+      << "    Name          = " << name << "\n"
       << "    Verbosity     = " << verbosity << "\n"
-      << "    Outputfile    = " << outputfile << "\n"
       << "    Frequency     = " << frequency << "\n"
       << "===============================\n";
   }
@@ -62,12 +61,7 @@ EDMtoMEConverter::EDMtoMEConverter(const edm::ParameterSet & iPSet) :
   
 } // end constructor
 
-EDMtoMEConverter::~EDMtoMEConverter() 
-{
-  if (outputfile.size() != 0 && dbe) {
-    dbe->save(outputfile);
-  }
-} // end destructor
+EDMtoMEConverter::~EDMtoMEConverter() {} 
 
 void EDMtoMEConverter::beginJob(const edm::EventSetup& iSetup)
 {
@@ -149,8 +143,9 @@ void EDMtoMEConverter::endRun(const edm::Run& iRun,
 	// get full path of monitor element
 	std::string pathname = metoedmobject[i].name;
 	if (verbosity) std::cout << pathname << std::endl;
-	
-	std::string dir;
+
+        std::string release = metoedmobject[i].release.substr(1,metoedmobject[i].release.size()-2);
+	std::string dir(release + "/" + dataset + "/");
 	
 	// deconstruct path from fullpath
 	StringList fulldir = StringOps::split(pathname,"/");
@@ -208,8 +203,9 @@ void EDMtoMEConverter::endRun(const edm::Run& iRun,
 	// get full path of monitor element
 	std::string pathname = metoedmobject[i].name;
 	if (verbosity) std::cout << pathname << std::endl;
-	
-	std::string dir;
+
+        std::string release = metoedmobject[i].release.substr(1,metoedmobject[i].release.size()-2);
+        std::string dir(release + "/" + dataset + "/");
 	
 	// deconstruct path from fullpath
 	StringList fulldir = StringOps::split(pathname,"/");
@@ -260,7 +256,8 @@ void EDMtoMEConverter::endRun(const edm::Run& iRun,
 	std::string pathname = metoedmobject[i].name;
 	if (verbosity) std::cout << pathname << std::endl;
 	
-	std::string dir;
+        std::string release = metoedmobject[i].release.substr(1,metoedmobject[i].release.size()-2);
+        std::string dir(release + "/" + dataset + "/");
 	
 	// deconstruct path from fullpath
 	StringList fulldir = StringOps::split(pathname,"/");
@@ -309,7 +306,8 @@ void EDMtoMEConverter::endRun(const edm::Run& iRun,
 	std::string pathname = metoedmobject[i].name;
 	if (verbosity) std::cout << pathname << std::endl;
 	
-	std::string dir;
+        std::string release = metoedmobject[i].release.substr(1,metoedmobject[i].release.size()-2);
+        std::string dir(release + "/" + dataset + "/");
 	
 	// deconstruct path from fullpath
 	StringList fulldir = StringOps::split(pathname,"/");
@@ -357,8 +355,9 @@ void EDMtoMEConverter::endRun(const edm::Run& iRun,
 	// get full path of monitor element
 	std::string pathname = metoedmobject[i].name;
 	if (verbosity) std::cout << pathname << std::endl;
-	
-	std::string dir;
+
+        std::string release = metoedmobject[i].release.substr(1,metoedmobject[i].release.size()-2);	
+        std::string dir(release + "/" + dataset + "/");
 	
 	// deconstruct path from fullpath
 	StringList fulldir = StringOps::split(pathname,"/");
@@ -406,8 +405,10 @@ void EDMtoMEConverter::endRun(const edm::Run& iRun,
 	// get full path of monitor element
 	std::string pathname = metoedmobject[i].name;
 	if (verbosity) std::cout << pathname << std::endl;
-	
-	std::string dir;
+
+        std::string release = metoedmobject[i].release.substr(1,metoedmobject[i].release.size()-2);	
+        std::string dir(release + "/" + dataset + "/");
+
 	std::string name;
 
 	// deconstruct path from fullpath
@@ -459,8 +460,10 @@ void EDMtoMEConverter::endRun(const edm::Run& iRun,
 	// get full path of monitor element
 	std::string pathname = metoedmobject[i].name;
 	if (verbosity) std::cout << pathname << std::endl;
-	
-	std::string dir;
+
+        std::string release = metoedmobject[i].release.substr(1,metoedmobject[i].release.size()-2);	
+        std::string dir(release + "/" + dataset + "/");
+
 	std::string name;
 	
 	// deconstruct path from fullpath
@@ -511,7 +514,9 @@ void EDMtoMEConverter::endRun(const edm::Run& iRun,
 	std::string pathname = metoedmobject[i].name;
 	if (verbosity) std::cout << pathname << std::endl;
 	
-	std::string dir;
+        std::string release = metoedmobject[i].release.substr(1,metoedmobject[i].release.size()-2);
+        std::string dir(release + "/" + dataset + "/");
+
 	std::string name;
 
 	// deconstruct path from fullpath

@@ -4,8 +4,8 @@
 /*
  * \file DQMFileSaver.h
  *
- * $Date: 2008/01/11 15:47:44 $
- * $Revision: 1.4 $
+ * $Date: 2008/02/21 03:26:49 $
+ * $Revision: 1.5 $
  * \author A. Meyer, DESY
  *
 */
@@ -103,6 +103,7 @@ private:
   bool isPlayback_;
   bool saveAtRunEnd_;
   bool saveAtJobEnd_;
+  bool saveAsValidation_;
 
 };
 
