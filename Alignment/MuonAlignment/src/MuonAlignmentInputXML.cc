@@ -8,7 +8,7 @@
 //
 // Original Author:  Jim Pivarski
 //         Created:  Mon Mar 10 16:37:40 CDT 2008
-// $Id: MuonAlignmentInputXML.cc,v 1.1 2008/03/15 20:26:46 pivarski Exp $
+// $Id: MuonAlignmentInputXML.cc,v 1.2 2008/03/20 21:39:26 pivarski Exp $
 //
 
 // system include files
@@ -408,7 +408,7 @@ Alignable *MuonAlignmentInputXML::getNode(std::map<unsigned int, Alignable*> &al
    else if (XMLString::equals(node->getNodeName(), str_CSCStation)) return getCSCnode(align::AlignableCSCStation, alignableNavigator, node);
    else if (XMLString::equals(node->getNodeName(), str_CSCRing)) return getCSCnode(align::AlignableCSCRing, alignableNavigator, node);
    else if (XMLString::equals(node->getNodeName(), str_CSCChamber)) return getCSCnode(align::AlignableCSCChamber, alignableNavigator, node);
-   else if (XMLString::equals(node->getNodeName(), str_CSCLayer)) return getCSCnode(align::AlignableDet, alignableNavigator, node);
+   else if (XMLString::equals(node->getNodeName(), str_CSCLayer)) return getCSCnode(align::AlignableDetUnit, alignableNavigator, node);
    else return NULL;
 }
 

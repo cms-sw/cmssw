@@ -4,8 +4,8 @@
 /** \class MuonAlignment
  *  The MuonAlignment helper class for alignment jobs
  *
- *  $Date: 2008/03/15 20:26:46 $
- *  $Revision: 1.11 $
+ *  $Date: 2008/03/22 01:07:32 $
+ *  $Revision: 1.12 $
  *  \author Andre Sznajder - UERJ(Brazil)
  */
 
@@ -37,7 +37,7 @@ class MuonAlignment {
       void moveAlignableGlobalCoord( DetId& , std::vector<float>& , std::vector<float>& );
 
       void recursiveList(std::vector<Alignable*> alignables, std::vector<Alignable*> &theList);
-      void recursiveMap(std::vector<Alignable*> alignables, std::map<align::ID, Alignable*> &theMap, bool allowDetUnit=true);
+      void recursiveMap(std::vector<Alignable*> alignables, std::map<align::ID, Alignable*> &theMap);
       void recursiveStructureMap(std::vector<Alignable*> alignables, std::map<std::pair<align::StructureType, align::ID>, Alignable*> &theMap);
 
       void copyAlignmentToSurvey(double shiftErr, double angleErr);

@@ -11,7 +11,7 @@ class AlignableDet: public AlignableComposite
 public:
   
   /// Constructor (copies  GeomDetUnits of GeomDet)
-  AlignableDet( const GeomDet* geomDet );
+  AlignableDet( const GeomDet* geomDet, bool addComponents = true );
   
   /// Destructor
   virtual ~AlignableDet();

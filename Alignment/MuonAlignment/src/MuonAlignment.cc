@@ -115,14 +115,12 @@ void MuonAlignment::recursiveList(std::vector<Alignable*> alignables, std::vecto
 
 //____________________________________________________________________________________
 //
-void MuonAlignment::recursiveMap(std::vector<Alignable*> alignables, std::map<align::ID, Alignable*> &theMap, bool allowDetUnit) {
+void MuonAlignment::recursiveMap(std::vector<Alignable*> alignables, std::map<align::ID, Alignable*> &theMap) {
    for (std::vector<Alignable*>::const_iterator alignable = alignables.begin();  alignable != alignables.end();  ++alignable) {
       if ((*alignable)->id() != 0) {
-         if (allowDetUnit  ||  (*alignable)->alignableObjectId() != align::AlignableDetUnit) {
-            theMap[(*alignable)->id()] = *alignable;
-         }
+	 theMap[(*alignable)->id()] = *alignable;
       }
-      recursiveMap((*alignable)->components(), theMap, allowDetUnit);
+      recursiveMap((*alignable)->components(), theMap);
    }
 }
 
@@ -141,8 +139,8 @@ void MuonAlignment::recursiveStructureMap(std::vector<Alignable*> alignables, st
 //
 void MuonAlignment::copyAlignmentToSurvey(double shiftErr, double angleErr) {
    std::map<align::ID, Alignable*> alignableMap;
-   recursiveMap(theAlignableMuon->DTBarrel(), alignableMap, true);
-   recursiveMap(theAlignableMuon->CSCEndcaps(), alignableMap, false);
+   recursiveMap(theAlignableMuon->DTBarrel(), alignableMap);
+   recursiveMap(theAlignableMuon->CSCEndcaps(), alignableMap);
 
    // Set the survey error to the alignable error, expanding the matrix as needed
    AlignmentErrors* dtAlignmentErrors = theAlignableMuon->dtAlignmentErrors();

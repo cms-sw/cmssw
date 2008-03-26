@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Fri Mar 14 18:02:33 CDT 2008
-// $Id: MuonAlignmentOutputXML.cc,v 1.1 2008/03/15 20:26:47 pivarski Exp $
+// $Id: MuonAlignmentOutputXML.cc,v 1.2 2008/03/19 15:09:35 pivarski Exp $
 //
 
 // system include files
@@ -144,7 +144,7 @@ void MuonAlignmentOutputXML::write(AlignableMuon *alignableMuon, const edm::Even
       writeComponents(endcaps, empty2, errors, outputFile, false);
    }
 
-   outputFile << std::endl << "</MuonAlignment>" << std::endl;
+   outputFile << "</MuonAlignment>" << std::endl;
 }
 
 void MuonAlignmentOutputXML::writeComponents(std::vector<Alignable*> &alignables, std::vector<Alignable*> &ideals,
@@ -161,13 +161,13 @@ void MuonAlignmentOutputXML::writeComponents(std::vector<Alignable*> &alignables
 	  (alignableObjectId == align::AlignableDTWheel  &&  !m_suppressDTWheels)  ||
 	  (alignableObjectId == align::AlignableDTStation  &&  !m_suppressDTStations)  ||
 	  (alignableObjectId == align::AlignableDTChamber  &&  !m_suppressDTChambers)  ||
-	  (DT  &&  alignableObjectId == align::AlignableDet  &&  !m_suppressDTSuperLayers)  ||
+	  (DT  &&  alignableObjectId == align::AlignableDTSuperLayer  &&  !m_suppressDTSuperLayers)  ||
 	  (DT  &&  alignableObjectId == align::AlignableDetUnit  &&  !m_suppressDTLayers)  ||
 	  (alignableObjectId == align::AlignableCSCEndcap  &&  !m_suppressCSCEndcaps)  ||
 	  (alignableObjectId == align::AlignableCSCStation  &&  !m_suppressCSCStations)  ||
 	  (alignableObjectId == align::AlignableCSCRing  &&  !m_suppressCSCRings)  ||
 	  (alignableObjectId == align::AlignableCSCChamber  &&  !m_suppressCSCChambers)  ||
-	  (!DT  &&  alignableObjectId == align::AlignableDet  &&  !m_suppressCSCLayers)) {
+	  (!DT  &&  alignableObjectId == align::AlignableDetUnit  &&  !m_suppressCSCLayers)) {
 
 	 unsigned int rawId = (*alignable)->geomDetId().rawId();
 	 outputFile << "<operation>" << std::endl;
@@ -176,7 +176,7 @@ void MuonAlignmentOutputXML::writeComponents(std::vector<Alignable*> &alignables
 	    if (m_rawIds  &&  rawId != 0) {
 	       static AlignableObjectId converter;
 	       std::string typeName = converter.typeToName(alignableObjectId);
-	       if (alignableObjectId == align::AlignableDet) typeName = std::string("DTSuperLayer");
+	       if (alignableObjectId == align::AlignableDTSuperLayer) typeName = std::string("DTSuperLayer");
 	       if (alignableObjectId == align::AlignableDetUnit) typeName = std::string("DTLayer");
 	       outputFile << "  <" << typeName << " rawId=\"" << rawId << "\" />" << std::endl;
 	    }
@@ -185,7 +185,7 @@ void MuonAlignmentOutputXML::writeComponents(std::vector<Alignable*> &alignables
 		  DTLayerId id(rawId);
 		  outputFile << "  <DTLayer wheel=\"" << id.wheel() << "\" station=\"" << id.station() << "\" sector=\"" << id.sector() << "\" superlayer=\"" << id.superlayer() << "\" layer=\"" << id.layer() << "\" />" << std::endl;
 	       }
-	       else if (alignableObjectId == align::AlignableDet) {
+	       else if (alignableObjectId == align::AlignableDTSuperLayer) {
 		  DTSuperLayerId id(rawId);
 		  outputFile << "  <DTSuperLayer wheel=\"" << id.wheel() << "\" station=\"" << id.station() << "\" sector=\"" << id.sector() << "\" superlayer=\"" << id.superlayer() << "\" />" << std::endl;
 	       }
@@ -222,11 +222,11 @@ void MuonAlignmentOutputXML::writeComponents(std::vector<Alignable*> &alignables
 	    if (m_rawIds  &&  rawId != 0) {
 	       static AlignableObjectId converter;
 	       std::string typeName = converter.typeToName(alignableObjectId);
-	       if (alignableObjectId == align::AlignableDet) typeName = std::string("CSCLayer");
+	       if (alignableObjectId == align::AlignableDetUnit) typeName = std::string("CSCLayer");
 	       outputFile << "  <" << typeName << " rawId=\"" << rawId << "\" />" << std::endl;
 	    }
 	    else {
-	       if (alignableObjectId == align::AlignableDet) {
+	       if (alignableObjectId == align::AlignableDetUnit) {
 		  CSCDetId id(rawId);
 		  outputFile << "  <CSCLayer endcap=\"" << id.endcap() << "\" station=\"" << id.station() << "\" ring=\"" << id.ring() << "\" chamber=\"" << id.chamber() << "\" layer=\"" << id.layer() << "\" />" << std::endl;
 	       }

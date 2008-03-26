@@ -5,20 +5,20 @@
  *  \author Andre Sznajder - UERJ(Brazil)
  */
  
-#include "Alignment/MuonAlignment/interface/AlignableCSCChamber.h"
+#include "Alignment/MuonAlignment/interface/AlignableDTSuperLayer.h"
 
-AlignableCSCChamber::AlignableCSCChamber(const GeomDet *geomDet): AlignableDet(geomDet)
+AlignableDTSuperLayer::AlignableDTSuperLayer(const GeomDet *geomDet): AlignableDet(geomDet)
 {
-   theStructureType = align::AlignableCSCChamber;
+   theStructureType = align::AlignableDTSuperLayer;
    // DO NOT let the chamber position become an average of the layers
    this->theSurface = geomDet->surface();
 }
 
 /// Printout the DetUnits in the CSC chamber
-std::ostream& operator<< (std::ostream &os, const AlignableCSCChamber & r) {
+std::ostream& operator<< (std::ostream &os, const AlignableDTSuperLayer & r) {
    std::vector<Alignable*> theDets = r.components();
 
-   os << "    This CSCChamber contains " << theDets.size() << " units" << std::endl ;
+   os << "    This DTSuperLayer contains " << theDets.size() << " units" << std::endl ;
    os << "    position = " << r.globalPosition() << std::endl;
    os << "    (phi, r, z)= (" << r.globalPosition().phi() << "," << r.globalPosition().perp() << "," << r.globalPosition().z();
    os << "), orientation:" << std::endl<< r.globalRotation() << std::endl;
