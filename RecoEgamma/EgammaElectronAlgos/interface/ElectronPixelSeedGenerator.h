@@ -82,7 +82,7 @@ class ElectronPixelSeedGenerator: public ElectronSeedGenerator
   PropagatorWithMaterial * thePropagator;
 
   const MeasurementTracker*     theMeasurementTracker;
-  //  const NavigationSchool*       theNavigationSchool;
+  const NavigationSchool*       theNavigationSchool;
   const NavigationSetter*       theSetter;
 
   const edm::EventSetup *theSetup; 

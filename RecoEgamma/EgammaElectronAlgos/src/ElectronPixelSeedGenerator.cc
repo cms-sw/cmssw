@@ -13,7 +13,7 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: ElectronPixelSeedGenerator.cc,v 1.45 2008/03/11 14:17:31 elmer Exp $
+// $Id: ElectronPixelSeedGenerator.cc,v 1.46 2008/03/21 17:36:02 charlot Exp $
 //
 //
 #include "RecoEgamma/EgammaElectronAlgos/interface/PixelHitMatcher.h" 
@@ -128,9 +128,7 @@ void ElectronPixelSeedGenerator::setupES(const edm::EventSetup& setup) {
     setup.get<NavigationSchoolRecord>().get("SimpleNavigationSchool", nav);
     cacheIDNavSchool_=setup.get<NavigationSchoolRecord>().cacheIdentifier();
   
-    //    theNavigationSchool = nav.product();
-    if (theSetter) delete theSetter;
-    theSetter=new NavigationSetter(*(nav.product()));
+    theNavigationSchool = nav.product();
   }				   
 
   if (cacheIDCkfComp_!=setup.get<CkfComponentsRecord>().cacheIdentifier()) {
@@ -158,6 +156,7 @@ void ElectronPixelSeedGenerator::setupES(const edm::EventSetup& setup) {
 void  ElectronPixelSeedGenerator::run(edm::Event& e, const edm::EventSetup& setup, const reco::SuperClusterRefVector &sclRefs, reco::ElectronPixelSeedCollection & out){
 
   theSetup= &setup; 
+  NavigationSetter theSetter(*theNavigationSchool);
 
   // get initial TrajectorySeeds if necessary
   if (fromTrackerSeeds_) e.getByLabel(initialSeeds_, theInitialSeedColl);
