@@ -45,11 +45,6 @@ class SiStripNoises {
 		float   getNoise  (const uint16_t& strip, const Range& range) const;
 		void    setData(float noise_, std::vector<short>& vped);
 
-		ContainerIterator getDataVectorBegin()    const {return v_noises.begin();}
-		ContainerIterator getDataVectorEnd()      const {return v_noises.end();}
-		RegistryIterator getRegistryVectorBegin() const {return indexes.begin();}
-		RegistryIterator getRegistryVectorEnd()   const{return indexes.end();}
-
 	private:
 		void     encode(InputVector& Vi, std::vector<unsigned char>& Vo_CHAR);
 		uint16_t decode (const uint16_t& strip, const Range& range) const;
