@@ -16,6 +16,7 @@
 #include "CondFormats/CSCObjects/interface/CSCDBCrosstalk.h"
 #include "CondFormats/DataRecord/interface/CSCDBCrosstalkRcd.h"
 #include <DataFormats/MuonDetId/interface/CSCDetId.h>
+#include <boost/shared_ptr.hpp>
 
 class CSCFakeDBCrosstalk: public edm::ESProducer, public edm::EventSetupRecordIntervalFinder  {
    public:
@@ -24,14 +25,14 @@ class CSCFakeDBCrosstalk: public edm::ESProducer, public edm::EventSetupRecordIn
 
       inline static CSCDBCrosstalk * prefillDBCrosstalk(); 
 
-      typedef const  CSCDBCrosstalk * ReturnType;
+      typedef  boost::shared_ptr<CSCDBCrosstalk> Pointer;
 
-      ReturnType produceDBCrosstalk(const CSCDBCrosstalkRcd&);
+      Pointer produceDBCrosstalk(const CSCDBCrosstalkRcd&);
 
    private:
       // ----------member data ---------------------------
     void setIntervalFor(const edm::eventsetup::EventSetupRecordKey &, const edm::IOVSyncValue&, edm::ValidityInterval & );
-    CSCDBCrosstalk *cndbCrosstalk ;
+    Pointer cndbCrosstalk ;
 
 };
 
@@ -46,7 +47,7 @@ inline CSCDBCrosstalk *  CSCFakeDBCrosstalk::prefillDBCrosstalk()
   long int M;
   float mean,min, minchi;
   int ii,jj,iii,jjj;
-  const int MAX_SIZE = 217728;
+  const int MAX_SIZE = 217728; //or 252288 for ME4/2 chambers
   const int SLOPE_FACTOR=10000000;
   const int INTERCEPT_FACTOR=100000;
   

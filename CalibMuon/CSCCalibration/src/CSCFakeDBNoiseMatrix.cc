@@ -5,8 +5,8 @@
 
 CSCFakeDBNoiseMatrix::CSCFakeDBNoiseMatrix(const edm::ParameterSet& iConfig)
 {
+  cndbNoiseMatrix = boost::shared_ptr<CSCDBNoiseMatrix> ( prefillDBNoiseMatrix() );  
   //tell the framework what data is being produced
-  cndbNoiseMatrix = prefillDBNoiseMatrix();  
   setWhatProduced(this,&CSCFakeDBNoiseMatrix::produceDBNoiseMatrix);  
   findingRecord<CSCDBNoiseMatrixRcd>();
 }
@@ -14,22 +14,13 @@ CSCFakeDBNoiseMatrix::CSCFakeDBNoiseMatrix(const edm::ParameterSet& iConfig)
 
 CSCFakeDBNoiseMatrix::~CSCFakeDBNoiseMatrix()
 {
-  // do anything here that needs to be done at destruction time
-  // (e.g. close files, deallocate resources etc.)
-  delete cndbNoiseMatrix; 
 }
 
-//
-// member functions
-//
-
 // ------------ method called to produce the data  ------------
-CSCFakeDBNoiseMatrix::ReturnType
+CSCFakeDBNoiseMatrix::Pointer
 CSCFakeDBNoiseMatrix::produceDBNoiseMatrix(const CSCDBNoiseMatrixRcd& iRecord)
 {
-  //need a new object so to not be deleted at exit
-  CSCDBNoiseMatrix* mydata=new CSCDBNoiseMatrix( *cndbNoiseMatrix );
-  return mydata;
+  return cndbNoiseMatrix;
 }
 
 void CSCFakeDBNoiseMatrix::setIntervalFor(const edm::eventsetup::EventSetupRecordKey &, const edm::IOVSyncValue&,

@@ -17,21 +17,23 @@
 #include "CondFormats/DataRecord/interface/CSCDBGainsRcd.h"
 #include <DataFormats/MuonDetId/interface/CSCDetId.h>
 
+#include <boost/shared_ptr.hpp>
+
 class CSCFakeDBGains: public edm::ESProducer, public edm::EventSetupRecordIntervalFinder  {
    public:
       CSCFakeDBGains(const edm::ParameterSet&);
       ~CSCFakeDBGains();
 
-      inline static CSCDBGains * prefillDBGains(); 
+      inline static CSCDBGains* prefillDBGains(); 
 
-      typedef const  CSCDBGains * ReturnType;
-
-      ReturnType produceDBGains(const CSCDBGainsRcd&);
+      typedef boost::shared_ptr<CSCDBGains> Pointer;
+      Pointer produceDBGains(const CSCDBGainsRcd&);
 
    private:
-      // ----------member data ---------------------------
     void setIntervalFor(const edm::eventsetup::EventSetupRecordKey &, const edm::IOVSyncValue&, edm::ValidityInterval & );
-    CSCDBGains *cndbGains ;
+
+    // member data
+    Pointer cndbGains ;
 
 };
 
@@ -40,18 +42,18 @@ class CSCFakeDBGains: public edm::ESProducer, public edm::EventSetupRecordInterv
 #include<iostream>
 
 // to workaround plugin library
-inline CSCDBGains *  CSCFakeDBGains::prefillDBGains()
+inline CSCDBGains* CSCFakeDBGains::prefillDBGains()
 {
   int seed;
   long int M;
   float mean,min, minchi;
-  const int MAX_SIZE = 217728;
+  const int MAX_SIZE = 217728; //or 252288 for ME4/2 chambers
   const int FACTOR=1000;
   
-  CSCDBGains * cndbgains = new CSCDBGains();
+  CSCDBGains* cndbgains = new CSCDBGains();
   cndbgains->gains.resize(MAX_SIZE);
 
-  seed = 10000;	
+  seed = 10000; 
   srand(seed);
   mean=6.8, min=-10.0, minchi=1.0, M=1000;
   cndbgains->factor_gain = int (FACTOR);

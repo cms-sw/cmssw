@@ -16,6 +16,7 @@
 #include "CondFormats/CSCObjects/interface/CSCDBNoiseMatrix.h"
 #include "CondFormats/DataRecord/interface/CSCDBNoiseMatrixRcd.h"
 #include <DataFormats/MuonDetId/interface/CSCDetId.h>
+#include <boost/shared_ptr.hpp>
 
 class CSCFakeDBNoiseMatrix: public edm::ESProducer, public edm::EventSetupRecordIntervalFinder  {
    public:
@@ -24,14 +25,14 @@ class CSCFakeDBNoiseMatrix: public edm::ESProducer, public edm::EventSetupRecord
 
       inline static CSCDBNoiseMatrix * prefillDBNoiseMatrix(); 
 
-      typedef const  CSCDBNoiseMatrix * ReturnType;
+      typedef boost::shared_ptr<CSCDBNoiseMatrix> Pointer;
 
-      ReturnType produceDBNoiseMatrix(const CSCDBNoiseMatrixRcd&);
+      Pointer produceDBNoiseMatrix(const CSCDBNoiseMatrixRcd&);
 
    private:
       // ----------member data ---------------------------
     void setIntervalFor(const edm::eventsetup::EventSetupRecordKey &, const edm::IOVSyncValue&, edm::ValidityInterval & );
-    CSCDBNoiseMatrix *cndbNoiseMatrix ;
+    Pointer cndbNoiseMatrix ;
 
 };
 
@@ -45,7 +46,7 @@ inline CSCDBNoiseMatrix *  CSCFakeDBNoiseMatrix::prefillDBNoiseMatrix()
   int seed;
   long int M;
   float mean,min, minchi;
-  const int MAX_SIZE = 217728;
+  const int MAX_SIZE = 217728; //or 252288 for ME4/2 chambers
   const int FACTOR=1000;
   
   CSCDBNoiseMatrix * cndbmatrix = new CSCDBNoiseMatrix();

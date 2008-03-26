@@ -16,6 +16,7 @@
 #include "CondFormats/CSCObjects/interface/CSCDBPedestals.h"
 #include "CondFormats/DataRecord/interface/CSCDBPedestalsRcd.h"
 #include <DataFormats/MuonDetId/interface/CSCDetId.h>
+#include <boost/shared_ptr.hpp>
 
 class CSCFakeDBPedestals: public edm::ESProducer, public edm::EventSetupRecordIntervalFinder  {
    public:
@@ -24,14 +25,15 @@ class CSCFakeDBPedestals: public edm::ESProducer, public edm::EventSetupRecordIn
       
        inline static CSCDBPedestals * prefillDBPedestals();
 
-      typedef const  CSCDBPedestals * ReturnType;
+      typedef  boost::shared_ptr<CSCDBPedestals> Pointer;
 
-      ReturnType produceDBPedestals(const CSCDBPedestalsRcd&);
+      Pointer produceDBPedestals(const CSCDBPedestalsRcd&);
 
    private:
       // ----------member data ---------------------------
     void setIntervalFor(const edm::eventsetup::EventSetupRecordKey &, const edm::IOVSyncValue&, edm::ValidityInterval & );
-      CSCDBPedestals *cndbPedestals ;   
+
+      Pointer cndbPedestals ;   
 };
 
 #include<fstream>
@@ -44,7 +46,7 @@ inline CSCDBPedestals *  CSCFakeDBPedestals::prefillDBPedestals()
   int seed;
   long int M;
   float meanped,meanrms;
-  const int MAX_SIZE = 217728;
+  const int MAX_SIZE = 217728; //or 252288 for ME4/2 chambers
   const int PED_FACTOR=10;
   const int RMS_FACTOR=1000;
  
