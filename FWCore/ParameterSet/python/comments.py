@@ -19,6 +19,48 @@ def pythonNameFromCfgName(cfgName):
     return cfgName.replace("data","python").replace(".","_") + ".py"
 
 
+
+def prepareReplaceDict(line, comment, replaceDict):
+    """take a line and a corresponding comment and prepare the replaceDict such that it can be found again in the python version """
+    words = line.lstrip().split()
+    # at least <keyword> <label> = "
+    if len(words) > 1:
+        firstWord = words[0]
+        if firstWord in allKeywords and len(words) > 2 and words[2] == '=':
+           tokenInPython = words[1] + " = "
+           replaceDict[tokenInPython] = comment
+        elif firstWord == 'untracked' and len(words) > 3 and words[1] in allKeywords and words[3] == '=':
+           tokenInPython = words[2] + " = cms.untracked"
+           replaceDict[tokenInPython] = comment
+        elif firstWord.startswith('include'): # handling of include statements
+           pythonModule = pythonNameFromCfgName(line.split('"')[1])
+           pythonModule = pythonModule.replace("/",".").replace("python.","").replace(".py","")
+           tokenInPython = "from "+pythonModule
+           tokenInPython = tokenInPython.replace("/",".").replace("python.","").replace(".py","")
+           replaceDict[tokenInPython] = comment
+           # if a cfg
+           tokenInPython = "process.load(\""+pythonModule
+           replaceDict[tokenInPython] = comment
+        elif firstWord == 'source' and len(words) > 1 and words[1] == '=':
+           replaceDict['source = '] = comment
+        elif firstWord in unnamedKeywords and len(words) > 2 and words[1] == '=':
+           tokenInPython = words[2] + ' = cms.ES'
+           replaceDict[tokenInPython] = comment
+        elif firstWord == 'replace' and len(words) > 2 and words[2] == '=':
+           tokenInPython= words[1] + " = "
+           replaceDict[tokenInPython] = comment
+        elif firstWord == 'replace' and len(words) > 2 and words[2] == '=':
+           tokenInPython= words[1] + " = "
+           replaceDict[tokenInPython] = comment
+           # if it's a cfg
+           tokenInPython = 'process.'+tokenInPython
+           replaceDict[tokenInPython] = comment
+       # if it's a significant line, we're not in a comment any more
+        else:
+          replaceDict["@beginning"] +="\n"+comment.value
+    
+
+
 def identifyComments(configString):
     
     replaceDict = {}
@@ -44,56 +86,17 @@ def identifyComments(configString):
           words = line.lstrip().split()
           # at least <keyword> <label> = "
           if len(words) > 1:
-            firstWord = words[0]
-            if firstWord in allKeywords and len(words) > 2 and words[2] == '=':
-               tokenInPython = words[1] + " = "
-               replaceDict[tokenInPython] = comment
-            elif firstWord == 'untracked' and len(words) > 3 and words[1] in allKeywords and words[3] == '=':
-               tokenInPython = words[2] + " = cms.untracked"
-               replaceDict[tokenInPython] = comment
-            elif firstWord.startswith('include'): # handling of include statements
-               pythonModule = pythonNameFromCfgName(line.split('"')[1])
-               pythonModule = pythonModule.replace("/",".").replace("python.","").replace(".py","")
-               tokenInPython = "from "+pythonModule
-               tokenInPython = tokenInPython.replace("/",".").replace("python.","").replace(".py","")
-               replaceDict[tokenInPython] = comment
-               # if a cfg
-               tokenInPython = "process.load(\""+pythonModule
-               replaceDict[tokenInPython] = comment
-            elif firstWord == 'source' and len(words) > 1 and words[1] == '=':
-               replaceDict['source = '] = comment
-            elif firstWord in unnamedKeywords and len(words) > 2 and words[1] == '=':
-               tokenInPython = words[2] + ' = cms.ES'
-               replaceDict[tokenInPython] = comment
-            elif firstWord == 'replace' and len(words) > 2 and words[2] == '=':
-               tokenInPython= words[1] + " = "
-               replaceDict[tokenInPython] = comment
-               # if it's a cfg
-               tokenInPython = 'process.'+tokenInPython
-               replaceDict[tokenInPython] = comment
-          # if it's a significant line, we're not in a comment any more
-            else:
-              replaceDict["@beginning"] +="\n"+comment.value
+             prepareReplaceDict(line,comment,replaceDict)             
           if len(words) > 0:
-            inComment = False   
+             inComment = False
         else:
              # now to comments in the same line
              if len(line.split("#")) > 1:
                comment = Comment()
                comment.value = line.split("#")[1]
                comment.type = "inline"
-               # this is a reduplication of the lines above. Needs refactoring in a new function
-               words = line.lstrip().split()
-               # at least <keyword> <label> = "
-               if len(words) > 2:
-                 firstWord = words[0]
-                 if firstWord in allKeywords:
-                   tokenInPython = words[1] + " = "
-                   replaceDict[tokenInPython] = comment
-                 elif firstWord.startswith('include'): # handling of include statements
-                   tokenInPython = "import "+pythonNameFromCfgName(line.split('"')[1])
-                   tokenInPython = tokenInPython.replace("/",".").replace("python.","").replace(".py","")
-                   replaceDict[tokenInPython] = comment
+               # prepare the replaceDict
+               prepareReplaceDict(line, comment, replaceDict)
 
     return replaceDict
           
@@ -102,12 +105,7 @@ def identifyComments(configString):
 
 def modifyPythonVersion(configString, replaceDict):
 
-    # I don't want to be high performant, but robust and quick in development
-    # that's why I don't introduce special iterators for this purpose  
-
-    # first let's do the stuff at the beginning of a file... TODO!
-    # which is putting all comments that couldn't be assigned to a token
-
+    # first put all comments at the beginning of the file which could not be assigned to any other token
     if replaceDict["@beginning"] != "# The following comments couldn't be translated into the new config version:\n":
       configString = replaceDict["@beginning"]+"\n"+configString 
 
@@ -154,7 +152,7 @@ def loopfile(cfgFileName):
    print "Opening", pyFileName
    newPyString = modifyPythonVersion(pyString, comments)
    pyFile.close()
-   # we don't want to write because of debug 
+
    pyOutFile = file(pyFileName,"w")
    pyOutFile.write(newPyString)
    print "Wrote", pyFileName
