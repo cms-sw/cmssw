@@ -1,16 +1,12 @@
 void check_SiPixelCondObjects(){
 
-  //  do_check("histos_HLT.root","histos_HLT.root");
-  //  do_check("histos_HLT.root","histos_Offline_mc_test.root");
-  //  do_check("histos_HLT.root","histos_HLT_int2r.root");
-  //  do_check("histos_HLT.root","histos_HLT_int2r_test.root");
-  //  do_check("histos_HLT.root","histos_Offline_startup_test.root");
-  //  do_check("histos_Offline_mc_mysql.root","histos_Offline_mc_test.root");
-  //  do_check("histos_Offline_startup_mysql.root","histos_Offline_startup_test.root");
+ 
+  do_check("histos_HLT.root","histos_HLT_startup.root","HLT");
+  do_check("histos_Offline.root","histos_Offline_startup.root","Offline");
 }
 
 
-void do_check(TString filename_official, TString filename_test){
+void do_check(TString filename_official, TString filename_test,TString sampletype){
   
   TFile *file_official= new TFile(filename_official,"read");
   TFile *file_test= new TFile(filename_test,"read");
@@ -24,7 +20,7 @@ void do_check(TString filename_official, TString filename_test){
   TString newname1 = gain1_off->GetName();
   newname1+="official";
   gain1_off->SetName(newname1);
-  gain1_off->SetTitle("Comparison all gain");
+  gain1_off->SetTitle("Comparison all gain "+sampletype);
   gain1_off->GetXaxis()->SetTitle("gain");
   TH1F *gain2_off = (TH1F*)file_official->Get("Summary_Gain");
   if(!gain2_off){
@@ -34,7 +30,7 @@ void do_check(TString filename_official, TString filename_test){
   TString newname2 = gain2_off->GetName();
   newname2+="official";
   gain2_off->SetName(newname2);
-  gain2_off->SetTitle("Comparison gain per module");
+  gain2_off->SetTitle("Comparison gain per module "+ sampletype);
   gain2_off->GetXaxis()->SetTitle("arbitrary module number");
   gain2_off->GetYaxis()->SetTitle("gain");
   TH1F *gain1_test = (TH1F*)file_test->Get("GainAll");
@@ -56,7 +52,7 @@ void do_check(TString filename_official, TString filename_test){
   TString newname3 = pedestal1_off->GetName();
   newname3+="official";
   pedestal1_off->SetName(newname3);
-  pedestal1_off->SetTitle("Comparison all pedestal");
+  pedestal1_off->SetTitle("Comparison all pedestal "+sampletype);
   pedestal1_off->GetXaxis()->SetTitle("pedestal");
   TH1F *pedestal2_off = (TH1F*)file_official->Get("Summary_Pedestal");
   if(!pedestal2_off){
@@ -66,7 +62,7 @@ void do_check(TString filename_official, TString filename_test){
   TString newname4 = pedestal2_off->GetName();
   newname4+="official";
   pedestal2_off->SetName(newname4);
-  pedestal2_off->SetTitle("Comparison pedestal per module");
+  pedestal2_off->SetTitle("Comparison pedestal per module "+sampletype);
   pedestal2_off->GetXaxis()->SetTitle("arbitrary module number");
   pedestal2_off->GetYaxis()->SetTitle("pedestal");
   TH1F *pedestal1_test = (TH1F*)file_test->Get("PedestalsAll");  
@@ -80,10 +76,10 @@ void do_check(TString filename_official, TString filename_test){
     return;
   }
     
-  std::cout << "\n\n******\ncomparison of the following files:" << std::endl;
+  std::cout << "\n\n******\n" << sampletype << " comparison of the following files:" << std::endl;
   std::cout << "* reference:   " << filename_official << std::endl;
   std::cout << "* test:        " << filename_test << std::endl;
-  TCanvas *cv= new TCanvas("comparison","comparison");
+  TCanvas *cv= new TCanvas("comparison"+sampletype,"comparison"+sampletype);
   cv->Divide(2,2);
   cv->cd(1);
   double res1 = make_plot(gain1_off,gain1_test);
@@ -118,11 +114,13 @@ double make_plot(TH1F* off, TH1F *test){
   else
     off->SetMaximum(1.3*off->GetMaximum());
   off->SetLineColor(1);
+  off->SetLineStyle(2);
   test->SetLineColor(2);
   test->SetMarkerColor(2);
   test->SetMarkerStyle(23);
   off->Draw("hist");
   test->Draw("psame");
+  off->Draw("histsame");
   double kval = off->KolmogorovTest(test);
   TString matchstr = "K = ";
   matchstr+=kval;
