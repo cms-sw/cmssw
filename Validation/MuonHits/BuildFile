@@ -11,6 +11,7 @@
 <use name=Geometry/DTGeometry>
 <use name=Geometry/RPCGeometry>
 <use name=Geometry/Records>
+<use name=DQMServices/Core>
 <use name=root>
 <use name=clhep>
 
