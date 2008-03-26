@@ -306,7 +306,7 @@ void FixedMatrixClusterAlgo::addCrystal(const DetId &det)
 {   
 
    EcalRecHitCollection::const_iterator thisIt =  recHits_->find(det);
-   if ((thisIt->id() != DetId(0)) && (thisIt != recHits_->end()))
+   if ((thisIt != recHits_->end()) && (thisIt->id() != DetId(0)))
    { 
       if ((used_s.find(thisIt->id()) == used_s.end())) 
       {
