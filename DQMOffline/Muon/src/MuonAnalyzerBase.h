@@ -6,7 +6,7 @@
  *
  *  base class for all DQM monitor sources
  *
- *  $Date: 2008/03/13 11:10:41 $
+ *  $Date: 2008/03/18 11:58:07 $
  *  $Revision: 1.1 $
  *  \author G. Mila - INFN Torino
  */
@@ -24,13 +24,13 @@
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "DataFormats/MuonReco/interface/Muon.h"
 #include "DataFormats/TrackReco/interface/Track.h"
-
+#include "RecoMuon/TrackingTools/interface/MuonServiceProxy.h"
 
 class MuonAnalyzerBase {
  public:
 
   /// Constructor
-  MuonAnalyzerBase(){}
+  MuonAnalyzerBase(MuonServiceProxy *theServ){theService = theServ;}
   
   /// Destructor
   virtual ~MuonAnalyzerBase() {}
@@ -44,6 +44,11 @@ class MuonAnalyzerBase {
   /// Get the analysis of the muon track properties
   void analyze(const edm::Event&, const edm::EventSetup&, reco::Track& recoTrack){}
 
+  MuonServiceProxy* service() {return theService;}
+
+ private:
+  // ----------member data ---------------------------
+  MuonServiceProxy *theService;
 
 };
 #endif  

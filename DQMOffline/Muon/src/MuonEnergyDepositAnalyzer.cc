@@ -2,7 +2,7 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/03/13 11:11:12 $
+ *  $Date: 2008/03/18 11:59:59 $
  *  $Revision: 1.1 $
  *  \author G. Mila - INFN Torino
  */
@@ -22,7 +22,7 @@ using namespace edm;
 
 
 
-MuonEnergyDepositAnalyzer::MuonEnergyDepositAnalyzer(const edm::ParameterSet& pSet) {
+MuonEnergyDepositAnalyzer::MuonEnergyDepositAnalyzer(const edm::ParameterSet& pSet, MuonServiceProxy *theService):MuonAnalyzerBase(theService) {
 
   cout<<"[MuonEnergyDepositAnalyzer] Constructor called!"<<endl;
   parameters = pSet;

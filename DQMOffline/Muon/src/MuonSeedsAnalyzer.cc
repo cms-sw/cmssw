@@ -2,8 +2,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/03/25 17:19:18 $
- *  $Revision: 1.1 $
+ *  $Date: 2008/03/25 18:37:05 $
+ *  $Revision: 1.2 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -31,15 +31,12 @@ using namespace edm;
 
 
 
-MuonSeedsAnalyzer::MuonSeedsAnalyzer(const edm::ParameterSet& pSet) {
+MuonSeedsAnalyzer::MuonSeedsAnalyzer(const edm::ParameterSet& pSet, MuonServiceProxy *theService):MuonAnalyzerBase(theService) {
 
   cout<<"[MuonSeedsAnalyzer] Constructor called!"<<endl;
   parameters = pSet;
   // Set the verbosity
   debug = parameters.getParameter<bool>("debug");
-
-  // the services
-  theService = new MuonServiceProxy(parameters.getParameter<ParameterSet>("ServiceParameters"));
 
 }
 
@@ -63,21 +60,21 @@ void MuonSeedsAnalyzer::beginJob(edm::EventSetup const& iSetup, DaqMonitorBEInte
   PhiMin = parameters.getParameter<double>("PhiMin");
   PhiMax = parameters.getParameter<double>("PhiMax");
   histname = "seedPhi_";
-  MonitorElement *seedPhi = dbe->book1D(histname, histname, PhiBin, PhiMin, PhiMax);
+  seedPhi = dbe->book1D(histname, histname, PhiBin, PhiMin, PhiMax);
   seedPhi->setAxisTitle("Seed azimuthal angle");
   
   EtaBin = parameters.getParameter<int>("EtaBin");
   EtaMin = parameters.getParameter<double>("EtaMin");
   EtaMax = parameters.getParameter<double>("EtaMax");
   histname = "seedEta_";
-  MonitorElement *seedEta = dbe->book1D(histname, histname, EtaBin, EtaMin, EtaMax);
+  seedEta = dbe->book1D(histname, histname, EtaBin, EtaMin, EtaMax);
   seedEta->setAxisTitle("Seed pseudorapidity");
   
   ThetaBin = parameters.getParameter<int>("ThetaBin");
   ThetaMin = parameters.getParameter<double>("ThetaMin");
   ThetaMax = parameters.getParameter<double>("ThetaMax");
   histname = "seedTheta_";
-  MonitorElement *seedTheta = dbe->book1D(histname, histname, ThetaBin, ThetaMin, ThetaMax);
+  seedTheta = dbe->book1D(histname, histname, ThetaBin, ThetaMin, ThetaMax);
   seedTheta->setAxisTitle("Seed polar angle");
 
   seedPtBin = parameters.getParameter<int>("seedPtBin");
@@ -163,8 +160,6 @@ void MuonSeedsAnalyzer::beginJob(edm::EventSetup const& iSetup, DaqMonitorBEInte
 
 void MuonSeedsAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup, const TrajectorySeed& seed) {
 
-  theService->update(iSetup);
-
   TrajectoryStateOnSurface seedTSOS = getSeedTSOS(seed);
   AlgebraicSymMatrix66 errors = seedTSOS.cartesianError().matrix();
   double partialPterror = errors(3,3)*pow(seedTSOS.globalMomentum().x(),2) + errors(4,4)*pow(seedTSOS.globalMomentum().y(),2);
@@ -226,9 +221,8 @@ TrajectoryStateOnSurface MuonSeedsAnalyzer::getSeedTSOS(const TrajectorySeed& se
   // Transform it in a TrajectoryStateOnSurface
   TrajectoryStateTransform tsTransform;
   DetId seedDetId(pTSOD.detId());
-  cout<<"detId: "<<seedDetId.det()<<endl;
-  const GeomDet* gdet = theService->trackingGeometry()->idToDet( seedDetId );
-  TrajectoryStateOnSurface initialState = tsTransform.transientState(pTSOD, &(gdet->surface()), &*theService->magneticField());
+  const GeomDet* gdet = service()->trackingGeometry()->idToDet( seedDetId );
+  TrajectoryStateOnSurface initialState = tsTransform.transientState(pTSOD, &(gdet->surface()), &*(service())->magneticField());
 
   return initialState;
 

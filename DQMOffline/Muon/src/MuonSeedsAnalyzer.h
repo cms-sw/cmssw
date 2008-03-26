@@ -6,7 +6,7 @@
  *
  *  DQM monitoring source for muon track seeds
  *
- *  $Date: 2008/03/18 12:00:14 $
+ *  $Date: 2008/03/25 17:19:26 $
  *  $Revision: 1.1 $
  *  \author G. Mila - INFN Torino
  */
@@ -32,7 +32,7 @@ class MuonSeedsAnalyzer : public MuonAnalyzerBase {
  public:
 
   /// Constructor
-  MuonSeedsAnalyzer(const edm::ParameterSet&);
+  MuonSeedsAnalyzer(const edm::ParameterSet&, MuonServiceProxy *theService);
   
   /// Destructor
   virtual ~MuonSeedsAnalyzer();
@@ -52,7 +52,6 @@ class MuonSeedsAnalyzer : public MuonAnalyzerBase {
   
   DaqMonitorBEInterface * dbe;
   edm::ParameterSet parameters;
-  MuonServiceProxy *theService;
   // Switch for verbosity
   bool debug;
   
