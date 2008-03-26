@@ -1,4 +1,4 @@
-// Last commit: $Id: SiStripConfigDb.cc,v 1.48 2008/02/25 14:30:42 bainbrid Exp $
+// Last commit: $Id: SiStripConfigDb.cc,v 1.49 2008/02/26 08:04:26 bainbrid Exp $
 
 #include "OnlineDB/SiStripConfigDb/interface/SiStripConfigDb.h"
 #include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
@@ -22,6 +22,7 @@ bool SiStripConfigDb::allowCalibUpload_ = false;
 SiStripConfigDb::SiStripConfigDb( const edm::ParameterSet& pset,
 				  const edm::ActivityRegistry& activity ) :
   factory_(0), 
+  dbCache_(0), 
   dbParams_(),
   // Local cache
   devices_(), 
@@ -55,6 +56,7 @@ SiStripConfigDb::SiStripConfigDb( string confdb,
 				  uint32_t major,
 				  uint32_t minor ) :
   factory_(0), 
+  dbCache_(0), 
   dbParams_(),
   // Local cache
   devices_(), 
@@ -104,6 +106,7 @@ SiStripConfigDb::SiStripConfigDb( string user,
 				  uint32_t major,
 				  uint32_t minor ) :
   factory_(0), 
+  dbCache_(0), 
   dbParams_(),
   // Local cache
   devices_(), 
@@ -153,6 +156,7 @@ SiStripConfigDb::SiStripConfigDb( string input_module_xml,
 				  string output_fec_xml,
 				  string output_fed_xml ) : 
   factory_(0), 
+  dbCache_(0), 
   dbParams_(),
   // Local cache
   devices_(), 
@@ -207,6 +211,8 @@ SiStripConfigDb::DbParams::DbParams() :
   passwd_(null_),
   path_(null_),
   partition_(null_), 
+  usingDbCache_(false),
+  sharedMemory_(""),
   runNumber_(0),
   cabMajor_(0),
   cabMinor_(0),
@@ -244,10 +250,12 @@ SiStripConfigDb::DbParams::~DbParams() {
 // -----------------------------------------------------------------------------
 // 
 void SiStripConfigDb::DbParams::reset() {
-  usingDb_ = true;
+  usingDb_ = false;
   confdb_ = null_;
   confdb( confdb_ );
   partition_ = null_;
+  usingDbCache_ = false;
+  sharedMemory_ = "";
   runNumber_ = 0;
   cabMajor_ = 0;
   cabMinor_ = 0;
@@ -307,10 +315,12 @@ void SiStripConfigDb::DeviceAddress::reset() {
 // 
 void SiStripConfigDb::DbParams::setParams( const edm::ParameterSet& pset ) {
   reset();
-  usingDb_ = pset.getUntrackedParameter<bool>("UsingDb",true); 
+  usingDb_ = pset.getUntrackedParameter<bool>("UsingDb",false); 
   confdb( pset.getUntrackedParameter<string>("ConfDb","") );
   partition_ = pset.getUntrackedParameter<string>("Partition","");
   runNumber_ = pset.getUntrackedParameter<unsigned int>("RunNumber",0);
+  usingDbCache_ = pset.getUntrackedParameter<bool>("UsingDbCache",false); 
+  sharedMemory_ = pset.getUntrackedParameter<string>("SharedMemory",""); 
   cabMajor_ = pset.getUntrackedParameter<unsigned int>("MajorVersion",0);
   cabMinor_ = pset.getUntrackedParameter<unsigned int>("MinorVersion",0);
   fedMajor_ = pset.getUntrackedParameter<unsigned int>("FedMajorVersion",0);
@@ -374,7 +384,9 @@ void SiStripConfigDb::DbParams::confdb( const string& user,
 // 
 void SiStripConfigDb::DbParams::print( stringstream& ss ) const {
 
-  ss << " Using database            : " << std::boolalpha << usingDb_ << std::noboolalpha << endl;
+  ss << " Using database account    : " << std::boolalpha << usingDb_ << std::noboolalpha << endl;
+  ss << " Using database cache      : " << std::boolalpha << usingDbCache_ << std::noboolalpha << endl;
+  ss << " Shared memory name        : " << std::boolalpha << sharedMemory_ << std::noboolalpha << endl;
 
   if ( usingDb_ ) {
 
@@ -444,11 +456,15 @@ void SiStripConfigDb::openDbConnection() {
   
   // Establish database connection
   if ( dbParams_.usingDb_ ) { 
-    usingDatabase(); 
+    if ( dbParams_.usingDbCache_ ) { 
+      usingDatabaseCache(); 
+    } else { 
+      usingDatabase(); 
+    }
   } else { 
     usingXmlFiles(); 
   }
-
+  
   devices_.clear();
   feds_.clear();
   connections_.clear();
@@ -480,8 +496,15 @@ void SiStripConfigDb::closeDbConnection() {
   
   try { 
     if ( factory_ ) { delete factory_; }
-  } catch (...) { handleException( __func__, "Attempting to close database connection..." ); }
+  } catch (...) { handleException( __func__, "Attempting to delete DeviceFactory object..." ); }
   factory_ = 0; 
+
+#ifdef USING_DATABASE_CACHE
+  try { 
+    if ( dbCache_ ) { delete dbCache_; }
+  } catch (...) { handleException( __func__, "Attempting to delete DbClient object..." ); }
+  dbCache_ = 0; 
+#endif
   
   LogTrace(mlConfigDb_) 
     << "[SiStripConfigDb::" << __func__ << "]"
@@ -498,6 +521,21 @@ DeviceFactory* const SiStripConfigDb::deviceFactory( string method_name ) const 
       stringstream ss;
       ss << "[SiStripConfigDb::" << method_name << "]"
 	 << " NULL pointer to DeviceFactory!";
+      edm::LogWarning(mlConfigDb_) << ss.str();
+    }
+    return 0;
+  }
+}
+
+// -----------------------------------------------------------------------------
+//
+DbClient* const SiStripConfigDb::databaseCache( string method_name ) const { 
+  if ( dbCache_ ) { return dbCache_; }
+  else { 
+    if ( method_name != "" ) { 
+      stringstream ss;
+      ss << "[SiStripConfigDb::" << method_name << "]"
+	 << " NULL pointer to DbClient!";
       edm::LogWarning(mlConfigDb_) << ss.str();
     }
     return 0;
@@ -827,6 +865,76 @@ void SiStripConfigDb::usingDatabase() {
     stringstream ss;
     ss << "Attempted to 'setInputDBVersion; for partition: " << dbParams_.partition_;
     handleException( __func__, ss.str() ); 
+  }
+#endif
+  
+}
+
+// -----------------------------------------------------------------------------
+//
+void SiStripConfigDb::usingDatabaseCache() {
+  
+  // Reset all DbParams except for those concerning databae cache
+  DbParams temp;
+  temp = dbParams_;
+  dbParams_.reset();
+  dbParams_.usingDb_ = temp.usingDb_;
+  dbParams_.usingDbCache_ = temp.usingDbCache_;
+  dbParams_.sharedMemory_ = temp.sharedMemory_;
+
+  // Check shared memory name from .cfg file
+  if ( dbParams_.sharedMemory_.empty() ) {
+    std::stringstream ss;
+    ss << "[SiStripConfigDb::" << __func__ << "]"
+       << " Empty string for shared memory name!" 
+       << " Cannot accept shared memory!";
+    edm::LogError(mlConfigDb_) << ss.str();
+    return;
+  }
+  
+  // Create database cache object
+#ifdef USING_DATABASE_CACHE
+  try { 
+    LogTrace(mlConfigDb_)
+      << "[SiStripConfigDb::" << __func__ << "]"
+      << " Creating DbClient object...";
+    dbCache_ = new DbClient( dbParams_.sharedMemory_ );
+    LogTrace(mlConfigDb_)
+      << "[SiStripConfigDb::" << __func__ << "]"
+      << " Created DbClient object...";
+  } catch (...) { 
+    stringstream ss; 
+    ss << "Failed to connect to database cache using shared memory name: '" 
+       << dbParams_.sharedMemory_ << "'!";
+    handleException( __func__, ss.str() );
+    return;
+  }
+#endif
+  
+  // Check for valid pointer to DbClient object
+  if ( databaseCache(__func__) ) { 
+    stringstream ss;
+    ss << "[SiStripConfigDb::" << __func__ << "]"
+       << " DbClient object created at address 0x" 
+       << hex << setw(8) << setfill('0') << dbCache_ << dec
+       << " using shared memory name '" 
+       << dbParams_.sharedMemory_ << "'"; 
+    LogTrace(mlConfigDb_) << ss.str();
+  } else {
+    edm::LogError(mlConfigDb_)
+      << "[SiStripConfigDb::" << __func__ << "]"
+      << " NULL pointer to DbClient object!"
+      << " Unable to connect to database cache using shared memory name '" 
+      << dbParams_.sharedMemory_ << "'"; 
+    return; 
+  }
+  
+  // Try retrieve descriptions from Database Client
+#ifdef USING_DATABASE_CACHE
+  try { 
+    databaseCache(__func__)->parse(); 
+  } catch (...) { 
+    handleException( __func__, "Attempted to called DbClient::parse() method" );
   }
 #endif
   

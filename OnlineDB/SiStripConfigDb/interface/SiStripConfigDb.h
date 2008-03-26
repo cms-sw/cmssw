@@ -1,4 +1,4 @@
-// Last commit: $Id: SiStripConfigDb.h,v 1.45 2008/03/17 18:57:25 bainbrid Exp $
+// Last commit: $Id: SiStripConfigDb.h,v 1.46 2008/03/26 09:09:56 bainbrid Exp $
 
 #ifndef OnlineDB_SiStripConfigDb_SiStripConfigDb_h
 #define OnlineDB_SiStripConfigDb_SiStripConfigDb_h
@@ -23,7 +23,7 @@
 #include <map>
 
 #define USING_NEW_DATABASE_MODEL
-#define USING_DATABASE_CACHE
+//#define USING_DATABASE_CACHE
 
 #ifdef USING_DATABASE_CACHE
 #include "DbClient.h"
