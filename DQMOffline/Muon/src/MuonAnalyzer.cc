@@ -2,8 +2,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/03/18 12:01:19 $
- *  $Revision: 1.1 $
+ *  $Date: 2008/03/25 17:20:25 $
+ *  $Revision: 1.2 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -18,6 +18,7 @@
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeed.h"
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
 
+#include "RecoMuon/TrackingTools/interface/MuonServiceProxy.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include <string>
@@ -34,17 +35,18 @@ MuonAnalyzer::MuonAnalyzer(const edm::ParameterSet& pSet) {
   dbe->setVerbose(1);
   parameters = pSet;
 
+  // the services
+  theService = new MuonServiceProxy(parameters.getParameter<ParameterSet>("ServiceParameters"));
+
   // STA Cosmic Muon Collection Label
   theSTACollectionLabel = parameters.getParameter<edm::InputTag>("CosmicsCollectionLabel");
-
   // Seeds Collection Label
   theSeedsCollectionLabel = parameters.getParameter<edm::InputTag>("seedsCollectionLabel");
   
   // do the analysis on muon energy
-  theMuEnergyAnalyzer = new MuonEnergyDepositAnalyzer(parameters.getParameter<ParameterSet>("muonEnergyAnalysis"));
-
+  theMuEnergyAnalyzer = new MuonEnergyDepositAnalyzer(parameters.getParameter<ParameterSet>("muonEnergyAnalysis"), theService);
   // do the analysis on seeds
-  theSeedsAnalyzer = new MuonSeedsAnalyzer(parameters.getParameter<ParameterSet>("seedsAnalysis"));
+  theSeedsAnalyzer = new MuonSeedsAnalyzer(parameters.getParameter<ParameterSet>("seedsAnalysis"), theService);
 
 }
 
@@ -67,6 +69,8 @@ void MuonAnalyzer::beginJob(edm::EventSetup const& iSetup) {
 void MuonAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
 
   cout<<"[MuonAnalyzer] Analysis of event # "<<endl;
+
+  theService->update(iSetup);
 
    // Take the STA muon container
    edm::Handle<reco::MuonCollection> muons;
