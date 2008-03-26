@@ -1,4 +1,4 @@
-// Last commit: $Id: SiStripConfigDb.h,v 1.47 2008/03/26 09:11:41 bainbrid Exp $
+// Last commit: $Id: SiStripConfigDb.h,v 1.48 2008/03/26 10:08:52 bainbrid Exp $
 
 #ifndef OnlineDB_SiStripConfigDb_SiStripConfigDb_h
 #define OnlineDB_SiStripConfigDb_SiStripConfigDb_h
@@ -61,8 +61,9 @@ namespace cms { class SiStripO2O; }
 */
 class SiStripConfigDb {
   
- public:
   
+ public:
+
 
   // ---------- Constructors, destructors ----------
 
@@ -76,20 +77,20 @@ class SiStripConfigDb {
   /** Constructor when using the configuration database, which takes
       as arguments the database connection parameters. DO NOT USE: TO
       BE DEPRECATED!!! */
-  SiStripConfigDb( std::string confdb, 
+  SiStripConfigDb( std::string confdb,
 		   std::string db_partition,
 		   uint32_t    db_major_vers = 0,
-		   uint32_t    db_minor_vers = 0 ); 
+		   uint32_t    db_minor_vers = 0 );
 
   /** Constructor when using the configuration database, which takes
       as arguments the database connection parameters. DO NOT USE: TO
       BE DEPRECATED!!! */
-  SiStripConfigDb( std::string db_user, 
-		   std::string db_passwd, 
+  SiStripConfigDb( std::string db_user,
+		   std::string db_passwd,
 		   std::string db_path,
 		   std::string db_partition,
 		   uint32_t    db_major_vers = 0,
-		   uint32_t    db_minor_vers = 0 ); 
+		   uint32_t    db_minor_vers = 0 );
   
   /** Constructor when using xml files, which takes as arguments the
       paths to the various input (and output) xml files. DO NOT USE:
@@ -106,40 +107,6 @@ class SiStripConfigDb {
   /** Default destructor. */
   ~SiStripConfigDb();
   
-
-  // ---------- Typedefs ----------
-
-
-  typedef std::vector<deviceDescription*> DeviceDescriptions;
-
-  typedef std::vector<Fed9U::Fed9UDescription*> FedDescriptions;
-
-#ifdef USING_NEW_DATABASE_MODEL
-
-  typedef std::vector<ConnectionDescription*> FedConnections;
-
-  typedef CommissioningAnalysisDescription::commissioningType AnalysisType;
-
-#else
-
-  //@@ TO BE DEPRECATED
-  class CommissioningAnalysisDescription;
-  
-  typedef std::vector<FedChannelConnectionDescription*> FedConnections;
-
-#endif
-
-  typedef CommissioningAnalysisDescription AnalysisDescription;
-
-  typedef std::vector<AnalysisDescription*> AnalysisDescriptions;
-
-  /** Key is DCU id. */
-  typedef Sgi::hash_map<unsigned long,TkDcuInfo*> DcuDetIdMap;
-  
-  
-  // ---------- Structs and enums ----------
-  
-  
   /** 
    * Container class for database connection parameters: 
    * Connection params: usingDB flag, confdb, user, passwd and path strings.
@@ -148,10 +115,13 @@ class SiStripConfigDb {
    * Output XML files: as for input XML files.
    */
   class DbParams { 
+
   public:
+    
     // Constructor and methods
     DbParams();
     ~DbParams();
+
     void print( std::stringstream& ) const; 
     void reset(); 
     void setParams( const edm::ParameterSet& );
@@ -159,6 +129,7 @@ class SiStripConfigDb {
     void confdb( const std::string& user,
 		 const std::string& passwd,
 		 const std::string& path );
+
     // Public member data 
     bool usingDb_;
     std::string confdb_;
@@ -191,29 +162,15 @@ class SiStripConfigDb {
     std::string outputFecXml_;
     std::string outputFedXml_;
     std::string tnsAdmin_;
+
   };
   
-  /** Class that holds addresses that uniquely identify a hardware
-      component within the control system. */
-  class DeviceAddress { 
-  public:
-    DeviceAddress();
-    void reset();
-    uint16_t fecCrate_; 
-    uint16_t fecSlot_;
-    uint16_t fecRing_;
-    uint16_t ccuAddr_;
-    uint16_t ccuChan_;
-    uint16_t lldChan_;
-    uint16_t i2cAddr_;
-    uint16_t fedId_;
-    uint16_t feUnit_;
-    uint16_t feChan_;
-  };
 
-
-  // ---------- PRIVATE INTERFACE ----------
-
+  // ---------- PROTECTED INTERFACE ----------
+  
+  
+ protected:
+  
   
   /*
     Access to the configuration database is reserved solely for the
@@ -221,7 +178,7 @@ class SiStripConfigDb {
     tool. If you wish to use this interface to the configuration
     database, then please contact one of the package administrators.
   */
-
+  
   // ESSources and O2O
   friend class SiStripFedCablingBuilderFromDb;
   friend class SiStripPedestalsBuilderFromDb;
@@ -248,9 +205,55 @@ class SiStripConfigDb {
   friend class PopulateConfigDb;
   friend class testSiStripConfigDb;
 
- protected:
-  
 
+  // ---------- Typedefs and structs ----------
+
+
+  typedef std::vector<deviceDescription*> DeviceDescriptions;
+
+  typedef std::vector<Fed9U::Fed9UDescription*> FedDescriptions;
+
+#ifdef USING_NEW_DATABASE_MODEL
+
+  typedef std::vector<ConnectionDescription*> FedConnections;
+
+  typedef CommissioningAnalysisDescription::commissioningType AnalysisType;
+
+#else
+
+  //@@ TO BE DEPRECATED
+  class CommissioningAnalysisDescription;
+  
+  typedef std::vector<FedChannelConnectionDescription*> FedConnections;
+
+#endif
+
+  typedef CommissioningAnalysisDescription AnalysisDescription;
+
+  typedef std::vector<AnalysisDescription*> AnalysisDescriptions;
+
+  /** Key is DCU id. */
+  typedef Sgi::hash_map<unsigned long,TkDcuInfo*> DcuDetIdMap;
+  
+  /** Class that holds addresses that uniquely identify a hardware
+      component within the control system. */
+  class DeviceAddress { 
+  public:
+    DeviceAddress();
+    void reset();
+    uint16_t fecCrate_; 
+    uint16_t fecSlot_;
+    uint16_t fecRing_;
+    uint16_t ccuAddr_;
+    uint16_t ccuChan_;
+    uint16_t lldChan_;
+    uint16_t i2cAddr_;
+    uint16_t fedId_;
+    uint16_t feUnit_;
+    uint16_t feChan_;
+  };
+  
+  
   // ---------- Connection and local cache ----------
 
   
