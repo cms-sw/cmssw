@@ -170,7 +170,8 @@ KinematicState TrackKinematicStatePropagator::propagateToTheTransversePCANeutral
  par(3) = pPerigee.x(); 
  par(4) = pPerigee.y(); 
  par(5) = pPerigee.z(); 
- par(6) = inStatePar(7);
+ // par(6) = inStatePar(7);
+ par(6) = state.mass();
 
 //covariance matrix business:
 //everything lake it was before: jacobains are smart enouhg to 
