@@ -14,19 +14,28 @@ if(defined $help){&usage_msg();}
 if((!defined $dir) || ($dir=~/^\s*$/) || (!-d $dir)){print STDERR "Missing directory path where the newly auto generated BuildFiles exist.\n"; &usage_msg();}
 if(defined $common){$common=1;}
 else{$common=0;}
+$dir=&SCRAMGenUtils::fixPath($dir);
+my $release=&SCRAMGenUtils::scramReleaseTop($dir);
+if(!-d "${release}/.SCRAM"){print STDERR "ERROR: $dir is not under a SCRAM-based project.\n"; exit 1;}
+&SCRAMGenUtils::init ($release);
 &process($dir);
 exit 0;
 
 sub process ()
 {
   my $dir=shift || return;
+  my $xml=shift || 0;
   if(!-d $dir){return;}
   my %bfs=();
   foreach my $file (&SCRAMGenUtils::readDir("$dir",0))
   {
     my $fpath="${dir}/${file}";
-    if(-d $fpath){&process($fpath);}
-    elsif($file=~/^(.+?)BuildFile\.auto$/){$bfs{$file}=0;}
+    if(-d $fpath){&process($fpath,$xml);}
+    elsif($file=~/^(.+?)BuildFile(\.xml|)\.auto$/)
+    {
+      if($2 eq ".xml"){$xml=1;}
+      $bfs{$file}=0;
+    }
   }
   if(scalar(keys %bfs)==0){return;}
   print "Working on $dir\n";
@@ -36,7 +45,7 @@ sub process ()
     my $flag=0;
     foreach my $file (keys %bfs)
     {
-      if(($flag) && (scalar(keys %commontools)==0)){last;}
+      if(($flag) && (scalar(keys %{$commontools{use}})==0) && (scalar(keys %{$commontools{lib}})==0)){last;}
       my $bf=&SCRAMGenUtils::readBuildFile("${dir}/${file}");
       foreach my $type ("bin", "library")
       {
@@ -45,23 +54,45 @@ sub process ()
           foreach my $prod (keys %{$bf->{$type}})
 	  {
 	    my %local=();
-	    if(exists $bf->{$type}{$prod}{deps}{use})
-	    {foreach my $u (keys %{$bf->{$type}{$prod}{deps}{use}}){$local{$u}=1;}}
+	    foreach my $x ("use","lib")
+	    {
+	      if(exists $bf->{$type}{$prod}{deps}{$x})
+	      {foreach my $u (keys %{$bf->{$type}{$prod}{deps}{$x}}){$local{$x}{$u}=1;}}
+	    }
 	    if($flag==0)
 	    {
-	      foreach my $u (keys %local){$commontools{$u}=1;}
+	      foreach my $x ("use","lib")
+	      {
+	        foreach my $u (keys %{$local{$x}}){$commontools{$x}{$u}=1;}
+	      }
 	      $flag=1;
 	    }
-	    else{foreach my $u (keys %commontools){if(!exists $local{$u}){delete $commontools{$u};}}}
+	    else
+	    {
+	      foreach my $x ("use","lib")
+	      {foreach my $u (keys %{$commontools{$x}}){if(!exists $local{$x}{$u}){delete $commontools{$x}{$u};}}}
+	    }
 	  }
         }
       }
     }
   }
   my $mbf="${dir}/BuildFile.auto";
+  if ($xml){$mbf="${dir}/BuildFile.xml.auto";}
   my $outfile;
   open($outfile,">$mbf") || die "Can not open \"$mbf\" for writing.";
-  if($common){foreach my $u (keys %commontools){print $outfile "<use name=$u>\n";}}
+  if($common)
+  {
+    foreach my $x ("use","lib")
+    {
+      foreach my $u (keys %{$commontools{$x}})
+      {
+        print $outfile "<$x name=\"$u\"";
+        if ($xml){print $outfile "/";}
+        print $outfile ">\n";
+      }
+    }
+  }
   my $c=scalar(keys %bfs);
   print "Files:$c\n";
   foreach my $file (keys %bfs)
@@ -74,8 +105,11 @@ sub process ()
       chomp $line;
       if($common)
       {
-        foreach my $u (keys %commontools)
-        {if($line=~/^\s*<\s*use\s+name\s*=\s*$u\s*>(.*)$/){$line=$1;}}
+        foreach my $x ("use","lib")
+	{
+	  foreach my $u (keys %{$commontools{$x}})
+          {if($line=~/^\s*<$x\s+name=\"$u\"(\/|)\s*>(.*)$/){$line=$2;}}
+	}
       }
       if($line!~/^\s*$/){print $outfile "$line\n";$line="";}
     }

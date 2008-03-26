@@ -2,9 +2,24 @@ package SCRAMGenUtils;
 use File::Basename;
 
 our $SCRAM_CMD="scramv1";
+our $SCRAM_VERSION="";
 local $SCRAM_ARCH="";
 local $DEBUG=0;
 local $InternalCache={};
+
+sub init ()
+{
+  my $dir=shift;
+  if(!-f "${dir}/config/scram_version"){die "${dir}/config/scram_version file does not exist.";}
+  $SCRAM_VERSION=`cat ${dir}/config/scram_version`; chomp $SCRAM_VERSION;
+  my $arch=&getScramArch();
+  if (!-f "${dir}/tmp/${arch}/Makefile"){system("cd ${dir}; $SCRAM_CMD b -r echo_CXX ufast>/dev/null 2>&1");}
+  my $scram_home=dirname(dirname(&SCRAMGenUtils::getBuildVariable($dir,"SCRAM","ufast")));
+  if (!-d "$scram_home"){die "ERROR: Failed to find SCRAM.\n";}
+  $ENV{SCRAM_HOME}=$scram_home;
+  unshift @INC,"${scram_home}/src";
+  unshift @INC,"${dir}/config";
+}
 
 sub fixPath ()
 {
@@ -83,24 +98,28 @@ sub getTmpDir ()
 # Reading Project Cache DB
 #########################################################################
 
+sub fixCacheFileName ()
+{
+  my $file=shift;
+  my $gz="";
+  if ($SCRAM_VERSION=~/^V[2-9]_/){$gz=".gz";}
+  return "$file$gz";
+}
+
 sub readCache()
 {
-  use IO::File;
-  my $cachefilename=shift;
-  my $cachefh = IO::File->new($cachefilename, O_RDONLY)
-     || die "Unable to read cached data file $cachefilename: ",$ERRNO,"\n";
-  my @cacheitems = <$cachefh>;
-  close $cachefh;
-
-  # Copy the new cache object to self and return:
-  my $cache = eval "@cacheitems";
-  die "Cache load error: ",$EVAL_ERROR,"\n", if ($EVAL_ERROR);
-  return $cache;
+  eval ("use Cache::CacheUtilities");
+  if(!$@){return &Cache::CacheUtilities::read(shift);}
+  else{die "Unable to find Cache/CacheUtilities.pm PERL module.";}
 }
 
 sub getScramArch ()
 {
-  if($SCRAM_ARCH eq ""){$SCRAM_ARCH=`$SCRAM_CMD arch`;chomp $SCRAM_ARCH;}
+  if($SCRAM_ARCH eq "")
+  {
+    if(exists $ENV{SCRAM_ARCH}){$SCRAM_ARCH=$ENV{SCRAM_ARCH};}
+    else{$SCRAM_ARCH=`$SCRAM_CMD arch`;chomp $SCRAM_ARCH;}
+  }
   return $SCRAM_ARCH;
 }
 
@@ -120,14 +139,22 @@ sub getEnvironmentFileCache ()
   {
     my $ref;
     $InternalCache->{$rel}{EnvironmentFile}={};
-    open($ref,"${rel}/.SCRAM/Environment") || die "Can not open ${rel}/.SCRAM/Environment file for reading.";
-    while(my $line=<$ref>)
+    my $arch=&getScramArch();
+    foreach my $f ("Environment","${arch}/Environment")
     {
-      if(($line=~/^\s*$/) || ($line=~/^\s*#/)){next;}
-      if($line=~/^\s*([^=\s]+?)\s*=\s*(.+)$/)
-      {$InternalCache->{$rel}{EnvironmentFile}{$1}=$2;}
+      if (-f "${rel}/.SCRAM/${f}")
+      {
+        open($ref,"${rel}/.SCRAM/${f}") || die "Can not open ${rel}/.SCRAM/${f} file for reading.";
+        while(my $line=<$ref>)
+        {
+          if(($line=~/^\s*$/) || ($line=~/^\s*#/)){next;}
+          if($line=~/^\s*([^=\s]+?)\s*=\s*(.+)$/)
+          {$InternalCache->{$rel}{EnvironmentFile}{$1}=$2;}
+        }
+        close($ref);
+        $InternalCache->{dirty}=1;
+      }
     }
-    $InternalCache->{dirty}=1;
   }
   return $InternalCache->{$rel}{EnvironmentFile};
 }
@@ -139,27 +166,40 @@ sub createTmpReleaseArea ()
   my $dir=shift || &getTmpDir ();
   system("mkdir -p $dir");
   if($SCRAM_ARCH eq ""){&getScramArch ();}
-  if(!-f "${rel}/.SCRAM/${SCRAM_ARCH}/ProjectCache.db"){system("cd $rel; $SCRAM_CMD b -r echo_CXX 2>&1 >/dev/null");}
+  my $cf=&fixCacheFileName("${rel}/.SCRAM/${SCRAM_ARCH}/ProjectCache.db");
+  if(!-f $cf){system("cd $rel; $SCRAM_CMD b -r echo_CXX ufast 2>&1 >/dev/null");}
   foreach my $sdir (".SCRAM", "config")
   {
     if(-d "${dir}/${sdir}"){system("rm -rf ${dir}/${sdir}");}
     system("cp -rpf ${rel}/${sdir} $dir");
   }
   my $setup=0;
+  my $envfile="${dir}/.SCRAM/Environment";
+  if ($SCRAM_VERSION=~/^V[2-9]_/){$envfile="${dir}/.SCRAM/${SCRAM_ARCH}/Environment";}
   if($dev)
   {
     my $rtop=&getFromEnvironmentFile("RELEASETOP",$rel);
-    if($rtop eq ""){system("echo \"RELEASETOP=$rel\" >> ${dir}/.SCRAM/Environment");$setup=1;}
+    if($rtop eq "")
+    {
+      system("touch $envfile; echo \"RELEASETOP=$rel\" >> $envfile");
+      $setup=1;
+    }
   }
   else
   {
     system("chmod -R u+w $dir");
-    system("cat ${dir}/.SCRAM/Environment | grep -v \"RELEASETOP\" > ${dir}/.SCRAM/Environment.new");
-    system("mv ${dir}/.SCRAM/Environment.new ${dir}/.SCRAM/Environment");
+    if ($SCRAM_VERSION=~/^V[2-9]_/){system("rm -f $envfile");}
+    else
+    {
+      system("grep -v \"RELEASETOP\" $envfile  > ${envfile}.new");
+      system("mv ${envfile}.new $envfile");
+    }
     $setup=1;
   }
-  system("${dir}/config/projectAreaRename.pl $rel $dir $SCRAM_ARCH");
-  if($setup){system("cd $dir; $SCRAM_CMD setup self");}
+  my $prn="projectrename";
+  if ($SCRAM_VERSION=~/^V1_0_/){$prn="ProjectRename";}
+  system("cd $dir; $SCRAM_CMD build -r $prn >/dev/null 2>&1");
+  if($setup){system("cd $dir; $SCRAM_CMD setup self >/dev/null 2>&1");}
   return $dir;
 }
 
@@ -167,113 +207,83 @@ sub getBuildVariable ()
 {
   my $dir=shift;
   my $var=shift || return "";
-  my $val=`cd $dir; $SCRAM_CMD b -f echo_${var} | grep $var`; chomp $val;
+  my $xrule="";
+  if($SCRAM_VERSION=~/^V[1-9]\d*_[1-9]\d*_/){$xrule=shift;}
+  my $val=`cd $dir; $SCRAM_CMD b -f echo_${var} $xrule 2>&1 | grep "$var *="`; chomp $val;
   $val=~s/^\s*$var\s+=\s+//;
   return $val;
 }
+
+sub getOrderedTools ()
+{
+  my $cache=shift;
+  my $tool=shift || "";
+  my $data=shift || {};
+  if($tool eq "self"){return;}
+  if($tool eq "")
+  {
+    $data->{tooldone}={}; $data->{orderedtool}=[]; $data->{scrambased}={};
+    foreach my $t (keys %{$cache->{SETUP}}){&getOrderedTools($cache,$t,$data);}
+    foreach my $stool ("seal","coral","pool","iguana","ignominy","cmssw")
+    {
+      if(exists $data->{scrambased}{$stool})
+      {unshift @{$data->{orderedtool}},$stool;delete $data->{scrambased}{$stool};}
+    }
+    foreach my $stool (keys %{$data->{scrambased}})
+    {unshift @{$data->{orderedtool}},$stool;}
+    unshift @{$data->{orderedtool}},"self";
+    delete $data->{scrambased};
+    delete $data->{tooldone};
+    return $data->{orderedtool};
+  }
+  elsif((!exists $data->{tooldone}{$tool}) && (exists $cache->{SETUP}{$tool}))
+  {
+    $data->{tooldone}{$tool}=1;
+    if ((exists $cache->{SETUP}{$tool}{SCRAM_PROJECT}) && ($cache->{SETUP}{$tool}{SCRAM_PROJECT} == 1)){$data->{scrambased}{$tool}=1;return;}
+    if(exists $cache->{SETUP}{$tool}{USE})
+    {
+      foreach my $t (@{$cache->{SETUP}{$tool}{USE}})
+      {
+	$t=lc($t);
+	&getOrderedTools($cache,$t,$data);
+      }
+    }
+    unshift @{$data->{orderedtool}},$tool;
+  }
+}
+
 #################################################################
 # Reading writing cache files
 #################################################################
-sub printtab_ {
-  my $msg=shift;
-  my $fh=shift;
-  my $tab=shift || 0;
-  for(my $i=0; $i < $tab; $i++)
-  {print $fh "  ";}
-  print $fh $msg;
-}
-
-sub writeHashCache {
+sub writeHashCache ()
+{
   my $cache=shift;
   my $file=shift;
-  my $tab=shift || 0;
-  my $fh;
-  my $fhref = ref($file);
-  if ($fhref ne "GLOB"){
-    my $dir=dirname($file);
-    if(!-d $dir){system("mkdir -p $dir");}
-    open($fh, ">$file") || die "can not open file $file for writing.";
-    &printtab_ ("cache=>", $fh, $tab);
+  use Data::Dumper;
+  my $cachefh;
+  if (open($cachefh,">$file"))
+  {
+    $Data::Dumper::Varname='cache';
+    $Data::Dumper::Purity = 1;
+    print $cachefh Dumper($cache);
+    close $cachefh;
   }
-  else{$fh=$file;}
-  if (!defined $cache){print $fh "\n";return;}
-  my $ref=ref($cache);
-  if ($ref eq "HASH"){
-    print $fh "{\n";
-    $tab++;
-    foreach my $item (sort keys %{$cache}){
-      &printtab_ ("$item=>", $fh, $tab);
-      &writeHashCache ($cache->{$item}, $fh, $tab);
-    }
-    $tab--;
-    &printtab_ ("}\n",  $fh, $tab);
-  }
-  elsif ($ref eq "ARRAY"){
-    print $fh "[\n";
-    my $size=@{$cache};
-    $tab++;
-    for(my $i=0; $i<$size;$i++){
-      my $item = $cache->[$i];
-      &printtab_ ("$i=>", $fh, $tab);
-      &writeHashCache ($cache->[$i], $fh, $tab);
-    }
-    $tab--;
-    &printtab_ ("]\n", $fh, $tab);
-  }
-  else
-  {print $fh "($cache)\n";}
-  if ($fhref ne "GLOB"){close($fh);}
+  else{die "can not open file $file for writing.";}
 }
 
 sub readHashCache ()
 {
   my $file=shift;
   my $cache=undef;
-  my $fh;
-  my $fhref = ref($file);
-  if ($fhref ne "GLOB"){
-    open($fh, "$file") || die "can not open file $file for reading.";
-    $cache = {};
-  }
-  else{
-    $cache=shift;
-    $fh=$file;
-  }
-  my $ref = ref($cache);
-  while(my $line=<$fh>)
+  my $cachefh;
+  if (open($cachefh,$file))
   {
-    chomp $line;
-    my $ncache=undef;
-    my $match=undef;
-    my $value=undef;
-    if($line=~/^\s*[\}\]]$/){return $cache;}
-    if ($line=~/^\s*(.+)\=\>\{$/)
-    {$ncache = {};$match=$1;}
-    elsif ($line=~/^\s*(.+)\=\>\[$/)
-    {$ncache = [];$match=$1;}
-    elsif($line=~/^\s*(.+)\=\>\((.*)\)$/)
-    {$value=$2;$match=$1;}
-    elsif($line=~/^\s*(.+)\=\>$/)
-    {$match=$1;}
-    if($ref eq "HASH")
-    {
-      if(defined $ncache)
-      {$cache->{$match} = $ncache;}
-      else{$cache->{$match} = $value;}
-    }
-    elsif ($ref eq "ARRAY")
-    {
-      if(defined $ncache)
-      {$cache->[$match] = $ncache;}
-      else{$cache->[$match] = $value;}
-    }
-    if(defined $ncache)
-    {&readHashCache ($fh, $ncache);}
+    my @cacheitems = <$cachefh>;
+    close $cachefh;
+    $cache = eval "@cacheitems";
+    die "Cache load error: ",$EVAL_ERROR,"\n", if ($EVAL_ERROR);
   }
-  if ($fhref ne "GLOB"){
-    close($fh);
-    if(exists $cache->{cache}){return $cache->{cache};}
-  }
+  else{die "can not open file $file for reading.";}
   return $cache;
 }
 ################################################
@@ -352,16 +362,89 @@ sub getObjectFileSymbols ()
 ##########################################################
 # Read BuildFile
 ##########################################################
+sub XML2DATA ()
+{
+  my $xml=shift;
+  my $data=shift || {};
+  foreach my $c (@{$xml->{child}})
+  {
+    if(exists $c->{name})
+    {
+      my $n=$c->{name};
+      if($n=~/^(environment)$/){&XML2DATA($c,$data);}
+      elsif($n=~/^(library|bin)$/)
+      {
+        my $fl=$c->{attrib}{file};
+	my $p=$c->{attrib}{name};
+	if($p ne ""){$data->{$n}{$p}{file}=[];}
+	foreach my $f (split /\s+/,$fl)
+	{
+	  if($p eq "")
+	  {
+	    $p=basename($f); $p=~s/\.[^.]+$//;
+	    $data->{$n}{$p}{file}=[];
+	  }
+	  push @{$data->{$n}{$p}{file}},"$f";
+	}
+	if ($p ne "")
+	{
+	  $data->{$n}{$p}{deps}={};
+	  &XML2DATA($c,$data->{$n}{$p}{deps});
+	}
+      }
+      elsif($n=~/^(use|lib)$/){$data->{$n}{$c->{attrib}{name}}=1;}
+      elsif($n=~/^(flags)$/)
+      {
+	my @fs=keys %{$c->{attrib}};
+	my $f=uc($fs[0]);
+	my $v=$c->{attrib}{$fs[0]};
+	if(!exists $data->{$n}{$f}){$data->{$n}{$f}=[];}
+	my $i=scalar(@{$data->{flags}{$n}});
+	$data->{$n}{$f}[$i]{v}=$v;
+      }
+      elsif($n=~/^(architecture)$/)
+      {
+        my $a=$c->{attrib}{name};
+	if(!exists $data->{arch}{$a}){$data->{arch}{$a}={};}
+	&XML2DATA($c,$data->{arch}{$a});
+      }
+      elsif($n=~/^(export)$/)
+      {
+        $data->{$n}={};
+	&XML2DATA($c,$data->{$n});
+      }
+      elsif($n=~/^(include_path)$/)
+      {
+	$data->{$n}{$c->{attrib}{path}}=1;
+      }
+      elsif($n=~/^(makefile)$/)
+      {
+        if(!exists $data->{$n}){$data->{$n}=[];}
+	foreach my $d (@{$c->{cdata}}){push @{$data->{$n}},"$d\n";}
+      }
+    }
+  }
+  return $data;
+}
+
 sub readBuildFile ()
 {
   my $bfile=shift;
-  my $data={};
-  my $ref;
-  my $linenum=0;
-  open($ref,$bfile) || die "Can not open file \"$bfile\" for reading.";
-  &parseBF($ref,$data,"","",\$linenum,$bfile);
-  close($ref);
-  return $data;
+  my $bfn=basename($bfile);
+  eval ("use SCRAM::Plugins::DocParser");
+  if($@){die "Can not local SCRAM/Plugins/DocParser.pm perl module for reading $bfile.\n";}
+  my $input=undef;
+  if ($bfn!~/BuildFile\.xml/)
+  {
+    eval ("use SCRAM::Plugins::Doc2XML");
+    if($@){die "Can not local SCRAM/Plugins/DocParser.pm perl module for reading $bfile.\n";}
+    my $doc2xml = SCRAM::Plugins::Doc2XML->new(0);
+    my $xml=$doc2xml->convert($bfile);
+    $input = join("",@$xml);
+  }
+  my $xml = SCRAM::Plugins::DocParser->new();
+  $xml->parse($bfile,$input);
+  return &XML2DATA($xml->{output});
 }
 
 sub parseBF ()
@@ -568,6 +651,13 @@ sub updateFromRefBuildFile ()
   }
 }
 
+sub _xmlendtag()
+{
+  my $xml=shift;
+  if($xml){return "/";}
+  return "";
+}
+
 sub printBuildFile ()
 {
   my $data=shift;
@@ -580,6 +670,9 @@ sub printBuildFile ()
   my $ccfiles=$data->{ccfiles};
   my $outfile=STDOUT;
   my $closefile=0;
+  my $bfn=basename($file);
+  my $xml=0;
+  if($bfn=~/BuildFile\.xml/){$xml=1;}
   if($file ne "")
   {
     $outfile="";
@@ -599,15 +692,17 @@ sub printBuildFile ()
   if($ccfiles>0)
   {
     if(exists $data->{deps}{src})
-    {foreach my $dep (sort keys %{$data->{deps}{src}}){print $outfile "$tab<use name=$dep>\n";}}
+    {
+      foreach my $dep (sort keys %{$data->{deps}{src}})
+      {print $outfile "$tab<use name=\"$dep\"",&_xmlendtag($xml),">\n";}
+    }
     foreach my $f (sort keys %{$data->{flags}})
     {
       if($f eq "EDM_PLUGIN"){$edmplugin=$data->{flags}{$f};}
       if(exists $data->{sflags}{$f})
       {
         my $v=$data->{flags}{$f};
-        if($v=~/\s+/){print $outfile "$tab<flags $f=\"$v\">\n";}
-        else{print $outfile "$tab<flags $f=$v>\n";}
+        print $outfile "$tab<flags $f=\"$v\"",&_xmlendtag($xml),">\n";
       }
       else
       {
@@ -618,12 +713,13 @@ sub printBuildFile ()
 	    my ($n,$v1)=split /=/,$v,2;
 	    if($v=~/^$n=/)
 	    {
-	      if($v1=~/^\"(.*?)\"$/){print $outfile "$tab<flags ${f}='${n}=\\\"$1\\\"'>\n";}
-	      else{print $outfile "$tab<flags ${f}='${n}=${v1}'>\n";}
+	      if($v1=~/^\"(.*?)\"$/){print $outfile "$tab<flags ${f}='${n}=\\\"$1\\\"'";}
+	      else{print $outfile "$tab<flags ${f}='${n}=${v1}'";}
 	    }
-	    else{print $outfile "$tab<flags ${f}=\"${n}\">\n";}
+	    else{print $outfile "$tab<flags ${f}=\"${n}\"";}
 	  }
-	  else{print $outfile "$tab<flags $f=\"$v\">\n";}
+	  else{print $outfile "$tab<flags $f=\"$v\"";}
+	  print $outfile &_xmlendtag($xml),">\n";
         }
       }
     }
@@ -634,11 +730,11 @@ sub printBuildFile ()
   foreach my $f (keys %{$data->{makefile}}){$allarch{$f}{makefile}=1;}
   foreach my $a (sort keys %allarch)
   {
-    if($a ne "FORALLARCH"){print $outfile "$tab<architecture name=$a>\n";$tab="$tab  ";}
+    if($a ne "FORALLARCH"){print $outfile "$tab<architecture name=\"$a\">\n";$tab="$tab  ";}
     if(exists $allarch{$a}{include_path})
-    {foreach my $f (sort keys %{$data->{include_path}{$a}}){print $outfile "$tab<include_path path=$f>\n";}}
+    {foreach my $f (sort keys %{$data->{include_path}{$a}}){print $outfile "$tab<include_path path=\"$f\"",&_xmlendtag($xml),">\n";}}
     if(exists $allarch{$a}{lib})
-    {foreach my $f (sort keys %{$data->{lib}{$a}}){print $outfile "$tab<lib name=$f>\n";}}
+    {foreach my $f (sort keys %{$data->{lib}{$a}}){print $outfile "$tab<lib name=\"$f\"",&_xmlendtag($xml),">\n";}}
     if(exists $allarch{$a}{makefile})
     {
       print $outfile "$tab<makefile>\n";
@@ -658,19 +754,28 @@ sub printBuildFile ()
       foreach my $a (keys %{$data->{export}{include_path}}){$allarch{$a}{include_path}=1;}
       foreach my $a (sort keys %allarch)
       {
-        if($a ne "FORALLARCH"){print $outfile "  <architecture name=$a>\n";$tab="  ";$hasexport=1;}
+        if($a ne "FORALLARCH"){print $outfile "  <architecture name=\"$a\">\n";$tab="  ";$hasexport=1;}
         if(exists $allarch{$a}{include_path})
-        {foreach my $f (sort keys %{$data->{export}{include_path}{$a}}){print $outfile "$tab  <include_path path=$f>\n";$hasexport=1;}}
+        {foreach my $f (sort keys %{$data->{export}{include_path}{$a}}){print $outfile "$tab  <include_path path=\"$f\"",&_xmlendtag($xml),">\n";$hasexport=1;}}
         if($a ne "FORALLARCH"){$tab="";print $outfile "  </architecture>\n";}
       }
     }
-    if(exists $data->{deps}{interface})
+    if (!$xml)
     {
-      my @packs=sort keys %{$data->{deps}{interface}};
-      foreach my $dep (@packs){print $outfile "  <use name=$dep>\n";$hasexport=1;}
+      if(exists $data->{deps}{src})
+      {
+        my @packs=sort keys %{$data->{deps}{src}};
+        foreach my $dep (@packs)
+        {print $outfile "  <use name=\"$dep\">\n";$hasexport=1;}
+      }
     }
-    if(($ccfiles>0) && ($edmplugin==0)){print $outfile "  <lib name=$prodname>\n";$hasexport=1;}
-    if(!$hasexport){print $outfile "  <flags DummyFlagToAvoidWarning=0>\n";}
+    if(($ccfiles>0) && ($edmplugin==0))
+    {
+      if($xml){print $outfile "  <lib name=\"1\"/>\n";}
+      else{print $outfile "  <lib name=\"$prodname\">\n";}
+      $hasexport=1;
+    }
+    if(!$hasexport){print $outfile "  <flags DummyFlagToAvoidWarning=\"0\"",&_xmlendtag($xml),">\n";}
     print $outfile "</export>\n";
   }
   if($closefile){close($outfile);}

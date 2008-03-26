@@ -9,17 +9,21 @@ use IPC::Open2;
 $|=1;
 
 #get the command-line options
+my $xmlbf="BuildFile";
 if(&GetOptions(
 	       "--dir=s",\$dir,
 	       "--order=s",\@packs,
 	       "--config=s",\$configfile,
 	       "--redo=s",\@prod,
 	       "--detail",\$detail,
+	       "--xml",\$xml,
 	       "--help",\$help,
               ) eq ""){print STDERR "#Wrong arguments.\n"; &usage_msg();}
 
 if(defined $help){&usage_msg();}
 if(defined $detail){$detail="--detail";}
+if(defined $xml){$xml=1; $xmlbf="BuildFile.xml";}
+else{$xml=0;}
 if(defined $configfile){$configfile="--config $configfile";}
 
 my $sdir=dirname($0);
@@ -27,7 +31,6 @@ my $pwd=`/bin/pwd`; chomp $pwd; $pwd=&SCRAMGenUtils::fixPath($pwd);
 
 if((!defined $dir) || ($dir=~/^\s*$/)){print "ERROR: Missing SCRAM-based project release path.\n"; exit 1;}
 if($dir!~/^\//){$dir="${pwd}/${dir}";}
-my $scramarch=&SCRAMGenUtils::getScramArch();
 $dir=&SCRAMGenUtils::fixPath($dir);
 my $release=&SCRAMGenUtils::scramReleaseTop($dir);
 if(!-d "${release}/.SCRAM"){print STDERR "ERROR: $dir is not under a SCRAM-based project.\n"; exit 1;}
@@ -41,7 +44,9 @@ if(!-f "${devarea}/.SCRAM/Environment")
   $devarea=&SCRAMGenUtils::createTmpReleaseArea($release,1,$devarea);
   system("cd $devarea; $SCRAMGenUtils::SCRAM_CMD b -r echo_CXX 2>&1 > /dev/null");
 }
+&SCRAMGenUtils::init ($devarea);
 
+my $scramarch=&SCRAMGenUtils::getScramArch();
 my $cache={};
 my $pcache={};
 my $projcache={};
@@ -102,15 +107,16 @@ sub initCache ()
   }
   else
   {
-    if(-f "${release}/.SCRAM/${scramarch}/ProjectCache.db")
+    my $cf=&SCRAMGenUtils::fixCacheFileName("${release}/.SCRAM/${scramarch}/ProjectCache.db");
+    if(-f $cf)
     {
-      $projcache=&SCRAMGenUtils::readCache("${release}/.SCRAM/${scramarch}/ProjectCache.db");
+      $projcache=&SCRAMGenUtils::readCache($cf);
       foreach my $d (keys %{$projcache->{BUILDTREE}}){&updateProd($d);}
       $projcache={};
       &SCRAMGenUtils::writeHashCache($cache,$cfile);
       &SCRAMGenUtils::writeHashCache($pcache,$pcfile);
     }
-    else{print STDERR "${release}/.SCRAM/${scramarch}/ProjectCache.db file does not exists. Script need this to be available.\n"; exit 1;}
+    else{print STDERR "$cf file does not exists. Script need this to be available.\n"; exit 1;}
   }
 }
 
@@ -123,7 +129,8 @@ sub updateProd ()
     if($suffix ne ""){return 0;}
     my $class=$projcache->{BUILDTREE}{$p}{CLASS};
     my $c=$projcache->{BUILDTREE}{$p}{RAWDATA}{content};
-    if($class eq "PACKAGE"){return &addPack($c,$p);}
+    if($class eq "LIBRARY"){return &addPack($c,dirname($p));}
+    elsif($class eq "PACKAGE"){return &addPack($c,$p);}
     elsif($class=~/^(TEST|BIN|PLUGINS|BINARY)$/){return &addProds($c,$p);}
   }
   return 0;
@@ -135,9 +142,11 @@ sub addProds ()
   my $p=shift;
   if(exists $pcache->{dir}{$p}){return 1;}
   $pcache->{dir}{$p}=1;
-  my $bf1="${release}/src/${p}/BuildFile";
-  if(!-f $bf1){return 0;}
+  my $bf1="${release}/src/${p}/BuildFile.xml";
+  if(!-f $bf1){$bf1="${release}/src/${p}/BuildFile";}
+  if(!-f $bf1){return 0}
   &addProdDep($c,$p,1);
+  my $bf=undef;
   foreach my $t (keys %{$c->{BUILDPRODUCTS}})
   {
     foreach my $prod (keys %{$c->{BUILDPRODUCTS}{$t}})
@@ -146,17 +155,18 @@ sub addProds ()
       my $xname=basename($prod);
       my $name=$xname;
       my $type=lc($t);
-      if(exists $cache->{prod}{$name})
+      if(exists $pcache->{prod}{$name})
       {
 	$name="DPN_${xname}";
 	my $i=0;
-	while(exists $cache->{prod}{$name}){$name="DPN${i}_${xname}";$i++;}
-	my $pbf=$pcache->{prod}{$xname}{dir}."/BuildFile";
+	while(exists $pcache->{prod}{$name}){$name="DPN${i}_${xname}";$i++;}
+	my $pbf=$pcache->{prod}{$xname}{dir}."/".$pcache->{prod}{$xname}{bf};
 	print STDERR "WARNING: \"$bf1\" has a product \"$xname\" which is already defined in \"$pbf\". Going to change it to \"$name\".\n";
       }
       $pcache->{prod}{$name}{dir}=$p;
       $pcache->{prod}{$name}{type}=$type;
-      my $bf=&SCRAMGenUtils::readBuildFile($bf1);
+      $pcache->{prod}{$name}{bf}=basename($bf1);
+      if (!defined $bf){$bf=&SCRAMGenUtils::readBuildFile($bf1);}
       if((exists $bf->{$type}{$xname}) && (exists $bf->{$type}{$xname}{file}))
       {
         my $files="";
@@ -179,8 +189,11 @@ sub addPack ()
   $pcache->{dir}{$p}=1;
   my $prod=&run_func("safename",$project,"${release}/src/${p}");
   if($prod eq ""){print STDERR "ERROR: Script is not ready for $project SCRAM-based project.\n"; exit 1;}
-  if(!-f "${release}/src/${p}/BuildFile"){return 0;}
+  my $bf="${release}/src/${p}/BuildFile.xml";
+  if(!-f $bf){$bf="${release}/src/${p}/BuildFile";}
+  if(!-f $bf){return 0;}
   $pcache->{prod}{$prod}{dir}=$p;
+  $pcache->{prod}{$prod}{bf}=basename($bf);
   $cache->{$prod}={};
   &addProdDep($c,$p);
   return 1;
@@ -220,6 +233,8 @@ sub processProd ()
   if ((!exists $cache->{$prod}) || (exists $cache->{$prod}{skip}) || (exists $cache->{$prod}{done})){return;}
   $cache->{$prod}{done}=0;
   my $pack=$pcache->{prod}{$prod}{dir};
+  my $bfn=$pcache->{prod}{$prod}{bf};
+  if ($pack eq ""){return 0;}
   if(exists $pcache->{deps}{$pack})
   {
     my %luse=();
@@ -254,15 +269,17 @@ sub processProd ()
   if((exists $pcache->{prod}{$prod}{type}) || (exists $pcache->{prod}{$prod}{file})){$bfsrcdir="";}
   my $bfdir="${devarea}/newBuildFile/src/${pack}";
   system("mkdir -p $bfdir $bfsrcdir");
-  my $nfile="${bfdir}/BuildFile.auto";
-  my $ptype="";my $pname="";my $pfiles="";
+  my $nfile="${bfdir}/${bfn}.auto";
+  if ($xml){$nfile="${bfdir}/${xmlbf}.auto";}
+  my $ptype="";my $pname="";my $pfiles=""; my $xargs="";
   if(exists $pcache->{prod}{$prod}{type})
   {
     $ptype="--prodtype ".$pcache->{prod}{$prod}{type};
     $pname="--prodname $prod --files '".$pcache->{prod}{$prod}{file}."'";
-    $nfile="${bfdir}/${prod}BuildFile.auto";
+    $nfile="${bfdir}/${prod}${bfn}.auto";
+    if ($xml){$nfile="${bfdir}/${prod}${xmlbf}.auto";$xargs.=" --xml";}
   }
-  my $cmd="${sdir}/createBuildFile.pl $configfile --dir ${release}/src/${pack} --tmprelease $devarea --buildfile $nfile $ptype $pname $pfiles $detail --chksym";
+  my $cmd="${sdir}/createBuildFile.pl $xargs $configfile --dir ${release}/src/${pack} --tmprelease $devarea --buildfile $nfile $ptype $pname $pfiles $detail --chksym";
   print "$cmd\n";
   my $reader; my $writer;
   my $pid=open2($reader, $writer,"$cmd 2>&1");
@@ -292,10 +309,10 @@ sub processProd ()
   {
     if("$bfsrcdir" ne "")
     {
-      if(-f "${bfsrcdir}/BuildFile"){system("mv ${bfsrcdir}/BuildFile ${bfsrcdir}/BuildFile.orig");}
-      system("cp $nfile ${bfsrcdir}/BuildFile");
-      if(-f "${bfsrcdir}/BuildFile.orig")
-      {system("touch -r ${bfsrcdir}/BuildFile.orig ${bfsrcdir}/BuildFile; rm -f ${bfsrcdir}/BuildFile.orig");}
+      if(-f "${bfsrcdir}/${bfn}"){system("mv ${bfsrcdir}/${bfn} ${bfsrcdir}/${bfn}.orig");}
+      system("cp $nfile ${bfsrcdir}/${xmlbf}");
+      if(-f "${bfsrcdir}/${bfn}.orig")
+      {system("touch -r ${bfsrcdir}/${bfn}.orig ${bfsrcdir}/${xmlbf}; rm -f ${bfsrcdir}/${bfn}.orig");}
     }
     $cache->{$prod}{done}=1;
     &SCRAMGenUtils::writeHashCache($cache,$cfile);
@@ -325,7 +342,7 @@ sub safename_pool ()
 sub safename_seal ()
 {return "lcg_".basename(shift);}
 sub safename_coral ()
-{return "lcg_coral_".basename(shift);}
+{return "lcg_".basename(shift);}
 
 sub safename_ignominy ()
 {return &safename_cms1(shift);}
@@ -347,13 +364,13 @@ sub safename_cms2 ()
   else{return "";}
 }
 
-
 sub usage_msg()
 {
   my $script=basename($0);
-  print "Usage: $script --dir <path> [--order <package>[--order <package> [...]]] [--detail]\n";
+  print "Usage: $script --dir <path> [--xml] [--order <package>[--order <package> [...]]] [--detail]\n";
   print "        [--redo <product|all> [--redo <product> [...]]] [--config <configfile>]\n\n";
   print "e.g.\n";
   print "  $script --dir /path/to/a/project/release/area\n\n";
+  print "--xml   To generate xml BuildFiles i.e. BuildFile.xml.auto\n";
   exit 0;
 }

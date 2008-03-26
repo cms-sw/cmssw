@@ -2,6 +2,7 @@
 use File::Basename;
 use lib dirname($0);
 use Getopt::Long;
+use Digest::MD5  qw(md5_hex);
 use SCRAMGenUtils;
 $|=1;
 
@@ -94,7 +95,7 @@ else
   $keep=1;
 }
 
-system("mkdir -p $tmp_dir");
+system("mkdir -p ${tmp_dir}/backup/files ${tmp_dir}/backup/ids");
 print "TMP directory:$tmp_dir\n";
 &init ($config);
 chdir($tmp_dir);
@@ -582,7 +583,7 @@ sub movenewfile ()
   my $name=basename($file);
   $dir="${tmp_dir}/${tmp_inc}/${dir}";
   system("mkdir -p $dir; rm -f ${dir}/${name}; cp $nfile ${dir}/${name}");
-  if(!-f "${odir}/${name}.orig"){system("cp ${odir}/${name} ${odir}/${name}.orig");}
+  if(!-f "${odir}/${name}.original_file_wo_incchk_changes"){system("cp ${odir}/${name} ${odir}/${name}.original_file_wo_incchk_changes");}
   system("mv $nfile ${odir}/${name}");
 }
 
@@ -616,24 +617,18 @@ sub createdummyfile ()
 sub createbackup()
 {
   my $file=shift;
-  if(-f $file)
-  {
-    my $c=0;
-    while(-f "${file}.incchk_backup.${c}"){$c++;}
-    system("mv $file ${file}.incchk_backup.${c}; touch $file");
-  }
+  my $id=&md5_hex ($file);
+  if (-f "${tmp_dir}/backup/files/${id}"){return;}
+  system("echo \"$file\" > ${tmp_dir}/backup/ids/$id && mv $file ${tmp_dir}/backup/files/${id} && touch $file");
 }
 
 sub recoverbackup ()
 {
   my $file=shift;
-  my $fx="${file}.incchk_backup.0";
-  if(-f $fx)
-  {
-    my $c=1;
-    while(-f "${file}.incchk_backup.$c"){$fx="${file}.incchk_backup.$c";$c++;}
-    system("mv $fx $file");
-  }
+  my $id=shift || &md5_hex ($file);
+  if (-f "${tmp_dir}/backup/files/${id}")
+  {system("mv ${tmp_dir}/backup/files/${id} $file");}
+  system("rm -f ${tmp_dir}/backup/ids/$id ${tmp_dir}/backup/files/${id}");
 }
 
 sub createdummyfile1 ()
@@ -849,7 +844,12 @@ sub check_file ()
      &check_includes ($tmpfile, $cache{$tmpfile});
      if($config_cache->{FILES}{$file}{ERROR} == 0)
      {$config_cache->{FILES}{$file}{FINAL_DONE}=1;}
-     if($keep){&SCRAMGenUtils::writeHashCache($config_cache->{FILES}{$file}, "${tmp_dir}/cache/files/$file");}
+     if($keep)
+     {
+       my $d=dirname("${tmp_dir}/cache/files/$file");
+       if(!-d $d){system("mkdir -p $d");}
+       &SCRAMGenUtils::writeHashCache($config_cache->{FILES}{$file}, "${tmp_dir}/cache/files/$file");
+     }
   }
   system("rm -rf $dir");
   pop @{$config_cache->{INC_LIST}};
@@ -995,11 +995,26 @@ sub updateFromCachedFiles ()
   #if($dir eq $bdir){system("rm -rf $dir");}
 }
 
+sub resotre_backup ()
+{
+  my $ids="${tmp_dir}/backup/ids";
+  foreach my $id (&SCRAMGenUtils::readDir($ids,2))
+  {
+    my $ref;
+    if(!open($ref,"${ids}/${id}")){die "Can not open file for reading: ${ids}/${id}";}
+    my $file=<$ref>; chomp $file;
+    close($ref);
+    &recoverbackup($file,$id);
+    print "Recovered backup: $file\n";
+  }
+}
+
 sub init ()
 {
   my $config=shift;
   if ("$tmp_dir" ne "/")
   {
+    &resotre_backup ();
     system("mkdir -p ${tmp_dir}/${tmp_inc} ${tmp_dir}/${dummy_inc} ${tmp_dir}/cache");
     system("/bin/rm -rf ${tmp_dir}/tmp_* 2>&1");
     system("/bin/rm -rf ${tmp_dir}/${dummy_inc}/* 2>&1");
@@ -1269,8 +1284,13 @@ sub skip_include ()
 {
   my $file=shift || return 0;
   my $inc=shift || return 0;
-  my $ccfile=1;
-  foreach my $exp (keys %{$config_cache->{HEADER_EXT}}){if($inc=~/$exp/){$ccfile=0;last;}}
+  my $ccfile=0;
+  if ($inc=~/^.+(\.[^\.]+)$/)
+  {
+    my $fext=$1;
+    $ccfile=1;
+    foreach my $exp (keys %{$config_cache->{HEADER_EXT}}){if($inc=~/$exp/){$ccfile=0;last;}}
+  }
   return $ccfile || &check_skip($file,$inc,"SKIP_INCLUDES");
 }
 

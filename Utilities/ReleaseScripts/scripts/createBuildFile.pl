@@ -28,6 +28,7 @@ if(&GetOptions(
 	       "--help",\$help,
 	       "--plugin",\$plugin,
 	       "--clean",\$clean,
+	       "--xml",\$xml,
 	       "--detail",\$detail,
               ) eq ""){print STDERR "#Wrong arguments.\n"; &usage_msg();}
 
@@ -41,6 +42,8 @@ $SCRAMGenUtils::InternalCache=$cache;
 if(defined $help){&usage_msg();}
 if(defined $plugin){$plugin=1;}
 else{$plugin=0;}
+if(defined $xml){$xml="--xml";}
+else{$xml="";}
 if(defined $chksym){$chksym=1;}
 else{$chksym=0;}
 if(defined $detail){$detail=1;}
@@ -227,6 +230,7 @@ if((!defined $tmprel) || ($tmprel=~/^\s*$/))
   $tmprel="${release}/tmp/AutoBuildFile";
   if($pwd!~/^$release(\/.*|)$/){$tmprel="${pwd}/AutoBuildFile";}
 }
+&SCRAMGenUtils::init($tmprel);
 my $cachedir="${tmprel}/bfcache/${scramarch}";
 if(!-d $cachedir){system("mkdir -p $cachedir");}
 my $cachefile="${cachedir}/toolcache";
@@ -270,8 +274,12 @@ if(-f $unincfile){$inccache=&SCRAMGenUtils::readHashCache($unincfile);}
 if(exists $cache->{COMPILER}){$data->{compilecmd}=$cache->{COMPILER}." ".$cache->{CXXFLAGS}." ".$cache->{CXXINCLUDE};}
 else{print STDERR "#WARNING: No compiler found. So script is not going to parse the file for seal plugin macros.\n";}
 
-if(($refbf eq "") && (-f "${dir}/BuildFile"))
-{$refbf="${dir}/BuildFile";}
+if ($refbf eq "")
+{
+  my $bf="${dir}/BuildFile.xml";
+  if(!-f $bf){$bf="${dir}/BuildFile";}
+  if (-f $bf){$refbf=$bf;}
+}
 
 foreach my $f ("EDM_PLUGIN", "SEALPLUGIN", "SEAL_PLUGIN_NAME", "NO_LIB_CHECKING", "GENREFLEX_FAILES_ON_WARNS", "ROOTMAP", "ADD_SUBDIR", "CODEGENPATH")
 {$data->{sflags}{$f}=1;}
@@ -356,7 +364,7 @@ if($isPackage || ($prodtype eq "library"))
       $f=&SCRAMGenUtils::fixPath("${d}/${f}");
       if($f=~/$dictclasses/)
       {
-        $plugin=-1;$data->{deps}{src}{rootrflx}=1;$ccfiles++;
+        $plugin=-1;$data->{deps}{src}{rootrflx}=1;$data->{deps}{src}{rootrflx}=1;$ccfiles++;
 	my $found=0;
 	foreach my $f1 (@files){if($f1 eq $f){$found=1;last;}}
 	if(!$found){push @files,$f;}
@@ -471,14 +479,14 @@ foreach my $f (@{$data->{bfflags}})
 
 # Extra tool/package to export
 foreach my $x (&commaSepDeps(\@export,$cache,"${prodname}export"))
-{$data->{deps}{src}{$x}=1;$data->{deps}{interface}{$x}=1;}
+{$data->{deps}{src}{$x}=1;}
 
 # Extra tool/package not to export
 foreach my $x (&commaSepDeps(\@nexport,$cache,"${prodname}no-export"))
 {
-  if((exists $data->{deps}{src}{$x}) || (exists $data->{deps}{interface}{$x}))
+  if(exists $data->{deps}{src}{$x})
   {print STDERR "MSG:Removed dependency on \"$x\" due to no-export arguments.\n";}
-  delete $data->{deps}{src}{$x};delete $data->{deps}{interface}{$x};
+  delete $data->{deps}{src}{$x};
 }
 
 # Extra tool/package to use
@@ -504,8 +512,6 @@ foreach my $x (keys %replace)
 
 foreach my $dep (keys %{$data->{deps}{src}})
 {if(exists $data->{replace}{$dep}){delete $data->{deps}{src}{$dep}; $data->{deps}{src}{$data->{replace}{$dep}}=1;}}
-foreach my $dep (keys %{$data->{deps}{interface}})
-{if(exists $data->{replace}{$dep}){delete $data->{deps}{interface}{$dep}; $data->{deps}{interface}{$data->{replace}{$dep}}=1;}}
 
 my $xtools=0;
 foreach my $bt (keys %{$cache->{XBASETOOLS}})
@@ -534,22 +540,34 @@ if((-f $prodfile) && (!-d STDIN))
       }
       elsif((-d "${release}/src/${u}/${pkgsrcdir}") || (-d "${release}/src/${u}/${pkginterfacedir}"))
       {
-	my $nsbfile="${tmprel}/src/${u}/BuildFile";
+	my $nsbfile="${tmprel}/src/${u}/BuildFile.xml";
+	if(!-f $nsbfile){$nsbfile="${tmprel}/src/${u}/BuildFile";}
 	if(!-f $nsbfile)
 	{
 	  my $nbfile="${tmprel}/newBuildFile/src/${u}/BuildFile.auto";
+	  if ($xml){$nbfile="${tmprel}/newBuildFile/src/${u}/BuildFile.xml.auto";}
 	  if(!-f $nbfile)
 	  {
-	    my $cmd="$0 --dir ${release}/src/${u} --buildfile $nbfile";
+	    my $cmd="$0 --dir ${release}/src/${u} --buildfile $nbfile $xml ";
 	    if($configfile ne ""){$cmd.=" --config $configfile";}
 	    if($tmprel ne ""){$cmd.=" --tmprelease $tmprel";}
 	    if($detail){$cmd.=" --detail";}
 	    if($chksym){$cmd.=" --chksym";}
 	    print STDERR "MSG: Running $cmd\n";
 	    system("cd $pwd; $cmd");
-	    if(!-f $nbfile){system("mkdir ${tmprel}/newBuildFile/src/${u}; echo \"<export>\n  <flags DummyFlagToAvoidWarning=0>\n</export>\" > $nbfile");}
+	    if(!-f $nbfile)
+	    {
+	      system("mkdir ${tmprel}/newBuildFile/src/${u}");
+	      if($xml){system("echo \"<export>\n  <flags DummyFlagToAvoidWarning=\"0\">\n</export>\" > $nbfile");}
+	      else{system("echo \"<export>\n  <flags DummyFlagToAvoidWarning=\"0\"/>\n</export>\" > $nbfile");}
+	    }
 	  }
-	  if(!-f $nsbfile){system("mkdir ${tmprel}/src/${u}; cp $nbfile $nsbfile");}
+	  if(!-f $nsbfile)
+	  {
+	    my $nf="BuildFile";
+	    if($xml){$nf="BuildFile.xml";}
+	    system("mkdir ${tmprel}/src/${u}; cp $nbfile ${tmprel}/src/${u}/${nf}");
+	  }
 	}
       }
     }
@@ -578,6 +596,7 @@ if($chksym && ($xtools || $castor))
   $bdir.="/${bname}";
 
   my $bfile="${bdir}/BuildFile";
+  if($xml){$bfile="${bdir}/BuildFile.xml";}
   my $pflagval="";
   if(exists $data->{flags}{NO_LIB_CHECKING}){$pflagval=$data->{flags}{NO_LIB_CHECKING};}
   $data->{flags}{NO_LIB_CHECKING}=1;
@@ -693,7 +712,7 @@ sub process_cxx_file ()
 	      {
 	        if($isPackage)
 	        {
-	          if($file=~/^${filter}\/${pkginterfacedir}\//){$data->{deps}{interface}{$pack}=1;$data->{deps}{src}{$pack}=1;}
+	          if($file=~/^${filter}\/${pkginterfacedir}\//){$data->{deps}{src}{$pack}=1;}
 	          elsif($file=~/^${filter}\/${pkgsrcdir}\//){$data->{deps}{src}{$pack}=1;}
 	        }
 	        else{$data->{deps}{src}{$pack}=1;}
@@ -1000,7 +1019,7 @@ sub safename_pool ()
 sub safename_seal ()
 {return "lcg_".basename(shift);}
 sub safename_coral ()
-{return "lcg_coral_".basename(shift);}
+{return "lcg_".basename(shift);}
 
 sub safename_ignominy ()
 {return &safename_cms1(shift);}
@@ -1065,8 +1084,9 @@ sub pkg_src_cmssw ()
 sub update_project_cache ()
 {
   my $cache=shift;
-  if (!-f "${release}/.SCRAM/${scramarch}/ToolCache.db"){system("cd $release; $SCRAMGenUtils::SCRAM_CMD build -r echo_CXX 2>&1");}
-  my $c=&SCRAMGenUtils::readCache("${release}/.SCRAM/${scramarch}/ToolCache.db");
+  my $cf=&SCRAMGenUtils::fixCacheFileName("${release}/.SCRAM/${scramarch}/ToolCache.db");
+  if (!-f $cf){system("cd $release; $SCRAMGenUtils::SCRAM_CMD build -r echo_CXX 2>&1");}
+  my $c=&SCRAMGenUtils::readCache($cf);
   my %allinc=();
   my $allincstr="";
   my $flags="";
@@ -1265,6 +1285,7 @@ sub usage_msg()
   print "  --plugin             Generate BuildFile with plugin flag in it.\n";
   print "                       NOTE: If package contains classes.h then this flag will not be added.\n";
   print "  --clean              Reset the internal tool cache and start from scratch.\n";
+  print "  --xml                To generate XML-based BuildFiles i.e. BuildFile.xml.auto\n";
   print "  --detail             Run in debug mode i.e. prints more debug output.\n";
   print "  --help               Print this help message.\n\n";
   print "E.g. running something following from your project top level directory\n\n";
