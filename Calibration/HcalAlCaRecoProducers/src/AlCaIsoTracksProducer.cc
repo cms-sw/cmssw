@@ -217,6 +217,7 @@ AlCaIsoTracksProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
    parameters_.useEcal = true;
    parameters_.useHcal = true;
    parameters_.useCalo = false;
+   parameters_.useMuon = false;
    parameters_.dREcal = 0.1;
    parameters_.dRHcal = 1.;
 
