@@ -19,19 +19,21 @@ class TrackSelector {
 	                 const reco::Jet &jet) const;
 
     private:
-	unsigned int	minPixelHits;
-	unsigned int	minTotalHits;
-	double		minPt;
-	double		maxNormChi2;
-	double		maxJetDeltaR;
-	double		sip2dValMin;
-	double		sip2dValMax;
-	double		sip2dSigMin;
-	double		sip2dSigMax;
-	double		sip3dValMin;
-	double		sip3dValMax;
-	double		sip3dSigMin;
-	double		sip3dSigMax;
+	bool				selectQuality;
+	reco::TrackBase::TrackQuality	quality;
+	unsigned int			minPixelHits;
+	unsigned int			minTotalHits;
+	double				minPt;
+	double				maxNormChi2;
+	double				maxJetDeltaR;
+	double				sip2dValMin;
+	double				sip2dValMax;
+	double				sip2dSigMin;
+	double				sip2dSigMax;
+	double				sip3dValMin;
+	double				sip3dValMax;
+	double				sip3dSigMin;
+	double				sip3dSigMax;
 };
 
 } // namespace reco

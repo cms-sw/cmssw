@@ -26,6 +26,16 @@ TrackSelector::TrackSelector(const edm::ParameterSet &params) :
 	sip3dSigMin(params.getParameter<double>("sip3dSigMin")),
 	sip3dSigMax(params.getParameter<double>("sip3dSigMax"))
 {
+	std::string qualityClass =
+			params.getParameter<std::string>("qualityClass");
+	if (qualityClass == "any" || qualityClass == "Any" ||
+	    qualityClass == "ANY" || qualityClass == "") {
+		selectQuality = false;
+		quality = reco::TrackBase::undefQuality;
+	} else {
+		selectQuality = true;
+		quality = reco::TrackBase::qualityByName(qualityClass);
+	}
 }
 
 bool
@@ -33,7 +43,8 @@ TrackSelector::operator () (const Track &track,
                             const TrackIPTagInfo::TrackIPData &ipData,
                             const Jet &jet) const
 {
-	return (minPixelHits <= 0 ||
+	return (!selectQuality || track.quality(quality)) &&
+	       (minPixelHits <= 0 ||
 	        track.hitPattern().numberOfValidPixelHits() >= minPixelHits) &&
 	       (minTotalHits <= 0 ||
 	        track.hitPattern().numberOfValidHits() >= minPixelHits) &&
