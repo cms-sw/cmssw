@@ -22,6 +22,10 @@ def pythonNameFromCfgName(cfgName):
 
 def prepareReplaceDict(line, comment, replaceDict):
     """take a line and a corresponding comment and prepare the replaceDict such that it can be found again in the python version """
+    allKeywords = ['module','int32','vint32','uint32', 'vuint32','double','vdouble','InputTag', 'VInputTag', 'PSet', 'VPSet', 'string', 'bool', 'vbool', 'path', 'sequence', 'schedule', 'endpath', 'es_source', 'es_module', 'block', 'FileInPath']
+    unnamedKeywords = ['es_source', 'es_module']
+
+
     words = line.lstrip().split()
     # at least <keyword> <label> = "
     if len(words) > 1:
@@ -153,10 +157,10 @@ def loopfile(cfgFileName):
    newPyString = modifyPythonVersion(pyString, comments)
    pyFile.close()
 
-   pyOutFile = file(pyFileName,"w")
-   pyOutFile.write(newPyString)
-   print "Wrote", pyFileName
-   pyOutFile.close()
+   #pyOutFile = file(pyFileName,"w")
+   #pyOutFile.write(newPyString)
+   #print "Wrote", pyFileName
+   #pyOutFile.close()
  
 #out = file("foo_cfi.py","w")
 #out.write(configString)
