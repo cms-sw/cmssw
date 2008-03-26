@@ -154,17 +154,26 @@ AlignmentGlobalTrackSelector::findMuons(const Tracks& tracks, const edm::Event& 
 
   //fill globalMuons with muons
   Handle<reco::MuonCollection> muons;
-  iEvent.getByLabel(theMuonSource  ,muons);
-  if(muons.isValid()){
-    for(reco::MuonCollection::const_iterator itMuon = muons->begin(); itMuon != muons->end() ; ++itMuon) {
-	globalMuons.push_back((*itMuon).get<reco::TrackRef>().get());
+  iEvent.getByLabel(theMuonSource, muons);
+  if (muons.isValid()) {
+    for(reco::MuonCollection::const_iterator itMuon = muons->begin(); itMuon != muons->end();
+	++itMuon) {
+      const reco::Track* muonTrack = (*itMuon).get<reco::TrackRef>().get();
+      if (!muonTrack) {
+	LogDebug("Alignment") << "@SUB=AlignmentGlobalTrackSelector::findMuons"
+			      << "Found muon without track: Standalone Muon!";
+      } else {
+	globalMuons.push_back(muonTrack);
+      }
     }
-  }else  LogError("Alignment")<<"@SUB=AlignmentGlobalTrackSelector::findMuons"
-						 <<">  could not optain mounCollection!";
-  //  LogDebug("Alignment")<<">  globalMuons";  printTracks(globalMuons);
-  result = matchTracks(tracks,globalMuons);
+  } else {
+    LogError("Alignment") << "@SUB=AlignmentGlobalTrackSelector::findMuons"
+			  <<">  could not optain mounCollection!";
+  }
+
+  result = this->matchTracks(tracks, globalMuons);
   
-  if(static_cast<int>(result.size()) < theMinGlobalMuonCount) result.clear();
+  if (static_cast<int>(result.size()) < theMinGlobalMuonCount) result.clear();
 
   return result;
 }
