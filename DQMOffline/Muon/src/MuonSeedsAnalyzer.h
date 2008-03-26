@@ -6,8 +6,8 @@
  *
  *  DQM monitoring source for muon track seeds
  *
- *  $Date: 2008/03/25 17:19:26 $
- *  $Revision: 1.1 $
+ *  $Date: 2008/03/26 11:52:05 $
+ *  $Revision: 1.2 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -53,7 +53,7 @@ class MuonSeedsAnalyzer : public MuonAnalyzerBase {
   DaqMonitorBEInterface * dbe;
   edm::ParameterSet parameters;
   // Switch for verbosity
-  bool debug;
+  std::string metname;
   
   //histo binning parameters
   int seedHitBin;

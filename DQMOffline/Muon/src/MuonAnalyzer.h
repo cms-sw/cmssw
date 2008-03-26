@@ -6,8 +6,8 @@
  *
  *  DQM muon analysis monitoring
  *
- *  $Date: 2008/03/25 17:20:42 $
- *  $Revision: 1.2 $
+ *  $Date: 2008/03/26 11:53:05 $
+ *  $Revision: 1.3 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -51,6 +51,8 @@ class MuonAnalyzer : public edm::EDAnalyzer {
   DaqMonitorBEInterface * dbe;
   edm::ParameterSet parameters;
   MuonServiceProxy *theService;
+  // Switch for verbosity
+  std::string metname;
 
   // STA Label
   edm::InputTag theSTACollectionLabel;

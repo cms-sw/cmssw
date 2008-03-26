@@ -2,8 +2,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/03/18 11:59:59 $
- *  $Revision: 1.1 $
+ *  $Date: 2008/03/26 11:51:27 $
+ *  $Revision: 1.2 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -26,8 +26,7 @@ MuonEnergyDepositAnalyzer::MuonEnergyDepositAnalyzer(const edm::ParameterSet& pS
 
   cout<<"[MuonEnergyDepositAnalyzer] Constructor called!"<<endl;
   parameters = pSet;
-  // Set the verbosity
-  debug = parameters.getParameter<bool>("debug");
+
 }
 
 
@@ -36,8 +35,9 @@ MuonEnergyDepositAnalyzer::~MuonEnergyDepositAnalyzer() { }
 
 void MuonEnergyDepositAnalyzer::beginJob(edm::EventSetup const& iSetup, DaqMonitorBEInterface * dbe) {
 
-  cout<<"[MuonEnergyDepositAnalyzer] Parameters initialization"<<endl;
-  metname = "muEnergyDeposit";
+  metname = "muEnergyDepositAnalyzer";
+
+  LogTrace(metname)<<"[MuonEnergyDepositAnalyzer] Parameters initialization";
   dbe->setCurrentFolder("Muons/MuonEnergyDepositAnalyzer");
   std::string AlgoName = parameters.getParameter<std::string>("AlgoName");
 
@@ -83,33 +83,33 @@ void MuonEnergyDepositAnalyzer::beginJob(edm::EventSetup const& iSetup, DaqMonit
 
 void MuonEnergyDepositAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup, const reco::Muon& recoMu) {
 
-  cout<<"[MuonEnergyDepositAnalyzer] Filling the histos"<<endl;
+  LogTrace(metname)<<"[MuonEnergyDepositAnalyzer] Filling the histos";
 
   // get all the mu energy deposits
   reco::MuonEnergy muEnergy = recoMu.getCalEnergy();
   
   // energy deposited in ECAL
-  cout << "Energy deposited in ECAL: "<<muEnergy.em;
+  LogTrace(metname) << "Energy deposited in ECAL: "<<muEnergy.em;
   ecalDepEnergy->Fill(muEnergy.em);
   
   // energy deposited in HCAL
-  cout << "Energy deposited in ECAL: "<<muEnergy.had;
+  LogTrace(metname) << "Energy deposited in ECAL: "<<muEnergy.had;
   hcalDepEnergy->Fill(muEnergy.had);
   
   // energy deposited in HO
-  cout << "Energy deposited in ECAL: "<<muEnergy.ho;
+  LogTrace(metname) << "Energy deposited in ECAL: "<<muEnergy.ho;
   hoDepEnergy->Fill(muEnergy.ho);
   
   // energy deposited in ECAL in 3*3 towers
-  cout << "Energy deposited in ECAL: "<<muEnergy.emS9;
+  LogTrace(metname) << "Energy deposited in ECAL: "<<muEnergy.emS9;
   ecalS9DepEnergy->Fill(muEnergy.emS9);
      
   // energy deposited in HCAL in 3*3 crystals
-  cout << "Energy deposited in ECAL: "<<muEnergy.hadS9;
+  LogTrace(metname) << "Energy deposited in ECAL: "<<muEnergy.hadS9;
   hcalS9DepEnergy->Fill(muEnergy.hadS9);
   
   // energy deposited in HO in 3*3 crystals
-  cout << "Energy deposited in ECAL: "<<muEnergy.hoS9;
+  LogTrace(metname) << "Energy deposited in ECAL: "<<muEnergy.hoS9;
   hoS9DepEnergy->Fill(muEnergy.hoS9);
   
 }

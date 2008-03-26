@@ -2,8 +2,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/03/25 17:20:25 $
- *  $Revision: 1.2 $
+ *  $Date: 2008/03/26 11:53:02 $
+ *  $Revision: 1.3 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -55,8 +55,9 @@ MuonAnalyzer::~MuonAnalyzer() { }
 
 void MuonAnalyzer::beginJob(edm::EventSetup const& iSetup) {
 
-  cout<<"[MuonAnalyzer] Parameters initialization"<<endl;
+  metname = "muonAnalyzer";
 
+  LogTrace(metname)<<"[MuonAnalyzer] Parameters initialization";
   dbe = edm::Service<DaqMonitorBEInterface>().operator->();
   dbe->setVerbose(1);
 
@@ -68,7 +69,7 @@ void MuonAnalyzer::beginJob(edm::EventSetup const& iSetup) {
 
 void MuonAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
 
-  cout<<"[MuonAnalyzer] Analysis of event # "<<endl;
+  LogTrace(metname)<<"[MuonAnalyzer] Analysis of event # ";
 
   theService->update(iSetup);
 
@@ -77,7 +78,7 @@ void MuonAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
    iEvent.getByLabel(theSTACollectionLabel,muons);
 
    for (reco::MuonCollection::const_iterator recoMu = muons->begin(); recoMu!=muons->end(); ++recoMu){
-     cout<<"[MuonAnalyzer] Call to the muon energy analyzer"<<endl;
+     LogTrace(metname)<<"[MuonAnalyzer] Call to the muon energy analyzer";
      theMuEnergyAnalyzer->analyze(iEvent, iSetup, *recoMu);
    }
 
@@ -87,7 +88,7 @@ void MuonAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
    iEvent.getByLabel(theSeedsCollectionLabel, seeds);
 
    for(TrajectorySeedCollection::const_iterator seed = seeds->begin(); seed != seeds->end(); ++seed){
-     cout<<"[MuonAnalyzer] Call to the seeds analyzer"<<endl;
+     LogTrace(metname)<<"[MuonAnalyzer] Call to the seeds analyzer";
      theSeedsAnalyzer->analyze(iEvent, iSetup, *seed);
    }
 
@@ -95,7 +96,7 @@ void MuonAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
 
 
 void MuonAnalyzer::endJob(void) {
-  cout<<"[MuonAnalyzer] Saving the histos"<<endl;
+  LogTrace(metname)<<"[MuonAnalyzer] Saving the histos";
   dbe->showDirStructure();
   bool outputMEsInRootFile = parameters.getParameter<bool>("OutputMEsInRootFile");
   std::string outputFileName = parameters.getParameter<std::string>("OutputFileName");

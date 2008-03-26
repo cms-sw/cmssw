@@ -2,7 +2,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/03/25 18:37:05 $
+ *  $Date: 2008/03/25
+ 18:37:05 $
  *  $Revision: 1.2 $
  *  \author G. Mila - INFN Torino
  */
@@ -24,6 +25,7 @@
 #include "TrackingTools/DetLayers/interface/DetLayer.h"
 #include "Geometry/CommonDetUnit/interface/GeomDet.h"
 
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include <string>
 using namespace std;
@@ -35,9 +37,7 @@ MuonSeedsAnalyzer::MuonSeedsAnalyzer(const edm::ParameterSet& pSet, MuonServiceP
 
   cout<<"[MuonSeedsAnalyzer] Constructor called!"<<endl;
   parameters = pSet;
-  // Set the verbosity
-  debug = parameters.getParameter<bool>("debug");
-
+ 
 }
 
 
@@ -46,7 +46,9 @@ MuonSeedsAnalyzer::~MuonSeedsAnalyzer() { }
 
 void MuonSeedsAnalyzer::beginJob(edm::EventSetup const& iSetup, DaqMonitorBEInterface * dbe) {
 
-  cout<<"[MuonSeedsAnalyzer] Parameters initialization"<<endl;
+  metname = "seedsAnalyzer";
+
+  LogTrace(metname)<<"[MuonSeedsAnalyzer] Parameters initialization";
   dbe->setCurrentFolder("Muons/MuonSeedsAnalyzer");
 
   seedHitBin = parameters.getParameter<int>("RecHitBin");
@@ -164,53 +166,68 @@ void MuonSeedsAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup&
   AlgebraicSymMatrix66 errors = seedTSOS.cartesianError().matrix();
   double partialPterror = errors(3,3)*pow(seedTSOS.globalMomentum().x(),2) + errors(4,4)*pow(seedTSOS.globalMomentum().y(),2);
 
-  cout<<"[MuonSeedAnalyzer] Filling the histos"<<endl;
+  LogTrace(metname)<<"[MuonSeedAnalyzer] Filling the histos";
 
   // nhits
+  LogTrace(metname)<<"Number od recHits per seed: "<<seed.nHits();
   NumberOfRecHitsPerSeed->Fill(seed.nHits());
   
   // pt
+  LogTrace(metname)<<"seed momentum: "<<seedTSOS.globalMomentum().perp();
   seedPt->Fill(seedTSOS.globalMomentum().perp());
 
   // px
+  LogTrace(metname)<<"seed px: "<<seedTSOS.globalMomentum().x();
   seedPx->Fill(seedTSOS.globalMomentum().x());
 
   // py
+  LogTrace(metname)<<"seed py: "<<seedTSOS.globalMomentum().y();
   seedPy->Fill(seedTSOS.globalMomentum().y());
 
   // pz 
+  LogTrace(metname)<<"seed pz: "<<seedTSOS.globalMomentum().z();
   seedPz->Fill(seedTSOS.globalMomentum().z());
 
   // phi
+  LogTrace(metname)<<"seed phi: "<<seedTSOS.globalMomentum().phi();
   seedPhi->Fill(seedTSOS.globalMomentum().phi());
 
   // theta
+  LogTrace(metname)<<"seed theta: "<<seedTSOS.globalMomentum().theta();
   seedTheta->Fill(seedTSOS.globalMomentum().theta());
 
   // eta
+  LogTrace(metname)<<"seed eta: "<<seedTSOS.globalMomentum().eta();
   seedEta->Fill(seedTSOS.globalMomentum().eta());
 
   // pt err
+  LogTrace(metname)<<"seed pt error: "<<sqrt(partialPterror)/seedTSOS.globalMomentum().perp();
   seedPtErr->Fill(sqrt(partialPterror)/seedTSOS.globalMomentum().perp());
 
   // px err
+  LogTrace(metname)<<"seed px error: "<<sqrt(errors(3,3))/seedTSOS.globalMomentum().x();
   seedPxErr->Fill(sqrt(errors(3,3))/seedTSOS.globalMomentum().x());
-
+  
   // py err
+  LogTrace(metname)<<"seed py error: "<<sqrt(errors(4,4))/seedTSOS.globalMomentum().y();
   seedPyErr->Fill(sqrt(errors(4,4))/seedTSOS.globalMomentum().y());
 
   // pz err
+  LogTrace(metname)<<"seed pz error: "<<sqrt(errors(5,5))/seedTSOS.globalMomentum().z();
   seedPzErr->Fill(sqrt(errors(5,5))/seedTSOS.globalMomentum().z());
 
   // p err
+  LogTrace(metname)<<"seed p error: "<<sqrt(partialPterror+errors(5,5)*pow(seedTSOS.globalMomentum().z(),2))/seedTSOS.globalMomentum().mag();
   seedPErr->Fill(sqrt(partialPterror+errors(5,5)*pow(seedTSOS.globalMomentum().z(),2))/seedTSOS.globalMomentum().mag());
 
   // phi err
+  LogTrace(metname)<<"seed phi error: "<<sqrt(seedTSOS.curvilinearError().matrix()(2,2));
   seedPhiErr->Fill(sqrt(seedTSOS.curvilinearError().matrix()(2,2)));
 
   // eta err
+  LogTrace(metname)<<"seed eta error: "<<sqrt(seedTSOS.curvilinearError().matrix()(1,1))*abs(sin(seedTSOS.globalMomentum().theta()));
   seedEtaErr->Fill(sqrt(seedTSOS.curvilinearError().matrix()(1,1))*abs(sin(seedTSOS.globalMomentum().theta())));
-
+  
 }
 
 

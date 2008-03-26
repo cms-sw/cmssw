@@ -6,8 +6,8 @@
  *
  *  DQM monitoring source for muon energy deposits
  *
- *  $Date: 2008/03/18 12:00:14 $
- *  $Revision: 1.1 $
+ *  $Date: 2008/03/26 11:51:30 $
+ *  $Revision: 1.2 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -48,7 +48,6 @@ class MuonEnergyDepositAnalyzer : public MuonAnalyzerBase {
   DaqMonitorBEInterface * dbe;
   edm::ParameterSet parameters;
   // Switch for verbosity
-  bool debug;
   std::string metname;
   // STA Label
   edm::InputTag theSTACollectionLabel;
