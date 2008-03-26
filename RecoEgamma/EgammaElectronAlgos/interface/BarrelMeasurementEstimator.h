@@ -52,10 +52,7 @@ public:
   // zero value indicates incompatible ts - hit pair
   virtual std::pair<bool,double> estimate( const TrajectoryStateOnSurface& ts, 
 			   const TransientTrackingRecHit& hit) const;
-
-  virtual std::pair<bool,double> estimate( const TrajectoryStateOnSurface& ts, 
-	                   GlobalPoint &gp) const;
-
+				      //			   const RecHit& hit) const;
   virtual bool estimate( const TrajectoryStateOnSurface& ts, 
 			 const BoundPlane& plane) const;
 
@@ -63,9 +60,8 @@ public:
     {
       return new BarrelMeasurementEstimator(*this);
     }
-    
-  MeasurementEstimator::Local2DVector 
-  maximalLocalDisplacement( const TrajectoryStateOnSurface& ts,
+MeasurementEstimator::Local2DVector 
+maximalLocalDisplacement( const TrajectoryStateOnSurface& ts,
 			  const BoundPlane& plane) const;
 
 private:

@@ -28,15 +28,12 @@
 // zero value indicates incompatible ts - hit pair
 std::pair<bool,double> BarrelMeasurementEstimator::estimate( const TrajectoryStateOnSurface& ts, 
 							     const TransientTrackingRecHit& hit) const {
-  LocalPoint lp = hit.localPosition();
-  GlobalPoint gp = hit.det()->surface().toGlobal( lp);
-  return this->estimate(ts,gp);
-}
-  
-//usable in case we have no TransientTrackingRecHit
-std::pair<bool,double> BarrelMeasurementEstimator::estimate( const TrajectoryStateOnSurface& ts, 
-					   GlobalPoint &gp) const {
+
+
   float tsPhi = ts.globalParameters().position().phi();
+  LocalPoint lp = hit.localPosition();
+  GlobalPoint gp = hit.det()->surface().toGlobal( lp); 
+  
   float myR = gp.perp();
   float myZ = gp.z();
   
