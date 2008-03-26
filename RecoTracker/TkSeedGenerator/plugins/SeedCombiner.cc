@@ -3,6 +3,7 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "DataFormats/Common/interface/Handle.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
 
@@ -25,8 +26,8 @@ using namespace edm;
 SeedCombiner::SeedCombiner(
     const edm::ParameterSet& cfg) 
   : 
-  SeedPairCollectionName_(cfg.getUntrackedParameter<std::string>("PairCollection")),
-  SeedTripletCollectionName_(cfg.getUntrackedParameter<std::string>("TripletCollection"))
+  seedPairCollectionName_(cfg.getParameter<InputTag>("PairCollection")),
+  seedTripletCollectionName_(cfg.getParameter<InputTag>("TripletCollection"))
 {
     produces<TrajectorySeedCollection>();
 }
@@ -45,18 +46,18 @@ void SeedCombiner::produce(edm::Event& ev, const edm::EventSetup& es)
 {
   std::auto_ptr<TrajectorySeedCollection> result(new TrajectorySeedCollection());
 
-   Handle<TrajectorySeedCollection > SeedPairList;
-   Handle<TrajectorySeedCollection > SeedTripletList;
+   Handle<TrajectorySeedCollection > seedPairList;
+   Handle<TrajectorySeedCollection > seedTripletList;
 
-   ev.getByLabel(SeedPairCollectionName_,SeedPairList);
-   ev.getByLabel(SeedTripletCollectionName_,SeedTripletList);
+   ev.getByLabel(seedPairCollectionName_,seedPairList);
+   ev.getByLabel(seedTripletCollectionName_,seedTripletList);
 
-   //std::cout << "=== collection triplets: " << SeedTripletList->size() << std::endl;
-   //std::cout << "=== collection pairs: " << SeedPairList->size() << std::endl;
+   //std::cout << "=== collection triplets: " << seedTripletList->size() << std::endl;
+   //std::cout << "=== collection pairs: " << seedPairList->size() << std::endl;
 
-   result->reserve( SeedTripletList->size() + SeedPairList->size() );
-   result->insert(result->end(), SeedTripletList->begin(), SeedTripletList->end() );
-   result->insert(result->end(), SeedPairList->begin()   , SeedPairList->end()    );
+   result->reserve( seedTripletList->size() + seedPairList->size() );
+   result->insert(result->end(), seedTripletList->begin(), seedTripletList->end() );
+   result->insert(result->end(), seedPairList->begin()   , seedPairList->end()    );
 
    ev.put(result);
 }

@@ -30,7 +30,7 @@ public:
 
     theUseFoundVertices = regionPSet.getParameter<bool>("useFoundVertices");
     theUseFixedError    = regionPSet.getParameter<bool>("useFixedError");
-    vertexCollName      = regionPSet.getParameter<std::string>("VertexCollection");
+    vertexCollName      = regionPSet.getParameter<edm::InputTag>("VertexCollection");
   }   
 
   virtual ~GlobalTrackingRegionWithVerticesProducer(){}
@@ -96,7 +96,7 @@ private:
   
   bool theUseFoundVertices;
   bool theUseFixedError;
-  std::string vertexCollName;
+  edm::InputTag vertexCollName;
 
 
 };
