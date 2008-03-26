@@ -8,7 +8,7 @@
 //
 // Original Author:  Jim Pivarski
 //         Created:  Mon Mar 10 16:37:40 CDT 2008
-// $Id: MuonAlignmentInputXML.cc,v 1.2 2008/03/20 21:39:26 pivarski Exp $
+// $Id: MuonAlignmentInputXML.cc,v 1.3 2008/03/26 22:00:34 pivarski Exp $
 //
 
 // system include files
@@ -402,7 +402,7 @@ Alignable *MuonAlignmentInputXML::getNode(std::map<unsigned int, Alignable*> &al
    else if (XMLString::equals(node->getNodeName(), str_DTWheel)) return getDTnode(align::AlignableDTWheel, alignableNavigator, node);
    else if (XMLString::equals(node->getNodeName(), str_DTStation)) return getDTnode(align::AlignableDTStation, alignableNavigator, node);
    else if (XMLString::equals(node->getNodeName(), str_DTChamber)) return getDTnode(align::AlignableDTChamber, alignableNavigator, node);
-   else if (XMLString::equals(node->getNodeName(), str_DTSuperLayer)) return getDTnode(align::AlignableDet, alignableNavigator, node);
+   else if (XMLString::equals(node->getNodeName(), str_DTSuperLayer)) return getDTnode(align::AlignableDTSuperLayer, alignableNavigator, node);
    else if (XMLString::equals(node->getNodeName(), str_DTLayer)) return getDTnode(align::AlignableDetUnit, alignableNavigator, node);
    else if (XMLString::equals(node->getNodeName(), str_CSCEndcap)) return getCSCnode(align::AlignableCSCEndcap, alignableNavigator, node);
    else if (XMLString::equals(node->getNodeName(), str_CSCStation)) return getCSCnode(align::AlignableCSCStation, alignableNavigator, node);
@@ -468,7 +468,7 @@ Alignable *MuonAlignmentInputXML::getDTnode(align::StructureType structureType, 
 		     throw cms::Exception("XMLException") << "Value of \"superlayer\" must be an integer" << std::endl;
 		  }
 
-		  if (structureType != align::AlignableDet) {
+		  if (structureType != align::AlignableDTSuperLayer) {
 		     DOMAttr *node_layer = node->getAttributeNode(str_layer);
 		     if (node_layer == NULL) throw cms::Exception("XMLException") << "DT node is missing required \"layer\" attribute" << std::endl;
 		     try {
