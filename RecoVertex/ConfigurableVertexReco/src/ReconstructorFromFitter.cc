@@ -10,17 +10,13 @@ ReconstructorFromFitter::ReconstructorFromFitter ( const AbstractConfFitter & f 
 vector < TransientVertex > ReconstructorFromFitter::vertices
   ( const vector < reco::TransientTrack > & t )  const
 {
-  int verbose=1;
   vector < TransientVertex > ret;
   // cout << "[ReconstructorFromFitter] debug: fitting without bs!" << endl; 
   try {
     CachingVertex<5> tmp = theFitter->vertex ( t );
-    ret.push_back ( tmp );
-  } catch ( exception & e ) {
-    if ( verbose )
-    {
-      edm::LogWarning("ReconstructorFromFitter") << "exception caught: " << e.what();
-    }
+    if ( tmp.isValid() ) ret.push_back ( tmp );
+  } catch ( VertexException & e ) {
+    edm::LogWarning("ReconstructorFromFitter") << "exception caught: " << e.what();
   }
   return ret;
 }
@@ -28,7 +24,6 @@ vector < TransientVertex > ReconstructorFromFitter::vertices
 vector < TransientVertex > ReconstructorFromFitter::vertices
   ( const vector < reco::TransientTrack > & t, const reco::BeamSpot & s )  const
 {
-  int verbose=1;
   vector < TransientVertex > ret;
   try {
     /*
@@ -36,12 +31,9 @@ vector < TransientVertex > ReconstructorFromFitter::vertices
          << " sz=" << s.sigmaZ() << endl;
          */
     CachingVertex<5> tmp = theFitter->vertex ( t, s );
-    ret.push_back ( tmp );
-  } catch ( exception & e ) {
-    if ( verbose )
-    {
-      edm::LogWarning("ReconstructorFromFitter") << "exception caught: " << e.what();
-    }
+    if ( tmp.isValid() ) ret.push_back ( tmp );
+  } catch ( VertexException & e ) {
+    edm::LogWarning("ReconstructorFromFitter") << "exception caught: " << e.what();
   }
   return ret;
 }
