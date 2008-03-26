@@ -6,16 +6,30 @@ use Getopt::Long;
 use SCRAMGenUtils;
 $|=1;
 
+#Getopt::Long::config qw(default no_ignore_case require_order);
+if(&GetOptions(
+               "--pack=s",\$package,
+               "--clean",\$clean,
+	       "--vclean",\$vclean,
+	       "--update",\$localupdate,
+               "--help",\$help,
+              ) eq ""){print "ERROR: Wrong arguments.\n"; &usage_msg(); exit 1;}
+
+if (defined $help){&help_msg(0);}
+if(defined $clean){$clean=1;}
+else{$clean=0;}
+if (defined $vclean){$clean=2;}
+if (defined $localupdate){$localupdate=1;}
+else{$localupdate=0;}
+if((!defined $package) || ($package=~/^\s*$/)){$package="";}
+
 my $curdir=cwd();
 my $scriptdir=dirname($0);
-my $package=shift || die "Usage: $0 <Subsystem/Package|clean|vclean> [--update]";
 my $xincargs="";
-my $localupdate=0;
 while(my $arg=shift)
 {
-  if($arg eq "--update"){$localupdate=1;next;}
   if($arg=~/\s/){$arg="\"$arg\"";}
-  $xincargs.=" $arg";
+  #$xincargs.=" $arg";
 }
 
 my $localtop = &SCRAMGenUtils::scramReleaseTop($curdir);
@@ -27,10 +41,11 @@ if($releasetop eq $localtop){die "\"$localtop\" is a release area. Please run th
 my $arch=&SCRAMGenUtils::getScramArch();
 my $tmpdir="${localtop}/tmp/IncludeChecker/${arch}";
 my $src=&SCRAMGenUtils::getFromEnvironmentFile("SCRAM_SOURCEDIR",$localtop) || "src";
+
 $package=~s/^\s*//;$package=~s/\s*$//;
-if($package=~/^(v|)clean$/i)
+if($package eq ""){$package=$src;}
+if($clean)
 {
-  my $vclean=$1;
   my $msg=0;
   foreach my $file (`find ${localtop}/${src} -name "*.original_file_wo_incchk_changes" -type f`)
   {
@@ -43,13 +58,11 @@ if($package=~/^(v|)clean$/i)
   }
   if (-d $tmpdir)
   {
-    if($vclean){system("rm -rf $tmpdir");}
+    if($clean>1){system("rm -rf $tmpdir");}
     else{foreach my $d (&SCRAMGenUtils::readDir($tmpdir)){if($d!~/^(inccopy|backup)$/){system("rm -rf ${tmpdir}/${d}");}}}
-    print "Tmp area \"$tmpdir\" cleaned up.\n";
   }
   exit 0;
 }
-
 if (!-d $package){$package="${src}/${package}";}
 if(-d $package)
 {
@@ -57,6 +70,7 @@ if(-d $package)
   if($d!~/^\//){$d="${curdir}/${package}";}
   $d=&SCRAMGenUtils::fixPath($d);
   if($d=~/^$localtop\/(${src}\/*.*)$/){$package=$1;}
+  else{$package="";}
 }
 if($package eq ""){die "Please use a valid Subsystem/Package name.\n  Usage: $0 <Subsystem/Package|clean>";}
 if(!-d "${localtop}/${package}")
@@ -322,4 +336,31 @@ sub updateMapping ()
   }
   close($refi); close($refo);
   system("mv ${file}.new $file");
+}
+
+sub usage_msg ()
+{
+  my $f=basename($0);
+  print "\nUsage: $f [--pack <pack>] [--update] [--clean] [--vclean] [--help]\n\n";
+}
+
+sub help_msg ()
+{
+  &usage_msg ();
+  print " --pack <pack>\n",
+        "          <pack> could have following values:\n",
+	"            <subsystem> e.g. FWCore or src/FWCore.\n",
+	"            <package>  e.g FWCore/Framework OR src/FWCore/Framework.\n",
+	"            By default it runs for all sub-system(s) available under\n",
+	"            your src directory.\n",
+	" --clean  To cleanup preveious modifications made by include checker.\n",
+	" --vclean Same as clean but it also deletes the copy external includes.\n",
+	" --update To remove the include checker comments from the modified files\n",
+	"          in your src directory.\n",
+	" --help   To print this help message.\n\n";
+  print "It is a wrapper script to run includechecker. It automatically creates\n",
+        "configuration and runs inlcudechecker. It can also clean the newly\n",
+	"modified files (--update) by removing the include checker comments.\n",
+	"NOTE: You need to run this from a user developer area.\n";
+  exit shift;
 }
