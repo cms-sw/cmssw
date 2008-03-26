@@ -1,4 +1,4 @@
-// Last commit: $Id: SiStripConfigDb.h,v 1.44 2008/03/06 17:42:45 delaer Exp $
+// Last commit: $Id: SiStripConfigDb.h,v 1.45 2008/03/17 18:57:25 bainbrid Exp $
 
 #ifndef OnlineDB_SiStripConfigDb_SiStripConfigDb_h
 #define OnlineDB_SiStripConfigDb_SiStripConfigDb_h
@@ -22,7 +22,14 @@
 #include <string>
 #include <map>
 
-//#define USING_NEW_DATABASE_MODEL
+#define USING_NEW_DATABASE_MODEL
+#define USING_DATABASE_CACHE
+
+#ifdef USING_DATABASE_CACHE
+#include "DbClient.h"
+#else
+class DbClient;
+#endif
 
 /*
   - Remaining work:
@@ -159,6 +166,8 @@ class SiStripConfigDb {
     std::string passwd_;
     std::string path_;
     std::string partition_; 
+    bool usingDbCache_;
+    std::string sharedMemory_;
     uint32_t runNumber_;
     uint32_t cabMajor_;
     uint32_t cabMinor_;
@@ -237,7 +246,7 @@ class SiStripConfigDb {
 
   // Utility and tests
   friend class PopulateConfigDb;
-  friend class testDatabaseService;
+  friend class testSiStripConfigDb;
 
  protected:
   
@@ -259,6 +268,9 @@ class SiStripConfigDb {
   
   /** Returns pointer to DeviceFactory API, with check if NULL. */
   DeviceFactory* const deviceFactory( std::string method_name = "" ) const;
+
+  /** Returns pointer to DeviceFactory API, with check if NULL. */
+  DbClient* const databaseCache( std::string method_name = "" ) const;
   
 
   // ---------- FEC / Front-End devices ---------- 
@@ -379,6 +391,9 @@ class SiStripConfigDb {
   
   /** */
   void usingDatabase();
+
+  /** */
+  void usingDatabaseCache();
   
   /** */
   void usingXmlFiles();
@@ -399,6 +414,9 @@ class SiStripConfigDb {
   
   /** Pointer to the DeviceFactory API. */
   DeviceFactory* factory_; 
+
+  /** Pointer to the DbClient class. */
+  DbClient* dbCache_; 
 
   /** Instance of struct that holds all DB connection parameters. */
   DbParams dbParams_;
