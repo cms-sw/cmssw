@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2007/05/31 22:17:24 $
- *  $Revision: 1.9 $
+ *  $Date: 2008/02/06 17:09:00 $
+ *  $Revision: 1.11 $
  *  \author G. Bruno  - CERN, EP Division
  */
 #include "DataFormats/FEDRawData/interface/FEDNumbering.h"
@@ -15,6 +15,17 @@ const int FEDNumbering::MAXSiPixelFEDID = 39;
 const int FEDNumbering::MINSiStripFEDID = 50;
 const int FEDNumbering::MAXSiStripFEDID = 489;
 
+const int FEDNumbering::MINPreShowerFEDID = 520;
+const int FEDNumbering::MAXPreShowerFEDID = 575;
+
+const int FEDNumbering::MINECALFEDID = 600;
+const int FEDNumbering::MAXECALFEDID = 670;
+  
+const int FEDNumbering::MINHCALFEDID = 700;
+const int FEDNumbering::MAXHCALFEDID = 731;
+
+const int FEDNumbering::MINLUMISCALERSFEDID = 735;
+const int FEDNumbering::MAXLUMISCALERSFEDID = 735;
 
 const int FEDNumbering::MINCSCFEDID = 750;
 const int FEDNumbering::MAXCSCFEDID = 757;  
@@ -28,17 +39,6 @@ const int FEDNumbering::MAXDTTFFEDID = 780;
   
 const int FEDNumbering::MINRPCFEDID = 790;
 const int FEDNumbering::MAXRPCFEDID = 795;
-
-
-const int FEDNumbering::MINPreShowerFEDID = 550;
-const int FEDNumbering::MAXPreShowerFEDID = 596;
-
-const int FEDNumbering::MINECALFEDID = 600;
-const int FEDNumbering::MAXECALFEDID = 670;
-  
-const int FEDNumbering::MINHCALFEDID = 700;
-const int FEDNumbering::MAXHCALFEDID = 731;
-
   
 const int FEDNumbering::MINTriggerGTPFEDID = 812;
 const int FEDNumbering::MAXTriggerGTPFEDID = 813;
@@ -47,9 +47,8 @@ const int FEDNumbering::MAXTriggerEGTPFEDID = 815;
 const int FEDNumbering::MINTriggerGCTFEDID = 745;
 const int FEDNumbering::MAXTriggerGCTFEDID = 749;
 
-
 const int FEDNumbering::MINTriggerLTCFEDID = 816;
-const int FEDNumbering::MAXTriggerLTCFEDID = 823;
+const int FEDNumbering::MAXTriggerLTCFEDID = 824;
 const int FEDNumbering::MINTriggerLTCmtccFEDID = 815;
 const int FEDNumbering::MAXTriggerLTCmtccFEDID = 815;
 const int FEDNumbering::MINTriggerLTCTriggerFEDID = 816;
@@ -78,7 +77,7 @@ const int FEDNumbering::MAXCSCContingencyFEDID = 887;
 const int FEDNumbering::MINCSCTFSPFEDID = 890;
 const int FEDNumbering::MAXCSCTFSPFEDID = 901;  
 
-const int FEDNumbering::MINDAQeFEDFEDID = 900;
+const int FEDNumbering::MINDAQeFEDFEDID = 902;
 const int FEDNumbering::MAXDAQeFEDFEDID = 931;  
 
 
@@ -154,6 +153,12 @@ pair<int,int> FEDNumbering::getEcalFEDIds(){
 pair<int,int> FEDNumbering::getHcalFEDIds(){
 
   return pair<int,int> (MINHCALFEDID, MAXHCALFEDID);
+
+}
+
+pair<int,int> FEDNumbering::getLumiScalersFEDIds(){
+
+  return pair<int,int> (MINLUMISCALERSFEDID, MAXLUMISCALERSFEDID);
 
 }
 
@@ -299,6 +304,11 @@ void FEDNumbering::init()
     {
       in_[i] = true;
       from_[i] = "Hcal";
+    }
+  for(i=getLumiScalersFEDIds().first; i<=getLumiScalersFEDIds().second; i++)
+    {
+      in_[i] = true;
+      from_[i] = "LumiScalers";
     }
   for(i=getCSCFEDIds().first; i<=getCSCFEDIds().second; i++)
     {

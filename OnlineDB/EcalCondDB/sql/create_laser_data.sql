@@ -22,7 +22,7 @@ CREATE TABLE lmf_matacq_blue_dat (
   timeoffset		BINARY_FLOAT
 );
 
-ALTER TABLE lmf_matacq_blue_dat ADD CONSTRAINT lmf_mataq_blue_dat_pk PRIMARY KEY (iov_id, logic_id);
+ALTER TABLE lmf_matacq_blue_dat ADD CONSTRAINT lmf_matacq_blue_dat_pk PRIMARY KEY (iov_id, logic_id);
 ALTER TABLE lmf_matacq_blue_dat ADD CONSTRAINT lmf_matacq_blue_dat_fk FOREIGN KEY (iov_id) REFERENCES lmf_run_iov (iov_id);
 
 CREATE TABLE lmf_matacq_red_dat (

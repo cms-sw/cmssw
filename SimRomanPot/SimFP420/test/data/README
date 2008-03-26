@@ -1,7 +1,0 @@
-execute command:
-
-cmsRun runEDDigi.cfg
-
-test1event.root will be produced 
-
-

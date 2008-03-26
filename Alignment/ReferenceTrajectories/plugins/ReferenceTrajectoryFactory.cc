@@ -33,10 +33,15 @@ ReferenceTrajectoryFactory::trajectories( const edm::EventSetup & setup,
   while ( itTracks != tracks.end() )
   { 
     TrajectoryInput input = this->innermostStateAndRecHits( *itTracks );
-    // set the flag for reversing the RecHits to false, since they are already in the correct order.
-    trajectories.push_back( ReferenceTrajectoryPtr( new ReferenceTrajectory( input.first, input.second, false,
-									     magneticField.product(), materialEffects(),
-									     propagationDirection(), theMass ) ) );
+    // Check input: If all hits were rejected, the TSOS is initialized as invalid.
+    if ( input.first.isValid() )
+    {
+      // set the flag for reversing the RecHits to false, since they are already in the correct order.
+      trajectories.push_back( ReferenceTrajectoryPtr( new ReferenceTrajectory( input.first, input.second, false,
+									       magneticField.product(), materialEffects(),
+									       propagationDirection(), theMass ) ) );
+    }
+
     ++itTracks;
   }
 
@@ -67,24 +72,27 @@ ReferenceTrajectoryFactory::trajectories( const edm::EventSetup & setup,
 
   while ( itTracks != tracks.end() )
   {
-    TrajectoryInput input = innermostStateAndRecHits( *itTracks  );
-
-    if ( (*itExternal).isValid() )
+    TrajectoryInput input = innermostStateAndRecHits( *itTracks );
+    // Check input: If all hits were rejected, the TSOS is initialized as invalid.
+    if ( input.first.isValid() )
     {
-      // set the flag for reversing the RecHits to false, since they are already in the correct order.
-      ReferenceTrajectoryPtr refTraj( new ReferenceTrajectory( *itExternal, input.second, false,
-							       magneticField.product(), materialEffects(),
-							       propagationDirection(), theMass ) );
+      if ( (*itExternal).isValid() && sameSurface( (*itExternal).surface(), input.first.surface() ) )
+      {
+	// set the flag for reversing the RecHits to false, since they are already in the correct order.
+	ReferenceTrajectoryPtr refTraj( new ReferenceTrajectory( *itExternal, input.second, false,
+								 magneticField.product(), materialEffects(),
+								 propagationDirection(), theMass ) );
 
-      AlgebraicSymMatrix externalParamErrors( asHepMatrix<5>( (*itExternal).localError().matrix() ) );
-      refTraj->setParameterErrors( externalParamErrors );
-      trajectories.push_back( refTraj );
-    }
-    else
-    {
-      trajectories.push_back( ReferenceTrajectoryPtr( new ReferenceTrajectory( input.first, input.second, false,
-									       magneticField.product(), materialEffects(),
-									       propagationDirection(), theMass ) ) );
+	AlgebraicSymMatrix externalParamErrors( asHepMatrix<5>( (*itExternal).localError().matrix() ) );
+	refTraj->setParameterErrors( externalParamErrors );
+	trajectories.push_back( refTraj );
+      }
+      else
+      {
+	trajectories.push_back( ReferenceTrajectoryPtr( new ReferenceTrajectory( input.first, input.second, false,
+										 magneticField.product(), materialEffects(),
+										 propagationDirection(), theMass ) ) );
+      }
     }
 
     ++itTracks;

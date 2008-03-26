@@ -4,8 +4,8 @@
 /*
  * \file EEOccupancyClient.h
  *
- * $Date: 2007/12/28 17:21:29 $
- * $Revision: 1.10 $
+ * $Date: 2008/01/26 20:13:55 $
+ * $Revision: 1.2 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -92,21 +92,13 @@ std::vector<int> superModules_;
 MonitorUserInterface* mui_;
 DaqMonitorBEInterface* dbe_;
 
-MonitorElement* meh03_[18];
+TH2F* h01_[2][3];
+TH1F* h01ProjR_[2][3];
+TH1F* h01ProjPhi_[2][3];
 
-TProfile2D* h03_[18];
-
-MonitorElement* meg03_[18];
-
-MonitorElement* mep03_[18];
-
-MonitorElement* mer03_[18];
-
-// Quality check on crystals, one per each gain
-
-float expectedMean_;
-float discrepancyMean_;
-float RMSThreshold_;
+TH2F* h02_[2][2];
+TH1F* h02ProjR_[2][2];
+TH1F* h02ProjPhi_[2][2];
 
 };
 

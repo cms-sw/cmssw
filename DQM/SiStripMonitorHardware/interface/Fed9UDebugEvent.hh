@@ -59,7 +59,9 @@ namespace Fed9U {
     
     bool getInternalFreeze();
     bool getBXError();
-    
+
+    // TODO: maybe pick this value from the framework
+    enum {MinimumBufferSize = 152};
   };
 
 }

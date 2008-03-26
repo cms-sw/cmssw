@@ -7,6 +7,7 @@
 
 #include "EventFilter/Processor/interface/FUEventProcessor.h"
 #include "EventFilter/Utilities/interface/ModuleWebRegistry.h"
+#include "EventFilter/Utilities/interface/TimeProfilerService.h"
 #include "EventFilter/Utilities/interface/Exception.h"
 #include "EventFilter/Utilities/interface/ParameterSetRetriever.h"
 #include "EventFilter/Utilities/interface/MicroStateService.h"
@@ -21,10 +22,6 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/Presence.h"
 #include "FWCore/Utilities/interface/Exception.h"
-
-#include "DataFormats/Provenance/interface/ModuleDescription.h"
-
-#include "DQMServices/Daemon/interface/MonitorDaemon.h"
 
 #include "xcept/tools.h"
 #include "xgi/Method.h"
@@ -118,7 +115,7 @@ FUEventProcessor::FUEventProcessor(xdaq::ApplicationStub *s)
   LOG4CPLUS_INFO(getApplicationLogger(),"plugin path:"<<getenv("SEAL_PLUGINS"));
   LOG4CPLUS_INFO(getApplicationLogger(),"CMSSW_BASE:"<<getenv("CMSSW_BASE"));
   
-  getApplicationDescriptor()->setAttribute("icon", "/rubuilder/fu/images/fu64x64.gif");
+  getApplicationDescriptor()->setAttribute("icon", "/evf/images/epicon.jpg");
 
   ostringstream ns;  ns << "EP" << instance_.toString();
 
@@ -127,6 +124,10 @@ FUEventProcessor::FUEventProcessor(xdaq::ApplicationStub *s)
   dqmCollectorDelay_      = 5000;
   dqmCollectorReconDelay_ = 5;
   dqmCollectorSourceName_ = ns.str();
+
+  //some initialization of state data
+  epMAltState_ = -1;
+  epmAltState_ = -1;
   
   xdata::InfoSpace *ispace = getApplicationInfoSpace();
 
@@ -165,10 +166,11 @@ FUEventProcessor::FUEventProcessor(xdaq::ApplicationStub *s)
   // initialize monitoring infospace
 
   std::stringstream oss2;
-  oss2<<"urn:xdaq-monitorable-"<<class_.toString()<<"-"<<instance_.toString();
+  oss2<<"urn:xdaq-monitorable-"<<class_.toString();
   string monInfoSpaceName=oss2.str();
   toolbox::net::URN urn = this->createQualifiedInfoSpace(monInfoSpaceName);
   monitorInfoSpace_ = xdata::getInfoSpaceFactory()->get(urn.toString());
+
   
   monitorInfoSpace_->fireItemAvailable("url",                      &url_);
   monitorInfoSpace_->fireItemAvailable("class",                    &class_);
@@ -179,7 +181,12 @@ FUEventProcessor::FUEventProcessor(xdaq::ApplicationStub *s)
   monitorInfoSpace_->fireItemAvailable("epMicroState",             &epmState_);
   monitorInfoSpace_->fireItemAvailable("nbProcessed",              &nbProcessed_);
   monitorInfoSpace_->fireItemAvailable("nbAccepted",               &nbAccepted_);
+
+  monitorInfoSpace_->fireItemAvailable("epMacroStateInt",             &epMAltState_);
+  monitorInfoSpace_->fireItemAvailable("epMicroStateInt",             &epmAltState_);
   
+  monitorInfoSpace_->fireItemAvailable("macroStateLegend",      &macro_state_legend_);
+  monitorInfoSpace_->fireItemAvailable("microStateLegend",      &micro_state_legend_);
   
   // bind prescale related soap callbacks
   xoap::bind(this,&FUEventProcessor::getPsReport ,"GetPsReport",XDAQ_NS_URI);
@@ -187,10 +194,11 @@ FUEventProcessor::FUEventProcessor(xdaq::ApplicationStub *s)
   xoap::bind(this,&FUEventProcessor::putPrescaler,"PutPrescaler",XDAQ_NS_URI);
   
   // Bind web interface
-  xgi::bind(this, &FUEventProcessor::css           , "styles.css");
-  xgi::bind(this, &FUEventProcessor::defaultWebPage, "Default"   );
-  xgi::bind(this, &FUEventProcessor::moduleWeb     , "moduleWeb" );
-  xgi::bind(this, &FUEventProcessor::microState    , "microState");
+  xgi::bind(this, &FUEventProcessor::css           ,   "styles.css");
+  xgi::bind(this, &FUEventProcessor::defaultWebPage,   "Default"   );
+  xgi::bind(this, &FUEventProcessor::spotlightWebPage, "Spotlight" );
+  xgi::bind(this, &FUEventProcessor::moduleWeb     ,   "moduleWeb" );
+  xgi::bind(this, &FUEventProcessor::microState    ,   "microState");
 
   // instantiate the plugin manager, not referenced here after!
 
@@ -211,7 +219,7 @@ FUEventProcessor::FUEventProcessor(xdaq::ApplicationStub *s)
   catch(...) {
     LOG4CPLUS_ERROR(getApplicationLogger(),"Unknown Exception");
   }
-  ML::MLlog4cplus::setAppl(this);
+  ML::MLlog4cplus::setAppl(this);      
     
 }
 
@@ -458,6 +466,7 @@ bool FUEventProcessor::configuring(toolbox::task::WorkLoop* wl)
     if(epInitialized_)
       {
 	startMonitoringWorkLoop();
+	evtProcessor_->beginJob();
 	fsm_.fireEvent("ConfigureDone",this);
 	LOG4CPLUS_INFO(getApplicationLogger(),"Finished configuring!");
       }
@@ -466,7 +475,7 @@ bool FUEventProcessor::configuring(toolbox::task::WorkLoop* wl)
     reasonForFailedState_ = "configuring FAILED: " + (string)e.what();
     fsm_.fireFailed(reasonForFailedState_,this);
   }
-
+  
   return false;
 }
 
@@ -558,6 +567,22 @@ bool FUEventProcessor::stopping(toolbox::task::WorkLoop* wl)
 //______________________________________________________________________________
 bool FUEventProcessor::halting(toolbox::task::WorkLoop* wl)
 {
+  edm::ServiceRegistry::Operate operate(serviceToken_);
+  ModuleWebRegistry *mwr = 0;
+  try{
+    if(edm::Service<ModuleWebRegistry>().isAvailable())
+      mwr = edm::Service<ModuleWebRegistry>().operator->();
+  }
+  catch(...) { 
+    LOG4CPLUS_INFO(getApplicationLogger(),
+		   "exception when trying to get service ModuleWebRegistry");
+  }
+  
+  if(mwr) 
+    {
+      mwr->clear();
+    }
+
   edm::event_processor::State st = evtProcessor_->getState();
   try {
     LOG4CPLUS_INFO(getApplicationLogger(),"Start halting ...");
@@ -636,7 +661,7 @@ void FUEventProcessor::initEventProcessor()
   }  
   // add default set of services
   if(!servicesDone_) {
-    internal::addServiceMaybe(*pServiceSets,"DaqMonitorROOTBackEnd");
+    //    internal::addServiceMaybe(*pServiceSets,"DaqMonitorROOTBackEnd");
     //    internal::addServiceMaybe(*pServiceSets,"MonitorDaemon");
     internal::addServiceMaybe(*pServiceSets,"MLlog4cplus");
     internal::addServiceMaybe(*pServiceSets,"MicroStateService");
@@ -715,8 +740,10 @@ void FUEventProcessor::initEventProcessor()
 		     "exception when trying to get service ModuleWebRegistry");
     }
 
-    if(mwr) mwr->publish(getApplicationInfoSpace());
-
+    if(mwr) 
+      {
+	mwr->publish(getApplicationInfoSpace());
+      }
     // get the prescale service
     LOG4CPLUS_INFO(getApplicationLogger(),
 		   "Checking for edm::service::PrescaleService!");
@@ -754,6 +781,44 @@ void FUEventProcessor::initEventProcessor()
     return;
   }
   
+  //fill macrostate legend information
+  unsigned int i = 0;
+  std::stringstream oss;
+  for(i = (unsigned int)edm::event_processor::sInit; i < (unsigned int)edm::event_processor::sInvalid; i++)
+    {
+      oss << i << "=" << evtProcessor_->stateName((edm::event_processor::State) i) << " ";
+    }
+  monitorInfoSpace_->lock();
+  macro_state_legend_ = oss.str();
+  //fill microstate legend information
+  descs_ = evtProcessor_->getAllModuleDescriptions();
+  
+  std::stringstream oss2;
+  unsigned int outcount = 0;
+  oss2 << 0 << "=In ";
+  modmap_["IN"]=0;
+  for(unsigned int j = 0; j < descs_.size(); j++)
+    {
+      if(descs_[j]->moduleName() == "ShmStreamConsumer") // find something better than hardcoding name
+	{ 
+	  outcount++;
+	  oss2 << outcount << "=Out" << outcount << " ";
+	  modmap_[descs_[j]->moduleLabel()]=outcount;
+	  i++;
+	}
+    }
+  unsigned int modcount = 0;
+  for(i = 0; i < descs_.size(); i++)
+    {
+      if(descs_[i]->moduleName() != "ShmStreamConsumer")
+	{
+	  modcount++;
+	  oss2 << outcount+modcount << "=" << descs_[i]->moduleLabel() << " ";
+	  modmap_[descs_[i]->moduleLabel()]=outcount+modcount;
+	}
+    }
+  micro_state_legend_ = oss2.str();
+  monitorInfoSpace_->unlock();
   LOG4CPLUS_INFO(getApplicationLogger(),"FUEventProcessor configuration finished.");
   
   epInitialized_ = true;
@@ -1023,7 +1088,12 @@ void FUEventProcessor::defaultWebPage(xgi::Input  *in, xgi::Output *out)
   *out << "<head>"                                                   << endl;
   //insert javascript code
   jsGen(in,out,ourl.str());
-  *out << "<STYLE type=\"text/css\"> #T1 {border-width: 2px; border: solid blue; text-align: center} </STYLE> "                                      << endl; 
+  *out << "<STYLE type=\"text/css\">"				     << endl;
+  *out << "#T1 {"						     << endl;
+  *out << "border-width: 2px; border: solid blue; text-align: left; ";
+  *out << "background: lightgrey "				     << endl;
+  *out << "}"							     << endl; 
+  *out << "</STYLE> "						     << endl; 
   *out << "<link type=\"text/css\" rel=\"stylesheet\"";
   *out << " href=\"/" <<  urn
        << "/styles.css\"/>"                   << endl;
@@ -1037,7 +1107,7 @@ void FUEventProcessor::defaultWebPage(xgi::Input  *in, xgi::Output *out)
   *out << "  <td align=\"left\">"                                    << endl;
   *out << "    <img"                                                 << endl;
   *out << "     align=\"middle\""                                    << endl;
-  *out << "     src=\"/rubuilder/fu/images/fu64x64.gif\""            << endl;
+  *out << "     src=\"/evf/images/epicon.jpg\""			     << endl;
   *out << "     alt=\"main\""                                        << endl;
   *out << "     width=\"64\""                                        << endl;
   *out << "     height=\"64\""                                       << endl;
@@ -1063,10 +1133,10 @@ void FUEventProcessor::defaultWebPage(xgi::Input  *in, xgi::Output *out)
   *out << "  </td>"                                                  << endl;
   *out << "  <td width=\"32\">"                                      << endl;
   *out << "    <a href=\"/" << urn 
-       << "/debug\">"                                                << endl;
+       << "/Spotlight\">"                                            << endl;
   *out << "      <img"                                               << endl;
   *out << "       align=\"middle\""                                  << endl;
-  *out << "       src=\"/rubuilder/fu/images/debug32x32.gif\""       << endl;
+  *out << "       src=\"/evf/images/spoticon.jpg\""		     << endl;
   *out << "       alt=\"debug\""                                     << endl;
   *out << "       width=\"32\""                                      << endl;
   *out << "       height=\"32\""                                     << endl;
@@ -1080,26 +1150,29 @@ void FUEventProcessor::defaultWebPage(xgi::Input  *in, xgi::Output *out)
   *out << "<table>"                                                  << endl;
   *out << "<tr valign=\"top\">"                                      << endl;
   *out << "  <td>"                                                   << endl;
-  *out << "<table>"                                                  << endl;
-  *out << "  <td><tr>"                                               << endl;
-  *out << "<div id=\"T1\" style=\"border:2px solid "                 << endl;
+  *out << "    <table><tr><td>"                                      << endl;
+  *out << "<div id=\"T1\" style=\"border:2px solid "		     << endl;
   if(fsm_.stateName()->value_ == "Failed")
     {
-      *out << "red;height:80;width:150\">microState</div><br /> "    << endl;
-      *out << "</tr><tr>"					     << endl;
-      *out << "<textarea rows=" << 5 << " cols=20 scroll=yes";
+      *out << "red;height:80;width:150\">"			     << endl;
+      *out << "<table><tr><td id=\"s1\">microState</td></tr>"	     << endl;
+      *out << "</table>"					     << endl;
+      *out << "</div><br /> "					     << endl;
+      *out << "</td></tr><tr><td>"				     << endl;
+      *out << "<textarea rows=" << 5 << " cols=50 scroll=yes";
       *out << " readonly title=\"Reason For Failed\">"		     << endl;
       *out << reasonForFailedState_                                  << endl;
-      *out << "</textarea>"                                          << endl;
+      *out << "</textarea></td></tr></table>"                        << endl;
     }
   else
     {
-      *out << "blue;height:80;width:150\">microState</div><br /> "   << endl;
+      *out << "blue;height:80;width:150\">"			     << endl;
+      *out << "<table><tr><td id=\"s1\">microState</td></tr>"	     << endl;
+      *out << "</table>"					     << endl;
+      *out << "</div><br /> "					     << endl;
+      *out << "</td></tr></table>"				     << endl;
     }
-  *out << "  </tr></td>"                                             << endl;
-  *out << "</table>"                                                 << endl;
-  *out << "  </td>"                                                  << endl;
-
+  *out << "  </td>"						     << endl;
   *out << "  <td>"                                                   << endl;
   *out << "<table frame=\"void\" rules=\"groups\" class=\"states\">" << endl;
   *out << "<colgroup> <colgroup align=\"rigth\">"                    << endl;
@@ -1169,15 +1242,110 @@ void FUEventProcessor::defaultWebPage(xgi::Input  *in, xgi::Output *out)
   *out << "</tr>"                                            << endl;
   *out << "</table>" << endl;
   *out << "</tr>"                                            << endl;
+
   if(evtProcessor_)
-    taskWebPage(in,out,urn);
-  else
-    *out << "<td>HLT Unconfigured</td>" << endl;
-  *out << "</table>"                                                 << endl;
+    {
+      edm::TriggerReport tr; 
+      evtProcessor_->getTriggerReport(tr);
+
+      *out << "<tr valign=\"top\">"						<< endl;
+      *out << "<td>"							<< endl;
+      //status table
+      *out << "<table frame=\"void\" rules=\"groups\" class=\"states\">"	<< endl;
+      *out << "<colgroup> <colgroup align=\"rigth\">"			<< endl;
+      *out << "  <tr>"							<< endl;
+      *out << "    <th colspan=2>"						<< endl;
+      *out << "      " << "Status"						<< endl;
+      *out << "    </th>"							<< endl;
+      *out << "  </tr>"							<< endl;
+      *out << "  <tr>"							<< endl;
+      *out << "    <th >"							<< endl;
+      *out << "       Parameter"						<< endl;
+      *out << "    </th>"							<< endl;
+      *out << "    <th>"							<< endl;
+      *out << "       Value"						<< endl;
+      *out << "    </th>"							<< endl;
+      *out << "  </tr>"							<< endl;
+      *out << "  <tr>"							<< endl;
+      *out << "    <td >"							<< endl;
+      *out << "       EP state"						<< endl;
+      *out << "    </td>"							<< endl;
+      *out << "    <td>"							<< endl;
+      *out << "      " << evtProcessor_->currentStateName()			<< endl;
+      *out << "    </td>"							<< endl;
+      *out << "  </tr>"							<< endl;
+      *out << "  <tr>"							<< endl;
+      *out << "    <td>"							<< endl;
+      *out << "       edm::EP initialized"					<< endl;
+      *out << "    </td>"							<< endl;
+      *out << "    <td>"							<< endl;
+      *out << "      " <<epInitialized_					<< endl;
+      *out << "    </td>"							<< endl;
+      *out << "  </tr>"							<< endl;
+      *out << "  <tr>"							<< endl;
+      *out << "    <td >"							<< endl;
+      *out << "       Processed Events/Accepted Events"			<< endl;
+      *out << "    </td>"							<< endl;
+      *out << "    <td>"							<< endl;
+      *out << "      " << evtProcessor_->totalEvents() << "/" 
+	   << evtProcessor_->totalEventsPassed()				<< endl;
+      *out << "    </td>"							<< endl;
+      *out << "  </tr>"							<< endl;
+      *out << "  <tr>"							<< endl;
+      *out << "    <td>Endpaths State</td>"					<< endl;
+      *out << "    <td";
+      *out << (evtProcessor_->endPathsEnabled() ?  "> enabled" : 
+	       " bgcolor=\"red\"> disabled" );
+      *out << "    </td>"							<< endl;
+      *out << "  </tr>"							<< endl;
+      /* obsolete
+       *out << "  <tr>"							<< endl;
+       *out << "    <td >Global Input Prescale</td>"				<< endl;
+       *out << "    <td> N/A this version</td>"				<< endl;
+       *out << "  </tr>"							<< endl;
+       *out << "  <tr>"							<< endl;
+       *out << "    <td >Global Output Prescale</td>"			<< endl;
+       *out << "    <td>N/A this version</td>"				<< endl;
+       *out << "  </tr>"							<< endl;
+       */
+      *out << "</table>"							<< endl;
+
+      *out << "<td>" << endl;
+      // trigger summary table
+      *out << "<table border=1 bgcolor=\"#CFCFCF\">" << endl;
+      *out << "  <tr>"							<< endl;
+      *out << "    <th colspan=5>"						<< endl;
+      *out << "      " << "Trigger Summary"					<< endl;
+      *out << "    </th>"							<< endl;
+      *out << "  </tr>"							<< endl;
+
+      *out << "  <tr >"							<< endl;
+      *out << "    <th >Path</th>"						<< endl;
+      *out << "    <th >Exec</th>"						<< endl;
+      *out << "    <th >Pass</th>"						<< endl;
+      *out << "    <th >Fail</th>"						<< endl;
+      *out << "    <th >Except</th>"					<< endl;
+      *out << "  </tr>"							<< endl;
+
+
+      for(unsigned int i=0; i<tr.trigPathSummaries.size(); i++) {
+	*out << "  <tr>" << endl;
+	*out << "    <td>"<< tr.trigPathSummaries[i].name << "</td>"		<< endl;
+	*out << "    <td>" << tr.trigPathSummaries[i].timesRun << "</td>"		<< endl;
+	*out << "    <td>" << tr.trigPathSummaries[i].timesPassed << "</td>"	<< endl;
+	*out << "    <td >" << tr.trigPathSummaries[i].timesFailed << "</td>"	<< endl;
+	*out << "    <td ";
+	if(tr.trigPathSummaries[i].timesExcept !=0)
+	  *out << "bgcolor=\"red\""		      					<< endl;
+	*out << ">" << tr.trigPathSummaries[i].timesExcept << "</td>"		<< endl;
+	*out << "  </tr >"								<< endl;
+	
+      }
+    }
+  *out << "</table>" << endl;
+  *out << "</td>" << endl;
+  *out << "</tr>" << endl;
   
-  *out << "<textarea rows=" << 10 << " cols=80 scroll=yes>"          << endl;
-  *out << configuration_                                             << endl;
-  *out << "</textarea><P>"                                           << endl;
   
   *out << "</body>"                                                  << endl;
   *out << "</html>"                                                  << endl;
@@ -1190,10 +1358,6 @@ void FUEventProcessor::taskWebPage(xgi::Input *in, xgi::Output *out,const string
 {
   ModuleWebRegistry *mwr = 0;
   edm::ServiceRegistry::Operate operate(evtProcessor_->getToken());
-  vector<edm::ModuleDescription const*> descs_ =
-    evtProcessor_->getAllModuleDescriptions();
-  edm::TriggerReport tr; 
-  evtProcessor_->getTriggerReport(tr);
   try{
     if(edm::Service<ModuleWebRegistry>().isAvailable())
       mwr = edm::Service<ModuleWebRegistry>().operator->();
@@ -1201,100 +1365,15 @@ void FUEventProcessor::taskWebPage(xgi::Input *in, xgi::Output *out,const string
   catch(...) {
     cout<<"exception when trying to get the service registry "		<< endl;
   }
-  *out << "<tr valign=\"top\">"						<< endl;
-  *out << "<td>"							<< endl;
-  //status table
-  *out << "<table frame=\"void\" rules=\"groups\" class=\"states\">"	<< endl;
-  *out << "<colgroup> <colgroup align=\"rigth\">"			<< endl;
-  *out << "  <tr>"							<< endl;
-  *out << "    <th colspan=2>"						<< endl;
-  *out << "      " << "Status"						<< endl;
-  *out << "    </th>"							<< endl;
-  *out << "  </tr>"							<< endl;
-  *out << "  <tr>"							<< endl;
-  *out << "    <th >"							<< endl;
-  *out << "       Parameter"						<< endl;
-  *out << "    </th>"							<< endl;
-  *out << "    <th>"							<< endl;
-  *out << "       Value"						<< endl;
-  *out << "    </th>"							<< endl;
-  *out << "  </tr>"							<< endl;
-  *out << "  <tr>"							<< endl;
-  *out << "    <td >"							<< endl;
-  *out << "       EP state"						<< endl;
-  *out << "    </td>"							<< endl;
-  *out << "    <td>"							<< endl;
-  *out << "      " << evtProcessor_->currentStateName()			<< endl;
-  *out << "    </td>"							<< endl;
-  *out << "  </tr>"							<< endl;
-  *out << "  <tr>"							<< endl;
-  *out << "    <td>"							<< endl;
-  *out << "       edm::EP initialized"					<< endl;
-  *out << "    </td>"							<< endl;
-  *out << "    <td>"							<< endl;
-  *out << "      " <<epInitialized_					<< endl;
-  *out << "    </td>"							<< endl;
-  *out << "  </tr>"							<< endl;
-  *out << "  <tr>"							<< endl;
-  *out << "    <td >"							<< endl;
-  *out << "       Processed Events/Accepted Events"			<< endl;
-  *out << "    </td>"							<< endl;
-  *out << "    <td>"							<< endl;
-  *out << "      " << evtProcessor_->totalEvents() << "/" 
-       << evtProcessor_->totalEventsPassed()				<< endl;
-  *out << "    </td>"							<< endl;
-  *out << "  </tr>"							<< endl;
-  *out << "  <tr>"							<< endl;
-  *out << "    <td>Endpaths State</td>"					<< endl;
-  *out << "    <td";
-  *out << (evtProcessor_->endPathsEnabled() ?  "> enabled" : 
-	   " bgcolor=\"red\"> disabled" );
-  *out << "    </td>"							<< endl;
-  *out << "  </tr>"							<< endl;
-  /* obsolete
-  *out << "  <tr>"							<< endl;
-  *out << "    <td >Global Input Prescale</td>"				<< endl;
-  *out << "    <td> N/A this version</td>"				<< endl;
-  *out << "  </tr>"							<< endl;
-  *out << "  <tr>"							<< endl;
-  *out << "    <td >Global Output Prescale</td>"			<< endl;
-  *out << "    <td>N/A this version</td>"				<< endl;
-  *out << "  </tr>"							<< endl;
-  */
-  *out << "</table>"							<< endl;
-
-  *out << "<td>" << endl;
-  // trigger summary table
-  *out << "<table border=1 bgcolor=\"#CFCFCF\">" << endl;
-  *out << "  <tr>"							<< endl;
-  *out << "    <th colspan=5>"						<< endl;
-  *out << "      " << "Trigger Summary"					<< endl;
-  *out << "    </th>"							<< endl;
-  *out << "  </tr>"							<< endl;
-
-  *out << "  <tr >"							<< endl;
-  *out << "    <th >Path</th>"						<< endl;
-  *out << "    <th >Exec</th>"						<< endl;
-  *out << "    <th >Pass</th>"						<< endl;
-  *out << "    <th >Fail</th>"						<< endl;
-  *out << "    <th >Except</th>"					<< endl;
-  *out << "  </tr>"							<< endl;
-
-
-  for(unsigned int i=0; i<tr.trigPathSummaries.size(); i++) {
-    *out << "  <tr>" << endl;
-    *out << "    <td>"<< tr.trigPathSummaries[i].name << "</td>"		<< endl;
-    *out << "    <td>" << tr.trigPathSummaries[i].timesRun << "</td>"		<< endl;
-    *out << "    <td>" << tr.trigPathSummaries[i].timesPassed << "</td>"	<< endl;
-    *out << "    <td >" << tr.trigPathSummaries[i].timesFailed << "</td>"	<< endl;
-    *out << "    <td >" << tr.trigPathSummaries[i].timesExcept << "</td>"	<< endl;
-    *out << "  </tr >"								<< endl;
-
+  TimeProfilerService *tpr = 0;
+  try{
+    if(edm::Service<TimeProfilerService>().isAvailable())
+      tpr = edm::Service<TimeProfilerService>().operator->();
   }
-  *out << "</table>" << endl;
-  *out << "</td>" << endl;
-  *out << "</tr><tr colspan=2>" << endl;
+  catch(...) { 
+  }
 
+  *out << "<tr colspan=2>" << endl;
   //Process details table
   *out << "<table frame=\"void\" rules=\"rows\" class=\"modules\">"	<< endl;
   *out << "  <tr>"							<< endl;
@@ -1315,6 +1394,18 @@ void FUEventProcessor::taskWebPage(xgi::Input *in, xgi::Output *out,const string
   *out << "    <th >"							<< endl;
   *out << "       Version"						<< endl;
   *out << "    </th>"							<< endl;
+  if(tpr)
+    {
+      *out << "    <th >"                                                       << endl;
+      *out << "       first"                                            << endl;
+      *out << "    </th>"                                                       << endl;
+      *out << "    <th >"                                                       << endl;
+      *out << "       ave"                                              << endl;
+      *out << "    </th>"                                                       << endl;
+      *out << "    <th >"                                                       << endl;
+      *out << "       max"                                              << endl;
+      *out << "    </th>"                                                       << endl;
+    }
   *out << "  </tr>"							<< endl;
   
   for(unsigned int idesc = 0; idesc < descs_.size(); idesc++)
@@ -1335,6 +1426,18 @@ void FUEventProcessor::taskWebPage(xgi::Input *in, xgi::Output *out,const string
       *out << "    <td >";
       *out << descs_[idesc]->releaseVersion();
       *out << "</td>"							<< endl;
+      if(tpr)
+        {
+          *out << "    <td align=\"right\">";
+          *out << tpr->getFirst(descs_[idesc]->moduleLabel());
+          *out << "</td>"                                                       << endl;
+          *out << "    <td align=\"right\">";
+          *out << tpr->getAve(descs_[idesc]->moduleLabel());
+          *out << "</td>"                                                       << endl;
+          *out << "    <td align=\"right\">";
+          *out << tpr->getMax(descs_[idesc]->moduleLabel());
+          *out << "</td>"                                                       << endl;
+        }
       *out << "  </tr>" << endl;
     }
   *out << "</table>" << endl;
@@ -1412,11 +1515,11 @@ void FUEventProcessor::jsGen(xgi::Input *in, xgi::Output *out, string url)
   // if "OK" 
   *out << " if (xmlhttp.status==200) \n";
   *out << "  { \n";
-  *out << "  document.getElementById('T1').innerHTML=xmlhttp.responseText \n";
+  *out << "  document.getElementById('s1').innerHTML=xmlhttp.responseText \n";
   *out << "  } \n";
   *out << "  else \n";
   *out << "  { \n";
-  *out << "  document.getElementById('T1').innerHTML=xmlhttp.statusText \n";
+  *out << "  document.getElementById('s1').innerHTML=xmlhttp.statusText \n";
   *out << "  } \n";
   *out << "  } \n";
   *out << "} \n";
@@ -1424,6 +1527,88 @@ void FUEventProcessor::jsGen(xgi::Input *in, xgi::Output *out, string url)
   *out << "</script> \n";
 }
 
+
+void FUEventProcessor::spotlightWebPage(xgi::Input  *in, xgi::Output *out)
+  throw (xgi::exception::Exception)
+{
+  string urn = getApplicationDescriptor()->getURN();
+  ostringstream ourl;
+  ourl << "'/" <<  urn << "/microState'";
+  *out << "<!-- base href=\"/" <<  urn
+       << "\"> -->" << endl;
+  *out << "<html>"                                                   << endl;
+  *out << "<head>"                                                   << endl;
+  *out << "<link type=\"text/css\" rel=\"stylesheet\"";
+  *out << " href=\"/" <<  urn
+       << "/styles.css\"/>"                   << endl;
+  *out << "<title>" << getApplicationDescriptor()->getClassName() 
+       << getApplicationDescriptor()->getInstance() 
+       << " MAIN</title>"     << endl;
+  *out << "</head>"                                                  << endl;
+  *out << "<body onload=\"loadXMLDoc()\">"                           << endl;
+  *out << "<table border=\"0\" width=\"100%\">"                      << endl;
+  *out << "<tr>"                                                     << endl;
+  *out << "  <td align=\"left\">"                                    << endl;
+  *out << "    <img"                                                 << endl;
+  *out << "     align=\"middle\""                                    << endl;
+  *out << "     src=\"/evf/images/spoticon.jpg\""			     << endl;
+  *out << "     alt=\"main\""                                        << endl;
+  *out << "     width=\"64\""                                        << endl;
+  *out << "     height=\"64\""                                       << endl;
+  *out << "     border=\"\"/>"                                       << endl;
+  *out << "    <b>"                                                  << endl;
+  *out << getApplicationDescriptor()->getClassName() 
+       << getApplicationDescriptor()->getInstance()                  << endl;
+  *out << "      " << fsm_.stateName()->toString()                   << endl;
+  *out << "    </b>"                                                 << endl;
+  *out << "  </td>"                                                  << endl;
+  *out << "  <td width=\"32\">"                                      << endl;
+  *out << "    <a href=\"/urn:xdaq-application:lid=3\">"             << endl;
+  *out << "      <img"                                               << endl;
+  *out << "       align=\"middle\""                                  << endl;
+  *out << "       src=\"/hyperdaq/images/HyperDAQ.jpg\""             << endl;
+  *out << "       alt=\"HyperDAQ\""                                  << endl;
+  *out << "       width=\"32\""                                      << endl;
+  *out << "       height=\"32\""                                     << endl;
+  *out << "       border=\"\"/>"                                     << endl;
+  *out << "    </a>"                                                 << endl;
+  *out << "  </td>"                                                  << endl;
+  *out << "  <td width=\"32\">"                                      << endl;
+  *out << "  </td>"                                                  << endl;
+  *out << "  <td width=\"32\">"                                      << endl;
+  *out << "    <a href=\"/" << urn 
+       << "/Default\">"                                              << endl;
+  *out << "      <img"                                               << endl;
+  *out << "       align=\"middle\""                                  << endl;
+  *out << "       src=\"/evf/images/epicon.jpg\""		     << endl;
+  *out << "       alt=\"main\""                                      << endl;
+  *out << "       width=\"32\""                                      << endl;
+  *out << "       height=\"32\""                                     << endl;
+  *out << "       border=\"\"/>"                                     << endl;
+  *out << "    </a>"                                                 << endl;
+  *out << "  </td>"                                                  << endl;
+  *out << "</tr>"                                                    << endl;
+  *out << "</table>"                                                 << endl;
+
+  *out << "<hr/>"                                                    << endl;
+  *out << "<table>"                                                  << endl;
+  *out << "<tr valign=\"top\">"                                      << endl;
+
+  if(evtProcessor_)
+    taskWebPage(in,out,urn);
+  else
+    *out << "<td>HLT Unconfigured</td>" << endl;
+  *out << "</table>"                                                 << endl;
+  
+  *out << "<br><textarea rows=" << 10 << " cols=80 scroll=yes>"      << endl;
+  *out << configuration_                                             << endl;
+  *out << "</textarea><P>"                                           << endl;
+  
+  *out << "</body>"                                                  << endl;
+  *out << "</html>"                                                  << endl;
+
+
+}
 
 //______________________________________________________________________________
 void FUEventProcessor::microState(xgi::Input  *in, xgi::Output *out)
@@ -1448,7 +1633,7 @@ void FUEventProcessor::microState(xgi::Input  *in, xgi::Output *out)
     micro2 = mss->getMicroState2();
   }
   
-  *out << "<br>  " << micro1 << endl;
+  *out << micro1 << endl;
   *out << "<br>  " << micro2 << endl;
 }
 
@@ -1516,16 +1701,34 @@ bool FUEventProcessor::monitoring(toolbox::task::WorkLoop* wl)
   struct timeval  monEndTime;
   struct timezone timezone;
   gettimeofday(&monEndTime,&timezone);
-  
+
+  //detect failures of edm event processor and fire failed transition
+  if(evtProcessor_)
+    {
+      edm::event_processor::State st = evtProcessor_->getState();
+      if(fsm_.stateName()->toString()=="Enabled" && 
+	 !(st == edm::event_processor::sRunning || st == edm::event_processor::sStopping))
+	{
+	  reasonForFailedState_ = "edm failure, EP state ";
+	  reasonForFailedState_ += evtProcessor_->currentStateName();
+	  fsm_.fireFailed(reasonForFailedState_,this);
+	}
+    }
   edm::ServiceRegistry::Operate operate(serviceToken_);
   MicroStateService *mss = 0;
 
   monitorInfoSpace_->lock();
+  monitorInfoSpace_->lock();
   if(evtProcessor_)
-    epMState_ = evtProcessor_->currentStateName();
+    {
+      epMState_ = evtProcessor_->currentStateName();
+      epMAltState_ = (int) evtProcessor_->getState();
+    }
   else
-    epMState_ = "Off";
-
+    {
+      epMState_ = "Off";
+      epMAltState_ = -1;
+    }
   if(0 != evtProcessor_ && evtProcessor_->getState() != edm::event_processor::sInit)
     {
       try{
@@ -1537,13 +1740,18 @@ bool FUEventProcessor::monitoring(toolbox::task::WorkLoop* wl)
       }
     }
   if(mss) 
-    epmState_  = mss->getMicroState2();
+    {
+      epmState_  = mss->getMicroState2();
+      epmAltState_ = modmap_[mss->getMicroState2()];
+    }
   if(evtProcessor_)
     {
       nbProcessed_ = evtProcessor_->totalEvents();
       nbAccepted_  = evtProcessor_->totalEventsPassed(); 
     }
+  monitorInfoSpace_->unlock();  
   monitorInfoSpace_->unlock();
+
   ::sleep(monSleepSec_.value_);
   
   return true;

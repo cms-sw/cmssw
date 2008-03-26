@@ -1,4 +1,4 @@
-// $Id: FileRecord.cc,v 1.3 2007/06/11 12:23:11 klute Exp $
+// $Id: FileRecord.cc,v 1.4 2007/08/18 06:04:57 hcheung Exp $
 
 #include <EventFilter/StorageManager/interface/FileRecord.h>
 #include <EventFilter/StorageManager/interface/Configurator.h>
@@ -223,19 +223,77 @@ void FileRecord::fileSystem(int i)
 //
 void FileRecord::moveFileToClosed()
 {
+  struct stat initialStatBuff, finalStatBuff;
+  int statStatus;
+  double pctDiff;
+  bool sizeMismatch;
+
   string openIndexFileName      = completeFileName() + ".ind";
   string openStreamerFileName   = completeFileName() + ".dat";
+  statStatus = stat(openStreamerFileName.c_str(), &initialStatBuff);
+  if (statStatus != 0) {
+    throw cms::Exception("FileRecord", "moveFileToClosed")
+      << "Error checking the status of open file "
+      << openStreamerFileName << ".  Has the file moved unexpectedly?"
+      << std::endl;
+  }
+  sizeMismatch = false;
+  if (smParameter_->exactFileSizeTest()) {
+    if (fileSize_ != initialStatBuff.st_size) {
+      sizeMismatch = true;
+    }
+  }
+  else {
+    pctDiff = calcPctDiff(fileSize_, initialStatBuff.st_size);
+    if (pctDiff > 0.1) {sizeMismatch = true;}
+  }
+  if (sizeMismatch) {
+    throw cms::Exception("FileRecord", "moveFileToClosed")
+      << "Found an unexpected open file size when trying to move "
+      << "the file to the closed state.  File " << openStreamerFileName
+      << " has an actual size of " << initialStatBuff.st_size
+      << " instead of the expected size of " << fileSize_ << std::endl;
+  }
+
   workingDir_ = "/closed/";
   string closedIndexFileName    = completeFileName() + ".ind";
   string closedStreamerFileName = completeFileName() + ".dat";
 
   int result = rename( openIndexFileName.c_str()    , closedIndexFileName.c_str() );
   result    += rename( openStreamerFileName.c_str() , closedStreamerFileName.c_str() );
- 
-  if (result != 0 )
-    cout << " *** FileRecord::closeFile()  Houston there is a problem moving " 
-	 << openStreamerFileName << " to " << closedStreamerFileName << endl;
- 
+  if (result != 0) {
+    throw cms::Exception("FileRecord", "moveFileToClosed")
+      << "Unable to move " << openStreamerFileName << " to "
+      << closedStreamerFileName << ".  Possibly the storage manager "
+      << "disk areas are full." << std::endl;
+  }
+
+  statStatus = stat(closedStreamerFileName.c_str(), &finalStatBuff);
+  if (statStatus != 0) {
+    throw cms::Exception("FileRecord", "moveFileToClosed")
+      << "Error checking the status of closed file "
+      << closedStreamerFileName << ".  This file was copied from "
+      << openStreamerFileName << ", and the copy seems to have failed."
+      << std::endl;
+  }
+  sizeMismatch = false;
+  if (smParameter_->exactFileSizeTest()) {
+    if (initialStatBuff.st_size != finalStatBuff.st_size) {
+      sizeMismatch = true;
+    }
+  }
+  else {
+    pctDiff = calcPctDiff(initialStatBuff.st_size, finalStatBuff.st_size);
+    if (pctDiff > 0.1) {sizeMismatch = true;}
+  }
+  if (sizeMismatch) {
+    throw cms::Exception("FileRecord", "moveFileToClosed")
+      << "Error moving " << openStreamerFileName << " to "
+      << closedStreamerFileName << ".  The closed file size ("
+      << finalStatBuff.st_size << ") is different than the open file size ("
+      << initialStatBuff.st_size << ").  Possibly the storage manager "
+      << "disk areas are full." << std::endl;
+  }
 }
 
 
@@ -279,6 +337,19 @@ void FileRecord::checkDirectory(string path)
       throw cms::Exception("FileRecord","checkDirectory")
             << "Directory " << path << " does not exist. Error=" << errno << std::endl;
     }
+}
+
+
+double FileRecord::calcPctDiff(long long value1, long long value2)
+{
+  if (value1 == value2) {return 0.0;}
+  long long largerValue = value1;
+  long long smallerValue = value2;
+  if (value1 < value2) {
+    largerValue = value2;
+    smallerValue = value1;
+  }
+  return ((double) largerValue - (double) smallerValue) / (double) largerValue;
 }
 
 

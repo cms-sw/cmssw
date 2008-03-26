@@ -15,6 +15,7 @@ GlobalPoint FallbackLinearizationPointFinder::getLinearizationPoint(
 GlobalPoint FallbackLinearizationPointFinder::getLinearizationPoint(
     const vector<reco::TransientTrack> & tracks ) const
 {
+  try {
     switch ( tracks.size() )
     {
       case 0:
@@ -28,12 +29,15 @@ GlobalPoint FallbackLinearizationPointFinder::getLinearizationPoint(
         for ( vector< reco::TransientTrack >::const_iterator i=tracks.begin(); 
               i!=tracks.end() ; ++i )
         {
+          try {
             pair < GlobalPoint, float > tmp ( 
                 i->impactPointState().globalPosition(), 1. );
             wtracks.push_back ( tmp );
+          } catch (...) {}
         }
         return (*theModeFinder) ( wtracks );
       }
     }
+  } catch ( ... ) {}
   return GlobalPoint ( 0.,0.,0. );
 }

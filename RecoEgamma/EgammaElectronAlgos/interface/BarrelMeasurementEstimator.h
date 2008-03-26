@@ -15,7 +15,7 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: BarrelMeasurementEstimator.h,v 1.4 2007/03/08 18:34:11 futyand Exp $
+// $Id: BarrelMeasurementEstimator.h,v 1.5 2007/05/22 16:16:10 uberthon Exp $
 //
 //
 
@@ -43,6 +43,12 @@ public:
     thePhiRangeMax = dummyphiRangeMax ; 
   }
   
+  void setZRange (float zmin , float zmax) 
+  { 
+    theZRangeMin=zmin;
+    theZRangeMax=zmax;
+  }
+
   // zero value indicates incompatible ts - hit pair
   virtual std::pair<bool,double> estimate( const TrajectoryStateOnSurface& ts, 
 			   const TransientTrackingRecHit& hit) const;

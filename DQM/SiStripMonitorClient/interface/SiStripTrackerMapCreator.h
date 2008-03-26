@@ -23,9 +23,9 @@ class SiStripTrackerMapCreator {
  ~SiStripTrackerMapCreator();
   bool readConfiguration();
 
+  void create(DaqMonitorBEInterface* bei);
   void create(const edm::ParameterSet & tkmapPset, 
-	      const edm::ESHandle<SiStripFedCabling>& fedcabling, 
-              DaqMonitorBEInterface* bei);
+	       const edm::ESHandle<SiStripFedCabling> fedcabling, DaqMonitorBEInterface* bei);
 
   int getFrequency() { return tkMapFrequency_;}
   int getMENames(std::vector< std::string>& me_names);

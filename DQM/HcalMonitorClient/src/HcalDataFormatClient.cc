@@ -56,8 +56,8 @@ HcalDataFormatClient::~HcalDataFormatClient(){
 }
 
 void HcalDataFormatClient::beginJob(void){
-  if ( debug_ ) cout << "HcalDataFormatClient: beginJob" << endl;
-
+  //  if ( debug_ ) cout << "HcalDataFormatClient: beginJob" << endl;
+  cout << "HcalDataFormatClient: beginJob" << endl;
   ievt_ = 0; jevt_ = 0;
   return;
 }

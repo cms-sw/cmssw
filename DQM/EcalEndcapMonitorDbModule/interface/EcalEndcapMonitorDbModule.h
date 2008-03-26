@@ -4,8 +4,8 @@
 /*
  * \file EcalEndcapMonitorDbModule.h
  *
- * $Date: 2007/11/13 13:20:51 $
- * $Revision: 1.3 $
+ * $Date: 2007/12/13 09:52:13 $
+ * $Revision: 1.4 $
  * \author G. Della Ricca
  *
 */
@@ -49,8 +49,6 @@ class EcalEndcapMonitorDbModule: public edm::EDAnalyzer{
   
   int icycle_;
  
-  bool enableMonitorDaemon_;
-
   DaqMonitorBEInterface* dbe_;
 
   std::string htmlDir_;

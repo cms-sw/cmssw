@@ -21,32 +21,36 @@ class ClosestApproachInRPhi : public ClosestApproachOnHelices {
 
 public:
 
-  ClosestApproachInRPhi() {status_ = false;}
+  virtual pair<GlobalPoint, GlobalPoint> 
+  points(const TrajectoryStateOnSurface & sta, 
+	 const TrajectoryStateOnSurface & stb) const;
 
-  virtual bool calculate(const TrajectoryStateOnSurface & sta, 
-	 const TrajectoryStateOnSurface & stb);
-
-  virtual bool calculate(const FreeTrajectoryState & sta,
-	const FreeTrajectoryState & stb);
-
-  virtual bool status() const {return status_;}
-
-  /**
-   * Returns the two PCA on the trajectories.
-   */
-  virtual pair<GlobalPoint, GlobalPoint> points() const;
+  virtual pair<GlobalPoint, GlobalPoint> 
+  points(const FreeTrajectoryState & sta, 
+	 const FreeTrajectoryState & stb) const;
 
   /** Returns not only the points, but the full GlobalTrajectoryParemeters 
    *  at the points of closest approach */
   pair <GlobalTrajectoryParameters, GlobalTrajectoryParameters >
-	trajectoryParameters () const;
+  trajectoryParameters ( const FreeTrajectoryState & sta, 
+                         const FreeTrajectoryState & stb) const;
+  pair <GlobalTrajectoryParameters, GlobalTrajectoryParameters >
+  trajectoryParameters ( const TrajectoryStateOnSurface & sta,
+                         const TrajectoryStateOnSurface & stb ) const;
 
   /** arithmetic mean of the two points of closest approach */
-  virtual GlobalPoint crossingPoint() const;
+  virtual GlobalPoint crossingPoint(const TrajectoryStateOnSurface & sta, 
+				    const TrajectoryStateOnSurface & stb) const;
+
+  virtual GlobalPoint crossingPoint(const FreeTrajectoryState & sta, 
+				    const FreeTrajectoryState & stb) const;
 
   /** distance between the two points of closest approach in 3D */
-  virtual float distance() const;
+  virtual float distance(const TrajectoryStateOnSurface & sta, 
+			 const TrajectoryStateOnSurface & stb) const;
 
+  virtual float distance(const FreeTrajectoryState & sta, 
+			 const FreeTrajectoryState & stb) const;
   /**
    *  Clone method
    */
@@ -56,13 +60,13 @@ public:
 
 private:
 
-  bool calculate(const TrackCharge & chargeA, 
+  pair<GlobalPoint, GlobalPoint> points(const TrackCharge & chargeA, 
 					const GlobalVector & momentumA, 
 					const GlobalPoint & positionA, 
 					const TrackCharge & chargeB, 
 					const GlobalVector & momentumB, 
 					const GlobalPoint & positionB,
-					const MagneticField& magField);
+					const MagneticField& magField) const;
 
   // given the old Parameters, and a new GlobalPoint,
   // we return the full new GlobalTrajectoryParameters at the
@@ -82,9 +86,7 @@ private:
   // Two cases: - circles have one or two intersection points; 
   //              return value = 1; 
   //            - circles do not cross; computes point of closest approach 
-  //              on each circle; return value = 2;
-  // if the calculation fails (e.g. concentric circles), return value = 0;
-
+  //              on each circle; return value = 2; 
   int transverseCoord(double cxa, double cya, double ra, 
 		      double cxb, double cyb, double rb, 
 		      double & xg1, double & yg1, 
@@ -93,12 +95,6 @@ private:
   // Computes z-coordinate on helix at given transverse coordinates
   double zCoord(const GlobalVector& mom, const GlobalPoint& pos, 
 		double r, double xc, double yc, double xg, double yg) const;
-
-
-private:
-  bool status_;
-  GlobalPoint posA, posB;
-  GlobalTrajectoryParameters paramA, paramB;
 
 };
 

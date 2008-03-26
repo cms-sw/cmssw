@@ -58,6 +58,7 @@ EcalHitMaker::EcalHitMaker(CaloGeometryHelper * theCalo,
   maxX0_ = 0.;
   totalX0_ = 0;
   totalL0_ = 0.;
+  pulledPadProbability_ = 1.;
   outsideWindowEnergy_ = 0.;
   rearleakage_ = 0.;
   bfactor_ = 1.; 

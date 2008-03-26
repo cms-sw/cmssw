@@ -37,6 +37,7 @@ namespace edm
     void setEndTime(Timestamp const& time) {
       if (endTime_ == Timestamp::invalidTimestamp()) endTime_ = time;
     }
+    bool mergeAuxiliary(RunAuxiliary const& aux);
 
     // most recent process that processed this run
     // is the last on the list, this defines what "latest" is

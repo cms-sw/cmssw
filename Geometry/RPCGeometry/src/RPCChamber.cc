@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2006/09/21 15:39:48 $
- *  $Revision: 1.2 $
+ *  $Date: 2006/11/28 10:22:01 $
+ *  $Revision: 1.3 $
  *  Author: Raffaello Trentadue - Università Bari 
  *  Mail:     <raffaello.trentadue@ba.infn.it>
  */
@@ -11,7 +11,6 @@
 
 /* Collaborating Class Header */
 #include "Geometry/RPCGeometry/interface/RPCRoll.h"
-#include "DataFormats/MuonDetId/interface/RPCDetId.h"
 
 
 /* C++ Headers */

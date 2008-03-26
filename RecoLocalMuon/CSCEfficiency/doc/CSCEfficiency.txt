@@ -76,7 +76,7 @@ is required to be within a "good region". Then it is checked
 The result is in FINAL_LCTs_Efficiencies (3 sets - a), b), c); each set ALCT,
 CLCT, CorrLCT).
 
-Also check FINAL_dydz_Efficienciy_ALCT - this is the dependence on dy/dz
+Also check FINAL_dydz_Efficienciy_ALCT - this the dependence on dy/dz
 (direction of the segment in the refference station).
 
 2. Strip and wiregroup efficiencies.
@@ -158,16 +158,4 @@ chamber is dead (number of events (or errors) would).
   There are various other useful histograms in the output (not too much)
   inluding histograms used to calculate the efficiency plots.
 
-============== Updates ============= 
 
-Segment efficiency as a function of global theta 
-- FINAL_Segment_Efficiency_theta.
-
-Rechit efficiency using simhits (MC only). Count
-cases where there are rechits (any number) in a 
-layer and divide it by cases where there are 
-simhits (any number) in the same layer -
-FINAL_SimRechit_Efficiency. Counting 
-any single rechit/simhit for efficiency purposes 
-is not usefull directly (needs more subtle 
-approach) but is there - FINAL_SimRechit_each_Efficiency.

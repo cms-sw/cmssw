@@ -5,8 +5,8 @@
 //   Description: Pipelined Synchronising Buffer module 
 //
 //
-//   $Date: 2007/10/05 17:09:03 $
-//   $Revision: 1.9 $
+//   $Date: 2007/12/19 16:36:34 $
+//   $Revision: 1.10 $
 //
 //   Author :
 //   N. Neumeister            CERN EP 
@@ -88,14 +88,23 @@ void L1MuGMTPSB::receiveData(edm::Event& e, int bx) {
   ////////////////////////////////////
 
   edm::Handle<std::vector<L1MuRegionalCand> > rc_handle;
-  e.getByLabel(L1MuGMTConfig::getDTInputTag(),rc_handle);
-  getDTBX(rc_handle.product(),bx);
-  e.getByLabel(L1MuGMTConfig::getCSCInputTag(),rc_handle);
-  getCSC(rc_handle.product(),bx);
-  e.getByLabel(L1MuGMTConfig::getRPCbInputTag(),rc_handle);
-  getRPCb(rc_handle.product(),bx);
-  e.getByLabel(L1MuGMTConfig::getRPCfInputTag(),rc_handle);
-  getRPCf(rc_handle.product(),bx);
+
+  if((L1MuGMTConfig::getDTInputTag()).label() != "none") {
+    e.getByLabel(L1MuGMTConfig::getDTInputTag(),rc_handle);
+    getDTBX(rc_handle.product(),bx);
+  }
+  if((L1MuGMTConfig::getCSCInputTag()).label() != "none") {
+    e.getByLabel(L1MuGMTConfig::getCSCInputTag(),rc_handle);
+    getCSC(rc_handle.product(),bx);
+  }
+  if((L1MuGMTConfig::getRPCbInputTag()).label() != "none") {
+    e.getByLabel(L1MuGMTConfig::getRPCbInputTag(),rc_handle);
+    getRPCb(rc_handle.product(),bx);
+  }
+  if((L1MuGMTConfig::getRPCfInputTag()).label() != "none") {
+    e.getByLabel(L1MuGMTConfig::getRPCfInputTag(),rc_handle);
+    getRPCf(rc_handle.product(),bx);
+  }
 
   ////////////////////////////////////
 

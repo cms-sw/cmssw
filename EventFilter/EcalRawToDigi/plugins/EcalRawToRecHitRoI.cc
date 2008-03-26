@@ -1,23 +1,17 @@
 
 //#include <FWCore/Framework/interface/Handle.h>
-#include <FWCore/Framework/interface/Event.h>
-#include <FWCore/Framework/interface/ESHandle.h>
 
 #include "EventFilter/EcalRawToDigi/plugins/EcalRawToRecHitRoI.h"
 #include "DataFormats/EcalRawData/interface/EcalListOfFEDS.h"
 
-#include "FWCore/Utilities/interface/Exception.h"
 
 // Ecal Mapping 
-#include "Geometry/EcalMapping/interface/EcalElectronicsMapping.h"
 //#include "Geometry/EcalMapping/interface/EcalMappingRcd.h"
 #include <DataFormats/FEDRawData/interface/FEDNumbering.h>
 
 
 // Level 1 Trigger
 #include "DataFormats/L1Trigger/interface/L1EmParticle.h"
-#include "DataFormats/L1Trigger/interface/L1EmParticleFwd.h"
-#include "L1TriggerConfig/L1Geometry/interface/L1CaloGeometry.h"
 #include "L1TriggerConfig/L1Geometry/interface/L1CaloGeometryRecord.h"
                                                                                                                         
 // EgammaCoreTools
@@ -33,8 +27,6 @@
 #include "DataFormats/L1Trigger/interface/L1JetParticle.h"
 
 //candidate stuff
-#include "DataFormats/Candidate/interface/Candidate.h"
-#include "DataFormats/Common/interface/View.h"
 #include "DataFormats/RecoCandidate/interface/RecoChargedCandidate.h"
 #include "DataFormats/RecoCandidate/interface/RecoChargedCandidateFwd.h"
 
@@ -43,7 +35,6 @@
 #include "EventFilter/EcalRawToDigi/interface/MyWatcher.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHitComparison.h"
 
-#include <vector>
 
 using namespace l1extra;
 
@@ -143,10 +134,11 @@ void EcalRawToRecHitRoI::endJob(){
 #include <sstream>
 std::string EcalRawToRecHitRoI::dumpFEDs(const std::vector<int> & FEDs){
   std::stringstream ss;
-  for (int i=0; i < (int)FEDs.size(); i++) {
-    ss<< "unpack FED " << FEDs[i] << std::endl;
+  ss<<"unpack FED: ";
+  for (uint i=0; i < FEDs.size(); i++) {
+    ss<< FEDs[i] << ((i!= FEDs.size()-1)? ", ":"\n");
   }
-  ss<< "Number of FEDS is " << FEDs.size() << std::endl;
+  ss<< "Number of FEDS is " << FEDs.size();
   return ss.str();
 }
 

@@ -1,10 +1,8 @@
 #include "DetectorDescription/Core/interface/DDSpecifics.h"
-#include "DetectorDescription/Core/interface/DDNodes.h"
 #include "Specific.h"
 #include "DetectorDescription/Base/interface/DDdebug.h"
 #include "DetectorDescription/Base/interface/DDException.h"
 
-#include <vector>
 #include <utility>
 
 // Message logger.

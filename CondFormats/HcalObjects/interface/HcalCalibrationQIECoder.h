@@ -26,9 +26,12 @@ class HcalCalibrationQIECoder {
   const float* minCharges () const;
   void setMinCharge (unsigned fBin, float fValue);
   void setMinCharges (const float fValue [32]);
-  uint32_t rawId () const {return mId;}
+  unsigned long rawId () const {return mId;}
  private:
-  uint32_t mId;
+    // because of an oracle digestion problem with uint32_t 
+    // use unsigned long long
+  //  uint32_t mId;
+  unsigned long long mId;
   float bin0;
   float bin1;
   float bin2;

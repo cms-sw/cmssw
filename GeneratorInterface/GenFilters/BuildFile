@@ -21,6 +21,10 @@
 <use name=FastSimulation/Particle>
 <use name=FastSimulation/BaseParticlePropagator>
 
+<use name=TrackingTools/GeomPropagators>
+<use name=MagneticField/Records>
+<use name=DataFormats/HepMCCandidate>
+
 <flags EDM_PLUGIN=1>
 <export>
  <use name=boost>
@@ -37,4 +41,5 @@
  <use name=DataFormats/GeometrySurface>
 <use name=FastSimulation/Particle>
 <use name=FastSimulation/BaseParticlePropagator>
+<use name=DataFormats/HepMCCandidate>
 </export>

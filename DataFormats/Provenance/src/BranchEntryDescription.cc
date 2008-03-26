@@ -1,10 +1,11 @@
 #include "DataFormats/Provenance/interface/BranchEntryDescription.h"
 #include "DataFormats/Provenance/interface/ModuleDescriptionRegistry.h"
+#include "FWCore/Utilities/interface/Algorithms.h"
 #include <ostream>
 
 /*----------------------------------------------------------------------
 
-$Id: BranchEntryDescription.cc,v 1.1 2007/03/04 04:48:09 wmtan Exp $
+$Id: BranchEntryDescription.cc,v 1.2 2007/05/29 19:15:12 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -34,8 +35,44 @@ namespace edm {
   BranchEntryDescription::init() const {
     if (moduleDescriptionPtr_.get() == 0) {
       moduleDescriptionPtr_ = boost::shared_ptr<ModuleDescription>(new ModuleDescription);
-      bool found = ModuleDescriptionRegistry::instance()->getMapped(moduleDescriptionID_, *moduleDescriptionPtr_);
-      assert(found);
+      ModuleDescriptionRegistry::instance()->getMapped(moduleDescriptionID_, *moduleDescriptionPtr_);
+
+      // Commented out this assert when implementing merging of run products.
+      // When merging run products, it is possible for the ModuleDescriptionIDs to be different,
+      // and then the ModuleDescriptionID will be set to invalid.  Then this assert will fail.
+      // Queries using the pointer will return values from a default constructed ModuleDescription
+      // (empty string and invalid values)
+      // bool found = ModuleDescriptionRegistry::instance()->getMapped(moduleDescriptionID_, *moduleDescriptionPtr_);
+      // assert(found);
+    }
+  }
+
+  void
+  BranchEntryDescription::mergeBranchEntryDescription(BranchEntryDescription const* entry) {
+
+    assert(productID_ == entry->productID_);
+
+    edm::sort_all(parents_);
+    std::vector<ProductID> other = entry->parents_;
+    edm::sort_all(other);
+    std::vector<ProductID> result;
+    std::set_union(parents_.begin(), parents_.end(),
+                   other.begin(), other.end(),
+                   back_inserter(result)); 
+    parents_ = result;
+    
+    assert(cid_ == entry->cid_);
+
+    if (status_ == Success || entry->status_ == Success) status_ = Success;
+
+    if (isPresent_ || entry->isPresent_) isPresent_ = true;
+
+    // If they are not equal, set the module description ID to an
+    // invalid value.  Currently, there is no way to store multiple
+    // values.  An invalid value is better than a partially incorrect
+    // value.  In the future, we may need to improve this.
+    if (moduleDescriptionID_ != entry->moduleDescriptionID_) {
+      moduleDescriptionID_ = ModuleDescriptionID();
     }
   }
 

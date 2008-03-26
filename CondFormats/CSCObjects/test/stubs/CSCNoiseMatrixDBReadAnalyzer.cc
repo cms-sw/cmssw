@@ -40,9 +40,8 @@ namespace edmtest
   void
    CSCNoiseMatrixDBReadAnalyzer::analyze(const edm::Event& e, const edm::EventSetup& context)
   {
-    std::ofstream DBNoiseMatrixFile("dbmatrix.dat",std::ios::out);
-    int counter=0;
     using namespace edm::eventsetup;
+    // Context is not used.
     std::cout <<" I AM IN RUN NUMBER "<<e.id().run() <<std::endl;
     std::cout <<" ---EVENT NUMBER "<<e.id().event() <<std::endl;
     edm::ESHandle<CSCDBNoiseMatrix> pNoiseMatrix;
@@ -52,8 +51,9 @@ namespace edmtest
     std::vector<CSCDBNoiseMatrix::Item>::const_iterator it;
 
     for( it=myNoiseMatrix->matrix.begin();it!=myNoiseMatrix->matrix.end(); ++it ){
-      counter++;
-      DBNoiseMatrixFile<<counter<<"  "<<it->elem33<<" "<<it->elem34<<"  "<<it->elem44<<"  "<<it->elem35<<" "<<it->elem45<<"  "<<it->elem55<<"  "<<it->elem46<<"  "<<it->elem56<<"  "<<it->elem66<<"  "<<it->elem57<<"  "<<it->elem67<<"  "<<it->elem77<<std::endl;
+      // no global variables
+      //   counter++;
+      // DBNoiseMatrixFile<<counter<<"  "<<it->elem33<<" "<<it->elem34<<"  "<<it->elem44<<"  "<<it->elem35<<" "<<it->elem45<<"  "<<it->elem55<<"  "<<it->elem46<<"  "<<it->elem56<<"  "<<it->elem66<<"  "<<it->elem57<<"  "<<it->elem67<<"  "<<it->elem77<<std::endl;
     }
   }
   DEFINE_FWK_MODULE(CSCNoiseMatrixDBReadAnalyzer);

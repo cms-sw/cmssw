@@ -4,8 +4,8 @@
 /** \file GlobalCosmicMuonTrajectoryBuilder
  *  class to build combined trajectory from cosmic tracks in tk and mu
  *
- *  $Date: 2007/03/21 18:21:32 $
- *  $Revision: 1.6 $
+ *  $Date: 2007/03/07 16:25:03 $
+ *  $Revision: 1.5 $
  *  \author Chang Liu  -  Purdue University
  */
 
@@ -62,10 +62,6 @@ public:
 
 private:
 
-  void sortHits(ConstRecHitContainer&, ConstRecHitContainer&, ConstRecHitContainer&);
-
-  ConstRecHitContainer getTransientRecHits(const reco::Track&) const;
-
   const MuonServiceProxy *theService;
 
   CosmicMuonSmoother* theSmoother;
@@ -81,12 +77,7 @@ private:
 
   std::string thePropagatorName;
   std::string theTkTrackLabel;
-
-  std::string theTrackerRecHitBuilderName;
-  edm::ESHandle<TransientTrackingRecHitBuilder> theTrackerRecHitBuilder;
-  
-  std::string theMuonRecHitBuilderName;
-  edm::ESHandle<TransientTrackingRecHitBuilder> theMuonRecHitBuilder;
+  std::string theTTRHBuilderName;
 
   edm::Handle<reco::TrackCollection> theTrackerTracks;
 

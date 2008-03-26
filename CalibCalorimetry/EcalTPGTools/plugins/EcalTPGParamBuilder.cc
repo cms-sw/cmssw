@@ -1,8 +1,6 @@
 
 #include "EcalTPGParamBuilder.h"
 
-#include "CalibCalorimetry/EcalTPGTools/interface/EcalTPGCondDBApp.h"
-
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
@@ -38,37 +36,6 @@ double oneOverEtResolEt(double *x, double *par) {
 EcalTPGParamBuilder::EcalTPGParamBuilder(edm::ParameterSet const& pSet)
   : xtal_LSB_EB_(0), xtal_LSB_EE_(0), nSample_(5), complement2_(7)
 {
-  
-  readFromDB_ = pSet.getParameter<bool>("readFromDB") ;
-  writeToDB_  = pSet.getParameter<bool>("writeToDB") ;
-  string DBhost   = pSet.getParameter<std::string>("DBhost") ;
-  string DBsid    = pSet.getParameter<std::string>("DBsid") ;
-  string DBuser   = pSet.getParameter<std::string>("DBuser") ;
-  string DBpass   = pSet.getParameter<std::string>("DBpass") ;
-  uint32_t DBport   = pSet.getParameter<unsigned int>("DBport") ;
-  uint32_t DBfirstRun = pSet.getParameter<unsigned int>("DBfirstRun") ;
-  uint32_t DBnbRun    = pSet.getParameter<unsigned int>("DBnbRun") ;
-  if (readFromDB_ || writeToDB_) {
-    try {
-      db_ = new EcalTPGCondDBApp(DBsid, DBuser, DBpass) ;
-    } catch (exception &e) {
-      cout << "ERROR:  " << e.what() << endl;
-    } catch (...) {
-      cout << "Unknown error caught" << endl;
-    }
-  }
-
-  writeToFiles_ =  pSet.getParameter<bool>("writeToFiles") ;
-  if (writeToFiles_) {
-    std::string outFileEB = pSet.getParameter<std::string>("outFileEB") ;
-    out_fileEB_ = new std::ofstream(outFileEB.c_str(), std::ios::out) ;  
-    std::string outFileEE = pSet.getParameter<std::string>("outFileEE") ;
-    out_fileEE_ = new std::ofstream(outFileEE.c_str(), std::ios::out) ;  
-    geomFile_   = new std::ofstream("geomFile.txt", std::ios::out) ;  
-  }
-
-
-
   useTransverseEnergy_ = pSet.getParameter<bool>("useTransverseEnergy") ;
   
   Et_sat_ = pSet.getParameter<double>("Et_sat") ;
@@ -96,18 +63,26 @@ EcalTPGParamBuilder::EcalTPGParamBuilder(edm::ParameterSet const& pSet)
   FG_Threshold_EE_ = pSet.getParameter<double>("FG_Threshold_EE") ;
   FG_lut_strip_EE_ = pSet.getParameter<unsigned int>("FG_lut_strip_EE") ;
   FG_lut_tower_EE_ = pSet.getParameter<unsigned int>("FG_lut_tower_EE") ;
+
+
+  std::string outFileEB = pSet.getParameter<std::string>("outFileEB") ;
+  out_fileEB_ = new std::ofstream(outFileEB.c_str(), std::ios::out) ;  
+  std::string outFileEE = pSet.getParameter<std::string>("outFileEE") ;
+  out_fileEE_ = new std::ofstream(outFileEE.c_str(), std::ios::out) ;  
+  diffFile_   = new std::ofstream("diffFile.txt", std::ios::out) ;  
+  geomFile_   = new std::ofstream("geomFile.txt", std::ios::out) ;  
 }
 
 EcalTPGParamBuilder::~EcalTPGParamBuilder()
 { 
-  if (writeToFiles_) {
-    (*out_fileEB_ )<<"EOF"<<std::endl ;
-    (*out_fileEE_ )<<"EOF"<<std::endl ;
-    out_fileEB_->close() ;
-    out_fileEE_->close() ;
-    delete out_fileEB_ ;
-    delete out_fileEE_ ;
-  }
+  (*out_fileEB_ )<<"EOF"<<std::endl ;
+  (*out_fileEE_ )<<"EOF"<<std::endl ;
+  out_fileEB_->close() ;
+  out_fileEE_->close() ;
+  diffFile_->close() ;
+  delete out_fileEB_ ;
+  delete out_fileEE_ ;
+  delete diffFile_ ;
 }
 
 void EcalTPGParamBuilder::analyze(const edm::Event& evt, const edm::EventSetup& evtSetup) 
@@ -147,12 +122,20 @@ void EcalTPGParamBuilder::analyze(const edm::Event& evt, const edm::EventSetup& 
   xtal_LSB_EB_ = ADCToGeV->getEBValue() ;
   xtal_LSB_EE_ = ADCToGeV->getEEValue() ;
 
+  // Previous TPG parameters
+//   ESHandle<EcalTPParameters> pEcalTPParameters ;
+//   evtSetup.get<EcalTPParametersRcd>().get(pEcalTPParameters) ;
+//   const EcalTPParameters * ecaltpp = pEcalTPParameters.product() ;
+
 
   /////////////////////////////////////////
   // Compute linearization coeff section //
   /////////////////////////////////////////
 
   // loop on EB xtals
+  (*diffFile_)<<endl<<"#############################################################"<<endl ;
+  (*diffFile_)<<"Listing differences for linearization coefficients in EB...."<<endl ;
+  (*diffFile_)<<endl<<"#############################################################"<<endl ;
   std::vector<DetId> ebCells = theBarrelGeometry_->getValidDetIds(DetId::Ecal, EcalBarrel);
   for (vector<DetId>::const_iterator it = ebCells.begin(); it != ebCells.end(); ++it) {
     EBDetId id(*it) ;
@@ -169,7 +152,7 @@ void EcalTPGParamBuilder::analyze(const edm::Event& evt, const edm::EventSetup& 
     int xtalInStrip = elId.channelId() ;
 
     //(*out_fileEB_)<<"CRYSTAL "<<dec<<tccNb<<" "<<towerInTCC<<" "<<stripInTower<<" "<<xtalInStrip<<std::endl ;
-    if (writeToFiles_) (*out_fileEB_)<<"CRYSTAL "<<dec<<id.rawId()<<std::endl ;
+    (*out_fileEB_)<<"CRYSTAL "<<dec<<id.rawId()<<std::endl ;
 
     coeffStruc coeff ;
     getCoeff(coeff, calibMap, gainMap, pedMap, id.rawId()) ;
@@ -179,15 +162,22 @@ void EcalTPGParamBuilder::analyze(const edm::Event& evt, const edm::EventSetup& 
     for (int i=0 ; i<3 ; i++) {
       int mult, shift ;
       bool ok = computeLinearizerParam(theta, coeff.gainRatio_[i], coeff.calibCoeff_, "EB", mult , shift) ;
-      if (writeToFiles_) {
-	if (ok) (*out_fileEB_) << hex <<" 0x"<<coeff.pedestals_[i]<<" 0x"<<mult<<" 0x"<<shift<<std::endl; 
-	else (*out_fileEB_) << "unable to compute the parameters"<<std::endl ; 
-      }
+//       if ((*xtalParam)[3*i] != coeff.pedestals_[i] || (*xtalParam)[3*i+1] != mult || (*xtalParam)[3*i+2] != shift) {
+// 	(*diffFile_)<<"Cyrstal ("<<dec<<id.rawId()<<": "<<tccNb<<", "<<towerInTCC<<", "<<stripInTower<<", "<<xtalInStrip
+// 		    <<", gainId="<<i<<") :"<<endl ;
+// 	(*diffFile_)<<"previous: ped = "<<hex<<(*xtalParam)[3*i]<<" mult = "<<(*xtalParam)[3*i+1]<<" shift = "<<(*xtalParam)[3*i+2]<<endl ;
+// 	(*diffFile_)<<"new:      ped = "<<hex<<coeff.pedestals_[i]<<" mult = "<<mult<<" shift = "<<shift<<endl ;
+//       }
+      if (ok) (*out_fileEB_) << hex <<" 0x"<<coeff.pedestals_[i]<<" 0x"<<mult<<" 0x"<<shift<<std::endl; 
+      else (*out_fileEB_) << "unable to compute the parameters"<<std::endl ; 
     }
   } //ebCells
 
 
   // loop on EE xtals
+  (*diffFile_)<<endl<<"#############################################################"<<endl ;
+  (*diffFile_)<<"Listing differences for linearization coefficients in EE...."<<endl ;
+  (*diffFile_)<<endl<<"#############################################################"<<endl ;
   std::vector<DetId> eeCells = theEndcapGeometry_->getValidDetIds(DetId::Ecal, EcalEndcap);
   for (vector<DetId>::const_iterator it = eeCells.begin(); it != eeCells.end(); ++it) {
     EEDetId id(*it);
@@ -204,7 +194,7 @@ void EcalTPGParamBuilder::analyze(const edm::Event& evt, const edm::EventSetup& 
     int xtalInStrip = elId.channelId() ;
 
     //(*out_fileEE_)<<"CRYSTAL "<<dec<<tccNb<<" "<<towerInTCC<<" "<<stripInTower<<" "<<xtalInStrip<<std::endl ;
-    if (writeToFiles_) (*out_fileEE_)<<"CRYSTAL "<<dec<<id.rawId()<<std::endl ;
+    (*out_fileEE_)<<"CRYSTAL "<<dec<<id.rawId()<<std::endl ;
 
     coeffStruc coeff ;
     getCoeff(coeff, calibMap, gainMap, pedMap, id.rawId()) ;
@@ -214,10 +204,14 @@ void EcalTPGParamBuilder::analyze(const edm::Event& evt, const edm::EventSetup& 
     for (int i=0 ; i<3 ; i++) {
       int mult, shift ;
       bool ok = computeLinearizerParam(theta, coeff.gainRatio_[i], coeff.calibCoeff_, "EE", mult , shift) ;
-      if (writeToFiles_) {
-	if (ok) (*out_fileEE_) << hex <<" 0x"<<coeff.pedestals_[i]<<" 0x"<<mult<<" 0x"<<shift<<std::endl; 
-	else (*out_fileEE_) << "unable to compute the parameters"<<std::endl ; 
-      }
+//       if ((*xtalParam)[3*i] != coeff.pedestals_[i] || (*xtalParam)[3*i+1] != mult || (*xtalParam)[3*i+2] != shift) {
+// 	(*diffFile_)<<"Cyrstal ("<<dec<<id.rawId()<<": "<<tccNb<<", "<<towerInTCC<<", "<<stripInTower<<", "<<xtalInStrip
+// 		    <<", gainId="<<i<<") :"<<endl ;
+// 	(*diffFile_)<<"previous: ped = "<<hex<<(*xtalParam)[3*i]<<" mult = "<<(*xtalParam)[3*i+1]<<" shift = "<<(*xtalParam)[3*i+2]<<endl ;
+// 	(*diffFile_)<<"new:      ped = "<<hex<<coeff.pedestals_[i]<<" mult = "<<mult<<" shift = "<<shift<<endl ;
+//       }
+      if (ok) (*out_fileEE_) << hex <<" 0x"<<coeff.pedestals_[i]<<" 0x"<<mult<<" 0x"<<shift<<std::endl; 
+      else (*out_fileEE_) << "unable to compute the parameters"<<std::endl ; 
     }
   } //eeCells
 
@@ -233,21 +227,20 @@ void EcalTPGParamBuilder::analyze(const edm::Event& evt, const edm::EventSetup& 
   EcalShape shape(phase); 
   std::vector<unsigned int> weights = computeWeights(shape) ;
 
-  if (writeToFiles_) {
-    if (weights.size() == 5) {
-      // barrel
-      (*out_fileEB_) <<std::endl ;
-      (*out_fileEB_) <<"WEIGHT 0"<<endl ;
-      for (uint sample=0 ; sample<5 ; sample++) (*out_fileEB_) << "0x" <<hex<<weights[sample]<<" " ;
-      (*out_fileEB_)<<std::endl ; 
-      
-      // endcap
-      (*out_fileEE_) <<std::endl ;
-      (*out_fileEE_) <<"WEIGHT 0"<<endl ;
-      for (uint sample=0 ; sample<5 ; sample++) (*out_fileEE_) << "0x" <<hex<<weights[sample]<<" " ;
-      (*out_fileEE_)<<std::endl ; 
-    }
+  if (weights.size() == 5) {
+    // barrel
+    (*out_fileEB_) <<std::endl ;
+    (*out_fileEB_) <<"WEIGHT 0"<<endl ;
+    for (uint sample=0 ; sample<5 ; sample++) (*out_fileEB_) << "0x" <<hex<<weights[sample]<<" " ;
+    (*out_fileEB_)<<std::endl ; 
+ 
+    // endcap
+    (*out_fileEE_) <<std::endl ;
+    (*out_fileEE_) <<"WEIGHT 0"<<endl ;
+    for (uint sample=0 ; sample<5 ; sample++) (*out_fileEE_) << "0x" <<hex<<weights[sample]<<" " ;
+    (*out_fileEE_)<<std::endl ; 
   }
+
 
   /////////////////////////
   // Compute FG section //
@@ -256,13 +249,11 @@ void EcalTPGParamBuilder::analyze(const edm::Event& evt, const edm::EventSetup& 
   // barrel
   uint lowRatio, highRatio, lowThreshold, highThreshold, lutFG ;
   computeFineGrainEBParameters(lowRatio, highRatio, lowThreshold, highThreshold, lutFG) ;
-  if (writeToFiles_) {
-    (*out_fileEB_) <<std::endl ;
-    (*out_fileEB_) <<"FG 0"<<std::endl ;
-    (*out_fileEB_)<<hex<<"0x"<<lowThreshold<<" 0x"<<highThreshold
-		  <<" 0x"<<lowRatio<<" 0x"<<highRatio<<" 0x"<<lutFG
-		  <<std::endl ;
-  }
+  (*out_fileEB_) <<std::endl ;
+  (*out_fileEB_) <<"FG 0"<<std::endl ;
+  (*out_fileEB_)<<hex<<"0x"<<lowThreshold<<" 0x"<<highThreshold
+		<<" 0x"<<lowRatio<<" 0x"<<highRatio<<" 0x"<<lutFG
+		<<std::endl ;
 
   // endcap
   uint threshold, lut_strip, lut_tower ;
@@ -276,22 +267,18 @@ void EcalTPGParamBuilder::analyze(const edm::Event& evt, const edm::EventSetup& 
   int lut[1024] ;
 
   // barrel
+  (*out_fileEB_) <<std::endl ;
+  (*out_fileEB_) <<"LUT 0"<<std::endl ;
   computeLUT(lut, "EB") ; 
-  if (writeToFiles_) {
-    (*out_fileEB_) <<std::endl ;
-    (*out_fileEB_) <<"LUT 0"<<std::endl ;
-    for (int i=0 ; i<1024 ; i++) (*out_fileEB_)<<"0x"<<hex<<lut[i]<<" " ;
-    (*out_fileEB_)<<endl ;
-  }
+  for (int i=0 ; i<1024 ; i++) (*out_fileEB_)<<"0x"<<hex<<lut[i]<<" " ;
+  (*out_fileEB_)<<endl ;
   
   // endcap
-  computeLUT(lut, "EE") ;
-  if (writeToFiles_) { 
-    (*out_fileEE_) <<std::endl ;
-    (*out_fileEE_) <<"LUT 0"<<std::endl ;
-    for (int i=0 ; i<1024 ; i++) (*out_fileEE_)<<"0x"<<hex<<lut[i]<<" " ;
-    (*out_fileEE_)<<endl ;
-  }
+  (*out_fileEE_) <<std::endl ;
+  (*out_fileEE_) <<"LUT 0"<<std::endl ;
+  computeLUT(lut, "EE") ; 
+  for (int i=0 ; i<1024 ; i++) (*out_fileEE_)<<"0x"<<hex<<lut[i]<<" " ;
+  (*out_fileEE_)<<endl ;
 
 
   //////////////////////////////////////////////////////////////////////
@@ -302,65 +289,57 @@ void EcalTPGParamBuilder::analyze(const edm::Event& evt, const edm::EventSetup& 
   stripListEB.sort() ;
   stripListEB.unique() ;
   cout<<"Number of EB strips="<<stripListEB.size()<<endl ;
-  if (writeToFiles_) {
-    (*out_fileEB_) <<std::endl ;
-    for (itList = stripListEB.begin(); itList != stripListEB.end(); itList++ ) {
-      (*out_fileEB_) <<"STRIP "<<dec<<(*itList)<<endl ;
-      (*out_fileEB_) << hex << "0x" <<sliding_<<std::endl ;
-      (*out_fileEB_) <<" 0" << std::endl ;
-    }
+  (*out_fileEB_) <<std::endl ;
+  for (itList = stripListEB.begin(); itList != stripListEB.end(); itList++ ) {
+    (*out_fileEB_) <<"STRIP "<<dec<<(*itList)<<endl ;
+    (*out_fileEB_) << hex << "0x" <<sliding_<<std::endl ;
+    (*out_fileEB_) <<" 0" << std::endl ;
   }
 
   towerListEB.sort() ;
   towerListEB.unique() ;
   cout<<"Number of EB towers="<<towerListEB.size()<<endl ;
-  if (writeToFiles_) {
-    (*out_fileEB_) <<std::endl ;
-    (*geomFile_)<<"BARREL"<<endl ;
-    for (itList = towerListEB.begin(); itList != towerListEB.end(); itList++ ) {
-      (*out_fileEB_) <<"TOWER "<<dec<<(*itList)<<endl ;
-      (*out_fileEB_) <<" 0\n 0\n" ;
-      EcalTrigTowerDetId towerId((*itList)) ;
-      int dccNb = theMapping_->DCCid(towerId) ;
-      int tccNb = theMapping_->TCCid(towerId) ;
-      int towerInTCC = theMapping_->iTT(towerId) ;
-      (*geomFile_)<<"towerId="<<(*itList)<<" ieta="<<towerId.ietaAbs()<<" iphi="<<towerId.iphi()
-		  <<" dccNb="<<dccNb<<" tccNb="<<tccNb<<" towerInTCC="<<towerInTCC<<endl ;
-    }
+  (*out_fileEB_) <<std::endl ;
+  (*geomFile_)<<"BARREL"<<endl ;
+  for (itList = towerListEB.begin(); itList != towerListEB.end(); itList++ ) {
+    (*out_fileEB_) <<"TOWER "<<dec<<(*itList)<<endl ;
+    (*out_fileEB_) <<" 0\n 0\n" ;
+    EcalTrigTowerDetId towerId((*itList)) ;
+    int dccNb = theMapping_->DCCid(towerId) ;
+    int tccNb = theMapping_->TCCid(towerId) ;
+    int towerInTCC = theMapping_->iTT(towerId) ;
+    (*geomFile_)<<"towerId="<<(*itList)<<" ieta="<<towerId.ietaAbs()<<" iphi="<<towerId.iphi()<<" dccNb="<<dccNb<<" tccNb="<<tccNb<<" towerInTCC="<<towerInTCC<<endl ;
   }
 
   // Endcap
   stripListEE.sort() ;
   stripListEE.unique() ;
   cout<<"Number of EE strips="<<stripListEE.size()<<endl ;
-  if (writeToFiles_) {
-    (*out_fileEE_) <<std::endl ;
-    for (itList = stripListEE.begin(); itList != stripListEE.end(); itList++ ) {
-      (*out_fileEE_) <<"STRIP "<<dec<<(*itList)<<endl ;
-      (*out_fileEE_) << hex << "0x" <<sliding_<<std::endl ;
-      (*out_fileEE_) <<" 0" << std::endl ;
-      (*out_fileEE_)<<hex<<"0x"<<threshold<<" 0x"<<lut_strip<<std::endl ;  
-    }
+  (*out_fileEE_) <<std::endl ;
+  for (itList = stripListEE.begin(); itList != stripListEE.end(); itList++ ) {
+    (*out_fileEE_) <<"STRIP "<<dec<<(*itList)<<endl ;
+    (*out_fileEE_) << hex << "0x" <<sliding_<<std::endl ;
+    (*out_fileEE_) <<" 0" << std::endl ;
+    (*out_fileEE_)<<hex<<"0x"<<threshold<<" 0x"<<lut_strip<<std::endl ;  
   }
 
   towerListEE.sort() ;
   towerListEE.unique() ;
   cout<<"Number of EE towers="<<towerListEE.size()<<endl ;
-  if (writeToFiles_) {
-    (*out_fileEE_) <<std::endl ;
-    (*geomFile_)<<"ENDCAP"<<endl ;
-    for (itList = towerListEE.begin(); itList != towerListEE.end(); itList++ ) {
-      (*out_fileEE_) <<"TOWER "<<dec<<(*itList)<<endl ;
-      (*out_fileEE_) <<" 0\n" ;
-      (*out_fileEE_)<<hex<<"0x"<<lut_tower<<std::endl ;
-      EcalTrigTowerDetId towerId((*itList)) ;
-      int dccNb = theMapping_->DCCid(towerId) ;
-      int tccNb = theMapping_->TCCid(towerId) ;
-      int towerInTCC = theMapping_->iTT(towerId) ;
-      (*geomFile_)<<"towerId="<<(*itList)<<" ieta="<<towerId.ietaAbs()<<" iphi="<<towerId.iphi()
-		  <<" dccNb="<<dccNb<<" tccNb="<<tccNb<<" towerInTCC="<<towerInTCC<<endl ;      
-    }
+  (*out_fileEE_) <<std::endl ;
+  (*geomFile_)<<"ENDCAP"<<endl ;
+  for (itList = towerListEE.begin(); itList != towerListEE.end(); itList++ ) {
+    (*out_fileEE_) <<"TOWER "<<dec<<(*itList)<<endl ;
+    (*out_fileEE_) <<" 0\n" ;
+    (*out_fileEE_)<<hex<<"0x"<<lut_tower<<std::endl ;
+    EcalTrigTowerDetId towerId((*itList)) ;
+    int dccNb = theMapping_->DCCid(towerId) ;
+    int tccNb = theMapping_->TCCid(towerId) ;
+    int towerInTCC = theMapping_->iTT(towerId) ;
+    (*geomFile_)<<"towerId="<<(*itList)<<" ieta="<<towerId.ietaAbs()<<" iphi="<<towerId.iphi()<<" dccNb="<<dccNb<<" tccNb="<<tccNb<<" towerInTCC="<<towerInTCC<<endl ;
+
   }
+
 }
 
 void EcalTPGParamBuilder::beginJob(const edm::EventSetup& evtSetup)
@@ -389,19 +368,17 @@ void EcalTPGParamBuilder::beginJob(const edm::EventSetup& evtSetup)
   DetId eb(DetId::Ecal,EcalBarrel) ;
   DetId ee(DetId::Ecal,EcalEndcap) ;
 
-  if (writeToFiles_) {
-    (*out_fileEB_)<<"PHYSICS "<<dec<<eb.rawId()<<std::endl ;
-    (*out_fileEB_)<<Et_sat_<<" "<<TTF_lowThreshold_EB_<<" "<<TTF_highThreshold_EB_<<std::endl ;
-    (*out_fileEB_)<<FG_lowThreshold_EB_<<" "<<FG_highThreshold_EB_<<" "
-		  <<FG_lowRatio_EB_<<" "<<FG_highRatio_EB_<<std::endl ;
-    (*out_fileEB_) <<std::endl ;
+  (*out_fileEB_)<<"PHYSICS "<<dec<<eb.rawId()<<std::endl ;
+  (*out_fileEB_)<<Et_sat_<<" "<<TTF_lowThreshold_EB_<<" "<<TTF_highThreshold_EB_<<std::endl ;
+  (*out_fileEB_)<<FG_lowThreshold_EB_<<" "<<FG_highThreshold_EB_<<" "
+		<<FG_lowRatio_EB_<<" "<<FG_highRatio_EB_<<std::endl ;
+  (*out_fileEB_) <<std::endl ;
 
-    (*out_fileEE_)<<"PHYSICS "<<dec<<ee.rawId()<<std::endl ;
-    (*out_fileEE_)<<Et_sat_<<" "<<TTF_lowThreshold_EE_<<" "<<TTF_highThreshold_EE_<<std::endl ;
-    (*out_fileEE_)<<FG_Threshold_EE_<<" "<<-1<<" "
-		  <<-1<<" "<<-1<<std::endl ;
-    (*out_fileEE_) <<std::endl ;
-  }
+  (*out_fileEE_)<<"PHYSICS "<<dec<<ee.rawId()<<std::endl ;
+  (*out_fileEE_)<<Et_sat_<<" "<<TTF_lowThreshold_EE_<<" "<<TTF_highThreshold_EE_<<std::endl ;
+  (*out_fileEE_)<<FG_Threshold_EE_<<" "<<-1<<" "
+		<<-1<<" "<<-1<<std::endl ;
+  (*out_fileEE_) <<std::endl ;
 }
 
 
@@ -448,7 +425,6 @@ bool EcalTPGParamBuilder::computeLinearizerParam(double theta, double gainRatio,
 
 void EcalTPGParamBuilder::create_header(std::ofstream * out_file, std::string subdet) 
 {
-  if (!writeToFiles_) return ;
   (*out_file) <<"COMMENT put your comments here"<<std::endl ; 
   (*out_file) <<"COMMENT ================================="<<std::endl ;
   (*out_file) <<"COMMENT           physics structure"<<std::endl ;
@@ -521,7 +497,7 @@ void EcalTPGParamBuilder::create_header(std::ofstream * out_file, std::string su
 }
 
 
-int EcalTPGParamBuilder::uncodeWeight(double weight, int complement2)
+int EcalTPGParamBuilder::uncodeWeight(double weight, uint complement2)
 {
   int iweight ;
   uint max = (uint)(pow(2.,complement2)-1) ;
@@ -531,7 +507,7 @@ int EcalTPGParamBuilder::uncodeWeight(double weight, int complement2)
   return iweight ;
 }
 
-double EcalTPGParamBuilder::uncodeWeight(int iweight, int complement2)
+double EcalTPGParamBuilder::uncodeWeight(int iweight, uint complement2)
 {
   double weight = double(iweight)/pow(2., 6.) ;
   // test if negative weight:
@@ -573,7 +549,7 @@ std::vector<unsigned int> EcalTPGParamBuilder::computeWeights(EcalShape & shape)
   // Let's check:  
   int isumw  = 0 ;  
   for (uint sample = 0 ; sample<nSample_ ; sample++) isumw  += iweight[sample] ;
-  uint imax = (uint)(pow(2.,int(complement2_))-1) ;
+  uint imax = (uint)(pow(2.,complement2_)-1) ;
   isumw = (isumw & imax ) ;
 
   // Let's correct for bias if any
@@ -721,10 +697,7 @@ void EcalTPGParamBuilder::computeFineGrainEBParameters(uint & lowRatio, uint & h
   // bit3: maxof2/ET >= lowRatio, bit2: maxof2/ET >= highRatio, bit1: ET >= lowThreshold, bit0: ET >= highThreshold
   // FGVB =1 if jet-like (veto active), =0 if E.M.-like
   // the condition for jet-like is: ET>Threshold and  maxof2/ET < Ratio (only TT with enough energy are vetoed)
-
-  // With the following lut, what matters is only max(TLow, Thigh) and max(Elow, Ehigh)
-  // So, jet-like if maxof2/ettot<max(TLow, Thigh) && ettot >= max(Elow, Ehigh)
-  if (FG_lut_EB_ == 0) lut = 0x0888 ; 
+  if (FG_lut_EB_ == 0) lut = 0x0808 ; // both threshols and ratio are treated the same way.
   else lut = FG_lut_EB_ ; // let's use the users value (hope he/she knows what he/she does!)
 }
 

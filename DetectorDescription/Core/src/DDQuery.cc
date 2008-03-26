@@ -1,7 +1,6 @@
 
 #include "DetectorDescription/Core/interface/DDQuery.h"
 #include "DetectorDescription/Core/interface/DDCompactView.h"
-#include "DetectorDescription/Core/interface/DDFilter.h"
 //#include "DetectorDescription/Base/interface/DDdebug.h"
 
 DDQuery::DDQuery(const DDCompactView & cpv)

@@ -353,7 +353,7 @@
    <rParent name="zdc:ZDC_HadLayer"/>
    <rChild name="zdc:ZDC_HadFiber"/>
   <rRotation name="zdcrotations:R1"/>
-   <Translation x="[zdcHadXinitial]+33.0*[zdcHadXDelta]" y="0*fm" z="610*mum" />
+   <Translation x="[zdcHadXinitial]+23.0*[zdcHadXDelta]" y="0*fm" z="610*mum" />
  </PosPart>
  <PosPart copyNumber="25">
    <rParent name="zdc:ZDC_HadLayer"/>
@@ -653,7 +653,7 @@
    <rParent name="zdc:ZDC_HadLayer"/>
    <rChild name="zdc:ZDC_HadFiber"/>
   <rRotation name="zdcrotations:R1"/>
-   <Translation x="[zdcHadXinitial]+33.0*[zdcHadXDelta]" y="0*fm" z="610*mum" />
+   <Translation x="[zdcHadXinitial]+73.0*[zdcHadXDelta]" y="0*fm" z="610*mum" />
  </PosPart>
  <PosPart copyNumber="75">
    <rParent name="zdc:ZDC_HadLayer"/>
@@ -894,7 +894,7 @@
  <PosPart copyNumber="1">
    <rParent name="zdc:ZDC"/>
    <rChild name="zdc:ZDC_EMLayer"/>
-  <Translation x="0*fm" y="0*fm" z="-[zdcEMZinitial]+0.0*[zdcEMZDelta]" />
+  <Translation x="0*fm" y="0*fm" z="[zdcEMZinitial]+0.0*[zdcEMZDelta]" />
  </PosPart>
  <PosPart copyNumber="2">
    <rParent name="zdc:ZDC"/>
@@ -1044,7 +1044,7 @@
  <PosPart copyNumber="31">
    <rParent name="zdc:ZDC"/>
    <rChild name="zdc:ZDC_EMLayer"/>
-  <Translation x="0*fm" y="0*fm" z="[zdcEMZinitial]+30.0*[zdcEMZDelta]*cm" />
+  <Translation x="0*fm" y="0*fm" z="[zdcEMZinitial]+30.0*[zdcEMZDelta]" />
  </PosPart>
  <PosPart copyNumber="32">
    <rParent name="zdc:ZDC"/>
@@ -1207,7 +1207,7 @@
    <rParent name="zdc:ZDC_EMLayer"/>
    <rChild name="zdc:ZDC_EMFiber"/>
   <rRotation name="zdcrotations:R1"/>
-   <Translation x="[zdcEMXinitial]+33.0*[zdcEMXDelta]" y="0*fm" z="1000*mum" />
+   <Translation x="[zdcEMXinitial]+23.0*[zdcEMXDelta]" y="0*fm" z="1000*mum" />
  </PosPart>
  <PosPart copyNumber="25">
    <rParent name="zdc:ZDC_EMLayer"/>
@@ -1507,7 +1507,7 @@
    <rParent name="zdc:ZDC_EMLayer"/>
    <rChild name="zdc:ZDC_EMFiber"/>
   <rRotation name="zdcrotations:R1"/>
-   <Translation x="[zdcEMXinitial]+33.0*[zdcEMXDelta]" y="0*fm" z="1000*mum" />
+   <Translation x="[zdcEMXinitial]+73.0*[zdcEMXDelta]" y="0*fm" z="1000*mum" />
  </PosPart>
  <PosPart copyNumber="75">
    <rParent name="zdc:ZDC_EMLayer"/>

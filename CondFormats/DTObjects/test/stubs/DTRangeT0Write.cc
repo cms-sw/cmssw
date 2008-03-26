@@ -9,20 +9,14 @@ Toy EDAnalyzer for testing purposes only.
 #include <string>
 #include <iostream>
 #include <map>
-#include "FWCore/Framework/interface/EDAnalyzer.h"
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
-#include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
 
 #include "CondFormats/DTObjects/test/stubs/DTRangeT0Write.h"
 #include "CondFormats/DTObjects/interface/DTRangeT0.h"
-#include "CondFormats/DataRecord/interface/DTRangeT0Rcd.h"
 
 #include <string>
 #include <map>

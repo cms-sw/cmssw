@@ -5,8 +5,8 @@
  *
  * Algo for reconstructing 2d segment in DT using a combinatorial approach
  *  
- * $Date: 2006/04/26 14:15:31 $
- * $Revision: 1.7 $
+ * $Date: 2006/04/28 15:21:52 $
+ * $Revision: 1.8 $
  * \author Stefano Lacaprara - INFN Legnaro <stefano.lacaprara@pd.infn.it>
  * \author Riccardo Bellan - INFN TO <riccardo.bellan@cern.ch>
  *
@@ -102,6 +102,7 @@ class DTCombinatorialPatternReco : public DTRecSegment2DBaseAlgo {
   double theAlphaMaxTheta;
   double theAlphaMaxPhi;
   bool debug;
+  bool usePairs;
   DTSegmentUpdator* theUpdator; // the updator and fitter
   DTSegmentCleaner* theCleaner; // the cleaner
     

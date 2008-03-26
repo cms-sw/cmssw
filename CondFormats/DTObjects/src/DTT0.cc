@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2007/11/24 12:29:12 $
- *  $Revision: 1.12.6.3 $
+ *  $Date: 2007/12/07 15:00:53 $
+ *  $Revision: 1.13 $
  *  \author Paolo Ronchese INFN Padova
  *
  */
@@ -21,6 +21,7 @@
 // C++ Headers --
 //---------------
 #include <iostream>
+#include <sstream>
 
 //-------------------
 // Initializations --
@@ -251,11 +252,16 @@ DTT0::const_iterator DTT0::end() const {
 
 
 std::string DTT0::mapName() const {
+/*
   std::string name = dataVersion + "_map_T0";
   char nptr[100];
   sprintf( nptr, "%x", reinterpret_cast<unsigned int>( this ) );
   name += nptr;
   return name;
+*/
+  std::stringstream name;
+  name << dataVersion << "_map_T0" << this;
+  return name.str();
 }
 
 

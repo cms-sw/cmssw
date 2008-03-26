@@ -3,7 +3,6 @@ import FWCore.ParameterSet.parsecf.pyparsing as pp
 import FWCore.ParameterSet.Config as cms
 from FWCore.ParameterSet.DictTypes import SortedKeysDict
 from Mixins import PrintOptions
-
 # Questions
 #  If an include includes a parameter already defined is that an error?
 #  If a 'using' block includes a parameter already defined, is that an error?
@@ -170,23 +169,23 @@ def _handleInclude(fileName,otherFiles,recurseFiles,parser,validator,recursor):
         
 def _handleUsing(using,otherUsings,process,allUsingLabels):
     """recursively go through the using blocks and return all the contained valued"""
-    if using.label in otherUsings:
+    if using.value() in otherUsings:
         raise pp.ParseFatalException(using.s,using.loc,
-    "the using labelled '"+using.label+"' recursively uses itself"+
+    "the using.value()led '"+using.value()+"' recursively uses itself"+
     "\n from file "+using.file)
-    allUsingLabels.add(using.label)
+    allUsingLabels.add(using.value())
     values = []
     valuesFromOtherUsings=[]
     otherUsings = otherUsings.copy()
-    otherUsings.add(using.label)
-    if using.label not in process:
+    otherUsings.add(using.value())
+    if using.value() not in process:
         raise pp.ParseFatalException(using.s,using.loc,
-                "the using labelled '"+using.label+"' does not correspond to a known block or PSet"
+                "the using.value()led '"+using.value()+"' does not correspond to a known block or PSet"
                 +"\n from file "+using.file)
-    d = process[using.label].__dict__
+    d = process[using.value()].__dict__
     usingLabels=[]
     for label,param in (x for x in d.iteritems() if isinstance(x[1],cms._ParameterTypeBase)):
-        if isinstance(param,_UsingNode):
+        if isinstance(param,cms.UsingBlock):
             newValues=_handleUsing(param,otherUsings,process,allUsingLabels)
             valuesFromOtherUsings.extend( newValues)
             values.extend(newValues)
@@ -195,12 +194,12 @@ def _handleUsing(using,otherUsings,process,allUsingLabels):
             values.append((label,param))
     for label in usingLabels:
         #remove the using nodes
-        delattr(process[using.label],label)
+        delattr(process[using.value()],label)
     for plabel,param in valuesFromOtherUsings:
-        item = process[using.label]
+        item = process[using.value()]
         if hasattr(item,plabel):
             raise pp.ParseFatalException(using.s,using.loc,
-                "the using labelled '"+using.label+"' tried to add the label '"+
+                "the using labelled '"+using.value()+"' tried to add the label '"+
                 plabel+"' which already exists in this block"
                 +"\n from file "+using.file)
         setattr(item,plabel,param)
@@ -212,7 +211,7 @@ def _findAndHandleUsingBlocksRecursive(label,item,process,allUsingLabels):
     usingLabels = []
     usingForValues = []
     for tempLabel,param in item.__dict__.iteritems():
-        if isinstance(param,_UsingNode):
+        if isinstance(param,cms.UsingBlock):
             oldSize = len(values)
             values.extend(_handleUsing(param,otherUsings,process,allUsingLabels))
             usingLabels.append(tempLabel)
@@ -228,7 +227,7 @@ def _findAndHandleUsingBlocksRecursive(label,item,process,allUsingLabels):
         if hasattr(item,plabel):
             using = usingForValues[index]
             raise pp.ParseFatalException(using.s,using.loc,
-                "the using labelled '"+using.label+"' tried to add the label '"+
+                "the labelledled '"+using.value()+"' tried to add the label '"+
                 plabel+"' which already exists in this block"
                 +"\n from file "+using.file)
         setattr(item,plabel,param)
@@ -243,6 +242,28 @@ def _findAndHandleProcessUsingBlock(values):
             for pset in item:
                 _findAndHandleUsingBlocksRecursive(label,pset,d,allUsingLabels)
     return allUsingLabels
+
+def _flagUsingBlocks(values):
+    """Only flags whether they're resolvable or not"""
+    d=dict(values)
+    for label,item in d.iteritems():
+        if isinstance(item,cms._Parameterizable):
+            _flagUsingBlocksRecursive(item,d)
+        elif isinstance(item,cms.VPSet):
+            for pset in item:
+                _flagUsingBlocksRecursive(pset,d)
+
+def _flagUsingBlocksRecursive(item, d):
+    for label,param in item.__dict__.iteritems():
+        if isinstance(param,cms.UsingBlock):
+            if item.label in d.keys():
+                item.isResolved = True
+        elif isinstance(param,cms._Parameterizable):
+            _flagUsingBlocksRecursive(label,param,process)
+        elif isinstance(param,cms.VPSet):
+            for pset in param:
+                _flagUsingBlocksRecursive(label,pset,process)
+
 
 def _badLabel(s,loc,expr,err):
     """a mal formed label was detected"""
@@ -295,6 +316,42 @@ def _makeLabeledVInputTag(s,loc,toks):
     if not tracked:
         cms.untracked(p)
     return (toks[0][1],p)
+
+def _makeLabeledEventID(s,loc,toks):
+    """create an EventID parameter from the tokens"""
+    tracked = True
+    if len(toks[0])==4:
+        tracked = False
+        del toks[0][0]
+    p = cms.EventID(int(toks[0][2][0]), int(toks[0][2][1]))
+    if not tracked:
+        cms.untracked(p)
+    return (toks[0][1],p)
+
+def _makeLabeledVEventID(s,loc,toks):
+    """create an VEventID parameter from the tokens"""
+    tracked = True
+    if len(toks[0])==4:
+        tracked = False
+        del toks[0][0]
+    values = list(iter(toks[0][2]))
+    items = [cms.EventID(*x) for x in values]
+    p = cms.VEventID(*items)
+    if not tracked:
+        cms.untracked(p)
+    return (toks[0][1],p)
+
+def _makeLabeledLuminosityBlockID(s,loc,toks):
+    """create an EventID parameter from the tokens"""
+    tracked = True
+    if len(toks[0])==4:
+        tracked = False
+        del toks[0][0]
+    p = cms.LuminosityBlockID(int(toks[0][2][0]), int(toks[0][2][1]))
+    if not tracked:
+        cms.untracked(p)
+    return (toks[0][1],p)
+
 
 def _makeDictFromList(values):
     values = _validateLabelledList(values)
@@ -366,23 +423,6 @@ def _makeLabeledSecSource(s,loc,toks):
         cms.untracked(ss)
     return (toks[0][1],ss)
 
-class _UsingNode(cms._ParameterTypeBase):
-    """For injection purposes, pretend this is a new parameter type
-       then have a post process step which strips these out
-    """
-    def __init__(self,label,s,loc):
-        global _fileStack
-        self.label = label
-        self.s = s
-        self.loc = loc
-        self.file = _fileStack[-1]
-    def dumpPython(self, options):
-        if options.isCfg:
-            return "process."+self.label
-        else:
-            return self.label
-
-
 
 #This is ugly but I need to know the labels used by all using statements
 # in order to efficiently process the 
@@ -390,9 +430,12 @@ _allUsingLabels = set()
 def _makeUsing(s,loc,toks):
     global _allUsingLabels
     _allUsingLabels.add(toks[0][1])
+    #global _fileStack
+    #file = _fileStack[-1]
     #TEMP:usings are hard, lets wait
     #raise pp.ParseFatalException(s,loc,"using not yet implemented")
-    return ('using_'+toks[0][1],_UsingNode(toks[0][1],s,loc))
+    options = PrintOptions()
+    return ('using_'+toks[0][1],cms.UsingBlock(toks[0][1]))
 
 
 class _IncludeNode(cms._ParameterTypeBase):
@@ -497,14 +540,19 @@ class _IncludeFromNode(_IncludeNode):
         import copy
         # First, expand everything, so blocks 
         # don't worry about re-parsing
-        if self.filename in otherFiles:
+        wasHere = (self.filename in otherFiles)
+        if wasHere:
             otherFiles.remove(self.filename)
         expandedValues = _IncludeNode.extract(self, newLabel, otherFiles,recurseFiles,parser,validator,recursor)
+        # one possible fix to the issue of whether the original gets included
+        if not wasHere:
+            otherFiles.remove(self.filename)
         found = False
         for l,v in expandedValues:
            if l == self._fromLabel:
                found = True
                # I don't know how to replace it, so I'll just have to copy
+               # second possbile fix is to comment this out
                expandedValues.remove((l,v))
                expandedValues.append((newLabel, copy.deepcopy(v)))
         if not found:
@@ -587,18 +635,38 @@ vinputTagParameter =pp.Group(untracked+pp.Keyword("VInputTag")+label+_equalTo
                              +_scopeEnd
                           ).setParseAction(_makeLabeledVInputTag)
 
+eventIDParameter = pp.Group(untracked+pp.Keyword("EventID")+label+_equalTo 
+                   + pp.Group( pp.Word(pp.nums) + pp.Suppress(':') + pp.Word(pp.nums) ) 
+                   ).setParseAction(_makeLabeledEventID)
+
+luminosityBlockIDParameter = pp.Group(untracked+pp.Keyword("LuminosityBlockID")+label+_equalTo
+                   + pp.Group( pp.Word(pp.nums) + pp.Suppress(':') + pp.Word(pp.nums) )
+                   ).setParseAction(_makeLabeledLuminosityBlockID)
+
 #since PSet and VPSets can contain themselves, we must declare them as 'Forward'
 PSetParameter = pp.Forward()
 VPSetParameter = pp.Forward()
 secsourceParameter = pp.Forward()
-parameter = simpleParameter|stringParameter|vsimpleParameter|fileInPathParameter|vstringParameter|inputTagParameter|vinputTagParameter|PSetParameter|VPSetParameter|secsourceParameter
+block = pp.Forward()
+# need to tolerate internal blocks?
+def _makeLabeledBlock(s,loc,toks):
+    """create a PSet parameter from the tokens"""
+    p=_makePSet(s,loc,[toks[0][2]])
+    # They were tracked in the old system
+    #p=cms.untracked(p)
+    return (toks[0][1],p)
 
 using = pp.Group(pp.Keyword("using")+letterstart).setParseAction(_makeUsing)
 include = pp.Group(pp.Keyword("include").suppress()+quotedString).setParseAction(_makeInclude)
 
-scopedParameters = _scopeBegin+pp.Group(pp.ZeroOrMore(parameter|using|include))+_scopeEnd
+# blocks and includes need to be included in case they're in fragments
+parameter = simpleParameter|stringParameter|vsimpleParameter|fileInPathParameter|vstringParameter|inputTagParameter|vinputTagParameter|eventIDParameter|luminosityBlockIDParameter|PSetParameter|VPSetParameter|secsourceParameter|block|include
 
+scopedParameters = _scopeBegin+pp.Group(pp.ZeroOrMore(parameter|using|include))+_scopeEnd
 #now we can actually say what PSet and VPSet are
+block <<  pp.Group(untracked+pp.Keyword("block")+label+_equalTo+scopedParameters
+                ).setParseAction(_makeLabeledBlock)
+
 PSetParameter << pp.Group(untracked+pp.Keyword("PSet")+label+_equalTo+scopedParameters
                           ).setParseAction(_makeLabeledPSet)
 VPSetParameter << pp.Group(untracked+pp.Keyword("VPSet")+label+_equalTo
@@ -645,6 +713,19 @@ def _replaceKeywordWithType(s,loc,toks):
     type = toks[0][1].type_()
     return (type,toks[0][1])
 
+def _MakeESPrefer(s, loc, toks):
+    value = None
+    label = 'es_prefer_'+toks[0][1]
+    if len(toks[0]) == 4:
+        # type, label
+        value = cms.ESPrefer(toks[0][2], toks[0][1]) 
+    elif len(toks[0])==3:
+        value = cms.ESPrefer(toks[0][1])
+    else:
+        print "Strange parse of es_prefer "+str(toks)
+    return (label,value)
+
+    
 typeWithParameters = pp.Group(letterstart+scopedParameters)
 
 #secsources are parameters but they behave like Plugins
@@ -662,6 +743,10 @@ looper = pp.Group(pp.Keyword("looper")+_equalTo
 service = pp.Group(pp.Keyword("service")+_equalTo
                    +typeWithParameters.copy().setParseAction(_MakePlugin(cms.Service))
                   ).setParseAction(_replaceKeywordWithType)
+
+es_prefer = pp.Group(pp.Keyword("es_prefer")+pp.Optional(letterstart)+_equalTo+label+scopedParameters).setParseAction(_MakeESPrefer)
+
+
 #for now, pretend all modules are filters since filters can function like
 # EDProducer's or EDAnalyzers
 module = pp.Group(pp.Suppress(pp.Keyword("module"))+label+_equalTo
@@ -696,9 +781,6 @@ def _labelOptional(alabel,type,appendToLabel=''):
 
 es_module = _labelOptional("es_module",cms.ESProducer)
 es_source = _labelOptional("es_source",cms.ESSource)
-#need to distinguish the es_prefer labels from the items they are actually choosing
-_es_prefer_label_extension = '@prefer'
-es_prefer = _labelOptional("es_prefer",cms.ESPrefer,_es_prefer_label_extension)
 
 plugin = source|looper|service|outputModuleGuess|producerGuess|analyzerGuess|module|es_module|es_source|es_prefer
 plugin.ignore(pp.cppStyleComment)
@@ -720,28 +802,30 @@ pathexp << pp.Group(pathseq + pp.ZeroOrMore('&'+pathexp))
 class _LeafNode(object):
     def __init__(self,label):
         self.__isNot = False
-        self.__label = label
-        if self.__label[0]=='!':
-            self.__label=self.__label[1:]
+        self._label = label
+        if self._label[0]=='!':
+            self._label=self._label[1:]
             self.__isNot = True
     def __str__(self):
         v=''
         if self.__isNot:
             v='!'
-        return v+self.__label
+        return v+self._label
     def make(self,process):
         #print getattr(process,self.__label).label()
-        v = getattr(process,self.__label)
+        v = getattr(process,self._label)
         if self.__isNot:
             v= ~v
         return v
+    def getLeaves(self, leaves):
+        leaves.append(self)
     def dumpPython(self, options):
         result = ''
         if self.__isNot:
             result += '~'
         if options.isCfg:
             result += "process."
-        return result + self.__label
+        return result + self._label
 
 class _AidsOp(object):
     def __init__(self,left,right):
@@ -749,6 +833,9 @@ class _AidsOp(object):
         self.__right = right
     def __str__(self):
         return '('+str(self.__left)+','+str(self.__right)+')'
+    def getLeaves(self, leaves):
+        self.__left.getLeaves(leaves)
+        self.__right.getLeaves(leaves)
     def dumpPython(self, options):
         return self.__left.dumpPython(options)+'*'+self.__right.dumpPython(options)
     def make(self,process):
@@ -762,6 +849,9 @@ class _FollowsOp(object):
         self.__right = right
     def __str__(self):
         return '('+str(self.__left)+'&'+str(self.__right)+')'
+    def getLeaves(self, leaves):
+        self.__left.getLeaves(leaves)
+        self.__right.getLeaves(leaves)
     def dumpPython(self, options):
         return self.__left.dumpPython(options)+'+'+self.__right.dumpPython(options)
     def make(self,process):
@@ -821,6 +911,8 @@ class _ModuleSeries(object):
         # probably don't want "process." everywhere
         options.isCfg = False
         return self.dumpPython(options)
+    def getLeaves(self, leaves):
+        self.topNode.getLeaves(leaves)
     def dumpPython(self, options):
         return "cms."+self.factory().__name__+"("+self.topNode.dumpPython(options)+")"
 
@@ -891,14 +983,6 @@ schedule = pp.Group(pp.Keyword('schedule').suppress()+_equalTo+
 #==================================================================
 # Other top level items
 #==================================================================
-def _makeLabeledBlock(s,loc,toks):
-    """create an untracked PSet parameter from the tokens"""
-    p=_makePSet(s,loc,[toks[0][2]])
-    p=cms.untracked(p)
-    return (toks[0][1],p)
-
-block = pp.Group(untracked+pp.Keyword("block")+label+_equalTo+scopedParameters
-                ).setParseAction(_makeLabeledBlock)
 
 class _ReplaceNode(object):
     """Handles the 'replace' command"""
@@ -964,7 +1048,7 @@ class _ReplaceSetter(object):
         #if it's a number, we don't want quotes
         result = str(value)
         nodots = result.replace('.','')
-        if nodots.isdigit():
+        if nodots.isdigit() or (len(nodots) > 0 and nodots[0] == '-') or (len(nodots) > 1 and (nodots[0:2] == '0x' or nodots[0:2] == '0X')):
             pass
         elif result == 'true':
             result = 'True'
@@ -989,7 +1073,8 @@ class _ReplaceSetter(object):
                result = "cms.VInputTag("+result+")"
             else:
                result = "["+result+"]"
-        elif result.find(':') != -1:
+        # some frontier address strings have colons and slashes 
+        elif result.find(':') != -1 and result.find('/') == -1:
             result = repr(cms.InputTag._valueFromString(result))
         else:
             # need the quotes
@@ -1271,9 +1356,9 @@ def _dumpCfg(s,loc,toks):
     values = _getCompressedNodes(s, loc, list(iter(toks[0][1])) )
     options = PrintOptions()
     options.isCfg = True
-    result = "import FWCore.ParameterSet.Config as cms\nprocess = cms.Process(\""+label+"\")\n"
-    print result+dumpPython(values, options)
-    return
+    result = "import FWCore.ParameterSet.Config as cms\n\nprocess = cms.Process(\""+label+"\")\n"
+    result += dumpPython(values, options)
+    return result
 
 def _makeProcess(s,loc,toks):
     """create a Process from the tokens"""
@@ -1402,7 +1487,7 @@ cfgDumper.ignore(pp.pythonStyleComment)
 
 
 def dumpDict(d):
-    result = 'import FWCore.ParameterSet.Config as cms\n'
+    result = 'import FWCore.ParameterSet.Config as cms\n\n'
     options = PrintOptions()
     options.isCfg = False
     return result+dumpPython(d, options)
@@ -1419,24 +1504,26 @@ def dumpPython(d, options):
     if options.isCfg:
         prefix = 'process.'
     for key,value in d:
+        newLabel = prefix+key
+        # dashes aren't allowed in python identifier
+        newLabel.replace('-','_')
         if isinstance(value,_IncludeFromNode):
             value.createFile(False)
-            newLabel = prefix + key
-            includes += value.dumpPythonAs(prefix+key, options)
+            includes += value.dumpPythonAs(newLabel, options)
         elif isinstance(value,_IncludeNode):
             value.createFile(False)
             includes += value.dumpPython(options)+"\n"
         elif isinstance(value,_ReplaceNode):
             replaces += prefix+value.dumpPython(options)+"\n"
         elif isinstance(value,_ModuleSeries):
-            sequences += prefix+key+" = "+value.dumpPython(options)+"\n"
+            sequences += newLabel+" = "+value.dumpPython(options)+"\n"
         elif isinstance(value,_Schedule):
-            schedules += prefix+key+" = "+value.dumpPython(options)+"\n"
+            schedules += newLabel+" = "+value.dumpPython(options)+"\n"
         elif isinstance(value, cms.ESPrefer):
             others += value.dumpPythonAs(key, options)
         else:
-            others += prefix+key+" = "+value.dumpPython(options)+"\n"
-    return includes+"\n"+others+"\n"+sequences+"\n"+schedules+"\n"+replaces
+            others += newLabel+" = "+value.dumpPython(options)+"\n"
+    return includes+others+sequences+schedules+replaces+"\n"
 
 class _ConfigReturn(object):
     def __init__(self,d):
@@ -1485,7 +1572,7 @@ def parseCffFile(fileName):
         _fileStack.pop()
 
 def dumpCfg(fileName):
-    cfgDumper.parseFile(_fileFactory(fileName))
+    return cfgDumper.parseFile(_fileFactory(fileName))[0]
 
 
 def dumpCff(fileName):
@@ -1497,8 +1584,25 @@ def dumpCff(fileName):
     for key,value in compressedValues:
         if isinstance(value, cms._Labelable):
             value.setLabel(key)
+
+    _validateSequences(compressedValues)
+
     return dumpDict(compressedValues)
 
+def _validateSequences(values):
+    """ Takes the usual list of pairs, and for each
+    sequence, checks see if the keys are defined yet.
+    Adds a placeholders for missing keys"""
+    keys = set()
+    leaves = list()
+    expandedValues = _findAndHandleProcessBlockIncludes(values)
+    for key, value in expandedValues:
+        keys.add(key)
+        if isinstance(value, _ModuleSeries):
+           value.getLeaves(leaves)
+    for leaf in leaves:
+        if not leaf._label in keys:
+            leaf._label = "cms.SequencePlaceholder(\""+leaf._label+"\")"
 
 def processFromString(configString):
     """Reads a string containing the equivalent content of a .cfg file and
@@ -1539,6 +1643,11 @@ if __name__=="__main__":
         def setUp(self):
             """Nothing to do """
             #print 'testing'
+        def testPlaceholder(self):
+            t=path.parseString('path p = {out}')
+            _validateSequences(t)
+            self.assertEqual(repr(t[0][1]), "cms.Path(cms.SequencePlaceholder(\"out\"))")
+
         def testLetterstart(self):
             t = letterstart.parseString("abcd")
             self.assertEqual(len(t),1)
@@ -1650,6 +1759,19 @@ if __name__=="__main__":
             d=dict(iter(t))
             self.assertEqual(type(d['blah']),cms.VInputTag)
             self.assertEqual(d['blah'],[cms.InputTag('abc'),cms.InputTag('def')])
+
+            t=onlyParameters.parseString("EventID eid= 1:2")
+            d=dict(iter(t))
+            self.assertEqual(type(d['eid']),cms.EventID)
+            self.assertEqual(d['eid'].run(), 1)
+            self.assertEqual(d['eid'].event(), 2)
+            t=onlyParameters.parseString("LuminosityBlockID lbid= 1:2")
+            d=dict(iter(t))
+            self.assertEqual(type(d['lbid']),cms.LuminosityBlockID)
+            self.assertEqual(d['lbid'].run(), 1)
+            self.assertEqual(d['lbid'].luminosityBlock(), 2)
+
+
             
             t=onlyParameters.parseString("PSet blah = {}")
             d=dict(iter(t))
@@ -1726,7 +1848,7 @@ PSet blah = {
             t=onlyParameters.parseString("PSet blah = {using ick}")
             d=dict(iter(t))
             self.assertEqual(type(d['blah']),cms.PSet)
-            self.assertEqual(d['blah'].using_ick.label, 'ick')
+            self.assertEqual(d['blah'].using_ick.value(), 'ick')
         def testInclude(self):
             #for testing use a different factory
             import StringIO
@@ -2629,12 +2751,14 @@ process RECO = {
             t[0][1].do(process)
             self.assertEqual(process.a.b.value(),1)
             #print t
+            process = cms.Process("Test")
             process.a = cms.EDProducer('FooProd', b=cms.PSet(c=cms.double(2)))
             t=replace.parseString('replace a.b.c = 1')
             self.assertEqual(t[0][0],'a.b.c')
             self.assertEqual(t[0][1].path, ['a','b','c'])
             self.assertEqual(t[0][1].value,'1')
             self.checkRepr(t[0][1], "a.b.c = 1")
+            self.assertEqual(type(process.a.b),cms.PSet)
             t[0][1].do(process)
             self.assertEqual(type(process.a.b),cms.PSet)
             self.assertEqual(process.a.b.c.value(),1.0)
@@ -2648,6 +2772,7 @@ process RECO = {
             self.assertEqual(type(process.a.b),cms.PSet)
             self.assertEqual(process.a.b.c.value(),1.359)
             #print t
+            process = cms.Process("Test")
             process.a = cms.EDProducer('FooProd', b=cms.untracked.PSet())
             self.assertEqual(process.a.b.isTracked(),False)
             t=replace.parseString('replace a.b = {untracked string threshold ="DEBUG"}')
@@ -2657,6 +2782,7 @@ process RECO = {
             self.assertEqual(process.a.b.threshold.value(),"DEBUG")
             self.assertEqual(process.a.b.threshold.isTracked(),False)
             #print t
+            process = cms.Process("Test")
             process.a = cms.EDProducer('FooProd', b=cms.PSet(c=cms.untracked.double(2)))
             self.assertEqual(process.a.b.c.value(),2.0)
             self.assertEqual(process.a.b.c.isTracked(),False)
@@ -2671,6 +2797,7 @@ process RECO = {
             self.assertEqual(t[0][0],'a.b')
             self.assertEqual(t[0][1].path, ['a','b'])
             self.assertEqual(t[0][1].value,'all that')
+            process = cms.Process("Test")
             process.a = cms.EDProducer('FooProd', b=cms.string('thing'))
             self.checkRepr(t[0][1], "a.b = \'all that\'")
             t[0][1].do(process)
@@ -2687,6 +2814,7 @@ process RECO = {
             self.assertEqual(t[0][0],'a.b')
             self.assertEqual(t[0][1].path, ['a','b'])
             self.assertEqual(t[0][1].value,['1','3','6'])
+            process = cms.Process("Test")
             process.a = cms.EDProducer('FooProd', b=cms.vint32())
             self.checkRepr(t[0][1], "a.b = [1, 3, 6]")
 
@@ -2709,6 +2837,7 @@ process RECO = {
             self.assertEqual(type(t[0][1].value),cms.PSet)
             self.assertEqual(t[0][1].value.i.value(), 1) 
             self.checkRepr(t[0][1], "a.b = cms.PSet(i=cms.int32(1))")
+            process = cms.Process("Test")
             process.a = cms.EDProducer('FooProd', b=cms.PSet(j=cms.uint32(5)))
             t[0][1].do(process)
             self.assertEqual(process.a.b.i.value(),1)
@@ -2721,10 +2850,12 @@ process RECO = {
             self.assertEqual(type(t[0][1].value),cms.VPSet)
             self.assertEqual(t[0][1].value[0].i.value(), 1) 
             self.checkRepr(t[0][1], "a.b = cms.VPSet(cms.PSet(i=cms.int32(1)))")
+            process = cms.Process("Test")
             process.a = cms.EDProducer('FooProd', b=cms.VPSet((cms.PSet(j=cms.uint32(5)))))
             t[0][1].do(process)
             self.assertEqual(process.a.b[0].i.value(),1)
             
+            process = cms.Process("Test")
             process.a = cms.EDProducer('FooProd', b=cms.vuint32(2))
             t=replace.parseString('replace a.b += 1')
             self.assertEqual(t[0][0],'a.b')
@@ -2734,6 +2865,7 @@ process RECO = {
             t[0][1].do(process)
             self.assertEqual(list(process.a.b),[2,1])
 
+            process = cms.Process("Test")
             process.a = cms.EDProducer('FooProd', b=cms.vuint32(2))
             t=replace.parseString('replace a.b += {1,3}')
             self.assertEqual(t[0][0],'a.b')
@@ -2748,6 +2880,7 @@ process RECO = {
             self.assertEqual(t[0][1].path, ['a','b'])
             self.assertEqual(t[0][1].value,'all that')
             self.checkRepr(t[0][1], "a.b.append(\'all that\')")
+            process = cms.Process("Test")
             process.a = cms.EDProducer('FooProd', b=cms.vstring('thing'))
             t[0][1].do(process)
             self.assertEqual(list(process.a.b),['thing','all that'])
@@ -2757,6 +2890,7 @@ process RECO = {
             self.assertEqual(t[0][1].path, ['a','b'])
             self.assertEqual(t[0][1].value,['all that','and more'])
             self.checkRepr(t[0][1], "a.b.extend([\'all that\', \'and more\'])")
+            process = cms.Process("Test")
             process.a = cms.EDProducer('FooProd', b=cms.vstring('thing'))
             t[0][1].do(process)
             self.assertEqual(list(process.a.b),['thing','all that','and more'])
@@ -2767,6 +2901,7 @@ process RECO = {
             self.assertEqual(type(t[0][1].value),cms.PSet)
             self.assertEqual(t[0][1].value.i.value(), 1) 
             self.checkRepr(t[0][1], "a.b.append(cms.PSet(i=cms.int32(1)))")
+            process = cms.Process("Test")
             process.a = cms.EDProducer('FooProd',
                                        b=cms.VPSet((cms.PSet(j=cms.uint32(5)))))
             t[0][1].do(process)
@@ -2779,11 +2914,13 @@ process RECO = {
             self.assertEqual(type(t[0][1].value),cms.VPSet)
             self.assertEqual(t[0][1].value[0].i.value(), 1) 
             self.checkRepr(t[0][1], "a.b.extend(cms.VPSet(cms.PSet(i=cms.int32(1))))")
+            process = cms.Process("Test")
             process.a = cms.EDProducer('FooProd', b=cms.VPSet((cms.PSet(j=cms.uint32(5)))))
             t[0][1].do(process)
             self.assertEqual(len(process.a.b),2)
             self.assertEqual(process.a.b[1].i.value(),1)
 
+            process = cms.Process("Test")
             process.a = cms.EDProducer('FooProd', b=cms.vuint32(2), c=cms.vuint32(1))
             t=replace.parseString('replace a.b += a.c')
             self.assertEqual(t[0][0],'a.b')
@@ -2793,6 +2930,7 @@ process RECO = {
             t[0][1].do(process)
             self.assertEqual(list(process.a.b),[2,1])
             
+            process = cms.Process("Test")
             process.a = cms.EDProducer('FooProd', b=cms.vuint32(2), c=cms.uint32(1))
             t=replace.parseString('replace a.b += a.c')
             self.assertEqual(t[0][0],'a.b')
@@ -2802,27 +2940,32 @@ process RECO = {
             t[0][1].do(process)
             self.assertEqual(list(process.a.b),[2,1])
 
+            process = cms.Process("Test")
             foobar = 'cms.InputTag("foobar","","")'
+            fooRepr = 'cms.InputTag("foobar")'
             process.a = cms.EDProducer('FooProd', b=cms.InputTag("bar",""))
             t = replace.parseString('replace a.b = foobar:')
-            self.checkRepr(t[0][1], "a.b = "+foobar)
+            self.checkRepr(t[0][1], "a.b = "+fooRepr)
             t[0][1].do(process)
-            self.assertEqual(process.a.b.configValue(),'foobar::')                        
+            self.assertEqual(process.a.b.configValue(),'foobar')                        
 
+            process = cms.Process("Test")
             process.a = cms.EDProducer('FooProd', b=cms.VInputTag((cms.InputTag("bar"))))
             t = replace.parseString('replace a.b = {foobar:}')
-            self.checkRepr(t[0][1], "a.b = cms.VInputTag("+foobar+")")
+            self.checkRepr(t[0][1], "a.b = cms.VInputTag("+fooRepr+")")
             t[0][1].do(process)
             #self.assertEqual(process.a.b.configValue('',''),'{\nfoobar::\n}\n')                        
             self.assertEqual(list(process.a.b),[cms.InputTag('foobar')])                        
 
+            process = cms.Process("Test")
             process.a = cms.EDProducer('FooProd', b=cms.VInputTag((cms.InputTag("bar"))))
             t = replace.parseString('replace a.b += {foobar:}')
-            self.checkRepr(t[0][1], "a.b.extend(cms.VInputTag("+foobar+"))")
+            self.checkRepr(t[0][1], "a.b.extend(cms.VInputTag("+fooRepr+"))")
             t[0][1].do(process)
             #self.assertEqual(process.a.b.configValue('',''),'{\nfoobar::\n}\n')                        
             self.assertEqual(list(process.a.b),[cms.InputTag("bar"),cms.InputTag('foobar')])                        
 
+            process = cms.Process("Test")
             process.a = cms.EDProducer("FooProd", b = cms.uint32(1))
             t = replace.parseString('replace a.c = 2')
             self.assertRaises(pp.ParseBaseException,t[0][1].do,(process))

@@ -9,8 +9,8 @@
  
  * \file EcalElectronicsMapper.h
  *
- * $Date: 2007/12/20 20:29:27 $
- * $Revision: 1.10 $
+ * $Date: 2008/02/24 23:19:38 $
+ * $Revision: 1.13 $
  * \author N. Almeida
  * \author G. Franzoni
  *
@@ -99,11 +99,14 @@ public:
 
   EcalTriggerPrimitiveDigi * getTPPointer(uint tccId, uint tower){ return ttTPIds_[tccId-1][tower-1];}
 
-  EcalScDetId  * getSCDetIdPointer(uint feChannel){ return  scDetIds_[smId_-1][feChannel-1];}
+  EcalScDetId  * getSCDetIdPointer(uint smId, uint feChannel){ return  scDetIds_[smId-1][feChannel-1];}
+
+  EcalElectronicsId  * getSCElectronicsPointer(uint smId, uint feChannel){ return  scEleIds_[smId-1][feChannel-1];}
   
+  // this getter method needs be clarified
   EcalSrFlag * getSrFlagPointer(uint feChannel){ return srFlags_[smId_-1][feChannel-1]; }
   
-  std::vector<uint> * getTccs(){ return mapSmIdToTccIds_[smId_];}
+  std::vector<uint> * getTccs(uint smId){ return mapSmIdToTccIds_[smId];}
 	
   uint getActiveDCC()                 { return dccId_;                      }
  
@@ -125,7 +128,8 @@ public:
 
   uint getSMId(uint aDCCId) const;
   
-  
+  uint getNumChannelsInDcc(uint aDCCId){return numChannelsInDcc_[aDCCId-1];}
+
   const EcalElectronicsMapping * mapping(){return mappingBuilder_;} 
   
   /**
@@ -178,16 +182,18 @@ private:
   
   uint ebTccBlockLength_, eeTccBlockLength_;
 
-  static const uint numChannelsInDcc[NUMB_SM];
+  static const uint numChannelsInDcc_[NUMB_SM];
 
     
   // ARRAYS OF DetId  
   DetId                     * xtalDetIds_[NUMB_SM][NUMB_FE][NUMB_STRIP][NUMB_XTAL];
   EcalScDetId               * scDetIds_[NUMB_SM][NUMB_FE];
+  EcalElectronicsId         * scEleIds_[NUMB_SM][NUMB_FE];
   EcalTrigTowerDetId        * ttDetIds_[NUMB_TCC][NUMB_FE];
   EcalElectronicsId         * ttEleIds_[NUMB_TCC][NUMB_FE];
   EcalTriggerPrimitiveDigi  * ttTPIds_[NUMB_TCC][NUMB_FE];
   EcalSrFlag                * srFlags_[NUMB_SM][NUMB_FE];
+
   const EcalElectronicsMapping    * mappingBuilder_;
   
 

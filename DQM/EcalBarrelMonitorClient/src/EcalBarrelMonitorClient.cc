@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorClient.cc
  *
- * $Date: 2008/01/18 18:08:42 $
- * $Revision: 1.363 $
+ * $Date: 2008/02/15 07:11:53 $
+ * $Revision: 1.374 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -19,8 +19,6 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-
-#include "DQMServices/Daemon/interface/MonitorDaemon.h"
 
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
@@ -191,7 +189,7 @@ void EcalBarrelMonitorClient::initialize(const ParameterSet& ps){
 
   // enableMonitorDaemon switch
 
-  enableMonitorDaemon_ = ps.getUntrackedParameter<bool>("enableMonitorDaemon", true);
+  enableMonitorDaemon_ = ps.getUntrackedParameter<bool>("enableMonitorDaemon", false);
 
   if ( enableMonitorDaemon_ ) {
     cout << " enableMonitorDaemon switch is ON" << endl;
@@ -241,22 +239,6 @@ void EcalBarrelMonitorClient::initialize(const ParameterSet& ps){
          << " Collector on host '" << hostName_ << "'"
          << " on port '" << hostPort_ << "'" << endl;
 
-  }
-
-  // enableServer switch
-
-  enableServer_ = ps.getUntrackedParameter<bool>("enableServer", false);
-  serverPort_   = ps.getUntrackedParameter<int>("serverPort", 9900);
-
-  if ( enableServer_ ) {
-    cout << " enableServer switch is ON" << endl;
-    if ( enableMonitorDaemon_ && hostPort_ != serverPort_ ) {
-      cout << " Forcing the same port for Collector and Server" << endl;
-      serverPort_ = hostPort_;
-    }
-    cout << " Running server on port '" << serverPort_ << "'" << endl;
-  } else {
-    cout << " enableServer switch is OFF" << endl;
   }
 
   // vector of selected Super Modules (Defaults to all 36).
@@ -627,8 +609,7 @@ EcalBarrelMonitorClient::~EcalBarrelMonitorClient(){
 
   delete summaryClient_;
 
-  mui_->disconnect();
-  // delete mui_;
+  delete mui_;
 
 }
 
@@ -667,16 +648,9 @@ void EcalBarrelMonitorClient::beginJob(const EventSetup &c) {
   // will attempt to reconnect upon connection problems (w/ a 5-sec delay)
 
   if ( enableMonitorDaemon_ ) {
-    if ( enableServer_ ) {
-      mui_ = new MonitorUIRoot(hostName_, hostPort_, clientName_, 5, true);
-    } else {
-      mui_ = new MonitorUIRoot(hostName_, hostPort_, clientName_, 5, false);
-    }
+    mui_ = new MonitorUIRoot(hostName_, hostPort_, clientName_, 5);
   } else {
     mui_ = new MonitorUIRoot();
-    if ( enableServer_ ) {
-      mui_->actAsServer(serverPort_, clientName_);
-    }
   }
 
   if ( verbose_ ) {
@@ -693,15 +667,11 @@ void EcalBarrelMonitorClient::beginJob(const EventSetup &c) {
     }
   }
 
-  mui_->setMaxAttempts2Reconnect(99999);
-
   for ( unsigned int i=0; i<clients_.size(); i++ ) {
     clients_[i]->beginJob(mui_);
   }
 
   summaryClient_->beginJob(mui_);
-
-  this->subscribe();
 
   Numbers::initGeometry(c);
 
@@ -780,8 +750,6 @@ void EcalBarrelMonitorClient::endJob(void) {
   }
 
   if ( verbose_ ) cout << "EcalBarrelMonitorClient: endJob, ievt = " << ievt_ << endl;
-
-  this->unsubscribe();
 
   this->cleanup();
 
@@ -910,6 +878,7 @@ void EcalBarrelMonitorClient::beginRunDb(void) {
     try {
       cout << "Opening DB connection ..." << endl;
       econn = new EcalCondDBInterface(dbHostName_, dbName_, dbUserName_, dbPassword_, dbHostPort_);
+      cout << "done." << endl;
     } catch (runtime_error &e) {
       cerr << e.what() << endl;
     }
@@ -938,7 +907,7 @@ void EcalBarrelMonitorClient::beginRunDb(void) {
 
   if ( econn ) {
     try {
-      cout << "Fetching RunIOV ... " << flush;
+      cout << "Fetching RunIOV ..." << endl;
 //      runiov_ = econn->fetchRunIOV(&runtag, run_);
       runiov_ = econn->fetchRunIOV(location_, run_);
       cout << "done." << endl;
@@ -963,13 +932,13 @@ void EcalBarrelMonitorClient::beginRunDb(void) {
 
     if ( econn ) {
       try {
-        cout << "Inserting RunIOV ... " << flush;
+        cout << "Inserting RunIOV ..." << endl;
         econn->insertRunIOV(&runiov_);
         cout << "done." << endl;
       } catch (runtime_error &e) {
         cerr << e.what() << endl;
         try {
-          cout << "Fetching RunIOV (again) ... " << flush;
+          cout << "Fetching RunIOV (again) ..." << endl;
 //          runiov_ = econn->fetchRunIOV(&runtag, run_);
           runiov_ = econn->fetchRunIOV(location_, run_);
           cout << "done." << endl;
@@ -1008,19 +977,9 @@ void EcalBarrelMonitorClient::beginRunDb(void) {
   cout << "====================" << endl;
   cout << endl;
 
-  if ( econn ) {
-    try {
-      std::cout << "Fetching EcalLogicID vectors..." << std::flush;
-      LogicID::init( econn );
-      std::cout << "done." << std::endl;
-    } catch(runtime_error &e) {
-      std::cerr << e.what() << std::endl;
-    }
-  }
-
   if ( maskFile_.size() != 0 ) {
     try {
-      cout << "Fetching masked channels from file ... " << flush;
+      cout << "Fetching masked channels from file ..." << endl;
       EcalErrorMask::readFile(maskFile_, verbose_);
       cout << "done." << endl;
     } catch (runtime_error &e) {
@@ -1029,7 +988,7 @@ void EcalBarrelMonitorClient::beginRunDb(void) {
   } else {
     if ( econn ) {
       try {
-        cout << "Fetching masked channels from DB ... " << flush;
+        cout << "Fetching masked channels from DB ..." << endl;
         EcalErrorMask::readDB(econn, &runiov_);
         cout << "done." << endl;
       } catch (runtime_error &e) {
@@ -1045,6 +1004,7 @@ void EcalBarrelMonitorClient::beginRunDb(void) {
       cout << "Closing DB connection ..." << endl;
       delete econn;
       econn = 0;
+      cout << "done." << endl;
     } catch (runtime_error &e) {
       cerr << e.what() << endl;
     }
@@ -1066,6 +1026,7 @@ void EcalBarrelMonitorClient::writeDb(void) {
     try {
       cout << "Opening DB connection ..." << endl;
       econn = new EcalCondDBInterface(dbHostName_, dbName_, dbUserName_, dbPassword_, dbHostPort_);
+      cout << "done." << endl;
     } catch (runtime_error &e) {
       cerr << e.what() << endl;
     }
@@ -1163,7 +1124,7 @@ void EcalBarrelMonitorClient::writeDb(void) {
 
   if ( econn ) {
     try {
-      ecid = LogicID::getEcalLogicID("ECAL");
+      ecid = LogicID::getEcalLogicID("EB");
       dataset[ecid] = md;
     } catch (runtime_error &e) {
       cerr << e.what() << endl;
@@ -1172,7 +1133,7 @@ void EcalBarrelMonitorClient::writeDb(void) {
 
   if ( econn ) {
     try {
-      cout << "Inserting MonRunDat ... " << flush;
+      cout << "Inserting MonRunDat ..." << endl;
       econn->insertDataSet(&dataset, &moniov_);
       cout << "done." << endl;
     } catch (runtime_error &e) {
@@ -1185,6 +1146,7 @@ void EcalBarrelMonitorClient::writeDb(void) {
       cout << "Closing DB connection ..." << endl;
       delete econn;
       econn = 0;
+      cout << "done." << endl;
     } catch (runtime_error &e) {
       cerr << e.what() << endl;
     }
@@ -1204,6 +1166,7 @@ void EcalBarrelMonitorClient::endRunDb(void) {
     try {
       cout << "Opening DB connection ..." << endl;
       econn = new EcalCondDBInterface(dbHostName_, dbName_, dbUserName_, dbPassword_, dbHostPort_);
+      cout << "done." << endl;
     } catch (runtime_error &e) {
       cerr << e.what() << endl;
     }
@@ -1225,7 +1188,7 @@ void EcalBarrelMonitorClient::endRunDb(void) {
 
   if ( econn ) {
     try {
-      cout << "Fetching RunDat ... " << flush;
+      cout << "Fetching RunDat ..." << endl;
       econn->fetchDataSet(&dataset, &runiov_);
       cout << "done." << endl;
       foundRunDat = true;
@@ -1241,7 +1204,7 @@ void EcalBarrelMonitorClient::endRunDb(void) {
 
     if ( econn ) {
       try {
-        ecid = LogicID::getEcalLogicID("ECAL");
+        ecid = LogicID::getEcalLogicID("EB");
         dataset[ecid] = rd;
       } catch (runtime_error &e) {
         cerr << e.what() << endl;
@@ -1250,7 +1213,7 @@ void EcalBarrelMonitorClient::endRunDb(void) {
 
     if ( econn ) {
       try {
-        cout << "Inserting RunDat ... " << flush;
+        cout << "Inserting RunDat ..." << endl;
         econn->insertDataSet(&dataset, &runiov_);
         cout << "done." << endl;
       } catch (runtime_error &e) {
@@ -1267,32 +1230,11 @@ void EcalBarrelMonitorClient::endRunDb(void) {
       cout << "Closing DB connection ..." << endl;
       delete econn;
       econn = 0;
+      cout << "done." << endl;
     } catch (runtime_error &e) {
       cerr << e.what() << endl;
     }
   }
-
-}
-
-void EcalBarrelMonitorClient::subscribe(void){
-
-  if ( verbose_ ) cout << "EcalBarrelMonitorClient: subscribe" << endl;
-
-  mui_->subscribe("*/EcalBarrel/*");
-
-}
-
-void EcalBarrelMonitorClient::subscribeNew(void){
-
-  mui_->subscribeNew("*/EcalBarrel/*");
-
-}
-
-void EcalBarrelMonitorClient::unsubscribe(void) {
-
-  if ( verbose_ ) cout << "EcalBarrelMonitorClient: unsubscribe" << endl;
-
-  mui_->unsubscribe("*/EcalBarrel/*");
 
 }
 
@@ -1310,7 +1252,7 @@ void EcalBarrelMonitorClient::analyze(void){
     mui_->doMonitoring();
   }
 
-  Char_t histo[200];
+  char histo[200];
 
   MonitorElement* me;
   string s;
@@ -1552,8 +1494,6 @@ void EcalBarrelMonitorClient::analyze(void){
   }
 
   // END: run-time fixes for missing state transitions
-
-  this->subscribeNew();
 
 }
 

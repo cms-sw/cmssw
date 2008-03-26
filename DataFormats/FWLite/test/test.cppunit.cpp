@@ -2,7 +2,7 @@
 
 Test program for edm::Ref use in ROOT.
 
-$Id: test.cppunit.cpp,v 1.3 2007/10/09 18:04:39 chrjones Exp $
+$Id: test.cppunit.cpp,v 1.4 2007/12/15 00:20:46 wmtan Exp $
  ----------------------------------------------------------------------*/
 
 #include <iostream>
@@ -10,14 +10,8 @@ $Id: test.cppunit.cpp,v 1.3 2007/10/09 18:04:39 chrjones Exp $
 #include <cppunit/extensions/HelperMacros.h>
 #include "FWCore/FWLite/interface/AutoLibraryLoader.h"
 #include "TFile.h"
-#include "TTree.h"
-#include "TBranch.h"
-#include "TROOT.h"
 #include "TSystem.h"
-#include "TChain.h"
 #include "DataFormats/TestObjects/interface/OtherThingCollection.h"
-#include "DataFormats/TestObjects/interface/ThingCollection.h"
-#include "DataFormats/Provenance/interface/BranchType.h"
 #include "FWCore/Utilities/interface/TestHelper.h"
 
 #include "DataFormats/FWLite/interface/Event.h"

@@ -112,27 +112,21 @@ EcalFixedAlphaBetaFitUncalibRecHitProducer::produce(edm::Event& evt, const edm::
    const EBDigiCollection* EBdigis =0;
    const EEDigiCollection* EEdigis =0;
 
-   //Barrel
-   if ( EBdigiCollection_.label() != "" && EBdigiCollection_.instance() != "" ) {
-           evt.getByLabel( EBdigiCollection_, pEBDigis);
-           // evt.getByLabel( digiProducer_, pEBDigis);
-           if ( pEBDigis.isValid() ) {
-                   EBdigis = pEBDigis.product(); // get a ptr to the EB product
-                   edm::LogInfo("EcalUncalibRecHitInfo") << "total # EBdigis: " << EBdigis->size();
-           } else {
-                   edm::LogError("EcalUncalibRecHitError") << "Error! can't get the product for EB: " << EBdigiCollection_;
-           }
+   try {//Barrel
+     evt.getByLabel( EBdigiCollection_, pEBDigis);
+     //     evt.getByLabel( digiProducer_, pEBDigis);
+     EBdigis = pEBDigis.product(); // get a ptr to the EB product
+     edm::LogInfo("EcalUncalibRecHitInfo") << "total # EBdigis: " << EBdigis->size();
+   } catch (...) {
+     //     std::cerr << "Error! can't get the product for EB: " << EBdigiCollection_.c_str() << std::endl;
    }
-   //Endcap
-   if ( EEdigiCollection_.label() != "" && EEdigiCollection_.instance() != "" ) {
-           evt.getByLabel( EEdigiCollection_, pEEDigis);
-           //     evt.getByLabel( digiProducer_, pEEDigis);
-           if ( pEEDigis.isValid() ) {
-                   EEdigis = pEEDigis.product(); // get a ptr to the EE product
-                   edm::LogInfo("EcalUncalibRecHitInfo") << "total # EEdigis: " << EEdigis->size() ;
-           } else {
-                   edm::LogError("EcalUncalibRecHitError") << "Error! can't get the product for EE: " << EEdigiCollection_;
-           }
+   try {//Endcap
+     evt.getByLabel( EEdigiCollection_, pEEDigis);
+     //     evt.getByLabel( digiProducer_, pEEDigis);
+     EEdigis = pEEDigis.product(); // get a ptr to the EE product
+     edm::LogInfo("EcalUncalibRecHitInfo") << "total # EEdigis: " << EEdigis->size() ;
+   } catch (...) {
+     //     edm::LogError("EcalUncalibRecHitError") << "Error! can't get the product for EE: " << EEdigiCollection_.c_str() ;
    }
 
    // Gain Ratios

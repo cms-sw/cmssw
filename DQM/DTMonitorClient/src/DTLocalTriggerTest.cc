@@ -2,8 +2,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2007/11/19 14:30:20 $
- *  $Revision: 1.13 $
+ *  $Date: 2007/11/12 17:59:00 $
+ *  $Revision: 1.12 $
  *  \author C. Battilana S. Marcellini - INFN Bologna
  */
 
@@ -19,11 +19,8 @@
 // Geometry
 #include "Geometry/Records/interface/MuonGeometryRecord.h"
 #include "Geometry/DTGeometry/interface/DTGeometry.h"
-
-// Root
-#include "TF1.h"
-#include "TProfile.h"
-
+#include "Geometry/DTGeometry/interface/DTLayer.h"
+#include "Geometry/DTGeometry/interface/DTTopology.h"
 
 //C++ headers
 #include <iostream>
@@ -111,7 +108,7 @@ void DTLocalTriggerTest::endLuminosityBlock(LuminosityBlock const& lumiSeg, Even
 	uint32_t indexCh = chId.rawId();
 
 	// Perform DCC/DDU common plot analysis (Phi ones)
-	TH2F * BXvsQual    = getHisto<TH2F>(dbe->get(getMEName("BXvsQual1st","LocalTriggerPhi", chId)));
+	TH2F * BXvsQual    = getHisto<TH2F>(dbe->get(getMEName("BXvsQual","LocalTriggerPhi", chId)));
 	TH1F * BestQual    = getHisto<TH1F>(dbe->get(getMEName("BestQual","LocalTriggerPhi", chId)));
 	TH2F * Flag1stvsBX = getHisto<TH2F>(dbe->get(getMEName("Flag1stvsBX","LocalTriggerPhi", chId)));
 	if (BXvsQual && Flag1stvsBX && BestQual) {
@@ -156,7 +153,7 @@ void DTLocalTriggerTest::endLuminosityBlock(LuminosityBlock const& lumiSeg, Even
 	if (QualvsPhirad && QualvsPhibend) {
 	      
 	  TH1D* phiR = QualvsPhirad->ProjectionX();
-	  TH1D* phiB = QualvsPhibend->ProjectionX("_px",5,7,"");
+	  TH1D* phiB = QualvsPhibend->ProjectionX();
 
 	  if( chambME[indexCh].find("TrigDirection_Phi") == chambME[indexCh].end() ){
 	    bookChambHistos(chId,"TrigDirection_Phi");
@@ -208,6 +205,7 @@ void DTLocalTriggerTest::endLuminosityBlock(LuminosityBlock const& lumiSeg, Even
 	    
 	if (TrackPosvsAngle && TrackPosvsAngleandTrig && TrackPosvsAngleandTrigHHHL) {
 	      
+	  // Fill client histos
 	  if( chambME[indexCh].find("TrigEffAngle_Phi") == chambME[indexCh].end()){
 	    bookChambHistos(chId,"TrigEffPosvsAngle_Phi");
 	    bookChambHistos(chId,"TrigEffPosvsAngleHHHL_Phi");
@@ -265,8 +263,11 @@ void DTLocalTriggerTest::endLuminosityBlock(LuminosityBlock const& lumiSeg, Even
 	TH2F * TrackThetaPosvsAngleandTrig     = getHisto<TH2F>(dbe->get(getMEName("TrackThetaPosvsAngleandTrig","Segment", chId)));
 	TH2F * TrackThetaPosvsAngleandTrigH    = getHisto<TH2F>(dbe->get(getMEName("TrackThetaPosvsAngleandTrigH","Segment", chId)));
 	    
-	if (TrackThetaPosvsAngle && TrackThetaPosvsAngleandTrig && TrackThetaPosvsAngleandTrigH) {
+	if (TrackThetaPosvsAngle && 
+	    TrackThetaPosvsAngleandTrig && 
+	    TrackThetaPosvsAngleandTrigH) {
 	      
+	  // Fill client histos
  	  if( chambME[indexCh].find("TrigEffAngle_Theta") == chambME[indexCh].end()){
  	    bookChambHistos(chId,"TrigEffPosvsAngle_Theta");
  	    bookChambHistos(chId,"TrigEffPosvsAngleH_Theta");
@@ -315,58 +316,6 @@ void DTLocalTriggerTest::endLuminosityBlock(LuminosityBlock const& lumiSeg, Even
 	  makeEfficiencyME(TrackThetaAngleandTrigH,TrackThetaAngle,innerME.find("TrigEffAngleH_Theta")->second);
        	  makeEfficiencyME2D(TrackThetaPosvsAngleandTrig,TrackThetaPosvsAngle,innerME.find("TrigEffPosvsAngle_Theta")->second);
   	  makeEfficiencyME2D(TrackThetaPosvsAngleandTrigH,TrackThetaPosvsAngle,innerME.find("TrigEffPosvsAngleH_Theta")->second);	     
-	}
-
- 	// Perform Correlation Plots analysis (DCC + segment Phi)
-	TH2F * TrackPhitkvsPhitrig   = getHisto<TH2F>(dbe->get(getMEName("PhitkvsPhitrig","Segment", chId)));
-	    
-	if (TrackPhitkvsPhitrig) {
-	      
-	  // Fill client histos
-	  if( secME[sector_id].find("PhiTkvsTrigCorr") == secME[sector_id].end() ){
-	    bookSectorHistos(wh,sect,"TriggerAndSeg","PhiTkvsTrigSlope");  
-	    bookSectorHistos(wh,sect,"TriggerAndSeg","PhiTkvsTrigIntercept");  
-	    bookSectorHistos(wh,sect,"TriggerAndSeg","PhiTkvsTrigCorr");  
-	  }
-
-	  TProfile* PhitkvsPhitrigProf = TrackPhitkvsPhitrig->ProfileX();
-	  PhitkvsPhitrigProf->Fit("pol1","Q");
-	  TF1 *ffPhi= PhitkvsPhitrigProf->GetFunction("pol1");
-	  double phiInt   = ffPhi->GetParameter(0);
-	  double phiSlope = ffPhi->GetParameter(1);
-	  double phiCorr  = TrackPhitkvsPhitrig->GetCorrelationFactor();
-
-	  std::map<std::string,MonitorElement*> innerME = secME[sector_id];
-	  innerME.find("PhiTkvsTrigSlope")->second->setBinContent(stat,phiSlope);
-	  innerME.find("PhiTkvsTrigIntercept")->second->setBinContent(stat,phiInt);
-	  innerME.find("PhiTkvsTrigCorr")->second->setBinContent(stat,phiCorr);
-	  
-	}
-
- 	// Perform Correlation Plots analysis (DCC + segment Phib)
-	TH2F * TrackPhibtkvsPhibtrig = getHisto<TH2F>(dbe->get(getMEName("PhibtkvsPhibtrig","Segment", chId)));
-	    
-	if (stat != 3 && TrackPhibtkvsPhibtrig) {// station 3 has no meaningful MB3 phi bending information
-	      
-	  // Fill client histos
-	  if( secME[sector_id].find("PhibTkvsTrigCorr") == secME[sector_id].end() ){
-	    bookSectorHistos(wh,sect,"TriggerAndSeg","PhibTkvsTrigSlope");  
-	    bookSectorHistos(wh,sect,"TriggerAndSeg","PhibTkvsTrigIntercept");  
-	    bookSectorHistos(wh,sect,"TriggerAndSeg","PhibTkvsTrigCorr");  
-	  }
-
-	  TProfile* PhibtkvsPhibtrigProf = TrackPhibtkvsPhibtrig->ProfileX(); 
-	  PhibtkvsPhibtrigProf->Fit("pol1","Q");
-	  TF1 *ffPhib= PhibtkvsPhibtrigProf->GetFunction("pol1");
-	  double phibInt   = ffPhib->GetParameter(0);
-	  double phibSlope = ffPhib->GetParameter(1);
-	  double phibCorr  = TrackPhibtkvsPhibtrig->GetCorrelationFactor();
-
-	  std::map<std::string,MonitorElement*> innerME = secME[sector_id];
-	  innerME.find("PhibTkvsTrigSlope")->second->setBinContent(stat,phibSlope);
-	  innerME.find("PhibTkvsTrigIntercept")->second->setBinContent(stat,phibInt);
-	  innerME.find("PhibTkvsTrigCorr")->second->setBinContent(stat,phibCorr);
-	  
 	}
 
       }
@@ -633,10 +582,10 @@ void DTLocalTriggerTest::bookSectorHistos(int wheel,int sector,string folder, st
   int sectorid = (wheel+3) + (sector-1)*5;
   dbe->setCurrentFolder("DT/Tests/DTLocalTrigger/Wheel"+ wh.str()+"/Sector"+ sc.str()+"/"+folder);
 
-  if (htype.find("Phi") != string::npos || 
-      htype.find("TkvsTrig") != string::npos ){    
+  if (htype.find("Phi") != string::npos){    
     string hname = htype + "_W" + wh.str()+"_Sec" +sc.str();
     MonitorElement* me = dbe->book1D(hname.c_str(),hname.c_str(),4,1,5);
+    //setLabelPh(me);
     secME[sectorid][htype] = me;
     return;
   }
@@ -644,6 +593,7 @@ void DTLocalTriggerTest::bookSectorHistos(int wheel,int sector,string folder, st
   if (htype.find("Theta") != string::npos){
     string hname = htype + "_W" + wh.str()+ "_Sec"+sc.str();
     MonitorElement* me =dbe->book1D(hname.c_str(),hname.c_str(),3,1,4);
+    //setLabelTh(me);
     secME[sectorid][htype] = me;
     return;
   }

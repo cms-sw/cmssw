@@ -14,9 +14,16 @@ public:
   int hitChannel(size_t ihit) const;
   int hitRaw(size_t ihit) const;
   double hitNS(size_t ihit) const;
+  void setLaserControl(int att1, int att2, int select);
+  int attenuator1() const { return attenuator1_; }
+  int attenuator2() const { return attenuator2_; }
+  int selector() const { return selector_; }
+
 private:	      
   uint16_t qadcraw_[32];
   std::vector<uint32_t> tdcraw_;
+  int32_t attenuator1_,attenuator2_;
+  int32_t selector_;
 };
 
 #endif // DATAFORMATS_HCALDIGI_HCALLASERDIGI_H

@@ -10,8 +10,8 @@
  *   in the muon system and the tracker.
  *
  *
- *  $Date: 2008/01/08 17:43:50 $
- *  $Revision: 1.2 $
+ *  $Date: 2008/03/14 19:23:27 $
+ *  $Revision: 1.4.2.1 $
  *
  *  Authors :
  *  Patrick Janot - CERN
@@ -41,11 +41,8 @@
 #include "RecoMuon/TrackingTools/interface/MuonServiceProxy.h"
 #include "RecoMuon/GlobalTrackingTools/interface/GlobalMuonTrackMatcher.h"
 
-#include "RecoTracker/Record/interface/NavigationSchoolRecord.h"
-
 #include "TrackingTools/TrajectoryCleaning/interface/TrajectoryCleanerBySharedHits.h"
 #include "TrackingTools/PatternTools/interface/TrajTrackAssociation.h"
-#include "TrackingTools/DetLayers/interface/NavigationSetter.h"
 
 // Tracker RecHits and Tracks
 #include "DataFormats/TrackReco/interface/Track.h"
@@ -71,6 +68,12 @@ FastL3MuonTrajectoryBuilder::FastL3MuonTrajectoryBuilder(const edm::ParameterSet
   theTrackerTrajectoryCollection = par.getParameter<edm::InputTag>("TrackerTrajectories");
   theSimModule = par.getParameter<edm::InputTag>("SimulatedMuons");
 
+#ifdef FAMOS_DEBUG
+  dbe = edm::Service<DaqMonitorBEInterface>().operator->();
+  simuMuons = dbe->book1D("SimuMuons", "Eta distribution (sim)",100,-2.5,2.5);
+  matchMuons = dbe->book1D("MatchMuons", "Eta distribution (match)",100,-2.5,2.5);
+  refitMuons = dbe->book1D("RefitMuons", "Eta distribution (refit)",100,-2.5,2.5);
+#endif
   //
   // start seed generator;
   //
@@ -86,6 +89,9 @@ FastL3MuonTrajectoryBuilder::FastL3MuonTrajectoryBuilder(const edm::ParameterSet
 
 FastL3MuonTrajectoryBuilder::~FastL3MuonTrajectoryBuilder() {
   if (theTrajectoryCleaner) delete theTrajectoryCleaner;
+#ifdef FAMOS_DEBUG
+  dbe->save("test.root");
+#endif
 }
 
 //
@@ -97,12 +103,6 @@ void FastL3MuonTrajectoryBuilder::setEvent(const edm::Event& event) {
     
   GlobalTrajectoryBuilderBase::setEvent(event);
   theEvent = &event;
-    
-  // retrieve navigation school
-  edm::ESHandle<NavigationSchool> nav;
-  GlobalTrajectoryBuilderBase::service()->eventSetup().get<NavigationSchoolRecord>().get("SimpleNavigationSchool", nav);
-  // set the correct navigation    
-  if(nav.isValid()) NavigationSetter setter(*nav.product());
     
   // Retrieve tracker tracks for muons
   regionalTkTracks = makeTkCandCollection(dummyStaCand);
@@ -129,6 +129,7 @@ FastL3MuonTrajectoryBuilder::trajectories(const TrackCand& staCandIn) {
   
   // match tracker tracks to muon track
   std::vector<TrackCand> trackerTracks = trackMatcher()->match(staCand, regionalTkTracks);
+
   // edm::LogInfo(category) << "Found " << trackerTracks.size() << " matching tracker tracks within region of interest";
   if ( trackerTracks.empty() ) return CandidateContainer();
   
@@ -147,6 +148,10 @@ FastL3MuonTrajectoryBuilder::trajectories(const TrackCand& staCandIn) {
       
       MuonCandidate* muonCand = new MuonCandidate( 0 ,staCand.second,(*tkt).second, new Trajectory(refittedTkTraj));
       tkTrajs.push_back(muonCand);
+#ifdef FAMOS_DEBUG
+      if ( muonCand->muonTrack()->innerMomentum().Perp2() > 400. ) 
+	matchMuons->Fill(muonCand->muonTrack()->innerMomentum().Eta());
+#endif
       // LogTrace(category) << "tpush";
 
     }
@@ -158,6 +163,13 @@ FastL3MuonTrajectoryBuilder::trajectories(const TrackCand& staCandIn) {
   }
   
   CandidateContainer result = build(staCand, tkTrajs);  
+#ifdef FAMOS_DEBUG
+  if ( result.size() > 0 ) { 
+    CandidateContainer::const_iterator muonIt = result.begin();
+    if ((*muonIt)->muonTrack()->innerMomentum().Perp2() > 400. ) 
+      refitMuons->Fill((*muonIt)->muonTrack()->innerMomentum().Eta());
+  }
+#endif
   // edm::LogInfo(category) << "Found "<< result.size() << " L3Muons from one L2Cand";
 
   // free memory
@@ -169,12 +181,6 @@ FastL3MuonTrajectoryBuilder::trajectories(const TrackCand& staCandIn) {
     if ( *it ) delete (*it);
   }
   tkTrajs.clear();  
-
-  if ( !theTkTrajsAvailableFlag ) {
-    for ( std::vector<TrackCand>::const_iterator is = regionalTkTracks.begin(); is != regionalTkTracks.end(); ++is) {
-      delete (*is).first;   
-    }
-  }
 
   return result;
   
@@ -208,12 +214,15 @@ FastL3MuonTrajectoryBuilder::makeTkCandCollection(const TrackCand& staCand) cons
   // Loop on simulated muons
   for ( unsigned amuon=0; amuon<nmuons; ++amuon ) {
     const SimTrack& simTrack = (*simMuons)[amuon];
+#ifdef FAMOS_DEBUG
+    if ( simTrack.momentum().Pt() > 10. ) simuMuons->Fill(simTrack.momentum().Eta());
+#endif
 
     for ( anAssociation = firstAssociation; anAssociation != lastAssociation; ++anAssociation ) { 
       edm::Ref<std::vector<Trajectory> > aTrajectoryRef = anAssociation->key;
       reco::TrackRef aTrackRef = anAssociation->val;
       int recoTrackId = findId(*aTrackRef);
-      if ( recoTrackId == simTrack.trackId() ) {
+      if ( recoTrackId == (int)(simTrack.trackId()) ) {
 	tkCandColl.push_back(TrackCand(new Trajectory((*aTrajectoryRef)),reco::TrackRef()));
 	break;
       }
@@ -254,6 +263,14 @@ FastL3MuonTrajectoryBuilder::findId(const reco::Track& aTrack) const {
   return trackId;
 }
 
+void 
+FastL3MuonTrajectoryBuilder::clear() { 
+  std::vector<TrackCand>::const_iterator is = regionalTkTracks.begin();
+  std::vector<TrackCand>::const_iterator il = regionalTkTracks.end();
+  for ( ; is != il; ++is) {
+    delete (*is).first;   
+  }
+}
 
 
 

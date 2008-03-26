@@ -36,11 +36,11 @@
 
   <class name="reco::PreshowerClusterShape"/>
   <class name="std::vector<reco::PreshowerClusterShape>"/>
-  <class name="edm::Wrapper<std::vector<reco::PreshowerClusterShape> >"/>
+  <class name="edm::Wrapper<std::vector<reco::PreshowerClusterShape> >" splitLevel="0"/>
   <class name="edm::Ref<std::vector<reco::PreshowerClusterShape>,reco::PreshowerClusterShape,edm::refhelper::FindUsingAdvance<std::vector<reco::PreshowerClusterShape>,reco::PreshowerClusterShape> >"/>
   <class name="edm::RefProd<std::vector<reco::PreshowerClusterShape> >"/>
   <class name="edm::RefVector<std::vector<reco::PreshowerClusterShape>,reco::PreshowerClusterShape,edm::refhelper::FindUsingAdvance<std::vector<reco::PreshowerClusterShape>,reco::PreshowerClusterShape> >"/>
-  <class name="edm::Wrapper<edm::RefVector<std::vector<reco::PreshowerClusterShape>,reco::PreshowerClusterShape,edm::refhelper::FindUsingAdvance<std::vector<reco::PreshowerClusterShape>,reco::PreshowerClusterShape> > >"/>
+  <class name="edm::Wrapper<edm::RefVector<std::vector<reco::PreshowerClusterShape>,reco::PreshowerClusterShape,edm::refhelper::FindUsingAdvance<std::vector<reco::PreshowerClusterShape>,reco::PreshowerClusterShape> > >" splitLevel="0"/>
 
   <class name="reco::ElectronPixelSeed"/>
   <class name="std::vector<reco::ElectronPixelSeed>"/>
@@ -58,11 +58,11 @@
   
   <class name="reco::PreshowerCluster"/>
   <class name="std::vector<reco::PreshowerCluster>"/>
-  <class name="edm::Wrapper<std::vector<reco::PreshowerCluster> >"/>
+  <class name="edm::Wrapper<std::vector<reco::PreshowerCluster> >" splitLevel="0"/>
   <class name="edm::Ref<std::vector<reco::PreshowerCluster>,reco::PreshowerCluster,edm::refhelper::FindUsingAdvance<std::vector<reco::PreshowerCluster>,reco::PreshowerCluster> >"/>
   <class name="edm::RefProd<std::vector<reco::PreshowerCluster> >"/>
   <class name="edm::RefVector<std::vector<reco::PreshowerCluster>,reco::PreshowerCluster,edm::refhelper::FindUsingAdvance<std::vector<reco::PreshowerCluster>,reco::PreshowerCluster> >"/>
-  <class name="edm::Wrapper<edm::RefVector<std::vector<reco::PreshowerCluster>,reco::PreshowerCluster,edm::refhelper::FindUsingAdvance<std::vector<reco::PreshowerCluster>,reco::PreshowerCluster> > >"/>
+  <class name="edm::Wrapper<edm::RefVector<std::vector<reco::PreshowerCluster>,reco::PreshowerCluster,edm::refhelper::FindUsingAdvance<std::vector<reco::PreshowerCluster>,reco::PreshowerCluster> > >" splitLevel="0"/>
 
   <class name="edm::AssociationMap<edm::OneToOne<std::vector<reco::BasicCluster>, std::vector<reco::ClusterShape>, unsigned int > >">
     <field name="transientMap_" transient="true" />

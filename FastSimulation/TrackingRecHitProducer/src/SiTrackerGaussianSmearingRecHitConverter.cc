@@ -41,8 +41,6 @@
 #include "DataFormats/SiStripDetId/interface/TIDDetId.h"
 #include "DataFormats/SiStripDetId/interface/TOBDetId.h"
 #include "DataFormats/SiStripDetId/interface/TECDetId.h"
-#include "DataFormats/SiPixelDetId/interface/PXBDetId.h"
-#include "DataFormats/SiPixelDetId/interface/PXFDetId.h"
 #include "DataFormats/GeometryCommonDetAlgo/interface/ErrorFrameTransformer.h"
 #include "DataFormats/TrackingRecHit/interface/AlignmentPositionError.h"
 
@@ -53,14 +51,12 @@
 #include "FastSimulation/Utilities/interface/RandomEngine.h"
 
 // topology
-#include "Geometry/CommonTopologies/interface/RadialStripTopology.h"
 
 // the rec hit matcher
 #include "FastSimulation/TrackingRecHitProducer/interface/GSRecHitMatcher.h"
 
 // STL
 #include <memory>
-#include <string>
 
 // ROOT
 #include <TFile.h>

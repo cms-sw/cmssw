@@ -11,9 +11,9 @@
 // Original Author: Oliver Gutsche, gutsche@fnal.gov
 // Created:         Sat Jan 14 22:00:00 UTC 2006
 //
-// $Author: gutsche $
-// $Date: 2007/06/29 23:49:57 $
-// $Revision: 1.28 $
+// $Author: mkirn $
+// $Date: 2007/09/07 16:28:52 $
+// $Revision: 1.29 $
 //
 
 #include <vector>
@@ -50,6 +50,9 @@
 #include "DataFormats/SiPixelDetId/interface/PXBDetId.h"
 #include "DataFormats/SiPixelDetId/interface/PXFDetId.h"
 
+#include "DataFormats/SiStripCluster/interface/SiStripCluster.h"
+#include "DataFormats/Common/interface/DetSetVector.h"
+
 const double speedOfLight = 2.99792458e8;
 const double unitCorrection = speedOfLight * 1e-2 * 1e-9;
 
@@ -70,9 +73,14 @@ RoadSearchSeedFinderAlgorithm::RoadSearchSeedFinderAlgorithm(const edm::Paramete
   mergeSeedsRadiusCut_        = mergeSeedsRadiusCut_A_;
   mergeSeedsDifferentHitsCut_ = conf.getParameter<unsigned int>("MergeSeedsDifferentHitsCut");
   mode_                       = conf.getParameter<std::string>("Mode");
+  
+  //special parameters for cosmic track reconstruction
+  //cosmicTracking_             = conf.getParameter<bool>("CosmicTracking");
+  //maxNumberOfClusters_        = conf.getParameter<unsigned int>("MaxNumberOfClusters");
+
 
   // safety check for mode
-  if ( mode_ != "STANDARD" && mode_ != "COSMICS" ) {
+  if ( mode_ != "STANDARD" && mode_ != "STRAIGHT-LINE" ) {
     mode_ = "STANDARD";
   }
 
@@ -177,7 +185,8 @@ void RoadSearchSeedFinderAlgorithm::run(const SiStripRecHit2DCollection* rphiRec
       mergeSeedsRadiusCut_ = mergeSeedsRadiusCut_C_;
     }
 
-    if ( mode_ == "COSMICS" ) {
+    if ( mode_ == "STRAIGHT-LINE" ) {
+
       // loop over seed ring pairs
       // draw straight line
       for ( std::vector<const Ring*>::const_iterator innerSeedRing = seed->first.begin();
@@ -765,4 +774,19 @@ bool RoadSearchSeedFinderAlgorithm::detIdsOnSameLayer(DetId id1, DetId id2) {
   }
   
   return result;
+}
+
+
+unsigned int RoadSearchSeedFinderAlgorithm::ClusterCounter(const edm::DetSetVector<SiStripCluster>* clusters) {
+
+  const edm::DetSetVector<SiStripCluster>& input = *clusters;
+
+  unsigned int totalClusters = 0;
+
+  //loop over detectors
+  for (edm::DetSetVector<SiStripCluster>::const_iterator DSViter=input.begin(); DSViter!=input.end();DSViter++ ) {
+    totalClusters+=DSViter->data.size();
+  }
+
+  return totalClusters;
 }

@@ -10,9 +10,6 @@
 #include <sstream>
 #include <iostream>
 
-#include "PhysicsTools/Utilities/interface/deltaR.h"
-#include "PhysicsTools/Utilities/interface/deltaPhi.h"
-
 namespace muonisolation {
 
 class  Direction {
@@ -39,16 +36,20 @@ public:
     return false; 
   }
 
-  inline double deltaR(const Direction & dir2) const { 
-    return reco::deltaR(*this, dir2);
-  } 
-  
+  inline double deltaR(const Direction & dir2) const {
+    double dEta = theEta - dir2.eta();
+    double dPhi = fabs( thePhi - dir2.phi());
+    while (dPhi > M_PI) dPhi -= 2*M_PI;
+    return sqrt( dEta*dEta + dPhi*dPhi);
+  }
+
   Distance operator- (const Direction & dir2) const {
     Distance result;
     double dR    = deltaR(dir2);
     double dEta = theEta-dir2.eta();
-    double dPhi = reco::deltaPhi(thePhi,dir2.phi());
-
+    double dPhi = thePhi-dir2.phi();
+    while( dPhi < -M_PI ) dPhi += 2*M_PI;  
+    while( dPhi >= M_PI ) dPhi -= 2*M_PI;
     result.relativeAngle = (dR > 1.e-4) ? atan2(dPhi,dEta) : 0.;
     result.deltaR = dR;
     return result;

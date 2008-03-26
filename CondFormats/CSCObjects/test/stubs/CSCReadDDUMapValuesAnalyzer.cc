@@ -78,13 +78,7 @@ namespace edmtest
       std::cout<<it->second.cscid<<"  ";
       std::cout<<it->second.ddu<<"  ";
       std::cout<<it->second.ddu_input<<"  ";
-      std::cout<<it->second.slink<<"  ";
-      std::cout<<it->second.fed_crate<<"  "<<"  ";
-      std::cout<<it->second.ddu_slot<<"  "<<"  ";
-      std::cout<<it->second.dcc_fifo<<"  "<<"  ";
-      std::cout<<it->second.fiber_crate<<"  "<<"  ";
-      std::cout<<it->second.fiber_pos<<"  "<<"  ";
-      std::cout<<it->second.fiber_socket<<"  "<<std::endl;
+      std::cout<<it->second.slink<<"  "<<std::endl;
       
     }
   }

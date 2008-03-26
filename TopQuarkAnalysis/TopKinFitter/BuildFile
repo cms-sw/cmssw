@@ -1,9 +1,0 @@
-<use name=AnalysisDataFormats/TopObjects>
-<use name=PhysicsTools/KinFitter>
-
-<export>
-  <lib name=TopQuarkAnalysisTopKinFitter>
-  <use name=AnalysisDataFormats/TopObjects>
-  <use name=PhysicsTools/KinFitter>
-</export>
-

@@ -15,7 +15,7 @@
 //         Created:  Wed Jul 30 11:37:24 CET 2007
 //         Working:  Fri Nov  9 09:39:33 CST 2007
 //
-// $Id: MuonSimHitProducer.cc,v 1.6 2007/11/10 20:46:14 mulders Exp $
+// $Id: MuonSimHitProducer.cc,v 1.7 2007/11/15 17:24:25 pjanot Exp $
 //
 //
 
@@ -28,7 +28,6 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/PluginManager/interface/PluginManager.h"
 
 // Fast Simulation headers
 #include "FastSimulation/Utilities/interface/RandomEngine.h"
@@ -55,7 +54,6 @@
 #include "DataFormats/Math/interface/LorentzVector.h"
 #include "DataFormats/MuonDetId/interface/DTLayerId.h"
 #include "DataFormats/MuonDetId/interface/DTWireId.h"
-#include "DataFormats/GeometrySurface/interface/LocalError.h"
 #include "DataFormats/GeometrySurface/interface/PlaneBuilder.h"
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 #include "RecoMuon/TrackingTools/interface/MuonTrajectoryUpdator.h"
@@ -63,12 +61,10 @@
 
 ////////////////////////////////////////////////////////////////////////////
 // Geometry, Magnetic Field
-#include "Geometry/CommonDetUnit/interface/GeomDetType.h"
 #include "Geometry/DTGeometry/interface/DTGeometry.h"
 #include "Geometry/CSCGeometry/interface/CSCGeometry.h"
 #include "Geometry/RPCGeometry/interface/RPCGeometry.h"
 #include "Geometry/Records/interface/MuonGeometryRecord.h"
-#include "MagneticField/Engine/interface/MagneticField.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 
 // Root

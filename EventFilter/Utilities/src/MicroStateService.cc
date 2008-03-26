@@ -1,13 +1,6 @@
 
 
 #include "EventFilter/Utilities/interface/MicroStateService.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
-#include "FWCore/ServiceRegistry/interface/ServiceMaker.h"
-#include "FWCore/Utilities/interface/Exception.h"
-#include "FWCore/Utilities/interface/DebugMacros.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
-#include "FWCore/Utilities/interface/GlobalMutex.h"
 
 
 namespace evf{

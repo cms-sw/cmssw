@@ -2,7 +2,6 @@
 #include "FWCore/Integration/test/OtherThingAnalyzer.h"
 #include "DataFormats/TestObjects/interface/OtherThing.h"
 #include "DataFormats/TestObjects/interface/OtherThingCollection.h"
-#include "DataFormats/TestObjects/interface/ThingCollection.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/LuminosityBlock.h"
 #include "FWCore/Framework/interface/Run.h"

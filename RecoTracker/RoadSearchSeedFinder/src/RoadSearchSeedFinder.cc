@@ -8,9 +8,9 @@
 // Original Author: Oliver Gutsche, gutsche@fnal.gov
 // Created:         Sat Jan 14 22:00:00 UTC 2006
 //
-// $Author: gutsche $
-// $Date: 2007/06/29 23:49:57 $
-// $Revision: 1.10 $
+// $Author: noeding $
+// $Date: 2007/11/07 23:42:18 $
+// $Revision: 1.11 $
 //
 
 #include <iostream>
@@ -51,6 +51,7 @@ void RoadSearchSeedFinder::produce(edm::Event& e, const edm::EventSetup& es)
   edm::InputTag matchedStripRecHitsInputTag = conf_.getParameter<edm::InputTag>("matchedStripRecHits");
   edm::InputTag rphiStripRecHitsInputTag    = conf_.getParameter<edm::InputTag>("rphiStripRecHits");
   edm::InputTag stereoStripRecHitsInputTag  = conf_.getParameter<edm::InputTag>("stereoStripRecHits");
+  edm::InputTag clusterCollectionInputTag   = conf_.getParameter<edm::InputTag>("ClusterCollectionLabel");
   
   // get Inputs
   edm::Handle<SiStripMatchedRecHit2DCollection> matchedRecHits;
@@ -75,17 +76,31 @@ void RoadSearchSeedFinder::produce(edm::Event& e, const edm::EventSetup& es)
     edm::LogWarning("RoadSearch") << "Collection SiPixelRecHitCollection with InputTag " << pixelRecHitsInputTag << " cannot be found, using empty collection of same type. The RoadSearch algorithm is also fully functional without Pixel RecHits.";
   }
   
+  //get special input for cluster multiplicity filter
+  edm::Handle<edm::DetSetVector<SiStripCluster> > clusterDSV;
+  e.getByLabel(clusterCollectionInputTag,clusterDSV);
+  const edm::DetSetVector<SiStripCluster> *clusters = clusterDSV.product();
+
   // create empty output collection
   std::auto_ptr<RoadSearchSeedCollection> output(new RoadSearchSeedCollection);
-  
-  // invoke the seed finding algorithm
-  roadSearchSeedFinderAlgorithm_.run(rphiRecHits.product(),  
-				     stereoRecHits.product(),
-				     matchedRecHits.product(),
-				     pixelRecHitCollection,
-				     es,
-				     *output);
-  
+ 
+
+   //special parameters for cosmic track reconstruction
+  bool cosmicTracking              = conf_.getParameter<bool>("CosmicTracking");
+  unsigned int maxNumberOfClusters = conf_.getParameter<unsigned int>("MaxNumberOfClusters");
+
+  // invoke the seed finding algorithm: check number of clusters per event *only* in cosmic tracking mode
+  if(!cosmicTracking 
+     || (cosmicTracking && roadSearchSeedFinderAlgorithm_.ClusterCounter(clusters)<maxNumberOfClusters)) {
+
+    roadSearchSeedFinderAlgorithm_.run(rphiRecHits.product(),  
+				       stereoRecHits.product(),
+				       matchedRecHits.product(),
+				       pixelRecHitCollection,
+				       es,
+				       *output);
+  }
+
   // write output to file
   e.put(output);
 

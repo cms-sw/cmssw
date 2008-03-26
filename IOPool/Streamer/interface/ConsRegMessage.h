@@ -11,6 +11,7 @@
 
 #include "IOPool/Streamer/interface/MsgTools.h"
 #include "IOPool/Streamer/interface/MsgHeader.h"
+#include <map>
 
 // --------------- registration request builder ----------------
 
@@ -66,6 +67,8 @@ class ConsRegResponseBuilder
   uint8* startAddress() { return buf_; }
   uint32 size() const;
 
+  void setStreamSelectionTable(std::map<std::string, Strings> const& selTable);
+
   enum STATUS_CODES { ES_NOT_READY = 0x10000 };
 
  private:
@@ -86,6 +89,7 @@ class ConsRegResponseView
 
   uint32 getStatus() { return status_; }
   uint32 getConsumerId() { return consumerId_; }
+  std::map<std::string, Strings> getStreamSelectionTable();
 
  private:
   uint8* buf_;

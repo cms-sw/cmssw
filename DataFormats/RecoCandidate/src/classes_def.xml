@@ -44,8 +44,13 @@
   <class name="edm::helpers::KeyVal<edm::RefProd<std::vector<reco::Track> >,edm::RefProd<edm::OwnVector<reco::Candidate,edm::ClonePolicy<reco::Candidate> > > >" />
   <class name="edm::Wrapper<edm::AssociationMap<edm::OneToOne<std::vector<reco::Track>,edm::OwnVector<reco::Candidate,edm::ClonePolicy<reco::Candidate> >,unsigned int> > >" />
 
-  <class name="edm::Wrapper<reco::SimToRecoCollection>" />
-  <class name="edm::Wrapper<reco::RecoToSimCollection>" />
+
+  <class name="edm::AssociationMap<edm::OneToManyWithQuality<std::vector<TrackingParticle>,std::vector<reco::Track>, double, unsigned int> >" >
+    <field name="transientMap_" transient="true" />
+  </class> 
+  <class name="edm::AssociationMap<edm::OneToManyWithQuality<std::vector<reco::Track>,std::vector<TrackingParticle>, double, unsigned int> >" >
+    <field name="transientMap_" transient="true" />
+  </class> 
 
   <class pattern="edm::ValueMap<*>" />
   <class pattern="edm::Wrapper<edm::ValueMap<*>" />
@@ -54,16 +59,13 @@
   <class pattern="edm::Ref<edm::AssociationMap<*>" />
   <class pattern="edm::RefProd<edm::AssociationMap<*>" />
   <class pattern="edm::RefVector<edm::AssociationMap<*>" />
+  <class name="edm::helpers::KeyVal<edm::RefProd<std::vector<TrackingParticle> >, edm::RefProd<std::vector<reco::Track> > >"/>
+  <class name="edm::helpers::KeyVal<edm::RefProd<std::vector<reco::Track> >, edm::RefProd<std::vector<TrackingParticle> > >"/>
  
   <class name="edm::reftobase::Holder<reco::Candidate, reco::RecoChargedCandidateRef>" />
   <class name="edm::reftobase::RefHolder<reco::RecoChargedCandidateRef>" />
   <class name="edm::reftobase::VectorHolder<reco::Candidate, reco::RecoChargedCandidateRefVector>" />
   <class name="edm::reftobase::RefVectorHolder<reco::RecoChargedCandidateRefVector>" />
-
-  <class name="edm::reftobase::Holder<reco::Candidate, reco::RecoStandAloneMuonCandidateRef>" />
-  <class name="edm::reftobase::RefHolder<reco::RecoStandAloneMuonCandidateRef>" />
-  <class name="edm::reftobase::VectorHolder<reco::Candidate, reco::RecoStandAloneMuonCandidateRefVector>" />
-  <class name="edm::reftobase::RefVectorHolder<reco::RecoStandAloneMuonCandidateRefVector>" />
 
   <class name="edm::reftobase::Holder<reco::Candidate, reco::RecoEcalCandidateRef>" />
   <class name="edm::reftobase::RefHolder<reco::RecoEcalCandidateRef>" />

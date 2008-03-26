@@ -1,10 +1,7 @@
 #include "EventFilter/CSCRawToDigi/interface/CSCALCTHeader.h"
 #include "EventFilter/CSCRawToDigi/interface/CSCDMBHeader.h"
-#include "DataFormats/CSCDigi/interface/CSCALCTDigi.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include <iomanip>
-#include <bitset>
 
 bool CSCALCTHeader::debug=false;
 short unsigned int CSCALCTHeader::firmwareVersion=2006; 

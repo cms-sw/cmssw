@@ -65,7 +65,7 @@ void TrackProducer::produce(edm::Event& theEvent, const edm::EventSetup& setup)
     try{  
       theAlgo.runWithCandidate(theG.product(), theMF.product(), *theTCCollection, 
 			       theFitter.product(), thePropagator.product(), theBuilder.product(), algoResults);
-    } catch (cms::Exception &e){ edm::LogError("TrackProducer") << "cms::Exception caught during theAlgo.runWithCandidate." << "\n" << e << "\n"; throw;}
+    } catch (cms::Exception &e){ edm::LogError("TrackProducer") << "cms::Exception caught during theAlgo.runWithCandidate." << "\n" << e << "\n";}
   }
   
   //put everything in the event
@@ -107,7 +107,7 @@ std::vector<reco::TransientTrack> TrackProducer::getTransient(edm::Event& theEve
       theAlgo.runWithCandidate(theG.product(), theMF.product(), *theTCCollection, 
 			       theFitter.product(), thePropagator.product(), theBuilder.product(), algoResults);
     }
-    catch (cms::Exception &e){ edm::LogError("TrackProducer") << "cms::Exception caught during theAlgo.runWithCandidate." << "\n" << e << "\n"; throw; }
+    catch (cms::Exception &e){ edm::LogError("TrackProducer") << "cms::Exception caught during theAlgo.runWithCandidate." << "\n" << e << "\n";}
   }
   
   for (AlgoProductCollection::iterator prod=algoResults.begin();prod!=algoResults.end(); prod++){

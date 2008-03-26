@@ -1,9 +1,5 @@
 #include "DetectorDescription/Core/interface/DDCompactViewImpl.h"
 #include "DetectorDescription/Core/interface/DDCompactView.h"
-#include "DetectorDescription/Core/interface/DDLogicalPart.h"
-#include "DetectorDescription/Core/interface/DDPosPart.h"
-#include "DetectorDescription/Core/interface/DDPath.h"
-#include "DetectorDescription/Core/interface/DDTransform.h"
 #include "DetectorDescription/Base/interface/DDdebug.h"
 #include "CLHEP/Units/SystemOfUnits.h"
 

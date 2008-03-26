@@ -66,7 +66,6 @@ unsigned int FP420NumberingScheme::getUnitID(const G4Step* aStep) const {
 
   //    int det   = static_cast<int>(FP420);;
 
-    int det = 1; 
     int stationgen  = 0;
     int zside   = 0;
     int station  = 0;
@@ -87,8 +86,8 @@ unsigned int FP420NumberingScheme::getUnitID(const G4Step* aStep) const {
       }
 */
       // new and old set up configurations are possible:
-      if(name[ich] == "FP420E") {
-	det   = copyno[ich];
+      if(name[ich] == "FP420Ex") {
+	stationgen   = copyno[ich];
       } else if(name[ich] == "FP420Ex1") {
 	stationgen   = 1;
       } else if(name[ich] == "FP420Ex2") {
@@ -115,6 +114,7 @@ unsigned int FP420NumberingScheme::getUnitID(const G4Step* aStep) const {
     // station number 1 - 5
     // plane number  1 - 10
 
+    int det = 1; 
    // intindex = myPacker.packEcalIndex (det, zside, station, plane);
    // intindex = myPacker.packCastorIndex (det, zside, station, plane);
     intindex = packFP420Index (det, zside, station, plane);
@@ -142,7 +142,7 @@ unsigned int FP420NumberingScheme::getUnitID(const G4Step* aStep) const {
 }
 
 unsigned FP420NumberingScheme::packFP420Index(int det, int zside, int station,int plane){
-  unsigned int idx = ((det-1)&1)<<20;     //bit 20      det:0,1=2-->2**1=2        1 bit: 0
+  unsigned int idx = ((det-1)&1)<<20;     //bit 20
   idx += (zside&3)<<7;                  //bits 7-8    zside:0-2=3-->2**2 =4     2 bits:0-1
   idx += (station&7)<<4;                //bits 4-6   station:0-7=8-->2**3 =8     3 bits:0-2
   idx += (plane&15);                    //bits 0-3    plane:  0-15=16-->2**4 =16    4 bits:0-3

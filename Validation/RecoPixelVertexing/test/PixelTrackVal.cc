@@ -18,7 +18,7 @@
 #include "SimDataFormats/Track/interface/SimTrackContainer.h"
 #include "HepMC/GenEvent.h"
 #include "HepMC/GenVertex.h"
-
+#include "PhysicsTools/Utilities/interface/deltaR.h"
 
 
 #include <iostream>
@@ -26,6 +26,7 @@
 #include <cmath>
 #include <TH1.h>
 #include "TFile.h"
+#include "TObjArray.h"
 
 using namespace std;
 template <class T> T sqr( T t) {return t*t;}
@@ -39,17 +40,13 @@ public:
   virtual void analyze(const edm::Event& ev, const edm::EventSetup& es);
   virtual void endJob();
 private:
-  float deltaR(const math::XYZVector & mom1, const math::XYZVector & mom2) const;
-
   edm::ParameterSet conf_; 
-  // How noisy should I be
   int verbose_;
-  TFile *f_;
-  TH1 *h_Pt, *h_dR, *h_VtxZ, *h_TIP, *h_VtxZ_Pull, *h_Nan;
+  TObjArray hList;
 };
 
 PixelTrackVal::PixelTrackVal(const edm::ParameterSet& conf)
-  : conf_(conf),f_(0)
+  : conf_(conf),hList(0)
 {
   edm::LogInfo("PixelTrackVal")<<" CTOR";
 }
@@ -57,24 +54,19 @@ PixelTrackVal::PixelTrackVal(const edm::ParameterSet& conf)
 PixelTrackVal::~PixelTrackVal()
 {
   edm::LogInfo("PixelTrackVal")<<" DTOR";
-  delete f_;
 }
 
 void PixelTrackVal::beginJob(const edm::EventSetup& es) {
   // How noisy?
   verbose_ = conf_.getUntrackedParameter<unsigned int>("Verbosity",0);
 
-  // Make my little tree
-  std::string file = conf_.getUntrackedParameter<std::string>("HistoFile","pixelTrackHistos.root");
-//  const char* cwd= gDirectory->GetPath();
-  f_ = new TFile(file.c_str(),"RECREATE");
-
-  h_Pt        = new TH1F("h_Pt","h_Pt",31, -2., 1.2);
-  h_dR        = new TH1F("h_dR","h_dR",30,0.,0.06);
-  h_TIP       = new TH1F("h_TIP","h_TIP",100,-0.1,0.1);
-  h_VtxZ      = new TH1F("h_VtxZ","h_VtxZ",100,-0.1,0.1);
-  h_VtxZ_Pull = new TH1F("h_VtxZ_Pull","h_VtxZ_Pull",80,0.,8);
-  h_Nan       = new TH1F("h_Nan","Illegal values for x,y,z,xx,xy,xz,yy,yz,zz",9,0.5,9.5);
+  hList.Add( new TH1F("h_Pt","h_Pt",31, -2., 1.2) );
+  hList.Add( new TH1F("h_dR","h_dR",30,0.,0.06) );
+  hList.Add( new TH1F("h_TIP","h_TIP",100,-0.1,0.1) );
+  hList.Add( new TH1F("h_VtxZ","h_VtxZ",100,-0.1,0.1) );
+  hList.Add( new TH1F("h_VtxZ_Pull","h_VtxZ_Pull",80,0.,8) );
+  hList.Add( new TH1F("h_Nan","Illegal values for x,y,z,xx,xy,xz,yy,yz,zz",9,0.5,9.5) );
+  hList.SetOwner();
 }
 
 void PixelTrackVal::analyze(
@@ -105,20 +97,22 @@ void PixelTrackVal::analyze(
   for (unsigned int idx=0; idx<tracks.size(); idx++) {
 
     const reco::Track * it= &tracks[idx];
-    h_Nan->Fill(1.,isnan(it->momentum().x())*1.);
-    h_Nan->Fill(2.,isnan(it->momentum().y())*1.);
-    h_Nan->Fill(3.,isnan(it->momentum().z())*1.);
+    TH1* h = static_cast<TH1*>(hList.FindObject("h_Nan"));
+    h->Fill(1.,isnan(it->momentum().x())*1.);
+    h->Fill(2.,isnan(it->momentum().y())*1.);
+    h->Fill(3.,isnan(it->momentum().z())*1.);
     
     bool problem = false;
     int index = 3;
     for (int i = 0; i != 3; i++) {
       for (int j = i; j != 3; j++) {
 	  index++;
-	  h_Nan->Fill(index*1., isnan(it->covariance(i, j))*1.);
+	  static_cast<TH1*>(hList.FindObject("h_Nan"))->Fill(
+            index*1., isnan(it->covariance(i, j))*1.);
 	  if (isnan(it->covariance(i, j))) problem = true;
 	  // in addition, diagonal element must be positive
 	  if (j == i && it->covariance(i, j) < 0) {
-	    h_Nan->Fill(index*1., 1.);
+	    static_cast<TH1*>(hList.FindObject("h_Nan"))->Fill(index*1., 1.);
 	    problem = true;
 	  }
       }
@@ -190,16 +184,17 @@ void PixelTrackVal::analyze(
       while (dphi < -M_PI) dphi +=2*M_PI;
       float deta = eta_gen-eta_rec;
       float dz = z_gen-z_rec;
-      float dR = deltaR( mom_gen, mom_rec);
+      double dR = deltaR( mom_gen, mom_rec);
       //
       // matched track
       //
-      if (fabs(deta) < 0.3 && fabs(dphi) < 0.3) h_dR->Fill( dR);
+      if (fabs(deta) < 0.3 && fabs(dphi) < 0.3) 
+        static_cast<TH1*>(hList.FindObject("h_dR"))->Fill( dR);
       if (fabs(deta) < detaMax && dR < dRMax) {
-        h_Pt->Fill( (pt_gen - pt_rec)/pt_gen);
-        h_TIP->Fill( it->d0() );
-        h_VtxZ->Fill( dz );
-        h_VtxZ_Pull->Fill( fabs( dz/it->dzError()) );
+        static_cast<TH1*>(hList.FindObject("h_Pt"))->Fill((pt_gen - pt_rec)/pt_gen);
+        static_cast<TH1*>(hList.FindObject("h_TIP"))->Fill( it->d0() );
+        static_cast<TH1*>(hList.FindObject("h_VtxZ"))->Fill( dz );
+        static_cast<TH1*>(hList.FindObject("h_VtxZ_Pull"))->Fill( fabs( dz/it->dzError()) );
       }
     }
   } 
@@ -207,19 +202,22 @@ void PixelTrackVal::analyze(
 
 void PixelTrackVal::endJob() 
 {
-  if (f_) f_->Write();
+  // Make my little tree
+  std::string file = conf_.getUntrackedParameter<std::string>("HistoFile","pixelTrackHistos.root");
+  TFile f(file.c_str(),"RECREATE");
+  hList.Write();
+  f.Close();
 }
 
-float PixelTrackVal::deltaR(const  math::XYZVector & m1, const  math::XYZVector & m2) const
-{
-  float dphi = m1.phi()-m2.phi();
-  while (dphi > 2*M_PI) dphi-=2*M_PI;
-  while (dphi < -2*M_PI) dphi+=2*M_PI;
-  float deta = m1.eta() - m2.eta();
-  float dr = sqrt( sqr(dphi) + sqr(deta));
-  return dr;
-
-}
+//float PixelTrackVal::deltaRR(const  math::XYZVector & m1, const  math::XYZVector & m2) const
+//{
+//  float dphi = m1.phi()-m2.phi();
+//  while (dphi > 2*M_PI) dphi-=2*M_PI;
+//  while (dphi < -2*M_PI) dphi+=2*M_PI;
+//  float deta = m1.eta() - m2.eta();
+//  float dr = sqrt( sqr(dphi) + sqr(deta));
+//  return dr;
+//}
 
 
 DEFINE_FWK_MODULE(PixelTrackVal);

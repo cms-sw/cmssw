@@ -1,20 +1,23 @@
 #include "PhysicsTools/Utilities/src/ExpressionVarSetter.h"
 #include "PhysicsTools/Utilities/src/ExpressionVar.h"
-#include "PhysicsTools/Utilities/src/returnType.h"
+#include "PhysicsTools/Utilities/interface/MethodMap.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 #include <string>
+#include <iostream>
 using namespace reco::parser;
 using namespace std;
-using namespace ROOT::Reflex;
 
-void ExpressionVarSetter::operator()(const char * begin, const char* end) const {
-  Type type = typeStack_.back();
-  method::TypeCode retType = reco::typeCode(type);
-  if(retType == method::invalid)
-    throw  edm::Exception(edm::errors::Configuration)
-      << "member " << methStack_.back().method().Name() << " has an invalid return type: \"" 
-      <<  methStack_.back().method().TypeOf().Name() << "\"\n";
-  exprStack_.push_back(boost::shared_ptr<ExpressionBase>(new ExpressionVar(methStack_, retType)));
-  methStack_.clear();
-  typeStack_.resize(1);
+void ExpressionVarSetter::operator()( const char * begin, const char* end ) const {
+  string methodName( begin, end );
+  string::size_type endOfExpr = methodName.find_last_of(' ');
+  if( endOfExpr != string::npos )
+    methodName.erase( endOfExpr, methodName.size() );
+  reco::MethodMap::const_iterator m = methods_.find( methodName );
+  if( m == methods_.end() )
+    throw edm::Exception( edm::errors::Configuration, 
+			  string( "unknown method \"" + methodName + "\"" ) );
+#ifdef BOOST_SPIRIT_DEBUG 
+  BOOST_SPIRIT_DEBUG_OUT << "pushing variable: " << methodName << endl;
+#endif
+  stack_.push_back( boost::shared_ptr<ExpressionBase>( new ExpressionVar( m->second ) ) );
 }

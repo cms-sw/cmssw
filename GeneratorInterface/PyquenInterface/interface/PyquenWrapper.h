@@ -4,35 +4,25 @@
 /*
  *
  * Wrapper for FORTRAN version of PYQUEN
- * $Id:$
  *
  * Camelia Mironov
  *
  */
-                                                       
+
+                                                                               
 // PYQUEN routine declaration
 
 extern "C" {
-  void pyquen_(double& a,int& ifb,double& bfix);
+  void pyquen_(float& a,int& ifb,float& bfix);
 }
 #define PYQUEN pyquen_ 
 
 extern "C" {
   extern struct{
-    double bgen;
+    float bgen;
   }plfpar_;
 }
 #define plfpar plfpar_
 
-extern "C" {
-  extern struct{
-    double T0u;
-    double tau0u;
-    int   nfu;
-    int   ienglu;
-    int   ianglu;
-  }pyqpar_;
-}
-#define pyqpar pyqpar_
 
 #endif  // PYQUEN_WRAPPER_H

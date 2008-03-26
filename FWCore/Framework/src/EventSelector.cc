@@ -241,6 +241,258 @@ namespace edm
     return false;
   }
 
+  /**
+   * Tests if the specified trigger selection list (path spec) is valid
+   * in the context of the specified full trigger list.  Each element in
+   * the selection list is tested to see if it possible for some
+   * combination of trigger results to satisfy the selection.  If all
+   * selection elements can be satisfied one way or another, then this
+   * method returns true.  If one or more selection elements could never
+   * be satisfied given the input full trigger list, then this method
+   * returns false.  At some level, this method tests whether the selection
+   * list is a "subset" of the full trigger list.
+   *
+   * @param pathspec The trigger selection list (vector of string).
+   * @param fullTriggerList The full list of trigger names (vector of string).
+   * @return true if the selection list is valid, false otherwise.
+   */
+  bool EventSelector::selectionIsValid(Strings const& pathspec,
+                                       Strings const& fullTriggerList)
+  {
+    // an empty selection list is not valid
+    if (pathspec.size() == 0)
+    {
+      return false;
+    }
+
+    // loop over each element in the selection list
+    for (unsigned int idx = 0; idx < pathspec.size(); idx++)
+    {
+      Strings workingList;
+      workingList.push_back(pathspec[idx]);
+
+      // catch exceptions from the EventSelector constructor
+      // (and anywhere else) and mark those as failures.
+      // The EventSelector constructor seems to do the work of
+      // checking if the selection is outside the full trigger list.
+      try
+      {
+        // create an EventSelector instance for this selection
+        EventSelector evtSelector(workingList, fullTriggerList);
+
+        // create the TriggerResults instance that we'll use for testing
+        unsigned int fullTriggerCount = fullTriggerList.size();
+        HLTGlobalStatus hltGS(fullTriggerCount);
+        TriggerResults sampleResults(hltGS, fullTriggerList);
+
+        // loop over each path
+        bool oneResultMatched = false;
+        for (unsigned int iPath = 0; iPath < fullTriggerCount; iPath++)
+        {
+          // loop over the possible values for the path status
+          for (int iState = static_cast<int>(hlt::Pass);
+               iState <= static_cast<int>(hlt::Exception);
+               iState++)
+          {
+            sampleResults[iPath] = HLTPathStatus(static_cast<hlt::HLTState>(iState), 0);
+            if (evtSelector.acceptEvent(sampleResults))
+            {
+              oneResultMatched = true;
+              break;
+            }
+
+            sampleResults.reset(iPath);
+          }
+
+          if (oneResultMatched) break;
+        }
+
+        // if none of the possible trigger results matched the
+        // selection element, then we declare the whole selection
+        // list invalid
+        if (! oneResultMatched)
+        {
+          return false;
+        }
+      }
+      catch (const edm::Exception& excpt)
+      {
+        return false;
+      }
+    }
+
+    // if we made it to this point, then it must have been possible
+    // to satisfy every selection element one way or another
+    return true;
+  }
+
+  /**
+   * Tests if the specified trigger selection lists (path specs) overlap,
+   * where "overlap" means that a valid trigger result (given the full
+   * trigger list) could satisfy both selections.
+   *
+   * @param pathspec1 The first trigger selection list (vector of string).
+   * @param pathspec2 The second trigger selection list (vector of string).
+   * @param fullTriggerList The full list of trigger names (vector of string).
+   * @return OverlapResult which indicates the degree of overlap.
+   */
+  evtSel::OverlapResult
+  EventSelector::testSelectionOverlap(Strings const& pathspec1,
+                                      Strings const& pathspec2,
+                                      Strings const& fullTriggerList)
+  {
+    // first, test that the selection lists are valid
+    if (! selectionIsValid(pathspec1, fullTriggerList) ||
+        ! selectionIsValid(pathspec2, fullTriggerList))
+    {
+      return evtSel::InvalidSelection;
+    }
+
+    // initialize possible states
+    bool noOverlap = true;
+    bool exactMatch = true;
+
+    // catch exceptions from the EventSelector constructor
+    // (and anywhere else) and mark those as failures
+    try
+    {
+      // create an EventSelector instance for each selection list
+      EventSelector selector1(pathspec1, fullTriggerList);
+      EventSelector selector2(pathspec2, fullTriggerList);
+
+      // create the TriggerResults instance that we'll use for testing
+      unsigned int fullTriggerCount = fullTriggerList.size();
+      HLTGlobalStatus hltGS(fullTriggerCount);
+      TriggerResults sampleResults(hltGS, fullTriggerList);
+
+      // loop over each path
+      for (unsigned int iPath = 0; iPath < fullTriggerCount; iPath++)
+      {
+        // loop over the possible values for the path status
+        for (int iState = static_cast<int>(hlt::Pass);
+             iState <= static_cast<int>(hlt::Exception);
+             iState++)
+        {
+          sampleResults[iPath] =
+            HLTPathStatus(static_cast<hlt::HLTState>(iState), 0);
+          bool accept1 = selector1.acceptEvent(sampleResults);
+          bool accept2 = selector2.acceptEvent(sampleResults);
+          if (accept1 != accept2)
+          {
+            exactMatch = false;
+          }
+          if (accept1 && accept2)
+          {
+            noOverlap = false;
+          }
+          sampleResults.reset(iPath);
+        }
+      }
+    }
+    catch (const edm::Exception& excpt)
+    {
+      return evtSel::InvalidSelection;
+    }
+
+    if (exactMatch) {return evtSel::ExactMatch;}
+    if (noOverlap) {return evtSel::NoOverlap;}
+    return evtSel::PartialOverlap;
+  }
+
+  /**
+   * Applies a trigger selection mask to a specified trigger result object.
+   * Within the trigger result object, each path status is left unchanged
+   * if it satisfies the trigger selection (path specs) or cleared if it
+   * does not satisfy the trigger selection.  In this way, the resulting
+   * trigger result object contains only path status values that "pass"
+   * the selection criteria.
+   *
+   * @param pathspecs The trigger selection list (vector of string).
+   * @param inputResults The raw trigger results object that will be masked.
+   * @param fullTriggerList The full list of trigger names (vector of string).
+   * @return a copy of the input trigger results object with only the path
+   *         status results that match the trigger selection.
+   * @throws edm::Exception if the number of paths in the TriggerResults
+   *         object does not match the specified full trigger list, or
+   *         if the trigger selection is invalid in the context of the
+   *         full trigger list.
+   */
+  boost::shared_ptr<TriggerResults>
+  EventSelector::maskTriggerResults(Strings const& pathspecs,
+                                    TriggerResults const& inputResults,
+                                    Strings const& fullTriggerList)
+  {
+    // fetch and validate the total number of paths
+    unsigned int fullTriggerCount = fullTriggerList.size();
+    if (fullTriggerCount != inputResults.size())
+    {
+      throw edm::Exception(edm::errors::EventCorruption)
+        << "EventSelector::maskTriggerResults, the TriggerResults\n"
+        << "size (" << inputResults.size()
+        << ") does not match the number of paths in the\n"
+        << "full trigger list (" << fullTriggerCount << ").\n";
+    }
+
+    // create a working copy of the TriggerResults object
+    HLTGlobalStatus hltGS(fullTriggerCount);
+    boost::shared_ptr<TriggerResults>
+      maskedResults(new TriggerResults(hltGS, inputResults.parameterSetID()));
+    for (unsigned int iPath = 0; iPath < fullTriggerCount; iPath++)
+    {
+      (*maskedResults)[iPath] = inputResults[iPath];
+    }
+
+    // create an EventSelector to use when testing if a path status passes
+    EventSelector selector(pathspecs, fullTriggerList);
+
+    // create the TriggerResults instance that we'll use for testing
+    HLTGlobalStatus hltGS2(fullTriggerCount);
+    TriggerResults sampleResults(hltGS2, fullTriggerList);
+
+    // loop over each path and reset the path status if needed
+    for (unsigned int iPath = 0; iPath < fullTriggerCount; iPath++)
+    {
+      sampleResults[iPath] = (*maskedResults)[iPath];
+      if (! selector.acceptEvent(sampleResults))
+      {
+        maskedResults->reset(iPath);
+      }
+      sampleResults.reset(iPath);
+    }
+    return maskedResults;
+  }
+
+  /**
+   * Returns the list of strings that correspond to the trigger
+   * selection request in the specified parameter set (the list
+   * of strings contained in the "SelectEvents" parameter).
+   *
+   * @param pset The ParameterSet that contains the trigger selection.
+   * @return the trigger selection list (vector of string).
+   */
+  std::vector<std::string>
+  EventSelector::getEventSelectionVString(edm::ParameterSet const& pset)
+  {
+    // default the selection to everything (wildcard)
+    Strings selection;
+    selection.push_back("*");
+
+    // the SelectEvents parameter is a ParameterSet within
+    // a ParameterSet, so we have to pull it out twice
+    ParameterSet selectEventsParamSet =
+      pset.getUntrackedParameter("SelectEvents", ParameterSet());
+    if (! selectEventsParamSet.empty()) {
+      Strings path_specs = 
+        selectEventsParamSet.getParameter<Strings>("SelectEvents");
+      if (! path_specs.empty()) {
+        selection = path_specs;
+      }
+    }
+
+    // return the result
+    return selection;
+  }
+
   bool EventSelector::acceptTriggerPath(HLTPathStatus const& pathStatus,
                                         BitInfo const& pathInfo) const
   {

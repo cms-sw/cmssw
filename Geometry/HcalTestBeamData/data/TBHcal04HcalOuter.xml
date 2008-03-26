@@ -10,7 +10,7 @@
  <Constant name="yokeDx2"       value="5.00*cm"/>
  <Constant name="yokeDz2"       value="3.27*m"/>
  <Constant name="tailDx2"       value="9.75*cm"/>
- <Constant name="layerDx2"      value="15.50*mm"/>
+ <Constant name="layerDx2"      value="25.50*mm"/>
  <Constant name="layerDy2"      value="1.08*m"/>
  <Constant name="layer0Dz2"     value="63.40*cm"/>
  <Constant name="layer2Dz2"     value="1.268*m"/>

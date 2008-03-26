@@ -9,6 +9,23 @@
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "Calibration/HcalCalibAlgos/interface/Analyzer_minbias.h"
 #include "DataFormats/Provenance/interface/Provenance.h"
+//#include "CondFormats/HcalObjects/interface/HcalGain.h"
+//#include "CondFormats/HcalObjects/interface/HcalGainWidth.h"
+//#include "CondFormats/HcalObjects/interface/HcalPedestal.h"
+//#include "CondFormats/HcalObjects/interface/HcalPedestalWidth.h"
+//#include "CalibFormats/HcalObjects/interface/HcalDbRecord.h"
+//#include "CalibFormats/HcalObjects/interface/HcalCoderDb.h"
+//#include "CalibFormats/HcalObjects/interface/HcalCalibrations.h"
+#include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
+#include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
+#include "DataFormats/HcalDetId/interface/HcalSubdetector.h"
+//#include "DataFormats/HcalDetId/interface/HcalElectronicsId.h"
+#include "DataFormats/HcalDetId/interface/HcalDetId.h"
+
+#include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
+#include "HepMC/GenParticle.h"
+#include "HepMC/GenVertex.h"
+
 #include "TFile.h"
 #include "TH1.h"
 #include "TH2.h"
@@ -32,6 +49,11 @@ Analyzer_minbias::Analyzer_minbias(const edm::ParameterSet& iConfig)
 //  MiscalibReaderFromXMLHcal hcalreader_(mapHcal_);
 //  if(!hcalfile_.empty()) hcalreader_.parseXMLMiscalibFile(hcalfile_);
 //  mapHcal_.print();
+  nameprod = iConfig.getUntrackedParameter<std::string>("nameProd");
+  hbhereco = iConfig.getParameter<edm::InputTag>("hbheInput");
+  horeco   = iConfig.getParameter<edm::InputTag>("hoInput");
+  hfreco   = iConfig.getParameter<edm::InputTag>("hfInput");
+  useMCInfo = iConfig.getParameter<bool>("useMC");
   
 }
 
@@ -92,6 +114,7 @@ void Analyzer_minbias::beginJob( const edm::EventSetup& iSetup)
    edm::ESHandle<CaloGeometry> pG;
    iSetup.get<IdealGeometryRecord>().get(pG);
    geo = pG.product();
+//   iSetup.get<HcalDbRecord>().get(conditions);
    
    std::vector<DetId> did =  geo->getValidDetIds();
 
@@ -104,6 +127,11 @@ void Analyzer_minbias::beginJob( const edm::EventSetup& iSetup)
       theFillDetMap2[hid] = 0.;
       theFillDetMap3[hid] = 0.;
       theFillDetMap4[hid] = 0.;
+      theFillDetMap_cut0[hid] = 0.;
+      theFillDetMap_cut1[hid] = 0.;
+      theFillDetMap_cut2[hid] = 0.;
+      theFillDetMap_cut3[hid] = 0.;
+      theFillDetMap_cut4[hid] = 0.;
    }
    }
   std::string ccc = "hcal.dat";
@@ -139,12 +167,6 @@ void Analyzer_minbias::endJob()
        mom3 = theFillDetMap3[hid];
        mom4 = theFillDetMap4[hid];
        
-       
-//       mom1 = theFillDetMap1[hid]/theFillDetMap0[hid];
-//       mom2 = theFillDetMap2[hid]/theFillDetMap0[hid]-(mom1*mom1);
-//       mom3 = theFillDetMap3[hid]/theFillDetMap0[hid]-3.*mom1*theFillDetMap2[hid]/theFillDetMap0[hid]+
-//             2.*pow(mom2,3);
-//       mom4 = (theFillDetMap4[hid]-4.*mom1*theFillDetMap3[hid]+6.*pow(mom1,2)*theFillDetMap2[hid])/theFillDetMap0[hid]-3.*pow(mom1,4);
 
        if(theFillDetMap_cut0[hid]>0.){
        
@@ -154,13 +176,6 @@ void Analyzer_minbias::endJob()
        mom3_cut = theFillDetMap_cut3[hid];
        mom4_cut = theFillDetMap_cut4[hid];
        
-       
-//       mom1_cut = theFillDetMap_cut1[hid]/theFillDetMap_cut0[hid];
-//       mom2_cut = theFillDetMap_cut2[hid]/theFillDetMap_cut0[hid]-(mom1*mom1);
-//       mom3_cut = theFillDetMap_cut3[hid]/theFillDetMap_cut0[hid]-3.*mom1*theFillDetMap_cut2[hid]/theFillDetMap_cut0[hid]+
-//             2.*pow(mom2,3);
-//       mom4_cut = (theFillDetMap_cut4[hid]-4.*mom1*theFillDetMap_cut3[hid]+6.*pow(mom1,2)*theFillDetMap_cut2[hid])/theFillDetMap_cut0[hid]-3.*pow(mom1,4);
-
        occup = theFillDetMap_cut0[hid]/theFillDetMap0[hid];
        
        } else
@@ -172,7 +187,8 @@ void Analyzer_minbias::endJob()
 	  mom4_cut = -10000.;
        }
 
-       cout<<" Result= "<<mydet<<" "<<mysubd<<" "<<ieta<<" "<<iphi<<" "<<mom1<<" "<<mom2<<endl;
+       cout<<" Result= "<<mydet<<" "<<mysubd<<" "<<ieta<<" "<<iphi<<" mom0  "<<mom0<<" mom1 "<<mom1<<" mom2 "<<mom2<<
+       " mom0_cut "<<mom0_cut<<" mom1_cut "<<mom1_cut<<endl;
        myTree->Fill();
        i++;
       } 
@@ -196,30 +212,55 @@ void
 Analyzer_minbias::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
 
+  std::cout<<" Start Analyzer_minbias::analyze "<<std::endl;
+  
   using namespace edm;
   std::vector<Provenance const*> theProvenance;
   iEvent.getAllProvenance(theProvenance);
-  for( std::vector<Provenance const*>::const_iterator ip = theProvenance.begin();
-                                                      ip != theProvenance.end(); ip++)
-  {
-     cout<<" Print all module/label names "<<(**ip).moduleName()<<" "<<(**ip).moduleLabel()<<
-     " "<<(**ip).productInstanceName()<<endl;
-  }
-   std::vector<DetId> did =  geo->getValidDetIds();
- 
-   edm::Handle<HBHERecHitCollection> hbhe;
-   iEvent.getByLabel("hbhereco", hbhe);
-   edm::Handle<HORecHitCollection> ho;
-   iEvent.getByLabel("horeco", ho);
-   edm::Handle<HFRecHitCollection> hf;
-   iEvent.getByLabel("hfreco", hf);
 
-  
+//  for( std::vector<Provenance const*>::const_iterator ip = theProvenance.begin();
+//                                                      ip != theProvenance.end(); ip++)
+//  {
+//     cout<<" Print all module/label names "<<(**ip).moduleName()<<" "<<(**ip).moduleLabel()<<
+//     " "<<(**ip).productInstanceName()<<endl;
+//  }
+
+  float pt,eta,phi;
+//  useMCInfo = true;
+      bool allowMissingInputs_ = true;  
+   if(useMCInfo)
+   {
+  try {
+    cout<<" Try to take HepMCProduct "<<endl;
+    edm::Handle< edm::HepMCProduct >  EvtHandles ;
+    iEvent.getByType( EvtHandles ) ;
+    const HepMC::GenEvent* Evt = EvtHandles->GetEvent();
+    for (HepMC::GenEvent::particle_const_iterator
+            Part = Evt->particles_begin() ; Part!=Evt->particles_end(); Part++ )
+    {
+       cout<<" pion "<<(*Part)->pdg_id()<<" "<<((*Part)->momentum()).perp()<<" "<<((*Part)->momentum()).eta()<<
+       " "<<((*Part)->momentum()).phi()<<endl;
+    }
+  } catch (std::exception& e) { // can't find it!
+    if (!allowMissingInputs_) {cout<<" GenParticles are missed "<<endl; throw e;}
+  }
+     
+   }
+   
+    std::cout<<" Analyzer_minbias::analyze::before HBHE "<<std::endl;
+    
+   std::vector<DetId> did =  geo->getValidDetIds();   
+   try {
+   edm::Handle<HBHERecHitCollection> hbhe;
+   iEvent.getByLabel(hbhereco, hbhe);
+
   const HBHERecHitCollection Hithbhe = *(hbhe.product());
+  cout<<" size of collection "<<Hithbhe.size()<<endl;
+
   for(HBHERecHitCollection::const_iterator hbheItr=Hithbhe.begin(); hbheItr!=Hithbhe.end(); hbheItr++)
         {
 // Recalibration of energy
-          float icalconst=1.;	 
+         float icalconst=1.;	 
 //	 float icalconst=(mapHcal_.get().find(hbheItr->id().rawId()))->second;
 	 HBHERecHit aHit(hbheItr->id(),hbheItr->energy()*icalconst,hbheItr->time());
 	 
@@ -231,16 +272,27 @@ Analyzer_minbias::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 	 DetId id = (*hbheItr).detid(); 
 	 HcalDetId hid=HcalDetId(id);
 //	 if(mystart == 0) theHcalId.push_back(hid);
-	
-         if(hid.ieta() == 1 ) (*myout_hcal)<<iEvent.id().run()<<" "<<iEvent.id().event()<<" "<<hid.iphi()<<energyhit<<endl; 
+//     Get gains and setup threshold proportional to gains
+//
+//          HcalGenericDetId hcalGenDetId(hbheItr->id());
+//          const HcalGain*  gain = conditions->getGain(hcalGenDetId);
+//	  const HcalPedestal* pedestal = conditions->getPedestal(hcalGenDetId);
+
+         if(hid.ieta() == 1 ) (*myout_hcal)<<iEvent.id().run()<<" "<<iEvent.id().event()<<" "<<hid.iphi()<<" "<<energyhit<<endl; 
  
 	 theFillDetMap0[hid] = theFillDetMap0[hid]+ 1.;
          theFillDetMap1[hid] = theFillDetMap1[hid]+energyhit;
 	 theFillDetMap2[hid] = theFillDetMap2[hid]+pow(energyhit,2);
 	 theFillDetMap3[hid] = theFillDetMap3[hid]+pow(energyhit,3);
 	 theFillDetMap4[hid] = theFillDetMap4[hid]+pow(energyhit,4);
-	 
-	 if((*hbheItr).energy()>0.5)
+	
+//         if((hid).depth() == 1&&abs((hid).ieta()) == 1 ) {
+//          cout<<"Pedestal,Gain"<<(hid).ieta()<<" "<<(hid).iphi()<< " Gain "<<gain->getValue(0)<<endl;
+//            cout<<" Energy per bin "<<energyhit<<endl;
+//         }
+ 
+//	 if((*hbheItr).energy()>0.5*(gain->getValue(0))/0.12)
+         if((*hbheItr).energy()>0.)
 	 { 
 	 theFillDetMap_cut0[hid] = theFillDetMap_cut0[hid]+ 1.;
          theFillDetMap_cut1[hid] = theFillDetMap_cut1[hid]+energyhit;
@@ -256,7 +308,17 @@ Analyzer_minbias::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 //	 "energy "<<(*hbheItr).energy()<<endl;
 	 
         }
+
+  } catch (std::exception& e) { // can't find it!
+    if (!allowMissingInputs_) {cout<<" HBHE are missed "<<endl; throw e;}
+  }
+
+  try {
+   edm::Handle<HORecHitCollection> ho;
+   iEvent.getByLabel(horeco, ho);
+
   const HORecHitCollection Hitho = *(ho.product());
+  cout<<" size of collection "<<Hitho.size()<<endl;
   for(HORecHitCollection::const_iterator hoItr=Hitho.begin(); hoItr!=Hitho.end(); hoItr++)
         {
          float icalconst=1.;
@@ -282,6 +344,13 @@ Analyzer_minbias::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 //	 cout<<" "<<geo->getPosition((*hoItr).detid()).eta()<<" Eta= "<<hid.ieta()<<" "<<hid.depth()<<endl;
 	  
         }
+  } catch (std::exception& e) { // can't find it!
+    if (!allowMissingInputs_) {cout<<" HO are missed "<<endl; throw e;}
+  }
+
+   try {
+   edm::Handle<HFRecHitCollection> hf;
+   iEvent.getByLabel(hfreco, hf);
 
   const HFRecHitCollection Hithf = *(hf.product());
   for(HFRecHitCollection::const_iterator hfItr=Hithf.begin(); hfItr!=Hithf.end(); hfItr++)
@@ -309,6 +378,10 @@ Analyzer_minbias::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 //         " "<<energyhit<<endl;
 	 
       }
+  } catch (std::exception& e) { // can't find it!
+    if (!allowMissingInputs_) {cout<<" HF are missed "<<endl; throw e;}
+  }
+
 }
 }
 //define this as a plug-in

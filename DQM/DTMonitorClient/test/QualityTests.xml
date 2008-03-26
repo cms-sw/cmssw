@@ -8,6 +8,17 @@
 	<PARAM name="warning">0.70</PARAM>
 </QTEST>
 
+<QTEST name="ResidualsDistributionGaussianTest">
+        <TYPE>MeanWithinExpected</TYPE>
+        <PARAM name="error">0.05</PARAM>
+        <PARAM name="warning">0.5</PARAM>
+        <PARAM name="mean">0.0</PARAM>
+        <PARAM name="useRMS">0</PARAM>
+        <PARAM name="useSigma">0</PARAM>
+        <PARAM name="useRange">1</PARAM>
+        <PARAM name="xmin">-0.015</PARAM>
+        <PARAM name="xmax">0.015</PARAM>
+</QTEST>
 
 <QTEST name="ResidualsMeanInRange">
 	<TYPE>ContentsYRange</TYPE>	
@@ -21,16 +32,7 @@
 <QTEST name="ResidualsSigmaInRange">
 	<TYPE>ContentsYRange</TYPE>	
 	<PARAM name="ymin">0</PARAM>
-	<PARAM name="ymax">0.07</PARAM>
-	<PARAM name="error">0.30</PARAM>
-	<PARAM name="warning">0.70</PARAM>
-</QTEST>
-
-
-<QTEST name="ResidualsSlopeInRange">
-	<TYPE>ContentsYRange</TYPE>	
-	<PARAM name="ymin">-0.05</PARAM>
-	<PARAM name="ymax">0</PARAM>
+	<PARAM name="ymax">0.09</PARAM>
 	<PARAM name="error">0.30</PARAM>
 	<PARAM name="warning">0.70</PARAM>
 </QTEST>
@@ -38,7 +40,7 @@
 
 <QTEST name="EfficiencyInRange">
 	<TYPE>ContentsYRange</TYPE>	
-	<PARAM name="ymin">0.98</PARAM>
+	<PARAM name="ymin">0,98</PARAM>
 	<PARAM name="ymax">1.00</PARAM>
 	<PARAM name="error">0.30</PARAM>
 	<PARAM name="warning">0.70</PARAM>
@@ -47,7 +49,7 @@
 
 <QTEST name="UnassEfficiencyInRange">
 	<TYPE>ContentsYRange</TYPE>	
-	<PARAM name="ymin">0.98</PARAM>
+	<PARAM name="ymin">0,98</PARAM>
 	<PARAM name="ymax">1.00</PARAM>
 	<PARAM name="error">0.30</PARAM>
 	<PARAM name="warning">0.70</PARAM>
@@ -64,16 +66,16 @@
 
 <QTEST name="ChEfficiencyInRangeX">
 	<TYPE>ContentsYRange</TYPE>	
-	<PARAM name="ymin">0.98</PARAM>
+	<PARAM name="ymin">0,98</PARAM>
 	<PARAM name="ymax">1.00</PARAM>
-	<PARAM name="error">0.03</PARAM>
+	<PARAM name="error">0.30</PARAM>
 	<PARAM name="warning">0.70</PARAM>
 </QTEST>
 
 
 <QTEST name="ChEfficiencyInRangeY">
 	<TYPE>ContentsYRange</TYPE>	
-	<PARAM name="ymin">0.98</PARAM>
+	<PARAM name="ymin">0,98</PARAM>
 	<PARAM name="ymax">1.00</PARAM>
 	<PARAM name="error">0.30</PARAM>
 	<PARAM name="warning">0.70</PARAM>
@@ -89,61 +91,7 @@
 </QTEST>
 
 
-<QTEST name="SectorTrigEffPhiInRange">
-	<TYPE>ContentsYRange</TYPE>	
-	<PARAM name="ymin">0.5</PARAM>
-	<PARAM name="ymax">1.00</PARAM>
-	<PARAM name="error">0.95</PARAM>
-	<PARAM name="warning">0.95</PARAM>
-</QTEST>
-
-
-<QTEST name="SectorCorrFractionInRange">
-	<TYPE>ContentsYRange</TYPE>	
-	<PARAM name="ymin">0.50</PARAM>
-	<PARAM name="ymax">1.00</PARAM>
-	<PARAM name="error">0.80</PARAM>
-	<PARAM name="warning">0.90</PARAM>
-</QTEST>
-
-
-<QTEST name="SectorTrigPhiSlopeInRange">
-	<TYPE>ContentsYRange</TYPE>	
-	<PARAM name="ymin">0.80</PARAM>
-	<PARAM name="ymax">1.20</PARAM>
-	<PARAM name="error">0.80</PARAM>
-	<PARAM name="warning">0.90</PARAM>
-</QTEST>
-
-
-<QTEST name="SectorTrigPhibSlopeInRange">
-	<TYPE>ContentsYRange</TYPE>	
-	<PARAM name="ymin">0.80</PARAM>
-	<PARAM name="ymax">1.20</PARAM>
-	<PARAM name="error">0.55</PARAM>
-	<PARAM name="warning">0.70</PARAM>
-</QTEST>
-
-
-<QTEST name="SectorTrigPhiInterceptInRange">
-	<TYPE>ContentsYRange</TYPE>	
-	<PARAM name="ymin">-25</PARAM>
-	<PARAM name="ymax">25</PARAM>
-	<PARAM name="error">0.80</PARAM>
-	<PARAM name="warning">0.90</PARAM>
-</QTEST>
-
-
-<QTEST name="SectorTrigPhibInterceptInRange">
-	<TYPE>ContentsYRange</TYPE>	
-	<PARAM name="ymin">-25</PARAM>
-	<PARAM name="ymax">25</PARAM>
-	<PARAM name="error">0.80</PARAM>
-	<PARAM name="warning">0.90</PARAM>
-</QTEST>
-
-
-<QTEST name="SectorTrigEffThetaInRange">
+<QTEST name="SectorTrigEffInRangePhi">
 	<TYPE>ContentsYRange</TYPE>	
 	<PARAM name="ymin">0.5</PARAM>
 	<PARAM name="ymax">1.00</PARAM>
@@ -168,15 +116,11 @@
 	<TestName activate="true">ResidualsSigmaInRange</TestName>
 </LINK>
 
-<LINK name="*SlopeTest*">
-	<TestName activate="true">ResidualsSlopeInRange</TestName>
-</LINK>
-
 <LINK name="*Efficiency_*">
 	<TestName activate="true">EfficiencyInRange</TestName>
 </LINK>
 
-<LINK name="*UnassEfficiency_*">
+<LINK name="*Efficiency_*">
 	<TestName activate="true">UnassEfficiencyInRange</TestName>
 </LINK>
 
@@ -196,33 +140,8 @@
 	<TestName activate="true">NoiseMeanInRange</TestName>
 </LINK>
 
-<LINK name="*TrigEffSec_Phi_*">
-	<TestName activate="true">SectorTrigEffPhiInRange</TestName>
+<LINK name="*TrigEffSec_Phi*">
+	<TestName activate="true">SectorTrigEffInRangePhi</TestName>
 </LINK>
-
-<LINK name="*TrigEffSec_Theta_*">
-	<TestName activate="true">SectorTrigEffThetaInRange</TestName>
-</LINK>
-
-<LINK name="*CorrFractionSec_Phi_*">
-	<TestName activate="true">SectorCorrFractionInRange</TestName>
-</LINK>
-
-<LINK name="*PhiTkvsTrigSlope*">
-	<TestName activate="true">SectorTrigPhiSlopeInRange</TestName>
-</LINK>
-
-<LINK name="*PhibTkvsTrigSlope*">
-	<TestName activate="true">SectorTrigPhibSlopeInRange</TestName>
-</LINK>
-
-<LINK name="*PhiTkvsTrigIntercept*">
-	<TestName activate="true">SectorTrigPhiInterceptInRange</TestName>
-</LINK>
-
-<LINK name="*PhibTkvsTrigIntercept*">
-	<TestName activate="true">SectorTrigPhibInterceptInRange</TestName>
-</LINK>
-
 
 </TESTSCONFIGURATION>

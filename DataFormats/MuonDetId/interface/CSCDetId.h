@@ -103,13 +103,6 @@ public:
      return ( endcap()!=1 ? -1 : +1 );
    }
 
-   /**
-    * Chamber type (integer 1-10)
-    */
-   unsigned short iChamberType() {
-     return iChamberType( station(), ring() );
-   }
-
   // static methods
   // Used when we need information about subdetector labels.
 
@@ -171,14 +164,6 @@ public:
     */
    static int endcap( int index ) {
      return (  (index>>START_ENDCAP) & MASK_ENDCAP ); }
-
-   /**
-    * Return a unique integer 1-10 for a station, ring pair:
-    *        1           for S = 1  and R=4 inner strip part of ME11 (ME1a)
-    *      2,3,4 =  R+1  for S = 1  and R = 1,2,3 (ME11 means ME1b)
-    *      5-10  = 2*S+R for S = 2,3,4 and R = 1,2
-    */
-   static unsigned short iChamberType( unsigned short istation, unsigned short iring );
 
    /**
     * Return trigger-level sector id for an Endcap Muon chamber.
@@ -255,7 +240,7 @@ private:
    *
    * Internally the chambers are ordered (Station/Ring) as: ME1/a (1/1), ME1/b (1/2), ME1/2 (1/3), ME1/3 (1/4)
    * i.e. they are labelled within the DetId as if ME1a, ME1b, ME12, ME13 are rings 1, 2, 3, 4.
-   * The offline software always considers rings 1, 2, 3, 4 as ME1b, ME12, ME13, ME1a so that at
+   * The offline software always considers rings 1, 2, 3, 4 as ME1b, ME12, ME13, MEa so that at
    * least ME12 and ME13 have ring numbers which match in hardware and software!
    *
    */

@@ -212,16 +212,16 @@ WebLib.enableButtons = function(which)
  }
 }
 
-document.write('<script src="SERVED_DIRECTORY_URL/../../TrackerCommon/test/js_files/Navigator.js"><\/script>');
-document.write('<script src="SERVED_DIRECTORY_URL/../../TrackerCommon/test/js_files/GifDisplay.js"><\/script>');
-document.write('<script src="SERVED_DIRECTORY_URL/../../TrackerCommon/test/js_files/ContentViewer.js"><\/script>');
-document.write('<script src="SERVED_DIRECTORY_URL/../../TrackerCommon/test/js_files/ConfigBox.js"><\/script>');
-document.write('<script src="SERVED_DIRECTORY_URL/../../TrackerCommon/test/js_files/Select.js"><\/script>');
-document.write('<script src="SERVED_DIRECTORY_URL/../../TrackerCommon/test/js_files/Messages.js"><\/script>');
+document.write('<script src="SERVED_DIRECTORY_URL/js_files/Navigator.js"><\/script>');
+document.write('<script src="SERVED_DIRECTORY_URL/js_files/GifDisplay.js"><\/script>');
+document.write('<script src="SERVED_DIRECTORY_URL/js_files/ContentViewer.js"><\/script>');
+document.write('<script src="SERVED_DIRECTORY_URL/js_files/ConfigBox.js"><\/script>');
+document.write('<script src="SERVED_DIRECTORY_URL/js_files/Select.js"><\/script>');
+document.write('<script src="SERVED_DIRECTORY_URL/js_files/Messages.js"><\/script>');
 document.write('<script src="SERVED_DIRECTORY_URL/js_files/RequestHistos.js"><\/script>');
 document.write('<script src="SERVED_DIRECTORY_URL/js_files/CommonActions.js"><\/script>');
 document.write('<script src="SERVED_DIRECTORY_URL/js_files/RequestPlot.js"><\/script>');
 document.write('<script src="SERVED_DIRECTORY_URL/js_files/ClientActions.js"><\/script>');
-document.write('<script src="SERVED_DIRECTORY_URL/../../TrackerCommon/test/js_files/tab-view.js"><\/script>');
-document.write('<script src="SERVED_DIRECTORY_URL/../../TrackerCommon/test/js_files/context-menu.js"><\/script>');
-document.write('<script src="SERVED_DIRECTORY_URL/../../TrackerCommon/test/js_files/folder-tree-static.js"><\/script>');
+document.write('<script src="SERVED_DIRECTORY_URL/js_files/tab-view.js"><\/script>');
+document.write('<script src="SERVED_DIRECTORY_URL/js_files/context-menu.js"><\/script>');
+document.write('<script src="SERVED_DIRECTORY_URL/js_files/folder-tree-static.js"><\/script>');

@@ -5,18 +5,11 @@
  */
 
 #include "EventFilter/CSCRawToDigi/interface/CSCDDUEventData.h"
-#include "EventFilter/CSCRawToDigi/interface/CSCDDUHeader.h"
-#include "EventFilter/CSCRawToDigi/interface/CSCEventData.h"
-#include "EventFilter/CSCRawToDigi/interface/CSCDDUTrailer.h"
-#include "EventFilter/CSCRawToDigi/interface/CSCDCCHeader.h"
-#include "EventFilter/CSCRawToDigi/interface/CSCDCCTrailer.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include <iostream>
-#include <vector>
 #include <cstdio>
 
-#include <boost/dynamic_bitset.hpp>
 #include "EventFilter/CSCRawToDigi/src/bitset_append.h"
 
 bool CSCDDUEventData::debug = false;

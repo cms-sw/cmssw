@@ -1,40 +1,28 @@
 /*
  * \file EcalEndcapMonitorDbModule.cc
  * 
- * $Date: 2007/12/13 09:52:15 $
- * $Revision: 1.4 $
+ * $Date: 2008/01/24 12:44:26 $
+ * $Revision: 1.8 $
  * \author G. Della Ricca
  *
 */
 
 #include <unistd.h>
 
-#include "FWCore/ServiceRegistry/interface/Service.h"
-
 #include <iostream>
 #include <cmath>
 
-#include "FWCore/Framework/interface/Frameworkfwd.h"
-#include <FWCore/Framework/interface/EDAnalyzer.h>
-#include <FWCore/Framework/interface/MakerMacros.h>
 #include "FWCore/ServiceRegistry/interface/Service.h"
-
-#include "DQMServices/Daemon/interface/MonitorDaemon.h"
-
-#include "FWCore/ServiceRegistry/interface/Service.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
 
 #include "SealKernel/Context.h"
 #include "SealKernel/ComponentLoader.h"
-#include "SealKernel/Exception.h"
 #include "SealKernel/IMessageService.h"
 #include "PluginManager/PluginManager.h"
 #include "RelationalAccess/IConnectionService.h"
 #include "RelationalAccess/IConnectionServiceConfiguration.h"
 
 #include "CoralBase/Attribute.h"
-#include "CoralBase/AttributeList.h"
-#include "CoralBase/AttributeSpecification.h"
 
 #include <DQM/EcalBarrelMonitorDbModule/interface/MonitorElementsDb.h>
 
@@ -44,17 +32,6 @@ EcalEndcapMonitorDbModule::EcalEndcapMonitorDbModule(const edm::ParameterSet& ps
 
   // get hold of back-end interface
   dbe_ = edm::Service<DaqMonitorBEInterface>().operator->();
-
-  // MonitorDaemon switch
-  enableMonitorDaemon_ = ps.getUntrackedParameter<bool>("enableMonitorDaemon", true);
-
-  if ( enableMonitorDaemon_ ) {
-    std::cout << " enableMonitorDaemon switch is ON" << std::endl;
-    edm::Service<MonitorDaemon> daemon;
-    daemon.operator->();
-  } else {
-    std::cout << " enableMonitorDaemon switch is OFF" << std::endl;
-  }
 
   xmlFile_ = ps.getUntrackedParameter<std::string>( "xmlFile", "" );
   if ( xmlFile_.size() != 0 ) {

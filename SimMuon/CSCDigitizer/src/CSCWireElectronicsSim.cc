@@ -55,9 +55,14 @@ void CSCWireElectronicsSim::fillDigis(CSCWireDigiCollection & digis) {
 
     // the way we handle noise in this chamber is by randomly varying
     // the threshold
-    float threshold = theWireThreshold + theRandGaussQ->fire() * theWireNoise;
+    float threshold = theWireThreshold;
+    if (doNoise_) {
+       threshold += theRandGaussQ->fire() * theWireNoise;
+    }
     for(int ibin = 0; ibin < signalSize; ++ibin)
-      if(signal.getBinValue(ibin) > threshold) {
+    {
+      if(signal.getBinValue(ibin) > threshold) 
+      {
         // jackpot.  Now define this signal as everything up until
         // the signal goes below zero.
         int lastbin = signalSize;
@@ -69,68 +74,68 @@ void CSCWireElectronicsSim::fillDigis(CSCWireDigiCollection & digis) {
           }
         }
 
-      float qMax = 0.0;
-      // in this loop, find the max charge and the 'fifth' electron arrival
-      for ( i = ibin; i < lastbin; ++i)
-      {
-        float next_charge = signal.getBinValue(i);
-        if(next_charge > qMax) {
-          qMax = next_charge;
-        }
-      }
-     
-      int bin_firing_FD = 0;
-      for ( i = ibin; i < lastbin; ++i)
-      {
-        if( bin_firing_FD == 0 && signal.getBinValue(i) >= qMax * theFraction )
+        float qMax = 0.0;
+        // in this loop, find the max charge and the 'fifth' electron arrival
+        for ( i = ibin; i < lastbin; ++i)
         {
-           bin_firing_FD = i;
+          float next_charge = signal.getBinValue(i);
+          if(next_charge > qMax) {
+            qMax = next_charge;
+          }
         }
-      } 
-      float tofOffset = timeOfFlightCalibration(wireGroup);
-      int chamberType = theSpecs->chamberType();
-      // fill in the rest of the information, for everything that survives the fraction discrim.
+     
+        int bin_firing_FD = 0;
+        for ( i = ibin; i < lastbin; ++i)
+        {
+          if( bin_firing_FD == 0 && signal.getBinValue(i) >= qMax * theFraction )
+          {
+             bin_firing_FD = i;
+          }
+        } 
+        float tofOffset = timeOfFlightCalibration(wireGroup);
+        int chamberType = theSpecs->chamberType();
+        // fill in the rest of the information, for everything that survives the fraction discrim.
 
-      // Shouldn't one measure from theTimeOffset of the CSCAnalogSignal?
-      // Well, yes, but unfortunately it seems CSCAnalogSignal::superimpose
-      // fails to reset theTimeOffset properly. In any case, if everything
-      // is self-consistent, the overall theTimeOffset should BE
-      // theSignalStartTime. There is big trouble if any of the
-      // overlapping MEAS's happen to have a timeOffset earlier than
-      // theSignalStartTime (which is why it defaults to -10bx = -250ns).
-      // That could only happen in the case of signals from pile-up events
-      // arising way earlier than 10bx before the signal event crossing
-      // and so only if pile-up were simulated over an enormous range of
-      // bx earlier than the signal bx.
-      // (Comments from Tim, Aug-2005)
+        // Shouldn't one measure from theTimeOffset of the CSCAnalogSignal?
+        // Well, yes, but unfortunately it seems CSCAnalogSignal::superimpose
+        // fails to reset theTimeOffset properly. In any case, if everything
+        // is self-consistent, the overall theTimeOffset should BE
+        // theSignalStartTime. There is big trouble if any of the
+        // overlapping MEAS's happen to have a timeOffset earlier than
+        // theSignalStartTime (which is why it defaults to -10bx = -250ns).
+        // That could only happen in the case of signals from pile-up events
+        // arising way earlier than 10bx before the signal event crossing
+        // and so only if pile-up were simulated over an enormous range of
+        // bx earlier than the signal bx.
+        // (Comments from Tim, Aug-2005)
 
-      float fdTime = theRandGaussQ->fire(theSignalStartTime + theSamplingTime*bin_firing_FD,
-                                         theTimingCalibrationError);
+        float fdTime = theSignalStartTime + theSamplingTime*bin_firing_FD;
+        if(doNoise_) {
+          fdTime += theTimingCalibrationError * theRandGaussQ->fire();
+        }
 
-      int beamCrossingTag = 
-         static_cast<int>( (fdTime - tofOffset - theBunchTimingOffsets[chamberType])
-                            / theBunchSpacing );
+        float bxFloat = (fdTime - tofOffset- theBunchTimingOffsets[chamberType]) / theBunchSpacing
+                           + theOffsetOfBxZero;
+        if(bxFloat >= 0 && bxFloat < 16)
+        {
+           timeWord |= (1 << static_cast<int>(bxFloat) );
+        }
 
-      // Wire digi as of Oct-2006 adapted to real data: time word has 16 bits with set bit
-      // flagging appropriate bunch crossing, and bx 0 corresponding to 7th bit i.e.
+        // Wire digi as of Oct-2006 adapted to real data: time word has 16 bits with set bit
+        // flagging appropriate bunch crossing, and bx 0 corresponding to 7th bit i.e.
+  
+        //      1st bit set (bit 0) <-> bx -6
+        //      2nd              1  <-> bx -5
+        //      ...           ...       ....
+        //      7th              6  <-> bx  0
+        //      8th              7  <-> bx +1
+        //      ...           ...       ....
+        //     16th             15  <-> bx +9
 
-      //      1st bit set (bit 0) <-> bx -6
-      //      2nd              1  <-> bx -5
-      //      ...           ...       ....
-      //      7th              6  <-> bx  0
-      //      8th              7  <-> bx +1
-      //      ...           ...       ....
-      //     16th             15  <-> bx +9
-
-      // Parameter theOffsetOfBxZero = 6 @@WARNING! This offset may be changed (hardware)!
-      int nBitsToOffset = beamCrossingTag + theOffsetOfBxZero;
-      if ( (nBitsToOffset>= 0) && (nBitsToOffset<16) ) 
- 	 timeWord |= (1 << nBitsToOffset ); // set appropriate bit
-
-      // skip over all the time bins used for this digi
-      ibin = lastbin;
+        // skip over all the time bins used for this digi
+        ibin = lastbin;
+      } // if over threshold
     } // loop over time bins in signal
-
     if(timeWord != 0)
     {
       CSCWireDigi newDigi(wireGroup, timeWord);

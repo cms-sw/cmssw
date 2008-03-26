@@ -10,8 +10,7 @@ class CSCRecHit2DValidation : public CSCBaseValidation
 public:
   CSCRecHit2DValidation(DaqMonitorBEInterface* dbe, const edm::InputTag & inputTag);
 
-  // print out RMSes
-  virtual ~CSCRecHit2DValidation();
+  virtual ~CSCRecHit2DValidation() {}
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
 
  private:

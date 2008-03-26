@@ -97,14 +97,14 @@ bool PythiaFilterEMJet::filter(edm::Event& iEvent, const edm::EventSetup& iSetup
 						 ++p ) {
    
 			  
-    if (    (abs((*p)->pdg_id()==11) || (*p)->pdg_id()==22)  
+    if ( (abs((*p)->pdg_id())==11 || (*p)->pdg_id()==22)  
 	 && (*p)->status()==1
 	 && (*p)->momentum().perp() > pTMin
 	 && (*p)->momentum().perp() < pTMax 
 	 && fabs((*p)->momentum().eta()) < etaMax  
 	 && fabs((*p)->momentum().eta()) > etaMin ) {
-          EM_id = particle_id;
-	  EM_seeds.push_back(*p);
+      EM_id = particle_id;
+      EM_seeds.push_back(*p);
     }
     particle_id++;
   }

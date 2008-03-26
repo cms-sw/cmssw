@@ -7,17 +7,14 @@
 //
 
 #include <iostream>
-#include <vector>
 
 #include "FWCore/Utilities/interface/DebugMacros.h"
 #include "EventFilter/StorageManager/interface/DQMInstance.h"
-#include "TObject.h"
 #include "TH1.h"
 #include "TObjArray.h"
 #include "TObjString.h"
 #include "TString.h"
 #include "TDirectory.h"
-#include "TFile.h"
 #include "sys/stat.h"
 
 using edm::debugit;

@@ -119,6 +119,7 @@ int BinCounters::getBinCounters(int counterNumber){
   else if(counterNumber == 29)return counter29;
   else if(counterNumber == 30)return counter30;
   else if(counterNumber == 31)return counter31;
+  else return 0;
 }
 
 bool BinCounters::convert(unsigned int input, int bitval){

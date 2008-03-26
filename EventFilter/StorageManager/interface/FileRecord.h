@@ -1,7 +1,7 @@
 #ifndef FILERECORD_H
 #define FILERECORD_H
 
-// $Id: FileRecord.h,v 1.1 2007/02/05 11:19:56 klute Exp $
+// $Id: FileRecord.h,v 1.3 2008/02/21 14:16:14 biery Exp $
 #include <EventFilter/StorageManager/interface/Parameter.h>
 #include <boost/shared_ptr.hpp>
 #include <string>
@@ -26,7 +26,7 @@ namespace edm {
       void   moveFileToClosed();
       void   firstEntry(double d)   { firstEntry_ = d; }
       void   lastEntry(double d)    { lastEntry_  = d; }
-      void   increaseFileSize(int i){ fileSize_   += i; }
+      void   increaseFileSize(int i){ fileSize_   += (long long) i; }
       void   increaseEventCount()   { events_++; }
       void   checkDirectories();
       void   setCatalog(std::string s)     { statFileName_ = s; }
@@ -46,7 +46,7 @@ namespace edm {
      
       int    lumiSection()          { return lumiSection_; }
       int    fileCounter()          { return fileCounter_; }
-      int    fileSize()             { return fileSize_; }
+      long long fileSize()          { return fileSize_; }
       int    events()               { return events_; }
 
       double lastEntry()            { return lastEntry_; }
@@ -67,7 +67,7 @@ namespace edm {
       int    lumiSection_;                           // luminosity section  
       int    runNumber_;                             // runNumber
       int    fileCounter_;                           // number of files with fileName_ as name
-      int    fileSize_;                              // current file size
+      long long fileSize_;                           // current file size
       int    events_;                                // total number of events
       double firstEntry_;                            // time when last event was writen
       double lastEntry_;                             // time when last event was writen
@@ -75,6 +75,7 @@ namespace edm {
       boost::shared_ptr<stor::Parameter> smParameter_;     // 
       
       void   checkDirectory(std::string);
+      double calcPctDiff(long long, long long);
    };
 
  

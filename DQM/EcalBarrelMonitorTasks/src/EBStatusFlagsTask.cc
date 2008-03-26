@@ -1,8 +1,8 @@
 /*
  * \file EBStatusFlagsTask.cc
  *
- * $Date: 2007/12/04 08:24:08 $
- * $Revision: 1.80 $
+ * $Date: 2008/01/22 19:47:12 $
+ * $Revision: 1.3 $
  * \author G. Della Ricca
  *
 */
@@ -11,21 +11,12 @@
 #include <fstream>
 #include <vector>
 
-#include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
-#include "DQMServices/Daemon/interface/MonitorDaemon.h"
 
 #include "DataFormats/EcalRawData/interface/EcalRawDataCollections.h"
-#include "DataFormats/EcalDetId/interface/EcalDetIdCollections.h"
-#include "DataFormats/EcalDetId/interface/EBDetId.h"
-#include "DataFormats/EcalDigi/interface/EBDataFrame.h"
-#include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
-#include "DataFormats/EcalRecHit/interface/EcalUncalibratedRecHit.h"
-#include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 
 #include <DQM/EcalCommon/interface/Numbers.h>
 
@@ -76,7 +67,7 @@ void EBStatusFlagsTask::setup(void){
 
   init_ = true;
 
-  Char_t histo[200];
+  char histo[200];
 
   if ( dbe_ ) {
     dbe_->setCurrentFolder("EcalBarrel/EBStatusFlagsTask");
@@ -116,8 +107,8 @@ void EBStatusFlagsTask::setup(void){
     for (int i = 0; i < 36; i++) {
       sprintf(histo, "EBSFT front-end status %s", Numbers::sEB(i+1).c_str());
       meFEchErrors_[i][0] = dbe_->book2D(histo, histo, 17, 0., 17., 4, 0., 4.);
-      meFEchErrors_[i][0]->setAxisTitle("ieta", 1);
-      meFEchErrors_[i][0]->setAxisTitle("iphi", 2);
+      meFEchErrors_[i][0]->setAxisTitle("ieta'", 1);
+      meFEchErrors_[i][0]->setAxisTitle("iphi'", 2);
       dbe_->tag(meFEchErrors_[i][0], i+1);
 
       for ( int ie = 1; ie <= 17; ie++ ) {

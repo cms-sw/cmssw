@@ -1,7 +1,7 @@
 #ifndef _SiPixelActionExecutor_h_
 #define _SiPixelActionExecutor_h_
 
-#include "DQMServices/Core/interface/MonitorUIRoot.h"
+#include "DQMServices/UI/interface/MonitorUIRoot.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
 #include "DQM/SiPixelMonitorClient/interface/SiPixelConfigParser.h"

@@ -169,6 +169,38 @@ uint32 ConsRegResponseBuilder::size() const
 }
 
 /**
+ * Sets the stream selection table (map of trigger selections for each
+ * storage manager output stream) in the response.
+ */
+void ConsRegResponseBuilder::
+setStreamSelectionTable(std::map<std::string, Strings> const& selTable)
+{
+  // add the table just beyond the existing data
+  uint8* bufPtr = buf_ + size();
+
+  // add the number of entries in the table to the message
+  convert (selTable.size(), bufPtr);
+  bufPtr += sizeof(uint32);
+  assert(((uint32) (bufPtr - buf_)) <= bufSize_);
+
+  // add each entry in the table to the message
+  std::map<std::string, Strings>::const_iterator mapIter;
+  for (mapIter = selTable.begin(); mapIter != selTable.end(); mapIter++)
+    {
+      // create a new string list with the map key as the last entry
+      Strings workList = mapIter->second;
+      workList.push_back(mapIter->first);
+
+      // copy the string list into the message
+      bufPtr = MsgTools::fillNames(workList, bufPtr);
+      assert(((uint32) (bufPtr - buf_)) <= bufSize_);
+    }
+
+  // update the message header with the new full size
+  new (buf_) Header(Header::CONS_REG_RESPONSE, (bufPtr - buf_));
+}
+
+/**
  * Constructor for the consumer registration response viewer.
  */
 ConsRegResponseView::ConsRegResponseView(void* buf):
@@ -194,4 +226,47 @@ ConsRegResponseView::ConsRegResponseView(void* buf):
   // decode the consumer ID
   consumerId_ = convert32(bufPtr);
   bufPtr += sizeof(uint32);
+}
+
+/**
+ * Returns the map of trigger selections for each storage manager
+ * output stream.
+ */
+std::map<std::string, Strings> ConsRegResponseView::getStreamSelectionTable()
+{
+  std::map<std::string, Strings> selTable;
+
+  // check if there is more than just the status code and consumer id
+  if (size() >= (3 * sizeof(uint32)))
+    {
+      // initialize the data pointer to the start of the map data
+      uint8* bufPtr = buf_ + sizeof(Header);
+      bufPtr += (2 * sizeof(uint32));
+
+      // decode the number of streams in the table
+      uint32 streamCount = convert32(bufPtr);
+      bufPtr += sizeof(uint32);
+
+      // loop over each stream
+      for (uint32 idx = 0; idx < streamCount; idx++)
+        {
+          // decode the vector of strings for the stream
+          Strings workList;
+          //uint32 listCount = convert32(bufPtr);
+          bufPtr += sizeof(uint32);
+          uint32 listLen = convert32(bufPtr);
+          bufPtr += sizeof(uint32);
+          MsgTools::getNames(bufPtr, listLen, workList);
+
+          // pull the map key off the end of the list 
+          std::string streamLabel = workList.back();
+          workList.pop_back();
+          selTable[streamLabel] = workList;
+
+          // move on to the next entry in the message
+          bufPtr += listLen;
+        }
+    }
+
+  return selTable;
 }

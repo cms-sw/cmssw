@@ -6,7 +6,7 @@
  * Initial Implementation based on Kurt's ConsumerPipe
  * make a common class later when all this works
  *
- * $Id: DQMConsumerPipe.cc,v 1.7 2007/11/09 23:09:12 badgett Exp $
+ * $Id: DQMConsumerPipe.cc,v 1.8 2007/11/29 19:17:41 biery Exp $
  */
 
 #include "EventFilter/StorageManager/interface/DQMConsumerPipe.h"
@@ -43,7 +43,8 @@ DQMConsumerPipe::DQMConsumerPipe(std::string name, std::string priority,
   topFolderName_(folderName),
   hostName_(hostName),
   events_(0),
-  pushEventFailures_(0)
+  pushEventFailures_(0),
+  maxQueueSize_(queueSize)
 {
   // initialize the time values we use for defining "states"
   timeToIdleState_ = activeTimeout;
@@ -51,7 +52,7 @@ DQMConsumerPipe::DQMConsumerPipe(std::string name, std::string priority,
   lastEventRequestTime_ = time(NULL);
   initializationDone = false;
   pushMode_ = false;
-  if(consumerPriority_.compare("SMProxyServer") == 0) pushMode_ = true;
+  if(consumerPriority_.compare("PushMode") == 0) pushMode_ = true;
 
   // assign the consumer ID
   boost::mutex::scoped_lock scopedLockForRootId(rootIdLock_);
@@ -61,7 +62,7 @@ DQMConsumerPipe::DQMConsumerPipe(std::string name, std::string priority,
   if(han_==0)
   {
     edm::LogError("DQMConsumerPipe") << "Could not create curl handle";
-    std::cout << "Could not create curl handle" << std::endl;
+    //std::cout << "Could not create curl handle" << std::endl;
     // throw exception here when we can make the SM go to a fail state from
     // another thread
   } else {

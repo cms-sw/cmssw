@@ -29,7 +29,7 @@ class DisplayManager {
   void readOptions( const char* file );
 
   void display(int ientry);
-  void displayAll(bool noRedraw = true);
+  void displayAll();
   void displayNext();
   void displayNextInteresting(int ientry);
   void displayPrevious();
@@ -46,8 +46,6 @@ class DisplayManager {
   void updateDisplay();
   void unZoom();
   void printDisplay(const char* directory="" ) const;
-  void drawWithNewGraphicAttributes();
-  void setNewAttrToSimParticles();
      
   //bool getGLoaded() {return isGraphicLoaded_;}  //util to DialogFrame ?
      
@@ -65,37 +63,14 @@ class DisplayManager {
   bool drawParticles_;
   bool drawPFBlocks_;
      
-  //bool redrawWithoutHits_;
+  bool redrawWithoutHits_;
      
   //---------------------- new graphic Container ----------------
   //container of all the graphic Objects of one event 
   std::multimap<int,GPFBase *>  graphicMap_;
   //container of idents of objects within a PFBlock
   std::multimap<int ,int>       blockIdentsMap_;
-  
-  //------------- graphic attributes ------------------------------------
-  std::vector<int>      trackAttributes_;
-  std::vector<int>      clusterAttributes_;
-  
-  
-  TAttMarker *clusPattern_;
-  TAttMarker *clusPSPattern_;
-  
-  TAttMarker *trackPatternM_;
-  TAttLine   *trackPatternL_;
-  
-  TAttLine   *simPartPatternL_;
-  TAttMarker *simPartPatternPhoton_;
-  TAttMarker *simPartPatternElec_ ;
-  TAttMarker *simPartPatternMuon_;
-  TAttMarker *simPartPatternK_;
-  TAttMarker *simPartPatternPi_;
-  TAttMarker *simPartPatternProton_;
-  TAttMarker *simPartPatternNeutron_;
-  TAttMarker *simPartPatternDefault_;
-  
-  std::vector<TAttMarker *> simPartPatternM_;
-  
+     
  private:
 
   PFRootEventManager *em_;
@@ -133,15 +108,15 @@ class DisplayManager {
 
   /// HCAL in XY view. \todo should be attribute ?
   TEllipse frontFaceHCALXY_;
-  
   //----------------  end Draw Canvas ------------------------------------
     
   /// graphic object containers     
-  //std::vector<std::vector<TLine> >            vectGClusterLines_;
+  std::vector<std::vector<TLine> >            vectGClusterLines_;
   //number of clusterLines by cluster 
-  //std::vector<std::vector<int> >              vectClusLNb_;
+  std::vector<std::vector<int> >              vectClusLNb_;
     
   std::vector<int>                            selectedGObj_;
+     
      
     
   // Display Options read from option file
@@ -168,9 +143,9 @@ class DisplayManager {
   void createGPart(const reco::PFSimParticle &ptc, 
                    const std::vector<reco::PFTrajectoryPoint>& points, 
                    int ident,double pt,double phi0, double sign, 
-                   bool displayInitial,int markerIndex);
+                   bool displayInitial, int markerstyle);
 
-  //void createGClusterLines(const reco::PFCluster& cluster,int viewType);                      
+  void createGClusterLines(const reco::PFCluster& cluster,int viewType);                      
   void drawGObject(int ident,int color,bool toInitialColor);
 
   //fill vectors with graphic Objects
@@ -182,12 +157,11 @@ class DisplayManager {
 
   void loadGRecTracks();
 
-  void loadGSimParticles();
+  void loadGTrueParticles();
 
   void loadGPFBlocks();
      
-  //void redraw();
-  void rubOutGPFBlock();
+  void redraw();
 
   // methods
   double getMaxE(int layer) const;

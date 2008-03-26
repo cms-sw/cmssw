@@ -3,7 +3,6 @@
 #include "DataFormats/DetId/interface/DetId.h"
 #include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
 #include "Geometry/CommonTopologies/interface/StripTopology.h"
-#include "Geometry/CommonTopologies/interface/RadialStripTopology.h"
 #include "Geometry/TrackerGeometryBuilder/interface/GluedGeomDet.h"
 #include <cfloat>
 

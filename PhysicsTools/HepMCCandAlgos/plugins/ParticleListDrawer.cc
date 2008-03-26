@@ -59,12 +59,13 @@ nEventAnalyzed_(0) {
 
 void ParticleListDrawer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {  
-  iEvent.getByLabel ("genParticleCandidates", particles );
-  if (!particles.isValid()) {
-    cerr << "[ParticleListDrawer] caught std::exception " << endl;
-    return;
-  } else {
+
+  try {
+    iEvent.getByLabel ("genParticleCandidates", particles );
     iSetup.getData( pdt_ );
+  } catch(std::exception& ce) {
+    cerr << "[ParticleListDrawer] caught std::exception " << ce.what() << endl;
+    return;
   }
 
   if(nEventAnalyzed_ < maxEventsToPrint_) {

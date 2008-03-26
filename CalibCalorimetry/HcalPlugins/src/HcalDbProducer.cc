@@ -13,7 +13,7 @@
 //
 // Original Author:  Fedor Ratnikov
 //         Created:  Tue Aug  9 19:10:10 CDT 2005
-// $Id: HcalDbProducer.cc,v 1.17 2007/05/28 10:39:47 elmer Exp $
+// $Id: HcalDbProducer.cc,v 1.16 2007/04/27 23:38:02 michals Exp $
 //
 //
 
@@ -50,7 +50,7 @@
 
 HcalDbProducer::HcalDbProducer( const edm::ParameterSet& fConfig)
   : ESProducer(),
-    mService (new HcalDbService (fConfig)),
+    mService (new HcalDbService ()),
     mDumpRequest (),
     mDumpStream(0)
 {

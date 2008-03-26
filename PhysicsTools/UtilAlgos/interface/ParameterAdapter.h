@@ -8,28 +8,17 @@ namespace reco {
     
     template<typename S> 
     struct ParameterAdapter { 
-      static S make(const edm::ParameterSet & cfg) {
-	return S(cfg);
+      static S make( const edm::ParameterSet & cfg ) {
+	return S( cfg );
       }
     };
     
     template<typename S>
-    S make(const edm::ParameterSet & cfg) {
-      return ParameterAdapter<S>::make(cfg);
+    S make( const edm::ParameterSet & cfg ) {
+      return ParameterAdapter<S>::make( cfg );
     }
 
   }
-}
-
-#define NOPARAMETER_ADAPTER(TYPE) \
-namespace reco { \
-  namespace modules { \
-    struct ParameterAdapter<TYPE> { \
-      static TYPE make(const edm::ParameterSet & cfg) { \
-	return TYPE(); \
-      } \
-    }; \
-  } \
 }
 
 #endif

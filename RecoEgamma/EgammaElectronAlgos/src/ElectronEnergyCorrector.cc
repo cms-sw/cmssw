@@ -13,11 +13,18 @@
 //===================================================================
 
 
-void ElectronEnergyCorrector::correct(reco::GsfElectron &electron) {
+void ElectronEnergyCorrector::correct(reco::GsfElectron &electron,
+				      bool applyEtaCorrection) {
   if (!electron.isEnergyScaleCorrected()) {
     setNewEnergy(electron);
     //    electron.correctElectronEnergyScale(this);
-    electron.correctElectronEnergyScale(newEnergy_);
+    // electron.correctElectronEnergyScale(newEnergy_);
+
+    //If old Energy Scale correction is switched off
+    //the result of fEta correction will ne be set
+    //as energy of an electron
+    if ( applyEtaCorrection )
+      electron.correctElectronEnergyScale(newEnergy_);
   }
 
 }

@@ -15,7 +15,7 @@
 // Original Author:  Andrey Pozdnyakov
 //                   ... and Sergey Petrushanko (all lines between M+ and M-)
 //         Created:  Thu Jul 12 18:12:19 CEST 2007
-// $Id: HcalIsoTrkAnalyzer.cc,v 1.4 2007/10/10 06:18:25 dlange Exp $
+// $Id: HcalIsoTrkAnalyzer.cc,v 1.5 2007/12/31 18:43:08 ratnik Exp $
 //
 //
 
@@ -23,7 +23,6 @@
 #include <memory>
 
 // user include files
-#include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 
 #include "FWCore/Framework/interface/Event.h"
@@ -39,30 +38,21 @@
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 #include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
-#include "FWCore/Utilities/interface/Exception.h"
 
 #include "TrackingTools/TrackAssociator/interface/TrackDetMatchInfo.h"
 #include "TrackingTools/TrackAssociator/interface/TrackAssociatorParameters.h"
 #include "TrackingTools/TrackAssociator/interface/TrackDetectorAssociator.h"
 
-#include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
-#include "DataFormats/HcalDetId/interface/HcalSubdetector.h" 
 
-#include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
-#include "Geometry/CaloGeometry/interface/CaloCellGeometry.h" 
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
-#include "Geometry/CaloEventSetup/interface/CaloTopologyRecord.h"
-#include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
 
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "TrackPropagation/SteppingHelixPropagator/interface/SteppingHelixPropagator.h"
 
 // M+
 #include "Calibration/Tools/interface/MinL3AlgoUniv.h"
 // M-
 
-#include "TROOT.h"
 #include "TH1.h"
 #include "TH2.h"
 #include "TFile.h"

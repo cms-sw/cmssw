@@ -3,6 +3,7 @@
 <use name=DataFormats/JetReco>
 <use name=DataFormats/MuonReco>
 <use name=DataFormats/TrackReco>
+<use name=DataFormats/BeamSpot>
 <use name=FWCore/Framework>
 <use name=FWCore/MessageLogger>
 <use name=FWCore/ParameterSet>
@@ -17,6 +18,7 @@
 <export>
   <use name=DataFormats/MuonReco>
   <use name=DataFormats/TrackReco>
+  <use name=DataFormats/BeamSpot>
   <use name=FWCore/Framework>
   <use name=FWCore/ParameterSet>
   <use name=TrackingTools/TransientTrack>

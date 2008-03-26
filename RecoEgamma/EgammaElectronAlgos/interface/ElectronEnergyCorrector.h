@@ -21,7 +21,7 @@ class ElectronEnergyCorrector
 
   float getCorrectedEnergy() const {return newEnergy_;}
 
-  virtual void correct(reco::GsfElectron &);
+  virtual void correct(reco::GsfElectron &, bool applyEtaCorrection = true);
 
  private:
 

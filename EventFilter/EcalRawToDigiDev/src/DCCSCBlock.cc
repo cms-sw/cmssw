@@ -1,7 +1,6 @@
 #include "EventFilter/EcalRawToDigiDev/interface/DCCSCBlock.h"
 #include "EventFilter/EcalRawToDigiDev/interface/DCCEventBlock.h"
 #include "EventFilter/EcalRawToDigiDev/interface/DCCDataUnpacker.h"
-#include "EventFilter/EcalRawToDigiDev/interface/DCCEventBlock.h"
 #include <stdio.h>
 #include "EventFilter/EcalRawToDigiDev/interface/EcalElectronicsMapper.h"
 
@@ -16,22 +15,18 @@ void DCCSCBlock::updateCollectors(){
   DCCFEBlock::updateCollectors();
   
   // needs to be update for eb/ee
-  digis_                  = unpacker_->eeDigisCollection();
-
- 
-  //
-  //   todo : update this for the endcap...
-  //  
-  //  invalidGains_           = unpacker_->invalidGainsCollection();
-  //  invalidGainsSwitch_     = unpacker_->invalidGainsSwitchCollection();
-  //  invalidChIds_           = unpacker_->invalidChIdsCollection();
-
+  digis_               = unpacker_->eeDigisCollection();
+  // backporting to be 18x compatible
+  //   invalidGains_        = unpacker_->invalidEEGainsCollection();
+  //   invalidGainsSwitch_  = unpacker_->invalidEEGainsSwitchCollection();
+  //   invalidChIds_        = unpacker_->invalidEEChIdsCollection();
+  
 }
 
 
 
 
-void DCCSCBlock::unpackXtalData(uint expStripID, uint expXtalID){
+int DCCSCBlock::unpackXtalData(uint expStripID, uint expXtalID){
   
   bool errorOnXtal(false);
  
@@ -49,103 +44,108 @@ void DCCSCBlock::unpackXtalData(uint expStripID, uint expXtalID){
   if( !zs_ && (expStripID != stripId || expXtalID != xtalId)){ 
 	 
     edm::LogWarning("EcalRawToDigiDevChId")
-      <<"\n For event "<<event_->l1A()<<", fed "<<mapper_->getActiveDCC()<<" and tower "<<towerId_
+      <<"\n For event LV1: "<<event_->l1A()<<", fed "<<mapper_->getActiveDCC()<<" and tower "<<towerId_
       <<"\n The expected strip is "<<expStripID<<" and "<<stripId<<" was found"
       <<"\n The expected xtal  is "<<expXtalID <<" and "<<xtalId<<" was found";	
-
-   
-   pDetId_ = (EEDetId*) mapper_->getDetIdPointer(towerId_,expStripID,expXtalID);
-
-   //
-   //(*invalidChIds_)->push_back(*pDetId_);
-   //
+    
+    
+    // using expected cry_di to raise warning about xtal_id problem
+    // backporting to be 18x compatible
+    //     pDetId_ = (EEDetId*) mapper_->getDetIdPointer(towerId_,expStripID,expXtalID);
+    //     (*invalidChIds_)->push_back(*pDetId_);
+    
     stripId = expStripID;
     xtalId  = expXtalID;
     errorOnXtal = true;
-
+    
     // return here, so to skip all following checks
     data_ += numbDWInXtalBlock_;
-    return;
+    return BLOCK_UNPACKED;
   }
 
 
   // check id in case of 0suppressed data
+
   else if(zs_){
 
     // Check for valid Ids 1) values out of range
+
     if(stripId == 0 || stripId > 5 || xtalId == 0 || xtalId > 5){
       edm::LogWarning("EcalRawToDigiDevChId")
-        <<"\n For event "<<event_->l1A()<<", fed "<<mapper_->getActiveDCC()<<" and tower "<<towerId_
-        <<"\n Invalid strip : "<<stripId<<" or xtal : "<<xtalId<<" ids";	
+        <<"\n For event LV1: "<<event_->l1A()<<", fed "<<mapper_->getActiveDCC()<<" and tower "<<towerId_
+        <<"\n Invalid strip : "<<stripId<<" or xtal : "<<xtalId
+        <<" ids ( last strip was: " << lastStripId_ << " last ch was: " << lastXtalId_ << ")";
+      
+      int st = lastStripId_;
+      int ch = lastXtalId_;
+      ch++;
+      if (ch > NUMB_XTAL) 	{ch=1; st++;}
+      if (st > NUMB_STRIP)	{ch=1; st=1;}
 
-      //Todo : add to error collection
+      // backporting to be 18x compatible
+      //       // adding channel following the last valid
+      //       pDetId_ = (EEDetId*) mapper_->getDetIdPointer(towerId_,st,ch);
+      //       (*invalidChIds_)->push_back(*pDetId_);
+      
       errorOnXtal = true;
 
-      // return here, so to skip all the rest
-      //Point to begin of next xtal Block
-      data_ += numbDWInXtalBlock_;
-      return;
-		
+      lastStripId_ = st;
+      lastXtalId_  = ch;
+
+      // return here, so to skip all following checks
+      return SKIP_BLOCK_UNPACKING;
+
     }else{
-	 
-	 
-      // Check for zs valid Ids 2) if channel-in-strip has increased wrt previous xtal
-      if ( stripId >= lastStripId_ ){
-        if( stripId == lastStripId_ && xtalId <= lastXtalId_ ){ 
 		  
+      // Check for zs valid Ids 2) if channel-in-strip has increased wrt previous xtal
+      //                        3) if strip has increased wrt previous xtal
+      if( ( stripId == lastStripId_ && xtalId <= lastXtalId_ ) ||
+	  (stripId < lastStripId_))
+	{
+	  
           edm::LogWarning("EcalRawToDigiDevChId")
-            <<"\n For event "<<event_->l1A()<<", fed "<<mapper_->getActiveDCC()<<" and tower "<<towerId_
-            <<"\n Xtal id was expected to increase but it didn't "
-            <<"\n Last unpacked xtal was "<<lastXtalId_<<" while current xtal is "<<xtalId;
-		   
-           pDetId_ = (EEDetId*) mapper_->getDetIdPointer(towerId_,stripId,xtalId);
+            <<"\n For event LV1: "<<event_->l1A()<<", fed "<<mapper_->getActiveDCC()<<" and tower "<<towerId_
+            <<"\n Xtal id was expected to increase but it didn't. "
+            <<"\n Last unpacked xtal was "<<lastXtalId_<<" while current xtal is "<<xtalId<<".";
 
-	   //
-	   // (*invalidChIds_)->push_back(*pDetId_);
-	   //  
-	   errorOnXtal = true;
-	   
-	   // return here, so to skip all the rest
-	   //Point to begin of next xtal Block
-	   data_ += numbDWInXtalBlock_;
-	   return;
+	  int st = lastStripId_;
+	  int ch = lastXtalId_;
+	  ch++;
+	  if (ch > NUMB_XTAL)	{ch=1; st++;}
+	  if (st > NUMB_STRIP)	{ch=1; st=1;}
+	  
+	  // adding channel following the last valid
+	  // backporting to be 18x compatible
+	  //       pDetId_ = (EEDetId*) mapper_->getDetIdPointer(towerId_,stripId,xtalId);
+	  // 	   (*invalidChIds_)->push_back(*pDetId_);
+	  
+	  errorOnXtal = true;
+	  lastStripId_ = st;
+	  lastXtalId_  = ch;
+	  
+	  // return here, so to skip all following checks
+	  return SKIP_BLOCK_UNPACKING;
+	  
         }
-	
-       }
-
-      // Check for zs valid Ids 3) if strip has increased wrt previous xtal
-      else if( stripId < lastStripId_){
       
-        edm::LogWarning("EcalRawToDigiDevChId")
-          <<"\n For event "<<event_->l1A()<<", fed "<<mapper_->getActiveDCC()<<" and tower "<<towerId_
-          <<"\n Strip id was expected to increase but it didn't "
-          <<"\n Last unpacked strip was "<<lastStripId_<<" while current strip is "<<stripId;
- 
-       pDetId_ = (EEDetId*) mapper_->getDetIdPointer(towerId_,stripId,xtalId);
-       //
-       //(*invalidChIds_)->push_back(*pDetId_);
-       //
-        errorOnXtal = true;		  
-      }
-		
       lastStripId_  = stripId;
       lastXtalId_   = xtalId;
-    }
+    }// end else
   }// end if(zs_)
- 
+  
   bool frameAdded=false;
 
   // if there is an error on xtal id ignore next error checks  
   // otherwise, assume channel_id is valid and proceed with making and checking the data frame
-  if(!errorOnXtal){ 
+  if(errorOnXtal) return SKIP_BLOCK_UNPACKING;
 
     pDetId_ = (EEDetId*) mapper_->getDetIdPointer(towerId_,stripId,xtalId);
-
-    if(pDetId_){
+    
+    if(pDetId_){// checking that requested EEDetId exists
+      
       (*digis_)->push_back(*pDetId_);
       EEDataFrame df( (*digis_)->back() );
       frameAdded=true;
-
       bool wrongGain(false);
 	 
       //set samples in the frame
@@ -155,18 +155,16 @@ void DCCSCBlock::unpackXtalData(uint expStripID, uint expXtalID){
         uint gain =  data>>12;
         xtalGains_[i]=gain;
         if(gain == 0){	  wrongGain = true; } 
- 
         df.setSample(i,data);
-      }
-	
+      }	
     
       if(wrongGain){ 
         edm::LogWarning("EcalRawToDigiDevGainZero")
-        <<"\n For event "<<event_->l1A()<<", fed "<<mapper_->getActiveDCC()<<" and tower "<<towerId_
+        <<"\n For event LV1: "<<event_->l1A()<<", fed "<<mapper_->getActiveDCC()<<" and tower "<<towerId_
         <<"\n Gain zero was found in strip "<<stripId<<" and xtal "<<xtalId;   
-	//
+	
+	//backporting to be 18x compatible
 	//(*invalidGains_)->push_back(*pDetId_); 
-	//
         errorOnXtal = true;
 	
 	//return here, so to skip all the rest
@@ -174,7 +172,7 @@ void DCCSCBlock::unpackXtalData(uint expStripID, uint expXtalID){
 	//Point to begin of next xtal Block
 	data_ += numbDWInXtalBlock_;
 	
-	return;
+	return BLOCK_UNPACKED;
 
       }
 	
@@ -188,17 +186,17 @@ void DCCSCBlock::unpackXtalData(uint expStripID, uint expXtalID){
           if (firstGainWrong == -1) { firstGainWrong=i;}
         }
       }
-   
+      
       if (numGainWrong>0) {
 
-    
         edm::LogWarning("EcalRawToDigiDevGainSwitch")
-          <<"\n For event "<<event_->l1A()<<", fed "<<mapper_->getActiveDCC()<<" and tower "<<towerId_
+          <<"\n For event LV1: "<<event_->l1A()<<", fed "<<mapper_->getActiveDCC()<<" and tower "<<towerId_
           <<"\n A wrong gain transition switch was found in strip "<<stripId<<" and xtal "<<xtalId;    
-	//
-	//(*invalidGainsSwitch_)->push_back(*pDetId_);
-	//
-         errorOnXtal = true;
+	
+	// backporting to be 18x compatible
+	// (*invalidGainsSwitch_)->push_back(*pDetId_);
+	
+	errorOnXtal = true;
       } 
 
       //Add frame to collection only if all data format and gain rules are respected
@@ -206,12 +204,20 @@ void DCCSCBlock::unpackXtalData(uint expStripID, uint expXtalID){
 	(*digis_)->pop_back();
       }
 
-   }// End on check of det id
-  
-  }//End errorOn Xtal 	
-  
+    }// End 'if EE id exist'
+    
+    else{// in case EE did not exist
+      edm::LogWarning("EcalRawToDigiDevChId")
+          <<"\n For event LV1: "<<event_->l1A()<<", fed "<<mapper_->getActiveDCC()<<" and tower "<<towerId_
+          <<"\n An EEDetId was requested that does not exist";    
+    }
+    
+
   //Point to begin of next xtal Block
   data_ += numbDWInXtalBlock_;
+
+  return BLOCK_UNPACKED;
+      
 }
 
 

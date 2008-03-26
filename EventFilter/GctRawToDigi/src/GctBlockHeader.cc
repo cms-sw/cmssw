@@ -28,11 +28,13 @@ std::ostream& operator<<(std::ostream& os, const GctBlockHeader& h) {
 /// setup class static to lookup block length
 pair<unsigned, unsigned> a[] = {
   pair<unsigned, unsigned>(0x00,0),
-  pair<unsigned, unsigned>(0x58,8),
+  pair<unsigned, unsigned>(0x58,6),
   pair<unsigned, unsigned>(0x59,12),
+  pair<unsigned, unsigned>(0x5a,2),
   pair<unsigned, unsigned>(0x5f,4),
-  pair<unsigned, unsigned>(0x68,6),
+  pair<unsigned, unsigned>(0x68,4),
   pair<unsigned, unsigned>(0x69,16),
+  pair<unsigned, unsigned>(0x6a,2),
   pair<unsigned, unsigned>(0x6b,2),
   pair<unsigned, unsigned>(0x6f,4),
   pair<unsigned, unsigned>(0x80,20),
@@ -47,6 +49,7 @@ pair<unsigned, unsigned> a[] = {
   pair<unsigned, unsigned>(0xc8,16),
   pair<unsigned, unsigned>(0xc9,12),
   pair<unsigned, unsigned>(0xcb,4),
+  pair<unsigned, unsigned>(0xff,198)
 };
 
 map<unsigned, unsigned> GctBlockHeader::blockLength_(a, a + sizeof(a) / sizeof(a[0]));
@@ -54,11 +57,13 @@ map<unsigned, unsigned> GctBlockHeader::blockLength_(a, a + sizeof(a) / sizeof(a
 /// setup class static to lookup block name
 pair<unsigned, string> b[] = {
   pair<unsigned, string>(0x00,"NULL"),
-  pair<unsigned, string>(0x58,"ConcJet: Jet Cands and Counts Output to Global Trigger"),
+  pair<unsigned, string>(0x58,"ConcJet: Jet Cands Output to Global Trigger"),
   pair<unsigned, string>(0x59,"ConcJet: Sort Input"),
+  pair<unsigned, string>(0x5a,"ConcJet: Jet Counts Output to Global Trigger"),
   pair<unsigned, string>(0x5f,"ConcJet: Bunch Counter Pattern Test"),
-  pair<unsigned, string>(0x68,"ConcElec: EM and Energy Sums Output to Global Trigger"),
+  pair<unsigned, string>(0x68,"ConcElec: EM Cands Output to Global Trigger"),
   pair<unsigned, string>(0x69,"ConcElec: Sort Input"),
+  pair<unsigned, string>(0x6a,"ConcElec: Energy Sums Output to Global Trigger"),
   pair<unsigned, string>(0x6b,"ConcElec: GT Serdes Loopback"),
   pair<unsigned, string>(0x6f,"ConcElec: Bunch Counter Pattern Test"),
   pair<unsigned, string>(0x80,"Leaf-U1, Elec, NegEta, Sort Input"),
@@ -73,7 +78,17 @@ pair<unsigned, string> b[] = {
   pair<unsigned, string>(0xc8,"Leaf-U2, Elec, PosEta, Sort Input"),
   pair<unsigned, string>(0xc9,"Leaf-U2, Elec, PosEta, Raw Input"),
   pair<unsigned, string>(0xcb,"Leaf-U2, Elec, PosEta, Sort Output"),
+  pair<unsigned, string>(0xff,"All RCT Calo Regions")
 };
 
 map<unsigned, string> GctBlockHeader::blockName_(b, b + sizeof(b) / sizeof(b[0]));
 
+unsigned int GctBlockHeader::lookupBlockLength(unsigned int blockId)
+{
+  map<unsigned, unsigned>::iterator result = blockLength_.find(blockId);
+  if(result != blockLength_.end())
+  {
+    return result->second;
+  }
+  else { return 0; }
+}

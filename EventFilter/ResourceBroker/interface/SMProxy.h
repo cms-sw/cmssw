@@ -36,8 +36,15 @@ namespace evf {
     UInt_t sendDataEvent(UInt_t  fuResourceId,
 			 UInt_t  runNumber,
 			 UInt_t  evtNumber,
+			 UInt_t  outModId,
 			 UChar_t*data,
 			 UInt_t  dataSize) throw (evf::Exception);
+
+    UInt_t sendErrorEvent(UInt_t  fuResourceId,
+			  UInt_t  runNumber,
+			  UInt_t  evtNumber,
+			  UChar_t*data,
+			  UInt_t  dataSize) throw (evf::Exception);
 
     UInt_t sendDqmEvent(UInt_t  fuDqmId,
 			UInt_t  runNumber,

@@ -65,7 +65,7 @@
  <Constant name="mcDzby2"       value="5.0*mm"/>
  <Constant name="mc1Z"          value="7.900*m"/>
  <Constant name="mc2Z"          value="10.78*m"/>
- <Constant name="ironDxby2"     value="20.0*cm"/>
+ <Constant name="ironDxby2"     value="40.0*cm"/>
  <Constant name="ironDzby2"     value="40.0*cm"/>
  <Constant name="ironZ"         value="10.50*m"/>
 </ConstantsSection>

@@ -5,8 +5,8 @@
  *  A base class for  Chi2 -- type of Measurement Estimators. 
  *  Implements common functionality. Ported from ORCA.
  *
- *  $Date: 2007/05/09 14:05:13 $
- *  $Revision: 1.2 $
+ *  $Date: 2007/05/09 13:58:19 $
+ *  $Revision: 1.1.2.1 $
  *  \author todorov, cerati
  */
 
@@ -22,9 +22,6 @@ public:
    */
   explicit Chi2MeasurementEstimatorBase(double maxChi2, double nSigma = 3.) : 
     theMaxChi2(maxChi2), theNSigma(nSigma) {}
-
-  virtual std::pair<bool, double> estimate(const TrajectoryStateOnSurface& ts,
-					   const TransientTrackingRecHit &) const = 0;
 
   virtual bool estimate( const TrajectoryStateOnSurface& ts, 
 			 const BoundPlane& plane) const;

@@ -1,7 +1,5 @@
 #include "EventFilter/CSCRawToDigi/interface/CSCChamberDataItr.h"
 #include "EventFilter/CSCRawToDigi/interface/CSCDCCEventData.h"
-#include "EventFilter/CSCRawToDigi/interface/CSCDDUEventData.h"
-#include "EventFilter/CSCRawToDigi/interface/CSCEventData.h"
 
 CSCChamberDataItr::CSCChamberDataItr(const char * buf) :
   theDCCData(0),

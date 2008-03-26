@@ -5,10 +5,7 @@
 #include "DQM/SiStripMonitorHardware/interface/Fed9UDebugEvent.hh"
 #include "DQM/SiStripMonitorHardware/interface/Fed9UEventAnalyzer.hh"
 
-#define DEBUGWORDS 20
-
-Fed9UEventAnalyzer::Fed9UEventAnalyzer(std::pair<int,int> newFedBoundaries,
-				       bool doSwap) {
+Fed9UEventAnalyzer::Fed9UEventAnalyzer(std::pair<int,int> newFedBoundaries, bool doSwap) {
   // First of all we instantiate the Fed9U object of the event
   fedEvent_ = new Fed9U::Fed9UDebugEvent(); 
   fedIdBoundaries_ = newFedBoundaries;
@@ -75,18 +72,6 @@ bool Fed9UEventAnalyzer::Initialize(Fed9U::u32* data_u32, Fed9U::u32 size_u32) {
     }
   }
     
-//   std::cerr << "BUFFERD FED NUMBER " << std::dec << thisFedId_ << std::endl;
-//   for(int i = 0; i<DEBUGWORDS; i++) { // prints out the specified number of 32 bit words 
-//     std::setiosflags(std::ios::left);
-//     std::cerr << std::setw(2);
-//     std::cerr << "64 Bit Word # " << " " << std::dec << i <<" "
-// 	      << std::hex << (data_u32[2*i] & 0xFFFFFFFF) << " "
-// 	      << (data_u32[(2*i + 1)] & 0xFFFFFFFF) << " "
-// 	      << std::endl;
-//   }
-  
-  
-  
   // The actual event initialization, catching its possible exceptions
   try{
     // Initialize the fedEvent with offset for slink
@@ -153,8 +138,6 @@ Fed9UErrorCondition Fed9UEventAnalyzer::Analyze() {
     result.bxError = true;
     return result;
   }
-
-
 
   result.apveAddress = fedEvent_->getSpecialApvEmulatorAddress();
 

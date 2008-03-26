@@ -13,14 +13,13 @@
 //
 // Original Author:  Vincenzo Chiochia & Andrew York
 //         Created:  
-// $Id: SiPixelClusterModule.cc,v 1.8 2007/05/14 20:24:44 andrewdc Exp $
+// $Id: SiPixelClusterModule.cc,v 1.9 2007/05/24 17:55:09 andrewdc Exp $
 //
 //
 #include "DQM/SiPixelMonitorCluster/interface/SiPixelClusterModule.h"
 #include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
 #include "DQM/SiPixelCommon/interface/SiPixelHistogramId.h"
 /// Framework
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 // STL
 #include <vector>

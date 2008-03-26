@@ -5,25 +5,29 @@
 
 edm::CosMuoGenSource::CosMuoGenSource( const ParameterSet & pset, InputSourceDescription const& desc ) :
   GeneratedInputSource(pset, desc ) ,  
-  //RanS(pset.getUntrackedParameter<int>("RanSeed", 123456)), //get seed now from Framework
-  MinP(pset.getUntrackedParameter<double>("MinP", 3.)),
-  MinP_CMS(pset.getUntrackedParameter<double>("MinP_CMS", MinP)),
-  MaxP(pset.getUntrackedParameter<double>("MaxP", 3000.)),
-  MinT(pset.getUntrackedParameter<double>("MinTheta", 0.)),
-  MaxT(pset.getUntrackedParameter<double>("MaxTheta", 84.26)),
-  MinPh(pset.getUntrackedParameter<double>("MinPhi", 0.)),
-  MaxPh(pset.getUntrackedParameter<double>("MaxPhi", 360.)),
-  MinS(pset.getUntrackedParameter<double>("MinT0", -12.5)),
-  MaxS(pset.getUntrackedParameter<double>("MaxT0", 12.5)),
-  ELSF(pset.getUntrackedParameter<double>("ElossScaleFactor", 1.0)),
-  RTarget(pset.getUntrackedParameter<double>("RadiusOfTarget", 8000.)),
-  ZTarget(pset.getUntrackedParameter<double>("ZDistOfTarget", 15000.)),
-  TrackerOnly(pset.getUntrackedParameter<bool>("TrackerOnly", false)),
-  TIFOnly_constant(pset.getUntrackedParameter<bool>("TIFOnly_constant", false)),
-  TIFOnly_linear(pset.getUntrackedParameter<bool>("TIFOnly_linear", false)),
-  MTCCHalf(pset.getUntrackedParameter<bool>("MTCCHalf", false)),
-  cmVerbosity_(pset.getUntrackedParameter<bool>("Verbosity", false))
+  //RanS(pset.getParameter<int>("RanSeed", 123456)), //get seed now from Framework
+  MinP(pset.getParameter<double>("MinP")),
+  MinP_CMS(pset.getParameter<double>("MinP_CMS")),
+  MaxP(pset.getParameter<double>("MaxP")),
+  MinT(pset.getParameter<double>("MinTheta")),
+  MaxT(pset.getParameter<double>("MaxTheta")),
+  MinPh(pset.getParameter<double>("MinPhi")),
+  MaxPh(pset.getParameter<double>("MaxPhi")),
+  MinS(pset.getParameter<double>("MinT0")),
+  MaxS(pset.getParameter<double>("MaxT0")),
+  ELSF(pset.getParameter<double>("ElossScaleFactor")),
+  RTarget(pset.getParameter<double>("RadiusOfTarget")),
+  ZTarget(pset.getParameter<double>("ZDistOfTarget")),
+  TrackerOnly(pset.getParameter<bool>("TrackerOnly")),
+  TIFOnly_constant(pset.getParameter<bool>("TIFOnly_constant")),
+  TIFOnly_linear(pset.getParameter<bool>("TIFOnly_linear")),
+  MTCCHalf(pset.getParameter<bool>("MTCCHalf")),
+  cmVerbosity_(pset.getParameter<bool>("Verbosity"))
   {
+
+    //if not specified (i.e. negative) then use MinP also for MinP_CMS
+    if(MinP_CMS < 0) MinP_CMS = MinP;
+
     //get seed now from Framework
     edm::Service<edm::RandomNumberGenerator> rng;
     RanS = rng->mySeed();

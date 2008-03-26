@@ -7,8 +7,8 @@
 ///
 ///  \author    : Gero Flucke
 ///  date       : October 2006
-///  $Revision: 1.14 $
-///  $Date: 2007/10/11 16:11:28 $
+///  $Revision: 1.13 $
+///  $Date: 2007/07/13 16:27:06 $
 ///  (last update by $Author: flucke $)
 
 
@@ -38,7 +38,6 @@ class AlignmentParameterStore;
 
 class MillePedeMonitor;
 class PedeSteerer;
-class PedeLabeler;
 class Mille;
 class TrajectoryFactoryBase;
 
@@ -83,8 +82,7 @@ class MillePedeAlignmentAlgorithm : public AlignmentAlgorithmBase
   /// true if hit belongs to 2D detector (currently tracker specific)
   bool is2D(const TransientTrackingRecHit::ConstRecHitPointer &recHit) const;
 
-  /// read pede input defined by 'psetName', flag to create/not create MillePedeVariables
-  bool readFromPede(const std::string &psetName, bool setUserVars);
+  bool readFromPede();
   bool areEmptyParams(const std::vector<Alignable*> &alignables) const;
   unsigned int doIO(int loop) const;
   /// add MillePedeVariables for each AlignmentParameters (exception if no parameters...)
@@ -108,7 +106,6 @@ class MillePedeAlignmentAlgorithm : public AlignmentAlgorithmBase
   AlignableNavigator       *theAlignableNavigator;
   MillePedeMonitor         *theMonitor;
   Mille                    *theMille;
-  const PedeLabeler        *thePedeLabels;
   PedeSteerer              *thePedeSteer;
   TrajectoryFactoryBase    *theTrajectoryFactory;
   int                       theMinNumHits;

@@ -1,7 +1,7 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2007/07/11 12:20:59 $
+ *  $Date: 2007/06/07 07:55:36 $
  *  $Revision: 1.1 $
  *  \author S. Bolognesi - INFN Torino
  */
@@ -22,6 +22,9 @@
 #include "CondFormats/DataRecord/interface/DTTtrigRcd.h"
 #include "DataFormats/MuonDetId/interface/DTSuperLayerId.h"
 
+//
+// constructors and destructor
+//
 DTFakeTTrigESProducer::DTFakeTTrigESProducer(const edm::ParameterSet& pset)
 {
   //framework
@@ -34,8 +37,18 @@ DTFakeTTrigESProducer::DTFakeTTrigESProducer(const edm::ParameterSet& pset)
 }
 
 
-DTFakeTTrigESProducer::~DTFakeTTrigESProducer(){
+DTFakeTTrigESProducer::~DTFakeTTrigESProducer()
+{
+ 
+   // do anything here that needs to be done at desctruction time
+   // (e.g. close files, deallocate resources etc.)
+
 }
+
+
+//
+// member functions
+//
 
 // ------------ method called to produce the data  ------------
 DTTtrig* DTFakeTTrigESProducer::produce(const DTTtrigRcd& iRecord){
@@ -48,7 +61,7 @@ DTTtrig* DTFakeTTrigESProducer::produce(const DTTtrigRcd& iRecord){
 	for(int superlayer=1; superlayer<4; superlayer++){
 	  if(superlayer==2 && station==4) continue;
 	  DTSuperLayerId slId(DTChamberId(wheel, station, sector),superlayer);
-	  tTrigMap->set(slId, tMean, sigma, DTTimeUnits::ns);
+	  tTrigMap->setSLTtrig(slId, tMean, sigma, DTTimeUnits::ns);
 	}
       }
     }
@@ -58,7 +71,7 @@ DTTtrig* DTFakeTTrigESProducer::produce(const DTTtrigRcd& iRecord){
      for(int superlayer=1; superlayer<4; superlayer++){
        if(superlayer==2) continue;
        DTSuperLayerId slId(DTChamberId(wheel, 4, 13),superlayer);
-	 tTrigMap->set(slId, tMean, sigma, DTTimeUnits::ns);
+	 tTrigMap->setSLTtrig(slId, tMean, sigma, DTTimeUnits::ns);
      }  
    }
 
@@ -66,7 +79,7 @@ DTTtrig* DTFakeTTrigESProducer::produce(const DTTtrigRcd& iRecord){
      for(int superlayer=1; superlayer<4; superlayer++){
        if(superlayer==2) continue;
        DTSuperLayerId slId(DTChamberId(wheel, 4, 14),superlayer);
-	 tTrigMap->set(slId, tMean, sigma, DTTimeUnits::ns);
+	 tTrigMap->setSLTtrig(slId, tMean, sigma, DTTimeUnits::ns);
      }  
    }
    

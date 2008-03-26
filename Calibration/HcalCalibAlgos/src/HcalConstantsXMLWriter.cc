@@ -3,14 +3,6 @@
 // Write the new XML object: needed includes
 
 // Xerces-C
-#include <xercesc/util/XMLString.hpp>
-#include <xercesc/dom/DOMElement.hpp>
-#include <xercesc/dom/DOMText.hpp>
-#include <xercesc/dom/DOMImplementation.hpp>
-#include <xercesc/dom/DOMImplementationRegistry.hpp>
-#include <xercesc/dom/DOMDocument.hpp>
-#include <xercesc/dom/DOMWriter.hpp>
-#include <xercesc/util/XMLString.hpp>
 #include <xercesc/dom/DOMNode.hpp>
 #include <xercesc/dom/DOM.hpp>
 #include <xercesc/dom/DOMCharacterData.hpp>
@@ -22,8 +14,6 @@
 
 
 #include "CondTools/Hcal/interface/StreamOutFormatTarget.h"
-#include <fstream>
-#include <iostream>
 #include <sstream>
 #include <string>
 using namespace std;

@@ -6,7 +6,6 @@
  */
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/Common/interface/RefVector.h"
-#include "DataFormats/Common/interface/PtrVector.h"
 #include "DataFormats/Common/interface/RefToBaseVector.h"
 #include "DataFormats/Common/interface/RefToBaseProd.h"
 #include "DataFormats/Common/interface/RefProd.h"
@@ -70,13 +69,6 @@ namespace helper {
     }
   };
 
-  template<typename T>
-  struct SelectionPtrViewAdder {
-    void operator()( edm::PtrVector<T> & selected, const edm::Handle<edm::View<T> > & c, size_t idx ) {
-      selected.push_back( c->ptrAt( idx ) );
-    }
-  };
-
   template<typename InputCollection, typename StoreContainer>
   struct SelectionAdderTrait {
     BOOST_STATIC_ASSERT(sizeof(InputCollection) == 0); 
@@ -136,11 +128,6 @@ namespace helper {
   template<typename T>
   struct SelectionAdderTrait<edm::View<T>, edm::RefToBaseVector<T> > {
     typedef SelectionRefViewAdder<T> type;
-  };
-
-  template<typename T>
-  struct SelectionAdderTrait<edm::View<T>, edm::PtrVector<T> > {
-    typedef SelectionPtrViewAdder<T> type;
   };
 
 }

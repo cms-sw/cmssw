@@ -16,7 +16,7 @@
 //
 // Original Author:  Jim Brooke
 //         Created:  Wed Nov  1 11:57:10 CET 2006
-// $Id: GctDigiToRaw.h,v 1.4 2007/07/13 08:50:08 jbrooke Exp $
+// $Id: GctDigiToRaw.h,v 1.5 2007/10/08 19:54:32 frazier Exp $
 //
 //
 
@@ -56,6 +56,10 @@ class GctDigiToRaw : public edm::EDProducer {
   // input tags
   edm::InputTag rctInputLabel_;
   edm::InputTag gctInputLabel_;
+
+  // pack flags
+  bool packRctEm_;
+  bool packRctCalo_;
 
   // FED numbers
   int fedId_;            

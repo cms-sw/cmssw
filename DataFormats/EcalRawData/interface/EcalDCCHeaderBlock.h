@@ -7,7 +7,7 @@
  *  Container for ECAL specific DCC Header information
  *
  *
- *  $Id: EcalDCCHeaderBlock.h,v 1.13 2007/11/26 15:25:05 franzoni Exp $
+ *  $Id: EcalDCCHeaderBlock.h,v 1.16 2008/02/07 10:21:10 franzoni Exp $
  */
 
 #include <vector>
@@ -27,45 +27,53 @@ class EcalDCCHeaderBlock
   enum EcalDCCRuntype{
 
     // run types pre-global runs
-    COSMIC                              = 0,
-    BEAMH4                               =1, 
-    BEAMH2                               = 2,  
-    MTCC                                   =3,
-    LASER_STD                         = 4,
-    LASER_POWER_SCAN      = 5,
-    LASER_DELAY_SCAN        = 6,
-    TESTPULSE_SCAN_MEM = 7,
-    TESTPULSE_MGPA           = 8,
-    PEDESTAL_STD                 = 9,
-    PEDESTAL_OFFSET_SCAN = 10,
-    PEDESTAL_25NS_SCAN  = 11,
-    LED_STD                           = 12,
+    COSMIC                   =0,
+    BEAMH4                   =1, 
+    BEAMH2                   =2,  
+    MTCC                     =3,
+    LASER_STD                =4,
+    LASER_POWER_SCAN         =5,
+    LASER_DELAY_SCAN         =6,
+    TESTPULSE_SCAN_MEM       =7,
+    TESTPULSE_MGPA           =8,
+    PEDESTAL_STD             =9,
+    PEDESTAL_OFFSET_SCAN     =10,
+    PEDESTAL_25NS_SCAN       =11,
+    LED_STD                  =12,
 
     // physics triggers in global runs
-    PHYSICS_GLOBAL          = 13,
-    COSMICS_GLOBAL         = 14,
-    HALO_GLOBAL                 = 15,
+    PHYSICS_GLOBAL           =13,
+    COSMICS_GLOBAL           =14,
+    HALO_GLOBAL              =15,
 
     // gap events in global runs
-    LASER_GAP                       = 16,
-    TESTPULSE_GAP             = 17,
-    PEDESTAL_GAP                = 18,
-    LED_GAP                            = 19,
+    LASER_GAP                =16,
+    TESTPULSE_GAP            =17,
+    PEDESTAL_GAP             =18,
+    LED_GAP                  =19,
 
     // physics triggers in local runs
-    PHYSICS_LOCAL             = 20,
-    COSMICS_LOCAL            = 21,
-    HALO_LOCAL                    = 22
+    PHYSICS_LOCAL            =20,
+    COSMICS_LOCAL            =21,
+    HALO_LOCAL               =22,
+    CALIB_LOCAL              =23
 
   };
   
   enum EcalBasicTriggerType{
-    PHYSICS_TRIGGER = 1,
-    CALIBRATION_TRIGGER = 2,
-    TEST_TRIGGER = 3,
-    TECHNICAL_EXTERNAL_TRIGGER = 4
+    PHYSICS_TRIGGER            =1,
+    CALIBRATION_TRIGGER        =2,
+    TEST_TRIGGER               =3,
+    TECHNICAL_EXTERNAL_TRIGGER =4
   };
   
+  enum TTC_DTT_TYPE{
+    TTC_LASER     = 4,
+    TTC_LED       = 5,
+    TTC_TESTPULSE = 6,
+    TTC_PEDESTAL  = 7
+  };
+
   struct EcalDCCEventSettings{
     short LaserPower;
     short LaserFilter;
@@ -92,6 +100,7 @@ class EcalDCCHeaderBlock
   void setFedId(const int& fedId) { fedId_=fedId; };
 
   void setErrors(const int& dccErrors) { dccErrors_=dccErrors; };
+  void setDccInTTCCommand(const int& dccInTTCCommand) { dccInTTCCommand_=dccInTTCCommand; };
   void setRunNumber(const int& run){runNumber_ = run;}
   void setLV1(const int& LV1){LV1event_ = LV1;}
   void setBX(const int& BX){BX_ = BX;}
@@ -114,6 +123,7 @@ class EcalDCCHeaderBlock
   //TODO add all the get methods
   
   int getDCCErrors() const{ return dccErrors_;}
+  int getDccInTCCCommand() const{ return dccInTTCCommand_; };
   int getRunNumber() const {return runNumber_ ;}
   int getLV1() const {return LV1event_ ;}
   int getBX() const {return BX_ ;}
@@ -137,6 +147,7 @@ class EcalDCCHeaderBlock
   int dccId_;  //to be used as the Key
   int fedId_;
   int dccErrors_;
+  int dccInTTCCommand_;
   int orbitNumber_;
   short runType_;
 

@@ -2,7 +2,6 @@
 #include "DataFormats/MuonDetId/interface/DTWireId.h"
 #include "Geometry/MuonNumbering/interface/MuonBaseNumber.h"
 #include "Geometry/MuonNumbering/interface/MuonDDDConstants.h"
-#include "DetectorDescription/Core/interface/DDCompactView.h"
 #include <iostream>
 
 //#define LOCAL_DEBUG

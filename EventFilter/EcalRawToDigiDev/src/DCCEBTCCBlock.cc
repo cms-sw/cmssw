@@ -2,7 +2,6 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "EventFilter/EcalRawToDigiDev/interface/EcalElectronicsMapper.h"
 #include "EventFilter/EcalRawToDigiDev/interface/DCCDataUnpacker.h"
-#include "Geometry/EcalMapping/interface/EcalElectronicsMapping.h"
 
 DCCEBTCCBlock::DCCEBTCCBlock ( DCCDataUnpacker  * u,  EcalElectronicsMapper * m, DCCEventBlock * e, bool unpack) 
 : DCCTCCBlock(u,m,e,unpack)

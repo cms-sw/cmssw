@@ -25,9 +25,7 @@ namespace pos{
     PixelDACSettings(std::string filename);
     //Added by Umesh
     PixelDACSettings(std::vector<std::vector<std::string> >& tableMat);   
-    // modified by MR on 10-01-2008 14:47:47
-    PixelDACSettings(PixelROCDACSettings &rocname);
-    
+    //
     PixelROCDACSettings getDACSettings(int ROCId) const;
     PixelROCDACSettings* getDACSettings(PixelROCName);
 

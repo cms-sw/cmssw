@@ -43,10 +43,10 @@ void CSCGainsDBConditions::prefillDBGains()
   }
   
   while (!newdata.eof() ) { 
-    newdata >> new_index >> new_gainslope >> new_intercpt >> new_chisq ; 
-    //new_cham_id.push_back(new_chamber_id);
+    newdata >> new_chamber_id >> new_index>> new_strip >> new_gainslope >> new_intercpt >> new_chisq ; 
+    new_cham_id.push_back(new_chamber_id);
     new_index_id.push_back(new_index);
-    //new_strips.push_back(new_strip);
+    new_strips.push_back(new_strip);
     new_slope.push_back(new_gainslope);
     new_intercept.push_back(new_intercpt);
     new_chi2.push_back(new_chisq);
@@ -55,32 +55,29 @@ void CSCGainsDBConditions::prefillDBGains()
   newdata.close();
   
   std::vector<CSCDBGains::Item> itemvector;
-   itemvector.resize(252288);
+   itemvector.resize(217728);
 
-   for(int i=0; i<252288;++i){
-     // for(int i=0; i<217728;++i){
+  for(int i=0; i<217728;++i){
     itemvector[i].gain_slope= db_slope[i];
     itemvector[i].gain_intercept= db_intercept[i];
     itemvector[i].gain_chi2= db_chi2[i];
   }
 
-   for(int i=0; i<252288;++i){
-     //for(int i=0; i<217728;++i){
-     counter=db_index_id[i];  
-     for (unsigned int k=0;k<new_index_id.size()-1;k++){
-       if(counter==new_index_id[k]){
-	 itemvector[counter].gain_slope= new_slope[k];
-	 itemvector[counter].gain_intercept= new_intercept[k];
-	 itemvector[counter].gain_chi2= new_chi2[k];
-	 itemvector[i] = itemvector[counter];
-	//std::cout<<"counter "<<counter<<" new_index_id[k] "<<new_index_id[k]<<" new_slope[k] "<<new_slope[k]<<" db_slope[k] "<<db_slope[k]<<std::endl;
-       }  
-     }
-   }
-   
-   std::copy(itemvector.begin(), itemvector.end(), std::back_inserter(cndbgains->gains));
+  for(int i=0; i<217728;++i){
+    counter=db_index_id[i];  
+    for (unsigned int k=0;k<new_index_id.size()-1;k++){
+      if(counter==new_index_id[k]){
+	itemvector[counter].gain_slope= new_slope[k];
+	itemvector[counter].gain_intercept= new_intercept[k];
+	itemvector[counter].gain_chi2= new_chi2[k];
+	itemvector[i] = itemvector[counter];
+      }  
+    }
+  }
+  
+  std::copy(itemvector.begin(), itemvector.end(), std::back_inserter(cndbgains->gains));
 }
-
+  
 
 CSCGainsDBConditions::CSCGainsDBConditions(const edm::ParameterSet& iConfig)
 {

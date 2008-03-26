@@ -19,6 +19,7 @@ class VertexFilter {
 
     private:
 	bool		useTrackWeights;
+	double		minTrackWeight;
 	double		massMax;
 	double		fracPV;
 	unsigned int	multiplicityMin;

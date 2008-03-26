@@ -72,6 +72,18 @@
   <function name="reco::JetFloatAssociation::hasJet"/>
   <function name="reco::JetFloatAssociation::getByLabel"/>
 
+  <class name="reco::JetToFloatAssociation::Values"/>
+  <class name="reco::JetToFloatAssociation::value_type"/>
+  <class name="reco::JetToFloatAssociation::transient_vector_type"/>
+  <class name="reco::JetToFloatAssociation::Ref"/>
+  <class name="reco::JetToFloatAssociation::RefProd"/>
+  <class name="reco::JetToFloatAssociation::RefVector"/>
+  <function name="reco::JetToFloatAssociation::setValue"/>
+  <function name="reco::JetToFloatAssociation::getValue"/>
+  <function name="reco::JetToFloatAssociation::allJets"/>
+  <function name="reco::JetToFloatAssociation::hasJet"/>
+  <function name="reco::JetToFloatAssociation::getByLabel"/>
+
   <class name="edm::Wrapper<reco::JetTracksAssociation::Container>" />
   <class name="reco::JetTracksAssociation::Values"/>
   <class name="reco::JetTracksAssociation::value_type"/>

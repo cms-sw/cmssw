@@ -2,7 +2,6 @@
 
 #include "Alignment/CommonAlignmentProducer/interface/AlignmentMuonSelector.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h" 
-#include "DataFormats/MuonReco/interface/MuonFwd.h" 
 
 #include "TLorentzVector.h"
 
@@ -110,9 +109,9 @@ AlignmentMuonSelector::basicCuts(const Muons& muons) const
     float pt=muonp->pt();
     float eta=muonp->eta();
     float phi=muonp->phi();
-    int nhitSA = muonp->standAloneMuon()->recHitsSize();  	// standAlone Muon
+    int nhitSA = muonp->standAloneMuon()->numberOfValidHits();  	// standAlone Muon
     float chi2nSA = muonp->standAloneMuon()->normalizedChi2();  // standAlone Muon
-    int nhitGB = muonp->combinedMuon()->recHitsSize(); 		// global Muon
+    int nhitGB = muonp->combinedMuon()->numberOfValidHits(); 		// global Muon
     float chi2nGB = muonp->combinedMuon()->normalizedChi2();	// global Muon
     int nhitTO = muonp->track()->numberOfValidHits(); 		// Tracker Only
     float chi2nTO = muonp->track()->normalizedChi2();		// Tracker Only

@@ -1,24 +1,19 @@
 /**
  * \file testChannel.cc
  *
- * $Date: 2007/08/10 14:54:18 $
- * $Revision: 1.7 $
+ * $Date: 2007/12/20 20:05:15 $
+ * $Revision: 1.8 $
  * \author P. Govoni (pietro.govoni@cernNOSPAM.ch)
  *
 */
 
 
-#include "DataFormats/EcalRecHit/interface/EcalUncalibratedRecHit.h"
-#include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 #include "DataFormats/EcalRawData/interface/EcalDCCHeaderBlock.h"
 #include "DataFormats/EcalRawData/interface/EcalRawDataCollections.h"
-#include <DataFormats/EcalDigi/interface/EcalDigiCollections.h>
 
 #include "TFile.h"
 
 #include "CalibCalorimetry/EcalPedestalOffsets/interface/testChannel.h"
-#include <fstream>
-#include <iostream>
 
 //! ctor
 testChannel::testChannel (const ParameterSet& paramSet) :

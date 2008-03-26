@@ -1,4 +1,4 @@
-// $Id: RootOutputFile.cc,v 1.37 2008/01/05 05:28:53 wmtan Exp $
+// $Id: RootOutputFile.cc,v 1.38 2008/01/10 17:32:57 wmtan Exp $
 
 #include "RootOutputFile.h"
 #include "PoolOutputModule.h"
@@ -27,6 +27,8 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
 #include "TROOT.h"
+#include "TBranchElement.h"
+#include "TObjArray.h"
 #include "TTree.h"
 #include "TFile.h"
 #include "TClass.h"
@@ -37,6 +39,36 @@
 #include <iomanip>
 
 namespace edm {
+
+  RootOutputFile::OutputItem::Sorter::Sorter(TTree * tree) {
+    if (tree != 0) {
+      TObjArray * branches = tree->GetListOfBranches();
+      for (int i = 0; i < branches->GetEntries(); ++i) {
+        TBranchElement * br = (TBranchElement *)branches->At(i);
+        treeMap_.insert(std::make_pair(std::string(br->GetName()), i));
+      }
+    }
+  }
+
+  bool
+  RootOutputFile::OutputItem::Sorter::operator()(OutputItem const& lh, OutputItem const& rh) const {
+    if (treeMap_.empty()) return lh < rh;
+    std::string const& lstring = lh.branchDescription_->branchName();
+    std::string const& rstring = rh.branchDescription_->branchName();
+    std::map<std::string, int>::const_iterator lit = treeMap_.find(lstring);
+    std::map<std::string, int>::const_iterator rit = treeMap_.find(rstring);
+    bool lfound = (lit != treeMap_.end());
+    bool rfound = (rit != treeMap_.end());
+    if (lfound && rfound) {
+      return lit->second < rit->second;
+    } else if (lfound) { 
+      return true;
+    } else if (rfound) { 
+      return false;
+    }
+    return lh < rh;
+  }
+
   RootOutputFile::RootOutputFile(PoolOutputModule *om, std::string const& fileName, std::string const& logicalFileName) :
       outputItemList_(), 
       file_(fileName),
@@ -60,9 +92,7 @@ namespace edm {
       pEventAux_(&eventAux_),
       pLumiAux_(&lumiAux_),
       pRunAux_(&runAux_),
-      eventTree_(filePtr_, InEvent, pEventAux_, om_->basketSize(), om_->splitLevel(), om_->fastCloning(),
-        om_->fileBlock_->tree(), om_->fileBlock_->metaTree(),
-	om_->droppedPriorProducts()[InEvent], om_->fileBlock_->oldBranchNames()),
+      eventTree_(filePtr_, InEvent, pEventAux_, om_->basketSize(), om_->splitLevel()),
       lumiTree_(filePtr_, InLumi, pLumiAux_, om_->basketSize(), om_->splitLevel()),
       runTree_(filePtr_, InRun, pRunAux_, om_->basketSize(), om_->splitLevel()),
       treePointers_(),
@@ -75,11 +105,21 @@ namespace edm {
 
     for (int i = InEvent; i < NumBranchTypes; ++i) {
       BranchType branchType = static_cast<BranchType>(i);
-      fillItemList(om_->keptProducts()[branchType], om_->droppedProducts()[branchType], outputItemList_[branchType]);
+      TTree * meta = (branchType == InEvent ? om_->fileBlock_->metaTree() : 
+		     (branchType == InLumi ? om_->fileBlock_->lumiMetaTree() : om_->fileBlock_->runMetaTree()));
+      fillItemList(om_->keptProducts()[branchType], om_->droppedProducts()[branchType], outputItemList_[branchType], meta);
+      int nBranches = (meta ? meta->GetNbranches() : 0);
+      // itMarker Marks one past the end of the branches thast are in the input file.
+      // needed for fast cloning. 
+      OutputItemList::const_iterator itMarker = outputItemList_[branchType].begin() + nBranches;
       for (OutputItemList::const_iterator it = outputItemList_[branchType].begin(),
 	  itEnd = outputItemList_[branchType].end();
 	  it != itEnd; ++it) {
-	treePointers_[branchType]->addBranch(*it->branchDescription_, it->selected_, it->branchEntryDescription_, it->product_);
+	treePointers_[branchType]->addBranch(*it->branchDescription_,
+					      it->selected_,
+					      it->branchEntryDescription_,
+					      it->product_,
+					      it < itMarker);
       }
     }
     // Don't split metadata tree.
@@ -102,7 +142,8 @@ namespace edm {
 
   void RootOutputFile::fillItemList(Selections const& keptVector,
 				    Selections const& droppedVector,
-				    OutputItemList & outputItemList) {
+				    OutputItemList & outputItemList,
+				    TTree * meta) {
 
     std::vector<std::string> const& renamed = om_->fileBlock_->sortedNewBranchNames();
     for (Selections::const_iterator it = keptVector.begin(), itEnd = keptVector.end(); it != itEnd; ++it) {
@@ -113,7 +154,7 @@ namespace edm {
       BranchDescription const& prod = **it;
       outputItemList.push_back(OutputItem(&prod, false, binary_search_all(renamed, prod.branchName())));
     }
-    sort_all(outputItemList);
+    sort_all(outputItemList, OutputItem::Sorter(meta));
   }
 
 

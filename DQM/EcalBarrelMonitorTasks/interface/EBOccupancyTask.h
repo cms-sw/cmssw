@@ -4,8 +4,8 @@
 /*
  * \file EBOccupancyTask.h
  *
- * $Date: 2008/01/17 08:11:11 $
- * $Revision: 1.10 $
+ * $Date: 2008/01/24 16:01:10 $
+ * $Revision: 1.13 $
  * \author G. Della Ricca
  *
 */
@@ -60,6 +60,25 @@ edm::InputTag EcalTrigPrimDigiCollection_;
 MonitorElement* meEvent_[36];
 MonitorElement* meOccupancy_[36];
 MonitorElement* meOccupancyMem_[36];
+
+MonitorElement* meEBDigiOccupancy_;
+MonitorElement* meEBDigiOccupancyProjEta_;
+MonitorElement* meEBDigiOccupancyProjPhi_;
+MonitorElement* meEBRecHitOccupancy_;
+MonitorElement* meEBRecHitOccupancyProjEta_;
+MonitorElement* meEBRecHitOccupancyProjPhi_;
+MonitorElement* meEBRecHitOccupancyThr_;
+MonitorElement* meEBRecHitOccupancyProjEtaThr_;
+MonitorElement* meEBRecHitOccupancyProjPhiThr_;
+MonitorElement* meEBTrigPrimDigiOccupancy_;
+MonitorElement* meEBTrigPrimDigiOccupancyProjEta_;
+MonitorElement* meEBTrigPrimDigiOccupancyProjPhi_;
+MonitorElement* meEBTrigPrimDigiOccupancyThr_;
+MonitorElement* meEBTrigPrimDigiOccupancyProjEtaThr_;
+MonitorElement* meEBTrigPrimDigiOccupancyProjPhiThr_;
+
+float recHitEnergyMin_;
+float trigPrimEtMin_;
 
 bool init_;
 

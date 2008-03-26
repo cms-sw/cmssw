@@ -25,6 +25,8 @@
  <class name="std::pair<edm::BranchKey,edm::BranchDescription>"/>
  <class name="edm::BranchKey"/>
  <class name="std::vector<edm::ProductID>"/>
+ <class name="std::vector<edm::EventID>"/>
+ <class name="std::vector<std::vector<edm::EventID> >"/>
  <class name="edm::ModuleDescription"/>
  <class name="edm::BranchEntryDescription">
    <field name="moduleDescriptionPtr_" transient="true"/>

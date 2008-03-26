@@ -16,7 +16,7 @@
 //
 // Original Author:  Jim Brooke
 //         Created:  Wed Nov  1 11:57:10 CET 2006
-// $Id: GctRawToDigi.h,v 1.9 2007/07/30 09:58:29 jbrooke Exp $
+// $Id: GctRawToDigi.h,v 1.19 2008/03/20 15:55:39 jbrooke Exp $
 //
 //
 
@@ -49,7 +49,7 @@ class GctRawToDigi : public edm::EDProducer {
   virtual void produce(edm::Event&, const edm::EventSetup&);
   virtual void endJob() ;
   
-  void unpack(const FEDRawData& d, edm::Event& e);
+  void unpack(const FEDRawData& d, edm::Event& e, const bool invalidDataFlag);
 
  private: // members
 
@@ -64,6 +64,7 @@ class GctRawToDigi : public edm::EDProducer {
   bool doJets_;
   bool doEtSums_;
   bool doInternEm_;
+  bool doRct_;
   bool doFibres_;
 
   // Block to Digi converter

@@ -25,8 +25,6 @@
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
 
-#include "DataFormats/Candidate/interface/CandidateFwd.h"
-
 #include "DataFormats/EgammaReco/interface/BasicCluster.h"
 #include "DataFormats/CaloTowers/interface/CaloTower.h"
 #include "DataFormats/CaloTowers/interface/CaloTowerFwd.h"
@@ -36,13 +34,6 @@
 #include "RecoParticleFlow/PFAlgo/interface/PFAlgo.h"
 
 #include "RecoParticleFlow/PFRootEvent/interface/PFJetAlgorithm.h"
-#include "RecoParticleFlow/Benchmark/interface/PFJetBenchmark.h"
-
-#include "RecoParticleFlow/PFRootEvent/interface/FWLiteJetProducer.h"
-#include "DataFormats/JetReco/interface/BasicJetCollection.h"
-#include "DataFormats/JetReco/interface/PFJetCollection.h"
-#include "DataFormats/JetReco/interface/PFJet.h"
-#include "DataFormats/JetReco/interface/CaloJetCollection.h"
 
 #include <TObject.h>
 #include "TEllipse.h"
@@ -204,28 +195,6 @@ class PFRootEventManager {
   /// performs clustering 
   void clustering();
 
-  /// performs particle flow
-  void particleFlow();
-
-  /// reconstruct gen jets
-  void reconstructGenJets();   
-
-  /// reconstruct calo jets
-  void reconstructCaloJets();   
-  
-  /// reconstruct pf jets
-  void reconstructPFJets();
-  
-
-  /// used by the reconstruct*Jets functions
-  void reconstructFWLiteJets(const reco::CandidateCollection& Candidates,
-			     std::vector<ProtoJet>& output);
-
-
-  /// performs the tau benchmark 
-  double tauBenchmark( const reco::PFCandidateCollection& candidates);
-
-
   /// fills OutEvent with clusters
   void fillOutEventWithClusters(const reco::PFClusterCollection& clusters);
 
@@ -241,6 +210,12 @@ class PFRootEventManager {
   /// fills outEvent with blocks
   void fillOutEventWithBlocks(const reco::PFBlockCollection& blocks);
   
+  /// performs particle flow
+  void particleFlow();
+
+  //performs the jets reconstructions
+  double makeJets( const reco::PFCandidateCollection& candidates);
+
 
 
   /// print information
@@ -298,12 +273,12 @@ class PFRootEventManager {
   const  reco::PFBlockCollection& blocks() const { return *pfBlocks_; }
 
   
-  int eventNumber()   {return iEvent_;}
+  int         eventNumber()             {return iEvent_;}
 
   /*   std::vector<int> getViewSizeEtaPhi() {return viewSizeEtaPhi_;} */
   /*   std::vector<int> getViewSize()       {return viewSize_;} */
   
-  void readCMSSWJets();
+  
   
   
   
@@ -373,23 +348,6 @@ class PFRootEventManager {
   /// MCtruth branch
   TBranch*   MCTruthBranch_;          
 
-  /// Gen Particles base Candidates branch
-  TBranch*   genParticleBaseCandidatesBranch_;
-
-  /// Calo Tower base Candidates branch
-  TBranch*   caloTowerBaseCandidatesBranch_;
-  
-  ///CMSSW Gen Jet branch
-  TBranch*   genJetBranch_;
-  
-  ///CMSSW Calo Jet branch
-  TBranch*   recCaloBranch_;
-  
-  ///CMSSW  PF Jet branch
-  TBranch*   recPFBranch_;
-
-  
-  
   /// rechits ECAL
   reco::PFRecHitCollection rechitsECAL_;
 
@@ -431,32 +389,6 @@ class PFRootEventManager {
   /// reconstructed pfCandidates 
   std::auto_ptr< reco::PFCandidateCollection > pfCandidates_;
 
-  /// gen particle base candidates (input for gen jets)
-  reco::CandidateCollection genParticleBaseCandidates_;
-
-  /// calo tower base candidates (input for calo jets)
-  reco::CandidateCollection caloTowerBaseCandidates_;
-
-  /// PF Jets
-  reco::PFJetCollection pfJets_;
-  
-  /// baseCandidates constituents of PFJets (suggestion of Fedor)
-  reco::CandidateCollection basePFCandidates_;
-
-  /// gen Jets
-  reco::GenJetCollection genJets_;
-
-  /// calo Jets
-  std::vector<ProtoJet> caloJets_;
-
-  /// CMSSW PF Jets
-  reco::PFJetCollection pfJetsCMSSW_;
-
-  /// CMSSW  gen Jets
-  reco::GenJetCollection genJetsCMSSW_;
-
-  /// calo Jets
-  std::vector<CaloJet> caloJetsCMSSW_;
   /// input file
   TFile*     file_; 
 
@@ -488,15 +420,13 @@ class PFRootEventManager {
   /// particle flow algorithm
   PFAlgo          pfAlgo_;
 
-  /// PFJet Benchmark
-  PFJetBenchmark PFJetBenchmark_;
+  /// other particle flow algorithm, for comparisons
+  /*   PFAlgo          pfAlgoOther_; */
 
-  /// native jet algorithm 
+  /// jet algorithm 
   /// \todo make concrete
   PFJetAlgorithm  jetAlgo_;
   
-  /// wrapper to official jet algorithms
-  FWLiteJetProducer jetMaker_;
 
 
   //----------------- print flags --------------------------------
@@ -513,14 +443,11 @@ class PFRootEventManager {
   /// print PFCandidates yes/no
   bool                     printPFCandidates_; 
 
-  /// print PFJets yes/no
-  bool                     printPFJets_;
-  
   /// print true particles yes/no
-  bool                     printSimParticles_;
+  bool                     printTrueParticles_;
 
   /// print MC truth  yes/no
-  bool                     printGenParticles_;
+  bool                     printMCtruth_;
 
   /// verbosity
   int                      verbosity_;
@@ -533,29 +460,15 @@ class PFRootEventManager {
 
   std::vector<int>         filterTaus_;
 
-  // --------
+  //----------------- clustering parameters ---------------------
 
   /// clustering on/off. If on, rechits from tree are used to form 
   /// clusters. If off, clusters from tree are used.
-  bool   doClustering_;
+  bool   clusteringIsOn_;
 
-  /// particle flow on/off
-  bool   doParticleFlow_;
+  /// clustering mode. 
+  // int    clusteringMode_;
 
-  /// jets on/off
-  bool   doJets_;
-  
-  /// jet algo type
-  int    jetAlgoType_;
-
-  /// tau benchmark on/off
-  bool   doTauBenchmark_;
-
-  /// tau benchmark debug
-  bool   tauBenchmarkDebug_;
-  
-  /// PFJet benchmark on/off
-  bool   doPFJetBenchmark_;
 
   /// debug printouts for this PFRootEventManager on/off
   bool   debug_;  
@@ -563,6 +476,12 @@ class PFRootEventManager {
   /// find rechit neighbours ? 
   bool   findRecHitNeighbours_;
 
+
+  // jets parameters             ----------------------------------------
+
+  /// jet reconstruction (for taus) on/off 
+  /// \todo make jet reconstruction more general.
+  bool   doJets_;
   
   /// debug printouts for jet algo on/off
   bool   jetsDebug_;

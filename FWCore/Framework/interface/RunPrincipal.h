@@ -10,7 +10,7 @@ such code sees the Run class, which is a proxy for RunPrincipal.
 The major internal component of the RunPrincipal
 is the DataBlock.
 
-$Id: RunPrincipal.h,v 1.19 2008/01/10 17:35:22 wmtan Exp $
+$Id: RunPrincipal.h,v 1.20 2008/01/17 05:14:01 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -86,6 +86,8 @@ namespace edm {
 */
 
     void setUnscheduledHandler(boost::shared_ptr<UnscheduledHandler>) {}
+
+    void mergeRun(boost::shared_ptr<RunPrincipal> rp);
 
   private:
     virtual void addOrReplaceGroup(std::auto_ptr<Group> g);

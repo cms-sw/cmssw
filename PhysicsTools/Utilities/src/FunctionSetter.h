@@ -6,7 +6,7 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Revision: 1.1 $
+ * \version $Revision: 1.2 $
  *
  */
 #include "PhysicsTools/Utilities/src/Function.h"
@@ -15,14 +15,14 @@
 namespace reco {
   namespace parser {    
     struct FunctionSetter {
-      FunctionSetter(Function fun, FunctionStack& stack):
-	fun_(fun), stack_(stack) {}
+      FunctionSetter( Function fun, FunctionStack& stack ):
+	fun_( fun ), stack_( stack ) {}
       
-      void operator()(const char *, const char *) const { 
+      void operator()( const char *, const char * ) const { 
 #ifdef BOOST_SPIRIT_DEBUG 
 	BOOST_SPIRIT_DEBUG_OUT << "pushing math function: " << functionNames[ fun_ ] << std::endl;
 #endif
-	stack_.push_back(fun_); 
+	stack_.push_back( fun_ ); 
       }
     private:
       Function fun_;

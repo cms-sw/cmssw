@@ -6,8 +6,8 @@
  *  shared surfaces. Build MagVolume6Faces and organise them in a hierarchical
  *  structure. Build MagGeometry out of it.
  *
- *  $Date: 2007/02/03 16:18:13 $
- *  $Revision: 1.5 $
+ *  $Date: 2007/03/09 14:38:23 $
+ *  $Revision: 1.6 $
  *  \author N. Amapane - INFN Torino
  */
 #include "DataFormats/GeometrySurface/interface/ReferenceCounted.h" 
@@ -31,7 +31,7 @@ namespace magneticfield {
 class MagGeoBuilderFromDDD  {
 public:
   /// Constructor
-  MagGeoBuilderFromDDD(bool debug=false);
+  MagGeoBuilderFromDDD(std::string version_, bool debug=false);
 
   /// Destructor
   virtual ~MagGeoBuilderFromDDD();
@@ -107,6 +107,8 @@ private:
   std::vector<MagBLayer*> mBLayers; // Finally built barrel geometry
   std::vector<MagESector*> mESectors; // Finally built barrel geometry
 
+  std::string version; // Version of the data files to be used
+  
   static bool debug;
 
 };

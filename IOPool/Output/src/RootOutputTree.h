@@ -5,7 +5,7 @@
 
 RootOutputTree.h // used by ROOT output modules
 
-$Id: RootOutputTree.h,v 1.12 2008/01/04 17:07:01 wmtan Exp $
+$Id: RootOutputTree.h,v 1.22 2008/02/25 16:38:10 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -39,21 +39,10 @@ namespace edm {
 		   BranchType const& branchType,
 		   T const*& pAux,
 		   int bufSize,
-		   int splitLevel,
-		   bool fastCloning = false,
-		   TTree * tree = 0,
-		   TTree * metaTree = 0,
-		   Selections const& dropList = Selections(),
-		   std::vector<std::string> renamedList = std::vector<std::string>()) :
+		   int splitLevel) :
       filePtr_(filePtr),
-      tree_(fastCloning ?
-		cloneTTree(filePtr.get(), tree, dropList, renamedList)
-		:
-		makeTTree(filePtr.get(), BranchTypeToProductTreeName(branchType), splitLevel)),
-      metaTree_(fastCloning ?
-		cloneTTree(filePtr.get(), metaTree, Selections(), renamedList)
-		:
-		makeTTree(filePtr.get(), BranchTypeToMetaDataTreeName(branchType), 0)),
+      tree_(makeTTree(filePtr.get(), BranchTypeToProductTreeName(branchType), splitLevel)),
+      metaTree_(makeTTree(filePtr.get(), BranchTypeToMetaDataTreeName(branchType), 0)),
       auxBranch_(0),
       branches_(),
       metaBranches_(),
@@ -64,21 +53,13 @@ namespace edm {
       splitLevel_(splitLevel),
       branchNames_() {
 
-      auxBranch_ = tree_->GetBranch(BranchTypeToAuxiliaryBranchName(branchType).c_str());
-      if (auxBranch_ != 0) {
-	auxBranch_->SetAddress(&pAux);
-        clonedBranches_.push_back(auxBranch_);
-      } else {
-        auxBranch_ = tree_->Branch(BranchTypeToAuxiliaryBranchName(branchType).c_str(), &pAux, bufSize, 0);
-        branches_.push_back(auxBranch_);
-      }
+      auxBranch_ = tree_->Branch(BranchTypeToAuxiliaryBranchName(branchType).c_str(), &pAux, bufSize, 0);
+      clonedBranches_.push_back(auxBranch_);
     }
 
     ~RootOutputTree() {}
     
     static void fastCloneTTree(TTree *in, TTree *out);
-
-    static TTree * cloneTTree(TFile *filePtr, TTree *tree, Selections const& dropList, std::vector<std::string> const& renamedList);
 
     static TTree * makeTTree(TFile *filePtr, std::string const& name, int splitLevel);
 
@@ -86,11 +67,9 @@ namespace edm {
 
     static void writeTTree(TTree *tree);
 
-    static void pruneTTree(TTree *tree, Selections const& dropList, std::vector<std::string> const& renamedList);
-
     bool isValid() const;
 
-    void addBranch(BranchDescription const& prod, bool selected, BranchEntryDescription const*& pProv, void const*& pProd);
+    void addBranch(BranchDescription const& prod, bool selected, BranchEntryDescription const*& pProv, void const*& pProd, bool inInput);
 
     std::vector<std::string> const& branchNames() const {return branchNames_;}
 

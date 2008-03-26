@@ -18,7 +18,6 @@
 #include "SimTracker/VertexAssociation/interface/VertexAssociatorByTracks.h"
 
 using namespace reco;
-using namespace edm;
 using namespace std;
 
 /* Constructor */
@@ -73,7 +72,7 @@ VertexRecoToSimCollection VertexAssociatorByTracks::associateRecoToSim(
 
     for (reco::Vertex::trackRef_iterator recoDaughter = vertex->tracks_begin();
          recoDaughter != vertex->tracks_end(); ++recoDaughter) {
-      RefToBase<reco::Track>  tr = recoDaughter->castTo<RefToBase<reco::Track> >();
+      TrackRef tr = recoDaughter->castTo<TrackRef>();
       if (trackAssocResult[tr].size() > 0) {
         std::vector<std::pair<TrackingParticleRef, double> > tpV = trackAssocResult[tr];
 
@@ -132,10 +131,10 @@ VertexSimToRecoCollection VertexAssociatorByTracks::associateSimToReco(
 
       SimToRecoCollection::const_iterator daughterPosition = trackAssocResult.find(*simDaughter);
       if (daughterPosition != trackAssocResult.end()) {
-        std::vector<std::pair<RefToBase<reco::Track> , double> > recoTracks = trackAssocResult[*simDaughter];
+        std::vector<std::pair<TrackRef, double> > recoTracks = trackAssocResult[*simDaughter];
 
        // Loop over reco::Tracks associated with TrackingParticle
-        for (std::vector<std::pair<RefToBase<reco::Track> , double> >::const_iterator match = recoTracks.begin();
+        for (std::vector<std::pair<TrackRef, double> >::const_iterator match = recoTracks.begin();
              match != recoTracks.end(); ++match) {
           // ... and keep count of it's parent vertex
 

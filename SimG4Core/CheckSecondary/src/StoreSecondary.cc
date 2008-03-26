@@ -26,7 +26,7 @@ StoreSecondary::StoreSecondary(const edm::ParameterSet &p) {
 
   produces<std::vector<math::XYZTLorentzVector> >("SecondaryMomenta");
   produces<std::vector<int> >("SecondaryParticles");
-  produces<std::vector<std::string> >("SecondaryProcesses");
+  //  produces<std::vector<std::string> >("SecondaryProcesses");
 
   edm::LogInfo("CheckSecondary") << "Instantiate StoreSecondary to store "
 				 << "secondaries after 1st hadronic inelastic"
@@ -47,9 +47,11 @@ void StoreSecondary::produce(edm::Event& e, const edm::EventSetup&) {
   *secNumber = nsecs;
   e.put(secNumber, "SecondaryParticles");
 
+  /*
   std::auto_ptr<std::vector<std::string> > secProc(new std::vector<std::string>);
   *secProc = procs;
   e.put(secProc, "SecondaryProcesses");
+  */
 
   LogDebug("CheckSecondary") << "StoreSecondary:: Event " << e.id() << " with "
 			     << nsecs.size() << " hadronic collisions with "

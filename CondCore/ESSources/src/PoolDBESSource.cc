@@ -22,7 +22,6 @@
 #include "CondCore/DBCommon/interface/PoolTransaction.h"
 #include "CondCore/DBCommon/interface/CoralTransaction.h"
 #include "CondCore/DBCommon/interface/ConnectionHandler.h"
-#include "FWCore/Framework/interface/SourceFactory.h"
 #include "FWCore/Framework/interface/DataProxy.h"
 #include "CondCore/PluginSystem/interface/ProxyFactory.h"
 #include "CondCore/IOVService/interface/IOVService.h"
@@ -30,7 +29,6 @@
 #include "CondCore/MetaDataService/interface/MetaData.h"
 #include "CondCore/MetaDataService/interface/MetaDataNames.h"
 //#include "POOLCore/Exception.h"
-#include "RelationalAccess/IConnectionService.h"
 #include "RelationalAccess/IWebCacheControl.h"
 #include "FWCore/Catalog/interface/SiteLocalConfig.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
@@ -190,7 +188,7 @@ PoolDBESSource::PoolDBESSource( const edm::ParameterSet& iConfig ) :
       m_tagCollection.insert(std::make_pair<std::string,cond::TagMetadata>(tagName,m));
     }
   }else{
-    std::string globaltag=iConfig.getParameter<std::string>("globaltag");
+    std::string globaltag=iConfig.getUntrackedParameter<std::string>("globaltag");
     cond::Connection* c=conHandler.getConnection(connect);
     conHandler.connect(m_session);
     cond::CoralTransaction& coraldb=c->coralTransaction();

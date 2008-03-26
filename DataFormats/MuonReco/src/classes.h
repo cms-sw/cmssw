@@ -12,7 +12,6 @@
 #include "DataFormats/MuonReco/interface/MuonTrackLinks.h"
 #include "DataFormats/MuonReco/interface/Direction.h"
 #include "DataFormats/MuonReco/interface/MuIsoDeposit.h"
-#include "DataFormats/MuonReco/interface/MuonTime.h"
 #include "DataFormats/TrackReco/interface/Track.h" 
 #include "DataFormats/MuonReco/interface/MuIsoDepositFwd.h" 
 #include "DataFormats/Common/interface/AssociationMap.h"
@@ -37,7 +36,6 @@ namespace {
     edm::Wrapper<edm::RefVector<std::vector<reco::MuIsoDeposit> > > wrv2;
     
     reco::MuonIsolation rmi;
-    reco::MuonTime rmt;
 
     std::vector<reco::MuonChamberMatch> vmm1;
     std::vector<reco::MuonSegmentMatch> vmm2;

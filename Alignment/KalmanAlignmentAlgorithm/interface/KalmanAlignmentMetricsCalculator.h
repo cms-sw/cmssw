@@ -1,7 +1,7 @@
 #ifndef Alignment_KalmanAlignmentAlgorithm_KalmanAlignmentMetricsCalculator_h
 #define Alignment_KalmanAlignmentAlgorithm_KalmanAlignmentMetricsCalculator_h
 
-/// Calculates the metrical distances (stored as short int) for a set of Alignables.
+/// Calculates the metrical distances (stored as type Distance) for a set of Alignables.
 /// See E.Widl, R.Fr\"uhwirth, W.Adam, A Kalman Filter for Track-based Alignment, CMS
 /// NOTE-2006/022 for more details.
 

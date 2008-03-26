@@ -13,8 +13,8 @@
  *   in the muon system and the tracker.
  *
  *
- *  $Date: 2007/10/31 22:18:21 $
- *  $Revision: 1.5 $
+ *  $Date: 2008/02/21 19:01:24 $
+ *  $Revision: 1.6.2.1 $
  *
  *  Authors :
  *  N. Neumeister            Purdue University
@@ -91,10 +91,12 @@ GlobalTrajectoryBuilderBase::GlobalTrajectoryBuilderBase(const edm::ParameterSet
 
   theCategory = par.getUntrackedParameter<string>("Category", "Muon|RecoMuon|GlobalMuon|GlobalTrajectoryBuilderBase");
 
-  ParameterSet refitterPSet = par.getParameter<ParameterSet>("RefitterParameters");
 
-  theLayerMeasurements = new MuonDetLayerMeasurements();
-
+  theLayerMeasurements = new MuonDetLayerMeasurements(par.getParameter<InputTag>("DTRecSegmentLabel"),
+						      par.getParameter<InputTag>("CSCRecSegmentLabel"),
+						      par.getParameter<InputTag>("RPCRecSegmentLabel"));
+  
+  
   string stateOnTrackerOutProp = par.getParameter<string>("StateOnTrackerBoundOutPropagator");
 
   ParameterSet trackMatcherPSet = par.getParameter<ParameterSet>("GlobalMuonTrackMatcher");
@@ -840,10 +842,12 @@ vector<Trajectory> GlobalTrajectoryBuilderBase::refitTrajectory(const Trajectory
   ConstRecHitContainer trackerRecHits = tkTraj.recHits();
   
   RefitDirection recHitDir = checkRecHitsOrdering(trackerRecHits);
+  //force the rechits to be ordered from outside-in
   if( recHitDir == inToOut ) reverse(trackerRecHits.begin(),trackerRecHits.end());
-  
-  PropagationDirection refitDir = (recHitDir == inToOut) ? oppositeToMomentum : alongMomentum ;
-  
+
+  //force the refit direction to be opposite to momentum due to the rechit ordering  
+  PropagationDirection refitDir =  oppositeToMomentum;
+    
   TrajectorySeed seed(garbage1,garbage2,refitDir);
   
   TrajectoryMeasurement outerTM = (tkTraj.direction() == alongMomentum) ? tkTraj.lastMeasurement() : tkTraj.firstMeasurement();

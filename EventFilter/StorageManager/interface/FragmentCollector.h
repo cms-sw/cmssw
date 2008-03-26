@@ -25,6 +25,7 @@
 #include "EventFilter/StorageManager/interface/DQMEventServer.h"
 #include "EventFilter/StorageManager/interface/ServiceManager.h"
 #include "EventFilter/StorageManager/interface/DQMServiceManager.h"
+#include "EventFilter/StorageManager/interface/InitMsgCollection.h"
 
 #include "boost/shared_ptr.hpp"
 #include "boost/thread/thread.hpp"
@@ -61,7 +62,13 @@ namespace stor
     edm::EventBuffer& getFragmentQueue() { return *frag_q_; }
     edm::EventBuffer& getCommandQueue() { return *cmd_q_; }
     
-    void setEventServer(boost::shared_ptr<EventServer>& es) { eventServer_ = es; }
+    void setEventServer(boost::shared_ptr<EventServer>& es) {
+      eventServer_ = es;
+      if (eventServer_.get() != NULL && writer_.get() != NULL) {
+        eventServer_->setStreamSelectionTable(writer_->getStreamSelectionTable());
+      }
+    }
+    void setInitMsgCollection(boost::shared_ptr<InitMsgCollection>& imColl) { initMsgCollection_ = imColl; }
 
   private:
     static void run(FragmentCollector*);
@@ -129,6 +136,7 @@ namespace stor
 
     boost::shared_ptr<EventServer> eventServer_;
     boost::shared_ptr<DQMEventServer> DQMeventServer_;
+    boost::shared_ptr<InitMsgCollection> initMsgCollection_;
   };
 }
 

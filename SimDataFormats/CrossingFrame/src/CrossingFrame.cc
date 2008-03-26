@@ -13,11 +13,10 @@
 //using namespace std;
 using namespace edm;
 
-template <> const int  CrossingFrame<PSimHit>::lowTrackTof = -36;
-template <> const int  CrossingFrame<PSimHit>::highTrackTof = 36;
+template <> const int  CrossingFrame<PSimHit>::limHighLowTof = 36;
 
 template <> 
-void CrossingFrame<SimTrack>::addPileups(const int bcr, const std::vector<SimTrack> *simtracks, unsigned int evtNr, int vertexoffset,bool checkTof) { 
+void CrossingFrame<SimTrack>::addPileups(const int bcr, const std::vector<SimTrack> *simtracks, unsigned int evtNr, int vertexoffset,bool checkTof,bool high) { 
 
   EncodedEventId id(bcr,evtNr);
   for (unsigned int i=0;i<simtracks->size();++i)
@@ -35,7 +34,7 @@ void CrossingFrame<SimTrack>::addPileups(const int bcr, const std::vector<SimTra
 }
 
 template <> 
-void CrossingFrame<SimVertex>::addPileups(const int bcr, const std::vector<SimVertex> *simvertices, unsigned int evtNr, int vertexoffset,bool checkTof) { 
+void CrossingFrame<SimVertex>::addPileups(const int bcr, const std::vector<SimVertex> *simvertices, unsigned int evtNr, int vertexoffset,bool checkTof,bool high) { 
 
   EncodedEventId id(bcr,evtNr);
   for (unsigned int i=0;i<simvertices->size();++i) {
@@ -52,7 +51,7 @@ void CrossingFrame<SimVertex>::addPileups(const int bcr, const std::vector<SimVe
 }
 
 template <> 
-void CrossingFrame<PSimHit>::addPileups(const int bcr, const std::vector<PSimHit> *simhits, unsigned int evtNr, int vertexoffset,bool checkTof) { 
+void CrossingFrame<PSimHit>::addPileups(const int bcr, const std::vector<PSimHit> *simhits, unsigned int evtNr, int vertexoffset,bool checkTof,bool high) { 
 
   EncodedEventId id(bcr,evtNr);
 
@@ -62,7 +61,7 @@ void CrossingFrame<PSimHit>::addPileups(const int bcr, const std::vector<PSimHit
     float newtof;
     if (checkTof) {
       newtof=(*simhits)[i].timeOfFlight() + bcr*bunchSpace_;
-      accept=newtof>=lowTrackTof && newtof <=highTrackTof;
+      accept=high ? newtof>= limHighLowTof : newtof < limHighLowTof;
     }
     if (!checkTof || accept) {
       PSimHit hit((*simhits)[i].entryPoint(), (*simhits)[i].exitPoint(),(*simhits)[i].pabs(),
@@ -78,7 +77,7 @@ void CrossingFrame<PSimHit>::addPileups(const int bcr, const std::vector<PSimHit
 }
 
 template <> 
-void CrossingFrame<PCaloHit>::addPileups(const int bcr, const std::vector<PCaloHit> *calohits, unsigned int evtNr, int vertexoffset,bool checkTof) { 
+void CrossingFrame<PCaloHit>::addPileups(const int bcr, const std::vector<PCaloHit> *calohits, unsigned int evtNr, int vertexoffset,bool checkTof,bool high) { 
 
   EncodedEventId id(bcr,evtNr);
   for (unsigned int i=0;i<calohits->size();++i) {
@@ -89,7 +88,7 @@ void CrossingFrame<PCaloHit>::addPileups(const int bcr, const std::vector<PCaloH
 }
 
 template <> 
-void CrossingFrame<edm::HepMCProduct>::addPileups(const int bcr, const std::vector<edm::HepMCProduct> *mcps, unsigned int evtNr, int vertexoffset,bool checkTof) { 
+void CrossingFrame<edm::HepMCProduct>::addPileups(const int bcr, const std::vector<edm::HepMCProduct> *mcps, unsigned int evtNr, int vertexoffset,bool checkTof,bool high) { 
   for (unsigned int i=0;i<mcps->size();++i) {
     pileups_.push_back((*mcps)[i]);
   }

@@ -5,8 +5,6 @@
 
 #include <Geometry/RPCGeometry/interface/RPCGeometry.h>
 #include <Geometry/CommonDetUnit/interface/GeomDetUnit.h>
-#include <Geometry/CommonDetUnit/interface/GeomDetType.h>
-#include <Geometry/RPCGeometry/interface/RPCChamber.h>
 
 RPCGeometry::RPCGeometry(){}
 

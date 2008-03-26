@@ -2,6 +2,9 @@
 #include "PhysicsTools/Utilities/src/AndCombiner.h"
 #include "PhysicsTools/Utilities/src/OrCombiner.h"
 #include "PhysicsTools/Utilities/src/NotCombiner.h"
+#ifdef BOOST_SPIRIT_DEBUG 
+#include <iostream>
+#endif
 using namespace reco::parser;
 
 void CutSetter::operator()( const char *, const char * ) const {
@@ -29,4 +32,7 @@ void CutSetter::operator()( const char *, const char * ) const {
     };
     cmbStack_.pop_back();
   }
+#ifdef BOOST_SPIRIT_DEBUG 
+  BOOST_SPIRIT_DEBUG_OUT << "cut set" << std::endl;
+#endif
 }

@@ -2,7 +2,6 @@
  *  \author  P. Govoni Univ Milano Bicocca - INFN Milano
  */
  
-#include "FWCore/PluginManager/interface/ModuleDef.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
  
 #include "CalibCalorimetry/EcalPedestalOffsets/interface/EcalPedOffset.h"

@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2007/08/01 08:46:40 $
- *  $Revision: 1.2 $
+ *  $Date: 2007/07/11 12:21:00 $
+ *  $Revision: 1.1 $
  *  \author G. Cerminara - INFN Torino
  */
 #include "CalibMuon/DTCalibration/plugins/DTTTrigCalibration.h"
@@ -241,10 +241,10 @@ void DTTTrigCalibration::endJob() {
 	  slHisto != theHistoMap.end();
 	  slHisto++) {
 	pair<double, double> meanAndSigma = theFitter->fitTimeBox((*slHisto).second);
-	tTrig->set((*slHisto).first,
-		   meanAndSigma.first,
-		   meanAndSigma.second,
-		   DTTimeUnits::ns);
+	tTrig->setSLTtrig((*slHisto).first,
+			  meanAndSigma.first,
+			  meanAndSigma.second,
+			  DTTimeUnits::ns);
     
 	if(debug) {
 	  cout << " SL: " << (*slHisto).first

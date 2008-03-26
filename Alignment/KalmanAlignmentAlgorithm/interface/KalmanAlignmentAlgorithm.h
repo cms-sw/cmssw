@@ -1,15 +1,15 @@
 #ifndef Alignment_KalmanAlignmentAlgorithm_KalmanAlignmentAlgorithm_h
 #define Alignment_KalmanAlignmentAlgorithm_KalmanAlignmentAlgorithm_h
 
-#include "Alignment/CommonAlignment/interface/Alignable.h"
 #include "Alignment/CommonAlignmentAlgorithm/interface/AlignmentAlgorithmBase.h"
 #include "Alignment/ReferenceTrajectories/interface/TrajectoryFactoryBase.h"
 
 #include "Alignment/KalmanAlignmentAlgorithm/interface/KalmanAlignmentUpdator.h"
 #include "Alignment/KalmanAlignmentAlgorithm/interface/KalmanAlignmentMetricsUpdator.h"
-#include "Alignment/KalmanAlignmentAlgorithm/interface/KalmanAlignmentTrackRefitter.h"
 
-#include <set>
+// include for refitting
+#include "RecoTracker/TrackProducer/interface/TrackProducerBase.h"
+#include "RecoTracker/TrackProducer/interface/TrackProducerAlgorithm.h"
 
 /// The main class for the Kalman alignment algorithm. It is the stage on which all the protagonists
 /// are playing: the refitter, the trajectory factory and the updator.
@@ -17,21 +17,15 @@
 /// for details.
 
 class AlignableNavigator;
-class AlignmentParameterSelector;
 class TrajectoryFitter;
 
-class KalmanAlignmentAlgorithm : public AlignmentAlgorithmBase
+
+class KalmanAlignmentAlgorithm : public AlignmentAlgorithmBase, public TrackProducerBase<reco::Track>
 {
 
 public:
 
-  typedef TrajectoryFactoryBase::ReferenceTrajectoryPtr ReferenceTrajectoryPtr;
   typedef TrajectoryFactoryBase::ReferenceTrajectoryCollection ReferenceTrajectoryCollection;
-  typedef TrajectoryFactoryBase::ExternalPredictionCollection ExternalPredictionCollection;
-
-  typedef KalmanAlignmentTracklet::TrackletPtr TrackletPtr;
-  typedef std::vector< TrackletPtr > TrackletCollection;
-
 
   KalmanAlignmentAlgorithm( const edm::ParameterSet& config );
   virtual ~KalmanAlignmentAlgorithm( void );
@@ -50,24 +44,27 @@ public:
   virtual void run( const edm::EventSetup& setup,
 		    const ConstTrajTrackPairCollection& tracks );
 
-  inline bool operator()( const Alignable* a1, const Alignable* a2 ) const { return ( a1->id() < a2->id() ); }
-
 private:
+
+  void initializeTrajectoryFitter( const edm::EventSetup& setup );
 
   void initializeAlignmentParameters( const edm::EventSetup& setup );
 
+  ConstTrajTrackPairCollection refitTracks( const edm::EventSetup& setup,
+					    const ConstTrajTrackPairCollection& tracks );
+
   edm::ParameterSet theConfiguration;
+
+  TrajectoryFactoryBase* theTrajectoryFactory;
+  KalmanAlignmentUpdator* theAlignmentUpdator;
+  KalmanAlignmentMetricsUpdator* theMetricsUpdator;
 
   AlignmentParameterStore* theParameterStore;
   AlignableNavigator* theNavigator;
-  AlignmentParameterSelector* theSelector;
 
-  KalmanAlignmentTrackRefitter* theRefitter;
-
-  TrajectoryFactoryBase* theTrajectoryFactory;
-
-  KalmanAlignmentUpdator* theAlignmentUpdator;
-  KalmanAlignmentMetricsUpdator* theMetricsUpdator;
+  TrackProducerAlgorithm<reco::Track> theRefitterAlgo;
+  TrajectoryFitter* theTrajectoryRefitter;
+  bool theRefitterDebugFlag;
 };
 
 #endif

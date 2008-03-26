@@ -1,8 +1,5 @@
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h"
-#include "DataFormats/TrackReco/interface/Track.h" 
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
-#include "TrackingTools/TrajectoryState/interface/FreeTrajectoryState.h" 
-#include "DataFormats/GeometrySurface/interface/Surface.h" 
 #include "TrackingTools/TrajectoryParametrization/interface/GlobalTrajectoryParameters.h"
 #include "Geometry/CommonDetUnit/interface/TrackingGeometry.h"
 #include "Geometry/CommonDetUnit/interface/GeomDet.h"

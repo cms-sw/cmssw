@@ -5,5 +5,4 @@
   <use name=DataFormats/TrackReco>
   <use name=PhysicsTools/IsolationUtils>
   <use name=PhysicsTools/IsolationAlgos>
-  <use name=RecoMuon/MuonIsolation>
 </library>

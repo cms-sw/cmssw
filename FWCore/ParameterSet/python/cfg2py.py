@@ -5,7 +5,7 @@ from sys import argv
 fileInPath = argv[1]
 
 if fileInPath.endswith('cfg'):
-    cmsParse.dumpCfg(fileInPath)
+    print cmsParse.dumpCfg(fileInPath)
 else:
     print cmsParse.dumpCff(fileInPath)
 

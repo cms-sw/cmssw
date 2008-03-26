@@ -8,7 +8,7 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 
 #include "DQMServices/Core/interface/MonitorElement.h"
-#include "DQMServices/Core/interface/MonitorUIRoot.h"
+#include "DQMServices/UI/interface/MonitorUIRoot.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DQMServices/WebComponents/interface/Button.h"
 #include "DQMServices/WebComponents/interface/CgiWriter.h"
@@ -141,7 +141,11 @@ void SiPixelEDAClient::endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, e
   //                             << lumiSeg.luminosityBlock() << endl;
   //cout << "====================================================== " << endl;
 
-
+//  if (nLumiBlock==2) {
+//    cout << " Creating Collation " << endl;
+//    sipixelWebInterface_->setActionFlag(SiPixelWebInterface::Collate);
+//    sipixelWebInterface_->performAction();
+//  }
   // -- Create summary monitor elements according to the frequency
 //  if (summaryFrequency_ != -1 && nLumiBlock%summaryFrequency_ == 1) {
     //cout << " Creating Summary " << endl;
@@ -157,12 +161,6 @@ void SiPixelEDAClient::endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, e
     sipixelWebInterface_->setActionFlag(SiPixelWebInterface::QTestResult);
     sipixelWebInterface_->performAction();
   
-    cout  << " Checking global Pixel quality flag " << endl;;
-    qflag_=0.; allMods_=0; errorMods_=0; 
-    sipixelWebInterface_->setActionFlag(SiPixelWebInterface::ComputeGlobalQualityFlag);
-    sipixelWebInterface_->performAction();
-    cout<<"EDAClient: allMods_,errorMods_,qflag_: "<<allMods_<<" "<<errorMods_<<" "<<qflag_<<endl;
-      
   // -- Create TrackerMap  according to the frequency
 //  if (tkMapFrequency_ != -1 && nLumiBlock%tkMapFrequency_ == 1) {
 //    cout << " Creating Tracker Map " << endl;
@@ -177,7 +175,12 @@ void SiPixelEDAClient::endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, e
 //    sipixelWebInterface_->performAction();
 //  }
 
-
+//  if ((nLumiBlock % fileSaveFrequency_) == 0) {
+   // int iRun = lumiSeg.run();
+   // int iLumi  = lumiSeg.luminosityBlock();
+   // cout << " Saving histos " << endl;
+   // saveAll(iRun, iLumi);
+//  }
   //cout<<"...leaving SiPixelEDAClient::endLuminosityBlock. "<<endl;
 }
 //
@@ -201,7 +204,25 @@ void SiPixelEDAClient::endRun(edm::Run const& run, edm::EventSetup const& eSetup
 
   //cout<<"...leaving SiPixelEDAClient::endRun. "<<endl;
 }
+//
+// -- Save file
+//
+/*void SiPixelEDAClient::saveAll(int irun, int ilumi) {
+//  cout<<"Entering SiPixelEDAClient::saveAll: "<<endl;
 
+  ostringstream fname;
+  if (ilumi != -1) {
+    fname << outputFilePath_ << "/" << "SiPixel." << irun << "."<< ilumi << ".root";
+  } else {
+    fname << outputFilePath_ << "/" << "SiPixel." << irun << ".root";
+  }
+  //cout<<"Output filename = "<<fname.str()<<endl;
+  sipixelWebInterface_->setOutputFileName(fname.str());
+  sipixelWebInterface_->setActionFlag(SiPixelWebInterface::SaveData);
+  sipixelWebInterface_->performAction();
+
+//  cout<<"...leaving SiPixelEDAClient::saveAll. "<<endl;
+}*/
 //
 // -- Create default web page
 //
@@ -232,4 +253,3 @@ void SiPixelEDAClient::defaultWebPage(xgi::Input *in, xgi::Output *out)
 
 //  cout<<"...leaving SiPixelEDAClient::defaultWebPage. "<<endl;
 }
-

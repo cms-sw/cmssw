@@ -2,8 +2,8 @@
  *  
  *  See header file for description of class
  *
- *  $Date: 2007/12/02 03:50:09 $
- *  $Revision: 1.5 $
+ *  $Date: 2007/11/29 13:21:18 $
+ *  $Revision: 1.4 $
  *  \author M. Strang SUNY-Buffalo
  */
 
@@ -253,16 +253,17 @@ for(int amend = 0; amend < 2; ++amend)
   hchartitle= ECalString[amend]+"Cal SHE vs. AEE/SHE";
   sprintf(hname, hcharname.c_str());
   sprintf(htitle, hchartitle.c_str());
-  mehEcalSHEvAEESHE[amend] = dbe->bookProfile(hname,htitle,100, (float)0., (float)10., 50, (float)0., (float)5.,"");
-  mehEcalSHEvAEESHE[amend]->setAxisTitle("AEE / SHE",1);
-  mehEcalSHEvAEESHE[amend]->setAxisTitle("SHE",2);
+  mehEcalMultvAEE[amend] = dbe->bookProfile(hname,htitle, 100, (float)0., (float)10., 400, (float)0., (float)4000.,"");
+  mehEcalMultvAEE[amend]->setAxisTitle("Analog Equivalent Energy",1);
+  mehEcalMultvAEE[amend]->setAxisTitle("Number of Digis",2);
   hcharname = "hEcalMultvAEE_"+ECalString[amend];
   hchartitle= ECalString[amend]+"Cal Multi vs. AEE";
   sprintf(hname, hcharname.c_str());
   sprintf(htitle, hchartitle.c_str());
-  mehEcalMultvAEE[amend] = dbe->bookProfile(hname,htitle, 100, (float)0., (float)10., 400, (float)0., (float)4000.,"");
-  mehEcalMultvAEE[amend]->setAxisTitle("Analog Equivalent Energy",1);
-  mehEcalMultvAEE[amend]->setAxisTitle("Number of Digis",2);
+  mehEcalSHEvAEESHE[amend] = dbe->bookProfile(hname,htitle,100, (float)0., (float)10., 50, (float)0., (float)5.,"");
+  mehEcalSHEvAEESHE[amend]->setAxisTitle("AEE / SHE",1);
+  mehEcalSHEvAEESHE[amend]->setAxisTitle("SHE",2);
+
 
 }
   mehEScaln = 0;

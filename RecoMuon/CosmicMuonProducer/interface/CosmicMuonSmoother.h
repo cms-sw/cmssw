@@ -3,8 +3,8 @@
 
 /** \file CosmicMuonSmoother
  *
- *  $Date: 2007/08/16 20:02:22 $
- *  $Revision: 1.3 $
+ *  $Date: 2007/03/08 20:14:03 $
+ *  $Revision: 1.2 $
  *  \author Chang Liu  -  Purdue University
  */
 
@@ -53,9 +53,7 @@ public:
 				             const TrajectoryStateOnSurface& firstPredTsos) const;
 
 
-  const Propagator* propagatorAlong() const {return &*theService->propagator(thePropagatorAlongName);}
-
-  const Propagator* propagatorOpposite() const {return &*theService->propagator(thePropagatorOppositeName);}
+  const Propagator* propagator() const {return &*theService->propagator(thePropagatorName);}
 
   KFUpdator* updator() const {return theUpdator;}
 
@@ -82,8 +80,7 @@ private:
 
   const MuonServiceProxy* theService;
 
-  std::string thePropagatorAlongName;
-  std::string thePropagatorOppositeName;
+  std::string thePropagatorName;
 
   std::string category_;
   

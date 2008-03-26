@@ -9,6 +9,7 @@
 #include "DataFormats/Common/interface/OwnVector.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiTrackerGSRecHit2DCollection.h" 
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
+#include "DataFormats/BeamSpot/interface/BeamSpot.h"
 
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
@@ -238,6 +239,17 @@ TrajectorySeedProducer::produce(edm::Event& e, const edm::EventSetup& es) {
     output[ialgo] = new TrajectorySeedCollection;
   }
   
+  // Beam spot
+  edm::Handle<reco::BeamSpot> recoBeamSpotHandle;
+  e.getByType(recoBeamSpotHandle); 
+  math::XYZPoint BSPosition_ = recoBeamSpotHandle->position();
+  //double sigmaZ=recoBeamSpotHandle->sigmaZ();
+  //double sigmaZ0Error=recoBeamSpotHandle->sigmaZ0Error();
+  //double sq=sqrt(sigmaZ*sigmaZ+sigmaZ0Error*sigmaZ0Error);
+  double x0 = BSPosition_.X();
+  double y0 = BSPosition_.Y();
+  double z0 = BSPosition_.Z();
+
   // Input
   edm::Handle<edm::SimTrackContainer> theSimTracks;
   e.getByLabel("famosSimHits",theSimTracks);
@@ -348,8 +360,9 @@ TrajectorySeedProducer::produce(edm::Event& e, const edm::EventSetup& es) {
       if ( theSimTrack.momentum().Perp2() < pTMin[ialgo] ) continue;
       ++nTracksWithPT;
       
-      if ( theParticle.xyImpactParameter() > maxD0[ialgo] ) continue;
-      if ( fabs( theParticle.zImpactParameter() ) > maxZ0[ialgo] ) continue;
+      // Cut on sim track impact parameters
+      if ( theParticle.xyImpactParameter(x0,y0) > maxD0[ialgo] ) continue;
+      if ( fabs( theParticle.zImpactParameter(x0,y0) - z0 ) > maxZ0[ialgo] ) continue;
       ++nTracksWithD0Z0;
       
       std::vector<TrackerRecHit> theSeedHits(numberOfHits[ialgo],static_cast<TrackerRecHit>(TrackerRecHit()));

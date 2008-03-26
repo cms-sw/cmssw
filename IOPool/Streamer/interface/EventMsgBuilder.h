@@ -9,11 +9,11 @@ class EventMsgBuilder
 {
 public:
   EventMsgBuilder(void* buf, uint32 size,
-                  uint32 run, uint32 event, uint32 lumi,
+                  uint32 run, uint32 event, uint32 lumi, uint32 outModId,
                   std::vector<bool>& l1_bits,
                   uint8* hlt_bits, uint32 hlt_bit_count);
 
-  void setReserved(uint32);
+  void setOrigDataSize(uint32);
   uint8* startAddress() const { return buf_; }
   void setEventLength(uint32 len);
   uint8* eventAddr() const { return event_addr_; }

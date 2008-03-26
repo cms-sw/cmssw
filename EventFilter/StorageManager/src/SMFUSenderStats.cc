@@ -1,9 +1,7 @@
 
-// $Id$
+// $Id: SMFUSenderStats.cc,v 1.1 2007/02/04 06:29:40 hcheung Exp $
 
-#include <vector>
 
-#include "boost/shared_ptr.hpp"
 
 #include "EventFilter/StorageManager/interface/SMFUSenderStats.h"
 

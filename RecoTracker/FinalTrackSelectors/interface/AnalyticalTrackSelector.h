@@ -6,9 +6,9 @@
  * 
  * \author Paolo Azzurri, Giovanni Petrucciani 
  *
- * \version $Revision: 1.1 $
+ * \version $Revision: 1.2 $
  *
- * $Id: AnalyticalTrackSelector.h,v 1.1 2008/01/13 21:22:33 paoloa Exp $
+ * $Id: AnalyticalTrackSelector.h,v 1.2 2008/01/15 16:36:46 paoloa Exp $
  *
  */
 
@@ -28,6 +28,7 @@
 #include "DataFormats/TrackReco/interface/TrackExtra.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
+#include "DataFormats/BeamSpot/interface/BeamSpot.h"
 #include "TrackingTools/PatternTools/interface/Trajectory.h"
 #include "TrackingTools/PatternTools/interface/TrajTrackAssociation.h"
 
@@ -47,10 +48,11 @@ namespace reco { namespace modules {
             /// process one event
             void produce( edm::Event& evt, const edm::EventSetup& es ) ;
             /// return class, or -1 if rejected
-            bool select ( const reco::Track &tk, const std::vector<Point> &points);
+            bool select (const reco::BeamSpot &vertexBeamSpot, const reco::Track &tk, const std::vector<Point> &points);
             void selectVertices ( const reco::VertexCollection &vtxs, std::vector<Point> &points);
             /// source collection label
             edm::InputTag src_;
+            edm::InputTag beamspot_;
             edm::InputTag vertices_;
             /// copy only the tracks, not extras and rechits (for AOD)
             bool copyExtras_;

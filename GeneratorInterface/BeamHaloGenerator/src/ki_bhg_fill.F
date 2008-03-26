@@ -17,12 +17,22 @@
       REAL PX,PY,PZ,E,M,VX,VY,VZ,T0
       REAL ABSMOM,P_BM_2,WEIGHT,P_MASS,SUM_BS
       INTEGER ID_PDG,ACC_EV,RANFLA
+      INTEGER NI,M15_ID,IORIG,KORIG
+
+      REAL    EF,W,X,Y,DCX,DCY,TOFF,PRIMEHITZ,
+     &        ZORIG,XORIG,YORIG,EORIG,WORIG
 c      REAL VXP,VYP,PROP,RXY
-      
+      INTEGER COUNT
+      ! Convert MARS15 id's to PDG ID
+      INTEGER IDCONVERT(40)
+      DATA IDCONVERT/2212,2112,211,-211,321,-321,-13,13,22,11,-11,
+     &              -2212,111,1,6,-104,-102,14,-14,12,-12,130,310,
+     &               311,-311,3122,-3122,3222,3212,3112,-2112,3322,
+     &               3312,3334,5112,5212,5222,-3322,-5132,-5332/      
 
       integer iret
       real www
-
+      COUNT=0
       iret=0
 
       IF (GENMOD.EQ.1) THEN  ! event generator mode
@@ -408,6 +418,58 @@ c      REAL VXP,VYP,PROP,RXY
         WEIGHT = WEIGHT*SUM_BS
       ENDIF
 
+
+      IF (GENMOD.EQ.3) THEN  ! event reading mode
+223     WEIGHT = 0.
+C        IF (N_READ.EQ.289945) RETURN
+
+        write(6,*) 'MAXLINE and LINE ',N_READ,MAXLINE
+C        IF (N_READ.GE.289945) THEN
+          IF (NINT(N_READ).GE.MAXLINE) THEN
+           iret = -1
+           return
+        endif
+        READ(22,*,END=333) NI,M15_ID,EF,W,X,Y,DCX,DCY,TOFF,PRIMEHITZ,
+     &                     ZORIG,XORIG,YORIG,EORIG,WORIG,IORIG,KORIG
+C        READ(22,*) ID_PDG,WEIGHT,E_KINE,VERT_X,VERT_Y,COS_DX,COS_DY
+        IF( NILAST .NE. NI ) THEN
+           NILAST = NI
+           NPRIME = NPRIME + 1
+        ENDIF
+        N_READ = N_READ + 1.
+        ID_PDG = IDCONVERT(M15_ID)
+        WEIGHT = W*W0
+        E_KINE = EF
+        VERT_X = -Y
+        VERT_Y = -X
+        COS_DX = DCX
+        COS_DY = DCY
+        write(6,*) 'Here at N_READ ',N_READ,OFFSET,NI,EF,TOFF
+        IF (ACC_EV(ID_PDG,E_KINE).EQ.1) THEN
+           IF (ID_PDG.EQ. -13) R_MU_P = R_MU_P + WEIGHT ! mu+
+           IF (ID_PDG.EQ.  13) R_MU_M = R_MU_M + WEIGHT ! mu-
+           IF (ID_PDG.EQ. 211) R_PI_P = R_PI_P + WEIGHT ! pi+
+           IF (ID_PDG.EQ.-211) R_PI_M = R_PI_M + WEIGHT ! pi-
+           IF (ID_PDG.EQ. 321) R_KA_P = R_KA_P + WEIGHT ! K+
+           IF (ID_PDG.EQ.-321) R_KA_M = R_KA_M + WEIGHT ! K-
+           IF (ID_PDG.EQ.2212) R_PROT = R_PROT + WEIGHT ! p+
+           IF (ID_PDG.EQ.2112) R_NEUT = R_NEUT + WEIGHT ! n0
+           if( IW_MUO .eq. 1 ) then
+              if( abs( id_pdg ) .eq. 13 ) nstack = nstack + 1
+           endif
+           if( IW_HAD .eq. 1 ) then
+              if( abs( id_pdg ) .eq. 211 )  nstack = nstack + 1
+              if( abs( id_pdg ) .eq. 321 )  nstack = nstack + 1
+              if( abs( id_pdg ) .eq. 2212 ) nstack = nstack + 1
+              if( abs( id_pdg ) .eq. 2112 ) nstack = nstack + 1
+           endif
+        ELSE
+          GOTO 223
+        ENDIF
+        SUM_BS = REAL(LHC_B1+LHC_B2) ! sum of beams
+        WEIGHT = WEIGHT*SUM_BS
+      ENDIF
+
       IF (GENMOD.GE.1) THEN
         ! number of generated particles
         NP_GEN = NP_GEN + 1.
@@ -419,15 +481,24 @@ c      REAL VXP,VYP,PROP,RXY
         M  = P_MASS(ID_PDG)
         E  = E_KINE + M
         ABSMOM = SQRT(E**2 - M**2)
+      IF (GENMOD.EQ.3) THEN
+        PX = -ABSMOM*COS_DY
+        PY =  ABSMOM*COS_DX
+      ELSE
         PX = -ABSMOM*COS_DX
         PY =  ABSMOM*COS_DY
+      ENDIF
         PZ = -SQRT(ABSMOM**2 - PX**2 -PY**2)
         VX = VERT_X
         VY = VERT_Y
         VZ = Z_ZERO
 cep        T0 = T_ZERO*SP_O_L
         T0 = (T_ZERO + idx_shift_bx*BXNS) * SP_O_L
-
+! T0 calc from Mars added time shift too
+        if( genmod .eq. 3 ) then
+           VZ = 22600.0
+           T0 = -2.0*TOFF*8.3e7+(idx_shift_bx*BXNS* SP_O_L)
+        endif
 
                                          P_BM_2 = 0.5
         IF (LHC_B1.EQ.1.AND.LHC_B2.EQ.0) P_BM_2 = 0.0
@@ -465,7 +536,7 @@ cep        T0 = T_ZERO*SP_O_L
       ENDIF
 
       RETURN                                                                   
-
+ 333  RETURN
       END
 
 ************************************************************************
