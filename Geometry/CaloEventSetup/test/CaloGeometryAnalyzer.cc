@@ -24,6 +24,8 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
+#include "Geometry/EcalAlgo/interface/EcalBarrelGeometry.h"
+#include "Geometry/EcalAlgo/interface/EcalEndcapGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
@@ -44,7 +46,7 @@
 //
 
 class CaloGeometryAnalyzer : public edm::EDAnalyzer {
-   public:
+  public:
       explicit CaloGeometryAnalyzer( const edm::ParameterSet& );
       ~CaloGeometryAnalyzer();
 
@@ -74,8 +76,17 @@ class CaloGeometryAnalyzer : public edm::EDAnalyzer {
       void cmpset( const CaloSubdetectorGeometry* geom ,
 		   const GlobalPoint&             gp   ,
 		   const double                   dR     ) ;
-};
 
+      void ovrTst( const CaloGeometry& cg      , 
+		   const CaloSubdetectorGeometry* geom ,
+		   const EEDetId&   id   , 
+		   std::fstream&    fOvr  );
+
+      void ovrTst( const CaloGeometry& cg      , 
+		   const CaloSubdetectorGeometry* geom ,
+		   const EBDetId&   id   , 
+		   std::fstream&    fOvr  );
+};
 //
 // constants, enums and typedefs
 //
@@ -230,6 +241,64 @@ CaloGeometryAnalyzer::gid( unsigned int ix,
 }
 
 void 
+CaloGeometryAnalyzer::ovrTst( const CaloGeometry& cg      , 
+			      const CaloSubdetectorGeometry* geom ,
+			      const EEDetId&   id   , 
+			      std::fstream&    fOvr   )
+{
+   static const GlobalPoint origin (0,0,0) ;
+   const int iphi ( id.iPhiOuterRing() ) ;
+   if( iphi != 0 )
+   {
+      fOvr << "Barrel Neighbors of Endcap id = " << id << std::endl ;
+      const EcalEndcapGeometry* eeG ( dynamic_cast<const EcalEndcapGeometry*>( geom ) );
+      const CaloCellGeometry* cell ( geom->getGeometry(id) ) ;
+      const CaloSubdetectorGeometry* bar ( cg.getSubdetectorGeometry( DetId::Ecal, EcalBarrel ) );
+      const EcalEndcapGeometry::OrderedListOfEBDetId* ol ( eeG->getClosestBarrelCells( id ) ) ;
+      assert ( 0 != ol ) ;
+      for( unsigned int i ( 0 ) ; i != ol->size() ; ++i )
+      {
+	 fOvr << "           " << i << "  " << (*ol)[i] ;
+	 const CaloCellGeometry* other ( bar->getGeometry((*ol)[i]) ) ;
+	 const GlobalVector cv ( cell->getPosition()-origin ) ;
+	 const GlobalVector ov ( other->getPosition()-origin ) ;
+	 const double cosang ( cv.dot(ov)/(cv.mag()*ov.mag() ) ) ;
+	 const double angle ( 180.*acos( fabs(cosang)<1?cosang: 1 )/M_PI ) ;
+	 fOvr << ", angle = "<<angle<< std::endl ;
+      }
+   }
+}
+
+void 
+CaloGeometryAnalyzer::ovrTst( const CaloGeometry& cg      , 
+			      const CaloSubdetectorGeometry* geom ,
+			      const EBDetId&   id   , 
+			      std::fstream&    fOvr   )
+{
+   static const GlobalPoint origin (0,0,0) ;
+   const int ieta ( id.ieta() ) ;
+   if( 85 == abs( ieta ) )
+   {
+      const EcalBarrelGeometry* ebG ( dynamic_cast<const EcalBarrelGeometry*>( geom ) );
+      const CaloCellGeometry* cell ( geom->getGeometry(id) ) ;
+      const CaloSubdetectorGeometry* ecap ( cg.getSubdetectorGeometry( DetId::Ecal, EcalEndcap ) );
+      fOvr << "Endcap Neighbors of Barrel id = " << id << std::endl ;
+      const EcalBarrelGeometry::OrderedListOfEEDetId* ol ( ebG->getClosestEndcapCells( id ) ) ;
+      assert ( 0 != ol ) ;
+      for( unsigned int i ( 0 ) ; i != ol->size() ; ++i )
+      {
+	 fOvr << "           " << i << "  " << (*ol)[i] ;
+	 const CaloCellGeometry* other ( ecap->getGeometry((*ol)[i]) ) ;
+	 const GlobalVector cv ( cell->getPosition()-origin ) ;
+	 const GlobalVector ov ( other->getPosition()-origin ) ;
+	 const double cosang ( cv.dot(ov)/(cv.mag()*ov.mag() ) ) ;
+	 const double angle ( 180.*acos( fabs(cosang)<1?cosang: 1 )/M_PI ) ;
+	 fOvr << ", angle = "<<angle<< std::endl ;
+      }
+   }      
+}
+
+void 
 CaloGeometryAnalyzer::ctrcor( const DetId::Detector   det     , 
 			      const int               subdetn , 
 			      const DetId&            did     ,
@@ -322,9 +391,11 @@ CaloGeometryAnalyzer::build( const CaloGeometry& cg      ,
 
    const std::string fnameCtr  ( std::string( name ) + ".ctr" ) ;
    const std::string fnameCor  ( std::string( name ) + ".cor" ) ;
+   const std::string fnameOvr  ( std::string( name ) + ".ovr" ) ;
    const std::string fnameRoot ( std::string( name ) + ".C" ) ;
    std::fstream fCtr(fnameCtr.c_str() ,std::ios_base::out);
    std::fstream fCor(fnameCor.c_str() ,std::ios_base::out);
+   std::fstream fOvr(fnameOvr.c_str() ,std::ios_base::out);
    std::fstream f   (fnameRoot.c_str(),std::ios_base::out);
 
    const CaloSubdetectorGeometry* geom ( cg.getSubdetectorGeometry( det, subdetn ) );
@@ -338,6 +409,8 @@ CaloGeometryAnalyzer::build( const CaloGeometry& cg      ,
    f << "  TGeoVolume* box; " << std::endl;
    int n=0;
    std::vector< DetId > ids ( geom->getValidDetIds( det, subdetn ) ) ;
+
+   std::cout<<"***************total number = "<<ids.size()<<std::endl ;
 
    for( std::vector<DetId>::iterator i ( ids.begin() ) ; i != ids.end(); ++i ) 
    {
@@ -367,7 +440,7 @@ CaloGeometryAnalyzer::build( const CaloGeometry& cg      ,
 
 	    f << "  // Return position is " << closestCell << std::endl;
 	    assert( closestCell == EBDetId(*i) );
-
+ 
 	    // test getCells against base class version every so often
 	    if( 0 == closestCell.hashedIndex()%100 )
 	    {
@@ -375,6 +448,8 @@ CaloGeometryAnalyzer::build( const CaloGeometry& cg      ,
 	       cmpset( geom, gp, 25*deg ) ;
 	       cmpset( geom, gp, 45*deg ) ;
 	    }
+
+	    ovrTst( cg, geom, EBDetId(*i) , fOvr ) ;
 	 }
 	 if (subdetn == EcalEndcap)
 	 {
@@ -464,6 +539,9 @@ CaloGeometryAnalyzer::build( const CaloGeometry& cg      ,
 		    !geom->getGeometry(didMP)->inside( pointMP ) ) ;
 	    assert( ccMM == didMM ||
 		    !geom->getGeometry(didMM)->inside( pointMM ) ) ;
+
+
+	    ovrTst( cg, geom, EEDetId(*i) , fOvr ) ;
 	 }
 	 if (subdetn == EcalPreshower) 
 	 {
