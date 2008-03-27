@@ -67,30 +67,26 @@ number of slots in CSC Track-Finder crate) which can be set to either 0 or secto
 1 to 12 override it with corresponding value.
 If you work with the <a href="http://cms-emu-slicetest.web.cern.ch/cms-emu-slicetest/">CSC SliceTest</a>,
 data you probably need default settings of
-<a href="http://cmssw.cvs.cern.ch/cgi-bin/cmssw.cgi/CMSSW/EventFilter/CSCTFRawToDigi/data/csctfunpacker.cfi?rev=1.4&cvsroot=CMSSW&content-type=text/vnd.viewcvs-markup">
+<a href="http://cmssw.cvs.cern.ch/cgi-bin/cmssw.cgi/CMSSW/EventFilter/CSCTFRawToDigi/data/csctfunpacker.cfi?revision=1.4&view=markup">
 data/csctfunpacker.cfi</a> or you may want to change the first value of <i>slot2sector</i>
 array which assigns data from any "unconfigured" SP to sector number, which you set there.
-For raw data obtained in simulation (see below) you need to set all values to 0. See
-<a href="http://cmssw.cvs.cern.ch/cgi-bin/cmssw.cgi/CMSSW/EventFilter/CSCTFRawToDigi/test/writedigi.cfg?rev=1.1&cvsroot=CMSSW&content-type=text/vnd.viewcvs-markup">
-test/writedigi.cfg</a> for example.
+For raw data obtained in simulation (see below) you need to set all values to 0. 
 <br>
 <br>
-Supplementary <tt>CSCTFPacker</tt> module helps to generate fake raw data file
-from CSC TF digi. It can also be instructed with <i>lctProducer</i> and
-<i>trackProducer</i> <tt>edm::InputTag</tt>s to use digi from certain producers.
-But besides of this it has to be configured as it would have to be done to the
-real hardware. More likely you don't need here anything but setting default values
-for two parameters: <i>zeroSuppression=true</i> and <i>nTBINs=7</i>.
-Another parameter is <i>activeSectors</i>. It allows to "skim" data from any
+Supplementary <tt>CSCTFPacker</tt> module helps to generate "fake" raw data file
+from CSC TF digi. It can be instructed to use digi from certain producers by setting
+<i>lctProducer</i> and <i>trackProducer</i> <tt>edm::InputTag</tt>s accordingly.
+It is likely, that you don't need to change other parameters from their default
+values (<i>zeroSuppression=true</i> and <i>nTBINs=7</i> are hardware defaults).
+One additional parameter, <i>activeSectors</i>, allows to "skim" data from some
 particular sector(s). Any of its 12 bit may be set to 1 or 0 allowing
 of denying data from corresponding sectors to be converted to raw buffers.
-If you are validating SP boards you are likely to set only one of these bits.
-Last two parameters control where the buffers go. <tt>outputFile</tt> sets a name
-for fake raw data file (make it an empty string "" if yo don't need these files),
-and <tt>putBufferToEvent</tt> specifies if <tt><a href="https://twiki.cern.ch/twiki/bin/view/CMS/WorkBookCMSSWFramework#ProcModel">edm::Event</a></tt>
-will be populated with raw data buffers.
-See
-<a href="http://cmssw.cvs.cern.ch/cgi-bin/cmssw.cgi/CMSSW/EventFilter/CSCTFRawToDigi/test/writedigi.cfg?rev=1.1&cvsroot=CMSSW&content-type=text/vnd.viewcvs-markup">
+If you are validating some of SP boards you are likely to set only one of these bits.
+Output is controlled by two parameters: <tt>outputFile</tt>, which sets file name
+for storing data in local_DAQ-like format (make it an empty string "" if yo don't
+need these files), and <tt>putBufferToEvent</tt> specifies if
+<tt><a href="https://twiki.cern.ch/twiki/bin/view/CMS/WorkBookCMSSWFramework#ProcModel">edm::Event</a></tt> will be populated with raw data buffers. See
+<a href="http://cmssw.cvs.cern.ch/cgi-bin/cmssw.cgi/CMSSW/EventFilter/CSCTFRawToDigi/test/writedigis.cfg?view=markup">
 test/writedigi.cfg</a> for example of usage.
 
 </body>
