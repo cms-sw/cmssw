@@ -92,7 +92,6 @@ TrajectorySeed MuonSeedCreator::createSeed(int type, SegmentContainer seg, std::
     ptmean  = theMaxMomentum * charge;
     sptmean = theMaxMomentum;
   }
-  //if (sptmean < 0) sptmean = -sptmean;
 
   LocalTrajectoryParameters param;
   double p_err =0.0;
@@ -180,7 +179,7 @@ TrajectorySeed MuonSeedCreator::createSeed(int type, SegmentContainer seg, std::
 	mat[4][4]= 2.25*mat[4][4];
      }
   }
-  /*else if ( type==5 ||type==6 ) {
+  /*else if ( type==5 ) {
      // Fill the LocalTrajectoryParameters
      /// get the Global position
      last = best_seg;
@@ -255,8 +254,9 @@ TrajectorySeed MuonSeedCreator::createSeed(int type, SegmentContainer seg, std::
   // Transform it in a TrajectoryStateOnSurface
   TrajectoryStateTransform tsTransform;
   
-  PTrajectoryStateOnDet *seedTSOS = tsTransform.persistentState( tsos, id.rawId());
-  
+  //PTrajectoryStateOnDet *seedTSOS = tsTransform.persistentState( tsos, id.rawId());
+  std::auto_ptr<PTrajectoryStateOnDet> seedTSOS(tsTransform.persistentState( tsos, id.rawId()));  
+
   edm::OwnVector<TrackingRecHit> container;
   for (unsigned l=0; l<seg.size(); l++) {
       container.push_back( seg[l]->hit()->clone() ); 
