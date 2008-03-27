@@ -2,6 +2,123 @@
 DB History of reconstructed beam spot
 +++++++++++++++++++++++++++++++++++++
 
+===================================================
+2_0_0_pre6
+
+tag EarlyCollision_5p3cm_mc
+Private samples, fully reconstructed QCD-80-120, 
+from log file:
+
+ Total number of events processed: 1499
+
+-------------------------------------
+
+
+ calculating beam spot...
+ we will use 23336 good tracks out of 115847
+ number of tracks used: 0
+ number of tracks used: 23336
+ number of tracks used: 23336
+ number of tracks used: 23336
+ number of tracks used: 23336
+ number of tracks used: 23336
+ number of tracks used: 23329
+ number of tracks used: 23303
+ number of tracks used: 23246
+ number of tracks used: 23180
+ number of tracks used: 23061
+ number of tracks used: 22913
+ number of tracks used: 22758
+ number of tracks used: 22571
+ number of tracks used: 22368
+ number of tracks used: 22036
+ number of tracks used: 21335
+ number of tracks used: 19685
+ number of tracks used: 16567
+ number of tracks used: 12705
+ total number of iterations = 19
+BSFitter: default fit does not extract beam width, assigning a width of zero.
+
+ RESULTS OF DEFAULT FIT:
+-----------------------------------------------------
+            Calculated Beam Spot
+
+   X0 = 0.0322089 +/- 5.49685e-05 [cm]
+   Y0 = 0.000154775 +/- 5.48474e-05 [cm]
+   Z0 = 0.0353308 +/- 0.555635 [cm]
+ Sigma Z0 = 5.18177 +/- 0.436947 [cm]
+ dxdz = -2.42156e-05 +/- 1.03092e-05 [radians]
+ dydz = 1.78641e-05 +/- 1.0424e-05 [radians]
+ Beam Width = 0 +/- 0 [cm]
+-----------------------------------------------------
+
+-------------------------------------
+
+
+ write results to DB...
+ beam width value forced to be 0.00317
+poolDBService available
+new tag requested
+
+tag EarlyCollision
+release: 200pre6
+samples: /RelValQCD_Pt_80_120/CMSSW_2_0_0_pre6-RelVal-1205894772-HLT/RECO
+-------------------------------------
+
+
+ Total number of events processed: 1500
+
+-------------------------------------
+
+
+ calculating beam spot...
+ we will use 23207 good tracks out of 114561
+ number of tracks used: 0
+ number of tracks used: 23207
+ number of tracks used: 23207
+ number of tracks used: 23207
+ number of tracks used: 23207
+ number of tracks used: 23207
+ number of tracks used: 23202
+ number of tracks used: 23165
+ number of tracks used: 23113
+ number of tracks used: 23022
+ number of tracks used: 22901
+ number of tracks used: 22789
+ number of tracks used: 22639
+ number of tracks used: 22443
+ number of tracks used: 22206
+ number of tracks used: 21874
+ number of tracks used: 21148
+ number of tracks used: 19412
+ number of tracks used: 16330
+ number of tracks used: 12473
+ total number of iterations = 19
+BSFitter: default fit does not extract beam width, assigning a width of zero.
+
+ RESULTS OF DEFAULT FIT:
+-----------------------------------------------------
+            Calculated Beam Spot
+
+   X0 = 0.0321243 +/- 5.60802e-05 [cm]
+   Y0 = -0.000206756 +/- 5.42722e-05 [cm]
+   Z0 = -0.529025 +/- 0.65234 [cm]
+ Sigma Z0 = 7.36512 +/- 0.583982 [cm]
+ dxdz = -7.63762e-06 +/- 7.73613e-06 [radians]
+ dydz = 2.97432e-06 +/- 7.27558e-06 [radians]
+ Beam Width = 0 +/- 0 [cm]
+-----------------------------------------------------
+
+
+
+-------------------------------------
+
+
+ write results to DB...
+ beam width value forced to be 0.00317
+poolDBService available
+new tag requested
+
 
 ===================================================
 2_0_0_pre4
@@ -13,8 +130,120 @@ Run over 1500 events.
 Tags: "EarlyCollision" and "EarlyCollision_mc"
 
 ===================================================
+1_8_2
 
-18X, 16X
+Because vtx simulation has now been changed for
+sigma_Z from 7.55 to 5.3cm, we have to reupload
+the payloads:
+
+tag "EarlyCollision"
+Release: 182
+Sample:  /RelValQCD_Pt_80_120/CMSSW_1_8_0-RelVal-1204725336-HLT/RECO
+
+ Total number of events processed: 1500
+
+-------------------------------------
+
+
+ calculating beam spot...
+ we will use 22127 good tracks out of 91767
+ number of tracks used: 0
+ number of tracks used: 22127
+ number of tracks used: 22127
+ number of tracks used: 22127
+ number of tracks used: 22127
+ number of tracks used: 22127
+ number of tracks used: 22125
+ number of tracks used: 22105
+ number of tracks used: 22079
+ number of tracks used: 22037
+ number of tracks used: 21964
+ number of tracks used: 21849
+ number of tracks used: 21713
+ number of tracks used: 21552
+ number of tracks used: 21315
+ number of tracks used: 20990
+ number of tracks used: 20233
+ number of tracks used: 18615
+ number of tracks used: 15533
+ number of tracks used: 11851
+ total number of iterations = 19
+BSFitter: default fit does not extract beam width, assigning a width of zero.
+ DEFAULT:
+-----------------------------------------------------
+            Calculated Beam Spot
+
+   X0 = 0.0323271 +/- 5.7363e-05 [cm]
+   Y0 = -5.1132e-05 +/- 5.74959e-05 [cm]
+   Z0 = -0.393056 +/- 0.696677 [cm]
+ Sigma Z0 = 7.10607 +/- 0.564166 [cm]
+ dxdz = -1.28363e-05 +/- 8.09294e-06 [radians]
+ dydz = -2.23071e-05 +/- 7.91508e-06 [radians]
+ Beam Width = 0 +/- 0 [cm]
+-----------------------------------------------------
+
+tag "EarlyCollision_5p3cm"
+Release: 182
+Sample:  /RelValFastSimQCD_Pt_80_120/CMSSW_1_8_2-RelVal-1206416903/GEN-SIM-DIGI-RECO
+
+ Total number of events processed: 1500
+
+-------------------------------------
+
+
+ calculating beam spot...
+ we will use 22360 good tracks out of 60262
+ number of tracks used: 0
+ number of tracks used: 22360
+ number of tracks used: 22360
+ number of tracks used: 22360
+ number of tracks used: 22360
+ number of tracks used: 22360
+ number of tracks used: 22355
+ number of tracks used: 22324
+ number of tracks used: 22257
+ number of tracks used: 22176
+ number of tracks used: 22082
+ number of tracks used: 21965
+ number of tracks used: 21833
+ number of tracks used: 21683
+ number of tracks used: 21504
+ number of tracks used: 21175
+ number of tracks used: 20397
+ number of tracks used: 18572
+ number of tracks used: 15384
+ number of tracks used: 11632
+ total number of iterations = 19
+BSFitter: default fit does not extract beam width, assigning a width of zero.
+ DEFAULT:
+-----------------------------------------------------
+            Calculated Beam Spot
+
+   X0 = 0.032185 +/- 5.90788e-05 [cm]
+   Y0 = 2.10846e-05 +/- 5.8792e-05 [cm]
+   Z0 = -0.101769 +/- 0.546212 [cm]
+ Sigma Z0 = 5.00262 +/- 0.44065 [cm]
+ dxdz = 5.53732e-06 +/- 1.18776e-05 [radians]
+ dydz = 4.10255e-06 +/- 1.14701e-05 [radians]
+ Beam Width = 0 +/- 0 [cm]
+-----------------------------------------------------
+
+
+
+-------------------------------------
+
+
+ write results to DB...
+ beam width value forced to be 0.00317
+poolDBService available
+new tag requested
+
+=============================================
+
+
+===================================================
+
+16X
 
 tags: "EarlyCollision", "NominalCollision", 
 "NominalCollision1", ...
