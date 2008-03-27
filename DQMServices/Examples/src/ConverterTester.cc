@@ -7,8 +7,6 @@ ConverterTester::ConverterTester(const edm::ParameterSet& iPSet)
   fName = iPSet.getUntrackedParameter<std::string>("Name");
   verbosity = iPSet.getUntrackedParameter<int>("Verbosity");
   frequency = iPSet.getUntrackedParameter<int>("Frequency");
-  outputfile = iPSet.getParameter<std::string>("OutputFile");
-  doOutput = iPSet.getParameter<bool>("DoOutput");
  
   if (verbosity >= 0) {
     edm::LogInfo(MsgLoggerCat) 
@@ -17,14 +15,21 @@ ConverterTester::ConverterTester(const edm::ParameterSet& iPSet)
       << "    Name          = " << fName << "\n"
       << "    Verbosity     = " << verbosity << "\n"
       << "    Frequency     = " << frequency << "\n"
-      << "    OutputFile    = " << outputfile << "\n"
-      << "    DoOutput      = " << doOutput << "\n"
       << "===============================\n";
   }
  
   dbe = 0;
   dbe = edm::Service<DQMStore>().operator->();
-  
+ 
+  count = 0;
+
+}
+
+ConverterTester::~ConverterTester() {}
+
+void ConverterTester::beginJob(const edm::EventSetup& iSetup)
+{
+
   if(dbe){
     meTestString = 0;
     meTestInt = 0;
@@ -73,16 +78,7 @@ ConverterTester::ConverterTester(const edm::ParameterSet& iPSet)
     dbe->tag(meTestInt->getFullname(),7);
     dbe->tag(meTestFloat->getFullname(),8);
   }
-}
 
-ConverterTester::~ConverterTester() 
-{
-  if (doOutput)
-    if (outputfile.size() != 0 && dbe) dbe->save(outputfile);
-}
-
-void ConverterTester::beginJob(const edm::EventSetup& iSetup)
-{
   return;
 }
 
@@ -114,6 +110,8 @@ void ConverterTester::analyze(const edm::Event& iEvent,
 			       const edm::EventSetup& iSetup)
 {
   
+  ++count;
+
   for(int i = 0; i < 1000; ++i) {
     RandomVal1 = Random->Gaus(0.,1.);
     RandomVal2 = Random->Gaus(0.,1.);
