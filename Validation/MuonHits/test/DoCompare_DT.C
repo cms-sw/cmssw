@@ -59,7 +59,6 @@ void DoCompare_DT( ){
 
  TH1F* htemp1[NHisto];
  TH1F* htemp2[NHisto];
-// cout << " entro en bucle" << endl;
 
  for ( int i = 0; i< NHisto ; i++ ) {
    char title[50];
@@ -74,16 +73,16 @@ void DoCompare_DT( ){
    {
      htemp1[i]  = dynamic_cast<TH1F*>(reffile->Get(label[i]));
      htemp2[i]  = dynamic_cast<TH1F*>(curfile->Get(label_dir[i]));
-//  if( htemp1[i] == 0 || htemp2[i] == 0) continue;
      if( htemp1[i] == 0 ) std::cout << " reference histo is empty " << endl;
      if( htemp2[i] == 0 ) std::cout << " current histo is empty " << endl;
 
- //    htemp1[i]->Scale(4.);
-
      htemp1[i]->SetLineColor(2);
      htemp2[i]->SetLineColor(4);
-     htemp1[i]->SetLineStyle(3);
-     htemp2[i]->SetLineStyle(5);
+     htemp1[i]->SetLineStyle(1);
+     htemp2[i]->SetLineStyle(2);
+     htemp1[i]->SetLineWidth(2);
+     htemp2[i]->SetLineWidth(2);   
+
      TLegend leg(0.1, 0.15, 0.2, 0.25);
      leg.AddEntry(htemp1[i], "Reference", "l");
      leg.AddEntry(htemp2[i], "New ", "l");
@@ -121,7 +120,6 @@ void DoCompare_DT( ){
       sta_1->Draw("Same");
 
 
- //  htemp2[i]->Draw("Same"); 
      leg.Draw();
      myPV->PVCompute(htemp1[i],htemp2[i], te);
      sprintf(title,"%s%s", label[i],".eps");
