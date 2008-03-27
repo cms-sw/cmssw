@@ -36,21 +36,51 @@ TopDecaySubset::produce(edm::Event& evt, const edm::EventSetup& setup)
   evt.put( sel );
 }
 
-Particle::LorentzVector TopDecaySubset::fourVector(const reco::GenParticle::const_iterator first,
-						   const reco::GenParticle::const_iterator last)
+Particle::LorentzVector 
+TopDecaySubset::getP4(const reco::GenParticle::const_iterator first,
+		      const reco::GenParticle::const_iterator last, int pdgId, double mass)
 {
   Particle::LorentzVector vec;
   reco::GenParticle::const_iterator p=first;
   for( ; p!=last; ++p){
-    if( p->status() == TopDecayID::status ){
-      vec+=fourVector( p->begin(), p->end() );
+    if( p->status() == TopDecayID::unfrag ){
+      vec+=getP4( p->begin(), p->end(), p->pdgId(), p->p4().mass() );
+      if( abs(pdgId)==TopDecayID::tID && fabs(vec.mass()-mass)/mass<0.01){
+	//break if top mass is in accordance with status 3 particle. 
+	//Then the real top is reconstructed and adding more gluons 
+	//and qqbar pairs would end up in virtualities. 
+	break;
+      }
     }
-    else{
-      //skip W with status 2 to
-      //prevent double counting
-      if( abs(p->pdgId())!=TopDecayID::WID ){
+    else{ 
+      if( abs(pdgId)==TopDecayID::WID ){//in case of W
+	if( abs(p->pdgId())!=TopDecayID::WID ){
+	  //skip W with status 2 to 
+	  //prevent double counting
+	  vec+=p->p4();
+	}
+      }
+      else{
 	vec+=p->p4();
       }
+    }
+  }
+  return vec;
+}
+
+Particle::LorentzVector 
+TopDecaySubset::getP4(const reco::GenParticle::const_iterator first,
+		      const reco::GenParticle::const_iterator last, int pdgId)
+{
+  Particle::LorentzVector vec;
+  reco::GenParticle::const_iterator p=first;
+  for( ; p!=last; ++p){
+    if( p->status()<=TopDecayID::stable && p->pdgId() == pdgId){
+      vec=p->p4();
+      break;
+    }
+    else if( p->status()==TopDecayID::unfrag){
+      vec+=getP4(p->begin(), p->end(), pdgId);   
     }
   }
   return vec;
@@ -60,8 +90,8 @@ void TopDecaySubset::fillOutput(const reco::GenParticleCollection& src, reco::Ge
 {
   GenParticleCollection::const_iterator t=src.begin();
   for(int idx=-1; t!=src.end(); ++t){
-    if( t->status() == TopDecayID::status && abs( t->pdgId() )==TopDecayID::tID ){ //is top      
-      GenParticle* cand = new GenParticle( t->threeCharge(), fourVector( t->begin(), t->end() ), 
+    if( t->status() == TopDecayID::unfrag && abs( t->pdgId() )==TopDecayID::tID ){ //is top      
+      GenParticle* cand = new GenParticle( t->threeCharge(), getP4( t->begin(), t->end(), t->pdgId(), t->p4().mass() ), 
 					   t->vertex(), t->pdgId(), t->status(), false );
       auto_ptr<reco::GenParticle> ptr( cand );
       sel.push_back( *ptr );
@@ -73,15 +103,15 @@ void TopDecaySubset::fillOutput(const reco::GenParticleCollection& src, reco::Ge
       //iterate over top daughters
       GenParticle::const_iterator td=t->begin();
       for( ; td!=t->end(); ++td){
-	if( td->status()==TopDecayID::status && abs( td->pdgId() )==TopDecayID::bID ){ //is beauty	  
-	  GenParticle* cand = new GenParticle( td->threeCharge(), fourVector( td->begin(), td->end() ), 
+	if( td->status()==TopDecayID::unfrag && abs( td->pdgId() )==TopDecayID::bID ){ //is beauty
+	  GenParticle* cand = new GenParticle( td->threeCharge(), getP4( td->begin(), td->end(), td->pdgId() ), //take stable particle p4
 					       td->vertex(), td->pdgId(), td->status(), false );
 	  auto_ptr<GenParticle> ptr( cand );
 	  sel.push_back( *ptr );	  
 	  topDaughs.push_back( ++idx ); //push index of top daughter
 	}
-	if( td->status()==TopDecayID::status && abs( td->pdgId() )==TopDecayID::WID ){ //is W boson
-	  GenParticle* cand = new GenParticle( td->threeCharge(), fourVector( td->begin(), td->end() ), 
+	if( td->status()==TopDecayID::unfrag && abs( td->pdgId() )==TopDecayID::WID ){ //is W boson
+	  GenParticle* cand = new GenParticle( td->threeCharge(), getP4( td->begin(), td->end(), td->pdgId()), //take stable particle p4 
 					       td->vertex(), td->pdgId(), td->status(), true );
 	  auto_ptr<GenParticle> ptr( cand );
 	  sel.push_back( *ptr );
@@ -92,13 +122,17 @@ void TopDecaySubset::fillOutput(const reco::GenParticleCollection& src, reco::Ge
 	  //iterate over W daughters
 	  GenParticle::const_iterator wd=td->begin();
 	  for( ; wd!=td->end(); ++wd){
-	    if (wd->pdgId() != td->pdgId()) {
-	      GenParticle* cand = new GenParticle( wd->threeCharge(), fourVector( wd->begin(), wd->end() ), 
+	    if(  wd->status()==TopDecayID::unfrag && 
+		!(wd->pdgId()==TopDecayID::glueID|| //make sure the W daughter is stable
+		  wd->pdgId()==TopDecayID::photID|| //and not an emmitted gauge boson...
+		  wd->pdgId()==TopDecayID::ZID   ||
+		  wd->pdgId()==TopDecayID::WID)) {
+	      GenParticle* cand = new GenParticle( wd->threeCharge(), getP4( wd->begin(), wd->end(), wd->pdgId() ), //take stable particle p4
 						   wd->vertex(), wd->pdgId(), wd->status(), false);
 	      auto_ptr<GenParticle> ptr( cand );
 	      sel.push_back( *ptr );
 	      wDaughs.push_back( ++idx ); //push index of wBoson daughter
-              if( wd->status()==TopDecayID::status && abs( wd->pdgId() )==TopDecayID::tauID ){ //is tau
+              if( wd->status()==TopDecayID::unfrag && abs( wd->pdgId() )==TopDecayID::tauID ){ //is tau
 	        fillTree(idx,*wd,sel);
 	      }
 	    }
@@ -137,8 +171,8 @@ void TopDecaySubset::fillTree(int& idx, const reco::GenParticle& particle, reco:
   int idx0 = idx;
   GenParticle::const_iterator daughter=particle.begin();
   for( ; daughter!=particle.end(); ++daughter){
-    GenParticle* cand = new GenParticle( daughter->threeCharge(), fourVector( daughter->begin(), daughter->end() ),
-                                                           daughter->vertex(), daughter->pdgId(), daughter->status(), false);
+    GenParticle* cand = new GenParticle( daughter->threeCharge(), getP4( daughter->begin(), daughter->end(), daughter->pdgId() ),
+					 daughter->vertex(), daughter->pdgId(), daughter->status(), false);
     auto_ptr<GenParticle> ptr( cand );
     sel.push_back( *ptr );
     daughters.push_back( ++idx ); //push index of daughter
