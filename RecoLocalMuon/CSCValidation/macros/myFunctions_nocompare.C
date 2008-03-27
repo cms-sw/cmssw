@@ -266,10 +266,10 @@ void GlobalrHPosfromTree(std::string graphname, TFile* f1, TFile* f2, int statio
   gStyle->SetLineWidth(2);
   float pi = 3.14159;
   TVector3 x(0,0,1);
-  int linecolor = 0;
+  int linecolor = 1;
   //for alternating colors, set 2 diff colors here
-  int lc1 = 0;
-  int lc2 = 0;
+  int lc1 = 1;
+  int lc2 = 1;
 
 
   if (station == 1){
@@ -656,9 +656,9 @@ void GlobalsegPosfromTree(std::string graphname, TFile* f1, TFile* f2, int stati
   gStyle->SetLineWidth(2);
   float pi = 3.14159;
   TVector3 x(0,0,1);
-  int linecolor = 0;
-  int lc1 = 0;
-  int lc2 = 0;
+  int linecolor = 1;
+  int lc1 = 1;
+  int lc2 = 1;
 
   if (station == 1){
     TVector3 p1(97.5,15.55,0);
