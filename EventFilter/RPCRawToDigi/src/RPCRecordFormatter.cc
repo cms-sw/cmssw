@@ -1,8 +1,8 @@
 /** \file
  * Implementation of class RPCRecordFormatter
  *
- *  $Date: 2008/03/10 12:07:53 $
- *  $Revision: 1.31 $
+ *  $Date: 2008/03/12 17:06:51 $
+ *  $Revision: 1.32 $
  *
  * \author Ilaria Segoni
  */
@@ -84,9 +84,10 @@ std::vector<EventRecords> RPCRecordFormatter::recordPack(
   return result;
 }
 
-void RPCRecordFormatter::recordUnpack(
+int RPCRecordFormatter::recordUnpack(
     const EventRecords & event, std::auto_ptr<RPCDigiCollection> & prod)
 {
+  int status = 0;
   int triggerBX = event.triggerBx();
   int currentBX = event.recordBX().bx();
   int currentRMB = event.recordSLD().rmb(); 
@@ -98,14 +99,16 @@ void RPCRecordFormatter::recordUnpack(
   eleIndex.tbLinkInputNum = currentTbLinkInputNumber;
   eleIndex.lbNumInLink = event.recordCD().lbInLink();
 
-  if(readoutMapping == 0) return;
+  if(readoutMapping == 0) return status;
   const LinkBoardSpec* linkBoard = readoutMapping->location(eleIndex);
   if (!linkBoard) {
-    throw cms::Exception("Invalid Linkboard location!") 
+    LogError(" ** PROBLEM ** Invalid Linkboard location, skip CD event, ") 
               << "dccId: "<<eleIndex.dccId
               << "dccInputChannelNum: " <<eleIndex.dccInputChannelNum
               << " tbLinkInputNum: "<<eleIndex.tbLinkInputNum
               << " lbNumInLink: "<<eleIndex.lbNumInLink;
+    status = 1;
+    return status;
   }
 
   std::vector<int> packStrips = event.recordCD().packedStrips();
@@ -117,7 +120,8 @@ void RPCRecordFormatter::recordUnpack(
     uint32_t rawDetId = duFrame.first;
     int geomStrip = duFrame.second;
     if (!rawDetId) {
-      LogError("recordUnpack: problem with rawDetId, skip LB data");
+      LogError("** PROBLEM ** no rawDetId, skip at lease part of CD data");
+      status = 2;
       continue;
     }
 
@@ -129,4 +133,5 @@ void RPCRecordFormatter::recordUnpack(
     LogTrace("") << " LinkBoardElectronicIndex: " << eleIndex.print(); 
     prod->insertDigi(RPCDetId(rawDetId),digi);
   }
+  return status;
 }

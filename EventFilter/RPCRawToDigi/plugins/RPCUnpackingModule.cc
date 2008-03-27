@@ -1,8 +1,8 @@
 /** \file
  * Implementation of class RPCUnpackingModule
  *
- *  $Date: 2007/10/08 16:16:33 $
- *  $Revision: 1.2 $
+ *  $Date: 2008/01/22 19:12:35 $
+ *  $Revision: 1.3 $
  *
  * \author Ilaria Segoni
  */
@@ -106,8 +106,14 @@ void RPCUnpackingModule::produce(Event & e, const EventSetup& c){
       while (moreHeaders) {
         header++;
         FEDHeader fedHeader( reinterpret_cast<const unsigned char*>(header));
-        if ( !fedHeader.check() ) break; // throw exception?
-        if ( fedHeader.sourceID() != fedId) throw cms::Exception("PROBLEM with header!");
+        if (!fedHeader.check()) {
+          LogError(" ** PROBLEM **, header.check() failed, break"); 
+          break; 
+        }
+        if ( fedHeader.sourceID() != fedId) {
+          LogError(" ** PROBLEM **, fedHeader.sourceID() != fedId")
+              << "fedId = " << fedId<<" sourceID="<<fedHeader.sourceID(); 
+        }
         currentBX = fedHeader.bxID();
         moreHeaders = fedHeader.moreHeaders();
         {
@@ -130,8 +136,14 @@ void RPCUnpackingModule::produce(Event & e, const EventSetup& c){
       while (moreTrailers) {
         trailer--;
         FEDTrailer fedTrailer(reinterpret_cast<const unsigned char*>(trailer));
-        if ( !fedTrailer.check()) { trailer++; break; } // throw exception?
-        if ( fedTrailer.lenght()!= nWords) throw cms::Exception("PROBLEM with trailer!!");
+        if ( !fedTrailer.check()) {
+          LogError(" ** PROBLEM **, trailer.check() failed, break");
+          break;
+        }
+        if ( fedTrailer.lenght()!= nWords) {
+          LogError(" ** PROBLEM **, fedTrailer.lenght()!= nWords, break");
+          break;
+        }
         moreTrailers = fedTrailer.moreTrailers();
         {
           ostringstream str;
@@ -155,6 +167,7 @@ void RPCUnpackingModule::produce(Event & e, const EventSetup& c){
         LogTrace("") << str.str();
       }
       EventRecords event(currentBX);
+      int status = 0;
       for (const Word64* word = header+1; word != trailer; word++) {
 	  for( int iRecord=1; iRecord<=4; iRecord++){
           typedef DataRecord::RecordType Record;
@@ -162,9 +175,7 @@ void RPCUnpackingModule::produce(Event & e, const EventSetup& c){
           DataRecord data(*pRecord);
           LogTrace("")<<"record: " <<data.print()<<" record type:"<<data.type(); 
           event.add(data);
-          try {
-            if (event.complete()) interpreter.recordUnpack(event, producedRPCDigis);
-          } catch ( cms::Exception & err) { LogError("exception from interpreter") <<err.what(); }
+          if (event.complete()) status = interpreter.recordUnpack(event, producedRPCDigis); 
         }
       }
     }
