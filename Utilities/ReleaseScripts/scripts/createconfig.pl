@@ -138,12 +138,13 @@ print "DEFAULT_COMPILER_FLAGS=$flags\n";
 #if(($tmpl_compile_support==0) || ($def_compile_support==0)){&genSkip ($cache);}
 print "SOURCE_EXT=$lexparseext\n";
 
-foreach my $d ("$scriptdir","$curdir")
+foreach my $d ("$curdir","$scriptdir")
 {
   if(-f "${d}/${project}_IncludeChecker.conf")
   {
     print "#Extra Include Checker Configuration: ${d}/${project}_IncludeChecker.conf\n";
     system("cat ${d}/${project}_IncludeChecker.conf");
+    last;
   }
 }
 &final_exit(0);
