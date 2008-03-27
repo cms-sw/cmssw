@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Mon Dec  3 08:38:38 PST 2007
-// $Id: FWDisplayEvent.cc,v 1.38 2008/03/20 20:17:09 chrjones Exp $
+// $Id: FWDisplayEvent.cc,v 1.39 2008/03/27 11:05:17 dmytro Exp $
 //
 
 // system include files
@@ -72,7 +72,8 @@ FWDisplayEvent::FWDisplayEvent(const std::string& iConfigFileName,
   m_guiManager(new FWGUIManager(m_selectionManager.get(),
                                 m_eiManager.get(),
                                 iEnableDebug)),
-  m_viewManager( new FWViewManagerManager(m_changeManager.get())) 
+  m_viewManager( new FWViewManagerManager(m_changeManager.get())),
+  m_configFileName(iConfigFileName)
 {
   //connect up the managers
    m_eiManager->newItem_.connect(boost::bind(&FWModelChangeManager::newItemSlot,
@@ -123,6 +124,14 @@ FWDisplayEvent::FWDisplayEvent(const std::string& iConfigFileName,
     char* whereConfig = gSystem->Which(TROOT::GetMacroPath(), configFileName.c_str(), kReadPermission);
     if(0==whereConfig) {
       configFileName = "default.fwc";
+    } 
+    
+    if(not m_configFileName.empty() ) {
+      //when the program quits we will want to save the configuration automatically
+      m_guiManager->goingToQuit_.connect(
+                                         boost::bind(&FWConfigurationManager::writeToFile,
+                                                     m_configurationManager.get(),
+                                                     m_configFileName));
     }
     delete [] whereConfig;
     m_configurationManager->readFromFile(configFileName);

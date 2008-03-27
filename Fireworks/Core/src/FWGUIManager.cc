@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Feb 11 11:06:40 EST 2008
-// $Id: FWGUIManager.cc,v 1.21 2008/03/24 18:02:14 chrjones Exp $
+// $Id: FWGUIManager.cc,v 1.22 2008/03/25 14:10:12 chrjones Exp $
 //
 
 // system include files
@@ -595,6 +595,7 @@ FWGUIManager::handleFileMenu(Int_t iIndex)
       }
          break;
       case kQuit:
+         goingToQuit_();
          gApplication->Terminate(0);
    }
 }

@@ -16,7 +16,7 @@
 //
 // Original Author:  
 //         Created:  Mon Dec  3 08:34:30 PST 2007
-// $Id: FWDisplayEvent.h,v 1.19 2008/03/20 09:39:26 dmytro Exp $
+// $Id: FWDisplayEvent.h,v 1.20 2008/03/27 11:03:26 dmytro Exp $
 //
 
 // system include files
@@ -86,6 +86,7 @@ class FWDisplayEvent
       std::auto_ptr<FWViewManagerManager> m_viewManager;
 
       DetIdToMatrix    m_detIdToGeo;
+      std::string m_configFileName;
 };
 
 
