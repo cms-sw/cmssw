@@ -76,7 +76,10 @@ TrackProducerAlgorithm<reco::Track>::buildTrack (const TrajectoryFitter * theFit
 
     TrajectoryStateClosestToBeamLine tscbl = tscblBuilder(*(innertsos.freeState()),bs);
 
-    if (tscbl.isValid()==false) return false;
+    if (tscbl.isValid()==false) {
+        delete theTraj;
+        return false;
+    }
 
     GlobalPoint v = tscbl.trackStateAtPCA().position();
     math::XYZPoint  pos( v.x(), v.y(), v.z() );
@@ -186,7 +189,10 @@ TrackProducerAlgorithm<reco::GsfTrack>::buildTrack (const TrajectoryFitter * the
 
     TrajectoryStateClosestToBeamLine tscbl = tscblBuilder(*(innertsos.freeState()),bs);
 
-    if (tscbl.isValid()==false) return false;
+    if (tscbl.isValid()==false) {
+        delete theTraj;
+        return false;
+    }
 
     GlobalPoint v = tscbl.trackStateAtPCA().position();
     math::XYZPoint  pos( v.x(), v.y(), v.z() );
