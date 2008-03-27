@@ -51,9 +51,10 @@ The package is interfaced to CMSSW with help of 2 modules: <tt>CSCTFUnpacker</tt
 With parameter <i>producer</i> of <tt>edm::InputTag</tt> type the unpacking module can
 be instructed to query <tt><a href="https://twiki.cern.ch/twiki/bin/view/CMS/WorkBookCMSSWFramework#ProcModel">edm::Event</a></tt>
 for data buffers from particular producer (by default this is <tt>source:</tt>).
-<br>
-<font color=red>If you are analyzing 2008 data, you may skip the reset of this paragraph 
-and go to next one.</font>
+<br><br>
+
+<font color=red>If you are analyzing 2008 data, you may skip the reset of this paragraph
+and go to next one.</font><br>
 Every Sector Processor board (SP) of the CSC Track-Finder crate is connected to
 1 of 12 sectors. The firmware on every board should be configured so, that board
 reports which sector it is connected to. Unfortunately this was not a routine
