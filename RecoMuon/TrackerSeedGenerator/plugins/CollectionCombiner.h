@@ -10,7 +10,7 @@
  * edm::View cannot be used, because the template argument is used for the input and the output type.
  *
  * \author Jean-Roch Vlimant
-*/
+ */
 
 
 // system include files
