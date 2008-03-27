@@ -154,7 +154,7 @@ cat > ${MACRO}<<EOF
 
 EOF
 
-root -l -q ${MACRO}
+root -l -q -b ${MACRO}
 
 rm makePlots.C
 
