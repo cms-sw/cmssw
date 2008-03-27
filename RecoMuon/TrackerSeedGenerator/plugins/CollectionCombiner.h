@@ -8,15 +8,16 @@
 // 
 /**\class CollectionCombiner CollectionCombiner.cc RecoMuon/CollectionCombiner/src/CollectionCombiner.cc
 
- Description: <one line class summary>
-
- Implementation:
-     <Notes on implementation>
+ Description: this templated EDProducer can merge (no duplicate removal) any number of collection of the same type.
+              the usage is to declare a concrete combiner in SealModule:
+	      typedef CollectionCombiner<std::vector< Trajectory> > TrajectoryCombiner;
+	      DEFINE_ANOTHER_FWK_MODULE(TrajectoryCombiner);
+	      edm::View cannot be used, because the template argument is used for the input and the output type.
 */
 //
 // Original Author:  Jean-Roch Vlimant
 //         Created:  Tue Mar  4 02:08:53 CET 2008
-// $Id$
+// $Id: CollectionCombiner.h,v 1.1 2008/03/05 20:54:51 aeverett Exp $
 //
 //
 
