@@ -46,18 +46,20 @@ public:
     m_nbins[0] = m_nbins[1] = 100;
     m_mins[0] = m_mins[1] = FLT_MAX;
     m_maxs[0] = m_maxs[1] = FLT_MIN;
-    m_data[0] = m_data[1] = m_data[2] = 0;
+    m_data[0] = 0;
+    m_data[1] = 0;
+    m_data[2] = 0;
+    m_data[3] = 0;
 
     gROOT->SetStyle("Plain");
-    gStyle->SetOptStat(1110);
+    gStyle->SetOptStat(111111);
     gStyle->SetOptFit();
     gStyle->SetPalette(1,0);
 
     int pCol[2] = { 2, 3 };
-    if((m_type == "Map") && (TString(m_title).Contains("status")) ) {
+    if((m_type == "Map" || m_type == "EBMap") && (TString(m_title).Contains("status")) ) {
       gStyle->SetPalette(2,pCol);
     }
-
 
     m_rootfile = new TFile(m_outputRoot.c_str(), "RECREATE");
     m_tree = new TTree("t1", "rootplot tree");
@@ -75,9 +77,15 @@ public:
       m_tree->Branch("y", &m_data[1], "y/F");
     } else if (m_type == "Map") {
       m_nfields = 2;
-      m_tree->Branch("x", &m_data[0], "x/F");
-      m_tree->Branch("y", &m_data[1], "y/F");
-    }
+      m_tree->Branch("x", &m_data[0], "x/F"); // channel number
+      m_tree->Branch("y", &m_data[1], "y/F"); // variable var
+    } else if (m_type == "EBMap") {
+      m_nfields = 3;
+      m_tree->Branch("ism", &m_data[0], "ism/F"); // SM number
+      m_tree->Branch("x", &m_data[1], "x/F"); // channel number
+      m_tree->Branch("y", &m_data[2], "y/F"); // variable var
+    } 
+
   };
 
   void setTitle(string title) { m_title = title; }
@@ -100,6 +108,7 @@ public:
     tokenizer tokens(str, sep);
     float datum;
     int cnt = 0;
+
     for (tokenizer::iterator tok_iter = tokens.begin();
 	 tok_iter != tokens.end(); ++tok_iter) {
       if (cnt > m_nfields) { continue; }
@@ -115,12 +124,16 @@ public:
 	datum = atof((*tok_iter).c_str());
       }
 
-      if (datum < m_mins[cnt]) { m_mins[cnt] = datum; }
-      if (datum > m_maxs[cnt]) { m_maxs[cnt] = datum; }
+      if(m_type != "EBMap") {
+	if (datum < m_mins[cnt]) { m_mins[cnt] = datum; }
+	if (datum > m_maxs[cnt]) { m_maxs[cnt] = datum; }
+      }
 
       m_data[cnt] = datum;
+
       cnt++;
     }
+
     if (m_debug) { cout << endl; }
     m_tree->Fill();
   };
@@ -152,6 +165,8 @@ public:
 
     m_tree->Write();
 
+    //std::cout << "m_type = " << m_type << std::endl;
+
     if (m_type == "TH1F") {
       this->drawTH1F();
     } else if (m_type == "TH2F") {
@@ -160,6 +175,8 @@ public:
       this->drawTGraph();
     } else if (m_type == "Map") {
       this->drawMap();
+    } else if (m_type == "EBMap") {
+      this->drawEBMap();
     }
     
     m_isInit = 0;
@@ -170,6 +187,11 @@ public:
     TCanvas c1("c1","rootplot",200,10,600,400);
     c1.SetGrid();
 
+    if((TString(m_title).Contains("status"))) {
+      m_mins[0]=-0.001;
+      m_maxs[0]=1.001;
+    }
+    
     TH1F* plot = new TH1F("rootplot", m_title.c_str(), m_nbins[0], m_mins[0], m_maxs[0]);
     plot->GetXaxis()->SetTitle(m_xtitle.c_str());
     plot->GetYaxis()->SetTitle(m_ytitle.c_str());
@@ -245,7 +267,7 @@ public:
   {
     gStyle->SetOptStat(0);
 
-    const Int_t csize = 150;
+    const Int_t csize = 250;
     TCanvas c1("c1","rootplot",Int_t(85./20.*csize),csize);
     TH2F* plot = new TH2F("rootplot",m_title.c_str(),85,0.0001,85.0001,20,0.0001,20.0001);
     plot->GetXaxis()->SetTitle(m_xtitle.c_str());
@@ -259,6 +281,7 @@ public:
     Int_t n = (Int_t)m_tree->GetEntries();
     for(Int_t i=0; i<n; i++) {
       m_tree->GetEntry(i);
+      //      while(x>1700) x-=1700;
       Float_t xmap = Float_t(Int_t(x-1)/20)+1;
       Float_t ymap = Float_t(Int_t(x-1)%20)+1;
       plot->Fill(xmap,ymap,y);
@@ -266,12 +289,17 @@ public:
 
     // draw the map
     plot->SetTitle(m_title.c_str());
-    if(!(m_hmin==0 && m_hmax==0)) {
+    if((TString(m_title).Contains("status"))) {
+      plot->SetMinimum(-0.001);
+      plot->SetMaximum(1.001);
+    }
+    else if(!(m_hmin==0 && m_hmax==0)) {
       plot->SetMinimum(m_hmin);
       plot->SetMaximum(m_hmax);
     }
-    plot->GetXaxis()->SetTitle("crystal number (#eta)");
-    plot->GetYaxis()->SetTitle("crystal number (#phi)");
+
+    plot->GetXaxis()->SetTitle("#eta");
+    plot->GetYaxis()->SetTitle("#phi");
     plot->GetZaxis()->SetTitle(m_ytitle.c_str());
     plot->GetXaxis()->SetNdivisions(17);
     plot->GetYaxis()->SetNdivisions(4);
@@ -287,6 +315,87 @@ public:
       labelGrid->Fill(X,Y,i+1);
     }
     labelGrid->SetMinimum(0.1);
+    labelGrid->SetMarkerSize(4);
+    labelGrid->Draw("text,same");
+
+    c1.Print(m_outputFile.c_str(), m_outputFormat.c_str());
+    plot->Write();
+
+  };
+
+  void drawEBMap()
+  {
+    gStyle->SetOptStat(0);
+
+    const Int_t csize = 400;
+    TCanvas c1("c1","rootplot",Int_t(360./170.*csize),csize);
+    TH2F* plot = new TH2F("rootplot",m_title.c_str(), 360, 0., 360., 170, -85., 85.);
+    plot->GetXaxis()->SetTitle(m_xtitle.c_str());
+    plot->GetYaxis()->SetTitle(m_ytitle.c_str());
+
+    Float_t x, y, ism;
+    m_tree->SetBranchAddress("ism", &ism);
+    m_tree->SetBranchAddress("x", &x);
+    m_tree->SetBranchAddress("y", &y);
+
+    // now fill the map...
+    Int_t n = (Int_t)m_tree->GetEntries();
+    for(Int_t i=0; i<n; i++) {
+      m_tree->GetEntry(i);
+
+      Float_t iex = -1;
+      Float_t ipx = -1;
+      for ( unsigned int i=1; i<=36; i++ ) {
+	
+	if(i == ism) {
+
+	  Float_t ie = Float_t(Int_t(x-1)/20)+1;       
+	  Float_t ip = Float_t(Int_t(x-1)%20)+1;       
+
+	  if ( ism <= 18 ) {
+	    iex = ie-1;
+	    ipx = 20*(ism-1)+(20-ip);
+	  } else {
+	    iex = -1*ie;
+	    ipx = ip + (ism-19)*20-1;
+	  }
+
+	  plot->Fill(ipx,iex,y);  
+
+	}
+
+      }
+
+    }
+
+    // draw the map
+    plot->SetTitle(m_title.c_str());
+    if((TString(m_title).Contains("status"))) {
+      plot->SetMinimum(-0.001);
+      plot->SetMaximum(1.001);
+    }
+    else if(!(m_hmin==0 && m_hmax==0)) {
+      plot->SetMinimum(m_hmin);
+      plot->SetMaximum(m_hmax);
+    }
+
+    plot->GetXaxis()->SetTitle("#phi");
+    plot->GetYaxis()->SetTitle("#eta");
+    plot->GetZaxis()->SetTitle(m_ytitle.c_str());
+    plot->GetXaxis()->SetNdivisions(18, kFALSE);
+    plot->GetYaxis()->SetNdivisions(2);
+    c1.SetGridx();
+    c1.SetGridy();
+    plot->Draw("colz");
+
+    // and draw the grid upon the map...
+    TH2C* labelGrid = new TH2C("labelGrid", "label grid for SM", 18, 0., 360., 2, -85., 85.);
+    for(Int_t sm=1; sm<=36; sm++) {
+      int X = (sm<=18) ? sm : sm-18;
+      int Y = (sm<=18) ? 2 : 1;
+      double posSM = (sm<=18) ? sm : -1*(sm-18);
+      labelGrid->SetBinContent(X,Y,posSM);
+    }
     labelGrid->SetMarkerSize(2);
     labelGrid->Draw("text,same");
 
@@ -324,7 +433,8 @@ private:
   int m_nbins[2];
   float m_mins[2];
   float m_maxs[2];
-  Float_t m_data[3];
+  Float_t m_data[4];
+
   TDatime m_T0;
 };
 
@@ -388,22 +498,24 @@ int main (int argc, char* argv[])
 
   if (vm.count("type")) { 
     type = vm["type"].as<string>(); 
-    if (type != "TH1F" && type != "TH2F" && type != "TGraph" && type != "Map") {
+    if (type != "TH1F" && type != "TH2F" && type != "TGraph" && type != "Map" && type != "EBMap" ) {
       cerr << "ERROR:  Plot type " << type << " is not valid." << endl;
       arg_error("Valid types are:\n"
 		"  'TH1F'   (1 col data)\n"
 		"  'TH2F'   (2 col data)\n"
 		"  'TGraph' (2 col data)\n"
-		"  'Map'    (3 col data)"
+		"  'Map'    (2 col data)\n"
+		"  'EBMap'  (3 col data)\n"
 		); 
     }
-  } else { 
-    arg_error("type is required.\n"
+  } else {  
+   arg_error("type is required.\n"
 	      "Valid types are:\n"
 	      "  'TH1F'   (1 col data)\n"
 	      "  'TH2F'   (2 col data)\n"
 	      "  'TGraph' (2 col data)\n"
-              "  'Map'    (3 col data)"
+              "  'Map'    (2 col data)\n"
+              "  'EBMap'  (3 col data)"
 	      ); 
   }
   if (vm.count("format")) { outputFormat = vm["format"].as<string>(); }
