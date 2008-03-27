@@ -7,8 +7,8 @@
  *  containing information about various sub-systems in global coordinates 
  *  with full geometry
  *
- *  $Date: 2008/02/27 18:42:30 $
- *  $Revision: 1.5 $
+ *  $Date: 2008/03/13 21:20:31 $
+ *  $Revision: 1.6 $
  *  \author M. Strang SUNY-Buffalo
  */
 
@@ -24,8 +24,6 @@
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
-
-//#include "DataFormats/Common/interface/Provenance.h"
 #include "DataFormats/Provenance/interface/Provenance.h"
 #include "FWCore/Framework/interface/MakerMacros.h" 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -106,7 +104,6 @@
 #include "Geometry/DTGeometry/interface/DTLayer.h"
 #include "Geometry/DTGeometry/interface/DTGeometry.h"
 #include "Geometry/Records/interface/MuonGeometryRecord.h"
-//#include "Validation/GlobalRecHits/interface/DTHitQualityUtils.h"
 #include "Validation/DTRecHits/interface/DTHitQualityUtils.h"
 
 // muon CSC info
@@ -127,7 +124,6 @@
 #include "Geometry/RPCGeometry/interface/RPCRoll.h"
 
 // event info
-//#include "SimDataFormats/ValidationFormats/interface/PValidationFormats.h"
 #include "SimDataFormats/CrossingFrame/interface/CrossingFrame.h"
 #include "SimDataFormats/CrossingFrame/interface/MixCollection.h"
 #include "SimDataFormats/CaloHit/interface/PCaloHit.h"
@@ -138,10 +134,6 @@
 #include "DataFormats/DetId/interface/DetId.h"
 #include "Geometry/CommonDetUnit/interface/GeomDetType.h" 
 #include "Geometry/CommonDetUnit/interface/GeomDetUnit.h" 
-
-// helper files
-//#include <CLHEP/Vector/LorentzVector.h>
-//#include <CLHEP/Units/SystemOfUnits.h>
 
 #include <iostream>
 #include <stdlib.h>
@@ -160,9 +152,6 @@ class GlobalRecHitsAnalyzer : public edm::EDAnalyzer
 
  public:
 
-  //typedef std::vector<float> FloatVector;
-  //typedef std::vector<double> DoubleVector;
-  //typedef std::vector<int> IntVector;
   typedef std::map<uint32_t,float,std::less<uint32_t> > MapType;
 
   explicit GlobalRecHitsAnalyzer(const edm::ParameterSet&);
@@ -196,8 +185,6 @@ class GlobalRecHitsAnalyzer : public edm::EDAnalyzer
   bool printProvenanceInfo;
 
   DQMStore *dbe;
-  std::string outputfile;
-  bool doOutput;
 
   // Electromagnetic info
   // ECal info

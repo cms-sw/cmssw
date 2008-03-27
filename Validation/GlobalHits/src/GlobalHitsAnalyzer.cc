@@ -2,8 +2,8 @@
  *  
  *  See header file for description of class
  *
- *  $Date: 2008/02/27 18:42:29 $
- *  $Revision: 1.9 $
+ *  $Date: 2008/03/13 21:17:08 $
+ *  $Revision: 1.10 $
  *  \author M. Strang SUNY-Buffalo
  */
 
@@ -21,8 +21,6 @@ GlobalHitsAnalyzer::GlobalHitsAnalyzer(const edm::ParameterSet& iPSet) :
   verbosity = iPSet.getUntrackedParameter<int>("Verbosity");
   frequency = iPSet.getUntrackedParameter<int>("Frequency");
   vtxunit = iPSet.getUntrackedParameter<int>("VtxUnit");
-  outputfile = iPSet.getParameter<std::string>("OutputFile");
-  doOutput = iPSet.getParameter<bool>("DoOutput");
   edm::ParameterSet m_Prov =
     iPSet.getParameter<edm::ParameterSet>("ProvenanceLookup");
   getAllProvenances = 
@@ -71,8 +69,6 @@ GlobalHitsAnalyzer::GlobalHitsAnalyzer(const edm::ParameterSet& iPSet) :
       << "    Verbosity     = " << verbosity << "\n"
       << "    Frequency     = " << frequency << "\n"
       << "    VtxUnit       = " << vtxunit << "\n"
-      << "    OutputFile    = " << outputfile << "\n"
-      << "    DoOutput      = " << doOutput << "\n"
       << "    GetProv       = " << getAllProvenances << "\n"
       << "    PrintProv     = " << printProvenanceInfo << "\n"
       << "    PxlBrlLowSrc  = " << PxlBrlLowSrc_.label() 
@@ -219,20 +215,7 @@ GlobalHitsAnalyzer::GlobalHitsAnalyzer(const edm::ParameterSet& iPSet) :
       meMCG4Trk[i]->setAxisTitle("Number of Tracks",1);
       meMCG4Trk[i]->setAxisTitle("Count",2);
     }
-  if (verbosity >= 0) {
-    edm::LogInfo(MsgLoggerCat) 
-      << "\n===============================\n"
-      << "Initialized as EDAnalyzer with parameter values:\n"
-      << "    Name          = " << fName << "\n"
-      << "    Verbosity     = " << verbosity << "\n"
-      << "    Frequency     = " << frequency << "\n"
-      << "    VtxUnit       = " << vtxunit << "\n"
-      << "    OutputFile    = " << outputfile << "\n"
-      << "    DoOutput      = " << doOutput << "\n"
-      << "    GetProv       = " << getAllProvenances << "\n"
-      << "    PrintProv     = " << printProvenanceInfo << "\n"
-      << "===============================\n";
-  }
+
     sprintf(hname,"hGeantVtxX1");
     sprintf(htitle,"Geant vertex x/micrometer");
     meGeantVtxX[0] = dbe->book1D(hname,htitle,100,-8000000.,8000000.);
@@ -288,7 +271,6 @@ GlobalHitsAnalyzer::GlobalHitsAnalyzer(const edm::ParameterSet& iPSet) :
     meCaloEcalE[0] = dbe->book1D(hname,htitle,100,0.,10.);
     sprintf(hname,"hCaloEcalE2");
     meCaloEcalE[1] = dbe->book1D(hname,htitle,100,0.,0.1);
-
     sprintf(hname,"hCaloEcalToF1");
     sprintf(htitle,"Ecal hits, ToF/ns");
     meCaloEcalToF[0] = dbe->book1D(hname,htitle,100,0.,1000.);
@@ -582,11 +564,7 @@ GlobalHitsAnalyzer::GlobalHitsAnalyzer(const edm::ParameterSet& iPSet) :
   }
 }
 
-GlobalHitsAnalyzer::~GlobalHitsAnalyzer() 
-{
-  if (doOutput)
-    if (outputfile.size() != 0 && dbe) dbe->save(outputfile);
-}
+GlobalHitsAnalyzer::~GlobalHitsAnalyzer() {}
 
 void GlobalHitsAnalyzer::beginJob(const edm::EventSetup& iSetup)
 {

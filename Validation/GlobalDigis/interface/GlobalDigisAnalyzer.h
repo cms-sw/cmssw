@@ -7,8 +7,8 @@
  *  containing information about various sub-systems in global coordinates 
  *  with full geometry
  *
- *  $Date: 2008/03/13 21:15:52 $
- *  $Revision: 1.7 $
+ *  $Date: 2008/03/24 21:54:11 $
+ *  $Revision: 1.8 $
  *  \author M. Strang SUNY-Buffalo
  */
 
@@ -19,7 +19,6 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/ESHandle.h"
-//#include "DataFormats/Common/interface/Provenance.h"
 #include "DataFormats/Provenance/interface/Provenance.h"
 #include "FWCore/Framework/interface/MakerMacros.h" 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -51,10 +50,6 @@
 #include "DataFormats/HcalDigi/interface/HBHEDataFrame.h"
 #include "DataFormats/HcalDigi/interface/HFDataFrame.h"
 #include "DataFormats/HcalDigi/interface/HODataFrame.h"
-//#include "Geometry/Records/interface/IdealGeometryRecord.h"
-//#include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
-//#include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
-//#include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "CalibFormats/HcalObjects/interface/HcalDbService.h"
 
 // silicon strip info
@@ -100,15 +95,10 @@
 #include "DataFormats/GeometryVector/interface/LocalPoint.h"
 
 // event info
-//#include "SimDataFormats/ValidationFormats/interface/PValidationFormats.h"
 #include "SimDataFormats/CrossingFrame/interface/CrossingFrame.h"
 #include "SimDataFormats/CrossingFrame/interface/MixCollection.h"
 #include "SimDataFormats/CaloHit/interface/PCaloHit.h"
 #include "SimDataFormats/CaloHit/interface/PCaloHitContainer.h"
-
-// helper files
-//#include <CLHEP/Vector/LorentzVector.h>
-//#include <CLHEP/Units/SystemOfUnits.h>
 
 #include <iostream>
 #include <stdlib.h>
@@ -162,8 +152,6 @@ class GlobalDigisAnalyzer : public edm::EDAnalyzer
   bool printProvenanceInfo;
 
   DQMStore *dbe;
-  std::string outputfile;
-  bool doOutput;
 
   // Electromagnetic info
   // ECal info
