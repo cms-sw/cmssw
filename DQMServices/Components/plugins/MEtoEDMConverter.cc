@@ -3,8 +3,8 @@
  *  
  *  See header file for description of class
  *
- *  $Date: 2008/03/10 22:25:48 $
- *  $Revision: 1.6 $
+ *  $Date: 2008/03/13 21:15:07 $
+ *  $Revision: 1.7 $
  *  \author M. Strang SUNY-Buffalo
  */
 
@@ -49,6 +49,34 @@ MEtoEDMConverter::MEtoEDMConverter(const edm::ParameterSet & iPSet) :
       dbe->setVerbose(0);
     }
   }
+    
+  // create persistent objects
+  produces<MEtoEDM<TH1F>, edm::InRun>(fName);
+  produces<MEtoEDM<TH2F>, edm::InRun>(fName);
+  produces<MEtoEDM<TH3F>, edm::InRun>(fName);
+  produces<MEtoEDM<TProfile>, edm::InRun>(fName);
+  produces<MEtoEDM<TProfile2D>, edm::InRun>(fName);
+  produces<MEtoEDM<double>, edm::InRun>(fName);
+  produces<MEtoEDM<int>, edm::InRun>(fName);
+  produces<MEtoEDM<TString>, edm::InRun>(fName);
+
+  firstevent = true;
+
+} // end constructor
+
+MEtoEDMConverter::~MEtoEDMConverter() 
+{
+} // end destructor
+
+void
+MEtoEDMConverter::beginJob(const edm::EventSetup& iSetup)
+{
+}
+
+void
+MEtoEDMConverter::endJob(void)
+{
+  std::string MsgLoggerCat = "MEtoEDMConverter_endJob";
 
   // information flags
   std::map<std::string,int> packages; // keep track just of package names
@@ -60,6 +88,8 @@ MEtoEDMConverter::MEtoEDMConverter(const edm::ParameterSet & iPSet) :
   unsigned nFloat = 0;
   unsigned nInt = 0;
   unsigned nString = 0;
+
+  if (verbosity > 1) std::cout << std::endl << "Summary :" << std::endl;
 
   // get contents out of DQM
   std::vector<MonitorElement *>::iterator mmi, mme;
@@ -150,45 +180,13 @@ MEtoEDMConverter::MEtoEDMConverter(const edm::ParameterSet & iPSet) :
     std::cout << "We have " << nInt << " Int objects" << std::endl;
     std::cout << "We have " << nString << " String objects" << std::endl;
   }
-      
-  // create persistent objects
-  if (nTH1F)
-    produces<MEtoEDM<TH1F>, edm::InRun>(fName);
-  if (nTH2F)
-    produces<MEtoEDM<TH2F>, edm::InRun>(fName);
-  if (nTH3F)
-    produces<MEtoEDM<TH3F>, edm::InRun>(fName);
-  if (nTProfile)
-    produces<MEtoEDM<TProfile>, edm::InRun>(fName);
-  if (nTProfile2D)
-    produces<MEtoEDM<TProfile2D>, edm::InRun>(fName);
-  if (nFloat)
-    produces<MEtoEDM<double>, edm::InRun>(fName);
-  if (nInt)
-    produces<MEtoEDM<int>, edm::InRun>(fName);
-  if (nString)
-    produces<MEtoEDM<TString>, edm::InRun>(fName);
 
-  firstevent = true;
+  if (verbosity > 1) std::cout << std::endl;
 
-} // end constructor
-
-MEtoEDMConverter::~MEtoEDMConverter() 
-{
-} // end destructor
-
-void
-MEtoEDMConverter::beginJob(const edm::EventSetup& iSetup)
-{
-}
-
-void
-MEtoEDMConverter::endJob(void)
-{
-  std::string MsgLoggerCat = "MEtoEDMConverter_endJob";
   if (verbosity >= 0)
     edm::LogInfo(MsgLoggerCat) 
       << "Terminating having processed " << count.size() << " runs.";
+
   return;
 }
 
@@ -286,20 +284,11 @@ MEtoEDMConverter::endRun(edm::Run& iRun, const edm::EventSetup& iSetup)
   std::vector<MonitorElement *> items(dbe->getAllContents(""));
   for (mmi = items.begin (), mme = items.end (); mmi != mme; ++mmi) {
     MonitorElement *me = *mmi;
-    TObject *tobj = me->getRootObject();
-
-    // already extracted full path name in constructor
-    if (verbosity > 1) std::cout << "name: " << me->getFullname() << std::endl;
 
     // get monitor elements
-    if (verbosity > 1) std::cout << "MEobject:" << std::endl;
     switch (me->kind())
     {
     case MonitorElement::DQM_KIND_INT:
-      if (verbosity > 1)
-	std::cout << "   scalar: " << tobj->GetName() << ": Int\n";
-      if (verbosity > 1)
-	std::cout << "      value: " << me->getIntValue() << std::endl;
       IntME.object.push_back(me->getIntValue());
       IntME.name.push_back(me->getFullname());
       IntME.tags.push_back(me->getTags());
@@ -309,10 +298,6 @@ MEtoEDMConverter::endRun(edm::Run& iRun, const edm::EventSetup& iSetup)
       break;
 
     case MonitorElement::DQM_KIND_REAL:
-      if (verbosity > 1)
-	std::cout << "   scalar: " << tobj->GetName() << ": Float\n";
-      if (verbosity > 1)
-	std::cout << "      value: " << me->getFloatValue() << std::endl;
       FloatME.object.push_back(me->getFloatValue());
       FloatME.name.push_back(me->getFullname());
       FloatME.tags.push_back(me->getTags());
@@ -322,10 +307,6 @@ MEtoEDMConverter::endRun(edm::Run& iRun, const edm::EventSetup& iSetup)
       break;
 
     case MonitorElement::DQM_KIND_STRING:
-      if (verbosity > 1)
-	std::cout << "   scalar: " << tobj->GetName() << ": String\n";
-      if (verbosity > 1)
-	std::cout << "      value: " << me->getStringValue() << std::endl;
       StringME.object.push_back(me->getStringValue());
       StringME.name.push_back(me->getFullname());
       StringME.tags.push_back(me->getTags());
@@ -335,8 +316,6 @@ MEtoEDMConverter::endRun(edm::Run& iRun, const edm::EventSetup& iSetup)
       break;
 
     case MonitorElement::DQM_KIND_TH1F:
-      if (verbosity > 1)
-	std::cout << "   normal: " << tobj->GetName() << ": TH1F\n";
       TH1FME.object.push_back(*me->getTH1F());
       TH1FME.name.push_back(me->getFullname());
       TH1FME.tags.push_back(me->getTags());
@@ -346,8 +325,6 @@ MEtoEDMConverter::endRun(edm::Run& iRun, const edm::EventSetup& iSetup)
       break;
 
     case MonitorElement::DQM_KIND_TH2F:
-      if (verbosity > 1)
-	std::cout << "   normal: " << tobj->GetName() << ": TH2F\n";
       TH2FME.object.push_back(*me->getTH2F());
       TH2FME.name.push_back(me->getFullname());
       TH2FME.tags.push_back(me->getTags());
@@ -357,8 +334,6 @@ MEtoEDMConverter::endRun(edm::Run& iRun, const edm::EventSetup& iSetup)
       break;
 
     case MonitorElement::DQM_KIND_TH3F:
-      if (verbosity > 1)
-	std::cout << "   normal: " << tobj->GetName() << ": TH3F\n";
       TH3FME.object.push_back(*me->getTH3F());
       TH3FME.name.push_back(me->getFullname());
       TH3FME.tags.push_back(me->getTags());
@@ -368,8 +343,6 @@ MEtoEDMConverter::endRun(edm::Run& iRun, const edm::EventSetup& iSetup)
       break;
 
     case MonitorElement::DQM_KIND_TPROFILE:
-      if (verbosity > 1)
-	std::cout << "   normal: " << tobj->GetName() << ": TProfile\n";
       TProfileME.object.push_back(*me->getTProfile());
       TProfileME.name.push_back(me->getFullname());
       TProfileME.tags.push_back(me->getTags());
@@ -379,8 +352,6 @@ MEtoEDMConverter::endRun(edm::Run& iRun, const edm::EventSetup& iSetup)
       break;
 
     case MonitorElement::DQM_KIND_TPROFILE2D:
-      if (verbosity > 1)
-	std::cout << "   normal: " << tobj->GetName() << ": TProfile2D\n";
       TProfile2DME.object.push_back(*me->getTProfile2D());
       TProfile2DME.name.push_back(me->getFullname());
       TProfile2DME.tags.push_back(me->getTags());

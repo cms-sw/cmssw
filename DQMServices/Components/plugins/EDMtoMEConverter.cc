@@ -2,8 +2,8 @@
  *  
  *  See header file for description of class
  *
- *  $Date: 2008/03/10 22:25:47 $
- *  $Revision: 1.6 $
+ *  $Date: 2008/03/26 22:11:30 $
+ *  $Revision: 1.7 $
  *  \author M. Strang SUNY-Buffalo
  */
 
@@ -144,7 +144,8 @@ void EDMtoMEConverter::endRun(const edm::Run& iRun,
 	std::string pathname = metoedmobject[i].name;
 	if (verbosity) std::cout << pathname << std::endl;
 
-        std::string release = metoedmobject[i].release.substr(1,metoedmobject[i].release.size()-2);
+        std::string release = 
+	  metoedmobject[i].release.substr(1,metoedmobject[i].release.size()-2);
 	std::string dir(release + "/" + dataset + "/");
 	
 	// deconstruct path from fullpath
@@ -167,16 +168,6 @@ void EDMtoMEConverter::endRun(const edm::Run& iRun,
 	for (unsigned int j = 0; j < tags.size(); ++j) {
 	  dbe->tag(me1[i]->getFullname(),tags[j]);
 	}
-
-	/*
-	if (i == 0) {
-	  std::cout << "Release is " << metoedmobject[i].release << std::endl;
-	  std::cout << "Run is " << metoedmobject[i].run << std::endl;
-	  std::cout << "DataTier is " << metoedmobject[i].datatier 
-		    << std::endl;
-	}
-	*/
-
       } // end loop thorugh metoedmobject
     } // end TH1F creation
     
@@ -204,7 +195,8 @@ void EDMtoMEConverter::endRun(const edm::Run& iRun,
 	std::string pathname = metoedmobject[i].name;
 	if (verbosity) std::cout << pathname << std::endl;
 
-        std::string release = metoedmobject[i].release.substr(1,metoedmobject[i].release.size()-2);
+        std::string release = 
+	  metoedmobject[i].release.substr(1,metoedmobject[i].release.size()-2);
         std::string dir(release + "/" + dataset + "/");
 	
 	// deconstruct path from fullpath
@@ -256,7 +248,8 @@ void EDMtoMEConverter::endRun(const edm::Run& iRun,
 	std::string pathname = metoedmobject[i].name;
 	if (verbosity) std::cout << pathname << std::endl;
 	
-        std::string release = metoedmobject[i].release.substr(1,metoedmobject[i].release.size()-2);
+        std::string release = 
+	  metoedmobject[i].release.substr(1,metoedmobject[i].release.size()-2);
         std::string dir(release + "/" + dataset + "/");
 	
 	// deconstruct path from fullpath
@@ -306,7 +299,8 @@ void EDMtoMEConverter::endRun(const edm::Run& iRun,
 	std::string pathname = metoedmobject[i].name;
 	if (verbosity) std::cout << pathname << std::endl;
 	
-        std::string release = metoedmobject[i].release.substr(1,metoedmobject[i].release.size()-2);
+        std::string release = 
+	  metoedmobject[i].release.substr(1,metoedmobject[i].release.size()-2);
         std::string dir(release + "/" + dataset + "/");
 	
 	// deconstruct path from fullpath
@@ -356,7 +350,8 @@ void EDMtoMEConverter::endRun(const edm::Run& iRun,
 	std::string pathname = metoedmobject[i].name;
 	if (verbosity) std::cout << pathname << std::endl;
 
-        std::string release = metoedmobject[i].release.substr(1,metoedmobject[i].release.size()-2);	
+        std::string release = 
+	  metoedmobject[i].release.substr(1,metoedmobject[i].release.size()-2);
         std::string dir(release + "/" + dataset + "/");
 	
 	// deconstruct path from fullpath
@@ -406,7 +401,8 @@ void EDMtoMEConverter::endRun(const edm::Run& iRun,
 	std::string pathname = metoedmobject[i].name;
 	if (verbosity) std::cout << pathname << std::endl;
 
-        std::string release = metoedmobject[i].release.substr(1,metoedmobject[i].release.size()-2);	
+        std::string release = 
+	  metoedmobject[i].release.substr(1,metoedmobject[i].release.size()-2);
         std::string dir(release + "/" + dataset + "/");
 
 	std::string name;
@@ -461,7 +457,8 @@ void EDMtoMEConverter::endRun(const edm::Run& iRun,
 	std::string pathname = metoedmobject[i].name;
 	if (verbosity) std::cout << pathname << std::endl;
 
-        std::string release = metoedmobject[i].release.substr(1,metoedmobject[i].release.size()-2);	
+        std::string release = 
+	  metoedmobject[i].release.substr(1,metoedmobject[i].release.size()-2);
         std::string dir(release + "/" + dataset + "/");
 
 	std::string name;
@@ -514,7 +511,8 @@ void EDMtoMEConverter::endRun(const edm::Run& iRun,
 	std::string pathname = metoedmobject[i].name;
 	if (verbosity) std::cout << pathname << std::endl;
 	
-        std::string release = metoedmobject[i].release.substr(1,metoedmobject[i].release.size()-2);
+        std::string release = 
+	  metoedmobject[i].release.substr(1,metoedmobject[i].release.size()-2);
         std::string dir(release + "/" + dataset + "/");
 
 	std::string name;

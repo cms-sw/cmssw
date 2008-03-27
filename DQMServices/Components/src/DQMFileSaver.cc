@@ -1,9 +1,9 @@
 /*
  * \file DQMFileSaver.cc
  * 
- * $Date: 2008/03/14 14:34:05 $
- * $Revision: 1.9 $
- * $Author: ameyer $
+ * $Date: 2008/03/26 22:11:31 $
+ * $Revision: 1.10 $
+ * $Author: strang $
  * \author A. Meyer, DESY
  *
  */
@@ -204,7 +204,7 @@ void DQMFileSaver::endJob() {
      dbe_->cd(release);
      // Get dataset as the first subdirectory in the release 
      string dataset = lat::StringOps::split(dbe_->getSubdirs()[0],"/")[1];
-     string outFile = dirName_+"/DQM__"+release+"__"+dataset+".root";
+     string outFile = dirName_+"/DQM-"+release+"-"+dataset+".root";
      dbe_->save(outFile);
    }      
 }
