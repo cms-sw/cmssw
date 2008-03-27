@@ -109,6 +109,9 @@ HIPAlignmentAlgorithm::initialize( const edm::EventSetup& setup,
   // get alignables
   theAlignables = theAlignmentParameterStore->alignables();
 
+  // clear theAPEParameters, if necessary
+  theAPEParameters.clear();
+
   // get APE parameters
   AlignmentParameterSelector selector(tracker, muon);
   for (std::vector<edm::ParameterSet>::const_iterator setiter = theAPEParameterSet.begin();  setiter != theAPEParameterSet.end();  ++setiter) {
@@ -146,7 +149,7 @@ HIPAlignmentAlgorithm::initialize( const edm::EventSetup& setup,
 	throw cms::Exception("BadConfig") << "APE function must be \"linear\" or \"exponential\"." << std::endl;
      }
 
-     theAPEParameters[alignables] = apeSPar;
+     theAPEParameters.push_back(std::pair<std::vector<Alignable*>, std::vector<double> >(alignables, apeSPar));
   }
 }
 
@@ -574,7 +577,7 @@ void HIPAlignmentAlgorithm::setAlignmentPositionError(void)
   edm::LogWarning("Alignment") <<"[HIPAlignmentAlgorithm::setAlignmentPositionError] Apply APE!";
 
   double apeSPar[3], apeRPar[3];
-  for (std::map<std::vector<Alignable*>, std::vector<double> >::const_iterator alipars = theAPEParameters.begin();
+  for (std::vector<std::pair<std::vector<Alignable*>, std::vector<double> > >::const_iterator alipars = theAPEParameters.begin();
        alipars != theAPEParameters.end();
        ++alipars) {
      const std::vector<Alignable*> &alignables = alipars->first;
