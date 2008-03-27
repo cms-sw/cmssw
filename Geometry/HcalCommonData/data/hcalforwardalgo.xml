@@ -38,7 +38,7 @@
  </LogicalPart>
  <LogicalPart name="HVQX" category="unspecified">
   <rSolid name="HVQX"/>
-  <rMaterial name="materials:Iron"/>
+  <rMaterial name="hcalforwardmaterial:HFAbsorber"/>
  </LogicalPart>
 </LogicalPartSection>
 

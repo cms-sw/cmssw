@@ -9,7 +9,8 @@
     <MaterialFraction fraction="0.53251897">
       <rMaterial name="materials:Oxygen"/>
     </MaterialFraction>
-  </CompositeMaterial>
+   </CompositeMaterial>
+
    <CompositeMaterial name="Plastic" density="1.050*g/cm3" symbol=" " method="mixture by weight">
     <MaterialFraction fraction="0.91512109">
       <rMaterial name="materials:Carbon"/>
@@ -17,7 +18,13 @@
     <MaterialFraction fraction="0.084878906">
       <rMaterial name="materials:Hydrogen"/>
     </MaterialFraction>
-  </CompositeMaterial>
+   </CompositeMaterial>
+
+   <CompositeMaterial name="HFAbsorber" density="7.87*g/cm3" symbol=" " method="mixture by weight">
+    <MaterialFraction fraction="1.0">
+      <rMaterial name="materials:Iron"/>
+    </MaterialFraction>
+   </CompositeMaterial>
  </MaterialSection>
  
 </DDDefinition>
