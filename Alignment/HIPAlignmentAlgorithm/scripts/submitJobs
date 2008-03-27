@@ -2,7 +2,7 @@
 
 set iter = $1
 set odir = $2
-set jobs = `ls -d $odir/job* | wc -l`
+set jobs = `ls -d $odir/job*/ | wc -l`
 
 ## Submit jobs and iterate
 
@@ -11,33 +11,46 @@ set jobs = `ls -d $odir/job* | wc -l`
 echo "Starting iteration = $i, number of jobs = $jobs\n"
 
 while ($i < $iter)
-    @ i++
+  @ i++
 
-    if ($jobs > 0) then
-	@ j = 0 # job index
+  if ($jobs > 0) then
+    @ j = 0 # job index
 
-	while ($j < $jobs)
-	    @ j++
+    while ($j < $jobs)
+      @ j++
 
-      rm $odir/job$j/*.root
-	    cp $odir/main/IOIteration.root        $odir/job$j
-	    cp $odir/main/IOAlignedPositions.root $odir/job$j
-	end
+      cp $odir/main/IOIteration.root        $odir/job$j
+      cp $odir/main/IOAlignedPositions.root $odir/job$j
+    end
 
-	bsub -q dedicated -R cmscaf -C 0 -B -N -J "align[1-$jobs]" \
-	     -o $odir/job%I/align$i cmsRun $PWD/$odir/job\$LSB_JOBINDEX/align.cfg
+    bsub -q cmscaf -C 0 -J $odir/align$i\[1-$jobs\] \
+         -o $odir/job%I/align$i cmsRun $PWD/$odir/job\$LSB_JOBINDEX/align.cfg
 
-	sleep 5
-	set id = `bjobs | tail -n1 | awk '{print $1}'`
+    sleep 5
+    set id = `bjobs -J $odir/align$i | tail -n1 | awk '{print $1}'`
 
-	bsub -q dedicated -R cmscaf -C 0 -B -N -J collect$i -K -w "done($id)" \
-	     -o $odir/main/collect$i cmsRun $PWD/$odir/main/collect.cfg
-    else
-	bsub -q dedicated -R cmscaf -C 0 -B -N -J collect$i -K \
-	     -o $odir/main/collect$i cmsRun $PWD/$odir/main/collect.cfg
-    endif
+    bsub -q cmscaf -C 0 -B -N -J $odir/collect$i -w "done($id)" \
+         -o $odir/main/collect$i \
+         "cmsRun $PWD/$odir/main/collect.cfg; bkill -J $odir/requeue$i"
 
-    if (`bjobs | grep collect$i | awk '{print $3}'` == "EXIT") break
+## <collect> job will kill <requeue> job.
+## So when <collect> job is done, <requeue> job gets an EXIT status.
+## And we can stop requeuing failed <align> jobs.
+
+    while (`bjobs -d -J $odir/requeue$i | grep EXIT` == "")
+      bsub -q cmsinter -C 0 -J $odir/requeue$i -w "numexit($id, > 0)" \
+           -I brequeue -e $id
+      sleep 10
+    end
+
+    rm $odir/job*/*.root
+  else
+    bsub -q cmscaf -C 0 -B -N -J $odir/collect$i -K \
+         -o $odir/main/collect$i cmsRun $PWD/$odir/main/collect.cfg
+  endif
+
+  sleep 5
+  if (`bjobs -d -J $odir/collect$i | tail -n1 | grep EXIT` != "") break
 end
 
 # hadd $odir/main/histograms.root $odir/job*/histograms.root >& $odir/main/mergeHist
