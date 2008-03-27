@@ -149,7 +149,7 @@ std::vector<CSCALCTDigi> CSCALCTHeader::ALCTDigis() const
     {
       for (unsigned int i=0; i<alcts.size(); ++i) {///loop over all alct words
 	CSCALCTDigi digi(alcts[i].valid, alcts[i].quality, alcts[i].accel, alcts[i].pattern,
-			 alcts[i].keyWire, (int)i/2, i+1);
+			 alcts[i].keyWire, (int)i/2, i%2+1);
 	digi.setFullBX(BXNCount());
 	result.push_back(digi);
       }
