@@ -16,7 +16,7 @@
 //
 // Original Author:  
 //         Created:  Mon Dec  3 08:34:30 PST 2007
-// $Id: FWDisplayEvent.h,v 1.18 2008/03/14 03:26:18 chrjones Exp $
+// $Id: FWDisplayEvent.h,v 1.19 2008/03/20 09:39:26 dmytro Exp $
 //
 
 // system include files
@@ -54,7 +54,7 @@ class FWDisplayEvent
 
    public:
    FWDisplayEvent(const std::string& iConfigFileName = std::string(),
-                  bool iEnableDebug = false, bool iNewLego = false);
+                  bool iEnableDebug = false, bool iNewLego = true);
       virtual ~FWDisplayEvent();
 
       // ---------- const member functions ---------------------
