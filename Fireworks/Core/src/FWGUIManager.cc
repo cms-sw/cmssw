@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Feb 11 11:06:40 EST 2008
-// $Id: FWGUIManager.cc,v 1.22 2008/03/25 14:10:12 chrjones Exp $
+// $Id: FWGUIManager.cc,v 1.23 2008/03/27 16:43:07 chrjones Exp $
 //
 
 // system include files
@@ -108,6 +108,8 @@ m_detailViewManager(new FWDetailViewManager)
    m_fileMenu->Connect("Activated(Int_t)", "FWGUIManager",
                        this, "handleFileMenu(Int_t)");
 
+   gEve->GetBrowser()->Connect("CloseWindow()", "FWGUIManager",
+                               this, "quit()");
    //should check to see if already has our tab
    {
       browser->StartEmbedding(TRootBrowser::kLeft);
@@ -471,6 +473,13 @@ FWGUIManager::newItem(const FWEventItem* iItem)
    }
 }
 
+void 
+FWGUIManager::quit()
+{
+   goingToQuit_();
+   gApplication->Terminate(0);
+}
+
 
 bool
 FWGUIManager::waitingForUserAction() const
@@ -595,8 +604,7 @@ FWGUIManager::handleFileMenu(Int_t iIndex)
       }
          break;
       case kQuit:
-         goingToQuit_();
-         gApplication->Terminate(0);
+         quit();
    }
 }
 
