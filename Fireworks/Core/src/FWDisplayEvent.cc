@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Mon Dec  3 08:38:38 PST 2007
-// $Id: FWDisplayEvent.cc,v 1.37 2008/03/20 09:39:26 dmytro Exp $
+// $Id: FWDisplayEvent.cc,v 1.38 2008/03/20 20:17:09 chrjones Exp $
 //
 
 // system include files
@@ -111,6 +111,7 @@ FWDisplayEvent::FWDisplayEvent(const std::string& iConfigFileName,
   m_viewManager->add( boost::shared_ptr<FWViewManagerBase>( new FW3DLegoViewManager(m_guiManager.get())));
    
   if(iConfigFileName.empty() ) {
+     std::cout << "WARNING: no configuration is loaded." << std::endl;
     m_guiManager->createView("Rho Phi");
     m_guiManager->createView("Rho Z");
     if ( iNewLego )

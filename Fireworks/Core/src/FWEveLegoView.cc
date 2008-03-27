@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Feb 21 11:22:41 EST 2008
-// $Id: FWEveLegoView.cc,v 1.2 2008/03/20 09:39:26 dmytro Exp $
+// $Id: FWEveLegoView.cc,v 1.3 2008/03/21 03:58:54 dmytro Exp $
 //
 
 // system include files
@@ -17,6 +17,7 @@
 #include <boost/shared_ptr.hpp>
 #include <boost/numeric/conversion/converter.hpp>
 #include <iostream>
+#include <sstream>
 
 #include "TRootEmbeddedCanvas.h"
 #include "THStack.h"
@@ -34,9 +35,10 @@
 #include "TEveCalo.h"
 #include "TEveElement.h"
 #include "TEveRGBAPalette.h"
-
+#include "TGLPerspectiveCamera.h"
 // user include files
 #include "Fireworks/Core/interface/FWEveLegoView.h"
+#include "Fireworks/Core/interface/FWConfiguration.h"
 
 
 //
@@ -51,7 +53,9 @@
 // constructors and destructor
 //
 FWEveLegoView::FWEveLegoView(TGFrame* iParent, TEveElementList* list):
- m_range(this,"energy threshold (%)",0.,0.,100.)
+ m_range(this,"energy threshold (%)",0.,0.,100.),
+ m_cameraMatrix(0),
+ m_cameraMatrixBase(0)
 {
    m_pad = new TEvePad;
    TGLEmbeddedViewer* ev = new TGLEmbeddedViewer(iParent, m_pad);
@@ -61,10 +65,14 @@ FWEveLegoView::FWEveLegoView(TGFrame* iParent, TEveElementList* list):
    nv->IncDenyDestroy();
    // ev->SetCurrentCamera(TGLViewer::kCameraOrthoXOY);
    ev->SetCurrentCamera(TGLViewer::kCameraPerspXOY);
+   m_cameraMatrix = const_cast<TGLMatrix*>(&(ev->CurrentCamera().GetCamTrans()));
+   m_cameraMatrixBase = const_cast<TGLMatrix*>(&(ev->CurrentCamera().GetCamBase()));
+
    TEveScene* ns = gEve->SpawnNewScene(staticTypeName().c_str());
    m_scene = ns;
    nv->AddScene(ns);
    m_viewer=nv;
+   gEve->AddElement(nv, gEve->GetViewers());
    
    TEveRGBAPalette* pal = new TEveRGBAPalette(0, 100);
    // pal->SetLimits(0, data->GetMaxVal());
@@ -90,15 +98,17 @@ FWEveLegoView::~FWEveLegoView()
 void
 FWEveLegoView::draw(TEveCaloDataHist* data)
 {
-   bool firstTime = (m_lego->GetData() == 0);
+   // bool firstTime = (m_lego->GetData() == 0);
    m_lego->SetData(data);
    m_lego->ElementChanged();
    m_lego->InvalidateCache();
+   /*
    if ( firstTime ) {
       m_scene->Repaint();
       m_viewer->Redraw(kTRUE);
       m_viewer->GetGLViewer()->ResetCurrentCamera();
    }
+   */ 
    m_viewer->GetGLViewer()->RequestDraw();
 }
 
@@ -111,6 +121,40 @@ FWEveLegoView::doMinThreshold(double value)
    m_viewer->GetGLViewer()->RequestDraw();
 }
 
+void 
+FWEveLegoView::setFrom(const FWConfiguration& iFrom)
+{
+   // take care of parameters
+   FWConfigurableParameterizable::setFrom(iFrom);
+   
+   // retrieve camera parameters
+   
+   // transformation matrix
+   assert(m_cameraMatrix);
+   std::string matrixName("cameraMatrix");
+   for ( unsigned int i = 0; i < 16; ++i ){
+      std::ostringstream os;
+      os << i;
+      const FWConfiguration* value = iFrom.valueForKey( matrixName + os.str() + "Lego" );
+      assert( value );
+      std::istringstream s(value->value());
+      s>>((*m_cameraMatrix)[i]);
+   }
+   
+   // transformation matrix base
+   assert(m_cameraMatrixBase);
+   matrixName = "cameraMatrixBase";
+   for ( unsigned int i = 0; i < 16; ++i ){
+      std::ostringstream os;
+      os << i;
+      const FWConfiguration* value = iFrom.valueForKey( matrixName + os.str() + "Lego" );
+      assert( value );
+      std::istringstream s(value->value());
+      s>>((*m_cameraMatrixBase)[i]);
+   }
+
+   m_viewer->GetGLViewer()->RequestDraw();
+}
 
 //
 // const member functions
@@ -126,6 +170,38 @@ FWEveLegoView::typeName() const
 {
    return staticTypeName();
 }
+
+void 
+FWEveLegoView::addTo(FWConfiguration& iTo) const
+{
+   // take care of parameters
+   FWConfigurableParameterizable::addTo(iTo);
+   
+   // store camera parameters
+   
+   // transformation matrix
+   assert(m_cameraMatrix);
+   std::string matrixName("cameraMatrix");
+   for ( unsigned int i = 0; i < 16; ++i ){
+      std::ostringstream osIndex;
+      osIndex << i;
+      std::ostringstream osValue;
+      osValue << (*m_cameraMatrix)[i];
+      iTo.addKeyValue(matrixName+osIndex.str()+"Lego",FWConfiguration(osValue.str()));
+   }
+   
+   // transformation matrix base
+   assert(m_cameraMatrixBase);
+   matrixName = "cameraMatrixBase";
+   for ( unsigned int i = 0; i < 16; ++i ){
+      std::ostringstream osIndex;
+      osIndex << i;
+      std::ostringstream osValue;
+      osValue << (*m_cameraMatrixBase)[i];
+      iTo.addKeyValue(matrixName+osIndex.str()+"Lego",FWConfiguration(osValue.str()));
+   }
+}
+
 
 //
 // static member functions

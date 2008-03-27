@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Feb 21 11:22:37 EST 2008
-// $Id: FWEveLegoView.h,v 1.1.2.2 2008/03/17 02:19:58 dmytro Exp $
+// $Id: FWEveLegoView.h,v 1.2 2008/03/20 09:39:26 dmytro Exp $
 //
 
 // system include files
@@ -36,6 +36,7 @@ class TEvePad;
 class TEveViewer;
 class TEveScene;
 class TEveElementList;
+class TGLMatrix;
 
 class FWEveLegoView : public FWViewBase
 {
@@ -47,12 +48,14 @@ class FWEveLegoView : public FWViewBase
       // ---------- const member functions ---------------------
       TGFrame* frame() const;
       const std::string& typeName() const;
+      virtual void addTo(FWConfiguration&) const;
      
       // ---------- static member functions --------------------
       static const std::string& staticTypeName();
    
       // ---------- member functions ---------------------------
       void draw(TEveCaloDataHist* data);
+      virtual void setFrom(const FWConfiguration&);
    
    private:
       FWEveLegoView(const FWEveLegoView&); // stop default
@@ -70,6 +73,9 @@ class FWEveLegoView : public FWViewBase
       
       // FWLongParameter m_range;
       FWDoubleParameter m_range;
+      
+      TGLMatrix* m_cameraMatrix;
+      TGLMatrix* m_cameraMatrixBase;
 };
 
 
