@@ -192,7 +192,8 @@ void CSCValidation::analyze(const Event & event, const EventSetup& eventSetup){
   for (CSCWireDigiCollection::DigiRangeIterator j=wires->begin(); j!=wires->end(); j++) {
     CSCDetId id = (CSCDetId)(*j).first;
     int kEndcap  = id.endcap();
-    if (kEndcap == 2) kEndcap = -1;
+    int cEndcap  = id.endcap();
+    if (kEndcap == 2) cEndcap = -1;
     int kRing    = id.ring();
     int kStation = id.station();
     int kChamber = id.chamber();
@@ -203,8 +204,8 @@ void CSCValidation::analyze(const Event & event, const EventSetup& eventSetup){
       int myWire = digiItr->getWireGroup();
       int myTBin = digiItr->getTimeBin();
       nWireGroupsTotal++;
-      int kCodeBroad  = kEndcap * ( 4*(kStation-1) + kRing) ;
-      int kCodeNarrow = kEndcap * ( 100*(kRing-1) + kChamber) ;
+      int kCodeBroad  = cEndcap * ( 4*(kStation-1) + kRing) ;
+      int kCodeNarrow = cEndcap * ( 100*(kRing-1) + kChamber) ;
       // fill wire histos
       histos->fillWireHistos(myWire, myTBin, kCodeNarrow, kCodeBroad,
                              kEndcap, kStation, kRing, kChamber, kLayer);
@@ -220,7 +221,8 @@ void CSCValidation::analyze(const Event & event, const EventSetup& eventSetup){
   for (CSCStripDigiCollection::DigiRangeIterator j=strips->begin(); j!=strips->end(); j++) {
     CSCDetId id = (CSCDetId)(*j).first;
     int kEndcap  = id.endcap();
-    if (kEndcap == 2) kEndcap = -1;
+    int cEndcap  = id.endcap();
+    if (kEndcap == 2) cEndcap = -1;
     int kRing    = id.ring();
     int kStation = id.station();
     int kChamber = id.chamber();
@@ -240,8 +242,8 @@ void CSCValidation::analyze(const Event & event, const EventSetup& eventSetup){
       } 
       if (thisStripFired) {
         nStripsFired++;
-        int kCodeBroad  = kEndcap * ( 4*(kStation-1) + kRing) ;
-        int kCodeNarrow = kEndcap * ( 100*(kRing-1) + kChamber) ;
+        int kCodeBroad  = cEndcap * ( 4*(kStation-1) + kRing) ;
+        int kCodeNarrow = cEndcap * ( 100*(kRing-1) + kChamber) ;
         // fill strip histos
         histos->fillStripHistos(myStrip, kCodeNarrow, kCodeBroad,
                                 kEndcap, kStation, kRing, kChamber, kLayer);
@@ -259,7 +261,8 @@ void CSCValidation::analyze(const Event & event, const EventSetup& eventSetup){
   for (CSCStripDigiCollection::DigiRangeIterator j=strips->begin(); j!=strips->end(); j++) {
     CSCDetId id = (CSCDetId)(*j).first;
     int kEndcap  = id.endcap();
-    if (kEndcap == 2) kEndcap = -1;
+    int cEndcap  = id.endcap();
+    if (kEndcap == 2) cEndcap = -1;
     int kRing    = id.ring();
     int kStation = id.station();
     int kChamber = id.chamber();
@@ -279,7 +282,7 @@ void CSCValidation::analyze(const Event & event, const EventSetup& eventSetup){
 	  kRing = 1;
 	  if(myStrip <= 16) myStrip += 64; // no trapping for any bizarreness
 	}
-      int globalStrip = kEndcap*( kStation*1000000 + kRing*100000 + kChamber*1000 + kLayer*100 + myStrip);
+      int globalStrip = cEndcap*( kStation*1000000 + kRing*100000 + kChamber*1000 + kLayer*100 + myStrip);
       if (TotalADC > threshold) { thisStripFired = true;}
       if (!thisStripFired){
 	float ADC = thisSignal - thisPedestal;
@@ -324,7 +327,8 @@ void CSCValidation::analyze(const Event & event, const EventSetup& eventSetup){
     // Find chamber with rechits in CSC 
     CSCDetId idrec = (CSCDetId)(*recIt).cscDetId();
     int kEndcap  = idrec.endcap();
-    if (kEndcap == 2) kEndcap = -1;
+    int cEndcap  = idrec.endcap();
+    if (kEndcap == 2) cEndcap = -1;
     int kRing    = idrec.ring();
     int kStation = idrec.station();
     int kChamber = idrec.chamber();
@@ -413,8 +417,8 @@ void CSCValidation::analyze(const Event & event, const EventSetup& eventSetup){
     histos->fillRechitTree(xreco, yreco, grecx, grecy, kEndcap, kStation, kRing, kChamber, kLayer);
     
     // Simple occupancy variables
-    int kCodeBroad  = kEndcap * ( 4*(kStation-1) + kRing) ;
-    int kCodeNarrow = kEndcap * ( 100*(kRing-1) + kChamber) ;
+    int kCodeBroad  = cEndcap * ( 4*(kStation-1) + kRing) ;
+    int kCodeNarrow = cEndcap * ( 100*(kRing-1) + kChamber) ;
 
     // Fill some histograms
     histos->fillRechitHistos(kCodeNarrow, kCodeBroad, xreco, yreco, grecx, grecy,
@@ -443,7 +447,8 @@ void CSCValidation::analyze(const Event & event, const EventSetup& eventSetup){
     //
     CSCDetId id  = (CSCDetId)(*it).cscDetId();
     int kEndcap  = id.endcap();
-    if (kEndcap == 2) kEndcap = -1;
+    int cEndcap  = id.endcap();
+    if (kEndcap == 2) cEndcap = -1;
     int kRing    = id.ring();
     int kStation = id.station();
     int kChamber = id.chamber();
@@ -529,8 +534,8 @@ void CSCValidation::analyze(const Event & event, const EventSetup& eventSetup){
     }
 
     // Simple occupancy variables
-    int kCodeBroad  = kEndcap * ( 4*(kStation-1) + kRing) ;
-    int kCodeNarrow = kEndcap * ( 100*(kRing-1) + kChamber) ;
+    int kCodeBroad  = cEndcap * ( 4*(kStation-1) + kRing) ;
+    int kCodeNarrow = cEndcap * ( 100*(kRing-1) + kChamber) ;
 
     // Fill segment position branch
     histos->fillSegmentTree(segX, segY, globX, globY, kEndcap, kStation, kRing, kChamber);
