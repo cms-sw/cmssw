@@ -179,33 +179,6 @@ TrajectorySeed MuonSeedCreator::createSeed(int type, SegmentContainer seg, std::
 	mat[4][4]= 2.25*mat[4][4];
      }
   }
-  /*else if ( type==5 ) {
-     // Fill the LocalTrajectoryParameters
-     /// get the Global position
-     last = best_seg;
-     GlobalVector mom = seg[last]->globalPosition()-GlobalPoint();
-     //GlobalVector polar(GlobalVector::Spherical(mom.theta(),seg[last]->globalDirection().phi(),1.));
-     //polar *= fabs(ptmean)/polar.perp();
-     //LocalVector segDirFromPos = seg[last]->det()->toLocal(polar);
-
-     LocalPoint  segLocalPos = seg[last]->localPosition();
-     LocalVector segLocalDir = seg[last]->localDirection();
-     double totalP = fabs( ptmean/sin(mom.theta()) );
-     double QbP = charge / totalP ;
-     double dxdz = segLocalDir.x()/segLocalDir.z();
-     double dydz = segLocalDir.y()/segLocalDir.z();
-     //double dydz = segDirFromPos.y()/segDirFromPos.z();
-     double lx = segLocalPos.x();
-     double ly = segLocalPos.y();
-     double pz_sign =  segLocalDir.z() > 0.0 ? 1.0:-1.0 ;
-     LocalTrajectoryParameters param1(QbP,dxdz,dydz,lx,ly,pz_sign,true);
-     param = param1;
-     p_err =  (sptmean*sptmean)/(totalP*totalP*ptmean*ptmean) ;
-     mat = seg[last]->parametersError().similarityT( seg[last]->projectionMatrix() );
-     mat[0][0]= 4.0*p_err;
-     mat[3][3]= 4.0*mat[3][3];
-     mat[4][4]= 4.0*mat[4][4];
-  }*/
   else {
      // Fill the LocalTrajectoryParameters
      /// get the Global position
@@ -338,7 +311,8 @@ void MuonSeedCreator::estimatePtCSC(SegmentContainer seg, std::vector<int> layer
       if (layer0 == layer1) continue;
       segPos[1] = seg[idx1]->globalPosition();      
       segVec[1] = seg[idx1]->globalDirection();      
-      //eta = fabs(segPos[0].eta());  // Eta is better determined from track closest from IP
+
+      // For the sake for pt estimate, need to know eta from outer segment
       eta = fabs(segPos[1].eta()); 
 
       double dphi = segPos[0].phi() - segPos[1].phi();
@@ -438,47 +412,6 @@ void MuonSeedCreator::estimatePtCSC(SegmentContainer seg, std::vector<int> layer
         ptEstimate.push_back( pt*sign );   
         sptEstimate.push_back( spt );
       }
-
-      /*
-      // Estimate pT with dPhi from segment directions
-      // ME1 is inner-most
-      if ( layer0 == 0 || layer0 == 1 ) {
-        // ME2 is outer-most
-        if ( (layer1 == 2) && (eta < 1.6) ) {
-          pt  = (   2.133 - 3.772*eta - 1.367*eta*eta) / temp_dphiV;
-          spt = (  -6.699 - 9.242*eta - 3.336*eta*eta) * pt;
-        }
-        // ME3 is outer-most
-        if ( (layer1 == 3) && (eta < 1.7) ) {
-          pt  = (   3.647 - 5.912*eta - 1.978*eta*eta) / temp_dphiV; 
-          spt = (  -4.554 + 5.818*eta - 1.973*eta*eta) * pt;
-        }
-
-        if ( (spt/pt) < 0.8  ) {
-           ptEstimate.push_back( pt*sign );
-           sptEstimate.push_back( spt );
-        }
-      }
-
-      // ME2 is inner-most
-      if ( layer0 == 2 ) {
-        // ME3 is outer-most
-        if ( layer1 == 3 ) {
-          pt  = (  1.108 - 1.654*eta + 0.477*eta*eta) / temp_dphi; 
-          spt = ( -4.195 - 4.157*eta - 1.141*eta*eta) * pt;
-        }
-        // ME4 is outer-most
-        else {
-          pt  = ( -0.1076 - 0.481*eta + 0.1803*eta*eta) / temp_dphi;
-          spt = (  5.115  - 5.000*eta + 1.089*eta*eta ) * pt;
-        }
-        if ( (spt/pt) < 0.8  ) {
-           ptEstimate.push_back( pt );   
-           sptEstimate.push_back( spt );
-        }
-      }
-      */
-
     } 
   }
 
@@ -521,13 +454,14 @@ void MuonSeedCreator::estimatePtDT(SegmentContainer seg, std::vector<int> layers
   for ( unsigned idx0 = 0; idx0 < size-1; ++idx0 ) {
     layer0 = layers[idx0];
     segPos[0]  = seg[idx0]->globalPosition();
+
     // outer-most layer
     for ( unsigned idx1 = idx0+1; idx1 < size; ++idx1 ) {
-
       int layer1 = layers[idx1];
       segPos[1] = seg[idx1]->globalPosition();      
- 
-      eta = fabs(segPos[0].eta());  // Eta is better determined from track closest from IP
+
+      // For the sake for pt estimate, need to know eta from outer segment
+      eta = fabs(segPos[1].eta());  
 
       double dphi = segPos[0].phi() - segPos[1].phi();
       double temp_dphi = dphi;
