@@ -1,5 +1,5 @@
 #!/usr/bin/env perl
-# $Id: valgrindMemcheckParser.pl,v 1.4 2007/11/29 13:33:26 elmer Exp $
+# $Id: valgrindMemcheckParser.pl,v 1.5 2008/03/27 11:19:58 gpetrucc Exp $
 # Created: June 2007
 # Author: Giovanni Petrucciani, INFN Pisa
 #
@@ -24,6 +24,7 @@ my %presets = (
                  qw(Streamer python static MessageLogger ServiceRegistry) ],
     'prod' => [ '::produce\(\s*edm::Event\s*&' ],
     'prod1' => [ '::produce\(\s*\w+(?:\s+const)?\s*&\w*\s*\)' ],
+    'prod1+' => [ '::produce\(\s*\w+(?:\s+const)?\s*&\w*\s*\)', 'edm::eventsetup::DataProxyTemplate<' ],
 );
 my $preset_names = join(', ', sort(keys(%presets)));
 
