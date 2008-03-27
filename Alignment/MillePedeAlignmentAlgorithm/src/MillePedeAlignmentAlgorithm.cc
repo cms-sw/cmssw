@@ -3,8 +3,8 @@
  *
  *  \author    : Gero Flucke
  *  date       : October 2006
- *  $Revision: 1.34 $
- *  $Date: 2008/03/15 01:01:42 $
+ *  $Revision: 1.35 $
+ *  $Date: 2008/03/25 16:15:57 $
  *  (last update by $Author: flucke $)
  */
 
@@ -221,6 +221,7 @@ void MillePedeAlignmentAlgorithm::run(const edm::EventSetup &setup,
        iRefTraj != iRefTrajE; ++iRefTraj) {
 
     RefTrajColl::value_type refTrajPtr = *iRefTraj; 
+    if (theMonitor) theMonitor->fillRefTrajectory(refTrajPtr);
     if (!refTrajPtr->isValid()) continue; // currently e.g. if any invalid hit (FIXME for cosmic?)
     
     if (canUseTrack) {
