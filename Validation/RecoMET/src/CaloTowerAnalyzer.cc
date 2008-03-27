@@ -70,8 +70,7 @@ void CaloTowerAnalyzer::beginJob(const edm::EventSetup& iSetup)
   dbe_ = edm::Service<DQMStore>().operator->();
 
   if (dbe_) {
-
-    dbe_->setCurrentFolder("RecoMETV/METTask/CT/geometry");
+    dbe_->setCurrentFolder("RecoMETV/METTask/CaloTowers/geometry");
 
     me["hCT_ieta_iphi_etaMap"]      = dbe_->book2D("METTask_CT_ieta_iphi_etaMap","",83,-41,42, 72,1,73);
     me["hCT_ieta_iphi_phiMap"]      = dbe_->book2D("METTask_CT_ieta_iphi_phiMap","",83,-41,42, 72,1,73);
@@ -87,12 +86,24 @@ void CaloTowerAnalyzer::beginJob(const edm::EventSetup& iSetup)
         me["hCT_ieta_iphi_phiMap"]->setBinContent(i,j,-999);
       }
     }
-
-    dbe_->setCurrentFolder("RecoMETV/METTask/CT/data");
+    TString dirName = "RecoMETV/METTask/CaloTowers/";
+    TString label(caloTowersLabel_.label());  
+    dirName += label;   
+    dbe_->setCurrentFolder((string)dirName); 
+    
     //--Store number of events used
     me["hCT_Nevents"]          = dbe_->book1D("METTask_CT_Nevents","",1,0,1);  
     //--Data integrated over all events and stored by CaloTower(ieta,iphi) 
     me["hCT_et_ieta_iphi"]          = dbe_->book2D("METTask_CT_et_ieta_iphi","",83,-41,42, 72,1,73);  
+    me["hCT_Minet_ieta_iphi"]          = dbe_->book2D("METTask_CT_Minet_ieta_iphi","",83,-41,42, 72,1,73);  
+    me["hCT_Maxet_ieta_iphi"]          = dbe_->book2D("METTask_CT_Maxet_ieta_iphi","",83,-41,42, 72,1,73);  
+    for (int i = 1; i<=83; i++)
+      for (int j = 1; j<=73; j++)
+	{
+	  me["hCT_Minet_ieta_iphi"]->setBinContent(i,j,14E3);
+	  me["hCT_Maxet_ieta_iphi"]->setBinContent(i,j,-999);
+	}
+
     me["hCT_emEt_ieta_iphi"]        = dbe_->book2D("METTask_CT_emEt_ieta_iphi","",83,-41,42, 72,1,73);  
     me["hCT_hadEt_ieta_iphi"]       = dbe_->book2D("METTask_CT_hadEt_ieta_iphi","",83,-41,42, 72,1,73);  
     me["hCT_energy_ieta_iphi"]      = dbe_->book2D("METTask_CT_energy_ieta_iphi","",83,-41,42, 72,1,73);  
@@ -103,6 +114,8 @@ void CaloTowerAnalyzer::beginJob(const edm::EventSetup& iSetup)
     //--Data over eta-rings
     // CaloTower values
     me["hCT_etvsieta"]          = dbe_->book2D("METTask_CT_etvsieta","", 83,-41,42, 10001,0,1001);  
+    me["hCT_Minetvsieta"]          = dbe_->book2D("METTask_CT_Minetvsieta","", 83,-41,42, 10001,0,1001);  
+    me["hCT_Maxetvsieta"]          = dbe_->book2D("METTask_CT_Maxetvsieta","", 83,-41,42, 10001,0,1001);  
     me["hCT_emEtvsieta"]        = dbe_->book2D("METTask_CT_emEtvsieta","",83,-41,42, 10001,0,1001);  
     me["hCT_hadEtvsieta"]       = dbe_->book2D("METTask_CT_hadEtvsieta","",83,-41,42, 10001,0,1001);  
     me["hCT_energyvsieta"]      = dbe_->book2D("METTask_CT_energyvsieta","",83,-41,42, 10001,0,1001);  
@@ -244,11 +257,15 @@ void CaloTowerAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup&
   int ActiveRing[83];
   int NActiveTowers[83];
   double SET_EtaRing[83];
+  double MinEt_EtaRing[83];
+  double MaxEt_EtaRing[83];
   for (int i=0;i<83; i++) 
     {
       ActiveRing[i] = 0;
       NActiveTowers[i] = 0;
       SET_EtaRing[i] = 0;
+      MinEt_EtaRing[i] = 0;
+      MaxEt_EtaRing[i] = 0;
     }
 
   for (calotower = towerCollection->begin(); calotower != towerCollection->end(); calotower++) {
@@ -294,32 +311,44 @@ void CaloTowerAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup&
     me["hCT_hadEnergyvsieta"]->Fill(Tower_ieta ,Tower_HadEnergy);
     me["hCT_emEnergyvsieta"]->Fill(Tower_ieta,Tower_EMEnergy);
 
+    if (Tower_ET > MaxEt_EtaRing[EtaRing])
+      MaxEt_EtaRing[EtaRing] = Tower_ET;
+    if (Tower_ET < MinEt_EtaRing[EtaRing] && Tower_ET>0)
+      MinEt_EtaRing[EtaRing] = Tower_ET;
+
+
     if (Tower_ieta < CTmin_ieta) CTmin_ieta = Tower_ieta;
     if (Tower_ieta > CTmax_ieta) CTmax_ieta = Tower_ieta;
     if (Tower_iphi < CTmin_iphi) CTmin_iphi = Tower_iphi;
     if (Tower_iphi > CTmax_iphi) CTmax_iphi = Tower_iphi;
-
+    
+    
+    
   } // end loop over towers
-
+  
   // Fill eta-ring MET quantities
   for (int iEtaRing=0; iEtaRing<83; iEtaRing++)
-    if (ActiveRing[iEtaRing])
-      {
-	if (vMET_EtaRing[iEtaRing].Pt()>METRingMin)
-	  {
-	    me["hCT_METPhivsieta"]->Fill(iEtaRing-41, vMET_EtaRing[iEtaRing].Phi());
-	    me["hCT_MExvsieta"]->Fill(iEtaRing-41, vMET_EtaRing[iEtaRing].Px());
-	    me["hCT_MEyvsieta"]->Fill(iEtaRing-41, vMET_EtaRing[iEtaRing].Py());
-	    me["hCT_METvsieta"]->Fill(iEtaRing-41, vMET_EtaRing[iEtaRing].Pt());
-	  }
-        me["hCT_SETvsieta"]->Fill(iEtaRing-41, SET_EtaRing[iEtaRing]);
-	me["hCT_Occvsieta"]->Fill(iEtaRing-41, NActiveTowers[iEtaRing]);
-      }
-
-
+    { 
+      me["hCT_Minetvsieta"]->Fill(iEtaRing-41, MinEt_EtaRing[iEtaRing]);  
+      me["hCT_Maxetvsieta"]->Fill(iEtaRing-41, MaxEt_EtaRing[iEtaRing]);  
+      
+      if (ActiveRing[iEtaRing])
+	{
+	  if (vMET_EtaRing[iEtaRing].Pt()>METRingMin)
+	    {
+	      me["hCT_METPhivsieta"]->Fill(iEtaRing-41, vMET_EtaRing[iEtaRing].Phi());
+	      me["hCT_MExvsieta"]->Fill(iEtaRing-41, vMET_EtaRing[iEtaRing].Px());
+	      me["hCT_MEyvsieta"]->Fill(iEtaRing-41, vMET_EtaRing[iEtaRing].Py());
+	      me["hCT_METvsieta"]->Fill(iEtaRing-41, vMET_EtaRing[iEtaRing].Pt());
+	    }
+	  me["hCT_SETvsieta"]->Fill(iEtaRing-41, SET_EtaRing[iEtaRing]);
+	  me["hCT_Occvsieta"]->Fill(iEtaRing-41, NActiveTowers[iEtaRing]);
+	}
+    }
+  
   edm::LogInfo("OutputInfo") << "CT ieta range: " << CTmin_ieta << " " << CTmax_ieta;
   edm::LogInfo("OutputInfo") << "CT iphi range: " << CTmin_iphi << " " << CTmax_iphi;
-
+  
 }
 
 

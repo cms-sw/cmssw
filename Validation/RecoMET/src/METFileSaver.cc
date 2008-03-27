@@ -39,6 +39,7 @@ void METFileSaver::beginJob(const edm::EventSetup& iSetup)
 {
   // get ahold of back-end interface
   dbe_ = edm::Service<DQMStore>().operator->();
+
 }
 
 void METFileSaver::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)

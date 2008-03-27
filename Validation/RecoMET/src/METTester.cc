@@ -63,7 +63,7 @@ void METTester::beginJob(const edm::EventSetup& iSetup)
   dbe_ = edm::Service<DQMStore>().operator->();
   
   if (dbe_) {
-    TString dirName = "RecoMETV/METTask/";
+    TString dirName = "RecoMETV/METTask/MET/";
     TString label(inputMETLabel_.label());
     dirName += label;
     dbe_->setCurrentFolder((string)dirName);
