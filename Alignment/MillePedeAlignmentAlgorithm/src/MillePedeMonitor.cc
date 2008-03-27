@@ -3,9 +3,9 @@
  *
  *  \author    : Gero Flucke
  *  date       : October 2006
- *  $Revision: 1.13 $
- *  $Date: 2008/02/20 18:30:59 $
- *  (last update by $Author: mstoye $)
+ *  $Revision: 1.14 $
+ *  $Date: 2008/03/25 16:15:57 $
+ *  (last update by $Author: flucke $)
  */
 
 #include "DataFormats/GeometrySurface/interface/Surface.h" 
@@ -65,9 +65,6 @@ bool MillePedeMonitor::init(TDirectory *directory)
 {
   if (!directory) return false;
   TDirectory *oldDir = gDirectory;
-//   directory->cd();
-  TDirectory *dirTracks = directory->mkdir("trackHists", "input tracks");
-  if (dirTracks) dirTracks->cd(); // else...
 
   const int kNumBins = 20;
   double binsPt[kNumBins+1] = {0.}; // fully initialised with 0.
@@ -113,23 +110,23 @@ bool MillePedeMonitor::init(TDirectory *directory)
 				    40, -282., +282., 40, -115., +115.));
   myTrackHists2D.push_back(new TH2F("xy1Track", "xy(1st hit);x [cm]; y [cm]",
 				    40, -115., +115., 40, -115., +115.));
+  
+  TDirectory *dirTracks = directory->mkdir("trackHists", "input tracks");
+  this->addToDirectory(myTrackHists1D, dirTracks);
+  this->addToDirectory(myTrackHists2D, dirTracks);
 
 // used track 
-  TDirectory *dirUsedTracks = directory->mkdir("usedTrackHists", "used tracks");
-  if (dirUsedTracks) dirUsedTracks->cd();
-
   myUsedTrackHists1D = this->cloneHists(myTrackHists1D, "used", " (used tracks)");
   myUsedTrackHists2D = this->cloneHists(myTrackHists2D, "used", " (used tracks)");
   // must be after clone: index in vector!
   myUsedTrackHists1D.push_back(new TH1F("usedHitsX", "n(x-hits) transferred to pede;n(x-hits)", nHits, 0., nHits));
   myUsedTrackHists1D.push_back(new TH1F("usedHitsY", "n(y-hits) transferred to pede;n(y-hits)", nHits-10, 0., nHits-10));
 
+  TDirectory *dirUsedTracks = directory->mkdir("usedTrackHists", "used tracks");
+  this->addToDirectory(myUsedTrackHists1D, dirUsedTracks);
+  this->addToDirectory(myUsedTrackHists2D, dirUsedTracks);
 
 // ReferenceTrajectory
-
-  TDirectory *dirTraject = directory->mkdir("refTrajectoryHists", "ReferenceTrajectory's");
-  if (dirTraject) dirTraject->cd();
-
   myTrajectoryHists1D.push_back(new TH1F("validRefTraj", "validity of ReferenceTrajectory",
 					 2, 0., 2.));
 
@@ -216,9 +213,11 @@ bool MillePedeMonitor::init(TDirectory *directory)
 	      50, -TMath::Pi(), TMath::Pi(), 101, -300., 300.));
   //  myTrajectoryHists2D.back()->SetBit(TH1::kCanRebin);
 
+  TDirectory *dirTraject = directory->mkdir("refTrajectoryHists", "ReferenceTrajectory's");
+  this->addToDirectory(myTrajectoryHists2D, dirTraject);
+  this->addToDirectory(myTrajectoryHists1D, dirTraject);
 
-  TDirectory *dirDerivs = directory->mkdir("derivatives", "derivatives etc.");
-  if (dirDerivs) dirDerivs->cd();
+// derivatives hists
   myDerivHists2D.push_back
     (new TH2F("localDerivsPar","local derivatives vs. paramater;parameter;#partial/#partial(param)",
               6, 0., 6., 101, -200., 200.));
@@ -257,10 +256,10 @@ bool MillePedeMonitor::init(TDirectory *directory)
 //               "global derivatives (#neq 0) vs. #phi(det);#phi(det);|#partial/#partial(param)|",
 //               51, -TMath::Pi(), TMath::Pi(), logBins.GetSize()-1, logBins.GetArray()));
 
-  directory->cd();
-  TDirectory *dirResid = directory->mkdir("residuals", "hit residuals, sigma,...");
-  if (dirResid) dirResid->cd();
+  TDirectory *dirDerivs = directory->mkdir("derivatives", "derivatives etc.");
+  this->addToDirectory(myDerivHists2D, dirDerivs);
 
+// residual hists
   myResidHists2D.push_back(new TH2F("residPhi","residuum vs. #phi(det);#phi(det);residuum[cm]",
                                     51, -TMath::Pi(), TMath::Pi(), 101, -.5, .5));
   myResidHists2D.push_back(new TH2F("sigmaPhi","#sigma vs. #phi(det);#phi(det);#sigma[cm]",
@@ -306,11 +305,11 @@ bool MillePedeMonitor::init(TDirectory *directory)
 // 					  "mean sigma (v);z [cm];r_{#pm} [cm];#LT#sigma#GT",
 // 					  25, -275., 275., 25, -110., 110.));
   
-  TDirectory *dirResidX =
-    (dirResid ? dirResid : directory)->mkdir("X", "hit residuals etc. for x measurements");
-  if (dirResidX) dirResidX->cd();
-  // Residuum, hit sigma and res./sigma for all sensor/track angles and separated for large and
-  // small angles with respect to the sensor normal in sensitive direction. 
+  TDirectory *dirResid = directory->mkdir("residuals", "hit residuals, sigma,...");
+  this->addToDirectory(myResidHists2D, dirResid);
+
+// Residuum, hit sigma and res./sigma for all sensor/track angles and separated for large and
+// small angles with respect to the sensor normal in sensitive direction. 
   // Here for x-measurements:
   std::vector<TH1*> allResidHistsX;
   allResidHistsX.push_back(new TH1F("resid", "hit residuals;residuum [cm]", 51, -.05, .05));
@@ -373,12 +372,16 @@ bool MillePedeMonitor::init(TDirectory *directory)
       myResidHitHists1DX.back()->SetTitle(Form("%s, hit %d", h->GetTitle(), iHit));
     }
   }
-  if (dirResid) dirResid->cd();
+
+  TDirectory *dirResidX =
+    (dirResid ? dirResid : directory)->mkdir("X", "hit residuals etc. for x measurements");
+  this->addToDirectory(myResidHitHists1DX, dirResidX);
+  for (std::vector<std::vector<TH1*> >::iterator vecIter = myResidHistsVec1DX.begin(),
+	 vecIterEnd = myResidHistsVec1DX.end(); vecIter != vecIterEnd; ++vecIter) {
+    this->addToDirectory(*vecIter, dirResidX);
+  }
 
   // Now clone the same as above for y-ccordinate:
-  TDirectory *dirResidY = 
-    (dirResid ? dirResid : directory)->mkdir("Y", "hit residuals etc. for y measurements");
-  if (dirResidY) dirResidY->cd();
   myResidHistsVec1DY.push_back(this->cloneHists(allResidHistsX, "", " y-coord."));// all subdets
   std::vector<TH1*> &yHists1D = allResidHistsX;//myResidHistsVec1DY.back(); crashes? ROOT?
   myResidHistsVec1DY.push_back(this->cloneHists(yHists1D, "TPB", " y-coord. in pixel barrel"));
@@ -389,14 +392,15 @@ bool MillePedeMonitor::init(TDirectory *directory)
   myResidHistsVec1DY.push_back(this->cloneHists(yHists1D, "TEC", " y-coord. in TEC"));
   myResidHitHists1DY = this->cloneHists(myResidHitHists1DX, "", " y-coord.");// diff. in nHit
 
-  directory->cd();
+  TDirectory *dirResidY = 
+    (dirResid ? dirResid : directory)->mkdir("Y", "hit residuals etc. for y measurements");
+  this->addToDirectory(myResidHitHists1DY, dirResidY);
+  for (std::vector<std::vector<TH1*> >::iterator vecIter = myResidHistsVec1DY.begin(),
+	 vecIterEnd = myResidHistsVec1DY.end(); vecIter != vecIterEnd; ++vecIter) {
+    this->addToDirectory(*vecIter, dirResidY);
+  }
 
-  edm::LogInfo("Alignment") << "@SUB=init" << " built resid hists";
-//   throw cms::Exception("stophere") << "here we are";
-//   edm::LogInfo("Alignment") << "@SUB=init" << " after exception";
-
-  TDirectory *dirF2f = directory->mkdir("frame2FrameHists", "derivatives etc.");
-  if (dirF2f) dirF2f->cd();
+  // farme-to-frame derivatives
   myFrame2FrameHists2D.push_back(new TProfile2D("frame2frame",
                                                 "mean frame to frame derivatives;col;row",
                                                 6, 0., 6., 6, 0., 6.));
@@ -429,7 +433,8 @@ bool MillePedeMonitor::init(TDirectory *directory)
     }
   }
 
-  directory->cd();
+  TDirectory *dirF2f = directory->mkdir("frame2FrameHists", "derivatives etc.");
+  this->addToDirectory(myFrame2FrameHists2D, dirF2f);
 
   oldDir->cd();
   return true;

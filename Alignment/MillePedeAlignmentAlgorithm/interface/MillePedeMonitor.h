@@ -7,8 +7,8 @@
 ///
 ///  \author    : Gero Flucke
 ///  date       : October 2006
-///  $Revision: 1.8 $
-///  $Date: 2007/07/12 17:32:38 $
+///  $Revision: 1.9 $
+///  $Date: 2008/03/25 16:15:57 $
 ///  (last update by $Author: flucke $)
 
 #include "DataFormats/CLHEP/interface/AlgebraicObjects.h"
@@ -74,6 +74,8 @@ class MillePedeMonitor
   template <class OBJECT_TYPE>  
   std::vector<OBJECT_TYPE*> cloneHists(const std::vector<OBJECT_TYPE*> &orgs,
 				       const TString &namAd, const TString &titAd) const;
+  template <class OBJECT_TYPE>  
+  void addToDirectory(const std::vector<OBJECT_TYPE*> &objs, TDirectory *dir) const;
 
   TDirectory *myRootDir;
   bool        myDeleteDir; 
@@ -124,4 +126,17 @@ std::vector<OBJECT_TYPE*> MillePedeMonitor::cloneHists(const std::vector<OBJECT_
   
   return result;
 }
+
+
+template <class OBJECT_TYPE>  
+void MillePedeMonitor::addToDirectory(const std::vector<OBJECT_TYPE*> &obs,
+					   TDirectory *dir) const
+{
+  // OBJECT_TYPE is required to have method SetDirectory(TDirectory *dir)
+  for (typename std::vector<OBJECT_TYPE*>::const_iterator iter = obs.begin(), iterEnd = obs.end();
+       iter != iterEnd; ++iter) {
+    if (*iter) (*iter)->SetDirectory(dir);
+  }
+}
+
 #endif
