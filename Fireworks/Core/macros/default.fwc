@@ -159,7 +159,7 @@ FWConfiguration* fwConfig() {
 }
 {
   FWConfiguration topaaa(0);
-  topaaa.addValue("$.pt()>0");
+  topaaa.addValue("$.pt()>2");
   topaa.addKeyValue("filterExpression", topaaa);
 }
 {
@@ -280,7 +280,7 @@ FWConfiguration* fwConfig() {
 }
 {
   FWConfiguration topaaa(0);
-  topaaa.addValue("768");
+  topaaa.addValue("697");
   topaa.addKeyValue("height", topaaa);
 }
   topa.addKeyValue("main window", topaa);
@@ -296,101 +296,7 @@ FWConfiguration* fwConfig() {
 }
 {
   FWConfiguration topaaaa(0);
-  topaaaa.addValue("3.0624");
-  topaaa.addKeyValue("cameraZoomRho Z", topaaaa);
-}
-{
-  FWConfiguration topaaaa(0);
-  topaaaa.addValue("1");
-  topaaa.addKeyValue("cameraMatrix0Rho Z", topaaaa);
-}
-{
-  FWConfiguration topaaaa(0);
-  topaaaa.addValue("0");
-  topaaa.addKeyValue("cameraMatrix1Rho Z", topaaaa);
-}
-{
-  FWConfiguration topaaaa(0);
-  topaaaa.addValue("0");
-  topaaa.addKeyValue("cameraMatrix2Rho Z", topaaaa);
-}
-{
-  FWConfiguration topaaaa(0);
-  topaaaa.addValue("0");
-  topaaa.addKeyValue("cameraMatrix3Rho Z", topaaaa);
-}
-{
-  FWConfiguration topaaaa(0);
-  topaaaa.addValue("0");
-  topaaa.addKeyValue("cameraMatrix4Rho Z", topaaaa);
-}
-{
-  FWConfiguration topaaaa(0);
-  topaaaa.addValue("1");
-  topaaa.addKeyValue("cameraMatrix5Rho Z", topaaaa);
-}
-{
-  FWConfiguration topaaaa(0);
-  topaaaa.addValue("0");
-  topaaa.addKeyValue("cameraMatrix6Rho Z", topaaaa);
-}
-{
-  FWConfiguration topaaaa(0);
-  topaaaa.addValue("0");
-  topaaa.addKeyValue("cameraMatrix7Rho Z", topaaaa);
-}
-{
-  FWConfiguration topaaaa(0);
-  topaaaa.addValue("0");
-  topaaa.addKeyValue("cameraMatrix8Rho Z", topaaaa);
-}
-{
-  FWConfiguration topaaaa(0);
-  topaaaa.addValue("0");
-  topaaa.addKeyValue("cameraMatrix9Rho Z", topaaaa);
-}
-{
-  FWConfiguration topaaaa(0);
-  topaaaa.addValue("1");
-  topaaa.addKeyValue("cameraMatrix10Rho Z", topaaaa);
-}
-{
-  FWConfiguration topaaaa(0);
-  topaaaa.addValue("0");
-  topaaa.addKeyValue("cameraMatrix11Rho Z", topaaaa);
-}
-{
-  FWConfiguration topaaaa(0);
-  topaaaa.addValue("2858.19");
-  topaaa.addKeyValue("cameraMatrix12Rho Z", topaaaa);
-}
-{
-  FWConfiguration topaaaa(0);
-  topaaaa.addValue("0");
-  topaaa.addKeyValue("cameraMatrix13Rho Z", topaaaa);
-}
-{
-  FWConfiguration topaaaa(0);
-  topaaaa.addValue("0");
-  topaaa.addKeyValue("cameraMatrix14Rho Z", topaaaa);
-}
-{
-  FWConfiguration topaaaa(0);
-  topaaaa.addValue("1");
-  topaaa.addKeyValue("cameraMatrix15Rho Z", topaaaa);
-}
-  topaa.addKeyValue("Rho Z", topaaa);
-}
-{
-  FWConfiguration topaaa(1);
-{
-  FWConfiguration topaaaa(0);
-  topaaaa.addValue("0");
-  topaaa.addKeyValue("distortion", topaaaa);
-}
-{
-  FWConfiguration topaaaa(0);
-  topaaaa.addValue("3.33673");
+  topaaaa.addValue("2.95224");
   topaaa.addKeyValue("cameraZoomRho Phi", topaaaa);
 }
 {
@@ -474,6 +380,100 @@ FWConfiguration* fwConfig() {
   topaaa.addKeyValue("cameraMatrix15Rho Phi", topaaaa);
 }
   topaa.addKeyValue("Rho Phi", topaaa);
+}
+{
+  FWConfiguration topaaa(1);
+{
+  FWConfiguration topaaaa(0);
+  topaaaa.addValue("0");
+  topaaa.addKeyValue("distortion", topaaaa);
+}
+{
+  FWConfiguration topaaaa(0);
+  topaaaa.addValue("2.99642");
+  topaaa.addKeyValue("cameraZoomRho Z", topaaaa);
+}
+{
+  FWConfiguration topaaaa(0);
+  topaaaa.addValue("1");
+  topaaa.addKeyValue("cameraMatrix0Rho Z", topaaaa);
+}
+{
+  FWConfiguration topaaaa(0);
+  topaaaa.addValue("0");
+  topaaa.addKeyValue("cameraMatrix1Rho Z", topaaaa);
+}
+{
+  FWConfiguration topaaaa(0);
+  topaaaa.addValue("0");
+  topaaa.addKeyValue("cameraMatrix2Rho Z", topaaaa);
+}
+{
+  FWConfiguration topaaaa(0);
+  topaaaa.addValue("0");
+  topaaa.addKeyValue("cameraMatrix3Rho Z", topaaaa);
+}
+{
+  FWConfiguration topaaaa(0);
+  topaaaa.addValue("0");
+  topaaa.addKeyValue("cameraMatrix4Rho Z", topaaaa);
+}
+{
+  FWConfiguration topaaaa(0);
+  topaaaa.addValue("1");
+  topaaa.addKeyValue("cameraMatrix5Rho Z", topaaaa);
+}
+{
+  FWConfiguration topaaaa(0);
+  topaaaa.addValue("0");
+  topaaa.addKeyValue("cameraMatrix6Rho Z", topaaaa);
+}
+{
+  FWConfiguration topaaaa(0);
+  topaaaa.addValue("0");
+  topaaa.addKeyValue("cameraMatrix7Rho Z", topaaaa);
+}
+{
+  FWConfiguration topaaaa(0);
+  topaaaa.addValue("0");
+  topaaa.addKeyValue("cameraMatrix8Rho Z", topaaaa);
+}
+{
+  FWConfiguration topaaaa(0);
+  topaaaa.addValue("0");
+  topaaa.addKeyValue("cameraMatrix9Rho Z", topaaaa);
+}
+{
+  FWConfiguration topaaaa(0);
+  topaaaa.addValue("1");
+  topaaa.addKeyValue("cameraMatrix10Rho Z", topaaaa);
+}
+{
+  FWConfiguration topaaaa(0);
+  topaaaa.addValue("0");
+  topaaa.addKeyValue("cameraMatrix11Rho Z", topaaaa);
+}
+{
+  FWConfiguration topaaaa(0);
+  topaaaa.addValue("2858.19");
+  topaaa.addKeyValue("cameraMatrix12Rho Z", topaaaa);
+}
+{
+  FWConfiguration topaaaa(0);
+  topaaaa.addValue("0");
+  topaaa.addKeyValue("cameraMatrix13Rho Z", topaaaa);
+}
+{
+  FWConfiguration topaaaa(0);
+  topaaaa.addValue("0");
+  topaaa.addKeyValue("cameraMatrix14Rho Z", topaaaa);
+}
+{
+  FWConfiguration topaaaa(0);
+  topaaaa.addValue("1");
+  topaaa.addKeyValue("cameraMatrix15Rho Z", topaaaa);
+}
+  topaa.addKeyValue("Rho Z", topaaa);
 }
 {
   FWConfiguration topaaa(1);
@@ -648,10 +648,10 @@ FWConfiguration* fwConfig() {
 }
 {
   FWConfiguration topaa(1);
-  topaa.addValue("425");
-  topaa.addValue("286");
-  topaa.addValue("470");
-  topaa.addValue("713");
+  topaa.addValue("466");
+  topaa.addValue("389");
+  topaa.addValue("367");
+  topaa.addValue("642");
   topa.addKeyValue("view area", topaa);
 }
   top.addKeyValue("GUI", topa);
