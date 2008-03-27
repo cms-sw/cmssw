@@ -84,7 +84,7 @@ EgammaSCCorrectionMaker::produce(edm::Event& evt, const edm::EventSetup& es)
   const CaloGeometry& geometry = *geoHandle;
   const CaloSubdetectorGeometry *geometry_p;
 
-  std::string rHInputCollection = rHInputProducer_.label();
+  std::string rHInputCollection = rHInputProducer_.instance();
   if(rHInputCollection == "EcalRecHitsEB") {
     geometry_p = geometry.getSubdetectorGeometry(DetId::Ecal, EcalBarrel);
   } else if(rHInputCollection == "EcalRecHitsEE") {
