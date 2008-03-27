@@ -74,6 +74,9 @@ class CSCValHists{
 
   void fillEventHistos(int nWire, int nStrip, int nrH,int nSeg);
 
+  void fillOccupancyHistos(const bool wireo[2][4][4][36],const bool stripo[2][4][4][36], 
+                           const bool rechito[2][4][4][36], const bool segmento[2][4][4][36]);
+
   // these functions handle Stoyan's efficiency code
   void fillEfficiencyHistos(int bin, int flag);
   void getEfficiency(float bin, float Norm, std::vector<float> &eff);
@@ -303,6 +306,12 @@ class CSCValHists{
   TH1F *hSGlobalTheta;
   TH1F *hSGlobalPhi;
   TH1F *hSnSegments;
+
+  // occupancy histos
+  TH2I *hOWires;
+  TH2I *hOStrips;
+  TH2I *hORecHits;
+  TH2I *hOSegments;
 
   // tmp histos for Efficiency
   TH1F *hSSTE;

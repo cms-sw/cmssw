@@ -28,6 +28,7 @@ cat > ${MACRO}<<EOF
   f1 = OpenFiles(Path,datatype);
   f2 = OpenFiles(Path,datatype);
 
+  
   //procuce wire and strip digi comparison plots
   Compare1DPlots2("Digis/hStripAll","Digis/hWireAll",f1,f2,"Strip Numbers Fired (All Chambers)","Wire Groups Fired (All Chambers)","digi_stripswires_all.gif");
   Compare1DPlots2("Digis/hStripCodeBroad","Digis/hWireCodeBroad",f1,f2,"hStripCodeBroad","hWireCodeBroad","digi_stripswires_hCodeBroad.gif");
@@ -57,14 +58,14 @@ cat > ${MACRO}<<EOF
   Compare1DPlots2("Digis/hStripStrip41","Digis/hWireWire41",f1,f2,"Strip Numbers Fired(ME 41)","Wiregroup Numbers Fired (ME 41)","digi_stripswires_41.gif");
   Compare1DPlots2("Digis/hStripStrip42","Digis/hWireWire42",f1,f2,"Strip Numbers Fired(ME 42)","Wiregroup Numbers Fired (ME 42)","digi_stripswires_42.gif");
   Compare1DPlots1("Digis/hWireTBinAll",f1,f2,"Signal Time Bin for All Wires","digi_wireTB.gif");
-/*
+
   //produce pedestal noise plots
   Compare1DPlots2("PedestalNoise/hStripPedME11","PedestalNoise/hStripPedME11",f1,f2,"Pedestal Noise Distribution Chamber ME11","Pedestal Noise Distribution Chamber ME11","noise_ME11.gif");
   Compare1DPlots2("PedestalNoise/hStripPedME12","PedestalNoise/hStripPedME13",f1,f2,"Pedestal Noise Distribution Chamber ME12","Pedestal Noise Distribution Chamber ME13","noise_ME12_ME13.gif");
   Compare1DPlots2("PedestalNoise/hStripPedME21","PedestalNoise/hStripPedME22",f1,f2,"Pedestal Noise Distribution Chamber ME21","Pedestal Noise Distribution Chamber ME22","noise_ME21_ME22.gif");
   Compare1DPlots2("PedestalNoise/hStripPedME31","PedestalNoise/hStripPedME32",f1,f2,"Pedestal Noise Distribution Chamber ME31","Pedestal Noise Distribution Chamber ME32","noise_ME31_ME32.gif");
   Compare1DPlots2("PedestalNoise/hStripPedME41","PedestalNoise/hStripPedME42",f1,f2,"Pedestal Noise Distribution Chamber ME41","Pedestal Noise Distribution Chamber ME42","noise_ME41_ME42.gif");
-*/
+
 
   //produce rechit comparison plots
   Compare1DPlots1("recHits/hRHCodeBroad",f1,f2,"hRHCodeBroad","rH_hRHCodeBroad.gif"); 
@@ -140,6 +141,13 @@ cat > ${MACRO}<<EOF
   GlobalsegPosfromTree("Global Segment positions (Station 2)",f1,f2,2,"seg_global_pos_station2.gif");
   GlobalsegPosfromTree("Global Segment positions (Station 3)",f1,f2,3,"seg_global_pos_station3.gif");
   GlobalsegPosfromTree("Global Segment positions (Station 4)",f1,f2,4,"seg_global_pos_station4.gif");
+
+
+
+  Draw2DTempPlot("Digis/hOWires", f1, "wire_occupancy.gif");
+  Draw2DTempPlot("Digis/hOStrips", f1, "strip_occupancy.gif");
+  Draw2DTempPlot("recHits/hORecHits", f1, "rechit_occupancy.gif");
+  Draw2DTempPlot("Segments/hOSegments", f1, "segment_occupancy.gif");
 
 
 }

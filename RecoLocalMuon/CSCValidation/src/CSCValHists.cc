@@ -245,6 +245,12 @@ void CSCValHists::bookHists(){
       hSResid41  = new TH1F("hSResid41","Fitted Position on Strip - Reconstructed for Layer 3 (ME41)",100,-0.5,0.5);
       hSResid42  = new TH1F("hSResid42","Fitted Position on Strip - Reconstructed for Layer 3 (ME42)",100,-0.5,0.5);
 
+      //occupancy plots
+      hOWires = new TH2I("hOWires","Wire Digi Occupancy",36,0.5,36.5,20,0.5,20.5);
+      hOStrips = new TH2I("hOStrips","Strip Digi Occupancy",36,0.5,36.5,20,0.5,20.5);
+      hORecHits = new TH2I("hORecHits","RecHit Occupancy",36,0.5,36.5,20,0.5,20.5);
+      hOSegments = new TH2I("hOSegments","Segment Occupancy",36,0.5,36.5,20,0.5,20.5);
+
 }
 
 void CSCValHists::writeHists(TFile* theFile, bool isSimulation){
@@ -306,6 +312,7 @@ void CSCValHists::writeHists(TFile* theFile, bool isSimulation){
       hWireWire32->Write();
       hWireWire41->Write();
       hWireWire42->Write();
+      hOWires->Write();
 
       // strip digis
       hStripAll->Write();
@@ -335,6 +342,7 @@ void CSCValHists::writeHists(TFile* theFile, bool isSimulation){
       hStripStrip32->Write();
       hStripStrip41->Write();
       hStripStrip42->Write();
+      hOStrips->Write();
       theFile->cd();
 
       //Pedestal Noise
@@ -449,6 +457,7 @@ void CSCValHists::writeHists(TFile* theFile, bool isSimulation){
       hRHEff->Write();
       hRHnrechits->Write();
       rHTree->Write();
+      hORecHits->Write();
       theFile->cd();
 
       // segments
@@ -489,6 +498,7 @@ void CSCValHists::writeHists(TFile* theFile, bool isSimulation){
       hSnSegments->Write();
       histoEfficiency(hSSTE,hSEff);
       hSEff->Write();
+      hOSegments->Write();
       segTree->Write();
       theFile->cd();
 
@@ -925,6 +935,32 @@ void CSCValHists::fillEventHistos(int nWire, int nStrip, int nrH, int nSeg){
       if (nrH != 0) hRHnrechits->Fill(nrH);
 
 }
+
+void CSCValHists::fillOccupancyHistos(const bool wo[2][4][4][36], const bool sto[2][4][4][36],
+                                      const bool ro[2][4][4][36], const bool so[2][4][4][36]){
+
+  for (int e = 0; e < 2; e++){
+    for (int s = 0; s < 4; s++){
+      for (int r = 0; r < 4; r++){
+        for (int c = 0; c < 36; c++){
+          int type = 0;
+          if ((s+1) == 1) type = (r+1);
+          else type = (s+1)*2 + (r+1);
+          if ((e+1) == 1) type = type + 10;
+          if ((e+1) == 2) type = 11 - type;
+          //int bin = hOWires->GetBin(chamber,type);
+          //hOWires->AddBinContent(bin);
+          if (wo[e][s][r][c]) hOWires->Fill((c+1),type);
+          if (sto[e][s][r][c]) hOStrips->Fill((c+1),type);
+          if (ro[e][s][r][c]) hORecHits->Fill((c+1),type);
+          if (so[e][s][r][c]) hOSegments->Fill((c+1),type);
+        }
+      }
+    }
+  }
+
+}
+
 
 void CSCValHists::fillEfficiencyHistos(int bin, int flag){
 

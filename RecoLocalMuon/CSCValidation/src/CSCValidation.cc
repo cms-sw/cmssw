@@ -70,6 +70,24 @@ void CSCValidation::analyze(const Event & event, const EventSetup& eventSetup){
 
   LogInfo("EventInfo") << "Run: " << iRun << "    Event: " << iEvent;
 
+  // Variables for occupancy plots
+  bool wireo[2][4][4][36];
+  bool stripo[2][4][4][36];
+  bool rechito[2][4][4][36];
+  bool segmento[2][4][4][36];
+
+  for (int e = 0; e < 2; e++){
+    for (int s = 0; s < 4; s++){
+      for (int r = 0; r < 4; r++){
+        for (int c = 0; c < 36; c++){
+          wireo[e][s][r][c] = false;
+          stripo[e][s][r][c] = false;
+          rechito[e][s][r][c] = false;
+          segmento[e][s][r][c] = false;
+        }
+      }
+    }
+  }
 
   // ==============================================
   //
@@ -190,8 +208,9 @@ void CSCValidation::analyze(const Event & event, const EventSetup& eventSetup){
       // fill wire histos
       histos->fillWireHistos(myWire, myTBin, kCodeNarrow, kCodeBroad,
                              kEndcap, kStation, kRing, kChamber, kLayer);
+      wireo[kEndcap-1][kStation-1][kRing-1][kChamber-1] = true;      
     }
-  }
+  } // end wire loop
   
 
   //
@@ -226,10 +245,10 @@ void CSCValidation::analyze(const Event & event, const EventSetup& eventSetup){
         // fill strip histos
         histos->fillStripHistos(myStrip, kCodeNarrow, kCodeBroad,
                                 kEndcap, kStation, kRing, kChamber, kLayer);
-
+        stripo[kEndcap-1][kStation-1][kRing-1][kChamber-1] = true;
       }
     }
-  }
+  } // end strip loop
 
   //=======================================================
   //
@@ -310,6 +329,8 @@ void CSCValidation::analyze(const Event & event, const EventSetup& eventSetup){
     int kStation = idrec.station();
     int kChamber = idrec.chamber();
     int kLayer   = idrec.layer();
+
+    rechito[kEndcap-1][kStation-1][kRing-1][kChamber-1] = true;
 
     // Store rechit as a Local Point:
     LocalPoint rhitlocal = (*recIt).localPosition();  
@@ -426,6 +447,9 @@ void CSCValidation::analyze(const Event & event, const EventSetup& eventSetup){
     int kRing    = id.ring();
     int kStation = id.station();
     int kChamber = id.chamber();
+    segmento[kEndcap-1][kStation-1][kRing-1][kChamber-1] = true;
+
+
     //
     float chisq    = (*it).chi2();
     int nhits      = (*it).nRecHits();
@@ -521,6 +545,10 @@ void CSCValidation::analyze(const Event & event, const EventSetup& eventSetup){
 
   // Fill # per even histos (how many stips/wires/rechits/segments per event)
   histos->fillEventHistos(nWireGroupsTotal,nStripsFired,nRecHits,nSegments);
+
+  // Fill occupancy plots
+  histos->fillOccupancyHistos(wireo,stripo,rechito,segmento);
+
 
   // do Efficiency
   doEfficiencies(recHits, cscSegments);
