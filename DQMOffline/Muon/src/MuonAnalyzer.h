@@ -6,8 +6,8 @@
  *
  *  DQM muon analysis monitoring
  *
- *  $Date: 2008/03/26 11:53:05 $
- *  $Revision: 1.3 $
+ *  $Date: 2008/03/26 16:07:50 $
+ *  $Revision: 1.4 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -20,8 +20,7 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
-#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
-#include "DQMServices/Daemon/interface/MonitorDaemon.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "DQMOffline/Muon/src/MuonEnergyDepositAnalyzer.h"
 #include "DQMOffline/Muon/src/MuonSeedsAnalyzer.h"
@@ -48,7 +47,7 @@ class MuonAnalyzer : public edm::EDAnalyzer {
  private:
   // ----------member data ---------------------------
   
-  DaqMonitorBEInterface * dbe;
+  DQMStore* dbe;
   edm::ParameterSet parameters;
   MuonServiceProxy *theService;
   // Switch for verbosity

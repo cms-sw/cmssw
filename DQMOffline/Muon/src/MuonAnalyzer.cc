@@ -2,8 +2,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/03/26 16:07:55 $
- *  $Revision: 1.4 $
+ *  $Date: 2008/03/27 10:03:30 $
+ *  $Revision: 1.5 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -34,7 +34,7 @@ MuonAnalyzer::MuonAnalyzer(const edm::ParameterSet& pSet) {
 
   // the services
   theService = new MuonServiceProxy(parameters.getParameter<ParameterSet>("ServiceParameters"));
-  dbe = edm::Service<DaqMonitorBEInterface>().operator->();
+  dbe = edm::Service<DQMStore>().operator->();
   dbe->setVerbose(1);
   
   // STA Cosmic Muon Collection Label

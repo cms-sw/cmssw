@@ -6,8 +6,8 @@
  *
  *  base class for all DQM monitor sources
  *
- *  $Date: 2008/03/26 11:51:10 $
- *  $Revision: 1.2 $
+ *  $Date: 2008/03/27 10:00:51 $
+ *  $Revision: 1.3 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -19,8 +19,7 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
-#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
-#include "DQMServices/Daemon/interface/MonitorDaemon.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "DataFormats/MuonReco/interface/Muon.h"
 #include "DataFormats/TrackReco/interface/Track.h"
@@ -30,7 +29,7 @@ class MuonAnalyzerBase {
  public:
 
   /// Constructor (histo booking)
-  MuonAnalyzerBase(MuonServiceProxy *theServ, DaqMonitorBEInterface * Dbe) {theService=theServ; theDbe=Dbe;}
+  MuonAnalyzerBase(MuonServiceProxy *theServ, DQMStore *Dbe) {theService=theServ; theDbe=Dbe;}
   
   /// Destructor
   virtual ~MuonAnalyzerBase() {}
@@ -43,12 +42,12 @@ class MuonAnalyzerBase {
 
   MuonServiceProxy* service() {return theService;}
 
-  DaqMonitorBEInterface* dbe() {return theDbe;}
+  DQMStore* dbe() {return theDbe;}
 
  private:
   // ----------member data ---------------------------
   MuonServiceProxy *theService;
-  DaqMonitorBEInterface * theDbe;
+  DQMStore * theDbe;
 
 };
 #endif  

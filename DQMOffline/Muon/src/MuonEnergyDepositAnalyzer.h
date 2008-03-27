@@ -6,8 +6,8 @@
  *
  *  DQM monitoring source for muon energy deposits
  *
- *  $Date: 2008/03/26 16:08:43 $
- *  $Revision: 1.3 $
+ *  $Date: 2008/03/27 10:01:58 $
+ *  $Revision: 1.4 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -20,8 +20,7 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
-#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
-#include "DQMServices/Daemon/interface/MonitorDaemon.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "RecoMuon/TrackingTools/interface/MuonServiceProxy.h"
 
@@ -30,7 +29,7 @@ class MuonEnergyDepositAnalyzer : public MuonAnalyzerBase {
  public:
 
   /// Constructor (histo booking)
-  MuonEnergyDepositAnalyzer(const edm::ParameterSet&, MuonServiceProxy *theService, DaqMonitorBEInterface *theDbe);
+  MuonEnergyDepositAnalyzer(const edm::ParameterSet&, MuonServiceProxy *theService, DQMStore *theDbe);
   
   /// Destructor
   virtual ~MuonEnergyDepositAnalyzer();

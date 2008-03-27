@@ -4,7 +4,7 @@
  *
  *  $Date: 2008/03/25
  18:37:05 $
- *  $Revision: 1.2 $
+ *  $Revision: 1.5 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -33,7 +33,7 @@ using namespace edm;
 
 
 
-MuonSeedsAnalyzer::MuonSeedsAnalyzer(const edm::ParameterSet& pSet, MuonServiceProxy *theService, DaqMonitorBEInterface *theDbe):MuonAnalyzerBase(theService, theDbe) {
+MuonSeedsAnalyzer::MuonSeedsAnalyzer(const edm::ParameterSet& pSet, MuonServiceProxy *theService, DQMStore *theDbe):MuonAnalyzerBase(theService, theDbe) {
 
   cout<<"[MuonSeedsAnalyzer] Constructor called!"<<endl;
 

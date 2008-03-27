@@ -2,8 +2,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/03/26 11:51:27 $
- *  $Revision: 1.2 $
+ *  $Date: 2008/03/27 10:01:54 $
+ *  $Revision: 1.4 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -22,7 +22,7 @@ using namespace edm;
 
 
 
-MuonEnergyDepositAnalyzer::MuonEnergyDepositAnalyzer(const edm::ParameterSet& pSet, MuonServiceProxy *theService, DaqMonitorBEInterface *theDbe):MuonAnalyzerBase(theService, theDbe) {
+MuonEnergyDepositAnalyzer::MuonEnergyDepositAnalyzer(const edm::ParameterSet& pSet, MuonServiceProxy *theService, DQMStore *theDbe):MuonAnalyzerBase(theService, theDbe) {
 
   cout<<"[MuonEnergyDepositAnalyzer] Constructor called!"<<endl;
 
@@ -79,7 +79,7 @@ void MuonEnergyDepositAnalyzer::analyze(const edm::Event& iEvent, const edm::Eve
   LogTrace(metname)<<"[MuonEnergyDepositAnalyzer] Filling the histos";
 
   // get all the mu energy deposits
-  reco::MuonEnergy muEnergy = recoMu.getCalEnergy();
+  reco::MuonEnergy muEnergy = recoMu.calEnergy();
   
   // energy deposited in ECAL
   LogTrace(metname) << "Energy deposited in ECAL: "<<muEnergy.em;
