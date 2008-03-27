@@ -6,8 +6,8 @@
  *
  *  DQM monitoring source for muon track seeds
  *
- *  $Date: 2008/03/26 11:52:05 $
- *  $Revision: 1.2 $
+ *  $Date: 2008/03/26 16:08:22 $
+ *  $Revision: 1.3 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -31,14 +31,11 @@ class MuonServiceProxy;
 class MuonSeedsAnalyzer : public MuonAnalyzerBase {
  public:
 
-  /// Constructor
-  MuonSeedsAnalyzer(const edm::ParameterSet&, MuonServiceProxy *theService);
+  /// Constructor (histo booking)
+  MuonSeedsAnalyzer(const edm::ParameterSet&, MuonServiceProxy *theService, DaqMonitorBEInterface *theDbe);
   
   /// Destructor
   virtual ~MuonSeedsAnalyzer();
-
-  /// Inizialize parameters for histo binning
-  void beginJob(edm::EventSetup const& iSetup, DaqMonitorBEInterface * dbe);
 
   /// Get the analysis
   void analyze(const edm::Event&, const edm::EventSetup&, const TrajectorySeed& seed);
@@ -50,7 +47,6 @@ class MuonSeedsAnalyzer : public MuonAnalyzerBase {
   private:
   // ----------member data ---------------------------
   
-  DaqMonitorBEInterface * dbe;
   edm::ParameterSet parameters;
   // Switch for verbosity
   std::string metname;
