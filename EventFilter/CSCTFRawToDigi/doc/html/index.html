@@ -52,15 +52,14 @@ With parameter <i>producer</i> of <tt>edm::InputTag</tt> type the unpacking modu
 be instructed to query <tt><a href="https://twiki.cern.ch/twiki/bin/view/CMS/WorkBookCMSSWFramework#ProcModel">edm::Event</a></tt>
 for data buffers from particular producer (by default this is <tt>source:</tt>).
 <br>
+<font color=red>If you are analyzing 2008 data, you may skip the reset of this paragraph 
+and go to next one.</font>
 Every Sector Processor board (SP) of the CSC Track-Finder crate is connected to
 1 of 12 sectors. The firmware on every board should be configured so, that board
-reports which sector it is connected to. Unfortunately this is not a routine
-configuration procedure on <a href="http://cms-emu-slicetest.web.cern.ch/cms-emu-slicetest/">CSC SliceTest</a>,
+reports which sector it is connected to. Unfortunately this was not a routine
+configuration procedure during <a href="http://cms-emu-slicetest.web.cern.ch/cms-emu-slicetest/">CSC SliceTest</a>,
 and most of our data, taken earlier than August of 2007, lack this information.
 Nevertheless this can be fixed off-line with help of
-<!--But fortunately there is only one sector in cosmic ray data every board reports
-its slot ID in the Track-Finder crate. Based on the slot ID we can assign
-every board to the particular sector off-line. It can be done with-->
 integral array-parameter <i>slot2sector</i>. In general it has 22 entries (same as
 number of slots in CSC Track-Finder crate) which can be set to either 0 or sector number (1&#151;12).
 0 instructs module to use original sector number from data, while numbers from
