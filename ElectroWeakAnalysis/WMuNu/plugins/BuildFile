@@ -1,0 +1,7 @@
+<flags EDM_PLUGIN=1>
+<use name=FWCore/Framework>
+<use name=FWCore/ParameterSet>
+<library name=ElectroWeakAnalysisWMuNu_plugins file=*.cc>
+  <use name=DataFormats/Candidate>
+  <use name=DataFormats/MuonReco>
+</library>
