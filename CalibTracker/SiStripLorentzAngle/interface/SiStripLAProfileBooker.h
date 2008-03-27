@@ -17,6 +17,13 @@
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/GeometryVector/interface/LocalVector.h"
 
+#include "TrackingTools/PatternTools/interface/Trajectory.h"
+#include "TrackingTools/PatternTools/interface/TrajTrackAssociation.h"
+
+#include <TTree.h>
+#include <TFile.h>
+#include <TH1D.h>
+
 class SiStripLAProfileBooker : public edm::EDAnalyzer
 {
  public:
@@ -40,7 +47,14 @@ class SiStripLAProfileBooker : public edm::EDAnalyzer
   typedef struct {float thickness; float pitch; LocalVector magfield;} detparameters;
   typedef std::map <unsigned int, detparameters*> detparmap;
   typedef std::map <unsigned int, MonitorElement*> histomap;
-
+  
+  int trackcollsize, trajsize,RunNumber, EventNumber, ClSize, HitCharge, Type, Layer, Wheel, bw_fw, Ext_Int, MonoStereo, ParticleCharge;
+  float sumx, hit_std_dev, barycenter, TanTrackAngle, SignCorrection, MagField, XGlobal, YGlobal, ZGlobal, Momentum, pt, chi2norm, EtaTrack;
+  int nstrip, eventcounter, trajcounter, size, HitNr, hitcounter, hitcounter_2ndloop, worse_double_hit, better_double_hit, HitPerTrack;
+  
+  TTree* HitsTree;
+  TFile* hFile;
+  
   histomap histos;
   histomap summaryhisto;
 
@@ -50,7 +64,8 @@ class SiStripLAProfileBooker : public edm::EDAnalyzer
   detparmap summarydetmap;
   fitmap summaryfits;
   edm::ParameterSet conf_;
-
+  std::string treename_;
+  
   const TrackerGeometry * tracker;
 
 };
