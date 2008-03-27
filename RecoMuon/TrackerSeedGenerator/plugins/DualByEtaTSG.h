@@ -5,7 +5,7 @@
  * Description:
  * SeparatingTSG (TrackerSeedGenerator) which make a simple, dual selection based on the momentum pseudo rapidity of the input track.
  *
- * \auhtor Jean-Roch vlimant, Adam Everett
+ * \author Jean-Roch vlimant, Adam Everett
  */
 
 #include "RecoMuon/TrackerSeedGenerator/plugins/SeparatingTSG.h"
