@@ -64,9 +64,9 @@ BeamSpotFakeConditions::produce(const BeamSpotObjectsRcd &record){
 		// we are going to use the truth values defined at the generator stage,
 		// see IOMC/EventVertexGenerators/data
 		
-		if ( BeamType == "SimpleGaussian" ) {
+		if ( BeamType == "SimpleGaussian" || BeamType == "DummySigmaZ_5p3cm") {
 			adummy->SetPosition(0.,0.,0.);
-			adummy->SetSigmaZ(7.55);
+			adummy->SetSigmaZ(5.3);
 			adummy->Setdxdz(0.);
 			adummy->Setdydz(0.);
 			adummy->SetBeamWidth(15.e-4);
@@ -89,7 +89,7 @@ BeamSpotFakeConditions::produce(const BeamSpotObjectsRcd &record){
 
 		else if ( BeamType == "NominalCollision" ) {
 			adummy->SetPosition(0.05,0.,0.);
-			adummy->SetSigmaZ(7.55);
+			adummy->SetSigmaZ(5.3);
 			adummy->Setdxdz(140.e-6);
 			adummy->Setdydz(0.);
 			adummy->SetBeamWidth(16.6e-4);
@@ -97,7 +97,7 @@ BeamSpotFakeConditions::produce(const BeamSpotObjectsRcd &record){
 		// extreme cases
 		else if ( BeamType == "NominalCollision1" ) {
 			adummy->SetPosition(0.05,0.025,0.);
-			adummy->SetSigmaZ(7.55);
+			adummy->SetSigmaZ(5.3);
 			adummy->Setdxdz(0.);
 			adummy->Setdydz(0.);
 			adummy->SetBeamWidth(16.6e-4);
@@ -105,7 +105,7 @@ BeamSpotFakeConditions::produce(const BeamSpotObjectsRcd &record){
 		
 		else if ( BeamType == "NominalCollision2" ) {
 			adummy->SetPosition(0.05,0.025,0.);
-			adummy->SetSigmaZ(7.55);
+			adummy->SetSigmaZ(5.3);
 			adummy->Setdxdz(140.e-6);
 			adummy->Setdydz(0.);
 			adummy->SetBeamWidth(16.6e-4);
@@ -113,7 +113,7 @@ BeamSpotFakeConditions::produce(const BeamSpotObjectsRcd &record){
 
 		else if ( BeamType == "NominalCollision3" ) {
 			adummy->SetPosition(0.1,0.025,0.);
-			adummy->SetSigmaZ(7.55);
+			adummy->SetSigmaZ(5.3);
 			adummy->Setdxdz(0.);
 			adummy->Setdydz(0.);
 			adummy->SetBeamWidth(16.6e-4);
@@ -121,7 +121,7 @@ BeamSpotFakeConditions::produce(const BeamSpotObjectsRcd &record){
 
 		else if ( BeamType == "NominalCollision4" ) {
 			adummy->SetPosition(0.2,0.025,0.);
-			adummy->SetSigmaZ(7.55);
+			adummy->SetSigmaZ(5.3);
 			adummy->Setdxdz(0.);
 			adummy->Setdydz(0.);
 			adummy->SetBeamWidth(16.6e-4);
