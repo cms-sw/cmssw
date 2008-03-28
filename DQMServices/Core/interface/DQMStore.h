@@ -107,8 +107,6 @@ public:
   // ---------------------- public I/O --------------------------------------
   void				save(const std::string &filename,
 				     const std::string &path = "",
-				     const std::string &pattern = "",
-				     const std::string &rewrite = "",
                                      int minStatus = dqm::qstatus::STATUS_OK);
   void				open(const std::string &filename,
 				     bool overwrite = false,
@@ -156,8 +154,8 @@ private:
 					   const std::string &name,
 					   std::string &path) const;
 
-public:
   void				getAllTags(std::vector<std::string> &into) const;
+public:
   std::vector<MonitorElement*>	getAllContents(const std::string &path) const;
   std::vector<MonitorElement*>	getMatchingContents(const std::string &pattern) const;
 private:
