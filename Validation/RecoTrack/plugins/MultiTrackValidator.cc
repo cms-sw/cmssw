@@ -32,7 +32,7 @@ void MultiTrackValidator::beginJob( const EventSetup & setup) {
 
       dbe_->cd();
       InputTag algo = label[www];
-      string dirName="RecoTrackV/Track/";
+      string dirName=dirName_;
       if (algo.process()!="")
 	dirName+=algo.process()+"_";
       if(algo.label()!="")
