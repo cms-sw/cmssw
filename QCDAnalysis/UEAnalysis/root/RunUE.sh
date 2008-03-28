@@ -1,3 +1,7 @@
+// Compilation instructions:
+//   make lib
+//   make bin
+//
 //Examples for use the analysis macro
 //List of parameter to be passed
 // 1) file that contain th elist of root file to be analyzed

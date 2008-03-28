@@ -23,7 +23,13 @@ void UEAnalysisOnRootple::MultiAnalysis(char* filelist,char* outname,Float_t wei
     if (RootTupleName[0] != '#') {
       cout<<"I'm analyzing file "<<RootTupleName<<endl;
       TFile *f =  new TFile(RootTupleName);
-      TTree * tree = (TTree*)gDirectory->Get("UEAnalysisTree");
+
+      // TFileService puts UEAnalysisTree in a directory named after the module
+      // which called the EDAnalyzer
+      cout << "changing to directory ueAnalysisRootple" << endl;
+      f->cd("ueAnalysisRootple");
+
+      TTree * tree = (TTree*)gDirectory->Get("AnalysisTree");
       Init(tree);
       Loop(weight[filenumber],triggerPt,type,trigger,tkpt);
     } else {
@@ -38,9 +44,16 @@ void UEAnalysisOnRootple::MultiAnalysis(char* filelist,char* outname,Float_t wei
 
 void UEAnalysisOnRootple::Loop(Float_t we,Float_t triggerPt,string type,string trigger,string tkpt)
 {
-  if (fChain == 0) return;
-  
+  if (fChain == 0) 
+    {
+      cout << "fChain == 0 return." << endl;
+      return;
+    }
+
   Long64_t nentries = fChain->GetEntriesFast();
+
+  cout << "number of entries: " << nentries << endl;
+
   
   Long64_t nbytes = 0, nb = 0;
   for (Long64_t jentry=0; jentry<nentries;jentry++) {
