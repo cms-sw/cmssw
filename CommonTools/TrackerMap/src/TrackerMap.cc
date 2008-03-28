@@ -5,6 +5,7 @@
 #include "CondFormats/SiStripObjects/interface/FedChannelConnection.h"
 #include "CommonTools/TrackerMap/interface/TmApvPair.h"
 #include <fstream>
+#include <vector>
 #include <iostream>
 #include <sstream>
 #include "TCanvas.h"
@@ -333,6 +334,7 @@ if(!print_total)mod->value=mod->value*mod->count;//restore mod->value
 //print_total = false represent in color the average  
 void TrackerMap::save(bool print_total,float minval, float maxval,std::string s,int width, int height){
   std::string filetype=s,outputfilename=s;
+  vector<TPolyLine*> vp;
   filetype.erase(0,filetype.find(".")+1);
   outputfilename.erase(outputfilename.begin()+outputfilename.find("."),outputfilename.end());
   temporary_file=true;
@@ -445,7 +447,6 @@ if(col) col->SetRGB((Double_t)(red/255.),(Double_t)(green/255.),(Double_t)(blue/
     tempfile.clear();
     tempfile.seekg(0,ios::beg);
     cout << "created palette with " << ncolor << " colors" << endl;
-    TPolyLine*  pline = new TPolyLine();
     while(!tempfile.eof()) {//create polylines
       tempfile  >> red >> green  >> blue >> npoints; 
       for (int i=0;i<npoints;i++){
@@ -454,9 +455,11 @@ if(col) col->SetRGB((Double_t)(red/255.),(Double_t)(green/255.),(Double_t)(blue/
       colindex=red+green*1000+blue*1000000;
       pos=colorList.find(colindex); 
       if(pos != colorList.end()){
-	pline->SetFillColor(colorList[colindex]);
-	pline->SetLineWidth(0);
-        pline->DrawPolyLine(npoints,y,x,"f");
+        TPolyLine*  pline = new TPolyLine(npoints,y,x);
+        vp.push_back(pline);
+        pline->SetFillColor(colorList[colindex]);
+        pline->SetLineWidth(0);
+        pline->Draw("f");
       }
     }
     MyC->Update();
@@ -479,7 +482,9 @@ if(col) col->SetRGB((Double_t)(red/255.),(Double_t)(green/255.),(Double_t)(blue/
     system(command1);
     MyC->Clear();
     delete MyC;
-    delete pline;
+    for(vector<TPolyLine*>::iterator pos1=vp.begin();pos1!=vp.end();pos1++){
+         delete (*pos1);}
+
   }
   
   
@@ -572,6 +577,7 @@ void TrackerMap::drawApvPair(int crate, int numfed_incrate, bool print_total, Tm
 void TrackerMap::save_as_fedtrackermap(bool print_total,float minval, float maxval,std::string s,int width, int height){
  if(enableFedProcessing){
   std::string filetype=s,outputfilename=s;
+  vector<TPolyLine*> vp;
   filetype.erase(0,filetype.find(".")+1);
   outputfilename.erase(outputfilename.begin()+outputfilename.find("."),outputfilename.end());
   temporary_file=true;
@@ -745,7 +751,6 @@ void TrackerMap::save_as_fedtrackermap(bool print_total,float minval, float maxv
     tempfile.clear();
     tempfile.seekg(0,ios::beg);
     cout << "created palette with " << ncolor << " colors" << endl;
-    TPolyLine*  pline = new TPolyLine();
     while(!tempfile.eof()) {//create polylines
       tempfile  >> red >> green  >> blue >> npoints; 
       for (int i=0;i<npoints;i++){
@@ -754,9 +759,11 @@ void TrackerMap::save_as_fedtrackermap(bool print_total,float minval, float maxv
       colindex=red+green*1000+blue*1000000;
       pos=colorList.find(colindex); 
       if(pos != colorList.end()){
-	pline->SetFillColor(colorList[colindex]);
-	pline->SetLineWidth(0);
-        pline->DrawPolyLine(npoints,y,x,"f");
+        TPolyLine*  pline = new TPolyLine(npoints,y,x);
+        vp.push_back(pline);
+        pline->SetFillColor(colorList[colindex]);
+        pline->SetLineWidth(0);
+        pline->Draw("f");
       }
     }
     MyC->Update();
@@ -779,7 +786,8 @@ void TrackerMap::save_as_fedtrackermap(bool print_total,float minval, float maxv
     system(command1);
     MyC->Clear();
     delete MyC;
-    delete pline;
+    for(vector<TPolyLine*>::iterator pos1=vp.begin();pos1!=vp.end();pos1++){
+         delete (*pos1);}
   
   
 }//if(temporary_file)
