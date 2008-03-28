@@ -1,0 +1,8 @@
+import FWCore.ParameterSet.Config as cms
+
+import copy
+from RecoEgamma.EgammaHLTProducers.hltElectronTrackIsol_cfi import *
+l1NonIsoLargeWindowElectronTrackIsol = copy.deepcopy(hltElectronTrackIsol)
+l1NonIsoLargeWindowElectronTrackIsol.electronProducer = 'pixelMatchElectronsL1NonIsoLargeWindowForHLT'
+l1NonIsoLargeWindowElectronTrackIsol.trackProducer = 'l1NonIsoLargeWindowElectronsRegionalCTFFinalFitWithMaterial'
+

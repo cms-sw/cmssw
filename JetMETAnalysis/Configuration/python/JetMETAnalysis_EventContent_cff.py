@@ -1,0 +1,22 @@
+# The following comments couldn't be translated into the new config version:
+
+#replace JetMETAnalysisEventContent.outputCommands += sumETEventContent.outputCommands
+
+import FWCore.ParameterSet.Config as cms
+
+# MET Event Content
+from JetMETAnalysis.METSkims.metHigh_EventContent_cff import *
+from JetMETAnalysis.METSkims.metLow_EventContent_cff import *
+#include "JetMETAnalysis/METSkims/data/sumET_EventContent.cff"
+# JET Event Content
+from JetMETAnalysis.JetSkims.onejet_EventContent_cff import *
+from JetMETAnalysis.JetSkims.photonjets_EventContent_cff import *
+#include "JetMETAnalysis/JetSkims/data/dijetbalance_EventContent.cff"
+JetMETAnalysisEventContent = cms.PSet(
+    outputCommands = cms.untracked.vstring()
+)
+JetMETAnalysisEventContent.outputCommands.extend(metHighEventContent.outputCommands)
+JetMETAnalysisEventContent.outputCommands.extend(metLowEventContent.outputCommands)
+JetMETAnalysisEventContent.outputCommands.extend(onejetEventContent.outputCommands)
+JetMETAnalysisEventContent.outputCommands.extend(photonjetsEventContent.outputCommands)
+

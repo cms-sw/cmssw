@@ -1,0 +1,11 @@
+import FWCore.ParameterSet.Config as cms
+
+import copy
+from RecoEgamma.EgammaHLTProducers.hltEgammaRegionalPixelSeedGenerator_cfi import *
+#include "RecoEgamma/EgammaHLTProducers/data/hltEgammaRegionalPixelSeedGenerator.cfi"
+l1NonIsoElectronsRegionalPixelSeedGenerator = copy.deepcopy(hltEgammaRegionalPixelSeedGenerator)
+l1NonIsoElectronsRegionalPixelSeedGenerator.candTag = 'l1NonIsoRecoEcalCandidate'
+l1NonIsoElectronsRegionalPixelSeedGenerator.candTagEle = 'pixelMatchElectronsL1NonIsoForHLT'
+l1NonIsoElectronsRegionalPixelSeedGenerator.UseZInVertex = True
+l1NonIsoElectronsRegionalPixelSeedGenerator.originHalfLength = 0.5
+

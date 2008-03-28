@@ -1,0 +1,18 @@
+import FWCore.ParameterSet.Config as cms
+
+from RecoTracker.CkfPattern.CkfTrajectoryBuilderESProducer_cff import *
+import copy
+from RecoTracker.CkfPattern.CkfTrajectoryBuilderESProducer_cfi import *
+#TrajectoryBuilder
+TrajectoryBuilderForPixelMatchElectronsL1NonIsoLargeWindow = copy.deepcopy(CkfTrajectoryBuilder)
+# Navigation School record
+from RecoTracker.TkNavigation.NavigationSchoolESProducer_cff import *
+import copy
+from RecoEgamma.EgammaHLTProducers.pixelMatchElectronsForHLT_cfi import *
+#pixelMatchedElectrons
+pixelMatchElectronsL1NonIsoLargeWindowForHLT = copy.deepcopy(pixelMatchElectronsForHLT)
+TrajectoryBuilderForPixelMatchElectronsL1NonIsoLargeWindow.ComponentName = 'TrajectoryBuilderForPixelMatchElectronsL1NonIsoLargeWindow'
+TrajectoryBuilderForPixelMatchElectronsL1NonIsoLargeWindow.estimator = 'egammaHLTChi2'
+pixelMatchElectronsL1NonIsoLargeWindowForHLT.TrackProducer = 'ctfL1NonIsoLargeWindowWithMaterialTracks'
+pixelMatchElectronsL1NonIsoLargeWindowForHLT.TrajectoryBuilder = 'TrajectoryBuilderForPixelMatchElectronsL1NonIsoLargeWindow'
+

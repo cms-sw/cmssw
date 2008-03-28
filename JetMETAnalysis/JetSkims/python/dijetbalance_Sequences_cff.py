@@ -1,0 +1,5 @@
+import FWCore.ParameterSet.Config as cms
+
+from JetMETAnalysis.JetSkims.dijetbalance_HLTPaths_cfi import *
+dijetbalanceHLTFilter = cms.Sequence(dijetbalance30HLTFilter+dijetbalance60HLTFilter+dijetbalance110HLTFilter+dijetbalance150HLTFilter+dijetbalance200HLTFilter)
+
