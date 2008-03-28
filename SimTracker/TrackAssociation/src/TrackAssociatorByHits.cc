@@ -63,7 +63,7 @@ TrackAssociatorByHits::associateRecoToSim(edm::RefToBaseVector<reco::Track>& tC,
 					  edm::RefVector<TrackingParticleCollection>& TPCollectionH,
 					  const edm::Event * e ) const{
 
-  edm::LogVerbatim("TrackAssociator") << "Starting TrackAssociatorByHits::associateRecoToSim";
+  edm::LogVerbatim("TrackAssociator") << "Starting TrackAssociatorByHits::associateRecoToSim - #tracks="<<tC.size()<<" #TPs="<<TPCollectionH.size();
   int nshared = 0;
   float quality=0;//fraction or absolute number of shared hits
   std::vector< SimHitIdpr> SimTrackIds;
@@ -78,6 +78,7 @@ TrackAssociatorByHits::associateRecoToSim(edm::RefToBaseVector<reco::Track>& tC,
   for (edm::RefToBaseVector<reco::Track>::const_iterator track=tC.begin(); track!=tC.end(); track++, tindex++){
     matchedIds.clear();
     int ri=0;//valid rechits
+    LogTrace("TrackAssociator") << "\nNEW TRACK - track number " << tindex <<" with pt =" << (*track)->pt() << " # valid=" << (*track)->found(); 
     getMatchedIds<trackingRecHit_iterator>(matchedIds, SimTrackIds, ri, (*track)->recHitsBegin(), (*track)->recHitsEnd(), associate);
 
     //LogTrace("TrackAssociator") << "MATCHED IDS LIST BEGIN" ;
@@ -85,14 +86,16 @@ TrackAssociatorByHits::associateRecoToSim(edm::RefToBaseVector<reco::Track>& tC,
     //  LogTrace("TrackAssociator") << "matchedIds[j].first=" << matchedIds[j].first;
     //}
     //LogTrace("TrackAssociator") << "MATCHED IDS LIST END" ;
+    //LogTrace("TrackAssociator") << "#matched ids=" << matchedIds.size() << " #tps=" << tPC.size();
 
-    LogTrace("TrackAssociator") << "#matched ids=" << matchedIds.size() << " #tps=" << tPC.size();
     //save id for the track
     std::vector<SimHitIdpr> idcachev;
     if(!matchedIds.empty()){
 
       int tpindex =0;
       for (TrackingParticleCollection::const_iterator t = tPC.begin(); t != tPC.end(); ++t, ++tpindex) {
+	int nsimhit = t->pSimHit_end()-t->pSimHit_begin();
+	LogTrace("TrackAssociator") << "TP number " << tpindex << " pdgId=" << t->pdgId() << " with number of PSimHits: "  << nsimhit;
 	idcachev.clear();
 	nshared = getShared(matchedIds, idcachev, t);
 	
@@ -100,20 +103,21 @@ TrackAssociatorByHits::associateRecoToSim(edm::RefToBaseVector<reco::Track>& tC,
 	else if(ri!=0) quality = (static_cast<double>(nshared)/static_cast<double>(ri));
 	else quality = 0;
 	//cut on the fraction
-	if(quality > theMinHitCut){
+	if(quality > theMinHitCut && !(ThreeHitTracksAreSpecial && ri==3 && nshared<3) ){
 	  //if a track has just 3 hits we require that all 3 hits are shared
-	  if (ThreeHitTracksAreSpecial && ri==3 && nshared<3) continue;
 	  if(!AbsoluteNumberOfHits && quality>1.) std::cout << " **** fraction > 1 " << " nshared = " << nshared 
 							    << "rechits = " << ri << " hit found " << (*track)->found() <<  std::endl;
 	  outputCollection.insert(tC[tindex],
 				  std::make_pair(edm::Ref<TrackingParticleCollection>(TPCollectionH, tpindex),
 						 quality));
-	  LogTrace("TrackAssociator") << "reco::Track number " << tindex  <<" with pt=" << (*track)->pt() 
+	  LogTrace("TrackAssociator") << "reco::Track number " << tindex  << " with #hits=" << ri <<" pt=" << (*track)->pt() 
 				      << " associated to TP (pdgId, nb segments, p) = " 
 				      << (*t).pdgId() << " " << (*t).g4Tracks().size() 
-				      << " " << (*t).momentum() << " TP index=" << tpindex<< " with quality =" << quality;
+				      << " " << (*t).momentum() << " #hits=" << nsimhit
+				      << " TP index=" << tpindex<< " with quality =" << quality;
 	} else {
-	  LogTrace("TrackAssociator") <<"reco::Track number " << tindex << " NOT associated with quality =" << quality;
+	  LogTrace("TrackAssociator") <<"reco::Track number " << tindex << " with #hits=" << ri 
+				      << " NOT associated with quality =" << quality;
 	}
       }//TP loop
     }
@@ -129,7 +133,7 @@ SimToRecoCollection
 TrackAssociatorByHits::associateSimToReco(edm::RefToBaseVector<reco::Track>& tC, 
 					  edm::RefVector<TrackingParticleCollection>& TPCollectionH,
 					  const edm::Event * e ) const{
-  edm::LogVerbatim("TrackAssociator") << "Starting TrackAssociatorByHits::associateSimToReco";
+  edm::LogVerbatim("TrackAssociator") << "Starting TrackAssociatorByHits::associateSimToReco - #tracks="<<tC.size()<<" #TPs="<<TPCollectionH.size();
   float quality=0;//fraction or absolute number of shared hits
   int nshared = 0;
   std::vector< SimHitIdpr> SimTrackIds;
@@ -147,12 +151,10 @@ TrackAssociatorByHits::associateSimToReco(edm::RefToBaseVector<reco::Track>& tC,
   //  }
   //}
   
-  //const  edm::View<reco::Track> tC = *(trackCollectionH.product()); 
-
   //get the ID of the recotrack  by hits 
   int tindex=0;
   for (edm::RefToBaseVector<reco::Track>::const_iterator track=tC.begin(); track!=tC.end(); track++, tindex++){
-    LogTrace("TrackAssociator") << " hits of track with pt =" << (*track)->pt() << " # valid=" << (*track)->found(); 
+    LogTrace("TrackAssociator") << "\nNEW TRACK - hits of track number " << tindex <<" with pt =" << (*track)->pt() << " # valid=" << (*track)->found(); 
     int ri=0;//valid rechits
     getMatchedIds<trackingRecHit_iterator>(matchedIds, SimTrackIds, ri, (*track)->recHitsBegin(), (*track)->recHitsEnd(), associate);
 
@@ -162,12 +164,11 @@ TrackAssociatorByHits::associateSimToReco(edm::RefToBaseVector<reco::Track>& tC,
 	
       int tpindex =0;
       for (TrackingParticleCollection::const_iterator t = tPC.begin(); t != tPC.end(); ++t, ++tpindex) {
-	LogTrace("TrackAssociator") << "NEW TP";
-	LogTrace("TrackAssociator") << "number of PSimHits for this TP: "  << t->trackPSimHit().size() ;
 	idcachev.clear();
 	int nsimhit = t->trackPSimHit().size();
 	float totsimhit = 0; 
 	std::vector<PSimHit> tphits;
+	LogTrace("TrackAssociator") << "TP number " << tpindex << " pdgId=" << t->pdgId() << " with number of PSimHits: "  << nsimhit;
 
 	nshared = getShared(matchedIds, idcachev, t);
 
@@ -178,117 +179,80 @@ TrackAssociatorByHits::associateSimToReco(edm::RefToBaseVector<reco::Track>& tC,
 	//				      << " SUBDET = " << detId.subdetId() << " layer = " << LayerFromDetid(detId); 
 	//}
 
-	//count the TP simhit, counting only once the hits on glued detectors
-	LogTrace("TrackAssociator") << "recounting of tp hits";
-	for(std::vector<PSimHit>::const_iterator TPhit = t->pSimHit_begin(); TPhit != t->pSimHit_end(); TPhit++){
-          DetId dId = DetId(TPhit->detUnitId());
+	if (nshared!=0) {//do not waste time recounting when it is not needed!!!!
+
+	  //count the TP simhit
+	  LogTrace("TrackAssociator") << "recounting of tp hits";
+	  for(std::vector<PSimHit>::const_iterator TPhit = t->pSimHit_begin(); TPhit != t->pSimHit_end(); TPhit++){
+	    DetId dId = DetId(TPhit->detUnitId());
 	  
-	  unsigned int subdetId = static_cast<unsigned int>(dId.subdetId());
-	  if (!UsePixels && (subdetId==PixelSubdetector::PixelBarrel || subdetId==PixelSubdetector::PixelEndcap) )
-	    continue;
+	    unsigned int subdetId = static_cast<unsigned int>(dId.subdetId());
+	    if (!UsePixels && (subdetId==PixelSubdetector::PixelBarrel || subdetId==PixelSubdetector::PixelEndcap) )
+	      continue;
 
-          //unsigned int dRawId = dId.rawId();
-          SiStripDetId* stripDetId = 0;
-          if (subdetId==SiStripDetId::TIB||subdetId==SiStripDetId::TOB||
-              subdetId==SiStripDetId::TID||subdetId==SiStripDetId::TEC)
-            stripDetId= new SiStripDetId(dId);
-          LogTrace("TrackAssociator") << "consider hit SUBDET = " << subdetId
-                                      << " layer = " << LayerFromDetid(dId) 
-				      << " id = " << dId.rawId();
-          bool newhit = true;
-          for(std::vector<PSimHit>::const_iterator TPhitOK = tphits.begin(); TPhitOK != tphits.end(); TPhitOK++){
-            DetId dIdOK = DetId(TPhitOK->detUnitId());
-            //unsigned int dRawIdOK = dIdOK.rawId();
-            LogTrace("TrackAssociator") << "\t\tcompare with SUBDET = " << dIdOK.subdetId()
-                                        << " layer = " << LayerFromDetid(dIdOK)
-					<< " id = " << dIdOK.rawId();
-	    //no grouped, no splitting
-            if (!UseGrouped && !UseSplitting)
-              if (LayerFromDetid(dId)==LayerFromDetid(dIdOK) &&
-                  dId.subdetId()==dIdOK.subdetId()) newhit = false;
-            //no grouped, splitting
-            if (!UseGrouped && UseSplitting)
-              if (LayerFromDetid(dId)==LayerFromDetid(dIdOK) &&
-                  dId.subdetId()==dIdOK.subdetId() &&
-                  (stripDetId==0 || stripDetId->partnerDetId()!=dIdOK.rawId()))
-                newhit = false;
-            //grouped, no splitting
-            if (UseGrouped && !UseSplitting)
-              if (LayerFromDetid(dId)==LayerFromDetid(dIdOK) &&
-                  dId.subdetId()==dIdOK.subdetId() &&
-                  stripDetId!=0 && stripDetId->partnerDetId()==dIdOK.rawId())
-                newhit = false;
-            //grouped, splitting
-            if (UseGrouped && UseSplitting)
-              newhit = true;
+	    //unsigned int dRawId = dId.rawId();
+	    SiStripDetId* stripDetId = 0;
+	    if (subdetId==SiStripDetId::TIB||subdetId==SiStripDetId::TOB||
+		subdetId==SiStripDetId::TID||subdetId==SiStripDetId::TEC)
+	      stripDetId= new SiStripDetId(dId);
+	    LogTrace("TrackAssociator") << "consider hit SUBDET = " << subdetId
+					<< " layer = " << LayerFromDetid(dId) 
+					<< " id = " << dId.rawId();
+	    bool newhit = true;
+	    for(std::vector<PSimHit>::const_iterator TPhitOK = tphits.begin(); TPhitOK != tphits.end(); TPhitOK++){
+	      DetId dIdOK = DetId(TPhitOK->detUnitId());
+	      //unsigned int dRawIdOK = dIdOK.rawId();
+	      LogTrace("TrackAssociator") << "\t\tcompare with SUBDET = " << dIdOK.subdetId()
+					  << " layer = " << LayerFromDetid(dIdOK)
+					  << " id = " << dIdOK.rawId();
+	      //no grouped, no splitting
+	      if (!UseGrouped && !UseSplitting)
+		if (LayerFromDetid(dId)==LayerFromDetid(dIdOK) &&
+		    dId.subdetId()==dIdOK.subdetId()) newhit = false;
+	      //no grouped, splitting
+	      if (!UseGrouped && UseSplitting)
+		if (LayerFromDetid(dId)==LayerFromDetid(dIdOK) &&
+		    dId.subdetId()==dIdOK.subdetId() &&
+		    (stripDetId==0 || stripDetId->partnerDetId()!=dIdOK.rawId()))
+		  newhit = false;
+	      //grouped, no splitting
+	      if (UseGrouped && !UseSplitting)
+		if (LayerFromDetid(dId)==LayerFromDetid(dIdOK) &&
+		    dId.subdetId()==dIdOK.subdetId() &&
+		    stripDetId!=0 && stripDetId->partnerDetId()==dIdOK.rawId())
+		  newhit = false;
+	      //grouped, splitting
+	      if (UseGrouped && UseSplitting)
+		newhit = true;
+	    }
+	    if (newhit) {
+	      LogTrace("TrackAssociator") << "\t\tok";
+	      tphits.push_back(*TPhit);
+	    }
+	    else LogTrace("TrackAssociator") << "\t\tno";
+	    delete stripDetId;
 	  }
-	  if (newhit) {
-	    LogTrace("TrackAssociator") << "\t\tok";
-	    tphits.push_back(*TPhit);
-	  }
-	  else LogTrace("TrackAssociator") << "\t\tno";
-	  delete stripDetId;
+	  totsimhit = tphits.size();
 	}
-
-	////count the TP simhit, counting only once the hits on glued detectors
-	//float totsimhitlay = 0; 
-	////int glue_cache = 0;	
-	////counting the TP hits using the layers (as in ORCA). 
-	////does seem to find less hits. maybe b/c layer is a number now, not a pointer
-	//int oldlay = 0;
-	//int newlay = 0;
-	//int olddet = 0;
-	//int newdet = 0;
-	//for(std::vector<PSimHit>::const_iterator TPhit = t->pSimHit_begin(); TPhit != t->pSimHit_end(); TPhit++){
-	//  unsigned int detid = TPhit->detUnitId();
-	//  DetId detId = DetId(TPhit->detUnitId());
-	//  oldlay = newlay;
-	//  olddet = newdet;
-	//  newlay = LayerFromDetid(detId);
-	//  newdet = detId.subdetId();
-	//  if(oldlay != newlay || (oldlay==newlay && olddet!=newdet) ){
-	//    totsimhitlay++;
-	//    LogTrace("TrackAssociator") <<  " hit = " << TPhit->trackId() << " det ID = " << detid 
-	//    			  << " SUBDET = " << detId.subdetId() << "layer = " << LayerFromDetid(detId); 
-	//  }  
-	//}//loop over TP simhit       
-	//totsimhitP = totsimhitlay;
-	
-	totsimhit = tphits.size();
 
 	if (AbsoluteNumberOfHits) quality = static_cast<double>(nshared);
 	else if(SimToRecoDenominator == "sim" && totsimhit!=0) quality = ((double) nshared)/((double)totsimhit);
 	else if(SimToRecoDenominator == "reco" && ri!=0) quality = ((double) nshared)/((double)ri);
 	else quality = 0;
-	LogTrace("TrackAssociator") << "Final count: nhit(TP) = " << nsimhit << " re-counted = " << totsimhit 
-				    << " re-count(lay) = " << totsimhit << " nshared = " << nshared 
-				    << " nrechit = " << ri;
-	if (quality>theMinHitCut) {
+	//LogTrace("TrackAssociator") << "Final count: nhit(TP) = " << nsimhit << " re-counted = " << totsimhit 
+	//<< " nshared = " << nshared << " nrechit = " << ri;
+	if (quality>theMinHitCut && !(ThreeHitTracksAreSpecial && totsimhit==3 && nshared<3) ) {
+	  //if a track has just 3 hits we require that all 3 hits are shared
 	  outputCollection.insert(edm::Ref<TrackingParticleCollection>(TPCollectionH, tpindex), 
 				  std::make_pair(tC[tindex],quality));
-	  LogTrace("TrackAssociator") << "TrackingParticle number " << tpindex 
+	  LogTrace("TrackAssociator") << "TrackingParticle number " << tpindex << " with #hits=" << nsimhit 
+				      << " re-counted = "  << totsimhit << " nshared = " << nshared 
 				      << " associated to track number " << tindex << " with pt=" << (*track)->pt() 
 				      << " with hit quality =" << quality ;
-	}
-	//if a track has just 3 hits we require that all 3 hits are shared
-	else if(ThreeHitTracksAreSpecial && ri==3) {
-	  bool putIt = false;
-	  if (AbsoluteNumberOfHits && quality==3){
-	    putIt = true;
-	  } else if(!AbsoluteNumberOfHits && nshared==3){
-	    putIt = true;
-	    quality = 1.;
-	  }
-	  if (putIt) {
-	    outputCollection.insert(edm::Ref<TrackingParticleCollection>(TPCollectionH, tpindex), 
-				    std::make_pair(tC[tindex],quality));
-	    LogTrace("TrackAssociator") << "TrackingParticle number " << tpindex 
-					<< " associated to track number " << tindex << " with pt=" << (*track)->pt() 
-					<< " with hit quality =" << quality ;
-	  }
-	}
-	else {
-	  LogTrace("TrackAssociator") << "TrackingParticle number " << tpindex << " NOT associated with quality =" << quality;
+	} else {
+	  LogTrace("TrackAssociator") << "TrackingParticle number " << tpindex << " with #hits=" << nsimhit 
+				      << " re-counted = "  << totsimhit << " nshared = " << nshared 
+				      << " NOT associated with quality =" << quality;
 	}
       }
     }
@@ -344,7 +308,8 @@ TrackAssociatorByHits::associateRecoToSim(edm::Handle<edm::View<TrajectorySeed> 
 					  edm::Handle<TrackingParticleCollection>&  TPCollectionH,     
 					  const edm::Event * e ) const{
 
-  edm::LogVerbatim("TrackAssociator") << "Starting TrackAssociatorByHits::associateRecoToSim";
+  edm::LogVerbatim("TrackAssociator") << "Starting TrackAssociatorByHits::associateRecoToSim - #seeds="
+				      <<seedCollectionH->size()<<" #TPs="<<TPCollectionH->size();
   int nshared = 0;
   float quality=0;//fraction or absolute number of shared hits
   std::vector< SimHitIdpr> SimTrackIds;
@@ -362,34 +327,36 @@ TrackAssociatorByHits::associateRecoToSim(edm::Handle<edm::View<TrajectorySeed> 
   for (edm::View<TrajectorySeed>::const_iterator seed=sC.begin(); seed!=sC.end(); seed++, tindex++) {
     matchedIds.clear();
     int ri=0;//valid rechits
+    int nsimhit = seed->recHits().second-seed->recHits().first;
+    LogTrace("TrackAssociator") << "\nNEW SEED - seed number " << tindex << " # valid=" << nsimhit;
     getMatchedIds<edm::OwnVector<TrackingRecHit>::const_iterator>(matchedIds, SimTrackIds, ri, seed->recHits().first, seed->recHits().second, associate );
 
-    LogTrace("TrackAssociator") << "#matched ids=" << matchedIds.size() << " #tps=" << tPC.size();
     //save id for the track
     std::vector<SimHitIdpr> idcachev;
     if(!matchedIds.empty()){
 
       int tpindex =0;
       for (TrackingParticleCollection::const_iterator t = tPC.begin(); t != tPC.end(); ++t, ++tpindex) {
+	LogTrace("TrackAssociator") << "TP number " << tpindex << " pdgId=" << t->pdgId() << " with number of PSimHits: "  << nsimhit;
 	idcachev.clear();
 	nshared = getShared(matchedIds, idcachev, t);
 	
 	if (AbsoluteNumberOfHits) quality = static_cast<double>(nshared);
 	else if(ri!=0) quality = (static_cast<double>(nshared)/static_cast<double>(ri));
 	else quality = 0;
-	//for now save the number of shared hits between the reco and sim track
 	//cut on the fraction
-	if(quality > theMinHitCut){
+	if(quality > theMinHitCut && !(ThreeHitTracksAreSpecial && ri==3 && nshared<3) ){
+	  //if a track has just 3 hits we require that all 3 hits are shared
 	  if(!AbsoluteNumberOfHits && quality>1.) std::cout << " **** fraction > 1 " << " nshared = " << nshared 
 							    << "rechits = " << ri << " hit found " << seed->nHits() <<  std::endl;
 	  outputCollection.insert(edm::RefToBase<TrajectorySeed>(seedCollectionH,tindex), 
 				  std::make_pair(edm::Ref<TrackingParticleCollection>(TPCollectionH, tpindex),quality));
-	  LogTrace("TrackAssociator") << "Seed number " << tindex  
+	  LogTrace("TrackAssociator") << "Seed number " << tindex << " with #hits=" << ri
 				      << "associated to TP (pdgId, nb segments, p) = " 
 				      << (*t).pdgId() << " " << (*t).g4Tracks().size() 
-				      << " " << (*t).momentum() << " with quality =" << quality;
+				      << " " << (*t).momentum() <<" number " << tpindex << " with quality =" << quality;
 	} else {
-	  LogTrace("TrackAssociator") <<"Seed number " << tindex << " NOT associated with quality =" << quality;
+	  LogTrace("TrackAssociator") <<"Seed number " << tindex << " with #hits=" << ri << " NOT associated with quality =" << quality;
 	}
       }//TP loop
     }
@@ -406,7 +373,8 @@ TrackAssociatorByHits::associateSimToReco(edm::Handle<edm::View<TrajectorySeed> 
 					  edm::Handle<TrackingParticleCollection>& TPCollectionH, 
 					  const edm::Event * e ) const{
 
-  edm::LogVerbatim("TrackAssociator") << "Starting TrackAssociatorByHits::associateSimToReco";
+  edm::LogVerbatim("TrackAssociator") << "Starting TrackAssociatorByHits::associateSimToReco - #seeds="
+				      <<seedCollectionH->size()<<" #TPs="<<TPCollectionH->size();
   float quality=0;//fraction or absolute number of shared hits
   int nshared = 0;
   std::vector< SimHitIdpr> SimTrackIds;
@@ -421,8 +389,9 @@ TrackAssociatorByHits::associateSimToReco(edm::Handle<edm::View<TrajectorySeed> 
 
   //get the ID of the recotrack  by hits 
   int tindex=0;
-  int ri = 0;
   for (edm::View<TrajectorySeed>::const_iterator seed=sC.begin(); seed!=sC.end(); seed++, tindex++) {
+    int ri=0;//valid rechits
+    LogTrace("TrackAssociator") << "\nNEW SEED - seed number " << tindex << " # valid=" << seed->recHits().second-seed->recHits().first;
     getMatchedIds<edm::OwnVector<TrackingRecHit>::const_iterator>(matchedIds, SimTrackIds, ri, seed->recHits().first, seed->recHits().second, associate );
 
     //save id for the track
@@ -430,26 +399,26 @@ TrackAssociatorByHits::associateSimToReco(edm::Handle<edm::View<TrajectorySeed> 
     if(!matchedIds.empty()){
       int tpindex =0;
       for (TrackingParticleCollection::const_iterator t = tPC.begin(); t != tPC.end(); ++t, ++tpindex) {
-	LogTrace("TrackAssociator") << "NEW TP";
-	LogTrace("TrackAssociator") << "number of PSimHits for this TP: "  << t->trackPSimHit().size() ;
 	idcachev.clear();
 	int nsimhit = t->trackPSimHit().size();
+	LogTrace("TrackAssociator") << "TP number " << tpindex << " pdgId=" << t->pdgId() << " with number of PSimHits: "  << nsimhit;
 	nshared = getShared(matchedIds, idcachev, t);
 	
 	if (AbsoluteNumberOfHits) quality = static_cast<double>(nshared);
 	else if(ri!=0) quality = ((double) nshared)/((double)ri);
 	else quality = 0;
-	LogTrace("TrackAssociator") << "Final count: nhit(TP) = " << nsimhit 
-				    << " nshared = " << nshared 
-				    << " nrechit = " << ri;
-	if (quality>theMinHitCut) {
+	//LogTrace("TrackAssociator") << "Final count: nhit(TP) = " << nsimhit 
+	//<< " nshared = " << nshared 
+	//<< " nrechit = " << ri;
+	if(quality > theMinHitCut && !(ThreeHitTracksAreSpecial && ri==3 && nshared<3) ){
 	  outputCollection.insert(edm::Ref<TrackingParticleCollection>(TPCollectionH, tpindex), 
 				  std::make_pair(edm::RefToBase<TrajectorySeed>(seedCollectionH,tindex), quality));
-	  LogTrace("TrackAssociator") << "TrackingParticle number " << tpindex 
-					      << " associated with hit quality =" << quality ;
+	  LogTrace("TrackAssociator") << "TrackingParticle number " << tpindex << " with #hits=" << nsimhit
+				      << " associated to seed number " << tindex << " with #hits=" << ri 
+				      << " with hit quality =" << quality ;
 	}
 	else {
-	  LogTrace("TrackAssociator") << "TrackingParticle number " << tpindex << " NOT associated with quality =" << quality;
+	  LogTrace("TrackAssociator") << "TrackingParticle number " << tpindex << " with #hits=" << nsimhit << " NOT associated with quality =" << quality;
 	}
       }
     }
@@ -476,16 +445,31 @@ void TrackAssociatorByHits::getMatchedIds(std::vector<SimHitIdpr>& matchedIds,
 	SimTrackIds.clear();	  
  	SimTrackIds = associate->associateHitId(*getHitPtr(it));
 	//save all the id of matched simtracks
-	//*** simple version
 	if(!SimTrackIds.empty()){
 	 for(size_t j=0; j<SimTrackIds.size(); j++){
 	   LogTrace("TrackAssociator") << " hit # " << ri << " valid=" << getHitPtr(it)->isValid() 
 				       << " det id = " << t_detID << " SimId " << SimTrackIds[j].first 
 				       << " evt=" << SimTrackIds[j].second.event() 
 				       << " bc=" << SimTrackIds[j].second.bunchCrossing();  
-	   matchedIds.push_back(SimTrackIds[j]);			
+ 	   matchedIds.push_back(SimTrackIds[j]);			
 	 }
 	}
+	////debugging....****
+	//****to be used when the crossing frame is in the event and with flag TrackAssociatorByHitsESProducer.associateRecoTracks = false
+	//std::vector<PSimHit> tmpSimHits = associate->associateHit(*getHitPtr(it));
+	////cout << "tmpSimHits size=" << tmpSimHits.size() << endl;
+	//for(size_t j=0; j<tmpSimHits.size(); j++) {
+	//  LogTrace("TrackAssociator") << " hit # " << ri << " valid=" << getHitPtr(it)->isValid()
+	//                              << " det id = " << t_detID << " SimId " << SimTrackIds[j].first
+	//                              << " evt=" << SimTrackIds[j].second.event()
+	//                              << " bc=" << SimTrackIds[j].second.bunchCrossing()
+	//                              << " process=" << tmpSimHits[j].processType()
+	//                              << " eloss=" << tmpSimHits[j].energyLoss()
+	//                              << " part type=" << tmpSimHits[j].particleType()
+	//                              << " pabs=" << tmpSimHits[j].pabs()
+	//                              << " trId=" << tmpSimHits[j].trackId();
+	//}
+	////******************
       }else{
 	LogTrace("TrackAssociator") <<"\t\t Invalid Hit On "<<getHitPtr(it)->geographicalId().rawId();
       }
@@ -498,8 +482,7 @@ int TrackAssociatorByHits::getShared(std::vector<SimHitIdpr>& matchedIds,
 				     TrackingParticleCollection::const_iterator t) const {
   int nshared = 0;
   for(size_t j=0; j<matchedIds.size(); j++){
-    LogTrace("TrackAssociator") << "now matchedId=" << matchedIds[j].first;
-    //replace with a find in vector
+    //LogTrace("TrackAssociator") << "now matchedId=" << matchedIds[j].first;
     if(find(idcachev.begin(), idcachev.end(),matchedIds[j]) == idcachev.end() ){
       //only the first time we see this ID 
       idcachev.push_back(matchedIds[j]);
