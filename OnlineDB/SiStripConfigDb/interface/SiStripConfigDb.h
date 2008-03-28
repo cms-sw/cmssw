@@ -1,4 +1,4 @@
-// Last commit: $Id: SiStripConfigDb.h,v 1.48 2008/03/26 10:08:52 bainbrid Exp $
+// Last commit: $Id: SiStripConfigDb.h,v 1.49 2008/03/26 16:48:03 bainbrid Exp $
 
 #ifndef OnlineDB_SiStripConfigDb_SiStripConfigDb_h
 #define OnlineDB_SiStripConfigDb_SiStripConfigDb_h
@@ -73,36 +73,6 @@ class SiStripConfigDb {
       parameters). */
   SiStripConfigDb( const edm::ParameterSet&,
 		   const edm::ActivityRegistry& );
-
-  /** Constructor when using the configuration database, which takes
-      as arguments the database connection parameters. DO NOT USE: TO
-      BE DEPRECATED!!! */
-  SiStripConfigDb( std::string confdb,
-		   std::string db_partition,
-		   uint32_t    db_major_vers = 0,
-		   uint32_t    db_minor_vers = 0 );
-
-  /** Constructor when using the configuration database, which takes
-      as arguments the database connection parameters. DO NOT USE: TO
-      BE DEPRECATED!!! */
-  SiStripConfigDb( std::string db_user,
-		   std::string db_passwd,
-		   std::string db_path,
-		   std::string db_partition,
-		   uint32_t    db_major_vers = 0,
-		   uint32_t    db_minor_vers = 0 );
-  
-  /** Constructor when using xml files, which takes as arguments the
-      paths to the various input (and output) xml files. DO NOT USE:
-      TO BE DEPRECATED!!! */
-  SiStripConfigDb( std::string input_module_xml,
-		   std::string input_dcuinfo_xml,
-		   std::vector<std::string> input_fec_xml,
-		   std::vector<std::string> input_fed_xml,
-		   std::string output_module_xml = "/tmp/module.xml",
-		   std::string output_dcuinfo_xml = "/tmp/dcuinfo.xml",
-		   std::string output_fec_xml = "/tmp/fec.xml",
-		   std::string output_fed_xml = "/tmp/fed.xml" );
   
   /** Default destructor. */
   ~SiStripConfigDb();
@@ -129,6 +99,8 @@ class SiStripConfigDb {
     void confdb( const std::string& user,
 		 const std::string& passwd,
 		 const std::string& path );
+    std::string partitions() const;
+    std::vector<std::string> partitions( std::string ) const;
 
     // Public member data 
     bool usingDb_;
@@ -136,7 +108,7 @@ class SiStripConfigDb {
     std::string user_;
     std::string passwd_;
     std::string path_;
-    std::string partition_; 
+    std::vector<std::string> partitions_; 
     bool usingDbCache_;
     std::string sharedMemory_;
     uint32_t runNumber_;

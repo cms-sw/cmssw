@@ -1,6 +1,6 @@
-// Last commit: $Id: $
-// Latest tag:  $Name: $
-// Location:    $Source: $
+// Last commit: $Id: AnalysisDescriptions.cc,v 1.1 2008/02/06 17:13:12 bainbrid Exp $
+// Latest tag:  $Name:  $
+// Location:    $Source: /cvs_server/repositories/CMSSW/CMSSW/OnlineDB/SiStripConfigDb/src/AnalysisDescriptions.cc,v $
 
 #include "OnlineDB/SiStripConfigDb/interface/SiStripConfigDb.h"
 #include "DataFormats/SiStripCommon/interface/SiStripEnumsAndStrings.h"
@@ -22,7 +22,7 @@ const SiStripConfigDb::AnalysisDescriptions& SiStripConfigDb::getAnalysisDescrip
     // if physics run, return calibration constants 
     try { 
       analyses_ = deviceFactory(__func__)->getCalibrationData( dbParams_.runNumber_, 
-							       dbParams_.partition_, 
+							       dbParams_.partitions_.front(), 
 							       analysis_type );
     } catch (...) { handleException( __func__ ); }
     
@@ -49,7 +49,7 @@ const SiStripConfigDb::AnalysisDescriptions& SiStripConfigDb::getAnalysisDescrip
       // retrieve "history" first
       Runs runs;
       try { 
-	runs = deviceFactory(__func__)->getAnalysisHistory( dbParams_.partition_, 
+	runs = deviceFactory(__func__)->getAnalysisHistory( dbParams_.partitions_.front(), 
 							    analysis_type );
       } catch (...) { handleException( __func__ ); }
       Runs::const_iterator irun = runs.end();
@@ -100,7 +100,7 @@ const SiStripConfigDb::AnalysisDescriptions& SiStripConfigDb::getAnalysisDescrip
       if ( major && minor ) {
 
 	try { 
-	  analyses_ = deviceFactory(__func__)->getAnalysisHistory( dbParams_.partition_, 
+	  analyses_ = deviceFactory(__func__)->getAnalysisHistory( dbParams_.partitions_.front(), 
 								   major,
 								   minor,
 								   analysis_type );
@@ -112,7 +112,7 @@ const SiStripConfigDb::AnalysisDescriptions& SiStripConfigDb::getAnalysisDescrip
 	   << " analysis descriptions (for analyses of type " 
 	   << analysisType( analysis_type ) << ")"; 
 	if ( !dbParams_.usingDb_ ) { ss << " in " << dbParams_.inputFecXml_.size() << " 'fec.xml' file(s)"; }
-	else { ss << " in database partition '" << dbParams_.partition_ << "'"; }
+	else { ss << " in database partition '" << dbParams_.partitions_.front() << "'"; }
 	if ( analyses_.empty() ) { edm::LogWarning(mlConfigDb_) << ss.str(); }
 	else { LogTrace(mlConfigDb_) << ss.str(); }
 	
@@ -177,7 +177,7 @@ void SiStripConfigDb::uploadAnalysisDescriptions( bool use_as_calibrations_for_p
   
   try { 
     uint32_t version = deviceFactory(__func__)->uploadAnalysis( dbParams_.runNumber_, 
-								dbParams_.partition_, 
+								dbParams_.partitions_.front(), 
 								analysis_type,
 								analyses_,
 								use_as_calibrations_for_physics );

@@ -1,4 +1,4 @@
-// Last commit: $Id: DeviceDescriptions.cc,v 1.15 2008/02/06 17:13:12 bainbrid Exp $
+// Last commit: $Id: DeviceDescriptions.cc,v 1.16 2008/03/26 09:10:05 bainbrid Exp $
 // Latest tag:  $Name:  $
 // Location:    $Source: /cvs_server/repositories/CMSSW/CMSSW/OnlineDB/SiStripConfigDb/src/DeviceDescriptions.cc,v $
 
@@ -22,7 +22,7 @@ const SiStripConfigDb::DeviceDescriptions& SiStripConfigDb::getDeviceDescription
 
     if ( !dbParams_.usingDbCache_ ) { 
 
-      deviceFactory(__func__)->getFecDeviceDescriptions( dbParams_.partition_, 
+      deviceFactory(__func__)->getFecDeviceDescriptions( dbParams_.partitions_.front(), 
 							 all,
 							 dbParams_.fecMajor_,
 							 dbParams_.fecMinor_,
@@ -55,7 +55,7 @@ const SiStripConfigDb::DeviceDescriptions& SiStripConfigDb::getDeviceDescription
      << " device descriptions (for devices of type " 
      << deviceType( device_type ) << ")"; 
   if ( !dbParams_.usingDb_ ) { ss << " in " << dbParams_.inputFecXml_.size() << " 'fec.xml' file(s)"; }
-  else { if ( !dbParams_.usingDbCache_ )  { ss << " in database partition '" << dbParams_.partition_ << "'"; } 
+  else { if ( !dbParams_.usingDbCache_ )  { ss << " in database partition '" << dbParams_.partitions_.front() << "'"; } 
   else { ss << " from shared memory name '" << dbParams_.sharedMemory_ << "'"; } }
   if ( devices_.empty() ) { edm::LogWarning(mlConfigDb_) << ss.str(); }
   else { LogTrace(mlConfigDb_) << ss.str(); }
@@ -77,7 +77,7 @@ const SiStripConfigDb::DeviceDescriptions& SiStripConfigDb::getDeviceDescription
 
     if ( !dbParams_.usingDbCache_ ) { 
 
-      deviceFactory(__func__)->getFecDeviceDescriptions( dbParams_.partition_, 
+      deviceFactory(__func__)->getFecDeviceDescriptions( dbParams_.partitions_.front(), 
 							 devices_,
 							 dbParams_.fecMajor_,
 							 dbParams_.fecMinor_,
@@ -106,7 +106,7 @@ const SiStripConfigDb::DeviceDescriptions& SiStripConfigDb::getDeviceDescription
      << " Found " << devices_.size()
      << " device descriptions";
   if ( !dbParams_.usingDb_ ) { ss << " in " << dbParams_.inputFecXml_.size() << " 'fec.xml' file(s)"; }
-  else { if ( !dbParams_.usingDbCache_ )  { ss << " in database partition '" << dbParams_.partition_ << "'"; } 
+  else { if ( !dbParams_.usingDbCache_ )  { ss << " in database partition '" << dbParams_.partitions_.front() << "'"; } 
   else { ss << " from shared memory name '" << dbParams_.sharedMemory_ << "'"; } }
   if ( devices_.empty() ) { edm::LogWarning(mlConfigDb_) << ss.str(); }
   else { LogTrace(mlConfigDb_) << ss.str(); }
@@ -138,7 +138,7 @@ void SiStripConfigDb::uploadDeviceDescriptions( bool new_major_version ) {
   
   try { 
     deviceFactory(__func__)->setFecDeviceDescriptions( devices_,
-						       dbParams_.partition_, 
+						       dbParams_.partitions_.front(), 
 						       &(dbParams_.fecMajor_),
 						       &(dbParams_.fecMinor_),
 						       new_major_version );

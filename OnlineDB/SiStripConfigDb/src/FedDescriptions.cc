@@ -1,4 +1,4 @@
-// Last commit: $Id: FedDescriptions.cc,v 1.16 2008/02/06 17:13:12 bainbrid Exp $
+// Last commit: $Id: FedDescriptions.cc,v 1.17 2008/03/26 09:10:05 bainbrid Exp $
 // Latest tag:  $Name:  $
 // Location:    $Source: /cvs_server/repositories/CMSSW/CMSSW/OnlineDB/SiStripConfigDb/src/FedDescriptions.cc,v $
 
@@ -30,7 +30,7 @@ const SiStripConfigDb::FedDescriptions& SiStripConfigDb::getFedDescriptions() {
 	major = -1; //@@ "current state" for fed factory!
 	minor = -1; //@@ "current state" for fed factory!
       }
-      feds_ = *( deviceFactory(__func__)->getFed9UDescriptions( dbParams_.partition_, 
+      feds_ = *( deviceFactory(__func__)->getFed9UDescriptions( dbParams_.partitions_.front(), 
 								major, 
 								minor ) );
 
@@ -58,7 +58,7 @@ const SiStripConfigDb::FedDescriptions& SiStripConfigDb::getFedDescriptions() {
      << " Found " << feds_.size() 
      << " FED descriptions"; 
   if ( !dbParams_.usingDb_ ) { ss << " in " << dbParams_.inputFedXml_.size() << " 'fed.xml' file(s)"; }
-  else { if ( !dbParams_.usingDbCache_ )  { ss << " in database partition '" << dbParams_.partition_ << "'"; } 
+  else { if ( !dbParams_.usingDbCache_ )  { ss << " in database partition '" << dbParams_.partitions_.front() << "'"; } 
   else { ss << " from shared memory name '" << dbParams_.sharedMemory_ << "'"; } }
   if ( feds_.empty() ) { edm::LogWarning(mlConfigDb_) << ss.str(); }
   else { LogTrace(mlConfigDb_) << ss.str(); }
@@ -90,7 +90,7 @@ void SiStripConfigDb::uploadFedDescriptions( bool new_major_version ) {
   
   try { 
     deviceFactory(__func__)->setFed9UDescriptions( feds_,
-						   dbParams_.partition_,
+						   dbParams_.partitions_.front(),
 						   (uint16_t*)(&dbParams_.fedMajor_), 
 						   (uint16_t*)(&dbParams_.fedMinor_),
 						   (new_major_version?1:0) ); 
@@ -167,6 +167,12 @@ const vector<uint16_t>& SiStripConfigDb::getFedIds() {
   
   FedDescriptions::iterator ifed = feds_.begin();
   for ( ; ifed != feds_.end(); ifed++ ) { 
+    if ( !(*ifed) ) {
+      edm::LogError(mlCabling_)
+	<< "[SiStripConfigDb::" << __func__ << "]"
+	<< " NULL pointer to FedConnection!";
+      continue;
+    }
     fedIds_.push_back( (*ifed)->getFedId() );
   }
   
