@@ -1,0 +1,21 @@
+import FWCore.ParameterSet.Config as cms
+
+# KFUpdatorESProducer
+from TrackingTools.KalmanUpdators.KFUpdatorESProducer_cfi import *
+# Chi2MeasurementEstimatorESProducer
+from TrackingTools.KalmanUpdators.Chi2MeasurementEstimatorESProducer_cfi import *
+# KFTrajectoryFitterESProducer
+from TrackingTools.TrackFitters.KFTrajectoryFitterESProducer_cfi import *
+# KFTrajectorySmootherESProducer
+from TrackingTools.TrackFitters.KFTrajectorySmootherESProducer_cfi import *
+# KFFittingSmootherESProducer
+from TrackingTools.TrackFitters.KFFittingSmootherESProducer_cfi import *
+# PropagatorWithMaterialESProducer
+from TrackingTools.MaterialEffects.MaterialPropagator_cfi import *
+# PropagatorWithMaterialESProducer
+from TrackingTools.MaterialEffects.OppositeMaterialPropagator_cfi import *
+# TransientRecHitRecordESProducer
+from RecoTracker.TransientTrackingRecHit.TransientTrackingRecHitBuilderWithoutRefit_cfi import *
+# Generic TrackProducer
+from RecoTracker.TrackProducer.CTFFinalFitWithMaterial_cfi import *
+
