@@ -13,7 +13,7 @@
 //
 // Original Author:  Giovanni FRANZONI
 //         Created:  Wed Sep 19 16:21:29 CEST 2007
-// $Id: EcalMIPRecHitFilter.cc,v 1.1.1.1 2008/03/24 14:51:28 haupt Exp $
+// $Id: EcalMIPRecHitFilter.cc,v 1.1 2008/03/26 15:07:19 haupt Exp $
 //
 //
 
@@ -70,10 +70,10 @@ class EcalMIPRecHitFilter : public HLTFilter {
 EcalMIPRecHitFilter::EcalMIPRecHitFilter(const edm::ParameterSet& iConfig)
 {
    //now do what ever initialization is needed
-  minSingleAmp_     = iConfig.getUntrackedParameter<double>("SingleAmpMin", 12);
-  minAmp_     = iConfig.getUntrackedParameter<double>("AmpMin", 7);
+  minSingleAmp_     = iConfig.getUntrackedParameter<double>("SingleAmpMin", 9);
+  minAmp_     = iConfig.getUntrackedParameter<double>("AmpMin", 6.5);
   maskedList_ = iConfig.getUntrackedParameter<std::vector<int> >("maskedChannels", maskedList_); //this is using the ashed index
-  EcalRecHitCollection_ = iConfig.getParameter<edm::InputTag>("EcaRecHitCollection");
+  EcalRecHitCollection_ = iConfig.getParameter<edm::InputTag>("EcalRecHitCollection");
   side_ = iConfig.getUntrackedParameter<int>("side", 3);  
 }
 
@@ -99,10 +99,14 @@ EcalMIPRecHitFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
    // getting very basic uncalRH
    Handle<EcalRecHitCollection> recHits;
-   try {
-     iEvent.getByLabel(EcalRecHitCollection_, recHits);
-   } catch ( std::exception& ex) {
-     LogWarning("EcalMIPRecHitFilter") << EcalRecHitCollection_ << " not available";
+   //try {
+   //  iEvent.getByLabel(EcalRecHitCollection_, recHits);
+   //} catch ( std::exception& ex) {
+   //  LogWarning("EcalMIPRecHitFilter") << EcalRecHitCollection_ << " not available";
+   //}
+   iEvent.getByLabel(EcalRecHitCollection_, recHits);
+   if (!recHits.isValid()){
+      LogWarning("EcalMIPRecHitFilter") << EcalRecHitCollection_ << " not available";
    }
 
    ESHandle<CaloTopology> caloTopo;
@@ -127,6 +131,7 @@ EcalMIPRecHitFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
      // seeking channels with signal and displaced jitter
      if (ampli_ >= minSingleAmp_  ) 
        {
+	 //std::cout << " THIS AMPLITUDE WORKS " << ampli_ << std::endl;
 	 thereIsSignal = true;
 	 // LogWarning("EcalFilter")  << "at evet: " << iEvent.id().event() 
 	 // 				       << " and run: " << iEvent.id().run() 
@@ -138,12 +143,18 @@ EcalMIPRecHitFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
      //Check for more robust selection other than just single crystal cosmics
      if (ampli_ >= minAmp_)
        {
+	 //std::cout << " THIS AMPLITUDE WORKS " << ampli_ << std::endl;
 	  std::vector<DetId> neighbors = caloTopo->getWindow(ebDet,side_,side_);
           double secondMin = 0.;
 	  double E9 = ampli_;
           for(std::vector<DetId>::const_iterator detitr = neighbors.begin(); detitr != neighbors.end(); ++detitr)
 	    {
 	      EcalRecHitCollection::const_iterator thishit = recHits->find((*detitr));
+              if (thishit == recHits->end()) 
+		{
+		  LogWarning("EcalMIPRecHitFilter") << "No RecHit available, for "<< EBDetId(*detitr);
+		  continue;
+		}
 	      double thisamp = (*thishit).energy();
               E9+=thisamp;
 	      if (thisamp > secondMin) secondMin = thisamp;
@@ -163,7 +174,7 @@ EcalMIPRecHitFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
        }
      
    }
-   
+   //std::cout << " Ok is There one of THEM " << thereIsSignal << std::endl;
    return thereIsSignal;
 }
 
