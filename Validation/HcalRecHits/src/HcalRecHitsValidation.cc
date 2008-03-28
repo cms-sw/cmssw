@@ -437,76 +437,77 @@ HcalRecHitsValidation::HcalRecHitsValidation(edm::ParameterSet const& conf) {
 
 HcalRecHitsValidation::~HcalRecHitsValidation() {
 
-  for (unsigned int i1 = 0;  i1 < 82; i1++) {
-    for (unsigned int i2 = 0;  i2 < 72; i2++) {
-      
-      int index = (i1-41) * 72 + i2;
+  if (hcalselector_ == "ZS"  ) {
 
-      double e = emap_min[i1][i2][0][0];
-      if( e < 10000.) {
-	ZS_HB1->Fill(e);
-        ZS_seqHB1->Fill(double(index),e);
+    for (unsigned int i1 = 0;  i1 < 82; i1++) {
+      for (unsigned int i2 = 0;  i2 < 72; i2++) {
+	
+	int index = (i1-41) * 72 + i2;
+	
+	double e = emap_min[i1][i2][0][0];
+	if( e < 10000.) {
+	  ZS_HB1->Fill(e);
+	  ZS_seqHB1->Fill(double(index),e);
+	}
+	e = emap_min[i1][i2][1][0];
+	if( e < 10000.) {
+	  ZS_HB2->Fill(e);
+	  ZS_seqHB2->Fill(double(index),e);
+	}
+	
+	e = emap_min[i1][i2][0][1];
+	if( e < 10000.) {
+	  ZS_HE1->Fill(e);
+	  ZS_seqHE1->Fill(double(index),e);
+	}
+	e = emap_min[i1][i2][1][1];
+	if( e < 10000.) {
+	  ZS_HE2->Fill(e);
+	  ZS_seqHE2->Fill(double(index),e);
+	}
+	e = emap_min[i1][i2][2][1];
+	if( e < 10000.) {
+	  ZS_HE3->Fill(e);
+	  ZS_seqHE3->Fill(double(index),e);
+	}
+	
+	
+	e = emap_min[i1][i2][3][2];
+	if( e < 10000.) {
+	  ZS_HO->Fill(e);
+	  ZS_seqHO->Fill(double(index),e);
+	}
+	
+	e = emap_min[i1][i2][0][3];
+	if( e < 10000.) {
+	  ZS_HF1->Fill(e);
+	  ZS_seqHF1->Fill(double(index),e);
+	}
+	
+	e = emap_min[i1][i2][1][3];
+	if( e < 10000.) {
+	  ZS_HF2->Fill(e);
+	  ZS_seqHF2->Fill(double(index),e);
+	}
+	
+	for (unsigned int i3 = 0;  i3 < 4;  i3++) {  // depth
+	  double emin = 100000.;
+	  for (unsigned int i4 = 0;  i4 < 4;  i4++) {  // subdet
+	    if ( emin > emap_min [i1][i2][i3][i4]) 
+	      emin = emap_min [i1][i2][i3][i4];
+	  }
+	  if( i3 == 0 && emin < 10000.)
+	    map_depth1->Fill(double(i1-41),double(i2),emin);
+	  if( i3 == 1 && emin < 10000.)
+	    map_depth2->Fill(double(i1-41),double(i2),emin);
+	  if( i3 == 2 && emin < 10000.) 
+	    map_depth3->Fill(double(i1-41),double(i2),emin);
+	  if( i3 == 3 && emin < 10000.) 
+	    map_depth4->Fill(double(i1-41),double(i2),emin);
+	}
       }
-      e = emap_min[i1][i2][1][0];
-      if( e < 10000.) {
-	ZS_HB2->Fill(e);
-	ZS_seqHB2->Fill(double(index),e);
-      }
-
-      e = emap_min[i1][i2][0][1];
-      if( e < 10000.) {
-	ZS_HE1->Fill(e);
-	ZS_seqHE1->Fill(double(index),e);
-      }
-      e = emap_min[i1][i2][1][1];
-      if( e < 10000.) {
-	ZS_HE2->Fill(e);
-	ZS_seqHE2->Fill(double(index),e);
-      }
-      e = emap_min[i1][i2][2][1];
-      if( e < 10000.) {
-	ZS_HE3->Fill(e);
-	ZS_seqHE3->Fill(double(index),e);
-      }
-
-
-      e = emap_min[i1][i2][3][2];
-      if( e < 10000.) {
-	ZS_HO->Fill(e);
-	ZS_seqHO->Fill(double(index),e);
-      }
-      
-      e = emap_min[i1][i2][0][3];
-      if( e < 10000.) {
-	ZS_HF1->Fill(e);
-	ZS_seqHF1->Fill(double(index),e);
-      }
-
-      e = emap_min[i1][i2][1][3];
-      if( e < 10000.) {
-	ZS_HF2->Fill(e);
-	ZS_seqHF2->Fill(double(index),e);
-      }
-  
-      for (unsigned int i3 = 0;  i3 < 4;  i3++) {  // depth
-	double emin = 100000.;
-	for (unsigned int i4 = 0;  i4 < 4;  i4++) {  // subdet
-	  if ( emin > emap_min [i1][i2][i3][i4]) 
-	    emin = emap_min [i1][i2][i3][i4];
-        }
-        if( i3 == 0 && emin < 10000.)
-	  map_depth1->Fill(double(i1-41),double(i2),emin);
-        if( i3 == 1 && emin < 10000.)
-	  map_depth2->Fill(double(i1-41),double(i2),emin);
-        if( i3 == 2 && emin < 10000.) 
-	  map_depth3->Fill(double(i1-41),double(i2),emin);
-        if( i3 == 3 && emin < 10000.) 
-	  map_depth4->Fill(double(i1-41),double(i2),emin);
-      }
-    }
+    } 
   }
-  
-
    
   std::cout << " outputFile_.size() =  " << outputFile_.size() << std::endl;
   std::cout << " dbe_ = " << dbe_ << std::endl;
