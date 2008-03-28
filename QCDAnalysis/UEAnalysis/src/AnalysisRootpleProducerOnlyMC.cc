@@ -4,7 +4,7 @@
 #include "QCDAnalysis/UEAnalysis/interface/AnalysisRootpleProducerOnlyMC.h"
 #include "DataFormats/JetReco/interface/Jet.h"
 #include "DataFormats/JetReco/interface/GenJet.h"
-#include "DataFormats/JetReco/interface/GenJetfwd.h"
+#include "DataFormats/JetReco/interface/GenJetCollection.h"
 #include "DataFormats/Candidate/interface/Candidate.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -16,34 +16,41 @@ using namespace edm;
 using namespace std;
 using namespace reco;
 
-
-class GreaterPt{
+class GreaterPt
+{
 public:
-  bool operator()( const math::XYZTLorentzVector& a, const math::XYZTLorentzVector& b) {
+  bool operator()( const math::XYZTLorentzVector& a, const math::XYZTLorentzVector& b) 
+  {
     return a.pt() > b.pt();
   }
 };
 
-class GenJetSort{
+class GenJetSort
+{
 public:
-  bool operator()(const GenJet& a, const GenJet& b) {
+  bool operator()(const GenJet& a, const GenJet& b) 
+  {
     return a.pt() > b.pt();
   }
 };
 
 
-void AnalysisRootpleProducerOnlyMC::store(){
+void AnalysisRootpleProducerOnlyMC::store()
+{
   AnalysisTree->Fill();
+
   NumberMCParticles=0;
   NumberInclusiveJet=0;
   NumberChargedJet=0;
 }
 
-void AnalysisRootpleProducerOnlyMC::fillEventInfo(int e){
+void AnalysisRootpleProducerOnlyMC::fillEventInfo(int e)
+{
   EventKind = e;
 }
 
-void AnalysisRootpleProducerOnlyMC::fillMCParticles(float p, float pt, float eta, float phi){
+void AnalysisRootpleProducerOnlyMC::fillMCParticles(float p, float pt, float eta, float phi)
+{
   MomentumMC[NumberMCParticles]=p;
   TransverseMomentumMC[NumberMCParticles]=pt;
   EtaMC[NumberMCParticles]=eta;
@@ -51,7 +58,8 @@ void AnalysisRootpleProducerOnlyMC::fillMCParticles(float p, float pt, float eta
   NumberMCParticles++;
 }
 
-void AnalysisRootpleProducerOnlyMC::fillInclusiveJet(float p, float pt, float eta, float phi){
+void AnalysisRootpleProducerOnlyMC::fillInclusiveJet(float p, float pt, float eta, float phi)
+{
   MomentumIJ[NumberInclusiveJet]=p;
   TransverseMomentumIJ[NumberInclusiveJet]=pt;
   EtaIJ[NumberInclusiveJet]=eta;
@@ -59,7 +67,8 @@ void AnalysisRootpleProducerOnlyMC::fillInclusiveJet(float p, float pt, float et
   NumberInclusiveJet++;
 }
 
-void AnalysisRootpleProducerOnlyMC::fillChargedJet(float p, float pt, float eta, float phi){
+void AnalysisRootpleProducerOnlyMC::fillChargedJet(float p, float pt, float eta, float phi)
+{
   MomentumCJ[NumberChargedJet]=p;
   TransverseMomentumCJ[NumberChargedJet]=pt;
   EtaCJ[NumberChargedJet]=eta;
@@ -68,8 +77,7 @@ void AnalysisRootpleProducerOnlyMC::fillChargedJet(float p, float pt, float eta,
 }
 
 AnalysisRootpleProducerOnlyMC::AnalysisRootpleProducerOnlyMC( const ParameterSet& pset )
-  : fOutputFileName( pset.getUntrackedParameter<string>("HistOutFile",std::string("TestHiggsMass.root")) ),
-    mcEvent( pset.getUntrackedParameter<string>("MCEvent",std::string(""))),
+  : mcEvent( pset.getUntrackedParameter<string>("MCEvent",std::string(""))),
     genJetCollName( pset.getUntrackedParameter<string>("GenJetCollectionName",std::string(""))),
     chgJetCollName( pset.getUntrackedParameter<string>("ChgGenJetCollectionName",std::string(""))),
     chgGenPartCollName( pset.getUntrackedParameter<string>("ChgGenPartCollectionName",std::string("")))
@@ -83,54 +91,54 @@ AnalysisRootpleProducerOnlyMC::AnalysisRootpleProducerOnlyMC( const ParameterSet
 
 void AnalysisRootpleProducerOnlyMC::beginJob( const EventSetup& )
 {
-  
-  hFile = new TFile ( fOutputFileName.c_str(), "RECREATE" );
-  AnalysisTree = new TTree("AnalysisTree","MBUE Analysis Tree ");
-  
+  // use TFileService for output to root file 
+  AnalysisTree = fs->make<TTree>("AnalysisTree","MBUE Analysis Tree ");
+ 
+  // process type
   AnalysisTree->Branch("EventKind",&EventKind,"EventKind/I");
   
+  // store p, pt, eta, phi for particles and jets
+
+  // GenParticles at hadron level
   AnalysisTree->Branch("NumberMCParticles",&NumberMCParticles,"NumberMCParticles/I");
   AnalysisTree->Branch("MomentumMC",MomentumMC,"MomentumMC[NumberMCParticles]/F");
   AnalysisTree->Branch("TransverseMomentumMC",TransverseMomentumMC,"TransverseMomentumMC[NumberMCParticles]/F");
   AnalysisTree->Branch("EtaMC",EtaMC,"EtaMC[NumberMCParticles]/F");
   AnalysisTree->Branch("PhiMC",PhiMC,"PhiMC[NumberMCParticles]/F");
-  
-  AnalysisTree->Branch("NumberTracks",&NumberTracks,"NumberTracks/I");
-  AnalysisTree->Branch("MomentumTK",MomentumTK,"MomentumTK[NumberTracks]/F");
-  AnalysisTree->Branch("TrasverseMomentumTK",TransverseMomentumTK,"TransverseMomentumTK[NumberTracks]/F");
-  AnalysisTree->Branch("EtaTK",EtaTK,"EtaTK[NumberTracks]/F");
-  AnalysisTree->Branch("PhiTK",PhiTK,"PhiTK[NumberTracks]/F");
-  
+
+  // GenJets
   AnalysisTree->Branch("NumberInclusiveJet",&NumberInclusiveJet,"NumberInclusiveJet/I");
   AnalysisTree->Branch("MomentumIJ",MomentumIJ,"MomentumIJ[NumberInclusiveJet]/F");
   AnalysisTree->Branch("TrasverseMomentumIJ",TransverseMomentumIJ,"TransverseMomentumIJ[NumberInclusiveJet]/F");
   AnalysisTree->Branch("EtaIJ",EtaIJ,"EtaIJ[NumberInclusiveJet]/F");
   AnalysisTree->Branch("PhiIJ",PhiIJ,"PhiIJ[NumberInclusiveJet]/F");
   
+  // jets from charged GenParticles
   AnalysisTree->Branch("NumberChargedJet",&NumberChargedJet,"NumberChargedJet/I");
   AnalysisTree->Branch("MomentumCJ",MomentumCJ,"MomentumCJ[NumberChargedJet]/F");
   AnalysisTree->Branch("TrasverseMomentumCJ",TransverseMomentumCJ,"TransverseMomentumCJ[NumberChargedJet]/F");
   AnalysisTree->Branch("EtaCJ",EtaCJ,"EtaCJ[NumberChargedJet]/F");
   AnalysisTree->Branch("PhiCJ",PhiCJ,"PhiCJ[NumberChargedJet]/F");
   
-  AnalysisTree->Branch("NumberTracksJet",&NumberTracksJet,"NumberTracksJet/I");
-  AnalysisTree->Branch("MomentumTJ",MomentumTJ,"MomentumTJ[NumberTracksJet]/F");
-  AnalysisTree->Branch("TrasverseMomentumTJ",TransverseMomentumTJ,"TransverseMomentumTJ[NumberTracksJet]/F");
-  AnalysisTree->Branch("EtaTJ",EtaTJ,"EtaTJ[NumberTracksJet]/F");
-  AnalysisTree->Branch("PhiTJ",PhiTJ,"PhiTJ[NumberTracksJet]/F");
+
+  // alternative storage method:
+  // save TClonesArrays of TLorentzVectors
+  // i.e. store 4-vectors of particles and jets
+
+  MonteCarlo = new TClonesArray("TLorentzVector", 10000);
+  AnalysisTree->Branch("MonteCarlo", "TClonesArray", &MonteCarlo, 128000, 0);
   
-  AnalysisTree->Branch("NumberCaloJet",&NumberCaloJet,"NumberCaloJet/I");
-  AnalysisTree->Branch("MomentumEHJ",MomentumEHJ,"MomentumEHJ[NumberCaloJet]/F");
-  AnalysisTree->Branch("TrasverseMomentumEHJ",TransverseMomentumEHJ,"TransverseMomentumEHJ[NumberCaloJet]/F");
-  AnalysisTree->Branch("EtaEHJ",EtaEHJ,"EtaEHJ[NumberCaloJet]/F");
-  AnalysisTree->Branch("PhiEHJ",PhiEHJ,"PhiEHJ[NumberCaloJet]/F");
-  
+  InclusiveJet = new TClonesArray("TLorentzVector", 10000);
+  AnalysisTree->Branch("InclusiveJet", "TClonesArray", &InclusiveJet, 128000, 0);
+
+  ChargedJet = new TClonesArray("TLorentzVector", 10000);
+  AnalysisTree->Branch("ChargedJet", "TClonesArray", &ChargedJet, 128000, 0);
 }
 
   
 void AnalysisRootpleProducerOnlyMC::analyze( const Event& e, const EventSetup& )
 {
-  
+
   Handle< HepMCProduct > EvtHandle ;
   
   e.getByLabel( mcEvent.c_str(), EvtHandle ) ;
@@ -139,15 +147,13 @@ void AnalysisRootpleProducerOnlyMC::analyze( const Event& e, const EventSetup& )
   
   EventKind = Evt->signal_process_id();
   
-  Handle< CandidateCollection > CandHandleMC ;
+  Handle< CandidateCollection > CandHandleMC     ;  
+  Handle< GenJetCollection    > GenJetsHandle    ;
+  Handle< GenJetCollection    > ChgGenJetsHandle ;
   
-  Handle< GenJetCollection > GenJetsHandle ;
-  Handle< GenJetCollection > ChgGenJetsHandle ;
-  
-  e.getByLabel( chgGenPartCollName.c_str(), CandHandleMC );
-  
-  e.getByLabel(chgJetCollName.c_str(), ChgGenJetsHandle );
-  e.getByLabel(genJetCollName.c_str(), GenJetsHandle );
+  e.getByLabel( chgGenPartCollName.c_str(), CandHandleMC     );
+  e.getByLabel( chgJetCollName    .c_str(), ChgGenJetsHandle );
+  e.getByLabel( genJetCollName    .c_str(), GenJetsHandle    );
   
   std::vector<math::XYZTLorentzVector> GenPart;
   std::vector<GenJet> ChgGenJetContainer;
@@ -157,37 +163,68 @@ void AnalysisRootpleProducerOnlyMC::analyze( const Event& e, const EventSetup& )
   ChgGenJetContainer.clear();
   GenJetContainer.clear();
   
-  if(ChgGenJetsHandle->size()){
-    for(GenJetCollection::const_iterator it=ChgGenJetsHandle->begin();it!=ChgGenJetsHandle->end();it++)
-      ChgGenJetContainer.push_back(*it);
+  ChargedJet->Clear();
+  InclusiveJet->Clear();
+  MonteCarlo->Clear();
+
+  if (ChgGenJetsHandle->size()){
+
+    for ( GenJetCollection::const_iterator it(ChgGenJetsHandle->begin()), itEnd(ChgGenJetsHandle->end());
+	  it!=itEnd; ++it)
+      {
+	ChgGenJetContainer.push_back(*it);
+      }
+    
     std::stable_sort(ChgGenJetContainer.begin(),ChgGenJetContainer.end(),GenJetSort());
-    for(std::vector<GenJet>::const_iterator it = ChgGenJetContainer.begin(); it != ChgGenJetContainer.end(); it++)
-      fillChargedJet(it->p(),it->pt(),it->eta(),it->phi());
+    
+    std::vector<GenJet>::const_iterator it(ChgGenJetContainer.begin()), itEnd(ChgGenJetContainer.end());
+    for ( int iChargedJet(0); it != itEnd; ++it, ++iChargedJet)
+      {
+	fillChargedJet(it->p(),it->pt(),it->eta(),it->phi());
+	new((*ChargedJet)[iChargedJet]) TLorentzVector(it->px(), it->py(), it->pz(), it->energy());
+      }
   }
   
-  if(GenJetsHandle->size()){
-    for(GenJetCollection::const_iterator it=GenJetsHandle->begin();it!=GenJetsHandle->end();it++)
-      GenJetContainer.push_back(*it);
+  if (GenJetsHandle->size()){
+    
+    for ( GenJetCollection::const_iterator it(GenJetsHandle->begin()), itEnd(GenJetsHandle->end());
+	  it!=itEnd; ++it )
+      {
+	GenJetContainer.push_back(*it);
+      }
+
     std::stable_sort(GenJetContainer.begin(),GenJetContainer.end(),GenJetSort());
-    for(std::vector<GenJet>::const_iterator it = GenJetContainer.begin(); it != GenJetContainer.end(); it++)
-      fillInclusiveJet(it->p(),it->pt(),it->eta(),it->phi());
+
+    std::vector<GenJet>::const_iterator it(GenJetContainer.begin()), itEnd(GenJetContainer.end()); 
+    for ( int iInclusiveJet(0); it != itEnd; ++it, ++iInclusiveJet)
+      {
+	fillInclusiveJet(it->p(),it->pt(),it->eta(),it->phi());
+	new((*InclusiveJet)[iInclusiveJet]) TLorentzVector(it->px(), it->py(), it->pz(), it->energy());
+      }
   }
   
-  if(CandHandleMC->size()){
-    for(CandidateCollection::const_iterator it = CandHandleMC->begin();it!=CandHandleMC->end();it++){
-      GenPart.push_back(it->p4());
-    }
+  if (CandHandleMC->size()){
+
+    for (CandidateCollection::const_iterator it(CandHandleMC->begin()), itEnd(CandHandleMC->end());
+	 it != itEnd;it++)
+      {
+	GenPart.push_back(it->p4());
+      }
+
     std::stable_sort(GenPart.begin(),GenPart.end(),GreaterPt());
-    for(std::vector<math::XYZTLorentzVector>::const_iterator it = GenPart.begin(); it != GenPart.end(); it++)
-      fillMCParticles(it->P(),it->Pt(),it->Eta(),it->Phi());
+
+    std::vector<math::XYZTLorentzVector>::const_iterator it(GenPart.begin()), itEnd(GenPart.end());
+    for( int iMonteCarlo(0); it != itEnd; ++it, ++iMonteCarlo )
+      {
+	fillMCParticles(it->P(),it->Pt(),it->Eta(),it->Phi());
+	new((*MonteCarlo)[iMonteCarlo]) TLorentzVector(it->Px(), it->Py(), it->Pz(), it->E()); 
+      }
   }
-  
+
   store();
 }
 
-void AnalysisRootpleProducerOnlyMC::endJob(){
-  hFile->cd();
-  AnalysisTree->Write();
-  hFile->Close();
+void AnalysisRootpleProducerOnlyMC::endJob()
+{
 }
 

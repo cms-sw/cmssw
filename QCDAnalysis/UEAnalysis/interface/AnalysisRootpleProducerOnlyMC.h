@@ -3,16 +3,20 @@
 
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
-//#include "TProfile.h"
+
+#include <FWCore/ServiceRegistry/interface/Service.h>
+#include <PhysicsTools/UtilAlgos/interface/TFileService.h>
+
 #include <TROOT.h>
 #include <TTree.h>
 #include <TFile.h>
-#include <TH1F.h>
-#include <TProfile.h>
-class TTree;
-// forward declarations
-class TFile;
-class TH1D;
+#include <TLorentzVector.h>
+#include <TClonesArray.h>
+
+/* class TTree; */
+/* // forward declarations */
+/* class TFile; */
+/* class TH1D; */
 
 class AnalysisRootpleProducerOnlyMC : public edm::EDAnalyzer
 {
@@ -45,7 +49,11 @@ private:
   std::string chgGenPartCollName;
   
   float piG;
-  TFile* hFile;
+
+  edm::Service<TFileService> fs;
+  TFile *tf1;
+
+  //  TFile* hFile;
   TTree* AnalysisTree;
 
   static const int NMCPMAX = 10000;   
@@ -63,6 +71,12 @@ private:
   float MomentumCJ[NCJMAX],TransverseMomentumCJ[NCJMAX],EtaCJ[NCJMAX],PhiCJ[NCJMAX];
   float MomentumTJ[NTJMAX],TransverseMomentumTJ[NTJMAX],EtaTJ[NTJMAX],PhiTJ[NTJMAX];
   float MomentumEHJ[NEHJMAX],TransverseMomentumEHJ[NEHJMAX],EtaEHJ[NEHJMAX],PhiEHJ[NEHJMAX];
+
+  //
+  TClonesArray* MonteCarlo;
+  TClonesArray* InclusiveJet;
+  TClonesArray* ChargedJet;
+  
 };
 
 #endif
