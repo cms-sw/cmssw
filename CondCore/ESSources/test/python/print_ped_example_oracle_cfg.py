@@ -3,7 +3,7 @@ import FWCore.ParameterSet.Config as cms
 process = cms.Process("TEST")
 process.load("CondCore.DBCommon.CondDBCommon_cfi")
 process.CondDBCommon.connect = cms.string('oracle://cms_orcoff_int2r/CMS_COND_PRESH')
-process.CondDBCommon.DBParameters.authenticationPath = cms.string('/afs/cern.ch/cms/DB/conddb')
+process.CondDBCommon.DBParameters.authenticationPath=cms.untracked.string('/afs/cern.ch/cms/DB/conddb')
 process.CondDBCommon.DBParameters.messageLevel = 1
 process.PoolDBESSource = cms.ESSource("PoolDBESSource",
     process.CondDBCommon,
