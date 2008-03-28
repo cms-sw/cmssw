@@ -239,9 +239,7 @@ private:
   void getQReport(bool create, const std::string &qtname, QReport *&qr, DQMNet::QValue *&qv);
   void addQReport(const DQMNet::QValue &desc, QCriterion *qc);
   void addQReport(QCriterion *qc);
-  void clear(void);
-
-  void setReference(MonitorElement *other);
+  void updateQReportStats(void);
 
 public:
   TObject *getRootObject(void) const;

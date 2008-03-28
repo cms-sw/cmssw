@@ -8,6 +8,7 @@
 #include "FWCore/MessageLogger/interface/JobReport.h"
 #include "classlib/utils/RegexpMatch.h"
 #include "classlib/utils/Regexp.h"
+#include "classlib/utils/StringOps.h"
 #include "TFile.h"
 #include "TROOT.h"
 #include "TKey.h"
@@ -901,7 +902,7 @@ DQMStore::getAllTags(std::vector<std::string> &into) const
     size_t sz = di->size() + 2;
     size_t nfound = 0;
     for ( ; m != me && isSubdirectory(*di, m->second.path_); ++m)
-      if (*di == m->second.path_ && ! mi->second.data_.tags.empty())
+      if (*di == m->second.path_ && ! m->second.data_.tags.empty())
       {
         // the tags count for '/' + up to 10 digits, otherwise ',' + ME name
 	sz += 1 + m->second.name_.size() + 11*m->second.data_.tags.size();
@@ -920,7 +921,7 @@ DQMStore::getAllTags(std::vector<std::string> &into) const
     *istr += ':';
     for (sz = 0; mi != m; ++mi)
     {
-      if (*di != mi->second.path_)
+      if (*di != mi->second.path_ || mi->second.data_.tags.empty())
 	continue;
 
       if (sz > 0)
@@ -928,10 +929,10 @@ DQMStore::getAllTags(std::vector<std::string> &into) const
 
       *istr += mi->second.name_;
 
-      for (size_t ti = 0, te = m->second.data_.tags.size(); ti < te; ++ti)
+      for (size_t ti = 0, te = mi->second.data_.tags.size(); ti < te; ++ti)
       {
 	char tagbuf[32]; // more than enough for '/' and up to 10 digits
-	sprintf(tagbuf, "/%u", m->second.data_.tags[ti]);
+	sprintf(tagbuf, "/%u", mi->second.data_.tags[ti]);
 	*istr += tagbuf;
       }
 
@@ -1184,8 +1185,6 @@ DQMStore::extract(TObject *obj, const std::string &dir, bool overwrite)
       qv.code = atoi(m.matchString(value, 1).c_str());
       qv.message = m.matchString(value, 2);
       me->addQReport(qv, /* FIXME: getQTest(qv.qtname)? */ 0);
-
-      // FIXME: Update flags?
     }
     else
     {
@@ -1271,7 +1270,9 @@ DQMStore::cdInto(const std::string &path) const
 void
 DQMStore::save(const std::string &filename,
 	       const std::string &path /* = "" */,
-	       int minStatus /* =dqm::qstatus::STATUS_OK */)
+	       const std::string &pattern /* = "" */,
+	       const std::string &rewrite /* = "" */,
+	       int minStatus /* = dqm::qstatus::STATUS_OK */)
 {
   std::set<std::string>::iterator di, de;
   MEMap::iterator mi, me = data_.end();
@@ -1285,16 +1286,8 @@ DQMStore::save(const std::string &filename,
       << "Failed to create file '" << filename << "'";
   f.cd();
 
-
-  bool putrunprefix = false;
-  std::string run ;
-  // if minStatus is large it is interpreted as Runnumber
-  if (minStatus > 10000 || minStatus < 2) {
-     putrunprefix = true;
-     char runnumber[10];
-     sprintf(runnumber,"R%09d",minStatus);  
-     run = runnumber;
-  }
+  // Construct a regular expression from the pattern string.
+  lat::Regexp rxpat(pattern.empty() ? "^" : pattern.c_str());
 
   // Loop over the directory structure.
   for (di = dirs_.begin(), de = dirs_.end(); di != de; ++di)
@@ -1329,26 +1322,11 @@ DQMStore::save(const std::string &filename,
 
       // Create the directory.
       gDirectory->cd("/");
-      if(!putrunprefix){
-	  if (di->empty())
-	    cdInto(s_monitorDirName);
-	  else
-	    cdInto(s_monitorDirName + '/' + *di);
-	  //	    std::cout << "prepend=\"\" " << s_monitorDirName + '/' + *di << std::endl;
-      }
-      else {
-	  if (di->empty())
-	    cdInto(run);
-	  else
-	    {
-	      size_t slash = (*di).find('/');
-	      size_t length = (*di).length();
-	      std::string firstpart = (*di).substr(0,slash);
-	      std::string lastpart = (*di).substr(slash+1,length);
-	      // std::cout << run + "/" + firstpart + "/Run summary/" + lastpart << std::endl;
-	      cdInto(run + "/" + firstpart + "/Run summary/" + lastpart);
-	    }
-      }      
+      if (di->empty())
+	cdInto(s_monitorDirName);
+      else
+	cdInto(s_monitorDirName + '/' + lat::StringOps::replace(*di, rxpat, rewrite));
+
       // Save the object.
       mi->second.data_.object->Write();
 
@@ -1501,6 +1479,11 @@ DQMStore::open(const std::string &filename,
 
   unsigned n = readDirectory(&f, overwrite, onlypath, prepend, "");
   f.Close();
+
+  MEMap::iterator mi = data_.begin();
+  MEMap::iterator me = data_.end();
+  for ( ; mi != me; ++mi)
+    mi->second.updateQReportStats();
 
   if (verbose_)
   {
