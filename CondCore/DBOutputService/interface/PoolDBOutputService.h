@@ -112,7 +112,7 @@ namespace cond{
 			 cond::Time_t firstTillTime,
 			 const std::string& EventSetupRecordName){
 	// generate warning
-	bool UsingTheOldInterfaceWOfirstSinceTimePleaseUpgrade;
+	//bool UsingTheOldInterfaceWOfirstSinceTimePleaseUpgrade;
 	
 	createNewIOV(firstPayloadObj, beginOfTime(),firstTillTime, EventSetupRecordName,false);
       }
