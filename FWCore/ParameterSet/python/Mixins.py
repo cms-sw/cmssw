@@ -144,7 +144,7 @@ class _Parameterizable(object):
         super(_Parameterizable,self).__delattr__(name)
         self.__parameterNames.remove(name)
     @staticmethod
-    def __raiseBadSetAttr(self, name):
+    def __raiseBadSetAttr(name):
         raise TypeError(name+" does not already exist, so it can only be set to a CMS python configuration type")
     def dumpPython(self, options=PrintOptions()):
         others = []
