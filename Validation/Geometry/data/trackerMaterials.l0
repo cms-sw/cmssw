@@ -70,6 +70,8 @@ FPix_Silicone                    1.000 0.000 0.000 0.000 0.000
 
 Copper                           0.000 0.000 1.000 0.000 0.000
 
+T_G10                            1.000 0.000 0.000 0.000 0.000
+
 
 
 #pixel_bar.in 0 0 0 0 0
@@ -88,24 +90,38 @@ T_Pix_Bar_Cool                   0.000 0.000 0.000 1.000 0.000
 
 Pix_Bar_Cable                    0.000 0.000 1.000 0.000 0.000
 
-Pix_Bar_Water                    0.000 0.000 0.000 1.000 0.000
+Flange_with_Manifold_Layer1      0.422 0.000 0.000 0.578 0.000
 
-Pix_Bar_Cable1                   0.000 0.000 0.345 0.655 0.000
+Flange_with_Manifold_Layer2      0.442 0.000 0.000 0.558 0.000
 
-Pix_Bar_Cable2                   0.000 0.000 0.369 0.631 0.000
+FlangeInner_with_Manifold_Layer3 0.155 0.000 0.000 0.845 0.000
 
-Pix_Bar_Cable3                   0.000 0.000 0.329 0.671 0.000
+FlangeOuter_Layer3               1.000 0.000 0.000 0.000 0.000
+
+cable_endring_to_tube            0.023 0.000 0.881 0.096 0.000
+
+Layer1_2_EndringPrints           0.005 0.000 0.000 0.000 0.995
+
+Layer3_EndringPrints             0.006 0.000 0.000 0.000 0.994
+
+silicone_pipes_plus_coolant      0.000 0.000 0.000 1.000 0.000
+
+Pix_Bar_Conn2                    0.462 0.000 0.262 0.276 0.000
+
+Pix_Bar_Cable1                   0.000 0.000 0.343 0.657 0.000
+
+Pix_Bar_Cable2                   0.000 0.000 0.367 0.633 0.000
+
+Pix_Bar_Cable3                   0.000 0.000 0.327 0.673 0.000
 
 Pix_Bar_Conn1                    0.000 0.000 1.000 0.000 0.000
 
-Pix_Bar_Conn2                    0.403 0.000 0.361 0.236 0.000
+Pix_Bar_Conn3                    0.384 0.000 0.217 0.221 0.177
 
-Pix_Bar_Conn3                    0.387 0.000 0.218 0.217 0.178
+Pix_Bar_Services                 0.474 0.000 0.253 0.273 0.000
 
-Pix_Bar_Services                 0.478 0.000 0.255 0.268 0.000
+Pix_Bar_Services                 0.478 0.000 0.255 0.268 0.000    
 
-Pix_Bar_Services                 0.478 0.000 0.255 0.268 0.000
-    
 
 
 #pixel_fwd.in 0 0 0 0 0
@@ -136,7 +152,6 @@ Pix_Fwd_Port_Cards               0.000 0.000 0.176 0.000 0.824
 Pix_Fwd_End_Pipe_1               0.000 0.000 0.490 0.510 0.000
 
 Pix_Fwd_End_Pipe_2               0.000 0.000 0.497 0.503 0.000
-
 
 
 
@@ -190,10 +205,6 @@ TIB_Pillar                       1.000 0.000 0.000 0.000 0.000
 
 #tid_module.in 0 0 0 0 0
 
-TID_frame_side                   0.825 0.000 0.000 0.000 0.175
-
-TID_frame_top                    1.000 0.000 0.000 0.000 0.000
-
 TID_CoolInsert                   1.000 0.000 0.000 0.000 0.000
 
 T_TIDModKaptonBox                0.407 0.000 0.000 0.000 0.593
@@ -227,6 +238,8 @@ TID_DOHM1                        0.000 0.000 0.000 0.000 1.000
 TID_DOHM2                        0.000 0.000 0.000 0.000 1.000
 
 TID_FiberLayer                   0.000 0.000 1.000 0.000 0.000
+
+TID_ModuleFix                    1.000 0.000 0.000 0.000 0.000
     
 
 
@@ -272,7 +285,7 @@ T_MedusaWire                     0.000 0.000 1.000 0.000 0.000
 
 TIB_Flange                       0.076 0.000 0.819 0.104 0.000
 
-TIBTID_ServiceCylinder           0.142 0.000 0.648 0.210 0.000
+TIBTID_ServiceCylinder           0.137 0.000 0.660 0.202 0.000
 
 TIBTID_ServiceDisk               0.566 0.000 0.334 0.100 0.000
 
@@ -280,7 +293,7 @@ TIBTID_OptoPanelFront            0.089 0.000 0.911 0.000 0.000
 
 TIBTID_OptoConnectors            0.135 0.000 0.865 0.000 0.000
 
-TIBTID_OptoPanelBackInner        0.280 0.000 0.720 0.000 0.000
+TIBTID_OptoPanelBackInner        0.459 0.000 0.541 0.000 0.000
 
 TIBTID_OptoPanelBackOuter        0.190 0.000 0.810 0.000 0.000
 
@@ -290,8 +303,8 @@ TIBTID_PowerConnectors           0.000 0.000 1.000 0.000 0.000
 
 TIBTID_TSTCabAxial               0.264 0.000 0.499 0.236 0.000
 
-TIBTID_TSTCabRadial              0.000 0.000 0.647 0.353 0.000
-    
+TIBTID_TSTCabRadial              0.000 0.000 0.647 0.353 0.000    
+
 
 
 #tob_module.in 0 0 0 0 0
@@ -596,6 +609,10 @@ TEC_wheel_Nomex                  1.000 0.000 0.000 0.000 0.000
 
 TEC_wheel_CF                     1.000 0.000 0.000 0.000 0.000
 
+TEC_wheel6_Nomex                 1.000 0.000 0.000 0.000 0.000
+
+TEC_wheel6_CF                    1.000 0.000 0.000 0.000 0.000
+
 TEC_wheelinsert                  1.000 0.000 0.000 0.000 0.000
 
 TEC_Fixframe                     1.000 0.000 0.000 0.000 0.000
@@ -606,7 +623,7 @@ TEC_AlignHolder                  1.000 0.000 0.000 0.000 0.000
 
 TEC_CraneBracket                 1.000 0.000 0.000 0.000 0.000
 
-TEC_Beamsplitter                 0.947 0.000 0.000 0.000 0.053    
+TEC_Beamsplitter                 0.947 0.000 0.000 0.000 0.053
 
 
 
@@ -649,6 +666,14 @@ Tk_panels_mid2                   0.000 0.000 1.000 0.000 0.000
 Tk_panels_mid3                   0.000 0.000 1.000 0.000 0.000
 
 Tk_panels_up                     0.000 0.000 0.757 0.243 0.000
+
+TS_PowerCable                    0.000 0.000 1.000 0.000 0.000
+
+TS_SignalCable                   0.000 0.000 1.000 0.000 0.000
+
+Tk_Cables_PP1                    0.054 0.000 0.782 0.165 0.000
+
+Tk_Connectors_PP1                0.000 0.000 0.826 0.174 0.000
     
 
 
