@@ -70,7 +70,7 @@ pathName_dict={'GEN':'pgen',
                'DIGI2RAW':'DigiToRaw',
                'RAW2DIGI':'RawToDigi',
                'ANA':'analysis',
-               'DQM':'offlinedqm',
+               'DQM':'validation',
                'FASTSIM':'fastsim',
                'HLT':'hlt'}
 

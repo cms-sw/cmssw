@@ -160,15 +160,15 @@ def raw2digi(process,name):
     
     return process
 
-def offlinedqm(process,name):
+def validation(process,name):
     '''
-    Enrich the schedule with offline dqm
+    Enrich the schedule with validation
     '''
     func_id=mod_id+"["+sys._getframe().f_code.co_name+"]"
     
-    process.offlinedqm_step=cms.Path(getattr(process,name))
+    process.validation_step=cms.Path(getattr(process,name))
     if not user_schedule:
-        process.schedule.append(process.offlinedqm_step)
+        process.schedule.append(process.validation_step)
     
     common.log ('%s adding step ...'%func_id)
     
