@@ -1,5 +1,5 @@
 #!/usr/bin/env perl
-# $Id: valgrindMemcheckGraph.pl,v 1.1 2007/06/11 08:39:10 rahatlou Exp $
+# $Id: valgrindMemcheckGraph.pl,v 1.1 2008/03/28 18:14:31 gpetrucc Exp $
 # Created: June 2007
 # Author: Gioivanni Petrucciani, INFN Pisa
 #
@@ -58,8 +58,8 @@ if ($help) {
   If no input file is specified, reads from standard input.
 
   It needs a graphviz dot program with PNG support, you can get mine from AFS with:
-    export LD_LIBRARY_PATH=/afs/cern.ch/user/g/gpetrucc/scratch0/graphviz/lib:${LD_LIBRARY_PATH}
-    export PATH=/afs/cern.ch/user/g/gpetrucc/scratch0/graphviz/bin:${PATH}
+    export LD_LIBRARY_PATH=/afs/cern.ch/user/g/gpetrucc/scratch0/graphviz/lib:\${LD_LIBRARY_PATH}
+    export PATH=/afs/cern.ch/user/g/gpetrucc/scratch0/graphviz/bin:\${PATH}
 
   FILTERS
     --libs: coma-separated list of libs to require in the library stack trace 
