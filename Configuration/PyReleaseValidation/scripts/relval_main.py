@@ -45,7 +45,7 @@ step_dict={'GEN':steps.gen,
            'DIGI2RAW':steps.digi2raw,
            'RAW2DIGI':steps.raw2digi,
            'ANA':steps.ana,
-           'DQM':steps.offlinedqm,
+           'DQM':steps.validation,
            'FASTSIM':steps.fastsim,
            'HLT':steps.hlt}
 
