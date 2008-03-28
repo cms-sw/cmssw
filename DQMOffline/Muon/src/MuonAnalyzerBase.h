@@ -6,8 +6,8 @@
  *
  *  base class for all DQM monitor sources
  *
- *  $Date: 2008/03/27 10:00:51 $
- *  $Revision: 1.3 $
+ *  $Date$
+ *  $Revision$
  *  \author G. Mila - INFN Torino
  */
 
@@ -28,12 +28,15 @@
 class MuonAnalyzerBase {
  public:
 
-  /// Constructor (histo booking)
-  MuonAnalyzerBase(MuonServiceProxy *theServ, DQMStore *Dbe) {theService=theServ; theDbe=Dbe;}
+  /// Constructor
+  MuonAnalyzerBase(MuonServiceProxy *theServ):theService(theServ){}
   
   /// Destructor
   virtual ~MuonAnalyzerBase() {}
   
+  /// Inizialize parameters for histo binning
+  virtual void beginJob(edm::EventSetup const& iSetup,  DQMStore* dbe)= 0;
+
   /// Get the analysis of the muon properties
   void analyze(const edm::Event&, const edm::EventSetup&, reco::Muon& recoMuon){}
 
@@ -42,12 +45,8 @@ class MuonAnalyzerBase {
 
   MuonServiceProxy* service() {return theService;}
 
-  DQMStore* dbe() {return theDbe;}
-
  private:
   // ----------member data ---------------------------
   MuonServiceProxy *theService;
-  DQMStore * theDbe;
-
 };
 #endif  

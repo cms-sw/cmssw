@@ -6,8 +6,8 @@
  *
  *  DQM monitoring source for muon track seeds
  *
- *  $Date: 2008/03/27 10:01:33 $
- *  $Revision: 1.4 $
+ *  $Date$
+ *  $Revision$
  *  \author G. Mila - INFN Torino
  */
 
@@ -30,12 +30,15 @@ class MuonServiceProxy;
 class MuonSeedsAnalyzer : public MuonAnalyzerBase {
  public:
 
-  /// Constructor (histo booking)
-  MuonSeedsAnalyzer(const edm::ParameterSet&, MuonServiceProxy *theService, DQMStore *theDbe);
+  /// Constructor
+  MuonSeedsAnalyzer(const edm::ParameterSet&, MuonServiceProxy *theService);
   
   /// Destructor
   virtual ~MuonSeedsAnalyzer();
 
+  /// Inizialize parameters for histo binning
+  void beginJob(edm::EventSetup const& iSetup, DQMStore * dbe);
+  
   /// Get the analysis
   void analyze(const edm::Event&, const edm::EventSetup&, const TrajectorySeed& seed);
   

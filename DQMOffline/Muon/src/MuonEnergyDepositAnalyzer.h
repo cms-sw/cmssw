@@ -6,8 +6,8 @@
  *
  *  DQM monitoring source for muon energy deposits
  *
- *  $Date: 2008/03/27 10:01:58 $
- *  $Revision: 1.4 $
+ *  $Date$
+ *  $Revision$
  *  \author G. Mila - INFN Torino
  */
 
@@ -28,12 +28,15 @@
 class MuonEnergyDepositAnalyzer : public MuonAnalyzerBase {
  public:
 
-  /// Constructor (histo booking)
-  MuonEnergyDepositAnalyzer(const edm::ParameterSet&, MuonServiceProxy *theService, DQMStore *theDbe);
+  /// Constructor
+  MuonEnergyDepositAnalyzer(const edm::ParameterSet&, MuonServiceProxy *theService);
   
   /// Destructor
   virtual ~MuonEnergyDepositAnalyzer();
   
+  /// Inizialize parameters for histo binning
+  void beginJob(edm::EventSetup const& iSetup, DQMStore *dbe);
+
   /// Get the analysis
   void analyze(const edm::Event&, const edm::EventSetup&, const reco::Muon& recoMu);
 

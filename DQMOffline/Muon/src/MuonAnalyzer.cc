@@ -2,8 +2,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/03/27 10:03:30 $
- *  $Revision: 1.5 $
+ *  $Date$
+ *  $Revision$
  *  \author G. Mila - INFN Torino
  */
 
@@ -30,12 +30,11 @@ using namespace edm;
 MuonAnalyzer::MuonAnalyzer(const edm::ParameterSet& pSet) {
 
   cout<<"[MuonAnalyzer] Constructor called!"<<endl;
+
   parameters = pSet;
 
   // the services
   theService = new MuonServiceProxy(parameters.getParameter<ParameterSet>("ServiceParameters"));
-  dbe = edm::Service<DQMStore>().operator->();
-  dbe->setVerbose(1);
   
   // STA Cosmic Muon Collection Label
   theSTACollectionLabel = parameters.getParameter<edm::InputTag>("CosmicsCollectionLabel");
@@ -43,9 +42,9 @@ MuonAnalyzer::MuonAnalyzer(const edm::ParameterSet& pSet) {
   theSeedsCollectionLabel = parameters.getParameter<edm::InputTag>("seedsCollectionLabel");
   
   // do the analysis on muon energy
-  theMuEnergyAnalyzer = new MuonEnergyDepositAnalyzer(parameters.getParameter<ParameterSet>("muonEnergyAnalysis"), theService, dbe);
+  theMuEnergyAnalyzer = new MuonEnergyDepositAnalyzer(parameters.getParameter<ParameterSet>("muonEnergyAnalysis"), theService);
   // do the analysis on seeds
-  theSeedsAnalyzer = new MuonSeedsAnalyzer(parameters.getParameter<ParameterSet>("seedsAnalysis"), theService, dbe);
+  theSeedsAnalyzer = new MuonSeedsAnalyzer(parameters.getParameter<ParameterSet>("seedsAnalysis"), theService);
 
 }
 
@@ -55,7 +54,13 @@ MuonAnalyzer::~MuonAnalyzer() { }
 void MuonAnalyzer::beginJob(edm::EventSetup const& iSetup) {
 
   metname = "muonAnalyzer";
+
   LogTrace(metname)<<"[MuonAnalyzer] Parameters initialization";
+  dbe = edm::Service<DQMStore>().operator->();
+  dbe->setVerbose(1);
+
+  theMuEnergyAnalyzer->beginJob(iSetup, dbe);
+  theSeedsAnalyzer->beginJob(iSetup, dbe);
 
 }
 

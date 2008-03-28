@@ -4,7 +4,7 @@
  *
  *  $Date: 2008/03/25
  18:37:05 $
- *  $Revision: 1.5 $
+ *  $Revision$
  *  \author G. Mila - INFN Torino
  */
 
@@ -33,125 +33,131 @@ using namespace edm;
 
 
 
-MuonSeedsAnalyzer::MuonSeedsAnalyzer(const edm::ParameterSet& pSet, MuonServiceProxy *theService, DQMStore *theDbe):MuonAnalyzerBase(theService, theDbe) {
+MuonSeedsAnalyzer::MuonSeedsAnalyzer(const edm::ParameterSet& pSet, MuonServiceProxy *theService):MuonAnalyzerBase(theService) {
 
   cout<<"[MuonSeedsAnalyzer] Constructor called!"<<endl;
+  parameters = pSet;
+ 
+}
+
+
+MuonSeedsAnalyzer::~MuonSeedsAnalyzer() { }
+
+
+void MuonSeedsAnalyzer::beginJob(edm::EventSetup const& iSetup, DQMStore * dbe) {
 
   metname = "seedsAnalyzer";
-  LogTrace(metname)<<"[MuonSeedsAnalyzer] Parameters initialization";
-  parameters = pSet;
 
-  dbe()->setCurrentFolder("Muons/MuonSeedsAnalyzer");
+  LogTrace(metname)<<"[MuonSeedsAnalyzer] Parameters initialization";
+  dbe->setCurrentFolder("Muons/MuonSeedsAnalyzer");
+
   seedHitBin = parameters.getParameter<int>("RecHitBin");
   seedHitMin = parameters.getParameter<double>("RecHitMin");
   seedHitMax = parameters.getParameter<double>("RecHitMax");
   string histname = "NumberOfRecHitsPerSeed_";
-  NumberOfRecHitsPerSeed = dbe()->book1D(histname, histname, seedHitBin, seedHitMin, seedHitMax);
+  NumberOfRecHitsPerSeed = dbe->book1D(histname, histname, seedHitBin, seedHitMin, seedHitMax);
   NumberOfRecHitsPerSeed ->setAxisTitle("Number of RecHits of each seed");
 
   PhiBin = parameters.getParameter<int>("PhiBin");
   PhiMin = parameters.getParameter<double>("PhiMin");
   PhiMax = parameters.getParameter<double>("PhiMax");
   histname = "seedPhi_";
-  seedPhi = dbe()->book1D(histname, histname, PhiBin, PhiMin, PhiMax);
+  seedPhi = dbe->book1D(histname, histname, PhiBin, PhiMin, PhiMax);
   seedPhi->setAxisTitle("Seed azimuthal angle");
   
   EtaBin = parameters.getParameter<int>("EtaBin");
   EtaMin = parameters.getParameter<double>("EtaMin");
   EtaMax = parameters.getParameter<double>("EtaMax");
   histname = "seedEta_";
-  seedEta = dbe()->book1D(histname, histname, EtaBin, EtaMin, EtaMax);
+  seedEta = dbe->book1D(histname, histname, EtaBin, EtaMin, EtaMax);
   seedEta->setAxisTitle("Seed pseudorapidity");
   
   ThetaBin = parameters.getParameter<int>("ThetaBin");
   ThetaMin = parameters.getParameter<double>("ThetaMin");
   ThetaMax = parameters.getParameter<double>("ThetaMax");
   histname = "seedTheta_";
-  seedTheta = dbe()->book1D(histname, histname, ThetaBin, ThetaMin, ThetaMax);
+  seedTheta = dbe->book1D(histname, histname, ThetaBin, ThetaMin, ThetaMax);
   seedTheta->setAxisTitle("Seed polar angle");
 
   seedPtBin = parameters.getParameter<int>("seedPtBin");
   seedPtMin = parameters.getParameter<double>("seedPtMin");
   seedPtMax = parameters.getParameter<double>("seedPtMax");
   histname = "seedPt_";
-  seedPt = dbe()->book1D(histname, histname, seedPtBin, seedPtMin, seedPtMax);
+  seedPt = dbe->book1D(histname, histname, seedPtBin, seedPtMin, seedPtMax);
   seedPt->setAxisTitle("Transverse seed momentum");
 
   seedPxBin = parameters.getParameter<int>("seedPxBin");
   seedPxMin = parameters.getParameter<double>("seedPxMin");
   seedPxMax = parameters.getParameter<double>("seedPxMax");
   histname = "seedPx_";
-  seedPx = dbe()->book1D(histname, histname, seedPxBin, seedPxMin, seedPxMax);
+  seedPx = dbe->book1D(histname, histname, seedPxBin, seedPxMin, seedPxMax);
   seedPx->setAxisTitle("x component of seed momentum");
 
   seedPyBin = parameters.getParameter<int>("seedPyBin");
   seedPyMin = parameters.getParameter<double>("seedPyMin");
   seedPyMax = parameters.getParameter<double>("seedPyMax");
   histname = "seedPy_";
-  seedPy = dbe()->book1D(histname, histname, seedPyBin, seedPyMin, seedPyMax);
+  seedPy = dbe->book1D(histname, histname, seedPyBin, seedPyMin, seedPyMax);
   seedPy->setAxisTitle("y component of seed momentum");
 
   seedPzBin = parameters.getParameter<int>("seedPzBin");
   seedPzMin = parameters.getParameter<double>("seedPzMin");
   seedPzMax = parameters.getParameter<double>("seedPzMax");
   histname = "seedPz_";
-  seedPz = dbe()->book1D(histname, histname, seedPzBin, seedPzMin, seedPzMax);
+  seedPz = dbe->book1D(histname, histname, seedPzBin, seedPzMin, seedPzMax);
   seedPz->setAxisTitle("z component of seed momentum");
 
   ptErrBin = parameters.getParameter<int>("ptErrBin");
   ptErrMin = parameters.getParameter<double>("ptErrMin");
   ptErrMax = parameters.getParameter<double>("ptErrMax");
   histname = "seedPtErrOverPt_";
-  seedPtErr = dbe()->book1D(histname, histname, ptErrBin, ptErrMin, ptErrMax);
+  seedPtErr = dbe->book1D(histname, histname, ptErrBin, ptErrMin, ptErrMax);
   seedPtErr->setAxisTitle("ptErr/pt");
   
   pxErrBin = parameters.getParameter<int>("pxErrBin");
   pxErrMin = parameters.getParameter<double>("pxErrMin");
   pxErrMax = parameters.getParameter<double>("pxErrMax");
   histname = "seedPxErrOverPx_";
-  seedPxErr = dbe()->book1D(histname, histname, pxErrBin, pxErrMin, pxErrMax);
+  seedPxErr = dbe->book1D(histname, histname, pxErrBin, pxErrMin, pxErrMax);
   seedPxErr->setAxisTitle("pxErr/px");
 
   pyErrBin = parameters.getParameter<int>("pyErrBin");
   pyErrMin = parameters.getParameter<double>("pyErrMin");
   pyErrMax = parameters.getParameter<double>("pyErrMax");
   histname = "seedPyErrOverPy_";
-  seedPyErr = dbe()->book1D(histname, histname, pyErrBin, pyErrMin, pyErrMax);
+  seedPyErr = dbe->book1D(histname, histname, pyErrBin, pyErrMin, pyErrMax);
   seedPyErr->setAxisTitle("pyErr/py");
 
   pzErrBin = parameters.getParameter<int>("pzErrBin");
   pzErrMin = parameters.getParameter<double>("pzErrMin");
   pzErrMax = parameters.getParameter<double>("pzErrMax");
   histname = "seedPzErrOverPz_";
-  seedPzErr = dbe()->book1D(histname, histname, pzErrBin, pzErrMin, pzErrMax);
+  seedPzErr = dbe->book1D(histname, histname, pzErrBin, pzErrMin, pzErrMax);
   seedPzErr->setAxisTitle("pzErr/pz");
 
   pErrBin = parameters.getParameter<int>("pErrBin");
   pErrMin = parameters.getParameter<double>("pErrMin");
   pErrMax = parameters.getParameter<double>("pErrMax");
   histname = "seedPErrOverP_";
-  seedPErr = dbe()->book1D(histname, histname, pErrBin, pErrMin, pErrMax);
+  seedPErr = dbe->book1D(histname, histname, pErrBin, pErrMin, pErrMax);
   seedPErr->setAxisTitle("pErr/p");
 
   phiErrBin = parameters.getParameter<int>("phiErrBin");
   phiErrMin = parameters.getParameter<double>("phiErrMin");
   phiErrMax = parameters.getParameter<double>("phiErrMax");
   histname = "seedPhiErr_";
-  seedPhiErr = dbe()->book1D(histname, histname, phiErrBin, phiErrMin, phiErrMax);
+  seedPhiErr = dbe->book1D(histname, histname, phiErrBin, phiErrMin, phiErrMax);
   seedPhiErr->setAxisTitle("phiErr");
 
   etaErrBin = parameters.getParameter<int>("etaErrBin");
   etaErrMin = parameters.getParameter<double>("etaErrMin");
   etaErrMax = parameters.getParameter<double>("etaErrMax");
   histname = "seedEtaErr_";
-  seedEtaErr = dbe()->book1D(histname, histname, etaErrBin, etaErrMin, etaErrMax);
+  seedEtaErr = dbe->book1D(histname, histname, etaErrBin, etaErrMin, etaErrMax);
   seedEtaErr->setAxisTitle("etaErr");
   
- 
+
 }
-
-
-MuonSeedsAnalyzer::~MuonSeedsAnalyzer() { }
 
 
 void MuonSeedsAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup, const TrajectorySeed& seed) {

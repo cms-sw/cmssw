@@ -6,8 +6,8 @@
  *
  *  DQM muon analysis monitoring
  *
- *  $Date: 2008/03/26 16:07:50 $
- *  $Revision: 1.4 $
+ *  $Date$
+ *  $Revision$
  *  \author G. Mila - INFN Torino
  */
 
