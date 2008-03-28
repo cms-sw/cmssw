@@ -95,12 +95,16 @@ def identifyComments(configString):
              inComment = False
         else:
              # now to comments in the same line
-             if len(line.split("#")) > 1:
+             if len(line.split("#")) > 1 or len(line.split("//")) > 1:
                comment = Comment()
-               comment.value = '#'+line.split("#")[1]
+               if len(line.split("#")) > 1:
+                 comment.value = '#'+line.split("#")[1]
+               else:
+                 comment.value = '#'+line.split("//")[1]
                comment.type = "inline"
                # prepare the replaceDict
                prepareReplaceDict(line, comment, replaceDict)
+      
 
     return replaceDict
           
