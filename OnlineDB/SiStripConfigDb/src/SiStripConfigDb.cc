@@ -1,4 +1,4 @@
-// Last commit: $Id: SiStripConfigDb.cc,v 1.51 2008/03/26 16:48:10 bainbrid Exp $
+// Last commit: $Id: $
 
 #include "OnlineDB/SiStripConfigDb/interface/SiStripConfigDb.h"
 #include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
@@ -51,7 +51,7 @@ SiStripConfigDb::SiStripConfigDb( const edm::ParameterSet& pset,
 // -----------------------------------------------------------------------------
 //
 SiStripConfigDb::~SiStripConfigDb() {
-  if ( openConnection_ ) { closeDbConnection(); }
+  closeDbConnection(); 
   LogTrace(mlConfigDb_)
     << "[SiStripConfigDb::" << __func__ << "]"
     << " Destructing object...";
@@ -321,7 +321,7 @@ void SiStripConfigDb::openDbConnection() {
     << "[SiStripConfigDb::" << __func__ << "]"
     << " Opening connection to database...";
   
-  // Check
+  // Check if connection already exists
   if ( openConnection_ ) {
     edm::LogWarning(mlConfigDb_) 
       << "[SiStripConfigDb::" << __func__ << "]"
@@ -332,14 +332,9 @@ void SiStripConfigDb::openDbConnection() {
   
   // Establish database connection
   if ( dbParams_.usingDb_ ) { 
-    if ( dbParams_.usingDbCache_ ) { 
-      usingDatabaseCache(); 
-    } else { 
-      usingDatabase(); 
-    }
-  } else { 
-    usingXmlFiles(); 
-  }
+    if ( dbParams_.usingDbCache_ ) { usingDatabaseCache(); }
+    else { usingDatabase(); }
+  } else { usingXmlFiles(); }
   
   devices_.clear();
   feds_.clear();
@@ -361,14 +356,14 @@ void SiStripConfigDb::closeDbConnection() {
     << "[SiStripConfigDb::" << __func__ << "]"
     << " Closing connection to database...";
 
-  // Check
+  // Check if connection exists
   if ( !openConnection_ ) {
     edm::LogWarning(mlConfigDb_) 
       << "[SiStripConfigDb::" << __func__ << "]"
       << " No connection open!";
     return;
   }
-  openConnection_ = true;
+  openConnection_ = false;
   
   try { 
     if ( factory_ ) { delete factory_; }
@@ -394,9 +389,10 @@ DeviceFactory* const SiStripConfigDb::deviceFactory( std::string method_name ) c
   if ( factory_ ) { return factory_; }
   else { 
     if ( method_name != "" ) { 
-      std::stringstream ss;
-      ss << "[SiStripConfigDb::" << method_name << "]"
-	 << " NULL pointer to DeviceFactory!";
+      stringstream ss;
+      ss << "[SiStripConfigDb::" << __func__ << "]"
+	 << " NULL pointer to DeviceFactory requested by" 
+	 << " method SiStripConfigDb::" << method_name << "()!";
       edm::LogWarning(mlConfigDb_) << ss.str();
     }
     return 0;
@@ -409,9 +405,10 @@ DbClient* const SiStripConfigDb::databaseCache( std::string method_name ) const 
   if ( dbCache_ ) { return dbCache_; }
   else { 
     if ( method_name != "" ) { 
-      std::stringstream ss;
-      ss << "[SiStripConfigDb::" << method_name << "]"
-	 << " NULL pointer to DbClient!";
+      stringstream ss;
+      ss << "[SiStripConfigDb::" << __func__ << "]"
+	 << " NULL pointer to DbClient requested by" 
+	 << " method SiStripConfigDb::" << method_name << "()!";
       edm::LogWarning(mlConfigDb_) << ss.str();
     }
     return 0;

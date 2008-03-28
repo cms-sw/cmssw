@@ -1,6 +1,4 @@
-// Last commit: $Id: DeviceDescriptions.cc,v 1.16 2008/03/26 09:10:05 bainbrid Exp $
-// Latest tag:  $Name:  $
-// Location:    $Source: /cvs_server/repositories/CMSSW/CMSSW/OnlineDB/SiStripConfigDb/src/DeviceDescriptions.cc,v $
+// Last commit: $Id: $
 
 #include "OnlineDB/SiStripConfigDb/interface/SiStripConfigDb.h"
 
@@ -18,36 +16,34 @@ const SiStripConfigDb::DeviceDescriptions& SiStripConfigDb::getDeviceDescription
   
   try { 
 
-    DeviceDescriptions all;
+    DeviceDescriptions all_devices;
 
     if ( !dbParams_.usingDbCache_ ) { 
 
-      deviceFactory(__func__)->getFecDeviceDescriptions( dbParams_.partitions_.front(), 
-							 all,
+      deviceFactory(__func__)->getFecDeviceDescriptions( dbParams_.partition_, 
+							 all_devices,
 							 dbParams_.fecMajor_,
 							 dbParams_.fecMinor_,
 							 false ); //@@ do not get DISABLED modules (ie, those removed from cabling). 
-      devices_ = FecFactory::getDeviceFromDeviceVector( all, device_type );
+      devices_ = FecFactory::getDeviceFromDeviceVector( all_devices, device_type );
 
     } else {
 
 #ifdef USING_DATABASE_CACHE
       DeviceDescriptions* tmp = databaseCache(__func__)->getDevices();
-      if ( tmp ) { 
- 	devices_.resize( tmp->size() );
- 	std::copy( devices_.begin(), devices_.end(), tmp->begin() ); 
-      } else {
+      if ( tmp ) { all_devices = *tmp; }
+      else {
 	edm::LogWarning(mlConfigDb_)
 	  << "[SiStripConfigDb::" << __func__ << "]"
 	  << " NULL pointer to DeviceDescriptions vector!";
       }
 #endif
-      devices_ = FecFactory::getDeviceFromDeviceVector( all, device_type );
-      
+
+      devices_ = FecFactory::getDeviceFromDeviceVector( all_devices, device_type );
+   
     }
     
   } catch (...) { handleException( __func__ ); }
-  
   
   stringstream ss; 
   ss << "[SiStripConfigDb::" << __func__ << "]"
@@ -87,10 +83,8 @@ const SiStripConfigDb::DeviceDescriptions& SiStripConfigDb::getDeviceDescription
       
 #ifdef USING_DATABASE_CACHE
       DeviceDescriptions* tmp = databaseCache(__func__)->getDevices();
-      if ( tmp ) { 
- 	devices_.resize( tmp->size() );
- 	std::copy( devices_.begin(), devices_.end(), tmp->begin() ); 
-      } else {
+      if ( tmp ) { devices_ = *tmp; }
+      else {
 	edm::LogWarning(mlConfigDb_)
 	  << "[SiStripConfigDb::" << __func__ << "]"
 	  << " NULL pointer to DeviceDescriptions vector!";

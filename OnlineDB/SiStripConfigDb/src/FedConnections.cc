@@ -1,6 +1,4 @@
-// Last commit: $Id: FedConnections.cc,v 1.13 2008/03/26 09:10:05 bainbrid Exp $
-// Latest tag:  $Name:  $
-// Location:    $Source: /cvs_server/repositories/CMSSW/CMSSW/OnlineDB/SiStripConfigDb/src/FedConnections.cc,v $
+// Last commit: $Id: $
 
 #include "OnlineDB/SiStripConfigDb/interface/SiStripConfigDb.h"
 #include <ostream>
@@ -33,11 +31,8 @@ const SiStripConfigDb::FedConnections& SiStripConfigDb::getFedConnections() {
 
 #ifdef USING_DATABASE_CACHE
       FedConnections* tmp = databaseCache(__func__)->getConnections();
-      if ( tmp ) { 
- 	connections_.resize( tmp->size() );
- 	std::copy( connections_.begin(), connections_.end(), tmp->begin() ); 
- 	//std::copy( tmp->begin(), tmp->end(), connections_.begin() ); 
-      } else {
+      if ( tmp ) { connections_ = *tmp; }
+      else {
 	edm::LogWarning(mlConfigDb_)
 	  << "[SiStripConfigDb::" << __func__ << "]"
 	  << " NULL pointer to FedConnections vector!";
