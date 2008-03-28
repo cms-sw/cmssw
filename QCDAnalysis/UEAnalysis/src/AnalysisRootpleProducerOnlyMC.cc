@@ -1,16 +1,5 @@
 // Authors: F. Ambroglini, L. Fano'
-#include <iostream>
-
-#include "QCDAnalysis/UEAnalysis/interface/AnalysisRootpleProducerOnlyMC.h"
-#include "DataFormats/JetReco/interface/Jet.h"
-#include "DataFormats/JetReco/interface/GenJet.h"
-#include "DataFormats/JetReco/interface/GenJetCollection.h"
-#include "DataFormats/Candidate/interface/Candidate.h"
-#include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/Event.h"
-#include "DataFormats/Common/interface/Handle.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
- 
+#include <QCDAnalysis/UEAnalysis/interface/AnalysisRootpleProducerOnlyMC.h>
  
 using namespace edm;
 using namespace std;
@@ -77,11 +66,12 @@ void AnalysisRootpleProducerOnlyMC::fillChargedJet(float p, float pt, float eta,
 }
 
 AnalysisRootpleProducerOnlyMC::AnalysisRootpleProducerOnlyMC( const ParameterSet& pset )
-  : mcEvent( pset.getUntrackedParameter<string>("MCEvent",std::string(""))),
-    genJetCollName( pset.getUntrackedParameter<string>("GenJetCollectionName",std::string(""))),
-    chgJetCollName( pset.getUntrackedParameter<string>("ChgGenJetCollectionName",std::string(""))),
-    chgGenPartCollName( pset.getUntrackedParameter<string>("ChgGenPartCollectionName",std::string("")))
 {
+  mcEvent = pset.getUntrackedParameter<InputTag>("MCEvent",std::string(""));
+  genJetCollName = pset.getUntrackedParameter<InputTag>("GenJetCollectionName",std::string(""));
+  chgJetCollName = pset.getUntrackedParameter<InputTag>("ChgGenJetCollectionName",std::string(""));
+  chgGenPartCollName = pset.getUntrackedParameter<InputTag>("ChgGenPartCollectionName",std::string(""));
+
   piG = acos(-1.);
   NumberMCParticles=0;
   NumberInclusiveJet=0;
@@ -139,21 +129,14 @@ void AnalysisRootpleProducerOnlyMC::beginJob( const EventSetup& )
 void AnalysisRootpleProducerOnlyMC::analyze( const Event& e, const EventSetup& )
 {
 
-  Handle< HepMCProduct > EvtHandle ;
-  
-  e.getByLabel( mcEvent.c_str(), EvtHandle ) ;
+  e.getByLabel( mcEvent           , EvtHandle        ) ;
+  e.getByLabel( chgGenPartCollName, CandHandleMC     );
+  e.getByLabel( chgJetCollName    , ChgGenJetsHandle );
+  e.getByLabel( genJetCollName    , GenJetsHandle    );
   
   const HepMC::GenEvent* Evt = EvtHandle->GetEvent() ;
   
   EventKind = Evt->signal_process_id();
-  
-  Handle< CandidateCollection > CandHandleMC     ;  
-  Handle< GenJetCollection    > GenJetsHandle    ;
-  Handle< GenJetCollection    > ChgGenJetsHandle ;
-  
-  e.getByLabel( chgGenPartCollName.c_str(), CandHandleMC     );
-  e.getByLabel( chgJetCollName    .c_str(), ChgGenJetsHandle );
-  e.getByLabel( genJetCollName    .c_str(), GenJetsHandle    );
   
   std::vector<math::XYZTLorentzVector> GenPart;
   std::vector<GenJet> ChgGenJetContainer;

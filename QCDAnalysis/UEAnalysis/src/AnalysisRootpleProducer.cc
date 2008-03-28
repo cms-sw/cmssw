@@ -1,24 +1,9 @@
 // Authors: F. Ambroglini, L. Fano'
-#include <iostream>
-
-#include "QCDAnalysis/UEAnalysis/interface/AnalysisRootpleProducer.h"
-#include "DataFormats/JetReco/interface/Jet.h"
-#include "DataFormats/JetReco/interface/CaloJetCollection.h"
-#include "DataFormats/JetReco/interface/GenJet.h"
-#include "DataFormats/JetReco/interface/GenJetCollection.h"
-#include "DataFormats/JetReco/interface/BasicJet.h"
-#include "DataFormats/JetReco/interface/BasicJetCollection.h"
-#include "DataFormats/Candidate/interface/Candidate.h"
-#include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/Event.h"
-#include "DataFormats/Common/interface/Handle.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
- 
+#include <QCDAnalysis/UEAnalysis/interface/AnalysisRootpleProducer.h>
  
 using namespace edm;
 using namespace std;
 using namespace reco;
-
 
 class GreaterPt{
 public:
@@ -114,15 +99,16 @@ void AnalysisRootpleProducer::fillCaloJet(float p, float pt, float eta, float ph
 }
 
 AnalysisRootpleProducer::AnalysisRootpleProducer( const ParameterSet& pset )
-  : onlyRECO( pset.getUntrackedParameter<bool>("OnlyRECO",false)),
-    mcEvent( pset.getUntrackedParameter<string>("MCEvent",std::string(""))),
-    genJetCollName( pset.getUntrackedParameter<string>("GenJetCollectionName",std::string(""))),
-    chgJetCollName( pset.getUntrackedParameter<string>("ChgGenJetCollectionName",std::string(""))),
-    tracksJetCollName( pset.getUntrackedParameter<string>("TracksJetCollectionName",std::string(""))),
-    recoCaloJetCollName( pset.getUntrackedParameter<string>("RecoCaloJetCollectionName",std::string(""))),
-    chgGenPartCollName( pset.getUntrackedParameter<string>("ChgGenPartCollectionName",std::string(""))),
-    tracksCollName( pset.getUntrackedParameter<string>("TracksCollectionName",std::string("")))
 {
+  onlyRECO = pset.getUntrackedParameter<bool>("OnlyRECO",false);
+  mcEvent = pset.getUntrackedParameter<InputTag>("MCEvent",std::string(""));
+  genJetCollName = pset.getUntrackedParameter<InputTag>("GenJetCollectionName",std::string(""));
+  chgJetCollName = pset.getUntrackedParameter<InputTag>("ChgGenJetCollectionName",std::string(""));
+  tracksJetCollName = pset.getUntrackedParameter<InputTag>("TracksJetCollectionName",std::string(""));
+  recoCaloJetCollName = pset.getUntrackedParameter<InputTag>("RecoCaloJetCollectionName",std::string(""));
+  chgGenPartCollName = pset.getUntrackedParameter<InputTag>("ChgGenPartCollectionName",std::string(""));
+  tracksCollName = pset.getUntrackedParameter<InputTag>("TracksCollectionName",std::string(""));
+
   piG = acos(-1.);
   NumberMCParticles=0;
   NumberTracks=0;
@@ -138,9 +124,6 @@ void AnalysisRootpleProducer::beginJob( const EventSetup& )
   // use TFileService for output to root file
   AnalysisTree = fs->make<TTree>("AnalysisTree","MBUE Analysis Tree ");
 
-//   hFile = new TFile ( fOutputFileName.c_str(), "RECREATE" );
-//   AnalysisTree = new TTree("AnalysisTree","MBUE Analysis Tree ");
-  
   AnalysisTree->Branch("EventKind",&EventKind,"EventKind/I");
 
   // store p, pt, eta, phi for particles and jets
@@ -220,15 +203,10 @@ void AnalysisRootpleProducer::analyze( const Event& e, const EventSetup& )
 
   if(!onlyRECO){
     
-    Handle< HepMCProduct        > EvtHandle ;
-    Handle< CandidateCollection > CandHandleMC ;
-    Handle< GenJetCollection    > GenJetsHandle ;
-    Handle< GenJetCollection    > ChgGenJetsHandle ;
-    
-    e.getByLabel( mcEvent.c_str()           , EvtHandle        );
-    e.getByLabel( chgGenPartCollName.c_str(), CandHandleMC     );
-    e.getByLabel( chgJetCollName.c_str()    , ChgGenJetsHandle );
-    e.getByLabel( genJetCollName.c_str()    , GenJetsHandle    );
+    e.getByLabel( mcEvent           , EvtHandle        );
+    e.getByLabel( chgGenPartCollName, CandHandleMC     );
+    e.getByLabel( chgJetCollName    , ChgGenJetsHandle );
+    e.getByLabel( genJetCollName    , GenJetsHandle    );
     
     const HepMC::GenEvent* Evt = EvtHandle->GetEvent() ;
     
@@ -308,14 +286,10 @@ void AnalysisRootpleProducer::analyze( const Event& e, const EventSetup& )
 
   
   // reco level analysis
-
-  Handle< CandidateCollection > CandHandleRECO ;
-  Handle< BasicJetCollection  > TracksJetsHandle ;
-  Handle< CaloJetCollection   > RecoCaloJetsHandle ;
   
-  e.getByLabel( tracksCollName.c_str()     , CandHandleRECO     );
-  e.getByLabel( recoCaloJetCollName.c_str(), RecoCaloJetsHandle );
-  e.getByLabel( tracksJetCollName.c_str()  , TracksJetsHandle   );
+  e.getByLabel( tracksCollName     , CandHandleRECO     );
+  e.getByLabel( recoCaloJetCollName, RecoCaloJetsHandle );
+  e.getByLabel( tracksJetCollName  , TracksJetsHandle   );
   
   std::vector<math::XYZTLorentzVector> Tracks;
   std::vector<BasicJet> TracksJetContainer;

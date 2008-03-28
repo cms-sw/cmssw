@@ -1,6 +1,15 @@
 #ifndef AnalysisRootpleProducerOnlyMC_H
 #define AnalysisRootpleProducerOnlyMC_H
 
+#include <iostream>
+
+#include <FWCore/Framework/interface/Event.h>
+#include <FWCore/Framework/interface/ESHandle.h>
+#include <FWCore/Framework/interface/MakerMacros.h>
+#include <FWCore/Framework/interface/Frameworkfwd.h>
+#include <FWCore/ParameterSet/interface/ParameterSet.h>
+#include <DataFormats/Common/interface/Handle.h>
+
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
 
@@ -13,21 +22,22 @@
 #include <TLorentzVector.h>
 #include <TClonesArray.h>
 
-/* class TTree; */
-/* // forward declarations */
-/* class TFile; */
-/* class TH1D; */
+#include "DataFormats/JetReco/interface/Jet.h"
+#include "DataFormats/JetReco/interface/GenJet.h"
+#include "DataFormats/JetReco/interface/GenJetCollection.h"
+#include "DataFormats/Candidate/interface/Candidate.h"
+
+using namespace edm;
+using namespace reco;
 
 class AnalysisRootpleProducerOnlyMC : public edm::EDAnalyzer
 {
   
 public:
   
-  //
   explicit AnalysisRootpleProducerOnlyMC( const edm::ParameterSet& ) ;
-  virtual ~AnalysisRootpleProducerOnlyMC() {} // no need to delete ROOT stuff
-  // as it'll be deleted upon closing TFile
-  
+  virtual ~AnalysisRootpleProducerOnlyMC() {} 
+
   virtual void analyze( const edm::Event&, const edm::EventSetup& ) ;
   virtual void beginJob( const edm::EventSetup& ) ;
   virtual void endJob() ;
@@ -40,20 +50,21 @@ public:
 
 private:
   
-  //
-  
-  std::string fOutputFileName;
-  std::string mcEvent;
-  std::string genJetCollName;
-  std::string chgJetCollName;
-  std::string chgGenPartCollName;
+  InputTag mcEvent; // label of MC event
+  InputTag genJetCollName; // label of Jet made with MC particles
+  InputTag chgJetCollName; // label of Jet made with only charged MC particles
+  InputTag chgGenPartCollName; // label of charged MC particles
+
+  Handle< HepMCProduct        > EvtHandle        ;
+  Handle< CandidateCollection > CandHandleMC     ;
+  Handle< GenJetCollection    > GenJetsHandle    ;
+  Handle< GenJetCollection    > ChgGenJetsHandle ;
+
   
   float piG;
 
   edm::Service<TFileService> fs;
-  TFile *tf1;
 
-  //  TFile* hFile;
   TTree* AnalysisTree;
 
   static const int NMCPMAX = 10000;   
@@ -72,7 +83,6 @@ private:
   float MomentumTJ[NTJMAX],TransverseMomentumTJ[NTJMAX],EtaTJ[NTJMAX],PhiTJ[NTJMAX];
   float MomentumEHJ[NEHJMAX],TransverseMomentumEHJ[NEHJMAX],EtaEHJ[NEHJMAX],PhiEHJ[NEHJMAX];
 
-  //
   TClonesArray* MonteCarlo;
   TClonesArray* InclusiveJet;
   TClonesArray* ChargedJet;

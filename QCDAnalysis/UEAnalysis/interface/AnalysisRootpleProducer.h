@@ -1,6 +1,15 @@
 #ifndef AnalysisRootpleProducer_H
 #define AnalysisRootpleProducer_H
 
+#include <iostream>
+
+#include <FWCore/Framework/interface/Event.h>
+#include <FWCore/Framework/interface/ESHandle.h>
+#include <FWCore/Framework/interface/MakerMacros.h>
+#include <FWCore/Framework/interface/Frameworkfwd.h>
+#include <FWCore/ParameterSet/interface/ParameterSet.h>
+#include <DataFormats/Common/interface/Handle.h>
+
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
 
@@ -10,15 +19,19 @@
 #include <TROOT.h>
 #include <TTree.h>
 #include <TFile.h>
-/* #include <TH1F.h> */
-/* #include <TProfile.h> */
-//class TTree;
 #include <TLorentzVector.h>
 #include <TClonesArray.h>
 
-// forward declarations
-/* class TFile; */
-/* class TH1D; */
+#include "DataFormats/JetReco/interface/Jet.h"
+#include "DataFormats/JetReco/interface/GenJet.h"
+#include "DataFormats/JetReco/interface/GenJetCollection.h"
+#include "DataFormats/JetReco/interface/CaloJetCollection.h"
+#include "DataFormats/JetReco/interface/BasicJet.h"
+#include "DataFormats/JetReco/interface/BasicJetCollection.h"
+#include "DataFormats/Candidate/interface/Candidate.h"
+
+using namespace edm;
+using namespace reco;
 
 class AnalysisRootpleProducer : public edm::EDAnalyzer
 {
@@ -45,23 +58,28 @@ public:
 
 private:
   
-  //
-  
-  std::string fOutputFileName;
   bool onlyRECO;
-  std::string mcEvent;
-  std::string genJetCollName;
-  std::string chgJetCollName;
-  std::string tracksJetCollName;
-  std::string recoCaloJetCollName;
-  std::string chgGenPartCollName;
-  std::string tracksCollName;
+
+  InputTag mcEvent; // label of MC event
+  InputTag genJetCollName; // label of Jet made with MC particles
+  InputTag chgJetCollName; // label of Jet made with only charged MC particles
+  InputTag chgGenPartCollName; // label of charged MC particles
+  InputTag tracksJetCollName;
+  InputTag recoCaloJetCollName;
+  InputTag tracksCollName;
+
+  Handle< HepMCProduct        > EvtHandle ;
+  Handle< CandidateCollection > CandHandleMC ;
+  Handle< GenJetCollection    > GenJetsHandle ;
+  Handle< GenJetCollection    > ChgGenJetsHandle ;
+  Handle< CandidateCollection > CandHandleRECO ;
+  Handle< BasicJetCollection  > TracksJetsHandle ;
+  Handle< CaloJetCollection   > RecoCaloJetsHandle ;
   
   edm::Service<TFileService> fs;
-  TFile *tf1;
 
   float piG;
-  //  TFile* hFile;
+
   TTree* AnalysisTree;
 
   static const int NMCPMAX = 10000;   
