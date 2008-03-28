@@ -216,7 +216,7 @@ void ConversionTrackCandidateProducer::produce(edm::Event& theEvent, const edm::
   theEventSetup.get<IdealGeometryRecord>().get(theCaloGeom_);
   // Get HoverE
   Handle<HBHERecHitCollection> hbhe;
-  HBHERecHitMetaCollection *mhbhe=0;
+  std::auto_ptr<HBHERecHitMetaCollection> mhbhe;
   theEvent.getByLabel(hbheLabel_,hbheInstanceName_,hbhe);  
   if (!hbhe.isValid()) {
     edm::LogError("PhotonProducer") << "Error! Can't get the product "<<hbheInstanceName_.c_str();
@@ -224,7 +224,7 @@ void ConversionTrackCandidateProducer::produce(edm::Event& theEvent, const edm::
   }
   
   if (hOverEConeSize_ > 0.) {
-    mhbhe=  new HBHERecHitMetaCollection(*hbhe);
+    mhbhe=  std::auto_ptr<HBHERecHitMetaCollection>(new HBHERecHitMetaCollection(*hbhe));
   }
   theHoverEcalc_=HoECalculator(theCaloGeom_);
 
@@ -236,8 +236,8 @@ void ConversionTrackCandidateProducer::produce(edm::Event& theEvent, const edm::
   vecOfSCRefForOutIn.clear();
   vecOfSCRefForInOut.clear();
 
-  buildCollections(scBarrelHandle, bcBarrelHandle,  mhbhe,*outInTrackCandidate_p,*inOutTrackCandidate_p,vecOfSCRefForOutIn,vecOfSCRefForInOut );
-  buildCollections(scEndcapHandle, bcEndcapHandle,  mhbhe,*outInTrackCandidate_p,*inOutTrackCandidate_p,vecOfSCRefForOutIn,vecOfSCRefForInOut );
+  buildCollections(scBarrelHandle, bcBarrelHandle,  mhbhe.get(), *outInTrackCandidate_p,*inOutTrackCandidate_p,vecOfSCRefForOutIn,vecOfSCRefForInOut );
+  buildCollections(scEndcapHandle, bcEndcapHandle,  mhbhe.get(), *outInTrackCandidate_p,*inOutTrackCandidate_p,vecOfSCRefForOutIn,vecOfSCRefForInOut );
 
 
 

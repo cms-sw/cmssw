@@ -163,7 +163,7 @@ void PhotonProducer::produce(edm::Event& theEvent, const edm::EventSetup& theEve
 
   // Get HoverE
   Handle<HBHERecHitCollection> hbhe;
-  HBHERecHitMetaCollection *mhbhe=0;
+  std::auto_ptr<HBHERecHitMetaCollection> mhbhe;
   theEvent.getByLabel(hbheLabel_,hbheInstanceName_,hbhe);  
   if (!hbhe.isValid()) {
     edm::LogError("PhotonProducer") << "Error! Can't get the product "<<hbheInstanceName_.c_str();
@@ -171,7 +171,7 @@ void PhotonProducer::produce(edm::Event& theEvent, const edm::EventSetup& theEve
   }
 
   if (hOverEConeSize_ > 0.) {
-    mhbhe=  new HBHERecHitMetaCollection(*hbhe);
+    mhbhe=  std::auto_ptr<HBHERecHitMetaCollection>(new HBHERecHitMetaCollection(*hbhe));
   }
 
   
@@ -204,8 +204,8 @@ void PhotonProducer::produce(edm::Event& theEvent, const edm::EventSetup& theEve
 
   int iSC=0; // index in photon collection
   // Loop over barrel and endcap SC collections and fill the  photon collection
-  fillPhotonCollection(scBarrelHandle,barrelClShpMap,barrelGeometry,preshowerGeometry,barrelRecHits,mhbhe,conversionHandle,pixelSeeds,vtx,outputPhotonCollection,iSC);
-  fillPhotonCollection(scEndcapHandle,endcapClShpMap,endcapGeometry,preshowerGeometry,endcapRecHits,mhbhe,conversionHandle,pixelSeeds,vtx,outputPhotonCollection,iSC);
+  fillPhotonCollection(scBarrelHandle,barrelClShpMap,barrelGeometry,preshowerGeometry,barrelRecHits,mhbhe.get(),conversionHandle,pixelSeeds,vtx,outputPhotonCollection,iSC);
+  fillPhotonCollection(scEndcapHandle,endcapClShpMap,endcapGeometry,preshowerGeometry,endcapRecHits,mhbhe.get(),conversionHandle,pixelSeeds,vtx,outputPhotonCollection,iSC);
 
   // put the product in the event
   edm::LogInfo("PhotonProducer") << " Put in the event " << iSC << " Photon Candidates \n";
