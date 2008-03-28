@@ -4,12 +4,7 @@
 #include "DataFormats/L1CaloTrigger/interface/L1CaloRegion.h"
 #include "DataFormats/L1CaloTrigger/interface/L1CaloEmCand.h"
 
-#include "DataFormats/L1GlobalCaloTrigger/interface/L1GctEmCand.h"
-#include "DataFormats/L1GlobalCaloTrigger/interface/L1GctJetCand.h"
-
-#include "DataFormats/L1GlobalCaloTrigger/interface/L1GctEtTotal.h"
-#include "DataFormats/L1GlobalCaloTrigger/interface/L1GctEtHad.h"
-#include "DataFormats/L1GlobalCaloTrigger/interface/L1GctEtMiss.h"
+#include "DataFormats/L1GlobalCaloTrigger/interface/L1GctCollections.h"
 
 #include "L1Trigger/GlobalCaloTrigger/src/L1GctUnsignedInt.h"
 #include "L1Trigger/GlobalCaloTrigger/src/L1GctJetCount.h"
@@ -74,6 +69,9 @@ public:
   /// process an event
   void process();
 
+  ///=================================================================================================
+  /// Configuration options for the GCT
+  ///
   /// Setup the jet finder parameters
   void setJetFinderParams(const L1GctJetFinderParams* jfpars);
 
@@ -84,6 +82,33 @@ public:
   void setupJetCounterLuts(const L1GctJetCounterSetup* jcPosPars,
                            const L1GctJetCounterSetup* jcNegPars);
 
+  ///=================================================================================================
+  /// Multiple bunch operation
+  ///
+  /// set parameters for multiple bunch operation
+  /// process crossings from (firstBx) to (lastBx) 
+  void setBxRange(const int firstBx, const int lastBx);
+  /// process crossings from (-numOfBx) to (numOfBx) 
+  void setBxRangeSymmetric(const int numOfBx);
+  /// process all crossings present in the input (and only those crossings)
+  void setBxRangeAutomatic();
+
+  /// accessor methods
+  int getFirstBx() const { return m_bxStart; }
+  int getLastBx()  const { return (m_bxStart + m_numOfBx - 1); }
+  int getTotalBx() const { return m_numOfBx; }
+
+  ///=================================================================================================
+  /// Input data set methods
+  ///
+  /// Use the following two methods for full emulator operation 
+  /// set jet regions from the RCT at the input to be processed
+  void fillRegions(const std::vector<L1CaloRegion>& rgn);
+
+  /// set electrons from the RCT at the input to be processed
+  void fillEmCands(const std::vector<L1CaloEmCand>& rgn);
+
+  /// Other methods for debugging
   /// set a jet region at the input to be processed
   void setRegion(const L1CaloRegion& region);
 
@@ -97,43 +122,39 @@ public:
   /// set a non-isolated EM candidate to be processed
   void setNonIsoEm(const L1CaloEmCand& em);
 
-  /// set jet regions from the RCT at the input to be processed
-  void fillRegions(const std::vector<L1CaloRegion>& rgn);
-
-  /// set electrons from the RCT at the input to be processed
-  void fillEmCands(const std::vector<L1CaloEmCand>& rgn);
-
+  ///=================================================================================================
+  /// Output data get methods
+  ///
   /// iso electron outputs to GT
-  std::vector<L1GctEmCand> getIsoElectrons() const;
+  L1GctEmCandCollection getIsoElectrons() const;
   
   /// non-iso electron outputs to GT
-  std::vector<L1GctEmCand> getNonIsoElectrons() const;
+  L1GctEmCandCollection getNonIsoElectrons() const;
   
   /// central jet outputs to GT
-  std::vector<L1GctJetCand> getCentralJets() const;
+  L1GctJetCandCollection getCentralJets() const;
   
   /// forward jet outputs to GT
-  std::vector<L1GctJetCand> getForwardJets() const;
+  L1GctJetCandCollection getForwardJets() const;
   
   /// tau jet outputs to GT
-  std::vector<L1GctJetCand> getTauJets() const;
+  L1GctJetCandCollection getTauJets() const;
   
   /// Total Et output to GT
-  etTotalType   getEtSum() const;
+  L1GctEtTotalCollection getEtSumCollection() const;
   
   /// Total hadronic Et output to GT
-  etHadType     getEtHad() const;
+  L1GctEtHadCollection   getEtHadCollection() const;
 
   /// Etmiss output to GT
-  etMissType    getEtMiss() const;
-  
-  /// Etmiss phi output to GT
-  etMissPhiType getEtMissPhi() const;
+  L1GctEtMissCollection  getEtMissCollection() const;
 
   // Jet Count output to GT
-  L1GctJetCount<5> getJetCount(unsigned jcnum) const;
-  std::vector<unsigned> getJetCountValues() const;
+  L1GctJetCountsCollection getJetCountsCollection() const;
 
+  ///=================================================================================================
+  /// Access to GCT component processors
+  ///
   /// get the Jet Leaf cards
   std::vector<L1GctJetLeafCard*> getJetLeafCards() const { return theJetLeafCards; }
   
@@ -159,11 +180,27 @@ public:
   /// get the Jet Et calibration LUT
   const L1GctJetEtCalibrationLut* getJetEtCalibLut() const { return m_jetEtCalLut; }
 
+  ///=================================================================================================
+  /// Print method
+  ///
   /// print setup info
   void print();
   
  private:
   
+  /// Steps in the processing treating input arriving over several bunch crossings
+  /// Sort the input data by bunch crossing number
+  void sortInputData();
+  /// Setup bunch crossing range (depending on input data)
+  void bxSetup();
+  /// Partial reset for a new bunch crossing
+  void bxReset(const int bx);
+  /// Fill input data for a new bunch crossing
+  void fillEmCands(std::vector<L1CaloEmCand>::iterator& emc, const int bx);
+  void fillRegions(std::vector<L1CaloRegion>::iterator& rgn, const int bx);
+  /// Process a new bunch crossing
+  void bxProcess(const int bx);
+
   /// instantiate the hardware & algo objects and wire up the system
   void build(L1GctJetLeafCard::jetFinderType jfType);
 
@@ -174,6 +211,18 @@ public:
   /// ordering of the electron sorters to give the correct
   /// priority to the candidates in the final sort 
   unsigned sorterNo(const L1CaloEmCand& em) const;
+
+  /// to process multiple bunch crossings, we need
+  /// to select and order input candidates and regions
+  /// by beam crossing number
+  template <class T>
+  struct CompareBx {
+    bool operator()(const T& i, const T& j) const {
+      return i.bx() < j.bx();
+    }
+  };
+  CompareBx<L1CaloEmCand> emcBxComparator;
+  CompareBx<L1CaloRegion> rgnBxComparator;
 
  private:
   
@@ -214,6 +263,15 @@ public:
   /// Jet Et calibration LUT
   const L1GctJetEtCalibrationLut* m_jetEtCalLut;
 
+  /// Multiple bunch crossing operation
+  bool m_bxRangeAuto;
+  int m_bxStart;
+  int m_numOfBx;
+
+  /// Local copies of input data, sorted by bunch crossing
+  /// then sent to the processors one bunch crossing at a time
+  std::vector<L1CaloEmCand> m_allInputEmCands;
+  std::vector<L1CaloRegion> m_allInputRegions;
 };
 
 #endif /*L1GLOBALCALOTRIGGER_H_*/

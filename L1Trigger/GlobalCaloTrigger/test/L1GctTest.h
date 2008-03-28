@@ -11,7 +11,7 @@
 //
 // Original Author:  Gregory Heath
 //         Created:  Mon Mar 12 16:36:35 CET 2007
-// $Id: L1GctTest.h,v 1.1 2007/03/16 13:31:07 heath Exp $
+// $Id: L1GctTest.h,v 1.2 2007/09/04 14:16:37 heath Exp $
 //
 //
 
@@ -37,32 +37,35 @@ class gctTestFunctions;
 //
 
 class L1GctTest : public edm::EDAnalyzer {
-   public:
-      explicit L1GctTest(const edm::ParameterSet&);
-      ~L1GctTest();
+public:
+  explicit L1GctTest(const edm::ParameterSet&);
+  ~L1GctTest();
 
 
-   private:
-      virtual void beginJob(const edm::EventSetup& c) ;
-      virtual void analyze(const edm::Event& e, const edm::EventSetup& c);
-      virtual void endJob() ;
+private:
+  virtual void beginJob(const edm::EventSetup& c) ;
+  virtual void analyze(const edm::Event& e, const edm::EventSetup& c);
+  virtual void endJob() ;
 
-      void configureGct(const edm::EventSetup& c);
+  void configureGct(const edm::EventSetup& c);
 
-      // ----------member data ---------------------------
+  // ----------member data ---------------------------
 
-      L1GlobalCaloTrigger* m_gct;
-      L1GctJetEtCalibrationLut* m_jetEtCalibLut;
+  L1GlobalCaloTrigger* m_gct;
+  L1GctJetEtCalibrationLut* m_jetEtCalibLut;
 
-      gctTestFunctions* m_tester;
+  gctTestFunctions* m_tester;
 
-      bool theElectronTestIsEnabled;
-      bool theEnergyAlgosTestIsEnabled;
-      bool theFirmwareTestIsEnabled;
+  bool theElectronTestIsEnabled;
+  bool theEnergyAlgosTestIsEnabled;
+  bool theFirmwareTestIsEnabled;
 
-      std::string theInputDataFileName;
-      std::string theReferenceDataFileName;
+  std::string theInputDataFileName;
+  std::string theReferenceDataFileName;
 
-      unsigned m_eventNo;
-      bool m_allGood;
+  int m_firstBx;
+  int m_lastBx;
+
+  unsigned m_eventNo;
+  bool m_allGood;
 };

@@ -2,13 +2,13 @@
 
 #include "FWCore/Utilities/interface/Exception.h"  
 
-#include <iostream>
 #include <cassert>
 
 using namespace std;
 
 
 L1GctElectronSorter::L1GctElectronSorter(int nInputs, bool iso):
+  L1GctProcessor(),
   m_id(nInputs),
   m_isolation(iso),
   m_inputCands(nInputs*4),
@@ -20,12 +20,23 @@ L1GctElectronSorter::~L1GctElectronSorter()
 }
 
 // clear buffers
-void L1GctElectronSorter::reset() {
+void L1GctElectronSorter::resetProcessor() {
   m_inputCands.clear();
   m_inputCands.resize(m_id*4);
 
   m_outputCands.clear();
   m_outputCands.resize(4);
+}
+
+/// Initialise inputs with null objects for the correct bunch crossing
+/// If no other input candidates "arrive", we have the correct
+/// bunch crossing to propagate through the processing.
+void L1GctElectronSorter::setupObjects() {
+  /// Create a null input electron with the right bunch crossing, 
+  /// and fill the input candidates with copies of this.
+  L1CaloEmCand temp;
+  temp.setBx(bxAbs());
+  m_inputCands.assign(m_id*4, temp);
 }
 
 // get the input data

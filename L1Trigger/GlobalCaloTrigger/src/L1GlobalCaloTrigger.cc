@@ -15,6 +15,7 @@
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/Exception.h"
+
 #include <cassert>
 
 using std::vector;
@@ -33,7 +34,10 @@ L1GlobalCaloTrigger::L1GlobalCaloTrigger(const L1GctJetLeafCard::jetFinderType j
   theNonIsoElectronSorters(N_EM_LEAF_CARDS*2),
   theWheelJetFpgas(N_WHEEL_CARDS),
   theWheelEnergyFpgas(N_WHEEL_CARDS),
-  m_jetEtCalLut(0)
+  m_jetEtCalLut(0),
+  m_bxRangeAuto(true),
+  m_bxStart(0), m_numOfBx(1),
+  m_allInputEmCands(), m_allInputRegions()  
 {
 
   // construct hardware
@@ -75,6 +79,15 @@ L1GlobalCaloTrigger::~L1GlobalCaloTrigger()
 
 void L1GlobalCaloTrigger::reset() {
 
+  // Input data
+  m_allInputEmCands.clear();
+  m_allInputRegions.clear();
+
+  if (m_bxRangeAuto) {
+    m_bxStart = 0;
+    m_numOfBx = 1;
+  }
+
   // EM Leaf Card
   for (int i=0; i<N_EM_LEAF_CARDS; i++) {
     theEmLeafCards.at(i)->reset();
@@ -115,6 +128,134 @@ void L1GlobalCaloTrigger::process() {
 
   // Shouldn't get here unless the setup has been completed
   assert (setupOk());
+
+  /// Sort the input data by bunch crossing number
+  sortInputData();
+  // Extract the earliest and latest bunch crossing
+  // in the input if required, and forward to the processors
+  // to determine the size of the output vectors
+  bxSetup();
+
+  vector<L1CaloEmCand>::iterator emc=m_allInputEmCands.begin();
+  vector<L1CaloRegion>::iterator rgn=m_allInputRegions.begin();
+  int bx = m_bxStart;
+
+  // Loop over bunch crossings
+  for (int i=0; i<m_numOfBx; i++) {
+    // Perform partial reset (reset processing logic but preserve pipeline contents)
+    bxReset(bx);
+    // Fill input data into processors for this bunch crossing
+    fillEmCands(emc, bx);
+    fillRegions(rgn, bx);
+    // Process this bunch crossing
+    bxProcess(bx);
+    bx++;
+  }
+}
+
+/// process crossings from (firstBx) to (lastBx) 
+void L1GlobalCaloTrigger::setBxRange(const int firstBx, const int lastBx) { m_bxStart = firstBx; m_numOfBx = lastBx - firstBx + 1; m_bxRangeAuto = false; }
+/// process crossings from (-numOfBx) to (numOfBx) 
+void L1GlobalCaloTrigger::setBxRangeSymmetric(const int numOfBx) { m_bxStart = -numOfBx; m_numOfBx = 2*numOfBx + 1; m_bxRangeAuto = false; }
+/// process all crossings present in the input (and only those crossings)
+void L1GlobalCaloTrigger::setBxRangeAutomatic()  { m_bxStart = 0; m_numOfBx = 1; m_bxRangeAuto = true; }
+
+/// Sort the input data by bunch crossing number
+void L1GlobalCaloTrigger::sortInputData() {
+  std::sort(m_allInputEmCands.begin(), m_allInputEmCands.end(), emcBxComparator);
+  std::sort(m_allInputRegions.begin(), m_allInputRegions.end(), rgnBxComparator);
+}
+
+/// Setup bunch crossing range (depending on input data)
+void L1GlobalCaloTrigger::bxSetup() {
+  // Assume input data have been sorted by bunch crossing number
+  if (m_bxRangeAuto) {
+    // Find parameters defining the range of bunch crossings to be processed
+    int16_t firstBxEmCand = (m_allInputEmCands.size()==0 ? 0 : m_allInputEmCands.front().bx() );
+    int16_t firstBxRegion = (m_allInputRegions.size()==0 ? 0 : m_allInputRegions.front().bx() );
+    int16_t  lastBxEmCand = (m_allInputEmCands.size()==0 ? 0 : m_allInputEmCands.back().bx() );
+    int16_t  lastBxRegion = (m_allInputRegions.size()==0 ? 0 : m_allInputRegions.back().bx() );
+    m_bxStart = std::min(firstBxEmCand, firstBxRegion);
+    m_numOfBx = std::max( lastBxEmCand,  lastBxRegion) - m_bxStart + 1;
+  } else {
+    // Remove any input from before the start of the requested range
+    for (vector<L1CaloEmCand>::iterator emc=m_allInputEmCands.begin(); emc != m_allInputEmCands.end(); emc++) {
+      if (emc->bx() >= m_bxStart) break;
+      m_allInputEmCands.erase(emc);
+    }
+
+    for (vector<L1CaloRegion>::iterator rgn=m_allInputRegions.begin(); rgn != m_allInputRegions.end(); rgn++) {
+      if (rgn->bx() >= m_bxStart) break;
+      m_allInputRegions.erase(rgn);
+    }
+  }
+
+  // Setup pipeline lengths
+  // EM Leaf Card
+  for (int i=0; i<N_EM_LEAF_CARDS; i++) {
+    theEmLeafCards.at(i)->setBxRange(m_bxStart, m_numOfBx);
+  }
+
+  // Jet Leaf cards
+  for (int i=0; i<N_JET_LEAF_CARDS; i++) {
+    theJetLeafCards.at(i)->setBxRange(m_bxStart, m_numOfBx);
+  }
+
+  // Wheel Cards
+  for (int i=0; i<N_WHEEL_CARDS; i++) {
+    theWheelJetFpgas.at(i)->setBxRange(m_bxStart, m_numOfBx);
+  }
+
+  for (int i=0; i<N_WHEEL_CARDS; i++) {
+    theWheelEnergyFpgas.at(i)->setBxRange(m_bxStart, m_numOfBx);
+  }
+
+  // Electron Final Stage
+  theIsoEmFinalStage->setBxRange(m_bxStart, m_numOfBx);
+  theNonIsoEmFinalStage->setBxRange(m_bxStart, m_numOfBx);
+
+  // Jet Final Stage
+  theJetFinalStage->setBxRange(m_bxStart, m_numOfBx);
+
+  // Energy Final Stage
+  theEnergyFinalStage->setBxRange(m_bxStart, m_numOfBx);
+}
+
+/// Partial reset for a new bunch crossing
+void L1GlobalCaloTrigger::bxReset(const int bx) {
+  // EM Leaf Card
+  for (int i=0; i<N_EM_LEAF_CARDS; i++) {
+    theEmLeafCards.at(i)->setNextBx(bx);
+  }
+
+  // Jet Leaf cards
+  for (int i=0; i<N_JET_LEAF_CARDS; i++) {
+    theJetLeafCards.at(i)->setNextBx(bx);
+  }
+
+  // Wheel Cards
+  for (int i=0; i<N_WHEEL_CARDS; i++) {
+    theWheelJetFpgas.at(i)->setNextBx(bx);
+  }
+
+  for (int i=0; i<N_WHEEL_CARDS; i++) {
+    theWheelEnergyFpgas.at(i)->setNextBx(bx);
+  }
+
+  // Electron Final Stage
+  theIsoEmFinalStage->setNextBx(bx);
+  theNonIsoEmFinalStage->setNextBx(bx);
+
+  // Jet Final Stage
+  theJetFinalStage->setNextBx(bx);
+
+  // Energy Final Stage
+  theEnergyFinalStage->setNextBx(bx);
+
+}
+
+/// Process a new bunch crossing
+void L1GlobalCaloTrigger::bxProcess(const int bx) {
 
   // EM Leaf Card
   for (int i=0; i<N_EM_LEAF_CARDS; i++) {
@@ -205,60 +346,67 @@ void L1GlobalCaloTrigger::setupJetCounterLuts(const L1GctJetCounterSetup* jcPosP
 
 void L1GlobalCaloTrigger::setRegion(const L1CaloRegion& region) 
 {
-  if (region.bx()==0) {
-    unsigned crate = region.rctCrate();
-    // Find the relevant jetFinders
-    static const unsigned NPHI = L1CaloRegionDetId::N_PHI/2;
-    unsigned thisphi = crate % NPHI;
-    unsigned nextphi = (crate+1) % NPHI;
-    unsigned prevphi = (crate+NPHI-1) % NPHI;
+  unsigned crate = region.rctCrate();
+  // Find the relevant jetFinders
+  static const unsigned NPHI = L1CaloRegionDetId::N_PHI/2;
+  unsigned thisphi = crate % NPHI;
+  unsigned nextphi = (crate+1) % NPHI;
+  unsigned prevphi = (crate+NPHI-1) % NPHI;
 
-    // Send the region to six jetFinders.
-    theJetFinders.at(thisphi)->setInputRegion(region);
-    theJetFinders.at(nextphi)->setInputRegion(region);
-    theJetFinders.at(prevphi)->setInputRegion(region);
-    theJetFinders.at(thisphi+NPHI)->setInputRegion(region);
-    theJetFinders.at(nextphi+NPHI)->setInputRegion(region);
-    theJetFinders.at(prevphi+NPHI)->setInputRegion(region);
-  }
+  // Send the region to six jetFinders.
+  theJetFinders.at(thisphi)->setInputRegion(region);
+  theJetFinders.at(nextphi)->setInputRegion(region);
+  theJetFinders.at(prevphi)->setInputRegion(region);
+  theJetFinders.at(thisphi+NPHI)->setInputRegion(region);
+  theJetFinders.at(nextphi+NPHI)->setInputRegion(region);
+  theJetFinders.at(prevphi+NPHI)->setInputRegion(region);
 }
 
 void L1GlobalCaloTrigger::setRegion(const unsigned et, const unsigned ieta, const unsigned iphi,
                                     const bool overFlow, const bool fineGrain)
 {
-  L1CaloRegion temp(et, overFlow, fineGrain, false, false, ieta, iphi);
+  L1CaloRegion temp(et, overFlow, fineGrain, false, false, ieta, iphi, 0);
   setRegion(temp);
 }
 
 void L1GlobalCaloTrigger::setIsoEm(const L1CaloEmCand& em) 
 {
-  if (em.bx()==0) {
-    theIsoElectronSorters.at(sorterNo(em))->setInputEmCand(em); 
-  }
+  theIsoElectronSorters.at(sorterNo(em))->setInputEmCand(em); 
 }
 
 void L1GlobalCaloTrigger::setNonIsoEm(const L1CaloEmCand& em) 
 {
-  if (em.bx()==0) {
-    theNonIsoElectronSorters.at(sorterNo(em))->setInputEmCand(em); 
-  }
+  theNonIsoElectronSorters.at(sorterNo(em))->setInputEmCand(em); 
 }
 
+/// Fill input data (local copies)
 void L1GlobalCaloTrigger::fillRegions(const vector<L1CaloRegion>& rgn)
 {
-  for (uint i=0; i<rgn.size(); i++){
-    setRegion(rgn.at(i));
-  }
+  vector<L1CaloRegion>::iterator itr=m_allInputRegions.end();
+  m_allInputRegions.insert(itr, rgn.begin(), rgn.end());
 }
 
 void L1GlobalCaloTrigger::fillEmCands(const vector<L1CaloEmCand>& em)
 {
-  for (uint i=0; i<em.size(); i++){
-    if (em.at(i).isolated()){
-      setIsoEm(em.at(i));
+  vector<L1CaloEmCand>::iterator itr=m_allInputEmCands.end();
+  m_allInputEmCands.insert(itr, em.begin(), em.end());
+}
+
+/// Fill input data into processors for a new bunch crossing
+void L1GlobalCaloTrigger::fillRegions(vector<L1CaloRegion>::iterator& rgn, const int bx) {
+  while (rgn != m_allInputRegions.end() && rgn->bx() == bx) {
+    setRegion(*rgn++);
+  }
+}
+
+void L1GlobalCaloTrigger::fillEmCands(vector<L1CaloEmCand>::iterator& emc, const int bx){
+  while (emc != m_allInputEmCands.end() && emc->bx() == bx) {
+    if (emc->isolated()) {
+      setIsoEm(*emc);
     } else {
-      setNonIsoEm(em.at(i));
-    }
+      setNonIsoEm(*emc);
+    } 
+    emc++;
   }
 }
 
@@ -319,53 +467,76 @@ void L1GlobalCaloTrigger::print() {
 }
 
 // isolated EM outputs
-vector<L1GctEmCand> L1GlobalCaloTrigger::getIsoElectrons() const { 
+L1GctEmCandCollection L1GlobalCaloTrigger::getIsoElectrons() const { 
   return theIsoEmFinalStage->getOutputCands();
 }	
 
 // non isolated EM outputs
-vector<L1GctEmCand> L1GlobalCaloTrigger::getNonIsoElectrons() const {
+L1GctEmCandCollection L1GlobalCaloTrigger::getNonIsoElectrons() const {
   return theNonIsoEmFinalStage->getOutputCands(); 
 }
 
 // central jet outputs to GT
-vector<L1GctJetCand> L1GlobalCaloTrigger::getCentralJets() const {
+L1GctJetCandCollection L1GlobalCaloTrigger::getCentralJets() const {
   return theJetFinalStage->getCentralJets();
 }
 
 // forward jet outputs to GT
-vector<L1GctJetCand> L1GlobalCaloTrigger::getForwardJets() const { 
+L1GctJetCandCollection L1GlobalCaloTrigger::getForwardJets() const { 
   return theJetFinalStage->getForwardJets(); 
 }
 
 // tau jet outputs to GT
-vector<L1GctJetCand> L1GlobalCaloTrigger::getTauJets() const { 
+L1GctJetCandCollection L1GlobalCaloTrigger::getTauJets() const { 
   return theJetFinalStage->getTauJets(); 
 }
 
 // total Et output
-L1GlobalCaloTrigger::etTotalType   L1GlobalCaloTrigger::getEtSum() const {
-  return theEnergyFinalStage->getEtSum();
+L1GctEtTotalCollection L1GlobalCaloTrigger::getEtSumCollection() const {
+  L1GctEtTotalCollection result(m_numOfBx);
+  int bx = m_bxStart;
+  for (int i=0; i<m_numOfBx; i++) {
+    L1GctEtTotal temp(theEnergyFinalStage->getEtSumColl().at(i).value(),
+                      theEnergyFinalStage->getEtSumColl().at(i).overFlow(),
+		      bx++ );
+    result.at(i) = temp;
+  }
+  return result;
 }
 
-L1GlobalCaloTrigger::etHadType     L1GlobalCaloTrigger::getEtHad() const {
-  return theEnergyFinalStage->getEtHad();
+L1GctEtHadCollection   L1GlobalCaloTrigger::getEtHadCollection() const {
+  L1GctEtHadCollection result(m_numOfBx);
+  int bx = m_bxStart;
+  for (int i=0; i<m_numOfBx; i++) {
+    L1GctEtHad temp(theEnergyFinalStage->getEtHadColl().at(i).value(),
+                    theEnergyFinalStage->getEtHadColl().at(i).overFlow(),
+		    bx++ );
+    result.at(i) = temp;
+  }
+  return result;
 }
 
-L1GlobalCaloTrigger::etMissType    L1GlobalCaloTrigger::getEtMiss() const {
-  return theEnergyFinalStage->getEtMiss();
+L1GctEtMissCollection  L1GlobalCaloTrigger::getEtMissCollection() const {
+  L1GctEtMissCollection result(m_numOfBx);
+  int bx = m_bxStart;
+  for (int i=0; i<m_numOfBx; i++) {
+    L1GctEtMiss temp(theEnergyFinalStage->getEtMissColl().at(i).value(),
+                     theEnergyFinalStage->getEtMissPhiColl().at(i).value(),
+                     theEnergyFinalStage->getEtMissColl().at(i).overFlow(),
+		     bx++ );
+    result.at(i) = temp;
+  }
+  return result;
 }
 
-L1GlobalCaloTrigger::etMissPhiType L1GlobalCaloTrigger::getEtMissPhi() const {
-  return theEnergyFinalStage->getEtMissPhi();
-}
-
-L1GctJetCount<5> L1GlobalCaloTrigger::getJetCount(unsigned jcnum) const {
-  return theEnergyFinalStage->getJetCount(jcnum);
-}
-
-std::vector<unsigned> L1GlobalCaloTrigger::getJetCountValues() const {
-  return theEnergyFinalStage->getJetCountValues();
+L1GctJetCountsCollection L1GlobalCaloTrigger::getJetCountsCollection() const {
+  L1GctJetCountsCollection result(m_numOfBx);
+  int bx = m_bxStart;
+  for (int i=0; i<m_numOfBx; i++) {
+    L1GctJetCounts temp(theEnergyFinalStage->getJetCountValuesColl().at(i), bx++);
+    result.at(i) = temp;
+  }
+  return result;
 }
 
 

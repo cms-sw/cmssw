@@ -7,8 +7,6 @@
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctElectronSorter.h"
 
 #include <vector>
-#include <functional>
-#include <ostream>
 
 /*!
  * \Class L1GctElectronFinalSort
@@ -42,9 +40,6 @@ public:
   /// destrcutor
   ~L1GctElectronFinalSort();
   ///
-  /// clear internal buffers
-  virtual void reset();
-  ///
   /// get input data from sources
   virtual void fetchInput();
   ///
@@ -58,21 +53,20 @@ public:
   inline std::vector<L1GctEmCand> getInputCands()  const { return m_inputCands; }
   ///
   /// return output data
-  inline std::vector<L1GctEmCand> getOutputCands() const { return m_outputCands; }
+  inline std::vector<L1GctEmCand> getOutputCands() const { return m_outputCands.contents; }
   ///
   /// overload of cout operator
   friend std::ostream& operator<<(std::ostream& s,const L1GctElectronFinalSort& cand); 
   
- //private:
- //
- // /// comparison operator for sort
- // struct rank_gt : public std::binary_function<L1GctEmCand, L1GctEmCand, bool> {
- //   bool operator()(const L1GctEmCand& x, const L1GctEmCand& y) {
- //     if(x.rank()!=y.rank()){return x.rank() > y.rank();
- //     }else{if(x.etaIndex()!=y.etaIndex()){return y.etaIndex() > x.etaIndex();
- //     }else{ return x.phiIndex() > y.phiIndex();}}}};
- //
-  
+ protected:
+
+  /// Separate reset methods for the processor itself and any data stored in pipelines
+  virtual void resetProcessor();
+  virtual void resetPipelines();
+
+  /// Initialise inputs with null objects for the correct bunch crossing if required
+  virtual void setupObjects() {}
+
  private:
   ///
   /// type of electron candidate (iso(0) or non-iso(1))
@@ -86,8 +80,7 @@ public:
   std::vector<L1GctEmCand> m_inputCands;
   ///
   /// output data
-  std::vector<L1GctEmCand> m_outputCands;
-
+  Pipeline<L1GctEmCand> m_outputCands;
   
 };
 

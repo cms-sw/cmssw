@@ -15,9 +15,16 @@ using namespace std;
 const int L1GctJetLeafCard::MAX_JET_FINDERS = 3;  
 
 L1GctJetLeafCard::L1GctJetLeafCard(int id, int iphi, jetFinderType jfType):
+  L1GctProcessor(),
   m_id(id),
   m_whichJetFinder(jfType),
-  phiPosition(iphi)
+  phiPosition(iphi),
+  m_exSum(0), m_eySum(0),
+  m_etSum(0), m_htSum(0),
+  m_hfSums(),
+  m_exSumPipe(), m_eySumPipe(),
+  m_etSumPipe(), m_htSumPipe(),
+  m_hfSumsPipe()
 {
   //Check jetLeafCard setup
   if(m_id < 0 || m_id > 5)
@@ -108,16 +115,45 @@ std::ostream& operator << (std::ostream& s, const L1GctJetLeafCard& card)
   return s;
 }
 
-void L1GctJetLeafCard::reset()
-{
+/// clear buffers
+void L1GctJetLeafCard::reset() {
+  L1GctProcessor::reset();
   m_jetFinderA->reset();
   m_jetFinderB->reset();
   m_jetFinderC->reset();
+}
+
+/// partially clear buffers
+void L1GctJetLeafCard::setBxRange(const int firstBx, const int numberOfBx) {
+  L1GctProcessor::setBxRange(firstBx, numberOfBx);
+  m_jetFinderA->setBxRange(firstBx, numberOfBx);
+  m_jetFinderB->setBxRange(firstBx, numberOfBx);
+  m_jetFinderC->setBxRange(firstBx, numberOfBx);
+}
+
+void L1GctJetLeafCard::setNextBx(const int bx) {
+  L1GctProcessor::setNextBx(bx);
+  m_jetFinderA->setNextBx(bx);
+  m_jetFinderB->setNextBx(bx);
+  m_jetFinderC->setNextBx(bx);
+}
+
+void L1GctJetLeafCard::resetProcessor()
+{
   m_exSum.reset();
   m_eySum.reset();
   m_etSum.reset();
   m_htSum.reset();
   m_hfSums.reset();
+}
+
+void L1GctJetLeafCard::resetPipelines()
+{
+  m_exSumPipe.reset(numOfBx());
+  m_eySumPipe.reset(numOfBx());
+  m_etSumPipe.reset(numOfBx());
+  m_htSumPipe.reset(numOfBx());
+  m_hfSumsPipe.reset(numOfBx());
 }
 
 void L1GctJetLeafCard::fetchInput() {
@@ -165,6 +201,12 @@ void L1GctJetLeafCard::process() {
     m_jetFinderB->getHfSums() +
     m_jetFinderC->getHfSums();
 
+  // Store the outputs in pipelines
+  m_exSumPipe.store  (m_exSum,  bxRel());
+  m_eySumPipe.store  (m_eySum,  bxRel());
+  m_etSumPipe.store  (m_etSum,  bxRel());
+  m_htSumPipe.store  (m_htSum,  bxRel());
+  m_hfSumsPipe.store (m_hfSums, bxRel());
 }
 
 bool L1GctJetLeafCard::setupOk() const {

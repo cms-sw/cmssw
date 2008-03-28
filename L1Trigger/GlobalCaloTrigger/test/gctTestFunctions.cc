@@ -8,17 +8,23 @@
 
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GlobalCaloTrigger.h"
 
+#include <iostream>
+
 //=================================================================================================================
 //
 /// Constructor and destructor
 
-gctTestFunctions::gctTestFunctions() {
-  theElectronsTester      = new gctTestElectrons();
-  theEnergyAlgosTester    = new gctTestEnergyAlgos();
-  theFirmwareTester       = new gctTestFirmware();
-  theHtAndJetCountsTester = new gctTestHtAndJetCounts();
-  theHfEtSumsTester       = new gctTestHfEtSums();
+gctTestFunctions::gctTestFunctions() :
+  theElectronsTester      ( new gctTestElectrons() ),
+  theEnergyAlgosTester    ( new gctTestEnergyAlgos() ),
+  theFirmwareTester       ( new gctTestFirmware() ),
+  theHtAndJetCountsTester ( new gctTestHtAndJetCounts() ),
+  theHfEtSumsTester       ( new gctTestHfEtSums() ),
+  m_inputEmCands(), m_inputRegions(),
+  m_bxStart(0), m_numOfBx(1)
+{
 }
+
 gctTestFunctions::~gctTestFunctions() {
   delete theElectronsTester;
   delete theEnergyAlgosTester;
@@ -34,24 +40,76 @@ void gctTestFunctions::reset()
 {
   m_inputEmCands.clear();
   m_inputRegions.clear();
+  m_inputEmCands.resize(1);
+  m_inputRegions.resize(1);
+  m_bxStart = 0;
+  m_numOfBx = 1;
 }
 
 //=================================================================================================================
 //
 /// Load another event into the gct. Overloaded for the various ways of doing this.
-void gctTestFunctions::loadNextEvent(L1GlobalCaloTrigger* &gct, const bool simpleEvent)
+void gctTestFunctions::loadNextEvent(L1GlobalCaloTrigger* &gct, const bool simpleEvent, const int16_t bx)
 {
-  m_inputRegions = theEnergyAlgosTester->loadEvent(gct, simpleEvent);
+  bxRangeUpdate(bx);
+  m_inputRegions.at(bx-m_bxStart) = theEnergyAlgosTester->loadEvent(gct, simpleEvent, bx);
 }
 
-void gctTestFunctions::loadNextEvent(L1GlobalCaloTrigger* &gct, const std::string fileName, bool &endOfFile)
+void gctTestFunctions::loadNextEvent(L1GlobalCaloTrigger* &gct, const std::string fileName, bool &endOfFile, const int16_t bx)
 {
-  m_inputRegions = theEnergyAlgosTester->loadEvent(gct, fileName, endOfFile);
+  std::cout << "loading next event, bx is " << bx << ", endOfFile is" << (endOfFile ? " set" : " not yet set") << std::endl;
+  bxRangeUpdate(bx);
+  std::vector<L1CaloRegion> temp = theEnergyAlgosTester->loadEvent(gct, fileName, endOfFile, bx);
+  if (endOfFile) {
+    reset();
+    std::cout << "On return, endOfFile is now set!" << std::endl;
+  } else {
+    m_inputRegions.at(bx-m_bxStart) = temp;
+  }
 }
 
-void gctTestFunctions::loadNextEvent(L1GlobalCaloTrigger* &gct, const std::string fileName)
+void gctTestFunctions::loadNextEvent(L1GlobalCaloTrigger* &gct, const std::string fileName, const int16_t bx)
 {
-  m_inputEmCands = theElectronsTester->loadEvent(gct, fileName);
+  bxRangeUpdate(bx);
+  m_inputEmCands.at(bx-m_bxStart) = theElectronsTester->loadEvent(gct, fileName, bx);
+}
+
+//=================================================================================================================
+//
+/// This method is called when we are asked to process a new bunch crossing.
+/// It expands the range of bunch crossings if necessary to include the new one,
+/// by adding bunch crossings before or after the existing range.
+/// It also calls the corresponding methods of the various testers.
+void gctTestFunctions::bxRangeUpdate(const int16_t bx) {
+
+  // If bxrel is negative we insert crossings before the current range, while
+  // if it's bigger than m_numOfBx we need crossings after the current range.
+  int bxRel = bx - m_bxStart;
+
+  // Update the constants defining the range
+  if (bxRel<0) {
+    m_numOfBx -= bxRel;
+    m_bxStart = bx;
+  }
+  if ( bxRel >= m_numOfBx) {
+    m_numOfBx = bxRel + 1;
+  }
+
+  // Take care of inserting earlier crossings
+  std::vector<L1CaloEmCand> tempEmc;
+  std::vector<L1CaloRegion> tempRgn;
+  for (int i=bxRel; i<0; i++) {
+    m_inputEmCands.insert(m_inputEmCands.begin(), tempEmc);
+    m_inputRegions.insert(m_inputRegions.begin(), tempRgn);
+  }
+
+  // Take care of inserting later crossings
+  m_inputEmCands.resize(m_numOfBx);
+  m_inputRegions.resize(m_numOfBx);
+
+  // Do the same in the testers
+  theEnergyAlgosTester->setBxRange(m_bxStart, m_numOfBx);
+  theHtAndJetCountsTester->setBxRange(m_bxStart, m_numOfBx);
 }
 
 //=================================================================================================================
@@ -67,7 +125,7 @@ void gctTestFunctions::fillElectronData(const L1GlobalCaloTrigger* gct)
 /// Read the firmware results from a file for the next event
 void gctTestFunctions::fillJetsFromFirmware(const std::string &fileName)
 {
-  theFirmwareTester->fillJetsFromFirmware(fileName);
+  theFirmwareTester->fillJetsFromFirmware(fileName, m_bxStart, m_numOfBx);
 }
 
 //=================================================================================================================
@@ -83,7 +141,7 @@ void gctTestFunctions::fillRawJetData(const L1GlobalCaloTrigger* gct)
 /// Check the electron sort
 bool gctTestFunctions::checkElectrons(const L1GlobalCaloTrigger* gct) const
 {
-  return theElectronsTester->checkElectrons(gct);
+  return theElectronsTester->checkElectrons(gct, m_bxStart, m_numOfBx);
 }
 
 /// Check the jet finder against results from the firmware
@@ -121,6 +179,6 @@ bool gctTestFunctions::checkHfEtSums(const L1GlobalCaloTrigger* gct) const
 {
   theHfEtSumsTester->reset();
   theHfEtSumsTester->fillExpectedHfSums(m_inputRegions);
-  return theHfEtSumsTester->checkHfEtSums(gct);
+  return theHfEtSumsTester->checkHfEtSums(gct, m_numOfBx);
 }
 

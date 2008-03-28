@@ -1,7 +1,6 @@
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctEmLeafCard.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include <vector>
-#include <iostream>
 
 using std::vector;
 using std::ostream;
@@ -35,8 +34,25 @@ L1GctEmLeafCard::~L1GctEmLeafCard()
 
 /// clear buffers
 void L1GctEmLeafCard::reset() {
+  L1GctProcessor::reset();
   for (unsigned i=0; i<N_SORTERS; i++) {
     m_sorters.at(i)->reset();
+  }
+}
+
+/// partially clear buffers
+void L1GctEmLeafCard::setBxRange(const int firstBx, const int numberOfBx) {
+  L1GctProcessor::setBxRange(firstBx, numberOfBx);
+  for (unsigned i=0; i<N_SORTERS; i++) {
+    m_sorters.at(i)->setBxRange(firstBx, numberOfBx);
+  }
+}
+
+/// partially clear buffers
+void L1GctEmLeafCard::setNextBx(const int bx) {
+  L1GctProcessor::setNextBx(bx);
+  for (unsigned i=0; i<N_SORTERS; i++) {
+    m_sorters.at(i)->setNextBx(bx);
   }
 }
 

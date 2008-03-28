@@ -1,6 +1,4 @@
 <use name=L1Trigger/GlobalCaloTrigger>
-<use name=root>
-<use name=PhysicsTools/UtilAlgos>
 <library file="*.cc" name=L1TriggerGlobalCaloTriggerPlugins>
    <use name=root>
    <use name=PhysicsTools/UtilAlgos>

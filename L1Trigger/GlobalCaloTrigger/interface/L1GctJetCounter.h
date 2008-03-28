@@ -44,9 +44,6 @@ public:
   /// Overload << operator
   friend std::ostream& operator << (std::ostream& os, const L1GctJetCounter& algo);
 
-  /// clear internal buffers
-  virtual void reset();
-
   /// get input data from sources
   virtual void fetchInput();
 
@@ -74,7 +71,16 @@ public:
   /// get the value of the counter, for input into the jet count sums
   L1GctJetCount<3> getValue() const { return m_value;}
 
-private:
+ protected:
+
+  /// Separate reset methods for the processor itself and any data stored in pipelines
+  virtual void resetProcessor();
+  virtual void resetPipelines() {}
+
+  /// Initialise inputs with null objects for the correct bunch crossing if required
+  virtual void setupObjects() {}
+
+ private:
 
   //Statics
 

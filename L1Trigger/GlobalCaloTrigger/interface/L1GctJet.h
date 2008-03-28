@@ -34,14 +34,16 @@ public:
   };
   
   //Constructors/destructors
-  L1GctJet(uint16_t rawsum=0, unsigned eta=0, unsigned phi=0, bool forwardJet=true, bool tauVeto=true);
+  L1GctJet(const uint16_t rawsum=0, const unsigned eta=0, const unsigned phi=0,
+           const bool forwardJet=true, const bool tauVeto=true, const int16_t bx=0);
   ~L1GctJet();
   
   // set rawsum and position bits
-  void setRawsum(uint16_t rawsum) { m_rawsum = rawsum & kRawsumBitMask; }
-  void setDetId(L1CaloRegionDetId detId) { m_id = detId; }
-  void setTauVeto(bool tauVeto) { m_tauVeto = tauVeto; }
-  void setForward(bool forward) { m_forwardJet = forward; }
+  void setRawsum(const uint16_t rawsum) { m_rawsum = rawsum & kRawsumBitMask; }
+  void setDetId(const L1CaloRegionDetId detId) { m_id = detId; }
+  void setTauVeto(const bool tauVeto) { m_tauVeto = tauVeto; }
+  void setForward(const bool forward) { m_forwardJet = forward; }
+  void setBx(const int16_t bx) { m_bx = bx; }
   
   // get rawsum and position bits
   uint16_t rawsum()const { return m_rawsum; }
@@ -71,7 +73,8 @@ public:
   bool operator!= (const L1GctJet& cand) const;
   
   ///Setup an existing jet all in one go
-  void setupJet(uint16_t rawsum, unsigned eta, unsigned phi, bool forwardJet, bool tauVeto=true);
+  void setupJet(const uint16_t rawsum, const unsigned eta, const unsigned phi,
+                const bool forwardJet, const bool tauVeto=true, const int16_t bx=0);
   
   /// eta value in global CMS coordinates
   unsigned globalEta() const { return m_id.ieta(); } 
@@ -89,7 +92,10 @@ public:
   unsigned hwEta() const; 
 
   /// phi value as encoded in hardware at the GCT output
-  unsigned hwPhi() const; 
+  unsigned hwPhi() const;
+
+  /// the bunch crossing number
+  int16_t bx() const { return m_bx; }
 
   /// Function to convert from internal format to external jet candidates at the output of the jetFinder 
   L1GctJetCand jetCand(const L1GctJetEtCalibrationLut* lut) const;
@@ -106,6 +112,7 @@ public:
   L1CaloRegionDetId m_id;
   bool m_forwardJet;
   bool m_tauVeto;
+  int16_t m_bx;
 
   uint16_t lutValue (const L1GctJetEtCalibrationLut* lut) const;
 

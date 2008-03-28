@@ -18,6 +18,7 @@ const unsigned int L1GctJetCounter::MAX_JETS_TO_COUNT = L1GctJetCounter::MAX_JET
 
 L1GctJetCounter::L1GctJetCounter(int id, std::vector<L1GctJetLeafCard*> leafCards,
                                L1GctJetCounterLut* jetCounterLut):
+  L1GctProcessor(),
   m_id(id),
   m_jetLeafCards(leafCards),
   m_jets(MAX_JETS_TO_COUNT)
@@ -90,7 +91,7 @@ std::ostream& operator << (std::ostream& os, const L1GctJetCounter& algo)
 }
 
 
-void L1GctJetCounter::reset()
+void L1GctJetCounter::resetProcessor()
 {
   m_jets.clear();
   m_jets.resize(MAX_JETS_TO_COUNT);

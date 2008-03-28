@@ -2,7 +2,6 @@
  
 #include "FWCore/Utilities/interface/Exception.h"  
 
-#include <iostream>
 #include <cassert>
 using namespace std;
 
@@ -77,6 +76,7 @@ void L1GctTdrJetFinder::findJets()
             
         m_outputJets.at(jetNum).setRawsum(calcJetEnergy(centreIndex, hfBoundary));
         m_outputJets.at(jetNum).setDetId(calcJetPosition(centreIndex));
+        m_outputJets.at(jetNum).setBx(m_inputRegions.at(centreIndex).bx());
         if(row < COL_OFFSET-4)  //if we are not in the HF, perform tauVeto analysis
         {
           m_outputJets.at(jetNum).setForward(false);

@@ -32,7 +32,7 @@ public:
   ~gctTestFirmware();
 
   /// Read the firmware results from a file for the next event
-  void fillJetsFromFirmware(const std::string &fileName);
+  void fillJetsFromFirmware(const std::string &fileName, const int bxStart, const int numOfBx);
 
   /// Check the jet finder against the results from the firmware
   bool checkJetFinder(const L1GlobalCaloTrigger* gct) const;
@@ -41,9 +41,9 @@ private:
 
   // FUNCTION PROTOTYPES FOR JET FINDER CHECKING
   /// Read one event's worth of jets from the file
-  std::vector<JetsVector> getJetsFromFile();
+  std::vector<JetsVector> getJetsFromFile(const int bxStart, const int numOfBx);
   /// Read a single jet
-  L1GctJet nextJetFromFile (const unsigned jf);
+  L1GctJet nextJetFromFile (const unsigned jf, const int bx);
   //=========================================================================
 
   std::vector<JetsVector> jetsFromFile;

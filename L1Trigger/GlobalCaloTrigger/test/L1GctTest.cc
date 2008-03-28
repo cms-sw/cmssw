@@ -39,6 +39,8 @@ L1GctTest::L1GctTest(const edm::ParameterSet& iConfig) :
   theFirmwareTestIsEnabled   (iConfig.getUntrackedParameter<bool>("doFirmware",    false)),
   theInputDataFileName       (iConfig.getUntrackedParameter<std::string>("inputFile",     "")),
   theReferenceDataFileName   (iConfig.getUntrackedParameter<std::string>("referenceFile", "")),
+  m_firstBx (-iConfig.getParameter<unsigned>("preSamples")),
+  m_lastBx  ( iConfig.getParameter<unsigned>("postSamples")),
   m_eventNo(0), m_allGood(true)
 {
   //now do what ever initialization is needed
@@ -85,26 +87,34 @@ L1GctTest::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
    using namespace edm;
 
-  bool endOfFile;
+   std::cout << "Hello from gctTest::analyze()" << std::endl;
+  bool endOfFile=false;
 
   configureGct(iSetup);
+   std::cout << "Done configure" << std::endl;
 
    // Initialise the gct
    m_gct->reset();
    m_tester->reset();
+   std::cout << "Done reset" << std::endl;
 
-   // Load data into the gct according to the tests to be carried out
-   if (theElectronTestIsEnabled) {
-     m_tester->loadNextEvent(m_gct,theInputDataFileName); }
+   for (int bx=m_firstBx; bx<=m_lastBx; bx++) {
+     // Load data into the gct according to the tests to be carried out
+     if (theElectronTestIsEnabled) {
+       m_tester->loadNextEvent(m_gct,theInputDataFileName, bx); }
 
-   if (theEnergyAlgosTestIsEnabled) {
-     m_tester->loadNextEvent(m_gct, (100>m_eventNo)); }
+     if (theEnergyAlgosTestIsEnabled) {
+       m_tester->loadNextEvent(m_gct, (100>m_eventNo), bx); }
 
-   if (theFirmwareTestIsEnabled) {
-     m_tester->loadNextEvent(m_gct, theInputDataFileName, endOfFile); }
+     if (theFirmwareTestIsEnabled) {
+       m_tester->loadNextEvent(m_gct, theInputDataFileName, endOfFile, bx);
+       if (endOfFile) break; }
+   }
+   std::cout << "Done load events" << std::endl;
 
    // Run the gct emulator on the input data
    m_gct->process();
+   std::cout << "Done process events" << std::endl;
 
    bool passAllTests = true;
 
@@ -113,19 +123,26 @@ L1GctTest::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
      m_tester->fillElectronData(m_gct);
      passAllTests &= m_tester->checkElectrons(m_gct);
    }
+   std::cout << "Done check electrons" << std::endl;
 
-   if (theFirmwareTestIsEnabled) {
+   if (theFirmwareTestIsEnabled && !endOfFile) {
      m_tester->fillJetsFromFirmware(theReferenceDataFileName);
      passAllTests &= m_tester->checkJetFinder(m_gct);
    }
+   std::cout << "Done check jet finder" << std::endl;
 
-   if (theEnergyAlgosTestIsEnabled || theFirmwareTestIsEnabled) {
+   if (theEnergyAlgosTestIsEnabled || (theFirmwareTestIsEnabled && !endOfFile)) {
      m_tester->fillRawJetData(m_gct);
      passAllTests &= m_tester->checkEnergySums(m_gct);
+     std::cout << "Done check energy sums" << std::endl;
      passAllTests &= m_tester->checkHtSums(m_gct);
+     std::cout << "Done check ht sums" << std::endl;
      passAllTests &= m_tester->checkJetCounts(m_gct);
+     std::cout << "Done check jet counts" << std::endl;
      passAllTests &= m_tester->checkHfEtSums(m_gct);
+     std::cout << "Done check hf et sums" << std::endl;
    }
+   std::cout << "Done check events" << std::endl;
 
    m_eventNo++;
    if (theFirmwareTestIsEnabled && endOfFile) {
@@ -141,6 +158,7 @@ L1GctTest::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
    } else {
       throw cms::Exception("L1GctTestError") << "\ntest failed\n\n";
    }
+   std::cout << "Done this event" << std::endl;
 }
 
 

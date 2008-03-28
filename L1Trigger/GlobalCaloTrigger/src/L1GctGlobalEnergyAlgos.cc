@@ -5,7 +5,6 @@
 
 #include "FWCore/Utilities/interface/Exception.h"
 
-#include <iostream>
 #include <cassert>
 
 using std::ostream;
@@ -18,12 +17,25 @@ const unsigned int L1GctGlobalEnergyAlgos::N_JET_COUNTERS_MAX =12;
 
 L1GctGlobalEnergyAlgos::L1GctGlobalEnergyAlgos(vector<L1GctWheelEnergyFpga*> wheelFpga,
 					       vector<L1GctWheelJetFpga*> wheelJetFpga) :
+  L1GctProcessor(),
   m_plusWheelFpga(wheelFpga.at(1)),
   m_minusWheelFpga(wheelFpga.at(0)),
   m_plusWheelJetFpga(wheelJetFpga.at(1)),
   m_minusWheelJetFpga(wheelJetFpga.at(0)),
+  m_exValPlusWheel(), m_eyValPlusWheel(),
+  m_etValPlusWheel(), m_htValPlusWheel(),
+  m_exVlMinusWheel(), m_eyVlMinusWheel(),
+  m_etVlMinusWheel(), m_htVlMinusWheel(),
   m_jcValPlusWheel(N_JET_COUNTERS_USED),
   m_jcVlMinusWheel(N_JET_COUNTERS_USED),
+  m_exValPlusPipe(), m_eyValPlusPipe(),
+  m_etValPlusPipe(), m_htValPlusPipe(),
+  m_exVlMinusPipe(), m_eyVlMinusPipe(),
+  m_etVlMinusPipe(), m_htVlMinusPipe(),
+  m_jcValPlusPipe(N_JET_COUNTERS_USED),
+  m_jcVlMinusPipe(N_JET_COUNTERS_USED),
+  m_outputEtMiss(), m_outputEtMissPhi(),
+  m_outputEtSum(), m_outputEtHad(),
   m_outputJetCounts(N_JET_COUNTERS_MAX)
 {
   if(wheelFpga.size() != 2)
@@ -92,23 +104,25 @@ ostream& operator << (ostream& os, const L1GctGlobalEnergyAlgos& fpga)
       os << "  Minus wheel " << i << ": " << fpga.m_jcVlMinusWheel.at(i) << endl;
     } 
   os << endl;
-  os << "Output Etmiss " << fpga.m_outputEtMiss << endl;
-  os << "Output Etmiss Phi " << fpga.m_outputEtMissPhi << endl;
-  os << "Output EtSum " << fpga.m_outputEtSum << endl;
-  os << "Output EtHad " << fpga.m_outputEtHad << endl;
-  os << "Output Jet counts " << endl;
-  for(unsigned i=0; i < fpga.m_outputJetCounts.size(); i++)
-    {
-      os << i << ": " << fpga.m_outputJetCounts.at(i) << endl;
-    } 
-  os << endl;
+  int bxZero = -fpga.bxMin();
+  if (bxZero>=0 && bxZero<fpga.numOfBx()) {
+    os << "Output Etmiss " << fpga.m_outputEtMiss.contents.at(bxZero) << endl;
+    os << "Output Etmiss Phi " << fpga.m_outputEtMissPhi.contents.at(bxZero) << endl;
+    os << "Output EtSum " << fpga.m_outputEtSum.contents.at(bxZero) << endl;
+    os << "Output EtHad " << fpga.m_outputEtHad.contents.at(bxZero) << endl;
+    int pos = bxZero*L1GctGlobalEnergyAlgos::N_JET_COUNTERS_MAX;
+    os << "Output Jet counts " << endl;
+    for(unsigned i=0; i < L1GctGlobalEnergyAlgos::N_JET_COUNTERS_MAX; i++)
+      {
+	os << i << ": " << fpga.m_outputJetCounts.contents.at(pos++) << endl;
+      } 
+    os << endl;
+  }
 
   return os;
 }
 
-// clear internal data
-void L1GctGlobalEnergyAlgos::reset()
-{
+void L1GctGlobalEnergyAlgos::resetProcessor() {
   m_exValPlusWheel.reset();
   m_exVlMinusWheel.reset();
   m_eyValPlusWheel.reset();
@@ -121,14 +135,25 @@ void L1GctGlobalEnergyAlgos::reset()
     m_jcValPlusWheel.at(i).reset();
     m_jcVlMinusWheel.at(i).reset();
   }
-  //
-  m_outputEtMiss.reset();
-  m_outputEtMissPhi.reset();
-  m_outputEtSum.reset();
-  m_outputEtHad.reset();
-  for (unsigned i=0; i<N_JET_COUNTERS_MAX; i++) {
-    m_outputJetCounts.at(i).reset();
-  }
+}
+
+void L1GctGlobalEnergyAlgos::resetPipelines() {
+  m_outputEtMiss.reset    (numOfBx());
+  m_outputEtMissPhi.reset (numOfBx());
+  m_outputEtSum.reset     (numOfBx());
+  m_outputEtHad.reset     (numOfBx());
+  m_outputJetCounts.reset (numOfBx());
+
+  m_exValPlusPipe.reset (numOfBx());
+  m_eyValPlusPipe.reset (numOfBx());
+  m_etValPlusPipe.reset (numOfBx());
+  m_htValPlusPipe.reset (numOfBx());
+  m_exVlMinusPipe.reset (numOfBx());
+  m_eyVlMinusPipe.reset (numOfBx());
+  m_etVlMinusPipe.reset (numOfBx());
+  m_htVlMinusPipe.reset (numOfBx());
+  m_jcValPlusPipe.reset (numOfBx());
+  m_jcVlMinusPipe.reset (numOfBx());
 }
 
 void L1GctGlobalEnergyAlgos::fetchInput() {
@@ -154,6 +179,19 @@ void L1GctGlobalEnergyAlgos::fetchInput() {
 // process the event
 void L1GctGlobalEnergyAlgos::process()
 {
+  // Store the inputs in pipelines
+  m_exValPlusPipe.store(m_exValPlusWheel, bxRel());
+  m_eyValPlusPipe.store(m_eyValPlusWheel, bxRel());
+  m_etValPlusPipe.store(m_etValPlusWheel, bxRel());
+  m_htValPlusPipe.store(m_htValPlusWheel, bxRel());
+  m_exVlMinusPipe.store(m_exVlMinusWheel, bxRel());
+  m_eyVlMinusPipe.store(m_eyVlMinusWheel, bxRel());
+  m_etVlMinusPipe.store(m_etVlMinusWheel, bxRel());
+  m_htVlMinusPipe.store(m_htVlMinusWheel, bxRel());
+  m_jcValPlusPipe.store(m_jcValPlusWheel, bxRel());
+  m_jcVlMinusPipe.store(m_jcVlMinusWheel, bxRel());
+
+  // Process to produce the outputs
   L1GctGlobalEnergyAlgos::etComponentType ExSum, EySum;
   L1GctGlobalEnergyAlgos::etmiss_vec EtMissing;
 
@@ -165,31 +203,41 @@ void L1GctGlobalEnergyAlgos::process()
   // Execute the missing Et algorithm
   EtMissing = calculate_etmiss_vec(-ExSum, -EySum);
   //
-  m_outputEtMiss    = EtMissing.mag;
-  m_outputEtMissPhi = EtMissing.phi;
+  m_outputEtMiss.store    (EtMissing.mag, bxRel());
+  m_outputEtMissPhi.store (EtMissing.phi, bxRel());
 
   //
   //-----------------------------------------------------------------------------
   // Form the Et and Ht sums
-  m_outputEtSum = m_etValPlusWheel + m_etVlMinusWheel;
-  m_outputEtHad = m_htValPlusWheel + m_htVlMinusWheel;
-
+  m_outputEtSum.store (m_etValPlusWheel + m_etVlMinusWheel, bxRel());
+  m_outputEtHad.store (m_htValPlusWheel + m_htVlMinusWheel, bxRel());
   //
   //-----------------------------------------------------------------------------
   // Add the jet counts.
+  std::vector<L1GctJetCount<5> > temp(N_JET_COUNTERS_MAX);
   for (unsigned i=0; i<N_JET_COUNTERS_USED; i++) {
-    m_outputJetCounts.at(i) =
+    temp.at(i) =
       L1GctJetCount<5>(m_jcValPlusWheel.at(i)) +
       L1GctJetCount<5>(m_jcVlMinusWheel.at(i));
   }
   // BUT ... overwrite some of the jet counts with Hf tower sums!
-  packHfTowerSumsIntoJetCountBits();
+  packHfTowerSumsIntoJetCountBits(temp);
+  m_outputJetCounts.store(temp, bxRel());
 }
 
-std::vector<unsigned> L1GctGlobalEnergyAlgos::getJetCountValues() const {
+std::vector< std::vector<unsigned> > L1GctGlobalEnergyAlgos::getJetCountValuesColl() const {
+  std::vector< std::vector<unsigned> > result(numOfBx());
+  for (int i=0; i<numOfBx(); i++) {
+    result.at(i) = jetCountValues(i);
+  }
+  return result;
+}
+
+std::vector<unsigned> L1GctGlobalEnergyAlgos::jetCountValues(const int bx) const {
   std::vector<unsigned> jetCountValues(N_JET_COUNTERS_MAX);
+  int pos = bx*N_JET_COUNTERS_MAX;  
   for (unsigned jc=0; jc<N_JET_COUNTERS_MAX; jc++) {
-    jetCountValues.at(jc) = m_outputJetCounts.at(jc).value();
+    jetCountValues.at(jc) = m_outputJetCounts.contents.at(pos++).value();
   }
   return jetCountValues;
 }
@@ -367,18 +415,17 @@ L1GctGlobalEnergyAlgos::calculate_etmiss_vec (const L1GctGlobalEnergyAlgos::etCo
 // NOTE: the reverse operation of combining the 5-bit fields
 // back into Hf information is carried out in L1GctJetCounts.
 //
-void L1GctGlobalEnergyAlgos::packHfTowerSumsIntoJetCountBits()
+void L1GctGlobalEnergyAlgos::packHfTowerSumsIntoJetCountBits(std::vector<L1GctJetCount<5> >& jcVector)
 {
   assert (N_JET_COUNTERS_USED<=6 && N_JET_COUNTERS_MAX>11);
-  m_outputJetCounts.at(6)  = m_plusWheelJetFpga->getOutputHfSums().nOverThreshold;
-  m_outputJetCounts.at(7)  = m_minusWheelJetFpga->getOutputHfSums().nOverThreshold;
+  jcVector.at(6)  = m_plusWheelJetFpga->getOutputHfSums().nOverThreshold;
+  jcVector.at(7)  = m_minusWheelJetFpga->getOutputHfSums().nOverThreshold;
 
-  m_outputJetCounts.at(8)  = m_plusWheelJetFpga->getOutputHfSums().etSum0;
-  m_outputJetCounts.at(9)  = m_minusWheelJetFpga->getOutputHfSums().etSum0;
+  jcVector.at(8)  = m_plusWheelJetFpga->getOutputHfSums().etSum0;
+  jcVector.at(9)  = m_minusWheelJetFpga->getOutputHfSums().etSum0;
 
-  m_outputJetCounts.at(10) = m_plusWheelJetFpga->getOutputHfSums().etSum1;
-  m_outputJetCounts.at(11) = m_minusWheelJetFpga->getOutputHfSums().etSum1;
-
+  jcVector.at(10) = m_plusWheelJetFpga->getOutputHfSums().etSum1;
+  jcVector.at(11) = m_minusWheelJetFpga->getOutputHfSums().etSum1;
 }
 
 

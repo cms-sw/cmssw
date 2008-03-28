@@ -13,6 +13,7 @@ using std::endl;
 const unsigned int L1GctWheelEnergyFpga::MAX_LEAF_CARDS = L1GctWheelJetFpga::MAX_LEAF_CARDS;
 
 L1GctWheelEnergyFpga::L1GctWheelEnergyFpga(int id, vector<L1GctJetLeafCard*> leafCards) :
+  L1GctProcessor(),
 	m_id(id),
         m_inputLeafCards(leafCards),
 	m_inputEx(MAX_LEAF_CARDS),
@@ -81,7 +82,7 @@ ostream& operator << (ostream& os, const L1GctWheelEnergyFpga& fpga)
   return os;
 }
 
-void L1GctWheelEnergyFpga::reset()
+void L1GctWheelEnergyFpga::resetProcessor()
 {
   for (unsigned int i=0; i<MAX_LEAF_CARDS; i++) {
     m_inputEx.at(i).reset();

@@ -7,8 +7,6 @@
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctProcessor.h"
 
 #include <vector>
-//#include <functional>
-#include <ostream>
 
 
 /*!
@@ -62,9 +60,6 @@ class L1GctElectronSorter : public L1GctProcessor
   ///   
   ~L1GctElectronSorter();
   ///
-  /// clear internal buffers
-  virtual void reset();
-  ///
   /// get input data from sources
   virtual void fetchInput();
   ///
@@ -82,6 +77,15 @@ class L1GctElectronSorter : public L1GctProcessor
   ///
   /// overload of cout operator
   friend std::ostream& operator<<(std::ostream& s,const L1GctElectronSorter& card);  
+ protected:
+
+  /// Separate reset methods for the processor itself and any data stored in pipelines
+  virtual void resetProcessor();
+  virtual void resetPipelines() {}
+
+  /// Initialise inputs with null objects for the correct bunch crossing if required
+  virtual void setupObjects();
+
  private:
   ///
   /// algo ID (is it FPGA 1 or 2 processing)

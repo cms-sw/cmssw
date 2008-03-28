@@ -30,8 +30,11 @@ public:
   ~gctTestEnergyAlgos();
 
   /// Load another event into the gct. Overloaded for the various ways of doing this.
-  std::vector<L1CaloRegion> loadEvent(L1GlobalCaloTrigger* &gct, const bool simpleEvent);
-  std::vector<L1CaloRegion> loadEvent(L1GlobalCaloTrigger* &gct, const std::string &fileName, bool &endOfFile);
+  std::vector<L1CaloRegion> loadEvent(L1GlobalCaloTrigger* &gct, const bool simpleEvent, const int16_t bx);
+  std::vector<L1CaloRegion> loadEvent(L1GlobalCaloTrigger* &gct, const std::string &fileName, bool &endOfFile, const int16_t bx);
+
+  /// Set array sizes for the number of bunch crossings
+  void setBxRange(const int bxStart, const int numOfBx);
 
   /// Read the input jet data from the jetfinders (after GCT processing).
   void fillRawJetData(const L1GlobalCaloTrigger* gct);
@@ -47,7 +50,7 @@ private:
   /// Generates test data consisting of energies to be added together with their sum
   std::vector<unsigned> randomTestData(const int size, const unsigned max) const;
   /// Loads test input regions from a text file.
-  L1CaloRegion nextRegionFromFile(const unsigned ieta, const unsigned iphi);
+  L1CaloRegion nextRegionFromFile(const unsigned ieta, const unsigned iphi, const int16_t bx);
 
   //=========================================================================
 
@@ -59,9 +62,12 @@ private:
   etmiss_vec trueMissingEt(const int ex, const int ey) const;
   //=========================================================================
 
+  int m_bxStart;
+  int m_numOfBx;
+
   std::vector<unsigned> etStripSums; 
-  bool inMinusOvrFlow;
-  bool inPlusOverFlow;
+  std::vector<bool> inMinusOvrFlow;
+  std::vector<bool> inPlusOverFlow;
 
   std::ifstream regionEnergyMapInputFile;
 

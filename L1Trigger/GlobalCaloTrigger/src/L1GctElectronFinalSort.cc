@@ -4,12 +4,11 @@
 
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctEmLeafCard.h"
 
-#include <iostream>
 #include <cassert>
-
 
 L1GctElectronFinalSort::L1GctElectronFinalSort(bool iso, L1GctEmLeafCard* posEtaCard,
                                                          L1GctEmLeafCard* negEtaCard):
+  L1GctProcessor(),
   m_emCandsType(iso),
   m_thePosEtaLeafCard(0), m_theNegEtaLeafCard(0),
   m_inputCands(16),
@@ -31,14 +30,16 @@ L1GctElectronFinalSort::L1GctElectronFinalSort(bool iso, L1GctEmLeafCard* posEta
 
 L1GctElectronFinalSort::~L1GctElectronFinalSort(){
   m_inputCands.clear();
-  m_outputCands.clear();
+  m_outputCands.contents.clear();
 }
 
-void L1GctElectronFinalSort::reset(){
+void L1GctElectronFinalSort::resetProcessor() {
   m_inputCands.clear();
   m_inputCands.resize(16);
-  m_outputCands.clear();
-  m_outputCands.resize(4);
+}
+
+void L1GctElectronFinalSort::resetPipelines() {
+  m_outputCands.reset(numOfBx());
 }
 
 void L1GctElectronFinalSort::fetchInput() {
@@ -72,13 +73,16 @@ void L1GctElectronFinalSort::process(){
   sort(data.begin(),data.end(),rank_gt());
   
   //Copy data to output buffer
+  std::vector<L1GctEmCand> temp(4);
   for(int i = 0; i<4; i++){
-    m_outputCands.at(i) = data.at(i).emCand;
+    temp.at(i) = data.at(i).emCand;
   }
+  m_outputCands.store(temp, bxRel());
 }
 
 void L1GctElectronFinalSort::setInputEmCand(unsigned i, const L1GctEmCand& cand){
   assert (i<m_inputCands.size());
+  assert (cand.bx()==bxAbs());
   m_inputCands.at(i) = cand;
 }
 
@@ -90,7 +94,7 @@ std::ostream& operator<<(std::ostream& s, const L1GctElectronFinalSort& cand) {
   s << "   Neg. eta: " << cand.m_theNegEtaLeafCard;
   s << std::endl;
   s << "No of Electron Input Candidates " << cand.m_inputCands.size() << std::endl;
-  s << "No of Electron Output Candidates " << cand.m_outputCands.size() << std::endl;
+  s << "No of Electron Output Candidates " << cand.m_outputCands.contents.size() << std::endl;
    
   return s;
 }
