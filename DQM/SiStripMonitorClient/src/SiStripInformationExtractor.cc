@@ -95,13 +95,13 @@ void SiStripInformationExtractor::printSummaryHistoList(DQMStore * dqm_store, os
     MonitorElement* me = (*it);
     if (!me) continue;
     string name = (*it)->getName();
-    if (name.find("Summary") == 0) {
+    //    if (name.find("Summary") == 0) {
       str_val << "<li class=\"dhtmlgoodies_sheet.gif\">"
               << " <a href=\"javascript:RequestHistos.DrawSingleHisto('"
               << currDir 
               << "')\">" << name 
               << "</a></li>" << endl;
-    }
+      //    }
   }
 
   string mtag ="Modules: ";  
@@ -268,7 +268,7 @@ void SiStripInformationExtractor::plotGlobalHistos(DQMStore* dqm_store, multimap
   item_list.clear();     
   getItemList(req_map,"histo", item_list);
 
-  string dname = "SiStrip/" +  getItemValue(req_map, "GlobalFolder");    
+  string dname = getItemValue(req_map, "GlobalFolder");    
 
   vector<MonitorElement *> me_list;
   selectGlobalHistos(dqm_store, dname, item_list, me_list);
@@ -318,8 +318,9 @@ void SiStripInformationExtractor::plotHistosFromPath(DQMStore * dqm_store, std::
     MonitorElement* me = (*it);
     if (!me) continue;
     canvas_->Clear();
-    if (htype == "summary") plotHisto(req_map, me, true);
-    else  plotHisto(req_map, me, false);
+    //    if (htype == "summary") plotHisto(req_map, me, true);  // commenting out temporarily SD 28/3/08
+    //    else  plotHisto(req_map, me, false);
+     plotHisto(req_map, me, false);
     fillNamedImageBuffer(me->getFullname());
     string name = me->getName();
     *out << name << " ";
@@ -775,7 +776,7 @@ void SiStripInformationExtractor::readModuleAndHistoList(DQMStore* dqm_store, co
 //
 void SiStripInformationExtractor::readGlobalHistoList(DQMStore* dqm_store, std::string& str_name,xgi::Output * out) {
    std::vector<std::string> hnames;
-   string dname = "SiStrip/" + str_name;
+   string dname = str_name;
    out->getHTTPResponseHeader().addHeader("Content-Type", "text/xml");
    *out << "<?xml version=\"1.0\" ?>" << std::endl;
    *out << "<GlobalHistoList>" << endl;
