@@ -1,23 +1,19 @@
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("TEST")
-process.load("CondCore.DBCommon.CondDBCommon_cfi")
-process.CondDBCommon.connect = cms.string("sqlite_file:test.db")
-process.CondDBCommon.DBParameters.messageLevel = 0
+process.load("CondCore.DBCommon.CondDBSetup_cfi")
 
 process.PoolDBESSource = cms.ESSource("PoolDBESSource",
-    process.CondDBCommon,
+    process.CondDBSetup,
     toGet = cms.VPSet(cms.PSet(
         record = cms.string('PedestalsRcd'),
         tag = cms.string('mytest')
-    ), cms.PSet(
-        record = cms.string('anotherPedestalsRcd'),
-        tag = cms.string('anothermytest')
-    ))
+    )),
+    connect = cms.string('frontier://cmsfrontier.cern.ch:8000/FrontierDev/CMS_COND_PRESH')
 )
 
 process.source = cms.Source("EmptyIOVSource",
-    lastRun = cms.untracked.uint32(4),
+    lastRun = cms.untracked.uint32(10),
     timetype = cms.string('runnumber'),
     firstRun = cms.untracked.uint32(1),
     interval = cms.uint32(1)
@@ -26,9 +22,6 @@ process.source = cms.Source("EmptyIOVSource",
 process.get = cms.EDAnalyzer("EventSetupRecordDataGetter",
     toGet = cms.VPSet(cms.PSet(
         record = cms.string('PedestalsRcd'),
-        data = cms.vstring('Pedestals')
-    ), cms.PSet(
-        record = cms.string('anotherPedestalsRcd'),
         data = cms.vstring('Pedestals')
     )),
     verbose = cms.untracked.bool(True)
