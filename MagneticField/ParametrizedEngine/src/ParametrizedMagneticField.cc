@@ -2,8 +2,8 @@
  *
  *  Magnetic Field based on the Veikko Karimaki's Parametrization
  *
- *  $Date: 2007/07/02 11:49:15 $
- *  $Revision: 1.1 $
+ *  $Date: 2008/02/11 14:20:47 $
+ *  $Revision: 1.2 $
  *  \author M. Chiorboli - Universit\`a and INFN Catania
  */
 
@@ -122,4 +122,7 @@ void ParametrizedMagneticField::ffunkti(float u, float* ff) const {
  return;
 }
 
-
+bool
+ParametrizedMagneticField::isDefined(const GlobalPoint& gp) const {
+  return (gp.perp()<120. && fabs(gp.z())<300.);
+}

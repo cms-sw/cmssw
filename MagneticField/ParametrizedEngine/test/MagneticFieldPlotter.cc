@@ -14,7 +14,7 @@
 //
 // Original Author:  Massimiliano Chiorboli
 //         Created:  Mon Jun 11 17:20:15 CEST 2007
-// $Id: MagneticFieldPlotter.cc,v 1.1 2007/07/02 11:49:34 chiorbo Exp $
+// $Id: MagneticFieldPlotter.cc,v 1.2 2008/02/11 14:22:00 chiorbo Exp $
 //
 //
 
@@ -39,6 +39,9 @@
 #include "MagneticFieldPlotter.h"
 #include "DataFormats/GeometryVector/interface/Pi.h"
 #include "FWCore/Framework/interface/ESHandle.h"
+
+#include <TH1.h>
+#include <TH2.h>
 
 using namespace edm;
 using namespace std;

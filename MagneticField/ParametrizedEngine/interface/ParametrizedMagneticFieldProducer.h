@@ -1,43 +1,21 @@
 #ifndef ParametrizedMagneticFieldProducer_h
 #define ParametrizedMagneticFieldProducer_h
 
-// -*- C++ -*-
-//
-// Package:    ParametrizedMagneticFieldProducer
-// Class:      ParametrizedMagneticFieldProducer
-// 
-/**\class ParametrizedMagneticFieldProducer ParametrizedMagneticFieldProducer.h MagneticField/ParametrizedEngine/interface/ParametrizedMagneticFieldProducer.h
+/** \class ParametrizedMagneticFieldProducer
+ *
+ *   Description: Producer for the Parametrized Magnetic Field
+ *
+ *  $Date: $
+ *  $Revision: $
+ *  \author Massimiliano Chiorboli, updated NA 03/08
+ */
 
- Description: Producer for the Parametrized Magnetic Field
-
- Implementation:
-     <Notes on implementation>
-*/
-//
-// Original Author:  Massimiliano Chiorboli
-//         Created:  Tue Jun 28 14:35:40 CEST 2007
-// $Id$
-//
-//
-
-
-// system include files
-#include <memory>
-#include "boost/shared_ptr.hpp"
-
-// user include files
-#include "FWCore/Framework/interface/EventSetupRecordIntervalFinder.h"
 #include "FWCore/Framework/interface/ESProducer.h"
 
 #include "MagneticField/Engine/interface/MagneticField.h"
-#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-
-
-//
-// class decleration
-//
+class IdealMagneticFieldRecord;
 
 namespace magneticfield {
   class ParametrizedMagneticFieldProducer : public edm::ESProducer
@@ -47,10 +25,8 @@ namespace magneticfield {
     ~ParametrizedMagneticFieldProducer();
     
     std::auto_ptr<MagneticField> produce(const IdealMagneticFieldRecord&);
-    
-  private:
-    float a_;
-    float l_;
+    edm::ParameterSet pset;
   };
 }
+
 #endif

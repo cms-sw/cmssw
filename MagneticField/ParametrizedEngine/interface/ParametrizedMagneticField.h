@@ -5,8 +5,8 @@
  *
  *  Magnetic Field based on the Veikko Karimaki's Parametrization
  *
- *  $Date: 2007/28/06 16:08:01 $
- *  $Revision: 1.4 $
+ *  $Date: 2007/07/02 11:48:59 $
+ *  $Revision: 1.1 $
  *  \author M. Chiorboli - Universit\`a and INFN Catania
  */
 
@@ -25,6 +25,8 @@ class ParametrizedMagneticField : public MagneticField
 
 
   GlobalVector inTesla (const GlobalPoint& gp) const;
+
+  bool isDefined(const GlobalPoint& gp) const;
 
  private:
   float a_;
