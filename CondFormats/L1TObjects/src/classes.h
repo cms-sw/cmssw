@@ -46,5 +46,11 @@ namespace {
     std::map<DTBtiId,DTConfigBti> dummy1 ;
     std::map<DTTracoId,DTConfigTraco> dummy2 ;
     std::vector<L1MuDTExtLut::LUT> dummy3 ;
+    std::vector<L1GtMuonTemplate> dummy4 ;
+    std::vector<L1GtCaloTemplate> dummy5 ;
+    std::vector<L1GtEnergySumTemplate> dummy6 ;
+    std::vector<L1GtJetCountsTemplate> dummy7 ;
+    std::vector<L1GtCorrelationTemplate> dummy8 ;
+    //std::map< std::string, L1GtAlgorithm > dummy9 ;
   }
 }
