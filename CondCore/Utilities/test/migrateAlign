@@ -50,3 +50,15 @@ cmscond_list_iov -c sqlite_file:$x -t $tag
 end
 end
 
+cd /build/vin/Align20X
+set dir200=/build/vin/Align20X
+foreach x ($dir200/*.db)
+echo $x
+foreach tag (`cmscond_list_iov -c sqlite_file:$x`)
+echo $tag
+set pname=`cmscond_list_iov -c  sqlite_file:$x -t $tag | grep "Payload"  | sed 's/.*PayloadContainerName //g' | sed 's/Rcd//'`
+cmscond_export_iov -s sqlite_file:$x -d oracle://cms_orcoff_int2r/CMS_COND_ALIGNMENT  -p /afs/cern.ch/cms/DB/conddb  -D CondFormatsAlignment -t $tag -n $pname
+cmscond_list_iov -c oracle://cms_orcoff_int2r/CMS_COND_ALIGNMENT -P /afs/cern.ch/cms/DB/conddb  -t $tag
+end
+end
+
