@@ -68,7 +68,6 @@ void DDEcalPreshowerAlgo::initialize(const DDNumericArguments & nArgs,
   dee_separation = double(nArgs["dee_sep"]);
   In_rad_Abs_Al = double(nArgs["R_MIN_Abs_Al"]);
   In_rad_Abs_Pb = double(nArgs["R_MIN_Abs_Pb"]);
-  In_rad_Abs_Pb = double(nArgs["R_MIN_Abs_Pb"]);
   rMax_Abs_Al_ = double(nArgs["R_MAX_Abs_Al"]);
   absAlX_X_ = double(nArgs["AbsAlX_X"]);
   absAlX_Y_ = double(nArgs["AbsAlX_Y"]);
@@ -177,10 +176,14 @@ void DDEcalPreshowerAlgo::doLayers()
 	DDName dd_FAl_name_c(tmp_FAl_name_c.str(),"esalgo");
 	DDName dd_FAl_name_d(tmp_FAl_name_d.str(),"esalgo");
 
-	bdx = std::abs(abs1stx[K]-abs1stx[K-1])/2; bdy=abs1sty[K];
+	if(L==0) bdx = std::abs(abs1stx[K])/2; 
+	if(L>0) bdx = std::abs(abs1stx[K]-abs1stx[K-1])/2; 
+	bdy=abs1sty[K];
 	if(abs1stx[K] < rIn+30*cm) { bdy=abs1sty[K]/2 - 30*cm; cutabsx = K;}
 	
-	if(I==20) { bdx = std::abs(abs2ndx[K]-abs2ndx[K-1])/2; bdy=abs2ndy[K];}
+	if(I==20) { if(L==0) bdx = std::abs(abs2ndx[K])/2; 
+		if(L>0) bdx = std::abs(abs2ndx[K]-abs2ndx[K-1])/2;
+		bdy=abs2ndy[K];}
 	
 	if((abs2ndx[K] < rIn+30*cm) && I==20) { bdy=abs2ndy[K]/2 - 30*cm; cutabsy = K;}
 	
