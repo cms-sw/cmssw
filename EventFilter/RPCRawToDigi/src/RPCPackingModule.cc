@@ -9,13 +9,17 @@
 
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/ESWatcher.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "CondFormats/RPCObjects/interface/RPCEMap.h"
 #include "CondFormats/DataRecord/interface/RPCEMapRcd.h"
+#include "CondFormats/RPCObjects/interface/RPCReadOutMapping.h"
 
 #include "EventFilter/RPCRawToDigi/interface/RPCRecordFormatter.h"
+#include "EventFilter/RPCRawToDigi/interface/DebugDigisPrintout.h"
+#include "EventFilter/RPCRawToDigi/interface/EmptyWord.h"
 
 #include <string>
 #include <sstream>
@@ -28,20 +32,18 @@ using namespace rpcrawtodigi;
 typedef uint64_t Word64;
 
 RPCPackingModule::RPCPackingModule( const ParameterSet& pset ) :
-//  digiLabel_(""),
   eventCounter_(0)
 {
 
-  cabling = new RPCReadOutMapping("");
-  // Set some private data members
-//  digiLabel_ = pset.getParameter<InputTag>("DigiProducer");
-
-  // Define EDProduct type
+  theCabling = new RPCReadOutMapping("");
   produces<FEDRawDataCollection>();
 
 }
 
-RPCPackingModule::~RPCPackingModule(){}
+RPCPackingModule::~RPCPackingModule() 
+{
+  delete theCabling;
+}
 
 
 void RPCPackingModule::produce( edm::Event& ev,
@@ -53,16 +55,16 @@ void RPCPackingModule::produce( edm::Event& ev,
 
   Handle< RPCDigiCollection > digiCollection;
   ev.getByType(digiCollection);
+  LogDebug("") << DebugDigisPrintout()(digiCollection.product());
 
-//  ESHandle<RPCReadOutMapping> readoutMapping;
-//  es.get<RPCReadOutMappingRcd>().get(readoutMapping);
-  ESHandle<RPCEMap> readoutMapping;
-  es.get<RPCEMapRcd>().get(readoutMapping);
-  const RPCEMap* eMap=readoutMapping.product();
-
-  if (eMap->theVersion != cabling->version()) {
-    delete cabling;
-    cabling = eMap->convert();
+  static edm::ESWatcher<RPCEMapRcd> recordWatcher; 
+  if(recordWatcher.check(es)) {
+    delete theCabling;
+    LogTrace("") << "record has CHANGED!!, initialise readout map!";
+    ESHandle<RPCEMap> readoutMapping;
+    es.get<RPCEMapRcd>().get(readoutMapping);
+    theCabling = readoutMapping->convert();
+    LogTrace("") <<" READOUT MAP VERSION: " << theCabling->version() << endl; 
   }
 
   auto_ptr<FEDRawDataCollection> buffers( new FEDRawDataCollection );
@@ -71,10 +73,9 @@ void RPCPackingModule::produce( edm::Event& ev,
   pair<int,int> rpcFEDS(790,792);
   for (int id= rpcFEDS.first; id<=rpcFEDS.second; ++id){
 
-//    RPCRecordFormatter formatter(id, readoutMapping.product()) ;
-    RPCRecordFormatter formatter(id, cabling) ;
+    RPCRecordFormatter formatter(id, theCabling) ;
     unsigned int lvl1_ID = ev.id().event();
-    FEDRawData *  rawData =  RPCPackingModule::rawData(id, lvl1_ID, digiCollection.product(), formatter);
+    FEDRawData* rawData =  RPCPackingModule::rawData(id, lvl1_ID, digiCollection.product(), formatter);
     FEDRawData& fedRawData = buffers->FEDData(id);
 
     fedRawData = *rawData;
@@ -96,7 +97,7 @@ FEDRawData * RPCPackingModule::rawData( int fedId, unsigned int lvl1_ID, const R
   // create data words
   //
   vector<Word64> dataWords;
-  DataRecord empty;
+  EmptyWord empty;
   typedef vector<EventRecords>::const_iterator IR;
   for (IR ir = merged.begin(), irEnd =  merged.end() ; ir != irEnd; ++ir) {
     Word64 w = ( ( (Word64(ir->recordBX().data()) << 16) | ir->recordSLD().data() ) << 16

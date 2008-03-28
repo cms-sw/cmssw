@@ -6,9 +6,8 @@
  */
 
 #include "FWCore/Framework/interface/EDProducer.h"
-#include "DataFormats/RPCDigi/interface/RPCDigiCollection.h"
 #include "EventFilter/RPCRawToDigi/interface/EventRecords.h"
-#include "CondFormats/RPCObjects/interface/RPCReadOutMapping.h"
+#include "DataFormats/RPCDigi/interface/RPCDigiCollection.h"
 
 #include <vector> 
 
@@ -18,6 +17,7 @@ namespace edm {class Event; }
 
 class FEDRawData;
 class RPCRecordFormatter;
+class RPCReadOutMapping;
 
 class RPCPackingModule : public edm::EDProducer {
 public:
@@ -39,7 +39,7 @@ private:
 
 private:
   unsigned long eventCounter_;
-  const RPCReadOutMapping * cabling; 
+  const RPCReadOutMapping * theCabling; 
 
 };
 #endif

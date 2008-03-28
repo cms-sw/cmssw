@@ -9,6 +9,8 @@ class RPCReadOutMappingWithFastSearch : public RPCReadOutMapping {
 public:
   RPCReadOutMappingWithFastSearch();
   virtual ~RPCReadOutMappingWithFastSearch(){} 
+
+  /// takes ownership of map
   void init(const RPCReadOutMapping * arm);
 
   virtual const LinkBoardSpec* location (const LinkBoardElectronicIndex & ele) const;

@@ -5,8 +5,8 @@
 /** \class RPCUnpackingModule
  *  Driver class for unpacking RPC raw data (DCC format)
  *
- *  $Date: 2007/10/08 16:16:33 $
- *  $Revision: 1.2 $
+ *  $Date: 2008/03/11 16:23:47 $
+ *  $Revision: 1.3 $
  *  \author Ilaria Segoni - CERN
  */
 
@@ -28,12 +28,12 @@ public:
    /** Retrieves a RPCDigiCollection from the Event, creates a
       FEDRawDataCollection (EDProduct) using the DigiToRaw converter,
       and attaches it to the Event. */
-    void produce(edm::Event & e, const edm::EventSetup& c); 
+    void produce(edm::Event & ev, const edm::EventSetup& es); 
   
 private:
   edm::InputTag dataLabel_;
   unsigned long eventCounter_;
-  const RPCReadOutMapping* RPCCabling;
+  const RPCReadOutMapping* theCabling;
 };
 
 

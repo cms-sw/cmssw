@@ -1,8 +1,8 @@
 /** \file
  * Implementation of class RPCRecordFormatter
  *
- *  $Date: 2008/03/12 17:06:51 $
- *  $Revision: 1.32 $
+ *  $Date: 2008/03/27 13:51:05 $
+ *  $Revision: 1.33 $
  *
  * \author Ilaria Segoni
  */
@@ -129,8 +129,8 @@ int RPCRecordFormatter::recordUnpack(
     RPCDigi digi(geomStrip,currentBX-triggerBX);
 
     /// Committing digi to the product
-    LogTrace("")<<" DIGI;  det: "<<rawDetId<<", strip: "<<digi.strip()<<", bx: "<<digi.bx();
     LogTrace("") << " LinkBoardElectronicIndex: " << eleIndex.print(); 
+    LogTrace("")<<" DIGI;  det: "<<rawDetId<<", strip: "<<digi.strip()<<", bx: "<<digi.bx();
     prod->insertDigi(RPCDetId(rawDetId),digi);
   }
   return status;
