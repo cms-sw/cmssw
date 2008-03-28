@@ -1,6 +1,26 @@
+# The following comments couldn't be translated into the new config version:
+
+# This is a vector of ParameterSet names to be read, in this order
+
+# 511 B0 decay channels
+
+# 521 B+ decay channels
+
+# 531 Bs decay channels
+
+# 541 Bc 
+
+# 5122  Lambda_b0       Lambda_bbar0   
+
+# Change of b->Chi_1c and Force Chi_1c decay to J/psi  
+
+# Force J/Psi decays to mumu
+#
+
 import FWCore.ParameterSet.Config as cms
 
 source = cms.Source("PythiaSource",
+    #untracked int32 maxEvents = 30000
     pythiaPylistVerbosity = cms.untracked.int32(0),
     filterEfficiency = cms.untracked.double(0.00013),
     pythiaHepMCVerbosity = cms.untracked.bool(False),

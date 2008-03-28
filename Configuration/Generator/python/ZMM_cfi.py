@@ -1,3 +1,7 @@
+# The following comments couldn't be translated into the new config version:
+
+# This is a vector of ParameterSet names to be read, in this order
+
 import FWCore.ParameterSet.Config as cms
 
 source = cms.Source("PythiaSource",

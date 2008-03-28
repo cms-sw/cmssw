@@ -12,6 +12,7 @@ MuMuFilter = cms.EDFilter("MCParticlePairFilter",
     ParticleID2 = cms.untracked.vint32(13)
 )
 
+# -- Require Muon from Bs
 MuFilter = cms.EDFilter("PythiaFilter",
     Status = cms.untracked.int32(1),
     MotherID = cms.untracked.int32(531),

@@ -8,9 +8,11 @@ source = cms.Source("FlatRandomPtGunSource",
         MaxEta = cms.untracked.double(2.5),
         MaxPhi = cms.untracked.double(3.14159265359),
         MinEta = cms.untracked.double(-2.5),
-        MinPhi = cms.untracked.double(-3.14159265359)
+        MinPhi = cms.untracked.double(-3.14159265359) ## in radians
+
     ),
-    Verbosity = cms.untracked.int32(0),
+    Verbosity = cms.untracked.int32(0), ## set to 1 (or greater)  for printouts
+
     psethack = cms.string('single mu pt 10'),
     AddAntiParticle = cms.untracked.bool(True),
     firstRun = cms.untracked.uint32(1)

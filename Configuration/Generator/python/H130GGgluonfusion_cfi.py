@@ -1,9 +1,17 @@
+# The following comments couldn't be translated into the new config version:
+
+# This is a vector of ParameterSet names to be read, in this order
+
+# Higgs decays
+
 import FWCore.ParameterSet.Config as cms
 
 source = cms.Source("PythiaSource",
     pythiaPylistVerbosity = cms.untracked.int32(1),
+    # put here the efficiency of your filter (1. if no filter)
     filterEfficiency = cms.untracked.double(1.0),
     pythiaHepMCVerbosity = cms.untracked.bool(False),
+    # put here the cross section of your process (in pb)
     crossSection = cms.untracked.double(0.05),
     maxEventsToPrint = cms.untracked.int32(3),
     PythiaParameters = cms.PSet(

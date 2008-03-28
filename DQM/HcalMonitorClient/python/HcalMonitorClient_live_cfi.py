@@ -1,0 +1,38 @@
+import FWCore.ParameterSet.Config as cms
+
+hcalClient = cms.EDFilter("HcalMonitorClient",
+    runningStandalone = cms.untracked.bool(False),
+    CapIdMEAN_ErrThresh = cms.untracked.double(1.5),
+    TrigPrimMonitor = cms.untracked.bool(True),
+    MonitorDaemon = cms.untracked.bool(True),
+    plotPedRAW = cms.untracked.bool(False),
+    resetFreqEvents = cms.untracked.int32(-1),
+    DeadCellClient = cms.untracked.bool(False),
+    enableExit = cms.untracked.bool(False),
+    resetFreqLS = cms.untracked.int32(-1),
+    PedestalMean_ErrThresh = cms.untracked.double(2.0),
+    DataFormatClient = cms.untracked.bool(True),
+    CapIdRMS_ErrThresh = cms.untracked.double(0.25),
+    HotCellClient = cms.untracked.bool(False),
+    processName = cms.untracked.string(''),
+    LEDRMS_ErrThresh = cms.untracked.double(0.8),
+    DigiClient = cms.untracked.bool(True),
+    diagnosticPrescaleUpdate = cms.untracked.int32(-1),
+    inputFile = cms.untracked.string(''),
+    LEDClient = cms.untracked.bool(False),
+    resetFreqTime = cms.untracked.int32(-1),
+    PedestalClient = cms.untracked.bool(False),
+    LEDMEAN_ErrThresh = cms.untracked.double(2.25),
+    diagnosticPrescaleLS = cms.untracked.int32(-1),
+    subDetsOn = cms.untracked.vstring('HB', 'HE', 'HF', 'HO'),
+    RecHitClient = cms.untracked.bool(False),
+    resetFreqUpdates = cms.untracked.int32(-1),
+    baseHtmlDir = cms.untracked.string('.'),
+    DoPerChanTests = cms.untracked.bool(True),
+    PedestalRMS_ErrThresh = cms.untracked.double(1.0),
+    diagnosticPrescaleTime = cms.untracked.int32(-1),
+    diagnosticPrescaleEvt = cms.untracked.int32(200),
+    debug = cms.untracked.bool(False)
+)
+
+
