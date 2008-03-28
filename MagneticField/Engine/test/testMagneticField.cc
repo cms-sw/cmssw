@@ -1,8 +1,8 @@
 /** \file
  *  A simple example of ho to access the magnetic field.
  *
- *  $Date: 2007/04/30 13:04:24 $
- *  $Revision: 1.9 $
+ *  $Date: 2008/03/20 15:00:18 $
+ *  $Revision: 1.10 $
  *  \author N. Amapane - CERN
  */
 
@@ -46,6 +46,8 @@ class testMagneticField : public edm::EDAnalyzer {
     //    verbose::debugOut = true;
     outputFile = pset.getUntrackedParameter<string>("outputTable", "");
     inputFile = pset.getUntrackedParameter<string>("inputTable", "");
+    inputFileType = pset.getUntrackedParameter<string>("inputTableType", "xyz");
+
     //    resolution for validation of maps
     reso = pset.getUntrackedParameter<double>("resolution", 0.0001);
     //    number of random points to try
@@ -77,7 +79,7 @@ class testMagneticField : public edm::EDAnalyzer {
    }
    
    if (inputFile!="") {
-     validate (inputFile);
+     validate (inputFile, inputFileType);
    }
 
    // Some ad-hoc test
@@ -87,11 +89,12 @@ class testMagneticField : public edm::EDAnalyzer {
   }
   
   void writeValidationTable(int npoints, string filename);
-  void validate(string filename);
+  void validate(string filename, string type="xyz");
    
  private:
   const MagneticField* field;
   string inputFile;
+  string inputFileType;
   string outputFile;  
   double reso;
   int numberOfPoints;
@@ -113,7 +116,7 @@ void testMagneticField::writeValidationTable(int npoints, string filename) {
   }
 }
 
-void testMagneticField::validate(string filename) {
+void testMagneticField::validate(string filename, string type) {
   
   //  double reso = 0.0001; // in T   >> now defined in cfg file
   
@@ -124,23 +127,29 @@ void testMagneticField::validate(string filename) {
   int count = 0;
   
   float maxdelta=0.;
-  
-  while (getline(file,line)) {
+
+  while (getline(file,line) && count < numberOfPoints) {
     if( line == "" || line[0] == '#' ) continue;
     stringstream linestr;
     linestr << line;
-    int i;
     float px, py, pz;
-    float bx, by, bz;    
-    linestr >> i >> px >> py >> pz >> bx >> by >> bz;
-    GlobalPoint gp(px, py, pz);
+    float bx, by, bz;
+    linestr  >> px >> py >> pz >> bx >> by >> bz;
+    GlobalPoint gp;
+    if (type=="rpz_m") { // assume rpz file with units in m.
+      gp = GlobalPoint(GlobalPoint::Cylindrical(px*100.,py,pz*100.));
+    } else if (type=="xyz_m") { // assume rpz file with units in m.
+      gp = GlobalPoint(px*100., py*100., pz*100.);
+    } else { // assume x,y,z with units in cm
+      gp = GlobalPoint(px, py, pz);      
+    }
     GlobalVector oldB(bx, by, bz);
     GlobalVector newB = field->inTesla(gp);
     if ((newB-oldB).mag() > reso) {
       ++fail;
       float delta = (newB-oldB).mag();
       if (delta > maxdelta) maxdelta = delta;
-      cout << " Discrepancy at: # " << i << " " << gp << " delta : " << newB-oldB << " " << delta <<  endl;
+      cout << " Discrepancy at: # " << count+1 << " " << gp << " delta : " << newB-oldB << " " << delta <<  endl;
     }
     count++;
   }
