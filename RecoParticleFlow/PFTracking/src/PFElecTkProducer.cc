@@ -24,7 +24,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "TrackingTools/PatternTools/interface/Trajectory.h"
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeed.h"
-
+#include "TMath.h"
 using namespace std;
 using namespace edm;
 using namespace reco;
@@ -137,10 +137,16 @@ PFElecTkProducer::FindPfRef(const reco::PFRecTrackCollection  & PfRTkColl,
   uint i_pf=0;
   int ibest=-1;
   uint ish_max=0;
+  float dr_min=1000;
   for(;pft!=pftend;++pft){
     uint ish=0;
     if (pft->algoType()==reco::PFRecTrack::KF_ELCAND){
-      
+
+      float dph= fabs(pft->trackRef()->phi()-gsftk.phi()); 
+      if (dph>TMath::TwoPi()) dph-= TMath::TwoPi();
+      float det=fabs(pft->trackRef()->eta()-gsftk.eta());
+      float dr =sqrt(dph*dph+det*det);  
+
       trackingRecHit_iterator  hhit=
 	pft->trackRef()->recHitsBegin();
       trackingRecHit_iterator  hhit_end=
@@ -164,8 +170,11 @@ PFElecTkProducer::FindPfRef(const reco::PFRecTrackCollection  & PfRTkColl,
  
      }
 
-      if (ish>ish_max){
+
+      if ((ish>ish_max)||
+	  ((ish==ish_max)&&(dr<dr_min))){
 	ish_max=ish;
+	dr_min=dr;
 	ibest=i_pf;
       }
       
@@ -174,7 +183,7 @@ PFElecTkProducer::FindPfRef(const reco::PFRecTrackCollection  & PfRTkColl,
     i_pf++;
   }
   if (ibest<0) return -1;
-  
+  if((ish_max==0) &&(dr_min>0.05))return -1;
   return ibest;
 }
 
