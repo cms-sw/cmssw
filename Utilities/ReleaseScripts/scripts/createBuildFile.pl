@@ -540,8 +540,8 @@ if((-f $prodfile) && (!-d STDIN))
       }
       elsif((-d "${release}/src/${u}/${pkgsrcdir}") || (-d "${release}/src/${u}/${pkginterfacedir}"))
       {
-	my $nsbfile="${tmprel}/src/${u}/BuildFile.xml";
-	if(!-f $nsbfile){$nsbfile="${tmprel}/src/${u}/BuildFile";}
+	my $nsbfile="${tmprel}/src/${u}/BuildFile";
+	if($xml){$nsbfile="${tmprel}/src/${u}/BuildFile.xml";}
 	if(!-f $nsbfile)
 	{
 	  my $nbfile="${tmprel}/newBuildFile/src/${u}/BuildFile.auto";
@@ -576,7 +576,8 @@ if((-f $prodfile) && (!-d STDIN))
 
 if(exists $data->{deps}{src}{castor}){$castor=0;}
 
-if($chksym && ($xtools || $castor))
+my $sbuildfile="";
+if ($chksym)
 {
   if(!-f "${tmprel}/.SCRAM/Environment")
   {
@@ -587,47 +588,65 @@ if($chksym && ($xtools || $castor))
   my $bdir=dirname($reldir);
   $bdir="${tmprel}/${bdir}";
   my $bname=basename($dir);
-  my $tmppdir="${tmprel}/tmp/${scramarch}/${reldir}/${prodname}";
-  if($isPackage){$tmppdir="${tmprel}/tmp/${scramarch}/${reldir}/${pkgsrcdir}/${prodname}";}
-  if(-d "$tmppdir"){system("rm -rf $tmppdir");}
-  if(-d "${tmprel}/${reldir}"){system("rm -rf ${tmprel}/${reldir}");}
-  system("mkdir -p $bdir; cp -rpf $dir ${bdir}/${bname}");
-  if(-d "${bdir}/${bname}/data"){system("rm -rf ${bdir}/${bname}/data");}
+  system("rm -rf ${tmprel}/tmp/${scramarch}/${reldir} ${tmprel}/${reldir}; mkdir -p $bdir; cp -rpf $dir ${bdir}/${bname}");
+  my $bfs="";
+  foreach my $bf (`find ${tmprel}/${reldir} -name "BuildFile*" -type f`)
+  {
+    chomp $bf;
+    if($bf=~/\/BuildFile(\.xml|)$/){$bfs.=" $bf";}
+  }
+  system("rm -rf $bfs ${bdir}/${bname}/data");
   $bdir.="/${bname}";
-
   my $bfile="${bdir}/BuildFile";
   if($xml){$bfile="${bdir}/BuildFile.xml";}
+  $sbuildfile=$bfile;
   my $pflagval="";
   if(exists $data->{flags}{NO_LIB_CHECKING}){$pflagval=$data->{flags}{NO_LIB_CHECKING};}
   $data->{flags}{NO_LIB_CHECKING}=1;
-  &SCRAMGenUtils::printBuildFile($data,$bfile);
-  if($detail){print "#MSG:Going to compile $prodname\n";}
-  system("cd ${bdir}; $SCRAMGenUtils::SCRAM_CMD b -v -r -j 4 $prodname");
-  my $err=$?;
-  if($pflagval ne ""){$data->{flags}{NO_LIB_CHECKING}=$pflagval;}
-  else{delete $data->{flags}{NO_LIB_CHECKING};}
-  
-  my $tmpprod="${tmppdir}/lib${prodname}.so";
-  if($prodtype eq "bin"){$tmpprod="${tmppdir}/${prodname}";}
-  if(($prodtype ne "bin") && (-f $tmpprod))
+  my $err=0;
+  if ($isPackage)
   {
-    my $missing=&SCRAMGenUtils::symbolChecking($tmpprod);
-    if($missing != 0)
+    &SCRAMGenUtils::printBuildFile($data,$bfile);
+    if($detail){print "#MSG:Going to compile $prodname\n";}
+    system("cd ${bdir}; $SCRAMGenUtils::SCRAM_CMD b -v -r -j 4 $prodname");
+    $err=$?;
+  }
+  if($xtools || $castor)
+  {
+    if (!$isPackage)
     {
-      my $sym=&SCRAMGenUtils::getLibSymbols($tmpprod);
+      &SCRAMGenUtils::printBuildFile($data,$bfile);
+      if($detail){print "#MSG:Going to compile $prodname\n";}
+      system("cd ${bdir}; $SCRAMGenUtils::SCRAM_CMD b -v -r -j 4 $prodname");
+      $err=$?;
+    }
+    
+    my $tmppdir="${tmprel}/tmp/${scramarch}/${reldir}/${prodname}";
+    if($isPackage){$tmppdir="${tmprel}/tmp/${scramarch}/${reldir}/${pkgsrcdir}/${prodname}";}
+    my $tmpprod="${tmppdir}/lib${prodname}.so";
+    if($prodtype eq "bin"){$tmpprod="${tmppdir}/${prodname}";}
+    if(($prodtype ne "bin") && (-f $tmpprod))
+    {
+      my $missing=&SCRAMGenUtils::symbolChecking($tmpprod);
+      if($missing != 0)
+      {
+        my $sym=&SCRAMGenUtils::getLibSymbols($tmpprod);
+        &addToolFromSymbols($data,$sym);
+      }
+    }
+    elsif(($prodtype eq "bin") && ($err!=0))
+    {
+      my $objs=[];
+      foreach my $f (&SCRAMGenUtils::readDir($tmppdir,2))
+      {if($f=~/\.o$/){push @$objs,"${tmppdir}/${f}";}}
+      my $sym=&SCRAMGenUtils::getObjectFileSymbols($objs);
       &addToolFromSymbols($data,$sym);
     }
   }
-  elsif(($prodtype eq "bin") && ($err!=0))
-  {
-    my $objs=[];
-    foreach my $f (&SCRAMGenUtils::readDir($tmppdir,2))
-    {if($f=~/\.o$/){push @$objs,"${tmppdir}/${f}";}}
-    my $sym=&SCRAMGenUtils::getObjectFileSymbols($objs);
-    &addToolFromSymbols($data,$sym);
-  }
+  if (!$isPackage){system("rm -rf ${tmprel}/tmp/${scramarch}/${reldir} ${tmprel}/${reldir}");}
+  if($pflagval ne ""){$data->{flags}{NO_LIB_CHECKING}=$pflagval;}
+  else{delete $data->{flags}{NO_LIB_CHECKING};}
 }
-
 if((!defined $buildfilename) || ($buildfilename=~/^\s*$/)){$buildfilename="";}
 elsif($buildfilename!~/^\//){$buildfilename="${pwd}/${buildfilename}";}
 if($buildfilename)
@@ -638,6 +657,14 @@ if($buildfilename)
 }
 &SCRAMGenUtils::removeExtraLib ($cache,$data);
 &SCRAMGenUtils::printBuildFile($data, "$buildfilename");
+if ($chksym && $isPackage)
+{
+  if (-f $sbuildfile){system("mv $sbuildfile ${sbuildfile}.orig");}
+  system("cp $buildfilename $sbuildfile");
+  if(-f "${sbuildfile}.orig")
+  {system("touch -r ${sbuildfile}.orig $sbuildfile; rm -f ${sbuildfile}.orig");}
+}
+
 &final_exit("",0);
 #########################################
 #

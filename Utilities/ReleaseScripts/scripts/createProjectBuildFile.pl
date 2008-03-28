@@ -270,14 +270,14 @@ sub processProd ()
   my $bfdir="${devarea}/newBuildFile/src/${pack}";
   system("mkdir -p $bfdir $bfsrcdir");
   my $nfile="${bfdir}/${bfn}.auto";
-  if ($xml){$nfile="${bfdir}/${xmlbf}.auto";}
   my $ptype="";my $pname="";my $pfiles=""; my $xargs="";
+  if ($xml){$nfile="${bfdir}/${xmlbf}.auto"; $xargs.=" --xml";}
   if(exists $pcache->{prod}{$prod}{type})
   {
     $ptype="--prodtype ".$pcache->{prod}{$prod}{type};
     $pname="--prodname $prod --files '".$pcache->{prod}{$prod}{file}."'";
     $nfile="${bfdir}/${prod}${bfn}.auto";
-    if ($xml){$nfile="${bfdir}/${prod}${xmlbf}.auto";$xargs.=" --xml";}
+    if ($xml){$nfile="${bfdir}/${prod}${xmlbf}.auto";}
   }
   my $cmd="${sdir}/createBuildFile.pl $xargs $configfile --dir ${release}/src/${pack} --tmprelease $devarea --buildfile $nfile $ptype $pname $pfiles $detail --chksym";
   print "$cmd\n";
@@ -307,13 +307,6 @@ sub processProd ()
   waitpid $pid,0;
   if(-f $nfile)
   {
-    if("$bfsrcdir" ne "")
-    {
-      if(-f "${bfsrcdir}/${bfn}"){system("mv ${bfsrcdir}/${bfn} ${bfsrcdir}/${bfn}.orig");}
-      system("cp $nfile ${bfsrcdir}/${xmlbf}");
-      if(-f "${bfsrcdir}/${bfn}.orig")
-      {system("touch -r ${bfsrcdir}/${bfn}.orig ${bfsrcdir}/${xmlbf}; rm -f ${bfsrcdir}/${bfn}.orig");}
-    }
     $cache->{$prod}{done}=1;
     &SCRAMGenUtils::writeHashCache($cache,$cfile);
   }
