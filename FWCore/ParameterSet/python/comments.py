@@ -97,7 +97,7 @@ def identifyComments(configString):
              # now to comments in the same line
              if len(line.split("#")) > 1:
                comment = Comment()
-               comment.value = line.split("#")[1]
+               comment.value = '#'+line.split("#")[1]
                comment.type = "inline"
                # prepare the replaceDict
                prepareReplaceDict(line, comment, replaceDict)
@@ -157,10 +157,10 @@ def loopfile(cfgFileName):
    newPyString = modifyPythonVersion(pyString, comments)
    pyFile.close()
 
-   #pyOutFile = file(pyFileName,"w")
-   #pyOutFile.write(newPyString)
-   #print "Wrote", pyFileName
-   #pyOutFile.close()
+   pyOutFile = file(pyFileName,"w")
+   pyOutFile.write(newPyString)
+   print "Wrote", pyFileName
+   pyOutFile.close()
  
 #out = file("foo_cfi.py","w")
 #out.write(configString)
