@@ -1,0 +1,18 @@
+import FWCore.ParameterSet.Config as cms
+
+import copy
+from TrackPropagation.SteppingHelixPropagator.SteppingHelixPropagatorAny_cfi import *
+SteppingHelixPropagatorL2Any = copy.deepcopy(SteppingHelixPropagatorAny)
+import copy
+from TrackPropagation.SteppingHelixPropagator.SteppingHelixPropagatorAny_cfi import *
+SteppingHelixPropagatorL2Along = copy.deepcopy(SteppingHelixPropagatorAny)
+import copy
+from TrackPropagation.SteppingHelixPropagator.SteppingHelixPropagatorOpposite_cfi import *
+SteppingHelixPropagatorL2Opposite = copy.deepcopy(SteppingHelixPropagatorOpposite)
+SteppingHelixPropagatorL2Any.ComponentName = 'SteppingHelixPropagatorL2Any'
+SteppingHelixPropagatorL2Any.useTuningForL2Speed = True
+SteppingHelixPropagatorL2Along.ComponentName = 'SteppingHelixPropagatorL2Along'
+SteppingHelixPropagatorL2Along.useTuningForL2Speed = True
+SteppingHelixPropagatorL2Opposite.ComponentName = 'SteppingHelixPropagatorL2Opposite'
+SteppingHelixPropagatorL2Opposite.useTuningForL2Speed = True
+
