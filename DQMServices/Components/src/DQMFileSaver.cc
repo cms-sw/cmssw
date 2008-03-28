@@ -1,8 +1,8 @@
 /*
  * \file DQMFileSaver.cc
  * 
- * $Date: 2008/03/26 22:11:31 $
- * $Revision: 1.10 $
+ * $Date: 2008/03/27 18:10:23 $
+ * $Revision: 1.11 $
  * $Author: strang $
  * \author A. Meyer, DESY
  *
@@ -183,10 +183,11 @@ void DQMFileSaver::endLuminosityBlock(const LuminosityBlock& lumiSeg, const Even
 void DQMFileSaver::endRun(const Run& r, const EventSetup& c){
    if (saveAtRunEnd_) {
      char run[10];
-     if(irun_>0) sprintf(run,"%09d", irun_);
-     else sprintf(run,"%09d", 0);
+     sprintf(run,"%09d", irun_ > 0 ? irun_ : 0);
      string outFile = dirName_+"/"+fileName_+"_R"+run+".root";
-     dbe_->save(outFile,"",irun_);
+
+     sprintf(run,"%d", irun_ > 0 ? irun_ : 0);
+     dbe_->save(outFile, "", "^([^/]+)", std::string("Run ") + run + "/\\1/Run summary");
    }
 }
 
