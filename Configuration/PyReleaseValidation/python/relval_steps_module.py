@@ -171,7 +171,6 @@ def validation(process,name):
         process.schedule.append(process.validation_step)
     
     common.log ('%s adding step ...'%func_id)
-    
     return process            
 
 def hlt(process,name):
@@ -183,7 +182,6 @@ def hlt(process,name):
     common.log ('%s adding hlt paths ...'%func_id)
     for p  in process.paths_().itervalues():
         pname=p.label()
-        print pname
         if ( pname[0:3]=='HLT' or pname[0:7]=='CandHLT' ):
             process.schedule.append(getattr(process,pname))
             common.log ('%s path added  ...'%pname)
