@@ -8,10 +8,20 @@
 using namespace std;
 using namespace sipixelobjects;
 
-
 PixelROC::PixelROC(uint32_t du, int idDU, int idLk)
   : theDetUnit(du), theIdDU(idDU), theIdLk(idLk), theFrameConverter(0)
 { }
+
+PixelROC::PixelROC(const PixelROC & o)
+  : theDetUnit(o.theDetUnit), theIdDU(o.theIdDU), theIdLk(o.theIdLk),theFrameConverter(0)
+{
+  if(o.theFrameConverter) theFrameConverter = o.theFrameConverter->clone();
+}
+
+PixelROC::~PixelROC() 
+{
+  delete theFrameConverter;
+}
 
 GlobalPixel PixelROC::toGlobal(const LocalPixel & loc) const 
 {

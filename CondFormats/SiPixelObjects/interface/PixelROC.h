@@ -22,7 +22,11 @@ class PixelROC {
 public:
 
   /// dummy
-  PixelROC() : theDetUnit(0), theIdDU(0), theIdLk(0), theFrameConverter(0) { }
+  PixelROC() : theDetUnit(0), theIdDU(0), theIdLk(0), theFrameConverter(0) {} 
+
+  ~PixelROC();
+
+  PixelROC(const PixelROC & o);
 
   /// ctor with DetUnit id, 
   /// ROC number in DU (given by token passage), 
