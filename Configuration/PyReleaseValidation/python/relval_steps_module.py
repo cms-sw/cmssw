@@ -179,14 +179,16 @@ def hlt(process,name):
     Enrich the schedule with hlt
     '''
     func_id=mod_id+"["+sys._getframe().f_code.co_name+"]"
-    
-    process.offlinedqm_step=cms.Path(getattr(process,name))
-    if not user_schedule:
-        process.schedule.append(process.hlt)
-    
-    common.log ('%s adding step ...'%func_id)
-    
-    return process            
+
+    common.log ('%s adding hlt paths ...'%func_id)
+    for p  in process.paths_().itervalues():
+        pname=p.label()
+        print pname
+        if ( pname[0:3]=='HLT' or pname[0:7]=='CandHLT' ):
+            process.schedule.append(getattr(process,pname))
+            common.log ('%s path added  ...'%pname)
+
+    return process
 
 def fastsim(process,name):
     '''
