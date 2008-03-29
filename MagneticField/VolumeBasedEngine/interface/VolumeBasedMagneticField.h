@@ -11,15 +11,21 @@ class VolumeBasedMagneticField : public MagneticField {
 			    std::vector<MagBLayer *> theBLayers,
 			    std::vector<MagESector *> theESectors,
 			    std::vector<MagVolume6Faces*> theBVolumes,
-			    std::vector<MagVolume6Faces*> theEVolumes);
+			    std::vector<MagVolume6Faces*> theEVolumes,
+			    float rMax, float zMax,
+			    const MagneticField* param=0);
   virtual ~VolumeBasedMagneticField();
   GlobalVector inTesla ( const GlobalPoint& g) const;
 
   const MagVolume * findVolume(const GlobalPoint & gp) const;
 
+  bool isDefined(const GlobalPoint& gp) const;
 
  private:
   MagGeometry* field;
+  float maxR;
+  float maxZ;
+  const MagneticField* paramField;
 };
 
 #endif
