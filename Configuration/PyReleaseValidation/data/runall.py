@@ -42,20 +42,32 @@ def main(argv) :
     import getopt
     
     try:
-        opts, args = getopt.getopt(argv, "", ["nproc="])
+        opts, args = getopt.getopt(argv, "", ["nproc=","dohighstat"])
     except getopt.GetoptError:
         sys.exit(2)
         
 # check command line parameter
     np=1
+    doHighStat=0
     for opt, arg in opts :
         if opt == "--nproc" :
             np=arg
+        if opt == "--dohighstat" :
+            doHighStat=1
         
-    commands_file=open('cmsDriver_commands_v2.txt','r')
-    lines=commands_file.readlines()
-    commands_file.close()
-    
+    commands_standard_file=open('cmsDriver_standard.txt','r')
+    lines_standard=commands_standard_file.readlines()
+    commands_standard_file.close()
+
+    commands_highstat_file=open('cmsDriver_highstats.txt','r')
+    lines_highstat=commands_highstat_file.readlines()
+    commands_highstat_file.close()
+
+    lines=lines_standard
+    if doHighStat==1:
+        lines=lines+lines_highstat
+   
+
     commands=[]
 
     for line in lines:
@@ -64,7 +76,7 @@ def main(argv) :
             linecomponents=line.split('@@@')
             command=linecomponents[1][:-1]
             commands.append(command)
-            
+            print 'Will do: '+command
         
     nfail=0
     npass=0
