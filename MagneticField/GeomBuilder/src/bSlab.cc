@@ -1,10 +1,8 @@
-// #include "Utilities/Configuration/interface/Architecture.h"
-
-/*
+/* \file
  *  See header file for a description of this class.
  *
- *  $Date: 2007/02/03 16:19:08 $
- *  $Revision: 1.4 $
+ *  $Date: 2007/03/09 14:38:23 $
+ *  $Revision: 1.5 $
  *  \author N. Amapane - INFN Torino
  */
 
@@ -37,8 +35,6 @@ MagGeoBuilderFromDDD::bSlab::bSlab(handles::const_iterator begin, handles::const
     float Zmax = (*i)->surface(zplus).position().z();
     float Zmin= (*i)->surface(zminus).position().z();
     for (++i; i != volumes.end(); ++i){
-      // FIXME! tolerance increased to 0.025 due to mismatch in volumes 76->78!
-      //      const float epsilon = 0.025;
       const float epsilon = 0.001;      
       if (fabs(Zmax - (*i)->surface(zplus).position().z()) > epsilon ||
 	  fabs(Zmin - (*i)->surface(zminus).position().z()) > epsilon) {
