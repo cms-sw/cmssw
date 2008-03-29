@@ -1,13 +1,13 @@
 /** \file
  *
- *  $Date: $
- *  $Revision: $
+ *  $Date: 2008/03/28 16:49:25 $
+ *  $Revision: 1.1 $
  *  \author N. Amapane - CERN
  */
 
 #include <MagneticField/ParametrizedEngine/src/OAE85lParametrizedMagneticField.h>
 #include <FWCore/ParameterSet/interface/ParameterSet.h>
-
+#include <FWCore/MessageLogger/interface/MessageLogger.h>
 
 #include "TkBfield.h"
 
@@ -39,9 +39,12 @@ GlobalVector
 OAE85lParametrizedMagneticField::inTesla(const GlobalPoint& gp) const {
   GlobalVector result;
   
-  trackerField(gp, result);
-  
-  return result;
+  if (trackerField(gp, result)) {
+    return result;
+  } else {
+    edm::LogWarning("MagneticField|FieldOutsideValidity") << " Point " << gp << " is outside the validity region of OAE85lParametrizedMagneticField";
+    return GlobalVector();
+  }
 }
 
 
