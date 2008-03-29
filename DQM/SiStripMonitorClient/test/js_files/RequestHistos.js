@@ -217,7 +217,7 @@ RequestHistos.DrawSelectedHistos = function()
   }
   var hist_opt   = RequestHistos.SetHistosAndPlotOption();
   if (hist_opt == " ") return;
-  queryString   += hist_opt;	
+  queryString   += hist_opt;
   IMGC.computeCanvasSize();
   queryString += '&width='+IMGC.BASE_IMAGE_WIDTH+
                  '&height='+IMGC.BASE_IMAGE_HEIGHT;
@@ -239,7 +239,7 @@ RequestHistos.DrawSelectedHistos = function()
 //    
 RequestHistos.SetHistosAndPlotOption = function() {
    var dummy = " ";
-   var qstring;
+   var qstring = " ";
   // Histogram Names 
   var hist_obj   = $('histolistarea');
   var nhist = hist_obj.length;
@@ -249,12 +249,11 @@ RequestHistos.SetHistosAndPlotOption = function() {
   } else {
     for (var i = 0; i < nhist; i++) {
       if (hist_obj.options[i].selected) {
-	if (i == 0) qstring  = '&histo='+ hist_obj.options[i].value;
+	if (qstring == " ") qstring  = '&histo='+ hist_obj.options[i].value;
         else        qstring += '&histo='+ hist_obj.options[i].value;
       }
     }
   }
- 
   // Plot options for single histogram 
   if (nhist == 1) {
     // logy option
