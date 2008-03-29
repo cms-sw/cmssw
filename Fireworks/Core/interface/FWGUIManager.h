@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Feb 11 10:52:24 EST 2008
-// $Id: FWGUIManager.h,v 1.15 2008/03/27 16:43:07 chrjones Exp $
+// $Id: FWGUIManager.h,v 1.16 2008/03/27 18:39:16 chrjones Exp $
 //
 
 // system include files
@@ -109,6 +109,8 @@ class FWGUIManager : public FWConfigurable
       void quit();
       sigc::signal<void, const std::string&> writeToConfigurationFile_;
       sigc::signal<void> goingToQuit_;
+      sigc::signal<void> writeToPresentConfigurationFile_;
+   
    private:
       FWGUIManager(const FWGUIManager&); // stop default
 

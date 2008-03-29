@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Mon Dec  3 08:38:38 PST 2007
-// $Id: FWDisplayEvent.cc,v 1.39 2008/03/27 11:05:17 dmytro Exp $
+// $Id: FWDisplayEvent.cc,v 1.40 2008/03/27 16:43:07 chrjones Exp $
 //
 
 // system include files
@@ -132,6 +132,10 @@ FWDisplayEvent::FWDisplayEvent(const std::string& iConfigFileName,
                                          boost::bind(&FWConfigurationManager::writeToFile,
                                                      m_configurationManager.get(),
                                                      m_configFileName));
+      m_guiManager->writeToPresentConfigurationFile_.connect(
+                                                             boost::bind(&FWConfigurationManager::writeToFile,
+                                                                         m_configurationManager.get(),
+                                                                         m_configFileName));
     }
     delete [] whereConfig;
     m_configurationManager->readFromFile(configFileName);
