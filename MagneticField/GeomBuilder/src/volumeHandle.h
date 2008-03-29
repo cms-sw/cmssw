@@ -7,8 +7,8 @@
  * One instance is created for each DDVolume. The parameters of the 
  * boundary surfaces are calculated during construction.
  *
- *  $Date: 2005/09/27 15:15:52 $
- *  $Revision: 1.3 $
+ *  $Date: 2007/02/03 16:17:30 $
+ *  $Revision: 1.4 $
  *  \author N. Amapane - INFN Torino
  */
 
@@ -88,10 +88,10 @@ public:
   const GloballyPositioned<float> * placement() const {return refPlane;}
 
   /// Shape of the solid
-  DDSolidShape shape() {return solid.shape();}
+  DDSolidShape shape() const {return solid.shape();}
 
   /// The surfaces and they orientation, as required to build a MagVolume.
-  std::vector<VolumeSide> sides();
+  std::vector<VolumeSide> sides() const;
 
   /// Pointer to the final MagVolume (must be set from outside)
   MagVolume6Faces* magVolume;
