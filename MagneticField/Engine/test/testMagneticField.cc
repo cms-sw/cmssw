@@ -1,8 +1,8 @@
 /** \file
  *  A simple example of ho to access the magnetic field.
  *
- *  $Date: 2008/03/20 15:00:18 $
- *  $Revision: 1.10 $
+ *  $Date: 2008/03/28 16:52:39 $
+ *  $Revision: 1.11 $
  *  \author N. Amapane - CERN
  */
 
@@ -143,6 +143,9 @@ void testMagneticField::validate(string filename, string type) {
     } else { // assume x,y,z with units in cm
       gp = GlobalPoint(px, py, pz);      
     }
+
+    if (gp.perp() > OuterRadius || fabs(gp.z()) > HalfLength) continue;
+    
     GlobalVector oldB(bx, by, bz);
     GlobalVector newB = field->inTesla(gp);
     if ((newB-oldB).mag() > reso) {
