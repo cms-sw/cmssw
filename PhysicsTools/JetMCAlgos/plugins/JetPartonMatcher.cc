@@ -31,8 +31,10 @@
 #include "DataFormats/Common/interface/View.h"
 #include "DataFormats/Common/interface/Ref.h"
 #include "DataFormats/Common/interface/getRef.h" 
-#include "DataFormats/Candidate/interface/Candidate.h"
-#include "DataFormats/Candidate/interface/CandidateFwd.h"
+//#include "DataFormats/Candidate/interface/Candidate.h"
+//#include "DataFormats/Candidate/interface/CandidateFwd.h"
+#include "DataFormats/HepMCCandidate/interface/GenParticle.h"
+#include "DataFormats/HepMCCandidate/interface/GenParticleFwd.h"
 
 #include <memory>
 #include <string>
@@ -62,7 +64,7 @@ class JetPartonMatcher : public edm::EDProducer
     int theNearest3;
     int theHardest;
 
-    Handle <CandidateRefVector> particles;
+    Handle <GenParticleRefVector> particles;
 
     edm::InputTag m_jetsSrc, m_ParticleSrc;
     double coneSizeToAssociate;
@@ -101,7 +103,7 @@ void JetPartonMatcher::produce( Event& iEvent, const EventSetup& iEs )
   edm::LogVerbatim("JetPartonMatcher") << "=== Partons size:" << particles->size();
 
   for( size_t m = 0; m != particles->size(); ++ m ) {
-    const Candidate & aParton = *(particles->at(m).get());
+    const GenParticle & aParton = *(particles->at(m).get());
     edm::LogVerbatim("JetPartonMatcher") <<  aParton.status() << " " <<
                                              aParton.pdgId()  << " " <<
                                              aParton.pt()     << " " << 
@@ -117,11 +119,11 @@ void JetPartonMatcher::produce( Event& iEvent, const EventSetup& iEs )
     const int theMappedPartonAlg = fillAlgoritDefinition( (*jets_h)[j] );
     const int theMappedPartonPhy = fillPhysicsDefinition( (*jets_h)[j] );
 
-    CandidateRef pHV;
-    CandidateRef pN2;
-    CandidateRef pN3;
-    CandidateRef pPH;
-    CandidateRef pAL;
+    GenParticleRef pHV;
+    GenParticleRef pN2;
+    GenParticleRef pN3;
+    GenParticleRef pPH;
+    GenParticleRef pAL;
 
     if(theHeaviest>=0)        pHV = particles->at( theHeaviest        );
     if(theNearest2>=0)        pN2 = particles->at( theNearest2        );
