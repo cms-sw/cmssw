@@ -1,5 +1,14 @@
-#ifndef MagneticFieldProvider_H
-#define MagneticFieldProvider_H
+#ifndef MagneticFieldProvider_h
+#define MagneticFieldProvider_h
+
+/** \class MagneticFieldProvider
+ *
+ *  Virtual interface for the field provider for an individual field volume.
+ *
+ *  $Date: $
+ *  $Revision: $
+ *  \author T. Todorov
+ */
 
 #include "DataFormats/GeometryVector/interface/Point3DBase.h"
 #include "DataFormats/GeometryVector/interface/Vector3DBase.h"
