@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python
 
 # XML must come from MuonGeometryDBConverter; it must not be hand-made
 # Example configuration that will work
