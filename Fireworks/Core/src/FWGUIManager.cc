@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Feb 11 11:06:40 EST 2008
-// $Id: FWGUIManager.cc,v 1.23 2008/03/27 16:43:07 chrjones Exp $
+// $Id: FWGUIManager.cc,v 1.24 2008/03/27 18:39:16 chrjones Exp $
 //
 
 // system include files
@@ -58,7 +58,8 @@
 // constants, enums and typedefs
 //
 enum {kSaveConfiguration,
-kQuit};
+      kSaveConfigurationAs,
+      kQuit};
 
 //
 // static data member definitions
@@ -99,7 +100,8 @@ m_detailViewManager(new FWDetailViewManager)
    menuBar->RemovePopup("Browser");
    
    m_fileMenu = new TGPopupMenu(gClient->GetRoot());
-   m_fileMenu->AddEntry("&Save Configuration As ...",kSaveConfiguration);
+//   m_fileMenu->AddEntry("Save Configuration &As ...",kSaveConfigurationAs);
+   m_fileMenu->AddEntry("&Save Configuration",kSaveConfiguration);
    m_fileMenu->AddSeparator();
    m_fileMenu->AddEntry("&Quit Root",kQuit);
    
@@ -589,7 +591,7 @@ FWGUIManager::handleFileMenu(Int_t iIndex)
       "All Files","*",
    0,0};
    switch(iIndex) {
-      case kSaveConfiguration:
+      case kSaveConfigurationAs:
       {
          
          static TString dir(".");
@@ -601,6 +603,11 @@ FWGUIManager::handleFileMenu(Int_t iIndex)
                           kFDSave,&fi);
          dir = fi.fIniDir;
          writeToConfigurationFile_(fi.fFilename);
+      }
+         break;
+      case kSaveConfiguration:
+      {
+         writeToPresentConfigurationFile_();
       }
          break;
       case kQuit:
