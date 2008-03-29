@@ -3,8 +3,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2007/03/09 14:38:23 $
- *  $Revision: 1.9 $
+ *  $Date: 2008/03/10 16:26:36 $
+ *  $Revision: 1.10 $
  *  \author N. Amapane - INFN Torino
  */
 
@@ -31,7 +31,8 @@
 
 #include "MagneticField/Interpolation/interface/MagProviderInterpol.h"
 #include "MagneticField/Interpolation/interface/MFGridFactory.h"
-#include "MagneticField/Interpolation/interface/MFGrid.h"
+#include "MagneticField/Interpolation/interface/MFGrid3D.h"
+
 #include "MagneticField/VolumeGeometry/interface/MagVolume6Faces.h"
 #include "MagneticField/VolumeGeometry/interface/MagExceptions.h"
 #include "MagneticField/Layers/interface/MagVerbosity.h"
@@ -256,6 +257,9 @@ void MagGeoBuilderFromDDD::build(const DDCompactView & cpva)
   vector<bLayer> layers; // the barrel layers
   precomputed_value_sort(bVolumes.begin(), bVolumes.end(), ExtractRN());
 
+  //FIXME08
+  if (version!="grid_1103l_071212_3_8t") {
+
   // Find the layers (in R)
   const float resolution = 1.; // cm
   float rmin = bVolumes.front()->RN()-resolution;
@@ -292,6 +296,8 @@ void MagGeoBuilderFromDDD::build(const DDCompactView & cpva)
 
   if (debug) cout << "Barrel: Found " << rClust.size() << " clusters in R, "
 		  << layers.size() << " layers " << endl << endl;
+  
+}
 
 
   //----------------------------------------------------------------------
@@ -300,6 +306,7 @@ void MagGeoBuilderFromDDD::build(const DDCompactView & cpva)
   vector<eSector> sectors; // the endcap sectors
   precomputed_value_sort(eVolumes.begin(), eVolumes.end(), ExtractPhi()); 
  
+
   // ASSUMPTION: There are 12 sectors and each sector is 30 deg wide.
   for (int i = 0; i<12; ++i) {
     int offset = eVolumes.size()/12;
@@ -313,8 +320,7 @@ void MagGeoBuilderFromDDD::build(const DDCompactView & cpva)
    
   if (debug) cout << "Endcap: Found " 
 		  << sectors.size() << " sectors " << endl;
- 
-  
+
 
   //----------------------------------------------------------------------  
   // Match surfaces.
@@ -404,7 +410,7 @@ void MagGeoBuilderFromDDD::buildMagVolumes(const handles & volumes, map<string, 
       cout << "No interpolator found for file " << (*vol)->magFile
 	   << " vol: " << (*vol)->name << endl;
       cout << interpolators.size() <<endl;
-      continue;
+      //FIXME08      continue;
     }
       
     const GloballyPositioned<float> * gpos = (*vol)->placement();
@@ -416,26 +422,36 @@ void MagGeoBuilderFromDDD::buildMagVolumes(const handles & volumes, map<string, 
 					    mp);
 
     // FIXME: debug, to be removed
-    (*vol)->magVolume->name = (*vol)->name;  
+    (*vol)->magVolume->name = (*vol)->name;
   }
 }
 
 
 void MagGeoBuilderFromDDD::buildInterpolator(const volumeHandle * vol, map<string, MagProviderInterpol*> & interpolators){
-  // Interpolators should be built only for volumes on NEGATIVE z 
-  // (Z symmetry in field tables)
-  if (vol->center().z()>0) return;
 
-  // Remember: should build for volumes with negative Z only (Z simmetry)
-  if (debug) cout << "Building interpolator from "
-		  << vol->name << " copyno " << vol->copyno
-		  << " at " << vol->center()
-		  << " phi: " << vol->center().phi()
-		  << " file: " << vol->magFile
-		  << endl;
-  
-  if(debug && ( fabs(vol->center().phi() - Geom::pi()/2) > Geom::pi()/9.)){
-    cout << "***WARNING wrong sector? " << endl;
+
+  // In version grid_85l_030919, interpolators should be built only 
+  // for volumes on NEGATIVE z 
+  // (Z symmetry in field tables)
+  if (version=="grid_85l_030919" && vol->center().z()>0) return;
+
+  if (debug) {
+    cout << "Building interpolator from "
+	 << vol->name << " copyno " << vol->copyno
+	 << " at " << vol->center()
+	 << " phi: " << vol->center().phi()
+	 << " file: " << vol->magFile
+	 << endl;
+
+    // In ver. grid_85l_030919, the master sector is sector 4 (along Y axis).
+    // In ver. grid_1103l_071212, it is sector 1 (along X axis)
+    double masterSectorPhi=0.;
+    if (version=="grid_85l_030919") {
+      masterSectorPhi=Geom::pi()/2.;
+    }
+    if ( fabs(vol->center().phi() - masterSectorPhi) > Geom::pi()/9.) {
+      cout << "***WARNING wrong sector? " << endl;
+    }
   }
 
 
@@ -446,8 +462,11 @@ void MagGeoBuilderFromDDD::buildInterpolator(const volumeHandle * vol, map<strin
     fullPath = mydata.fullPath();
   } catch (edm::Exception& exc) {
     cerr << "MagGeoBuilderFromDDD: exception in reading table; " << exc.what() << endl;
-    throw;
+    //FIXME08    
+    return;
+    //throw;
   }
+  
   
   try{
     if (vol->toExpand()){
@@ -461,6 +480,48 @@ void MagGeoBuilderFromDDD::buildInterpolator(const volumeHandle * vol, map<strin
   } catch (MagException& exc) {
     cout << exc.what() << endl;
   }
+
+
+    if (debug) {
+    // Check that all grid points of the interpolator are inside the volume.
+      const MagVolume6Faces tempVolume(vol->placement()->position(),
+				 vol->placement()->rotation(),
+				 vol->shape(),
+				 vol->sides(), 
+				 interpolators[vol->magFile]);
+
+      const MFGrid3D* grid = dynamic_cast<const MFGrid3D*>(interpolators[vol->magFile]);
+      if (grid!=0) {
+	
+	vector<int> sizes = grid->dimensions();
+	cout << "Grid has " << sizes.size() << " dimensions " 
+	     << " number of nodes is " << sizes[0] << " " << sizes[1]
+	     << " " << sizes[2] << endl;
+      
+	const double tolerance = 0.03;
+
+
+	int dumpCount = 0;
+	for (int j=0; j < sizes[1]; j++) {
+	  for (int k=0; k < sizes[2]; k++) {
+	    for (int i=0; i < sizes[0]; i++) {
+	      MFGrid::LocalPoint lp = grid->nodePosition( i, j, k);
+	      if (! tempVolume.inside(lp, tolerance)) {
+		if (++dumpCount < 2) {
+		  MFGrid::GlobalPoint gp = tempVolume.toGlobal(lp);
+		  cout << "GRID ERROR: " << i << " " << j << " " << k
+		       << " local: " << lp
+		       << " global: " << gp
+		       << " R= " << gp.perp() << " phi=" << gp.phi() << endl;
+		}
+	      }
+	    }
+	  }
+	}
+    
+	cout << vol->name << " : Number of grid points outside the MagVolume: " << dumpCount << "/" << sizes[0]*sizes[1]*sizes[2] << endl;
+      }
+    }
 }
 
 
@@ -518,4 +579,16 @@ vector<MagVolume6Faces*> MagGeoBuilderFromDDD::endcapVolumes() const{
     v.push_back((*i)->magVolume);
   }
   return v;
+}
+
+
+float MagGeoBuilderFromDDD::maxR() const{
+  //FIXME: get from the actual geometry!!!
+  if (version=="grid_85l_030919") return 1000.;
+  else return 900.;
+}
+
+float MagGeoBuilderFromDDD::maxZ() const{
+  //FIXME: get from the actual geometry!!!
+  return 1600.;
 }
