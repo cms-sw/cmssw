@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2007/03/09 14:38:23 $
- *  $Revision: 1.8 $
+ *  $Date: 2008/03/10 16:27:27 $
+ *  $Revision: 1.9 $
  */
 
 #include "MagneticField/GeomBuilder/src/VolumeBasedMagneticFieldESProducer.h"
@@ -36,13 +36,17 @@ std::auto_ptr<MagneticField> VolumeBasedMagneticFieldESProducer::produce(const I
   iRecord.get("magfield",cpv );
   MagGeoBuilderFromDDD builder(pset.getParameter<std::string>("version"),
 			       pset.getUntrackedParameter<bool>("debugBuilder", false));
-  builder.build(*cpv);
+  builder.build(*cpv);  
+
+  // Get slave field
+  edm::ESHandle<MagneticField> paramField;
+  if (pset.getParameter<bool>("useParametrizedTrackerField")) {;
+    iRecord.get("parametrizedField",paramField);
+    std::cout << paramField->inTesla(GlobalPoint(0.,0.,0));
+  }
   
-  std::auto_ptr<MagneticField> s(new VolumeBasedMagneticField(pset,
-							      builder.barrelLayers(),
-							      builder.endcapSectors(),
-							      builder.barrelVolumes(),
-							      builder.endcapVolumes()));
+
+  std::auto_ptr<MagneticField> s(new VolumeBasedMagneticField(pset,builder.barrelLayers(), builder.endcapSectors(), builder.barrelVolumes(), builder.endcapVolumes(), builder.maxR(), builder.maxZ(), paramField.product()));
   return s;
 }
 
