@@ -1,9 +1,9 @@
 /*
  * \file DQMFileSaver.cc
  * 
- * $Date: 2008/03/27 18:10:23 $
- * $Revision: 1.11 $
- * $Author: strang $
+ * $Date: 2008/03/28 15:53:14 $
+ * $Revision: 1.12 $
+ * $Author: lat $
  * \author A. Meyer, DESY
  *
  */
@@ -17,7 +17,10 @@
 #include <sstream>
 #include <math.h>
 
+#include "TString.h"
 #include "classlib/utils/StringOps.h"
+
+#include "DQMServices/Core/interface/MonitorElement.h"
 
 using namespace std;
 
@@ -60,9 +63,16 @@ void DQMFileSaver::initialize(){
   (saveAtJobEnd_)? edm::LogVerbatim ("DQMFileSaver") << "===> save at Job end " << endl :
                    edm::LogVerbatim ("DQMFileSaver") << "===> NO save at Job end " << endl ; 
 
+  dataset_ = parameters_.getUntrackedParameter<std::string>("dataset", std::string());
+
   saveAsValidation_ = parameters_.getUntrackedParameter<bool>("saveAsValidation",false);
-  (saveAsValidation_)? edm::LogVerbatim ("DQMFileSaver") << "===> save at Job end " << endl :
-                       edm::LogVerbatim ("DQMFileSaver") << "===> NO save at Job end " << endl ;
+  (saveAsValidation_)? edm::LogVerbatim ("DQMFileSaver") << "===> save as validation job " << endl :
+                       edm::LogVerbatim ("DQMFileSaver") << "===> NO save as validation job " << endl ;
+
+  addDataset_ = parameters_.getUntrackedParameter<bool>("addDataset",false);
+  (addDataset_)? edm::LogVerbatim ("DQMFileSaver") << "===> add dataset directory " << endl :
+                 edm::LogVerbatim ("DQMFileSaver") << "===> NO add dataset directory " << endl ;
+
   // Desable the run transition in case of validation
   if (saveAsValidation_) {
      saveAtRunEnd_ = false;
@@ -198,14 +208,19 @@ void DQMFileSaver::endJob() {
      dbe_->save(outFile);
    }
    else if (saveAsValidation_)  {
+     // get the release tag 
      dbe_->cd();
-     // Get release as the first subdirectory in the head 
-     string release = dbe_->getSubdirs()[0];
-     // Go into the release directory
-     dbe_->cd(release);
-     // Get dataset as the first subdirectory in the release 
-     string dataset = lat::StringOps::split(dbe_->getSubdirs()[0],"/")[1];
-     string outFile = dirName_+"/DQM-"+release+"-"+dataset+".root";
-     dbe_->save(outFile);
+     std::string release(dbe_->get("ReleaseTag")->getStringValue());
+     // define the file name
+     std::string outFile;
+     if (!dataset_.empty())
+       outFile = dirName_+"/DQM-"+release+"-"+dataset_+".root";
+     else
+       outFile = dirName_+"/DQM-"+release+".root";
+     // save by including or not the dataset directory 
+     if (addDataset_ && !dataset_.empty())
+       dbe_->save(outFile, "", "^([^/]+)", release+'/'+dataset_+"/");
+     else
+       dbe_->save(outFile, "", "^([^/]+)", release+"/");
    }      
 }
