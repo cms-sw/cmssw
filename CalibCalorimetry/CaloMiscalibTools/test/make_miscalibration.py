@@ -82,12 +82,54 @@ def miscalibhcal(lumi,det,etaindex,phiindex,depth,randval):
     #return a random factor according to  eta
     if lumi==0:
         if randval==1:
-            return random.gauss(1,MINRES)
+            return random.gauss(1.1,MINRES)
 #            return 1.0
         else:
             return MINRES
-    
-
+    elif lumi==1:
+        if abs(etaindex)<=11:
+       	    if randval==1:
+            	return random.gauss(1,0.04)
+            else:
+            	return 0.04
+        elif abs(etaindex)<=16:
+       	    if randval==1:
+            	return random.gauss(1,0.03)
+            else:
+            	return 0.03
+        else:
+       	    if randval==1:
+            	return random.gauss(1,0.02)
+            else:
+            	return 0.02
+    elif lumi==10:
+        if abs(etaindex)<=5:
+       	    if randval==1:
+            	return random.gauss(1,0.03)
+            else:
+            	return 0.03
+        if abs(etaindex)<=11:
+       	    if randval==1:
+            	return random.gauss(1,0.025)
+            else:
+            	return 0.025
+        elif abs(etaindex)<=16:
+       	    if randval==1:
+            	return random.gauss(1,0.014)
+            else:
+            	return 0.014
+        elif abs(etaindex)<=20:
+       	    if randval==1:
+            	return random.gauss(1,0.01)
+            else:
+            	return 0.01
+        else:
+       	    if randval==1:
+            	return random.gauss(1,0.02)
+            else:
+            	return 0.02
+    else:
+    	print 'lumi must be 0, 1 or 10'
 
 
 #main
@@ -154,9 +196,6 @@ if hcal==1:
     
 lumi=string.atof(sys.argv[2])
 
-if hcal==1:
-    print 'lumi dependence not yet implemented for HCAL'
-
 if lumi<0:
     print 'lumi = '+str(lumi)+' not valid'
     sys.exit(1)
@@ -166,7 +205,8 @@ fileout=sys.argv[3]
 if len(sys.argv)>=5:
     MINRES=string.atof(sys.argv[4])
 
-print 'Using minimal resolution: '+str(MINRES)
+if (hcal==0) or (lumi==0):
+    print 'Using minimal resolution: '+str(MINRES)
 
 if len(sys.argv)>=6:
     SEED=string.atoi(sys.argv[5])
