@@ -132,7 +132,7 @@ HLTPi0RecHitsFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
   PositionCalc posCalculator_ = PositionCalc(providedParameters);
   //PositionCalc::Initialize(providedParameters, &recHitsEB_map, &(*geometry_p));
 
-  static const int MAXCLUS = 200;
+  static const int MAXCLUS = 2000;
   int nClus;
   float eClus[MAXCLUS];
   float etClus[MAXCLUS];
@@ -258,7 +258,7 @@ HLTPi0RecHitsFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
   // Selection, based on Simple clustering
   //pi0 candidates
-  static const int MAXPI0S = 20;
+  static const int MAXPI0S = 200;
   int npi0_s=0;
   int sClus_1[MAXPI0S],sClus_2[MAXPI0S];
   for(int i=0; i<MAXPI0S; i++){
