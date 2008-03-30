@@ -180,11 +180,48 @@ def hlt(process,name):
     func_id=mod_id+"["+sys._getframe().f_code.co_name+"]"
 
     common.log ('%s adding hlt paths ...'%func_id)
-    for p  in process.paths_().itervalues():
-        pname=p.label()
-        if ( pname[0:3]=='HLT' or pname[0:7]=='CandHLT' ):
-            process.schedule.append(getattr(process,pname))
-            common.log ('%s path added  ...'%pname)
+
+    thePath= os.environ['CMSSW_SEARCH_PATH']
+    theFileName = 'HLTrigger/Configuration/data/HLT_1E32.cff'
+    pathList=thePath.split(':')
+    fullName=''
+    for path in pathList :
+        fullName=path+'/'+theFileName
+        if os.path.exists(fullName) :
+           break
+    print 'Found: '+fullName
+    theFile=file(fullName)
+
+    sortedPaths = []
+    endPaths= []
+
+    # parse the file for path definitions
+    for line in theFile.read().splitlines():
+        if line.startswith("path"):
+            sortedPaths.append(line.split()[1]) #that's the pathname
+            print 'appending ' + line.split()[1]
+        if line.startswith("endpath"):
+            endPaths.append(line.split()[1]) #that's the pathname
+            
+    theFile.close() 
+
+    for path in sortedPaths:
+        if path.startswith("HLT") or path.startswith("CandHLT"):
+            process.schedule.append(getattr(process,path)) 
+            common.log ('%s path added  ...'%path)
+
+    if ( len(endPaths)>1 ):
+        print 'Hum, pyrelval can not parse multiple hlt endpaths. Ask for help\n'
+        sys.exit(0)
+
+    if ( len(endPaths)==1):
+         process.hltEndPath=getattr(process,endPaths[0])
+
+#    for p  in process.paths_().itervalues():
+#        pname=p.label()
+#        if ( pname[0:3]=='HLT' or pname[0:7]=='CandHLT' ):
+#            process.schedule.append(getattr(process,pname))
+#            common.log ('%s path added  ...'%pname)
 
     return process
 

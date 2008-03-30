@@ -134,6 +134,10 @@ for s in step_list:
     else:    
         process=step_dict[step](process,pathname)                      
 
+#look for an hlt endpath
+if process.hltEndPath:
+    process.schedule.append(process.hltEndPath)
+    
 # Add the output on a root file if requested
 if output_flag:
     process = common.event_output\
