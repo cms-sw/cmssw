@@ -11,6 +11,7 @@ class TopGenEvent {
   TopGenEvent(reco::GenParticleRefProd&, reco::GenParticleRefProd&);
   virtual ~TopGenEvent(){};
 
+  void dumpEventContent() const;
   const reco::GenParticleCollection& particles() const { return *parts_; }
   const reco::GenParticleCollection& initialPartons() const { return *initPartons_;}
   std::vector<const reco::GenParticle*> lightQuarks(bool plusB=false) const;

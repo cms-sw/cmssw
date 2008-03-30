@@ -1,7 +1,7 @@
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "PhysicsTools/CandUtils/interface/pdgIdUtils.h"
-#include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 #include "AnalysisDataFormats/TopObjects/interface/TopGenEvent.h"
+#include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 
 TopGenEvent::TopGenEvent(reco::GenParticleRefProd& parts, reco::GenParticleRefProd& inits)
 {
@@ -20,6 +20,25 @@ TopGenEvent::candidate(int id) const
     }
   }  
   return cand;
+}
+
+void
+TopGenEvent::dumpEventContent() const 
+{
+  using std::cout;
+  using std::endl;
+
+  cout << endl;
+  cout << "--------------------------------------" << endl;
+  cout << "- Dump TopGenEvent Content           -" << endl;
+  cout << "--------------------------------------" << endl;
+  for (reco::GenParticleCollection::const_iterator part = parts_->begin(); 
+       part<parts_->end(); ++part) {
+    cout << "pdgId: "  << part->pdgId()     << " " 
+	 << "mass: "   << part->p4().mass() << " "
+	 << "energy: " << part->energy()    << " " 
+	 << "pt: "     << part->pt() << endl; 
+  }
 }
 
 int
