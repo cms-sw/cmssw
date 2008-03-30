@@ -701,7 +701,7 @@ namespace pos{
 
 
     static int makeNewVersion(std::string path, std::string &dir){
-      std::cout << "[pos::PixelConfigFile::makeNewVersion()]\t\tInserting data on path:"<<path<<std::endl;
+      //std::cout << "[pos::PixelConfigFile::makeNewVersion()]\t\tInserting data on path:"<<path<<std::endl;
       struct stat stbuf;
       std::string directory=getenv("PIXELCONFIGURATIONBASE");
       directory+="/";
@@ -720,9 +720,9 @@ namespace pos{
 	s1 << version  ;
 	std::string strversion=s1.str();
 	dir=directory+strversion;
-	std::cout << "[pos::PixelConfigFile::makeNewVersion()]\t\tWill check for version:"<<dir<<std::endl;
+	//std::cout << "[pos::PixelConfigFile::makeNewVersion()]\t\tWill check for version:"<<dir<<std::endl;
       }while(stat(dir.c_str(),&stbuf)==0);
-      std::cout << "[pos::PixelConfigFile::makeNewVersion()]\t\tThe new version is:"<<version<<std::endl;
+      //std::cout << "[pos::PixelConfigFile::makeNewVersion()]\t\tThe new version is:"<<version<<std::endl;
       mkdir(dir.c_str(),0777);
       return version;
     }
