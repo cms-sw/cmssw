@@ -1,31 +1,44 @@
+#include "TopQuarkAnalysis/TopEventSelection/interface/TtDilepLRSignalSelObservables.h"
+#include "PhysicsTools/Utilities/interface/DeltaR.h"
+// #include "PhysicsTools/Utilities/interface/DeltaPhi.h"
+// #include "PhysicsTools/Utilities/interface/DeltaTheta.h"
+#include "AnalysisDataFormats/TopObjects/interface/TopJet.h"
 #include "DataFormats/Math/interface/deltaPhi.h"
 #include "DataFormats/Common/interface/Handle.h"
-#include "PhysicsTools/Utilities/interface/DeltaR.h"
-#include "DataFormats/PatCandidates/interface/Jet.h"
 #include "AnalysisDataFormats/TopObjects/interface/TtGenEvent.h"
 
-#include "TopQuarkAnalysis/TopEventSelection/interface/TtDilepLRSignalSelObservables.h"
+// // ROOT classes
+// #include "TLorentzVector.h"
+// #include "TVector.h"
+// #include "TVectorD.h"
+// 
+// #include "TMatrix.h"
+// #include "TMatrixDSymEigen.h"
+// #include "TMatrixDSym.h"
+// #include "TMatrixTSym.h"
 
 using namespace reco;
 using namespace std;
 using namespace math;
 using namespace edm;
 
-TtDilepLRSignalSelObservables::TtDilepLRSignalSelObservables()
-{
-  count1=0; count2=0; count3=0;
-  count4=0; count5=0; count3=0;
-}
 
-TtDilepLRSignalSelObservables::~TtDilepLRSignalSelObservables()
-{
-  // cout << "Jet flavour match: " <<   count1<<" "<<  count2<<" "<< count3
-  // <<" "<<  count4<<" "<< count5<<endl; 
+/************** Definition of the functions of the class ***************/
+
+//Constructor
+TtDilepLRSignalSelObservables::TtDilepLRSignalSelObservables(){
+count1=0; count2=0; count3=0;
+count4=0; count5=0; count3=0;
+}
+// Destructor
+TtDilepLRSignalSelObservables::~TtDilepLRSignalSelObservables(){
+// cout << "Jet flavour match: " <<   count1<<" "<<  count2<<" "<< count3
+// <<" "<<  count4<<" "<< count5<<endl; 
 }
 
 std::vector< TtDilepLRSignalSelObservables::IntBoolPair >
 TtDilepLRSignalSelObservables::operator() (TtDilepEvtSolution &solution,
-					   const edm::Event & iEvent, bool matchOnly)
+	const edm::Event & iEvent, bool matchOnly)
 {
   evtselectVarVal.clear();
   evtselectVarMatch.clear();
@@ -37,7 +50,7 @@ TtDilepLRSignalSelObservables::operator() (TtDilepEvtSolution &solution,
   bool matchBbar = false;
   bool matchLeptPos =  false;
   bool matchLeptNeg =  false;
-  
+
   try {
     // cout <<endl;
     double dr, dr1, dr2;
@@ -46,7 +59,7 @@ TtDilepLRSignalSelObservables::operator() (TtDilepEvtSolution &solution,
     iEvent.getByLabel ("genEvt",genEvent);
 
     if (genEvent->isFullLeptonic()) {
-      // cout << "Dilepton:\n";
+      //cout << "Dilepton:\n";
       // Match the leptons, by type and deltaR
       dr = DeltaR<reco::Particle>()(solution.getLeptPos(), *(solution.getGenLepp()));
       matchLeptPos = (
@@ -65,7 +78,8 @@ TtDilepLRSignalSelObservables::operator() (TtDilepEvtSolution &solution,
 
     if (genEvent->isSemiLeptonic()) {
       int id = genEvent->singleLepton()->pdgId();
-      // cout << "Semi-Leptonic: ";
+      //cout << "Semi-Leptonic: ";
+
       if (id>0) {
 	dr = DeltaR<reco::Particle>()(solution.getLeptNeg(), *(genEvent->singleLepton()));
 	matchLeptNeg = (
@@ -83,56 +97,49 @@ TtDilepLRSignalSelObservables::operator() (TtDilepEvtSolution &solution,
       }
     }
 
-    //if (genEvent->isFullHadronic()) {// cout << "Hadronic\n";}
-
-    // cout << "Am here\n" <<genEvent->numberOfBQuarks()<<endl;
-
-    if (genEvent->numberOfBQuarks()>1) {
-
-
-      if (solution.getJetB().partonFlavour()==5) ++count1;
-      if (solution.getJetBbar().partonFlavour()==5) ++count1;
+    if (genEvent->isFullHadronic()) {
+      // cout << "Hadronic\n";
+    }
+    
+    if (genEvent->isTtBar() && genEvent->numberOfBQuarks()>1) {
+      if (solution.getJetB().getPartonFlavour()==5) ++count1;
+      if (solution.getJetBbar().getPartonFlavour()==5) ++count1;
 
       dr1 = DeltaR<reco::Particle>()(solution.getCalJetB(), *(genEvent->b()));
       dr2 = DeltaR<reco::Particle>()(solution.getCalJetB(), *(genEvent->bBar()));
 
-      matchB1 = ( (dr1<0.4) || (dr2<0.4));
-
-      matchB = ( (solution.getJetB().partonFlavour()==5) && (dr1<0.4) );
+      matchB1= ( (dr1<0.4) || (dr2<0.4));
+      matchB = ( (solution.getJetB().getPartonFlavour()==5) && (dr1<0.4) );
       if (matchB) ++count3;
       matchB = ( (dr1<0.4) );
       if (dr1<0.5) ++count2;
       if (dr1<0.4) ++count4;
       if (dr1<0.3) ++count5;
-    // cout << solution.getJetB().partonFlavour() << " "<<dr<<endl;
+      //cout << solution.getJetB().getPartonFlavour() << " "<<dr<<endl;
 
       dr1 = DeltaR<reco::Particle>()(solution.getCalJetBbar(), *(genEvent->b()));
       dr2 = DeltaR<reco::Particle>()(solution.getCalJetBbar(), *(genEvent->bBar()));
-       matchBbar = ( (solution.getJetBbar().partonFlavour()==5) && (dr2<0.4) );
+
+      matchBbar = ( (solution.getJetBbar().getPartonFlavour()==5) && (dr2<0.4) );
       if (matchBbar) ++count3;
       matchBbar = ( (dr2<0.4) );
       matchB2 = ( (dr1<0.4) || (dr2<0.4));
       if (dr2<0.5) ++count2;
       if (dr2<0.4) ++count4;
       if (dr2<0.3) ++count5;
-    // cout << solution.getJetBbar().partonFlavour() << " "<<dr<<endl;
+      //cout << solution.getJetBbar().getPartonFlavour() << " "<<dr<<endl;
     }
 
-
     //Look at the b-jets:
-
-
- // cout << "Final Match: "<<   matchB<<matchBbar <<matchLeptPos <<matchLeptNeg<<endl;
-
-    } catch (...){cout << "Exception\n";}
+    //cout << "Final Match: "<<   matchB<<matchBbar <<matchLeptPos <<matchLeptNeg<<endl;
+    
+  } catch (...){cout << "Exception\n";}
   
-  //cout<<"New event being processed"<<endl;
-
-  Handle<vector<pat::Jet> > jets;
+  Handle<vector<TopJet> > jets;
   iEvent.getByLabel(jetSource_, jets);
-
+  
   //  Lower / Higher of both jet angles
-
+  
   double v1 = abs( solution.getJetB().p4().theta() - M_PI/2 );
   double v2 = abs( solution.getJetBbar().p4().theta() - M_PI/2 ) ;
   fillMinMax(v1, v2, 1, evtselectVarVal, matchB1, matchB2, evtselectVarMatch);
@@ -219,10 +226,10 @@ TtDilepLRSignalSelObservables::operator() (TtDilepEvtSolution &solution,
   evtselectVarVal.push_back(IntDblPair(13, mass));
   evtselectVarMatch.push_back(IntBoolPair(13, matchLeptNeg&&matchLeptPos));
 
-vector <pat::Jet> jet3;
-for (unsigned int i=0;i<jets->size();++i) {
+vector <TopJet> jet3;
+for (int i=0;i<jets->size();++i) {
 if  ( ((*jets)[i].et()<solution.getJetB().et()) && ((*jets)[i].et()<solution.getJetBbar().et())) {jet3.push_back((*jets)[i]);
-// cout << "jet " << i << " " << jet3.back().partonFlavour()<< " " << jet3.back().pt() << " " << jet3.back().eta()<<endl;
+// cout << "jet " << i << " " << jet3.back().getPartonFlavour()<< " " << jet3.back().pt() << " " << jet3.back().eta()<<endl;
 }}
   double jet1Ratio = 0., jet2Ratio = 0.;  
   if (jet3.size()>0) { 
