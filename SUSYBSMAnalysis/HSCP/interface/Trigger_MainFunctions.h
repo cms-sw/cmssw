@@ -3,7 +3,7 @@
 //
 // Original Author:  Loic QUERTENMONT
 //         Created:  Wed Nov  7 17:30:40 CET 2007
-// $Id: HSCP_Trigger.cc,v 1.2 2007/12/12 08:06:49 querten Exp $
+// $Id: HSCP_Trigger_MainFunctions.h,v 1.1 2007/12/13 06:53:12 querten Exp $
 //
 //
 
@@ -28,7 +28,7 @@
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutRecord.h"
 
 
-#include "DataFormats/HLTReco/interface/HLTFilterObject.h"
+//#include "DataFormats/HLTReco/interface/HLTFilterObject.h"
 #include "DataFormats/Common/interface/TriggerResults.h"
 #include "DataFormats/L1Trigger/interface/L1ParticleMap.h"
 #include "DataFormats/L1Trigger/interface/L1MuonParticle.h"
@@ -46,8 +46,6 @@
 #include "DataFormats/JetReco/interface/CaloJetCollection.h"
 #include "DataFormats/METReco/interface/CaloMET.h"
 #include "DataFormats/METReco/interface/CaloMETCollection.h"
-
-#include "SUSYBSMAnalysis/HSCP/interface/SlowHSCPFilter_MainFunctions.h"
 
 using namespace edm;
 
@@ -70,9 +68,6 @@ bool   HSCP_Trigger_HLTJetAbovePtThreshold     (const reco::CaloJetCollection HL
 
 bool   HSCP_Trigger_L1GlobalDecision           (bool* TriggerBits);
 bool   HSCP_Trigger_HLTGlobalDecision          (bool* TriggerBits, unsigned int HLT_NPath);
-bool   HSCP_Trigger_L1InterestingPath          (int Path);
-bool   HSCP_Trigger_HLTInterestingPath         (int Path);
-bool   HSCP_Trigger_IsL1ConditionTrue          (int Path, bool* TriggerBits);
 
 int    HSCP_Trigger_ClosestHSCP                (double phi, double eta, double dRMax, const reco::CandidateCollection MC_Cand);
 int    HSCP_Trigger_ClosestL1Muon              (double phi, double eta, double dRMax, const l1extra::L1MuonParticleCollection L1_Muons);

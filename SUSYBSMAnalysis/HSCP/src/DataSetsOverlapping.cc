@@ -1,9 +1,9 @@
 // -*- C++ -*-
 //
-// Package:    HSCP_SplitInDS
-// Class:      HSCP_SplitInDS
+// Package:    HSCP_DataSetsOverlapping
+// Class:      HSCP_DataSetsOverlapping
 // 
-/**\class HSCP_SplitInDS HSCP_SplitInDS.cc SUSYBSMAnalysis/HSCP/src/HSCP_SplitInDS.cc
+/**\class HSCP_DataSetsOverlapping HSCP_DataSetsOverlapping.cc SUSYBSMAnalysis/HSCP/src/HSCP_DataSetsOverlapping.cc
 
  Description: <one line class summary>
 
@@ -13,7 +13,7 @@
 //
 // Original Author:  Loic QUERTENMONT
 //         Created:  Fri Dec  7 10:40:51 CET 2007
-// $Id: HSCP_SplitInDS.cc,v 1.4 2007/12/11 17:04:02 querten Exp $
+// $Id: HSCP_DataSetsOverlapping.cc,v 1.1 2007/12/16 08:35:38 querten Exp $
 //
 //
 
@@ -23,7 +23,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDFilter.h"
+#include "FWCore/Framework/interface/EDAnalyzer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -32,8 +32,6 @@
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
-
-
 
 #include "FWCore/Framework/interface/TriggerNames.h"
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutRecord.h"
@@ -69,14 +67,14 @@
 using namespace edm;
 
 
-class HSCP_SplitInDS : public edm::EDFilter {
+class HSCP_DataSetsOverlapping : public edm::EDAnalyzer {
    public:
-      explicit HSCP_SplitInDS(const edm::ParameterSet&);
-      ~HSCP_SplitInDS();
+      explicit HSCP_DataSetsOverlapping(const edm::ParameterSet&);
+      ~HSCP_DataSetsOverlapping();
 
    private:
       virtual void beginJob(const edm::EventSetup&) ;
-      virtual bool filter(edm::Event&, const edm::EventSetup&);
+      virtual void analyze (const edm::Event&, const edm::EventSetup&);
       virtual void endJob() ;
 
 
@@ -85,24 +83,29 @@ class HSCP_SplitInDS : public edm::EDFilter {
       std::string  Txt_File;
    
       unsigned int NEvents;
-      unsigned int NGoodEvents;
-
+      unsigned int NEventsDS1;
+      unsigned int NEventsDS2;
+      unsigned int NEventsDS1and2;
+      unsigned int NEventsDS1or2;
 
       bool         Init;
       unsigned int L1_NPath;
       unsigned int HLT_NPath;
 
-
-      std::vector<unsigned int> DataSet_HLTPaths;
-
-
+      std::vector<unsigned int> DataSet1_Paths;
+      std::vector<unsigned int> DataSet2_Paths;
 };
 
 
-HSCP_SplitInDS::HSCP_SplitInDS(const edm::ParameterSet& iConfig)
+HSCP_DataSetsOverlapping::HSCP_DataSetsOverlapping(const edm::ParameterSet& iConfig)
 {
-      NEvents     = 0;
-      NGoodEvents = 0;
+      NEvents         = 0;
+      NEventsDS1      = 0;
+      NEventsDS2      = 0;
+      NEventsDS1and2  = 0;
+      NEventsDS1or2   = 0;
+
+
       DeltaTMax   = iConfig.getUntrackedParameter<double >("DeltaTMax");
       Txt_File    = iConfig.getUntrackedParameter<std::string >("Txt_output");
 
@@ -110,33 +113,39 @@ HSCP_SplitInDS::HSCP_SplitInDS(const edm::ParameterSet& iConfig)
       L1_NPath    = 0;
       HLT_NPath   = 0;
 
-      DataSet_HLTPaths = iConfig.getUntrackedParameter<std::vector<unsigned int> >("DataSet_HLTPaths");
+      DataSet1_Paths = iConfig.getUntrackedParameter<std::vector<unsigned int> >("DataSet1_Paths");
+      DataSet2_Paths = iConfig.getUntrackedParameter<std::vector<unsigned int> >("DataSet2_Paths");
 }
 
 
-HSCP_SplitInDS::~HSCP_SplitInDS()
+HSCP_DataSetsOverlapping::~HSCP_DataSetsOverlapping()
 {
       if(Txt_File.size()>3){
           FILE* f = fopen(Txt_File.c_str(), "w");
-          fprintf(f,"Read     Events = %i\n"     ,NEvents);
-          fprintf(f,"Accepted Events = %i\n"     ,NGoodEvents);
-          fprintf(f,"Accepted Ratio  = %05.2f%%\n",(100.0*NGoodEvents)/NEvents);
+          fprintf(f,"#Events                = %5i                     \n", NEvents);
+          fprintf(f,"#Events in DS1         = %5i  --> ratio = %6.2f%%\n", NEventsDS1     , (100.0*NEventsDS1    ) / NEvents);
+          fprintf(f,"#Events in DS2         = %5i  --> ratio = %6.2f%%\n", NEventsDS2     , (100.0*NEventsDS2    ) / NEvents);
+          fprintf(f,"#Events in DS1 or  DS2 = %5i  --> ratio = %6.2f%%\n", NEventsDS1or2  , (100.0*NEventsDS1or2 ) / NEvents);
+          fprintf(f,"#Events in DS1 and DS2 = %5i  --> ratio = %6.2f%%\n", NEventsDS1and2 , (100.0*NEventsDS1and2) / NEvents);
           fclose(f);
       }
 
-      printf("Read     Events = %i\n"     ,NEvents);
-      printf("Accepted Events = %i\n"     ,NGoodEvents);
-      printf("Accepted Ratio  = %05.2f%%\n",(100.0*NGoodEvents)/NEvents);
+      printf("#Events                = %5i                     \n", NEvents);
+      printf("#Events in DS1         = %5i  --> ratio = %6.2f%%\n", NEventsDS1     , (100.0*NEventsDS1    ) / NEvents);
+      printf("#Events in DS2         = %5i  --> ratio = %6.2f%%\n", NEventsDS2     , (100.0*NEventsDS2    ) / NEvents);
+      printf("#Events in DS1 or  DS2 = %5i  --> ratio = %6.2f%%\n", NEventsDS1or2  , (100.0*NEventsDS1or2 ) / NEvents);
+      printf("#Events in DS1 and DS2 = %5i  --> ratio = %6.2f%%\n", NEventsDS1and2 , (100.0*NEventsDS1and2) / NEvents);
 }
 
-bool
-HSCP_SplitInDS::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
+void
+HSCP_DataSetsOverlapping::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
    int    recoL1Muon[2];
    double MinDt[2];
 
-   GetTrueL1MuonsAndTime(iEvent, iSetup, recoL1Muon, MinDt);
-
+   if(DeltaTMax>=0){
+      GetTrueL1MuonsAndTime(iEvent, iSetup, recoL1Muon, MinDt);
+   }
 
    Handle<l1extra::L1MuonParticleCollection> L1_Muons_h;
    iEvent.getByLabel("l1extraParticles", L1_Muons_h);
@@ -152,9 +161,9 @@ HSCP_SplitInDS::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
    bool* L1_Trigger_Bits_tmp = new bool[L1_NPath];
    for(unsigned int i=0;i<L1_NPath;i++){
-        if(i == l1extra::L1ParticleMap::kSingleMu7){
+        if(i == l1extra::L1ParticleMap::kSingleMu7 && DeltaTMax>=0){
                 L1_Trigger_Bits_tmp[i] = HSCP_Trigger_L1MuonAbovePtThreshold(L1_Muons,7, recoL1Muon, MinDt, DeltaTMax);                 
-        }else if(i == l1extra::L1ParticleMap::kDoubleMu3){
+        }else if(i == l1extra::L1ParticleMap::kDoubleMu3 && DeltaTMax>=0){
                 L1_Trigger_Bits_tmp[i] = HSCP_Trigger_L1TwoMuonAbovePtThreshold(L1_Muons,3, recoL1Muon, MinDt, DeltaTMax);      
         }else{
                 L1_Trigger_Bits_tmp[i] = L1GTRR->decisionWord()[i];
@@ -176,29 +185,39 @@ HSCP_SplitInDS::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
        HLT_Trigger_Bits_tmp[i] = HLTR->accept(i) && HSCP_Trigger_IsL1ConditionTrue(i,L1_Trigger_Bits_tmp);
    }
 
+   bool DS1 = false;
+   bool DS2 = false;
 
-   NEvents++;
-   for(unsigned int i=0; i<DataSet_HLTPaths.size();i++)
+   for(unsigned int i=0; i<DataSet1_Paths.size();i++)
    {
-	if(DataSet_HLTPaths[i]<0         ) continue;
-        if(DataSet_HLTPaths[i]>=HLT_NPath) continue;
+	if(DataSet1_Paths[i]<0         ) continue;
+        if(DataSet1_Paths[i]>=HLT_NPath) continue;
 
-	if(HLT_Trigger_Bits_tmp[DataSet_HLTPaths[i]]){
-		NGoodEvents++;
-		return true;
-	}	
+	if(HLT_Trigger_Bits_tmp[DataSet1_Paths[i]]){DS1=true;}	
    }
-   return false;
 
+   for(unsigned int i=0; i<DataSet2_Paths.size();i++)
+   { 
+        if(DataSet2_Paths[i]<0         ) continue;
+        if(DataSet2_Paths[i]>=HLT_NPath) continue;
+ 
+        if(HLT_Trigger_Bits_tmp[DataSet2_Paths[i]]){DS2=true;}   
+   } 
+
+                NEvents++;
+   if(DS1)      NEventsDS1++;
+   if(DS2)      NEventsDS2++;
+   if(DS1&&DS2) NEventsDS1and2++;
+   if(DS1||DS2) NEventsDS1or2++;
 }
 
 void 
-HSCP_SplitInDS::beginJob(const edm::EventSetup&)
+HSCP_DataSetsOverlapping::beginJob(const edm::EventSetup&)
 {
 }
 
 void 
-HSCP_SplitInDS::endJob() {
+HSCP_DataSetsOverlapping::endJob() {
 }
 
-DEFINE_FWK_MODULE(HSCP_SplitInDS);
+DEFINE_FWK_MODULE(HSCP_DataSetsOverlapping);
