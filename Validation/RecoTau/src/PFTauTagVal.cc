@@ -13,7 +13,7 @@
 //
 // Original Author:  Ricardo Vasquez Sierra
 //         Created:  October 8, 2007 
-// $Id: PFTauTagVal.cc,v 1.8 2008/03/04 11:00:34 gennai Exp $
+// $Id: PFTauTagVal.cc,v 1.9 2008/03/08 00:34:19 vasquez Exp $
 //
 //
 // user include files
@@ -323,7 +323,7 @@ void PFTauTagVal::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
   }
   cout<<"PFJetsIterativeCone5: "<< PFJetsIterativeCone5<<endl;*/
   
-  
+  delete myGenEvent;  
 
 
 }

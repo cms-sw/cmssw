@@ -13,7 +13,7 @@
 //
 // Original Author:  Ricardo Vasquez
 //         Created:  Thu Feb 28 10:35:28 CST 2008
-// $Id: CaloTauTagVal.cc,v 1.1 2008/03/08 00:39:48 vasquez Exp $
+// $Id: CaloTauTagVal.cc,v 1.2 2008/03/18 22:38:05 vasquez Exp $
 //
 //
 
@@ -247,6 +247,8 @@ CaloTauTagVal::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     }
     i_CaloTau++;
   }
+
+  delete myGenEvent;
 }
 
 // ------------ method called once each job just after ending the event loop  ------------
