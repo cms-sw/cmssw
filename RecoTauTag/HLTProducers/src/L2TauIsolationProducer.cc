@@ -8,64 +8,30 @@ L2TauIsolationProducer::L2TauIsolationProducer(const edm::ParameterSet& iConfig)
   EBRecHits_(iConfig.getParameter<edm::InputTag>("EBRecHits")),
   EERecHits_(iConfig.getParameter<edm::InputTag>("EERecHits")),
   crystalThreshold_(iConfig.getParameter<double>("crystalThreshold")),
-  towerThreshold_(iConfig.getParameter<double>("towerThreshold")),
-  ECALIsolation_run_(true),ECALIsolation_innerCone_(0.15),
-  ECALIsolation_outerCone_(0.5),
-  TowerIsolation_run_(true),
-  TowerIsolation_innerCone_(0.2),
-  TowerIsolation_outerCone_(0.5),
-  ECALClustering_run_(true),
-  ECALClustering_clusterRadius_(0.08)
-{
+  towerThreshold_(iConfig.getParameter<double>("towerThreshold"))
+ {
         
   //ECAL Isolation
   edm::ParameterSet ECALIsolParams = iConfig.getParameter<edm::ParameterSet>("ECALIsolation") ;
-  std::vector<std::string> ECALIsolParamNames = ECALIsolParams.getParameterNames() ;
-
-  for ( std::vector<std::string>::iterator iParam = ECALIsolParamNames.begin();iParam != ECALIsolParamNames.end(); iParam++ )
-   {
-   
-     if ((*iParam) == "innerCone" ) ECALIsolation_innerCone_ =  ECALIsolParams.getParameter<double>( *iParam );
-     if ((*iParam) == "outerCone" ) ECALIsolation_outerCone_ =  ECALIsolParams.getParameter<double>( *iParam );
-     if ((*iParam) == "runAlgorithm" ) ECALIsolation_run_    =  ECALIsolParams.getParameter<bool>( *iParam );
+    
+  ECALIsolation_innerCone_ =  ECALIsolParams.getParameter<double>( "innerCone" );
+  ECALIsolation_outerCone_ =  ECALIsolParams.getParameter<double>( "outerCone" );
+  ECALIsolation_run_    =  ECALIsolParams.getParameter<bool>( "runAlgorithm" );
   
-
-   }
 
   //ECAL Clustering
   edm::ParameterSet ECALClusterParams = iConfig.getParameter<edm::ParameterSet>("ECALClustering") ;
-  std::vector<std::string> ECALClusterParamNames = ECALClusterParams.getParameterNames() ;
-
-  for ( std::vector<std::string>::iterator iParam = ECALClusterParamNames.begin();iParam != ECALClusterParamNames.end(); iParam++ )
-   {
-   
+      
+  ECALClustering_clusterRadius_ =  ECALClusterParams.getParameter<double>( "clusterRadius" );
     
-     if ((*iParam) == "clusterRadius" ) ECALClustering_clusterRadius_ =  ECALClusterParams.getParameter<double>( *iParam );
-    
-   }
-
-
-
-
   //Tower Isolation
 
   edm::ParameterSet TowerIsolParams = iConfig.getParameter<edm::ParameterSet>("TowerIsolation") ;
-  std::vector<std::string> TowerIsolParamNames = TowerIsolParams.getParameterNames() ;
-
-  for ( std::vector<std::string>::iterator iParam = TowerIsolParamNames.begin();iParam != TowerIsolParamNames.end(); iParam++ )
-   {
-   
-    
-     if ((*iParam) == "innerCone" ) TowerIsolation_innerCone_ =  TowerIsolParams.getParameter<double>( *iParam );
-     if ((*iParam) == "outerCone" ) TowerIsolation_outerCone_ =  TowerIsolParams.getParameter<double>( *iParam );
-     if ((*iParam) == "runAlgorithm" ) TowerIsolation_run_ =  TowerIsolParams.getParameter<bool>( *iParam );
-  
-
-   }
-
-
-
-
+      
+  TowerIsolation_innerCone_ =  TowerIsolParams.getParameter<double>( "innerCone" );
+  TowerIsolation_outerCone_ =  TowerIsolParams.getParameter<double>( "outerCone" );
+  TowerIsolation_run_ =  TowerIsolParams.getParameter<bool>( "runAlgorithm" );
+ 
 
   //Add the products
   produces<L2TauInfoAssociation>( "L2TauIsolationInfoAssociator" );
