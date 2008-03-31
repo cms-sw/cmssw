@@ -3,10 +3,8 @@
  *  implementation of RPCMonitorDigi class	*
  *						*
  ************************************************/
-//#include <map>
-//#include <string>
+
 #include <TRandom.h> 
-//#include <unistd.h>
 #include <string>
 #include <sstream>
 #include "DQM/RPCMonitorDigi/interface/RPCMonitorDigi.h"
@@ -27,10 +25,8 @@
 
 
 ///Log messages
-//a#include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-//#include "DQM/RenderPlugins/src/RPCRenderPlugin.h"
 using namespace std;
 
 RPCMonitorDigi::RPCMonitorDigi( const edm::ParameterSet& pset ):counter(0){
@@ -402,12 +398,7 @@ void RPCMonitorDigi::analyze(const edm::Event& iEvent,
 	  Yaxis.erase(Yaxis.find("_")+2,8);
 
 	  meMap[meId]->setBinLabel(nrnr, Yaxis, 2);
-<<<<<<< RPCMonitorDigi.cc
 	 
-	  //std::cout<<"strip: "<<strip<<"   nrnr: "<<nrnr<<"   detUnitLabel: "<<detUnitLabel<<std::endl;
-=======
-	  cout<<"DetUnit: "<<detUnitLabel<<" r"<<r21<<endl;
->>>>>>> 1.33
 	  
 	} 
 	else { 
@@ -536,7 +527,7 @@ void RPCMonitorDigi::analyze(const edm::Event& iEvent,
 	 
 	 
 	 // if (mult<=10)ClusterSize_for_BarrelandEndcaps -> Fill(mult);
-	 //++ClusterSize_for_BarrelandEndcaps -> Fill(mult);
+	 ClusterSize_for_BarrelandEndcaps -> Fill(mult);
 	 //if(mult>10) ClusterSize_for_BarrelandEndcaps -> Fill(11);
 	 
 	 if(detId.region() ==  0) {
@@ -618,8 +609,6 @@ void RPCMonitorDigi::analyze(const edm::Event& iEvent,
 	   meMap[meId]->Fill(error.xx());
 	   
 	 }
-	 
-	 
 	 
 	 //sprintf(meId,"RecHitYPosition_%s",detUnitLabel);
 	 //meMap[meId]->Fill(yposition);
