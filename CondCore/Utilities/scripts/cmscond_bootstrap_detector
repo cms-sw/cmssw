@@ -2,18 +2,56 @@
 import os,os.path,string
 import sys
 import xml.parsers.expat
+import fnmatch
 from optparse import OptionParser
-def start_element(name, attrs):
-    print 'Start element:', name, attrs
-def end_element(name):
-    print 'End element:', name
-def char_data(data):
-    print 'Character data:', repr(data)
 
-p = xml.parsers.expat.ParserCreate()
-p.StartElementHandler = start_element
-p.EndElementHandler = end_element
-p.CharacterDataHandler = char_data
+elementstack_l1=[]
+elementstack_l2=[]
+registry={}
+def locate(pattern, root=os.curdir):
+    '''Locate all files matching supplied filename pattern in and below
+    supplied root directory.'''
+    for path, dirs, files in os.walk(os.path.abspath(root)):
+        for filename in fnmatch.filter(files, pattern):
+            print os.path.join(path, filename)
+            yield str(os.path.join(path, filename))
+
+def start_element(name, attrs):
+    if name=='detector':
+        elementstack_l1.append(attrs)
+    if name=='poolsetup':
+        elementstack_l2.append(attrs)
+    return
+
+def fillregistry():
+    idx=0
+    for l1element in elementstack_l1:
+         currentdetector=l1element['name']
+         offlineconnect=l1element['offline_connect']
+         detectormap={}
+         detectormap['mapping']=[]
+         detectormap['library']=''
+         registry[currentdetector]=(offlineconnect,detectormap)
+         idx=elementstack_l1.index(l1element)
+         level2elements=elementstack_l2[idx]
+         mappingdir=os.path.abspath(level2elements['mappingdir'])
+         print mappingdir
+         mappingfile=level2elements['mappingfile']
+         print mappingfile
+         result=[]
+         if mappingfile=='*':
+             for result in locate('*.xml'):
+                 print 'result',result
+                 print 'current detector ',
+                 registry[currentdetector][1]['mapping'].append(result)
+                 registry[currentdetector][1]['library']='lib'+level2elements['library']+'.so'
+         else:
+             a=mappingfile.split(' ')
+             result=map(lambda x: os.path.join(mappingdir,x) ,a)
+             print result
+             registry[currentdetector][1]['mapping']=result
+             registry[currentdetector][1]['library']='lib'+level2elements['library']+'.so'
+    return
 
 class bootstrap:
     def __init__(self):
@@ -39,6 +77,15 @@ class bootstrap:
         """
         Parse dbconfig xml to fill in self.__registry
         """
+        p = xml.parsers.expat.ParserCreate()
+        p.StartElementHandler = start_element
+        f=open('dbconfiguration.xml','r')
+        p.ParseFile(f)
+        print 'elementstack_l1',elementstack_l1
+        print 'elementstack_l2',elementstack_l2
+        fillregistry()
+        print registry
+        
     def parsecmdln(self):
         """
         Parse commandline
@@ -61,13 +108,9 @@ class bootstrap:
                           help="verbose mode")
         (options, args) = parser.parse_args()
         
-    def execute(self):
-        '''execute sequence
-        '''
-        
+
 if __name__ == "__main__":
-    me=bootstrapdetector()    
-    me.parsecmdln()
-    me.execute()
-
-
+    b=bootstrap()
+    b.parsedbconfig()
+    print registry
+             
