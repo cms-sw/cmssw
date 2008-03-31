@@ -21,3 +21,6 @@ DEFINE_ANOTHER_FWK_MODULE(SiStripRawToClustersDummyUnpacker);
 #include "EventFilter/SiStripRawToDigi/test/plugins/SiStripClustersDSVBuilder.h"
 DEFINE_ANOTHER_FWK_MODULE(SiStripClustersDSVBuilder);
 
+#include "EventFilter/SiStripRawToDigi/test/plugins/SiStripDigiValidator.h"
+DEFINE_ANOTHER_FWK_MODULE(SiStripDigiValidator);
+
