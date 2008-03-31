@@ -27,9 +27,6 @@
 #include "RecoTracker/TkDetLayers/interface/GeometricSearchTracker.h"
 
 #include "MagneticField/Engine/interface/MagneticField.h"
-#include "TrackingTools/DetLayers/interface/NavigationSetter.h"
-#include "TrackingTools/DetLayers/interface/NavigationSchool.h"
-#include "RecoTracker/TkNavigation/interface/SimpleNavigationSchool.h"
 
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
 
@@ -90,7 +87,6 @@ private:
   const MeasurementTracker*       theMeasurementTracker;
   const LayerMeasurements*        theLayerMeasurements;
   const GeometricSearchTracker*   theGeomSearchTracker;
-  const NavigationSchool*         theNavigationSchool;
   edm::ESHandle<MagneticField>    theMagField;
 
   NuclearTester*                             nuclTester;
@@ -103,7 +99,6 @@ private:
   unsigned int  maxHits;
   double        rescaleErrorFactor;
   bool          checkCompletedTrack; /**< If set to true check all the tracks, even those reaching the edge of the tracker */
-  std::string   navigationSchoolName;
 
 };
 #endif

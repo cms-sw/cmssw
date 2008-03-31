@@ -1,5 +1,6 @@
 #include "RecoTracker/NuclearSeedGenerator/interface/NuclearSeedsEDProducer.h"
 #include "RecoTracker/NuclearSeedGenerator/interface/NuclearInteractionFinder.h"
+#include "RecoTracker/Record/interface/NavigationSchoolRecord.h" 
 
 #include "FWCore/ParameterSet/interface/InputTag.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -17,10 +18,13 @@ using namespace reco;
 //
 NuclearSeedsEDProducer::NuclearSeedsEDProducer(const edm::ParameterSet& iConfig) : conf_(iConfig),
 improveSeeds(iConfig.getParameter<bool>("improveSeeds")),
-producer_(iConfig.getParameter<std::string>("producer"))
+producer_(iConfig.getParameter<std::string>("producer")),
+navigationSchoolName(iConfig.getParameter<std::string>("NavigationSchool"))
 {
    produces<TrajectorySeedCollection>();
    produces<TrajectoryToSeedsMap>();
+
+
 }
 
 
@@ -49,6 +53,7 @@ NuclearSeedsEDProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
 
    // Update the measurement
    theNuclearInteractionFinder->setEvent(iEvent);
+   NavigationSetter setter( *theNavigationSchool);
 
    std::vector<std::pair<int, int> > assocPair;
    int i=0;
@@ -86,6 +91,10 @@ void
 NuclearSeedsEDProducer::beginJob(const edm::EventSetup& es)
 {
    theNuclearInteractionFinder = std::auto_ptr<NuclearInteractionFinder>(new NuclearInteractionFinder(es, conf_));
+
+   edm::ESHandle<NavigationSchool>             nav;
+   es.get<NavigationSchoolRecord>().get(navigationSchoolName, nav);
+   theNavigationSchool  = nav.product();
 }
 
 void  NuclearSeedsEDProducer::endJob() {}
