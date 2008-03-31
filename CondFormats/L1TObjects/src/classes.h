@@ -51,6 +51,6 @@ namespace {
     std::vector<L1GtEnergySumTemplate> dummy6 ;
     std::vector<L1GtJetCountsTemplate> dummy7 ;
     std::vector<L1GtCorrelationTemplate> dummy8 ;
-    //std::map< std::string, L1GtAlgorithm > dummy9 ;
+    std::map< std::string, L1GtAlgorithm > dummy9 ;
   }
 }

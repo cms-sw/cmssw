@@ -96,8 +96,11 @@
   <class name="L1GtCorrelationTemplate::CorrelationParameter"/>
   <class name="std::vector<L1GtCorrelationTemplate>"/>
   <class name="std::vector<std::vector<L1GtCorrelationTemplate> >"/>
-  <class name="L1GtAlgorithm"/>
+  <class name="L1GtAlgorithm">
+    <field name="m_algoRpnVector" transient="true" />
+  </class>
   <class name="std::map<std::string, L1GtAlgorithm>"/>
+  <class name="std::map<std::string, L1GtAlgorithm>::value_type"/>
   <class name="L1GtTriggerMenu">
     <field name="m_conditionMap" transient="true" />
   </class>
