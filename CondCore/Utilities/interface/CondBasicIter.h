@@ -1,6 +1,6 @@
 #ifndef CondIter_CondBasicIter_h
 #define CondIter_CondBasicIter_h
-
+#include "CondCore/DBCommon/interface/Connection.h"
 #include "CondCore/IOVService/interface/IOVIterator.h"
 #include "CondCore/DBCommon/interface/CoralTransaction.h"
 #include "CondCore/DBCommon/interface/PoolTransaction.h"
@@ -20,6 +20,7 @@ class CondBasicIter{
   cond::IOVIterator* ioviterator;
   std::string payloadContainer;
   cond::PoolTransaction *pooldb;
+  cond::Connection * myconnection;
   /*minimum and maximum of the interval where search IOVs*/     
   unsigned int iter_Min;
   unsigned int iter_Max;

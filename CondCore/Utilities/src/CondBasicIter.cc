@@ -1,8 +1,9 @@
 #include "CondCore/Utilities/interface/CondBasicIter.h"
-#include "CondCore/DBCommon/interface/Connection.h"
+
 CondBasicIter::CondBasicIter(){
     ioviterator = 0;
     pooldb = 0;
+    myconnection =  0;
 }
 
 CondBasicIter::~CondBasicIter(){
@@ -10,6 +11,7 @@ CondBasicIter::~CondBasicIter(){
         pooldb->commit();
     }
     if (ioviterator) delete ioviterator;
+    if (myconnection) delete myconnection;
 }
 
 void CondBasicIter::setStartTime(unsigned int start){
@@ -64,24 +66,28 @@ void CondBasicIter::create(const std::string & NameDB,const std::string & File,c
     //session->configuration().connectionConfiguration()->enableReadOnlySessionOnUpdateConnections();
     std::string userenv(std::string("CORAL_AUTH_USER=")+user);
     std::string passenv(std::string("CORAL_AUTH_PASSWORD=")+pass);
-    
+
+    if (!myconnection){
+   myconnection = new  cond::Connection(connect,5000000);    
+    }
     if (!pooldb) {
         putenv(const_cast<char*>(userenv.c_str()));
         putenv(const_cast<char*>(passenv.c_str()));
     }
     
-    cond::Connection myconnection(connect,-1);
+    
     session->open();
-    myconnection.connect(session);
-    cond::CoralTransaction& coraldb=myconnection.coralTransaction();
+    myconnection->connect(session);
+    cond::CoralTransaction& coraldb=myconnection->coralTransaction();
     cond::MetaData metadata_svc(coraldb);
     std::string token;
     coraldb.start(true);
+    
     token=metadata_svc.getToken(tag);
     coraldb.commit();
     int test = 0;
     if (!pooldb) {
-      pooldb = &(myconnection.poolTransaction());
+      pooldb = &(myconnection->poolTransaction());
 	test = 1;
     }
     
@@ -94,16 +100,25 @@ void CondBasicIter::create(const std::string & NameDB,const std::string & File,c
     //-----------------------------------------
     
     ioviterator=iovservice.newIOVIterator(token);
+    
       
     if (test==1){
       pooldb->start(true);
     }
-    payloadContainer=iovservice.payloadContainerName(token); 
+
+    // printing out the iteratot size 
+    std::cout<< " ioviterator->size() == " << ioviterator->size() << std::endl; 
+   payloadContainer=iovservice.payloadContainerName(token); 
+
+
+
     delete session;
+  
     
     //---- inizializer
     iter_Min = 0;
-    iter_Max = 0;      
+    iter_Max = 0; 
+       
 }
 
 void CondBasicIter::setRange(unsigned int min,unsigned int max){
