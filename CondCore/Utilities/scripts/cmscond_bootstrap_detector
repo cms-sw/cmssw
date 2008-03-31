@@ -8,6 +8,7 @@ from optparse import OptionParser
 elementstack_l1=[]
 elementstack_l2=[]
 
+
 def locate(pattern, root=os.curdir):
     '''Locate all files matching supplied filename pattern in and below
     supplied root directory.'''
@@ -31,6 +32,7 @@ class bootstrap:
         -P, --authPath : path to authentication.xml(default .)
         -c, --connect : connect string to DB to set up (default in dbconfig)
         -a, --all : Set up all schemas in DB configuration file(default)
+        -b, --basedir : basedir for mappingdir. Default to $CMSSW_RELEASE_BASE
         -D, --Detector : Set up only schema identified with given Detector entry in the DBConfiguration file
         --fake : Don't actually do anything, only print commands
         -v, --verbose: verbose mode
@@ -43,7 +45,8 @@ class bootstrap:
         self.__authpath='.'
         self.__connect=''
         self.__registry={}
-        
+        self.__basedir=''
+
     def fillregistry(self):
         idx=0
         for l1element in elementstack_l1:
@@ -55,7 +58,10 @@ class bootstrap:
             self.__registry[currentdetector]=(offlineconnect,detectormap)
             idx=elementstack_l1.index(l1element)
             level2elements=elementstack_l2[idx]
-            mappingdir=os.path.abspath(level2elements['mappingdir'])
+            if os.path.isabs(level2elements['mappingdir']):
+                mappingdir=level2elements['mappingdir']
+            else:
+                mappingdir=os.path.abspath(os.path.join(self.__basedir,level2elements['mappingdir']))
             mappingfile=level2elements['mappingfile']
             result=[]
             if mappingfile.find('*')!=-1:
@@ -94,6 +100,8 @@ class bootstrap:
                           help="Set up all schemas in DB configuration file(default)")
         parser.add_option("-D","--Detector",action="store",dest="Detector",
                           help="Set up only schema identified with given Detector entry in the DBConfiguration file")
+        parser.add_option("-b","--basedir",action="store",dest="basedir",
+                          help="basedir for mappingdir. Default to $CMSSW_RELEASE_BASE")
         parser.add_option("--fake",action="store_true",dest="fake",
                           help="Don't actually do anything, only print commands")
         parser.add_option("-v","--verbose",action="store_true",dest="verbose",
@@ -109,8 +117,16 @@ class bootstrap:
             self.__authpath=options.authpath
         if options.connect:
             self.__connect=options.connect
+        if options.basedir:
+            self.__basedir=options.basedir
+        else:
+            try:
+                mybase=os.environ['CMSSW_RELEASE_BASE']
+            except KeyError:
+                raise ValueError, 'variable CMSSW_RELEASE_BASE not set, do eval scram runtime first'
+            self.__basedir=os.path.expandvars('$CMSSW_RELEASE_BASE')
         if not options.dbconfig:
-            raise ValueError,'option -f is required'
+            raise ValueError,'option -f is required!'
         self.__dbconfig=options.dbconfig
         self.parsedbconfig()
         if self.__verbose is True:
@@ -124,6 +140,7 @@ class bootstrap:
                         print '###Connect : ',self.__registry[d][0]
                     mappingxmlfile=self.__registry[d][1]['mapping']
                     dict=self.__registry[d][1]['library']
+                    print '###Mapping base dir : ',self.__basedir
                     print '###Mapping : ',mappingxmlfile
                     print '###Dictionary : ',dict
             else:
@@ -135,6 +152,7 @@ class bootstrap:
                     print '###Connect : ',d[0]
                 mappingxmlfile=d[1]['mapping']
                 dict=d[1]['library']
+                print '###Mapping base dir : ',self.__basedir
                 print '###Mapping : ',mappingxmlfile
                 print '###Dictionary : ',dict
     def execute(self):
@@ -156,6 +174,18 @@ class bootstrap:
                     print '\t',createiov
                     for command in commands:
                         print '\t',command
+                else:
+                    print 'Running...'
+                    print '\t',createmeta
+                    os.system(createmeta)
+                    print '\t done'
+                    print '\t',createiov
+                    os.system(createiov)
+                    print '\t done'
+                    for command in commands:
+                        print '\t',command
+                        os.system(command)
+                        print '\t done'
         else:
             c=self.__connect
             for detector in self.__registry.keys():
@@ -175,6 +205,18 @@ class bootstrap:
                     print '\t',createiov
                     for command in commands:
                         print '\t',command
+                else:
+                    print 'Running...'
+                    print '\t',createmeta
+                    os.system(createmeta)
+                    print '\t done'
+                    print '\t',createiov
+                    os.system(createiov)
+                    print '\t done'
+                    for command in commands:
+                        print '\t',command
+                        os.system(command)
+                        print '\t done'
                         
 if __name__ == "__main__":
     b=bootstrap()
