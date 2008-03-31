@@ -1,7 +1,7 @@
 /** \file
  *
- * $Date: 2007/03/10 16:14:43 $
- * $Revision: 1.13 $
+ * $Date: 2008/03/04 09:06:04 $
+ * $Revision: 1.15 $
  * \author Stefano Lacaprara - INFN Legnaro <stefano.lacaprara@pd.infn.it>
  * \author Riccardo Bellan - INFN TO <riccardo.bellan@cern.ch>
  */
@@ -72,6 +72,14 @@ DTCombinatorialPatternReco::reconstruct(const DTSuperLayer* sl,
 
     delete *(cand++); // delete the candidate!
   }
+
+  for (vector<DTHitPairForFit*>::iterator it = hitsForFit.begin(), ed = hitsForFit.end(); 
+        it != ed; ++it) 
+  {
+        delete *it;
+  }
+
+
   return result;
 }
 
