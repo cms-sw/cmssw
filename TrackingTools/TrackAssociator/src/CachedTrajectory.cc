@@ -3,13 +3,13 @@
 // Package:    TrackAssociator
 // Class:      CachedTrajectory
 // 
-// $Id: CachedTrajectory.cc,v 1.14 2007/10/08 11:23:34 dmytro Exp $
+// $Id: CachedTrajectory.cc,v 1.15 2007/12/21 01:33:40 gpetrucc Exp $
 //
 //
 
 
 #include "TrackingTools/TrackAssociator/interface/CachedTrajectory.h"
-#include "Utilities/Timing/interface/TimerStack.h"
+// #include "Utilities/Timing/interface/TimerStack.h"
 #include "TrackPropagation/SteppingHelixPropagator/interface/SteppingHelixPropagator.h"
 #include "DataFormats/GeometrySurface/interface/Plane.h"
 #include "Geometry/DTGeometry/interface/DTChamber.h"
@@ -79,7 +79,7 @@ bool CachedTrajectory::propagateAll(const SteppingHelixStateInfo& initialState)
       reset_trajectory();
    }
 	
-   TimerStack timers(TimerStack::Disableable);
+//   TimerStack timers(TimerStack::Disableable);
 
    reset_trajectory();
    if (propagator_==0) throw cms::Exception("FatalError") << "Track propagator is not defined\n";
@@ -137,10 +137,10 @@ bool CachedTrajectory::propagateAll(const SteppingHelixStateInfo& initialState)
 
 TrajectoryStateOnSurface CachedTrajectory::propagate(const Plane* plane)
 {
-   TimerStack timers(TimerStack::Disableable);
+   // TimerStack timers(TimerStack::Disableable);
    // timers.benchmark("CachedTrajectory::propagate::benchmark");
-   timers.push("CachedTrajectory::propagate",TimerStack::FastMonitoring);
-   timers.push("CachedTrajectory::propagate::findClosestPoint",TimerStack::FastMonitoring);
+   // timers.push("CachedTrajectory::propagate",TimerStack::FastMonitoring);
+   // timers.push("CachedTrajectory::propagate::findClosestPoint",TimerStack::FastMonitoring);
 
    // Assume that all points along the trajectory are equally spread out.
    // For simplication assume that the trajectory is just a straight
@@ -197,7 +197,7 @@ TrajectoryStateOnSurface CachedTrajectory::propagate(const Plane* plane)
         << plane->position().phi();
      
    // propagate to the plane
-   timers.pop_and_push("CachedTrajectory::propagate::localPropagation",TimerStack::FastMonitoring);
+   // timers.pop_and_push("CachedTrajectory::propagate::localPropagation",TimerStack::FastMonitoring);
    if (const SteppingHelixPropagator* shp = dynamic_cast<const SteppingHelixPropagator*>(propagator_))
      {
 	SteppingHelixStateInfo state;

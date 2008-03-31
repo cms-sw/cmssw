@@ -13,13 +13,13 @@
 //
 // Original Author:  Dmytro Kovalskyi
 //         Created:  Fri Apr 21 10:59:41 PDT 2006
-// $Id: MuonDetIdAssociator.cc,v 1.6.8.1 2007/10/06 05:50:13 jribnik Exp $
+// $Id: MuonDetIdAssociator.cc,v 1.7 2007/10/08 13:04:35 dmytro Exp $
 //
 //
 
 
 #include "TrackingTools/TrackAssociator/interface/MuonDetIdAssociator.h"
-#include "Utilities/Timing/interface/TimerStack.h"
+// #include "Utilities/Timing/interface/TimerStack.h"
 #include "TrackPropagation/SteppingHelixPropagator/interface/SteppingHelixPropagator.h"
 #include "DataFormats/GeometrySurface/interface/Plane.h"
 #include "Geometry/DTGeometry/interface/DTChamber.h"
