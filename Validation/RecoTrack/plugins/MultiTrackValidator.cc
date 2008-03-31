@@ -64,8 +64,8 @@ void MultiTrackValidator::beginJob( const EventSetup & setup) {
       h_tracks.push_back( dbe_->book1D("tracks","number of reconstructed tracks",20,-0.5,19.5) );
       h_fakes.push_back( dbe_->book1D("fakes","number of fake reco tracks",20,-0.5,19.5) );
       h_charge.push_back( dbe_->book1D("charge","charge",3,-1.5,1.5) );
-      h_hits.push_back( dbe_->book1D("hits", "number of hits per track", 30, -0.5, 29.5 ) );
-      h_losthits.push_back( dbe_->book1D("losthits", "number of lost hits per track", 30, -0.5, 29.5 ) );
+      h_hits.push_back( dbe_->book1D("hits", "number of hits per track", 35, -0.5, 34.5 ) );
+      h_losthits.push_back( dbe_->book1D("losthits", "number of lost hits per track", 35, -0.5, 34.5 ) );
       h_nchi2.push_back( dbe_->book1D("chi2", "normalized #chi^{2}", 200, 0, 20 ) );
       h_nchi2_prob.push_back( dbe_->book1D("chi2_prob", "normalized #chi^{2} probability",100,0,1));
 
@@ -188,8 +188,8 @@ void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup
   event.getByLabel(label_tp_fake,TPCollectionHfake);
   const TrackingParticleCollection tPCfake = *(TPCollectionHfake.product());
 
-  if (tPCeff.size()==0) {edm::LogInfo("TrackValidator") << "TP Collection for efficiency studies has size = 0! Skipping Event." ; return;}
-  if (tPCfake.size()==0) {edm::LogInfo("TrackValidator") << "TP Collection for fake rate studies has size = 0! Skipping Event." ; return;}
+  //if (tPCeff.size()==0) {edm::LogInfo("TrackValidator") << "TP Collection for efficiency studies has size = 0! Skipping Event." ; return;}
+  //if (tPCfake.size()==0) {edm::LogInfo("TrackValidator") << "TP Collection for fake rate studies has size = 0! Skipping Event." ; return;}
 
   edm::Handle<reco::BeamSpot> recoBeamSpotHandle;
   event.getByLabel(bsSrc,recoBeamSpotHandle);
@@ -208,10 +208,10 @@ void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup
       //
       edm::Handle<View<Track> >  trackCollection;
       event.getByLabel(label[www], trackCollection);
-      if (trackCollection->size()==0) {
-	edm::LogInfo("TrackValidator") << "TrackCollection size = 0!" ; 
-	continue;
-      }
+      //if (trackCollection->size()==0) {
+      //edm::LogInfo("TrackValidator") << "TrackCollection size = 0!" ; 
+      //continue;
+      //}
       
       //associate tracks
       LogTrace("TrackValidator") << "Calling associateRecoToSim method" << "\n";
@@ -325,8 +325,9 @@ void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup
 	    }	      
 	  }
 	}
- 	totREC_hit[w][std::min((int)track->found(),nintHit)]++;
-	if (tp.size()!=0) totASS2_hit[w][std::min((int)track->found(),nintHit)]++;
+	int tmp = std::min((int)track->found(),int(maxHit-1));
+ 	totREC_hit[w][tmp]++;
+	if (tp.size()!=0) totASS2_hit[w][tmp]++;
 
 	//Fill other histos
  	try{
@@ -436,7 +437,6 @@ void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup
 	  h_pullDz[w]->Fill(dzPull);
 
 	  double ptres=track->pt()-sqrt(assocTrack->momentum().perp2()); 
-	  //	  double etares=track->eta()-assocTrack->momentum().pseudoRapidity();
 	  double etares=track->eta()-assocTrack->momentum().Eta();
 
 	  double ptError =  track->ptError();
@@ -450,7 +450,6 @@ void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup
 	  nlosthits_vs_eta[w]->Fill(getEta(track->eta()),track->numberOfLostHits());
 
 	  //resolution of track params: fill 2D histos
-
 	  dxyres_vs_eta[w]->Fill(getEta(track->eta()),dxyRec-dxySim);
 	  ptres_vs_eta[w]->Fill(getEta(track->eta()),(track->pt()-sqrt(assocTrack->momentum().perp2()))/track->pt());
 	  dzres_vs_eta[w]->Fill(getEta(track->eta()),dzRec-dzSim);
@@ -462,8 +461,7 @@ void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup
 	  ptres_vs_pt[w]->Fill(getPt(track->pt()),(track->pt()-sqrt(assocTrack->momentum().perp2()))/track->pt());
 	  dzres_vs_pt[w]->Fill(getPt(track->pt()),dzRec-dzSim);
 	  phires_vs_pt[w]->Fill(getPt(track->pt()),phiRec-phiSim);
-	  cotThetares_vs_pt[w]->Fill(getPt(track->pt()),1/tan(1.570796326794896558-lambdaRec)-1/tan(1.570796326794896558-lambdaSim));
-  	 
+	  cotThetares_vs_pt[w]->Fill(getPt(track->pt()),1/tan(1.570796326794896558-lambdaRec)-1/tan(1.570796326794896558-lambdaSim));  	 
   	 
 	  //pulls of track params vs eta: fill 2D histos
 	  dxypull_vs_eta[w]->Fill(getEta(track->eta()),dxyPull);
@@ -550,7 +548,6 @@ void MultiTrackValidator::endJob() {
       fillPlotFromVector(h_simulpT[w],totSIMpT[w]);
       fillPlotFromVector(h_assocpT[w],totASSpT[w]);
       fillPlotFromVector(h_assoc2pT[w],totASS2pT[w]);
-
       w++;
     }
   }
