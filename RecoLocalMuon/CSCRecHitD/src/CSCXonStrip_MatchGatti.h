@@ -114,9 +114,38 @@ class CSCXonStrip_MatchGatti
   float x_correction_noME1_1[n_SW_noME1_1][n_val];
   float x_correction_ME1_1[n_SW_ME1_1][n_val];
   float x_centralVal[n_val];
+
   float noise_level;
   float xt_asymmetry;
   float const_syst;
+
+  float noise_level_ME1a;
+  float xt_asymmetry_ME1a;
+  float const_syst_ME1a;
+  float noise_level_ME1b;
+  float xt_asymmetry_ME1b;
+  float const_syst_ME1b;
+  float noise_level_ME12;
+  float xt_asymmetry_ME12;
+  float const_syst_ME12;
+  float noise_level_ME13;
+  float xt_asymmetry_ME13;
+  float const_syst_ME13;
+  float noise_level_ME21;
+  float xt_asymmetry_ME21;
+  float const_syst_ME21;
+  float noise_level_ME22;
+  float xt_asymmetry_ME22;
+  float const_syst_ME22;
+  float noise_level_ME31;
+  float xt_asymmetry_ME31;
+  float const_syst_ME31;
+  float noise_level_ME32;
+  float xt_asymmetry_ME32;
+  float const_syst_ME32;
+  float noise_level_ME41;
+  float xt_asymmetry_ME41;
+  float const_syst_ME41;
 }; 
 
 #endif

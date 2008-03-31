@@ -90,8 +90,25 @@ std::vector<CSCStripHit> CSCHitFromStripOnly::runStrip( const CSCDetId& id, cons
     float strippos = makeCluster( theMaxima[imax]+1 );    
     
     if ( strippos < 0 || TmaxOfCluster < 3 ) continue;
+
+    //---- If two maxima are too close the error assigned will be width/sqrt(12) - see CSCXonStrip_MatchGatti.cc
+    int maximum_to_left = 99; //---- If there is one maximum - the distance is set to 99 (strips)
+    int maximum_to_right = 99;
+    if(imax<theMaxima.size()-1){
+      maximum_to_right = theMaxima.at(imax+1) - theMaxima.at(imax);
+    }
+    if(imax>0 ){
+      maximum_to_left =  theMaxima.at(imax-1) - theMaxima.at(imax);
+    }
+    if(fabs(maximum_to_right) < fabs(maximum_to_left)){
+      theClosestMaximum.push_back(maximum_to_right);
+    }
+    else{
+      theClosestMaximum.push_back(maximum_to_left);
+    }
     
-    CSCStripHit striphit( id, strippos, TmaxOfCluster, theStrips, strips_adc );
+    CSCStripHit striphit( id, strippos, TmaxOfCluster, theStrips, strips_adc,
+			  theConsecutiveStrips.at(imax), theClosestMaximum.at(imax));
     hitsInLayer.push_back( striphit ); 
   }
 
@@ -307,6 +324,8 @@ void CSCHitFromStripOnly::fillPulseHeights( const CSCStripDigiCollection::Range&
 void CSCHitFromStripOnly::findMaxima() {
   
   theMaxima.clear();
+  theConsecutiveStrips.clear();
+  theClosestMaximum.clear();
   for ( size_t i = 0; i < thePulseHeightMap.size(); ++i ) {
 
     float heightPeak = thePulseHeightMap[i].ymax();
@@ -314,6 +333,7 @@ void CSCHitFromStripOnly::findMaxima() {
     // sum 3 strips so that hits between strips are not suppressed
     float heightCluster;
 
+    bool maximumFound = false;
     // Left edge of chamber
     if ( i == 0 ) {
       heightCluster = thePulseHeightMap[i].ymax()+thePulseHeightMap[i+1].ymax();
@@ -324,6 +344,7 @@ void CSCHitFromStripOnly::findMaxima() {
           ( thePulseHeightMap[i].t()     > 2                            ) &&
           ( thePulseHeightMap[i].t()     < 7                            )) {
         theMaxima.push_back(i);
+	maximumFound = true;
       }
     // Right edge of chamber
     } else if ( i == thePulseHeightMap.size()-1) {  
@@ -335,6 +356,7 @@ void CSCHitFromStripOnly::findMaxima() {
           ( thePulseHeightMap[i].t()     > 2                            ) &&
           ( thePulseHeightMap[i].t()     < 7                            )) {
         theMaxima.push_back(i);
+	maximumFound = true;
       }
     // Any other strips
     } else {
@@ -347,7 +369,36 @@ void CSCHitFromStripOnly::findMaxima() {
           ( thePulseHeightMap[i].t()     > 2                            ) &&
           ( thePulseHeightMap[i].t()     < 7                            )) {
         theMaxima.push_back(i);
+	maximumFound = true;
       }
+    }
+    //---- Consecutive strips with charge (real cluster); if too wide - measurement is not accurate 
+    if(maximumFound){
+      int numberOfConsecutiveStrips = 1;
+      float testThreshold = 10.;//---- ADC counts; 
+                                //---- this is not XTalk corrected so it is correct in first approximation only
+      int j = 0;
+      for(int l = 0;l<8 ;l++){
+        if(j<0){
+          std::cout<<" CSCRecHitD: This should never occur!!! Contact CSC expert!"<<std::endl;
+        }
+        j++;
+        bool signalPresent = false;
+        for(int k =0;k<2;k++){
+          j*= -1;//---- check from left and right
+          int anotherConsecutiveStrip = i+j;
+          if(anotherConsecutiveStrip>=0 && anotherConsecutiveStrip<int(thePulseHeightMap.size() )){
+            if(thePulseHeightMap[anotherConsecutiveStrip].ymax()>testThreshold){
+              numberOfConsecutiveStrips++;
+              signalPresent = true;
+            }
+          }
+        }
+        if(!signalPresent){
+          break;
+        }
+      }
+      theConsecutiveStrips.push_back(numberOfConsecutiveStrips);
     }
   }
 }

@@ -64,6 +64,8 @@ class CSCHitFromStripOnly
   float makeCluster( int centerStrip );
 
   std::vector<int> theMaxima;
+  std::vector<int>  theConsecutiveStrips;//... with charge for a given maximum
+  std::vector<int> theClosestMaximum; // this is number of strips to the closest other maximum
 
   PulseHeightMap thePulseHeightMap;
   
