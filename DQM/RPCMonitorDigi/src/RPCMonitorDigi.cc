@@ -3,13 +3,12 @@
  *  implementation of RPCMonitorDigi class	*
  *						*
  ************************************************/
-
-
 //#include <map>
 //#include <string>
 #include <TRandom.h> 
 //#include <unistd.h>
 #include <string>
+#include <sstream>
 #include "DQM/RPCMonitorDigi/interface/RPCMonitorDigi.h"
 
 ///Data Format
@@ -46,10 +45,10 @@ RPCMonitorDigi::RPCMonitorDigi( const edm::ParameterSet& pset ):counter(0){
   dqmshifter = pset.getUntrackedParameter<bool>("dqmshifter", false);
   dqmexpert = pset.getUntrackedParameter<bool>("dqmexpert", false);
   dqmsuperexpert = pset.getUntrackedParameter<bool>("dqmsuperexpert", false);
+
   
   /// get hold of back-end interfacestd::cout<<"\n test"<<std::endl;
   dbe = edm::Service<DQMStore>().operator->();
-  
 
   /*
 
@@ -94,7 +93,7 @@ RPCMonitorDigi::~RPCMonitorDigi(){
 void RPCMonitorDigi::beginJob(edm::EventSetup const&){
   edm::LogInfo (nameInLog) <<"Beginning DQMMonitorDigi " ;
   
-  GlobalHistogramsFolder="RPC/RecHits/GlobalHistograms";
+  GlobalHistogramsFolder="RPC/RecHits/SummaryHistograms";
   dbe->setCurrentFolder(GlobalHistogramsFolder);  
   
   GlobalZYHitCoordinates = dbe->book2D("GlobalRecHitZYCoordinates", "Rec Hit Z-Y", 1000, -800, 800, 1000, -800, 800);
@@ -107,7 +106,8 @@ void RPCMonitorDigi::beginJob(edm::EventSetup const&){
   ClusterSize_for_EndcapBackward = dbe->book1D("ClusterSize_for_EndcapBackward", "ClusterSize for BackwardEndcap", 20, 0.5, 20.5);
   
   ClusterSize_for_BarrelandEndcaps = dbe->book1D("ClusterSize_for_BarrelandEndcap", "ClusterSize for Barrel&Endcaps", 20, 0.5, 20.5);
-  s1 = dbe -> book3D("example 3D", "title of 3D Histogram", 20, 0, 20, 40, 0, 40, 30, 0, 30);
+
+  
   dbe->showDirStructure();
 }
 
@@ -135,8 +135,8 @@ void RPCMonitorDigi::analyze(const edm::Event& iEvent,
   counter++;
   edm::LogInfo (nameInLog) <<"Beginning analyzing event " << counter;
   
-  char layerLabel[328];
-  char meId [328];
+  string layerLabel;
+  string meId;
   
   std::map<uint32_t, bool >::iterator mapItrReset;
   for (mapItrReset = foundHitsInChamber.begin(); mapItrReset != foundHitsInChamber.end(); ++ mapItrReset) {
@@ -165,16 +165,19 @@ void RPCMonitorDigi::analyze(const edm::Event& iEvent,
     
     const GeomDet* gdet=rpcGeo->idToDet(detId);
     const BoundPlane & surface = gdet->surface();
-    char detUnitLabel[320];
-    //sprintf(detUnitLabel ,"%d",detId());
-    //sprintf(layerLabel ,"layer%d_subsector%d_roll%d",detId.layer(),detId.subsector(),detId.roll());
-    
+  
+    string detUnitLabel;
+    string LayerLabel;
     
     RPCGeomServ RPCname(detId);
     //    std::cout <<"==> RPC Digi found in "<<RPCname.name()<<std::endl;
+    
+    //get roll name
     std::string nameRoll = RPCname.name();
-    sprintf(detUnitLabel ,"%s",nameRoll.c_str());
-    sprintf(layerLabel ,"%s",nameRoll.c_str());
+    detUnitLabel = nameRoll;
+    LayerLabel = nameRoll;
+    std::stringstream os;
+    
 
     std::map<uint32_t, std::map<std::string,MonitorElement*> >::iterator meItr = meCollection.find(id);
     if (meItr == meCollection.end() || (meCollection.size()==0)) {
@@ -194,7 +197,6 @@ void RPCMonitorDigi::analyze(const edm::Event& iEvent,
       if(detId.region() == -1) regionName="Encap-";
       if(detId.region() ==  1) regionName="Encap+";
     }
-    
     
     std::pair<int,int> regionRing(region,ring);
     std::map<std::pair<int,int>, std::map<std::string,MonitorElement*> >::iterator meRingItr = meWheelDisk.find(regionRing);
@@ -233,13 +235,13 @@ void RPCMonitorDigi::analyze(const edm::Event& iEvent,
       
       if(dqmexpert || dqmsuperexpert) {
 	
-	sprintf(meId,"Occupancy_%s",detUnitLabel);
+	os.str("");
+	os<<"Occupancy_"<<detUnitLabel;
+	meId = os.str();
 	meMap[meId]->Fill(strip);
 	
-
 	map<string, int>ChamberNr;
 
-	
 	//W+_W+2_RB1  
 	char r11[340];
 	sprintf(r11, "W%d_RB1in_S%2.2d_Forward", detId.ring(), detId.sector());
@@ -308,15 +310,15 @@ void RPCMonitorDigi::analyze(const edm::Event& iEvent,
 	char r48[340];
 	sprintf(r48, "W%d_RB4--_S%2.2d_Backward", detId.ring(), detId.sector());
 	
-
+	//RB1in
 	ChamberNr.insert( make_pair( r11, 1) ); 
 	ChamberNr.insert( make_pair( r12, 2) ); 
-	
+	//RBiout
 	ChamberNr.insert( make_pair( r13, 3) ); 
 	ChamberNr.insert( make_pair( r14, 4) ); 
 	
 	
-	//RB2
+	//RB2in
 	ChamberNr.insert( make_pair( r21, 5) ); 
 	ChamberNr.insert( make_pair( r22, 6) );
 	
@@ -325,12 +327,12 @@ void RPCMonitorDigi::analyze(const edm::Event& iEvent,
 	std::string rpccham1=r23;
 	std::string monitel1=detUnitLabel;
 	monitel1.erase(1,1);
-	if (rpccham1==monitel1) {
-	  
-	  //RB2in_Middle
-	  i++;
-	  ChamberNr.insert( make_pair( r23, i) );
-	}
+	
+	//RB2in_Middle & RB2out_Middle
+	i++;
+	ChamberNr.insert( make_pair( r23, i) );
+	ChamberNr.insert( make_pair( r26, i) );
+	
 	i++;
 	//Rb2out
 	ChamberNr.insert( make_pair( r24, i) ); 
@@ -338,12 +340,7 @@ void RPCMonitorDigi::analyze(const edm::Event& iEvent,
 	ChamberNr.insert( make_pair( r25, i) );	
 	
 	std::string rpccham=r26;
-		
-	if(rpccham==monitel1) {
-	  i++;
-	  //RB2out_Middle
-	  ChamberNr.insert( make_pair( r26, i) );
-	}
+	
 	
 	//W+2_RB3
 	i++;
@@ -357,14 +354,12 @@ void RPCMonitorDigi::analyze(const edm::Event& iEvent,
 	
 	
 	//W+2_RB4
-	
 	if(detId.sector()!=9 & detId.sector()!=11) {
 	  
 	  i++;
 	  ChamberNr.insert( make_pair( r41, i) ); 
 	  i++;
 	  ChamberNr.insert( make_pair( r42, i) );
-	  //std::cout<<"Sector 9 or Sector 11  "<<detId.sector()<<" i:"<<i<<std::endl;
 	}
 	
 	i++;
@@ -384,7 +379,7 @@ void RPCMonitorDigi::analyze(const edm::Event& iEvent,
 	  ChamberNr.insert( make_pair( r48, i) );
 	}
 	
-		
+	
 	std::string label;
 	int nrnr;
 	
@@ -395,11 +390,10 @@ void RPCMonitorDigi::analyze(const edm::Event& iEvent,
 	  
 	  //strcpy(layerLabel, ChamberNr.find(label)->second.());
 	  nrnr = ChamberNr.find(Yaxis)->second;
-	  //std::cout<<"strip :"<<strip<<"/"<<nrnr<<"/"<<detUnitLabel<<std::endl;
 	  
-	  sprintf(meId, "Occupancy_%s_%d_Sector_%d",ringType.c_str(),detId.ring(),detId.sector());
-	  //std::string ChamNum = meId;
-	  
+	  os.str("");
+	  os<<"SectorOccupancy_"<<ringType<<"_"<<detId.ring()<<"_Sector_"<<detId.sector();
+	  meId = os.str();
 	  meMap[meId]->Fill(strip, nrnr);
 
 	 
@@ -408,79 +402,106 @@ void RPCMonitorDigi::analyze(const edm::Event& iEvent,
 	  Yaxis.erase(Yaxis.find("_")+2,8);
 
 	  meMap[meId]->setBinLabel(nrnr, Yaxis, 2);
+<<<<<<< RPCMonitorDigi.cc
+	 
+	  //std::cout<<"strip: "<<strip<<"   nrnr: "<<nrnr<<"   detUnitLabel: "<<detUnitLabel<<std::endl;
+=======
 	  cout<<"DetUnit: "<<detUnitLabel<<" r"<<r21<<endl;
+>>>>>>> 1.33
 	  
 	} 
 	else { 
 	  
 	  std::cout<<"Missing Gap !!!"<<detUnitLabel<<"/"<<r11<<std::endl;
-	  nrnr= 0;
+	  
 	}
 	
-	sprintf(meId,"BXN_%s",detUnitLabel);
+	os.str("");
+	os<<"BXN_"<<detUnitLabel;
+	meId=os.str();
 	meMap[meId]->Fill(bx);
 	
       }
-      
+
       if (dqmsuperexpert) {
 	
-	sprintf(meId,"BXN_vs_strip_%s",detUnitLabel);
+	os.str("");
+	os<<"BXN_vs_strip_"<<detUnitLabel;
+	meId = os.str();
 	meMap[meId]->Fill(strip,bx);
 	
       }/// loop on Digi
       
       if(dqmexpert) {
-	sprintf(meId,"BXWithData_%s",detUnitLabel);
+	
+	os.str("");
+	os<<"BXWithData_"<<detUnitLabel;
+	meId = os.str();
 	meMap[meId]->Fill(bxs.size());
       }
-
-     }
-     
-     if (dqmexpert || dqmsuperexpert) {
-       
-       for(unsigned int stripIter=0;stripIter<strips.size(); ++stripIter){
-	 if(strips[stripIter+1]==strips[stripIter]+1) {
-	   sprintf(meId,"CrossTalkHigh_%s",detUnitLabel);
-	   meMap[meId]->Fill(strips[stripIter]);	
-	 }
-       }
-       
-       for(unsigned int stripIter2=1;stripIter2<=strips.size(); ++stripIter2){
-	 if(strips[stripIter2-1]==strips[stripIter2]-1) {
-	   sprintf(meId,"CrossTalkLow_%s",detUnitLabel);
-	   meMap[meId]->Fill(strips[stripIter2]);	
-	 }
-       }
-       
-       sprintf(meId,"NumberOfDigi_%s",detUnitLabel);
-       meMap[meId]->Fill(numberOfDigi);
-       
-     }
-     
-     typedef std::pair<RPCRecHitCollection::const_iterator, RPCRecHitCollection::const_iterator> rangeRecHits;
-     rangeRecHits recHitCollection =  rpcHits->get(detId);
-     
-     
-     
-     
-     if(recHitCollection.first==recHitCollection.second ){
-       
-       if(dqmsuperexpert) {
-	 sprintf(meId,"MissingHits_%s",detUnitLabel);
-	 meMap[meId]->Fill((int)(counter), 1.0);
+      
+    }
+    
+    if (dqmexpert || dqmsuperexpert) {
+      
+      for(unsigned int stripIter=0;stripIter<strips.size(); ++stripIter){
+	if(strips[stripIter+1]==strips[stripIter]+1) {
+	  
+	  os.str("");
+	  os<<"CrossTalkHigh_"<<detUnitLabel;
+	  meId = os.str();
+	  meMap[meId]->Fill(strips[stripIter]);	
+	}
+      }
+      
+      for(unsigned int stripIter2=1;stripIter2<=strips.size(); ++stripIter2){
+	if(strips[stripIter2-1]==strips[stripIter2]-1) {
+	  
+	  os.str("");
+	  os<<"CrossTalkLow_"<<detUnitLabel;
+	  meId = os.str();
+	  meMap[meId]->Fill(strips[stripIter2]);	
+	}
+      }
+            
+      os.str("");
+      os<<"NumberOfDigi_"<<detUnitLabel;
+      meId = os.str();
+      meMap[meId]->Fill(numberOfDigi);
+      
+    }
+    
+    typedef std::pair<RPCRecHitCollection::const_iterator, RPCRecHitCollection::const_iterator> rangeRecHits;
+    rangeRecHits recHitCollection =  rpcHits->get(detId);
+    
+    if(recHitCollection.first==recHitCollection.second ){
+      
+      if(dqmsuperexpert) {
+	
+	os.str("");
+	os<<"MissingHits_"<<detUnitLabel;
+	meId = os.str();
+	//
+	meMap[meId]->Fill((int)(counter), 1.0);
        }
        
      }else{
        std::map<uint32_t, bool >::iterator mapItr = foundHitsInChamber.find(id);
        if (mapItr == foundHitsInChamber.end() || (foundHitsInChamber.size()==0)) {
-	 sprintf(meId,"RecHitCounter_%s",detUnitLabel);
+	 
+	 os.str("");
+	 os<<"RecHitCounter_"<<detUnitLabel;
+	 meId = os.str();
 	 if(dqmexpert || dqmsuperexpert) meMap[meId]->setBinContent(1, counter);
        }		
        foundHitsInChamber[id]=true;
        
        if(dqmsuperexpert) {
-	 sprintf(meId,"MissingHits_%s",detUnitLabel);
-	 meMap[meId]->Fill((int)(counter), 0.0);
+	 
+	 os.str("");
+	 os<<"MissingHits_"<<detUnitLabel;
+	 meId = os.str();
+	 //meMap[meId]->Fill((int)(counter), 0.0);
        }
        
        RPCRecHitCollection::const_iterator it;
@@ -497,19 +518,15 @@ void RPCMonitorDigi::analyze(const edm::Event& iEvent,
 	 
 	 GlobalPoint globalHitPoint=surface.toGlobal(point); 
 	 
-	 sprintf(meId,"GlobalRecHitXYCoordinates_%s_%d_%d",ringType.c_str(),detId.region(),detId.ring());
+	 os.str("");
+	 os<<"WheelOccupancyXY_"<<ringType<<"_"<<region<<"_"<<ring;
+	 meId = os.str();
 	 meRingMap[meId]->Fill(globalHitPoint.x(),globalHitPoint.y());
 	 
-	 //std::cout<<"\n meRingMap[meId] - XY:"<<	meRingMap[meId]<<std::endl;
 	 
-	 //sprintf(meId,"Occupancy_%s",detUnitLabel);
-	 //meMap[meId]->Fill(strip);
-	 
-	 
-	 
-	 GlobalZXHitCoordinates->Fill(globalHitPoint.z(),globalHitPoint.x());			
-	 GlobalZYHitCoordinates->Fill(globalHitPoint.z(),globalHitPoint.y());
-	 GlobalZPhiHitCoordinates->Fill(globalHitPoint.z(),globalHitPoint.phi());
+	 //	 GlobalZXHitCoordinates->Fill(globalHitPoint.z(),globalHitPoint.x());			
+	 // GlobalZYHitCoordinates->Fill(globalHitPoint.z(),globalHitPoint.y());
+	 //GlobalZPhiHitCoordinates->Fill(globalHitPoint.z(),globalHitPoint.phi());
 	 
 	 
 	 int mult=it->clusterSize();		  //cluster size plot => should be within 1-3	
@@ -519,16 +536,12 @@ void RPCMonitorDigi::analyze(const edm::Event& iEvent,
 	 
 	 
 	 // if (mult<=10)ClusterSize_for_BarrelandEndcaps -> Fill(mult);
-	 ClusterSize_for_BarrelandEndcaps -> Fill(mult);
+	 //++ClusterSize_for_BarrelandEndcaps -> Fill(mult);
 	 //if(mult>10) ClusterSize_for_BarrelandEndcaps -> Fill(11);
-	 
-	 
 	 
 	 if(detId.region() ==  0) {
 	   
-	   // if(mult<=10) ClusterSize_for_Barrel->Fill(mult);
 	   ClusterSize_for_Barrel -> Fill(mult);
-	   //if(mult>10) ClusterSize_for_Barrel->Fill(11);
 	   
 	 } else if (detId.region() ==  -1) {
 	   
@@ -544,10 +557,10 @@ void RPCMonitorDigi::analyze(const edm::Event& iEvent,
 	 
 	 if(dqmexpert || dqmsuperexpert) {
 	   
-	   sprintf(meId,"ClusterSize_%s",detUnitLabel);
-	   //if(mult<=10) meMap[meId]->Fill(mult);
+	   os.str("");
+	   os<<"ClusterSize_"<<detUnitLabel;
+	   meId = os.str();
 	   meMap[meId]->Fill(mult);
-	   //if(mult>10)  meMap[meId]->Fill(11);
 	   
 	 }
 	 
@@ -560,32 +573,48 @@ void RPCMonitorDigi::analyze(const edm::Event& iEvent,
 	 }
 	 
 	 if (dqmsuperexpert) {
-	   sprintf(meId,"ClusterSize_vs_CentralStrip%s",detUnitLabel);
+	   
+	   os.str("");
+	   os<<"ClusterSize_vs_CentralStrip_"<<detUnitLabel;
+	   meId=os.str();
 	   meMap[meId]->Fill(centralStrip,mult);
 	   
 	   for(int index=0; index<mult; ++index){
-	     sprintf(meId,"ClusterSize_vs_Strip%s",detUnitLabel);
+	     os.str("");
+	     os<<"ClusterSize_vs_Strip_"<<detUnitLabel;
+	     meId = os.str();
 	     meMap[meId]->Fill(firstStrip+index,mult);
 	   }
 	   
+	   os.str("");
+	   os<<"ClusterSize_vs_LowerSrip_"<<detUnitLabel;
+	   meId =os.str();
 	   
-	   sprintf(meId,"ClusterSize_vs_LowerStrip%s",detUnitLabel);
 	   meMap[meId]->Fill(firstStrip,mult);
 	   
-	   sprintf(meId,"ClusterSize_vs_HigherStrip%s",detUnitLabel);
+	   os.str("");
+	   os<<"ClusterSize_vs_HigherStrip_"<<detUnitLabel;
+	   meId = os.str();
 	   meMap[meId]->Fill(firstStrip+mult-1,mult);
 	   
-	   sprintf(meId,"RecHitX_vs_dx_%s",detUnitLabel);
+	   os.str("");
+	   os<<"RecHitX_vs_dx_"<<detUnitLabel;
+	   meId=os.str();
 	   meMap[meId]->Fill(xposition,error.xx());
 	   
 	 }
 	 
 	 if(dqmexpert || dqmsuperexpert) {
-	   sprintf(meId,"RecHitXPosition_%s",detUnitLabel);
+	   
+	   os.str("");
+	   os<<"RecHitXPosition_"<<detUnitLabel;
+	   meId=os.str();
 	   meMap[meId]->Fill(xposition);
 	   
 	   
-	   sprintf(meId,"RecHitDX_%s",detUnitLabel);
+	   os.str("");
+	   os<<"RecHitDX_"<<detUnitLabel;
+	   meId = os.str();
 	   meMap[meId]->Fill(error.xx());
 	   
 	 }
@@ -610,14 +639,21 @@ void RPCMonitorDigi::analyze(const edm::Event& iEvent,
        
        
        if(dqmexpert || dqmsuperexpert) {
-	 sprintf(meId,"NumberOfClusters_%s",detUnitLabel);
+	 
+	 os.str("");
+	 os<<"NumberOfClusters_"<<detUnitLabel;
+	 meId=os.str();
 	 meMap[meId]->Fill(numbOfClusters);
 	     
 	 if(numberOfHits>5) numberOfHits=16;
-	 sprintf(meId,"RecHitCounter_%s",detUnitLabel);
+	 
+	 os.str("");
+	 os<<"RecHitCounter_"<<detUnitLabel;
+	 meId=os.str();
 	 meMap[meId]->Fill(numberOfHits);
        }
      }
+    
   }/// loop on RPC Det Unit
   
   
@@ -630,8 +666,8 @@ void RPCMonitorDigi::analyze(const edm::Event& iEvent,
 	RPCDetId detIdCheck(idCheck); 
 	char detUnitLabelCheck[128];
 	sprintf(detUnitLabelCheck ,"%d",detIdCheck());
-	sprintf(meId,"RecHitCounter_%s",detUnitLabelCheck);
-	meMapCheck[meId]->Fill(0);		
+	//++ sprintf(meId,"RecHitCounter_%s",detUnitLabelCheck);
+	//++++meMapCheck[meId]->Fill(0);		
       }
     }
     
