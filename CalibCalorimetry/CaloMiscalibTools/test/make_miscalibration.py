@@ -1,4 +1,4 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python
 import commands,string,time,thread,random,math,sys
 
 #global variables
@@ -134,7 +134,7 @@ def miscalibhcal(lumi,det,etaindex,phiindex,depth,randval):
 
 #main
 if len(sys.argv)==1:
-    print 'Usage: '+sys.argv[0]+' <ecalbarrel|ecalendcap|HCAL> <lumi> <filename> [MINRES=0.02] [SEED=random]'
+    print 'Usage: '+sys.argv[0]+' <ecalbarrel|ecalendcap|HCAL> <lumi> <filename> <validcell for hcal> [MINRES=0.02] [SEED=random]'
     print '       put lumi=0 for precalibration values (CSA07)'
     sys.exit(1)
 
@@ -154,6 +154,17 @@ else:
     print 'please specify one of <barrel|endcap|HCAL>'
     sys.exit(1)
 
+lumi=string.atof(sys.argv[2])
+
+if lumi<0:
+    print 'lumi = '+str(lumi)+' not valid'
+    sys.exit(1)
+    
+fileout=sys.argv[3]
+
+if len(sys.argv)>=5:
+    validcell=sys.argv[4]
+
 #if ecalendcap==1:
 #    ne_z=[]
 #    ne_mod=[]
@@ -163,7 +174,7 @@ else:
 if hcal==1:
 
 # read valid hcal cells
-    hcalcell=open('valid_hcalcells.txt','r')
+    hcalcell=open(validcell,'r')
     hcal_det=[]
     hcal_eta=[]
     hcal_phi=[]
@@ -171,16 +182,18 @@ if hcal==1:
     hcalcells=0
 
     for line in hcalcell:
-        hcalcells=hcalcells+1
         curr_list=line.split()
-        hcal_det.append(string.atoi(curr_list[0]))
-        hcal_eta.append(string.atoi(curr_list[1]))
-        hcal_phi.append(string.atoi(curr_list[2]))
-        hcal_depth.append(string.atoi(curr_list[3]))
+        if curr_list[0]=="#":
+            # skip comment lines
+            continue
+        hcal_eta.append(string.atoi(curr_list[0]))
+        hcal_phi.append(string.atoi(curr_list[1]))
+        hcal_depth.append(string.atoi(curr_list[2]))
+        hcal_det.append(curr_list[3])
+        hcalcells=hcalcells+1
+
     hcalcell.close()
     print 'Read ',hcalcells,' valid cells for hcal'
-
-
 # read non existing cells file, not needed anymore
 #    necell=open('non_existing_cell_endcap','r')
 
@@ -194,29 +207,23 @@ if hcal==1:
 #    print 'Read ',necells,' non-existing cells for endcap'
 
     
-lumi=string.atof(sys.argv[2])
 
-if lumi<0:
-    print 'lumi = '+str(lumi)+' not valid'
-    sys.exit(1)
-    
-fileout=sys.argv[3]
 
-if len(sys.argv)>=5:
-    MINRES=string.atof(sys.argv[4])
+if len(sys.argv)>=6:
+    MINRES=string.atof(sys.argv[5])
 
 if (hcal==0) or (lumi==0):
     print 'Using minimal resolution: '+str(MINRES)
 
-if len(sys.argv)>=6:
-    SEED=string.atoi(sys.argv[5])
+if len(sys.argv)>=7:
+    SEED=string.atoi(sys.argv[6])
     print 'Using fixed seed for random generation: '+str(SEED)
     random.seed(SEED)
     
 # now open file
 txtfile=open(fileout+'.txt','w')
-xmlfile=open(fileout,'w')
-xmlfileinv=open('inv_'+fileout,'w')
+xmlfile=open(fileout+'.xml','w')
+xmlfileinv=open('inv_'+fileout+'.xml','w')
 # write header
 xmlfile.write('<?xml version="1.0" ?>\n')
 xmlfile.write('\n')
@@ -284,30 +291,46 @@ if ecalbarrel==1 or ecalendcap==1:
                     
 ############################## HERE HCAL    
 if hcal==1:
-    mindet=1
-    maxdet=4
-    mineta=-63
-    maxeta=63
-    minphi=0
-    maxphi=127
-    mindepth=1
-    maxdepth=4
+#    mindet=1
+#    maxdet=4
+#    mineta=-63
+#    maxeta=63
+#    minphi=0
+#    maxphi=127
+#    mindepth=1
+#    maxdepth=4
+    txtline='#  eta   phi   dep   det    value \n'
+    txtfile.write(txtline)
     for cell in range(0,hcalcells):
-        detindex=hcal_det[cell]
         etaindex=hcal_eta[cell]
         phiindex=hcal_phi[cell]
         depthindex=hcal_depth[cell]
+        detindex=-1
+        if(hcal_det[cell]=="HB"):
+            detindex=1;
+        if(hcal_det[cell]=="HE"):
+            detindex=2;
+        if(hcal_det[cell]=="HO"):
+            detindex=3;
+        if(hcal_det[cell]=="HF"):
+            detindex=4;
+
+        if(detindex>0):
 #    for detindex in range(mindet,maxdet+1):
 #        for etaindex in range(mineta,maxeta+1):
 #            for phiindex in range(minphi,maxphi+1):
 #                for depthindex in range(mindepth,maxdepth+1):
-        miscal_fac=miscalibhcal(lumi,detindex,etaindex,phiindex,depthindex,1)
-        line='        <Cell det_index="'+str(detindex)+'" eta_index="'+str(etaindex)+'" phi_index="'+str(phiindex)+'" depth_index="'+str(depthindex)+'" scale_factor="'+str(miscal_fac)+'"/>\n'
-        lineinv='        <Cell det_index="'+str(detindex)+'" eta_index="'+str(etaindex)+'" phi_index="'+str(phiindex)+'" depth_index="'+str(depthindex)+'" scale_factor="'+str(1./miscal_fac)+'"/>\n'
-        xmlfile.write(line)
-        xmlfileinv.write(lineinv)
-        count=count+1
-
+            miscal_fac=miscalibhcal(lumi,detindex,etaindex,phiindex,depthindex,0)
+            line='        <Cell det_index="'+str(detindex)+'" eta_index="'+str(etaindex)+'" phi_index="'+str(phiindex)+'" depth_index="'+str(depthindex)+'" scale_factor="'+str(miscal_fac)+'"/>\n'
+            lineinv='        <Cell det_index="'+str(detindex)+'" eta_index="'+str(etaindex)+'" phi_index="'+str(phiindex)+'" depth_index="'+str(depthindex)+'" scale_factor="'+str(1./miscal_fac)+'"/>\n'
+            xmlfile.write(line)
+            xmlfileinv.write(lineinv)
+            txtline="   "+str(etaindex)+"   "+str(phiindex)+"    "+str(depthindex)+"    "+hcal_det[cell]+"    "+str(miscal_fac)+"\n"
+            txtfile.write(txtline)
+            count=count+1
+        else:
+            txtline=" "+str(etaindex)+"  "+str(phiindex)+"  "+str(depthindex)+"  "+hcal_det[cell]+"   1.0\n"
+            txtfile.write(txtline)
 
 
 
@@ -327,8 +350,8 @@ xmlfileinv.write('</CalibrationConstants>\n')
 xmlfile.close()
 xmlfileinv.close()
 txtfile.close()
-print 'File '+fileout+' written with '+str(count)+' lines'
-print 'File inv_'+fileout+' written with '+str(count)+' lines'
+print 'File '+fileout+'.xml'+' written with '+str(count)+' lines'
+print 'File inv_'+fileout+'.xml'+' written with '+str(count)+' lines'
 print 'File '+fileout+'.txt'+' written with '+str(count)+' lines'
 #print miscalibecal(5,0,1,85,1,0)
 #print miscalibecal(5,1,-1,10,1,0)
