@@ -129,20 +129,16 @@ class SiStripMonitorTrack : public edm::EDAnalyzer {
 
   edm::Handle< edm::DetSetVector<SiStripCluster> >  dsv_SiStripCluster;
 
-  edm::Handle< edm::DetSetVector<SiStripRawDigi> > rawDigiHandle;
-
   edm::Handle<reco::TrackCollection> trackCollection;
-  
   edm::Handle<reco::TrackInfoTrackAssociationCollection> TItkAssociatorCollection;
+  
   edm::ESHandle<TrackerGeometry> tkgeom;
   edm::ESHandle<SiStripDetCabling> SiStripDetCabling_;
 
   edm::ParameterSet Parameters;
-  edm::InputTag Track_src_;
   edm::InputTag Cluster_src_;
-  edm::InputTag theRawdigiProducer;
-  edm::InputTag theRawdigiLabel;
 
+  bool Mod_On_;
   std::vector<uint32_t> ModulesToBeExcluded_;
   std::vector<const SiStripCluster*> vPSiStripCluster;
   std::map<std::pair<std::string,int32_t>,bool> DetectedLayers;
@@ -153,6 +149,5 @@ class SiStripMonitorTrack : public edm::EDAnalyzer {
   int firstEvent;
   int countOn, countOff, countAll, NClus[4][3];
   uint32_t neighbourStripNumber;
-
 };
 #endif
