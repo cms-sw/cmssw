@@ -330,8 +330,6 @@ BxTiming::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
 
   }
 
-  for(int i=0; i<nfed_;i++) for(int j=1; j<3;j++) nBxOccy[i][j]=norb_-nBxOccy[i][j];
-  
   for(int i=0; i<nfed_;i++) {
     nBxDiff[i][0]=nBxDiff[i][2]-nBxDiff[i][1]; 
     nBxOccy[i][0]=nBxOccy[i][2]-nBxOccy[i][1];
