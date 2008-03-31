@@ -545,6 +545,16 @@ void RPCMonitorDigi::analyze(const edm::Event& iEvent,
 	   if(mult>10) ClusterSize_for_EndcapForward -> Fill(11);
 	 } 
 	 
+
+
+	 //Cluster Size by Wheels
+	 os.str("");
+	 os<<"WheelClusterSize_"<<ringType<<"_"<<region<<"_"<<ring;
+	 meId = os.str();
+	 meRingMap[meId] -> Fill(mult); 
+	 
+
+
 	 
 	 if(dqmexpert || dqmsuperexpert) {
 	   

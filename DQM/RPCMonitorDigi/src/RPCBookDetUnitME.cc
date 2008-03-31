@@ -286,10 +286,14 @@ std::map<std::string, MonitorElement*> RPCMonitorDigi::bookRegionRing(int region
   meId = os.str();
   os.str("");
   os<<"Wheel_Occupancy_XY_Coordinates_for_"<<ringType<<"_"<<region<<"_"<<ring;
-  std::cout<<"tree configuration os: "<<meId<<std::endl;
   meTitle = os.str();
-      
   meMap[meId] = dbe->book2D(meId, meTitle, 1000, -800, 800, 1000, -800, 800);
+
+  os.str("");
+  os<<"WheelClusterSize_"<<ringType<<"_"<<region<<"_"<<ring;
+  meId = os.str();
+  meTitle = os.str();
+  meMap[meId] = dbe->book1D(meId, meTitle, 20, 0.5, 20.5);
   
   std::cout<<"end of Global folder"<<std::endl;;
   
