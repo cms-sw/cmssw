@@ -13,7 +13,6 @@ def locate(pattern, root=os.curdir):
     supplied root directory.'''
     for path, dirs, files in os.walk(os.path.abspath(root)):
         for filename in fnmatch.filter(files, pattern):
-            print os.path.join(path, filename)
             yield str(os.path.join(path, filename))
 
 def start_element(name, attrs):
@@ -115,8 +114,6 @@ class bootstrap:
         self.__dbconfig=options.dbconfig
         self.parsedbconfig()
         if self.__verbose is True:
-            if self.__fake is True:
-                print '\t This is a FAKE run ...'
             print '###Auth path : ',self.__authpath
             if self.__all is True:
                 for d in self.__registry.keys():
@@ -148,33 +145,37 @@ class bootstrap:
                 c=self.__registry[self.__detector][0]
             createmeta=' '.join(['cmscond_schema_metadata','--create','-P',self.__authpath,'-c',c])
             createiov=' '.join(['cmscond_schema_iov','--create','-P',self.__authpath,'-c',c])
-            mappingxmlfile=self.__registry[self.__detector][1]['mapping'][0]
-            dict=self.__registry[self.__detector][1]['library']
-            createpool=' '.join(['pool_build_object_relational_mapping','-c',c,'-f',mappingxmlfile,'-d',dict])
-            commands.append(createmeta)
-            commands.append(createiov)
-            commands.append(createpool)
+            for mappingxmlfile in self.__registry[self.__detector][1]['mapping']:
+                dict=self.__registry[self.__detector][1]['library']
+                createpool=' '.join(['pool_build_object_relational_mapping','-c',c,'-f',mappingxmlfile,'-d',dict])
+                commands.append(createpool)
             for command in commands:
                 if self.__fake is True:
-                    print 'fake executing...',command
+                    print 'Fake run...'
+                    print '\t',createmeta
+                    print '\t',createiov
+                    for command in commands:
+                        print '\t',command
         else:
             c=self.__connect
-            if len(self.__connect)==0:
-                c=self.__registry[self.__detector][0]
             for detector in self.__registry.keys():
+                self.__detector=detector
+                if len(self.__connect)==0:
+                    c=self.__registry[self.__detector][0]
                 commands=[]
                 createmeta=' '.join(['cmscond_schema_metadata','--create','-P',self.__authpath,'-c',c])
                 createiov=' '.join(['cmscond_schema_iov','--create','-P',self.__authpath,'-c',c])
-                self.__detector=detector
-                mappingxmlfile=self.__registry[self.__detector][1]['mapping'][0]
                 dict=self.__registry[self.__detector][1]['library']
-                createpool=' '.join(['pool_build_object_relational_mapping','-c',c,'-f',mappingxmlfile,'-d',dict])
-                commands.append(createmeta)
-                commands.append(createiov)
-                commands.append(createpool)
-                for command in commands:
-                    if self.__fake is True:
-                        print 'fake executing...',command
+                for mappingxmlfile in self.__registry[self.__detector][1]['mapping']:
+                    createpool=' '.join(['pool_build_object_relational_mapping','-c',c,'-f',mappingxmlfile,'-d',dict])
+                    commands.append(createpool)
+                if self.__fake is True:
+                    print 'Fake run...'
+                    print '\t',createmeta
+                    print '\t',createiov
+                    for command in commands:
+                        print '\t',command
+                        
 if __name__ == "__main__":
     b=bootstrap()
     b.parsecmdln()
