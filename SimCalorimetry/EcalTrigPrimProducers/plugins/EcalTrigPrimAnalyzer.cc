@@ -11,7 +11,7 @@
 //
 // Original Author:  Ursula Berthon, Stephanie Baffioni, Pascal Paganini
 //         Created:  Thu Jul 4 11:38:38 CEST 2005
-// $Id: EcalTrigPrimAnalyzer.cc,v 1.6 2007/12/21 12:56:25 uberthon Exp $
+// $Id: EcalTrigPrimAnalyzer.cc,v 1.7 2008/03/14 18:51:59 uberthon Exp $
 //
 //
 
@@ -214,6 +214,12 @@ EcalTrigPrimAnalyzer::analyze(const edm::Event& iEvent, const  edm::EventSetup &
   ecalScale.setEventSetup(iSetup) ;
   for (unsigned int i=0;i<tp.product()->size();i++) {
     EcalTriggerPrimitiveDigi d=(*(tp.product()))[i];
+    std::cout<<" compressed Et: "<<d.compressedEt()<<std::endl;
+    for (int ii=0 ; ii<d.size() ; ii++) {
+      std::cout<<"ii "<<ii<<" "<<d[ii].compressedEt()<<std::endl ;
+      if (d[ii].compressedEt()>0) std::cout<<" great "<<ii<<std::endl;
+    }
+
     const EcalTrigTowerDetId TPtowid= d.id();
     map<EcalTrigTowerDetId, float>::iterator it=  mapTow_Et.find(TPtowid);
     if (it!= mapTow_Et.end()) {
