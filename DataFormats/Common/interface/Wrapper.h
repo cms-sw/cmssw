@@ -5,7 +5,7 @@
   
 Wrapper: A template wrapper around EDProducts to hold the product ID.
 
-$Id: Wrapper.h,v 1.27 2008/02/04 20:12:07 wdd Exp $
+$Id: Wrapper.h,v 1.28 2008/02/12 21:41:26 chrjones Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -23,7 +23,6 @@ $Id: Wrapper.h,v 1.27 2008/02/04 20:12:07 wdd Exp $
 #include "DataFormats/Common/interface/RefVectorHolder.h"
 #include "DataFormats/Common/interface/traits.h"
 #include "FWCore/Utilities/interface/EDMException.h"
-#include "FWCore/Utilities/interface/GCCPrerequisite.h"
 
 namespace edm {
    
@@ -252,15 +251,6 @@ namespace edm {
 
   namespace detail 
   {
-
-#if GCC_PREREQUISITE(3,4,4)
-    //------------------------------------------------------------
-    // WHEN WE MOVE to a newer compiler version, the following code
-    // should be activated. This code causes compilation failures under
-    // GCC 3.2.3, because of a compiler error in dealing with our
-    // application of SFINAE. GCC 3.4.2 is known to deal with this code
-    // correctly.
-    //------------------------------------------------------------
     typedef char (& no_tag)[1]; // type indicating FALSE
     typedef char (& yes_tag)[2]; // type indicating TRUE
 
@@ -298,27 +288,6 @@ namespace edm {
     {
       static bool const value = 
 	sizeof(has_isProductEqual_helper<T>(0)) == sizeof(yes_tag);
-    };
-#endif
-#else
-    //------------------------------------------------------------
-    // THE FOLLOWING SHOULD BE REMOVED when we move to a newer
-    // compiler; see the note above.
-    //------------------------------------------------------------
-    // has_swap_function is a metafunction of one argument, the type T.
-    // As with many metafunctions, it is implemented as a class with a data
-    // member 'value', which contains the value 'returned' by the
-    // metafunction.
-    //
-    // has_swap_function<T>::value is 'true' if T has the has_swap
-    // member function (with the right signature), and 'false' if T has
-    // no such member function.
-
-
-    template<typename T>
-    struct has_swap_function
-    {
-      static bool const value = has_swap<T>::value;	
     };
 #endif
   }

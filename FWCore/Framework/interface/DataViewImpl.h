@@ -81,7 +81,7 @@ edm::Ref<AppleCollection> ref(refApples, index);
 */
 /*----------------------------------------------------------------------
 
-$Id: DataViewImpl.h,v 1.35 2008/01/15 06:51:44 wmtan Exp $
+$Id: DataViewImpl.h,v 1.36 2008/03/03 19:11:42 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 #include <cassert>
@@ -111,8 +111,6 @@ $Id: DataViewImpl.h,v 1.35 2008/01/15 06:51:44 wmtan Exp $
 
 #include "FWCore/Utilities/interface/TypeID.h"
 #include "FWCore/ParameterSet/interface/InputTag.h"
-
-#include "FWCore/Utilities/interface/GCCPrerequisite.h"
 
 namespace edm {
 
@@ -356,7 +354,6 @@ namespace edm {
     // application of SFINAE. GCC 3.4.2 is known to deal with this code
     // correctly.
     //------------------------------------------------------------
-#if GCC_PREREQUISITE(3,4,4)
     typedef char (& no_tag )[1]; // type indicating FALSE
     typedef char (& yes_tag)[2]; // type indicating TRUE
 
@@ -374,27 +371,6 @@ namespace edm {
 	sizeof(has_postinsert_helper<T>(0)) == sizeof(yes_tag) &&
 	!boost::is_base_of<edm::DoNotSortUponInsertion, T>::value;
     };
-#else
-    //------------------------------------------------------------
-    // THE FOLLOWING SHOULD BE REMOVED when we move to a newer
-    // compiler; see the note above.
-    //------------------------------------------------------------
-
-    //------------------------------------------------------------
-    // The definition of the primary template should be in its own
-    // header, in EDProduct; this is because anyone who specializes
-    // this template has to include the declaration of the primary
-    // template.
-    //------------------------------------------------------------
-
-
-    template<typename T>
-    struct has_postinsert
-    {
-      static bool const value = has_postinsert_trait<T>::value;	
-    };
-
-#endif
   }
 
 

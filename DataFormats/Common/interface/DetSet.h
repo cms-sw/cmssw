@@ -8,16 +8,11 @@ associated with a common DetId with a DetId instance, holding the
 common DetId value. The collected objects may or may not contain their
 own copy of the common DetId.
 
-$Id: DetSet.h,v 1.7 2007/01/23 00:25:52 wmtan Exp $
+$Id: DetSet.h,v 1.8 2007/06/14 04:56:29 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
 #include <vector>
-
-#include "FWCore/Utilities/interface/GCCPrerequisite.h"
-#if ! GCC_PREREQUISITE(3,4,4)
-#include "DataFormats/Common/interface/traits.h"
-#endif
 
 namespace edm {
   typedef uint32_t det_id_type;
@@ -100,14 +95,6 @@ namespace edm {
   swap(DetSet<T> & a, DetSet<T> & b) {
     a.swap(b);
   }
-
-#if ! GCC_PREREQUISITE(3,4,4)
-  //has swap function
-  template <class T>
-  struct has_swap<edm::DetSet<T> > {
-    static bool const value = true;
-  };
-#endif
 
 } // namespace edm;
 

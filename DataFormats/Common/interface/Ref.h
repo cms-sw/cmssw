@@ -5,7 +5,7 @@
   
 Ref: A template for a interproduct reference to a member of a product.
 
-$Id: Ref.h,v 1.35 2008/02/15 20:06:17 wmtan Exp $
+$Id: Ref.h,v 1.36 2008/03/18 12:48:31 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 /**
@@ -119,34 +119,20 @@ $Id: Ref.h,v 1.35 2008/02/15 20:06:17 wmtan Exp $
 #include "DataFormats/Common/interface/OrphanHandle.h"
 #include "DataFormats/Common/interface/TestHandle.h"
 
-#include "FWCore/Utilities/interface/GCCPrerequisite.h"
-
 BOOST_MPL_HAS_XXX_TRAIT_DEF(key_compare)
 
-#if ! GCC_PREREQUISITE(3,4,4)
-// Workaround needed in gcc3.2.3 due to compiler bug
-  namespace GCC_3_2_3_WORKAROUND_1 {
-#endif
-    template <typename C, typename K>
-    typename boost::enable_if<has_key_compare<C>, bool>::type
-    compare_key(K const& lhs, K const& rhs) {
-      typedef typename C::key_compare comparison_functor;
-      return comparison_functor()(lhs, rhs);
-    }
-#if ! GCC_PREREQUISITE(3,4,4)
-    // Workaround needed in gcc3.2.3 due to compiler bug
+  template <typename C, typename K>
+  typename boost::enable_if<has_key_compare<C>, bool>::type
+  compare_key(K const& lhs, K const& rhs) {
+    typedef typename C::key_compare comparison_functor;
+    return comparison_functor()(lhs, rhs);
   }
-namespace GCC_3_2_3_WORKAROUND_2 {
-#endif
+
   template <typename C, typename K>
   typename boost::disable_if<has_key_compare<C>, bool>::type
   compare_key(K const& lhs, K const& rhs) {
     return lhs < rhs;
   }
-#if ! GCC_PREREQUISITE(3,4,4)
-  // Workaround needed in gcc3.2.3 due to compiler bug
-}
-#endif
 
 #include "DataFormats/Common/interface/RefTraits.h"
 
@@ -431,11 +417,6 @@ namespace edm {
   inline
   bool
   operator<(Ref<C, T, F> const& lhs, Ref<C, T, F> const& rhs) {
-#if ! GCC_PREREQUISITE(3,4,4)
-    // needed for gcc 3_2_3 compiler bug workaround
-    using GCC_3_2_3_WORKAROUND_1::compare_key;
-    using GCC_3_2_3_WORKAROUND_2::compare_key;
-#endif
     /// the definition and use of compare_key<> guarantees that the ordering of Refs within
       /// a collection will be identical to the ordering of the referenced objects in the collection.
       return (lhs.ref().refCore() == rhs.ref().refCore() ? compare_key<C>(lhs.key(), rhs.key()) : lhs.ref().refCore() < rhs.ref().refCore());

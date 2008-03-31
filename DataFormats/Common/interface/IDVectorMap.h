@@ -1,12 +1,7 @@
 #ifndef DataFormats_Common_IDVectorMap_h
 #define DataFormats_Common_IDVectorMap_h
-// $Id: IDVectorMap.h,v 1.10 2007/06/14 04:56:29 wmtan Exp $
+// $Id: IDVectorMap.h,v 1.11 2007/12/21 22:46:50 wmtan Exp $
 #include <map>
-
-#include "FWCore/Utilities/interface/GCCPrerequisite.h"
-#if ! GCC_PREREQUISITE(3,4,4)
-#include "DataFormats/Common/interface/traits.h"
-#endif
 
 namespace edm {
 
@@ -198,14 +193,6 @@ namespace edm {
   swap(IDVectorMap<ID, C, P> & a, IDVectorMap<ID, C, P> & b) {
     a.swap(b);
   }
-
-#if ! GCC_PREREQUISITE(3,4,4)
-  // has swap function
-  template <typename ID, typename C, typename P>
-  struct has_swap<edm::IDVectorMap<ID, C, P> > {
-    static bool const value = true;
-  };
-#endif
 
 }
 

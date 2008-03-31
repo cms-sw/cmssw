@@ -12,7 +12,6 @@
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/Common/interface/LazyGetter.h"
 #include "FWCore/Utilities/interface/EDMException.h"
-#include "FWCore/Utilities/interface/GCCPrerequisite.h"
 
 namespace edm {
 
@@ -181,16 +180,6 @@ namespace edm {
     }
   
   //------------------------------------------------------------
-  
-
-#if ! GCC_PREREQUISITE(3,4,4)
-  // Has swap function
-  template <class T>
-  struct has_swap<edm::RefGetter<T> > {
-    static bool const value = true;
-  };
-
-#endif
 
 }
   

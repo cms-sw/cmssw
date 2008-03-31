@@ -23,7 +23,7 @@ unreliable if such duplicate entries are made.
 
 **************** Much more is needed here! ****************
 
-$Id: SortedCollection.h,v 1.12 2007/07/09 07:28:50 llista Exp $
+$Id: SortedCollection.h,v 1.13 2007/12/21 22:42:30 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -37,8 +37,6 @@ $Id: SortedCollection.h,v 1.12 2007/07/09 07:28:50 llista Exp $
 #include "DataFormats/Provenance/interface/ProductID.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 
-#include "FWCore/Utilities/interface/GCCPrerequisite.h"
-
 namespace edm {
 
   //------------------------------------------------------------
@@ -49,23 +47,6 @@ namespace edm {
   template <class T, class SORT = StrictWeakOrdering<T> > 
     class SortedCollection;
   
-#if ! GCC_PREREQUISITE(3,4,4)
-  //------------------------------------------------------------
-  // The following template partial specialization can be removed
-  // when we move to GCC 3.4.x
-  //------------------------------------------------------------
-  
-  // Partial specialization of has_postinsert_trait template for any
-  // SortedCollection<T>, regardless of T; all SortedCollection
-  // classes have post_insert.
-  
-  template <class T, class SORT>
-  struct has_postinsert_trait<edm::SortedCollection<T,SORT> >
-  {
-    static bool const value = true;
-  };
-#endif
-
   template <class T, class SORT>
   struct has_fillView<edm::SortedCollection<T,SORT> >
   {
@@ -449,13 +430,6 @@ namespace edm {
     obj.fillView(id, pointers, helpers);
   }
 
-#if ! GCC_PREREQUISITE(3,4,4)
-  // has swap function
-  template <class T, class SORT>
-  struct has_swap<edm::SortedCollection<T,SORT> > {
-    static bool const value = true;
-  };
-#endif
 }
 
 #endif
