@@ -1,15 +1,30 @@
 void TracksCompare()
 {
 
- gROOT ->Reset();
- gROOT ->SetBatch();
+ //gROOT->Reset();
+ gROOT->SetBatch();
  gROOT->SetStyle("Plain");
 
  // gROOT->ProcessLine(".L HistoCompare_Tracks.C");
  // gROOT->ProcessLine(".L TracksCompare.C");
 
- char*  rfilename = "file05.root";//new release is in red
- char*  sfilename = "file15.root";//reference is in blue
+ //////////// Edit the following /////////////////////////
+ char*  rfilename = "file1.root";//new release is in red
+ char*  sfilename = "file2.root";//reference is in blue
+
+ TString dirNamer = "DQMData/RecoTrackV/Track";
+ TString dirNames = "DQMData/RecoTrackV/Track";
+
+ TString collnamerCTF = "general";//cutsReco
+ TString collnamesCTF = "general";//cutsReco
+ TString collnamerRS = "cutsRS";
+ TString collnamesRS = "cutsRS";
+
+ bool hit=1;
+ bool chi2=1;
+ bool ctf=1;
+ bool rs=0;
+ ////////////////////////////////////////////////////////
 
  delete gROOT->GetListOfFiles()->FindObject(rfilename);
  delete gROOT->GetListOfFiles()->FindObject(sfilename); 
@@ -20,11 +35,11 @@ void TracksCompare()
  TFile * sfile = new TFile(sfilename);
  TDirectory * sdir=gDirectory; 
 
- if(rfile->cd("DQMData/RecoTrackV"))rfile->cd("DQMData/RecoTrackV/Track");
+ if(rfile->cd(dirNamer))rfile->cd(dirNamer);
  else rfile->cd("DQMData/Track");
  rdir=gDirectory;
 
- if(sfile->cd("DQMData/RecoTrackV"))sfile->cd("DQMData/RecoTrackV/Track");
+ if(sfile->cd(dirNames))sfile->cd(dirNames);
  else sfile->cd("DQMData/Track");
  sdir=gDirectory; 
 
@@ -39,24 +54,19 @@ void TracksCompare()
  TH1F *sh3,*rh3;
  TH1F *sc3,*rc3;
 
- bool hit=1;
- bool chi2=1;
- bool ctf=1;
- bool rs=1;
-
  //////////////////////////////////////
  /////////// CTF //////////////////////
  //////////////////////////////////////
  if (ctf){
-   //efficiency&fakerate
-   rdir->GetObject("cutsCKF_AssociatorByHits/effic",rh1);
-   sdir->GetObject("cutsCKF_AssociatorByHits/effic",sh1);
-   rdir->GetObject("cutsCKF_AssociatorByChi2/effic",rc1);
-   sdir->GetObject("cutsCKF_AssociatorByChi2/effic",sc1);
-   rdir->GetObject("cutsCKF_AssociatorByHits/fakerate",rh2);
-   sdir->GetObject("cutsCKF_AssociatorByHits/fakerate",sh2);
-   rdir->GetObject("cutsCKF_AssociatorByChi2/fakerate",rc2);
-   sdir->GetObject("cutsCKF_AssociatorByChi2/fakerate",sc2);
+   //efficiency&fakerat
+   rdir->GetObject(collnamerCTF+"_AssociatorByHits/effic",rh1);
+   sdir->GetObject(collnamesCTF+"_AssociatorByHits/effic",sh1);
+   rdir->GetObject(collnamerCTF+"_AssociatorByChi2/effic",rc1);
+   sdir->GetObject(collnamesCTF+"_AssociatorByChi2/effic",sc1);
+   rdir->GetObject(collnamerCTF+"_AssociatorByHits/fakerate",rh2);
+   sdir->GetObject(collnamesCTF+"_AssociatorByHits/fakerate",sh2);
+   rdir->GetObject(collnamerCTF+"_AssociatorByChi2/fakerate",rc2);
+   sdir->GetObject(collnamesCTF+"_AssociatorByChi2/fakerate",sc2);
 
    canvas = new TCanvas("Tracks1","Tracks: efficiency & fakerate",1000,1000);
 
@@ -73,14 +83,14 @@ void TracksCompare()
    canvas->Print("ctf_effic_fake.gif");
 
    //chi2&chi2 probability
-   rdir->GetObject("cutsCKF_AssociatorByHits/chi2",rh1);
-   sdir->GetObject("cutsCKF_AssociatorByHits/chi2",sh1);
-   rdir->GetObject("cutsCKF_AssociatorByChi2/chi2",rc1);
-   sdir->GetObject("cutsCKF_AssociatorByChi2/chi2",sc1);
-   rdir->GetObject("cutsCKF_AssociatorByHits/chi2_prob",rh2);
-   sdir->GetObject("cutsCKF_AssociatorByHits/chi2_prob",sh2);
-   rdir->GetObject("cutsCKF_AssociatorByChi2/chi2_prob",rc2);
-   sdir->GetObject("cutsCKF_AssociatorByChi2/chi2_prob",sc2);
+   rdir->GetObject(collnamerCTF+"_AssociatorByHits/chi2",rh1);
+   sdir->GetObject(collnamesCTF+"_AssociatorByHits/chi2",sh1);
+   rdir->GetObject(collnamerCTF+"_AssociatorByChi2/chi2",rc1);
+   sdir->GetObject(collnamesCTF+"_AssociatorByChi2/chi2",sc1);
+   rdir->GetObject(collnamerCTF+"_AssociatorByHits/chi2_prob",rh2);
+   sdir->GetObject(collnamesCTF+"_AssociatorByHits/chi2_prob",sh2);
+   rdir->GetObject(collnamerCTF+"_AssociatorByChi2/chi2_prob",rc2);
+   sdir->GetObject(collnamesCTF+"_AssociatorByChi2/chi2_prob",sc2);
 
    canvas = new TCanvas("Tracks2","Tracks: chi2 & chi2 probability",1000,1000);
 
@@ -105,18 +115,18 @@ void TracksCompare()
    canvas->Print("ctf_chi2_chi2prob.gif");
 
    //meanchi2 and #hits vs eta
-   rdir->GetObject("cutsCKF_AssociatorByHits/hits_eta",rh1);
-   sdir->GetObject("cutsCKF_AssociatorByHits/hits_eta",sh1);
-   rdir->GetObject("cutsCKF_AssociatorByChi2/hits_eta",rc1);
-   sdir->GetObject("cutsCKF_AssociatorByChi2/hits_eta",sc1);
-   rdir->GetObject("cutsCKF_AssociatorByHits/chi2mean",rh2);
-   sdir->GetObject("cutsCKF_AssociatorByHits/chi2mean",sh2);
-   rdir->GetObject("cutsCKF_AssociatorByChi2/chi2mean",rc2);
-   sdir->GetObject("cutsCKF_AssociatorByChi2/chi2mean",sc2);
-   rdir->GetObject("cutsCKF_AssociatorByHits/losthits_eta",rh3);
-   sdir->GetObject("cutsCKF_AssociatorByHits/losthits_eta",sh3);
-   rdir->GetObject("cutsCKF_AssociatorByChi2/losthits_eta",rc3);
-   sdir->GetObject("cutsCKF_AssociatorByChi2/losthits_eta",sc3);
+   rdir->GetObject(collnamerCTF+"_AssociatorByHits/hits_eta",rh1);
+   sdir->GetObject(collnamesCTF+"_AssociatorByHits/hits_eta",sh1);
+   rdir->GetObject(collnamerCTF+"_AssociatorByChi2/hits_eta",rc1);
+   sdir->GetObject(collnamesCTF+"_AssociatorByChi2/hits_eta",sc1);
+   rdir->GetObject(collnamerCTF+"_AssociatorByHits/chi2mean",rh2);
+   sdir->GetObject(collnamesCTF+"_AssociatorByHits/chi2mean",sh2);
+   rdir->GetObject(collnamerCTF+"_AssociatorByChi2/chi2mean",rc2);
+   sdir->GetObject(collnamesCTF+"_AssociatorByChi2/chi2mean",sc2);
+   rdir->GetObject(collnamerCTF+"_AssociatorByHits/losthits_eta",rh3);
+   sdir->GetObject(collnamesCTF+"_AssociatorByHits/losthits_eta",sh3);
+   rdir->GetObject(collnamerCTF+"_AssociatorByChi2/losthits_eta",rc3);
+   sdir->GetObject(collnamesCTF+"_AssociatorByChi2/losthits_eta",sc3);
 
    canvas = new TCanvas("Tracks3","Tracks: chi2 and #hits vs eta",1000,1000);
 
@@ -133,18 +143,18 @@ void TracksCompare()
    canvas->Print("ctf_hitseta_chi2mean.gif");
 
    //pull Pt, Qoverp, Phi
-   rdir->GetObject("cutsCKF_AssociatorByHits/pullPt",rh1);
-   sdir->GetObject("cutsCKF_AssociatorByHits/pullPt",sh1);
-   rdir->GetObject("cutsCKF_AssociatorByChi2/pullPt",rc1);
-   sdir->GetObject("cutsCKF_AssociatorByChi2/pullPt",sc1);
-   rdir->GetObject("cutsCKF_AssociatorByHits/pullQoverp",rh2);
-   sdir->GetObject("cutsCKF_AssociatorByHits/pullQoverp",sh2);
-   rdir->GetObject("cutsCKF_AssociatorByChi2/pullQoverp",rc2);
-   sdir->GetObject("cutsCKF_AssociatorByChi2/pullQoverp",sc2);
-   rdir->GetObject("cutsCKF_AssociatorByHits/pullPhi",rh3);
-   sdir->GetObject("cutsCKF_AssociatorByHits/pullPhi",sh3);
-   rdir->GetObject("cutsCKF_AssociatorByChi2/pullPhi",rc3);
-   sdir->GetObject("cutsCKF_AssociatorByChi2/pullPhi",sc3);
+   rdir->GetObject(collnamerCTF+"_AssociatorByHits/pullPt",rh1);
+   sdir->GetObject(collnamesCTF+"_AssociatorByHits/pullPt",sh1);
+   rdir->GetObject(collnamerCTF+"_AssociatorByChi2/pullPt",rc1);
+   sdir->GetObject(collnamesCTF+"_AssociatorByChi2/pullPt",sc1);
+   rdir->GetObject(collnamerCTF+"_AssociatorByHits/pullQoverp",rh2);
+   sdir->GetObject(collnamesCTF+"_AssociatorByHits/pullQoverp",sh2);
+   rdir->GetObject(collnamerCTF+"_AssociatorByChi2/pullQoverp",rc2);
+   sdir->GetObject(collnamesCTF+"_AssociatorByChi2/pullQoverp",sc2);
+   rdir->GetObject(collnamerCTF+"_AssociatorByHits/pullPhi",rh3);
+   sdir->GetObject(collnamesCTF+"_AssociatorByHits/pullPhi",sh3);
+   rdir->GetObject(collnamerCTF+"_AssociatorByChi2/pullPhi",rc3);
+   sdir->GetObject(collnamesCTF+"_AssociatorByChi2/pullPhi",sc3);
 
    canvas = new TCanvas("Tracks4","Tracks: pull of Pt, Qoverp and Phi",1000,1000);
 
@@ -167,18 +177,18 @@ void TracksCompare()
    canvas->Print("ctf_pullPt_Qoverp_Phi.gif");
 
    //pull Dxy, Dz, Theta
-   rdir->GetObject("cutsCKF_AssociatorByHits/pullDxy",rh1);
-   sdir->GetObject("cutsCKF_AssociatorByHits/pullDxy",sh1);
-   rdir->GetObject("cutsCKF_AssociatorByChi2/pullDxy",rc1);
-   sdir->GetObject("cutsCKF_AssociatorByChi2/pullDxy",sc1);
-   rdir->GetObject("cutsCKF_AssociatorByHits/pullDz",rh2);
-   sdir->GetObject("cutsCKF_AssociatorByHits/pullDz",sh2);
-   rdir->GetObject("cutsCKF_AssociatorByChi2/pullDz",rc2);
-   sdir->GetObject("cutsCKF_AssociatorByChi2/pullDz",sc2);
-   rdir->GetObject("cutsCKF_AssociatorByHits/pullTheta",rh3);
-   sdir->GetObject("cutsCKF_AssociatorByHits/pullTheta",sh3);
-   rdir->GetObject("cutsCKF_AssociatorByChi2/pullTheta",rc3);
-   sdir->GetObject("cutsCKF_AssociatorByChi2/pullTheta",sc3);
+   rdir->GetObject(collnamerCTF+"_AssociatorByHits/pullDxy",rh1);
+   sdir->GetObject(collnamesCTF+"_AssociatorByHits/pullDxy",sh1);
+   rdir->GetObject(collnamerCTF+"_AssociatorByChi2/pullDxy",rc1);
+   sdir->GetObject(collnamesCTF+"_AssociatorByChi2/pullDxy",sc1);
+   rdir->GetObject(collnamerCTF+"_AssociatorByHits/pullDz",rh2);
+   sdir->GetObject(collnamesCTF+"_AssociatorByHits/pullDz",sh2);
+   rdir->GetObject(collnamerCTF+"_AssociatorByChi2/pullDz",rc2);
+   sdir->GetObject(collnamesCTF+"_AssociatorByChi2/pullDz",sc2);
+   rdir->GetObject(collnamerCTF+"_AssociatorByHits/pullTheta",rh3);
+   sdir->GetObject(collnamesCTF+"_AssociatorByHits/pullTheta",sh3);
+   rdir->GetObject(collnamerCTF+"_AssociatorByChi2/pullTheta",rc3);
+   sdir->GetObject(collnamesCTF+"_AssociatorByChi2/pullTheta",sc3);
 
    canvas = new TCanvas("Tracks5","Tracks: pull of Dxy, Dz, Theta",1000,1000);
 
@@ -201,14 +211,14 @@ void TracksCompare()
    canvas->Print("ctf_pullDxy_Dz_Theta.gif");
 
    //resolution Pt, Phi
-   rdir->GetObject("cutsCKF_AssociatorByHits/sigmapt",rh1);
-   sdir->GetObject("cutsCKF_AssociatorByHits/sigmapt",sh1);
-   rdir->GetObject("cutsCKF_AssociatorByChi2/sigmapt",rc1);
-   sdir->GetObject("cutsCKF_AssociatorByChi2/sigmapt",sc1);
-   rdir->GetObject("cutsCKF_AssociatorByHits/sigmaphi",rh2);
-   sdir->GetObject("cutsCKF_AssociatorByHits/sigmaphi",sh2);
-   rdir->GetObject("cutsCKF_AssociatorByChi2/sigmaphi",rc2);
-   sdir->GetObject("cutsCKF_AssociatorByChi2/sigmaphi",sc2);
+   rdir->GetObject(collnamerCTF+"_AssociatorByHits/sigmapt",rh1);
+   sdir->GetObject(collnamesCTF+"_AssociatorByHits/sigmapt",sh1);
+   rdir->GetObject(collnamerCTF+"_AssociatorByChi2/sigmapt",rc1);
+   sdir->GetObject(collnamesCTF+"_AssociatorByChi2/sigmapt",sc1);
+   rdir->GetObject(collnamerCTF+"_AssociatorByHits/sigmaphi",rh2);
+   sdir->GetObject(collnamesCTF+"_AssociatorByHits/sigmaphi",sh2);
+   rdir->GetObject(collnamerCTF+"_AssociatorByChi2/sigmaphi",rc2);
+   sdir->GetObject(collnamesCTF+"_AssociatorByChi2/sigmaphi",sc2);
 
    canvas = new TCanvas("Tracks6","Tracks: Pt and Phi resolution",1000,1000);
 
@@ -220,18 +230,18 @@ void TracksCompare()
    canvas->Print("ctf_resolPt_Phi.gif");
 
    //resolution Dxy, Dz, Theta
-   rdir->GetObject("cutsCKF_AssociatorByHits/sigmadxy",rh1);
-   sdir->GetObject("cutsCKF_AssociatorByHits/sigmadxy",sh1);
-   rdir->GetObject("cutsCKF_AssociatorByChi2/sigmadxy",rc1);
-   sdir->GetObject("cutsCKF_AssociatorByChi2/sigmadxy",sc1);
-   rdir->GetObject("cutsCKF_AssociatorByHits/sigmadz",rh2);
-   sdir->GetObject("cutsCKF_AssociatorByHits/sigmadz",sh2);
-   rdir->GetObject("cutsCKF_AssociatorByChi2/sigmadz",rc2);
-   sdir->GetObject("cutsCKF_AssociatorByChi2/sigmadz",sc2);
-   rdir->GetObject("cutsCKF_AssociatorByHits/sigmacotTheta",rh3);
-   sdir->GetObject("cutsCKF_AssociatorByHits/sigmacotTheta",sh3);
-   rdir->GetObject("cutsCKF_AssociatorByChi2/sigmacotTheta",rc3);
-   sdir->GetObject("cutsCKF_AssociatorByChi2/sigmacotTheta",sc3);
+   rdir->GetObject(collnamerCTF+"_AssociatorByHits/sigmadxy",rh1);
+   sdir->GetObject(collnamesCTF+"_AssociatorByHits/sigmadxy",sh1);
+   rdir->GetObject(collnamerCTF+"_AssociatorByChi2/sigmadxy",rc1);
+   sdir->GetObject(collnamesCTF+"_AssociatorByChi2/sigmadxy",sc1);
+   rdir->GetObject(collnamerCTF+"_AssociatorByHits/sigmadz",rh2);
+   sdir->GetObject(collnamesCTF+"_AssociatorByHits/sigmadz",sh2);
+   rdir->GetObject(collnamerCTF+"_AssociatorByChi2/sigmadz",rc2);
+   sdir->GetObject(collnamesCTF+"_AssociatorByChi2/sigmadz",sc2);
+   rdir->GetObject(collnamerCTF+"_AssociatorByHits/sigmacotTheta",rh3);
+   sdir->GetObject(collnamesCTF+"_AssociatorByHits/sigmacotTheta",sh3);
+   rdir->GetObject(collnamerCTF+"_AssociatorByChi2/sigmacotTheta",rc3);
+   sdir->GetObject(collnamesCTF+"_AssociatorByChi2/sigmacotTheta",sc3);
 
    canvas = new TCanvas("Tracks7","Tracks: Dxy, Dz, Theta resolution",1000,1000);
 
@@ -250,14 +260,14 @@ void TracksCompare()
  //////////////////////////////////////
  if (rs){
    //efficiency&fakerate
-   rdir->GetObject("cutsRS_AssociatorByHits/effic",rh1);
-   sdir->GetObject("cutsRS_AssociatorByHits/effic",sh1);
-   rdir->GetObject("cutsRS_AssociatorByChi2/effic",rc1);
-   sdir->GetObject("cutsRS_AssociatorByChi2/effic",sc1);
-   rdir->GetObject("cutsRS_AssociatorByHits/fakerate",rh2);
-   sdir->GetObject("cutsRS_AssociatorByHits/fakerate",sh2);
-   rdir->GetObject("cutsRS_AssociatorByChi2/fakerate",rc2);
-   sdir->GetObject("cutsRS_AssociatorByChi2/fakerate",sc2);
+   rdir->GetObject(collnamerRS+"_AssociatorByHits/effic",rh1);
+   sdir->GetObject(collnamerRS+"_AssociatorByHits/effic",sh1);
+   rdir->GetObject(collnamerRS+"_AssociatorByChi2/effic",rc1);
+   sdir->GetObject(collnamerRS+"_AssociatorByChi2/effic",sc1);
+   rdir->GetObject(collnamerRS+"_AssociatorByHits/fakerate",rh2);
+   sdir->GetObject(collnamerRS+"_AssociatorByHits/fakerate",sh2);
+   rdir->GetObject(collnamerRS+"_AssociatorByChi2/fakerate",rc2);
+   sdir->GetObject(collnamerRS+"_AssociatorByChi2/fakerate",sc2);
 
    canvas = new TCanvas("Tracks8","Tracks: efficiency & fakerate",1000,1000);
 
@@ -274,14 +284,14 @@ void TracksCompare()
    canvas->Print("rs_effic_fake.gif");
 
    //chi2&chi2 probability
-   rdir->GetObject("cutsRS_AssociatorByHits/chi2",rh1);
-   sdir->GetObject("cutsRS_AssociatorByHits/chi2",sh1);
-   rdir->GetObject("cutsRS_AssociatorByChi2/chi2",rc1);
-   sdir->GetObject("cutsRS_AssociatorByChi2/chi2",sc1);
-   rdir->GetObject("cutsRS_AssociatorByHits/chi2_prob",rh2);
-   sdir->GetObject("cutsRS_AssociatorByHits/chi2_prob",sh2);
-   rdir->GetObject("cutsRS_AssociatorByChi2/chi2_prob",rc2);
-   sdir->GetObject("cutsRS_AssociatorByChi2/chi2_prob",sc2);
+   rdir->GetObject(collnamerRS+"_AssociatorByHits/chi2",rh1);
+   sdir->GetObject(collnamerRS+"_AssociatorByHits/chi2",sh1);
+   rdir->GetObject(collnamerRS+"_AssociatorByChi2/chi2",rc1);
+   sdir->GetObject(collnamerRS+"_AssociatorByChi2/chi2",sc1);
+   rdir->GetObject(collnamerRS+"_AssociatorByHits/chi2_prob",rh2);
+   sdir->GetObject(collnamerRS+"_AssociatorByHits/chi2_prob",sh2);
+   rdir->GetObject(collnamerRS+"_AssociatorByChi2/chi2_prob",rc2);
+   sdir->GetObject(collnamerRS+"_AssociatorByChi2/chi2_prob",sc2);
 
    canvas = new TCanvas("Tracks9","Tracks: chi2 & chi2 probability",1000,1000);
 
@@ -306,18 +316,18 @@ void TracksCompare()
    canvas->Print("rs_chi2_chi2prob.gif");
 
    //meanchi2 and #hits vs eta
-   rdir->GetObject("cutsRS_AssociatorByHits/hits_eta",rh1);
-   sdir->GetObject("cutsRS_AssociatorByHits/hits_eta",sh1);
-   rdir->GetObject("cutsRS_AssociatorByChi2/hits_eta",rc1);
-   sdir->GetObject("cutsRS_AssociatorByChi2/hits_eta",sc1);
-   rdir->GetObject("cutsRS_AssociatorByHits/chi2mean",rh2);
-   sdir->GetObject("cutsRS_AssociatorByHits/chi2mean",sh2);
-   rdir->GetObject("cutsRS_AssociatorByChi2/chi2mean",rc2);
-   sdir->GetObject("cutsRS_AssociatorByChi2/chi2mean",sc2);
-   rdir->GetObject("cutsRS_AssociatorByHits/losthits_eta",rh3);
-   sdir->GetObject("cutsRS_AssociatorByHits/losthits_eta",sh3);
-   rdir->GetObject("cutsRS_AssociatorByChi2/losthits_eta",rc3);
-   sdir->GetObject("cutsRS_AssociatorByChi2/losthits_eta",sc3);
+   rdir->GetObject(collnamerRS+"_AssociatorByHits/hits_eta",rh1);
+   sdir->GetObject(collnamerRS+"_AssociatorByHits/hits_eta",sh1);
+   rdir->GetObject(collnamerRS+"_AssociatorByChi2/hits_eta",rc1);
+   sdir->GetObject(collnamerRS+"_AssociatorByChi2/hits_eta",sc1);
+   rdir->GetObject(collnamerRS+"_AssociatorByHits/chi2mean",rh2);
+   sdir->GetObject(collnamerRS+"_AssociatorByHits/chi2mean",sh2);
+   rdir->GetObject(collnamerRS+"_AssociatorByChi2/chi2mean",rc2);
+   sdir->GetObject(collnamerRS+"_AssociatorByChi2/chi2mean",sc2);
+   rdir->GetObject(collnamerRS+"_AssociatorByHits/losthits_eta",rh3);
+   sdir->GetObject(collnamerRS+"_AssociatorByHits/losthits_eta",sh3);
+   rdir->GetObject(collnamerRS+"_AssociatorByChi2/losthits_eta",rc3);
+   sdir->GetObject(collnamerRS+"_AssociatorByChi2/losthits_eta",sc3);
 
    canvas = new TCanvas("Tracks10","Tracks: chi2 and #hits vs eta",1000,1000);
 
@@ -332,18 +342,18 @@ void TracksCompare()
    canvas->Print("rs_hitseta_chi2mean.gif");
 
    //pull Pt, Qoverp, Phi
-   rdir->GetObject("cutsRS_AssociatorByHits/pullPt",rh1);
-   sdir->GetObject("cutsRS_AssociatorByHits/pullPt",sh1);
-   rdir->GetObject("cutsRS_AssociatorByChi2/pullPt",rc1);
-   sdir->GetObject("cutsRS_AssociatorByChi2/pullPt",sc1);
-   rdir->GetObject("cutsRS_AssociatorByHits/pullQoverp",rh2);
-   sdir->GetObject("cutsRS_AssociatorByHits/pullQoverp",sh2);
-   rdir->GetObject("cutsRS_AssociatorByChi2/pullQoverp",rc2);
-   sdir->GetObject("cutsRS_AssociatorByChi2/pullQoverp",sc2);
-   rdir->GetObject("cutsRS_AssociatorByHits/pullPhi",rh3);
-   sdir->GetObject("cutsRS_AssociatorByHits/pullPhi",sh3);
-   rdir->GetObject("cutsRS_AssociatorByChi2/pullPhi",rc3);
-   sdir->GetObject("cutsRS_AssociatorByChi2/pullPhi",sc3);
+   rdir->GetObject(collnamerRS+"_AssociatorByHits/pullPt",rh1);
+   sdir->GetObject(collnamerRS+"_AssociatorByHits/pullPt",sh1);
+   rdir->GetObject(collnamerRS+"_AssociatorByChi2/pullPt",rc1);
+   sdir->GetObject(collnamerRS+"_AssociatorByChi2/pullPt",sc1);
+   rdir->GetObject(collnamerRS+"_AssociatorByHits/pullQoverp",rh2);
+   sdir->GetObject(collnamerRS+"_AssociatorByHits/pullQoverp",sh2);
+   rdir->GetObject(collnamerRS+"_AssociatorByChi2/pullQoverp",rc2);
+   sdir->GetObject(collnamerRS+"_AssociatorByChi2/pullQoverp",sc2);
+   rdir->GetObject(collnamerRS+"_AssociatorByHits/pullPhi",rh3);
+   sdir->GetObject(collnamerRS+"_AssociatorByHits/pullPhi",sh3);
+   rdir->GetObject(collnamerRS+"_AssociatorByChi2/pullPhi",rc3);
+   sdir->GetObject(collnamerRS+"_AssociatorByChi2/pullPhi",sc3);
 
    canvas = new TCanvas("Tracks11","Tracks: pull of Pt, Qoverp and Phi",1000,1000);
 
@@ -366,18 +376,18 @@ void TracksCompare()
    canvas->Print("rs_pullPt_Qoverp_Phi.gif");
 
    //pull Dxy, Dz, Theta
-   rdir->GetObject("cutsRS_AssociatorByHits/pullDxy",rh1);
-   sdir->GetObject("cutsRS_AssociatorByHits/pullDxy",sh1);
-   rdir->GetObject("cutsRS_AssociatorByChi2/pullDxy",rc1);
-   sdir->GetObject("cutsRS_AssociatorByChi2/pullDxy",sc1);
-   rdir->GetObject("cutsRS_AssociatorByHits/pullDz",rh2);
-   sdir->GetObject("cutsRS_AssociatorByHits/pullDz",sh2);
-   rdir->GetObject("cutsRS_AssociatorByChi2/pullDz",rc2);
-   sdir->GetObject("cutsRS_AssociatorByChi2/pullDz",sc2);
-   rdir->GetObject("cutsRS_AssociatorByHits/pullTheta",rh3);
-   sdir->GetObject("cutsRS_AssociatorByHits/pullTheta",sh3);
-   rdir->GetObject("cutsRS_AssociatorByChi2/pullTheta",rc3);
-   sdir->GetObject("cutsRS_AssociatorByChi2/pullTheta",sc3);
+   rdir->GetObject(collnamerRS+"_AssociatorByHits/pullDxy",rh1);
+   sdir->GetObject(collnamerRS+"_AssociatorByHits/pullDxy",sh1);
+   rdir->GetObject(collnamerRS+"_AssociatorByChi2/pullDxy",rc1);
+   sdir->GetObject(collnamerRS+"_AssociatorByChi2/pullDxy",sc1);
+   rdir->GetObject(collnamerRS+"_AssociatorByHits/pullDz",rh2);
+   sdir->GetObject(collnamerRS+"_AssociatorByHits/pullDz",sh2);
+   rdir->GetObject(collnamerRS+"_AssociatorByChi2/pullDz",rc2);
+   sdir->GetObject(collnamerRS+"_AssociatorByChi2/pullDz",sc2);
+   rdir->GetObject(collnamerRS+"_AssociatorByHits/pullTheta",rh3);
+   sdir->GetObject(collnamerRS+"_AssociatorByHits/pullTheta",sh3);
+   rdir->GetObject(collnamerRS+"_AssociatorByChi2/pullTheta",rc3);
+   sdir->GetObject(collnamerRS+"_AssociatorByChi2/pullTheta",sc3);
 
    canvas = new TCanvas("Tracks12","Tracks: pull of Dxy, Dz, Theta",1000,1000);
 
@@ -400,14 +410,14 @@ void TracksCompare()
    canvas->Print("rs_pullDxy_Dz_Theta.gif");
 
    //resolution Pt, Phi
-   rdir->GetObject("cutsRS_AssociatorByHits/sigmapt",rh1);
-   sdir->GetObject("cutsRS_AssociatorByHits/sigmapt",sh1);
-   rdir->GetObject("cutsRS_AssociatorByChi2/sigmapt",rc1);
-   sdir->GetObject("cutsRS_AssociatorByChi2/sigmapt",sc1);
-   rdir->GetObject("cutsRS_AssociatorByHits/sigmaphi",rh2);
-   sdir->GetObject("cutsRS_AssociatorByHits/sigmaphi",sh2);
-   rdir->GetObject("cutsRS_AssociatorByChi2/sigmaphi",rc2);
-   sdir->GetObject("cutsRS_AssociatorByChi2/sigmaphi",sc2);
+   rdir->GetObject(collnamerRS+"_AssociatorByHits/sigmapt",rh1);
+   sdir->GetObject(collnamerRS+"_AssociatorByHits/sigmapt",sh1);
+   rdir->GetObject(collnamerRS+"_AssociatorByChi2/sigmapt",rc1);
+   sdir->GetObject(collnamerRS+"_AssociatorByChi2/sigmapt",sc1);
+   rdir->GetObject(collnamerRS+"_AssociatorByHits/sigmaphi",rh2);
+   sdir->GetObject(collnamerRS+"_AssociatorByHits/sigmaphi",sh2);
+   rdir->GetObject(collnamerRS+"_AssociatorByChi2/sigmaphi",rc2);
+   sdir->GetObject(collnamerRS+"_AssociatorByChi2/sigmaphi",sc2);
 
    canvas = new TCanvas("Tracks13","Tracks: Pt and Phi resolution",1000,1000);
 
@@ -419,18 +429,18 @@ void TracksCompare()
    canvas->Print("rs_resolPt_Phi.gif");
 
    //resolution Dxy, Dz, Theta
-   rdir->GetObject("cutsRS_AssociatorByHits/sigmadxy",rh1);
-   sdir->GetObject("cutsRS_AssociatorByHits/sigmadxy",sh1);
-   rdir->GetObject("cutsRS_AssociatorByChi2/sigmadxy",rc1);
-   sdir->GetObject("cutsRS_AssociatorByChi2/sigmadxy",sc1);
-   rdir->GetObject("cutsRS_AssociatorByHits/sigmadz",rh2);
-   sdir->GetObject("cutsRS_AssociatorByHits/sigmadz",sh2);
-   rdir->GetObject("cutsRS_AssociatorByChi2/sigmadz",rc2);
-   sdir->GetObject("cutsRS_AssociatorByChi2/sigmadz",sc2);
-   rdir->GetObject("cutsRS_AssociatorByHits/sigmacotTheta",rh3);
-   sdir->GetObject("cutsRS_AssociatorByHits/sigmacotTheta",sh3);
-   rdir->GetObject("cutsRS_AssociatorByChi2/sigmacotTheta",rc3);
-   sdir->GetObject("cutsRS_AssociatorByChi2/sigmacotTheta",sc3);
+   rdir->GetObject(collnamerRS+"_AssociatorByHits/sigmadxy",rh1);
+   sdir->GetObject(collnamerRS+"_AssociatorByHits/sigmadxy",sh1);
+   rdir->GetObject(collnamerRS+"_AssociatorByChi2/sigmadxy",rc1);
+   sdir->GetObject(collnamerRS+"_AssociatorByChi2/sigmadxy",sc1);
+   rdir->GetObject(collnamerRS+"_AssociatorByHits/sigmadz",rh2);
+   sdir->GetObject(collnamerRS+"_AssociatorByHits/sigmadz",sh2);
+   rdir->GetObject(collnamerRS+"_AssociatorByChi2/sigmadz",rc2);
+   sdir->GetObject(collnamerRS+"_AssociatorByChi2/sigmadz",sc2);
+   rdir->GetObject(collnamerRS+"_AssociatorByHits/sigmacotTheta",rh3);
+   sdir->GetObject(collnamerRS+"_AssociatorByHits/sigmacotTheta",sh3);
+   rdir->GetObject(collnamerRS+"_AssociatorByChi2/sigmacotTheta",rc3);
+   sdir->GetObject(collnamerRS+"_AssociatorByChi2/sigmacotTheta",sc3);
 
    canvas = new TCanvas("Tracks14","Tracks: Dxy, Dz, Theta resolution",1000,1000);
 
