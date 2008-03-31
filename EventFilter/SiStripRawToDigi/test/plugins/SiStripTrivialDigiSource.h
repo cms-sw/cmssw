@@ -1,4 +1,4 @@
-// Last commit: $Id: SiStripTrivialDigiSource.h,v 1.1 2007/03/21 16:38:16 bainbrid Exp $
+// Last commit: $Id: SiStripTrivialDigiSource.h,v 1.1 2007/04/24 16:59:03 bainbrid Exp $
 
 #ifndef EventFilter_SiStripRawToDigi_SiStripTrivialDigiSource_H
 #define EventFilter_SiStripRawToDigi_SiStripTrivialDigiSource_H
@@ -34,6 +34,7 @@ class SiStripTrivialDigiSource : public edm::EDProducer {
   bool  testDistr_;
   float meanOcc_;
   float rmsOcc_;
+  bool  raw_;
 
   SiStripTrivialDigiAnalysis anal_;
   

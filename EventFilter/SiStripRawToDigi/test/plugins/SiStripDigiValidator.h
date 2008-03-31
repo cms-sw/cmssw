@@ -28,8 +28,17 @@ class SiStripDigiValidator : public edm::EDAnalyzer {
   //Input collections
   edm::InputTag collection1Tag_;
   edm::InputTag collection2Tag_;
+  bool raw_;
   //used to remember if there have been errors for message in endJob
   bool errors_;
+
 };
+
+// template method
+template <typename T>
+extern bool Compare( edm::InputTag,
+		     edm::InputTag,
+		     const edm::Event& event,
+		     const edm::EventSetup& setup );
 
 #endif //  EventFilter_SiStripRawToDigi_SiStripDigiValidator_H
