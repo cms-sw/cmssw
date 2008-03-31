@@ -50,7 +50,7 @@ class L2TauIsolationInfo
       ECALClusterPhiRMS=0.;
       ECALClusterDRRMS=0.;
       ECALClusterDiscriminator=0;
-      SeedTowerEt=0.;
+      SeedTowerEt=100000.;
 
     }
   //Destructor
