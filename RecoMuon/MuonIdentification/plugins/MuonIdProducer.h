@@ -20,7 +20,7 @@
 */
 //
 // Original Author:  Dmytro Kovalskyi
-// $Id: MuonIdProducer.h,v 1.8 2008/01/22 09:51:28 bellan Exp $
+// $Id: MuonIdProducer.h,v 1.9 2008/03/02 21:16:56 slava77 Exp $
 //
 //
 
@@ -42,7 +42,7 @@
 #include "DataFormats/MuonReco/interface/MuonFwd.h"
 
 #include "TrackingTools/TrackAssociator/interface/TrackDetectorAssociator.h"
-#include "Utilities/Timing/interface/TimerStack.h"
+// #include "Utilities/Timing/interface/TimerStack.h"
 
 #include "RecoMuon/MuonIdentification/interface/MuonCaloCompatibility.h"
 #include "PhysicsTools/IsolationAlgos/interface/IsoDepositExtractor.h"
