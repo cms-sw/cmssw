@@ -249,6 +249,7 @@ HLTPi0RecHitsFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	    max_hit[nClus] = seed_id;
 	    
 	    nClus++;
+	    if (nClus == MAXCLUS) return accept;
       }
   }
   
@@ -299,6 +300,7 @@ HLTPi0RecHitsFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 			  sClus_1[npi0_s]=i;
 			  sClus_2[npi0_s]=j;
 			  npi0_s++;
+			  if(npi0_s == MAXPI0S) return accept;
 			}
 
 		    }
