@@ -320,7 +320,7 @@ if hcal==1:
 #        for etaindex in range(mineta,maxeta+1):
 #            for phiindex in range(minphi,maxphi+1):
 #                for depthindex in range(mindepth,maxdepth+1):
-            miscal_fac=miscalibhcal(lumi,detindex,etaindex,phiindex,depthindex,0)
+            miscal_fac=miscalibhcal(lumi,detindex,etaindex,phiindex,depthindex,1)
             line='        <Cell det_index="'+str(detindex)+'" eta_index="'+str(etaindex)+'" phi_index="'+str(phiindex)+'" depth_index="'+str(depthindex)+'" scale_factor="'+str(miscal_fac)+'"/>\n'
             lineinv='        <Cell det_index="'+str(detindex)+'" eta_index="'+str(etaindex)+'" phi_index="'+str(phiindex)+'" depth_index="'+str(depthindex)+'" scale_factor="'+str(1./miscal_fac)+'"/>\n'
             xmlfile.write(line)
