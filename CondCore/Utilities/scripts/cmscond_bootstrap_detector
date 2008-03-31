@@ -61,12 +61,12 @@ class bootstrap:
             if mappingfile.find('*')!=-1:
               for result in locate(mappingfile,mappingdir):
                  self.__registry[currentdetector][1]['mapping'].append(result)
-                 self.__registry[currentdetector][1]['library']='lib'+level2elements['library']+'.so'
+                 self.__registry[currentdetector][1]['library']=level2elements['library']
             else:
               a=mappingfile.split(' ')
               result=map(lambda x: os.path.join(mappingdir,x) ,a)
               self.__registry[currentdetector][1]['mapping']=result
-              self.__registry[currentdetector][1]['library']='lib'+level2elements['library']+'.so'
+              self.__registry[currentdetector][1]['library']=level2elements['library']
         return
     def parsedbconfig(self):
         """
