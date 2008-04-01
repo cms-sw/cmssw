@@ -1,0 +1,10 @@
+SiStripGain_100invpb_20X
+SiStripGain_10invpb_20X
+SiStripGain_1invpb_20X
+SiStripGain_StartUp_20X
+SiStripLorentzAngle_100invpb_20X
+SiStripLorentzAngle_10invpb_20X
+SiStripLorentzAngle_1invpb_20X
+SiStripLorentzAngle_StartUp_20X
+SiStripFedCabling_20X
+SiStripNoise_Fake_PeakMode_20X
