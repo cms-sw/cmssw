@@ -1,0 +1,27 @@
+process SiStripCommissioningOfflineDbClient = {
+    
+    include "DQM/SiStripCommon/data/MessageLogger.cfi"
+
+    service = DQMStore { }
+    
+    include "OnlineDB/SiStripConfigDb/data/SiStripConfigDb.cfi"
+    replace SiStripConfigDb.UsingDb = true
+    replace SiStripConfigDb.ConfDb = "cms_tracker_tif3/stabletif3@cmsr"
+    replace SiStripConfigDb.Partition = "CRACK_TKCC66"
+
+    include "IORawData/SiStripInputSources/data/EmptySource.cff"
+    replace maxEvents.input = 2
+    
+    module db_client = SiStripCommissioningOfflineDbClient
+    {
+        untracked string     FilePath       = "./input"
+        untracked uint32     RunNumber      = RUNNUMBER
+        untracked bool       UseClientFile  = false
+        untracked FileInPath SummaryXmlFile = "./summaryScan.xml"
+        untracked bool       UploadHwConfig = false
+        untracked bool       UploadAnalyses = false
+    }
+
+    path p = { db_client }
+    
+}
