@@ -2,14 +2,13 @@
 #define CondCore_DBCommon_OracleProxy_h
 #include "CondCore/DBCommon/interface/TechnologyProxy.h"
 namespace cond{
+  class DBSession;
   class OracleProxy:public TechnologyProxy{
   public:
-    OracleProxy();
+    explicit OracleProxy( const std::string& userconnect );
     ~OracleProxy();
-    std::string getRealConnectString( const std::string& iValue ) const;
-    void setupSession();
-    void prepareConnection();
-    void prepareTransaction();
+    std::string getRealConnectString() const;
+    void setupSession( cond::DBSession& session );
   };
 }//ns cond
 #endif

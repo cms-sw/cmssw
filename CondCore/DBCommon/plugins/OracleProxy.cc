@@ -1,20 +1,14 @@
 #include "OracleProxy.h"
 #include "CondCore/DBCommon/interface/TechnologyProxyFactory.h"
-cond::OracleProxy::OracleProxy(){
+cond::OracleProxy::OracleProxy(const std::string& userconnect):cond::TechnologyProxy(userconnect){
 }
 cond::OracleProxy::~OracleProxy(){
 }
 std::string 
-cond::OracleProxy::getRealConnectString( const std::string& iValue ) const{
-  return iValue;
+cond::OracleProxy::getRealConnectString() const{
+  return m_userconnect;
 }
 void 
-cond::OracleProxy::setupSession(){
-}
-void 
-cond::OracleProxy::prepareConnection(){
-}
-void 
-cond::OracleProxy::prepareTransaction(){
+cond::OracleProxy::setupSession(cond::DBSession& session){
 }
 DEFINE_EDM_PLUGIN(cond::TechnologyProxyFactory,cond::OracleProxy,"oracle");

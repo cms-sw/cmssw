@@ -1,5 +1,5 @@
 <use name=FWCore/PluginManager>
-
+<use name=CondCore/DBCommon>
 <library file="SQLiteProxy.cc" name=CondCoreDBCommonSQLiteProxy>
 <flags EDM_PLUGIN=1>
 </library>
@@ -7,5 +7,6 @@
 <flags EDM_PLUGIN=1>
 </library>
 <library file="FrontierProxy.cc" name=CondCoreDBCommonFrontierProxy>
+<use name=CondCore/MetaDataService>
 <flags EDM_PLUGIN=1>
 </library>
