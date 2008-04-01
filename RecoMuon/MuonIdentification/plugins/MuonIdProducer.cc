@@ -5,7 +5,7 @@
 // 
 //
 // Original Author:  Dmytro Kovalskyi
-// $Id: MuonIdProducer.cc,v 1.20 2008/03/02 21:16:56 slava77 Exp $
+// $Id: MuonIdProducer.cc,v 1.21 2008/03/31 14:21:19 dmytro Exp $
 //
 //
 
@@ -577,7 +577,8 @@ void MuonIdProducer::fillMuonId(edm::Event& iEvent, const edm::EventSetup& iSetu
       muonEnergy.hoS9  = info.nXnEnergy(TrackDetMatchInfo::HORecHits,1);   // 3x3 energy
       aMuon.setCalEnergy( muonEnergy );
    }
-   if ( ! fillMatching_ || aMuon.isStandAloneMuon() ) return;
+   if ( ! fillMatching_ || 
+	! ( aMuon.isTrackerMuon() || aMuon.isGlobalMuon() ) ) return;
    
    // fill muon match info
    std::vector<reco::MuonChamberMatch> muonChamberMatches;
