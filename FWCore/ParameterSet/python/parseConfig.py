@@ -1058,17 +1058,28 @@ class _ReplaceSetter(object):
             result = repr(value)
         elif result[0] == '[':
             l = eval(result)
-            first = True
             isVInputTag = False
             result = ''
-            for x in l:
-                if not first:
-                    result += ", "
+            indented = False
+            for i, x in enumerate(l):
+                if i == 0:
+                    if hasattr(x, "_nPerLine"):
+                        nPerLine = x._nPerLine
+                    else:
+                        nPerLine = 5
+                else:
+                    result += ', '
+                    if i % nPerLine == 0:
+                        if not indented:
+                            indented = True
+                            options.indent()
+                        result += '\n'+options.indentation()
                 element = _ReplaceSetter._pythonValue(x, options) 
                 if element.find('InputTag') != -1:
                    isVInputTag = True
                 result += element
-                first = False
+            if indented:
+                options.unindent()
             if isVInputTag:
                result = "cms.VInputTag("+result+")"
             else:

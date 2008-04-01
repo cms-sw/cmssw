@@ -386,8 +386,27 @@ class _ValidatingParameterListBase(_ValidatingListBase,_ParameterTypeBase):
         return self.dumpPython()
     def dumpPython(self, options=PrintOptions()):
         result = self.pythonTypeName()+"("
-        if len(self)<255:
-            result+=', '.join((self.pythonValueForItem(v,options) for v in iter(self)))
+        n = len(self)
+        if n<255:
+            indented = False
+            for i, v in enumerate(self):
+                if i == 0:
+                    if hasattr(v, "_nPerLine"):
+                        nPerLine = v._nPerLine
+                    else:
+                        nPerLine = 5
+                else:
+                    if not indented:
+                        indented = True
+                        options.indent()
+
+                    result += ', '
+                    if i % nPerLine == 0:
+                        result += '\n'+options.indentation()
+                result += self.pythonValueForItem(v,options)
+            if indented:
+                options.unindent()
+            #result+=', '.join((self.pythonValueForItem(v,options) for v in iter(self)))
         else:
             result = '('
             start = 0
