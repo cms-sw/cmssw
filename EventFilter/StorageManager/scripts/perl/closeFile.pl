@@ -1,5 +1,5 @@
 #!/usr/bin/env perl
-# $Id:$
+# $Id: closeFile.pl,v 1.6 2008/04/01 08:50:29 loizides Exp $
 ################################################################################
 
 use strict;
@@ -13,7 +13,7 @@ sub show_help {
 
   Action:
   =======
-  Script to insert an entry to the run_files table
+  Script to insert an entry to the CMS_STOMGR.TIER0_INJECTION table
 
   Syntax:
   ======= 
