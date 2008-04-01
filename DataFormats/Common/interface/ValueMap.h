@@ -4,7 +4,7 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: ValueMap.h,v 1.12 2008/02/06 10:43:22 llista Exp $
+ * \version $Id: ValueMap.h,v 1.13 2008/02/06 13:51:11 llista Exp $
  *
  */
 
@@ -99,6 +99,8 @@ namespace edm {
     typedef std::vector<value_type> container;
     typedef unsigned int offset;
     typedef std::vector<std::pair<ProductID, offset> > id_offset_vector;
+    typedef typename container::reference       reference_type;
+    typedef typename container::const_reference const_reference_type;
 
     ValueMap() { }
 
@@ -114,10 +116,10 @@ namespace edm {
     }
 
     template<typename RefKey>
-    value_type operator[](const RefKey & r) const {
+    const_reference_type operator[](const RefKey & r) const {
       return get(r.id(), r.key());
     }
-    value_type get(ProductID id, size_t idx) const { 
+    const_reference_type get(ProductID id, size_t idx) const { 
       typename id_offset_vector::const_iterator f = getIdOffset(id);
       if(f==ids_.end()) throwNotExisting();
       offset off = f->second;
@@ -125,6 +127,19 @@ namespace edm {
       if(j >= values_.size()) throwIndexBound();
       return values_[j];
     }
+    template<typename RefKey>
+    reference_type operator[](const RefKey & r) {
+      return get(r.id(), r.key());
+    }
+    reference_type get(ProductID id, size_t idx) { 
+      typename id_offset_vector::const_iterator f = getIdOffset(id);
+      if(f==ids_.end()) throwNotExisting();
+      offset off = f->second;
+      size_t j = off+idx;
+      if(j >= values_.size()) throwIndexBound();
+      return values_[j];
+    }
+
     ValueMap<T> & operator+=(const ValueMap<T> & o) {
       add(o);
       return *this;
