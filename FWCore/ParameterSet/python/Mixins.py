@@ -391,8 +391,8 @@ class _ValidatingParameterListBase(_ValidatingListBase,_ParameterTypeBase):
             indented = False
             for i, v in enumerate(self):
                 if i == 0:
-                    if hasattr(v, "_nPerLine"):
-                        nPerLine = v._nPerLine
+                    if hasattr(self, "_nPerLine"):
+                        nPerLine = self._nPerLine
                     else:
                         nPerLine = 5
                 else:

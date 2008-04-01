@@ -448,6 +448,7 @@ class vbool(_ValidatingParameterListBase):
 class vstring(_ValidatingParameterListBase):
     def __init__(self,*arg,**args):
         super(vstring,self).__init__(*arg,**args)
+        self._nPerLine = 1
     @staticmethod
     def _itemIsValid(item):
         return string._isValid(item)
@@ -505,6 +506,7 @@ class VEventID(_ValidatingParameterListBase):
 class VPSet(_ValidatingParameterListBase,_ConfigureComponent,_Labelable):
     def __init__(self,*arg,**args):
         super(VPSet,self).__init__(*arg,**args)
+        self._nPerLine = 1
     @staticmethod
     def _itemIsValid(item):
         return PSet._isValid(item)
