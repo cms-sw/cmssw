@@ -52,9 +52,10 @@ void SiStripMonitorTrack::beginRun(const edm::Run& run,const edm::EventSetup& es
 //------------------------------------------------------------------------
 void SiStripMonitorTrack::endJob(void)
 {
-  dbe->showDirStructure();
-  if(conf_.getParameter<bool>("OutputMEsInRootFile"))
+  if(conf_.getParameter<bool>("OutputMEsInRootFile")){
+    dbe->showDirStructure();
     dbe->save(conf_.getParameter<std::string>("OutputFileName"));
+  }
 }
 
 // ------------ method called to produce the data  ------------
