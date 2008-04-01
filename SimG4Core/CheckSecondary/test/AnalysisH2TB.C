@@ -26,7 +26,7 @@ static unsigned int antiproton=12, proton=13, neutron=14, heavy=15, ions=16;
 void AnalyseH2TB(char element[6], char list[10], char ene[6], char part[4], int sav=0, int nMax=-1, bool debug=false) {
 
   char *g4ver = "G4.9.1";
-  bool detail = false;
+  bool detail = true;
 
   char fname[100];
   sprintf (fname, "%s%s_%s_%sGeV.root", element, list, part, ene);
@@ -66,7 +66,7 @@ void AnalyseH2TB(char element[6], char list[10], char ene[6], char part[4], int 
 
     sprintf (title, "%s in %s at %s GeV (%s)", ctype, element, ene, list);
     sprintf (name, "KE0%s%s%sGeV(%s)", element, list, ene, ctype);
-    hiKE0[ii] = new TH1F (name, title, 5000, 0., 100.);
+    hiKE0[ii] = new TH1F (name, title, 15000, 0., 300.);
     hiKE0[ii]->GetXaxis()->SetTitle("Kinetic Energy (GeV)");
     xbin = hiKE0[ii]->GetBinWidth(1);
     sprintf (ytitle, "Events/%6.3f GeV", xbin);
@@ -83,7 +83,7 @@ void AnalyseH2TB(char element[6], char list[10], char ene[6], char part[4], int 
 
     sprintf (title, "%s (Elastic) in %s at %s GeV (%s)", ctype, element, ene, list);
     sprintf (name, "KE1%s%s%sGeV(%s)", element, list, ene, ctype);
-    hiKE1[ii] = new TH1F (name, title, 5000, 0., 100.);
+    hiKE1[ii] = new TH1F (name, title, 15000, 0., 300.);
     hiKE1[ii]->GetXaxis()->SetTitle("Kinetic Energy (GeV)");
     xbin = hiKE1[ii]->GetBinWidth(1);
     sprintf (ytitle, "Events/%6.3f GeV", xbin);
@@ -100,7 +100,7 @@ void AnalyseH2TB(char element[6], char list[10], char ene[6], char part[4], int 
 
     sprintf (title, "%s (InElastic) in %s at %s GeV (%s)", ctype, element, ene, list);
     sprintf (name, "KE2%s%s%sGeV(%s)", element, list, ene, ctype);
-    hiKE2[ii] = new TH1F (name, title, 5000, 0., 100.);
+    hiKE2[ii] = new TH1F (name, title, 15000, 0., 300.);
     hiKE2[ii]->GetXaxis()->SetTitle("Kinetic Energy (GeV)");
     xbin = hiKE2[ii]->GetBinWidth(1);
     sprintf (ytitle, "Events/%6.3f GeV", xbin);
