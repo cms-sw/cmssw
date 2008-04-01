@@ -13,8 +13,8 @@
  *
  *    Valid for r<1.1 and |z|<3.0
  *
- *  $Date: $
- *  $Revision: $
+ *  $Date: 2008/03/28 16:49:25 $
+ *  $Revision: 1.1 $
  *  \author V.Karimaki 080228
  */
 
@@ -38,7 +38,7 @@ namespace magfieldparam {
   private:
     double prm[9];
     double Bw[3];
-    double ap2, hb0, hlova, ainv, coeff;
+    double ap2, hb0, hlova, ainv;
     void Bcyl(const double *x);
     void ffunkti(const double u, double* ff);    
   };
