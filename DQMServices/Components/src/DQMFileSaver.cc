@@ -219,8 +219,8 @@ void DQMFileSaver::endJob() {
        outFile = dirName_+"/DQM-"+release+".root";
      // save by including or not the dataset directory 
      if (addDataset_ && !dataset_.empty())
-       dbe_->save(outFile, "", "^([^/]+)", release+'/'+dataset_+"/");
+       dbe_->save(outFile, "", "^([^/]+)", release+'/'+dataset_+"/\\1/");
      else
-       dbe_->save(outFile, "", "^([^/]+)", release+"/");
+       dbe_->save(outFile, "", "^([^/]+)", release+"/\\1/");
    }      
 }
