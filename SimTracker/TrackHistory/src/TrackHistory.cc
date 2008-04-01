@@ -17,7 +17,7 @@ TrackHistory::TrackHistory (
 )
 {
   // Default depth	
-  depth_ = 1;
+  depth_ = -1;
 			
   // Name of the track collection
   recoTrackModule_ = iConfig.getParameter<std::string> ( "recoTrackModule" );
