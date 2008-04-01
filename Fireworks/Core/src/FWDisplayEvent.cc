@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Mon Dec  3 08:38:38 PST 2007
-// $Id: FWDisplayEvent.cc,v 1.40 2008/03/27 16:43:07 chrjones Exp $
+// $Id: FWDisplayEvent.cc,v 1.41 2008/03/29 19:14:27 chrjones Exp $
 //
 
 // system include files
@@ -19,6 +19,7 @@
 #include "TEveBrowser.h"
 #include "TSystem.h"
 #include "TClass.h"
+#include "TEveTrackProjected.h"
 
 //geometry
 #include "TFile.h"
@@ -140,7 +141,7 @@ FWDisplayEvent::FWDisplayEvent(const std::string& iConfigFileName,
     delete [] whereConfig;
     m_configurationManager->readFromFile(configFileName);
   }
-
+  TEveTrackProjected::SetBreakTracks(kFALSE);
   m_guiManager->processGUIEvents();
 }
 
