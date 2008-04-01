@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Wed Mar  5 09:13:47 EST 2008
-// $Id: FWDetailViewManager.cc,v 1.10 2008/03/24 01:51:06 jmuelmen Exp $
+// $Id: FWDetailViewManager.cc,v 1.11 2008/03/24 19:56:04 jmuelmen Exp $
 //
 
 // system include files
@@ -30,6 +30,7 @@
 #include "Fireworks/Core/interface/FWDetailView.h"
 #include "Fireworks/Core/interface/FWModelId.h"
 #include "Fireworks/Core/interface/FWEventItem.h"
+#include "TGLOrthoCamera.h"
 
 //
 // constants, enums and typedefs
@@ -115,6 +116,7 @@ FWDetailViewManager::openDetailViewFor(const FWModelId &id)
      // nv->GetGLViewer()->SetCurrentCamera(TGLViewer::kCameraOrthoXOY);
      nv->GetGLViewer()->SetStyle(TGLRnrCtx::kOutline);
      nv->GetGLViewer()->SetClearColor(kBlack);
+     gEve->AddElement(nv, gEve->GetViewers());
      ns = gEve->SpawnNewScene("Detailed view");
      nv->AddScene(ns);
      hf->AddFrame(v->GetFrame(),new TGLayoutHints(kLHintsLeft | kLHintsTop | kLHintsExpandX | kLHintsExpandY)); 
@@ -156,10 +158,12 @@ FWDetailViewManager::openDetailViewFor(const FWModelId &id)
    //      nv->GetGLViewer()->SetPerspectiveCamera(TGLViewer::kCameraOrthoXOY, 5, 0, viewer->second->rotation_center, 0.5, 0 );
    //      nv->GetGLViewer()->SetPerspectiveCamera(TGLViewer::kCameraOrthoXOY, 5, 0, viewer->second->rotation_center, 0.5, 0 );
    //      nv->GetGLViewer()->CurrentCamera().Reset();
-     nv->GetGLViewer()->SetOrthoCamera(TGLViewer::kCameraOrthoXOY, 2, 10, viewer->second->rotation_center, 0.5, 0 );
    // nv->GetGLViewer()->SetPerspectiveCamera(TGLViewer::kCameraPerspXOY, 5, 0, viewer->second->rotation_center, 0.5, 0 );
      nv->GetGLViewer()->SetCurrentCamera(TGLViewer::kCameraOrthoXOY);
+   if ( TGLOrthoCamera* oCamera = dynamic_cast<TGLOrthoCamera*>( &(nv->GetGLViewer()->CurrentCamera()) ) )
+     oCamera->SetEnableRotate(kTRUE);
    nv->GetGLViewer()->CurrentCamera().Reset();
+   // nv->GetGLViewer()->SetOrthoCamera(TGLViewer::kCameraOrthoXOY, 2, 10, viewer->second->rotation_center, 0.5, 0 );
    nv->GetGLViewer()->UpdateScene();
    
    frame->Layout();
