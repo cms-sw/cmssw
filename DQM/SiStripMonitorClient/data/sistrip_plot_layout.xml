@@ -6,16 +6,16 @@
   <monitorable name="Track/GlobalParameters/TrackEta_GenTk"></monitorable>
 </layout>
 <layout name="OnTrackCluster">
-  <monitorable name="Track/GlobalParameters/OnTrack_TOB_cStoN"></monitorable>
-  <monitorable name="Track/GlobalParameters/OnTrack_TIB_cStoN"></monitorable>
-  <monitorable name="Track/GlobalParameters/OnTrack_TEC_cStoN"></monitorable>
-  <monitorable name="Track/GlobalParameters/OnTrack_TID_cStoN"></monitorable>
+  <monitorable name="SiStrip/MechanicalView/TOB/Summary_cStoNCorr_OnTrack_in_TOB"></monitorable>
+  <monitorable name="SiStrip/MechanicalView/TIB/Summary_cStoNCorr_OnTrack_in_TIB"></monitorable>
+  <monitorable name="SiStrip/MechanicalView/TEC/Summary_cStoNCorr_OnTrack_in_TEC"></monitorable>
+  <monitorable name="SiStrip/MechanicalView/TID/Summary_cStoNCorr_OnTrack_in_TID"></monitorable>
 </layout>
 <layout name="OffTrackCluster">
-  <monitorable name="Track/GlobalParameters/OffTrack_TOB_cStoN"></monitorable>
-  <monitorable name="Track/GlobalParameters/OffTrack_TIB_cStoN"></monitorable>
-  <monitorable name="Track/GlobalParameters/OffTrack_TEC_cStoN"></monitorable>
-  <monitorable name="Track/GlobalParameters/OffTrack_TID_cStoN"></monitorable>
+  <monitorable name="SiStrip/MechanicalView/TOB/Summary_cStoN_OffTrack_in_TOB"></monitorable>
+  <monitorable name="SiStrip/MechanicalView/TIB/Summary_cStoN_OffTrack_in_TIB"></monitorable>
+  <monitorable name="SiStrip/MechanicalView/TEC/Summary_cStoN_OffTrack_in_TEC"></monitorable>
+  <monitorable name="SiStrip/MechanicalView/TID/Summary_cStoN_OffTrack_in_TID"></monitorable>
 </layout>
 <layout name="TOBSummary">
   <monitorable name="SiStrip/MechanicalView/TOB/Summary_CMSubNoiseProfile_in_TOB"></monitorable>

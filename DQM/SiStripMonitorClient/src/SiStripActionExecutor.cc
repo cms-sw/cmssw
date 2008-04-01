@@ -64,6 +64,7 @@ bool SiStripActionExecutor::readConfiguration(int& sum_freq) {
 void SiStripActionExecutor::createSummary(DQMStore* dqm_store) {
   if (summaryCreator_) {
     dqm_store->cd();
+    dqm_store->cd("SiStrip/MechanicalView");
     summaryCreator_->createSummary(dqm_store);
   }
 }
