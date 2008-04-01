@@ -54,6 +54,8 @@ namespace pos{
       
     void setDac(std::string dacName, int value);
 
+    unsigned int getDac(std::string dacName) const;
+
     bits4 getVdd() {return Vdd_;}
     void setVdd(bits4 vdd) {Vdd_=vdd;}
 
