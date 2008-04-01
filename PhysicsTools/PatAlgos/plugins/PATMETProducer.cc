@@ -1,13 +1,11 @@
 //
-// $Id: PATMETProducer.cc,v 1.5 2008/02/12 18:46:40 lowette Exp $
+// $Id: PATMETProducer.cc,v 1.1 2008/03/06 09:23:10 llista Exp $
 //
 
 #include "PhysicsTools/PatAlgos/plugins/PATMETProducer.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/FileInPath.h"
 #include "DataFormats/Common/interface/View.h"
-
-#include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 
 #include "PhysicsTools/PatUtils/interface/ObjectResolutionCalc.h"
 
@@ -21,7 +19,7 @@ PATMETProducer::PATMETProducer(const edm::ParameterSet & iConfig) {
   // initialize the configurables
   metSrc_         = iConfig.getParameter<edm::InputTag>("metSource");
   addGenMET_      = iConfig.getParameter<bool>         ("addGenMET");
-  genPartSrc_     = iConfig.getParameter<edm::InputTag>("genParticleSource");
+  genMETSrc_      = iConfig.getParameter<edm::InputTag>("genMETSource");
   addResolutions_ = iConfig.getParameter<bool>         ("addResolutions");
   useNNReso_      = iConfig.getParameter<bool>         ("useNNResolutions");
   metResoFile_    = iConfig.getParameter<std::string>  ("metResoFile");
@@ -47,10 +45,10 @@ void PATMETProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
   edm::Handle<edm::View<METType> > mets;
   iEvent.getByLabel(metSrc_, mets);
 
-  // Get the vector of generated particles from the event if needed
-  edm::Handle<edm::View<reco::GenParticle> > particles;
+  // Get the vector of generated met from the event if needed
+  edm::Handle<edm::View<reco::GenMET> > genMETs;
   if (addGenMET_) {
-    iEvent.getByLabel(genPartSrc_, particles);
+    iEvent.getByLabel(genMETSrc_, genMETs);
   }
 
   // read in the muons if demanded
@@ -66,17 +64,8 @@ void PATMETProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
     unsigned int idx = itMET - mets->begin();
     edm::RefToBase<METType> metsRef = mets->refAt(idx);
     MET amet(metsRef);
-    // calculate the generated MET (just sum of neutrinos)
-    if (addGenMET_) {
-      reco::Particle theGenMET(0, reco::Particle::LorentzVector(0, 0, 0, 0), reco::Particle::Point(0,0,0));
-      for(edm::View<reco::GenParticle>::const_iterator itGenPart = particles->begin(); itGenPart != particles->end(); ++itGenPart) {
-        if ((itGenPart->status()==1) &&
-            (abs(itGenPart->pdgId())==12 || abs(itGenPart->pdgId())==14 || abs(itGenPart->pdgId())==16)) {
-          theGenMET.setP4(theGenMET.p4() + itGenPart->p4());
-        }
-      }
-      amet.setGenMET(theGenMET);
-    }
+    // add the generated MET
+    if (addGenMET_) amet.setGenMET((*genMETs)[idx]);
     // add MET resolution info if demanded
     if (addResolutions_) {
       (*metResoCalc_)(amet);

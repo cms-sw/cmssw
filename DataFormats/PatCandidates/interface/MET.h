@@ -1,5 +1,5 @@
 //
-// $Id: MET.h,v 1.7 2008/02/28 14:29:00 llista Exp $
+// $Id: MET.h,v 1.8 2008/03/05 14:47:33 fronga Exp $
 //
 
 #ifndef DataFormats_PatCandidates_MET_h
@@ -13,12 +13,12 @@
    within the 'pat' namespace.
 
   \author   Steven Lowette
-  \version  $Id: MET.h,v 1.7 2008/02/28 14:29:00 llista Exp $
+  \version  $Id: MET.h,v 1.8 2008/03/05 14:47:33 fronga Exp $
 */
 
 
 #include "DataFormats/METReco/interface/CaloMET.h"
-#include "DataFormats/Candidate/interface/Particle.h"
+#include "DataFormats/METReco/interface/GenMET.h"
 #include "DataFormats/PatCandidates/interface/PATObject.h"
 #include "DataFormats/Common/interface/RefToBase.h"
 
@@ -37,13 +37,13 @@ namespace pat {
       MET(const edm::RefToBase<METType> & aMETRef);
       virtual ~MET();
 
-      const reco::Particle * genMET() const;
+      const reco::GenMET * genMET() const;
 
-      void setGenMET(const reco::Particle & gm);
+      void setGenMET(const reco::GenMET & gm);
 
     protected:
 
-      std::vector<reco::Particle> genMET_;
+      std::vector<reco::GenMET> genMET_;
 
   };
 
