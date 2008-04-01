@@ -1,0 +1,11 @@
+<use name=FWCore/PluginManager>
+
+<library file="SQLiteProxy.cc" name=CondCoreDBCommonSQLiteProxy>
+<flags EDM_PLUGIN=1>
+</library>
+<library file="OracleProxy.cc" name=CondCoreDBCommonOracleProxy>
+<flags EDM_PLUGIN=1>
+</library>
+<library file="FrontierProxy.cc" name=CondCoreDBCommonFrontierProxy>
+<flags EDM_PLUGIN=1>
+</library>
