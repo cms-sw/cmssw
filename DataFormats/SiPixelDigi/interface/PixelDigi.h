@@ -60,9 +60,9 @@ inline bool operator<( const PixelDigi& one, const PixelDigi& other) {
 }
 
 #include<iostream>
-// needed by COBRA
-inline std::ostream & operator<<(std::ostream & o, const PixelDigi & digi) {
-  return o << digi.channel();
+inline std::ostream & operator<<(std::ostream & o, const PixelDigi& digi) {
+  return o << " " << digi.channel()
+	   << " " << digi.adc();
 }
 
 #endif
