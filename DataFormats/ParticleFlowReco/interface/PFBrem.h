@@ -6,7 +6,7 @@
 namespace reco {
 
  
-  class PFBrem : public PFTrack {
+  class PFBrem : public PFRecTrack {
 
   public:
  

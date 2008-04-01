@@ -1,5 +1,7 @@
 #include "DataFormats/ParticleFlowReco/interface/PFBlockElement.h"
 #include "DataFormats/ParticleFlowReco/interface/PFBlockElementTrack.h"
+#include "DataFormats/ParticleFlowReco/interface/PFBlockElementGsfTrack.h"
+#include "DataFormats/ParticleFlowReco/interface/PFBlockElementBrem.h"     
 #include "DataFormats/ParticleFlowReco/interface/PFBlockElementCluster.h"
 
 
@@ -31,8 +33,6 @@ std::ostream& reco::operator<<( std::ostream& out,
         const reco::PFBlockElementTrack& et =
           dynamic_cast<const reco::PFBlockElementTrack &>( element );
         et.Dump(out);
-        if( et.trackType(PFBlockElement::T_GSF) ) out<<" from gsf;";
-        if( et.trackType(PFBlockElement::T_BREM) ) out<<" from brem;";
         if( et.trackType(PFBlockElement::T_FROM_NUCL) ) out<<" from nucl;";
         if( et.trackType(PFBlockElement::T_TO_NUCL) ) out<<" to nucl;";
 	if( et.trackType(PFBlockElement::T_FROM_GAMMACONV) ) out<<" from gammaconv;";  
@@ -41,12 +41,28 @@ std::ostream& reco::operator<<( std::ostream& out,
     case PFBlockElement::ECAL:
     case PFBlockElement::HCAL:
     case PFBlockElement::PS1:
-    case PFBlockElement::PS2:
+    case PFBlockElement::PS2:    
       {
         const reco::PFBlockElementCluster& ec =
           dynamic_cast<const reco::PFBlockElementCluster &>( element );
         ec.Dump(out);
         break;
+      }
+    case PFBlockElement::GSF:
+      {
+	const reco::PFBlockElementGsfTrack& eg =
+          dynamic_cast<const reco::PFBlockElementGsfTrack &>( element );
+        eg.Dump(out);
+	out<<" from gsf;";
+	break;
+      }
+    case PFBlockElement::BREM:
+      {
+	const reco::PFBlockElementBrem& em =
+          dynamic_cast<const reco::PFBlockElementBrem &>( element );
+        em.Dump(out);
+	out<<" from brem;";
+	break;
       }
     default:
       out<<" unknown type"<<std::endl;

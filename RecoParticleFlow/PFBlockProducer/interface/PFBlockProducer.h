@@ -47,6 +47,7 @@ class PFBlockProducer : public edm::EDProducer {
   
 
   edm::InputTag   inputTagRecTracks_;
+  edm::InputTag   inputTagGsfRecTracks_;
   edm::InputTag   inputTagRecMuons_;
   edm::InputTag   inputTagPFNuclear_;
   edm::InputTag   inputTagPFClustersECAL_;

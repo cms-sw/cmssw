@@ -33,13 +33,13 @@ namespace reco {
       PS1, 
       PS2, 
       ECAL, 
-      HCAL 
+      HCAL,
+      GSF,
+      BREM
     };
 
     enum TrackType {
       DEFAULT=0,
-      T_GSF,  
-      T_BREM, 
       T_FROM_NUCL,
       T_TO_NUCL,
       T_FROM_GAMMACONV,

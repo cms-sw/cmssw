@@ -398,6 +398,15 @@ PFTrackTransformer::addPointsAndBrems( reco::GsfPFRecTrack& pftrack,
 
     // add TrajectoryPoint for Brem, PS, ECAL, ECALShowMax, HCAL
     // Brem Entrance PS Layer1
+
+    PFTrajectoryPoint dummyClosest;   // Added just to have the right number order in PFTrack.cc
+    brem.addPoint(dummyClosest); 
+
+    
+    PFTrajectoryPoint dummyBeamPipe;  // Added just to have the right number order in PFTrack.cc
+    brem.addPoint(dummyBeamPipe); 
+
+
     
     bool isBelowPS=false; 
     theBremParticle.propagateToPreshowerLayer1(false);
@@ -456,6 +465,13 @@ PFTrackTransformer::addPointsAndBrems( reco::GsfPFRecTrack& pftrack,
 					math::XYZPoint(theBremParticle.vertex()),
 					math::XYZTLorentzVector(theBremParticle.momentum())));
     
+
+   //HCAL exit
+   theBremParticle.propagateToHcalExit(false);
+   if(theBremParticle.getSuccess()!=0)
+     brem.addPoint(PFTrajectoryPoint(-1,PFTrajectoryPoint::HCALExit,
+					math::XYZPoint(theBremParticle.vertex()),
+					math::XYZTLorentzVector(theBremParticle.momentum())));
 
    pftrack.addBrem(brem);
    iTrajPos++;

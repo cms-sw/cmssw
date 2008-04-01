@@ -193,6 +193,8 @@ ostream& reco::operator<<(  ostream& out,
   stringstream ss;
   int iel = 0;
   int iTK =0;
+  int iGSF =0;
+  int iBREM=0;
   int iPS1 = 0;
   int iPS2 = 0;
   int iEE = 0;
@@ -202,7 +204,6 @@ ostream& reco::operator<<(  ostream& out,
   int iHF = 0;
 
   // for each element in turn
-  
   for(unsigned ie=0; ie<elements.size(); ie++) {
     
     PFBlockElement::Type type = elements[ie].type();
@@ -211,6 +212,14 @@ ostream& reco::operator<<(  ostream& out,
       iTK++;
       ss << "TK" << iTK;
       break;
+    case PFBlockElement::GSF:
+      iGSF++;
+      ss << "GSF" << iGSF;
+      break;
+    case PFBlockElement::BREM:
+      iBREM++;
+      ss << "BREM" << iBREM;
+      break;    
     default:{
       PFClusterRef clusterref = elements[ie].clusterRef();
       int layer = clusterref->layer();
