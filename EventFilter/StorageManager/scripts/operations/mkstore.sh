@@ -1,4 +1,5 @@
 #!/bin/bash
+#$Id:$
 
 dummymode=$1
 if test -n "$dummymode"; then
