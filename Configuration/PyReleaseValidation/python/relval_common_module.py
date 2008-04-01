@@ -85,6 +85,7 @@ def add_includes(process,PU_flag,step_list):
               'SIM':'',
               'DIGI':'',
               'RECO':'',
+              'ALCA':'',
               'L1':'',
               'DIGI2RAW':'',
               'RAW2DIGI':'',
@@ -159,7 +160,9 @@ def event_output(process, outfile_name, step, evt_filter=None):
     """ 
     func_id=mod_id+"["+sys._getframe().f_code.co_name+"]"
     # Event content
+
     content=include_files("Configuration/EventContent/data/EventContent.cff")[0]
+        
     process.extend(content)
     process.out_step = cms.OutputModule\
                    ("PoolOutputModule",
@@ -241,7 +244,7 @@ def build_production_info(evt_type, energy, evtnumber):
     func_id=mod_id+"["+sys._getframe().f_code.co_name+"]"
     
     prod_info=cms.untracked.PSet\
-              (version=cms.untracked.string("$Revision: 1.2 $"),
+              (version=cms.untracked.string("$Revision: 1.3 $"),
                name=cms.untracked.string("PyReleaseValidation"),
                annotation=cms.untracked.string(evt_type+" energy:"+str(energy)+" nevts:"+str(evtnumber))
               )

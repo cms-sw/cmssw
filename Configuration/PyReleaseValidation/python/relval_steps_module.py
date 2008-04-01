@@ -239,3 +239,17 @@ def fastsim(process,name):
     
     return process            
 
+def alca(process,name):
+    '''
+    Enrich the schedule with alcareco
+    '''
+    func_id=mod_id+"["+sys._getframe().f_code.co_name+"]"
+
+    for p  in process.paths_().itervalues():
+        pname=p.label()
+        if ( pname[0:12]=='pathALCARECO'):
+            process.schedule.append(getattr(process,pname))
+            common.log ('%s path added  ...'%pname)
+            
+    return process
+

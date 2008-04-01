@@ -96,6 +96,7 @@ parser.add_option("-s", "--step",
                         "GENSIM (Generation+Simulation)"+\
                         "DIGI (Digitisation), "+\
                         "RECO (Reconstruction), "+\
+                        "ALCA (alignment/calibration), "+\
                         "DIGIRECO (DigitisationReconstruction), "+\
                         "DIGIPURECO (DigitisationReconstruction+ Pileup at low lumi), "+\
                         "ALL (Simulation-Reconstruction-Digitisation).",
@@ -262,6 +263,7 @@ prec_step = {"ALL":"",
              "SIM":"GEN",
              "DIGI":"SIM",
              "RECO":"DIGI",
+             "ALCA":"RECO",
              "ANA":"RECO",
              "DIGI2RAW":"DIGI",
              "RAW2DIGI":"DIGI2RAW"}

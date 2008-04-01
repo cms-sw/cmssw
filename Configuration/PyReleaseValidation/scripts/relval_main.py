@@ -41,6 +41,7 @@ step_dict={'GEN':steps.gen,
            'SIM':steps.sim,
            'DIGI':steps.digi,
            'RECO':steps.reco,
+           'ALCA':steps.alca,
            'L1':steps.l1_trigger,
            'DIGI2RAW':steps.digi2raw,
            'RAW2DIGI':steps.raw2digi,
@@ -54,6 +55,7 @@ dataTier_dict={'GEN':'GEN',
                'SIM':'SIM',
                'DIGI':'DIGI',
                'RECO':'RECO',
+               'ALCA':'RECO',
                'L1':'L1',
                'DIGI2RAW':'RAW',
                'RAW2DIGI':'DIGI',
@@ -66,6 +68,7 @@ pathName_dict={'GEN':'pgen',
                'SIM':'psim',
                'DIGI':'pdigi',
                'RECO':'reconstruction',
+               'ALCA':'alca',
                'L1':'L1Emulator',
                'DIGI2RAW':'DigiToRaw',
                'RAW2DIGI':'RawToDigi',
@@ -149,7 +152,32 @@ if output_flag:
         process = common.raw_output\
                   (process, rawfile_name)
         process.schedule.append(process.outpath_raw)  
+# look for alca reco
+    print 'looking for keys'
 
+    nALCA=0
+    for k in process.schedule:
+        if ( k.label()[0:12]=='pathALCARECO'):
+            print k.label()
+            nALCA=nALCA+1
+            if nALCA==1:
+                content=common.include_files("Configuration/EventContent/data/AlCaRecoOutput.cff")[0]
+                process.extend(content)
+            poUsing='Out'+k.label()[4:len(k.label())]
+            filterName=k.label()[4:len(k.label())]
+            rootName='file:'+filterName+'.root'
+            modName='pool'+k.label()[4:len(k.label())]
+            pathName='outPath'+k.label()[4:len(k.label())]
+            poolOutT = cms.OutputModule("PoolOutputModule",getattr(process,poUsing),\
+                                        dataset = cms.untracked.PSet(filterName = cms.untracked.string(filterName),\
+                                                                     dataTier = cms.untracked.string('ALCARECO')),\
+                                        fileName = cms.untracked.string(rootName)
+                                        )
+            setattr(process,modName,poolOutT)
+            setattr(process,pathName,cms.EndPath(getattr(process,modName)))
+            process.schedule.append(getattr(process,pathName))
+    print 'Number of AlCaReco streams added: '+str(nALCA)
+    
 # Add metadata for production                                    
 process.configurationMetadata=common.build_production_info(evt_type, energy, evtnumber) 
 
