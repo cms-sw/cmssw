@@ -213,7 +213,6 @@ EcalTrigPrimAnalyzer::analyze(const edm::Event& iEvent, const  edm::EventSetup &
   EcalTPGScale ecalScale ;
   for (unsigned int i=0;i<tp.product()->size();i++) {
     EcalTriggerPrimitiveDigi d=(*(tp.product()))[i];
-
     const EcalTrigTowerDetId TPtowid= d.id();
     map<EcalTrigTowerDetId, float>::iterator it=  mapTow_Et.find(TPtowid);
     if (it!= mapTow_Et.end()) {
