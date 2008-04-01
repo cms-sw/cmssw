@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Feb 21 11:22:41 EST 2008
-// $Id: FWEveLegoView.cc,v 1.3 2008/03/21 03:58:54 dmytro Exp $
+// $Id: FWEveLegoView.cc,v 1.4 2008/03/27 11:05:17 dmytro Exp $
 //
 
 // system include files
@@ -81,7 +81,7 @@ FWEveLegoView::FWEveLegoView(TGFrame* iParent, TEveElementList* list):
    
    m_lego = new TEveCaloLego();
    m_lego->SetPalette(pal);
-   m_lego->SetMainColor(Color_t(TColor::GetColor("#1A1A1A")));
+   m_lego->SetMainColor(Color_t(TColor::GetColor("#0A0A0A")));
    // lego->SetEtaLimits(etaLimLow, etaLimHigh);
    // lego->SetTitle("caloTower Et distribution");
    gEve->AddElement(m_lego, ns);
