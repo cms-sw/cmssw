@@ -11,7 +11,7 @@
 //
 // Original Author:  Ursula Berthon, Stephanie Baffioni, Pascal Paganini
 //         Created:  Thu Jul 4 11:38:38 CEST 2005
-// $Id: EcalTrigPrimAnalyzer.cc,v 1.6 2007/12/21 12:56:25 uberthon Exp $
+// $Id: EcalTrigPrimAnalyzer.cc,v 1.10 2008/04/01 09:33:11 uberthon Exp $
 //
 //
 
@@ -73,15 +73,14 @@ EcalTrigPrimAnalyzer::EcalTrigPrimAnalyzer(const edm::ParameterSet&  iConfig)
     sprintf(title,"%s_fgvb",ecal_parts_[i].c_str());
     ecal_fgvb_[i]=new TH1I(title,"FGVB",10,0,10);
   }
-  label_= iConfig.getParameter<std::string>("Label");
-  producer_= iConfig.getParameter<std::string>("Producer");
+
   recHits_= iConfig.getParameter<bool>("AnalyzeRecHits");
+  label_=iConfig.getParameter<edm::InputTag>("inputTP");
   if (recHits_) {
     hTPvsRechit_= new TH2F("TP_vs_RecHit","TP vs  rechit",256,-1,255,255,0,255);
     hTPoverRechit_= new TH1F("TP_over_RecHit","TP over rechit",500,0,4);
-    rechits_labelEB_= iConfig.getParameter<std::string>("RecHitsLabelEB");
-    rechits_labelEE_= iConfig.getParameter<std::string>("RecHitsLabelEE");
-    rechits_producer_=  iConfig.getParameter<std::string>("RecHitsProducer");
+    rechits_labelEB_=iConfig.getParameter<edm::InputTag>("inputRecHitsEB");
+    rechits_labelEE_=iConfig.getParameter<edm::InputTag>("inputRecHitsEE");
   }
 }
 
@@ -111,7 +110,7 @@ EcalTrigPrimAnalyzer::analyze(const edm::Event& iEvent, const  edm::EventSetup &
 
   // Get input
   edm::Handle<EcalTrigPrimDigiCollection> tp;
-  iEvent.getByLabel(label_,producer_,tp);
+  iEvent.getByLabel(label_,tp);
   for (unsigned int i=0;i<tp.product()->size();i++) {
     EcalTriggerPrimitiveDigi d=(*(tp.product()))[i];
     //    for (int ii=0;ii<d.size();++ii) printf(" TP %d, sample %d, et %d\n",i,ii,d[ii].compressedEt());fflush(stdout);
@@ -133,10 +132,10 @@ EcalTrigPrimAnalyzer::analyze(const edm::Event& iEvent, const  edm::EventSetup &
 
   // comparison with RecHits
   edm::Handle<EcalRecHitCollection> rechit_EB_col;
-  iEvent.getByLabel(rechits_producer_,rechits_labelEB_,rechit_EB_col);
+  iEvent.getByLabel(rechits_labelEB_,rechit_EB_col);
 
   edm::Handle<EcalRecHitCollection> rechit_EE_col;
-  iEvent.getByLabel(rechits_producer_,rechits_labelEE_, rechit_EE_col);
+  iEvent.getByLabel(rechits_labelEE_,rechit_EE_col);
   
 
   edm::ESHandle<CaloGeometry> theGeometry;
@@ -215,22 +214,22 @@ EcalTrigPrimAnalyzer::analyze(const edm::Event& iEvent, const  edm::EventSetup &
     EcalTriggerPrimitiveDigi d=(*(tp.product()))[i];
     const EcalTrigTowerDetId TPtowid= d.id();
     map<EcalTrigTowerDetId, float>::iterator it=  mapTow_Et.find(TPtowid);
+    float Et = ecalScale.getTPGInGeV(iSetup, d) ; 
+    if (d.id().ietaAbs()==27 || d.id().ietaAbs()==28)    Et*=2;
+    iphi_ = TPtowid.iphi() ;
+    ieta_ = TPtowid.ieta() ;
+    tpgADC_ = d.compressedEt() ;
+    tpgGeV_ = Et ;
+    ttf_ = d.ttFlag() ;
+    fg_ = d.fineGrain() ;
     if (it!= mapTow_Et.end()) {
-      float Et = ecalScale.getTPGInGeV(iSetup, d) ; 
-      if (d.id().ietaAbs()==27 || d.id().ietaAbs()==28)    Et*=2;
       hTPvsRechit_->Fill(it->second,Et);
       hTPoverRechit_->Fill(Et/it->second);
-      iphi_ = TPtowid.iphi() ;
-      ieta_ = TPtowid.ieta() ;
       eRec_ = it->second ;
-      tpgADC_ = d.compressedEt() ;
-      tpgGeV_ = Et ;
-      ttf_ = d.ttFlag() ;
-      fg_ = d.fineGrain() ;
-      tree_->Fill() ;
     }
+    tree_->Fill() ;
+    if (ttf_==3 && Et<1.) std::cout<<" problem with "<<TPtowid.rawId()<<" Et "<<Et<<std::endl;
   }
-
 
 }
 
