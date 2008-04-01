@@ -16,7 +16,8 @@
 #include "L1Trigger/RegionalCaloTrigger/interface/L1RCT.h"
 #include "L1Trigger/RegionalCaloTrigger/interface/L1RCTLookupTables.h" 
 
-#include "FWCore/Utilities/interface/Exception.h"
+//#include "FWCore/Utilities/interface/Exception.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include <vector>
 using std::vector;
@@ -81,59 +82,134 @@ void L1RCTProducer::produce(edm::Event& event, const edm::EventSetup& eventSetup
 
   unsigned nSamples = preSamples + postSamples + 1;
   //std::cout << "pre " << preSamples << " post " << postSamples
-  //	    << " total " << nSamples;
+  //	    << " total " << nSamples << std::endl;
 
+  bool tooLittleDataEcal = false;
+  bool tooLittleDataHcal = false;
 
   std::vector<EcalTrigPrimDigiCollection> ecalColl(nSamples);
   std::vector<HcalTrigPrimDigiCollection> hcalColl(nSamples);
   if (ecal.isValid()) 
     { 
-      //ecalColl = *ecal; 
       // loop through all ecal digis
       //std::cout << "size of ecal digi coll is " << ecal->size();
-      //for (int i = 0; i = ecal->size(); i++)
       for (ecal_it = ecal->begin(); ecal_it != ecal->end(); ecal_it++)
 	{
+	  /*
+	  if (ecal_it->compressedEt() > 0)
+	    {
+	      std::cout << "[Producer] ecal tower energy is " 
+			<< ecal_it->compressedEt() << std::endl;
+	    }
+	  */
 	  // loop through time samples for each digi
-	  //short digiSize = (*ecal)[i].size();
 	  unsigned short digiSize = ecal_it->size();
 	  // (size of each digi must be no less than nSamples)
 	  //std::cout << " size of this digi is " << digiSize;
-	  if (digiSize < nSamples)
+	  unsigned short nSOI = (unsigned short) ( ecal_it->sampleOfInterest() );
+	  if (digiSize < nSamples || nSOI < preSamples
+	      || ((digiSize - nSOI) < (nSamples - preSamples)))
 	    {
-	      //throw exception
-	      throw cms::Exception("EventCorruption") 
-		<< "ECAL data should have at least " << nSamples
-		<< " time samples per digi, current digi only has " 
-		<< digiSize;
-	    }
-	  for (unsigned short sample = 0; sample < nSamples; sample++)
-	    {
-	      // put each time sample into its own digi
-	      //short zside = (*ecal)[i].id().zside();
-	      //short ietaAbs = (*ecal)[i].id().ietaAbs();
-	      //short iphi = (*ecal)[i].id().iphi();
+	      // log error -- should not happen!
+	      //throw cms::Exception("EventCorruption") 
+	      if (tooLittleDataEcal == false)
+		{
+		  edm::LogWarning ("TooLittleData")
+		    << "ECAL data should have at least " << nSamples
+		    << " time samples per digi, current digi has " 
+		    << digiSize << ".  Insufficient data to process "
+		    << "requested bx's.  Filling extra with zeros";
+		  //std::cout << "bad number of time frames in ECAL!" << std::endl;
+		  tooLittleDataEcal = true;
+		}
+	      unsigned short preLoopsZero = (unsigned short) (preSamples) 
+		- nSOI;
+	      unsigned short postLoopsZero = (unsigned short) (postSamples)
+		- (digiSize - nSOI - 1);
 	      short zside = ecal_it->id().zside();
 	      unsigned short ietaAbs = ecal_it->id().ietaAbs();
 	      short iphi = ecal_it->id().iphi();
-	      /*std::cout << " [producer] sample " << sample << " zside "
-			<< zside << " ietaAbs " << ietaAbs
-			<< " iphi " << iphi << std::endl;
-	      */
-	      /*EcalTriggerPrimitiveDigi
-		ecalDigi(EcalTrigTowerDetId((*ecal)[i].id().zside(), 
-					    EcalTriggerTower, 
-					    (*ecal)[i].id().ietaAbs(),
-					    (*ecal)[i].id().iphi()));
-	      */
-	      EcalTriggerPrimitiveDigi
-		ecalDigi(EcalTrigTowerDetId((int) zside, EcalTriggerTower,
-					    (int) ietaAbs, (int) iphi));
-	      ecalDigi.setSize(1);
-	      //ecalDigi.setSample(0, EcalTriggerPrimitiveSample((*ecal)[i].sample(sample).raw()));
-	      ecalDigi.setSample(0, EcalTriggerPrimitiveSample(ecal_it->sample(sample).raw()));
-	      // push back each digi into correct "time sample" of coll
-	      ecalColl[sample].push_back(ecalDigi);
+	      
+	      // fill extra bx's at beginning with zeros
+	      for (int sample = 0; sample < preLoopsZero; sample++)
+		{
+		  // fill first few with zeros
+		  EcalTriggerPrimitiveDigi
+		    ecalDigi(EcalTrigTowerDetId((int) zside, EcalTriggerTower,
+						(int) ietaAbs, (int) iphi));
+		  ecalDigi.setSize(1);
+		  ecalDigi.setSample(0, EcalTriggerPrimitiveSample(0,false,0));
+		  ecalColl[sample].push_back(ecalDigi);
+		}
+
+	      // loop through existing data
+	      for (int sample = preLoopsZero; 
+		   sample < (preLoopsZero + digiSize); sample++)
+		{
+		  // go through data
+		  EcalTriggerPrimitiveDigi
+		    ecalDigi(EcalTrigTowerDetId((int) zside, EcalTriggerTower,
+						(int) ietaAbs, (int) iphi));
+		  ecalDigi.setSize(1);
+		  // IS SAMPLE CORRECT???  methinks not!
+		  //ecalDigi.setSample(0, EcalTriggerPrimitiveSample(ecal_it->sample(sample).raw()));
+		  ecalDigi.setSample(0, EcalTriggerPrimitiveSample(ecal_it->sample(nSOI + sample - preSamples).raw()));
+		  ecalColl[sample].push_back(ecalDigi);
+		  /*
+		  if (ecal_it->sample(sample).compressedEt() > 0)
+		    {
+		      std::cout << "[Producer] ecal tower energy is "
+				<< ecal_it->sample(sample).compressedEt()
+				<< " in sample " << sample << std::endl;
+		    }
+		  */
+		}
+	      
+	      // fill extra bx's at end with zeros
+	      for (int sample = (preLoopsZero + digiSize); 
+		   sample < nSamples; sample++)
+		{
+		  // fill zeros!
+		  EcalTriggerPrimitiveDigi
+		    ecalDigi(EcalTrigTowerDetId((int) zside, EcalTriggerTower,
+						(int) ietaAbs, (int) iphi));
+		  ecalDigi.setSize(1);
+		  ecalDigi.setSample(0, EcalTriggerPrimitiveSample(0,false,0));
+		  ecalColl[sample].push_back(ecalDigi);
+		}
+	    }
+	  else
+	    {
+	      for (unsigned short sample = 0; sample < nSamples; sample++)
+		{
+		  /*
+		  if (ecal_it->sample(sample).compressedEt() > 0)
+		    {
+		      std::cout << "[Producer] ecal tower energy is "
+				<< ecal_it->sample(sample).compressedEt()
+				<< " in sample " << sample << std::endl;
+		    }
+		  */
+		  // put each time sample into its own digi
+		  //short zside = (*ecal)[i].id().zside();
+		  //short ietaAbs = (*ecal)[i].id().ietaAbs();
+		  //short iphi = (*ecal)[i].id().iphi();
+		  short zside = ecal_it->id().zside();
+		  unsigned short ietaAbs = ecal_it->id().ietaAbs();
+		  short iphi = ecal_it->id().iphi();
+		  /*std::cout << " [producer] sample " << sample << " zside "
+		    << zside << " ietaAbs " << ietaAbs
+		    << " iphi " << iphi << std::endl;
+		  */
+		  EcalTriggerPrimitiveDigi
+		    ecalDigi(EcalTrigTowerDetId((int) zside, EcalTriggerTower,
+						(int) ietaAbs, (int) iphi));
+		  ecalDigi.setSize(1);
+		  //ecalDigi.setSample(0, EcalTriggerPrimitiveSample(ecal_it->sample(sample).raw()));
+		  ecalDigi.setSample(0, EcalTriggerPrimitiveSample(ecal_it->sample(ecal_it->sampleOfInterest() + sample - preSamples).raw()));
+		  // push back each digi into correct "time sample" of coll
+		  ecalColl[sample].push_back(ecalDigi);
+		}
 	    }
 	}
     }
@@ -148,25 +224,83 @@ void L1RCTProducer::produce(edm::Event& event, const edm::EventSetup& eventSetup
 	  //unsigned short digiSize = (*hcal)[i].size();
 	  unsigned short digiSize = hcal_it->size();
 	  // (size of each digi must be no less than nSamples)
-	  if (digiSize < nSamples)
+	  unsigned short nSOI = (unsigned short) (hcal_it->presamples());
+	  if (digiSize < nSamples || nSOI < preSamples
+	      || ((digiSize - nSOI) < (nSamples - preSamples)))
+
 	    {
-	      // throw exception
-	      throw cms::Exception("EventCorruption") 
-		<< "HCAL data should have at least " << nSamples
-		<< " time samples per digi, current digi only has " 
-		<< digiSize;
+	      // log error -- should not happen!
+	      //throw cms::Exception("EventCorruption") 
+	      if (tooLittleDataHcal == false)
+		{
+		  edm::LogWarning ("TooLittleData")
+		    << "HCAL data should have at least " << nSamples
+		    << " time samples per digi, current digi has " 
+		    << digiSize << ".  Insufficient data to process "
+		    << "requested bx's.  Filling extra with zeros";
+		  //std::cout << "bad number of time frames in HCAL!" << std::endl;
+		  tooLittleDataHcal = true;
+		}
+	      unsigned short preLoopsZero = (unsigned short) (preSamples) 
+		- nSOI;
+	      unsigned short postLoopsZero = (unsigned short) (postSamples)
+		- (digiSize - nSOI - 1);
+	      short ieta = hcal_it->id().ieta();
+	      short iphi = hcal_it->id().iphi();
+	      
+	      // fill extra bx's at beginning with zeros
+	      for (int sample = 0; sample < preLoopsZero; sample++)
+		{
+		  // fill first few with zeros
+		  HcalTriggerPrimitiveDigi
+		    hcalDigi(HcalTrigTowerDetId((int) ieta, (int) iphi));
+		  hcalDigi.setSize(1);
+		  hcalDigi.setPresamples(0);
+		  hcalDigi.setSample(0, HcalTriggerPrimitiveSample(0,false,0,0));
+		  hcalColl[sample].push_back(hcalDigi);
+		}
+
+	      // loop through existing data
+	      for (int sample = preLoopsZero; 
+		   sample < (preLoopsZero + digiSize); sample++)
+		{
+		  // go through data
+		  HcalTriggerPrimitiveDigi
+		    hcalDigi(HcalTrigTowerDetId((int) ieta, (int) iphi));
+		  hcalDigi.setSize(1);
+		  hcalDigi.setPresamples(0);
+		  hcalDigi.setSample(0, HcalTriggerPrimitiveSample
+				     (hcal_it->sample(hcal_it->presamples() + sample - preSamples).raw()));
+		  hcalColl[sample].push_back(hcalDigi);
+		}
+	      
+	      // fill extra bx's at end with zeros
+	      for (int sample = (preLoopsZero + digiSize); 
+		   sample < nSamples; sample++)
+		{
+		  // fill zeros!
+		  HcalTriggerPrimitiveDigi
+		    hcalDigi(HcalTrigTowerDetId((int) ieta, (int) iphi));
+		  hcalDigi.setSize(1);
+		  hcalDigi.setPresamples(0);
+		  hcalDigi.setSample(0, HcalTriggerPrimitiveSample(0,false,0,0));
+		  hcalColl[sample].push_back(hcalDigi);
+		}
 	    }
-	  for (unsigned short sample = 0; sample < nSamples; sample++)
+	  else
 	    {
-	      // put each (relevant) time sample into its own digi
-	      HcalTriggerPrimitiveDigi hcalDigi(HcalTrigTowerDetId
-						((int) hcal_it->id().ieta(),
-						 (int) hcal_it->id().iphi()));
-	      hcalDigi.setSize(1);
-	      hcalDigi.setPresamples(0);
-	      hcalDigi.setSample(0, HcalTriggerPrimitiveSample
-				 (hcal_it->sample(hcal_it->presamples() - preSamples + sample).raw()));
-	      hcalColl[sample].push_back(hcalDigi);  
+	      for (unsigned short sample = 0; sample < nSamples; sample++)
+		{
+		  // put each (relevant) time sample into its own digi
+		  HcalTriggerPrimitiveDigi hcalDigi(HcalTrigTowerDetId
+						    ((int) hcal_it->id().ieta(),
+						     (int) hcal_it->id().iphi()));
+		  hcalDigi.setSize(1);
+		  hcalDigi.setPresamples(0);
+		  hcalDigi.setSample(0, HcalTriggerPrimitiveSample
+				     (hcal_it->sample(hcal_it->presamples() + sample - preSamples).raw()));
+		  hcalColl[sample].push_back(hcalDigi);  
+		}
 	    }
 	}
     }
@@ -179,6 +313,7 @@ void L1RCTProducer::produce(edm::Event& event, const edm::EventSetup& eventSetup
   // loop through and process each bx
   for (unsigned short sample = 0; sample < nSamples; sample++)
     {
+      //std::cout << "Processing sample " << sample << std::endl;
       rct->digiInput(ecalColl[sample], hcalColl[sample]);
       rct->processEvent();
 

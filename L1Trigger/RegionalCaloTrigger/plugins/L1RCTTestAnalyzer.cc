@@ -43,6 +43,8 @@ L1RCTTestAnalyzer::L1RCTTestAnalyzer(const edm::ParameterSet& iConfig) :
 				      18, 0., 18. );
   h_emNonIsoInIetaIphi = fs->make<TH2F>( "emNonIso2D", "emNonIso2D", 22, 0., 
 					 22., 18, 0., 18. );
+  h_emCandTimeSample = fs->make<TH1F>( "emCandTimeSample", "emCandTimeSample",
+				       5, -2., 2.);
 
   h_regionSum = fs->make<TH1F>( "regionSum", "regionSum", 100, 0., 100. );
   h_regionIeta = fs->make<TH1F>( "regionIeta", "regionIeta", 22, 0., 22. );
@@ -131,6 +133,7 @@ L1RCTTestAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
      }
    for (em=rctEmCands->begin(); em!=rctEmCands->end(); em++){
      //  cout << "(Analyzer)\n" << (*em) << endl;
+     h_emCandTimeSample->Fill((*em).bx());
      if ((*em).bx() == 0)
        {
 	 unsigned short n_emcands = 0;

@@ -13,7 +13,7 @@
 //
 // Original Author:  pts/47
 //         Created:  Thu Jul 13 21:38:08 CEST 2006
-// $Id: L1RCTTestAnalyzer.h,v 1.7 2008/02/07 17:46:04 jleonard Exp $
+// $Id: L1RCTTestAnalyzer.h,v 1.8 2008/03/11 18:08:03 jleonard Exp $
 //
 //
 
@@ -66,6 +66,7 @@ private:
   // add isolated/non-iso?
   TH2F * h_emIsoInIetaIphi;
   TH2F * h_emNonIsoInIetaIphi;
+  TH1F * h_emCandTimeSample;
 
   TH1F * h_regionSum;
   TH1F * h_regionIeta;
