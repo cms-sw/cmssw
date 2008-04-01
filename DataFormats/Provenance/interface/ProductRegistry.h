@@ -7,7 +7,7 @@
 
    \original author Stefano ARGIRO
    \current author Bill Tanenbaum
-   \version $Id: ProductRegistry.h,v 1.5 2007/06/14 03:38:30 wmtan Exp $
+   \version $Id: ProductRegistry.h,v 1.6 2008/03/24 02:26:02 wmtan Exp $
    \date 19 Jul 2005
 */
 
@@ -99,6 +99,8 @@ namespace edm {
     ProductList::size_type size() const {return productList_.size();}
 
     void print(std::ostream& os) const;
+
+    void deleteDroppedProducts();
 
   private:
     

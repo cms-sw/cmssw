@@ -4,11 +4,11 @@
 
    \Original author Stefano ARGIRO
    \Current author Bill Tanenbaum
-   \version $Id: ProductRegistry.cc,v 1.7 2008/02/07 00:43:07 wmtan Exp $
+   \version $Id: ProductRegistry.cc,v 1.8 2008/03/24 02:26:03 wmtan Exp $
    \date 19 Jul 2005
 */
 
-static const char CVSId[] = "$Id: ProductRegistry.cc,v 1.7 2008/02/07 00:43:07 wmtan Exp $";
+static const char CVSId[] = "$Id: ProductRegistry.cc,v 1.8 2008/03/24 02:26:03 wmtan Exp $";
 
 
 #include "DataFormats/Provenance/interface/ProductRegistry.h"
@@ -94,6 +94,22 @@ namespace edm {
     }
     frozen_ = true;
     initializeTransients();
+  }
+
+  void
+  ProductRegistry::deleteDroppedProducts() {
+    throwIfFrozen();
+    ProductList::iterator it = productList_.begin(), itEnd = productList_.end();
+    // Deleting an entry in a map does not invalidate an iterator pointing to another entry.
+    while (it != itEnd) {
+      if (it->second.present() == false) {
+	ProductList::iterator itDrop = it;
+	++it;
+	productList_.erase(itDrop);
+      } else {
+	++it;
+      }
+    }
   }
   
   void

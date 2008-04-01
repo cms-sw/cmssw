@@ -5,7 +5,7 @@
 
 RootInputFileSequence: This is an InputSource
 
-$Id: RootInputFileSequence.h,v 1.5 2008/03/11 21:12:43 wmtan Exp $
+$Id: RootInputFileSequence.h,v 1.6 2008/03/20 09:39:06 lsexton Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -95,6 +95,7 @@ namespace edm {
     bool skipBadFiles_;
     int forcedRunOffset_;
     RunNumber_t setRun_;
+    bool dropMetaData_;
   }; // class RootInputFileSequence
 }
 #endif

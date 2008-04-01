@@ -55,6 +55,15 @@ namespace edm {
   }
 
   void
+  RootTree::setPresence(
+		      BranchDescription const& prod) {
+      assert(isValid());
+      prod.init();
+      prod.provenancePresent_ = (metaTree_->GetBranch(prod.branchName().c_str()) != 0);
+      prod.present_ = (tree_->GetBranch(prod.branchName().c_str()) != 0);
+  }
+
+  void
   RootTree::addBranch(BranchKey const& key,
 		      BranchDescription const& prod,
 		      std::string const& oldBranchName) {
@@ -62,9 +71,9 @@ namespace edm {
       prod.init();
       //use the translated branch name 
       TBranch * provBranch = metaTree_->GetBranch(oldBranchName.c_str());
-      prod.provenancePresent_ = (metaTree_->GetBranch(oldBranchName.c_str()) != 0);
+      assert (prod.provenancePresent_ == (provBranch != 0));
       TBranch * branch = tree_->GetBranch(oldBranchName.c_str());
-      prod.present_ = (branch != 0);
+      assert (prod.present_ == (branch != 0));
       if (prod.provenancePresent()) {
         input::EventBranchInfo info = input::EventBranchInfo(ConstBranchDescription(prod));
         info.provenanceBranch_ = provBranch;

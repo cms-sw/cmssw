@@ -5,7 +5,7 @@
 
 RootTree.h // used by ROOT input sources
 
-$Id: RootTree.h,v 1.20 2007/11/27 21:01:10 wmtan Exp $
+$Id: RootTree.h,v 1.21 2008/01/30 00:28:29 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -34,6 +34,7 @@ namespace edm {
     void addBranch(BranchKey const& key,
 		   BranchDescription const& prod,
 		   std::string const& oldBranchName);
+    void setPresence(BranchDescription const& prod);
     bool next() {return ++entryNumber_ < entries_;} 
     bool previous() {return --entryNumber_ >= 0;} 
     bool current() {return entryNumber_ < entries_ && entryNumber_ >= 0;} 

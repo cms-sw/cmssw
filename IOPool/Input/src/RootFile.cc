@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: RootFile.cc,v 1.125 2008/03/20 18:47:47 wmtan Exp $
+$Id: RootFile.cc,v 1.126 2008/03/24 02:22:22 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include "RootFile.h"
@@ -50,7 +50,8 @@ namespace edm {
 		     std::vector<LuminosityBlockID> const& whichLumisToSkip,
 		     int remainingEvents,
 		     int forcedRunOffset,
-		     std::vector<EventID> const& whichEventsToProcess) :
+		     std::vector<EventID> const& whichEventsToProcess,
+		     bool dropMetaData) :
       file_(fileName),
       logicalFile_(logicalFileName),
       catalog_(catalogName),
@@ -73,6 +74,7 @@ namespace edm {
       whichEventsToProcess_(whichEventsToProcess),
       eventListIter_(whichEventsToProcess_.begin()),
       fastClonable_(false),
+      dropMetaData_(dropMetaData),
       reportToken_(0),
       eventAux_(),
       lumiAux_(),
@@ -139,6 +141,20 @@ namespace edm {
     eventProcessHistoryIter_ = eventProcessHistoryIDs_.begin();
 
     readEventHistoryTree();
+
+    // Set product presence information in the product registry.
+    // We must do this before calling deleteDroppedProducts().
+    ProductRegistry::ProductList const& pList = tempReg.productList();
+    for (ProductRegistry::ProductList::const_iterator it = pList.begin(), itEnd = pList.end();
+        it != itEnd; ++it) {
+      BranchDescription const& prod = it->second;
+      treePointers_[prod.branchType()]->setPresence(prod);
+    }
+
+    if (dropMetaData_) {
+      // delete all dropped products from the registry.
+      tempReg.deleteDroppedProducts();
+    }
 
     // freeze our temporary product registry
     tempReg.setFrozen();
