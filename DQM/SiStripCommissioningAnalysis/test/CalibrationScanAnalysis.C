@@ -79,19 +79,23 @@ void CalibrationScanAnalysis::addFile(const std::string& filename) {
 
 void CalibrationScanAnalysis::addFile(TFile* newFile) {
   int isha,vfs;
-  std::string basePath = DATAPATH;
-  std::string ishapath = basePath + "isha";
-  std::string vfspath = basePath + "vfs";
-  TNamed* ishaObj = (TNamed*)(newFile->Get(ishapath.c_str()));
-  TNamed* vfsObj  = (TNamed*)(newFile->Get(vfspath.c_str()));
+  TList* keyList = newFile->GetDirectory(DATAPATH)->GetListOfKeys();
+  TIter next(keyList);
+  TNamed* ishaObj = NULL;
+  TNamed* vfsObj  = NULL;
+  TNamed* obj = NULL;
+  while ((obj = (TNamed*)(next()))) {
+    if(strncmp(obj->GetName(),"<isha>",6)==0) ishaObj = (TNamed*)obj;
+    if(strncmp(obj->GetName(),"<vfs>",5)==0)  vfsObj  = (TNamed*)obj;
+  }
   if(!ishaObj || !vfsObj) {
      std::cerr << "Error: Unexpected file structure. ISHA/VFS values not found." << std::endl;
      newFile->Close();
      delete newFile;
      return;
   }
-  isha = atoi(ishaObj->GetTitle()+2);
-  vfs  = atoi(vfsObj->GetTitle()+2 );
+  isha = atoi(ishaObj->GetName()+8);
+  vfs  = atoi(vfsObj->GetName()+7 );
   std::cout << "Loaded File for ISHA/VFS = " << isha << "/" << vfs << std::endl;
   files_[std::make_pair(isha,vfs)] = newFile;
 }
@@ -195,8 +199,8 @@ void CalibrationScanAnalysis::analyze() {
        g2->SetPoint(ii,summary->first.second, observables[tail_index]->GetBinContent(apv));
      }
 #ifdef DEBUG_ON
-     g1->Write(Form("%s%s",summaries_.begin()->second[0]->GetXaxis()->GetBinLabel(apv),"CalibrationTail"));
-     g2->Write(Form("%s%s",summaries_.begin()->second[0]->GetXaxis()->GetBinLabel(apv),"CalibrationRiseTime"));
+     g1->Write(Form("%s%s",summaries_.begin()->second[0]->GetXaxis()->GetBinLabel(apv),"CalibrationRiseTime"));
+     g2->Write(Form("%s%s",summaries_.begin()->second[0]->GetXaxis()->GetBinLabel(apv),"CalibrationTail"));
 #endif
      // analyse the graphs
      float best_isha = tuneISHA_ ? getX(g1,66. ) : 
@@ -307,13 +311,13 @@ void CalibrationScanAnalysis::sortByGeometry() {
   ifstream debuglog("debug.log");
   char buffer[1024];
   while(debuglog.getline(buffer,1024)) {
-    if(strncmp(buffer," FED: crate/slot/id/unit",23)==0) {
+    if(strncmp(buffer," FED:cr/sl/id/fe/ch/chan",23)==0) {
 
       // Decode input
       int fecCrate,fecSlot,fecRing,ccuAddr,ccuChan,channel1,channel2,detid,tmp;
-      sscanf(strstr(buffer,"FEC: crate/slot/ring/CCU/module"), "FEC: crate/slot/ring/CCU/module %d/%d/%d,%d/%d", &fecCrate,&fecSlot,&fecRing,&ccuAddr, &ccuChan);
-      sscanf(strstr(buffer,"APVs"), "APVs %d/%d", &channel1,&channel2);
-      sscanf(strstr(buffer,"DCU/DetId"), "DCU/DetId %x/%x", &tmp,&detid);
+      sscanf(strstr(buffer,"FEC:cr/sl/ring/ccu/mod"), "FEC:cr/sl/ring/ccu/mod=%d/%d/%d,%d/%d", &fecCrate,&fecSlot,&fecRing,&ccuAddr, &ccuChan);
+      sscanf(strstr(buffer,"apvs"), "apvs=%d/%d", &channel1,&channel2);
+      sscanf(strstr(buffer,"dcu/detid"), "dcu/detid=%x/%x", &tmp,&detid);
 
       // Construct bin label
       std::stringstream bin1;
