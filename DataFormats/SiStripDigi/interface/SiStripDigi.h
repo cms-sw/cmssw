@@ -33,6 +33,12 @@ class SiStripDigi {
   
 };
 
+#include<iostream>
+inline std::ostream & operator<<(std::ostream & o, const SiStripDigi& digi) {
+  return o << " " << digi.strip()
+	   << " " << digi.adc();
+}
+
 // inline methods
 const uint16_t& SiStripDigi::strip() const { return strip_; }
 const uint16_t& SiStripDigi::adc() const { return adc_; }
