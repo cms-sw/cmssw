@@ -13,6 +13,7 @@
 #include <sys/socket.h>
 #include <netdb.h>
 #include <stdio.h>
+#include <fstream>
 
 // -----------------------------------------------------------------------------
 //
@@ -80,10 +81,22 @@ void CalibrationScanTask::book() {
   std::string pwd = dqm()->pwd();
   std::string rootDir = pwd.substr(0,pwd.find(sistrip::root_ + "/")+sistrip::root_.size());
   dqm()->setCurrentFolder( rootDir );
-  ishaElement_ = dqm()->bookInt("isha");
-  vfsElement_ = dqm()->bookInt("vfs");
-  calchanElement_ = dqm()->bookInt("calchan");
-  
+  std::vector<std::string> existingMEs = dqm()->getMEs();
+  if(find(existingMEs.begin(),existingMEs.end(),"isha")!=existingMEs.end()) {
+    ishaElement_ = dqm()->get(dqm()->pwd()+"/isha");
+  } else {
+    ishaElement_ = dqm()->bookInt("isha");
+  }
+  if(find(existingMEs.begin(),existingMEs.end(),"isha")!=existingMEs.end()) {
+    vfsElement_ = dqm()->get(dqm()->pwd()+"/vfs");  
+  } else {
+    vfsElement_ = dqm()->bookInt("vfs");
+  }
+  if(find(existingMEs.begin(),existingMEs.end(),"calchan")!=existingMEs.end()) {
+    calchanElement_ = dqm()->get(dqm()->pwd()+"/calchan");
+  } else {
+    calchanElement_ = dqm()->bookInt("calchan");
+  }
   
   LogDebug("Commissioning") << "[CalibrationScanTask::book] done";
   
@@ -93,7 +106,7 @@ void CalibrationScanTask::book() {
 //
 void CalibrationScanTask::fill( const SiStripEventSummary& summary,
 			    const edm::DetSet<SiStripRawDigi>& digis ) {
-  LogDebug("Commissioning") << "[CalibrationScanTask::fill]";
+  LogDebug("Commissioning") << "[CalibrationScanTask::fill]: isha/vfs = " << summary.isha() << "/" << summary.vfs();
   // Check if ISHA/VFS changed. In that case, save, reset histo, change title, and continue
   checkAndSave(summary.isha(),summary.vfs());
   // retrieve the delay from the EventSummary
@@ -186,11 +199,18 @@ void CalibrationScanTask::checkAndSave(const uint16_t& isha, const uint16_t& vfs
     ss << "_000"; // Add FU instance number (fake)
     ss << ".root"; // Append ".root" extension
     if ( !filename_.empty() ) {
-      dqm()->save( ss.str() ); 
-      LogTrace("DQMsource")
-        << "[SiStripCommissioningSource::" << __func__ << "]"
-        << " Saved all histograms to file \""
-        << ss.str() << "\"";
+      if(ifstream(ss.str().c_str(),ifstream::in).fail()) { //save only once. Skip if the file already exist
+        dqm()->save( ss.str() ); 
+        LogTrace("DQMsource")
+          << "[SiStripCommissioningSource::" << __func__ << "]"
+          << " Saved all histograms to file \""
+          << ss.str() << "\"";
+      } else {
+        LogTrace("DQMsource")
+	  << "[SiStripCommissioningSource::" << __func__ << "]"
+	  << " Skipping creation of file \""
+	  << ss.str() << "\" that already exists" ;
+      }
     } else {
       edm::LogWarning("DQMsource")
         << "[SiStripCommissioningSource::" << __func__ << "]"
