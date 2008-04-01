@@ -195,6 +195,26 @@ foreach (@Candle)
 	    }
 	    print SIMCANDLES "$Command @@@ $Profiler{$_} @@@ $FileName{$candle}_"."$OutputStep"."_"."$_"."\n";
 	}
+   
+    }
+    #Add the extra "step" DIGI with PILE UP only for QCD_80_120:
+    if ($candle eq "QCD -e 80_120")
+    {
+	print SIMCANDLES "#$FileName{$candle}\n";
+	print SIMCANDLES "#DIGI PILE-UP STEP\n";
+	foreach (@Profile)
+	{
+	    if ($_ eq "EdmSize")
+	    {
+		$Command="$FileName{$candle}"."_DIGI_PILEUP.root ";
+	    }
+	    else
+	    {
+		$OutputFileOption="--fileout=$FileName{$candle}"."_DIGI_PILEUP.root";
+		$Command="$cmsDriver $candle -n $NumberOfEvents --step=DIGI $OutputFileOption --customise=MixingModule.py ";
+	    }
+	    print SIMCANDLES "$Command @@@ $Profiler{$_} @@@ $FileName{$candle}_DIGI_PILEUP_"."$_"."\n";
+	}
     }
 }
 exit;
