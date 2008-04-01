@@ -28,8 +28,6 @@ void SiStripPedestalsReader::analyze( const edm::Event& e, const edm::EventSetup
 	  edm::LogInfo("SiStripPedestalsReader")  << "detid  " << detid[id] << " \t"
 						  << " strip " << strip++   << " \t"
 						  << SiStripPedestals_->getPed   (it,range)   << " \t" 
-						  << SiStripPedestals_->getLowTh (it,range)   << " \t" 
-						  << SiStripPedestals_->getHighTh(it,range)   << " \t" 
 						  << std::endl; 	    
 	} 
       }
