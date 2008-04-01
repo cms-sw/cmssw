@@ -10,12 +10,12 @@
 class SiStripPedestals {
 
 	public:
-
+		/*
 		struct DecodingStructure{  
 			unsigned int lth :6;
 			unsigned int hth :6;
 			unsigned int ped :10;
-		};
+		};*/
 
 		struct DetRegistry{
 			uint32_t detid;
@@ -32,11 +32,13 @@ class SiStripPedestals {
 		typedef std::pair<ContainerIterator, ContainerIterator>  Range;      
 		typedef std::vector<DetRegistry>                         Registry;
 		typedef Registry::const_iterator                         RegistryIterator;
+		typedef const std::vector<short>		         InputVector;
 
 		SiStripPedestals(){};
 		~SiStripPedestals(){};
 
-		bool  put(const uint32_t& detID,Range input);
+		//bool  put(const uint32_t& detID,Range input);
+		bool  put(const uint32_t& detID,InputVector &input);
 		const Range getRange(const uint32_t& detID) const;
 		void  getDetIds(std::vector<uint32_t>& DetIds_) const;
 
@@ -45,13 +47,14 @@ class SiStripPedestals {
 		RegistryIterator getRegistryVectorBegin() const {return indexes.begin();}
 		RegistryIterator getRegistryVectorEnd()   const{return indexes.end();}
 
-
-		void  setData(float ped, float lth, float hth, std::vector<char>& vped);
+		void  setData(float ped, std::vector<short>& vped);
 		float getPed   (const uint16_t& strip, const Range& range) const;
-		float getLowTh (const uint16_t& strip, const Range& range) const;
-		float getHighTh(const uint16_t& strip, const Range& range) const;
 
 	private:
+
+		void     encode(InputVector& Vi, std::vector<unsigned char>& Vo_CHAR);
+		uint16_t decode (const uint16_t& strip, const Range& range) const;
+
 		std::vector<char> v_pedestals; //@@@ blob streaming doesn't work with uint16_t and with SiStripData::Data
 		std::vector<DetRegistry> indexes;
 };
