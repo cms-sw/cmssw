@@ -1,5 +1,4 @@
 #!/usr/bin/env perl
-# Created by Markus Klute on 2007 Jan 24.
 # $Id:$
 ################################################################################
 
@@ -7,10 +6,7 @@ use strict;
 use Getopt::Long;
 use DBI;
 
-################################################################################
-
 sub show_help {
-
   my $exit_status = shift@_;
   print " 
   ############################################################################## 
@@ -21,24 +17,42 @@ sub show_help {
 
   Syntax:
   ======= 
-  ./closeFile.pl  --RUNNUMBER 999999  --LUMISECTION 0  --INSTANCE 0  --COUNT 0  
-                   --START_TIME  1181833642  --STOP_TIME  1181834642 
-                   --FILENAME test.00999999.0000.A.test.0.0000.dat
-                   --PATHNAME /data1/ --HOSTNAME cmsdisk1
-                   --DATASET test --STREAM A  --STATUS closed  --TYPE streamer               
-                   --SAFETY 0  --NEVENTS 999  --FILESIZE 1024  --CHECKSUM 0 
-  Example:
-  ========
+  ./closeFile.pl  --RUNNUMBER 999999  --LUMISECTION 0  --INSTANCE 0  --COUNT 0 \
+                  --START_TIME  1181833642  --STOP_TIME  1181834642 \
+                  --FILENAME test.00999999.0000.A.test.0.0000.dat \
+                  --PATHNAME /data1/ --HOSTNAME cmsdisk1 \
+                  --DATASET test --STREAM A  --STATUS closed  --TYPE streamer \
+                  --SAFETY 0  --NEVENTS 999  --FILESIZE 1024  --CHECKSUM 0 
   
   ##############################################################################   
   \n";
   exit $exit_status;
 }
+
+sub getdatestr()
+{
+    my @ltime = localtime(time);
+    my ($sec,$min,$hour,$mday,$mon,$year,$wday,$yday,$isdst) = @ltime;
+    $year += 1900;
+    $mon++;
+
+    my $datestr=$year;
+    if ($mon < 10) {
+	$datestr=$datestr . "0";
+    }
+
+    $datestr=$datestr . $mon;
+    if ($mday < 10) {
+	$datestr=$datestr . "0";
+    }
+    $datestr=$datestr . $mday;
+    return $datestr;
+}
+
 ################################################################################
 
-# log the 
-open LOG, ">> /nfshome0/klute/globalRun-09-2007/log/closeFile.log";
-print LOG scalar localtime(time),' ',join(' ',@ARGV),"\n";
+my $dolog = 1;
+my @MYARGV = @ARGV;
 
 my ($runnumber,$lumisection,$instance,$count,$stoptime,$filename,$pathname);
 my ($hostname,$dataset,$stream,$status,$type,$safety,$nevents,$filesize);
@@ -48,8 +62,6 @@ my ($CRC)        = ('0');
 my ($PRODUCER)   = ('StorageManager');
 my ($MYCHECKSUM) = ('0');
 my ($MYFILESIZE) = ('0');
-
-my $sender;
 
 # get options
 GetOptions(
@@ -72,34 +84,54 @@ GetOptions(
            "CHECKSUM=s"    => \$checksum
           );
 
+################################################################################
 
-# checksum
-my $FULLFILENAME = "chmod a+r $pathname$filename";
-#($MYCHECKSUM, $MYFILESIZE, $FULLFILENAME) = split(" ",qx(cksum $FULLFILENAME));
-system($FULLFILENAME);
+#make sure domain is stripped
+my @harray = split(/\./,$hostname);
+$hostname = $harray[0];
 
-# copy first file of a run to look area 
-if ( $lumisection == 1 )
+#overwrite TNS to be sure it points to new DB
+$ENV{'TNS_ADMIN'} = '/etc/tnsnames.ora';
+
+if ( $dolog == 1 )
 {
-   my $COPYCOMMAND = "cp $pathname$filename /data1/lookarea; chmod a+r /data1/lookarea/$filename;";
-   system($COPYCOMMAND);
+    my $dstr = getdatestr();
+    my $ltime = localtime(time);
+    my $outfile = ">> /nfshome0/smdev/logs/" . $dstr . "-" . $hostname . ".log";
+    open LOG, $outfile;
+    print LOG scalar localtime(time),": closeFile.pl ",join(' ',@MYARGV),"\n";
+    close LOG;
 }
 
-print LOG scalar localtime(time),"  CHECKSUM=",$MYCHECKSUM, " FILESIZE=", $MYFILESIZE, "\n";
-close LOG;
-
-# do all this in the notification script since we have to give the checksum anyway
+################################################################################
 #exit 0;
 
+# copy first file of a run to look area 
+if ( $lumisection == 1 && $count < 1 )
+{
+    my $COPYCOMMAND = "if test -n \"`mount | grep lookarea | grep cmsmon`\"; then test -e /lookarea && cp $pathname/$filename /lookarea && chmod a+r /lookarea/$filename; fi &"; 
+   system($COPYCOMMAND);
+   if ( $dolog == 1 )
+   {
+       my $dstr = getdatestr();
+       my $ltime = localtime(time);
+       my $outfile = ">> /nfshome0/smdev/logs/" . $dstr . "-" . $hostname . ".log";
+       open LOG, $outfile;
+       print LOG scalar localtime(time),": closeFile.pl ",$COPYCOMMAND,"\n";
+       close LOG;
+   }
+}
+
 # connect to DB
-my $dbi    = "DBI:Oracle:omds";
-my $reader = "cms_sto_mgr";
+my $dbi    = "DBI:Oracle:cms_rcms";
+my $reader = "CMS_STOMGR_W";
 my $dbh    = DBI->connect($dbi,$reader,"qwerty");
- 
 
 # do the update 
-my $SQL = "UPDATE CMS_STO_MGR_ADMIN.TIER0_INJECTION SET FILESIZE=$filesize, STATUS='$status', STOP_TIME=$stoptime, NEVENTS=$nevents, CHECKSUM=$MYCHECKSUM, PATHNAME='$pathname' WHERE FILENAME = '$filename'";
+my $SQL = "UPDATE CMS_STOMGR.TIER0_INJECTION SET FILESIZE=$filesize, STATUS='$status', STOP_TIME=$stoptime, NEVENTS=$nevents, CHECKSUM=$MYCHECKSUM, PATHNAME='$pathname' WHERE FILENAME = '$filename'";
+
 my $sth = $dbh->do($SQL);
+# print $SQL;
 
 # disconnect from DB
 $dbh->disconnect;
