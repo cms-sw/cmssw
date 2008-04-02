@@ -47,8 +47,7 @@ int main(){
     destdb.start(false);
     std::cout<<"dest db started "<<std::endl;
     iovmanager.exportIOVWithPayload( destdb,
-				     iovtoken,
-				     "testPayloadObj" );
+				     iovtoken);
     destdb.commit();
     std::cout<<"destdb committed"<<std::endl;
     sourcedb.commit();
