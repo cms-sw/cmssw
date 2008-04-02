@@ -91,6 +91,8 @@ class CalibrationAnalysis : public CommissioningAnalysis {
   bool deconv_;
   /** calchan value used in that dataset */
   int calchan_;
+  /** internal mode: cal scan or standard run */
+  bool isScan_;
   
 };
 
