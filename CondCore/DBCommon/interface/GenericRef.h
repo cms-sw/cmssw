@@ -18,6 +18,9 @@ namespace cond{
     explicit GenericRef( cond::PoolTransaction& pooldb );
     // from externalized token
     GenericRef( cond::PoolTransaction& pooldb, 
+		const std::string& token);
+    // from externalized token and class name
+    GenericRef( cond::PoolTransaction& pooldb, 
 		const std::string& token,
 		const std::string& className);
     // from type info
