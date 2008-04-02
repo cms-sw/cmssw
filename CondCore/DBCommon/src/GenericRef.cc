@@ -27,7 +27,7 @@ cond::GenericRef::GenericRef( cond::PoolTransaction& pooldb,
   m_datasvc(&(pooldb.poolDataSvc())),m_place(0) {
   pool::Token token;
   const pool::Guid& classID=token.fromString(tokenStr).classID();
-  pool::RefBase myobj(m_datasvc,token, pool::DbReflex::forGuid(classID).TypeInfo());
+  pool::RefBase myobj(m_datasvc,tokenStr, pool::DbReflex::forGuid(classID).TypeInfo());
   m_data=myobj;
 }
 
