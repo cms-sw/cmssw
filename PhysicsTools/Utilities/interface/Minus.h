@@ -1,7 +1,8 @@
 #ifndef PhysicsTools_Utilities_Minus_h
 #define PhysicsTools_Utilities_Minus_h
 
-namespace function {
+namespace funct {
+
   template<typename A, unsigned int args = A::arguments>
   class MinusStruct { 
   public:
@@ -54,10 +55,6 @@ namespace function {
       return type(a);
     }
   };
-}
-template<typename A>
-inline typename function::Minus<A>::type operator-(const A& a) {
-  return function::Minus<A>::operate(a);
 }
 
 #endif

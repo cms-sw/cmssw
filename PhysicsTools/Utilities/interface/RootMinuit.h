@@ -39,7 +39,7 @@ namespace fit {
       size_t s = parIndices_.size();
       parIndices_[name] = s;
     }
-    void addParameter(const function::Parameter & par, double err, double min, double max) {
+    void addParameter(const funct::Parameter & par, double err, double min, double max) {
       return addParameter(par.name(), par, err, min, max);
     }
     double getParameter(const std::string & name, double & err) {

@@ -1,7 +1,7 @@
 #ifndef PhysicsTools_Utilities_Identity_h
 #define PhysicsTools_Utilities_Identity_h
 
-namespace function {
+namespace funct {
   
   struct Identity {
     static const unsigned int arguments = 1;

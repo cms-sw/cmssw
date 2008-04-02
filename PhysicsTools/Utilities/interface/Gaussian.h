@@ -4,7 +4,8 @@
 #include <boost/shared_ptr.hpp>
 #include <cmath>
 
-namespace function {
+namespace funct {
+
   const double oneOverSqrtTwoPi = 1/sqrt(2*M_PI);
   
   struct Gaussian {

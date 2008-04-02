@@ -2,7 +2,7 @@
 #define PhysicsTools_Utilities_Product_h
 #include <boost/static_assert.hpp>
 
-namespace function {
+namespace funct {
   template<typename A, typename B, unsigned int args = A::arguments>
   class ProductStruct { 
   public:
@@ -62,18 +62,6 @@ namespace function {
       return type(a, b);
     }
   };
-}
-
-template<typename A, typename B>
-inline typename function::Product<A, B>::type operator*(const A& a, const B& b) {
-  return function::Product<A, B>::combine(a, b);
-}
-
-#include "PhysicsTools/Utilities/interface/Constant.h"
-
-template<typename B>
-inline typename function::Product<function::Constant, B>::type operator*(const function::Parameter& a, const B& b) {
-  return function::Product<function::Constant, B>::combine(function::Constant(a), b);
 }
 
 #endif

@@ -3,7 +3,7 @@
 #include "PhysicsTools/Utilities/interface/Parameter.h"
 #include <boost/shared_ptr.hpp>
 
-namespace function {
+namespace funct {
 
   struct GammaZInterference {
     static const unsigned int arguments = 1;

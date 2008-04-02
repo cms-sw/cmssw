@@ -2,7 +2,7 @@
 #define PhysicsTools_Utilities_Sum_h
 #include <boost/static_assert.hpp>
 
-namespace function {
+namespace funct {
   template<typename A, typename B, unsigned int args = A::arguments>
   class SumStruct { 
   public:
@@ -61,11 +61,6 @@ namespace function {
     static type combine(const A& a, const B& b) { return type(a, b); } 
   }; 
 
-}
-
-template<typename A, typename B>
-inline typename function::Sum<A, B>::type operator+(const A& a, const B& b) {
-  return function::Sum<A, B>::combine(a, b);
 }
 
 #endif

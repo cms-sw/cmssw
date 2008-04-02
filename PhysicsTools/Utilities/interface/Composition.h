@@ -2,7 +2,7 @@
 #define PhysicsTools_Utilities_Composition_h
 #include <boost/static_assert.hpp>
 
-namespace function {
+namespace funct {
   template<typename A, typename B, unsigned int args = B::arguments>
   class CompositionStruct { 
   public:
@@ -58,11 +58,12 @@ namespace function {
     static type compose(const A& a, const B b) { return type(a, b); }
   };
 
+  template<typename A, typename B>
+  inline typename funct::Composition<A, B>::type compose(const A& a, const B& b) {
+    return funct::Composition<A, B>::compose(a, b);
+  }
+
 }
 
-template<typename A, typename B>
-inline typename function::Composition<A, B>::type operator%(const A& a, const B& b) {
-  return function::Composition<A, B>::compose(a, b);
-}
 
 #endif

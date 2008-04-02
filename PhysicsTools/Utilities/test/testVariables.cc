@@ -1,9 +1,6 @@
 #include <cppunit/extensions/HelperMacros.h>
 #include "PhysicsTools/Utilities/interface/Variables.h"
-#include "PhysicsTools/Utilities/interface/Sum.h"
-#include "PhysicsTools/Utilities/interface/Difference.h"
-#include "PhysicsTools/Utilities/interface/Product.h"
-#include "PhysicsTools/Utilities/interface/Ratio.h"
+#include "PhysicsTools/Utilities/interface/Operations.h"
 
 class testVariables : public CppUnit::TestFixture {
   CPPUNIT_TEST_SUITE(testVariables);

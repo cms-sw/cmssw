@@ -2,7 +2,7 @@
 #define PhysicsTools_Utilities_Ratio_h
 #include <boost/static_assert.hpp>
 
-namespace function {
+namespace funct {
   template<typename A, typename B, unsigned int args = A::arguments>
   class RatioStruct { 
   public:
@@ -62,11 +62,6 @@ namespace function {
       return type(a, b);
     } 
   };
-}
-
-template<typename A, typename B>
-inline typename function::Ratio<A, B>::type operator/(const A& a, const B& b) {
-  return function::Ratio<A, B>::combine(a, b);
 }
 
 #endif

@@ -3,6 +3,7 @@
 #include <vector>
 #include <boost/shared_ptr.hpp>
 #include "TF1.h"
+#include "TH1.h"
 #include "TCanvas.h"
 #include "PhysicsTools/Utilities/interface/Parameter.h"
 
@@ -82,7 +83,7 @@ namespace root {
   template<typename F>
   typename helper::RootFunctionHelper<F>::root_function 
   function(F& f, 
-	   const function::Parameter & p0) {
+	   const funct::Parameter & p0) {
     typename helper::RootFunctionHelper<F>::root_function 
       fun = helper::RootFunctionHelper<F>::fun(f);
     helper::RootFunctionHelper<F>::addParameter(p0);
@@ -92,8 +93,8 @@ namespace root {
   template<typename F>
   typename helper::RootFunctionHelper<F>::root_function 
     function(F& f, 
-	     const function::Parameter & p0,
-	     const function::Parameter & p1) {
+	     const funct::Parameter & p0,
+	     const funct::Parameter & p1) {
     typename helper::RootFunctionHelper<F>::root_function 
       fun = helper::RootFunctionHelper<F>::fun(f);
     helper::RootFunctionHelper<F>::addParameter(p0);
@@ -104,9 +105,9 @@ namespace root {
   template<typename F>
   typename helper::RootFunctionHelper<F>::root_function 
   function(F& f, 
-	   const function::Parameter & p0,
-	   const function::Parameter & p1,
-	   const function::Parameter & p2) {
+	   const funct::Parameter & p0,
+	   const funct::Parameter & p1,
+	   const funct::Parameter & p2) {
     typename helper::RootFunctionHelper<F>::root_function 
       fun = helper::RootFunctionHelper<F>::fun(f);
     helper::RootFunctionHelper<F>::addParameter(p0);
@@ -137,7 +138,7 @@ namespace root {
 
   template<typename F>
   TF1 tf1(const char * name, F& f, double min, double max,
-	  const function::Parameter & p0) {
+	  const funct::Parameter & p0) {
     TF1 fun(name, root::function(f, p0), min, max, 1);
     fun.SetParameter(0, *p0.ptr());
     return fun;
@@ -145,8 +146,8 @@ namespace root {
 
   template<typename F>
   TF1 tf1(const char * name, F& f, double min, double max,
-	  const function::Parameter & p0,
-	  const function::Parameter & p1) {
+	  const funct::Parameter & p0,
+	  const funct::Parameter & p1) {
     TF1 fun(name, root::function(f, p0, p1), min, max, 2);
     fun.SetParameter(0, *p0.ptr());
     fun.SetParameter(1, *p1.ptr());
@@ -155,9 +156,9 @@ namespace root {
 
   template<typename F>
   TF1 tf1(const char * name, F& f, double min, double max,
-	  const function::Parameter & p0,
-	  const function::Parameter & p1,
-	  const function::Parameter & p2) {
+	  const funct::Parameter & p0,
+	  const funct::Parameter & p1,
+	  const funct::Parameter & p2) {
     TF1 fun(name, root::function(f, p0, p1, p2), min, max, 3);
     fun.SetParameter(0, *p0.ptr());
     fun.SetParameter(1, *p1.ptr());
@@ -201,7 +202,7 @@ namespace root {
 
   template<typename F>
   void plot(const char * name, TH1 & histo, F& f, double min, double max,
-	    const function::Parameter & p0,
+	    const funct::Parameter & p0,
 	    Color_t lineColor = kRed, Width_t lineWidth = 1,
 	    Style_t lineStyle = kDashed) {
     TF1 fun = root::tf1("fun", f, min, max, p0);
@@ -210,8 +211,8 @@ namespace root {
 
   template<typename F>
   void plot(const char * name, TH1 & histo, F& f, double min, double max,
-	    const function::Parameter & p0, 
-	    const function::Parameter & p1,
+	    const funct::Parameter & p0, 
+	    const funct::Parameter & p1,
 	    Color_t lineColor = kRed, Width_t lineWidth = 1,
 	    Style_t lineStyle = kDashed) {
     TF1 fun = root::tf1("fun", f, min, max, p0, p1);
@@ -220,9 +221,9 @@ namespace root {
 
   template<typename F>
   void plot(const char * name, TH1 & histo, F& f, double min, double max,
-	    const function::Parameter & p0, 
-	    const function::Parameter & p1,
-	    const function::Parameter & p2,
+	    const funct::Parameter & p0, 
+	    const funct::Parameter & p1,
+	    const funct::Parameter & p2,
 	    Color_t lineColor = kRed, Width_t lineWidth = 1,
 	    Style_t lineStyle = kDashed) {
     TF1 fun = root::tf1("fun", f, min, max, p0, p1, p2);

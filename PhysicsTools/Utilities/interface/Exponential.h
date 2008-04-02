@@ -4,7 +4,7 @@
 #include <boost/shared_ptr.hpp>
 #include <cmath>
 
-namespace function {
+namespace funct {
 
   struct Exponential {
     static const unsigned int arguments = 1;

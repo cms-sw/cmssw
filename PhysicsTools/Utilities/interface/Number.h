@@ -1,7 +1,8 @@
 #ifndef PhysicsTools_Utilities_Number_h
 #define PhysicsTools_Utilities_Number_h
 
-namespace function {
+namespace funct {
+
   struct Number {
     static const unsigned int arguments = 1;
     Number(double value) : value_(value) { }
@@ -9,6 +10,7 @@ namespace function {
   private:
     double value_;
   };
+
 }
 
 #endif

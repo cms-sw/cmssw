@@ -2,7 +2,7 @@
 #define PhysicsTools_Utilities_Convolution_h
 #include "FWCore/Utilities/interface/EDMException.h"
 
-namespace function {
+namespace funct {
   template<typename A, typename B>
   class ConvolutionStruct {
    public:
@@ -45,8 +45,8 @@ namespace function {
   };
 
   template<typename A, typename B>
-  inline typename function::Composition<A, B>::type conv(const A& a, const B& b) {
-    return function::Composition<A, B>::compose(a, b);
+  inline typename funct::Composition<A, B>::type conv(const A& a, const B& b) {
+    return funct::Composition<A, B>::compose(a, b);
   }
 
 }
