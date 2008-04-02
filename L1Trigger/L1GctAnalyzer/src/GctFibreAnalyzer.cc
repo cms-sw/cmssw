@@ -11,7 +11,7 @@ Description: Analyzer individual fibre channels from the source card.
 //
 // Original Author:  Alex Tapper
 //         Created:  Thu Jul 12 14:21:06 CEST 2007
-// $Id: GctFibreAnalyzer.cc,v 1.4 2007/07/25 13:32:20 tapper Exp $
+// $Id: GctFibreAnalyzer.cc,v 1.5 2008/04/02 08:33:54 tapper Exp $
 //
 //
 
@@ -110,22 +110,22 @@ void GctFibreAnalyzer::CheckLogicalID(const L1GctFibreWord fibre)
 
   switch (fibre.block()){
     
-  case 0x89:
+  case 0x884:
     concRctCrate = fibre.index()/3;
     concFibreNumber = 1+(fibre.index()%3);
     break;
 
-  case 0x81:
+  case 0x804:
     concRctCrate = 4+(fibre.index()/3);
     concFibreNumber = 1+(fibre.index()%3);
     break;
       
-  case 0xc9:
+  case 0xc84:
     concRctCrate = 9+(fibre.index()/3);
     concFibreNumber = 1+(fibre.index()%3);
     break;
       
-  case 0xc1:
+  case 0xc04:
     concRctCrate = 13+(fibre.index()/3);
     concFibreNumber = 1+(fibre.index()%3);
     break;
