@@ -23,8 +23,8 @@ private:
   void produce( edm::Event& evt, const edm::EventSetup& es );
   edm::InputTag src_;
   bool verbose;
-  double ttKfactor;
   double overallLumi;
+  double ttKfactor;
   // methods needed deal with alpgen
   // hardcoded xsecs and generated yields
   int FindIndex(int njet, double pT);
@@ -59,8 +59,8 @@ using namespace reco;
 
 CSA07EventWeightProducer::CSA07EventWeightProducer( const ParameterSet & p ) :
   src_( p.getParameter<InputTag>( "src" ) ), verbose ( p.getUntrackedParameter<bool> ("talkToMe", false)),
-  overallLumi (p.getParameter<double> ("overallLumi")) {
-  ttKfactor (p.getParameter<double> ("ttKfactor", 1.)) {
+  overallLumi (p.getParameter<double> ("overallLumi")) ,
+  ttKfactor (p.getParameter<double> ("ttKfactor")) {
   produces<double>("weight");
   produces<int>("AlpgenProcessID");
 
