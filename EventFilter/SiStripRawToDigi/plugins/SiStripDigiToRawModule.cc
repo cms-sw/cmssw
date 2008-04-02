@@ -1,4 +1,4 @@
-// Last commit: $Id: SiStripDigiToRawModule.cc,v 1.3 2008/01/17 11:54:44 giordano Exp $
+// Last commit: $Id: SiStripDigiToRawModule.cc,v 1.4 2008/01/22 19:28:07 muzaffar Exp $
 
 #include "EventFilter/SiStripRawToDigi/plugins/SiStripDigiToRawModule.h"
 #include "EventFilter/SiStripRawToDigi/interface/SiStripDigiToRaw.h"
@@ -29,9 +29,10 @@ SiStripDigiToRawModule::SiStripDigiToRawModule( const edm::ParameterSet& pset ) 
   LogDebug("DigiToRaw") << "[SiStripDigiToRawModule::SiStripDigiToRawModule] Constructing object...";
   
   // Create instance of DigiToRaw formatter
-  std::string mode    = pset.getUntrackedParameter<std::string>("FedReadoutMode","VIRGIN_RAW");
+  std::string mode = pset.getUntrackedParameter<std::string>("FedReadoutMode","VIRGIN_RAW");
   int16_t nbytes = pset.getUntrackedParameter<int>("AppendedBytes",0);
-  digiToRaw_ = new SiStripDigiToRaw( mode, nbytes );
+  bool use_fed_key = pset.getUntrackedParameter<bool>("UseFedKey",false);
+  digiToRaw_ = new SiStripDigiToRaw( mode, nbytes, use_fed_key );
   
   produces<FEDRawDataCollection>();
 
