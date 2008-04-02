@@ -1,4 +1,4 @@
-// Last commit: $Id: SiStripEventSummary.cc,v 1.7 2007/11/30 15:38:56 bainbrid Exp $
+// Last commit: $Id: SiStripEventSummary.cc,v 1.8 2007/12/10 16:53:53 bainbrid Exp $
 
 #include "DataFormats/SiStripCommon/interface/SiStripEventSummary.h"
 #include "DataFormats/SiStripCommon/interface/SiStripEnumsAndStrings.h"
@@ -53,6 +53,8 @@ void SiStripEventSummary::commissioningInfo( const uint32_t* const buffer,
   // Set hardware parameters
   if ( runType_ == sistrip::CALIBRATION ||
        runType_ == sistrip::CALIBRATION_DECO ||
+       runType_ == sistrip::CALIBRATION_SCAN ||
+       runType_ == sistrip::CALIBRATION_SCAN_DECO ||
        runType_ == sistrip::APV_LATENCY ) { 
 
     params_[0] = buffer[11]; // latency
