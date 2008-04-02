@@ -138,9 +138,17 @@ for s in step_list:
         process=step_dict[step](process,pathname)                      
 
 #look for an hlt endpath
-if hasattr(process,'hltEndPath'):
-    process.schedule.append(process.hltEndPath)
-    
+# check first to see if we have "hltEndPath" in the process.
+# we need to trap the exception, as the Process class seems to
+# not have a query method for this ... :(
+try:
+    if process.hltEndPath:
+        process.schedule.append(process.hltEndPath)
+except AttributeError:
+    pass
+except:
+    raise
+
 # Add the output on a root file if requested
 if output_flag:
     process = common.event_output\
