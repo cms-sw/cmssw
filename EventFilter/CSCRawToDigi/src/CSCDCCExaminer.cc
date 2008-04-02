@@ -798,7 +798,7 @@ long CSCDCCExaminer::check(const unsigned short* &buffer, long length){
     if( fTMB_Header && checkCrcTMB ){
       for(unsigned short j=0, w=0; j<4; ++j){
 	///w = buf0[j] & 0x7fff;
-	w = buf0[j] & (fALCT_Format2007 ? 0xffff : 0x7fff);
+	w = buf0[j] & (fTMB_Format2007 ? 0xffff : 0x7fff);
 	for(unsigned long i=15, t=0, ncrc=0; i<16; i--){
 	  t = ((w >> i) & 1) ^ ((TMB_CRC >> 21) & 1);
 	  ncrc = (TMB_CRC << 1) & 0x3ffffc;
