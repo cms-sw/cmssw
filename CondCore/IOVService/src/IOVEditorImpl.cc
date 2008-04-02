@@ -67,9 +67,8 @@ namespace cond {
   }
   
 
-  bool validTime(cond::Time_t time) const {
+  bool IOVEditorImpl::validTime(cond::Time_t time) const {
     return time>=m_globalSince && time<=m_globalTill;   
-
   }
 
   
