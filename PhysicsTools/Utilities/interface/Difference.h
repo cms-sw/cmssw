@@ -4,19 +4,22 @@
 
 namespace function {
   template<typename A, typename B, unsigned int args = A::arguments>
-  class Difference { 
+  class DifferenceStruct { 
   public:
     BOOST_STATIC_ASSERT(A::arguments == B::arguments);
     static const unsigned int arguments = args;
   };
 
   template<typename A, typename B>
-  class Difference<A, B, 0> { 
+  class DifferenceStruct<A, B, 0> { 
   public:
     BOOST_STATIC_ASSERT(A::arguments == B::arguments);
     static const unsigned int arguments = 0;
-    Difference(const A & a, const B & b) : a_(a), b_(b) { }
+    DifferenceStruct(const A & a, const B & b) : a_(a), b_(b) { }
     double operator()() const {
+      return a_() - b_();
+    }
+    operator double() const {
       return a_() - b_();
     }
   private:
@@ -25,11 +28,11 @@ namespace function {
   };
 
   template<typename A, typename B>
-  class Difference<A, B, 1> { 
+  class DifferenceStruct<A, B, 1> { 
   public:
     BOOST_STATIC_ASSERT(A::arguments == B::arguments);
     static const unsigned int arguments = 1;
-    Difference(const A & a, const B & b) : a_(a), b_(b) { }
+    DifferenceStruct(const A & a, const B & b) : a_(a), b_(b) { }
     double operator()(double x) const {
       return a_(x) - b_(x);
     }
@@ -39,11 +42,11 @@ namespace function {
   };
 
   template<typename A, typename B>
-  class Difference<A, B, 2> { 
+  class DifferenceStruct<A, B, 2> { 
   public:
     BOOST_STATIC_ASSERT(A::arguments == B::arguments);
     static const unsigned int arguments = 2;
-    Difference(const A & a, const B & b) : a_(a), b_(b) { }
+    DifferenceStruct(const A & a, const B & b) : a_(a), b_(b) { }
     double operator()(double x, double y) const {
       return a_(x, y) - b_(x, y);
     }
@@ -51,11 +54,17 @@ namespace function {
     A a_; 
     B b_;
   };
+
+  template<typename A, typename B>
+  struct Difference {
+    typedef DifferenceStruct<A, B> type;
+    static type combine(const A& a, const B& b) { return type(a, b); }
+  };
 }
 
 template<typename A, typename B>
-function::Difference<A, B> operator-(const A& a, const B& b) {
-  return function::Difference<A, B>(a, b);
+inline typename function::Difference<A, B>::type operator-(const A& a, const B& b) {
+  return function::Difference<A, B>::combine(a, b);
 }
 
 #include "PhysicsTools/Utilities/interface/Number.h"
@@ -64,21 +73,21 @@ function::Difference<A, B> operator-(const A& a, const B& b) {
 
 
 template<typename A>
-function::Difference<A, function::Constant> 
-operator-(const A& a, const function::Parameter& b) {
-  return function::Difference<A, function::Constant>(a, function::Constant(b));
+typename function::Difference<A, function::Constant>::type 
+inline operator-(const A& a, const function::Parameter& b) {
+  return function::Difference<A, function::Constant>::combine(a, function::Constant(b));
 }
 
 template<typename B>
-function::Difference<function::Number, B> 
-operator-(double a, const B& b) {
-  return function::Difference<function::Number, B>(function::Number(a), b);
+typename function::Difference<function::Number, B>::type 
+inline operator-(double a, const B& b) {
+  return function::Difference<function::Number, B>::combine(function::Number(a), b);
 }
 
-function::Difference<function::Number, function::Constant> 
-operator-(double a, const function::Parameter& b) {
+function::Difference<function::Number, function::Constant>::type
+inline operator-(double a, const function::Parameter& b) {
   return function::Difference<function::Number, 
-    function::Constant>(function::Number(a), function::Constant(b));
+    function::Constant>::combine(function::Number(a), function::Constant(b));
 }
 
 #endif

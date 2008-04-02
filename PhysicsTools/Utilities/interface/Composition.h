@@ -4,18 +4,18 @@
 
 namespace function {
   template<typename A, typename B, unsigned int args = B::arguments>
-  class Composition { 
+  class CompositionStruct { 
   public:
     BOOST_STATIC_ASSERT(A::arguments == 1);
     static const unsigned int arguments = args;
   };
 
   template<typename A, typename B>
-  class Composition<A, B, 0> { 
+  class CompositionStruct<A, B, 0> { 
   public:
     BOOST_STATIC_ASSERT(A::arguments == B::arguments);
     static const unsigned int arguments = 0;
-    Composition(const A & a, const B & b) : a_(a), b_(b) { }
+    CompositionStruct(const A & a, const B & b) : a_(a), b_(b) { }
     double operator()() const {
       return a_(b_());
     }
@@ -25,11 +25,11 @@ namespace function {
   };
 
   template<typename A, typename B>
-  class Composition<A, B, 1> { 
+  class CompositionStruct<A, B, 1> { 
   public:
     BOOST_STATIC_ASSERT(A::arguments == B::arguments);
     static const unsigned int arguments = 1;
-    Composition(const A & a, const B & b) : a_(a), b_(b) { }
+    CompositionStruct(const A & a, const B & b) : a_(a), b_(b) { }
     double operator()(double x) const {
       return a_(b_(x));
     }
@@ -39,11 +39,11 @@ namespace function {
   };
 
   template<typename A, typename B>
-  class Composition<A, B, 2> { 
+  class CompositionStruct<A, B, 2> { 
   public:
     BOOST_STATIC_ASSERT(A::arguments == B::arguments);
     static const unsigned int arguments = 2;
-    Composition(const A & a, const B & b) : a_(a), b_(b) { }
+    CompositionStruct(const A & a, const B & b) : a_(a), b_(b) { }
     double operator()(double x, double y) const {
       return a_(b_(x, y));
     }
@@ -52,11 +52,17 @@ namespace function {
     B b_;
   };
 
+  template<typename A, typename B>
+  struct Composition {
+    typedef CompositionStruct<A, B> type;
+    static type compose(const A& a, const B b) { return type(a, b); }
+  };
+
 }
 
 template<typename A, typename B>
-function::Composition<A, B> operator%(const A& a, const B& b) {
-  return function::Composition<A, B>(a, b);
+inline typename function::Composition<A, B>::type operator%(const A& a, const B& b) {
+  return function::Composition<A, B>::compose(a, b);
 }
 
 #endif

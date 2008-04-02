@@ -30,19 +30,19 @@ void testFunctions::checkAll() {
   Gaussian g2(1, 1);
   Identity i;
   const double epsilon = 1.e-6;
-  Sum<Gaussian, Gaussian> g1plus2 = g1 + g2;
-  Product<Gaussian, Gaussian> g1times2 = g1 * g2; 
-  Difference<Gaussian, Gaussian> g1minus2 = g1 - g2;
-  Ratio<Gaussian, Gaussian> g1over2 = g1 / g2; 
-  Minus<Gaussian> gm1 = - g1;
-  Composition<Identity, Gaussian> gg1 = i % g1;
+  Sum<Gaussian, Gaussian>::type g1plus2 = g1 + g2;
+  Product<Gaussian, Gaussian>::type g1times2 = g1 * g2; 
+  Difference<Gaussian, Gaussian>::type g1minus2 = g1 - g2;
+  Ratio<Gaussian, Gaussian>::type g1over2 = g1 / g2; 
+  Minus<Gaussian>::type gm1 = - g1;
+  Composition<Identity, Gaussian>::type gg1 = i % g1;
   double x = 0.5;
   CPPUNIT_ASSERT(fabs(g1plus2(x) - (g1(x) + g2(x))) < epsilon);
   CPPUNIT_ASSERT(fabs(g1times2(x) - (g1(x) * g2(x))) < epsilon);
   CPPUNIT_ASSERT(fabs(g1minus2(x) - (g1(x) - g2(x))) < epsilon);
   CPPUNIT_ASSERT(fabs(g1over2(x) - (g1(x) / g2(x))) < epsilon);
   CPPUNIT_ASSERT(fabs(gm1(x) - (-g1(x)) < epsilon));
-  Convolution<Gaussian, Gaussian> gg(g1, g1, -5, 5, 1000);
+  Convolution<Gaussian, Gaussian>::type gg(g1, g1, -5, 5, 1000);
   CPPUNIT_ASSERT(fabs(gg(0) - g1(0)/sqrt(2))<epsilon);
   CPPUNIT_ASSERT(gg1(0) == g1(0));
 }

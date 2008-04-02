@@ -4,19 +4,22 @@
 
 namespace function {
   template<typename A, typename B, unsigned int args = A::arguments>
-  class Product { 
+  class ProductStruct { 
   public:
     BOOST_STATIC_ASSERT(A::arguments == B::arguments);
     static const unsigned int arguments = args;
   };
 
   template<typename A, typename B>
-  class Product<A, B, 0> { 
+  class ProductStruct<A, B, 0> { 
   public:
     BOOST_STATIC_ASSERT(A::arguments == B::arguments);
     static const unsigned int arguments = 0;
-    Product(const A & a, const B & b) : a_(a), b_(b) { }
+    ProductStruct(const A & a, const B & b) : a_(a), b_(b) { }
     double operator()() const {
+      return a_() * b_();
+    }
+    operator double() const {
       return a_() * b_();
     }
   private:
@@ -25,11 +28,11 @@ namespace function {
   };
 
   template<typename A, typename B>
-  class Product<A, B, 1> { 
+  class ProductStruct<A, B, 1> { 
   public:
     BOOST_STATIC_ASSERT(A::arguments == B::arguments);
     static const unsigned int arguments = 1;
-    Product(const A & a, const B & b) : a_(a), b_(b) { }
+    ProductStruct(const A & a, const B & b) : a_(a), b_(b) { }
     double operator()(double x) const {
       return a_(x) * b_(x);
     }
@@ -39,11 +42,11 @@ namespace function {
   };
 
   template<typename A, typename B>
-  class Product<A, B, 2> { 
+  class ProductStruct<A, B, 2> { 
   public:
     BOOST_STATIC_ASSERT(A::arguments == B::arguments);
     static const unsigned int arguments = 2;
-    Product(const A & a, const B & b) : a_(a), b_(b) { }
+    ProductStruct(const A & a, const B & b) : a_(a), b_(b) { }
     double operator()(double x, double y) const {
       return a_(x, y) * b_(x, y);
     }
@@ -51,18 +54,26 @@ namespace function {
     A a_; 
     B b_;
   };
+
+  template<typename A, typename B>
+  struct Product {
+    typedef ProductStruct<A, B> type;
+    static type combine(const A& a, const B& b) { 
+      return type(a, b);
+    }
+  };
 }
 
 template<typename A, typename B>
-function::Product<A, B> operator*(const A& a, const B& b) {
-  return function::Product<A, B>(a, b);
+inline typename function::Product<A, B>::type operator*(const A& a, const B& b) {
+  return function::Product<A, B>::combine(a, b);
 }
 
 #include "PhysicsTools/Utilities/interface/Constant.h"
 
 template<typename B>
-function::Product<function::Constant, B> operator*(const function::Parameter& a, const B& b) {
-  return function::Product<function::Constant, B>(function::Constant(a), b);
+inline typename function::Product<function::Constant, B>::type operator*(const function::Parameter& a, const B& b) {
+  return function::Product<function::Constant, B>::combine(function::Constant(a), b);
 }
 
 #endif

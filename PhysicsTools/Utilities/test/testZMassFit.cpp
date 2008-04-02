@@ -20,7 +20,7 @@ using namespace boost;
 
 int main() { 
   gROOT->SetStyle("Plain");
-  typedef function::Product<function::Constant, function::BreitWigner> FitFunction;
+  typedef function::Product<function::Constant, function::BreitWigner>::type FitFunction;
   typedef fit::HistoChiSquare<FitFunction> ChiSquared;
   try {
     fit::RootMinuitCommands<ChiSquared> commands("PhysicsTools/Utilities/test/testZMassFit.txt");
