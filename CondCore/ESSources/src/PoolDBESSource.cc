@@ -109,17 +109,17 @@ PoolDBESSource::PoolDBESSource( const edm::ParameterSet& iConfig ) :
   }
   std::string userconnect=iConfig.getParameter<std::string>("connect"); 
   //ignore "timetype" parameter
-  //std::string timetype=iConfig.getParameter<std::string>("timetype");
-  //std::cout<<"connect "<<connect<<std::endl;
+  std::string timetype=iConfig.getParameter<std::string>("timetype");
+  //std::cout<<"userconnect "<<userconnect<<std::endl;
   //std::cout<<"timetype "<<timetype<<std::endl;
   edm::ParameterSet connectionPset = iConfig.getParameter<edm::ParameterSet>("DBParameters"); 
   cond::ConfigSessionFromParameterSet configConnection(*m_session,connectionPset);
   m_session->open();
   
   fillRecordToTypeMap(m_recordToTypes);
-  /*translate real connect; setup session
-   */
-  conHandler.registerConnection(userconnect,0);
+  //std::cout<<"userconnect "<<userconnect<<std::endl;
+  conHandler.registerConnection(userconnect,*m_session,0);
+  //std::cout<<"done "<<std::endl;
   std::string lastRecordName;
   if( !usetagDB ){
     typedef std::vector< edm::ParameterSet > Parameters;
@@ -132,7 +132,7 @@ PoolDBESSource::PoolDBESSource( const edm::ParameterSet& iConfig ) :
       if( itToGet->exists("connect") ){
 	std::string userconnect=itToGet->getUntrackedParameter<std::string>("connect");
 	m.pfn=userconnect;
-	conHandler.registerConnection(m.pfn,0);
+	conHandler.registerConnection(m.pfn,*m_session,0);
       }else{
 	m.pfn=userconnect;
       }
@@ -179,7 +179,7 @@ PoolDBESSource::PoolDBESSource( const edm::ParameterSet& iConfig ) :
     std::map< std::string, cond::TagMetadata >::iterator itBeg=m_tagCollection.begin();
     std::map< std::string, cond::TagMetadata >::iterator itEnd=m_tagCollection.end();
     for(it=itBeg; it!=itEnd; ++it){
-      conHandler.registerConnection(it->second.pfn,0);
+      conHandler.registerConnection(it->second.pfn,*m_session,0);
     }
     conHandler.connect(m_session);
     for(it=itBeg;it!=itEnd;++it){
