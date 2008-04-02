@@ -138,7 +138,7 @@ for s in step_list:
         process=step_dict[step](process,pathname)                      
 
 #look for an hlt endpath
-if process.hltEndPath:
+if hasattr(process,'hltEndPath'):
     process.schedule.append(process.hltEndPath)
     
 # Add the output on a root file if requested
