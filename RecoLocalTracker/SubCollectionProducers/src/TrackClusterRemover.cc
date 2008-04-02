@@ -175,7 +175,10 @@ void TrackClusterRemover::mergeNew(edmNew::DetSetVector<uint16_t> &refs,
         vector<uint8_t>::const_iterator it = good.begin(), ed = good.end();
         uint16_t iold, inew;
         for (iold = inew = 0; it != ed; ++it, ++iold) {
-            if (*it) { merged[inew] == iold; ++inew; }
+            if (*it) { 
+                merged[inew] = iold; 
+                ++inew; 
+            }
         }
 }
 
@@ -201,7 +204,7 @@ void TrackClusterRemover::mergePartial(edmNew::DetSetVector<uint16_t> &refs,
         vector<uint8_t>::const_iterator it = good.begin(), ed = good.end();
         uint16_t iold, inew;
         for (iold = inew = 0; it != ed; ++it, ++iold) {
-            if (*it) { merged[inew] == olds[iold]; ++inew; }
+            if (*it) { merged[inew] = olds[iold]; ++inew; }
         }
    } else {
         mergeNew(refs,detid,newSize,good);
@@ -292,8 +295,8 @@ TrackClusterRemover::cleanup(const edm::DetSetVector<T> &oldClusters, const std:
         } // work on current det
     } // loop on dets
 
-    auto_ptr<DetSetVector<T> > newClusters(new DetSetVector<T>(work)); // FIXME: use the line below as soon as DSV supports it
-    // auto_ptr<DetSetVector<T> > newClusters(new DetSetVector<T>(work, true)); // already sorted
+    //auto_ptr<DetSetVector<T> > newClusters(new DetSetVector<T>(work)); // FIXME: use the line below as soon as DSV supports it
+    auto_ptr<DetSetVector<T> > newClusters(new DetSetVector<T>(work, true)); // already sorted
     return newClusters;
 }
 
