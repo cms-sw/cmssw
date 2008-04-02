@@ -54,7 +54,6 @@ int main( int argc, char** argv ){
   cond::Time_t since = std::numeric_limits<cond::Time_t>::min();
   cond::Time_t till = std::numeric_limits<cond::Time_t>::max();
 
-  std::string payloadName;
   std::string authPath(".");
   std::string configuration_filename;
   bool debug=false;
@@ -113,16 +112,6 @@ int main( int argc, char** argv ){
       till = vm["endTime"].as<cond::Time_t>();
     
 
-
-    if(!vm.count("payloadName")){
-      std::cerr <<"[Error] no payloadName[n] option given \n";
-      std::cerr<<" please do "<<argv[0]<<" --help \n";
-      return 1;
-    }else{
-      payloadName=vm["payloadName"].as<std::string>();
-    }
-
-
     if( vm.count("authPath") ){
       authPath=vm["authPath"].as<std::string>();
     }
@@ -142,7 +131,6 @@ int main( int argc, char** argv ){
     std::cout<<"sourceConnect:\t"<<sourceConnect<<'\n';
     std::cout<<"destConnect:\t"<<destConnect<<'\n';
     std::cout<<"dictionary:\t"<<dictlibrary<<'\n';
-    std::cout<<"payloadName:\t"<<payloadName<<'\n';
     std::cout<<"inputTag:\t"<<inputTag<<'\n';
     std::cout<<"destTag:\t"<<destTag<<'\n';
     std::cout<<"beginTime:\t"<<since<<'\n';
@@ -258,8 +246,7 @@ int main( int argc, char** argv ){
     destiovtoken=iovmanager.exportIOVRangeWithPayload( destdb,
 						  sourceiovtoken,
 						  destiovtoken,
-						  since, till,
-						  payloadName );
+						  since, till );
     sourcedb.commit();
     destdb.commit();
     if (newIOV) {

@@ -146,9 +146,7 @@ namespace cond {
       IOV::iterator payloadItEnd=m_iov->iov.end();
       for(payloadIt=m_iov->iov.begin();payloadIt!=payloadItEnd;++payloadIt){
 	tokenStr=payloadIt->second;
-	pool::Token token;
-	const pool::Guid& classID=token.fromString(tokenStr).classID();
-	cond::GenericRef ref(*m_pooldb,tokenStr,pool::DbReflex::forGuid(classID).TypeInfo());
+	cond::GenericRef ref(*m_pooldb,tokenStr);
 	ref.markDelete();
 	ref.reset();
       }
