@@ -1,3 +1,7 @@
+2008-04-02  Philipp SCHIEFERDECKER  <philipp.schieferdecker@cern.ch>
+
+	* tag V00-14-06
+	* add --search option to edmConfDBDiff script
 
 2008-03-14  Emilio Meschi <emilio.meschi@cern.ch>
 
