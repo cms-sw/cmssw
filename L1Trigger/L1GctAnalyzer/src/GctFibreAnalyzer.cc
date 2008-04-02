@@ -11,7 +11,7 @@ Description: Analyzer individual fibre channels from the source card.
 //
 // Original Author:  Alex Tapper
 //         Created:  Thu Jul 12 14:21:06 CEST 2007
-// $Id: GctFibreAnalyzer.cc,v 1.3 2007/07/24 10:50:38 tapper Exp $
+// $Id: GctFibreAnalyzer.cc,v 1.4 2007/07/25 13:32:20 tapper Exp $
 //
 //
 
@@ -166,8 +166,8 @@ void GctFibreAnalyzer::CheckCounter(const L1GctFibreWord fibre)
   // Remove MSB from both cycles
   int cycle0Data, cycle1Data;
   
-  cycle0Data = fibre.data() & 0x20007FFF;
-  cycle1Data = (fibre.data() >> 16) & 0x20007FFF;
+  cycle0Data = fibre.data() & 0x7FFF;
+  cycle1Data = (fibre.data() >> 16) & 0x7FFF;
 
   // Check to see if fibre numbers are consistent
   if ((cycle0Data+1)!=cycle1Data){
