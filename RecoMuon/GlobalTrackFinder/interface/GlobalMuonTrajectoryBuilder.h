@@ -4,8 +4,8 @@
 /** \class GlobalMuonTrajectoryBuilder
  *  class to build muon trajectory
  *
- *  $Date: 2007/08/17 15:30:11 $
- *  $Revision: 1.62 $
+ *  $Date: 2008/02/14 20:38:35 $
+ *  $Revision: 1.63 $
  *
  *  \author N. Neumeister 	 Purdue University
  *  \author C. Liu 		 Purdue University
@@ -14,8 +14,9 @@
 
 #include "RecoMuon/GlobalTrackingTools/interface/GlobalTrajectoryBuilderBase.h"
 #include "TrackingTools/PatternTools/interface/TrajTrackAssociation.h"
+#include "FWCore/ParameterSet/interface/InputTag.h"
 
-namespace edm {class ParameterSet; class Event; class EventSetup;}
+namespace edm {class ParameterSet; class Event; class EventSetup; }
 
 class MuonServiceProxy;
 class Trajectory;
