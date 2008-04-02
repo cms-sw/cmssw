@@ -10,7 +10,7 @@ namespace funct {
     // min and max are defined in the domain of b
     ConvolutionStruct(const A& a, const B& b, 
 		double min, double max, size_t steps) : 
-      a_(a), b_(b), min_(min), max_(max), 
+      _1(a), _2(b), min_(min), max_(max), 
       delta_((max-min)/(steps-1)), steps_(steps) { 
       if(max < min)
 	throw edm::Exception(edm::errors::Configuration)
@@ -18,8 +18,8 @@ namespace funct {
     }
     double operator()(double x) const;  
    private:
-    A a_;
-    B b_;
+    A _1;
+    B _2;
     double min_, max_, delta_;
     size_t steps_;
   };
@@ -31,7 +31,7 @@ namespace funct {
     double y0 = x - max_;
     for(size_t n = 0; n < steps_; ++n) {
       double y = y0 + n*delta_;
-      f += a_(y) * b_(x - y);
+      f += _1(y) * _2(x - y);
     }   
     return f * delta_;
   }

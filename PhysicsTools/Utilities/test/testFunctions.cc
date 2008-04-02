@@ -7,7 +7,6 @@
 #include "PhysicsTools/Utilities/interface/Convolution.h"
 #include "PhysicsTools/Utilities/interface/Functions.h"
 #include "PhysicsTools/Utilities/interface/Variables.h"
-#include <cmath>
 
 class testFunctions : public CppUnit::TestFixture {
   CPPUNIT_TEST_SUITE(testFunctions);

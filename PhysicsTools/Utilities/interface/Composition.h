@@ -15,13 +15,13 @@ namespace funct {
   public:
     BOOST_STATIC_ASSERT(A::arguments == B::arguments);
     static const unsigned int arguments = 0;
-    CompositionStruct(const A & a, const B & b) : a_(a), b_(b) { }
+    CompositionStruct(const A & a, const B & b) : _1(a), _2(b) { }
     double operator()() const {
-      return a_(b_());
+      return _1(_2());
     }
   private:
-    A a_; 
-    B b_;
+    A _1; 
+    B _2;
   };
 
   template<typename A, typename B>
@@ -29,13 +29,13 @@ namespace funct {
   public:
     BOOST_STATIC_ASSERT(A::arguments == B::arguments);
     static const unsigned int arguments = 1;
-    CompositionStruct(const A & a, const B & b) : a_(a), b_(b) { }
+    CompositionStruct(const A & a, const B & b) : _1(a), _2(b) { }
     double operator()(double x) const {
-      return a_(b_(x));
+      return _1(_2(x));
     }
   private:
-    A a_; 
-    B b_;
+    A _1; 
+    B _2;
   };
 
   template<typename A, typename B>
@@ -43,13 +43,13 @@ namespace funct {
   public:
     BOOST_STATIC_ASSERT(A::arguments == B::arguments);
     static const unsigned int arguments = 2;
-    CompositionStruct(const A & a, const B & b) : a_(a), b_(b) { }
+    CompositionStruct(const A & a, const B & b) : _1(a), _2(b) { }
     double operator()(double x, double y) const {
-      return a_(b_(x, y));
+      return _1(_2(x, y));
     }
   private:
-    A a_; 
-    B b_;
+    A _1; 
+    B _2;
   };
 
   template<typename A, typename B>

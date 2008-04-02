@@ -17,13 +17,13 @@ struct X { \
 private: \
   static T value; \
 }; \
-} \
  \
-inline std::ostream& operator<<( std::ostream& cout, const funct::X & ) \
+inline std::ostream& operator<<(std::ostream& cout, const funct::X &) \
 { return cout << funct::X::name(); } \
  \
-struct __useless_ignoreme \
-
+} \
+ \
+struct __useless_ignoreme
 
 #define IMPLEMENT_VARIABLE_T(T, X) \
 namespace funct { \

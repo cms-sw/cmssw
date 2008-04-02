@@ -4,55 +4,48 @@
 
 namespace funct {
   template<typename A, typename B, unsigned int args = A::arguments>
-  class ProductStruct { 
-  public:
+  struct ProductStruct { 
     BOOST_STATIC_ASSERT(A::arguments == B::arguments);
     static const unsigned int arguments = args;
   };
 
   template<typename A, typename B>
-  class ProductStruct<A, B, 0> { 
-  public:
+  struct ProductStruct<A, B, 0> { 
     BOOST_STATIC_ASSERT(A::arguments == B::arguments);
     static const unsigned int arguments = 0;
-    ProductStruct(const A & a, const B & b) : a_(a), b_(b) { }
+    ProductStruct(const A & a, const B & b) : _1(a), _2(b) { }
     double operator()() const {
-      return a_() * b_();
+      return _1() * _2();
     }
     operator double() const {
-      return a_() * b_();
+      return _1() * _2();
     }
-  private:
-    A a_; 
-    B b_;
+    A _1; 
+    B _2;
   };
 
   template<typename A, typename B>
-  class ProductStruct<A, B, 1> { 
-  public:
+  struct ProductStruct<A, B, 1> { 
     BOOST_STATIC_ASSERT(A::arguments == B::arguments);
     static const unsigned int arguments = 1;
-    ProductStruct(const A & a, const B & b) : a_(a), b_(b) { }
+    ProductStruct(const A & a, const B & b) : _1(a), _2(b) { }
     double operator()(double x) const {
-      return a_(x) * b_(x);
+      return _1(x) * _2(x);
     }
-  private:
-    A a_; 
-    B b_;
+    A _1; 
+    B _2;
   };
 
   template<typename A, typename B>
-  class ProductStruct<A, B, 2> { 
-  public:
+  struct ProductStruct<A, B, 2> { 
     BOOST_STATIC_ASSERT(A::arguments == B::arguments);
     static const unsigned int arguments = 2;
-    ProductStruct(const A & a, const B & b) : a_(a), b_(b) { }
+    ProductStruct(const A & a, const B & b) : _1(a), _2(b) { }
     double operator()(double x, double y) const {
-      return a_(x, y) * b_(x, y);
+      return _1(x, y) * _2(x, y);
     }
-  private:
-    A a_; 
-    B b_;
+    A _1; 
+    B _2;
   };
 
   template<typename A, typename B>

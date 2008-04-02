@@ -4,48 +4,41 @@
 namespace funct {
 
   template<typename A, unsigned int args = A::arguments>
-  class MinusStruct { 
-  public:
+  struct MinusStruct { 
     static const unsigned int arguments = args;
   };
 
   template<typename A>
-  class MinusStruct<A, 0> { 
-  public:
+  struct MinusStruct<A, 0> { 
     static const unsigned int arguments = 0;
-    MinusStruct(const A & a) : a_(a) { }
+    MinusStruct(const A & a) : _(a) { }
     double operator()() const {
-      return - a_();
+      return - _();
     }
     operator double() const {
-      return - a_();
+      return - _();
     }
-  private:
-    A a_; 
+    A _; 
   };
 
   template<typename A>
-  class MinusStruct<A, 1> { 
-  public:
+  struct MinusStruct<A, 1> { 
     static const unsigned int arguments = 1;
-    MinusStruct(const A & a) : a_(a) { }
+    MinusStruct(const A & a) : _(a) { }
     double operator()(double x) const {
-      return - a_(x);
+      return - _(x);
     }
-  private:
-    A a_; 
+    A _; 
   };
 
   template<typename A>
-  class MinusStruct<A, 2> { 
-  public:
+  struct MinusStruct<A, 2> { 
     static const unsigned int arguments = 2;
-    MinusStruct(const A & a) : a_(a) { }
+    MinusStruct(const A & a) : _(a) { }
     double operator()(double x, double y) const {
-      return - a_(x, y);
+      return - _(x, y);
     }
-  private:
-    A a_; 
+    A _; 
   };
 
   template<typename A>
