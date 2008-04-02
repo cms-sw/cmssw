@@ -2,8 +2,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date$
- *  $Revision$
+ *  $Date: 2008/03/28 15:21:03 $
+ *  $Revision: 1.7 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -45,6 +45,8 @@ MuonAnalyzer::MuonAnalyzer(const edm::ParameterSet& pSet) {
   theMuEnergyAnalyzer = new MuonEnergyDepositAnalyzer(parameters.getParameter<ParameterSet>("muonEnergyAnalysis"), theService);
   // do the analysis on seeds
   theSeedsAnalyzer = new MuonSeedsAnalyzer(parameters.getParameter<ParameterSet>("seedsAnalysis"), theService);
+  // do the analysis on muon energy
+  theMuonRecoAnalyzer = new MuonRecoAnalyzer(parameters.getParameter<ParameterSet>("muonRecoAnalysis"), theService);
 
 }
 
@@ -61,6 +63,7 @@ void MuonAnalyzer::beginJob(edm::EventSetup const& iSetup) {
 
   theMuEnergyAnalyzer->beginJob(iSetup, dbe);
   theSeedsAnalyzer->beginJob(iSetup, dbe);
+  theMuonRecoAnalyzer->beginJob(iSetup, dbe);
 
 }
 
@@ -78,6 +81,8 @@ void MuonAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
    for (reco::MuonCollection::const_iterator recoMu = muons->begin(); recoMu!=muons->end(); ++recoMu){
      LogTrace(metname)<<"[MuonAnalyzer] Call to the muon energy analyzer";
      theMuEnergyAnalyzer->analyze(iEvent, iSetup, *recoMu);
+     LogTrace(metname)<<"[MuonAnalyzer] Call to the muon reco analyzer";
+     theMuonRecoAnalyzer->analyze(iEvent, iSetup, *recoMu);
    }
 
 
