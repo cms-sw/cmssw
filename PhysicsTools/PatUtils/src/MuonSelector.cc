@@ -25,8 +25,7 @@ MuonSelector::filter( const unsigned int&    index,
     }
   else if ( config_.selectionType == "muId"  )
     {
-      throw edm::Exception(edm::errors::UnimplementedFeature)
-        << "Sorry: muId-based selection is not implemented yet";
+      return muIdSelection_( index, muons );
     }
   else if ( config_.selectionType == "custom"     ) 
     {
@@ -67,4 +66,20 @@ MuonSelector::customSelection_( const unsigned int&    index,
 
   return GOOD;
 
+}
+
+
+const pat::ParticleStatus
+MuonSelector::muIdSelection_( const unsigned int&    index, 
+                                const edm::View<Muon>& muons ) const
+{
+  // Muon Id
+  if(muons[index].isTrackerMuon()){
+  	// TMLastStation algorithm
+  	if(!muonid::isGoodMuon(muons[index], config_.flag)){
+  		return BAD;	
+  	}
+  }
+
+  return GOOD;
 }

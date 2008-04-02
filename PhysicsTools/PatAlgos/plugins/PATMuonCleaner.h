@@ -1,7 +1,7 @@
 #ifndef PhysicsTools_PatAlgos_PATMuonCleaner_h
 #define PhysicsTools_PatAlgos_PATMuonCleaner_h
 //
-// $Id: PATMuonCleaner.h,v 1.3 2008/03/12 16:13:27 gpetrucc Exp $
+// $Id: PATMuonCleaner.h,v 1.4 2008/03/14 15:13:51 gpetrucc Exp $
 //
 
 /**
@@ -29,7 +29,7 @@
   The actual selection is performed by the MuonSelector.
 
   \author   Giovanni Petrucciani (from PATMuonProducer by Steven Lowette, Roger Wolf)
-  \version  $Id: PATMuonCleaner.h,v 1.3 2008/03/12 16:13:27 gpetrucc Exp $
+  \version  $Id: PATMuonCleaner.h,v 1.4 2008/03/14 15:13:51 gpetrucc Exp $
 */
 
 
@@ -91,6 +91,26 @@ namespace reco {
         config_.selectionType = selectionType;
         if ( selectionType == "custom" )
           {
+		if ( selectionType == "muId" )
+          {
+            std::string flag = cfg.getParameter<std::string>("flag");
+			if(flag == "TMLastStationLoose"){
+				config_.flag = muonid::TMLastStationLoose;
+			}
+			else if(flag == "TMLastStationTight"){
+				config_.flag = muonid::TMLastStationTight;
+  			}
+			else if(flag == "TM2DCompatibilityLoose"){
+				config_.flag = muonid::TM2DCompatibilityLoose;
+  			}
+			else if(flag == "TM2DCompatibilityTight"){
+				config_.flag = muonid::TM2DCompatibilityTight;
+  			}
+			else{
+				throw edm::Exception(edm::errors::UnimplementedFeature) 
+					<< "muId flag is not valid or not implemented yet";
+			}
+          }
             config_.dPbyPmax  = cfg.getParameter<double>("dPbyPmax");
             config_.chi2max  = cfg.getParameter<double>("chi2max");
             config_.nHitsMin = cfg.getParameter<int>("nHitsMin");
