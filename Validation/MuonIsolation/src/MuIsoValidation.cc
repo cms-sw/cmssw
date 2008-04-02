@@ -48,7 +48,6 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 //Other included files
-#include "DQMServices/CoreROOT/interface/MonitorElementRootT.h"
 
 #include "DataFormats/TrackReco/interface/Track.h"
 
@@ -69,7 +68,7 @@ MuIsoValidation::MuIsoValidation(const edm::ParameterSet& iConfig)
 
 	//--------Initialize tags-------
 	Muon_Tag = iConfig.getUntrackedParameter<edm::InputTag>("Global_Muon_Label");
-	ctfIsoDeposit_Tag = iConfig.getUntrackedParameter<edm::InputTag>("ctfIsoDeposit_Label");
+	tkIsoDeposit_Tag = iConfig.getUntrackedParameter<edm::InputTag>("tkIsoDeposit_Label");
 	hcalIsoDeposit_Tag = iConfig.getUntrackedParameter<edm::InputTag>("hcalIsoDeposit_Label");
 	ecalIsoDeposit_Tag = iConfig.getUntrackedParameter<edm::InputTag>("ecalIsoDeposit_Label");
 	hoIsoDeposit_Tag = iConfig.getUntrackedParameter<edm::InputTag>("hoIsoDeposit_Label");
@@ -82,7 +81,7 @@ MuIsoValidation::MuIsoValidation(const edm::ParameterSet& iConfig)
 
 	//Set up DAQ
 	dbe = 0;
-	dbe = edm::Service<DaqMonitorBEInterface>().operator->();
+	dbe = edm::Service<DQMStore>().operator->();
 
 	//------"allocate" space for the data vectors-------
 	
@@ -184,7 +183,6 @@ void MuIsoValidation::InitStatics(){
 	names[4 ] = "nTracks";
 	names[5 ] = "nEMtowers";
 	names[6 ] = "nHADtowers";
-
 	names[7 ] = "nHOtowers";
 	names[8 ] = "muonPt";
 	names[9 ] = "avgPt";
@@ -238,11 +236,11 @@ void MuIsoValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& i
 	iEvent.getByLabel(Muon_Tag, muonsHandle);
 
 	// Get IsoDeposit Collection 
-	MuIsoDepHandle ctfIsoHandle;
+	MuIsoDepHandle tkIsoHandle;
 	MuIsoDepHandle ecalIsoHandle;
 	MuIsoDepHandle hcalIsoHandle;
 	MuIsoDepHandle hoIsoHandle;
-	iEvent.getByLabel(ctfIsoDeposit_Tag, ctfIsoHandle);
+	iEvent.getByLabel(tkIsoDeposit_Tag, tkIsoHandle);
 	iEvent.getByLabel(ecalIsoDeposit_Tag, ecalIsoHandle);
 	iEvent.getByLabel(hcalIsoDeposit_Tag, hcalIsoHandle);
 	iEvent.getByLabel(hoIsoDeposit_Tag, hoIsoHandle);
@@ -256,34 +254,34 @@ void MuIsoValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& i
 	for (MuonIterator muon = muonsHandle->begin(); muon != muonsHandle->end(); ++muon, ++iMuon ) {
 		++nMuons;
 		if (muon->combinedMuon().isNull()) continue;
-		//		edm::RefToBase<reco::Candidate> muRef(muonsHandle->refAt(iMuon));
-		MuIsoDepRef& ctfDep  = ( *ctfIsoHandle)[muon->combinedMuon()];
-		MuIsoDepRef& ecalDep = (*ecalIsoHandle)[muon->combinedMuon()];
-		MuIsoDepRef& hcalDep = (*hcalIsoHandle)[muon->combinedMuon()];
-		MuIsoDepRef& hoDep   = (  *hoIsoHandle)[muon->combinedMuon()];
+		reco::MuonRef muRef(muonsHandle,iMuon);
+		MuIsoDepRef& tkDep  = ( *tkIsoHandle)[muRef];
+		MuIsoDepRef& ecalDep = (*ecalIsoHandle)[muRef];
+		MuIsoDepRef& hcalDep = (*hcalIsoHandle)[muRef];
+		MuIsoDepRef& hoDep   = (  *hoIsoHandle)[muRef];
 
-		RecordData(muon,ctfDep,ecalDep,hcalDep,hoDep);
+		RecordData(muon,tkDep,ecalDep,hcalDep,hoDep);
 	}
    
 }
 
 //---------------Record data for a signle muon's data---------------------
 void MuIsoValidation::RecordData(MuonIterator muon, 
-	MuIsoDepRef& ctfDep, MuIsoDepRef& ecalDep, 
+	MuIsoDepRef& tkDep, MuIsoDepRef& ecalDep, 
 	MuIsoDepRef& hcalDep, MuIsoDepRef& hoDep){
 
 
-	the1Ddata[0].push_back(ctfDep.depositWithin(0.3));
+	the1Ddata[0].push_back(tkDep.depositWithin(0.3));
 	the1Ddata[1].push_back(ecalDep.depositWithin(0.3));
 	the1Ddata[2].push_back(hcalDep.depositWithin(0.3));
 	the1Ddata[3].push_back(hoDep.depositWithin(0.3));
 
-	the1Ddata[4].push_back(ctfDep.depositAndCountWithin(0.3).second);
+	the1Ddata[4].push_back(tkDep.depositAndCountWithin(0.3).second);
 	the1Ddata[5].push_back(ecalDep.depositAndCountWithin(0.3).second);
 	the1Ddata[6].push_back(hcalDep.depositAndCountWithin(0.3).second);
 	the1Ddata[7].push_back(hoDep.depositAndCountWithin(0.3).second);
 	
-	the1Ddata[8].push_back(muon->pt());
+	the1Ddata[8].push_back(muon->combinedMuon()->pt());
 	the1Ddata[9].push_back(
 		(the1Ddata[4].back() != 0) ? 
 		(the1Ddata[0].back() / the1Ddata[4].back()) : 
@@ -521,67 +519,15 @@ void MuIsoValidation::FillHistos() {
 }
 
 TH1* MuIsoValidation::GetTH1FromMonitorElement(MonitorElement* me) {
-  // Nice way to do it for 2_0_0
-  //  return me->getTH1();
-  MonitorElementRootH1* meH1 = dynamic_cast<MonitorElementRootH1*> (me);
-  if(meH1 == 0){
-    edm::LogInfo("Tutorial") << "\n\nDynamic Cast error #1 !!!!!!!!\n\n";
-    return (TH1*)0;
-  }
-  else{
-    //(*meH1) is a MonitorElementRootH1
-    //*(*meH1) is of type TNamed, although is actually a TH1::TNamed
-    //&(*(*meH1)) is of type TNamed*
-    TNamed* named_histo = &(*(*meH1));
-    TH1* histo = dynamic_cast<TH1*> (named_histo);
-    if(histo == 0){
-      edm::LogInfo("Tutorial") << "\n\nDynamic Cast error #2 !!!!!!!!\n\n";
-      return (TH1*)0;
-    }
-    else{
-      return histo;
-    }
-  }
+  return me->getTH1();
 }
 
 TH2* MuIsoValidation::GetTH2FromMonitorElement(MonitorElement* me) {
-  //  return me->getTH2F();
-  MonitorElementRootH2* meH2 = dynamic_cast<MonitorElementRootH2*> (me);
-  if(meH2 == 0){
-    edm::LogInfo("Tutorial") << "\n\nDynamic Cast error #5 !!!!!!!!\n\n";
-    return (TH2*)0;
-  }
-  else{
-    TNamed* named_histo = &(*(*meH2));
-    TH2* histo = dynamic_cast<TH2*> (named_histo);
-    if(histo == 0){
-      edm::LogInfo("Tutorial") << "\n\nDynamic Cast error #6 !!!!!!!!\n\n";
-      return (TH2*)0;
-    }
-    else{
-      return histo;
-    }
-  }
+  return me->getTH2F();
 }
 
 TProfile* MuIsoValidation::GetTProfileFromMonitorElement(MonitorElement* me) {
-  //  return me->getTProfile();
-  MonitorElementRootProf* meProf = dynamic_cast<MonitorElementRootProf*> (me);
-  if(meProf == 0){
-    edm::LogInfo("Tutorial") << "\n\nDynamic Cast error #3 !!!!!!!!\n\n";
-    return (TProfile*)0;
-  }
-  else{
-    TNamed* named_prof = &(*(*meProf));
-    TProfile* prof = dynamic_cast<TProfile*> (named_prof);
-    if(prof == 0){
-      edm::LogInfo("Tutorial") << "\n\nDynamic Cast error #4 !!!!!!!!\n\n";
-      return (TProfile*)0;
-    }
-    else{
-      return prof;
-    }
-  }
+  return me->getTProfile();
 }
 
 
