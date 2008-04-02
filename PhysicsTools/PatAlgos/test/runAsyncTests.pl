@@ -29,7 +29,7 @@ if (@CFGs) {
     foreach my $cfg (@CFGs) { push @allCFGs, glob($cfg); }
     @CFGs = @allCFGs;
 } else {
-    @CFGs = glob("PATLayer[01]_from*_*.cfg"); 
+    @CFGs = glob("patLayer[01]_from*_*.cfg"); 
 }
 print "Will run " . scalar(@CFGs) . " config files: " . join(' ', @CFGs) . "\n\n";
 
