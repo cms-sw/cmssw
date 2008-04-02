@@ -1,4 +1,4 @@
-// Last commit: $Id: SiStripDigiToRaw.cc,v 1.25 2008/01/22 19:28:08 muzaffar Exp $
+// Last commit: $Id: SiStripDigiToRaw.cc,v 1.26 2008/04/02 08:47:43 bainbrid Exp $
 
 #include "EventFilter/SiStripRawToDigi/interface/SiStripDigiToRaw.h"
 #include "CondFormats/SiStripObjects/interface/SiStripFedCabling.h"
@@ -85,10 +85,7 @@ void SiStripDigiToRaw::createFedBuffers( edm::Event& event,
 	for ( idigi = digis->data.begin(); idigi != digis->data.end(); idigi++ ) {
 	  if ( (*idigi).strip() < ipair*256 ||
 	       (*idigi).strip() > ipair*256+255 ) { continue; }
-	  uint16_t str = (*idigi).strip() % 256;
-	  uint16_t mux = str/128 ? (str%128)*2+1 : (str%128)*2 ;
-	  //unsigned short strip = iconn->fedCh()*256 + ( readoutMode_ == "ZERO_SUPPRESSED" ? str : mux );
-	  unsigned short strip = iconn->fedCh()*256 + str;
+	  unsigned short strip = iconn->fedCh()*256 + (*idigi).strip() % 256;
 	  if ( strip >= strips_per_fed ) {
 	    std::stringstream ss;
 	    ss << "[SiStripDigiToRaw::createFedBuffers]"

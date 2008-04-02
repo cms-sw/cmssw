@@ -323,10 +323,7 @@ void SiStripRawToDigiUnpacker::createDigis( const SiStripFedCabling& cabling,
 	  if ( pr.data.size() < static_cast<uint16_t>(256*(ipair+1)) ) { pr.data.resize( 256*(ipair+1) ); }
 	  int physical = 0;
 	  for ( uint16_t i = 0; i < samples.size(); i++ ) {
-	    physical = i;
-	    //physical = i%128; 
-	    //(i/128) ? physical=physical*2+1 : physical=physical*2; // multiplexed data
-	    pr.data[ipair*256+i] = SiStripRawDigi( samples[physical] ); 
+	    pr.data[ipair*256+i] = SiStripRawDigi( samples[i] ); 
 	  } 
 	}
 
