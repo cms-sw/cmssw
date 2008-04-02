@@ -2,8 +2,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/03/28 15:21:03 $
- *  $Revision: 1.6 $
+ *  $Date: 2008/04/02 12:18:32 $
+ *  $Revision: 1.1 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -43,70 +43,94 @@ void MuonRecoAnalyzer::beginJob(edm::EventSetup const& iSetup,DQMStore * dbe) {
   LogTrace(metname)<<"[MuonRecoAnalyzer] Parameters initialization";
   dbe->setCurrentFolder("Muons/MuonRecoAnalyzer");
 
-  muReco = dbe->book1D("muReco", "muReco", 3, 0, 3);
+  muReco = dbe->book1D("muReco", "muReco", 3, 1, 4);
   muReco->setBinLabel(1,"global",1);
   muReco->setBinLabel(2,"tracker",1);
   muReco->setBinLabel(3,"sta",1);
-
+  
+  // monitoring of eta parameter
   etaBin = parameters.getParameter<int>("etaBin");
   etaMin = parameters.getParameter<double>("etaMin");
   etaMax = parameters.getParameter<double>("etaMax");
-  std::string histname = "etaGlbTrack_";
-  etaGlbTrack.push_back(dbe->book1D(histname+"combined", histname+"combined", etaBin, etaMin, etaMax));
-  etaGlbTrack.push_back(dbe->book1D(histname+"tracker", histname+"tracker", etaBin, etaMin, etaMax));
-  etaGlbTrack.push_back(dbe->book1D(histname+"sta", histname+"sta", etaBin, etaMin, etaMax));
-  etaResolution.push_back(dbe->book1D(histname+"trackerResolution", histname+"trackerResolution", etaBin, etaMin, etaMax));
-  etaResolution.push_back(dbe->book1D(histname+"staResolution", histname+"staResolution", etaBin, etaMin, etaMax));
-  etaTrack = dbe->book1D("etaTrack", "etaTrack", etaBin, etaMin, etaMax);
-  etaStaTrack = dbe->book1D("etaStaTrack", "etaStaTrack", etaBin, etaMin, etaMax);
+  std::string histname = "GlbMuon_";
+  etaGlbTrack.push_back(dbe->book1D(histname+"Glb_eta", histname+"Glb_eta", etaBin, etaMin, etaMax));
+  etaGlbTrack.push_back(dbe->book1D(histname+"Tk_eta", histname+"Tk_eta", etaBin, etaMin, etaMax));
+  etaGlbTrack.push_back(dbe->book1D(histname+"Sta_eta", histname+"Sta_eta", etaBin, etaMin, etaMax));
+  etaResolution.push_back(dbe->book1D("Res_TkGlb_eta", "Res_TkGlb_eta", etaBin, etaMin, etaMax));
+  etaResolution.push_back(dbe->book1D("Res_StaGlb_eta", "Res_StaGlb_eta", etaBin, etaMin, etaMax));
+  etaResolution.push_back(dbe->book1D("Res_TkSta_eta", "Res_StaGlb_eta", etaBin, etaMin, etaMax));
+  etaTrack = dbe->book1D("TkMuon_eta", "TkMuon_eta", etaBin, etaMin, etaMax);
+  etaStaTrack = dbe->book1D("StaMuon_eta", "StaMuon_eta", etaBin, etaMin, etaMax);
 
+  // monitoring of theta parameter
   thetaBin = parameters.getParameter<int>("thetaBin");
   thetaMin = parameters.getParameter<double>("thetaMin");
   thetaMax = parameters.getParameter<double>("thetaMax");
-  histname = "thetaGlbTrack_";
-  thetaGlbTrack.push_back(dbe->book1D(histname+"combined", histname+"combined", thetaBin, thetaMin, thetaMax));
-  thetaGlbTrack.push_back(dbe->book1D(histname+"tracker", histname+"tracker", thetaBin, thetaMin, thetaMax));
-  thetaGlbTrack.push_back(dbe->book1D(histname+"sta", histname+"sta", thetaBin, thetaMin, thetaMax));
-  thetaResolution.push_back(dbe->book1D(histname+"trackerResolution", histname+"trackerResolution", thetaBin, thetaMin, thetaMax));
-  thetaResolution.push_back(dbe->book1D(histname+"staResolution", histname+"staResolution", thetaBin, thetaMin, thetaMax));
-  thetaTrack = dbe->book1D("thetaTrack", "thetaTrack", thetaBin, thetaMin, thetaMax);
-  thetaStaTrack = dbe->book1D("thetaStaTrack", "thetaStaTrack", thetaBin, thetaMin, thetaMax);
+  thetaGlbTrack.push_back(dbe->book1D(histname+"Glb_theta", histname+"Glb_theta", thetaBin, thetaMin, thetaMax));
+  thetaGlbTrack.push_back(dbe->book1D(histname+"Tk_theta", histname+"Tk_theta", thetaBin, thetaMin, thetaMax));
+  thetaGlbTrack.push_back(dbe->book1D(histname+"Sta_theta", histname+"Sta_theta", thetaBin, thetaMin, thetaMax));
+  thetaResolution.push_back(dbe->book1D("Res_TkGlb_theta", "Res_TkGlb_theta", thetaBin, thetaMin, thetaMax));
+  thetaResolution.push_back(dbe->book1D("Res_StaGlb_theta", "Res_StaGlb_theta", thetaBin, thetaMin, thetaMax));
+  thetaResolution.push_back(dbe->book1D("Res_TkSta_theta", "Res_TkGlb_theta", thetaBin, thetaMin, thetaMax));
+  thetaTrack = dbe->book1D("TkMuon_theta", "TkMuon_theta", thetaBin, thetaMin, thetaMax);
+  thetaStaTrack = dbe->book1D("StaMuon_theta", "StaMuon_theta", thetaBin, thetaMin, thetaMax);
 
+  // monitoring of phi paramater
   phiBin = parameters.getParameter<int>("phiBin");
   phiMin = parameters.getParameter<double>("phiMin");
   phiMax = parameters.getParameter<double>("phiMax");
-  histname = "phiGlbTrack_";
-  phiGlbTrack.push_back(dbe->book1D(histname+"combined", histname+"combined", phiBin, phiMin, phiMax));
-  phiGlbTrack.push_back(dbe->book1D(histname+"tracker", histname+"tracker", phiBin, phiMin, phiMax));
-  phiGlbTrack.push_back(dbe->book1D(histname+"sta", histname+"sta", phiBin, phiMin, phiMax));
-  phiResolution.push_back(dbe->book1D(histname+"trackerResolution", histname+"trackerResolution", phiBin, phiMin, phiMax));
-  phiResolution.push_back(dbe->book1D(histname+"staResolution", histname+"staResolution", phiBin, phiMin, phiMax));
-  phiTrack = dbe->book1D("phiTrack", "phiTrack", phiBin, phiMin, phiMax);
-  phiStaTrack = dbe->book1D("phiStaTrack", "phiStaTrack", phiBin, phiMin, phiMax);
+  phiGlbTrack.push_back(dbe->book1D(histname+"Glb_phi", histname+"Glb_phi", phiBin, phiMin, phiMax));
+  phiGlbTrack.push_back(dbe->book1D(histname+"Tk_phi", histname+"Tk_phi", phiBin, phiMin, phiMax));
+  phiGlbTrack.push_back(dbe->book1D(histname+"Sta_phi", histname+"Sta_phi", phiBin, phiMin, phiMax));
+  phiResolution.push_back(dbe->book1D("Res_TkGlb_phi", "Res_TkGlb_phi", phiBin, phiMin, phiMax));
+  phiResolution.push_back(dbe->book1D("Res_StaGlb_phi", "Res_StaGlb_phi", phiBin, phiMin, phiMax));
+  phiResolution.push_back(dbe->book1D("Res_TkSta_phi", "Res_TkGlb_phi", phiBin, phiMin, phiMax));
+  phiTrack = dbe->book1D("TkMuon_phi", "TkMuon_phi", phiBin, phiMin, phiMax);
+  phiStaTrack = dbe->book1D("StaMuon_phi", "StaMuon_phi", phiBin, phiMin, phiMax);
 
-  qOverpBin = parameters.getParameter<int>("qOverpBin");
-  qOverpMin = parameters.getParameter<double>("qOverpMin");
-  qOverpMax = parameters.getParameter<double>("qOverpMax");
-  histname = "qOverpGlbTrack_";
-  qOverpGlbTrack.push_back(dbe->book1D(histname+"combined", histname+"combined", qOverpBin, qOverpMin, qOverpMax));
-  qOverpGlbTrack.push_back(dbe->book1D(histname+"tracker", histname+"tracker", qOverpBin, qOverpMin, qOverpMax));
-  qOverpGlbTrack.push_back(dbe->book1D(histname+"sta", histname+"sta", qOverpBin, qOverpMin, qOverpMax));
-  qOverpResolution.push_back(dbe->book1D(histname+"trackerResolution", histname+"trackerResolution", qOverpBin, qOverpMin, qOverpMax));
-  qOverpResolution.push_back(dbe->book1D(histname+"staResolution", histname+"staResolution", qOverpBin, qOverpMin, qOverpMax));
-  qOverpTrack = dbe->book1D("qOverpTrack", "qOverpTrack", qOverpBin, qOverpMin, qOverpMax);
-  qOverpStaTrack = dbe->book1D("qOverpStaTrack", "qOverpStaTrack", qOverpBin, qOverpMin, qOverpMax);
+  // monitoring of the momentum
+  pBin = parameters.getParameter<int>("pBin");
+  pMin = parameters.getParameter<double>("pMin");
+  pMax = parameters.getParameter<double>("pMax");
+  pGlbTrack.push_back(dbe->book1D(histname+"Glb_p", histname+"Glb_p", pBin, pMin, pMax));
+  pGlbTrack.push_back(dbe->book1D(histname+"Tk_p", histname+"Tk_p", pBin, pMin, pMax));
+  pGlbTrack.push_back(dbe->book1D(histname+"Sta_p", histname+"Sta_p", pBin, pMin, pMax));
+  pTrack = dbe->book1D("TkMuon_p", "TkMuon_p", pBin, pMin, pMax);
+  pStaTrack = dbe->book1D("StaMuon_p", "StaMuon_p", pBin, pMin, pMax);
 
-  qOverptBin = parameters.getParameter<int>("qOverptBin");
-  qOverptMin = parameters.getParameter<double>("qOverptMin");
-  qOverptMax = parameters.getParameter<double>("qOverptMax");
-  histname = "qOverptGlbTrack_";
-  qOverptGlbTrack.push_back(dbe->book1D(histname+"combined", histname+"combined", qOverptBin, qOverptMin, qOverptMax));
-  qOverptGlbTrack.push_back(dbe->book1D(histname+"tracker", histname+"tracker", qOverptBin, qOverptMin, qOverptMax));
-  qOverptGlbTrack.push_back(dbe->book1D(histname+"sta", histname+"sta", qOverptBin, qOverptMin, qOverptMax));
-  qOverptResolution.push_back(dbe->book1D(histname+"trackerResolution", histname+"trackerResoution", qOverptBin, qOverptMin, qOverptMax));
-  qOverptResolution.push_back(dbe->book1D(histname+"staResolution", histname+"staResoution", qOverptBin, qOverptMin, qOverptMax));
-  qOverptTrack = dbe->book1D("qOverptTrack", "qOverptTrack", qOverptBin, qOverptMin, qOverptMax);
-  qOverptStaTrack = dbe->book1D("qOverptStaTrack", "qOverptStaTrack", qOverptBin, qOverptMin, qOverptMax);
+  // monitoring of the transverse momentum
+  ptBin = parameters.getParameter<int>("ptBin");
+  ptMin = parameters.getParameter<double>("ptMin");
+  ptMax = parameters.getParameter<double>("ptMax");
+  ptGlbTrack.push_back(dbe->book1D(histname+"Glb_pt", histname+"Glb_pt", ptBin, ptMin, ptMax));
+  ptGlbTrack.push_back(dbe->book1D(histname+"Tk_pt", histname+"Tk_pt", ptBin, ptMin, ptMax));
+  ptGlbTrack.push_back(dbe->book1D(histname+"Sta_pt", histname+"Sta_pt", ptBin, ptMin, ptMax));
+  ptTrack = dbe->book1D("TkMuon_pt", "TkMuon_pt", ptBin, ptMin, ptMax);
+  ptStaTrack = dbe->book1D("StaMuon_pt", "StaMuon_pt", ptBin, ptMin, pMax);
+
+  // monitoring of the muon charge
+  qGlbTrack.push_back(dbe->book1D(histname+"Glb_q", histname+"Glb_q", 5, -2.5, 2.5));
+  qGlbTrack.push_back(dbe->book1D(histname+"Tk_q", histname+"Tk_q", 5, -2.5, 2.5));
+  qGlbTrack.push_back(dbe->book1D(histname+"Sta_q", histname+"Sta_q", 5, -2.5, 2.5));
+  qTrack = dbe->book1D("TkMuon_q", "TkMuon_q", 5, -2.5, 2.5);
+  qStaTrack = dbe->book1D("StaMuon_q", "StaMuon_q", 5, -2.5, 2.5);
+
+  // monitoring of the momentum resolution
+  pResBin = parameters.getParameter<int>("pResBin");
+  pResMin = parameters.getParameter<double>("pResMin");
+  pResMax = parameters.getParameter<double>("pResMax");
+  qOverpResolution.push_back(dbe->book1D("Res_TkGlb_qOverp", "Res_TkGlb_qOverp", pResBin, pResMin, pResMax));
+  qOverpResolution.push_back(dbe->book1D("Res_StaGlb_qOverp", "Res_StaGlb_qOverp", pResBin, pResMin, pResMax));
+  qOverpResolution.push_back(dbe->book1D("Res_TkSta_qOverp", "Res_TkSta_qOverp", pResBin, pResMin, pResMax));
+  oneOverpResolution.push_back(dbe->book1D("Res_TkGlb_oneOverp", "Res_TkGlb_oneOverp", pResBin, pResMin, pResMax));
+  oneOverpResolution.push_back(dbe->book1D("Res_StaGlb_oneOverp", "Res_StaGlb_oneOverp", pResBin, pResMin, pResMax));
+  oneOverpResolution.push_back(dbe->book1D("Res_TkSta_oneOverp", "Res_TkSta_oneOverp", pResBin, pResMin, pResMax));
+  qOverptResolution.push_back(dbe->book1D("Res_TkGlb_qOverpt", "Res_TkGlb_qOverpt", pResBin, pResMin, pResMax));
+  qOverptResolution.push_back(dbe->book1D("Res_StaGlb_qOverpt", "Res_StaGlb_qOverpt", pResBin, pResMin, pResMax));
+  qOverptResolution.push_back(dbe->book1D("Res_TkSta_qOverpt", "Res_TkSta_qOverpt", pResBin, pResMin, pResMax));
+  oneOverptResolution.push_back(dbe->book1D("Res_TkGlb_oneOverpt", "Res_TkGlb_oneOverpt", pResBin, pResMin, pResMax));
+  oneOverptResolution.push_back(dbe->book1D("Res_StaGlb_oneOverpt", "Res_StaGlb_oneOverpt", pResBin, pResMin, pResMax));
+  oneOverptResolution.push_back(dbe->book1D("Res_TkSta_oneOverpt", "Res_TkSta_oneOverpt", pResBin, pResMin, pResMax));
 
 }
 
@@ -132,30 +156,46 @@ void MuonRecoAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
     etaGlbTrack[2]->Fill(recoStaGlbTrack->eta());
     etaResolution[0]->Fill(recoGlbTrack->eta()-recoCombinedGlbTrack->eta());
     etaResolution[1]->Fill(recoStaGlbTrack->eta()-recoCombinedGlbTrack->eta());
+    etaResolution[2]->Fill(recoGlbTrack->eta()-recoStaGlbTrack->eta());
 
     thetaGlbTrack[0]->Fill(recoCombinedGlbTrack->theta());
     thetaGlbTrack[1]->Fill(recoGlbTrack->theta());
     thetaGlbTrack[2]->Fill(recoStaGlbTrack->theta());
     thetaResolution[0]->Fill(recoGlbTrack->theta()-recoCombinedGlbTrack->theta());
     thetaResolution[1]->Fill(recoStaGlbTrack->theta()-recoCombinedGlbTrack->theta());
+    thetaResolution[2]->Fill(recoGlbTrack->theta()-recoStaGlbTrack->theta());
     
     phiGlbTrack[0]->Fill(recoCombinedGlbTrack->phi());
     phiGlbTrack[1]->Fill(recoGlbTrack->phi());
     phiGlbTrack[2]->Fill(recoStaGlbTrack->phi());
     phiResolution[0]->Fill(recoGlbTrack->phi()-recoCombinedGlbTrack->phi());
     phiResolution[1]->Fill(recoStaGlbTrack->phi()-recoCombinedGlbTrack->phi());
+    phiResolution[2]->Fill(recoGlbTrack->phi()-recoStaGlbTrack->phi());
+  
+    pGlbTrack[0]->Fill(recoCombinedGlbTrack->p());
+    pGlbTrack[1]->Fill(recoGlbTrack->p());
+    pGlbTrack[2]->Fill(recoStaGlbTrack->p());
+
+    ptGlbTrack[0]->Fill(recoCombinedGlbTrack->pt());
+    ptGlbTrack[1]->Fill(recoGlbTrack->pt());
+    ptGlbTrack[2]->Fill(recoStaGlbTrack->pt());
+
+    qGlbTrack[0]->Fill(recoCombinedGlbTrack->charge());
+    qGlbTrack[1]->Fill(recoGlbTrack->charge());
+    qGlbTrack[2]->Fill(recoStaGlbTrack->charge());
     
-    qOverpGlbTrack[0]->Fill(recoCombinedGlbTrack->charge()/recoCombinedGlbTrack->p());
-    qOverpGlbTrack[1]->Fill(recoGlbTrack->charge()/recoGlbTrack->p());
-    qOverpGlbTrack[2]->Fill(recoStaGlbTrack->charge()/recoStaGlbTrack->p());
     qOverpResolution[0]->Fill((recoGlbTrack->charge()/recoGlbTrack->p())-(recoCombinedGlbTrack->charge()/recoCombinedGlbTrack->p()));
     qOverpResolution[1]->Fill((recoStaGlbTrack->charge()/recoStaGlbTrack->p())-(recoCombinedGlbTrack->charge()/recoCombinedGlbTrack->p()));
-
-    qOverptGlbTrack[0]->Fill(recoCombinedGlbTrack->charge()/recoCombinedGlbTrack->pt());
-    qOverptGlbTrack[1]->Fill(recoGlbTrack->charge()/recoGlbTrack->pt());
-    qOverptGlbTrack[2]->Fill(recoStaGlbTrack->charge()/recoStaGlbTrack->pt());
+    qOverpResolution[2]->Fill((recoGlbTrack->charge()/recoGlbTrack->p())-(recoStaGlbTrack->charge()/recoStaGlbTrack->p()));
+    oneOverpResolution[0]->Fill((1/recoGlbTrack->p())-(1/recoCombinedGlbTrack->p()));
+    oneOverpResolution[1]->Fill((1/recoStaGlbTrack->p())-(1/recoCombinedGlbTrack->p()));
+    oneOverpResolution[2]->Fill((1/recoGlbTrack->p())-(1/recoStaGlbTrack->p()));
     qOverptResolution[0]->Fill((recoGlbTrack->charge()/recoGlbTrack->pt())-(recoCombinedGlbTrack->charge()/recoCombinedGlbTrack->pt()));
     qOverptResolution[1]->Fill((recoStaGlbTrack->charge()/recoStaGlbTrack->pt())-(recoCombinedGlbTrack->charge()/recoCombinedGlbTrack->pt()));
+    qOverptResolution[2]->Fill((recoGlbTrack->charge()/recoGlbTrack->pt())-(recoStaGlbTrack->charge()/recoStaGlbTrack->pt()));
+    oneOverptResolution[0]->Fill((1/recoGlbTrack->pt())-(1/recoCombinedGlbTrack->pt()));
+    oneOverptResolution[1]->Fill((1/recoStaGlbTrack->pt())-(1/recoCombinedGlbTrack->pt()));
+    oneOverptResolution[2]->Fill((1/recoGlbTrack->pt())-(1/recoStaGlbTrack->pt()));
 
   }
 
@@ -169,8 +209,9 @@ void MuonRecoAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
     etaTrack->Fill(recoTrack->eta());
     thetaTrack->Fill(recoTrack->theta());
     phiTrack->Fill(recoTrack->phi());
-    qOverpTrack->Fill(recoTrack->charge()/recoTrack->p());
-    qOverptTrack->Fill(recoTrack->charge()/recoTrack->pt());
+    pTrack->Fill(recoTrack->p());
+    ptTrack->Fill(recoTrack->pt());
+    qTrack->Fill(recoTrack->charge());
     
   }
 
@@ -184,8 +225,9 @@ void MuonRecoAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
     etaStaTrack->Fill(recoStaTrack->eta());
     thetaStaTrack->Fill(recoStaTrack->theta());
     phiStaTrack->Fill(recoStaTrack->phi());
-    qOverpStaTrack->Fill(recoStaTrack->charge()/recoStaTrack->p());
-    qOverptStaTrack->Fill(recoStaTrack->charge()/recoStaTrack->pt());
+    pTrack->Fill(recoStaTrack->p());
+    ptTrack->Fill(recoStaTrack->pt());
+    qTrack->Fill(recoStaTrack->charge());
 
   }
     

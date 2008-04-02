@@ -6,8 +6,8 @@
  *
  *  DQM monitoring source for muon reco track
  *
- *  $Date: 2008/03/28 15:21:03 $
- *  $Revision: 1.6 $
+ *  $Date: 2008/04/02 12:18:41 $
+ *  $Revision: 1.1 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -63,13 +63,18 @@ class MuonRecoAnalyzer : public MuonAnalyzerBase {
   double phiMin;
   double phiMax;
 
-  int qOverpBin;
-  double qOverpMin;
-  double qOverpMax;
+  int pBin;
+  double pMin;
+  double pMax;
 
-  int qOverptBin;
-  double qOverptMin;
-  double qOverptMax;
+  int ptBin;
+  double ptMin;
+  double ptMax;
+
+  int pResBin;
+  double pResMin;
+  double pResMax;
+
 
   //the histos
   MonitorElement* muReco;
@@ -80,22 +85,27 @@ class MuonRecoAnalyzer : public MuonAnalyzerBase {
   std::vector<MonitorElement*> thetaResolution;
   std::vector<MonitorElement*> phiGlbTrack;
   std::vector<MonitorElement*> phiResolution;
-  std::vector<MonitorElement*> qOverpGlbTrack;
+  std::vector<MonitorElement*> pGlbTrack;
+  std::vector<MonitorElement*> ptGlbTrack;
+  std::vector<MonitorElement*> qGlbTrack;
   std::vector<MonitorElement*> qOverpResolution;
-  std::vector<MonitorElement*> qOverptGlbTrack;
   std::vector<MonitorElement*> qOverptResolution;
+  std::vector<MonitorElement*> oneOverpResolution;
+  std::vector<MonitorElement*> oneOverptResolution;
   // tracker muon
   MonitorElement* etaTrack;
   MonitorElement* thetaTrack;
   MonitorElement* phiTrack;
-  MonitorElement* qOverpTrack;
-  MonitorElement* qOverptTrack;
+  MonitorElement* pTrack;
+  MonitorElement* ptTrack;
+  MonitorElement* qTrack;
   // sta muon
   MonitorElement* etaStaTrack;
   MonitorElement* thetaStaTrack;
   MonitorElement* phiStaTrack;
-  MonitorElement* qOverpStaTrack;
-  MonitorElement* qOverptStaTrack;
+  MonitorElement* pStaTrack;
+  MonitorElement* ptStaTrack;
+  MonitorElement* qStaTrack;
 
 };
 #endif
