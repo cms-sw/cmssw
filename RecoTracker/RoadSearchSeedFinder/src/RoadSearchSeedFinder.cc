@@ -9,8 +9,8 @@
 // Created:         Sat Jan 14 22:00:00 UTC 2006
 //
 // $Author: noeding $
-// $Date: 2007/11/07 23:42:18 $
-// $Revision: 1.11 $
+// $Date: 2008/03/18 22:19:38 $
+// $Revision: 1.12 $
 //
 
 #include <iostream>
@@ -76,22 +76,24 @@ void RoadSearchSeedFinder::produce(edm::Event& e, const edm::EventSetup& es)
     edm::LogWarning("RoadSearch") << "Collection SiPixelRecHitCollection with InputTag " << pixelRecHitsInputTag << " cannot be found, using empty collection of same type. The RoadSearch algorithm is also fully functional without Pixel RecHits.";
   }
   
-  //get special input for cluster multiplicity filter
+  // get special input for cosmic cluster multiplicity filter
   edm::Handle<edm::DetSetVector<SiStripCluster> > clusterDSV;
   e.getByLabel(clusterCollectionInputTag,clusterDSV);
-  const edm::DetSetVector<SiStripCluster> *clusters = clusterDSV.product();
+  const edm::DetSetVector<SiStripCluster> *clusters = 0;  //cluster collection is not available in HLT
+  if (!clusterDSV.failedToGet()) clusters = clusterDSV.product();
 
   // create empty output collection
   std::auto_ptr<RoadSearchSeedCollection> output(new RoadSearchSeedCollection);
  
-
    //special parameters for cosmic track reconstruction
   bool cosmicTracking              = conf_.getParameter<bool>("CosmicTracking");
-  unsigned int maxNumberOfClusters = conf_.getParameter<unsigned int>("MaxNumberOfClusters");
+  unsigned int maxNrOfCosmicClusters = conf_.getParameter<unsigned int>("MaxNumberOfCosmicClusters");
 
+  
   // invoke the seed finding algorithm: check number of clusters per event *only* in cosmic tracking mode
   if(!cosmicTracking 
-     || (cosmicTracking && roadSearchSeedFinderAlgorithm_.ClusterCounter(clusters)<maxNumberOfClusters)) {
+     || (cosmicTracking && maxNrOfCosmicClusters==0)
+     || (cosmicTracking && roadSearchSeedFinderAlgorithm_.ClusterCounter(clusters)<maxNrOfCosmicClusters)) {
 
     roadSearchSeedFinderAlgorithm_.run(rphiRecHits.product(),  
 				       stereoRecHits.product(),
