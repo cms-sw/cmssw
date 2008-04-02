@@ -65,8 +65,10 @@ class EgammaSCEnergyCorrectionAlgo
     //Paramete sets for corrections functions
     std::vector<double> fBrem_; 
     std::vector<double> fEtEta_; 
+    std::vector<int> corrF_;
 
-    double brLinearThr_;
+    double brLinearLowThr_;
+    double brLinearHighThr_;
 };
 
 #endif /*RecoECAL_ECALClusters_EgammaSCEnergyCorrectionAlgo_h_*/

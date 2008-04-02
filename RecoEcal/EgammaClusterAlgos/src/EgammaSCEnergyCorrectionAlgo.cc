@@ -1,5 +1,5 @@
 //
-// $Id: EgammaSCEnergyCorrectionAlgo.cc,v 1.15 2008/03/04 08:40:08 arizzi Exp $
+// $Id: EgammaSCEnergyCorrectionAlgo.cc,v 1.16 2008/03/19 16:53:10 ferriff Exp $
 // Author: David Evans, Bristol
 //
 #include "RecoEcal/EgammaClusterAlgos/interface/EgammaSCEnergyCorrectionAlgo.h"
@@ -21,8 +21,9 @@ EgammaSCEnergyCorrectionAlgo::EgammaSCEnergyCorrectionAlgo(double noise,
   
   fBrem_ = pset.getParameter<std::vector<double> >("fBremVec");  
   fEtEta_ = pset.getParameter<std::vector<double> >("fEtEtaVec");
-  brLinearThr_ = pset.getParameter<double>("brLinearThr");
-
+  brLinearLowThr_ = pset.getParameter<double>("brLinearLowThr");
+  brLinearHighThr_ = pset.getParameter<double>("brLinearHighThr");
+  corrF_ = pset.getParameter<std::vector<int> >("corrF");
 }
 
 EgammaSCEnergyCorrectionAlgo::~EgammaSCEnergyCorrectionAlgo()
@@ -119,7 +120,7 @@ reco::SuperCluster EgammaSCEnergyCorrectionAlgo::applyCorrection(const reco::Sup
   //or apply new Enegry SCale correction
   float newEnergy = 0;
   
-  if ( theAlgo == reco::hybrid || theAlgo == reco::dynamicHybrid) {
+  if ( theAlgo == reco::hybrid || theAlgo == reco::dynamicHybrid || theAlgo == reco::fixedMatrix) {
     // first apply Zhang's eta corrections
     newEnergy = fEta(cl.energy(), cl.eta());
     // now apply F(brem)
@@ -172,8 +173,11 @@ double EgammaSCEnergyCorrectionAlgo::fBrem(double e, double brLinear)
     
   //Make No Corrections if brLinear is invalid!
   if ( brLinear == 0 ) return e;
-  //Make flat corection if brLinear is too big ( >12)
-  if ( brLinear > brLinearThr_ ) brLinear = brLinearThr_;  
+  //Make flat corection if brLinear is too small or big ( <0.7 or > 8.0 )
+  if ( brLinear < brLinearLowThr_ ) brLinear = brLinearLowThr_;  
+
+  if ( brLinear > brLinearHighThr_ ) brLinear = brLinearHighThr_;  
+
 
   //Parameters provided in cfg file
   double p0 = fBrem_[0]; 
@@ -205,11 +209,18 @@ double EgammaSCEnergyCorrectionAlgo::fEtEta(double et, double eta)
   // eta -- eta of the SuperCluster
 
   double fCorr = 0.;
-  
-  double p0 = fEtEta_[0] + fEtEta_[1]/et + fEtEta_[2]/(et*et);
-  double p1 = fEtEta_[3]/(et + fEtEta_[4]) + fEtEta_[5]/(et*et);
+ 
+  //Before Tunning 
+  //  double p0 = fEtEta_[0] + fEtEta_[1]/et + fEtEta_[2]/(et*et);
+  //  double p1 = fEtEta_[3]/(et + fEtEta_[4]) + fEtEta_[5]/(et*et);
+  //  fCorr = p0 + p1*atan(fEtEta_[7]*(fEtEta_[6]-fabs(eta)));
 
-  fCorr = p0 + p1*atan(fEtEta_[7]*(fEtEta_[6]-fabs(eta)));
+  double p0 = fEtEta_[0] + fEtEta_[1]/(et+fEtEta_[2]) + fEtEta_[3]/(et*et);
+  double p1 = fEtEta_[4]/(et + fEtEta_[5]) + fEtEta_[6]/(et*et);
+
+  fCorr = p0 + corrF_[0] * p1*atan(fEtEta_[7]*(fEtEta_[8]-fabs(eta))) 
+    + corrF_[1] * fEtEta_[9]*fabs(eta) 
+    + corrF_[2] * p1*(fabs(eta) - fEtEta_[10])*(fabs(eta) - fEtEta_[10]);
   
   return et/fCorr;
 }
