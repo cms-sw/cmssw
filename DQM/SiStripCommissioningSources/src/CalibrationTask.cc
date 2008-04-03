@@ -79,9 +79,13 @@ void CalibrationTask::book() {
   std::string pwd = dqm()->pwd();
   std::string rootDir = pwd.substr(0,pwd.find(sistrip::root_ + "/")+sistrip::root_.size());
   dqm()->setCurrentFolder( rootDir );
-  calchanElement_ = dqm()->bookInt( "calchan");
+  std::vector<std::string> existingMEs = dqm()->getMEs();
+  if(find(existingMEs.begin(),existingMEs.end(),"calchan")!=existingMEs.end()) {
+    calchanElement_ = dqm()->get(dqm()->pwd()+"/calchan");
+  } else {
+    calchanElement_ = dqm()->bookInt("calchan");
+  }
   dqm()->setCurrentFolder(pwd);
-
   
   LogDebug("Commissioning") << "[CalibrationTask::book] done";
   

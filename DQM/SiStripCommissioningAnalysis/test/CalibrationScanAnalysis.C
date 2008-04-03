@@ -10,6 +10,7 @@
 #include <map>
 #include <utility>
 #include <vector>
+#include <list>
 #include <algorithm>
 #include <iostream>
 #include <fstream>
@@ -40,7 +41,7 @@ class CalibrationScanAnalysis
     void sanitizeResult(unsigned int cut = 2);
     void print(Option_t* option = "") const;
     void draw(Option_t* option = "") const;
-    void save();
+    void save(const char* fileName="-");
 
   protected:
     void addFile(TFile* );
@@ -121,8 +122,9 @@ float CalibrationScanAnalysis::getX(const TGraph* graph, const float& y) const {
    Double_t* arrayY = graph->GetY();
    //first, look for an intersection
    for(int i=0;i<graph->GetN()-1;++i) {
-     if((arrayY[i]-y)*(arrayY[i+1]-y)<0)
+     if((arrayY[i]-y)*(arrayY[i+1]-y)<0) { 
        return (arrayX[i]+((arrayX[i+1]-arrayX[i])/(arrayY[i+1]-arrayY[i])*(y-arrayY[i])));
+     }
    }
    // if none, look for a plateau
    float finalDelta = fabs(arrayY[graph->GetN()-1]-y);
@@ -170,43 +172,102 @@ void CalibrationScanAnalysis::analyze() {
   tuneVFS_  &= (minVFS !=maxVFS );
   if(!tuneISHA_) std::cout << "ISHA tune disabled" << std::endl;
   if(!tuneVFS_ ) std::cout << "VFS  tune disabled" << std::endl;
+  // two cases are possible:
+  // ISHA tune: look at the rise time
+  // VFS  tune: look at the tail
 
   // number of APVs
   unsigned int nAPVs = (*(summaries_.begin()->second.begin()))->GetNbinsX();
+
+  // loop over the inputs to find individual values of ISHA ans VFS
+  std::list<unsigned int> ishaValues;
+  std::list<unsigned int> vfsValues;
+  for(SummaryV::const_iterator summary = summaries_.begin(); summary!=summaries_.end(); ++summary) {
+     ishaValues.push_back(summary->first.first);
+     vfsValues.push_back(summary->first.second);
+  }
+  ishaValues.sort();
+  vfsValues.sort();
+  ishaValues.unique();
+  vfsValues.unique();
 
   // loop over apvs (bins)
   for(unsigned int apv=1;apv<=nAPVs;++apv) {
      TGraph* g1 = new TGraph();
      TGraph* g2 = new TGraph();
      int ii=0;
-     for(SummaryV::const_iterator summary = summaries_.begin(); summary!=summaries_.end(); ++summary,++ii) {
-       // two cases are possible:
-       // ISHA tune: look at the rise time
-       // VFS  tune: look at the tail
-       
-       // determine which histogram are the rise time and the tail
-       const std::vector<TH1*>& observables = summary->second;
-       int tail_index = 0;
-       int rise_index = 0;
-       for( std::vector<TH1*>::const_iterator histo = observables.begin();histo<observables.end();++histo) {
-          std::string name = (*histo)->GetName();
-          if(name.find("CalibrationTail")!=std::string::npos) tail_index = histo-observables.begin();
-          if(name.find("CalibrationRiseTime")!=std::string::npos) rise_index = histo-observables.begin();
+
+     // loop over the VFS values
+     for(std::list<unsigned int>::const_iterator vfs = vfsValues.begin(); vfs!=vfsValues.end(); ++vfs,++ii) {
+       float tail = 0.;
+       unsigned int npts = 0;
+       for(SummaryV::const_iterator summary = summaries_.begin(); summary!=summaries_.end(); ++summary){
+         if((unsigned int)summary->first.second==(*vfs)) {
+           // determine which histogram are the rise time and the tail
+           const std::vector<TH1*>& observables = summary->second;
+           int tail_index = 0;
+           int rise_index = 0;
+           for( std::vector<TH1*>::const_iterator histo = observables.begin();histo<observables.end();++histo) {
+              std::string name = (*histo)->GetName();
+              if(name.find("CalibrationTail")!=std::string::npos) tail_index = histo-observables.begin();
+              if(name.find("CalibrationRiseTime")!=std::string::npos) rise_index = histo-observables.begin();
+           }
+	   //for vfs, we take the mean tail over the ISHA values at that point
+	   tail += observables[tail_index]->GetBinContent(apv);
+	   ++npts;
+	 }
        }
-        
-       // fill the graphs
-       g1->SetPoint(ii,summary->first.first,observables[rise_index]->GetBinContent(apv));
-       g2->SetPoint(ii,summary->first.second, observables[tail_index]->GetBinContent(apv));
+       // fill the graph
+       g2->SetPoint(ii,(*vfs), tail/npts);
      }
 #ifdef DEBUG_ON
-     g1->Write(Form("%s%s",summaries_.begin()->second[0]->GetXaxis()->GetBinLabel(apv),"CalibrationRiseTime"));
-     g2->Write(Form("%s%s",summaries_.begin()->second[0]->GetXaxis()->GetBinLabel(apv),"CalibrationTail"));
+     std::string name2 = Form("graph%s%s",summaries_.begin()->second[0]->GetXaxis()->GetBinLabel(apv),"CalibrationTail");
+     std::replace( name2.begin(), name2.end(), '.', '_' );
+     g2->Write(name2.c_str());
 #endif
      // analyse the graphs
-     float best_isha = tuneISHA_ ? getX(g1,66. ) : 
-                                   presentValues_[summaries_.begin()->second[0]->GetXaxis()->GetBinLabel(apv)].first;
-     float best_vfs  = tuneVFS_  ? getX(g2,0.36) : 
+     float best_vfs  = tuneVFS_  ? getX(g2,36) : 
                                    presentValues_[summaries_.begin()->second[0]->GetXaxis()->GetBinLabel(apv)].second;
+     // now that VFS is optimized, take the ISHA values for the closest VFS point
+     // for ISHA, we consider the rise time for VFS values close to the optimal
+
+     // find the closest point in the VFS scan
+     float dist = 1000.;
+     std::list<unsigned int>::const_iterator vfsPoint = vfsValues.begin();
+     for(std::list<unsigned int>::const_iterator vfs = vfsValues.begin(); vfs!=vfsValues.end(); ++vfs) {
+       if(dist>fabs((*vfs)-best_vfs)) {
+         dist = fabs((*vfs)-best_vfs);
+	 vfsPoint = vfs;
+       }
+     }
+     // loop over the ISHA values
+     ii=0;
+     for(std::list<unsigned int>::const_iterator isha = ishaValues.begin(); isha!=ishaValues.end(); ++isha,++ii) {
+       for(SummaryV::const_iterator summary = summaries_.begin(); summary!=summaries_.end(); ++summary){
+         if(((unsigned int)summary->first.second==(*vfsPoint))&&((unsigned int)summary->first.first==(*isha))) {
+           // determine which histogram are the rise time and the tail
+           const std::vector<TH1*>& observables = summary->second;
+           int tail_index = 0;
+           int rise_index = 0;
+           for( std::vector<TH1*>::const_iterator histo = observables.begin();histo<observables.end();++histo) {
+              std::string name = (*histo)->GetName();
+              if(name.find("CalibrationTail")!=std::string::npos) tail_index = histo-observables.begin();
+              if(name.find("CalibrationRiseTime")!=std::string::npos) rise_index = histo-observables.begin();
+           }
+	   // fill the graph
+	   g1->SetPoint(ii,summary->first.first,observables[rise_index]->GetBinContent(apv));
+#ifdef DEBUG_ON
+           std::string name1 = Form("graph%s%s",summaries_.begin()->second[0]->GetXaxis()->GetBinLabel(apv),"CalibrationRiseTime");
+           std::replace( name1.begin(), name1.end(), '.', '_' );
+           g1->Write(name1.c_str());
+#endif
+	 }
+       }
+     }
+     // analyse the graphs
+     float best_isha = tuneISHA_ ? getX(g1,66. ) :
+                                   presentValues_[summaries_.begin()->second[0]->GetXaxis()->GetBinLabel(apv)].first;
+
      // save the result
      result_[summaries_.begin()->second[0]->GetXaxis()->GetBinLabel(apv)] = 
                          std::make_pair((int)round(best_isha),(int)round(best_vfs));
@@ -481,9 +542,45 @@ void CalibrationScanAnalysis::draw(Option_t*) const {
   }
   histo->Draw("same");
   
+//////////////////////////////////////////////////////////////
+
+  new TCanvas;
+
+  // first create the histograms
+  std::map<int,TH1F*> histosVFS;
+  std::map<int,TH1F*> histosISHA;
+  for(std::map<std::string, int>::const_iterator it = geometries_.begin(); it!= geometries_.end(); ++it) {
+    if(histosVFS.find(it->second)==histosVFS.end()) {
+      TH1F* histoVFS = new TH1F(Form("VFSmodulesGeometry%d",it->second),
+                                Form("VFS for Module Geometry %d",it->second),255,0,255);
+      histosVFS[it->second] = histoVFS;
+      TH1F* histoISHA = new TH1F(Form("ISHAmodulesGeometry%d",it->second),
+                                 Form("ISHA for Module Geometry %d",it->second),255,0,255);
+      histosISHA[it->second] = histoISHA;
+    }
+  }
+  // loop over apvs
+  for(std::map<std::string, Parameters>::const_iterator apvValue = result_.begin();
+      apvValue != result_.end(); ++apvValue) {
+    histosISHA[geometries_.find(apvValue->first)->second]->Fill(apvValue->second.first);
+    histosVFS[geometries_.find(apvValue->first)->second]->Fill(apvValue->second.second);
+  }
+
+  // draw the histograms
+  for(std::map<int,TH1F*>::iterator h = histosISHA.begin(); h != histosISHA.end(); ++h) {
+    h->second->Draw(h == histosISHA.begin() ? "" : "same");
+  }
+
+  new TCanvas;
+  
+  for(std::map<int,TH1F*>::iterator h = histosVFS.begin(); h != histosVFS.end(); ++h) {
+    h->second->Draw(h == histosVFS.begin() ? "" : "same");
+  }
+
 }
 
-void CalibrationScanAnalysis::save() {
+void CalibrationScanAnalysis::save(const char* fileName) {
+  // save in the input files
   for(FileList::const_iterator it=files_.begin();it!=files_.end();++it) {
     TFile* input = it->second;
     TDirectory* directory = input->GetDirectory(HISTOPATH);
@@ -509,6 +606,40 @@ void CalibrationScanAnalysis::save() {
       }
     }
     input->Write();
+  }
+
+  // save in a file for TkConfigurationDb
+  std::ostream * output;
+  TString filen = fileName;
+  if (filen == "")
+    return;
+  if (filen == "-")
+    output = &std::cout;
+  else
+    output = new std::ofstream(fileName);
+  FileList::const_iterator it=files_.begin();
+  TFile* input = it->second;
+  TDirectory* directory = input->GetDirectory(HISTOPATH);
+  directory->cd();
+  TList* histograms = directory->GetListOfKeys();
+  TIter next(histograms);
+  TKey* key = NULL;
+  while ((key = (TKey*)next())) {
+    if(TClass(key->GetClassName()).InheritsFrom("TH1")) {
+      TH1* h = (TH1*)key->ReadObj();
+      std::string name = h->GetName();
+      if(name.find("CalibrationTail")!=std::string::npos) {
+        for(int i=1;i<=h->GetNbinsX();++i) {
+	  std::string address = h->GetXaxis()->GetBinLabel(i);
+	  address = address.substr(address.find('.')+1);
+	  std::replace(address.begin(),address.end(),'.',' ');
+	  *output << address << " " 
+	          << result_[h->GetXaxis()->GetBinLabel(i)].first << " " 
+                  << result_[h->GetXaxis()->GetBinLabel(i)].second << std::endl;
+        }
+        break;
+      }
+    }
   }
 }
 

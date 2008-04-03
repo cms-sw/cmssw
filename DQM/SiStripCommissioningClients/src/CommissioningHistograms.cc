@@ -355,26 +355,28 @@ void CommissioningHistograms::copyCustomInformation( DQMStore* const bei,
 	continue;
       }
       // Search for calchan, isha or vfs
-      std::string title = (*ime)->getName();
-      std::string::size_type pos = title.find("calchan");
-      if( pos == std::string::npos ) pos = title.find("isha");
-      if( pos == std::string::npos ) pos = title.find("vfs");
-      if( pos != std::string::npos ) {
-	int value = (*ime)->getIntValue();
-	if ( value>=0 ) {
-	  edm::LogVerbatim(mlDqmClient_)
-	    << "[CommissioningHistograms::" << __func__ << "]"
-	    << " Found \"" << title.substr(pos,std::string::npos)
-	    << "\" with value \"" << value << "\"";
-	  if ( !(bei->get(client_dir+"/"+title.substr(pos,std::string::npos))) ) {
-	    bei->setCurrentFolder(client_dir);
-	    bei->bookInt( title.substr(pos,std::string::npos))->Fill(value);
-	    edm::LogVerbatim(mlDqmClient_)
+      if((*ime)->kind()==MonitorElement::DQM_KIND_INT) {
+        std::string title = (*ime)->getName();
+        std::string::size_type pos = title.find("calchan");
+        if( pos == std::string::npos ) pos = title.find("isha");
+        if( pos == std::string::npos ) pos = title.find("vfs");
+        if( pos != std::string::npos ) {
+          int value = (*ime)->getIntValue();
+          if ( value>=0 ) {
+            edm::LogVerbatim(mlDqmClient_)
 	      << "[CommissioningHistograms::" << __func__ << "]"
-	      << " Booked \"" << title.substr(pos,std::string::npos)
-	      << "\" in directory \"" << client_dir << "\"";
+	      << " Found \"" << title.substr(pos,std::string::npos)
+	      << "\" with value \"" << value << "\"";
+	    if ( !(bei->get(client_dir+"/"+title.substr(pos,std::string::npos))) ) {
+	      bei->setCurrentFolder(client_dir);
+	      bei->bookInt( title.substr(pos,std::string::npos))->Fill(value);
+	      edm::LogVerbatim(mlDqmClient_)
+	        << "[CommissioningHistograms::" << __func__ << "]"
+	        << " Booked \"" << title.substr(pos,std::string::npos)
+	        << "\" in directory \"" << client_dir << "\"";
+	    }
 	  }
-	}
+        }
       }
     }
     istr++;

@@ -1,4 +1,4 @@
-// Last commit: $Id: CalibrationHistosUsingDb.cc,v 1.3 2008/03/06 13:30:52 delaer Exp $
+// Last commit: $Id: CalibrationHistosUsingDb.cc,v 1.4 2008/03/06 18:16:07 delaer Exp $
 
 #include "DQM/SiStripCommissioningDbClients/interface/CalibrationHistosUsingDb.h"
 #include "CondFormats/SiStripObjects/interface/CalibrationAnalysis.h"
@@ -55,10 +55,12 @@ CalibrationHistosUsingDb::CalibrationHistosUsingDb( DQMOldReceiver* mui,
   // Load the histograms with the results
   std::string pwd = bei()->pwd();
   std::string ishaPath = pwd.substr(0,pwd.find(sistrip::root_ + "/")+sistrip::root_.size()+1);
-  ishaPath += "ControlView/isha";
+  ishaPath += "/ControlView/isha";
+  LogTrace(mlDqmClient_) << "Looking for " << ishaPath;
   ishaHistogram_ = ExtractTObject<TH1F>().extract( bei()->get(ishaPath) );
   std::string vfsPath = pwd.substr(0,pwd.find(sistrip::root_ + "/")+sistrip::root_.size()+1);
-  vfsPath += "ControlView/vfs";
+  vfsPath += "/ControlView/vfs";
+  LogTrace(mlDqmClient_) << "Looking for " << vfsPath;
   vfsHistogram_ = ExtractTObject<TH1F>().extract( bei()->get(vfsPath) );
 
 }
@@ -95,10 +97,12 @@ CalibrationHistosUsingDb::CalibrationHistosUsingDb( DQMStore* bei,
   // Load the histograms with the results
   std::string pwd = bei->pwd();
   std::string ishaPath = pwd.substr(0,pwd.find(sistrip::root_ + "/")+sistrip::root_.size()+1);
-  ishaPath += "ControlView/isha";
+  ishaPath += "/ControlView/isha";
+  LogTrace(mlDqmClient_) << "Looking for " << ishaPath;
   ishaHistogram_ = ExtractTObject<TH1F>().extract( bei->get(ishaPath) );
   std::string vfsPath = pwd.substr(0,pwd.find(sistrip::root_ + "/")+sistrip::root_.size()+1);
-  vfsPath += "ControlView/vfs";
+  vfsPath += "/ControlView/vfs";
+  LogTrace(mlDqmClient_) << "Looking for " << vfsPath;
   vfsHistogram_ = ExtractTObject<TH1F>().extract( bei->get(vfsPath) );
   
 }
@@ -116,7 +120,7 @@ CalibrationHistosUsingDb::~CalibrationHistosUsingDb() {
 void CalibrationHistosUsingDb::uploadConfigurations() {
   
   LogTrace(mlDqmClient_)
-    << "[CalibrationHistosUsingDb::" << __func__ << "]";
+    << "[CalibrationHistosUsingDb::" << __func__ << "]" << ishaHistogram_ << " " << vfsHistogram_;
 
   if(!ishaHistogram_ && !vfsHistogram_) return;
 
@@ -155,7 +159,7 @@ void CalibrationHistosUsingDb::uploadConfigurations() {
 /** */
 void CalibrationHistosUsingDb::update( SiStripConfigDb::DeviceDescriptions& devices ) {
 
-  if(!ishaHistogram_ || !vfsHistogram_) return;
+  if(!ishaHistogram_ && !vfsHistogram_) return;
 
   // Iterate through devices and update device descriptions
   SiStripConfigDb::DeviceDescriptions::iterator idevice;
@@ -185,12 +189,14 @@ void CalibrationHistosUsingDb::update( SiStripConfigDb::DeviceDescriptions& devi
       std::string label = ishaHistogram_->GetXaxis()->GetBinLabel(i);
       if(label == bin.str()) {
         desc->setIsha( (int)round(ishaHistogram_->GetBinContent(i)) );
+	LogDebug(mlDqmClient_) << "Setting ISHA to " << ((int)round(ishaHistogram_->GetBinContent(i))) << " for " << label;
       }
     }
     for(int i = 1;i <= vfsHistogram_->GetNbinsX(); ++i) {
       std::string label = vfsHistogram_->GetXaxis()->GetBinLabel(i);
       if(label == bin.str()) {
         desc->setVfs( (int)round(vfsHistogram_->GetBinContent(i)) );
+	LogDebug(mlDqmClient_) << "Setting VFS to " << ((int)round(vfsHistogram_->GetBinContent(i))) << " for " << label;
       }
     }
     

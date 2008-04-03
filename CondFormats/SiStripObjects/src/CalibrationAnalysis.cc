@@ -297,7 +297,7 @@ void CalibrationAnalysis::analyse() {
     int bin_a=0, bin_b=0, bin_c=0;
     for(int bin = 1; bin<= histo_[i].first->GetNbinsX() && bin_b == 0; ++bin) {
       if(histo_[i].first->GetBinContent(bin)<0.1*amplitude_[apv][strip]) bin_a = bin;
-      if(histo_[i].first->GetBinContent(bin)<0.6*amplitude_[apv][strip]) bin_c = bin;
+      if(histo_[i].first->GetBinContent(bin)<0.8*amplitude_[apv][strip]) bin_c = bin;
       if(histo_[i].first->GetBinContent(bin)>0.99*amplitude_[apv][strip]) bin_b = bin;
     }
     histo_[i].first->Fit("gaus","0Q","",histo_[i].first->GetBinCenter(bin_b)-25,histo_[i].first->GetBinCenter(bin_b)+25);
@@ -309,7 +309,7 @@ void CalibrationAnalysis::analyse() {
     
     // tail 125 ns after the maximum
     int lastBin = histo_[i].first->FindBin(histo_[i].first->GetBinCenter(histo_[i].first->GetMaximumBin())+125);
-    if(lastBin>histo_[i].first->GetNbinsX()-2) lastBin = histo_[i].first->GetNbinsX()-2;
+    if(lastBin>histo_[i].first->GetNbinsX()-4) lastBin = histo_[i].first->GetNbinsX()-4;
     tail_[apv][strip] = 100*histo_[i].first->GetBinContent(lastBin)/histo_[i].first->GetMaximum();
   
     // perform the fit for the next quantities
