@@ -109,7 +109,7 @@ PoolDBESSource::PoolDBESSource( const edm::ParameterSet& iConfig ) :
   }
   std::string userconnect=iConfig.getParameter<std::string>("connect"); 
   //ignore "timetype" parameter
-  std::string timetype=iConfig.getParameter<std::string>("timetype");
+  //std::string timetype=iConfig.getParameter<std::string>("timetype");
   //std::cout<<"userconnect "<<userconnect<<std::endl;
   //std::cout<<"timetype "<<timetype<<std::endl;
   edm::ParameterSet connectionPset = iConfig.getParameter<edm::ParameterSet>("DBParameters"); 
