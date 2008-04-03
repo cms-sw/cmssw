@@ -1,5 +1,5 @@
 //
-// $Id: PATPhotonProducer.cc,v 1.2 2008/03/17 17:21:19 gpetrucc Exp $
+// $Id$
 //
 
 #include "PhysicsTools/PatAlgos/plugins/PATPhotonProducer.h"
@@ -14,6 +14,7 @@ PATPhotonProducer::PATPhotonProducer(const edm::ParameterSet & iConfig) :
 {
   // initialize the configurables
   photonSrc_         = iConfig.getParameter<edm::InputTag>("photonSource");
+  embedSuperCluster_ = iConfig.getParameter<bool>         ("embedSuperCluster");
   
   // produces vector of photons
   produces<std::vector<Photon> >();
@@ -57,6 +58,7 @@ void PATPhotonProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSe
     unsigned int idx = itPhoton - photons->begin();
     edm::RefToBase<PhotonType> photonRef = photons->refAt(idx);
     Photon aPhoton(photonRef);
+    if (embedSuperCluster_) aPhoton.setSuperCluster(itPhoton->superCluster());
 
     // here comes the extra functionality
     if (isolator_.enabled()) {
