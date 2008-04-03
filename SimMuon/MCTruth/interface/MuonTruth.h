@@ -5,6 +5,7 @@
 #include "DataFormats/CSCDigi/interface/CSCStripDigi.h"
 #include "DataFormats/CSCDigi/interface/CSCWireDigi.h"
 #include "SimDataFormats/Track/interface/SimTrackContainer.h"
+#include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "DataFormats/Common/interface/DetSetVector.h"
 #include "SimDataFormats/TrackerDigiSimLink/interface/StripDigiSimLink.h"
@@ -17,6 +18,7 @@ public:
   typedef edm::DetSetVector<StripDigiSimLink> DigiSimLinks;
   typedef edm::DetSetVector<StripDigiSimLink> WireDigiSimLinks;
   typedef edm::DetSet<StripDigiSimLink> LayerLinks;
+  typedef std::pair <uint32_t, EncodedEventId> SimHitIdpr;
 
   MuonTruth();
 
@@ -32,6 +34,8 @@ public:
   std::vector<const PSimHit *> muonHits();
 
   std::vector<const PSimHit *> simHits();
+
+  std::vector<SimHitIdpr> associateHitId(const TrackingRecHit &);
 
 private:
 
