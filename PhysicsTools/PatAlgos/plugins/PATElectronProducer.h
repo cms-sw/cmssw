@@ -1,5 +1,5 @@
 //
-// $Id: PATElectronProducer.h,v 1.1 2008/03/06 09:23:10 llista Exp $
+// $Id: PATElectronProducer.h,v 1.2 2008/03/12 16:13:26 gpetrucc Exp $
 //
 
 #ifndef PhysicsTools_PatAlgos_PATElectronProducer_h
@@ -13,7 +13,7 @@
    a collection of objects of ElectronType.
 
   \author   Steven Lowette, James Lamb
-  \version  $Id: PATElectronProducer.h,v 1.1 2008/03/06 09:23:10 llista Exp $
+  \version  $Id: PATElectronProducer.h,v 1.2 2008/03/12 16:13:26 gpetrucc Exp $
 */
 
 
@@ -28,6 +28,8 @@
 #include "PhysicsTools/Utilities/interface/PtComparator.h"
 #include "AnalysisDataFormats/Egamma/interface/ElectronID.h"
 #include "AnalysisDataFormats/Egamma/interface/ElectronIDAssociation.h"
+
+#include "PhysicsTools/PatAlgos/interface/MultiIsolator.h"
 
 #include "DataFormats/PatCandidates/interface/Electron.h"
 
@@ -57,14 +59,6 @@ namespace pat {
       double electronID(const edm::Handle<edm::View<ElectronType> > & elecs, 
                         const edm::Handle<reco::ElectronIDAssociationCollection> & elecIDs,
 	                unsigned int idx);
-      void setEgammaIso(Electron & anElectron,
-                        const edm::Handle<edm::View<ElectronType> > & elecs,
-                        const edm::Handle<edm::ValueMap<float> > tkIso,
-                        const edm::Handle<edm::ValueMap<float> >    tkNumIso,
-                        const edm::Handle<edm::ValueMap<float> > ecalIso,
-                        const edm::Handle<edm::ValueMap<float> > hcalIso,
-                        unsigned int idx);
-
     private:
 
       // configurables
@@ -74,29 +68,22 @@ namespace pat {
       bool          addResolutions_;
       bool          useNNReso_;
       std::string   electronResoFile_;
-      bool          addTrkIso_;
-      edm::InputTag tracksSrc_;
-      bool          addCalIso_;
-      edm::InputTag towerSrc_;
       bool          addElecID_;
       edm::InputTag elecIDSrc_;
       bool          addElecIDRobust_;
       edm::InputTag elecIDRobustSrc_;
       bool          addLRValues_;
+      edm::InputTag tracksSrc_;
       std::string   electronLRFile_;
-      bool          addEgammaIso_;
-      edm::InputTag egammaTkIsoSrc_;
-      edm::InputTag egammaTkNumIsoSrc_;
-      edm::InputTag egammaEcalIsoSrc_;
-      edm::InputTag egammaHcalIsoSrc_;
 
       // tools
       ObjectResolutionCalc * theResoCalc_;
-      TrackerIsolationPt   * trkIsolation_;
-      CaloIsolationEnergy  * calIsolation_;
       LeptonLRCalc         * theLeptonLRCalc_;
       GreaterByPt<Electron>       pTComparator_;
 
+      pat::helper::MultiIsolator isolator_; 
+      pat::helper::MultiIsolator::IsolationValuePairs isolatorTmpStorage_; // better here than recreate at each event
+      std::vector<std::pair<pat::IsolationKeys,edm::InputTag> > isoDepositLabels_;
   };
 
 
