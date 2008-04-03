@@ -125,7 +125,14 @@ class ESFastTDigitizer
     int numberOfNoisyChannels = poissonDistribution_.fire(meanNumberOfNoisyChannels);
     abThreshCh.reserve(numberOfNoisyChannels);
     for (int i = 0; i < numberOfNoisyChannels; i++) {
-      int theChannelNumber = (int)flatDistribution_.fire(numESdetId_);   
+      std::vector<int>::iterator theChannel;
+      int theChannelNumber = 0;
+      do {
+        theChannelNumber = (int)flatDistribution_.fire(numESdetId_);
+        theChannel = find(abThreshCh.begin(), abThreshCh.end(), theChannelNumber);
+      }
+      while ( theChannel!=abThreshCh.end() );
+
       abThreshCh.push_back(theChannelNumber);
     }
   }
