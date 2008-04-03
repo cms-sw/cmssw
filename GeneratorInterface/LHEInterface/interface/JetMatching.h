@@ -61,14 +61,16 @@ class JetMatching {
 	JetMatching();
 	JetMatching(const edm::ParameterSet &params);
 
+	const double			maxDeltaR;
+	const double			minJetPt;
+	MatchMode			matchMode;
+
 	std::auto_ptr<JetInput>		partonInput;
 	std::auto_ptr<JetInput>		jetInput;
 	std::auto_ptr<JetClustering>	jetClustering;
 
 	std::vector<JetPartonMatch>	matchSummary;
 
-	const double			maxDeltaR;
-	MatchMode			matchMode;
 };
 
 } // namespace lhef
