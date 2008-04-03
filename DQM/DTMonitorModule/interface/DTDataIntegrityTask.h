@@ -5,8 +5,8 @@
  *
  * Class for DT Data Integrity.
  *  
- *  $Date: 2008/03/08 11:34:20 $
- *  $Revision: 1.15 $
+ *  $Date: 2008/04/03 09:33:01 $
+ *  $Revision: 1.16 $
  *
  * \author Marco Zanetti  - INFN Padova
  *
@@ -80,14 +80,10 @@ private:
 
   int neventsDDU;
   int neventsROS25;
-<<<<<<< DTDataIntegrityTask.h
   float trigger_counter;
   std::string outputFile;
   double rob_max[25],frequency;
-  
-=======
-  double rob_max[25];
->>>>>>> 1.15
+
   
   //Event counter for the graphs VS time
   int myPrevEv;
