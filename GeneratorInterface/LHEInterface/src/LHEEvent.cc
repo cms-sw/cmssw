@@ -98,7 +98,7 @@ LHEEvent::~LHEEvent()
 {
 }
 
-void LHEEvent::count(CountMode mode)
+void LHEEvent::count(LHECommon::CountMode mode)
 {
 	common->count(hepeup.IDPRUP, mode, hepeup.XWGTUP);
 }
