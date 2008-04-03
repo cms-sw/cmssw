@@ -100,7 +100,10 @@ void AnalysisRootpleProducer::fillCaloJet(float p, float pt, float eta, float ph
 
 AnalysisRootpleProducer::AnalysisRootpleProducer( const ParameterSet& pset )
 {
+  // flag to ignore gen-level analysis
   onlyRECO = pset.getUntrackedParameter<bool>("OnlyRECO",false);
+
+  // particle, track and jet collections
   mcEvent = pset.getUntrackedParameter<InputTag>("MCEvent",std::string(""));
   genJetCollName = pset.getUntrackedParameter<InputTag>("GenJetCollectionName",std::string(""));
   chgJetCollName = pset.getUntrackedParameter<InputTag>("ChgGenJetCollectionName",std::string(""));
@@ -108,6 +111,11 @@ AnalysisRootpleProducer::AnalysisRootpleProducer( const ParameterSet& pset )
   recoCaloJetCollName = pset.getUntrackedParameter<InputTag>("RecoCaloJetCollectionName",std::string(""));
   chgGenPartCollName = pset.getUntrackedParameter<InputTag>("ChgGenPartCollectionName",std::string(""));
   tracksCollName = pset.getUntrackedParameter<InputTag>("TracksCollectionName",std::string(""));
+
+  // trigger results
+  triggerResultsTag = pset.getParameter<InputTag>("triggerResults");
+  //   hltFilterTag      = pset.getParameter<InputTag>("hltFilter");
+  //   triggerName       = pset.getParameter<InputTag>("triggerName");
 
   piG = acos(-1.);
   NumberMCParticles=0;
@@ -198,6 +206,30 @@ void AnalysisRootpleProducer::beginJob( const EventSetup& )
 void AnalysisRootpleProducer::analyze( const Event& e, const EventSetup& )
 {
   
+  e.getByLabel( triggerResultsTag, triggerResults );
+  triggerNames.init( *(triggerResults.product()) );
+
+  if ( triggerResults.product()->wasrun() )
+    {
+      cout << "at least one path ran? " << triggerResults.product()->wasrun() << endl;
+  
+      if ( triggerResults.product()->accept() ) 
+	{
+	  cout << "at least one path accepted? " << triggerResults.product()->accept() << endl;
+
+	  const unsigned int n_TriggerResults( triggerResults.product()->size() );
+	  for ( unsigned int itrig( 0 ); itrig < n_TriggerResults; ++itrig )
+	    {
+	      if ( triggerResults.product()->accept( itrig ) )
+		{
+		  cout << "trigger " << triggerNames.triggerName( itrig );
+		  cout << ", bit " << triggerResults.product()->accept( itrig );
+		  cout << endl;
+		}
+	    }
+	}
+    }
+
   // gen level analysis
   // skipped, if onlyRECO flag set to true
 

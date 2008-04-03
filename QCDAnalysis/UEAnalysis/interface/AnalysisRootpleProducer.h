@@ -30,8 +30,18 @@
 #include "DataFormats/JetReco/interface/BasicJetCollection.h"
 #include "DataFormats/Candidate/interface/Candidate.h"
 
+// access trigger results
+#include <FWCore/Framework/interface/TriggerNames.h>
+#include <DataFormats/Common/interface/TriggerResults.h>
+#include <DataFormats/HLTReco/interface/TriggerEvent.h> 
+#include <DataFormats/HLTReco/interface/TriggerFilterObjectWithRefs.h>
+
+// not available in 18x:
+//#include <DataFormats/HLTReco/interface/HLTGlobalObject.h>
+
 using namespace edm;
 using namespace reco;
+using namespace trigger;
 
 class AnalysisRootpleProducer : public edm::EDAnalyzer
 {
@@ -67,6 +77,9 @@ private:
   InputTag tracksJetCollName;
   InputTag recoCaloJetCollName;
   InputTag tracksCollName;
+  InputTag triggerResultsTag;
+  //  InputTag triggerName; // not used at the moment: may want to pass desired trigger path
+  //  InputTag hltFilterTag; // not used at the moment: can access objects that fired the trigger
 
   Handle< HepMCProduct        > EvtHandle ;
   Handle< CandidateCollection > CandHandleMC ;
@@ -75,7 +88,10 @@ private:
   Handle< CandidateCollection > CandHandleRECO ;
   Handle< BasicJetCollection  > TracksJetsHandle ;
   Handle< CaloJetCollection   > RecoCaloJetsHandle ;
-  
+  Handle<TriggerResults> triggerResults;
+  //  Handle<TriggerFilterObjectWithRefs> hltFilter; // not used at the moment: can access objects that fired the trigger
+  TriggerNames triggerNames;
+
   edm::Service<TFileService> fs;
 
   float piG;

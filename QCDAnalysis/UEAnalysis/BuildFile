@@ -6,6 +6,7 @@
 <use name=DataFormats/Common>
 <use name=DataFormats/HepMCCandidate>
 <use name=DataFormats/TrackCandidate>
+<use name=DataFormats/HLTReco>
 <use name=PhysicsTools/UtilAlgos>
 <use name=FWCore/Framework>
 <use name=FWCore/PluginManager>
