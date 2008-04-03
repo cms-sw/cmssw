@@ -1,7 +1,7 @@
 #ifndef PhysicsTools_PatAlgos_PATMuonCleaner_h
 #define PhysicsTools_PatAlgos_PATMuonCleaner_h
 //
-// $Id: PATMuonCleaner.h,v 1.4 2008/03/14 15:13:51 gpetrucc Exp $
+// $Id: PATMuonCleaner.h,v 1.5 2008/04/02 15:42:23 zeidler Exp $
 //
 
 /**
@@ -29,7 +29,7 @@
   The actual selection is performed by the MuonSelector.
 
   \author   Giovanni Petrucciani (from PATMuonProducer by Steven Lowette, Roger Wolf)
-  \version  $Id: PATMuonCleaner.h,v 1.4 2008/03/14 15:13:51 gpetrucc Exp $
+  \version  $Id: PATMuonCleaner.h,v 1.5 2008/04/02 15:42:23 zeidler Exp $
 */
 
 
@@ -100,12 +100,13 @@ namespace reco {
 			else if(flag == "TMLastStationTight"){
 				config_.flag = muonid::TMLastStationTight;
   			}
+			/* 2_0 only
 			else if(flag == "TM2DCompatibilityLoose"){
 				config_.flag = muonid::TM2DCompatibilityLoose;
   			}
 			else if(flag == "TM2DCompatibilityTight"){
 				config_.flag = muonid::TM2DCompatibilityTight;
-  			}
+  			}*/
 			else{
 				throw edm::Exception(edm::errors::UnimplementedFeature) 
 					<< "muId flag is not valid or not implemented yet";
