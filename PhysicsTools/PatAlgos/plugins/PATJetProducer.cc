@@ -1,5 +1,5 @@
 //
-// $Id: PATJetProducer.cc,v 1.3 2008/03/10 18:43:06 lowette Exp $
+// $Id: PATJetProducer.cc,v 1.4 2008/03/11 13:16:12 llista Exp $
 //
 
 #include "PhysicsTools/PatAlgos/plugins/PATJetProducer.h"
@@ -25,7 +25,7 @@
 #include "DataFormats/HepMCCandidate/interface/GenParticleFwd.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 
-#include "PhysicsTools/Utilities/interface/DeltaR.h"
+#include "DataFormats/Math/interface/deltaR.h"
 
 #include "PhysicsTools/PatUtils/interface/RefHelper.h"
 #include "PhysicsTools/PatUtils/interface/ObjectResolutionCalc.h"
@@ -216,7 +216,7 @@ void PATJetProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
             /*std::cout << "-----------> JetTag::jet() returned null reference" << std::endl; */
             continue;
           }
-	  if (DeltaR<reco::Candidate>()( *itJet, *jet_p ) < 0.00001) {
+	  if (::deltaR( *itJet, *jet_p ) < 0.00001) {
 	    //look only at the tagger present in tagModuleLabelsToKeep_
 	    for (unsigned int i = 0; i < tagModuleLabelsToKeep_.size(); ++i) {
 	      if (moduleLabel == tagModuleLabelsToKeep_[i] + tagModuleLabelPostfix_) {  
