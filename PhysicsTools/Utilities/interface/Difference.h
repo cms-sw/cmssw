@@ -1,58 +1,21 @@
 #ifndef PhysicsTools_Utilities_Difference_h
 #define PhysicsTools_Utilities_Difference_h
-#include <boost/static_assert.hpp>
+#include "PhysicsTools/Utilities/interface/Sum.h"
+#include "PhysicsTools/Utilities/interface/Minus.h"
 
 namespace funct {
-  template<typename A, typename B, unsigned int args = A::arguments>
-  struct DifferenceStruct { 
-    BOOST_STATIC_ASSERT(A::arguments == B::arguments);
-    static const unsigned int arguments = args;
+
+  template<typename A, typename B>
+  struct Difference { 
+    typedef typename Sum<A, typename Minus<B>::type>::type type; 
+    inline static type combine(const A& a, const B& b) { return a + (-b); }
   };
 
   template<typename A, typename B>
-  struct DifferenceStruct<A, B, 0> { 
-    BOOST_STATIC_ASSERT(A::arguments == B::arguments);
-    static const unsigned int arguments = 0;
-    DifferenceStruct(const A & a, const B & b) : _1(a), _2(b) { }
-    double operator()() const {
-      return _1() - _2();
-    }
-    operator double() const {
-      return _1() - _2();
-    }
-    A _1; 
-    B _2;
-  };
+  inline typename Difference<A, B>::type operator-(const A& a, const B& b) {
+    return Difference<A, B>::combine(a, b);
+  }
 
-  template<typename A, typename B>
-  struct DifferenceStruct<A, B, 1> { 
-    BOOST_STATIC_ASSERT(A::arguments == B::arguments);
-    static const unsigned int arguments = 1;
-    DifferenceStruct(const A & a, const B & b) : _1(a), _2(b) { }
-    double operator()(double x) const {
-      return _1(x) - _2(x);
-    }
-    A _1; 
-    B _2;
-  };
-
-  template<typename A, typename B>
-  struct DifferenceStruct<A, B, 2> { 
-    BOOST_STATIC_ASSERT(A::arguments == B::arguments);
-    static const unsigned int arguments = 2;
-    DifferenceStruct(const A & a, const B & b) : _1(a), _2(b) { }
-    double operator()(double x, double y) const {
-      return _1(x, y) - _2(x, y);
-    }
-    A _1; 
-    B _2;
-  };
-
-  template<typename A, typename B>
-  struct Difference {
-    typedef DifferenceStruct<A, B> type;
-    static type combine(const A& a, const B& b) { return type(a, b); }
-  };
 }
 
 #endif

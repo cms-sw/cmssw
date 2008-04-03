@@ -1,5 +1,6 @@
 #include <cppunit/extensions/HelperMacros.h>
 #include "PhysicsTools/Utilities/interface/Simplify.h"
+#include "PhysicsTools/Utilities/interface/Fraction.h"
 #include <boost/static_assert.hpp>
 #include <boost/type_traits.hpp>
 
@@ -36,5 +37,24 @@ void testSimplifications::checkAll() {
 		       Minus<Numerical<6> >::type, 
 		       Numerical<-6>
 		       >::value));
-
+  BOOST_STATIC_ASSERT((is_same<
+		       Fraction<2,4>::type,
+		       Fraction<1,2>::type
+		       >::value));
+  BOOST_STATIC_ASSERT((is_same<
+		       Fraction<-1,2>::type,
+		       Fraction<1,-2>::type
+		       >::value));
+  BOOST_STATIC_ASSERT((is_same<
+		       Fraction<4,2>::type,
+		       Numerical<2>
+		       >::value));
+  BOOST_STATIC_ASSERT((is_same<
+		       Fraction<3,4>::type,
+		       Fraction<21,28>::type
+		       >::value));
+  BOOST_STATIC_ASSERT((is_same<
+		       Fraction<3,1>::type,
+		       Numerical<3>
+		       >::value));
 }

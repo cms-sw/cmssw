@@ -55,6 +55,12 @@ namespace funct {
       return type(a, b);
     } 
   };
+
+  template<typename A, typename B>
+  inline typename Ratio<A, B>::type operator/(const A& a, const B& b) {
+    return Ratio<A, B>::combine(a, b);
+  }
+  
 }
 
 #endif

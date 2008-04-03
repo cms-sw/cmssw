@@ -56,6 +56,12 @@ namespace funct {
       return type(a, b);
     }
   };
+
+  template<typename A, typename B>
+  inline typename Power<A, B>::type operator^(const A& a, const B& b) {
+    return Power<A, B>::combine(a, b);
+  }
+
 }
 
 #endif

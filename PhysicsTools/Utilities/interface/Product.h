@@ -55,6 +55,11 @@ namespace funct {
       return type(a, b);
     }
   };
+
+  template<typename A, typename B>
+  inline typename Product<A, B>::type operator*(const A& a, const B& b) {
+    return Product<A, B>::combine(a, b);
+  }
 }
 
 #endif

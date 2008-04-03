@@ -54,6 +54,11 @@ namespace funct {
     static type combine(const A& a, const B& b) { return type(a, b); } 
   }; 
 
+  template<typename A, typename B>
+  inline typename Sum<A, B>::type operator+(const A& a, const B& b) {
+    return Sum<A, B>::combine(a, b);
+  }
+
 }
 
 #endif
