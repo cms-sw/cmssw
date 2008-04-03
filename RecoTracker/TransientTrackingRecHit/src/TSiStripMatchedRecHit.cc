@@ -118,7 +118,7 @@ TSiStripMatchedRecHit::transientHits () const {
   const GluedGeomDet *gdet = static_cast<const GluedGeomDet *> (this->det());
   const SiStripMatchedRecHit2D *orig = static_cast<const SiStripMatchedRecHit2D *> (this->hit());
 
-  result.push_back(TSiStripRecHit2DLocalPos::build( gdet->monoDet(),orig->monoHit(),0));
-  result.push_back(TSiStripRecHit2DLocalPos::build( gdet->stereoDet(),orig->stereoHit(),0));
+  result.push_back(TSiStripRecHit2DLocalPos::build( gdet->monoDet(),orig->monoHit(),theCPE));
+  result.push_back(TSiStripRecHit2DLocalPos::build( gdet->stereoDet(),orig->stereoHit(),theCPE));
   return result;
 }

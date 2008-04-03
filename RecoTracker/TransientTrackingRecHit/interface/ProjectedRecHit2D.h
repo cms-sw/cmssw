@@ -37,6 +37,8 @@ public:
 
   const SiStripRecHit2D& originalHit() const { return static_cast<const ProjectedSiStripRecHit2D*>( hit() )->originalHit();}
 
+  virtual ConstRecHitContainer 	transientHits () const;
+
 private:
   const StripClusterParameterEstimator* theCPE;
   const GeomDet* theOriginalDet;
