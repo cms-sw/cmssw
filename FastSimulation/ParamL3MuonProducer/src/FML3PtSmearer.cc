@@ -33,8 +33,17 @@ math::XYZTLorentzVector FML3PtSmearer::smear(math::XYZTLorentzVector simP4 , mat
   double invPtNew = random->gaussShoot(invPtSim,error(ptSim,etaSim));
   invPtNew /= ( 1. + shift(ptSim,etaSim)*invPtNew);
   if (invPtNew>0.) {
-    simP4.SetPx(simP4.x()*invPtSim/invPtNew);
-    simP4.SetPy(simP4.y()*invPtSim/invPtNew);
+    double invPtRec = std::sqrt(recP3.perp2());
+    if (invPtRec>0) invPtRec = 1./invPtRec; else invPtRec=invPtSim;
+    simP4.SetPx(recP3.x()*invPtRec/invPtNew);
+    simP4.SetPy(recP3.y()*invPtRec/invPtNew);
+    simP4.SetPz(recP3.z()*invPtRec/invPtNew);
+    double muonEnergy=std::sqrt(simP4.P()*simP4.P()+MuonMassSquared_);
+    simP4.SetE(muonEnergy);
+  }
+  else { 
+    simP4.SetPx(recP3.x());
+    simP4.SetPy(recP3.y());
     simP4.SetPz(recP3.z());
     double muonEnergy=std::sqrt(simP4.P()*simP4.P()+MuonMassSquared_);
     simP4.SetE(muonEnergy);
