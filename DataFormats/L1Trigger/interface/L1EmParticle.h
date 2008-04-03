@@ -12,7 +12,7 @@
 //
 // Original Author:  Werner Sun
 //         Created:  Sat Jul 15 12:41:07 EDT 2006
-// $Id: L1EmParticle.h,v 1.10 2007/11/13 03:07:45 wsun Exp $
+// $Id: L1EmParticle.h,v 1.11 2007/11/13 17:27:23 wsun Exp $
 //
 
 // system include files
@@ -41,17 +41,21 @@ namespace l1extra {
 	 L1EmParticle();
 
 	 L1EmParticle( const LorentzVector& p4,
-		       const edm::Ref< L1GctEmCandCollection >& aRef ) ;
+		       const edm::Ref< L1GctEmCandCollection >& aRef,
+		       int bx = 0 ) ;
 
 	 L1EmParticle( const PolarLorentzVector& p4,
-		       const edm::Ref< L1GctEmCandCollection >& aRef ) ;
+		       const edm::Ref< L1GctEmCandCollection >& aRef,
+		       int bx = 0 ) ;
 
          // Creates null Ref.
          L1EmParticle( const LorentzVector& p4,
-                       EmType type = kUndefined ) ;
+                       EmType type = kUndefined,
+		       int bx = 0 ) ;
 
          L1EmParticle( const PolarLorentzVector& p4,
-                       EmType type = kUndefined ) ;
+                       EmType type = kUndefined,
+		       int bx = 0 ) ;
 
 	 virtual ~L1EmParticle() {}
 
@@ -68,11 +72,17 @@ namespace l1extra {
          virtual L1EmParticle* clone() const
          { return new L1EmParticle( *this ) ; }
 
+	 int bx() const
+	 { return bx_ ; }
+
 	 // ---------- static member functions --------------------
 
 	 // ---------- member functions ---------------------------
 	 void setType( EmType type )
 	 { type_ = type ; }
+
+	 void setBx( int bx )
+	   { bx_ = bx ; }
 
       private:
 	 // L1EmParticle(const L1EmParticle&); // stop default
@@ -82,6 +92,7 @@ namespace l1extra {
 	 // ---------- member data --------------------------------
          EmType type_ ;
 	 edm::Ref< L1GctEmCandCollection > ref_ ;
+	 int bx_ ;
    };
 }
 
