@@ -8,7 +8,7 @@
 //
 // Original Author:  Werner Sun
 //         Created:  Tue Jul 25 18:22:52 EDT 2006
-// $Id: L1EtMissParticle.cc,v 1.5 2007/10/01 19:34:57 wsun Exp $
+// $Id: L1EtMissParticle.cc,v 1.6 2007/10/16 05:01:52 wsun Exp $
 //
 
 // system include files
@@ -37,15 +37,17 @@ L1EtMissParticle::L1EtMissParticle(
    const LorentzVector& p4,
    const double& etTotal,
    const double& etHad,
-   const edm::RefProd< L1GctEtMiss >& aEtMissRef,
-   const edm::RefProd< L1GctEtTotal >& aEtTotalRef,
-   const edm::RefProd< L1GctEtHad >& aEtHadRef )
+   const edm::Ref< L1GctEtMissCollection >& aEtMissRef,
+   const edm::Ref< L1GctEtTotalCollection >& aEtTotalRef,
+   const edm::Ref< L1GctEtHadCollection >& aEtHadRef,
+   int bx )
    : LeafCandidate( ( char ) 0, p4 ),
      etTot_( etTotal ),
      etHad_( etHad ),
      etMissRef_( aEtMissRef ),
      etTotRef_( aEtTotalRef ),
-     etHadRef_( aEtHadRef )
+     etHadRef_( aEtHadRef ),
+     bx_( bx )
 {
 }
 
@@ -53,15 +55,17 @@ L1EtMissParticle::L1EtMissParticle(
    const PolarLorentzVector& p4,
    const double& etTotal,
    const double& etHad,
-   const edm::RefProd< L1GctEtMiss >& aEtMissRef,
-   const edm::RefProd< L1GctEtTotal >& aEtTotalRef,
-   const edm::RefProd< L1GctEtHad >& aEtHadRef )
+   const edm::Ref< L1GctEtMissCollection >& aEtMissRef,
+   const edm::Ref< L1GctEtTotalCollection >& aEtTotalRef,
+   const edm::Ref< L1GctEtHadCollection >& aEtHadRef,
+   int bx )
    : LeafCandidate( ( char ) 0, p4 ),
      etTot_( etTotal ),
      etHad_( etHad ),
      etMissRef_( aEtMissRef ),
      etTotRef_( aEtTotalRef ),
-     etHadRef_( aEtHadRef )
+     etHadRef_( aEtHadRef ),
+     bx_( bx )
 {
 }
 
