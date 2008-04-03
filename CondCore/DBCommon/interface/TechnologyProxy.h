@@ -1,5 +1,16 @@
 #ifndef CondCore_DBCommon_TechnologyProxy_h
 #define CondCore_DBCommon_TechnologyProxy_h
+//
+// Package:     DBCommon
+// Class  :     TechnologyProxy
+//
+/**\class  TechnologyProxy TechnologyProxy.h CondCore/DBCommon/interface/TechnologyProxy.h
+   Description: Abstract interface for technology specific operations. The concrete instance implementing the interface is created by TechnologyProxyFactory and loaded by the plugin manager
+*/
+//
+// Author:      Zhen Xie
+//
+
 #include <string>
 namespace cond{
   class DBSession;
