@@ -483,8 +483,8 @@ unsigned int PixelCalibConfiguration::scanValue(unsigned int iscan,
     if ( dacs_[iscan].mixValuesAcrossROCs() ) i_threshold = (i_threshold + (nScanPoints(iscan)*ROCNumber)/ROCsOnChannel)%nScanPoints(iscan);
 
     unsigned int threshold=dacs_[iscan].value(i_threshold);
-
-    assert(threshold==dacs_[iscan].first()+i_threshold*dacs_[iscan].step());
+    
+    //assert(threshold==dacs_[iscan].first()+i_threshold*dacs_[iscan].step());
 
     return threshold;
 
