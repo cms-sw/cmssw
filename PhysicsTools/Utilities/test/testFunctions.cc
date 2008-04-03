@@ -7,6 +7,7 @@
 #include "PhysicsTools/Utilities/interface/Convolution.h"
 #include "PhysicsTools/Utilities/interface/Functions.h"
 #include "PhysicsTools/Utilities/interface/Variables.h"
+#include "PhysicsTools/Utilities/interface/Numerical.h"
 
 class testFunctions : public CppUnit::TestFixture {
   CPPUNIT_TEST_SUITE(testFunctions);
@@ -43,6 +44,17 @@ void testFunctions::checkAll() {
     Convolution<Gaussian, Gaussian>::type gg(g1, g1, -5, 5, 1000);
     CPPUNIT_ASSERT(fabs(gg(0) - g1(0)/sqrt(2))<epsilon);
     CPPUNIT_ASSERT(gg1(0) == g1(0));
+  }
+  {
+    Numerical<1> _1;
+    CPPUNIT_ASSERT(_1() == 1);
+    Numerical<2> _2;
+    CPPUNIT_ASSERT(_2() == 2);
+    Numerical<3> _3;
+    CPPUNIT_ASSERT(_3() == 3);
+    CPPUNIT_ASSERT(num<1>() == 1);
+    CPPUNIT_ASSERT(num<2>() == 2);
+    CPPUNIT_ASSERT(num<3>() == 3);
   }
   {
     double value = 0.123;
