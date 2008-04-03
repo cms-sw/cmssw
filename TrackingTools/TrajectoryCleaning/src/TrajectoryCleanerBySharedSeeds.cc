@@ -3,6 +3,8 @@
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHit.h"
 
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+
 #include <map>
 #include <vector>
 
@@ -73,7 +75,7 @@ void TrajectoryCleanerBySharedSeeds::clean
     }    
   }
 
-  cerr << "  [TrajecCleaner] cleaned trajs : 1/" << trajs.size()
-       << " (with " << trajs[best].measurements().size() << " hits)" << endl;
+  LogTrace("TrajectoryCleanerBySharedSeeds") << "  [TrajecCleaner] cleaned trajs : 1/" << trajs.size()
+					     << " (with " << trajs[best].measurements().size() << " hits)" << endl;
 }
 
