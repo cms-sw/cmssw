@@ -4,9 +4,10 @@
 #include "FWCore/Utilities/interface/Exception.h"
 
 #include "DataFormats/TrackerRecHit2D/interface/SiStripMatchedRecHit2D.h"
-//#include "DataFormats/SiStripDetId/interface/SiStripDetId.h"
-//#include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
+#include "DataFormats/TrackerRecHit2D/interface/ProjectedSiStripRecHit2D.h"
 
+
+using namespace std;
 
 void Trajectory::pop() {
   if (!empty()) {
@@ -111,13 +112,8 @@ void Trajectory::recHitsV(ConstRecHitContainer & hits,bool splitting) const {
       //        in the TrackingRecHit classes. The concrete types of rechit 
       //        should be transparent to the Trajectory class
 
-      const SiStripMatchedRecHit2D* matched = 0;
-      if( (itm->recHit()->geographicalId().det() == DetId::Tracker) &&
-	  (itm->recHit()->isValid()) &&
-	  (itm->recHit()->recHits().size() ==2 ) )
-	matched = dynamic_cast<const SiStripMatchedRecHit2D*>(itm->recHit()->hit());
-      if( matched ){
-	LocalPoint firstLocalPos = 
+      if( typeid(*(itm->recHit()->hit())) == typeid(SiStripMatchedRecHit2D)){
+      	LocalPoint firstLocalPos = 
 	  itm->updatedState().surface().toLocal(itm->recHit()->transientHits()[0]->globalPosition());
 	
 	LocalPoint secondLocalPos = 
@@ -135,10 +131,12 @@ void Trajectory::recHitsV(ConstRecHitContainer & hits,bool splitting) const {
 	  hits.push_back(itm->recHit()->transientHits()[1]);
 	  hits.push_back(itm->recHit()->transientHits()[0]);
 	}else
-	  throw cms::Exception("Error in Trajectory::recHitsV(). Direction is not defined");
-	// ===================================================================================
+	  throw cms::Exception("Error in Trajectory::recHitsV(). Direction is not defined");	
+      }else if(typeid(*(itm->recHit()->hit())) == typeid(ProjectedSiStripRecHit2D)){
+	hits.push_back(itm->recHit()->transientHits()[0]);	
+	// ===================================================================================	
       }else{
-	hits.push_back((*itm).recHit());
+	hits.push_back(itm->recHit());
       }
     }//end loop on measurements
   }
