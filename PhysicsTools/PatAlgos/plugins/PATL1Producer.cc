@@ -1,5 +1,5 @@
 //
-// $Id$
+// $Id: PATL1Producer.cc,v 1.3 2008/03/14 14:21:09 lowette Exp $
 //
 
 
@@ -13,7 +13,6 @@
 
 
 using namespace pat;
-using namespace l1extra;
 using namespace edm;
 using namespace std;
 

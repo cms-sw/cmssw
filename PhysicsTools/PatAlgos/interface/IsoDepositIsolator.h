@@ -2,13 +2,13 @@
 #define PhysicsTools_PatAlgos_interface_IsoDepositIsolator_h
 
 #include "PhysicsTools/PatAlgos/interface/BaseIsolator.h"
-#include "DataFormats/MuonReco/interface/MuIsoDeposit.h"
+#include "DataFormats/RecoCandidate/interface/IsoDeposit.h"
 
 
 namespace pat { namespace helper {
 class IsoDepositIsolator : public BaseIsolator {
     public:
-        typedef edm::ValueMap<reco::MuIsoDeposit> Isolation;
+        typedef edm::ValueMap<reco::IsoDeposit> Isolation;
  
         IsoDepositIsolator() {}
         IsoDepositIsolator(const edm::ParameterSet &conf, bool withCut) ;

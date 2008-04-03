@@ -5,7 +5,7 @@
 #include "DataFormats/Common/interface/ValueMap.h"
 #include "DataFormats/Candidate/interface/Candidate.h"
 #include "DataFormats/RecoCandidate/interface/RecoCandidate.h"
-#include "DataFormats/MuonReco/interface/MuIsoDeposit.h"
+#include "DataFormats/RecoCandidate/interface/IsoDeposit.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "FWCore/MessageService/interface/MessageLogger.h"
@@ -13,7 +13,7 @@
 namespace pat { namespace helper {
 class AnyIsoDepositAdaptor {
     public:
-        typedef reco::MuIsoDeposit          value_type;
+        typedef reco::IsoDeposit          value_type;
         typedef edm::View<reco::Candidate> Collection;
 
         AnyIsoDepositAdaptor(const edm::InputTag &in, const edm::ParameterSet & iConfig) :

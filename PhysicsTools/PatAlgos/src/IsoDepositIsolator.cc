@@ -1,7 +1,7 @@
 #include "PhysicsTools/PatAlgos/interface/IsoDepositIsolator.h"
 #include <sstream>
 
-#include "DataFormats/MuonReco/interface/MuIsoDepositVetos.h"
+#include "DataFormats/RecoCandidate/interface/IsoDepositVetos.h"
 #include <boost/regex.hpp>
 
 using pat::helper::IsoDepositIsolator;
@@ -94,7 +94,7 @@ IsoDepositIsolator::description() const {
 
 float
 IsoDepositIsolator::getValue(const edm::ProductID &id, size_t index) const {
-    const reco::MuIsoDeposit &dep = handle_->get(id, index);
+    const reco::IsoDeposit &dep = handle_->get(id, index);
 
     double eta = dep.eta(), phi = dep.phi(); // better to center on the deposit direction that could be, e.g., the impact point at calo
     for (AbsVetos::const_iterator it = vetos_.begin(), ed = vetos_.end(); it != ed; ++it) {
@@ -102,7 +102,7 @@ IsoDepositIsolator::getValue(const edm::ProductID &id, size_t index) const {
     }
     switch (mode_) {
         case Sum:         return dep.depositWithin(deltaR_, vetos_, skipDefaultVeto_);
-        case SumRelative: return dep.depositWithin(deltaR_, vetos_, skipDefaultVeto_) / dep.muonEnergy() ;
+        case SumRelative: return dep.depositWithin(deltaR_, vetos_, skipDefaultVeto_) / dep.candEnergy() ;
         case Count:       return dep.depositAndCountWithin(deltaR_, vetos_, skipDefaultVeto_).second ;
     }
     throw cms::Exception("Logic error") << "Should not happen at " << __FILE__ << ", line " << __LINE__; // avoid gcc warning
