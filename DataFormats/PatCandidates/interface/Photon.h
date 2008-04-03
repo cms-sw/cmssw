@@ -1,5 +1,5 @@
 //
-// $Id: Photon.h,v 1.7 2008/04/03 12:29:08 gpetrucc Exp $
+// $Id$
 //
 
 #ifndef DataFormats_PatCandidates_Photon_h
@@ -13,11 +13,13 @@
    namespace.
 
   \author   Steven Lowette
-  \version  $Id: Photon.h,v 1.7 2008/04/03 12:29:08 gpetrucc Exp $
+  \version  $Id$
 */
 
 #include "DataFormats/PatCandidates/interface/PATObject.h"
 #include "DataFormats/EgammaCandidates/interface/Photon.h"
+#include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
+#include "DataFormats/EgammaReco/interface/SuperCluster.h"
 #include "DataFormats/PatCandidates/interface/Isolation.h"
 
 
@@ -31,16 +33,29 @@ namespace pat {
 
     public:
 
+      /// default constructor
       Photon();
+      /// constructor from PhotonType
       Photon(const PhotonType & aPhoton);
+      /// constructor from ref to PhotonType
       Photon(const edm::RefToBase<PhotonType> & aPhotonRef);
+      /// destructor
       virtual ~Photon();
 
+      /// override the superCluster method from CaloJet, to access the internal storage of the supercluster
+      /// this returns a transient Ref which *should never be persisted*!
+      reco::SuperClusterRef superCluster() const;
+      /// return the match to the generated photon
       const reco::Particle * genPhoton() const;
 
+      /// method to store the photon's supercluster internally
+      void setSuperCluster(const reco::SuperClusterRef & superCluster);
+      /// method to set the generated photon
       void setGenPhoton(const reco::Particle & gp);
 
+      /// returns the photon ID value
       float photonID() const { return photonID_; }
+      /// sets the photon ID value
       void setPhotonID(float photonID) { photonID_ = photonID; }
 
       //============ BEGIN ISOLATION BLOCK =====
@@ -133,15 +148,17 @@ namespace pat {
 
     protected:
 
+      // information originally in external branches
+      bool embeddedSuperCluster_;
+      std::vector<reco::SuperCluster> superCluster_;
+      // MC info
       std::vector<reco::Particle> genPhoton_;
-
+      // quality variables
       float photonID_;
-
       // --- Isolation and IsoDeposit related datamebers ---
       typedef std::vector<std::pair<IsolationKeys, pat::IsoDeposit> > IsoDepositPairs;
       IsoDepositPairs    isoDeposits_;
       std::vector<float> isolations_;
-
 
   };
 
