@@ -1,7 +1,7 @@
 #ifndef PhysicsTools_PatAlgos_PATMuonCleaner_h
 #define PhysicsTools_PatAlgos_PATMuonCleaner_h
 //
-// $Id: PATMuonCleaner.h,v 1.5 2008/04/02 15:42:23 zeidler Exp $
+// $Id: PATMuonCleaner.h,v 1.6 2008/04/03 08:29:48 zeidler Exp $
 //
 
 /**
@@ -29,7 +29,7 @@
   The actual selection is performed by the MuonSelector.
 
   \author   Giovanni Petrucciani (from PATMuonProducer by Steven Lowette, Roger Wolf)
-  \version  $Id: PATMuonCleaner.h,v 1.5 2008/04/02 15:42:23 zeidler Exp $
+  \version  $Id: PATMuonCleaner.h,v 1.6 2008/04/03 08:29:48 zeidler Exp $
 */
 
 
@@ -91,6 +91,11 @@ namespace reco {
         config_.selectionType = selectionType;
         if ( selectionType == "custom" )
           {
+		
+            config_.dPbyPmax  = cfg.getParameter<double>("dPbyPmax");
+            config_.chi2max  = cfg.getParameter<double>("chi2max");
+            config_.nHitsMin = cfg.getParameter<int>("nHitsMin");
+          }
 		if ( selectionType == "muId" )
           {
             std::string flag = cfg.getParameter<std::string>("flag");
@@ -111,10 +116,6 @@ namespace reco {
 				throw edm::Exception(edm::errors::UnimplementedFeature) 
 					<< "muId flag is not valid or not implemented yet";
 			}
-          }
-            config_.dPbyPmax  = cfg.getParameter<double>("dPbyPmax");
-            config_.chi2max  = cfg.getParameter<double>("chi2max");
-            config_.nHitsMin = cfg.getParameter<int>("nHitsMin");
           }
         return pat::MuonSelector( config_ );
       }
