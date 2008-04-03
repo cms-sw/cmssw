@@ -1,5 +1,5 @@
 //
-// $Id: Photon.h,v 1.6 2008/03/17 17:17:48 gpetrucc Exp $
+// $Id: Photon.h,v 1.7 2008/04/03 12:29:08 gpetrucc Exp $
 //
 
 #ifndef DataFormats_PatCandidates_Photon_h
@@ -13,7 +13,7 @@
    namespace.
 
   \author   Steven Lowette
-  \version  $Id: Photon.h,v 1.6 2008/03/17 17:17:48 gpetrucc Exp $
+  \version  $Id: Photon.h,v 1.7 2008/04/03 12:29:08 gpetrucc Exp $
 */
 
 #include "DataFormats/PatCandidates/interface/PATObject.h"
@@ -138,7 +138,7 @@ namespace pat {
       float photonID_;
 
       // --- Isolation and IsoDeposit related datamebers ---
-      typedef std::vector<std::pair<IsolationKeys, reco::MuIsoDeposit> > IsoDepositPairs;
+      typedef std::vector<std::pair<IsolationKeys, pat::IsoDeposit> > IsoDepositPairs;
       IsoDepositPairs    isoDeposits_;
       std::vector<float> isolations_;
 

@@ -1,5 +1,5 @@
 //
-// $Id: Lepton.h,v 1.7 2008/03/05 14:47:33 fronga Exp $
+// $Id: Lepton.h,v 1.8 2008/04/03 12:29:08 gpetrucc Exp $
 //
 
 #ifndef DataFormats_PatCandidates_Lepton_h
@@ -13,7 +13,7 @@
    namespace.
 
   \author   Steven Lowette
-  \version  $Id: Lepton.h,v 1.7 2008/03/05 14:47:33 fronga Exp $
+  \version  $Id: Lepton.h,v 1.8 2008/04/03 12:29:08 gpetrucc Exp $
 */
 
 #include "DataFormats/Candidate/interface/Particle.h"
@@ -140,7 +140,7 @@ namespace pat {
       float lrComb_;
 
       // --- Isolation and IsoDeposit related datamebers ---
-      typedef std::vector<std::pair<IsolationKeys, reco::MuIsoDeposit> > IsoDepositPairs;
+      typedef std::vector<std::pair<IsolationKeys, pat::IsoDeposit> > IsoDepositPairs;
       IsoDepositPairs    isoDeposits_;
       std::vector<float> isolations_;
   };
