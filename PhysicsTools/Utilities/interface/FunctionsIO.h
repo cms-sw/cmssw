@@ -42,7 +42,8 @@ PRINT_BINARY_OPERATOR(SumStruct, " + ");
 PRINT_BINARY_OPERATOR(DifferenceStruct, " - ");
 PRINT_BINARY_OPERATOR(ProductStruct, " ");
 PRINT_BINARY_OPERATOR(RatioStruct, "/");
-PRINT_UNARY_OPERATOR( MinusStruct, "-");
+PRINT_BINARY_OPERATOR(PowerStruct, "^");
+PRINT_UNARY_OPERATOR(MinusStruct, "-");
 
 #undef PRINT_BINARY_OPERATOR
 #undef PRINT_UNARY_OPERATOR

@@ -20,7 +20,7 @@ CPPUNIT_TEST_SUITE_REGISTRATION(testVariables);
 
 void testVariables::checkAll() {
   using namespace funct;
-  double value = 123, value1 = 456;
+  double value = 1.234, value1 = 2.345;
   X x;
   CPPUNIT_ASSERT(x.name() == "x");
   x = value;
@@ -44,13 +44,15 @@ void testVariables::checkAll() {
   y = value1;
   double z;
   z = x + y;
-  CPPUNIT_ASSERT( z = value + value1); 
+  CPPUNIT_ASSERT(z = value + value1); 
   z = x - y;
-  CPPUNIT_ASSERT( z = value - value1); 
+  CPPUNIT_ASSERT(z = value - value1); 
   z = x * y;
-  CPPUNIT_ASSERT( z = value * value1); 
+  CPPUNIT_ASSERT(z = value * value1); 
   z = x / y;
-  CPPUNIT_ASSERT( z = value / value1); 
+  CPPUNIT_ASSERT(z = value / value1);
+  z = x ^ y;
+  CPPUNIT_ASSERT(z = pow(value, value1)); 
   z = - x;
-  CPPUNIT_ASSERT( z = - value); 
+  CPPUNIT_ASSERT(z = - value); 
 }

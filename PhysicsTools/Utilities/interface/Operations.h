@@ -4,6 +4,7 @@
 #include "PhysicsTools/Utilities/interface/Difference.h"
 #include "PhysicsTools/Utilities/interface/Ratio.h"
 #include "PhysicsTools/Utilities/interface/Product.h"
+#include "PhysicsTools/Utilities/interface/Power.h"
 #include "PhysicsTools/Utilities/interface/Minus.h"
 
 namespace funct {
@@ -31,6 +32,11 @@ namespace funct {
   template<typename A>
   inline typename Minus<A>::type operator-(const A& a) {
     return Minus<A>::operate(a);
+  }
+
+  template<typename A, typename B>
+  inline typename Power<A, B>::type operator^(const A& a, const B& b) {
+    return Power<A, B>::combine(a, b);
   }
   
 }

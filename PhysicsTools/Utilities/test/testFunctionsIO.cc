@@ -37,6 +37,7 @@ void testFunctionsIO::checkAll() {
   CHECK(x + y, "x + y");
   CHECK(x - y, "x - y");
   CHECK(x * y, "x y");
+  CHECK((x ^ y), "x^y");
   CHECK(x / y, "x/y");
   CHECK(num<1>(), "1");
   CHECK(num<2>(), "2");
