@@ -198,6 +198,36 @@ class _TypedParameterizable(_Parameterizable):
                              **params)
         returnValue._isModified = self._isModified
         return returnValue
+    def clone(self, *args, **params):
+        """Copies the object and allows one to modify the parameters of the clone.
+        New parameters may be added by specify the exact type
+        Modifying existing parameters can be done by just specifying the new
+          value without having to specify the type.
+        """
+        returnValue =_TypedParameterizable.__new__(type(self))
+        myparams = self.parameters()
+        if len(myparams) == 0 and len(params) and len(args):
+            args.append(None)
+        if len(params):
+            #need to treat items both in params and myparams specially
+            for key in params.iterkeys():
+                value = params[key]
+                if key in myparams:                    
+                    if isinstance(value,_ParameterTypeBase):
+                        myparams[key] =value
+                    else:
+                        myparams[key].setValue(value)
+            else:
+                if isinstance(value,_ParameterTypeBase):
+                    myparams[key]=value
+                else:
+                    self._Parameterizable__raiseBadSetAttr(self,key)
+
+        returnValue.__init__(self.__type,*args,
+                             **myparams)
+        returnValue._isModified = False
+        return returnValue
+
     @staticmethod
     def __findDefaultsFor(label,type):
         #This routine is no longer used, but I might revive it in the future
@@ -447,4 +477,28 @@ if __name__ == "__main__":
         def testUsingBlock(self):
             a = UsingBlock("a")
             self.assert_(isinstance(a, _ParameterTypeBase))
+        def testCopy(self):
+            class __Test(_TypedParameterizable):
+                pass
+            class __TestType(_SimpleParameterTypeBase):
+                def _isValid(self,value):
+                    return True
+            a = __Test("MyType",t=__TestType(1), u=__TestType(2))
+            b = a.copy()
+            self.assertEqual(b.t.value(),1)
+            self.assertEqual(b.u.value(),2)
+        def testClone(self):
+            class __Test(_TypedParameterizable):
+                pass
+            class __TestType(_SimpleParameterTypeBase):
+                def _isValid(self,value):
+                    return True
+            a = __Test("MyType",t=__TestType(1), u=__TestType(2))
+            b = a.clone(t=3, v=__TestType(4))
+            self.assertEqual(a.t.value(),1)
+            self.assertEqual(a.u.value(),2)
+            self.assertEqual(b.t.value(),3)
+            self.assertEqual(b.u.value(),2)
+            self.assertEqual(b.v.value(),4)
+            self.assertRaises(TypeError,a.clone,None,**{"v":1})
     unittest.main()
