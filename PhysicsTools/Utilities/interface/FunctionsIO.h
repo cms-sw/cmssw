@@ -1,6 +1,7 @@
 #ifndef PhysicsTools_Utilities_interface_FunctionsIO_h
 #define PhysicsTools_Utilities_interface_FunctionsIO_h
 #include "PhysicsTools/Utilities/interface/Variables.h"
+#include "PhysicsTools/Utilities/interface/Numerical.h"
 #include "PhysicsTools/Utilities/interface/Functions.h"
 #include "PhysicsTools/Utilities/interface/Operations.h"
 #include <ostream>
@@ -45,6 +46,12 @@ PRINT_UNARY_OPERATOR( MinusStruct, "-");
 
 #undef PRINT_BINARY_OPERATOR
 #undef PRINT_UNARY_OPERATOR
+
+template<int n>
+std::ostream& operator<<(std::ostream& cout, const Numerical<n>& num) {
+  return cout << n;
+}
+
 }
 
 #endif

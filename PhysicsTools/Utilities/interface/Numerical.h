@@ -4,6 +4,7 @@
 namespace funct {
 
   template<int n> struct Numerical {
+    static const unsigned int arguments = 0;
     static const int value = n;
     double operator()() const { return n; }
     operator double() const { return n; }
