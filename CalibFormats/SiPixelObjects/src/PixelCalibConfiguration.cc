@@ -141,24 +141,44 @@ PixelCalibConfiguration::PixelCalibConfiguration(std::string filename):
     else{
 
       //in >> tmp;
-      while(tmp=="Scan:"){
-        std::string dacname;
-        in >> dacname;
-        unsigned int  first,last,step;
-        in >> first >> last >> step;
-        unsigned int index=1;
-        if (dacs_.size()>0) {
-          index=dacs_.back().index()*dacs_.back().getNPoints();
-        }
-        in >> tmp;
-        bool mix = false;
-        if ( tmp=="mix" )
-        {
-          mix = true;
-          in >> tmp;
-        }
-        PixelDACScanRange dacrange(dacname,first,last,step,index,mix);
-        dacs_.push_back(dacrange);
+      while(tmp=="Scan:"||tmp=="ScanValues:"){
+	if (tmp=="ScanValues:"){
+	  std::string dacname;
+	  in >> dacname;
+	  vector<unsigned int> values;
+	  int val;  
+	  in >> val;
+	  while (val!=-1) {
+	    values.push_back(val);
+	    in >> val;
+	  }
+	  unsigned int index=1;
+	  if (dacs_.size()>0) {
+	    index=dacs_.back().index()*dacs_.back().getNPoints();
+	  }
+	  PixelDACScanRange dacrange(dacname,values,index,false);
+	  dacs_.push_back(dacrange);
+	  in >> tmp;
+	}
+	else {
+	  std::string dacname;
+	  in >> dacname;
+	  unsigned int  first,last,step;
+	  in >> first >> last >> step;
+	  unsigned int index=1;
+	  if (dacs_.size()>0) {
+	    index=dacs_.back().index()*dacs_.back().getNPoints();
+	  }
+	  in >> tmp;
+	  bool mix = false;
+	  if ( tmp=="mix" )
+	    {
+	      mix = true;
+	      in >> tmp;
+	    }
+	  PixelDACScanRange dacrange(dacname,first,last,step,index,mix);
+	  dacs_.push_back(dacrange);
+	}
       }
       
       while (tmp=="Set:"){
@@ -462,8 +482,9 @@ unsigned int PixelCalibConfiguration::scanValue(unsigned int iscan,
     // Spread the DAC values on the different ROCs uniformly across the scan range.
     if ( dacs_[iscan].mixValuesAcrossROCs() ) i_threshold = (i_threshold + (nScanPoints(iscan)*ROCNumber)/ROCsOnChannel)%nScanPoints(iscan);
 
-    unsigned int threshold=dacs_[iscan].first()+
-      i_threshold*dacs_[iscan].step();
+    unsigned int threshold=dacs_[iscan].value(i_threshold);
+
+    assert(threshold==dacs_[iscan].first()+i_threshold*dacs_[iscan].step());
 
     return threshold;
 
@@ -1073,10 +1094,11 @@ void PixelCalibConfiguration::writeASCII(std::string dir) const {
   }
 
   for (unsigned int i=0;i<dacs_.size();i++){
-    out << "Scan: "<<dacs_[i].name()<<" "
-	<<dacs_[i].first()<<" "
-	<<dacs_[i].last()<<" "
-	<<dacs_[i].step()<<endl;
+    out << "Scan: "<<dacs_[i].name()<<" ";
+    for(unsigned int ival=0;ival<dacs_[i].getNPoints();ival++){
+      out << dacs_[i].value(ival)<<" ";
+    }
+    out<<endl;
   }
 
   out << "Repeat:" <<endl;

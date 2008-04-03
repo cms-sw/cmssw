@@ -161,7 +161,7 @@ namespace pos{
     // In SingleROC mode, which ROC we're on.  In normal mode, this equals 1.
     unsigned int scanROC(unsigned int state) const;
 
-    unsigned int nScanPoints(unsigned int iscan) const { return (dacs_[iscan].last()-dacs_[iscan].first())/dacs_[iscan].step()+1; }
+    unsigned int nScanPoints(unsigned int iscan) const { return dacs_[iscan].getNPoints(); }
 
     unsigned int scanCounter(unsigned int iscan, unsigned int state) const;
 
