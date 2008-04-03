@@ -12,7 +12,7 @@
   <class name="edm::Wrapper<edm::EventTime>" splitLevel="0"/>
 
   <class name="HLTPerformanceInfo"/>
-  <class name="edm::Wrapper<HLTPerformanceInfo >" splitLevel="0"/>
+  <class name="edm::Wrapper<HLTPerformanceInfo >"/>
 
   <class name="HLTPerformanceInfo::Module"/>
   <class name="std::vector<HLTPerformanceInfo::Module>"/>
