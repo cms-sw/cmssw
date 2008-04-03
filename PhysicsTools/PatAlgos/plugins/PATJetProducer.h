@@ -54,6 +54,7 @@ namespace pat {
 
       // configurables
       edm::InputTag            jetsSrc_;
+      bool                     embedCaloTowers_;
       bool                     getJetMCFlavour_;
       edm::InputTag            jetPartonMapSource_;
       bool                     addGenPartonMatch_;
