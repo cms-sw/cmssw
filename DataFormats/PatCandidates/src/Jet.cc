@@ -10,7 +10,8 @@ using namespace pat;
 
 /// default constructor
 Jet::Jet() :
-  PATObject<JetType>(JetType(reco::Particle::LorentzVector(0, 0, 0, 0), reco::Particle::Point(0,0,0), reco::CaloJet::Specific(), reco::Jet::Constituents())), associatedTracks_(),
+  PATObject<JetType>(JetType(reco::Particle::LorentzVector(0, 0, 0, 0), reco::Particle::Point(0,0,0), reco::CaloJet::Specific(), reco::Jet::Constituents())),
+  embeddedCaloTowers_(false),
   partonFlavour_(0), lrPhysicsJetLRval_(-999.), lrPhysicsJetProb_(-1),
   jetCharge_(0.0) {
 }
@@ -19,17 +20,45 @@ Jet::Jet() :
 /// constructor from a JetType
 Jet::Jet(const JetType & aJet) :
   PATObject<JetType>(aJet),
-  partonFlavour_(0), lrPhysicsJetLRval_(-999.), lrPhysicsJetProb_(-1) {
+  embeddedCaloTowers_(false),
+  partonFlavour_(0), lrPhysicsJetLRval_(-999.), lrPhysicsJetProb_(-1),
+  jetCharge_(0.0) {
 }
 
 
 /// constructor from ref to JetType
-Jet::Jet(const edm::RefToBase<JetType> & aJetRef) : PATObject<JetType>(aJetRef) {
+Jet::Jet(const edm::RefToBase<JetType> & aJetRef) :
+  PATObject<JetType>(aJetRef),
+  embeddedCaloTowers_(false),
+  partonFlavour_(0), lrPhysicsJetLRval_(-999.), lrPhysicsJetProb_(-1),
+  jetCharge_(0.0) {
 }
 
 
 /// destructor
 Jet::~Jet() {
+}
+
+
+/// override the getConstituent method from CaloJet, to access the internal storage of the constituents
+/// this returns a transient Ref which *should never be persisted*!
+CaloTowerRef Jet::getConstituent(unsigned int idx) const {
+  if (embeddedCaloTowers_) {
+    return CaloTowerRef(&caloTowers_, idx);
+  } else {
+    return JetType::getConstituent(idx);
+  }
+}
+
+
+/// override the getConstituents method from CaloJet, to access the internal storage of the constituents
+/// this returns a transient RefVector which *should never be persisted*!
+std::vector<CaloTowerRef> Jet::getConstituents() const {
+  std::vector<CaloTowerRef> caloTowerRefs;
+  for (unsigned int i = 0; i < caloTowers_.size(); ++i) {
+    caloTowerRefs.push_back(CaloTowerRef(&caloTowers_, i));
+  }
+  return caloTowerRefs;
 }
 
 
@@ -57,7 +86,7 @@ JetCorrFactors Jet::jetCorrFactors() const {
 }
 
 
-/// return the associated non-calibrated jet
+/// return the original non-calibrated jet
 JetType Jet::recJet() const {
   JetType recJet(*this);
   recJet.setP4(noCorrF_*this->p4());
@@ -75,7 +104,7 @@ Jet Jet::noCorrJet() const {
 }
 
 
-/// return the associated non-calibrated jet
+/// return the associated default-calibrated jet
 Jet Jet::defaultCorrJet() const {
   Jet jet(*this);
   jet.setP4(jetCorrF_.scaleDefault() * noCorrF_ * this->p4());
@@ -232,6 +261,15 @@ float Jet::jetCharge() const {
 /// method to return a vector of refs to the tracks associated to this jet
 const reco::TrackRefVector & Jet::associatedTracks() const {
   return associatedTracks_;
+}
+
+
+/// method to store the CaloJet constituents internally
+void Jet::setCaloTowers(const std::vector<CaloTowerRef> & caloTowers) {
+  for(unsigned int i = 0; i < caloTowers.size(); ++i) {
+    caloTowers_.push_back(*caloTowers.at(i));
+  }
+  embeddedCaloTowers_ = true;
 }
 
 
