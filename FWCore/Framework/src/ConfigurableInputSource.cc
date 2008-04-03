@@ -1,9 +1,7 @@
 /*----------------------------------------------------------------------
-$Id: ConfigurableInputSource.cc,v 1.34 2008/01/31 04:56:51 wmtan Exp $
+$Id: ConfigurableInputSource.cc,v 1.33 2007/12/31 22:43:57 wmtan Exp $
 ----------------------------------------------------------------------*/
 
-#include "DataFormats/Provenance/interface/LuminosityBlockAuxiliary.h"
-#include "DataFormats/Provenance/interface/RunAuxiliary.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/ConfigurableInputSource.h"
 #include "FWCore/Framework/interface/EventPrincipal.h"
@@ -53,9 +51,8 @@ namespace edm {
   boost::shared_ptr<RunPrincipal>
   ConfigurableInputSource::readRun_() {
     Timestamp ts = Timestamp(presentTime_);
-    RunAuxiliary runAux(eventID_.run(), ts, Timestamp::invalidTimestamp());
     boost::shared_ptr<RunPrincipal> runPrincipal(
-        new RunPrincipal(runAux, productRegistry(), processConfiguration()));
+        new RunPrincipal(eventID_.run(), ts, Timestamp::invalidTimestamp(), productRegistry(), processConfiguration()));
     RunPrincipal & rp =
        const_cast<RunPrincipal &>(*runPrincipal);
     Run run(rp, moduleDescription());
@@ -68,10 +65,9 @@ namespace edm {
   boost::shared_ptr<LuminosityBlockPrincipal>
   ConfigurableInputSource::readLuminosityBlock_() {
     Timestamp ts = Timestamp(presentTime_);
-    LuminosityBlockAuxiliary lumiAux(runPrincipal()->run(), luminosityBlock_, ts, Timestamp::invalidTimestamp());
     boost::shared_ptr<LuminosityBlockPrincipal> lumiPrincipal(
         new LuminosityBlockPrincipal(
-	    lumiAux, productRegistry(), runPrincipal(), processConfiguration()));
+	    luminosityBlock_, ts, Timestamp::invalidTimestamp(), productRegistry(), runPrincipal(), processConfiguration()));
     LuminosityBlock lb(*lumiPrincipal, moduleDescription());
     beginLuminosityBlock(lb);
     lb.commit_();
@@ -87,10 +83,9 @@ namespace edm {
 
   void
   ConfigurableInputSource::reallyReadEvent(boost::shared_ptr<LuminosityBlockPrincipal> lbp) {
-    EventAuxiliary eventAux(eventID_,
-      processGUID(), Timestamp(presentTime_), lbp->luminosityBlock(), isRealData_, eType_);
     std::auto_ptr<EventPrincipal> result(
-	new EventPrincipal(eventAux, productRegistry(), lbp, processConfiguration()));
+	new EventPrincipal(eventID_, processGUID(), Timestamp(presentTime_),
+	productRegistry(), lbp, processConfiguration(), isRealData_, eType_));
     Event e(*result, moduleDescription());
     if (!produce(e)) {
       ep_.reset(); 
