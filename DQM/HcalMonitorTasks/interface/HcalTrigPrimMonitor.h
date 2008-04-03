@@ -8,8 +8,8 @@
 
 /** \class HcalTrigPrimMonitor
   *  
-  * $Date: 2008/02/18 13:39:36 $
-  * $Revision: 1.6 $
+  * $Date: 2008/03/01 00:39:58 $
+  * $Revision: 1.7 $
   * \author W. Fisher - FNAL
   */
 class HcalTrigPrimMonitor: public HcalBaseMonitor {
@@ -83,7 +83,7 @@ private:  ///Monitoring elements
           }
   float *get_tp(int eta,int phi,int depth=1){
              return &tp_data[eta+50][phi][depth][0];}
-  void   set_tp(int eta,int phi,int depth=1,float *val){ 
+  void   set_tp(int eta,int phi,int depth,float *val){ 
              if(eta<-42 || eta>42 || eta==0) return;
 	     if(phi<1 || phi>72)             return;
 	     if(depth<1 || depth>4)          return;
