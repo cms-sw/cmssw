@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: RootInputFileSequence.cc,v 1.8 2008/03/20 09:39:06 lsexton Exp $
+$Id: RootInputFileSequence.cc,v 1.9 2008/04/01 23:12:39 wmtan Exp $
 ----------------------------------------------------------------------*/
 #include "RootInputFileSequence.h"
 #include "PoolSource.h"
@@ -14,6 +14,7 @@ $Id: RootInputFileSequence.cc,v 1.8 2008/03/20 09:39:06 lsexton Exp $
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/RandomNumberGenerator.h"
+#include "FWCore/Utilities/interface/Algorithms.h"
 
 #include "CLHEP/Random/RandFlat.h"
 #include "TTree.h"
@@ -46,6 +47,7 @@ namespace edm {
     setRun_(pset.getUntrackedParameter<unsigned int>("setRunNumber", 0)),
     dropMetaData_(pset.getUntrackedParameter<bool>("dropMetaData", false)) {
 
+    sort_all(eventsToProcess_);
     std::string matchMode = pset.getUntrackedParameter<std::string>("fileMatchMode", std::string("permissive"));
     if (matchMode == std::string("strict")) matchMode_ = BranchDescription::Strict;
     if (primary()) {
