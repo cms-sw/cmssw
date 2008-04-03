@@ -13,7 +13,7 @@ Implementation:
 //
 // Original Author:  Freya Blekman
 //         Created:  Fri Sep  7 15:46:34 CEST 2007
-// $Id: PixelSLinkDataInputSource.cc,v 1.15 2008/02/01 15:14:53 fblekman Exp $
+// $Id: PixelSLinkDataInputSource.cc,v 1.16 2008/02/25 21:12:25 fblekman Exp $
 //
 //
 
@@ -240,7 +240,7 @@ bool PixelSLinkDataInputSource::produce(edm::Event& event) {
       ((unsigned long long *)dataptr)[i]=buffer[i];
     }
     uint32_t thetriggernumber=0;
-    int nfillwords = getEventNumberFromFillWords(buffer,thetriggernumber);
+    int nfillwords = 0;//getEventNumberFromFillWords(buffer,thetriggernumber);
 
     if(nfillwords>0){
       LogInfo("") << "n fill words = " << nfillwords <<  ", trigger numbers: " << thetriggernumber << "," << m_currenttriggernumber << std::endl;
