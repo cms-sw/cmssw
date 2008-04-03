@@ -1,6 +1,9 @@
+#include <algorithm>
 #include <iostream>
 #include <string>
 #include <cctype>
+#include <vector>
+#include <cmath>
 
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -50,15 +53,106 @@ LHECommon::LHECommon(std::istream &in, const std::string &comment)
 		edm::LogWarning("Generator|LHEInterface")
 			<< "Les Houches file contained spurious"
 			   " content after the regular data." << std::endl;
+
+	init();
+}
+
+LHECommon::LHECommon(const HEPRUP &heprup, const std::string &comment) :
+	heprup(heprup)
+{
+	init();
 }
 
 LHECommon::~LHECommon()
 {
 }
 
+void LHECommon::init()
+{
+	for(int i = 0; i < heprup.NPRUP; i++) {
+		Process proc;
+
+		proc.process = heprup.LPRUP[i];
+		proc.heprupIndex = (unsigned int)i;
+
+		processes.push_back(proc);
+	}
+
+	std::sort(processes.begin(), processes.end());
+}
+
 bool LHECommon::operator == (const LHECommon &other) const
 {
 	return heprup == other.heprup;
+}
+
+void LHECommon::count(int process, CountMode mode, double weight)
+{
+	std::vector<Process>::iterator proc =
+		std::lower_bound(processes.begin(), processes.end(), process);
+	if (proc == processes.end() || proc->process != process)
+		return;
+
+	switch(mode) {
+	    case kAccepted:
+		proc->accepted.add(weight);
+	    case kSelected:
+		proc->selected.add(weight);
+	    case kTried:
+		proc->tried.add(weight);
+	}
+}
+
+LHECommon::XSec LHECommon::xsec() const
+{
+	double sigSelSum = 0.0;
+	double sigSum = 0.0;
+	double err2Sum = 0.0;
+
+	for(std::vector<Process>::const_iterator proc = processes.begin();
+	    proc != processes.end(); ++proc) {
+		unsigned int idx = proc->heprupIndex;
+
+		double sigmaSum, sigma2Sum;
+		if (std::abs(heprup.IDWTUP == 3)) {
+			sigmaSum = proc->tried.n * heprup.XSECUP[idx];
+			sigma2Sum = sigmaSum * heprup.XSECUP[idx];
+		} else {
+			sigmaSum = proc->tried.sum;
+			sigma2Sum = proc->tried.sum2;
+		}
+
+		if (!proc->accepted.n)
+			continue;
+
+		double sigmaAvg = sigmaSum / proc->tried.n;
+		double fracAcc = (double)proc->accepted.n / proc->selected.n;
+		double sigmaFin = sigmaAvg * fracAcc;
+
+		double deltaFin = sigmaFin;
+		if (proc->accepted.n > 1) {
+			double sigmaAvg2 = sigmaAvg * sigmaAvg;
+			double delta2Sig =
+				(sigma2Sum / proc->tried.n - sigmaAvg2) /
+				(proc->tried.n * sigmaAvg2);
+			double delta2Veto =
+				((double)proc->selected.n - proc->accepted.n) /
+				((double)proc->selected.n * proc->accepted.n);
+			double delta2Sum = delta2Sig + delta2Veto;
+			deltaFin = sigmaFin * (delta2Sum > 0.0 ?
+						std::sqrt(delta2Sum) : 0.0);
+		}
+
+		sigSelSum += sigmaAvg;
+		sigSum += sigmaFin;
+		err2Sum += deltaFin * deltaFin;
+	}
+
+	XSec result;
+	result.value = 1.0e-9 * sigSum;
+	result.error = 1.0e-9 * std::sqrt(err2Sum);
+
+	return result;
 }
 
 } // namespace lhef

@@ -88,8 +88,19 @@ LHEEvent::LHEEvent(const boost::shared_ptr<LHECommon> &common,
 			   " content after event data." << std::endl;
 }
 
+LHEEvent::LHEEvent(const boost::shared_ptr<LHECommon> &common,
+                   const HEPEUP &hepeup) :
+	common(common), hepeup(hepeup)
+{
+}
+
 LHEEvent::~LHEEvent()
 {
+}
+
+void LHEEvent::count(CountMode mode)
+{
+	common->count(hepeup.IDPRUP, mode, hepeup.XWGTUP);
 }
 
 std::auto_ptr<HepMC::GenEvent> LHEEvent::asHepMCEvent() const

@@ -3,12 +3,15 @@
 
 #include <memory>
 
+#include <boost/shared_ptr.hpp>
+
 #include "FWCore/Framework/interface/GeneratedInputSource.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/Run.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "GeneratorInterface/LHEInterface/interface/LHEReader.h"
+#include "GeneratorInterface/LHEInterface/interface/LHECommon.h"
 #include "GeneratorInterface/LHEInterface/interface/Hadronisation.h"
 #include "GeneratorInterface/LHEInterface/interface/JetMatching.h"
 
@@ -32,6 +35,8 @@ class LHESource : public edm::GeneratedInputSource {
 	unsigned int				eventsToPrint;
 	std::auto_ptr<lhef::Hadronisation>	hadronisation;
 	std::auto_ptr<lhef::JetMatching>	jetMatching;
+
+	boost::shared_ptr<lhef::LHECommon>	common;
 
 	double					extCrossSect;
 	double					extFilterEff;

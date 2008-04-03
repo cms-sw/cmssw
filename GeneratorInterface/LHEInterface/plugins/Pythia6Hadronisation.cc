@@ -41,6 +41,7 @@ class Pythia6Hadronisation : public Hadronisation {
 
 	const int		pythiaPylistVerbosity;
 	int			maxEventsToPrint;
+	int			iterations;
 
 	HepMC::IO_HEPEVT	conv;
 };
@@ -148,11 +149,15 @@ Pythia6Hadronisation::~Pythia6Hadronisation()
 
 std::auto_ptr<HepMC::GenEvent> Pythia6Hadronisation::doHadronisation()
 {
+	iterations = 0;
 	assert(!fortranCallback.instance);
 	fortranCallback.instance = this;
 	call_pyevnt();
 	call_pyhepc(1);
 	fortranCallback.instance = 0;
+
+	if (iterations > 1)
+		return std::auto_ptr<HepMC::GenEvent>();
 
 	std::auto_ptr<HepMC::GenEvent> event(conv.read_next_event());
 
@@ -205,6 +210,11 @@ void Pythia6Hadronisation::fillHeader()
 void Pythia6Hadronisation::fillEvent()
 {
 	const HEPEUP *hepeup = getRawEvent()->getHEPEUP();
+
+	if (iterations++) {
+		hepeup_.nup = 0;
+		return;
+	}
 
 	hepeup_.nup = hepeup->NUP;
 	hepeup_.idprup = hepeup->IDPRUP;

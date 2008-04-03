@@ -10,14 +10,26 @@
 	<use name=SimDataFormats/HepMCProduct>
 	<flags EDM_PLUGIN=1>
 </library>
+<library name="GeneratorInterfaceLHEGenEvent" file="LHEGenEvent.cc">
+	<use name=FWCore/Framework>
+	<use name=SimDataFormats/HepMCProduct>
+	<flags EDM_PLUGIN=1>
+</library>
+<library name="GeneratorInterfaceLHEtoEDM" file="LHEtoEDM.cc">
+	<use name=FWCore/Framework>
+	<flags EDM_PLUGIN=1>
+</library>
 <library name="GeneratorInterfacePythia6Hadronisation" file="Pythia6Hadronisation.cc">
 	<use name=pythia6>
 	<flags EDM_PLUGIN=1>
 </library>
 <library name="GeneratorInterfacePythia8Hadronisation" file="Pythia8Hadronisation.cc">
 	<use name=pythia8>
+	<lib name=lhapdf>
+	<lib name=lhapdf_dummy>
 	<lib name=hepmcinterface>
 	<flags EDM_PLUGIN=1>
+	<flags CXXFLAGS="-g3 -O0 -fno-inline">
 </library>
 <library name="GeneratorInterfaceHerwig6Hadronisation" file="Herwig6Hadronisation.cc hwudat.f hwmsct_dummy.F pathhelper.F cms_hwwarn.F">
 	<use name=herwig>

@@ -82,15 +82,19 @@ void LHESource::endJob()
 
 void LHESource::endRun(edm::Run &run)
 {
-	double crossSection = hadronisation->getCrossSection();
+	LHECommon::XSec crossSection;
+	if (common)
+		crossSection = common->xsec();
 
 	std::auto_ptr<edm::GenInfoProduct> genInfoProd(new edm::GenInfoProduct);
 
-	genInfoProd->set_cross_section(crossSection);
+	genInfoProd->set_cross_section(crossSection.value);
 	genInfoProd->set_external_cross_section(extCrossSect);
 	genInfoProd->set_filter_efficiency(extFilterEff);
 
 	run.put(genInfoProd);
+
+	common.reset();
 }
 
 bool LHESource::produce(edm::Event &event)
@@ -102,12 +106,18 @@ bool LHESource::produce(edm::Event &event)
 		if (!partonLevel.get())
 			return false;
 
+		if (partonLevel->getCommon() != common)
+			common = partonLevel->getCommon();
+
 		hadronisation->setEvent(partonLevel);
 
 		hadronLevel = hadronisation->hadronize();
 
-		if (!hadronLevel.get())
+		if (!hadronLevel.get()) {
+			if (!skipEvents)
+				partonLevel->count(LHECommon::kTried);
 			continue;
+		}
 
 		if (skipEvents > 0) {
 			skipEvents--;
@@ -122,10 +132,12 @@ bool LHESource::produce(edm::Event &event)
 				edm::LogInfo("Generator|LHEInterface")
 					<< "Event got rejected by the"
 					   "jet matching." << std::endl;
+				partonLevel->count(LHECommon::kSelected);
 				continue;
 			}
 		}
 
+		partonLevel->count(LHECommon::kAccepted);
 		break;
 	}
 

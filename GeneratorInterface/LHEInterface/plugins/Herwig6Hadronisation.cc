@@ -39,6 +39,7 @@ class Herwig6Hadronisation : public Hadronisation {
 
 	void fillHeader();
 	void fillEvent();
+	bool veto();
 
     private:
 	void clear();
@@ -63,6 +64,7 @@ struct Herwig6Hadronisation::FortranCallback {
 
 	void upinit() { instance->fillHeader(); }
 	void upevnt() { instance->fillEvent(); }
+	bool upveto() { return instance->veto(); }
 
 	lhef::Herwig6Hadronisation *instance;
 } static fortranCallback;
@@ -113,6 +115,7 @@ extern "C" {
 
 	void upinit_() { fortranCallback.upinit(); }
 	void upevnt_() { fortranCallback.upevnt(); }
+	void upveto_(int *veto) { *veto = fortranCallback.upveto(); }
 } // extern "C"
 
 static bool hwgive(const std::string &paramString);
@@ -1213,6 +1216,11 @@ void Herwig6Hadronisation::fillEvent()
 		hepeup_.vtimup[i] = hepeup->VTIMUP[i];
 		hepeup_.spinup[i] = hepeup->SPINUP[i];
 	}
+}
+
+bool Herwig6Hadronisation::veto()
+{
+	return false;
 }
 
 DEFINE_LHE_HADRONISATION_PLUGIN(Herwig6Hadronisation);

@@ -21,6 +21,8 @@ class LHEEvent {
     public:
 	LHEEvent(const boost::shared_ptr<LHECommon> &common,
 	         std::istream &in);
+	LHEEvent(const boost::shared_ptr<LHECommon> &common,
+	         const HEPEUP &hepeup);
 	~LHEEvent();
 
 	struct PDF {
@@ -34,6 +36,8 @@ class LHEEvent {
 	const HEPEUP *getHEPEUP() const { return &hepeup; }
 	const HEPRUP *getHEPRUP() const { return common->getHEPRUP(); }
 	const PDF *getPDF() const { return pdf.get(); }
+
+	void count(LHECommon::CountMode count);
 
 	std::auto_ptr<HepMC::GenEvent> asHepMCEvent() const;
 
