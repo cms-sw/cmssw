@@ -1,8 +1,8 @@
 /*
  * \file DTDataIntegrityTask.cc
  * 
- * $Date: 2008/04/03 09:21:15 $
- * $Revision: 1.37 $
+ * $Date: 2008/04/03 18:19:58 $
+ * $Revision: 1.38 $
  * \author M. Zanetti (INFN Padova), S. Bolognesi (INFN Torino)
  *
  */
@@ -14,11 +14,8 @@
 #include "EventFilter/DTRawToDigi/interface/DTDataMonitorInterface.h"
 #include "EventFilter/DTRawToDigi/interface/DTControlData.h"
 #include "EventFilter/DTRawToDigi/interface/DTDDUWords.h"
-//#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
-//#include "DQMServices/Daemon/interface/MonitorDaemon.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
-
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include <math.h>
 #include <fstream>
@@ -743,11 +740,7 @@ void DTDataIntegrityTask::processROS25(DTROS25Data & data, int ddu, int ros) {
 	 }
 	}
        }
-/*	(rosHistos.find(histoType)->second).find(code.getROSID())->second->Fill(8,robheader.robID()); //CB getROS->getROSID
-      }
-    }
-  }
-  */
+
 
 /// ROB Trailer
 
