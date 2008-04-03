@@ -1,6 +1,8 @@
 process Alignment =
 {
   include "Alignment/HIPAlignmentAlgorithm/test/common.cff"
+  include "Geometry/CMSCommonData/data/cmsIdealGeometryXML.cfi"
+  include "Geometry/TrackerNumberingBuilder/data/trackerNumberingGeometry.cfi"
 
   source = EmptySource {}
 
