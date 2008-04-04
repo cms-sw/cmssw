@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: Group.cc,v 1.35 2008/02/12 22:52:02 wmtan Exp $
+$Id: Group.cc,v 1.36 2008/02/14 15:55:06 wdd Exp $
 ----------------------------------------------------------------------*/
 #include <string>
 #include "DataFormats/Provenance/interface/ProductStatus.h"
@@ -29,7 +29,7 @@ namespace edm {
 
   Group::Group(ConstBranchDescription const& bd, ProductStatus status) :
     product_(),
-    provenance_(new Provenance(bd)),
+    provenance_(new Provenance(bd, productstatus::present(status) || (productstatus::unknown(status_)))),
     status_(status),
     dropped_(!bd.present()) {
   }
