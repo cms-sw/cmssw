@@ -5,7 +5,7 @@
 
 RootOutputTree.h // used by ROOT output modules
 
-$Id: RootOutputTree.h,v 1.24 2008/03/04 00:05:03 paterno Exp $
+$Id: RootOutputTree.h,v 1.26 2008/03/04 05:14:48 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -55,8 +55,7 @@ namespace edm {
       currentlyFastCloning_(),
       currentlyFastMetaCloning_(),
       basketSize_(bufSize),
-      splitLevel_(splitLevel),
-      branchNames_() {
+      splitLevel_(splitLevel) {
 
       auxBranch_ = tree_->Branch(BranchTypeToAuxiliaryBranchName(branchType).c_str(), &pAux, bufSize, 0);
       clonedBranches_.push_back(auxBranch_);
@@ -77,8 +76,6 @@ namespace edm {
     bool isValid() const;
 
     void addBranch(BranchDescription const& prod, bool selected, EntryDescriptionID*& pEntryDescID, void const*& pProd, bool inInput);
-
-    std::vector<std::string> const& branchNames() const {return branchNames_;}
 
     void fastCloneTree(TTree *tree, TTree *metaTree);
 
@@ -128,7 +125,6 @@ namespace edm {
     bool currentlyFastMetaCloning_;
     int basketSize_;
     int splitLevel_;
-    std::vector<std::string> branchNames_;
   };
 }
 #endif

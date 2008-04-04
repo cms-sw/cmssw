@@ -111,8 +111,6 @@ namespace edm {
 	} else {
 	  branches_.push_back(branch);
         }
-	// we want the new branch name for the JobReport
-	branchNames_.push_back(prod.branchName());
       }
   }
 }
