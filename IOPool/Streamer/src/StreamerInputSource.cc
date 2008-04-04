@@ -355,7 +355,7 @@ namespace edm {
         std::auto_ptr<BranchDescription>
           adesc(const_cast<BranchDescription*>(spi->desc()));
 
-        std::auto_ptr<Provenance> aprov(new Provenance(*(adesc.get()), *(aedesc.get())));
+        std::auto_ptr<Provenance> aprov(new Provenance(*(adesc.get()), *(aedesc.get()), spi->prod() != 0));
         if(spi->prod() != 0) {
           std::auto_ptr<EDProduct>
             aprod(const_cast<EDProduct*>(spi->prod()));
