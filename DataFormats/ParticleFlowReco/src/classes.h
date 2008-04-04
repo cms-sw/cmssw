@@ -33,6 +33,9 @@
 #
 #include "DataFormats/ParticleFlowReco/interface/PFBlock.h"
 #include "DataFormats/ParticleFlowReco/interface/PFNuclearInteraction.h"
+#include "DataFormats/ParticleFlowReco/interface/PFConversion.h"
+#include "DataFormats/ParticleFlowReco/interface/PFConversionFwd.h"
+
 
 namespace { 
   namespace {
@@ -84,5 +87,14 @@ namespace {
     edm::Ref<std::vector<reco::PFNuclearInteraction> >        dummy24;
     edm::RefProd<std::vector<reco::PFNuclearInteraction> >    dummy25;
     edm::RefVector<std::vector<reco::PFNuclearInteraction> >  dummy26;
+
+    reco::PFConversionCollection dummy27;
+    edm::Wrapper<reco::PFConversionCollection> dummy28; 
+    edm::Ref<reco::PFConversionCollection> dummy29;
+    edm::RefProd<reco::PFConversionCollection> dummy30;
+    edm::Wrapper<edm::RefVector<reco::PFConversionCollection> > dummy31; 
+    std::vector<edm::Ref<std::vector<reco::PFRecTrack>,reco::PFRecTrack,edm::refhelper::FindUsingAdvance<std::vector<reco::PFRecTrack>,reco::PFRecTrack> > > dummy32;
+
+
   }
 }

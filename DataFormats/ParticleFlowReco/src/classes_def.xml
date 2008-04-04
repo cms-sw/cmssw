@@ -99,6 +99,16 @@
   <class name="edm::RefProd<std::vector<reco::PFNuclearInteraction> >" />
   <class name="edm::RefVector<std::vector<reco::PFNuclearInteraction>, reco::PFNuclearInteraction, edm::refhelper::FindUsingAdvance<std::vector<reco::PFNuclearInteraction>, reco::PFNuclearInteraction> >" />
 
+  <class name="reco::PFConversion"/>
+  <class name="std::vector<reco::PFConversion>"/>
+  <class name="edm::Wrapper<std::vector<reco::PFConversion> >"/>
+  <class name="edm::Ref<std::vector<reco::PFConversion>,reco::PFConversion,edm::refhelper::FindUsingAdvance<std::vector<reco::PFConversion>,reco::PFConversion> >"/>
+  <class name="edm::RefProd<std::vector<reco::PFConversion> >"/>
+  <class name="edm::RefVector<std::vector<reco::PFConversion>,reco::PFConversion,edm::refhelper::FindUsingAdvance<std::vector<reco::PFConversion>,reco::PFConversion> >"/>
+  <class name="std::vector<edm::Ref<std::vector<reco::PFRecTrack>,reco::PFRecTrack,edm::refhelper::FindUsingAdvance<std::vector<reco::PFRecTrack>,reco::PFRecTrack> > >"/>
+
+
+
 </selection>
 <exclusion>
   <class name="edm::OwnVector<reco::PFBlockElement, edm::ClonePolicy<reco::PFBlockElement> >">
