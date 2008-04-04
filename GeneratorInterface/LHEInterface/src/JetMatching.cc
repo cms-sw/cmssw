@@ -25,8 +25,6 @@
 
 namespace lhef {
 
-static const double matchPtFraction = 0.5;
-
 namespace {
 	template<typename T1, typename T2, typename R>
 	struct DeltaRSeparation : public std::binary_function<T1, T2, R> {
@@ -67,12 +65,18 @@ namespace {
 JetMatching::JetMatching(const edm::ParameterSet &params) :
 	maxDeltaR(params.getParameter<double>("maxDeltaR")),
 	minJetPt(params.getParameter<double>("jetPtMin")),
+	matchPtFraction(1.0),
 	partonInput(new JetInput(params)),
-	jetInput(new JetInput(*partonInput)),
-	jetClustering(new JetClustering(params, minJetPt * matchPtFraction))
+	jetInput(new JetInput(*partonInput))
 {
-//	partonInput->setPtMin(minJetPt * matchPtFraction);
 	partonInput->setPartonicFinalState(true);
+
+	if (params.exists("matchPtFraction"))
+		matchPtFraction =
+			params.getParameter<double>("matchPtFraction");
+
+	jetClustering.reset(
+		new JetClustering(params, minJetPt * matchPtFraction));
 
 	std::string matchMode = params.getParameter<std::string>("matchMode");
 	if (matchMode == "inclusive")
@@ -169,7 +173,6 @@ double JetMatching::match(const HepMC::GenEvent *partonLevel,
 	unsigned int unmatchedPartons = 0;
 	for(Matching<double>::index_type i = 0; i < partons.size(); i++) {
 		if (!matching.isMatched1st(i)) {
-//			if (partons[i]->momentum().perp() >= minJetPt)
 			unmatchedPartons++;
 			matchSummary.push_back(
 				JetPartonMatch(partons[i]->momentum(),
@@ -181,7 +184,7 @@ double JetMatching::match(const HepMC::GenEvent *partonLevel,
 	for(Matching<double>::index_type i = 0; i < jets.size(); i++) {
 		if (!matching.isMatched2nd(i)) {
 			if (jets[i].pt() >= minJetPt)
-				unmatchedPartons++;
+				unmatchedJets++;
 			matchSummary.push_back(
 				JetPartonMatch(convert(jets[i])));
 		}
