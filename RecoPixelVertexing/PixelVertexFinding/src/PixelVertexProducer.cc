@@ -45,7 +45,7 @@ void PixelVertexProducer::produce(edm::Event& e, const edm::EventSetup& es) {
 
   // First fish the pixel tracks out of the event
   edm::Handle<reco::TrackCollection> trackCollection;
-  std::string trackCollName = conf_.getParameter<std::string>("TrackCollection");
+  edm::InputTag trackCollName = conf_.getParameter<edm::InputTag>("TrackCollection");
   e.getByLabel(trackCollName,trackCollection);
   const reco::TrackCollection tracks = *(trackCollection.product());
   if (verbose_ > 0) edm::LogInfo("PixelVertexProducer") << ": Found " << tracks.size() << " tracks in TrackCollection called " << trackCollName << "\n";
