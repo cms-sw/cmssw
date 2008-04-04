@@ -17,9 +17,9 @@ void SCEnergyPlots (TString inputfile = "SuperClusters.root" )
   float xMin = 0;
   float xMax = 1.2;
 
-  TCut hybSC = "scType==1";
-  TCut dynSC = "scType==2";
-  TCut fmSC  = "scType==3";
+  TCut hybSC = "em_scType==1";
+  TCut dynSC = "em_scType==2";
+  TCut fmSC  = "em_scType==3";
   
   //  TCut barrel = "fabs(em_eta)<1.479";
   //  TCut endcap = "fabs(em_eta)>1.55&&fabs(em_eta)<2.5";
@@ -31,7 +31,7 @@ void SCEnergyPlots (TString inputfile = "SuperClusters.root" )
   TString plotEnergy = "emCorr_e/mc_e";
   TString plotEt     = "emCorr_et/mc_et";
 
-
+  
   //Barrel SuperClusters
   cout << endl;
   cout << "Hybrid Super Clusters in Barrel." << endl;
@@ -47,12 +47,13 @@ void SCEnergyPlots (TString inputfile = "SuperClusters.root" )
   Hybrid->cd(2);
   mytree->Draw( plotEt+">>h2",hybSC&&barrel);
   Hybrid->Print("Hybrid.eps");
-  delete h1, h2, Hybrid;
+  delete h1; 
+  delete h2;
+  delete Hybrid;
 
   //---------------------------
   cout << endl;
   cout << "Dynamic Hybrid Super Clusters in Barrel. " << endl;
-  
   TCanvas *Dynamic = new TCanvas("Dynamic","Dynamic",800,800);
   Dynamic->Divide(1,2);
   
@@ -63,8 +64,9 @@ void SCEnergyPlots (TString inputfile = "SuperClusters.root" )
   Dynamic->cd(2);
   mytree->Draw( plotEt+">>h2",dynSC&&barrel);
   Dynamic->Print("Dynamic.eps");
-  delete h1, h2, Dynamic;
-
+  delete h1;
+  delete h2;
+  delete Dynamic;
   //-----------------------------
   cout << endl;
   cout << "Fixed Matrix Super Clusters in Endcap. " << endl;
@@ -79,6 +81,8 @@ void SCEnergyPlots (TString inputfile = "SuperClusters.root" )
   FixedMatrix->cd(2);
   mytree->Draw( plotEt+">>h2",fmSC&&endcap);
   FixedMatrix->Print("FixedMatrix.eps");
-  delete h1, h2, FixedMatrix;
+  delete h1;
+  delete h2;
+  delete FixedMatrix;
 
 }
