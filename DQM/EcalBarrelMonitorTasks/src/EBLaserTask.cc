@@ -1,8 +1,8 @@
 /*
  * \file EBLaserTask.cc
  *
- * $Date: 2008/02/23 09:56:54 $
- * $Revision: 1.106 $
+ * $Date: 2008/02/29 15:04:15 $
+ * $Revision: 1.107 $
  * \author G. Della Ricca
  *
 */
@@ -935,7 +935,7 @@ void EBLaserTask::analyze(const Event& e, const EventSetup& c){
 
       float xval = hit.amplitude();
       if ( xval <= 0. ) xval = 0.0;
-      float yval = hit.jitter() + 6.0;
+      float yval = hit.jitter() + 5.0;
       if ( yval <= 0. ) yval = 0.0;
       float zval = hit.pedestal();
       if ( zval <= 0. ) zval = 0.0;
