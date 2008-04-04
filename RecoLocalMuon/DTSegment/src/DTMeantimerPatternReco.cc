@@ -1,7 +1,7 @@
 /** \file
  *
- * $Date: 2007/07/09 13:56:49 $
- * $Revision: 1.1 $
+ * $Date: 2008/03/10 11:18:20 $
+ * $Revision: 1.4 $
  * \author Stefano Lacaprara - INFN Legnaro <stefano.lacaprara@pd.infn.it>
  * \author Riccardo Bellan - INFN TO <riccardo.bellan@cern.ch>
  * \author Piotr Traczyk - SINS Warsaw <ptraczyk@fuw.edu.pl>
@@ -188,7 +188,7 @@ DTMeantimerPatternReco::buildSegments(const DTSuperLayer* sl,
   if (debug) {
     cout << "Result (before cleaning): " << result.size() << endl;
     for (vector<DTSegmentCand*>::const_iterator seg=result.begin(); seg!=result.end(); ++seg) 
-            cout << *(*seg) << endl;
+      cout << *(*seg) << endl;
   }        
   result = theCleaner->clean(result);
   if (debug) {
@@ -477,7 +477,7 @@ DTMeantimerPatternReco::checkDoubleCandidates(vector<DTSegmentCand*>& cands,
        cand!=cands.end(); ++cand) {
     if (*(*cand)==*seg) return false;
     if (((*cand)->nHits()>=seg->nHits()) && ((*cand)->chi2ndof()<seg->chi2ndof()))
-      if ((*cand)->nSharedHitPairs(*seg)>seg->nHits()-2) return false;
+      if ((*cand)->nSharedHitPairs(*seg)>int(seg->nHits()-2)) return false;
   }    
   return true;
 }

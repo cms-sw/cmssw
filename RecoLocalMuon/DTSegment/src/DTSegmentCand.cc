@@ -1,7 +1,7 @@
 /** \file
  *
- * $Date: 2006/07/03 17:21:22 $
- * $Revision: 1.11 $
+ * $Date: 2008/03/10 11:28:30 $
+ * $Revision: 1.12 $
  * \author Stefano Lacaprara - INFN Legnaro <stefano.lacaprara@pd.infn.it>
  * \author Riccardo Bellan - INFN TO <riccardo.bellan@cern.ch>
  */
@@ -71,7 +71,7 @@ void DTSegmentCand::removeHit(AssPoint badHit) {
 int DTSegmentCand::nSharedHitPairs(const DTSegmentCand& seg) const{
   int result=0;
   AssPointCont hitsCont = seg.hits();
-  
+
   for (AssPointCont::const_iterator hit=theHits.begin(); 
        hit!=theHits.end() ; ++hit) {
     for (AssPointCont::const_iterator hit2=hitsCont.begin();
@@ -79,7 +79,7 @@ int DTSegmentCand::nSharedHitPairs(const DTSegmentCand& seg) const{
       //  if(result) return result ; // TODO, uncomm this line or move it in another func
       if ((*(*hit).first)==(*(*hit2).first)) {
         ++result;
-	continue;
+        continue;
       }
     }
   }
