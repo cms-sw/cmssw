@@ -59,6 +59,9 @@ def prepareReplaceDict(line, comment, replaceDict):
            # if it's a cfg
            tokenInPython = 'process.'+tokenInPython
            replaceDict[tokenInPython] = comment
+        elif firstWord == 'using' and len(words) == 2:
+           tokenInPython= words[1]
+           replaceDict[tokenInPython] = comment
        # if it's a significant line, we're not in a comment any more
         else:
           replaceDict["@beginning"] +="\n"+comment.value
@@ -74,11 +77,24 @@ def identifyComments(configString):
     unnamedKeywords = ['es_source', 'es_module']
     # the ugly parsing part
     inComment = False # are we currently in a comment?
+    inSlashStarComment = False
 
     # TODO - include inline comments
     # for now only modules work
     for line in configString.splitlines():
-        if line.lstrip().startswith("#") or line.lstrip().startswith("//"):
+        if line.lstrip().startswith("/*"):
+            comment = Comment()
+            comment.type = "slashstar"
+            splitStarSlash = line.lstrip().lstrip("/*").split("*/")
+            comment.value = "# "+splitStarSlash[0]+"\n"
+            # has it ended yet?  Might ignore legitimate commands after the end.
+            inSlashStarComment = (line.find('*/') == -1)
+            inComment = True
+        elif inSlashStarComment:
+            splitStarSlash = line.lstrip().lstrip("/*").split("*/")
+            comment.value += "# "+splitStarSlash[0]+"\n"
+            inSlashStarComment = (line.find('*/') == -1)
+        elif line.lstrip().startswith("#") or line.lstrip().startswith("//"):
           if inComment:
             comment.value += "#"+line.lstrip().lstrip("//").lstrip("#") + "\n"
           else:
@@ -130,7 +146,6 @@ def modifyPythonVersion(configString, replaceDict):
                     continue 
                 if comment.type == "inline":
                   newLine = line + " #"+comment.value+"\n"
-                  # print "DEBUG", newLine
                 else:
                   newLine = line.replace(line,comment.value+line)  # lacking the trailing whitespace support
                   newLine = newLine.replace('#', indentation+'#')
