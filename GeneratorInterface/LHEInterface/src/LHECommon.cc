@@ -113,13 +113,16 @@ LHECommon::XSec LHECommon::xsec() const
 	    proc != processes.end(); ++proc) {
 		unsigned int idx = proc->heprupIndex;
 
-		double sigmaSum, sigma2Sum;
+		double sigmaSum, sigma2Sum, sigma2Err;
 		if (std::abs(heprup.IDWTUP == 3)) {
 			sigmaSum = proc->tried.n * heprup.XSECUP[idx];
 			sigma2Sum = sigmaSum * heprup.XSECUP[idx];
+			sigma2Err = proc->tried.n * heprup.XERRUP[idx]
+			                          * heprup.XERRUP[idx];
 		} else {
 			sigmaSum = proc->tried.sum;
 			sigma2Sum = proc->tried.sum2;
+			sigma2Err = 0.0;
 		}
 
 		if (!proc->accepted.n)
@@ -138,7 +141,8 @@ LHECommon::XSec LHECommon::xsec() const
 			double delta2Veto =
 				((double)proc->selected.n - proc->accepted.n) /
 				((double)proc->selected.n * proc->accepted.n);
-			double delta2Sum = delta2Sig + delta2Veto;
+			double delta2Sum = delta2Sig + delta2Veto
+			                   + sigma2Err / sigmaSum;
 			deltaFin = sigmaFin * (delta2Sum > 0.0 ?
 						std::sqrt(delta2Sum) : 0.0);
 		}
