@@ -65,6 +65,7 @@ private:
 
   DQMStore* dbe_;  
   std::string monitorDir_;
+  bool verbose_;
   int counterLS_;      ///counter
   int counterEvt_;     ///counter
   int prescaleLS_;     ///units of lumi sections
@@ -72,7 +73,8 @@ private:
 
   // -------- member data --------
   MonitorElement * ecalEtMapDiff1D_proj;
-  MonitorElement * ecalEtMapDiff2D;
+  MonitorElement * ecalEtMapDiff1D_proj_badChs;
+  MonitorElement * ecalEtMapDiff_badChs;
 
 
 };
