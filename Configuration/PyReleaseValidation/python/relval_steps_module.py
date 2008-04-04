@@ -182,7 +182,8 @@ def hlt(process,name):
     common.log ('%s adding hlt paths ...'%func_id)
 
     thePath= os.environ['CMSSW_SEARCH_PATH']
-    theFileName = 'HLTrigger/Configuration/data/HLT_1E32.cff'
+    theFileName = 'HLTrigger/Configuration/data/HLT_2E30.cff'
+#    theFileName = 'HLTrigger/Configuration/data/HLT_1E32.cff'
     pathList=thePath.split(':')
     fullName=''
     for path in pathList :
