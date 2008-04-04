@@ -3,8 +3,8 @@
  * dummy module  for the test of  DaqFileInputService
  *   
  * 
- * $Date: 2006/05/31 14:12:49 $
- * $Revision: 1.6 $
+ * $Date: 2006/10/26 23:35:47 $
+ * $Revision: 1.7 $
  * \author N. Amapane - S. Argiro'
  *
 */
@@ -20,6 +20,9 @@
 #include <DataFormats/FEDRawData/interface/FEDNumbering.h>
 
 #include <iostream>
+#include <sys/time.h>
+#include <time.h>
+
 
 using namespace edm;
 using namespace std;
@@ -38,7 +41,13 @@ namespace test{
     void analyze(const Event & e, const EventSetup& c){
       
       ++count_;
-
+      TimeValue_t time = e.time().value();
+      time_t stime = time >> 32;
+      struct tm uptm;
+      gmtime_r(&stime, &uptm);
+      char datestring[256];
+      strftime(datestring, sizeof(datestring),"%c",&uptm);
+      cout << "event date " <<  datestring << endl;
       Handle<FEDRawDataCollection> rawdata;
       e.getByType(rawdata);
       for (int i = 0; i<FEDNumbering::lastFEDId(); i++){

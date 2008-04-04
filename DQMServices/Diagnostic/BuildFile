@@ -1,8 +1,0 @@
-<use name=FWCore/ServiceRegistry>
-<use name=Foundation/SealBase>
-<export>
-  <use name=FWCore/ServiceRegistry>
-  <use name=Foundation/SealBase>
-  <lib name=DQMServicesDiagnostic>
-</export>
-

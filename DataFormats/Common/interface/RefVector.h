@@ -6,7 +6,7 @@
 RefVector: A template for a vector of interproduct references.
 	Each vector element is a reference to a member of the same product.
 
-$Id: RefVector.h,v 1.33 2007/11/10 05:39:46 wmtan Exp $
+$Id: RefVector.h,v 1.34 2007/12/21 22:46:51 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -185,7 +185,7 @@ namespace edm {
     for (const_iterator i=begin(), e=end(); i!=e; ++i, ++key) {
       member_type const* address = i->isNull() ? 0 : &**i;
       pointers.push_back(address);
-      holder_type h(ref_type(id, address, key, product() ));
+      holder_type h(ref_type(i->id(), address, i->key(), product() ));
       helpers.push_back( & h );	
     }
   }

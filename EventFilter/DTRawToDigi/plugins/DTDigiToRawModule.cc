@@ -14,7 +14,6 @@
 
 #include <CondFormats/DataRecord/interface/DTReadOutMappingRcd.h>
 #include <FWCore/Framework/interface/EventSetup.h>
-#include <DataFormats/DTDigi/interface/DTLocalTriggerCollection.h>
 
 #include <iostream>
 

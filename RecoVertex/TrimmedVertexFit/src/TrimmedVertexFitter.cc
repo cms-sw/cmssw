@@ -35,7 +35,7 @@ TrimmedVertexFitter::vertex(const std::vector<reco::TransientTrack> & tracks) co
     };
     return CachingVertex<5> ( rv.position(), rv.positionError(), vtrks, rv.totalChiSquared() );
   };
-  return CachingVertex<5>();
+ throw VertexException("no vertex found");
 }
 
 CachingVertex<5> TrimmedVertexFitter::vertex(

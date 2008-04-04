@@ -24,7 +24,7 @@ CombinedTrajectoryFactory::~CombinedTrajectoryFactory( void ) {}
 
 const CombinedTrajectoryFactory::ReferenceTrajectoryCollection
 CombinedTrajectoryFactory::trajectories( const edm::EventSetup & setup,
-					  const ConstTrajTrackPairCollection & tracks ) const
+					 const ConstTrajTrackPairCollection & tracks ) const
 {
   ReferenceTrajectoryCollection trajectories;
 
@@ -39,8 +39,8 @@ CombinedTrajectoryFactory::trajectories( const edm::EventSetup & setup,
 
 const CombinedTrajectoryFactory::ReferenceTrajectoryCollection
 CombinedTrajectoryFactory::trajectories( const edm::EventSetup & setup,
-					  const ConstTrajTrackPairCollection& tracks,
-					  const ExternalPredictionCollection& external ) const
+					 const ConstTrajTrackPairCollection& tracks,
+					 const ExternalPredictionCollection& external ) const
 {
   ReferenceTrajectoryCollection trajectories;
 

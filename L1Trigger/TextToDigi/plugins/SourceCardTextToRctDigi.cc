@@ -11,7 +11,7 @@ Description: Input text file to be loaded into the source cards and output RCT d
 //
 // Original Author:  Alex Tapper
 //         Created:  Fri Mar  9 19:11:51 CET 2007
-// $Id: SourceCardTextToRctDigi.cc,v 1.4 2007/08/07 00:09:33 nuno Exp $
+// $Id: SourceCardTextToRctDigi.cc,v 1.2 2007/05/09 11:21:17 tapper Exp $
 //
 //
 
@@ -86,19 +86,7 @@ void SourceCardTextToRctDigi::produce(edm::Event& iEvent, const edm::EventSetup&
     putEmptyDigi(iEvent);
     m_nevt++;
     return;
-  } else if (m_nevt==0 && m_fileEventOffset<0) {
-    //skip first fileEventOffset input events
-    string tmp; 
-    for(int i=0;i<abs(m_fileEventOffset); i++)
-      for (unsigned line=0; line<NUM_LINES_PER_EVENT; line++)  
-	if(!getline(m_file,tmp))
-	  {
-	    throw cms::Exception("SourceCardTextToRctDigiTextFileReadError")
-	      << "SourceCardTextToRctDigi::produce() : "
-	      << " couldn't read from the file " << m_textFileName << endl;
-	  }
   }
-  
 
   // New collections
   auto_ptr<L1CaloEmCollection> em (new L1CaloEmCollection);
@@ -137,7 +125,6 @@ void SourceCardTextToRctDigi::produce(edm::Event& iEvent, const edm::EventSetup&
         << " unexpected end of file " << m_textFileName << endl;
     }      
   
-  int thisEventNumber;  
   // Read in file one line at a time 
   for (unsigned line=0; line<NUM_LINES_PER_EVENT; line++){  
 
@@ -150,11 +137,7 @@ void SourceCardTextToRctDigi::produce(edm::Event& iEvent, const edm::EventSetup&
 
     // Convert the string to useful info
     m_scRouting.STRINGtoVHDCI(logicalCardID,eventNumber,dataString,VHDCI);
-    
-    // Check crossing number
-    if(line!=0) assert(eventNumber==thisEventNumber);
-    thisEventNumber = eventNumber;
-
+ 
     // Are we looking at electrons or regions
     m_scRouting.LogicalCardIDtoRoutingMode(logicalCardID,routingMode,crate); 
     
@@ -193,8 +176,8 @@ void SourceCardTextToRctDigi::produce(edm::Event& iEvent, const edm::EventSetup&
 
     // Make EM collections
     for (int i=0; i<4; i++){
-      em->push_back(L1CaloEmCand(eIsoRank[crate][i],eIsoRegionId[crate][i],eIsoCardId[crate][i],crate,true,i,0));
-      em->push_back(L1CaloEmCand(eNonIsoRank[crate][i],eNonIsoRegionId[crate][i],eNonIsoCardId[crate][i],crate,false,i,0));
+      em->push_back(L1CaloEmCand(eIsoRank[crate][i],eIsoRegionId[crate][i],eIsoCardId[crate][i],crate,true));
+      em->push_back(L1CaloEmCand(eNonIsoRank[crate][i],eNonIsoRegionId[crate][i],eNonIsoCardId[crate][i],crate,false));
     }
     
     // Make region collections

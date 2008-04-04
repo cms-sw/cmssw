@@ -1,7 +1,7 @@
 /** \file
  *
- * $Date: 2006/05/04 16:31:48 $
- * $Revision: 1.11 $
+ * $Date: 2007/07/09 13:58:28 $
+ * $Revision: 1.1 $
  * \author Stefano Lacaprara - INFN Legnaro <stefano.lacaprara@pd.infn.it>
  * \author Riccardo Bellan - INFN TO <riccardo.bellan@cern.ch>
  */
@@ -50,6 +50,12 @@ DTMeantimerPatternReco4D::DTMeantimerPatternReco4D(const ParameterSet& pset):
   // Get the concrete 2D-segments reconstruction algo from the factory
   // For the 2D reco I use this reconstructor!
   the2DAlgo = new DTMeantimerPatternReco(pset.getParameter<ParameterSet>("Reco2DAlgoConfig"));
+}
+
+
+DTMeantimerPatternReco4D::~DTMeantimerPatternReco4D(){
+  delete the2DAlgo;
+  delete theUpdator;
 }
 
 void DTMeantimerPatternReco4D::setES(const EventSetup& setup){

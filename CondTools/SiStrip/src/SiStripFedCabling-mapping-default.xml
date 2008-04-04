@@ -16,38 +16,34 @@
           <Primitive column="CONNECTED__VALUE_TYPE_VALUE__9" name="fecRing_" />
           <Primitive column="CONNECTED__VALUE_TYPE_VALUE_10" name="fecSlot_" />
           <Primitive column="CONNECTED__VALUE_TYPE_VALUE_11" name="fedCh_" />
-          <Primitive column="CONNECTED__VALUE_TYPE_VALUE_12" name="fedCrate_" />
-          <Primitive column="CONNECTED__VALUE_TYPE_VALUE_13" name="fedId_" />
-          <Primitive column="CONNECTED__VALUE_TYPE_VALUE_14" name="fedSlot_" />
-          <Primitive column="CONNECTED__VALUE_TYPE_VALUE_15" name="length_" />
-          <Primitive column="CONNECTED__VALUE_TYPE_VALUE_16" name="lld0x60_" />
-          <Primitive column="CONNECTED__VALUE_TYPE_VALUE_17" name="mux0x43_" />
-          <Primitive column="CONNECTED__VALUE_TYPE_VALUE_18" name="nApvPairs_" />
-          <Primitive column="CONNECTED__VALUE_TYPE_VALUE_19" name="pll0x44_" />
+          <Primitive column="CONNECTED__VALUE_TYPE_VALUE_12" name="fedId_" />
+          <Primitive column="CONNECTED__VALUE_TYPE_VALUE_13" name="length_" />
+          <Primitive column="CONNECTED__VALUE_TYPE_VALUE_14" name="lld0x60_" />
+          <Primitive column="CONNECTED__VALUE_TYPE_VALUE_15" name="mux0x43_" />
+          <Primitive column="CONNECTED__VALUE_TYPE_VALUE_16" name="nApvPairs_" />
+          <Primitive column="CONNECTED__VALUE_TYPE_VALUE_17" name="pll0x44_" />
         </Object >
       </Container >
     </Container >
     <Container table="SISTRIPFEDCABLING__3" id_columns="ID_ID" name="detected_" position_column="POS" >
       <Object table="SISTRIPFEDCABLING__3" id_columns="POS ID_ID" name="value_type" >
-        <Primitive column="DETECTED__VALUE_TYPE_APV0" name="apv0_" />
-        <Primitive column="DETECTED__VALUE_TYPE_APV1" name="apv1_" />
-        <Primitive column="DETECTED__VALUE_TYPE_CCUADDR" name="ccuAddr_" />
-        <Primitive column="DETECTED__VALUE_TYPE_CCUCHAN" name="ccuChan_" />
-        <Primitive column="DETECTED__VALUE_TYPE_DCU0X00" name="dcu0x00_" />
-        <Primitive column="DETECTED__VALUE_TYPE_DCUID" name="dcuId_" />
-        <Primitive column="DETECTED__VALUE_TYPE_DETID" name="detId_" />
-        <Primitive column="DETECTED__VALUE_TYPE_FECCRATE" name="fecCrate_" />
-        <Primitive column="DETECTED__VALUE_TYPE_FECRING" name="fecRing_" />
-        <Primitive column="DETECTED__VALUE_TYPE_FECSLOT" name="fecSlot_" />
-        <Primitive column="DETECTED__VALUE_TYPE_FEDCH" name="fedCh_" />
-        <Primitive column="DETECTED__VALUE_TYPE_FEDCRATE" name="fedCrate_" />
-        <Primitive column="DETECTED__VALUE_TYPE_FEDID" name="fedId_" />
-        <Primitive column="DETECTED__VALUE_TYPE_FEDSLOT" name="fedSlot_" />
-        <Primitive column="DETECTED__VALUE_TYPE_LENGTH" name="length_" />
-        <Primitive column="DETECTED__VALUE_TYPE_LLD0X60" name="lld0x60_" />
-        <Primitive column="DETECTED__VALUE_TYPE_MUX0X43" name="mux0x43_" />
-        <Primitive column="DETECTED__VALUE_TYPE_NAPVPAIRS" name="nApvPairs_" />
-        <Primitive column="DETECTED__VALUE_TYPE_PLL0X44" name="pll0x44_" />
+        <Primitive column="DETECTED__VALUE_TYPE_APV0_" name="apv0_" />
+        <Primitive column="DETECTED__VALUE_TYPE_APV1_" name="apv1_" />
+        <Primitive column="DETECTED__VALUE_TYPE_CCUADDR_" name="ccuAddr_" />
+        <Primitive column="DETECTED__VALUE_TYPE_CCUCHAN_" name="ccuChan_" />
+        <Primitive column="DETECTED__VALUE_TYPE_DCU0X00_" name="dcu0x00_" />
+        <Primitive column="DETECTED__VALUE_TYPE_DCUID_" name="dcuId_" />
+        <Primitive column="DETECTED__VALUE_TYPE_DETID_" name="detId_" />
+        <Primitive column="DETECTED__VALUE_TYPE_FECCRATE_" name="fecCrate_" />
+        <Primitive column="DETECTED__VALUE_TYPE_FECRING_" name="fecRing_" />
+        <Primitive column="DETECTED__VALUE_TYPE_FECSLOT_" name="fecSlot_" />
+        <Primitive column="DETECTED__VALUE_TYPE_FEDCH_" name="fedCh_" />
+        <Primitive column="DETECTED__VALUE_TYPE_FEDID_" name="fedId_" />
+        <Primitive column="DETECTED__VALUE_TYPE_LENGTH_" name="length_" />
+        <Primitive column="DETECTED__VALUE_TYPE_LLD0X60_" name="lld0x60_" />
+        <Primitive column="DETECTED__VALUE_TYPE_MUX0X43_" name="mux0x43_" />
+        <Primitive column="DETECTED__VALUE_TYPE_NAPVPAI_1" name="nApvPairs_" />
+        <Primitive column="DETECTED__VALUE_TYPE_PLL0X44_" name="pll0x44_" />
       </Object >
     </Container >
     <Container table="SISTRIPFEDCABLING__4" id_columns="ID_ID" name="feds_" position_column="POS" >
@@ -55,25 +51,23 @@
     </Container >
     <Container table="SISTRIPFEDCABLING__5" id_columns="ID_ID" name="undetected_" position_column="POS" >
       <Object table="SISTRIPFEDCABLING__5" id_columns="POS ID_ID" name="value_type" >
-        <Primitive column="UNDETECTED__VALUE_TYPE_APV0" name="apv0_" />
-        <Primitive column="UNDETECTED__VALUE_TYPE_APV1" name="apv1_" />
-        <Primitive column="UNDETECTED__VALUE_TYPE_CCUADDR" name="ccuAddr_" />
-        <Primitive column="UNDETECTED__VALUE_TYPE_CCUCHAN" name="ccuChan_" />
-        <Primitive column="UNDETECTED__VALUE_TYPE_DCU0X00" name="dcu0x00_" />
-        <Primitive column="UNDETECTED__VALUE_TYPE_DCUID" name="dcuId_" />
-        <Primitive column="UNDETECTED__VALUE_TYPE_DETID" name="detId_" />
+        <Primitive column="UNDETECTED__VALUE_TYPE_APV0_" name="apv0_" />
+        <Primitive column="UNDETECTED__VALUE_TYPE_APV1_" name="apv1_" />
+        <Primitive column="UNDETECTED__VALUE_TYPE_CCUAD_1" name="ccuAddr_" />
+        <Primitive column="UNDETECTED__VALUE_TYPE_CCUCH_1" name="ccuChan_" />
+        <Primitive column="UNDETECTED__VALUE_TYPE_DCU0X_1" name="dcu0x00_" />
+        <Primitive column="UNDETECTED__VALUE_TYPE_DCUID_" name="dcuId_" />
+        <Primitive column="UNDETECTED__VALUE_TYPE_DETID_" name="detId_" />
         <Primitive column="UNDETECTED__VALUE_TYPE_FECCR_1" name="fecCrate_" />
-        <Primitive column="UNDETECTED__VALUE_TYPE_FECRING" name="fecRing_" />
-        <Primitive column="UNDETECTED__VALUE_TYPE_FECSLOT" name="fecSlot_" />
-        <Primitive column="UNDETECTED__VALUE_TYPE_FEDCH" name="fedCh_" />
-        <Primitive column="UNDETECTED__VALUE_TYPE_FEDCR_1" name="fedCrate_" />
-        <Primitive column="UNDETECTED__VALUE_TYPE_FEDID" name="fedId_" />
-        <Primitive column="UNDETECTED__VALUE_TYPE_FEDSLOT" name="fedSlot_" />
-        <Primitive column="UNDETECTED__VALUE_TYPE_LENGTH" name="length_" />
-        <Primitive column="UNDETECTED__VALUE_TYPE_LLD0X60" name="lld0x60_" />
-        <Primitive column="UNDETECTED__VALUE_TYPE_MUX0X43" name="mux0x43_" />
+        <Primitive column="UNDETECTED__VALUE_TYPE_FECRI_1" name="fecRing_" />
+        <Primitive column="UNDETECTED__VALUE_TYPE_FECSL_1" name="fecSlot_" />
+        <Primitive column="UNDETECTED__VALUE_TYPE_FEDCH_" name="fedCh_" />
+        <Primitive column="UNDETECTED__VALUE_TYPE_FEDID_" name="fedId_" />
+        <Primitive column="UNDETECTED__VALUE_TYPE_LENGTH_" name="length_" />
+        <Primitive column="UNDETECTED__VALUE_TYPE_LLD0X_1" name="lld0x60_" />
+        <Primitive column="UNDETECTED__VALUE_TYPE_MUX0X_1" name="mux0x43_" />
         <Primitive column="UNDETECTED__VALUE_TYPE_NAPVP_1" name="nApvPairs_" />
-        <Primitive column="UNDETECTED__VALUE_TYPE_PLL0X44" name="pll0x44_" />
+        <Primitive column="UNDETECTED__VALUE_TYPE_PLL0X_1" name="pll0x44_" />
       </Object >
     </Container >
   </Class >

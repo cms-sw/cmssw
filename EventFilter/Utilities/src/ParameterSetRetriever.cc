@@ -30,7 +30,7 @@ namespace evf{
       } 
     else
       {
-	edm::LogWarning("psetRetriever")<<"Using direct config from XML";
+	edm::LogWarning("psetRetriever")<<"Using string cfg from RunControl or XML";
 	pset = in;
       }
   }

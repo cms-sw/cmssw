@@ -6,8 +6,8 @@
  *
  *  For the time being, reuses the services of DaqFileReader from DaqPrototype.
  *
- *  $Date: 2006/10/27 01:35:31 $
- *  $Revision: 1.8 $
+ *  $Date: 2007/05/02 21:02:11 $
+ *  $Revision: 1.9 $
  *  \author N. Marinelli
  */
 
@@ -45,6 +45,8 @@ class DAQEcalTBInputService : public edm::ExternalInputSource
     bool isBinary_;    
     unsigned int fileCounter_;
     bool eventRead_;
+
+    unsigned int runNumber_;
   
   }; 
  

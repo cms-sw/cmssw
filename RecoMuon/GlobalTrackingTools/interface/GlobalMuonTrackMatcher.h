@@ -15,8 +15,8 @@
  * tracker track that is closest in eta-phi space.
  *
  *
- *  $Date: 2007/08/15 15:14:21 $
- *  $Revision: 1.1 $
+ *  $Date: 2008/02/05 22:21:20 $
+ *  $Revision: 1.3 $
  *
  *  \author Chang Liu           Purdue University
  *  \author Adam Everett        Purdue University
@@ -60,23 +60,26 @@ class GlobalMuonTrackMatcher {
     
  private:
 
-  double match_R_IP(const reco::Track&, const reco::Track&) const;
+  double match_R_IP(const TrackCand&, const TrackCand&) const;
   double match_D(const TrajectoryStateOnSurface&, const TrajectoryStateOnSurface&) const;
+  double match_d(const TrajectoryStateOnSurface&, const TrajectoryStateOnSurface&) const;
   double match_Rmom(const TrajectoryStateOnSurface&, const TrajectoryStateOnSurface&) const;
   double match_Rpos(const TrajectoryStateOnSurface&, const TrajectoryStateOnSurface&) const;
+  double match_ChiAtSurface(const TrajectoryStateOnSurface& , const TrajectoryStateOnSurface& ) const;
+
   std::pair<TrajectoryStateOnSurface,TrajectoryStateOnSurface> convertToTSOSTk(const TrackCand&,const TrackCand& ) const;
-  //  std::pair<TrajectoryStateOnSurface,TrajectoryStateOnSurface> convertToTSOSMu(const TrackCand&,const TrackCand& ) const;
   std::pair<TrajectoryStateOnSurface,TrajectoryStateOnSurface> convertToTSOSMuHit(const TrackCand&,const TrackCand& ) const;
+  std::pair<TrajectoryStateOnSurface,TrajectoryStateOnSurface> convertToTSOSTkHit(const TrackCand&,const TrackCand& ) const;
   bool samePlane(const TrajectoryStateOnSurface&,const TrajectoryStateOnSurface&) const;
-  double matchChiAtSurface(const TrajectoryStateOnSurface& , const TrajectoryStateOnSurface& ) const;
+
 
   private:
     
     double theMaxChi2;
     double theMinP;
     double theMinPt;
-    double theDeltaEta;
-    double theDeltaPhi;
+    double theDeltaD;
+    double theDeltaR;
 
     const MuonServiceProxy *theService;
     std::string theOutPropagatorName;

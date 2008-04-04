@@ -6,17 +6,14 @@
 #include "SimG4Core/Notification/interface/Observer.h"
 #include "SimG4Core/SensitiveDetector/interface/SensitiveTkDetector.h"
 
-#include "SimG4Core/Notification/interface/BeginOfRun.h"
 #include "SimG4Core/Notification/interface/BeginOfEvent.h"
 #include "SimG4Core/Notification/interface/EndOfEvent.h"
 
-#include "SimG4Core/Notification/interface/BeginOfTrack.h"
-#include "SimG4Core/Notification/interface/BeginOfJob.h"
 // last
 //#include "SimG4Core/Application/interface/SimTrackManager.h"
 //#include "SimG4CMS/Calo/interface/CaloSD.h"
 
-#include "DataFormats/GeometryVector/interface/LocalPoint.h"
+
 //#include "SimG4Core/Notification/interface/TrackWithHistory.h"
 //#include "SimG4Core/Notification/interface/TrackContainer.h"
 
@@ -30,6 +27,7 @@
 #include "G4Track.hh"
 #include "G4VPhysicalVolume.hh"
 
+//#include <CLHEP/Vector/ThreeVector.h>
 //#include <iostream>
 //#include <fstream>
 //#include <vector>
@@ -41,7 +39,7 @@
 class TrackingSlaveSD;
 //AZ:
 class FP420SD;
-class FrameRotation;
+
 class TrackInformation;
 class SimTrackManager;
 class TrackingSlaveSD;
@@ -53,9 +51,8 @@ class G4TrackToParticleID;
 //-------------------------------------------------------------------
 
 class FP420SD : public SensitiveTkDetector,
-                public Observer<const BeginOfRun *>,
-                public Observer<const BeginOfEvent*>,
-                public Observer<const EndOfEvent*> {
+		public Observer<const BeginOfEvent*>,
+		public Observer<const EndOfEvent*> {
 
 public:
   
@@ -93,7 +90,6 @@ public:
   std::vector<std::string> getNames();
   
  private:
-  void           update(const BeginOfRun *);
   void           update(const BeginOfEvent *);
   void           update(const ::EndOfEvent *);
   virtual void   clearHits();
@@ -122,16 +118,12 @@ public:
   TrackingSlaveSD* slave;
   FP420NumberingScheme * numberingScheme;
   
-    G4ThreeVector entrancePoint, exitPoint;
-    G4ThreeVector theEntryPoint ;
-    G4ThreeVector theExitPoint  ;
-
-    //  Local3DPoint  entrancePoint, exitPoint, theEntryPoint, theExitPoint;
-
-
-
+  G4ThreeVector entrancePoint, exitPoint;
+  G4ThreeVector theEntryPoint ;
+  G4ThreeVector theExitPoint  ;
   
   float                incidentEnergy;
+  G4int                primID  ; 
   
   //  G4String             name;
   std::string             name;
@@ -145,9 +137,7 @@ public:
   G4VPhysicalVolume*         currentPV;
   // unsigned int         unitID, previousUnitID;
   uint32_t             unitID, previousUnitID;
-  G4int                tSliceID; 
-  unsigned int                primaryID, primID  ; 
-  
+  G4int                primaryID, tSliceID;  
   G4double             tSlice;
   
   G4StepPoint*         preStepPoint; 
@@ -180,9 +170,6 @@ public:
  protected:
   
   float                edepositEM, edepositHAD;
-  G4int emPDG;
-  G4int epPDG;
-  G4int gammaPDG;
 };
 
 #endif // FP420SD_h

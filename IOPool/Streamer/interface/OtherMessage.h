@@ -55,6 +55,9 @@ public:
   uint32 size() const { return convert32(head_->size_); } 
   uint8* msgBody() const {return msg_body_start_; } 
   uint8* startAddress() { return buf_; }
+  uint32 bodySize() const {
+    return convert32(head_->size_) - (msg_body_start_ - buf_);
+  }
  
 private: 
   uint8* buf_; 

@@ -75,7 +75,7 @@ namespace evf {
     void   dropEvent();
     
     // dump event to ascii file
-    void   handleErrorEvent(pid_t pid);
+    void   handleErrorEvent(UInt_t runNumber,pid_t pid);
     void   dumpEvent(evf::FUShmRawCell* cell);
     
     // send empty events to notify clients to shutdown
@@ -147,9 +147,16 @@ namespace evf {
     void   sendDataEvent(UInt_t  fuResourceId,
 			 UInt_t  runNumber,
 			 UInt_t  evtNumber,
+			 UInt_t  outModId,
 			 UChar_t*data,
 			 UInt_t  dataSize);
 
+    void   sendErrorEvent(UInt_t  fuResourceId,
+			  UInt_t  runNumber,
+			  UInt_t  evtNumber,
+			  UChar_t*data,
+			  UInt_t  dataSize);
+    
     void   sendDqmEvent(UInt_t  fuDqmId,
 			UInt_t  runNumber,
 			UInt_t  evtAtUpdate,

@@ -19,7 +19,7 @@ through the MessageLogger.
 
 //
 // Original Author:  Marc Paterno
-// $Id: JobReport.h,v 1.20 2007/10/19 14:34:28 chrjones Exp $
+// $Id: JobReport.h,v 1.21 2007/10/27 21:47:55 chrjones Exp $
 //
 
 #include <cstddef>
@@ -341,7 +341,8 @@ namespace edm {
       /// found.
       void reportSkippedFile(std::string const& pfn, std::string const& lfn);
 	
-
+      void reportAnalysisFile(std::string const& fileName, 
+			      std::map<std::string, std::string> const& fileData) ;
       ///
       /// Report Timing statistics
       /// Invoked by the Timing service to send an end of job 

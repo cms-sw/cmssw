@@ -13,9 +13,9 @@
 // Original Author: Oliver Gutsche, gutsche@fnal.gov
 // Created:         Thu Jan 12 21:00:00 UTC 2006
 //
-// $Author: gutsche $
-// $Date: 2007/03/15 20:17:21 $
-// $Revision: 1.7 $
+// $Author: hlliu $
+// $Date: 2008/01/08 17:42:16 $
+// $Revision: 1.8 $
 //
 
 #include <vector>
@@ -38,7 +38,8 @@ class RoadMaker {
     TIFTOB,
     TIFTIB,
     TIFTIBTOB,
-    TIFTOBTEC
+    TIFTOBTEC,
+    P5
   };
 
   enum SeedingType {

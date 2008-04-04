@@ -46,6 +46,10 @@ class HcalRecHitsMaker
 
  private:
   float thresholdHB_,  thresholdHE_, thresholdHO_, thresholdHF_;
+  float  satHB_;
+  float  satHE_;
+  float  satHO_;
+  float  satHF_;
   float noiseHB_, noiseHE_, noiseHO_, noiseHF_;
   double hcalHotFractionHB_,  hcalHotFractionHE_, hcalHotFractionHO_, hcalHotFractionHF_; 
 

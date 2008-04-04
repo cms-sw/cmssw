@@ -1,7 +1,5 @@
 #include "EventFilter/CSCRawToDigi/interface/CSCCLCTData.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "DataFormats/CSCDigi/interface/CSCComparatorDigi.h"
-#include "DataFormats/CSCDigi/interface/CSCCLCTDigi.h"
 #include <iostream>
 #include <stdio.h>
 

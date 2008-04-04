@@ -4,8 +4,8 @@
 /*
  * \file EBCosmicClient.h
  *
- * $Date: 2007/12/28 17:21:27 $
- * $Revision: 1.43 $
+ * $Date: 2008/01/18 18:04:04 $
+ * $Revision: 1.44 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -95,10 +95,12 @@ DaqMonitorBEInterface* dbe_;
 MonitorElement* meh01_[36];
 MonitorElement* meh02_[36];
 MonitorElement* meh03_[36];
+MonitorElement* meh04_[36];
 
 TProfile2D* h01_[36];
 TProfile2D* h02_[36];
 TH1F* h03_[36];
+TH1F* h04_[36];
 
 };
 

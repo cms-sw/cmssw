@@ -13,7 +13,7 @@
 //
 // Original Author:  Nicola De Filippis
 //         Created:  Thu Dec 14 13:13:32 CET 2006
-// $Id: ValidationMisalignedTracker.cc,v 1.3 2007/10/23 07:23:21 fronga Exp $
+// $Id: ValidationMisalignedTracker.cc,v 1.2 2007/10/17 13:25:15 ndefilip Exp $
 //
 //
 
@@ -365,9 +365,9 @@ ValidationMisalignedTracker::analyze(const edm::Event& iEvent, const edm::EventS
 
       InputTag algo = label[0];
      
-      edm::Handle<edm::View<reco::Track> > trackCollection;
+      edm::Handle<reco::TrackCollection> trackCollection;
       iEvent.getByLabel(algo, trackCollection);
-      const edm::View<reco::Track> tC = *(trackCollection.product());
+      const reco::TrackCollection tC = *(trackCollection.product());
             
            
       //associate tracks
@@ -483,13 +483,13 @@ ValidationMisalignedTracker::analyze(const edm::Event& iEvent, const edm::EventS
 	    }
 	    
 	    
-	    std::vector<std::pair<edm::RefToBase<reco::Track>, double> > rt;
+	    std::vector<std::pair<reco::TrackRef, double> > rt;
 	    if(simRecColl.find(tp) != simRecColl.end()){
 	      
 	      rt = simRecColl[tp];
 	      if (rt.size()!=0) {
 		
-		edm::RefToBase<reco::Track> t = rt.begin()->first;
+		reco::TrackRef t = rt.begin()->first;
 		ats++;
 
 		bool flagptused=false;
@@ -701,7 +701,7 @@ ValidationMisalignedTracker::analyze(const edm::Event& iEvent, const edm::EventS
 	//      int at=0;
 	int rT=0;
 	for(reco::TrackCollection::size_type i=0; i<tC.size(); ++i){
-	  edm::RefToBase<reco::Track> track(trackCollection, i);
+	  reco::TrackRef track(trackCollection, i);
 	  rT++;
 
 	  fakeeta = 0.,faketheta=0.,fakephi=0.,fakept=0.,fakecottheta=0.,fakecostheta=0.;

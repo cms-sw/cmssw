@@ -16,8 +16,8 @@ void CSCCrosstalkDBConditions::prefillDBCrosstalk()
   int new_nrlines=0;
   seed = 10000;	
   srand(seed);
-  mean=-0.0009, min=0.035, minchi=1.5, M=1000;
-    
+  mean=6.8, min=-10.0, minchi=1.0, M=1000;
+  
   std::ifstream dbdata; 
   dbdata.open("dbxtalk.dat",std::ios::in); 
   if(!dbdata) {
@@ -46,10 +46,10 @@ void CSCCrosstalkDBConditions::prefillDBCrosstalk()
   }
   
   while (!newdata.eof() ) { 
-    newdata >> new_index >> new_slope_right >> new_intercept_right >> new_chi2_right >> new_slope_left >> new_intercept_left >> new_chi2_left ; 
-    // new_cham_id.push_back(new_chamber_id);
+    newdata >> new_chamber_id >> new_index>> new_strip >> new_slope_right >> new_intercept_right >> new_chi2_right >> new_slope_left >> new_intercept_left >> new_chi2_left ; 
+    new_cham_id.push_back(new_chamber_id);
     new_index_id.push_back(new_index);
-    //new_strips.push_back(new_strip);
+    new_strips.push_back(new_strip);
     new_slope_r.push_back(new_slope_right);
     new_slope_l.push_back(new_slope_left);
     new_intercept_r.push_back(new_intercept_right);
@@ -61,10 +61,9 @@ void CSCCrosstalkDBConditions::prefillDBCrosstalk()
   newdata.close();
   
   std::vector<CSCDBCrosstalk::Item> itemvector;
-  itemvector.resize(252288);
-  //itemvector.resize(217728);
-  for(int i=0; i<252288;++i){
-    //for(int i=0; i<217728;++i){
+   itemvector.resize(217728);
+
+  for(int i=0; i<217728;++i){
     itemvector[i].xtalk_slope_right=db_slope_r[i];
     itemvector[i].xtalk_intercept_right=db_intercept_r[i]; 
     itemvector[i].xtalk_chi2_right=db_chi2_r[i];
@@ -73,19 +72,17 @@ void CSCCrosstalkDBConditions::prefillDBCrosstalk()
     itemvector[i].xtalk_chi2_left=db_chi2_l[i];
   }
 
-  for(int i=0; i<252288;++i){
-    //for(int i=0; i<217728;++i){
+  for(int i=0; i<217728;++i){
     counter=db_index_id[i];  
     for (unsigned int k=0;k<new_index_id.size()-1;k++){
       if(counter==new_index_id[k]){
-	itemvector[counter].xtalk_slope_right=new_slope_r[k];
-	itemvector[counter].xtalk_intercept_right=new_intercept_r[k]; 
-	itemvector[counter].xtalk_chi2_right=new_chi2_r[k];
-	itemvector[counter].xtalk_slope_left=new_slope_l[k];  
-	itemvector[counter].xtalk_intercept_left=new_intercept_l[k];  
-	itemvector[counter].xtalk_chi2_left=new_chi2_l[k];
+	itemvector[counter].xtalk_slope_right=db_slope_r[k];
+	itemvector[counter].xtalk_intercept_right=db_intercept_r[k]; 
+	itemvector[counter].xtalk_chi2_right=db_chi2_r[k];
+	itemvector[counter].xtalk_slope_left=db_slope_l[k];  
+	itemvector[counter].xtalk_intercept_left=db_intercept_l[k];  
+	itemvector[counter].xtalk_chi2_left=db_chi2_l[k];
 	itemvector[i] = itemvector[counter];
-	//std::cout<<" counter "<<counter <<" dbindex "<<new_index_id[k]<<" dbslope " <<db_slope_r[k]<<" new slope "<<new_slope_r[k]<<std::endl;
       }  
     }
   }

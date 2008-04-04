@@ -38,7 +38,7 @@ Some examples of InputSource subclasses may be:
  3) DAQInputSource: creats EventPrincipals which contain raw data, as
     delivered by the L1 trigger and event builder. 
 
-$Id: InputSource.h,v 1.39 2008/01/08 06:58:33 wmtan Exp $
+$Id: InputSource.h,v 1.40 2008/01/09 23:45:24 wdd Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -201,6 +201,11 @@ namespace edm {
     void setLuminosityBlockPrincipal(boost::shared_ptr<LuminosityBlockPrincipal> lbp) {lumiPrincipal_ = lbp;}
     void resetRunPrincipal() {runPrincipal_.reset();}
     void resetLuminosityBlockPrincipal() {lumiPrincipal_.reset();}
+    void reset() const {
+      doneReadAhead_ = false;
+      state_ = IsInvalid;
+    }
+
 
   private:
     bool limitReached() const {return remainingEvents_ == 0 || remainingLumis_ == 0;}

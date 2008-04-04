@@ -34,6 +34,9 @@ private:
 
   // nominal constant to give 100% crosstalk
   float theCapacitiveCrosstalk;
+  // constant for resistive crosstalk scaling.
+  //  Not really sure why it shouldn't be one.
+  float theResistiveCrosstalkScaling;
   // converts DB gains to the gain we expect, 0.5 fC/ADC
   float theGainsConstant;
   bool doCorrelatedNoise_;

@@ -1,7 +1,6 @@
 #ifndef Alignment_KalmanAlignmentAlgorithm_DummyUpdator_h
 #define Alignment_KalmanAlignmentAlgorithm_DummyUpdator_h
 
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "Alignment/KalmanAlignmentAlgorithm/interface/KalmanAlignmentUpdator.h"
 

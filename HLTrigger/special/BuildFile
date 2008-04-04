@@ -8,6 +8,7 @@
 <use name=DataFormats/Math>
 <use name=DataFormats/RecoCandidate>
 <use name=DataFormats/TrackReco>
+<use name=DataFormats/FEDRawData>
 <use name=FWCore/Framework>
 <use name=FWCore/MessageLogger>
 <use name=FWCore/ParameterSet>
@@ -17,4 +18,10 @@
 <use name=HLTrigger/HLTcore>
 <use name=RecoEcal/EgammaCoreTools>
 <use name=Utilities/Timing>
+<use name=root>
+<use name=DataFormats/CSCRecHit>
+<use name=DataFormats/MuonDetId>
+<use name=Geometry/CSCGeometry>
+<use name=FWCore/ServiceRegistry>
+<use name=PhysicsTools/UtilAlgos>
 <flags EDM_PLUGIN=1>

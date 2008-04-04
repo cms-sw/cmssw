@@ -10,6 +10,7 @@
 
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h" 
 
+
 BzeroReferenceTrajectoryFactory::BzeroReferenceTrajectoryFactory( const edm::ParameterSet & config ) :
   TrajectoryFactoryBase( config )
 {
@@ -35,11 +36,16 @@ BzeroReferenceTrajectoryFactory::trajectories( const edm::EventSetup & setup,
   while ( itTracks != tracks.end() )
   { 
     TrajectoryInput input = this->innermostStateAndRecHits( *itTracks );
-    // set the flag for reversing the RecHits to false, since they are already in the correct order.
-    trajectories.push_back( ReferenceTrajectoryPtr( new BzeroReferenceTrajectory( input.first, input.second, 
-										  false, magneticField.product(),
-										  materialEffects(), propagationDirection(),
-										  theMass, theMomentumEstimate ) ) );
+    // Check input: If all hits were rejected, the TSOS is initialized as invalid.
+    if ( input.first.isValid() )
+    {
+      // set the flag for reversing the RecHits to false, since they are already in the correct order.
+      trajectories.push_back( ReferenceTrajectoryPtr( new BzeroReferenceTrajectory( input.first, input.second, 
+										    false, magneticField.product(),
+										    materialEffects(), propagationDirection(),
+										    theMass, theMomentumEstimate ) ) );
+    }
+
     ++itTracks;
   }
 
@@ -49,8 +55,8 @@ BzeroReferenceTrajectoryFactory::trajectories( const edm::EventSetup & setup,
 
 const BzeroReferenceTrajectoryFactory::ReferenceTrajectoryCollection
 BzeroReferenceTrajectoryFactory::trajectories( const edm::EventSetup & setup,
-						 const ConstTrajTrackPairCollection& tracks,
-						 const ExternalPredictionCollection& external ) const
+					       const ConstTrajTrackPairCollection& tracks,
+					       const ExternalPredictionCollection& external ) const
 {
   ReferenceTrajectoryCollection trajectories;
 
@@ -74,23 +80,27 @@ BzeroReferenceTrajectoryFactory::trajectories( const edm::EventSetup & setup,
   {
     TrajectoryInput input = innermostStateAndRecHits( *itTracks  );
 
-    if ( (*itExternal).isValid() )
+    // Check input: If all hits were rejected, the TSOS is initialized as invalid.
+    if ( input.first.isValid() )
     {
-      // set the flag for reversing the RecHits to false, since they are already in the correct order.
-      ReferenceTrajectoryPtr refTraj( new BzeroReferenceTrajectory( *itExternal, input.second, false,
-								    magneticField.product(), materialEffects(),
-								    propagationDirection(), theMass, theMomentumEstimate ) );
+      if ( (*itExternal).isValid() && sameSurface( (*itExternal).surface(), input.first.surface() ) )
+      {
+	// set the flag for reversing the RecHits to false, since they are already in the correct order.
+	ReferenceTrajectoryPtr refTraj( new BzeroReferenceTrajectory( *itExternal, input.second, false,
+								      magneticField.product(), materialEffects(),
+								      propagationDirection(), theMass, theMomentumEstimate ) );
 
-      AlgebraicSymMatrix externalParamErrors( asHepMatrix<5>( (*itExternal).localError().matrix() ) );
-      refTraj->setParameterErrors( externalParamErrors );
-      trajectories.push_back( refTraj );
-    }
-    else
-    {
-      trajectories.push_back( ReferenceTrajectoryPtr( new BzeroReferenceTrajectory( input.first, input.second, 
-										    false, magneticField.product(),
-										    materialEffects(), propagationDirection(),
-										    theMass, theMomentumEstimate ) ) );
+	AlgebraicSymMatrix externalParamErrors( asHepMatrix<5>( (*itExternal).localError().matrix() ) );
+	refTraj->setParameterErrors( externalParamErrors.sub( 2, 5 ) );
+	trajectories.push_back( refTraj );
+      }
+      else
+      {
+	trajectories.push_back( ReferenceTrajectoryPtr( new BzeroReferenceTrajectory( input.first, input.second, 
+										      false, magneticField.product(),
+										      materialEffects(), propagationDirection(),
+										      theMass, theMomentumEstimate ) ) );
+      }
     }
 
     ++itTracks;

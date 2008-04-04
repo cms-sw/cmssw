@@ -406,35 +406,33 @@ EcalTestDevDB::generateEcalLaserAPDPNRatios(uint32_t i_run) {
     for(int iX=EEDetId::IX_MIN; iX<=EEDetId::IX_MAX ;++iX) {
       for(int iY=EEDetId::IY_MIN; iY<=EEDetId::IY_MAX; ++iY) {
 	// make an EEDetId since we need EEDetId::rawId() to be used as the key for the pedestals
-
-	if (!EEDetId::validDetId(iX,iY,1))
-	  continue;
-
-	EEDetId eedetidpos(iX,iY,1);
-	//APDPNpair.p1 = double(1);
-	//APDPNpair.p2 = double(1);
-	
-	int hi = eedetidpos.hashedIndex() + EBDetId::MAX_HASH + 1;
-	if (hi< (int) laser->getLaserMap().size()) {
-	  laser->setValue(hi, APDPNpair);
-	} else {
-	  edm::LogError("EcalTestDevDB") << "error with laser Map (ratio)!" << endl;     	  
-	  continue;
-	}
-	
-	if (!EEDetId::validDetId(iX,iY,-1))
-	  continue;
-
-	EEDetId eedetidneg(iX,iY,-1);
-	//APDPNpair.p1 = double(1);
-	//APDPNpair.p2 = double(1);
-	hi = eedetidneg.hashedIndex() + EBDetId::MAX_HASH + 1;
-	if (hi< (int) laser->getLaserMap().size()) {
-	  laser->setValue(hi, APDPNpair);
-	} else {
+	try
+	  {
+	    EEDetId eedetidpos(iX,iY,1);
+	    //APDPNpair.p1 = double(1);
+	    //APDPNpair.p2 = double(1);
+	    
+	    int hi = eedetidpos.hashedIndex() + EBDetId::MAX_HASH + 1;
+	    if (hi< (int) laser->getLaserMap().size()) {
+	      laser->setValue(hi, APDPNpair);
+	    } else {
 	      edm::LogError("EcalTestDevDB") << "error with laser Map (ratio)!" << endl;     	  
 	      continue;
-	}
+	    }
+	    
+	    EEDetId eedetidneg(iX,iY,-1);
+	    //APDPNpair.p1 = double(1);
+	    //APDPNpair.p2 = double(1);
+	    hi = eedetidneg.hashedIndex() + EBDetId::MAX_HASH + 1;
+	    if (hi< (int) laser->getLaserMap().size()) {
+	      laser->setValue(hi, APDPNpair);
+	    } else {
+	      edm::LogError("EcalTestDevDB") << "error with laser Map (ratio)!" << endl;     	  
+	      continue;
+	    }
+
+	  }
+	catch (cms::Exception &e) {}
       }
     }
     
@@ -473,30 +471,27 @@ EcalTestDevDB::generateEcalLaserAPDPNRatios(uint32_t i_run) {
     for(int iX=EEDetId::IX_MIN; iX<=EEDetId::IX_MAX ;++iX) {
       for(int iY=EEDetId::IY_MIN; iY<=EEDetId::IY_MAX; ++iY) {
 	// make an EEDetId since we need EEDetId::rawId() to be used as the key for the pedestals
-
-	if (!EEDetId::validDetId(iX,iY,1))
-	  continue;
-	
-	EEDetId eedetidpos(iX,iY,1);	
-	int hi = eedetidpos.hashedIndex() + EBDetId::MAX_HASH + 1;
-	if (hi< (int) laser->getLaserMap().size()) {
-	  laser->setValue(hi, APDPNpair);
-	} else {
-	  edm::LogError("EcalTestDevDB") << "error with laser Map (ratio)!" << endl;     	  
-	  continue;
-	}
-	
-	if (!EEDetId::validDetId(iX,iY,-1))
-	  continue;    
-	
-	EEDetId eedetidneg(iX,iY,-1);
-	hi = eedetidneg.hashedIndex() + EBDetId::MAX_HASH + 1;
-	if (hi< (int) laser->getLaserMap().size()) {
-	  laser->setValue(hi, APDPNpair);
-	} else {
-	  edm::LogError("EcalTestDevDB") << "error with laser Map (ratio)!" << endl;     	  
-	  continue;
-	}
+	try
+	  {
+	    EEDetId eedetidpos(iX,iY,1);	
+	    int hi = eedetidpos.hashedIndex() + EBDetId::MAX_HASH + 1;
+	    if (hi< (int) laser->getLaserMap().size()) {
+	      laser->setValue(hi, APDPNpair);
+	    } else {
+	      edm::LogError("EcalTestDevDB") << "error with laser Map (ratio)!" << endl;     	  
+	      continue;
+	    }
+	    
+	    EEDetId eedetidneg(iX,iY,-1);
+	    hi = eedetidneg.hashedIndex() + EBDetId::MAX_HASH + 1;
+	    if (hi< (int) laser->getLaserMap().size()) {
+	      laser->setValue(hi, APDPNpair);
+	    } else {
+	      edm::LogError("EcalTestDevDB") << "error with laser Map (ratio)!" << endl;     	  
+	      continue;
+	    }
+	  }
+      	catch (cms::Exception &e) {}
       }	  	  
     }
  
@@ -547,33 +542,30 @@ EcalTestDevDB::generateEcalLaserAPDPNRatiosRef() {
 
   for(int iX=EEDetId::IX_MIN; iX<=EEDetId::IX_MAX ;++iX) {
     for(int iY=EEDetId::IY_MIN; iY<=EEDetId::IY_MAX; ++iY) {
-      
-      if (!EEDetId::validDetId(iX,iY,1))
-	continue;	  
-      
-      EEDetId eedetidpos(iX,iY,1);
-      APDPNref=double(1.5);
-      
-      int hi = eedetidpos.hashedIndex() + EBDetId::MAX_HASH + 1;
-      if (hi< (int) laser->getMap().size()) {
-	laser->setValue(hi, APDPNref);
-      } else {
-	edm::LogError("EcalTestDevDB") << "error with laser Map (ref)!" << endl;     	  
-      }
-      
-      if (!EEDetId::validDetId(iX,iY,-1))
-	continue;	  
-  
-      EEDetId eedetidneg(iX,iY,-1);
-      APDPNref=double(1.5);
-      
-      hi = eedetidneg.hashedIndex() + EBDetId::MAX_HASH + 1;
-      if (hi< (int) laser->getMap().size()) {
-	laser->setValue(hi, APDPNref);
-      } else {
-	edm::LogError("EcalTestDevDB") << "error with laser Map (ref)!" << endl;     	  
-      }
-    }	
+      try
+	{	  
+	  EEDetId eedetidpos(iX,iY,1);
+	  APDPNref=double(1.5);
+
+	  int hi = eedetidpos.hashedIndex() + EBDetId::MAX_HASH + 1;
+	  if (hi< (int) laser->getMap().size()) {
+	    laser->setValue(hi, APDPNref);
+	  } else {
+	    edm::LogError("EcalTestDevDB") << "error with laser Map (ref)!" << endl;     	  
+	  }
+
+	  EEDetId eedetidneg(iX,iY,-1);
+	  APDPNref=double(1.5);
+
+	  hi = eedetidneg.hashedIndex() + EBDetId::MAX_HASH + 1;
+	  if (hi< (int) laser->getMap().size()) {
+	    laser->setValue(hi, APDPNref);
+	  } else {
+	    edm::LogError("EcalTestDevDB") << "error with laser Map (ref)!" << endl;     	  
+	  }
+	}	
+      catch (cms::Exception &e) {}
+    }
   }
 
   return laser;
@@ -605,31 +597,30 @@ EcalTestDevDB::generateEcalLaserAlphas() {
 
   for(int iX=EEDetId::IX_MIN; iX<=EEDetId::IX_MAX ;++iX) {
     for(int iY=EEDetId::IY_MIN; iY<=EEDetId::IY_MAX; ++iY) {
+      try
+	{	  
+	  EEDetId eedetidpos(iX,iY,1);
+	  Alpha = double(1.55);
 
-      if (!EEDetId::validDetId(iX,iY,1))
-	continue;	  
+	  int hi = eedetidpos.hashedIndex() + EBDetId::MAX_HASH + 1;
+	  if (hi< (int) laser->getMap().size()) {
+	    laser->setValue(hi, Alpha);
+	  } else {
+	    edm::LogError("EcalTestDevDB") << "error with laser Map (alpha)!" << endl;     	  
+	  }
+	  
+	  EEDetId eedetidneg(iX,iY,-1);
+	  Alpha = double(1.55);
 
-      EEDetId eedetidpos(iX,iY,1);
-      Alpha = double(1.55);
-      
-      int hi = eedetidpos.hashedIndex() + EBDetId::MAX_HASH + 1;
-      if (hi< (int) laser->getMap().size()) {
-	laser->setValue(hi, Alpha);
-      } else {
-	edm::LogError("EcalTestDevDB") << "error with laser Map (alpha)!" << endl;     	  
-      }
-      
-      if (!EEDetId::validDetId(iX,iY,-1))
-	continue;	  
-      EEDetId eedetidneg(iX,iY,-1);
-      Alpha = double(1.55);
-      
-      hi = eedetidneg.hashedIndex() + EBDetId::MAX_HASH + 1;
-      if (hi< (int) laser->getMap().size()) {
-	laser->setValue(hi, Alpha);
-      } else {
-	edm::LogError("EcalTestDevDB") << "error with laser Map (alpha)!" << endl;     	  
-      }
+	  hi = eedetidneg.hashedIndex() + EBDetId::MAX_HASH + 1;
+	  if (hi< (int) laser->getMap().size()) {
+	    laser->setValue(hi, Alpha);
+	  } else {
+	    edm::LogError("EcalTestDevDB") << "error with laser Map (alpha)!" << endl;     	  
+	  }
+
+	}      
+      catch (cms::Exception &e) {}
     }
   }
   

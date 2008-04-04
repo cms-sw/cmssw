@@ -6,9 +6,9 @@
  * 
  * \author Luca Lista, INFN
  *
- * \version $Revision: 1.23 $
+ * \version $Revision: 1.22 $
  *
- * $Id: ObjectSelector.h,v 1.23 2007/10/02 12:55:59 llista Exp $
+ * $Id: ObjectSelector.h,v 1.22 2007/09/20 11:29:41 llista Exp $
  *
  */
 
@@ -58,7 +58,7 @@ public:
 private:
   /// process one event
   bool filter( edm::Event& evt, const edm::EventSetup& es ) {
-    Init::init( selector_, evt, es );
+    Init::init( selector_, es );
     using namespace std;
     edm::Handle<typename Selector::collection> source;
     evt.getByLabel( src_, source );

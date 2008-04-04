@@ -3,7 +3,6 @@
   <use name=DataFormats/FEDRawData>
 
 
-
   <use name=DQMServices/Core>
   <use name=DQM/SiStripMonitorHardware>
   <use name=EventFilter/SiStripRawToDigi>

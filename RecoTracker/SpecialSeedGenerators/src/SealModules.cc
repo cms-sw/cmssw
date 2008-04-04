@@ -3,9 +3,11 @@
 DEFINE_SEAL_MODULE();
 #include "RecoTracker/SpecialSeedGenerators/interface/CtfSpecialSeedGenerator.h"
 #include "RecoTracker/SpecialSeedGenerators/interface/CosmicSeedGenerator.h"
+#include "RecoTracker/SpecialSeedGenerators/interface/CRackSeedGenerator.h"
 
 DEFINE_ANOTHER_FWK_MODULE(CtfSpecialSeedGenerator);
 DEFINE_ANOTHER_FWK_MODULE(CosmicSeedGenerator);
+DEFINE_ANOTHER_FWK_MODULE(CRackSeedGenerator);
 
 #include "RecoTracker/TkTrackingRegions/interface/OrderedHitsGeneratorFactory.h"
 #include "RecoTracker/TkTrackingRegions/interface/OrderedHitsGenerator.h"

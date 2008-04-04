@@ -1,7 +1,6 @@
 ///this file contains additional dynamic_bitset methods
 
 #include "EventFilter/CSCRawToDigi/src/bitset_append.h" 
-#include <boost/dynamic_bitset.hpp>
 #include <iostream>
 
 

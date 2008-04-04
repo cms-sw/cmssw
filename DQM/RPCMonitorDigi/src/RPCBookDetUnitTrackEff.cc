@@ -81,10 +81,6 @@ std::map<std::string, MonitorElement*> RPCEfficiencyFromTrack::bookDetUnitTrackE
   sprintf(meTitle,"Residuals_for_%s",layerLabel);
   meMap[meId] = dbe->book1D(meId, meTitle, 100,-49.5, 49.);
 
-  sprintf(meId,"LocalPull_%s",detUnitLabel);
-  sprintf(meTitle,"LocalPull_for_%s",layerLabel);
-  meMap[meId] = dbe->book1D(meId, meTitle, 100,-49.5, 49.);
-
   sprintf(meId,"Residuals_VS_RecPt_%s",detUnitLabel);
   sprintf(meTitle,"Residuals_VS_RecPt_for_%s",layerLabel);
   meMap[meId] = dbe->book2D(meId, meTitle, 100, 0.5, 100.5,100,-49.5,49.5);
@@ -92,15 +88,6 @@ std::map<std::string, MonitorElement*> RPCEfficiencyFromTrack::bookDetUnitTrackE
   sprintf(meId,"EfficienyFromTrackExtrapolation_%s",detUnitLabel);
   sprintf(meTitle,"EfficienyFromTrackExtrapolation_for_%s",layerLabel);
   meMap[meId] = dbe->book1D(meId, meTitle, 100, 0.5, 100.5);
-
-  sprintf(meId,"2DExtrapolation_%s",detUnitLabel);
-  sprintf(meTitle,"2DExtrapolation_for_%s",layerLabel);
-  meMap[meId] = dbe->book2D(meId, meTitle, 401, -200.5, 200.5,201,-100.5,100.5);
-
-  sprintf(meId,"PredictedImpactPoint_%s",detUnitLabel);
-  sprintf(meTitle,"PredictedImpactPoint_for_%s",layerLabel);
-  meMap[meId] = dbe->book2D(meId, meTitle, 401, -200.5, 200.5,201,-100.5,100.5);
-
 
   return meMap;
 }

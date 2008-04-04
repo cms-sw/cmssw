@@ -3,15 +3,22 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
-#include "DataFormats/DetId/interface/DetId.h"
+#include "FWCore/Framework/interface/Event.h"
+
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2D.h"
 #include "DataFormats/TrackerRecHit2D/interface/ProjectedSiStripRecHit2D.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiStripMatchedRecHit2D.h"
+#include "DataFormats/SiStripCluster/interface/SiStripCluster.h"
+#include "DataFormats/TrackerRecHit2D/interface/SiStripMatchedRecHit2DCollection.h"
+#include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2DCollection.h"
 
-const int kBPIX = 1; // where the hell is this '1' defined?
-const int kFPIX = 2; // dito for '2'
+#include "DataFormats/DetId/interface/DetId.h"
+#include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
+#include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
+
+const int kBPIX = PixelSubdetector::PixelBarrel;
+const int kFPIX = PixelSubdetector::PixelEndcap;
 
 // constructor ----------------------------------------------------------------
 
@@ -19,6 +26,9 @@ AlignmentTrackSelector::AlignmentTrackSelector(const edm::ParameterSet & cfg) :
   applyBasicCuts_( cfg.getParameter<bool>( "applyBasicCuts" ) ),
   applyNHighestPt_( cfg.getParameter<bool>( "applyNHighestPt" ) ),
   applyMultiplicityFilter_( cfg.getParameter<bool>( "applyMultiplicityFilter" ) ),
+  seedOnlyFromAbove_( cfg.getParameter<int>( "seedOnlyFrom" ) ),
+  applyIsolation_( cfg.getParameter<bool>( "applyIsolationCut" ) ),
+  chargeCheck_( cfg.getParameter<bool>( "applyChargeCheck" ) ),
   nHighestPt_( cfg.getParameter<int>( "nHighestPt" ) ),
   minMultiplicity_ ( cfg.getParameter<int>( "minMultiplicity" ) ),
   maxMultiplicity_ ( cfg.getParameter<int>( "maxMultiplicity" ) ),
@@ -32,6 +42,10 @@ AlignmentTrackSelector::AlignmentTrackSelector(const edm::ParameterSet & cfg) :
   nHitMin_( cfg.getParameter<double>( "nHitMin" ) ),
   nHitMax_( cfg.getParameter<double>( "nHitMax" ) ),
   chi2nMax_( cfg.getParameter<double>( "chi2nMax" ) ),
+  minHitChargeStrip_( cfg.getParameter<double>( "minHitChargeStrip" ) ),
+  minHitIsolation_( cfg.getParameter<double>( "minHitIsolation" ) ),
+  rphirecHitsTag_( cfg.getParameter<edm::InputTag>("rphirecHits") ),
+  matchedrecHitsTag_( cfg.getParameter<edm::InputTag>("matchedrecHits") ),
   nHitMin2D_( cfg.getParameter<unsigned int>( "nHitMin2D" ) ),
   // Ugly to use the same getParameter 6 times, but this allows const cut variables...
   minHitsinTIB_(cfg.getParameter<edm::ParameterSet>( "minHitsPerSubDet" ).getParameter<int>( "inTIB" ) ),
@@ -61,10 +75,21 @@ AlignmentTrackSelector::AlignmentTrackSelector(const edm::ParameterSet & cfg) :
 	  << "apply multiplicity filter N>= " << minMultiplicity_ << "and N<= " << maxMultiplicity_
           << " on " << (multiplicityOnInput_ ? "input" : "output");
 
+  if (applyIsolation_)
+    edm::LogInfo("AlignmentTrackSelector") 
+      << "only retain tracks isolated at least by " << minHitIsolation_ << 
+      " cm from other rechits"; 
+
+  if (chargeCheck_)
+    edm::LogInfo("AlignmentTrackSelector") 
+      << "only retain hits with at least " << minHitChargeStrip_ <<  
+      " ADC counts of total cluster charge"; 
+
   edm::LogInfo("AlignmentTrackSelector") 
     << "Minimum number of hits in TIB/TID/TOB/TEC/BPIX/FPIX = " 
     << minHitsinTIB_ << "/" << minHitsinTID_ << "/" << minHitsinTOB_
     << "/" << minHitsinTEC_ << "/" << minHitsinBPIX_ << "/" << minHitsinFPIX_;
+
 }
 
 // destructor -----------------------------------------------------------------
@@ -78,33 +103,30 @@ AlignmentTrackSelector::~AlignmentTrackSelector()
 AlignmentTrackSelector::Tracks 
 AlignmentTrackSelector::select(const Tracks& tracks, const edm::Event& evt) const 
 {
-  Tracks result;
   
   if (applyMultiplicityFilter_ && multiplicityOnInput_ && 
       (tracks.size() < static_cast<unsigned int>(minMultiplicity_) 
        || tracks.size() > static_cast<unsigned int>(maxMultiplicity_))) {
-//     edm::LogInfo("test") << "@SUB=AlignmentTrackSelector::select" << "skip due to input size "
-//                          << tracks.size() << ".";
-    return result; // still empty
+    return Tracks(); // empty collection
   }
   
+  Tracks result = tracks;
   // apply basic track cuts (if selected)
-  if (applyBasicCuts_)  result= this->basicCuts(tracks);
+  if (applyBasicCuts_) result= this->basicCuts(result, evt);
   
   // filter N tracks with highest Pt (if selected)
-  if (applyNHighestPt_) result= this->theNHighestPtTracks(result);
+  if (applyNHighestPt_) result = this->theNHighestPtTracks(result);
   
   // apply minimum multiplicity requirement (if selected)
   if (applyMultiplicityFilter_ && !multiplicityOnInput_) {
     if (result.size() < static_cast<unsigned int>(minMultiplicity_) 
         || result.size() > static_cast<unsigned int>(maxMultiplicity_) ) {
-//       edm::LogInfo("test") << "@SUB=AlignmentTrackSelector::select" << "remove all due to output size "
-//                            << result.size() << ".";
+
       result.clear();
     }
   }
   
-  //edm::LogDebug("AlignmentTrackSelector") << "tracks all,kept: " << tracks.size() << "," << result.size();
+  // edm::LogDebug("AlignmentTrackSelector") << "tracks all,kept: " << tracks.size() << "," << result.size();
   
   return result;
 }
@@ -112,7 +134,7 @@ AlignmentTrackSelector::select(const Tracks& tracks, const edm::Event& evt) cons
 // make basic cuts ------------------------------------------------------------
 
 AlignmentTrackSelector::Tracks 
-AlignmentTrackSelector::basicCuts(const Tracks& tracks) const 
+AlignmentTrackSelector::basicCuts(const Tracks& tracks, const edm::Event& evt) const 
 {
   Tracks result;
 
@@ -124,7 +146,7 @@ AlignmentTrackSelector::basicCuts(const Tracks& tracks) const
     int nhit = trackp->numberOfValidHits(); 
     float chi2n = trackp->normalizedChi2();
 
-    //edm::LogDebug("AlignmentTrackSelector") << " pt,eta,phi,nhit: "
+    // edm::LogDebug("AlignmentTrackSelector") << " pt,eta,phi,nhit: "
     //  <<pt<<","<<eta<<","<<phi<<","<<nhit;
 
     if (pt>ptMin_ && pt<ptMax_ 
@@ -132,17 +154,7 @@ AlignmentTrackSelector::basicCuts(const Tracks& tracks) const
        && phi>phiMin_ && phi<phiMax_ 
        && nhit>=nHitMin_ && nhit<=nHitMax_
        && chi2n<chi2nMax_) {
-      if (this->detailedHitsCheck(trackp)) result.push_back(trackp);
-//       else {
-//         edm::LogInfo("test") << "@SUB=AlignmentTrackSelector::basicCuts"
-//                              << "failed hit cuts.";
-//       }
-//     } else {
-//         edm::LogInfo("test") << "@SUB=AlignmentTrackSelector::basicCuts"
-//                              << "failed pt " << pt << " or eta "
-//                              << eta << " or phi "
-//                              << phi << " or nhit "
-//                              << nhit << " or chi2n " << chi2n;
+      if (this->detailedHitsCheck(trackp, evt)) result.push_back(trackp);
     }
   }
 
@@ -151,16 +163,33 @@ AlignmentTrackSelector::basicCuts(const Tracks& tracks) const
 
 //-----------------------------------------------------------------------------
 
-bool AlignmentTrackSelector::detailedHitsCheck(const reco::Track *trackp) const
+bool AlignmentTrackSelector::detailedHitsCheck(const reco::Track *trackp, const edm::Event& evt) const
 {
   // checking hit requirements beyond simple number of valid hits
 
   if (minHitsinTIB_ || minHitsinTOB_ || minHitsinTID_ || minHitsinTEC_
-      || minHitsinFPIX_ || minHitsinBPIX_
-      || nHitMin2D_) { // any detailed hit cut is active, so have to check
-    int nhitinTIB = 0, nhitinTOB = 0, nhitinTID = 0, nhitinTEC = 0, nhitinBPIX = 0, nhitinFPIX = 0;
+      || minHitsinFPIX_ || minHitsinBPIX_ || nHitMin2D_ || chargeCheck_
+      || applyIsolation_) { // any detailed hit cut is active, so have to check
+    
+    int nhitinTIB = 0, nhitinTOB = 0, nhitinTID = 0;
+    int nhitinTEC = 0, nhitinBPIX = 0, nhitinFPIX = 0;
     unsigned int nHit2D = 0;
+    unsigned int thishit = 0;
+
     for (trackingRecHit_iterator iHit = trackp->recHitsBegin(); iHit != trackp->recHitsEnd(); ++iHit) {
+
+      thishit++;
+      int type = (*iHit)->geographicalId().subdetId(); 
+
+      // *** thishit == 1 means last hit in CTF *** 
+      // (FIXME: assumption might change or not be valid for all tracking algorthms)
+      // ==> for cosmics
+      // seedOnlyFrom = 1 is TIB-TOB-TEC tracks only
+      // seedOnlyFrom = 2 is TOB-TEC tracks only 
+      if (seedOnlyFromAbove_ == 1 && thishit == 1 && (type == int(StripSubdetector::TOB) || type == int(StripSubdetector::TEC))) return false; 
+
+      if (seedOnlyFromAbove_ == 2 && thishit == 1 && type == int(StripSubdetector::TIB)) return false;  
+
       if (!(*iHit)->isValid()) continue; // only real hits count as in trackp->numberOfValidHits()
       const DetId detId((*iHit)->geographicalId());
       if (detId.det() != DetId::Tracker) {
@@ -168,6 +197,9 @@ bool AlignmentTrackSelector::detailedHitsCheck(const reco::Track *trackp) const
                                           << "DetId.det() != DetId::Tracker (=" << DetId::Tracker
                                           << "), but " << detId.det() << ".";
       }
+      const TrackingRecHit* therechit = (*iHit).get();
+      if (chargeCheck_ && !(this->isOkCharge(therechit))) return false;
+      if (applyIsolation_ && (!this->isIsolated(therechit, evt))) return false;
       if      (StripSubdetector::TIB == detId.subdetId()) ++nhitinTIB;
       else if (StripSubdetector::TOB == detId.subdetId()) ++nhitinTOB;
       else if (StripSubdetector::TID == detId.subdetId()) ++nhitinTID;
@@ -219,6 +251,101 @@ bool AlignmentTrackSelector::isHit2D(const TrackingRecHit &hit) const
 
 //-----------------------------------------------------------------------------
 
+bool AlignmentTrackSelector::isOkCharge(const TrackingRecHit* therechit) const
+{
+  // const TrackingRecHit* therechit = hit.get();
+  float charge1 = 0;
+  float charge2 = 0;
+  const SiStripMatchedRecHit2D* matchedhit = dynamic_cast<const SiStripMatchedRecHit2D*>(therechit);
+  const SiStripRecHit2D* hit = dynamic_cast<const SiStripRecHit2D*>(therechit);
+  const ProjectedSiStripRecHit2D* unmatchedhit = dynamic_cast<const ProjectedSiStripRecHit2D*>(therechit);
+  
+  if (matchedhit) {  
+    const SiStripRecHit2D *monohit=matchedhit->monoHit();    
+    const SiStripCluster* monocluster = &*(monohit->cluster());
+    const std::vector<uint16_t> amplitudesmono( monocluster->amplitudes().begin(),
+						monocluster->amplitudes().end());
+    for(size_t ia=0; ia<amplitudesmono.size();++ia)
+      { charge1+=amplitudesmono[ia];} 
+    
+    const SiStripRecHit2D *stereohit=matchedhit->stereoHit();   
+    const SiStripCluster* stereocluster = &*(stereohit->cluster());
+    const std::vector<uint16_t> amplitudesstereo( stereocluster->amplitudes().begin(),
+						  stereocluster->amplitudes().end());
+    for(size_t ia=0; ia<amplitudesstereo.size();++ia)
+      {charge2+=amplitudesstereo[ia];}
+    // std::cout << "charge1 = " << charge1 << "\n";
+    // std::cout << "charge2 = " << charge2 << "\n";
+    if (charge1 < minHitChargeStrip_ || charge2 < minHitChargeStrip_) return false;
+  }
+  else if (hit) {
+    
+    const SiStripCluster* cluster = &*(hit->cluster());
+    const std::vector<uint16_t> amplitudes( cluster->amplitudes().begin(),
+					    cluster->amplitudes().end());
+    for(size_t ia=0; ia<amplitudes.size();++ia)
+      {charge1+=amplitudes[ia];}
+    // std::cout << "charge1 = " << charge1 << "\n";
+    if (charge1 < minHitChargeStrip_) return false;
+  }
+  else if (unmatchedhit) {
+    
+    const SiStripRecHit2D &orighit = unmatchedhit->originalHit(); 
+    const SiStripCluster* origcluster = &*(orighit.cluster());
+    const std::vector<uint16_t> amplitudes( origcluster->amplitudes().begin(),
+					    origcluster->amplitudes().end());
+    for(size_t ia=0; ia<amplitudes.size();++ia)
+      {charge1+=amplitudes[ia];}
+    // std::cout << "charge1 = " << charge1 << "\n";
+    if (charge1 < minHitChargeStrip_) return false;
+  } 
+  return true;
+} 
+
+//-----------------------------------------------------------------------------
+
+bool AlignmentTrackSelector::isIsolated(const TrackingRecHit* therechit, const edm::Event& evt) const
+{
+	   
+  // edm::ESHandle<TrackerGeometry> tracker;
+  edm::Handle<SiStripRecHit2DCollection> rphirecHits;
+  edm::Handle<SiStripMatchedRecHit2DCollection> matchedrecHits;
+  // es.get<TrackerDigiGeometryRecord>().get(tracker);
+  evt.getByLabel( rphirecHitsTag_, rphirecHits );
+  evt.getByLabel( matchedrecHitsTag_, matchedrecHits ); 
+
+  SiStripRecHit2DCollection::const_iterator istripSt; 
+  SiStripMatchedRecHit2DCollection::const_iterator istripStm; 
+  const SiStripRecHit2DCollection& stripcollSt = *rphirecHits;
+  const SiStripMatchedRecHit2DCollection& stripcollStm = *matchedrecHits;
+  
+  DetId idet = therechit->geographicalId(); 
+  
+  // FIXME: instead of looping the full hit collection, we should explore the features of 
+  // SiStripRecHit2DCollection::rangeRphi = rphirecHits.get(idet) and loop
+  // only from rangeRphi.first until rangeRphi.second
+  for( istripSt=stripcollSt.begin(); istripSt!=stripcollSt.end(); ++istripSt ) {
+    const SiStripRecHit2D *aHit = &*(istripSt);
+    DetId mydet1 = aHit->geographicalId(); 
+    if (idet.rawId() != mydet1.rawId()) continue; 
+    float theDistance = ( therechit->localPosition() - aHit->localPosition() ).mag();
+    // std::cout << "theDistance1 = " << theDistance << "\n";
+    if (theDistance > 0.001 && theDistance < minHitIsolation_) return false;
+  }
+  
+  // FIXME: see above
+  for( istripStm=stripcollStm.begin(); istripStm!=stripcollStm.end(); ++istripStm ) {
+    const SiStripMatchedRecHit2D *aHit = &*(istripStm);
+    DetId mydet2 = aHit->geographicalId(); 
+    if (idet.rawId() != mydet2.rawId()) continue;
+    float theDistance = (therechit->localPosition() - aHit->localPosition()).mag();
+    // std::cout << "theDistance1 = " << theDistance << "\n";
+    if (theDistance > 0.001 && theDistance < minHitIsolation_) return false;
+  }
+  return true;
+}
+//-----------------------------------------------------------------------------
+
 AlignmentTrackSelector::Tracks 
 AlignmentTrackSelector::theNHighestPtTracks(const Tracks& tracks) const
 {
@@ -231,7 +358,7 @@ AlignmentTrackSelector::theNHighestPtTracks(const Tracks& tracks) const
   // copy theTrackMult highest pt tracks to result vector
   int n=0;
   for (Tracks::const_iterator it=sortedTracks.begin();
-	   it!=sortedTracks.end(); it++) {
+	   it!=sortedTracks.end(); ++it) {
 	if (n<nHighestPt_) { result.push_back(*it); n++; }
   }
 

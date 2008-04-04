@@ -50,9 +50,9 @@ class SecondaryVertexProducer : public edm::EDProducer {
 	const edm::InputTag		trackIPTagInfoLabel;
 	TrackIPTagInfo::SortCriteria	sortCriterium;
 	TrackSelector			trackSelector;
-	bool				useBeamConstraint;
 	edm::ParameterSet		vtxRecoPSet;
 	bool				withPVError;
+	double				minTrackWeight;
 	VertexFilter			vertexFilter;
 	VertexSorting			vertexSorting;
 };
@@ -62,9 +62,9 @@ SecondaryVertexProducer::SecondaryVertexProducer(
 	trackIPTagInfoLabel(params.getParameter<edm::InputTag>("trackIPTagInfos")),
 	sortCriterium(TrackSorting::getCriterium(params.getParameter<std::string>("trackSort"))),
 	trackSelector(params.getParameter<edm::ParameterSet>("trackSelection")),
-	useBeamConstraint(params.getParameter<bool>("useBeamConstraint")),
 	vtxRecoPSet(params.getParameter<edm::ParameterSet>("vertexReco")),
 	withPVError(params.getParameter<bool>("usePVError")),
+	minTrackWeight(params.getParameter<double>("minimumTrackWeight")),
 	vertexFilter(params.getParameter<edm::ParameterSet>("vertexCuts")),
 	vertexSorting(params.getParameter<edm::ParameterSet>("vertexSelection"))
 {
@@ -120,12 +120,6 @@ void SecondaryVertexProducer::produce(edm::Event &event,
 	edm::Handle<TrackIPTagInfoCollection> trackIPTagInfos;
 	event.getByLabel(trackIPTagInfoLabel, trackIPTagInfos);
 
-	edm::Handle<BeamSpot> beamSpot;
-	if (useBeamConstraint)
-		event.getByType(beamSpot);
-
-	ConfigurableVertexReconstructor vertexReco(vtxRecoPSet);
-
 	// result secondary vertices
 
 	std::auto_ptr<SecondaryVertexTagInfoCollection>
@@ -154,54 +148,65 @@ void SecondaryVertexProducer::produce(edm::Event &event,
 		const std::vector<TrackIPTagInfo::TrackIPData> &ipData =
 					iterJets->impactParameterData();
 
-		// build transient tracks used for vertex reconstruction
+		// build transient tracks
 
-		std::vector<TransientTrack> fitTracks;
+		std::vector<TransientTrack> tracks;
 		for(unsigned int i = 0; i < indices.size(); i++) {
 			typedef SecondaryVertexTagInfo::IndexedTrackData IndexedTrackData;
 
 			const TrackRef &trackRef = trackRefs[i];
 
 			trackData.push_back(IndexedTrackData());
+			tracks.push_back(trackBuilder->build(trackRef));
+
 			trackData.back().first = indices[i];
 
-			// select tracks for SV finder
+			// select tracks for SV fit
 
-			if (trackSelector(*trackRef, ipData[i], *jetRef)) {
-				fitTracks.push_back(
-					trackBuilder->build(trackRef));
-				trackData.back().second.svStatus =
-					SecondaryVertexTagInfo::TrackData::trackUsedForVertexFit;
-			} else
-				trackData.back().second.svStatus =
-					SecondaryVertexTagInfo::TrackData::trackSelected;
+			trackData.back().second.svStatus =
+				trackSelector(*trackRef, ipData[i], *jetRef)
+					? SecondaryVertexTagInfo::TrackData::trackUsedForVertexFit
+					: SecondaryVertexTagInfo::TrackData::trackSelected;
 		}
 
-		// perform actual vertex finding
-
-		std::vector<TransientVertex> fittedSVs;
-		if (useBeamConstraint)
-			fittedSVs = vertexReco.vertices(fitTracks, *beamSpot);
-		else
-			fittedSVs = vertexReco.vertices(fitTracks);
-
-		// build combined SV information and filter
+		// try to fit vertex
 
 		std::vector<SecondaryVertex> SVs;
-		SVBuilder svBuilder(pv, jetDir, withPVError);
-		std::remove_copy_if(boost::make_transform_iterator(
-		                    	fittedSVs.begin(), svBuilder),
-		                    boost::make_transform_iterator(
-		                    	fittedSVs.end(), svBuilder),
-		                    std::back_inserter(SVs),
-		                    SVFilter(vertexFilter, pv, jetDir));
+		try {
+			ConfigurableVertexReconstructor vertexReco(vtxRecoPSet);
 
-		// clean up now unneeded collections
+			// give fitter the selected tracks
 
-		fitTracks.clear();
-		fittedSVs.clear();
+			std::vector<reco::TransientTrack> fitTracks;
+			for(unsigned int i = 0; i < trackData.size(); i++)
+				if (trackData[i].second.usedForVertexFit())
+					fitTracks.push_back(tracks[i]);
 
-		// sort SVs by importance
+			// perform fit
+
+			std::vector<TransientVertex> fittedSVs;
+			fittedSVs = vertexReco.vertices(fitTracks);
+
+			// build combined SV information and filter
+
+			SVBuilder svBuilder(pv, jetDir, withPVError);
+			std::remove_copy_if(boost::make_transform_iterator(
+			                    	fittedSVs.begin(), svBuilder),
+			                    boost::make_transform_iterator(
+			                    	fittedSVs.end(), svBuilder),
+			                    std::back_inserter(SVs),
+			                    SVFilter(vertexFilter,
+			                             pv, jetDir));
+		} catch(VertexException e) {
+			// most likely the following problem:
+			// fewer than two significant tracks (w > 0.001)
+			// note that if this catch is removed,
+			// CMSSW can fail on valid events...
+			// validation can check if the the TagInfo collection
+			// contains anything at all
+		}
+
+		// identify most probable SV
 
 		std::vector<unsigned int> vtxIndices = vertexSorting(SVs);
 
@@ -223,15 +228,16 @@ void SecondaryVertexProducer::produce(edm::Event &event,
 
 			for(Vertex::trackRef_iterator iter = sv.tracks_begin();
 			    iter != sv.tracks_end(); iter++) {
-				
+				if (sv.trackWeight(*iter) < minTrackWeight)
+					continue;
 
 				TrackRefVector::const_iterator pos =
 					std::find(trackRefs.begin(), trackRefs.end(),
 					          iter->castTo<TrackRef>());
 				if (pos == trackRefs.end())
 					throw cms::Exception("TrackNotFound")
-						<< "Could not find track in secondary "
-						   "vertex in origina tracks."
+						<< "Could not find track from secondary "
+						   "vertex in original tracks."
 						<< std::endl;
 
 				unsigned int index = pos - trackRefs.begin();

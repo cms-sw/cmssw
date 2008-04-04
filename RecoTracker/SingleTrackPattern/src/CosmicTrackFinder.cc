@@ -27,6 +27,7 @@ namespace cms
 
   CosmicTrackFinder::CosmicTrackFinder(edm::ParameterSet const& conf) : 
     cosmicTrajectoryBuilder_(conf) ,
+    crackTrajectoryBuilder_(conf) ,
     conf_(conf)
   {
     geometry=conf_.getUntrackedParameter<std::string>("GeometricStructure","STANDARD");
@@ -59,9 +60,21 @@ namespace cms
     e.getByLabel(seedTag,seed);  
 
   //retrieve PixelRecHits
+    static const SiPixelRecHitCollection s_empty;
+    const SiPixelRecHitCollection *pixelHitCollection = &s_empty;
     edm::Handle<SiPixelRecHitCollection> pixelHits;
-    if (geometry!="MTCC")   e.getByLabel(pixelRecHitsTag, pixelHits); //e.getByType(pixelHits);
-    //retrieve StripRecHits
+    if (geometry!="MTCC" && (geometry!="CRACK" )) {
+      if( e.getByLabel(pixelRecHitsTag, pixelHits)) {
+	pixelHitCollection = pixelHits.product();
+      } else {
+	edm::LogWarning("CosmicTrackFinder") << "Collection SiPixelRecHitCollection with InputTag " << pixelRecHitsTag << " cannot be found, using empty collection of same type.";
+      }
+    }
+    
+   
+
+
+ //retrieve StripRecHits
     edm::Handle<SiStripMatchedRecHit2DCollection> matchedrecHits;
     e.getByLabel( matchedrecHitsTag ,matchedrecHits);
     edm::Handle<SiStripRecHit2DCollection> rphirecHits;
@@ -83,15 +96,26 @@ namespace cms
 
       std::vector<Trajectory> trajoutput;
       
-      cosmicTrajectoryBuilder_.run(*seed,
-				   *stereorecHits,
-				   *rphirecHits,
-				   *matchedrecHits,
-				   *pixelHits,
-				   es,
-				   e,
-				   trajoutput);
-   
+      if(geometry!="CRACK" ) {
+        cosmicTrajectoryBuilder_.run(*seed,
+                                   *stereorecHits,
+                                   *rphirecHits,
+                                   *matchedrecHits,
+				   *pixelHitCollection,
+                                   es,
+                                   e,
+                                   trajoutput);
+      } else {
+        crackTrajectoryBuilder_.run(*seed,
+                                   *stereorecHits,
+                                   *rphirecHits,
+                                   *matchedrecHits,
+				   *pixelHitCollection,
+                                   es,
+                                   e,
+                                   trajoutput);
+      }
+
       edm::LogVerbatim("CosmicTrackFinder") << " Numbers of Temp Trajectories " << trajoutput.size();
       edm::LogVerbatim("CosmicTrackFinder") << "========== END Info ==========";
       if(trajoutput.size()>0){
@@ -143,6 +167,7 @@ namespace cms
 
 	//Track construction
 	int ndof =theTraj.foundHits()-5;
+        if(geometry=="CRACK") ndof++;
 	if (ndof<0) ndof=0;
 
 	TSCPBuilderNoMaterial tscpBuilder;

@@ -10,11 +10,6 @@ MonitorTrackGlobal::MonitorTrackGlobal(const edm::ParameterSet& iConfig) {
   dbe = edm::Service<DaqMonitorBEInterface>().operator->();
   conf_ = iConfig;
   MTCCData = conf_.getParameter<bool>("MTCCData"); // if MTCC data certain histograms are not relevant
-}
-
-MonitorTrackGlobal::~MonitorTrackGlobal() { }
-
-void MonitorTrackGlobal::beginJob(edm::EventSetup const& iSetup) {
   using namespace edm;
 
   std::string AlgoName = conf_.getParameter<std::string>("AlgoName");
@@ -156,6 +151,11 @@ void MonitorTrackGlobal::beginJob(edm::EventSetup const& iSetup) {
       zPointOfClosestApproach = dbe->book1D(histname+AlgoName, histname+AlgoName, 50, -100, 100);
       zPointOfClosestApproach->setAxisTitle("Track distance of closest approach on the z-axis");
     }
+}
+
+MonitorTrackGlobal::~MonitorTrackGlobal() { }
+
+void MonitorTrackGlobal::beginJob(edm::EventSetup const& iSetup) {
 }
 
 void MonitorTrackGlobal::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {

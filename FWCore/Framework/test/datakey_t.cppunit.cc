@@ -87,16 +87,22 @@ namespace datakey_t {
 using datakey_t::Dummy;
 using datakey_t::Dummy2;
 
-template<>
-const char*
-edm::eventsetup::heterocontainer::HCTypeTagTemplate<Dummy, edm::eventsetup::DataKey>::className() {
-   return "Dummy";
-}
+namespace edm {
+  namespace eventsetup {
+    namespace heterocontainer {
+	template<>
+	const char*
+	HCTypeTagTemplate<Dummy, edm::eventsetup::DataKey>::className() {
+	   return "Dummy";
+	}
 
-template<>
-const char*
-edm::eventsetup::heterocontainer::HCTypeTagTemplate<Dummy2, edm::eventsetup::DataKey>::className() {
-   return "Dummy2";
+	template<>
+	const char*
+	HCTypeTagTemplate<Dummy2, edm::eventsetup::DataKey>::className() {
+	   return "Dummy2";
+	}
+    }
+  }
 }
 
 void testDataKey::ConstructionTest()

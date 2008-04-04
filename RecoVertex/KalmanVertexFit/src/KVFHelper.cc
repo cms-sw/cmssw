@@ -53,9 +53,9 @@ float KVFHelper<N>::trackParameterChi2(
 
   AlgebraicVectorN parameterResiduals = linTrack->predictedStateParameters() -
   	linTrack->refittedParamFromEquation(refittedTrackState);
-//   AlgebraicSymMatrixNN trackParametersWeight = linTrack->predictedStateWeight();
+  if (parameterResiduals(2) > M_PI) parameterResiduals(2)-= 2*M_PI;
+  if (parameterResiduals(2) <-M_PI) parameterResiduals(2)+= 2*M_PI;
 
-//   float lChi2 = ROOT::Math::Similarity(parameterResiduals, trackParametersWeight);
   float lChi2 = ROOT::Math::Similarity(parameterResiduals, linTrack->predictedStateWeight());
   return (lChi2);
 }

@@ -50,10 +50,7 @@ class StreamerOutputFile
                     const std::vector<uint32>& hltStats);
 
   private:
-     void writeEventHeader(const EventMsgBuilder& ineview);
      void writeEventHeader(const EventMsgView& ineview);
-
-     void writeStart(const InitMsgBuilder& inview);
      void writeStart(const InitMsgView& inview);
 
   private:

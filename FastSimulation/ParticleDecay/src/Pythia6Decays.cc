@@ -13,14 +13,14 @@ extern "C" {
   void PYTHIA6PYDECY(int *ip);
 }
 
-Pythia6Decays::Pythia6Decays(int seed)
+Pythia6Decays::Pythia6Decays(int seed,double comE)
 {
   // Create a new Pythia6jets
   pyjets = new Pythia6jets();
   // Create a new Pythia6Random steering
   pyrand = new Pythia6Random(seed);
   // Initialize PYTHIA decay tables...
-  call_pyinit( "CMS", "p", "p", 14000. );
+  call_pyinit( "CMS", "p", "p", comE );
 
 }
 

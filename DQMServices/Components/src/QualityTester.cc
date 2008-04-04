@@ -1,8 +1,8 @@
 /*
  * \file QualityTester.cc
  * 
- * $Date: 2007/11/09 07:25:12 $
- * $Revision: 1.7 $
+ * $Date: 2007/09/06 15:40:02 $
+ * $Revision: 1.6 $
  * \author M. Zanetti - CERN PH
  *
  */
@@ -17,7 +17,7 @@
 #include <FWCore/ParameterSet/interface/ParameterSet.h>
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include <DQMServices/Core/interface/MonitorUIRoot.h>
+#include <DQMServices/UI/interface/MonitorUIRoot.h>
 #include "DQMServices/ClientConfig/interface/QTestHandle.h"
 
 

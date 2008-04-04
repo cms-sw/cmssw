@@ -1,3 +1,46 @@
+2008-04-02  Philipp SCHIEFERDECKER  <philipp.schieferdecker@cern.ch>
+
+	* tag V00-14-06
+	* add --search option to edmConfDBDiff script
+
+2008-03-14  Emilio Meschi <emilio.meschi@cern.ch>
+
+	* tag V00-14-05
+	* added support for LS id from evm block
+	
+2008-03-08  Philipp SCHIEFERDECKER  <philipp.schieferdecker@cern.ch>
+
+	* tag V00-14-04
+	* scripts/edmConfigFromDB: allow several target DBs: --hltdev
+	  (int9r, default), --orcoff, and --test (int2r)
+
+2008-02-29  Emilio Meschi <emilio.meschi@cern.ch>
+
+	* tag V00-14-03
+	* added friend class FUEventProcessor to ModuleWebRegistry to
+	enable invoking clear() 
+	
+2008-02-27  Emilio Meschi <emilio.meschi@cern.ch>
+
+	* tag V00-14-02
+	* added state transition E->F to StateMachine
+	* moduleName moved from private to protected in ModuleWeb
+	* more style info in Css.h
+	* various improvements to ExceptionGenerator
+	* moved to use new icons in WebGUI
+
+2008-02-20  Philipp SCHIEFERDECKER <philipp.schieferdecker@cern.ch>
+
+	* tag V00-14-01
+	* remove instanceNb from monitoring infospace name
+
+2008-01-26  Philipp SCHIEFERDECKER  <philipp.schieferdecker@cern.ch>
+
+	* tag V00-14-00
+	* additions to SM protocoll in interface/i2oEvFMsgs.h
+	* define I2O_SM_ERROR
+	* add outModId to SM data message format
+
 2008-01-18  Philipp SCHIEFERDECKER  <philipp.schieferdecker@cern.ch>
 
 	* tag V00-13-15

@@ -32,20 +32,18 @@ class DCCSCBlock : public DCCFEBlock {
 	 
   protected :
 
-   void unpackXtalData(uint stripID, uint xtalID);
+   int unpackXtalData(uint stripID, uint xtalID);
 	 
    EEDetId                                * pDetId_;
    EEDataFrame                            * pDFId_;
 	 
-   std::auto_ptr<EEDigiCollection>             * digis_;
-	
-	/* 
-    todo : update this for the endcap...
-	 
-    auto_ptr<EEDetIdCollection>            * invalidGains_;  
-    auto_ptr<EEDetIdCollection>            * invalidGainsSwitch_ ;
-    auto_ptr<EEDetIdCollection>            * invalidChIds_;
-	*/
+   std::auto_ptr<EEDigiCollection>        * digis_;
+
+   // to restructure as common collections to DCCTowerBlock, to inherit from DCCFEBlock
+   // backporting to be 18x compatible
+   /*    std::auto_ptr<EEDetIdCollection>       * invalidGains_; */
+   /*    std::auto_ptr<EEDetIdCollection>       * invalidGainsSwitch_ ; */
+   /*    std::auto_ptr<EEDetIdCollection>       * invalidChIds_; */
     
 };
 

@@ -15,6 +15,7 @@
 
 #include "RecoEgamma/EgammaElectronAlgos/interface/ElectronSeedGenerator.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHitCollection.h"
+#include "DataFormats/Math/interface/Point3D.h"
 
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h"
 #include "TrackingTools/PatternTools/interface/TrajectoryStateUpdator.h"
@@ -46,8 +47,6 @@ public:
 			  float ipphimax1,
 			  float iphimin2,
 			  float iphimax2,
-			  float izmin1,
-			  float izmax1,
 			  float izmin2,
 			  float izmax2,
 			  bool  idynamicphiroad,
@@ -72,7 +71,9 @@ public:
   float zmin1, zmax1, zmin2, zmax2;
   bool dynamicphiroad;
   double SCEtCut_;
-  
+
+  math::XYZPoint BSPosition_;  
+
   PixelHitMatcher *myMatchEle;
   PixelHitMatcher *myMatchPos;
 

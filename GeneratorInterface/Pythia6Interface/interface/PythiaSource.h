@@ -22,6 +22,9 @@
 #include "CLHEP/Random/JamesRandom.h"
 #include "CLHEP/Random/RandFlat.h"
 
+#include "GeneratorInterface/Pythia6Interface/interface/PtYDistributor.h"
+#include "GeneratorInterface/Pythia6Interface/interface/TauolaInterface.h"
+
 class Run;
 
 namespace edm
@@ -67,19 +70,27 @@ namespace edm
     // for single particle generation in pythia
     int    particleID;
     bool   doubleParticle;
+    std::string kinedata;
     double ptmin, ptmax;
     double etamin, etamax;
     double phimin, phimax;
     double comenergy;
     double emin, emax;
+    double ymin, ymax;  
     bool flatEnergy;
     
     bool stopHadronsEnabled;
     bool gluinoHadronsEnabled;
     
+    // external generators (tauola,...)
+    bool useExternalGenerators_ ;
+    bool useTauola_ ;
+    bool useTauolaPolarization_ ;
+    TauolaInterface tauola_ ;
+        
     CLHEP::HepRandomEngine* fRandomEngine;
     CLHEP::RandFlat*        fRandomGenerator; 
-
+    PtYDistributor*         fPtYGenerator;
   };
 } 
 

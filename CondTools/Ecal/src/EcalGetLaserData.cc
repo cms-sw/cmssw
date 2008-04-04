@@ -11,7 +11,7 @@
 //
 // Original Author:  Vladlen Timciuc
 //         Created:  Wed Jul  4 13:55:56 CEST 2007
-// $Id: EcalGetLaserData.cc,v 1.2 2007/10/03 12:31:32 ferriff Exp $
+// $Id: EcalGetLaserData.cc,v 1.1 2007/09/09 12:59:18 torimoto Exp $
 //
 //
 
@@ -145,33 +145,32 @@ EcalGetLaserData::analyze(const edm::Event& evt, const edm::EventSetup& evtSetup
       // loop through ecal endcap      
       for(int iX=EEDetId::IX_MIN; iX<=EEDetId::IX_MAX ;++iX) {
 	for(int iY=EEDetId::IY_MIN; iY<=EEDetId::IY_MAX; ++iY) {
-
-	  if (!EEDetId::validDetId(iX,iY,1))
-	    continue;
-	  
-	  EEDetId eedetidpos(iX,iY,1);
-	  int hi = eedetidpos.hashedIndex();
-	  
-	  if (hi< (int)laserRatiosMap.size()) {
-	    apdpnpair = laserRatiosMap[hi];
-	    std::cout << "A sample value of APDPN pair EE+ : " 
-		      << hi << " : " << apdpnpair.p1 << " , " << apdpnpair.p2 << endl;
-	  } else {
-	    edm::LogError("EcalGetLaserData") << "error with laserRatiosMap!" << endl;     
-	  }
-	  
-	  if (!EEDetId::validDetId(iX,iY,-1))
-	    continue;
-	  EEDetId eedetidneg(iX,iY,1);
-	  hi = eedetidneg.hashedIndex();
-	  
-	  if (hi< (int)laserRatiosMap.size()) {
-	    apdpnpair = laserRatiosMap[hi];
-	    std::cout << "A sample value of APDPN pair EE- : " 
-		      << hi << " : " << apdpnpair.p1 << " , " << apdpnpair.p2 << endl;
-	  } else {
-	    edm::LogError("EcalGetLaserData") << "error with laserRatiosMap!" << endl;     
-	  }
+	  try
+	    {
+	      EEDetId eedetidpos(iX,iY,1);
+	      int hi = eedetidpos.hashedIndex();
+	      
+	      if (hi< (int)laserRatiosMap.size()) {
+		apdpnpair = laserRatiosMap[hi];
+		std::cout << "A sample value of APDPN pair EE+ : " 
+			  << hi << " : " << apdpnpair.p1 << " , " << apdpnpair.p2 << endl;
+	      } else {
+		edm::LogError("EcalGetLaserData") << "error with laserRatiosMap!" << endl;     
+	      }
+	      
+	      EEDetId eedetidneg(iX,iY,1);
+	      hi = eedetidneg.hashedIndex();
+	      
+	      if (hi< (int)laserRatiosMap.size()) {
+		apdpnpair = laserRatiosMap[hi];
+		std::cout << "A sample value of APDPN pair EE- : " 
+			  << hi << " : " << apdpnpair.p1 << " , " << apdpnpair.p2 << endl;
+	      } else {
+		edm::LogError("EcalGetLaserData") << "error with laserRatiosMap!" << endl;     
+	      }
+	      
+	    }
+	  catch (cms::Exception &e) {  }
 	}
       }
       
@@ -213,34 +212,33 @@ EcalGetLaserData::analyze(const edm::Event& evt, const edm::EventSetup& evtSetup
       // now for endcap
       for(int iX=EEDetId::IX_MIN; iX<=EEDetId::IX_MAX ;++iX) {
 	for(int iY=EEDetId::IY_MIN; iY<=EEDetId::IY_MAX; ++iY) {
+	  try
+	    {
+	      EEDetId eedetidpos(iX,iY,1);
+	      int hi = eedetidpos.hashedIndex();
 
-	  if (!EEDetId::validDetId(iX,iY,1))
-	    continue;
-	  
-	  EEDetId eedetidpos(iX,iY,1);
-	  int hi = eedetidpos.hashedIndex();
-	  
-	  if (hi< (int)laserRefMap.size()) {
-	    apdpnref = laserRefMap[hi];
-	    cout << "A sample value of APDPN Reference value EE+ : "  
-		 << hi << " : " << apdpnref << endl;	  	  		  
-	    
-	  } else { 
-	    edm::LogError("EcalGetLaserData") << "error with laserRefMap!" << endl;     
-	  }
-	  
-	  if (!EEDetId::validDetId(iX,iY,-1))
-	    continue;
-	  EEDetId eedetidneg(iX,iY,-1);
-	  hi = eedetidneg.hashedIndex();
-	  
-	  if (hi< (int)laserRefMap.size()) {
-	    apdpnref = laserRefMap[hi];
-	    cout << "A sample value of APDPN Reference value EE- : "  
-		 << hi << " : " << apdpnref << endl;	  	 
-	  } else { 
-	    edm::LogError("EcalGetLaserData") << "error with laserRefMap!" << endl;     
-	  }	      
+	      if (hi< (int)laserRefMap.size()) {
+		apdpnref = laserRefMap[hi];
+		cout << "A sample value of APDPN Reference value EE+ : "  
+		     << hi << " : " << apdpnref << endl;	  	  		  
+
+	      } else { 
+		edm::LogError("EcalGetLaserData") << "error with laserRefMap!" << endl;     
+	      }
+		    
+	      EEDetId eedetidneg(iX,iY,-1);
+	      hi = eedetidneg.hashedIndex();
+	      
+	      if (hi< (int)laserRefMap.size()) {
+		apdpnref = laserRefMap[hi];
+		cout << "A sample value of APDPN Reference value EE- : "  
+		     << hi << " : " << apdpnref << endl;	  	 
+	      } else { 
+		edm::LogError("EcalGetLaserData") << "error with laserRefMap!" << endl;     
+	      }	      
+
+	    }
+	  catch (cms::Exception &e) {  }
 	}
       }
       
@@ -276,32 +274,30 @@ EcalGetLaserData::analyze(const edm::Event& evt, const edm::EventSetup& evtSetup
       // next endcap
       for(int iX=EEDetId::IX_MIN; iX<=EEDetId::IX_MAX ;++iX) {
 	for(int iY=EEDetId::IY_MIN; iY<=EEDetId::IY_MAX; ++iY) {
+	  try
+	    {
+	      EEDetId eedetidpos(iX,iY,1);
+	      int hi = eedetidpos.hashedIndex();
 
-	  if (!EEDetId::validDetId(iX,iY,1))
-	    continue;
+	      if (hi< (int)laserAlphaMap.size()) {
+		alpha = laserAlphaMap[hi];
+		cout << " A sample value of Alpha value EE+ : " << hi << " : " << alpha << endl;  
+	      } else {
+		edm::LogError("EcalGetLaserData") << "error with laserAlphaMap!" << endl;     
+	      }	  	      
+	      	      	      
+	      EEDetId eedetidneg(iX,iY,-1);
+	      hi = eedetidneg.hashedIndex();
 
-	  EEDetId eedetidpos(iX,iY,1);
-	  int hi = eedetidpos.hashedIndex();
-	  
-	  if (hi< (int)laserAlphaMap.size()) {
-	    alpha = laserAlphaMap[hi];
-	    cout << " A sample value of Alpha value EE+ : " << hi << " : " << alpha << endl;  
-	  } else {
-	    edm::LogError("EcalGetLaserData") << "error with laserAlphaMap!" << endl;     
-	  }	  	      
-	  
-
-	  if (!EEDetId::validDetId(iX,iY,-1))
-	    continue;
-	  EEDetId eedetidneg(iX,iY,-1);
-	  hi = eedetidneg.hashedIndex();
-	  
-	  if (hi< (int)laserAlphaMap.size()) {
-	    alpha = laserAlphaMap[hi];
-	    cout << " A sample value of Alpha value EE- : " << hi << " : " << alpha << endl;
-	  } else {
-	    edm::LogError("EcalGetLaserData") << "error with laserAlphaMap!" << endl;     
-	  }	  
+	      if (hi< (int)laserAlphaMap.size()) {
+		alpha = laserAlphaMap[hi];
+		cout << " A sample value of Alpha value EE- : " << hi << " : " << alpha << endl;
+	      } else {
+		edm::LogError("EcalGetLaserData") << "error with laserAlphaMap!" << endl;     
+	      }	  
+	      
+	    }
+	  catch (cms::Exception &e) {  }
 	}
       }
       

@@ -117,7 +117,7 @@ bool TrackHistory::traceSimHistory(TrackingParticleRef tpr, int depth)
 
 
 bool TrackHistory::evaluate (
-  edm::RefToBase<reco::Track> tr,
+  reco::TrackRef tr,
   reco::RecoToSimCollection const & association, 
   bool maxMatch
 )

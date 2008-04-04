@@ -11,7 +11,6 @@ namespace reco {
     template<typename Fitter>
     struct CandVertexFitterEventSetupInit {
       static void init( CandCommonVertexFitter<Fitter> & fitter, 
-			const edm::Event & evt,
 			const edm::EventSetup& es ) { 
 	edm::ESHandle<MagneticField> h;
 	es.get<IdealMagneticFieldRecord>().get( h );

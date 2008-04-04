@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2007/06/25 08:07:52 $
- *  $Revision: 1.12 $
+ *  $Date: 2007/09/04 08:03:21 $
+ *  $Revision: 1.13 $
  *  \author M. Zanetti
  */
 
@@ -29,7 +29,7 @@ using namespace edm;
 
 
 DTDDUFileReader::DTDDUFileReader(const edm::ParameterSet& pset) : 
-  runNumber(1), eventNumber(0) {
+  runNumber(1), eventNumber(1) {
 
   const string & filename = pset.getUntrackedParameter<string>("fileName");
 

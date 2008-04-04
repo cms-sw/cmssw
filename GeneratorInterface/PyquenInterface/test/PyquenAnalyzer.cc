@@ -1,11 +1,8 @@
-// $Id: PyquenAnalyzer.cc,v 1.4 2007/10/05 15:08:47 loizides Exp $
-
 #include <iostream>
 
 #include "PyquenAnalyzer.h"
 
 #include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
-#include "SimDataFormats/HiGenData/interface/GenHIEvent.h"
 #include "DataFormats/Common/interface/Handle.h"
 
 // essentials !!!
@@ -13,9 +10,7 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "HepMC/HeavyIon.h"
 
-#include "FWCore/ServiceRegistry/interface/Service.h"
-#include "PhysicsTools/UtilAlgos/interface/TFileService.h"
-
+ 
 #include "TFile.h"
 #include "TH1.h"
  
@@ -32,9 +27,11 @@ using namespace std;
 
  
 PyquenAnalyzer::PyquenAnalyzer(const ParameterSet& pset)
-  : phdNdEta(0), phdNdY(0), phdNdPt(0),phdNdPhi(0)
+  : sOutFileName(pset.getUntrackedParameter<string>("HistOutFile",std::string("testPyquen.root")) ),
+pfOutFile(0), phdNdEta(0), phdNdY(0), phdNdPt(0),phdNdPhi(0)
 {
   // constructor
+
 }
 
 
@@ -42,13 +39,12 @@ PyquenAnalyzer::PyquenAnalyzer(const ParameterSet& pset)
 void PyquenAnalyzer::beginJob( const EventSetup& )
 {
   //runs at the begining of the job
-  edm::Service<TFileService> fs;
-  TH1::SetDefaultSumw2(true);
 
-  phdNdEta      = fs->make<TH1D>("phdNdEta",";#eta;",100,-10.,10.);
-  phdNdY        = fs->make<TH1D>("phdNdY",";y;",100,-10.,10.) ;
-  phdNdPt       = fs->make<TH1D>("phdNdPt",";p_{T}(GeV/c);",100, 0.,10.) ;    
-  phdNdPhi      = fs->make<TH1D>("phdNdPhi",";d#phi(rad);",100,-3.15,3.15);
+   pfOutFile     = new TFile(sOutFileName.c_str(),"RECREATE");
+   phdNdEta      = new TH1D("phdNdEta",";#eta;",100,-10.,10.);
+   phdNdY        = new TH1D("phdNdY",";y;",100,-10.,10.) ;
+   phdNdPt       = new TH1D("phdNdPt",";p_{T}(GeV/c);",100, 0.,10.) ;    
+   phdNdPhi      = new TH1D("phdNdPhi",";d#phi(rad);",100,-3.15,3.15);
 
    return ;
 }
@@ -64,8 +60,6 @@ void PyquenAnalyzer::analyze( const Event& e, const EventSetup& )
    // find initial (unsmeared, unfiltered,...) HepMCProduct
    // by its label - PyquenSource, that is
    e.getByLabel( "source", EvtHandle ) ;
-
-   //  EvtHandle->GetEvent()->print();
    
    double part_eta, part_y, part_pt, part_phi;
    const HepMC::GenEvent* myEvt = EvtHandle->GetEvent() ;
@@ -78,12 +72,14 @@ void PyquenAnalyzer::analyze( const Event& e, const EventSetup& )
 	   part_y   = (*p)->momentum().y();
 	   part_pt  = (*p)->momentum().perp();
 	   part_phi = (*p)->momentum().phi();
+	   
 	   phdNdEta->Fill(part_eta);
 	   phdNdY->Fill(part_y);
 	   phdNdPt->Fill(part_pt);
 	   phdNdPhi->Fill(part_phi);
 	 }
      }
+
    return ;   
 }
 
@@ -98,6 +94,9 @@ void PyquenAnalyzer::endJob()
   phdNdPt->Scale(phdNdPt->GetBinWidth(0));
   phdNdPhi->Scale(phdNdPhi->GetBinWidth(0));  
 
+  pfOutFile->Write();
+  pfOutFile->Close();  
+  return ;
 }
 
 //define as a plug-in

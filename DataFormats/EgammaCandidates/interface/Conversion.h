@@ -6,7 +6,7 @@
  *
  * \author N.Marinelli  University of Notre Dame, US
  *
- * \version $Id: Conversion.h,v 1.1 2007/12/07 19:13:43 nancy Exp $
+ * \version $Id: Conversion.h,v 1.2 2007/12/10 19:05:24 nancy Exp $
  *
  */
 
@@ -45,9 +45,9 @@ namespace reco {
     /// vector of references to  tracks
     std::vector<reco::TrackRef> tracks() const ; 
      /// returns  the reco conversion vertex
-    reco::Vertex const & conversionVertex() const  { return theConversionVertex_ ; }
+    const reco::Vertex & conversionVertex() const  { return theConversionVertex_ ; }
      /// positions of the track extrapolation at the ECAL front face
-    std::vector<math::XYZPoint> const & ecalImpactPosition()  {return thePositionAtEcal_;}
+    const std::vector<math::XYZPoint> & ecalImpactPosition() const  {return thePositionAtEcal_;}
     //  pair of BC matching the tracks
     const std::vector<reco::BasicClusterRef>&  bcMatchingWithTracks() const { return theMatchingBCs_;}
     /// Bool flagging objects having track size >0

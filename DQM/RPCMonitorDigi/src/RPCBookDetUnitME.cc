@@ -75,7 +75,7 @@ using namespace std;
       
       sprintf(meId,"BXN_%s",detUnitLabel);
       sprintf(meTitle,"BXN_for_%s",layerLabel);
-      meMap[meId] = dbe->book1D(meId, meTitle, 21, -10.5, 10.5);
+      meMap[meId] = dbe->book1D(meId, meTitle, 11, -10.5, 10.5);
   }
     
     
@@ -84,7 +84,7 @@ using namespace std;
       
       sprintf(meId,"BXN_vs_strip_%s",detUnitLabel);
       sprintf(meTitle,"BXN_vs_strip_for_%s",layerLabel);
-      meMap[meId] = dbe->book2D(meId, meTitle,  100, 0.5, 100.5, 21, -10.5, 10.5);
+      meMap[meId] = dbe->book2D(meId, meTitle,  100, 0.5, 100.5, 11, -10.5, 10.5);
       
     }
   

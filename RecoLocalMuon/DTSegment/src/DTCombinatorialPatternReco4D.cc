@@ -1,7 +1,7 @@
 /** \file
  *
- * $Date: 2006/05/04 16:31:48 $
- * $Revision: 1.11 $
+ * $Date: 2007/12/11 09:45:08 $
+ * $Revision: 1.12 $
  * \author Stefano Lacaprara - INFN Legnaro <stefano.lacaprara@pd.infn.it>
  * \author Riccardo Bellan - INFN TO <riccardo.bellan@cern.ch>
  */
@@ -128,7 +128,9 @@ DTCombinatorialPatternReco4D::reconstruct(){
     cout << "Segments in " << theChamber->id() << endl;
     cout<<"Reconstructing of the Phi segments"<<endl;
   }
-  vector<DTSegmentCand*> resultPhi = buildPhiSuperSegmentsCandidates();
+
+  vector<DTHitPairForFit*> pairPhiOwned;
+  vector<DTSegmentCand*> resultPhi = buildPhiSuperSegmentsCandidates(pairPhiOwned);
   
   if (debug) cout << "There are " << resultPhi.size() << " Phi cand" << endl;
   
@@ -161,9 +163,9 @@ DTCombinatorialPatternReco4D::reconstruct(){
     for (vector<DTSegmentCand*>::const_iterator phi=resultPhi.begin();
          phi!=resultPhi.end(); ++phi) {
       
-      DTChamberRecSegment2D* superPhi = (**phi);
+      std::auto_ptr<DTChamberRecSegment2D> superPhi(**phi);
       
-      theUpdator->update(superPhi);
+      theUpdator->update(superPhi.get());
       
       if (hasZed) {
 
@@ -216,14 +218,15 @@ DTCombinatorialPatternReco4D::reconstruct(){
   }
   // finally delete the candidates!
   for (vector<DTSegmentCand*>::iterator phi=resultPhi.begin();
-       phi!=resultPhi.end(); ++phi) delete *phi;
-  
+        phi!=resultPhi.end(); ++phi) delete *phi;
+  for (vector<DTHitPairForFit*>::iterator phiPair = pairPhiOwned.begin();
+        phiPair!=pairPhiOwned.end(); ++phiPair) delete *phiPair;
   return result;
 }
 
 
 
-vector<DTSegmentCand*> DTCombinatorialPatternReco4D::buildPhiSuperSegmentsCandidates(){
+vector<DTSegmentCand*> DTCombinatorialPatternReco4D::buildPhiSuperSegmentsCandidates(vector<DTHitPairForFit*> &pairPhiOwned){
   
   DTSuperLayerId slId;
 
@@ -246,6 +249,7 @@ vector<DTSegmentCand*> DTCombinatorialPatternReco4D::buildPhiSuperSegmentsCandid
   // copy the pairPhi2 in the pairPhi1 vector 
   copy(pairPhi2.begin(),pairPhi2.end(),back_inserter(pairPhi1));
 
+  pairPhiOwned.swap(pairPhi1);
   // Build the segment candidate
-  return the2DAlgo->buildSegments(sl,pairPhi1);
+  return the2DAlgo->buildSegments(sl,pairPhiOwned);
 }

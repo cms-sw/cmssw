@@ -5,7 +5,7 @@
     <Primitive column="TIME" name="timeStamp" />
     <Primitive column="DATA_VERSION" name="dataVersion" />
     <Primitive column="CONFKEY" name="fullConfigKey" />
-    <Container table="DT_CFGCHAMBER" id_columns="IOV_VALUE_ID" name="dataList" position_column="POS" >
+    <Container table="DT_CFGCHAMBER" id_columns="IOV_VALUE_ID" name="dataList" position_column="DATA_ID" >
       <Object table="DT_CFGCHAMBER" id_columns="DATA_ID IOV_VALUE_ID" name="value_type" >
         <Object table="DT_CFGCHAMBER" id_columns="DATA_ID IOV_VALUE_ID" name="first" >
           <Primitive column="WHEEL"   name="wheelId" />

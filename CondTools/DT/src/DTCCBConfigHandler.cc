@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2007/11/24 12:29:54 $
- *  $Revision: 1.1.2.1 $
+ *  $Date: 2008/01/22 19:05:46 $
+ *  $Revision: 1.3 $
  *  \author Paolo Ronchese INFN Padova
  *
  */
@@ -17,34 +17,19 @@
 //-------------------------------
 #include "CondTools/DT/interface/DTConfigHandler.h"
 #include "CondTools/DT/interface/DTDBSession.h"
-#include "CondTools/DT/interface/DTDBDataHandle.h"
 #include "CondFormats/DTObjects/interface/DTCCBConfig.h"
 #include "CondFormats/DTObjects/interface/DTConfigList.h"
 #include "CondCore/DBCommon/interface/AuthenticationMethod.h"
-#include "CondCore/DBCommon/interface/Exception.h"
 #include "CondCore/DBCommon/interface/DBSession.h"
 #include "CondCore/DBCommon/interface/Connection.h"
 #include "CondCore/DBCommon/interface/CoralTransaction.h"
 #include "CondCore/DBCommon/interface/SessionConfiguration.h"
-#include "CondCore/DBCommon/interface/ConnectionConfiguration.h"
 //#include "CondCore/DBCommon/interface/RelationalStorageManager.h"
-#include "RelationalAccess/AccessMode.h"
-#include "RelationalAccess/IRelationalService.h"
-#include "RelationalAccess/RelationalServiceException.h"
-#include "RelationalAccess/IRelationalDomain.h"
-#include "RelationalAccess/SchemaException.h"
-#include "RelationalAccess/ISession.h"
 #include "RelationalAccess/ISessionProxy.h"
-#include "RelationalAccess/ITransaction.h"
 #include "RelationalAccess/ISchema.h"
 #include "RelationalAccess/ITable.h"
-#include "RelationalAccess/TableDescription.h"
-#include "RelationalAccess/ITablePrivilegeManager.h"
-#include "RelationalAccess/IPrimaryKey.h"
 #include "RelationalAccess/ICursor.h"
 #include "RelationalAccess/IQuery.h"
-#include "RelationalAccess/ITableDataEditor.h"
-#include "CoralBase/Exception.h"
 #include "CoralBase/AttributeList.h"
 #include "CoralBase/AttributeSpecification.h"
 #include "CoralBase/Attribute.h"
@@ -316,7 +301,7 @@ void DTCCBConfigHandler::chkConfigList() {
     if ( brickData == 0 ) {
       std::cout << "brick missing, copy request" << std::endl;
       missingList.push_back( brickConfigId );
-      break; // REMOVE
+//      break; // REMOVE
     }
   }
   std::vector<int>::const_iterator brickIter = missingList.begin();

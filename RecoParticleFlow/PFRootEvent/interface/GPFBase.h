@@ -5,37 +5,28 @@
   Base class for graphic representation 
   of objects 
 */ 
-#include <TAttLine.h>
-#include <TAttMarker.h>
  
 #include "RecoParticleFlow/PFRootEvent/interface/DisplayManager.h"
 
 
 class GPFBase {
 
- protected:
-  DisplayManager  *display_;
-  int              viewId_;
-  int              origId_;
-  int              color_;
-  TAttMarker      *markerAttr_;
-  TAttLine        *lineAttr_;
-  
  public:
-  GPFBase(DisplayManager *display,int viewType,int ident,TAttMarker *attm,TAttLine *attl);
-  GPFBase(DisplayManager *display,int viewType,int ident,TAttMarker *attm);
+  DisplayManager  *display_;
+  int viewId_;
+  int origId_;
+  int color_;
+   
+ public:
   GPFBase(DisplayManager *display,int viewType,int ident, int color);
-  
   virtual ~GPFBase() {;}
   int getView()                 { return viewId_;}
   int getOrigin()               { return origId_;}
 
   virtual void draw() {;}
-  virtual void setColor() = 0;
-  virtual void setColor(int newcol ) = 0; 
+  //virtual drawGPFBlocks(){;}
+  virtual void setColor(int) = 0;
   virtual void setInitialColor() = 0;
-  virtual void setNewStyle() = 0;
-  virtual void setNewSize() = 0;
   virtual double getEnergy()  { return -1;}
   virtual double getPt()      { return -1;} 
 };

@@ -41,7 +41,6 @@ FUShmBuffer::FUShmBuffer(bool         segmentationMode,
 			 unsigned int recoCellSize,
 			 unsigned int dqmCellSize)
   : segmentationMode_(segmentationMode)
-  , nClients_(0)
   , nClientsMax_(16)
   , nRawCells_(nRawCells)
   , rawCellPayloadSize_(rawCellSize)
@@ -212,6 +211,8 @@ void FUShmBuffer::initialize(unsigned int shmid,unsigned int semid)
 //______________________________________________________________________________
 void FUShmBuffer::reset()
 {
+  nClients_=0;
+
   // setup ipc semaphores
   sem_init(0,1);          // lock (binary)
   sem_init(1,nRawCells_); // raw  write semaphore
@@ -252,15 +253,6 @@ void FUShmBuffer::reset()
 
   for (unsigned int i=0;i<nDqmCells_;i++) setDqmState(i,dqm::EMPTY);
 }
-
-
-//______________________________________________________________________________
-/*
-  unsigned int FUShmBuffer::nbClients()
-  {
-  return FUShmBuffer::shm_nattch(shmid_)-1;
-  }
-*/
 
 
 //______________________________________________________________________________
@@ -315,8 +307,8 @@ FUShmRecoCell* FUShmBuffer::recoCellToRead()
   FUShmRecoCell* cell    =recoCell(iCell);
   unsigned int   iRawCell=cell->rawCellIndex();
   if (iRawCell<nRawCells_) {
-    evt::State_t   state=evtState(iRawCell);
-    assert(state==evt::RECOWRITTEN);
+    //evt::State_t   state=evtState(iRawCell);
+    //assert(state==evt::RECOWRITTEN);
     setEvtState(iRawCell,evt::SENDING);
   }
   return cell;
@@ -378,8 +370,8 @@ void FUShmBuffer::finishReadingRecoCell(FUShmRecoCell* cell)
 {
   unsigned int iRawCell=cell->rawCellIndex();
   if (iRawCell<nRawCells_) {
-    evt::State_t state=evtState(cell->rawCellIndex());
-    assert(state==evt::SENDING);
+    //evt::State_t state=evtState(cell->rawCellIndex());
+    //assert(state==evt::SENDING);
     setEvtState(cell->rawCellIndex(),evt::SENT);
   }
   if (segmentationMode_) shmdt(cell);
@@ -425,8 +417,8 @@ void FUShmBuffer::discardRecoCell(unsigned int iCell)
   FUShmRecoCell* cell=recoCell(iCell);
   unsigned int iRawCell=cell->rawCellIndex();
   if (iRawCell<nRawCells_) {
-    evt::State_t state=evtState(iRawCell);
-    assert(state==evt::SENT);
+    //evt::State_t state=evtState(iRawCell);
+    //assert(state==evt::SENT);
     scheduleRawCellForDiscard(iRawCell);
   }
   cell->clear();
@@ -534,34 +526,6 @@ void FUShmBuffer::scheduleRawEmptyCellForDiscard(FUShmRawCell* cell)
 
 
 //______________________________________________________________________________
-bool FUShmBuffer::writeRecoEventData(unsigned int   runNumber,
-				     unsigned int   evtNumber,
-				     unsigned char *data,
-				     unsigned int   dataSize)
-{
-  if (dataSize>recoCellPayloadSize_) {
-    cout<<"FUShmBuffer::writeRecoEventData() ERROR: buffer overflow."<<endl;
-    return false;
-  }
-  
-  waitRecoWrite();
-  unsigned int   iCell=nextRecoWriteIndex();
-  FUShmRecoCell* cell =recoCell(iCell);
-  unsigned int rawCellIndex=indexForEvtNumber(evtNumber);
-  evt::State_t state=evtState(rawCellIndex);
-  assert(state==evt::PROCESSING||state==evt::RECOWRITING);
-  setEvtState(rawCellIndex,evt::RECOWRITING);
-  incEvtDiscard(rawCellIndex);
-  cell->writeEventData(rawCellIndex,runNumber,evtNumber,data,dataSize);
-  setEvtState(rawCellIndex,evt::RECOWRITTEN);
-  postRecoIndexToRead(iCell);
-  if (segmentationMode_) shmdt(cell);
-  postRecoRead();
-  return true;
-}
-
-
-//______________________________________________________________________________
 bool FUShmBuffer::writeRecoInitMsg(unsigned char *data,
 				   unsigned int   dataSize)
 {
@@ -576,6 +540,60 @@ bool FUShmBuffer::writeRecoInitMsg(unsigned char *data,
   cell->writeInitMsg(data,dataSize);
   postRecoIndexToRead(iCell);
   if (segmentationMode_) shmdt(cell);
+  postRecoRead();
+  return true;
+}
+
+
+//______________________________________________________________________________
+bool FUShmBuffer::writeRecoEventData(unsigned int   runNumber,
+				     unsigned int   evtNumber,
+				     unsigned int   outModId,
+				     unsigned char *data,
+				     unsigned int   dataSize)
+{
+  if (dataSize>recoCellPayloadSize_) {
+    cout<<"FUShmBuffer::writeRecoEventData() ERROR: buffer overflow."<<endl;
+    return false;
+  }
+  
+  waitRecoWrite();
+  unsigned int   iCell=nextRecoWriteIndex();
+  FUShmRecoCell* cell =recoCell(iCell);
+  unsigned int rawCellIndex=indexForEvtNumber(evtNumber);
+  //evt::State_t state=evtState(rawCellIndex);
+  //assert(state==evt::PROCESSING||state==evt::RECOWRITING||state==evt::SENT);
+  setEvtState(rawCellIndex,evt::RECOWRITING);
+  incEvtDiscard(rawCellIndex);
+  cell->writeEventData(rawCellIndex,runNumber,evtNumber,outModId,data,dataSize);
+  setEvtState(rawCellIndex,evt::RECOWRITTEN);
+  postRecoIndexToRead(iCell);
+  if (segmentationMode_) shmdt(cell);
+  postRecoRead();
+  return true;
+}
+
+
+//______________________________________________________________________________
+bool FUShmBuffer::writeErrorEventData(unsigned int runNumber,
+				      unsigned int iRawCell)
+{
+  FUShmRawCell* raw = rawCell(iRawCell);
+  unsigned int   dataSize=sizeof(unsigned int)*1024+raw->payloadSize();
+  unsigned char *data    =new unsigned char[dataSize];
+  unsigned int  *pFedSize=(unsigned int*)data;
+  for (unsigned int i=0;i<raw->nFed();i++) *pFedSize++ = raw->fedSize(i);
+  memcpy(data+sizeof(unsigned int)*1024,raw->payloadAddr(),raw->payloadSize());
+  
+  waitRecoWrite();
+  unsigned int   iRecoCell=nextRecoWriteIndex();
+  FUShmRecoCell* reco     =recoCell(iRecoCell);
+  setEvtState(iRawCell,evt::RECOWRITING);
+  setEvtDiscard(iRawCell,2);
+  reco->writeErrorEvent(iRawCell,runNumber,raw->evtNumber(),data,dataSize);
+  setEvtState(iRawCell,evt::RECOWRITTEN);
+  postRecoIndexToRead(iRecoCell);
+  if (segmentationMode_) { shmdt(raw); shmdt(reco); }
   postRecoRead();
   return true;
 }
@@ -1280,14 +1298,16 @@ bool FUShmBuffer::setEvtTimeStamp(unsigned int index,time_t timeStamp)
 //______________________________________________________________________________
 bool FUShmBuffer::setClientPrcId(pid_t prcId)
 {
+  lock();
   assert(nClients_<nClientsMax_);
   pid_t *prcid=(pid_t*)((unsigned int)this+clientPrcIdOffset_);
   for (unsigned int i=0;i<nClients_;i++) {
-    if ((*prcid)==prcId) return false;
+    if ((*prcid)==prcId) { unlock();  return false; }
     prcid++;
   }
   nClients_++;
   *prcid=prcId;
+  unlock();
   return true;
 }
 
@@ -1295,13 +1315,15 @@ bool FUShmBuffer::setClientPrcId(pid_t prcId)
 //______________________________________________________________________________
 bool FUShmBuffer::removeClientPrcId(pid_t prcId)
 {
+  lock();
   pid_t *prcid=(pid_t*)((unsigned int)this+clientPrcIdOffset_);
   unsigned int iClient(0);
   while (iClient<=nClients_&&(*prcid)!=prcId) { prcid++; iClient++; }
   assert(iClient!=nClients_);
   pid_t* next=prcid; next++;
-  while (iClient<nClients_-1) { *prcid=*next; prcid++; next++; }
+  while (iClient<nClients_-1) { *prcid=*next; prcid++; next++; iClient++; }
   nClients_--;
+  unlock();
   return true;
 }
 

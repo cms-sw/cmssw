@@ -1,4 +1,4 @@
-// @(#)root/mathcore:$Name:  $:$Id: Transform3D.cxx,v 1.13 2006/11/07 16:24:11 moneta Exp $
+// @(#)root/mathcore:$Name: V02-02-01 $:$Id: Transform3DPJ.cc,v 1.1 2007/05/27 20:12:40 pjanot Exp $
 // Authors: W. Brown, M. Fischler, L. Moneta    2005
 
 /**********************************************************************
@@ -13,7 +13,6 @@
 // Created by: Lorenzo Moneta  October 27 2005
 //
 //
-#include "Math/GenVector/GenVectorIO.h"
 
 #include "FastSimulation/CaloGeometryTools/interface/Transform3DPJ.h"
 #include "Math/GenVector/Plane3D.h"

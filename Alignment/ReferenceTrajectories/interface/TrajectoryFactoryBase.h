@@ -44,6 +44,7 @@ protected:
 
   virtual const TrajectoryInput innermostStateAndRecHits( const ConstTrajTrackPair & track ) const;
   virtual const Trajectory::DataContainer orderedTrajectoryMeasurements( const Trajectory & trajectory ) const;
+  bool sameSurface( const Surface& s1, const Surface& s2 ) const;
 
 private:
 

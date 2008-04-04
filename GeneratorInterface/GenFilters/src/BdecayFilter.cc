@@ -49,7 +49,9 @@ HepMC::GenParticle * BdecayFilter::findParticle(const GenPartVect genPartVect,
 HepMC::GenParticle * BdecayFilter::findParticle(HepMC::GenVertex* vertex, 
 						   const int requested_id)
 {
-  for(std::set<GenParticle*>::const_iterator p = vertex->particles_out_const_begin(); p != vertex->particles_out_const_end(); p++)
+  // for(std::set<GenParticle*>::const_iterator p = vertex->particles_out_const_begin(); 
+  for(GenVertex::particles_out_const_iterator  p = vertex->particles_out_const_begin(); 
+      p != vertex->particles_out_const_end(); p++)
     {
       int event_particle_id = abs( (*p)->pdg_id() );
       cout << "particle Id: "<<event_particle_id<<"\n";
@@ -133,7 +135,8 @@ bool BdecayFilter::cuts(const GenParticle * jpsi, const CutStruct cut)
   HepMC::GenVertex* myVertex = jpsi->end_vertex();
   int numChildren = myVertex->particles_out_size();
   std::vector<HepMC::GenParticle*> psiChild;
-  for(std::set<GenParticle*>::const_iterator p = myVertex->particles_out_const_begin();
+  // for(std::set<GenParticle*>::const_iterator p = myVertex->particles_out_const_begin();
+  for(GenVertex::particles_out_const_iterator p = myVertex->particles_out_const_begin();
       p != myVertex->particles_out_const_end(); p++) 
     psiChild.push_back((*p));
 

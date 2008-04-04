@@ -8,17 +8,20 @@
 //________________________________________________________________________
 GPFTrack::GPFTrack(DisplayManager * display,int view,int ident,
                    reco::PFRecTrack *tra, int size, double *x, double *y,
-                   double pt,TAttMarker *attm,TAttLine * attl, std::string option)
-  : GPFBase(display,view,ident,attm,attl ),
+                   double pt,int linestyle, int linecolor, std::string option)
+  : GPFBase(display,view,ident, linecolor),
     TGraph(size,x,y), track_(tra),pt_(pt), option_(option)
 {
   ResetBit(kCanDelete);
   
-  SetLineColor(lineAttr_->GetLineColor());
-  SetLineStyle(lineAttr_->GetLineStyle());
-  SetMarkerStyle(markerAttr_->GetMarkerStyle());
-  SetMarkerSize(markerAttr_->GetMarkerSize());
-  SetMarkerColor(markerAttr_->GetMarkerColor());
+  int    markerstyle = 8;
+  double markersize = 0.8;
+
+  SetLineColor(color_);
+  SetLineStyle(linestyle);
+  SetMarkerStyle(markerstyle);
+  SetMarkerSize(markersize);
+  SetMarkerColor(color_);
   
 }                    
 //____________________________________________________________________________________________________________
@@ -49,36 +52,16 @@ void GPFTrack::draw()
   TGraph::Draw(option_.data());
 }
 //______________________________________________________________________________
-void GPFTrack::setColor()
-{
-  if (option_=="f") SetFillColor(lineAttr_->GetLineColor());
-  else              SetLineColor(lineAttr_->GetLineColor());
-  SetMarkerColor(markerAttr_->GetMarkerColor());
-}
-//______________________________________________________________________________
 void GPFTrack::setColor(int color)
 {
   if (option_=="f") SetFillColor(color);
   else              SetLineColor(color);
   SetMarkerColor(color);
 }
-
 //_____________________________________________________________________________
 void GPFTrack::setInitialColor()
-//redondant avec setColor ???? to check
 {
-  if (option_=="f") SetFillColor(lineAttr_->GetLineColor());
-  else              SetLineColor(lineAttr_->GetLineColor());
-  SetMarkerColor(markerAttr_->GetMarkerColor());
+  if (option_=="f") SetFillColor(color_);
+  else              SetLineColor(color_);
+  SetMarkerColor(color_);
 }
-//_____________________________________________________________________________
-void GPFTrack::setNewSize()
-{
- SetMarkerSize(markerAttr_->GetMarkerSize());
-}
-//____________________________________________________________________________
-void GPFTrack::setNewStyle()
-{
- SetMarkerStyle(markerAttr_->GetMarkerStyle());
-}
- 

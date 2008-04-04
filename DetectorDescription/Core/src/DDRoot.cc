@@ -1,6 +1,5 @@
 #include "DetectorDescription/Base/interface/DDdebug.h"
 #include "DetectorDescription/Core/interface/DDRoot.h"
-#include "DetectorDescription/Base/interface/Singleton.h"
 
 
 //DDRootDef::pointer_type DDRootDef::instance_ = 0;

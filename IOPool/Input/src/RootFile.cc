@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: RootFile.cc,v 1.108 2008/01/18 00:53:50 wmtan Exp $
+$Id: RootFile.cc,v 1.115 2008/02/06 00:00:47 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include "RootFile.h"
@@ -138,12 +138,12 @@ namespace edm {
         std::string newFriendlyName = friendlyname::friendlyName(prod.className());
 	if (newFriendlyName == prod.friendlyClassName_) {
 	  prod.init();
-          newReg->addProduct(prod);
+          newReg->copyProduct(prod);
 	} else {
           BranchDescription newBD(prod);
           newBD.friendlyClassName_ = newFriendlyName;
 	  newBD.init();
-          newReg->addProduct(newBD);
+          newReg->copyProduct(newBD);
 	  // Need to call init to get old branch name.
 	  prod.init();
 	  newBranchToOldBranch_.insert(std::make_pair(newBD.branchName(), prod.branchName()));
@@ -607,7 +607,7 @@ namespace edm {
         fileIndexIter_ = fileIndex_.findPosition(fileIndexIter_->run_, startAtLumi_, startAtEvent_);      
       }
       while (eventsToSkip_ != 0 && fileIndexIter_ != fileIndexEnd_ &&
-	   fileIndexIter_->getEntryType() == FileIndex::kEvent) {
+	   getEntryTypeSkippingDups() == FileIndex::kEvent) {
         ++fileIndexIter_;
         --eventsToSkip_;
       }
@@ -653,7 +653,7 @@ namespace edm {
       fileIndexIter_ = fileIndex_.findPosition(fileIndexIter_->run_, startAtLumi_, startAtEvent_);      
     }
     while (eventsToSkip_ != 0 && fileIndexIter_ != fileIndexEnd_ &&
-	 fileIndexIter_->getEntryType() == FileIndex::kEvent) {
+	 getEntryTypeSkippingDups() == FileIndex::kEvent) {
       ++fileIndexIter_;
       --eventsToSkip_;
     }

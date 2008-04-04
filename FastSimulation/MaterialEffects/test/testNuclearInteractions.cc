@@ -1,5 +1,4 @@
 // user include files
-#include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDProducer.h"
 
 #include "FWCore/Framework/interface/Event.h"
@@ -22,7 +21,6 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include <vector>
 #include <string>
-#include "TH2.h"
 #include "TFile.h"
 #include "TTree.h"
 #include "TProcessID.h"

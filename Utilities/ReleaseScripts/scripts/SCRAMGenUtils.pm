@@ -201,7 +201,7 @@ sub writeHashCache {
   if ($ref eq "HASH"){
     print $fh "{\n";
     $tab++;
-    foreach my $item (keys %{$cache}){
+    foreach my $item (sort keys %{$cache}){
       &printtab_ ("$item=>", $fh, $tab);
       &writeHashCache ($cache->{$item}, $fh, $tab);
     }

@@ -1,4 +1,4 @@
-// $Id: StreamService.cc,v 1.2 2007/02/05 16:39:41 klute Exp $
+// $Id: StreamService.cc,v 1.6 2008/03/10 10:07:08 meschi Exp $
 
 #include <EventFilter/StorageManager/interface/StreamService.h>
 #include <EventFilter/StorageManager/interface/ProgressMarker.h>
@@ -111,6 +111,8 @@ boost::shared_ptr<OutputService> StreamService::newOutputService()
   shared_ptr<OutputService> outputService(new OutputService(file, view));
 
   outputMap_[file] = outputService;
+
+  boost::mutex::scoped_lock sl(list_lock_);
   outputSummary_.push_back(file);  
 
   handleLock(file); 
@@ -141,7 +143,7 @@ void StreamService::handleLock(shared_ptr<FileRecord> file)
 //
 bool StreamService::checkEvent(shared_ptr<FileRecord> file, EventMsgView const& view)
 {
-  if (file->fileSize() + static_cast<int>(view.size()) > maxSize_ && file->events() > 0)
+  if (file->fileSize() + static_cast<long long>(view.size()) > maxSize_ && file->events() > 0)
     return false;
 
   return true;
@@ -236,7 +238,7 @@ void StreamService::setStreamParameter()
   //mailboxPath_        = parameterSet_.getParameter<string> ("mailboxPath");
   //setupLabel_         = parameterSet_.getParameter<string> ("setupLabel");
   streamLabel_        = parameterSet_.getParameter<string> ("streamLabel");
-  maxSize_            = parameterSet_.getParameter<int>    ("maxSize");
+  maxSize_ = 1048576 * (long long) parameterSet_.getParameter<int> ("maxSize");
   //highWaterMark_      = parameterSet_.getParameter<double> ("highWaterMark");
   //lumiSectionTimeOut_ = parameterSet_.getParameter<double> ("lumiSectionTimeOut");
   fileName_           = ""; // set by setFileName
@@ -299,6 +301,7 @@ boost::shared_ptr<FileRecord> StreamService::generateFileRecord()
 //
 std::list<std::string> StreamService::getFileList()
 {
+  boost::mutex::scoped_lock sl(list_lock_);
   std::list<std::string> files_;
   for (OutputSummaryIterator it = outputSummary_.begin(), itEnd = outputSummary_.end(); it != itEnd; ++it) {
     std::ostringstream entry;
@@ -324,6 +327,15 @@ std::list<std::string> StreamService::getCurrentFileList()
   return files_;
 }
 
+//
+// *** override maxSize from cfg if xdaq parameter was set 
+//
+ void StreamService::setMaxFileSize(int x)
+ {
+   maxFileSizeInMB_ = x;
+   if(maxFileSizeInMB_ > 0)
+     maxSize_ = 1048576 * (long long) maxFileSizeInMB_;
+ }
 
 //
 // *** get the current time

@@ -48,7 +48,6 @@ PixelCalibConfiguration::PixelCalibConfiguration(std::string filename):
 	     mode_=="AOHBias"||
 	     mode_=="TBMUB"||
 	     mode_=="ROCUBEqualization"||
-	     mode_=="VsfAndVHldDel"||
 	     mode_=="Iana"||
 	     mode_=="FEDAddressLevelWithPixels"||
 	     mode_=="GainCalibration"||
@@ -61,8 +60,6 @@ PixelCalibConfiguration::PixelCalibConfiguration(std::string filename):
 	     mode_=="ClockPhaseCalibration"||
 	     mode_=="TemperatureCalibration"||
 	     mode_=="ThresholdCalDelayFIFO1"||
-	     mode_=="2DEfficiencyScan"||
-	     mode_=="CalDelCalibration"||
              mode_=="ThresholdCalDelay");
       in >>tmp;
     } else {
@@ -490,8 +487,6 @@ void PixelCalibConfiguration::nextFECState(PixelFECConfigInterface* pixelFEC,
 	 << " not understood."<<endl;
     ::abort();
   }
-
-  bool changedWBC=false;
   
   pixelFEC->fecDebug(1);
 
@@ -607,10 +602,22 @@ void PixelCalibConfiguration::nextFECState(PixelFECConfigInterface* pixelFEC,
 			theROC.rocid(),
 			dacs_[ii].dacchannel(),
 			dacvalues[ii],_bufferData);
-
-      if (dacs_[ii].dacchannel()==254) changedWBC=true;
+      //          std::cout << "Will set dac "<<dacchannel_[i]
+      //          <<" to "<<dacvalues[i]<<std::endl;
     }
 
+    //std::cout << "Will set Vcal="<<vcal_<<std::endl;
+    //
+    //pixelFEC->progdac(theROC.mfec(),
+    //		  theROC.mfecchannel(),
+    //		  theROC.hubaddress(),
+    //		  theROC.portaddress(),
+    //		  theROC.rocid(),
+    //		  25,
+    //		  vcal_);
+    //
+
+    //	std::cout << "Done with progdac" << std::endl;
     if (first_scan){
 
       if (mode!=2){
@@ -684,19 +691,7 @@ void PixelCalibConfiguration::nextFECState(PixelFECConfigInterface* pixelFEC,
   if (_bufferData) {
     pixelFEC->qbufsend();
   }
-
-  if (changedWBC){
-    for(unsigned int i=0;i<rocs_.size();i++){
-      const PixelHdwAddress* hdwadd=trans->getHdwAddress(rocs_[i]);
-      assert(hdwadd!=0);
-      PixelHdwAddress theROC=*hdwadd; 
-      pixelFEC->rocreset(theROC.mfec(),
-			 theROC.mfecchannel(),
-			 14,                    //FIXME hardcode for Channel A
-			 theROC.hubaddress());
-    }
-  }
-
+  
   return;
 
 } 
@@ -1018,17 +1013,4 @@ void PixelCalibConfiguration::writeASCII(std::string dir) const {
 
   out.close();
 
-}
-
-bool PixelCalibConfiguration::noHits() const
-{
-	for ( std::vector<std::vector<unsigned int> >::const_iterator rows_itr = rows_.begin(); rows_itr != rows_.end(); rows_itr++ )
-	{
-		if (rows_itr->size() > 0) return false;
-	}
-	for ( std::vector<std::vector<unsigned int> >::const_iterator cols_itr = cols_.begin(); cols_itr != cols_.end(); cols_itr++ )
-	{
-		if (cols_itr->size() > 0) return false;
-	}
-	return true;
 }

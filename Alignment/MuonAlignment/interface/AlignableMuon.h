@@ -4,35 +4,21 @@
 /** \class AlignableMuon
  *  The alignable muon.
  *
- *  $Date: 2007/03/02 18:39:16 $
- *  $Revision: 1.14 $
+ *  $Date: 2007/12/06 01:31:06 $
+ *  $Revision: 1.15.4.1 $
  *  \author Andre Sznajder - UERJ(Brazil)
  */
 
 
 #include <vector>
 
-#include <FWCore/Framework/interface/Frameworkfwd.h>
-#include <FWCore/Framework/interface/EDAnalyzer.h>
-#include <FWCore/Framework/interface/Event.h>
-#include <FWCore/Framework/interface/EventSetup.h>
-#include <FWCore/Framework/interface/ESHandle.h>
-#include <FWCore/ParameterSet/interface/ParameterSet.h>
 
-#include <Geometry/CommonDetUnit/interface/GeomDetUnit.h>
 #include "Geometry/DTGeometry/interface/DTGeometry.h"
-#include "Geometry/CSCGeometry/interface/CSCGeometry.h"
-#include <Geometry/Records/interface/MuonGeometryRecord.h>
 #include <DataFormats/GeometryVector/interface/GlobalPoint.h>
-#include <Geometry/DTGeometry/interface/DTLayer.h>
-#include <Geometry/DTGeometry/interface/DTSuperLayer.h>
 #include <Geometry/CSCGeometry/interface/CSCLayer.h>
 
 #include "Alignment/CommonAlignment/interface/AlignableComposite.h"
 
-#include "CondFormats/Alignment/interface/Alignments.h"
-#include "CondFormats/Alignment/interface/AlignmentErrors.h"
-#include "CondFormats/Alignment/interface/AlignmentSorter.h"
 
 // Classes that will be used to construct the muon
 class AlignableDTBarrel;
@@ -41,6 +27,7 @@ class AlignableDTStation;
 class AlignableDTChamber;
 class AlignableCSCEndcap;
 class AlignableCSCStation;
+class AlignableCSCRing;
 class AlignableCSCChamber;
 
 
@@ -82,6 +69,7 @@ public:
   std::vector<Alignable*> CSCLayers();
   std::vector<Alignable*> CSCChambers();
   std::vector<Alignable*> CSCStations();
+  std::vector<Alignable*> CSCRings();
   std::vector<Alignable*> CSCEndcaps();
 
   // Get DT alignments sorted by DetId
@@ -110,7 +98,7 @@ private:
   AlignableSurface computeSurface();
 
   // Return alignable object identifier
-  virtual int alignableObjectId() const { return AlignableObjectId::AlignableMuon; }
+  virtual StructureType alignableObjectId() const { return align::AlignableMuon; }
 
   // Get alignments sorted by DetId
   Alignments* alignments() const;
@@ -141,6 +129,7 @@ private:
   
   std::vector<AlignableCSCChamber*>  theCSCChambers;
   std::vector<AlignableCSCStation*>  theCSCStations;
+  std::vector<AlignableCSCRing*>     theCSCRings;
   std::vector<AlignableCSCEndcap*>   theCSCEndcaps;
 
   std::vector<Alignable*> theMuonComponents;

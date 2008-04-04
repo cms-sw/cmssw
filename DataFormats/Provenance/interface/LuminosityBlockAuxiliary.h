@@ -44,6 +44,8 @@ namespace edm
     void setEndTime(Timestamp const& time) {
       if (endTime_ == Timestamp::invalidTimestamp()) endTime_ = time;
     }
+    bool mergeAuxiliary(LuminosityBlockAuxiliary const& newAux);
+
     // most recent process that processed this lumi block
     // is the last on the list, this defines what "latest" is
     mutable ProcessHistoryID processHistoryID_;

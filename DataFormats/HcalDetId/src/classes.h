@@ -7,4 +7,11 @@
 #include "DataFormats/HcalDetId/interface/HcalSubdetector.h" 
 #include "DataFormats/HcalDetId/interface/HcalZDCDetId.h"
 #include "DataFormats/HcalDetId/interface/HcalCastorDetId.h"
+#include <vector>
+
+namespace { 
+ namespace {
+   std::vector<HcalElectronicsId> eids;
+ }
+}
 

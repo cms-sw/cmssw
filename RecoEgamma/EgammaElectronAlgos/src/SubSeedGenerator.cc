@@ -19,6 +19,8 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include <vector>
 
+using namespace std;
+
 SubSeedGenerator::SubSeedGenerator(const edm::ParameterSet& conf) {
   initialSeedProducer_ = conf.getParameter<std::string>("initialSeedProducer");
   initialSeedLabel_    = conf.getParameter<std::string>("initialSeedLabel");
@@ -47,7 +49,7 @@ void  SubSeedGenerator::run(edm::Event& e, const edm::EventSetup& setup, const e
   
   //seeds selection
   for(unsigned int i=0; i< superClusters->size(); ++i) {
-    reco::SuperCluster theClus = (*superClusters)[i];
+    reco::SuperCluster theClus = (*superClusters)[i];   
     
     std::vector<TrajectorySeed>::const_iterator seed_iter;
     for(seed_iter = theInitialSeedColl->begin(); seed_iter != theInitialSeedColl->end(); ++seed_iter) {
@@ -56,19 +58,32 @@ void  SubSeedGenerator::run(edm::Event& e, const edm::EventSetup& setup, const e
       GlobalVector gv = tracker->idToDet( DetId(seed_iter->startingState().detId()))->surface().toGlobal( seed_iter->startingState().parameters().momentum());
       
       math::XYZVector seedGlobalDir(gv.x(),gv.y(),gv.z());   
-      math::XYZVector clusterGlobalPos(theClus.x() - gp.x(), theClus.y() - gp.y(), theClus.z() - gp.z());
+      math::XYZVector clusterGlobalDir(theClus.x() - gp.x(), theClus.y() - gp.y(), theClus.z() - gp.z());
       
-      double tmpDr = ROOT::Math::VectorUtil::DeltaR(clusterGlobalPos, seedGlobalDir);
-      float dEta = fabs(clusterGlobalPos.Eta() - seedGlobalDir.Eta());
-      float dPhi = fabs(acos(cos(clusterGlobalPos.Phi() - seedGlobalDir.Eta()))); 
+      double clusEt = theClus.energy()*sin(clusterGlobalDir.theta());
+      double clusEstimatedCurvature = clusEt/0.3/4*100;  //4 tesla (temporary solution)
+      double DphiBending = theClus.position().rho()/2./clusEstimatedCurvature; //ecal radius
+      
+      //cout << "=== et,curvature, phiBending: " 
+      //   << clusEt << " , "
+      //   << clusEstimatedCurvature << " , "
+      //   << DphiBending << endl;
+      
 
+      double tmpDr = ROOT::Math::VectorUtil::DeltaR(clusterGlobalDir, seedGlobalDir);
+      float dEta = fabs(clusterGlobalDir.Eta() - seedGlobalDir.Eta());
+      float dPhi = fabs(acos(cos(clusterGlobalDir.Phi() - seedGlobalDir.Phi())));     
+
+      float dPhi1 = fabs(dPhi - DphiBending);
+      float dPhi2 = fabs(dPhi + DphiBending);
+      
       if (dEta <= deta_) {
-        if (dPhi <= dphi_) {
+        if (dPhi1 <= dphi_|| dPhi2 <= dphi_ ) {
           if (gv.perp() > pt_) {
-            if(tmpDr <= dr_) {  
+            //if(tmpDr <= dr_) {  
               edm::Ref<reco::SuperClusterCollection> sclRef=edm::Ref<reco::SuperClusterCollection> (superClusters,i);
               out.push_back(reco::ElectronPixelSeed(sclRef,*seed_iter)); 
-            }
+	      //}
           }
         }
       }

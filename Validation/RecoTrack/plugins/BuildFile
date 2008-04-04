@@ -11,6 +11,7 @@
 <use name=RecoTracker/TkSeedGenerator>
 <use name=TrackingTools/TrackFitters>
 <use name=TrackingTools/TransientTrack>
+#<use name=CalibTracker/SiStripLorentzAngle>
 <use name=Geometry/TrackerGeometryBuilder>
 <use name=Geometry/Records>
 <use name=MagneticField/Records>
@@ -21,7 +22,7 @@
 <use name=root>
 <use name=SimTracker/TrackAssociation>
 <use name=SimTracker/TrackerHitAssociation>
-<use name=Validation/Tools>
+<use name=Validation/RecoTrack>
 <lib name=MathMore>
 
 <library file="*.cc" name=ValidationRecoTrackPlugins>

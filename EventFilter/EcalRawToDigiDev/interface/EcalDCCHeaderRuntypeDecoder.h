@@ -16,6 +16,7 @@ class EcalDCCHeaderRuntypeDecoder
   void DecodeSetting ( int settings,  EcalDCCHeaderBlock * theHeader );
   void DecodeSettingGlobal ( ulong TrigType, ulong detTrigType,  EcalDCCHeaderBlock * theHeader );
   void CleanEcalDCCSettingsInfo(  EcalDCCHeaderBlock::EcalDCCEventSettings * theEventSettings);// Re-initialize theEventSettings  before filling with the deocoded event
+
 };
 
 #endif

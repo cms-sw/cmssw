@@ -9,6 +9,7 @@
 
 class MonitorElement;
 class MonitorElementRootFolder;
+class CollateMonitorElement;
 
 /// define some shortcuts to be used within DQMServices code
 namespace dqm
@@ -69,6 +70,15 @@ namespace dqm
     typedef dir_tags::iterator dirt_it;
     typedef dir_tags::const_iterator cdirt_it;
 
+    /// key: ME of summary, value: CME
+    /// (note: can use CollateMonitorElement::getMonitorElement() 
+    /// for reverse linking)
+    typedef std::map<MonitorElement *, CollateMonitorElement *> cme_map;
+    typedef cme_map::iterator cmemIt;
+
+    typedef std::set<CollateMonitorElement *> cme_set;
+    typedef cme_set::iterator cmesIt;
+
     /// pathname for root folder
     static const std::string ROOT_PATHNAME = ".";
 
@@ -93,7 +103,7 @@ namespace dqm
     };
     typedef struct Channel_ Channel;
 
-    /// search criterion; to be used by QualityTest
+    /// search criterion; to be used by CollateMonitorElement and QualityTest
     struct searchCriterion_ {
       std::vector<std::string> search_path; ///exact pathname, or w/ wildcards
       std::vector<std::string> folders; /// folder contents (no subfolders)

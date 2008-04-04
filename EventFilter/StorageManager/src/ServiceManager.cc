@@ -1,7 +1,8 @@
-// $Id: ServiceManager.cc,v 1.3 2007/08/15 23:16:20 hcheung Exp $
+// $Id: ServiceManager.cc,v 1.7 2008/03/10 10:07:07 meschi Exp $
 
 #include <EventFilter/StorageManager/interface/ServiceManager.h>
 #include "EventFilter/StorageManager/interface/Configurator.h"
+#include "EventFilter/StorageManager/interface/InitMsgCollection.h"
 #include <FWCore/Utilities/interface/Exception.h>
 
 using namespace std;
@@ -32,23 +33,67 @@ void ServiceManager::stop()
 }
 
 
-void ServiceManager::manageInitMsg(std::string catalog, uint32 disks, std::string sourceId, InitMsgView& view)
+void ServiceManager::manageInitMsg(std::string catalog, uint32 disks, std::string sourceId, InitMsgView& view, stor::InitMsgCollection& initMsgCollection)
 {
   boost::shared_ptr<stor::Parameter> smParameter_ = stor::Configurator::instance()->getParameter();
   for(std::vector<ParameterSet>::iterator it = outModPSets_.begin(), itEnd = outModPSets_.end();
       it != itEnd; ++it) {
-      shared_ptr<StreamService> stream = shared_ptr<StreamService>(new StreamService((*it),view));
-      stream->setCatalog(catalog);
-      stream->setNumberOfFileSystems(disks);
-      stream->setSourceId(sourceId);
-      stream->setFileName(smParameter_ -> fileName());
-      stream->setFilePath(smParameter_ -> filePath());
-      stream->setMathBoxPath(smParameter_ -> mailboxPath());
-      stream->setSetupLabel(smParameter_ -> setupLabel());
-      stream->setHighWaterMark(smParameter_ -> highWaterMark());
-      stream->setLumiSectionTimeOut(smParameter_ -> lumiSectionTimeOut());
-      managedOutputs_.push_back(stream);
-      stream->report(cout,3);
+
+      // test if this INIT message is the right one for this output module
+      // (that is, whether the SM output module trigger request matches
+      // the HLT output module trigger request in the INIT message)
+      // Rather than reproduce the code in
+      // InitMsgCollection::getElementForSelection for finding the right
+      // INIT message for a given trigger selection, we simply use that
+      // method to find the "right" INIT message and check if it matches
+      // the one passed into this method.  Of course, this requires that
+      // the INIT message passed into this method has already been added
+      // to the collection.  But we get the (good) side benefit that the
+      // error checking (and associated exceptions) in the
+      // getElementForSelection method come for free.
+      // If we ever switch to something other than the getElementForSelection
+      // method, then we may need to keep track of each StreamService that
+      // we create so that we make sure we don't create two of them for the
+      // same output stream.
+      Strings selections = EventSelector::getEventSelectionVString(*it);
+      try {
+        stor::InitMsgSharedPtr matchingInitMsgPtr =
+          initMsgCollection.getElementForSelection(selections);
+        if (matchingInitMsgPtr.get() != NULL) {
+          InitMsgView matchingView(&(*matchingInitMsgPtr)[0]);
+          if (matchingView.startAddress() == view.startAddress() &&
+              matchingView.size() == view.size()) {
+            shared_ptr<StreamService> stream = shared_ptr<StreamService>(new StreamService((*it),view));
+            stream->setCatalog(catalog);
+            stream->setNumberOfFileSystems(disks);
+            stream->setSourceId(sourceId);
+            stream->setFileName(smParameter_ -> fileName());
+            stream->setFilePath(smParameter_ -> filePath());
+            stream->setMaxFileSize(smParameter_ -> maxFileSize());
+            stream->setMathBoxPath(smParameter_ -> mailboxPath());
+            stream->setSetupLabel(smParameter_ -> setupLabel());
+            stream->setHighWaterMark(smParameter_ -> highWaterMark());
+            stream->setLumiSectionTimeOut(smParameter_ -> lumiSectionTimeOut());
+            managedOutputs_.push_back(stream);
+            stream->report(cout,3);
+          }
+        }
+      }
+      catch (const cms::Exception& excpt) {
+        std::string errorString;
+        errorString.append("Problem with the SelectEvents parameter ");
+        errorString.append("in the definition of Stream ");
+        errorString.append((*it).getParameter<string> ("streamLabel"));
+        errorString.append("\n");
+        errorString.append(excpt.what());
+        errorString.append("\n");
+        errorString.append(initMsgCollection.getSelectionHelpString());
+        errorString.append("\n\n");
+        errorString.append("*** Please select trigger paths from one and ");
+        errorString.append("only one HLT output module. ***\n");
+        throw cms::Exception("ServiceManager","manageInitMsg")
+          << errorString << std::endl;
+      }
   }
 }
 
@@ -93,6 +138,21 @@ std::list<std::string>& ServiceManager::get_currfiles()
   return currfiles_;  
 }
 
+/**
+ * Returns a map of the trigger selection strings for each output stream.
+ */
+std::map<std::string, Strings> ServiceManager::getStreamSelectionTable()
+{
+  std::map<std::string, Strings> selTable;
+  for(std::vector<ParameterSet>::iterator it = outModPSets_.begin();
+      it != outModPSets_.end(); ++it) {
+    std::string streamLabel = it->getParameter<string> ("streamLabel");
+    if (streamLabel.size() > 0) {
+      selTable[streamLabel] = EventSelector::getEventSelectionVString(*it);
+    }
+  }
+  return selTable;
+}
 
 //
 // *** wrote similar example code in IOPool/Streamer/test/ParamSetWalker_t.cpp 

@@ -1,8 +1,8 @@
 /*
  * \file EBCosmicClient.cc
  *
- * $Date: 2008/01/17 09:34:41 $
- * $Revision: 1.95 $
+ * $Date: 2008/02/09 19:49:56 $
+ * $Revision: 1.101 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -16,21 +16,12 @@
 #include "TCanvas.h"
 #include "TStyle.h"
 
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-
 #include "DQMServices/UI/interface/MonitorUIRoot.h"
 
-#include "OnlineDB/EcalCondDB/interface/RunTag.h"
-#include "OnlineDB/EcalCondDB/interface/RunIOV.h"
 #include "OnlineDB/EcalCondDB/interface/MonOccupancyDat.h"
 
 #include "OnlineDB/EcalCondDB/interface/EcalCondDBInterface.h"
 
-#include "CondTools/Ecal/interface/EcalErrorDictionary.h"
-
-#include "DQM/EcalCommon/interface/EcalErrorMask.h"
 #include "DQM/EcalCommon/interface/UtilsClient.h"
 #include "DQM/EcalCommon/interface/LogicID.h"
 #include "DQM/EcalCommon/interface/Numbers.h"
@@ -50,7 +41,7 @@ EBCosmicClient::EBCosmicClient(const ParameterSet& ps){
   verbose_ = ps.getUntrackedParameter<bool>("verbose", false);
 
   // enableMonitorDaemon_ switch
-  enableMonitorDaemon_ = ps.getUntrackedParameter<bool>("enableMonitorDaemon", true);
+  enableMonitorDaemon_ = ps.getUntrackedParameter<bool>("enableMonitorDaemon", false);
 
   // enableCleanup_ switch
   enableCleanup_ = ps.getUntrackedParameter<bool>("enableCleanup", false);
@@ -70,10 +61,12 @@ EBCosmicClient::EBCosmicClient(const ParameterSet& ps){
     h01_[ism-1] = 0;
     h02_[ism-1] = 0;
     h03_[ism-1] = 0;
+    h04_[ism-1] = 0;
 
     meh01_[ism-1] = 0;
     meh02_[ism-1] = 0;
     meh03_[ism-1] = 0;
+    meh04_[ism-1] = 0;
 
   }
 
@@ -137,15 +130,18 @@ void EBCosmicClient::cleanup(void) {
       if ( h01_[ism-1] ) delete h01_[ism-1];
       if ( h02_[ism-1] ) delete h02_[ism-1];
       if ( h03_[ism-1] ) delete h03_[ism-1];
+      if ( h04_[ism-1] ) delete h04_[ism-1];
     }
 
     h01_[ism-1] = 0;
     h02_[ism-1] = 0;
     h03_[ism-1] = 0;
+    h04_[ism-1] = 0;
 
     meh01_[ism-1] = 0;
     meh02_[ism-1] = 0;
     meh03_[ism-1] = 0;
+    meh04_[ism-1] = 0;
 
   }
 
@@ -202,7 +198,7 @@ bool EBCosmicClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunI
 
         if ( update_channel ) {
 
-          if ( ie == 1 && ip == 1 ) {
+          if ( Numbers::icEB(ism, ie, ip) == 1 ) {
 
             cout << "Preparing dataset for " << Numbers::sEB(ism) << " (ism=" << ism << ")" << endl;
 
@@ -221,12 +217,8 @@ bool EBCosmicClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunI
           int ic = Numbers::indexEB(ism, ie, ip);
 
           if ( econn ) {
-            try {
-              ecid = LogicID::getEcalLogicID("EB_crystal_number", Numbers::iSM(ism, EcalBarrel), ic);
-              dataset[ecid] = o;
-            } catch (runtime_error &e) {
-              cerr << e.what() << endl;
-            }
+            ecid = LogicID::getEcalLogicID("EB_crystal_number", Numbers::iSM(ism, EcalBarrel), ic);
+            dataset[ecid] = o;
           }
 
         }
@@ -238,7 +230,7 @@ bool EBCosmicClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunI
 
   if ( econn ) {
     try {
-      cout << "Inserting MonOccupancyDat ... " << flush;
+      cout << "Inserting MonOccupancyDat ..." << endl;
       if ( dataset.size() != 0 ) econn->insertDataArraySet(&dataset, moniov);
       cout << "done." << endl;
     } catch (runtime_error &e) {
@@ -258,7 +250,7 @@ void EBCosmicClient::analyze(void){
     if ( verbose_ ) cout << "EBCosmicClient: ievt/jevt = " << ievt_ << "/" << jevt_ << endl;
   }
 
-  Char_t histo[200];
+  char histo[200];
 
   MonitorElement* me;
 
@@ -276,10 +268,15 @@ void EBCosmicClient::analyze(void){
     h02_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, h02_[ism-1] );
     meh02_[ism-1] = me;
 
-    sprintf(histo, (prefixME_+"EcalBarrel/EBCosmicTask/Spectrum/EBCT energy spectrum %s").c_str(), Numbers::sEB(ism).c_str());
+    sprintf(histo, (prefixME_+"EcalBarrel/EBCosmicTask/Spectrum/EBCT 1x1 energy spectrum %s").c_str(), Numbers::sEB(ism).c_str());
     me = dbe_->get(histo);
     h03_[ism-1] = UtilsClient::getHisto<TH1F*>( me, cloneME_, h03_[ism-1] );
     meh03_[ism-1] = me;
+
+    sprintf(histo, (prefixME_+"EcalBarrel/EBCosmicTask/Spectrum/EBCT 3x3 energy spectrum %s").c_str(), Numbers::sEB(ism).c_str());
+    me = dbe_->get(histo);
+    h04_[ism-1] = UtilsClient::getHisto<TH1F*>( me, cloneME_, h04_[ism-1] );
+    meh04_[ism-1] = me;
 
   }
 
@@ -341,7 +338,7 @@ void EBCosmicClient::htmlOutput(int run, string htmlDir, string htmlName){
   dummy.SetMarkerSize(2);
   dummy.SetMinimum(0.1);
 
-  string imgNameME[3], imgName, meName;
+  string imgNameME[4], imgName, meName;
 
   TCanvas* cMe = new TCanvas("cMe", "Temp", 3*csize, csize);
   TCanvas* cAmp = new TCanvas("cAmp", "Temp", csize, csize);
@@ -434,6 +431,37 @@ void EBCosmicClient::htmlOutput(int run, string htmlDir, string htmlName){
 
     }
 
+    imgNameME[3] = "";
+
+    obj1f = h04_[ism-1];
+
+    if ( obj1f ) {
+
+      meName = obj1f->GetName();
+
+      for ( unsigned int i = 0; i < meName.size(); i++ ) {
+        if ( meName.substr(i, 1) == " " )  {
+          meName.replace(i, 1 ,"_" );
+        }
+      }
+      imgNameME[3] = meName + ".png";
+      imgName = htmlDir + imgNameME[3];
+
+      cAmp->cd();
+      gStyle->SetOptStat("euomr");
+      obj1f->SetStats(kTRUE);
+      if ( obj1f->GetMaximum(histMax) > 0. ) {
+        gPad->SetLogy(1);
+      } else {
+        gPad->SetLogy(0);
+      }
+      obj1f->Draw();
+      cAmp->Update();
+      cAmp->SaveAs(imgName.c_str());
+      gPad->SetLogy(0);
+
+    }
+
     if( i>0 ) htmlFile << "<a href=""#top"">Top</a>" << std::endl;
     htmlFile << "<hr>" << std::endl;
     htmlFile << "<h3><a name="""
@@ -460,10 +488,14 @@ void EBCosmicClient::htmlOutput(int run, string htmlDir, string htmlName){
     htmlFile << "cellpadding=\"10\" align=\"center\"> " << endl;
     htmlFile << "<tr align=\"center\">" << endl;
 
-    if ( imgNameME[2].size() != 0 )
-      htmlFile << "<td colspan=\"2\"><img src=\"" << imgNameME[2] << "\"></td>" << endl;
-    else
-      htmlFile << "<td colspan=\"2\"><img src=\"" << " " << "\"></td>" << endl;
+    for ( int iCanvas = 3 ; iCanvas <= 4 ; iCanvas++ ) {
+
+      if ( imgNameME[iCanvas-1].size() != 0 )
+        htmlFile << "<td colspan=\"2\"><img src=\"" << imgNameME[iCanvas-1] << "\"></td>" << endl;
+      else
+        htmlFile << "<td colspan=\"2\"><img src=\"" << " " << "\"></td>" << endl;
+
+    }
 
     htmlFile << "</tr>" << endl;
     htmlFile << "</table>" << endl;

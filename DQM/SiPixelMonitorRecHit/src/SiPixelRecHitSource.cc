@@ -14,7 +14,7 @@
 //
 // Original Author:  Vincenzo Chiochia
 //         Created:  
-// $Id: SiPixelRecHitSource.cc,v 1.3 2007/11/01 13:32:28 chiochia Exp $
+// $Id: SiPixelRecHitSource.cc,v 1.4 2007/11/13 21:46:17 krose Exp $
 //
 //
 // Adapted by:  Keith Rose
@@ -22,28 +22,20 @@
 
 #include "DQM/SiPixelMonitorRecHit/interface/SiPixelRecHitSource.h"
 // Framework
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
-#include "FWCore/Framework/interface/ModuleFactory.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 // DQM Framework
-#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
 #include "DQM/SiPixelCommon/interface/SiPixelFolderOrganizer.h"
 // Geometry
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h"
-#include "Geometry/CommonTopologies/interface/PixelTopology.h"
 // DataFormats
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
-#include "DataFormats/SiPixelCluster/interface/SiPixelCluster.h"
 
 
-#include "DataFormats/Common/interface/DetSetVector.h"
 //
-#include <boost/cstdint.hpp>
 #include <string>
 #include <stdlib.h>
 #include <iostream>

@@ -24,31 +24,41 @@ public:
 
   enum Mode { FastMode=0, SlowMode=1 };
 
-  TwoTrackMinimumDistance( const Mode m=FastMode ) { theModus=m; status_ = false;};
-
-  virtual bool calculate(const TrajectoryStateOnSurface & sta, 
-	 const TrajectoryStateOnSurface & stb);
-
-  virtual bool calculate(const FreeTrajectoryState & sta,
-	const FreeTrajectoryState & stb);
-
-  virtual bool calculate(const GlobalTrajectoryParameters & sta,
-	const GlobalTrajectoryParameters & stb);
-
-  virtual bool status() const {return status_;}
+  TwoTrackMinimumDistance( const Mode m=FastMode ) { theModus=m; };
 
   /**
    * Returns the two PCA on the trajectories.
    */
+  virtual pair<GlobalPoint, GlobalPoint>
+  points(const TrajectoryStateOnSurface & sta,
+         const TrajectoryStateOnSurface & stb) const;
 
-  virtual pair<GlobalPoint, GlobalPoint> points() const;
+  /**
+   * Returns the two PCA on the trajectories.
+   */
+  virtual pair<GlobalPoint, GlobalPoint>
+  points(const FreeTrajectoryState & sta,
+         const FreeTrajectoryState & stb) const;
+
+  pair<GlobalPoint, GlobalPoint> points(const GlobalTrajectoryParameters & sta,
+                                const GlobalTrajectoryParameters & stb) const;
+
 
   /** arithmetic mean of the two points of closest approach */
-  virtual GlobalPoint crossingPoint() const;
+  virtual GlobalPoint crossingPoint(const TrajectoryStateOnSurface & sta,
+                                    const TrajectoryStateOnSurface & stb) const;
 
-  /** distance between the two points of closest approach in 3D */
-  virtual float distance() const;
+  /** arithmetic mean of the two points of closest approach */
+  virtual GlobalPoint crossingPoint(const FreeTrajectoryState & sta,
+                                    const FreeTrajectoryState & stb) const;
 
+  /** distance between the two points of closest approach in 3D.
+   */
+  virtual float distance(const TrajectoryStateOnSurface & sta,
+                         const TrajectoryStateOnSurface & stb) const;
+
+  virtual float distance(const FreeTrajectoryState & sta,
+                         const FreeTrajectoryState & stb) const;
 
   /**
    *  Clone method
@@ -69,15 +79,13 @@ private:
   mutable TwoTrackMinimumDistanceHelixHelix theTTMDhh;
   mutable TwoTrackMinimumDistanceLineLine theTTMDll;
   mutable TwoTrackMinimumDistanceHelixLine theTTMDhl;
-  bool status_;
-  pair<GlobalPoint, GlobalPoint> points_;
 
-  bool pointsLineLine(const GlobalTrajectoryParameters & sta,
-	const GlobalTrajectoryParameters & stb);
-  bool pointsHelixLine(const GlobalTrajectoryParameters & sta,
-	const GlobalTrajectoryParameters & stb);
-  bool pointsHelixHelix(const GlobalTrajectoryParameters & sta,
-	const GlobalTrajectoryParameters & stb);
+  pair<GlobalPoint, GlobalPoint> pointsLineLine(const GlobalTrajectoryParameters & sta,
+                                const GlobalTrajectoryParameters & stb) const;
+  pair<GlobalPoint, GlobalPoint> pointsHelixLine(const GlobalTrajectoryParameters & sta,
+                                const GlobalTrajectoryParameters & stb) const;
+  pair<GlobalPoint, GlobalPoint> pointsHelixHelix(const GlobalTrajectoryParameters & sta,
+                                const GlobalTrajectoryParameters & stb) const;
 };
 
 #endif

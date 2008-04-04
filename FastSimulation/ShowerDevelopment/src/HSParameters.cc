@@ -12,4 +12,5 @@ HSParameters::HSParameters(const edm::ParameterSet& param)
   criticalEnergy_ = param.getParameter<double>("criticalHDEnergy");
   maxTRfactor_ = param.getParameter<double>("maxTRfactor");
   balanceEH_ = param.getParameter<double>("balanceEH");
+  hcalDepthFactor_ = param.getParameter<double>("hcalDepthFactor"); 
 }

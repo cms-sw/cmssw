@@ -115,6 +115,8 @@ class HDShower
   double maxTRfactor;
   // Balance between ECAL and HCAL "visible" energy (default = 1.)
   double balanceEH;
+  // Regulator of HCAL depth of the shower (to adjust/shrink it to CMS depth) 
+  double hcalDepthFactor;
 
   // Famos Random Engine
   const RandomEngine* random;

@@ -17,7 +17,7 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: PixelHitMatcher.h,v 1.5 2007/05/22 16:16:10 uberthon Exp $
+// $Id: PixelHitMatcher.h,v 1.8 2008/02/13 12:05:43 uberthon Exp $
 //
 //
 
@@ -76,31 +76,39 @@ class PixelHitMatcher{
   
 
   PixelHitMatcher(float phi1min, float phi1max, float phi2min, float phi2max, 
-		  float z1min, float z1max, float z2min, float z2max) :
+		  float z2min, float z2max) :
     phi1min(phi1min), phi1max(phi1max), phi2min(phi2min), phi2max(phi2max), 
-    z1min(z1min), z1max(z1max), z2min(z2min), z2max(z2max), 
-    meas1stBLayer(phi1min,phi1max,z1min,z1max), meas2ndBLayer(phi2min,phi2max,z2min,z2max), 
-    meas1stFLayer(phi1min,phi1max,z1min,z1max), meas2ndFLayer(phi2min,phi2max,z2min,z2max),
+    z2min(z2min), z2max(z2max), 
+    //zmin1 and zmax1 are dummy at this moment
+    meas1stBLayer(phi1min,phi1max,0.,0.), meas2ndBLayer(phi2min,phi2max,z2min,z2max), 
+    meas1stFLayer(phi1min,phi1max,0.,0.), meas2ndFLayer(phi2min,phi2max,z2min,z2max),
     startLayers(),
     prop1stLayer(0), prop2ndLayer(0),theGeometricSearchTracker(0),theLayerMeasurements(0),vertex(0.) {}
   virtual ~PixelHitMatcher();
   void setES(const MagneticField*, const MeasurementTracker *theMeasurementTracker);
 
   std::vector<std::pair<RecHitWithDist,ConstRecHitPointer> > compatibleHits(const GlobalPoint& xmeas,
-								  const GlobalPoint& vprim,
-								  float energy,
-								  float charge);
+									    const GlobalPoint& vprim,
+									    float energy,
+									    float charge);
   std::vector<Hep3Vector> predicted1Hits();
   std::vector<Hep3Vector> predicted2Hits();
   float getVertex();
  
   void set1stLayer (float dummyphi1min, float dummyphi1max)
-                                       { 
-                                         meas1stBLayer.setPhiRange(dummyphi1min,dummyphi1max) ;
-                                         meas1stFLayer.setPhiRange(dummyphi1min,dummyphi1max) ;
-				       }
+    { 
+      meas1stBLayer.setPhiRange(dummyphi1min,dummyphi1max) ;
+      meas1stFLayer.setPhiRange(dummyphi1min,dummyphi1max) ;
+    }
+
+  void set1stLayerZRange (float zmin1, float zmax1)
+    { 
+      meas1stBLayer.setZRange(zmin1,zmax1);
+      meas1stFLayer.setZRange(zmin1,zmax1);
+    }
+
   void set2ndLayer (float dummyphi2min, float dummyphi2max)
-                                       { 
+    { 
                                          meas2ndBLayer.setPhiRange(dummyphi2min,dummyphi2max) ;
                                          meas2ndFLayer.setPhiRange(dummyphi2min,dummyphi2max) ;
 				       }

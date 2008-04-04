@@ -3,7 +3,6 @@
 #include "FastSimulation/TrackerSetup/interface/TrackerInteractionGeometry.h"
 
 #include <iostream>
-#include <string>
 
 MagneticFieldMap::MagneticFieldMap(const MagneticField* pMF,
 				   const TrackerInteractionGeometry* myGeo) : 

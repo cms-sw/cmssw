@@ -142,7 +142,27 @@ void L1GTDigiToRaw::produce(edm::Event& iEvent, const edm::EventSetup& evSetup)
     evSetup.get< L1GtBoardMapsRcd >().get( l1GtBM );
 
     const std::vector<L1GtBoard> boardMaps = l1GtBM->gtBoardMaps();
+    int boardMapsSize = boardMaps.size();
+    
     typedef std::vector<L1GtBoard>::const_iterator CItBoardMaps;
+    
+    // create an ordered vector for the GT DAQ record
+    // header (pos 0 in record) and trailer (last position in record) 
+    // not included, as they are not in board list 
+    std::vector<L1GtBoard> gtRecordMap;
+    gtRecordMap.reserve(boardMapsSize);
+    
+    for (int iPos = 0; iPos < boardMapsSize; ++iPos) {
+        for (CItBoardMaps itBoard = boardMaps.begin(); itBoard
+                != boardMaps.end(); ++itBoard) {
+
+            if (itBoard->gtPositionDaqRecord() == iPos) {
+                gtRecordMap.push_back(*itBoard);
+                break;
+            }
+            
+        }
+    }
 
 
     // get L1GlobalTriggerReadoutRecord
@@ -309,8 +329,8 @@ void L1GTDigiToRaw::produce(edm::Event& iEvent, const edm::EventSetup& evSetup)
     // loop over other blocks in the raw record, if they are active
 
     for (CItBoardMaps
-            itBoard = boardMaps.begin();
-            itBoard != boardMaps.end(); ++itBoard) {
+            itBoard = gtRecordMap.begin();
+            itBoard != gtRecordMap.end(); ++itBoard) {
 
         if (itBoard->gtBoardType() == GTFE) {
 

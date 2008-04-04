@@ -9,7 +9,7 @@
 <use name=FWCore/Utilities>
 <use name=Geometry/CSCGeometry>
 <use name=Geometry/Records>
-<use name=SimMuon/MCTruth>
+##<use name=Validation/MuonCSCDigis>
 <use name=clhep>
 <use name=rootminuit2>
 <use name=Utilities/Timing>

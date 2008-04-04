@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2007/11/24 12:29:12 $
- *  $Revision: 1.12.6.3 $
+ *  $Date: 2007/12/07 15:00:53 $
+ *  $Revision: 1.13 $
  *  \author Paolo Ronchese INFN Padova
  *
  */
@@ -21,6 +21,7 @@
 // C++ Headers --
 //---------------
 #include <iostream>
+#include <sstream>
 
 //-------------------
 // Initializations --
@@ -305,11 +306,16 @@ DTTtrig::const_iterator DTTtrig::end() const {
 
 
 std::string DTTtrig::mapName() const {
+/*
   std::string name = dataVersion + "_map_Ttrig";
   char nptr[100];
   sprintf( nptr, "%x", reinterpret_cast<unsigned int>( this ) );
   name += nptr;
   return name;
+*/
+  std::stringstream name;
+  name << dataVersion << "_map_Ttrig" << this;
+  return name.str();
 }
 
 

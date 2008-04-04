@@ -32,7 +32,6 @@
 class CaloSubdetectorGeometry ;
 class EcalTrigTowerConstituentsMap ;
 class EcalElectronicsMapping ;
-class EcalTPGCondDBApp ;
 
 class coeffStruc {
  public:
@@ -53,8 +52,8 @@ class EcalTPGParamBuilder : public edm::EDAnalyzer {
  private:
   bool computeLinearizerParam(double theta, double gainRatio, double calibCoeff, std::string subdet, int & mult , int & shift) ;
   void create_header(std::ofstream * out_file, std::string subdet) ;
-  int uncodeWeight(double weight, int complement2 = 7) ;
-  double uncodeWeight(int iweight, int complement2 = 7) ;
+  int uncodeWeight(double weight, uint complement2 = 7) ;
+  double uncodeWeight(int iweight, uint complement2 = 7) ;
   std::vector<unsigned int> computeWeights(EcalShape & shape) ;
   void computeLUT(int * lut, std::string det="EB")  ;
   void getCoeff(coeffStruc & coeff,
@@ -90,11 +89,7 @@ class EcalTPGParamBuilder : public edm::EDAnalyzer {
 
   std::ofstream * out_fileEB_ ;
   std::ofstream * out_fileEE_ ;
+  std::ofstream * diffFile_ ;
   std::ofstream * geomFile_ ;
-  EcalTPGCondDBApp * db_ ;
-  bool readFromDB_ ;
-  bool writeToDB_ ;
-  bool writeToFiles_ ;
-
 };
 #endif

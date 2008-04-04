@@ -2,6 +2,7 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "GeneratorInterface/GenFilters/interface/PythiaFilter.h"
 #include "GeneratorInterface/GenFilters/interface/PythiaFilterGammaJet.h"
+#include "GeneratorInterface/GenFilters/interface/PythiaFilterGammaGamma.h"
 #include "GeneratorInterface/GenFilters/interface/PythiaFilterZJet.h"
 #include "GeneratorInterface/GenFilters/interface/PythiaHLTSoupFilter.h"
 #include "GeneratorInterface/GenFilters/interface/BsJpsiPhiFilter.h"
@@ -20,11 +21,18 @@
 #include "GeneratorInterface/GenFilters/interface/CosmicGenFilterHelix.h"
 #include "GeneratorInterface/GenFilters/interface/CosmicGenFilterLowE.h"
 #include "GeneratorInterface/GenFilters/interface/BHFilter.h"
+#include "GeneratorInterface/GenFilters/interface/PythiaFilterIsolatedTrack.h"
+#include "GeneratorInterface/GenFilters/interface/BCToEFilter.h"
+#include "GeneratorInterface/GenFilters/interface/EMEnrichingFilter.h"
+#include "GeneratorInterface/GenFilters/interface/MCDecayingPionKaonFilter.h"
+#include "GeneratorInterface/GenFilters/interface/PythiaFilterEMJetHeep.h"
+
 
 
 DEFINE_SEAL_MODULE();
   DEFINE_ANOTHER_FWK_MODULE(PythiaFilter);
   DEFINE_ANOTHER_FWK_MODULE(PythiaFilterGammaJet);
+  DEFINE_ANOTHER_FWK_MODULE(PythiaFilterGammaGamma);
   DEFINE_ANOTHER_FWK_MODULE(PythiaFilterZJet);
   DEFINE_ANOTHER_FWK_MODULE(PythiaHLTSoupFilter);
   DEFINE_ANOTHER_FWK_MODULE(BsJpsiPhiFilter);
@@ -43,5 +51,10 @@ DEFINE_SEAL_MODULE();
   DEFINE_ANOTHER_FWK_MODULE(CosmicGenFilterHelix);
   DEFINE_ANOTHER_FWK_MODULE(CosmicGenFilterLowE);
   DEFINE_ANOTHER_FWK_MODULE(BHFilter);
+  DEFINE_ANOTHER_FWK_MODULE(PythiaFilterIsolatedTrack);
+  DEFINE_ANOTHER_FWK_MODULE(BCToEFilter);
+  DEFINE_ANOTHER_FWK_MODULE(EMEnrichingFilter);
+  DEFINE_ANOTHER_FWK_MODULE(MCDecayingPionKaonFilter);
+  DEFINE_ANOTHER_FWK_MODULE(PythiaFilterEMJetHeep);
 
 

@@ -45,14 +45,7 @@ PFCandidateRefVector PFTauElementsOperators::PFChargedHadrCandsInCone(const math
 PFCandidateRefVector PFTauElementsOperators::PFChargedHadrCandsInCone(const math::XYZVector myVector,const string conemetric,const double conesize,const double minPt,const double PFChargedHadrCand_tracktorefpoint_maxDZ,const double refpoint_Z)const{     
   PFCandidateRefVector filteredPFChargedHadrCands;
   for(PFCandidateRefVector::const_iterator iPFCand=PFChargedHadrCands_.begin();iPFCand!=PFChargedHadrCands_.end();iPFCand++){
-    TrackRef PFChargedHadrCand_track;
-    if ((**iPFCand).block()->elements().size()!=0){
-      for (OwnVector<PFBlockElement>::const_iterator iPFBlock=(**iPFCand).block()->elements().begin();iPFBlock!=(**iPFCand).block()->elements().end();iPFBlock++){
-	if ((*iPFBlock).type()==PFBlockElement::TRACK && ROOT::Math::VectorUtil::DeltaR((**iPFCand).momentum(),(*iPFBlock).trackRef()->momentum())<0.001){
-	  PFChargedHadrCand_track=(*iPFBlock).trackRef();
-	}
-      }
-    }else continue;
+    TrackRef PFChargedHadrCand_track=(**iPFCand).trackRef();
     if (!PFChargedHadrCand_track)continue;
     if (fabs((*PFChargedHadrCand_track).dz()-refpoint_Z)<=PFChargedHadrCand_tracktorefpoint_maxDZ) filteredPFChargedHadrCands.push_back(*iPFCand);
   }
@@ -130,14 +123,7 @@ PFCandidateRefVector PFTauElementsOperators::PFNeutrHadrCandsInCone(const math::
 PFCandidateRefVector PFTauElementsOperators::PFChargedHadrCandsInAnnulus(const math::XYZVector myVector,const string innercone_metric,const double innercone_size,const string outercone_metric,const double outercone_size,const double minPt,const double PFChargedHadrCand_tracktorefpoint_maxDZ,const double refpoint_Z)const{     
   PFCandidateRefVector filteredPFChargedHadrCands;
   for(PFCandidateRefVector::const_iterator iPFCand=PFChargedHadrCands_.begin();iPFCand!=PFChargedHadrCands_.end();iPFCand++){
-    TrackRef PFChargedHadrCand_track;
-    if ((**iPFCand).block()->elements().size()!=0){
-      for (OwnVector<PFBlockElement>::const_iterator iPFBlock=(**iPFCand).block()->elements().begin();iPFBlock!=(**iPFCand).block()->elements().end();iPFBlock++){
-	if ((*iPFBlock).type()==PFBlockElement::TRACK && ROOT::Math::VectorUtil::DeltaR((**iPFCand).momentum(),(*iPFBlock).trackRef()->momentum())<0.001){
-	  PFChargedHadrCand_track=(*iPFBlock).trackRef();
-	}
-      }
-    }else continue;
+    TrackRef PFChargedHadrCand_track=(**iPFCand).trackRef();
     if (!PFChargedHadrCand_track)continue;
     if (fabs((*PFChargedHadrCand_track).dz()-refpoint_Z)<=PFChargedHadrCand_tracktorefpoint_maxDZ) filteredPFChargedHadrCands.push_back(*iPFCand);
   }

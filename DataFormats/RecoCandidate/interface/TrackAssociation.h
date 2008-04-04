@@ -5,19 +5,27 @@
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingParticle.h"
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingParticleFwd.h"
-#include "DataFormats/Common/interface/OneToManyWithQualityGeneric.h"
+#include "DataFormats/Common/interface/OneToManyWithQuality.h"
 #include "DataFormats/Common/interface/AssociationMap.h"
-#include "DataFormats/Common/interface/View.h"
 
 namespace reco{
 
-  typedef edm::AssociationMap<edm::OneToManyWithQualityGeneric
-    <TrackingParticleCollection, edm::View<reco::Track>, double> >
+  typedef edm::AssociationMap<edm::OneToManyWithQuality
+    <TrackingParticleCollection, reco::TrackCollection, double> >
     SimToRecoCollection;  
-  typedef edm::AssociationMap<edm::OneToManyWithQualityGeneric 
-    <edm::View<reco::Track>, TrackingParticleCollection, double> >
+  typedef edm::AssociationMap<edm::OneToManyWithQuality 
+    <reco::TrackCollection, TrackingParticleCollection, double> >
     RecoToSimCollection;  
   
+  typedef reco::SimToRecoCollection::value_type SimToRecoAssociation;
+  typedef edm::Ref<reco::SimToRecoCollection> SimToRecoAssociationRef;
+  typedef edm::RefProd<reco::SimToRecoCollection> SimToRecoAssociationRefProd;
+  typedef edm::RefVector<reco::SimToRecoCollection> SimToRecoAssociationRefVector;
+
+  typedef reco::RecoToSimCollection::value_type RecoToSimAssociation;
+  typedef edm::Ref<reco::RecoToSimCollection> RecoToSimAssociationRef;
+  typedef edm::RefProd<reco::RecoToSimCollection> RecoToSimAssociationRefProd;
+  typedef edm::RefVector<reco::RecoToSimCollection> RecoToSimAssociationRefVector;
 }
 
 #endif

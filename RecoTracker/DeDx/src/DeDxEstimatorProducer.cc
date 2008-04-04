@@ -13,7 +13,7 @@
 //
 // Original Author:  andrea
 //         Created:  Thu May 31 14:09:02 CEST 2007
-// $Id: DeDxEstimatorProducer.cc,v 1.6 2007/06/18 13:49:40 arizzi Exp $
+// $Id: DeDxEstimatorProducer.cc,v 1.5 2007/06/13 12:04:26 arizzi Exp $
 //
 //
 
@@ -79,12 +79,7 @@ DeDxEstimatorProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
    for(int j=0;it!=hits.end();++it,j++)
    {
       //FIXME: insert here some code to suppress pixel usage if wanted 
-      reco::TrackDeDxHitsCollection::value_type trackWithHits = *it;
-      reco::DeDxHitCollection filteredHits;
-      for(reco::DeDxHitCollection::iterator it_hits = trackWithHits.second.begin(); it_hits!=trackWithHits.second.end();it_hits++) {
-       if(it_hits->subDet() != 1 && it_hits->subDet() != 2 ) filteredHits.push_back(*it_hits);   
-      }
-      float val=m_estimator->dedx(reco::TrackDeDxHitsCollection::value_type(it->first,filteredHits));
+      float val=m_estimator->dedx(*it);
       outputCollection->setValue(j, val);
    }
    

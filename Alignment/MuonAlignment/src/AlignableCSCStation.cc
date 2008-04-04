@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2006/8/4 10:10:07 $
- *  $Revision: 1.0 $
+ *  $Date: 2006/08/04 20:18:51 $
+ *  $Revision: 1.4 $
  *  \author Andre Sznajder - UERJ(Brazil)
  */
  
@@ -11,11 +11,11 @@
 
 
 
-/// The constructor simply copies the vector of CSC Chambers and computes the surface from them
-AlignableCSCStation::AlignableCSCStation( const std::vector<AlignableCSCChamber*> dtChambers ) 
+/// The constructor simply copies the vector of CSC Rings and computes the surface from them
+AlignableCSCStation::AlignableCSCStation( const std::vector<AlignableCSCRing*> cscRings ) 
 {
 
-  theCSCChambers.insert( theCSCChambers.end(), dtChambers.begin(), dtChambers.end() );
+  theCSCRings.insert( theCSCRings.end(), cscRings.begin(), cscRings.end() );
 
   setSurface( computeSurface() );
    
@@ -25,20 +25,20 @@ AlignableCSCStation::AlignableCSCStation( const std::vector<AlignableCSCChamber*
 /// Clean delete of the vector and its elements
 AlignableCSCStation::~AlignableCSCStation() 
 {
-  for ( std::vector<AlignableCSCChamber*>::iterator iter = theCSCChambers.begin(); 
-	iter != theCSCChambers.end(); iter++)
+  for ( std::vector<AlignableCSCRing*>::iterator iter = theCSCRings.begin(); 
+	iter != theCSCRings.end(); iter++)
     delete *iter;
 
 }
 
-/// Return Alignable CSC Chamber at given index
-AlignableCSCChamber &AlignableCSCStation::chamber(int i) 
+/// Return Alignable CSC Ring at given index
+AlignableCSCRing &AlignableCSCStation::ring(int i) 
 {
   
   if (i >= size() ) 
-	throw cms::Exception("LogicError") << "CSC Chamber index (" << i << ") out of range";
+	throw cms::Exception("LogicError") << "CSC Ring index (" << i << ") out of range";
 
-  return *theCSCChambers[i];
+  return *theCSCRings[i];
   
 }
 
@@ -60,11 +60,11 @@ AlignableCSCStation::PositionType AlignableCSCStation::computePosition()
 
   float zz = 0.;
 
-  for ( std::vector<AlignableCSCChamber*>::iterator ilayer = theCSCChambers.begin();
-		ilayer != theCSCChambers.end(); ilayer++ )
+  for ( std::vector<AlignableCSCRing*>::iterator ilayer = theCSCRings.begin();
+		ilayer != theCSCRings.end(); ilayer++ )
     zz += (*ilayer)->globalPosition().z();
 
-  zz /= static_cast<float>(theCSCChambers.size());
+  zz /= static_cast<float>(theCSCRings.size());
 
   return PositionType( 0.0, 0.0, zz );
 
@@ -81,8 +81,8 @@ AlignableCSCStation::RotationType AlignableCSCStation::computeOrientation()
 // /// Twists all components by given angle
 // void AlignableCSCStation::twist(float rad) 
 // {
-//   for ( std::vector<AlignableCSCChamber*>::iterator iter = theCSCChambers.begin();
-//            iter != theCSCChambers.end(); iter++ )
+//   for ( std::vector<AlignableCSCRing*>::iterator iter = theCSCRings.begin();
+//            iter != theCSCRings.end(); iter++ )
 //         (*iter)->twist(rad);
 
 // }
@@ -92,7 +92,7 @@ AlignableCSCStation::RotationType AlignableCSCStation::computeOrientation()
 std::ostream &operator << (std::ostream& os, const AlignableCSCStation& b )
 {
 
-  os << "This CSC Station contains " << b.theCSCChambers.size() << " CSC chambers" << std::endl;
+  os << "This CSC Station contains " << b.theCSCRings.size() << " CSC rings" << std::endl;
   os << "(phi, r, z) =  (" << b.globalPosition().phi() << "," 
      << b.globalPosition().perp() << "," << b.globalPosition().z();
   os << "),  orientation:" << std::endl<< b.globalRotation() << std::endl;
@@ -106,8 +106,8 @@ void AlignableCSCStation::dump( void )
 {
 
   edm::LogInfo("AlignableDump") << (*this);
-  for ( std::vector<AlignableCSCChamber*>::iterator iChamber = theCSCChambers.begin();
-		iChamber != theCSCChambers.end(); iChamber++ )
-	 edm::LogInfo("AlignableDump")  << (**iChamber);
+  for ( std::vector<AlignableCSCRing*>::iterator iRing = theCSCRings.begin();
+		iRing != theCSCRings.end(); iRing++ )
+	 edm::LogInfo("AlignableDump")  << (**iRing);
 
 }

@@ -24,7 +24,7 @@ class CrossingFramePlaybackInfo
   // con- and destructors
 
   CrossingFramePlaybackInfo() {;}
-  CrossingFramePlaybackInfo(int minBunch, int maxBunch);
+  CrossingFramePlaybackInfo(int minBunch, int maxBunch, unsigned int maxNbSources);
 
   ~CrossingFramePlaybackInfo() {;}
 
@@ -44,23 +44,18 @@ class CrossingFramePlaybackInfo
   void setStartFileNr(const  unsigned int nr, const unsigned int s,const int bcr) {pileupFileNr_[s][bcr-minBunch_]=nr;}
   void setStartEventId( const edm::EventID &id, const unsigned int s, const int bcr) {idFirstPileup_[s][bcr-minBunch_]=id;}
   void setNrEvents(const  unsigned int nr, const unsigned int s, const int bcr) {nrEvents_[s][bcr-minBunch_]=nr;}
-/*   void setEventStartInfo(const edm::EventID &id, int fileNr, int nrEvents, const unsigned int s, const int bcr) */
-/*     {idFirstPileup_[s][bcr-minBunch_]=id; */
-/*      pileupFileNr_[s][bcr-minBunch_]=fileNr; */
-/*      nrEvents_[s][bcr-minBunch_]=nrEvents; */
-/* } */
   void setEventStartInfo(std::vector<edm::EventID> &id, std::vector<int>& fileNr, std::vector<unsigned int>& nrEvents, const unsigned int s);
 
-private:
+ private:
 
   // we need the same info for each bunchcrossing
-  static const unsigned int maxNbSources =4 ;  //FIXME: take from CrossingFrame
-std::vector<edm::EventID> idFirstPileup_[maxNbSources];   // EventId fof the first pileup event used for this signal event
-std::vector<int> pileupFileNr_[maxNbSources];             // ordinal number of the pileup file this event was in
-std::vector<unsigned int> nrEvents_[maxNbSources];
+  unsigned int maxNbSources_;
+  std::vector<std::vector<edm::EventID> > idFirstPileup_;   // EventId fof the first pileup event used for this signal event
+  std::vector<std::vector<int> > pileupFileNr_;             // ordinal number of the pileup file this event was in
+  std::vector<std::vector<unsigned int> > nrEvents_;
 
-int nBcrossings_;
-int minBunch_;
+  int nBcrossings_;
+  int minBunch_;
 
 };
 

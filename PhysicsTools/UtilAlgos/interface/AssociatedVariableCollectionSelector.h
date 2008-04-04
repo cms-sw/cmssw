@@ -4,7 +4,7 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: AssociatedVariableCollectionSelector.h,v 1.1 2007/11/12 11:37:36 llista Exp $
+ * \version $Id$
  *
  */
 #include "FWCore/ParameterSet/interface/InputTag.h"
@@ -61,9 +61,9 @@ namespace reco {
   namespace modules {
     template<typename S>
     struct AssociatedVariableCollectionSelectorEventSetupInit {
-      static void init(S & s, const edm::Event& evt, const edm::EventSetup& es) { 
+      static void init(S & s, const edm::EventSetup& es) { 
 	typedef typename EventSetupInit<typename S::selector>::type ESI;
-	ESI::init(s.select_, evt, es);
+	ESI::init(s.select_, es);
       }
     };
 

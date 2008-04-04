@@ -3,17 +3,16 @@
 <use name=FWCore/Framework>
 <use name=FWCore/MessageLogger>
 <use name=FWCore/ParameterSet>
-<use name=FWCore/ServiceRegistry>
 <use name=FastSimDataFormats/L1GlobalMuonTrigger>
 <use name=FastSimulation/Utilities>
 <use name=RecoMuon/GlobalTrackingTools>
 <use name=RecoMuon/TrackingTools>
-<use name=RecoTracker/Record>
 <use name=SimDataFormats/Track>
 <use name=TrackingTools/DetLayers>
 <use name=TrackingTools/PatternTools>
 <use name=TrackingTools/TrajectoryCleaning>
 <use name=Utilities/General>
+#<use name=DQMServices/CoreROOT>
 <export>
   <use name=RecoMuon/GlobalTrackingTools>
   <use name=TrackingTools/DetLayers>

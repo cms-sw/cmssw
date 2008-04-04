@@ -14,7 +14,11 @@
 #include "CondFormats/DataRecord/interface/L1RPCConfigRcd.h"
 #include "CondFormats/RPCObjects/interface/RPCEMap.h"
 #include "CondFormats/DataRecord/interface/RPCEMapRcd.h"
+#include "CondFormats/RPCObjects/interface/RPCdbData.h"
+#include "CondFormats/DataRecord/interface/RPCdbDataRcd.h"
+
 DEFINE_SEAL_MODULE();
 REGISTER_PLUGIN(RPCReadOutMappingRcd,RPCReadOutMapping);
 REGISTER_PLUGIN(L1RPCConfigRcd,L1RPCConfig);
 REGISTER_PLUGIN(RPCEMapRcd,RPCEMap);
+REGISTER_PLUGIN(RPCdbDataRcd,RPCdbData);

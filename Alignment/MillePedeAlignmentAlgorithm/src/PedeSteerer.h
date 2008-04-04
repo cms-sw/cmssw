@@ -8,8 +8,8 @@
  *
  * \author    : Gero Flucke
  * date       : October 2006
- * $Date: 2007/08/31 18:03:19 $
- * $Revision: 1.13 $
+ * $Date: 2007/08/31 17:24:29 $
+ * $Revision: 1.12 $
  * (last update by $Author: flucke $)
  */
 
@@ -20,24 +20,26 @@
 // forward ofstream:
 #include <iosfwd> 
 
+#include "PedeLabeler.h"
+
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 class Alignable;
 class AlignableTracker;
 class AlignableMuon;
 class AlignmentParameterStore;
-class PedeLabeler;
+
 
 /***************************************
 ****************************************/
 class PedeSteerer
 {
  public:
-  /// constructor from AlignableTracker/AlignableMuon, their AlignmentParameterStore and the labeler
-  /// (NOTE: The latter two must live longer than the constructed PedeSteerer!)
+  /// constructor from AlignableTracker/AlignableMuon, their AlignmentParameterStore
+  /// (NOTE: The latter must live longer than the constructed PedeSteerer!)
   PedeSteerer(AlignableTracker *aliTracker, AlignableMuon *aliMuon, AlignmentParameterStore *store,
-	      const PedeLabeler *labels, const edm::ParameterSet &config,
-	      const std::string &defaultDir, bool noSteerFiles);
+	      const edm::ParameterSet &config, const std::string &defaultDir,
+	      bool noSteerFiles);
   /** non-virtual destructor: do not inherit from this class **/
   ~PedeSteerer();
     
@@ -57,6 +59,7 @@ class PedeSteerer
   int parameterSign() const { return myParameterSign; }
   /// directory from constructor input, '/' is attached if needed
   const std::string& directory() const { return myDirectory;}
+  inline const PedeLabeler& labels() const { return myLabels;}
 
  private:
   typedef std::map<const Alignable*,std::vector<float> > AlignablePresigmasMap;
@@ -101,8 +104,8 @@ class PedeSteerer
   std::ofstream* createSteerFile(const std::string &name, bool addToList);
 
   // data members
-  const AlignmentParameterStore *myParameterStore; /// not the owner!
-  const PedeLabeler             *myLabels; /// pointer to labeler (not the owner)
+  const AlignmentParameterStore *myParameterStore; // not the owner!
+  const PedeLabeler              myLabels;
 
   edm::ParameterSet myConfig;
   std::string myDirectory; /// directory of all files

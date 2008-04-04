@@ -1,3 +1,76 @@
+2008-03-13  Emilio Meschi <emilio.meschi@cern.ch>
+
+	* tag V03-09-10 (1_8_X branch)
+	* handle fileSize out of bounds correctly (in case of xdaq override)
+	* added lastEventSeen to front web page
+
+2008-03-10  Harry Cheung <cheung@fnal.gov>
+
+	* tag V03-09-09 (1_8_X branch)
+	* Emilio's modifications to override stream maxSize from xdaq
+	
+2008-03-10  Harry Cheung <cheung@fnal.gov>
+
+	* tag V03-09-08 (1_8_X branch)
+	* Changes to throw exception when a write error is encountered
+	
+2008-03-10  Emilio Meschi <emilio.meschi@cern.ch>
+
+	* tag V03-10-01 (was tagged V03-09-07 but in Main trunk so deleted)
+	* modifications to override stream maxSize from xdaq 
+	
+2008-03-04  Harry Cheung <cheung@fnal.gov>
+
+	* tag V03-10-00
+	* modifications for DQM core services needed in 20X 
+	
+2008-03-03  Harry Cheung <cheung@fnal.gov>
+
+	* tag V03-09-06 
+	* Remove unused variable and printout from the thread monitoring workloop
+	* Enable consumers to select an SM stream by the SM streamLabel
+
+2008-02-25  Emilio Meschi <emilio.meschi@cern.ch>
+
+	* tag V03-09-05 
+	* added monitoring workloop and related functions
+	* added E->F asynchronous transition when failure detected in JobController thread
+	* added data structure to hold detailed stream file info 
+	* stream info and run number added to web page
+	* added findStreamName utility to extract stream name from entry in filelist
+	* modified StreamService to use a mutex around access to file list
+	* replaced application icons
+
+2008-02-21  Harry Cheung <cheung@fnal.gov>
+
+	* tag V03-09-04 
+	* Fixes to allow propor behavior for file sizes greater than 2GB, and to
+	  make the cfg file specify the max file size in MBytes instead of bytes.
+
+2008-02-11  Harry Cheung <cheung@fnal.gov>
+
+	* tag V03-09-03 
+	* Support for SMProxyServer as a special consumer when we have multiple
+	  HLT output modules.
+
+2008-02-02  Harry Cheung <cheung@fnal.gov>
+
+	* tag V03-09-02 
+        * New version of SMPerformanceMeterfor thread safety so SMProxyServer can
+          use this for both incoming and outgoing statistics when in pull mode
+        * Modified StorageManager to use this new version and test XML config to
+          set SMProxyServer parameters
+
+2008-01-30  Harry Cheung <cheung@fnal.gov>
+
+	* tag V03-09-00 Changes to handle multiple output modules in the HLT processes
+
+2008-01-28  Harry Cheung <cheung@fnal.gov>
+
+	* tag V03-08-03 (Don't know what changed in V03-08-02! Probably framework changes)
+	* Fix bug in DQMConsumerPipe, and using priority=PushMode for pushmode
+	* Set pushmode to false in example XML config files
+
 2007-12-12  Harry Cheung <cheung@fnal.gov>
 
 	* tag V03-08-01 (no entries made for previous tags! Lump all changes here))

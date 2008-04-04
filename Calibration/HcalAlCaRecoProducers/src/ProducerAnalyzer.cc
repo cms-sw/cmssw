@@ -9,20 +9,22 @@
 #include "DataFormats/JetReco/interface/CaloJetCollection.h"
 #include "DataFormats/MuonReco/interface/MuonFwd.h"
 #include "DataFormats/MuonReco/interface/Muon.h"
-#include "RecoTracker/TrackProducer/interface/TrackProducerBase.h"
 #include "TrackingTools/TransientTrack/interface/TransientTrack.h"
-#include "DataFormats/EgammaReco/interface/BasicCluster.h"
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
-#include "DataFormats/EgammaReco/interface/ClusterShape.h"
+#include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
+#include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h" 
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h" 
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h" 
+#include "DataFormats/HcalCalibObjects/interface/HOCalibVariables.h"
+#include "DataFormats/HcalCalibObjects/interface/HOCalibVariableCollection.h"
+#include "DataFormats/TrackReco/interface/TrackExtra.h"
+#include "DataFormats/TrackReco/interface/TrackExtraFwd.h"
+#include "RecoTracker/TrackProducer/interface/TrackProducerBase.h"
 
-#include <string>
-#include <memory>
 #include <map>
-#
+
 using namespace std;
 using namespace reco;
 
@@ -43,7 +45,7 @@ ProducerAnalyzer::ProducerAnalyzer(const edm::ParameterSet& iConfig)
    hbheInput_ = iConfig.getUntrackedParameter<std::string>("hbheInput");
    hoInput_ = iConfig.getUntrackedParameter<std::string>("hoInput");
    hfInput_ = iConfig.getUntrackedParameter<std::string>("hfInput");
-   Tracks_ = iConfig.getUntrackedParameter<std::string>("Tracks","GammaJetTracksCollection"); 
+   Tracks_ = iConfig.getUntrackedParameter<std::string>("Tracks","GammaJetTracksCollection");    
 
 }
 
@@ -80,6 +82,7 @@ ProducerAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
    iSetup.get<IdealGeometryRecord>().get(pG);
    geo = pG.product();
    
+
   std::vector<Provenance const*> theProvenance;
   iEvent.getAllProvenance(theProvenance);
   for( std::vector<Provenance const*>::const_iterator ip = theProvenance.begin();
@@ -88,6 +91,24 @@ ProducerAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
      cout<<" Print all module/label names "<<(**ip).moduleName()<<" "<<(**ip).moduleLabel()<<
      " "<<(**ip).productInstanceName()<<endl;
   }
+  
+  bool allowMissingInputs_ = true;
+  
+  if(nameProd_ == "hoCalibProducer")
+  {
+     edm::Handle<HOCalibVariableCollection> ho;
+     try {
+     iEvent.getByLabel(nameProd_,hoInput_, ho);
+     const HOCalibVariableCollection Hitho = *(ho.product());
+     std::cout<<" Size of HO "<<(Hitho).size()<<std::endl;
+     }         
+        catch (cms::Exception& e) { // can't find it!
+            if (!allowMissingInputs_) {
+              throw e;
+            }
+     }
+  }
+  
    if(nameProd_ == "ALCARECOMuAlZMuMu" )
    {
    
@@ -106,7 +127,7 @@ ProducerAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
    
    }  
   
-   if(nameProd_ != "IsoProd" && nameProd_ != "ALCARECOMuAlZMuMu" )
+   if(nameProd_ != "IsoProd" && nameProd_ != "ALCARECOMuAlZMuMu" && nameProd_ != "hoCalibProducer")
    {
    edm::Handle<HBHERecHitCollection> hbhe;
    iEvent.getByLabel(nameProd_,hbheInput_, hbhe);
@@ -137,7 +158,10 @@ ProducerAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 
           for (; track != tracks->end (); track++)
          {
-           cout<<" P track "<<(*track).p()<<" eta "<<(*track).eta()<<" phi "<<(*track).phi()<<endl;
+           cout<<" P track "<<(*track).p()<<" eta "<<(*track).eta()<<" phi "<<(*track).phi()<<" Outer "<<(*track).outerMomentum()<<" "<<
+	   (*track).outerPosition()<<endl;
+	   TrackExtraRef myextra = (*track).extra();
+	   cout<<" Track extra "<<myextra->outerMomentum()<<" "<<myextra->outerPosition()<<endl;
          }  
 
    edm::Handle<EcalRecHitCollection> ecal;
@@ -199,6 +223,8 @@ ProducerAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
          }
 
    }
+   
+   
    if(nameProd_ == "GammaJetProd" || nameProd_ == "DiJProd")
    {
     cout<<" we are in GammaJetProd area "<<endl;

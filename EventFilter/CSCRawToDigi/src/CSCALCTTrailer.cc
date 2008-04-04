@@ -2,9 +2,6 @@
   http://www.phys.ufl.edu/~madorsky/alctv/alct2000_spec.PDF
 */
 
-#include <string.h> // memcpy
-#include "DataFormats/CSCDigi/interface/CSCALCTStatusDigi.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "EventFilter/CSCRawToDigi/interface/CSCALCTTrailer.h"
 
 bool CSCALCTTrailer::debug=false;

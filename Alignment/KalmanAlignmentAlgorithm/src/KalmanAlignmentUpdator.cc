@@ -1,5 +1,6 @@
 
 #include "Alignment/KalmanAlignmentAlgorithm/interface/KalmanAlignmentUpdator.h"
+#include "Alignment/CommonAlignmentAlgorithm/interface/AlignmentParameterStore.h" 
 #include "Alignment/KalmanAlignmentAlgorithm/interface/KalmanAlignmentUserVariables.h"
 
 

@@ -8,16 +8,12 @@ TrajectoryStateClosestToBeamLineBuilder::operator()
 	 const reco::BeamSpot& beamSpot)
 {
   TwoTrackMinimumDistance ttmd;
-  bool status = ttmd.calculate( originalFTS.parameters(), 
+  pair<GlobalPoint, GlobalPoint> points = ttmd.points( originalFTS.parameters(), 
   	GlobalTrajectoryParameters(
 	   	GlobalPoint(beamSpot.position().x(), beamSpot.position().y(), beamSpot.position().z()), 
 		GlobalVector(beamSpot.dxdz(), beamSpot.dydz(), 1.), 
 		0, &(originalFTS.parameters().magneticField()) ) );
-  if (!status)
-    throw cms::Exception("TrackingTools/PatternTools","TrajectoryStateClosestToBeamLine: Failure in TTMD when searching for PCA of track to beamline.");
-
-  pair<GlobalPoint, GlobalPoint> points = ttmd.points();
-
+ 
   GlobalPoint xTrack = points.first;
   GlobalVector pTrack = GlobalVector ( GlobalVector::Cylindrical(originalFTS.momentum().perp(), ttmd.firstAngle(), originalFTS.momentum().z()) );
 

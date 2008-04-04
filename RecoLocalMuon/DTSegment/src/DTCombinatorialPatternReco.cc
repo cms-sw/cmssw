@@ -1,7 +1,7 @@
 /** \file
  *
- * $Date: 2007/03/10 16:14:43 $
- * $Revision: 1.13 $
+ * $Date: 2008/03/04 09:06:04 $
+ * $Revision: 1.15 $
  * \author Stefano Lacaprara - INFN Legnaro <stefano.lacaprara@pd.infn.it>
  * \author Riccardo Bellan - INFN TO <riccardo.bellan@cern.ch>
  */
@@ -41,12 +41,12 @@ DTRecSegment2DBaseAlgo(pset), theAlgoName("DTCombinatorialPatternReco")
   debug = pset.getUntrackedParameter<bool>("debug"); //true;
   theUpdator = new DTSegmentUpdator(pset);
   theCleaner = new DTSegmentCleaner(pset);
+  string theHitAlgoName = pset.getParameter<string>("recAlgo");
+  usePairs = !(theHitAlgoName=="DTNoDriftAlgo");
 }
 
 /// Destructor
 DTCombinatorialPatternReco::~DTCombinatorialPatternReco() {
-  delete theUpdator;
-  delete theCleaner;
 }
 
 /* Operations */ 
@@ -72,6 +72,14 @@ DTCombinatorialPatternReco::reconstruct(const DTSuperLayer* sl,
 
     delete *(cand++); // delete the candidate!
   }
+
+  for (vector<DTHitPairForFit*>::iterator it = hitsForFit.begin(), ed = hitsForFit.end(); 
+        it != ed; ++it) 
+  {
+        delete *it;
+  }
+
+
   return result;
 }
 
@@ -244,7 +252,7 @@ DTCombinatorialPatternReco::findCompatibleHits(const LocalPoint& posIni,
 
     DTEnums::DTCellSide lrcode;
     if (isCompatible.first && isCompatible.second) 
-      lrcode=DTEnums::undefLR;
+      usePairs ? lrcode=DTEnums::undefLR : lrcode=DTEnums::Left ; // if not usePairs then only use single side 
     else if (isCompatible.first) 
       lrcode=DTEnums::Left;
     else if (isCompatible.second) 

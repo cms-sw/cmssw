@@ -1,8 +1,10 @@
 #include "RecoPixelVertexing/PixelVertexFinding/interface/PixelVertexProducer.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
+#include "DataFormats/BeamSpot/interface/BeamSpot.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 #include "RecoPixelVertexing/PixelVertexFinding/interface/DivisiveVertexFinder.h"
+#include "FWCore/ParameterSet/interface/InputTag.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <memory>
 #include <string>
@@ -78,6 +80,31 @@ void PixelVertexProducer::produce(edm::Event& e, const edm::EventSetup& es) {
     }
   }
 
-  // Finally, put them in the event if things look OK
-  if (ok) e.put(vertexes);
+  edm::Handle<reco::BeamSpot> bsHandle;
+  edm::InputTag bsName = conf_.getParameter<edm::InputTag>("beamSpot");
+  e.getByLabel(bsName,bsHandle);
+  if(bsHandle.isValid())
+   {
+    const reco::BeamSpot & bs = *bsHandle;
+
+    for (unsigned int i=0; i<vertexes->size(); ++i) {
+      double z=(*vertexes)[i].z();
+      double x=bs.x0()+bs.dxdz()*(z-bs.z0());
+      double y=bs.y0()+bs.dydz()*(z-bs.z0()); 
+      reco::Vertex v( reco::Vertex::Point(x,y,z), (*vertexes)[i].error(),(*vertexes)[i].chi2() , (*vertexes)[i].ndof() , (*vertexes)[i].tracksSize());
+       //Copy also the tracks 
+       for (std::vector<reco::TrackBaseRef >::const_iterator it = (*vertexes)[i].tracks_begin();
+            it !=(*vertexes)[i].tracks_end(); it++) {
+            v.add( *it );
+       }
+      (*vertexes)[i]=v;
+
+    }
+  }
+   else
+  {
+      edm::LogWarning("PixelVertexProducer") << "No beamspot found. Using returning vertexes with (0,0,Z) ";
+  } 
+
+  e.put(vertexes);
 }

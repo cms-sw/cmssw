@@ -3,7 +3,6 @@
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include <set>
 
 
 SimpleMetricsUpdator::SimpleMetricsUpdator( const edm::ParameterSet & config ) : KalmanAlignmentMetricsUpdator( config )

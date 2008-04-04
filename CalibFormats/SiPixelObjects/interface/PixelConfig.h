@@ -18,10 +18,9 @@ namespace pos{
     }
     //returns -1 if it can not find the dir.
     int find(std::string dir, unsigned int &version){
-//      std::cout << "[pos::PixelConfig::find()] versions_.size() = " << versions_.size() << std::endl ;
       for(unsigned int i=0;i<versions_.size();i++){
-//	std::cout << "Looking :"<<versions_[i].first
-//		  <<" "<<versions_[i].second<<std::endl;
+	//std::cout << "Looking :"<<versions_[i].first
+	//	      <<" "<<versions_[i].second<<std::endl;
 	if (versions_[i].first==dir) {
 	  version=versions_[i].second;
 	  return 0;

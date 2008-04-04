@@ -1,4 +1,5 @@
 #include "DQMServices/Core/interface/MonitorElement.h"
+#include "DQMServices/Core/interface/CollateMonitorElement.h"
 #include "DQMServices/Core/interface/MonitorUserInterface.h"
 
 #include <iostream>
@@ -19,6 +20,7 @@ MonitorUserInterface::MonitorUserInterface()
 
 MonitorUserInterface::~MonitorUserInterface(void)
 {
+  bei->removeCollates();
 }
 
 // to be used by methods subscribe (add=true) and unsubscribe (add=false)
@@ -505,6 +507,121 @@ void MonitorUserInterface::finishSubscription(const vector<string> & monit,
 //{
 //  bei->setAccumulate(me, flag);
 //}
+
+// add <search_string> to summary ME; 
+// <search_string> could : (a) be exact pathname (e.g. A/B/C/histo): FAST
+// (b) include wildcards (e.g. A/?/C/histo, A/B/*/histo or A/B/*): SLOW
+// this action applies to all MEs already available or future ones
+void MonitorUserInterface::add(CollateMonitorElement * cme, string search_string)
+  const
+{
+  add(cme, 0, search_string); // "0" means no tag
+}
+
+// same as above for tagged MEs
+void MonitorUserInterface::add(CollateMonitorElement * cme, unsigned int tag,
+			       string search_string) const
+{
+  if(search_string.empty())
+    return;
+  if(!cme)
+    {
+      cerr << " *** Cannot use search-string " << search_string 
+	   << " with null CollateMonitorElement! " << endl;
+      return;
+    }
+
+  if(tag == 0) // "0" means no tag
+    cme->add(0, search_string, bei->Own);
+  else
+    {
+      tdir_it tg = bei->Tags.find(tag);
+      if(tg != bei->Tags.end())
+	cme->add(tag, search_string, tg->second);
+      else
+	cme->add2search_path(search_string, tag);
+    }
+   
+}
+
+// add directory contents to summary ME ==> FAST
+// (need exact pathname without wildcards, e.g. A/B/C);
+// use flag to specify whether subfolders (and their contents) should be included;
+// this action applies to all MEs already available or future ones
+void MonitorUserInterface::add(CollateMonitorElement* cme, string pathname, 
+			       bool useSubfolds) const
+{
+  add(cme, 0, pathname, useSubfolds); // "0" means no tag
+}
+
+// same as above for tagged MEs
+void MonitorUserInterface::add(CollateMonitorElement * cme, unsigned int tag,
+			       string pathname, bool useSubfolds) const
+{
+  if(pathname.empty())
+    return;
+  if(!cme)
+    {
+      cerr << " *** Cannot use pathname " << pathname 
+	   << " with null CollateMonitorElement! " << endl;
+      return;
+    }
+
+  chopLastSlash(pathname);
+
+  if(tag == 0) // "0" means no tag
+    cme->add(0, pathname, bei->Own, useSubfolds);
+  else
+    {
+      tdir_it tg = bei->Tags.find(tag);
+      if(tg != bei->Tags.end())
+	cme->add(tag, pathname, tg->second, useSubfolds);
+      else
+	cme->add2folders(pathname, useSubfolds, tag);
+    } 
+}
+
+// add tagged MEs to summary ME ==> FAST
+// this action applies to all MEs already available or future ones
+void MonitorUserInterface::add(CollateMonitorElement * cme, unsigned int tag)
+  const
+{
+  if(!cme)
+    {
+      cerr << " *** Cannot use tag " << tag 
+	   << " with null CollateMonitorElement! " << endl;
+      return;
+    }
+  if(tag == 0)
+    {
+      cerr << " *** Tag must be positive number! \n";
+      return;
+    }
+
+  tdir_it tg = bei->Tags.find(tag);
+  if(tg != bei->Tags.end())
+    cme->add(tag, tg->second);
+  else
+    cme->add2tags(tag); 
+}
+
+// new MEs have been added; check if need to update collate-MEs
+void MonitorUserInterface::checkAddedContents(void)
+{
+  for(cmesIt cme = bei->collate_set.begin(); cme != bei->collate_set.end(); ++cme)
+    // loop over collate-MEs
+    (*cme)->checkAddedContents();
+}
+
+// do calculations for all collate MEs; come here at end of monitoring cycle)
+void MonitorUserInterface::doSummary(void)
+{
+  if(!bei->addedContents.empty())
+    checkAddedContents();
+  
+  for(cmesIt cme = bei->collate_set.begin(); cme != bei->collate_set.end(); ++cme)
+    (*cme)->summary();
+}
 
 // this is the "main" loop where we receive monitoring/send subscription requests;
 // if client acts as server, method runQTests is also sending monitoring & 

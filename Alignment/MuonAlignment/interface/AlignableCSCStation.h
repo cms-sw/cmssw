@@ -4,26 +4,23 @@
 /** \class AlignableCSCStation 
  *  The alignable muon CSC station.
  *
- *  $Date: 2007/03/02 15:46:12 $
- *  $Revision: 1.6 $
+ *  $Date: 2007/12/06 01:30:52 $
+ *  $Revision: 1.7.4.1 $
  *  \author Andre Sznajder - UERJ(Brazil)
  */
 
 
-#include "Geometry/CommonDetUnit/interface/GeomDet.h"
 #include "Alignment/CommonAlignment/interface/Alignable.h"
 #include "Alignment/CommonAlignment/interface/AlignableComposite.h"
 #include "Alignment/CommonAlignment/interface/AlignableSurface.h"
 
-#include "Alignment/MuonAlignment/interface/AlignableCSCChamber.h"
+#include "Alignment/MuonAlignment/interface/AlignableCSCRing.h"
 
-#include "DataFormats/TrackingRecHit/interface/AlignmentPositionError.h"
-#include "DataFormats/GeometryVector/interface/Basic3DVector.h"
 
 #include <vector>
 
 class GeomDet;
-class AlignableCSCChamber;
+class AlignableCSCRing;
 
 /// Concrete class for muon CSC Station alignable.
 ///
@@ -35,7 +32,7 @@ class AlignableCSCStation : public AlignableComposite
 
  public:
 
-  AlignableCSCStation( const std::vector<AlignableCSCChamber*> cscChambers );
+  AlignableCSCStation( const std::vector<AlignableCSCRing*> cscRings );
 
   ~AlignableCSCStation();
   
@@ -43,7 +40,7 @@ class AlignableCSCStation : public AlignableComposite
   {
 
         std::vector<Alignable*> result;
-        result.insert( result.end(), theCSCChambers.begin(), theCSCChambers.end() );
+        result.insert( result.end(), theCSCRings.begin(), theCSCRings.end() );
         return result;
 
   }
@@ -58,12 +55,12 @@ class AlignableCSCStation : public AlignableComposite
   // get the Surface
   AlignableSurface computeSurface() ;
 
-  AlignableCSCChamber &chamber(int i);  
+  AlignableCSCRing &ring(int i);  
   
   //virtual void twist(float);
 
   /// Return alignable object identifier
-  virtual int alignableObjectId() const { return AlignableObjectId::AlignableCSCStation; }
+  virtual StructureType alignableObjectId() const { return align::AlignableCSCStation; }
 
   /// Printout muon CSC Station information (not recursive)
   friend std::ostream& operator << ( std::ostream&, const AlignableCSCStation& ); 
@@ -75,7 +72,7 @@ class AlignableCSCStation : public AlignableComposite
 
 private:
 
-  std::vector<AlignableCSCChamber*> theCSCChambers;
+  std::vector<AlignableCSCRing*> theCSCRings;
 
 
 };

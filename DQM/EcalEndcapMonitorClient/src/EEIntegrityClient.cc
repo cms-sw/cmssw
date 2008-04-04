@@ -2,8 +2,8 @@
 /*
  * \file EEIntegrityClient.cc
  *
- * $Date: 2008/01/20 13:34:28 $
- * $Revision: 1.53 $
+ * $Date: 2008/02/14 11:15:43 $
+ * $Revision: 1.61 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -48,6 +48,8 @@
 
 #include <DQM/EcalEndcapMonitorClient/interface/EEIntegrityClient.h>
 
+#include <DataFormats/EcalDetId/interface/EEDetId.h>
+
 using namespace cms;
 using namespace edm;
 using namespace std;
@@ -61,7 +63,7 @@ EEIntegrityClient::EEIntegrityClient(const ParameterSet& ps){
   verbose_ = ps.getUntrackedParameter<bool>("verbose", false);
 
   // enableMonitorDaemon_ switch
-  enableMonitorDaemon_ = ps.getUntrackedParameter<bool>("enableMonitorDaemon", true);
+  enableMonitorDaemon_ = ps.getUntrackedParameter<bool>("enableMonitorDaemon", false);
 
   // enableCleanup_ switch
   enableCleanup_ = ps.getUntrackedParameter<bool>("enableCleanup", false);
@@ -153,7 +155,7 @@ void EEIntegrityClient::endRun(void) {
 
 void EEIntegrityClient::setup(void) {
 
-  Char_t histo[200];
+  char histo[200];
 
   dbe_->setCurrentFolder( "EcalEndcap/EEIntegrityClient" );
 
@@ -316,7 +318,7 @@ bool EEIntegrityClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonR
     bool update0 = false;
 
     if ( h00_ ) {
-      num00  = h00_->GetBinContent(ism);
+      num00 = h00_->GetBinContent(ism);
       if ( num00 > 0 ) update0 = true;
     }
 
@@ -357,11 +359,11 @@ bool EEIntegrityClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonR
 
         if ( update0 || update1 ) {
 
-          if ( ix == 1 && iy == 1 ) {
+          if ( Numbers::icEE(ism, jx, jy) == 1 ) {
 
             cout << "Preparing dataset for " << Numbers::sEE(ism) << " (ism=" << ism << ")" << endl;
 
-            cout << "(" << ix << "," << iy << ") " << num00 << " " << num01 << " " << num02 << " " << num03 << endl;
+            cout << "(" << Numbers::ix0EE(i+1)+ix << "," << Numbers::iy0EE(i+1)+iy << ") " << num00 << " " << num01 << " " << num02 << " " << num03 << endl;
 
             cout << endl;
 
@@ -391,17 +393,13 @@ bool EEIntegrityClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonR
           }
           c1.setTaskStatus(val);
 
-          int ic = Numbers::indexEE(ism, ix, iy);
+          int ic = Numbers::indexEE(ism, jx, jy);
 
           if ( ic == -1 ) continue;
 
           if ( econn ) {
-            try {
-              ecid = LogicID::getEcalLogicID("EE_crystal_number", Numbers::iSM(ism, EcalEndcap), ic);
-              dataset1[ecid] = c1;
-            } catch (runtime_error &e) {
-              cerr << e.what() << endl;
-            }
+            ecid = LogicID::getEcalLogicID("EE_crystal_number", Numbers::iSM(ism, EcalEndcap), ic);
+            dataset1[ecid] = c1;
           }
 
           status = status && val;
@@ -416,6 +414,11 @@ bool EEIntegrityClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonR
     for ( int ixt = 1; ixt <= 10; ixt++ ) {
       for ( int iyt = 1; iyt <= 10; iyt++ ) {
 
+        int jxt = Numbers::ix0EE(ism) + 1 + 5*(ixt-1);
+        int jyt = Numbers::iy0EE(ism) + 1 + 5*(iyt-1);
+
+        if ( ism >= 1 && ism <= 9 ) jxt = 101 - jxt;
+
         num04 = num05 = 0.;
 
         bool update1 = false;
@@ -426,6 +429,10 @@ bool EEIntegrityClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonR
           numTot = 0.;
           for ( int ix = 1 + 5*(ixt-1); ix <= 5*ixt; ix++ ) {
             for ( int iy = 1 + 5*(iyt-1); iy <= 5*iyt; iy++ ) {
+              int jx = ix + Numbers::ix0EE(ism);
+              int jy = iy + Numbers::iy0EE(ism);
+              if ( ism >= 1 && ism <= 9 ) jx = 101 - jx;
+              if ( ! Numbers::validEE(ism, jx, jy) ) continue;
               numTot += h_[ism-1]->GetBinContent(ix, iy);
             }
           }
@@ -434,6 +441,10 @@ bool EEIntegrityClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonR
         if ( h04_[ism-1] ) {
           for ( int ix = 1 + 5*(ixt-1); ix <= 5*ixt; ix++ ) {
             for ( int iy = 1 + 5*(iyt-1); iy <= 5*iyt; iy++ ) {
+              int jx = ix + Numbers::ix0EE(ism);
+              int jy = iy + Numbers::iy0EE(ism);
+              if ( ism >= 1 && ism <= 9 ) jx = 101 - jx;
+              if ( ! Numbers::validEE(ism, jx, jy) ) continue;
               num04  = h04_[ism-1]->GetBinContent(ix, iy);
               if ( num04 > 0 ) update1 = true;
             }
@@ -443,6 +454,10 @@ bool EEIntegrityClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonR
         if ( h05_[ism-1] ) {
           for ( int ix = 1 + 5*(ixt-1); ix <= 5*ixt; ix++ ) {
             for ( int iy = 1 + 5*(iyt-1); iy <= 5*iyt; iy++ ) {
+              int jx = ix + Numbers::ix0EE(ism);
+              int jy = iy + Numbers::iy0EE(ism);
+              if ( ism >= 1 && ism <= 9 ) jx = 101 - jx;
+              if ( ! Numbers::validEE(ism, jx, jy) ) continue;
               num05  = h05_[ism-1]->GetBinContent(ix, iy);
               if ( num05 > 0 ) update1 = true;
             }
@@ -451,11 +466,11 @@ bool EEIntegrityClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonR
 
         if ( update0 || update1 ) {
 
-          if ( ixt == 1 && iyt == 1 ) {
+          if ( Numbers::iTT(ism, EcalEndcap, jxt, jyt) == 1 ) {
 
             cout << "Preparing dataset for " << Numbers::sEE(ism) << " (ism=" << ism << ")" << endl;
 
-            cout << "(" << ixt << "," << iyt << ") " << num00 << " " << num04 << " " << num05 << endl;
+            cout << "(" << 1+(Numbers::ix0EE(ism)+1+5*(ixt-1))/5 << "," << 1+(Numbers::iy0EE(ism)+1+5*(iyt-1))/5 << ") " << num00 << " " << num04 << " " << num05 << endl;
 
             cout << endl;
 
@@ -486,15 +501,13 @@ bool EEIntegrityClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonR
           }
           c2.setTaskStatus(val);
 
-          int itt = Numbers::iTT(ism, EcalEndcap, 1+5*(ixt-1), 1+5*(iyt-1));
+          int itt = Numbers::iTT(ism, EcalEndcap, jxt, jyt);
+
+          if ( itt == -1 ) continue;
 
           if ( econn ) {
-            try {
-              ecid = LogicID::getEcalLogicID("EE_trigger_tower", Numbers::iSM(ism, EcalEndcap), itt);
-              dataset2[ecid] = c2;
-            } catch (runtime_error &e) {
-              cerr << e.what() << endl;
-            }
+            ecid = LogicID::getEcalLogicID("EE_readout_tower", Numbers::iSM(ism, EcalEndcap), itt);
+            dataset2[ecid] = c2;
           }
 
           status = status && val;
@@ -529,7 +542,7 @@ bool EEIntegrityClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonR
 
         if ( update0 || update1 ) {
 
-          if ( ix == 1 && iy == 1 ) {
+          if ( ix ==1 && iy == 1 ) {
 
             cout << "Preparing dataset for mem of SM=" << ism << endl;
 
@@ -566,12 +579,8 @@ bool EEIntegrityClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonR
           int ic = EEIntegrityClient::chNum[ (ix-1)%5 ][ (iy-1) ] + (ix-1)/5 * 25;
 
           if ( econn ) {
-            try {
-              ecid = LogicID::getEcalLogicID("EE_mem_channel", Numbers::iSM(ism, EcalEndcap), ic);
-              dataset3[ecid] = c3;
-            } catch (runtime_error &e) {
-              cerr << e.what() << endl;
-            }
+            ecid = LogicID::getEcalLogicID("EE_mem_channel", Numbers::iSM(ism, EcalEndcap), ic);
+            dataset3[ecid] = c3;
           }
 
           status = status && val;
@@ -650,12 +659,8 @@ bool EEIntegrityClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonR
         int itt = 68 + ixt;
 
         if ( econn ) {
-          try {
-            ecid = LogicID::getEcalLogicID("EE_mem_TT", Numbers::iSM(ism, EcalEndcap), itt);
-            dataset4[ecid] = c4;
-          } catch (runtime_error &e) {
-            cerr << e.what() << endl;
-          }
+          ecid = LogicID::getEcalLogicID("EE_mem_TT", Numbers::iSM(ism, EcalEndcap), itt);
+          dataset4[ecid] = c4;
         }
 
         status = status && val;
@@ -668,7 +673,7 @@ bool EEIntegrityClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonR
 
   if ( econn ) {
     try {
-      cout << "Inserting MonCrystalConsistencyDat ... " << flush;
+      cout << "Inserting MonConsistencyDat ..." << endl;
       if ( dataset1.size() != 0 ) econn->insertDataArraySet(&dataset1, moniov);
       if ( dataset2.size() != 0 ) econn->insertDataArraySet(&dataset2, moniov);
       if ( dataset3.size() != 0 ) econn->insertDataArraySet(&dataset3, moniov);
@@ -719,7 +724,7 @@ void EEIntegrityClient::analyze(void){
   EcalErrorMask::fetchDataSet(&mask3);
   EcalErrorMask::fetchDataSet(&mask4);
 
-  Char_t histo[200];
+  char histo[200];
 
   MonitorElement* me;
 
@@ -883,13 +888,13 @@ void EEIntegrityClient::analyze(void){
 
             if ( ! Numbers::validEE(ism, jx, jy) ) continue;
 
-            int ic = Numbers::indexEE(ism, ix, iy);
+            int ic = Numbers::indexEE(ism, jx, jy);
 
             if ( ic == -1 ) continue;
 
             EcalLogicID ecid = m->first;
 
-            if ( ecid.getID1() == Numbers::iSM(ism, EcalEndcap) && ecid.getID2() == ic ) {
+            if ( ecid.getLogicID() == LogicID::getEcalLogicID("EE_crystal_number", Numbers::iSM(ism, EcalEndcap), ic).getLogicID() ) {
               if ( (m->second).getErrorBits() & bits01 ) {
                 if ( meg01_[ism-1] ) {
                   float val = int(meg01_[ism-1]->getBinContent(ix, iy)) % 3;
@@ -909,7 +914,7 @@ void EEIntegrityClient::analyze(void){
 
             int itt = Numbers::iTT(ism, EcalEndcap, ix, iy);
 
-            if ( ecid.getID1() == Numbers::iSM(ism, EcalEndcap) && ecid.getID2() == itt ) {
+            if ( ecid.getLogicID() == LogicID::getEcalLogicID("EE_readout_tower", Numbers::iSM(ism, EcalEndcap), itt).getLogicID() ) {
               if ( (m->second).getErrorBits() & bits02 ) {
                 if ( meg01_[ism-1] ) {
                   float val = int(meg01_[ism-1]->getBinContent(ix, iy)) % 3;
@@ -1002,7 +1007,7 @@ void EEIntegrityClient::analyze(void){
 
             int ic = EEIntegrityClient::chNum[ (ie-1)%5 ][ (ip-1) ] + (ie-1)/5 * 25;
 
-            if ( ecid.getID1() == Numbers::iSM(ism, EcalEndcap) && ecid.getID2() == ic ) {
+            if ( ecid.getLogicID() == LogicID::getEcalLogicID("EE_mem_channel", Numbers::iSM(ism, EcalEndcap), ic).getLogicID() ) {
               if ( (m->second).getErrorBits() & bits01 ) {
                 if ( meg02_[ism-1] ) {
                   float val = int(meg02_[ism-1]->getBinContent(ie, ip)) % 3;
@@ -1022,7 +1027,7 @@ void EEIntegrityClient::analyze(void){
             int iet = 1 + ((ie-1)/5);
             int itt = 68 + iet;
 
-            if ( ecid.getID1() == Numbers::iSM(ism, EcalEndcap) && ecid.getID2() == itt ) {
+            if ( ecid.getLogicID() == LogicID::getEcalLogicID("EE_mem_TT", Numbers::iSM(ism, EcalEndcap), itt).getLogicID() ) {
               if ( (m->second).getErrorBits() & bits02 ) {
                 if ( meg02_[ism-1] ) {
                   float val = int(meg02_[ism-1]->getBinContent(ie, ip)) % 3;
@@ -1168,7 +1173,7 @@ void EEIntegrityClient::htmlOutput(int run, string htmlDir, string htmlName){
   htmlFile << "</table>" << endl;
   htmlFile << "<br>" << endl;
 
-  // Loop on barrel supermodules
+  // Loop on endcap sectors
 
   for ( unsigned int i=0; i<superModules_.size(); i ++ ) {
 

@@ -63,33 +63,36 @@ void EcalTrendChecker::analyze( const edm::Event& evt, const edm::EventSetup& ev
 
   
   
+  try {
     cout << "Making connection to Online DB..." << flush;
     econn = new EcalCondDBInterface( sid, user, pass );
     cout << "Done." << endl;
-    if (!econn)
-      throw cms::Exception("OMDS not available");
+  } catch (runtime_error &e) {
+    cerr << e.what() << endl;
+    throw cms::Exception("OMDS not available");
+  } 
   
-    cout << "Retrieving run list from ONLINE DB ... " << endl;
-    
-    
-    // these are the online conditions DB classes 
-    RunList my_runlist ;
-    RunTag  my_runtag;
-    LocationDef my_locdef;
-    RunTypeDef my_rundef;
-    
-    my_locdef.setLocation("P5_Co");
-    my_rundef.setRunType("PEDESTAL");
-    my_runtag.setLocationDef(my_locdef);
-    my_runtag.setRunTypeDef(my_rundef);
-    my_runtag.setGeneralTag("PEDESTAL");
-    
-    // other methods that may be useful 
-    /*
-      my_runlist=econn->fetchRunList(my_runtag);
-      std::vector<RunIOV> run_vec=  my_runlist.getRuns();
-      cout <<"number of runs is : "<< run_vec.size()<< endl;
-      int nruns=run_vec.size();
+      cout << "Retrieving run list from ONLINE DB ... " << endl;
+      
+      
+      // these are the online conditions DB classes 
+      RunList my_runlist ;
+      RunTag  my_runtag;
+      LocationDef my_locdef;
+      RunTypeDef my_rundef;
+      
+      my_locdef.setLocation("P5_Co");
+      my_rundef.setRunType("PEDESTAL");
+      my_runtag.setLocationDef(my_locdef);
+      my_runtag.setRunTypeDef(my_rundef);
+      my_runtag.setGeneralTag("PEDESTAL");
+      
+      // other methods that may be useful 
+      /*
+        my_runlist=econn->fetchRunList(my_runtag);
+	std::vector<RunIOV> run_vec=  my_runlist.getRuns();
+	cout <<"number of runs is : "<< run_vec.size()<< endl;
+	int nruns=run_vec.size();
 	if(nruns>0){
 	cout << "here is first run : "<< run_vec[0].getRunNumber() << endl;
 	cout << "here is the run Start for first run ="<< run_vec[0].getRunStart()<< endl;

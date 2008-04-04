@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: ConfigurableInputSource.cc,v 1.32 2007/12/14 21:39:31 wmtan Exp $
+$Id: ConfigurableInputSource.cc,v 1.33 2007/12/31 22:43:57 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -121,6 +121,22 @@ namespace edm {
       resetRunPrincipal();
     }
   }
+
+  void
+  ConfigurableInputSource::beginRun(Run&)
+  { }
+
+  void
+  ConfigurableInputSource::endRun(Run&)
+  { }
+
+  void
+  ConfigurableInputSource::beginLuminosityBlock(LuminosityBlock &)
+  { }
+
+  void
+  ConfigurableInputSource::endLuminosityBlock(LuminosityBlock &)
+  { }
 
   void
   ConfigurableInputSource::setLumi(LuminosityBlockNumber_t lb) {

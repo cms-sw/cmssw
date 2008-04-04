@@ -19,7 +19,6 @@
 #include "FWCore/Utilities/interface/UnixSignalHandlers.h"
 
 #include "FWCore/Framework/interface/EventProcessor.h"
-#include "FWCore/Framework/interface/FileBlock.h"
 #include "FWCore/Framework/interface/IOVSyncValue.h"
 #include "FWCore/Framework/interface/SourceFactory.h"
 #include "FWCore/Framework/interface/ModuleFactory.h"
@@ -32,7 +31,6 @@
 #include "FWCore/Framework/interface/InputSourceDescription.h"
 
 #include "FWCore/Framework/src/Breakpoints.h"
-#include "FWCore/Framework/src/Worker.h"
 #include "FWCore/Framework/src/InputSourceFactory.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -43,7 +41,6 @@
 
 #include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
 #include "FWCore/Framework/interface/Schedule.h"
-#include "FWCore/Framework/src/Path.h"
 #include "FWCore/Framework/interface/EDLooperHelper.h"
 #include "FWCore/Framework/interface/EDLooper.h"
 
@@ -1174,12 +1171,12 @@ namespace edm {
 
   std::auto_ptr<EventPrincipal>
   EventProcessor::doOneEvent(boost::shared_ptr<LuminosityBlockPrincipal> lbp) {
+    CallPrePost holder(*actReg_);
     std::auto_ptr<EventPrincipal> pep(0);
     if (input_->nextItemType() != InputSource::IsEvent) {
       return pep;
     }
     {
-      CallPrePost holder(*actReg_);
       pep = input_->readEvent(lbp);
     }
     procOneEvent(pep.get());

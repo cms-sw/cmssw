@@ -28,10 +28,7 @@
 #include "TrackingTools/TrajectoryState/interface/FreeTrajectoryState.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
 #include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHitBuilder.h"
-#include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHit.h"
 #include "TrackingTools/MeasurementDet/interface/LayerMeasurements.h"
-#include "TrackingTools/Records/interface/TransientRecHitRecord.h"
-#include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
 
 // Detector geometry
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
@@ -69,7 +66,7 @@
 class DiMuonSeedGeneratorHIC  {
 
  public:
-  typedef std::vector<TrajectorySeed> SeedContainer;
+  typedef std::vector<DiMuonTrajectorySeed> SeedContainer;
   typedef SeedContainer::iterator SeedIterator;
   
   DiMuonSeedGeneratorHIC(edm::InputTag,
@@ -81,8 +78,8 @@ class DiMuonSeedGeneratorHIC  {
   			 FreeTrajectoryState&, 
 			 TrajectoryStateOnSurface&,
 			 FreeTrajectoryState&,
-			 const TransientTrackingRecHitBuilder* RecHitBuilder,
-			 const MeasurementTracker* measurementTracker,
+						    const TransientTrackingRecHitBuilder* RecHitBuilder,
+						    const MeasurementTracker* measurementTracker,
 			 std::vector<DetLayer*>* 
                        );
 
@@ -108,16 +105,13 @@ class DiMuonSeedGeneratorHIC  {
   bool                                       isFirstCall;
   TrackerLayerIdAccessor                     acc;
   
-  std::pair<bool,TrajectoryStateOnSurface> barrelUpdateSeed(
-                                           FreeTrajectoryState&,
-					   TrajectoryStateOnSurface&,
-					   const TransientTrackingRecHit::ConstRecHitPointer
-					                 ) const;
-					 
-  std::pair<bool,TrajectoryStateOnSurface> forwardUpdateSeed(
-                                           FreeTrajectoryState&,
-					   TrajectoryStateOnSurface&,
-					   const TransientTrackingRecHit::ConstRecHitPointer
+  TrajectoryMeasurement barrelUpdateSeed(
+                                           const FreeTrajectoryState&,
+					   const TrajectoryMeasurement&
+					 ) const;
+  TrajectoryMeasurement forwardUpdateSeed(
+                                           const FreeTrajectoryState&,
+					   const TrajectoryMeasurement&
 					 ) const;
 					 
   edm::InputTag rphirecHitsTag;

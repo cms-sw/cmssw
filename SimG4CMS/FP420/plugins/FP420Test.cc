@@ -1088,7 +1088,7 @@ void FP420Test::update(const EndOfEvent * evt) {
 
    for (int j=0; j<theCAFI->entries(); j++) {
     FP420G4Hit* aHit = (*theCAFI)[j];
-    G4ThreeVector hitPoint = aHit->getEntry();
+    Hep3Vector hitPoint = aHit->getEntry();
     double   zz    = hitPoint.z();
     TheHistManager->GetHisto("zHits")->Fill(zz);
     if(tracklength0>8300.) TheHistManager->GetHisto("zHitsTrLoLe")->Fill(zz);
@@ -1108,9 +1108,9 @@ void FP420Test::update(const EndOfEvent * evt) {
    for (int j=0; j<theCAFI->entries(); j++) {
     FP420G4Hit* aHit = (*theCAFI)[j];
 
-    G4ThreeVector hitEntryLocalPoint = aHit->getEntryLocalP();
-    G4ThreeVector hitExitLocalPoint = aHit->getExitLocalP();
-    G4ThreeVector hitPoint = aHit->getEntry();
+    Hep3Vector hitEntryLocalPoint = aHit->getEntryLocalP();
+    Hep3Vector hitExitLocalPoint = aHit->getExitLocalP();
+    Hep3Vector hitPoint = aHit->getEntry();
 //    double  elmenergy =  aHit->getEM();
 //    double  hadrenergy =  aHit->getHadr();
 //    double incidentEnergyHit  = aHit->getIncidentEnergy();

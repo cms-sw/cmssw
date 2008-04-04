@@ -33,10 +33,10 @@ namespace stor
   {
     FragEntry():buffer_object_(),buffer_address_() { }
     FragEntry(void* bo, void* ba,int sz, int segn, int totseg, uint8 msgcode, 
-              uint32 run, uint32 id, uint32 folderid):
+              uint32 run, uint32 id, uint32 secondaryId):
       buffer_object_(bo),buffer_address_(ba),buffer_size_(sz),
       segNumber_(segn), totalSegs_(totseg), code_(msgcode), 
-      run_(run), id_(id), folderid_(folderid) {}
+      run_(run), id_(id), secondaryId_(secondaryId) {}
     void* buffer_object_;
     void* buffer_address_;
     int   buffer_size_;
@@ -46,24 +46,30 @@ namespace stor
     uint8 code_;
     uint32 run_;
     uint32 id_;
-    uint32 folderid_;
+    // the secondary ID is populated with different values depending
+    // on the context.  For EVENT messages, the output module ID is used.
+    // For DQMEVENT messages, the folder ID is used.
+    uint32 secondaryId_;
   };
 
   struct FragKey
   {
-    FragKey(uint8 msgcode, uint32 run, uint32 event, uint32 folderid):
-      code_(msgcode), run_(run), event_(event), folderid_(folderid) {}
+    FragKey(uint8 msgcode, uint32 run, uint32 event, uint32 secondaryId):
+      code_(msgcode), run_(run), event_(event), secondaryId_(secondaryId) {}
     bool operator<(FragKey const& b) const {
       if(code_ != b.code_) return code_ < b.code_;
       if(run_ != b.run_) return run_ < b.run_;
       if(event_ != b.event_) return event_ < b.event_;
-      return folderid_ < b.folderid_;
+      return secondaryId_ < b.secondaryId_;
     }
     // the data for the key
     uint8 code_;
     uint32 run_;
     uint32 event_;
-    uint32 folderid_;
+    // the secondary ID is populated with different values depending
+    // on the context.  For EVENT messages, the output module ID is used.
+    // For DQMEVENT messages, the folder ID is used.
+    uint32 secondaryId_;
   };
 
   class HLTInfo

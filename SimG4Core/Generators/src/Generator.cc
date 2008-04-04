@@ -195,12 +195,10 @@ void Generator::HepMC2G4(const HepMC::GenEvent * evt_orig, G4Event * g4evt)
 	    g4prim->SetWeight( 10000*(*vpitr)->barcode() ) ;
 	    setGenId( g4prim, (*vpitr)->barcode() ) ;
 	    if ( (*vpitr)->status() == 2) particleAssignDaughters(g4prim,(HepMC::GenParticle *) *vpitr, decay_length);
-            if ( verbose > 1 ) g4prim->Print();
 	    g4vtx->SetPrimary(g4prim);
 	  }
 	}
 
-      if (verbose > 1 ) g4vtx->Print();
       g4evt->AddPrimaryVertex(g4vtx);
     }
     

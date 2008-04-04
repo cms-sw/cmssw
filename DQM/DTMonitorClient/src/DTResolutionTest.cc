@@ -3,8 +3,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2007/11/27 14:40:34 $
- *  $Revision: 1.15 $
+ *  $Date: 2007/11/07 15:29:24 $
+ *  $Revision: 1.14 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -36,7 +36,6 @@
 #include <string>
 #include <sstream>
 #include <math.h>
-#include "TF1.h"
 
 
 using namespace edm;
@@ -123,12 +122,6 @@ void DTResolutionTest::endLuminosityBlock(LuminosityBlock const& lumiSeg, EventS
       histo++) {
     (*histo).second->Reset();
   }
-  for(map<int, MonitorElement*> ::const_iterator histo = wheelSlopeHistos.begin();
-      histo != wheelSlopeHistos.end();
-      histo++) {
-    (*histo).second->Reset();
-  }
-
   map <pair<int,int>, int> cmsMeanHistos;
   cmsMeanHistos.clear();
   map <pair<int,int>, bool> MeanFilled;
@@ -143,14 +136,6 @@ void DTResolutionTest::endLuminosityBlock(LuminosityBlock const& lumiSeg, EventS
   for(int i=-2; i<3; i++){
     for(int j=1; j<15; j++){
       SigmaFilled[make_pair(i,j)]=false;
-    }
-  }
-  map <pair<int,int>, int> cmsSlopeHistos;
-  cmsSlopeHistos.clear();
-  map <pair<int,int>, bool> SlopeFilled;
-  for(int i=-2; i<3; i++){
-    for(int j=1; j<15; j++){
-      SlopeFilled[make_pair(i,j)]=false;
     }
   }
 
@@ -205,26 +190,6 @@ void DTResolutionTest::endLuminosityBlock(LuminosityBlock const& lumiSeg, EventS
 	MeanHistos.find(make_pair(slID.wheel(),slID.sector()))->second->setBinContent(BinNumber, mean);	
 	SigmaHistos.find(make_pair(slID.wheel(),slID.sector()))->second->setBinContent(BinNumber, sigma);
       }
-
-      MonitorElement * res_histo_2D = dbe->get(getMEName2D(slID));
-      if (res_histo_2D) {
-	MonitorElementT<TNamed>* ob = dynamic_cast<MonitorElementT<TNamed>*>(res_histo_2D);
-	if (ob) {
-	  TH2F * res_histo_2D_root = dynamic_cast<TH2F*> (ob->operator->());
-	  if (res_histo_2D_root) {
-	    int BinNumber = entry+slID.superLayer();
-	    if(BinNumber == 12) BinNumber=11;
-	    TProfile* prof = res_histo_2D_root->ProfileX();
-	    prof->GetXaxis()->SetRangeUser(0,2);
-	    prof->Fit("pol1","R");
-	    TF1 *fitting = prof->GetFunction("pol1");
-	    double slope = fitting->GetParameter(1);
-	    if (SlopeHistos.find(make_pair(slID.wheel(),slID.sector())) == SlopeHistos.end()) bookHistos((*ch_it)->id());
-	    SlopeHistos.find(make_pair(slID.wheel(),slID.sector()))->second->setBinContent(BinNumber, slope);	
-	  }
-	}
-      }
-
     }
   }
 
@@ -304,44 +269,6 @@ void DTResolutionTest::endLuminosityBlock(LuminosityBlock const& lumiSeg, EventS
     }
   }
 
-  // Slope test
-  string SlopeCriterionName = parameters.getUntrackedParameter<string>("slopeTestName","ResidualsSlopeInRange"); 
-  for(map<pair<int,int>, MonitorElement*>::const_iterator hSlope = SlopeHistos.begin();
-      hSlope != SlopeHistos.end();
-      hSlope++) {
-    const QReport * theSlopeQReport = (*hSlope).second->getQReport(SlopeCriterionName);
-    stringstream wheel; wheel << (*hSlope).first.first;
-    stringstream sector; sector << (*hSlope).first.second;
-    if(theSlopeQReport) {
-      vector<dqm::me_util::Channel> badChannels = theSlopeQReport->getBadChannels();
-      for (vector<dqm::me_util::Channel>::iterator channel = badChannels.begin(); 
-	   channel != badChannels.end(); channel++) {
-	edm::LogError ("resolution") << "wheel: "<<wheel.str()<<" sector: "<<sector.str()<<" Bad slope channels: "<<(*channel).getBin()<<" Contents : "<<(*channel).getContents();
-	string HistoName = "W" + wheel.str() + "_Sec" + sector.str();
-	if (SlopeHistosSetRange.find(HistoName) == SlopeHistosSetRange.end()) bookHistos((*ch_it)->id());
-        SlopeHistosSetRange.find(HistoName)->second->Fill((*channel).getBin());
-        if (SlopeHistosSetRange2D.find(HistoName) == SlopeHistosSetRange2D.end()) bookHistos((*ch_it)->id());
-        SlopeHistosSetRange2D.find(HistoName)->second->Fill((*channel).getBin(),(*channel).getContents());
-	if(wheelSlopeHistos.find((*hSlope).first.first) == wheelSlopeHistos.end()) bookHistos((*hSlope).first.first);
-	// fill the wheel summary histos if the SL has not passed the test
-	wheelSlopeHistos[(*hSlope).first.first]->Fill(((*hSlope).first.second)-1,(*channel).getBin()-1);
-	// fill the cms summary histo if the percentual of SL which have not passed the test 
-	// is more than a predefined treshold
-	cmsSlopeHistos[make_pair((*hSlope).first.first,(*hSlope).first.second)]++;
-	if(((*hSlope).first.second<13 &&
-	    double(cmsSlopeHistos[make_pair((*hSlope).first.first,(*hSlope).first.second)])/11>double(percentual)/100 &&
-	    SlopeFilled[make_pair((*hSlope).first.first,(*hSlope).first.second)]==false) ||
-	   ((*hSlope).first.first>=13 && 
-	    double(cmsSlopeHistos[make_pair((*hSlope).first.first,(*hSlope).first.second)])/2>double(percentual)/100 &&
-	    SlopeFilled[make_pair((*hSlope).first.first,(*hSlope).first.second)]==false)){
-	  SlopeFilled[make_pair((*hSlope).first.first,(*hSlope).first.second)]=true;
-	  wheelSlopeHistos[3]->Fill((*hSlope).first.second-1,(*hSlope).first.first);
-	}
-      }
-      edm::LogWarning ("resolution") << "-------- wheel: "<<wheel.str()<<" sector: "<<sector.str()<<"  "<<theSlopeQReport->getMessage()<<" ------- "<<theSlopeQReport->getStatus();
-    }
-  }
-
 }
 
 
@@ -381,33 +308,6 @@ string DTResolutionTest::getMEName(const DTSuperLayerId & slID) {
 }
 
 
-string DTResolutionTest::getMEName2D(const DTSuperLayerId & slID) {
-  
-  stringstream wheel; wheel << slID.wheel();	
-  stringstream station; station << slID.station();	
-  stringstream sector; sector << slID.sector();	
-  stringstream superLayer; superLayer << slID.superlayer();
-  
-  string folderRoot = parameters.getUntrackedParameter<string>("folderRoot", "Collector/FU0/");
-  string folderName = 
-    folderRoot + "DT/DTResolutionAnalysisTask/Wheel" +  wheel.str() +
-    "/Station" + station.str() +
-    "/Sector" + sector.str() + "/";
-
-  string histoTag2D = parameters.getUntrackedParameter<string>("histoTag2D", "hResDistVsDist");
-
-  string histoname = folderName + histoTag2D  
-    + "_W" + wheel.str() 
-    + "_St" + station.str() 
-    + "_Sec" + sector.str() 
-    + "_SL" + superLayer.str(); 
-  
-  return histoname;
-  
-}
-
-
-
 void DTResolutionTest::bookHistos(const DTChamberId & ch) {
 
   stringstream wheel; wheel << ch.wheel();		
@@ -415,7 +315,6 @@ void DTResolutionTest::bookHistos(const DTChamberId & ch) {
 
   string MeanHistoName =  "MeanTest_W" + wheel.str() + "_Sec" + sector.str(); 
   string SigmaHistoName =  "SigmaTest_W" + wheel.str() + "_Sec" + sector.str(); 
-  string SlopeHistoName =  "SlopeTest_W" + wheel.str() + "_Sec" + sector.str(); 
 
   dbe->setCurrentFolder("DT/Tests/DTResolution");
 
@@ -445,34 +344,17 @@ void DTResolutionTest::bookHistos(const DTChamberId & ch) {
   (SigmaHistos[make_pair(ch.wheel(),ch.sector())])->setBinLabel(9,"MB3_SL3",1);
   (SigmaHistos[make_pair(ch.wheel(),ch.sector())])->setBinLabel(10,"MB4_SL1",1);
   (SigmaHistos[make_pair(ch.wheel(),ch.sector())])->setBinLabel(11,"MB4_SL3",1);
-  
-  SlopeHistos[make_pair(ch.wheel(),ch.sector())] = dbe->book1D(SlopeHistoName.c_str(),SlopeHistoName.c_str(),11,0,10);
-  (SlopeHistos[make_pair(ch.wheel(),ch.sector())])->setBinLabel(1,"MB1_SL1",1);  
-  (SlopeHistos[make_pair(ch.wheel(),ch.sector())])->setBinLabel(2,"MB1_SL2",1);
-  (SlopeHistos[make_pair(ch.wheel(),ch.sector())])->setBinLabel(3,"MB1_SL3",1);
-  (SlopeHistos[make_pair(ch.wheel(),ch.sector())])->setBinLabel(4,"MB2_SL1",1);
-  (SlopeHistos[make_pair(ch.wheel(),ch.sector())])->setBinLabel(5,"MB2_SL2",1);
-  (SlopeHistos[make_pair(ch.wheel(),ch.sector())])->setBinLabel(6,"MB2_SL3",1);
-  (SlopeHistos[make_pair(ch.wheel(),ch.sector())])->setBinLabel(7,"MB3_SL1",1);
-  (SlopeHistos[make_pair(ch.wheel(),ch.sector())])->setBinLabel(8,"MB3_SL2",1);
-  (SlopeHistos[make_pair(ch.wheel(),ch.sector())])->setBinLabel(9,"MB3_SL3",1);
-  (SlopeHistos[make_pair(ch.wheel(),ch.sector())])->setBinLabel(10,"MB4_SL1",1);
-  (SlopeHistos[make_pair(ch.wheel(),ch.sector())])->setBinLabel(11,"MB4_SL3",1);
 
 
   string HistoName = "W" + wheel.str() + "_Sec" + sector.str(); 
   string MeanHistoNameSetRange = "MeanWrong_W" + wheel.str() + "_Sec" + sector.str() + "_SetRange";
   string SigmaHistoNameSetRange =  "SigmaWrong_W" + wheel.str() + "_Sec" + sector.str()  + "_SetRange";
-  string SlopeHistoNameSetRange =  "SlopeWrong_W" + wheel.str() + "_Sec" + sector.str()  + "_SetRange";
   MeanHistosSetRange[HistoName] = dbe->book1D(MeanHistoNameSetRange.c_str(),MeanHistoNameSetRange.c_str(),10,0.5,10.5);
   SigmaHistosSetRange[HistoName] = dbe->book1D(SigmaHistoNameSetRange.c_str(),SigmaHistoNameSetRange.c_str(),10,0.5,10.5);
-  SlopeHistosSetRange[HistoName] = dbe->book1D(SlopeHistoNameSetRange.c_str(),SlopeHistoNameSetRange.c_str(),10,0.5,10.5);
   string MeanHistoNameSetRange2D = "MeanWrong_W" + wheel.str() + "_Sec" + sector.str() + "_SetRange" + "_2D";
   string SigmaHistoNameSetRange2D =  "SigmaWrong_W" + wheel.str() + "_Sec" + sector.str()  + "_SetRange" + "_2D";
-  string SlopeHistoNameSetRange2D =  "SlopeWrong_W" + wheel.str() + "_Sec" + sector.str()  + "_SetRange" + "_2D";
   MeanHistosSetRange2D[HistoName] = dbe->book2D(MeanHistoNameSetRange2D.c_str(),MeanHistoNameSetRange2D.c_str(),10, 0.5, 10.5, 100, -0.05, 0.05);
   SigmaHistosSetRange2D[HistoName] = dbe->book2D(SigmaHistoNameSetRange2D.c_str(),SigmaHistoNameSetRange2D.c_str(),10, 0.5, 10.5, 500, 0, 0.5);
-  SlopeHistosSetRange2D[HistoName] = dbe->book2D(SlopeHistoNameSetRange2D.c_str(),SigmaHistoNameSetRange2D.c_str(),10, 0.5, 10.5, 200, -0.1, 0.1);
 
 }
 
@@ -529,31 +411,6 @@ void DTResolutionTest::bookHistos(int wh) {
     wheelSigmaHistos[3]->setBinLabel(3,"Wheel0",2);
     wheelSigmaHistos[3]->setBinLabel(4,"Wheel+1",2);
     wheelSigmaHistos[3]->setBinLabel(5,"Wheel+2",2);
-  }
-
-  if(wheelSlopeHistos.find(3) == wheelSlopeHistos.end()){
-    string histoName =  "SlopeSummaryRes_testFailedByAtLeast%BadSL";
-    wheelSlopeHistos[3] = dbe->book2D(histoName.c_str(),histoName.c_str(),14,0,14,5,-2,2);
-    wheelSlopeHistos[3]->setBinLabel(1,"Sector1",1);
-    wheelSlopeHistos[3]->setBinLabel(1,"Sector1",1);
-    wheelSlopeHistos[3]->setBinLabel(2,"Sector2",1);
-    wheelSlopeHistos[3]->setBinLabel(3,"Sector3",1);
-    wheelSlopeHistos[3]->setBinLabel(4,"Sector4",1);
-    wheelSlopeHistos[3]->setBinLabel(5,"Sector5",1);
-    wheelSlopeHistos[3]->setBinLabel(6,"Sector6",1);
-    wheelSlopeHistos[3]->setBinLabel(7,"Sector7",1);
-    wheelSlopeHistos[3]->setBinLabel(8,"Sector8",1);
-    wheelSlopeHistos[3]->setBinLabel(9,"Sector9",1);
-    wheelSlopeHistos[3]->setBinLabel(10,"Sector10",1);
-    wheelSlopeHistos[3]->setBinLabel(11,"Sector11",1);
-    wheelSlopeHistos[3]->setBinLabel(12,"Sector12",1);
-    wheelSlopeHistos[3]->setBinLabel(13,"Sector13",1);
-    wheelSlopeHistos[3]->setBinLabel(14,"Sector14",1);
-    wheelSlopeHistos[3]->setBinLabel(1,"Wheel-2",2);
-    wheelSlopeHistos[3]->setBinLabel(2,"Wheel-1",2);
-    wheelSlopeHistos[3]->setBinLabel(3,"Wheel0",2);
-    wheelSlopeHistos[3]->setBinLabel(4,"Wheel+1",2);
-    wheelSlopeHistos[3]->setBinLabel(5,"Wheel+2",2);
   }
 
   stringstream wheel; wheel <<wh;
@@ -616,36 +473,6 @@ void DTResolutionTest::bookHistos(int wh) {
     wheelSigmaHistos[wh]->setBinLabel(9,"MB3_SL3",2);
     wheelSigmaHistos[wh]->setBinLabel(10,"MB4_SL1",2);
     wheelSigmaHistos[wh]->setBinLabel(11,"MB4_SL3",2);
-  }  
-
-  if(wheelSlopeHistos.find(wh) == wheelSlopeHistos.end()){
-    string histoName =  "SlopeSummaryRes_testFailed_W" + wheel.str();
-    wheelSlopeHistos[wh] = dbe->book2D(histoName.c_str(),histoName.c_str(),14,0,14,11,0,11);
-    wheelSlopeHistos[wh]->setBinLabel(1,"Sector1",1);
-    wheelSlopeHistos[wh]->setBinLabel(2,"Sector2",1);
-    wheelSlopeHistos[wh]->setBinLabel(3,"Sector3",1);
-    wheelSlopeHistos[wh]->setBinLabel(4,"Sector4",1);
-    wheelSlopeHistos[wh]->setBinLabel(5,"Sector5",1);
-    wheelSlopeHistos[wh]->setBinLabel(6,"Sector6",1);
-    wheelSlopeHistos[wh]->setBinLabel(7,"Sector7",1);
-    wheelSlopeHistos[wh]->setBinLabel(8,"Sector8",1);
-    wheelSlopeHistos[wh]->setBinLabel(9,"Sector9",1);
-    wheelSlopeHistos[wh]->setBinLabel(10,"Sector10",1);
-    wheelSlopeHistos[wh]->setBinLabel(11,"Sector11",1);
-    wheelSlopeHistos[wh]->setBinLabel(12,"Sector12",1);
-    wheelSlopeHistos[wh]->setBinLabel(13,"Sector13",1);
-    wheelSlopeHistos[wh]->setBinLabel(14,"Sector14",1);
-    wheelSlopeHistos[wh]->setBinLabel(1,"MB1_SL1",2);
-    wheelSlopeHistos[wh]->setBinLabel(2,"MB1_SL2",2);
-    wheelSlopeHistos[wh]->setBinLabel(3,"MB1_SL3",2);
-    wheelSlopeHistos[wh]->setBinLabel(4,"MB2_SL1",2);
-    wheelSlopeHistos[wh]->setBinLabel(5,"MB2_SL2",2);
-    wheelSlopeHistos[wh]->setBinLabel(6,"MB2_SL3",2);
-    wheelSlopeHistos[wh]->setBinLabel(7,"MB3_SL1",2);
-    wheelSlopeHistos[wh]->setBinLabel(8,"MB3_SL2",2);
-    wheelSlopeHistos[wh]->setBinLabel(9,"MB3_SL3",2);
-    wheelSlopeHistos[wh]->setBinLabel(10,"MB4_SL1",2);
-    wheelSlopeHistos[wh]->setBinLabel(11,"MB4_SL3",2);
   }  
   
 }

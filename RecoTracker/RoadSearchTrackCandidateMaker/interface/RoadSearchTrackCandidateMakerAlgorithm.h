@@ -13,8 +13,8 @@
 // Created:         Wed Mar 15 13:00:00 UTC 2006
 //
 // $Author: burkett $
-// $Date: 2007/10/15 22:15:43 $
-// $Revision: 1.15 $
+// $Date: 2008/01/10 19:28:10 $
+// $Revision: 1.16 $
 //
 
 #include <string>
@@ -41,6 +41,7 @@
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h"
 #include "TrackingTools/TrajectoryCleaning/interface/TrajectoryCleaner.h"
 #include "TrackingTools/TrajectoryCleaning/interface/TrajectoryCleanerBySharedHits.h"
+#include "TrackingTools/TrackFitters/interface/KFTrajectorySmoother.h"
 
 class TrajectoryStateUpdator;
 class MeasurementEstimator;
@@ -109,6 +110,7 @@ class RoadSearchTrackCandidateMakerAlgorithm
   unsigned int theNumHitCut;
   double theChi2Cut;
   bool NoFieldCosmic_;
+  bool CosmicTrackMerging_;
   int MinChunkLength_;
   int nFoundMin_;
 
@@ -118,6 +120,7 @@ class RoadSearchTrackCandidateMakerAlgorithm
   std::string measurementTrackerName_;
   
   bool debug_;
+  bool debugCosmics_;
   
   const MeasurementTracker*  theMeasurementTracker;
   const TrackerGeometry* trackerGeom;
@@ -130,6 +133,7 @@ class RoadSearchTrackCandidateMakerAlgorithm
   TrajectoryStateUpdator* theUpdator;
   MeasurementEstimator* theEstimator;
   SiStripRecHitMatcher* theHitMatcher;
+  KFTrajectorySmoother* theSmoother;
 
   TrajectoryStateTransform* theTransformer;
   TrajectoryCleanerBySharedHits* theTrajectoryCleaner;

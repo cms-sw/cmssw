@@ -168,6 +168,10 @@ private:
 
     /// shutdown the xml utils and deallocate parser and error handler
     void cleanupXML(XERCES_CPP_NAMESPACE::XercesDOMParser* parser);
+    
+    /// FIXME remove it after new L1 Trigger Menu Editor available
+    /// mirrors the LUT table from GTgui format to correct bit format
+    boost::uint64_t mirror(const boost::uint64_t oldLUT, int maxBitsLUT, int maxBitsReal);
 
 private:
 

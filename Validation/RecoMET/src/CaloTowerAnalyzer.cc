@@ -174,18 +174,15 @@ void CaloTowerAnalyzer::FillGeometry(const edm::EventSetup& iSetup)
 
   // Set the Cell Size for each (ieta, iphi) Bin
   double currentLowEdge_eta = 0; //double currentHighEdge_eta = 0;
-  
   for (int ieta=1; ieta<=41 ; ieta++) {
 
     int ieta_ = 42 + ieta;
-    double eta = me["hCT_ieta_iphi_etaMap"]->getBinContent(ieta_,3);
-    double phi = me["hCT_ieta_iphi_phiMap"]->getBinContent(ieta_,3);
+    double eta = me["hCT_ieta_iphi_etaMap"]->getBinContent(ieta_,1);
+    double phi = me["hCT_ieta_iphi_phiMap"]->getBinContent(ieta_,1);
     double deta = 2.0*(eta-currentLowEdge_eta);
     deta = ((float)((int)(1.0E3*deta + 0.5)))/1.0E3;
     double dphi = 2.0*phi;
-    if (ieta==40 || ieta==41) dphi = 20;
-    if (ieta<=39 && ieta>=21) dphi = 10;
-    if (ieta<=20) dphi = 5;
+
     // BS: This is WRONG...need to correct overlap 
     if (ieta==28) deta = 0.218;
     if (ieta==29) deta= 0.096;      

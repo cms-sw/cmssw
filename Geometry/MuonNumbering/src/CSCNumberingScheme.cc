@@ -2,7 +2,6 @@
 #include "Geometry/MuonNumbering/interface/CSCNumberingScheme.h"
 #include "Geometry/MuonNumbering/interface/MuonBaseNumber.h"
 #include "Geometry/MuonNumbering/interface/MuonDDDConstants.h"
-#include "DetectorDescription/Core/interface/DDCompactView.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include <iostream>

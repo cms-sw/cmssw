@@ -1,8 +1,8 @@
 /**
  *  Class: GlobalCosmicMuonTrajectoryBuilder
  *
- *  $Date: 2007/05/31 18:48:44 $
- *  $Revision: 1.7 $
+ *  $Date: 2007/03/21 18:23:29 $
+ *  $Revision: 1.6 $
  *  \author Chang Liu  -  Purdue University <Chang.Liu@cern.ch>
  *
  **/
@@ -12,13 +12,14 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
+#include "TrackingTools/TrackFitters/interface/RecHitLessByDet.h"
 #include "TrackingTools/PatternTools/interface/TrajectoryMeasurement.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
 
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/TrackReco/interface/TrackExtraFwd.h"
-#include "TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h"
+#include "TrackingTools/TransientTrack/interface/TransientTrack.h"
 #include "TrackingTools/Records/interface/TransientRecHitRecord.h"
 #include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHitBuilder.h"
 
@@ -35,9 +36,11 @@ GlobalCosmicMuonTrajectoryBuilder::GlobalCosmicMuonTrajectoryBuilder(const edm::
   ParameterSet smootherPSet = par.getParameter<ParameterSet>("SmootherParameters");
   theSmoother = new CosmicMuonSmoother(smootherPSet,theService);
   theTkTrackLabel = par.getParameter<string>("TkTrackCollectionLabel");
-  theTrackerRecHitBuilderName = par.getParameter<string>("TrackerRecHitBuilder");
-  theMuonRecHitBuilderName = par.getParameter<string>("MuonRecHitBuilder");
+  theTTRHBuilderName = par.getParameter<string>("TrackRecHitBuilder");
   thePropagatorName = par.getParameter<string>("Propagator");
+
+  ParameterSet transformerPSet = par.getParameter<ParameterSet>("TransformerParameters");
+  theTrackTransformer = new TrackTransformer(transformerPSet);
   
 }
 
@@ -48,6 +51,7 @@ GlobalCosmicMuonTrajectoryBuilder::GlobalCosmicMuonTrajectoryBuilder(const edm::
 GlobalCosmicMuonTrajectoryBuilder::~GlobalCosmicMuonTrajectoryBuilder() {
 
   if (theSmoother) delete theSmoother;
+  if (theTrackTransformer) delete theTrackTransformer;
 
 }
 
@@ -58,19 +62,23 @@ void GlobalCosmicMuonTrajectoryBuilder::setEvent(const edm::Event& event) {
   event.getByLabel(theTkTrackLabel,theTrackerTracks);
 
   edm::Handle<std::vector<Trajectory> > handleTrackerTrajs;
-  if ( event.getByLabel(theTkTrackLabel,handleTrackerTrajs) ) {
+  try
+    {
+      event.getByLabel(theTkTrackLabel,handleTrackerTrajs);
       tkTrajsAvailable = true;
       allTrackerTrajs = &*handleTrackerTrajs;   
+      
       LogInfo("GlobalCosmicMuonTrajectoryBuilder") 
 	<< "Tk Trajectories Found! " << endl;
-  } else {
+    }
+  catch (...)
+    {
       LogInfo("GlobalCosmicMuonTrajectoryBuilder") 
 	<< "No Tk Trajectories Found! " << endl;
       tkTrajsAvailable = false;
-  }
+    }
 
-   theService->eventSetup().get<TransientRecHitRecord>().get(theTrackerRecHitBuilderName,theTrackerRecHitBuilder);
-    theService->eventSetup().get<TransientRecHitRecord>().get(theMuonRecHitBuilderName,theMuonRecHitBuilder);
+  theTrackTransformer->setServices(theService->eventSetup());
 
 }
 
@@ -79,44 +87,45 @@ void GlobalCosmicMuonTrajectoryBuilder::setEvent(const edm::Event& event) {
 //
 MuonCandidate::CandidateContainer GlobalCosmicMuonTrajectoryBuilder::trajectories(const TrackCand& muCand) {
 
-  const std::string metname = "Muon|RecoMuon|CosmicMuon|GlobalCosmicMuonTrajectoryBuilder";
-  MuonCandidate::CandidateContainer result;
+  const std::string metname = "GlobalCosmicMuonTrajectoryBuilder";
 
   LogTrace(metname) <<"Found "<<theTrackerTracks->size()<<" tracker Tracks";
-  if (theTrackerTracks->empty()) return result;
+  if (theTrackerTracks->empty()) return MuonCandidate::CandidateContainer();
 
   LogTrace(metname) <<"It has "<<theTrackerTracks->front().found()<<" tk rhs";
 
   //at most 1 track by SingleTrackPattern
   reco::TrackRef tkTrack(theTrackerTracks,0); 
+  MuonCandidate::CandidateContainer result;
   reco::TrackRef muTrack = muCand.second;
 
   if ( !match(*muTrack,*tkTrack).first ) return result;
-
-  ConstRecHitContainer muRecHits;
-
-  if (muCand.first == 0 || !muCand.first->isValid()) { 
-     muRecHits = getTransientRecHits(*muTrack);
-  } else {
-     muRecHits = muCand.first->recHits();
+  std::vector<Trajectory> muTrajs;
+  if (muCand.first == 0) { 
+     muTrajs = theTrackTransformer->transform(*muTrack);
   }
+  else if ( !muCand.first->isValid() ) {
+     muTrajs = theTrackTransformer->transform(*muTrack);
+  }
+  else muTrajs.push_back(*muCand.first);
 
+  LogTrace(metname) <<"There're "<<muTrajs.size()<<" muon Trajectory";
+  if ( muTrajs.empty() ) return result;
+  ConstRecHitContainer muRecHits = muTrajs.front().recHits();
   LogTrace(metname)<<"mu RecHits: "<<muRecHits.size();
 
-  ConstRecHitContainer tkRecHits;
+  std::vector<Trajectory> tkTrajs;
+  if (!tkTrajsAvailable) {
+     tkTrajs = theTrackTransformer->transform(*tkTrack);
+  } 
+  else tkTrajs = *allTrackerTrajs;
+  LogTrace(metname) <<"Converted "<<tkTrajs.size()<<" tracker Trajectory";
 
-  if ( !tkTrajsAvailable ) {
-     tkRecHits = getTransientRecHits(*tkTrack);
-  } else {
-     tkRecHits = allTrackerTrajs->front().recHits();
-  }
+  ConstRecHitContainer hits = tkTrajs.front().recHits();
+  LogTrace(metname)<<"tk RecHits: "<<hits.size();
 
-  ConstRecHitContainer hits; //= tkRecHits;
-  LogTrace(metname)<<"tk RecHits: "<<tkRecHits.size();
-
-//  hits.insert(hits.end(), muRecHits.begin(), muRecHits.end());
-//  stable_sort(hits.begin(), hits.end(), DecreasingGlobalY());
-  sortHits(hits, muRecHits, tkRecHits);
+  hits.insert(hits.end(), muRecHits.begin(), muRecHits.end());
+  stable_sort(hits.begin(), hits.end(), DecreasingGlobalY());
 
   LogTrace(metname) << "Used RecHits After sort: "<<hits.size();
   for (ConstRecHitContainer::const_iterator ir = hits.begin(); ir != hits.end(); ir++ ) {
@@ -131,23 +140,34 @@ MuonCandidate::CandidateContainer GlobalCosmicMuonTrajectoryBuilder::trajectorie
     << "  dimension = " << (*ir)->dimension()
     << "  id " << (*ir)->det()->geographicalId().rawId();
   }
+  
+  TrajectoryStateOnSurface firstState;
 
-  TrajectoryStateTransform tsTrans;
+  if (! tkTrajs.empty() ) {
 
-  TrajectoryStateOnSurface muonState1 = tsTrans.innerStateOnSurface(*muTrack, *theService->trackingGeometry(), &*theService->magneticField());
-  TrajectoryStateOnSurface tkState1 = tsTrans.innerStateOnSurface(*tkTrack, *theService->trackingGeometry(), &*theService->magneticField());
+    // choose the up state as first state to do backward refitting
+    firstState = tkTrajs.front().firstMeasurement().updatedState();
+     (tkTrajs.front().firstMeasurement().updatedState().globalPosition().y()
+     > tkTrajs.front().lastMeasurement().updatedState().globalPosition().y())? 
+     tkTrajs.front().firstMeasurement().updatedState() 
+     : muTrajs.front().lastMeasurement().updatedState();
 
-  TrajectoryStateOnSurface muonState2 = tsTrans.outerStateOnSurface(*muTrack, *theService->trackingGeometry(), &*theService->magneticField());
-  TrajectoryStateOnSurface tkState2 = tsTrans.outerStateOnSurface(*tkTrack, *theService->trackingGeometry(), &*theService->magneticField());
+  }
 
-  TrajectoryStateOnSurface firstState1 =
-   ( muonState1.globalPosition().y() > tkState1.globalPosition().y() )? muonState1 : tkState1;
-  TrajectoryStateOnSurface firstState2 =
-   ( muonState2.globalPosition().y() > tkState2.globalPosition().y() )? muonState2 : tkState2;
+  if (( !firstState.isValid()) || (firstState.isValid() && firstState.globalMomentum().mag() < 7.0 )) {
 
-  TrajectoryStateOnSurface firstState =
-   ( firstState1.globalPosition().y() > firstState2.globalPosition().y() )? firstState1 : firstState2;
+    // choose the up state to extrapolate to tracker
+    firstState = muTrajs.front().firstMeasurement().updatedState();
+     (muTrajs.front().firstMeasurement().updatedState().globalPosition().y()
+     > muTrajs.front().lastMeasurement().updatedState().globalPosition().y())?
+     muTrajs.front().firstMeasurement().updatedState()
+     : muTrajs.front().lastMeasurement().updatedState();
 
+   // propagate to first rechit surface from mu Trajectory
+
+    firstState = theService->propagator(thePropagatorName)->propagate(firstState, hits.front()->det()->surface());
+ 
+  }
   if (!firstState.isValid()) return result;
   
   LogTrace(metname) <<"firstTSOS pos: "<<firstState.globalPosition()<<"mom: "<<firstState.globalMomentum();
@@ -195,69 +215,3 @@ std::pair<bool,double> GlobalCosmicMuonTrajectoryBuilder::match(const reco::Trac
   return pair<bool,double>(false, 0);
 
 } 
-
-void GlobalCosmicMuonTrajectoryBuilder::sortHits(ConstRecHitContainer& hits, ConstRecHitContainer& muonHits, ConstRecHitContainer& tkHits) {
-
-  std::string metname = "Muon|RecoMuon|CosmicMuon|GlobalCosmicMuonTrajectoryBuilder";
-  //sort hits going from higher to lower positions
-  if ( tkHits.front()->globalPosition().y() < tkHits.back()->globalPosition().y() )  {//check if tk hits order same direction
-    reverse(tkHits.begin(), tkHits.end());
-  }
-
-  if ( muonHits.front()->globalPosition().y() < muonHits.back()->globalPosition().y() )  {//check if tk hits order same direction
-    reverse(muonHits.begin(), muonHits.end());
-  }
-
-  //separate muon hits into 2 different hemisphere
-  ConstRecHitContainer::iterator middlepoint = muonHits.begin();
-  bool insertInMiddle = false;
-
-  for (ConstRecHitContainer::iterator ihit = muonHits.begin(); 
-       ihit != muonHits.end() - 1; ihit++ ) {
-    GlobalPoint ipos = (*ihit)->globalPosition();
-    GlobalPoint nextpos = (*(ihit+1))->globalPosition();
-    GlobalPoint middle((ipos.x()+nextpos.x())/2, (ipos.y()+nextpos.y())/2, (ipos.z()+nextpos.z())/2);
-    LogTrace(metname)<<"ipos "<<ipos<<"nextpos"<<nextpos<<" middle "<<middle;
-    if ( (middle.perp() < ipos.perp()) && (middle.perp() < nextpos.perp() ) ) {
-      LogTrace(metname)<<"found middlepoint";
-      middlepoint = ihit;
-      insertInMiddle = true;
-      break;
-    }
-  }
-
-  //insert track hits in correct order
-  if ( insertInMiddle ) { //if tk hits should be sandwich
-    GlobalPoint jointpointpos = (*middlepoint)->globalPosition();
-    LogTrace(metname)<<"jointpoint "<<jointpointpos;
-    if ((tkHits.front()->globalPosition() - jointpointpos).mag() > (tkHits.back()->globalPosition() - jointpointpos).mag() ) {//check if tk hits order same direction
-      reverse(tkHits.begin(), tkHits.end());
-    }
-    muonHits.insert(middlepoint+1, tkHits.begin(), tkHits.end());
-    hits = muonHits; 
-  } else { // append at one end
-    if ( (tkHits.front()->globalPosition() - muonHits.back()->globalPosition()).y() < 0 ) { //insert at the end
-      hits = muonHits; 
-      hits.insert(hits.end(), tkHits.begin(), tkHits.end());
-    } else { //insert at the beginning
-      hits = tkHits;
-      hits.insert(hits.end(), muonHits.begin(), muonHits.end());
-    }
-  }
-}
-
-
-TransientTrackingRecHit::ConstRecHitContainer
-GlobalCosmicMuonTrajectoryBuilder::getTransientRecHits(const reco::Track& track) const {
-
-  TransientTrackingRecHit::ConstRecHitContainer result;
-  
-  for (trackingRecHit_iterator hit = track.recHitsBegin(); hit != track.recHitsEnd(); ++hit)
-    if((*hit)->isValid())
-      if ( (*hit)->geographicalId().det() == DetId::Tracker )
-	result.push_back(theTrackerRecHitBuilder->build(&**hit));
-      else if ( (*hit)->geographicalId().det() == DetId::Muon ){
-	result.push_back(theMuonRecHitBuilder->build(&**hit));
-      }
-  return result;
-}

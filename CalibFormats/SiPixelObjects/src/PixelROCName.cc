@@ -118,7 +118,7 @@ void PixelROCName::parsename(std::string name){
     //
 
     
-//    std::cout << "[PixelROCName::parsename()]\t\tROC name:"<<name<<std::endl;
+    //std::cout << "ROC name:"<<name<<std::endl;
 
     check(name[0]=='F'||name[0]=='B',name);
 

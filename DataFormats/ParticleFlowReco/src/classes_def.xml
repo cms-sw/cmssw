@@ -56,10 +56,6 @@
     <field name="trackRefPF_" transient="true"/>
   </class>
 
-  <class name="reco::PFBlockElementTrackNuclear">
-    <field name="pfNuclInterRef_" transient="true"/>
-  </class>
-
   <class name="reco::PFBlockElementCluster"/> 
 
   <class name="reco::PFBlock"/>
@@ -68,15 +64,7 @@
   <class name="edm::Wrapper<std::vector<reco::PFBlock> >"/>
   <class name="edm::Ref< std::vector<reco::PFBlock>, reco::PFBlock, edm::refhelper::FindUsingAdvance<std::vector<reco::PFBlock>,reco::PFBlock> >"/>
   <class name="edm::Ref<std::vector<reco::PFRecTrack>,reco::PFRecTrack,edm::refhelper::FindUsingAdvance<std::vector<reco::PFRecTrack>,reco::PFRecTrack> >"/>
-  <class name="edm::RefVector<std::vector<reco::PFRecTrack>,reco::PFRecTrack,edm::refhelper::FindUsingAdvance<std::vector<reco::PFRecTrack>,reco::PFRecTrack> >"/>
   <class name="edm::Ref<std::vector<reco::PFCluster>,reco::PFCluster,edm::refhelper::FindUsingAdvance<std::vector<reco::PFCluster>,reco::PFCluster> >"/>
-
-  <class name="reco::PFNuclearInteraction" />
-  <class name="std::vector<reco::PFNuclearInteraction>" />
-  <class name="edm::Wrapper<std::vector<reco::PFNuclearInteraction> >" />
-  <class name="edm::Ref<std::vector<reco::PFNuclearInteraction>, reco::PFNuclearInteraction, edm::refhelper::FindUsingAdvance<std::vector<reco::PFNuclearInteraction>, reco::PFNuclearInteraction> >" />
-  <class name="edm::RefProd<std::vector<reco::PFNuclearInteraction> >" />
-  <class name="edm::RefVector<std::vector<reco::PFNuclearInteraction>, reco::PFNuclearInteraction, edm::refhelper::FindUsingAdvance<std::vector<reco::PFNuclearInteraction>, reco::PFNuclearInteraction> >" />
 
 </selection>
 <exclusion>

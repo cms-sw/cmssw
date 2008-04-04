@@ -68,6 +68,7 @@ AlignableObjectId::AlignableObjectId()
   theMap.insert( PairEnumType( AlignableDTLayer     ,  "DTLayer"      ) );
   theMap.insert( PairEnumType( AlignableCSCEndcap   ,  "CSCEndcap"    ) );
   theMap.insert( PairEnumType( AlignableCSCStation  ,  "CSCStation"   ) );
+  theMap.insert( PairEnumType( AlignableCSCRing     ,  "CSCRing"      ) );
   theMap.insert( PairEnumType( AlignableCSCChamber  ,  "CSCChamber"   ) );
   theMap.insert( PairEnumType( AlignableCSCLayer    ,  "CSCLayer"     ) );
   theMap.insert( PairEnumType( AlignableMuon        ,  "Muon"         ) );

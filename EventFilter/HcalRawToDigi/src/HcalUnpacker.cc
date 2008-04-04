@@ -30,6 +30,9 @@ namespace HcalUnpacker_impl {
   }
 }
 
+static inline bool isTPGSOI(const HcalTriggerPrimitiveSample& s) {
+  return (s.raw()&0x200)!=0;
+}
 
 void HcalUnpacker::unpack(const FEDRawData& raw, const HcalElectronicsMap& emap,
 			  Collections& colls, HcalUnpackerReport& report) {
@@ -82,13 +85,16 @@ void HcalUnpacker::unpack(const FEDRawData& raw, const HcalElectronicsMap& emap,
     int currFiberChan=0x3F; // invalid fiber+channel...
     int ncurr=0;
     bool valid=false;
-    
+
+    bool tpgSOIbitInUse=htr.getFormatVersion()>=3; // version 3 and later
+    int npre=0;
     /*
       Unpack the trigger primitives
     */
     for (tp_work=tp_begin; tp_work!=tp_end; tp_work++) {
       if (tp_work->raw()==0xFFFF) continue; // filler word
       if (tp_work->slbAndChan()!=currFiberChan) { // start new set
+	npre=0;
 	currFiberChan=tp_work->slbAndChan();
 	// lookup the right channel
 	HcalElectronicsId eid(tp_work->slbChan(),tp_work->slb(),spigot,dccid,htr_cr,htr_slot,htr_tb);
@@ -110,17 +116,22 @@ void HcalUnpacker::unpack(const FEDRawData& raw, const HcalElectronicsMap& emap,
 	HcalTrigTowerDetId id(did);
 	colls.tpCont->push_back(HcalTriggerPrimitiveDigi(id));
 	// set the various bits
-	colls.tpCont->back().setPresamples(nps);
+	if (!tpgSOIbitInUse) colls.tpCont->back().setPresamples(nps);
 	// no hits recorded for current
 	ncurr=0;
 	valid=true;
       }
-      // add the word (if within settings) [ TODO: correct behavior when just one TP... ]
-      if (valid && ncurr>=startSample_ && ncurr<=endSample_) {
+      // add the word (if within settings or recent firmware [recent firmware ignores startSample/endSample])
+      if (valid && ((tpgSOIbitInUse && ncurr<10) || (ncurr>=startSample_ && ncurr<=endSample_))) {
 	colls.tpCont->back().setSample(colls.tpCont->back().size(),*tp_work);
 	colls.tpCont->back().setSize(colls.tpCont->back().size()+1);
       }
+      // set presamples,if SOI
+      if (valid && tpgSOIbitInUse && isTPGSOI(*tp_work)) {
+	colls.tpCont->back().setPresamples(ncurr);
+      }
       ncurr++;
+      npre++;
     }
 
 

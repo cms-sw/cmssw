@@ -4,7 +4,6 @@
 #include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2D.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2DCollection.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiStripMatchedRecHit2D.h"
-#include "DataFormats/TrackerRecHit2D/interface/SiStripMatchedRecHit2DCollection.h"
 #include "DataFormats/DetId/interface/DetId.h"
 #include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
 #include "Geometry/CommonTopologies/interface/StripTopology.h"
@@ -17,23 +16,16 @@ class GluedGeomDet;
 
 #include <cfloat>
 
-
-#include <boost/function.hpp>
-
 class SiStripRecHitMatcher {
 public:
   
-  // may become a template argument
-  typedef SiStripMatchedRecHit2DCollectionNew::FastFiller CollectorMatched;
-
-  typedef SiStripRecHit2DCollectionNew::DetSet::const_iterator RecHitIterator;
-  typedef std::vector<const SiStripRecHit2D *>              SimpleHitCollection;
-  typedef SimpleHitCollection::const_iterator               SimpleHitIterator;
-
-  typedef boost::function<void(SiStripMatchedRecHit2D const&)>    Collector;
+  typedef  SiStripRecHit2DCollection::const_iterator RecHitIterator;
+  typedef std::vector<const SiStripRecHit2D *>       SimpleHitCollection;
+  typedef SimpleHitCollection::const_iterator                SimpleHitIterator;
 
 
-  typedef std::pair<LocalPoint,LocalPoint>                  StripPosition; 
+
+  typedef std::pair<LocalPoint,LocalPoint>                   StripPosition; 
 
   SiStripRecHitMatcher(const edm::ParameterSet& conf);
   SiStripRecHitMatcher(const double theScale);
@@ -51,14 +43,14 @@ public:
   
   edm::OwnVector<SiStripMatchedRecHit2D> 
   match( const SiStripRecHit2D *monoRH,
-	 RecHitIterator begin, RecHitIterator end, 
+	 RecHitIterator &begin, RecHitIterator &end, 
 	 const GluedGeomDet* gluedDet) const {
     return match(monoRH,begin, end, gluedDet,LocalVector(0.,0.,0.));
   }
 
   edm::OwnVector<SiStripMatchedRecHit2D> 
   match( const SiStripRecHit2D *monoRH,
-	 RecHitIterator begin, RecHitIterator end,
+	 RecHitIterator &begin, RecHitIterator &end, 
 	 const GluedGeomDet* gluedDet,
 	 LocalVector trackdirection) const;
 
@@ -67,21 +59,6 @@ public:
 	 SimpleHitIterator begin, SimpleHitIterator end,
 	 const GluedGeomDet* gluedDet,
 	 LocalVector trackdirection) const;
-
-  void
-  match( const SiStripRecHit2D *monoRH,
-	 RecHitIterator begin, RecHitIterator end,
-	 CollectorMatched & collector,
-	 const GluedGeomDet* gluedDet,
-	 LocalVector trackdirection) const;
-
-  void
-  match( const SiStripRecHit2D *monoRH,
-	 SimpleHitIterator begin, SimpleHitIterator end,
-	 CollectorMatched & collector,
-	 const GluedGeomDet* gluedDet,
-	 LocalVector trackdirection) const;
-
 
 
 
@@ -99,22 +76,12 @@ public:
 	 edm::OwnVector<SiStripMatchedRecHit2D> & collector, 
 	 const GluedGeomDet* gluedDet,
 	 LocalVector trackdirection) const;
-
+ /// the actual implementation
 
   void
   match( const SiStripRecHit2D *monoRH,
 	 SimpleHitIterator begin, SimpleHitIterator end,
 	 std::vector<SiStripMatchedRecHit2D*> & collector, 
-	 const GluedGeomDet* gluedDet,
-	 LocalVector trackdirection) const;
-
-
-/// the actual implementation
-
-  void
-  match( const SiStripRecHit2D *monoRH,
-	 SimpleHitIterator begin, SimpleHitIterator end,
-	 Collector & collector, 
 	 const GluedGeomDet* gluedDet,
 	 LocalVector trackdirection) const;
 

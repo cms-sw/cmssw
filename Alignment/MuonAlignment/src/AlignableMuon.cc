@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2007/03/02 18:39:17 $
- *  $Revision: 1.15 $
+ *  $Date: 2007/12/06 01:39:29 $
+ *  $Revision: 1.16 $
  *  \author Andre Sznajder - UERJ(Brazil)
  */
  
@@ -158,57 +158,84 @@ void AlignableMuon::buildCSCEndcap( const CSCGeometry* pCSC  )
   
  LogDebug("Position") << "Constructing AlignableCSCBarrel"; 
 
-  // Temporary container for chambers in a given station
+  // Temporary container for stations in a given endcap
   std::vector<AlignableCSCStation*>  tmpCSCStationsInEndcap;
 
   // Loop over endcaps ( 1..2 )
   for( int iec = 1 ; iec < 3 ; iec++ ){
 
-    // Temporary container for chambers in a given station
-    std::vector<AlignableCSCChamber*>   tmpCSCChambersInStation;
-
+    // Temporary container for rings in a given station
+    std::vector<AlignableCSCRing*>   tmpCSCRingsInStation;
+    
     // Loop over stations ( 1..4 )
     for( int ist = 1 ; ist < 5 ; ist++ ){
   
-      // Loop over geom CSC Chambers
-      std::vector<CSCChamber*> vc = pCSC->chambers();
-      for( std::vector<CSCChamber*>::const_iterator det = vc.begin();  
-                                                   det != vc.end(); ++det ){
+      // Temporary container for chambers in a given ring
+      std::vector<AlignableCSCChamber*>  tmpCSCChambersInRing;
 
-        // Get the CSCDet ID
-        CSCDetId cscId = (*det)->id();
+      // Loop over rings ( 1..4 )
+      for ( int iri = 1; iri < 5; iri++ ){
+	 
+	 // Loop over geom CSC Chambers
+	 std::vector<CSCChamber*> vc = pCSC->chambers();
+	 for( std::vector<CSCChamber*>::const_iterator det = vc.begin();  det != vc.end(); ++det ){
 
-        // Get chamber, station, ring, layer and endcap labels of the CSC chamber
-        int ec = cscId.endcap();
-        //int ch = cscId.chamber();
-        int st = cscId.station();
+	    // Get the CSCDet ID
+	    CSCDetId cscId = (*det)->id();
 
-        // Select the chambers in a given endcap in a given station
-        if ( iec == ec && ist == st ) {
+	    // Get chamber, station, ring, layer and endcap labels of the CSC chamber
+	    int ec = cscId.endcap();
+	    int st = cscId.station();
+	    int ri = cscId.ring();
+	    //int ch = cscId.chamber();
 
-          // Create the alignable CSC chamber 
-          AlignableCSCChamber* tmpCSCChamber  = new AlignableCSCChamber( *det );
+	    // Select the chambers in a given endcap, station, and ring
+	    if ( iec == ec && ist == st && iri == ri ) {
+
+	       // Create the alignable CSC chamber 
+	       AlignableCSCChamber* tmpCSCChamber  = new AlignableCSCChamber( *det );
   
-          // Store the alignable CSC chambers
-          tmpCSCChambersInStation.push_back( tmpCSCChamber );    
+	       // Store the alignable CSC chambers
+	       tmpCSCChambersInRing.push_back( tmpCSCChamber );    
 
-        // End If chamber selection
-        }
+	       // End If chamber selection
+	    }
 
-      // End loop over geom CSC chambers
+	    // End loop over geom CSC chambers
+	 }
+
+	 // Not all stations have 4 rings: only add the rings that exist (have chambers associated with them)
+	 if (tmpCSCChambersInRing.size() > 0) {
+
+	    // Store the alignable CSC chambers
+	    theCSCChambers.insert(  theCSCChambers.end(), tmpCSCChambersInRing.begin(), tmpCSCChambersInRing.end() );    
+
+	    // Create the alignable CSC ring with chambers in a given ring
+	    AlignableCSCRing* tmpCSCRing  = new AlignableCSCRing( tmpCSCChambersInRing );
+
+	    // Store the CSC rings in a given station
+	    tmpCSCRingsInStation.push_back( tmpCSCRing );
+
+	    // Clear the temporary vector of chambers in ring
+	    tmpCSCChambersInRing.clear();
+
+	    // End if this ring exists
+	 }
+
+	 // End loop over rings
       }
 
-      // Store the alignable CSC chambers
-      theCSCChambers.insert(  theCSCChambers.end(), tmpCSCChambersInStation.begin(), tmpCSCChambersInStation.end() );    
-
-      // Create the alignable CSC station with chambers in a given station 
-      AlignableCSCStation* tmpCSCStation  = new AlignableCSCStation( tmpCSCChambersInStation );
+      // Create the alignable CSC station with rings in a given station 
+      AlignableCSCStation* tmpCSCStation  = new AlignableCSCStation( tmpCSCRingsInStation );
      
+      // Store the alignable CSC rings
+      theCSCRings.insert(  theCSCRings.end(), tmpCSCRingsInStation.begin(), tmpCSCRingsInStation.end() );
+
       // Store the CSC stations in a given endcap  
       tmpCSCStationsInEndcap.push_back( tmpCSCStation );
 
-      // Clear the temporary vector of chambers in station
-      tmpCSCChambersInStation.clear();
+      // Clear the temporary vector of rings in station
+      tmpCSCRingsInStation.clear();
 
     // End loop over stations
     }
@@ -217,7 +244,7 @@ void AlignableMuon::buildCSCEndcap( const CSCGeometry* pCSC  )
     AlignableCSCEndcap* tmpEndcap  = new AlignableCSCEndcap( tmpCSCStationsInEndcap );
      
     // Store the alignable CSC stations 
-      theCSCStations.insert(  theCSCStations.end(), tmpCSCStationsInEndcap.begin(), tmpCSCStationsInEndcap.end() );
+    theCSCStations.insert(  theCSCStations.end(), tmpCSCStationsInEndcap.begin(), tmpCSCStationsInEndcap.end() );
 
     // Store the alignable CSC endcaps
     theCSCEndcaps.push_back( tmpEndcap );
@@ -304,6 +331,14 @@ std::vector<Alignable*> AlignableMuon::CSCChambers()
 {
   std::vector<Alignable*> result;
   copy( theCSCChambers.begin(), theCSCChambers.end(), back_inserter(result) );
+  return result;
+}
+
+//--------------------------------------------------------------------------------------------------
+std::vector<Alignable*> AlignableMuon::CSCRings()
+{
+  std::vector<Alignable*> result;
+  copy( theCSCRings.begin(), theCSCRings.end(), back_inserter(result) );
   return result;
 }
 

@@ -21,6 +21,7 @@ This package is part of the Simulation Validation Suite. It produces histograms 
 \subsection interface Public interface
 <!-- List the classes that are provided for use in other packages (if any) -->
 
+- FitSlicesYTool
 - MultiTrackValidator
 - RecoTrackSelector
 - SiPixelTrackingRecHitsValid

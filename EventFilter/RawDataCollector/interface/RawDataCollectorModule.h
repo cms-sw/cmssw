@@ -21,7 +21,8 @@ public:
     void produce(edm::Event & e, const edm::EventSetup& c); 
           
 private:
-  
+
+    bool useCurrentProcessOnly_ ; 
 };
 
 #endif

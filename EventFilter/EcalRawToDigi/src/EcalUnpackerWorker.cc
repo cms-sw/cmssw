@@ -1,6 +1,5 @@
 #include "EventFilter/EcalRawToDigi/interface/EcalUnpackerWorker.h"
 
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "RecoLocalCalo/EcalRecAlgos/interface/EcalRecHitSimpleAlgo.h"
 
 
@@ -13,7 +12,6 @@
 #include "CondFormats/DataRecord/interface/EcalADCToGeVConstantRcd.h"
 #include "CalibCalorimetry/EcalLaserCorrection/interface/EcalLaserDbRecord.h"
 
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 
 EcalUnpackerWorker::EcalUnpackerWorker(const edm::ParameterSet & conf){

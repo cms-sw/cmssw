@@ -55,6 +55,7 @@ void HcalSimpleReconstructor::produce(edm::Event& e, const edm::EventSetup& even
   eventSetup.get<HcalDbRecord>().get(conditions);
   const HcalQIEShape* shape = conditions->getHcalShape (); // this one is generic
   
+  HcalCalibrations calibrations;
   
   if (det_==DetId::Hcal) {
     if (subdet_==HcalBarrel || subdet_==HcalEndcap) {
@@ -68,7 +69,7 @@ void HcalSimpleReconstructor::produce(edm::Event& e, const edm::EventSetup& even
       HBHEDigiCollection::const_iterator i;
       for (i=digi->begin(); i!=digi->end(); i++) {
 	HcalDetId cell = i->id();
-	const HcalCalibrations& calibrations=conditions->getHcalCalibrations(cell);
+	conditions->makeHcalCalibration (cell, &calibrations);
 	const HcalQIECoder* channelCoder = conditions->getHcalCoder (cell);
 	HcalCoderDb coder (*channelCoder, *shape);
 	rec->push_back(reco_.reconstruct(*i,coder,calibrations));
@@ -85,7 +86,7 @@ void HcalSimpleReconstructor::produce(edm::Event& e, const edm::EventSetup& even
       HODigiCollection::const_iterator i;
       for (i=digi->begin(); i!=digi->end(); i++) {
 	HcalDetId cell = i->id();
-	const HcalCalibrations& calibrations=conditions->getHcalCalibrations(cell);
+	conditions->makeHcalCalibration (cell, &calibrations);
 	const HcalQIECoder* channelCoder = conditions->getHcalCoder (cell);
 	HcalCoderDb coder (*channelCoder, *shape);
 	rec->push_back(reco_.reconstruct(*i,coder,calibrations));
@@ -102,7 +103,7 @@ void HcalSimpleReconstructor::produce(edm::Event& e, const edm::EventSetup& even
       HFDigiCollection::const_iterator i;
       for (i=digi->begin(); i!=digi->end(); i++) {
 	HcalDetId cell = i->id();	  
-	const HcalCalibrations& calibrations=conditions->getHcalCalibrations(cell);
+	conditions->makeHcalCalibration (cell, &calibrations);
 	const HcalQIECoder* channelCoder = conditions->getHcalCoder (cell);
 	HcalCoderDb coder (*channelCoder, *shape);
 	rec->push_back(reco_.reconstruct(*i,coder,calibrations));
@@ -119,7 +120,7 @@ void HcalSimpleReconstructor::produce(edm::Event& e, const edm::EventSetup& even
       HcalCalibDigiCollection::const_iterator i;
       for (i=digi->begin(); i!=digi->end(); i++) {
 	HcalCalibDetId cell = i->id();	  
-	const HcalCalibrations& calibrations=conditions->getHcalCalibrations(cell);
+	conditions->makeHcalCalibration (cell, &calibrations);
 	const HcalQIECoder* channelCoder = conditions->getHcalCoder (cell);
 	HcalCoderDb coder (*channelCoder, *shape);
 	rec->push_back(reco_.reconstruct(*i,coder,calibrations));
@@ -137,7 +138,7 @@ void HcalSimpleReconstructor::produce(edm::Event& e, const edm::EventSetup& even
     ZDCDigiCollection::const_iterator i;
     for (i=digi->begin(); i!=digi->end(); i++) {
       HcalZDCDetId cell = i->id();	  
-      const HcalCalibrations& calibrations=conditions->getHcalCalibrations(cell);
+      conditions->makeHcalCalibration (cell, &calibrations);
       const HcalQIECoder* channelCoder = conditions->getHcalCoder (cell);
       HcalCoderDb coder (*channelCoder, *shape);
       rec->push_back(reco_.reconstruct(*i,coder,calibrations));

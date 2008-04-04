@@ -1,6 +1,9 @@
 <lcgdict>
   <class name="std::vector<PSimHit> "/>
   <class name="std::vector<int> "/>
+  <class name="std::vector<std::vector<int> > "/>
+  <class name="std::vector<unsigned int> "/>
+  <class name="std::vector<std::vector<unsigned int> > "/>
   <class name="std::vector<PCaloHit> "/>
   <class name="std::vector<SimTrack> "/>
   <class name="std::vector<SimVertex> "/>

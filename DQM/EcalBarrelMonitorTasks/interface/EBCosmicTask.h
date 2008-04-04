@@ -4,8 +4,8 @@
 /*
  * \file EBCosmicTask.h
  *
- * $Date: 2008/01/09 12:17:30 $
- * $Revision: 1.27 $
+ * $Date: 2008/02/04 19:41:10 $
+ * $Revision: 1.29 $
  * \author G. Della Ricca
  *
 */
@@ -53,14 +53,14 @@ DaqMonitorBEInterface* dbe_;
 bool enableCleanup_;
 
 edm::InputTag EcalRawDataCollection_;
-edm::InputTag EcalUncalibRecHitCollection_;
+edm::InputTag EcalUncalibratedRecHitCollection_;
 edm::InputTag EcalRecHitCollection_;
 
 MonitorElement* meCutMap_[36];
 
 MonitorElement* meSelMap_[36];
 
-MonitorElement* meSpectrumMap_[36];
+MonitorElement* meSpectrum_[2][36];
 
 double lowThreshold_;
 double highThreshold_;

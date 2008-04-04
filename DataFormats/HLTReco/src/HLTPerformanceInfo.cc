@@ -1,11 +1,8 @@
-// $Id: HLTPerformanceInfo.cc,v 1.8 2007/08/17 14:48:03 bdahmes Exp $
+// $Id: HLTPerformanceInfo.cc,v 1.10 2007/09/14 17:30:42 bdahmes Exp $
 #include <functional>
 #include <algorithm>
 #include <numeric>
 #include <iostream>
-#include <boost/lambda/lambda.hpp> 
-#include <boost/lambda/bind.hpp> 
-#include <boost/bind.hpp> 
 
 #include "DataFormats/Common/interface/HLTenums.h"
 #include "DataFormats/HLTReco/interface/HLTPerformanceInfo.h"

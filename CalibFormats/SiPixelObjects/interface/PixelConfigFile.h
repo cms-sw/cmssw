@@ -23,7 +23,6 @@
 #include "CalibFormats/SiPixelObjects/interface/PixelDACSettings.h"
 #include "CalibFormats/SiPixelObjects/interface/PixelTBMSettings.h"
 #include "CalibFormats/SiPixelObjects/interface/PixelDetectorConfig.h"
-#include "CalibFormats/SiPixelObjects/interface/PixelLowVoltageMap.h"
 #include "CalibFormats/SiPixelObjects/interface/PixelNameTranslation.h"
 #include "CalibFormats/SiPixelObjects/interface/PixelFEDCard.h"
 #include "CalibFormats/SiPixelObjects/interface/PixelCalibConfiguration.h"
@@ -132,16 +131,16 @@ namespace pos{
       std::string filename=directory+"/configurations.txt";
       if(!first)
 	{
-//	  std::cout << "[pos::PixelConfigFile::getConfig()] Reloading configurations.txt"<< std::endl ;
+	  //std::cout << "[pos::PixelConfigFile::getConfig()] Reloading configurations.txt"<< std::endl ;
 	  configs.reload(filename) ;
-//	  std::cout << "[pos::PixelConfigFile::getConfig()] Size reloaded: " << configs.size() << std::endl ;
+	  //std::cout << "[pos::PixelConfigFile::getConfig()] Size reloaded: " << configs.size() << std::endl ;
 	}
       if (first) 
 	{
 	  first=0;
-//	  std::cout << "[pos::PixelConfigFile::getConfig()] Reading configurations.txt"<< std::endl ;
+	  //std::cout << "[pos::PixelConfigFile::getConfig()] Reading configurations.txt"<< std::endl ;
 	  configs.readfile(filename);
-//	  std::cout << "[pos::PixelConfigFile::getConfig()] Size read: " << configs.size() << std::endl ;
+	  //std::cout << "[pos::PixelConfigFile::getConfig()] Size read: " << configs.size() << std::endl ;
 	}
 
       return configs;
@@ -193,9 +192,9 @@ namespace pos{
     
       std::string dir=base.substr(slashpos+1);
     
-//      std::cout << "Extracted dir:"<<dir<<std::endl;
-//      std::cout << "Extracted base:"<<base<<std::endl;
-//      std::cout << "Extracted ext :"<<ext<<std::endl;
+/*       std::cout << "Extracted dir:"<<dir<<std::endl; */
+/*       std::cout << "Extracted base:"<<base<<std::endl; */
+/*       std::cout << "Extracted ext :"<<ext<<std::endl; */
     
       unsigned int version;
       int err=getConfig()[theKey].find(dir,version);   
@@ -241,12 +240,6 @@ namespace pos{
 	//std::cout << "Will return PixelDetectorConfig" << std::endl;
 	assert(dir=="detconfig");
 	data = (T*) new PixelDetectorConfig(fullpath+"detectconfig.dat");
-	return;
-      }else if (typeid(data)==typeid(PixelLowVoltageMap*)){
-	std::cout << "Will fetch PixelLowVoltageMap" << std::endl;
-	assert(dir=="lowvoltagemap");
-	data = (T*) new PixelLowVoltageMap(fullpath+"lowvoltagemap.dat");
-	std::cout << "Will return the PixelLowVoltageMap" << std::endl;
 	return;
       }else if (typeid(data)==typeid(PixelNameTranslation*)){
 	//std::cout << "Will return PixelDACSettings" << std::endl;
@@ -394,12 +387,6 @@ namespace pos{
 	//std::cout << "Will return PixelDACSettings" << std::endl;
 	assert(dir=="detconfig");
 	data = (T*) new PixelDetectorConfig(fullpath+"detectconfig.dat");
-	return;
-      }else if (typeid(data)==typeid(PixelLowVoltageMap*)){
-	std::cout << "Will fetch1 PixelLowVoltageMap" << std::endl;
-	assert(dir=="lowvoltagemap");
-	data = (T*) new PixelLowVoltageMap(fullpath+"detectconfig.dat");
-	std::cout << "Will return1 the PixelLowVoltageMap" << std::endl;
 	return;
       }else if (typeid(data)==typeid(PixelNameTranslation*)){
 	//std::cout << "Will return PixelDACSettings" << std::endl;

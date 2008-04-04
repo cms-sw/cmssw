@@ -4,8 +4,8 @@
 /*
  * \file EcalEndcapMonitorModule.h
  *
- * $Date: 2008/01/04 19:05:05 $
- * $Revision: 1.10 $
+ * $Date: 2008/01/20 16:41:50 $
+ * $Revision: 1.11 $
  * \author G. Della Ricca
  *
 */
@@ -66,8 +66,6 @@ edm::InputTag EcalRecHitCollection_;
 edm::InputTag EcalTrigPrimDigiCollection_;
 
 bool verbose_;
-
-bool enableMonitorDaemon_;
 
 bool enableEventDisplay_;
 

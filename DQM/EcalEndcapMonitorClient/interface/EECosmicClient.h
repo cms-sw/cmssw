@@ -4,8 +4,8 @@
 /*
  * \file EECosmicClient.h
  *
- * $Date: 2007/12/28 17:21:29 $
- * $Revision: 1.10 $
+ * $Date: 2008/01/18 18:04:08 $
+ * $Revision: 1.11 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -95,10 +95,12 @@ DaqMonitorBEInterface* dbe_;
 MonitorElement* meh01_[18];
 MonitorElement* meh02_[18];
 MonitorElement* meh03_[18];
+MonitorElement* meh04_[18];
 
 TProfile2D* h01_[18];
 TProfile2D* h02_[18];
 TH1F* h03_[18];
+TH1F* h04_[18];
 
 };
 

@@ -20,7 +20,7 @@
 using namespace edm;
 
 const int numBits = 5;
-const int numPatterns = 9;
+const int numPatterns = 11;
 const int numMasks = 9;
 const int numAns = numPatterns * numMasks;
 
@@ -173,6 +173,8 @@ int main()
   boost::array<char*,2> cw7 = {{ "*","!a2" }};
   boost::array<char*,2> cw8 = {{ "!*","a2" }};
   boost::array<char*,3> cw9 = {{ "a1","a2","a5" }};
+  boost::array<char*,2> cwA = {{ "a3","a4" }};
+  boost::array<char*,1> cwB = {{ "!a5" }};
 
   VStrings patterns(numPatterns);
   patterns[0].insert(patterns[0].end(),cw1.begin(),cw1.end());
@@ -184,6 +186,8 @@ int main()
   patterns[6].insert(patterns[6].end(),cw7.begin(),cw7.end());
   patterns[7].insert(patterns[7].end(),cw8.begin(),cw8.end());
   patterns[8].insert(patterns[8].end(),cw9.begin(),cw9.end());
+  patterns[9].insert(patterns[9].end(),cwA.begin(),cwA.end());
+  patterns[10].insert(patterns[10].end(),cwB.begin(),cwB.end());
 
   boost::array<bool,numBits> t1 = {{ true,  false, true,  false, true  }};
   boost::array<bool,numBits> t2 = {{ false, true,  true,  false, true  }};
@@ -217,7 +221,9 @@ int main()
 		  {true, true,  true,  true,  true,  true,  true,  true,  true  },
 		  {true, true,  true,  true,  true,  true,  true,  true,  true  },
 		  {false,true,  true,  false, true,  true,  true,  false, false },
-		  {true, true,  true,  true,  false, true,  true,  true,  true  }
+		  {true, true,  true,  true,  false, true,  true,  true,  true  },
+		  {true, true,  true,  true,  false, true,  true,  false, false },
+		  {false,false, false, false, true,  false, true,  false, true  }
   };
 
 

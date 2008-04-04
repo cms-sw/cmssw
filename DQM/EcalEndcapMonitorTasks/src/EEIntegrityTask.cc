@@ -1,8 +1,8 @@
 /*
  * \file EEIntegrityTask.cc
  *
- * $Date: 2008/01/15 10:43:23 $
- * $Revision: 1.25 $
+ * $Date: 2008/02/14 06:41:55 $
+ * $Revision: 1.28 $
  * \author G. Della Ricca
  *
  */
@@ -17,7 +17,6 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
-#include "DQMServices/Daemon/interface/MonitorDaemon.h"
 
 #include "DataFormats/EcalDetId/interface/EEDetId.h"
 
@@ -89,7 +88,7 @@ void EEIntegrityTask::setup(void){
 
   init_ = true;
 
-  Char_t histo[200];
+  char histo[200];
 
   if ( dbe_ ) {
     dbe_->setCurrentFolder("EcalEndcap/EEIntegrityTask");
@@ -408,8 +407,8 @@ void EEIntegrityTask::analyze(const Event& e, const EventSetup& c){
 
       if ( ism >= 1 && ism <= 9 ) ix = 101 - ix;
 
-      float xix = ix + 0.5;
-      float xiy = iy + 0.5;
+      float xix = ix - 0.5;
+      float xiy = iy - 0.5;
 
       if ( meIntegrityTTId[ism-1] ) meIntegrityTTId[ism-1]->Fill(xix, xiy);
 
@@ -446,8 +445,8 @@ void EEIntegrityTask::analyze(const Event& e, const EventSetup& c){
 
       if ( ism >= 1 && ism <= 9 ) ix = 101 - ix;
 
-      float xix = ix + 0.5;
-      float xiy = iy + 0.5;
+      float xix = ix - 0.5;
+      float xiy = iy - 0.5;
 
       if ( meIntegrityTTBlockSize[ism-1] ) meIntegrityTTBlockSize[ism-1]->Fill(xix, xiy);
 

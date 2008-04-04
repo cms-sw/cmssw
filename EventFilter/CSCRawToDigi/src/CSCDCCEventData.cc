@@ -2,15 +2,10 @@
 /// 01/20/05 
 /// A.Tumanov
 
-#include "EventFilter/CSCRawToDigi/interface/CSCDDUEventData.h"
-#include "EventFilter/CSCRawToDigi/interface/CSCDCCHeader.h"
-#include "EventFilter/CSCRawToDigi/interface/CSCDCCTrailer.h"
 #include "EventFilter/CSCRawToDigi/interface/CSCDCCEventData.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <iostream>
-#include <vector>
 #include <cstdio>
-#include <boost/dynamic_bitset.hpp>
 #include "EventFilter/CSCRawToDigi/src/bitset_append.h"
 
 bool CSCDCCEventData::debug = false;

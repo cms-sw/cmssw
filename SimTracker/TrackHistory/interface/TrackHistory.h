@@ -80,7 +80,7 @@ public:
      /param[in] depth of the track history
      /param[out] boolean that is false when a fake track is detected
   */
-  bool evaluate (edm::RefToBase<reco::Track>, reco::RecoToSimCollection const &, bool maxMatch = true);
+  bool evaluate (reco::TrackRef, reco::RecoToSimCollection const &, bool maxMatch = true);
 
   //! Return all the simulated vertexes in the history.
   TrackingVertexContainer simVertexTrail()

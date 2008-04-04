@@ -16,9 +16,7 @@
           <Primitive column="FECRING"  name="fecRing_" />
           <Primitive column="FECSLOT"  name="fecSlot_" />
           <Primitive column="FEDCH"    name="fedCh_" />
-          <Primitive column="FEDCRATE" name="fedCrate_" />
           <Primitive column="FEDID"    name="fedId_" />
-          <Primitive column="FEDSLOT"  name="fedSlot_" />
           <Primitive column="LENGTH"   name="length_" />
           <Primitive column="LLD0X60"  name="lld0x60_" />
           <Primitive column="MUX0X43"  name="mux0x43_" />
@@ -40,9 +38,7 @@
         <Primitive column="FECRING" name="fecRing_" />
         <Primitive column="FECSLOT" name="fecSlot_" />
         <Primitive column="FEDCH" name="fedCh_" />
-        <Primitive column="FEDCRATE" name="fedCrate_" />
         <Primitive column="FEDID" name="fedId_" />
-        <Primitive column="FEDSLOT"  name="fedSlot_" />
         <Primitive column="LENGTH" name="length_" />
         <Primitive column="LLD0X60" name="lld0x60_" />
         <Primitive column="MUX0X43" name="mux0x43_" />
@@ -66,9 +62,7 @@
         <Primitive column="FECRI" name="fecRing_" />
         <Primitive column="FECSL" name="fecSlot_" />
         <Primitive column="FEDCH" name="fedCh_" />
-        <Primitive column="FEDCRATE" name="fedCrate_" />
         <Primitive column="FEDID" name="fedId_" />
-        <Primitive column="FEDSLOT"  name="fedSlot_" />
         <Primitive column="LENGTH" name="length_" />
         <Primitive column="LLD0X" name="lld0x60_" />
         <Primitive column="MUX0X" name="mux0x43_" />

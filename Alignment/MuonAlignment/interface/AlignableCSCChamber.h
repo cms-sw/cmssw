@@ -4,8 +4,8 @@
 /** \class AlignableCSCChamber
  *  The alignable muon CSC chamber.
  *
- *  $Date: 2006/08/04 20:18:50 $
- *  $Revision: 1.9 $
+ *  $Date: 2007/12/06 01:30:47 $
+ *  $Revision: 1.10.4.1 $
  *  \author Andre Sznajder - UERJ(Brazil)
  */
  
@@ -15,10 +15,8 @@
 #include <vector>
 
 #include "Geometry/CommonDetUnit/interface/GeomDet.h"
-#include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
 
 #include "Alignment/CommonAlignment/interface/AlignableDet.h"
-#include "Alignment/CommonAlignment/interface/AlignableObjectId.h"
 #include "Alignment/CommonAlignment/interface/AlignableComposite.h"
 
 /// A muon CSC Chamber( composite of AlignableDets )
@@ -65,7 +63,7 @@ class AlignableCSCChamber: public AlignableComposite
   virtual void addAlignmentPositionErrorFromLocalRotation(const RotationType& rot);
 
   /// Alignable object identifier
-  virtual int alignableObjectId () const { return AlignableObjectId::AlignableCSCChamber; }
+  virtual StructureType alignableObjectId () const { return align::AlignableCSCChamber; }
 
   /// Return vector of alignment data
   virtual Alignments* alignments() const;

@@ -4,7 +4,7 @@
  *
  * \author Luca Lista, INFN
  *
- * $Id: StringObjectFunction.h,v 1.1 2007/10/31 14:08:00 llista Exp $
+ * $Id: StringObjectFunction.h,v 1.5 2007/10/23 07:33:35 llista Exp $
  */
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "PhysicsTools/Utilities/src/ExpressionPtr.h"
@@ -13,21 +13,21 @@
 
 template<typename T>
 struct StringObjectFunction {
-  StringObjectFunction(const std::string & expr) : 
-    type_(ROOT::Reflex::Type::ByTypeInfo(typeid(T))) {
-    if(! reco::parser::expressionParser<T>(expr, expr_)) {
-      throw edm::Exception(edm::errors::Configuration,
-			   "failed to parse \"" + expr + "\"");
+  StringObjectFunction( const std::string & expr ) : 
+    type_( ROOT::Reflex::Type::ByTypeInfo( typeid( T ) ) ) {
+    if( ! reco::parser::expressionParser( expr, reco::MethodMap::methods<T>(), expr_ ) ) {
+      throw edm::Exception( edm::errors::Configuration,
+			    "failed to parse \"" + expr + "\"" );
     }
   }
-  StringObjectFunction(const reco::parser::ExpressionPtr & expr) : 
-    expr_(expr),
-    type_(ROOT::Reflex::Type::ByTypeInfo(typeid(T))) {
+  StringObjectFunction( const reco::parser::ExpressionPtr & expr ) : 
+    expr_( expr ),
+    type_( ROOT::Reflex::Type::ByTypeInfo( typeid( T ) ) ) {
   }
-  double operator()(const T & t) const {
+  double operator()( const T & t ) const {
     using namespace ROOT::Reflex;
-    Object o(type_, const_cast<T *>(& t));
-    return expr_->value(o);  
+    Object o( type_, const_cast<T *>( & t ) );
+    return expr_->value( o );  
   }
 
 private:
