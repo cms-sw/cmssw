@@ -1,5 +1,5 @@
 //
-// $Id$
+// $Id: Photon.h,v 1.9 2008/04/03 19:08:49 lowette Exp $
 //
 
 #ifndef DataFormats_PatCandidates_Photon_h
@@ -13,7 +13,7 @@
    namespace.
 
   \author   Steven Lowette
-  \version  $Id$
+  \version  $Id: Photon.h,v 1.9 2008/04/03 19:08:49 lowette Exp $
 */
 
 #include "DataFormats/PatCandidates/interface/PATObject.h"
@@ -41,6 +41,8 @@ namespace pat {
       Photon(const edm::RefToBase<PhotonType> & aPhotonRef);
       /// destructor
       virtual ~Photon();
+
+      virtual Photon * clone() const { return new Photon(*this); }
 
       /// override the superCluster method from CaloJet, to access the internal storage of the supercluster
       /// this returns a transient Ref which *should never be persisted*!

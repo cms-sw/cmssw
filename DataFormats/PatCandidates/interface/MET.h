@@ -1,5 +1,5 @@
 //
-// $Id: MET.h,v 1.8 2008/03/05 14:47:33 fronga Exp $
+// $Id: MET.h,v 1.9 2008/04/01 19:03:27 lowette Exp $
 //
 
 #ifndef DataFormats_PatCandidates_MET_h
@@ -13,7 +13,7 @@
    within the 'pat' namespace.
 
   \author   Steven Lowette
-  \version  $Id: MET.h,v 1.8 2008/03/05 14:47:33 fronga Exp $
+  \version  $Id: MET.h,v 1.9 2008/04/01 19:03:27 lowette Exp $
 */
 
 
@@ -37,6 +37,7 @@ namespace pat {
       MET(const edm::RefToBase<METType> & aMETRef);
       virtual ~MET();
 
+      virtual MET * clone() const { return new MET(*this); }
       const reco::GenMET * genMET() const;
 
       void setGenMET(const reco::GenMET & gm);

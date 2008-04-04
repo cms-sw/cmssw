@@ -1,5 +1,5 @@
 //
-// $Id: Lepton.h,v 1.8 2008/04/03 12:29:08 gpetrucc Exp $
+// $Id: Lepton.h,v 1.9 2008/04/03 13:08:23 gpetrucc Exp $
 //
 
 #ifndef DataFormats_PatCandidates_Lepton_h
@@ -13,7 +13,7 @@
    namespace.
 
   \author   Steven Lowette
-  \version  $Id: Lepton.h,v 1.8 2008/04/03 12:29:08 gpetrucc Exp $
+  \version  $Id: Lepton.h,v 1.9 2008/04/03 13:08:23 gpetrucc Exp $
 */
 
 #include "DataFormats/Candidate/interface/Particle.h"
@@ -33,6 +33,8 @@ namespace pat {
       Lepton(const LeptonType & aLepton);
       Lepton(const edm::RefToBase<LeptonType> & aLeptonRef);
       virtual ~Lepton();
+
+      virtual Lepton<LeptonType> * clone() const { return new Lepton<LeptonType>(*this); }
 
       const reco::Particle * genLepton() const;
       float lrVar(const unsigned int i) const;

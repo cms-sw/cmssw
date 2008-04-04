@@ -1,5 +1,5 @@
 //
-// $Id: Electron.h,v 1.7 2008/03/05 14:47:33 fronga Exp $
+// $Id: Electron.h,v 1.8 2008/04/03 12:29:08 gpetrucc Exp $
 //
 
 #ifndef DataFormats_PatCandidates_Electron_h
@@ -13,7 +13,7 @@
    namespace.
 
   \author   Steven Lowette
-  \version  $Id: Electron.h,v 1.7 2008/03/05 14:47:33 fronga Exp $
+  \version  $Id: Electron.h,v 1.8 2008/04/03 12:29:08 gpetrucc Exp $
 */
 
 #include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
@@ -37,6 +37,7 @@ namespace pat {
       Electron(const edm::RefToBase<ElectronType> & anElectronRef);
       virtual ~Electron();
 
+      virtual Electron * clone() const { return new Electron(*this); }
       float leptonID() const;
       float electronIDRobust() const;
 

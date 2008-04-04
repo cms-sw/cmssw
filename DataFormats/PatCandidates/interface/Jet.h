@@ -1,5 +1,5 @@
 //
-// $Id$
+// $Id: Jet.h,v 1.12 2008/04/03 19:22:00 lowette Exp $
 //
 
 #ifndef DataFormats_PatCandidates_Jet_h
@@ -13,7 +13,7 @@
    'pat' namespace
 
   \author   Steven Lowette
-  \version  $Id$
+  \version  $Id: Jet.h,v 1.12 2008/04/03 19:22:00 lowette Exp $
 */
 
 #include "DataFormats/JetReco/interface/CaloJet.h"
@@ -54,6 +54,8 @@ namespace pat {
       Jet(const edm::RefToBase<JetType> & aJetRef);
       /// destructor
       virtual ~Jet();
+
+      virtual Jet * clone() const { return new Jet(*this); }
 
       /// override the getConstituent method from CaloJet, to access the internal storage of the constituents
       /// this returns a transient Ref which *should never be persisted*!
