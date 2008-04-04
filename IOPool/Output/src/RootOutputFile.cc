@@ -1,4 +1,4 @@
-// $Id: RootOutputFile.cc,v 1.50 2008/03/04 05:14:43 wmtan Exp $
+// $Id: RootOutputFile.cc,v 1.51 2008/03/05 05:55:31 wmtan Exp $
 
 #include "RootOutputFile.h"
 #include "PoolOutputModule.h"
@@ -11,6 +11,7 @@
 #include "FWCore/Utilities/interface/GetFileFormatVersion.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/Utilities/interface/Algorithms.h"
+#include "FWCore/Utilities/interface/Digest.h"
 #include "FWCore/Framework/interface/FileBlock.h"
 #include "FWCore/Framework/interface/EventPrincipal.h"
 #include "FWCore/Framework/interface/LuminosityBlockPrincipal.h"
@@ -42,7 +43,23 @@
 
 namespace edm {
 
+  namespace {
+    bool
+    sorterForJobReportHash(BranchDescription const* lh, BranchDescription const* rh) {
+      return 
+	lh->fullClassName() < rh->fullClassName() ? true :
+	lh->fullClassName() > rh->fullClassName() ? false :
+	lh->moduleLabel() < rh->moduleLabel() ? true :
+	lh->moduleLabel() > rh->moduleLabel() ? false :
+	lh->productInstanceName() < rh->productInstanceName() ? true :
+	lh->productInstanceName() > rh->productInstanceName() ? false :
+	lh->processName() < rh->processName() ? true :
+	false;
+    }
+  }
+
   RootOutputFile::OutputItem::Sorter::Sorter(TTree * tree) {
+    // Fill a map mapping branch names to an index specifying the order in the tree.
     if (tree != 0) {
       TObjArray * branches = tree->GetListOfBranches();
       for (int i = 0; i < branches->GetEntries(); ++i) {
@@ -54,6 +71,8 @@ namespace edm {
 
   bool
   RootOutputFile::OutputItem::Sorter::operator()(OutputItem const& lh, OutputItem const& rh) const {
+    // Provides a comparison for sorting branches according to the index values in treeMap_.
+    // Branches not found are always put at the end (i.e. not found > found).
     if (treeMap_.empty()) return lh < rh;
     std::string const& lstring = lh.branchDescription_->branchName();
     std::string const& rstring = rh.branchDescription_->branchName();
@@ -141,6 +160,38 @@ namespace edm {
 
     fid_ = FileID(createGlobalIdentifier());
 
+    // For the Job Report, get a vector of branch names in the "Events" tree.
+    // Also create a hash of all the branch names in the "Events" tree
+    // in a deterministic order, except use the full class name instead of the friendly class name.
+    // To avoid extra string copies, we create a vector of pointers into the product registry,
+    // and use a custom comparison operator for sorting.
+    std::vector<std::string> branchNames;
+    std::vector<BranchDescription const*> branches;
+    branchNames.reserve(outputItemList_[InEvent].size());
+    branches.reserve(outputItemList_[InEvent].size());
+    for (OutputItemList::const_iterator it = outputItemList_[InEvent].begin(),
+	  itEnd = outputItemList_[InEvent].end();
+	  it != itEnd; ++it) {
+      if (it->selected_) {
+	branchNames.push_back(it->branchDescription_->branchName());
+	branches.push_back(it->branchDescription_);
+      }
+    }
+    // Now sort the branches for the hash.
+    sort_all(branches, sorterForJobReportHash);
+    // Now, make a concatenated string.
+    std::ostringstream oss;
+    char const underscore = '_';
+    for (std::vector<BranchDescription const*>::const_iterator it = branches.begin(), itEnd = branches.end(); it != itEnd; ++it) {
+      BranchDescription const& bd = **it;
+      oss <<  bd.fullClassName() << underscore
+	  << bd.moduleLabel() << underscore
+	  << bd.productInstanceName() << underscore
+	  << bd.processName() << underscore;
+    }
+    std::string stringrep = oss.str();
+    cms::Digest md5alg(stringrep);
+
     // Register the output file with the JobReport service
     // and get back the token for it.
     std::string moduleName = "PoolOutputModule";
@@ -151,7 +202,9 @@ namespace edm {
 		      moduleName,   // module class name
 		      om_->moduleLabel_,  // module label
 		      fid_.fid(), // file id (guid)
-		      eventTree_.branchNames()); // branch names being written
+		      std::string(), // data type (not yet known, so string is empty).
+		      md5alg.digest().toString(), // branch hash
+		      branchNames); // branch names being written
   }
 
   void RootOutputFile::fillItemList(Selections const& keptVector,
@@ -159,6 +212,7 @@ namespace edm {
 				    OutputItemList & outputItemList,
 				    TTree * meta) {
 
+    // Fill outputItemList with an entry for each branch, including dropped branches.
     std::vector<std::string> const& renamed = om_->fileBlock_->sortedNewBranchNames();
     for (Selections::const_iterator it = keptVector.begin(), itEnd = keptVector.end(); it != itEnd; ++it) {
       BranchDescription const& prod = **it;
@@ -168,6 +222,9 @@ namespace edm {
       BranchDescription const& prod = **it;
       outputItemList.push_back(OutputItem(&prod, false, binary_search_all(renamed, prod.branchName())));
     }
+    // Sort outputItemList to allow fast copying.
+    // meta is a pointer to the input XMetaData tree (X is Event, Run, or LuminosityBlock).
+    // The branches in outputItemList must be in the same order as in the input tree, with all new branches at the end.
     sort_all(outputItemList, OutputItem::Sorter(meta));
   }
 
