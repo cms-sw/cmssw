@@ -30,11 +30,13 @@ namespace CastorDigiAnalyzerImpl {
 
 
 void CastorDigiAnalyzer::analyze(edm::Event const& e, edm::EventSetup const& c) {
-  edm::Handle<edm::PCaloHitContainer> hits;
-  hitReadoutName_ = "CASTORHITS";
-  e.getByLabel("g4SimHits",hitReadoutName_, hits);
-  if (hits.isValid()) {
+  //  edm::Handle<edm::PCaloHitContainer> hits;
+edm::Handle<CrossingFrame<PCaloHit> > castorcf;
+e.getByLabel("g4SimHits","CASTORHits", castorcf);
+
+//access to SimHits
+std::auto_ptr<MixCollection<PCaloHit> > hits(new MixCollection<PCaloHit>(castorcf.product()));
+//  if (hits.isValid()) {
     castorHitAnalyzer_.fillHits(*hits);
     CastorDigiAnalyzerImpl::analyze<CastorDigiCollection>(e, castorDigiStatistics_);
   }
-}
