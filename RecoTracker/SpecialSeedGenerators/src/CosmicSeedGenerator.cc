@@ -18,6 +18,8 @@
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "FWCore/ParameterSet/interface/InputTag.h"
 
+#include "RecoTracker/SpecialSeedGenerators/interface/ClusterChecker.h"
+
 using namespace std;
 CosmicSeedGenerator::CosmicSeedGenerator(edm::ParameterSet const& conf) : 
   conf_(conf) ,cosmic_seed(conf)
@@ -47,12 +49,15 @@ void CosmicSeedGenerator::produce(edm::Event& ev, const edm::EventSetup& es)
  
 
   std::auto_ptr<TrajectorySeedCollection> output(new TrajectorySeedCollection);
-  //
- 
-  cosmic_seed.init(*stereorecHits,*rphirecHits,*matchedrecHits, es);
- 
-  // invoke the seed finding algorithm
-  cosmic_seed.run(*output,es);
+
+  //check on the number of clusters
+  ClusterChecker check(conf_);
+  if (!check.tooManyClusters(ev)){
+    cosmic_seed.init(*stereorecHits,*rphirecHits,*matchedrecHits, es);
+    
+    // invoke the seed finding algorithm
+    cosmic_seed.run(*output,es);
+  }
 
   // write output to file
   LogDebug("Algorithm Performance")<<" number of seeds = "<< output->size();
