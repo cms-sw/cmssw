@@ -24,10 +24,6 @@ EcalBarrelGeometry::EcalBarrelGeometry() :
 
 EcalBarrelGeometry::~EcalBarrelGeometry() 
 {
-   for( unsigned int i ( 0 ) ; i != m_borderPtrVec->size() ; ++i )
-   {
-      delete (*m_borderPtrVec)[i] ;
-   }
    delete m_borderPtrVec ;
    delete m_borderMgr ;
 }
