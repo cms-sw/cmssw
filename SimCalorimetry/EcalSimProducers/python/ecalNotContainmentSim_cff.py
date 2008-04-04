@@ -1,9 +1,8 @@
 import FWCore.ParameterSet.Config as cms
 
 ecal_notCont_sim = cms.PSet(
-    # Values obtained by PM 18/05/2007
-    # Calculated on sample /mc-physval-120-DiPhoton-Ene50/FEVT/CMSSW_1_2_0-FEVT-1167149299
-    # reReco using CMSSW_1_3_1
+    # Values obtained by PM 04/04/2007
+    # using CMSSW_2_0_0_pre7
     # Using uncoverted photons E=50
     # Reference region Barrel ietaAbs() > 5 && ietaAbs() < 21 && (iphi() % 20 ) > 5 && (iphi() % 20 ) < 16 
     # Reference region Endcap  fabs(superClusterEta[i]) > 1.7 && fabs(superClusterEta[i] < 2.3)  &&
@@ -14,7 +13,7 @@ ecal_notCont_sim = cms.PSet(
     #                    ) )
     # For Barrel using E_{25}/E_{true}
     # For Endcap using E_{25} + E_{ps} = E_{true} 
-    EBs25notContainment = cms.double(0.965),
+    EBs25notContainment = cms.double(0.971),
     EEs25notContainment = cms.double(0.975)
 )
 
