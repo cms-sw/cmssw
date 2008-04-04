@@ -19,15 +19,19 @@
 
 #include "FWCore/MessageService/interface/MessageLogger.h"
 
+#include "HLTrigger/HLTcore/interface/HLTFilter.h"
+#include "DataFormats/HLTReco/interface/TriggerFilterObjectWithRefs.h"
+
 template <class OColl>
-class CountNumberOfObject : public edm::EDFilter {
+class CountNumberOfObject : public HLTFilter {
 public:
   explicit CountNumberOfObject(const edm::ParameterSet& iConfig) :
-    moduleName_(iConfig.getParameter<std::string>("@module_label")),
     src_(iConfig.getParameter<edm::InputTag>("src")),
-    min_(iConfig.getParameter<int>("min")),
-    max_(iConfig.getParameter<int>("max"))
-      {};
+    minN_(iConfig.getParameter<int>("MinN")),
+    maxN_(iConfig.getParameter<int>("MaxN"))
+      {
+	produces<trigger::TriggerFilterObjectWithRefs>();
+      };
   
   ~CountNumberOfObject(){};
   
@@ -35,18 +39,22 @@ private:
   virtual void beginJob(const edm::EventSetup&){};
   virtual bool filter(edm::Event& iEvent, const edm::EventSetup&)
   {
+    // The filtered object. which is put empty.
+    std::auto_ptr<trigger::TriggerFilterObjectWithRefs> filterproduct (new trigger::TriggerFilterObjectWithRefs(path(),module()));
+
     edm::Handle<OColl> oHandle;
     iEvent.getByLabel(src_, oHandle);
     int s=oHandle->size();
-    bool answer=(s>=min_ && s<=max_);
-    LogDebug("CountNumberOfObject")<<moduleName_<<" sees: "<<s<<" objects. Filtere answer is: "<<(answer?"true":"false")<<std::endl;
+    bool answer=(s>=minN_ && s<=maxN_);
+    LogDebug("CountNumberOfObject")<<module()<<" sees: "<<s<<" objects. Filtere answer is: "<<(answer?"true":"false")<<std::endl;
+
+    iEvent.put(filterproduct);
     return answer;
   }
   virtual void endJob(){};
  
-  std::string moduleName_;
   edm::InputTag src_;
-  int min_,max_;
+  int minN_,maxN_;
 };
 
 

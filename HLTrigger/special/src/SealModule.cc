@@ -28,14 +28,14 @@ DEFINE_FWK_MODULE(HLTPi0RecHitsFilter);
 DEFINE_FWK_MODULE(HLTCSCOverlapFilter);
 DEFINE_FWK_MODULE(HLTCSCRing2or3Filter);
 
-typedef CountNumberOfObject<SiStripRecHit2DCollection> CountNumberOfSingleRecHit;
-DEFINE_FWK_MODULE(CountNumberOfSingleRecHit);
-typedef CountNumberOfObject<SiStripMatchedRecHit2DCollection> CountNumberOfMatchedRecHit;
-DEFINE_FWK_MODULE(CountNumberOfMatchedRecHit);
-typedef CountNumberOfObject<edm::View<TrajectorySeed> > CountNumberOfTrajectorySeed;
-DEFINE_FWK_MODULE(CountNumberOfTrajectorySeed);
-typedef CountNumberOfObject<RoadSearchSeedCollection> CountNumberOfRoadSearchSeed;
-DEFINE_FWK_MODULE(CountNumberOfRoadSearchSeed);
-typedef CountNumberOfObject<edm::View<reco::Track> > CountNumberOfTrack;
-DEFINE_FWK_MODULE(CountNumberOfTrack);
+typedef CountNumberOfObject<SiStripRecHit2DCollection> HLTCountNumberOfSingleRecHit;
+DEFINE_FWK_MODULE(HLTCountNumberOfSingleRecHit);
+typedef CountNumberOfObject<SiStripMatchedRecHit2DCollection> HLTCountNumberOfMatchedRecHit;
+DEFINE_FWK_MODULE(HLTCountNumberOfMatchedRecHit);
+typedef CountNumberOfObject<edm::View<TrajectorySeed> > HLTCountNumberOfTrajectorySeed;
+DEFINE_FWK_MODULE(HLTCountNumberOfTrajectorySeed);
+typedef CountNumberOfObject<RoadSearchSeedCollection> HLTCountNumberOfRoadSearchSeed;
+DEFINE_FWK_MODULE(HLTCountNumberOfRoadSearchSeed);
+typedef CountNumberOfObject<edm::View<reco::Track> > HLTCountNumberOfTrack;
+DEFINE_FWK_MODULE(HLTCountNumberOfTrack);
 
