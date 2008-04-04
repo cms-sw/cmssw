@@ -71,7 +71,7 @@ JetMatching::JetMatching(const edm::ParameterSet &params) :
 	jetInput(new JetInput(*partonInput)),
 	jetClustering(new JetClustering(params, minJetPt * matchPtFraction))
 {
-	partonInput->setPtMin(minJetPt * matchPtFraction);
+//	partonInput->setPtMin(minJetPt * matchPtFraction);
 	partonInput->setPartonicFinalState(true);
 
 	std::string matchMode = params.getParameter<std::string>("matchMode");
@@ -132,11 +132,7 @@ double JetMatching::match(const HepMC::GenEvent *partonLevel,
 	}
 
 	using boost::bind;
-	std::cout << std::count_if(partons.begin(), partons.end(),
-	             	bind(std::greater<double>(),
-	             	     bind(&HepMC::FourVector::perp,
-	             	          bind(&HepMC::GenParticle::momentum, _1)),
-	             	     minJetPt)) << " partons and "
+	std::cout << partons.size() << " partons and "
 	          << std::count_if(jets.begin(), jets.end(),
 	             	bind(std::greater<double>(),
 	             	     bind(&JetClustering::Jet::pt, _1),
@@ -173,8 +169,8 @@ double JetMatching::match(const HepMC::GenEvent *partonLevel,
 	unsigned int unmatchedPartons = 0;
 	for(Matching<double>::index_type i = 0; i < partons.size(); i++) {
 		if (!matching.isMatched1st(i)) {
-			if (partons[i]->momentum().perp() >= minJetPt)
-				unmatchedPartons++;
+//			if (partons[i]->momentum().perp() >= minJetPt)
+			unmatchedPartons++;
 			matchSummary.push_back(
 				JetPartonMatch(partons[i]->momentum(),
 				               partons[i]->pdg_id()));
