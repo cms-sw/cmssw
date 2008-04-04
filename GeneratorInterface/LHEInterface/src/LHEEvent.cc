@@ -245,7 +245,7 @@ HepMC::GenParticle *LHEEvent::makeHepMCParticle(unsigned int i) const
 	int status = hepeup.ISTUP.at(i);
 
 	particle->set_generated_mass(hepeup.PUP.at(i)[4]);
-	particle->set_status(status > 0 ? status : 3);
+	particle->set_status(status > 0 ? (status == 2 ? 3 : status) : 3);
 
 	return particle;
 }

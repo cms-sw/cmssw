@@ -5,6 +5,8 @@
 #include <memory>
 #include <string>
 
+#include <boost/bind.hpp>
+
 #include <Math/GenVector/Cartesian3D.h>
 #include <Math/GenVector/VectorUtil.h>
 
@@ -128,8 +130,17 @@ double JetMatching::match(const HepMC::GenEvent *partonLevel,
 			          << ", phi = " << (*c)->momentum().phi()
 			          << std::endl;
 	}
-	std::cout << partons.size() << " partons and "
-	          << jets.size() << " jets." << std::endl;
+
+	using boost::bind;
+	std::cout << std::count_if(partons.begin(), partons.end(),
+	             	bind(std::greater<double>(),
+	             	     bind(&HepMC::FourVector::perp,
+	             	          bind(&HepMC::GenParticle::momentum, _1)),
+	             	     minJetPt)) << " partons and "
+	          << std::count_if(jets.begin(), jets.end(),
+	             	bind(std::greater<double>(),
+	             	     bind(&JetClustering::Jet::pt, _1),
+	             	     minJetPt)) << " jets." << std::endl;
 #endif
 
 	Matching<double> matching(partons, jets,

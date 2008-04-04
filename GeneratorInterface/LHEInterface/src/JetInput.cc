@@ -16,8 +16,8 @@ namespace lhef {
 
 JetInput::JetInput() :
 	partonicFinalState(false),
-	excludeResonances(false),
 	onlySignalProcess(false),
+	excludeResonances(false),
 	tausAsJets(false),
 	ptMin(0.0)
 {
@@ -25,8 +25,8 @@ JetInput::JetInput() :
 
 JetInput::JetInput(const edm::ParameterSet &params) :
 	partonicFinalState(params.getParameter<bool>("partonicFinalState")),
-	excludeResonances(params.getParameter<bool>("excludeResonances")),
 	onlySignalProcess(params.getParameter<bool>("onlySignalProcess")),
+	excludeResonances(false),
 	tausAsJets(params.getParameter<bool>("tausAsJets")),
 	ptMin(0.0)
 {
@@ -34,6 +34,14 @@ JetInput::JetInput(const edm::ParameterSet &params) :
 		setIgnoredParticles(
 			params.getParameter<std::vector<unsigned int> >(
 							"ignoreParticleIDs"));
+	if (params.exists("excludedResonances"))
+		setExcludedResonances(
+			params.getParameter<std::vector<unsigned int> >(
+							"excludedResonances"));
+	if (params.exists("excludedFromResonances"))
+		setExcludedFromResonances(
+			params.getParameter<std::vector<unsigned int> >(
+						"excludedFromResonances"));
 }
 
 JetInput::~JetInput()
@@ -45,6 +53,21 @@ void JetInput::setIgnoredParticles(
 {
 	ignoreParticleIDs = particleIDs;
 	std::sort(ignoreParticleIDs.begin(), ignoreParticleIDs.end());
+}
+
+void JetInput::setExcludedResonances(
+			const std::vector<unsigned int> &particleIDs)
+{
+	setExcludeResonances(true);
+	excludedResonances = particleIDs;
+	std::sort(excludedResonances.begin(), excludedResonances.end());
+}
+
+void JetInput::setExcludedFromResonances(
+			const std::vector<unsigned int> &particleIDs)
+{
+	excludedFromResonances = particleIDs;
+	std::sort(excludedFromResonances.begin(), excludedFromResonances.end());
 }
 
 bool JetInput::isParton(int pdgId) const
@@ -63,21 +86,36 @@ bool JetInput::isHadron(int pdgId)
 	       (pdgId > 1000 && pdgId < 9000);
 }
 
-bool JetInput::isResonance(int pdgId)
+static inline bool isContained(const std::vector<unsigned int> &list, int id)
 {
-	// gauge bosons and tops
-	pdgId = (pdgId > 0 ? pdgId : -pdgId) % 10000;
-	return (pdgId > 21 && pdgId <= 39) || pdgId == 6 || pdgId == 8;
+	unsigned int absId = (unsigned int)(id > 0 ? id : -id);
+	std::vector<unsigned int>::const_iterator pos =
+			std::lower_bound(list.begin(), list.end(), absId);
+	return pos != list.end() && *pos == absId;
+}
+
+bool JetInput::isResonance(int pdgId) const
+{
+	if (excludedResonances.empty()) {
+		// gauge bosons and tops
+		pdgId = (pdgId > 0 ? pdgId : -pdgId) % 10000;
+		return (pdgId > 21 && pdgId <= 39) || pdgId == 6 || pdgId == 8;
+	}
+
+	return isContained(excludedResonances, pdgId);
 }
 
 bool JetInput::isIgnored(int pdgId) const
 {
-	pdgId = pdgId > 0 ? pdgId : -pdgId;
-	std::vector<unsigned int>::const_iterator pos =
-			std::lower_bound(ignoreParticleIDs.begin(),
-			                 ignoreParticleIDs.end(),
-			                 (unsigned int)pdgId);
-	return pos != ignoreParticleIDs.end() && *pos == (unsigned int)pdgId;
+	return isContained(ignoreParticleIDs, pdgId);
+}
+
+bool JetInput::isExcludedFromResonances(int pdgId) const
+{
+	if (excludedFromResonances.empty())
+		return true;
+
+	return isContained(excludedFromResonances, pdgId);
 }
 
 static unsigned int partIdx(const JetInput::ParticleVector &p,
@@ -176,34 +214,52 @@ bool JetInput::fromSignalVertex(ParticleBitmap &invalid,
 	return false;
 }
 
-bool JetInput::fromResonance(ParticleBitmap &invalid,
-                             const ParticleVector &p,
-                             const HepMC::GenParticle *particle,
-                             const HepMC::GenVertex *sig) const
+JetInput::ResonanceState
+JetInput::fromResonance(ParticleBitmap &invalid,
+                        const ParticleVector &p,
+                        const HepMC::GenParticle *particle,
+                        const HepMC::GenVertex *sig) const
 {
 	unsigned int idx = partIdx(p, particle);
 	int id = particle->pdg_id();
 
-	if (invalid[idx] ||
-	    (isResonance(id) && particle->status() == 3))
-		return true;
+	if (invalid[idx])
+		return kIndirect;
 
-	if (!isIgnored(id) && (isParton(id) || isHadron(id)))
-		return false;
+	if (particle->status() == 3 && isResonance(id))
+		return kDirect;
+
+	if (!isIgnored(id) && excludedFromResonances.empty() && isParton(id))
+		return kNo;
 
 	const HepMC::GenVertex *v = particle->production_vertex();
 	if (!v)
-		return false;
-	else if (v == sig)
-		return true;
+		return kNo;
+	else if (v == sig) {
+		if (excludedResonances.empty())
+			return kIndirect;
+		else
+			return kNo;
+	}
 
 	for(HepMC::GenVertex::particles_in_const_iterator iter =
 					v->particles_in_const_begin();
-	    iter != v->particles_in_const_end(); ++iter)
-		if (fromResonance(invalid, p, *iter, sig))
-			return true;
+	    iter != v->particles_in_const_end(); ++iter) {
+		ResonanceState result = fromResonance(invalid, p, *iter, sig);
+		switch(result) {
+		    case kNo:
+			break;
+		    case kDirect:
+			if ((*iter)->pdg_id() == id)
+				return kDirect;
+			if (!isExcludedFromResonances(id))
+				break;
+		    case kIndirect:
+			return kIndirect;
+		}
+	}
 
-	return false;
+	return kNo;
 }
 
 JetInput::ParticleVector JetInput::operator () (
