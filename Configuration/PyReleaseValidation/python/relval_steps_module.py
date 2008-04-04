@@ -253,3 +253,16 @@ def alca(process,name):
             
     return process
 
+def postreco(process,name):
+    '''
+    Enrich the schedule with postreco
+    '''
+    func_id=mod_id+"["+sys._getframe().f_code.co_name+"]"
+    
+    process.postreco_step=cms.Path(getattr(process,name))
+    if not user_schedule:
+        process.schedule.append(process.postreco_step)
+    
+    common.log ('%s adding step ...'%func_id)
+    
+    return process            

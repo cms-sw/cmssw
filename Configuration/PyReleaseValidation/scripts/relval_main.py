@@ -32,7 +32,7 @@ sys.path.append(".") # necessary to find the relval_parameters_module created by
 
 # parse the string containing the steps and make a list out of it
 if step=='ALL':
-    step='GEN,SIM,DIGI,L1,DIGI2RAW,RECO,DQM'
+    step='GEN,SIM,DIGI,L1,DIGI2RAW,RECO,DQM,POSTRECO'
 step_list=step.split(',') # we split when we find a ','
 
 # a dict whose keys are the steps and the values are functions that modify the process
@@ -48,7 +48,8 @@ step_dict={'GEN':steps.gen,
            'ANA':steps.ana,
            'DQM':steps.validation,
            'FASTSIM':steps.fastsim,
-           'HLT':steps.hlt}
+           'HLT':steps.hlt,
+           'POSTRECO':steps.postreco}
 
 #these are junk.. what should these be?
 dataTier_dict={'GEN':'GEN',
@@ -62,7 +63,8 @@ dataTier_dict={'GEN':'GEN',
                'ANA':'RECO',
                'DQM':'RECO',
                'FASTSIM':'RECO',
-               'HLT':'RECO'}
+               'HLT':'RECO',
+               'POSTRECO':'RECO'}
 
 pathName_dict={'GEN':'pgen',
                'SIM':'psim',
@@ -75,7 +77,8 @@ pathName_dict={'GEN':'pgen',
                'ANA':'analysis',
                'DQM':'validation',
                'FASTSIM':'fastsim',
-               'HLT':'hlt'}
+               'HLT':'hlt',
+               'POSTRECO':'postreco_generator'}
 
 #---------------------------------------------------
 
@@ -138,16 +141,8 @@ for s in step_list:
         process=step_dict[step](process,pathname)                      
 
 #look for an hlt endpath
-# check first to see if we have "hltEndPath" in the process.
-# we need to trap the exception, as the Process class seems to
-# not have a query method for this ... :(
-try:
-    if process.hltEndPath:
-        process.schedule.append(process.hltEndPath)
-except AttributeError:
-    pass
-except:
-    raise
+if hasattr(process,'hltEndPath'):
+    process.schedule.append(process.hltEndPath)
 
 # Add the output on a root file if requested
 if output_flag:
