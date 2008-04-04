@@ -23,16 +23,15 @@ for line in lines:
     error+= [elements[4],]
     effS += [elements[5][:-1],]
 
-header = """void plot_performance(){
+header = """void plot_MeanVsEta(){
+   TCanvas *c1        = new TCanvas("c1","Mean vs Eta", 800, 600); 
    TH1F* h_em_et       = new TH1F("h_em_et",      "",150,0,1.5);
    TH1F* h_emCorr_et     = new TH1F("h_emCorr_et",    "",150,0,1.5);
-//   TH1F* h_emCorrBR1_et     = new TH1F("h_emCorrBR1_et",    "",150,0,1.5);
-//   TH1F* h_emCorrBR1Full_et = new TH1F("h_emCorrBR1Full_et","",150,0,1.5);
+   c1->cd();
 """
-file = open("plot_performance.C", "w")
+file = open("plot_MeanVsEta.C", "w")
 file.write(header)
 
-#for i in ("emCorrBR1_et", "emCorrBR1Full_et", "em_et"):
 for i in ("emCorr_et", "em_et"):
     for j in range(0, len(eta1)):
         if variable[j] <> i:
@@ -41,13 +40,9 @@ for i in ("emCorr_et", "em_et"):
         file.write("  h_" + i + "->SetBinContent(" + bin + ", " + mean[j] + ");\n")
         file.write("  h_" + i + "->SetBinError  (" + bin + ", " + error[j] +");\n")
 
-#file.write("  h_emCorrBR1_et    ->SetMarkerStyle(22);\n")
-#file.write("  h_emCorrBR1Full_et->SetMarkerStyle(23);\n")
 file.write("  h_emCorr_et->SetMarkerStyle(23);\n")
 file.write("  h_em_et    ->SetMarkerStyle(20);\n")
 
-#file.write("  h_emCorrBR1_et    ->SetMarkerColor(2);\n")
-#file.write("  h_emCorrBR1Full_et->SetMarkerColor(4);\n")
 file.write("  h_emCorr_et->SetMarkerColor(4);\n")
 file.write("  h_em_et    ->SetMarkerColor(1);\n")
 
@@ -55,8 +50,6 @@ file.write("  gStyle->SetOptStat(0);\n")
 
 file.write("  h_em_et    ->Draw();\n")
 file.write("  h_emCorr_et->Draw(\"SAME\");\n")
-#file.write("  h_emCorrBR1_et    ->Draw(\"SAME\");\n")
-#file.write("  h_emCorrBR1Full_et->Draw(\"SAME\");\n")
 
 header ="""  
 
@@ -68,18 +61,15 @@ header ="""
   TLegend *leg = new TLegend(0.2, 0.2, 0.4, 0.4);
   leg->AddEntry(h_em_et, "Before correction");
   leg->AddEntry(h_emCorr_et, "After correction  ");
-//  leg->AddEntry(h_emCorrBR1_et, "F(#sigma_{#phi}/#sigma_{#eta}) correction  ");
-//  leg->AddEntry(h_emCorrBR1Full_et, "Full correction  ");
   leg->Draw();
   TLine* line = new TLine(0,1,1.5,1);
   line->SetLineWidth(2);
   line->SetLineColor(2); 
   line->Draw();
 
-  TFile* MeanVSEta = TFile::Open("MeanVSEta.root", "RECREATE");
-  h_em_et->Write();
-  h_emCorr_et->Write();
-  leg->Write();
+  c1->Print("MeadVsEta.ps");
+  gROOT->ProcessLine(".q");
+
 """
 file.write(header)
 

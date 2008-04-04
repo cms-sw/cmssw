@@ -23,18 +23,20 @@ for line in lines:
     error+= [elements[4],]
     effS += [elements[5][:-1],]
 
-header = """void plot_performance_effS(){
-//   TH1F* h_emCorrBR1_et       = new TH1F("h_emCorrBR1_et","",300,0,300);
-//   TH1F* h_emCorrBR1Full_et   = new TH1F("h_emCorrBR1Full_et","",300,0,300);
+header = """void plot_EffSigmaVsET(){
+   TCanvas *c1        = new TCanvas("c1","EffSigma vs ET", 800, 1000);
    TH1F* h_emCorr_et   = new TH1F("h_emCorrBR1Full_et","",300,0,300);
    TH1F* h_em_et       = new TH1F("h_em_et","",300,0,300);
    TH1F* add                 = new TH1F("add","",300,0,300);
    TH1F* ratio               = new TH1F("ratio","",300,0,300);
+
+   c1->Divide(1,2);
+   c1->cd(1);
 """
-file = open("plot_performance_effS.C", "w")
+file = open("plot_EffSigmaVsET.C", "w")
 file.write(header)
 
-for i in ("emCorrBR1_et", "emCorrBR1Full_et", "em_et"):
+for i in ("emCorr_et", "em_et"):
     for j in range(0, len(eta1)):
         if variable[j] <> i:
             continue
@@ -42,13 +44,9 @@ for i in ("emCorrBR1_et", "emCorrBR1Full_et", "em_et"):
         file.write("  h_" + i + "->SetBinContent(" + bin + ", " + effS[j] + ");\n")
         file.write("  h_" + i + "->SetBinError  (" + bin + ", 1e-10);\n")
 
-#file.write("  h_emCorrBR1_et    ->SetMarkerStyle(22);\n")
-#file.write("  h_emCorrBR1Full_et->SetMarkerStyle(23);\n")
 file.write("  h_emCorr_et->SetMarkerStyle(23);\n")
 file.write("  h_em_et    ->SetMarkerStyle(20);\n")
 
-#file.write("  h_emCorrBR1_et    ->SetMarkerColor(2);\n")
-#file.write("  h_emCorrBR1Full_et->SetMarkerColor(3);\n")
 file.write("  h_emCorr_et->SetMarkerColor(4);\n")
 file.write("  h_em_et    ->SetMarkerColor(1);\n")
 
@@ -56,8 +54,6 @@ file.write("  gStyle->SetOptStat(0);\n")
 
 file.write("  h_em_et       ->Draw();\n")
 file.write("  h_emCorr_et->Draw(\"SAME\");\n")
-#file.write("  h_emCorrBR1_et    ->Draw(\"SAME\");\n")
-#file.write("  h_emCorrBR1Full_et->Draw(\"SAME\");\n")
 
 header ="""  
 
@@ -69,23 +65,20 @@ header ="""
   TLegend *leg = new TLegend(0.2, 0.2, 0.4, 0.4);
   leg->AddEntry(h_em_et, "Before correction");
   leg->AddEntry(h_emCorr_et, "After correction  ");
-//  leg->AddEntry(h_emCorrBR1_et, "F(#sigma_{#phi}/#sigma_{#eta}) correction  ");
-//  leg->AddEntry(h_emCorrBR1Full_et, "Full correction  ");
   leg->Draw();
-//  add->Add(h_emCorrBR1Full_et, h_em_et, -1, 1);
+
+  c1->cd(2);
   add->Add(h_emCorr_et, h_em_et, -1, 1);
   ratio->Divide(add, h_em_et);
 
   ratio->SetMarkerStyle(21);
   ratio->SetMarkerColor(4);
   ratio->GetYaxis()->SetTitle("Improvement in #sigma_{eff}");
-  ratio->GetXaxis()->SetTitle("E (GeV)");
-
-  TFile* effSigmaVSEta = TFile::Open("effSigmaVSEta.root", "RECREATE");
-  h_em_et->Write();
-  h_emCorr_et->Write();
-  ratio->Write();
-  leg->Write();
+  ratio->GetXaxis()->SetTitle("ET (GeV)");
+  ratio->Draw();
+  
+  c1->Print("EffSigmaVsET.ps");
+  gROOT->ProcessLine(".q");
 """
 file.write(header)
 
