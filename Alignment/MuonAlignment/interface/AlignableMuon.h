@@ -4,8 +4,8 @@
 /** \class AlignableMuon
  *  The alignable muon.
  *
- *  $Date: 2007/12/06 01:31:06 $
- *  $Revision: 1.15.4.1 $
+ *  $Date: 2008/02/14 12:54:54 $
+ *  $Revision: 1.18 $
  *  \author Andre Sznajder - UERJ(Brazil)
  */
 
@@ -19,6 +19,7 @@
 
 #include "Alignment/CommonAlignment/interface/AlignableComposite.h"
 
+class CSCGeometry;
 
 // Classes that will be used to construct the muon
 class AlignableDTBarrel;
