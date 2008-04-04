@@ -154,32 +154,37 @@ namespace edm {
 
     class MachineSentry {
     public:
-      MachineSentry(statemachine::Machine* m) : m_(m)  { }
+      MachineSentry(EventProcessor* ep) : ep_(ep), success_(false) { }
       ~MachineSentry() {
-        try {
-          if (!m_->terminated()) {
-            m_->process_event(statemachine::Stop());
-            // Two stops are needed if there is a looper running
-            if (!m_->terminated()) {
-              m_->process_event(statemachine::Stop());
+        if (!success_ && ep_->machine_.get() != 0) {
+          try {
+            if (!ep_->machine_->terminated()) {
+              ep_->machine_->process_event(statemachine::Stop());
+              // Two stops are needed if there is a looper running
+              if (!ep_->machine_->terminated()) {
+                ep_->machine_->process_event(statemachine::Stop());
+              }
             }
+            ep_->machine_.reset();
+	  }
+          catch (cms::Exception& e) {
+            printCmsException(e);
           }
-	}
-        catch (cms::Exception& e) {
-          printCmsException(e);
-        }
-        catch (std::bad_alloc& e) {
-          printBadAllocException();
-        }
-        catch (std::exception& e) {
-          printStdException(e);
-        }
-        catch (...) {
-          printUnknownException();
+          catch (std::bad_alloc& e) {
+            printBadAllocException();
+          }
+          catch (std::exception& e) {
+            printStdException(e);
+          }
+          catch (...) {
+            printUnknownException();
+          }
         }
       }
+      void succeeded() {success_ = true;}
     private:
-      statemachine::Machine* m_;
+      EventProcessor* ep_;
+      bool success_;
     };
 
     class PrePostSourceSignal {
@@ -220,6 +225,7 @@ namespace edm {
       "Done",
       "JobEnded",
       "Error",
+      "ErrorEnded",
       "End",
       "Invalid"
     };
@@ -768,6 +774,30 @@ namespace edm {
 
   EventProcessor::~EventProcessor()
   {
+    // Make the services available while everything is being deleted.
+    ServiceToken token = getToken();
+    ServiceRegistry::Operate op(token); 
+
+    // The state machine should have already been cleaned up
+    // and destroyed at this point by a call to EndJob or
+    // earlier when it completed processing events, but if it
+    // has not been we'll take care of it here at the last moment.
+    // This could cause problems if we are already handling an
+    // exception and another one is thrown here ...  For a critical
+    // executable the solution to this problem is for the code using
+    // the EventProcessor to explicitly call EndJob or use runToCompletion,
+    // then the next section of code is never executed.
+    if (machine_.get() != 0) {
+      if (!machine_->terminated()) {
+        machine_->process_event(statemachine::Stop());
+        // Two stops are needed if there is a looper running
+        if (!machine_->terminated()) {
+          machine_->process_event(statemachine::Stop());
+        }
+      }
+      machine_.reset();
+    }
+
     try {
       changeState(mDtor);
     }
@@ -777,9 +807,6 @@ namespace edm {
 	  << e.explainSelf() << "\n";
       }
 
-    // Make the services available while everything is being deleted.
-    ServiceToken token = getToken();
-    ServiceRegistry::Operate op(token); 
     // manually destroy all these thing that may need the services around
     esp_.reset();
     schedule_.reset();
@@ -1173,14 +1200,7 @@ namespace edm {
   EventProcessor::StatusCode
   EventProcessor::run(int numberEventsToProcess, bool repeatable)
   {
-    beginJob(); //make sure this was called
-    StatusCode rc = epInputComplete;
-    if(looper_) {
-    } else {
-       rc = processInputFiles(numberEventsToProcess, repeatable, mRunCount);
-    }
-    changeState(mFinished);
-    return rc;
+    return runEventCount(numberEventsToProcess);
   }
   
   EventProcessor::StatusCode
@@ -1280,6 +1300,17 @@ namespace edm {
 
     //make the services available
     ServiceRegistry::Operate operate(serviceToken_);  
+
+    if (machine_.get() != 0) {
+      if (!machine_->terminated()) {
+        machine_->process_event(statemachine::Stop());
+        // Two stops are needed if there is a looper running
+        if (!machine_->terminated()) {
+          machine_->process_event(statemachine::Stop());
+        }
+      }
+      machine_.reset();
+    }
 
     if(looper_) {
        looper_->endOfJob();
@@ -1650,35 +1681,70 @@ namespace edm {
   edm::EventProcessor::StatusCode
   EventProcessor::runToCompletion(bool onlineStateTransitions) {
 
-    beginJob(); //make sure this was called
+    StateSentry toerror(this);
+
+    int numberOfEventsToProcess = -1;
+    StatusCode returnCode = runCommon(onlineStateTransitions, numberOfEventsToProcess);
+
+    if (machine_.get() != 0) {
+      throw cms::Exception("LogicError")
+        << "State machine not destroyed on exit from EventProcessor::runToCompletion\n"
+	<< "Please report this error to the Framework group\n";
+    }
+
+    toerror.succeeded();
+
+    return returnCode;
+  }
+
+  edm::EventProcessor::StatusCode
+  EventProcessor::runEventCount(int numberOfEventsToProcess) {
 
     StateSentry toerror(this);
+
+    bool onlineStateTransitions = false;
+    StatusCode returnCode = runCommon(onlineStateTransitions, numberOfEventsToProcess);
+
+    toerror.succeeded();
+
+    return returnCode;
+  }
+
+  edm::EventProcessor::StatusCode
+  EventProcessor::runCommon(bool onlineStateTransitions, int numberOfEventsToProcess) {
+
+    beginJob(); //make sure this was called
 
     if (onlineStateTransitions) changeState(mRunAsync);
     else changeState(mRunCount);
 
     StatusCode returnCode = epSuccess;
-    shouldWeStop_ = false;
     stateMachineWasInErrorState_ = false;
 
     // make the services available
     ServiceRegistry::Operate operate(serviceToken_);
 
-    statemachine::FileMode fileMode = statemachine::DENSE;
-    if (fileMode_ == std::string("SPARSE")) fileMode = statemachine::SPARSE;
+    if (machine_.get() == 0) {
+ 
+      statemachine::FileMode fileMode = statemachine::DENSE;
+      if (fileMode_ == std::string("SPARSE")) fileMode = statemachine::SPARSE;
 
-    statemachine::Machine machine(this,
-                                  fileMode,
-                                  handleEmptyRuns_,
-                                  handleEmptyLumis_);
+      machine_.reset(new statemachine::Machine(this,
+                                               fileMode,
+                                               handleEmptyRuns_,
+                                               handleEmptyLumis_));
 
-    machine.initiate();
+      machine_->initiate();
+    }
 
     {
-      // Guarantees the machine will be terminated on exit.
-      MachineSentry machineSentry(&machine);
+      // This sentry will cause the machine to try to clean
+      // things up and terminate if an exception is thrown 
+      MachineSentry machineSentry(this);
 
       InputSource::ItemType itemType;
+
+      int iEvents = 0;
 
       while (true) {
 
@@ -1692,10 +1758,10 @@ namespace edm {
           if (edm::shutdown_flag) {
             changeState(mShutdownSignal);
             returnCode = epSignal;
-            machine.process_event(statemachine::Stop());
+            machine_->process_event(statemachine::Stop());
             // Two stops are needed if there is a looper running
-            if (!machine.terminated()) {
-              machine.process_event(statemachine::Stop());
+            if (!machine_->terminated()) {
+              machine_->process_event(statemachine::Stop());
             }
             break;
 	  }
@@ -1703,34 +1769,48 @@ namespace edm {
 
         if (itemType == InputSource::IsStop) {
           postSourceSignal();
-          machine.process_event(statemachine::Stop());
+          machine_->process_event(statemachine::Stop());
         }
         else if (itemType == InputSource::IsFile) {
-          machine.process_event(statemachine::File());
+          machine_->process_event(statemachine::File());
         }
         else if (itemType == InputSource::IsRun) {
-          machine.process_event(statemachine::Run(input_->run()));
+          machine_->process_event(statemachine::Run(input_->run()));
         }
         else if (itemType == InputSource::IsLumi) {
-          machine.process_event(statemachine::Lumi(input_->luminosityBlock()));
+          machine_->process_event(statemachine::Lumi(input_->luminosityBlock()));
         }
         else if (itemType == InputSource::IsEvent) {
-          machine.process_event(statemachine::Event());
+          machine_->process_event(statemachine::Event());
+          ++iEvents;
+          if (numberOfEventsToProcess > 0 && iEvents >= numberOfEventsToProcess) {
+            returnCode = epCountComplete;            
+            changeState(mInputExhausted);
+            FDEBUG(1) << "Event count complete, pausing event loop\n";
+            break;
+          }
         }
-        else if (itemType == InputSource::IsInvalid) {
-          break;
+        // This should be impossible
+        else {
+          throw cms::Exception("LogicError")
+	    << "Unknown next item type passed to EventProcessor\n"
+	    << "Please report this error to the Framework group\n";
         }
-        if (machine.terminated()) {
-	  FDEBUG(1) << "The state machine reports it has been terminated\n";
+
+        if (machine_->terminated()) {
           changeState(mInputExhausted);
           break;
         }
       }  // End of loop over state machine events
+      machineSentry.succeeded();
     } // End of machine sentry scope, stops machine on exceptions
 
-    if (!onlineStateTransitions) changeState(mFinished);
+    if (machine_->terminated()) {
+      FDEBUG(1) << "The state machine reports it has been terminated\n";
+      machine_.reset();
+    }
 
-    toerror.succeeded();
+    if (!onlineStateTransitions) changeState(mFinished);
 
     if (stateMachineWasInErrorState_) {
       throw cms::Exception("BadState")
@@ -1783,6 +1863,7 @@ namespace edm {
   }
 
   void EventProcessor::startingNewLoop() {
+    shouldWeStop_ = false;
     if (looper_) {
       looper_->doStartingNewLoop();
     }

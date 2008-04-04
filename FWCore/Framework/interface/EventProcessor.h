@@ -32,7 +32,7 @@ problems:
   where does the pluginmanager initialize call go?
 
 
-$Id: EventProcessor.h,v 1.59 2008/03/18 18:41:28 wdd Exp $
+$Id: EventProcessor.h,v 1.60 2008/03/19 22:02:36 wdd Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -58,6 +58,10 @@ $Id: EventProcessor.h,v 1.59 2008/03/18 18:41:28 wdd Exp $
 #include "FWCore/ParameterSet/interface/ProcessDesc.h"
 #include "FWCore/Framework/src/PrincipalCache.h"
 
+namespace statemachine {
+  class Machine;
+}
+
 namespace edm {
 
   namespace event_processor
@@ -79,12 +83,13 @@ namespace edm {
 	       mAny, mDtor, mException, mInputRewind };
 
     class StateSentry;
+    class MachineSentry;
     class LuminosityBlockSentry;
     class RunSentry;
     class InputFileSentry;
     class PrePostSourceSignal;
   }
-    
+
   class EventProcessor : public IEventProcessor, private boost::noncopyable
   {
     // ------------ friend classes and functions ----------------
@@ -180,21 +185,11 @@ namespace edm {
 
     // -------------
 
-    // Invoke event processing.  We will process a total of
-    // 'numberEventsToProcess' events. If numberEventsToProcess is -1, we will
-    // process events intil the input sources are exhausted. If it is
-    // given a non-negative number, processing continues until either (1)
-    // this number of events has been processed, or (2) the input
-    // sources are exhausted.
-    // The 'repeatable' flag affects behavior if and when 'numberEventsToProcess'
-    // events have been processed.  If the flag is false, the current luminosity
-    // block and run will be ended normally.  Any subsequent calls will
-    // begin at the next run.  If the flag is true, the current luminosity
-    // block and run will not be ended, and a repeat call will begin at the next event.
-
+    // These next two functions are deprecated.  Please use
+    // RunToCompletion or RunEventCount instead.  These will
+    // be deleted as soon as we have time to clean up the code
+    // in packages outside the Framework that uses them already.
     StatusCode run(int numberEventsToProcess, bool repeatable = true);
-
-    // Invoke event processing.  Invokes run(maxEvents_, false );
     StatusCode run();
 
     // Process one event with the given EventID
@@ -292,9 +287,54 @@ namespace edm {
       int maxLumisInput_;
     }; // struct CommonParams
 
-    // These classes work with the boost statemachine
+
+    // The function "runToCompletion" will run until the job is "complete",
+    // which means:
+    //       1 - no more input data
+    //       2 - input maxEvents parameter limit reached
+    //       3 - output maxEvents parameter limit reached
+    //       4 - input maxLuminosityBlocks parameter limit reached
+    //       5 - looper directs processing to end
+    // The function "runEventCount" will pause after processing the
+    // number of input events specified by the argument.  One can
+    // call it again to resume processing at the same point.  This
+    // function will also stop at the same point as "runToCompletion"
+    // if the job is complete before the requested number of events
+    // are processed.  If the requested number of events is less than
+    // 1, "runEventCount" interprets this as infinity and does not
+    // pause until the job is complete.
+    //
+    // The return values from these functions are as follows:
+    //   epSignal - processing terminated early, SIGUSR2 encountered
+    //   epCountComplete - "runEventCount" processed the number of events
+    //                     requested by the argument
+    //   epSuccess - all other cases    
+    //
+    // We expect that in most cases, processes will call
+    // "runToCompletion" once per job and not use "runEventCount".
+    //
+    // If a process used "runEventCount", then it would need to
+    // check the value returned by "runEventCount" to determine
+    // if it processed the requested number of events.  It would
+    // only make sense to call it again if it returned epCountComplete
+    // on the preceding call.
+
+    // The online is an exceptional case.  Online uses the DaqSource
+    // and the StreamerOutputModule, which are specially written to
+    // handle multiple calls of "runToCompletion" in the same job.
+    // The call to setRunNumber resets the DaqSource between those calls.
+    // With most sources and output modules, this does not work.
+    // If and only if called by the online, the argument to runToCompletion
+    // is set to true and this affects the state initial and final state
+    // transitions that are managed directly in EventProcessor.cc. (I am
+    // not sure if there is a reason for this or it is just a historical
+    // peculiarity that could be cleaned up and removed).
 
     virtual StatusCode runToCompletion(bool onlineStateTransitions);
+    virtual StatusCode runEventCount(int numberOfEventsToProcess);
+
+    // The following functions are used by the code implementing our
+    // boost statemachine
 
     virtual void readFile();
     virtual void closeInputFile();
@@ -341,6 +381,10 @@ namespace edm {
               ServiceToken const& token,
               serviceregistry::ServiceLegacy);
   
+
+                       
+    StatusCode runCommon(bool onlineStateTransitions, int numberOfEventsToProcess);
+
     StatusCode processEvents(int & numberEventsToProcess);
     StatusCode processLumis(int & numberEventsToProcess, bool repeatable);
     StatusCode processRuns(int & numberEventsToProcess, bool repeatable);
@@ -414,8 +458,9 @@ namespace edm {
     boost::shared_ptr<LuminosityBlockPrincipal>   lbp_;
     boost::shared_ptr<EDLooper>                   looper_;
 
+    std::auto_ptr<statemachine::Machine>          machine_;
     PrincipalCache                                principalCache_;
-    std::auto_ptr<EventPrincipal>               sm_evp_;
+    std::auto_ptr<EventPrincipal>                 sm_evp_;
     bool                                          shouldWeStop_;
     bool                                          stateMachineWasInErrorState_;
     std::string                                   fileMode_;
@@ -424,6 +469,7 @@ namespace edm {
     bool                                          sourceActive_;
 
     friend class event_processor::StateSentry;
+    friend class event_processor::MachineSentry;
     friend class event_processor::LuminosityBlockSentry;
     friend class event_processor::RunSentry;
     friend class event_processor::InputFileSentry;

@@ -156,22 +156,6 @@ namespace edmtest {
 
   void
   DoubleProducer::produce(edm::Event& e, edm::EventSetup const&) {
-    // EventSetup is not used.
-    // Get input
-    edm::Handle<DoubleProduct> h;
-    assert(!h.isValid());
-
-    try {
-      std::string emptyLabel;
-      e.getByLabel(emptyLabel, h);
-      assert ("Failed to throw necessary exception" == 0);
-    }
-    catch (edm::Exception& x) {
-      assert(!h.isValid());
-    }
-    catch (...) {
-      assert("Threw wrong exception" == 0);
-    }
 
     // Make output
     std::auto_ptr<DoubleProduct> p(new DoubleProduct(value_));

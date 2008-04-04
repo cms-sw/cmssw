@@ -1,6 +1,6 @@
 
 /*
-$Id: MockEventProcessor.cc,v 1.6 2008/03/17 17:32:43 wdd Exp $
+$Id: MockEventProcessor.cc,v 1.7 2008/03/18 18:41:29 wdd Exp $
 */
 
 #include "FWCore/Framework/test/MockEventProcessor.h"
@@ -101,6 +101,12 @@ namespace edm {
 	output_ << "The state machine reports it has been terminated\n";
       }
     }
+    return epSuccess;
+  }
+
+  // Not used, this one does nothing
+  edm::MockEventProcessor::StatusCode
+  MockEventProcessor::runEventCount(int numberOfEventsToProcess) {
     return epSuccess;
   }
 
