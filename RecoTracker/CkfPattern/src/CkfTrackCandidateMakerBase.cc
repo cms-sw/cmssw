@@ -170,7 +170,9 @@ namespace cms{
 	  if( it->isValid() ) {
 	    it->setSeedRef(collseed->refAt(j));
 	    rawResult.push_back(*it);
-            if (theSeedCleaner) theSeedCleaner->add( & (*it) );
+            //TO BE FIXED: this cut should be configurable via cfi file
+            if (theSeedCleaner && it->foundHits()>3) theSeedCleaner->add( & (*it) );
+            //if (theSeedCleaner ) theSeedCleaner->add( & (*it) );
 	  }
 	}
 
