@@ -36,6 +36,11 @@
   <td class="contact">
     <a href="mailto:">Andreas Meier</a>
   </td> </tr>
+<td>  \endhtmlonly \ref CalAliReleaseNotes \htmlonly  </td>
+   <td class="contact">
+    <a href="mailto:">David Futyan</a>,
+    <a href="mailto:">Reiner Mankel</a>
+  </td> </tr>
 <td>  \endhtmlonly \ref ReconstructionReleaseNotes \htmlonly  </td>
    <td class="contact">
     <a href="mailto:">Andrea Rizzi</a>,
@@ -54,6 +59,8 @@
 
 \section other Release notes for other release series: 
 - <a href="http://cms-service-sdtweb.web.cern.ch/cms-service-sdtweb/doxygen/CMSSW_1_7_5/doc/html/ReleaseNotes.html">CMSSW_1_7_x</a>
+- <a href="http://cms-service-sdtweb.web.cern.ch/cms-service-sdtweb/doxygen/CMSSW_1_8_3/doc/html/ReleaseNotes.html">CMSSW_1_8_x</a>
+
 
 
 <hr>

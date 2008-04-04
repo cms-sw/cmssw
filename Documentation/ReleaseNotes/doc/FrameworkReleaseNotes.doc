@@ -1,20 +1,14 @@
 /*!
-\page FrameworkReleaseNotes Framework Release Notes - CMSSW_1_8_x 
+\page FrameworkReleaseNotes Framework Release Notes - CMSSW_2_0_x 
 
 - General:
-  - Many of the developments in the area of framework and infrastructure have been internal improvements in implementation, needed for optimization, and are not user visible. 
+
 - Main changes and new features:
-  - per file fast cloning is now used in the Pool input/output modules.  This should improve IO performance and memory foot print for application where many branches are copied forward.  For a pure copy application like edmFastMerge, cmsRun now provides identical performance.  Therefor the standalone edmFastMerge will be deprecated.
-  - A root Histogram is now an object that can be stored in an event or run tree.  This required a change to the root default ownership policy.  Now users are required to use either the DQM service infrastructure or the TFileService.
-  - More raw/reco only objects have been moved to unsplit branches to improve IO performance.
-  - firstLumi number of lumi's supported, in an analogous way as firstEvent and number of events
-  - malloc tuning feature added to cmsRun - default tune per arch happens at global constructor time, the memory profiler has config parameters that will over-ride the default tune.
+  
 - Major bug fixes:
 
 - Known issues:
-  - There have been many changes which should in principle reduce the amount of
- memory needed by the IO modules for root.  As of this writing no conclusive measurements of the effectiveness of the changes has been made.
-
+  
 <hr>
 Last updated: @DATE@ Liz Sexton-Kennedy
 */

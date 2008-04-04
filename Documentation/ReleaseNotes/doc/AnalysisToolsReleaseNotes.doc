@@ -1,23 +1,9 @@
 /*!
-\page AnalysisToolsReleaseNotes Analysis Tools Release Notes - CMSSW_1_8_x
+\page AnalysisToolsReleaseNotes Analysis Tools Release Notes - CMSSW_2_0_x
 
 - General:
-  - release 1.8.x is mainly devoted to the new HLT data model, so no major changes have been released for Analysis Tools in that release. 
 
 - Main changes and new features:
- - new format for generator particles:
-    - std::vector<reco::GenParticle> replaces reco::CandidateCollection.
-    - The old format is still left as default. Will move the default to the new format in release 2.0.x
- - added new containers ValueMap and Association optimized for root I/O performances. More documentation in:
-    - https://twiki.cern.ch/twiki/bin/view/CMS/NewValueMap
-    - https://twiki.cern.ch/twiki/bin/view/CMS/NewAssociationMap
- - changed internal representation of four-momentum in
-   reco::Particle, the base class of all Candidate hierarchy.
-   The representation is now in polar coordinates in order
-   to avoid possible negative mass with float storage.
- - added support for edm::View<Candidate> in several 
-   common anaysis modules. The support will be extended
-   in release 2.0.x
 
 - Major bug fixes:
 

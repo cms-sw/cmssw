@@ -1,17 +1,12 @@
 /*!
-\page DQMReleaseNotes DQM Release Notes - CMSSW_1_8_x
+\page DQMReleaseNotes DQM Release Notes - CMSSW_2_0_x
 
 
 - General:
-  - Very few changes w.r.t release 1_7_5.
-  - Development stopped on request by SiStripCommissioning
-  - Backporting from 20x to be decided in Feb. 08
 
 - Main changes and new features:
-  - Some of the developments made during GREN went into 18x.
 
 - Major bug fixes:
-  - none
 
 - Known issues:
 
