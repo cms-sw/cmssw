@@ -1,7 +1,7 @@
 
 /*
-*  $Date: 2008/03/18 15:55:36 $
-*  $Revision: 1.8 $
+*  $Date: 2008/03/20 14:45:48 $
+*  $Revision: 1.9 $
 */
 
 #include "IOMC/EventVertexGenerators/interface/BaseEvtVtxGenerator.h"
@@ -29,7 +29,7 @@ using namespace CLHEP;
 //using namespace HepMC;
 
 BaseEvtVtxGenerator::BaseEvtVtxGenerator( const ParameterSet& pset ) 
-	: boost_(0), fVertex(0), fEngine(0)
+	: boost_(0), fVertex(0), fEngine(0), fTimeOffset(0)
 {
    
 /* No longer needed...

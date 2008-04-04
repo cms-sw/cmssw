@@ -5,7 +5,7 @@
  * Generate event vertices according to a Gauss distribution. 
  * Attention: All values are assumed to be cm!
  *
- * $Id: GaussEvtVtxGenerator.h,v 1.4 2007/04/27 14:25:34 yumiceva Exp $
+ * $Id: GaussEvtVtxGenerator.h,v 1.5 2007/09/14 08:31:56 fabiocos Exp $
  */
 
 #include "IOMC/EventVertexGenerators/interface/BaseEvtVtxGenerator.h"
@@ -27,7 +27,8 @@ public:
   virtual TMatrixD* GetInvLorentzBoost() {
 	  return 0;
   }
-  
+
+   
   /// set resolution in X in cm
   void sigmaX(double s=1.0);
   /// set resolution in Y in cm
@@ -50,7 +51,8 @@ private:
 private:
   double fSigmaX, fSigmaY, fSigmaZ;
   double fMeanX,  fMeanY,  fMeanZ;
-  CLHEP::RandGaussQ*  fRandom ; 
+  CLHEP::RandGaussQ*  fRandom ;
+  double fTimeOffset;
 };
 
 #endif

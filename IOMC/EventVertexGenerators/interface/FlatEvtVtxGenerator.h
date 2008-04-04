@@ -5,7 +5,7 @@
  * Generate event vertices according to a Flat distribution. 
  * Attention: All values are assumed to be cm!
  *
- * $Id: FlatEvtVtxGenerator.h,v 1.3 2007/03/22 02:28:46 yarba Exp $
+ * $Id: FlatEvtVtxGenerator.h,v 1.4 2007/04/27 14:25:34 yumiceva Exp $
  */
 
 #include "IOMC/EventVertexGenerators/interface/BaseEvtVtxGenerator.h"
@@ -27,7 +27,8 @@ public:
   virtual TMatrixD* GetInvLorentzBoost() {
 	  return 0;
   }
-  
+
+    
   /// set min in X in cm
   void minX(double m=0.0);
   /// set min in Y in cm
@@ -50,7 +51,8 @@ private:
 private:
   double fMinX, fMinY, fMinZ;
   double fMaxX, fMaxY, fMaxZ;
-  CLHEP::RandFlat*  fRandom ; 
+  CLHEP::RandFlat*  fRandom ;
+  double fTimeOffset;
 };
 
 #endif
