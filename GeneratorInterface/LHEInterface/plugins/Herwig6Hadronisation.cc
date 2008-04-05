@@ -135,20 +135,6 @@ Herwig6Hadronisation::Herwig6Hadronisation(const edm::ParameterSet &params) :
 	// Call hwudat to set up HERWIG block data
 	hwudat();
 
-	if (!builtinPDFs) {
-		// set the LHAPDF grid directory and path
-		if (lhapdfSetPath == "") {
-			const char *lhaPdfs = getenv("LHAPATH");
-			if (!lhaPdfs)
-				throw cms::Exception("ConfigError")
-					<< "LHAPATH not set." << std::endl;
-			lhapdfSetPath = std::string(lhaPdfs);
-		}
-		lhapdfSetPath.resize(232, ' ');
-		setherwpdf_();
-		mysetpdfpath_(lhapdfSetPath.c_str());
-	}
-
 	// Setting basic parameters (doesn't matter, overridden by LHEF)
 	hwproc.PBEAM1 = 7000.0;
 	hwproc.PBEAM2 = 7000.0;
@@ -163,6 +149,20 @@ Herwig6Hadronisation::Herwig6Hadronisation(const edm::ParameterSet &params) :
 	// initialize other common blocks ...
 	hwigin();
 	hwevnt.MAXER = 1000000;
+
+	if (!builtinPDFs) {
+		// set the LHAPDF grid directory and path
+		if (lhapdfSetPath == "") {
+			const char *lhaPdfs = getenv("LHAPATH");
+			if (!lhaPdfs)
+				throw cms::Exception("ConfigError")
+					<< "LHAPATH not set." << std::endl;
+			lhapdfSetPath = std::string(lhaPdfs);
+		}
+		lhapdfSetPath.resize(232, ' ');
+		setherwpdf_();
+		mysetpdfpath_(lhapdfSetPath.c_str());
+	}
 
 	if (useJimmy)
 		jimmin();
