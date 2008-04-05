@@ -31,6 +31,7 @@ class LHEReader {
 
 	const std::vector<std::string>	fileURLs;
 	unsigned int			firstEvent;
+	int				maxEvents;
 	unsigned int			curIndex;
 
 	std::auto_ptr<Source>		curSource;

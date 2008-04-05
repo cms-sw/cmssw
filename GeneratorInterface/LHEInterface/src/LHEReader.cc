@@ -178,6 +178,7 @@ void LHEReader::XMLHandler::comment(const XMLCh *const data_,
 LHEReader::LHEReader(const edm::ParameterSet &params) :
 	fileURLs(params.getUntrackedParameter< std::vector<std::string> >("fileNames")),
 	firstEvent(params.getUntrackedParameter<unsigned int>("firstEvent", 0)),
+	maxEvents(params.getUntrackedParameter<int>("limitEvents", -1)),
 	curIndex(0), handler(new XMLHandler())
 {
 }
@@ -239,6 +240,11 @@ boost::shared_ptr<LHEEvent> LHEReader::next()
 				firstEvent--;
 				continue;
 			}
+
+			if (maxEvents == 0)
+				return boost::shared_ptr<LHEEvent>();
+			else if (maxEvents > 0)
+				maxEvents--;
 
 			return boost::shared_ptr<LHEEvent>(
 					new LHEEvent(curCommon, data));
