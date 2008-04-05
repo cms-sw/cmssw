@@ -1,8 +1,8 @@
 /*
  * \file EBCosmicTask.cc
  *
- * $Date: 2008/03/11 07:13:44 $
- * $Revision: 1.97 $
+ * $Date: 2008/03/11 08:37:56 $
+ * $Revision: 1.98 $
  * \author G. Della Ricca
  *
 */
@@ -208,87 +208,85 @@ void EBCosmicTask::analyze(const Event& e, const EventSetup& c){
 
     Handle<EcalUncalibratedRecHitCollection> uhits;
 
-    if ( e.getByLabel(EcalUncalibratedRecHitCollection_, uhits) ) {
+    if ( ! e.getByLabel(EcalUncalibratedRecHitCollection_, uhits) ) {
+      LogWarning("EBCosmicTask") << EcalUncalibratedRecHitCollection_ << " not available";
+    }
 
-      for ( EcalRecHitCollection::const_iterator hitItr = hits->begin(); hitItr != hits->end(); ++hitItr ) {
+    for ( EcalRecHitCollection::const_iterator hitItr = hits->begin(); hitItr != hits->end(); ++hitItr ) {
 
-        EcalRecHit hit = (*hitItr);
-        EBDetId id = hit.id();
+      EcalRecHit hit = (*hitItr);
+      EBDetId id = hit.id();
 
-        int ic = id.ic();
-        int ie = (ic-1)/20 + 1;
-        int ip = (ic-1)%20 + 1;
+      int ic = id.ic();
+      int ie = (ic-1)/20 + 1;
+      int ip = (ic-1)%20 + 1;
 
-        int ism = Numbers::iSM( id );
+      int ism = Numbers::iSM( id );
 
-        float xie = ie - 0.5;
-        float xip = ip - 0.5;
+      float xie = ie - 0.5;
+      float xip = ip - 0.5;
 
-        map<int, EcalDCCHeaderBlock>::iterator i = dccMap.find(ism);
-        if ( i == dccMap.end() ) continue;
+      map<int, EcalDCCHeaderBlock>::iterator i = dccMap.find(ism);
+      if ( i == dccMap.end() ) continue;
 
-        if ( ! ( dccMap[ism].getRunType() == EcalDCCHeaderBlock::COSMIC ||
-                 dccMap[ism].getRunType() == EcalDCCHeaderBlock::MTCC ||
-                 dccMap[ism].getRunType() == EcalDCCHeaderBlock::COSMICS_GLOBAL ||
-                 dccMap[ism].getRunType() == EcalDCCHeaderBlock::PHYSICS_GLOBAL ||
-                 dccMap[ism].getRunType() == EcalDCCHeaderBlock::COSMICS_LOCAL ||
-                 dccMap[ism].getRunType() == EcalDCCHeaderBlock::PHYSICS_LOCAL ) ) continue;
+      if ( ! ( dccMap[ism].getRunType() == EcalDCCHeaderBlock::COSMIC ||
+               dccMap[ism].getRunType() == EcalDCCHeaderBlock::MTCC ||
+               dccMap[ism].getRunType() == EcalDCCHeaderBlock::COSMICS_GLOBAL ||
+               dccMap[ism].getRunType() == EcalDCCHeaderBlock::PHYSICS_GLOBAL ||
+               dccMap[ism].getRunType() == EcalDCCHeaderBlock::COSMICS_LOCAL ||
+               dccMap[ism].getRunType() == EcalDCCHeaderBlock::PHYSICS_LOCAL ) ) continue;
 
-        LogDebug("EBCosmicTask") << " det id = " << id;
-        LogDebug("EBCosmicTask") << " sm, ieta, iphi " << ism << " " << ie << " " << ip;
+      LogDebug("EBCosmicTask") << " det id = " << id;
+      LogDebug("EBCosmicTask") << " sm, ieta, iphi " << ism << " " << ie << " " << ip;
 
-        float xval = hit.energy();
-        if ( xval <= 0. ) xval = 0.0;
+      float xval = hit.energy();
+      if ( xval <= 0. ) xval = 0.0;
       
-        LogDebug("EBCosmicTask") << " hit energy " << xval;
+      LogDebug("EBCosmicTask") << " hit energy " << xval;
 
-        // look for the seeds 
-        float e3x3 = 0.;
-        bool isSeed = true;
+      // look for the seeds 
+      float e3x3 = 0.;
+      bool isSeed = true;
 
-        // evaluate 3x3 matrix around a seed
-        for(int icry=0; icry<9; ++icry) {
-          unsigned int row    = icry/3;
-          unsigned int column = icry%3;
-          int icryEta = id.ieta()+column-1;
-          int icryPhi = id.iphi()+row-1;
-          if ( EBDetId::validDetId(icryEta, icryPhi) ) {
-            EBDetId id3x3 = EBDetId(icryEta, icryPhi, EBDetId::ETAPHIMODE);
-            if ( hits->find(id3x3) != hits->end() ) {
-              float neighbourEnergy = hits->find(id3x3)->energy();
-              e3x3 += neighbourEnergy;
-              if ( neighbourEnergy > xval ) isSeed = false;
-            }
+      // evaluate 3x3 matrix around a seed
+      for(int icry=0; icry<9; ++icry) {
+        unsigned int row    = icry/3;
+        unsigned int column = icry%3;
+        int icryEta = id.ieta()+column-1;
+        int icryPhi = id.iphi()+row-1;
+        if ( EBDetId::validDetId(icryEta, icryPhi) ) {
+          EBDetId id3x3 = EBDetId(icryEta, icryPhi, EBDetId::ETAPHIMODE);
+          if ( hits->find(id3x3) != hits->end() ) {
+            float neighbourEnergy = hits->find(id3x3)->energy();
+            e3x3 += neighbourEnergy;
+            if ( neighbourEnergy > xval ) isSeed = false;
           }
         }
+      }
 
-        // find the jitter of the seed
-        float jitter = -999.;
-        if ( isSeed ) {
+      // find the jitter of the seed
+      float jitter = -999.;
+      if ( isSeed ) {
+        if ( uhits.isValid() ) {
           if ( uhits->find(id) != uhits->end() ) {
             jitter = uhits->find(id)->jitter();
           }
         }
-
-        if ( xval >= lowThreshold_ ) {
-          if ( meCutMap_[ism-1] ) meCutMap_[ism-1]->Fill(xie, xip, xval);
-        }
-
-        if ( isSeed && e3x3 >= highThreshold_ && jitter > minJitter_ && jitter < maxJitter_ ) {
-          if ( meSelMap_[ism-1] ) meSelMap_[ism-1]->Fill(xie, xip, e3x3);
-        }
-
-        if ( meSpectrum_[0][ism-1] ) meSpectrum_[0][ism-1]->Fill(xval);
-
-        if ( isSeed && xval >= lowThreshold_ && jitter > minJitter_ && jitter < maxJitter_ ) {
-          if ( meSpectrum_[1][ism-1] ) meSpectrum_[1][ism-1]->Fill(e3x3);
-        }
-
       }
 
-    } else {
+      if ( xval >= lowThreshold_ ) {
+        if ( meCutMap_[ism-1] ) meCutMap_[ism-1]->Fill(xie, xip, xval);
+      }
 
-      LogWarning("EBCosmicTask") << EcalUncalibratedRecHitCollection_ << " not available";
+      if ( isSeed && e3x3 >= highThreshold_ && jitter > minJitter_ && jitter < maxJitter_ ) {
+        if ( meSelMap_[ism-1] ) meSelMap_[ism-1]->Fill(xie, xip, e3x3);
+      }
+
+      if ( meSpectrum_[0][ism-1] ) meSpectrum_[0][ism-1]->Fill(xval);
+
+      if ( isSeed && xval >= lowThreshold_ && jitter > minJitter_ && jitter < maxJitter_ ) {
+        if ( meSpectrum_[1][ism-1] ) meSpectrum_[1][ism-1]->Fill(e3x3);
+      }
 
     }
 
