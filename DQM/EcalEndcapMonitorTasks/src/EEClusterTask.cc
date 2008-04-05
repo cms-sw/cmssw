@@ -1,8 +1,8 @@
 /*
  * \file EEClusterTask.cc
  *
- * $Date: 2008/02/29 15:08:09 $
- * $Revision: 1.39 $
+ * $Date: 2008/03/14 14:38:59 $
+ * $Revision: 1.40 $
  * \author G. Della Ricca
  * \author E. Di Marco
  *
@@ -458,7 +458,9 @@ void EEClusterTask::analyze(const Event& e, const EventSetup& c){
     }
 
   } else {
-    LogWarning("EEClusterTask") << " BasicClusterCollection: " << BasicClusterCollection_ << " not in event.";
+
+    LogWarning("EEClusterTask") << BasicClusterCollection_ << " not available";
+
   }
 
   // --- Endcap Super Clusters ----
@@ -510,7 +512,9 @@ void EEClusterTask::analyze(const Event& e, const EventSetup& c){
     }
 
   } else {
-    LogWarning("EEClusterTask") << " SuperClusterCollection: " << SuperClusterCollection_ << " not in event.";
+
+    LogWarning("EEClusterTask") << SuperClusterCollection_ << " not available";
+
   }
 
 }

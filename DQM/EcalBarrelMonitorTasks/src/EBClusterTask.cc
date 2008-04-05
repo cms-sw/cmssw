@@ -1,8 +1,8 @@
 /*
  * \file EBClusterTask.cc
  *
- * $Date: 2008/02/29 15:04:10 $
- * $Revision: 1.51 $
+ * $Date: 2008/03/14 14:38:56 $
+ * $Revision: 1.52 $
  * \author G. Della Ricca
  * \author E. Di Marco
  *
@@ -334,7 +334,9 @@ void EBClusterTask::analyze(const Event& e, const EventSetup& c){
     }
 
   } else {
-    LogWarning("EBClusterTask") << " BasicClusterCollection: " << BasicClusterCollection_ << " not in event.";
+
+    LogWarning("EBClusterTask") << BasicClusterCollection_ << " not available";
+
   }
 
 
@@ -388,7 +390,9 @@ void EBClusterTask::analyze(const Event& e, const EventSetup& c){
     }
 
   } else {
-    LogWarning("EBClusterTask") << " SuperClusterCollection: not in event.";
+
+    LogWarning("EBClusterTask") << SuperClusterCollection_ << " not available";
+
   }
 
 }
