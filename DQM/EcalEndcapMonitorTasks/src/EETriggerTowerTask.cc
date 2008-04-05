@@ -1,8 +1,8 @@
 /*
  * \file EETriggerTowerTask.cc
  *
- * $Date: 2008/02/29 15:08:58 $
- * $Revision: 1.29 $
+ * $Date: 2008/03/14 14:59:56 $
+ * $Revision: 1.30 $
  * \author C. Bernet
  * \author G. Della Ricca
  * \author E. Di Marco
@@ -269,8 +269,7 @@ void EETriggerTowerTask::analyze(const Event& e, const EventSetup& c){
                   meFlagsReal_);
 
   } else {
-    LogWarning("EBTriggerTowerTask")
-      << realCollection_ << " not available"; 
+    LogWarning("EBTriggerTowerTask") << realCollection_ << " not available"; 
   }
 
   Handle<EcalTrigPrimDigiCollection> emulDigis;
@@ -285,8 +284,7 @@ void EETriggerTowerTask::analyze(const Event& e, const EventSetup& c){
 
 
   } else {
-    LogWarning("EETriggerTowerTask")
-      << emulCollection_ << " not available";
+    LogWarning("EETriggerTowerTask") << emulCollection_ << " not available";
   }
 
 }
