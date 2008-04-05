@@ -65,7 +65,7 @@ namespace {
 JetMatching::JetMatching(const edm::ParameterSet &params) :
 	maxDeltaR(params.getParameter<double>("maxDeltaR")),
 	minJetPt(params.getParameter<double>("jetPtMin")),
-	matchPtFraction(1.0),
+	matchPtFraction(0.75),
 	partonInput(new JetInput(params)),
 	jetInput(new JetInput(*partonInput))
 {
@@ -161,16 +161,21 @@ double JetMatching::match(const HepMC::GenEvent *partonLevel,
 		          << matching.delta(*iter) << std::endl;
 #endif
 
+	unsigned int unmatchedPartons = 0;
+	unsigned int unmatchedJets = 0;
+
 	matchSummary.clear();
 	for(std::vector<Match>::const_iterator iter = matches.begin();
-	    iter != matches.end(); ++iter)
+	    iter != matches.end(); ++iter) {
+		if (jets[iter->index2].pt() < minJetPt)
+			unmatchedPartons++;
 		matchSummary.push_back(
 			JetPartonMatch(partons[iter->index1]->momentum(),
 			               convert(jets[iter->index2]),
 			               matching.delta(*iter),
 			               partons[iter->index1]->pdg_id()));
+	}
 
-	unsigned int unmatchedPartons = 0;
 	for(Matching<double>::index_type i = 0; i < partons.size(); i++) {
 		if (!matching.isMatched1st(i)) {
 			unmatchedPartons++;
@@ -180,7 +185,6 @@ double JetMatching::match(const HepMC::GenEvent *partonLevel,
 		}
 	}
 
-	unsigned int unmatchedJets = 0;
 	for(Matching<double>::index_type i = 0; i < jets.size(); i++) {
 		if (!matching.isMatched2nd(i)) {
 			if (jets[i].pt() >= minJetPt)
