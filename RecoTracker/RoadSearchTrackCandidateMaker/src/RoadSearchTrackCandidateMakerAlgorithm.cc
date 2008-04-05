@@ -9,9 +9,9 @@
 // Original Author: Oliver Gutsche, gutsche@fnal.gov
 // Created:         Wed Mar 15 13:00:00 UTC 2006
 //
-// $Author: burkett $
-// $Date: 2008/01/10 19:28:10 $
-// $Revision: 1.47 $
+// $Author: noeding $
+// $Date: 2008/02/24 17:08:48 $
+// $Revision: 1.48 $
 //
 
 #include <vector>
@@ -92,6 +92,7 @@ RoadSearchTrackCandidateMakerAlgorithm::RoadSearchTrackCandidateMakerAlgorithm(c
   debug_ = false;
   debugCosmics_ = false;
 
+  maxPropagationDistance = 1000.0; // 10m
 }
 
 RoadSearchTrackCandidateMakerAlgorithm::~RoadSearchTrackCandidateMakerAlgorithm() {
@@ -538,6 +539,8 @@ void RoadSearchTrackCandidateMakerAlgorithm::run(const RoadSearchCloudCollection
 			  <<" is on Layer " << ilr->second << std::endl;
 	      else 
 		std::cout << "   Layer for Hit #"<<ih-tmv.begin() <<" can't be found " << std::endl;
+	      std::cout<<" updatedState:\n" << ih->updatedState() << std::endl;
+	      std::cout<<" predictState:\n" << ih->predictedState() << std::endl;
 	    }
 	  }
           
@@ -551,17 +554,34 @@ void RoadSearchTrackCandidateMakerAlgorithm::run(const RoadSearchCloudCollection
           const DetLayer* firstDetLayer = 
             theMeasurementTracker->geometricSearchTracker()->detLayer(firstMeasurement.recHit()->geographicalId());
           
-          std::vector<Trajectory> freshStart = theSmoother->trajectories(*i);
-          if (!freshStart.empty()){
-            if (debug_) std::cout<< "Smoothing of trajectory " <<i-CleanChunks.begin() << " has succeeded with " 
-				 <<freshStart.begin()->measurements().size() << " hits.  Now add hits." <<std::endl;
+          std::vector<Trajectory> freshStartv = theSmoother->trajectories(*i);
+          
+          std::cout<<"Smoothing has returned " << freshStartv.size() <<" trajectory " << std::endl;
+          if (!freshStartv.empty()){
+             if(debug_)  std::cout<< "Smoothing of trajectory " <<i-CleanChunks.begin() << " has succeeded with " << freshStartv.begin()->measurements().size() << " hits and a chi2 of " << freshStartv.begin()->chiSquared() <<" for " << freshStartv.begin()->ndof() << " DOF.  Now add hits." <<std::endl;
+          } else {
+             if (debug_) std::cout<< "Smoothing of trajectory " <<i-CleanChunks.begin() <<" has failed"<<std::endl;
+             continue;
           }
-          else {
-            if (debug_) std::cout<< "Smoothing of trajectory " <<i-CleanChunks.begin() <<" has failed"<<std::endl;
-            continue;
+          
+          Trajectory freshStart = *freshStartv.begin();
+          std::vector<TrajectoryMeasurement> freshStartTM = freshStart.measurements();
+          
+          if (debug_) {
+             for (std::vector<TrajectoryMeasurement>::const_iterator itm = freshStartTM.begin();itm != freshStartTM.end(); ++itm){
+                std::cout<<"Trajectory hit " << itm-freshStartTM.begin() <<" updatedState:\n" << itm->updatedState() << std::endl;
+             }
           }
-          TrajectoryStateOnSurface NewFirstTsos = freshStart.begin()->lastMeasurement().updatedState();
-          TransientTrackingRecHit::ConstRecHitPointer rh = freshStart.begin()->lastMeasurement().recHit();
+
+          TrajectoryStateOnSurface NewFirstTsos = freshStart.lastMeasurement().updatedState();
+          if(debug_) std::cout<<"NewFirstTSOS is valid? " << NewFirstTsos.isValid() << std::endl;
+          if(debug_) std::cout << " NewFirstTSOS:\n " << NewFirstTsos << std::endl;
+          TransientTrackingRecHit::ConstRecHitPointer rh = freshStart.lastMeasurement().recHit();
+
+          if(debug_) {
+             std::cout<< "First hit for fresh start on det " << rh->det() << ", r/phi/z = " << rh->globalPosition().perp() << " " << rh->globalPosition().phi() << " " << rh->globalPosition().z();
+          }
+          
           PTrajectoryStateOnDet* pFirstState = TrajectoryStateTransform().persistentState(NewFirstTsos,
                                                                                           rh->geographicalId().rawId());
           edm::OwnVector<TrackingRecHit> newHits;
@@ -581,6 +601,15 @@ void RoadSearchTrackCandidateMakerAlgorithm::run(const RoadSearchCloudCollection
           newTrajectory.push(TrajectoryMeasurement(invalidState, NewFirstTsos, rh, 0, firstDetLayer));
 	  final_layers.insert(firstDetLayer);
 
+	  if(debug_) std::cout << "TRAJ is valid: " << newTrajectory.isValid() <<std::endl;
+
+	  TrajectoryStateOnSurface testTsos = newTrajectory.measurements().back().updatedState();
+	  
+	  if(debug_) {
+	    std::cout << "testTSOS is valid!!" << testTsos.isValid() << std::endl;
+	    std::cout << " testTSOS (x/y/z): " << testTsos.globalPosition().x()<< " / " << testTsos.globalPosition().y()<< " / " << testTsos.globalPosition().z() << std::endl;
+	    std::cout << " local position x: " << testTsos.localPosition().x() << "+-" << sqrt(testTsos.localError().positionError().xx()) << std::endl;
+	  }
 
 	  if (firstDetLayer != ilyr0->first){
 	    if (debug_) std::cout<<"!!! ERROR !!! firstDetLayer ("<<firstDetLayer<<") != ilyr0 ( " <<ilyr0->first <<")"<< std::endl;
@@ -601,7 +630,7 @@ void RoadSearchTrackCandidateMakerAlgorithm::run(const RoadSearchCloudCollection
             TrajectoryMeasurement tm;
 
 	    if(debug_)
-	      std::cout<<"Trajectory has " << newTrajectory.measurements().size() << " with " << (RecHitsByLayer.end()-ilyr)
+	      std::cout<<"Trajectory has " << newTrajectory.measurements().size() << " measurements with " << (RecHitsByLayer.end()-ilyr)
 		       << " remaining layers " << std::endl;
 
 	    if (im != tmv.end()) im2 = im;
@@ -617,13 +646,36 @@ void RoadSearchTrackCandidateMakerAlgorithm::run(const RoadSearchCloudCollection
                 currTsos = newTrajectory.measurements().back().updatedState();
                 predTsos = thePropagator->propagate(currTsos, det->surface());
                 if (!predTsos.isValid()) continue;
+		GlobalVector propagationDistance = predTsos.globalPosition() - currTsos.globalPosition();
+		if (propagationDistance.mag() > maxPropagationDistance) continue;
                 MeasurementEstimator::HitReturnType est = theEstimator->estimate(predTsos, *rh);
+		if(debug_) {
+		  std::cout << "Propagation distance2 is " << propagationDistance.mag() << std::endl;
+		  std::cout << "predTSOS is valid!!" << std::endl;
+		  std::cout << " predTSOS (x/y/z): " << predTsos.globalPosition().x()<< " / " << predTsos.globalPosition().y()<< " / " << predTsos.globalPosition().z() << std::endl;
+		  std::cout << " local position x: " << predTsos.localPosition().x() << "+-" << sqrt(predTsos.localError().positionError().xx()) << std::endl;
+		  std::cout << " local position y: " << predTsos.localPosition().y() << "+-" << sqrt(predTsos.localError().positionError().yy()) << std::endl;
+		  std::cout << "currTSOS is valid!! " << currTsos.isValid() <<  std::endl;
+		  std::cout << " currTSOS (x/y/z): " << currTsos.globalPosition().x()<< " / " << currTsos.globalPosition().y()<< " / " << currTsos.globalPosition().z() << std::endl;
+		  std::cout << " local position x: " << currTsos.localPosition().x() << "+-" << sqrt(currTsos.localError().positionError().xx()) << std::endl;
+		  std::cout << " local position y: " << currTsos.localPosition().y() << "+-" << sqrt(currTsos.localError().positionError().yy()) << std::endl;
+		}
+
                 if (!est.first) {
                   if (debug_) std::cout<<"Failed to add one of the original hits on a low occupancy layer!!!!" << std::endl;
                   continue;
                 }
                 currTsos = theUpdator->update(predTsos, *rh);
                 tm = TrajectoryMeasurement(predTsos, currTsos, &(*rh),est.second,ilyr->first);
+
+		const TrajectoryStateOnSurface theTSOS = newTrajectory.lastMeasurement().updatedState();
+		
+		//std::cout << "11TsosBefore (x/y/z): " << theTSOS.globalPosition().x()<< " / " << theTSOS.globalPosition().y()<< " / " << theTSOS.globalPosition().z() << std::endl;
+		//std::cout << " 11local position x: " << theTSOS.localPosition().x() << "+-" << sqrt(theTSOS.localError().positionError().xx()) << std::endl;
+		//std::cout << " 11local position y: " << theTSOS.localPosition().y() << "+-" << sqrt(theTSOS.localError().positionError().yy()) << std::endl;
+
+
+
                 newTrajectory.push(tm,est.second);
 		final_layers.insert(ilyr->first);                
             }	    
@@ -645,6 +697,11 @@ void RoadSearchTrackCandidateMakerAlgorithm::run(const RoadSearchCloudCollection
               }
 
               const TrajectoryStateOnSurface theTSOS = newTrajectory.lastMeasurement().updatedState();
+	      
+	      //std::cout << "TsosBefore (x/y/z): " << theTSOS.globalPosition().x()<< " / " << theTSOS.globalPosition().y()<< " / " << theTSOS.globalPosition().z() << std::endl;
+	      //std::cout << " local position x: " << theTSOS.localPosition().x() << "+-" << sqrt(theTSOS.localError().positionError().xx()) << std::endl;
+	      //std::cout << " local position y: " << theTSOS.localPosition().y() << "+-" << sqrt(theTSOS.localError().positionError().yy()) << std::endl;
+
               std::vector<TrajectoryMeasurement> theGoodHits = FindBestHits(theTSOS,dets,theHitMatcher,skipped_hits);
               if (!theGoodHits.empty()){
 		final_layers.insert(ilyr->first);
@@ -731,6 +788,8 @@ RoadSearchTrackCandidateMakerAlgorithm::FindBestHitsByDet(const TrajectoryStateO
        idet != theDets.end(); ++idet) {
     TrajectoryStateOnSurface predTsos = thePropagator->propagate(tsosBefore, (**idet).surface());
     if (predTsos.isValid()) {
+      GlobalVector propagationDistance = predTsos.globalPosition() - tsosBefore.globalPosition();
+      if (propagationDistance.mag() > maxPropagationDistance) continue; 
       dmmap.insert(std::make_pair(*idet, predTsos));
     }
   }
@@ -790,6 +849,8 @@ RoadSearchTrackCandidateMakerAlgorithm::FindBestHit(const TrajectoryStateOnSurfa
        idet != theDets.end(); ++idet) {
     TrajectoryStateOnSurface predTsos = thePropagator->propagate(tsosBefore, (**idet).surface());
     if (predTsos.isValid()) {
+      GlobalVector propagationDistance = predTsos.globalPosition() - tsosBefore.globalPosition();
+      if (propagationDistance.mag() > maxPropagationDistance) continue; 
       dmmap.insert(std::make_pair(*idet, predTsos));
     }
   }
@@ -841,6 +902,7 @@ RoadSearchTrackCandidateMakerAlgorithm::FindBestHits(const TrajectoryStateOnSurf
 //			 edm::OwnVector<TrackingRecHit> *theBestHits)
 {
   
+
   std::vector<TrajectoryMeasurement> theBestHits;
   //TrajectoryMeasurement* theBestTM = 0;
   TrajectoryMeasurement theBestTM;
@@ -852,13 +914,17 @@ RoadSearchTrackCandidateMakerAlgorithm::FindBestHits(const TrajectoryStateOnSurf
        idet != theDets.end(); ++idet) {
     TrajectoryStateOnSurface predTsos = thePropagator->propagate(tsosBefore, (**idet).surface());
     if (predTsos.isValid()) {
+      GlobalVector propagationDistance = predTsos.globalPosition() - tsosBefore.globalPosition();
+      if (propagationDistance.mag() > maxPropagationDistance) continue; 
       dmmap.insert(std::make_pair(*idet, predTsos));
     }
   }
+
+  if(debug_) std::cout << "TRAJECTORY INTERSECTS " << dmmap.size() << " DETECTORS." << std::endl;
+
   // evaluate hit residuals
   std::map<const GeomDet*, TrajectoryMeasurement> dtmmap;
-  for (edm::OwnVector<TrackingRecHit>::const_iterator ih = theHits.begin();
-       ih != theHits.end(); ++ih) {
+  for (edm::OwnVector<TrackingRecHit>::const_iterator ih = theHits.begin(); ih != theHits.end(); ++ih) {
     const GeomDet* det = trackerGeom->idToDet(ih->geographicalId());
     //if (*isl != theMeasurementTracker->geometricSearchTracker()->detLayer(ih->geographicalId())) 
     //  std::cout <<" You don't know what you're doing !!!!" << std::endl;
@@ -867,7 +933,7 @@ RoadSearchTrackCandidateMakerAlgorithm::FindBestHits(const TrajectoryStateOnSurf
     if (idm == dmmap.end()) continue;
     TrajectoryStateOnSurface predTsos = idm->second;
     TransientTrackingRecHit::RecHitPointer rhit = ttrhBuilder->build(&(*ih));
-
+    
     const SiStripMatchedRecHit2D *origHit = dynamic_cast<const SiStripMatchedRecHit2D *>(&(*ih));
     if (origHit !=0){
       const GluedGeomDet *gdet = dynamic_cast<const GluedGeomDet*>(det);
@@ -878,6 +944,14 @@ RoadSearchTrackCandidateMakerAlgorithm::FindBestHits(const TrajectoryStateOnSurf
       }
     }
 
+    if (debug_) {
+      std::cout << "predTSOS (x/y/z): " << predTsos.globalPosition().x()<< " / " << predTsos.globalPosition().y()<< " / " << predTsos.globalPosition().z() << std::endl;
+      std::cout << "local position x: " << predTsos.localPosition().x() << "+-" << sqrt(predTsos.localError().positionError().xx()) << std::endl;
+      std::cout << "local position y: " << predTsos.localPosition().y() << "+-" << sqrt(predTsos.localError().positionError().yy()) << std::endl;
+      std::cout << "rhit local position x: " << rhit->localPosition().x() << "+-" << sqrt(rhit->localPositionError().xx()) << std::endl;
+      std::cout << "rhit local position y: " << rhit->localPosition().y() << "+-" << sqrt(rhit->localPositionError().yy()) << std::endl;
+    }
+ 
     MeasurementEstimator::HitReturnType est = theEstimator->estimate(predTsos, *rhit);
     if (debug_) std::cout<< "hit " << ih-theHits.begin() 
 			 << ": est = " << est.first << " " << est.second  <<std::endl;
@@ -1175,11 +1249,16 @@ FreeTrajectoryState RoadSearchTrackCandidateMakerAlgorithm::initialTrajectory(co
 	    FastLine flfit(outer, inner);
 	    double dzdr = -flfit.n1()/flfit.n2();
 	    GlobalPoint XYZ0(x0,y0,z0);
+	    if (debug_) std::cout<<"Initial Point (x0/y0/z0): " << x0 <<'\t'<< y0 <<'\t'<< z0 << std::endl;
 	    GlobalVector PXYZ(cos(phi0),sin(phi0),dzdr);
 	    GlobalTrajectoryParameters thePars(XYZ0,PXYZ,q,magField);
 	    AlgebraicSymMatrix66 CErr = AlgebraicMatrixID();
+	    // CErr(3,3) = (theInnerHit->localPositionError().yy()*theInnerHit->localPositionError().yy() +
+	    //		 theOuterHit->localPositionError().yy()*theOuterHit->localPositionError().yy());
 	    fts = FreeTrajectoryState(thePars,
 				      CartesianTrajectoryError(CErr));
+	    if (debug_) std::cout<<"\nInitial CError (dx/dy/dz): " << CErr(1,1) <<'\t'<< CErr(2,2) <<'\t'<< CErr(3,3) << std::endl;
+	    if (debug_) std::cout<<"\n\ninner dy = " << theInnerHit->localPositionError().yy() <<"\t\touter dy = " << theOuterHit->localPositionError().yy() << std::endl;
 	  }
 	  else {
 	    fts = FreeTrajectoryState( helix.stateAtVertex().parameters(), initialError);
@@ -1300,6 +1379,19 @@ std::vector<Trajectory> RoadSearchTrackCandidateMakerAlgorithm::extrapolateTraje
                 if (!predTsos.isValid()){
                   continue;
                 }
+		GlobalVector propagationDistance = predTsos.globalPosition() - currTsos.globalPosition();
+		if (propagationDistance.mag() > maxPropagationDistance) continue;
+		if (debug_) {
+		  std::cout << "currTsos (x/y/z): " 
+			    << currTsos.globalPosition().x() << " / "
+			    << currTsos.globalPosition().y() << " / "
+			    << currTsos.globalPosition().z() << std::endl;
+		  std::cout << "predTsos (x/y/z): " 
+			    << predTsos.globalPosition().x() << " / "
+			    << predTsos.globalPosition().y() << " / "
+			    << predTsos.globalPosition().z() << std::endl;
+		  std::cout << "Propagation distance1 is " << propagationDistance.mag() << std::endl;
+		}
                 TrajectoryMeasurement tm;
                 if (debug_){
                   std::cout<< "trajectory at r/z=" <<  det->surface().position().perp() 
@@ -1362,6 +1454,13 @@ TrackCandidateCollection RoadSearchTrackCandidateMakerAlgorithm::PrepareTrackCan
         if(!it->isValid()) traj.erase(it);
      }
      
+     int t=0;
+     for (std::vector<Trajectory>::iterator it = traj.begin(); it != it_end; it++) {
+       std::cout << "Tajectory " << t << " is valid: " << it->isValid() << std::endl;
+       ++t;
+     }
+     
+
      if(debugCosmics_) std::cout << "==========ENTERING COSMIC MODE===========" << std::endl;
 
      //double nested looop to find trajectories that match in phi
@@ -1468,6 +1567,8 @@ TrackCandidateCollection RoadSearchTrackCandidateMakerAlgorithm::PrepareTrackCan
                     if(debugCosmics_) std::cout<<"predTsos is not valid!" <<std::endl;
                     continue;
                  }
+		 GlobalVector propagationDistance = predTsos.globalPosition() - currTsos.globalPosition();
+		 if (propagationDistance.mag() > maxPropagationDistance) continue;
                  
                  if(debugCosmics_) std::cout << "predicted TSOS: " << predTsos.globalPosition().x() << ", " << predTsos.globalPosition().y() << ", " << predTsos.globalPosition().z() << ", " << std::endl;
                  MeasurementEstimator::HitReturnType est = theEstimator->estimate(predTsos, *rh);
