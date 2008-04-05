@@ -211,7 +211,7 @@ void AnalysisRootpleProducer::analyze( const Event& e, const EventSetup& )
 
   if ( triggerResults.product()->wasrun() )
     {
-      cout << "at least one path ran? " << triggerResults.product()->wasrun() << endl;
+      cout << "at least one path out of " << triggerResults.product()->size() << " ran? " << triggerResults.product()->wasrun() << endl;
   
       if ( triggerResults.product()->accept() ) 
 	{
@@ -222,8 +222,10 @@ void AnalysisRootpleProducer::analyze( const Event& e, const EventSetup& )
 	    {
 	      if ( triggerResults.product()->accept( itrig ) )
 		{
-		  cout << "trigger " << triggerNames.triggerName( itrig );
-		  cout << ", bit " << triggerResults.product()->accept( itrig );
+		  cout << "path " << triggerNames.triggerName( itrig );
+		  cout << ", module index " << triggerResults.product()->index( itrig );
+		  cout << ", state (Ready = 0, Pass = 1, Fail = 2, Exception = 3) " << triggerResults.product()->state( itrig );
+		  cout << ", accept " << triggerResults.product()->accept( itrig );
 		  cout << endl;
 		}
 	    }

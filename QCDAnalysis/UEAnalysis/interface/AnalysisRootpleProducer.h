@@ -36,9 +36,6 @@
 #include <DataFormats/HLTReco/interface/TriggerEvent.h> 
 #include <DataFormats/HLTReco/interface/TriggerFilterObjectWithRefs.h>
 
-// not available in 18x:
-//#include <DataFormats/HLTReco/interface/HLTGlobalObject.h>
-
 using namespace edm;
 using namespace reco;
 using namespace trigger;
@@ -78,8 +75,6 @@ private:
   InputTag recoCaloJetCollName;
   InputTag tracksCollName;
   InputTag triggerResultsTag;
-  //  InputTag triggerName; // not used at the moment: may want to pass desired trigger path
-  //  InputTag hltFilterTag; // not used at the moment: can access objects that fired the trigger
 
   Handle< HepMCProduct        > EvtHandle ;
   Handle< CandidateCollection > CandHandleMC ;
