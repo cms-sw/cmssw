@@ -1,8 +1,8 @@
 /*
  * \file EBClusterClient.cc
  *
- * $Date: 2008/03/15 14:07:44 $
- * $Revision: 1.58 $
+ * $Date: 2008/03/15 14:50:54 $
+ * $Revision: 1.59 $
  * \author G. Della Ricca
  * \author F. Cossutti
  * \author E. Di Marco
@@ -390,14 +390,14 @@ void EBClusterClient::htmlOutput(int run, string& htmlDir, string& htmlName){
       gStyle->SetOptStat("euomr");
       obj1f->SetStats(kTRUE);
       if ( obj1f->GetMaximum(histMax) > 0. ) {
-        gPad->SetLogy(1);
+        gPad->SetLogy(kTRUE);
       } else {
-        gPad->SetLogy(0);
+        gPad->SetLogy(kFALSE);
       }
       obj1f->Draw();
       cEne->Update();
       cEne->SaveAs(imgName.c_str());
-      gPad->SetLogy(0);
+      gPad->SetLogy(kFALSE);
     }
   }
 
@@ -631,14 +631,14 @@ void EBClusterClient::htmlOutput(int run, string& htmlDir, string& htmlName){
       gStyle->SetOptStat("euomr");
       obj1f->SetStats(kTRUE);
       if ( obj1f->GetMaximum(histMax) > 0. ) {
-        gPad->SetLogy(1);
+        gPad->SetLogy(kTRUE);
       } else {
-        gPad->SetLogy(0);
+        gPad->SetLogy(kFALSE);
       }
       obj1f->Draw();
       cEne->Update();
       cEne->SaveAs(imgName.c_str());
-      gPad->SetLogy(0);
+      gPad->SetLogy(kFALSE);
     }
   }
 
@@ -689,15 +689,15 @@ void EBClusterClient::htmlOutput(int run, string& htmlDir, string& htmlName){
       obj1f->SetStats(kTRUE);
 
       if ( obj1f->GetMaximum(histMax) > 0. ) {
-        gPad->SetLogy(1);
+        gPad->SetLogy(kTRUE);
       } else {
-        gPad->SetLogy(0);
+        gPad->SetLogy(kFALSE);
       }
 
       obj1f->Draw();
       cEne->Update();
       cEne->SaveAs(imgName.c_str());
-      gPad->SetLogy(0);
+      gPad->SetLogy(kFALSE);
     }
   }
 

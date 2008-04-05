@@ -1,8 +1,8 @@
 /*
  * \file EETestPulseClient.cc
  *
- * $Date: 2008/03/15 14:07:46 $
- * $Revision: 1.79 $
+ * $Date: 2008/03/15 14:50:56 $
+ * $Revision: 1.80 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -1234,16 +1234,16 @@ void EETestPulseClient::htmlOutput(int run, string& htmlDir, string& htmlName){
         gStyle->SetOptStat("euo");
         obj1f->SetStats(kTRUE);
 //        if ( obj1f->GetMaximum(histMax) > 0. ) {
-//          gPad->SetLogy(1);
+//          gPad->SetLogy(kTRUE);
 //        } else {
-//          gPad->SetLogy(0);
+//          gPad->SetLogy(kFALSE);
 //        }
         obj1f->SetMinimum(0.0);
         obj1f->Draw();
         cAmp->Update();
-        gPad->SetLogy(0);
+        gPad->SetLogy(kFALSE);
         cAmp->SaveAs(imgName.c_str());
-        gPad->SetLogy(0);
+        gPad->SetLogy(kFALSE);
 
       }
 
@@ -1278,14 +1278,14 @@ void EETestPulseClient::htmlOutput(int run, string& htmlDir, string& htmlName){
         gStyle->SetOptStat("euo");
         obj1f->SetStats(kTRUE);
 //        if ( obj1f->GetMaximum(histMax) > 0. ) {
-//          gPad->SetLogy(1);
+//          gPad->SetLogy(kTRUE);
 //        } else {
-//          gPad->SetLogy(0);
+//          gPad->SetLogy(kFALSE);
 //        }
         obj1f->Draw();
         cShape->Update();
         cShape->SaveAs(imgName.c_str());
-        gPad->SetLogy(0);
+        gPad->SetLogy(kFALSE);
 
       }
 
@@ -1361,15 +1361,15 @@ void EETestPulseClient::htmlOutput(int run, string& htmlDir, string& htmlName){
         gStyle->SetOptStat("euo");
         objp->SetStats(kTRUE);
 //        if ( objp->GetMaximum(histMax) > 0. ) {
-//          gPad->SetLogy(1);
+//          gPad->SetLogy(kTRUE);
 //        } else {
-//          gPad->SetLogy(0);
+//          gPad->SetLogy(kFALSE);
 //        }
         objp->SetMinimum(0.0);
         objp->Draw();
         cAmp->Update();
         cAmp->SaveAs(imgName.c_str());
-        gPad->SetLogy(0);
+        gPad->SetLogy(kFALSE);
 
       }
 
@@ -1401,15 +1401,15 @@ void EETestPulseClient::htmlOutput(int run, string& htmlDir, string& htmlName){
         gStyle->SetOptStat("euo");
         objp->SetStats(kTRUE);
 //        if ( objp->GetMaximum(histMax) > 0. ) {
-//          gPad->SetLogy(1);
+//          gPad->SetLogy(kTRUE);
 //        } else {
-//          gPad->SetLogy(0);
+//          gPad->SetLogy(kFALSE);
 //        }
         objp->SetMinimum(0.0);
         objp->Draw();
         cPed->Update();
         cPed->SaveAs(imgName.c_str());
-        gPad->SetLogy(0);
+        gPad->SetLogy(kFALSE);
 
       }
 
@@ -1439,15 +1439,15 @@ void EETestPulseClient::htmlOutput(int run, string& htmlDir, string& htmlName){
         gStyle->SetOptStat("euo");
         obj1f->SetStats(kTRUE);
         //        if ( obj1f->GetMaximum(histMax) > 0. ) {
-        //          gPad->SetLogy(1);
+        //          gPad->SetLogy(kTRUE);
         //        } else {
-        //          gPad->SetLogy(0);
+        //          gPad->SetLogy(kFALSE);
         //        }
         obj1f->SetMinimum(0.0);
         obj1f->Draw();
         cPed->Update();
         cPed->SaveAs(imgName.c_str());
-        gPad->SetLogy(0);
+        gPad->SetLogy(kFALSE);
 
       }
 

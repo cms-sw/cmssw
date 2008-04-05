@@ -1,8 +1,8 @@
 /*
  * \file EBBeamHodoClient.cc
  *
- * $Date: 2008/03/15 14:07:44 $
- * $Revision: 1.57 $
+ * $Date: 2008/03/15 14:50:54 $
+ * $Revision: 1.58 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -419,11 +419,11 @@ void EBBeamHodoClient::htmlOutput(int run, string& htmlDir, string& htmlName){
       cP->cd();
       gStyle->SetOptStat("euomr");
       obj1f->SetStats(kTRUE);
-      gPad->SetLogy(0);
+      gPad->SetLogy(kFALSE);
       obj1f->Draw();
       cP->Update();
       cP->SaveAs(imgName.c_str());
-      gPad->SetLogy(0);
+      gPad->SetLogy(kFALSE);
 
     }
 
@@ -443,14 +443,14 @@ void EBBeamHodoClient::htmlOutput(int run, string& htmlDir, string& htmlName){
       gStyle->SetOptStat("euomr");
       obj1f->SetStats(kTRUE);
       if ( obj1f->GetMaximum(histMax) > 0. ) {
-        gPad->SetLogy(1);
+        gPad->SetLogy(kTRUE);
       } else {
-        gPad->SetLogy(0);
+        gPad->SetLogy(kFALSE);
       }
       obj1f->Draw();
       cP->Update();
       cP->SaveAs(imgName.c_str());
-      gPad->SetLogy(0);
+      gPad->SetLogy(kFALSE);
 
     }
 
@@ -502,14 +502,14 @@ void EBBeamHodoClient::htmlOutput(int run, string& htmlDir, string& htmlName){
       gStyle->SetOptStat("euomr");
       obj1f->SetStats(kTRUE);
       if ( obj1f->GetMaximum(histMax) > 0. ) {
-        gPad->SetLogy(1);
+        gPad->SetLogy(kTRUE);
       } else {
-        gPad->SetLogy(0);
+        gPad->SetLogy(kFALSE);
       }
       obj1f->Draw();
       cP->Update();
       cP->SaveAs(imgName.c_str());
-      gPad->SetLogy(0);
+      gPad->SetLogy(kFALSE);
 
     }
 
@@ -589,14 +589,14 @@ void EBBeamHodoClient::htmlOutput(int run, string& htmlDir, string& htmlName){
       gStyle->SetOptStat("euomr");
       obj1f->SetStats(kTRUE);
       if ( obj1f->GetMaximum(histMax) > 0. ) {
-        gPad->SetLogy(1);
+        gPad->SetLogy(kTRUE);
       } else {
-        gPad->SetLogy(0);
+        gPad->SetLogy(kFALSE);
       }
       obj1f->Draw();
       cP->Update();
       cP->SaveAs(imgName.c_str());
-      gPad->SetLogy(0);
+      gPad->SetLogy(kFALSE);
 
     }
 
@@ -652,11 +652,11 @@ void EBBeamHodoClient::htmlOutput(int run, string& htmlDir, string& htmlName){
       cP->cd();
       gStyle->SetOptStat("euomr");
       obj1f->SetStats(kTRUE);
-      gPad->SetLogy(0);
+      gPad->SetLogy(kFALSE);
       obj1f->Draw();
       cP->Update();
       cP->SaveAs(imgName.c_str());
-      gPad->SetLogy(0);
+      gPad->SetLogy(kFALSE);
 
     }
 
@@ -708,15 +708,15 @@ void EBBeamHodoClient::htmlOutput(int run, string& htmlDir, string& htmlName){
       gStyle->SetOptStat("euomr");
       obj1f->SetStats(kTRUE);
 //      if ( obj1f->GetMaximum(histMax) > 0. ) {
-//        gPad->SetLogy(1);
+//        gPad->SetLogy(kTRUE);
 //      } else {
-//        gPad->SetLogy(0);
+//        gPad->SetLogy(kFALSE);
 //      }
       obj1f->Draw();
       cP->Update();
       cP->SaveAs(imgName.c_str());
 
-      gPad->SetLogy(0);
+      gPad->SetLogy(kFALSE);
 
     }
 
@@ -773,7 +773,7 @@ void EBBeamHodoClient::htmlOutput(int run, string& htmlDir, string& htmlName){
       objp->Draw();
       cP->Update();
       cP->SaveAs(imgName.c_str());
-      gPad->SetLogy(0);
+      gPad->SetLogy(kFALSE);
 
     }
 
@@ -806,7 +806,7 @@ void EBBeamHodoClient::htmlOutput(int run, string& htmlDir, string& htmlName){
       obj2f->Draw();
       cP->Update();
       cP->SaveAs(imgName.c_str());
-      gPad->SetLogy(0);
+      gPad->SetLogy(kFALSE);
 
     }
 
@@ -852,7 +852,7 @@ void EBBeamHodoClient::htmlOutput(int run, string& htmlDir, string& htmlName){
     obj1f->Draw();
     cP->Update();
     cP->SaveAs(imgName.c_str());
-    gPad->SetLogy(0);
+    gPad->SetLogy(kFALSE);
 
   }
 

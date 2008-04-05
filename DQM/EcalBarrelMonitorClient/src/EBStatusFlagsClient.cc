@@ -1,8 +1,8 @@
 /*
  * \file EBStatusFlagsClient.cc
  *
- * $Date: 2008/03/15 14:07:44 $
- * $Revision: 1.11 $
+ * $Date: 2008/03/15 14:50:54 $
+ * $Revision: 1.12 $
  * \author G. Della Ricca
  *
 */
@@ -296,9 +296,9 @@ void EBStatusFlagsClient::htmlOutput(int run, string& htmlDir, string& htmlName)
       gStyle->SetOptStat("e");
       obj1f->SetStats(kTRUE);
       if ( obj1f->GetMaximum(histMax) > 0. ) {
-        gPad->SetLogy(1);
+        gPad->SetLogy(kTRUE);
       } else {
-        gPad->SetLogy(0);
+        gPad->SetLogy(kFALSE);
       }
       gPad->SetBottomMargin(0.25);
       obj1f->GetXaxis()->LabelsOption("v");
@@ -306,7 +306,7 @@ void EBStatusFlagsClient::htmlOutput(int run, string& htmlDir, string& htmlName)
       obj1f->Draw();
       cStatusBits->Update();
       cStatusBits->SaveAs(imgName.c_str());
-      gPad->SetLogy(0);
+      gPad->SetLogy(kFALSE);
 
     }
 

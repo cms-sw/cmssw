@@ -1,8 +1,8 @@
 /*
  * \file EEClusterClient.cc
  *
- * $Date: 2008/03/15 14:07:45 $
- * $Revision: 1.45 $
+ * $Date: 2008/03/15 14:50:56 $
+ * $Revision: 1.46 $
  * \author G. Della Ricca
  * \author E. Di Marco
  *
@@ -476,14 +476,14 @@ void EEClusterClient::htmlOutput(int run, string& htmlDir, string& htmlName){
       gStyle->SetOptStat("euomr");
       obj1f->SetStats(kTRUE);
       if ( obj1f->GetMaximum(histMax) > 0. ) {
-        gPad->SetLogy(1);
+        gPad->SetLogy(kTRUE);
       } else {
-        gPad->SetLogy(0);
+        gPad->SetLogy(kFALSE);
       }
       obj1f->Draw();
       cEne->Update();
       cEne->SaveAs(imgName.c_str());
-      gPad->SetLogy(0);
+      gPad->SetLogy(kFALSE);
     }
   }
 
@@ -751,14 +751,14 @@ void EEClusterClient::htmlOutput(int run, string& htmlDir, string& htmlName){
       gStyle->SetOptStat("euomr");
       obj1f->SetStats(kTRUE);
       if ( obj1f->GetMaximum(histMax) > 0. ) {
-        gPad->SetLogy(1);
+        gPad->SetLogy(kTRUE);
       } else {
-        gPad->SetLogy(0);
+        gPad->SetLogy(kFALSE);
       }
       obj1f->Draw();
       cEne->Update();
       cEne->SaveAs(imgName.c_str());
-      gPad->SetLogy(0);
+      gPad->SetLogy(kFALSE);
     }
   }
 

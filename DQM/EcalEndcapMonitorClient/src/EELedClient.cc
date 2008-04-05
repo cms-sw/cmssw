@@ -1,8 +1,8 @@
 /*
  * \file EELedClient.cc
  *
- * $Date: 2008/03/15 14:07:45 $
- * $Revision: 1.71 $
+ * $Date: 2008/03/15 14:50:56 $
+ * $Revision: 1.72 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -2071,15 +2071,15 @@ void EELedClient::htmlOutput(int run, string& htmlDir, string& htmlName){
         gStyle->SetOptStat("euo");
         obj1f->SetStats(kTRUE);
 //        if ( obj1f->GetMaximum(histMax) > 0. ) {
-//          gPad->SetLogy(1);
+//          gPad->SetLogy(kTRUE);
 //        } else {
-//          gPad->SetLogy(0);
+//          gPad->SetLogy(kFALSE);
 //        }
         obj1f->SetMinimum(0.0);
         obj1f->Draw();
         cAmp->Update();
         cAmp->SaveAs(imgName.c_str());
-        gPad->SetLogy(0);
+        gPad->SetLogy(kFALSE);
 
       }
 
@@ -2129,7 +2129,7 @@ void EELedClient::htmlOutput(int run, string& htmlDir, string& htmlName){
         obj1f->Draw();
         cTim->Update();
         cTim->SaveAs(imgName.c_str());
-        gPad->SetLogy(0);
+        gPad->SetLogy(kFALSE);
 
       }
 
@@ -2175,14 +2175,14 @@ void EELedClient::htmlOutput(int run, string& htmlDir, string& htmlName){
         gStyle->SetOptStat("euomr");
         obj1f->SetStats(kTRUE);
         if ( obj1f->GetMaximum(histMax) > 0. ) {
-          gPad->SetLogy(1);
+          gPad->SetLogy(kTRUE);
         } else {
-          gPad->SetLogy(0);
+          gPad->SetLogy(kFALSE);
         }
         obj1f->Draw();
         cTimav->Update();
         cTimav->SaveAs(imgName.c_str());
-        gPad->SetLogy(0);
+        gPad->SetLogy(kFALSE);
 
       }
 
@@ -2228,14 +2228,14 @@ void EELedClient::htmlOutput(int run, string& htmlDir, string& htmlName){
         gStyle->SetOptStat("euomr");
         obj1f->SetStats(kTRUE);
         if ( obj1f->GetMaximum(histMax) > 0. ) {
-          gPad->SetLogy(1);
+          gPad->SetLogy(kTRUE);
         } else {
-          gPad->SetLogy(0);
+          gPad->SetLogy(kFALSE);
         }
         obj1f->Draw();
         cTimrms->Update();
         cTimrms->SaveAs(imgName.c_str());
-        gPad->SetLogy(0);
+        gPad->SetLogy(kFALSE);
 
       }
 
@@ -2280,14 +2280,14 @@ void EELedClient::htmlOutput(int run, string& htmlDir, string& htmlName){
         gStyle->SetOptStat("euo");
         obj1f->SetStats(kTRUE);
 //        if ( obj1f->GetMaximum(histMax) > 0. ) {
-//          gPad->SetLogy(1);
+//          gPad->SetLogy(kTRUE);
 //        } else {
-//          gPad->SetLogy(0);
+//          gPad->SetLogy(kFALSE);
 //        }
         obj1f->Draw();
         cShape->Update();
         cShape->SaveAs(imgName.c_str());
-        gPad->SetLogy(0);
+        gPad->SetLogy(kFALSE);
 
       }
 
@@ -2333,16 +2333,16 @@ void EELedClient::htmlOutput(int run, string& htmlDir, string& htmlName){
         gStyle->SetOptStat("euo");
         obj1f->SetStats(kTRUE);
 //        if ( obj1f->GetMaximum(histMax) > 0. ) {
-//          gPad->SetLogy(1);
+//          gPad->SetLogy(kTRUE);
 //        } else {
-//          gPad->SetLogy(0);
+//          gPad->SetLogy(kFALSE);
 //        }
         obj1f->SetMinimum(0.0);
         obj1f->SetMaximum(20.0);
         obj1f->Draw();
         cAmpoPN->Update();
         cAmpoPN->SaveAs(imgName.c_str());
-        gPad->SetLogy(0);
+        gPad->SetLogy(kFALSE);
 
       }
 
@@ -2474,15 +2474,15 @@ void EELedClient::htmlOutput(int run, string& htmlDir, string& htmlName){
         gStyle->SetOptStat("euo");
         objp->SetStats(kTRUE);
 //        if ( objp->GetMaximum(histMax) > 0. ) {
-//          gPad->SetLogy(1);
+//          gPad->SetLogy(kTRUE);
 //        } else {
-//          gPad->SetLogy(0);
+//          gPad->SetLogy(kFALSE);
 //        }
         objp->SetMinimum(0.0);
         objp->Draw();
         cAmp->Update();
         cAmp->SaveAs(imgName.c_str());
-        gPad->SetLogy(0);
+        gPad->SetLogy(kFALSE);
 
       }
 
@@ -2520,15 +2520,15 @@ void EELedClient::htmlOutput(int run, string& htmlDir, string& htmlName){
         gStyle->SetOptStat("euo");
         objp->SetStats(kTRUE);
 //        if ( objp->GetMaximum(histMax) > 0. ) {
-//          gPad->SetLogy(1);
+//          gPad->SetLogy(kTRUE);
 //        } else {
-//          gPad->SetLogy(0);
+//          gPad->SetLogy(kFALSE);
 //        }
         objp->SetMinimum(0.0);
         objp->Draw();
         cAmp->Update();
         cAmp->SaveAs(imgName.c_str());
-        gPad->SetLogy(0);
+        gPad->SetLogy(kFALSE);
 
       }
 
@@ -2568,15 +2568,15 @@ void EELedClient::htmlOutput(int run, string& htmlDir, string& htmlName){
         gStyle->SetOptStat("euo");
         objp->SetStats(kTRUE);
 //        if ( objp->GetMaximum(histMax) > 0. ) {
-//          gPad->SetLogy(1);
+//          gPad->SetLogy(kTRUE);
 //        } else {
-//          gPad->SetLogy(0);
+//          gPad->SetLogy(kFALSE);
 //        }
         objp->SetMinimum(0.0);
         objp->Draw();
         cPed->Update();
         cPed->SaveAs(imgName.c_str());
-        gPad->SetLogy(0);
+        gPad->SetLogy(kFALSE);
 
       }
 
@@ -2614,15 +2614,15 @@ void EELedClient::htmlOutput(int run, string& htmlDir, string& htmlName){
         gStyle->SetOptStat("euo");
         objp->SetStats(kTRUE);
 //        if ( objp->GetMaximum(histMax) > 0. ) {
-//          gPad->SetLogy(1);
+//          gPad->SetLogy(kTRUE);
 //        } else {
-//          gPad->SetLogy(0);
+//          gPad->SetLogy(kFALSE);
 //        }
         objp->SetMinimum(0.0);
         objp->Draw();
         cPed->Update();
         cPed->SaveAs(imgName.c_str());
-        gPad->SetLogy(0);
+        gPad->SetLogy(kFALSE);
 
       }
 
@@ -2660,15 +2660,15 @@ void EELedClient::htmlOutput(int run, string& htmlDir, string& htmlName){
         gStyle->SetOptStat("euomr");
         obj1f->SetStats(kTRUE);
 //        if ( obj1f->GetMaximum(histMax) > 0. ) {
-//          gPad->SetLogy(1);
+//          gPad->SetLogy(kTRUE);
 //        } else {
-//          gPad->SetLogy(0);
+//          gPad->SetLogy(kFALSE);
 //        }
         obj1f->SetMinimum(0.0);
         obj1f->Draw();
         cPed->Update();
         cPed->SaveAs(imgName.c_str());
-        gPad->SetLogy(0);
+        gPad->SetLogy(kFALSE);
 
       }
 
@@ -2706,15 +2706,15 @@ void EELedClient::htmlOutput(int run, string& htmlDir, string& htmlName){
         gStyle->SetOptStat("euomr");
         obj1f->SetStats(kTRUE);
 //        if ( obj1f->GetMaximum(histMax) > 0. ) {
-//          gPad->SetLogy(1);
+//          gPad->SetLogy(kTRUE);
 //        } else {
-//          gPad->SetLogy(0);
+//          gPad->SetLogy(kFALSE);
 //        }
         obj1f->SetMinimum(0.0);
         obj1f->Draw();
         cPed->Update();
         cPed->SaveAs(imgName.c_str());
-        gPad->SetLogy(0);
+        gPad->SetLogy(kFALSE);
 
       }
 

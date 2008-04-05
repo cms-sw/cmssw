@@ -1,8 +1,8 @@
 /*
  * \file EEPedestalOnlineClient.cc
  *
- * $Date: 2008/03/15 14:07:45 $
- * $Revision: 1.66 $
+ * $Date: 2008/03/15 14:50:56 $
+ * $Revision: 1.67 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -555,14 +555,14 @@ void EEPedestalOnlineClient::htmlOutput(int run, string& htmlDir, string& htmlNa
       gStyle->SetOptStat("euomr");
       obj1f->SetStats(kTRUE);
       if ( obj1f->GetMaximum(histMax) > 0. ) {
-        gPad->SetLogy(1);
+        gPad->SetLogy(kTRUE);
       } else {
-        gPad->SetLogy(0);
+        gPad->SetLogy(kFALSE);
       }
       obj1f->Draw();
       cMean->Update();
       cMean->SaveAs(imgName.c_str());
-      gPad->SetLogy(0);
+      gPad->SetLogy(kFALSE);
 
     }
 
@@ -585,14 +585,14 @@ void EEPedestalOnlineClient::htmlOutput(int run, string& htmlDir, string& htmlNa
       gStyle->SetOptStat("euomr");
       obj1f->SetStats(kTRUE);
       if ( obj1f->GetMaximum(histMax) > 0. ) {
-        gPad->SetLogy(1);
+        gPad->SetLogy(kTRUE);
       } else {
-        gPad->SetLogy(0);
+        gPad->SetLogy(kFALSE);
       }
       obj1f->Draw();
       cRMS->Update();
       cRMS->SaveAs(imgName.c_str());
-      gPad->SetLogy(0);
+      gPad->SetLogy(kFALSE);
 
     }
 
