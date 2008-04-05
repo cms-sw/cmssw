@@ -30,46 +30,19 @@ namespace pos{
 
     //Generate the commands needed to set the trim and mask bits that
     //are specified by the vector allPixels. 
-    //NOT YET IMPLEMENTED 
-    //The commands are not executed until method executeCommandStack() is called.
-    //NOT YET IMPLEMENTED  
 
     virtual void setMaskAndTrimAll(const PixelHdwAddress& theROC,
 				   const std::vector<unsigned char>& allPixels)=0;
 
     //Generate the commands needed to set the trim and mask bits for all
     //pixels to the common value specified by maskAndTrim. 
-    //NOT YET IMPLEMENTED  
-    //The commands are not executed
-    //until method executeCommandStack() is called.
-    //NOT YET IMPLEMENTED  
     virtual void setMaskAndTrimCommon(const PixelHdwAddress& theROC,
-				      unsigned char maskAndTrim)=0;
+  				      unsigned char maskAndTrim)=0;
   
     //Generate the commands needed to set the DAC values for a ROC.
-    //NOT YET IMPLEMENTED
-    //The commands are not executed
-    //until method executeCommandStack() is called.
-    //NOT YET IMPLEMENTED
     virtual void setAllDAC(const PixelHdwAddress& theROC, 
 			   const std::vector<unsigned int>& dacs)=0;
 
-    //NOT YET IMPLEMENTED
-    //This method executes the commands that have been generated, i.e.,
-    //sends them via VME to the FEC in chunks for the right size.
-    // mode=0 (default) means that commands are combined such that
-    //        they are as large as possible without exceeding the 
-    //        1 kbyte limit. Also commands are executed in the same
-    //        orders as they were generated.
-    // mode=-1 means that the commands are sent one at the time as they
-    //        were generated.
-    //NOT YET IMPLEMENTED
-    virtual void executeCommandStack(int mode=0)=0;
-
-    //NOT YET IMPLEMENTED
-    //This method cleans the command stack.
-    //NOT YET IMPLEMENTED
-    virtual void cleanCommandStack()=0;
 
 
     virtual int roctrimload(int mfec, int fecchannel, 
