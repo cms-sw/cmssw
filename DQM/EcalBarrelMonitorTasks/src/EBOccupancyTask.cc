@@ -1,8 +1,8 @@
 /*
  * \file EBOccupancyTask.cc
  *
- * $Date: 2008/02/29 15:04:18 $
- * $Revision: 1.56 $
+ * $Date: 2008/03/16 10:30:25 $
+ * $Revision: 1.57 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -43,11 +43,11 @@ EBOccupancyTask::EBOccupancyTask(const ParameterSet& ps){
 
   enableCleanup_ = ps.getUntrackedParameter<bool>("enableCleanup", false);
 
+  EcalRawDataCollection_ = ps.getParameter<edm::InputTag>("EcalRawDataCollection");
   EBDigiCollection_ = ps.getParameter<edm::InputTag>("EBDigiCollection");
   EcalPnDiodeDigiCollection_ = ps.getParameter<edm::InputTag>("EcalPnDiodeDigiCollection");
   EcalRecHitCollection_ = ps.getParameter<edm::InputTag>("EcalRecHitCollection");
   EcalTrigPrimDigiCollection_ = ps.getParameter<edm::InputTag>("EcalTrigPrimDigiCollection");
-  EcalRawDataCollection_ = ps.getParameter<edm::InputTag>("EcalRawDataCollection");
 
   for (int i = 0; i < 36; i++) {
     meOccupancy_[i]    = 0;
@@ -285,6 +285,12 @@ void EBOccupancyTask::analyze(const Event& e, const EventSetup& c){
 
   ievt_++;
 
+  Handle<EcalRawDataCollection> dcchs;
+
+  if ( e.getByLabel(EcalRawDataCollection_, dcchs) ) {
+    LogWarning("EBOccupancyTask") << EcalRawDataCollection_ << " not available";
+  }
+
   Handle<EBDigiCollection> digis;
 
   if ( e.getByLabel(EBDigiCollection_, digis) ) {
@@ -327,43 +333,36 @@ void EBOccupancyTask::analyze(const Event& e, const EventSetup& c){
       if ( meEBDigiOccupancyProjEta_ ) meEBDigiOccupancyProjEta_->Fill( xebeta );
       if ( meEBDigiOccupancyProjPhi_ ) meEBDigiOccupancyProjPhi_->Fill( xebphi );
 
+      if ( dcchs.isValid() ) {
 
-      Handle<EcalRawDataCollection> dcchs;
+        for ( EcalRawDataCollection::const_iterator dcchItr = dcchs->begin(); dcchItr != dcchs->end(); ++dcchItr ) {
 
-      if ( e.getByLabel(EcalRawDataCollection_, dcchs) ) {
-
-	for ( EcalRawDataCollection::const_iterator dcchItr = dcchs->begin(); dcchItr != dcchs->end(); ++dcchItr ) {
-
-	  EcalDCCHeaderBlock dcch = (*dcchItr);
+          EcalDCCHeaderBlock dcch = (*dcchItr);
 
           if ( Numbers::subDet( dcch ) != EcalBarrel ) continue;
 
-	  if ( dcch.getRunType() == EcalDCCHeaderBlock::TESTPULSE_MGPA ||
-	       dcch.getRunType() == EcalDCCHeaderBlock::TESTPULSE_GAP ) {
+          if ( dcch.getRunType() == EcalDCCHeaderBlock::TESTPULSE_MGPA ||
+               dcch.getRunType() == EcalDCCHeaderBlock::TESTPULSE_GAP ) {
 
-	    if ( meEBTestPulseDigiOccupancy_ ) meEBTestPulseDigiOccupancy_->Fill( xebphi, xebeta );
+            if ( meEBTestPulseDigiOccupancy_ ) meEBTestPulseDigiOccupancy_->Fill( xebphi, xebeta );
 
-	  }
+          }
 
-	  if ( dcch.getRunType() == EcalDCCHeaderBlock::LASER_STD ||
-	       dcch.getRunType() == EcalDCCHeaderBlock::LASER_GAP ) {
+          if ( dcch.getRunType() == EcalDCCHeaderBlock::LASER_STD ||
+               dcch.getRunType() == EcalDCCHeaderBlock::LASER_GAP ) {
 
-	    if ( meEBLaserDigiOccupancy_ ) meEBLaserDigiOccupancy_->Fill( xebphi, xebeta );
+            if ( meEBLaserDigiOccupancy_ ) meEBLaserDigiOccupancy_->Fill( xebphi, xebeta );
 
-	  }
+          }
 
-	  if ( dcch.getRunType() == EcalDCCHeaderBlock::PEDESTAL_STD ||
-	       dcch.getRunType() == EcalDCCHeaderBlock::PEDESTAL_GAP ) {
+          if ( dcch.getRunType() == EcalDCCHeaderBlock::PEDESTAL_STD ||
+               dcch.getRunType() == EcalDCCHeaderBlock::PEDESTAL_GAP ) {
 
-	    if ( meEBPedestalDigiOccupancy_ ) meEBPedestalDigiOccupancy_->Fill( xebphi, xebeta );
+            if ( meEBPedestalDigiOccupancy_ ) meEBPedestalDigiOccupancy_->Fill( xebphi, xebeta );
 
-	  }
+          }
 
-	}
-
-      } else {
-
-	LogWarning("EBOccupancyTask") << EcalRawDataCollection_ << " not available";
+        }
 
       }
 

@@ -4,8 +4,8 @@
 /*
  * \file EEOccupancyTask.h
  *
- * $Date: 2008/02/20 13:05:29 $
- * $Revision: 1.15 $
+ * $Date: 2008/02/29 15:07:51 $
+ * $Revision: 1.16 $
  * \author G. Della Ricca
  *
 */
@@ -52,11 +52,11 @@ DQMStore* dbe_;
 
 bool enableCleanup_;
 
+edm::InputTag EcalRawDataCollection_;
 edm::InputTag EEDigiCollection_;
 edm::InputTag EcalPnDiodeDigiCollection_;
 edm::InputTag EcalRecHitCollection_;
 edm::InputTag EcalTrigPrimDigiCollection_;
-edm::InputTag EcalRawDataCollection_;
 
 MonitorElement* meEvent_[18];
 MonitorElement* meOccupancy_[18];
