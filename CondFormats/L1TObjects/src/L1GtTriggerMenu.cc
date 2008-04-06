@@ -347,26 +347,25 @@ void L1GtTriggerMenu::print(std::ostream& myCout, int& printVerbosity) const {
 
 // get the result for algorithm with name algName
 // use directly the format of decisionWord (no typedef) 
-bool L1GtTriggerMenu::gtAlgorithmResult(const std::string& algName, const std::vector<bool>& decWord) {
-    
-    bool algResult = false;
-    
-    for (CItAlgo itAlgo = m_algorithmMap.begin(); itAlgo != m_algorithmMap.end(); itAlgo++) {
+const bool L1GtTriggerMenu::gtAlgorithmResult(const std::string& algName,
+        const std::vector<bool>& decWord) const {
 
+    bool algResult = false;
+
+    CItAlgo itAlgo = m_algorithmMap.find(algName);
+    if (itAlgo != m_algorithmMap.end()) {
         int bitNumber = (itAlgo->second).algoBitNumber();
         algResult = decWord.at(bitNumber);
-        
         return algResult;
-        
     }
-    
+
     // return false if the algorithm name is not found in the menu
-    // TODO throw exception will be better - but the class is used in 
+    // TODO throw exception or LogInfo would be better - but the class is used in 
     // XDAQ Trigger Supervisor (outside CMSSW) hence no CMSSW dependence
-    // is allowed here
-   
+    // is allowed here...
+
     return false;
-    
+
 }
 
 

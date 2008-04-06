@@ -159,10 +159,11 @@ public:
     void print(std::ostream&, int&) const;
 
 public:
-    
+
     /// get the result for algorithm with name algName
     /// use directly the format of decisionWord (no typedef) 
-    bool gtAlgorithmResult(const std::string& algName, const std::vector<bool>& decWord);
+    const bool gtAlgorithmResult(const std::string& algName,
+            const std::vector<bool>& decWord) const;
     
 private:
 
