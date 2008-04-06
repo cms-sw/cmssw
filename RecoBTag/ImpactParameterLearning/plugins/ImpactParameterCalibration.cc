@@ -13,7 +13,7 @@
 //
 // Original Author:  Jeremy Andrea/Andrea Rizzi
 //         Created:  Mon Aug  6 16:10:38 CEST 2007
-// $Id: ImpactParameterCalibration.cc,v 1.8 2008/03/05 18:10:25 tboccali Exp $
+// $Id: ImpactParameterCalibration.cc,v 1.9 2008/03/06 08:18:49 tboccali Exp $
 //
 //
 // system include files
@@ -181,7 +181,7 @@ ImpactParameterCalibration::analyze(const edm::Event& iEvent, const edm::EventSe
         it_begin=m_calibration[i]->data.begin();
         it_end=m_calibration[i]->data.end();
   
-      for(unsigned int j=0;j<ip.size(); j++)
+      for(unsigned int j=0;j<selTracks.size(); j++)
         {
           double ipsig;
           if (i==0) ipsig  = it->impactParameterData()[j].ip3d.significance();
@@ -372,7 +372,7 @@ ImpactParameterCalibration::endJob() {
   {
     edm::Service<cond::service::PoolDBOutputService> mydbservice;
     if( !mydbservice.isAvailable() ) return;
-    if(minLoop == 0 )    mydbservice->createNewIOV<TrackProbabilityCalibration>(m_calibration[0], mydbservice->beginOfTime(), mydbservice->endOfTime(),"BTagTrackProbability3DRcd");
+    if(minLoop == 0 )  mydbservice->createNewIOV<TrackProbabilityCalibration>(m_calibration[0], mydbservice->beginOfTime(), mydbservice->endOfTime(),"BTagTrackProbability3DRcd");
     if(maxLoop == 1)   mydbservice->createNewIOV<TrackProbabilityCalibration>(m_calibration[1],  mydbservice->beginOfTime(), mydbservice->endOfTime(),"BTagTrackProbability2DRcd");
   } 
     

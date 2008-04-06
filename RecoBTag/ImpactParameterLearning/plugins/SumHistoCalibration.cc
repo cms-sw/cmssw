@@ -13,7 +13,7 @@
 //
 // Original Author:  Jeremy Andrea
 //         Created:  Wed Mar  5 19:17:38 CEST 2008
-// $Id: SumHistoCalibration.cc,v 1.1 2008/03/05 18:16:36 jandrea Exp $
+// $Id: SumHistoCalibration.cc,v 1.2 2008/03/05 18:17:51 jandrea Exp $
 //
 //
 // system include files
@@ -125,45 +125,6 @@ SumHistoCalibration::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
   using namespace reco;
   using namespace std;
 
-  
-  /*
-  const TrackProbabilityCalibration * ca;
-  
-  if(m_sum3D){
-   
-      cout << "in sum 3 "  << endl;
-    for(int itFile =1; itFile< m_xmlilelist3d.size(); itFile++){
-      edm::FileInPath fip(m_xmlilelist3d[itFile]);
-      ca  = fromXml(fip);
-      cout << "itFile " << itFile << endl;
-      for(unsigned int j=0;j<ca->data.size() ; j++)
-	{
-	  for(int k = 0; k< m_calibration[0]->data[j].histogram.numberOfBins(); k++){
-            cout << "k " << k << endl;	
-            cout << "bin content "       << ca->data[j].histogram.binContent(k) << endl;
-            cout << "bin content filled" << m_calibration[0]->data[j].histogram.binContent(k)<< endl;	
-	    m_calibration[0]->data[j].histogram.setBinContent(k,ca->data[j].histogram.binContent(k)
-							      + m_calibration[0]->data[j].histogram.binContent(k)); 
-	  }
-	}
-    } 
-  }
-  if(m_sum2D){
-    for(int itFile =1; itFile< m_xmlilelist2d.size(); itFile++){
-      edm::FileInPath fip(m_xmlilelist3d[itFile]);
-      ca  = fromXml(fip);
-      for(unsigned int j=0;j<ca->data.size() ; j++)
-	{
-	  for(int k = 0; k< m_calibration[1]->data[j].histogram.numberOfBins(); k++){
-	    m_calibration[1]->data[j].histogram.setBinContent(k,ca->data[j].histogram.binContent(k)
-							      + m_calibration[1]->data[j].histogram.binContent(k)); 
-	  }
-      } 
-    }
-  }
-  delete ca;
-  */
-  
 }
 
 
@@ -296,7 +257,6 @@ SumHistoCalibration::endJob() {
   delete ca;
   
   
-  cout << "ligne 297 " << endl;
   
   
   
