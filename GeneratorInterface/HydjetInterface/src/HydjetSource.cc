@@ -1,5 +1,5 @@
 /*
- * $Id: HydjetSource.cc,v 1.16 2008/01/28 15:32:03 yilmaz Exp $
+ * $Id: HydjetSource.cc,v 1.17 2008/03/25 17:45:22 yilmaz Exp $
  *
  * Interface to the HYDJET generator, produces HepMC events
  *
@@ -233,7 +233,6 @@ bool HydjetSource::get_hard_particles(HepMC::GenEvent *evt, vector<SubEvent>& su
 
 	 //The Fortran code is modified to preserve mother id info, by seperating the beginning 
          //mother indices of successive subevents by 10000.
-
 	 int mid = mother_ids[i]-isub*10000-1;
 	 if(mid <= 0){
 	    sub_vertices[isub]->add_particle_out(part);
@@ -247,11 +246,18 @@ bool HydjetSource::get_hard_particles(HepMC::GenEvent *evt, vector<SubEvent>& su
 	       prod_vertex = prods[i];
 	       prod_vertex->add_particle_in(mother);
 	       evt->add_vertex(prod_vertex);
+               prods[i]=0; // mark to protect deletion
 	    }
 	    prod_vertex->add_particle_out(part);
 	 }
       }
+
+      // cleanup vertices not assigned to evt
+      for (unsigned int i = 0; i<prods.size(); i++) {
+         if(prods[i]) delete prods[i];
+      }
    }
+
   return true;
 }
 
@@ -274,7 +280,7 @@ bool HydjetSource::get_soft_particles(HepMC::GenEvent *evt, vector<SubEvent>& su
       soft_vertex->add_particle_out( hyj_entries[i2] ) ;
    } 
    evt->add_vertex( soft_vertex );
-   
+
    return true;
 }
 
@@ -460,9 +466,6 @@ bool HydjetSource::produce(Event & e)
   if (event() <= maxEventsToPrint_ && pythiaPylistVerbosity_)     
      call_pylist(pythiaPylistVerbosity_);      
   
-
   return true;
 }
 
-
-//________________________________________________________________
