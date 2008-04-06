@@ -1,8 +1,8 @@
 /*
  * \file EBTimingClient.cc
  *
- * $Date: 2008/03/15 14:50:55 $
- * $Revision: 1.76 $
+ * $Date: 2008/04/05 10:07:43 $
+ * $Revision: 1.77 $
  * \author G. Della Ricca
  *
 */
@@ -57,8 +57,10 @@ EBTimingClient::EBTimingClient(const ParameterSet& ps){
     int ism = superModules_[i];
 
     h01_[ism-1] = 0;
+    h02_[ism-1] = 0;
 
     meh01_[ism-1] = 0;
+    meh02_[ism-1] = 0;
 
   }
 
@@ -76,8 +78,8 @@ EBTimingClient::EBTimingClient(const ParameterSet& ps){
 
   }
 
-  expectedMean_ = 6.0;
-  discrepancyMean_ = 1.2;
+  expectedMean_ = 5.0;
+  discrepancyMean_ = 0.5;
   RMSThreshold_ = 2.5;
 
 }
@@ -189,11 +191,14 @@ void EBTimingClient::cleanup(void) {
 
     if ( cloneME_ ) {
       if ( h01_[ism-1] ) delete h01_[ism-1];
+      if ( h02_[ism-1] ) delete h02_[ism-1];
     }
 
     h01_[ism-1] = 0;
+    h02_[ism-1] = 0;
 
     meh01_[ism-1] = 0;
+    meh02_[ism-1] = 0;
 
   }
 
@@ -330,6 +335,11 @@ void EBTimingClient::analyze(void){
     h01_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, h01_[ism-1] );
     meh01_[ism-1] = me;
 
+    sprintf(histo, "EcalBarrel/EBTimingTask/EBTMT timing vs amplitude %s", Numbers::sEB(ism).c_str());
+    me = dbe_->get(histo);
+    h02_[ism-1] = UtilsClient::getHisto<TH2F*>( me, cloneME_, h02_[ism-1] );
+    meh02_[ism-1] = me;
+
     if ( meg01_[ism-1] ) meg01_[ism-1]->Reset();
     if ( mea01_[ism-1] ) mea01_[ism-1]->Reset();
     if ( mep01_[ism-1] ) mep01_[ism-1]->Reset();
@@ -448,6 +458,8 @@ void EBTimingClient::htmlOutput(int run, string& htmlDir, string& htmlName){
   const double histMax = 1.e15;
 
   int pCol3[6] = { 301, 302, 303, 304, 305, 306 };
+  int pCol4[10];
+  for ( int i = 0; i < 10; i++ ) pCol4[i] = 401+i;
 
   TH2C dummy( "dummy", "dummy for sm", 85, 0., 85., 20, 0., 20. );
   for ( int i = 0; i < 68; i++ ) {
@@ -458,12 +470,13 @@ void EBTimingClient::htmlOutput(int run, string& htmlDir, string& htmlName){
   dummy.SetMarkerSize(2);
   dummy.SetMinimum(0.1);
 
-  string imgNameQual, imgNameTim, imgNameMean, imgNameRMS, imgName, meName;
+  string imgNameQual, imgNameTim, imgNameMean, imgNameRMS, imgNameAmpl, imgName, meName;
 
   TCanvas* cQual = new TCanvas("cQual", "Temp", 0, 0, 3*csize, csize);
   TCanvas* cTim = new TCanvas("cTim", "Temp", 0, 0, csize, csize);
   TCanvas* cMean = new TCanvas("cMean", "Temp", 0, 0, csize, csize);
   TCanvas* cRMS = new TCanvas("cRMS", "Temp", 0, 0, csize, csize);
+  TCanvas* cAmpl = new TCanvas("cAmpl", "Temp", 0, 0, 2*csize, csize);
 
   TH2F* obj2f;
   TH1F* obj1f;
@@ -597,6 +610,36 @@ void EBTimingClient::htmlOutput(int run, string& htmlDir, string& htmlName){
 
     }
 
+    // Amplitude vs. Time distributions
+
+    obj2f = h02_[ism-1];
+
+    imgNameAmpl = "";
+
+    if ( obj2f ) {
+
+      meName = obj2f->GetName();
+
+      replace(meName.begin(), meName.end(), ' ', '_');
+      imgNameAmpl = meName + ".png";
+      imgName = htmlDir + imgNameAmpl;
+
+      cAmpl->cd();
+      gStyle->SetOptStat(" ");
+      gStyle->SetPalette(10, pCol4);
+      obj2f->SetMinimum(0.0);
+      if ( obj2f->GetMaximum(histMax) > 0. ) {
+        gPad->SetLogz(kTRUE);
+      } else {
+        gPad->SetLogz(kFALSE);
+      }
+      obj2f->Draw("colz");
+      cAmpl->Update();
+      cAmpl->SaveAs(imgName.c_str());
+      gPad->SetLogz(kFALSE);
+
+    }
+
     if( i>0 ) htmlFile << "<a href=""#top"">Top</a>" << std::endl;
     htmlFile << "<hr>" << std::endl;
     htmlFile << "<h3><a name="""
@@ -634,12 +677,25 @@ void EBTimingClient::htmlOutput(int run, string& htmlDir, string& htmlName){
     htmlFile << "</table>" << endl;
     htmlFile << "<br>" << endl;
 
+    htmlFile << "<table border=\"0\" cellspacing=\"0\" " << endl;
+    htmlFile << "cellpadding=\"10\" align=\"center\"> " << endl;
+    htmlFile << "<tr align=\"center\">" << endl;
+
+    if ( imgNameAmpl.size() != 0 )
+      htmlFile << "<td colspan=\"3\"><img src=\"" << imgNameAmpl << "\"></td>" << endl;
+    else
+      htmlFile << "<td colspan=\"3\"><img src=\"" << " " << "\"></td>" << endl;
+
+    htmlFile << "</table>" << endl;
+    htmlFile << "<br>" << endl;
+
   }
 
   delete cQual;
   delete cTim;
   delete cMean;
   delete cRMS;
+  delete cAmpl;
 
   // html page footer
   htmlFile << "</body> " << endl;

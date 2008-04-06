@@ -4,8 +4,8 @@
 /*
  * \file EBTimingClient.h
  *
- * $Date: 2008/03/14 14:38:54 $
- * $Revision: 1.18 $
+ * $Date: 2008/03/15 14:50:54 $
+ * $Revision: 1.19 $
  * \author G. Della Ricca
  *
 */
@@ -86,8 +86,10 @@ std::vector<int> superModules_;
 DQMStore* dbe_;
 
 MonitorElement* meh01_[36];
+MonitorElement* meh02_[36];
 
 TProfile2D* h01_[36];
+TH2F* h02_[36];
 
 MonitorElement* meg01_[36];
 

@@ -1,8 +1,8 @@
 /*
  * \file EETimingTask.cc
  *
- * $Date: 2008/02/29 15:08:38 $
- * $Revision: 1.26 $
+ * $Date: 2008/04/02 19:14:25 $
+ * $Revision: 1.27 $
  * \author G. Della Ricca
  *
 */
@@ -18,6 +18,7 @@
 
 #include "DQMServices/Core/interface/DQMStore.h"
 
+#include "DataFormats/EcalRawData/interface/EcalRawDataCollections.h"
 #include "DataFormats/EcalDetId/interface/EEDetId.h"
 #include "DataFormats/EcalRecHit/interface/EcalUncalibratedRecHit.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
@@ -39,10 +40,12 @@ EETimingTask::EETimingTask(const ParameterSet& ps){
 
   enableCleanup_ = ps.getUntrackedParameter<bool>("enableCleanup", false);
 
+  EcalRawDataCollection_ = ps.getParameter<edm::InputTag>("EcalRawDataCollection");
   EcalUncalibratedRecHitCollection_ = ps.getParameter<edm::InputTag>("EcalUncalibratedRecHitCollection");
 
   for (int i = 0; i < 18; i++) {
     meTimeMap_[i] = 0;
+    meTimeAmpli_[i] = 0;
   }
 
 }
@@ -79,6 +82,12 @@ void EETimingTask::setup(void){
       meTimeMap_[i]->setAxisTitle("jx", 1);
       meTimeMap_[i]->setAxisTitle("jy", 2);
       dbe_->tag(meTimeMap_[i], i+1);
+
+      sprintf(histo, "EETMT timing vs amplitude %s", Numbers::sEE(i+1).c_str());
+      meTimeAmpli_[i] = dbe_->book2D(histo, histo, 200, 0., 200., 100, 0., 10.);
+      meTimeAmpli_[i]->setAxisTitle("amplitude", 1);
+      meTimeAmpli_[i]->setAxisTitle("jitter", 2);
+      dbe_->tag(meTimeAmpli_[i], i+1);
     }
 
   }
@@ -113,6 +122,43 @@ void EETimingTask::endJob(void){
 
 void EETimingTask::analyze(const Event& e, const EventSetup& c){
 
+  bool enable = false;
+  map<int, EcalDCCHeaderBlock> dccMap;
+
+  Handle<EcalRawDataCollection> dcchs;
+
+  if ( e.getByLabel(EcalRawDataCollection_, dcchs) ) {
+
+    for ( EcalRawDataCollection::const_iterator dcchItr = dcchs->begin(); dcchItr != dcchs->end(); ++dcchItr ) {
+
+      EcalDCCHeaderBlock dcch = (*dcchItr);
+
+      if ( Numbers::subDet( dcch ) != EcalBarrel ) continue;
+
+      int ism = Numbers::iSM( dcch, EcalBarrel );
+
+      map<int, EcalDCCHeaderBlock>::iterator i = dccMap.find( ism );
+      if ( i != dccMap.end() ) continue;
+
+      dccMap[ ism ] = dcch;
+
+      if ( dcch.getRunType() == EcalDCCHeaderBlock::COSMIC ||
+           dcch.getRunType() == EcalDCCHeaderBlock::MTCC ||
+           dcch.getRunType() == EcalDCCHeaderBlock::COSMICS_GLOBAL ||
+           dcch.getRunType() == EcalDCCHeaderBlock::PHYSICS_GLOBAL ||
+           dcch.getRunType() == EcalDCCHeaderBlock::COSMICS_LOCAL ||
+           dcch.getRunType() == EcalDCCHeaderBlock::PHYSICS_LOCAL ) enable = true;
+
+    }
+
+  } else {
+
+    LogWarning("EETimingTask") << EcalRawDataCollection_ << " not available";
+
+  }
+
+//  if ( ! enable ) return;
+
   if ( ! init_ ) this->setup();
 
   ievt_++;
@@ -139,12 +185,24 @@ void EETimingTask::analyze(const Event& e, const EventSetup& c){
       float xix = ix - 0.5;
       float xiy = iy - 0.5;
 
+      map<int, EcalDCCHeaderBlock>::iterator i = dccMap.find(ism);
+//      if ( i == dccMap.end() ) continue;
+
+//      if ( ! ( dccMap[ism].getRunType() == EcalDCCHeaderBlock::COSMIC ||
+//               dccMap[ism].getRunType() == EcalDCCHeaderBlock::MTCC ||
+//               dccMap[ism].getRunType() == EcalDCCHeaderBlock::COSMICS_GLOBAL ||
+//               dccMap[ism].getRunType() == EcalDCCHeaderBlock::PHYSICS_GLOBAL ||
+//               dccMap[ism].getRunType() == EcalDCCHeaderBlock::COSMICS_LOCAL ||
+//               dccMap[ism].getRunType() == EcalDCCHeaderBlock::PHYSICS_LOCAL ) ) continue;
+
       LogDebug("EETimingTask") << " det id = " << id;
       LogDebug("EETimingTask") << " sm, ix, iy " << ism << " " << ix << " " << iy;
 
       MonitorElement* meTimeMap = 0;
+      MonitorElement* meTimeAmpli = 0;
 
       meTimeMap = meTimeMap_[ism-1];
+      meTimeAmpli = meTimeAmpli_[ism-1];
 
       float xval = hit.amplitude();
       if ( xval <= 0. ) xval = 0.0;
@@ -157,7 +215,9 @@ void EETimingTask::analyze(const Event& e, const EventSetup& c){
       LogDebug("EETimingTask") << " hit jitter " << yval;
       LogDebug("EETimingTask") << " hit pedestal " << zval;
 
-      if ( xval <= 2. ) continue;
+      if ( meTimeAmpli ) meTimeAmpli->Fill(xval, yval);
+
+      if ( xval <= 16. ) continue;
 
       if ( meTimeMap ) meTimeMap->Fill(xix, xiy, yval);
 

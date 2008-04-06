@@ -4,8 +4,8 @@
 /*
  * \file EETimingTask.h
  *
- * $Date: 2007/11/13 13:20:52 $
- * $Revision: 1.5 $
+ * $Date: 2008/02/29 15:07:54 $
+ * $Revision: 1.6 $
  * \author G. Della Ricca
  *
 */
@@ -52,9 +52,11 @@ DQMStore* dbe_;
 
 bool enableCleanup_;
 
+edm::InputTag EcalRawDataCollection_;
 edm::InputTag EcalUncalibratedRecHitCollection_;
 
 MonitorElement* meTimeMap_[18];
+MonitorElement* meTimeAmpli_[18];
 
 bool init_;
 

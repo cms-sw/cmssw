@@ -4,8 +4,8 @@
 /*
  * \file EETimingClient.h
  *
- * $Date: 2008/03/14 14:38:57 $
- * $Revision: 1.14 $
+ * $Date: 2008/03/15 14:50:55 $
+ * $Revision: 1.15 $
  * \author G. Della Ricca
  *
 */
@@ -86,8 +86,10 @@ std::vector<int> superModules_;
 DQMStore* dbe_;
 
 MonitorElement* meh01_[18];
+MonitorElement* meh02_[18];
 
 TProfile2D* h01_[18];
+TH2F* h02_[18];
 
 MonitorElement* meg01_[18];
 
