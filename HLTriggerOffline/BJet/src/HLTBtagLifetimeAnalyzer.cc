@@ -260,7 +260,7 @@ bool HLTBtagLifetimeAnalyzer::cachePathDescription(const edm::ParameterSetID & t
       edm::LogVerbatim("HLTBtagAnalyzer") << "filter " << level.m_filter.label() << " has index " << level.m_filterIndex << " in path " << m_triggerPath;
     } else {
       level.m_filterIndex = 0;
-      edm::LogVerbatim("HLTBtagAnalyzer") << "filter " << level.m_filter.label() << " not found in path " << m_triggerPath;
+      edm::Warning("HLTBtagAnalyzer") << "filter " << level.m_filter.label() << " not found in path " << m_triggerPath;
     }
   }
 
@@ -299,11 +299,11 @@ void HLTBtagLifetimeAnalyzer::analyze(const edm::Event & event, const edm::Event
 
   // debug information regarding th path status
   if (not wasrun)
-    edm::LogVerbatim("HLTBtagAnalyzer") << "  path " << m_triggerPath << " was not run";
+    LogTrace("HLTBtagAnalyzer") << "  path " << m_triggerPath << " was not run";
   else if (accepted)
-    edm::LogVerbatim("HLTBtagAnalyzer") << "  path " << m_triggerPath << " accepted the event";
+    LogTrace("HLTBtagAnalyzer") << "  path " << m_triggerPath << " accepted the event";
   else
-    edm::LogVerbatim("HLTBtagAnalyzer") << "  path " << m_triggerPath << " rejected the event at module " << m_pathModules[latest];
+    LogTrace("HLTBtagAnalyzer") << "  path " << m_triggerPath << " rejected the event at module " << m_pathModules[latest];
 
   edm::Handle<reco::VertexCollection> h_vertex;
   event.getByLabel(m_vertex, h_vertex);
