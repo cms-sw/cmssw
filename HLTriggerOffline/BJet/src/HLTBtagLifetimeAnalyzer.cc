@@ -260,7 +260,7 @@ bool HLTBtagLifetimeAnalyzer::cachePathDescription(const edm::ParameterSetID & t
       edm::LogVerbatim("HLTBtagAnalyzer") << "filter " << level.m_filter.label() << " has index " << level.m_filterIndex << " in path " << m_triggerPath;
     } else {
       level.m_filterIndex = 0;
-      edm::Warning("HLTBtagAnalyzer") << "filter " << level.m_filter.label() << " not found in path " << m_triggerPath;
+      edm::LogWarning("HLTBtagAnalyzer") << "filter " << level.m_filter.label() << " not found in path " << m_triggerPath;
     }
   }
 
