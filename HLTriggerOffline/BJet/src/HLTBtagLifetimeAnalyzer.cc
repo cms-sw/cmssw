@@ -11,6 +11,7 @@
 #include <TH3.h>
 #include <Math/GenVector/VectorUtil.h>
 
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -228,25 +229,15 @@ bool HLTBtagLifetimeAnalyzer::cachePathDescription(const edm::ParameterSetID & t
   std::vector<std::string>    paths;
 
   if (registry->getMapped(triggerPSetID, pset)) {
-    #if 0
-    std::ofstream out("trigger.pset");
-    out << pset;
-    out.close();
-    #endif
     paths = pset.getParameter<std::vector<std::string> >("@trigger_paths");
   } else {
-    std::cerr << "cannot map HLT trigger names to indices" << std::endl;
+    edm::LogWarning("HLTBtagAnalyzer") << "cannot map HLT trigger names to indices";
     return false;
   }
   if (registry->getMapped(processPSetID, pset)) {
-    #if 0
-    std::ofstream out("process.pset");
-    out << pset;
-    out.close();
-    #endif
     m_pathModules = pset.getParameter<std::vector<std::string> >(m_triggerPath);
   } else {
-    std::cerr << "cannot find HLT path " << m_triggerPath << " in the process description" << std::endl;
+    edm::LogWarning("HLTBtagAnalyzer") << "cannot find HLT path " << m_triggerPath << " in the process description";
     return false;
   }
 
@@ -254,7 +245,7 @@ bool HLTBtagLifetimeAnalyzer::cachePathDescription(const edm::ParameterSetID & t
     if (paths[m_pathIndex] == m_triggerPath)
       break;
   if (m_pathIndex == paths.size()) {
-    std::cerr << "cannot find HLT path " << m_triggerPath << std::endl;
+    edm::LogWarning("HLTBtagAnalyzer") << "cannot find HLT path " << m_triggerPath;
     return false;
   }
 
@@ -264,10 +255,10 @@ bool HLTBtagLifetimeAnalyzer::cachePathDescription(const edm::ParameterSetID & t
     std::vector<std::string>::const_iterator i = std::find(m_pathModules.begin(), m_pathModules.end(), level.m_filter.label());
     if (i != m_pathModules.end()) {
       level.m_filterIndex = i - m_pathModules.begin();
-      std::cerr << "filter " << level.m_filter.label() << " has index " << level.m_filterIndex << " in path " << m_triggerPath << std::endl;
+      edm::LogInfo("HLTBtagAnalyzer") << "filter " << level.m_filter.label() << " has index " << level.m_filterIndex << " in path " << m_triggerPath;
     } else {
       level.m_filterIndex = 0;
-      std::cerr << "filter " << level.m_filter.label() << " not found in path " << m_triggerPath << std::endl;
+      edm::LogInfo("HLTBtagAnalyzer") << "filter " << level.m_filter.label() << " not found in path " << m_triggerPath;
     }
   }
 
@@ -280,19 +271,19 @@ void HLTBtagLifetimeAnalyzer::analyze(const edm::Event & event, const edm::Event
   edm::Handle<edm::TriggerResults> h_triggerResults;
   event.getByLabel(m_triggerResults, h_triggerResults);
   if (not h_triggerResults.isValid()) {
-    std::cerr << "invalid edm::TriggerResults handle" << std::endl;
+    edm::LogWarning("HLTBtagAnalyzer") << "invalid edm::TriggerResults handle";
     return;
   }
 
   edm::Handle<trigger::TriggerEventWithRefs> h_triggerEvent;
   event.getByLabel(m_triggerEvent, h_triggerEvent);
   if (not h_triggerEvent.isValid()) {
-    std::cerr << "invalid trigger::TriggerEventWithRefs handle" << std::endl;
+    edm::LogWarning("HLTBtagAnalyzer") << "invalid trigger::TriggerEventWithRefs handle";
     return;
   }
 
   if (not cachePathDescription(* h_triggerResults, * h_triggerEvent)) {
-    std::cerr << "unable to access trigger informations and description for path " << m_triggerPath << std::endl;
+    edm::LogWarning("HLTBtagAnalyzer") << "unable to access trigger informations and description for path " << m_triggerPath;
     return;
   }
 
@@ -300,17 +291,17 @@ void HLTBtagLifetimeAnalyzer::analyze(const edm::Event & event, const edm::Event
   unsigned int latest   = h_triggerResults->index( m_pathIndex );
   bool         accepted = h_triggerResults->accept( m_pathIndex );
   if (latest >= m_pathModules.size()) {
-    std::cerr << "error determinig the path stopping condition: module position exceeds path length" << std::endl;
+    edm::LogWarning("HLTBtagAnalyzer") << "error determinig the path stopping condition: module position exceeds path length";
     return;
   }
 
   // debug information regarding th path status
   if (not wasrun)
-    std::cout << "  path " << m_triggerPath << " was not run" << std::endl;
+    edm::LogInfo("HLTBtagAnalyzer") << "  path " << m_triggerPath << " was not run";
   else if (accepted)
-    std::cout << "  path " << m_triggerPath << " accepted the event" << std::endl;
+    edm::LogInfo("HLTBtagAnalyzer") << "  path " << m_triggerPath << " accepted the event";
   else
-    std::cout << "  path " << m_triggerPath << " rejected the event at module " << m_pathModules[latest] << std::endl;
+    edm::LogInfo("HLTBtagAnalyzer") << "  path " << m_triggerPath << " rejected the event at module " << m_pathModules[latest];
 
   edm::Handle<reco::VertexCollection> h_vertex;
   event.getByLabel(m_vertex, h_vertex);
@@ -330,10 +321,8 @@ void HLTBtagLifetimeAnalyzer::analyze(const edm::Event & event, const edm::Event
 
     bool passed = accepted or (latest > level.m_filterIndex);               // accepted by this filter
     bool failed = (not accepted) and (latest == level.m_filterIndex);       // rejected by this filter
-    //bool notrun = (not accepted) and (latest  < level.m_filterIndex);       // did not reach this filter
-    #ifdef DEBUG
-    std::cout << "  path " << m_triggerPath << ", filter " << std::setw(32) << std::left << level.m_filter.label() << std::right << (passed ? "passed" : failed ? "failed" : "not run") << std::endl;
-    #endif
+    bool notrun = (not accepted) and (latest  < level.m_filterIndex);       // did not reach this filter
+    LogDebug("HLTBtagAnalyzer") << "  path " << m_triggerPath << ", filter " << std::setw(32) << std::left << level.m_filter.label() << std::right << (passed ? "passed" : failed ? "failed" : "not run");
     
     edm::Handle<edm::View<reco::Jet> >                  h_jets;
     edm::Handle<reco::JetTracksAssociation::Container>  h_tracks;
@@ -379,19 +368,16 @@ void HLTBtagLifetimeAnalyzer::analyze(const edm::Event & event, const edm::Event
       break;
     }
   }
-  #ifdef DEBUG
-  std::cout << std::endl;
-  #endif
 }
 
 void HLTBtagLifetimeAnalyzer::endJob()
 {
   // compute and print overall per-event efficiencies
-  std::cout << m_triggerPath << " HLT Trigger path" << std::endl << std::endl;
+  edm::LogVerbatim("HLTBtagAnalyzer") << m_triggerPath << " HLT Trigger path" << std::endl << std::endl;
   for (unsigned int i = 0; i < m_levels.size(); ++i) {
     std::stringstream out;
     out << std::setw(64) << std::left << ("events passing " + m_levels[i].m_title) << std::right << std::setw(12) << m_events[i];
-    std::cout << m_triggerPath << ":" << out.str() << std::endl;
+    edm::LogVerbatim("HLTBtagAnalyzer") << m_triggerPath << ":" << out.str() << std::endl;
   }
   for (unsigned int i = 1; i < m_levels.size(); ++i) {
     std::stringstream out;
@@ -402,7 +388,7 @@ void HLTBtagLifetimeAnalyzer::endJob()
     } else {
       out << std::right << std::setw(12) << "NaN";
     }
-    std::cout << m_triggerPath << ":" << out.str() << std::endl;
+    edm::LogVerbatim("HLTBtagAnalyzer") << m_triggerPath << ":" << out.str() << std::endl;
   }
   for (unsigned int i = 1; i < m_levels.size(); ++i) {
     std::stringstream out;
@@ -413,9 +399,9 @@ void HLTBtagLifetimeAnalyzer::endJob()
     } else {
       out << std::right << std::setw(12) << "NaN";
     }
-    std::cout << m_triggerPath << ":" << out.str() << std::endl;
+    edm::LogVerbatim("HLTBtagAnalyzer") << m_triggerPath << ":" << out.str() << std::endl;
   }
-  std::cout << std::endl;
+  edm::LogVerbatim("HLTBtagAnalyzer") << std::endl;
   
   TFile * file = new TFile(m_outputFile.c_str(), "UPDATE");
   TDirectory * dir = file->mkdir( m_triggerPath.c_str(), (m_triggerPath + " HLT path").c_str() );
