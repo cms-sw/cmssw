@@ -4,8 +4,8 @@
 /*
  * \file EcalEndcapMonitorModule.h
  *
- * $Date: 2008/02/15 10:40:30 $
- * $Revision: 1.12 $
+ * $Date: 2008/02/29 15:06:46 $
+ * $Revision: 1.13 $
  * \author G. Della Ricca
  *
 */
@@ -59,7 +59,6 @@ bool fixedRunType_;
 
 int ievt_;
 
-edm::InputTag EcalTBEventHeader_;
 edm::InputTag EcalRawDataCollection_;
 edm::InputTag EEDigiCollection_;
 edm::InputTag EcalRecHitCollection_;

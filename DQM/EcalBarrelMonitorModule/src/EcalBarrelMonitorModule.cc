@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorModule.cc
  *
- * $Date: 2008/03/22 08:32:46 $
- * $Revision: 1.172 $
+ * $Date: 2008/03/22 09:04:23 $
+ * $Revision: 1.173 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -41,7 +41,6 @@ EcalBarrelMonitorModule::EcalBarrelMonitorModule(const ParameterSet& ps){
 
   init_ = false;
 
-  EcalTBEventHeader_ = ps.getParameter<edm::InputTag>("EcalTBEventHeader");
   EcalRawDataCollection_ = ps.getParameter<edm::InputTag>("EcalRawDataCollection");
   EBDigiCollection_ = ps.getParameter<edm::InputTag>("EBDigiCollection");
   EcalRecHitCollection_ = ps.getParameter<edm::InputTag>("EcalRecHitCollection");

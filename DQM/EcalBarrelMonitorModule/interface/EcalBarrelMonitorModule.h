@@ -4,8 +4,8 @@
 /*
  * \file EcalBarrelMonitorModule.h
  *
- * $Date: 2008/02/15 10:40:26 $
- * $Revision: 1.50 $
+ * $Date: 2008/02/29 15:03:21 $
+ * $Revision: 1.51 $
  * \author G. Della Ricca
  *
 */
@@ -59,7 +59,6 @@ bool fixedRunType_;
 
 int ievt_;
 
-edm::InputTag EcalTBEventHeader_;
 edm::InputTag EcalRawDataCollection_;
 edm::InputTag EBDigiCollection_;
 edm::InputTag EcalRecHitCollection_;

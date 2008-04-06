@@ -1,8 +1,8 @@
 /*
  * \file EcalEndcapMonitorModule.cc
  *
- * $Date: 2008/03/22 08:32:46 $
- * $Revision: 1.48 $
+ * $Date: 2008/03/22 09:04:24 $
+ * $Revision: 1.49 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -41,7 +41,6 @@ EcalEndcapMonitorModule::EcalEndcapMonitorModule(const ParameterSet& ps){
 
   init_ = false;
 
-  EcalTBEventHeader_ = ps.getParameter<edm::InputTag>("EcalTBEventHeader");
   EcalRawDataCollection_ = ps.getParameter<edm::InputTag>("EcalRawDataCollection");
   EEDigiCollection_ = ps.getParameter<edm::InputTag>("EEDigiCollection");
   EcalRecHitCollection_ = ps.getParameter<edm::InputTag>("EcalRecHitCollection");
