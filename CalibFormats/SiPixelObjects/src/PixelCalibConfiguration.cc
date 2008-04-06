@@ -617,8 +617,16 @@ void PixelCalibConfiguration::nextFECState(PixelFECConfigInterface* pixelFEC,
       assert(hdwadd!=0);
       PixelHdwAddress theROC=*hdwadd;
           
+      //FIXME This is very inefficient
+      PixelModuleName module(rocs_[i].rocname());
+      
+      PixelTrimBase* moduleTrims=(*trims)[module];
+      
+      PixelROCTrimBits* rocTrims=moduleTrims->getTrimBits(rocs_[i]);
+
+
       //Turn off all pixels
-      disablePixels(pixelFEC, theROC);
+      disablePixels(pixelFEC, rocTrims, theROC);
 
     }
    
@@ -658,7 +666,15 @@ void PixelCalibConfiguration::nextFECState(PixelFECConfigInterface* pixelFEC,
 
       }
 
-      disablePixels(pixelFEC, i_row_previous, i_col_previous, theROC);
+      //FIXME This is very inefficient
+      PixelModuleName module(rocs_[i].rocname());
+      
+      PixelTrimBase* moduleTrims=(*trims)[module];
+      
+      PixelROCTrimBits* rocTrims=moduleTrims->getTrimBits(rocs_[i]);
+
+      disablePixels(pixelFEC, i_row_previous, i_col_previous, 
+		    rocTrims, theROC);
 
     }
   }
@@ -1013,6 +1029,7 @@ void PixelCalibConfiguration::enablePixels(PixelFECConfigInterface* pixelFEC,
 
 void PixelCalibConfiguration::disablePixels(PixelFECConfigInterface* pixelFEC,
 			      unsigned int irows, unsigned int icols,
+			      pos::PixelROCTrimBits* trims, 
 			      PixelHdwAddress theROC) const{
 
 	for (unsigned int irow=0;irow<rows_[irows].size();irow++){
@@ -1021,25 +1038,28 @@ void PixelCalibConfiguration::disablePixels(PixelFECConfigInterface* pixelFEC,
 			  <<cols_[old_icols][icol]
 			  <<" row="<<rows_[old_irows][irow]<<std::endl;
 	      */
-		pixelFEC->progpix(theROC.mfec(),
-				  theROC.mfecchannel(),
-				  theROC.hubaddress(),
-				  theROC.portaddress(),
-				  theROC.rocid(),
-				  cols_[icols][icol],
-				  rows_[irows][irow],
-				  0x0,_bufferData);
+	      unsigned int bits=trims->trim(cols_[icols][icol],rows_[irows][irow]);
+	      pixelFEC->progpix(theROC.mfec(),
+				theROC.mfecchannel(),
+				theROC.hubaddress(),
+				theROC.portaddress(),
+				theROC.rocid(),
+				cols_[icols][icol],
+				rows_[irows][irow],
+				bits,_bufferData);
 	    }
 	}
 }
 
 
 void PixelCalibConfiguration::disablePixels(PixelFECConfigInterface* pixelFEC,
+					    pos::PixelROCTrimBits* trims, 
 					    PixelHdwAddress theROC) const{
 
   //FIXME This should be done with more efficient commands!
   for (unsigned int row=0;row<80;row++){
     for (unsigned int col=0;col<52;col++){
+      unsigned int bits=trims->trim(col,row);
       pixelFEC->progpix(theROC.mfec(),
 			theROC.mfecchannel(),
 			theROC.hubaddress(),
@@ -1047,7 +1067,7 @@ void PixelCalibConfiguration::disablePixels(PixelFECConfigInterface* pixelFEC,
 			theROC.rocid(),
 			col,
 			row,
-			0x0,_bufferData);
+			bits,_bufferData);
     }
   }
 }

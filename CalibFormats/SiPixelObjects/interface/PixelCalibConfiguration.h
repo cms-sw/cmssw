@@ -235,9 +235,11 @@ namespace pos{
 
     void disablePixels(PixelFECConfigInterface* pixelFEC,
 		       unsigned int irows, unsigned int icols,
+		       pos::PixelROCTrimBits* trims,	
 		       PixelHdwAddress theROC) const;
 
     void disablePixels(PixelFECConfigInterface* pixelFEC,
+		       pos::PixelROCTrimBits* trims,	
 		       PixelHdwAddress theROC) const;
 
     mutable std::vector<int> old_irows;
