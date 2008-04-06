@@ -1,5 +1,5 @@
 //
-// $Id: EgammaSCEnergyCorrectionAlgo.cc,v 1.19 2008/04/06 17:59:15 kkaadze Exp $
+// $Id: EgammaSCEnergyCorrectionAlgo.cc,v 1.20 2008/04/06 18:02:08 kkaadze Exp $
 // Author: David Evans, Bristol
 //
 #include "RecoEcal/EgammaClusterAlgos/interface/EgammaSCEnergyCorrectionAlgo.h"
@@ -121,8 +121,13 @@ reco::SuperCluster EgammaSCEnergyCorrectionAlgo::applyCorrection(const reco::Sup
   //or apply new Enegry SCale correction
   float newEnergy = 0;
   
+<<<<<<< EgammaSCEnergyCorrectionAlgo.cc
+  if ( theAlgo == reco::hybrid || theAlgo == reco::dynamicHybrid || theAlgo == reco::fixedMatrix) {
+    // first apply shower lekeage corrections
+=======
   if ( theAlgo == reco::hybrid || theAlgo == reco::dynamicHybrid || theAlgo == reco::fixedMatrix) {
     // first apply Zhang's eta corrections
+>>>>>>> 1.20
     newEnergy = fEta(cl.energy(), cl.eta());
     // now apply F(brem)
     newEnergy = fBrem(newEnergy, phiWidth/etaWidth);
