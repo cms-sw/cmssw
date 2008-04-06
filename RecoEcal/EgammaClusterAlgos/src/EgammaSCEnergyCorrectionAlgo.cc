@@ -1,5 +1,5 @@
 //
-// $Id: EgammaSCEnergyCorrectionAlgo.cc,v 1.18 2008/04/06 17:41:46 kkaadze Exp $
+// $Id: EgammaSCEnergyCorrectionAlgo.cc,v 1.19 2008/04/06 17:59:15 kkaadze Exp $
 // Author: David Evans, Bristol
 //
 #include "RecoEcal/EgammaClusterAlgos/interface/EgammaSCEnergyCorrectionAlgo.h"
@@ -174,6 +174,7 @@ double EgammaSCEnergyCorrectionAlgo::fBrem(double e, double brLinear)
     
   //Make No Corrections if brLinear is invalid!
   if ( brLinear == 0 ) return e;
+
   //Make flat corection if brLinear is too small or big 
   if ( brLinear < brLinearLowThr_ ) brLinear = brLinearLowThr_;  
 

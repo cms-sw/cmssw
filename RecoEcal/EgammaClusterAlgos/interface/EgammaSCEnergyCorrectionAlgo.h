@@ -38,7 +38,7 @@ class EgammaSCEnergyCorrectionAlgo
     }
  
   private:
-    // Zhang shower leakage corrections
+    // shower leakage corrections
     double fEta(double e, double eta);
     // F(brem) correction with brem = phiWidth/etaWidth
     double fBrem(double e, double brem);
