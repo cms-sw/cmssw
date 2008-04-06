@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorClient.cc
  *
- * $Date: 2008/03/14 14:38:55 $
- * $Revision: 1.404 $
+ * $Date: 2008/03/15 14:50:55 $
+ * $Revision: 1.405 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -441,7 +441,9 @@ void EcalBarrelMonitorClient::initialize(const ParameterSet& ps){
     clientsRuns_.insert(pair<EBClient*,int>( clients_.back(), EcalDCCHeaderBlock::MTCC ));
 
     clientsRuns_.insert(pair<EBClient*,int>( clients_.back(), EcalDCCHeaderBlock::COSMICS_GLOBAL ));
+    clientsRuns_.insert(pair<EBClient*,int>( clients_.back(), EcalDCCHeaderBlock::PHYSICS_GLOBAL ));
     clientsRuns_.insert(pair<EBClient*,int>( clients_.back(), EcalDCCHeaderBlock::COSMICS_LOCAL ));
+    clientsRuns_.insert(pair<EBClient*,int>( clients_.back(), EcalDCCHeaderBlock::PHYSICS_LOCAL ));
     clientsRuns_.insert(pair<EBClient*,int>( clients_.back(), EcalDCCHeaderBlock::LASER_GAP ));
     clientsRuns_.insert(pair<EBClient*,int>( clients_.back(), EcalDCCHeaderBlock::TESTPULSE_GAP ));
     clientsRuns_.insert(pair<EBClient*,int>( clients_.back(), EcalDCCHeaderBlock::PEDESTAL_GAP ));
@@ -1138,7 +1140,7 @@ void EcalBarrelMonitorClient::writeDb(void) {
     bool done = false;
     for ( multimap<EBClient*,int>::iterator j = clientsRuns_.lower_bound(clients_[i]); j != clientsRuns_.upper_bound(clients_[i]); j++ ) {
       if ( h_ && runType_ != -1 && runType_ == (*j).second && !done ) {
-        if ( strcmp(clientsNames_[i].c_str(), "Cosmic") == 0 && runType_ != runTypes_[EcalDCCHeaderBlock::COSMIC] && runType_ != runTypes_[EcalDCCHeaderBlock::COSMICS_LOCAL] && runType_ != runTypes_[EcalDCCHeaderBlock::COSMICS_GLOBAL] && h_->GetBinContent(2+EcalDCCHeaderBlock::COSMIC) == 0 && h_->GetBinContent(2+EcalDCCHeaderBlock::COSMICS_LOCAL) == 0 && h_->GetBinContent(2+EcalDCCHeaderBlock::COSMICS_GLOBAL) == 0 ) continue;
+        if ( strcmp(clientsNames_[i].c_str(), "Cosmic") == 0 && runType_ != runTypes_[EcalDCCHeaderBlock::COSMIC] && runType_ != runTypes_[EcalDCCHeaderBlock::COSMICS_LOCAL] && runType_ != runTypes_[EcalDCCHeaderBlock::COSMICS_GLOBAL] && runType_ != runTypes_[EcalDCCHeaderBlock::PHYSICS_GLOBAL] && runType_ != runTypes_[EcalDCCHeaderBlock::PHYSICS_LOCAL] && h_->GetBinContent(2+EcalDCCHeaderBlock::COSMIC) == 0 && h_->GetBinContent(2+EcalDCCHeaderBlock::COSMICS_LOCAL) == 0 && h_->GetBinContent(2+EcalDCCHeaderBlock::COSMICS_GLOBAL) == 0 && h_->GetBinContent(2+EcalDCCHeaderBlock::PHYSICS_GLOBAL) && h_->GetBinContent(2+EcalDCCHeaderBlock::PHYSICS_LOCAL) ) continue;
         if ( strcmp(clientsNames_[i].c_str(), "Laser") == 0 && runType_ != runTypes_[EcalDCCHeaderBlock::LASER_STD] && runType_ != runTypes_[EcalDCCHeaderBlock::LASER_GAP] && h_->GetBinContent(2+EcalDCCHeaderBlock::LASER_STD) == 0 && h_->GetBinContent(2+EcalDCCHeaderBlock::LASER_GAP) == 0 ) continue;
         if ( strcmp(clientsNames_[i].c_str(), "Pedestal") == 0 && runType_ != runTypes_[EcalDCCHeaderBlock::PEDESTAL_STD] && runType_ != runTypes_[EcalDCCHeaderBlock::PEDESTAL_GAP] && h_->GetBinContent(2+EcalDCCHeaderBlock::PEDESTAL_STD) == 0 && h_->GetBinContent(2+EcalDCCHeaderBlock::PEDESTAL_GAP) == 0 ) continue;
         if ( strcmp(clientsNames_[i].c_str(), "TestPulse") == 0 && runType_ != runTypes_[EcalDCCHeaderBlock::TESTPULSE_MGPA] && runType_ != runTypes_[EcalDCCHeaderBlock::TESTPULSE_GAP] && h_->GetBinContent(2+EcalDCCHeaderBlock::TESTPULSE_MGPA) == 0 && h_->GetBinContent(2+EcalDCCHeaderBlock::TESTPULSE_GAP) == 0 ) continue;
@@ -1621,7 +1623,7 @@ void EcalBarrelMonitorClient::htmlOutput( bool current ){
     bool done = false;
     for ( multimap<EBClient*,int>::iterator j = clientsRuns_.lower_bound(clients_[i]); j != clientsRuns_.upper_bound(clients_[i]); j++ ) {
       if ( h_ && runType_ != -1 && runType_ == (*j).second && !done ) {
-        if ( strcmp(clientsNames_[i].c_str(), "Cosmic") == 0 && runType_ != runTypes_[EcalDCCHeaderBlock::COSMIC] && runType_ != runTypes_[EcalDCCHeaderBlock::COSMICS_LOCAL] && runType_ != runTypes_[EcalDCCHeaderBlock::COSMICS_GLOBAL] && h_->GetBinContent(2+EcalDCCHeaderBlock::COSMIC) == 0 && h_->GetBinContent(2+EcalDCCHeaderBlock::COSMICS_LOCAL) == 0 && h_->GetBinContent(2+EcalDCCHeaderBlock::COSMICS_GLOBAL) == 0 ) continue;
+        if ( strcmp(clientsNames_[i].c_str(), "Cosmic") == 0 && runType_ != runTypes_[EcalDCCHeaderBlock::COSMIC] && runType_ != runTypes_[EcalDCCHeaderBlock::COSMICS_LOCAL] && runType_ != runTypes_[EcalDCCHeaderBlock::COSMICS_GLOBAL] && runType_ != runTypes_[EcalDCCHeaderBlock::PHYSICS_GLOBAL] && runType_ != runTypes_[EcalDCCHeaderBlock::PHYSICS_LOCAL] && h_->GetBinContent(2+EcalDCCHeaderBlock::COSMIC) == 0 && h_->GetBinContent(2+EcalDCCHeaderBlock::COSMICS_LOCAL) == 0 && h_->GetBinContent(2+EcalDCCHeaderBlock::COSMICS_GLOBAL) == 0 && h_->GetBinContent(2+EcalDCCHeaderBlock::PHYSICS_GLOBAL) && h_->GetBinContent(2+EcalDCCHeaderBlock::PHYSICS_LOCAL) ) continue;
         if ( strcmp(clientsNames_[i].c_str(), "Laser") == 0 && runType_ != runTypes_[EcalDCCHeaderBlock::LASER_STD] && runType_ != runTypes_[EcalDCCHeaderBlock::LASER_GAP] && h_->GetBinContent(2+EcalDCCHeaderBlock::LASER_STD) == 0 && h_->GetBinContent(2+EcalDCCHeaderBlock::LASER_GAP) == 0 ) continue;
         if ( strcmp(clientsNames_[i].c_str(), "Pedestal") == 0 && runType_ != runTypes_[EcalDCCHeaderBlock::PEDESTAL_STD] && runType_ != runTypes_[EcalDCCHeaderBlock::PEDESTAL_GAP] && h_->GetBinContent(2+EcalDCCHeaderBlock::PEDESTAL_STD) == 0 && h_->GetBinContent(2+EcalDCCHeaderBlock::PEDESTAL_GAP) == 0 ) continue;
         if ( strcmp(clientsNames_[i].c_str(), "TestPulse") == 0 && runType_ != runTypes_[EcalDCCHeaderBlock::TESTPULSE_MGPA] && runType_ != runTypes_[EcalDCCHeaderBlock::TESTPULSE_GAP] && h_->GetBinContent(2+EcalDCCHeaderBlock::TESTPULSE_MGPA) == 0 && h_->GetBinContent(2+EcalDCCHeaderBlock::TESTPULSE_GAP) == 0 ) continue;
@@ -1637,8 +1639,8 @@ void EcalBarrelMonitorClient::htmlOutput( bool current ){
 
     htmlName = "EBSummaryClient.html";
     summaryClient_->htmlOutput(run_, htmlDir, htmlName);
-
     htmlFile << "<li><a href=\"" << htmlName << "\">Data " << "Summary" << "</a></li>" << endl;
+
     htmlFile << "<br>" << endl;
 
     htmlFile << "<table border=\"0\" cellspacing=\"0\" " << endl;
@@ -1665,7 +1667,7 @@ void EcalBarrelMonitorClient::htmlOutput( bool current ){
 
   if( current ) {
     time_t elapsed = time(NULL) - start;
-    std::cout << "==========> htmlOutput Elapsed Time: " << elapsed << std::endl;
+    cout << "==========> htmlOutput Elapsed Time: " << elapsed << endl;
   }
 
 }
@@ -1717,13 +1719,13 @@ void EcalBarrelMonitorClient::defaultWebPage(xgi::Input *in, xgi::Output *out){
   *out << "<body>"                                                   << endl;
 
   *out << cgicc::form().set("method","GET").set("action", path )
-       << std::endl;
+       << endl;
   *out << cgicc::input().set("type","hidden").set("name","module").set("value", mname)
-       << std::endl;
+       << endl;
   *out << cgicc::input().set("type","hidden").set("name","autorefresh").set("value", autorefresh_?"0":"1")
-       << std::endl;
+       << endl;
   *out << cgicc::input().set("type","submit").set("value",autorefresh_?"Toggle AutoRefresh OFF":"Toggle AutoRefresh ON")
-       << std::endl;
+       << endl;
   *out << cgicc::form()                                              << endl;
 
   *out << cgicc::h3( "EcalBarrelMonitorClient Status" ).set( "style", "font-family:arial" ) << endl;

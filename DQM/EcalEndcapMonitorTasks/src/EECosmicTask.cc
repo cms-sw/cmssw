@@ -1,8 +1,8 @@
 /*
  * \file EECosmicTask.cc
  *
- * $Date: 2008/03/11 08:37:57 $
- * $Revision: 1.36 $
+ * $Date: 2008/04/05 21:02:05 $
+ * $Revision: 1.37 $
  * \author G. Della Ricca
  *
 */
@@ -158,6 +158,7 @@ void EECosmicTask::endJob(void){
 
 void EECosmicTask::analyze(const Event& e, const EventSetup& c){
 
+  bool isData = true;
   bool enable = false;
   map<int, EcalDCCHeaderBlock> dccMap;
 
@@ -189,6 +190,7 @@ void EECosmicTask::analyze(const Event& e, const EventSetup& c){
 
   } else {
 
+    isData = false; enable = true;
     LogWarning("EECosmicTask") << EcalRawDataCollection_ << " not available";
 
   }
@@ -232,6 +234,7 @@ void EECosmicTask::analyze(const Event& e, const EventSetup& c){
       if ( ism >=  1 && ism <=  9 ) iz = -1;
       if ( ism >= 10 && ism <= 18 ) iz = +1;
 
+      if ( isData ) {
       map<int, EcalDCCHeaderBlock>::iterator i = dccMap.find(ism);
       if ( i == dccMap.end() ) continue;
 
@@ -241,6 +244,7 @@ void EECosmicTask::analyze(const Event& e, const EventSetup& c){
                dccMap[ism].getRunType() == EcalDCCHeaderBlock::PHYSICS_GLOBAL ||
                dccMap[ism].getRunType() == EcalDCCHeaderBlock::COSMICS_LOCAL ||
                dccMap[ism].getRunType() == EcalDCCHeaderBlock::PHYSICS_LOCAL ) ) continue;
+      }
 
       LogDebug("EECosmicTask") << " det id = " << id;
       LogDebug("EECosmicTask") << " sm, ix, iy " << ism << " " << ix << " " << iy;

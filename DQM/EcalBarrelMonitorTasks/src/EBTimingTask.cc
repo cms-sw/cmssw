@@ -1,8 +1,8 @@
 /*
  * \file EBTimingTask.cc
  *
- * $Date: 2008/04/05 21:04:15 $
- * $Revision: 1.34 $
+ * $Date: 2008/04/06 14:41:47 $
+ * $Revision: 1.35 $
  * \author G. Della Ricca
  *
 */
@@ -122,6 +122,7 @@ void EBTimingTask::endJob(void){
 
 void EBTimingTask::analyze(const Event& e, const EventSetup& c){
 
+  bool isData = true;
   bool enable = false;
   map<int, EcalDCCHeaderBlock> dccMap;
 
@@ -153,11 +154,12 @@ void EBTimingTask::analyze(const Event& e, const EventSetup& c){
 
   } else {
 
+    isData = false; enable = true;
     LogWarning("EBTimingTask") << EcalRawDataCollection_ << " not available";
 
   }
 
-//  if ( ! enable ) return;
+  if ( ! enable ) return;
 
   if ( ! init_ ) this->setup();
 
@@ -184,15 +186,17 @@ void EBTimingTask::analyze(const Event& e, const EventSetup& c){
       float xie = ie - 0.5;
       float xip = ip - 0.5;
 
+      if ( isData ) {
       map<int, EcalDCCHeaderBlock>::iterator i = dccMap.find(ism);
-//      if ( i == dccMap.end() ) continue;
+      if ( i == dccMap.end() ) continue;
 
-//      if ( ! ( dccMap[ism].getRunType() == EcalDCCHeaderBlock::COSMIC ||
-//               dccMap[ism].getRunType() == EcalDCCHeaderBlock::MTCC ||
-//               dccMap[ism].getRunType() == EcalDCCHeaderBlock::COSMICS_GLOBAL ||
-//               dccMap[ism].getRunType() == EcalDCCHeaderBlock::PHYSICS_GLOBAL ||
-//               dccMap[ism].getRunType() == EcalDCCHeaderBlock::COSMICS_LOCAL ||
-//               dccMap[ism].getRunType() == EcalDCCHeaderBlock::PHYSICS_LOCAL ) ) continue;
+      if ( ! ( dccMap[ism].getRunType() == EcalDCCHeaderBlock::COSMIC ||
+               dccMap[ism].getRunType() == EcalDCCHeaderBlock::MTCC ||
+               dccMap[ism].getRunType() == EcalDCCHeaderBlock::COSMICS_GLOBAL ||
+               dccMap[ism].getRunType() == EcalDCCHeaderBlock::PHYSICS_GLOBAL ||
+               dccMap[ism].getRunType() == EcalDCCHeaderBlock::COSMICS_LOCAL ||
+               dccMap[ism].getRunType() == EcalDCCHeaderBlock::PHYSICS_LOCAL ) ) continue;
+      }
 
       LogDebug("EBTimingTask") << " det id = " << id;
       LogDebug("EBTimingTask") << " sm, ieta, iphi " << ism << " " << ie << " " << ip;
