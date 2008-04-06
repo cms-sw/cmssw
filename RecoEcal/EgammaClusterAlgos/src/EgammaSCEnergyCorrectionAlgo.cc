@@ -1,5 +1,5 @@
 //
-// $Id: EgammaSCEnergyCorrectionAlgo.cc,v 1.17 2008/04/02 10:33:40 kkaadze Exp $
+// $Id: EgammaSCEnergyCorrectionAlgo.cc,v 1.18 2008/04/06 17:41:46 kkaadze Exp $
 // Author: David Evans, Bristol
 //
 #include "RecoEcal/EgammaClusterAlgos/interface/EgammaSCEnergyCorrectionAlgo.h"
@@ -21,16 +21,10 @@ EgammaSCEnergyCorrectionAlgo::EgammaSCEnergyCorrectionAlgo(double noise,
   
   fBrem_ = pset.getParameter<std::vector<double> >("fBremVec");  
   fEtEta_ = pset.getParameter<std::vector<double> >("fEtEtaVec");
-<<<<<<< EgammaSCEnergyCorrectionAlgo.cc
   brLinearLowThr_ = pset.getParameter<double>("brLinearLowThr");
   brLinearHighThr_ = pset.getParameter<double>("brLinearHighThr");
   corrF_ = pset.getParameter<std::vector<int> >("corrF");
 
-=======
-  brLinearLowThr_ = pset.getParameter<double>("brLinearLowThr");
-  brLinearHighThr_ = pset.getParameter<double>("brLinearHighThr");
-  corrF_ = pset.getParameter<std::vector<int> >("corrF");
->>>>>>> 1.17
 }
 
 EgammaSCEnergyCorrectionAlgo::~EgammaSCEnergyCorrectionAlgo()
@@ -127,11 +121,7 @@ reco::SuperCluster EgammaSCEnergyCorrectionAlgo::applyCorrection(const reco::Sup
   //or apply new Enegry SCale correction
   float newEnergy = 0;
   
-<<<<<<< EgammaSCEnergyCorrectionAlgo.cc
-  if ( theAlgo == reco::hybrid || theAlgo == reco::dynamicHybrid || theAlgo == reco::fixedMatrix ) {
-=======
   if ( theAlgo == reco::hybrid || theAlgo == reco::dynamicHybrid || theAlgo == reco::fixedMatrix) {
->>>>>>> 1.17
     // first apply Zhang's eta corrections
     newEnergy = fEta(cl.energy(), cl.eta());
     // now apply F(brem)
@@ -184,18 +174,10 @@ double EgammaSCEnergyCorrectionAlgo::fBrem(double e, double brLinear)
     
   //Make No Corrections if brLinear is invalid!
   if ( brLinear == 0 ) return e;
-<<<<<<< EgammaSCEnergyCorrectionAlgo.cc
   //Make flat corection if brLinear is too small or big 
   if ( brLinear < brLinearLowThr_ ) brLinear = brLinearLowThr_;  
 
   if ( brLinear > brLinearHighThr_ ) brLinear = brLinearHighThr_;  
-=======
-  //Make flat corection if brLinear is too small or big ( <0.7 or > 8.0 )
-  if ( brLinear < brLinearLowThr_ ) brLinear = brLinearLowThr_;  
-
-  if ( brLinear > brLinearHighThr_ ) brLinear = brLinearHighThr_;  
-
->>>>>>> 1.17
 
   //Parameters provided in cfg file
   double p0 = fBrem_[0]; 
@@ -227,7 +209,6 @@ double EgammaSCEnergyCorrectionAlgo::fEtEta(double et, double eta)
   // eta -- eta of the SuperCluster
 
   double fCorr = 0.;
-<<<<<<< EgammaSCEnergyCorrectionAlgo.cc
   
   double p0 = fEtEta_[0] + fEtEta_[1]/(et + fEtEta_[2]) + fEtEta_[3]/(et*et);
   double p1 = fEtEta_[4]/(et + fEtEta_[5]) + fEtEta_[6]/(et*et);
@@ -236,21 +217,7 @@ double EgammaSCEnergyCorrectionAlgo::fEtEta(double et, double eta)
     + corrF_[0] * p1*atan(fEtEta_[7]*(fEtEta_[8]-fabs(eta))) 
     + corrF_[1] * fEtEta_[9]*fabs(eta) 
     + corrF_[2] * p1*(fabs(eta) - fEtEta_[10])*(fabs(eta) - fEtEta_[10]);
-=======
  
-  //Before Tunning 
-  //  double p0 = fEtEta_[0] + fEtEta_[1]/et + fEtEta_[2]/(et*et);
-  //  double p1 = fEtEta_[3]/(et + fEtEta_[4]) + fEtEta_[5]/(et*et);
-  //  fCorr = p0 + p1*atan(fEtEta_[7]*(fEtEta_[6]-fabs(eta)));
-
-  double p0 = fEtEta_[0] + fEtEta_[1]/(et+fEtEta_[2]) + fEtEta_[3]/(et*et);
-  double p1 = fEtEta_[4]/(et + fEtEta_[5]) + fEtEta_[6]/(et*et);
-
-  fCorr = p0 + corrF_[0] * p1*atan(fEtEta_[7]*(fEtEta_[8]-fabs(eta))) 
-    + corrF_[1] * fEtEta_[9]*fabs(eta) 
-    + corrF_[2] * p1*(fabs(eta) - fEtEta_[10])*(fabs(eta) - fEtEta_[10]);
->>>>>>> 1.17
-  
   return et/fCorr;
 }
 
