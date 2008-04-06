@@ -1,8 +1,8 @@
 /*
  * \file EEIntegrityTask.cc
  *
- * $Date: 2008/03/14 14:57:58 $
- * $Revision: 1.32 $
+ * $Date: 2008/03/21 20:05:19 $
+ * $Revision: 1.33 $
  * \author G. Della Ricca
  *
  */
@@ -298,7 +298,7 @@ void EEIntegrityTask::analyze(const Event& e, const EventSetup& c){
 
   } else {
 
-    LogWarning("EEIntegrityTask") << EEDetIdCollection0_ << " not available";
+//    LogWarning("EEIntegrityTask") << EEDetIdCollection0_ << " not available";
 
   }
 

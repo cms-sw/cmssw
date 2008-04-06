@@ -1,8 +1,8 @@
 /*
  * \file EBIntegrityTask.cc
  *
- * $Date: 2008/03/14 14:57:58 $
- * $Revision: 1.65 $
+ * $Date: 2008/03/21 20:05:19 $
+ * $Revision: 1.66 $
  * \author G. Della Ricca
  *
  */
@@ -299,7 +299,7 @@ void EBIntegrityTask::analyze(const Event& e, const EventSetup& c){
 
   } else {
 
-    LogWarning("EBIntegrityTask") << EBDetIdCollection0_ << " not available";
+//    LogWarning("EBIntegrityTask") << EBDetIdCollection0_ << " not available";
 
   }
 
