@@ -257,10 +257,10 @@ bool HLTBtagLifetimeAnalyzer::cachePathDescription(const edm::ParameterSetID & t
     std::vector<std::string>::const_iterator i = std::find(m_pathModules.begin(), m_pathModules.end(), level.m_filter.label());
     if (i != m_pathModules.end()) {
       level.m_filterIndex = i - m_pathModules.begin();
-      edm::LogInfo("HLTBtagAnalyzer") << "filter " << level.m_filter.label() << " has index " << level.m_filterIndex << " in path " << m_triggerPath;
+      edm::LogVerbatim("HLTBtagAnalyzer") << "filter " << level.m_filter.label() << " has index " << level.m_filterIndex << " in path " << m_triggerPath;
     } else {
       level.m_filterIndex = 0;
-      edm::LogInfo("HLTBtagAnalyzer") << "filter " << level.m_filter.label() << " not found in path " << m_triggerPath;
+      edm::LogVerbatim("HLTBtagAnalyzer") << "filter " << level.m_filter.label() << " not found in path " << m_triggerPath;
     }
   }
 
@@ -299,11 +299,11 @@ void HLTBtagLifetimeAnalyzer::analyze(const edm::Event & event, const edm::Event
 
   // debug information regarding th path status
   if (not wasrun)
-    edm::LogInfo("HLTBtagAnalyzer") << "  path " << m_triggerPath << " was not run";
+    edm::LogVerbatim("HLTBtagAnalyzer") << "  path " << m_triggerPath << " was not run";
   else if (accepted)
-    edm::LogInfo("HLTBtagAnalyzer") << "  path " << m_triggerPath << " accepted the event";
+    edm::LogVerbatim("HLTBtagAnalyzer") << "  path " << m_triggerPath << " accepted the event";
   else
-    edm::LogInfo("HLTBtagAnalyzer") << "  path " << m_triggerPath << " rejected the event at module " << m_pathModules[latest];
+    edm::LogVerbatim("HLTBtagAnalyzer") << "  path " << m_triggerPath << " rejected the event at module " << m_pathModules[latest];
 
   edm::Handle<reco::VertexCollection> h_vertex;
   event.getByLabel(m_vertex, h_vertex);
