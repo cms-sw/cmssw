@@ -37,6 +37,8 @@
 #include "HLTriggerOffline/BJet/interface/FlavouredJetPlots.h"
 #include "HLTriggerOffline/BJet/interface/VertexPlots.h"
 
+// force LogDebug statements to be generated
+#define ML_DEBUG
 
 // search the Registry for the ParameterSetID of the ParameterSet describing the given process
 // returns an invalid ID if the process name is not found
