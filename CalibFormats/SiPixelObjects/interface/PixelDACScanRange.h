@@ -43,6 +43,7 @@ namespace pos{
     unsigned int getNPoints() const { return values_.size(); }
     unsigned int value(unsigned int ivalue) const { assert(ivalue<values_.size()); return values_[ivalue]; }
     bool mixValuesAcrossROCs() const { return mixValuesAcrossROCs_; }
+    bool uniformSteps() const { return uniformSteps_; }
 
   private:
 

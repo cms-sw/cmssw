@@ -466,13 +466,13 @@ void PixelNameTranslation::writeASCII(std::string dir) const {
 
   std::ofstream out(filename.c_str());
   
-  std::cout << "[PixelNameTranslation::writeASCII()]\t\tfilename: " 
-	    << filename 
-	    << " status: " 
-	    << out 
-	    << "   " 
-	    << out.is_open() 
-	    <<endl ;
+  //std::cout << "[PixelNameTranslation::writeASCII()]\t\tfilename: " 
+  //	    << filename 
+  //	    << " status: " 
+  //	    << out 
+  //	    << "   " 
+  //	    << out.is_open() 
+  //	    <<endl ;
 
   out << "# name                          TBMchannel  FEC      mfec  mfecchannel hubaddress portadd rocid     FED     channel     roc#"<<endl;
 

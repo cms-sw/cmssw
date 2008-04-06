@@ -1113,12 +1113,34 @@ void PixelCalibConfiguration::writeASCII(std::string dir) const {
     out <<endl;
   }
 
+  if (highVCalRange_) {
+    out << "VcalHigh" << endl;
+  }
+  else {
+    out << "VcalLow" << endl;
+  }
+
+
   for (unsigned int i=0;i<dacs_.size();i++){
-    out << "Scan: "<<dacs_[i].name()<<" ";
-    for(unsigned int ival=0;ival<dacs_[i].getNPoints();ival++){
-      out << dacs_[i].value(ival)<<" ";
+    if (dacs_[i].uniformSteps()) {
+      if (dacs_[i].first()!=dacs_[i].last()) {
+	out << "Scan: "<<dacs_[i].name()<<" ";
+	out <<dacs_[i].first()<<" ";
+	out <<dacs_[i].last()<<" ";
+	out <<dacs_[i].step()<<endl;
+      }
+      else {
+	out << "Set: "<<dacs_[i].name()<<" ";
+	out <<dacs_[i].first()<<endl;
+      }
     }
-    out<<endl;
+    else {
+      out << "ScanValues: "<<dacs_[i].name()<<" ";
+      for(unsigned int ival=0;ival<dacs_[i].getNPoints();ival++){
+	out << dacs_[i].value(ival)<<" ";
+      }
+      out<<" -1"<<endl;
+    }
   }
 
   out << "Repeat:" <<endl;
