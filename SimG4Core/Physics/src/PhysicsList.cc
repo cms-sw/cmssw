@@ -1,27 +1,25 @@
 #include "SimG4Core/Physics/interface/PhysicsList.h"
 #include "SimG4Core/Physics/interface/DDG4ProductionCuts.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "G4LossTableManager.hh"
 
 PhysicsList::PhysicsList(G4LogicalVolumeToDDLogicalPartMap & map,
 			 const edm::ParameterSet & p) 
-  : G4VModularPhysicsList(), map_(map), m_pPhysics(p),  prodCuts(0)
-{
-  //if (m_pPhysics.getParameter<bool>("CutsPerRegion")) 
-  // prodCuts = new DDG4ProductionCuts();	
+  : G4VModularPhysicsList(), m_pPhysics(p),  prodCuts(0) {
+  m_Verbosity = m_pPhysics.getUntrackedParameter<int>("Verbosity",0);
+  prodCuts = new DDG4ProductionCuts(map, m_Verbosity);	
 }
  
-PhysicsList::~PhysicsList() 
-{
-  if (m_pPhysics.getUntrackedParameter<int>("Verbosity",0) > 1)
-    std::cout << " G4BremsstrahlungThreshold was " 
-	      << G4LossTableManager::Instance()->BremsstrahlungTh()/GeV 
-	      << " GeV " << std::endl;
+PhysicsList::~PhysicsList() {
+  if (m_Verbosity > 1)
+    LogDebug("Physics") << " G4BremsstrahlungThreshold was " 
+			<< G4LossTableManager::Instance()->BremsstrahlungTh()/GeV 
+			<< " GeV ";
   if (prodCuts!=0) delete prodCuts;
 }
 
-void PhysicsList::SetCuts() 
-{ 
+void PhysicsList::SetCuts() { 
 
   SetDefaultCutValue(m_pPhysics.getParameter<double>("DefaultCutValue")*cm);
   SetCutsWithDefault();
@@ -29,16 +27,12 @@ void PhysicsList::SetCuts()
   G4LossTableManager::Instance()->SetBremsstrahlungTh
     (m_pPhysics.getParameter<double>("G4BremsstrahlungThreshold")*GeV);
 
-  int v =  m_pPhysics.getUntrackedParameter<int>("Verbosity",0);
-  if ( m_pPhysics.getParameter<bool>("CutsPerRegion") )
-    {
-      DDG4ProductionCuts prodCuts(map_);
-      prodCuts.SetVerbosity(v);
-      prodCuts.update();
-    }
+  if ( m_pPhysics.getParameter<bool>("CutsPerRegion") ) {
+    prodCuts->update();
+  }
 
-  if ( v > 1) {
-    G4LossTableManager::Instance()->SetVerbose(v-1);
+  if ( m_Verbosity > 1) {
+    G4LossTableManager::Instance()->SetVerbose(m_Verbosity-1);
     G4VUserPhysicsList::DumpCutValuesTable();
   }
 

@@ -1,16 +1,15 @@
 #include "SimG4Core/Physics/interface/DDG4ProductionCuts.h"
 #include "SimG4Core/Notification/interface/SimG4Exception.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "G4ProductionCuts.hh"
 #include "G4RegionStore.hh"
 
 #include <algorithm>
 
-using std::cout;
-using std::endl;
-
-DDG4ProductionCuts::DDG4ProductionCuts(const G4LogicalVolumeToDDLogicalPartMap& map) : map_(map), m_Verbosity(0) {
+DDG4ProductionCuts::DDG4ProductionCuts(const G4LogicalVolumeToDDLogicalPartMap& map, int verb) : map_(map), m_Verbosity(verb) {
     m_KeywordRegion =  "CMSCutsRegion";
+    initialize();
 }
 
 DDG4ProductionCuts::~DDG4ProductionCuts(){
@@ -22,8 +21,7 @@ DDG4ProductionCuts::~DDG4ProductionCuts(){
     while pointers usually can't guarantee this
 */
 bool dd_is_greater(const std::pair<G4LogicalVolume*, DDLogicalPart> & p1,
-                   const std::pair<G4LogicalVolume*, DDLogicalPart> & p2)
-{
+                   const std::pair<G4LogicalVolume*, DDLogicalPart> & p2) {
   bool result = false;
   if (p1.second.name().ns() > p2.second.name().ns()) {
     result = true;
@@ -43,58 +41,71 @@ bool dd_is_greater(const std::pair<G4LogicalVolume*, DDLogicalPart> & p1,
 
 void DDG4ProductionCuts::update() {
   //
-  // Now we can operate, loop over the Map by Martin ...
+  // Loop over all DDLP and provide the cuts for each region
   //
-  G4LogicalVolumeToDDLogicalPartMap::Vector vec = map_.all(m_KeywordRegion);
+  for (G4LogicalVolumeToDDLogicalPartMap::Vector::iterator tit = vec_.begin();
+       tit != vec_.end(); tit++){
+    setProdCuts((*tit).second,(*tit).first);
+  }
+}
+
+
+void DDG4ProductionCuts::initialize() {
+
+  vec_ = map_.all(m_KeywordRegion);
   // sort all root volumes - to get the same sequence at every run of the application.
   // (otherwise, the sequence will depend on the pointer (memory address) of the 
   // involved objects, because 'new' does no guarantee that you allways get a
   // higher (or lower) address when allocating an object of the same type ...
-  sort(vec.begin(),vec.end(),&dd_is_greater);
+  sort(vec_.begin(),vec_.end(),&dd_is_greater);
   if ( m_Verbosity > 0 ) {
-    std::cout <<" DDG4ProductionCuts (New) : starting\n"
-	      <<" DDG4ProductionCuts : Got "<<vec.size()
-	      <<" region roots.\n"
-	      <<" DDG4ProductionCuts : List of all roots:\n";
-    for ( size_t jj=0; jj<vec.size(); ++jj)
-      std::cout << "   DDG4ProductionCuts : root=" << vec[jj].second.name() << std::endl;
+    LogDebug("Physics") <<" DDG4ProductionCuts (New) : starting\n"
+			<<" DDG4ProductionCuts : Got "<<vec_.size()
+			<<" region roots.\n"
+			<<" DDG4ProductionCuts : List of all roots:";
+    for ( size_t jj=0; jj<vec_.size(); ++jj)
+      LogDebug("Physics") << "   DDG4ProductionCuts : root=" 
+			  << vec_[jj].second.name();
   }
 
-  //cout <<" DDG4ProductionCuts : returning, doing nothing! " << endl;
-  //return;
+  // Now generate all the regions
+  for (G4LogicalVolumeToDDLogicalPartMap::Vector::iterator tit = vec_.begin();
+       tit != vec_.end(); tit++) {
 
-  //
-  // In this way I have all the DDLP which have a Region info attached
-  //
-  for (G4LogicalVolumeToDDLogicalPartMap::Vector::iterator tit = vec.begin();
-       tit != vec.end(); tit++){
-    SetProdCuts((*tit).second,(*tit).first);
+    std::string  regionName;
+    unsigned int num= map_.toString(m_KeywordRegion,(*tit).second,regionName);
+  
+    if (num != 1)
+      throw SimG4Exception("DDG4ProductionCuts: Problem with Region tags.");
+
+    G4Region * region = getRegion(regionName);
+    region->AddRootLogicalVolume((*tit).first);
+  
+    if ( m_Verbosity > 0 )
+      LogDebug("Physics") << " MakeRegions: added " <<((*tit).first)->GetName()
+			  << " to region " << region->GetName();
   }
 }
 
-void DDG4ProductionCuts::SetProdCuts(const DDLogicalPart lpart, 
+
+void DDG4ProductionCuts::setProdCuts(const DDLogicalPart lpart, 
 				     G4LogicalVolume* lvol ) {  
   
   if ( m_Verbosity > 0 ) 
-    std::cout <<" DDG4ProductionCuts: inside SetProdCuts\n";
+    LogDebug("Physics") <<" DDG4ProductionCuts: inside setProdCuts";
   
   G4Region * region = 0;
   
   std::string  regionName;
   unsigned int num= map_.toString(m_KeywordRegion,lpart,regionName);
   
-  if (num != 1){
+  if (num != 1) 
     throw SimG4Exception("DDG4ProductionCuts: Problem with Region tags.");
-  }
   
-  if ( m_Verbosity > 0 ) std::cout << "Using region " << regionName << "\n";
+  if ( m_Verbosity > 0 ) LogDebug("Physics") << "Using region " << regionName;
 
-  region = GetRegion(regionName);
-  region->AddRootLogicalVolume(lvol);
-  
-  if ( m_Verbosity > 0 )
-    std::cout << " MakeRegions: added " << lvol->GetName()
-	      << " to region " << region->GetName() << std::endl;
+  region = getRegion(regionName);
+
   //
   // search for production cuts
   // you must have three of them: e+ e- gamma
@@ -117,26 +128,25 @@ void DDG4ProductionCuts::SetProdCuts(const DDLogicalPart lpart,
   //
   // For the moment I assume all of the three are set
   //
-  G4ProductionCuts * prodCuts = GetProductionCuts(region);
+  G4ProductionCuts * prodCuts = getProductionCuts(region);
   prodCuts->SetProductionCut( gammacut, idxG4GammaCut );
   prodCuts->SetProductionCut( electroncut, idxG4ElectronCut );
   prodCuts->SetProductionCut( positroncut, idxG4PositronCut );
   if ( m_Verbosity > 0 ) {
-    std::cout << "DDG4ProductionCuts : Setting cuts for " << regionName
-	      << "\n    Electrons: " << electroncut
-	      << "\n    Positrons: " << positroncut
-	      << "\n    Gamma    : " << gammacut << std::endl;
+    LogDebug("Physics") << "DDG4ProductionCuts : Setting cuts for " 
+			<< regionName << "\n    Electrons: " << electroncut
+			<< "\n    Positrons: " << positroncut
+			<< "\n    Gamma    : " << gammacut;
   }
 }
 
-G4Region * DDG4ProductionCuts::GetRegion(const std::string & regName) 
-{
+G4Region * DDG4ProductionCuts::getRegion(const std::string & regName) {
   G4Region * reg =  G4RegionStore::GetInstance()->FindOrCreateRegion (regName);
   return reg;
 }
 
- G4ProductionCuts * DDG4ProductionCuts::GetProductionCuts( G4Region* reg )
-{
+ G4ProductionCuts * DDG4ProductionCuts::getProductionCuts( G4Region* reg ) {
+
   G4ProductionCuts * prodCuts = reg->GetProductionCuts();
   if( !prodCuts ) {
     prodCuts = new G4ProductionCuts();
