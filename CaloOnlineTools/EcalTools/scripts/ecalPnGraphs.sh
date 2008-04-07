@@ -213,7 +213,6 @@ EOF
 
 
 echo "initializing cmssw..."
-export SCRAM_ARCH=slc3_ia32_gcc323
 #. /nfshome0/cmssw/cmsset_default.sh
 cd $cmssw_dir;
 eval `scramv1 ru -sh`;
