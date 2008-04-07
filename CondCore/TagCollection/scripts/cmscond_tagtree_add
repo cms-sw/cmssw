@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+import os
 from ConfigParser import ConfigParser
 from copy import copy
 from optparse import OptionParser, Option, OptionValueError
@@ -148,6 +149,9 @@ class tagTreeBuilder:
             context.setVerbosityLevel( 'ERROR' )
             
         svc = coral.ConnectionService( context )
+        config=svc.configuration()
+        os.environ['CORAL_AUTH_PATH']=self.__authpath
+        config.setDefaultAuthenticationService('CORAL/Services/XMLAuthenticationService')
         session = svc.connect( self.__connectstring,accessMode = coral.access_Update )
         try:
             #print 'treename ',self.__treename

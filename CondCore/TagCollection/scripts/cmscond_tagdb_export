@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+import os
 from ConfigParser import ConfigParser
 from optparse import OptionParser, Option, OptionValueError
 import coral
