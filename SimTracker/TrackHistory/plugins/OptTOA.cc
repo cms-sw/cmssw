@@ -15,11 +15,12 @@
 //
 // Original Author:  Victor Bazterra
 //         Created:  Tue Mar 13 14:15:40 CDT 2007
-// $Id: OptTOA.cc,v 1.5 2008/02/23 09:34:05 bazterra Exp $
+// $Id: OptTOA.cc,v 1.6 2008/03/17 22:52:28 bazterra Exp $
 //
 //
 
 #include <algorithm>
+#include <cctype>
 #include <iomanip>
 #include <set>
 #include <sstream>
@@ -81,6 +82,9 @@ private:
   int minimumNumberOfHits_, minimumNumberOfPixelHits_;
   double minimumTransverseMomentum_, maximumChiSquared_;
 
+  bool useAllQualities_;
+  reco::TrackBase::TrackQuality trackQuality_;
+
   void 
   LoopOverJetTracksAssociation(
     const edm::ESHandle<TransientTrackBuilder> &,
@@ -99,9 +103,10 @@ private:
     double ips;  // Impact parameter significance. 
     double pt;   // Transverse momentum
     double chi2; // Chi^2
-    std::size_t hits; // Number of hits
-   
-    histogram_element_t(double d, double a, double t, double l, double i, double p, double c, std::size_t h)
+    std::size_t hits;      // Number of hits
+    std::size_t pixelhits; // Number of hits
+       
+    histogram_element_t(double d, double a, double t, double l, double i, double p, double c, std::size_t h, std::size_t x)
     {
       sdl = d;
       dta = a;
@@ -111,6 +116,7 @@ private:
       pt = p;
       chi2 = c;
       hits = h;
+      pixelhits = x;
     } 
 	
     histogram_element_t(const histogram_element_t & orig)
@@ -123,6 +129,7 @@ private:
       pt = orig.pt;
       chi2 = orig.chi2;
       hits = orig.hits;      
+      pixelhits = orig.pixelhits;
     }	
   };
 
@@ -137,7 +144,7 @@ private:
     TH1F* tip;
     TH1F* lip;
     TH1F* ips;
-    TH1F* pt;
+    TH1F* pixelhits;
     TH1F* pt_1gev;
     TH1F* chi2;
     TH1F* hits;
@@ -149,15 +156,15 @@ private:
       std::string name, title;
       name = std::string("hits_") + particleType;
       title = std::string("Hit distribution for ") + particleType;
-      hits = new TH1F(name.c_str(), title.c_str(), 13, 4.5, 17.5);
+      hits = new TH1F(name.c_str(), title.c_str(), 19, -0.5, 18.5);
       
       name = std::string("chi2_") + particleType;
       title = std::string("Chi2 distribution for ") + particleType;
       chi2 = new TH1F(name.c_str(), title.c_str(), 100, 0., 30.);
 
-      name = std::string("pt_") + particleType;
+      name = std::string("pixelhits_") + particleType;
       title = std::string("Pt distribution for ") + particleType;
-      pt = new TH1F(name.c_str(), title.c_str(), 400, 0., 30.);
+      pixelhits = new TH1F(name.c_str(), title.c_str(), 7, -0.5, 6.5);
 
       name = std::string("pt_1Gev_") + particleType;
       title = std::string("Pt distribution close 1Gev for ") + particleType;
@@ -186,7 +193,7 @@ private:
     {
       delete hits;
       delete chi2;
-      delete pt;
+      delete pixelhits;
       delete pt_1gev;    
       delete tip;
       delete lip;
@@ -199,7 +206,7 @@ private:
     {
       hits->Fill(data.hits);
       chi2->Fill(data.chi2);    
-      pt->Fill(data.pt);
+      pixelhits->Fill(data.pt);
       pt_1gev->Fill(data.pt);
       ips->Fill(data.ips);      
       tip->Fill(data.tip);
@@ -212,9 +219,9 @@ private:
     {
       hits->Write();
       chi2->Write();    
-      pt->Write();
+      pixelhits->Write();
       pt_1gev->Write();
-      ips->Write();   
+      ips->Write();
       tip->Write();
       lip->Write();
       sdl->Write();
@@ -245,6 +252,16 @@ OptTOA::OptTOA(const edm::ParameterSet& iConfig) : classifier_(iConfig)
   minimumTransverseMomentum_ = iConfig.getParameter<double> ( "minimumTransverseMomentum" );
   maximumChiSquared_         = iConfig.getParameter<double> ( "maximumChiSquared" );
 
+  std::string trackQualityType = iConfig.getParameter<std::string>("trackQualityClass"); //used
+  trackQuality_ =  reco::TrackBase::qualityByName(trackQualityType);
+  useAllQualities_ = false;
+
+  std::transform(trackQualityType.begin(), trackQualityType.end(), trackQualityType.begin(), (int(*)(int)) std::tolower);
+  if (trackQualityType == "any")
+  {
+  	std::cout << "Using any" << std::endl;
+    useAllQualities_ = true;
+  }
   primaryVertex_ = iConfig.getParameter<std::string> ( "primaryVertex" );
 }
 
@@ -340,8 +357,7 @@ OptTOA::LoopOverJetTracksAssociation(
   if(primaryVertex->size() != 0)
   {
     PrimaryVertexSorter pvs;
-  	std::vector<reco::Vertex> sortedList =
-      pvs.sortedList(*(primaryVertex.product()));
+    std::vector<reco::Vertex> sortedList = pvs.sortedList(*(primaryVertex.product()));
     pv = (sortedList.front());
   }
   else 
@@ -379,9 +395,12 @@ OptTOA::LoopOverJetTracksAssociation(
 	  int pixelHits = tracks[index]->hitPattern().numberOfValidPixelHits();
 	  	  
 	  if( 
-	      hits < minimumNumberOfHits_ || pixelHits < minimumNumberOfPixelHits_ ||
-          pt < minimumTransverseMomentum_ || chi2 >  maximumChiSquared_
-      ) continue;
+	      hits < minimumNumberOfHits_ || 
+              pixelHits < minimumNumberOfPixelHits_ ||
+              pt < minimumTransverseMomentum_ || 
+              chi2 >  maximumChiSquared_ ||
+              (!useAllQualities_ && !tracks[index]->quality(trackQuality_))
+          ) continue;
 	  
 	  const reco::TransientTrack transientTrack = bproduct->build(&(*tracks[index]));
 	  double dta = - IPTools::jetTrackDistance(transientTrack, direction, pv).second.value();
@@ -394,15 +413,15 @@ OptTOA::LoopOverJetTracksAssociation(
 	  if ( classifier_.evaluate(edm::RefToBase<reco::Track>(tracks[index])) )
 	  {
 	    if ( classifier_.is(TrackCategories::Fake) )
-	      histogram_data_[4].push_back(histogram_element_t(sdl, dta, d0, dz, ips, pt, chi2, hits));
+	      histogram_data_[4].push_back(histogram_element_t(sdl, dta, d0, dz, ips, pt, chi2, hits, pixelHits));
         else if ( classifier_.is(TrackCategories::Bottom) )
-		  histogram_data_[0].push_back(histogram_element_t(sdl, dta, d0, dz, ips, pt, chi2, hits));      
+		  histogram_data_[0].push_back(histogram_element_t(sdl, dta, d0, dz, ips, pt, chi2, hits, pixelHits));      
         else if ( classifier_.is(TrackCategories::Bad) )
-          histogram_data_[3].push_back(histogram_element_t(sdl, dta, d0, dz, ips, pt, chi2, hits));          
+          histogram_data_[3].push_back(histogram_element_t(sdl, dta, d0, dz, ips, pt, chi2, hits, pixelHits));          
         else if ( classifier_.is(TrackCategories::Displaced) )
-          histogram_data_[2].push_back(histogram_element_t(sdl, dta, d0, dz, ips, pt, chi2, hits));
+          histogram_data_[2].push_back(histogram_element_t(sdl, dta, d0, dz, ips, pt, chi2, hits, pixelHits));
 	    else
-	      histogram_data_[1].push_back(histogram_element_t(sdl, dta, d0, dz, ips, pt, chi2, hits));	    
+	      histogram_data_[1].push_back(histogram_element_t(sdl, dta, d0, dz, ips, pt, chi2, hits, pixelHits));	    
       }
 	}
   }
