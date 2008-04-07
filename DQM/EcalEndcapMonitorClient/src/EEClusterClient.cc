@@ -1,8 +1,8 @@
 /*
  * \file EEClusterClient.cc
  *
- * $Date: 2008/04/05 10:03:04 $
- * $Revision: 1.47 $
+ * $Date: 2008/04/07 07:24:35 $
+ * $Revision: 1.48 $
  * \author G. Della Ricca
  * \author E. Di Marco
  *
@@ -33,6 +33,9 @@ EEClusterClient::EEClusterClient(const ParameterSet& ps){
 
   // cloneME switch
   cloneME_ = ps.getUntrackedParameter<bool>("cloneME", true);
+
+  // verbose switch
+  verbose_ = ps.getUntrackedParameter<bool>("verbose", true);
 
   // debug switch
   debug_ = ps.getUntrackedParameter<bool>("debug", false);
@@ -343,7 +346,7 @@ void EEClusterClient::analyze(void){
 
 void EEClusterClient::htmlOutput(int run, string& htmlDir, string& htmlName){
 
-  cout << "Preparing EEClusterClient html output ..." << endl;
+  if ( verbose_ ) cout << "Preparing EEClusterClient html output ..." << endl;
 
   ofstream htmlFile;
 

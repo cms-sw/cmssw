@@ -1,8 +1,8 @@
 /*
  * \file EBSummaryClient.cc
  *
- * $Date: 2008/03/22 12:39:39 $
- * $Revision: 1.127 $
+ * $Date: 2008/04/07 07:24:32 $
+ * $Revision: 1.128 $
  * \author G. Della Ricca
  *
 */
@@ -46,6 +46,9 @@ EBSummaryClient::EBSummaryClient(const ParameterSet& ps){
 
   // cloneME switch
   cloneME_ = ps.getUntrackedParameter<bool>("cloneME", true);
+
+  // verbose switch
+  verbose_ = ps.getUntrackedParameter<bool>("verbose", true);
 
   // debug switch
   debug_ = ps.getUntrackedParameter<bool>("debug", false);

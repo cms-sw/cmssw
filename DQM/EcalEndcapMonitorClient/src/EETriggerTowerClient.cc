@@ -1,8 +1,8 @@
 /*
  * \file EETriggerTowerClient.cc
  *
- * $Date: 2008/03/15 14:50:56 $
- * $Revision: 1.63 $
+ * $Date: 2008/04/07 07:24:35 $
+ * $Revision: 1.64 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -33,6 +33,9 @@ EETriggerTowerClient::EETriggerTowerClient(const ParameterSet& ps){
 
   // cloneME switch
   cloneME_ = ps.getUntrackedParameter<bool>("cloneME", true);
+
+  // verbose switch
+  verbose_ = ps.getUntrackedParameter<bool>("verbose", true);
 
   // debug switch
   debug_ = ps.getUntrackedParameter<bool>("debug", false);

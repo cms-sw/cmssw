@@ -1,8 +1,8 @@
 /*
  * \file EBCosmicClient.cc
  *
- * $Date: 2008/04/05 10:04:45 $
- * $Revision: 1.109 $
+ * $Date: 2008/04/07 07:24:31 $
+ * $Revision: 1.110 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -36,6 +36,9 @@ EBCosmicClient::EBCosmicClient(const ParameterSet& ps){
 
   // cloneME switch
   cloneME_ = ps.getUntrackedParameter<bool>("cloneME", true);
+
+  // verbose switch
+  verbose_ = ps.getUntrackedParameter<bool>("verbose", true);
 
   // debug switch
   debug_ = ps.getUntrackedParameter<bool>("debug", false);
@@ -153,7 +156,10 @@ bool EBCosmicClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunI
 
     int ism = superModules_[i];
 
-    cout << " " << Numbers::sEB(ism) << " (ism=" << ism << ")" << endl;
+    if ( verbose_ ) {
+      cout << " " << Numbers::sEB(ism) << " (ism=" << ism << ")" << endl;
+      cout << endl;
+    }
 
     const float n_min_tot = 1000.;
     const float n_min_bin = 10.;
@@ -193,12 +199,12 @@ bool EBCosmicClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunI
 
           if ( Numbers::icEB(ism, ie, ip) == 1 ) {
 
-            cout << "Preparing dataset for " << Numbers::sEB(ism) << " (ism=" << ism << ")" << endl;
-
-            cout << "Cut (" << ie << "," << ip << ") " << num01  << " " << mean01 << " " << rms01  << endl;
-            cout << "Sel (" << ie << "," << ip << ") " << num02  << " " << mean02 << " " << rms02  << endl;
-
-            cout << endl;
+            if ( verbose_ ) {
+              cout << "Preparing dataset for " << Numbers::sEB(ism) << " (ism=" << ism << ")" << endl;
+              cout << "Cut (" << ie << "," << ip << ") " << num01  << " " << mean01 << " " << rms01  << endl;
+              cout << "Sel (" << ie << "," << ip << ") " << num02  << " " << mean02 << " " << rms02  << endl;
+              cout << endl;
+            }
 
           }
 
@@ -223,9 +229,9 @@ bool EBCosmicClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunI
 
   if ( econn ) {
     try {
-      cout << "Inserting MonOccupancyDat ..." << endl;
+      if ( verbose_ ) cout << "Inserting MonOccupancyDat ..." << endl;
       if ( dataset.size() != 0 ) econn->insertDataArraySet(&dataset, moniov);
-      cout << "done." << endl;
+      if ( verbose_ ) cout << "done." << endl;
     } catch (runtime_error &e) {
       cerr << e.what() << endl;
     }
@@ -277,7 +283,7 @@ void EBCosmicClient::analyze(void){
 
 void EBCosmicClient::htmlOutput(int run, string& htmlDir, string& htmlName){
 
-  cout << "Preparing EBCosmicClient html output ..." << endl;
+  if ( verbose_ ) cout << "Preparing EBCosmicClient html output ..." << endl;
 
   ofstream htmlFile;
 

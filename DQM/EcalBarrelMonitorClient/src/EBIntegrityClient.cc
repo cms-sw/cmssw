@@ -2,8 +2,8 @@
 /*
  * \file EBIntegrityClient.cc
  *
- * $Date: 2008/03/15 14:50:54 $
- * $Revision: 1.196 $
+ * $Date: 2008/04/07 07:24:31 $
+ * $Revision: 1.197 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -50,6 +50,9 @@ EBIntegrityClient::EBIntegrityClient(const ParameterSet& ps){
 
   // cloneME switch
   cloneME_ = ps.getUntrackedParameter<bool>("cloneME", true);
+
+  // verbose switch
+  verbose_ = ps.getUntrackedParameter<bool>("verbose", true);
 
   // debug switch
   debug_ = ps.getUntrackedParameter<bool>("debug", false);
@@ -268,12 +271,14 @@ bool EBIntegrityClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonR
 
     int ism = superModules_[i];
 
-    cout << " " << Numbers::sEB(ism) << " (ism=" << ism << ")" << endl;
-    cout << endl;
+    if ( verbose_ ) {
+      cout << " " << Numbers::sEB(ism) << " (ism=" << ism << ")" << endl;
+      cout << endl;
+    }
 
     if ( h00_ && h00_->GetBinContent(ism) != 0 ) {
-      cout << " DCC failed " << h00_->GetBinContent(ism) << " times" << endl;
-      cout << endl;
+      cerr << " DCC failed " << h00_->GetBinContent(ism) << " times" << endl;
+      cerr << endl;
     }
 
     UtilsClient::printBadChannels(meg01_[ism-1], h01_[ism-1], true);
@@ -330,11 +335,11 @@ bool EBIntegrityClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonR
 
           if ( Numbers::icEB(ism, ie, ip) == 1 ) {
 
-            cout << "Preparing dataset for " << Numbers::sEB(ism) << " (ism=" << ism << ")" << endl;
-
-            cout << "(" << ie << "," << ip << ") " << num00 << " " << num01 << " " << num02 << " " << num03 << endl;
-
-            cout << endl;
+            if ( verbose_ ) {
+              cout << "Preparing dataset for " << Numbers::sEB(ism) << " (ism=" << ism << ")" << endl;
+              cout << "(" << ie << "," << ip << ") " << num00 << " " << num01 << " " << num02 << " " << num03 << endl;
+              cout << endl;
+            }
 
           }
 
@@ -410,11 +415,11 @@ bool EBIntegrityClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonR
 
           if ( Numbers::iTT(ism, EcalBarrel, 1+5*(iet-1), 1+5*(ipt-1)) == 1 ) {
 
-            cout << "Preparing dataset for " << Numbers::sEB(ism) << " (ism=" << ism << ")" << endl;
-
-            cout << "(" << iet << "," << ipt << ") " << num00 << " " << num04 << " " << num05 << endl;
-
-            cout << endl;
+            if ( verbose_ ) {
+              cout << "Preparing dataset for " << Numbers::sEB(ism) << " (ism=" << ism << ")" << endl;
+              cout << "(" << iet << "," << ipt << ") " << num00 << " " << num04 << " " << num05 << endl;
+              cout << endl;
+            }
 
           }
 
@@ -484,11 +489,11 @@ bool EBIntegrityClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonR
 
           if ( ie ==1 && ip == 1 ) {
 
-            cout << "Preparing dataset for mem of SM=" << ism << endl;
-
-            cout << "(" << ie << "," << ip << ") " << num06 << " " << num07 << endl;
-
-            cout << endl;
+            if ( verbose_ ) {
+              cout << "Preparing dataset for mem of SM=" << ism << endl;
+              cout << "(" << ie << "," << ip << ") " << num06 << " " << num07 << endl;
+              cout << endl;
+            }
 
           }
 
@@ -563,11 +568,11 @@ bool EBIntegrityClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonR
 
         if ( iet == 1 ) {
 
-          cout << "Preparing dataset for " << Numbers::sEB(ism) << " (ism=" << ism << ")" << endl;
-
-          cout << "(" << iet <<  ") " << num08 << " " << num09 << endl;
-
-          cout << endl;
+          if ( verbose_ ) {
+            cout << "Preparing dataset for " << Numbers::sEB(ism) << " (ism=" << ism << ")" << endl;
+            cout << "(" << iet <<  ") " << num08 << " " << num09 << endl;
+            cout << endl;
+          }
 
         }
 
@@ -613,12 +618,12 @@ bool EBIntegrityClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonR
 
   if ( econn ) {
     try {
-      cout << "Inserting MonConsistencyDat ..." << endl;
+      if ( verbose_ ) cout << "Inserting MonConsistencyDat ..." << endl;
       if ( dataset1.size() != 0 ) econn->insertDataArraySet(&dataset1, moniov);
       if ( dataset2.size() != 0 ) econn->insertDataArraySet(&dataset2, moniov);
       if ( dataset3.size() != 0 ) econn->insertDataArraySet(&dataset3, moniov);
       if ( dataset4.size() != 0 ) econn->insertDataArraySet(&dataset4, moniov);
-      cout << "done." << endl;
+      if ( verbose_ ) cout << "done." << endl;
     } catch (runtime_error &e) {
       cerr << e.what() << endl;
     }
@@ -974,7 +979,7 @@ void EBIntegrityClient::analyze(void){
 
 void EBIntegrityClient::htmlOutput(int run, string& htmlDir, string& htmlName){
 
-  cout << "Preparing EBIntegrityClient html output ..." << endl;
+  if ( verbose_ ) cout << "Preparing EBIntegrityClient html output ..." << endl;
 
   ofstream htmlFile;
 

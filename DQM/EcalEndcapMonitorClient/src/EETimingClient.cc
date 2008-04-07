@@ -1,8 +1,8 @@
 /*
  * \file EETimingClient.cc
  *
- * $Date: 2008/04/06 14:41:47 $
- * $Revision: 1.72 $
+ * $Date: 2008/04/07 07:24:35 $
+ * $Revision: 1.73 $
  * \author G. Della Ricca
  *
 */
@@ -42,6 +42,9 @@ EETimingClient::EETimingClient(const ParameterSet& ps){
 
   // cloneME switch
   cloneME_ = ps.getUntrackedParameter<bool>("cloneME", true);
+
+  // verbose switch
+  verbose_ = ps.getUntrackedParameter<bool>("verbose", true);
 
   // debug switch
   debug_ = ps.getUntrackedParameter<bool>("debug", false);

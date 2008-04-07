@@ -1,8 +1,8 @@
 /*
  * \file EcalEndcapMonitorClient.cc
  *
- * $Date: 2008/04/07 07:24:35 $
- * $Revision: 1.166 $
+ * $Date: 2008/04/07 08:14:14 $
+ * $Revision: 1.167 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -82,7 +82,7 @@ void EcalEndcapMonitorClient::initialize(const ParameterSet& ps){
 
   // verbose switch
 
-  verbose_ = ps.getUntrackedParameter<bool>("verbose", false);
+  verbose_ = ps.getUntrackedParameter<bool>("verbose",  true);
 
   if ( verbose_ ) {
     cout << endl;

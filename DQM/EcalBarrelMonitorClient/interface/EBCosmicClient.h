@@ -4,8 +4,8 @@
 /*
  * \file EBCosmicClient.h
  *
- * $Date: 2008/03/15 14:50:54 $
- * $Revision: 1.49 $
+ * $Date: 2008/04/07 07:24:31 $
+ * $Revision: 1.50 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -78,6 +78,7 @@ int jevt_;
 
 bool cloneME_;
 
+bool verbose_;
 bool debug_;
 
 bool enableMonitorDaemon_;

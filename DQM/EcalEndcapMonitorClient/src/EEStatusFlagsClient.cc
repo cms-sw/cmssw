@@ -1,8 +1,8 @@
 /*
  * \file EEStatusFlagsClient.cc
  *
- * $Date: 2008/04/05 10:03:04 $
- * $Revision: 1.15 $
+ * $Date: 2008/04/07 07:24:35 $
+ * $Revision: 1.16 $
  * \author G. Della Ricca
  *
 */
@@ -32,6 +32,9 @@ EEStatusFlagsClient::EEStatusFlagsClient(const ParameterSet& ps){
 
   // cloneME switch
   cloneME_ = ps.getUntrackedParameter<bool>("cloneME", true);
+
+  // verbose switch
+  verbose_ = ps.getUntrackedParameter<bool>("verbose", true);
 
   // debug switch
   debug_ = ps.getUntrackedParameter<bool>("debug", false);

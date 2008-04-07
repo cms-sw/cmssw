@@ -1,8 +1,8 @@
 /*
  * \file EBTriggerTowerClient.cc
  *
- * $Date: 2008/03/15 14:50:55 $
- * $Revision: 1.96 $
+ * $Date: 2008/04/07 07:24:32 $
+ * $Revision: 1.97 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -31,6 +31,9 @@ EBTriggerTowerClient::EBTriggerTowerClient(const ParameterSet& ps){
 
   // cloneME switch
   cloneME_ = ps.getUntrackedParameter<bool>("cloneME", true);
+
+  // verbose switch
+  verbose_ = ps.getUntrackedParameter<bool>("verbose", true);
 
   // debug switch
   debug_ = ps.getUntrackedParameter<bool>("debug", false);

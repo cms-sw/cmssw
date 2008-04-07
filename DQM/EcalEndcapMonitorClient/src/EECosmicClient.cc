@@ -1,8 +1,8 @@
 /*
  * \file EECosmicClient.cc
  *
- * $Date: 2008/04/05 10:03:04 $
- * $Revision: 1.56 $
+ * $Date: 2008/04/07 07:24:35 $
+ * $Revision: 1.57 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -38,6 +38,9 @@ EECosmicClient::EECosmicClient(const ParameterSet& ps){
 
   // cloneME switch
   cloneME_ = ps.getUntrackedParameter<bool>("cloneME", true);
+
+  // verbose switch
+  verbose_ = ps.getUntrackedParameter<bool>("verbose", true);
 
   // debug switch
   debug_ = ps.getUntrackedParameter<bool>("debug", false);
@@ -155,7 +158,10 @@ bool EECosmicClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunI
 
     int ism = superModules_[i];
 
-    cout << " " << Numbers::sEE(ism) << " (ism=" << ism << ")" << endl;
+    if ( verbose_ ) {
+      cout << " " << Numbers::sEE(ism) << " (ism=" << ism << ")" << endl;
+      cout << endl;
+    }
 
     const float n_min_tot = 1000.;
     const float n_min_bin = 10.;
@@ -202,12 +208,12 @@ bool EECosmicClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunI
 
           if ( Numbers::icEE(ism, jx, jy) == 1 ) {
 
-            cout << "Preparing dataset for " << Numbers::sEE(ism) << " (ism=" << ism << ")" << endl;
-
-            cout << "Cut (" << Numbers::ix0EE(i+1)+ix << "," << Numbers::iy0EE(i+1)+iy << ") " << num01  << " " << mean01 << " " << rms01  << endl;
-            cout << "Sel (" << Numbers::ix0EE(i+1)+ix << "," << Numbers::iy0EE(i+1)+iy << ") " << num02  << " " << mean02 << " " << rms02  << endl;
-
-            cout << endl;
+            if ( verbose_ ) {
+              cout << "Preparing dataset for " << Numbers::sEE(ism) << " (ism=" << ism << ")" << endl;
+              cout << "Cut (" << Numbers::ix0EE(i+1)+ix << "," << Numbers::iy0EE(i+1)+iy << ") " << num01  << " " << mean01 << " " << rms01  << endl;
+              cout << "Sel (" << Numbers::ix0EE(i+1)+ix << "," << Numbers::iy0EE(i+1)+iy << ") " << num02  << " " << mean02 << " " << rms02  << endl;
+              cout << endl;
+            }
 
           }
 
@@ -234,9 +240,9 @@ bool EECosmicClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunI
 
   if ( econn ) {
     try {
-      cout << "Inserting MonOccupancyDat ..." << endl;
+      if ( verbose_ ) cout << "Inserting MonOccupancyDat ..." << endl;
       if ( dataset.size() != 0 ) econn->insertDataArraySet(&dataset, moniov);
-      cout << "done." << endl;
+      if ( verbose_ ) cout << "done." << endl;
     } catch (runtime_error &e) {
       cerr << e.what() << endl;
     }
@@ -288,7 +294,7 @@ void EECosmicClient::analyze(void){
 
 void EECosmicClient::htmlOutput(int run, string& htmlDir, string& htmlName){
 
-  cout << "Preparing EECosmicClient html output ..." << endl;
+  if ( verbose_ ) cout << "Preparing EECosmicClient html output ..." << endl;
 
   ofstream htmlFile;
 

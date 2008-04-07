@@ -4,8 +4,8 @@
 /*
  * \file EEBeamCaloClient.h
  *
- * $Date: 2008/03/15 14:50:55 $
- * $Revision: 1.14 $
+ * $Date: 2008/04/07 07:24:34 $
+ * $Revision: 1.15 $
  * \author G. Della Ricca
  * \author A. Ghezzi
  *
@@ -80,6 +80,7 @@ int jevt_;
 
 bool cloneME_;
 
+bool verbose_;
 bool debug_;
 
 bool enableCleanup_;

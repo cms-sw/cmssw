@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorClient.cc
  *
- * $Date: 2008/04/07 07:24:32 $
- * $Revision: 1.407 $
+ * $Date: 2008/04/07 08:14:12 $
+ * $Revision: 1.408 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -81,7 +81,7 @@ void EcalBarrelMonitorClient::initialize(const ParameterSet& ps){
 
   // verbose switch
 
-  verbose_ = ps.getUntrackedParameter<bool>("verbose", false);
+  verbose_ = ps.getUntrackedParameter<bool>("verbose", true);
 
   if ( verbose_ ) {
     cout << endl;

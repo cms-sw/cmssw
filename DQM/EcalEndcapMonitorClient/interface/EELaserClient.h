@@ -4,8 +4,8 @@
 /*
  * \file EELaserClient.h
  *
- * $Date: 2008/03/15 14:50:55 $
- * $Revision: 1.19 $
+ * $Date: 2008/04/07 07:24:34 $
+ * $Revision: 1.20 $
  * \author G. Della Ricca
  *
 */
@@ -77,6 +77,7 @@ int jevt_;
 
 bool cloneME_;
 
+bool verbose_;
 bool debug_;
 
 bool enableCleanup_;

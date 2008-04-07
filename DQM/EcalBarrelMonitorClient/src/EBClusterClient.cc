@@ -1,8 +1,8 @@
 /*
  * \file EBClusterClient.cc
  *
- * $Date: 2008/04/05 10:04:45 $
- * $Revision: 1.60 $
+ * $Date: 2008/04/07 07:24:31 $
+ * $Revision: 1.61 $
  * \author G. Della Ricca
  * \author F. Cossutti
  * \author E. Di Marco
@@ -32,6 +32,9 @@ EBClusterClient::EBClusterClient(const ParameterSet& ps){
 
   // cloneME switch
   cloneME_ = ps.getUntrackedParameter<bool>("cloneME", true);
+
+  // verbose switch
+  verbose_ = ps.getUntrackedParameter<bool>("verbose", true);
 
   // debug switch
   debug_ = ps.getUntrackedParameter<bool>("debug", false);
@@ -289,7 +292,7 @@ void EBClusterClient::analyze(void){
 
 void EBClusterClient::htmlOutput(int run, string& htmlDir, string& htmlName){
 
-  cout << "Preparing EBClusterClient html output ..." << endl;
+  if ( verbose_ ) cout << "Preparing EBClusterClient html output ..." << endl;
 
   ofstream htmlFile;
 

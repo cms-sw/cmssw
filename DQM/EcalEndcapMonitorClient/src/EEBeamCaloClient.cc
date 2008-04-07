@@ -1,8 +1,8 @@
 /*
  * \file EEBeamCaloClient.cc
  *
- * $Date: 2008/03/15 14:50:56 $
- * $Revision: 1.46 $
+ * $Date: 2008/04/07 07:24:35 $
+ * $Revision: 1.47 $
  * \author G. Della Ricca
  * \author A. Ghezzi
  *
@@ -37,6 +37,9 @@ EEBeamCaloClient::EEBeamCaloClient(const ParameterSet& ps){
 
   // cloneME switch
   cloneME_ = ps.getUntrackedParameter<bool>("cloneME", true);
+
+  // verbose switch
+  verbose_ = ps.getUntrackedParameter<bool>("verbose", true);
 
   // debug switch
   debug_ = ps.getUntrackedParameter<bool>("debug", false);
@@ -242,7 +245,10 @@ bool EEBeamCaloClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRu
 
     int ism = superModules_[i];
 
-    cout << " " << Numbers::sEE(ism) << " (ism=" << ism << ")" << endl;
+    if ( verbose_ ) {
+      cout << " " << Numbers::sEE(ism) << " (ism=" << ism << ")" << endl;
+      cout << endl;
+    }
 
     const float n_min_tot = 1000.;
 
@@ -276,20 +282,18 @@ bool EEBeamCaloClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRu
         //if(hBE3x3vsCry_){mean01 = hBE3x3vsCry_->GetBinContent(step);}// E in the 3x3
         if( hBE1vsCry_ ){mean01 = hBE1vsCry_->GetBinContent(ic);} // E1
         }
-        //if(mean01 >0){cout<<"cry: "<<ic<<" ie: "<<ie<<" ip: "<<ip<<" mean: "<< mean01<<endl;}
 
         if ( update_channel ) {
 
           if ( Numbers::icEB(ism, ie, ip) == 1 ) {
-        //if ( mean01 !=0) {
 
-            cout << "Preparing dataset for " << Numbers::sEE(ism) << " (ism=" << ism << ")" << endl;
-
-            cout << "CryOnBeam (" << ie << "," << ip << ") " << num01  << endl;
-            cout << "MaxEneCry (" << ie << "," << ip << ") " << num02  << endl;
-            cout << "E1 ("        << ie << "," << ip << ") " << mean01 << endl;
-
-            cout << endl;
+            if ( verbose_ ) {
+              cout << "Preparing dataset for " << Numbers::sEE(ism) << " (ism=" << ism << ")" << endl;
+              cout << "CryOnBeam (" << ie << "," << ip << ") " << num01  << endl;
+              cout << "MaxEneCry (" << ie << "," << ip << ") " << num02  << endl;
+              cout << "E1 ("        << ie << "," << ip << ") " << mean01 << endl;
+              cout << endl;
+            }
 
           }
 
@@ -312,9 +316,9 @@ bool EEBeamCaloClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRu
 
   if ( econn ) {
     try {
-      cout << "Inserting MonOccupancyDat ..." << endl;
+      if ( verbose_ ) cout << "Inserting MonOccupancyDat ..." << endl;
       if ( dataset.size() != 0 ) econn->insertDataArraySet(&dataset, moniov);
-      cout << "done." << endl;
+      if ( verbose_ ) cout << "done." << endl;
     } catch (runtime_error &e) {
       cerr << e.what() << endl;
     }
@@ -441,7 +445,6 @@ void EEBeamCaloClient::analyze(void){
         bool RMS3x3  =  (  E3x3RMS < RMSEne3x3_ && E3x3RMS >= 0 );
         bool Mean3x3 =  ( fabs( E3x3 - aveEne3x3_ ) < E3x3Th_);
         bool Mean1   =  ( fabs( E1 - aveEne1_ ) < E1Th_ );
-        //cout<<"E1: "<<E1<<" E3x3: "<<E3x3<<" E3x3RMS: "<<E3x3RMS<<endl;
         int ieta = ( cry - 1)/20 + 1 ;//+1 for the bin
         int iphi = ( cry - 1)%20 + 1 ;//+1 for the bin
         //fill the RedGreen histo
@@ -454,9 +457,6 @@ void EEBeamCaloClient::analyze(void){
         //if ( hBEntriesvsCry_ ){Entries = hBEntriesvsCry_->GetBinContent(step);}
         if ( hBEntriesvsCry_ ){Entries = hBEntriesvsCry_->GetBinContent(cry);}
         bool Nent = ( Entries * prescaling_  > minEvtNum_ );
-        //cout<<"step: "<<step<<" entries: "<<Entries<<endl;
-        //cout<<"step -1 entries: "<<hBEntriesvsCry_->GetBinContent(step-1)<<endl;
-        //cout<<"step +1 entries: "<<hBEntriesvsCry_->GetBinContent(step+1)<<endl;
         bool readCryOk = true;
         if( hBReadCryErrors_ ) {
           int step_bin = hBReadCryErrors_->GetXaxis()->FindFixBin(step);
@@ -534,7 +534,7 @@ void EEBeamCaloClient::analyze(void){
 
 void EEBeamCaloClient::htmlOutput(int run, string& htmlDir, string& htmlName){
 
-  cout << "Preparing EEBeamCaloClient html output ..." << endl;
+  if ( verbose_ ) cout << "Preparing EEBeamCaloClient html output ..." << endl;
 
   ofstream htmlFile;
 
@@ -599,7 +599,6 @@ void EEBeamCaloClient::htmlOutput(int run, string& htmlDir, string& htmlName){
     for(int cry=1 ; cry<1701 ; cry ++){
       int step = (int) hBcryDone_->GetBinContent(cry);
       if (step >0 ){dummyStep.SetBinContent( step+1, 1, cry );}
-      //cout<<"cry: "<<cry<<" step: "<<step <<"  histo: "<<dummyStep.GetBinContent(step+1,1)<<endl;}
     }
   }
   //dummyStep.SetBinContent( 6, 1, 1699 );
@@ -1246,12 +1245,10 @@ void EEBeamCaloClient::htmlOutput(int run, string& htmlDir, string& htmlName){
         if(temp > Ymax){Ymax=temp;}
       }
     }
-    //cout<<"Ym: "<<Ymin<< " YM: "<<Ymax<<endl;
     if( Ymin < Ymax+1 ){
        for( int bin=1; bin < objp1->GetNbinsX()+1; bin++ ){
          if( objp1->GetBinError(bin) >0 ){
            objp1->SetBinContent(bin, (Ymin+Ymax)/2.*objp1->GetBinEntries(bin) );
-           // cout<<"bin: "<<bin<<" rms: "<< objp1->GetBinError(bin) <<"  "<<(Ymin+Ymax)/2<<endl;
          }
        }
        objp1->GetYaxis()->SetRangeUser(Ymin-1. , Ymax+1.);
