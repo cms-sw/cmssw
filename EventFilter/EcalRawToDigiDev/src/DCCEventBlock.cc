@@ -35,6 +35,12 @@ void DCCEventBlock::enableSyncChecks(){
 
 
 
+void DCCEventBlock::enableFeIdChecks(){
+   towerBlock_   ->enableFeIdChecks();
+}
+
+
+
 void DCCEventBlock::updateCollectors(){
 
   dccHeaders_  = unpacker_->dccHeadersCollection();
@@ -223,7 +229,6 @@ void DCCEventBlock::unpack( uint64_t * buffer, uint numbBytes, uint expFedId){
 	    STATUS = towerBlock_->unpack(&data_,&dwToEnd_,true,chNumber);
 	  }
 	}
-      
       
       
       // Unpack Tower (Xtal Block) for no SR (possibly 0 suppression flags)
