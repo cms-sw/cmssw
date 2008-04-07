@@ -13,7 +13,7 @@
 //
 // Original Author:  Traczyk Piotr
 //         Created:  Thu Oct 11 15:01:28 CEST 2007
-// $Id: BetaFromTOF.cc,v 1.13 2008/03/14 12:04:50 ptraczyk Exp $
+// $Id: BetaFromTOF.cc,v 1.14 2008/03/17 17:13:20 ptraczyk Exp $
 //
 //
 
@@ -35,6 +35,7 @@
 #include "DataFormats/Common/interface/Ref.h"
 
 #include "Geometry/Records/interface/MuonGeometryRecord.h"
+#include "DataFormats/MuonDetId/interface/MuonSubdetId.h"
 #include "Geometry/DTGeometry/interface/DTGeometry.h"
 #include "Geometry/DTGeometry/interface/DTLayer.h"
 #include "Geometry/DTGeometry/interface/DTChamber.h"
@@ -265,24 +266,17 @@ BetaFromTOF::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
           // match with the current recHit
           if ((rechit->localPosition()-(*hi)->localPosition()).mag()>0.01) continue;
 
-          // Check if both phi and theta segments exist in the 4D Segment
-          if ((!rechit->hasPhi()) || (!rechit->hasZed())) continue;
-
-          nStations++;
-
           double t0, dist, ibphi=0, ibtheta=0;
 
 	  const DTRecSegment2D* sphi = dynamic_cast<const DTRecSegment2D*>(rechit->phiSegment());
           const GeomDet* geomDetPhi = theTrackingGeometry->idToDet(sphi->geographicalId());
 	  const DTRecSegment2D* szed = dynamic_cast<const DTRecSegment2D*>(rechit->zSegment());
           const GeomDet* geomDetZed = theTrackingGeometry->idToDet(szed->geographicalId());
-
           const vector<DTRecHit1D> hits1dphi = sphi->specificRecHits();
           const vector<DTRecHit1D> hits1dzed = szed->specificRecHits();
 
           dist = geomDetPhi->toGlobal(sphi->localPosition()).mag();
           t0 = sphi->t0();
-
 
   	  for (vector<DTRecHit1D>::const_iterator hiti=hits1dphi.begin(); hiti!=hits1dphi.end(); hiti++) {
   	    const GeomDet* dtcell = theTrackingGeometry->idToDet(hiti->geographicalId());
@@ -296,8 +290,12 @@ BetaFromTOF::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
             thisHit.station = station;
                   
             tof.timeMeasurements.push_back(thisHit);
-                  
           }
+
+          // Check if both phi and theta segments exist in the 4D Segment
+          if ((!rechit->hasPhi()) || (!rechit->hasZed())) continue;
+
+          nStations++;
 
           if (hits1dphi.size()>=theHitsMin) {
             ibphi=1.+t0/dist*30.;
