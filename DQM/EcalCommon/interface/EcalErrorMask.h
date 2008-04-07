@@ -1,11 +1,11 @@
-// $Id: EcalErrorMask.h,v 1.10 2008/01/01 16:47:58 dellaric Exp $
+// $Id: EcalErrorMask.h,v 1.11 2008/03/14 14:38:56 dellaric Exp $
 
 /*!
   \file EcalErrorMask.h
   \brief Error mask from text file or database
   \author B. Gobbo 
-  \version $Revision: 1.10 $
-  \date $Date: 2008/01/01 16:47:58 $
+  \version $Revision: 1.11 $
+  \date $Date: 2008/03/14 14:38:56 $
 */
 
 #ifndef EcalErrorMask_H
@@ -30,7 +30,7 @@ class EcalErrorMask {
 
  public:
 
-  static void readFile( std::string& inFile, bool verbose = false, bool verifySyntax = false ) throw( std::runtime_error );
+  static void readFile( std::string& inFile, bool debug = false, bool verifySyntax = false ) throw( std::runtime_error );
   static void writeFile( std::string& outFile ) throw( std::runtime_error );
 
   static void readDB( EcalCondDBInterface* eConn, RunIOV* runIOV ) throw( std::runtime_error );

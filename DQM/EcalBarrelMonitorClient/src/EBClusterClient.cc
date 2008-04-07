@@ -1,8 +1,8 @@
 /*
  * \file EBClusterClient.cc
  *
- * $Date: 2008/03/15 14:50:54 $
- * $Revision: 1.59 $
+ * $Date: 2008/04/05 10:04:45 $
+ * $Revision: 1.60 $
  * \author G. Della Ricca
  * \author F. Cossutti
  * \author E. Di Marco
@@ -33,8 +33,8 @@ EBClusterClient::EBClusterClient(const ParameterSet& ps){
   // cloneME switch
   cloneME_ = ps.getUntrackedParameter<bool>("cloneME", true);
 
-  // verbosity switch
-  verbose_ = ps.getUntrackedParameter<bool>("verbose", false);
+  // debug switch
+  debug_ = ps.getUntrackedParameter<bool>("debug", false);
 
   // enableCleanup_ switch
   enableCleanup_ = ps.getUntrackedParameter<bool>("enableCleanup", false);
@@ -81,7 +81,7 @@ void EBClusterClient::beginJob(DQMStore* dbe){
 
   dbe_ = dbe;
 
-  if ( verbose_ ) cout << "EBClusterClient: beginJob" << endl;
+  if ( debug_ ) cout << "EBClusterClient: beginJob" << endl;
 
   ievt_ = 0;
   jevt_ = 0;
@@ -90,7 +90,7 @@ void EBClusterClient::beginJob(DQMStore* dbe){
 
 void EBClusterClient::beginRun(void){
 
-  if ( verbose_ ) cout << "EBClusterClient: beginRun" << endl;
+  if ( debug_ ) cout << "EBClusterClient: beginRun" << endl;
 
   jevt_ = 0;
 
@@ -100,7 +100,7 @@ void EBClusterClient::beginRun(void){
 
 void EBClusterClient::endJob(void) {
 
-  if ( verbose_ ) cout << "EBClusterClient: endJob, ievt = " << ievt_ << endl;
+  if ( debug_ ) cout << "EBClusterClient: endJob, ievt = " << ievt_ << endl;
 
   this->cleanup();
 
@@ -108,7 +108,7 @@ void EBClusterClient::endJob(void) {
 
 void EBClusterClient::endRun(void) {
 
-  if ( verbose_ ) cout << "EBClusterClient: endRun, jevt = " << jevt_ << endl;
+  if ( debug_ ) cout << "EBClusterClient: endRun, jevt = " << jevt_ << endl;
 
   this->cleanup();
 
@@ -194,7 +194,7 @@ void EBClusterClient::analyze(void){
   ievt_++;
   jevt_++;
   if ( ievt_ % 10 == 0 ) {
-    if ( verbose_ ) cout << "EBClusterClient: ievt/jevt = " << ievt_ << "/" << jevt_ << endl;
+    if ( debug_ ) cout << "EBClusterClient: ievt/jevt = " << ievt_ << "/" << jevt_ << endl;
   }
 
   char histo[200];

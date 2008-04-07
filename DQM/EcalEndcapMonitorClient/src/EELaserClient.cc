@@ -1,8 +1,8 @@
 /*
  * \file EELaserClient.cc
  *
- * $Date: 2008/03/15 14:50:56 $
- * $Revision: 1.90 $
+ * $Date: 2008/04/05 10:03:04 $
+ * $Revision: 1.91 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -52,8 +52,8 @@ EELaserClient::EELaserClient(const ParameterSet& ps){
   // cloneME switch
   cloneME_ = ps.getUntrackedParameter<bool>("cloneME", true);
 
-  // verbosity switch
-  verbose_ = ps.getUntrackedParameter<bool>("verbose", false);
+  // debug switch
+  debug_ = ps.getUntrackedParameter<bool>("debug", false);
 
   // enableCleanup_ switch
   enableCleanup_ = ps.getUntrackedParameter<bool>("enableCleanup", false);
@@ -232,7 +232,7 @@ void EELaserClient::beginJob(DQMStore* dbe){
 
   dbe_ = dbe;
 
-  if ( verbose_ ) cout << "EELaserClient: beginJob" << endl;
+  if ( debug_ ) cout << "EELaserClient: beginJob" << endl;
 
   ievt_ = 0;
   jevt_ = 0;
@@ -241,7 +241,7 @@ void EELaserClient::beginJob(DQMStore* dbe){
 
 void EELaserClient::beginRun(void){
 
-  if ( verbose_ ) cout << "EELaserClient: beginRun" << endl;
+  if ( debug_ ) cout << "EELaserClient: beginRun" << endl;
 
   jevt_ = 0;
 
@@ -251,7 +251,7 @@ void EELaserClient::beginRun(void){
 
 void EELaserClient::endJob(void) {
 
-  if ( verbose_ ) cout << "EELaserClient: endJob, ievt = " << ievt_ << endl;
+  if ( debug_ ) cout << "EELaserClient: endJob, ievt = " << ievt_ << endl;
 
   this->cleanup();
 
@@ -259,7 +259,7 @@ void EELaserClient::endJob(void) {
 
 void EELaserClient::endRun(void) {
 
-  if ( verbose_ ) cout << "EELaserClient: endRun, jevt = " << jevt_ << endl;
+  if ( debug_ ) cout << "EELaserClient: endRun, jevt = " << jevt_ << endl;
 
   this->cleanup();
 
@@ -1673,7 +1673,7 @@ void EELaserClient::analyze(void){
   ievt_++;
   jevt_++;
   if ( ievt_ % 10 == 0 ) {
-    if ( verbose_ ) cout << "EELaserClient: ievt/jevt = " << ievt_ << "/" << jevt_ << endl;
+    if ( debug_ ) cout << "EELaserClient: ievt/jevt = " << ievt_ << "/" << jevt_ << endl;
   }
 
   uint64_t bits01 = 0;

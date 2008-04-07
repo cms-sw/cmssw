@@ -4,8 +4,8 @@
 /*
  * \file EBTimingClient.h
  *
- * $Date: 2008/03/15 14:50:54 $
- * $Revision: 1.19 $
+ * $Date: 2008/04/06 14:41:46 $
+ * $Revision: 1.20 $
  * \author G. Della Ricca
  *
 */
@@ -77,7 +77,7 @@ int jevt_;
 
 bool cloneME_;
 
-bool verbose_;
+bool debug_;
 
 bool enableCleanup_;
 

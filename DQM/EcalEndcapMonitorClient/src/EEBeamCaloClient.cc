@@ -1,8 +1,8 @@
 /*
  * \file EEBeamCaloClient.cc
  *
- * $Date: 2008/03/15 14:07:45 $
- * $Revision: 1.45 $
+ * $Date: 2008/03/15 14:50:56 $
+ * $Revision: 1.46 $
  * \author G. Della Ricca
  * \author A. Ghezzi
  *
@@ -38,8 +38,8 @@ EEBeamCaloClient::EEBeamCaloClient(const ParameterSet& ps){
   // cloneME switch
   cloneME_ = ps.getUntrackedParameter<bool>("cloneME", true);
 
-  // verbosity switch
-  verbose_ = ps.getUntrackedParameter<bool>("verbose", false);
+  // debug switch
+  debug_ = ps.getUntrackedParameter<bool>("debug", false);
 
   // enableCleanup_ switch
   enableCleanup_ = ps.getUntrackedParameter<bool>("enableCleanup", false);
@@ -99,7 +99,7 @@ void EEBeamCaloClient::beginJob(DQMStore* dbe){
 
   dbe_ = dbe;
 
-  if ( verbose_ ) cout << "EEBeamCaloClient: beginJob" << endl;
+  if ( debug_ ) cout << "EEBeamCaloClient: beginJob" << endl;
 
   ievt_ = 0;
   jevt_ = 0;
@@ -108,7 +108,7 @@ void EEBeamCaloClient::beginJob(DQMStore* dbe){
 
 void EEBeamCaloClient::beginRun(void){
 
-  if ( verbose_ ) cout << "EEBeamCaloClient: beginRun" << endl;
+  if ( debug_ ) cout << "EEBeamCaloClient: beginRun" << endl;
 
   jevt_ = 0;
 
@@ -118,7 +118,7 @@ void EEBeamCaloClient::beginRun(void){
 
 void EEBeamCaloClient::endJob(void) {
 
-  if ( verbose_ ) cout << "EEBeamCaloClient: endJob, ievt = " << ievt_ << endl;
+  if ( debug_ ) cout << "EEBeamCaloClient: endJob, ievt = " << ievt_ << endl;
 
   this->cleanup();
 
@@ -126,7 +126,7 @@ void EEBeamCaloClient::endJob(void) {
 
 void EEBeamCaloClient::endRun(void) {
 
-  if ( verbose_ ) cout << "EEBeamCaloClient: endRun, jevt = " << jevt_ << endl;
+  if ( debug_ ) cout << "EEBeamCaloClient: endRun, jevt = " << jevt_ << endl;
 
   this->cleanup();
 
@@ -329,7 +329,7 @@ void EEBeamCaloClient::analyze(void){
   ievt_++;
   jevt_++;
   if ( ievt_ % 10 == 0 ) {
-    if ( verbose_ ) cout << "EEBeamCaloClient: ievt/jevt = " << ievt_ << "/" << jevt_ << endl;
+    if ( debug_ ) cout << "EEBeamCaloClient: ievt/jevt = " << ievt_ << "/" << jevt_ << endl;
   }
 
   char histo[200];

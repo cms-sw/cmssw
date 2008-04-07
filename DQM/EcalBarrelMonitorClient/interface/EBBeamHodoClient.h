@@ -4,8 +4,8 @@
 /*
  * \file EBBeamHodoClient.h
  *
- * $Date: 2008/03/14 14:38:54 $
- * $Revision: 1.27 $
+ * $Date: 2008/03/15 14:50:54 $
+ * $Revision: 1.28 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -76,7 +76,7 @@ int jevt_;
 
 bool cloneME_;
 
-bool verbose_;
+bool debug_;
 
 bool enableCleanup_;
 

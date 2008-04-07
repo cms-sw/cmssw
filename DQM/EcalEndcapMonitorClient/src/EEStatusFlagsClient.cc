@@ -1,8 +1,8 @@
 /*
  * \file EEStatusFlagsClient.cc
  *
- * $Date: 2008/03/15 14:50:56 $
- * $Revision: 1.14 $
+ * $Date: 2008/04/05 10:03:04 $
+ * $Revision: 1.15 $
  * \author G. Della Ricca
  *
 */
@@ -33,8 +33,8 @@ EEStatusFlagsClient::EEStatusFlagsClient(const ParameterSet& ps){
   // cloneME switch
   cloneME_ = ps.getUntrackedParameter<bool>("cloneME", true);
 
-  // verbosity switch
-  verbose_ = ps.getUntrackedParameter<bool>("verbose", false);
+  // debug switch
+  debug_ = ps.getUntrackedParameter<bool>("debug", false);
 
   // enableCleanup_ switch
   enableCleanup_ = ps.getUntrackedParameter<bool>("enableCleanup", false);
@@ -68,7 +68,7 @@ void EEStatusFlagsClient::beginJob(DQMStore* dbe){
 
   dbe_ = dbe;
 
-  if ( verbose_ ) cout << "EEStatusFlagsClient: beginJob" << endl;
+  if ( debug_ ) cout << "EEStatusFlagsClient: beginJob" << endl;
 
   ievt_ = 0;
   jevt_ = 0;
@@ -77,7 +77,7 @@ void EEStatusFlagsClient::beginJob(DQMStore* dbe){
 
 void EEStatusFlagsClient::beginRun(void){
 
-  if ( verbose_ ) cout << "EEStatusFlagsClient: beginRun" << endl;
+  if ( debug_ ) cout << "EEStatusFlagsClient: beginRun" << endl;
 
   jevt_ = 0;
 
@@ -87,7 +87,7 @@ void EEStatusFlagsClient::beginRun(void){
 
 void EEStatusFlagsClient::endJob(void) {
 
-  if ( verbose_ ) cout << "EEStatusFlagsClient: endJob, ievt = " << ievt_ << endl;
+  if ( debug_ ) cout << "EEStatusFlagsClient: endJob, ievt = " << ievt_ << endl;
 
   this->cleanup();
 
@@ -95,7 +95,7 @@ void EEStatusFlagsClient::endJob(void) {
 
 void EEStatusFlagsClient::endRun(void) {
 
-  if ( verbose_ ) cout << "EEStatusFlagsClient: endRun, jevt = " << jevt_ << endl;
+  if ( debug_ ) cout << "EEStatusFlagsClient: endRun, jevt = " << jevt_ << endl;
 
   this->cleanup();
 
@@ -158,7 +158,7 @@ void EEStatusFlagsClient::analyze(void){
   ievt_++;
   jevt_++;
   if ( ievt_ % 10 == 0 ) {
-    if ( verbose_ ) cout << "EEStatusFlagsClient: ievt/jevt = " << ievt_ << "/" << jevt_ << endl;
+    if ( debug_ ) cout << "EEStatusFlagsClient: ievt/jevt = " << ievt_ << "/" << jevt_ << endl;
   }
 
   char histo[200];

@@ -4,8 +4,8 @@
 /*
  * \file EcalEndcapMonitorClient.h
  *
- * $Date: 2008/03/14 14:38:57 $
- * $Revision: 1.35 $
+ * $Date: 2008/03/15 14:50:55 $
+ * $Revision: 1.36 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -119,7 +119,7 @@ int jevt_;
 
 bool cloneME_;
 
-bool verbose_;
+bool debug_;
 
 bool enableMonitorDaemon_;
 

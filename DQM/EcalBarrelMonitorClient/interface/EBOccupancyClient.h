@@ -4,8 +4,8 @@
 /*
  * \file EBOccupancyClient.h
  *
- * $Date: 2008/03/14 14:38:54 $
- * $Revision: 1.5 $
+ * $Date: 2008/03/15 14:50:54 $
+ * $Revision: 1.6 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -78,7 +78,7 @@ int jevt_;
 
 bool cloneME_;
 
-bool verbose_;
+bool debug_;
 
 bool enableCleanup_;
 

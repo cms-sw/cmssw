@@ -4,8 +4,8 @@
 /*
  * \file EBLaserClient.h
  *
- * $Date: 2008/03/14 14:38:54 $
- * $Revision: 1.73 $
+ * $Date: 2008/03/15 14:50:54 $
+ * $Revision: 1.74 $
  * \author G. Della Ricca
  *
 */
@@ -77,7 +77,7 @@ int jevt_;
 
 bool cloneME_;
 
-bool verbose_;
+bool debug_;
 
 bool enableCleanup_;
 

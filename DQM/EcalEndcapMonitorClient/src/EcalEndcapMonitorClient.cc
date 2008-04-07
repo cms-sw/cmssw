@@ -1,8 +1,8 @@
 /*
  * \file EcalEndcapMonitorClient.cc
  *
- * $Date: 2008/03/15 14:50:56 $
- * $Revision: 1.164 $
+ * $Date: 2008/04/06 18:07:21 $
+ * $Revision: 1.165 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -180,14 +180,14 @@ void EcalEndcapMonitorClient::initialize(const ParameterSet& ps){
     cout << " cloneME switch is OFF" << endl;
   }
 
-  // verbosity switch
+  // debug switch
 
-  verbose_ = ps.getUntrackedParameter<bool>("verbose", false);
+  debug_ = ps.getUntrackedParameter<bool>("debug", false);
 
-  if ( verbose_ ) {
-    cout << " verbose switch is ON" << endl;
+  if ( debug_ ) {
+    cout << " debug switch is ON" << endl;
   } else {
-    cout << " verbose switch is OFF" << endl;
+    cout << " debug switch is OFF" << endl;
   }
 
   // enableMonitorDaemon switch
@@ -693,7 +693,7 @@ void EcalEndcapMonitorClient::beginJob(const EventSetup &c) {
 
   subrun_  = -1;
 
-  if ( verbose_ ) cout << "EcalEndcapMonitorClient: beginJob" << endl;
+  if ( debug_ ) cout << "EcalEndcapMonitorClient: beginJob" << endl;
 
   ievt_ = 0;
   jevt_ = 0;
@@ -719,7 +719,7 @@ void EcalEndcapMonitorClient::beginJob(const EventSetup &c) {
 
   }
 
-  if ( verbose_ ) {
+  if ( debug_ ) {
     dbe_->setVerbose(1);
   } else {
     dbe_->setVerbose(0);
@@ -750,7 +750,7 @@ void EcalEndcapMonitorClient::beginRun(void){
 
   last_run_  = run_;
 
-  if ( verbose_ ) cout << "EcalEndcapMonitorClient: beginRun" << endl;
+  if ( debug_ ) cout << "EcalEndcapMonitorClient: beginRun" << endl;
 
   jevt_ = 0;
 
@@ -815,7 +815,7 @@ void EcalEndcapMonitorClient::endJob(void) {
 
   }
 
-  if ( verbose_ ) cout << "EcalEndcapMonitorClient: endJob, ievt = " << ievt_ << endl;
+  if ( debug_ ) cout << "EcalEndcapMonitorClient: endJob, ievt = " << ievt_ << endl;
 
   this->cleanup();
 
@@ -832,7 +832,7 @@ void EcalEndcapMonitorClient::endRun(void) {
   begin_run_ = false;
   end_run_   = true;
 
-  if ( verbose_ ) cout << "EcalEndcapMonitorClient: endRun, jevt = " << jevt_ << endl;
+  if ( debug_ ) cout << "EcalEndcapMonitorClient: endRun, jevt = " << jevt_ << endl;
 
   if ( baseHtmlDir_.size() != 0 ) this->htmlOutput();
 
@@ -1064,7 +1064,7 @@ void EcalEndcapMonitorClient::beginRunDb(void) {
   if ( maskFile_.size() != 0 ) {
     try {
       cout << "Fetching masked channels from file ..." << endl;
-      EcalErrorMask::readFile(maskFile_, verbose_);
+      EcalErrorMask::readFile(maskFile_, debug_);
       cout << "done." << endl;
     } catch (runtime_error &e) {
       cerr << e.what() << endl;
@@ -1351,7 +1351,7 @@ void EcalEndcapMonitorClient::analyze(void){
   ievt_++;
   jevt_++;
 
-  if ( verbose_ ) cout << "EcalEndcapMonitorClient: ievt/jevt = " << ievt_ << "/" << jevt_ << endl;
+  if ( debug_ ) cout << "EcalEndcapMonitorClient: ievt/jevt = " << ievt_ << "/" << jevt_ << endl;
 
   // update MEs (online mode)
   if ( enableUpdate_ ) {
@@ -1368,7 +1368,7 @@ void EcalEndcapMonitorClient::analyze(void){
     if ( strcmp(s.c_str(), "i=0") == 0 ) status_ = "begin-of-run";
     if ( strcmp(s.c_str(), "i=1") == 0 ) status_ = "running";
     if ( strcmp(s.c_str(), "i=2") == 0 ) status_ = "end-of-run";
-    if ( verbose_ ) cout << "Found 'EcalEndcap/EcalInfo/STATUS'" << endl;
+    if ( debug_ ) cout << "Found 'EcalEndcap/EcalInfo/STATUS'" << endl;
   }
 
   if ( inputFile_.size() != 0 ) {
@@ -1385,7 +1385,7 @@ void EcalEndcapMonitorClient::analyze(void){
   if ( me ) {
     s = me->valueString();
     sscanf(s.c_str(), "i=%d", &ecal_run);
-    if ( verbose_ ) cout << "Found 'EcalEndcap/EcalInfo/RUN'" << endl;
+    if ( debug_ ) cout << "Found 'EcalEndcap/EcalInfo/RUN'" << endl;
   }
 
   int ecal_evt = -1;
@@ -1393,7 +1393,7 @@ void EcalEndcapMonitorClient::analyze(void){
   if ( me ) {
     s = me->valueString();
     sscanf(s.c_str(), "i=%d", &ecal_evt);
-    if ( verbose_ ) cout << "Found 'EcalEndcap/EcalInfo/EVT'" << endl;
+    if ( debug_ ) cout << "Found 'EcalEndcap/EcalInfo/EVT'" << endl;
   }
 
   me = dbe_->get("EcalEndcap/EcalInfo/EVTTYPE");
@@ -1404,7 +1404,7 @@ void EcalEndcapMonitorClient::analyze(void){
     s = me->valueString();
     sscanf(s.c_str(), "i=%d", &evtType_);
     if ( runType_ == -1 ) runType_ = evtType_;
-    if ( verbose_ ) cout << "Found 'EcalEndcap/EcalInfo/RUNTYPE'" << endl;
+    if ( debug_ ) cout << "Found 'EcalEndcap/EcalInfo/RUNTYPE'" << endl;
   }
 
   // if the run number from the Event is less than zero,

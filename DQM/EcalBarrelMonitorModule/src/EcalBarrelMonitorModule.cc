@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorModule.cc
  *
- * $Date: 2008/03/22 09:04:23 $
- * $Revision: 1.173 $
+ * $Date: 2008/04/06 09:17:10 $
+ * $Revision: 1.174 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -74,20 +74,20 @@ EcalBarrelMonitorModule::EcalBarrelMonitorModule(const ParameterSet& ps){
     LogInfo("EcalBarrelMonitorModule") << " using fixed Run Type = " << runType_ << endl;
   }
 
-  // verbosity switch
-  verbose_ = ps.getUntrackedParameter<bool>("verbose", false);
+  // debug switch
+  debug_ = ps.getUntrackedParameter<bool>("debug", false);
 
-  if ( verbose_ ) {
-    LogInfo("EcalBarrelMonitorModule") << " verbose switch is ON";
+  if ( debug_ ) {
+    LogInfo("EcalBarrelMonitorModule") << " debug switch is ON";
   } else {
-    LogInfo("EcalBarrelMonitorModule") << " verbose switch is OFF";
+    LogInfo("EcalBarrelMonitorModule") << " debug switch is OFF";
   }
 
   // get hold of back-end interface
   dbe_ = Service<DQMStore>().operator->();
 
   if ( dbe_ ) {
-    if ( verbose_ ) {
+    if ( debug_ ) {
       dbe_->setVerbose(1);
     } else {
       dbe_->setVerbose(0);

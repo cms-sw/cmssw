@@ -1,8 +1,8 @@
 /*
  * \file EBTriggerTowerClient.cc
  *
- * $Date: 2008/03/15 14:07:44 $
- * $Revision: 1.95 $
+ * $Date: 2008/03/15 14:50:55 $
+ * $Revision: 1.96 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -32,8 +32,8 @@ EBTriggerTowerClient::EBTriggerTowerClient(const ParameterSet& ps){
   // cloneME switch
   cloneME_ = ps.getUntrackedParameter<bool>("cloneME", true);
 
-  // verbosity switch
-  verbose_ = ps.getUntrackedParameter<bool>("verbose", false);
+  // debug switch
+  debug_ = ps.getUntrackedParameter<bool>("debug", false);
 
   // enableCleanup_ switch
   enableCleanup_ = ps.getUntrackedParameter<bool>("enableCleanup", false);
@@ -104,7 +104,7 @@ void EBTriggerTowerClient::beginJob(DQMStore* dbe){
 
   dbe_ = dbe;
 
-  if ( verbose_ ) cout << "EBTriggerTowerClient: beginJob" << endl;
+  if ( debug_ ) cout << "EBTriggerTowerClient: beginJob" << endl;
 
   ievt_ = 0;
   jevt_ = 0;
@@ -113,7 +113,7 @@ void EBTriggerTowerClient::beginJob(DQMStore* dbe){
 
 void EBTriggerTowerClient::beginRun(void) {
 
-  if ( verbose_ ) cout << "EBTriggerTowerClient: beginRun" << endl;
+  if ( debug_ ) cout << "EBTriggerTowerClient: beginRun" << endl;
 
   jevt_ = 0;
 
@@ -123,7 +123,7 @@ void EBTriggerTowerClient::beginRun(void) {
 
 void EBTriggerTowerClient::endJob(void) {
 
-  if ( verbose_ ) cout << "EBTriggerTowerClient: endJob, ievt = " << ievt_ << endl;
+  if ( debug_ ) cout << "EBTriggerTowerClient: endJob, ievt = " << ievt_ << endl;
 
   this->cleanup();
 
@@ -131,7 +131,7 @@ void EBTriggerTowerClient::endJob(void) {
 
 void EBTriggerTowerClient::endRun(void) {
 
-  if ( verbose_ ) cout << "EBTriggerTowerClient: endRun, jevt = " << jevt_ << endl;
+  if ( debug_ ) cout << "EBTriggerTowerClient: endRun, jevt = " << jevt_ << endl;
 
   this->cleanup();
 
@@ -344,7 +344,7 @@ void EBTriggerTowerClient::analyze(void){
   ievt_++;
   jevt_++;
   if ( ievt_ % 10 == 0 ) {
-    if ( verbose_ ) cout << "EBTriggerTowerClient: ievt/jevt = " << ievt_ << "/" << jevt_ << endl;
+    if ( debug_ ) cout << "EBTriggerTowerClient: ievt/jevt = " << ievt_ << "/" << jevt_ << endl;
   }
 
   analyze("Real Digis",

@@ -1,8 +1,8 @@
 /*
  * \file EETimingClient.cc
  *
- * $Date: 2008/04/05 10:07:38 $
- * $Revision: 1.71 $
+ * $Date: 2008/04/06 14:41:47 $
+ * $Revision: 1.72 $
  * \author G. Della Ricca
  *
 */
@@ -43,8 +43,8 @@ EETimingClient::EETimingClient(const ParameterSet& ps){
   // cloneME switch
   cloneME_ = ps.getUntrackedParameter<bool>("cloneME", true);
 
-  // verbosity switch
-  verbose_ = ps.getUntrackedParameter<bool>("verbose", false);
+  // debug switch
+  debug_ = ps.getUntrackedParameter<bool>("debug", false);
 
   // enableCleanup_ switch
   enableCleanup_ = ps.getUntrackedParameter<bool>("enableCleanup", false);
@@ -94,7 +94,7 @@ void EETimingClient::beginJob(DQMStore* dbe){
 
   dbe_ = dbe;
 
-  if ( verbose_ ) cout << "EETimingClient: beginJob" << endl;
+  if ( debug_ ) cout << "EETimingClient: beginJob" << endl;
 
   ievt_ = 0;
   jevt_ = 0;
@@ -103,7 +103,7 @@ void EETimingClient::beginJob(DQMStore* dbe){
 
 void EETimingClient::beginRun(void){
 
-  if ( verbose_ ) cout << "EETimingClient: beginRun" << endl;
+  if ( debug_ ) cout << "EETimingClient: beginRun" << endl;
 
   jevt_ = 0;
 
@@ -113,7 +113,7 @@ void EETimingClient::beginRun(void){
 
 void EETimingClient::endJob(void) {
 
-  if ( verbose_ ) cout << "EETimingClient: endJob, ievt = " << ievt_ << endl;
+  if ( debug_ ) cout << "EETimingClient: endJob, ievt = " << ievt_ << endl;
 
   this->cleanup();
 
@@ -121,7 +121,7 @@ void EETimingClient::endJob(void) {
 
 void EETimingClient::endRun(void) {
 
-  if ( verbose_ ) cout << "EETimingClient: endRun, jevt = " << jevt_ << endl;
+  if ( debug_ ) cout << "EETimingClient: endRun, jevt = " << jevt_ << endl;
 
   this->cleanup();
 
@@ -329,7 +329,7 @@ void EETimingClient::analyze(void){
   ievt_++;
   jevt_++;
   if ( ievt_ % 10 == 0 ) {
-    if ( verbose_ ) cout << "EETimingClient: ievt/jevt = " << ievt_ << "/" << jevt_ << endl;
+    if ( debug_ ) cout << "EETimingClient: ievt/jevt = " << ievt_ << "/" << jevt_ << endl;
   }
 
   uint64_t bits01 = 0;

@@ -1,8 +1,8 @@
 /*
  * \file EBLaserClient.cc
  *
- * $Date: 2008/03/15 14:50:54 $
- * $Revision: 1.225 $
+ * $Date: 2008/04/05 10:04:46 $
+ * $Revision: 1.226 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -50,8 +50,8 @@ EBLaserClient::EBLaserClient(const ParameterSet& ps){
   // cloneME switch
   cloneME_ = ps.getUntrackedParameter<bool>("cloneME", true);
 
-  // verbosity switch
-  verbose_ = ps.getUntrackedParameter<bool>("verbose", false);
+  // debug switch
+  debug_ = ps.getUntrackedParameter<bool>("debug", false);
 
   // enableCleanup_ switch
   enableCleanup_ = ps.getUntrackedParameter<bool>("enableCleanup", false);
@@ -230,7 +230,7 @@ void EBLaserClient::beginJob(DQMStore* dbe){
 
   dbe_ = dbe;
 
-  if ( verbose_ ) cout << "EBLaserClient: beginJob" << endl;
+  if ( debug_ ) cout << "EBLaserClient: beginJob" << endl;
 
   ievt_ = 0;
   jevt_ = 0;
@@ -239,7 +239,7 @@ void EBLaserClient::beginJob(DQMStore* dbe){
 
 void EBLaserClient::beginRun(void){
 
-  if ( verbose_ ) cout << "EBLaserClient: beginRun" << endl;
+  if ( debug_ ) cout << "EBLaserClient: beginRun" << endl;
 
   jevt_ = 0;
 
@@ -249,7 +249,7 @@ void EBLaserClient::beginRun(void){
 
 void EBLaserClient::endJob(void) {
 
-  if ( verbose_ ) cout << "EBLaserClient: endJob, ievt = " << ievt_ << endl;
+  if ( debug_ ) cout << "EBLaserClient: endJob, ievt = " << ievt_ << endl;
 
   this->cleanup();
 
@@ -257,7 +257,7 @@ void EBLaserClient::endJob(void) {
 
 void EBLaserClient::endRun(void) {
 
-  if ( verbose_ ) cout << "EBLaserClient: endRun, jevt = " << jevt_ << endl;
+  if ( debug_ ) cout << "EBLaserClient: endRun, jevt = " << jevt_ << endl;
 
   this->cleanup();
 
@@ -1636,7 +1636,7 @@ void EBLaserClient::analyze(void){
   ievt_++;
   jevt_++;
   if ( ievt_ % 10 == 0 ) {
-    if ( verbose_ ) cout << "EBLaserClient: ievt/jevt = " << ievt_ << "/" << jevt_ << endl;
+    if ( debug_ ) cout << "EBLaserClient: ievt/jevt = " << ievt_ << "/" << jevt_ << endl;
   }
 
   uint64_t bits01 = 0;

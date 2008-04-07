@@ -1,8 +1,8 @@
 /*
  * \file EBPedestalClient.cc
  *
- * $Date: 2008/03/15 14:50:54 $
- * $Revision: 1.189 $
+ * $Date: 2008/04/05 10:04:46 $
+ * $Revision: 1.190 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -44,8 +44,8 @@ EBPedestalClient::EBPedestalClient(const ParameterSet& ps){
   // cloneME switch
   cloneME_ = ps.getUntrackedParameter<bool>("cloneME", true);
 
-  // verbosity switch
-  verbose_ = ps.getUntrackedParameter<bool>("verbose", false);
+  // debug switch
+  debug_ = ps.getUntrackedParameter<bool>("debug", false);
 
   // enableCleanup_ switch
   enableCleanup_ = ps.getUntrackedParameter<bool>("enableCleanup", false);
@@ -139,7 +139,7 @@ void EBPedestalClient::beginJob(DQMStore* dbe){
 
   dbe_ = dbe;
 
-  if ( verbose_ ) cout << "EBPedestalClient: beginJob" << endl;
+  if ( debug_ ) cout << "EBPedestalClient: beginJob" << endl;
 
   ievt_ = 0;
   jevt_ = 0;
@@ -148,7 +148,7 @@ void EBPedestalClient::beginJob(DQMStore* dbe){
 
 void EBPedestalClient::beginRun(void){
 
-  if ( verbose_ ) cout << "EBPedestalClient: beginRun" << endl;
+  if ( debug_ ) cout << "EBPedestalClient: beginRun" << endl;
 
   jevt_ = 0;
 
@@ -158,7 +158,7 @@ void EBPedestalClient::beginRun(void){
 
 void EBPedestalClient::endJob(void) {
 
-  if ( verbose_ ) cout << "EBPedestalClient: endJob, ievt = " << ievt_ << endl;
+  if ( debug_ ) cout << "EBPedestalClient: endJob, ievt = " << ievt_ << endl;
 
   this->cleanup();
 
@@ -166,7 +166,7 @@ void EBPedestalClient::endJob(void) {
 
 void EBPedestalClient::endRun(void) {
 
-  if ( verbose_ ) cout << "EBPedestalClient: endRun, jevt = " << jevt_ << endl;
+  if ( debug_ ) cout << "EBPedestalClient: endRun, jevt = " << jevt_ << endl;
 
   this->cleanup();
 
@@ -620,7 +620,7 @@ void EBPedestalClient::analyze(void){
   ievt_++;
   jevt_++;
   if ( ievt_ % 10 == 0 ) {
-    if ( verbose_ ) cout << "EBPedestalClient: ievt/jevt = " << ievt_ << "/" << jevt_ << endl;
+    if ( debug_ ) cout << "EBPedestalClient: ievt/jevt = " << ievt_ << "/" << jevt_ << endl;
   }
 
   uint64_t bits01 = 0;

@@ -2,8 +2,8 @@
 /*
  * \file EEIntegrityClient.cc
  *
- * $Date: 2008/03/15 14:07:45 $
- * $Revision: 1.68 $
+ * $Date: 2008/03/15 14:50:56 $
+ * $Revision: 1.69 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -55,8 +55,8 @@ EEIntegrityClient::EEIntegrityClient(const ParameterSet& ps){
   // cloneME switch
   cloneME_ = ps.getUntrackedParameter<bool>("cloneME", true);
 
-  // verbosity switch
-  verbose_ = ps.getUntrackedParameter<bool>("verbose", false);
+  // debug switch
+  debug_ = ps.getUntrackedParameter<bool>("debug", false);
 
   // enableCleanup_ switch
   enableCleanup_ = ps.getUntrackedParameter<bool>("enableCleanup", false);
@@ -109,7 +109,7 @@ void EEIntegrityClient::beginJob(DQMStore* dbe){
 
   dbe_ = dbe;
 
-  if ( verbose_ ) cout << "EEIntegrityClient: beginJob" << endl;
+  if ( debug_ ) cout << "EEIntegrityClient: beginJob" << endl;
 
   ievt_ = 0;
   jevt_ = 0;
@@ -118,7 +118,7 @@ void EEIntegrityClient::beginJob(DQMStore* dbe){
 
 void EEIntegrityClient::beginRun(void){
 
-  if ( verbose_ ) cout << "EEIntegrityClient: beginRun" << endl;
+  if ( debug_ ) cout << "EEIntegrityClient: beginRun" << endl;
 
   jevt_ = 0;
 
@@ -128,7 +128,7 @@ void EEIntegrityClient::beginRun(void){
 
 void EEIntegrityClient::endJob(void) {
 
-  if ( verbose_ ) cout << "EEIntegrityClient: endJob, ievt = " << ievt_ << endl;
+  if ( debug_ ) cout << "EEIntegrityClient: endJob, ievt = " << ievt_ << endl;
 
   this->cleanup();
 
@@ -136,7 +136,7 @@ void EEIntegrityClient::endJob(void) {
 
 void EEIntegrityClient::endRun(void) {
 
-  if ( verbose_ ) cout << "EEIntegrityClient: endRun, jevt = " << jevt_ << endl;
+  if ( debug_ ) cout << "EEIntegrityClient: endRun, jevt = " << jevt_ << endl;
 
   this->cleanup();
 
@@ -682,7 +682,7 @@ void EEIntegrityClient::analyze(void){
   ievt_++;
   jevt_++;
   if ( ievt_ % 10 == 0 ) {
-    if ( verbose_ ) cout << "EEIntegrityClient: ievt/jevt = " << ievt_ << "/" << jevt_ << endl;
+    if ( debug_ ) cout << "EEIntegrityClient: ievt/jevt = " << ievt_ << "/" << jevt_ << endl;
   }
 
   uint64_t bits01 = 0;

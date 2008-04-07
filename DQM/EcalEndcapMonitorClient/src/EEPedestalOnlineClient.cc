@@ -1,8 +1,8 @@
 /*
  * \file EEPedestalOnlineClient.cc
  *
- * $Date: 2008/03/15 14:50:56 $
- * $Revision: 1.67 $
+ * $Date: 2008/04/05 10:03:04 $
+ * $Revision: 1.68 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -44,8 +44,8 @@ EEPedestalOnlineClient::EEPedestalOnlineClient(const ParameterSet& ps){
   // cloneME switch
   cloneME_ = ps.getUntrackedParameter<bool>("cloneME", true);
 
-  // verbosity switch
-  verbose_ = ps.getUntrackedParameter<bool>("verbose", false);
+  // debug switch
+  debug_ = ps.getUntrackedParameter<bool>("debug", false);
 
   // enableCleanup_ switch
   enableCleanup_ = ps.getUntrackedParameter<bool>("enableCleanup", false);
@@ -91,7 +91,7 @@ void EEPedestalOnlineClient::beginJob(DQMStore* dbe){
 
   dbe_ = dbe;
 
-  if ( verbose_ ) cout << "EEPedestalOnlineClient: beginJob" << endl;
+  if ( debug_ ) cout << "EEPedestalOnlineClient: beginJob" << endl;
 
   ievt_ = 0;
   jevt_ = 0;
@@ -100,7 +100,7 @@ void EEPedestalOnlineClient::beginJob(DQMStore* dbe){
 
 void EEPedestalOnlineClient::beginRun(void){
 
-  if ( verbose_ ) cout << "EEPedestalOnlineClient: beginRun" << endl;
+  if ( debug_ ) cout << "EEPedestalOnlineClient: beginRun" << endl;
 
   jevt_ = 0;
 
@@ -110,7 +110,7 @@ void EEPedestalOnlineClient::beginRun(void){
 
 void EEPedestalOnlineClient::endJob(void) {
 
-  if ( verbose_ ) cout << "EEPedestalOnlineClient: endJob, ievt = " << ievt_ << endl;
+  if ( debug_ ) cout << "EEPedestalOnlineClient: endJob, ievt = " << ievt_ << endl;
 
   this->cleanup();
 
@@ -118,7 +118,7 @@ void EEPedestalOnlineClient::endJob(void) {
 
 void EEPedestalOnlineClient::endRun(void) {
 
-  if ( verbose_ ) cout << "EEPedestalOnlineClient: endRun, jevt = " << jevt_ << endl;
+  if ( debug_ ) cout << "EEPedestalOnlineClient: endRun, jevt = " << jevt_ << endl;
 
   this->cleanup();
 
@@ -313,7 +313,7 @@ void EEPedestalOnlineClient::analyze(void){
   ievt_++;
   jevt_++;
   if ( ievt_ % 10 == 0 ) {
-    if ( verbose_ ) cout << "EEPedestalOnlineClient: ievt/jevt = " << ievt_ << "/" << jevt_ << endl;
+    if ( debug_ ) cout << "EEPedestalOnlineClient: ievt/jevt = " << ievt_ << "/" << jevt_ << endl;
   }
 
   uint64_t bits03 = 0;

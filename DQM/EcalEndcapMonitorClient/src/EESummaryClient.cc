@@ -1,8 +1,8 @@
 /*
  * \file EESummaryClient.cc
  *
- * $Date: 2008/03/22 12:13:25 $
- * $Revision: 1.101 $
+ * $Date: 2008/03/22 12:39:39 $
+ * $Revision: 1.102 $
  * \author G. Della Ricca
  *
 */
@@ -51,8 +51,8 @@ EESummaryClient::EESummaryClient(const ParameterSet& ps){
   // cloneME switch
   cloneME_ = ps.getUntrackedParameter<bool>("cloneME", true);
 
-  // verbosity switch
-  verbose_ = ps.getUntrackedParameter<bool>("verbose", false);
+  // debug switch
+  debug_ = ps.getUntrackedParameter<bool>("debug", false);
 
   // enableCleanup_ switch
   enableCleanup_ = ps.getUntrackedParameter<bool>("enableCleanup", false);
@@ -123,7 +123,7 @@ void EESummaryClient::beginJob(DQMStore* dbe){
 
   dbe_ = dbe;
 
-  if ( verbose_ ) cout << "EESummaryClient: beginJob" << endl;
+  if ( debug_ ) cout << "EESummaryClient: beginJob" << endl;
 
   ievt_ = 0;
   jevt_ = 0;
@@ -132,7 +132,7 @@ void EESummaryClient::beginJob(DQMStore* dbe){
 
 void EESummaryClient::beginRun(void){
 
-  if ( verbose_ ) cout << "EESummaryClient: beginRun" << endl;
+  if ( debug_ ) cout << "EESummaryClient: beginRun" << endl;
 
   jevt_ = 0;
 
@@ -142,7 +142,7 @@ void EESummaryClient::beginRun(void){
 
 void EESummaryClient::endJob(void) {
 
-  if ( verbose_ ) cout << "EESummaryClient: endJob, ievt = " << ievt_ << endl;
+  if ( debug_ ) cout << "EESummaryClient: endJob, ievt = " << ievt_ << endl;
 
   this->cleanup();
 
@@ -150,7 +150,7 @@ void EESummaryClient::endJob(void) {
 
 void EESummaryClient::endRun(void) {
 
-  if ( verbose_ ) cout << "EESummaryClient: endRun, jevt = " << jevt_ << endl;
+  if ( debug_ ) cout << "EESummaryClient: endRun, jevt = " << jevt_ << endl;
 
   this->cleanup();
 
@@ -633,7 +633,7 @@ void EESummaryClient::analyze(void){
   ievt_++;
   jevt_++;
   if ( ievt_ % 10 == 0 ) {
-    if ( verbose_ ) cout << "EESummaryClient: ievt/jevt = " << ievt_ << "/" << jevt_ << endl;
+    if ( debug_ ) cout << "EESummaryClient: ievt/jevt = " << ievt_ << "/" << jevt_ << endl;
   }
 
   for ( int ix = 1; ix <= 100; ix++ ) {
@@ -1177,13 +1177,13 @@ void EESummaryClient::analyze(void){
         float val_ee = meTriggerTowerEmulError_[0]->getBinContent(jx,jy);
 
         // turn each dark color (masked channel) to bright green
-        // for laser turn also yellow into bright green
-        if(val_in>2)  val_in=1;
-        if(val_po>2)  val_po=1;
+        // for laser & timing turn also yellow into bright green
+        if(val_in> 2) val_in=1;
+        if(val_po> 2) val_po=1;
         if(val_ls>=2) val_ls=1;
-        if(val_tm>2)  val_tm=1;
-        if(val_sf>2)  val_sf=1;
-        if(val_ee>2)  val_ee=1;
+        if(val_tm>=2) val_tm=1;
+        if(val_sf> 2) val_sf=1;
+        if(val_ee> 2) val_ee=1;
 
         // -1 = unknown
         //  0 = red
@@ -1193,7 +1193,7 @@ void EESummaryClient::analyze(void){
         if(val_in==-1) xval=-1;
         else if(val_in == 0) xval=0;
         else if(val_po == 0 || val_ls == 0 || val_tm == 0 || val_sf == 0 || val_ee == 0) xval = 0;
-        else if(val_po == 2 || val_tm == 2 || val_sf == 2 || val_ee == 2) xval = 2;
+        else if(val_po == 2 || val_ls == 2 || val_tm == 2 || val_sf == 2 || val_ee == 2) xval = 2;
         else xval=1;
 
         meGlobalSummary_[0]->setBinContent( jx, jy, xval );

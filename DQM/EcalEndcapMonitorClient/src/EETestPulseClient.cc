@@ -1,8 +1,8 @@
 /*
  * \file EETestPulseClient.cc
  *
- * $Date: 2008/03/15 14:50:56 $
- * $Revision: 1.80 $
+ * $Date: 2008/04/05 10:03:04 $
+ * $Revision: 1.81 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -47,8 +47,8 @@ EETestPulseClient::EETestPulseClient(const ParameterSet& ps){
   // cloneME switch
   cloneME_ = ps.getUntrackedParameter<bool>("cloneME", true);
 
-  // verbosity switch
-  verbose_ = ps.getUntrackedParameter<bool>("verbose", false);
+  // debug switch
+  debug_ = ps.getUntrackedParameter<bool>("debug", false);
 
   // enableCleanup_ switch
   enableCleanup_ = ps.getUntrackedParameter<bool>("enableCleanup", false);
@@ -126,7 +126,7 @@ void EETestPulseClient::beginJob(DQMStore* dbe){
 
   dbe_ = dbe;
 
-  if ( verbose_ ) cout << "EETestPulseClient: beginJob" << endl;
+  if ( debug_ ) cout << "EETestPulseClient: beginJob" << endl;
 
   ievt_ = 0;
   jevt_ = 0;
@@ -135,7 +135,7 @@ void EETestPulseClient::beginJob(DQMStore* dbe){
 
 void EETestPulseClient::beginRun(void){
 
-  if ( verbose_ ) cout << "EETestPulseClient: beginRun" << endl;
+  if ( debug_ ) cout << "EETestPulseClient: beginRun" << endl;
 
   jevt_ = 0;
 
@@ -145,7 +145,7 @@ void EETestPulseClient::beginRun(void){
 
 void EETestPulseClient::endJob(void) {
 
-  if ( verbose_ ) cout << "EETestPulseClient: endJob, ievt = " << ievt_ << endl;
+  if ( debug_ ) cout << "EETestPulseClient: endJob, ievt = " << ievt_ << endl;
 
   this->cleanup();
 
@@ -153,7 +153,7 @@ void EETestPulseClient::endJob(void) {
 
 void EETestPulseClient::endRun(void) {
 
-  if ( verbose_ ) cout << "EETestPulseClient: endRun, jevt = " << jevt_ << endl;
+  if ( debug_ ) cout << "EETestPulseClient: endRun, jevt = " << jevt_ << endl;
 
   this->cleanup();
 
@@ -634,7 +634,7 @@ void EETestPulseClient::analyze(void){
   ievt_++;
   jevt_++;
   if ( ievt_ % 10 == 0 ) {
-    if ( verbose_ ) cout << "EETestPulseClient: ievt/jevt = " << ievt_ << "/" << jevt_ << endl;
+    if ( debug_ ) cout << "EETestPulseClient: ievt/jevt = " << ievt_ << "/" << jevt_ << endl;
   }
 
   uint64_t bits01 = 0;

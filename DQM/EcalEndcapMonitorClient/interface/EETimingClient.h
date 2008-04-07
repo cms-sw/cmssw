@@ -4,8 +4,8 @@
 /*
  * \file EETimingClient.h
  *
- * $Date: 2008/03/15 14:50:55 $
- * $Revision: 1.15 $
+ * $Date: 2008/04/06 14:41:46 $
+ * $Revision: 1.16 $
  * \author G. Della Ricca
  *
 */
@@ -77,7 +77,7 @@ int jevt_;
 
 bool cloneME_;
 
-bool verbose_;
+bool debug_;
 
 bool enableCleanup_;
 

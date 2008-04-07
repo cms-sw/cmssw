@@ -4,8 +4,8 @@
 /*
  * \file EESummaryClient.h
  *
- * $Date: 2008/03/14 14:38:57 $
- * $Revision: 1.21 $
+ * $Date: 2008/03/15 14:50:55 $
+ * $Revision: 1.22 $
  * \author G. Della Ricca
  *
 */
@@ -79,7 +79,7 @@ int jevt_;
 
 bool cloneME_;
 
-bool verbose_;
+bool debug_;
 
 bool enableCleanup_;
 

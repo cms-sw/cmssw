@@ -1,8 +1,8 @@
 /*
  * \file EECosmicClient.cc
  *
- * $Date: 2008/03/15 14:50:56 $
- * $Revision: 1.55 $
+ * $Date: 2008/04/05 10:03:04 $
+ * $Revision: 1.56 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -39,8 +39,8 @@ EECosmicClient::EECosmicClient(const ParameterSet& ps){
   // cloneME switch
   cloneME_ = ps.getUntrackedParameter<bool>("cloneME", true);
 
-  // verbosity switch
-  verbose_ = ps.getUntrackedParameter<bool>("verbose", false);
+  // debug switch
+  debug_ = ps.getUntrackedParameter<bool>("debug", false);
 
   // enableCleanup_ switch
   enableCleanup_ = ps.getUntrackedParameter<bool>("enableCleanup", false);
@@ -76,7 +76,7 @@ void EECosmicClient::beginJob(DQMStore* dbe){
 
   dbe_ = dbe;
 
-  if ( verbose_ ) cout << "EECosmicClient: beginJob" << endl;
+  if ( debug_ ) cout << "EECosmicClient: beginJob" << endl;
 
   ievt_ = 0;
   jevt_ = 0;
@@ -85,7 +85,7 @@ void EECosmicClient::beginJob(DQMStore* dbe){
 
 void EECosmicClient::beginRun(void){
 
-  if ( verbose_ ) cout << "EECosmicClient: beginRun" << endl;
+  if ( debug_ ) cout << "EECosmicClient: beginRun" << endl;
 
   jevt_ = 0;
 
@@ -95,7 +95,7 @@ void EECosmicClient::beginRun(void){
 
 void EECosmicClient::endJob(void) {
 
-  if ( verbose_ ) cout << "EECosmicClient: endJob, ievt = " << ievt_ << endl;
+  if ( debug_ ) cout << "EECosmicClient: endJob, ievt = " << ievt_ << endl;
 
   this->cleanup();
 
@@ -103,7 +103,7 @@ void EECosmicClient::endJob(void) {
 
 void EECosmicClient::endRun(void) {
 
-  if ( verbose_ ) cout << "EECosmicClient: endRun, jevt = " << jevt_ << endl;
+  if ( debug_ ) cout << "EECosmicClient: endRun, jevt = " << jevt_ << endl;
 
   this->cleanup();
 
@@ -251,7 +251,7 @@ void EECosmicClient::analyze(void){
   ievt_++;
   jevt_++;
   if ( ievt_ % 10 == 0 ) {
-    if ( verbose_ ) cout << "EECosmicClient: ievt/jevt = " << ievt_ << "/" << jevt_ << endl;
+    if ( debug_ ) cout << "EECosmicClient: ievt/jevt = " << ievt_ << "/" << jevt_ << endl;
   }
 
   char histo[200];
