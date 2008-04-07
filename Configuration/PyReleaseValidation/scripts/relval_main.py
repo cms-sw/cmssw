@@ -63,7 +63,7 @@ dataTier_dict={'GEN':'GEN',
                'ANA':'RECO',
                'DQM':'RECO',
                'FASTSIM':'RECO',
-               'HLT':'RECO',
+               'HLT':'RAW',
                'POSTRECO':'RECO'}
 
 pathName_dict={'GEN':'pgen',
