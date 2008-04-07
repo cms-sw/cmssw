@@ -1,8 +1,8 @@
 /*
  * \file EBStatusFlagsClient.cc
  *
- * $Date: 2008/04/07 07:24:32 $
- * $Revision: 1.14 $
+ * $Date: 2008/04/07 08:44:20 $
+ * $Revision: 1.15 $
  * \author G. Della Ricca
  *
 */
@@ -141,10 +141,11 @@ bool EBStatusFlagsClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, Mo
 
     int ism = superModules_[i];
 
-    cout << " " << Numbers::sEB(ism) << " (ism=" << ism << ")" << endl;
-    cout << endl;
-
-    UtilsClient::printBadChannels(meh01_[ism-1], UtilsClient::getHisto<TH2F*>(meh01_[ism-1]), true);
+    if ( verbose_ ) {
+      cout << " " << Numbers::sEB(ism) << " (ism=" << ism << ")" << endl;
+      cout << endl;
+      UtilsClient::printBadChannels(meh01_[ism-1], UtilsClient::getHisto<TH2F*>(meh01_[ism-1]), true);
+    }
 
     if ( meh01_[ism-1]->getEntries() != 0 ) status = false;
 
@@ -186,7 +187,7 @@ void EBStatusFlagsClient::analyze(void){
 
 void EBStatusFlagsClient::htmlOutput(int run, string& htmlDir, string& htmlName){
 
-  cout << "Preparing EBStatusFlagsClient html output ..." << endl;
+  if ( verbose_ ) cout << "Preparing EBStatusFlagsClient html output ..." << endl;
 
   ofstream htmlFile;
 

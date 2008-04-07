@@ -1,8 +1,8 @@
 /*
  * \file EBTestPulseTask.cc
  *
- * $Date: 2008/02/23 09:56:55 $
- * $Revision: 1.93 $
+ * $Date: 2008/02/29 15:04:43 $
+ * $Revision: 1.94 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -77,7 +77,7 @@ void EBTestPulseTask::beginJob(const EventSetup& c){
     dbe_->rmdir("EcalBarrel/EBTestPulseTask");
   }
 
-  Numbers::initGeometry(c);
+  Numbers::initGeometry(c, false);
 
 }
 

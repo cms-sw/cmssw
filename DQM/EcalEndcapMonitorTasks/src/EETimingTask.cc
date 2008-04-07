@@ -1,8 +1,8 @@
 /*
  * \file EETimingTask.cc
  *
- * $Date: 2008/04/06 14:41:48 $
- * $Revision: 1.28 $
+ * $Date: 2008/04/06 18:07:21 $
+ * $Revision: 1.29 $
  * \author G. Della Ricca
  *
 */
@@ -63,7 +63,7 @@ void EETimingTask::beginJob(const EventSetup& c){
     dbe_->rmdir("EcalEndcap/EETimingTask");
   }
 
-  Numbers::initGeometry(c);
+  Numbers::initGeometry(c, false);
 
 }
 

@@ -1,8 +1,8 @@
 /*
  * \file EBBeamCaloTask.cc
  *
- * $Date: 2008/02/29 15:04:07 $
- * $Revision: 1.63 $
+ * $Date: 2008/04/07 07:36:19 $
+ * $Revision: 1.64 $
  * \author A. Ghezzi
  *
  */
@@ -107,7 +107,7 @@ void EBBeamCaloTask::beginJob(const EventSetup& c){
     dbe_->rmdir("EcalBarrel/EBBeamCaloTask");
   }
 
-  Numbers::initGeometry(c);
+  Numbers::initGeometry(c, false);
 
 }
 

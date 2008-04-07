@@ -1,8 +1,8 @@
 /*
  * \file EBCosmicTask.cc
  *
- * $Date: 2008/04/05 21:02:05 $
- * $Revision: 1.99 $
+ * $Date: 2008/04/06 18:07:21 $
+ * $Revision: 1.100 $
  * \author G. Della Ricca
  *
 */
@@ -72,7 +72,7 @@ void EBCosmicTask::beginJob(const EventSetup& c){
     dbe_->rmdir("EcalBarrel/EBCosmicTask");
   }
 
-  Numbers::initGeometry(c);
+  Numbers::initGeometry(c, false);
 
 }
 

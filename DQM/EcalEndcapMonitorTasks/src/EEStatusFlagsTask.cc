@@ -1,8 +1,8 @@
 /*
  * \file EEStatusFlagsTask.cc
  *
- * $Date: 2008/03/13 11:24:38 $
- * $Revision: 1.7 $
+ * $Date: 2008/03/16 14:36:19 $
+ * $Revision: 1.8 $
  * \author G. Della Ricca
  *
 */
@@ -63,7 +63,7 @@ void EEStatusFlagsTask::beginJob(const EventSetup& c){
     dbe_->rmdir("EcalEndcap/EEStatusFlagsTask");
   }
 
-  Numbers::initGeometry(c);
+  Numbers::initGeometry(c, false);
 
 }
 

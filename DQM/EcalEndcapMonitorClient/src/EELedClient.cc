@@ -1,8 +1,8 @@
 /*
  * \file EELedClient.cc
  *
- * $Date: 2008/04/07 07:24:35 $
- * $Revision: 1.74 $
+ * $Date: 2008/04/07 09:00:42 $
+ * $Revision: 1.76 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -686,10 +686,12 @@ bool EELedClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIOV*
       cout << endl;
     }
 
-    UtilsClient::printBadChannels(meg01_[ism-1], h01_[ism-1]);
-    UtilsClient::printBadChannels(meg01_[ism-1], h13_[ism-1]);
-    UtilsClient::printBadChannels(meg02_[ism-1], h03_[ism-1]);
-    UtilsClient::printBadChannels(meg02_[ism-1], h15_[ism-1]);
+    if ( verbose_ ) {
+      UtilsClient::printBadChannels(meg01_[ism-1], h01_[ism-1]);
+      UtilsClient::printBadChannels(meg01_[ism-1], h13_[ism-1]);
+      UtilsClient::printBadChannels(meg02_[ism-1], h03_[ism-1]);
+      UtilsClient::printBadChannels(meg02_[ism-1], h15_[ism-1]);
+    }
 
     for ( int ix = 1; ix <= 50; ix++ ) {
       for ( int iy = 1; iy <= 50; iy++ ) {
@@ -909,15 +911,17 @@ bool EELedClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIOV*
       cout << endl;
     }
 
-    UtilsClient::printBadChannels(meg05_[ism-1], i01_[ism-1]);
-    UtilsClient::printBadChannels(meg05_[ism-1], i05_[ism-1]);
-    UtilsClient::printBadChannels(meg06_[ism-1], i02_[ism-1]);
-    UtilsClient::printBadChannels(meg06_[ism-1], i06_[ism-1]);
+    if ( verbose_ ) {
+      UtilsClient::printBadChannels(meg05_[ism-1], i01_[ism-1]);
+      UtilsClient::printBadChannels(meg05_[ism-1], i05_[ism-1]);
+      UtilsClient::printBadChannels(meg06_[ism-1], i02_[ism-1]);
+      UtilsClient::printBadChannels(meg06_[ism-1], i06_[ism-1]);
 
-    UtilsClient::printBadChannels(meg09_[ism-1], i09_[ism-1]);
-    UtilsClient::printBadChannels(meg09_[ism-1], i13_[ism-1]);
-    UtilsClient::printBadChannels(meg10_[ism-1], i10_[ism-1]);
-    UtilsClient::printBadChannels(meg10_[ism-1], i14_[ism-1]);
+      UtilsClient::printBadChannels(meg09_[ism-1], i09_[ism-1]);
+      UtilsClient::printBadChannels(meg09_[ism-1], i13_[ism-1]);
+      UtilsClient::printBadChannels(meg10_[ism-1], i10_[ism-1]);
+      UtilsClient::printBadChannels(meg10_[ism-1], i14_[ism-1]);
+    }
 
     for ( int i = 1; i <= 10; i++ ) {
 

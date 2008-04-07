@@ -1,8 +1,8 @@
 /*
  * \file EBPedestalTask.cc
  *
- * $Date: 2008/02/23 09:56:55 $
- * $Revision: 1.79 $
+ * $Date: 2008/02/29 15:04:39 $
+ * $Revision: 1.80 $
  * \author G. Della Ricca
  *
 */
@@ -73,7 +73,7 @@ void EBPedestalTask::beginJob(const EventSetup& c){
     dbe_->rmdir("EcalBarrel/EBPedestalTask");
   }
 
-  Numbers::initGeometry(c);
+  Numbers::initGeometry(c, false);
 
 }
 

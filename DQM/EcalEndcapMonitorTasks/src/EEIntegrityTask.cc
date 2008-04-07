@@ -1,8 +1,8 @@
 /*
  * \file EEIntegrityTask.cc
  *
- * $Date: 2008/03/21 20:05:19 $
- * $Revision: 1.33 $
+ * $Date: 2008/04/06 16:48:11 $
+ * $Revision: 1.34 $
  * \author G. Della Ricca
  *
  */
@@ -80,7 +80,7 @@ void EEIntegrityTask::beginJob(const EventSetup& c){
     dbe_->rmdir("EcalEndcap/EEIntegrityTask");
   }
 
-  Numbers::initGeometry(c);
+  Numbers::initGeometry(c, false);
 
 }
 

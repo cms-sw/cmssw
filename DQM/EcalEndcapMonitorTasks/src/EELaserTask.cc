@@ -1,8 +1,8 @@
 /*
  * \file EELaserTask.cc
  *
- * $Date: 2008/02/29 15:08:18 $
- * $Revision: 1.40 $
+ * $Date: 2008/04/04 17:57:53 $
+ * $Revision: 1.41 $
  * \author G. Della Ricca
  *
 */
@@ -116,7 +116,7 @@ void EELaserTask::beginJob(const EventSetup& c){
     dbe_->rmdir("EcalEndcap/EELaserTask");
   }
 
-  Numbers::initGeometry(c);
+  Numbers::initGeometry(c, false);
 
 }
 

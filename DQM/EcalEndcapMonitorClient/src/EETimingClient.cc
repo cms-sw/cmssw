@@ -1,8 +1,8 @@
 /*
  * \file EETimingClient.cc
  *
- * $Date: 2008/04/07 08:44:21 $
- * $Revision: 1.74 $
+ * $Date: 2008/04/07 09:00:42 $
+ * $Revision: 1.75 $
  * \author G. Della Ricca
  *
 */
@@ -254,9 +254,8 @@ bool EETimingClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunI
     if ( verbose_ ) {
       cout << " " << Numbers::sEE(ism) << " (ism=" << ism << ")" << endl;
       cout << endl;
+      UtilsClient::printBadChannels(meg01_[ism-1], h01_[ism-1]);
     }
-
-    UtilsClient::printBadChannels(meg01_[ism-1], h01_[ism-1]);
 
     float num01;
     float mean01;

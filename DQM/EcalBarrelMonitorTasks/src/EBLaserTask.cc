@@ -1,8 +1,8 @@
 /*
  * \file EBLaserTask.cc
  *
- * $Date: 2008/02/29 15:04:15 $
- * $Revision: 1.107 $
+ * $Date: 2008/04/04 17:57:53 $
+ * $Revision: 1.108 $
  * \author G. Della Ricca
  *
 */
@@ -116,7 +116,7 @@ void EBLaserTask::beginJob(const EventSetup& c){
     dbe_->rmdir("EcalBarrel/EBLaserTask");
   }
 
-  Numbers::initGeometry(c);
+  Numbers::initGeometry(c, false);
 
 }
 

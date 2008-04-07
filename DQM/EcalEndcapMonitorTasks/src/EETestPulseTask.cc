@@ -1,8 +1,8 @@
 /*
  * \file EETestPulseTask.cc
  *
- * $Date: 2008/02/23 09:56:56 $
- * $Revision: 1.36 $
+ * $Date: 2008/02/29 15:08:38 $
+ * $Revision: 1.37 $
  * \author G. Della Ricca
  *
 */
@@ -75,7 +75,7 @@ void EETestPulseTask::beginJob(const EventSetup& c){
     dbe_->rmdir("EcalEndcap/EETestPulseTask");
   }
 
-  Numbers::initGeometry(c);
+  Numbers::initGeometry(c, false);
 
 }
 

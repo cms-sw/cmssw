@@ -1,8 +1,8 @@
 /*
  * \file EBTriggerTowerTask.cc
  *
- * $Date: 2008/03/14 14:59:56 $
- * $Revision: 1.66 $
+ * $Date: 2008/04/05 21:06:23 $
+ * $Revision: 1.67 $
  * \author C. Bernet
  * \author G. Della Ricca
  * \author E. Di Marco
@@ -89,7 +89,7 @@ void EBTriggerTowerTask::beginJob(const EventSetup& c){
     dbe_->rmdir("EcalBarrel/EBTriggerTowerTask");
   }
 
-  Numbers::initGeometry(c);
+  Numbers::initGeometry(c, false);
 
 }
 

@@ -1,8 +1,8 @@
 /*
  * \file EBIntegrityTask.cc
  *
- * $Date: 2008/03/21 20:05:19 $
- * $Revision: 1.66 $
+ * $Date: 2008/04/06 16:48:11 $
+ * $Revision: 1.67 $
  * \author G. Della Ricca
  *
  */
@@ -80,7 +80,7 @@ void EBIntegrityTask::beginJob(const EventSetup& c){
     dbe_->rmdir("EcalBarrel/EBIntegrityTask");
   }
 
-  Numbers::initGeometry(c);
+  Numbers::initGeometry(c, false);
 
 }
 

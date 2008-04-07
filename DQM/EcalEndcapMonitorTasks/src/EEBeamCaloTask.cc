@@ -1,8 +1,8 @@
 /*
  * \file EEBeamCaloTask.cc
  *
- * $Date: 2008/02/29 15:08:06 $
- * $Revision: 1.25 $
+ * $Date: 2008/04/07 07:36:20 $
+ * $Revision: 1.26 $
  * \author A. Ghezzi
  *
  */
@@ -107,7 +107,7 @@ void EEBeamCaloTask::beginJob(const EventSetup& c){
     dbe_->rmdir("EcalEndcap/EEBeamCaloTask");
   }
 
-  Numbers::initGeometry(c);
+  Numbers::initGeometry(c, false);
 
 }
 

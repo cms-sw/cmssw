@@ -1,8 +1,8 @@
 /*
  * \file EELedTask.cc
  *
- * $Date: 2008/02/29 15:08:18 $
- * $Revision: 1.40 $
+ * $Date: 2008/03/01 13:33:51 $
+ * $Revision: 1.32 $
  * \author G. Della Ricca
  *
 */
@@ -90,7 +90,7 @@ void EELedTask::beginJob(const EventSetup& c){
     dbe_->rmdir("EcalEndcap/EELedTask");
   }
 
-  Numbers::initGeometry(c);
+  Numbers::initGeometry(c, false);
 
 }
 

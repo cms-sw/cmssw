@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorClient.cc
  *
- * $Date: 2008/04/07 08:44:20 $
- * $Revision: 1.409 $
+ * $Date: 2008/04/07 09:09:36 $
+ * $Revision: 1.410 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -745,7 +745,7 @@ void EcalBarrelMonitorClient::beginJob(const EventSetup &c) {
 
   if ( summaryClient_ ) summaryClient_->beginJob(dbe_);
 
-  Numbers::initGeometry(c);
+  Numbers::initGeometry(c, verbose_);
 
 }
 

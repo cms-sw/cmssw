@@ -1,8 +1,8 @@
 /*
  * \file EBTestPulseClient.cc
  *
- * $Date: 2008/04/07 08:44:20 $
- * $Revision: 1.198 $
+ * $Date: 2008/04/07 09:00:41 $
+ * $Revision: 1.199 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -380,11 +380,10 @@ bool EBTestPulseClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonR
     if ( verbose_ ) {
       cout << " " << Numbers::sEB(ism) << " (ism=" << ism << ")" << endl;
       cout << endl;
+      UtilsClient::printBadChannels(meg01_[ism-1], ha01_[ism-1]);
+      UtilsClient::printBadChannels(meg02_[ism-1], ha02_[ism-1]);
+      UtilsClient::printBadChannels(meg03_[ism-1], ha03_[ism-1]);
     }
-
-    UtilsClient::printBadChannels(meg01_[ism-1], ha01_[ism-1]);
-    UtilsClient::printBadChannels(meg02_[ism-1], ha02_[ism-1]);
-    UtilsClient::printBadChannels(meg03_[ism-1], ha03_[ism-1]);
 
     for ( int ie = 1; ie <= 85; ie++ ) {
       for ( int ip = 1; ip <= 20; ip++ ) {
@@ -534,12 +533,11 @@ bool EBTestPulseClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonR
     if ( verbose_ ) {
       cout << " " << Numbers::sEB(ism) << " (ism=" << ism << ")" << endl;
       cout << endl;
+      UtilsClient::printBadChannels(meg04_[ism-1], i01_[ism-1]);
+      UtilsClient::printBadChannels(meg04_[ism-1], i03_[ism-1]);
+      UtilsClient::printBadChannels(meg05_[ism-1], i02_[ism-1]);
+      UtilsClient::printBadChannels(meg05_[ism-1], i04_[ism-1]);
     }
-
-    UtilsClient::printBadChannels(meg04_[ism-1], i01_[ism-1]);
-    UtilsClient::printBadChannels(meg04_[ism-1], i03_[ism-1]);
-    UtilsClient::printBadChannels(meg05_[ism-1], i02_[ism-1]);
-    UtilsClient::printBadChannels(meg05_[ism-1], i04_[ism-1]);
 
     for ( int i = 1; i <= 10; i++ ) {
 

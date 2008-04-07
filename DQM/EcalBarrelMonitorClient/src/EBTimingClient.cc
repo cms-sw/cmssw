@@ -1,8 +1,8 @@
 /*
  * \file EBTimingClient.cc
  *
- * $Date: 2008/04/07 08:44:20 $
- * $Revision: 1.80 $
+ * $Date: 2008/04/07 09:00:41 $
+ * $Revision: 1.81 $
  * \author G. Della Ricca
  *
 */
@@ -243,9 +243,8 @@ bool EBTimingClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunI
     if ( verbose_ ) {
       cout << " " << Numbers::sEB(ism) << " (ism=" << ism << ")" << endl;
       cout << endl;
+      UtilsClient::printBadChannels(meg01_[ism-1], h01_[ism-1]);
     }
-
-    UtilsClient::printBadChannels(meg01_[ism-1], h01_[ism-1]);
 
     float num01;
     float mean01;

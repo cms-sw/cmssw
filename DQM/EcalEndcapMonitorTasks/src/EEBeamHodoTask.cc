@@ -1,8 +1,8 @@
 /*
  * \file EEBeamHodoTask.cc
  *
- * $Date: 2008/02/23 09:56:55 $
- * $Revision: 1.19 $
+ * $Date: 2008/02/29 15:08:08 $
+ * $Revision: 1.20 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -104,7 +104,7 @@ void EEBeamHodoTask::beginJob(const EventSetup& c){
     dbe_->rmdir("EcalEndcap/EEBeamHodoTask");
   }
 
-  Numbers::initGeometry(c);
+  Numbers::initGeometry(c, false);
 
 }
 

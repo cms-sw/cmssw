@@ -1,11 +1,11 @@
-// $Id: Numbers.cc,v 1.52 2008/03/15 13:15:39 dellaric Exp $
+// $Id: Numbers.cc,v 1.53 2008/03/16 19:50:38 dellaric Exp $
 
 /*!
   \file Numbers.cc
   \brief Some "id" conversions
   \author B. Gobbo
-  \version $Revision: 1.52 $
-  \date $Date: 2008/03/15 13:15:39 $
+  \version $Revision: 1.53 $
+  \date $Date: 2008/03/16 19:50:38 $
 */
 
 #include <sstream>
@@ -37,11 +37,11 @@ bool Numbers::init = false;
 
 //-------------------------------------------------------------------------
 
-void Numbers::initGeometry( const edm::EventSetup& setup ) {
+void Numbers::initGeometry( const edm::EventSetup& setup, bool verbose ) {
 
   if( Numbers::init ) return;
 
-  std::cout << "Initializing ECAL Geometry ..." << std::endl;
+  if ( verbose ) std::cout << "Initializing ECAL Geometry ..." << std::endl;
 
   Numbers::init = true;
 
@@ -51,15 +51,15 @@ void Numbers::initGeometry( const edm::EventSetup& setup ) {
     setup.get< EcalMappingRcd >().get(handle);
     Numbers::map = handle.product();
 
-    std::cout << "done." << std::endl;
+    if ( verbose ) std::cout << "done." << std::endl;
 
   } catch ( edm::eventsetup::NoRecordException< EcalMappingRcd > &e ) {
 
-    std::cout << "NOT done." << std::endl;
+    if ( verbose ) std::cout << "NOT done." << std::endl;
 
   }
 
-  std::cout << std::endl;
+  if ( verbose ) std::cout << std::endl;
 
 }
 

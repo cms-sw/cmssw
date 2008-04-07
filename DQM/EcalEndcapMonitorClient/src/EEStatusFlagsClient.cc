@@ -1,8 +1,8 @@
 /*
  * \file EEStatusFlagsClient.cc
  *
- * $Date: 2008/04/07 07:24:35 $
- * $Revision: 1.16 $
+ * $Date: 2008/04/07 08:44:21 $
+ * $Revision: 1.17 $
  * \author G. Della Ricca
  *
 */
@@ -143,10 +143,11 @@ bool EEStatusFlagsClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, Mo
 
     int ism = superModules_[i];
 
-    cout << " " << Numbers::sEE(ism) << " (ism=" << ism << ")" << endl;
-    cout << endl;
-
-    UtilsClient::printBadChannels(meh01_[ism-1], UtilsClient::getHisto<TH2F*>(meh01_[ism-1]), true);
+    if ( verbose_ ) {
+      cout << " " << Numbers::sEE(ism) << " (ism=" << ism << ")" << endl;
+      cout << endl;
+      UtilsClient::printBadChannels(meh01_[ism-1], UtilsClient::getHisto<TH2F*>(meh01_[ism-1]), true);
+    }
 
     if ( meh01_[ism-1]->getEntries() != 0 ) status = false;
 
@@ -188,7 +189,7 @@ void EEStatusFlagsClient::analyze(void){
 
 void EEStatusFlagsClient::htmlOutput(int run, string& htmlDir, string& htmlName){
 
-  cout << "Preparing EEStatusFlagsClient html output ..." << endl;
+  if ( verbose_ ) cout << "Preparing EEStatusFlagsClient html output ..." << endl;
 
   ofstream htmlFile;
 

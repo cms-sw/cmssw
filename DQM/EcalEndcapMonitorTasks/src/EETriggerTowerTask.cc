@@ -1,8 +1,8 @@
 /*
  * \file EETriggerTowerTask.cc
  *
- * $Date: 2008/03/14 14:59:56 $
- * $Revision: 1.30 $
+ * $Date: 2008/04/05 21:06:24 $
+ * $Revision: 1.31 $
  * \author C. Bernet
  * \author G. Della Ricca
  * \author E. Di Marco
@@ -91,7 +91,7 @@ void EETriggerTowerTask::beginJob(const EventSetup& c){
     dbe_->rmdir("EcalEndcap/EETriggerTowerTask");
   }
 
-  Numbers::initGeometry(c);
+  Numbers::initGeometry(c, false);
 
 }
 

@@ -1,8 +1,8 @@
 /*
  * \file EBClusterTask.cc
  *
- * $Date: 2008/03/14 14:38:56 $
- * $Revision: 1.52 $
+ * $Date: 2008/04/05 20:43:44 $
+ * $Revision: 1.53 $
  * \author G. Della Ricca
  * \author E. Di Marco
  *
@@ -95,7 +95,7 @@ void EBClusterTask::beginJob(const EventSetup& c){
     dbe_->rmdir("EcalBarrel/EBClusterTask");
   }
 
-  Numbers::initGeometry(c);
+  Numbers::initGeometry(c, false);
 
 }
 

@@ -1,8 +1,8 @@
 /*
  * \file EETriggerTowerClient.cc
  *
- * $Date: 2008/04/07 08:44:21 $
- * $Revision: 1.65 $
+ * $Date: 2008/04/07 09:00:42 $
+ * $Revision: 1.66 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -328,16 +328,13 @@ bool EETriggerTowerClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, M
     if ( verbose_ ) {
       cout << " " << Numbers::sEE(ism) << " (ism=" << ism << ")" << endl;
       cout << endl;
-    }
-
-    UtilsClient::printBadChannels(mel01_[ism-1], UtilsClient::getHisto<TH2F*>(mel01_[ism-1]), true);
-
-    for (int j=0; j<2; j++) {
-      UtilsClient::printBadChannels(me_n01_[ism-1][j], UtilsClient::getHisto<TH2F*>(me_n01_[ism-1][j]), true);
-    }
-
-    for (int j=0; j<6; j++) {
-      UtilsClient::printBadChannels(me_m01_[ism-1][j], UtilsClient::getHisto<TH2F*>(me_m01_[ism-1][j]), true);
+      UtilsClient::printBadChannels(mel01_[ism-1], UtilsClient::getHisto<TH2F*>(mel01_[ism-1]), true);
+      for (int j=0; j<2; j++) {
+        UtilsClient::printBadChannels(me_n01_[ism-1][j], UtilsClient::getHisto<TH2F*>(me_n01_[ism-1][j]), true);
+      }
+      for (int j=0; j<6; j++) {
+        UtilsClient::printBadChannels(me_m01_[ism-1][j], UtilsClient::getHisto<TH2F*>(me_m01_[ism-1][j]), true);
+      }
     }
 
   }

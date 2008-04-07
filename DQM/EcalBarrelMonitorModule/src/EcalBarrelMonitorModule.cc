@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorModule.cc
  *
- * $Date: 2008/04/07 07:24:33 $
- * $Revision: 1.175 $
+ * $Date: 2008/04/07 08:14:13 $
+ * $Revision: 1.176 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -327,7 +327,7 @@ void EcalBarrelMonitorModule::endJob(void) {
 
 void EcalBarrelMonitorModule::analyze(const Event& e, const EventSetup& c){
 
-  Numbers::initGeometry(c);
+  Numbers::initGeometry(c, verbose_);
 
   if ( ! init_ ) this->setup();
 

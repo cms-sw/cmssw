@@ -1,8 +1,8 @@
 /*
  * \file EBTimingTask.cc
  *
- * $Date: 2008/04/06 14:41:47 $
- * $Revision: 1.35 $
+ * $Date: 2008/04/06 18:07:21 $
+ * $Revision: 1.36 $
  * \author G. Della Ricca
  *
 */
@@ -63,7 +63,7 @@ void EBTimingTask::beginJob(const EventSetup& c){
     dbe_->rmdir("EcalBarrel/EBTimingTask");
   }
 
-  Numbers::initGeometry(c);
+  Numbers::initGeometry(c, false);
 
 }
 

@@ -1,8 +1,8 @@
 /*
  * \file EECosmicTask.cc
  *
- * $Date: 2008/04/05 21:02:05 $
- * $Revision: 1.37 $
+ * $Date: 2008/04/06 18:07:21 $
+ * $Revision: 1.38 $
  * \author G. Della Ricca
  *
 */
@@ -72,7 +72,7 @@ void EECosmicTask::beginJob(const EventSetup& c){
     dbe_->rmdir("EcalEndcap/EECosmicTask");
   }
 
-  Numbers::initGeometry(c);
+  Numbers::initGeometry(c, false);
 
 }
 

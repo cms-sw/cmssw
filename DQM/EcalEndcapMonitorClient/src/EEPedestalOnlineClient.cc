@@ -1,8 +1,8 @@
 /*
  * \file EEPedestalOnlineClient.cc
  *
- * $Date: 2008/04/07 08:44:21 $
- * $Revision: 1.70 $
+ * $Date: 2008/04/07 09:00:42 $
+ * $Revision: 1.71 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -238,9 +238,8 @@ bool EEPedestalOnlineClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov,
     if ( verbose_ ) {
       cout << " " << Numbers::sEE(ism) << " (ism=" << ism << ")" << endl;
       cout << endl;
+      UtilsClient::printBadChannels(meg03_[ism-1], h03_[ism-1]);
     }
-
-    UtilsClient::printBadChannels(meg03_[ism-1], h03_[ism-1]);
 
     float num03;
     float mean03;

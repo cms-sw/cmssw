@@ -2,8 +2,8 @@
 /*
  * \file EEIntegrityClient.cc
  *
- * $Date: 2008/04/07 07:24:35 $
- * $Revision: 1.70 $
+ * $Date: 2008/04/07 08:44:21 $
+ * $Revision: 1.71 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -284,27 +284,26 @@ bool EEIntegrityClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonR
 
     int ism = superModules_[i];
 
-    if ( verbose_ ) {
-      cout << " " << Numbers::sEE(ism) << " (ism=" << ism << ")" << endl;
-      cout << endl;
-    }
-
     if ( h00_ && h00_->GetBinContent(ism) != 0 ) {
       cerr << endl;
       cerr << " DCC failed " << h00_->GetBinContent(ism) << " times" << endl;
       cerr << endl;
     }
 
-    UtilsClient::printBadChannels(meg01_[ism-1], h01_[ism-1], true);
-    UtilsClient::printBadChannels(meg01_[ism-1], h02_[ism-1], true);
-    UtilsClient::printBadChannels(meg01_[ism-1], h03_[ism-1], true);
-    UtilsClient::printBadChannels(meg01_[ism-1], h04_[ism-1], true);
-    UtilsClient::printBadChannels(meg01_[ism-1], h05_[ism-1], true);
+    if ( verbose_ ) {
+      cout << " " << Numbers::sEE(ism) << " (ism=" << ism << ")" << endl;
+      cout << endl;
+      UtilsClient::printBadChannels(meg01_[ism-1], h01_[ism-1], true);
+      UtilsClient::printBadChannels(meg01_[ism-1], h02_[ism-1], true);
+      UtilsClient::printBadChannels(meg01_[ism-1], h03_[ism-1], true);
+      UtilsClient::printBadChannels(meg01_[ism-1], h04_[ism-1], true);
+      UtilsClient::printBadChannels(meg01_[ism-1], h05_[ism-1], true);
 
-    UtilsClient::printBadChannels(meg02_[ism-1], h06_[ism-1], true);
-    UtilsClient::printBadChannels(meg02_[ism-1], h07_[ism-1], true);
-    UtilsClient::printBadChannels(meg02_[ism-1], h08_[ism-1], true);
-    UtilsClient::printBadChannels(meg02_[ism-1], h09_[ism-1], true);
+      UtilsClient::printBadChannels(meg02_[ism-1], h06_[ism-1], true);
+      UtilsClient::printBadChannels(meg02_[ism-1], h07_[ism-1], true);
+      UtilsClient::printBadChannels(meg02_[ism-1], h08_[ism-1], true);
+      UtilsClient::printBadChannels(meg02_[ism-1], h09_[ism-1], true);
+    }
 
     float num00;
 

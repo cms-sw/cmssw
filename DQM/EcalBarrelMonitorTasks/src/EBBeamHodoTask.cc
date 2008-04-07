@@ -1,8 +1,8 @@
 /*
  * \file EBBeamHodoTask.cc
  *
- * $Date: 2008/02/23 09:56:54 $
- * $Revision: 1.53 $
+ * $Date: 2008/02/29 15:04:09 $
+ * $Revision: 1.54 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -104,7 +104,7 @@ void EBBeamHodoTask::beginJob(const EventSetup& c){
     dbe_->rmdir("EcalBarrel/EBBeamHodoTask");
   }
 
-  Numbers::initGeometry(c);
+  Numbers::initGeometry(c, false);
 
 }
 

@@ -1,8 +1,8 @@
 /*
  * \file EEClusterTask.cc
  *
- * $Date: 2008/03/14 14:38:59 $
- * $Revision: 1.40 $
+ * $Date: 2008/04/05 20:43:44 $
+ * $Revision: 1.41 $
  * \author G. Della Ricca
  * \author E. Di Marco
  *
@@ -108,7 +108,7 @@ void EEClusterTask::beginJob(const EventSetup& c){
     dbe_->rmdir("EcalEndcap/EEClusterTask");
   }
 
-  Numbers::initGeometry(c);
+  Numbers::initGeometry(c, false);
 
 }
 

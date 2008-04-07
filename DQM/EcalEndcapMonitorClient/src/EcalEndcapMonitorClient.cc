@@ -1,8 +1,8 @@
 /*
  * \file EcalEndcapMonitorClient.cc
  *
- * $Date: 2008/04/07 08:44:21 $
- * $Revision: 1.168 $
+ * $Date: 2008/04/07 09:09:36 $
+ * $Revision: 1.169 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -776,7 +776,7 @@ void EcalEndcapMonitorClient::beginJob(const EventSetup &c) {
 
   if ( summaryClient_ ) summaryClient_->beginJob(dbe_);
 
-  Numbers::initGeometry(c);
+  Numbers::initGeometry(c, verbose_);
 
 }
 

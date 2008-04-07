@@ -1,8 +1,8 @@
 /*
  * \file EEPedestalClient.cc
  *
- * $Date: 2008/04/07 08:44:21 $
- * $Revision: 1.72 $
+ * $Date: 2008/04/07 09:00:42 $
+ * $Revision: 1.73 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -472,11 +472,10 @@ bool EEPedestalClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRu
     if ( verbose_ ) {
       cout << " " << Numbers::sEE(ism) << " (ism=" << ism << ")" << endl;
       cout << endl;
+      UtilsClient::printBadChannels(meg01_[ism-1], h01_[ism-1]);
+      UtilsClient::printBadChannels(meg02_[ism-1], h02_[ism-1]);
+      UtilsClient::printBadChannels(meg03_[ism-1], h03_[ism-1]);
     }
-
-    UtilsClient::printBadChannels(meg01_[ism-1], h01_[ism-1]);
-    UtilsClient::printBadChannels(meg02_[ism-1], h02_[ism-1]);
-    UtilsClient::printBadChannels(meg03_[ism-1], h03_[ism-1]);
 
     for ( int ix = 1; ix <= 50; ix++ ) {
       for ( int iy = 1; iy <= 50; iy++ ) {
@@ -573,10 +572,9 @@ bool EEPedestalClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRu
     if ( verbose_ ) {
       cout << " " << Numbers::sEE(ism) << " (ism=" << ism << ")" << endl;
       cout << endl;
+      UtilsClient::printBadChannels(meg04_[ism-1], i01_[ism-1]);
+      UtilsClient::printBadChannels(meg05_[ism-1], i02_[ism-1]);
     }
-
-    UtilsClient::printBadChannels(meg04_[ism-1], i01_[ism-1]);
-    UtilsClient::printBadChannels(meg05_[ism-1], i02_[ism-1]);
 
     for ( int i = 1; i <= 10; i++ ) {
 

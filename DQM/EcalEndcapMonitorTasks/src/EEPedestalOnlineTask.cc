@@ -1,8 +1,8 @@
 /*
  * \file EEPedestalOnlineTask.cc
  *
- * $Date: 2008/02/23 09:56:56 $
- * $Revision: 1.20 $
+ * $Date: 2008/02/29 15:08:29 $
+ * $Revision: 1.21 $
  * \author G. Della Ricca
  *
 */
@@ -60,7 +60,7 @@ void EEPedestalOnlineTask::beginJob(const EventSetup& c){
     dbe_->rmdir("EcalEndcap/EEPedestalOnlineTask");
   }
 
-  Numbers::initGeometry(c);
+  Numbers::initGeometry(c, false);
 
 }
 
