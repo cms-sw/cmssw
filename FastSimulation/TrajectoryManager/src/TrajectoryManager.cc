@@ -69,7 +69,9 @@ TrajectoryManager::TrajectoryManager(FSimEvent* aSimEvent,
   // Initialize Bthe stable particle decay engine 
   if ( decays.getParameter<bool>("ActivateDecays") ) { 
     int seed = (int) ( 900000000. * random->flatShoot() );
-    myDecayEngine = new Pythia6Decays(seed);
+    double comE = decays.getUntrackedParameter("comEnergy",14000.);
+    myDecayEngine = new Pythia6Decays(seed,comE);
+    distCut = decays.getParameter<double>("DistCut");
   }
 
   // Initialize the Material Effects updator, if needed
@@ -446,14 +448,28 @@ TrajectoryManager::updateWithDaughters(ParticlePropagator& PP, int fsimi) {
   
   // Update the FSimEvent with an end vertex and with the daughters
   if ( daughters.size() ) { 
+    double distMin = 1E99;
+    int theClosestChargedDaughterId = -1;
     DaughterParticleIterator daughter = daughters.begin();
     
     int ivertex = mySimEvent->addSimVertex(daughter->vertex(),fsimi);
 
     if ( ivertex != -1 ) {
-      for ( ; daughter != daughters.end(); ++daughter)
-	mySimEvent->addSimTrack(&(*daughter), ivertex);
+      for ( ; daughter != daughters.end(); ++daughter) {
+	int theDaughterId = mySimEvent->addSimTrack(&(*daughter), ivertex);
+	// Find the closest charged daughter (if charged mother)
+	if ( PP.charge() * daughter->charge() > 1E-10 ) {
+	  double dist = (daughter->Vect().Unit().Cross(PP.Vect().Unit())).R();
+	  if ( dist < distCut && dist < distMin ) { 
+	    distMin = dist;
+	    theClosestChargedDaughterId = theDaughterId;
+	  }
+	}
+      }
     }
+    // Attach mother and closest daughter sp as to cheat tracking ;-)
+    if ( theClosestChargedDaughterId >=0 ) 
+      mySimEvent->track(fsimi).setClosestDaughterId(theClosestChargedDaughterId);
   }
 }
 
@@ -578,7 +594,8 @@ TrajectoryManager::makeSinglePSimHit( const GeomDetUnit& det,
   float tof = ts.globalPosition().mag() / 30. ; // in nanoseconds, FIXME: very approximate
 
   // If a hadron suffered a nuclear interaction, just assign the hits of the closest 
-  // daughter to the mother's track.
+  // daughter to the mother's track. The same applies to a charged particle decay into
+  // another charged particle.
   int localTkID = tkID;
   if ( mySimEvent->track(tkID).mother().closestDaughterId() == tkID )
     localTkID = mySimEvent->track(tkID).mother().id();
