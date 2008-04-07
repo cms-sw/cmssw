@@ -1,5 +1,5 @@
 //
-// $Id: EgammaSCEnergyCorrectionAlgo.cc,v 1.21 2008/04/06 18:18:20 kkaadze Exp $
+// $Id: EgammaSCEnergyCorrectionAlgo.cc,v 1.22 2008/04/06 18:47:03 kkaadze Exp $
 // Author: David Evans, Bristol
 //
 #include "RecoEcal/EgammaClusterAlgos/interface/EgammaSCEnergyCorrectionAlgo.h"
@@ -121,7 +121,7 @@ reco::SuperCluster EgammaSCEnergyCorrectionAlgo::applyCorrection(const reco::Sup
   //or apply new Enegry SCale correction
   float newEnergy = 0;
   
-  if ( theAlgo == reco::hybrid || theAlgo == reco::dynamicHybrid || theAlgo == reco::fixedMatrix) {
+  if ( theAlgo == reco::hybrid || theAlgo == reco::dynamicHybrid ) {
     // first apply shower lekeage corrections
     newEnergy = fEta(cl.energy(), cl.eta());
     // now apply F(brem)
@@ -130,7 +130,12 @@ reco::SuperCluster EgammaSCEnergyCorrectionAlgo::applyCorrection(const reco::Sup
     double eT = newEnergy/cosh(cl.eta());
     eT = fEtEta(eT, cl.eta());
     newEnergy = eT*cosh(cl.eta());
-  } else {     
+  } else if  ( theAlgo == reco::fixedMatrix ) {     
+    newEnergy = fBrem(newEnergy, phiWidth/etaWidth);
+    double eT = newEnergy/cosh(cl.eta());
+    eT = fEtEta(eT, cl.eta());
+    newEnergy = eT*cosh(cl.eta());
+  } else {  
     //Apply f(nCry) correction on island algo and fixedMatrix algo 
     newEnergy = seedC->energy()/fNCrystals(nCryGT2Sigma, theAlgo, theBase)+bremsEnergy;
   } 
