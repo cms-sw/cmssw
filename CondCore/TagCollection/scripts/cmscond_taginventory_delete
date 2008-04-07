@@ -10,7 +10,6 @@ class tagInventoryDelete:
         """
         Class add entry in the tag inventory
         usage: %prog [options]
-        -f, --file=filename: configuration file
         -c, --connect=connectstring: connection string to the tag DB (required)
         -u, --user=user: user name
         -p, --password=password: password
@@ -34,8 +33,8 @@ class tagInventoryDelete:
         """
         usage = "usage: \%prog [options] \n"
 #        parser = OptionParser(option_class=MyOption)
-        self.__parser.add_option("-f","--file",action="store",dest="filename",help="configuration file")
-        self.__parser.add_option("-c","--connect",action="store",dest="connectstring",type="string",help="connection string to the tag DB")
+#        self.__parser.add_option("-f","--file",action="store",dest="filename",help="configuration file")
+        self.__parser.add_option("-c","--connect",action="store",dest="connectstring",type="string",help="connection string to the tag DB(required)")
         self.__parser.add_option("-u","--user",action="store",dest="user",type="string",help="user name")
         self.__parser.add_option("-p","--password",action="store",dest="password",type="string",help="password")
         self.__parser.add_option("-P","--path",action="store",dest="authpath",type="string",help="path to authentication.xml")
@@ -51,25 +50,15 @@ class tagInventoryDelete:
         self.__parser.set_defaults(all=True)
         self.__parser.set_defaults(verbose=False)
         (options, args) = self.__parser.parse_args()
-        if self.__parser.values.filename!='':
-            configparser=ConfigParser()
-            configparser.read(self.__parser.values.filename)
-            print configparser.defaults()
-            self.__connectstring=configparser.defaults()['connect']
-            self.__user=configparser.defaults()['user']
-            self.__password=configparser.defaults()['password']
-            self.__authpath=configparser.defaults()['path']
-            self.__all=configparser.defaults()['all']
-            self.__tag=configparser.defaults()['tag']
-            self.__verbose=configparser.defaults()['verbose']
-        else:
-            self.__connectstring=self.__parser.values.connectstring
-            self.__user=self.__parser.values.user
-            self.__password=self.__parser.values.password
-            self.__authpath=self.__parser.values.authpath
-            self.__all=self.__parser.values.all
-            self.__tag=self.__parser.values.tag
-            self.__verbose=self.__parser.values.verbose
+        if not self.__parser.values.connectstring:
+            raise OptionValueError("option -%s is required"%('c'))
+        self.__connectstring=self.__parser.values.connectstring
+        self.__user=self.__parser.values.user
+        self.__password=self.__parser.values.password
+        self.__authpath=self.__parser.values.authpath
+        self.__all=self.__parser.values.all
+        self.__tag=self.__parser.values.tag
+        self.__verbose=self.__parser.values.verbose
         if self.__parser.values.verbose is True:
             print 'config file: ',self.__parser.values.filename
             print 'connectstring: ',self.__connectstring

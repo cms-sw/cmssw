@@ -36,7 +36,7 @@ class tagTreeDelete:
         Parse commandline
         """
         usage = "usage: \%prog [options] \n"
-        self.__parser.add_option("-c","--connect",action="store",dest="connectstring",type="string",help="connection string to the tag DB")
+        self.__parser.add_option("-c","--connect",action="store",dest="connectstring",type="string",help="connection string to the tag DB(required)")
         self.__parser.add_option("-u","--user",action="store",dest="user",type="string",help="user name")
         self.__parser.add_option("-p","--password",action="store",dest="password",type="string",help="password")
         self.__parser.add_option("-P","--path",action="store",dest="authpath",type="string",help="path to authentication.xml")
@@ -54,6 +54,8 @@ class tagTreeDelete:
         self.__parser.set_defaults(all=False)
         self.__parser.set_defaults(verbose=False)
         (options, args) = self.__parser.parse_args()
+        if not self.__parser.values.connectstring:
+            raise OptionValueError("option -%s is required"%('c'))
         if self.__parser.values.treename and self.__parser.values.all:
             raise OptionValueError("option -%s and -%s are exclusive"%('a','T'))
         if self.__parser.values.branch and self.__parser.values.all:

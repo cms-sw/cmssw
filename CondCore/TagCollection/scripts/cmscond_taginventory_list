@@ -43,6 +43,8 @@ class tagInventoryPrinter:
         self.__parser.set_defaults(tag='')
         self.__parser.set_defaults(verbose=False)
         (options, args) = self.__parser.parse_args()
+        if not self.__parser.values.connectstring:
+            raise OptionValueError("option -%s is required"%('c'))
         self.__connectstring=self.__parser.values.connectstring
         self.__user=self.__parser.values.user
         self.__password=self.__parser.values.password
