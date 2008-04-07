@@ -1,8 +1,8 @@
 /*
  * \file EcalEndcapMonitorModule.cc
  *
- * $Date: 2008/04/06 09:17:09 $
- * $Revision: 1.50 $
+ * $Date: 2008/04/07 07:24:37 $
+ * $Revision: 1.51 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -39,16 +39,22 @@ using namespace std;
 
 EcalEndcapMonitorModule::EcalEndcapMonitorModule(const ParameterSet& ps){
 
+  // verbose switch
+
+  verbose_ = ps.getUntrackedParameter<bool>("verbose", false);
+
+  if ( verbose_ ) {
+    cout << endl;
+    cout << " *** Ecal Endcap Generic Monitor ***" << endl;
+    cout << endl;
+  }
+
   init_ = false;
 
   EcalRawDataCollection_ = ps.getParameter<edm::InputTag>("EcalRawDataCollection");
   EEDigiCollection_ = ps.getParameter<edm::InputTag>("EEDigiCollection");
   EcalRecHitCollection_ = ps.getParameter<edm::InputTag>("EcalRecHitCollection");
   EcalTrigPrimDigiCollection_ = ps.getParameter<edm::InputTag>("EcalTrigPrimDigiCollection");
-
-  cout << endl;
-  cout << " *** Ecal Endcap Generic Monitor ***" << endl;
-  cout << endl;
 
   // this should come from the event header
   runNumber_ = ps.getUntrackedParameter<int>("runNumber", 0);

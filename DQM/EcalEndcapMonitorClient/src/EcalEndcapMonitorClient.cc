@@ -1,8 +1,8 @@
 /*
  * \file EcalEndcapMonitorClient.cc
  *
- * $Date: 2008/04/06 18:07:21 $
- * $Revision: 1.165 $
+ * $Date: 2008/04/07 07:24:35 $
+ * $Revision: 1.166 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -80,16 +80,24 @@ EcalEndcapMonitorClient::EcalEndcapMonitorClient(const ParameterSet& ps) : Modul
 
 void EcalEndcapMonitorClient::initialize(const ParameterSet& ps){
 
-  cout << endl;
-  cout << " *** Ecal Endcap Generic Monitor Client ***" << endl;
-  cout << endl;
+  // verbose switch
+
+  verbose_ = ps.getUntrackedParameter<bool>("verbose", false);
+
+  if ( verbose_ ) {
+    cout << endl;
+    cout << " *** Ecal Endcap Generic Monitor Client ***" << endl;
+    cout << endl;
+  }
 
   // DQM ROOT input file
 
   inputFile_ = ps.getUntrackedParameter<string>("inputFile", "");
 
-  if ( inputFile_.size() != 0 ) {
-    cout << " Reading DQM data from inputFile = '" << inputFile_ << "'" << endl;
+  if ( verbose_ ) {
+    if ( inputFile_.size() != 0 ) {
+      cout << " Reading DQM data from inputFile = '" << inputFile_ << "'" << endl;
+    }
   }
 
   // Ecal Cond DB
@@ -100,35 +108,42 @@ void EcalEndcapMonitorClient::initialize(const ParameterSet& ps){
   dbUserName_ = ps.getUntrackedParameter<string>("dbUserName", "");
   dbPassword_ = ps.getUntrackedParameter<string>("dbPassword", "");
 
-  if ( dbName_.size() != 0 ) {
-    cout << " Using Ecal Cond DB, "
-         << " dbName = '" << dbName_ << "'"
-         << " dbUserName = '" << dbUserName_ << "'";
-    if ( dbUserName_.size() != 0 ) {
-      cout << " dbHostName = '" << dbHostName_ << "'"
-           << " dbHostPort = '" << dbHostPort_ << "'";
+  if ( verbose_ ) {
+    if ( dbName_.size() != 0 ) {
+      cout << " Using Ecal Cond DB, "
+           << " dbName = '" << dbName_ << "'"
+           << " dbUserName = '" << dbUserName_ << "'"
+            << endl;
+      if ( dbUserName_.size() != 0 ) {
+        cout << " dbHostName = '" << dbHostName_ << "'"
+             << " dbHostPort = '" << dbHostPort_ << "'"
+             << endl;
+      }
+    } else {
+      cout << " Ecal Cond DB is OFF" << endl;
     }
-    cout << endl;
-  } else {
-    cout << " Ecal Cond DB is OFF" << endl;
   }
 
   // Mask file
 
   maskFile_ = ps.getUntrackedParameter<string>("maskFile", "");
 
-  if ( maskFile_.size() != 0 ) {
-    cout << " Using maskFile = '" << maskFile_ << "'" << endl;
+  if ( verbose_ ) {
+    if ( maskFile_.size() != 0 ) {
+      cout << " Using maskFile = '" << maskFile_ << "'" << endl;
+    }
   }
 
   // mergeRuns switch
 
   mergeRuns_ = ps.getUntrackedParameter<bool>("mergeRuns", false);
 
-  if ( mergeRuns_ ) {
-    cout << " mergeRuns switch is ON" << endl;
-  } else {
-    cout << " mergeRuns switch is OFF" << endl;
+  if ( verbose_ ) {
+    if ( mergeRuns_ ) {
+      cout << " mergeRuns switch is ON" << endl;
+    } else {
+      cout << " mergeRuns switch is OFF" << endl;
+    }
   }
 
   // enableSubRunDb switch
@@ -136,11 +151,13 @@ void EcalEndcapMonitorClient::initialize(const ParameterSet& ps){
   enableSubRunDb_ = ps.getUntrackedParameter<bool>("enableSubRunDb", false);
   dbRefreshTime_  = ps.getUntrackedParameter<int>("dbRefreshTime", 15);
 
-  if ( enableSubRunDb_ ) {
-    cout << " enableSubRunDb switch is ON" << endl;
-    cout << " dbRefreshTime is " << dbRefreshTime_ << " minutes" << endl;
-  } else {
-    cout << " enableSubRunDb switch is OFF" << endl;
+  if ( verbose_ ) {
+    if ( enableSubRunDb_ ) {
+     cout << " enableSubRunDb switch is ON" << endl;
+     cout << " dbRefreshTime is " << dbRefreshTime_ << " minutes" << endl;
+    } else {
+      cout << " enableSubRunDb switch is OFF" << endl;
+    }
   }
 
   // enableSubRunHtml switch
@@ -148,76 +165,94 @@ void EcalEndcapMonitorClient::initialize(const ParameterSet& ps){
   enableSubRunHtml_ = ps.getUntrackedParameter<bool>("enableSubRunHtml", false);
   htmlRefreshTime_  = ps.getUntrackedParameter<int>("htmlRefreshTime", 5);
 
-  if ( enableSubRunHtml_ ) {
-    cout << " enableSubRunHtml switch is ON" << endl;
-    cout << " htmlRefreshTime is " << htmlRefreshTime_ << " minutes" << endl;
-  } else {
-    cout << " enableSubRunHtml switch is OFF" << endl;
+  if ( verbose_ ) {
+    if ( enableSubRunHtml_ ) {
+      cout << " enableSubRunHtml switch is ON" << endl;
+      cout << " htmlRefreshTime is " << htmlRefreshTime_ << " minutes" << endl;
+    } else {
+      cout << " enableSubRunHtml switch is OFF" << endl;
+    }
   }
 
   // location
 
   location_ =  ps.getUntrackedParameter<string>("location", "H4");
 
+  if ( verbose_ ) {
+    cout << " location is '" << location_ << "'" << endl;
+  }
+
   // base Html output directory
 
   baseHtmlDir_ = ps.getUntrackedParameter<string>("baseHtmlDir", "");
 
-  if ( baseHtmlDir_.size() != 0 ) {
-    cout << " HTML output will go to"
-         << " baseHtmlDir = '" << baseHtmlDir_ << "'" << endl;
-  } else {
-    cout << " HTML output is OFF" << endl;
+  if ( verbose_ ) {
+    if ( baseHtmlDir_.size() != 0 ) {
+      cout << " HTML output will go to"
+           << " baseHtmlDir = '" << baseHtmlDir_ << "'" << endl;
+    } else {
+      cout << " HTML output is OFF" << endl;
+    }
   }
 
   // cloneME switch
 
   cloneME_ = ps.getUntrackedParameter<bool>("cloneME", true);
 
-  if ( cloneME_ ) {
-    cout << " cloneME switch is ON" << endl;
-  } else {
-    cout << " cloneME switch is OFF" << endl;
+  if ( verbose_ ) {
+    if ( cloneME_ ) {
+      cout << " cloneME switch is ON" << endl;
+    } else {
+      cout << " cloneME switch is OFF" << endl;
+    }
   }
 
   // debug switch
 
   debug_ = ps.getUntrackedParameter<bool>("debug", false);
 
-  if ( debug_ ) {
-    cout << " debug switch is ON" << endl;
-  } else {
-    cout << " debug switch is OFF" << endl;
+  if ( verbose_ ) {
+    if ( debug_ ) {
+      cout << " debug switch is ON" << endl;
+    } else {
+      cout << " debug switch is OFF" << endl;
+    }
   }
 
   // enableMonitorDaemon switch
 
   enableMonitorDaemon_ = ps.getUntrackedParameter<bool>("enableMonitorDaemon", false);
 
-  if ( enableMonitorDaemon_ ) {
-    cout << " enableMonitorDaemon switch is ON" << endl;
-  } else {
-    cout << " enableMonitorDaemon switch is OFF" << endl;
+  if ( verbose_ ) {
+    if ( enableMonitorDaemon_ ) {
+      cout << " enableMonitorDaemon switch is ON" << endl;
+    } else {
+      cout << " enableMonitorDaemon switch is OFF" << endl;
+    }
   }
 
   // enableCleanup_ switch
 
   enableCleanup_ = ps.getUntrackedParameter<bool>("enableCleanup", false);
 
-  if ( enableCleanup_ ) {
-    cout << " enableCleanup switch is ON" << endl;
-  } else {
-    cout << " enableCleanup switch is OFF" << endl;
+  if ( verbose_ ) {
+    if ( enableCleanup_ ) {
+      cout << " enableCleanup switch is ON" << endl;
+    } else {
+      cout << " enableCleanup switch is OFF" << endl;
+    }
   }
 
   // enableUpdate switch
 
   enableUpdate_ = ps.getUntrackedParameter<bool>("enableUpdate", false);
 
-  if ( enableUpdate_ ) {
-    cout << " enableUpdate switch is ON" << endl;
-  } else {
-    cout << " enableUpdate switch is OFF" << endl;
+  if ( verbose_ ) {
+    if ( enableUpdate_ ) {
+      cout << " enableUpdate switch is ON" << endl;
+    } else {
+      cout << " enableUpdate switch is OFF" << endl;
+    }
   }
 
   // DQM Client name
@@ -234,9 +269,11 @@ void EcalEndcapMonitorClient::initialize(const ParameterSet& ps){
 
     hostPort_ = ps.getUntrackedParameter<int>("hostPort", 9090);
 
-    cout << " Client '" << clientName_ << "' " << endl
-         << " Collector on host '" << hostName_ << "'"
-         << " on port '" << hostPort_ << "'" << endl;
+    if ( verbose_ ) {
+      cout << " Client '" << clientName_ << "' " << endl
+           << " Collector on host '" << hostName_ << "'"
+           << " on port '" << hostPort_ << "'" << endl;
+    }
 
   }
 
@@ -247,13 +284,13 @@ void EcalEndcapMonitorClient::initialize(const ParameterSet& ps){
 
   superModules_ = ps.getUntrackedParameter<vector<int> >("superModules", superModules_);
 
-  cout << " Selected SMs:" << endl;
-
-  for ( unsigned int i = 0; i < superModules_.size(); i++ ) {
-    cout << " " << setw(2) << setfill('0') << superModules_[i];
+  if ( verbose_ ) {
+    cout << " Selected SMs:" << endl;
+    for ( unsigned int i = 0; i < superModules_.size(); i++ ) {
+      cout << " " << setw(2) << setfill('0') << superModules_[i];
+    }
+    cout << endl;
   }
-
-  cout << endl;
 
   // vector of enabled Clients (defaults)
 
@@ -264,13 +301,13 @@ void EcalEndcapMonitorClient::initialize(const ParameterSet& ps){
 
   enabledClients_ = ps.getUntrackedParameter<vector<string> >("enabledClients", enabledClients_);
 
-  cout << " Enabled Clients:" << endl;
-
-  for ( unsigned int i = 0; i < enabledClients_.size(); i++ ) {
-    cout << " " << enabledClients_[i];
+  if ( verbose_ ) {
+    cout << " Enabled Clients:" << endl;
+    for ( unsigned int i = 0; i < enabledClients_.size(); i++ ) {
+      cout << " " << enabledClients_[i];
+    }
+    cout << endl;
   }
-
-  cout << endl;
 
   // global ROOT style
 
@@ -655,13 +692,13 @@ void EcalEndcapMonitorClient::initialize(const ParameterSet& ps){
 
   if ( summaryClient_ ) summaryClient_->setFriends(clients_);
 
-  cout << endl;
+  if ( verbose_ ) cout << endl;
 
 }
 
 EcalEndcapMonitorClient::~EcalEndcapMonitorClient(){
 
-  cout << "Exit ..." << endl;
+  if ( verbose_ ) cout << "Exit ..." << endl;
 
   for ( unsigned int i=0; i<clients_.size(); i++ ) {
     delete clients_[i];
@@ -779,9 +816,11 @@ void EcalEndcapMonitorClient::beginRun(void){
 
 void EcalEndcapMonitorClient::beginRun(const Run& r, const EventSetup& c) {
 
-  cout << endl;
-  cout << "Standard beginRun() for run " << r.id().run() << endl;
-  cout << endl;
+  if ( verbose_ ) {
+    cout << endl;
+    cout << "Standard beginRun() for run " << r.id().run() << endl;
+    cout << endl;
+  }
 
   run_ = r.id().run();
 
@@ -795,18 +834,22 @@ void EcalEndcapMonitorClient::endJob(void) {
 
   if ( ! end_run_ ) {
 
-    cout << endl;
-    cout << "Checking last event at endJob() ... " << endl;
-    cout << endl;
+    if ( verbose_ ) {
+      cout << endl;
+      cout << "Checking last event at endJob() ... " << endl;
+      cout << endl;
+    }
 
     forced_update_ = true;
     this->analyze();
 
     if ( begin_run_ && ! end_run_ ) {
 
-      cout << endl;
-      cout << "Forcing endRun() ... " << endl;
-      cout << endl;
+      if ( verbose_ ) {
+        cout << endl;
+        cout << "Forcing endRun() ... " << endl;
+        cout << endl;
+      }
 
       forced_status_ = true;
       this->endRun();
@@ -870,9 +913,11 @@ void EcalEndcapMonitorClient::endRun(void) {
 
 void EcalEndcapMonitorClient::endRun(const Run& r, const EventSetup& c) {
 
-  cout << endl;
-  cout << "Standard endRun() for run " << r.id().run() << endl;
-  cout << endl;
+  if ( verbose_ ) {
+    cout << endl;
+    cout << "Standard endRun() for run " << r.id().run() << endl;
+    cout << endl;
+  }
 
   if ( run_ != -1 && evt_ != -1 && runType_ != -1 ) {
 
@@ -896,17 +941,21 @@ void EcalEndcapMonitorClient::endRun(const Run& r, const EventSetup& c) {
 
 void EcalEndcapMonitorClient::beginLuminosityBlock(const LuminosityBlock &l, const EventSetup &c) {
 
-  cout << endl;
-  cout << "Standard beginLuminosityBlock() for run " << l.id().run() << endl;
-  cout << endl;
+  if ( verbose_ ) {
+    cout << endl;
+    cout << "Standard beginLuminosityBlock() for run " << l.id().run() << endl;
+    cout << endl;
+  }
 
 }
 
 void EcalEndcapMonitorClient::endLuminosityBlock(const LuminosityBlock &l, const EventSetup &c) {
 
-  cout << endl;
-  cout << "Standard endLuminosityBlock() for run " << l.id().run() << endl;
-  cout << endl;
+  if ( verbose_ ) {
+    cout << endl;
+    cout << "Standard endLuminosityBlock() for run " << l.id().run() << endl;
+    cout << endl;
+  }
 
   if ( run_ != -1 && evt_ != -1 && runType_ != -1 ) {
 
@@ -943,16 +992,16 @@ void EcalEndcapMonitorClient::beginRunDb(void) {
 
   if ( dbName_.size() != 0 ) {
     try {
-      cout << "Opening DB connection with TNS_ADMIN ..." << endl;
+      if ( verbose_ ) cout << "Opening DB connection with TNS_ADMIN ..." << endl;
       econn = new EcalCondDBInterface(dbName_, dbUserName_, dbPassword_);
-      cout << "done." << endl;
+      if ( verbose_ ) cout << "done." << endl;
     } catch (runtime_error &e) {
       cerr << e.what() << endl;
       if ( dbHostName_.size() != 0 ) {
         try {
-          cout << "Opening DB connection without TNS_ADMIN ..." << endl;
+          if ( verbose_ ) cout << "Opening DB connection without TNS_ADMIN ..." << endl;
           econn = new EcalCondDBInterface(dbHostName_, dbName_, dbUserName_, dbPassword_, dbHostPort_);
-          cout << "done." << endl;
+          if ( verbose_ ) cout << "done." << endl;
         } catch (runtime_error &e) {
           cerr << e.what() << endl;
         }
@@ -983,10 +1032,10 @@ void EcalEndcapMonitorClient::beginRunDb(void) {
 
   if ( econn ) {
     try {
-      cout << "Fetching RunIOV ..." << endl;
+      if ( verbose_ ) cout << "Fetching RunIOV ..." << endl;
 //      runiov_ = econn->fetchRunIOV(&runtag, run_);
       runiov_ = econn->fetchRunIOV(location_, run_);
-      cout << "done." << endl;
+      if ( verbose_ ) cout << "done." << endl;
       foundRunIOV = true;
     } catch (runtime_error &e) {
       cerr << e.what() << endl;
@@ -1008,16 +1057,16 @@ void EcalEndcapMonitorClient::beginRunDb(void) {
 
     if ( econn ) {
       try {
-        cout << "Inserting RunIOV ..." << endl;
+        if ( verbose_ ) cout << "Inserting RunIOV ..." << endl;
         econn->insertRunIOV(&runiov_);
-        cout << "done." << endl;
+        if ( verbose_ ) cout << "done." << endl;
       } catch (runtime_error &e) {
         cerr << e.what() << endl;
         try {
-          cout << "Fetching RunIOV (again) ..." << endl;
+          if ( verbose_ ) cout << "Fetching RunIOV (again) ..." << endl;
 //          runiov_ = econn->fetchRunIOV(&runtag, run_);
           runiov_ = econn->fetchRunIOV(location_, run_);
-          cout << "done." << endl;
+          if ( verbose_ ) cout << "done." << endl;
           foundRunIOV = true;
         } catch (runtime_error &e) {
           cerr << e.what() << endl;
@@ -1030,19 +1079,21 @@ void EcalEndcapMonitorClient::beginRunDb(void) {
 
   // end - setup the RunIOV (on behalf of the DAQ)
 
-  cout << endl;
-  cout << "=============RunIOV:" << endl;
-  cout << "Run Number:         " << runiov_.getRunNumber() << endl;
-  cout << "Run Start:          " << runiov_.getRunStart().str() << endl;
-  cout << "Run End:            " << runiov_.getRunEnd().str() << endl;
-  cout << "====================" << endl;
-  cout << endl;
-  cout << "=============RunTag:" << endl;
-  cout << "GeneralTag:         " << runiov_.getRunTag().getGeneralTag() << endl;
-  cout << "Location:           " << runiov_.getRunTag().getLocationDef().getLocation() << endl;
-  cout << "Run Type:           " << runiov_.getRunTag().getRunTypeDef().getRunType() << endl;
-  cout << "====================" << endl;
-  cout << endl;
+  if ( verbose_ ) {
+    cout << endl;
+    cout << "=============RunIOV:" << endl;
+    cout << "Run Number:         " << runiov_.getRunNumber() << endl;
+    cout << "Run Start:          " << runiov_.getRunStart().str() << endl;
+    cout << "Run End:            " << runiov_.getRunEnd().str() << endl;
+    cout << "====================" << endl;
+    cout << endl;
+    cout << "=============RunTag:" << endl;
+    cout << "GeneralTag:         " << runiov_.getRunTag().getGeneralTag() << endl;
+    cout << "Location:           " << runiov_.getRunTag().getLocationDef().getLocation() << endl;
+    cout << "Run Type:           " << runiov_.getRunTag().getRunTypeDef().getRunType() << endl;
+    cout << "====================" << endl;
+    cout << endl;
+  }
 
   string rt = runiov_.getRunTag().getRunTypeDef().getRunType();
   if ( strcmp(rt.c_str(), "UNKNOWN") == 0 ) {
@@ -1051,9 +1102,11 @@ void EcalEndcapMonitorClient::beginRunDb(void) {
     for ( unsigned int i = 0; i < runTypes_.size(); i++ ) {
       if ( rt == runTypes_[i] ) {
         if ( runType_ != int(i) ) {
-          cout << endl;
-          cout << "Taking Run Type from DB: " << runTypes_[i] << endl;
-          cout << endl;
+          if ( verbose_ ) {
+            cout << endl;
+            cout << "Taking Run Type from DB: " << runTypes_[i] << endl;
+            cout << endl;
+          }
           runType_ = i;
         }
         break;
@@ -1063,38 +1116,38 @@ void EcalEndcapMonitorClient::beginRunDb(void) {
 
   if ( maskFile_.size() != 0 ) {
     try {
-      cout << "Fetching masked channels from file ..." << endl;
+      if ( verbose_ ) cout << "Fetching masked channels from file ..." << endl;
       EcalErrorMask::readFile(maskFile_, debug_);
-      cout << "done." << endl;
+      if ( verbose_ ) cout << "done." << endl;
     } catch (runtime_error &e) {
       cerr << e.what() << endl;
     }
   } else {
     if ( econn ) {
       try {
-        cout << "Fetching masked channels from DB ..." << endl;
+        if ( verbose_ ) cout << "Fetching masked channels from DB ..." << endl;
         EcalErrorMask::readDB(econn, &runiov_);
-        cout << "done." << endl;
+        if ( verbose_ ) cout << "done." << endl;
       } catch (runtime_error &e) {
         cerr << e.what() << endl;
       }
     }
   }
 
-  cout << endl;
+  if ( verbose_ ) cout << endl;
 
   if ( econn ) {
     try {
-      cout << "Closing DB connection ..." << endl;
+      if ( verbose_ ) cout << "Closing DB connection ..." << endl;
       delete econn;
       econn = 0;
-      cout << "done." << endl;
+      if ( verbose_ ) cout << "done." << endl;
     } catch (runtime_error &e) {
       cerr << e.what() << endl;
     }
   }
 
-  cout << endl;
+  if ( verbose_ ) cout << endl;
 
 }
 
@@ -1108,16 +1161,16 @@ void EcalEndcapMonitorClient::writeDb(void) {
 
   if ( dbName_.size() != 0 ) {
     try {
-      cout << "Opening DB connection with TNS_ADMIN ..." << endl;
+      if ( verbose_ ) cout << "Opening DB connection with TNS_ADMIN ..." << endl;
       econn = new EcalCondDBInterface(dbName_, dbUserName_, dbPassword_);
-      cout << "done." << endl;
+      if ( verbose_ ) cout << "done." << endl;
     } catch (runtime_error &e) {
       cerr << e.what() << endl;
       if ( dbHostName_.size() != 0 ) {
         try {
-          cout << "Opening DB connection without TNS_ADMIN ..." << endl;
+          if ( verbose_ ) cout << "Opening DB connection without TNS_ADMIN ..." << endl;
           econn = new EcalCondDBInterface(dbHostName_, dbName_, dbUserName_, dbPassword_, dbHostPort_);
-          cout << "done." << endl;
+          if ( verbose_ ) cout << "done." << endl;
         } catch (runtime_error &e) {
           cerr << e.what() << endl;
         }
@@ -1151,18 +1204,20 @@ void EcalEndcapMonitorClient::writeDb(void) {
 
   moniov_.setMonRunTag(montag);
 
-  cout << endl;
-  cout << "==========MonRunIOV:" << endl;
-  cout << "SubRun Number:      " << moniov_.getSubRunNumber() << endl;
-  cout << "SubRun Start:       " << moniov_.getSubRunStart().str() << endl;
-  cout << "SubRun End:         " << moniov_.getSubRunEnd().str() << endl;
-  cout << "====================" << endl;
-  cout << endl;
-  cout << "==========MonRunTag:" << endl;
-  cout << "GeneralTag:         " << moniov_.getMonRunTag().getGeneralTag() << endl;
-  cout << "Monitoring Ver:     " << moniov_.getMonRunTag().getMonVersionDef().getMonitoringVersion() << endl;
-  cout << "====================" << endl;
-  cout << endl;
+  if ( verbose_ ) {
+    cout << endl;
+    cout << "==========MonRunIOV:" << endl;
+    cout << "SubRun Number:      " << moniov_.getSubRunNumber() << endl;
+    cout << "SubRun Start:       " << moniov_.getSubRunStart().str() << endl;
+    cout << "SubRun End:         " << moniov_.getSubRunEnd().str() << endl;
+    cout << "====================" << endl;
+    cout << endl;
+    cout << "==========MonRunTag:" << endl;
+    cout << "GeneralTag:         " << moniov_.getMonRunTag().getGeneralTag() << endl;
+    cout << "Monitoring Ver:     " << moniov_.getMonRunTag().getMonVersionDef().getMonitoringVersion() << endl;
+    cout << "====================" << endl;
+    cout << endl;
+  }
 
   int taskl = 0x0;
   int tasko = 0x0;
@@ -1178,8 +1233,10 @@ void EcalEndcapMonitorClient::writeDb(void) {
         if ( strcmp(clientsNames_[i].c_str(), "TestPulse") == 0 && runType_ != runTypes_[EcalDCCHeaderBlock::TESTPULSE_MGPA] && runType_ != runTypes_[EcalDCCHeaderBlock::TESTPULSE_GAP] && h_->GetBinContent(2+EcalDCCHeaderBlock::TESTPULSE_MGPA) == 0 && h_->GetBinContent(2+EcalDCCHeaderBlock::TESTPULSE_GAP) == 0 ) continue;
         done = true;
         taskl |= 0x1 << clientsStatus_[clientsNames_[i]];
-        cout << " Writing " << clientsNames_[i] << " results to DB " << endl;
-        cout << endl;
+        if ( verbose_ ) {
+          cout << " Writing " << clientsNames_[i] << " results to DB " << endl;
+          cout << endl;
+        }
         if ( clients_[i]->writeDb(econn, &runiov_, &moniov_) ) {
           tasko |= 0x1 << clientsStatus_[clientsNames_[i]];
         } else {
@@ -1188,11 +1245,13 @@ void EcalEndcapMonitorClient::writeDb(void) {
       }
     }
     if ( ((taskl >> clientsStatus_[clientsNames_[i]]) & 0x1) ) {
-      cout << " Task output for "
-           << clientsNames_[i]
-           << " = "
-           << ((tasko >> clientsStatus_[clientsNames_[i]]) & 0x1) << endl;
-      cout << endl;
+      if ( verbose_ ) {
+        cout << " Task output for "
+             << clientsNames_[i]
+             << " = "
+             << ((tasko >> clientsStatus_[clientsNames_[i]]) & 0x1) << endl;
+        cout << endl;
+      }
     }
   }
 
@@ -1230,9 +1289,9 @@ void EcalEndcapMonitorClient::writeDb(void) {
 
   if ( econn ) {
     try {
-      cout << "Inserting MonRunDat ..." << endl;
+      if ( verbose_ ) cout << "Inserting MonRunDat ..." << endl;
       econn->insertDataSet(&dataset, &moniov_);
-      cout << "done." << endl;
+      if ( verbose_ ) cout << "done." << endl;
     } catch (runtime_error &e) {
       cerr << e.what() << endl;
     }
@@ -1240,16 +1299,16 @@ void EcalEndcapMonitorClient::writeDb(void) {
 
   if ( econn ) {
     try {
-      cout << "Closing DB connection ..." << endl;
+      if ( verbose_ ) cout << "Closing DB connection ..." << endl;
       delete econn;
       econn = 0;
-      cout << "done." << endl;
+      if ( verbose_ ) cout << "done." << endl;
     } catch (runtime_error &e) {
       cerr << e.what() << endl;
     }
   }
 
-  cout << endl;
+  if ( verbose_ ) cout << endl;
 
 }
 
@@ -1261,16 +1320,16 @@ void EcalEndcapMonitorClient::endRunDb(void) {
 
   if ( dbName_.size() != 0 ) {
     try {
-      cout << "Opening DB connection with TNS_ADMIN ..." << endl;
+      if ( verbose_ ) cout << "Opening DB connection with TNS_ADMIN ..." << endl;
       econn = new EcalCondDBInterface(dbName_, dbUserName_, dbPassword_);
-      cout << "done." << endl;
+      if ( verbose_ ) cout << "done." << endl;
     } catch (runtime_error &e) {
       cerr << e.what() << endl;
       if ( dbHostName_.size() != 0 ) {
         try {
-          cout << "Opening DB connection without TNS_ADMIN ..." << endl;
+          if ( verbose_ ) cout << "Opening DB connection without TNS_ADMIN ..." << endl;
           econn = new EcalCondDBInterface(dbHostName_, dbName_, dbUserName_, dbPassword_, dbHostPort_);
-          cout << "done." << endl;
+          if ( verbose_ ) cout << "done." << endl;
         } catch (runtime_error &e) {
           cerr << e.what() << endl;
         }
@@ -1294,9 +1353,9 @@ void EcalEndcapMonitorClient::endRunDb(void) {
 
   if ( econn ) {
     try {
-      cout << "Fetching RunDat ..." << endl;
+      if ( verbose_ ) cout << "Fetching RunDat ..." << endl;
       econn->fetchDataSet(&dataset, &runiov_);
-      cout << "done." << endl;
+      if ( verbose_ ) cout << "done." << endl;
       foundRunDat = true;
     } catch (runtime_error &e) {
       cerr << e.what() << endl;
@@ -1319,9 +1378,9 @@ void EcalEndcapMonitorClient::endRunDb(void) {
 
     if ( econn ) {
       try {
-        cout << "Inserting RunDat ..." << endl;
+        if ( verbose_ ) cout << "Inserting RunDat ..." << endl;
         econn->insertDataSet(&dataset, &runiov_);
-        cout << "done." << endl;
+        if ( verbose_ ) cout << "done." << endl;
       } catch (runtime_error &e) {
         cerr << e.what() << endl;
       }
@@ -1333,10 +1392,10 @@ void EcalEndcapMonitorClient::endRunDb(void) {
 
   if ( econn ) {
     try {
-      cout << "Closing DB connection ..." << endl;
+      if ( verbose_ ) cout << "Closing DB connection ..." << endl;
       delete econn;
       econn = 0;
-      cout << "done." << endl;
+      if ( verbose_ ) cout << "done." << endl;
     } catch (runtime_error &e) {
       cerr << e.what() << endl;
     }
@@ -1373,9 +1432,11 @@ void EcalEndcapMonitorClient::analyze(void){
 
   if ( inputFile_.size() != 0 ) {
     if ( ievt_ == 1 ) {
-      cout << endl;
-      cout << " Reading DQM from file, forcing 'begin-of-run'" << endl;
-      cout << endl;
+      if ( verbose_ ) {
+        cout << endl;
+        cout << " Reading DQM from file, forcing 'begin-of-run'" << endl;
+        cout << endl;
+      }
       status_ = "begin-of-run";
     }
   }
@@ -1420,26 +1481,28 @@ void EcalEndcapMonitorClient::analyze(void){
  
   if ( update || strcmp(status_.c_str(), "begin-of-run") == 0 || strcmp(status_.c_str(), "end-of-run") == 0 || forced_update_ ) {
 
-    cout << " RUN status = \"" << status_ << "\"" << endl;
-    cout << "   CMS  run/event number = " << run_ << "/" << evt_ << endl;
-    cout << "   ECAL run/event number = " << ecal_run << "/" << ecal_evt << endl;
-    cout << "   ECAL location = " << location_ << endl;
-    cout << "   ECAL run/event type = " << this->getRunType() << "/" << ( evtType_ == -1 ? "UNKNOWN" : runTypes_[evtType_] ) << flush;
+    if ( verbose_ ) {
+      cout << " RUN status = \"" << status_ << "\"" << endl;
+      cout << "   CMS  run/event number = " << run_ << "/" << evt_ << endl;
+      cout << "   ECAL run/event number = " << ecal_run << "/" << ecal_evt << endl;
+      cout << "   ECAL location = " << location_ << endl;
+      cout << "   ECAL run/event type = " << this->getRunType() << "/" << ( evtType_ == -1 ? "UNKNOWN" : runTypes_[evtType_] ) << flush;
 
-    if ( h_ ) {
-      if ( h_->GetEntries() != 0 ) {
-        cout << " ( " << flush;
-        for ( unsigned int i = 0; i < runTypes_.size(); i++ ) {
-          if ( runTypes_[i] != "UNKNOWN" && h_->GetBinContent(2+i) != 0 ) {
-            string s = runTypes_[i];
-            transform( s.begin(), s.end(), s.begin(), (int(*)(int))tolower );
-            cout << s << " ";
+      if ( h_ ) {
+        if ( h_->GetEntries() != 0 ) {
+          cout << " ( " << flush;
+          for ( unsigned int i = 0; i < runTypes_.size(); i++ ) {
+            if ( runTypes_[i] != "UNKNOWN" && h_->GetBinContent(2+i) != 0 ) {
+              string s = runTypes_[i];
+              transform( s.begin(), s.end(), s.begin(), (int(*)(int))tolower );
+              cout << s << " ";
+            }
           }
+          cout << ")" << flush;
         }
-        cout << ")" << flush;
       }
+      cout << endl;
     }
-    cout << endl;
 
   }
 
@@ -1534,9 +1597,11 @@ void EcalEndcapMonitorClient::analyze(void){
 
           if ( begin_run_ && ! end_run_ ) {
 
-            cout << endl;
-            cout << " Old run has finished, issuing endRun() ... " << endl;
-            cout << endl;
+            if ( verbose_ ) {
+              cout << endl;
+              cout << " Old run has finished, issuing endRun() ... " << endl;
+              cout << endl;
+            }
 
             // end old_run_
             run_ = old_run_;
@@ -1548,9 +1613,11 @@ void EcalEndcapMonitorClient::analyze(void){
 
           if ( ! begin_run_ ) {
 
-            cout << endl;
-            cout << " New run has started, issuing beginRun() ... " << endl;
-            cout << endl;
+            if ( verbose_ ) {
+              cout << endl;
+              cout << " New run has started, issuing beginRun() ... " << endl;
+              cout << endl;
+            }
 
             // start new_run_
             run_ = new_run_;
@@ -1578,9 +1645,11 @@ void EcalEndcapMonitorClient::analyze(void){
 
         if ( ! begin_run_ ) {
 
-          cout << endl;
-          cout << "Forcing beginRun() ... NOW !" << endl;
-          cout << endl;
+          if ( verbose_ ) {
+            cout << endl;
+            cout << "Forcing beginRun() ... NOW !" << endl;
+            cout << endl;
+          }
 
           forced_status_ = true;
           this->beginRun();
@@ -1610,8 +1679,10 @@ void EcalEndcapMonitorClient::htmlOutput( bool current ){
 
   time_t start = time(NULL);
 
-  cout << endl;
-  cout << "Preparing EcalEndcapMonitorClient html output ..." << endl;
+  if ( verbose_ ) {
+    cout << endl;
+    cout << "Preparing EcalEndcapMonitorClient html output ..." << endl;
+  }
 
   char tmp[10];
 
@@ -1697,11 +1768,11 @@ void EcalEndcapMonitorClient::htmlOutput( bool current ){
 
   htmlFile.close();
 
-  cout << endl;
+  if ( verbose_ ) cout << endl;
 
   if( current ) {
     time_t elapsed = time(NULL) - start;
-    cout << "==========> htmlOutput Elapsed Time: " << elapsed << endl;
+    if ( verbose_ ) cout << "==========> htmlOutput Elapsed Time: " << elapsed << endl;
   }
 
 }

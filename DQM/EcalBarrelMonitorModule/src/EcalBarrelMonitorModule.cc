@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorModule.cc
  *
- * $Date: 2008/04/06 09:17:10 $
- * $Revision: 1.174 $
+ * $Date: 2008/04/07 07:24:33 $
+ * $Revision: 1.175 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -39,16 +39,22 @@ using namespace std;
 
 EcalBarrelMonitorModule::EcalBarrelMonitorModule(const ParameterSet& ps){
 
+  // verbose switch
+
+  verbose_ = ps.getUntrackedParameter<bool>("verbose", false);
+
+  if ( verbose_ ) {
+    cout << endl;
+    cout << " *** Ecal Barrel Generic Monitor ***" << endl;
+    cout << endl;
+  }
+
   init_ = false;
 
   EcalRawDataCollection_ = ps.getParameter<edm::InputTag>("EcalRawDataCollection");
   EBDigiCollection_ = ps.getParameter<edm::InputTag>("EBDigiCollection");
   EcalRecHitCollection_ = ps.getParameter<edm::InputTag>("EcalRecHitCollection");
   EcalTrigPrimDigiCollection_ = ps.getParameter<edm::InputTag>("EcalTrigPrimDigiCollection");
-
-  cout << endl;
-  cout << " *** Ecal Barrel Generic Monitor ***" << endl;
-  cout << endl;
 
   // this should come from the event header
   runNumber_ = ps.getUntrackedParameter<int>("runNumber", 0);
