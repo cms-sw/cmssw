@@ -1,8 +1,8 @@
 /*
  * \file EETestPulseClient.cc
  *
- * $Date: 2008/04/07 07:24:35 $
- * $Revision: 1.82 $
+ * $Date: 2008/04/07 08:44:21 $
+ * $Revision: 1.83 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -390,8 +390,10 @@ bool EETestPulseClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonR
 
     int ism = superModules_[i];
 
-    cout << " " << Numbers::sEE(ism) << " (ism=" << ism << ")" << endl;
-    cout << endl;
+    if ( verbose_ ) {
+      cout << " " << Numbers::sEE(ism) << " (ism=" << ism << ")" << endl;
+      cout << endl;
+    }
 
     UtilsClient::printBadChannels(meg01_[ism-1], ha01_[ism-1]);
     UtilsClient::printBadChannels(meg02_[ism-1], ha02_[ism-1]);
@@ -423,12 +425,13 @@ bool EETestPulseClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonR
 
           if ( Numbers::icEE(ism, jx, jy) == 1 ) {
 
-            cout << "Preparing dataset for " << Numbers::sEE(ism) << " (ism=" << ism << ")" << endl;
-            cout << "G01 (" << Numbers::ix0EE(i+1)+ix << "," << Numbers::iy0EE(i+1)+iy << ") " << num01 << " " << mean01 << " " << rms01 << endl;
-            cout << "G06 (" << Numbers::ix0EE(i+1)+ix << "," << Numbers::iy0EE(i+1)+iy << ") " << num02 << " " << mean02 << " " << rms02 << endl;
-            cout << "G12 (" << Numbers::ix0EE(i+1)+ix << "," << Numbers::iy0EE(i+1)+iy << ") " << num03 << " " << mean03 << " " << rms03 << endl;
-
-            cout << endl;
+            if ( verbose_ ) {
+              cout << "Preparing dataset for " << Numbers::sEE(ism) << " (ism=" << ism << ")" << endl;
+              cout << "G01 (" << Numbers::ix0EE(i+1)+ix << "," << Numbers::iy0EE(i+1)+iy << ") " << num01 << " " << mean01 << " " << rms01 << endl;
+              cout << "G06 (" << Numbers::ix0EE(i+1)+ix << "," << Numbers::iy0EE(i+1)+iy << ") " << num02 << " " << mean02 << " " << rms02 << endl;
+              cout << "G12 (" << Numbers::ix0EE(i+1)+ix << "," << Numbers::iy0EE(i+1)+iy << ") " << num03 << " " << mean03 << " " << rms03 << endl;
+              cout << endl;
+            }
 
           }
 
@@ -485,25 +488,27 @@ bool EETestPulseClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonR
               for ( int i = 1; i <= 10; i++ ) { sample03.push_back(-1.); }
             }
 
-            cout << "sample01 = " << flush;
-            for ( unsigned int i = 0; i < sample01.size(); i++ ) {
-              cout << sample01[i] << " " << flush;
-            }
-            cout << endl;
+            if ( verbose_ ) {
+              cout << "sample01 = " << flush;
+              for ( unsigned int i = 0; i < sample01.size(); i++ ) {
+                cout << sample01[i] << " " << flush;
+              }
+              cout << endl;
 
-            cout << "sample02 = " << flush;
-            for ( unsigned int i = 0; i < sample02.size(); i++ ) {
-              cout << sample02[i] << " " << flush;
-            }
-            cout << endl;
+              cout << "sample02 = " << flush;
+              for ( unsigned int i = 0; i < sample02.size(); i++ ) {
+                cout << sample02[i] << " " << flush;
+              }
+              cout << endl;
 
-            cout << "sample03 = " << flush;
-            for ( unsigned int i = 0; i < sample03.size(); i++ ) {
-              cout << sample03[i] << " " << flush;
+              cout << "sample03 = " << flush;
+              for ( unsigned int i = 0; i < sample03.size(); i++ ) {
+                cout << sample03[i] << " " << flush;
+              }
+              cout << endl;
             }
-            cout << endl;
 
-            cout << endl;
+            if ( verbose_ ) cout << endl;
 
             shape.setSamples(sample01,  1);
             shape.setSamples(sample02,  6);
@@ -530,16 +535,16 @@ bool EETestPulseClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonR
 
   if ( econn ) {
     try {
-      cout << "Inserting MonTestPulseDat ..." << endl;
+      if ( verbose_ ) cout << "Inserting MonTestPulseDat ..." << endl;
       if ( dataset1.size() != 0 ) econn->insertDataArraySet(&dataset1, moniov);
       if ( dataset2.size() != 0 ) econn->insertDataSet(&dataset2, moniov);
-      cout << "done." << endl;
+      if ( verbose_ ) cout << "done." << endl;
     } catch (runtime_error &e) {
       cerr << e.what() << endl;
     }
   }
 
-  cout << endl;
+  if ( verbose_ ) cout << endl;
 
   MonPNMGPADat pn;
   map<EcalLogicID, MonPNMGPADat> dataset3;
@@ -548,8 +553,10 @@ bool EETestPulseClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonR
 
     int ism = superModules_[i];
 
-    cout << " " << Numbers::sEE(ism) << " (ism=" << ism << ")" << endl;
-    cout << endl;
+    if ( verbose_ ) {
+      cout << " " << Numbers::sEE(ism) << " (ism=" << ism << ")" << endl;
+      cout << endl;
+    }
 
     UtilsClient::printBadChannels(meg04_[ism-1], i01_[ism-1]);
     UtilsClient::printBadChannels(meg04_[ism-1], i03_[ism-1]);
@@ -576,12 +583,12 @@ bool EETestPulseClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonR
 
         if ( i == 1 ) {
 
-          cout << "Preparing dataset for " << Numbers::sEE(ism) << " (ism=" << ism << ")" << endl;
-
-          cout << "PNs (" << i << ") G01 " << num01  << " " << mean01 << " " << rms01 << " " << num03 << " " << mean03 << " " << rms03 << endl;
-          cout << "PNs (" << i << ") G16 " << num02  << " " << mean02 << " " << rms02 << " " << num04 << " " << mean04 << " " << rms04 << endl;
-
-          cout << endl;
+          if ( verbose_ ) {
+            cout << "Preparing dataset for " << Numbers::sEE(ism) << " (ism=" << ism << ")" << endl;
+            cout << "PNs (" << i << ") G01 " << num01  << " " << mean01 << " " << rms01 << " " << num03 << " " << mean03 << " " << rms03 << endl;
+            cout << "PNs (" << i << ") G16 " << num02  << " " << mean02 << " " << rms02 << " " << num04 << " " << mean04 << " " << rms04 << endl;
+            cout << endl;
+          }
 
         }
 
@@ -620,9 +627,9 @@ bool EETestPulseClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonR
 
   if ( econn ) {
     try {
-      cout << "Inserting MonPNMGPADat ..." << endl;
+      if ( verbose_ ) cout << "Inserting MonPNMGPADat ..." << endl;
       if ( dataset3.size() != 0 ) econn->insertDataArraySet(&dataset3, moniov);
-      cout << "done." << endl;
+      if ( verbose_ ) cout << "done." << endl;
     } catch (runtime_error &e) {
       cerr << e.what() << endl;
     }
@@ -1063,7 +1070,7 @@ void EETestPulseClient::analyze(void){
 
 void EETestPulseClient::htmlOutput(int run, string& htmlDir, string& htmlName){
 
-  cout << "Preparing EETestPulseClient html output ..." << endl;
+  if ( verbose_ ) cout << "Preparing EETestPulseClient html output ..." << endl;
 
   ofstream htmlFile;
 

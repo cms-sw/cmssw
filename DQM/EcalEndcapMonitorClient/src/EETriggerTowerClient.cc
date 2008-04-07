@@ -1,8 +1,8 @@
 /*
  * \file EETriggerTowerClient.cc
  *
- * $Date: 2008/04/07 07:24:35 $
- * $Revision: 1.64 $
+ * $Date: 2008/04/07 08:44:21 $
+ * $Revision: 1.65 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -325,8 +325,10 @@ bool EETriggerTowerClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, M
 
     int ism = superModules_[i];
 
-    cout << " " << Numbers::sEE(ism) << " (ism=" << ism << ")" << endl;
-    cout << endl;
+    if ( verbose_ ) {
+      cout << " " << Numbers::sEE(ism) << " (ism=" << ism << ")" << endl;
+      cout << endl;
+    }
 
     UtilsClient::printBadChannels(mel01_[ism-1], UtilsClient::getHisto<TH2F*>(mel01_[ism-1]), true);
 
@@ -516,7 +518,7 @@ void EETriggerTowerClient::analyze(const char* nameext,
 
 void EETriggerTowerClient::htmlOutput(int run, string& htmlDir, string& htmlName){
 
-  cout << "Preparing EETriggerTowerClient html output ..." << std::endl;
+  if ( verbose_ ) cout << "Preparing EETriggerTowerClient html output ..." << std::endl;
 
   std::ofstream htmlFile[19];
 

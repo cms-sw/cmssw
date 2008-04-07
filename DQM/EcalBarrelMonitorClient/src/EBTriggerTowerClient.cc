@@ -1,8 +1,8 @@
 /*
  * \file EBTriggerTowerClient.cc
  *
- * $Date: 2008/04/07 07:24:32 $
- * $Revision: 1.97 $
+ * $Date: 2008/04/07 08:44:20 $
+ * $Revision: 1.98 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -323,8 +323,10 @@ bool EBTriggerTowerClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, M
 
     int ism = superModules_[i];
 
-    cout << " " << Numbers::sEB(ism) << " (ism=" << ism << ")" << endl;
-    cout << endl;
+    if ( verbose_ ) {
+      cout << " " << Numbers::sEB(ism) << " (ism=" << ism << ")" << endl;
+      cout << endl;
+    }
 
     UtilsClient::printBadChannels(mel01_[ism-1], UtilsClient::getHisto<TH2F*>(mel01_[ism-1]), true);
 
@@ -510,7 +512,7 @@ void EBTriggerTowerClient::analyze(const char* nameext,
 
 void EBTriggerTowerClient::htmlOutput(int run, string& htmlDir, string& htmlName){
 
-  cout << "Preparing EBTriggerTowerClient html output ..." << std::endl;
+  if ( verbose_ ) cout << "Preparing EBTriggerTowerClient html output ..." << std::endl;
 
   std::ofstream htmlFile[37];
 

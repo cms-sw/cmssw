@@ -1,8 +1,8 @@
 /*
  * \file EESummaryClient.cc
  *
- * $Date: 2008/04/07 07:24:35 $
- * $Revision: 1.103 $
+ * $Date: 2008/04/07 08:44:21 $
+ * $Revision: 1.104 $
  * \author G. Della Ricca
  *
 */
@@ -1343,7 +1343,7 @@ void EESummaryClient::analyze(void){
 
 void EESummaryClient::htmlOutput(int run, string& htmlDir, string& htmlName){
 
-  cout << "Preparing EESummaryClient html output ..." << endl;
+  if ( verbose_ ) cout << "Preparing EESummaryClient html output ..." << endl;
 
   ofstream htmlFile;
 

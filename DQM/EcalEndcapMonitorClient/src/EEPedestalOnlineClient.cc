@@ -1,8 +1,8 @@
 /*
  * \file EEPedestalOnlineClient.cc
  *
- * $Date: 2008/04/07 07:24:35 $
- * $Revision: 1.69 $
+ * $Date: 2008/04/07 08:44:21 $
+ * $Revision: 1.70 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -235,8 +235,10 @@ bool EEPedestalOnlineClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov,
 
     int ism = superModules_[i];
 
-    cout << " " << Numbers::sEE(ism) << " (ism=" << ism << ")" << endl;
-    cout << endl;
+    if ( verbose_ ) {
+      cout << " " << Numbers::sEE(ism) << " (ism=" << ism << ")" << endl;
+      cout << endl;
+    }
 
     UtilsClient::printBadChannels(meg03_[ism-1], h03_[ism-1]);
 
@@ -262,11 +264,11 @@ bool EEPedestalOnlineClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov,
 
           if ( Numbers::icEE(ism, jx, jy) == 1 ) {
 
-            cout << "Preparing dataset for " << Numbers::sEE(ism) << " (ism=" << ism << ")" << endl;
-
-            cout << "G12 (" << Numbers::ix0EE(i+1)+ix << "," << Numbers::iy0EE(i+1)+iy << ") " << num03  << " " << mean03 << " " << rms03  << endl;
-
-            cout << endl;
+            if ( verbose_ ) {
+              cout << "Preparing dataset for " << Numbers::sEE(ism) << " (ism=" << ism << ")" << endl;
+              cout << "G12 (" << Numbers::ix0EE(i+1)+ix << "," << Numbers::iy0EE(i+1)+iy << ") " << num03  << " " << mean03 << " " << rms03  << endl;
+              cout << endl;
+            }
 
           }
 
@@ -299,9 +301,9 @@ bool EEPedestalOnlineClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov,
 
   if ( econn ) {
     try {
-      cout << "Inserting MonPedestalsOnlineDat ..." << endl;
+      if ( verbose_ ) cout << "Inserting MonPedestalsOnlineDat ..." << endl;
       if ( dataset.size() != 0 ) econn->insertDataArraySet(&dataset, moniov);
-      cout << "done." << endl;
+      if ( verbose_ ) cout << "done." << endl;
     } catch (runtime_error &e) {
       cerr << e.what() << endl;
     }
@@ -424,7 +426,7 @@ void EEPedestalOnlineClient::analyze(void){
 
 void EEPedestalOnlineClient::htmlOutput(int run, string& htmlDir, string& htmlName){
 
-  cout << "Preparing EEPedestalOnlineClient html output ..." << endl;
+  if ( verbose_ ) cout << "Preparing EEPedestalOnlineClient html output ..." << endl;
 
   ofstream htmlFile;
 

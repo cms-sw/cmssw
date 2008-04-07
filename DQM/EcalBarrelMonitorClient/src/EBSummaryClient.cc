@@ -1,8 +1,8 @@
 /*
  * \file EBSummaryClient.cc
  *
- * $Date: 2008/04/07 07:24:32 $
- * $Revision: 1.128 $
+ * $Date: 2008/04/07 08:44:20 $
+ * $Revision: 1.129 $
  * \author G. Della Ricca
  *
 */
@@ -1133,7 +1133,7 @@ void EBSummaryClient::analyze(void){
 
 void EBSummaryClient::htmlOutput(int run, string& htmlDir, string& htmlName){
 
-  cout << "Preparing EBSummaryClient html output ..." << endl;
+  if ( verbose_ ) cout << "Preparing EBSummaryClient html output ..." << endl;
 
   ofstream htmlFile;
 

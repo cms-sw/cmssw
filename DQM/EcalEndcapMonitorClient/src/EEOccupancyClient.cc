@@ -1,8 +1,8 @@
 /*
  * \file EEOccupancyClient.cc
  *
- * $Date: 2008/04/07 07:24:35 $
- * $Revision: 1.19 $
+ * $Date: 2008/04/07 08:44:21 $
+ * $Revision: 1.20 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -309,7 +309,7 @@ void EEOccupancyClient::analyze(void){
 
 void EEOccupancyClient::htmlOutput(int run, string& htmlDir, string& htmlName){
 
-  cout << "Preparing EEOccupancyClient html output ..." << endl;
+  if ( verbose_ ) cout << "Preparing EEOccupancyClient html output ..." << endl;
 
   ofstream htmlFile;
 

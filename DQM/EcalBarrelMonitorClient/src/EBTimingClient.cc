@@ -1,8 +1,8 @@
 /*
  * \file EBTimingClient.cc
  *
- * $Date: 2008/04/07 07:24:32 $
- * $Revision: 1.79 $
+ * $Date: 2008/04/07 08:44:20 $
+ * $Revision: 1.80 $
  * \author G. Della Ricca
  *
 */
@@ -240,8 +240,10 @@ bool EBTimingClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunI
 
     int ism = superModules_[i];
 
-    cout << " " << Numbers::sEB(ism) << " (ism=" << ism << ")" << endl;
-    cout << endl;
+    if ( verbose_ ) {
+      cout << " " << Numbers::sEB(ism) << " (ism=" << ism << ")" << endl;
+      cout << endl;
+    }
 
     UtilsClient::printBadChannels(meg01_[ism-1], h01_[ism-1]);
 
@@ -260,11 +262,11 @@ bool EBTimingClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunI
 
           if ( Numbers::icEB(ism, ie, ip) == 1 ) {
 
-            cout << "Preparing dataset for " << Numbers::sEB(ism) << " (ism=" << ism << ")" << endl;
-
-            cout << "crystal (" << ie << "," << ip << ") " << num01  << " " << mean01 << " " << rms01  << endl;
-
-            cout << endl;
+            if ( verbose_ ) {
+              cout << "Preparing dataset for " << Numbers::sEB(ism) << " (ism=" << ism << ")" << endl;
+              cout << "crystal (" << ie << "," << ip << ") " << num01  << " " << mean01 << " " << rms01  << endl;
+              cout << endl;
+            }
 
           }
 
@@ -295,9 +297,9 @@ bool EBTimingClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunI
 
   if ( econn ) {
     try {
-      cout << "Inserting MonTimingCrystalDat ..." << endl;
+      if ( verbose_ ) cout << "Inserting MonTimingCrystalDat ..." << endl;
       if ( dataset.size() != 0 ) econn->insertDataArraySet(&dataset, moniov);
-      cout << "done." << endl;
+      if ( verbose_ ) cout << "done." << endl;
     } catch (runtime_error &e) {
       cerr << e.what() << endl;
     }
@@ -418,7 +420,7 @@ void EBTimingClient::analyze(void){
 
 void EBTimingClient::htmlOutput(int run, string& htmlDir, string& htmlName){
 
-  cout << "Preparing EBTimingClient html output ..." << endl;
+  if ( verbose_ ) cout << "Preparing EBTimingClient html output ..." << endl;
 
   ofstream htmlFile;
 

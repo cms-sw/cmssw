@@ -1,8 +1,8 @@
 /*
  * \file EBPedestalOnlineClient.cc
  *
- * $Date: 2008/04/07 07:24:32 $
- * $Revision: 1.131 $
+ * $Date: 2008/04/07 08:44:20 $
+ * $Revision: 1.132 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -224,8 +224,10 @@ bool EBPedestalOnlineClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov,
 
     int ism = superModules_[i];
 
-    cout << " " << Numbers::sEB(ism) << " (ism=" << ism << ")" << endl;
-    cout << endl;
+    if ( verbose_ ) {
+      cout << " " << Numbers::sEB(ism) << " (ism=" << ism << ")" << endl;
+      cout << endl;
+    }
 
     UtilsClient::printBadChannels(meg03_[ism-1], h03_[ism-1]);
 
@@ -244,11 +246,11 @@ bool EBPedestalOnlineClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov,
 
           if ( Numbers::icEB(ism, ie, ip) == 1 ) {
 
-            cout << "Preparing dataset for " << Numbers::sEB(ism) << " (ism=" << ism << ")" << endl;
-
-            cout << "G12 (" << ie << "," << ip << ") " << num03  << " " << mean03 << " " << rms03  << endl;
-
-            cout << endl;
+            if ( verbose_ ) {
+              cout << "Preparing dataset for " << Numbers::sEB(ism) << " (ism=" << ism << ")" << endl;
+              cout << "G12 (" << ie << "," << ip << ") " << num03  << " " << mean03 << " " << rms03  << endl;
+              cout << endl;
+            }
 
           }
 
@@ -279,9 +281,9 @@ bool EBPedestalOnlineClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov,
 
   if ( econn ) {
     try {
-      cout << "Inserting MonPedestalsOnlineDat ..." << endl;
+      if ( verbose_ ) cout << "Inserting MonPedestalsOnlineDat ..." << endl;
       if ( dataset.size() != 0 ) econn->insertDataArraySet(&dataset, moniov);
-      cout << "done." << endl;
+      if ( verbose_ ) cout << "done." << endl;
     } catch (runtime_error &e) {
       cerr << e.what() << endl;
     }
@@ -386,7 +388,7 @@ void EBPedestalOnlineClient::analyze(void){
 
 void EBPedestalOnlineClient::htmlOutput(int run, string& htmlDir, string& htmlName){
 
-  cout << "Preparing EBPedestalOnlineClient html output ..." << endl;
+  if ( verbose_ ) cout << "Preparing EBPedestalOnlineClient html output ..." << endl;
 
   ofstream htmlFile;
 

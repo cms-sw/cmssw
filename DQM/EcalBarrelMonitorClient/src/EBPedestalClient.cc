@@ -1,8 +1,8 @@
 /*
  * \file EBPedestalClient.cc
  *
- * $Date: 2008/04/07 07:24:32 $
- * $Revision: 1.191 $
+ * $Date: 2008/04/07 08:44:19 $
+ * $Revision: 1.192 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -456,8 +456,10 @@ bool EBPedestalClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRu
 
     int ism = superModules_[i];
 
-    cout << " " << Numbers::sEB(ism) << " (ism=" << ism << ")" << endl;
-    cout << endl;
+    if ( verbose_ ) {
+      cout << " " << Numbers::sEB(ism) << " (ism=" << ism << ")" << endl;
+      cout << endl;
+    }
 
     UtilsClient::printBadChannels(meg01_[ism-1], h01_[ism-1]);
     UtilsClient::printBadChannels(meg02_[ism-1], h02_[ism-1]);
@@ -482,13 +484,13 @@ bool EBPedestalClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRu
 
           if ( Numbers::icEB(ism, ie, ip) == 1 ) {
 
-            cout << "Preparing dataset for " << Numbers::sEB(ism) << " (ism=" << ism << ")" << endl;
-
-            cout << "G01 (" << ie << "," << ip << ") " << num01  << " " << mean01 << " " << rms01  << endl;
-            cout << "G06 (" << ie << "," << ip << ") " << num02  << " " << mean02 << " " << rms02  << endl;
-            cout << "G12 (" << ie << "," << ip << ") " << num03  << " " << mean03 << " " << rms03  << endl;
-
-            cout << endl;
+            if ( verbose_ ) {
+              cout << "Preparing dataset for " << Numbers::sEB(ism) << " (ism=" << ism << ")" << endl;
+              cout << "G01 (" << ie << "," << ip << ") " << num01  << " " << mean01 << " " << rms01  << endl;
+              cout << "G06 (" << ie << "," << ip << ") " << num02  << " " << mean02 << " " << rms02  << endl;
+              cout << "G12 (" << ie << "," << ip << ") " << num03  << " " << mean03 << " " << rms03  << endl;
+              cout << endl;
+            }
 
           }
 
@@ -529,15 +531,15 @@ bool EBPedestalClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRu
 
   if ( econn ) {
     try {
-      cout << "Inserting MonPedestalsDat ..." << endl;
+      if ( verbose_ ) cout << "Inserting MonPedestalsDat ..." << endl;
       if ( dataset1.size() != 0 ) econn->insertDataArraySet(&dataset1, moniov);
-      cout << "done." << endl;
+      if ( verbose_ ) cout << "done." << endl;
     } catch (runtime_error &e) {
       cerr << e.what() << endl;
     }
   }
 
-  cout << endl;
+  if ( verbose_ ) cout << endl;
 
   MonPNPedDat pn;
   map<EcalLogicID, MonPNPedDat> dataset2;
@@ -546,8 +548,10 @@ bool EBPedestalClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRu
 
     int ism = superModules_[i];
 
-    cout << " " << Numbers::sEB(ism) << " (ism=" << ism << ")" << endl;
-    cout << endl;
+    if ( verbose_ ) {
+      cout << " " << Numbers::sEB(ism) << " (ism=" << ism << ")" << endl;
+      cout << endl;
+    }
 
     UtilsClient::printBadChannels(meg04_[ism-1], i01_[ism-1]);
     UtilsClient::printBadChannels(meg05_[ism-1], i02_[ism-1]);
@@ -568,12 +572,12 @@ bool EBPedestalClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRu
 
         if ( i == 1 ) {
 
-          cout << "Preparing dataset for " << Numbers::sEB(ism) << " (ism=" << ism << ")" << endl;
-
-          cout << "PNs (" << i << ") G01 " << num01  << " " << mean01 << " " << rms01  << endl;
-          cout << "PNs (" << i << ") G16 " << num01  << " " << mean01 << " " << rms01  << endl;
-
-          cout << endl;
+          if ( verbose_ ) {
+            cout << "Preparing dataset for " << Numbers::sEB(ism) << " (ism=" << ism << ")" << endl;
+            cout << "PNs (" << i << ") G01 " << num01  << " " << mean01 << " " << rms01  << endl;
+            cout << "PNs (" << i << ") G16 " << num01  << " " << mean01 << " " << rms01  << endl;
+            cout << endl;
+          }
 
         }
 
@@ -606,9 +610,9 @@ bool EBPedestalClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRu
 
   if ( econn ) {
     try {
-      cout << "Inserting MonPNPedDat ..." << endl;
+      if ( verbose_ ) cout << "Inserting MonPNPedDat ..." << endl;
       if ( dataset2.size() != 0 ) econn->insertDataArraySet(&dataset2, moniov);
-      cout << "done." << endl;
+      if ( verbose_ ) cout << "done." << endl;
     } catch (runtime_error &e) {
       cerr << e.what() << endl;
     }
@@ -1065,7 +1069,7 @@ void EBPedestalClient::analyze(void){
 
 void EBPedestalClient::htmlOutput(int run, string& htmlDir, string& htmlName){
 
-  cout << "Preparing EBPedestalClient html output ..." << endl;
+  if ( verbose_ ) cout << "Preparing EBPedestalClient html output ..." << endl;
 
   ofstream htmlFile;
 

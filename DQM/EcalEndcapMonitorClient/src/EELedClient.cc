@@ -681,8 +681,10 @@ bool EELedClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIOV*
 
     int ism = superModules_[i];
 
-    cout << " " << Numbers::sEE(ism) << " (ism=" << ism << ")" << endl;
-    cout << endl;
+    if ( verbose_ ) {
+      cout << " " << Numbers::sEE(ism) << " (ism=" << ism << ")" << endl;
+      cout << endl;
+    }
 
     UtilsClient::printBadChannels(meg01_[ism-1], h01_[ism-1]);
     UtilsClient::printBadChannels(meg01_[ism-1], h13_[ism-1]);
@@ -731,11 +733,11 @@ bool EELedClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIOV*
 
           if ( Numbers::icEE(ism, jx, jy) == 1 ) {
 
-            cout << "Preparing dataset for " << Numbers::sEE(ism) << " (ism=" << ism << ")" << endl;
-
-            cout << "L1A (" << Numbers::ix0EE(i+1)+ix << "," << Numbers::iy0EE(i+1)+iy << ") " << num01 << " " << mean01 << " " << rms01 << endl;
-
-            cout << endl;
+            if ( verbose_ ) {
+              cout << "Preparing dataset for " << Numbers::sEE(ism) << " (ism=" << ism << ")" << endl;
+              cout << "L1A (" << Numbers::ix0EE(i+1)+ix << "," << Numbers::iy0EE(i+1)+iy << ") " << num01 << " " << mean01 << " " << rms01 << endl;
+              cout << endl;
+            }
 
           }
 
@@ -768,11 +770,11 @@ bool EELedClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIOV*
 
           if ( Numbers::icEE(ism, jx, jy) == 1 ) {
 
-            cout << "Preparing dataset for " << Numbers::sEE(ism) << " (ism=" << ism << ")" << endl;
-
-            cout << "L1B (" << Numbers::ix0EE(i+1)+ix << "," << Numbers::iy0EE(i+1)+iy << ") " << num09 << " " << mean09 << " " << rms09 << endl;
-
-            cout << endl;
+            if ( verbose_ ) {
+              cout << "Preparing dataset for " << Numbers::sEE(ism) << " (ism=" << ism << ")" << endl;
+              cout << "L1B (" << Numbers::ix0EE(i+1)+ix << "," << Numbers::iy0EE(i+1)+iy << ") " << num09 << " " << mean09 << " " << rms09 << endl;
+              cout << endl;
+            }
 
           }
 
@@ -805,11 +807,11 @@ bool EELedClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIOV*
 
           if ( Numbers::icEE(ism, jx, jy) == 1 ) {
 
-            cout << "Preparing dataset for " << Numbers::sEE(ism) << " (ism=" << ism << ")" << endl;
-
-            cout << "L2A (" << Numbers::ix0EE(i+1)+ix << "," << Numbers::iy0EE(i+1)+iy << ") " << num03 << " " << mean03 << " " << rms03 << endl;
-
-            cout << endl;
+            if ( verbose_ ) {
+              cout << "Preparing dataset for " << Numbers::sEE(ism) << " (ism=" << ism << ")" << endl;
+              cout << "L2A (" << Numbers::ix0EE(i+1)+ix << "," << Numbers::iy0EE(i+1)+iy << ") " << num03 << " " << mean03 << " " << rms03 << endl;
+              cout << endl;
+            }
 
           }
 
@@ -842,11 +844,11 @@ bool EELedClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIOV*
 
           if ( Numbers::icEE(ism, jx, jy) == 1 ) {
 
-            cout << "Preparing dataset for " << Numbers::sEE(ism) << " (ism=" << ism << ")" << endl;
-
-            cout << "L2B (" << Numbers::ix0EE(i+1)+ix << "," << Numbers::iy0EE(i+1)+iy << ") " << num11 << " " << mean11 << " " << rms11 << endl;
-
-            cout << endl;
+            if ( verbose_ ) {
+              cout << "Preparing dataset for " << Numbers::sEE(ism) << " (ism=" << ism << ")" << endl;
+              cout << "L2B (" << Numbers::ix0EE(i+1)+ix << "," << Numbers::iy0EE(i+1)+iy << ") " << num11 << " " << mean11 << " " << rms11 << endl;
+              cout << endl;
+            }
 
           }
 
@@ -882,16 +884,16 @@ bool EELedClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIOV*
 
   if ( econn ) {
     try {
-      cout << "Inserting MonLedDat ..." << endl;
+      if ( verbose_ ) cout << "Inserting MonLedDat ..." << endl;
       if ( dataset1_l1.size() != 0 ) econn->insertDataArraySet(&dataset1_l1, moniov);
       if ( dataset1_l2.size() != 0 ) econn->insertDataArraySet(&dataset1_l2, moniov);
-      cout << "done." << endl;
+      if ( verbose_ ) cout << "done." << endl;
     } catch (runtime_error &e) {
       cerr << e.what() << endl;
     }
   }
 
-  cout << endl;
+  if ( verbose_ ) cout << endl;
 
   MonPNLed1Dat pn_l1;
   map<EcalLogicID, MonPNLed1Dat> dataset2_l1;
@@ -902,8 +904,10 @@ bool EELedClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIOV*
 
     int ism = superModules_[i];
 
-    cout << " " << Numbers::sEE(ism) << " (ism=" << ism << ")" << endl;
-    cout << endl;
+    if ( verbose_ ) {
+      cout << " " << Numbers::sEE(ism) << " (ism=" << ism << ")" << endl;
+      cout << endl;
+    }
 
     UtilsClient::printBadChannels(meg05_[ism-1], i01_[ism-1]);
     UtilsClient::printBadChannels(meg05_[ism-1], i05_[ism-1]);
@@ -952,12 +956,12 @@ bool EELedClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIOV*
 
         if ( i == 1 ) {
 
-          cout << "Preparing dataset for " << Numbers::sEE(ism) << " (ism=" << ism << ")" << endl;
-
-          cout << "PNs (" << i << ") L1 G01 " << num01  << " " << mean01 << " " << rms01  << endl;
-          cout << "PNs (" << i << ") L1 G16 " << num09  << " " << mean09 << " " << rms09  << endl;
-
-          cout << endl;
+          if ( verbose_ ) {
+            cout << "Preparing dataset for " << Numbers::sEE(ism) << " (ism=" << ism << ")" << endl;
+            cout << "PNs (" << i << ") L1 G01 " << num01  << " " << mean01 << " " << rms01  << endl;
+            cout << "PNs (" << i << ") L1 G16 " << num09  << " " << mean09 << " " << rms09  << endl;
+            cout << endl;
+          }
 
         }
 
@@ -994,12 +998,12 @@ bool EELedClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIOV*
 
         if ( i == 1 ) {
 
-          cout << "Preparing dataset for " << Numbers::sEE(ism) << " (ism=" << ism << ")" << endl;
-
-          cout << "PNs (" << i << ") L2 G01 " << num02  << " " << mean02 << " " << rms02  << endl;
-          cout << "PNs (" << i << ") L2 G16 " << num10  << " " << mean10 << " " << rms10  << endl;
-
-          cout << endl;
+          if ( verbose_ ) {
+            cout << "Preparing dataset for " << Numbers::sEE(ism) << " (ism=" << ism << ")" << endl;
+            cout << "PNs (" << i << ") L2 G01 " << num02  << " " << mean02 << " " << rms02  << endl;
+            cout << "PNs (" << i << ") L2 G16 " << num10  << " " << mean10 << " " << rms10  << endl;
+            cout << endl;
+          }
 
         }
 
@@ -1038,10 +1042,10 @@ bool EELedClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIOV*
 
   if ( econn ) {
     try {
-      cout << "Inserting MonPnDat ..." << endl;
+      if ( verbose_ ) cout << "Inserting MonPnDat ..." << endl;
       if ( dataset2_l1.size() != 0 ) econn->insertDataArraySet(&dataset2_l1, moniov);
       if ( dataset2_l2.size() != 0 ) econn->insertDataArraySet(&dataset2_l2, moniov);
-      cout << "done." << endl;
+      if ( verbose_ ) cout << "done." << endl;
     } catch (runtime_error &e) {
       cerr << e.what() << endl;
     }
@@ -1844,7 +1848,7 @@ void EELedClient::analyze(void){
 
 void EELedClient::htmlOutput(int run, string& htmlDir, string& htmlName){
 
-  cout << "Preparing EELedClient html output ..." << endl;
+  if ( verbose_ ) cout << "Preparing EELedClient html output ..." << endl;
 
   ofstream htmlFile;
 

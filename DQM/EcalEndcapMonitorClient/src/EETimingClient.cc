@@ -1,8 +1,8 @@
 /*
  * \file EETimingClient.cc
  *
- * $Date: 2008/04/07 07:24:35 $
- * $Revision: 1.73 $
+ * $Date: 2008/04/07 08:44:21 $
+ * $Revision: 1.74 $
  * \author G. Della Ricca
  *
 */
@@ -251,8 +251,10 @@ bool EETimingClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunI
 
     int ism = superModules_[i];
 
-    cout << " " << Numbers::sEE(ism) << " (ism=" << ism << ")" << endl;
-    cout << endl;
+    if ( verbose_ ) {
+      cout << " " << Numbers::sEE(ism) << " (ism=" << ism << ")" << endl;
+      cout << endl;
+    }
 
     UtilsClient::printBadChannels(meg01_[ism-1], h01_[ism-1]);
 
@@ -278,11 +280,11 @@ bool EETimingClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunI
 
           if ( Numbers::icEE(ism, jx, jy) == 1 ) {
 
-            cout << "Preparing dataset for " << Numbers::sEE(ism) << " (ism=" << ism << ")" << endl;
-
-            cout << "crystal (" << Numbers::ix0EE(i+1)+ix << "," << Numbers::iy0EE(i+1)+iy << ") " << num01  << " " << mean01 << " " << rms01  << endl;
-
-            cout << endl;
+            if ( verbose_ ) {
+              cout << "Preparing dataset for " << Numbers::sEE(ism) << " (ism=" << ism << ")" << endl;
+              cout << "crystal (" << Numbers::ix0EE(i+1)+ix << "," << Numbers::iy0EE(i+1)+iy << ") " << num01  << " " << mean01 << " " << rms01  << endl;
+              cout << endl;
+            }
 
           }
 
@@ -315,9 +317,9 @@ bool EETimingClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunI
 
   if ( econn ) {
     try {
-      cout << "Inserting MonTimingCrystalDat ..." << endl;
+      if ( verbose_ ) cout << "Inserting MonTimingCrystalDat ..." << endl;
       if ( dataset.size() != 0 ) econn->insertDataArraySet(&dataset, moniov);
-      cout << "done." << endl;
+      if ( verbose_ ) cout << "done." << endl;
     } catch (runtime_error &e) {
       cerr << e.what() << endl;
     }
@@ -459,7 +461,7 @@ void EETimingClient::analyze(void){
 
 void EETimingClient::htmlOutput(int run, string& htmlDir, string& htmlName){
 
-  cout << "Preparing EETimingClient html output ..." << endl;
+  if ( verbose_ ) cout << "Preparing EETimingClient html output ..." << endl;
 
   ofstream htmlFile;
 
