@@ -67,8 +67,10 @@ public:
   //  const SiTrackerGSRecHit2D* hit() const { return theHit; }
   inline const SiTrackerGSMatchedRecHit2D* matchedHit() const { return theMatchedHit; }
   inline const SiTrackerGSRecHit2D* splitHit() const { return theSplitHit; }
-  inline const BaseSiTrackerRecHit2DLocalPos* hit() const { 
-    return theSplitHit ? (BaseSiTrackerRecHit2DLocalPos*)theSplitHit : (BaseSiTrackerRecHit2DLocalPos*)theMatchedHit; } 
+
+  inline const GSSiTrackerRecHit2DLocalPos* hit() const {
+     return theSplitHit ? (GSSiTrackerRecHit2DLocalPos*)theSplitHit : (GSSiTrackerRecHit2DLocalPos*)theMatchedHit; }
+
 
   /// The subdet Id
   inline unsigned int subDetId() const { return theSubDetId; }
