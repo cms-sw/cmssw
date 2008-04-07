@@ -48,6 +48,8 @@ public:
 
 private:
 
+  typedef PerigeeLinearizedTrackState::RefCountedLinearizedTrackState RefCountedLinearizedTrackState;
+
   DeepCopyPointerByClone< const LinearizationPointFinder > theVertexFinder;
   DeepCopyPointerByClone< const TwoBodyDecayLinearizationPointFinder > theLinPointFinder;
   DeepCopyPointerByClone< const TwoBodyDecayEstimator > theEstimator;
