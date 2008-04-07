@@ -8,7 +8,7 @@ SiTrackerGSRecHit2D::SiTrackerGSRecHit2D( const LocalPoint& pos, const LocalErro
 					  const uint32_t eeId,
 					  const int pixelMultiplicityX = -1,
 					  const int pixelMultiplicityY = -1 ):
-  BaseSiTrackerRecHit2DLocalPos(pos,err,id) ,
+  GSSiTrackerRecHit2DLocalPos(pos,err,id) ,
   simhitId_(simhitId) ,
   simtrackId_(simtrackId) ,
   eeId_(eeId) ,

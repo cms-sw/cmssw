@@ -1,15 +1,15 @@
 #ifndef SiTrackerGSMatchedRecHit2D_H
 #define SiTrackerGSMatchedRecHit2D_H
 
-#include "DataFormats/TrackerRecHit2D/interface/BaseSiTrackerRecHit2DLocalPos.h"
+#include "DataFormats/TrackerRecHit2D/interface/GSSiTrackerRecHit2DLocalPos.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiTrackerGSRecHit2D.h"
 class SiTrackerGSRecHit2D;
 
-class SiTrackerGSMatchedRecHit2D : public BaseSiTrackerRecHit2DLocalPos{
+class SiTrackerGSMatchedRecHit2D : public GSSiTrackerRecHit2DLocalPos{
   
 public:
   
-  SiTrackerGSMatchedRecHit2D(): BaseSiTrackerRecHit2DLocalPos(),
+  SiTrackerGSMatchedRecHit2D(): GSSiTrackerRecHit2DLocalPos(),
 			 simhitId_(),
 			 simtrackId_(),
 			 eeId_(),
