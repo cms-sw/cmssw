@@ -13,7 +13,7 @@
 //
 // Original Author:  Rizzi Andrea
 //         Created:  Mon Sep 24 09:30:06 CEST 2007
-// $Id: HSCPAnalyzer.cc,v 1.23 2008/01/31 16:03:13 arizzi Exp $
+// $Id: HSCPAnalyzer.cc,v 1.24 2008/03/17 17:44:56 ptraczyk Exp $
 //
 //
 
@@ -833,12 +833,12 @@ if(m_haveSimTracks)
   for (simTrack = simTracks.begin(); simTrack != simTracks.end(); ++simTrack){
 
       if (abs((*simTrack).type()) > 1000000) {
-        h_simhscp_pt->Fill((*simTrack).momentum().perp(),w);
+        h_simhscp_pt->Fill((*simTrack).momentum().pt(),w);
         h_simhscp_eta->Fill(((*simTrack).momentum().eta()),w);
       }
 
       if (abs((*simTrack).type()) == 13) {
-        h_simmu_pt->Fill((*simTrack).momentum().perp(),w);
+        h_simmu_pt->Fill((*simTrack).momentum().pt(),w);
         h_simmu_eta->Fill(((*simTrack).momentum().eta()),w);
     }
   }
