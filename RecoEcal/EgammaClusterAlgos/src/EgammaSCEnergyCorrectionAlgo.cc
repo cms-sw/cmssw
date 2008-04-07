@@ -1,5 +1,5 @@
 //
-// $Id: EgammaSCEnergyCorrectionAlgo.cc,v 1.23 2008/04/07 10:43:30 kkaadze Exp $
+// $Id: EgammaSCEnergyCorrectionAlgo.cc,v 1.24 2008/04/07 11:14:16 kkaadze Exp $
 // Author: David Evans, Bristol
 //
 #include "RecoEcal/EgammaClusterAlgos/interface/EgammaSCEnergyCorrectionAlgo.h"
@@ -224,6 +224,8 @@ double EgammaSCEnergyCorrectionAlgo::fEtEta(double et, double eta)
     + corrF_[1] * fEtEta_[9]*fabs(eta) 
     + corrF_[2] * p1*(fabs(eta) - fEtEta_[10])*(fabs(eta) - fEtEta_[10]);
  
+  if ( fCorr < 0.5 ) fCorr = 0.5;
+
   return et/fCorr;
 }
 
