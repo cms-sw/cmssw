@@ -28,6 +28,9 @@
 
 class CaloSubdetectorTopology;
 class CaloSubdetectorGeometry;
+class EcalBarrelGeometry;
+class EcalEndcapGeometry;
+class CaloSubdetectorGeometry;
 class DetId;
 
 
@@ -73,9 +76,9 @@ class PFRecHitProducerECAL : public PFRecHitProducer {
   /// fill the vectors neighboursEB_ and neighboursEE_ 
   /// which keep track of the neighbours of each rechit. 
   /// to be called at the beginning of the run
-  void ecalNeighbArray( const CaloSubdetectorGeometry& barrelGeom,
+  void ecalNeighbArray( const EcalBarrelGeometry& barrelGeom,
 			const CaloSubdetectorTopology& barrelTopo,
-			const CaloSubdetectorGeometry& endcapGeom,
+			const EcalEndcapGeometry& endcapGeom,
 			const CaloSubdetectorTopology& endcapTopo );
 
   DetId move(DetId cell, const CaloDirection& dir ) const;
@@ -83,13 +86,17 @@ class PFRecHitProducerECAL : public PFRecHitProducer {
   bool stdsimplemove(DetId& cell, 
 		     const CaloDirection& dir,
 		     const CaloSubdetectorTopology& barrelTopo,
-		     const CaloSubdetectorTopology& endcapTopo ) const;
+		     const CaloSubdetectorTopology& endcapTopo,
+		     const EcalBarrelGeometry& barrelGeom,
+		     const EcalEndcapGeometry& endcapGeom ) const;
 
 
   bool stdmove(DetId& cell, 
 	       const CaloDirection& dir,
 	       const CaloSubdetectorTopology& barrelTopo,
-	       const CaloSubdetectorTopology& endcapTopo ) const;
+	       const CaloSubdetectorTopology& endcapTopo,
+	       const EcalBarrelGeometry& barrelGeom,
+	       const EcalEndcapGeometry& endcapGeom ) const;
 
   // ----------member data ---------------------------
   
