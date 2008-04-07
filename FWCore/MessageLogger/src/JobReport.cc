@@ -10,7 +10,7 @@
 //		to direct use of LogInfo.
 //
 // Original Author:  Marc Paterno
-// $Id: JobReport.cc,v 1.30 2008/02/05 14:17:22 evansde Exp $
+// $Id: JobReport.cc,v 1.31 2008/02/19 14:58:52 evansde Exp $
 //
 
 
@@ -595,7 +595,7 @@ namespace edm
     if(impl_->ost_) {
       std::ostream& msg =*(impl_->ost_);
       msg << "<FrameworkError ExitStatus=\"1\" Type=\"" << shortDesc <<"\" >\n";
-      msg << "  " << longDesc << "\n";
+      msg << "<CDATA>\n" << longDesc << "\n</CDATA>\n";
       msg << "</FrameworkError>\n";
    //LogError("FwkJob") << msg.str();
       msg << std::flush;
