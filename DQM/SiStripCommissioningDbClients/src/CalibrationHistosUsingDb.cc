@@ -1,4 +1,4 @@
-// Last commit: $Id: CalibrationHistosUsingDb.cc,v 1.4 2008/03/06 18:16:07 delaer Exp $
+// Last commit: $Id: CalibrationHistosUsingDb.cc,v 1.5 2008/04/03 14:47:39 delaer Exp $
 
 #include "DQM/SiStripCommissioningDbClients/interface/CalibrationHistosUsingDb.h"
 #include "CondFormats/SiStripObjects/interface/CalibrationAnalysis.h"
@@ -220,11 +220,6 @@ void CalibrationHistosUsingDb::create( SiStripConfigDb::AnalysisDescriptions& de
   for ( uint16_t iapv = 0; iapv < 2; ++iapv ) {
 
     // Create description
-    //TODO: should also store calchan, isha and vfs.
-    // the values can be accessed from the CalibrationHistogram members.
-    int calchan = calchan_;
-    int isha = isha_;
-    int vfs = vfs_;
     CalibrationAnalysisDescription *tmp;
     tmp = new CalibrationAnalysisDescription(anal->amplitudeMean()[iapv],
                                              anal->tailMean()[iapv],
@@ -246,7 +241,10 @@ void CalibrationHistosUsingDb::create( SiStripConfigDb::AnalysisDescriptions& de
   					     fed_key.fedId(),
   					     fed_key.feUnit(),
   					     fed_key.feChan(),
-  					     fed_key.fedApv() );
+  					     fed_key.fedApv(),
+					     calchan_,
+					     isha_,
+					     vfs_ );
   
     // Add comments
     typedef std::vector<std::string> Strings;
