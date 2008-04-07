@@ -72,7 +72,9 @@ TrackAssociatorByHits::associateRecoToSim(edm::RefToBaseVector<reco::Track>& tC,
   
   TrackerHitAssociator * associate = new TrackerHitAssociator::TrackerHitAssociator(*e, conf_);
   
-  const TrackingParticleCollection tPC   = *(TPCollectionH.product());
+  TrackingParticleCollection tPC;
+  if (TPCollectionH.size()!=0)  tPC = *(TPCollectionH.product());
+
   //get the ID of the recotrack  by hits 
   int tindex=0;
   for (edm::RefToBaseVector<reco::Track>::const_iterator track=tC.begin(); track!=tC.end(); track++, tindex++){
@@ -142,7 +144,8 @@ TrackAssociatorByHits::associateSimToReco(edm::RefToBaseVector<reco::Track>& tC,
 
   TrackerHitAssociator * associate = new TrackerHitAssociator::TrackerHitAssociator(*e, conf_);
   
-  const TrackingParticleCollection tPC   = *(TPCollectionH.product());
+  TrackingParticleCollection tPC;
+  if (TPCollectionH.size()!=0)  tPC = *(TPCollectionH.product());
 
   //for (TrackingParticleCollection::const_iterator t = tPC.begin(); t != tPC.end(); ++t) {
   //  LogTrace("TrackAssociator") << "NEW TP DUMP";
