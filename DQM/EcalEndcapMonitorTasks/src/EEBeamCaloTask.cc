@@ -1,8 +1,8 @@
 /*
  * \file EEBeamCaloTask.cc
  *
- * $Date: 2008/02/23 09:56:55 $
- * $Revision: 1.24 $
+ * $Date: 2008/02/29 15:08:06 $
+ * $Revision: 1.25 $
  * \author A. Ghezzi
  *
  */
@@ -358,7 +358,6 @@ void EEBeamCaloTask::cleanup(void){
 void EEBeamCaloTask::endJob(void){
 
   LogInfo("EEBeamCaloTask") << "analyzed " << ievt_ << " events";
-  //cout<<"EEBeamCaloTask : analyzed " << ievt_ << " events"<<endl;
 
   if ( init_ ) this->cleanup();
 
@@ -396,7 +395,6 @@ void EEBeamCaloTask::analyze(const Event& e, const EventSetup& c){
 
   if ( e.getByLabel(EcalTBEventHeader_, pEventHeader) ) {
     evtHeader = pEventHeader.product(); // get a ptr to the product
-    //std::cout << "Taken EventHeader " << std::endl;
   } else {
     std::cerr << "Error! can't get the product for the event header" << std::endl;
   }
@@ -418,9 +416,6 @@ void EEBeamCaloTask::analyze(const Event& e, const EventSetup& c){
     tb_moving = lastStableStatus_;
     event = previous_ev_num_ +10;
   }
-
-  //if(tb_moving){cout<<"evt: "<< event<<" anEvt: "<<ievt_<<" cry_in_beam: "<< cry_in_beam<<" step: "<< crystal_step_<<" Moving"<<endl;}
-  //else {cout<<"evt: "<< event<<" anEvt: "<<ievt_<<" cry_in_beam: "<< cry_in_beam<<" step: "<< crystal_step_<<" Still"<<endl;}
 
   previous_cry_in_beam_ = cry_in_beam;
   previous_ev_num_ = event;
@@ -557,7 +552,6 @@ void EEBeamCaloTask::analyze(const Event& e, const EventSetup& c){
   if(reset_histos_moving){
     LogInfo("EEBeamCaloTask") << "event " << ievt_ << " resetting histos for moving table!! ";
 
-    //cout <<" EEBeamCaloTask: event " << ievt_ << " resetting histos for moving table!! "<<endl;
     //     meEEBCaloE1vsCry_->setBinContent(crystal_step_ , meBBCaloEne_[4]->getMean() );
     //     meEEBCaloE1vsCry_->setBinError(crystal_step_ , meBBCaloEne_[4]->getRMS() );
     //     meEEBCaloE3x3vsCry_->setBinContent(crystal_step_ , meBBCaloE3x3_->getMean() );
@@ -590,7 +584,6 @@ void EEBeamCaloTask::analyze(const Event& e, const EventSetup& c){
 
       LogInfo("EEBeamCaloTask") << "event " << ievt_ << " resetting histos for stable table!! ";
 
-      // cout<<" EEBeamCaloTask: event " << ievt_ << " resetting histos for stable table!! "<<endl;
       //       meEEBCaloE1vsCry_->setBinContent(crystal_step_ , meBBCaloEne_[4]->getMean() );
       //       meEEBCaloE1vsCry_->setBinError(crystal_step_ , meBBCaloEne_[4]->getRMS() );
       //       meEEBCaloE3x3vsCry_->setBinContent(crystal_step_ , meBBCaloE3x3_->getMean() );
@@ -599,7 +592,6 @@ void EEBeamCaloTask::analyze(const Event& e, const EventSetup& c){
       //       meEEBCaloEntriesVsCry_->setBinContent(crystal_step_ ,  meBBCaloE3x3_->getEntries() );
 
       event_last_reset_ = event;
-      //cout<<" EEBeamCaloTask: event " << event << " resetting stable histos. Cry: "<<cry_in_beam<<" current step: "<<crystal_step_<<endl;
 
       last_cry_in_beam_ = cry_in_beam;
       crystal_step_++;
@@ -619,14 +611,12 @@ void EEBeamCaloTask::analyze(const Event& e, const EventSetup& c){
 
  if(skip_this_event){
    LogInfo("EEBeamCaloTask") << "event " << event <<" analyzed: "<<ievt_ << " : skipping this event!! ";
-   //cout<<"EEBeamCaloTask: event " << ievt_ << " : changing status, skipping this event!! "<<endl;
    return;}
 
  // now CrystalsDone_ contains the crystal on beam at the beginning fo a new step, and not when it has finished !!
  // <5 just to avoid that we skip the event just after the reset and we do not set CrystalsDone_ .
  // if( ievt_ - event_last_reset_ < 5){ CrystalsDone_->setBinContent(cry_in_beam , crystal_step_ );}
  CrystalsDone_->setBinContent(cry_in_beam , crystal_step_ );
- //cout<<"Event: "<< event <<" Setting cry: "<<cry_in_beam <<" to step: "<< crystal_step_<<endl;
   int eta_c = ( cry_in_beam-1)/20 ;
   int phi_c = ( cry_in_beam-1)%20 ;
 
@@ -738,10 +728,6 @@ void EEBeamCaloTask::analyze(const Event& e, const EventSetup& c){
 
   //now  if everything was correct cry_to_beRead should be filled with 1 or -1 but not 0
   bool all_cry_readout = true;
-
-  //cout<<"AAAAAAAAAAAA"<<endl;
-  //for(int u =0; u<49;u++){if(cry_to_beRead[u]==0){all_cry_readout = false; cout<<"U: "<<u <<endl; }}
-  //cout<<"BBBBBBBBBBBB"<<endl;
 
   // if( ievt_ == 4000 || ievt_ == 13000 || ievt_ == 13002 ) {all_cry_readout = false;}
   if(all_cry_readout){ meBBCaloAllNeededCry_->Fill(1.5);}//bin3
