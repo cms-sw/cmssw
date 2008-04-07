@@ -71,7 +71,9 @@ class CalibrationAnalysis : public CommissioningAnalysis {
   virtual void extract( const std::vector<TH1*>& );
   void analyse();
   void correctDistribution(TH1* histo) const;
-  TF1* fitPulse(TH1*);
+  TF1* fitPulse(TH1*, float rangeLow = 0, float rangeHigh = -1 );
+  float maximum(TH1*);
+  float turnOn(TH1*);
   
  private:
   

@@ -294,18 +294,7 @@ void CalibrationAnalysis::analyse() {
     amplitude_[apv][strip] = histo_[i].first->GetMaximum();
     
     // rise time
-    int bin_a=0, bin_b=0, bin_c=0;
-    for(int bin = 1; bin<= histo_[i].first->GetNbinsX() && bin_b == 0; ++bin) {
-      if(histo_[i].first->GetBinContent(bin)<0.1*amplitude_[apv][strip]) bin_a = bin;
-      if(histo_[i].first->GetBinContent(bin)<0.8*amplitude_[apv][strip]) bin_c = bin;
-      if(histo_[i].first->GetBinContent(bin)>0.99*amplitude_[apv][strip]) bin_b = bin;
-    }
-    histo_[i].first->Fit("gaus","0Q","",histo_[i].first->GetBinCenter(bin_b)-25,histo_[i].first->GetBinCenter(bin_b)+25);
-    float time_max = ((TF1*)(TVirtualFitter::GetFitter()->GetUserFunc()))->GetMaximumX();
-    histo_[i].first->Fit("gaus","0Q","",0,histo_[i].first->GetBinCenter(bin_c));
-    TF1* tmp_f = (TF1*)(TVirtualFitter::GetFitter()->GetUserFunc());
-    float time_start = tmp_f->GetParameter(1)-3*tmp_f->GetParameter(2);
-    riseTime_[apv][strip] = time_max - time_start;
+    riseTime_[apv][strip] = maximum(histo_[i].first) - turnOn(histo_[i].first);
     
     // tail 125 ns after the maximum
     int lastBin = histo_[i].first->FindBin(histo_[i].first->GetBinCenter(histo_[i].first->GetMaximumBin())+125);
@@ -395,14 +384,57 @@ void CalibrationAnalysis::correctDistribution(TH1* histo) const
 
 // ----------------------------------------------------------------------------
 //
-TF1* CalibrationAnalysis::fitPulse(TH1* histo) 
+TF1* CalibrationAnalysis::fitPulse(TH1* histo, float rangeLow, float rangeHigh) 
 {
   if(!histo) return 0;
+  float noise = 4.;
+  float N = round(histo->GetMaximum()/125.);
+  float error = sqrt(2*N)*noise;
+  //float error = sqrt(2)*noise*N; // ?????????
+  for(int i=1;i<=histo->GetNbinsX();++i) {
+    histo->SetBinError(i,error);
+  }
   if (deconv_) {
-    histo->Fit(deconv_fitter_,"Q");
+    if(rangeLow>rangeHigh)
+      histo->Fit(deconv_fitter_,"Q");
+    else 
+      histo->Fit(deconv_fitter_,"0Q","",rangeLow,rangeHigh);
     return deconv_fitter_; 
   } else {
-    histo->Fit(peak_fitter_,"Q");
+    if(rangeLow>rangeHigh)
+      histo->Fit(peak_fitter_,"Q");
+    else 
+      histo->Fit(peak_fitter_,"0Q","",rangeLow,rangeHigh);
     return peak_fitter_; 
   } 
 }
+
+float CalibrationAnalysis::maximum(TH1* h) {
+    int bin = h->GetMaximumBin();
+    // fit around the maximum with the detector response and take the max from the fit
+    TF1* fit = fitPulse(h,h->GetBinCenter(bin)-25,h->GetBinCenter(bin)+25);
+    return fit->GetMaximumX();
+}
+
+float CalibrationAnalysis::turnOn(TH1* h) {
+    // localize the rising edge
+    int bin=1;
+    float amplitude = h->GetMaximum();
+    for(; bin<= h->GetNbinsX() && h->GetBinContent(bin)<0.4*amplitude; ++bin) {}
+    float end = h->GetBinLowEdge(bin);
+    // fit the rising edge with a sigmoid
+    TF1* sigmoid = new TF1("sigmoid","[0]/(1+exp(-[1]*(x-[2])))+[3]",0,end);
+    sigmoid->SetParLimits(0,amplitude/10.,amplitude);
+    sigmoid->SetParLimits(1,0.05,0.5);
+    sigmoid->SetParLimits(2,end-10,end+10);
+    sigmoid->SetParLimits(3,-amplitude/10.,amplitude/10.);
+    sigmoid->SetParameters(amplitude/2.,0.1,end,0.);
+    h->Fit(sigmoid,"0QR");
+    // return the point where the fit = 3% signal.
+    float time = 0.;
+    float base = sigmoid->GetMinimum(0,end);
+    for(;time<end && (sigmoid->Eval(time)-base)<0.03*(amplitude-base);time += 0.1) {}
+    delete sigmoid;
+    return time-0.05;
+}
+
