@@ -22,7 +22,7 @@ def pythonNameFromCfgName(cfgName):
 
 def prepareReplaceDict(line, comment, replaceDict):
     """take a line and a corresponding comment and prepare the replaceDict such that it can be found again in the python version """
-    allKeywords = ['module','int32','vint32','uint32', 'vuint32','double','vdouble','InputTag', 'VInputTag', 'PSet', 'VPSet', 'string', 'bool', 'vbool', 'path', 'sequence', 'schedule', 'endpath', 'es_source', 'es_module', 'block', 'FileInPath']
+    allKeywords = ['module','int32','vint32','uint32', 'vuint32','double','vdouble','InputTag', 'VInputTag', 'PSet', 'VPSet', 'string', 'vstring', 'bool', 'vbool', 'path', 'sequence', 'schedule', 'endpath', 'es_source', 'es_module', 'block', 'FileInPath']
     unnamedKeywords = ['es_source', 'es_module']
 
 
