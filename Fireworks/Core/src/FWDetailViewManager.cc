@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Wed Mar  5 09:13:47 EST 2008
-// $Id: FWDetailViewManager.cc,v 1.11 2008/03/24 19:56:04 jmuelmen Exp $
+// $Id: FWDetailViewManager.cc,v 1.12 2008/04/01 15:43:08 dmytro Exp $
 //
 
 // system include files
@@ -116,7 +116,7 @@ FWDetailViewManager::openDetailViewFor(const FWModelId &id)
      // nv->GetGLViewer()->SetCurrentCamera(TGLViewer::kCameraOrthoXOY);
      nv->GetGLViewer()->SetStyle(TGLRnrCtx::kOutline);
      nv->GetGLViewer()->SetClearColor(kBlack);
-     gEve->AddElement(nv, gEve->GetViewers());
+     // gEve->AddElement(nv, gEve->GetViewers());
      ns = gEve->SpawnNewScene("Detailed view");
      nv->AddScene(ns);
      hf->AddFrame(v->GetFrame(),new TGLayoutHints(kLHintsLeft | kLHintsTop | kLHintsExpandX | kLHintsExpandY)); 
