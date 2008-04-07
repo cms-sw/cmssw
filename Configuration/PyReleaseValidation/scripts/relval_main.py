@@ -87,6 +87,14 @@ pathName_dict={'GEN':'pgen',
 # common the features described in the relval_common_module.
 
 print "\nPython RelVal"
+
+#HACK - if config contains hlt then process must be HLT.
+#Likely to cause problems later - Please complain to the HLT if so.. 
+for s in step_list:
+    stepSP=s.split(':') 
+    step=stepSP[0]
+    if ( step=='HLT'):
+        process_name='HLT'
  
 process = cms.Process (process_name)
          
