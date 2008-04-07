@@ -265,7 +265,7 @@ void CalibrationScanAnalysis::analyze() {
        }
      }
      // analyse the graphs
-     float best_isha = tuneISHA_ ? getX(g1,66. ) :
+     float best_isha = tuneISHA_ ? getX(g1,53.5 ) :
                                    presentValues_[summaries_.begin()->second[0]->GetXaxis()->GetBinLabel(apv)].first;
 
      // save the result
