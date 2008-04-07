@@ -1,8 +1,8 @@
 /*
  * \file EcalEndcapMonitorClient.cc
  *
- * $Date: 2008/04/07 08:14:14 $
- * $Revision: 1.167 $
+ * $Date: 2008/04/07 08:44:21 $
+ * $Revision: 1.168 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -1234,8 +1234,10 @@ void EcalEndcapMonitorClient::writeDb(void) {
         done = true;
         taskl |= 0x1 << clientsStatus_[clientsNames_[i]];
         if ( verbose_ ) {
-          cout << " Writing " << clientsNames_[i] << " results to DB " << endl;
-          cout << endl;
+          if ( econn ) {
+            cout << " Writing " << clientsNames_[i] << " results to DB " << endl;
+            cout << endl;
+          }
         }
         if ( clients_[i]->writeDb(econn, &runiov_, &moniov_) ) {
           tasko |= 0x1 << clientsStatus_[clientsNames_[i]];
