@@ -1,5 +1,5 @@
-#ifndef HLTrigger_CountNumberOfObject_H
-/**\class CountNumberOfObject
+#ifndef HLTrigger_HLTCountNumberOfObject_H
+/**\class HLTCountNumberOfObject
  * Description:
  * templated EDFilter to count the number of object in a given collection, using View
  * \author Jean-Roch Vlimant
@@ -23,9 +23,9 @@
 #include "DataFormats/HLTReco/interface/TriggerFilterObjectWithRefs.h"
 
 template <class OColl>
-class CountNumberOfObject : public HLTFilter {
+class HLTCountNumberOfObject : public HLTFilter {
 public:
-  explicit CountNumberOfObject(const edm::ParameterSet& iConfig) :
+  explicit HLTCountNumberOfObject(const edm::ParameterSet& iConfig) :
     src_(iConfig.getParameter<edm::InputTag>("src")),
     minN_(iConfig.getParameter<int>("MinN")),
     maxN_(iConfig.getParameter<int>("MaxN"))
@@ -33,7 +33,7 @@ public:
 	produces<trigger::TriggerFilterObjectWithRefs>();
       };
   
-  ~CountNumberOfObject(){};
+  ~HLTCountNumberOfObject(){};
   
 private:
   virtual void beginJob(const edm::EventSetup&){};
@@ -46,7 +46,7 @@ private:
     iEvent.getByLabel(src_, oHandle);
     int s=oHandle->size();
     bool answer=(s>=minN_ && s<=maxN_);
-    LogDebug("CountNumberOfObject")<<module()<<" sees: "<<s<<" objects. Filtere answer is: "<<(answer?"true":"false")<<std::endl;
+    LogDebug("HLTCountNumberOfObject")<<module()<<" sees: "<<s<<" objects. Filtere answer is: "<<(answer?"true":"false")<<std::endl;
 
     iEvent.put(filterproduct);
     return answer;

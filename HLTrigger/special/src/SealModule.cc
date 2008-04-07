@@ -10,7 +10,7 @@
 #include "HLTrigger/special/interface/HLTCSCOverlapFilter.h"
 #include "HLTrigger/special/interface/HLTCSCRing2or3Filter.h"
 
-#include "HLTrigger/special/interface/CountNumberOfObject.h"
+#include "HLTrigger/special/interface/HLTCountNumberOfObject.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2DCollection.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiStripMatchedRecHit2DCollection.h"
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeed.h"
@@ -28,14 +28,14 @@ DEFINE_FWK_MODULE(HLTPi0RecHitsFilter);
 DEFINE_FWK_MODULE(HLTCSCOverlapFilter);
 DEFINE_FWK_MODULE(HLTCSCRing2or3Filter);
 
-typedef CountNumberOfObject<SiStripRecHit2DCollection> HLTCountNumberOfSingleRecHit;
+typedef HLTCountNumberOfObject<SiStripRecHit2DCollection> HLTCountNumberOfSingleRecHit;
 DEFINE_FWK_MODULE(HLTCountNumberOfSingleRecHit);
-typedef CountNumberOfObject<SiStripMatchedRecHit2DCollection> HLTCountNumberOfMatchedRecHit;
+typedef HLTCountNumberOfObject<SiStripMatchedRecHit2DCollection> HLTCountNumberOfMatchedRecHit;
 DEFINE_FWK_MODULE(HLTCountNumberOfMatchedRecHit);
-typedef CountNumberOfObject<edm::View<TrajectorySeed> > HLTCountNumberOfTrajectorySeed;
+typedef HLTCountNumberOfObject<edm::View<TrajectorySeed> > HLTCountNumberOfTrajectorySeed;
 DEFINE_FWK_MODULE(HLTCountNumberOfTrajectorySeed);
-typedef CountNumberOfObject<RoadSearchSeedCollection> HLTCountNumberOfRoadSearchSeed;
+typedef HLTCountNumberOfObject<RoadSearchSeedCollection> HLTCountNumberOfRoadSearchSeed;
 DEFINE_FWK_MODULE(HLTCountNumberOfRoadSearchSeed);
-typedef CountNumberOfObject<edm::View<reco::Track> > HLTCountNumberOfTrack;
+typedef HLTCountNumberOfObject<edm::View<reco::Track> > HLTCountNumberOfTrack;
 DEFINE_FWK_MODULE(HLTCountNumberOfTrack);
 
