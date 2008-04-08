@@ -17,7 +17,7 @@ FSimEvent::~FSimEvent()
 {}
 
 void 
-FSimEvent::fill(const reco::CandidateCollection& parts, edm::EventID& Id) { 
+FSimEvent::fill(const reco::GenParticleCollection& parts, edm::EventID& Id) { 
   FBaseSimEvent::fill(parts); 
   id_ = Id;
 }

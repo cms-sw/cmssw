@@ -1,7 +1,7 @@
 #ifndef FastSimulation_EventProducer_FamosManager_H
 #define FastSimulation_EventProducer_FamosManager_H
 
-#include "DataFormats/Candidate/interface/CandidateFwd.h"
+#include "DataFormats/HepMCCandidate/interface/GenParticleFwd.h"
 
 #include <string>
 
@@ -46,7 +46,7 @@ class FamosManager
 
   /// The real thing is done here
   void reconstruct(const HepMC::GenEvent* evt, 
-		   const reco::CandidateCollection* particles,
+		   const reco::GenParticleCollection* particles,
 		   const HepMC::GenEvent* pu);
 
   /// The tracker 

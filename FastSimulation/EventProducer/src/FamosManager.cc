@@ -177,7 +177,7 @@ void FamosManager::setupGeometryAndField(const edm::EventSetup & es)
 
 void 
 FamosManager::reconstruct(const HepMC::GenEvent* evt,
-			  const reco::CandidateCollection* particles,
+			  const reco::GenParticleCollection* particles,
 			  const HepMC::GenEvent* pu) 
 {
 

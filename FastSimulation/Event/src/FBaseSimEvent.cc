@@ -7,6 +7,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 //CMSSW Data Formats
+#include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 #include "DataFormats/Candidate/interface/Candidate.h"
 
 //FAMOS Headers
@@ -174,7 +175,7 @@ FBaseSimEvent::fill(const HepMC::GenEvent& myGenEvent) {
 }
 
 void
-FBaseSimEvent::fill(const reco::CandidateCollection& myGenParticles) {
+FBaseSimEvent::fill(const reco::GenParticleCollection& myGenParticles) {
   
   // Clear old vectors
   clear();
@@ -544,10 +545,12 @@ FBaseSimEvent::addParticles(const HepMC::GenEvent& myGenEvent) {
 }
 
 void
-FBaseSimEvent::addParticles(const reco::CandidateCollection& myGenParticles) {
+FBaseSimEvent::addParticles(const reco::GenParticleCollection& myGenParticles) {
 
   // If no particles, no work to be done !
   unsigned int nParticles = myGenParticles.size();
+  nGenParticles = nParticles;
+
   if ( !nParticles ) return;
 
   /// Some internal array to work with.
@@ -587,9 +590,7 @@ FBaseSimEvent::addParticles(const reco::CandidateCollection& myGenParticles) {
   // Loop on the particles of the generated event
   for ( ; ip<nParticles; ++ip ) { 
     
-    nGenParticles = ip;
-    
-    const reco::Candidate& p = myGenParticles[ip];
+    const reco::GenParticle& p = myGenParticles[ip];
 
     // Keep only: 
     // 1) Stable particles
@@ -650,7 +651,7 @@ FBaseSimEvent::addParticles(const reco::CandidateCollection& myGenParticles) {
   }
 
   // There is no GenParticle's in that case...
-  nGenParticles=0;
+  // nGenParticles=0;
 
 }
 
