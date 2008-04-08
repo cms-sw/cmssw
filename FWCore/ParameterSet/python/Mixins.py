@@ -91,7 +91,7 @@ class _Parameterizable(object):
             for block in arg:
                 if type(block).__name__ != "PSet":
                     raise ValueError("Only PSets can be passed as unnamed argument blocks.  This is a "+type(block).__name__)
-                self.__setParameters(block.parameters())
+                self.__setParameters(block.parameters_())
         self.__setParameters(kargs)
         self._isModified = False
     def parameterNames_(self):
@@ -106,7 +106,7 @@ class _Parameterizable(object):
                 self._isModified = True
                 return True
         return False
-    def parameters(self):
+    def parameters_(self):
         """Returns a dictionary of copies of the user-set parameters"""
         import copy
         result = dict()
@@ -190,7 +190,7 @@ class _TypedParameterizable(_Parameterizable):
         return self.__type
     def copy(self):
         returnValue =_TypedParameterizable.__new__(type(self))
-        params = self.parameters()
+        params = self.parameters_()
         args = list()
         if len(params) == 0:
             args.append(None)
@@ -205,7 +205,7 @@ class _TypedParameterizable(_Parameterizable):
           value without having to specify the type.
         """
         returnValue =_TypedParameterizable.__new__(type(self))
-        myparams = self.parameters()
+        myparams = self.parameters_()
         if len(myparams) == 0 and len(params) and len(args):
             args.append(None)
         if len(params):
@@ -271,7 +271,7 @@ class _TypedParameterizable(_Parameterizable):
 
     def dumpPython(self, options=PrintOptions()):
         result = "cms."+str(type(self).__name__)+"(\""+self.type_()+"\""
-        nparam = len(self.parameters())
+        nparam = len(self.parameters_())
         if nparam == 0:
             result += ")\n"
         elif nparam < 256:
