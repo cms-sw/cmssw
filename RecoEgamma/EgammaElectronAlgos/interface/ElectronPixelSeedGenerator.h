@@ -16,6 +16,7 @@
 #include "RecoEgamma/EgammaElectronAlgos/interface/ElectronSeedGenerator.h"
 
 #include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHitCollection.h"
+#include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
 #include "DataFormats/Math/interface/Point3D.h"
 
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h"
@@ -57,6 +58,8 @@ class ElectronPixelSeedGenerator: public ElectronSeedGenerator
   bool prepareElTrackSeed(ConstRecHitPointer outerhit,ConstRecHitPointer innerhit, const GlobalPoint& vertexPos);
 
   bool dynamicphiroad_;
+  bool fromTrackerSeeds_;
+  edm::InputTag initialSeeds_;
 
   float lowPtThreshold_;
   float highPtThreshold_;
@@ -71,6 +74,8 @@ class ElectronPixelSeedGenerator: public ElectronSeedGenerator
   PixelHitMatcher *myMatchEle;
   PixelHitMatcher *myMatchPos;
 
+  edm::Handle<TrajectorySeedCollection> theInitialSeedColl;
+
   edm::ESHandle<MagneticField>                theMagField;
   edm::ESHandle<GeometricSearchTracker>       theGeomSearchTracker;
   KFUpdator * theUpdator;
@@ -78,6 +83,7 @@ class ElectronPixelSeedGenerator: public ElectronSeedGenerator
 
   const MeasurementTracker*     theMeasurementTracker;
   const NavigationSchool*       theNavigationSchool;
+  const NavigationSetter*       theSetter;
 
   const edm::EventSetup *theSetup; 
   TrajectoryStateTransform transformer_; 
@@ -90,6 +96,7 @@ class ElectronPixelSeedGenerator: public ElectronSeedGenerator
   unsigned long long cacheIDGeom_;
   unsigned long long cacheIDNavSchool_;
   unsigned long long cacheIDCkfComp_;
+  unsigned long long cacheIDTrkGeom_;
 };
 
 #endif // ElectronPixelSeedGenerator_H

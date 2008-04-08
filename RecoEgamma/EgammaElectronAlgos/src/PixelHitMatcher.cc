@@ -13,7 +13,7 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: PixelHitMatcher.cc,v 1.20 2008/03/04 17:00:32 uberthon Exp $
+// $Id: PixelHitMatcher.cc,v 1.21 2008/03/21 17:36:02 charlot Exp $
 //
 //
 
@@ -44,12 +44,13 @@ PixelHitMatcher::~PixelHitMatcher()
   delete theLayerMeasurements;
 }
 
-void PixelHitMatcher::setES(const MagneticField* magField, const MeasurementTracker *theMeasurementTracker){
+void PixelHitMatcher::setES(const MagneticField* magField, const MeasurementTracker *theMeasurementTracker, const TrackerGeometry *trackerGeometry){
   theGeometricSearchTracker=theMeasurementTracker->geometricSearchTracker();
   startLayers.setup(theGeometricSearchTracker);
   if (theLayerMeasurements ) delete theLayerMeasurements;
   theLayerMeasurements = new LayerMeasurements(theMeasurementTracker);
   theMagField = magField;
+  theTrackerGeometry = trackerGeometry;
   delete prop2ndLayer;
   float mass=.000511; // electron propagation
   if (prop1stLayer) delete prop1stLayer;
@@ -323,6 +324,79 @@ vector<Hep3Vector> PixelHitMatcher::predicted2Hits() {
 float PixelHitMatcher::getVertex(){
 
   return vertex;
+}
+
+std::vector<TrajectorySeed> PixelHitMatcher::compatibleSeeds(edm::Handle<TrajectorySeedCollection> &seeds,const GlobalPoint& xmeas,
+							     const GlobalPoint& vprim,
+							     float energy,
+							     float fcharge){
+
+  int charge = int(fcharge);
+
+  FreeTrajectoryState fts = myFTS(theMagField,xmeas, vprim, 
+				 energy, charge);
+
+  PerpendicularBoundPlaneBuilder bpb;
+  TrajectoryStateOnSurface tsos(fts, *bpb(fts.position(), fts.momentum()));
+  
+  std::vector<TrajectorySeed> result;
+ 
+  for (unsigned int i=0;i<seeds->size();++i)
+    {
+      TrajectorySeed::range r=(*seeds.product())[i].recHits();
+ 
+      // first Hit
+      TrajectorySeed::const_iterator it=r.first;
+      DetId id=(*it).geographicalId();
+      const GeomDet *geomdet=theTrackerGeometry->idToDet((*it).geographicalId());
+      LocalPoint lp=(*it).localPosition();
+      GlobalPoint hitPos=geomdet->surface().toGlobal(lp);
+
+      const TrajectoryStateOnSurface tsos1 = prop1stLayer->propagate(tsos,geomdet->surface()) ; 
+
+      if (tsos1.isValid()) {
+
+	std::pair<bool,double> est;
+ 	if (dynamic_cast<const BoundCylinder *>(&(geomdet->surface()))) est=meas1stBLayer.estimate(tsos1,hitPos);
+ 	else est=meas1stFLayer.estimate(tsos1,hitPos); 
+	if (!est.first)    continue;
+
+	// now second Hit
+	it++;
+	const GeomDet *geomdet2=theTrackerGeometry->idToDet((*it).geographicalId());
+	TrajectoryStateOnSurface tsos2;
+
+	// compute the z vertex from the cluster point and the found pixel hit
+	double pxHit1z = hitPos.z();
+	double pxHit1x = hitPos.x();
+	double pxHit1y = hitPos.y();      
+	double r1diff = (pxHit1x-vprim.x())*(pxHit1x-vprim.x()) + (pxHit1y-vprim.y())*(pxHit1y-vprim.y());
+	r1diff=sqrt(r1diff);
+	double r2diff = (xmeas.x()-pxHit1x)*(xmeas.x()-pxHit1x) + (xmeas.y()-pxHit1y)*(xmeas.y()-pxHit1y);
+	r2diff=sqrt(r2diff);
+	double zVertexPred = pxHit1z - r1diff*(xmeas.z()-pxHit1z)/r2diff;
+
+	GlobalPoint vertexPred(vprim.x(),vprim.y(),zVertexPred);
+    	FreeTrajectoryState fts2 = myFTS(theMagField,hitPos,vertexPred,energy, charge);
+
+        tsos2 = prop2ndLayer->propagate(fts2,geomdet2->surface()) ; 
+	if (tsos2.isValid()) {
+	  LocalPoint lp2=(*it).localPosition();
+	  GlobalPoint hitPos2=geomdet2->surface().toGlobal(lp2); 
+	  std::pair<bool,double> est2;
+//           const DetLayer* newLayer2 = theGeometricSearchTracker->detLayer((*it).geographicalId());
+//   	  if (newLayer->location()==GeomDetEnumerators::barrel) est2=meas1stBLayer.estimate(tsos2,hitPos2);
+//   	  if (newLayer->location()==GeomDetEnumerators::endcap) est2=meas1stFLayer.estimate(tsos2,hitPos2);
+ 	  if (dynamic_cast<const BoundCylinder *>(&(geomdet2->surface()))) est2=meas2ndBLayer.estimate(tsos2,hitPos2);
+ 	  else est2=meas2ndFLayer.estimate(tsos2,hitPos2); 
+	  if (est2.first) result.push_back((*seeds.product())[i]);
+	}
+
+      } 
+
+    } 
+
+  return result; 
 }
 
 

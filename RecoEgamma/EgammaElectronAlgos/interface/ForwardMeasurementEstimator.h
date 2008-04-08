@@ -16,7 +16,7 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: ForwardMeasurementEstimator.h,v 1.10 2008/02/28 17:52:36 uberthon Exp $
+// $Id: ForwardMeasurementEstimator.h,v 1.11 2008/03/21 17:36:02 charlot Exp $
 //
 //
 #include "TrackingTools/PatternTools/interface/MeasurementEstimator.h"
@@ -51,6 +51,10 @@ public:
   // zero value indicates incompatible ts - hit pair
   virtual std::pair<bool,double> estimate( const TrajectoryStateOnSurface& ts, 
 					   const TransientTrackingRecHit& hit) const;
+
+  virtual std::pair<bool,double> estimate( const TrajectoryStateOnSurface& ts, 
+	                   GlobalPoint &gp) const;
+
   virtual bool estimate( const TrajectoryStateOnSurface& ts, 
 			 const BoundPlane& plane) const;
 
@@ -58,6 +62,7 @@ public:
     {
       return new ForwardMeasurementEstimator(*this);
     }
+
   MeasurementEstimator::Local2DVector 
     maximalLocalDisplacement( const TrajectoryStateOnSurface& ts,
 			      const BoundPlane& plane) const;
