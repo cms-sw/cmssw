@@ -1,53 +1,67 @@
-
-//
-// Author:  Jan Heyninck
-// Created: Tue Apr  3 17:33:23 PDT 2007
-//
-// $Id: JetPartonMatching.h,v 1.1 2007/07/04 16:51:37 heyninck Exp $
-//
-
 #ifndef JetPartonMatching_h
 #define JetPartonMatching_h
-
-/**
-  \class    JetPartonMatching JetPartonMatching.h "TopQuarkAnalysis/TopTools/interface/JetPartonMatching.h"
-  \brief    Help functionalities to implement and evaluate LR ratio method
-
-  \author   Jan Heyninck
-  \version  $Id: JetPartonMatching.h,v 1.1 2007/07/04 16:51:37 heyninck Exp $
-*/
 
 #include "DataFormats/JetReco/interface/GenJet.h"
 #include "DataFormats/JetReco/interface/CaloJet.h"
 #include "DataFormats/Candidate/interface/Candidate.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
+
 #include <vector>
-#include <iostream>
 #include <Math/VectorUtil.h>
 
-using namespace std;
-
 class JetPartonMatching {
+  
+ public:
+  JetPartonMatching(){};
+  JetPartonMatching(const std::vector<const reco::Candidate*>&, const std::vector<reco::GenJet>&,
+		    const int, const bool, const bool, const double);
+  JetPartonMatching(const std::vector<const reco::Candidate*>&, const std::vector<reco::CaloJet>&,
+		    const int, const bool, const bool, const double);
+  JetPartonMatching(const std::vector<const reco::Candidate*>&, const std::vector<const reco::Candidate*>&,
+		    const int, const bool, const bool, const double);
+  ~JetPartonMatching(){};	
+  
+  //matching meta information
+  unsigned int getNumberOfUnmatchedPartons(){ return numberOfUnmatchedPartons; }
+  std::vector< std::pair<unsigned int, int> > getMatching() { return matching; }
+  int getMatchForParton(const unsigned int ip) { return matching[ip].second; }
+  double getAngleForParton(const unsigned int);
+  double getSumAngles();
 
-  public:
-    JetPartonMatching();
-    JetPartonMatching(vector<const reco::GenParticle*> &, vector<reco::GenJet> &, int);
-    JetPartonMatching(vector<const reco::GenParticle*> &, vector<reco::CaloJet> &, int);
-    JetPartonMatching(vector<const reco::GenParticle*> &, vector<const reco::Candidate*> &, int);
-    ~JetPartonMatching();	
-
-    vector<pair<unsigned int,unsigned int> > getMatching() { return matching; }
-    int    getMatchForParton(unsigned int);
-    double getAngleForParton(unsigned int);
-    double getSumAngles();
-     
-   
-  private:
-    vector<const reco::GenParticle*> partons; 
-    vector<const reco::Candidate*> jets; 
-    int spaceAngleOrDeltaR;
-    void calculate();
-    vector<pair <unsigned int,unsigned int> > matching;
+  //matching quantities
+  double getSumDeltaE()   { return sumDeltaE;  }
+  double getSumDeltaPt()  { return sumDeltaPt; }
+  double getSumDeltaR()   { return sumDeltaR;  }
+  
+ private:
+  
+  void calculate();
+  double distance(const math::XYZTLorentzVector&, const math::XYZTLorentzVector&);
+  void matchingTotalMinDist();
+  void minSumDist_recursion(const unsigned int, std::vector<unsigned int>&, std::vector<bool>&, std::vector<int>&, double&);
+  void matchingMinSumDist();
+  void matchingPtOrderedMinDist();
+  void matchingUnambiguousOnly();
+  
+ private:
+  
+  typedef std::vector< std::pair<unsigned int, int> > MatchingCollection;
+  
+  std::vector<const reco::Candidate*> partons;
+  std::vector<const reco::Candidate*> jets;
+  MatchingCollection matching;
+  
+  unsigned int numberOfUnmatchedPartons;
+  double sumDeltaE;
+  double sumDeltaPt;
+  double sumDeltaR;
+  
+  int algorithm_;
+  bool useMaxDist_;
+  bool useDeltaR_;
+  double maxDist_;
+  
+  enum algorithms { totalMinDist, minSumDist, ptOrderedMinDist, unambiguousOnly };
 };
 
 #endif
