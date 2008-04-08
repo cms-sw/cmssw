@@ -70,7 +70,7 @@ void PFBlock::setLink(unsigned i1, unsigned i2, double chi2,
 
 void PFBlock::associatedElements( unsigned i, 
                                   const LinkData& linkData, 
-                                  map<double, unsigned>& sortedAssociates,
+                                  multimap<double, unsigned>& sortedAssociates,
                                   PFBlockElement::Type type,
 				  LinkTest test ) 
   const {
@@ -128,7 +128,7 @@ void PFBlock::associatedElements( unsigned i,
     if( c2 < 0 ) { 
       continue;
     }
-    sortedAssociates.insert( make_pair(c2, ie) );
+    sortedAssociates.insert( pair<double,unsigned>(c2, ie) );
   }
 } 
 

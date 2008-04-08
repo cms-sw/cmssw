@@ -77,7 +77,7 @@ namespace reco {
     /// be considered: chi2 test, rechit test, tangent test etc..
     void associatedElements( unsigned i,
                              const LinkData& linkData, 
-                             std::map<double, unsigned>& sortedAssociates,
+                             std::multimap<double, unsigned>& sortedAssociates,
                              reco::PFBlockElement::Type type = PFBlockElement::NONE,
 			     LinkTest test=LINKTEST_CHI2 ) const; 
       
