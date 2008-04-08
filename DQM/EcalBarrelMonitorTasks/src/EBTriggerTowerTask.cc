@@ -1,8 +1,8 @@
 /*
  * \file EBTriggerTowerTask.cc
  *
- * $Date: 2008/04/08 15:06:24 $
- * $Revision: 1.69 $
+ * $Date: 2008/04/08 15:32:09 $
+ * $Revision: 1.70 $
  * \author C. Bernet
  * \author G. Della Ricca
  * \author E. Di Marco
@@ -86,8 +86,8 @@ void EBTriggerTowerTask::beginJob(const EventSetup& c){
   ievt_ = 0;
 
   if ( dqmStore_ ) {
-    dqmStore_->setCurrentFolder(prefixME_ + "EcalBarrel/EBTriggerTowerTask");
-    dqmStore_->rmdir(prefixME_ + "EcalBarrel/EBTriggerTowerTask");
+    dqmStore_->setCurrentFolder(prefixME_ + "/EBTriggerTowerTask");
+    dqmStore_->rmdir(prefixME_ + "/EBTriggerTowerTask");
   }
 
   Numbers::initGeometry(c, false);
@@ -102,10 +102,10 @@ void EBTriggerTowerTask::setup(void){
     // dqmStore_->showDirStructure();
 
     setup( "Real Digis",
-           (prefixME_ + "EcalBarrel/EBTriggerTowerTask").c_str(), false );
+           (prefixME_ + "/EBTriggerTowerTask").c_str(), false );
 
     setup( "Emulated Digis",
-           (prefixME_ + "EcalBarrel/EBTriggerTowerTask/Emulated").c_str(), true);
+           (prefixME_ + "/EBTriggerTowerTask/Emulated").c_str(), true);
   }
   else {
     LogError("EBTriggerTowerTask")<<"Bad DQMStore, "
@@ -229,7 +229,7 @@ void EBTriggerTowerTask::cleanup(void) {
 
     if( !outputFile_.empty() ) dqmStore_->save( outputFile_.c_str() );
 
-    dqmStore_->rmdir( prefixME_ + "EcalBarrel/EBTriggerTowerTask" );
+    dqmStore_->rmdir( prefixME_ + "/EBTriggerTowerTask" );
 
   }
 

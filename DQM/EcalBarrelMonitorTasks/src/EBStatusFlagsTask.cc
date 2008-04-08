@@ -1,8 +1,8 @@
 /*
  * \file EBStatusFlagsTask.cc
  *
- * $Date: 2008/04/08 15:06:24 $
- * $Revision: 1.10 $
+ * $Date: 2008/04/08 15:32:09 $
+ * $Revision: 1.11 $
  * \author G. Della Ricca
  *
 */
@@ -58,8 +58,8 @@ void EBStatusFlagsTask::beginJob(const EventSetup& c){
   ievt_ = 0;
 
   if ( dqmStore_ ) {
-    dqmStore_->setCurrentFolder(prefixME_ + "EcalBarrel/EBStatusFlagsTask");
-    dqmStore_->rmdir(prefixME_ + "EcalBarrel/EBStatusFlagsTask");
+    dqmStore_->setCurrentFolder(prefixME_ + "/EBStatusFlagsTask");
+    dqmStore_->rmdir(prefixME_ + "/EBStatusFlagsTask");
   }
 
   Numbers::initGeometry(c, false);
@@ -73,9 +73,9 @@ void EBStatusFlagsTask::setup(void){
   char histo[200];
 
   if ( dqmStore_ ) {
-    dqmStore_->setCurrentFolder(prefixME_ + "EcalBarrel/EBStatusFlagsTask");
+    dqmStore_->setCurrentFolder(prefixME_ + "/EBStatusFlagsTask");
 
-    dqmStore_->setCurrentFolder(prefixME_ + "EcalBarrel/EBStatusFlagsTask/EvtType");
+    dqmStore_->setCurrentFolder(prefixME_ + "/EBStatusFlagsTask/EvtType");
     for (int i = 0; i < 36; i++) {
       sprintf(histo, "EBSFT EVTTYPE %s", Numbers::sEB(i+1).c_str());
       meEvtType_[i] = dqmStore_->book1D(histo, histo, 31, -1., 30.);
@@ -106,7 +106,7 @@ void EBStatusFlagsTask::setup(void){
       dqmStore_->tag(meEvtType_[i], i+1);
     }
 
-    dqmStore_->setCurrentFolder(prefixME_ + "EcalBarrel/EBStatusFlagsTask/FEStatus");
+    dqmStore_->setCurrentFolder(prefixME_ + "/EBStatusFlagsTask/FEStatus");
     for (int i = 0; i < 36; i++) {
       sprintf(histo, "EBSFT front-end status %s", Numbers::sEB(i+1).c_str());
       meFEchErrors_[i][0] = dqmStore_->book2D(histo, histo, 17, 0., 17., 4, 0., 4.);
@@ -151,15 +151,15 @@ void EBStatusFlagsTask::cleanup(void){
   if ( ! enableCleanup_ ) return;
 
   if ( dqmStore_ ) {
-    dqmStore_->setCurrentFolder(prefixME_ + "EcalBarrel/EBStatusFlagsTask");
+    dqmStore_->setCurrentFolder(prefixME_ + "/EBStatusFlagsTask");
 
-    dqmStore_->setCurrentFolder(prefixME_ + "EcalBarrel/EBStatusFlagsTask/EvtType");
+    dqmStore_->setCurrentFolder(prefixME_ + "/EBStatusFlagsTask/EvtType");
     for (int i = 0; i < 36; i++) {
       if ( meEvtType_[i] ) dqmStore_->removeElement( meEvtType_[i]->getName() );
       meEvtType_[i] = 0;
     }
 
-    dqmStore_->setCurrentFolder(prefixME_ + "EcalBarrel/EBStatusFlagsTask/FEStatus");
+    dqmStore_->setCurrentFolder(prefixME_ + "/EBStatusFlagsTask/FEStatus");
     for (int i = 0; i < 36; i++) {
       if ( meFEchErrors_[i][0] ) dqmStore_->removeElement( meFEchErrors_[i][0]->getName() );
       meFEchErrors_[i][0] = 0;

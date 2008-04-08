@@ -1,8 +1,8 @@
 /*
  * \file EBCosmicTask.cc
  *
- * $Date: 2008/04/08 15:06:24 $
- * $Revision: 1.102 $
+ * $Date: 2008/04/08 15:32:09 $
+ * $Revision: 1.103 $
  * \author G. Della Ricca
  *
 */
@@ -69,8 +69,8 @@ void EBCosmicTask::beginJob(const EventSetup& c){
   ievt_ = 0;
 
   if ( dqmStore_ ) {
-    dqmStore_->setCurrentFolder(prefixME_ + "EcalBarrel/EBCosmicTask");
-    dqmStore_->rmdir(prefixME_ + "EcalBarrel/EBCosmicTask");
+    dqmStore_->setCurrentFolder(prefixME_ + "/EBCosmicTask");
+    dqmStore_->rmdir(prefixME_ + "/EBCosmicTask");
   }
 
   Numbers::initGeometry(c, false);
@@ -84,9 +84,9 @@ void EBCosmicTask::setup(void){
   char histo[200];
 
   if ( dqmStore_ ) {
-    dqmStore_->setCurrentFolder(prefixME_ + "EcalBarrel/EBCosmicTask");
+    dqmStore_->setCurrentFolder(prefixME_ + "/EBCosmicTask");
 
-    dqmStore_->setCurrentFolder(prefixME_ + "EcalBarrel/EBCosmicTask/Cut");
+    dqmStore_->setCurrentFolder(prefixME_ + "/EBCosmicTask/Cut");
     for (int i = 0; i < 36; i++) {
       sprintf(histo, "EBCT energy cut %s", Numbers::sEB(i+1).c_str());
       meCutMap_[i] = dqmStore_->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096., "s");
@@ -94,7 +94,7 @@ void EBCosmicTask::setup(void){
       meCutMap_[i]->setAxisTitle("iphi", 2);
     }
 
-    dqmStore_->setCurrentFolder(prefixME_ + "EcalBarrel/EBCosmicTask/Sel");
+    dqmStore_->setCurrentFolder(prefixME_ + "/EBCosmicTask/Sel");
     for (int i = 0; i < 36; i++) {
       sprintf(histo, "EBCT energy sel %s", Numbers::sEB(i+1).c_str());
       meSelMap_[i] = dqmStore_->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096., "s");
@@ -102,7 +102,7 @@ void EBCosmicTask::setup(void){
       meSelMap_[i]->setAxisTitle("iphi", 2);
     }
 
-    dqmStore_->setCurrentFolder(prefixME_ + "EcalBarrel/EBCosmicTask/Spectrum");
+    dqmStore_->setCurrentFolder(prefixME_ + "/EBCosmicTask/Spectrum");
     for (int i = 0; i < 36; i++) {
       sprintf(histo, "EBCT 1x1 energy spectrum %s", Numbers::sEB(i+1).c_str());
       meSpectrum_[0][i] = dqmStore_->book1D(histo, histo, 100, 0., 1.5);
@@ -121,21 +121,21 @@ void EBCosmicTask::cleanup(void){
   if ( ! enableCleanup_ ) return;
 
   if ( dqmStore_ ) {
-    dqmStore_->setCurrentFolder(prefixME_ + "EcalBarrel/EBCosmicTask");
+    dqmStore_->setCurrentFolder(prefixME_ + "/EBCosmicTask");
 
-    dqmStore_->setCurrentFolder(prefixME_ + "EcalBarrel/EBCosmicTask/Cut");
+    dqmStore_->setCurrentFolder(prefixME_ + "/EBCosmicTask/Cut");
     for (int i = 0; i < 36; i++) {
       if ( meCutMap_[i] ) dqmStore_->removeElement( meCutMap_[i]->getName() );
       meCutMap_[i] = 0;
     }
 
-    dqmStore_->setCurrentFolder(prefixME_ + "EcalBarrel/EBCosmicTask/Sel");
+    dqmStore_->setCurrentFolder(prefixME_ + "/EBCosmicTask/Sel");
     for (int i = 0; i < 36; i++) {
       if ( meSelMap_[i] ) dqmStore_->removeElement( meSelMap_[i]->getName() );
       meSelMap_[i] = 0;
     }
 
-    dqmStore_->setCurrentFolder(prefixME_ + "EcalBarrel/EBCosmicTask/Spectrum");
+    dqmStore_->setCurrentFolder(prefixME_ + "/EBCosmicTask/Spectrum");
     for (int i = 0; i < 36; i++) {
       if ( meSpectrum_[0][i] ) dqmStore_->removeElement( meSpectrum_[0][i]->getName() );
       meSpectrum_[0][i] = 0;

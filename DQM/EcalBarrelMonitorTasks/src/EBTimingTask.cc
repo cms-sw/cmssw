@@ -1,8 +1,8 @@
 /*
  * \file EBTimingTask.cc
  *
- * $Date: 2008/04/08 15:06:24 $
- * $Revision: 1.38 $
+ * $Date: 2008/04/08 15:32:09 $
+ * $Revision: 1.39 $
  * \author G. Della Ricca
  *
 */
@@ -60,8 +60,8 @@ void EBTimingTask::beginJob(const EventSetup& c){
   ievt_ = 0;
 
   if ( dqmStore_ ) {
-    dqmStore_->setCurrentFolder(prefixME_ + "EcalBarrel/EBTimingTask");
-    dqmStore_->rmdir(prefixME_ + "EcalBarrel/EBTimingTask");
+    dqmStore_->setCurrentFolder(prefixME_ + "/EBTimingTask");
+    dqmStore_->rmdir(prefixME_ + "/EBTimingTask");
   }
 
   Numbers::initGeometry(c, false);
@@ -75,7 +75,7 @@ void EBTimingTask::setup(void){
   char histo[200];
 
   if ( dqmStore_ ) {
-    dqmStore_->setCurrentFolder(prefixME_ + "EcalBarrel/EBTimingTask");
+    dqmStore_->setCurrentFolder(prefixME_ + "/EBTimingTask");
 
     for (int i = 0; i < 36; i++) {
       sprintf(histo, "EBTMT timing %s", Numbers::sEB(i+1).c_str());
@@ -100,7 +100,7 @@ void EBTimingTask::cleanup(void){
   if ( ! enableCleanup_ ) return;
 
   if ( dqmStore_ ) {
-    dqmStore_->setCurrentFolder(prefixME_ + "EcalBarrel/EBTimingTask");
+    dqmStore_->setCurrentFolder(prefixME_ + "/EBTimingTask");
 
     for ( int i = 0; i < 36; i++ ) {
       if ( meTimeMap_[i] ) dqmStore_->removeElement( meTimeMap_[i]->getName() );
