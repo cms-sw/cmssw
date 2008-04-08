@@ -15,9 +15,10 @@ TrackingMonitor::~TrackingMonitor() { }
 void TrackingMonitor::beginJob(edm::EventSetup const& iSetup) {
   using namespace edm;
 
-  std::string AlgoName = conf_.getParameter<std::string>("AlgoName");
+  std::string AlgoName     = conf_.getParameter<std::string>("AlgoName");
+  std::string MEFolderName = conf_.getParameter<std::string>("FolderName"); 
 
-  dqmStore_->setCurrentFolder("Track/GlobalParameters");
+  dqmStore_->setCurrentFolder(MEFolderName);
 
   //    
   int TKNoBin = conf_.getParameter<int>("TkSizeBin");
