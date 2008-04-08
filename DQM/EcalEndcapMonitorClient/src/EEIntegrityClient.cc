@@ -2,8 +2,8 @@
 /*
  * \file EEIntegrityClient.cc
  *
- * $Date: 2008/04/08 15:06:25 $
- * $Revision: 1.73 $
+ * $Date: 2008/04/08 18:05:28 $
+ * $Revision: 1.74 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -1146,7 +1146,7 @@ void EEIntegrityClient::htmlOutput(int run, string& htmlDir, string& htmlName){
     cDCC->cd();
     gStyle->SetOptStat(" ");
     obj1f->GetXaxis()->LabelsOption("v");
-    obj1f->GetXaxis()->SetLabelSize(0.05);
+    obj1f->GetXaxis()->SetLabelSize(0.2);
     obj1f->Draw();
     cDCC->Update();
     cDCC->SaveAs(imgName.c_str());
