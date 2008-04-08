@@ -30,8 +30,8 @@
 #include "Geometry/TrackerGeometryBuilder/interface/StripGeomDetUnit.h"
 
 #include "AnalysisDataFormats/SiStripClusterInfo/interface/SiStripClusterInfo.h"
-#include "AnalysisDataFormats/TrackInfo/interface/TrackInfo.h"
-#include "AnalysisDataFormats/TrackInfo/interface/TrackInfoTrackAssociation.h"
+#include "TrackingTools/PatternTools/interface/Trajectory.h"
+#include "TrackingTools/PatternTools/interface/TrajTrackAssociation.h"
 #include "CalibFormats/SiStripObjects/interface/SiStripDetCabling.h"
 
 #include "DQM/SiStripCommon/interface/SiStripFolderOrganizer.h"
@@ -47,6 +47,7 @@
 
 class SiStripMonitorTrack : public edm::EDAnalyzer {
  public:
+  typedef TransientTrackingRecHit::ConstRecHitPointer ConstRecHitPointer;
   explicit SiStripMonitorTrack(const edm::ParameterSet&);
   ~SiStripMonitorTrack();
   virtual void beginRun(const edm::Run& run, const edm::EventSetup& c);
@@ -67,6 +68,7 @@ class SiStripMonitorTrack : public edm::EDAnalyzer {
   // internal evaluation of monitorables
   void AllClusters(const edm::EventSetup& es);
   void trackStudy(const edm::EventSetup& es);
+  LocalPoint project(const GeomDet *det,const GeomDet* projdet,LocalPoint position,LocalVector trackdirection)const;
   bool clusterInfos(SiStripClusterInfo* cluster, const uint32_t& detid,std::string flag, LocalVector LV);	
   std::pair<std::string,int32_t> GetSubDetAndLayer(const uint32_t& detid);
   void RecHitInfo(const SiStripRecHit2D* tkrecHit, LocalVector LV,reco::TrackRef track_ref, const edm::EventSetup&);
@@ -129,8 +131,9 @@ class SiStripMonitorTrack : public edm::EDAnalyzer {
 
   edm::Handle< edm::DetSetVector<SiStripCluster> >  dsv_SiStripCluster;
 
-  edm::Handle<reco::TrackCollection> trackCollection;
-  edm::Handle<reco::TrackInfoTrackAssociationCollection> TItkAssociatorCollection;
+  edm::Handle<std::vector<Trajectory> > TrajectoryCollection;
+  edm::Handle<reco::TrackCollection > trackCollection;
+  edm::Handle<TrajTrackAssociationCollection> TItkAssociatorCollection;
   
   edm::ESHandle<TrackerGeometry> tkgeom;
   edm::ESHandle<SiStripDetCabling> SiStripDetCabling_;
