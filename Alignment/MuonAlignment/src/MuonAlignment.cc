@@ -257,7 +257,7 @@ void MuonAlignment::saveDTSurveyToDB(void) {
 
   for (std::vector<Alignable*>::const_iterator alignable = alignableList.begin();  alignable != alignableList.end();  ++alignable) {
      Alignable *aliid = *alignable;
-     while (aliid->id() == 0) aliid = aliid->components()[0];
+//     while (aliid->id() == 0) aliid = aliid->components()[0];  // Survey-reading code expects ID=0 for structures: is that correct?
 
      const align::PositionType &pos = (*alignable)->survey()->position();
      const align::RotationType &rot = (*alignable)->survey()->rotation();
@@ -293,7 +293,7 @@ void MuonAlignment::saveCSCSurveyToDB(void) {
 
   for (std::vector<Alignable*>::const_iterator alignable = alignableList.begin();  alignable != alignableList.end();  ++alignable) {
      Alignable *aliid = *alignable;
-     while (aliid->id() == 0) aliid = aliid->components()[0];
+//     while (aliid->id() == 0) aliid = aliid->components()[0];  // Survey-reading code expects ID=0 for structures: is that correct?
 
      const align::PositionType &pos = (*alignable)->survey()->position();
      const align::RotationType &rot = (*alignable)->survey()->rotation();
