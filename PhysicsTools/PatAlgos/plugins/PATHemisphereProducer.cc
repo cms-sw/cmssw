@@ -13,7 +13,7 @@
 //
 // Original Author:  Tanja Rommerskirchen
 //         Created:  Sat Mar 22 12:58:04 CET 2008
-// $Id: PATHemisphereProducer.cc,v 1.1.2.1 2008/04/07 08:23:44 adamwo Exp $
+// $Id: PATHemisphereProducer.cc,v 1.2 2008/04/07 17:39:22 adamwo Exp $
 //
 //
 
@@ -56,7 +56,10 @@ PATHemisphereProducer::PATHemisphereProducer(const edm::ParameterSet& iConfig) :
   _patMuons      ( iConfig.getParameter<edm::InputTag>( "patMuons" ) ),
   _patElectrons  ( iConfig.getParameter<edm::InputTag>( "patElectrons" ) ),
   _patPhotons    ( iConfig.getParameter<edm::InputTag>( "patPhotons" ) ),
-  _patTaus       ( iConfig.getParameter<edm::InputTag>( "patTaus" ) )
+  _patTaus       ( iConfig.getParameter<edm::InputTag>( "patTaus" ) ),
+  _seedMethod    ( iConfig.getParameter<int>("seedMethod") ),
+  _combinationMethod ( iConfig.getParameter<int>("combinationMethod") )
+
 
 
   //  _EJselectionCfg(iConfig.getParameter<edm::ParameterSet>("ElectronJetCrossCleaning")),    
@@ -167,7 +170,7 @@ PATHemisphereProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
    hemispheres->reserve(2);
 
   //calls HemiAlgorithm for seed method 3 (transv. inv. Mass) and association method 3 (Lund algo)
-  HemisphereAlgo myHemi(vPx,vPy,vPz,vE,3,3);
+  HemisphereAlgo myHemi(vPx,vPy,vPz,vE,_seedMethod,_combinationMethod);
 
   //get Hemisphere Axis 
   vA1 = myHemi.getAxis1();

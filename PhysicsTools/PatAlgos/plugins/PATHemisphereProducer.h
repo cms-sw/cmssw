@@ -13,7 +13,7 @@
 //
 // Original Author:  Christian AUTERMANN
 //         Created:  Sat Mar 22 12:58:04 CET 2008
-// $Id: PATHemisphereProducer.h,v 1.1.2.1 2008/04/07 08:23:44 adamwo Exp $
+// $Id: PATHemisphereProducer.h,v 1.2 2008/04/07 17:39:22 adamwo Exp $
 //
 //
 
@@ -56,7 +56,10 @@ class PATHemisphereProducer : public edm::EDProducer {
       edm::InputTag _patElectrons;
       edm::InputTag _patPhotons;
       edm::InputTag _patTaus;
-   
+
+      int _seedMethod; 
+      int _combinationMethod;
+
       HemisphereAlgo* myHemi;
       
       std::vector<float> vPx, vPy, vPz, vE; 
