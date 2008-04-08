@@ -183,7 +183,7 @@ void TrackingTruthProducer::produce(Event &event, const EventSetup &) {
       //Check for delta and interaction products discards
       //std::cout << hitcount << " Hit (proc, part) = " << hit.processType() << ", " << hit.particleType() << std::endl;
 
-      if(procType == hit.processType() && partType == hit.particleType()){
+      if(procType == hit.processType() && partType == hit.particleType() && pdgId == hit.particleType() ){
 	//std::cout << "PASSED" << std::endl;
         tp.addPSimHit(hit);
 
