@@ -86,11 +86,11 @@ class TIBDetId : public SiStripDetId {
   
   /** Returns true if the module is in internal part of the layer (smaller radius) */
   bool isInternalString() const
-  { return (!isExternalString());}
+  { return (string()[1] == 1);}
   
   /** Returns true if the module is in external part of the layer (bigger radius) */
   bool isExternalString() const
-  { return (string()[1] == 1);}
+  { return (!isInternalString());}
   
   /** Returns true if the module is rphi */
   bool isRPhi()
