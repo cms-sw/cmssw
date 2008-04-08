@@ -47,7 +47,9 @@ EcalUnpackerWorker::EcalUnpackerWorker(const edm::ParameterSet & conf){
 				  DCCpset.getParameter<bool>("tccUnpacking"),
 				  DCCpset.getParameter<bool>("feUnpacking"),
 				  DCCpset.getParameter<bool>("memUnpacking"),
-				  DCCpset.getParameter<bool>("syncCheck"));
+				  DCCpset.getParameter<bool>("feIdCheck"),
+				  DCCpset.getParameter<bool>("syncCheck")
+				  );
   
   unpacker_->setEBDigisCollection(&productDigisEB);
   unpacker_->setEEDigisCollection(&productDigisEE);
