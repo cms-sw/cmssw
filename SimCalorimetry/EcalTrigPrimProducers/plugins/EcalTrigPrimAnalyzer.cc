@@ -11,7 +11,7 @@
 //
 // Original Author:  Ursula Berthon, Stephanie Baffioni, Pascal Paganini
 //         Created:  Thu Jul 4 11:38:38 CEST 2005
-// $Id: EcalTrigPrimAnalyzer.cc,v 1.10 2008/04/01 09:33:11 uberthon Exp $
+// $Id: EcalTrigPrimAnalyzer.cc,v 1.11 2008/04/01 15:52:42 uberthon Exp $
 //
 //
 
@@ -21,7 +21,6 @@
 #include <utility>
 
 // user include files
-//#include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -113,7 +112,6 @@ EcalTrigPrimAnalyzer::analyze(const edm::Event& iEvent, const  edm::EventSetup &
   iEvent.getByLabel(label_,tp);
   for (unsigned int i=0;i<tp.product()->size();i++) {
     EcalTriggerPrimitiveDigi d=(*(tp.product()))[i];
-    //    for (int ii=0;ii<d.size();++ii) printf(" TP %d, sample %d, et %d\n",i,ii,d[ii].compressedEt());fflush(stdout);
     int subdet=d.id().subDet()-1;
     if (subdet==0) {
       ecal_et_[subdet]->Fill(d.compressedEt());
@@ -210,11 +208,12 @@ EcalTrigPrimAnalyzer::analyze(const edm::Event& iEvent, const  edm::EventSetup &
 
 
   EcalTPGScale ecalScale ;
+  ecalScale.setEventSetup(iSetup) ;
   for (unsigned int i=0;i<tp.product()->size();i++) {
     EcalTriggerPrimitiveDigi d=(*(tp.product()))[i];
     const EcalTrigTowerDetId TPtowid= d.id();
     map<EcalTrigTowerDetId, float>::iterator it=  mapTow_Et.find(TPtowid);
-    float Et = ecalScale.getTPGInGeV(iSetup, d) ; 
+    float Et = ecalScale.getTPGInGeV(d.compressedEt(), TPtowid) ; 
     if (d.id().ietaAbs()==27 || d.id().ietaAbs()==28)    Et*=2;
     iphi_ = TPtowid.iphi() ;
     ieta_ = TPtowid.ieta() ;
@@ -228,7 +227,6 @@ EcalTrigPrimAnalyzer::analyze(const edm::Event& iEvent, const  edm::EventSetup &
       eRec_ = it->second ;
     }
     tree_->Fill() ;
-    if (ttf_==3 && Et<1.) std::cout<<" problem with "<<TPtowid.rawId()<<" Et "<<Et<<std::endl;
   }
 
 }
