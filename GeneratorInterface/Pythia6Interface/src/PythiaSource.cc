@@ -1,6 +1,6 @@
 /*
- *  $Date: 2008/02/08 00:09:05 $
- *  $Revision: 1.19 $
+ *  $Date: 2008/02/21 19:09:18 $
+ *  $Revision: 1.21 $
  *  
  *  Filip Moorgat & Hector Naves 
  *  26/10/05
@@ -80,6 +80,25 @@ extern "C" {
    void SLHA_INIT();
 }
 
+#define PYGLFR pyglfr_
+  extern "C" {
+    void PYGLFR();
+}
+
+#define PYGLRHAD pyglrhad_
+  extern "C" {
+    void PYGLRHAD();
+}
+
+#define PYSTFR pyglfr_
+  extern "C" {
+    void PYSTLFR();
+}
+
+#define PYSTRHAD pystrhad_
+  extern "C" {
+    void PYSTRHAD();
+}
 
 HepMC::IO_HEPEVT conv;
 
@@ -96,6 +115,7 @@ PythiaSource::PythiaSource( const ParameterSet & pset,
   comenergy(pset.getUntrackedParameter<double>("comEnergy",14000.)),
   extCrossSect(pset.getUntrackedParameter<double>("crossSection", -1.)),
   extFilterEff(pset.getUntrackedParameter<double>("filterEfficiency", -1.)),
+  stopHadronsEnabled(false), gluinoHadronsEnabled(false),
   useExternalGenerators_(false),
   useTauola_(false),
   useTauolaPolarization_(false)
@@ -222,6 +242,14 @@ PythiaSource::PythiaSource( const ParameterSet & pset,
   
   }
   }
+
+   stopHadronsEnabled = pset.getParameter<bool>("stopHadrons");
+   gluinoHadronsEnabled = pset.getParameter<bool>("gluinoHadrons");
+
+  //Init names and pdg code of r-hadrons
+   if(stopHadronsEnabled)  PYSTRHAD();
+   if(gluinoHadronsEnabled)  PYGLRHAD();
+
   //In the future, we will get the random number seed on each event and tell 
   // pythia to use that new seed
   edm::Service<RandomNumberGenerator> rng;
@@ -302,11 +330,6 @@ PythiaSource::PythiaSource( const ParameterSet & pset,
 
 
 PythiaSource::~PythiaSource(){
-  call_pystat(1);
-  if ( useTauola_ ) {
-    tauola_.print();
-    //call_pretauola(1); // print TAUOLA decay statistics output
-  }
   clear(); 
 }
 
@@ -322,6 +345,12 @@ void PythiaSource::endRun(Run & r) {
  giprod->set_external_cross_section(extCrossSect);
  giprod->set_filter_efficiency(extFilterEff);
  r.put(giprod);
+
+  call_pystat(1);
+  if ( useTauola_ ) {
+    tauola_.print();
+    //call_pretauola(1); // print TAUOLA decay statistics output
+  }
 
 }
 
@@ -390,7 +419,19 @@ bool PythiaSource::produce(Event & e) {
 	  }
 	PYEXEC();
       } else {
-	call_pyevnt();      // generate one event with Pythia
+          if(!gluinoHadronsEnabled && !stopHadronsEnabled)
+	  {
+	     call_pyevnt();      // generate one event with Pythia
+	  }
+	  else
+          {
+             call_pygive("MSTJ(14)=-1");
+             call_pyevnt();      // generate one event with Pythia
+	     call_pygive("MSTJ(14)=1");
+             if(gluinoHadronsEnabled)  PYGLFR();
+             if(stopHadronsEnabled)  PYSTFR();
+          }
+	  
       }
 
     if ( useTauola_ ) {
