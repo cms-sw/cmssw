@@ -2,8 +2,8 @@
 /*
  * \file EBIntegrityClient.cc
  *
- * $Date: 2008/04/08 18:04:48 $
- * $Revision: 1.201 $
+ * $Date: 2008/04/08 19:06:52 $
+ * $Revision: 1.202 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -1091,8 +1091,9 @@ void EBIntegrityClient::htmlOutput(int run, string& htmlDir, string& htmlName){
 
     cDCC->cd();
     gStyle->SetOptStat(" ");
+    gPad->SetBottomMargin(0.2);
     obj1f->GetXaxis()->LabelsOption("v");
-    obj1f->GetXaxis()->SetLabelSize(0.2);
+    obj1f->GetXaxis()->SetLabelSize(0.05);
     obj1f->Draw();
     cDCC->Update();
     cDCC->SaveAs(imgName.c_str());
