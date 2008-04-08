@@ -200,6 +200,10 @@ void AnalysisRootpleProducer::beginJob( const EventSetup& )
 
   CalorimeterJet = new TClonesArray("TLorentzVector", 10000);
   AnalysisTree->Branch("CalorimeterJet", "TClonesArray", &CalorimeterJet, 128000, 0);
+
+  acceptedTriggers = new TClonesArray("TObjString", 10000);
+  AnalysisTree->Branch("acceptedTriggers", "TClonesArray", &acceptedTriggers, 128000, 0);
+
 }
 
   
@@ -209,24 +213,30 @@ void AnalysisRootpleProducer::analyze( const Event& e, const EventSetup& )
   e.getByLabel( triggerResultsTag, triggerResults );
   triggerNames.init( *(triggerResults.product()) );
 
+  acceptedTriggers->Clear();
+  unsigned int iAcceptedTriggers( 0 ); 
   if ( triggerResults.product()->wasrun() )
     {
-      cout << "at least one path out of " << triggerResults.product()->size() << " ran? " << triggerResults.product()->wasrun() << endl;
+      //cout << "at least one path out of " << triggerResults.product()->size() << " ran? " << triggerResults.product()->wasrun() << endl;
   
       if ( triggerResults.product()->accept() ) 
 	{
-	  cout << "at least one path accepted? " << triggerResults.product()->accept() << endl;
+	  //cout << endl << "at least one path accepted? " << triggerResults.product()->accept() << endl;
 
 	  const unsigned int n_TriggerResults( triggerResults.product()->size() );
 	  for ( unsigned int itrig( 0 ); itrig < n_TriggerResults; ++itrig )
 	    {
 	      if ( triggerResults.product()->accept( itrig ) )
 		{
-		  cout << "path " << triggerNames.triggerName( itrig );
-		  cout << ", module index " << triggerResults.product()->index( itrig );
-		  cout << ", state (Ready = 0, Pass = 1, Fail = 2, Exception = 3) " << triggerResults.product()->state( itrig );
-		  cout << ", accept " << triggerResults.product()->accept( itrig );
-		  cout << endl;
+		  //cout << "path " << triggerNames.triggerName( itrig );
+		  //cout << ", module index " << triggerResults.product()->index( itrig );
+		  //cout << ", state (Ready = 0, Pass = 1, Fail = 2, Exception = 3) " << triggerResults.product()->state( itrig );
+		  //cout << ", accept " << triggerResults.product()->accept( itrig );
+		  //cout << endl;
+
+		  // save name of accepted trigger path
+		  new((*acceptedTriggers)[iAcceptedTriggers]) TObjString( (triggerNames.triggerName( itrig )).c_str() );
+		  ++iAcceptedTriggers;
 		}
 	    }
 	}

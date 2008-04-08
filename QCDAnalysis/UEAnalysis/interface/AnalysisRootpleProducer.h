@@ -20,6 +20,7 @@
 #include <TTree.h>
 #include <TFile.h>
 #include <TLorentzVector.h>
+#include <TObjString.h>
 #include <TClonesArray.h>
 
 #include "DataFormats/JetReco/interface/Jet.h"
@@ -115,7 +116,7 @@ private:
   TClonesArray* Track;
   TClonesArray* TracksJet;
   TClonesArray* CalorimeterJet;
-
+  TClonesArray* acceptedTriggers;
 };
 
 #endif
