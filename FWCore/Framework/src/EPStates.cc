@@ -1,9 +1,13 @@
 
-// $Id: EPStates.cc,v 1.4 2008/02/27 20:08:12 wmtan Exp $
+// $Id: EPStates.cc,v 1.5 2008/03/11 18:33:56 wdd Exp $
 
 #include "FWCore/Framework/src/EPStates.h"
 #include "FWCore/Framework/interface/IEventProcessor.h"
+#include "FWCore/Utilities/interface/Exception.h"
 
+#include <exception>
+#include <sstream>
+#include <string>
 
 namespace statemachine {
 
@@ -47,10 +51,64 @@ namespace statemachine {
 
   HandleFiles::HandleFiles(my_context ctx) :
     my_base(ctx),
-    ep_(context< Machine >().ep()) { }
+    ep_(context< Machine >().ep()),
+    exitCalled_(false) { }
+
+  void HandleFiles::exit() {
+    exitCalled_ = true;
+    closeFiles();
+  }
 
   HandleFiles::~HandleFiles() {
-    closeFiles();
+    if (!exitCalled_) {
+      try {
+        closeFiles();
+      }
+      catch (cms::Exception& e) {
+        std::ostringstream message;
+        message << "------------------------------------------------------------\n"
+                << "Another exception was caught while trying to clean up files after\n" 
+                << "the primary exception.  We give up trying to clean up files at\n"
+                << "this point.  The description of this additional exception follows:\n" 
+                << "cms::Exception\n"
+                << e.explainSelf();
+        std::string msg(message.str());
+        ep_.setExceptionMessageFiles(msg);
+      }
+      catch (std::bad_alloc& e) {
+        std::ostringstream message;
+        message << "------------------------------------------------------------\n"
+                << "Another exception was caught while trying to clean up files\n" 
+                << "after the primary exception.  We give up trying to clean up files\n"
+                << "at this point.  This additional exception was a\n" 
+                << "std::bad_alloc exception thrown inside HandleFiles::closeFiles.\n"
+                << "The job has probably exhausted the virtual memory available\n"
+                << "to the process.\n";
+        std::string msg(message.str());
+        ep_.setExceptionMessageFiles(msg);
+      }
+      catch (std::exception& e) {
+        std::ostringstream message;
+        message << "------------------------------------------------------------\n"
+                << "Another exception was caught while trying to clean up files after\n" 
+                << "the primary exception.  We give up trying to clean up files at\n"
+                << "this point.  This additional exception was a\n" 
+                << "standard library exception thrown inside HandleFiles::closeFiles\n"
+                << e.what() << "\n";
+        std::string msg(message.str());
+        ep_.setExceptionMessageFiles(msg);
+      }
+      catch (...) {
+        std::ostringstream message;
+        message << "------------------------------------------------------------\n"
+                << "Another exception was caught while trying to clean up files after\n" 
+                << "the primary exception.  We give up trying to clean up files at\n"
+                << "this point.  This additional exception was of unknown type and\n" 
+                << "thrown inside HandleFiles::closeFiles\n";
+        std::string msg(message.str());
+        ep_.setExceptionMessageFiles(msg);
+      }
+    }
   }
 
   void HandleFiles::closeFiles() {
@@ -184,12 +242,66 @@ namespace statemachine {
   HandleRuns::HandleRuns(my_context ctx) : 
     my_base(ctx),
     ep_(context< Machine >().ep()),
+    exitCalled_(false),
     beginRunCalled_(false),
     currentRun_(INVALID_RUN),
     runException_(false) { }
 
-  HandleRuns::~HandleRuns() {
+  void HandleRuns::exit() {
+    exitCalled_ = true;
     finalizeRun();
+  }
+
+  HandleRuns::~HandleRuns() {
+    if (!exitCalled_) {
+      try {
+        finalizeRun();
+      }
+      catch (cms::Exception& e) {
+        std::ostringstream message;
+        message << "------------------------------------------------------------\n"
+                << "Another exception was caught while trying to clean up runs after\n" 
+                << "the primary exception.  We give up trying to clean up runs at\n"
+                << "this point.  The description of this additional exception follows:\n" 
+                << "cms::Exception\n"
+                << e.explainSelf();
+        std::string msg(message.str());
+        ep_.setExceptionMessageRuns(msg);
+      }
+      catch (std::bad_alloc& e) {
+        std::ostringstream message;
+        message << "------------------------------------------------------------\n"
+                << "Another exception was caught while trying to clean up runs\n" 
+                << "after the primary exception.  We give up trying to clean up runs\n"
+                << "at this point.  This additional exception was a\n" 
+                << "std::bad_alloc exception thrown inside HandleRuns::finalizeRun.\n"
+                << "The job has probably exhausted the virtual memory available\n"
+                << "to the process.\n";
+        std::string msg(message.str());
+        ep_.setExceptionMessageRuns(msg);
+      }
+      catch (std::exception& e) {
+        std::ostringstream message;
+        message << "------------------------------------------------------------\n"
+                << "Another exception was caught while trying to clean up runs after\n" 
+                << "the primary exception.  We give up trying to clean up runs at\n"
+                << "this point.  This additional exception was a\n" 
+                << "standard library exception thrown inside HandleRuns::finalizeRun\n"
+                << e.what() << "\n";
+        std::string msg(message.str());
+        ep_.setExceptionMessageRuns(msg);
+      }
+      catch (...) {
+        std::ostringstream message;
+        message << "------------------------------------------------------------\n"
+                << "Another exception was caught while trying to clean up runs after\n" 
+                << "the primary exception.  We give up trying to clean up runs at\n"
+                << "this point.  This additional exception was of unknown type and\n" 
+                << "thrown inside HandleRuns::finalizeRun\n";
+        std::string msg(message.str());
+        ep_.setExceptionMessageRuns(msg);
+      }
+    }
   }
 
   bool HandleRuns::beginRunCalled() const { return beginRunCalled_; }
@@ -230,6 +342,7 @@ namespace statemachine {
   void HandleRuns::finalizeRun() {
 
     if (runException_) return;
+    runException_ = true;
 
     if (beginRunCalled_) endRun(currentRun());
     if (context< Machine >().fileMode() == SPARSE) {
@@ -237,6 +350,7 @@ namespace statemachine {
       ep_.deleteRunFromCache(currentRun_);
     }
     currentRun_ = INVALID_RUN;
+    runException_ = false;   
   }
 
   void HandleRuns::beginRunIfNotDoneAlready() {
@@ -331,6 +445,7 @@ namespace statemachine {
   HandleLumis::HandleLumis(my_context ctx) :
     my_base(ctx),
     ep_(context< Machine >().ep()),
+    exitCalled_(false),
     currentLumiEmpty_(true),
     currentLumi_(INVALID_LUMI),
     lumiException_(false)
@@ -338,9 +453,63 @@ namespace statemachine {
     checkInvariant();
   }
 
-  HandleLumis::~HandleLumis() {
+  void HandleLumis::exit() {
+    exitCalled_ = true;
     checkInvariant();
     finalizeAllLumis();
+  }
+
+  HandleLumis::~HandleLumis() {
+    if (!exitCalled_) {
+      try {
+        checkInvariant();
+        finalizeAllLumis();
+      }
+      catch (cms::Exception& e) {
+        std::ostringstream message;
+        message << "------------------------------------------------------------\n"
+                << "Another exception was caught while trying to clean up lumis after\n" 
+                << "the primary exception.  We give up trying to clean up lumis at\n"
+                << "this point.  The description of this additional exception follows:\n" 
+                << "cms::Exception\n"
+                << e.explainSelf();
+        std::string msg(message.str());
+        ep_.setExceptionMessageLumis(msg);
+      }
+      catch (std::bad_alloc& e) {
+        std::ostringstream message;
+        message << "------------------------------------------------------------\n"
+                << "Another exception was caught while trying to clean up lumis\n" 
+                << "after the primary exception.  We give up trying to clean up lumis\n"
+                << "at this point.  This additional exception was a\n" 
+                << "std::bad_alloc exception thrown inside HandleLumis::finalizeAllLumis.\n"
+                << "The job has probably exhausted the virtual memory available\n"
+                << "to the process.\n";
+        std::string msg(message.str());
+        ep_.setExceptionMessageLumis(msg);
+      }
+      catch (std::exception& e) {
+        std::ostringstream message;
+        message << "------------------------------------------------------------\n"
+                << "Another exception was caught while trying to clean up lumis after\n" 
+                << "the primary exception.  We give up trying to clean up lumis at\n"
+                << "this point.  This additional exception was a\n" 
+                << "standard library exception thrown inside HandleLumis::finalizeAllLumis\n"
+                << e.what() << "\n";
+        std::string msg(message.str());
+        ep_.setExceptionMessageLumis(msg);
+      }
+      catch (...) {
+        std::ostringstream message;
+        message << "------------------------------------------------------------\n"
+                << "Another exception was caught while trying to clean up lumis after\n" 
+                << "the primary exception.  We give up trying to clean up lumis at\n"
+                << "this point.  This additional exception was of unknown type and\n" 
+                << "thrown inside HandleLumis::finalizeAllLumis\n";
+        std::string msg(message.str());
+        ep_.setExceptionMessageLumis(msg);
+      }
+    }
   }
 
   bool HandleLumis::checkInvariant() {

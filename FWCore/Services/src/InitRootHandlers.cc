@@ -100,19 +100,19 @@ void RootErrorHandler(int level, bool die, const char* location, const char* mes
 
 // Feed the message to the MessageLogger... let it choose to suppress or not.
 
-  if (el_severity == edm::ELseverityLevel::ELsev_fatal) {
+  if (el_severity == edm::ELseverityLevel::ELsev_fatal && !die) {
     edm::LogError("Root_Fatal") << el_location << el_message;
   }
-  else if (el_severity == edm::ELseverityLevel::ELsev_severe) {
+  else if (el_severity == edm::ELseverityLevel::ELsev_severe && !die) {
     edm::LogError("Root_Severe") << el_location << el_message;
   }
-  else if (el_severity == edm::ELseverityLevel::ELsev_error) {
+  else if (el_severity == edm::ELseverityLevel::ELsev_error && !die) {
     edm::LogError("Root_Error") << el_location << el_message;
   }
-  else if (el_severity == edm::ELseverityLevel::ELsev_warning) {
+  else if (el_severity == edm::ELseverityLevel::ELsev_warning && !die) {
     edm::LogWarning("Root_Warning") << el_location << el_message ;
   }
-  else if (el_severity == edm::ELseverityLevel::ELsev_info) {
+  else if (el_severity == edm::ELseverityLevel::ELsev_info && !die) {
     edm::LogInfo("Root_Information") << el_location << el_message ;
   }
 
@@ -121,7 +121,7 @@ void RootErrorHandler(int level, bool die, const char* location, const char* mes
    if (die) {
 // Throw an edm::Exception instead of just aborting
      std::ostringstream sstr;
-     sstr << "Fatal Root Error: " << el_message << '\n';
+     sstr << "Fatal Root Error: " << el_location << "\n" << el_message << '\n';
      edm::Exception except(edm::errors::FatalRootError, sstr.str());
      throw except;
    }

@@ -1,6 +1,6 @@
 
 /*
-$Id: MockEventProcessor.cc,v 1.7 2008/03/18 18:41:29 wdd Exp $
+$Id: MockEventProcessor.cc,v 1.8 2008/04/04 16:11:03 wdd Exp $
 */
 
 #include "FWCore/Framework/test/MockEventProcessor.h"
@@ -226,4 +226,8 @@ namespace edm {
     output_ << "\tshouldWeStop\n";
     return shouldWeStop_;
   }
+
+  void MockEventProcessor::setExceptionMessageFiles(std::string& message) { }
+  void MockEventProcessor::setExceptionMessageRuns(std::string& message) { }
+  void MockEventProcessor::setExceptionMessageLumis(std::string& message) { }
 }

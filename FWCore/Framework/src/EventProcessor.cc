@@ -786,17 +786,8 @@ namespace edm {
     // exception and another one is thrown here ...  For a critical
     // executable the solution to this problem is for the code using
     // the EventProcessor to explicitly call EndJob or use runToCompletion,
-    // then the next section of code is never executed.
-    if (machine_.get() != 0) {
-      if (!machine_->terminated()) {
-        machine_->process_event(statemachine::Stop());
-        // Two stops are needed if there is a looper running
-        if (!machine_->terminated()) {
-          machine_->process_event(statemachine::Stop());
-        }
-      }
-      machine_.reset();
-    }
+    // then the next line of code is never executed.
+    terminateMachine(false);
 
     try {
       changeState(mDtor);
@@ -1301,23 +1292,13 @@ namespace edm {
     //make the services available
     ServiceRegistry::Operate operate(serviceToken_);  
 
-    if (machine_.get() != 0) {
-      if (!machine_->terminated()) {
-        machine_->process_event(statemachine::Stop());
-        // Two stops are needed if there is a looper running
-        if (!machine_->terminated()) {
-          machine_->process_event(statemachine::Stop());
-        }
-      }
-      machine_.reset();
-    }
+    terminateMachine(false);
 
     if(looper_) {
        looper_->endOfJob();
     }
     try {
 	schedule_->endJob();
-	schedule_->closeOutputFiles();
     }
     catch(...) {
       try {
@@ -1737,10 +1718,7 @@ namespace edm {
       machine_->initiate();
     }
 
-    {
-      // This sentry will cause the machine to try to clean
-      // things up and terminate if an exception is thrown 
-      MachineSentry machineSentry(this);
+    try {
 
       InputSource::ItemType itemType;
 
@@ -1802,8 +1780,43 @@ namespace edm {
           break;
         }
       }  // End of loop over state machine events
-      machineSentry.succeeded();
-    } // End of machine sentry scope, stops machine on exceptions
+    } // Try block 
+
+
+    catch (cms::Exception& e) {
+      terminateMachine(true);
+      e << "cms::Exception caught in EventProcessor and rethrown\n";
+      e << exceptionMessageLumis_;
+      e << exceptionMessageRuns_;
+      e << exceptionMessageFiles_;
+      throw e;
+    }
+    catch (std::bad_alloc& e) {
+      terminateMachine(true);
+      throw cms::Exception("std::bad_alloc")
+        << "The EventProcessor caught a std::bad_alloc exception and converted it to a cms::Exception\n"
+        << "The job has probably exhausted the virtual memory available to the process.\n"
+        << exceptionMessageLumis_
+        << exceptionMessageRuns_
+        << exceptionMessageFiles_;
+    }
+    catch (std::exception& e) {
+      terminateMachine(true);
+      throw cms::Exception("StdException")
+        << "The EventProcessor caught a std::exception and converted it to a cms::Exception\n"
+        << "Previous information:\n" << e.what() << "\n"
+        << exceptionMessageLumis_
+        << exceptionMessageRuns_
+        << exceptionMessageFiles_;
+    }
+    catch (...) {
+      terminateMachine(true);
+      throw cms::Exception("Unknown")
+        << "The EventProcessor caught an unknown exception type and converted it to a cms::Exception\n"
+        << exceptionMessageLumis_
+        << exceptionMessageRuns_
+        << exceptionMessageFiles_;
+    }
 
     if (machine_->terminated()) {
       FDEBUG(1) << "The state machine reports it has been terminated\n";
@@ -2014,5 +2027,38 @@ namespace edm {
     FDEBUG(1) << "\tshouldWeStop\n";
     if (shouldWeStop_) return true;
     return schedule_->terminate();
+  }
+
+  void EventProcessor::setExceptionMessageFiles(std::string& message) {
+    exceptionMessageFiles_ = message;
+  }
+
+  void EventProcessor::setExceptionMessageRuns(std::string& message) {
+    exceptionMessageRuns_ = message;
+  }
+
+  void EventProcessor::setExceptionMessageLumis(std::string& message) {
+    exceptionMessageLumis_ = message;
+  }
+
+  void EventProcessor::terminateMachine(bool afterException) {
+    if (machine_.get() != 0) {
+      if (!afterException) {
+        if (!machine_->terminated()) {
+          machine_->process_event(statemachine::Stop());
+          // Two stops are needed if there is a looper running
+          if (!machine_->terminated()) {
+            machine_->process_event(statemachine::Stop());
+          }
+        }
+      }
+      if (machine_->terminated()) {
+        FDEBUG(1) << "The state machine reports it has been terminated (3)\n";
+      }
+      else {
+        FDEBUG(1) << "Intentionally destroying the state machine without normal termination\n";
+      }
+      machine_.reset();
+    }
   }
 }
