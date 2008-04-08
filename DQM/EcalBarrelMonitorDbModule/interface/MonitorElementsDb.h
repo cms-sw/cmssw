@@ -1,4 +1,4 @@
-// $Id: MonitorElementsDb.h,v 1.6 2008/03/14 14:38:55 dellaric Exp $
+// $Id: MonitorElementsDb.h,v 1.7 2008/04/08 15:06:22 dellaric Exp $
 
 #ifndef MonitorElementsDb_H
 #define MonitorElementsDb_H
@@ -7,8 +7,8 @@
   \file MonitorElementsDb.h
   \brief Generate a Monitor Element from DB data
   \author B. Gobbo 
-  \version $Revision: 1.6 $
-  \date $Date: 2008/03/14 14:38:55 $
+  \version $Revision: 1.7 $
+  \date $Date: 2008/04/08 15:06:22 $
 */
 
 
@@ -60,6 +60,7 @@ class MonitorElementsDb{
 
  private:
 
+  std::string                   prefixME_;
   std::string                   xmlFile_;
   MonitorXMLParser*             parser_;
   std::vector<DB_ME>            MEinfo_;

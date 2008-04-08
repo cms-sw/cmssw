@@ -4,8 +4,8 @@
 /*
  * \file EcalBarrelMonitorDbModule.h
  *
- * $Date: 2008/02/29 15:03:17 $
- * $Revision: 1.9 $
+ * $Date: 2008/04/08 15:06:22 $
+ * $Revision: 1.10 $
  * \author G. Della Ricca
  *
 */
@@ -50,6 +50,8 @@ class EcalBarrelMonitorDbModule: public edm::EDAnalyzer{
   int icycle_;
  
   DQMStore* dqmStore_;
+
+  std::string prefixME_;
 
   std::string htmlDir_;
 

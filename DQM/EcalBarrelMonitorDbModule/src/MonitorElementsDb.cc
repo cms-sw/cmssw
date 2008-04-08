@@ -1,11 +1,11 @@
-// $Id: MonitorElementsDb.cc,v 1.16 2008/03/15 14:07:45 dellaric Exp $
+// $Id: MonitorElementsDb.cc,v 1.17 2008/04/08 15:06:22 dellaric Exp $
 
 /*!
   \file MonitorElementsDb.cc
   \brief Generate a Monitor Element from DB data
-  \author B. Gobbo 
-  \version $Revision: 1.16 $
-  \date $Date: 2008/03/15 14:07:45 $
+  \author B. Gobbo
+  \version $Revision: 1.17 $
+  \date $Date: 2008/04/08 15:06:22 $
 */
 
 #include "FWCore/ServiceRegistry/interface/Service.h"
@@ -39,12 +39,13 @@ MonitorElementsDb::MonitorElementsDb( const edm::ParameterSet& ps, std::string& 
 
   xmlFile_ = xmlFile;
 
-  // get hold of back-end interface
   dqmStore_ = edm::Service<DQMStore>().operator->();
+
+  prefixME_ = ps.getUntrackedParameter<std::string>("prefixME", "");
 
   if ( dqmStore_ ) {
 
-    dqmStore_->setCurrentFolder("EcalBarrel/MonitorElementsDb");
+    dqmStore_->setCurrentFolder( prefixME_ );
 
     parser_ = new MonitorXMLParser( xmlFile_ );
     try {
@@ -72,7 +73,7 @@ MonitorElementsDb::MonitorElementsDb( const edm::ParameterSet& ps, std::string& 
       }
       else if( strcmp(MEinfo_[i].type.c_str(), "tprofile2d") == 0 ) {
         tmp = dqmStore_->bookProfile2D( MEinfo_[i].title, MEinfo_[i].title, MEinfo_[i].xbins, MEinfo_[i].xfrom, MEinfo_[i].xto,
-        			   MEinfo_[i].ybins, MEinfo_[i].yfrom, MEinfo_[i].yto, 
+        			   MEinfo_[i].ybins, MEinfo_[i].yfrom, MEinfo_[i].yto,
         			   MEinfo_[i].zbins, MEinfo_[i].zfrom, MEinfo_[i].zto );
       }
 
@@ -162,7 +163,7 @@ void MonitorElementsDb::analyze( const edm::Event& e, const edm::EventSetup& c, 
             vvars.clear();
             for( unsigned int l=0; l<vars.size(); l++ ) {
               if( !vars[l].empty() ) {
-        	vvars.push_back( row[vars[l].c_str()].data<float>() );  
+        	vvars.push_back( row[vars[l].c_str()].data<float>() );
               }
             }
             if( vvars.size() == 2 ) {
@@ -211,7 +212,7 @@ void MonitorElementsDb::htmlOutput(std::string& htmlDir){
   gStyle->SetOptStat(0);
   gStyle->SetOptFit();
   gStyle->SetPalette(1,0);
- 
+
   for( unsigned int i=0; i<MEinfo_.size(); i++ ) {
 
     if( MEs_[i] != 0 && ( ievt_ % MEinfo_[i].ncycle ) == 0 ) {
@@ -257,7 +258,7 @@ void MonitorElementsDb::htmlOutput(std::string& htmlDir){
       }
 
       c1->Update();
-      std::string name = htmlDir + "/" + MEinfo_[i].title + ".png"; 
+      std::string name = htmlDir + "/" + MEinfo_[i].title + ".png";
       c1->SaveAs( name.c_str() );
 
       delete c1;

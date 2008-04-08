@@ -1,8 +1,8 @@
 /*
  * \file EcalEndcapMonitorDbModule.cc
- * 
- * $Date: 2008/02/29 15:06:39 $
- * $Revision: 1.10 $
+ *
+ * $Date: 2008/04/08 15:06:26 $
+ * $Revision: 1.11 $
  * \author G. Della Ricca
  *
 */
@@ -30,8 +30,9 @@
 
 EcalEndcapMonitorDbModule::EcalEndcapMonitorDbModule(const edm::ParameterSet& ps){
 
-  // get hold of back-end interface
   dqmStore_ = edm::Service<DQMStore>().operator->();
+
+  prefixME_ = ps.getUntrackedParameter<std::string>("prefixME", "");
 
   xmlFile_ = ps.getUntrackedParameter<std::string>( "xmlFile", "" );
   if ( xmlFile_.size() != 0 ) {
@@ -40,7 +41,7 @@ EcalEndcapMonitorDbModule::EcalEndcapMonitorDbModule(const edm::ParameterSet& ps
 
   sleepTime_ = ps.getUntrackedParameter<int>( "sleepTime", 0 );
   std::cout << "Sleep time is " << sleepTime_ << " second(s)." << std::endl;
-  
+
   // html output directory
   htmlDir_ = ps.getUntrackedParameter<std::string>("htmlDir", ".");
 
@@ -52,9 +53,9 @@ EcalEndcapMonitorDbModule::EcalEndcapMonitorDbModule(const edm::ParameterSet& ps
   }
 
   ME_Db_ = new MonitorElementsDb( ps, xmlFile_ );
-  
+
   if ( dqmStore_ ) dqmStore_->showDirStructure();
-  
+
 }
 
 EcalEndcapMonitorDbModule::~EcalEndcapMonitorDbModule(){
@@ -80,9 +81,9 @@ void EcalEndcapMonitorDbModule::endJob(void) {
 }
 
 void EcalEndcapMonitorDbModule::analyze(const edm::Event& e, const edm::EventSetup& c){
-  
+
   icycle_++;
-  
+
   std::cout << "EcalEndcapMonitorDbModule: icycle = " << icycle_ << std::endl;
 
   try {
@@ -100,9 +101,9 @@ void EcalEndcapMonitorDbModule::analyze(const edm::Event& e, const edm::EventSet
       msgSvc->setOutputLevel(seal::Msg::Error);
       //msgSvc->setOutputLevel(seal::Msg::Debug);
     }
-    
+
     loader->load("CORAL/Services/ConnectionService");
-    
+
     loader->load("CORAL/Services/EnvironmentAuthenticationService");
 
     seal::IHandle<coral::IConnectionService> connectionService = context->query<coral::IConnectionService>("CORAL/Services/ConnectionService");
@@ -114,10 +115,10 @@ void EcalEndcapMonitorDbModule::analyze(const edm::Event& e, const edm::EventSet
     config.setConnectionRetrialPeriod(1);
     config.setConnectionRetrialTimeOut(10);
 
-    session_ = connectionService->connect("ECAL CondDB", coral::ReadOnly);    
+    session_ = connectionService->connect("ECAL CondDB", coral::ReadOnly);
 
     if ( ME_Db_ ) ME_Db_->analyze(e, c, session_ );
-    
+
   } catch (coral::Exception& e) {
     std::cerr << "CORAL Exception : " << e.what() << std::endl;
   } catch (std::exception& e) {
@@ -130,7 +131,6 @@ void EcalEndcapMonitorDbModule::analyze(const edm::Event& e, const edm::EventSet
 
   }
 
-  
   delete session_;
 
   sleep( sleepTime_ );
