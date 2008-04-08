@@ -1,8 +1,8 @@
 /*
  * \file EBTriggerTowerTask.cc
  *
- * $Date: 2008/04/05 21:06:23 $
- * $Revision: 1.67 $
+ * $Date: 2008/04/07 11:30:23 $
+ * $Revision: 1.68 $
  * \author C. Bernet
  * \author G. Della Ricca
  * \author E. Di Marco
@@ -33,7 +33,7 @@ EBTriggerTowerTask::EBTriggerTowerTask(const ParameterSet& ps) {
   init_ = false;
 
   // get hold of back-end interface
-  dbe_ = Service<DQMStore>().operator->();
+  dqmStore_ = Service<DQMStore>().operator->();
 
   reserveArray(meEtMapReal_);
   reserveArray(meVetoReal_);
@@ -84,9 +84,9 @@ void EBTriggerTowerTask::beginJob(const EventSetup& c){
 
   ievt_ = 0;
 
-  if ( dbe_ ) {
-    dbe_->setCurrentFolder("EcalBarrel/EBTriggerTowerTask");
-    dbe_->rmdir("EcalBarrel/EBTriggerTowerTask");
+  if ( dqmStore_ ) {
+    dqmStore_->setCurrentFolder("EcalBarrel/EBTriggerTowerTask");
+    dqmStore_->rmdir("EcalBarrel/EBTriggerTowerTask");
   }
 
   Numbers::initGeometry(c, false);
@@ -97,8 +97,8 @@ void EBTriggerTowerTask::setup(void){
 
   init_ = true;
 
-  if ( dbe_ ) {
-    // dbe_->showDirStructure();
+  if ( dqmStore_ ) {
+    // dqmStore_->showDirStructure();
 
     setup( "Real Digis",
            "EcalBarrel/EBTriggerTowerTask", false );
@@ -126,7 +126,7 @@ void EBTriggerTowerTask::setup( const char* nameext,
     meFlags= &meFlagsEmul_;
   }
 
-  dbe_->setCurrentFolder(folder);
+  dqmStore_->setCurrentFolder(folder);
 
   static const unsigned namesize = 200;
 
@@ -146,36 +146,36 @@ void EBTriggerTowerTask::setup( const char* nameext,
     string etMapNameSM = etMapName;
     etMapNameSM += " " + Numbers::sEB(i+1);
 
-    (*meEtMap)[i] = dbe_->book3D(etMapNameSM.c_str(), etMapNameSM.c_str(),
+    (*meEtMap)[i] = dqmStore_->book3D(etMapNameSM.c_str(), etMapNameSM.c_str(),
                                 nTTEta, 0, nTTEta,
                                 nTTPhi, 0, nTTPhi,
                                 256, 0, 256.);
     (*meEtMap)[i]->setAxisTitle("ieta'", 1);
     (*meEtMap)[i]->setAxisTitle("iphi'", 2);
-    dbe_->tag((*meEtMap)[i], i+1);
+    dqmStore_->tag((*meEtMap)[i], i+1);
 
     string  fineGrainVetoNameSM = fineGrainVetoName;
     fineGrainVetoNameSM += " " + Numbers::sEB(i+1);
 
-    (*meVeto)[i] = dbe_->book3D(fineGrainVetoNameSM.c_str(),
+    (*meVeto)[i] = dqmStore_->book3D(fineGrainVetoNameSM.c_str(),
                                fineGrainVetoNameSM.c_str(),
                                nTTEta, 0, nTTEta,
                                nTTPhi, 0, nTTPhi,
                                2, 0., 2.);
     (*meVeto)[i]->setAxisTitle("ieta'", 1);
     (*meVeto)[i]->setAxisTitle("iphi'", 2);
-    dbe_->tag((*meVeto)[i], i+1);
+    dqmStore_->tag((*meVeto)[i], i+1);
 
     string  flagsNameSM = flagsName;
     flagsNameSM += " " + Numbers::sEB(i+1);
 
-    (*meFlags)[i] = dbe_->book3D(flagsNameSM.c_str(), flagsNameSM.c_str(),
+    (*meFlags)[i] = dqmStore_->book3D(flagsNameSM.c_str(), flagsNameSM.c_str(),
                                 nTTEta, 0, nTTEta,
                                 nTTPhi, 0, nTTPhi,
                                 8, 0., 8.);
     (*meFlags)[i]->setAxisTitle("ieta'", 1);
     (*meFlags)[i]->setAxisTitle("iphi'", 2);
-    dbe_->tag((*meFlags)[i], i+1);
+    dqmStore_->tag((*meFlags)[i], i+1);
 
 
     if(!emulated) {
@@ -183,37 +183,37 @@ void EBTriggerTowerTask::setup( const char* nameext,
       string  emulErrorNameSM = emulErrorName;
       emulErrorNameSM += " " + Numbers::sEB(i+1);
 
-      meEmulError_[i] = dbe_->book2D(emulErrorNameSM.c_str(),
+      meEmulError_[i] = dqmStore_->book2D(emulErrorNameSM.c_str(),
                                     emulErrorNameSM.c_str(),
                                     nTTEta, 0., nTTEta,
                                     nTTPhi, 0., nTTPhi );
       meEmulError_[i]->setAxisTitle("ieta'", 1);
       meEmulError_[i]->setAxisTitle("iphi'", 2);
-      dbe_->tag(meEmulError_[i], i+1);
+      dqmStore_->tag(meEmulError_[i], i+1);
 
       string  emulFineGrainVetoErrorNameSM = emulFineGrainVetoErrorName;
       emulFineGrainVetoErrorNameSM += " " + Numbers::sEB(i+1);
 
-      meVetoEmulError_[i] = dbe_->book3D(emulFineGrainVetoErrorNameSM.c_str(),
+      meVetoEmulError_[i] = dqmStore_->book3D(emulFineGrainVetoErrorNameSM.c_str(),
                                           emulFineGrainVetoErrorNameSM.c_str(),
                                           nTTEta, 0., nTTEta,
                                           nTTPhi, 0., nTTPhi,
                                           8, 0., 8.);
       meVetoEmulError_[i]->setAxisTitle("ieta'", 1);
       meVetoEmulError_[i]->setAxisTitle("iphi'", 2);
-      dbe_->tag(meVetoEmulError_[i], i+1);
+      dqmStore_->tag(meVetoEmulError_[i], i+1);
 
       string  emulFlagErrorNameSM = emulFlagErrorName;
       emulFlagErrorNameSM += " " + Numbers::sEB(i+1);
 
-      meFlagEmulError_[i] = dbe_->book3D(emulFlagErrorNameSM.c_str(),
+      meFlagEmulError_[i] = dqmStore_->book3D(emulFlagErrorNameSM.c_str(),
                                           emulFlagErrorNameSM.c_str(),
                                           nTTEta, 0., nTTEta,
                                           nTTPhi, 0., nTTPhi,
                                           8, 0., 8.);
       meFlagEmulError_[i]->setAxisTitle("ieta'", 1);
       meFlagEmulError_[i]->setAxisTitle("iphi'", 2);
-      dbe_->tag(meFlagEmulError_[i], i+1);
+      dqmStore_->tag(meFlagEmulError_[i], i+1);
 
     }
   }
@@ -224,11 +224,11 @@ void EBTriggerTowerTask::cleanup(void) {
 
   if ( ! enableCleanup_ ) return;
 
-  if ( dbe_ ) {
+  if ( dqmStore_ ) {
 
-    if( !outputFile_.empty() ) dbe_->save( outputFile_.c_str() );
+    if( !outputFile_.empty() ) dqmStore_->save( outputFile_.c_str() );
 
-    dbe_->rmdir( "EcalBarrel/EBTriggerTowerTask" );
+    dqmStore_->rmdir( "EcalBarrel/EBTriggerTowerTask" );
 
   }
 

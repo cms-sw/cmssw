@@ -4,8 +4,8 @@
 /*
  * \file EEStatusFlagsTask.h
  *
- * $Date: 2008/01/13 18:24:26 $
- * $Revision: 1.2 $
+ * $Date: 2008/02/29 15:07:52 $
+ * $Revision: 1.3 $
  * \author G. Della Ricca
  *
 */
@@ -48,7 +48,7 @@ private:
 
 int ievt_;
 
-DQMStore* dbe_;
+DQMStore* dqmStore_;
 
 bool enableCleanup_;
 

@@ -4,8 +4,8 @@
 /*
  * \file EBClusterClient.h
  *
- * $Date: 2008/04/07 07:24:31 $
- * $Revision: 1.25 $
+ * $Date: 2008/04/07 08:44:19 $
+ * $Revision: 1.26 $
  * \author G. Della Ricca
  * \author F. Cossutti
  * \author E. Di Marco
@@ -45,7 +45,7 @@ virtual ~EBClusterClient();
 void analyze(void);
 
 /// BeginJob
-void beginJob(DQMStore* mui);
+void beginJob(DQMStore* dqmStore);
 
 /// EndJob
 void endJob(void);
@@ -86,7 +86,7 @@ bool enableCleanup_;
 
 std::vector<int> superModules_;
 
-DQMStore* dbe_;
+DQMStore* dqmStore_;
 
 TH1F* h01_[3];
 TProfile2D* h02_[2];

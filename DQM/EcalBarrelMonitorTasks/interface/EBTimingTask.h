@@ -4,8 +4,8 @@
 /*
  * \file EBTimingTask.h
  *
- * $Date: 2008/02/29 15:03:59 $
- * $Revision: 1.8 $
+ * $Date: 2008/04/06 14:41:47 $
+ * $Revision: 1.9 $
  * \author G. Della Ricca
  *
 */
@@ -48,7 +48,7 @@ private:
 
 int ievt_;
 
-DQMStore* dbe_;
+DQMStore* dqmStore_;
 
 bool enableCleanup_;
 

@@ -4,8 +4,8 @@
 /*
  * \file EETestPulseTask.h
  *
- * $Date: 2007/11/13 13:20:52 $
- * $Revision: 1.8 $
+ * $Date: 2008/02/29 15:07:53 $
+ * $Revision: 1.9 $
  * \author G. Della Ricca
  *
 */
@@ -48,7 +48,7 @@ private:
 
 int ievt_;
 
-DQMStore* dbe_;
+DQMStore* dqmStore_;
 
 bool enableCleanup_;
 

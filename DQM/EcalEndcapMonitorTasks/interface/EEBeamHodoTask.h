@@ -4,8 +4,8 @@
 /*
  * \file EEBeamHodoTask.h
  *
- * $Date: 2007/11/27 10:43:29 $
- * $Revision: 1.6 $
+ * $Date: 2008/02/29 15:07:44 $
+ * $Revision: 1.7 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -49,7 +49,7 @@ private:
 
 int ievt_;
 
-DQMStore* dbe_;
+DQMStore* dqmStore_;
 
 bool enableCleanup_;
 

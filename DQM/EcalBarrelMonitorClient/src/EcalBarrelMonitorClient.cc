@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorClient.cc
  *
- * $Date: 2008/04/07 11:30:22 $
- * $Revision: 1.411 $
+ * $Date: 2008/04/07 14:22:45 $
+ * $Revision: 1.412 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -714,36 +714,36 @@ void EcalBarrelMonitorClient::beginJob(const EventSetup &c) {
     // will attempt to reconnect upon connection problems (w/ a 5-sec delay)
 
     mui_ = new DQMOldReceiver(hostName_, hostPort_, clientName_, 5);
-    dbe_ = mui_->getBEInterface();
+    dqmStore_ = mui_->getBEInterface();
 
   } else {
     
     // get hold of back-end interface
 
     mui_ = 0;
-    dbe_ = Service<DQMStore>().operator->();
+    dqmStore_ = Service<DQMStore>().operator->();
   
   }
 
   if ( debug_ ) {
-    dbe_->setVerbose(1);
+    dqmStore_->setVerbose(1);
   } else {
-    dbe_->setVerbose(0);
+    dqmStore_->setVerbose(0);
   }
 
   if ( ! enableMonitorDaemon_ ) {
     if ( inputFile_.size() != 0 ) {
-      if ( dbe_ ) {
-        dbe_->open(inputFile_);
+      if ( dqmStore_ ) {
+        dqmStore_->open(inputFile_);
       }
     }
   }
 
   for ( unsigned int i=0; i<clients_.size(); i++ ) {
-    clients_[i]->beginJob(dbe_);
+    clients_[i]->beginJob(dqmStore_);
   }
 
-  if ( summaryClient_ ) summaryClient_->beginJob(dbe_);
+  if ( summaryClient_ ) summaryClient_->beginJob(dqmStore_);
 
   Numbers::initGeometry(c, verbose_);
 
@@ -1388,7 +1388,7 @@ void EcalBarrelMonitorClient::analyze(void){
   MonitorElement* me;
   string s;
 
-  me = dbe_->get("EcalBarrel/EcalInfo/STATUS");
+  me = dqmStore_->get("EcalBarrel/EcalInfo/STATUS");
   if ( me ) {
     status_ = "unknown";
     s = me->valueString();
@@ -1410,7 +1410,7 @@ void EcalBarrelMonitorClient::analyze(void){
   }
 
   int ecal_run = -1;
-  me = dbe_->get("EcalBarrel/EcalInfo/RUN");
+  me = dqmStore_->get("EcalBarrel/EcalInfo/RUN");
   if ( me ) {
     s = me->valueString();
     sscanf(s.c_str(), "i=%d", &ecal_run);
@@ -1418,17 +1418,17 @@ void EcalBarrelMonitorClient::analyze(void){
   }
 
   int ecal_evt = -1;
-  me = dbe_->get("EcalBarrel/EcalInfo/EVT");
+  me = dqmStore_->get("EcalBarrel/EcalInfo/EVT");
   if ( me ) {
     s = me->valueString();
     sscanf(s.c_str(), "i=%d", &ecal_evt);
     if ( debug_ ) cout << "Found 'EcalBarrel/EcalInfo/EVT'" << endl;
   }
 
-  me = dbe_->get("EcalBarrel/EcalInfo/EVTTYPE");
+  me = dqmStore_->get("EcalBarrel/EcalInfo/EVTTYPE");
   h_ = UtilsClient::getHisto<TH1F*>( me, cloneME_, h_ );
 
-  me = dbe_->get("EcalBarrel/EcalInfo/RUNTYPE");
+  me = dqmStore_->get("EcalBarrel/EcalInfo/RUNTYPE");
   if ( me ) {
     s = me->valueString();
     sscanf(s.c_str(), "i=%d", &evtType_);

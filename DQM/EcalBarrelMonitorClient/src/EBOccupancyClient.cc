@@ -1,8 +1,8 @@
 /*
  * \file EBOccupancyClient.cc
  *
- * $Date: 2008/04/07 08:44:19 $
- * $Revision: 1.23 $
+ * $Date: 2008/04/07 09:00:41 $
+ * $Revision: 1.24 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -66,9 +66,9 @@ EBOccupancyClient::~EBOccupancyClient(){
 
 }
 
-void EBOccupancyClient::beginJob(DQMStore* dbe){
+void EBOccupancyClient::beginJob(DQMStore* dqmStore){
 
-  dbe_ = dbe;
+  dqmStore_ = dqmStore;
 
   if ( debug_ ) cout << "EBOccupancyClient: beginJob" << endl;
 
@@ -105,7 +105,7 @@ void EBOccupancyClient::endRun(void) {
 
 void EBOccupancyClient::setup(void) {
 
-  dbe_->setCurrentFolder( "EcalBarrel/EBOccupancyClient" );
+  dqmStore_->setCurrentFolder( "EcalBarrel/EBOccupancyClient" );
 
 }
 
@@ -164,63 +164,63 @@ void EBOccupancyClient::analyze(void){
   MonitorElement* me;
 
   sprintf(histo, "EcalBarrel/EBOccupancyTask/EBOT digi occupancy");
-  me = dbe_->get(histo);
+  me = dqmStore_->get(histo);
   h01_[0] = UtilsClient::getHisto<TH2F*> ( me, cloneME_, h01_[0] );
 
   sprintf(histo, "EcalBarrel/EBOccupancyTask/EBOT digi occupancy projection eta");
-  me = dbe_->get(histo);
+  me = dqmStore_->get(histo);
   h01ProjEta_[0] = UtilsClient::getHisto<TH1F*> ( me, cloneME_, h01ProjEta_[0] );
 
   sprintf(histo, "EcalBarrel/EBOccupancyTask/EBOT digi occupancy projection phi");
-  me = dbe_->get(histo);
+  me = dqmStore_->get(histo);
   h01ProjPhi_[0] = UtilsClient::getHisto<TH1F*> ( me, cloneME_, h01ProjPhi_[0] );
 
   sprintf(histo, "EcalBarrel/EBOccupancyTask/EBOT rec hit occupancy");
-  me = dbe_->get(histo);
+  me = dqmStore_->get(histo);
   h01_[1] = UtilsClient::getHisto<TH2F*> ( me, cloneME_, h01_[1] );
 
   sprintf(histo, "EcalBarrel/EBOccupancyTask/EBOT rec hit occupancy projection eta");
-  me = dbe_->get(histo);
+  me = dqmStore_->get(histo);
   h01ProjEta_[1] = UtilsClient::getHisto<TH1F*> ( me, cloneME_, h01ProjEta_[1] );
 
   sprintf(histo, "EcalBarrel/EBOccupancyTask/EBOT rec hit occupancy projection phi");
-  me = dbe_->get(histo);
+  me = dqmStore_->get(histo);
   h01ProjPhi_[1] = UtilsClient::getHisto<TH1F*> ( me, cloneME_, h01ProjPhi_[1] );
 
   sprintf(histo, "EcalBarrel/EBOccupancyTask/EBOT TP digi occupancy");
-  me = dbe_->get(histo);
+  me = dqmStore_->get(histo);
   h01_[2] = UtilsClient::getHisto<TH2F*> ( me, cloneME_, h01_[2] );
 
   sprintf(histo, "EcalBarrel/EBOccupancyTask/EBOT TP digi occupancy projection eta");
-  me = dbe_->get(histo);
+  me = dqmStore_->get(histo);
   h01ProjEta_[2] = UtilsClient::getHisto<TH1F*> ( me, cloneME_, h01ProjEta_[2] );
 
   sprintf(histo, "EcalBarrel/EBOccupancyTask/EBOT TP digi occupancy projection phi");
-  me = dbe_->get(histo);
+  me = dqmStore_->get(histo);
   h01ProjPhi_[2] = UtilsClient::getHisto<TH1F*> ( me, cloneME_, h01ProjPhi_[2] );
 
   sprintf(histo, "EcalBarrel/EBOccupancyTask/EBOT rec hit thr occupancy");
-  me = dbe_->get(histo);
+  me = dqmStore_->get(histo);
   h02_[0] = UtilsClient::getHisto<TH2F*> ( me, cloneME_, h02_[0] );
 
   sprintf(histo, "EcalBarrel/EBOccupancyTask/EBOT rec hit thr occupancy projection eta");
-  me = dbe_->get(histo);
+  me = dqmStore_->get(histo);
   h02ProjEta_[0] = UtilsClient::getHisto<TH1F*> ( me, cloneME_, h02ProjEta_[0] );
 
   sprintf(histo, "EcalBarrel/EBOccupancyTask/EBOT rec hit thr occupancy projection phi");
-  me = dbe_->get(histo);
+  me = dqmStore_->get(histo);
   h02ProjPhi_[0] = UtilsClient::getHisto<TH1F*> ( me, cloneME_, h02ProjPhi_[0] );
 
   sprintf(histo, "EcalBarrel/EBOccupancyTask/EBOT TP digi thr occupancy");
-  me = dbe_->get(histo);
+  me = dqmStore_->get(histo);
   h02_[1] = UtilsClient::getHisto<TH2F*> ( me, cloneME_, h02_[1] );
 
   sprintf(histo, "EcalBarrel/EBOccupancyTask/EBOT TP digi thr occupancy projection eta");
-  me = dbe_->get(histo);
+  me = dqmStore_->get(histo);
   h02ProjEta_[1] = UtilsClient::getHisto<TH1F*> ( me, cloneME_, h02ProjEta_[1] );
 
   sprintf(histo, "EcalBarrel/EBOccupancyTask/EBOT TP digi thr occupancy projection phi");
-  me = dbe_->get(histo);
+  me = dqmStore_->get(histo);
   h02ProjPhi_[1] = UtilsClient::getHisto<TH1F*> ( me, cloneME_, h02ProjPhi_[1] );
 
 }

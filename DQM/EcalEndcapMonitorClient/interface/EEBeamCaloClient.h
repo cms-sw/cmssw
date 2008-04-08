@@ -4,8 +4,8 @@
 /*
  * \file EEBeamCaloClient.h
  *
- * $Date: 2008/04/07 07:24:34 $
- * $Revision: 1.15 $
+ * $Date: 2008/04/07 08:44:20 $
+ * $Revision: 1.16 $
  * \author G. Della Ricca
  * \author A. Ghezzi
  *
@@ -42,7 +42,7 @@ virtual ~EEBeamCaloClient();
 void analyze(void);
 
 /// BeginJob
-void beginJob(DQMStore* dbe);
+void beginJob(DQMStore* dqmStore);
 
 /// EndJob
 void endJob(void);
@@ -87,7 +87,7 @@ bool enableCleanup_;
 
 std::vector<int> superModules_;
 
-DQMStore* dbe_;
+DQMStore* dqmStore_;
 
 //specific task me
 vector<int> checkedSteps_;

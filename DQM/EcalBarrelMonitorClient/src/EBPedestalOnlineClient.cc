@@ -1,8 +1,8 @@
 /*
  * \file EBPedestalOnlineClient.cc
  *
- * $Date: 2008/04/07 09:00:41 $
- * $Revision: 1.133 $
+ * $Date: 2008/04/07 11:30:22 $
+ * $Revision: 1.134 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -88,9 +88,9 @@ EBPedestalOnlineClient::~EBPedestalOnlineClient(){
 
 }
 
-void EBPedestalOnlineClient::beginJob(DQMStore* dbe){
+void EBPedestalOnlineClient::beginJob(DQMStore* dqmStore){
 
-  dbe_ = dbe;
+  dqmStore_ = dqmStore;
 
   if ( debug_ ) cout << "EBPedestalOnlineClient: beginJob" << endl;
 
@@ -129,26 +129,26 @@ void EBPedestalOnlineClient::setup(void) {
 
   char histo[200];
 
-  dbe_->setCurrentFolder( "EcalBarrel/EBPedestalOnlineClient" );
+  dqmStore_->setCurrentFolder( "EcalBarrel/EBPedestalOnlineClient" );
 
   for ( unsigned int i=0; i<superModules_.size(); i++ ) {
 
     int ism = superModules_[i];
 
-    if ( meg03_[ism-1] ) dbe_->removeElement( meg03_[ism-1]->getName() );
+    if ( meg03_[ism-1] ) dqmStore_->removeElement( meg03_[ism-1]->getName() );
     sprintf(histo, "EBPOT pedestal quality G12 %s", Numbers::sEB(ism).c_str());
-    meg03_[ism-1] = dbe_->book2D(histo, histo, 85, 0., 85., 20, 0., 20.);
+    meg03_[ism-1] = dqmStore_->book2D(histo, histo, 85, 0., 85., 20, 0., 20.);
     meg03_[ism-1]->setAxisTitle("ieta", 1);
     meg03_[ism-1]->setAxisTitle("iphi", 2);
 
-    if ( mep03_[ism-1] ) dbe_->removeElement( mep03_[ism-1]->getName() );
+    if ( mep03_[ism-1] ) dqmStore_->removeElement( mep03_[ism-1]->getName() );
     sprintf(histo, "EBPOT pedestal mean G12 %s", Numbers::sEB(ism).c_str());
-    mep03_[ism-1] = dbe_->book1D(histo, histo, 100, 150., 250.);
+    mep03_[ism-1] = dqmStore_->book1D(histo, histo, 100, 150., 250.);
     mep03_[ism-1]->setAxisTitle("mean", 1);
 
-    if ( mer03_[ism-1] ) dbe_->removeElement( mer03_[ism-1]->getName() );
+    if ( mer03_[ism-1] ) dqmStore_->removeElement( mer03_[ism-1]->getName() );
     sprintf(histo, "EBPOT pedestal rms G12 %s", Numbers::sEB(ism).c_str());
-    mer03_[ism-1] = dbe_->book1D(histo, histo, 100, 0.,  10.);
+    mer03_[ism-1] = dqmStore_->book1D(histo, histo, 100, 0.,  10.);
     mer03_[ism-1]->setAxisTitle("rms", 1);
 
   }
@@ -192,19 +192,19 @@ void EBPedestalOnlineClient::cleanup(void) {
 
   }
 
-  dbe_->setCurrentFolder( "EcalBarrel/EBPedestalOnlineClient" );
+  dqmStore_->setCurrentFolder( "EcalBarrel/EBPedestalOnlineClient" );
 
   for ( unsigned int i=0; i<superModules_.size(); i++ ) {
 
     int ism = superModules_[i];
 
-    if ( meg03_[ism-1] ) dbe_->removeElement( meg03_[ism-1]->getName() );
+    if ( meg03_[ism-1] ) dqmStore_->removeElement( meg03_[ism-1]->getName() );
     meg03_[ism-1] = 0;
 
-    if ( mep03_[ism-1] ) dbe_->removeElement( mep03_[ism-1]->getName() );
+    if ( mep03_[ism-1] ) dqmStore_->removeElement( mep03_[ism-1]->getName() );
     mep03_[ism-1] = 0;
 
-    if ( mer03_[ism-1] ) dbe_->removeElement( mer03_[ism-1]->getName() );
+    if ( mer03_[ism-1] ) dqmStore_->removeElement( mer03_[ism-1]->getName() );
     mer03_[ism-1] = 0;
 
   }
@@ -319,7 +319,7 @@ void EBPedestalOnlineClient::analyze(void){
     int ism = superModules_[i];
 
     sprintf(histo, "EcalBarrel/EBPedestalOnlineTask/Gain12/EBPOT pedestal %s G12", Numbers::sEB(ism).c_str());
-    me = dbe_->get(histo);
+    me = dqmStore_->get(histo);
     h03_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, h03_[ism-1] );
     meh03_[ism-1] = me;
 

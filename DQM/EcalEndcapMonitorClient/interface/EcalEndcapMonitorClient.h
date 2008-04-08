@@ -4,8 +4,8 @@
 /*
  * \file EcalEndcapMonitorClient.h
  *
- * $Date: 2008/04/07 07:24:34 $
- * $Revision: 1.37 $
+ * $Date: 2008/04/07 08:14:13 $
+ * $Revision: 1.38 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -172,7 +172,7 @@ std::map<std::string,int> clientsStatus_;
 EESummaryClient* summaryClient_;
 
 DQMOldReceiver* mui_;
-DQMStore* dbe_;
+DQMStore* dqmStore_;
  
 bool enableUpdate_;
  

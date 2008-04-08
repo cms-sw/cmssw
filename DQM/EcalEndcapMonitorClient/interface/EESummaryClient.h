@@ -4,8 +4,8 @@
 /*
  * \file EESummaryClient.h
  *
- * $Date: 2008/04/07 07:24:34 $
- * $Revision: 1.23 $
+ * $Date: 2008/04/07 08:44:20 $
+ * $Revision: 1.24 $
  * \author G. Della Ricca
  *
 */
@@ -40,7 +40,7 @@ virtual ~EESummaryClient();
 void analyze(void);
 
 /// BeginJob
-void beginJob(DQMStore* dbe);
+void beginJob(DQMStore* dqmStore);
 
 /// EndJob
 void endJob(void);
@@ -88,7 +88,7 @@ std::vector<int> superModules_;
 
 std::vector<EEClient*> clients_;
 
-DQMStore* dbe_;
+DQMStore* dqmStore_;
 
 MonitorElement* meIntegrity_[2];
 MonitorElement* meIntegrityErr_;

@@ -1,8 +1,8 @@
 /*
  * \file EELedTask.cc
  *
- * $Date: 2008/03/01 13:33:51 $
- * $Revision: 1.32 $
+ * $Date: 2008/04/07 11:30:25 $
+ * $Revision: 1.33 $
  * \author G. Della Ricca
  *
 */
@@ -38,7 +38,7 @@ EELedTask::EELedTask(const ParameterSet& ps){
   init_ = false;
 
   // get hold of back-end interface
-  dbe_ = Service<DQMStore>().operator->();
+  dqmStore_ = Service<DQMStore>().operator->();
 
   enableCleanup_ = ps.getUntrackedParameter<bool>("enableCleanup", false);
 
@@ -85,9 +85,9 @@ void EELedTask::beginJob(const EventSetup& c){
 
   ievt_ = 0;
 
-  if ( dbe_ ) {
-    dbe_->setCurrentFolder("EcalEndcap/EELedTask");
-    dbe_->rmdir("EcalEndcap/EELedTask");
+  if ( dqmStore_ ) {
+    dqmStore_->setCurrentFolder("EcalEndcap/EELedTask");
+    dqmStore_->rmdir("EcalEndcap/EELedTask");
   }
 
   Numbers::initGeometry(c, false);
@@ -100,161 +100,161 @@ void EELedTask::setup(void){
 
   char histo[200];
 
-  if ( dbe_ ) {
-    dbe_->setCurrentFolder("EcalEndcap/EELedTask");
+  if ( dqmStore_ ) {
+    dqmStore_->setCurrentFolder("EcalEndcap/EELedTask");
 
-    dbe_->setCurrentFolder("EcalEndcap/EELedTask/Led1");
+    dqmStore_->setCurrentFolder("EcalEndcap/EELedTask/Led1");
     for (int i = 0; i < 18; i++) {
       sprintf(histo, "EELDT shape %s L1A", Numbers::sEE(i+1).c_str());
-      meShapeMapL1A_[i] = dbe_->bookProfile2D(histo, histo, 850, 0., 850., 10, 0., 10., 4096, 0., 4096., "s");
+      meShapeMapL1A_[i] = dqmStore_->bookProfile2D(histo, histo, 850, 0., 850., 10, 0., 10., 4096, 0., 4096., "s");
       meShapeMapL1A_[i]->setAxisTitle("channel", 1);
       meShapeMapL1A_[i]->setAxisTitle("sample", 2);
       meShapeMapL1A_[i]->setAxisTitle("amplitude", 3);
-      dbe_->tag(meShapeMapL1A_[i], i+1);
+      dqmStore_->tag(meShapeMapL1A_[i], i+1);
       sprintf(histo, "EELDT amplitude %s L1A", Numbers::sEE(i+1).c_str());
-      meAmplMapL1A_[i] = dbe_->bookProfile2D(histo, histo, 50, Numbers::ix0EE(i+1)+0., Numbers::ix0EE(i+1)+50., 50, Numbers::iy0EE(i+1)+0., Numbers::iy0EE(i+1)+50., 4096, 0., 4096.*12., "s");
+      meAmplMapL1A_[i] = dqmStore_->bookProfile2D(histo, histo, 50, Numbers::ix0EE(i+1)+0., Numbers::ix0EE(i+1)+50., 50, Numbers::iy0EE(i+1)+0., Numbers::iy0EE(i+1)+50., 4096, 0., 4096.*12., "s");
       meAmplMapL1A_[i]->setAxisTitle("jx", 1);
       meAmplMapL1A_[i]->setAxisTitle("jy", 2);
-      dbe_->tag(meAmplMapL1A_[i], i+1);
+      dqmStore_->tag(meAmplMapL1A_[i], i+1);
       sprintf(histo, "EELDT timing %s L1A", Numbers::sEE(i+1).c_str());
-      meTimeMapL1A_[i] = dbe_->bookProfile2D(histo, histo, 50, Numbers::ix0EE(i+1)+0., Numbers::ix0EE(i+1)+50., 50, Numbers::iy0EE(i+1)+0., Numbers::iy0EE(i+1)+50., 250, 0., 10., "s");
+      meTimeMapL1A_[i] = dqmStore_->bookProfile2D(histo, histo, 50, Numbers::ix0EE(i+1)+0., Numbers::ix0EE(i+1)+50., 50, Numbers::iy0EE(i+1)+0., Numbers::iy0EE(i+1)+50., 250, 0., 10., "s");
       meTimeMapL1A_[i]->setAxisTitle("jx", 1);
       meTimeMapL1A_[i]->setAxisTitle("jy", 2);
-      dbe_->tag(meTimeMapL1A_[i], i+1);
+      dqmStore_->tag(meTimeMapL1A_[i], i+1);
       sprintf(histo, "EELDT amplitude over PN %s L1A", Numbers::sEE(i+1).c_str());
-      meAmplPNMapL1A_[i] = dbe_->bookProfile2D(histo, histo, 50, Numbers::ix0EE(i+1)+0., Numbers::ix0EE(i+1)+50., 50, Numbers::iy0EE(i+1)+0., Numbers::iy0EE(i+1)+50., 4096, 0., 4096.*12., "s");
+      meAmplPNMapL1A_[i] = dqmStore_->bookProfile2D(histo, histo, 50, Numbers::ix0EE(i+1)+0., Numbers::ix0EE(i+1)+50., 50, Numbers::iy0EE(i+1)+0., Numbers::iy0EE(i+1)+50., 4096, 0., 4096.*12., "s");
       meAmplPNMapL1A_[i]->setAxisTitle("jx", 1);
       meAmplPNMapL1A_[i]->setAxisTitle("jy", 2);
-      dbe_->tag(meAmplPNMapL1A_[i], i+1);
+      dqmStore_->tag(meAmplPNMapL1A_[i], i+1);
 
       sprintf(histo, "EELDT shape %s L1B", Numbers::sEE(i+1).c_str());
-      meShapeMapL1B_[i] = dbe_->bookProfile2D(histo, histo, 850, 0., 850., 10, 0., 10., 4096, 0., 4096., "s");
+      meShapeMapL1B_[i] = dqmStore_->bookProfile2D(histo, histo, 850, 0., 850., 10, 0., 10., 4096, 0., 4096., "s");
       meShapeMapL1B_[i]->setAxisTitle("channel", 1);
       meShapeMapL1B_[i]->setAxisTitle("sample", 2);
       meShapeMapL1B_[i]->setAxisTitle("amplitude", 3);
-      dbe_->tag(meShapeMapL1B_[i], i+1);
+      dqmStore_->tag(meShapeMapL1B_[i], i+1);
       sprintf(histo, "EELDT amplitude %s L1B", Numbers::sEE(i+1).c_str());
-      meAmplMapL1B_[i] = dbe_->bookProfile2D(histo, histo, 50, Numbers::ix0EE(i+1)+0., Numbers::ix0EE(i+1)+50., 50, Numbers::iy0EE(i+1)+0., Numbers::iy0EE(i+1)+50., 4096, 0., 4096.*12., "s");
+      meAmplMapL1B_[i] = dqmStore_->bookProfile2D(histo, histo, 50, Numbers::ix0EE(i+1)+0., Numbers::ix0EE(i+1)+50., 50, Numbers::iy0EE(i+1)+0., Numbers::iy0EE(i+1)+50., 4096, 0., 4096.*12., "s");
       meAmplMapL1B_[i]->setAxisTitle("jx", 1);
       meAmplMapL1B_[i]->setAxisTitle("jy", 2);
-      dbe_->tag(meAmplMapL1B_[i], i+1);
+      dqmStore_->tag(meAmplMapL1B_[i], i+1);
       sprintf(histo, "EELDT timing %s L1B", Numbers::sEE(i+1).c_str());
-      meTimeMapL1B_[i] = dbe_->bookProfile2D(histo, histo, 50, Numbers::ix0EE(i+1)+0., Numbers::ix0EE(i+1)+50., 50, Numbers::iy0EE(i+1)+0., Numbers::iy0EE(i+1)+50., 250, 0., 10., "s");
+      meTimeMapL1B_[i] = dqmStore_->bookProfile2D(histo, histo, 50, Numbers::ix0EE(i+1)+0., Numbers::ix0EE(i+1)+50., 50, Numbers::iy0EE(i+1)+0., Numbers::iy0EE(i+1)+50., 250, 0., 10., "s");
       meTimeMapL1B_[i]->setAxisTitle("jx", 1);
       meTimeMapL1B_[i]->setAxisTitle("jy", 2);
-      dbe_->tag(meTimeMapL1B_[i], i+1);
+      dqmStore_->tag(meTimeMapL1B_[i], i+1);
       sprintf(histo, "EELDT amplitude over PN %s L1B", Numbers::sEE(i+1).c_str());
-      meAmplPNMapL1B_[i] = dbe_->bookProfile2D(histo, histo, 50, Numbers::ix0EE(i+1)+0., Numbers::ix0EE(i+1)+50., 50, Numbers::iy0EE(i+1)+0., Numbers::iy0EE(i+1)+50., 4096, 0., 4096.*12., "s");
+      meAmplPNMapL1B_[i] = dqmStore_->bookProfile2D(histo, histo, 50, Numbers::ix0EE(i+1)+0., Numbers::ix0EE(i+1)+50., 50, Numbers::iy0EE(i+1)+0., Numbers::iy0EE(i+1)+50., 4096, 0., 4096.*12., "s");
       meAmplPNMapL1B_[i]->setAxisTitle("jx", 1);
       meAmplPNMapL1B_[i]->setAxisTitle("jy", 2);
-      dbe_->tag(meAmplPNMapL1B_[i], i+1);
+      dqmStore_->tag(meAmplPNMapL1B_[i], i+1);
     }
 
-    dbe_->setCurrentFolder("EcalEndcap/EELedTask/Led2");
+    dqmStore_->setCurrentFolder("EcalEndcap/EELedTask/Led2");
     for (int i = 0; i < 18; i++) {
       sprintf(histo, "EELDT shape %s L2A", Numbers::sEE(i+1).c_str());
-      meShapeMapL2A_[i] = dbe_->bookProfile2D(histo, histo, 850, 0., 850., 10, 0., 10., 4096, 0., 4096., "s");
+      meShapeMapL2A_[i] = dqmStore_->bookProfile2D(histo, histo, 850, 0., 850., 10, 0., 10., 4096, 0., 4096., "s");
       meShapeMapL2A_[i]->setAxisTitle("channel", 1);
       meShapeMapL2A_[i]->setAxisTitle("sample", 2);
       meShapeMapL2A_[i]->setAxisTitle("amplitude", 3);
-      dbe_->tag(meShapeMapL2A_[i], i+1);
+      dqmStore_->tag(meShapeMapL2A_[i], i+1);
       sprintf(histo, "EELDT amplitude %s L2A", Numbers::sEE(i+1).c_str());
-      meAmplMapL2A_[i] = dbe_->bookProfile2D(histo, histo, 50, Numbers::ix0EE(i+1)+0., Numbers::ix0EE(i+1)+50., 50, Numbers::iy0EE(i+1)+0., Numbers::iy0EE(i+1)+50., 4096, 0., 4096.*12., "s");
+      meAmplMapL2A_[i] = dqmStore_->bookProfile2D(histo, histo, 50, Numbers::ix0EE(i+1)+0., Numbers::ix0EE(i+1)+50., 50, Numbers::iy0EE(i+1)+0., Numbers::iy0EE(i+1)+50., 4096, 0., 4096.*12., "s");
       meAmplMapL2A_[i]->setAxisTitle("jx", 1);
       meAmplMapL2A_[i]->setAxisTitle("jy", 2);
-      dbe_->tag(meAmplMapL2A_[i], i+1);
+      dqmStore_->tag(meAmplMapL2A_[i], i+1);
       sprintf(histo, "EELDT timing %s L2A", Numbers::sEE(i+1).c_str());
-      meTimeMapL2A_[i] = dbe_->bookProfile2D(histo, histo, 50, Numbers::ix0EE(i+1)+0., Numbers::ix0EE(i+1)+50., 50, Numbers::iy0EE(i+1)+0., Numbers::iy0EE(i+1)+50., 250, 0., 10., "s");
+      meTimeMapL2A_[i] = dqmStore_->bookProfile2D(histo, histo, 50, Numbers::ix0EE(i+1)+0., Numbers::ix0EE(i+1)+50., 50, Numbers::iy0EE(i+1)+0., Numbers::iy0EE(i+1)+50., 250, 0., 10., "s");
       meTimeMapL2A_[i]->setAxisTitle("jx", 1);
       meTimeMapL2A_[i]->setAxisTitle("jy", 2);
-      dbe_->tag(meTimeMapL2A_[i], i+1);
+      dqmStore_->tag(meTimeMapL2A_[i], i+1);
       sprintf(histo, "EELDT amplitude over PN %s L2A", Numbers::sEE(i+1).c_str());
-      meAmplPNMapL2A_[i] = dbe_->bookProfile2D(histo, histo, 50, Numbers::ix0EE(i+1)+0., Numbers::ix0EE(i+1)+50., 50, Numbers::iy0EE(i+1)+0., Numbers::iy0EE(i+1)+50., 4096, 0., 4096.*12., "s");
+      meAmplPNMapL2A_[i] = dqmStore_->bookProfile2D(histo, histo, 50, Numbers::ix0EE(i+1)+0., Numbers::ix0EE(i+1)+50., 50, Numbers::iy0EE(i+1)+0., Numbers::iy0EE(i+1)+50., 4096, 0., 4096.*12., "s");
       meAmplPNMapL2A_[i]->setAxisTitle("jx", 1);
       meAmplPNMapL2A_[i]->setAxisTitle("jy", 2);
-      dbe_->tag(meAmplPNMapL2A_[i], i+1);
+      dqmStore_->tag(meAmplPNMapL2A_[i], i+1);
 
       sprintf(histo, "EELDT shape %s L2B", Numbers::sEE(i+1).c_str());
-      meShapeMapL2B_[i] = dbe_->bookProfile2D(histo, histo, 850, 0., 850., 10, 0., 10., 4096, 0., 4096., "s");
+      meShapeMapL2B_[i] = dqmStore_->bookProfile2D(histo, histo, 850, 0., 850., 10, 0., 10., 4096, 0., 4096., "s");
       meShapeMapL2B_[i]->setAxisTitle("channel", 1);
       meShapeMapL2B_[i]->setAxisTitle("sample", 2);
       meShapeMapL2B_[i]->setAxisTitle("amplitude", 3);
-      dbe_->tag(meShapeMapL2B_[i], i+1);
+      dqmStore_->tag(meShapeMapL2B_[i], i+1);
       sprintf(histo, "EELDT amplitude %s L2B", Numbers::sEE(i+1).c_str());
-      meAmplMapL2B_[i] = dbe_->bookProfile2D(histo, histo, 50, Numbers::ix0EE(i+1)+0., Numbers::ix0EE(i+1)+50., 50, Numbers::iy0EE(i+1)+0., Numbers::iy0EE(i+1)+50., 4096, 0., 4096.*12., "s");
+      meAmplMapL2B_[i] = dqmStore_->bookProfile2D(histo, histo, 50, Numbers::ix0EE(i+1)+0., Numbers::ix0EE(i+1)+50., 50, Numbers::iy0EE(i+1)+0., Numbers::iy0EE(i+1)+50., 4096, 0., 4096.*12., "s");
       meAmplMapL2B_[i]->setAxisTitle("jx", 1);
       meAmplMapL2B_[i]->setAxisTitle("jy", 2);
-      dbe_->tag(meAmplMapL2B_[i], i+1);
+      dqmStore_->tag(meAmplMapL2B_[i], i+1);
       sprintf(histo, "EELDT timing %s L2B", Numbers::sEE(i+1).c_str());
-      meTimeMapL2B_[i] = dbe_->bookProfile2D(histo, histo, 50, Numbers::ix0EE(i+1)+0., Numbers::ix0EE(i+1)+50., 50, Numbers::iy0EE(i+1)+0., Numbers::iy0EE(i+1)+50., 250, 0., 10., "s");
+      meTimeMapL2B_[i] = dqmStore_->bookProfile2D(histo, histo, 50, Numbers::ix0EE(i+1)+0., Numbers::ix0EE(i+1)+50., 50, Numbers::iy0EE(i+1)+0., Numbers::iy0EE(i+1)+50., 250, 0., 10., "s");
       meTimeMapL2B_[i]->setAxisTitle("jx", 1);
       meTimeMapL2B_[i]->setAxisTitle("jy", 2);
-      dbe_->tag(meTimeMapL2B_[i], i+1);
+      dqmStore_->tag(meTimeMapL2B_[i], i+1);
       sprintf(histo, "EELDT amplitude over PN %s L2B", Numbers::sEE(i+1).c_str());
-      meAmplPNMapL2B_[i] = dbe_->bookProfile2D(histo, histo, 50, Numbers::ix0EE(i+1)+0., Numbers::ix0EE(i+1)+50., 50, Numbers::iy0EE(i+1)+0., Numbers::iy0EE(i+1)+50., 4096, 0., 4096.*12., "s");
+      meAmplPNMapL2B_[i] = dqmStore_->bookProfile2D(histo, histo, 50, Numbers::ix0EE(i+1)+0., Numbers::ix0EE(i+1)+50., 50, Numbers::iy0EE(i+1)+0., Numbers::iy0EE(i+1)+50., 4096, 0., 4096.*12., "s");
       meAmplPNMapL2B_[i]->setAxisTitle("jx", 1);
       meAmplPNMapL2B_[i]->setAxisTitle("jy", 2);
-      dbe_->tag(meAmplPNMapL2B_[i], i+1);
+      dqmStore_->tag(meAmplPNMapL2B_[i], i+1);
     }
 
-    dbe_->setCurrentFolder("EcalEndcap/EELedTask/Led1/PN");
+    dqmStore_->setCurrentFolder("EcalEndcap/EELedTask/Led1/PN");
 
-    dbe_->setCurrentFolder("EcalEndcap/EELedTask/Led1/PN/Gain01");
+    dqmStore_->setCurrentFolder("EcalEndcap/EELedTask/Led1/PN/Gain01");
     for (int i = 0; i < 18; i++) {
       sprintf(histo, "EEPDT PNs amplitude %s G01 L1", Numbers::sEE(i+1).c_str());
-      mePnAmplMapG01L1_[i] = dbe_->bookProfile(histo, histo, 10, 0., 10., 4096, 0., 4096., "s");
+      mePnAmplMapG01L1_[i] = dqmStore_->bookProfile(histo, histo, 10, 0., 10., 4096, 0., 4096., "s");
       mePnAmplMapG01L1_[i]->setAxisTitle("channel", 1);
       mePnAmplMapG01L1_[i]->setAxisTitle("amplitude", 2);
-      dbe_->tag(mePnAmplMapG01L1_[i], i+1);
+      dqmStore_->tag(mePnAmplMapG01L1_[i], i+1);
       sprintf(histo, "EEPDT PNs pedestal %s G01 L1", Numbers::sEE(i+1).c_str());
-      mePnPedMapG01L1_[i] = dbe_->bookProfile(histo, histo, 10, 0., 10., 4096, 0., 4096., "s");
+      mePnPedMapG01L1_[i] = dqmStore_->bookProfile(histo, histo, 10, 0., 10., 4096, 0., 4096., "s");
       mePnPedMapG01L1_[i]->setAxisTitle("channel", 1);
       mePnPedMapG01L1_[i]->setAxisTitle("pedestal", 2);
-      dbe_->tag(mePnPedMapG01L1_[i], i+1);
+      dqmStore_->tag(mePnPedMapG01L1_[i], i+1);
     }
 
-    dbe_->setCurrentFolder("EcalEndcap/EELedTask/Led1/PN/Gain16");
+    dqmStore_->setCurrentFolder("EcalEndcap/EELedTask/Led1/PN/Gain16");
     for (int i = 0; i < 18; i++) {
       sprintf(histo, "EEPDT PNs amplitude %s G16 L1", Numbers::sEE(i+1).c_str());
-      mePnAmplMapG16L1_[i] = dbe_->bookProfile(histo, histo, 10, 0., 10., 4096, 0., 4096., "s");
+      mePnAmplMapG16L1_[i] = dqmStore_->bookProfile(histo, histo, 10, 0., 10., 4096, 0., 4096., "s");
       mePnAmplMapG16L1_[i]->setAxisTitle("channel", 1);
       mePnAmplMapG16L1_[i]->setAxisTitle("amplitude", 2);
-      dbe_->tag(mePnAmplMapG16L1_[i], i+1);
+      dqmStore_->tag(mePnAmplMapG16L1_[i], i+1);
       sprintf(histo, "EEPDT PNs pedestal %s G16 L1", Numbers::sEE(i+1).c_str());
-      mePnPedMapG16L1_[i] = dbe_->bookProfile(histo, histo, 10, 0., 10., 4096, 0., 4096., "s");
+      mePnPedMapG16L1_[i] = dqmStore_->bookProfile(histo, histo, 10, 0., 10., 4096, 0., 4096., "s");
       mePnPedMapG16L1_[i]->setAxisTitle("channel", 1);
       mePnPedMapG16L1_[i]->setAxisTitle("pedestal", 2); 
-      dbe_->tag(mePnPedMapG16L1_[i], i+1);
+      dqmStore_->tag(mePnPedMapG16L1_[i], i+1);
     }
 
-    dbe_->setCurrentFolder("EcalEndcap/EELedTask/Led2/PN");
+    dqmStore_->setCurrentFolder("EcalEndcap/EELedTask/Led2/PN");
 
-    dbe_->setCurrentFolder("EcalEndcap/EELedTask/Led2/PN/Gain01");
+    dqmStore_->setCurrentFolder("EcalEndcap/EELedTask/Led2/PN/Gain01");
     for (int i = 0; i < 18; i++) {
       sprintf(histo, "EEPDT PNs amplitude %s G01 L2", Numbers::sEE(i+1).c_str());
-      mePnAmplMapG01L2_[i] = dbe_->bookProfile(histo, histo, 10, 0., 10., 4096, 0., 4096., "s");
+      mePnAmplMapG01L2_[i] = dqmStore_->bookProfile(histo, histo, 10, 0., 10., 4096, 0., 4096., "s");
       mePnAmplMapG01L2_[i]->setAxisTitle("amplitude", 2);
       mePnAmplMapG01L2_[i]->setAxisTitle("channel", 1);
-      dbe_->tag(mePnAmplMapG01L2_[i], i+1);
+      dqmStore_->tag(mePnAmplMapG01L2_[i], i+1);
       sprintf(histo, "EEPDT PNs pedestal %s G01 L2", Numbers::sEE(i+1).c_str());
-      mePnPedMapG01L2_[i] = dbe_->bookProfile(histo, histo, 10, 0., 10., 4096, 0., 4096., "s");
+      mePnPedMapG01L2_[i] = dqmStore_->bookProfile(histo, histo, 10, 0., 10., 4096, 0., 4096., "s");
       mePnPedMapG01L2_[i]->setAxisTitle("channel", 1);
       mePnPedMapG01L2_[i]->setAxisTitle("pedestal", 2);
-      dbe_->tag(mePnPedMapG01L2_[i], i+1);
+      dqmStore_->tag(mePnPedMapG01L2_[i], i+1);
     }
 
-    dbe_->setCurrentFolder("EcalEndcap/EELedTask/Led2/PN/Gain16");
+    dqmStore_->setCurrentFolder("EcalEndcap/EELedTask/Led2/PN/Gain16");
     for (int i = 0; i < 18; i++) {
       sprintf(histo, "EEPDT PNs amplitude %s G16 L2", Numbers::sEE(i+1).c_str());
-      mePnAmplMapG16L2_[i] = dbe_->bookProfile(histo, histo, 10, 0., 10., 4096, 0., 4096., "s");
+      mePnAmplMapG16L2_[i] = dqmStore_->bookProfile(histo, histo, 10, 0., 10., 4096, 0., 4096., "s");
       mePnAmplMapG16L2_[i]->setAxisTitle("channel", 1);
       mePnAmplMapG16L2_[i]->setAxisTitle("amplitude", 2);
-      dbe_->tag(mePnAmplMapG16L2_[i], i+1);
+      dqmStore_->tag(mePnAmplMapG16L2_[i], i+1);
       sprintf(histo, "EEPDT PNs pedestal %s G16 L2", Numbers::sEE(i+1).c_str());
-      mePnPedMapG16L2_[i] = dbe_->bookProfile(histo, histo, 10, 0., 10., 4096, 0., 4096., "s");
+      mePnPedMapG16L2_[i] = dqmStore_->bookProfile(histo, histo, 10, 0., 10., 4096, 0., 4096., "s");
       mePnPedMapG16L2_[i]->setAxisTitle("channel", 1);
       mePnPedMapG16L2_[i]->setAxisTitle("pedestal", 2); 
-      dbe_->tag(mePnPedMapG16L2_[i], i+1);
+      dqmStore_->tag(mePnPedMapG16L2_[i], i+1);
     }
 
   }
@@ -265,84 +265,84 @@ void EELedTask::cleanup(void){
 
   if ( ! enableCleanup_ ) return;
 
-  if ( dbe_ ) {
-    dbe_->setCurrentFolder("EcalEndcap/EELedTask");
+  if ( dqmStore_ ) {
+    dqmStore_->setCurrentFolder("EcalEndcap/EELedTask");
 
-    dbe_->setCurrentFolder("EcalEndcap/EELedTask/Led1");
+    dqmStore_->setCurrentFolder("EcalEndcap/EELedTask/Led1");
     for (int i = 0; i < 18; i++) {
-      if ( meShapeMapL1A_[i] )  dbe_->removeElement( meShapeMapL1A_[i]->getName() );
+      if ( meShapeMapL1A_[i] )  dqmStore_->removeElement( meShapeMapL1A_[i]->getName() );
       meShapeMapL1A_[i] = 0;
-      if ( meAmplMapL1A_[i] ) dbe_->removeElement( meAmplMapL1A_[i]->getName() );
+      if ( meAmplMapL1A_[i] ) dqmStore_->removeElement( meAmplMapL1A_[i]->getName() );
       meAmplMapL1A_[i] = 0;
-      if ( meTimeMapL1A_[i] ) dbe_->removeElement( meTimeMapL1A_[i]->getName() );
+      if ( meTimeMapL1A_[i] ) dqmStore_->removeElement( meTimeMapL1A_[i]->getName() );
       meTimeMapL1A_[i] = 0;
-      if ( meAmplPNMapL1A_[i] ) dbe_->removeElement( meAmplPNMapL1A_[i]->getName() );
+      if ( meAmplPNMapL1A_[i] ) dqmStore_->removeElement( meAmplPNMapL1A_[i]->getName() );
       meAmplPNMapL1A_[i] = 0;
 
-      if ( meShapeMapL1B_[i] )  dbe_->removeElement( meShapeMapL1B_[i]->getName() );
+      if ( meShapeMapL1B_[i] )  dqmStore_->removeElement( meShapeMapL1B_[i]->getName() );
       meShapeMapL1B_[i] = 0;
-      if ( meAmplMapL1B_[i] ) dbe_->removeElement( meAmplMapL1B_[i]->getName() );
+      if ( meAmplMapL1B_[i] ) dqmStore_->removeElement( meAmplMapL1B_[i]->getName() );
       meAmplMapL1B_[i] = 0;
-      if ( meTimeMapL1B_[i] ) dbe_->removeElement( meTimeMapL1B_[i]->getName() );
+      if ( meTimeMapL1B_[i] ) dqmStore_->removeElement( meTimeMapL1B_[i]->getName() );
       meTimeMapL1B_[i] = 0;
-      if ( meAmplPNMapL1B_[i] ) dbe_->removeElement( meAmplPNMapL1B_[i]->getName() );
+      if ( meAmplPNMapL1B_[i] ) dqmStore_->removeElement( meAmplPNMapL1B_[i]->getName() );
       meAmplPNMapL1B_[i] = 0;
     }
 
-    dbe_->setCurrentFolder("EcalEndcap/EELedTask/Led2");
+    dqmStore_->setCurrentFolder("EcalEndcap/EELedTask/Led2");
     for (int i = 0; i < 18; i++) {
-      if ( meShapeMapL2A_[i] )  dbe_->removeElement( meShapeMapL2A_[i]->getName() );
+      if ( meShapeMapL2A_[i] )  dqmStore_->removeElement( meShapeMapL2A_[i]->getName() );
       meShapeMapL2A_[i] = 0;
-      if ( meAmplMapL2A_[i] ) dbe_->removeElement( meAmplMapL2A_[i]->getName() );
+      if ( meAmplMapL2A_[i] ) dqmStore_->removeElement( meAmplMapL2A_[i]->getName() );
       meAmplMapL2A_[i] = 0;
-      if ( meTimeMapL2A_[i] ) dbe_->removeElement( meTimeMapL2A_[i]->getName() );
+      if ( meTimeMapL2A_[i] ) dqmStore_->removeElement( meTimeMapL2A_[i]->getName() );
       meTimeMapL2A_[i] = 0;
-      if ( meAmplPNMapL2A_[i] ) dbe_->removeElement( meAmplPNMapL2A_[i]->getName() );
+      if ( meAmplPNMapL2A_[i] ) dqmStore_->removeElement( meAmplPNMapL2A_[i]->getName() );
       meAmplPNMapL2A_[i] = 0;
 
-      if ( meShapeMapL2B_[i] )  dbe_->removeElement( meShapeMapL2B_[i]->getName() );
+      if ( meShapeMapL2B_[i] )  dqmStore_->removeElement( meShapeMapL2B_[i]->getName() );
       meShapeMapL2B_[i] = 0;
-      if ( meAmplMapL2B_[i] ) dbe_->removeElement( meAmplMapL2B_[i]->getName() );
+      if ( meAmplMapL2B_[i] ) dqmStore_->removeElement( meAmplMapL2B_[i]->getName() );
       meAmplMapL2B_[i] = 0;
-      if ( meTimeMapL2B_[i] ) dbe_->removeElement( meTimeMapL2B_[i]->getName() );
+      if ( meTimeMapL2B_[i] ) dqmStore_->removeElement( meTimeMapL2B_[i]->getName() );
       meTimeMapL2B_[i] = 0;
-      if ( meAmplPNMapL2B_[i] ) dbe_->removeElement( meAmplPNMapL2B_[i]->getName() );
+      if ( meAmplPNMapL2B_[i] ) dqmStore_->removeElement( meAmplPNMapL2B_[i]->getName() );
       meAmplPNMapL2B_[i] = 0;
     }
 
-    dbe_->setCurrentFolder("EcalEndcap/EELedTask/Led1/PN");
+    dqmStore_->setCurrentFolder("EcalEndcap/EELedTask/Led1/PN");
 
-    dbe_->setCurrentFolder("EcalEndcap/EELedTask/Led1/PN/Gain01");
+    dqmStore_->setCurrentFolder("EcalEndcap/EELedTask/Led1/PN/Gain01");
     for (int i = 0; i < 18; i++) {
-      if ( mePnAmplMapG01L1_[i] ) dbe_->removeElement( mePnAmplMapG01L1_[i]->getName() );
+      if ( mePnAmplMapG01L1_[i] ) dqmStore_->removeElement( mePnAmplMapG01L1_[i]->getName() );
       mePnAmplMapG01L1_[i] = 0;
-      if ( mePnPedMapG01L1_[i] ) dbe_->removeElement( mePnPedMapG01L1_[i]->getName() );
+      if ( mePnPedMapG01L1_[i] ) dqmStore_->removeElement( mePnPedMapG01L1_[i]->getName() );
       mePnPedMapG01L1_[i] = 0;
     }
 
-    dbe_->setCurrentFolder("EcalEndcap/EELedTask/Led1/PN/Gain16");
+    dqmStore_->setCurrentFolder("EcalEndcap/EELedTask/Led1/PN/Gain16");
     for (int i = 0; i < 18; i++) {
-      if ( mePnAmplMapG16L1_[i] ) dbe_->removeElement( mePnAmplMapG16L1_[i]->getName() );
+      if ( mePnAmplMapG16L1_[i] ) dqmStore_->removeElement( mePnAmplMapG16L1_[i]->getName() );
       mePnAmplMapG16L1_[i] = 0;
-      if ( mePnPedMapG16L1_[i] ) dbe_->removeElement( mePnPedMapG16L1_[i]->getName() );
+      if ( mePnPedMapG16L1_[i] ) dqmStore_->removeElement( mePnPedMapG16L1_[i]->getName() );
       mePnPedMapG16L1_[i] = 0;
     }
 
-    dbe_->setCurrentFolder("EcalEndcap/EELedTask/Led2/PN");
+    dqmStore_->setCurrentFolder("EcalEndcap/EELedTask/Led2/PN");
 
-    dbe_->setCurrentFolder("EcalEndcap/EELedTask/Led2/PN/Gain01");
+    dqmStore_->setCurrentFolder("EcalEndcap/EELedTask/Led2/PN/Gain01");
     for (int i = 0; i < 18; i++) {
-      if ( mePnAmplMapG01L2_[i] ) dbe_->removeElement( mePnAmplMapG01L2_[i]->getName() );
+      if ( mePnAmplMapG01L2_[i] ) dqmStore_->removeElement( mePnAmplMapG01L2_[i]->getName() );
       mePnAmplMapG01L2_[i] = 0;
-      if ( mePnPedMapG01L2_[i] ) dbe_->removeElement( mePnPedMapG01L2_[i]->getName() );
+      if ( mePnPedMapG01L2_[i] ) dqmStore_->removeElement( mePnPedMapG01L2_[i]->getName() );
       mePnPedMapG01L2_[i] = 0;
     }
 
-    dbe_->setCurrentFolder("EcalEndcap/EELedTask/Led2/PN/Gain16");
+    dqmStore_->setCurrentFolder("EcalEndcap/EELedTask/Led2/PN/Gain16");
     for (int i = 0; i < 18; i++) {
-      if ( mePnAmplMapG16L2_[i] ) dbe_->removeElement( mePnAmplMapG16L2_[i]->getName() );
+      if ( mePnAmplMapG16L2_[i] ) dqmStore_->removeElement( mePnAmplMapG16L2_[i]->getName() );
       mePnAmplMapG16L2_[i] = 0;
-      if ( mePnPedMapG16L2_[i] ) dbe_->removeElement( mePnPedMapG16L2_[i]->getName() );
+      if ( mePnPedMapG16L2_[i] ) dqmStore_->removeElement( mePnPedMapG16L2_[i]->getName() );
       mePnPedMapG16L2_[i] = 0;
     }
 

@@ -4,8 +4,8 @@
 /*
  * \file EcalBarrelMonitorClient.h
  *
- * $Date: 2008/04/07 07:24:31 $
- * $Revision: 1.101 $
+ * $Date: 2008/04/07 08:14:12 $
+ * $Revision: 1.102 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -171,7 +171,7 @@ std::map<std::string,int> clientsStatus_;
 EBSummaryClient* summaryClient_;
 
 DQMOldReceiver* mui_;
-DQMStore* dbe_;
+DQMStore* dqmStore_;
  
 bool enableUpdate_;
  

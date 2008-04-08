@@ -1,8 +1,8 @@
 /*
  * \file EBClusterClient.cc
  *
- * $Date: 2008/04/07 07:24:31 $
- * $Revision: 1.61 $
+ * $Date: 2008/04/07 08:44:19 $
+ * $Revision: 1.62 $
  * \author G. Della Ricca
  * \author F. Cossutti
  * \author E. Di Marco
@@ -80,9 +80,9 @@ EBClusterClient::~EBClusterClient(){
 
 }
 
-void EBClusterClient::beginJob(DQMStore* dbe){
+void EBClusterClient::beginJob(DQMStore* dqmStore){
 
-  dbe_ = dbe;
+  dqmStore_ = dqmStore;
 
   if ( debug_ ) cout << "EBClusterClient: beginJob" << endl;
 
@@ -119,7 +119,7 @@ void EBClusterClient::endRun(void) {
 
 void EBClusterClient::setup(void) {
 
-  dbe_->setCurrentFolder( "EcalBarrel/EBClusterClient" );
+  dqmStore_->setCurrentFolder( "EcalBarrel/EBClusterClient" );
 
 }
 
@@ -205,87 +205,87 @@ void EBClusterClient::analyze(void){
   MonitorElement* me;
 
   sprintf(histo, "EcalBarrel/EBClusterTask/EBCLT BC energy");
-  me = dbe_->get(histo);
+  me = dqmStore_->get(histo);
   h01_[0] = UtilsClient::getHisto<TH1F*>( me, cloneME_, h01_[0] );
 
   sprintf(histo, "EcalBarrel/EBClusterTask/EBCLT BC size");
-  me = dbe_->get(histo);
+  me = dqmStore_->get(histo);
   h01_[1] = UtilsClient::getHisto<TH1F*>( me, cloneME_, h01_[1] );
 
   sprintf(histo, "EcalBarrel/EBClusterTask/EBCLT BC number");
-  me = dbe_->get(histo);
+  me = dqmStore_->get(histo);
   h01_[2] = UtilsClient::getHisto<TH1F*>( me, cloneME_, h01_[2] );
 
   sprintf(histo, "EcalBarrel/EBClusterTask/EBCLT BC energy map");
-  me = dbe_->get(histo);
+  me = dqmStore_->get(histo);
   h02_[0] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, h02_[0] );
 
   sprintf(histo, "EcalBarrel/EBClusterTask/EBCLT BC ET map");
-  me = dbe_->get(histo);
+  me = dqmStore_->get(histo);
   h02_[1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, h02_[1] );
 
   sprintf(histo, "EcalBarrel/EBClusterTask/EBCLT BC number map");
-  me = dbe_->get(histo);
+  me = dqmStore_->get(histo);
   h03_ = UtilsClient::getHisto<TH2F*>( me, cloneME_, h03_ );
 
   sprintf(histo, "EcalBarrel/EBClusterTask/EBCLT BC size map");
-  me = dbe_->get(histo);
+  me = dqmStore_->get(histo);
   h04_ = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, h04_ );
 
   sprintf(histo, "EcalBarrel/EBClusterTask/EBCLT BC energy projection eta");
-  me = dbe_->get(histo);
+  me = dqmStore_->get(histo);
   h02ProjEta_[0] = UtilsClient::getHisto<TProfile*>( me, cloneME_, h02ProjEta_[0] );
 
   sprintf(histo, "EcalBarrel/EBClusterTask/EBCLT BC energy projection phi");
-  me = dbe_->get(histo);
+  me = dqmStore_->get(histo);
   h02ProjPhi_[0] = UtilsClient::getHisto<TProfile*>( me, cloneME_, h02ProjPhi_[0] );
 
   sprintf(histo, "EcalBarrel/EBClusterTask/EBCLT BC ET projection eta");
-  me = dbe_->get(histo);
+  me = dqmStore_->get(histo);
   h02ProjEta_[1] = UtilsClient::getHisto<TProfile*>( me, cloneME_, h02ProjEta_[1] );
 
   sprintf(histo, "EcalBarrel/EBClusterTask/EBCLT BC ET projection phi");
-  me = dbe_->get(histo);
+  me = dqmStore_->get(histo);
   h02ProjPhi_[1] = UtilsClient::getHisto<TProfile*>( me, cloneME_, h02ProjPhi_[1] );
 
   sprintf(histo, "EcalBarrel/EBClusterTask/EBCLT BC number projection eta");
-  me = dbe_->get(histo);
+  me = dqmStore_->get(histo);
   h03ProjEta_ = UtilsClient::getHisto<TH1F*>( me, cloneME_, h03ProjEta_ );
 
   sprintf(histo, "EcalBarrel/EBClusterTask/EBCLT BC number projection phi");
-  me = dbe_->get(histo);
+  me = dqmStore_->get(histo);
   h03ProjPhi_ = UtilsClient::getHisto<TH1F*>( me, cloneME_, h03ProjPhi_ );
 
   sprintf(histo, "EcalBarrel/EBClusterTask/EBCLT BC size projection eta");
-  me = dbe_->get(histo);
+  me = dqmStore_->get(histo);
   h04ProjEta_ = UtilsClient::getHisto<TProfile*>( me, cloneME_, h04ProjEta_ );
 
   sprintf(histo, "EcalBarrel/EBClusterTask/EBCLT BC size projection phi");
-  me = dbe_->get(histo);
+  me = dqmStore_->get(histo);
   h04ProjPhi_ = UtilsClient::getHisto<TProfile*>( me, cloneME_, h04ProjPhi_ );
 
   sprintf(histo, "EcalBarrel/EBClusterTask/EBCLT SC energy");
-  me = dbe_->get(histo);
+  me = dqmStore_->get(histo);
   i01_[0] = UtilsClient::getHisto<TH1F*>( me, cloneME_, i01_[0] );
 
   sprintf(histo, "EcalBarrel/EBClusterTask/EBCLT SC size");
-  me = dbe_->get(histo);
+  me = dqmStore_->get(histo);
   i01_[1] = UtilsClient::getHisto<TH1F*>( me, cloneME_, i01_[1] );
 
   sprintf(histo, "EcalBarrel/EBClusterTask/EBCLT SC number");
-  me = dbe_->get(histo);
+  me = dqmStore_->get(histo);
   i01_[2] = UtilsClient::getHisto<TH1F*>( me, cloneME_, i01_[2] );
 
   sprintf(histo, "EcalBarrel/EBClusterTask/EBCLT s1s9");
-  me = dbe_->get(histo);
+  me = dqmStore_->get(histo);
   s01_[0] = UtilsClient::getHisto<TH1F*>( me, cloneME_, s01_[0] );
 
   sprintf(histo, "EcalBarrel/EBClusterTask/EBCLT s9s25");
-  me = dbe_->get(histo);
+  me = dqmStore_->get(histo);
   s01_[1] = UtilsClient::getHisto<TH1F*>( me, cloneME_, s01_[1] );
 
   sprintf(histo, "EcalBarrel/EBClusterTask/EBCLT dicluster invariant mass");
-  me = dbe_->get(histo);
+  me = dqmStore_->get(histo);
   s01_[2] = UtilsClient::getHisto<TH1F*>( me, cloneME_, s01_[2] );
 
 }

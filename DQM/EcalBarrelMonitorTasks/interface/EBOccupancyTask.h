@@ -4,8 +4,8 @@
 /*
  * \file EBOccupancyTask.h
  *
- * $Date: 2008/02/29 15:03:54 $
- * $Revision: 1.16 $
+ * $Date: 2008/04/05 20:59:21 $
+ * $Revision: 1.17 $
  * \author G. Della Ricca
  *
 */
@@ -48,7 +48,7 @@ private:
 
 int ievt_;
 
-DQMStore* dbe_;
+DQMStore* dqmStore_;
 
 bool enableCleanup_;
 

@@ -1,8 +1,8 @@
 /*
  * \file EBBeamCaloTask.cc
  *
- * $Date: 2008/04/07 07:36:19 $
- * $Revision: 1.64 $
+ * $Date: 2008/04/07 11:30:23 $
+ * $Revision: 1.65 $
  * \author A. Ghezzi
  *
  */
@@ -40,7 +40,7 @@ EBBeamCaloTask::EBBeamCaloTask(const ParameterSet& ps){
   init_ = false;
 
   // get hold of back-end interface
-  dbe_ = Service<DQMStore>().operator->();
+  dqmStore_ = Service<DQMStore>().operator->();
 
   enableCleanup_ = ps.getUntrackedParameter<bool>("enableCleanup", false);
 
@@ -102,9 +102,9 @@ void EBBeamCaloTask::beginJob(const EventSetup& c){
 
   profileArranged_ = false;
 
-  if ( dbe_ ) {
-    dbe_->setCurrentFolder("EcalBarrel/EBBeamCaloTask");
-    dbe_->rmdir("EcalBarrel/EBBeamCaloTask");
+  if ( dqmStore_ ) {
+    dqmStore_->setCurrentFolder("EcalBarrel/EBBeamCaloTask");
+    dqmStore_->rmdir("EcalBarrel/EBBeamCaloTask");
   }
 
   Numbers::initGeometry(c, false);
@@ -136,26 +136,26 @@ void EBBeamCaloTask::setup(void){
   last_cry_in_beam_ = 0;
   previous_cry_in_beam_ = 1;
 
-  if ( dbe_ ) {
-    dbe_->setCurrentFolder("EcalBarrel/EBBeamCaloTask");
+  if ( dqmStore_ ) {
+    dqmStore_->setCurrentFolder("EcalBarrel/EBBeamCaloTask");
 
     for (int i = 0; i < cryInArray_ ; i++) {
       sprintf(histo, "EBBCT pulse profile cry %01d", i+1);
       //considering the gain the range is 4096*12 ~ 50000
-      meBBCaloPulseProf_[i] = dbe_->bookProfile(histo, histo, 10,0.,10.,50000,0.,50000.,"s");
+      meBBCaloPulseProf_[i] = dqmStore_->bookProfile(histo, histo, 10,0.,10.,50000,0.,50000.,"s");
 
       sprintf(histo, "EBBCT pulse profile in G12 cry %01d", i+1);
-      meBBCaloPulseProfG12_[i] = dbe_->bookProfile(histo, histo, 10,0.,10.,4096,0.,4096.,"s");
+      meBBCaloPulseProfG12_[i] = dqmStore_->bookProfile(histo, histo, 10,0.,10.,4096,0.,4096.,"s");
       meBBCaloPulseProfG12_[i]->setAxisTitle("#sample", 1);
       meBBCaloPulseProfG12_[i]->setAxisTitle("ADC", 2);
 
       sprintf(histo, "EBBCT found gains cry %01d", i+1);
-      meBBCaloGains_[i] =  dbe_->book1D(histo,histo,14,0.,14.);
+      meBBCaloGains_[i] =  dqmStore_->book1D(histo,histo,14,0.,14.);
       meBBCaloGains_[i]->setAxisTitle("gain", 1);
       // g1-> bin 2, g6-> bin 7, g12-> bin 13
 
       sprintf(histo, "EBBCT rec energy cry %01d", i+1);
-      meBBCaloEne_[i] =  dbe_->book1D(histo,histo,500,0.,9000.);
+      meBBCaloEne_[i] =  dqmStore_->book1D(histo,histo,500,0.,9000.);
       meBBCaloEne_[i]->setAxisTitle("rec ene (ADC)", 1);
       //9000 ADC in G12 equivalent is about 330 GeV
 
@@ -163,76 +163,76 @@ void EBBeamCaloTask::setup(void){
 
 //       sprintf(histo, "EBBCT pulse profile moving table cry %01d", i+1);
 //       //considering the gain the range is 4096*12 ~ 50000
-//       meBBCaloPulseProfMoving_[i] = dbe_->bookProfile(histo, histo, 10,0.,10.,50000,0.,50000.,"s");
+//       meBBCaloPulseProfMoving_[i] = dqmStore_->bookProfile(histo, histo, 10,0.,10.,50000,0.,50000.,"s");
 
 //       sprintf(histo, "EBBCT pulse profile in G12 moving table cry %01d", i+1);
-//       meBBCaloPulseProfG12Moving_[i] = dbe_->bookProfile(histo, histo, 10,0.,10.,4096,0.,4096.,"s");
+//       meBBCaloPulseProfG12Moving_[i] = dqmStore_->bookProfile(histo, histo, 10,0.,10.,4096,0.,4096.,"s");
 
 //       sprintf(histo, "EBBCT found gains moving table cry %01d", i+1);
-//       meBBCaloGainsMoving_[i] =  dbe_->book1D(histo,histo,14,0.,14.);
+//       meBBCaloGainsMoving_[i] =  dqmStore_->book1D(histo,histo,14,0.,14.);
 //       // g1-> bin 2, g6-> bin 7, g12-> bin 13
 
 //       sprintf(histo, "EBBCT rec energy moving table cry %01d", i+1);
-//       meBBCaloEneMoving_[i] =  dbe_->book1D(histo,histo,2000,0.,9000.);
+//       meBBCaloEneMoving_[i] =  dqmStore_->book1D(histo,histo,2000,0.,9000.);
 //       //9000 ADC in G12 equivalent is about 330 GeV
 
     }
 
-//     dbe_->setCurrentFolder("EcalBarrel/EBBeamCaloTask/EnergyHistos");
+//     dqmStore_->setCurrentFolder("EcalBarrel/EBBeamCaloTask/EnergyHistos");
 //     for(int u=0; u< 1701;u++){
 //       sprintf(histo, "EBBCT rec Ene sum 3x3 cry: %04d",u);
-//       meBBCaloE3x3Cry_[u] = dbe_->book1D(histo,histo,1000,0.,4500.);
+//       meBBCaloE3x3Cry_[u] = dqmStore_->book1D(histo,histo,1000,0.,4500.);
 
 //       sprintf(histo, "EBBCT rec Energy1 cry: %04d",u);
-//       meBBCaloE1Cry_[u] = dbe_->book1D(histo,histo,1000,0.,4500.);
+//       meBBCaloE1Cry_[u] = dqmStore_->book1D(histo,histo,1000,0.,4500.);
 //     }
 
-//     dbe_->setCurrentFolder("EcalBarrel/EBBeamCaloTask");
+//     dqmStore_->setCurrentFolder("EcalBarrel/EBBeamCaloTask");
     sprintf(histo, "EBBCT readout crystals");
-    meBBCaloCryRead_ =  dbe_->book2D(histo,histo,9,-4.,5.,9,-4.,5.);
+    meBBCaloCryRead_ =  dqmStore_->book2D(histo,histo,9,-4.,5.,9,-4.,5.);
     //matrix of readout crystal around cry in beam
 
     //sprintf(histo, "EBBCT readout crystals table moving");
-    //meBBCaloCryReadMoving_ =  dbe_->book2D(histo,histo,9,-4.,5.,9,-4.,5.);
+    //meBBCaloCryReadMoving_ =  dqmStore_->book2D(histo,histo,9,-4.,5.,9,-4.,5.);
     //matrix of readout crystal around cry in beam
 
     sprintf(histo, "EBBCT all needed crystals readout");
-    meBBCaloAllNeededCry_ = dbe_->book1D(histo,histo,3,-1.,2.);
+    meBBCaloAllNeededCry_ = dqmStore_->book1D(histo,histo,3,-1.,2.);
     // not all needed cry are readout-> bin 1, all needed cry are readout-> bin 3
 
     sprintf(histo, "EBBCT readout crystals number");
-    meBBNumCaloCryRead_ = dbe_->book1D(histo,histo,1701,0.,1701.);
+    meBBNumCaloCryRead_ = dqmStore_->book1D(histo,histo,1701,0.,1701.);
     meBBNumCaloCryRead_->setAxisTitle("number of read crystals", 1);
 
     sprintf(histo, "EBBCT rec Ene sum 3x3");
-    meBBCaloE3x3_ = dbe_->book1D(histo,histo,500,0.,9000.);
+    meBBCaloE3x3_ = dqmStore_->book1D(histo,histo,500,0.,9000.);
     meBBCaloE3x3_->setAxisTitle("rec ene (ADC)", 1);
     //9000 ADC in G12 equivalent is about 330 GeV
 
     sprintf(histo, "EBBCT rec Ene sum 3x3 table moving");
-    meBBCaloE3x3Moving_ = dbe_->book1D(histo,histo,500,0.,9000.);
+    meBBCaloE3x3Moving_ = dqmStore_->book1D(histo,histo,500,0.,9000.);
     //9000 ADC in G12 equivalent is about 330 GeV
 
     sprintf(histo, "EBBCT crystal on beam");
-    meBBCaloCryOnBeam_ = dbe_->book2D(histo, histo, 85, 0., 85., 20, 0., 20.);
+    meBBCaloCryOnBeam_ = dqmStore_->book2D(histo, histo, 85, 0., 85., 20, 0., 20.);
 
     sprintf(histo, "EBBCT crystal with maximum rec energy");
-    meBBCaloMaxEneCry_ = dbe_->book2D(histo, histo, 85, 0., 85., 20, 0., 20.);
+    meBBCaloMaxEneCry_ = dqmStore_->book2D(histo, histo, 85, 0., 85., 20, 0., 20.);
 
     sprintf(histo, "EBBCT table is moving");
-    TableMoving_ = dbe_->book1D(histo,histo,2,0.,1.1);
+    TableMoving_ = dqmStore_->book1D(histo,histo,2,0.,1.1);
     TableMoving_->setAxisTitle("table status (0=stable, 1=moving)", 1);
     //table is moving-> bin 2, table is not moving-> bin 1
 
     sprintf(histo, "EBBCT crystals done");
-    CrystalsDone_ = dbe_->book1D(histo,histo,1700,1.,1701.);
+    CrystalsDone_ = dqmStore_->book1D(histo,histo,1700,1.,1701.);
     CrystalsDone_->setAxisTitle("crystal", 1);
     CrystalsDone_->setAxisTitle("step in the scan", 2);
     //for a crystal done the corresponing bin is filled with the step in the
     //autoscan pertainig to the given crystales
 
     sprintf(histo, "EBBCT crystal in beam vs event");
-    CrystalInBeam_vs_Event_ = dbe_->bookProfile(histo, histo, 20000,0.,400000.,1802,-101.,1701.,"s");
+    CrystalInBeam_vs_Event_ = dqmStore_->bookProfile(histo, histo, 20000,0.,400000.,1802,-101.,1701.,"s");
     CrystalInBeam_vs_Event_->setAxisTitle("event", 1);
     CrystalInBeam_vs_Event_->setAxisTitle("crystal in beam", 2);
     // 1 bin each 20 events
@@ -240,37 +240,37 @@ void EBBeamCaloTask::setup(void){
 
 
     sprintf(histo, "EBBCT readout crystals errors");
-    meEBBCaloReadCryErrors_ = dbe_->book1D(histo, histo, 425,1.,86.);
+    meEBBCaloReadCryErrors_ = dqmStore_->book1D(histo, histo, 425,1.,86.);
     meEBBCaloReadCryErrors_->setAxisTitle("step in the scan", 1);
 
     sprintf(histo, "EBBCT average rec energy in the single crystal");
-    //meEBBCaloE1vsCry_ = dbe_->book1D(histo, histo, 85,1.,86.);
-    meEBBCaloE1vsCry_ = dbe_->bookProfile(histo, histo, 1700,1.,1701.,500,0.,9000.,"s");
+    //meEBBCaloE1vsCry_ = dqmStore_->book1D(histo, histo, 85,1.,86.);
+    meEBBCaloE1vsCry_ = dqmStore_->bookProfile(histo, histo, 1700,1.,1701.,500,0.,9000.,"s");
     meEBBCaloE1vsCry_->setAxisTitle("crystal", 1);
     meEBBCaloE1vsCry_->setAxisTitle("rec energy (ADC)", 2);
 
     sprintf(histo, "EBBCT average rec energy in the 3x3 array");
-    //meEBBCaloE3x3vsCry_= dbe_->book1D(histo, histo,85,1.,86.);
-    meEBBCaloE3x3vsCry_ = dbe_->bookProfile(histo, histo, 1700,1.,1701.,500,0.,9000.,"s");
+    //meEBBCaloE3x3vsCry_= dqmStore_->book1D(histo, histo,85,1.,86.);
+    meEBBCaloE3x3vsCry_ = dqmStore_->bookProfile(histo, histo, 1700,1.,1701.,500,0.,9000.,"s");
     meEBBCaloE3x3vsCry_->setAxisTitle("crystal", 1);
     meEBBCaloE3x3vsCry_->setAxisTitle("rec energy (ADC)", 2);
 
     sprintf(histo, "EBBCT number of entries");
-    meEBBCaloEntriesVsCry_ = dbe_->book1D(histo, histo,1700,1.,1701.);
+    meEBBCaloEntriesVsCry_ = dqmStore_->book1D(histo, histo,1700,1.,1701.);
     meEBBCaloEntriesVsCry_->setAxisTitle("crystal", 1);
     meEBBCaloEntriesVsCry_->setAxisTitle("number of events (prescaled)", 2);
 
     sprintf(histo, "EBBCT energy deposition in the 3x3");
-    meEBBCaloBeamCentered_ = dbe_->book2D(histo, histo,3,-1.5,1.5,3,-1.5,1.5);
+    meEBBCaloBeamCentered_ = dqmStore_->book2D(histo, histo,3,-1.5,1.5,3,-1.5,1.5);
     meEBBCaloBeamCentered_->setAxisTitle("\\Delta \\eta", 1);
     meEBBCaloBeamCentered_->setAxisTitle("\\Delta \\phi", 2);
 
     sprintf(histo, "EBBCT E1 in the max cry");
-    meEBBCaloE1MaxCry_= dbe_->book1D(histo,histo,500,0.,9000.);
+    meEBBCaloE1MaxCry_= dqmStore_->book1D(histo,histo,500,0.,9000.);
     meEBBCaloE1MaxCry_->setAxisTitle("rec Ene (ADC)", 1);
 
     sprintf(histo, "EBBCT Desynchronization vs step");
-    meEBBCaloDesync_= dbe_->book1D(histo, histo, 85 ,1.,86.);
+    meEBBCaloDesync_= dqmStore_->book1D(histo, histo, 85 ,1.,86.);
     meEBBCaloDesync_->setAxisTitle("step", 1);
     meEBBCaloDesync_->setAxisTitle("Desynchronized events", 2);
 
@@ -282,72 +282,72 @@ void EBBeamCaloTask::cleanup(void){
 
   if ( ! enableCleanup_ ) return;
 
-  if ( dbe_ ) {
-    dbe_->setCurrentFolder("EcalBarrel/EBBeamCaloTask");
+  if ( dqmStore_ ) {
+    dqmStore_->setCurrentFolder("EcalBarrel/EBBeamCaloTask");
     for (int i = 0; i < cryInArray_ ; i++) {
-      if ( meBBCaloPulseProf_[i] ) dbe_->removeElement( meBBCaloPulseProf_[i]->getName() );
+      if ( meBBCaloPulseProf_[i] ) dqmStore_->removeElement( meBBCaloPulseProf_[i]->getName() );
       meBBCaloPulseProf_[i] = 0;
-      if ( meBBCaloPulseProfG12_[i] ) dbe_->removeElement( meBBCaloPulseProfG12_[i]->getName() );
+      if ( meBBCaloPulseProfG12_[i] ) dqmStore_->removeElement( meBBCaloPulseProfG12_[i]->getName() );
       meBBCaloPulseProfG12_[i] = 0;
-      if ( meBBCaloGains_[i] ) dbe_->removeElement( meBBCaloGains_[i]->getName() );
+      if ( meBBCaloGains_[i] ) dqmStore_->removeElement( meBBCaloGains_[i]->getName() );
       meBBCaloGains_[i] = 0;
-      if ( meBBCaloEne_[i] ) dbe_->removeElement( meBBCaloEne_[i]->getName() );
+      if ( meBBCaloEne_[i] ) dqmStore_->removeElement( meBBCaloEne_[i]->getName() );
       meBBCaloEne_[i] = 0;
 
-//       if ( meBBCaloPulseProfMoving_[i] ) dbe_->removeElement( meBBCaloPulseProfMoving_[i]->getName() );
+//       if ( meBBCaloPulseProfMoving_[i] ) dqmStore_->removeElement( meBBCaloPulseProfMoving_[i]->getName() );
 //       meBBCaloPulseProfMoving_[i] = 0;
-//       if ( meBBCaloPulseProfG12Moving_[i] ) dbe_->removeElement( meBBCaloPulseProfG12Moving_[i]->getName() );
+//       if ( meBBCaloPulseProfG12Moving_[i] ) dqmStore_->removeElement( meBBCaloPulseProfG12Moving_[i]->getName() );
 //       meBBCaloPulseProfG12Moving_[i] = 0;
-//       if ( meBBCaloGainsMoving_[i] ) dbe_->removeElement( meBBCaloGainsMoving_[i]->getName() );
+//       if ( meBBCaloGainsMoving_[i] ) dqmStore_->removeElement( meBBCaloGainsMoving_[i]->getName() );
 //       meBBCaloGainsMoving_[i] = 0;
-//       if ( meBBCaloEneMoving_[i] ) dbe_->removeElement( meBBCaloEneMoving_[i]->getName() );
+//       if ( meBBCaloEneMoving_[i] ) dqmStore_->removeElement( meBBCaloEneMoving_[i]->getName() );
 //       meBBCaloEneMoving_[i] = 0;
     }
 
-//     dbe_->setCurrentFolder("EcalBarrel/EBBeamCaloTask/EnergyHistos");
+//     dqmStore_->setCurrentFolder("EcalBarrel/EBBeamCaloTask/EnergyHistos");
 //     for(int u=0; u< 1701;u++){
-//       if ( meBBCaloE3x3Cry_[u] ) dbe_->removeElement( meBBCaloE3x3Cry_[u]->getName() );
+//       if ( meBBCaloE3x3Cry_[u] ) dqmStore_->removeElement( meBBCaloE3x3Cry_[u]->getName() );
 //       meBBCaloE3x3Cry_[u] = 0;
-//       if ( meBBCaloE1Cry_[u] ) dbe_->removeElement( meBBCaloE1Cry_[u]->getName() );
+//       if ( meBBCaloE1Cry_[u] ) dqmStore_->removeElement( meBBCaloE1Cry_[u]->getName() );
 //       meBBCaloE1Cry_[u] = 0;
 //     }
 
-//     dbe_->setCurrentFolder("EcalBarrel/EBBeamCaloTask");
-    if ( meBBCaloCryRead_ ) dbe_->removeElement( meBBCaloCryRead_->getName() );
+//     dqmStore_->setCurrentFolder("EcalBarrel/EBBeamCaloTask");
+    if ( meBBCaloCryRead_ ) dqmStore_->removeElement( meBBCaloCryRead_->getName() );
     meBBCaloCryRead_ = 0;
-    //    if ( meBBCaloCryReadMoving_ ) dbe_->removeElement( meBBCaloCryReadMoving_->getName() );
+    //    if ( meBBCaloCryReadMoving_ ) dqmStore_->removeElement( meBBCaloCryReadMoving_->getName() );
     //meBBCaloCryReadMoving_ = 0;
-    if ( meBBCaloAllNeededCry_ ) dbe_->removeElement( meBBCaloAllNeededCry_->getName() );
+    if ( meBBCaloAllNeededCry_ ) dqmStore_->removeElement( meBBCaloAllNeededCry_->getName() );
     meBBCaloAllNeededCry_ = 0;
-    if ( meBBNumCaloCryRead_ ) dbe_->removeElement( meBBNumCaloCryRead_->getName() );
+    if ( meBBNumCaloCryRead_ ) dqmStore_->removeElement( meBBNumCaloCryRead_->getName() );
     meBBNumCaloCryRead_ = 0;
-    if ( meBBCaloE3x3_ ) dbe_->removeElement( meBBCaloE3x3_->getName() );
+    if ( meBBCaloE3x3_ ) dqmStore_->removeElement( meBBCaloE3x3_->getName() );
     meBBCaloE3x3_ = 0;
-    if ( meBBCaloE3x3Moving_ ) dbe_->removeElement( meBBCaloE3x3Moving_->getName() );
+    if ( meBBCaloE3x3Moving_ ) dqmStore_->removeElement( meBBCaloE3x3Moving_->getName() );
     meBBCaloE3x3Moving_ = 0;
-    if ( meBBCaloCryOnBeam_ ) dbe_->removeElement( meBBCaloCryOnBeam_->getName() );
+    if ( meBBCaloCryOnBeam_ ) dqmStore_->removeElement( meBBCaloCryOnBeam_->getName() );
     meBBCaloCryOnBeam_ = 0;
-    if ( meBBCaloMaxEneCry_ ) dbe_->removeElement( meBBCaloMaxEneCry_->getName() );
+    if ( meBBCaloMaxEneCry_ ) dqmStore_->removeElement( meBBCaloMaxEneCry_->getName() );
     meBBCaloMaxEneCry_ = 0;
-    if ( TableMoving_ ) dbe_->removeElement( TableMoving_->getName() );
+    if ( TableMoving_ ) dqmStore_->removeElement( TableMoving_->getName() );
     TableMoving_ = 0;
-    if ( CrystalsDone_ ) dbe_->removeElement( CrystalsDone_->getName() );
+    if ( CrystalsDone_ ) dqmStore_->removeElement( CrystalsDone_->getName() );
     CrystalsDone_ = 0;
-    if ( CrystalInBeam_vs_Event_ ) dbe_->removeElement( CrystalInBeam_vs_Event_->getName() );
+    if ( CrystalInBeam_vs_Event_ ) dqmStore_->removeElement( CrystalInBeam_vs_Event_->getName() );
     CrystalInBeam_vs_Event_ = 0;
-    if( meEBBCaloReadCryErrors_ ) dbe_->removeElement( meEBBCaloReadCryErrors_->getName() );
+    if( meEBBCaloReadCryErrors_ ) dqmStore_->removeElement( meEBBCaloReadCryErrors_->getName() );
     meEBBCaloReadCryErrors_ = 0;
-    if( meEBBCaloE1vsCry_ ) dbe_->removeElement( meEBBCaloE1vsCry_->getName() );
+    if( meEBBCaloE1vsCry_ ) dqmStore_->removeElement( meEBBCaloE1vsCry_->getName() );
     meEBBCaloE1vsCry_ = 0;
-    if( meEBBCaloE3x3vsCry_ ) dbe_->removeElement( meEBBCaloE3x3vsCry_->getName() );
+    if( meEBBCaloE3x3vsCry_ ) dqmStore_->removeElement( meEBBCaloE3x3vsCry_->getName() );
     meEBBCaloE3x3vsCry_ = 0;
-    if( meEBBCaloEntriesVsCry_ )  dbe_->removeElement( meEBBCaloEntriesVsCry_->getName() );
+    if( meEBBCaloEntriesVsCry_ )  dqmStore_->removeElement( meEBBCaloEntriesVsCry_->getName() );
     meEBBCaloEntriesVsCry_ = 0;
-    if( meEBBCaloBeamCentered_ ) dbe_->removeElement( meEBBCaloBeamCentered_->getName() );
+    if( meEBBCaloBeamCentered_ ) dqmStore_->removeElement( meEBBCaloBeamCentered_->getName() );
     meEBBCaloBeamCentered_ = 0;
-    if( meEBBCaloE1MaxCry_ ) dbe_->removeElement(meEBBCaloE1MaxCry_->getName() );
+    if( meEBBCaloE1MaxCry_ ) dqmStore_->removeElement(meEBBCaloE1MaxCry_->getName() );
     meEBBCaloE1MaxCry_ = 0;
-    if( meEBBCaloDesync_ ) dbe_->removeElement(meEBBCaloDesync_->getName() );
+    if( meEBBCaloDesync_ ) dqmStore_->removeElement(meEBBCaloDesync_->getName() );
     meEBBCaloDesync_ = 0;
   }
 

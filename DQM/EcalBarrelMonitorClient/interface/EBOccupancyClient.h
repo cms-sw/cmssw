@@ -4,8 +4,8 @@
 /*
  * \file EBOccupancyClient.h
  *
- * $Date: 2008/04/07 07:24:31 $
- * $Revision: 1.7 $
+ * $Date: 2008/04/07 08:44:19 $
+ * $Revision: 1.8 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -44,7 +44,7 @@ virtual ~EBOccupancyClient();
 void analyze(void);
 
 /// BeginJob
-void beginJob(DQMStore* mui);
+void beginJob(DQMStore* dqmStore);
 
 /// EndJob
 void endJob(void);
@@ -85,7 +85,7 @@ bool enableCleanup_;
 
 std::vector<int> superModules_;
 
-DQMStore* dbe_;
+DQMStore* dqmStore_;
 
 TH2F* h01_[3];
 TH1F* h01ProjEta_[3];

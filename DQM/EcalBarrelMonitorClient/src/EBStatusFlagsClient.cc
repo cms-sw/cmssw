@@ -1,8 +1,8 @@
 /*
  * \file EBStatusFlagsClient.cc
  *
- * $Date: 2008/04/07 08:44:20 $
- * $Revision: 1.15 $
+ * $Date: 2008/04/07 11:30:22 $
+ * $Revision: 1.16 $
  * \author G. Della Ricca
  *
 */
@@ -65,9 +65,9 @@ EBStatusFlagsClient::~EBStatusFlagsClient(){
 
 }
 
-void EBStatusFlagsClient::beginJob(DQMStore* dbe){
+void EBStatusFlagsClient::beginJob(DQMStore* dqmStore){
 
-  dbe_ = dbe;
+  dqmStore_ = dqmStore;
 
   if ( debug_ ) cout << "EBStatusFlagsClient: beginJob" << endl;
 
@@ -104,7 +104,7 @@ void EBStatusFlagsClient::endRun(void) {
 
 void EBStatusFlagsClient::setup(void) {
 
-  dbe_->setCurrentFolder( "EcalBarrel/EBStatusFlagsClient" );
+  dqmStore_->setCurrentFolder( "EcalBarrel/EBStatusFlagsClient" );
 
 }
 
@@ -129,7 +129,7 @@ void EBStatusFlagsClient::cleanup(void) {
 
   }
 
-  dbe_->setCurrentFolder( "EcalBarrel/EBStatusFlagsClient" );
+  dqmStore_->setCurrentFolder( "EcalBarrel/EBStatusFlagsClient" );
 
 }
 
@@ -172,12 +172,12 @@ void EBStatusFlagsClient::analyze(void){
     int ism = superModules_[i];
 
     sprintf(histo, "EcalBarrel/EBStatusFlagsTask/FEStatus/EBSFT front-end status %s", Numbers::sEB(ism).c_str());
-    me = dbe_->get(histo);
+    me = dqmStore_->get(histo);
     h01_[ism-1] = UtilsClient::getHisto<TH2F*>( me, cloneME_, h01_[ism-1] );
     meh01_[ism-1] = me;
 
     sprintf(histo, "EcalBarrel/EBStatusFlagsTask/FEStatus/EBSFT front-end status bits %s", Numbers::sEB(ism).c_str());
-    me = dbe_->get(histo);
+    me = dqmStore_->get(histo);
     h02_[ism-1] = UtilsClient::getHisto<TH1F*>( me, cloneME_, h02_[ism-1] );
     meh02_[ism-1] = me;
 

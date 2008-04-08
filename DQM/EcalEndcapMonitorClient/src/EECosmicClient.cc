@@ -1,8 +1,8 @@
 /*
  * \file EECosmicClient.cc
  *
- * $Date: 2008/04/07 07:24:35 $
- * $Revision: 1.57 $
+ * $Date: 2008/04/07 08:44:21 $
+ * $Revision: 1.58 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -75,9 +75,9 @@ EECosmicClient::~EECosmicClient(){
 
 }
 
-void EECosmicClient::beginJob(DQMStore* dbe){
+void EECosmicClient::beginJob(DQMStore* dqmStore){
 
-  dbe_ = dbe;
+  dqmStore_ = dqmStore;
 
   if ( debug_ ) cout << "EECosmicClient: beginJob" << endl;
 
@@ -269,22 +269,22 @@ void EECosmicClient::analyze(void){
     int ism = superModules_[i];
 
     sprintf(histo, "EcalEndcap/EECosmicTask/Cut/EECT energy cut %s", Numbers::sEE(ism).c_str());
-    me = dbe_->get(histo);
+    me = dqmStore_->get(histo);
     h01_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, h01_[ism-1] );
     meh01_[ism-1] = me;
 
     sprintf(histo, "EcalEndcap/EECosmicTask/Sel/EECT energy sel %s", Numbers::sEE(ism).c_str());
-    me = dbe_->get(histo);
+    me = dqmStore_->get(histo);
     h02_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, h02_[ism-1] );
     meh02_[ism-1] = me;
 
     sprintf(histo, "EcalEndcap/EECosmicTask/Spectrum/EECT 1x1 energy spectrum %s", Numbers::sEE(ism).c_str());
-    me = dbe_->get(histo);
+    me = dqmStore_->get(histo);
     h03_[ism-1] = UtilsClient::getHisto<TH1F*>( me, cloneME_, h03_[ism-1] );
     meh03_[ism-1] = me;
 
     sprintf(histo, "EcalEndcap/EECosmicTask/Spectrum/EECT 3x3 energy spectrum %s", Numbers::sEE(ism).c_str());
-    me = dbe_->get(histo);
+    me = dqmStore_->get(histo);
     h04_[ism-1] = UtilsClient::getHisto<TH1F*>( me, cloneME_, h04_[ism-1] );
     meh04_[ism-1] = me;
 

@@ -1,8 +1,8 @@
 /*
  * \file EBCosmicTask.cc
  *
- * $Date: 2008/04/06 18:07:21 $
- * $Revision: 1.100 $
+ * $Date: 2008/04/07 11:30:23 $
+ * $Revision: 1.101 $
  * \author G. Della Ricca
  *
 */
@@ -36,7 +36,7 @@ EBCosmicTask::EBCosmicTask(const ParameterSet& ps){
   init_ = false;
 
   // get hold of back-end interface
-  dbe_ = Service<DQMStore>().operator->();
+  dqmStore_ = Service<DQMStore>().operator->();
 
   enableCleanup_ = ps.getUntrackedParameter<bool>("enableCleanup", false);
 
@@ -67,9 +67,9 @@ void EBCosmicTask::beginJob(const EventSetup& c){
 
   ievt_ = 0;
 
-  if ( dbe_ ) {
-    dbe_->setCurrentFolder("EcalBarrel/EBCosmicTask");
-    dbe_->rmdir("EcalBarrel/EBCosmicTask");
+  if ( dqmStore_ ) {
+    dqmStore_->setCurrentFolder("EcalBarrel/EBCosmicTask");
+    dqmStore_->rmdir("EcalBarrel/EBCosmicTask");
   }
 
   Numbers::initGeometry(c, false);
@@ -82,32 +82,32 @@ void EBCosmicTask::setup(void){
 
   char histo[200];
 
-  if ( dbe_ ) {
-    dbe_->setCurrentFolder("EcalBarrel/EBCosmicTask");
+  if ( dqmStore_ ) {
+    dqmStore_->setCurrentFolder("EcalBarrel/EBCosmicTask");
 
-    dbe_->setCurrentFolder("EcalBarrel/EBCosmicTask/Cut");
+    dqmStore_->setCurrentFolder("EcalBarrel/EBCosmicTask/Cut");
     for (int i = 0; i < 36; i++) {
       sprintf(histo, "EBCT energy cut %s", Numbers::sEB(i+1).c_str());
-      meCutMap_[i] = dbe_->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096., "s");
+      meCutMap_[i] = dqmStore_->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096., "s");
       meCutMap_[i]->setAxisTitle("ieta", 1);
       meCutMap_[i]->setAxisTitle("iphi", 2);
     }
 
-    dbe_->setCurrentFolder("EcalBarrel/EBCosmicTask/Sel");
+    dqmStore_->setCurrentFolder("EcalBarrel/EBCosmicTask/Sel");
     for (int i = 0; i < 36; i++) {
       sprintf(histo, "EBCT energy sel %s", Numbers::sEB(i+1).c_str());
-      meSelMap_[i] = dbe_->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096., "s");
+      meSelMap_[i] = dqmStore_->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096., "s");
       meSelMap_[i]->setAxisTitle("ieta", 1);
       meSelMap_[i]->setAxisTitle("iphi", 2);
     }
 
-    dbe_->setCurrentFolder("EcalBarrel/EBCosmicTask/Spectrum");
+    dqmStore_->setCurrentFolder("EcalBarrel/EBCosmicTask/Spectrum");
     for (int i = 0; i < 36; i++) {
       sprintf(histo, "EBCT 1x1 energy spectrum %s", Numbers::sEB(i+1).c_str());
-      meSpectrum_[0][i] = dbe_->book1D(histo, histo, 100, 0., 1.5);
+      meSpectrum_[0][i] = dqmStore_->book1D(histo, histo, 100, 0., 1.5);
       meSpectrum_[0][i]->setAxisTitle("energy (GeV)", 1);
       sprintf(histo, "EBCT 3x3 energy spectrum %s", Numbers::sEB(i+1).c_str());
-      meSpectrum_[1][i] = dbe_->book1D(histo, histo, 100, 0., 1.5);
+      meSpectrum_[1][i] = dqmStore_->book1D(histo, histo, 100, 0., 1.5);
       meSpectrum_[1][i]->setAxisTitle("energy (GeV)", 1);
     }
 
@@ -119,26 +119,26 @@ void EBCosmicTask::cleanup(void){
 
   if ( ! enableCleanup_ ) return;
 
-  if ( dbe_ ) {
-    dbe_->setCurrentFolder("EcalBarrel/EBCosmicTask");
+  if ( dqmStore_ ) {
+    dqmStore_->setCurrentFolder("EcalBarrel/EBCosmicTask");
 
-    dbe_->setCurrentFolder("EcalBarrel/EBCosmicTask/Cut");
+    dqmStore_->setCurrentFolder("EcalBarrel/EBCosmicTask/Cut");
     for (int i = 0; i < 36; i++) {
-      if ( meCutMap_[i] ) dbe_->removeElement( meCutMap_[i]->getName() );
+      if ( meCutMap_[i] ) dqmStore_->removeElement( meCutMap_[i]->getName() );
       meCutMap_[i] = 0;
     }
 
-    dbe_->setCurrentFolder("EcalBarrel/EBCosmicTask/Sel");
+    dqmStore_->setCurrentFolder("EcalBarrel/EBCosmicTask/Sel");
     for (int i = 0; i < 36; i++) {
-      if ( meSelMap_[i] ) dbe_->removeElement( meSelMap_[i]->getName() );
+      if ( meSelMap_[i] ) dqmStore_->removeElement( meSelMap_[i]->getName() );
       meSelMap_[i] = 0;
     }
 
-    dbe_->setCurrentFolder("EcalBarrel/EBCosmicTask/Spectrum");
+    dqmStore_->setCurrentFolder("EcalBarrel/EBCosmicTask/Spectrum");
     for (int i = 0; i < 36; i++) {
-      if ( meSpectrum_[0][i] ) dbe_->removeElement( meSpectrum_[0][i]->getName() );
+      if ( meSpectrum_[0][i] ) dqmStore_->removeElement( meSpectrum_[0][i]->getName() );
       meSpectrum_[0][i] = 0;
-      if ( meSpectrum_[1][i] ) dbe_->removeElement( meSpectrum_[1][i]->getName() );
+      if ( meSpectrum_[1][i] ) dqmStore_->removeElement( meSpectrum_[1][i]->getName() );
       meSpectrum_[1][i] = 0;
     }
 

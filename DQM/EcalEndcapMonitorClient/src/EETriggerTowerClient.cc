@@ -1,8 +1,8 @@
 /*
  * \file EETriggerTowerClient.cc
  *
- * $Date: 2008/04/07 09:00:42 $
- * $Revision: 1.66 $
+ * $Date: 2008/04/07 11:30:24 $
+ * $Revision: 1.67 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -105,9 +105,9 @@ EETriggerTowerClient::~EETriggerTowerClient(){
 
 }
 
-void EETriggerTowerClient::beginJob(DQMStore* dbe){
+void EETriggerTowerClient::beginJob(DQMStore* dqmStore){
 
-  dbe_ = dbe;
+  dqmStore_ = dqmStore;
 
   if ( debug_ ) cout << "EETriggerTowerClient: beginJob" << endl;
 
@@ -146,36 +146,36 @@ void EETriggerTowerClient::setup(void) {
 
   char histo[200];
 
-  dbe_->setCurrentFolder( "EcalEndcap/EETriggerTowerClient" );
+  dqmStore_->setCurrentFolder( "EcalEndcap/EETriggerTowerClient" );
 
   for ( unsigned int i=0; i<superModules_.size(); i++ ) {
 
     int ism = superModules_[i];
 
-    if ( me_h01_[ism-1] ) dbe_->removeElement( me_h01_[ism-1]->getName() );
+    if ( me_h01_[ism-1] ) dqmStore_->removeElement( me_h01_[ism-1]->getName() );
     sprintf(histo, "EETTT Et map Real Digis %s", Numbers::sEE(ism).c_str());
-    me_h01_[ism-1] = dbe_->bookProfile2D(histo, histo, 50, Numbers::ix0EE(ism)+0., Numbers::ix0EE(ism)+50., 50, Numbers::iy0EE(ism)+0., Numbers::iy0EE(ism)+50., 256, 0., 256., "s");
+    me_h01_[ism-1] = dqmStore_->bookProfile2D(histo, histo, 50, Numbers::ix0EE(ism)+0., Numbers::ix0EE(ism)+50., 50, Numbers::iy0EE(ism)+0., Numbers::iy0EE(ism)+50., 256, 0., 256., "s");
     me_h01_[ism-1]->setAxisTitle("jx", 1);
     me_h01_[ism-1]->setAxisTitle("jy", 2);
-    if ( me_h02_[ism-1] ) dbe_->removeElement( me_h02_[ism-1]->getName() );
+    if ( me_h02_[ism-1] ) dqmStore_->removeElement( me_h02_[ism-1]->getName() );
     sprintf(histo, "EETTT Et map Emulated Digis %s", Numbers::sEE(ism).c_str());
-    me_h02_[ism-1] = dbe_->bookProfile2D(histo, histo, 50, Numbers::ix0EE(ism)+0., Numbers::ix0EE(ism)+50., 50, Numbers::iy0EE(ism)+0., Numbers::iy0EE(ism)+50., 256, 0., 256., "s");
+    me_h02_[ism-1] = dqmStore_->bookProfile2D(histo, histo, 50, Numbers::ix0EE(ism)+0., Numbers::ix0EE(ism)+50., 50, Numbers::iy0EE(ism)+0., Numbers::iy0EE(ism)+50., 256, 0., 256., "s");
     me_h02_[ism-1]->setAxisTitle("jx", 1);
     me_h02_[ism-1]->setAxisTitle("jy", 2);
     for (int j=0; j<2; j++) {
-      if ( me_i01_[ism-1][j] ) dbe_->removeElement( me_i01_[ism-1][j]->getName() );
+      if ( me_i01_[ism-1][j] ) dqmStore_->removeElement( me_i01_[ism-1][j]->getName() );
       sprintf(histo, "EETTT FineGrainVeto Real Digis Flag %d %s", j, Numbers::sEE(ism).c_str());
-      me_i01_[ism-1][j] = dbe_->book2D(histo, histo, 50, Numbers::ix0EE(ism)+0., Numbers::ix0EE(ism)+50., 50, Numbers::iy0EE(ism)+0., Numbers::iy0EE(ism)+50.);
+      me_i01_[ism-1][j] = dqmStore_->book2D(histo, histo, 50, Numbers::ix0EE(ism)+0., Numbers::ix0EE(ism)+50., 50, Numbers::iy0EE(ism)+0., Numbers::iy0EE(ism)+50.);
       me_i01_[ism-1][j]->setAxisTitle("jx", 1);
       me_i01_[ism-1][j]->setAxisTitle("jy", 2);
-      if ( me_i02_[ism-1][j] ) dbe_->removeElement( me_i02_[ism-1][j]->getName() );
+      if ( me_i02_[ism-1][j] ) dqmStore_->removeElement( me_i02_[ism-1][j]->getName() );
       sprintf(histo, "EETTT FineGrainVeto Emulated Digis Flag %d %s", j, Numbers::sEE(ism).c_str());
-      me_i02_[ism-1][j] = dbe_->book2D(histo, histo, 50, Numbers::ix0EE(ism)+0., Numbers::ix0EE(ism)+50., 50, Numbers::iy0EE(ism)+0., Numbers::iy0EE(ism)+50.);
+      me_i02_[ism-1][j] = dqmStore_->book2D(histo, histo, 50, Numbers::ix0EE(ism)+0., Numbers::ix0EE(ism)+50., 50, Numbers::iy0EE(ism)+0., Numbers::iy0EE(ism)+50.);
       me_i02_[ism-1][j]->setAxisTitle("jx", 1);
       me_i02_[ism-1][j]->setAxisTitle("jy", 2);
-      if ( me_n01_[ism-1][j] ) dbe_->removeElement( me_n01_[ism-1][j]->getName() );
+      if ( me_n01_[ism-1][j] ) dqmStore_->removeElement( me_n01_[ism-1][j]->getName() );
       sprintf(histo, "EETTT EmulFineGrainVetoError Flag %d %s", j, Numbers::sEE(ism).c_str());
-      me_n01_[ism-1][j] = dbe_->book2D(histo, histo, 50, Numbers::ix0EE(ism)+0., Numbers::ix0EE(ism)+50., 50, Numbers::iy0EE(ism)+0., Numbers::iy0EE(ism)+50.);
+      me_n01_[ism-1][j] = dqmStore_->book2D(histo, histo, 50, Numbers::ix0EE(ism)+0., Numbers::ix0EE(ism)+50., 50, Numbers::iy0EE(ism)+0., Numbers::iy0EE(ism)+50.);
       me_n01_[ism-1][j]->setAxisTitle("jx", 1);
       me_n01_[ism-1][j]->setAxisTitle("jy", 2);
     }
@@ -187,19 +187,19 @@ void EETriggerTowerClient::setup(void) {
       if ( j == 3 ) bits = "Bit 100";
       if ( j == 4 ) bits = "Bit 101";
       if ( j == 5 ) bits = "Bits 110+111";
-      if ( me_j01_[ism-1][j] ) dbe_->removeElement( me_j01_[ism-1][j]->getName() );
+      if ( me_j01_[ism-1][j] ) dqmStore_->removeElement( me_j01_[ism-1][j]->getName() );
       sprintf(histo, "EETTT Flags Real Digis %s %s", bits.c_str(), Numbers::sEE(ism).c_str());
-      me_j01_[ism-1][j] = dbe_->book2D(histo, histo, 50, Numbers::ix0EE(ism)+0., Numbers::ix0EE(ism)+50., 50, Numbers::iy0EE(ism)+0., Numbers::iy0EE(ism)+50.);
+      me_j01_[ism-1][j] = dqmStore_->book2D(histo, histo, 50, Numbers::ix0EE(ism)+0., Numbers::ix0EE(ism)+50., 50, Numbers::iy0EE(ism)+0., Numbers::iy0EE(ism)+50.);
       me_j01_[ism-1][j]->setAxisTitle("jx", 1);
       me_j01_[ism-1][j]->setAxisTitle("jy", 2);
-      if ( me_j02_[ism-1][j] ) dbe_->removeElement( me_j02_[ism-1][j]->getName() );
+      if ( me_j02_[ism-1][j] ) dqmStore_->removeElement( me_j02_[ism-1][j]->getName() );
       sprintf(histo, "EETTT Flags Emulated Digis %s %s", bits.c_str(), Numbers::sEE(ism).c_str());
-      me_j02_[ism-1][j] = dbe_->book2D(histo, histo, 50, Numbers::ix0EE(ism)+0., Numbers::ix0EE(ism)+50., 50, Numbers::iy0EE(ism)+0., Numbers::iy0EE(ism)+50.);
+      me_j02_[ism-1][j] = dqmStore_->book2D(histo, histo, 50, Numbers::ix0EE(ism)+0., Numbers::ix0EE(ism)+50., 50, Numbers::iy0EE(ism)+0., Numbers::iy0EE(ism)+50.);
       me_j02_[ism-1][j]->setAxisTitle("jx", 1);
       me_j02_[ism-1][j]->setAxisTitle("jy", 2);
-      if ( me_m01_[ism-1][j] ) dbe_->removeElement( me_m01_[ism-1][j]->getName() );
+      if ( me_m01_[ism-1][j] ) dqmStore_->removeElement( me_m01_[ism-1][j]->getName() );
       sprintf(histo, "EETTT EmulFlagError %s %s", bits.c_str(), Numbers::sEE(ism).c_str());
-      me_m01_[ism-1][j] = dbe_->book2D(histo, histo, 50, Numbers::ix0EE(ism)+0., Numbers::ix0EE(ism)+50., 50, Numbers::iy0EE(ism)+0., Numbers::iy0EE(ism)+50.);
+      me_m01_[ism-1][j] = dqmStore_->book2D(histo, histo, 50, Numbers::ix0EE(ism)+0., Numbers::ix0EE(ism)+50., 50, Numbers::iy0EE(ism)+0., Numbers::iy0EE(ism)+50.);
       me_m01_[ism-1][j]->setAxisTitle("jx", 1);
       me_m01_[ism-1][j]->setAxisTitle("jy", 2);
     }
@@ -286,30 +286,30 @@ void EETriggerTowerClient::cleanup(void) {
 
   }
 
-  dbe_->setCurrentFolder( "EcalEndcap/EETriggerTowerClient" );
+  dqmStore_->setCurrentFolder( "EcalEndcap/EETriggerTowerClient" );
 
   for ( unsigned int i=0; i<superModules_.size(); i++ ) {
 
     int ism = superModules_[i];
 
-    if ( me_h01_[ism-1] ) dbe_->removeElement( me_h01_[ism-1]->getName() );
+    if ( me_h01_[ism-1] ) dqmStore_->removeElement( me_h01_[ism-1]->getName() );
     me_h01_[ism-1] = 0;
-    if ( me_h02_[ism-1] ) dbe_->removeElement( me_h02_[ism-1]->getName() );
+    if ( me_h02_[ism-1] ) dqmStore_->removeElement( me_h02_[ism-1]->getName() );
     me_h02_[ism-1] = 0;
     for (int j=0; j<2; j++) {
-      if ( me_i01_[ism-1][j] ) dbe_->removeElement( me_i01_[ism-1][j]->getName() );
+      if ( me_i01_[ism-1][j] ) dqmStore_->removeElement( me_i01_[ism-1][j]->getName() );
       me_i01_[ism-1][j] = 0;
-      if ( me_i02_[ism-1][j] ) dbe_->removeElement( me_i02_[ism-1][j]->getName() );
+      if ( me_i02_[ism-1][j] ) dqmStore_->removeElement( me_i02_[ism-1][j]->getName() );
       me_i02_[ism-1][j] = 0;
-      if ( me_n01_[ism-1][j] ) dbe_->removeElement( me_n01_[ism-1][j]->getName() );
+      if ( me_n01_[ism-1][j] ) dqmStore_->removeElement( me_n01_[ism-1][j]->getName() );
       me_n01_[ism-1][j] = 0;
     }
     for (int j=0; j<6; j++) {
-      if ( me_j01_[ism-1][j] ) dbe_->removeElement( me_j01_[ism-1][j]->getName() );
+      if ( me_j01_[ism-1][j] ) dqmStore_->removeElement( me_j01_[ism-1][j]->getName() );
       me_j01_[ism-1][j] = 0;
-      if ( me_j02_[ism-1][j] ) dbe_->removeElement( me_j02_[ism-1][j]->getName() );
+      if ( me_j02_[ism-1][j] ) dqmStore_->removeElement( me_j02_[ism-1][j]->getName() );
       me_j02_[ism-1][j] = 0;
-      if ( me_m01_[ism-1][j] ) dbe_->removeElement( me_m01_[ism-1][j]->getName() );
+      if ( me_m01_[ism-1][j] ) dqmStore_->removeElement( me_m01_[ism-1][j]->getName() );
       me_m01_[ism-1][j] = 0;
     }
 
@@ -371,7 +371,7 @@ void EETriggerTowerClient::analyze(const char* nameext,
     int ism = superModules_[i];
 
     sprintf(histo, "EcalEndcap/%s/EETTT Et map %s %s", folder, nameext, Numbers::sEE(ism).c_str());
-    me = dbe_->get(histo);
+    me = dqmStore_->get(histo);
     if(!emulated) {
       h01_[ism-1] = UtilsClient::getHisto<TH3F*>( me, cloneME_, h01_[ism-1] );
       meh01_[ism-1] = me;
@@ -382,7 +382,7 @@ void EETriggerTowerClient::analyze(const char* nameext,
     }
 
     sprintf(histo, "EcalEndcap/%s/EETTT FineGrainVeto %s %s", folder, nameext, Numbers::sEE(ism).c_str());
-    me = dbe_->get(histo);
+    me = dqmStore_->get(histo);
     if(!emulated) {
       i01_[ism-1] = UtilsClient::getHisto<TH3F*>( me, cloneME_, i01_[ism-1] );
       mei01_[ism-1] = me;
@@ -393,7 +393,7 @@ void EETriggerTowerClient::analyze(const char* nameext,
     }
 
     sprintf(histo, "EcalEndcap/%s/EETTT Flags %s %s", folder, nameext, Numbers::sEE(ism).c_str());
-    me = dbe_->get(histo);
+    me = dqmStore_->get(histo);
     if(!emulated) {
       j01_[ism-1] = UtilsClient::getHisto<TH3F*>( me, cloneME_, j01_[ism-1] );
       mej01_[ism-1] = me;
@@ -405,17 +405,17 @@ void EETriggerTowerClient::analyze(const char* nameext,
 
     if(!emulated) {
       sprintf(histo, "EcalEndcap/%s/EETTT EmulError %s", folder, Numbers::sEE(ism).c_str());
-      me = dbe_->get(histo);
+      me = dqmStore_->get(histo);
       l01_[ism-1] = UtilsClient::getHisto<TH2F*>( me, cloneME_, l01_[ism-1] );
       mel01_[ism-1] = me;
 
       sprintf(histo, "EcalEndcap/%s/EETTT EmulFlagError %s", folder, Numbers::sEE(ism).c_str());
-      me = dbe_->get(histo);
+      me = dqmStore_->get(histo);
       m01_[ism-1] = UtilsClient::getHisto<TH3F*>( me, cloneME_, m01_[ism-1] );
       mem01_[ism-1] = me;
 
       sprintf(histo, "EcalEndcap/%s/EETTT EmulFineGrainVetoError %s", folder, Numbers::sEE(ism).c_str());
-      me = dbe_->get(histo);
+      me = dqmStore_->get(histo);
       n01_[ism-1] = UtilsClient::getHisto<TH3F*>( me, cloneME_, n01_[ism-1] );
       men01_[ism-1] = me;
 
@@ -424,12 +424,12 @@ void EETriggerTowerClient::analyze(const char* nameext,
 //     for (int j=0; j<34; j++) {
 //
 //       sprintf(histo, "EcalEndcap/EETriggerTowerTask/EnergyMaps/EETTT Et T %s TT%02d" ism, j+1);
-//       me = dbe_->get(histo);
+//       me = dqmStore_->get(histo);
 //       k01_[ism-1][j] = UtilsClient::getHisto<TH1F*>( me, cloneME_, k01_[ism-1][j] );
 //       mek01_[ism-1][j] = me;
 //
 //       sprintf(histo, "EcalEndcap/EETriggerTowerTask/EnergyMaps/EETTT Et R %s TT%02d" ism, j+1);
-//       me = dbe_->get(histo);
+//       me = dqmStore_->get(histo);
 //       k02_[ism-1][j] = UtilsClient::getHisto<TH1F*>( me, cloneME_, k02_[ism-1][j] );
 //       mek02_[ism-1][j] = me;
 //

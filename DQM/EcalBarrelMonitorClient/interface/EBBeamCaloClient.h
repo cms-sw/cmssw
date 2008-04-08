@@ -4,8 +4,8 @@
 /*
  * \file EBBeamCaloClient.h
  *
- * $Date: 2008/04/07 07:24:31 $
- * $Revision: 1.35 $
+ * $Date: 2008/04/07 08:44:19 $
+ * $Revision: 1.36 $
  * \author G. Della Ricca
  * \author A. Ghezzi
  *
@@ -43,7 +43,7 @@ virtual ~EBBeamCaloClient();
 void analyze(void);
 
 /// BeginJob
-void beginJob(DQMStore* dbe);
+void beginJob(DQMStore* dqmStore);
 
 /// EndJob
 void endJob(void);
@@ -88,7 +88,7 @@ bool enableCleanup_;
 
 std::vector<int> superModules_;
 
-DQMStore* dbe_;
+DQMStore* dqmStore_;
 
 //specific task me
 std::vector<int> checkedSteps_;

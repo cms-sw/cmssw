@@ -1,11 +1,11 @@
-// $Id: MonitorElementsDb.cc,v 1.15 2008/03/14 14:38:56 dellaric Exp $
+// $Id: MonitorElementsDb.cc,v 1.16 2008/03/15 14:07:45 dellaric Exp $
 
 /*!
   \file MonitorElementsDb.cc
   \brief Generate a Monitor Element from DB data
   \author B. Gobbo 
-  \version $Revision: 1.15 $
-  \date $Date: 2008/03/14 14:38:56 $
+  \version $Revision: 1.16 $
+  \date $Date: 2008/03/15 14:07:45 $
 */
 
 #include "FWCore/ServiceRegistry/interface/Service.h"
@@ -40,11 +40,11 @@ MonitorElementsDb::MonitorElementsDb( const edm::ParameterSet& ps, std::string& 
   xmlFile_ = xmlFile;
 
   // get hold of back-end interface
-  dbe_ = edm::Service<DQMStore>().operator->();
+  dqmStore_ = edm::Service<DQMStore>().operator->();
 
-  if ( dbe_ ) {
+  if ( dqmStore_ ) {
 
-    dbe_->setCurrentFolder("EcalBarrel/MonitorElementsDb");
+    dqmStore_->setCurrentFolder("EcalBarrel/MonitorElementsDb");
 
     parser_ = new MonitorXMLParser( xmlFile_ );
     try {
@@ -60,18 +60,18 @@ MonitorElementsDb::MonitorElementsDb( const edm::ParameterSet& ps, std::string& 
       MonitorElement* tmp;
       tmp = 0;
       if( strcmp(MEinfo_[i].type.c_str(), "th1d") == 0 ) {
-        tmp = dbe_->book1D( MEinfo_[i].title, MEinfo_[i].title, MEinfo_[i].xbins, MEinfo_[i].xfrom, MEinfo_[i].xto );
+        tmp = dqmStore_->book1D( MEinfo_[i].title, MEinfo_[i].title, MEinfo_[i].xbins, MEinfo_[i].xfrom, MEinfo_[i].xto );
       }
       else if( strcmp(MEinfo_[i].type.c_str(), "th2d") == 0 ) {
-        tmp = dbe_->book2D( MEinfo_[i].title, MEinfo_[i].title, MEinfo_[i].xbins, MEinfo_[i].xfrom, MEinfo_[i].xto,
+        tmp = dqmStore_->book2D( MEinfo_[i].title, MEinfo_[i].title, MEinfo_[i].xbins, MEinfo_[i].xfrom, MEinfo_[i].xto,
         		    MEinfo_[i].ybins, MEinfo_[i].yfrom, MEinfo_[i].yto );
       }
       else if( strcmp(MEinfo_[i].type.c_str(), "tprofile") == 0 ) {
-      tmp = dbe_->bookProfile( MEinfo_[i].title, MEinfo_[i].title, MEinfo_[i].xbins, MEinfo_[i].xfrom, MEinfo_[i].xto,
+      tmp = dqmStore_->bookProfile( MEinfo_[i].title, MEinfo_[i].title, MEinfo_[i].xbins, MEinfo_[i].xfrom, MEinfo_[i].xto,
         		       MEinfo_[i].ybins, MEinfo_[i].yfrom, MEinfo_[i].yto );
       }
       else if( strcmp(MEinfo_[i].type.c_str(), "tprofile2d") == 0 ) {
-        tmp = dbe_->bookProfile2D( MEinfo_[i].title, MEinfo_[i].title, MEinfo_[i].xbins, MEinfo_[i].xfrom, MEinfo_[i].xto,
+        tmp = dqmStore_->bookProfile2D( MEinfo_[i].title, MEinfo_[i].title, MEinfo_[i].xbins, MEinfo_[i].xfrom, MEinfo_[i].xto,
         			   MEinfo_[i].ybins, MEinfo_[i].yfrom, MEinfo_[i].yto, 
         			   MEinfo_[i].zbins, MEinfo_[i].zfrom, MEinfo_[i].zto );
       }
@@ -97,7 +97,7 @@ void MonitorElementsDb::endJob( void ){
 
   std::cout << "MonitorElementsDb: analyzed " << ievt_ << " events" << std::endl;
   for( unsigned int i = 0; i<MEs_.size(); i++ ) {
-    if( MEs_[i] != 0 ) dbe_->removeElement( MEs_[i]->getName() );
+    if( MEs_[i] != 0 ) dqmStore_->removeElement( MEs_[i]->getName() );
   }
 
 }

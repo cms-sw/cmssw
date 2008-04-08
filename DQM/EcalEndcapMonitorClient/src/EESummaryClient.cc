@@ -1,8 +1,8 @@
 /*
  * \file EESummaryClient.cc
  *
- * $Date: 2008/04/07 08:44:21 $
- * $Revision: 1.104 $
+ * $Date: 2008/04/07 09:00:42 $
+ * $Revision: 1.105 $
  * \author G. Della Ricca
  *
 */
@@ -122,9 +122,9 @@ EESummaryClient::~EESummaryClient(){
 
 }
 
-void EESummaryClient::beginJob(DQMStore* dbe){
+void EESummaryClient::beginJob(DQMStore* dqmStore){
 
-  dbe_ = dbe;
+  dqmStore_ = dqmStore;
 
   if ( debug_ ) cout << "EESummaryClient: beginJob" << endl;
 
@@ -163,309 +163,309 @@ void EESummaryClient::setup(void) {
 
   char histo[200];
 
-  dbe_->setCurrentFolder( "EcalEndcap/EESummaryClient" );
+  dqmStore_->setCurrentFolder( "EcalEndcap/EESummaryClient" );
 
-  if ( meIntegrity_[0] ) dbe_->removeElement( meIntegrity_[0]->getName() );
+  if ( meIntegrity_[0] ) dqmStore_->removeElement( meIntegrity_[0]->getName() );
   sprintf(histo, "EEIT EE - integrity quality summary");
-  meIntegrity_[0] = dbe_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
+  meIntegrity_[0] = dqmStore_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
   meIntegrity_[0]->setAxisTitle("jx", 1);
   meIntegrity_[0]->setAxisTitle("jy", 2);
 
-  if ( meIntegrity_[1] ) dbe_->removeElement( meIntegrity_[0]->getName() );
+  if ( meIntegrity_[1] ) dqmStore_->removeElement( meIntegrity_[0]->getName() );
   sprintf(histo, "EEIT EE + integrity quality summary");
-  meIntegrity_[1] = dbe_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
+  meIntegrity_[1] = dqmStore_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
   meIntegrity_[1]->setAxisTitle("jx", 1);
   meIntegrity_[1]->setAxisTitle("jy", 2);
 
-  if ( meIntegrityErr_ ) dbe_->removeElement( meIntegrityErr_->getName() );
+  if ( meIntegrityErr_ ) dqmStore_->removeElement( meIntegrityErr_->getName() );
   sprintf(histo, "EEIT integrity quality errors summary");
-  meIntegrityErr_ = dbe_->book1D(histo, histo, 18, 1, 19);
+  meIntegrityErr_ = dqmStore_->book1D(histo, histo, 18, 1, 19);
   for (int i = 0; i < 18; i++) {
     meIntegrityErr_->setBinLabel(i+1, Numbers::sEE(i+1).c_str(), 1);
   }
 
-  if ( meOccupancy_[0] ) dbe_->removeElement( meOccupancy_[0]->getName() );
+  if ( meOccupancy_[0] ) dqmStore_->removeElement( meOccupancy_[0]->getName() );
   sprintf(histo, "EEOT EE - digi occupancy summary");
-  meOccupancy_[0] = dbe_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
+  meOccupancy_[0] = dqmStore_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
   meOccupancy_[0]->setAxisTitle("jx", 1);
   meOccupancy_[0]->setAxisTitle("jy", 2);
 
-  if ( meOccupancy_[1] ) dbe_->removeElement( meOccupancy_[1]->getName() );
+  if ( meOccupancy_[1] ) dqmStore_->removeElement( meOccupancy_[1]->getName() );
   sprintf(histo, "EEOT EE + digi occupancy summary");
-  meOccupancy_[1] = dbe_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
+  meOccupancy_[1] = dqmStore_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
   meOccupancy_[1]->setAxisTitle("jx", 1);
   meOccupancy_[1]->setAxisTitle("jy", 2);
 
-  if ( meOccupancy1D_ ) dbe_->removeElement( meOccupancy1D_->getName() );
+  if ( meOccupancy1D_ ) dqmStore_->removeElement( meOccupancy1D_->getName() );
   sprintf(histo, "EEIT digi occupancy summary 1D");
-  meOccupancy1D_ = dbe_->book1D(histo, histo, 18, 1, 19);
+  meOccupancy1D_ = dqmStore_->book1D(histo, histo, 18, 1, 19);
   for (int i = 0; i < 18; i++) {
     meOccupancy1D_->setBinLabel(i+1, Numbers::sEE(i+1).c_str(), 1);
   }
 
-  if ( meStatusFlags_[0] ) dbe_->removeElement( meStatusFlags_[0]->getName() );
+  if ( meStatusFlags_[0] ) dqmStore_->removeElement( meStatusFlags_[0]->getName() );
   sprintf(histo, "EESFT EE - front-end status summary");
-  meStatusFlags_[0] = dbe_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
+  meStatusFlags_[0] = dqmStore_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
   meStatusFlags_[0]->setAxisTitle("jx", 1);
   meStatusFlags_[0]->setAxisTitle("jy", 2);
 
-  if ( meStatusFlags_[1] ) dbe_->removeElement( meStatusFlags_[1]->getName() );
+  if ( meStatusFlags_[1] ) dqmStore_->removeElement( meStatusFlags_[1]->getName() );
   sprintf(histo, "EESFT EE + front-end status summary");
-  meStatusFlags_[1] = dbe_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
+  meStatusFlags_[1] = dqmStore_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
   meStatusFlags_[1]->setAxisTitle("jx", 1);
   meStatusFlags_[1]->setAxisTitle("jy", 2);
 
-  if ( meStatusFlagsErr_ ) dbe_->removeElement( meStatusFlagsErr_->getName() );
+  if ( meStatusFlagsErr_ ) dqmStore_->removeElement( meStatusFlagsErr_->getName() );
   sprintf(histo, "EESFT front-end status errors summary");
-  meStatusFlagsErr_ = dbe_->book1D(histo, histo, 18, 1, 19);
+  meStatusFlagsErr_ = dqmStore_->book1D(histo, histo, 18, 1, 19);
   for (int i = 0; i < 18; i++) {
     meStatusFlagsErr_->setBinLabel(i+1, Numbers::sEE(i+1).c_str(), 1);
   }
 
-  if ( mePedestalOnline_[0] ) dbe_->removeElement( mePedestalOnline_[0]->getName() );
+  if ( mePedestalOnline_[0] ) dqmStore_->removeElement( mePedestalOnline_[0]->getName() );
   sprintf(histo, "EEPOT EE - pedestal quality summary G12");
-  mePedestalOnline_[0] = dbe_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
+  mePedestalOnline_[0] = dqmStore_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
   mePedestalOnline_[0]->setAxisTitle("jx", 1);
   mePedestalOnline_[0]->setAxisTitle("jy", 2);
 
-  if ( mePedestalOnline_[1] ) dbe_->removeElement( mePedestalOnline_[1]->getName() );
+  if ( mePedestalOnline_[1] ) dqmStore_->removeElement( mePedestalOnline_[1]->getName() );
   sprintf(histo, "EEPOT EE + pedestal quality summary G12");
-  mePedestalOnline_[1] = dbe_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
+  mePedestalOnline_[1] = dqmStore_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
   mePedestalOnline_[1]->setAxisTitle("jx", 1);
   mePedestalOnline_[1]->setAxisTitle("jy", 2);
 
-  if ( mePedestalOnlineErr_ ) dbe_->removeElement( mePedestalOnlineErr_->getName() );
+  if ( mePedestalOnlineErr_ ) dqmStore_->removeElement( mePedestalOnlineErr_->getName() );
   sprintf(histo, "EEPOT pedestal quality errors summary G12");
-  mePedestalOnlineErr_ = dbe_->book1D(histo, histo, 18, 1, 19);
+  mePedestalOnlineErr_ = dqmStore_->book1D(histo, histo, 18, 1, 19);
   for (int i = 0; i < 18; i++) {
     mePedestalOnlineErr_->setBinLabel(i+1, Numbers::sEE(i+1).c_str(), 1);
   }
 
-  if ( meLaserL1_[0] ) dbe_->removeElement( meLaserL1_[0]->getName() );
+  if ( meLaserL1_[0] ) dqmStore_->removeElement( meLaserL1_[0]->getName() );
   sprintf(histo, "EELT EE - laser quality summary L1");
-  meLaserL1_[0] = dbe_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
+  meLaserL1_[0] = dqmStore_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
   meLaserL1_[0]->setAxisTitle("jx", 1);
   meLaserL1_[0]->setAxisTitle("jy", 2);
 
-  if ( meLaserL1PN_[0] ) dbe_->removeElement( meLaserL1PN_[0]->getName() );
+  if ( meLaserL1PN_[0] ) dqmStore_->removeElement( meLaserL1PN_[0]->getName() );
   sprintf(histo, "EELT EE - PN laser quality summary L1");
-  meLaserL1PN_[0] = dbe_->book2D(histo, histo, 90, 0., 90., 20, -10., 10.);
+  meLaserL1PN_[0] = dqmStore_->book2D(histo, histo, 90, 0., 90., 20, -10., 10.);
   meLaserL1PN_[0]->setAxisTitle("jx", 1);
   meLaserL1PN_[0]->setAxisTitle("jy", 2);
 
-  if ( meLaserL1_[1] ) dbe_->removeElement( meLaserL1_[1]->getName() );
+  if ( meLaserL1_[1] ) dqmStore_->removeElement( meLaserL1_[1]->getName() );
   sprintf(histo, "EELT EE + laser quality summary L1");
-  meLaserL1_[1] = dbe_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
+  meLaserL1_[1] = dqmStore_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
   meLaserL1_[1]->setAxisTitle("jx", 1);
   meLaserL1_[1]->setAxisTitle("jy", 2);
 
-  if ( meLaserL1PN_[1] ) dbe_->removeElement( meLaserL1PN_[1]->getName() );
+  if ( meLaserL1PN_[1] ) dqmStore_->removeElement( meLaserL1PN_[1]->getName() );
   sprintf(histo, "EELT EE + PN laser quality summary L1");
-  meLaserL1PN_[1] = dbe_->book2D(histo, histo, 90, 0., 90., 20, -10., 10.);
+  meLaserL1PN_[1] = dqmStore_->book2D(histo, histo, 90, 0., 90., 20, -10., 10.);
   meLaserL1PN_[1]->setAxisTitle("jx", 1);
   meLaserL1PN_[1]->setAxisTitle("jy", 2);
 
-  if ( meLaserL1Err_ ) dbe_->removeElement( meLaserL1Err_->getName() );
+  if ( meLaserL1Err_ ) dqmStore_->removeElement( meLaserL1Err_->getName() );
   sprintf(histo, "EELT laser quality errors summary L1");
-  meLaserL1Err_ = dbe_->book1D(histo, histo, 18, 1, 19);
+  meLaserL1Err_ = dqmStore_->book1D(histo, histo, 18, 1, 19);
   for (int i = 0; i < 18; i++) {
     meLaserL1Err_->setBinLabel(i+1, Numbers::sEE(i+1).c_str(), 1);
   }
 
-  if ( meLaserL1PNErr_ ) dbe_->removeElement( meLaserL1PNErr_->getName() );
+  if ( meLaserL1PNErr_ ) dqmStore_->removeElement( meLaserL1PNErr_->getName() );
   sprintf(histo, "EELT PN laser quality errors summary L1");
-  meLaserL1PNErr_ = dbe_->book1D(histo, histo, 18, 1, 19);
+  meLaserL1PNErr_ = dqmStore_->book1D(histo, histo, 18, 1, 19);
   for (int i = 0; i < 18; i++) {
     meLaserL1PNErr_->setBinLabel(i+1, Numbers::sEE(i+1).c_str(), 1);
   }
 
-  if ( meLedL1_[0] ) dbe_->removeElement( meLedL1_[0]->getName() );
+  if ( meLedL1_[0] ) dqmStore_->removeElement( meLedL1_[0]->getName() );
   sprintf(histo, "EELDT EE - led quality summary L1");
-  meLedL1_[0] = dbe_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
+  meLedL1_[0] = dqmStore_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
   meLedL1_[0]->setAxisTitle("jx", 1);
   meLedL1_[0]->setAxisTitle("jy", 2);
 
-  if ( meLedL1PN_[0] ) dbe_->removeElement( meLedL1PN_[0]->getName() );
+  if ( meLedL1PN_[0] ) dqmStore_->removeElement( meLedL1PN_[0]->getName() );
   sprintf(histo, "EELDT EE - PN led quality summary L1");
-  meLedL1PN_[0] = dbe_->book2D(histo, histo, 90, 0., 90., 20, -10., 10.);
+  meLedL1PN_[0] = dqmStore_->book2D(histo, histo, 90, 0., 90., 20, -10., 10.);
   meLedL1PN_[0]->setAxisTitle("jx", 1);
   meLedL1PN_[0]->setAxisTitle("jy", 2);
 
-  if ( meLedL1_[1] ) dbe_->removeElement( meLedL1_[1]->getName() );
+  if ( meLedL1_[1] ) dqmStore_->removeElement( meLedL1_[1]->getName() );
   sprintf(histo, "EELDT EE + led quality summary L1");
-  meLedL1_[1] = dbe_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
+  meLedL1_[1] = dqmStore_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
   meLedL1_[1]->setAxisTitle("jx", 1);
   meLedL1_[1]->setAxisTitle("jy", 2);
 
-  if ( meLedL1PN_[1] ) dbe_->removeElement( meLedL1PN_[1]->getName() );
+  if ( meLedL1PN_[1] ) dqmStore_->removeElement( meLedL1PN_[1]->getName() );
   sprintf(histo, "EELDT EE + PN led quality summary L1");
-  meLedL1PN_[1] = dbe_->book2D(histo, histo, 90, 0., 90., 20, -10., 10.);
+  meLedL1PN_[1] = dqmStore_->book2D(histo, histo, 90, 0., 90., 20, -10., 10.);
   meLedL1PN_[1]->setAxisTitle("jx", 1);
   meLedL1PN_[1]->setAxisTitle("jy", 2);
 
-  if ( meLedL1Err_ ) dbe_->removeElement( meLedL1Err_->getName() );
+  if ( meLedL1Err_ ) dqmStore_->removeElement( meLedL1Err_->getName() );
   sprintf(histo, "EELDT led quality errors summary L1");
-  meLedL1Err_ = dbe_->book1D(histo, histo, 18, 1, 19);
+  meLedL1Err_ = dqmStore_->book1D(histo, histo, 18, 1, 19);
   for (int i = 0; i < 18; i++) {
     meLedL1Err_->setBinLabel(i+1, Numbers::sEE(i+1).c_str(), 1);
   }
 
-  if ( meLedL1PNErr_ ) dbe_->removeElement( meLedL1PNErr_->getName() );
+  if ( meLedL1PNErr_ ) dqmStore_->removeElement( meLedL1PNErr_->getName() );
   sprintf(histo, "EELDT PN led quality errors summary L1");
-  meLedL1PNErr_ = dbe_->book1D(histo, histo, 18, 1, 19);
+  meLedL1PNErr_ = dqmStore_->book1D(histo, histo, 18, 1, 19);
   for (int i = 0; i < 18; i++) {
     meLedL1PNErr_->setBinLabel(i+1, Numbers::sEE(i+1).c_str(), 1);
   }
 
-  if( mePedestal_[0] ) dbe_->removeElement( mePedestal_[0]->getName() );
+  if( mePedestal_[0] ) dqmStore_->removeElement( mePedestal_[0]->getName() );
   sprintf(histo, "EEPT EE - pedestal quality summary");
-  mePedestal_[0] = dbe_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
+  mePedestal_[0] = dqmStore_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
   mePedestal_[0]->setAxisTitle("jx", 1);
   mePedestal_[0]->setAxisTitle("jy", 2);
 
-  if( mePedestalPN_[0] ) dbe_->removeElement( mePedestalPN_[0]->getName() );
+  if( mePedestalPN_[0] ) dqmStore_->removeElement( mePedestalPN_[0]->getName() );
   sprintf(histo, "EEPT EE - PN pedestal quality summary");
-  mePedestalPN_[0] = dbe_->book2D(histo, histo, 90, 0., 90., 20, -10, 10.);
+  mePedestalPN_[0] = dqmStore_->book2D(histo, histo, 90, 0., 90., 20, -10, 10.);
   mePedestalPN_[0]->setAxisTitle("jx", 1);
   mePedestalPN_[0]->setAxisTitle("jy", 2);
 
-  if( mePedestal_[1] ) dbe_->removeElement( mePedestal_[1]->getName() );
+  if( mePedestal_[1] ) dqmStore_->removeElement( mePedestal_[1]->getName() );
   sprintf(histo, "EEPT EE + pedestal quality summary");
-  mePedestal_[1] = dbe_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
+  mePedestal_[1] = dqmStore_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
   mePedestal_[1]->setAxisTitle("jx", 1);
   mePedestal_[1]->setAxisTitle("jy", 2);
 
-  if( mePedestalPN_[1] ) dbe_->removeElement( mePedestalPN_[1]->getName() );
+  if( mePedestalPN_[1] ) dqmStore_->removeElement( mePedestalPN_[1]->getName() );
   sprintf(histo, "EEPT EE + PN pedestal quality summary");
-  mePedestalPN_[1] = dbe_->book2D(histo, histo, 90, 0., 90., 20, -10, 10.);
+  mePedestalPN_[1] = dqmStore_->book2D(histo, histo, 90, 0., 90., 20, -10, 10.);
   mePedestalPN_[1]->setAxisTitle("jx", 1);
   mePedestalPN_[1]->setAxisTitle("jy", 2);
 
-  if ( mePedestalErr_ ) dbe_->removeElement( mePedestalErr_->getName() );
+  if ( mePedestalErr_ ) dqmStore_->removeElement( mePedestalErr_->getName() );
   sprintf(histo, "EEPT pedestal quality errors summary");
-  mePedestalErr_ = dbe_->book1D(histo, histo, 18, 1, 19);
+  mePedestalErr_ = dqmStore_->book1D(histo, histo, 18, 1, 19);
   for (int i = 0; i < 18; i++) {
     mePedestalErr_->setBinLabel(i+1, Numbers::sEE(i+1).c_str(), 1);
   }
 
-  if ( mePedestalPNErr_ ) dbe_->removeElement( mePedestalPNErr_->getName() );
+  if ( mePedestalPNErr_ ) dqmStore_->removeElement( mePedestalPNErr_->getName() );
   sprintf(histo, "EEPT PN pedestal quality errors summary");
-  mePedestalPNErr_ = dbe_->book1D(histo, histo, 18, 1, 19);
+  mePedestalPNErr_ = dqmStore_->book1D(histo, histo, 18, 1, 19);
   for (int i = 0; i < 18; i++) {
     mePedestalPNErr_->setBinLabel(i+1, Numbers::sEE(i+1).c_str(), 1);
   }
 
-  if( meTestPulse_[0] ) dbe_->removeElement( meTestPulse_[0]->getName() );
+  if( meTestPulse_[0] ) dqmStore_->removeElement( meTestPulse_[0]->getName() );
   sprintf(histo, "EETPT EE - test pulse quality summary");
-  meTestPulse_[0] = dbe_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
+  meTestPulse_[0] = dqmStore_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
   meTestPulse_[0]->setAxisTitle("jx", 1);
   meTestPulse_[0]->setAxisTitle("jy", 2);
 
-  if( meTestPulsePN_[0] ) dbe_->removeElement( meTestPulsePN_[0]->getName() );
+  if( meTestPulsePN_[0] ) dqmStore_->removeElement( meTestPulsePN_[0]->getName() );
   sprintf(histo, "EETPT EE - PN test pulse quality summary");
-  meTestPulsePN_[0] = dbe_->book2D(histo, histo, 90, 0., 90., 20, -10., 10.);
+  meTestPulsePN_[0] = dqmStore_->book2D(histo, histo, 90, 0., 90., 20, -10., 10.);
   meTestPulsePN_[0]->setAxisTitle("jx", 1);
   meTestPulsePN_[0]->setAxisTitle("jy", 2);
 
-  if( meTestPulse_[1] ) dbe_->removeElement( meTestPulse_[1]->getName() );
+  if( meTestPulse_[1] ) dqmStore_->removeElement( meTestPulse_[1]->getName() );
   sprintf(histo, "EETPT EE + test pulse quality summary");
-  meTestPulse_[1] = dbe_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
+  meTestPulse_[1] = dqmStore_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
   meTestPulse_[1]->setAxisTitle("jx", 1);
   meTestPulse_[1]->setAxisTitle("jy", 2);
 
-  if( meTestPulsePN_[1] ) dbe_->removeElement( meTestPulsePN_[1]->getName() );
+  if( meTestPulsePN_[1] ) dqmStore_->removeElement( meTestPulsePN_[1]->getName() );
   sprintf(histo, "EETPT EE + PN test pulse quality summary");
-  meTestPulsePN_[1] = dbe_->book2D(histo, histo, 90, 0., 90., 20, -10., 10.);
+  meTestPulsePN_[1] = dqmStore_->book2D(histo, histo, 90, 0., 90., 20, -10., 10.);
   meTestPulsePN_[1]->setAxisTitle("jx", 1);
   meTestPulsePN_[1]->setAxisTitle("jy", 2);
 
-  if ( meTestPulseErr_ ) dbe_->removeElement( meTestPulseErr_->getName() );
+  if ( meTestPulseErr_ ) dqmStore_->removeElement( meTestPulseErr_->getName() );
   sprintf(histo, "EETPT test pulse quality errors summary");
-  meTestPulseErr_ = dbe_->book1D(histo, histo, 18, 1, 19);
+  meTestPulseErr_ = dqmStore_->book1D(histo, histo, 18, 1, 19);
   for (int i = 0; i < 18; i++) {
     meTestPulseErr_->setBinLabel(i+1, Numbers::sEE(i+1).c_str(), 1);
   }
 
-  if ( meTestPulsePNErr_ ) dbe_->removeElement( meTestPulsePNErr_->getName() );
+  if ( meTestPulsePNErr_ ) dqmStore_->removeElement( meTestPulsePNErr_->getName() );
   sprintf(histo, "EETPT PN test pulse quality errors summary");
-  meTestPulsePNErr_ = dbe_->book1D(histo, histo, 18, 1, 19);
+  meTestPulsePNErr_ = dqmStore_->book1D(histo, histo, 18, 1, 19);
   for (int i = 0; i < 18; i++) {
     meTestPulsePNErr_->setBinLabel(i+1, Numbers::sEE(i+1).c_str(), 1);
   }
 
-  if( meCosmic_[0] ) dbe_->removeElement( meCosmic_[0]->getName() );
+  if( meCosmic_[0] ) dqmStore_->removeElement( meCosmic_[0]->getName() );
   sprintf(histo, "EECT EE - quality summary");
-  meCosmic_[0] = dbe_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
+  meCosmic_[0] = dqmStore_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
   meCosmic_[0]->setAxisTitle("jx", 1);
   meCosmic_[0]->setAxisTitle("jy", 2);
 
-  if( meCosmic_[1] ) dbe_->removeElement( meCosmic_[1]->getName() );
+  if( meCosmic_[1] ) dqmStore_->removeElement( meCosmic_[1]->getName() );
   sprintf(histo, "EECT EE + quality summary");
-  meCosmic_[1] = dbe_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
+  meCosmic_[1] = dqmStore_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
   meCosmic_[1]->setAxisTitle("jx", 1);
   meCosmic_[1]->setAxisTitle("jy", 2);
 
-  if( meTiming_[0] ) dbe_->removeElement( meTiming_[0]->getName() );
+  if( meTiming_[0] ) dqmStore_->removeElement( meTiming_[0]->getName() );
   sprintf(histo, "EETMT EE - timing quality summary");
-  meTiming_[0] = dbe_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
+  meTiming_[0] = dqmStore_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
   meTiming_[0]->setAxisTitle("jx", 1);
   meTiming_[0]->setAxisTitle("jy", 2);
 
-  if( meTiming_[1] ) dbe_->removeElement( meTiming_[1]->getName() );
+  if( meTiming_[1] ) dqmStore_->removeElement( meTiming_[1]->getName() );
   sprintf(histo, "EETMT EE + timing quality summary");
-  meTiming_[1] = dbe_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
+  meTiming_[1] = dqmStore_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
   meTiming_[1]->setAxisTitle("jx", 1);
   meTiming_[1]->setAxisTitle("jy", 2);
 
-  if( meTriggerTowerEt_[0] ) dbe_->removeElement( meTriggerTowerEt_[0]->getName() );
+  if( meTriggerTowerEt_[0] ) dqmStore_->removeElement( meTriggerTowerEt_[0]->getName() );
   sprintf(histo, "EETTT EE - Et trigger tower summary");
-  meTriggerTowerEt_[0] = dbe_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
+  meTriggerTowerEt_[0] = dqmStore_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
   meTriggerTowerEt_[0]->setAxisTitle("jx", 1);
   meTriggerTowerEt_[0]->setAxisTitle("jy", 2);
 
-  if( meTriggerTowerEt_[1] ) dbe_->removeElement( meTriggerTowerEt_[1]->getName() );
+  if( meTriggerTowerEt_[1] ) dqmStore_->removeElement( meTriggerTowerEt_[1]->getName() );
   sprintf(histo, "EETTT EE + Et trigger tower summary");
-  meTriggerTowerEt_[1] = dbe_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
+  meTriggerTowerEt_[1] = dqmStore_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
   meTriggerTowerEt_[1]->setAxisTitle("jx", 1);
   meTriggerTowerEt_[1]->setAxisTitle("jy", 2);
 
-  if( meTriggerTowerEmulError_[0] ) dbe_->removeElement( meTriggerTowerEmulError_[0]->getName() );
+  if( meTriggerTowerEmulError_[0] ) dqmStore_->removeElement( meTriggerTowerEmulError_[0]->getName() );
   sprintf(histo, "EETTT EE - emulator error quality summary");
-  meTriggerTowerEmulError_[0] = dbe_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
+  meTriggerTowerEmulError_[0] = dqmStore_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
   meTriggerTowerEmulError_[0]->setAxisTitle("jx", 1);
   meTriggerTowerEmulError_[0]->setAxisTitle("jy", 2);
 
-  if( meTriggerTowerEmulError_[1] ) dbe_->removeElement( meTriggerTowerEmulError_[1]->getName() );
+  if( meTriggerTowerEmulError_[1] ) dqmStore_->removeElement( meTriggerTowerEmulError_[1]->getName() );
   sprintf(histo, "EETTT EE + emulator error quality summary");
-  meTriggerTowerEmulError_[1] = dbe_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
+  meTriggerTowerEmulError_[1] = dqmStore_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
   meTriggerTowerEmulError_[1]->setAxisTitle("jx", 1);
   meTriggerTowerEmulError_[1]->setAxisTitle("jy", 2);
 
-  if( meGlobalSummary_[0] ) dbe_->removeElement( meGlobalSummary_[0]->getName() );
+  if( meGlobalSummary_[0] ) dqmStore_->removeElement( meGlobalSummary_[0]->getName() );
   sprintf(histo, "EE global summary EE -");
-  meGlobalSummary_[0] = dbe_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
+  meGlobalSummary_[0] = dqmStore_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
   meGlobalSummary_[0]->setAxisTitle("jx", 1);
   meGlobalSummary_[0]->setAxisTitle("jy", 2);
 
-  if( meGlobalSummary_[1] ) dbe_->removeElement( meGlobalSummary_[1]->getName() );
+  if( meGlobalSummary_[1] ) dqmStore_->removeElement( meGlobalSummary_[1]->getName() );
   sprintf(histo, "EE global summary EE +");
-  meGlobalSummary_[1] = dbe_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
+  meGlobalSummary_[1] = dqmStore_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
   meGlobalSummary_[1]->setAxisTitle("jx", 1);
   meGlobalSummary_[1]->setAxisTitle("jy", 2);
 
   // summary for DQM GUI
 
-  dbe_->setCurrentFolder( "EcalEndcap/EventInfo" );
+  dqmStore_->setCurrentFolder( "EcalEndcap/EventInfo" );
 
   MonitorElement* me;
 
   sprintf(histo, "errorSummaryXY_EEM");
-  me = dbe_->book2D(histo, histo, 20, 0., 20., 20, 0., 20);
+  me = dqmStore_->book2D(histo, histo, 20, 0., 20., 20, 0., 20);
   me->setAxisTitle("jx", 1);
   me->setAxisTitle("jy", 2);
 
   sprintf(histo, "errorSummaryXY_EEP");
-  me = dbe_->book2D(histo, histo, 20, 0., 20., 20, 0., 20);
+  me = dqmStore_->book2D(histo, histo, 20, 0., 20., 20, 0., 20);
   me->setAxisTitle("jx", 1);
   me->setAxisTitle("jy", 2);
 
@@ -475,149 +475,149 @@ void EESummaryClient::cleanup(void) {
 
   if ( ! enableCleanup_ ) return;
 
-  dbe_->setCurrentFolder( "EcalEndcap/EESummaryClient" );
+  dqmStore_->setCurrentFolder( "EcalEndcap/EESummaryClient" );
 
-  if ( meIntegrity_[0] ) dbe_->removeElement( meIntegrity_[0]->getName() );
+  if ( meIntegrity_[0] ) dqmStore_->removeElement( meIntegrity_[0]->getName() );
   meIntegrity_[0] = 0;
 
-  if ( meIntegrity_[1] ) dbe_->removeElement( meIntegrity_[1]->getName() );
+  if ( meIntegrity_[1] ) dqmStore_->removeElement( meIntegrity_[1]->getName() );
   meIntegrity_[1] = 0;
 
-  if ( meIntegrityErr_ ) dbe_->removeElement( meIntegrityErr_->getName() );
+  if ( meIntegrityErr_ ) dqmStore_->removeElement( meIntegrityErr_->getName() );
   meIntegrityErr_ = 0;
 
-  if ( meOccupancy_[0] ) dbe_->removeElement( meOccupancy_[0]->getName() );
+  if ( meOccupancy_[0] ) dqmStore_->removeElement( meOccupancy_[0]->getName() );
   meOccupancy_[0] = 0;
 
-  if ( meOccupancy_[1] ) dbe_->removeElement( meOccupancy_[1]->getName() );
+  if ( meOccupancy_[1] ) dqmStore_->removeElement( meOccupancy_[1]->getName() );
   meOccupancy_[1] = 0;
 
-  if ( meOccupancy1D_ ) dbe_->removeElement( meOccupancy1D_->getName() );
+  if ( meOccupancy1D_ ) dqmStore_->removeElement( meOccupancy1D_->getName() );
   meOccupancy1D_ = 0;
 
-  if ( meStatusFlags_[0] ) dbe_->removeElement( meStatusFlags_[0]->getName() );
+  if ( meStatusFlags_[0] ) dqmStore_->removeElement( meStatusFlags_[0]->getName() );
   meStatusFlags_[0] = 0;
 
-  if ( meStatusFlags_[1] ) dbe_->removeElement( meStatusFlags_[1]->getName() );
+  if ( meStatusFlags_[1] ) dqmStore_->removeElement( meStatusFlags_[1]->getName() );
   meStatusFlags_[1] = 0;
 
-  if ( meStatusFlagsErr_ ) dbe_->removeElement( meStatusFlagsErr_->getName() );
+  if ( meStatusFlagsErr_ ) dqmStore_->removeElement( meStatusFlagsErr_->getName() );
   meStatusFlagsErr_ = 0;
 
-  if ( mePedestalOnline_[0] ) dbe_->removeElement( mePedestalOnline_[0]->getName() );
+  if ( mePedestalOnline_[0] ) dqmStore_->removeElement( mePedestalOnline_[0]->getName() );
   mePedestalOnline_[0] = 0;
 
-  if ( mePedestalOnline_[1] ) dbe_->removeElement( mePedestalOnline_[1]->getName() );
+  if ( mePedestalOnline_[1] ) dqmStore_->removeElement( mePedestalOnline_[1]->getName() );
   mePedestalOnline_[1] = 0;
 
-  if ( mePedestalOnlineErr_ ) dbe_->removeElement( mePedestalOnlineErr_->getName() );
+  if ( mePedestalOnlineErr_ ) dqmStore_->removeElement( mePedestalOnlineErr_->getName() );
   mePedestalOnlineErr_ = 0;
 
-  if ( meLaserL1_[0] ) dbe_->removeElement( meLaserL1_[0]->getName() );
+  if ( meLaserL1_[0] ) dqmStore_->removeElement( meLaserL1_[0]->getName() );
   meLaserL1_[0] = 0;
 
-  if ( meLaserL1_[1] ) dbe_->removeElement( meLaserL1_[1]->getName() );
+  if ( meLaserL1_[1] ) dqmStore_->removeElement( meLaserL1_[1]->getName() );
   meLaserL1_[1] = 0;
 
-  if ( meLaserL1Err_ ) dbe_->removeElement( meLaserL1Err_->getName() );
+  if ( meLaserL1Err_ ) dqmStore_->removeElement( meLaserL1Err_->getName() );
   meLaserL1Err_ = 0;
 
-  if ( meLaserL1PN_[0] ) dbe_->removeElement( meLaserL1PN_[0]->getName() );
+  if ( meLaserL1PN_[0] ) dqmStore_->removeElement( meLaserL1PN_[0]->getName() );
   meLaserL1PN_[0] = 0;
 
-  if ( meLaserL1PN_[1] ) dbe_->removeElement( meLaserL1PN_[1]->getName() );
+  if ( meLaserL1PN_[1] ) dqmStore_->removeElement( meLaserL1PN_[1]->getName() );
   meLaserL1PN_[1] = 0;
 
-  if ( meLaserL1PNErr_ ) dbe_->removeElement( meLaserL1PNErr_->getName() );
+  if ( meLaserL1PNErr_ ) dqmStore_->removeElement( meLaserL1PNErr_->getName() );
   meLaserL1PNErr_ = 0;
 
-  if ( meLedL1_[0] ) dbe_->removeElement( meLedL1_[0]->getName() );
+  if ( meLedL1_[0] ) dqmStore_->removeElement( meLedL1_[0]->getName() );
   meLedL1_[0] = 0;
 
-  if ( meLedL1_[1] ) dbe_->removeElement( meLedL1_[1]->getName() );
+  if ( meLedL1_[1] ) dqmStore_->removeElement( meLedL1_[1]->getName() );
   meLedL1_[1] = 0;
 
-  if ( meLedL1Err_ ) dbe_->removeElement( meLedL1Err_->getName() );
+  if ( meLedL1Err_ ) dqmStore_->removeElement( meLedL1Err_->getName() );
   meLedL1Err_ = 0;
 
-  if ( meLedL1PN_[0] ) dbe_->removeElement( meLedL1PN_[0]->getName() );
+  if ( meLedL1PN_[0] ) dqmStore_->removeElement( meLedL1PN_[0]->getName() );
   meLedL1PN_[0] = 0;
 
-  if ( meLedL1PN_[1] ) dbe_->removeElement( meLedL1PN_[1]->getName() );
+  if ( meLedL1PN_[1] ) dqmStore_->removeElement( meLedL1PN_[1]->getName() );
   meLedL1PN_[1] = 0;
 
-  if ( meLedL1PNErr_ ) dbe_->removeElement( meLedL1PNErr_->getName() );
+  if ( meLedL1PNErr_ ) dqmStore_->removeElement( meLedL1PNErr_->getName() );
   meLedL1PNErr_ = 0;
 
-  if ( mePedestal_[0] ) dbe_->removeElement( mePedestal_[0]->getName() );
+  if ( mePedestal_[0] ) dqmStore_->removeElement( mePedestal_[0]->getName() );
   mePedestal_[0] = 0;
 
-  if ( mePedestal_[1] ) dbe_->removeElement( mePedestal_[1]->getName() );
+  if ( mePedestal_[1] ) dqmStore_->removeElement( mePedestal_[1]->getName() );
   mePedestal_[1] = 0;
 
-  if ( mePedestalErr_ ) dbe_->removeElement( mePedestalErr_->getName() );
+  if ( mePedestalErr_ ) dqmStore_->removeElement( mePedestalErr_->getName() );
   mePedestalErr_ = 0;
 
-  if ( mePedestalPN_[0] ) dbe_->removeElement( mePedestalPN_[0]->getName() );
+  if ( mePedestalPN_[0] ) dqmStore_->removeElement( mePedestalPN_[0]->getName() );
   mePedestalPN_[0] = 0;
 
-  if ( mePedestalPN_[1] ) dbe_->removeElement( mePedestalPN_[1]->getName() );
+  if ( mePedestalPN_[1] ) dqmStore_->removeElement( mePedestalPN_[1]->getName() );
   mePedestalPN_[1] = 0;
 
-  if ( mePedestalPNErr_ ) dbe_->removeElement( mePedestalPNErr_->getName() );
+  if ( mePedestalPNErr_ ) dqmStore_->removeElement( mePedestalPNErr_->getName() );
   mePedestalPNErr_ = 0;
 
-  if ( meTestPulse_[0] ) dbe_->removeElement( meTestPulse_[0]->getName() );
+  if ( meTestPulse_[0] ) dqmStore_->removeElement( meTestPulse_[0]->getName() );
   meTestPulse_[0] = 0;
 
-  if ( meTestPulse_[1] ) dbe_->removeElement( meTestPulse_[1]->getName() );
+  if ( meTestPulse_[1] ) dqmStore_->removeElement( meTestPulse_[1]->getName() );
   meTestPulse_[1] = 0;
 
-  if ( meTestPulseErr_ ) dbe_->removeElement( meTestPulseErr_->getName() );
+  if ( meTestPulseErr_ ) dqmStore_->removeElement( meTestPulseErr_->getName() );
   meTestPulseErr_ = 0;
 
-  if ( meTestPulsePN_[0] ) dbe_->removeElement( meTestPulsePN_[0]->getName() );
+  if ( meTestPulsePN_[0] ) dqmStore_->removeElement( meTestPulsePN_[0]->getName() );
   meTestPulsePN_[0] = 0;
 
-  if ( meTestPulsePN_[1] ) dbe_->removeElement( meTestPulsePN_[1]->getName() );
+  if ( meTestPulsePN_[1] ) dqmStore_->removeElement( meTestPulsePN_[1]->getName() );
   meTestPulsePN_[1] = 0;
 
-  if ( meTestPulsePNErr_ ) dbe_->removeElement( meTestPulsePNErr_->getName() );
+  if ( meTestPulsePNErr_ ) dqmStore_->removeElement( meTestPulsePNErr_->getName() );
   meTestPulsePNErr_ = 0;
 
-  if ( meCosmic_[0] ) dbe_->removeElement( meCosmic_[0]->getName() );
+  if ( meCosmic_[0] ) dqmStore_->removeElement( meCosmic_[0]->getName() );
   meCosmic_[0] = 0;
 
-  if ( meCosmic_[1] ) dbe_->removeElement( meCosmic_[1]->getName() );
+  if ( meCosmic_[1] ) dqmStore_->removeElement( meCosmic_[1]->getName() );
   meCosmic_[1] = 0;
 
-  if ( meTiming_[0] ) dbe_->removeElement( meTiming_[0]->getName() );
+  if ( meTiming_[0] ) dqmStore_->removeElement( meTiming_[0]->getName() );
   meTiming_[0] = 0;
 
-  if ( meTiming_[1] ) dbe_->removeElement( meTiming_[1]->getName() );
+  if ( meTiming_[1] ) dqmStore_->removeElement( meTiming_[1]->getName() );
   meTiming_[1] = 0;
 
-  if ( meTriggerTowerEt_[0] ) dbe_->removeElement( meTriggerTowerEt_[0]->getName() );
+  if ( meTriggerTowerEt_[0] ) dqmStore_->removeElement( meTriggerTowerEt_[0]->getName() );
   meTriggerTowerEt_[0] = 0;
 
-  if ( meTriggerTowerEt_[1] ) dbe_->removeElement( meTriggerTowerEt_[1]->getName() );
+  if ( meTriggerTowerEt_[1] ) dqmStore_->removeElement( meTriggerTowerEt_[1]->getName() );
   meTriggerTowerEt_[1] = 0;
 
-  if ( meTriggerTowerEmulError_[0] ) dbe_->removeElement( meTriggerTowerEmulError_[0]->getName() );
+  if ( meTriggerTowerEmulError_[0] ) dqmStore_->removeElement( meTriggerTowerEmulError_[0]->getName() );
   meTriggerTowerEmulError_[0] = 0;
 
-  if ( meTriggerTowerEmulError_[1] ) dbe_->removeElement( meTriggerTowerEmulError_[1]->getName() );
+  if ( meTriggerTowerEmulError_[1] ) dqmStore_->removeElement( meTriggerTowerEmulError_[1]->getName() );
   meTriggerTowerEmulError_[1] = 0;
 
-  if ( meGlobalSummary_[0] ) dbe_->removeElement( meGlobalSummary_[0]->getName() );
+  if ( meGlobalSummary_[0] ) dqmStore_->removeElement( meGlobalSummary_[0]->getName() );
   meGlobalSummary_[0] = 0;
 
-  if ( meGlobalSummary_[1] ) dbe_->removeElement( meGlobalSummary_[1]->getName() );
+  if ( meGlobalSummary_[1] ) dqmStore_->removeElement( meGlobalSummary_[1]->getName() );
   meGlobalSummary_[1] = 0;
 
   // summary for DQM GUI
 
-  dbe_->setCurrentFolder( "EcalEndcap/EventInfo" );
+  dqmStore_->setCurrentFolder( "EcalEndcap/EventInfo" );
 
   // to be done
 
@@ -1271,19 +1271,19 @@ void EESummaryClient::analyze(void){
 
   MonitorElement* me;
 
-  me = dbe_->get("EcalEndcap/EventInfo/errorSummary");
+  me = dqmStore_->get("EcalEndcap/EventInfo/errorSummary");
   if (me) me->Fill(errorSummary);
 
-  me = dbe_->get("EcalEndcap/EventInfo/errorSummarySegments/Segment00");
+  me = dqmStore_->get("EcalEndcap/EventInfo/errorSummarySegments/Segment00");
   if (me) me->Fill(errorSummaryEEM);
 
-  me = dbe_->get("EcalEndcap/EventInfo/errorSummarySegments/Segment01");
+  me = dqmStore_->get("EcalEndcap/EventInfo/errorSummarySegments/Segment01");
   if (me) me->Fill(errorSummaryEEP);
 
   MonitorElement* meside[2];
 
-  meside[0] = dbe_->get("EcalEndcap/EventInfo/errorSummaryXY_EEM");
-  meside[1] = dbe_->get("EcalEndcap/EventInfo/errorSummaryXY_EEP");
+  meside[0] = dqmStore_->get("EcalEndcap/EventInfo/errorSummaryXY_EEM");
+  meside[1] = dqmStore_->get("EcalEndcap/EventInfo/errorSummaryXY_EEP");
   if (meside[0] && meside[1]) {
 
     int nValidChannelsTT[2][20][20];

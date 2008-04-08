@@ -4,8 +4,8 @@
 /*
  * \file EEBeamHodoClient.h
  *
- * $Date: 2008/04/07 07:24:34 $
- * $Revision: 1.15 $
+ * $Date: 2008/04/07 08:44:20 $
+ * $Revision: 1.16 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -42,7 +42,7 @@ virtual ~EEBeamHodoClient();
 void analyze(void);
 
 /// BeginJob
-void beginJob(DQMStore* dbe);
+void beginJob(DQMStore* dqmStore);
 
 /// EndJob
 void endJob(void);
@@ -83,7 +83,7 @@ bool enableCleanup_;
 
 std::vector<int> superModules_;
 
-DQMStore* dbe_;
+DQMStore* dqmStore_;
 
 TH1F* ho01_[4];
 TH1F* hr01_[4];

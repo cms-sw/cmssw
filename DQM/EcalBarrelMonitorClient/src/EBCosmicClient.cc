@@ -1,8 +1,8 @@
 /*
  * \file EBCosmicClient.cc
  *
- * $Date: 2008/04/07 07:24:31 $
- * $Revision: 1.110 $
+ * $Date: 2008/04/07 08:44:19 $
+ * $Revision: 1.111 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -73,9 +73,9 @@ EBCosmicClient::~EBCosmicClient(){
 
 }
 
-void EBCosmicClient::beginJob(DQMStore* dbe){
+void EBCosmicClient::beginJob(DQMStore* dqmStore){
 
-  dbe_ = dbe;
+  dqmStore_ = dqmStore;
 
   if ( debug_ ) cout << "EBCosmicClient: beginJob" << endl;
 
@@ -258,22 +258,22 @@ void EBCosmicClient::analyze(void){
     int ism = superModules_[i];
 
     sprintf(histo, "EcalBarrel/EBCosmicTask/Cut/EBCT energy cut %s", Numbers::sEB(ism).c_str());
-    me = dbe_->get(histo);
+    me = dqmStore_->get(histo);
     h01_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, h01_[ism-1] );
     meh01_[ism-1] = me;
 
     sprintf(histo, "EcalBarrel/EBCosmicTask/Sel/EBCT energy sel %s", Numbers::sEB(ism).c_str());
-    me = dbe_->get(histo);
+    me = dqmStore_->get(histo);
     h02_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, h02_[ism-1] );
     meh02_[ism-1] = me;
 
     sprintf(histo, "EcalBarrel/EBCosmicTask/Spectrum/EBCT 1x1 energy spectrum %s", Numbers::sEB(ism).c_str());
-    me = dbe_->get(histo);
+    me = dqmStore_->get(histo);
     h03_[ism-1] = UtilsClient::getHisto<TH1F*>( me, cloneME_, h03_[ism-1] );
     meh03_[ism-1] = me;
 
     sprintf(histo, "EcalBarrel/EBCosmicTask/Spectrum/EBCT 3x3 energy spectrum %s", Numbers::sEB(ism).c_str());
-    me = dbe_->get(histo);
+    me = dqmStore_->get(histo);
     h04_[ism-1] = UtilsClient::getHisto<TH1F*>( me, cloneME_, h04_[ism-1] );
     meh04_[ism-1] = me;
 

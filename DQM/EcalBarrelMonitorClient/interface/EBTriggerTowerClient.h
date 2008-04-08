@@ -4,8 +4,8 @@
 /*
  * \file EBTriggerTowerClient.h
  *
- * $Date: 2008/04/07 07:24:31 $
- * $Revision: 1.30 $
+ * $Date: 2008/04/07 08:44:19 $
+ * $Revision: 1.31 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -46,7 +46,7 @@ virtual ~EBTriggerTowerClient();
 void analyze(void);
 
 /// BeginJob
-void beginJob(DQMStore* mui);
+void beginJob(DQMStore* dqmStore);
 
 /// EndJob
 void endJob(void);
@@ -89,7 +89,7 @@ bool enableCleanup_;
 
 std::vector<int> superModules_;
 
-DQMStore* dbe_;
+DQMStore* dqmStore_;
 
 MonitorElement* meh01_[36];
 MonitorElement* meh02_[36];

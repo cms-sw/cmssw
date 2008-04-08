@@ -4,8 +4,8 @@
 /*
  * \file EBSummaryClient.h
  *
- * $Date: 2008/04/07 07:24:31 $
- * $Revision: 1.32 $
+ * $Date: 2008/04/07 08:44:19 $
+ * $Revision: 1.33 $
  * \author G. Della Ricca
  *
 */
@@ -40,7 +40,7 @@ virtual ~EBSummaryClient();
 void analyze(void);
 
 /// BeginJob
-void beginJob(DQMStore* mui);
+void beginJob(DQMStore* dqmStore);
 
 /// EndJob
 void endJob(void);
@@ -88,7 +88,7 @@ std::vector<int> superModules_;
 
 std::vector<EBClient*> clients_;
 
-DQMStore* dbe_;
+DQMStore* dqmStore_;
 
 MonitorElement* meIntegrity_;
 MonitorElement* meIntegrityErr_;

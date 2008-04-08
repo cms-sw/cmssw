@@ -1,8 +1,8 @@
 /*
  * \file EBStatusFlagsTask.cc
  *
- * $Date: 2008/03/16 14:36:19 $
- * $Revision: 1.8 $
+ * $Date: 2008/04/07 11:30:23 $
+ * $Revision: 1.9 $
  * \author G. Della Ricca
  *
 */
@@ -33,7 +33,7 @@ EBStatusFlagsTask::EBStatusFlagsTask(const ParameterSet& ps){
   init_ = false;
 
   // get hold of back-end interface
-  dbe_ = Service<DQMStore>().operator->();
+  dqmStore_ = Service<DQMStore>().operator->();
 
   enableCleanup_ = ps.getUntrackedParameter<bool>("enableCleanup", true);
 
@@ -56,9 +56,9 @@ void EBStatusFlagsTask::beginJob(const EventSetup& c){
 
   ievt_ = 0;
 
-  if ( dbe_ ) {
-    dbe_->setCurrentFolder("EcalBarrel/EBStatusFlagsTask");
-    dbe_->rmdir("EcalBarrel/EBStatusFlagsTask");
+  if ( dqmStore_ ) {
+    dqmStore_->setCurrentFolder("EcalBarrel/EBStatusFlagsTask");
+    dqmStore_->rmdir("EcalBarrel/EBStatusFlagsTask");
   }
 
   Numbers::initGeometry(c, false);
@@ -71,13 +71,13 @@ void EBStatusFlagsTask::setup(void){
 
   char histo[200];
 
-  if ( dbe_ ) {
-    dbe_->setCurrentFolder("EcalBarrel/EBStatusFlagsTask");
+  if ( dqmStore_ ) {
+    dqmStore_->setCurrentFolder("EcalBarrel/EBStatusFlagsTask");
 
-    dbe_->setCurrentFolder("EcalBarrel/EBStatusFlagsTask/EvtType");
+    dqmStore_->setCurrentFolder("EcalBarrel/EBStatusFlagsTask/EvtType");
     for (int i = 0; i < 36; i++) {
       sprintf(histo, "EBSFT EVTTYPE %s", Numbers::sEB(i+1).c_str());
-      meEvtType_[i] = dbe_->book1D(histo, histo, 31, -1., 30.);
+      meEvtType_[i] = dqmStore_->book1D(histo, histo, 31, -1., 30.);
       meEvtType_[i]->setBinLabel(1, "UNKNOWN", 1);
       meEvtType_[i]->setBinLabel(2+EcalDCCHeaderBlock::COSMIC, "COSMIC", 1);
       meEvtType_[i]->setBinLabel(2+EcalDCCHeaderBlock::BEAMH4, "BEAMH4", 1);
@@ -102,16 +102,16 @@ void EBStatusFlagsTask::setup(void){
       meEvtType_[i]->setBinLabel(2+EcalDCCHeaderBlock::PHYSICS_LOCAL, "PHYSICS_LOCAL", 1);
       meEvtType_[i]->setBinLabel(2+EcalDCCHeaderBlock::COSMICS_LOCAL, "COSMICS_LOCAL", 1);
       meEvtType_[i]->setBinLabel(2+EcalDCCHeaderBlock::HALO_LOCAL, "HALO_LOCAL", 1);
-      dbe_->tag(meEvtType_[i], i+1);
+      dqmStore_->tag(meEvtType_[i], i+1);
     }
 
-    dbe_->setCurrentFolder("EcalBarrel/EBStatusFlagsTask/FEStatus");
+    dqmStore_->setCurrentFolder("EcalBarrel/EBStatusFlagsTask/FEStatus");
     for (int i = 0; i < 36; i++) {
       sprintf(histo, "EBSFT front-end status %s", Numbers::sEB(i+1).c_str());
-      meFEchErrors_[i][0] = dbe_->book2D(histo, histo, 17, 0., 17., 4, 0., 4.);
+      meFEchErrors_[i][0] = dqmStore_->book2D(histo, histo, 17, 0., 17., 4, 0., 4.);
       meFEchErrors_[i][0]->setAxisTitle("ieta'", 1);
       meFEchErrors_[i][0]->setAxisTitle("iphi'", 2);
-      dbe_->tag(meFEchErrors_[i][0], i+1);
+      dqmStore_->tag(meFEchErrors_[i][0], i+1);
 
       for ( int ie = 1; ie <= 17; ie++ ) {
         for ( int ip = 1; ip <= 4; ip++ ) {
@@ -121,7 +121,7 @@ void EBStatusFlagsTask::setup(void){
       meFEchErrors_[i][0]->setEntries( 0 );
 
       sprintf(histo, "EBSFT front-end status bits %s", Numbers::sEB(i+1).c_str());
-      meFEchErrors_[i][1] = dbe_->book1D(histo, histo, 16, 0., 16.);
+      meFEchErrors_[i][1] = dqmStore_->book1D(histo, histo, 16, 0., 16.);
       meFEchErrors_[i][1]->setBinLabel(1+0, "ACTIVE", 1);
       meFEchErrors_[i][1]->setBinLabel(1+1, "DISABLED", 1);
       meFEchErrors_[i][1]->setBinLabel(1+2, "TIMEOUT", 1);
@@ -138,7 +138,7 @@ void EBStatusFlagsTask::setup(void){
       meFEchErrors_[i][1]->setBinLabel(1+13, "H PARITY", 1);
       meFEchErrors_[i][1]->setBinLabel(1+14, "V PARITY", 1);
       meFEchErrors_[i][1]->setBinLabel(1+15, "H+V PARITY", 1);
-      dbe_->tag(meFEchErrors_[i][1], i+1);
+      dqmStore_->tag(meFEchErrors_[i][1], i+1);
     }
 
   }
@@ -149,20 +149,20 @@ void EBStatusFlagsTask::cleanup(void){
 
   if ( ! enableCleanup_ ) return;
 
-  if ( dbe_ ) {
-    dbe_->setCurrentFolder("EcalBarrel/EBStatusFlagsTask");
+  if ( dqmStore_ ) {
+    dqmStore_->setCurrentFolder("EcalBarrel/EBStatusFlagsTask");
 
-    dbe_->setCurrentFolder("EcalBarrel/EBStatusFlagsTask/EvtType");
+    dqmStore_->setCurrentFolder("EcalBarrel/EBStatusFlagsTask/EvtType");
     for (int i = 0; i < 36; i++) {
-      if ( meEvtType_[i] ) dbe_->removeElement( meEvtType_[i]->getName() );
+      if ( meEvtType_[i] ) dqmStore_->removeElement( meEvtType_[i]->getName() );
       meEvtType_[i] = 0;
     }
 
-    dbe_->setCurrentFolder("EcalBarrel/EBStatusFlagsTask/FEStatus");
+    dqmStore_->setCurrentFolder("EcalBarrel/EBStatusFlagsTask/FEStatus");
     for (int i = 0; i < 36; i++) {
-      if ( meFEchErrors_[i][0] ) dbe_->removeElement( meFEchErrors_[i][0]->getName() );
+      if ( meFEchErrors_[i][0] ) dqmStore_->removeElement( meFEchErrors_[i][0]->getName() );
       meFEchErrors_[i][0] = 0;
-      if ( meFEchErrors_[i][1] ) dbe_->removeElement( meFEchErrors_[i][1]->getName() );
+      if ( meFEchErrors_[i][1] ) dqmStore_->removeElement( meFEchErrors_[i][1]->getName() );
       meFEchErrors_[i][1] = 0;
     }
 

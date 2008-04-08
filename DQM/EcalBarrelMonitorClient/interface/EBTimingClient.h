@@ -4,8 +4,8 @@
 /*
  * \file EBTimingClient.h
  *
- * $Date: 2008/04/07 07:24:31 $
- * $Revision: 1.21 $
+ * $Date: 2008/04/07 08:44:19 $
+ * $Revision: 1.22 $
  * \author G. Della Ricca
  *
 */
@@ -43,7 +43,7 @@ virtual ~EBTimingClient();
 void analyze(void);
 
 /// BeginJob
-void beginJob(DQMStore* mui);
+void beginJob(DQMStore* dqmStore);
 
 /// EndJob
 void endJob(void);
@@ -84,7 +84,7 @@ bool enableCleanup_;
 
 std::vector<int> superModules_;
 
-DQMStore* dbe_;
+DQMStore* dqmStore_;
 
 MonitorElement* meh01_[36];
 MonitorElement* meh02_[36];

@@ -1,8 +1,8 @@
 /*
  * \file EBTimingClient.cc
  *
- * $Date: 2008/04/07 09:00:41 $
- * $Revision: 1.81 $
+ * $Date: 2008/04/07 11:30:22 $
+ * $Revision: 1.82 $
  * \author G. Della Ricca
  *
 */
@@ -91,9 +91,9 @@ EBTimingClient::~EBTimingClient(){
 
 }
 
-void EBTimingClient::beginJob(DQMStore* dbe){
+void EBTimingClient::beginJob(DQMStore* dqmStore){
 
-  dbe_ = dbe;
+  dqmStore_ = dqmStore;
 
   if ( debug_ ) cout << "EBTimingClient: beginJob" << endl;
 
@@ -132,32 +132,32 @@ void EBTimingClient::setup(void) {
 
   char histo[200];
 
-  dbe_->setCurrentFolder( "EcalBarrel/EBTimingClient" );
+  dqmStore_->setCurrentFolder( "EcalBarrel/EBTimingClient" );
 
   for ( unsigned int i=0; i<superModules_.size(); i++ ) {
 
     int ism = superModules_[i];
 
-    if ( meg01_[ism-1] ) dbe_->removeElement( meg01_[ism-1]->getName() );
+    if ( meg01_[ism-1] ) dqmStore_->removeElement( meg01_[ism-1]->getName() );
     sprintf(histo, "EBTMT timing quality %s", Numbers::sEB(ism).c_str());
-    meg01_[ism-1] = dbe_->book2D(histo, histo, 85, 0., 85., 20, 0., 20.);
+    meg01_[ism-1] = dqmStore_->book2D(histo, histo, 85, 0., 85., 20, 0., 20.);
     meg01_[ism-1]->setAxisTitle("ieta", 1);
     meg01_[ism-1]->setAxisTitle("iphi", 2);
 
-    if ( mea01_[ism-1] ) dbe_->removeElement( mea01_[ism-1]->getName() );
+    if ( mea01_[ism-1] ) dqmStore_->removeElement( mea01_[ism-1]->getName() );
     sprintf(histo, "EBTMT timing %s", Numbers::sEB(ism).c_str());
-    mea01_[ism-1] = dbe_->book1D(histo, histo, 1700, 0., 1700.);
+    mea01_[ism-1] = dqmStore_->book1D(histo, histo, 1700, 0., 1700.);
     mea01_[ism-1]->setAxisTitle("channel", 1);
     mea01_[ism-1]->setAxisTitle("jitter", 2);
 
-    if ( mep01_[ism-1] ) dbe_->removeElement( mep01_[ism-1]->getName() );
+    if ( mep01_[ism-1] ) dqmStore_->removeElement( mep01_[ism-1]->getName() );
     sprintf(histo, "EBTMT timing mean %s", Numbers::sEB(ism).c_str());
-    mep01_[ism-1] = dbe_->book1D(histo, histo, 100, 0.0, 10.0);
+    mep01_[ism-1] = dqmStore_->book1D(histo, histo, 100, 0.0, 10.0);
     mep01_[ism-1]->setAxisTitle("mean", 1);
 
-    if ( mer01_[ism-1] ) dbe_->removeElement( mer01_[ism-1]->getName() );
+    if ( mer01_[ism-1] ) dqmStore_->removeElement( mer01_[ism-1]->getName() );
     sprintf(histo, "EBTMT timing rms %s", Numbers::sEB(ism).c_str());
-    mer01_[ism-1] = dbe_->book1D(histo, histo, 100, 0.0, 6.0);
+    mer01_[ism-1] = dqmStore_->book1D(histo, histo, 100, 0.0, 6.0);
     mer01_[ism-1]->setAxisTitle("rms", 1);
 
   }
@@ -205,22 +205,22 @@ void EBTimingClient::cleanup(void) {
 
   }
 
-  dbe_->setCurrentFolder( "EcalBarrel/EBTimingClient" );
+  dqmStore_->setCurrentFolder( "EcalBarrel/EBTimingClient" );
 
   for ( unsigned int i=0; i<superModules_.size(); i++ ) {
 
     int ism = superModules_[i];
 
-    if ( meg01_[ism-1] ) dbe_->removeElement( meg01_[ism-1]->getName() );
+    if ( meg01_[ism-1] ) dqmStore_->removeElement( meg01_[ism-1]->getName() );
     meg01_[ism-1] = 0;
 
-    if ( mea01_[ism-1] ) dbe_->removeElement( mea01_[ism-1]->getName() );
+    if ( mea01_[ism-1] ) dqmStore_->removeElement( mea01_[ism-1]->getName() );
     mea01_[ism-1] = 0;
 
-    if ( mep01_[ism-1] ) dbe_->removeElement( mep01_[ism-1]->getName() );
+    if ( mep01_[ism-1] ) dqmStore_->removeElement( mep01_[ism-1]->getName() );
     mep01_[ism-1] = 0;
 
-    if ( mer01_[ism-1] ) dbe_->removeElement( mer01_[ism-1]->getName() );
+    if ( mer01_[ism-1] ) dqmStore_->removeElement( mer01_[ism-1]->getName() );
     mer01_[ism-1] = 0;
 
   }
@@ -335,12 +335,12 @@ void EBTimingClient::analyze(void){
     int ism = superModules_[i];
 
     sprintf(histo, "EcalBarrel/EBTimingTask/EBTMT timing %s", Numbers::sEB(ism).c_str());
-    me = dbe_->get(histo);
+    me = dqmStore_->get(histo);
     h01_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, h01_[ism-1] );
     meh01_[ism-1] = me;
 
     sprintf(histo, "EcalBarrel/EBTimingTask/EBTMT timing vs amplitude %s", Numbers::sEB(ism).c_str());
-    me = dbe_->get(histo);
+    me = dqmStore_->get(histo);
     h02_[ism-1] = UtilsClient::getHisto<TH2F*>( me, cloneME_, h02_[ism-1] );
     meh02_[ism-1] = me;
 

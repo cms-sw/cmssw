@@ -4,8 +4,8 @@
 /*
  * \file EEIntegrityTask.h
  *
- * $Date: 2008/01/20 11:13:32 $
- * $Revision: 1.9 $
+ * $Date: 2008/02/29 15:07:48 $
+ * $Revision: 1.10 $
  * \author G. Della Ricca
  *
  */
@@ -49,7 +49,7 @@ private:
 
 int ievt_;
 
-DQMStore* dbe_;
+DQMStore* dqmStore_;
 
 bool enableCleanup_;
 

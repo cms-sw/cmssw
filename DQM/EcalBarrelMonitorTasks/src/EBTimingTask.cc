@@ -1,8 +1,8 @@
 /*
  * \file EBTimingTask.cc
  *
- * $Date: 2008/04/06 18:07:21 $
- * $Revision: 1.36 $
+ * $Date: 2008/04/07 11:30:23 $
+ * $Revision: 1.37 $
  * \author G. Della Ricca
  *
 */
@@ -36,7 +36,7 @@ EBTimingTask::EBTimingTask(const ParameterSet& ps){
   init_ = false;
 
   // get hold of back-end interface
-  dbe_ = Service<DQMStore>().operator->();
+  dqmStore_ = Service<DQMStore>().operator->();
 
   enableCleanup_ = ps.getUntrackedParameter<bool>("enableCleanup", false);
 
@@ -58,9 +58,9 @@ void EBTimingTask::beginJob(const EventSetup& c){
 
   ievt_ = 0;
 
-  if ( dbe_ ) {
-    dbe_->setCurrentFolder("EcalBarrel/EBTimingTask");
-    dbe_->rmdir("EcalBarrel/EBTimingTask");
+  if ( dqmStore_ ) {
+    dqmStore_->setCurrentFolder("EcalBarrel/EBTimingTask");
+    dqmStore_->rmdir("EcalBarrel/EBTimingTask");
   }
 
   Numbers::initGeometry(c, false);
@@ -73,21 +73,21 @@ void EBTimingTask::setup(void){
 
   char histo[200];
 
-  if ( dbe_ ) {
-    dbe_->setCurrentFolder("EcalBarrel/EBTimingTask");
+  if ( dqmStore_ ) {
+    dqmStore_->setCurrentFolder("EcalBarrel/EBTimingTask");
 
     for (int i = 0; i < 36; i++) {
       sprintf(histo, "EBTMT timing %s", Numbers::sEB(i+1).c_str());
-      meTimeMap_[i] = dbe_->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 250, 0., 10., "s");
+      meTimeMap_[i] = dqmStore_->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 250, 0., 10., "s");
       meTimeMap_[i]->setAxisTitle("ieta", 1);
       meTimeMap_[i]->setAxisTitle("iphi", 2);
-      dbe_->tag(meTimeMap_[i], i+1);
+      dqmStore_->tag(meTimeMap_[i], i+1);
 
       sprintf(histo, "EBTMT timing vs amplitude %s", Numbers::sEB(i+1).c_str());
-      meTimeAmpli_[i] = dbe_->book2D(histo, histo, 200, 0., 200., 100, 0., 10.);
+      meTimeAmpli_[i] = dqmStore_->book2D(histo, histo, 200, 0., 200., 100, 0., 10.);
       meTimeAmpli_[i]->setAxisTitle("amplitude", 1);
       meTimeAmpli_[i]->setAxisTitle("jitter", 2);
-      dbe_->tag(meTimeAmpli_[i], i+1);
+      dqmStore_->tag(meTimeAmpli_[i], i+1);
     }
 
   }
@@ -98,11 +98,11 @@ void EBTimingTask::cleanup(void){
 
   if ( ! enableCleanup_ ) return;
 
-  if ( dbe_ ) {
-    dbe_->setCurrentFolder("EcalBarrel/EBTimingTask");
+  if ( dqmStore_ ) {
+    dqmStore_->setCurrentFolder("EcalBarrel/EBTimingTask");
 
     for ( int i = 0; i < 36; i++ ) {
-      if ( meTimeMap_[i] ) dbe_->removeElement( meTimeMap_[i]->getName() );
+      if ( meTimeMap_[i] ) dqmStore_->removeElement( meTimeMap_[i]->getName() );
       meTimeMap_[i] = 0;
     }
 

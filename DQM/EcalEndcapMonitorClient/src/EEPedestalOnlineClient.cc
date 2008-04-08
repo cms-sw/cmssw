@@ -1,8 +1,8 @@
 /*
  * \file EEPedestalOnlineClient.cc
  *
- * $Date: 2008/04/07 09:00:42 $
- * $Revision: 1.71 $
+ * $Date: 2008/04/07 11:30:24 $
+ * $Revision: 1.72 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -90,9 +90,9 @@ EEPedestalOnlineClient::~EEPedestalOnlineClient(){
 
 }
 
-void EEPedestalOnlineClient::beginJob(DQMStore* dbe){
+void EEPedestalOnlineClient::beginJob(DQMStore* dqmStore){
 
-  dbe_ = dbe;
+  dqmStore_ = dqmStore;
 
   if ( debug_ ) cout << "EEPedestalOnlineClient: beginJob" << endl;
 
@@ -131,26 +131,26 @@ void EEPedestalOnlineClient::setup(void) {
 
   char histo[200];
 
-  dbe_->setCurrentFolder( "EcalEndcap/EEPedestalOnlineClient" );
+  dqmStore_->setCurrentFolder( "EcalEndcap/EEPedestalOnlineClient" );
 
   for ( unsigned int i=0; i<superModules_.size(); i++ ) {
 
     int ism = superModules_[i];
 
-    if ( meg03_[ism-1] ) dbe_->removeElement( meg03_[ism-1]->getName() );
+    if ( meg03_[ism-1] ) dqmStore_->removeElement( meg03_[ism-1]->getName() );
     sprintf(histo, "EEPOT pedestal quality G12 %s", Numbers::sEE(ism).c_str());
-    meg03_[ism-1] = dbe_->book2D(histo, histo, 50, Numbers::ix0EE(ism)+0., Numbers::ix0EE(ism)+50., 50, Numbers::iy0EE(ism)+0., Numbers::iy0EE(ism)+50.);
+    meg03_[ism-1] = dqmStore_->book2D(histo, histo, 50, Numbers::ix0EE(ism)+0., Numbers::ix0EE(ism)+50., 50, Numbers::iy0EE(ism)+0., Numbers::iy0EE(ism)+50.);
     meg03_[ism-1]->setAxisTitle("jx", 1);
     meg03_[ism-1]->setAxisTitle("jy", 2);
 
-    if ( mep03_[ism-1] ) dbe_->removeElement( mep03_[ism-1]->getName() );
+    if ( mep03_[ism-1] ) dqmStore_->removeElement( mep03_[ism-1]->getName() );
     sprintf(histo, "EEPOT pedestal mean G12 %s", Numbers::sEE(ism).c_str());
-    mep03_[ism-1] = dbe_->book1D(histo, histo, 100, 150., 250.);
+    mep03_[ism-1] = dqmStore_->book1D(histo, histo, 100, 150., 250.);
     mep03_[ism-1]->setAxisTitle("mean", 1);
 
-    if ( mer03_[ism-1] ) dbe_->removeElement( mer03_[ism-1]->getName() );
+    if ( mer03_[ism-1] ) dqmStore_->removeElement( mer03_[ism-1]->getName() );
     sprintf(histo, "EEPOT pedestal rms G12 %s", Numbers::sEE(ism).c_str());
-    mer03_[ism-1] = dbe_->book1D(histo, histo, 100, 0.,  10.);
+    mer03_[ism-1] = dqmStore_->book1D(histo, histo, 100, 0.,  10.);
     mer03_[ism-1]->setAxisTitle("rms", 1);
 
   }
@@ -203,19 +203,19 @@ void EEPedestalOnlineClient::cleanup(void) {
 
   }
 
-  dbe_->setCurrentFolder( "EcalEndcap/EEPedestalOnlineClient" );
+  dqmStore_->setCurrentFolder( "EcalEndcap/EEPedestalOnlineClient" );
 
   for ( unsigned int i=0; i<superModules_.size(); i++ ) {
 
     int ism = superModules_[i];
 
-    if ( meg03_[ism-1] ) dbe_->removeElement( meg03_[ism-1]->getName() );
+    if ( meg03_[ism-1] ) dqmStore_->removeElement( meg03_[ism-1]->getName() );
     meg03_[ism-1] = 0;
 
-    if ( mep03_[ism-1] ) dbe_->removeElement( mep03_[ism-1]->getName() );
+    if ( mep03_[ism-1] ) dqmStore_->removeElement( mep03_[ism-1]->getName() );
     mep03_[ism-1] = 0;
 
-    if ( mer03_[ism-1] ) dbe_->removeElement( mer03_[ism-1]->getName() );
+    if ( mer03_[ism-1] ) dqmStore_->removeElement( mer03_[ism-1]->getName() );
     mer03_[ism-1] = 0;
 
   }
@@ -339,7 +339,7 @@ void EEPedestalOnlineClient::analyze(void){
     int ism = superModules_[i];
 
     sprintf(histo, "EcalEndcap/EEPedestalOnlineTask/Gain12/EEPOT pedestal %s G12", Numbers::sEE(ism).c_str());
-    me = dbe_->get(histo);
+    me = dqmStore_->get(histo);
     h03_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, h03_[ism-1] );
     meh03_[ism-1] = me;
 

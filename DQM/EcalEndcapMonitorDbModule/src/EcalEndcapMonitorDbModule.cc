@@ -1,8 +1,8 @@
 /*
  * \file EcalEndcapMonitorDbModule.cc
  * 
- * $Date: 2008/02/15 10:40:29 $
- * $Revision: 1.9 $
+ * $Date: 2008/02/29 15:06:39 $
+ * $Revision: 1.10 $
  * \author G. Della Ricca
  *
 */
@@ -31,7 +31,7 @@
 EcalEndcapMonitorDbModule::EcalEndcapMonitorDbModule(const edm::ParameterSet& ps){
 
   // get hold of back-end interface
-  dbe_ = edm::Service<DQMStore>().operator->();
+  dqmStore_ = edm::Service<DQMStore>().operator->();
 
   xmlFile_ = ps.getUntrackedParameter<std::string>( "xmlFile", "" );
   if ( xmlFile_.size() != 0 ) {
@@ -53,7 +53,7 @@ EcalEndcapMonitorDbModule::EcalEndcapMonitorDbModule(const edm::ParameterSet& ps
 
   ME_Db_ = new MonitorElementsDb( ps, xmlFile_ );
   
-  if ( dbe_ ) dbe_->showDirStructure();
+  if ( dqmStore_ ) dqmStore_->showDirStructure();
   
 }
 

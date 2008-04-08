@@ -4,8 +4,8 @@
 /*
  * \file EBTriggerTowerTask.h
  *
- * $Date: 2008/01/04 15:23:05 $
- * $Revision: 1.15 $
+ * $Date: 2008/02/29 15:04:00 $
+ * $Revision: 1.16 $
  * \author C. Bernet
  *
 */
@@ -113,7 +113,7 @@ class EBTriggerTowerTask : public edm::EDAnalyzer {
   bool init_;
 
   /// DQM back-end interface
-  DQMStore* dbe_;
+  DQMStore* dqmStore_;
 
   /// to find the input collection of real digis 
   edm::InputTag realCollection_;

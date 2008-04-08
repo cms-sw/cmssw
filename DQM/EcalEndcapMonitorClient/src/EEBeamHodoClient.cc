@@ -1,8 +1,8 @@
 /*
  * \file EEBeamHodoClient.cc
  *
- * $Date: 2008/04/07 07:24:35 $
- * $Revision: 1.29 $
+ * $Date: 2008/04/07 08:44:21 $
+ * $Revision: 1.30 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -87,9 +87,9 @@ EEBeamHodoClient::~EEBeamHodoClient(){
 
 }
 
-void EEBeamHodoClient::beginJob(DQMStore* dbe){
+void EEBeamHodoClient::beginJob(DQMStore* dqmStore){
 
-  dbe_ = dbe;
+  dqmStore_ = dqmStore;
 
   if ( debug_ ) cout << "EEBeamHodoClient: beginJob" << endl;
 
@@ -202,7 +202,7 @@ void EEBeamHodoClient::endRun(void) {
 
 void EEBeamHodoClient::setup(void) {
 
-  dbe_->setCurrentFolder( "EcalEndcap/EEBeamHodoClient" );
+  dqmStore_->setCurrentFolder( "EcalEndcap/EEBeamHodoClient" );
 
 }
 
@@ -210,7 +210,7 @@ void EEBeamHodoClient::cleanup(void) {
 
   if ( ! enableCleanup_ ) return;
 
-  dbe_->setCurrentFolder( "EcalEndcap/EEBeamHodoClient" );
+  dqmStore_->setCurrentFolder( "EcalEndcap/EEBeamHodoClient" );
 
 }
 
@@ -239,89 +239,89 @@ void EEBeamHodoClient::analyze(void){
   for (int i=0; i<4; i++) {
 
     sprintf(histo, "EcalEndcap/EEBeamHodoTask/EEBHT occup %s %02d", Numbers::sEE(smId).c_str(), i+1);
-    me = dbe_->get(histo);
+    me = dqmStore_->get(histo);
     ho01_[i] = UtilsClient::getHisto<TH1F*>( me, cloneME_, ho01_[i] );
 
     sprintf(histo, "EcalEndcap/EEBeamHodoTask/EEBHT raw %s %02d", Numbers::sEE(smId).c_str(), i+1);
-    me = dbe_->get(histo);
+    me = dqmStore_->get(histo);
     hr01_[i] = UtilsClient::getHisto<TH1F*>( me, cloneME_, hr01_[i] );
 
   }
 
   sprintf(histo, "EcalEndcap/EEBeamHodoTask/EEBHT PosX rec %s", Numbers::sEE(smId).c_str());
-  me = dbe_->get(histo);
+  me = dqmStore_->get(histo);
   hp01_[0] = UtilsClient::getHisto<TH1F*>( me, cloneME_, hp01_[0] );
 
   sprintf(histo, "EcalEndcap/EEBeamHodoTask/EEBHT PosY rec %s", Numbers::sEE(smId).c_str());
-  me = dbe_->get(histo);
+  me = dqmStore_->get(histo);
   hp01_[1] = UtilsClient::getHisto<TH1F*>( me, cloneME_, hp01_[1] );
 
   sprintf(histo, "EcalEndcap/EEBeamHodoTask/EEBHT PosYX rec %s", Numbers::sEE(smId).c_str());
-  me = dbe_->get(histo);
+  me = dqmStore_->get(histo);
   hp02_ = UtilsClient::getHisto<TH2F*>( me, cloneME_, hp02_ );
 
   sprintf(histo, "EcalEndcap/EEBeamHodoTask/EEBHT SloX %s", Numbers::sEE(smId).c_str());
-  me = dbe_->get(histo);
+  me = dqmStore_->get(histo);
   hs01_[0] = UtilsClient::getHisto<TH1F*>( me, cloneME_, hs01_[0] );
 
   sprintf(histo, "EcalEndcap/EEBeamHodoTask/EEBHT SloY %s", Numbers::sEE(smId).c_str());
-  me = dbe_->get(histo);
+  me = dqmStore_->get(histo);
   hs01_[1] = UtilsClient::getHisto<TH1F*>( me, cloneME_, hs01_[1] );
 
   sprintf(histo, "EcalEndcap/EEBeamHodoTask/EEBHT QualX %s", Numbers::sEE(smId).c_str());
-  me = dbe_->get(histo);
+  me = dqmStore_->get(histo);
   hq01_[0] = UtilsClient::getHisto<TH1F*>( me, cloneME_, hq01_[0] );
 
   sprintf(histo, "EcalEndcap/EEBeamHodoTask/EEBHT QualY %s", Numbers::sEE(smId).c_str());
-  me = dbe_->get(histo);
+  me = dqmStore_->get(histo);
   hq01_[1] = UtilsClient::getHisto<TH1F*>( me, cloneME_, hq01_[1] );
 
   sprintf(histo, "EcalEndcap/EEBeamHodoTask/EEBHT TDC rec %s", Numbers::sEE(smId).c_str());
-  me = dbe_->get(histo);
+  me = dqmStore_->get(histo);
   ht01_ = UtilsClient::getHisto<TH1F*>( me, cloneME_, ht01_ );
 
   sprintf(histo, "EcalEndcap/EEBeamHodoTask/EEBHT Hodo-Calo X vs Cry %s", Numbers::sEE(smId).c_str());
-  me = dbe_->get(histo);
+  me = dqmStore_->get(histo);
   hc01_[0] = UtilsClient::getHisto<TH1F*>( me, cloneME_, hc01_[0] );
 
   sprintf(histo, "EcalEndcap/EEBeamHodoTask/EEBHT Hodo-Calo Y vs Cry %s", Numbers::sEE(smId).c_str());
-  me = dbe_->get(histo);
+  me = dqmStore_->get(histo);
   hc01_[1] = UtilsClient::getHisto<TH1F*>( me, cloneME_, hc01_[1] );
 
   sprintf(histo, "EcalEndcap/EEBeamHodoTask/EEBHT TDC-Calo vs Cry %s", Numbers::sEE(smId).c_str());
-  me = dbe_->get(histo);
+  me = dqmStore_->get(histo);
   hc01_[2] = UtilsClient::getHisto<TH1F*>( me, cloneME_, hc01_[2] );
 
   sprintf(histo, "EcalEndcap/EEBeamHodoTask/EEBHT Missing Collections %s", Numbers::sEE(smId).c_str());
-  me = dbe_->get(histo);
+  me = dqmStore_->get(histo);
   hm01_ = UtilsClient::getHisto<TH1F*>( me, cloneME_, hm01_ );
 
   sprintf(histo, "EcalEndcap/EEBeamHodoTask/EEBHT prof E1 vs X %s", Numbers::sEE(smId).c_str());
-  me = dbe_->get(histo);
+  me = dqmStore_->get(histo);
   he01_[0] = UtilsClient::getHisto<TProfile*>( me, cloneME_, he01_[0] );
 
   sprintf(histo, "EcalEndcap/EEBeamHodoTask/EEBHT prof E1 vs Y %s", Numbers::sEE(smId).c_str());
-  me = dbe_->get(histo);
+  me = dqmStore_->get(histo);
   he01_[1] = UtilsClient::getHisto<TProfile*>( me, cloneME_, he01_[1] );
 
   sprintf(histo, "EcalEndcap/EEBeamHodoTask/EEBHT his E1 vs X %s", Numbers::sEE(smId).c_str());
-  me = dbe_->get(histo);
+  me = dqmStore_->get(histo);
   he02_[0] = UtilsClient::getHisto<TH2F*>( me, cloneME_, he02_[0] );
 
   sprintf(histo, "EcalEndcap/EEBeamHodoTask/EEBHT his E1 vs Y %s", Numbers::sEE(smId).c_str());
-  me = dbe_->get(histo);
+  me = dqmStore_->get(histo);
   he02_[1] = UtilsClient::getHisto<TH2F*>( me, cloneME_, he02_[1] );
 
   sprintf(histo, "EcalEndcap/EEBeamHodoTask/EEBHT PosX Hodo-Calo %s", Numbers::sEE(smId).c_str());
-  me = dbe_->get(histo);
+  me = dqmStore_->get(histo);
   he03_[0] = UtilsClient::getHisto<TH1F*>( me, cloneME_, he03_[0] );
 
   sprintf(histo, "EcalEndcap/EEBeamHodoTask/EEBHT PosY Hodo-Calo %s", Numbers::sEE(smId).c_str());
-  me = dbe_->get(histo);
+  me = dqmStore_->get(histo);
   he03_[1] = UtilsClient::getHisto<TH1F*>( me, cloneME_, he03_[1] );
 
   sprintf(histo, "EcalEndcap/EEBeamHodoTask/EEBHT TimeMax TDC-Calo %s", Numbers::sEE(smId).c_str());
-  me = dbe_->get(histo);
+  me = dqmStore_->get(histo);
   he03_[2] = UtilsClient::getHisto<TH1F*>( me, cloneME_, he03_[2] );
 
 }

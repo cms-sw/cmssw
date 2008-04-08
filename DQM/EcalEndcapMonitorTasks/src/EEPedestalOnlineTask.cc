@@ -1,8 +1,8 @@
 /*
  * \file EEPedestalOnlineTask.cc
  *
- * $Date: 2008/02/29 15:08:29 $
- * $Revision: 1.21 $
+ * $Date: 2008/04/07 11:30:25 $
+ * $Revision: 1.22 $
  * \author G. Della Ricca
  *
 */
@@ -35,7 +35,7 @@ EEPedestalOnlineTask::EEPedestalOnlineTask(const ParameterSet& ps){
   init_ = false;
 
   // get hold of back-end interface
-  dbe_ = Service<DQMStore>().operator->();
+  dqmStore_ = Service<DQMStore>().operator->();
 
   enableCleanup_ = ps.getUntrackedParameter<bool>("enableCleanup", false);
 
@@ -55,9 +55,9 @@ void EEPedestalOnlineTask::beginJob(const EventSetup& c){
 
   ievt_ = 0;
 
-  if ( dbe_ ) {
-    dbe_->setCurrentFolder("EcalEndcap/EEPedestalOnlineTask");
-    dbe_->rmdir("EcalEndcap/EEPedestalOnlineTask");
+  if ( dqmStore_ ) {
+    dqmStore_->setCurrentFolder("EcalEndcap/EEPedestalOnlineTask");
+    dqmStore_->rmdir("EcalEndcap/EEPedestalOnlineTask");
   }
 
   Numbers::initGeometry(c, false);
@@ -70,16 +70,16 @@ void EEPedestalOnlineTask::setup(void){
 
   char histo[200];
 
-  if ( dbe_ ) {
-    dbe_->setCurrentFolder("EcalEndcap/EEPedestalOnlineTask");
+  if ( dqmStore_ ) {
+    dqmStore_->setCurrentFolder("EcalEndcap/EEPedestalOnlineTask");
 
-    dbe_->setCurrentFolder("EcalEndcap/EEPedestalOnlineTask/Gain12");
+    dqmStore_->setCurrentFolder("EcalEndcap/EEPedestalOnlineTask/Gain12");
     for (int i = 0; i < 18; i++) {
       sprintf(histo, "EEPOT pedestal %s G12", Numbers::sEE(i+1).c_str());
-      mePedMapG12_[i] = dbe_->bookProfile2D(histo, histo, 50, Numbers::ix0EE(i+1)+0., Numbers::ix0EE(i+1)+50., 50, Numbers::iy0EE(i+1)+0., Numbers::iy0EE(i+1)+50., 4096, 0., 4096., "s");
+      mePedMapG12_[i] = dqmStore_->bookProfile2D(histo, histo, 50, Numbers::ix0EE(i+1)+0., Numbers::ix0EE(i+1)+50., 50, Numbers::iy0EE(i+1)+0., Numbers::iy0EE(i+1)+50., 4096, 0., 4096., "s");
       mePedMapG12_[i]->setAxisTitle("jx", 1);
       mePedMapG12_[i]->setAxisTitle("jy", 2);
-      dbe_->tag(mePedMapG12_[i], i+1);
+      dqmStore_->tag(mePedMapG12_[i], i+1);
     }
 
   }
@@ -90,12 +90,12 @@ void EEPedestalOnlineTask::cleanup(void){
 
   if ( ! enableCleanup_ ) return;
 
-  if ( dbe_ ) {
-    dbe_->setCurrentFolder("EcalEndcap/EEPedestalOnlineTask");
+  if ( dqmStore_ ) {
+    dqmStore_->setCurrentFolder("EcalEndcap/EEPedestalOnlineTask");
 
-    dbe_->setCurrentFolder("EcalEndcap/EEPedestalOnlineTask/Gain12");
+    dqmStore_->setCurrentFolder("EcalEndcap/EEPedestalOnlineTask/Gain12");
     for ( int i = 0; i < 18; i++ ) {
-      if ( mePedMapG12_[i] ) dbe_->removeElement( mePedMapG12_[i]->getName() );
+      if ( mePedMapG12_[i] ) dqmStore_->removeElement( mePedMapG12_[i]->getName() );
       mePedMapG12_[i] = 0;
     }
 

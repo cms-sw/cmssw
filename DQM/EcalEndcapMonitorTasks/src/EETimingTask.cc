@@ -1,8 +1,8 @@
 /*
  * \file EETimingTask.cc
  *
- * $Date: 2008/04/06 18:07:21 $
- * $Revision: 1.29 $
+ * $Date: 2008/04/07 11:30:25 $
+ * $Revision: 1.30 $
  * \author G. Della Ricca
  *
 */
@@ -36,7 +36,7 @@ EETimingTask::EETimingTask(const ParameterSet& ps){
   init_ = false;
 
   // get hold of back-end interface
-  dbe_ = Service<DQMStore>().operator->();
+  dqmStore_ = Service<DQMStore>().operator->();
 
   enableCleanup_ = ps.getUntrackedParameter<bool>("enableCleanup", false);
 
@@ -58,9 +58,9 @@ void EETimingTask::beginJob(const EventSetup& c){
 
   ievt_ = 0;
 
-  if ( dbe_ ) {
-    dbe_->setCurrentFolder("EcalEndcap/EETimingTask");
-    dbe_->rmdir("EcalEndcap/EETimingTask");
+  if ( dqmStore_ ) {
+    dqmStore_->setCurrentFolder("EcalEndcap/EETimingTask");
+    dqmStore_->rmdir("EcalEndcap/EETimingTask");
   }
 
   Numbers::initGeometry(c, false);
@@ -73,21 +73,21 @@ void EETimingTask::setup(void){
 
   char histo[200];
 
-  if ( dbe_ ) {
-    dbe_->setCurrentFolder("EcalEndcap/EETimingTask");
+  if ( dqmStore_ ) {
+    dqmStore_->setCurrentFolder("EcalEndcap/EETimingTask");
 
     for (int i = 0; i < 18; i++) {
       sprintf(histo, "EETMT timing %s", Numbers::sEE(i+1).c_str());
-      meTimeMap_[i] = dbe_->bookProfile2D(histo, histo, 50, Numbers::ix0EE(i+1)+0., Numbers::ix0EE(i+1)+50., 50, Numbers::iy0EE(i+1)+0., Numbers::iy0EE(i+1)+50., 4096, 0., 4096., "s");
+      meTimeMap_[i] = dqmStore_->bookProfile2D(histo, histo, 50, Numbers::ix0EE(i+1)+0., Numbers::ix0EE(i+1)+50., 50, Numbers::iy0EE(i+1)+0., Numbers::iy0EE(i+1)+50., 4096, 0., 4096., "s");
       meTimeMap_[i]->setAxisTitle("jx", 1);
       meTimeMap_[i]->setAxisTitle("jy", 2);
-      dbe_->tag(meTimeMap_[i], i+1);
+      dqmStore_->tag(meTimeMap_[i], i+1);
 
       sprintf(histo, "EETMT timing vs amplitude %s", Numbers::sEE(i+1).c_str());
-      meTimeAmpli_[i] = dbe_->book2D(histo, histo, 200, 0., 200., 100, 0., 10.);
+      meTimeAmpli_[i] = dqmStore_->book2D(histo, histo, 200, 0., 200., 100, 0., 10.);
       meTimeAmpli_[i]->setAxisTitle("amplitude", 1);
       meTimeAmpli_[i]->setAxisTitle("jitter", 2);
-      dbe_->tag(meTimeAmpli_[i], i+1);
+      dqmStore_->tag(meTimeAmpli_[i], i+1);
     }
 
   }
@@ -98,11 +98,11 @@ void EETimingTask::cleanup(void){
 
   if ( ! enableCleanup_ ) return;
 
-  if ( dbe_ ) {
-    dbe_->setCurrentFolder("EcalEndcap/EETimingTask");
+  if ( dqmStore_ ) {
+    dqmStore_->setCurrentFolder("EcalEndcap/EETimingTask");
 
     for ( int i = 0; i < 18; i++ ) {
-      if ( meTimeMap_[i] ) dbe_->removeElement( meTimeMap_[i]->getName() );
+      if ( meTimeMap_[i] ) dqmStore_->removeElement( meTimeMap_[i]->getName() );
       meTimeMap_[i] = 0;
     }
 

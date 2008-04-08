@@ -1,4 +1,4 @@
-// $Id: MonitorElementsDb.h,v 1.5 2008/02/29 15:03:17 dellaric Exp $
+// $Id: MonitorElementsDb.h,v 1.6 2008/03/14 14:38:55 dellaric Exp $
 
 #ifndef MonitorElementsDb_H
 #define MonitorElementsDb_H
@@ -7,8 +7,8 @@
   \file MonitorElementsDb.h
   \brief Generate a Monitor Element from DB data
   \author B. Gobbo 
-  \version $Revision: 1.5 $
-  \date $Date: 2008/02/29 15:03:17 $
+  \version $Revision: 1.6 $
+  \date $Date: 2008/03/14 14:38:55 $
 */
 
 
@@ -65,7 +65,7 @@ class MonitorElementsDb{
   std::vector<DB_ME>            MEinfo_;
   std::vector<MonitorElement*>  MEs_;
   int                           ievt_;
-  DQMStore*        dbe_;
+  DQMStore*        dqmStore_;
   
 };
 

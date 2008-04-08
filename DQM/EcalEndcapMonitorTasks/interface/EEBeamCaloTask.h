@@ -4,8 +4,8 @@
 /*
  * \file EEBeamCaloTask.h
  *
- * $Date: 2007/11/27 10:43:29 $
- * $Revision: 1.6 $
+ * $Date: 2008/02/29 15:07:43 $
+ * $Revision: 1.7 $
  * \author A. Ghezzi
  *
 */
@@ -48,7 +48,7 @@ private:
 
 int ievt_;
 
-DQMStore* dbe_;
+DQMStore* dqmStore_;
 
 bool enableCleanup_;
 

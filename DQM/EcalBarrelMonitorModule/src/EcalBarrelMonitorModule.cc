@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorModule.cc
  *
- * $Date: 2008/04/07 08:14:13 $
- * $Revision: 1.176 $
+ * $Date: 2008/04/07 11:30:22 $
+ * $Revision: 1.177 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -90,13 +90,13 @@ EcalBarrelMonitorModule::EcalBarrelMonitorModule(const ParameterSet& ps){
   }
 
   // get hold of back-end interface
-  dbe_ = Service<DQMStore>().operator->();
+  dqmStore_ = Service<DQMStore>().operator->();
 
-  if ( dbe_ ) {
+  if ( dqmStore_ ) {
     if ( debug_ ) {
-      dbe_->setVerbose(1);
+      dqmStore_->setVerbose(1);
     } else {
-      dbe_->setVerbose(0);
+      dqmStore_->setVerbose(0);
     }
   }
 
@@ -139,12 +139,12 @@ void EcalBarrelMonitorModule::beginJob(const EventSetup& c){
 
   ievt_ = 0;
 
-  if ( dbe_ ) {
-    dbe_->setCurrentFolder("EcalBarrel/EcalInfo");
-    dbe_->rmdir("EcalBarrel/EcalInfo");
+  if ( dqmStore_ ) {
+    dqmStore_->setCurrentFolder("EcalBarrel/EcalInfo");
+    dqmStore_->rmdir("EcalBarrel/EcalInfo");
     if ( enableEventDisplay_ ) {
-      dbe_->setCurrentFolder("EcalBarrel/EcalEvent");
-      dbe_->rmdir("EcalBarrel/EcalEvent");
+      dqmStore_->setCurrentFolder("EcalBarrel/EcalEvent");
+      dqmStore_->rmdir("EcalBarrel/EcalEvent");
     }
   }
 
@@ -154,16 +154,16 @@ void EcalBarrelMonitorModule::setup(void){
 
   init_ = true;
 
-  if ( dbe_ ) {
-    dbe_->setCurrentFolder("EcalBarrel/EcalInfo");
+  if ( dqmStore_ ) {
+    dqmStore_->setCurrentFolder("EcalBarrel/EcalInfo");
 
-    meStatus_ = dbe_->bookInt("STATUS");
+    meStatus_ = dqmStore_->bookInt("STATUS");
 
-    meRun_ = dbe_->bookInt("RUN");
-    meEvt_ = dbe_->bookInt("EVT");
+    meRun_ = dqmStore_->bookInt("RUN");
+    meEvt_ = dqmStore_->bookInt("EVT");
 
-    meRunType_ = dbe_->bookInt("RUNTYPE");
-    meEvtType_ = dbe_->book1D("EVTTYPE", "EVTTYPE", 31, -1., 30.);
+    meRunType_ = dqmStore_->bookInt("RUNTYPE");
+    meEvtType_ = dqmStore_->book1D("EVTTYPE", "EVTTYPE", 31, -1., 30.);
     meEvtType_->setBinLabel(1, "UNKNOWN", 1);
     meEvtType_->setBinLabel(2+EcalDCCHeaderBlock::COSMIC, "COSMIC", 1);
     meEvtType_->setBinLabel(2+EcalDCCHeaderBlock::BEAMH4, "BEAMH4", 1);
@@ -203,43 +203,43 @@ void EcalBarrelMonitorModule::setup(void){
 
   char histo[20];
 
-  if ( dbe_ ) {
-    dbe_->setCurrentFolder("EcalBarrel/EcalInfo");
+  if ( dqmStore_ ) {
+    dqmStore_->setCurrentFolder("EcalBarrel/EcalInfo");
 
-    meEBDCC_ = dbe_->book1D("EBMM DCC", "EBMM DCC", 36, 1, 37.);
+    meEBDCC_ = dqmStore_->book1D("EBMM DCC", "EBMM DCC", 36, 1, 37.);
     for (int i = 0; i < 36; i++) {
       meEBDCC_->setBinLabel(i+1, Numbers::sEB(i+1).c_str(), 1);
     }
 
-    meEBdigis_[0] = dbe_->book1D("EBMM digi number", "EBMM digi number", 100, 0., 61201.);
+    meEBdigis_[0] = dqmStore_->book1D("EBMM digi number", "EBMM digi number", 100, 0., 61201.);
 
-    meEBdigis_[1] = dbe_->bookProfile("EBMM digi number profile", "EBMM digi number profile", 36, 1, 37., 1700, 0., 1701., "s");
+    meEBdigis_[1] = dqmStore_->bookProfile("EBMM digi number profile", "EBMM digi number profile", 36, 1, 37., 1700, 0., 1701., "s");
     for (int i = 0; i < 36; i++) {
       meEBdigis_[1]->setBinLabel(i+1, Numbers::sEB(i+1).c_str(), 1);
     }
 
-    meEBhits_[0] = dbe_->book1D("EBMM hit number", "EBMM hit number", 100, 0., 61201.);
+    meEBhits_[0] = dqmStore_->book1D("EBMM hit number", "EBMM hit number", 100, 0., 61201.);
 
-    meEBhits_[1] = dbe_->bookProfile("EBMM hit number profile", "EBMM hit number profile", 36, 1, 37., 1700, 0., 1701., "s");
+    meEBhits_[1] = dqmStore_->bookProfile("EBMM hit number profile", "EBMM hit number profile", 36, 1, 37., 1700, 0., 1701., "s");
     for (int i = 0; i < 36; i++) {
       meEBhits_[1]->setBinLabel(i+1, Numbers::sEB(i+1).c_str(), 1);
     }
 
-    meEBtpdigis_[0] = dbe_->book1D("EBMM TP digi number", "EBMM TP digi number", 100, 0., 2449.);
+    meEBtpdigis_[0] = dqmStore_->book1D("EBMM TP digi number", "EBMM TP digi number", 100, 0., 2449.);
 
-    meEBtpdigis_[1] = dbe_->bookProfile("EBMM TP digi number profile", "EBMM TP digi number profile", 36, 1, 37., 68, 0., 69., "s");
+    meEBtpdigis_[1] = dqmStore_->bookProfile("EBMM TP digi number profile", "EBMM TP digi number profile", 36, 1, 37., 68, 0., 69., "s");
     for (int i = 0; i < 36; i++) {
       meEBtpdigis_[1]->setBinLabel(i+1, Numbers::sEB(i+1).c_str(), 1);
     }
 
     if ( enableEventDisplay_ ) {
-      dbe_->setCurrentFolder("EcalBarrel/EcalEvent");
+      dqmStore_->setCurrentFolder("EcalBarrel/EcalEvent");
       for (int i = 0; i < 36; i++) {
         sprintf(histo, "EBMM event %s", Numbers::sEB(i+1).c_str());
-        meEvent_[i] = dbe_->book2D(histo, histo, 85, 0., 85., 20, 0., 20.);
+        meEvent_[i] = dqmStore_->book2D(histo, histo, 85, 0., 85., 20, 0., 20.);
         meEvent_[i]->setAxisTitle("ieta", 1);
         meEvent_[i]->setAxisTitle("iphi", 2);
-        dbe_->tag(meEvent_[i], i+1);
+        dqmStore_->tag(meEvent_[i], i+1);
         if ( meEvent_[i] ) meEvent_[i]->setResetMe(true);
       }
     }
@@ -252,48 +252,48 @@ void EcalBarrelMonitorModule::cleanup(void){
 
   if ( ! enableCleanup_ ) return;
 
-  if ( dbe_ ) {
+  if ( dqmStore_ ) {
 
-    dbe_->setCurrentFolder("EcalBarrel/EcalInfo");
+    dqmStore_->setCurrentFolder("EcalBarrel/EcalInfo");
 
-    if ( meStatus_ ) dbe_->removeElement( meStatus_->getName() );
+    if ( meStatus_ ) dqmStore_->removeElement( meStatus_->getName() );
     meStatus_ = 0;
 
-    if ( meRun_ ) dbe_->removeElement( meRun_->getName() );
+    if ( meRun_ ) dqmStore_->removeElement( meRun_->getName() );
     meRun_ = 0;
 
-    if ( meEvt_ ) dbe_->removeElement( meEvt_->getName() );
+    if ( meEvt_ ) dqmStore_->removeElement( meEvt_->getName() );
     meEvt_ = 0;
 
-    if ( meRunType_ ) dbe_->removeElement( meRunType_->getName() );
+    if ( meRunType_ ) dqmStore_->removeElement( meRunType_->getName() );
     meRunType_ = 0;
 
-    if ( meEvtType_ ) dbe_->removeElement( meEvtType_->getName() );
+    if ( meEvtType_ ) dqmStore_->removeElement( meEvtType_->getName() );
     meEvtType_ = 0;
 
-    if ( meEBDCC_ ) dbe_->removeElement( meEBDCC_->getName() );
+    if ( meEBDCC_ ) dqmStore_->removeElement( meEBDCC_->getName() );
     meEBDCC_ = 0;
 
     for (int i = 0; i < 2; i++) {
 
-      if ( meEBdigis_[i] ) dbe_->removeElement( meEBdigis_[i]->getName() );
+      if ( meEBdigis_[i] ) dqmStore_->removeElement( meEBdigis_[i]->getName() );
       meEBdigis_[i] = 0;
 
-      if ( meEBhits_[i] ) dbe_->removeElement( meEBhits_[i]->getName() );
+      if ( meEBhits_[i] ) dqmStore_->removeElement( meEBhits_[i]->getName() );
       meEBhits_[i] = 0;
 
-      if ( meEBtpdigis_[i] ) dbe_->removeElement( meEBtpdigis_[i]->getName() );
+      if ( meEBtpdigis_[i] ) dqmStore_->removeElement( meEBtpdigis_[i]->getName() );
       meEBtpdigis_[i] = 0;
 
     }
 
     if ( enableEventDisplay_ ) {
 
-      dbe_->setCurrentFolder("EcalBarrel/EcalEvent");
+      dqmStore_->setCurrentFolder("EcalBarrel/EcalEvent");
 
       for (int i = 0; i < 36; i++) {
 
-        if ( meEvent_[i] ) dbe_->removeElement( meEvent_[i]->getName() );
+        if ( meEvent_[i] ) dqmStore_->removeElement( meEvent_[i]->getName() );
         meEvent_[i] = 0;
 
       }

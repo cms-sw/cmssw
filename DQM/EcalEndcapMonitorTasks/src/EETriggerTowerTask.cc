@@ -1,8 +1,8 @@
 /*
  * \file EETriggerTowerTask.cc
  *
- * $Date: 2008/04/05 21:06:24 $
- * $Revision: 1.31 $
+ * $Date: 2008/04/07 11:30:25 $
+ * $Revision: 1.32 $
  * \author C. Bernet
  * \author G. Della Ricca
  * \author E. Di Marco
@@ -35,7 +35,7 @@ EETriggerTowerTask::EETriggerTowerTask(const ParameterSet& ps) {
   init_ = false;
 
   // get hold of back-end interface
-  dbe_ = Service<DQMStore>().operator->();
+  dqmStore_ = Service<DQMStore>().operator->();
 
   reserveArray(meEtMapReal_);
   reserveArray(meVetoReal_);
@@ -86,9 +86,9 @@ void EETriggerTowerTask::beginJob(const EventSetup& c){
 
   ievt_ = 0;
 
-  if ( dbe_ ) {
-    dbe_->setCurrentFolder("EcalEndcap/EETriggerTowerTask");
-    dbe_->rmdir("EcalEndcap/EETriggerTowerTask");
+  if ( dqmStore_ ) {
+    dqmStore_->setCurrentFolder("EcalEndcap/EETriggerTowerTask");
+    dqmStore_->rmdir("EcalEndcap/EETriggerTowerTask");
   }
 
   Numbers::initGeometry(c, false);
@@ -99,8 +99,8 @@ void EETriggerTowerTask::setup(void){
 
   init_ = true;
 
-  if ( dbe_ ) {
-    // dbe_->showDirStructure();
+  if ( dqmStore_ ) {
+    // dqmStore_->showDirStructure();
 
     setup( "Real Digis",
            "EcalEndcap/EETriggerTowerTask", false );
@@ -128,7 +128,7 @@ void EETriggerTowerTask::setup( const char* nameext,
     meFlags= &meFlagsEmul_;
   }
 
-  dbe_->setCurrentFolder(folder);
+  dqmStore_->setCurrentFolder(folder);
 
   static const unsigned namesize = 200;
 
@@ -148,36 +148,36 @@ void EETriggerTowerTask::setup( const char* nameext,
     string etMapNameSM = etMapName;
     etMapNameSM += " " + Numbers::sEE(i+1);
 
-    (*meEtMap)[i] = dbe_->book3D(etMapNameSM.c_str(), etMapNameSM.c_str(),
+    (*meEtMap)[i] = dqmStore_->book3D(etMapNameSM.c_str(), etMapNameSM.c_str(),
                                 50, Numbers::ix0EE(i+1)+0., Numbers::ix0EE(i+1)+50.,
                                 50, Numbers::iy0EE(i+1)+0., Numbers::iy0EE(i+1)+50.,
                                 256, 0, 256.);
     (*meEtMap)[i]->setAxisTitle("jx", 1);
     (*meEtMap)[i]->setAxisTitle("jy", 2);
-    dbe_->tag((*meEtMap)[i], i+1);
+    dqmStore_->tag((*meEtMap)[i], i+1);
 
     string  fineGrainVetoNameSM = fineGrainVetoName;
     fineGrainVetoNameSM += " " + Numbers::sEE(i+1);
 
-    (*meVeto)[i] = dbe_->book3D(fineGrainVetoNameSM.c_str(),
+    (*meVeto)[i] = dqmStore_->book3D(fineGrainVetoNameSM.c_str(),
                                fineGrainVetoNameSM.c_str(),
                                50, Numbers::ix0EE(i+1)+0., Numbers::ix0EE(i+1)+50.,
                                50, Numbers::iy0EE(i+1)+0., Numbers::iy0EE(i+1)+50.,
                                2, 0., 2.);
     (*meVeto)[i]->setAxisTitle("jx", 1);
     (*meVeto)[i]->setAxisTitle("jy", 2);
-    dbe_->tag((*meVeto)[i], i+1);
+    dqmStore_->tag((*meVeto)[i], i+1);
 
     string  flagsNameSM = flagsName;
     flagsNameSM += " " + Numbers::sEE(i+1);
 
-    (*meFlags)[i] = dbe_->book3D(flagsNameSM.c_str(), flagsNameSM.c_str(),
+    (*meFlags)[i] = dqmStore_->book3D(flagsNameSM.c_str(), flagsNameSM.c_str(),
                                 50, Numbers::ix0EE(i+1)+0., Numbers::ix0EE(i+1)+50.,
                                 50, Numbers::iy0EE(i+1)+0., Numbers::iy0EE(i+1)+50.,
                                 8, 0., 8.);
     (*meFlags)[i]->setAxisTitle("jx", 1);
     (*meFlags)[i]->setAxisTitle("jy", 2);
-    dbe_->tag((*meFlags)[i], i+1);
+    dqmStore_->tag((*meFlags)[i], i+1);
 
 
     if(!emulated) {
@@ -185,37 +185,37 @@ void EETriggerTowerTask::setup( const char* nameext,
       string  emulErrorNameSM = emulErrorName;
       emulErrorNameSM += " " + Numbers::sEE(i+1);
 
-      meEmulError_[i] = dbe_->book2D(emulErrorNameSM.c_str(),
+      meEmulError_[i] = dqmStore_->book2D(emulErrorNameSM.c_str(),
                                     emulErrorNameSM.c_str(),
                                     50, Numbers::ix0EE(i+1)+0., Numbers::ix0EE(i+1)+50.,
                                     50, Numbers::iy0EE(i+1)+0., Numbers::iy0EE(i+1)+50. );
       meEmulError_[i]->setAxisTitle("jx", 1);
       meEmulError_[i]->setAxisTitle("jy", 2);
-      dbe_->tag(meEmulError_[i], i+1);
+      dqmStore_->tag(meEmulError_[i], i+1);
 
       string  emulFineGrainVetoErrorNameSM = emulFineGrainVetoErrorName;
       emulFineGrainVetoErrorNameSM += " " + Numbers::sEE(i+1);
 
-      meVetoEmulError_[i] = dbe_->book3D(emulFineGrainVetoErrorNameSM.c_str(),
+      meVetoEmulError_[i] = dqmStore_->book3D(emulFineGrainVetoErrorNameSM.c_str(),
                                           emulFineGrainVetoErrorNameSM.c_str(),
                                           50, Numbers::ix0EE(i+1)+0., Numbers::ix0EE(i+1)+50.,
                                           50, Numbers::iy0EE(i+1)+0., Numbers::iy0EE(i+1)+50.,
                                           8, 0., 8.);
       meVetoEmulError_[i]->setAxisTitle("jx", 1);
       meVetoEmulError_[i]->setAxisTitle("jy", 2);
-      dbe_->tag(meVetoEmulError_[i], i+1);
+      dqmStore_->tag(meVetoEmulError_[i], i+1);
 
       string  emulFlagErrorNameSM = emulFlagErrorName;
       emulFlagErrorNameSM += " " + Numbers::sEE(i+1);
 
-      meFlagEmulError_[i] = dbe_->book3D(emulFlagErrorNameSM.c_str(),
+      meFlagEmulError_[i] = dqmStore_->book3D(emulFlagErrorNameSM.c_str(),
                                           emulFlagErrorNameSM.c_str(),
                                           50, Numbers::ix0EE(i+1)+0., Numbers::ix0EE(i+1)+50.,
                                           50, Numbers::iy0EE(i+1)+0., Numbers::iy0EE(i+1)+50.,
                                           8, 0., 8.);
       meFlagEmulError_[i]->setAxisTitle("jx", 1);
       meFlagEmulError_[i]->setAxisTitle("jy", 2);
-      dbe_->tag(meFlagEmulError_[i], i+1);
+      dqmStore_->tag(meFlagEmulError_[i], i+1);
 
     }
   }
@@ -226,11 +226,11 @@ void EETriggerTowerTask::cleanup(void) {
 
   if ( ! enableCleanup_ ) return;
 
-  if ( dbe_ ) {
+  if ( dqmStore_ ) {
 
-    if( !outputFile_.empty() ) dbe_->save( outputFile_.c_str() );
+    if( !outputFile_.empty() ) dqmStore_->save( outputFile_.c_str() );
 
-    dbe_->rmdir( "EcalEndcap/EETriggerTowerTask" );
+    dqmStore_->rmdir( "EcalEndcap/EETriggerTowerTask" );
 
   }
 

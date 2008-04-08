@@ -4,8 +4,8 @@
 /*
  * \file EBCosmicTask.h
  *
- * $Date: 2008/02/11 08:39:50 $
- * $Revision: 1.30 $
+ * $Date: 2008/02/29 15:03:51 $
+ * $Revision: 1.31 $
  * \author G. Della Ricca
  *
 */
@@ -48,7 +48,7 @@ private:
 
 int ievt_;
 
-DQMStore* dbe_;
+DQMStore* dqmStore_;
 
 bool enableCleanup_;
 

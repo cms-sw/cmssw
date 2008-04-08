@@ -4,8 +4,8 @@
 /*
  * \file EcalEndcapMonitorModule.h
  *
- * $Date: 2008/04/07 07:24:36 $
- * $Revision: 1.15 $
+ * $Date: 2008/04/07 08:14:14 $
+ * $Revision: 1.16 $
  * \author G. Della Ricca
  *
 */
@@ -69,7 +69,7 @@ bool debug_;
 
 bool enableEventDisplay_;
 
-DQMStore* dbe_;
+DQMStore* dqmStore_;
 
 bool enableCleanup_;
 

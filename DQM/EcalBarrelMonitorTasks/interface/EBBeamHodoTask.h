@@ -4,8 +4,8 @@
 /*
  * \file EBBeamHodoTask.h
  *
- * $Date: 2007/11/27 10:43:22 $
- * $Revision: 1.16 $
+ * $Date: 2008/02/29 15:03:49 $
+ * $Revision: 1.17 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -49,7 +49,7 @@ private:
 
 int ievt_;
 
-DQMStore* dbe_;
+DQMStore* dqmStore_;
 
 bool enableCleanup_;
 

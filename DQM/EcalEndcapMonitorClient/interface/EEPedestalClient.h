@@ -4,8 +4,8 @@
 /*
  * \file EEPedestalClient.h
  *
- * $Date: 2008/04/07 07:24:34 $
- * $Revision: 1.18 $
+ * $Date: 2008/04/07 08:44:20 $
+ * $Revision: 1.19 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -44,7 +44,7 @@ virtual ~EEPedestalClient();
 void analyze(void);
 
 // BeginJob
-void beginJob(DQMStore* dbe);
+void beginJob(DQMStore* dqmStore);
 
 // EndJob
 void endJob(void);
@@ -85,7 +85,7 @@ bool enableCleanup_;
 
 std::vector<int> superModules_;
 
-DQMStore* dbe_;
+DQMStore* dqmStore_;
 
 TProfile2D* h01_[18];
 TProfile2D* h02_[18];

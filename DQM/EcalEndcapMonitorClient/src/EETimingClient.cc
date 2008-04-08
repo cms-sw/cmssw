@@ -1,8 +1,8 @@
 /*
  * \file EETimingClient.cc
  *
- * $Date: 2008/04/07 09:00:42 $
- * $Revision: 1.75 $
+ * $Date: 2008/04/07 11:30:24 $
+ * $Revision: 1.76 $
  * \author G. Della Ricca
  *
 */
@@ -93,9 +93,9 @@ EETimingClient::~EETimingClient(){
 
 }
 
-void EETimingClient::beginJob(DQMStore* dbe){
+void EETimingClient::beginJob(DQMStore* dqmStore){
 
-  dbe_ = dbe;
+  dqmStore_ = dqmStore;
 
   if ( debug_ ) cout << "EETimingClient: beginJob" << endl;
 
@@ -134,32 +134,32 @@ void EETimingClient::setup(void) {
 
   char histo[200];
 
-  dbe_->setCurrentFolder( "EcalEndcap/EETimingClient" );
+  dqmStore_->setCurrentFolder( "EcalEndcap/EETimingClient" );
 
   for ( unsigned int i=0; i<superModules_.size(); i++ ) {
 
     int ism = superModules_[i];
 
-    if ( meg01_[ism-1] ) dbe_->removeElement( meg01_[ism-1]->getName() );
+    if ( meg01_[ism-1] ) dqmStore_->removeElement( meg01_[ism-1]->getName() );
     sprintf(histo, "EETMT timing quality %s", Numbers::sEE(ism).c_str());
-    meg01_[ism-1] = dbe_->book2D(histo, histo, 50, Numbers::ix0EE(ism)+0., Numbers::ix0EE(ism)+50., 50, Numbers::iy0EE(ism)+0., Numbers::iy0EE(ism)+50.);
+    meg01_[ism-1] = dqmStore_->book2D(histo, histo, 50, Numbers::ix0EE(ism)+0., Numbers::ix0EE(ism)+50., 50, Numbers::iy0EE(ism)+0., Numbers::iy0EE(ism)+50.);
     meg01_[ism-1]->setAxisTitle("jx", 1);
     meg01_[ism-1]->setAxisTitle("jy", 2);
 
-    if ( mea01_[ism-1] ) dbe_->removeElement( mea01_[ism-1]->getName() );
+    if ( mea01_[ism-1] ) dqmStore_->removeElement( mea01_[ism-1]->getName() );
     sprintf(histo, "EETMT timing %s", Numbers::sEE(ism).c_str());
-    mea01_[ism-1] = dbe_->book1D(histo, histo, 850, 0., 850.);
+    mea01_[ism-1] = dqmStore_->book1D(histo, histo, 850, 0., 850.);
     mea01_[ism-1]->setAxisTitle("channel", 1);
     mea01_[ism-1]->setAxisTitle("jitter", 2);
 
-    if ( mep01_[ism-1] ) dbe_->removeElement( mep01_[ism-1]->getName() );
+    if ( mep01_[ism-1] ) dqmStore_->removeElement( mep01_[ism-1]->getName() );
     sprintf(histo, "EETMT timing mean %s", Numbers::sEE(ism).c_str());
-    mep01_[ism-1] = dbe_->book1D(histo, histo, 100, 0.0, 10.0);
+    mep01_[ism-1] = dqmStore_->book1D(histo, histo, 100, 0.0, 10.0);
     mep01_[ism-1]->setAxisTitle("mean", 1);
 
-    if ( mer01_[ism-1] ) dbe_->removeElement( mer01_[ism-1]->getName() );
+    if ( mer01_[ism-1] ) dqmStore_->removeElement( mer01_[ism-1]->getName() );
     sprintf(histo, "EETMT timing rms %s", Numbers::sEE(ism).c_str());
-    mer01_[ism-1] = dbe_->book1D(histo, histo, 100, 0.0, 6.0);
+    mer01_[ism-1] = dqmStore_->book1D(histo, histo, 100, 0.0, 6.0);
     mer01_[ism-1]->setAxisTitle("rms", 1);
 
   }
@@ -216,22 +216,22 @@ void EETimingClient::cleanup(void) {
 
   }
 
-  dbe_->setCurrentFolder( "EcalEndcap/EETimingClient" );
+  dqmStore_->setCurrentFolder( "EcalEndcap/EETimingClient" );
 
   for ( unsigned int i=0; i<superModules_.size(); i++ ) {
 
     int ism = superModules_[i];
 
-    if ( meg01_[ism-1] ) dbe_->removeElement( meg01_[ism-1]->getName() );
+    if ( meg01_[ism-1] ) dqmStore_->removeElement( meg01_[ism-1]->getName() );
     meg01_[ism-1] = 0;
 
-    if ( mea01_[ism-1] ) dbe_->removeElement( mea01_[ism-1]->getName() );
+    if ( mea01_[ism-1] ) dqmStore_->removeElement( mea01_[ism-1]->getName() );
     mea01_[ism-1] = 0;
 
-    if ( mep01_[ism-1] ) dbe_->removeElement( mep01_[ism-1]->getName() );
+    if ( mep01_[ism-1] ) dqmStore_->removeElement( mep01_[ism-1]->getName() );
     mep01_[ism-1] = 0;
 
-    if ( mer01_[ism-1] ) dbe_->removeElement( mer01_[ism-1]->getName() );
+    if ( mer01_[ism-1] ) dqmStore_->removeElement( mer01_[ism-1]->getName() );
     mer01_[ism-1] = 0;
 
   }
@@ -355,12 +355,12 @@ void EETimingClient::analyze(void){
     int ism = superModules_[i];
 
     sprintf(histo, "EcalEndcap/EETimingTask/EETMT timing %s", Numbers::sEE(ism).c_str());
-    me = dbe_->get(histo);
+    me = dqmStore_->get(histo);
     h01_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, h01_[ism-1] );
     meh01_[ism-1] = me;
 
     sprintf(histo, "EcalEndcap/EETimingTask/EETMT timing vs amplitude %s", Numbers::sEE(ism).c_str());
-    me = dbe_->get(histo);
+    me = dqmStore_->get(histo);
     h02_[ism-1] = UtilsClient::getHisto<TH2F*>( me, cloneME_, h02_[ism-1] );
     meh02_[ism-1] = me;
 
