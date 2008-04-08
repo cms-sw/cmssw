@@ -413,10 +413,14 @@ void HybridClusterAlgo::mainSearch(const EcalRecHitCollection* hits, const CaloS
       if (HasSeedCrystal)
 	seedClus_.push_back(reco::BasicCluster(LumpEnergy[i],pos,totChi2,usedHits));
     }
-    //Make association so that superclusters can be made later.
-    clustered_.insert(std::make_pair(clustercounter, thisseedClusters));    
-    clustercounter++;
-  }//Seed loop
+    // Make association so that superclusters can be made later.
+    // but only if some BasicClusters have been found...
+    if (thisseedClusters.size() > 0) 
+    {
+       clustered_.insert(std::make_pair(clustercounter, thisseedClusters));
+       clustercounter++;
+    }
+}//Seed loop
   delete topo;
 }
 
