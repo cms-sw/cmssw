@@ -3,11 +3,13 @@
 <use name=Geometry/Records>
 <use name=Geometry/RPCGeometry>
 <use name=root>
+<use name=DQMServices/Core>
 
-<flags SEAL_PLUGIN_NAME="ValidationRPCRecHits">
+<flags EDM_PLUGIN=1>
 
 <export>
  <lib name=ValidationRPCRecHits>
+ <use name=DQMServices/Core>
  <use name=FWCore/Framework>
  <use name=DataFormats/RPCRecHit>
  <use name=Geometry/Records>
