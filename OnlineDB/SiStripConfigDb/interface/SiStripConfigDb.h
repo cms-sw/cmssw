@@ -1,4 +1,4 @@
-// Last commit: $Id: SiStripConfigDb.h,v 1.49 2008/03/26 16:48:03 bainbrid Exp $
+// Last commit: $Id: SiStripConfigDb.h,v 1.50 2008/03/28 15:16:15 bainbrid Exp $
 
 #ifndef OnlineDB_SiStripConfigDb_SiStripConfigDb_h
 #define OnlineDB_SiStripConfigDb_SiStripConfigDb_h
@@ -12,6 +12,7 @@
 #include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
 #include "DataFormats/SiStripCommon/interface/SiStripFecKey.h"
 #include "CalibFormats/SiStripObjects/interface/SiStripFecCabling.h"
+#include "OnlineDB/SiStripConfigDb/interface/SiStripDbParams.h"
 #include "DeviceFactory.h"
 #include "boost/cstdint.hpp"
 #include <iostream>
@@ -76,66 +77,6 @@ class SiStripConfigDb {
   
   /** Default destructor. */
   ~SiStripConfigDb();
-  
-  /** 
-   * Container class for database connection parameters: 
-   * Connection params: usingDB flag, confdb, user, passwd and path strings.
-   * Partition info: partition name and major, minor versions.
-   * Input XML files: for modules, DCU-DetId map (dcuinfo.xml), FECs and FEDs.
-   * Output XML files: as for input XML files.
-   */
-  class DbParams { 
-
-  public:
-    
-    // Constructor and methods
-    DbParams();
-    ~DbParams();
-
-    void print( std::stringstream& ) const; 
-    void reset(); 
-    void setParams( const edm::ParameterSet& );
-    void confdb( const std::string& );
-    void confdb( const std::string& user,
-		 const std::string& passwd,
-		 const std::string& path );
-    std::string partitions() const;
-    std::vector<std::string> partitions( std::string ) const;
-
-    // Public member data 
-    bool usingDb_;
-    std::string confdb_;
-    std::string user_;
-    std::string passwd_;
-    std::string path_;
-    std::vector<std::string> partitions_; 
-    bool usingDbCache_;
-    std::string sharedMemory_;
-    uint32_t runNumber_;
-    uint32_t cabMajor_;
-    uint32_t cabMinor_;
-    uint32_t fedMajor_;
-    uint32_t fedMinor_;
-    uint32_t fecMajor_;
-    uint32_t fecMinor_;
-    uint32_t calMajor_;
-    uint32_t calMinor_;
-    uint32_t dcuMajor_;
-    uint32_t dcuMinor_;
-    sistrip::RunType runType_;
-    bool force_;
-    std::string inputModuleXml_;
-    std::string inputDcuInfoXml_;
-    std::vector<std::string> inputFecXml_;
-    std::vector<std::string> inputFedXml_;
-    std::string inputDcuConvXml_;
-    std::string outputModuleXml_;
-    std::string outputDcuInfoXml_;
-    std::string outputFecXml_;
-    std::string outputFedXml_;
-    std::string tnsAdmin_;
-
-  };
   
 
   // ---------- PROTECTED INTERFACE ----------
@@ -236,7 +177,7 @@ class SiStripConfigDb {
   void closeDbConnection();
 
   /** Returns DB connection parameters. */
-  inline const DbParams& dbParams() const;
+  inline const SiStripDbParams& dbParams() const;
   
   /** Returns whether using database or xml files. */
   inline const bool& usingDb() const;
@@ -394,7 +335,7 @@ class SiStripConfigDb {
   DbClient* dbCache_; 
 
   /** Instance of struct that holds all DB connection parameters. */
-  DbParams dbParams_;
+  SiStripDbParams dbParams_;
 
 
   // ---------- Local cache ----------
@@ -444,7 +385,7 @@ class SiStripConfigDb {
 
 
 /** Returns DB connection parameters. */
-const SiStripConfigDb::DbParams& SiStripConfigDb::dbParams() const { return dbParams_; }
+const SiStripDbParams& SiStripConfigDb::dbParams() const { return dbParams_; }
 
 /** Indicates whether DB (true) or XML files (false) are used. */
 const bool& SiStripConfigDb::usingDb() const { return dbParams_.usingDb_; }
@@ -454,8 +395,5 @@ const bool& SiStripConfigDb::usingStrips() const { return usingStrips_; }
 
 /** Switches on/off of upload/download for FED strip info. */
 void SiStripConfigDb::usingStrips( bool using_strips ) { usingStrips_ = using_strips; }
-
-/** Debug printout for DbParams class. */
-std::ostream& operator<< ( std::ostream&, const SiStripConfigDb::DbParams& );
 
 #endif // OnlineDB_SiStripConfigDb_SiStripConfigDb_h

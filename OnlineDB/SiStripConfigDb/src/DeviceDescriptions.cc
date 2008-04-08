@@ -20,7 +20,7 @@ const SiStripConfigDb::DeviceDescriptions& SiStripConfigDb::getDeviceDescription
 
     if ( !dbParams_.usingDbCache_ ) { 
 
-      deviceFactory(__func__)->getFecDeviceDescriptions( dbParams_.partition_, 
+      deviceFactory(__func__)->getFecDeviceDescriptions( dbParams_.partitions_.front(), 
 							 all_devices,
 							 dbParams_.fecMajor_,
 							 dbParams_.fecMinor_,
