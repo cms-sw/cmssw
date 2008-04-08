@@ -12,42 +12,6 @@
 #include "AnalysisDataFormats/TopObjects/interface/TtGenEvent.h"
 #include "TopQuarkAnalysis/TopTools/interface/JetPartonMatching.h"
 
-class TtSemiEvtPartons {
-
- public:
-
-  TtSemiEvtPartons(){};
-  ~TtSemiEvtPartons(){};
-  std::vector<const reco::Candidate*> vec(const TtGenEvent& genEvt)
-  {
-    std::vector<const reco::Candidate*> partons;
-    partons.push_back(genEvt.hadronicDecayQuark());
-    partons.push_back(genEvt.hadronicDecayQuarkBar());
-    partons.push_back(genEvt.hadronicDecayB());
-    partons.push_back(genEvt.leptonicDecayB());
-    return partons;
-  }
-};
-
-class TtHadEvtPartons {
-
- public:
-
-  TtHadEvtPartons(){};
-  ~TtHadEvtPartons(){};
-  std::vector<const reco::Candidate*> vec(const TtGenEvent& genEvt)
-  {
-    std::vector<const reco::Candidate*> partons;
-    partons.push_back(genEvt.quarkFromTop());
-    partons.push_back(genEvt.quarkFromTopBar());
-    partons.push_back(genEvt.b());
-    partons.push_back(genEvt.quarkFromAntiTop());
-    partons.push_back(genEvt.quarkFromAntiTopBar());
-    partons.push_back(genEvt.bBar());
-    return partons;
-  }
-};
-
 template <typename C>
 class TtJetPartonMatch : public edm::EDProducer {
   

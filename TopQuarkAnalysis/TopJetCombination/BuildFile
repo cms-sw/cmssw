@@ -1,16 +1,32 @@
-<use name=FWCore/FWLite>
-<use name=FWCore/Framework>
-<use name=TopQuarkAnalysis/TopTools>
-<use name=DataFormats/PatCandidates>
 <use name=AnalysisDataFormats/TopObjects>
+<use name=TopQuarkAnalysis/TopTools>
+<use name=PhysicsTools/MVAComputer>
+<use name=PhysicsTools/MVATrainer>
+<use name=PhysicsTools/JetMCUtils>
+<use name=PhysicsTools/UtilAlgos>
+<use name=Foundation/PluginManager>
+<use name=CondCore/PluginSystem>
+<use name=FWCore/ParameterSet>
+<use name=FWCore/Framework>
+<use name=FWCore/FWLite>
 <use name=rootcintex>
+<use name=rootcore>
+<use name=rootmath>
+
+<flags EDM_PLUGIN=1>
 
 <export>
-   <use name=FWCore/FWLite>
-   <use name=FWCore/Framework>
-   <use name=TopQuarkAnalysis/TopTools>
-   <use name=DataFormats/PatCandidates>
-   <use name=AnalysisDataFormats/TopObjects>
-   <use name=rootcintex>
-   <lib name=TopQuarkAnalysisTopJetCombination>
+  <use name=AnalysisDataFormats/TopObjects>
+  <use name=TopQuarkAnalysis/TopTools>
+  <use name=PhysicsTools/MVAComputer>
+  <use name=PhysicsTools/MVATrainer>
+  <use name=PhysicsTools/JetMCUtils>
+  <use name=PhysicsTools/UtilAlgos>
+  <use name=CondCore/PluginSystem>
+  <use name=FWCore/Framework>
+  <use name=FWCore/FWLite>
+  <use name=rootcintex>
+  <use name=rootcore>
+  <use name=rootmath>
+  <lib name=TopQuarkAnalysisTopJetCombination>
 </export>
