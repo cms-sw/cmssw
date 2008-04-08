@@ -4,8 +4,8 @@
 /*
  * \file EcalBarrelMonitorModule.h
  *
- * $Date: 2008/04/07 08:14:12 $
- * $Revision: 1.54 $
+ * $Date: 2008/04/08 15:06:23 $
+ * $Revision: 1.55 $
  * \author G. Della Ricca
  *
 */
@@ -70,6 +70,8 @@ bool debug_;
 bool enableEventDisplay_;
 
 DQMStore* dqmStore_;
+
+std::string prefixME_;
 
 bool enableCleanup_;
 

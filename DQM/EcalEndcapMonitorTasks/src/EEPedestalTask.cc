@@ -1,8 +1,8 @@
 /*
  * \file EEPedestalTask.cc
  *
- * $Date: 2008/04/08 15:06:28 $
- * $Revision: 1.35 $
+ * $Date: 2008/04/08 15:32:10 $
+ * $Revision: 1.36 $
  * \author G. Della Ricca
  *
 */
@@ -70,8 +70,8 @@ void EEPedestalTask::beginJob(const EventSetup& c){
   ievt_ = 0;
 
   if ( dqmStore_ ) {
-    dqmStore_->setCurrentFolder(prefixME_ + "EcalEndcap/EEPedestalTask");
-    dqmStore_->rmdir(prefixME_ + "EcalEndcap/EEPedestalTask");
+    dqmStore_->setCurrentFolder(prefixME_ + "/EEPedestalTask");
+    dqmStore_->rmdir(prefixME_ + "/EEPedestalTask");
   }
 
   Numbers::initGeometry(c, false);
@@ -85,9 +85,9 @@ void EEPedestalTask::setup(void){
   char histo[200];
 
   if ( dqmStore_ ) {
-    dqmStore_->setCurrentFolder(prefixME_ + "EcalEndcap/EEPedestalTask");
+    dqmStore_->setCurrentFolder(prefixME_ + "/EEPedestalTask");
 
-    dqmStore_->setCurrentFolder(prefixME_ + "EcalEndcap/EEPedestalTask/Gain01");
+    dqmStore_->setCurrentFolder(prefixME_ + "/EEPedestalTask/Gain01");
     for (int i = 0; i < 18; i++) {
       sprintf(histo, "EEPT pedestal %s G01", Numbers::sEE(i+1).c_str());
       mePedMapG01_[i] = dqmStore_->bookProfile2D(histo, histo, 50, Numbers::ix0EE(i+1)+0., Numbers::ix0EE(i+1)+50., 50, Numbers::iy0EE(i+1)+0., Numbers::iy0EE(i+1)+50., 4096, 0., 4096., "s");
@@ -106,7 +106,7 @@ void EEPedestalTask::setup(void){
       dqmStore_->tag(mePed5SumMapG01_[i], i+1);
     }
 
-    dqmStore_->setCurrentFolder(prefixME_ + "EcalEndcap/EEPedestalTask/Gain06");
+    dqmStore_->setCurrentFolder(prefixME_ + "/EEPedestalTask/Gain06");
     for (int i = 0; i < 18; i++) {
       sprintf(histo, "EEPT pedestal %s G06", Numbers::sEE(i+1).c_str());
       mePedMapG06_[i] = dqmStore_->bookProfile2D(histo, histo, 50, Numbers::ix0EE(i+1)+0., Numbers::ix0EE(i+1)+50., 50, Numbers::iy0EE(i+1)+0., Numbers::iy0EE(i+1)+50., 4096, 0., 4096., "s");
@@ -125,7 +125,7 @@ void EEPedestalTask::setup(void){
       dqmStore_->tag(mePed5SumMapG06_[i], i+1);
     }
 
-    dqmStore_->setCurrentFolder(prefixME_ + "EcalEndcap/EEPedestalTask/Gain12");
+    dqmStore_->setCurrentFolder(prefixME_ + "/EEPedestalTask/Gain12");
     for (int i = 0; i < 18; i++) {
       sprintf(histo, "EEPT pedestal %s G12", Numbers::sEE(i+1).c_str());
       mePedMapG12_[i] = dqmStore_->bookProfile2D(histo, histo, 50, Numbers::ix0EE(i+1)+0., Numbers::ix0EE(i+1)+50., 50, Numbers::iy0EE(i+1)+0., Numbers::iy0EE(i+1)+50., 4096, 0., 4096., "s");
@@ -144,9 +144,9 @@ void EEPedestalTask::setup(void){
       dqmStore_->tag(mePed5SumMapG12_[i], i+1);
     }
 
-    dqmStore_->setCurrentFolder(prefixME_ + "EcalEndcap/EEPedestalTask/PN");
+    dqmStore_->setCurrentFolder(prefixME_ + "/EEPedestalTask/PN");
 
-    dqmStore_->setCurrentFolder(prefixME_ + "EcalEndcap/EEPedestalTask/PN/Gain01");
+    dqmStore_->setCurrentFolder(prefixME_ + "/EEPedestalTask/PN/Gain01");
     for (int i = 0; i < 18; i++) {
       sprintf(histo, "EEPDT PNs pedestal %s G01", Numbers::sEE(i+1).c_str());
       mePnPedMapG01_[i] =  dqmStore_->bookProfile(histo, histo, 10, 0., 10., 4096, 0., 4096., "s");
@@ -155,7 +155,7 @@ void EEPedestalTask::setup(void){
       dqmStore_->tag(mePnPedMapG01_[i], i+1);
     }
 
-    dqmStore_->setCurrentFolder(prefixME_ + "EcalEndcap/EEPedestalTask/PN/Gain16");
+    dqmStore_->setCurrentFolder(prefixME_ + "/EEPedestalTask/PN/Gain16");
     for (int i = 0; i < 18; i++) {
       sprintf(histo, "EEPDT PNs pedestal %s G16", Numbers::sEE(i+1).c_str());
       mePnPedMapG16_[i] =  dqmStore_->bookProfile(histo, histo, 10, 0., 10., 4096, 0., 4096., "s");
@@ -173,9 +173,9 @@ void EEPedestalTask::cleanup(void){
   if ( ! enableCleanup_ ) return;
 
   if ( dqmStore_ ) {
-    dqmStore_->setCurrentFolder(prefixME_ + "EcalEndcap/EEPedestalTask");
+    dqmStore_->setCurrentFolder(prefixME_ + "/EEPedestalTask");
 
-    dqmStore_->setCurrentFolder(prefixME_ + "EcalEndcap/EEPedestalTask/Gain01");
+    dqmStore_->setCurrentFolder(prefixME_ + "/EEPedestalTask/Gain01");
     for ( int i = 0; i < 18; i++ ) {
       if ( mePedMapG01_[i] ) dqmStore_->removeElement( mePedMapG01_[i]->getName() );
       mePedMapG01_[i] = 0;
@@ -185,7 +185,7 @@ void EEPedestalTask::cleanup(void){
       mePed5SumMapG01_[i] = 0;
     }
 
-    dqmStore_->setCurrentFolder(prefixME_ + "EcalEndcap/EEPedestalTask/Gain06");
+    dqmStore_->setCurrentFolder(prefixME_ + "/EEPedestalTask/Gain06");
     for ( int i = 0; i < 18; i++ ) {
       if ( mePedMapG06_[i] ) dqmStore_->removeElement( mePedMapG06_[i]->getName() );
       mePedMapG06_[i] = 0;
@@ -195,7 +195,7 @@ void EEPedestalTask::cleanup(void){
       mePed5SumMapG06_[i] = 0;
     }
 
-    dqmStore_->setCurrentFolder(prefixME_ + "EcalEndcap/EEPedestalTask/Gain12");
+    dqmStore_->setCurrentFolder(prefixME_ + "/EEPedestalTask/Gain12");
     for ( int i = 0; i < 18; i++ ) {
       if ( mePedMapG12_[i] ) dqmStore_->removeElement( mePedMapG12_[i]->getName() );
       mePedMapG12_[i] = 0;
@@ -205,15 +205,15 @@ void EEPedestalTask::cleanup(void){
       mePed5SumMapG12_[i] = 0;
     }
 
-    dqmStore_->setCurrentFolder(prefixME_ + "EcalEndcap/EEPedestalTask/PN");
+    dqmStore_->setCurrentFolder(prefixME_ + "/EEPedestalTask/PN");
 
-    dqmStore_->setCurrentFolder(prefixME_ + "EcalEndcap/EEPedestalTask/PN/Gain01");
+    dqmStore_->setCurrentFolder(prefixME_ + "/EEPedestalTask/PN/Gain01");
     for ( int i = 0; i < 18; i++ ) {
       if ( mePnPedMapG01_[i]) dqmStore_->removeElement( mePnPedMapG01_[i]->getName() );
       mePnPedMapG01_[i] = 0;
     }
 
-    dqmStore_->setCurrentFolder(prefixME_ + "EcalEndcap/EEPedestalTask/PN/Gain16");
+    dqmStore_->setCurrentFolder(prefixME_ + "/EEPedestalTask/PN/Gain16");
     for ( int i = 0; i < 18; i++ ) {
       if ( mePnPedMapG16_[i]) dqmStore_->removeElement( mePnPedMapG16_[i]->getName() );
       mePnPedMapG16_[i] = 0;

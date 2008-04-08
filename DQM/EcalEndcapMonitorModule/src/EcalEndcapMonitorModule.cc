@@ -1,8 +1,8 @@
 /*
  * \file EcalEndcapMonitorModule.cc
  *
- * $Date: 2008/04/07 11:30:25 $
- * $Revision: 1.53 $
+ * $Date: 2008/04/08 15:06:27 $
+ * $Revision: 1.54 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -40,7 +40,6 @@ using namespace std;
 EcalEndcapMonitorModule::EcalEndcapMonitorModule(const ParameterSet& ps){
 
   // verbose switch
-
   verbose_ = ps.getUntrackedParameter<bool>("verbose", false);
 
   if ( verbose_ ) {
@@ -89,7 +88,6 @@ EcalEndcapMonitorModule::EcalEndcapMonitorModule(const ParameterSet& ps){
     LogInfo("EcalEndcapMonitorModule") << " debug switch is OFF";
   }
 
-  // get hold of back-end interface
   dqmStore_ = Service<DQMStore>().operator->();
 
   if ( dqmStore_ ) {
@@ -100,6 +98,10 @@ EcalEndcapMonitorModule::EcalEndcapMonitorModule(const ParameterSet& ps){
     }
   }
 
+  // prefixME path
+  prefixME_ = ps.getUntrackedParameter<string>("prefixME", "");
+
+  // enableCleanup switch
   enableCleanup_ = ps.getUntrackedParameter<bool>("enableCleanup", false);
 
   if ( enableCleanup_ ) {
@@ -140,11 +142,11 @@ void EcalEndcapMonitorModule::beginJob(const EventSetup& c){
   ievt_ = 0;
 
   if ( dqmStore_ ) {
-    dqmStore_->setCurrentFolder("EcalEndcap/EcalInfo");
-    dqmStore_->rmdir("EcalEndcap/EcalInfo");
+    dqmStore_->setCurrentFolder(prefixME_ + "/EcalInfo");
+    dqmStore_->rmdir(prefixME_ + "/EcalInfo");
     if ( enableEventDisplay_ ) {
-      dqmStore_->setCurrentFolder("EcalEndcap/EcalEvent");
-      dqmStore_->rmdir("EcalEndcap/EcalEvent");
+      dqmStore_->setCurrentFolder(prefixME_ + "/EcalEvent");
+      dqmStore_->rmdir(prefixME_ + "/EcalEvent");
     }
   }
 
@@ -155,7 +157,7 @@ void EcalEndcapMonitorModule::setup(void){
   init_ = true;
 
   if ( dqmStore_ ) {
-    dqmStore_->setCurrentFolder("EcalEndcap/EcalInfo");
+    dqmStore_->setCurrentFolder(prefixME_ + "/EcalInfo");
 
     meStatus_ = dqmStore_->bookInt("STATUS");
 
@@ -198,13 +200,10 @@ void EcalEndcapMonitorModule::setup(void){
 
   if ( meRunType_ ) meRunType_->Fill(-1);
 
-  // this should give enough time to our control MEs to reach the Collector,
-  // and then hopefully the Client
-
   char histo[20];
 
   if ( dqmStore_ ) {
-    dqmStore_->setCurrentFolder("EcalEndcap/EcalInfo");
+    dqmStore_->setCurrentFolder(prefixME_ + "/EcalInfo");
 
     meEEDCC_ = dqmStore_->book1D("EEMM DCC", "EEMM DCC", 18, 1, 19.);
     for (int i = 0; i < 18; i++) {
@@ -233,7 +232,7 @@ void EcalEndcapMonitorModule::setup(void){
     }
 
     if ( enableEventDisplay_ ) {
-      dqmStore_->setCurrentFolder("EcalEndcap/EcalEvent");
+      dqmStore_->setCurrentFolder(prefixME_ + "/EcalEvent");
       for (int i = 0; i < 18; i++) {
         sprintf(histo, "EEMM event %s", Numbers::sEE(i+1).c_str());
         meEvent_[i] = dqmStore_->book2D(histo, histo, 50, Numbers::ix0EE(i+1)+0., Numbers::ix0EE(i+1)+50., 50, Numbers::iy0EE(i+1)+0., Numbers::iy0EE(i+1)+50.);
@@ -254,7 +253,7 @@ void EcalEndcapMonitorModule::cleanup(void){
 
   if ( dqmStore_ ) {
 
-    dqmStore_->setCurrentFolder("EcalEndcap/EcalInfo");
+    dqmStore_->setCurrentFolder(prefixME_ + "/EcalInfo");
 
     if ( meStatus_ ) dqmStore_->removeElement( meStatus_->getName() );
     meStatus_ = 0;
@@ -289,7 +288,7 @@ void EcalEndcapMonitorModule::cleanup(void){
 
     if ( enableEventDisplay_ ) {
 
-      dqmStore_->setCurrentFolder("EcalEndcap/EcalEvent");
+      dqmStore_->setCurrentFolder(prefixME_ + "/EcalEvent");
 
       for (int i = 0; i < 18; i++) {
 
@@ -315,11 +314,6 @@ void EcalEndcapMonitorModule::endJob(void) {
 
   if ( meRun_ ) meRun_->Fill(runNumber_);
   if ( meEvt_ ) meEvt_->Fill(evtNumber_);
-
-  // this should give enough time to meStatus_ to reach the Collector,
-  // and then hopefully the Client, and to allow the Client to complete
-
-  // we should always sleep at least a little ...
 
   if ( init_ ) this->cleanup();
 
@@ -408,9 +402,6 @@ void EcalEndcapMonitorModule::analyze(const Event& e, const EventSetup& c){
 
   if ( meRun_ ) meRun_->Fill(runNumber_);
   if ( meEvt_ ) meEvt_->Fill(evtNumber_);
-
-  // this should give enough time to all the MEs to reach the Collector,
-  // and then hopefully the Client, even for short runs
 
   Handle<EEDigiCollection> digis;
 

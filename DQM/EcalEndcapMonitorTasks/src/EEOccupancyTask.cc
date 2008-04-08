@@ -1,8 +1,8 @@
 /*
  * \file EEOccupancyTask.cc
  *
- * $Date: 2008/04/08 15:06:28 $
- * $Revision: 1.46 $
+ * $Date: 2008/04/08 15:32:10 $
+ * $Revision: 1.47 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -116,8 +116,8 @@ void EEOccupancyTask::beginJob(const EventSetup& c){
   ievt_ = 0;
 
   if ( dqmStore_ ) {
-    dqmStore_->setCurrentFolder(prefixME_ + "EcalEndcap/EEOccupancyTask");
-    dqmStore_->rmdir(prefixME_ + "EcalEndcap/EEOccupancyTask");
+    dqmStore_->setCurrentFolder(prefixME_ + "/EEOccupancyTask");
+    dqmStore_->rmdir(prefixME_ + "/EEOccupancyTask");
   }
 
   Numbers::initGeometry(c, false);
@@ -131,7 +131,7 @@ void EEOccupancyTask::setup(void){
   char histo[200];
 
   if ( dqmStore_ ) {
-    dqmStore_->setCurrentFolder(prefixME_ + "EcalEndcap/EEOccupancyTask");
+    dqmStore_->setCurrentFolder(prefixME_ + "/EEOccupancyTask");
 
     for (int i = 0; i < 18; i++) {
       sprintf(histo, "EEOT digi occupancy %s", Numbers::sEE(i+1).c_str());
@@ -327,7 +327,7 @@ void EEOccupancyTask::cleanup(void){
   if ( ! enableCleanup_ ) return;
 
   if ( dqmStore_ ) {
-    dqmStore_->setCurrentFolder(prefixME_ + "EcalEndcap/EEOccupancyTask");
+    dqmStore_->setCurrentFolder(prefixME_ + "/EEOccupancyTask");
 
     for (int i = 0; i < 18; i++) {
       if ( meOccupancy_[i] ) dqmStore_->removeElement( meOccupancy_[i]->getName() );

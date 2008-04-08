@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorModule.cc
  *
- * $Date: 2008/04/07 11:30:22 $
- * $Revision: 1.177 $
+ * $Date: 2008/04/08 15:06:23 $
+ * $Revision: 1.178 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -40,7 +40,6 @@ using namespace std;
 EcalBarrelMonitorModule::EcalBarrelMonitorModule(const ParameterSet& ps){
 
   // verbose switch
-
   verbose_ = ps.getUntrackedParameter<bool>("verbose", false);
 
   if ( verbose_ ) {
@@ -89,7 +88,6 @@ EcalBarrelMonitorModule::EcalBarrelMonitorModule(const ParameterSet& ps){
     LogInfo("EcalBarrelMonitorModule") << " debug switch is OFF";
   }
 
-  // get hold of back-end interface
   dqmStore_ = Service<DQMStore>().operator->();
 
   if ( dqmStore_ ) {
@@ -100,6 +98,10 @@ EcalBarrelMonitorModule::EcalBarrelMonitorModule(const ParameterSet& ps){
     }
   }
 
+  // prefixME path
+  prefixME_ = ps.getUntrackedParameter<string>("prefixME", "");
+
+  // enableCleanup switch
   enableCleanup_ = ps.getUntrackedParameter<bool>("enableCleanup", false);
 
   if ( enableCleanup_ ) {
@@ -140,11 +142,11 @@ void EcalBarrelMonitorModule::beginJob(const EventSetup& c){
   ievt_ = 0;
 
   if ( dqmStore_ ) {
-    dqmStore_->setCurrentFolder("EcalBarrel/EcalInfo");
-    dqmStore_->rmdir("EcalBarrel/EcalInfo");
+    dqmStore_->setCurrentFolder(prefixME_ + "/EcalInfo");
+    dqmStore_->rmdir(prefixME_ + "/EcalInfo");
     if ( enableEventDisplay_ ) {
-      dqmStore_->setCurrentFolder("EcalBarrel/EcalEvent");
-      dqmStore_->rmdir("EcalBarrel/EcalEvent");
+      dqmStore_->setCurrentFolder(prefixME_ + "/EcalEvent");
+      dqmStore_->rmdir(prefixME_ + "/EcalEvent");
     }
   }
 
@@ -155,7 +157,7 @@ void EcalBarrelMonitorModule::setup(void){
   init_ = true;
 
   if ( dqmStore_ ) {
-    dqmStore_->setCurrentFolder("EcalBarrel/EcalInfo");
+    dqmStore_->setCurrentFolder(prefixME_ + "/EcalInfo");
 
     meStatus_ = dqmStore_->bookInt("STATUS");
 
@@ -198,13 +200,10 @@ void EcalBarrelMonitorModule::setup(void){
 
   if ( meRunType_ ) meRunType_->Fill(-1);
 
-  // this should give enough time to our control MEs to reach the Collector,
-  // and then hopefully the Client
-
   char histo[20];
 
   if ( dqmStore_ ) {
-    dqmStore_->setCurrentFolder("EcalBarrel/EcalInfo");
+    dqmStore_->setCurrentFolder(prefixME_ + "/EcalInfo");
 
     meEBDCC_ = dqmStore_->book1D("EBMM DCC", "EBMM DCC", 36, 1, 37.);
     for (int i = 0; i < 36; i++) {
@@ -233,7 +232,7 @@ void EcalBarrelMonitorModule::setup(void){
     }
 
     if ( enableEventDisplay_ ) {
-      dqmStore_->setCurrentFolder("EcalBarrel/EcalEvent");
+      dqmStore_->setCurrentFolder(prefixME_ + "/EcalEvent");
       for (int i = 0; i < 36; i++) {
         sprintf(histo, "EBMM event %s", Numbers::sEB(i+1).c_str());
         meEvent_[i] = dqmStore_->book2D(histo, histo, 85, 0., 85., 20, 0., 20.);
@@ -254,7 +253,7 @@ void EcalBarrelMonitorModule::cleanup(void){
 
   if ( dqmStore_ ) {
 
-    dqmStore_->setCurrentFolder("EcalBarrel/EcalInfo");
+    dqmStore_->setCurrentFolder(prefixME_ + "/EcalInfo");
 
     if ( meStatus_ ) dqmStore_->removeElement( meStatus_->getName() );
     meStatus_ = 0;
@@ -289,7 +288,7 @@ void EcalBarrelMonitorModule::cleanup(void){
 
     if ( enableEventDisplay_ ) {
 
-      dqmStore_->setCurrentFolder("EcalBarrel/EcalEvent");
+      dqmStore_->setCurrentFolder(prefixME_ + "/EcalEvent");
 
       for (int i = 0; i < 36; i++) {
 
@@ -315,11 +314,6 @@ void EcalBarrelMonitorModule::endJob(void) {
 
   if ( meRun_ ) meRun_->Fill(runNumber_);
   if ( meEvt_ ) meEvt_->Fill(evtNumber_);
-
-  // this should give enough time to meStatus_ to reach the Collector,
-  // and then hopefully the Client, and to allow the Client to complete
-
-  // we should always sleep at least a little ...
 
   if ( init_ ) this->cleanup();
 
@@ -408,9 +402,6 @@ void EcalBarrelMonitorModule::analyze(const Event& e, const EventSetup& c){
 
   if ( meRun_ ) meRun_->Fill(runNumber_);
   if ( meEvt_ ) meEvt_->Fill(evtNumber_);
-
-  // this should give enough time to all the MEs to reach the Collector,
-  // and then hopefully the Client, even for short runs
 
   Handle<EBDigiCollection> digis;
 

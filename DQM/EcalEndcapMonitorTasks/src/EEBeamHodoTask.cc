@@ -1,8 +1,8 @@
 /*
  * \file EEBeamHodoTask.cc
  *
- * $Date: 2008/04/08 15:06:28 $
- * $Revision: 1.22 $
+ * $Date: 2008/04/08 15:32:10 $
+ * $Revision: 1.23 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -101,8 +101,8 @@ void EEBeamHodoTask::beginJob(const EventSetup& c){
   resetNow_                =false;
 
   if ( dqmStore_ ) {
-    dqmStore_->setCurrentFolder(prefixME_ + "EcalEndcap/EEBeamHodoTask");
-    dqmStore_->rmdir(prefixME_ + "EcalEndcap/EEBeamHodoTask");
+    dqmStore_->setCurrentFolder(prefixME_ + "/EEBeamHodoTask");
+    dqmStore_->rmdir(prefixME_ + "/EEBeamHodoTask");
   }
 
   Numbers::initGeometry(c, false);
@@ -118,7 +118,7 @@ void EEBeamHodoTask::setup(void){
   char histo[200];
 
   if ( dqmStore_ ) {
-    dqmStore_->setCurrentFolder(prefixME_ + "EcalEndcap/EEBeamHodoTask");
+    dqmStore_->setCurrentFolder(prefixME_ + "/EEBeamHodoTask");
 
     // following ME (type I):
     //  *** do not need to be ever reset
@@ -230,7 +230,7 @@ void EEBeamHodoTask::cleanup(void){
   if ( ! enableCleanup_ ) return;
 
   if ( dqmStore_ ) {
-    dqmStore_->setCurrentFolder(prefixME_ + "EcalEndcap/EEBeamHodoTask");
+    dqmStore_->setCurrentFolder(prefixME_ + "/EEBeamHodoTask");
 
     for (int i=0; i<4; i++) {
       if ( meHodoOcc_[i] ) dqmStore_->removeElement( meHodoOcc_[i]->getName() );
