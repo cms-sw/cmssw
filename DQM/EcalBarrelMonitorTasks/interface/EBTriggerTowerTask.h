@@ -4,8 +4,8 @@
 /*
  * \file EBTriggerTowerTask.h
  *
- * $Date: 2008/02/29 15:04:00 $
- * $Revision: 1.16 $
+ * $Date: 2008/04/08 15:06:23 $
+ * $Revision: 1.17 $
  * \author C. Bernet
  *
 */
@@ -115,6 +115,12 @@ class EBTriggerTowerTask : public edm::EDAnalyzer {
   /// DQM back-end interface
   DQMStore* dqmStore_;
 
+  /// path to MEs
+  std::string prefixME_;
+
+  /// remove MEs
+  bool enableCleanup_;
+
   /// to find the input collection of real digis 
   edm::InputTag realCollection_;
 
@@ -123,8 +129,6 @@ class EBTriggerTowerTask : public edm::EDAnalyzer {
   
   /// debug output root file. if empty, no output file created.
   std::string outputFile_;
-
-  bool enableCleanup_;
 
 };
 

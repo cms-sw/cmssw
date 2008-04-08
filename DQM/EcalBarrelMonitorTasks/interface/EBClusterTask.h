@@ -4,8 +4,8 @@
 /*
  * \file EBClusterTask.h
  *
- * $Date: 2008/02/29 15:03:50 $
- * $Revision: 1.14 $
+ * $Date: 2008/04/08 15:06:23 $
+ * $Revision: 1.15 $
  * \author G. Della Ricca
  *
  */
@@ -49,6 +49,8 @@ private:
 int ievt_;
 
 DQMStore* dqmStore_;
+
+std::string prefixME_;
 
 bool enableCleanup_;
 

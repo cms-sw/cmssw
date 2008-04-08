@@ -1,8 +1,8 @@
 /*
  * \file EBOccupancyTask.cc
  *
- * $Date: 2008/04/07 11:30:23 $
- * $Revision: 1.59 $
+ * $Date: 2008/04/08 15:06:24 $
+ * $Revision: 1.60 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -38,8 +38,9 @@ EBOccupancyTask::EBOccupancyTask(const ParameterSet& ps){
 
   init_ = false;
 
-  // get hold of back-end interface
   dqmStore_ = Service<DQMStore>().operator->();
+
+  prefixME_ = ps.getUntrackedParameter<string>("prefixME", "");
 
   enableCleanup_ = ps.getUntrackedParameter<bool>("enableCleanup", false);
 
@@ -91,8 +92,8 @@ void EBOccupancyTask::beginJob(const EventSetup& c){
   ievt_ = 0;
 
   if ( dqmStore_ ) {
-    dqmStore_->setCurrentFolder("EcalBarrel/EBOccupancyTask");
-    dqmStore_->rmdir("EcalBarrel/EBOccupancyTask");
+    dqmStore_->setCurrentFolder(prefixME_ + "EcalBarrel/EBOccupancyTask");
+    dqmStore_->rmdir(prefixME_ + "EcalBarrel/EBOccupancyTask");
   }
 
   Numbers::initGeometry(c, false);
@@ -106,7 +107,7 @@ void EBOccupancyTask::setup(void){
   char histo[200];
 
   if ( dqmStore_ ) {
-    dqmStore_->setCurrentFolder("EcalBarrel/EBOccupancyTask");
+    dqmStore_->setCurrentFolder(prefixME_ + "EcalBarrel/EBOccupancyTask");
 
     for (int i = 0; i < 36; i++) {
       sprintf(histo, "EBOT digi occupancy %s", Numbers::sEB(i+1).c_str());
@@ -212,7 +213,7 @@ void EBOccupancyTask::cleanup(void){
   if ( ! enableCleanup_ ) return;
 
   if ( dqmStore_ ) {
-    dqmStore_->setCurrentFolder("EcalBarrel/EBOccupancyTask");
+    dqmStore_->setCurrentFolder(prefixME_ + "EcalBarrel/EBOccupancyTask");
 
     for (int i = 0; i < 36; i++) {
       if ( meOccupancy_[i] ) dqmStore_->removeElement( meOccupancy_[i]->getName() );

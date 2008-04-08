@@ -1,8 +1,8 @@
 /*
  * \file EELedTask.cc
  *
- * $Date: 2008/04/07 11:30:25 $
- * $Revision: 1.33 $
+ * $Date: 2008/04/08 15:06:28 $
+ * $Revision: 1.34 $
  * \author G. Della Ricca
  *
 */
@@ -37,8 +37,9 @@ EELedTask::EELedTask(const ParameterSet& ps){
 
   init_ = false;
 
-  // get hold of back-end interface
   dqmStore_ = Service<DQMStore>().operator->();
+
+  prefixME_ = ps.getUntrackedParameter<string>("prefixME", "");
 
   enableCleanup_ = ps.getUntrackedParameter<bool>("enableCleanup", false);
 
@@ -86,8 +87,8 @@ void EELedTask::beginJob(const EventSetup& c){
   ievt_ = 0;
 
   if ( dqmStore_ ) {
-    dqmStore_->setCurrentFolder("EcalEndcap/EELedTask");
-    dqmStore_->rmdir("EcalEndcap/EELedTask");
+    dqmStore_->setCurrentFolder(prefixME_ + "EcalEndcap/EELedTask");
+    dqmStore_->rmdir(prefixME_ + "EcalEndcap/EELedTask");
   }
 
   Numbers::initGeometry(c, false);
@@ -101,9 +102,9 @@ void EELedTask::setup(void){
   char histo[200];
 
   if ( dqmStore_ ) {
-    dqmStore_->setCurrentFolder("EcalEndcap/EELedTask");
+    dqmStore_->setCurrentFolder(prefixME_ + "EcalEndcap/EELedTask");
 
-    dqmStore_->setCurrentFolder("EcalEndcap/EELedTask/Led1");
+    dqmStore_->setCurrentFolder(prefixME_ + "EcalEndcap/EELedTask/Led1");
     for (int i = 0; i < 18; i++) {
       sprintf(histo, "EELDT shape %s L1A", Numbers::sEE(i+1).c_str());
       meShapeMapL1A_[i] = dqmStore_->bookProfile2D(histo, histo, 850, 0., 850., 10, 0., 10., 4096, 0., 4096., "s");
@@ -150,7 +151,7 @@ void EELedTask::setup(void){
       dqmStore_->tag(meAmplPNMapL1B_[i], i+1);
     }
 
-    dqmStore_->setCurrentFolder("EcalEndcap/EELedTask/Led2");
+    dqmStore_->setCurrentFolder(prefixME_ + "EcalEndcap/EELedTask/Led2");
     for (int i = 0; i < 18; i++) {
       sprintf(histo, "EELDT shape %s L2A", Numbers::sEE(i+1).c_str());
       meShapeMapL2A_[i] = dqmStore_->bookProfile2D(histo, histo, 850, 0., 850., 10, 0., 10., 4096, 0., 4096., "s");
@@ -197,9 +198,9 @@ void EELedTask::setup(void){
       dqmStore_->tag(meAmplPNMapL2B_[i], i+1);
     }
 
-    dqmStore_->setCurrentFolder("EcalEndcap/EELedTask/Led1/PN");
+    dqmStore_->setCurrentFolder(prefixME_ + "EcalEndcap/EELedTask/Led1/PN");
 
-    dqmStore_->setCurrentFolder("EcalEndcap/EELedTask/Led1/PN/Gain01");
+    dqmStore_->setCurrentFolder(prefixME_ + "EcalEndcap/EELedTask/Led1/PN/Gain01");
     for (int i = 0; i < 18; i++) {
       sprintf(histo, "EEPDT PNs amplitude %s G01 L1", Numbers::sEE(i+1).c_str());
       mePnAmplMapG01L1_[i] = dqmStore_->bookProfile(histo, histo, 10, 0., 10., 4096, 0., 4096., "s");
@@ -213,7 +214,7 @@ void EELedTask::setup(void){
       dqmStore_->tag(mePnPedMapG01L1_[i], i+1);
     }
 
-    dqmStore_->setCurrentFolder("EcalEndcap/EELedTask/Led1/PN/Gain16");
+    dqmStore_->setCurrentFolder(prefixME_ + "EcalEndcap/EELedTask/Led1/PN/Gain16");
     for (int i = 0; i < 18; i++) {
       sprintf(histo, "EEPDT PNs amplitude %s G16 L1", Numbers::sEE(i+1).c_str());
       mePnAmplMapG16L1_[i] = dqmStore_->bookProfile(histo, histo, 10, 0., 10., 4096, 0., 4096., "s");
@@ -227,9 +228,9 @@ void EELedTask::setup(void){
       dqmStore_->tag(mePnPedMapG16L1_[i], i+1);
     }
 
-    dqmStore_->setCurrentFolder("EcalEndcap/EELedTask/Led2/PN");
+    dqmStore_->setCurrentFolder(prefixME_ + "EcalEndcap/EELedTask/Led2/PN");
 
-    dqmStore_->setCurrentFolder("EcalEndcap/EELedTask/Led2/PN/Gain01");
+    dqmStore_->setCurrentFolder(prefixME_ + "EcalEndcap/EELedTask/Led2/PN/Gain01");
     for (int i = 0; i < 18; i++) {
       sprintf(histo, "EEPDT PNs amplitude %s G01 L2", Numbers::sEE(i+1).c_str());
       mePnAmplMapG01L2_[i] = dqmStore_->bookProfile(histo, histo, 10, 0., 10., 4096, 0., 4096., "s");
@@ -243,7 +244,7 @@ void EELedTask::setup(void){
       dqmStore_->tag(mePnPedMapG01L2_[i], i+1);
     }
 
-    dqmStore_->setCurrentFolder("EcalEndcap/EELedTask/Led2/PN/Gain16");
+    dqmStore_->setCurrentFolder(prefixME_ + "EcalEndcap/EELedTask/Led2/PN/Gain16");
     for (int i = 0; i < 18; i++) {
       sprintf(histo, "EEPDT PNs amplitude %s G16 L2", Numbers::sEE(i+1).c_str());
       mePnAmplMapG16L2_[i] = dqmStore_->bookProfile(histo, histo, 10, 0., 10., 4096, 0., 4096., "s");
@@ -266,9 +267,9 @@ void EELedTask::cleanup(void){
   if ( ! enableCleanup_ ) return;
 
   if ( dqmStore_ ) {
-    dqmStore_->setCurrentFolder("EcalEndcap/EELedTask");
+    dqmStore_->setCurrentFolder(prefixME_ + "EcalEndcap/EELedTask");
 
-    dqmStore_->setCurrentFolder("EcalEndcap/EELedTask/Led1");
+    dqmStore_->setCurrentFolder(prefixME_ + "EcalEndcap/EELedTask/Led1");
     for (int i = 0; i < 18; i++) {
       if ( meShapeMapL1A_[i] )  dqmStore_->removeElement( meShapeMapL1A_[i]->getName() );
       meShapeMapL1A_[i] = 0;
@@ -289,7 +290,7 @@ void EELedTask::cleanup(void){
       meAmplPNMapL1B_[i] = 0;
     }
 
-    dqmStore_->setCurrentFolder("EcalEndcap/EELedTask/Led2");
+    dqmStore_->setCurrentFolder(prefixME_ + "EcalEndcap/EELedTask/Led2");
     for (int i = 0; i < 18; i++) {
       if ( meShapeMapL2A_[i] )  dqmStore_->removeElement( meShapeMapL2A_[i]->getName() );
       meShapeMapL2A_[i] = 0;
@@ -310,9 +311,9 @@ void EELedTask::cleanup(void){
       meAmplPNMapL2B_[i] = 0;
     }
 
-    dqmStore_->setCurrentFolder("EcalEndcap/EELedTask/Led1/PN");
+    dqmStore_->setCurrentFolder(prefixME_ + "EcalEndcap/EELedTask/Led1/PN");
 
-    dqmStore_->setCurrentFolder("EcalEndcap/EELedTask/Led1/PN/Gain01");
+    dqmStore_->setCurrentFolder(prefixME_ + "EcalEndcap/EELedTask/Led1/PN/Gain01");
     for (int i = 0; i < 18; i++) {
       if ( mePnAmplMapG01L1_[i] ) dqmStore_->removeElement( mePnAmplMapG01L1_[i]->getName() );
       mePnAmplMapG01L1_[i] = 0;
@@ -320,7 +321,7 @@ void EELedTask::cleanup(void){
       mePnPedMapG01L1_[i] = 0;
     }
 
-    dqmStore_->setCurrentFolder("EcalEndcap/EELedTask/Led1/PN/Gain16");
+    dqmStore_->setCurrentFolder(prefixME_ + "EcalEndcap/EELedTask/Led1/PN/Gain16");
     for (int i = 0; i < 18; i++) {
       if ( mePnAmplMapG16L1_[i] ) dqmStore_->removeElement( mePnAmplMapG16L1_[i]->getName() );
       mePnAmplMapG16L1_[i] = 0;
@@ -328,9 +329,9 @@ void EELedTask::cleanup(void){
       mePnPedMapG16L1_[i] = 0;
     }
 
-    dqmStore_->setCurrentFolder("EcalEndcap/EELedTask/Led2/PN");
+    dqmStore_->setCurrentFolder(prefixME_ + "EcalEndcap/EELedTask/Led2/PN");
 
-    dqmStore_->setCurrentFolder("EcalEndcap/EELedTask/Led2/PN/Gain01");
+    dqmStore_->setCurrentFolder(prefixME_ + "EcalEndcap/EELedTask/Led2/PN/Gain01");
     for (int i = 0; i < 18; i++) {
       if ( mePnAmplMapG01L2_[i] ) dqmStore_->removeElement( mePnAmplMapG01L2_[i]->getName() );
       mePnAmplMapG01L2_[i] = 0;
@@ -338,7 +339,7 @@ void EELedTask::cleanup(void){
       mePnPedMapG01L2_[i] = 0;
     }
 
-    dqmStore_->setCurrentFolder("EcalEndcap/EELedTask/Led2/PN/Gain16");
+    dqmStore_->setCurrentFolder(prefixME_ + "EcalEndcap/EELedTask/Led2/PN/Gain16");
     for (int i = 0; i < 18; i++) {
       if ( mePnAmplMapG16L2_[i] ) dqmStore_->removeElement( mePnAmplMapG16L2_[i]->getName() );
       mePnAmplMapG16L2_[i] = 0;

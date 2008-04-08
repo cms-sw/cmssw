@@ -1,8 +1,8 @@
 /*
  * \file EEIntegrityTask.cc
  *
- * $Date: 2008/04/07 11:30:25 $
- * $Revision: 1.35 $
+ * $Date: 2008/04/08 15:06:28 $
+ * $Revision: 1.36 $
  * \author G. Della Ricca
  *
  */
@@ -35,8 +35,9 @@ EEIntegrityTask::EEIntegrityTask(const ParameterSet& ps){
 
   init_ = false;
 
-  // get hold of back-end interface
   dqmStore_ = Service<DQMStore>().operator->();
+
+  prefixME_ = ps.getUntrackedParameter<string>("prefixME", "");
 
   enableCleanup_ = ps.getUntrackedParameter<bool>("enableCleanup", false);
 
@@ -76,8 +77,8 @@ void EEIntegrityTask::beginJob(const EventSetup& c){
   ievt_ = 0;
 
   if ( dqmStore_ ) {
-    dqmStore_->setCurrentFolder("EcalEndcap/EEIntegrityTask");
-    dqmStore_->rmdir("EcalEndcap/EEIntegrityTask");
+    dqmStore_->setCurrentFolder(prefixME_ + "EcalEndcap/EEIntegrityTask");
+    dqmStore_->rmdir(prefixME_ + "EcalEndcap/EEIntegrityTask");
   }
 
   Numbers::initGeometry(c, false);
@@ -91,7 +92,7 @@ void EEIntegrityTask::setup(void){
   char histo[200];
 
   if ( dqmStore_ ) {
-    dqmStore_->setCurrentFolder("EcalEndcap/EEIntegrityTask");
+    dqmStore_->setCurrentFolder(prefixME_ + "EcalEndcap/EEIntegrityTask");
 
     // checking when number of towers in data different than expected from header
     sprintf(histo, "EEIT DCC size error");
@@ -101,7 +102,7 @@ void EEIntegrityTask::setup(void){
     }
 
     // checking when the gain is 0
-    dqmStore_->setCurrentFolder("EcalEndcap/EEIntegrityTask/Gain");
+    dqmStore_->setCurrentFolder(prefixME_ + "EcalEndcap/EEIntegrityTask/Gain");
     for (int i = 0; i < 18; i++) {
       sprintf(histo, "EEIT gain %s", Numbers::sEE(i+1).c_str());
       meIntegrityGain[i] = dqmStore_->book2D(histo, histo, 50, Numbers::ix0EE(i+1)+0., Numbers::ix0EE(i+1)+50., 50, Numbers::iy0EE(i+1)+0., Numbers::iy0EE(i+1)+50.);
@@ -111,7 +112,7 @@ void EEIntegrityTask::setup(void){
     }
 
     // checking when channel has unexpected or invalid ID
-    dqmStore_->setCurrentFolder("EcalEndcap/EEIntegrityTask/ChId");
+    dqmStore_->setCurrentFolder(prefixME_ + "EcalEndcap/EEIntegrityTask/ChId");
     for (int i = 0; i < 18; i++) {
       sprintf(histo, "EEIT ChId %s", Numbers::sEE(i+1).c_str());
       meIntegrityChId[i] = dqmStore_->book2D(histo, histo, 50, Numbers::ix0EE(i+1)+0., Numbers::ix0EE(i+1)+50., 50, Numbers::iy0EE(i+1)+0., Numbers::iy0EE(i+1)+50.);
@@ -121,7 +122,7 @@ void EEIntegrityTask::setup(void){
     }
 
     // checking when channel has unexpected or invalid ID
-    dqmStore_->setCurrentFolder("EcalEndcap/EEIntegrityTask/GainSwitch");
+    dqmStore_->setCurrentFolder(prefixME_ + "EcalEndcap/EEIntegrityTask/GainSwitch");
     for (int i = 0; i < 18; i++) {
       sprintf(histo, "EEIT gain switch %s", Numbers::sEE(i+1).c_str());
       meIntegrityGainSwitch[i] = dqmStore_->book2D(histo, histo, 50, Numbers::ix0EE(i+1)+0., Numbers::ix0EE(i+1)+50., 50, Numbers::iy0EE(i+1)+0., Numbers::iy0EE(i+1)+50.);
@@ -131,7 +132,7 @@ void EEIntegrityTask::setup(void){
     }
 
     // checking when trigger tower has unexpected or invalid ID
-    dqmStore_->setCurrentFolder("EcalEndcap/EEIntegrityTask/TTId");
+    dqmStore_->setCurrentFolder(prefixME_ + "EcalEndcap/EEIntegrityTask/TTId");
     for (int i = 0; i < 18; i++) {
       sprintf(histo, "EEIT TTId %s", Numbers::sEE(i+1).c_str());
       meIntegrityTTId[i] = dqmStore_->book2D(histo, histo, 50, Numbers::ix0EE(i+1)+0., Numbers::ix0EE(i+1)+50., 50, Numbers::iy0EE(i+1)+0., Numbers::iy0EE(i+1)+50.);
@@ -141,7 +142,7 @@ void EEIntegrityTask::setup(void){
     }
 
     // checking when trigger tower has unexpected or invalid size
-    dqmStore_->setCurrentFolder("EcalEndcap/EEIntegrityTask/TTBlockSize");
+    dqmStore_->setCurrentFolder(prefixME_ + "EcalEndcap/EEIntegrityTask/TTBlockSize");
     for (int i = 0; i < 18; i++) {
       sprintf(histo, "EEIT TTBlockSize %s", Numbers::sEE(i+1).c_str());
       meIntegrityTTBlockSize[i] = dqmStore_->book2D(histo, histo, 50, Numbers::ix0EE(i+1)+0., Numbers::ix0EE(i+1)+50., 50, Numbers::iy0EE(i+1)+0., Numbers::iy0EE(i+1)+50.);
@@ -151,7 +152,7 @@ void EEIntegrityTask::setup(void){
     }
 
     // checking when mem channels have unexpected ID
-    dqmStore_->setCurrentFolder("EcalEndcap/EEIntegrityTask/MemChId");
+    dqmStore_->setCurrentFolder(prefixME_ + "EcalEndcap/EEIntegrityTask/MemChId");
     for (int i = 0; i < 18; i++) {
       sprintf(histo, "EEIT MemChId %s", Numbers::sEE(i+1).c_str());
       meIntegrityMemChId[i] = dqmStore_->book2D(histo, histo, 10, 0., 10., 5, 0., 5.);
@@ -163,7 +164,7 @@ void EEIntegrityTask::setup(void){
     // checking when mem samples have second bit encoding the gain different from 0
     // note: strictly speaking, this does not corrupt the mem sample gain value (since only first bit is considered)
     // but indicates that data are not completely correct
-    dqmStore_->setCurrentFolder("EcalEndcap/EEIntegrityTask/MemGain");
+    dqmStore_->setCurrentFolder(prefixME_ + "EcalEndcap/EEIntegrityTask/MemGain");
     for (int i = 0; i < 18; i++) {
       sprintf(histo, "EEIT MemGain %s", Numbers::sEE(i+1).c_str());
       meIntegrityMemGain[i] = dqmStore_->book2D(histo, histo, 10, 0., 10., 5, 0., 5.);
@@ -173,7 +174,7 @@ void EEIntegrityTask::setup(void){
     }
 
     // checking when mem tower block has unexpected ID
-    dqmStore_->setCurrentFolder("EcalEndcap/EEIntegrityTask/MemTTId");
+    dqmStore_->setCurrentFolder(prefixME_ + "EcalEndcap/EEIntegrityTask/MemTTId");
     for (int i = 0; i < 18; i++) {
       sprintf(histo, "EEIT MemTTId %s", Numbers::sEE(i+1).c_str());
       meIntegrityMemTTId[i] = dqmStore_->book2D(histo, histo, 2, 0., 2., 1, 0., 1.);
@@ -183,7 +184,7 @@ void EEIntegrityTask::setup(void){
     }
 
     // checking when mem tower block has invalid size
-    dqmStore_->setCurrentFolder("EcalEndcap/EEIntegrityTask/MemSize");
+    dqmStore_->setCurrentFolder(prefixME_ + "EcalEndcap/EEIntegrityTask/MemSize");
     for (int i = 0; i < 18; i++) {
       sprintf(histo, "EEIT MemSize %s", Numbers::sEE(i+1).c_str());
       meIntegrityMemTTBlockSize[i] = dqmStore_->book2D(histo, histo, 2, 0., 2., 1, 0., 1.);
@@ -201,60 +202,60 @@ void EEIntegrityTask::cleanup(void){
   if ( ! enableCleanup_ ) return;
 
   if ( dqmStore_ ) {
-    dqmStore_->setCurrentFolder("EcalEndcap/EEIntegrityTask");
+    dqmStore_->setCurrentFolder(prefixME_ + "EcalEndcap/EEIntegrityTask");
 
     if ( meIntegrityDCCSize ) dqmStore_->removeElement( meIntegrityDCCSize->getName() );
     meIntegrityDCCSize = 0;
 
-    dqmStore_->setCurrentFolder("EcalEndcap/EEIntegrityTask/Gain");
+    dqmStore_->setCurrentFolder(prefixME_ + "EcalEndcap/EEIntegrityTask/Gain");
     for (int i = 0; i < 18; i++) {
       if ( meIntegrityGain[i] ) dqmStore_->removeElement( meIntegrityGain[i]->getName() );
       meIntegrityGain[i] = 0;
     }
 
-    dqmStore_->setCurrentFolder("EcalEndcap/EEIntegrityTask/ChId");
+    dqmStore_->setCurrentFolder(prefixME_ + "EcalEndcap/EEIntegrityTask/ChId");
     for (int i = 0; i < 18; i++) {
       if ( meIntegrityChId[i] ) dqmStore_->removeElement( meIntegrityChId[i]->getName() );
       meIntegrityChId[i] = 0;
     }
 
-    dqmStore_->setCurrentFolder("EcalEndcap/EEIntegrityTask/GainSwitch");
+    dqmStore_->setCurrentFolder(prefixME_ + "EcalEndcap/EEIntegrityTask/GainSwitch");
     for (int i = 0; i < 18; i++) {
       if ( meIntegrityGainSwitch[i] ) dqmStore_->removeElement( meIntegrityGainSwitch[i]->getName() );
       meIntegrityGainSwitch[i] = 0;
     }
 
-    dqmStore_->setCurrentFolder("EcalEndcap/EEIntegrityTask/TTId");
+    dqmStore_->setCurrentFolder(prefixME_ + "EcalEndcap/EEIntegrityTask/TTId");
     for (int i = 0; i < 18; i++) {
       if ( meIntegrityTTId[i] ) dqmStore_->removeElement( meIntegrityTTId[i]->getName() );
       meIntegrityTTId[i] = 0;
     }
 
-    dqmStore_->setCurrentFolder("EcalEndcap/EEIntegrityTask/TTBlockSize");
+    dqmStore_->setCurrentFolder(prefixME_ + "EcalEndcap/EEIntegrityTask/TTBlockSize");
     for (int i = 0; i < 18; i++) {
       if ( meIntegrityTTBlockSize[i] ) dqmStore_->removeElement( meIntegrityTTBlockSize[i]->getName() );
       meIntegrityTTBlockSize[i] = 0;
     }
 
-    dqmStore_->setCurrentFolder("EcalEndcap/EEIntegrityTask/MemChId");
+    dqmStore_->setCurrentFolder(prefixME_ + "EcalEndcap/EEIntegrityTask/MemChId");
     for (int i = 0; i < 18; i++) {
       if ( meIntegrityMemChId[i] ) dqmStore_->removeElement( meIntegrityMemChId[i]->getName() );
       meIntegrityMemChId[i] = 0;
     }
 
-    dqmStore_->setCurrentFolder("EcalEndcap/EEIntegrityTask/MemGain");
+    dqmStore_->setCurrentFolder(prefixME_ + "EcalEndcap/EEIntegrityTask/MemGain");
     for (int i = 0; i < 18; i++) {
       if ( meIntegrityMemGain[i] ) dqmStore_->removeElement( meIntegrityMemGain[i]->getName() );
       meIntegrityMemGain[i] = 0;
     }
 
-    dqmStore_->setCurrentFolder("EcalEndcap/EEIntegrityTask/MemTTId");
+    dqmStore_->setCurrentFolder(prefixME_ + "EcalEndcap/EEIntegrityTask/MemTTId");
     for (int i = 0; i < 18; i++) {
       if ( meIntegrityMemTTId[i] ) dqmStore_->removeElement( meIntegrityMemTTId[i]->getName() );
       meIntegrityMemTTId[i] = 0;
     }
 
-    dqmStore_->setCurrentFolder("EcalEndcap/EEIntegrityTask/MemSize");
+    dqmStore_->setCurrentFolder(prefixME_ + "EcalEndcap/EEIntegrityTask/MemSize");
     for (int i = 0; i < 18; i++) {
       if ( meIntegrityMemTTBlockSize[i] ) dqmStore_->removeElement( meIntegrityMemTTBlockSize[i]->getName() );
       meIntegrityMemTTBlockSize[i] = 0;

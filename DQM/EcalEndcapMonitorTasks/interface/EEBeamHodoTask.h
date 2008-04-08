@@ -4,8 +4,8 @@
 /*
  * \file EEBeamHodoTask.h
  *
- * $Date: 2008/02/29 15:07:44 $
- * $Revision: 1.7 $
+ * $Date: 2008/04/08 15:06:27 $
+ * $Revision: 1.8 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -50,6 +50,8 @@ private:
 int ievt_;
 
 DQMStore* dqmStore_;
+
+std::string prefixME_;
 
 bool enableCleanup_;
 

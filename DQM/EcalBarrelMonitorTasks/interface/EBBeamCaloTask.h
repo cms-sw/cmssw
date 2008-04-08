@@ -4,8 +4,8 @@
 /*
  * \file EBBeamCaloTask.h
  *
- * $Date: 2008/02/29 15:03:47 $
- * $Revision: 1.26 $
+ * $Date: 2008/04/08 15:06:23 $
+ * $Revision: 1.27 $
  * \author A. Ghezzi
  *
 */
@@ -49,6 +49,8 @@ private:
 int ievt_;
 
 DQMStore* dqmStore_;
+
+std::string prefixME_;
 
 bool enableCleanup_;
 

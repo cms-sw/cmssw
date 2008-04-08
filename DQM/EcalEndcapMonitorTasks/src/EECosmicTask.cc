@@ -1,8 +1,8 @@
 /*
  * \file EECosmicTask.cc
  *
- * $Date: 2008/04/07 11:30:25 $
- * $Revision: 1.39 $
+ * $Date: 2008/04/08 15:06:28 $
+ * $Revision: 1.40 $
  * \author G. Della Ricca
  *
 */
@@ -35,8 +35,9 @@ EECosmicTask::EECosmicTask(const ParameterSet& ps){
 
   init_ = false;
 
-  // get hold of back-end interface
   dqmStore_ = Service<DQMStore>().operator->();
+
+  prefixME_ = ps.getUntrackedParameter<string>("prefixME", "");
 
   enableCleanup_ = ps.getUntrackedParameter<bool>("enableCleanup", false);
 
@@ -68,8 +69,8 @@ void EECosmicTask::beginJob(const EventSetup& c){
   ievt_ = 0;
 
   if ( dqmStore_ ) {
-    dqmStore_->setCurrentFolder("EcalEndcap/EECosmicTask");
-    dqmStore_->rmdir("EcalEndcap/EECosmicTask");
+    dqmStore_->setCurrentFolder(prefixME_ + "EcalEndcap/EECosmicTask");
+    dqmStore_->rmdir(prefixME_ + "EcalEndcap/EECosmicTask");
   }
 
   Numbers::initGeometry(c, false);
@@ -83,9 +84,9 @@ void EECosmicTask::setup(void){
   char histo[200];
 
   if ( dqmStore_ ) {
-    dqmStore_->setCurrentFolder("EcalEndcap/EECosmicTask");
+    dqmStore_->setCurrentFolder(prefixME_ + "EcalEndcap/EECosmicTask");
 
-    dqmStore_->setCurrentFolder("EcalEndcap/EECosmicTask/Cut");
+    dqmStore_->setCurrentFolder(prefixME_ + "EcalEndcap/EECosmicTask/Cut");
     for (int i = 0; i < 18; i++) {
       sprintf(histo, "EECT energy cut %s", Numbers::sEE(i+1).c_str());
       meCutMap_[i] = dqmStore_->bookProfile2D(histo, histo, 50, Numbers::ix0EE(i+1)+0., Numbers::ix0EE(i+1)+50., 50, Numbers::iy0EE(i+1)+0., Numbers::iy0EE(i+1)+50., 4096, 0., 4096., "s");
@@ -93,7 +94,7 @@ void EECosmicTask::setup(void){
       meCutMap_[i]->setAxisTitle("jy", 2);
     }
 
-    dqmStore_->setCurrentFolder("EcalEndcap/EECosmicTask/Sel");
+    dqmStore_->setCurrentFolder(prefixME_ + "EcalEndcap/EECosmicTask/Sel");
     for (int i = 0; i < 18; i++) {
       sprintf(histo, "EECT energy sel %s", Numbers::sEE(i+1).c_str());
       meSelMap_[i] = dqmStore_->bookProfile2D(histo, histo, 50, Numbers::ix0EE(i+1)+0., Numbers::ix0EE(i+1)+50., 50, Numbers::iy0EE(i+1)+0., Numbers::iy0EE(i+1)+50., 4096, 0., 4096., "s");
@@ -101,7 +102,7 @@ void EECosmicTask::setup(void){
       meSelMap_[i]->setAxisTitle("jy", 2);
     }
 
-    dqmStore_->setCurrentFolder("EcalEndcap/EECosmicTask/Spectrum");
+    dqmStore_->setCurrentFolder(prefixME_ + "EcalEndcap/EECosmicTask/Spectrum");
     for (int i = 0; i < 18; i++) {
       sprintf(histo, "EECT 1x1 energy spectrum %s", Numbers::sEE(i+1).c_str());
       meSpectrum_[0][i] = dqmStore_->book1D(histo, histo, 100, 0., 1.5);
@@ -120,21 +121,21 @@ void EECosmicTask::cleanup(void){
   if ( ! enableCleanup_ ) return;
 
   if ( dqmStore_ ) {
-    dqmStore_->setCurrentFolder("EcalEndcap/EECosmicTask");
+    dqmStore_->setCurrentFolder(prefixME_ + "EcalEndcap/EECosmicTask");
 
-    dqmStore_->setCurrentFolder("EcalEndcap/EECosmicTask/Cut");
+    dqmStore_->setCurrentFolder(prefixME_ + "EcalEndcap/EECosmicTask/Cut");
     for (int i = 0; i < 18; i++) {
       if ( meCutMap_[i] ) dqmStore_->removeElement( meCutMap_[i]->getName() );
       meCutMap_[i] = 0;
     }
 
-    dqmStore_->setCurrentFolder("EcalEndcap/EECosmicTask/Sel");
+    dqmStore_->setCurrentFolder(prefixME_ + "EcalEndcap/EECosmicTask/Sel");
     for (int i = 0; i < 18; i++) {
       if ( meSelMap_[i] ) dqmStore_->removeElement( meSelMap_[i]->getName() );
       meSelMap_[i] = 0;
     }
 
-    dqmStore_->setCurrentFolder("EcalEndcap/EECosmicTask/Spectrum");
+    dqmStore_->setCurrentFolder(prefixME_ + "EcalEndcap/EECosmicTask/Spectrum");
     for (int i = 0; i < 18; i++) {
       if ( meSpectrum_[0][i] ) dqmStore_->removeElement( meSpectrum_[0][i]->getName() );
       meSpectrum_[0][i] = 0;

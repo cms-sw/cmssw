@@ -1,8 +1,8 @@
 /*
  * \file EBPedestalOnlineTask.cc
  *
- * $Date: 2008/04/07 11:30:23 $
- * $Revision: 1.36 $
+ * $Date: 2008/04/08 15:06:24 $
+ * $Revision: 1.37 $
  * \author G. Della Ricca
  *
 */
@@ -34,8 +34,9 @@ EBPedestalOnlineTask::EBPedestalOnlineTask(const ParameterSet& ps){
 
   init_ = false;
 
-  // get hold of back-end interface
   dqmStore_ = Service<DQMStore>().operator->();
+
+  prefixME_ = ps.getUntrackedParameter<string>("prefixME", "");
 
   enableCleanup_ = ps.getUntrackedParameter<bool>("enableCleanup", false);
 
@@ -56,8 +57,8 @@ void EBPedestalOnlineTask::beginJob(const EventSetup& c){
   ievt_ = 0;
 
   if ( dqmStore_ ) {
-    dqmStore_->setCurrentFolder("EcalBarrel/EBPedestalOnlineTask");
-    dqmStore_->rmdir("EcalBarrel/EBPedestalOnlineTask");
+    dqmStore_->setCurrentFolder(prefixME_ + "EcalBarrel/EBPedestalOnlineTask");
+    dqmStore_->rmdir(prefixME_ + "EcalBarrel/EBPedestalOnlineTask");
   }
 
   Numbers::initGeometry(c, false);
@@ -71,9 +72,9 @@ void EBPedestalOnlineTask::setup(void){
   char histo[200];
 
   if ( dqmStore_ ) {
-    dqmStore_->setCurrentFolder("EcalBarrel/EBPedestalOnlineTask");
+    dqmStore_->setCurrentFolder(prefixME_ + "EcalBarrel/EBPedestalOnlineTask");
 
-    dqmStore_->setCurrentFolder("EcalBarrel/EBPedestalOnlineTask/Gain12");
+    dqmStore_->setCurrentFolder(prefixME_ + "EcalBarrel/EBPedestalOnlineTask/Gain12");
     for (int i = 0; i < 36; i++) {
       sprintf(histo, "EBPOT pedestal %s G12", Numbers::sEB(i+1).c_str());
       mePedMapG12_[i] = dqmStore_->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096., "s");
@@ -91,9 +92,9 @@ void EBPedestalOnlineTask::cleanup(void){
   if ( ! enableCleanup_ ) return;
 
   if ( dqmStore_ ) {
-    dqmStore_->setCurrentFolder("EcalBarrel/EBPedestalOnlineTask");
+    dqmStore_->setCurrentFolder(prefixME_ + "EcalBarrel/EBPedestalOnlineTask");
 
-    dqmStore_->setCurrentFolder("EcalBarrel/EBPedestalOnlineTask/Gain12");
+    dqmStore_->setCurrentFolder(prefixME_ + "EcalBarrel/EBPedestalOnlineTask/Gain12");
     for ( int i = 0; i < 36; i++ ) {
       if ( mePedMapG12_[i] ) dqmStore_->removeElement( mePedMapG12_[i]->getName() );
       mePedMapG12_[i] = 0;

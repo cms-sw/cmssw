@@ -1,8 +1,8 @@
 /*
  * \file EBClusterTask.cc
  *
- * $Date: 2008/04/07 11:30:23 $
- * $Revision: 1.54 $
+ * $Date: 2008/04/08 15:06:24 $
+ * $Revision: 1.55 $
  * \author G. Della Ricca
  * \author E. Di Marco
  *
@@ -42,8 +42,9 @@ EBClusterTask::EBClusterTask(const ParameterSet& ps){
 
   init_ = false;
 
-  // get hold of back-end interface
   dqmStore_ = Service<DQMStore>().operator->();
+
+  prefixME_ = ps.getUntrackedParameter<string>("prefixME", "");
 
   enableCleanup_ = ps.getUntrackedParameter<bool>("enableCleanup", false);
 
@@ -91,8 +92,8 @@ void EBClusterTask::beginJob(const EventSetup& c){
   ievt_ = 0;
 
   if ( dqmStore_ ) {
-    dqmStore_->setCurrentFolder("EcalBarrel/EBClusterTask");
-    dqmStore_->rmdir("EcalBarrel/EBClusterTask");
+    dqmStore_->setCurrentFolder(prefixME_ + "EcalBarrel/EBClusterTask");
+    dqmStore_->rmdir(prefixME_ + "EcalBarrel/EBClusterTask");
   }
 
   Numbers::initGeometry(c, false);
@@ -106,7 +107,7 @@ void EBClusterTask::setup(void){
   char histo[200];
 
   if ( dqmStore_ ) {
-    dqmStore_->setCurrentFolder("EcalBarrel/EBClusterTask");
+    dqmStore_->setCurrentFolder(prefixME_ + "EcalBarrel/EBClusterTask");
 
     sprintf(histo, "EBCLT BC energy");
     meBCEne_ = dqmStore_->book1D(histo, histo, 100, 0., 150.);
@@ -213,7 +214,7 @@ void EBClusterTask::cleanup(void){
   if ( ! enableCleanup_ ) return;
 
   if ( dqmStore_ ) {
-    dqmStore_->setCurrentFolder("EcalBarrel/EBClusterTask");
+    dqmStore_->setCurrentFolder(prefixME_ + "EcalBarrel/EBClusterTask");
 
     if ( meBCEne_ ) dqmStore_->removeElement( meBCEne_->getName() );
     meBCEne_ = 0;

@@ -1,8 +1,8 @@
 /*
  * \file EEOccupancyTask.cc
  *
- * $Date: 2008/04/07 11:30:25 $
- * $Revision: 1.45 $
+ * $Date: 2008/04/08 15:06:28 $
+ * $Revision: 1.46 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -38,8 +38,9 @@ EEOccupancyTask::EEOccupancyTask(const ParameterSet& ps){
 
   init_ = false;
 
-  // get hold of back-end interface
   dqmStore_ = Service<DQMStore>().operator->();
+
+  prefixME_ = ps.getUntrackedParameter<string>("prefixME", "");
 
   enableCleanup_ = ps.getUntrackedParameter<bool>("enableCleanup", false);
 
@@ -115,8 +116,8 @@ void EEOccupancyTask::beginJob(const EventSetup& c){
   ievt_ = 0;
 
   if ( dqmStore_ ) {
-    dqmStore_->setCurrentFolder("EcalEndcap/EEOccupancyTask");
-    dqmStore_->rmdir("EcalEndcap/EEOccupancyTask");
+    dqmStore_->setCurrentFolder(prefixME_ + "EcalEndcap/EEOccupancyTask");
+    dqmStore_->rmdir(prefixME_ + "EcalEndcap/EEOccupancyTask");
   }
 
   Numbers::initGeometry(c, false);
@@ -130,7 +131,7 @@ void EEOccupancyTask::setup(void){
   char histo[200];
 
   if ( dqmStore_ ) {
-    dqmStore_->setCurrentFolder("EcalEndcap/EEOccupancyTask");
+    dqmStore_->setCurrentFolder(prefixME_ + "EcalEndcap/EEOccupancyTask");
 
     for (int i = 0; i < 18; i++) {
       sprintf(histo, "EEOT digi occupancy %s", Numbers::sEE(i+1).c_str());
@@ -326,7 +327,7 @@ void EEOccupancyTask::cleanup(void){
   if ( ! enableCleanup_ ) return;
 
   if ( dqmStore_ ) {
-    dqmStore_->setCurrentFolder("EcalEndcap/EEOccupancyTask");
+    dqmStore_->setCurrentFolder(prefixME_ + "EcalEndcap/EEOccupancyTask");
 
     for (int i = 0; i < 18; i++) {
       if ( meOccupancy_[i] ) dqmStore_->removeElement( meOccupancy_[i]->getName() );

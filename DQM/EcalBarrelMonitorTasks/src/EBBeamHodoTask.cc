@@ -1,8 +1,8 @@
 /*
  * \file EBBeamHodoTask.cc
  *
- * $Date: 2008/04/07 11:30:23 $
- * $Revision: 1.55 $
+ * $Date: 2008/04/08 15:06:24 $
+ * $Revision: 1.56 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -38,8 +38,9 @@ EBBeamHodoTask::EBBeamHodoTask(const ParameterSet& ps){
 
   init_ = false;
 
-  // get hold of back-end interface
   dqmStore_ = Service<DQMStore>().operator->();
+
+  prefixME_ = ps.getUntrackedParameter<string>("prefixME", "");
 
   enableCleanup_ = ps.getUntrackedParameter<bool>("enableCleanup", false);
 
@@ -100,8 +101,8 @@ void EBBeamHodoTask::beginJob(const EventSetup& c){
   resetNow_                =false;
 
   if ( dqmStore_ ) {
-    dqmStore_->setCurrentFolder("EcalBarrel/EBBeamHodoTask");
-    dqmStore_->rmdir("EcalBarrel/EBBeamHodoTask");
+    dqmStore_->setCurrentFolder(prefixME_ + "EcalBarrel/EBBeamHodoTask");
+    dqmStore_->rmdir(prefixME_ + "EcalBarrel/EBBeamHodoTask");
   }
 
   Numbers::initGeometry(c, false);
@@ -117,7 +118,7 @@ void EBBeamHodoTask::setup(void){
   char histo[200];
 
   if ( dqmStore_ ) {
-    dqmStore_->setCurrentFolder("EcalBarrel/EBBeamHodoTask");
+    dqmStore_->setCurrentFolder(prefixME_ + "EcalBarrel/EBBeamHodoTask");
 
     // following ME (type I):
     //  *** do not need to be ever reset
@@ -229,7 +230,7 @@ void EBBeamHodoTask::cleanup(void){
   if ( ! enableCleanup_ ) return;
 
   if ( dqmStore_ ) {
-    dqmStore_->setCurrentFolder("EcalBarrel/EBBeamHodoTask");
+    dqmStore_->setCurrentFolder(prefixME_ + "EcalBarrel/EBBeamHodoTask");
 
     for (int i=0; i<4; i++) {
       if ( meHodoOcc_[i] ) dqmStore_->removeElement( meHodoOcc_[i]->getName() );

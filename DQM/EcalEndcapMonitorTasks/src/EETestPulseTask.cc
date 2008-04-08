@@ -1,8 +1,8 @@
 /*
  * \file EETestPulseTask.cc
  *
- * $Date: 2008/04/07 11:30:25 $
- * $Revision: 1.38 $
+ * $Date: 2008/04/08 15:06:28 $
+ * $Revision: 1.39 $
  * \author G. Della Ricca
  *
 */
@@ -37,8 +37,9 @@ EETestPulseTask::EETestPulseTask(const ParameterSet& ps){
 
   init_ = false;
 
-  // get hold of back-end interface
   dqmStore_ = Service<DQMStore>().operator->();
+
+  prefixME_ = ps.getUntrackedParameter<string>("prefixME", "");
 
   enableCleanup_ = ps.getUntrackedParameter<bool>("enableCleanup", false);
 
@@ -71,8 +72,8 @@ void EETestPulseTask::beginJob(const EventSetup& c){
   ievt_ = 0;
 
   if ( dqmStore_ ) {
-    dqmStore_->setCurrentFolder("EcalEndcap/EETestPulseTask");
-    dqmStore_->rmdir("EcalEndcap/EETestPulseTask");
+    dqmStore_->setCurrentFolder(prefixME_ + "EcalEndcap/EETestPulseTask");
+    dqmStore_->rmdir(prefixME_ + "EcalEndcap/EETestPulseTask");
   }
 
   Numbers::initGeometry(c, false);
@@ -86,9 +87,9 @@ void EETestPulseTask::setup(void){
   char histo[200];
 
   if ( dqmStore_ ) {
-    dqmStore_->setCurrentFolder("EcalEndcap/EETestPulseTask");
+    dqmStore_->setCurrentFolder(prefixME_ + "EcalEndcap/EETestPulseTask");
 
-    dqmStore_->setCurrentFolder("EcalEndcap/EETestPulseTask/Gain01");
+    dqmStore_->setCurrentFolder(prefixME_ + "EcalEndcap/EETestPulseTask/Gain01");
     for (int i = 0; i < 18; i++) {
       sprintf(histo, "EETPT shape %s G01", Numbers::sEE(i+1).c_str());
       meShapeMapG01_[i] = dqmStore_->bookProfile2D(histo, histo, 850, 0., 850., 10, 0., 10., 4096, 0., 4096., "s");
@@ -103,7 +104,7 @@ void EETestPulseTask::setup(void){
       dqmStore_->tag(meAmplMapG01_[i], i+1);
     }
 
-    dqmStore_->setCurrentFolder("EcalEndcap/EETestPulseTask/Gain06");
+    dqmStore_->setCurrentFolder(prefixME_ + "EcalEndcap/EETestPulseTask/Gain06");
     for (int i = 0; i < 18; i++) {
       sprintf(histo, "EETPT shape %s G06", Numbers::sEE(i+1).c_str());
       meShapeMapG06_[i] = dqmStore_->bookProfile2D(histo, histo, 850, 0., 850., 10, 0., 10., 4096, 0., 4096., "s");
@@ -118,7 +119,7 @@ void EETestPulseTask::setup(void){
       dqmStore_->tag(meAmplMapG06_[i], i+1);
     }
 
-    dqmStore_->setCurrentFolder("EcalEndcap/EETestPulseTask/Gain12");
+    dqmStore_->setCurrentFolder(prefixME_ + "EcalEndcap/EETestPulseTask/Gain12");
     for (int i = 0; i < 18; i++) {
       sprintf(histo, "EETPT shape %s G12", Numbers::sEE(i+1).c_str());
       meShapeMapG12_[i] = dqmStore_->bookProfile2D(histo, histo, 850, 0., 850., 10, 0., 10., 4096, 0., 4096., "s");
@@ -133,9 +134,9 @@ void EETestPulseTask::setup(void){
       dqmStore_->tag(meAmplMapG12_[i], i+1);
    }
 
-    dqmStore_->setCurrentFolder("EcalEndcap/EETestPulseTask/PN");
+    dqmStore_->setCurrentFolder(prefixME_ + "EcalEndcap/EETestPulseTask/PN");
 
-    dqmStore_->setCurrentFolder("EcalEndcap/EETestPulseTask/PN/Gain01");
+    dqmStore_->setCurrentFolder(prefixME_ + "EcalEndcap/EETestPulseTask/PN/Gain01");
     for (int i = 0; i < 18; i++) {
       sprintf(histo, "EEPDT PNs amplitude %s G01", Numbers::sEE(i+1).c_str());
       mePnAmplMapG01_[i] = dqmStore_->bookProfile(histo, histo, 10, 0., 10., 4096, 0., 4096., "s");
@@ -149,7 +150,7 @@ void EETestPulseTask::setup(void){
       dqmStore_->tag(mePnPedMapG01_[i], i+1);
     }
 
-    dqmStore_->setCurrentFolder("EcalEndcap/EETestPulseTask/PN/Gain16");
+    dqmStore_->setCurrentFolder(prefixME_ + "EcalEndcap/EETestPulseTask/PN/Gain16");
     for (int i = 0; i < 18; i++) {
       sprintf(histo, "EEPDT PNs amplitude %s G16", Numbers::sEE(i+1).c_str());
       mePnAmplMapG16_[i] = dqmStore_->bookProfile(histo, histo, 10, 0., 10., 4096, 0., 4096., "s");
@@ -172,9 +173,9 @@ void EETestPulseTask::cleanup(void){
   if ( ! enableCleanup_ ) return;
 
   if ( dqmStore_ ) {
-    dqmStore_->setCurrentFolder("EcalEndcap/EETestPulseTask");
+    dqmStore_->setCurrentFolder(prefixME_ + "EcalEndcap/EETestPulseTask");
 
-    dqmStore_->setCurrentFolder("EcalEndcap/EETestPulseTask/Gain01");
+    dqmStore_->setCurrentFolder(prefixME_ + "EcalEndcap/EETestPulseTask/Gain01");
     for (int i = 0; i < 18; i++) {
       if ( meShapeMapG01_[i] ) dqmStore_->removeElement( meShapeMapG01_[i]->getName() );
       meShapeMapG01_[i] = 0;
@@ -182,7 +183,7 @@ void EETestPulseTask::cleanup(void){
       meAmplMapG01_[i] = 0;
     }
 
-    dqmStore_->setCurrentFolder("EcalEndcap/EETestPulseTask/Gain06");
+    dqmStore_->setCurrentFolder(prefixME_ + "EcalEndcap/EETestPulseTask/Gain06");
     for (int i = 0; i < 18; i++) {
       if ( meShapeMapG06_[i] ) dqmStore_->removeElement( meShapeMapG06_[i]->getName() );
       meShapeMapG06_[i] = 0;
@@ -190,7 +191,7 @@ void EETestPulseTask::cleanup(void){
       meAmplMapG06_[i] = 0;
     }
 
-    dqmStore_->setCurrentFolder("EcalEndcap/EETestPulseTask/Gain12");
+    dqmStore_->setCurrentFolder(prefixME_ + "EcalEndcap/EETestPulseTask/Gain12");
     for (int i = 0; i < 18; i++) {
       if ( meShapeMapG12_[i] ) dqmStore_->removeElement( meShapeMapG12_[i]->getName() );
       meShapeMapG12_[i] = 0;
@@ -198,9 +199,9 @@ void EETestPulseTask::cleanup(void){
       meAmplMapG12_[i] = 0;
     }
 
-    dqmStore_->setCurrentFolder("EcalEndcap/EETestPulseTask/PN");
+    dqmStore_->setCurrentFolder(prefixME_ + "EcalEndcap/EETestPulseTask/PN");
 
-    dqmStore_->setCurrentFolder("EcalEndcap/EETestPulseTask/PN/Gain01");
+    dqmStore_->setCurrentFolder(prefixME_ + "EcalEndcap/EETestPulseTask/PN/Gain01");
     for (int i = 0; i < 18; i++) {
       if ( mePnAmplMapG01_[i] ) dqmStore_->removeElement( mePnAmplMapG01_[i]->getName() );
       mePnAmplMapG01_[i] = 0;
@@ -208,7 +209,7 @@ void EETestPulseTask::cleanup(void){
       mePnPedMapG01_[i] = 0;
     }
 
-    dqmStore_->setCurrentFolder("EcalEndcap/EETestPulseTask/PN/Gain16");
+    dqmStore_->setCurrentFolder(prefixME_ + "EcalEndcap/EETestPulseTask/PN/Gain16");
     for (int i = 0; i < 18; i++) {
       if ( mePnAmplMapG16_[i] ) dqmStore_->removeElement( mePnAmplMapG16_[i]->getName() );
       mePnAmplMapG16_[i] = 0;

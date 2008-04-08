@@ -4,8 +4,8 @@
 /*
  * \file EBTestPulseTask.h
  *
- * $Date: 2008/02/29 15:03:58 $
- * $Revision: 1.28 $
+ * $Date: 2008/04/08 15:06:23 $
+ * $Revision: 1.29 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -50,6 +50,8 @@ private:
 int ievt_;
 
 DQMStore* dqmStore_;
+
+std::string prefixME_;
 
 bool enableCleanup_;
 

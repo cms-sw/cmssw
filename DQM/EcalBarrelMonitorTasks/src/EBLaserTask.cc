@@ -1,8 +1,8 @@
 /*
  * \file EBLaserTask.cc
  *
- * $Date: 2008/04/07 11:30:23 $
- * $Revision: 1.109 $
+ * $Date: 2008/04/08 15:06:24 $
+ * $Revision: 1.110 $
  * \author G. Della Ricca
  *
 */
@@ -37,8 +37,9 @@ EBLaserTask::EBLaserTask(const ParameterSet& ps){
 
   init_ = false;
 
-  // get hold of back-end interface
   dqmStore_ = Service<DQMStore>().operator->();
+
+  prefixME_ = ps.getUntrackedParameter<string>("prefixME", "");
 
   enableCleanup_ = ps.getUntrackedParameter<bool>("enableCleanup", false);
 
@@ -112,8 +113,8 @@ void EBLaserTask::beginJob(const EventSetup& c){
   ievt_ = 0;
 
   if ( dqmStore_ ) {
-    dqmStore_->setCurrentFolder("EcalBarrel/EBLaserTask");
-    dqmStore_->rmdir("EcalBarrel/EBLaserTask");
+    dqmStore_->setCurrentFolder(prefixME_ + "EcalBarrel/EBLaserTask");
+    dqmStore_->rmdir(prefixME_ + "EcalBarrel/EBLaserTask");
   }
 
   Numbers::initGeometry(c, false);
@@ -127,9 +128,9 @@ void EBLaserTask::setup(void){
   char histo[200];
 
   if ( dqmStore_ ) {
-    dqmStore_->setCurrentFolder("EcalBarrel/EBLaserTask");
+    dqmStore_->setCurrentFolder(prefixME_ + "EcalBarrel/EBLaserTask");
 
-    dqmStore_->setCurrentFolder("EcalBarrel/EBLaserTask/Laser1");
+    dqmStore_->setCurrentFolder(prefixME_ + "EcalBarrel/EBLaserTask/Laser1");
     for (int i = 0; i < 36; i++) {
       sprintf(histo, "EBLT shape %s L1A", Numbers::sEB(i+1).c_str());
       meShapeMapL1A_[i] = dqmStore_->bookProfile2D(histo, histo, 1700, 0., 1700., 10, 0., 10., 4096, 0., 4096., "s");
@@ -176,7 +177,7 @@ void EBLaserTask::setup(void){
       dqmStore_->tag(meAmplPNMapL1B_[i], i+1);
     }
 
-    dqmStore_->setCurrentFolder("EcalBarrel/EBLaserTask/Laser2");
+    dqmStore_->setCurrentFolder(prefixME_ + "EcalBarrel/EBLaserTask/Laser2");
     for (int i = 0; i < 36; i++) {
       sprintf(histo, "EBLT shape %s L2A", Numbers::sEB(i+1).c_str());
       meShapeMapL2A_[i] = dqmStore_->bookProfile2D(histo, histo, 1700, 0., 1700., 10, 0., 10., 4096, 0., 4096., "s");
@@ -223,7 +224,7 @@ void EBLaserTask::setup(void){
       dqmStore_->tag(meAmplPNMapL2B_[i], i+1);
     }
 
-    dqmStore_->setCurrentFolder("EcalBarrel/EBLaserTask/Laser3");
+    dqmStore_->setCurrentFolder(prefixME_ + "EcalBarrel/EBLaserTask/Laser3");
     for (int i = 0; i < 36; i++) {
       sprintf(histo, "EBLT shape %s L3A", Numbers::sEB(i+1).c_str());
       meShapeMapL3A_[i] = dqmStore_->bookProfile2D(histo, histo, 1700, 0., 1700., 10, 0., 10., 4096, 0., 4096., "s");
@@ -270,7 +271,7 @@ void EBLaserTask::setup(void){
       dqmStore_->tag(meAmplPNMapL3B_[i], i+1);
     }
 
-    dqmStore_->setCurrentFolder("EcalBarrel/EBLaserTask/Laser4");
+    dqmStore_->setCurrentFolder(prefixME_ + "EcalBarrel/EBLaserTask/Laser4");
     for (int i = 0; i < 36; i++) {
       sprintf(histo, "EBLT shape %s L4A", Numbers::sEB(i+1).c_str());
       meShapeMapL4A_[i] = dqmStore_->bookProfile2D(histo, histo, 1700, 0., 1700., 10, 0., 10., 4096, 0., 4096., "s");
@@ -317,9 +318,9 @@ void EBLaserTask::setup(void){
       dqmStore_->tag(meAmplPNMapL4B_[i], i+1);
     }
 
-    dqmStore_->setCurrentFolder("EcalBarrel/EBLaserTask/Laser1/PN");
+    dqmStore_->setCurrentFolder(prefixME_ + "EcalBarrel/EBLaserTask/Laser1/PN");
 
-    dqmStore_->setCurrentFolder("EcalBarrel/EBLaserTask/Laser1/PN/Gain01");
+    dqmStore_->setCurrentFolder(prefixME_ + "EcalBarrel/EBLaserTask/Laser1/PN/Gain01");
     for (int i = 0; i < 36; i++) {
       sprintf(histo, "EBPDT PNs amplitude %s G01 L1", Numbers::sEB(i+1).c_str());
       mePnAmplMapG01L1_[i] = dqmStore_->bookProfile(histo, histo, 10, 0., 10., 4096, 0., 4096., "s");
@@ -333,7 +334,7 @@ void EBLaserTask::setup(void){
       dqmStore_->tag(mePnPedMapG01L1_[i], i+1);
     }
 
-    dqmStore_->setCurrentFolder("EcalBarrel/EBLaserTask/Laser1/PN/Gain16");
+    dqmStore_->setCurrentFolder(prefixME_ + "EcalBarrel/EBLaserTask/Laser1/PN/Gain16");
     for (int i = 0; i < 36; i++) {
       sprintf(histo, "EBPDT PNs amplitude %s G16 L1", Numbers::sEB(i+1).c_str());
       mePnAmplMapG16L1_[i] = dqmStore_->bookProfile(histo, histo, 10, 0., 10., 4096, 0., 4096., "s");
@@ -347,9 +348,9 @@ void EBLaserTask::setup(void){
       dqmStore_->tag(mePnPedMapG16L1_[i], i+1);
     }
 
-    dqmStore_->setCurrentFolder("EcalBarrel/EBLaserTask/Laser2/PN");
+    dqmStore_->setCurrentFolder(prefixME_ + "EcalBarrel/EBLaserTask/Laser2/PN");
 
-    dqmStore_->setCurrentFolder("EcalBarrel/EBLaserTask/Laser2/PN/Gain01");
+    dqmStore_->setCurrentFolder(prefixME_ + "EcalBarrel/EBLaserTask/Laser2/PN/Gain01");
     for (int i = 0; i < 36; i++) {
       sprintf(histo, "EBPDT PNs amplitude %s G01 L2", Numbers::sEB(i+1).c_str());
       mePnAmplMapG01L2_[i] = dqmStore_->bookProfile(histo, histo, 10, 0., 10., 4096, 0., 4096., "s");
@@ -363,7 +364,7 @@ void EBLaserTask::setup(void){
       dqmStore_->tag(mePnPedMapG01L2_[i], i+1);
     }
 
-    dqmStore_->setCurrentFolder("EcalBarrel/EBLaserTask/Laser2/PN/Gain16");
+    dqmStore_->setCurrentFolder(prefixME_ + "EcalBarrel/EBLaserTask/Laser2/PN/Gain16");
     for (int i = 0; i < 36; i++) {
       sprintf(histo, "EBPDT PNs amplitude %s G16 L2", Numbers::sEB(i+1).c_str());
       mePnAmplMapG16L2_[i] = dqmStore_->bookProfile(histo, histo, 10, 0., 10., 4096, 0., 4096., "s");
@@ -377,9 +378,9 @@ void EBLaserTask::setup(void){
       dqmStore_->tag(mePnPedMapG16L2_[i], i+1);
     }
 
-    dqmStore_->setCurrentFolder("EcalBarrel/EBLaserTask/Laser3/PN");
+    dqmStore_->setCurrentFolder(prefixME_ + "EcalBarrel/EBLaserTask/Laser3/PN");
 
-    dqmStore_->setCurrentFolder("EcalBarrel/EBLaserTask/Laser3/PN/Gain01");
+    dqmStore_->setCurrentFolder(prefixME_ + "EcalBarrel/EBLaserTask/Laser3/PN/Gain01");
     for (int i = 0; i < 36; i++) {
       sprintf(histo, "EBPDT PNs amplitude %s G01 L3", Numbers::sEB(i+1).c_str());
       mePnAmplMapG01L3_[i] = dqmStore_->bookProfile(histo, histo, 10, 0., 10., 4096, 0., 4096., "s");
@@ -393,7 +394,7 @@ void EBLaserTask::setup(void){
       dqmStore_->tag(mePnPedMapG01L3_[i], i+1);
     }
 
-    dqmStore_->setCurrentFolder("EcalBarrel/EBLaserTask/Laser3/PN/Gain16");
+    dqmStore_->setCurrentFolder(prefixME_ + "EcalBarrel/EBLaserTask/Laser3/PN/Gain16");
     for (int i = 0; i < 36; i++) {
       sprintf(histo, "EBPDT PNs amplitude %s G16 L3", Numbers::sEB(i+1).c_str());
       mePnAmplMapG16L3_[i] = dqmStore_->bookProfile(histo, histo, 10, 0., 10., 4096, 0., 4096., "s");
@@ -407,9 +408,9 @@ void EBLaserTask::setup(void){
       dqmStore_->tag(mePnPedMapG16L3_[i], i+1);
     }
 
-    dqmStore_->setCurrentFolder("EcalBarrel/EBLaserTask/Laser4/PN");
+    dqmStore_->setCurrentFolder(prefixME_ + "EcalBarrel/EBLaserTask/Laser4/PN");
 
-    dqmStore_->setCurrentFolder("EcalBarrel/EBLaserTask/Laser4/PN/Gain01");
+    dqmStore_->setCurrentFolder(prefixME_ + "EcalBarrel/EBLaserTask/Laser4/PN/Gain01");
     for (int i = 0; i < 36; i++) {
       sprintf(histo, "EBPDT PNs amplitude %s G01 L4", Numbers::sEB(i+1).c_str());
       mePnAmplMapG01L4_[i] = dqmStore_->bookProfile(histo, histo, 10, 0., 10., 4096, 0., 4096., "s");
@@ -423,7 +424,7 @@ void EBLaserTask::setup(void){
       dqmStore_->tag(mePnPedMapG01L4_[i], i+1);
     }
 
-    dqmStore_->setCurrentFolder("EcalBarrel/EBLaserTask/Laser4/PN/Gain16");
+    dqmStore_->setCurrentFolder(prefixME_ + "EcalBarrel/EBLaserTask/Laser4/PN/Gain16");
     for (int i = 0; i < 36; i++) {
       sprintf(histo, "EBPDT PNs amplitude %s G16 L4", Numbers::sEB(i+1).c_str());
       mePnAmplMapG16L4_[i] = dqmStore_->bookProfile(histo, histo, 10, 0., 10., 4096, 0., 4096., "s");
@@ -446,9 +447,9 @@ void EBLaserTask::cleanup(void){
   if ( ! enableCleanup_ ) return;
 
   if ( dqmStore_ ) {
-    dqmStore_->setCurrentFolder("EcalBarrel/EBLaserTask");
+    dqmStore_->setCurrentFolder(prefixME_ + "EcalBarrel/EBLaserTask");
 
-    dqmStore_->setCurrentFolder("EcalBarrel/EBLaserTask/Laser1");
+    dqmStore_->setCurrentFolder(prefixME_ + "EcalBarrel/EBLaserTask/Laser1");
     for (int i = 0; i < 36; i++) {
       if ( meShapeMapL1A_[i] )  dqmStore_->removeElement( meShapeMapL1A_[i]->getName() );
       meShapeMapL1A_[i] = 0;
@@ -469,7 +470,7 @@ void EBLaserTask::cleanup(void){
       meAmplPNMapL1B_[i] = 0;
     }
 
-    dqmStore_->setCurrentFolder("EcalBarrel/EBLaserTask/Laser2");
+    dqmStore_->setCurrentFolder(prefixME_ + "EcalBarrel/EBLaserTask/Laser2");
     for (int i = 0; i < 36; i++) {
       if ( meShapeMapL2A_[i] )  dqmStore_->removeElement( meShapeMapL2A_[i]->getName() );
       meShapeMapL2A_[i] = 0;
@@ -490,7 +491,7 @@ void EBLaserTask::cleanup(void){
       meAmplPNMapL2B_[i] = 0;
     }
 
-    dqmStore_->setCurrentFolder("EcalBarrel/EBLaserTask/Laser3");
+    dqmStore_->setCurrentFolder(prefixME_ + "EcalBarrel/EBLaserTask/Laser3");
     for (int i = 0; i < 36; i++) {
       if ( meShapeMapL3A_[i] )  dqmStore_->removeElement( meShapeMapL3A_[i]->getName() );
       meShapeMapL3A_[i] = 0;
@@ -511,7 +512,7 @@ void EBLaserTask::cleanup(void){
       meAmplPNMapL3B_[i] = 0;
     }
 
-    dqmStore_->setCurrentFolder("EcalBarrel/EBLaserTask/Laser4");
+    dqmStore_->setCurrentFolder(prefixME_ + "EcalBarrel/EBLaserTask/Laser4");
     for (int i = 0; i < 36; i++) {
       if ( meShapeMapL4A_[i] )  dqmStore_->removeElement( meShapeMapL4A_[i]->getName() );
       meShapeMapL4A_[i] = 0;
@@ -532,9 +533,9 @@ void EBLaserTask::cleanup(void){
       meAmplPNMapL4B_[i] = 0;
     }
 
-    dqmStore_->setCurrentFolder("EcalBarrel/EBLaserTask/Laser1/PN");
+    dqmStore_->setCurrentFolder(prefixME_ + "EcalBarrel/EBLaserTask/Laser1/PN");
 
-    dqmStore_->setCurrentFolder("EcalBarrel/EBLaserTask/Laser1/PN/Gain01");
+    dqmStore_->setCurrentFolder(prefixME_ + "EcalBarrel/EBLaserTask/Laser1/PN/Gain01");
     for (int i = 0; i < 36; i++) {
       if ( mePnAmplMapG01L1_[i] ) dqmStore_->removeElement( mePnAmplMapG01L1_[i]->getName() );
       mePnAmplMapG01L1_[i] = 0;
@@ -542,7 +543,7 @@ void EBLaserTask::cleanup(void){
       mePnPedMapG01L1_[i] = 0;
     }
 
-    dqmStore_->setCurrentFolder("EcalBarrel/EBLaserTask/Laser1/PN/Gain16");
+    dqmStore_->setCurrentFolder(prefixME_ + "EcalBarrel/EBLaserTask/Laser1/PN/Gain16");
     for (int i = 0; i < 36; i++) {
       if ( mePnAmplMapG16L1_[i] ) dqmStore_->removeElement( mePnAmplMapG16L1_[i]->getName() );
       mePnAmplMapG16L1_[i] = 0;
@@ -550,9 +551,9 @@ void EBLaserTask::cleanup(void){
       mePnPedMapG16L1_[i] = 0;
     }
 
-    dqmStore_->setCurrentFolder("EcalBarrel/EBLaserTask/Laser2/PN");
+    dqmStore_->setCurrentFolder(prefixME_ + "EcalBarrel/EBLaserTask/Laser2/PN");
 
-    dqmStore_->setCurrentFolder("EcalBarrel/EBLaserTask/Laser2/PN/Gain01");
+    dqmStore_->setCurrentFolder(prefixME_ + "EcalBarrel/EBLaserTask/Laser2/PN/Gain01");
     for (int i = 0; i < 36; i++) {
       if ( mePnAmplMapG01L2_[i] ) dqmStore_->removeElement( mePnAmplMapG01L2_[i]->getName() );
       mePnAmplMapG01L2_[i] = 0;
@@ -560,7 +561,7 @@ void EBLaserTask::cleanup(void){
       mePnPedMapG01L2_[i] = 0;
     }
 
-    dqmStore_->setCurrentFolder("EcalBarrel/EBLaserTask/Laser2/PN/Gain16");
+    dqmStore_->setCurrentFolder(prefixME_ + "EcalBarrel/EBLaserTask/Laser2/PN/Gain16");
     for (int i = 0; i < 36; i++) {
       if ( mePnAmplMapG16L2_[i] ) dqmStore_->removeElement( mePnAmplMapG16L2_[i]->getName() );
       mePnAmplMapG16L2_[i] = 0;
@@ -568,9 +569,9 @@ void EBLaserTask::cleanup(void){
       mePnPedMapG16L2_[i] = 0;
     }
 
-    dqmStore_->setCurrentFolder("EcalBarrel/EBLaserTask/Laser3/PN");
+    dqmStore_->setCurrentFolder(prefixME_ + "EcalBarrel/EBLaserTask/Laser3/PN");
 
-    dqmStore_->setCurrentFolder("EcalBarrel/EBLaserTask/Laser3/PN/Gain01");
+    dqmStore_->setCurrentFolder(prefixME_ + "EcalBarrel/EBLaserTask/Laser3/PN/Gain01");
     for (int i = 0; i < 36; i++) {
       if ( mePnAmplMapG01L3_[i] ) dqmStore_->removeElement( mePnAmplMapG01L3_[i]->getName() );
       mePnAmplMapG01L3_[i] = 0;
@@ -578,7 +579,7 @@ void EBLaserTask::cleanup(void){
       mePnPedMapG01L3_[i] = 0;
     }
 
-    dqmStore_->setCurrentFolder("EcalBarrel/EBLaserTask/Laser3/PN/Gain16");
+    dqmStore_->setCurrentFolder(prefixME_ + "EcalBarrel/EBLaserTask/Laser3/PN/Gain16");
     for (int i = 0; i < 36; i++) {
       if ( mePnAmplMapG16L3_[i] ) dqmStore_->removeElement( mePnAmplMapG16L3_[i]->getName() );
       mePnAmplMapG16L3_[i] = 0;
@@ -586,9 +587,9 @@ void EBLaserTask::cleanup(void){
       mePnPedMapG16L3_[i] = 0;
     }
 
-    dqmStore_->setCurrentFolder("EcalBarrel/EBLaserTask/Laser4/PN");
+    dqmStore_->setCurrentFolder(prefixME_ + "EcalBarrel/EBLaserTask/Laser4/PN");
 
-    dqmStore_->setCurrentFolder("EcalBarrel/EBLaserTask/Laser4/PN/Gain01");
+    dqmStore_->setCurrentFolder(prefixME_ + "EcalBarrel/EBLaserTask/Laser4/PN/Gain01");
     for (int i = 0; i < 36; i++) {
       if ( mePnAmplMapG01L4_[i] ) dqmStore_->removeElement( mePnAmplMapG01L4_[i]->getName() );
       mePnAmplMapG01L4_[i] = 0;
@@ -596,7 +597,7 @@ void EBLaserTask::cleanup(void){
       mePnPedMapG01L4_[i] = 0;
     }
 
-    dqmStore_->setCurrentFolder("EcalBarrel/EBLaserTask/Laser4/PN/Gain16");
+    dqmStore_->setCurrentFolder(prefixME_ + "EcalBarrel/EBLaserTask/Laser4/PN/Gain16");
     for (int i = 0; i < 36; i++) {
       if ( mePnAmplMapG16L4_[i] ) dqmStore_->removeElement( mePnAmplMapG16L4_[i]->getName() );
       mePnAmplMapG16L4_[i] = 0;

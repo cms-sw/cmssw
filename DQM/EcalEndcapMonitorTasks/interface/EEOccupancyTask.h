@@ -4,8 +4,8 @@
 /*
  * \file EEOccupancyTask.h
  *
- * $Date: 2008/04/05 20:59:22 $
- * $Revision: 1.17 $
+ * $Date: 2008/04/08 15:06:27 $
+ * $Revision: 1.18 $
  * \author G. Della Ricca
  *
 */
@@ -49,6 +49,8 @@ private:
 int ievt_;
 
 DQMStore* dqmStore_;
+
+std::string prefixME_;
 
 bool enableCleanup_;
 

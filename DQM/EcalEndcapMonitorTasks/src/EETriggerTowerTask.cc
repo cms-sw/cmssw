@@ -1,8 +1,8 @@
 /*
  * \file EETriggerTowerTask.cc
  *
- * $Date: 2008/04/07 11:30:25 $
- * $Revision: 1.32 $
+ * $Date: 2008/04/08 15:06:28 $
+ * $Revision: 1.33 $
  * \author C. Bernet
  * \author G. Della Ricca
  * \author E. Di Marco
@@ -34,8 +34,9 @@ EETriggerTowerTask::EETriggerTowerTask(const ParameterSet& ps) {
 
   init_ = false;
 
-  // get hold of back-end interface
   dqmStore_ = Service<DQMStore>().operator->();
+
+  prefixME_ = ps.getUntrackedParameter<string>("prefixME", "");
 
   reserveArray(meEtMapReal_);
   reserveArray(meVetoReal_);
@@ -87,8 +88,8 @@ void EETriggerTowerTask::beginJob(const EventSetup& c){
   ievt_ = 0;
 
   if ( dqmStore_ ) {
-    dqmStore_->setCurrentFolder("EcalEndcap/EETriggerTowerTask");
-    dqmStore_->rmdir("EcalEndcap/EETriggerTowerTask");
+    dqmStore_->setCurrentFolder(prefixME_ + "EcalEndcap/EETriggerTowerTask");
+    dqmStore_->rmdir(prefixME_ + "EcalEndcap/EETriggerTowerTask");
   }
 
   Numbers::initGeometry(c, false);
@@ -103,10 +104,10 @@ void EETriggerTowerTask::setup(void){
     // dqmStore_->showDirStructure();
 
     setup( "Real Digis",
-           "EcalEndcap/EETriggerTowerTask", false );
+           (prefixME_ + "EcalEndcap/EETriggerTowerTask").c_str(), false );
 
     setup( "Emulated Digis",
-           "EcalEndcap/EETriggerTowerTask/Emulated", true);
+           (prefixME_ + "EcalEndcap/EETriggerTowerTask/Emulated").c_str(), true);
   }
   else {
     LogError("EETriggerTowerTask")<<"Bad DQMStore, "
@@ -230,7 +231,7 @@ void EETriggerTowerTask::cleanup(void) {
 
     if( !outputFile_.empty() ) dqmStore_->save( outputFile_.c_str() );
 
-    dqmStore_->rmdir( "EcalEndcap/EETriggerTowerTask" );
+    dqmStore_->rmdir( prefixME_ + "EcalEndcap/EETriggerTowerTask" );
 
   }
 

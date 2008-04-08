@@ -1,8 +1,8 @@
 /*
  * \file EELaserTask.cc
  *
- * $Date: 2008/04/07 11:30:25 $
- * $Revision: 1.42 $
+ * $Date: 2008/04/08 15:06:28 $
+ * $Revision: 1.43 $
  * \author G. Della Ricca
  *
 */
@@ -37,8 +37,9 @@ EELaserTask::EELaserTask(const ParameterSet& ps){
 
   init_ = false;
 
-  // get hold of back-end interface
   dqmStore_ = Service<DQMStore>().operator->();
+
+  prefixME_ = ps.getUntrackedParameter<string>("prefixME", "");
 
   enableCleanup_ = ps.getUntrackedParameter<bool>("enableCleanup", false);
 
@@ -112,8 +113,8 @@ void EELaserTask::beginJob(const EventSetup& c){
   ievt_ = 0;
 
   if ( dqmStore_ ) {
-    dqmStore_->setCurrentFolder("EcalEndcap/EELaserTask");
-    dqmStore_->rmdir("EcalEndcap/EELaserTask");
+    dqmStore_->setCurrentFolder(prefixME_ + "EcalEndcap/EELaserTask");
+    dqmStore_->rmdir(prefixME_ + "EcalEndcap/EELaserTask");
   }
 
   Numbers::initGeometry(c, false);
@@ -127,9 +128,9 @@ void EELaserTask::setup(void){
   char histo[200];
 
   if ( dqmStore_ ) {
-    dqmStore_->setCurrentFolder("EcalEndcap/EELaserTask");
+    dqmStore_->setCurrentFolder(prefixME_ + "EcalEndcap/EELaserTask");
 
-    dqmStore_->setCurrentFolder("EcalEndcap/EELaserTask/Laser1");
+    dqmStore_->setCurrentFolder(prefixME_ + "EcalEndcap/EELaserTask/Laser1");
     for (int i = 0; i < 18; i++) {
       sprintf(histo, "EELT shape %s L1A", Numbers::sEE(i+1).c_str());
       meShapeMapL1A_[i] = dqmStore_->bookProfile2D(histo, histo, 850, 0., 850., 10, 0., 10., 4096, 0., 4096., "s");
@@ -176,7 +177,7 @@ void EELaserTask::setup(void){
       dqmStore_->tag(meAmplPNMapL1B_[i], i+1);
     }
 
-    dqmStore_->setCurrentFolder("EcalEndcap/EELaserTask/Laser2");
+    dqmStore_->setCurrentFolder(prefixME_ + "EcalEndcap/EELaserTask/Laser2");
     for (int i = 0; i < 18; i++) {
       sprintf(histo, "EELT shape %s L2A", Numbers::sEE(i+1).c_str());
       meShapeMapL2A_[i] = dqmStore_->bookProfile2D(histo, histo, 850, 0., 850., 10, 0., 10., 4096, 0., 4096., "s");
@@ -223,7 +224,7 @@ void EELaserTask::setup(void){
       dqmStore_->tag(meAmplPNMapL2B_[i], i+1);
     }
 
-    dqmStore_->setCurrentFolder("EcalEndcap/EELaserTask/Laser3");
+    dqmStore_->setCurrentFolder(prefixME_ + "EcalEndcap/EELaserTask/Laser3");
     for (int i = 0; i < 18; i++) {
       sprintf(histo, "EELT shape %s L3A", Numbers::sEE(i+1).c_str());
       meShapeMapL3A_[i] = dqmStore_->bookProfile2D(histo, histo, 850, 0., 850., 10, 0., 10., 4096, 0., 4096., "s");
@@ -270,7 +271,7 @@ void EELaserTask::setup(void){
       dqmStore_->tag(meAmplPNMapL3B_[i], i+1);
     }
 
-    dqmStore_->setCurrentFolder("EcalEndcap/EELaserTask/Laser4");
+    dqmStore_->setCurrentFolder(prefixME_ + "EcalEndcap/EELaserTask/Laser4");
     for (int i = 0; i < 18; i++) {
       sprintf(histo, "EELT shape %s L4A", Numbers::sEE(i+1).c_str());
       meShapeMapL4A_[i] = dqmStore_->bookProfile2D(histo, histo, 850, 0., 850., 10, 0., 10., 4096, 0., 4096., "s");
@@ -317,9 +318,9 @@ void EELaserTask::setup(void){
       dqmStore_->tag(meAmplPNMapL4B_[i], i+1);
     }
 
-    dqmStore_->setCurrentFolder("EcalEndcap/EELaserTask/Laser1/PN");
+    dqmStore_->setCurrentFolder(prefixME_ + "EcalEndcap/EELaserTask/Laser1/PN");
 
-    dqmStore_->setCurrentFolder("EcalEndcap/EELaserTask/Laser1/PN/Gain01");
+    dqmStore_->setCurrentFolder(prefixME_ + "EcalEndcap/EELaserTask/Laser1/PN/Gain01");
     for (int i = 0; i < 18; i++) {
       sprintf(histo, "EEPDT PNs amplitude %s G01 L1", Numbers::sEE(i+1).c_str());
       mePnAmplMapG01L1_[i] = dqmStore_->bookProfile(histo, histo, 10, 0., 10., 4096, 0., 4096., "s");
@@ -333,7 +334,7 @@ void EELaserTask::setup(void){
       dqmStore_->tag(mePnPedMapG01L1_[i], i+1);
     }
 
-    dqmStore_->setCurrentFolder("EcalEndcap/EELaserTask/Laser1/PN/Gain16");
+    dqmStore_->setCurrentFolder(prefixME_ + "EcalEndcap/EELaserTask/Laser1/PN/Gain16");
     for (int i = 0; i < 18; i++) {
       sprintf(histo, "EEPDT PNs amplitude %s G16 L1", Numbers::sEE(i+1).c_str());
       mePnAmplMapG16L1_[i] = dqmStore_->bookProfile(histo, histo, 10, 0., 10., 4096, 0., 4096., "s");
@@ -347,9 +348,9 @@ void EELaserTask::setup(void){
       dqmStore_->tag(mePnPedMapG16L1_[i], i+1);
     }
 
-    dqmStore_->setCurrentFolder("EcalEndcap/EELaserTask/Laser2/PN");
+    dqmStore_->setCurrentFolder(prefixME_ + "EcalEndcap/EELaserTask/Laser2/PN");
 
-    dqmStore_->setCurrentFolder("EcalEndcap/EELaserTask/Laser2/PN/Gain01");
+    dqmStore_->setCurrentFolder(prefixME_ + "EcalEndcap/EELaserTask/Laser2/PN/Gain01");
     for (int i = 0; i < 18; i++) {
       sprintf(histo, "EEPDT PNs amplitude %s G01 L2", Numbers::sEE(i+1).c_str());
       mePnAmplMapG01L2_[i] = dqmStore_->bookProfile(histo, histo, 10, 0., 10., 4096, 0., 4096., "s");
@@ -363,7 +364,7 @@ void EELaserTask::setup(void){
       dqmStore_->tag(mePnPedMapG01L2_[i], i+1);
     }
 
-    dqmStore_->setCurrentFolder("EcalEndcap/EELaserTask/Laser2/PN/Gain16");
+    dqmStore_->setCurrentFolder(prefixME_ + "EcalEndcap/EELaserTask/Laser2/PN/Gain16");
     for (int i = 0; i < 18; i++) {
       sprintf(histo, "EEPDT PNs amplitude %s G16 L2", Numbers::sEE(i+1).c_str());
       mePnAmplMapG16L2_[i] = dqmStore_->bookProfile(histo, histo, 10, 0., 10., 4096, 0., 4096., "s");
@@ -377,9 +378,9 @@ void EELaserTask::setup(void){
       dqmStore_->tag(mePnPedMapG16L2_[i], i+1);
     }
 
-    dqmStore_->setCurrentFolder("EcalEndcap/EELaserTask/Laser3/PN");
+    dqmStore_->setCurrentFolder(prefixME_ + "EcalEndcap/EELaserTask/Laser3/PN");
 
-    dqmStore_->setCurrentFolder("EcalEndcap/EELaserTask/Laser3/PN/Gain01");
+    dqmStore_->setCurrentFolder(prefixME_ + "EcalEndcap/EELaserTask/Laser3/PN/Gain01");
     for (int i = 0; i < 18; i++) {
       sprintf(histo, "EEPDT PNs amplitude %s G01 L3", Numbers::sEE(i+1).c_str());
       mePnAmplMapG01L3_[i] = dqmStore_->bookProfile(histo, histo, 10, 0., 10., 4096, 0., 4096., "s");
@@ -393,7 +394,7 @@ void EELaserTask::setup(void){
       dqmStore_->tag(mePnPedMapG01L3_[i], i+1);
     }
 
-    dqmStore_->setCurrentFolder("EcalEndcap/EELaserTask/Laser3/PN/Gain16");
+    dqmStore_->setCurrentFolder(prefixME_ + "EcalEndcap/EELaserTask/Laser3/PN/Gain16");
     for (int i = 0; i < 18; i++) {
       sprintf(histo, "EEPDT PNs amplitude %s G16 L3", Numbers::sEE(i+1).c_str());
       mePnAmplMapG16L3_[i] = dqmStore_->bookProfile(histo, histo, 10, 0., 10., 4096, 0., 4096., "s");
@@ -407,9 +408,9 @@ void EELaserTask::setup(void){
       dqmStore_->tag(mePnPedMapG16L3_[i], i+1);
     }
 
-    dqmStore_->setCurrentFolder("EcalEndcap/EELaserTask/Laser4/PN");
+    dqmStore_->setCurrentFolder(prefixME_ + "EcalEndcap/EELaserTask/Laser4/PN");
 
-    dqmStore_->setCurrentFolder("EcalEndcap/EELaserTask/Laser4/PN/Gain01");
+    dqmStore_->setCurrentFolder(prefixME_ + "EcalEndcap/EELaserTask/Laser4/PN/Gain01");
     for (int i = 0; i < 18; i++) {
       sprintf(histo, "EEPDT PNs amplitude %s G01 L4", Numbers::sEE(i+1).c_str());
       mePnAmplMapG01L4_[i] = dqmStore_->bookProfile(histo, histo, 10, 0., 10., 4096, 0., 4096., "s");
@@ -423,7 +424,7 @@ void EELaserTask::setup(void){
       dqmStore_->tag(mePnPedMapG01L4_[i], i+1);
     }
 
-    dqmStore_->setCurrentFolder("EcalEndcap/EELaserTask/Laser4/PN/Gain16");
+    dqmStore_->setCurrentFolder(prefixME_ + "EcalEndcap/EELaserTask/Laser4/PN/Gain16");
     for (int i = 0; i < 18; i++) {
       sprintf(histo, "EEPDT PNs amplitude %s G16 L4", Numbers::sEE(i+1).c_str());
       mePnAmplMapG16L4_[i] = dqmStore_->bookProfile(histo, histo, 10, 0., 10., 4096, 0., 4096., "s");
@@ -446,9 +447,9 @@ void EELaserTask::cleanup(void){
   if ( ! enableCleanup_ ) return;
 
   if ( dqmStore_ ) {
-    dqmStore_->setCurrentFolder("EcalEndcap/EELaserTask");
+    dqmStore_->setCurrentFolder(prefixME_ + "EcalEndcap/EELaserTask");
 
-    dqmStore_->setCurrentFolder("EcalEndcap/EELaserTask/Laser1");
+    dqmStore_->setCurrentFolder(prefixME_ + "EcalEndcap/EELaserTask/Laser1");
     for (int i = 0; i < 18; i++) {
       if ( meShapeMapL1A_[i] )  dqmStore_->removeElement( meShapeMapL1A_[i]->getName() );
       meShapeMapL1A_[i] = 0;
@@ -469,7 +470,7 @@ void EELaserTask::cleanup(void){
       meAmplPNMapL1B_[i] = 0;
     }
 
-    dqmStore_->setCurrentFolder("EcalEndcap/EELaserTask/Laser2");
+    dqmStore_->setCurrentFolder(prefixME_ + "EcalEndcap/EELaserTask/Laser2");
     for (int i = 0; i < 18; i++) {
       if ( meShapeMapL2A_[i] )  dqmStore_->removeElement( meShapeMapL2A_[i]->getName() );
       meShapeMapL2A_[i] = 0;
@@ -490,7 +491,7 @@ void EELaserTask::cleanup(void){
       meAmplPNMapL2B_[i] = 0;
     }
 
-    dqmStore_->setCurrentFolder("EcalEndcap/EELaserTask/Laser3");
+    dqmStore_->setCurrentFolder(prefixME_ + "EcalEndcap/EELaserTask/Laser3");
     for (int i = 0; i < 18; i++) {
       if ( meShapeMapL3A_[i] )  dqmStore_->removeElement( meShapeMapL3A_[i]->getName() );
       meShapeMapL3A_[i] = 0;
@@ -511,7 +512,7 @@ void EELaserTask::cleanup(void){
       meAmplPNMapL3B_[i] = 0;
     }
 
-    dqmStore_->setCurrentFolder("EcalEndcap/EELaserTask/Laser4");
+    dqmStore_->setCurrentFolder(prefixME_ + "EcalEndcap/EELaserTask/Laser4");
     for (int i = 0; i < 18; i++) {
       if ( meShapeMapL4A_[i] )  dqmStore_->removeElement( meShapeMapL4A_[i]->getName() );
       meShapeMapL4A_[i] = 0;
@@ -532,9 +533,9 @@ void EELaserTask::cleanup(void){
       meAmplPNMapL4B_[i] = 0;
     }
 
-    dqmStore_->setCurrentFolder("EcalEndcap/EELaserTask/Laser1/PN");
+    dqmStore_->setCurrentFolder(prefixME_ + "EcalEndcap/EELaserTask/Laser1/PN");
 
-    dqmStore_->setCurrentFolder("EcalEndcap/EELaserTask/Laser1/PN/Gain01");
+    dqmStore_->setCurrentFolder(prefixME_ + "EcalEndcap/EELaserTask/Laser1/PN/Gain01");
     for (int i = 0; i < 18; i++) {
       if ( mePnAmplMapG01L1_[i] ) dqmStore_->removeElement( mePnAmplMapG01L1_[i]->getName() );
       mePnAmplMapG01L1_[i] = 0;
@@ -542,7 +543,7 @@ void EELaserTask::cleanup(void){
       mePnPedMapG01L1_[i] = 0;
     }
 
-    dqmStore_->setCurrentFolder("EcalEndcap/EELaserTask/Laser1/PN/Gain16");
+    dqmStore_->setCurrentFolder(prefixME_ + "EcalEndcap/EELaserTask/Laser1/PN/Gain16");
     for (int i = 0; i < 18; i++) {
       if ( mePnAmplMapG16L1_[i] ) dqmStore_->removeElement( mePnAmplMapG16L1_[i]->getName() );
       mePnAmplMapG16L1_[i] = 0;
@@ -550,9 +551,9 @@ void EELaserTask::cleanup(void){
       mePnPedMapG16L1_[i] = 0;
     }
 
-    dqmStore_->setCurrentFolder("EcalEndcap/EELaserTask/Laser2/PN");
+    dqmStore_->setCurrentFolder(prefixME_ + "EcalEndcap/EELaserTask/Laser2/PN");
 
-    dqmStore_->setCurrentFolder("EcalEndcap/EELaserTask/Laser2/PN/Gain01");
+    dqmStore_->setCurrentFolder(prefixME_ + "EcalEndcap/EELaserTask/Laser2/PN/Gain01");
     for (int i = 0; i < 18; i++) {
       if ( mePnAmplMapG01L2_[i] ) dqmStore_->removeElement( mePnAmplMapG01L2_[i]->getName() );
       mePnAmplMapG01L2_[i] = 0;
@@ -560,7 +561,7 @@ void EELaserTask::cleanup(void){
       mePnPedMapG01L2_[i] = 0;
     }
 
-    dqmStore_->setCurrentFolder("EcalEndcap/EELaserTask/Laser2/PN/Gain16");
+    dqmStore_->setCurrentFolder(prefixME_ + "EcalEndcap/EELaserTask/Laser2/PN/Gain16");
     for (int i = 0; i < 18; i++) {
       if ( mePnAmplMapG16L2_[i] ) dqmStore_->removeElement( mePnAmplMapG16L2_[i]->getName() );
       mePnAmplMapG16L2_[i] = 0;
@@ -568,9 +569,9 @@ void EELaserTask::cleanup(void){
       mePnPedMapG16L2_[i] = 0;
     }
 
-    dqmStore_->setCurrentFolder("EcalEndcap/EELaserTask/Laser3/PN");
+    dqmStore_->setCurrentFolder(prefixME_ + "EcalEndcap/EELaserTask/Laser3/PN");
 
-    dqmStore_->setCurrentFolder("EcalEndcap/EELaserTask/Laser3/PN/Gain01");
+    dqmStore_->setCurrentFolder(prefixME_ + "EcalEndcap/EELaserTask/Laser3/PN/Gain01");
     for (int i = 0; i < 18; i++) {
       if ( mePnAmplMapG01L3_[i] ) dqmStore_->removeElement( mePnAmplMapG01L3_[i]->getName() );
       mePnAmplMapG01L3_[i] = 0;
@@ -578,7 +579,7 @@ void EELaserTask::cleanup(void){
       mePnPedMapG01L3_[i] = 0;
     }
 
-    dqmStore_->setCurrentFolder("EcalEndcap/EELaserTask/Laser3/PN/Gain16");
+    dqmStore_->setCurrentFolder(prefixME_ + "EcalEndcap/EELaserTask/Laser3/PN/Gain16");
     for (int i = 0; i < 18; i++) {
       if ( mePnAmplMapG16L3_[i] ) dqmStore_->removeElement( mePnAmplMapG16L3_[i]->getName() );
       mePnAmplMapG16L3_[i] = 0;
@@ -586,9 +587,9 @@ void EELaserTask::cleanup(void){
       mePnPedMapG16L3_[i] = 0;
     }
 
-    dqmStore_->setCurrentFolder("EcalEndcap/EELaserTask/Laser4/PN");
+    dqmStore_->setCurrentFolder(prefixME_ + "EcalEndcap/EELaserTask/Laser4/PN");
 
-    dqmStore_->setCurrentFolder("EcalEndcap/EELaserTask/Laser4/PN/Gain01");
+    dqmStore_->setCurrentFolder(prefixME_ + "EcalEndcap/EELaserTask/Laser4/PN/Gain01");
     for (int i = 0; i < 18; i++) {
       if ( mePnAmplMapG01L4_[i] ) dqmStore_->removeElement( mePnAmplMapG01L4_[i]->getName() );
       mePnAmplMapG01L4_[i] = 0;
@@ -596,7 +597,7 @@ void EELaserTask::cleanup(void){
       mePnPedMapG01L4_[i] = 0;
     }
 
-    dqmStore_->setCurrentFolder("EcalEndcap/EELaserTask/Laser4/PN/Gain16");
+    dqmStore_->setCurrentFolder(prefixME_ + "EcalEndcap/EELaserTask/Laser4/PN/Gain16");
     for (int i = 0; i < 18; i++) {
       if ( mePnAmplMapG16L4_[i] ) dqmStore_->removeElement( mePnAmplMapG16L4_[i]->getName() );
       mePnAmplMapG16L4_[i] = 0;

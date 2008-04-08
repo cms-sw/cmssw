@@ -1,8 +1,8 @@
 /*
  * \file EBPedestalTask.cc
  *
- * $Date: 2008/04/07 11:30:23 $
- * $Revision: 1.81 $
+ * $Date: 2008/04/08 15:06:24 $
+ * $Revision: 1.82 $
  * \author G. Della Ricca
  *
 */
@@ -35,8 +35,9 @@ EBPedestalTask::EBPedestalTask(const ParameterSet& ps){
 
   init_ = false;
 
-  // get hold of back-end interface
   dqmStore_ = Service<DQMStore>().operator->();
+
+  prefixME_ = ps.getUntrackedParameter<string>("prefixME", "");
 
   enableCleanup_ = ps.getUntrackedParameter<bool>("enableCleanup", false);
 
@@ -69,8 +70,8 @@ void EBPedestalTask::beginJob(const EventSetup& c){
   ievt_ = 0;
 
   if ( dqmStore_ ) {
-    dqmStore_->setCurrentFolder("EcalBarrel/EBPedestalTask");
-    dqmStore_->rmdir("EcalBarrel/EBPedestalTask");
+    dqmStore_->setCurrentFolder(prefixME_ + "EcalBarrel/EBPedestalTask");
+    dqmStore_->rmdir(prefixME_ + "EcalBarrel/EBPedestalTask");
   }
 
   Numbers::initGeometry(c, false);
@@ -84,9 +85,9 @@ void EBPedestalTask::setup(void){
   char histo[200];
 
   if ( dqmStore_ ) {
-    dqmStore_->setCurrentFolder("EcalBarrel/EBPedestalTask");
+    dqmStore_->setCurrentFolder(prefixME_ + "EcalBarrel/EBPedestalTask");
 
-    dqmStore_->setCurrentFolder("EcalBarrel/EBPedestalTask/Gain01");
+    dqmStore_->setCurrentFolder(prefixME_ + "EcalBarrel/EBPedestalTask/Gain01");
     for (int i = 0; i < 36; i++) {
       sprintf(histo, "EBPT pedestal %s G01", Numbers::sEB(i+1).c_str());
       mePedMapG01_[i] = dqmStore_->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096., "s");
@@ -105,7 +106,7 @@ void EBPedestalTask::setup(void){
       dqmStore_->tag(mePed5SumMapG01_[i], i+1);
     }
 
-    dqmStore_->setCurrentFolder("EcalBarrel/EBPedestalTask/Gain06");
+    dqmStore_->setCurrentFolder(prefixME_ + "EcalBarrel/EBPedestalTask/Gain06");
     for (int i = 0; i < 36; i++) {
       sprintf(histo, "EBPT pedestal %s G06", Numbers::sEB(i+1).c_str());
       mePedMapG06_[i] = dqmStore_->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096., "s");
@@ -124,7 +125,7 @@ void EBPedestalTask::setup(void){
       dqmStore_->tag(mePed5SumMapG06_[i], i+1);
     }
 
-    dqmStore_->setCurrentFolder("EcalBarrel/EBPedestalTask/Gain12");
+    dqmStore_->setCurrentFolder(prefixME_ + "EcalBarrel/EBPedestalTask/Gain12");
     for (int i = 0; i < 36; i++) {
       sprintf(histo, "EBPT pedestal %s G12", Numbers::sEB(i+1).c_str());
       mePedMapG12_[i] = dqmStore_->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096., "s");
@@ -143,9 +144,9 @@ void EBPedestalTask::setup(void){
       dqmStore_->tag(mePed5SumMapG12_[i], i+1);
     }
 
-    dqmStore_->setCurrentFolder("EcalBarrel/EBPedestalTask/PN");
+    dqmStore_->setCurrentFolder(prefixME_ + "EcalBarrel/EBPedestalTask/PN");
 
-    dqmStore_->setCurrentFolder("EcalBarrel/EBPedestalTask/PN/Gain01");
+    dqmStore_->setCurrentFolder(prefixME_ + "EcalBarrel/EBPedestalTask/PN/Gain01");
     for (int i = 0; i < 36; i++) {
       sprintf(histo, "EBPDT PNs pedestal %s G01", Numbers::sEB(i+1).c_str());
       mePnPedMapG01_[i] =  dqmStore_->bookProfile(histo, histo, 10, 0., 10., 4096, 0., 4096., "s");
@@ -154,7 +155,7 @@ void EBPedestalTask::setup(void){
       dqmStore_->tag(mePnPedMapG01_[i], i+1);
     }
 
-    dqmStore_->setCurrentFolder("EcalBarrel/EBPedestalTask/PN/Gain16");
+    dqmStore_->setCurrentFolder(prefixME_ + "EcalBarrel/EBPedestalTask/PN/Gain16");
     for (int i = 0; i < 36; i++) {
       sprintf(histo, "EBPDT PNs pedestal %s G16", Numbers::sEB(i+1).c_str());
       mePnPedMapG16_[i] =  dqmStore_->bookProfile(histo, histo, 10, 0., 10., 4096, 0., 4096., "s");
@@ -172,9 +173,9 @@ void EBPedestalTask::cleanup(void){
   if ( ! enableCleanup_ ) return;
 
   if ( dqmStore_ ) {
-    dqmStore_->setCurrentFolder("EcalBarrel/EBPedestalTask");
+    dqmStore_->setCurrentFolder(prefixME_ + "EcalBarrel/EBPedestalTask");
 
-    dqmStore_->setCurrentFolder("EcalBarrel/EBPedestalTask/Gain01");
+    dqmStore_->setCurrentFolder(prefixME_ + "EcalBarrel/EBPedestalTask/Gain01");
     for ( int i = 0; i < 36; i++ ) {
       if ( mePedMapG01_[i] ) dqmStore_->removeElement( mePedMapG01_[i]->getName() );
       mePedMapG01_[i] = 0;
@@ -184,7 +185,7 @@ void EBPedestalTask::cleanup(void){
       mePed5SumMapG01_[i] = 0;
     }
 
-    dqmStore_->setCurrentFolder("EcalBarrel/EBPedestalTask/Gain06");
+    dqmStore_->setCurrentFolder(prefixME_ + "EcalBarrel/EBPedestalTask/Gain06");
     for ( int i = 0; i < 36; i++ ) {
       if ( mePedMapG06_[i] ) dqmStore_->removeElement( mePedMapG06_[i]->getName() );
       mePedMapG06_[i] = 0;
@@ -194,7 +195,7 @@ void EBPedestalTask::cleanup(void){
       mePed5SumMapG06_[i] = 0;
     }
 
-    dqmStore_->setCurrentFolder("EcalBarrel/EBPedestalTask/Gain12");
+    dqmStore_->setCurrentFolder(prefixME_ + "EcalBarrel/EBPedestalTask/Gain12");
     for ( int i = 0; i < 36; i++ ) {
       if ( mePedMapG12_[i] ) dqmStore_->removeElement( mePedMapG12_[i]->getName() );
       mePedMapG12_[i] = 0;
@@ -204,15 +205,15 @@ void EBPedestalTask::cleanup(void){
       mePed5SumMapG12_[i] = 0;
     }
 
-    dqmStore_->setCurrentFolder("EcalBarrel/EBPedestalTask/PN");
+    dqmStore_->setCurrentFolder(prefixME_ + "EcalBarrel/EBPedestalTask/PN");
 
-    dqmStore_->setCurrentFolder("EcalBarrel/EBPedestalTask/PN/Gain01");
+    dqmStore_->setCurrentFolder(prefixME_ + "EcalBarrel/EBPedestalTask/PN/Gain01");
     for ( int i = 0; i < 36; i++ ) {
       if ( mePnPedMapG01_[i]) dqmStore_->removeElement( mePnPedMapG01_[i]->getName() );
       mePnPedMapG01_[i] = 0;
     }
 
-    dqmStore_->setCurrentFolder("EcalBarrel/EBPedestalTask/PN/Gain16");
+    dqmStore_->setCurrentFolder(prefixME_ + "EcalBarrel/EBPedestalTask/PN/Gain16");
     for ( int i = 0; i < 36; i++ ) {
       if ( mePnPedMapG16_[i]) dqmStore_->removeElement( mePnPedMapG16_[i]->getName() );
       mePnPedMapG16_[i] = 0;

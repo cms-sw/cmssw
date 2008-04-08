@@ -1,8 +1,8 @@
 /*
  * \file EBIntegrityTask.cc
  *
- * $Date: 2008/04/07 11:30:23 $
- * $Revision: 1.68 $
+ * $Date: 2008/04/08 15:06:24 $
+ * $Revision: 1.69 $
  * \author G. Della Ricca
  *
  */
@@ -35,8 +35,9 @@ EBIntegrityTask::EBIntegrityTask(const ParameterSet& ps){
 
   init_ = false;
 
-  // get hold of back-end interface
   dqmStore_ = Service<DQMStore>().operator->();
+
+  prefixME_ = ps.getUntrackedParameter<string>("prefixME", "");
 
   enableCleanup_ = ps.getUntrackedParameter<bool>("enableCleanup", false);
 
@@ -76,8 +77,8 @@ void EBIntegrityTask::beginJob(const EventSetup& c){
   ievt_ = 0;
 
   if ( dqmStore_ ) {
-    dqmStore_->setCurrentFolder("EcalBarrel/EBIntegrityTask");
-    dqmStore_->rmdir("EcalBarrel/EBIntegrityTask");
+    dqmStore_->setCurrentFolder(prefixME_ + "EcalBarrel/EBIntegrityTask");
+    dqmStore_->rmdir(prefixME_ + "EcalBarrel/EBIntegrityTask");
   }
 
   Numbers::initGeometry(c, false);
@@ -91,7 +92,7 @@ void EBIntegrityTask::setup(void){
   char histo[200];
 
   if ( dqmStore_ ) {
-    dqmStore_->setCurrentFolder("EcalBarrel/EBIntegrityTask");
+    dqmStore_->setCurrentFolder(prefixME_ + "EcalBarrel/EBIntegrityTask");
 
     // checking when number of towers in data different than expected from header
     sprintf(histo, "EBIT DCC size error");
@@ -101,7 +102,7 @@ void EBIntegrityTask::setup(void){
     }
 
     // checking when the gain is 0
-    dqmStore_->setCurrentFolder("EcalBarrel/EBIntegrityTask/Gain");
+    dqmStore_->setCurrentFolder(prefixME_ + "EcalBarrel/EBIntegrityTask/Gain");
     for (int i = 0; i < 36; i++) {
       sprintf(histo, "EBIT gain %s", Numbers::sEB(i+1).c_str());
       meIntegrityGain[i] = dqmStore_->book2D(histo, histo, 85, 0., 85., 20, 0., 20.);
@@ -111,7 +112,7 @@ void EBIntegrityTask::setup(void){
     }
 
     // checking when channel has unexpected or invalid ID
-    dqmStore_->setCurrentFolder("EcalBarrel/EBIntegrityTask/ChId");
+    dqmStore_->setCurrentFolder(prefixME_ + "EcalBarrel/EBIntegrityTask/ChId");
     for (int i = 0; i < 36; i++) {
       sprintf(histo, "EBIT ChId %s", Numbers::sEB(i+1).c_str());
       meIntegrityChId[i] = dqmStore_->book2D(histo, histo, 85, 0., 85., 20, 0., 20.);
@@ -121,7 +122,7 @@ void EBIntegrityTask::setup(void){
     }
 
     // checking when channel has unexpected or invalid ID
-    dqmStore_->setCurrentFolder("EcalBarrel/EBIntegrityTask/GainSwitch");
+    dqmStore_->setCurrentFolder(prefixME_ + "EcalBarrel/EBIntegrityTask/GainSwitch");
     for (int i = 0; i < 36; i++) {
       sprintf(histo, "EBIT gain switch %s", Numbers::sEB(i+1).c_str());
       meIntegrityGainSwitch[i] = dqmStore_->book2D(histo, histo, 85, 0., 85., 20, 0., 20.);
@@ -131,7 +132,7 @@ void EBIntegrityTask::setup(void){
     }
 
     // checking when trigger tower has unexpected or invalid ID
-    dqmStore_->setCurrentFolder("EcalBarrel/EBIntegrityTask/TTId");
+    dqmStore_->setCurrentFolder(prefixME_ + "EcalBarrel/EBIntegrityTask/TTId");
     for (int i = 0; i < 36; i++) {
       sprintf(histo, "EBIT TTId %s", Numbers::sEB(i+1).c_str());
       meIntegrityTTId[i] = dqmStore_->book2D(histo, histo, 17, 0., 17., 4, 0., 4.);
@@ -141,7 +142,7 @@ void EBIntegrityTask::setup(void){
     }
 
     // checking when trigger tower has unexpected or invalid size
-    dqmStore_->setCurrentFolder("EcalBarrel/EBIntegrityTask/TTBlockSize");
+    dqmStore_->setCurrentFolder(prefixME_ + "EcalBarrel/EBIntegrityTask/TTBlockSize");
     for (int i = 0; i < 36; i++) {
       sprintf(histo, "EBIT TTBlockSize %s", Numbers::sEB(i+1).c_str());
       meIntegrityTTBlockSize[i] = dqmStore_->book2D(histo, histo, 17, 0., 17., 4, 0., 4.);
@@ -151,7 +152,7 @@ void EBIntegrityTask::setup(void){
     }
 
     // checking when mem channels have unexpected ID
-    dqmStore_->setCurrentFolder("EcalBarrel/EBIntegrityTask/MemChId");
+    dqmStore_->setCurrentFolder(prefixME_ + "EcalBarrel/EBIntegrityTask/MemChId");
     for (int i = 0; i < 36; i++) {
       sprintf(histo, "EBIT MemChId %s", Numbers::sEB(i+1).c_str());
       meIntegrityMemChId[i] = dqmStore_->book2D(histo, histo, 10, 0., 10., 5, 0., 5.);
@@ -163,7 +164,7 @@ void EBIntegrityTask::setup(void){
     // checking when mem samples have second bit encoding the gain different from 0
     // note: strictly speaking, this does not corrupt the mem sample gain value (since only first bit is considered)
     // but indicates that data are not completely correct
-    dqmStore_->setCurrentFolder("EcalBarrel/EBIntegrityTask/MemGain");
+    dqmStore_->setCurrentFolder(prefixME_ + "EcalBarrel/EBIntegrityTask/MemGain");
     for (int i = 0; i < 36; i++) {
       sprintf(histo, "EBIT MemGain %s", Numbers::sEB(i+1).c_str());
       meIntegrityMemGain[i] = dqmStore_->book2D(histo, histo, 10, 0., 10., 5, 0., 5.);
@@ -173,7 +174,7 @@ void EBIntegrityTask::setup(void){
     }
 
     // checking when mem tower block has unexpected ID
-    dqmStore_->setCurrentFolder("EcalBarrel/EBIntegrityTask/MemTTId");
+    dqmStore_->setCurrentFolder(prefixME_ + "EcalBarrel/EBIntegrityTask/MemTTId");
     for (int i = 0; i < 36; i++) {
       sprintf(histo, "EBIT MemTTId %s", Numbers::sEB(i+1).c_str());
       meIntegrityMemTTId[i] = dqmStore_->book2D(histo, histo, 2, 0., 2., 1, 0., 1.);
@@ -183,7 +184,7 @@ void EBIntegrityTask::setup(void){
     }
 
     // checking when mem tower block has invalid size
-    dqmStore_->setCurrentFolder("EcalBarrel/EBIntegrityTask/MemSize");
+    dqmStore_->setCurrentFolder(prefixME_ + "EcalBarrel/EBIntegrityTask/MemSize");
     for (int i = 0; i < 36; i++) {
       sprintf(histo, "EBIT MemSize %s", Numbers::sEB(i+1).c_str());
       meIntegrityMemTTBlockSize[i] = dqmStore_->book2D(histo, histo, 2, 0., 2., 1, 0., 1.);
@@ -202,60 +203,60 @@ void EBIntegrityTask::cleanup(void){
   if ( ! enableCleanup_ ) return;
 
   if ( dqmStore_ ) {
-    dqmStore_->setCurrentFolder("EcalBarrel/EBIntegrityTask");
+    dqmStore_->setCurrentFolder(prefixME_ + "EcalBarrel/EBIntegrityTask");
 
     if ( meIntegrityDCCSize ) dqmStore_->removeElement( meIntegrityDCCSize->getName() );
     meIntegrityDCCSize = 0;
 
-    dqmStore_->setCurrentFolder("EcalBarrel/EBIntegrityTask/Gain");
+    dqmStore_->setCurrentFolder(prefixME_ + "EcalBarrel/EBIntegrityTask/Gain");
     for (int i = 0; i < 36; i++) {
       if ( meIntegrityGain[i] ) dqmStore_->removeElement( meIntegrityGain[i]->getName() );
       meIntegrityGain[i] = 0;
     }
 
-    dqmStore_->setCurrentFolder("EcalBarrel/EBIntegrityTask/ChId");
+    dqmStore_->setCurrentFolder(prefixME_ + "EcalBarrel/EBIntegrityTask/ChId");
     for (int i = 0; i < 36; i++) {
       if ( meIntegrityChId[i] ) dqmStore_->removeElement( meIntegrityChId[i]->getName() );
       meIntegrityChId[i] = 0;
     }
 
-    dqmStore_->setCurrentFolder("EcalBarrel/EBIntegrityTask/GainSwitch");
+    dqmStore_->setCurrentFolder(prefixME_ + "EcalBarrel/EBIntegrityTask/GainSwitch");
     for (int i = 0; i < 36; i++) {
       if ( meIntegrityGainSwitch[i] ) dqmStore_->removeElement( meIntegrityGainSwitch[i]->getName() );
       meIntegrityGainSwitch[i] = 0;
     }
 
-    dqmStore_->setCurrentFolder("EcalBarrel/EBIntegrityTask/TTId");
+    dqmStore_->setCurrentFolder(prefixME_ + "EcalBarrel/EBIntegrityTask/TTId");
     for (int i = 0; i < 36; i++) {
       if ( meIntegrityTTId[i] ) dqmStore_->removeElement( meIntegrityTTId[i]->getName() );
       meIntegrityTTId[i] = 0;
     }
 
-    dqmStore_->setCurrentFolder("EcalBarrel/EBIntegrityTask/TTBlockSize");
+    dqmStore_->setCurrentFolder(prefixME_ + "EcalBarrel/EBIntegrityTask/TTBlockSize");
     for (int i = 0; i < 36; i++) {
       if ( meIntegrityTTBlockSize[i] ) dqmStore_->removeElement( meIntegrityTTBlockSize[i]->getName() );
       meIntegrityTTBlockSize[i] = 0;
     }
 
-    dqmStore_->setCurrentFolder("EcalBarrel/EBIntegrityTask/MemChId");
+    dqmStore_->setCurrentFolder(prefixME_ + "EcalBarrel/EBIntegrityTask/MemChId");
     for (int i = 0; i < 36; i++) {
       if ( meIntegrityMemChId[i] ) dqmStore_->removeElement( meIntegrityMemChId[i]->getName() );
       meIntegrityMemChId[i] = 0;
     }
 
-    dqmStore_->setCurrentFolder("EcalBarrel/EBIntegrityTask/MemGain");
+    dqmStore_->setCurrentFolder(prefixME_ + "EcalBarrel/EBIntegrityTask/MemGain");
     for (int i = 0; i < 36; i++) {
       if ( meIntegrityMemGain[i] ) dqmStore_->removeElement( meIntegrityMemGain[i]->getName() );
       meIntegrityMemGain[i] = 0;
     }
 
-    dqmStore_->setCurrentFolder("EcalBarrel/EBIntegrityTask/MemTTId");
+    dqmStore_->setCurrentFolder(prefixME_ + "EcalBarrel/EBIntegrityTask/MemTTId");
     for (int i = 0; i < 36; i++) {
       if ( meIntegrityMemTTId[i] ) dqmStore_->removeElement( meIntegrityMemTTId[i]->getName() );
       meIntegrityMemTTId[i] = 0;
     }
 
-    dqmStore_->setCurrentFolder("EcalBarrel/EBIntegrityTask/MemSize");
+    dqmStore_->setCurrentFolder(prefixME_ + "EcalBarrel/EBIntegrityTask/MemSize");
     for (int i = 0; i < 36; i++) {
       if ( meIntegrityMemTTBlockSize[i] ) dqmStore_->removeElement( meIntegrityMemTTBlockSize[i]->getName() );
       meIntegrityMemTTBlockSize[i] = 0;

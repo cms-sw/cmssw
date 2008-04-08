@@ -1,8 +1,8 @@
 /*
  * \file EBBeamCaloTask.cc
  *
- * $Date: 2008/04/07 11:30:23 $
- * $Revision: 1.65 $
+ * $Date: 2008/04/08 15:06:24 $
+ * $Revision: 1.66 $
  * \author A. Ghezzi
  *
  */
@@ -39,8 +39,9 @@ EBBeamCaloTask::EBBeamCaloTask(const ParameterSet& ps){
 
   init_ = false;
 
-  // get hold of back-end interface
   dqmStore_ = Service<DQMStore>().operator->();
+
+  prefixME_ = ps.getUntrackedParameter<string>("prefixME", "");
 
   enableCleanup_ = ps.getUntrackedParameter<bool>("enableCleanup", false);
 
@@ -103,8 +104,8 @@ void EBBeamCaloTask::beginJob(const EventSetup& c){
   profileArranged_ = false;
 
   if ( dqmStore_ ) {
-    dqmStore_->setCurrentFolder("EcalBarrel/EBBeamCaloTask");
-    dqmStore_->rmdir("EcalBarrel/EBBeamCaloTask");
+    dqmStore_->setCurrentFolder(prefixME_ + "EcalBarrel/EBBeamCaloTask");
+    dqmStore_->rmdir(prefixME_ + "EcalBarrel/EBBeamCaloTask");
   }
 
   Numbers::initGeometry(c, false);
@@ -137,7 +138,7 @@ void EBBeamCaloTask::setup(void){
   previous_cry_in_beam_ = 1;
 
   if ( dqmStore_ ) {
-    dqmStore_->setCurrentFolder("EcalBarrel/EBBeamCaloTask");
+    dqmStore_->setCurrentFolder(prefixME_ + "EcalBarrel/EBBeamCaloTask");
 
     for (int i = 0; i < cryInArray_ ; i++) {
       sprintf(histo, "EBBCT pulse profile cry %01d", i+1);
@@ -178,7 +179,7 @@ void EBBeamCaloTask::setup(void){
 
     }
 
-//     dqmStore_->setCurrentFolder("EcalBarrel/EBBeamCaloTask/EnergyHistos");
+//     dqmStore_->setCurrentFolder(prefixME_ + "EcalBarrel/EBBeamCaloTask/EnergyHistos");
 //     for(int u=0; u< 1701;u++){
 //       sprintf(histo, "EBBCT rec Ene sum 3x3 cry: %04d",u);
 //       meBBCaloE3x3Cry_[u] = dqmStore_->book1D(histo,histo,1000,0.,4500.);
@@ -187,7 +188,7 @@ void EBBeamCaloTask::setup(void){
 //       meBBCaloE1Cry_[u] = dqmStore_->book1D(histo,histo,1000,0.,4500.);
 //     }
 
-//     dqmStore_->setCurrentFolder("EcalBarrel/EBBeamCaloTask");
+//     dqmStore_->setCurrentFolder(prefixME_ + "EcalBarrel/EBBeamCaloTask");
     sprintf(histo, "EBBCT readout crystals");
     meBBCaloCryRead_ =  dqmStore_->book2D(histo,histo,9,-4.,5.,9,-4.,5.);
     //matrix of readout crystal around cry in beam
@@ -283,7 +284,7 @@ void EBBeamCaloTask::cleanup(void){
   if ( ! enableCleanup_ ) return;
 
   if ( dqmStore_ ) {
-    dqmStore_->setCurrentFolder("EcalBarrel/EBBeamCaloTask");
+    dqmStore_->setCurrentFolder(prefixME_ + "EcalBarrel/EBBeamCaloTask");
     for (int i = 0; i < cryInArray_ ; i++) {
       if ( meBBCaloPulseProf_[i] ) dqmStore_->removeElement( meBBCaloPulseProf_[i]->getName() );
       meBBCaloPulseProf_[i] = 0;
@@ -304,7 +305,7 @@ void EBBeamCaloTask::cleanup(void){
 //       meBBCaloEneMoving_[i] = 0;
     }
 
-//     dqmStore_->setCurrentFolder("EcalBarrel/EBBeamCaloTask/EnergyHistos");
+//     dqmStore_->setCurrentFolder(prefixME_ + "EcalBarrel/EBBeamCaloTask/EnergyHistos");
 //     for(int u=0; u< 1701;u++){
 //       if ( meBBCaloE3x3Cry_[u] ) dqmStore_->removeElement( meBBCaloE3x3Cry_[u]->getName() );
 //       meBBCaloE3x3Cry_[u] = 0;
@@ -312,7 +313,7 @@ void EBBeamCaloTask::cleanup(void){
 //       meBBCaloE1Cry_[u] = 0;
 //     }
 
-//     dqmStore_->setCurrentFolder("EcalBarrel/EBBeamCaloTask");
+//     dqmStore_->setCurrentFolder(prefixME_ + "EcalBarrel/EBBeamCaloTask");
     if ( meBBCaloCryRead_ ) dqmStore_->removeElement( meBBCaloCryRead_->getName() );
     meBBCaloCryRead_ = 0;
     //    if ( meBBCaloCryReadMoving_ ) dqmStore_->removeElement( meBBCaloCryReadMoving_->getName() );

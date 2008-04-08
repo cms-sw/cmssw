@@ -4,8 +4,8 @@
 /*
  * \file EELaserTask.h
  *
- * $Date: 2008/02/29 15:07:49 $
- * $Revision: 1.8 $
+ * $Date: 2008/04/08 15:06:27 $
+ * $Revision: 1.9 $
  * \author G. Della Ricca
  *
 */
@@ -49,6 +49,8 @@ private:
 int ievt_;
 
 DQMStore* dqmStore_;
+
+std::string prefixME_;
 
 bool enableCleanup_;
 
