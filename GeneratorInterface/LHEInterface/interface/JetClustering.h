@@ -43,6 +43,7 @@ class JetClustering {
 
 		double momentum() const { return p4_.P(); }
 		double pt() const { return p4_.Perp(); }
+		double et() const { return p4_.Et(); }
 		double theta() const { return p4_.Theta(); }
 		double eta() const { return p4_.Eta(); }
 		double phi() const { return p4_.Phi(); }

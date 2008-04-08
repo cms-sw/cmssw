@@ -63,7 +63,9 @@ class JetMatching {
 
 	const double			maxDeltaR;
 	const double			minJetPt;
+	double				maxEta;
 	double				matchPtFraction;
+	bool				useEt;
 	MatchMode			matchMode;
 
 	std::auto_ptr<JetInput>		partonInput;
