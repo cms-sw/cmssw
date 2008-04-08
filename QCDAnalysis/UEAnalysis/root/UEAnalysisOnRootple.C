@@ -5,6 +5,10 @@
 #include <TCanvas.h>
 #include <TVector3.h>
 
+//
+#include <TClonesArray.h>
+#include <TObjString.h>
+//
 
 typedef pair<TVector3*,TVector3*> AssociatedObject;
 
@@ -60,6 +64,16 @@ void UEAnalysisOnRootple::Loop(Float_t we,Float_t triggerPt,string type,string t
     Long64_t ientry = LoadTree(jentry);
     if (ientry < 0) break;
     nb = fChain->GetEntry(jentry);   nbytes += nb;
+
+    cout << endl << "Event has been accepted by " << acceptedTriggers->GetSize() << endl;
+    
+    int nAcceptedTriggers( acceptedTriggers->GetSize() );
+    for ( int iAcceptedTrigger(0); iAcceptedTrigger<nAcceptedTriggers; ++iAcceptedTrigger )
+      {
+	cout << "\t(" << iAcceptedTrigger << ") trigger path ";
+	cout << (acceptedTriggers->At(iAcceptedTrigger))->GetName() << endl;
+      } 
+
     if(type=="Jet"){
       if(trigger=="MB"){
 	if( EventKind != 92 && EventKind != 93 && EventKind != 94 ){

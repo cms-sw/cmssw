@@ -15,6 +15,12 @@
 #include <TProfile.h>
 #include <iostream>
 #include <fstream>
+
+//
+#include <TClonesArray.h>
+#include <TObjString.h>
+//
+
 using namespace std;
 
 class UEAnalysisOnRootple {
@@ -55,6 +61,10 @@ public :
   Float_t         EtaEHJ[1000];   //[NumberCaloJet]
   Float_t         PhiEHJ[1000];   //[NumberCaloJet]
 
+  //
+  TClonesArray    *acceptedTriggers;
+  //
+
   // List of branches
   TBranch        *b_EventKind;   //!
   TBranch        *b_NumberMCParticles;   //!
@@ -87,6 +97,11 @@ public :
   TBranch        *b_TrasverseMomentumEHJ;   //!
   TBranch        *b_EtaEHJ;   //!
   TBranch        *b_PhiEHJ;   //!
+
+  //
+  TBranch        *b_acceptedTriggers; 
+  //
+
 
   //Charged Jet caharacterization
   TH1F* dr_chgcalo;
@@ -295,6 +310,11 @@ void UEAnalysisOnRootple::Init(TTree *tree)
    fChain = tree;
    fCurrent = -1;
    fChain->SetMakeClass(1);
+
+   //
+   acceptedTriggers = 0;
+   fChain->SetBranchAddress("acceptedTriggers", &acceptedTriggers, &b_acceptedTriggers);
+   //
 
    fChain->SetBranchAddress("EventKind", &EventKind, &b_EventKind);
    fChain->SetBranchAddress("NumberMCParticles", &NumberMCParticles, &b_NumberMCParticles);
