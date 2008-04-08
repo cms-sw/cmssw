@@ -1,5 +1,5 @@
 //
-// $Id: TtSemiEvtSolutionMaker.cc,v 1.31 2008/01/25 13:49:08 vadler Exp $
+// $Id: TtSemiEvtSolutionMaker.cc,v 1.32 2008/02/17 11:09:40 rwolf Exp $
 //
 
 #include "PhysicsTools/Utilities/interface/DeltaR.h"
@@ -168,11 +168,11 @@ void TtSemiEvtSolutionMaker::produce(edm::Event & iEvent, const edm::EventSetup 
       iEvent.getByLabel ("genEvt",genEvt); 
       if (genEvt->numberOfBQuarks() == 2 &&   // FIXME: in rare cases W->bc decay, resulting in a wrong filled genEvt leading to a segmentation fault
           genEvt->numberOfLeptons() == 1) {   // FIXME: temporary solution to avoid crash in JetPartonMatching for non semi-leptonic events
-        vector<const reco::GenParticle*> quarks;
-        const reco::GenParticle & genp  = *(genEvt->hadronicDecayQuark());
-        const reco::GenParticle & genq  = *(genEvt->hadronicDecayQuarkBar());
-        const reco::GenParticle & genbh = *(genEvt->hadronicDecayB());
-        const reco::GenParticle & genbl = *(genEvt->leptonicDecayB());
+        vector<const reco::Candidate*> quarks;
+        const reco::Candidate & genp  = *(genEvt->hadronicDecayQuark());
+        const reco::Candidate & genq  = *(genEvt->hadronicDecayQuarkBar());
+        const reco::Candidate & genbh = *(genEvt->hadronicDecayB());
+        const reco::Candidate & genbl = *(genEvt->leptonicDecayB());
         quarks.push_back( &genp );
         quarks.push_back( &genq );
         quarks.push_back( &genbh );
@@ -188,7 +188,7 @@ void TtSemiEvtSolutionMaker::produce(edm::Event & iEvent, const edm::EventSetup 
           recjets.push_back( &jetq );
           recjets.push_back( &jetbh );
           recjets.push_back( &jetbl );
-          JetPartonMatching aMatch(quarks,recjets,1);  // 1: SpaceAngle; 2: DeltaR   
+          JetPartonMatching aMatch(quarks, recjets, 3, true, true, 0.3);
           (*evtsols)[s].setGenEvt(genEvt);   
           (*evtsols)[s].setMCBestSumAngles(aMatch.getSumAngles());
           (*evtsols)[s].setMCBestAngleHadp(aMatch.getAngleForParton(0));

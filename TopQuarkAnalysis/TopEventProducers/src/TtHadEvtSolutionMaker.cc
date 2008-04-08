@@ -1,4 +1,4 @@
-// $Id: TtHadEvtSolutionMaker.cc,v 1.8 2008/01/25 13:49:08 vadler Exp $
+// $Id: TtHadEvtSolutionMaker.cc,v 1.9 2008/02/17 11:09:40 rwolf Exp $
 
 #include "TopQuarkAnalysis/TopEventProducers/interface/TtHadEvtSolutionMaker.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -183,14 +183,13 @@ void TtHadEvtSolutionMaker::produce(edm::Event & iEvent, const edm::EventSetup &
 	int bestSolutionChangeW2Q = -999;
 	edm::Handle<TtGenEvent> genEvt;
 	iEvent.getByLabel ("genEvt",genEvt); 
-	vector<const reco::GenParticle*> quarks;
-	const reco::GenParticle & genp  = *(genEvt->quarkFromTop());
-	const reco::GenParticle & genq  = *(genEvt->quarkFromTopBar());
-	const reco::GenParticle & genb  = *(genEvt->b());
-	const reco::GenParticle & genj  = *(genEvt->quarkFromAntiTop());
-	const reco::GenParticle & genk  = *(genEvt->quarkFromAntiTopBar());
-	const reco::GenParticle & genbbar = *(genEvt->bBar());
-
+	vector<const reco::Candidate*> quarks;
+	const reco::Candidate & genp  = *(genEvt->quarkFromTop());
+	const reco::Candidate & genq  = *(genEvt->quarkFromTopBar());
+	const reco::Candidate & genb  = *(genEvt->b());
+	const reco::Candidate & genj  = *(genEvt->quarkFromAntiTop());
+	const reco::Candidate & genk  = *(genEvt->quarkFromAntiTopBar());
+	const reco::Candidate & genbbar = *(genEvt->bBar());
 	quarks.push_back( &genp );       
 	quarks.push_back( &genq );   
 	quarks.push_back( &genb );
@@ -212,7 +211,7 @@ void TtHadEvtSolutionMaker::produce(edm::Event & iEvent, const edm::EventSetup &
 	  jets.push_back( &jetj );
 	  jets.push_back( &jetk );
 	  jets.push_back( &jetbbar );
-	  JetPartonMatching aMatch(quarks,jets,2);  // 1: SpaceAngle; 2: DeltaR  
+	  JetPartonMatching aMatch(quarks, jets, 3, true, true, 0.3);
 	  (*evtsols)[s].setGenEvt(genEvt);   
 	  (*evtsols)[s].setMCBestSumAngles(aMatch.getSumAngles());
 	  (*evtsols)[s].setMCBestAngleHadp(aMatch.getAngleForParton(0));
