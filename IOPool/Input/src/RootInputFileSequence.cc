@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: RootInputFileSequence.cc,v 1.9 2008/04/01 23:12:39 wmtan Exp $
+$Id: RootInputFileSequence.cc,v 1.10 2008/04/03 04:19:55 wmtan Exp $
 ----------------------------------------------------------------------*/
 #include "RootInputFileSequence.h"
 #include "PoolSource.h"
@@ -312,6 +312,7 @@ namespace edm {
   RootInputFileSequence::rewind_() {
     closeFile_();
     fileIter_ = fileIterBegin_;
+    firstFile_ = true;
     initFile(skipBadFiles_);
   }
 
