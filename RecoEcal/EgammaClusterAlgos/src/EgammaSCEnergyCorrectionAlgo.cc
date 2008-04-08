@@ -1,5 +1,5 @@
 //
-// $Id: EgammaSCEnergyCorrectionAlgo.cc,v 1.24 2008/04/07 11:14:16 kkaadze Exp $
+// $Id: EgammaSCEnergyCorrectionAlgo.cc,v 1.25 2008/04/07 19:22:10 kkaadze Exp $
 // Author: David Evans, Bristol
 //
 #include "RecoEcal/EgammaClusterAlgos/interface/EgammaSCEnergyCorrectionAlgo.h"
@@ -21,9 +21,7 @@ EgammaSCEnergyCorrectionAlgo::EgammaSCEnergyCorrectionAlgo(double noise,
   
   fBrem_ = pset.getParameter<std::vector<double> >("fBremVec");  
   fEtEta_ = pset.getParameter<std::vector<double> >("fEtEtaVec");
-  brLinearLowThr_ = pset.getParameter<double>("brLinearLowThr");
-  brLinearHighThr_ = pset.getParameter<double>("brLinearHighThr");
-  corrF_ = pset.getParameter<std::vector<int> >("corrF");
+  brLinearThr_ = pset.getParameter<double>("brLinearThr");
 
 }
 
@@ -130,12 +128,7 @@ reco::SuperCluster EgammaSCEnergyCorrectionAlgo::applyCorrection(const reco::Sup
     double eT = newEnergy/cosh(cl.eta());
     eT = fEtEta(eT, cl.eta());
     newEnergy = eT*cosh(cl.eta());
-  } else if  ( theAlgo == reco::fixedMatrix ) {     
-    newEnergy = fBrem(cl.energy(), phiWidth/etaWidth);
-    double eT = newEnergy/cosh(cl.eta());
-    eT = fEtEta(eT, cl.eta());
-    newEnergy = eT*cosh(cl.eta());
-  } else {  
+  }else {  
     //Apply f(nCry) correction on island algo and fixedMatrix algo 
     newEnergy = seedC->energy()/fNCrystals(nCryGT2Sigma, theAlgo, theBase)+bremsEnergy;
   } 
@@ -181,9 +174,9 @@ double EgammaSCEnergyCorrectionAlgo::fBrem(double e, double brLinear)
   if ( brLinear == 0 ) return e;
 
   //Make flat corection if brLinear is too small or big 
-  if ( brLinear < brLinearLowThr_ ) brLinear = brLinearLowThr_;  
+  if ( brLinear < 0.7 ) brLinear = 0.7;  
 
-  if ( brLinear > brLinearHighThr_ ) brLinear = brLinearHighThr_;  
+  if ( brLinear > brLinearThr_ ) brLinear = brLinearThr_;  
 
   //Parameters provided in cfg file
   double p0 = fBrem_[0]; 
@@ -220,9 +213,8 @@ double EgammaSCEnergyCorrectionAlgo::fEtEta(double et, double eta)
   double p1 = fEtEta_[4]/(et + fEtEta_[5]) + fEtEta_[6]/(et*et);
 
   fCorr = p0 
-    + corrF_[0] * p1*atan(fEtEta_[7]*(fEtEta_[8]-fabs(eta))) 
-    + corrF_[1] * fEtEta_[9]*fabs(eta) 
-    + corrF_[2] * p1*(fabs(eta) - fEtEta_[10])*(fabs(eta) - fEtEta_[10]);
+    + p1*atan(fEtEta_[7]*(fEtEta_[8]-fabs(eta))) 
+    + fEtEta_[9]*fabs(eta); 
  
   if ( fCorr < 0.5 ) fCorr = 0.5;
 
