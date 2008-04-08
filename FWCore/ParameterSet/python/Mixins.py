@@ -271,7 +271,7 @@ class _TypedParameterizable(_Parameterizable):
 
     def dumpPython(self, options=PrintOptions()):
         result = "cms."+str(type(self).__name__)+"(\""+self.type_()+"\""
-        nparam = len(self.parameters_())
+        nparam = len(self.parameterNames_())
         if nparam == 0:
             result += ")\n"
         elif nparam < 256:
