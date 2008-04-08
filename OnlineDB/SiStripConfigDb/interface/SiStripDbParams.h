@@ -1,4 +1,4 @@
-// Last commit: $Id: $
+// Last commit: $Id: SiStripDbParams.h,v 1.1 2008/04/08 09:14:51 bainbrid Exp $
 
 #ifndef OnlineDB_SiStripConfigDb_SiStripDbParams_h
 #define OnlineDB_SiStripConfigDb_SiStripDbParams_h
@@ -11,12 +11,20 @@
 #include <ostream>
 #include <sstream>
 
-/** Container class for database connection parameters. */
+class SiStripDbParams;
+
+/** Debug printout for SiStripDbParams class. */
+std::ostream& operator<< ( std::ostream&, const SiStripDbParams& );
+
+/** 
+    @class SiStripDbParams
+    @brief Container class for database connection parameters. 
+    @author R.Bainbridge
+*/
 class SiStripDbParams { 
   
  public:
     
-  // Constructor and methods
   SiStripDbParams();
 
   ~SiStripDbParams();
@@ -37,7 +45,7 @@ class SiStripDbParams {
 
   std::vector<std::string> partitions( std::string ) const;
 
-  // Public member data 
+  // ---------- PUBLIC member data ----------
 
  public:
   
@@ -104,8 +112,5 @@ class SiStripDbParams {
   std::string tnsAdmin_;
 
 };
-
-/** Debug printout for SiStripDbParams class. */
-std::ostream& operator<< ( std::ostream&, const SiStripDbParams& );
 
 #endif // OnlineDB_SiStripConfigDb_SiStripDbParams_h

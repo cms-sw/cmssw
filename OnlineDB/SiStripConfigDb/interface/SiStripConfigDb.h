@@ -1,9 +1,11 @@
-// Last commit: $Id: SiStripConfigDb.h,v 1.50 2008/03/28 15:16:15 bainbrid Exp $
+// Last commit: $Id: SiStripConfigDb.h,v 1.51 2008/04/08 09:14:51 bainbrid Exp $
 
 #ifndef OnlineDB_SiStripConfigDb_SiStripConfigDb_h
 #define OnlineDB_SiStripConfigDb_SiStripConfigDb_h
 
-#define DATABASE //@@ very necesssary!
+#define DATABASE // Needed by DeviceFactory API! Do not comment!
+//#define USING_NEW_DATABASE_MODEL
+//#define USING_DATABASE_CACHE
 
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -23,22 +25,11 @@
 #include <string>
 #include <map>
 
-//#define USING_NEW_DATABASE_MODEL
-//#define USING_DATABASE_CACHE
-
 #ifdef USING_DATABASE_CACHE
 #include "DbClient.h"
 #else
 class DbClient;
 #endif
-
-/*
-  - Remaining work:
-  - run number, o2o
-  - multi-partitions (multi-download, inhibit upload?)
-  - calibrations data-handling
-  - psu mapping
-*/
 
 #ifdef USING_NEW_DATABASE_MODEL
 namespace sistrip {
@@ -62,9 +53,7 @@ namespace cms { class SiStripO2O; }
 */
 class SiStripConfigDb {
   
-  
  public:
-
 
   // ---------- Constructors, destructors ----------
 
@@ -78,12 +67,9 @@ class SiStripConfigDb {
   /** Default destructor. */
   ~SiStripConfigDb();
   
-
   // ---------- PROTECTED INTERFACE ----------
   
-  
  protected:
-  
   
   /*
     Access to the configuration database is reserved solely for the
@@ -118,9 +104,7 @@ class SiStripConfigDb {
   friend class PopulateConfigDb;
   friend class testSiStripConfigDb;
 
-
   // ---------- Typedefs and structs ----------
-
 
   typedef std::vector<deviceDescription*> DeviceDescriptions;
 
@@ -166,9 +150,7 @@ class SiStripConfigDb {
     uint16_t feChan_;
   };
   
-  
   // ---------- Connection and local cache ----------
-
   
   /** Establishes connection to DeviceFactory API. */
   void openDbConnection();
@@ -188,7 +170,6 @@ class SiStripConfigDb {
   /** Returns pointer to DeviceFactory API, with check if NULL. */
   DbClient* const databaseCache( std::string method_name = "" ) const;
   
-
   // ---------- FEC / Front-End devices ---------- 
 
   /** Returns descriptions for given device type (which can be one
@@ -207,9 +188,7 @@ class SiStripConfigDb {
   /** Extracts unique hardware address of device from description. */
   DeviceAddress deviceAddress( const deviceDescription& ); //@@ uses temp offsets!
   
-
   // ---------- FED descriptions ----------
-
 
   /** Fills local cache with FED descriptions from DB/xml. */
   const FedDescriptions& getFedDescriptions();
@@ -229,9 +208,7 @@ class SiStripConfigDb {
   /** Enable/disable strip info within FED descriptions. */
   inline void usingStrips( bool );
   
-
   // ---------- FED connections ----------
-
 
   /** Fills local cache with connection descriptions from DB/xml. */
   const FedConnections& getFedConnections();
@@ -242,7 +219,6 @@ class SiStripConfigDb {
   /** Creates "dummy" FED connections based on FEC cabling. */
   void createFedConnections( const SiStripFecCabling& );
   
-
   // ---------- Commissioning analyses ---------- 
   
 #ifdef USING_NEW_DATABASE_MODEL
@@ -278,9 +254,7 @@ class SiStripConfigDb {
 
 #endif
 
-
   // ---------- DCU-DetId info ----------
-
 
   /** Returns the DcuId-DetId map. If the local cache is empty, it
       retrieves the DcuId-DetId map from the DB/xml file. */
@@ -288,23 +262,18 @@ class SiStripConfigDb {
   
   /** Uploads the contents of the local cache to DB/xml file. */
   void uploadDcuDetIdMap();
-
   
   // ---------- Miscellaneous ----------
-
   
   /** Creates "dummy" descriptions based on FEC cabling. */
   void createPartition( const std::string& partition_name,
 			const SiStripFecCabling&,
 			const DcuDetIdMap& ); 
   
-  
  private:
-  
 
   // ---------- Private methods ----------
 
-  
   /** */
   void usingDatabase();
 
@@ -323,11 +292,9 @@ class SiStripConfigDb {
   
   /** Returns device identifier based on device type. */
   std::string deviceType( const enumDeviceType& device_type ) const;
-
   
   // ---------- Database connection, partitions and versions ----------
 
-  
   /** Pointer to the DeviceFactory API. */
   DeviceFactory* factory_; 
 
@@ -337,9 +304,7 @@ class SiStripConfigDb {
   /** Instance of struct that holds all DB connection parameters. */
   SiStripDbParams dbParams_;
 
-
   // ---------- Local cache ----------
-
 
   /** Vector of descriptions for all FEC devices (including DCUs). */
   DeviceDescriptions devices_;
@@ -363,9 +328,7 @@ class SiStripConfigDb {
   /** FED ids. */ 
   std::vector<uint16_t> fedIds_;
 
-
   // ---------- Miscellaneous ----------
-
   
   /** Switch to enable/disable transfer of strip information. */
   bool usingStrips_;
@@ -380,9 +343,7 @@ class SiStripConfigDb {
   
 };
 
-
 // ---------- Inline methods ----------
-
 
 /** Returns DB connection parameters. */
 const SiStripDbParams& SiStripConfigDb::dbParams() const { return dbParams_; }
