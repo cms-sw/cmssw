@@ -1,6 +1,6 @@
 /*
- *  $Date: 2008/03/03 20:15:05 $
- *  $Revision: 1.13 $
+ *  $Date: 2007/11/28 16:30:39 $
+ *  $Revision: 1.11 $
  *  
  *  Filip Moorgat & Hector Naves 
  *  26/10/05
@@ -11,7 +11,7 @@
  */
 
 
-#include "GeneratorInterface/AlpgenInterface/interface/AlpgenSource.h"
+#include "GeneratorInterface/AlpgenInterface/interface/AlpgenProducer.h"
 #include "GeneratorInterface/AlpgenInterface/interface/PYR.h"
 #include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
 #include "SimDataFormats/HepMCProduct/interface/AlpgenInfoProduct.h"
@@ -20,7 +20,11 @@
 #include "FWCore/Framework/interface/Run.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/RandomNumberGenerator.h"
+//#include "CLHEP/Random/JamesRandom.h"
+//#include "CLHEP/Random/RandFlat.h"
 
+//#include <iostream>
+//#include <fstream>
 #include "time.h"
 
 using namespace edm; 
@@ -38,7 +42,7 @@ using namespace std;
 #include "GeneratorInterface/CommonInterface/interface/PythiaCMS.h"
 #include "GeneratorInterface/CommonInterface/interface/Txgive.h"
 
-HepMC::IO_HEPEVT conv;
+HepMC::IO_HEPEVT conv2;
 // ***********************
 
 
@@ -46,15 +50,18 @@ HepMC::IO_HEPEVT conv;
   static const unsigned long kNanoSecPerSec = 1000000000;
   static const unsigned long kAveEventPerSec = 200;
 
-AlpgenSource::AlpgenSource( const ParameterSet & pset, 
-			    InputSourceDescription const& desc ) :
-  ExternalInputSource(pset, desc), evt(0), 
+AlpgenProducer::AlpgenProducer( const ParameterSet & pset) :
+  EDProducer(), evt(0), 
   pythiaPylistVerbosity_ (pset.getUntrackedParameter<int>("pythiaPylistVerbosity",0)),
   pythiaHepMCVerbosity_ (pset.getUntrackedParameter<bool>("pythiaHepMCVerbosity",false)),
-  maxEventsToPrint_ (pset.getUntrackedParameter<int>("maxEventsToPrint",1))
+  maxEventsToPrint_ (pset.getUntrackedParameter<int>("maxEventsToPrint",1)),
+// JMM experimenting
+  fileNames_ (pset.getUntrackedParameter<std::vector<std::string> >("fileNames")),
+  eventsRead_(0)
+// end JMM experimenting
 {
   
-  fileName_ = fileNames()[0];
+  fileName_ = fileNames_[0];
   // strip the file: 
   if ( fileName_.find("file:") || fileName_.find("rfio:")){
     fileName_.erase(0,5);
@@ -73,6 +80,8 @@ AlpgenSource::AlpgenSource( const ParameterSet & pset,
     Nev_ = atoi(sNev);
   }
 
+// JMM experimenting
+#ifdef NEVER
   //check that N(asked events) <= N(input events)
   if(maxEvents()>Nev_) {
     cout << "ALPGEN warning: Number of events requested > Number of unweighted events" << endl;
@@ -81,6 +90,8 @@ AlpgenSource::AlpgenSource( const ParameterSet & pset,
 
   if(maxEvents() != -1 && maxEvents() < Nev_) // stop at N(asked events) if N(asked events)<N(input events)
     Nev_ = maxEvents();
+#endif
+// end JMM experimenting
   
   // PYLIST Verbosity Level
   // Valid PYLIST arguments are: 1, 2, 3, 5, 7, 11, 12, 13
@@ -156,18 +167,18 @@ AlpgenSource::AlpgenSource( const ParameterSet & pset,
 }
 
 
-AlpgenSource::~AlpgenSource(){
+AlpgenProducer::~AlpgenProducer(){
   call_pystat(1);
   //  call_pretauola(1);  // output from TAUOLA 
   alpgen_end();
   clear(); 
 }
 
-void AlpgenSource::clear() {
+void AlpgenProducer::clear() {
   
 }
 
-void AlpgenSource::beginRun(Run & r) {
+void AlpgenProducer::beginRun(Run & r) {
   // information on weighted events
   auto_ptr<AlpWgtFileInfoProduct> wgtFile(new AlpWgtFileInfoProduct());
   
@@ -179,11 +190,11 @@ void AlpgenSource::beginRun(Run & r) {
   r.put(wgtFile);
 }
 
-bool AlpgenSource::produce(Event & e) {
+void AlpgenProducer::produce(Event & e, const EventSetup& es) {
   
   // exit if N(events asked) has been exceeded
-  if(event()> Nev_) {
-    return false;
+  if(e.id().event()> Nev_) {
+    return;
   } else {
     
     auto_ptr<HepMCProduct> bare_product(new HepMCProduct());  
@@ -211,30 +222,31 @@ bool AlpgenSource::produce(Event & e) {
     
     call_pyhepc( 1 );
     
-    //    HepMC::GenEvent* evt = conv.getGenEventfromHEPEVT();
-    HepMC::GenEvent* evt = conv.read_next_event();
+    //    HepMC::GenEvent* evt = conv2.getGenEventfromHEPEVT();
+    HepMC::GenEvent* evt = conv2.read_next_event();
     
     evt->set_signal_process_id(pypars.msti[0]);
-    evt->set_event_number(numberEventsInRun() - remainingEvents() - 1);
-    
+    ++eventsRead_;
+    evt->set_event_number(eventsRead_);
+
     int id1 = pyint1.mint[14];
     int id2 = pyint1.mint[15];
     if ( id1 == 21 ) id1 = 0;
-    if ( id2 == 21 ) id2 = 0; 
+    if ( id2 == 21 ) id2 = 0;
     double x1 = pyint1.vint[40];
-    double x2 = pyint1.vint[41];  
+    double x2 = pyint1.vint[41];
     double Q  = pyint1.vint[50];
     double pdf1 = pyint1.vint[38];
     pdf1 /= x1 ;
     double pdf2 = pyint1.vint[39];
     pdf2 /= x2 ;
     evt->set_pdf_info( HepMC::PdfInfo(id1,id2,x1,x2,Q,pdf1,pdf2) ) ;
-    
-    evt->weights().push_back( pyint1.vint[96] );
 
+    evt->weights().push_back( pyint1.vint[96] );
+    
     //******** Verbosity ********
     
-    if(event() <= maxEventsToPrint_ &&
+    if(e.id().event() <= maxEventsToPrint_ &&
        (pythiaPylistVerbosity_ || pythiaHepMCVerbosity_)) {
       
       // Prints PYLIST info
@@ -258,12 +270,12 @@ bool AlpgenSource::produce(Event & e) {
     e.put(bare_product);
     e.put(alp_product);
 
-    return true;
+    return;
   }
 }
 
 bool 
-AlpgenSource::call_pygive(const std::string& iParm ) {
+AlpgenProducer::call_pygive(const std::string& iParm ) {
 
   int numWarn = pydat1.mstu[26]; //# warnings
   int numErr = pydat1.mstu[22];// # errors
@@ -276,7 +288,7 @@ AlpgenSource::call_pygive(const std::string& iParm ) {
 }
 //------------
 bool 
-AlpgenSource::call_txgive(const std::string& iParm ) 
+AlpgenProducer::call_txgive(const std::string& iParm ) 
    {
     //call the fortran routine txgive with a fortran string
     TXGIVE( iParm.c_str(), iParm.length() );  
