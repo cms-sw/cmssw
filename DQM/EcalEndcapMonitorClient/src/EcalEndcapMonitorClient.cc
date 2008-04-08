@@ -1,8 +1,8 @@
 /*
  * \file EcalEndcapMonitorClient.cc
  *
- * $Date: 2008/04/07 14:22:45 $
- * $Revision: 1.171 $
+ * $Date: 2008/04/08 15:06:26 $
+ * $Revision: 1.172 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -231,7 +231,15 @@ void EcalEndcapMonitorClient::initialize(const ParameterSet& ps){
     }
   }
 
-  // enableCleanup_ switch
+  // prefixME path
+
+  prefixME_ = ps.getUntrackedParameter<string>("prefixME", "");
+
+  if ( verbose_ ) {
+    cout << " prefixME path is '" << prefixME_ << "'" << endl;
+  }
+
+  // enableCleanup switch
 
   enableCleanup_ = ps.getUntrackedParameter<bool>("enableCleanup", false);
 
@@ -297,7 +305,7 @@ void EcalEndcapMonitorClient::initialize(const ParameterSet& ps){
   enabledClients_.push_back("Integrity");
   enabledClients_.push_back("StatusFlags");
   enabledClients_.push_back("PedestalOnline");
-  enabledClients_.push_back("PedestalOnline");
+  enabledClients_.push_back("Summary");
 
   enabledClients_ = ps.getUntrackedParameter<vector<string> >("enabledClients", enabledClients_);
 
@@ -1420,14 +1428,14 @@ void EcalEndcapMonitorClient::analyze(void){
   MonitorElement* me;
   string s;
 
-  me = dqmStore_->get("EcalEndcap/EcalInfo/STATUS");
+  me = dqmStore_->get(prefixME_ + "/EcalInfo/STATUS");
   if ( me ) {
     status_ = "unknown";
     s = me->valueString();
     if ( strcmp(s.c_str(), "i=0") == 0 ) status_ = "begin-of-run";
     if ( strcmp(s.c_str(), "i=1") == 0 ) status_ = "running";
     if ( strcmp(s.c_str(), "i=2") == 0 ) status_ = "end-of-run";
-    if ( debug_ ) cout << "Found 'EcalEndcap/EcalInfo/STATUS'" << endl;
+    if ( debug_ ) cout << "Found '" << prefixME_ << "/EcalInfo/STATUS'" << endl;
   }
 
   if ( inputFile_.size() != 0 ) {
@@ -1442,30 +1450,30 @@ void EcalEndcapMonitorClient::analyze(void){
   }
 
   int ecal_run = -1;
-  me = dqmStore_->get("EcalEndcap/EcalInfo/RUN");
+  me = dqmStore_->get(prefixME_ + "/EcalInfo/RUN");
   if ( me ) {
     s = me->valueString();
     sscanf(s.c_str(), "i=%d", &ecal_run);
-    if ( debug_ ) cout << "Found 'EcalEndcap/EcalInfo/RUN'" << endl;
+    if ( debug_ ) cout << "Found '" << prefixME_ << "/EcalInfo/RUN'" << endl;
   }
 
   int ecal_evt = -1;
-  me = dqmStore_->get("EcalEndcap/EcalInfo/EVT");
+  me = dqmStore_->get(prefixME_ + "/EcalInfo/EVT");
   if ( me ) {
     s = me->valueString();
     sscanf(s.c_str(), "i=%d", &ecal_evt);
-    if ( debug_ ) cout << "Found 'EcalEndcap/EcalInfo/EVT'" << endl;
+    if ( debug_ ) cout << "Found '" << prefixME_ << "/EcalInfo/EVT'" << endl;
   }
 
-  me = dqmStore_->get("EcalEndcap/EcalInfo/EVTTYPE");
+  me = dqmStore_->get(prefixME_ + "/EcalInfo/EVTTYPE");
   h_ = UtilsClient::getHisto<TH1F*>( me, cloneME_, h_ );
 
-  me = dqmStore_->get("EcalEndcap/EcalInfo/RUNTYPE");
+  me = dqmStore_->get(prefixME_ + "/EcalInfo/RUNTYPE");
   if ( me ) {
     s = me->valueString();
     sscanf(s.c_str(), "i=%d", &evtType_);
     if ( runType_ == -1 ) runType_ = evtType_;
-    if ( debug_ ) cout << "Found 'EcalEndcap/EcalInfo/RUNTYPE'" << endl;
+    if ( debug_ ) cout << "Found '" << prefixME_ << "/EcalInfo/RUNTYPE'" << endl;
   }
 
   // if the run number from the Event is less than zero,
@@ -1726,7 +1734,7 @@ void EcalEndcapMonitorClient::htmlOutput( bool current ){
     bool done = false;
     for ( multimap<EEClient*,int>::iterator j = clientsRuns_.lower_bound(clients_[i]); j != clientsRuns_.upper_bound(clients_[i]); j++ ) {
       if ( h_ && runType_ != -1 && runType_ == (*j).second && !done ) {
-        if ( strcmp(clientsNames_[i].c_str(), "Cosmic") == 0 && runType_ != runTypes_[EcalDCCHeaderBlock::COSMIC] && runType_ != runTypes_[EcalDCCHeaderBlock::COSMICS_LOCAL] && runType_ != runTypes_[EcalDCCHeaderBlock::COSMICS_GLOBAL] && runType_ != runTypes_[EcalDCCHeaderBlock::PHYSICS_GLOBAL] && runType_ != runTypes_[EcalDCCHeaderBlock::PHYSICS_LOCAL] && h_->GetBinContent(2+EcalDCCHeaderBlock::COSMIC) == 0 && h_->GetBinContent(2+EcalDCCHeaderBlock::COSMICS_LOCAL) == 0 && h_->GetBinContent(2+EcalDCCHeaderBlock::COSMICS_GLOBAL) == 0 && h_->GetBinContent(2+EcalDCCHeaderBlock::PHYSICS_GLOBAL) && h_->GetBinContent(2+EcalDCCHeaderBlock::PHYSICS_LOCAL) ) continue;
+        if ( strcmp(clientsNames_[i].c_str(), "Cosmic") == 0 && runType_ != runTypes_[EcalDCCHeaderBlock::COSMIC] && runType_ != runTypes_[EcalDCCHeaderBlock::COSMICS_LOCAL] && runType_ != runTypes_[EcalDCCHeaderBlock::COSMICS_GLOBAL] && runType_ != runTypes_[EcalDCCHeaderBlock::PHYSICS_GLOBAL] && runType_ != runTypes_[EcalDCCHeaderBlock::PHYSICS_LOCAL] && h_->GetBinContent(2+EcalDCCHeaderBlock::COSMIC) == 0 && h_->GetBinContent(2+EcalDCCHeaderBlock::COSMICS_LOCAL) == 0 && h_->GetBinContent(2+EcalDCCHeaderBlock::COSMICS_GLOBAL) == 0 && h_->GetBinContent(2+EcalDCCHeaderBlock::PHYSICS_GLOBAL) && h_->GetBinContent(2+EcalDCCHeaderBlock::PHYSICS_LOCAL) == 0 ) continue;
         if ( strcmp(clientsNames_[i].c_str(), "Laser") == 0 && runType_ != runTypes_[EcalDCCHeaderBlock::LASER_STD] && runType_ != runTypes_[EcalDCCHeaderBlock::LASER_GAP] && h_->GetBinContent(2+EcalDCCHeaderBlock::LASER_STD) == 0 && h_->GetBinContent(2+EcalDCCHeaderBlock::LASER_GAP) == 0 ) continue;
         if ( strcmp(clientsNames_[i].c_str(), "Led") == 0 && runType_ != runTypes_[EcalDCCHeaderBlock::LED_STD] && runType_ != runTypes_[EcalDCCHeaderBlock::LED_GAP] && h_->GetBinContent(2+EcalDCCHeaderBlock::LED_STD) == 0 && h_->GetBinContent(2+EcalDCCHeaderBlock::LED_GAP) == 0 ) continue;
         if ( strcmp(clientsNames_[i].c_str(), "Pedestal") == 0 && runType_ != runTypes_[EcalDCCHeaderBlock::PEDESTAL_STD] && runType_ != runTypes_[EcalDCCHeaderBlock::PEDESTAL_GAP] && h_->GetBinContent(2+EcalDCCHeaderBlock::PEDESTAL_STD) == 0 && h_->GetBinContent(2+EcalDCCHeaderBlock::PEDESTAL_GAP) == 0 ) continue;

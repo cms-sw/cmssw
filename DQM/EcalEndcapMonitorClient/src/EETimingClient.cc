@@ -1,8 +1,8 @@
 /*
  * \file EETimingClient.cc
  *
- * $Date: 2008/04/07 11:30:24 $
- * $Revision: 1.76 $
+ * $Date: 2008/04/08 15:06:26 $
+ * $Revision: 1.77 $
  * \author G. Della Ricca
  *
 */
@@ -48,6 +48,9 @@ EETimingClient::EETimingClient(const ParameterSet& ps){
 
   // debug switch
   debug_ = ps.getUntrackedParameter<bool>("debug", false);
+
+  // prefixME path
+  prefixME_ = ps.getUntrackedParameter<string>("prefixME", "");
 
   // enableCleanup_ switch
   enableCleanup_ = ps.getUntrackedParameter<bool>("enableCleanup", false);
@@ -134,7 +137,7 @@ void EETimingClient::setup(void) {
 
   char histo[200];
 
-  dqmStore_->setCurrentFolder( "EcalEndcap/EETimingClient" );
+  dqmStore_->setCurrentFolder( prefixME_ + "/EETimingClient" );
 
   for ( unsigned int i=0; i<superModules_.size(); i++ ) {
 
@@ -216,7 +219,7 @@ void EETimingClient::cleanup(void) {
 
   }
 
-  dqmStore_->setCurrentFolder( "EcalEndcap/EETimingClient" );
+  dqmStore_->setCurrentFolder( prefixME_ + "/EETimingClient" );
 
   for ( unsigned int i=0; i<superModules_.size(); i++ ) {
 
@@ -354,12 +357,12 @@ void EETimingClient::analyze(void){
 
     int ism = superModules_[i];
 
-    sprintf(histo, "EcalEndcap/EETimingTask/EETMT timing %s", Numbers::sEE(ism).c_str());
+    sprintf(histo, (prefixME_ + "/EETimingTask/EETMT timing %s").c_str(), Numbers::sEE(ism).c_str());
     me = dqmStore_->get(histo);
     h01_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, h01_[ism-1] );
     meh01_[ism-1] = me;
 
-    sprintf(histo, "EcalEndcap/EETimingTask/EETMT timing vs amplitude %s", Numbers::sEE(ism).c_str());
+    sprintf(histo, (prefixME_ + "/EETimingTask/EETMT timing vs amplitude %s").c_str(), Numbers::sEE(ism).c_str());
     me = dqmStore_->get(histo);
     h02_[ism-1] = UtilsClient::getHisto<TH2F*>( me, cloneME_, h02_[ism-1] );
     meh02_[ism-1] = me;

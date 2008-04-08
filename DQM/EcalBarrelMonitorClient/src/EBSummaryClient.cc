@@ -1,8 +1,8 @@
 /*
  * \file EBSummaryClient.cc
  *
- * $Date: 2008/04/07 09:00:41 $
- * $Revision: 1.130 $
+ * $Date: 2008/04/08 15:06:21 $
+ * $Revision: 1.131 $
  * \author G. Della Ricca
  *
 */
@@ -52,6 +52,9 @@ EBSummaryClient::EBSummaryClient(const ParameterSet& ps){
 
   // debug switch
   debug_ = ps.getUntrackedParameter<bool>("debug", false);
+
+  // prefixME path
+  prefixME_ = ps.getUntrackedParameter<string>("prefixME", "");
 
   // enableCleanup_ switch
   enableCleanup_ = ps.getUntrackedParameter<bool>("enableCleanup", false);
@@ -138,7 +141,7 @@ void EBSummaryClient::setup(void) {
 
   char histo[200];
 
-  dqmStore_->setCurrentFolder( "EcalBarrel/EBSummaryClient" );
+  dqmStore_->setCurrentFolder( prefixME_ + "/EBSummaryClient" );
 
   if ( meIntegrity_ ) dqmStore_->removeElement( meIntegrity_->getName() );
   sprintf(histo, "EBIT integrity quality summary");
@@ -302,7 +305,7 @@ void EBSummaryClient::setup(void) {
 
   // summary for DQM GUI
 
-  dqmStore_->setCurrentFolder( "EcalBarrel/EventInfo" );
+  dqmStore_->setCurrentFolder( prefixME_ + "/EventInfo" );
 
   MonitorElement* me;
 
@@ -317,7 +320,7 @@ void EBSummaryClient::cleanup(void) {
 
   if ( ! enableCleanup_ ) return;
 
-  dqmStore_->setCurrentFolder( "EcalBarrel/EBSummaryClient" );
+  dqmStore_->setCurrentFolder( prefixME_ + "/EBSummaryClient" );
 
   if ( meIntegrity_ ) dqmStore_->removeElement( meIntegrity_->getName() );
   meIntegrity_ = 0;
@@ -1080,16 +1083,16 @@ void EBSummaryClient::analyze(void){
 
   MonitorElement* me;
 
-  me = dqmStore_->get("EcalBarrel/EventInfo/errorSummary");
+  me = dqmStore_->get(prefixME_ + "/EventInfo/errorSummary");
   if (me) me->Fill(errorSummary);
 
-  me = dqmStore_->get("EcalBarrel/EventInfo/errorSummarySegments/Segment00");
+  me = dqmStore_->get(prefixME_ + "/EventInfo/errorSummarySegments/Segment00");
   if (me) me->Fill(errorSummaryEBM);
 
-  me = dqmStore_->get("EcalBarrel/EventInfo/errorSummarySegments/Segment01");
+  me = dqmStore_->get(prefixME_ + "/EventInfo/errorSummarySegments/Segment01");
   if (me) me->Fill(errorSummaryEBP);
 
-  me = dqmStore_->get("EcalBarrel/EventInfo/errorSummaryPhiEta_EB");
+  me = dqmStore_->get(prefixME_ + "/EventInfo/errorSummaryPhiEta_EB");
   if (me) {
 
     int nValidChannelsTT[72][34];

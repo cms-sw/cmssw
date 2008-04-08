@@ -1,8 +1,8 @@
 /*
  * \file EBStatusFlagsClient.cc
  *
- * $Date: 2008/04/07 11:30:22 $
- * $Revision: 1.16 $
+ * $Date: 2008/04/08 15:06:21 $
+ * $Revision: 1.17 $
  * \author G. Della Ricca
  *
 */
@@ -36,6 +36,9 @@ EBStatusFlagsClient::EBStatusFlagsClient(const ParameterSet& ps){
 
   // debug switch
   debug_ = ps.getUntrackedParameter<bool>("debug", false);
+
+  // prefixME path
+  prefixME_ = ps.getUntrackedParameter<string>("prefixME", "");
 
   // enableCleanup_ switch
   enableCleanup_ = ps.getUntrackedParameter<bool>("enableCleanup", false);
@@ -104,7 +107,7 @@ void EBStatusFlagsClient::endRun(void) {
 
 void EBStatusFlagsClient::setup(void) {
 
-  dqmStore_->setCurrentFolder( "EcalBarrel/EBStatusFlagsClient" );
+  dqmStore_->setCurrentFolder( prefixME_ + "/EBStatusFlagsClient" );
 
 }
 
@@ -129,7 +132,7 @@ void EBStatusFlagsClient::cleanup(void) {
 
   }
 
-  dqmStore_->setCurrentFolder( "EcalBarrel/EBStatusFlagsClient" );
+  dqmStore_->setCurrentFolder( prefixME_ + "/EBStatusFlagsClient" );
 
 }
 
@@ -171,12 +174,12 @@ void EBStatusFlagsClient::analyze(void){
 
     int ism = superModules_[i];
 
-    sprintf(histo, "EcalBarrel/EBStatusFlagsTask/FEStatus/EBSFT front-end status %s", Numbers::sEB(ism).c_str());
+    sprintf(histo, (prefixME_ + "/EBStatusFlagsTask/FEStatus/EBSFT front-end status %s").c_str(), Numbers::sEB(ism).c_str());
     me = dqmStore_->get(histo);
     h01_[ism-1] = UtilsClient::getHisto<TH2F*>( me, cloneME_, h01_[ism-1] );
     meh01_[ism-1] = me;
 
-    sprintf(histo, "EcalBarrel/EBStatusFlagsTask/FEStatus/EBSFT front-end status bits %s", Numbers::sEB(ism).c_str());
+    sprintf(histo, (prefixME_ + "/EBStatusFlagsTask/FEStatus/EBSFT front-end status bits %s").c_str(), Numbers::sEB(ism).c_str());
     me = dqmStore_->get(histo);
     h02_[ism-1] = UtilsClient::getHisto<TH1F*>( me, cloneME_, h02_[ism-1] );
     meh02_[ism-1] = me;

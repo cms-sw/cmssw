@@ -1,8 +1,8 @@
 /*
  * \file EEOccupancyClient.cc
  *
- * $Date: 2008/04/07 09:00:42 $
- * $Revision: 1.21 $
+ * $Date: 2008/04/08 15:06:25 $
+ * $Revision: 1.22 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -43,6 +43,9 @@ EEOccupancyClient::EEOccupancyClient(const ParameterSet& ps){
 
   // debug switch
   debug_ = ps.getUntrackedParameter<bool>("debug", false);
+
+  // prefixME path
+  prefixME_ = ps.getUntrackedParameter<string>("prefixME", "");
 
   // enableCleanup_ switch
   enableCleanup_ = ps.getUntrackedParameter<bool>("enableCleanup", false);
@@ -115,7 +118,7 @@ void EEOccupancyClient::endRun(void) {
 
 void EEOccupancyClient::setup(void) {
 
-  dqmStore_->setCurrentFolder( "EcalEndcap/EEOccupancyClient" );
+  dqmStore_->setCurrentFolder( prefixME_ + "/EEOccupancyClient" );
 
 }
 
@@ -185,123 +188,123 @@ void EEOccupancyClient::analyze(void){
 
   MonitorElement* me;
 
-  sprintf(histo, "EcalEndcap/EEOccupancyTask/EEOT digi occupancy EE -");
+  sprintf(histo, (prefixME_ + "/EEOccupancyTask/EEOT digi occupancy EE -").c_str());
   me = dqmStore_->get(histo);
   h01_[0][0] = UtilsClient::getHisto<TH2F*> ( me, cloneME_, h01_[0][0] );
 
-  sprintf(histo, "EcalEndcap/EEOccupancyTask/EEOT digi occupancy EE - projection R");
+  sprintf(histo, (prefixME_ + "/EEOccupancyTask/EEOT digi occupancy EE - projection R").c_str());
   me = dqmStore_->get(histo);
   h01ProjR_[0][0] = UtilsClient::getHisto<TH1F*> ( me, cloneME_, h01ProjR_[0][0] );
 
-  sprintf(histo, "EcalEndcap/EEOccupancyTask/EEOT digi occupancy EE - projection phi");
+  sprintf(histo, (prefixME_ + "/EEOccupancyTask/EEOT digi occupancy EE - projection phi").c_str());
   me = dqmStore_->get(histo);
   h01ProjPhi_[0][0] = UtilsClient::getHisto<TH1F*> ( me, cloneME_, h01ProjPhi_[0][0] );
 
-  sprintf(histo, "EcalEndcap/EEOccupancyTask/EEOT digi occupancy EE +");
+  sprintf(histo, (prefixME_ + "/EEOccupancyTask/EEOT digi occupancy EE +").c_str());
   me = dqmStore_->get(histo);
   h01_[1][0] = UtilsClient::getHisto<TH2F*> ( me, cloneME_, h01_[1][0] );
 
-  sprintf(histo, "EcalEndcap/EEOccupancyTask/EEOT digi occupancy EE + projection R");
+  sprintf(histo, (prefixME_ + "/EEOccupancyTask/EEOT digi occupancy EE + projection R").c_str());
   me = dqmStore_->get(histo);
   h01ProjR_[1][0] = UtilsClient::getHisto<TH1F*> ( me, cloneME_, h01ProjR_[1][0] );
 
-  sprintf(histo, "EcalEndcap/EEOccupancyTask/EEOT digi occupancy EE + projection phi");
+  sprintf(histo, (prefixME_ + "/EEOccupancyTask/EEOT digi occupancy EE + projection phi").c_str());
   me = dqmStore_->get(histo);
   h01ProjPhi_[1][0] = UtilsClient::getHisto<TH1F*> ( me, cloneME_, h01ProjPhi_[1][0] );
 
-  sprintf(histo, "EcalEndcap/EEOccupancyTask/EEOT rec hit occupancy EE -");
+  sprintf(histo, (prefixME_ + "/EEOccupancyTask/EEOT rec hit occupancy EE -").c_str());
   me = dqmStore_->get(histo);
   h01_[0][1] = UtilsClient::getHisto<TH2F*> ( me, cloneME_, h01_[0][1] );
 
-  sprintf(histo, "EcalEndcap/EEOccupancyTask/EEOT rec hit occupancy EE - projection R");
+  sprintf(histo, (prefixME_ + "/EEOccupancyTask/EEOT rec hit occupancy EE - projection R").c_str());
   me = dqmStore_->get(histo);
   h01ProjR_[0][1] = UtilsClient::getHisto<TH1F*> ( me, cloneME_, h01ProjR_[0][1] );
 
-  sprintf(histo, "EcalEndcap/EEOccupancyTask/EEOT rec hit occupancy EE - projection phi");
+  sprintf(histo, (prefixME_ + "/EEOccupancyTask/EEOT rec hit occupancy EE - projection phi").c_str());
   me = dqmStore_->get(histo);
   h01ProjPhi_[0][1] = UtilsClient::getHisto<TH1F*> ( me, cloneME_, h01ProjPhi_[0][1] );
 
-  sprintf(histo, "EcalEndcap/EEOccupancyTask/EEOT rec hit occupancy EE +");
+  sprintf(histo, (prefixME_ + "/EEOccupancyTask/EEOT rec hit occupancy EE +").c_str());
   me = dqmStore_->get(histo);
   h01_[1][1] = UtilsClient::getHisto<TH2F*> ( me, cloneME_, h01_[1][1] );
 
-  sprintf(histo, "EcalEndcap/EEOccupancyTask/EEOT rec hit occupancy EE + projection R");
+  sprintf(histo, (prefixME_ + "/EEOccupancyTask/EEOT rec hit occupancy EE + projection R").c_str());
   me = dqmStore_->get(histo);
   h01ProjR_[1][1] = UtilsClient::getHisto<TH1F*> ( me, cloneME_, h01ProjR_[1][1] );
 
-  sprintf(histo, "EcalEndcap/EEOccupancyTask/EEOT rec hit occupancy EE + projection phi");
+  sprintf(histo, (prefixME_ + "/EEOccupancyTask/EEOT rec hit occupancy EE + projection phi").c_str());
   me = dqmStore_->get(histo);
   h01ProjPhi_[1][1] = UtilsClient::getHisto<TH1F*> ( me, cloneME_, h01ProjPhi_[1][1] );
 
-  sprintf(histo, "EcalEndcap/EEOccupancyTask/EEOT TP digi occupancy EE -");
+  sprintf(histo, (prefixME_ + "/EEOccupancyTask/EEOT TP digi occupancy EE -").c_str());
   me = dqmStore_->get(histo);
   h01_[0][2] = UtilsClient::getHisto<TH2F*> ( me, cloneME_, h01_[0][2] );
 
-  sprintf(histo, "EcalEndcap/EEOccupancyTask/EEOT TP digi occupancy EE - projection R");
+  sprintf(histo, (prefixME_ + "/EEOccupancyTask/EEOT TP digi occupancy EE - projection R").c_str());
   me = dqmStore_->get(histo);
   h01ProjR_[0][2] = UtilsClient::getHisto<TH1F*> ( me, cloneME_, h01ProjR_[0][2] );
 
-  sprintf(histo, "EcalEndcap/EEOccupancyTask/EEOT TP digi occupancy EE - projection phi");
+  sprintf(histo, (prefixME_ + "/EEOccupancyTask/EEOT TP digi occupancy EE - projection phi").c_str());
   me = dqmStore_->get(histo);
   h01ProjPhi_[0][2] = UtilsClient::getHisto<TH1F*> ( me, cloneME_, h01ProjPhi_[0][2] );
 
-  sprintf(histo, "EcalEndcap/EEOccupancyTask/EEOT TP digi occupancy EE +");
+  sprintf(histo, (prefixME_ + "/EEOccupancyTask/EEOT TP digi occupancy EE +").c_str());
   me = dqmStore_->get(histo);
   h01_[1][2] = UtilsClient::getHisto<TH2F*> ( me, cloneME_, h01_[1][2] );
 
-  sprintf(histo, "EcalEndcap/EEOccupancyTask/EEOT TP digi occupancy EE + projection R");
+  sprintf(histo, (prefixME_ + "/EEOccupancyTask/EEOT TP digi occupancy EE + projection R").c_str());
   me = dqmStore_->get(histo);
   h01ProjR_[1][2] = UtilsClient::getHisto<TH1F*> ( me, cloneME_, h01ProjR_[1][2] );
 
-  sprintf(histo, "EcalEndcap/EEOccupancyTask/EEOT TP digi occupancy EE + projection phi");
+  sprintf(histo, (prefixME_ + "/EEOccupancyTask/EEOT TP digi occupancy EE + projection phi").c_str());
   me = dqmStore_->get(histo);
   h01ProjPhi_[1][2] = UtilsClient::getHisto<TH1F*> ( me, cloneME_, h01ProjPhi_[1][2] );
 
-  sprintf(histo, "EcalEndcap/EEOccupancyTask/EEOT rec hit thr occupancy EE -");
+  sprintf(histo, (prefixME_ + "/EEOccupancyTask/EEOT rec hit thr occupancy EE -").c_str());
   me = dqmStore_->get(histo);
   h02_[0][0] = UtilsClient::getHisto<TH2F*> ( me, cloneME_, h02_[0][0] );
 
-  sprintf(histo, "EcalEndcap/EEOccupancyTask/EEOT rec hit thr occupancy EE - projection R");
+  sprintf(histo, (prefixME_ + "/EEOccupancyTask/EEOT rec hit thr occupancy EE - projection R").c_str());
   me = dqmStore_->get(histo);
   h02ProjR_[0][0] = UtilsClient::getHisto<TH1F*> ( me, cloneME_, h02ProjR_[0][0] );
 
-  sprintf(histo, "EcalEndcap/EEOccupancyTask/EEOT rec hit thr occupancy EE - projection phi");
+  sprintf(histo, (prefixME_ + "/EEOccupancyTask/EEOT rec hit thr occupancy EE - projection phi").c_str());
   me = dqmStore_->get(histo);
   h02ProjPhi_[0][0] = UtilsClient::getHisto<TH1F*> ( me, cloneME_, h02ProjPhi_[0][0] );
 
-  sprintf(histo, "EcalEndcap/EEOccupancyTask/EEOT rec hit thr occupancy EE +");
+  sprintf(histo, (prefixME_ + "/EEOccupancyTask/EEOT rec hit thr occupancy EE +").c_str());
   me = dqmStore_->get(histo);
   h02_[1][0] = UtilsClient::getHisto<TH2F*> ( me, cloneME_, h02_[1][0] );
 
-  sprintf(histo, "EcalEndcap/EEOccupancyTask/EEOT rec hit thr occupancy EE + projection R");
+  sprintf(histo, (prefixME_ + "/EEOccupancyTask/EEOT rec hit thr occupancy EE + projection R").c_str());
   me = dqmStore_->get(histo);
   h02ProjR_[1][0] = UtilsClient::getHisto<TH1F*> ( me, cloneME_, h02ProjR_[1][0] );
 
-  sprintf(histo, "EcalEndcap/EEOccupancyTask/EEOT rec hit thr occupancy EE + projection phi");
+  sprintf(histo, (prefixME_ + "/EEOccupancyTask/EEOT rec hit thr occupancy EE + projection phi").c_str());
   me = dqmStore_->get(histo);
   h02ProjPhi_[1][0] = UtilsClient::getHisto<TH1F*> ( me, cloneME_, h02ProjPhi_[1][0] );
 
-  sprintf(histo, "EcalEndcap/EEOccupancyTask/EEOT TP digi thr occupancy EE -");
+  sprintf(histo, (prefixME_ + "/EEOccupancyTask/EEOT TP digi thr occupancy EE -").c_str());
   me = dqmStore_->get(histo);
   h02_[0][1] = UtilsClient::getHisto<TH2F*> ( me, cloneME_, h02_[0][1] );
 
-  sprintf(histo, "EcalEndcap/EEOccupancyTask/EEOT TP digi thr occupancy EE - projection R");
+  sprintf(histo, (prefixME_ + "/EEOccupancyTask/EEOT TP digi thr occupancy EE - projection R").c_str());
   me = dqmStore_->get(histo);
   h02ProjR_[0][1] = UtilsClient::getHisto<TH1F*> ( me, cloneME_, h02ProjR_[0][1] );
 
-  sprintf(histo, "EcalEndcap/EEOccupancyTask/EEOT TP digi thr occupancy EE - projection phi");
+  sprintf(histo, (prefixME_ + "/EEOccupancyTask/EEOT TP digi thr occupancy EE - projection phi").c_str());
   me = dqmStore_->get(histo);
   h02ProjPhi_[0][1] = UtilsClient::getHisto<TH1F*> ( me, cloneME_, h02ProjPhi_[0][1] );
 
-  sprintf(histo, "EcalEndcap/EEOccupancyTask/EEOT TP digi thr occupancy EE +");
+  sprintf(histo, (prefixME_ + "/EEOccupancyTask/EEOT TP digi thr occupancy EE +").c_str());
   me = dqmStore_->get(histo);
   h02_[1][1] = UtilsClient::getHisto<TH2F*> ( me, cloneME_, h02_[1][1] );
 
-  sprintf(histo, "EcalEndcap/EEOccupancyTask/EEOT TP digi thr occupancy EE + projection R");
+  sprintf(histo, (prefixME_ + "/EEOccupancyTask/EEOT TP digi thr occupancy EE + projection R").c_str());
   me = dqmStore_->get(histo);
   h02ProjR_[1][1] = UtilsClient::getHisto<TH1F*> ( me, cloneME_, h02ProjR_[1][1] );
 
-  sprintf(histo, "EcalEndcap/EEOccupancyTask/EEOT TP digi thr occupancy EE + projection phi");
+  sprintf(histo, (prefixME_ + "/EEOccupancyTask/EEOT TP digi thr occupancy EE + projection phi").c_str());
   me = dqmStore_->get(histo);
   h02ProjPhi_[1][1] = UtilsClient::getHisto<TH1F*> ( me, cloneME_, h02ProjPhi_[1][1] );
 

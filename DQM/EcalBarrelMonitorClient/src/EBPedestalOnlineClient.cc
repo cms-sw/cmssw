@@ -1,8 +1,8 @@
 /*
  * \file EBPedestalOnlineClient.cc
  *
- * $Date: 2008/04/07 11:30:22 $
- * $Revision: 1.134 $
+ * $Date: 2008/04/08 15:06:21 $
+ * $Revision: 1.135 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -47,6 +47,9 @@ EBPedestalOnlineClient::EBPedestalOnlineClient(const ParameterSet& ps){
 
   // debug switch
   debug_ = ps.getUntrackedParameter<bool>("debug", false);
+
+  // prefixME path
+  prefixME_ = ps.getUntrackedParameter<string>("prefixME", "");
 
   // enableCleanup_ switch
   enableCleanup_ = ps.getUntrackedParameter<bool>("enableCleanup", false);
@@ -129,7 +132,7 @@ void EBPedestalOnlineClient::setup(void) {
 
   char histo[200];
 
-  dqmStore_->setCurrentFolder( "EcalBarrel/EBPedestalOnlineClient" );
+  dqmStore_->setCurrentFolder( prefixME_ + "/EBPedestalOnlineClient" );
 
   for ( unsigned int i=0; i<superModules_.size(); i++ ) {
 
@@ -192,7 +195,7 @@ void EBPedestalOnlineClient::cleanup(void) {
 
   }
 
-  dqmStore_->setCurrentFolder( "EcalBarrel/EBPedestalOnlineClient" );
+  dqmStore_->setCurrentFolder( prefixME_ + "/EBPedestalOnlineClient" );
 
   for ( unsigned int i=0; i<superModules_.size(); i++ ) {
 
@@ -318,7 +321,7 @@ void EBPedestalOnlineClient::analyze(void){
 
     int ism = superModules_[i];
 
-    sprintf(histo, "EcalBarrel/EBPedestalOnlineTask/Gain12/EBPOT pedestal %s G12", Numbers::sEB(ism).c_str());
+    sprintf(histo, (prefixME_ + "/EBPedestalOnlineTask/Gain12/EBPOT pedestal %s G12").c_str(), Numbers::sEB(ism).c_str());
     me = dqmStore_->get(histo);
     h03_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, h03_[ism-1] );
     meh03_[ism-1] = me;

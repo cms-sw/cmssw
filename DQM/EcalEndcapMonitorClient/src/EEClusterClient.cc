@@ -1,8 +1,8 @@
 /*
  * \file EEClusterClient.cc
  *
- * $Date: 2008/04/07 08:44:21 $
- * $Revision: 1.49 $
+ * $Date: 2008/04/08 15:06:25 $
+ * $Revision: 1.50 $
  * \author G. Della Ricca
  * \author E. Di Marco
  *
@@ -39,6 +39,9 @@ EEClusterClient::EEClusterClient(const ParameterSet& ps){
 
   // debug switch
   debug_ = ps.getUntrackedParameter<bool>("debug", false);
+
+  // prefixME path
+  prefixME_ = ps.getUntrackedParameter<string>("prefixME", "");
 
   // enableCleanup_ switch
   enableCleanup_ = ps.getUntrackedParameter<bool>("enableCleanup", false);
@@ -121,7 +124,7 @@ void EEClusterClient::endRun(void) {
 
 void EEClusterClient::setup(void) {
 
-  dqmStore_->setCurrentFolder( "EcalEndcap/EEClusterClient" );
+  dqmStore_->setCurrentFolder( prefixME_ + "/EEClusterClient" );
 
 }
 
@@ -210,135 +213,135 @@ void EEClusterClient::analyze(void){
 
   MonitorElement* me;
 
-  sprintf(histo, "EcalEndcap/EEClusterTask/EECLT BC energy");
+  sprintf(histo, (prefixME_ + "/EEClusterTask/EECLT BC energy").c_str());
   me = dqmStore_->get(histo);
   h01_[0] = UtilsClient::getHisto<TH1F*>( me, cloneME_, h01_[0] );
 
-  sprintf(histo, "EcalEndcap/EEClusterTask/EECLT BC size");
+  sprintf(histo, (prefixME_ + "/EEClusterTask/EECLT BC size").c_str());
   me = dqmStore_->get(histo);
   h01_[1] = UtilsClient::getHisto<TH1F*>( me, cloneME_, h01_[1] );
 
-  sprintf(histo, "EcalEndcap/EEClusterTask/EECLT BC number");
+  sprintf(histo, (prefixME_ + "/EEClusterTask/EECLT BC number").c_str());
   me = dqmStore_->get(histo);
   h01_[2] = UtilsClient::getHisto<TH1F*>( me, cloneME_, h01_[2] );
 
-  sprintf(histo, "EcalEndcap/EEClusterTask/EECLT BC energy map EE +");
+  sprintf(histo, (prefixME_ + "/EEClusterTask/EECLT BC energy map EE +").c_str());
   me = dqmStore_->get(histo);
   h04_[0][0] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, h04_[0][0] );
 
-  sprintf(histo, "EcalEndcap/EEClusterTask/EECLT BC number map EE +");
+  sprintf(histo, (prefixME_ + "/EEClusterTask/EECLT BC number map EE +").c_str());
   me = dqmStore_->get(histo);
   h03_[0] = UtilsClient::getHisto<TH2F*>( me, cloneME_, h03_[0] );
 
-  sprintf(histo, "EcalEndcap/EEClusterTask/EECLT BC ET map EE +");
+  sprintf(histo, (prefixME_ + "/EEClusterTask/EECLT BC ET map EE +").c_str());
   me = dqmStore_->get(histo);
   h04_[1][0] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, h04_[1][0] );
 
-  sprintf(histo, "EcalEndcap/EEClusterTask/EECLT BC size map EE +");
+  sprintf(histo, (prefixME_ + "/EEClusterTask/EECLT BC size map EE +").c_str());
   me = dqmStore_->get(histo);
   h04_[2][0] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, h04_[2][0] );
 
-  sprintf(histo, "EcalEndcap/EEClusterTask/EECLT BC energy projection R EE +");
+  sprintf(histo, (prefixME_ + "/EEClusterTask/EECLT BC energy projection R EE +").c_str());
   me = dqmStore_->get(histo);
   h02ProjR_[0][0] = UtilsClient::getHisto<TProfile*>( me, cloneME_, h02ProjR_[0][0] );
 
-  sprintf(histo, "EcalEndcap/EEClusterTask/EECLT BC energy projection phi EE +");
+  sprintf(histo, (prefixME_ + "/EEClusterTask/EECLT BC energy projection phi EE +").c_str());
   me = dqmStore_->get(histo);
   h02ProjPhi_[0][0] = UtilsClient::getHisto<TProfile*>( me, cloneME_, h02ProjPhi_[0][0] );
 
-  sprintf(histo, "EcalEndcap/EEClusterTask/EECLT BC number projection R EE +");
+  sprintf(histo, (prefixME_ + "/EEClusterTask/EECLT BC number projection R EE +").c_str());
   me = dqmStore_->get(histo);
   h03ProjR_[0] = UtilsClient::getHisto<TH1F*>( me, cloneME_, h03ProjR_[0] );
 
-  sprintf(histo, "EcalEndcap/EEClusterTask/EECLT BC number projection phi EE +");
+  sprintf(histo, (prefixME_ + "/EEClusterTask/EECLT BC number projection phi EE +").c_str());
   me = dqmStore_->get(histo);
   h03ProjPhi_[0] = UtilsClient::getHisto<TH1F*>( me, cloneME_, h03ProjPhi_[0] );
 
-  sprintf(histo, "EcalEndcap/EEClusterTask/EECLT BC ET projection R EE +");
+  sprintf(histo, (prefixME_ + "/EEClusterTask/EECLT BC ET projection R EE +").c_str());
   me = dqmStore_->get(histo);
   h02ProjR_[1][0] = UtilsClient::getHisto<TProfile*>( me, cloneME_, h02ProjR_[1][0] );
 
-  sprintf(histo, "EcalEndcap/EEClusterTask/EECLT BC ET projection phi EE +");
+  sprintf(histo, (prefixME_ + "/EEClusterTask/EECLT BC ET projection phi EE +").c_str());
   me = dqmStore_->get(histo);
   h02ProjPhi_[1][0] = UtilsClient::getHisto<TProfile*>( me, cloneME_, h02ProjPhi_[1][0] );
 
-  sprintf(histo, "EcalEndcap/EEClusterTask/EECLT BC size projection R EE +");
+  sprintf(histo, (prefixME_ + "/EEClusterTask/EECLT BC size projection R EE +").c_str());
   me = dqmStore_->get(histo);
   h02ProjR_[2][0] = UtilsClient::getHisto<TProfile*>( me, cloneME_, h02ProjR_[2][0] );
 
-  sprintf(histo, "EcalEndcap/EEClusterTask/EECLT BC size projection phi EE +");
+  sprintf(histo, (prefixME_ + "/EEClusterTask/EECLT BC size projection phi EE +").c_str());
   me = dqmStore_->get(histo);
   h02ProjPhi_[2][0] = UtilsClient::getHisto<TProfile*>( me, cloneME_, h02ProjPhi_[2][0] );
 
-  sprintf(histo, "EcalEndcap/EEClusterTask/EECLT BC energy map EE -");
+  sprintf(histo, (prefixME_ + "/EEClusterTask/EECLT BC energy map EE -").c_str());
   me = dqmStore_->get(histo);
   h04_[0][1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, h04_[0][1] );
 
-  sprintf(histo, "EcalEndcap/EEClusterTask/EECLT BC number map EE -");
+  sprintf(histo, (prefixME_ + "/EEClusterTask/EECLT BC number map EE -").c_str());
   me = dqmStore_->get(histo);
   h03_[1] = UtilsClient::getHisto<TH2F*>( me, cloneME_, h03_[1] );
 
-  sprintf(histo, "EcalEndcap/EEClusterTask/EECLT BC ET map EE -");
+  sprintf(histo, (prefixME_ + "/EEClusterTask/EECLT BC ET map EE -").c_str());
   me = dqmStore_->get(histo);
   h04_[1][1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, h04_[1][1] );
 
-  sprintf(histo, "EcalEndcap/EEClusterTask/EECLT BC size map EE -");
+  sprintf(histo, (prefixME_ + "/EEClusterTask/EECLT BC size map EE -").c_str());
   me = dqmStore_->get(histo);
   h04_[2][1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, h04_[2][1] );
 
-  sprintf(histo, "EcalEndcap/EEClusterTask/EECLT BC energy projection R EE -");
+  sprintf(histo, (prefixME_ + "/EEClusterTask/EECLT BC energy projection R EE -").c_str());
   me = dqmStore_->get(histo);
   h02ProjR_[0][1] = UtilsClient::getHisto<TProfile*>( me, cloneME_, h02ProjR_[0][1] );
 
-  sprintf(histo, "EcalEndcap/EEClusterTask/EECLT BC energy projection phi EE -");
+  sprintf(histo, (prefixME_ + "/EEClusterTask/EECLT BC energy projection phi EE -").c_str());
   me = dqmStore_->get(histo);
   h02ProjPhi_[0][1] = UtilsClient::getHisto<TProfile*>( me, cloneME_, h02ProjPhi_[0][1] );
 
-  sprintf(histo, "EcalEndcap/EEClusterTask/EECLT BC number projection R EE -");
+  sprintf(histo, (prefixME_ + "/EEClusterTask/EECLT BC number projection R EE -").c_str());
   me = dqmStore_->get(histo);
   h03ProjR_[1] = UtilsClient::getHisto<TH1F*>( me, cloneME_, h03ProjR_[1] );
 
-  sprintf(histo, "EcalEndcap/EEClusterTask/EECLT BC number projection phi EE -");
+  sprintf(histo, (prefixME_ + "/EEClusterTask/EECLT BC number projection phi EE -").c_str());
   me = dqmStore_->get(histo);
   h03ProjPhi_[1] = UtilsClient::getHisto<TH1F*>( me, cloneME_, h03ProjPhi_[1] );
 
-  sprintf(histo, "EcalEndcap/EEClusterTask/EECLT BC ET projection R EE -");
+  sprintf(histo, (prefixME_ + "/EEClusterTask/EECLT BC ET projection R EE -").c_str());
   me = dqmStore_->get(histo);
   h02ProjR_[1][1] = UtilsClient::getHisto<TProfile*>( me, cloneME_, h02ProjR_[1][1] );
 
-  sprintf(histo, "EcalEndcap/EEClusterTask/EECLT BC ET projection phi EE -");
+  sprintf(histo, (prefixME_ + "/EEClusterTask/EECLT BC ET projection phi EE -").c_str());
   me = dqmStore_->get(histo);
   h02ProjPhi_[1][1] = UtilsClient::getHisto<TProfile*>( me, cloneME_, h02ProjPhi_[1][1] );
 
-  sprintf(histo, "EcalEndcap/EEClusterTask/EECLT BC size projection R EE -");
+  sprintf(histo, (prefixME_ + "/EEClusterTask/EECLT BC size projection R EE -").c_str());
   me = dqmStore_->get(histo);
   h02ProjR_[2][1] = UtilsClient::getHisto<TProfile*>( me, cloneME_, h02ProjR_[2][1] );
 
-  sprintf(histo, "EcalEndcap/EEClusterTask/EECLT BC size projection phi EE -");
+  sprintf(histo, (prefixME_ + "/EEClusterTask/EECLT BC size projection phi EE -").c_str());
   me = dqmStore_->get(histo);
   h02ProjPhi_[2][1] = UtilsClient::getHisto<TProfile*>( me, cloneME_, h02ProjPhi_[2][1] );
 
-  sprintf(histo, "EcalEndcap/EEClusterTask/EECLT SC energy");
+  sprintf(histo, (prefixME_ + "/EEClusterTask/EECLT SC energy").c_str());
   me = dqmStore_->get(histo);
   i01_[0] = UtilsClient::getHisto<TH1F*>( me, cloneME_, i01_[0] );
 
-  sprintf(histo, "EcalEndcap/EEClusterTask/EECLT SC size");
+  sprintf(histo, (prefixME_ + "/EEClusterTask/EECLT SC size").c_str());
   me = dqmStore_->get(histo);
   i01_[1] = UtilsClient::getHisto<TH1F*>( me, cloneME_, i01_[1] );
 
-  sprintf(histo, "EcalEndcap/EEClusterTask/EECLT SC number");
+  sprintf(histo, (prefixME_ + "/EEClusterTask/EECLT SC number").c_str());
   me = dqmStore_->get(histo);
   i01_[2] = UtilsClient::getHisto<TH1F*>( me, cloneME_, i01_[2] );
 
-  sprintf(histo, "EcalEndcap/EEClusterTask/EECLT s1s9");
+  sprintf(histo, (prefixME_ + "/EEClusterTask/EECLT s1s9").c_str());
   me = dqmStore_->get(histo);
   s01_[0] = UtilsClient::getHisto<TH1F*>( me, cloneME_, s01_[0] );
 
-  sprintf(histo, "EcalEndcap/EEClusterTask/EECLT s9s25");
+  sprintf(histo, (prefixME_ + "/EEClusterTask/EECLT s9s25").c_str());
   me = dqmStore_->get(histo);
   s01_[1] = UtilsClient::getHisto<TH1F*>( me, cloneME_, s01_[1] );
 
-  sprintf(histo, "EcalEndcap/EEClusterTask/EECLT dicluster invariant mass");
+  sprintf(histo, (prefixME_ + "/EEClusterTask/EECLT dicluster invariant mass").c_str());
   me = dqmStore_->get(histo);
   s01_[2] = UtilsClient::getHisto<TH1F*>( me, cloneME_, s01_[2] );
 

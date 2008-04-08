@@ -1,8 +1,8 @@
 /*
  * \file EBTimingClient.cc
  *
- * $Date: 2008/04/07 11:30:22 $
- * $Revision: 1.82 $
+ * $Date: 2008/04/08 15:06:22 $
+ * $Revision: 1.83 $
  * \author G. Della Ricca
  *
 */
@@ -46,6 +46,9 @@ EBTimingClient::EBTimingClient(const ParameterSet& ps){
 
   // debug switch
   debug_ = ps.getUntrackedParameter<bool>("debug", false);
+
+  // prefixME path
+  prefixME_ = ps.getUntrackedParameter<string>("prefixME", "");
 
   // enableCleanup_ switch
   enableCleanup_ = ps.getUntrackedParameter<bool>("enableCleanup", false);
@@ -132,7 +135,7 @@ void EBTimingClient::setup(void) {
 
   char histo[200];
 
-  dqmStore_->setCurrentFolder( "EcalBarrel/EBTimingClient" );
+  dqmStore_->setCurrentFolder( prefixME_ + "/EBTimingClient" );
 
   for ( unsigned int i=0; i<superModules_.size(); i++ ) {
 
@@ -205,7 +208,7 @@ void EBTimingClient::cleanup(void) {
 
   }
 
-  dqmStore_->setCurrentFolder( "EcalBarrel/EBTimingClient" );
+  dqmStore_->setCurrentFolder( prefixME_ + "/EBTimingClient" );
 
   for ( unsigned int i=0; i<superModules_.size(); i++ ) {
 
@@ -334,12 +337,12 @@ void EBTimingClient::analyze(void){
 
     int ism = superModules_[i];
 
-    sprintf(histo, "EcalBarrel/EBTimingTask/EBTMT timing %s", Numbers::sEB(ism).c_str());
+    sprintf(histo, (prefixME_ + "/EBTimingTask/EBTMT timing %s").c_str(), Numbers::sEB(ism).c_str());
     me = dqmStore_->get(histo);
     h01_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, h01_[ism-1] );
     meh01_[ism-1] = me;
 
-    sprintf(histo, "EcalBarrel/EBTimingTask/EBTMT timing vs amplitude %s", Numbers::sEB(ism).c_str());
+    sprintf(histo, (prefixME_ + "/EBTimingTask/EBTMT timing vs amplitude %s").c_str(), Numbers::sEB(ism).c_str());
     me = dqmStore_->get(histo);
     h02_[ism-1] = UtilsClient::getHisto<TH2F*>( me, cloneME_, h02_[ism-1] );
     meh02_[ism-1] = me;

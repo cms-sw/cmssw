@@ -1,8 +1,8 @@
 /*
  * \file EBPedestalClient.cc
  *
- * $Date: 2008/04/07 11:30:22 $
- * $Revision: 1.194 $
+ * $Date: 2008/04/08 15:06:21 $
+ * $Revision: 1.195 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -49,6 +49,9 @@ EBPedestalClient::EBPedestalClient(const ParameterSet& ps){
 
   // debug switch
   debug_ = ps.getUntrackedParameter<bool>("debug", false);
+
+  // prefixME path
+  prefixME_ = ps.getUntrackedParameter<string>("prefixME", "");
 
   // enableCleanup_ switch
   enableCleanup_ = ps.getUntrackedParameter<bool>("enableCleanup", false);
@@ -179,7 +182,7 @@ void EBPedestalClient::setup(void) {
 
   char histo[200];
 
-  dqmStore_->setCurrentFolder( "EcalBarrel/EBPedestalClient" );
+  dqmStore_->setCurrentFolder( prefixME_ + "/EBPedestalClient" );
 
   for ( unsigned int i=0; i<superModules_.size(); i++ ) {
 
@@ -388,7 +391,7 @@ void EBPedestalClient::cleanup(void) {
 
   }
 
-  dqmStore_->setCurrentFolder( "EcalBarrel/EBPedestalClient" );
+  dqmStore_->setCurrentFolder( prefixME_ + "/EBPedestalClient" );
 
   for ( unsigned int i=0; i<superModules_.size(); i++ ) {
 
@@ -660,47 +663,47 @@ void EBPedestalClient::analyze(void){
 
     int ism = superModules_[i];
 
-    sprintf(histo, "EcalBarrel/EBPedestalTask/Gain01/EBPT pedestal %s G01", Numbers::sEB(ism).c_str());
+    sprintf(histo, (prefixME_ + "/EBPedestalTask/Gain01/EBPT pedestal %s G01").c_str(), Numbers::sEB(ism).c_str());
     me = dqmStore_->get(histo);
     h01_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, h01_[ism-1] );
 
-    sprintf(histo, "EcalBarrel/EBPedestalTask/Gain06/EBPT pedestal %s G06", Numbers::sEB(ism).c_str());
+    sprintf(histo, (prefixME_ + "/EBPedestalTask/Gain06/EBPT pedestal %s G06").c_str(), Numbers::sEB(ism).c_str());
     me = dqmStore_->get(histo);
     h02_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, h02_[ism-1] );
 
-    sprintf(histo, "EcalBarrel/EBPedestalTask/Gain12/EBPT pedestal %s G12", Numbers::sEB(ism).c_str());
+    sprintf(histo, (prefixME_ + "/EBPedestalTask/Gain12/EBPT pedestal %s G12").c_str(), Numbers::sEB(ism).c_str());
     me = dqmStore_->get(histo);
     h03_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, h03_[ism-1] );
 
-    sprintf(histo, "EcalBarrel/EBPedestalTask/Gain01/EBPT pedestal 3sum %s G01", Numbers::sEB(ism).c_str());
+    sprintf(histo, (prefixME_ + "/EBPedestalTask/Gain01/EBPT pedestal 3sum %s G01").c_str(), Numbers::sEB(ism).c_str());
     me = dqmStore_->get(histo);
     j01_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, j01_[ism-1] );
 
-    sprintf(histo, "EcalBarrel/EBPedestalTask/Gain06/EBPT pedestal 3sum %s G06", Numbers::sEB(ism).c_str());
+    sprintf(histo, (prefixME_ + "/EBPedestalTask/Gain06/EBPT pedestal 3sum %s G06").c_str(), Numbers::sEB(ism).c_str());
     me = dqmStore_->get(histo);
     j02_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, j02_[ism-1] );
 
-    sprintf(histo, "EcalBarrel/EBPedestalTask/Gain12/EBPT pedestal 3sum %s G12", Numbers::sEB(ism).c_str());
+    sprintf(histo, (prefixME_ + "/EBPedestalTask/Gain12/EBPT pedestal 3sum %s G12").c_str(), Numbers::sEB(ism).c_str());
     me = dqmStore_->get(histo);
     j03_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, j03_[ism-1] );
 
-    sprintf(histo, "EcalBarrel/EBPedestalTask/Gain01/EBPT pedestal 5sum %s G01", Numbers::sEB(ism).c_str());
+    sprintf(histo, (prefixME_ + "/EBPedestalTask/Gain01/EBPT pedestal 5sum %s G01").c_str(), Numbers::sEB(ism).c_str());
     me = dqmStore_->get(histo);
     k01_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, k01_[ism-1] );
 
-    sprintf(histo, "EcalBarrel/EBPedestalTask/Gain06/EBPT pedestal 5sum %s G06", Numbers::sEB(ism).c_str());
+    sprintf(histo, (prefixME_ + "/EBPedestalTask/Gain06/EBPT pedestal 5sum %s G06").c_str(), Numbers::sEB(ism).c_str());
     me = dqmStore_->get(histo);
     k02_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, k02_[ism-1] );
 
-    sprintf(histo, "EcalBarrel/EBPedestalTask/Gain12/EBPT pedestal 5sum %s G12", Numbers::sEB(ism).c_str());
+    sprintf(histo, (prefixME_ + "/EBPedestalTask/Gain12/EBPT pedestal 5sum %s G12").c_str(), Numbers::sEB(ism).c_str());
     me = dqmStore_->get(histo);
     k03_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, k03_[ism-1] );
 
-    sprintf(histo, "EcalBarrel/EBPedestalTask/PN/Gain01/EBPDT PNs pedestal %s G01", Numbers::sEB(ism).c_str());
+    sprintf(histo, (prefixME_ + "/EBPedestalTask/PN/Gain01/EBPDT PNs pedestal %s G01").c_str(), Numbers::sEB(ism).c_str());
     me = dqmStore_->get(histo);
     i01_[ism-1] = UtilsClient::getHisto<TProfile*>( me, cloneME_, i01_[ism-1] );
 
-    sprintf(histo, "EcalBarrel/EBPedestalTask/PN/Gain16/EBPDT PNs pedestal %s G16", Numbers::sEB(ism).c_str());
+    sprintf(histo, (prefixME_ + "/EBPedestalTask/PN/Gain16/EBPDT PNs pedestal %s G16").c_str(), Numbers::sEB(ism).c_str());
     me = dqmStore_->get(histo);
     i02_[ism-1] = UtilsClient::getHisto<TProfile*>( me, cloneME_, i02_[ism-1] );
 

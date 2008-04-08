@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorClient.cc
  *
- * $Date: 2008/04/07 14:22:45 $
- * $Revision: 1.412 $
+ * $Date: 2008/04/08 15:06:22 $
+ * $Revision: 1.413 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -229,6 +229,16 @@ void EcalBarrelMonitorClient::initialize(const ParameterSet& ps){
       cout << " enableMonitorDaemon switch is OFF" << endl;
     }
   }
+
+  // prefixME path
+
+  prefixME_ = ps.getUntrackedParameter<string>("prefixME", "");
+
+  if ( verbose_ ) {
+    cout << " prefixME path is '" << prefixME_ << "'" << endl;
+  } 
+
+  // enableCleanup switch
 
   enableCleanup_ = ps.getUntrackedParameter<bool>("enableCleanup", false);
 
@@ -1195,7 +1205,7 @@ void EcalBarrelMonitorClient::writeDb(void) {
     bool done = false;
     for ( multimap<EBClient*,int>::iterator j = clientsRuns_.lower_bound(clients_[i]); j != clientsRuns_.upper_bound(clients_[i]); j++ ) {
       if ( h_ && runType_ != -1 && runType_ == (*j).second && !done ) {
-        if ( strcmp(clientsNames_[i].c_str(), "Cosmic") == 0 && runType_ != runTypes_[EcalDCCHeaderBlock::COSMIC] && runType_ != runTypes_[EcalDCCHeaderBlock::COSMICS_LOCAL] && runType_ != runTypes_[EcalDCCHeaderBlock::COSMICS_GLOBAL] && runType_ != runTypes_[EcalDCCHeaderBlock::PHYSICS_GLOBAL] && runType_ != runTypes_[EcalDCCHeaderBlock::PHYSICS_LOCAL] && h_->GetBinContent(2+EcalDCCHeaderBlock::COSMIC) == 0 && h_->GetBinContent(2+EcalDCCHeaderBlock::COSMICS_LOCAL) == 0 && h_->GetBinContent(2+EcalDCCHeaderBlock::COSMICS_GLOBAL) == 0 && h_->GetBinContent(2+EcalDCCHeaderBlock::PHYSICS_GLOBAL) && h_->GetBinContent(2+EcalDCCHeaderBlock::PHYSICS_LOCAL) ) continue;
+        if ( strcmp(clientsNames_[i].c_str(), "Cosmic") == 0 && runType_ != runTypes_[EcalDCCHeaderBlock::COSMIC] && runType_ != runTypes_[EcalDCCHeaderBlock::COSMICS_LOCAL] && runType_ != runTypes_[EcalDCCHeaderBlock::COSMICS_GLOBAL] && runType_ != runTypes_[EcalDCCHeaderBlock::PHYSICS_GLOBAL] && runType_ != runTypes_[EcalDCCHeaderBlock::PHYSICS_LOCAL] && h_->GetBinContent(2+EcalDCCHeaderBlock::COSMIC) == 0 && h_->GetBinContent(2+EcalDCCHeaderBlock::COSMICS_LOCAL) == 0 && h_->GetBinContent(2+EcalDCCHeaderBlock::COSMICS_GLOBAL) == 0 && h_->GetBinContent(2+EcalDCCHeaderBlock::PHYSICS_GLOBAL) && h_->GetBinContent(2+EcalDCCHeaderBlock::PHYSICS_LOCAL) == 0 ) continue;
         if ( strcmp(clientsNames_[i].c_str(), "Laser") == 0 && runType_ != runTypes_[EcalDCCHeaderBlock::LASER_STD] && runType_ != runTypes_[EcalDCCHeaderBlock::LASER_GAP] && h_->GetBinContent(2+EcalDCCHeaderBlock::LASER_STD) == 0 && h_->GetBinContent(2+EcalDCCHeaderBlock::LASER_GAP) == 0 ) continue;
         if ( strcmp(clientsNames_[i].c_str(), "Pedestal") == 0 && runType_ != runTypes_[EcalDCCHeaderBlock::PEDESTAL_STD] && runType_ != runTypes_[EcalDCCHeaderBlock::PEDESTAL_GAP] && h_->GetBinContent(2+EcalDCCHeaderBlock::PEDESTAL_STD) == 0 && h_->GetBinContent(2+EcalDCCHeaderBlock::PEDESTAL_GAP) == 0 ) continue;
         if ( strcmp(clientsNames_[i].c_str(), "TestPulse") == 0 && runType_ != runTypes_[EcalDCCHeaderBlock::TESTPULSE_MGPA] && runType_ != runTypes_[EcalDCCHeaderBlock::TESTPULSE_GAP] && h_->GetBinContent(2+EcalDCCHeaderBlock::TESTPULSE_MGPA) == 0 && h_->GetBinContent(2+EcalDCCHeaderBlock::TESTPULSE_GAP) == 0 ) continue;
@@ -1388,14 +1398,14 @@ void EcalBarrelMonitorClient::analyze(void){
   MonitorElement* me;
   string s;
 
-  me = dqmStore_->get("EcalBarrel/EcalInfo/STATUS");
+  me = dqmStore_->get(prefixME_ + "/EcalInfo/STATUS");
   if ( me ) {
     status_ = "unknown";
     s = me->valueString();
     if ( strcmp(s.c_str(), "i=0") == 0 ) status_ = "begin-of-run";
     if ( strcmp(s.c_str(), "i=1") == 0 ) status_ = "running";
     if ( strcmp(s.c_str(), "i=2") == 0 ) status_ = "end-of-run";
-    if ( debug_ ) cout << "Found 'EcalBarrel/EcalInfo/STATUS'" << endl;
+    if ( debug_ ) cout << "Found '" << prefixME_ << "/EcalInfo/STATUS'" << endl;
   }
 
   if ( inputFile_.size() != 0 ) {
@@ -1410,30 +1420,30 @@ void EcalBarrelMonitorClient::analyze(void){
   }
 
   int ecal_run = -1;
-  me = dqmStore_->get("EcalBarrel/EcalInfo/RUN");
+  me = dqmStore_->get(prefixME_ + "/EcalInfo/RUN");
   if ( me ) {
     s = me->valueString();
     sscanf(s.c_str(), "i=%d", &ecal_run);
-    if ( debug_ ) cout << "Found 'EcalBarrel/EcalInfo/RUN'" << endl;
+    if ( debug_ ) cout << "Found '" << prefixME_ << "/EcalInfo/RUN'" << endl;
   }
 
   int ecal_evt = -1;
-  me = dqmStore_->get("EcalBarrel/EcalInfo/EVT");
+  me = dqmStore_->get(prefixME_ + "/EcalInfo/EVT");
   if ( me ) {
     s = me->valueString();
     sscanf(s.c_str(), "i=%d", &ecal_evt);
-    if ( debug_ ) cout << "Found 'EcalBarrel/EcalInfo/EVT'" << endl;
+    if ( debug_ ) cout << "Found '" << prefixME_ << "/EcalInfo/EVT'" << endl;
   }
 
-  me = dqmStore_->get("EcalBarrel/EcalInfo/EVTTYPE");
+  me = dqmStore_->get(prefixME_ + "/EcalInfo/EVTTYPE");
   h_ = UtilsClient::getHisto<TH1F*>( me, cloneME_, h_ );
 
-  me = dqmStore_->get("EcalBarrel/EcalInfo/RUNTYPE");
+  me = dqmStore_->get(prefixME_ + "/EcalInfo/RUNTYPE");
   if ( me ) {
     s = me->valueString();
     sscanf(s.c_str(), "i=%d", &evtType_);
     if ( runType_ == -1 ) runType_ = evtType_;
-    if ( debug_ ) cout << "Found 'EcalBarrel/EcalInfo/RUNTYPE'" << endl;
+    if ( debug_ ) cout << "Found '" << prefixME_ << "/EcalInfo/RUNTYPE'" << endl;
   }
 
   // if the run number from the Event is less than zero,

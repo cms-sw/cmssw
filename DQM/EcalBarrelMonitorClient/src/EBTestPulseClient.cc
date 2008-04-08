@@ -1,8 +1,8 @@
 /*
  * \file EBTestPulseClient.cc
  *
- * $Date: 2008/04/07 11:30:22 $
- * $Revision: 1.200 $
+ * $Date: 2008/04/08 15:06:21 $
+ * $Revision: 1.201 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -50,6 +50,9 @@ EBTestPulseClient::EBTestPulseClient(const ParameterSet& ps){
 
   // debug switch
   debug_ = ps.getUntrackedParameter<bool>("debug", false);
+
+  // prefixME path
+  prefixME_ = ps.getUntrackedParameter<string>("prefixME", "");
 
   // enableCleanup_ switch
   enableCleanup_ = ps.getUntrackedParameter<bool>("enableCleanup", false);
@@ -164,7 +167,7 @@ void EBTestPulseClient::setup(void) {
 
   char histo[200];
 
-  dqmStore_->setCurrentFolder( "EcalBarrel/EBTestPulseClient" );
+  dqmStore_->setCurrentFolder( prefixME_ + "/EBTestPulseClient" );
 
   for ( unsigned int i=0; i<superModules_.size(); i++ ) {
 
@@ -325,7 +328,7 @@ void EBTestPulseClient::cleanup(void) {
 
     int ism = superModules_[i];
 
-    dqmStore_->setCurrentFolder( "EcalBarrel/EBTestPulseClient" );
+    dqmStore_->setCurrentFolder( prefixME_ + "/EBTestPulseClient" );
 
     if ( meg01_[ism-1] ) dqmStore_->removeElement( meg01_[ism-1]->getName() );
     meg01_[ism-1] = 0;
@@ -667,43 +670,43 @@ void EBTestPulseClient::analyze(void){
 
     int ism = superModules_[i];
 
-    sprintf(histo, "EcalBarrel/EBTestPulseTask/Gain01/EBTPT amplitude %s G01", Numbers::sEB(ism).c_str());
+    sprintf(histo, (prefixME_ + "/EBTestPulseTask/Gain01/EBTPT amplitude %s G01").c_str(), Numbers::sEB(ism).c_str());
     me = dqmStore_->get(histo);
     ha01_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, ha01_[ism-1] );
 
-    sprintf(histo, "EcalBarrel/EBTestPulseTask/Gain06/EBTPT amplitude %s G06", Numbers::sEB(ism).c_str());
+    sprintf(histo, (prefixME_ + "/EBTestPulseTask/Gain06/EBTPT amplitude %s G06").c_str(), Numbers::sEB(ism).c_str());
     me = dqmStore_->get(histo);
     ha02_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, ha02_[ism-1] );
 
-    sprintf(histo, "EcalBarrel/EBTestPulseTask/Gain12/EBTPT amplitude %s G12", Numbers::sEB(ism).c_str());
+    sprintf(histo, (prefixME_ + "/EBTestPulseTask/Gain12/EBTPT amplitude %s G12").c_str(), Numbers::sEB(ism).c_str());
     me = dqmStore_->get(histo);
     ha03_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, ha03_[ism-1] );
 
-    sprintf(histo, "EcalBarrel/EBTestPulseTask/Gain01/EBTPT shape %s G01", Numbers::sEB(ism).c_str());
+    sprintf(histo, (prefixME_ + "/EBTestPulseTask/Gain01/EBTPT shape %s G01").c_str(), Numbers::sEB(ism).c_str());
     me = dqmStore_->get(histo);
     hs01_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, hs01_[ism-1] );
 
-    sprintf(histo, "EcalBarrel/EBTestPulseTask/Gain06/EBTPT shape %s G06", Numbers::sEB(ism).c_str());
+    sprintf(histo, (prefixME_ + "/EBTestPulseTask/Gain06/EBTPT shape %s G06").c_str(), Numbers::sEB(ism).c_str());
     me = dqmStore_->get(histo);
     hs02_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, hs02_[ism-1] );
 
-    sprintf(histo, "EcalBarrel/EBTestPulseTask/Gain12/EBTPT shape %s G12", Numbers::sEB(ism).c_str());
+    sprintf(histo, (prefixME_ + "/EBTestPulseTask/Gain12/EBTPT shape %s G12").c_str(), Numbers::sEB(ism).c_str());
     me = dqmStore_->get(histo);
     hs03_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, hs03_[ism-1] );
 
-    sprintf(histo, "EcalBarrel/EBTestPulseTask/PN/Gain01/EBPDT PNs amplitude %s G01", Numbers::sEB(ism).c_str());
+    sprintf(histo, (prefixME_ + "/EBTestPulseTask/PN/Gain01/EBPDT PNs amplitude %s G01").c_str(), Numbers::sEB(ism).c_str());
     me = dqmStore_->get(histo);
     i01_[ism-1] = UtilsClient::getHisto<TProfile*>( me, cloneME_, i01_[ism-1] );
 
-    sprintf(histo, "EcalBarrel/EBTestPulseTask/PN/Gain16/EBPDT PNs amplitude %s G16", Numbers::sEB(ism).c_str());
+    sprintf(histo, (prefixME_ + "/EBTestPulseTask/PN/Gain16/EBPDT PNs amplitude %s G16").c_str(), Numbers::sEB(ism).c_str());
     me = dqmStore_->get(histo);
     i02_[ism-1] = UtilsClient::getHisto<TProfile*>( me, cloneME_, i02_[ism-1] );
 
-    sprintf(histo, "EcalBarrel/EBTestPulseTask/PN/Gain01/EBPDT PNs pedestal %s G01", Numbers::sEB(ism).c_str());
+    sprintf(histo, (prefixME_ + "/EBTestPulseTask/PN/Gain01/EBPDT PNs pedestal %s G01").c_str(), Numbers::sEB(ism).c_str());
     me = dqmStore_->get(histo);
     i03_[ism-1] = UtilsClient::getHisto<TProfile*>( me, cloneME_, i03_[ism-1] );
 
-    sprintf(histo, "EcalBarrel/EBTestPulseTask/PN/Gain16/EBPDT PNs pedestal %s G16", Numbers::sEB(ism).c_str());
+    sprintf(histo, (prefixME_ + "/EBTestPulseTask/PN/Gain16/EBPDT PNs pedestal %s G16").c_str(), Numbers::sEB(ism).c_str());
     me = dqmStore_->get(histo);
     i04_[ism-1] = UtilsClient::getHisto<TProfile*>( me, cloneME_, i04_[ism-1] );
 

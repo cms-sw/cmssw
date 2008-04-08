@@ -4,8 +4,8 @@
 /*
  * \file EECosmicClient.h
  *
- * $Date: 2008/04/07 08:44:20 $
- * $Revision: 1.18 $
+ * $Date: 2008/04/08 15:06:24 $
+ * $Revision: 1.19 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -80,6 +80,8 @@ bool cloneME_;
 
 bool verbose_;
 bool debug_;
+
+std::string prefixME_;
 
 bool enableCleanup_;
 

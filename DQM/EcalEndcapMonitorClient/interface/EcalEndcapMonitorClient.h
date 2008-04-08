@@ -4,8 +4,8 @@
 /*
  * \file EcalEndcapMonitorClient.h
  *
- * $Date: 2008/04/07 08:14:13 $
- * $Revision: 1.38 $
+ * $Date: 2008/04/08 15:06:25 $
+ * $Revision: 1.39 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -125,6 +125,8 @@ bool debug_;
 bool enableMonitorDaemon_;
 
 bool enableCleanup_;
+
+std::string prefixME_;
 
 std::string clientName_;
 

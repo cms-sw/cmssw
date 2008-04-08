@@ -1,8 +1,8 @@
 /*
  * \file EEPedestalOnlineClient.cc
  *
- * $Date: 2008/04/07 11:30:24 $
- * $Revision: 1.72 $
+ * $Date: 2008/04/08 15:06:25 $
+ * $Revision: 1.73 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -49,6 +49,9 @@ EEPedestalOnlineClient::EEPedestalOnlineClient(const ParameterSet& ps){
 
   // debug switch
   debug_ = ps.getUntrackedParameter<bool>("debug", false);
+
+  // prefixME path
+  prefixME_ = ps.getUntrackedParameter<string>("prefixME", "");
 
   // enableCleanup_ switch
   enableCleanup_ = ps.getUntrackedParameter<bool>("enableCleanup", false);
@@ -131,7 +134,7 @@ void EEPedestalOnlineClient::setup(void) {
 
   char histo[200];
 
-  dqmStore_->setCurrentFolder( "EcalEndcap/EEPedestalOnlineClient" );
+  dqmStore_->setCurrentFolder( prefixME_ + "/EEPedestalOnlineClient" );
 
   for ( unsigned int i=0; i<superModules_.size(); i++ ) {
 
@@ -203,7 +206,7 @@ void EEPedestalOnlineClient::cleanup(void) {
 
   }
 
-  dqmStore_->setCurrentFolder( "EcalEndcap/EEPedestalOnlineClient" );
+  dqmStore_->setCurrentFolder( prefixME_ + "/EEPedestalOnlineClient" );
 
   for ( unsigned int i=0; i<superModules_.size(); i++ ) {
 
@@ -338,7 +341,7 @@ void EEPedestalOnlineClient::analyze(void){
 
     int ism = superModules_[i];
 
-    sprintf(histo, "EcalEndcap/EEPedestalOnlineTask/Gain12/EEPOT pedestal %s G12", Numbers::sEE(ism).c_str());
+    sprintf(histo, (prefixME_ + "/EEPedestalOnlineTask/Gain12/EEPOT pedestal %s G12").c_str(), Numbers::sEE(ism).c_str());
     me = dqmStore_->get(histo);
     h03_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, h03_[ism-1] );
     meh03_[ism-1] = me;

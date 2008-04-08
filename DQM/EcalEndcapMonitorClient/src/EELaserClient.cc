@@ -1,8 +1,8 @@
 /*
  * \file EELaserClient.cc
  *
- * $Date: 2008/04/07 11:30:24 $
- * $Revision: 1.94 $
+ * $Date: 2008/04/08 15:06:25 $
+ * $Revision: 1.95 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -57,6 +57,9 @@ EELaserClient::EELaserClient(const ParameterSet& ps){
 
   // debug switch
   debug_ = ps.getUntrackedParameter<bool>("debug", false);
+
+  // prefixME path
+  prefixME_ = ps.getUntrackedParameter<string>("prefixME", "");
 
   // enableCleanup_ switch
   enableCleanup_ = ps.getUntrackedParameter<bool>("enableCleanup", false);
@@ -272,7 +275,7 @@ void EELaserClient::setup(void) {
 
   char histo[200];
 
-  dqmStore_->setCurrentFolder( "EcalEndcap/EELaserClient" );
+  dqmStore_->setCurrentFolder( prefixME_ + "/EELaserClient" );
 
   for ( unsigned int i=0; i<superModules_.size(); i++ ) {
 
@@ -854,7 +857,7 @@ void EELaserClient::cleanup(void) {
 
     int ism = superModules_[i];
 
-    dqmStore_->setCurrentFolder( "EcalEndcap/EELaserClient" );
+    dqmStore_->setCurrentFolder( prefixME_ + "/EELaserClient" );
 
     if ( meg01_[ism-1] ) dqmStore_->removeElement( meg01_[ism-1]->getName() );
     meg01_[ism-1] = 0;
@@ -1719,195 +1722,195 @@ void EELaserClient::analyze(void){
 
     int ism = superModules_[i];
 
-    sprintf(histo, "EcalEndcap/EELaserTask/Laser1/EELT amplitude %s L1A", Numbers::sEE(ism).c_str());
+    sprintf(histo, (prefixME_ + "/EELaserTask/Laser1/EELT amplitude %s L1A").c_str(), Numbers::sEE(ism).c_str());
     me = dqmStore_->get(histo);
     h01_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, h01_[ism-1] );
 
-    sprintf(histo, "EcalEndcap/EELaserTask/Laser1/EELT amplitude over PN %s L1A", Numbers::sEE(ism).c_str());
+    sprintf(histo, (prefixME_ + "/EELaserTask/Laser1/EELT amplitude over PN %s L1A").c_str(), Numbers::sEE(ism).c_str());
     me = dqmStore_->get(histo);
     h02_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, h02_[ism-1] );
 
-    sprintf(histo, "EcalEndcap/EELaserTask/Laser2/EELT amplitude %s L2A", Numbers::sEE(ism).c_str());
+    sprintf(histo, (prefixME_ + "/EELaserTask/Laser2/EELT amplitude %s L2A").c_str(), Numbers::sEE(ism).c_str());
     me = dqmStore_->get(histo);
     h03_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, h03_[ism-1] );
 
-    sprintf(histo, "EcalEndcap/EELaserTask/Laser2/EELT amplitude over PN %s L2A", Numbers::sEE(ism).c_str());
+    sprintf(histo, (prefixME_ + "/EELaserTask/Laser2/EELT amplitude over PN %s L2A").c_str(), Numbers::sEE(ism).c_str());
     me = dqmStore_->get(histo);
     h04_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, h04_[ism-1] );
 
-    sprintf(histo, "EcalEndcap/EELaserTask/Laser3/EELT amplitude %s L3A", Numbers::sEE(ism).c_str());
+    sprintf(histo, (prefixME_ + "/EELaserTask/Laser3/EELT amplitude %s L3A").c_str(), Numbers::sEE(ism).c_str());
     me = dqmStore_->get(histo);
     h05_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, h05_[ism-1] );
 
-    sprintf(histo, "EcalEndcap/EELaserTask/Laser3/EELT amplitude over PN %s L3A", Numbers::sEE(ism).c_str());
+    sprintf(histo, (prefixME_ + "/EELaserTask/Laser3/EELT amplitude over PN %s L3A").c_str(), Numbers::sEE(ism).c_str());
     me = dqmStore_->get(histo);
     h06_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, h06_[ism-1] );
 
-    sprintf(histo, "EcalEndcap/EELaserTask/Laser4/EELT amplitude %s L4A", Numbers::sEE(ism).c_str());
+    sprintf(histo, (prefixME_ + "/EELaserTask/Laser4/EELT amplitude %s L4A").c_str(), Numbers::sEE(ism).c_str());
     me = dqmStore_->get(histo);
     h07_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, h07_[ism-1] );
 
-    sprintf(histo, "EcalEndcap/EELaserTask/Laser4/EELT amplitude over PN %s L4A", Numbers::sEE(ism).c_str());
+    sprintf(histo, (prefixME_ + "/EELaserTask/Laser4/EELT amplitude over PN %s L4A").c_str(), Numbers::sEE(ism).c_str());
     me = dqmStore_->get(histo);
     h08_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, h08_[ism-1] );
 
-    sprintf(histo, "EcalEndcap/EELaserTask/Laser1/EELT timing %s L1A", Numbers::sEE(ism).c_str());
+    sprintf(histo, (prefixME_ + "/EELaserTask/Laser1/EELT timing %s L1A").c_str(), Numbers::sEE(ism).c_str());
     me = dqmStore_->get(histo);
     h09_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, h09_[ism-1] );
 
-    sprintf(histo, "EcalEndcap/EELaserTask/Laser2/EELT timing %s L2A", Numbers::sEE(ism).c_str());
+    sprintf(histo, (prefixME_ + "/EELaserTask/Laser2/EELT timing %s L2A").c_str(), Numbers::sEE(ism).c_str());
     me = dqmStore_->get(histo);
     h10_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, h10_[ism-1] );
 
-    sprintf(histo, "EcalEndcap/EELaserTask/Laser3/EELT timing %s L3A", Numbers::sEE(ism).c_str());
+    sprintf(histo, (prefixME_ + "/EELaserTask/Laser3/EELT timing %s L3A").c_str(), Numbers::sEE(ism).c_str());
     me = dqmStore_->get(histo);
     h11_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, h11_[ism-1] );
 
-    sprintf(histo, "EcalEndcap/EELaserTask/Laser4/EELT timing %s L4A", Numbers::sEE(ism).c_str());
+    sprintf(histo, (prefixME_ + "/EELaserTask/Laser4/EELT timing %s L4A").c_str(), Numbers::sEE(ism).c_str());
     me = dqmStore_->get(histo);
     h12_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, h12_[ism-1] );
 
-    sprintf(histo, "EcalEndcap/EELaserTask/Laser1/EELT amplitude %s L1B", Numbers::sEE(ism).c_str());
+    sprintf(histo, (prefixME_ + "/EELaserTask/Laser1/EELT amplitude %s L1B").c_str(), Numbers::sEE(ism).c_str());
     me = dqmStore_->get(histo);
     h13_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, h13_[ism-1] );
 
-    sprintf(histo, "EcalEndcap/EELaserTask/Laser1/EELT amplitude over PN %s L1B", Numbers::sEE(ism).c_str());
+    sprintf(histo, (prefixME_ + "/EELaserTask/Laser1/EELT amplitude over PN %s L1B").c_str(), Numbers::sEE(ism).c_str());
     me = dqmStore_->get(histo);
     h14_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, h14_[ism-1] );
 
-    sprintf(histo, "EcalEndcap/EELaserTask/Laser2/EELT amplitude %s L2B", Numbers::sEE(ism).c_str());
+    sprintf(histo, (prefixME_ + "/EELaserTask/Laser2/EELT amplitude %s L2B").c_str(), Numbers::sEE(ism).c_str());
     me = dqmStore_->get(histo);
     h15_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, h15_[ism-1] );
 
-    sprintf(histo, "EcalEndcap/EELaserTask/Laser2/EELT amplitude over PN %s L2B", Numbers::sEE(ism).c_str());
+    sprintf(histo, (prefixME_ + "/EELaserTask/Laser2/EELT amplitude over PN %s L2B").c_str(), Numbers::sEE(ism).c_str());
     me = dqmStore_->get(histo);
     h16_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, h16_[ism-1] );
 
-    sprintf(histo, "EcalEndcap/EELaserTask/Laser3/EELT amplitude %s L3B", Numbers::sEE(ism).c_str());
+    sprintf(histo, (prefixME_ + "/EELaserTask/Laser3/EELT amplitude %s L3B").c_str(), Numbers::sEE(ism).c_str());
     me = dqmStore_->get(histo);
     h17_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, h17_[ism-1] );
 
-    sprintf(histo, "EcalEndcap/EELaserTask/Laser3/EELT amplitude over PN %s L3B", Numbers::sEE(ism).c_str());
+    sprintf(histo, (prefixME_ + "/EELaserTask/Laser3/EELT amplitude over PN %s L3B").c_str(), Numbers::sEE(ism).c_str());
     me = dqmStore_->get(histo);
     h18_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, h18_[ism-1] );
 
-    sprintf(histo, "EcalEndcap/EELaserTask/Laser4/EELT amplitude %s L4B", Numbers::sEE(ism).c_str());
+    sprintf(histo, (prefixME_ + "/EELaserTask/Laser4/EELT amplitude %s L4B").c_str(), Numbers::sEE(ism).c_str());
     me = dqmStore_->get(histo);
     h19_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, h19_[ism-1] );
 
-    sprintf(histo, "EcalEndcap/EELaserTask/Laser4/EELT amplitude over PN %s L4B", Numbers::sEE(ism).c_str());
+    sprintf(histo, (prefixME_ + "/EELaserTask/Laser4/EELT amplitude over PN %s L4B").c_str(), Numbers::sEE(ism).c_str());
     me = dqmStore_->get(histo);
     h20_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, h20_[ism-1] );
 
-    sprintf(histo, "EcalEndcap/EELaserTask/Laser1/EELT timing %s L1B", Numbers::sEE(ism).c_str());
+    sprintf(histo, (prefixME_ + "/EELaserTask/Laser1/EELT timing %s L1B").c_str(), Numbers::sEE(ism).c_str());
     me = dqmStore_->get(histo);
     h21_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, h21_[ism-1] );
 
-    sprintf(histo, "EcalEndcap/EELaserTask/Laser2/EELT timing %s L2B", Numbers::sEE(ism).c_str());
+    sprintf(histo, (prefixME_ + "/EELaserTask/Laser2/EELT timing %s L2B").c_str(), Numbers::sEE(ism).c_str());
     me = dqmStore_->get(histo);
     h22_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, h22_[ism-1] );
 
-    sprintf(histo, "EcalEndcap/EELaserTask/Laser3/EELT timing %s L3B", Numbers::sEE(ism).c_str());
+    sprintf(histo, (prefixME_ + "/EELaserTask/Laser3/EELT timing %s L3B").c_str(), Numbers::sEE(ism).c_str());
     me = dqmStore_->get(histo);
     h23_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, h23_[ism-1] );
 
-    sprintf(histo, "EcalEndcap/EELaserTask/Laser4/EELT timing %s L4B", Numbers::sEE(ism).c_str());
+    sprintf(histo, (prefixME_ + "/EELaserTask/Laser4/EELT timing %s L4B").c_str(), Numbers::sEE(ism).c_str());
     me = dqmStore_->get(histo);
     h24_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, h24_[ism-1] );
 
-    sprintf(histo, "EcalEndcap/EELaserTask/Laser1/EELT shape %s L1A", Numbers::sEE(ism).c_str());
+    sprintf(histo, (prefixME_ + "/EELaserTask/Laser1/EELT shape %s L1A").c_str(), Numbers::sEE(ism).c_str());
     me = dqmStore_->get(histo);
     hs01_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, hs01_[ism-1] );
 
-    sprintf(histo, "EcalEndcap/EELaserTask/Laser2/EELT shape %s L2A", Numbers::sEE(ism).c_str());
+    sprintf(histo, (prefixME_ + "/EELaserTask/Laser2/EELT shape %s L2A").c_str(), Numbers::sEE(ism).c_str());
     me = dqmStore_->get(histo);
     hs02_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, hs02_[ism-1] );
 
-    sprintf(histo, "EcalEndcap/EELaserTask/Laser3/EELT shape %s L3A", Numbers::sEE(ism).c_str());
+    sprintf(histo, (prefixME_ + "/EELaserTask/Laser3/EELT shape %s L3A").c_str(), Numbers::sEE(ism).c_str());
     me = dqmStore_->get(histo);
     hs03_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, hs03_[ism-1] );
 
-    sprintf(histo, "EcalEndcap/EELaserTask/Laser4/EELT shape %s L4A", Numbers::sEE(ism).c_str());
+    sprintf(histo, (prefixME_ + "/EELaserTask/Laser4/EELT shape %s L4A").c_str(), Numbers::sEE(ism).c_str());
     me = dqmStore_->get(histo);
     hs04_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, hs04_[ism-1] );
 
-    sprintf(histo, "EcalEndcap/EELaserTask/Laser1/EELT shape %s L1B", Numbers::sEE(ism).c_str());
+    sprintf(histo, (prefixME_ + "/EELaserTask/Laser1/EELT shape %s L1B").c_str(), Numbers::sEE(ism).c_str());
     me = dqmStore_->get(histo);
     hs05_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, hs05_[ism-1] );
 
-    sprintf(histo, "EcalEndcap/EELaserTask/Laser2/EELT shape %s L2B", Numbers::sEE(ism).c_str());
+    sprintf(histo, (prefixME_ + "/EELaserTask/Laser2/EELT shape %s L2B").c_str(), Numbers::sEE(ism).c_str());
     me = dqmStore_->get(histo);
     hs06_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, hs06_[ism-1] );
 
-    sprintf(histo, "EcalEndcap/EELaserTask/Laser3/EELT shape %s L3B", Numbers::sEE(ism).c_str());
+    sprintf(histo, (prefixME_ + "/EELaserTask/Laser3/EELT shape %s L3B").c_str(), Numbers::sEE(ism).c_str());
     me = dqmStore_->get(histo);
     hs07_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, hs07_[ism-1] );
 
-    sprintf(histo, "EcalEndcap/EELaserTask/Laser4/EELT shape %s L4B", Numbers::sEE(ism).c_str());
+    sprintf(histo, (prefixME_ + "/EELaserTask/Laser4/EELT shape %s L4B").c_str(), Numbers::sEE(ism).c_str());
     me = dqmStore_->get(histo);
     hs08_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, hs08_[ism-1] );
 
-    sprintf(histo, "EcalEndcap/EELaserTask/Laser1/PN/Gain01/EEPDT PNs amplitude %s G01 L1", Numbers::sEE(ism).c_str());
+    sprintf(histo, (prefixME_ + "/EELaserTask/Laser1/PN/Gain01/EEPDT PNs amplitude %s G01 L1").c_str(), Numbers::sEE(ism).c_str());
     me = dqmStore_->get(histo);
     i01_[ism-1] = UtilsClient::getHisto<TProfile*>( me, cloneME_, i01_[ism-1] );
 
-    sprintf(histo, "EcalEndcap/EELaserTask/Laser2/PN/Gain01/EEPDT PNs amplitude %s G01 L2", Numbers::sEE(ism).c_str());
+    sprintf(histo, (prefixME_ + "/EELaserTask/Laser2/PN/Gain01/EEPDT PNs amplitude %s G01 L2").c_str(), Numbers::sEE(ism).c_str());
     me = dqmStore_->get(histo);
     i02_[ism-1] = UtilsClient::getHisto<TProfile*>( me, cloneME_, i02_[ism-1] );
 
-    sprintf(histo, "EcalEndcap/EELaserTask/Laser3/PN/Gain01/EEPDT PNs amplitude %s G01 L3", Numbers::sEE(ism).c_str());
+    sprintf(histo, (prefixME_ + "/EELaserTask/Laser3/PN/Gain01/EEPDT PNs amplitude %s G01 L3").c_str(), Numbers::sEE(ism).c_str());
     me = dqmStore_->get(histo);
     i03_[ism-1] = UtilsClient::getHisto<TProfile*>( me, cloneME_, i03_[ism-1] );
 
-    sprintf(histo, "EcalEndcap/EELaserTask/Laser4/PN/Gain01/EEPDT PNs amplitude %s G01 L4", Numbers::sEE(ism).c_str());
+    sprintf(histo, (prefixME_ + "/EELaserTask/Laser4/PN/Gain01/EEPDT PNs amplitude %s G01 L4").c_str(), Numbers::sEE(ism).c_str());
     me = dqmStore_->get(histo);
     i04_[ism-1] = UtilsClient::getHisto<TProfile*>( me, cloneME_, i04_[ism-1] );
 
-    sprintf(histo, "EcalEndcap/EELaserTask/Laser1/PN/Gain01/EEPDT PNs pedestal %s G01 L1", Numbers::sEE(ism).c_str());
+    sprintf(histo, (prefixME_ + "/EELaserTask/Laser1/PN/Gain01/EEPDT PNs pedestal %s G01 L1").c_str(), Numbers::sEE(ism).c_str());
     me = dqmStore_->get(histo);
     i05_[ism-1] = UtilsClient::getHisto<TProfile*>( me, cloneME_, i05_[ism-1] );
 
-    sprintf(histo, "EcalEndcap/EELaserTask/Laser2/PN/Gain01/EEPDT PNs pedestal %s G01 L2", Numbers::sEE(ism).c_str());
+    sprintf(histo, (prefixME_ + "/EELaserTask/Laser2/PN/Gain01/EEPDT PNs pedestal %s G01 L2").c_str(), Numbers::sEE(ism).c_str());
     me = dqmStore_->get(histo);
     i06_[ism-1] = UtilsClient::getHisto<TProfile*>( me, cloneME_, i06_[ism-1] );
 
-    sprintf(histo, "EcalEndcap/EELaserTask/Laser3/PN/Gain01/EEPDT PNs pedestal %s G01 L3", Numbers::sEE(ism).c_str());
+    sprintf(histo, (prefixME_ + "/EELaserTask/Laser3/PN/Gain01/EEPDT PNs pedestal %s G01 L3").c_str(), Numbers::sEE(ism).c_str());
     me = dqmStore_->get(histo);
     i07_[ism-1] = UtilsClient::getHisto<TProfile*>( me, cloneME_, i07_[ism-1] );
 
-    sprintf(histo, "EcalEndcap/EELaserTask/Laser4/PN/Gain01/EEPDT PNs pedestal %s G01 L4", Numbers::sEE(ism).c_str());
+    sprintf(histo, (prefixME_ + "/EELaserTask/Laser4/PN/Gain01/EEPDT PNs pedestal %s G01 L4").c_str(), Numbers::sEE(ism).c_str());
     me = dqmStore_->get(histo);
     i08_[ism-1] = UtilsClient::getHisto<TProfile*>( me, cloneME_, i08_[ism-1] );
 
-    sprintf(histo, "EcalEndcap/EELaserTask/Laser1/PN/Gain16/EEPDT PNs amplitude %s G16 L1", Numbers::sEE(ism).c_str());
+    sprintf(histo, (prefixME_ + "/EELaserTask/Laser1/PN/Gain16/EEPDT PNs amplitude %s G16 L1").c_str(), Numbers::sEE(ism).c_str());
     me = dqmStore_->get(histo);
     i09_[ism-1] = UtilsClient::getHisto<TProfile*>( me, cloneME_, i09_[ism-1] );
 
-    sprintf(histo, "EcalEndcap/EELaserTask/Laser2/PN/Gain16/EEPDT PNs amplitude %s G16 L2", Numbers::sEE(ism).c_str());
+    sprintf(histo, (prefixME_ + "/EELaserTask/Laser2/PN/Gain16/EEPDT PNs amplitude %s G16 L2").c_str(), Numbers::sEE(ism).c_str());
     me = dqmStore_->get(histo);
     i10_[ism-1] = UtilsClient::getHisto<TProfile*>( me, cloneME_, i10_[ism-1] );
 
-    sprintf(histo, "EcalEndcap/EELaserTask/Laser3/PN/Gain16/EEPDT PNs amplitude %s G16 L3", Numbers::sEE(ism).c_str());
+    sprintf(histo, (prefixME_ + "/EELaserTask/Laser3/PN/Gain16/EEPDT PNs amplitude %s G16 L3").c_str(), Numbers::sEE(ism).c_str());
     me = dqmStore_->get(histo);
     i11_[ism-1] = UtilsClient::getHisto<TProfile*>( me, cloneME_, i11_[ism-1] );
 
-    sprintf(histo, "EcalEndcap/EELaserTask/Laser4/PN/Gain16/EEPDT PNs amplitude %s G16 L4", Numbers::sEE(ism).c_str());
+    sprintf(histo, (prefixME_ + "/EELaserTask/Laser4/PN/Gain16/EEPDT PNs amplitude %s G16 L4").c_str(), Numbers::sEE(ism).c_str());
     me = dqmStore_->get(histo);
     i12_[ism-1] = UtilsClient::getHisto<TProfile*>( me, cloneME_, i12_[ism-1] );
 
-    sprintf(histo, "EcalEndcap/EELaserTask/Laser1/PN/Gain16/EEPDT PNs pedestal %s G16 L1", Numbers::sEE(ism).c_str());
+    sprintf(histo, (prefixME_ + "/EELaserTask/Laser1/PN/Gain16/EEPDT PNs pedestal %s G16 L1").c_str(), Numbers::sEE(ism).c_str());
     me = dqmStore_->get(histo);
     i13_[ism-1] = UtilsClient::getHisto<TProfile*>( me, cloneME_, i13_[ism-1] );
 
-    sprintf(histo, "EcalEndcap/EELaserTask/Laser2/PN/Gain16/EEPDT PNs pedestal %s G16 L2", Numbers::sEE(ism).c_str());
+    sprintf(histo, (prefixME_ + "/EELaserTask/Laser2/PN/Gain16/EEPDT PNs pedestal %s G16 L2").c_str(), Numbers::sEE(ism).c_str());
     me = dqmStore_->get(histo);
     i14_[ism-1] = UtilsClient::getHisto<TProfile*>( me, cloneME_, i14_[ism-1] );
 
-    sprintf(histo, "EcalEndcap/EELaserTask/Laser3/PN/Gain16/EEPDT PNs pedestal %s G16 L3", Numbers::sEE(ism).c_str());
+    sprintf(histo, (prefixME_ + "/EELaserTask/Laser3/PN/Gain16/EEPDT PNs pedestal %s G16 L3").c_str(), Numbers::sEE(ism).c_str());
     me = dqmStore_->get(histo);
     i15_[ism-1] = UtilsClient::getHisto<TProfile*>( me, cloneME_, i15_[ism-1] );
 
-    sprintf(histo, "EcalEndcap/EELaserTask/Laser4/PN/Gain16/EEPDT PNs pedestal %s G16 L4", Numbers::sEE(ism).c_str());
+    sprintf(histo, (prefixME_ + "/EELaserTask/Laser4/PN/Gain16/EEPDT PNs pedestal %s G16 L4").c_str(), Numbers::sEE(ism).c_str());
     me = dqmStore_->get(histo);
     i16_[ism-1] = UtilsClient::getHisto<TProfile*>( me, cloneME_, i16_[ism-1] );
 

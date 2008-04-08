@@ -1,8 +1,8 @@
 /*
  * \file EETestPulseClient.cc
  *
- * $Date: 2008/04/07 11:30:24 $
- * $Revision: 1.85 $
+ * $Date: 2008/04/08 15:06:26 $
+ * $Revision: 1.86 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -52,6 +52,9 @@ EETestPulseClient::EETestPulseClient(const ParameterSet& ps){
 
   // debug switch
   debug_ = ps.getUntrackedParameter<bool>("debug", false);
+
+  // prefixME path
+  prefixME_ = ps.getUntrackedParameter<string>("prefixME", "");
 
   // enableCleanup_ switch
   enableCleanup_ = ps.getUntrackedParameter<bool>("enableCleanup", false);
@@ -166,7 +169,7 @@ void EETestPulseClient::setup(void) {
 
   char histo[200];
 
-  dqmStore_->setCurrentFolder( "EcalEndcap/EETestPulseClient" );
+  dqmStore_->setCurrentFolder( prefixME_ + "/EETestPulseClient" );
 
   for ( unsigned int i=0; i<superModules_.size(); i++ ) {
 
@@ -338,7 +341,7 @@ void EETestPulseClient::cleanup(void) {
 
     int ism = superModules_[i];
 
-    dqmStore_->setCurrentFolder( "EcalEndcap/EETestPulseClient" );
+    dqmStore_->setCurrentFolder( prefixME_ + "/EETestPulseClient" );
 
     if ( meg01_[ism-1] ) dqmStore_->removeElement( meg01_[ism-1]->getName() );
     meg01_[ism-1] = 0;
@@ -689,43 +692,43 @@ void EETestPulseClient::analyze(void){
 
     int ism = superModules_[i];
 
-    sprintf(histo, "EcalEndcap/EETestPulseTask/Gain01/EETPT amplitude %s G01", Numbers::sEE(ism).c_str());
+    sprintf(histo, (prefixME_ + "/EETestPulseTask/Gain01/EETPT amplitude %s G01").c_str(), Numbers::sEE(ism).c_str());
     me = dqmStore_->get(histo);
     ha01_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, ha01_[ism-1] );
 
-    sprintf(histo, "EcalEndcap/EETestPulseTask/Gain06/EETPT amplitude %s G06", Numbers::sEE(ism).c_str());
+    sprintf(histo, (prefixME_ + "/EETestPulseTask/Gain06/EETPT amplitude %s G06").c_str(), Numbers::sEE(ism).c_str());
     me = dqmStore_->get(histo);
     ha02_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, ha02_[ism-1] );
 
-    sprintf(histo, "EcalEndcap/EETestPulseTask/Gain12/EETPT amplitude %s G12", Numbers::sEE(ism).c_str());
+    sprintf(histo, (prefixME_ + "/EETestPulseTask/Gain12/EETPT amplitude %s G12").c_str(), Numbers::sEE(ism).c_str());
     me = dqmStore_->get(histo);
     ha03_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, ha03_[ism-1] );
 
-    sprintf(histo, "EcalEndcap/EETestPulseTask/Gain01/EETPT shape %s G01", Numbers::sEE(ism).c_str());
+    sprintf(histo, (prefixME_ + "/EETestPulseTask/Gain01/EETPT shape %s G01").c_str(), Numbers::sEE(ism).c_str());
     me = dqmStore_->get(histo);
     hs01_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, hs01_[ism-1] );
 
-    sprintf(histo, "EcalEndcap/EETestPulseTask/Gain06/EETPT shape %s G06", Numbers::sEE(ism).c_str());
+    sprintf(histo, (prefixME_ + "/EETestPulseTask/Gain06/EETPT shape %s G06").c_str(), Numbers::sEE(ism).c_str());
     me = dqmStore_->get(histo);
     hs02_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, hs02_[ism-1] );
 
-    sprintf(histo, "EcalEndcap/EETestPulseTask/Gain12/EETPT shape %s G12", Numbers::sEE(ism).c_str());
+    sprintf(histo, (prefixME_ + "/EETestPulseTask/Gain12/EETPT shape %s G12").c_str(), Numbers::sEE(ism).c_str());
     me = dqmStore_->get(histo);
     hs03_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, hs03_[ism-1] );
 
-    sprintf(histo, "EcalEndcap/EETestPulseTask/PN/Gain01/EEPDT PNs amplitude %s G01", Numbers::sEE(ism).c_str());
+    sprintf(histo, (prefixME_ + "/EETestPulseTask/PN/Gain01/EEPDT PNs amplitude %s G01").c_str(), Numbers::sEE(ism).c_str());
     me = dqmStore_->get(histo);
     i01_[ism-1] = UtilsClient::getHisto<TProfile*>( me, cloneME_, i01_[ism-1] );
 
-    sprintf(histo, "EcalEndcap/EETestPulseTask/PN/Gain16/EEPDT PNs amplitude %s G16", Numbers::sEE(ism).c_str());
+    sprintf(histo, (prefixME_ + "/EETestPulseTask/PN/Gain16/EEPDT PNs amplitude %s G16").c_str(), Numbers::sEE(ism).c_str());
     me = dqmStore_->get(histo);
     i02_[ism-1] = UtilsClient::getHisto<TProfile*>( me, cloneME_, i02_[ism-1] );
 
-    sprintf(histo, "EcalEndcap/EETestPulseTask/PN/Gain01/EEPDT PNs pedestal %s G01", Numbers::sEE(ism).c_str());
+    sprintf(histo, (prefixME_ + "/EETestPulseTask/PN/Gain01/EEPDT PNs pedestal %s G01").c_str(), Numbers::sEE(ism).c_str());
     me = dqmStore_->get(histo);
     i03_[ism-1] = UtilsClient::getHisto<TProfile*>( me, cloneME_, i03_[ism-1] );
 
-    sprintf(histo, "EcalEndcap/EETestPulseTask/PN/Gain16/EEPDT PNs pedestal %s G16", Numbers::sEE(ism).c_str());
+    sprintf(histo, (prefixME_ + "/EETestPulseTask/PN/Gain16/EEPDT PNs pedestal %s G16").c_str(), Numbers::sEE(ism).c_str());
     me = dqmStore_->get(histo);
     i04_[ism-1] = UtilsClient::getHisto<TProfile*>( me, cloneME_, i04_[ism-1] );
 

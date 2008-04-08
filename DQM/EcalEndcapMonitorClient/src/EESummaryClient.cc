@@ -1,8 +1,8 @@
 /*
  * \file EESummaryClient.cc
  *
- * $Date: 2008/04/07 09:00:42 $
- * $Revision: 1.105 $
+ * $Date: 2008/04/08 15:06:25 $
+ * $Revision: 1.106 $
  * \author G. Della Ricca
  *
 */
@@ -56,6 +56,9 @@ EESummaryClient::EESummaryClient(const ParameterSet& ps){
 
   // debug switch
   debug_ = ps.getUntrackedParameter<bool>("debug", false);
+
+  // prefixME path
+  prefixME_ = ps.getUntrackedParameter<string>("prefixME", "");
 
   // enableCleanup_ switch
   enableCleanup_ = ps.getUntrackedParameter<bool>("enableCleanup", false);
@@ -163,7 +166,7 @@ void EESummaryClient::setup(void) {
 
   char histo[200];
 
-  dqmStore_->setCurrentFolder( "EcalEndcap/EESummaryClient" );
+  dqmStore_->setCurrentFolder( prefixME_ + "/EESummaryClient" );
 
   if ( meIntegrity_[0] ) dqmStore_->removeElement( meIntegrity_[0]->getName() );
   sprintf(histo, "EEIT EE - integrity quality summary");
@@ -455,7 +458,7 @@ void EESummaryClient::setup(void) {
 
   // summary for DQM GUI
 
-  dqmStore_->setCurrentFolder( "EcalEndcap/EventInfo" );
+  dqmStore_->setCurrentFolder( prefixME_ + "/EventInfo" );
 
   MonitorElement* me;
 
@@ -475,7 +478,7 @@ void EESummaryClient::cleanup(void) {
 
   if ( ! enableCleanup_ ) return;
 
-  dqmStore_->setCurrentFolder( "EcalEndcap/EESummaryClient" );
+  dqmStore_->setCurrentFolder( prefixME_ + "/EESummaryClient" );
 
   if ( meIntegrity_[0] ) dqmStore_->removeElement( meIntegrity_[0]->getName() );
   meIntegrity_[0] = 0;
@@ -617,7 +620,7 @@ void EESummaryClient::cleanup(void) {
 
   // summary for DQM GUI
 
-  dqmStore_->setCurrentFolder( "EcalEndcap/EventInfo" );
+  dqmStore_->setCurrentFolder( prefixME_ + "/EventInfo" );
 
   // to be done
 
@@ -1271,19 +1274,19 @@ void EESummaryClient::analyze(void){
 
   MonitorElement* me;
 
-  me = dqmStore_->get("EcalEndcap/EventInfo/errorSummary");
+  me = dqmStore_->get(prefixME_ + "/EventInfo/errorSummary");
   if (me) me->Fill(errorSummary);
 
-  me = dqmStore_->get("EcalEndcap/EventInfo/errorSummarySegments/Segment00");
+  me = dqmStore_->get(prefixME_ + "/EventInfo/errorSummarySegments/Segment00");
   if (me) me->Fill(errorSummaryEEM);
 
-  me = dqmStore_->get("EcalEndcap/EventInfo/errorSummarySegments/Segment01");
+  me = dqmStore_->get(prefixME_ + "/EventInfo/errorSummarySegments/Segment01");
   if (me) me->Fill(errorSummaryEEP);
 
   MonitorElement* meside[2];
 
-  meside[0] = dqmStore_->get("EcalEndcap/EventInfo/errorSummaryXY_EEM");
-  meside[1] = dqmStore_->get("EcalEndcap/EventInfo/errorSummaryXY_EEP");
+  meside[0] = dqmStore_->get(prefixME_ + "/EventInfo/errorSummaryXY_EEM");
+  meside[1] = dqmStore_->get(prefixME_ + "/EventInfo/errorSummaryXY_EEP");
   if (meside[0] && meside[1]) {
 
     int nValidChannelsTT[2][20][20];
