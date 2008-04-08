@@ -1,8 +1,8 @@
 /*
  * \file EESummaryClient.cc
  *
- * $Date: 2008/04/08 15:06:25 $
- * $Revision: 1.106 $
+ * $Date: 2008/04/08 18:05:29 $
+ * $Revision: 1.107 $
  * \author G. Della Ricca
  *
 */
@@ -1227,12 +1227,12 @@ void EESummaryClient::analyze(void){
 
         // turn each dark color to bright green
         // for laser turn also yellow into bright green
-        if(val_in>2) val_in=1;
-        if(val_po>2) val_po=1;
+        if(val_in> 2) val_in=1;
+        if(val_po> 2) val_po=1;
         if(val_ls>=2) val_ls=1;
-        if(val_tm>2)  val_tm=1;
-        if(val_sf>2)  val_sf=1;
-        if(val_ee>2)  val_ee=1;
+        if(val_tm>=2) val_tm=1;
+        if(val_sf> 2) val_sf=1;
+        if(val_ee> 2) val_ee=1;
 
         // -1 = unknown
         //  0 = red
@@ -1242,7 +1242,7 @@ void EESummaryClient::analyze(void){
         if(val_in==-1) xval=-1;
         else if(val_in == 0) xval=0;
         else if(val_po == 0 || val_ls == 0 || val_tm == 0 || val_sf == 0 || val_ee == 0) xval = 0;
-        else if(val_po == 2 || val_tm == 2 || val_sf == 2 || val_ee == 2) xval = 2;
+        else if(val_po == 2 || val_ls == 2 || val_tm == 2 || val_sf == 2 || val_ee == 2) xval = 2;
         else xval=1;
 
         meGlobalSummary_[1]->setBinContent( jx, jy, xval );
