@@ -9,8 +9,8 @@
 //                one Eta Track Finder (ETF) and 
 //                one Eta Matching Unit (EMU) 
 //
-//   $Date: 2007/03/30 09:05:32 $
-//   $Revision: 1.7 $
+//   $Date: 2008/02/25 16:35:32 $
+//   $Revision: 1.9 $
 //
 //   Author :
 //   N. Neumeister            CERN EP
@@ -346,8 +346,9 @@ void L1MuDTEtaProcessor::runEtaMatchingUnit(const edm::EventSetup& c) {
     
     // get list of qualified patterns ordered by quality 
     // and compare with found patterns
-    const vector<int>& qualifiedPatterns = theQualPatternLUT->getQualifiedPatterns(sp,adr);
-    vector<int>::const_iterator iter, f_iter;
+    const vector<short>& qualifiedPatterns = theQualPatternLUT->getQualifiedPatterns(sp,adr);
+    vector<short>::const_iterator iter;
+    vector<int>::const_iterator f_iter;
     for ( iter = qualifiedPatterns.begin(); iter != qualifiedPatterns.end(); iter++ ) {
       f_iter = find(m_foundPattern.begin(),m_foundPattern.end(),(*iter));
       // found
