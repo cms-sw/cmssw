@@ -62,7 +62,6 @@ PFElecTkProducer::~PFElecTkProducer()
 void
 PFElecTkProducer::produce(Event& iEvent, const EventSetup& iSetup)
 {
-
   LogDebug("PFElecTkProducer")<<"START event: "<<iEvent.id().event()
 			      <<" in run "<<iEvent.id().run();
 
@@ -83,15 +82,18 @@ PFElecTkProducer::produce(Event& iEvent, const EventSetup& iSetup)
   iEvent.getByLabel(pfTrackLabel_,thePfRecTrackCollection);
   const PFRecTrackCollection PfRTkColl = *(thePfRecTrackCollection.product());
 
+  
+
+
   if (trajinev_){
     iEvent.getByLabel(gsfTrackLabel_,TrajectoryCollection); 
     GsfTrackCollection gsftracks = *(gsfelectrons.product());
     vector<Trajectory> tjvec= *(TrajectoryCollection.product());
-   
+  
     for (uint igsf=0; igsf<gsftracks.size();igsf++) {
-
+ 
       GsfTrackRef trackRef(gsfelectrons, igsf);
-      int kf_ind=FindPfRef(PfRTkColl,gsftracks[igsf]);
+      int kf_ind=FindPfRef(PfRTkColl,gsftracks[igsf],false);
 
       if (kf_ind>=0) {
 
@@ -120,6 +122,54 @@ PFElecTkProducer::produce(Event& iEvent, const EventSetup& iSetup)
        if(validgsfbrem)
 	 gsfPFRecTrackCollection->push_back(pftrack_);
     }
+    //OTHER GSF TRACK COLLECTION
+    if(conf_.getParameter<bool>("AddGSFTkColl")){
+     
+      vector< InputTag > GContainers = 
+	conf_.getParameter< vector < InputTag > >("GsfColList");
+      for(uint igc=0; igc<GContainers.size(); igc++){
+	Handle<GsfTrackCollection> otherGsfColl;
+	iEvent.getByLabel(GContainers[igc],otherGsfColl);
+	GsfTrackCollection othergsftracks = *(otherGsfColl.product());
+
+	Handle<vector<Trajectory> > TrajectoryCollection;
+	iEvent.getByLabel(GContainers[igc],TrajectoryCollection);
+	vector<Trajectory> newtj= *(TrajectoryCollection.product());
+	
+	for (uint igsf=0; igsf<othergsftracks.size();igsf++) {
+	  if(otherElId(gsftracks,othergsftracks[igsf])){
+	    GsfTrackRef trackRef(otherGsfColl, igsf);
+	    int kf_ind=FindPfRef(PfRTkColl,othergsftracks[igsf],true);
+	    
+	    if (kf_ind>=0) {	      
+	      PFRecTrackRef kf_ref(thePfRecTrackCollection,
+				   kf_ind);
+	      pftrack_=GsfPFRecTrack( othergsftracks[igsf].charge(), 
+				      reco::PFRecTrack::GSF, 
+				      igsf, trackRef,
+				      kf_ref);
+	    } else  {
+	      PFRecTrackRef dummyRef;
+	      pftrack_=GsfPFRecTrack( othergsftracks[igsf].charge(), 
+				      reco::PFRecTrack::GSF, 
+				      igsf, trackRef,
+				      dummyRef);
+	    }
+	    bool validgsfbrem = pfTransformer_->addPointsAndBrems(pftrack_, 
+								  othergsftracks[igsf], 
+								  newtj[igsf],
+								  modemomentum_); 
+	    if(validgsfbrem)
+	      gsfPFRecTrackCollection->push_back(pftrack_);
+
+	  }
+	}
+      }
+    }
+    
+
+
+
     iEvent.put(gsfPFRecTrackCollection);
   }else LogError("PFEleTkProducer")<<"No trajectory in the events";
   
@@ -127,7 +177,8 @@ PFElecTkProducer::produce(Event& iEvent, const EventSetup& iSetup)
 // ------------- method for find the corresponding kf pfrectrack ---------------------
 int
 PFElecTkProducer::FindPfRef(const reco::PFRecTrackCollection  & PfRTkColl, 
-			    reco::GsfTrack gsftk){
+			    reco::GsfTrack gsftk,
+			    bool otherColl){
 
 
   if (&(*gsftk.seedRef())==0) return -1;
@@ -138,9 +189,10 @@ PFElecTkProducer::FindPfRef(const reco::PFRecTrackCollection  & PfRTkColl,
   int ibest=-1;
   uint ish_max=0;
   float dr_min=1000;
+
   for(;pft!=pftend;++pft){
     uint ish=0;
-    if (pft->algoType()==reco::PFRecTrack::KF_ELCAND){
+    if ((pft->algoType()==reco::PFRecTrack::KF_ELCAND) || otherColl){
 
       float dph= fabs(pft->trackRef()->phi()-gsftk.phi()); 
       if (dph>TMath::TwoPi()) dph-= TMath::TwoPi();
@@ -183,8 +235,40 @@ PFElecTkProducer::FindPfRef(const reco::PFRecTrackCollection  & PfRTkColl,
     i_pf++;
   }
   if (ibest<0) return -1;
+
   if((ish_max==0) &&(dr_min>0.05))return -1;
+  if(otherColl && (ish_max==0)) return -1;
   return ibest;
+}
+
+bool 
+PFElecTkProducer::otherElId(const reco::GsfTrackCollection  & GsfColl, 
+			    reco::GsfTrack GsfTk){
+
+  int nhits=GsfTk.numberOfValidHits();
+  GsfTrackCollection::const_iterator igs=GsfColl.begin();
+  GsfTrackCollection::const_iterator igs_end=GsfColl.end();  
+  uint shared=0;
+  for(;igs!=igs_end;++igs){
+    uint tmp_sh=0;
+    trackingRecHit_iterator  ghit=igs->recHitsBegin();
+    trackingRecHit_iterator  ghit_end=igs->recHitsEnd();
+    for (;ghit!=ghit_end;++ghit){
+
+      if (!((*ghit)->isValid())) continue;
+      
+      trackingRecHit_iterator  hit=GsfTk.recHitsBegin();
+      trackingRecHit_iterator  hit_end=GsfTk.recHitsEnd();
+ 
+      for (;hit!=hit_end;++hit){
+	if (!((*hit)->isValid())) continue;
+	if(((*hit)->geographicalId()==(*ghit)->geographicalId())&&
+	   (((*hit)->localPosition()-(*ghit)->localPosition()).mag()<0.01)) tmp_sh++;
+      }
+    }
+    if (tmp_sh>shared) shared=tmp_sh;
+  }
+  return ((float(shared)/float(nhits))<0.5);
 }
 
 // ------------ method called once each job just before starting event loop  ------------

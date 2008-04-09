@@ -43,8 +43,11 @@ class PFElecTkProducer : public edm::EDProducer {
 
     
       int FindPfRef(const reco::PFRecTrackCollection & PfRTkColl, 
-		    reco::GsfTrack);
+		    reco::GsfTrack, bool);
  
+      bool otherElId(const reco::GsfTrackCollection  & GsfColl, 
+		     reco::GsfTrack GsfTk);
+	
       // ----------member data ---------------------------
       reco::GsfPFRecTrack pftrack_;
       edm::ParameterSet conf_;
