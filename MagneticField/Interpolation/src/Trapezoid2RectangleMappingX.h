@@ -1,10 +1,23 @@
-#ifndef Trapezoid2RectangleMappingX_H
-#define Trapezoid2RectangleMappingX_H
+#ifndef Trapezoid2RectangleMappingX_h
+#define Trapezoid2RectangleMappingX_h
 
-//#define DEBUG_GRID
+/** \class Trapezoid2RectangleMappingX
+ *
+ *  Maps a trapezoidal coordinate system into a cartesian one.
+ *  It is assumed that x is the coordinate along the trapezoid bases while y is along
+ *  the trapezoid height.
+ *
+ *  $Date: $
+ *  $Revision: $
+ *  \author T. Todorov
+ */
 
-#ifdef DEBUG_GRID
+
+//#define DEBUG_GRID_TRM
+
+#ifdef DEBUG_GRID_TRM
 #include <iostream>
+using namespace std;
 #endif
 
 class Trapezoid2RectangleMappingX {
@@ -18,7 +31,7 @@ public:
   {
     k_ = 2/h * (bovera-1.) / (bovera+1.);
 
-#ifdef DEBUG_GRID
+#ifdef DEBUG_GRID_TRM
     cout << "Trapezoid2RectangleMappingX constructed with x0,y0 " << x0 << " " << y0 
  	 << " b/a= " << bovera << " h= " << h << endl;
 #endif
@@ -28,7 +41,7 @@ public:
   Trapezoid2RectangleMappingX( double x0, double y0, double k) :
     x0_(x0), y0_(y0), k_(k), parallel_(true)
   {
-#ifdef DEBUG_GRID
+#ifdef DEBUG_GRID_TRM
     cout << "Trapezoid2RectangleMappingX constructed with x0,y0 " << x0 << " " << y0 
  	 << " k= " << k << endl;
 #endif
