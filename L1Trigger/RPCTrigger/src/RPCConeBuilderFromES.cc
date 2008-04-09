@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Mon Mar  3 13:34:20 CET 2008
-// $Id$
+// $Id: RPCConeBuilderFromES.cc,v 1.1 2008/03/03 14:35:08 fruboes Exp $
 //
 
 // system include files
@@ -40,12 +40,15 @@ RPCConeBuilderFromES::RPCConeBuilderFromES()
 RPCConeBuilderFromES::~RPCConeBuilderFromES()
 {
 }
+
 L1RpcLogConesVec RPCConeBuilderFromES::getConesFromES(edm::Handle<RPCDigiCollection> rpcDigis, 
-                                edm::ESHandle<L1RPCConeBuilder> coneBuilder)
+                                                      edm::ESHandle<L1RPCConeBuilder> coneBuilder,
+                                                      edm::ESHandle<L1RPCHwConfig> hwConfig)
 {
   std::vector<RPCLogHit> logHits;
   
   // Build cones from digis
+  // first build loghits
   RPCDigiCollection::DigiRangeIterator detUnitIt;
   for (detUnitIt=rpcDigis->begin();
        detUnitIt!=rpcDigis->end();
@@ -64,13 +67,15 @@ L1RpcLogConesVec RPCConeBuilderFromES::getConesFromES(edm::Handle<RPCDigiCollect
       if (digiIt->bx()!=0)
         continue;
       
-      
+
       std::pair<L1RPCConeBuilder::TStripConVec::const_iterator, L1RPCConeBuilder::TStripConVec::const_iterator> 
           itPair = coneBuilder->getConVec(rawId,digiIt->strip());
       
       L1RPCConeBuilder::TStripConVec::const_iterator it = itPair.first;
       for (; it!=itPair.second;++it){
-        logHits.push_back( RPCLogHit(it->m_tower, it->m_PAC, it->m_logplane, it->m_logstrip) );
+
+         if ( hwConfig->isActive(it->m_tower, it->m_PAC)  )
+             logHits.push_back( RPCLogHit(it->m_tower, it->m_PAC, it->m_logplane, it->m_logstrip) );
       }
       
     }
@@ -78,6 +83,7 @@ L1RpcLogConesVec RPCConeBuilderFromES::getConesFromES(edm::Handle<RPCDigiCollect
     
   }
   
+  // build cones
   L1RpcLogConesVec ActiveCones;
 
   std::vector<RPCLogHit>::iterator p_lhit;

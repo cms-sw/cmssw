@@ -1,7 +1,7 @@
 /** \file RPCTrigger.cc
  *
- *  $Date: 2008/02/21 12:49:33 $
- *  $Revision: 1.7 $
+ *  $Date: 2008/03/03 14:35:06 $
+ *  $Revision: 1.8 $
  *  \author Tomasz Fruboes
  */
 #include "L1Trigger/RPCTrigger/interface/RPCTrigger.h"
@@ -12,6 +12,8 @@
 
 #include "CondFormats/DataRecord/interface/L1RPCConeBuilderRcd.h"
 #include "CondFormats/RPCObjects/interface/L1RPCConeBuilder.h"
+#include "CondFormats/RPCObjects/interface/L1RPCHwConfig.h"
+
 //#define ML_DEBUG 
 
 
@@ -120,7 +122,11 @@ RPCTrigger::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   } else { //use es
     edm::ESHandle<L1RPCConeBuilder> coneBuilder;
     iSetup.get<L1RPCConeBuilderRcd>().get(coneBuilder);
-    ActiveCones = m_theLinksystemFromES.getConesFromES(rpcDigis,coneBuilder);
+
+    edm::ESHandle<L1RPCHwConfig> hwConfig;
+    iSetup.get<L1RPCConfigRcd>().get(hwConfig);
+
+    ActiveCones = m_theLinksystemFromES.getConesFromES(rpcDigis,coneBuilder,hwConfig);
     
   }
   
