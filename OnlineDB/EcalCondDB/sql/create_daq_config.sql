@@ -4,36 +4,6 @@
 -- updated by FC on 14/3/2008
 -- ********** ECAL_RUN 
 
-CREATE TABLE RUN_TYPE_DEF (
-	DEF_ID  NUMBER NOT NULL
-     , RUN_TYPE VARCHAR2(20),
-        DESCRIPTION VARCHAR2(100)
-);
-ALTER TABLE RUN_TYPE_DEF ADD CONSTRAINT run_type_def_pk PRIMARY KEY (def_id);
-ALTER TABLE RUN_TYPE_DEF ADD CONSTRAINT run_type_def_uk1 UNIQUE (run_type);
-
-CREATE SEQUENCE run_type_def_sq INCREMENT BY 1 START WITH 1;
-CREATE trigger run_type_def_trg
-before insert on RUN_TYPE_DEF
-for each row
-begin
-select run_type_def_sq.NextVal into :new.def_id from dual;
-end;
-/
-
-prompt FUNCTION get_run_type_def_id;
-create or replace function get_run_type_def_id( a_run_type IN VARCHAR ) return NUMBER
-IS
- 	ret NUMBER;
-BEGIN
-	SELECT DEF_ID 
-		INTO 	ret 
-		FROM 	RUN_TYPE_DEF 
-		WHERE 	RUN_TYPE=a_run_type
-	;
-	return (ret);
-END;
-/
 
 CREATE TABLE ECAL_RUN_MODE_DEF (
 	DEF_ID  NUMBER NOT NULL
@@ -72,13 +42,15 @@ CREATE TABLE ECAL_RUN_CONFIGURATION_DAT (
      , RUN_TYPE_DEF_ID NUMBER NOT NULL
      , RUN_MODE_DEF_ID NUMBER NOT NULL
      , NUM_OF_SEQUENCES NUMBER(22) NULL
-     , DESCRIPTION VARCHAR2(200) NULL,
-db_timestamp  TIMESTAMP DEFAULT SYSTIMESTAMP NOT NULL     
+     , DESCRIPTION VARCHAR2(200) NULL
+     , DEFAULTS VARCHAR2(200) NULL
+     , TRG_MODE VARCHAR2(64) NULL
+     , NUM_OF_EVENTS NUMber NULL
+     , db_timestamp  TIMESTAMP DEFAULT SYSTIMESTAMP NOT NULL     
 );
 
 ALTER TABLE ECAL_RUN_CONFIGURATION_DAT ADD CONSTRAINT ecal_config_pk PRIMARY KEY (config_id);
 ALTER TABLE ECAL_RUN_CONFIGURATION_DAT ADD CONSTRAINT ecal_config_uk1 UNIQUE (tag, version);
-ALTER TABLE ECAL_RUN_CONFIGURATION_DAT ADD CONSTRAINT ecal_config_fk1 FOREIGN KEY (run_type_def_id) REFERENCES RUN_TYPE_DEF (DEF_ID) ;
 ALTER TABLE ECAL_RUN_CONFIGURATION_DAT ADD CONSTRAINT ecal_config_fk2 FOREIGN KEY (run_mode_def_id) REFERENCES ECAL_RUN_MODE_DEF (DEF_ID) ;
 
 CREATE SEQUENCE ecal_run_sq INCREMENT BY 1 START WITH 1;
@@ -115,7 +87,6 @@ CREATE TABLE ECAL_SEQUENCE_TYPE_DEF (
         , SEQUENCE_TYPE_STRING VARCHAR2(20)
 );
 ALTER TABLE ECAL_SEQUENCE_TYPE_DEF ADD CONSTRAINT ecal_sequence_type_def_pk  PRIMARY KEY (def_id);
-ALTER TABLE ECAL_SEQUENCE_TYPE_DEF ADD CONSTRAINT ecal_sequence_type_def_fk1 FOREIGN KEY (run_type_def_id) REFERENCES  RUN_TYPE_DEF (DEF_ID) ;
 ALTER TABLE ECAL_SEQUENCE_TYPE_DEF ADD CONSTRAINT ecal_sequence_type_def_uk1 UNIQUE (run_type_def_id,sequence_type_string);
 
 CREATE SEQUENCE ecal_sequence_type_def_sq INCREMENT BY 1 START WITH 1;
@@ -216,6 +187,7 @@ end;
 
 CREATE TABLE ECAL_CCS_CONFIGURATION (
 	ccs_configuration_id NUMBER NOT NULL
+        , ccs_tag VARCHAR2(32) NOT NULL
 	, DACCAL NUMBER
         , DELAY NUMBER
         , GAIN VARCHAR2(64)
@@ -223,21 +195,18 @@ CREATE TABLE ECAL_CCS_CONFIGURATION (
         , OFFSET_HIGH NUMBER
         , OFFSET_LOW  NUMBER
         , OFFSET_MID  NUMBER
-        , PEDESTAL_OFFSET_RELEASE VARCHAR2(64)
-        , SYSTEM  VARCHAR2(64)
 	, TRG_MODE VARCHAR2(64)
         , TRG_FILTER VARCHAR2(64)
+        , CLOCK NUMBER
+        , BGO_SOURCE VARCHAR2(64)
+        , TTS_MASK NUMBER
+        , DAQ_BCID_PRESET NUMBER
+        , TRIG_BCID_PRESET NUMBER
+        , BC0_COUNTER NUMBER
 );
 ALTER TABLE ECAL_CCS_CONFIGURATION ADD CONSTRAINT ecal_ccs_config_pk PRIMARY KEY (ccs_configuration_id);
 
 CREATE SEQUENCE ecal_CCS_CONFIG_sq INCREMENT BY 1 START WITH 1;
-CREATE trigger ecal_CCS_CONFIG_trg
-before insert on ECAL_CCS_CONFIGURATION
-for each row
-begin
-select ecal_CCS_CONFIG_sq.NextVal into :new.CCS_configuration_id from dual;
-end;
-/
 
 
 CREATE TABLE ECAL_CCS_CYCLE (
@@ -254,18 +223,16 @@ ALTER TABLE ECAL_CCS_CYCLE ADD CONSTRAINT ecal_ccs_cycle_fk2 FOREIGN KEY (ccs_co
 
 CREATE TABLE ECAL_DCC_CONFIGURATION (
 	DCC_CONFIGURATION_ID NUMBER NOT NULL
-	, DCC_CONFIGURATION CLOB
+        , dcc_tag VARCHAR2(32) NOT NULL
+	, DCC_CONFIGURATION_URL VARCHAR2(100)
+	, TESTPATTERN_FILE_URL VARCHAR2(100)
+	, N_TESTPATTERNS_TO_LOAD NUMBER
+        , SM_HALF NUMBER
+	, dcc_CONFIGURATION CLOB
 );
 ALTER TABLE ECAL_DCC_CONFIGURATION ADD CONSTRAINT ecal_dcc_config_pk PRIMARY KEY (dcc_configuration_id);
 
 CREATE SEQUENCE ecal_DCC_CONFIG_sq INCREMENT BY 1 START WITH 1;
--- CREATE trigger ecal_DCC_CONFIG_trg
--- before insert on ECAL_DCC_CONFIGURATION
--- for each row
--- begin
--- select ecal_DCC_CONFIG_sq.NextVal into :new.dcc_configuration_id from dual;
--- end;
--- /
 
 
 CREATE TABLE ECAL_DCC_CYCLE (
@@ -278,25 +245,100 @@ ALTER TABLE ECAL_DCC_CYCLE ADD CONSTRAINT ecal_dcc_cycle_fk1 FOREIGN KEY (cycle_
 ALTER TABLE ECAL_DCC_CYCLE ADD CONSTRAINT ecal_dcc_cycle_fk2 FOREIGN KEY (dcc_configuration_id) REFERENCES ECAL_DCC_CONFIGURATION (dcc_configuration_id);
 
 
+-- ********** ECAL_ttcf
+
+CREATE TABLE ECAL_TTCF_CONFIGURATION (
+	TTCF_CONFIGURATION_ID NUMBER NOT NULL
+        , TTCF_tag VARCHAR2(32) NOT NULL
+	, TTCF_CONFIGURATION CLOB
+);
+ALTER TABLE ECAL_TTCF_CONFIGURATION ADD CONSTRAINT ecal_ttcf_config_pk PRIMARY KEY (ttcf_configuration_id);
+
+CREATE SEQUENCE ecal_TTCF_CONFIG_sq INCREMENT BY 1 START WITH 1;
+
+CREATE TABLE ECAL_TTCF_CYCLE (
+	  CYCLE_ID NUMBER NOT NULL
+	 , TTCF_CONFIGURATION_ID NUMBER NOT NULL
+         );    
+
+ALTER TABLE ECAL_TTCF_CYCLE ADD CONSTRAINT ecal_ttcf_cycle_pk PRIMARY KEY (cycle_id);
+ALTER TABLE ECAL_TTCF_CYCLE ADD CONSTRAINT ecal_ttcf_cycle_fk1 FOREIGN KEY (cycle_id) REFERENCES ECAL_CYCLE_DAT (cycle_id);
+ALTER TABLE ECAL_TTCF_CYCLE ADD CONSTRAINT ecal_ttcf_cycle_fk2 FOREIGN KEY (ttcf_configuration_id) REFERENCES ECAL_TTCF_CONFIGURATION (ttcf_configuration_id);
+
+
+-- ********** ECAL_srp
+
+CREATE TABLE ECAL_SRP_CONFIGURATION (
+	SRP_CONFIGURATION_ID NUMBER NOT NULL
+        , SRP_tag VARCHAR2(32) NOT NULL
+	, DEBUGMODE NUMBER
+	, DUMMYMODE NUMBER
+	, PATTERN_DIRECTORY VARCHAR2(100)
+        , AUTOMATIC_MASKS NUMBER
+        , SRP0BUNCHADJUSTPOSITION NUMBER 
+	, SRP_CONFIG_FILE VARCHAR2(100)
+	, SRP_CONFIGURATION CLOB
+);
+ALTER TABLE ECAL_SRP_CONFIGURATION ADD CONSTRAINT ecal_SRP_config_pk PRIMARY KEY (SRP_configuration_id);
+
+CREATE SEQUENCE ecal_SRP_CONFIG_sq INCREMENT BY 1 START WITH 1;
+
+
+CREATE TABLE ECAL_SRP_CYCLE (
+	  CYCLE_ID NUMBER NOT NULL
+	 , srp_CONFIGURATION_ID NUMBER NOT NULL
+         );    
+
+ALTER TABLE ECAL_srp_CYCLE ADD CONSTRAINT ecal_srp_cycle_pk PRIMARY KEY (cycle_id);
+ALTER TABLE ECAL_srp_CYCLE ADD CONSTRAINT ecal_srp_cycle_fk1 FOREIGN KEY (cycle_id) REFERENCES ECAL_CYCLE_DAT (cycle_id);
+ALTER TABLE ECAL_srp_CYCLE ADD CONSTRAINT ecal_srp_cycle_fk2 FOREIGN KEY (srp_configuration_id) REFERENCES ECAL_SRP_CONFIGURATION (srp_configuration_id);
+
+
 -- ********** ECAL_LASER
 
 CREATE TABLE ECAL_LASER_CONFIGURATION (
 	LASER_configuration_id NUMBER NOT NULL
+        , laser_tag VARCHAR2(32) NOT NULL
+        , laser_DEBUG NUMBER
+        , DUMMY NUMBER
+-- ********** ECAL_MATACQ
+        , MATACQ_BASE_ADDRESS NUMBER
+        , MATACQ_NONE NUMBER
+	, matacq_mode VARCHAR2(64)
+        , channel_Mask NUMBER
+        , max_Samples_For_Daq VARCHAR2(64)
+        , maTACQ_FED_ID NUMBER
+        , pedestal_File VARCHAR2(128)
+        , use_Buffer NUMBER
+        , postTrig NUMBER
+        , fp_Mode NUMBER
+        , hal_Module_File VARCHAR2(64)
+        , hal_Address_Table_File VARCHAR2(64)
+        , hal_Static_Table_File VARCHAR2(64)
+        , matacq_Serial_Number VARCHAR2(64)
+        , pedestal_Run_Event_Count NUMBER
+        , raw_Data_Mode NUMBER
+        , ACQUISITION_MODE VARCHAR2(64)
+        , LOCAL_OUTPUT_FILE VARCHAR2(100)
+-- *********** emtc
+        , emtc_none NUMBER
+        , wte2_laser_delay NUMBER
+        , laser_phase NUMBER
+        , emtc_ttc_in NUMBER
+        , emtc_slot_id NUMBER
+-- *********** ecal laser
  	, WAVELENGTH NUMBER
 	, POWER_SETTING NUMBER
       	, OPTICAL_SWITCH NUMBER
-	, FILTER NUMBER
+      	, FILTER NUMBER
+	, LASER_CONTROL_ON NUMBER
+	, LASER_CONTROL_HOST VARCHAR2(32)
+	, LASER_CONTROL_PORT NUMBER
+        , laser_tag2 varchar2(32)
 );
 ALTER TABLE ECAL_LASER_CONFIGURATION ADD CONSTRAINT ecal_LASER_config_pk PRIMARY KEY (LASER_configuration_id);
 
 CREATE SEQUENCE ecal_LASER_CONFIG_sq INCREMENT BY 1 START WITH 1;
-CREATE trigger ecal_LASER_CONFIG_trg
-before insert on ECAL_LASER_CONFIGURATION
-for each row
-begin
-select ecal_LASER_CONFIG_sq.NextVal into :new.LASER_configuration_id from dual;
-end;
-/
 
 
 CREATE TABLE ECAL_LASER_CYCLE (
@@ -313,18 +355,17 @@ ALTER TABLE ECAL_LASER_CYCLE ADD CONSTRAINT ecal_LASER_cycle_fk2 FOREIGN KEY (la
 
 CREATE TABLE ECAL_TCC_CONFIGURATION (
 	TCC_configuration_id NUMBER NOT NULL
-	, DEVICE_CONFIG_PARAM_ID NUMBER NOT NULL 
+        , TCC_tag VARCHAR2(32) NOT NULL
+	, Configuration_file varchar2(100) NULL
+        , LUT_CONFIGURATION_FILE VARCHAR2(100) NULL
+        , SLB_CONFIGURATION_FILE VARCHAR2(100) NULL
+        , TESTPATTERNFILE_URL VARCHAR2(100) NULL
+        , N_TESTPATTERNS_TO_LOAD number NULL
+         , tcc_configuration CLOB 
 );
 ALTER TABLE ECAL_TCC_CONFIGURATION ADD CONSTRAINT ecal_TCC_config_pk PRIMARY KEY (TCC_configuration_id);
 
 CREATE SEQUENCE ecal_TCC_CONFIG_sq INCREMENT BY 1 START WITH 1;
-CREATE trigger ecal_TCC_CONFIG_trg
-before insert on ECAL_TCC_CONFIGURATION
-for each row
-begin
-select ecal_TCC_CONFIG_sq.NextVal into :new.TCC_configuration_id from dual;
-end;
-/
 
 
 CREATE TABLE ECAL_TCC_CYCLE (
@@ -337,22 +378,19 @@ ALTER TABLE ECAL_TCC_CYCLE ADD CONSTRAINT ecal_TCC_cycle_fk1 FOREIGN KEY (cycle_
 ALTER TABLE ECAL_TCC_CYCLE ADD CONSTRAINT ecal_TCC_cycle_fk2 FOREIGN KEY (tcc_configuration_id) REFERENCES ECAL_TCC_CONFIGURATION (TCC_configuration_id);
 
 
--- ********** ECAL_TCCci
+-- ********** ECAL_TTCci
 
 CREATE TABLE ECAL_TTCCI_CONFIGURATION (
 	TTCCI_configuration_id NUMBER NOT NULL
+        , TTCCI_tag VARCHAR2(32) NOT NULL
+	, TTCCI_configuration_file varchar2(100)
+	,TRG_MODE varchar2(32)
+	,TRG_SLEEP NUMBER
 	, Configuration CLOB
 );
 ALTER TABLE ECAL_TTCCI_CONFIGURATION ADD CONSTRAINT ecal_TTCCI_config_pk PRIMARY KEY (TTCCI_configuration_id);
 
 CREATE SEQUENCE ecal_TTCCI_CONFIG_sq INCREMENT BY 1 START WITH 1;
--- CREATE trigger ecal_TTCCI_CONFIG_trg
--- before insert on ECAL_TTCCI_CONFIGURATION
--- for each row
--- begin
--- select ecal_TTCCI_CONFIG_sq.NextVal into :new.TTCCI_configuration_id from dual;
--- end;
--- /
 
 
 CREATE TABLE ECAL_TTCCI_CYCLE (
@@ -365,62 +403,18 @@ ALTER TABLE ECAL_TTCCI_CYCLE ADD CONSTRAINT ecal_TTCCI_cycle_fk1 FOREIGN KEY (cy
 ALTER TABLE ECAL_TTCCI_CYCLE ADD CONSTRAINT ecal_TTCCI_cycle_fk2 FOREIGN KEY (ttcci_configuration_id) REFERENCES ECAL_TTCCI_CONFIGURATION (TTCCI_configuration_id);
 
 
--- ********** ECAL_MATACQ
-
-CREATE TABLE ECAL_MATACQ_CONFIGURATION (
-	MATACQ_configuration_id NUMBER NOT NULL
-	, matacq_mode VARCHAR2(64)
-        , fastPedestal NUMBER
-        , channelMask NUMBER
-        , maxSamplesForDaq VARCHAR2(64)
-        , pedestalFile VARCHAR2(128)
-        , useBuffer NUMBER
-        , postTrig NUMBER
-        , fpMode NUMBER
-        , halModuleFile VARCHAR2(64)
-        , halAddressTableFile VARCHAR2(64)
-        , halStaticTableFile VARCHAR2(64)
-        , matacqSerialNumber VARCHAR2(64)
-        , pedestalRunEventCount NUMBER
-        , rawDataMode NUMBER
-);
-ALTER TABLE ECAL_MATACQ_CONFIGURATION ADD CONSTRAINT ecal_MATACQ_config_pk PRIMARY KEY (MATACQ_configuration_id);
-
-CREATE SEQUENCE ecal_MATACQ_CONFIG_sq INCREMENT BY 1 START WITH 1;
-CREATE trigger ecal_MATACQ_CONFIG_trg
-before insert on ECAL_MATACQ_CONFIGURATION
-for each row
-begin
-select ecal_MATACQ_CONFIG_sq.NextVal into :new.MATACQ_configuration_id from dual;
-end;
-/
-
-
-CREATE TABLE ECAL_MATACQ_CYCLE (
-	  CYCLE_ID NUMBER NOT NULL
-	 , MATACQ_CONFIGURATION_ID NUMBER NOT NULL
-         );    
-
-ALTER TABLE ECAL_MATACQ_CYCLE ADD CONSTRAINT ecal_MATACQ_cycle_pk PRIMARY KEY (cycle_id);
-ALTER TABLE ECAL_MATACQ_CYCLE ADD CONSTRAINT ecal_MATACQ_cycle_fk1 FOREIGN KEY (cycle_id) REFERENCES ECAL_CYCLE_DAT (cycle_id);
-ALTER TABLE ECAL_MATACQ_CYCLE ADD CONSTRAINT ecal_MATACQ_cycle_fk2 FOREIGN KEY (matacq_configuration_id) REFERENCES ECAL_MATACQ_CONFIGURATION (MATACQ_configuration_id);
 
 -- ********** ECAL_LTC
 
 CREATE TABLE ECAL_LTC_CONFIGURATION (
 	LTC_configuration_id NUMBER NOT NULL
-	, DEVICE_CONFIG_PARAM_ID NUMBER NOT NULL 
+        , LTC_tag VARCHAR2(32) NOT NULL
+	, ltc_Configuration_file varchar2(100)
+	, Configuration CLOB
 );
 ALTER TABLE ECAL_LTC_CONFIGURATION ADD CONSTRAINT ecal_LTC_config_pk PRIMARY KEY (LTC_configuration_id);
 
 CREATE SEQUENCE ecal_LTC_CONFIG_sq INCREMENT BY 1 START WITH 1;
-CREATE trigger ecal_LTC_CONFIG_trg
-before insert on ECAL_LTC_CONFIGURATION
-for each row
-begin
-select ecal_LTC_CONFIG_sq.NextVal into :new.LTC_configuration_id from dual;
-end;
-/
 
 
 CREATE TABLE ECAL_LTC_CYCLE (
@@ -436,6 +430,7 @@ ALTER TABLE ECAL_LTC_CYCLE ADD CONSTRAINT ecal_LTC_cycle_fk2 FOREIGN KEY (ltc_co
 
 CREATE TABLE ECAL_LTS_CONFIGURATION (
 	LTS_configuration_id NUMBER NOT NULL
+        , lts_tag VARCHAR2(32) NOT NULL
         , TRIGGER_TYPE VARCHAR2(32)
         , NUM_OF_EVENTS NUMBER
         , RATE NUMBER
@@ -444,13 +439,6 @@ CREATE TABLE ECAL_LTS_CONFIGURATION (
 ALTER TABLE ECAL_LTS_CONFIGURATION ADD CONSTRAINT ecal_LTS_config_pk PRIMARY KEY (LTS_configuration_id);
 
 CREATE SEQUENCE ecal_LTS_CONFIG_sq INCREMENT BY 1 START WITH 1;
-CREATE trigger ecal_LTS_CONFIG_trg
-before insert on ECAL_LTS_CONFIGURATION
-for each row
-begin
-select ecal_LTS_CONFIG_sq.NextVal into :new.LTS_configuration_id from dual;
-end;
-/
 
 
 CREATE TABLE ECAL_LTS_CYCLE (
@@ -466,6 +454,7 @@ ALTER TABLE ECAL_LTS_CYCLE ADD CONSTRAINT ecal_LTS_cycle_fk2 FOREIGN KEY (lts_co
 
 CREATE TABLE ECAL_JBH4_CONFIGURATION (
 	JBH4_configuration_id NUMBER NOT NULL
+        , JBH4_tag VARCHAR2(32) NOT NULL
         , useBuffer NUMBER
         , halModuleFile VARCHAR2(64)
         , halAddressTableFile VARCHAR2(64)
@@ -478,13 +467,7 @@ CREATE TABLE ECAL_JBH4_CONFIGURATION (
 ALTER TABLE ECAL_JBH4_CONFIGURATION ADD CONSTRAINT ecal_JBH4_config_pk PRIMARY KEY (JBH4_configuration_id);
 
 CREATE SEQUENCE ecal_JBH4_CONFIG_sq INCREMENT BY 1 START WITH 1;
-CREATE trigger ecal_JBH4_CONFIG_trg
-before insert on ECAL_JBH4_CONFIGURATION
-for each row
-begin
-select ecal_JBH4_CONFIG_sq.NextVal into :new.JBH4_configuration_id from dual;
-end;
-/
+
 
 CREATE TABLE ECAL_JBH4_CYCLE (
 	  CYCLE_ID NUMBER NOT NULL
@@ -498,32 +481,19 @@ ALTER TABLE ECAL_JBH4_CYCLE ADD CONSTRAINT ecal_JBH4_cycle_fk2 FOREIGN KEY (jbh4
 
 -- ********** ECAL_SCAN
 
-CREATE TABLE ECAL_SCAN_DEF (
-	DEF_ID NUMBER
-	, SCAN_TYPE VARCHAR2(20)
-);
-ALTER TABLE ECAL_SCAN_DEF ADD CONSTRAINT ecal_SCAN_DEF_pk  PRIMARY KEY (def_id);
-ALTER TABLE ECAL_SCAN_DEF ADD CONSTRAINT ecal_SCAN_DEF_uk1 UNIQUE (scan_type);
-CREATE SEQUENCE ecal_scan_def_sq INCREMENT BY 1 START WITH 1;
-CREATE trigger ecal_scan_def_trg
-before insert on ECAL_SCAN_DEF
-for each row
-begin
-select ecal_SCAN_DEF_sq.NextVal into :new.def_id from dual;
-end;
-/
-
-
 CREATE TABLE ECAL_SCAN_DAT (
-	SCAN_ID NUMBER
-	, SCAN_DEF_ID NUMBER NOT NULL
-	, DESCRIPTION VARCHAR2(100)
+          SCAN_ID NUMBER	
+        , SCAN_tag VARCHAR2(32) NOT NULL
+        , type_id number
+        , scan_type varchar2(32) 
 	, FROM_VAL NUMBER
 	, TO_VAL NUMBER
 	, STEP NUMBER
 );
+
 ALTER TABLE ECAL_SCAN_DAT ADD CONSTRAINT ecal_scan_dat_pk  PRIMARY KEY (scan_id);
-ALTER TABLE ECAL_SCAN_DAT ADD CONSTRAINT ecal_scan_dat_fk1 FOREIGN KEY (scan_def_id) REFERENCES ECAL_scan_DEF (def_id);
+CREATE SEQUENCE ecal_SCAN_CONFIG_sq INCREMENT BY 1 START WITH 1;
+
 
 CREATE TABLE ECAL_SCAN_CYCLE (
 	  CYCLE_ID NUMBER NOT NULL
@@ -543,7 +513,9 @@ select r.CONFIG_ID
      , rtd.RUN_TYPE RUN_TYPE
      , rmd.RUN_MODE_STRING RUN_MODE
      , r.NUM_OF_SEQUENCES
-     , r.DESCRIPTION
+     , r.DESCRIPTION RUN_CONFIG_DESCRIPTION
+     , r.DEFAULTS
+     , r.TRG_MODE
 from
 	ECAL_RUN_CONFIGURATION_DAT r
 	, RUN_TYPE_DEF rtd
@@ -553,21 +525,6 @@ where
 	and r.RUN_MODE_DEF_ID=rmd.DEF_ID
 ;
 
-CREATE OR REPLACE TRIGGER ecal_run_configuration_insert
-INSTEAD OF INSERT ON ecal_run_configuration
-REFERENCING NEW AS n
-FOR EACH ROW
-BEGIN
-	insert into ecal_run_configuration_dat(CONFIG_ID, TAG, VERSION
-		, RUN_TYPE_DEF_ID, RUN_MODE_DEF_ID
-		, NUM_OF_SEQUENCES, DESCRIPTION)
-	values ( :n.CONFIG_ID, :n.TAG, :n.VERSION
-		, get_run_type_def_id(:n.RUN_TYPE), get_run_mode_def_id(:n.RUN_MODE)
-		, :n.NUM_OF_SEQUENCES, :n.DESCRIPTION
-	);
-END;
-/
-show errors;
 
 CREATE OR REPLACE VIEW ECAL_SEQUENCE AS
 select
@@ -587,46 +544,25 @@ where
 	and s.SEQUENCE_TYPE_DEF_ID=std.DEF_ID
 ;
 
-CREATE OR REPLACE TRIGGER ecal_sequence_insert
-INSTEAD OF INSERT ON ecal_sequence
-REFERENCING NEW AS n
-FOR EACH ROW
-DECLARE
-	conf_id NUMBER;
-	seq_type_id NUMBER;
-	run_type VARCHAR(20);
-BEGIN
-	--- get the id for the configuration we want to modify  
-	conf_id := get_run_conf_id( :n.TAG, :n.VERSION);
-	--- get the run type for that configuration  
-	SELECT RUN_TYPE 
-	INTO run_type
-	FROM ECAL_RUN_CONFIGURATION WHERE CONFIG_ID=conf_id;
-	seq_type_id := get_sequence_type_def_id( run_type, :n.SEQUENCE_TYPE );
-	--- create the new row in the ecal_sequence_dat table
-	insert into ecal_sequence_dat(SEQUENCE_ID, ECAL_CONFIG_ID, SEQUENCE_NUM, NUM_OF_CYCLES, SEQUENCE_TYPE_DEF_ID, DESCRIPTION)
-		values ( :n.SEQUENCE_ID, conf_id, :n.SEQUENCE_NUM, :n.NUM_OF_CYCLES, seq_type_id, :n.DESCRIPTION
-	);
-END;
-/
-show errors;
-
 CREATE OR REPLACE VIEW ECAL_CYCLE AS
 SELECT 
 	e.cycle_id
 	, r.tag tag
 	, r.version version
 	, s.sequence_num
+        , s.sequence_id
 	, e.cycle_num
-	, e.tag cycle_tag, e.description
+	, e.tag cycle_tag
+        , e.description
 	, ccs.CCS_CONFIGURATION_ID
 	, dcc.dcc_CONFIGURATION_ID
 	, laser.laser_CONFIGURATION_ID
 	, ltc.ltc_CONFIGURATION_ID
 	, lts.lts_CONFIGURATION_ID
 	, tcc.tcc_CONFIGURATION_ID
+        , ttcf.ttcf_CONFIGURATION_ID
+        , srp.srp_configuration_id
 	, ttcci.ttcci_CONFIGURATION_ID "TTCci_CONFIGURATION_ID"
-	, matacq.matacq_CONFIGURATION_ID
 	, jbh4.jbh4_CONFIGURATION_ID
 	, scan.scan_id
 FROM
@@ -648,108 +584,16 @@ FROM
 	left outer join
 	ECAL_ttcci_CYCLE ttcci on  e.cycle_id=ttcci.cycle_ID
 	left outer join
-	ECAL_matacq_CYCLE matacq on  e.cycle_id=matacq.cycle_ID
-	left outer join
 	ECAL_jbh4_CYCLE jbh4 on  e.cycle_id=jbh4.cycle_ID
 	left outer join
 	ECAL_SCAN_cycle scan on e.cycle_id=scan.cycle_id
+	left outer join
+	ECAL_srp_cycle srp on e.cycle_id=srp.cycle_id
+	left outer join
+	ECAL_ttcf_CYCLE ttcf on e.cycle_id=ttcf.cycle_ID
 where 
 	r.config_id=s.ecal_config_id 
 	and e.sequence_id=s.sequence_id
 ;
 
-CREATE OR REPLACE TRIGGER ecal_cycle_insert
-INSTEAD OF INSERT ON ecal_cycle
-REFERENCING NEW AS n
-FOR EACH ROW
-DECLARE
-	conf_id NUMBER;
-	seq_id NUMBER;
-	run_type VARCHAR(20);
-BEGIN
-	--- get the the sequence_id corrensponding to the requested run and sequence number   
-	seq_id := get_sequence_id( :n.TAG, :n.VERSION, :n.SEQUENCE_NUM);
-	--- create the new CYCLE
-	INSERT INTO ECAL_CYCLE_DAT(CYCLE_ID, SEQUENCE_ID, CYCLE_NUM, TAG, DESCRIPTION)
-	VALUES('1',seq_id,:n.CYCLE_NUM,:n.CYCLE_TAG,:n.DESCRIPTION);
--- 	IF ( :n.ccs_config_id != NULL ) THEN
--- 	END IF;
-END;
-/
-show errors;
 
-CREATE OR REPLACE VIEW ECAL_SCAN AS
-SELECT
-	s.SCAN_ID
-	, sd.SCAN_TYPE
-	, s.DESCRIPTION
-	, s.FROM_VAL
-	, s.TO_VAL
-	, s.STEP
-FROM
-	ECAL_SCAN_DAT s
-	, ECAL_SCAN_DEF sd
-WHERE	
-	s.SCAN_ID = sd.DEF_ID
-;
-
-
--- CREATE OR REPLACE VIEW ECAL_JOINT_RUN_CONFIGURATION AS
--- SELECT  r.CONFIG_ID
--- 	, r.TAG config_tag
--- 	, r.VERSION config_version
--- 	, rtd.RUN_TYPE_STRING RUN_TYPE
--- 	, rmd.RUN_MODE_STRING RUN_MODE
--- 	, r.NUM_OF_SEQUENCES
--- 	, r.DESCRIPTION run_description
--- 	, s.SEQUENCE_NUM
--- 	, s.NUM_OF_CYCLES
--- 	, std.SEQUENCE_TYPE_STRING sequence_type
--- 	, s.DESCRIPTION sequence_description
--- 	, e.cycle_num
--- 	, e.tag cycle_tag
--- 	, e.description cycle_description
--- 	, ccs.CCS_CONFIGURATION_ID
--- 	, dcc.dcc_CONFIGURATION_ID
--- 	, laser.laser_CONFIGURATION_ID
--- 	, ltc.ltc_CONFIGURATION_ID
--- 	, lts.lts_CONFIGURATION_ID
--- 	, tcc.tcc_CONFIGURATION_ID
--- 	, ttcci.ttcci_CONFIGURATION_ID
--- 	, matacq.matacq_CONFIGURATION_ID
--- 	, jbh4.jbh4_CONFIGURATION_ID
--- 	, scan.*
--- FROM
--- 	ECAL_RUN_CONFIGURATION_DAT r,
--- 	ECAL_RUN_TYPE_DEF rtd,
--- 	ECAL_RUN_MODE_DEF rmd,
--- 	ECAL_SEQUENCE_DAT s,
--- 	ECAL_SEQUENCE_TYPE_DEF std,
--- 	ECAL_CYCLE_Dat e
--- 	LEFT OUTER join
--- 	ECAL_CCS_CYCLE ccs on  e.cycle_id=ccs.cycle_ID
--- 	left outer join
--- 	ECAL_DCC_CYCLE dcc on  e.cycle_id=dcc.cycle_ID
--- 	left outer join
--- 	ECAL_LASER_CYCLE laser on e.cycle_id=laser.cycle_ID
--- 	left outer join
--- 	ECAL_ltc_CYCLE ltc on  e.cycle_id=ltc.cycle_ID
--- 	left outer join
--- 	ECAL_lts_CYCLE lts on e.cycle_id=lts.cycle_ID
--- 	left outer join
--- 	ECAL_tcc_CYCLE tcc on e.cycle_id=tcc.cycle_ID
--- 	left outer join
--- 	ECAL_ttcci_CYCLE ttcci on  e.cycle_id=ttcci.cycle_ID
--- 	left outer join
--- 	ECAL_matacq_CYCLE matacq on  e.cycle_id=matacq.cycle_ID
--- 	left outer join
--- 	ECAL_jbh4_CYCLE jbh4 on  e.cycle_id=jbh4.cycle_ID
--- 	left outer join
--- 	ECAL_SCAN_cycle scan on e.cycle_id=scan.cycle_id
--- where 
--- 	r.RUN_TYPE_DEF_ID=rtd.DEF_ID
--- 	and r.RUN_MODE_DEF_ID=rmd.DEF_ID
--- 	and r.CONFIG_ID=s.ECAL_CONFIGURATION_ID
--- 	and s.SEQUENCE_TYPE_DEF_ID=std.DEF_ID 
--- 	and e.SEQUENCE_ID=s.SEQUENCE_ID
--- ;
