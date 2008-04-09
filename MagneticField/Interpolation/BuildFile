@@ -8,3 +8,4 @@
   <lib name=MagneticFieldInterpolation>
 </export>
 
+#<Flags CXXFLAGS="-DDEBUG_LinearGridInterpolator3D">
