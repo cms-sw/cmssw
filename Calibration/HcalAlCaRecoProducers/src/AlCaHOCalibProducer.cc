@@ -39,7 +39,7 @@ Ring 0 L0 : Width Tray 6:266.6, 5&4:325.6, 3:330.6, 2:341.6, 1:272.6
 //
 // Original Author:  Gobinda Majumder
 //         Created:  Fri Jul  6 17:17:21 CEST 2007
-// $Id: AlCaHOCalibProducer.cc,v 1.3 2008/03/24 18:19:54 kodolova Exp $
+// $Id: AlCaHOCalibProducer.cc,v 1.5 2008/03/25 09:44:35 futyand Exp $
 //
 //
 
@@ -182,6 +182,9 @@ class AlCaHOCalibProducer : public edm::EDProducer {
   bool m_hotime;
 
   edm::InputTag muonTags_;   // cosmicMuons or standAloneMuons
+  edm::InputTag hbheLabel_;
+  edm::InputTag hoLabel_;
+  
   bool m_digiInput;            // digi (true) or rechit (false)
   bool m_hbinfo;
   int m_startTS;
@@ -236,9 +239,13 @@ AlCaHOCalibProducer::AlCaHOCalibProducer(const edm::ParameterSet& iConfig)
   if (m_endTS >9) m_endTS=9;
   m_magscale = iConfig.getUntrackedParameter<double>("m_scale", 4.0);
   m_sigma = iConfig.getUntrackedParameter<double>("sigma", 1.0);
+  hoLabel_ = iConfig.getParameter<edm::InputTag>("hoInput");
+  hbheLabel_ = iConfig.getParameter<edm::InputTag>("hbheInput");
 
-  produces<HOCalibVariableCollection>("HOCalibVariableCollection").setBranchAlias("HOCalibVariableCollection");
-  //  produces<TrackCollection>("TrackCollection");
+//  produces<HOCalibVariableCollection>("HOCalibVariableCollection").setBranchAlias("HOCalibVariableCollection");
+  produces<HOCalibVariableCollection>("HOCalibVariableCollection"); 
+
+ //  produces<TrackCollection>("TrackCollection");
 
    //now do what ever other initialization is needed
   for (int i=0; i<netamx; i++) {
@@ -265,7 +272,7 @@ AlCaHOCalibProducer::AlCaHOCalibProducer(const edm::ParameterSet& iConfig)
   }
   */
 
-
+//  cout<<" Start HO producer constructor "<<endl;
 
   for (int i=0; i<10; i++) {ho_time[i] = hb_time[i] = 0.0;}
 
@@ -333,7 +340,7 @@ AlCaHOCalibProducer::~AlCaHOCalibProducer()
 void
 AlCaHOCalibProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
-   
+//  cout<<" start to AlCaHOCalibProducer::produce "<<endl; 
 
   using namespace edm;
   Nevents++;
@@ -342,47 +349,6 @@ AlCaHOCalibProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   //  cout << endl<<"--- AlCaHOCalibProducer: Event analysed #Run: " << irun << " #Event: " << ievt << endl;
   if (Nevents%500==1) cout <<"AlCaHOCalibProducer Processing event # "<<Nevents<<endl;
   std::auto_ptr<HOCalibVariableCollection> hostore (new HOCalibVariableCollection);
-
-
-  /*
-  edm::Handle<HODigiCollection> ho;     iEvent.getByType(ho);
-  try{
-    if(!(*ho).size()) throw (int)(*ho).size();
-    for (HODigiCollection::const_iterator j=(*ho).begin(); j!=(*ho).end(); j++){
-      const HODataFrame digi = (const HODataFrame)(*j);
-      HcalDetId id =digi.id();
-      int tmpeta= id.ieta();
-      int tmpphi= id.iphi();
-      int tmpdepth =id.depth();
-//      cout <<"HO   "<<tmpeta<<" "<<tmpphi<<" "<<tmpdepth<<" ";
-      float tmpdata[10];
-      for (int i=0; i<digi.size() && i<10; i++) {
-	tmpdata[i] = digi.sample(i).nominal_fC();
-//	cout <<" "<<i<<" "<<tmpdata[i];
-      }
-//      cout<<endl;
-    }
-  }  catch ( cms::Exception &iEvent ) { } 
-
-  edm::Handle<HBHEDigiCollection> hbhe;     iEvent.getByType(hbhe);
-  try{
-    if(!(*hbhe).size()) throw (int)(*hbhe).size();
-    for (HBHEDigiCollection::const_iterator j=(*hbhe).begin(); j!=(*hbhe).end(); j++){
-      const HBHEDataFrame digi = (const HBHEDataFrame)(*j);
-      HcalDetId id =digi.id();
-      int tmpeta= id.ieta();
-      int tmpphi= id.iphi();
-      int tmpdepth =id.depth();
-//      cout <<"HBHE "<<tmpeta<<" "<<tmpphi<<" "<<tmpdepth<<" ";
-      float tmpdata[10];
-      for (int i=0; i<digi.size() && i<10; i++) {
-	tmpdata[i] = digi.sample(i).nominal_fC();
-//	cout <<" "<<i<<" "<<tmpdata[i];
-      }
-//      cout<<endl;
-    }
-  }  catch ( cms::Exception &iEvent ) { } 
-  */
   
   double pival = acos(-1.);
 
@@ -390,12 +356,14 @@ AlCaHOCalibProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   bool isMuon = true;
   try {
     //GM09/10/07 for CSA07 sample 
-    // /store/CSA07/mc/2007/10/1/CSA07-DrellYan_mumu_40-ALCARECO-A1/0000/0059E054-8770-DC11-8432-000423D99A8E.root 
     iEvent.getByLabel(muonTags_, cosmicmuon);
-    //    iEvent.getByLabel("ALCARECOHcalCalZMuMu","StandAlone", cosmicmuon);
 
   } catch ( cms::Exception &iEvent ) { isMuon = false; } 
+
   if (isMuon && cosmicmuon->size()>0) { 
+
+//   cout<<" Start to look over muons "<<endl;
+
   for(reco::TrackCollection::const_iterator ncosm = cosmicmuon->begin();
       ncosm != cosmicmuon->end();  ++ncosm) {
     
@@ -682,9 +650,9 @@ AlCaHOCalibProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
 	if (m_hbinfo) {
 	  for (int i=0; i<9; i++) {tmpHOCalib.hbhesig[i]=-100.0;}
-
+        // cout<<" Start to take HBHE info "<<endl;
 	  if (m_digiInput) {
-	    edm::Handle<HBHEDigiCollection> hbhe; iEvent.getByType(hbhe);
+	    edm::Handle<HBHEDigiCollection> hbhe; iEvent.getByLabel(hbheLabel_,hbhe);
 	    
 	    try{
 	      if(!(*hbhe).size()) throw (int)(*hbhe).size();
@@ -741,7 +709,7 @@ AlCaHOCalibProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	    } 
 	  } else {
 	    
-	    edm::Handle<HBHERecHitCollection> hbhe; iEvent.getByType(hbhe);
+	    edm::Handle<HBHERecHitCollection> hbhe; iEvent.getByLabel(hbheLabel_,hbhe);
 	    
 	    try{
 	      if(!(*hbhe).size()) throw (int)(*hbhe).size();
@@ -779,9 +747,10 @@ AlCaHOCalibProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
 	} //m_hbinfo #endif
 
+       // cout<<" Start HO info "<<endl;
 
 	if (m_digiInput) {
-        edm::Handle<HODigiCollection> ho;     iEvent.getByType(ho);
+        edm::Handle<HODigiCollection> ho;     iEvent.getByLabel(hoLabel_,ho);
 
 	try{
 	  if(!(*ho).size()) throw (int)(*ho).size();
@@ -933,17 +902,6 @@ AlCaHOCalibProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 		  for (int i=0; i<digicr.size() && i<10; i++) {
 		    tmpdatacr[i] = digicr.sample(i).nominal_fC();
 		  }
-		  /* //22OCT07
-		  tmpHOCalib.hocro = 0;
-		  for (int i=sigstr; i<digicr.size() && i<=sigend; i++) {
-		    tmpHOCalib.hocro += tmpdatacr[i];
-		    if (etacr !=0 && abs(etacr) <=netabin && phicr<=nphimx && phicr>0 && tmpdepth>0 && tmpdepth<=ndepthmx) { 
-		      tmpHOCalib.hocro -= 0.8*pedestal[(etacr<0)?netabin-1-etacr:etacr-1][phicr-1][tmpdepth-1][digicr.sample(i).capid()]; //22OCT07 pedm->getValue(digicr.sample(i).capid());
-		    } else {
-		      tmpHOCalib.hocro =-100;
-		    }
-		  }
-		  */
 		}
 	      }
 	    }
@@ -954,7 +912,10 @@ AlCaHOCalibProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	}
 
       } else {
-	edm::Handle<HORecHitCollection> ho;    iEvent.getByType(ho);
+
+       // cout<< "start to read HO rechit collection "<<endl;
+
+	edm::Handle<HORecHitCollection> ho;    iEvent.getByLabel(hoLabel_,ho);
 	
 	try{
 	  if(!(*ho).size()) throw (int)(*ho).size();
@@ -1052,9 +1013,9 @@ AlCaHOCalibProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   //  cout <<"hostore size "<<hostore->size()<<" "<<iEvent.id().run()<<endl;
   //  cout <<"AlCaHOCalibProducer event # "<<Nevents<<" Run # "<<iEvent.id().run()<<" Evt # "<<iEvent.id().event()<<" "<<hostore->size()<<endl;
 
-
+ // cout<<" End of HO prodicer "<<hostore->size()<<endl;
   if (hostore->size()>0) iEvent.put(hostore, "HOCalibVariableCollection");
-
+ // cout<<" Final end "<<endl;
 
 /* This is an event example
    //Read 'ExampleData' from the Event
