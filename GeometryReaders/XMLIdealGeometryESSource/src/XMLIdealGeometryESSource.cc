@@ -8,7 +8,6 @@
 #include "DetectorDescription/Core/interface/DDRoot.h"
 
 #include "FWCore/ParameterSet/interface/FileInPath.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include <memory>
 
@@ -30,7 +29,7 @@ XMLIdealGeometryESSource::XMLIdealGeometryESSource(const edm::ParameterSet & p):
     if ( !bool(DDLogicalPart( DDName(rootNodeName_) )) ) {
       throw DDException ("XMLIdealGeometryESSource was given a non-existent node name for the root. " + rootNodeName_ );
     }
-    if ( rootNodeName_ == "MagneticFieldVolumes:MAGF" ) {
+    if ( rootNodeName_ == "MagneticFieldVolumes:MAGF" ||  rootNodeName_ == "cmsMagneticField:MAGF") {
       setWhatProduced(this, &XMLIdealGeometryESSource::produceMagField, 
 		      edm::es::Label(p.getParameter<std::string>("@module_label")));
       findingRecord<IdealMagneticFieldRecord>();
@@ -49,15 +48,8 @@ XMLIdealGeometryESSource::XMLIdealGeometryESSource(const edm::ParameterSet & p):
 }
 
 XMLIdealGeometryESSource::~XMLIdealGeometryESSource() {
-  LogTrace ("XMLIdealGeometryESSource") 
-    << "destructing XMLIdealGeometryESSource, about to clear parser "
-    << "files and compact view.  "
-    << "rootNodeName_ = " << rootNodeName_
-    << "  this = " << this << std::endl;
-  DDLParser::instance()->clearFiles();
   DDCompactView cpv;
   cpv.clear();
-
 }
 
 std::auto_ptr<DDCompactView>
