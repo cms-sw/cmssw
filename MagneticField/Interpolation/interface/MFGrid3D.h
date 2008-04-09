@@ -1,5 +1,14 @@
-#ifndef MFGrid3D_H
-#define MFGrid3D_H
+#ifndef MFGrid3D_h
+#define MFGrid3D_h
+
+/** \class MFGrid3D
+ *
+ *  Generic virtual implementation of a MFGrid for a 3D underlying regular grid.
+ *
+ *  $Date: $
+ *  $Revision: $
+ *  \author T. Todorov
+ */
 
 #include "MagneticField/Interpolation/interface/MFGrid.h"
 #include "DataFormats/GeometryVector/interface/Basic3DVector.h"

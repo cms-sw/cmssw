@@ -1,5 +1,16 @@
-#ifndef GlobalGridWrapper_H
-#define GlobalGridWrapper_H
+#ifndef GlobalGridWrapper_h
+#define GlobalGridWrapper_h
+
+/** \class GlobalGridWrapper
+ *
+ *  Generic interpolator that is a wrapper of MagneticFieldGrid, i.e.
+ *  non-specialized/optimized for each kind of grid.
+ *
+ *  $Date: $
+ *  $Revision: $
+ *  \author T. Todorov
+ */
+
 
 #include "MagneticField/Interpolation/interface/MFGrid.h"
 

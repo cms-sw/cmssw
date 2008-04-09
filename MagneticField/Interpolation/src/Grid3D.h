@@ -1,5 +1,15 @@
-#ifndef Grid3D_H
-#define Grid3D_H
+#ifndef Grid3D_h
+#define Grid3D_h
+
+/** \class Grid3D
+ *
+ *  Implementation of a 3D regular grid.
+ *
+ *  $Date: $
+ *  $Revision: $
+ *  \author T. Todorov
+ */
+
 
 #include <vector>
 

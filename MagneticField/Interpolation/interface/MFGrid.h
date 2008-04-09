@@ -1,5 +1,15 @@
-#ifndef MFGrid_H
-#define MFGrid_H
+#ifndef MFGrid_h
+#define MFGrid_h
+
+/** \class MFGrid
+ *
+ *  Virtual interface for a field provider that is based on interpolation
+ *  on a regular grid.
+ *
+ *  $Date: $
+ *  $Revision: $
+ *  \author T. Todorov
+ */
 
 #include "DataFormats/GeometrySurface/interface/GloballyPositioned.h"
 #include "MagneticField/Interpolation/interface/MagProviderInterpol.h"
@@ -39,6 +49,7 @@ public:
 
   virtual std::vector<int> index( const LocalPoint& p) const {return std::vector<int>();}
 
+  /// Local reference frame
   const GloballyPositioned<float>& frame() const { return frame_;}
 
 private:
