@@ -46,7 +46,10 @@ PFRecHitProducerECAL::PFRecHitProducerECAL(const edm::ParameterSet& iConfig)
   inputTagEcalRecHitsEE_ = 
     iConfig.getParameter<InputTag>("ecalRecHitsEE");
   
- 
+  
+  crossBarrelEndcapBorder_ =
+    iConfig.getParameter<bool>("crossBarrelEndcapBorder");
+
   
   neighbourmapcalculated_ = false;
 }
@@ -538,19 +541,21 @@ PFRecHitProducerECAL::stdsimplemove(DetId& cell,
 
     // failed.
 
-//     // are we on the outer ring ?
-//     const int ietaAbs ( ebDetId.ietaAbs() ) ; // abs value of ieta
-//     if( EBDetId::MAX_IETA == ietaAbs ) {
-//       // get ee nbrs for for end of barrel crystals  
-
-//       // yes we are
-//       const EcalBarrelGeometry::OrderedListOfEEDetId& 
-// 	ol( * barrelGeom.getClosestEndcapCells( ebDetId ) ) ;
-      
-//       // take closest neighbour on the other side, that is in the barrel.
-//       cell = *(ol.begin() );
-//       return true;
-//     }   
+    if(crossBarrelEndcapBorder_) {
+      // are we on the outer ring ?
+      const int ietaAbs ( ebDetId.ietaAbs() ) ; // abs value of ieta
+      if( EBDetId::MAX_IETA == ietaAbs ) {
+	// get ee nbrs for for end of barrel crystals  
+	
+	// yes we are
+	const EcalBarrelGeometry::OrderedListOfEEDetId& 
+	  ol( * barrelGeom.getClosestEndcapCells( ebDetId ) ) ;
+	
+	// take closest neighbour on the other side, that is in the barrel.
+	cell = *(ol.begin() );
+	return true;
+      }   
+    }
   }
 
   // ENDCAP CASE 
@@ -567,17 +572,19 @@ PFRecHitProducerECAL::stdsimplemove(DetId& cell,
 
     // failed.
 
-//     // are we on the outer ring ?
-//     const int iphi ( eeDetId.iPhiOuterRing() ) ;    
-//     if( iphi!= 0) {
-//       // yes we are
-//       const EcalEndcapGeometry::OrderedListOfEBDetId& 
-// 	ol( * endcapGeom.getClosestBarrelCells( eeDetId ) ) ;
-      
-//       // take closest neighbour on the other side, that is in the barrel.
-//       cell = *(ol.begin() );
-//       return true;
-//     }   
+    if(crossBarrelEndcapBorder_) {
+      // are we on the outer ring ?
+      const int iphi ( eeDetId.iPhiOuterRing() ) ;    
+      if( iphi!= 0) {
+	// yes we are
+	const EcalEndcapGeometry::OrderedListOfEBDetId& 
+	  ol( * endcapGeom.getClosestBarrelCells( eeDetId ) ) ;
+	
+	// take closest neighbour on the other side, that is in the barrel.
+	cell = *(ol.begin() );
+	return true;
+      }   
+    }
   } 
 
   // everything failed 

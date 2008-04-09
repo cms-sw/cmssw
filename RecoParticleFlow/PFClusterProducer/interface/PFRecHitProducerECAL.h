@@ -110,7 +110,10 @@ class PFRecHitProducerECAL : public PFRecHitProducer {
   
   /// set to true in ecalNeighbArray
   bool  neighbourmapcalculated_;
-  
+
+  /// if true, navigation will cross the barrel-endcap border
+  bool  crossBarrelEndcapBorder_;
+
   // ----------access to event data
   edm::InputTag    inputTagEcalRecHitsEB_;
   edm::InputTag    inputTagEcalRecHitsEE_;
