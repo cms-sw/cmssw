@@ -1,8 +1,8 @@
 /*
  * \file EBSummaryClient.cc
  *
- * $Date: 2008/04/08 15:06:21 $
- * $Revision: 1.131 $
+ * $Date: 2008/04/08 18:04:49 $
+ * $Revision: 1.132 $
  * \author G. Della Ricca
  *
 */
@@ -1204,7 +1204,7 @@ void EBSummaryClient::htmlOutput(int run, string& htmlDir, string& htmlName){
   labelGridTT.SetMinimum(-18.01);
 
   string imgNameMapI, imgNameMapO;
-  string imgNameMapDF;
+  string imgNameMapSF;
   string imgNameMapPO;
   string imgNameMapLL1, imgNameMapLL1_PN;
   string imgNameMapP, imgNameMapP_PN;
@@ -1291,7 +1291,7 @@ void EBSummaryClient::htmlOutput(int run, string& htmlDir, string& htmlName){
 
   }
 
-  imgNameMapDF = "";
+  imgNameMapSF = "";
 
   gStyle->SetPaintTextFormat("+g");
 
@@ -1303,8 +1303,8 @@ void EBSummaryClient::htmlOutput(int run, string& htmlDir, string& htmlName){
     meName = obj2f->GetName();
 
     replace(meName.begin(), meName.end(), ' ', '_');
-    imgNameMapDF = meName + ".png";
-    imgName = htmlDir + imgNameMapDF;
+    imgNameMapSF = meName + ".png";
+    imgName = htmlDir + imgNameMapSF;
 
     cMap->cd();
     gStyle->SetOptStat(" ");
@@ -1723,11 +1723,11 @@ void EBSummaryClient::htmlOutput(int run, string& htmlDir, string& htmlName){
     htmlFile << "<br>" << endl;
   }
 
-  if ( imgNameMapDF.size() != 0 ) {
+  if ( imgNameMapSF.size() != 0 ) {
     htmlFile << "<table border=\"0\" cellspacing=\"0\" " << endl;
     htmlFile << "cellpadding=\"10\" align=\"center\"> " << endl;
     htmlFile << "<tr align=\"center\">" << endl;
-    htmlFile << "<td><img src=\"" << imgNameMapDF << "\" usemap=\"#StatusFlags\" border=0></td>" << endl;
+    htmlFile << "<td><img src=\"" << imgNameMapSF << "\" usemap=\"#StatusFlags\" border=0></td>" << endl;
     htmlFile << "</tr>" << endl;
     htmlFile << "</table>" << endl;
     htmlFile << "<br>" << endl;
@@ -1850,7 +1850,7 @@ void EBSummaryClient::htmlOutput(int run, string& htmlDir, string& htmlName){
 
   if ( imgNameMapI.size() != 0 ) this->writeMap( htmlFile, "Integrity" );
   if ( imgNameMapO.size() != 0 ) this->writeMap( htmlFile, "Occupancy" );
-  if ( imgNameMapDF.size() != 0 ) this->writeMap( htmlFile, "StatusFlags" );
+  if ( imgNameMapSF.size() != 0 ) this->writeMap( htmlFile, "StatusFlags" );
   if ( imgNameMapPO.size() != 0 ) this->writeMap( htmlFile, "PedestalOnline" );
   if ( imgNameMapLL1.size() != 0 ) this->writeMap( htmlFile, "LaserL1" );
   if ( imgNameMapP.size() != 0 ) this->writeMap( htmlFile, "Pedestal" );
