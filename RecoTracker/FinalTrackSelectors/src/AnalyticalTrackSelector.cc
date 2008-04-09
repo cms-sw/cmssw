@@ -19,6 +19,7 @@ AnalyticalTrackSelector::AnalyticalTrackSelector( const edm::ParameterSet & cfg 
     vtxNumber_( cfg.getParameter<int32_t>("vtxNumber") ),
     vtxTracks_( cfg.getParameter<uint32_t>("vtxTracks") ),
     vtxChi2Prob_( cfg.getParameter<double>("vtxChi2Prob") ),
+    res_par_(cfg.getParameter< std::vector<double> >("res_par") ),
     chi2n_par_( cfg.getParameter<double>("chi2n_par") ),
     d0_par1_(cfg.getParameter< std::vector<double> >("d0_par1")),
     dz_par1_(cfg.getParameter< std::vector<double> >("dz_par1")),
@@ -96,7 +97,7 @@ void AnalyticalTrackSelector::produce( edm::Event& evt, const edm::EventSetup& e
     size_t current = 0;
     for (TrackCollection::const_iterator it = hSrcTrack->begin(), ed = hSrcTrack->end(); it != ed; ++it, ++current) {
         const Track & trk = * it;
-        bool ok = select(vertexBeamSpot, trk, points); 
+        bool ok = select(vertexBeamSpot, trk, points);
         if (!ok) {
             if (copyTrajectories_) trackRefs_[current] = reco::TrackRef();
             if (!keepAllTracks_) continue;
@@ -168,7 +169,7 @@ bool AnalyticalTrackSelector::select(const reco::BeamSpot &vertexBeamSpot, const
    double pt = tk.pt(),eta = tk.eta(), chi2n =  tk.normalizedChi2();
    double d0 = -tk.dxy(vertexBeamSpot.position()), d0E =  tk.d0Error(),dz = tk.dz(), dzE =  tk.dzError();
    // nominal d0 resolution for the track pt
-   double nomd0E = sqrt(0.003*0.003+(0.01/max(pt,1e-9))*(0.01/max(pt,1e-9)));
+   double nomd0E = sqrt(res_par_[0]*res_par_[0]+(res_par_[1]/max(pt,1e-9))*(res_par_[1]/max(pt,1e-9)));
    // nominal z0 resolution for the track pt and eta
    double nomdzE = nomd0E*(std::cosh(eta));
    //cut on chiquare/ndof && on d0 compatibility with beam line

@@ -6,9 +6,9 @@
  * 
  * \author Paolo Azzurri, Giovanni Petrucciani 
  *
- * \version $Revision: 1.5 $
+ * \version $Revision: 1.6 $
  *
- * $Id: AnalyticalTrackSelector.h,v 1.5 2008/03/03 11:34:54 paoloa Exp $
+ * $Id: AnalyticalTrackSelector.h,v 1.6 2008/03/11 00:40:53 gpetrucc Exp $
  *
  */
 
@@ -70,6 +70,7 @@ namespace reco { namespace modules {
             size_t  vtxTracks_;
             double  vtxChi2Prob_;
             /// paremeters for track cuts
+			std::vector<double> res_par_;
             double  chi2n_par_;
 			std::vector<double> d0_par1_;
 			std::vector<double> dz_par1_;
