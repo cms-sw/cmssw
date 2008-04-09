@@ -5,15 +5,21 @@
 - General:
  - Event size reduction mainly thanks to standard tracking and iterative tracking unification
  - Reduction of memory footprint mainly thanks to pixel and CSC DB payload reduction
+ - Improved timing
  
 - Main changes and new features:
  - renamed and revisited track collection: ctfWithMaterialTracks should be replaced with generalTracks  
 
+- Major bug fixes:
+ - cleanup of some memory leaks
+ - cleanup of some uninitialized variables 
+
 - Known issues:
  - Loss in efficiency for TeV muon in forward region 
-
+ - Stability against FPE to be checked
+ 
 <hr>
-Main changes and new features by subsystem:
+Details and new features by subsystem:
 
 - Tracker
  - Default CTF track collection is now called generalTracks, replacing
@@ -84,8 +90,7 @@ Main changes and new features by subsystem:
     corruption does not invalidate CSC data of entire event.
 
 - DT
-
-- RPC
+ - Memory leak removed
 
 
 - EGamma
@@ -123,9 +128,54 @@ Main changes and new features by subsystem:
  - use chained corrections to combine stable corrections sequences into one effective
    correction
 
-- Muon POG
+- Muon 
+  - Data Formats
+   - migration of MuIsoDeposit to common IsoDeposit in MuonReco package
+   - Added timing information in reco:Muon
+  - Configurations
+    - Defined a standard cosmic sequence under Reco*Muon/Configuration
+  - Stand alone / L2
+    - New seed generator algorithm 
+    - proper handle of the beam spot constraint
+    - Proper use of the tracking navigation
+    - do not load the default Tracks when the update at vtx fails
+  - Global / L3
+    - Modularization of L3 code
+    - Outside-In algorithm uses faster measurement method
+    - outside-in seeder always starts from the predicted state on tracker bound.
+    - Written the L3SeedCleaner class that compares L3Seeds to L2Muon
+    - Parameterized tracking region of interest
+    - Region of interest uses BeamSpot
+    - Fix and improvements in the MuonTrackMatcher
+    - Proper use of the tracking navigation 
+    - L3 Modularization: combo-smart-seeder that can run multiple seeder algorithms.
+    - Outside-In seeder option to use the vertex state instead of innermost
+    - Region of interest can use pixel vertices
+    - Outside-In algorithm: Tune the chi2 cut and error rescaling factor 
+    - Add hit-triplet / hit-pair seed comparator in L3SeedCleaner 
+    - Tune the L3SeedCleaner 
+    - Add a method to MuonTrackMatcher to use TrackCandidates
+  - Muon identification
+    - the timing information for beta=1 hypothesis stores both in-out and
+      out-in results. Direction can be estimated based on this information
+      as well as freeBeta sign. A simple function to estimate direction is
+      added  
+  - Isolation: uses generic isolation tools for muon isolation algorithms
+  - Cosmics
+    - reverse trajectory direction
+    - add overlapping measurements
+  - DQM Offline:
+    - Redesigned the structure of the analysers
+    - Added new monitors: Seed, Muon Energy deposits, Tracker/Global/Stand alone track comparisons 
+
+
 
 - B Tagging
+ - track probability calibration:
+  - code ported to 200 and functionalities restored
+  - capabilities for a grid enabled calibrations inserted
+  - newpayloads created
+  - condformat uses trackquality to define categories
 
 - Particle Flow 
  - DataFormats
