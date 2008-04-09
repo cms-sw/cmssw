@@ -39,7 +39,7 @@ Ring 0 L0 : Width Tray 6:266.6, 5&4:325.6, 3:330.6, 2:341.6, 1:272.6
 //
 // Original Author:  Gobinda Majumder
 //         Created:  Fri Jul  6 17:17:21 CEST 2007
-// $Id: AlCaHOCalibProducer.cc,v 1.5 2008/03/25 09:44:35 futyand Exp $
+// $Id: AlCaHOCalibProducer.cc,v 1.6 2008/04/09 14:00:08 kodolova Exp $
 //
 //
 
@@ -272,7 +272,7 @@ AlCaHOCalibProducer::AlCaHOCalibProducer(const edm::ParameterSet& iConfig)
   }
   */
 
-//  cout<<" Start HO producer constructor "<<endl;
+  cout<<" Start HO producer constructor "<<endl;
 
   for (int i=0; i<10; i++) {ho_time[i] = hb_time[i] = 0.0;}
 
