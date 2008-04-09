@@ -1,8 +1,8 @@
 /*
  * \file EcalSelectiveReadoutValidation.cc
  *
- * $Date: 2008/02/28 17:23:43 $
- * $Revision: 1.8 $
+ * $Date: 2008/02/29 20:48:27 $
+ * $Revision: 1.9 $
  *
  */
 
@@ -587,11 +587,13 @@ void
 EcalSelectiveReadoutValidation::analyzeTP(const edm::Event& event,
 					  const edm::EventSetup& es){
   EcalTPGScale ecalScale;
+  ecalScale.setEventSetup(es) ;
   for(EcalTrigPrimDigiCollection::const_iterator it = tps_->begin();
       it != tps_->end(); ++it){
     const int iTcc = elecMap_->TCCid(it->id());
     const int iTT = elecMap_->iTT(it->id());
-    const double tpEt = ecalScale.getTPGInGeV(es, *it) ;
+    const double tpEt = ecalScale.getTPGInGeV(it->compressedEt(), it->id()) ;
+    // const double tpEt = ecalScale.getTPGInGeV(es, *it) ;
     const int iEta0 = iTTEta2cIndex(it->id().ieta());
     const int iPhi0 = iTTEta2cIndex(it->id().iphi());
     const double etSum = ttEtSums[iEta0][iPhi0];
