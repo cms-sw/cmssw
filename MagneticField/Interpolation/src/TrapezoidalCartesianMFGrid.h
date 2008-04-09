@@ -1,5 +1,16 @@
-#ifndef TrapezoidalCartesianMFGrid_H
-#define TrapezoidalCartesianMFGrid_H
+#ifndef Interpolation_TrapezoidalCartesianMFGrid_h
+#define Interpolation_TrapezoidalCartesianMFGrid_h
+
+/** \class TrapezoidalCartesianMFGrid
+ *
+ *  Grid for a trapezoid in cartesian coordinate.
+ *  The grid must have uniform spacing in two coordinates and increasing spacing in the other.
+ *  Increasing spacing is supported only for x and y for the time being
+ *
+ *  $Date: $
+ *  $Revision: $
+ *  \author T. Todorov
+ */
 
 #include "MagneticField/Interpolation/interface/MFGrid3D.h"
 #include "MagneticField/Interpolation/src/Trapezoid2RectangleMappingX.h"
@@ -23,7 +34,9 @@ public:
 private:
 
   Trapezoid2RectangleMappingX mapping_;
-
+  bool increasingAlongX;
+  bool convertToLocal;
+  
 };
 
 #endif
