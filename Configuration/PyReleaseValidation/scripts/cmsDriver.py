@@ -432,19 +432,6 @@ config_module=file(config_module_name,"w")
 config_module.write(cfgfile)
 config_module.close()
 
-# Prepare command execution
-cmssw_base=os.environ["CMSSW_BASE"]
-cmssw_release_base=os.environ["CMSSW_RELEASE_BASE"]
-pyrelvallocal=cmssw_base+"/src/Configuration/PyReleaseValidation"
-#Set the path depending on the presence of a locally checked out version of PyReleaseValidation
-if os.path.exists(pyrelvallocal):
-    # set the PYTHONPATH environmental variable
-    pyrelvalcodedir=cmssw_base+"/src/Configuration/PyReleaseValidation/data/"
-    print "Using LOCAL version of Configuration/PyReleaseValidation instead of the RELEASE version"
-elif not os.path.exists(pyrelvallocal):
-    pyrelvalcodedir=cmssw_release_base+"/src/Configuration/PyReleaseValidation/data/"
-os.environ["PYTHONPATH"]+=":"+pyrelvalcodedir
-
 executable='cmsRun'
 if options.dump_pickle!='':
     executable='python'
