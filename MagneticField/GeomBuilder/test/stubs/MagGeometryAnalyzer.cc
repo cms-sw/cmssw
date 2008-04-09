@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2007/03/26 18:10:20 $
- *  $Revision: 1.3 $
+ *  $Date: 2008/03/29 14:39:17 $
+ *  $Revision: 1.4 $
  *  \author N. Amapane - CERN
  */
 
@@ -86,8 +86,7 @@ void MagGeometryAnalyzer::testGrids(const vector<MagVolume6Faces*>& bvol) {
 
   for (vector<MagVolume6Faces*>::const_iterator i=bvol.begin();
        i!=bvol.end(); i++) {
-    if (++nameCalls[(*i)->name] > 1) {
-      cout << (*i)->name << " already checked"<< endl; 
+    if ((*i)->copyno != 1) {
       continue;
     }
 
