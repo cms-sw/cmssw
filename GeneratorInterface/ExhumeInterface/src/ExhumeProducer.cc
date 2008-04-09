@@ -1,15 +1,17 @@
-#include "GeneratorInterface/ExhumeInterface/interface/ExhumeSource.h"
+#include "GeneratorInterface/ExhumeInterface/interface/ExhumeProducer.h"
 #include "GeneratorInterface/ExhumeInterface/interface/PYR.h"
 #include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
 #include "SimDataFormats/HepMCProduct/interface/GenInfoProduct.h"
 #include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/Run.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/RandomNumberGenerator.h"
+#include "Utilities/General/interface/FileInPath.h"
 
-//#include "CLHEP/Random/JamesRandom.h"
-//#include "CLHEP/Random/RandFlat.h"
+#include "CLHEP/Random/RandomEngine.h"
+#include "CLHEP/Random/RandFlat.h"
 
 #include <iostream>
 #include "time.h"
@@ -59,19 +61,22 @@ extern struct {
   static const unsigned long kNanoSecPerSec = 1000000000;
   static const unsigned long kAveEventPerSec = 200;
 
-ExhumeSource::ExhumeSource( const ParameterSet & pset, 
-			    InputSourceDescription const& desc ) :
-  GeneratedInputSource(pset, desc), evt(0), 
+ExhumeProducer::ExhumeProducer( const ParameterSet & pset) :
+  EDProducer(),
+  evt(0), 
   pythiaPylistVerbosity_ (pset.getUntrackedParameter<int>("pythiaPylistVerbosity",0)),
   pythiaHepMCVerbosity_ (pset.getUntrackedParameter<bool>("pythiaHepMCVerbosity",false)),
   maxEventsToPrint_ (pset.getUntrackedParameter<int>("maxEventsToPrint",1)),
   comenergy(pset.getUntrackedParameter<double>("comEnergy",14000.)),
   extCrossSect(pset.getUntrackedParameter<double>("crossSection", -1.)),
-  extFilterEff(pset.getUntrackedParameter<double>("filterEfficiency", -1.))
+// JMM change
+//extFilterEff(pset.getUntrackedParameter<double>("filterEfficiency", -1.))
+  extFilterEff(pset.getUntrackedParameter<double>("filterEfficiency", -1.)),
+  eventNumber_(0)
 {
   std::ostringstream header_str;
 
-  header_str << "ExhumeSource: initializing Exhume/Pythia.\n";
+  header_str << "ExhumeProducer: initializing Exhume/Pythia.\n";
   
   // PYLIST Verbosity Level
   // Valid PYLIST arguments are: 1, 2, 3, 5, 7, 11, 12, 13
@@ -119,10 +124,10 @@ ExhumeSource::ExhumeSource( const ParameterSet & pset,
   }
 
   edm::Service<RandomNumberGenerator> rng;
+  uint32_t seed = rng->mySeed();
   fRandomEngine = &(rng->getEngine());
   randomEngine = fRandomEngine;
   fRandomGenerator = new CLHEP::RandFlat(fRandomEngine) ;
-  uint32_t seed = rng->mySeed();
   ExhumeEvent = new Exhume::Event(*ExhumeProcess,seed);
 
   ExhumeEvent->SetMassRange(MassRangeLow,MassRangeHigh);
@@ -137,27 +142,27 @@ ExhumeSource::ExhumeSource( const ParameterSet & pset,
   produces<HepMCProduct>();
   produces<GenInfoProduct, edm::InRun>();
 
-  header_str << "ExhumeSource: starting event generation ...\n";
+  header_str << "ExhumeProducer: starting event generation ...\n";
 
   edm::LogInfo("")<<header_str.str();
 }
 
 
-ExhumeSource::~ExhumeSource(){
+ExhumeProducer::~ExhumeProducer(){
   std::ostringstream footer_str;
-  footer_str << "ExhumeSource: event generation done.\n";
+  footer_str << "ExhumeProducer: event generation done.\n";
 
   edm::LogInfo("") << footer_str.str();
 
   clear();
 }
 
-void ExhumeSource::clear() {
+void ExhumeProducer::clear() {
   delete ExhumeEvent;
   delete ExhumeProcess;
 }
 
-void ExhumeSource::endRun(Run & r) {
+void ExhumeProducer::endRun(Run & r) {
  std::ostringstream footer_str;
 
  double cs = ExhumeEvent->CrossSectionCalculation();
@@ -178,10 +183,10 @@ void ExhumeSource::endRun(Run & r) {
  r.put(giprod);
 }
 
-bool ExhumeSource::produce(Event & e) {
+void ExhumeProducer::produce(Event & e, const EventSetup& es) {
 
     auto_ptr<HepMCProduct> bare_product(new HepMCProduct());  
-    edm::LogInfo("") << "ExhumeSource: Generating event ...\n";
+    edm::LogInfo("") << "ExhumeProducer: Generating event ...\n";
 
     //********                                         
     //
@@ -194,12 +199,16 @@ bool ExhumeSource::produce(Event & e) {
     //evt->set_signal_process_id(pypars.msti[0]);
     evt->set_signal_process_id(sigID);	
     evt->set_event_scale(pypars.pari[16]);
-    evt->set_event_number(numberEventsInRun() - remainingEvents() - 1);
+// JMM change
+//  evt->set_event_number(numberEventsInRun() - remainingEvents() - 1);
+    ++eventNumber_;
+    evt->set_event_number(eventNumber_);
     
 
     //******** Verbosity ********
     
-    if(event() <= maxEventsToPrint_ &&
+//  if(event() <= maxEventsToPrint_ &&
+    if(e.id().event() <= maxEventsToPrint_ &&
        (pythiaPylistVerbosity_ || pythiaHepMCVerbosity_)) {
 
       // Prints PYLIST info
@@ -222,7 +231,5 @@ bool ExhumeSource::produce(Event & e) {
     if(evt)  bare_product->addHepMCData(evt );
 
     e.put(bare_product);
-
-    return true;
 }
 

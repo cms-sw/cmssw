@@ -1,28 +1,30 @@
-#ifndef Exhume_Source_h
-#define Exhume_Source_h
+#ifndef Exhume_Producer_h
+#define Exhume_Producer_h
 
-/** \class ExhumeSource
+/** \class ExhumeProducer
  *
  * Generates ExHuME (Pythia for hadronization) HepMC events
  *
- * Based on PythiaSource
+ * Based on PythiaProducer
  ***************************************/
 
 #define PYCOMP pycomp_
 
-#include "FWCore/Framework/interface/GeneratedInputSource.h"
+#include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include <map>
 #include <string>
 #include "HepMC/GenEvent.h"
-#include "CLHEP/Random/JamesRandom.h"
-#include "CLHEP/Random/RandFlat.h"
+//#include "CLHEP/Random/JamesRandom.h"
+//#include "CLHEP/Random/RandFlat.h"
 
 //ExHuME headers
 #include "GeneratorInterface/ExhumeInterface/interface/Event.h"
 #include "GeneratorInterface/ExhumeInterface/interface/QQ.h"
 #include "GeneratorInterface/ExhumeInterface/interface/GG.h"
 #include "GeneratorInterface/ExhumeInterface/interface/Higgs.h"
+
+#include "GeneratorInterface/ExhumeInterface/interface/PYR.h"
 
 class Run;
 namespace CLHEP {
@@ -32,15 +34,18 @@ class RandFlat;
 
 namespace edm
 {
-  class ExhumeSource : public GeneratedInputSource {
+  class ExhumeProducer : public EDProducer {
+
   public:
 
     /// Constructor
-    ExhumeSource(const ParameterSet &, const InputSourceDescription &);
+    ExhumeProducer(const ParameterSet &);
     /// Destructor
-    virtual ~ExhumeSource();
+    virtual ~ExhumeProducer();
 
     void endRun( Run& r);	
+
+
   private:
 
     /// Interface to the PYGIVE pythia routine, with add'l protections
@@ -50,7 +55,7 @@ namespace edm
   
   private:
     
-    virtual bool produce(Event & e);
+    virtual void produce(edm::Event & e, const EventSetup& es);
     void clear();
     
     HepMC::GenEvent  *evt;
@@ -83,6 +88,10 @@ namespace edm
     double MassRangeHigh;
 
     int sigID;		
+
+// Added by JMM
+    unsigned int eventNumber_;
+// End of JMM insertion
   };
 } 
 
