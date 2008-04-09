@@ -1,7 +1,7 @@
-#ifndef Pythia_Source_h
-#define Pythia_Source_h
+#ifndef Pythia_Producer_h
+#define Pythia_Producer_h
 
-/** \class PythiaSource
+/** \class PythiaProducer
  *
  * Generates Pythia HepMC events
  *
@@ -14,7 +14,7 @@
 
 #define PYCOMP pycomp_
 
-#include "FWCore/Framework/interface/GeneratedInputSource.h"
+#include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include <map>
 #include <string>
@@ -31,16 +31,15 @@ class RandFlat;
 
 namespace edm
 {
-  class PythiaSource : public GeneratedInputSource {
+  class PythiaProducer : public EDProducer {
   public:
 
     /// Constructor
-    PythiaSource(const ParameterSet &, const InputSourceDescription &);
+    PythiaProducer(const ParameterSet &);
     /// Destructor
-    virtual ~PythiaSource();
+    virtual ~PythiaProducer();
 
     void endRun( Run& r);
-
 
   private:
 
@@ -53,7 +52,7 @@ namespace edm
   
   private:
     
-    virtual bool produce(Event & e);
+    virtual void produce(Event & e, const EventSetup& es);
     void clear();
     
     HepMC::GenEvent  *evt;
@@ -78,22 +77,24 @@ namespace edm
     double phimin, phimax;
     double comenergy;
     double emin, emax;
-    double ymin, ymax;  
+    double ymin, ymax;
     bool flatEnergy;
-    
-    bool stopHadronsEnabled;
-    bool gluinoHadronsEnabled;
-    
+
     // external generators (tauola,...)
     bool useExternalGenerators_ ;
     bool useTauola_ ;
     bool useTauolaPolarization_ ;
     TauolaInterface tauola_ ;
-        
+    
+    bool stopHadronsEnabled;
+    bool gluinoHadronsEnabled;
+    
     CLHEP::HepRandomEngine* fRandomEngine;
     CLHEP::RandFlat*        fRandomGenerator; 
+
     PtYDistributor*         fPtYGenerator;
+    int 		    eventNumber_;
   };
-} 
+}
 
 #endif

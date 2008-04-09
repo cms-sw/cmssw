@@ -1,6 +1,6 @@
 /*
- *  $Date: 2008/04/09 21:04:04 $
- *  $Revision: 1.23 $
+ *  $Date: 2008/02/04 23:20:42 $
+ *  $Revision: 1.18 $
  *  
  *  Filip Moorgat & Hector Naves 
  *  26/10/05
@@ -14,7 +14,7 @@
  */
 
 
-#include "GeneratorInterface/Pythia6Interface/interface/PythiaSource.h"
+#include "GeneratorInterface/Pythia6Interface/interface/PythiaProducer.h"
 #include "GeneratorInterface/Pythia6Interface/interface/PYR.h"
 #include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
 #include "SimDataFormats/HepMCProduct/interface/GenInfoProduct.h"
@@ -80,7 +80,6 @@ extern "C" {
  extern "C" {
    void SLHA_INIT();
 }
-
 #define PYGLFR pyglfr_
   extern "C" {
     void PYGLFR();
@@ -101,26 +100,24 @@ extern "C" {
     void PYSTRHAD();
 }
 
-HepMC::IO_HEPEVT conv;
+HepMC::IO_HEPEVT conv2;
 
 //used for defaults
   static const unsigned long kNanoSecPerSec = 1000000000;
   static const unsigned long kAveEventPerSec = 200;
 
-PythiaSource::PythiaSource( const ParameterSet & pset, 
-			    InputSourceDescription const& desc ) :
-  GeneratedInputSource(pset, desc), evt(0), 
+PythiaProducer::PythiaProducer( const ParameterSet & pset) :
+  EDProducer(), evt(0), 
   pythiaPylistVerbosity_ (pset.getUntrackedParameter<int>("pythiaPylistVerbosity",0)),
   pythiaHepMCVerbosity_ (pset.getUntrackedParameter<bool>("pythiaHepMCVerbosity",false)),
   maxEventsToPrint_ (pset.getUntrackedParameter<int>("maxEventsToPrint",1)),
   extCrossSect(pset.getUntrackedParameter<double>("crossSection", -1.)),
   extFilterEff(pset.getUntrackedParameter<double>("filterEfficiency", -1.)),
   comenergy(pset.getUntrackedParameter<double>("comEnergy",14000.)),
-  stopHadronsEnabled(false), gluinoHadronsEnabled(false),
   useExternalGenerators_(false),
   useTauola_(false),
-  useTauolaPolarization_(false)
-  
+  useTauolaPolarization_(false),
+  eventNumber_(0)
 {
   
   // PYLIST Verbosity Level
@@ -138,11 +135,9 @@ PythiaSource::PythiaSource( const ParameterSet & pset,
 // Initialize the random engine unconditionally!
 
   Service<RandomNumberGenerator> rng;
+  randomEngine= fRandomEngine = &(rng->getEngine());
   long seed = (long)(rng->mySeed());
   cout << " seed= " << seed << endl ;
-  randomEngine = fRandomEngine = &(rng->getEngine());
-//fRandomEngine = new CLHEP::HepJamesRandom(seed) ;
-//fRandomGenerator = new CLHEP::RandFlat(fRandomEngine) ;
 
   if(particleID) {
 
@@ -163,24 +158,24 @@ PythiaSource::PythiaSource( const ParameterSet & pset,
       cout <<" emin = " << emin <<" emax = " << emax << endl;
     }
 
-    if(kinedata.size() < 1){                                                                                 
-       etamin = pset.getUntrackedParameter<double>("Etamin",0.);                                             
-       etamax = pset.getUntrackedParameter<double>("Etamax",2.2);                                            
-       cout <<" etamin = " << etamin <<" etamax = " << etamax << endl;                                       
-    }else{                                                                                                   
-       ymin = pset.getUntrackedParameter<double>("ymin",0.);                                                 
-       ymax = pset.getUntrackedParameter<double>("ymax",10.);                                                
-       cout <<" ymin = " << ymin <<" ymax = " << ymax << endl;                                               
-    }                             
-    
+    if(kinedata.size() < 1){
+      etamin = pset.getUntrackedParameter<double>("Etamin",0.);
+      etamax = pset.getUntrackedParameter<double>("Etamax",2.2);
+      cout <<" etamin = " << etamin <<" etamax = " << etamax << endl;
+    }else{
+       ymin = pset.getUntrackedParameter<double>("ymin",0.);
+       ymax = pset.getUntrackedParameter<double>("ymax",10.);
+       cout <<" ymin = " << ymin <<" ymax = " << ymax << endl;
+    }
+
     phimin = pset.getUntrackedParameter<double>("Phimin",0.);
     phimax = pset.getUntrackedParameter<double>("Phimax",360.);
     cout <<" phimin = " << phimin <<" phimax = " << phimax << endl;
-
-    if(kinedata.size() > 0)
-       fPtYGenerator = new PtYDistributor(kinedata, *fRandomEngine); 
-
   }
+
+  if(kinedata.size() > 0)
+     fPtYGenerator = new PtYDistributor(kinedata, *fRandomEngine);
+
   // Set PYTHIA parameters in a single ParameterSet
   ParameterSet pythia_params = 
     pset.getParameter<ParameterSet>("PythiaParameters") ;
@@ -247,18 +242,10 @@ PythiaSource::PythiaSource( const ParameterSet & pset,
   
   }
   }
-
-   stopHadronsEnabled = pset.getUntrackedParameter<bool>("stopHadrons");
-   gluinoHadronsEnabled = pset.getUntrackedParameter<bool>("gluinoHadrons");
-
-  //Init names and pdg code of r-hadrons
-   if(stopHadronsEnabled)  PYSTRHAD();
-   if(gluinoHadronsEnabled)  PYGLRHAD();
-
+#ifdef NEVER
   //In the future, we will get the random number seed on each event and tell 
   // pythia to use that new seed
-  // The random engine has already been initialized.  DO NOT do it again!
-#ifdef NEVER
+// The random engine has already been initialized.  DO NOT do it again!
   edm::Service<RandomNumberGenerator> rng;
   uint32_t seed = rng->mySeed();
   ostringstream sRandomSet;
@@ -328,7 +315,7 @@ PythiaSource::PythiaSource( const ParameterSet & pset,
   }
 
 
-  cout << endl; // Stetically add for the output
+  cout << endl; // Statically add for the output
   //********                                      
   
   produces<HepMCProduct>();
@@ -336,15 +323,20 @@ PythiaSource::PythiaSource( const ParameterSet & pset,
 }
 
 
-PythiaSource::~PythiaSource(){
+PythiaProducer::~PythiaProducer(){
+  call_pystat(1);
+  if ( useTauola_ ) {
+    tauola_.print();
+    //call_pretauola(1); // print TAUOLA decay statistics output
+  }
   clear(); 
 }
 
-void PythiaSource::clear() {
+void PythiaProducer::clear() {
  
 }
 
-void PythiaSource::endRun(Run & r) {
+void PythiaProducer::endRun(Run & r) {
  
  double cs = pypars.pari[0]; // cross section in mb
  auto_ptr<GenInfoProduct> giprod (new GenInfoProduct());
@@ -353,15 +345,9 @@ void PythiaSource::endRun(Run & r) {
  giprod->set_filter_efficiency(extFilterEff);
  r.put(giprod);
 
-  call_pystat(1);
-  if ( useTauola_ ) {
-    tauola_.print();
-    //call_pretauola(1); // print TAUOLA decay statistics output
-  }
-
 }
 
-bool PythiaSource::produce(Event & e) {
+void PythiaProducer::produce(Event & e, const EventSetup& es) {
 
     auto_ptr<HepMCProduct> bare_product(new HepMCProduct());  
 
@@ -369,44 +355,44 @@ bool PythiaSource::produce(Event & e) {
     //	
    if(particleID) 
       {    
-	 double pi = 3.1415927;
-	 int ip = 1;  
-         int dum;
-	 double ee=0,the=0,eta=0;
-	 double pmass = PYMASS(particleID);
-	 double phi = (phimax-phimin)*pyr_(&dum)+phimin; 
-	 
-	 if(kinedata.size() < 1){  // no kinematics input specified, use flat distribution, pt and eta         
-	    double pt  = (ptmax-ptmin)*pyr_(&dum)+ptmin;                                                 
-	    double e   = (emax-emin)*pyr_(&dum)+emin;
-	    eta = (etamax-etamin)*pyr_(&dum)+etamin;                                                      
-	    the = 2.*atan(exp(-eta));                                                                          
-	    if ( emin > pmass && emax > pmass ) { // generate single particle distribution flat in energy      
-	       ee = e;                                                                                         
-	    } else { // generate single particle distribution flat in pt                                       
-	       double pe = pt/sin(the);                                                                        
-	       ee = sqrt(pe*pe+pmass*pmass);                                                                   
-	    }                                                                                                  
-	 }else{ // kinematics from input file, pt and y                                                        
-	    double pt  = fPtYGenerator->firePt(ptmin, ptmax);                                                
-	    double y = fPtYGenerator->fireY(ymin, ymax);                                                       
-	    double u = exp(y);                                                                                 
-	    ee = 0.5*sqrt(pmass*pmass+pt*pt)*(u*u+1)/u;                                                        
-	    double pz = sqrt(ee*ee-pt*pt-pmass*pmass);                   
-	    if(y<0) pz = -pz;
-	    the = atan(pt/pz);                                                                                 
-	    if(pz < 0) the = pi + the;
-	    eta = -log(tan(the/2));                                                                            
-	 }                                 
-	 /*
-	   cout <<" pt = " << pt
-	   <<" eta = " << eta                                                                                  
-	   <<" the = " << the                                                                                  
-	   <<" pe = " << pe                                                                                    
-	   <<" phi = " << phi                                                                                  
-	   <<" pmass = " << pmass                                                                              
-	   <<" ee = " << ee << endl; 
-	*/
+        int dum;
+        double pi = 3.1415927;
+        int ip = 1;
+        double ee=0,the=0,eta=0;
+        double pmass = PYMASS(particleID);
+        double phi = (phimax-phimin)*pyr_(&dum)+phimin; 
+
+        if(kinedata.size() < 1){  // no kinematics input specified, use flat distribution, pt and eta
+	  double pt  = (ptmax-ptmin)*pyr_(&dum)+ptmin;
+	  double e   = (emax-emin)*pyr_(&dum)+emin;
+ 	  eta = (etamax-etamin)*pyr_(&dum)+etamin;
+	  the = 2.*atan(exp(-eta));
+	  if ( emin > pmass && emax > pmass ) { // generate single particle distribution flat in energy
+	    ee = e;
+	} else { // generate single particle distribution flat in pt
+	  double pe = pt/sin(the);
+	  ee = sqrt(pe*pe+pmass*pmass);
+	}
+      } else { // kinematics from input file, pt and y
+     double pt  = fPtYGenerator->firePt(ptmin, ptmax);
+     double y = fPtYGenerator->fireY(ymin, ymax);
+     double u = exp(y);
+     ee = 0.5*sqrt(pmass*pmass+pt*pt)*(u*u+1)/u;
+     double pz = sqrt(ee*ee-pt*pt-pmass*pmass);
+     if(y<0) pz = -pz;
+       the = atan(pt/pz);
+     if(pz < 0) the = pi + the;
+       eta = -log(tan(the/2));
+   }
+/*
+   cout <<" pt = " << pt 
+        <<" eta = " << eta 
+        <<" the = " << the 
+        <<" pe = " << pe 
+        <<" phi = " << phi 
+        <<" pmass = " << pmass 
+        <<" ee = " << ee << endl;
+*/
 
 	phi = phi * (3.1415927/180.);
 
@@ -415,11 +401,10 @@ bool PythiaSource::produce(Event & e) {
 	if(doubleParticle)
 	  {
 	    ip = ip + 1;
-// Check if particle is its own anti-particle.
-	    // int particleID2 = -1 * particleID;
+	    //int particleID2 = -1 * particleID;
             int pythiaCode = PYCOMP(particleID);
             int has_antipart = pydat2.kchg[3-1][pythiaCode-1];
-            int particleID2 = has_antipart ? -1 * particleID : particleID;	    
+            int particleID2 = has_antipart ? -1 * particleID : particleID;
 	    the = 2.*atan(exp(eta));
 	    phi  = phi + 3.1415927;
 	    if (phi > 2.* 3.1415927) {phi = phi - 2.* 3.1415927;}         
@@ -427,20 +412,20 @@ bool PythiaSource::produce(Event & e) {
 	  }
 	PYEXEC();
       } else {
-          if(!gluinoHadronsEnabled && !stopHadronsEnabled)
-	  {
-	     call_pyevnt();      // generate one event with Pythia
-	  }
-	  else
+	call_pyevnt();      // generate one event with Pythia
+      }
+ if(!gluinoHadronsEnabled && !stopHadronsEnabled)
+          {
+             call_pyevnt();      // generate one event with Pythia
+          }
+          else
           {
              call_pygive("MSTJ(14)=-1");
              call_pyevnt();      // generate one event with Pythia
-	     call_pygive("MSTJ(14)=1");
+             call_pygive("MSTJ(14)=1");
              if(gluinoHadronsEnabled)  PYGLFR();
              if(stopHadronsEnabled)  PYSTFR();
           }
-	  
-      }
 
     if ( useTauola_ ) {
       tauola_.processEvent();
@@ -453,15 +438,16 @@ bool PythiaSource::produce(Event & e) {
     
     // convert stdhep (hepevt) to hepmc
     //
-    //HepMC::GenEvent* evt = conv.getGenEventfromHEPEVT();
-    HepMC::GenEvent* evt = conv.read_next_event();
-    
+    //HepMC::GenEvent* evt = conv2.getGenEventfromHEPEVT();
+    HepMC::GenEvent* evt = conv2.read_next_event();
+
     // fix for 1-part events
     if ( particleID ) evt->set_beam_particles(0,0);
-    
+
     evt->set_signal_process_id(pypars.msti[0]);
     evt->set_event_scale(pypars.pari[16]);
-    evt->set_event_number(numberEventsInRun() - remainingEvents() - 1);
+    ++eventNumber_;
+    evt->set_event_number(eventNumber_);
 
     // int id1 = pypars.msti[14];
     // int id2 = pypars.msti[15];
@@ -482,7 +468,7 @@ bool PythiaSource::produce(Event & e) {
 
     //******** Verbosity ********
     
-    if(event() <= maxEventsToPrint_ &&
+    if(e.id().event() <= maxEventsToPrint_ &&
        (pythiaPylistVerbosity_ || pythiaHepMCVerbosity_)) {
 
       // Prints PYLIST info
@@ -506,11 +492,11 @@ bool PythiaSource::produce(Event & e) {
 
     e.put(bare_product);
 
-    return true;
+    return;
 }
 
 bool 
-PythiaSource::call_pygive(const std::string& iParm ) {
+PythiaProducer::call_pygive(const std::string& iParm ) {
 
   int numWarn = pydat1.mstu[26]; //# warnings
   int numErr = pydat1.mstu[22];// # errors
@@ -524,7 +510,7 @@ PythiaSource::call_pygive(const std::string& iParm ) {
 }
 
 bool 
-PythiaSource::call_txgive(const std::string& iParm ) {
+PythiaProducer::call_txgive(const std::string& iParm ) {
   
    TXGIVE( iParm.c_str(), iParm.length() );
    cout << "     " <<  iParm.c_str() << endl; 
@@ -532,14 +518,14 @@ PythiaSource::call_txgive(const std::string& iParm ) {
 }
 
 bool 
-PythiaSource::call_txgive_init() {
+PythiaProducer::call_txgive_init() {
   
    TXGIVE_INIT();
    return 1;  
 }
 
 bool
-PythiaSource::call_slhagive(const std::string& iParm ) {
+PythiaProducer::call_slhagive(const std::string& iParm ) {
 	if( iParm.find( "SLHAFILE", 0 ) != string::npos ) {
 		string::size_type start = iParm.find_first_of( "=" ) + 1;
 		string::size_type end = iParm.length() - 1;
@@ -577,7 +563,7 @@ PythiaSource::call_slhagive(const std::string& iParm ) {
 
 
 bool 
-PythiaSource::call_slha_init() {
+PythiaProducer::call_slha_init() {
   
    SLHA_INIT();
    return 1;  

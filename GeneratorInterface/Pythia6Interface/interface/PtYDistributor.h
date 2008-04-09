@@ -1,3 +1,5 @@
+#ifndef PTYDISTRIBUTOR_H
+#define PTYDISTRIBUTOR_H
 
 #include <fstream>
 #include <iostream>
@@ -31,6 +33,4 @@ namespace edm
 
   };
 }
-
-
-
+#endif
