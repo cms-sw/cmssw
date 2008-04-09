@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: RootInputFileSequence.cc,v 1.10 2008/04/03 04:19:55 wmtan Exp $
+$Id: RootInputFileSequence.cc,v 1.11 2008/04/08 22:26:06 wmtan Exp $
 ----------------------------------------------------------------------*/
 #include "RootInputFileSequence.h"
 #include "PoolSource.h"
@@ -43,8 +43,9 @@ namespace edm {
     whichLumisToSkip_(pset.getUntrackedParameter<std::vector<LuminosityBlockID> >("lumisToSkip", std::vector<LuminosityBlockID>())),
     eventsToProcess_(pset.getUntrackedParameter<std::vector<EventID> >("eventsToProcess",std::vector<EventID>())),
     skipBadFiles_(pset.getUntrackedParameter<bool>("skipBadFiles", false)),
+    treeCacheSize_(pset.getUntrackedParameter<unsigned int>("cacheSize", 0U)),
     forcedRunOffset_(0),
-    setRun_(pset.getUntrackedParameter<unsigned int>("setRunNumber", 0)),
+    setRun_(pset.getUntrackedParameter<unsigned int>("setRunNumber", 0U)),
     dropMetaData_(pset.getUntrackedParameter<bool>("dropMetaData", false)) {
 
     sort_all(eventsToProcess_);
@@ -128,7 +129,7 @@ namespace edm {
       rootFile_ = RootFileSharedPtr(new RootFile(fileIter_->fileName(), catalog_.url(),
 	  processConfiguration(), fileIter_->logicalFileName(), filePtr,
 	  startAtRun_, startAtLumi_, startAtEvent_, eventsToSkip_, whichLumisToSkip_,
-	  remainingEvents(), forcedRunOffset_, eventsToProcess_, dropMetaData_));
+	  remainingEvents(), treeCacheSize_, forcedRunOffset_, eventsToProcess_, dropMetaData_));
       fileIndexes_[fileIter_ - fileIterBegin_] = rootFile_->fileIndexSharedPtr();
     } else {
       if (!skipBadFiles) {
