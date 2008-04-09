@@ -310,7 +310,7 @@ bool PFRootEventManagerColin::processHIGH_E_TAUS() {
     
     if(nTracks!=1) continue; // no track, or too many tracks in the block
     
-    std::map<double, unsigned> sortedElems;
+    std::multimap<double, unsigned> sortedElems;
     block.associatedElements( iTrack, 
 			      block.linkData(),
 			      sortedElems );
@@ -318,7 +318,7 @@ bool PFRootEventManagerColin::processHIGH_E_TAUS() {
     tauEvent_->nECAL=0;
     tauEvent_->nHCAL=0;
     
-    typedef std::map<double, unsigned>::iterator IE;
+    typedef std::multimap<double, unsigned>::iterator IE;
     for(IE ie = sortedElems.begin(); ie != sortedElems.end(); ++ie ) {
       
       
