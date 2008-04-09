@@ -122,7 +122,8 @@ VertexFilter::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     float chi_lead=1000000.;
     unsigned nhit_lead=0;
     for( itxc=firstTrack; itxc!=lastTrack;++itxc){
-      unsigned foundHits = itxc->recHitsSize();
+      //      unsigned foundHits = itxc->recHitsSize();
+      unsigned foundHits = itxc->hitPattern().trackerLayersWithMeasurement();
       sizeMax += foundHits;
       if ( nhit_lead>6 && foundHits<6 )continue;
       
@@ -159,8 +160,8 @@ VertexFilter::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     const TrackRef itc = it->val;
     math::XYZPoint gp1=itc->vertex();
     bool hasAVertex=false;
-    unsigned foundHits = itc->recHitsSize();
- 
+    //    unsigned foundHits = itc->recHitsSize();
+    unsigned foundHits = itc->hitPattern().trackerLayersWithMeasurement();
     for (ivxc=firstVertex ;ivxc!=lastVertex;ivxc++){
       math::XYZPoint gp2=ivxc->position();
       math::XYZVector dgp=gp2-gp1;
