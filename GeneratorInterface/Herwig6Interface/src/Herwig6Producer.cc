@@ -4,13 +4,17 @@
  * 
  */
 
-#include "GeneratorInterface/Herwig6Interface/interface/Herwig6Source.h"
+#include "GeneratorInterface/Herwig6Interface/interface/Herwig6Producer.h"
 #include "GeneratorInterface/Herwig6Interface/interface/Dummies.h"
 #include "GeneratorInterface/Herwig6Interface/interface/HWRGEN.h"
 #include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
 
 #include "FWCore/Framework/interface/Event.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/Utilities/interface/RandomNumberGenerator.h"
+#include "CLHEP/Random/JamesRandom.h"
+#include "CLHEP/Random/RandFlat.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "SimDataFormats/HepMCProduct/interface/GenInfoProduct.h"
 #include "FWCore/Framework/interface/Run.h"
@@ -24,6 +28,7 @@ using namespace std;
 
 #include "HepMC/HerwigWrapper6_4.h"
 #include "HepMC/IO_HERWIG.h"
+#include "HepMC/HEPEVT_Wrapper.h"
 
 // INCLUDE JIMMY,HERWIG,LHAPDF COMMON BLOCKS AND FUNTIONS
 #include "herwig.h"
@@ -44,9 +49,8 @@ extern"C" {
 #define setherwpdf setherwpdf_
 
 // -----------------  Source Code -----------------------------------------
-Herwig6Source::Herwig6Source( const ParameterSet & pset, 
-			    InputSourceDescription const& desc ) :
-  GeneratedInputSource(pset, desc), evt(0), 
+Herwig6Producer::Herwig6Producer( const ParameterSet & pset) :
+  EDProducer(), evt(0), 
   herwigVerbosity_ (pset.getUntrackedParameter<int>("herwigVerbosity",0)),
   herwigHepMCVerbosity_ (pset.getUntrackedParameter<bool>("herwigHepMCVerbosity",false)),
   herwigLhapdfVerbosity_ (pset.getUntrackedParameter<int>("herwigLhapdfVerbosity",0)),
@@ -58,13 +62,14 @@ Herwig6Source::Herwig6Source( const ParameterSet & pset,
   printCards_(pset.getUntrackedParameter<bool>("printCards",false)),
   numTrials_(pset.getUntrackedParameter<int>("numTrialsMPI",100)),
   extCrossSect(pset.getUntrackedParameter<double>("crossSection", -1.)),
-  extFilterEff(pset.getUntrackedParameter<double>("filterEfficiency", -1.))
+  extFilterEff(pset.getUntrackedParameter<double>("filterEfficiency", -1.)),
+  numberEvents_(0)
 {
 
   std::ostringstream header_str;
 
   header_str << "----------------------------------------------\n";
-  header_str << "Initializing Herwig6Source\n";
+  header_str << "Initializing Herwig6Producer\n";
   header_str << "----------------------------------------------\n";
 
   
@@ -115,7 +120,8 @@ Herwig6Source::Herwig6Source( const ParameterSet & pset,
   for(int i=1;i<8;++i){
     hwbmch.PART1[i]  = ' ';
     hwbmch.PART2[i]  = ' ';}
-  int numEvents = maxEvents();  
+//int numEvents = maxEvents();  
+  int numEvents = 999999999;
   if(useJimmy_) jmparm.MSFLAG = 1;
 
   // initialize other common blocks ...
@@ -156,7 +162,8 @@ Herwig6Source::Herwig6Source( const ParameterSet & pset,
       static string sRandomValueSetting2("NRN(2)");
       if( (0 == itPar->compare(0,sRandomValueSetting1.size(),sRandomValueSetting1) )||(0 == itPar->compare(0,sRandomValueSetting2.size(),sRandomValueSetting2) )) {
 	throw edm::Exception(edm::errors::Configuration,"HerwigError")
-	  <<" attempted to set random number using pythia command 'NRN(.)'. This is not allowed.\n  Please use the RandomNumberGeneratorService to set the random number seed.";
+	  <<" attempted to set random number using pythia command 'NRN(.)'. This is not allowed.\n"
+            "  Please use the RandomNumberGeneratorService to set the random number seed.";
       }
       
       if( ! hwgive(*itPar) ) {
@@ -173,8 +180,6 @@ Herwig6Source::Herwig6Source( const ParameterSet & pset,
   header_str << "Setting Herwig random number generator seeds" << "\n";
   header_str << "----------------------------------------------" << "\n";
   edm::Service<RandomNumberGenerator> rng;
-  fRandomEngine = &(rng->getEngine());
-  randomEngine = fRandomEngine;
   int wwseed = rng->mySeed();
   bool rngok = setRngSeeds(wwseed);
   if(!rngok)
@@ -182,6 +187,8 @@ Herwig6Source::Herwig6Source( const ParameterSet & pset,
       <<" Impossible error in setting 'NRN(.)'.";
   header_str << "   NRN(1) = "<<hwevnt.NRN[0]<<"\n";
   header_str << "   NRN(2) = "<<hwevnt.NRN[1]<<"\n";
+  fRandomEngine = &(rng->getEngine());
+  randomEngine = fRandomEngine;
 
   // set the LHAPDF grid directory and path
   setherwpdf();
@@ -212,7 +219,7 @@ Herwig6Source::Herwig6Source( const ParameterSet & pset,
 }
 
 
-Herwig6Source::~Herwig6Source(){
+Herwig6Producer::~Herwig6Producer(){
 
   std::ostringstream footer_str;
 
@@ -225,14 +232,14 @@ Herwig6Source::~Herwig6Source(){
   clear();
 }
 
-void Herwig6Source::clear() {
+void Herwig6Producer::clear() {
   // teminate elementary process
   hwefin();
   if(useJimmy_) jmefin();
 }
 
 
-bool Herwig6Source::produce(Event & e) {
+void Herwig6Producer::produce(Event & e, const EventSetup& es) {
 
   int counter = 0;
   double mpiok = 1.0;
@@ -254,7 +261,13 @@ bool Herwig6Source::produce(Event & e) {
   // event after numTrials MP is not ok -> skip event
   if(mpiok > 0.5) {
     LogWarning("") <<"   JIMMY could not produce MI in "<<numTrials_<<" trials.\n"<<"   Event will be skipped to prevent from deadlock.\n";
-    return true;
+
+// Throw an exception.  Use the EventCorruption exception since it maps onto
+// SkipEvent which is what we want to do here.
+    std::ostringstream sstr;
+    sstr << "Herwig6Producer: JIMMY failure after " << numTrials_ << " trials\n";
+    edm::Exception except(edm::errors::EventCorruption, sstr.str());
+    throw except;
   }  
   
   hwdhob();
@@ -266,7 +279,12 @@ bool Herwig6Source::produce(Event & e) {
   hwufne();
   
   // if event was killed by HERWIG; skip 
-  if(hwevnt.IERROR!=0) return true;
+  if(hwevnt.IERROR!=0) {
+    std::ostringstream sstr;
+    sstr << "Herwig6Producer: Herwig killed this event " << "\n";
+    edm::Exception except(edm::errors::EventCorruption, sstr.str());
+    throw except;
+  }
 
   // -----------------  HepMC converter --------------------
   HepMC::IO_HERWIG conv;
@@ -274,13 +292,14 @@ bool Herwig6Source::produce(Event & e) {
   // HEPEVT is ok, create new HepMC event
   evt = new HepMC::GenEvent();
   bool ok = conv.fill_next_event( evt );
+  ++numberEvents_;
   // if conversion failed; throw excpetion and stop processing
   if(!ok) throw cms::Exception("HerwigError")
-    <<" Conversion problems in event nr."<<numberEventsInRun() - remainingEvents() - 1<<".";  
+    << " Conversion problems in event nr." << numberEvents_ << ".";  
 
   // set process id and event number
   evt->set_signal_process_id(hwproc.IPROC);  
-  evt->set_event_number(numberEventsInRun() - remainingEvents() - 1);
+  evt->set_event_number(numberEvents_);
   
   if (herwigHepMCVerbosity_) {
     LogWarning("") << "Event process = " << evt->signal_process_id() << "\n----------------------\n";
@@ -293,13 +312,11 @@ bool Herwig6Source::produce(Event & e) {
     bare_product->addHepMCData(evt );
     e.put(bare_product);
   }
-  
-  return true;
 }
 
 // -------------------------------------------------------------------------------------------------
 // function to pass parameters to common blocks
-bool Herwig6Source::hwgive(const std::string& ParameterString) {
+bool Herwig6Producer::hwgive(const std::string& ParameterString) {
   bool accepted = 1;
 
  
@@ -1044,12 +1061,12 @@ bool Herwig6Source::hwgive(const std::string& ParameterString) {
 // dummy hwaend (to be REMOVED from herwig)
 
 extern "C" {
-  void hwaend_(){/*dummy*/}
+  inline void hwaend_(){/*dummy*/}
 }
 //-------------------------------------------------------------------------------
 #endif
 
-bool Herwig6Source::setRngSeeds(int mseed)
+bool Herwig6Producer::setRngSeeds(int mseed)
 {
   double temx[5];
   for (int i=0; i<5; i++) {
@@ -1078,7 +1095,7 @@ bool Herwig6Source::setRngSeeds(int mseed)
   return true;
 }
 
-void Herwig6Source::endRun(Run & r) {
+void Herwig6Producer::endRun(Run & r) {
  
  auto_ptr<GenInfoProduct> giprod (new GenInfoProduct());
 
@@ -1103,7 +1120,7 @@ void Herwig6Source::endRun(Run & r) {
 #ifdef NEVER
 extern "C" {
   inline void cmsending_(int* ecode) {
-    LogError("")<<"   ERROR: Herwig stoped run after receiving error code "<<*ecode<<".\n";
+    LogError("")<<"   ERROR: Herwig stoped run after recieving error code "<<*ecode<<".\n";
     throw cms::Exception("Herwig6Error") <<" Herwig stoped run with error code "<<*ecode<<".";
   }
 }

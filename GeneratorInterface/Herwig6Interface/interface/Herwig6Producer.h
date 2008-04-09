@@ -1,14 +1,14 @@
-#ifndef Herwig6Source_h
-#define Herwig6Source_h
+#ifndef Herwig6Producer_h
+#define Herwig6Producer_h
 
-/** \class Herwig6Source
+/** \class Herwig6Producer
  *
  * Generates Herwig HepMC events
  *
  ***************************************/
 
 
-#include "FWCore/Framework/interface/GeneratedInputSource.h"
+#include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include <map>
@@ -22,18 +22,18 @@ class HepRandomEngine;
 
 namespace edm
 {
-  class Herwig6Source : public GeneratedInputSource {
+  class Herwig6Producer : public EDProducer {
 
   public:
 
-    Herwig6Source(const ParameterSet &, const InputSourceDescription &);
-    virtual ~Herwig6Source();
+    Herwig6Producer(const ParameterSet &);
+    virtual ~Herwig6Producer();
 
     void endRun( Run& r);
 
   private:
 
-    virtual bool produce(Event & e);
+    virtual void produce(Event & e, const EventSetup& es);
     void clear();
 
     bool hwgive(const std::string& iParm );
@@ -54,8 +54,11 @@ namespace edm
     double extCrossSect;
     double intCrossSect;
     double extFilterEff;
+ 
+    unsigned int numberEvents_;
 
-    CLHEP::HepRandomEngine*     fRandomEngine;
+    CLHEP::HepRandomEngine*	fRandomEngine;
+
   };
 } 
 
