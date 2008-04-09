@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2008/03/29 14:31:38 $
- *  $Revision: 1.10 $
+ *  $Date: 2008/04/02 15:50:15 $
+ *  $Revision: 1.11 $
  */
 
 #include "MagneticField/GeomBuilder/src/VolumeBasedMagneticFieldESProducer.h"
@@ -42,7 +42,6 @@ std::auto_ptr<MagneticField> VolumeBasedMagneticFieldESProducer::produce(const I
   edm::ESHandle<MagneticField> paramField;
   if (pset.getParameter<bool>("useParametrizedTrackerField")) {;
     iRecord.get("parametrizedField",paramField);
-    //    std::cout << paramField->inTesla(GlobalPoint(0.,0.,0));
   }
   
 
