@@ -2,17 +2,24 @@
 #include "MagneticField/Interpolation/src/binary_ifstream.h"
 #include "MagneticField/Interpolation/src/LinearGridInterpolator3D.h"
 
-// #include "Utilities/Notification/interface/TimingReport.h"
-// #include "Utilities/UI/interface/SimpleConfigurable.h"
 
 #include <iostream>
 
 using namespace std;
 
 SpecialCylindricalMFGrid::SpecialCylindricalMFGrid( binary_ifstream& inFile, 
-						    const GloballyPositioned<float>& vol)
+						    const GloballyPositioned<float>& vol, int gridType)
   : MFGrid3D(vol)
 {
+  if (gridType == 5 ) {
+    sector1 = false;
+  } else if (gridType == 6 ) {
+    sector1 = true;
+  } else {
+    cout << "ERROR wrong SpecialCylindricalMFGrid type " << gridType << endl;
+    sector1 = false;
+  }
+
   int n1, n2, n3;
   inFile >> n1 >> n2 >> n3;
 #ifdef DEBUG_GRID
@@ -31,13 +38,20 @@ SpecialCylindricalMFGrid::SpecialCylindricalMFGrid( binary_ifstream& inFile,
   int nLines = n1*n2*n3;
   for (int iLine=0; iLine<nLines; ++iLine){
     inFile >> Bx >> By >> Bz;
-    fieldValues.push_back(BVector(Bx,By,Bz));
+    // This would be fine only if local r.f. has the axes oriented as the global r.f.
+    // For this volume we know that the local and global r.f. have different axis
+    // orientation, so we do not try to be clever.
+    //    fieldValues.push_back(BVector(Bx,By,Bz));
+    
+    // Preserve double precision!
+    Vector3DBase<double, LocalTag>  lB = frame().toLocal(Vector3DBase<double, GlobalTag>(Bx,By,Bz));
+    fieldValues.push_back(BVector(lB.x(), lB.y(), lB.z()));
   }
   // check completeness
   string lastEntry;
   inFile >> lastEntry;
   if (lastEntry != "complete"){
-    cout << "error during file reading: file is not complete" << endl;
+    cout << "ERROR during file reading: file is not complete" << endl;
   }
 
   GlobalPoint grefp( GlobalPoint::Cylindrical( xref, yref, zref));
@@ -77,8 +91,10 @@ MFGrid::LocalVector SpecialCylindricalMFGrid::uncheckedValueInTesla( const Local
   LinearGridInterpolator3D<GridType::ValueType, GridType::Scalar> interpol( grid_);
   double a, b, c;
   toGridFrame( p, a, b, c);
-  GlobalVector gv( interpol( a, b, c)); // grid in global frame
-  return frame().toLocal(gv);           // must return a local vector
+  // the following holds if B values was not converted to local coords -- see ctor
+//   GlobalVector gv( interpol.interpolate( a, b, c)); // grid in global frame
+//   return frame().toLocal(gv);           // must return a local vector
+  return LocalVector(interpol.interpolate( a, b, c));
 }
 
 void SpecialCylindricalMFGrid::dump() const {}
@@ -86,9 +102,15 @@ void SpecialCylindricalMFGrid::dump() const {}
 
 MFGrid::LocalPoint SpecialCylindricalMFGrid::fromGridFrame( double a, double b, double c) const
 {
-  double sinPhi = sin(b);
+  double sinPhi; // sin or cos depending on wether we are at phi=0 or phi=pi/2
+  if (sector1) {
+    sinPhi = cos(b);
+  } else {
+    sinPhi = sin(b);
+  }
+  
   double R = a*stepSize(sinPhi) + startingPoint(sinPhi);
-  // FIXME: "OLD" convention of phi.
+  // "OLD" convention of phi.
   //  GlobalPoint gp( GlobalPoint::Cylindrical(R, Geom::pi() - b, c));
   GlobalPoint gp( GlobalPoint::Cylindrical(R, b, c));
   return frame().toLocal(gp);
@@ -98,7 +120,12 @@ void SpecialCylindricalMFGrid::toGridFrame( const LocalPoint& p,
 					    double& a, double& b, double& c) const
 {
   GlobalPoint gp = frame().toGlobal(p);
-  double sinPhi = sin(gp.phi());
+  double sinPhi; // sin or cos depending on wether we are at phi=0 or phi=pi/2
+  if (sector1) {
+    sinPhi = cos(gp.phi());
+  } else {
+    sinPhi = sin(gp.phi());
+  }
   a = (gp.perp()-startingPoint(sinPhi))/stepSize(sinPhi);
   // FIXME: "OLD" convention of phi.
   // b = Geom::pi() - gp.phi();
@@ -106,9 +133,15 @@ void SpecialCylindricalMFGrid::toGridFrame( const LocalPoint& p,
   c = gp.z();
 
 #ifdef DEBUG_GRID
-  cout << "toGridFrame: sinPhi " << sinPhi << " LocalPoint " << p 
+  if (sector1) {
+    cout << "toGridFrame: sinPhi " ;
+  } else {
+    cout << "toGridFrame: cosPhi " ;
+  }
+  cout << sinPhi << " LocalPoint " << p 
        << " GlobalPoint " << gp << endl 
        << " a " << a << " b " << b << " c " << c << endl;
+    
 #endif
 }
 

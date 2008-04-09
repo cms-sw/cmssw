@@ -1,5 +1,15 @@
-#ifndef SpecialCylindricalMFGrid_H
-#define SpecialCylindricalMFGrid_H
+#ifndef Interpolation_SpecialCylindricalMFGrid_h
+#define Interpolation_SpecialCylindricalMFGrid_h
+
+/** \class SpecialCylindricalMFGrid
+ *
+ *  Interpolator for cylindrical grids type 5 or 6 (r,phi,z) 1/sin(phi) or 1/cos(phi)
+ *
+ *  $Date: $
+ *  $Revision: $
+ *  \author T. Todorov - updated 08 N. Amapane
+ */
+
 
 #include "MagneticField/Interpolation/interface/MFGrid3D.h"
 
@@ -8,8 +18,12 @@ class binary_ifstream;
 class SpecialCylindricalMFGrid : public MFGrid3D {
 public:
 
+  /// Constructor. 
+  /// gridType = 5 => 1/sin(phi); i.e. master sector is #4 
+  /// gridType = 6 => 1/cos(phi); i.e. master sector is #1 
   SpecialCylindricalMFGrid( binary_ifstream& istr, 
-			    const GloballyPositioned<float>& vol );
+			    const GloballyPositioned<float>& vol,
+			    int gridType);
 
   virtual LocalVector uncheckedValueInTesla( const LocalPoint& p) const;
 
@@ -30,7 +44,7 @@ private:
 
   double stepSize( double sinPhi) const {return stepConstTerm_ + stepPhiTerm_ /sinPhi;}
   double startingPoint( double sinPhi) const {return startConstTerm_ + startPhiTerm_/sinPhi;}
-
+  bool sector1;
 };
 
 #endif
