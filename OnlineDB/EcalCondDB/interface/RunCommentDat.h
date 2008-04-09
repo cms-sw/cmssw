@@ -36,8 +36,8 @@ class RunCommentDat : public IDataItem {
 
   // User data
  std::string m_source ;
- std::string m_comment;
- Tm m_time;
+ std::string m_comment ;
+ Tm  m_time ;
 };
 
 #endif

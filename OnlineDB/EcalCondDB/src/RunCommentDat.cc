@@ -98,9 +98,10 @@ void RunCommentDat::fetchData(map< EcalLogicID, RunCommentDat >* fillMap, RunIOV
     std::pair< EcalLogicID, RunCommentDat > p;
     RunCommentDat dat;
     while(rset->next()) {
-      p.first = EcalLogicID( "Comment_order", rset->getInt(1),
-			     rset->getInt(1),        // comment number
-			 EcalLogicID::NULLID,EcalLogicID::NULLID,   "Comment_order");    
+      p.first = EcalLogicID( "Comment_order",
+			     rset->getInt(1),  rset->getInt(1), 
+			     EcalLogicID::NULLID, EcalLogicID::NULLID,        // comment number
+			    "Comment_order");    
 
       dat.setSource( rset->getString(2) );
       dat.setComment( rset->getString(3) );
