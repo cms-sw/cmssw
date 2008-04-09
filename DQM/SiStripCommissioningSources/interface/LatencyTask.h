@@ -23,7 +23,9 @@ class LatencyTask : public CommissioningTask {
   virtual void update();
   
   static std::map<std::string, HistoSet> timingMap_;
+  static std::map<std::string, HistoSet> clusterMap_;
   HistoSet* timing_;
+  HistoSet* cluster_;
 
 };
 

@@ -96,7 +96,7 @@ void SamplingAnalysis::reset() {
 void SamplingAnalysis::extract( const std::vector<TH1*>& histos) {
   
   // Check
-  if ( histos.size() != 1 ) {
+  if ( histos.size() != 1 && histos.size() != 2 ) {
     edm::LogWarning(mlCommissioning_) << " Unexpected number of histograms: " << histos.size();
   }
   
@@ -122,9 +122,10 @@ void SamplingAnalysis::extract( const std::vector<TH1*>& histos) {
     runType_ = title.runType();
     
     // Extract timing histo
-    histo_.first = *ihis;
-    histo_.second = (*ihis)->GetName();
-    
+    if ( title.extraInfo().find(sistrip::extrainfo::clusterCharge_) != std::string::npos ) {
+      histo_.first = *ihis;
+      histo_.second = (*ihis)->GetName();
+    }
   }
   
 }

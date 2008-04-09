@@ -1,4 +1,4 @@
-// Last commit: $Id: ConstantsForDqm.h,v 1.8 2008/02/22 13:04:07 bainbrid Exp $
+// Last commit: $Id: ConstantsForDqm.h,v 1.9 2008/03/17 17:37:10 bainbrid Exp $
 
 #ifndef DataFormats_SiStripCommon_ConstantsForDqm_H
 #define DataFormats_SiStripCommon_ConstantsForDqm_H
@@ -51,6 +51,11 @@ namespace sistrip {
     static const std::string pedsAndRawNoise_   = "PedsAndRawNoise";          //@@ LEGACY
     static const std::string residualsAndNoise_ = "ResidualsAndNoise";        //@@ LEGACY
     static const std::string pedsAndCmSubNoise_ = "PedsAndCMSubtractedNoise"; //@@ LEGACY
+
+    // ---------- latency ----------
+
+    static const std::string clusterCharge_     = "ClusterCharge";
+    static const std::string occupancy_         = "Occupancy";
     
   }
   
