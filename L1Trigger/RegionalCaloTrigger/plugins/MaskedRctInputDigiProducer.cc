@@ -300,13 +300,14 @@ MaskedRctInputDigiProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
        short iphi = (unsigned short) hcalColl[i].id().iphi();
        //if (i < 20) {std::cout << "ieta is " << ieta << ", absIeta is " << absIeta
        //      << ", iphi is " << iphi << endl;}
+       /*
        if (hcalColl[i].SOI_compressedEt() != 0)
 	 {
 	   std::cout << "original et " << hcalColl[i].SOI_compressedEt() 
 		     << "  fg " << hcalColl[i].SOI_fineGrain() << "  iphi " 
 		     << iphi << "  ieta " << ieta << std::endl;
 	 }
-
+       */
        HcalTriggerPrimitiveDigi
 	 hcalDigi(HcalTrigTowerDetId(ieta,iphi));
        hcalDigi.setSize(nHcalSamples);

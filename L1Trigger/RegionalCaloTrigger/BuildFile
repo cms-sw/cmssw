@@ -10,6 +10,7 @@
 <use name=DataFormats/HcalDigi>
 <use name=DataFormats/HcalDetId>
 <use name=CalibFormats/CaloTPG>
+<use name=CalibCalorimetry/EcalTPGTools>
 <use name=CondFormats/L1TObjects>
 <use name=CondFormats/DataRecord>
 <use name=clhep>
@@ -27,6 +28,7 @@
 <use name=DataFormats/HcalDigi>
 <use name=DataFormats/HcalDetId>
 <use name=CalibFormats/CaloTPG>
+<use name=CalibCalorimetry/EcalTPGTools>
 <use name=CondFormats/L1TObjects>
 <use name=CondFormats/DataRecord>
 <use name=clhep>

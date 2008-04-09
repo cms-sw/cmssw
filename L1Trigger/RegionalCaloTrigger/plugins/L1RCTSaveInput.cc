@@ -27,6 +27,8 @@ using std::endl;
 #include "CondFormats/L1TObjects/interface/L1CaloEtScale.h"
 #include "CondFormats/DataRecord/interface/L1EmEtScaleRcd.h"
 
+#include "CalibCalorimetry/EcalTPGTools/interface/EcalTPGScale.h"
+
 #include "CondFormats/L1TObjects/interface/L1RCTParameters.h"
 #include "CondFormats/DataRecord/interface/L1RCTParametersRcd.h"
 
@@ -69,9 +71,15 @@ L1RCTSaveInput::analyze(const edm::Event& event,
   edm::ESHandle<L1CaloEtScale> emScale;
   eventSetup.get<L1EmEtScaleRcd>().get(emScale);
   const L1CaloEtScale* s = emScale.product();
+
+  EcalTPGScale* e = new EcalTPGScale();
+  e->setEventSetup(eventSetup);
+
   rctLookupTables->setRCTParameters(r);
   rctLookupTables->setTranscoder(t);
   rctLookupTables->setL1CaloEtScale(s);
+  rctLookupTables->setEcalTPGScale(e);
+
   edm::Handle<EcalTrigPrimDigiCollection> ecal;
   edm::Handle<HcalTrigPrimDigiCollection> hcal;
   event.getByLabel(ecalDigisLabel, ecal); 

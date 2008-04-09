@@ -13,6 +13,7 @@ using std::endl;
 #include "CondFormats/L1TObjects/interface/L1RCTParameters.h"
 #include "CalibFormats/CaloTPG/interface/CaloTPGTranscoder.h"
 #include "CondFormats/L1TObjects/interface/L1CaloEtScale.h"
+#include "CalibCalorimetry/EcalTPGTools/interface/EcalTPGScale.h"
 
 unsigned int L1RCTLookupTables::lookup(unsigned short ecalInput,
 				       unsigned short hcalInput,
@@ -33,11 +34,15 @@ unsigned int L1RCTLookupTables::lookup(unsigned short ecalInput,
   if(fgbit > 1) 
     throw cms::Exception("Invalid Data") 
       << "ECAL finegrain should be a single bit, is " << fgbit;
-  unsigned short iAbsEta = rctParameters_->calcIAbsEta(crtNo, crdNo, twrNo);
+  //unsigned short iAbsEta = rctParameters_->calcIAbsEta(crtNo, crdNo, twrNo);
+  short iEta = (short) rctParameters_->calcIEta(crtNo, crdNo, twrNo);
+  unsigned short iAbsEta = (unsigned short) abs(iEta);
+  short sign = iEta/iAbsEta;
+  unsigned short iPhi = rctParameters_->calcIPhi(crtNo, crdNo, twrNo);
   if(iAbsEta < 1 || iAbsEta > 28) 
     throw cms::Exception("Invalid Data") 
       << "1 <= |IEta| <= 28, is " << iAbsEta;
-  float ecal = convertEcal(ecalInput, iAbsEta);
+  float ecal = convertEcal(ecalInput, iAbsEta, iPhi, sign);
   float hcal = convertHcal(hcalInput, iAbsEta);
   unsigned long etIn7Bits;
   unsigned long etIn9Bits;
@@ -129,7 +134,9 @@ bool L1RCTLookupTables::activityBit(float ecal, float hcal) const
 unsigned int L1RCTLookupTables::emRank(unsigned short energy) const 
 {
   if(etScale_)
-    return etScale_->rank(energy);
+    {
+      return etScale_->rank(energy);
+    }
   else
     //    edm::LogInfo("L1RegionalCaloTrigger") 
     //      << "CaloEtScale was not used - energy instead of rank" << endl;
@@ -137,16 +144,61 @@ unsigned int L1RCTLookupTables::emRank(unsigned short energy) const
 }
 
 // converts compressed ecal energy to linear (real) scale
-float L1RCTLookupTables::convertEcal(unsigned short ecal, int iAbsEta) const
+float L1RCTLookupTables::convertEcal(unsigned short ecal, unsigned short iAbsEta, unsigned short iRctPhi, short sign) const
 {
-  if(rctParameters_ == 0)
-    throw cms::Exception("L1RCTParameters Invalid")
-      << "L1RCTParameters should be set every event" << rctParameters_;
-  return ((float) ecal) * rctParameters_->eGammaLSB();
+  if(ecalScale_)
+    {
+      // ieta iphi etc need to be the CAL (global) version!!
+      unsigned short iPhi = (72 + 18 - iRctPhi) % 72;
+      if (iPhi == 0) 
+	{
+	  iPhi = 72;
+	}
+      //std::cout << "[luts] energy " << ecal << " sign " << sign 
+      //<< " iAbsEta " << iAbsEta << " iPhi "	<< iPhi << std::endl;
+      float dummy = 0;
+      if (iAbsEta <= 17)
+	{
+	  //dummy = float (ecalScale_->getLinearizedTPG( (uint) ecal, EcalTrigTowerDetId(sign, EcalBarrel, iAbsEta, iPhi)));
+	  dummy = float (ecalScale_->getTPGInGeV( (uint) ecal, EcalTrigTowerDetId(sign, EcalBarrel, iAbsEta, iPhi)));	}
+      else
+	{
+	  //dummy = float (ecalScale_->getLinearizedTPG( (uint) ecal, EcalTrigTowerDetId(sign, EcalEndcap, iAbsEta, iPhi)));
+	  dummy = float (ecalScale_->getTPGInGeV( (uint) ecal, EcalTrigTowerDetId(sign, EcalEndcap, iAbsEta, iPhi)));	}
+      //EcalTrigTowerDetId det(sign, EcalTriggerTower, iAbsEta, iPhi);
+      //float dummy = float (ecalScale_->getLinearizedTPG( (uint) ecal, EcalTrigTowerDetId( (int) sign, EcalTriggerTower, (int) iAbsEta, (int) iPhi)));
+      //float dummy = float (ecalScale_->getLinearizedTPG( (uint) ecal, det));
+      /*
+      if (ecal > 0)
+	{
+	  std::cout << "[luts] ecal converted from " << ecal << " to " 
+		    << dummy << " with iAbsEta " << iAbsEta << std::endl;
+	}
+      */
+      /*
+      dummy = dummy * rctParameters_->eGammaLSB();
+      if (ecal > 0)
+	{
+	  std::cout << " e*LSB = " << dummy << std::endl;
+	}
+      */
+      return dummy;
+      //return dummy * rctParameters_->eGammaLSB();
+      //return float(ecalScale_->getLinearizedTPG( (uint) ecal, const EcalTrigTowerDetId( sign, EcalTriggerTower, iAbsEta, iPhi ) ) );
+    }
+  //else if(rctParameters_ == 0)
+  //  {
+  //    throw cms::Exception("L1RCTParameters Invalid")
+  //	<< "L1RCTParameters should be set every event" << rctParameters_;
+  //  }
+  else
+    {
+      return ((float) ecal) * rctParameters_->eGammaLSB();
+    }
 }
 
 // converts compressed hcal energy to linear (real) scale
-float L1RCTLookupTables::convertHcal(unsigned short hcal, int iAbsEta) const
+float L1RCTLookupTables::convertHcal(unsigned short hcal, unsigned short iAbsEta) const
 {
   if(transcoder_ != 0)
     {

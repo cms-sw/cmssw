@@ -13,6 +13,8 @@
 #include "CondFormats/L1TObjects/interface/L1RCTParameters.h"
 #include "CondFormats/DataRecord/interface/L1RCTParametersRcd.h"
 
+#include "CalibCalorimetry/EcalTPGTools/interface/EcalTPGScale.h"
+
 #include "L1Trigger/RegionalCaloTrigger/interface/L1RCT.h"
 #include "L1Trigger/RegionalCaloTrigger/interface/L1RCTLookupTables.h" 
 
@@ -67,10 +69,15 @@ void L1RCTProducer::produce(edm::Event& event, const edm::EventSetup& eventSetup
   edm::ESHandle<L1CaloEtScale> emScale;
   eventSetup.get<L1EmEtScaleRcd>().get(emScale);
   const L1CaloEtScale* s = emScale.product();
+
+  EcalTPGScale* e = new EcalTPGScale();
+  e->setEventSetup(eventSetup);
+
   rctLookupTables->setRCTParameters(r);
   rctLookupTables->setTranscoder(t);
   rctLookupTables->setL1CaloEtScale(s);
-  
+  rctLookupTables->setEcalTPGScale(e);
+
   edm::Handle<EcalTrigPrimDigiCollection> ecal;
   edm::Handle<HcalTrigPrimDigiCollection> hcal;
   
@@ -211,7 +218,9 @@ void L1RCTProducer::produce(edm::Event& event, const edm::EventSetup& eventSetup
 		  ecalColl[sample].push_back(ecalDigi);
 		}
 	    }
+	  //std::cout << "ecal sample loop done" << std::endl;
 	}
+      //std::cout << "ecal digi iteration done" << std::endl;
     }
   if (hcal.isValid()) 
     { 
@@ -348,4 +357,5 @@ void L1RCTProducer::produce(edm::Event& event, const edm::EventSetup& eventSetup
   event.put(rctEmCands);
   event.put(rctRegions);
 
+  delete e;
 }

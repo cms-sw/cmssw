@@ -4,6 +4,7 @@
 class L1RCTParameters;
 class CaloTPGTranscoder;
 class L1CaloEtScale;
+class EcalTPGScale;
 
 class L1RCTLookupTables {
  
@@ -29,6 +30,11 @@ class L1RCTLookupTables {
   void setL1CaloEtScale(const L1CaloEtScale* etScale)
     {
       etScale_ = etScale;
+    }
+  // ditto for ecalTPGScale
+  void setEcalTPGScale(EcalTPGScale* ecalScale)
+    {
+      ecalScale_ = ecalScale;
     }
 
   const L1RCTParameters* rctParameters() const {return rctParameters_;}
@@ -57,13 +63,14 @@ class L1RCTLookupTables {
 
   // helper functions
 
-  float convertEcal(unsigned short ecal, int iAbsEta) const;
-  float convertHcal(unsigned short hcal, int iAbsEta) const;
+  float convertEcal(unsigned short ecal, unsigned short iAbsEta, unsigned short iPhi, short sign) const;
+  float convertHcal(unsigned short hcal, unsigned short iAbsEta) const;
   unsigned long convertToInteger(float et, float lsb, int precision) const;
 
   const L1RCTParameters* rctParameters_;
   const CaloTPGTranscoder* transcoder_;
   const L1CaloEtScale* etScale_;
+  EcalTPGScale* ecalScale_;
 
 };
 #endif
