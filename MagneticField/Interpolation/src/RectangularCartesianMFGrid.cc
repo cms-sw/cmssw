@@ -10,6 +10,23 @@ RectangularCartesianMFGrid::RectangularCartesianMFGrid( binary_ifstream& inFile,
 							const GloballyPositioned<float>& vol)
   : MFGrid3D(vol)
 {
+
+  // The parameters read from the data files are given in global coordinates.
+  // In version 85l, local frame has the same orientation of global frame for the reference
+  // volume, i.e. the r.f. transformation is only a translation.
+  // There is therefore no need to convert the field values to local coordinates.
+  // Check this assumption: 
+  GlobalVector localXDir(frame().toGlobal(LocalVector(1,0,0)));
+  GlobalVector localYDir(frame().toGlobal(LocalVector(0,1,0)));
+
+  if (localXDir.dot(GlobalVector(1,0,0)) > 0.999999 &&
+      localYDir.dot(GlobalVector(0,1,0)) > 0.999999) {
+    // "null" rotation - requires no conversion...
+  } else {
+    cout << "ERROR: RectangularCartesianMFGrid: unexpected orientation: x: " 
+	 << localXDir << " y: " << localYDir << endl;
+  }
+
   int n1, n2, n3;
   inFile >> n1 >> n2 >> n3;
   double xref, yref, zref;
@@ -28,7 +45,7 @@ RectangularCartesianMFGrid::RectangularCartesianMFGrid( binary_ifstream& inFile,
   string lastEntry;
   inFile >> lastEntry;
   if (lastEntry != "complete"){
-    cout << "error during file reading: file is not complete" << endl;
+    cout << "ERROR during file reading: file is not complete" << endl;
   }
 
   GlobalPoint grefp( xref, yref, zref);
@@ -75,7 +92,7 @@ RectangularCartesianMFGrid::uncheckedValueInTesla( const LocalPoint& p) const
 //   TimeMe t(timer,false);
 
   LinearGridInterpolator3D<GridType::ValueType, GridType::Scalar> interpol( grid_);
-  GridType::ValueType value = interpol( p.x(), p.y(), p.z());
+  GridType::ValueType value = interpol.interpolate( p.x(), p.y(), p.z());
   return LocalVector(value);
 }
 

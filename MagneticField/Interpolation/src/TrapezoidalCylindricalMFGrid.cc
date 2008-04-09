@@ -3,9 +3,6 @@
 #include "MagneticField/Interpolation/src/LinearGridInterpolator3D.h"
 #include "MagneticField/VolumeGeometry/interface/MagExceptions.h"
 
-// #include "Utilities/Notification/interface/TimingReport.h"
-// #include "Utilities/UI/interface/SimpleConfigurable.h"
-
 #include <iostream>
 
 using namespace std;
@@ -14,6 +11,22 @@ TrapezoidalCylindricalMFGrid::TrapezoidalCylindricalMFGrid( binary_ifstream& inF
 							const GloballyPositioned<float>& vol)
   : MFGrid3D(vol)
 {
+  // The parameters read from the data files are given in global coordinates.
+  // In version 85l, local frame has the same orientation of global frame for the reference
+  // volume, i.e. the r.f. transformation is only a translation.
+  // There is therefore no need to convert the field values to local coordinates.
+  // Check this assumption: 
+  GlobalVector localXDir(frame().toGlobal(LocalVector(1,0,0)));
+  GlobalVector localYDir(frame().toGlobal(LocalVector(0,1,0)));
+
+  if (localXDir.dot(GlobalVector(1,0,0)) > 0.999999 &&
+      localYDir.dot(GlobalVector(0,1,0)) > 0.999999) {
+    // "null" rotation - requires no conversion...
+  } else {
+    cout << "ERROR: TrapezoidalCylindricalMFGrid: unexpected orientation: x: " 
+	 << localXDir << " y: " << localYDir << endl;
+  }
+
   int n1, n2, n3;
   inFile >> n1 >> n2 >> n3;
   double xref, yref, zref;
@@ -44,7 +57,7 @@ TrapezoidalCylindricalMFGrid::TrapezoidalCylindricalMFGrid( binary_ifstream& inF
   string lastEntry;
   inFile >> lastEntry;
   if (lastEntry != "complete") {
-    cout << "error during file reading: file is not complete" << endl;
+    cout << "ERROR during file reading: file is not complete" << endl;
   }
 
 #ifdef DEBUG_GRID
@@ -126,7 +139,7 @@ TrapezoidalCylindricalMFGrid::uncheckedValueInTesla( const LocalPoint& p) const
   LinearGridInterpolator3D<GridType::ValueType, GridType::Scalar> interpol( grid_);
   double a, b, c;
   toGridFrame( p, a, b, c);
-  GlobalVector gv( interpol( a, b, c)); // grid in global frame
+  GlobalVector gv( interpol.interpolate( a, b, c)); // grid in global frame
   return frame().toLocal(gv);           // must return a local vector
 }
 

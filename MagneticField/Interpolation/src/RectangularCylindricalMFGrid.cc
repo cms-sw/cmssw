@@ -9,6 +9,22 @@ RectangularCylindricalMFGrid::RectangularCylindricalMFGrid( binary_ifstream& inF
 							    const GloballyPositioned<float>& vol)
   : MFGrid3D(vol)
 {
+  // The parameters read from the data files are given in global coordinates.
+  // In version 85l, local frame has the same orientation of global frame for the reference
+  // volume, i.e. the r.f. transformation is only a translation.
+  // There is therefore no need to convert the field values to local coordinates.
+  // Check this assumption: 
+  GlobalVector localXDir(frame().toGlobal(LocalVector(1,0,0)));
+  GlobalVector localYDir(frame().toGlobal(LocalVector(0,1,0)));
+
+  if (localXDir.dot(GlobalVector(1,0,0)) > 0.999999 &&
+      localYDir.dot(GlobalVector(0,1,0)) > 0.999999) {
+    // "null" rotation - requires no conversion...
+  } else {
+    cout << "ERROR: RectangularCylindricalMFGrid: unexpected orientation: x: " 
+	 << localXDir << " y: " << localYDir << endl;
+  }
+
   int n1, n2, n3;
   inFile >> n1 >> n2 >> n3;
   double xref, yref, zref;
@@ -27,7 +43,7 @@ RectangularCylindricalMFGrid::RectangularCylindricalMFGrid( binary_ifstream& inF
   string lastEntry;
   inFile >> lastEntry;
   if (lastEntry != "complete"){
-    cout << "error during file reading: file is not complete" << endl;
+    cout << "ERROR during file reading: file is not complete" << endl;
   }
 
   GlobalPoint grefp( GlobalPoint::Cylindrical( xref, yref, zref));
@@ -68,11 +84,7 @@ void RectangularCylindricalMFGrid::dump() const
 
 MFGrid::LocalVector RectangularCylindricalMFGrid::uncheckedValueInTesla( const LocalPoint& p) const
 {
-//   static TimingReport::Item & timer= (*TimingReport::current())["MagneticFieldProvider::uncheckedValueInTesla(RectangularCylindricalMFGrid)"];
-//   TimeMe t(timer,false);
-
   const float minimalSignificantR = 1e-6; // [cm], points below this radius are treated as zero radius
-  LinearGridInterpolator3D<GridType::ValueType, GridType::Scalar> interpol( grid_);
   float R = p.perp();
   if (R < minimalSignificantR) {
     if (grid_.grida().lower() < minimalSignificantR) {
@@ -82,10 +94,11 @@ MFGrid::LocalVector RectangularCylindricalMFGrid::uncheckedValueInTesla( const L
       return result;
     }
   }
-
+  
+  LinearGridInterpolator3D<GridType::ValueType, GridType::Scalar> interpol( grid_);
   // FIXME: "OLD" convention of phi.
   // GridType::ValueType value = interpol( R, Geom::pi() - p.phi(), p.z());
-  GridType::ValueType value = interpol( R, p.phi(), p.z());
+  GridType::ValueType value = interpol.interpolate( R, p.phi(), p.z());
   return LocalVector(value);
 }
 
