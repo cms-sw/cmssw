@@ -69,7 +69,7 @@ class L1MuDTPhiLut {
       
   private:
 
-    typedef std::map<int, int, std::less<int> > LUT;
+    typedef std::map<short, short, std::less<short> > LUT;
 
     std::vector<LUT> phi_lut;
     

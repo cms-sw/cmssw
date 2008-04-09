@@ -40,7 +40,7 @@ class L1MuDTEtaPatternLut {
 
   public:
 
-    typedef std::map<int, L1MuDTEtaPattern, std::less<int> > LUT;
+    typedef std::map<short, L1MuDTEtaPattern, std::less<short> > LUT;
     typedef LUT::const_iterator ETFLut_iter;
     typedef LUT::iterator       ETFLut_Iter;
     

@@ -69,7 +69,7 @@ class L1MuDTPtaLut {
 
   private:
 
-    typedef std::map<int, int, std::less<int> > LUT;
+    typedef std::map<short, short, std::less<short> > LUT;
 
     std::vector<LUT> pta_lut;
     std::vector<int> pta_threshold;

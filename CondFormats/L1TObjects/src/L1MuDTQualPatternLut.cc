@@ -133,7 +133,7 @@ int L1MuDTQualPatternLut::load() {
       int num = file.readInteger();
       if ( !file.good() ) break;
 
-      vector<int> patternlist;
+      vector<short> patternlist;
       for ( int i = 0; i < num; i++ ) {
         int pattern = file.readInteger();
         patternlist.push_back(pattern);
@@ -178,8 +178,8 @@ void L1MuDTQualPatternLut::print() const {
     cout << setw(2) << (*iter).first.second << "  "
          << setw(3) << (*iter).second.first << "  "
          << setw(5) << (*iter).second.second.size() << " : ";
-    const vector<int>& patternlist = (*iter).second.second;
-    vector<int>::const_iterator it;
+    const vector<short>& patternlist = (*iter).second.second;
+    vector<short>::const_iterator it;
     for ( it = patternlist.begin(); it != patternlist.end(); it++ ) {
       cout << setw(5) << (*it) << " ";
     }
@@ -210,7 +210,7 @@ int L1MuDTQualPatternLut::getCoarseEta(int sp, int adr) const {
 //
 // get list of qualified patterns for a given sector processor [1-6] and address [1-22]
 //
-const vector<int>& L1MuDTQualPatternLut::getQualifiedPatterns(int sp, int adr) const {
+const vector<short>& L1MuDTQualPatternLut::getQualifiedPatterns(int sp, int adr) const {
 
   LUT::const_iterator it = m_lut.find(make_pair(sp,adr));
   if ( it == m_lut.end() ) {
