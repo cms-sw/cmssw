@@ -1,8 +1,9 @@
 /*
  * \class TrackerSeedCleaner
- *  Seeds Cleaner based on direction
- *  $Date: 2008/03/03 15:36:14 $
- *  $Revision: 1.1 $
+ *  Reference class for seeds cleaning
+ *  Seeds Cleaner based on sharedHits cleaning, direction cleaning and pt cleaning
+ *  $Date: 2008/03/21 14:47:26 $
+ *  $Revision: 1.2 $
     \author A. Grelli -  Purdue University, Pavia University
  */
 
@@ -45,6 +46,8 @@ using namespace edm;
 void TrackerSeedCleaner::init(const MuonServiceProxy *service){
 
   theProxyService = service;
+  
+  theRedundantCleaner = new RedundantSeedCleaner();
 }
 
 //
@@ -59,7 +62,14 @@ void TrackerSeedCleaner::setEvent(const edm::Event& event)
 // clean seeds
 //
 void TrackerSeedCleaner::clean( const reco::TrackRef& muR, const RectangularEtaPhiTrackingRegion& region, tkSeeds& seeds ) {
- 
+
+
+ /*call the cleaner from shared hits. 
+   This is the first step of cleaning. The default option in .cfi is cleaner on.
+ */
+
+ if(cleanBySharedHits) theRedundantCleaner->define(seeds);
+
  theProxyService->eventSetup().get<TransientRecHitRecord>().get(builderName_,theTTRHBuilder);
 
  LogDebug("TrackerSeedCleaner")<<seeds.size()<<" trajectory seeds to the events before cleaning"<<endl; 
@@ -118,8 +128,9 @@ void TrackerSeedCleaner::clean( const reco::TrackRef& muR, const RectangularEtaP
             result.push_back(*seed);
             LogDebug("TrackerSeedCleaner")<<" Keeping the seed : this seed passed pt and direction selection";
         }
+        
         // use only angle default option
-        if( inEtaRange && inPhiRange && !usePt_Cleaner) {
+        if( inEtaRange && inPhiRange && !usePt_Cleaner && useDirection_Cleaner) {
 
             result.push_back(*seed);
             LogDebug("TrackerSeedCleaner")<<" Keeping the seed : this seed passed direction selection";
@@ -130,10 +141,13 @@ void TrackerSeedCleaner::clean( const reco::TrackRef& muR, const RectangularEtaP
                                       <<" phi for current seed "<<phiSeed<<"\n"
                                       <<" eta for L2 track  "<<muR->eta()<<"\n"
                                       <<" phi for L2 track  "<<muR->phi()<<"\n";
+
+
   }
 
    //the new seeds collection
-   seeds.swap(result);
+     
+   if(useDirection_Cleaner || usePt_Cleaner && seeds.size() >= 10) seeds.swap(result);
 
    LogDebug("TrackerSeedCleaner")<<seeds.size()<<" trajectory seeds to the events after cleaning"<<endl;
  
