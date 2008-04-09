@@ -62,10 +62,10 @@ class CnBAnalyzer : public edm::EDAnalyzer {
   int swapOn_;
 
   // Number for event info for plots
-  int runNumber_;
 
   // Name of output file
-  string outputFileName_;
+  std::string outputFileName_;
+  std::string outputFileDir_;
 
   // vector of addresses to get median value for "golden address" which should match the apve address
   // TODO: add median calculation in wrong apv addresses
@@ -77,8 +77,8 @@ class CnBAnalyzer : public edm::EDAnalyzer {
   std::vector<uint16_t> fedIds_;
 
   // Functions to book histograms in the output
-  void createRootFedHistograms( const int& runNumber );
-  void createDetailedFedHistograms( const uint16_t& fed_id, const int& runNumber );
+  void createRootFedHistograms();
+  void createDetailedFedHistograms( const uint16_t& fed_id );
 
   // The first and last valid FedID for the Tracker
   std::pair<int,int> fedIdBoundaries_;

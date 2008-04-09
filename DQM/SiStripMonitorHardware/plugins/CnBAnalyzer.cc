@@ -23,7 +23,7 @@ CnBAnalyzer::CnBAnalyzer(const edm::ParameterSet& iConfig) {
   // Parameters for working with S-link and dumping the hex buffer
   swapOn_ = iConfig.getUntrackedParameter<int>("swapOn");
   outputFileName_ = iConfig.getUntrackedParameter<string>("rootFile");
-  runNumber_ = iConfig.getUntrackedParameter<int>("runNumber");  
+  outputFileDir_ = iConfig.getUntrackedParameter<string>("rootFileDirectory");
   
   // FED address mapping is obtained through
   // FEDNumberting object: use and throw !
@@ -45,6 +45,8 @@ void CnBAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
   using namespace edm;
   using namespace std;
 
+  // TODO: refuse to run if we are in Scope mode
+
   // Retrieve FED raw data ("source" label is now fixed by framework)
   edm::Handle<FEDRawDataCollection> buffers;
   iEvent.getByType( buffers );
@@ -56,8 +58,10 @@ void CnBAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
     }
   }
   
+#ifdef CNBANALYZER_DEBUG
   LogInfo("FEDBuffer") << "Number of Tracker Fed Buffers:" << fedIds_.size();
   LogInfo("FEDBuffer") << "EVENTNUMB: " << iEvent.id().event();
+#endif
 
 
   /**************************/
@@ -75,8 +79,10 @@ void CnBAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
   vector<uint16_t>::const_iterator ifed;
   for (ifed = fedIds_.begin() ; ifed != fedIds_.end(); ifed++ ) {
     
+#ifdef CNBANALYZER_DEBUG
     LogInfo("FEDBuffer") << "A FED event: ";
-    createDetailedFedHistograms((*ifed), runNumber_);
+#endif
+    createDetailedFedHistograms((*ifed));
     
     // Retrieve FED raw data for given FED... there it is :)      
     const FEDRawData& input = buffers->FEDData( static_cast<int>(*ifed) );
@@ -93,6 +99,8 @@ void CnBAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
     if (myEventAnalyzer.Initialize(data_u32, size_u32)) {
       
       LogInfo("FEDBuffer") << "FEDevent correctly initialized";
+#ifdef CNBANALYZER_DEBUG
+#endif
       
       // The Fed9UErrorCondition structure may cointain all the relevant
       // errors specific to the event
@@ -109,15 +117,19 @@ void CnBAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
       if (thisFedEventErrs.internalFreeze) fedFreeze_->Fill(*ifed);
       if (thisFedEventErrs.bxError) fedBx_->Fill(*ifed);
   
+#ifdef CNBANALYZER_DEBUG
       LogInfo("FEDBuffer") << "total_enabled = " << total_enabled_channels;
       LogInfo("FEDBuffer") << "total_faulty = " << total_faulty_channels;
       LogInfo("FEDBuffer") << "internalFreeze = " << thisFedEventErrs.internalFreeze;
       LogInfo("FEDBuffer") << "bxError = " << thisFedEventErrs.bxError;
+#endif
       
       // Fill the Front-end failure counters 
       for (unsigned int iFrontEnd=0; iFrontEnd<8; iFrontEnd++) {
+#ifdef CNBANALYZER_DEBUG
 	LogInfo("FEDBuffer") << "feOverflow[" << iFrontEnd << "] = " << thisFedEventErrs.feOverflow[iFrontEnd];
 	LogInfo("FEDBuffer") << "apvAddressError[" << iFrontEnd << "] = " << thisFedEventErrs.apvAddressError[iFrontEnd];
+#endif
 
 	if (thisFedEventErrs.feOverflow[iFrontEnd])
 	  feOverFlow_[*ifed]->Fill(iFrontEnd*24+1);
@@ -128,7 +140,10 @@ void CnBAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
       
       // Fill the channel failure counters 
       for (unsigned int iChannel=0; iChannel<96; iChannel++) {
+
+#ifdef CNBANALYZER_DEBUG
 	LogInfo("FEDBuffer") << "channel[" << iChannel << "] = " << hex << thisFedEventErrs.channel[iChannel];
+#endif
 
 	if (thisFedEventErrs.channel[iChannel]==Fed9UEventAnalyzer::FIBERUNLOCKED)
 	  chanErrUnlock_[*ifed]->Fill(iChannel*2+1);
@@ -139,7 +154,9 @@ void CnBAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
     
       // apv[96*2]
       for (unsigned int iApv=0; iApv<192; iApv++) {
+#ifdef CNBANALYZER_DEBUG
 	LogInfo("FEDBuffer") << "apv[" << iApv << "] = " << hex << thisFedEventErrs.apv[iApv];
+#endif
 
 	if (thisFedEventErrs.apv[iApv])
 	  badApv_[*ifed]->Fill(iApv+1);
@@ -164,13 +181,13 @@ void
 CnBAnalyzer::beginJob(const edm::EventSetup& iSetup)
 {
   
-  createRootFedHistograms(runNumber_);
+  createRootFedHistograms();
 
 }
 
 // The following method should be called
 // at the job initialization by beginJob()
-void CnBAnalyzer::createRootFedHistograms( const int& runNumber ) {
+void CnBAnalyzer::createRootFedHistograms() {
 
   dbe->setCurrentFolder("");
 
@@ -203,17 +220,9 @@ void CnBAnalyzer::createRootFedHistograms( const int& runNumber ) {
 				 "Faulty channels vs. Event for all FEDs",
 				 1001, 0.5, 1000.5);
 
-  // TODO: find a better solution for the trend plot. Better than booking only the first 1001 events...!
-
-
-  // Previous plots have a bin for every *possible* Tracker FED
-  // The directory specific to each FED is build on-demand (data driven)
-  // by means of the following method:
-  // createDetailedFedHistograms(fedId, runNumber);
-
 }
 
-void CnBAnalyzer::createDetailedFedHistograms( const uint16_t& fed_id, const int& runNumber ) {
+void CnBAnalyzer::createDetailedFedHistograms( const uint16_t& fed_id ) {
 
   std::map<uint16_t, bool>::iterator itFeds;
 
@@ -269,8 +278,11 @@ void CnBAnalyzer::createDetailedFedHistograms( const uint16_t& fed_id, const int
 // ------------ method called once each job just after ending the event loop  ------------
 void CnBAnalyzer::endJob() {
 
-  dbe->showDirStructure();
-  dbe->save(outputFileName_);
+  if (outputFileName_!="") {
+    dbe->showDirStructure();
+    std::string completeFileName = outputFileDir_ + std::string("/test_") + outputFileName_;
+    dbe->save(completeFileName);
+  }
 
 }
 
