@@ -26,7 +26,7 @@ void SiStripBadChannelBuilder::algoAnalyze(const edm::Event & event, const edm::
 
   edm::LogInfo("SiStripBadChannelBuilder") << "... creating dummy SiStripBadStrip Data for Run " << run << "\n " << std::endl;
   
-  obj = new SiStripBadStrip();
+  SiStripBadStrip* obj = new SiStripBadStrip();
 
   SiStripDetInfoFileReader reader(fp_.fullPath());
   
@@ -85,6 +85,20 @@ void SiStripBadChannelBuilder::algoAnalyze(const edm::Event & event, const edm::
     if ( ! obj->put(BadModule_,range) )
     edm::LogError("SiStripBadChannelBuilder")<<"[SiStripBadChannelBuilder::analyze] detid already exists"<<std::endl;
   }
+ //End now write sistripbadChannel data in DB
+  edm::Service<cond::service::PoolDBOutputService> mydbservice;
+
+  if( mydbservice.isAvailable() ){
+    if ( mydbservice->isNewTagRequest("SiStripBadStripRcd") ){
+      mydbservice->createNewIOV<SiStripBadStrip>(obj,mydbservice->beginOfTime(),mydbservice->endOfTime(),"SiStripBadStripRcd");
+    } else {
+      //mydbservice->createNewIOV<SiStripBadStrip>(obj,mydbservice->currentTime(),"SiStripBadStripRcd");
+      mydbservice->appendSinceTime<SiStripBadStrip>(obj,mydbservice->currentTime(),"SiStripBadStripRcd");
+    }
+  }else{
+    edm::LogError("SiStripBadStripBuilder")<<"Service is unavailable"<<std::endl;
+  }
+
 }
 
 
