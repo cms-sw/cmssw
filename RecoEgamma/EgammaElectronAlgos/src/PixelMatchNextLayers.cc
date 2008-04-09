@@ -13,7 +13,7 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: PixelMatchNextLayers.cc,v 1.7 2008/02/21 15:41:52 uberthon Exp $
+// $Id: PixelMatchNextLayers.cc,v 1.9 2008/02/27 12:54:58 uberthon Exp $
 //
 //
 
@@ -91,6 +91,8 @@ PixelMatchNextLayers::PixelMatchNextLayers(const LayerMeasurements * theLayerMea
 	      
 	      for (aMeas m=pixelMeasurements.begin(); m!=pixelMeasurements.end(); m++)
 		{
+		  // limit search in first ring
+		  if (TIDDetId(m->recHit()->geographicalId()).ring() > 1) continue;
 		  if (m == pixelMeasurements.begin())
 		    {
 		      Hep3Vector prediction(m->forwardPredictedState().globalPosition().x(),
@@ -115,6 +117,9 @@ PixelMatchNextLayers::PixelMatchNextLayers(const LayerMeasurements * theLayerMea
 	      	      
 	      for (aMeas m=pixelMeasurements.begin(); m!=pixelMeasurements.end(); m++)
 		{
+		  // limit search in first ring and first third wheels
+		  if (TECDetId(m->recHit()->geographicalId()).ring() > 1) continue;
+		  if (TECDetId(m->recHit()->geographicalId()).wheel() > 3) continue;
 		  if (m == pixelMeasurements.begin())
 		    {
 		      Hep3Vector prediction(m->forwardPredictedState().globalPosition().x(),
