@@ -16,8 +16,6 @@ int main(int argc, char **argv) {
 	 << " prepareFieldTable /afs/cern.ch/cms/OO/mag_field/version_85l_030919/v-xyz-217.table grid.217.bin" << endl;
       return 1;  
   }
-//   const string filename1 = "/afs/cern.ch/cms/OO/mag_field/version_85l_030919/v-xyz-217.table";
-//   const string filename2 = "/afs/cern.ch/cms/OO/mag_field/grid_85l_030919/grid-217.bin";
 
   string filename1 = argv[1];
   string filename2 = argv[2];
@@ -46,7 +44,11 @@ int main(int argc, char **argv) {
   type = MFG002.gridType();                         // grid type
   if (type == 0) cout << "  special grid sructure detection failed " << endl;
   if (MFG002.isReady())  MFG002.validateAllPoints();                // check position of every point
-  if (MFG002.isReady())  MFG002.saveGridToFile(filename2);          // write grid to disk
-  cout << " " << endl;
-  return(0);
+  if (MFG002.isReady())  {
+    MFG002.saveGridToFile(filename2);          // write grid to disk
+    cout << " " << endl;
+    return 0;
+  } 
+
+  return 1;
 }
