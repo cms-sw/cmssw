@@ -156,6 +156,7 @@ class bootstrap:
                 print '###Mapping : ',mappingxmlfile
                 print '###Dictionary : ',dict
     def execute(self):
+        os.environ['CORAL_AUTH_PATH']=self.__authpath
         if self.__all is False:
             commands=[]
             c=self.__connect
