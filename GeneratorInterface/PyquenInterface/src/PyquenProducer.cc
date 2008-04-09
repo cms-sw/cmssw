@@ -3,15 +3,15 @@
  * Generates PYQUEN HepMC events
  *
  * Original Author: Camelia Mironov
- * $Id: PyquenSource.cc,v 1.12 2008/04/09 16:43:53 yilmaz Exp $
+ * $Id: PyquenProducer.cc,v 1.10 2008/01/24 15:35:07 yilmaz Exp $
 */
 
 #include <iostream>
 #include "time.h"
 
-#include "GeneratorInterface/PyquenInterface/interface/PyquenSource.h"
-#include "GeneratorInterface/PyquenInterface/interface/PYR.h"
+#include "GeneratorInterface/PyquenInterface/interface/PyquenProducer.h"
 #include "GeneratorInterface/PyquenInterface/interface/PyquenWrapper.h"
+#include "GeneratorInterface/PyquenInterface/interface/PYR.h"
 #include "GeneratorInterface/CommonInterface/interface/PythiaCMS.h"
 
 #include "SimDataFormats/HepMCProduct/interface/GenInfoProduct.h"
@@ -21,6 +21,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/RandomNumberGenerator.h"
+#include "CLHEP/Random/RandomEngine.h"
 
 #include "HepMC/IO_HEPEVT.h"
 #include "HepMC/PythiaWrapper.h"
@@ -28,10 +29,10 @@
 using namespace edm;
 using namespace std;
 
-HepMC::IO_HEPEVT hepevtio;
+HepMC::IO_HEPEVT hepevtio2;
 
-PyquenSource :: PyquenSource(const ParameterSet & pset, InputSourceDescription const& desc):
-GeneratedInputSource(pset, desc), evt(0), 
+PyquenProducer :: PyquenProducer(const ParameterSet & pset):
+EDProducer(), evt(0), 
 abeamtarget_(pset.getParameter<double>("aBeamTarget")),
 angularspecselector_(pset.getParameter<int>("angularSpectrumSelector")),
 bfixed_(pset.getParameter<double>("bFixed")),
@@ -45,7 +46,8 @@ qgpt0_(pset.getParameter<double>("qgpInitialTemperature")),
 qgptau0_(pset.getParameter<double>("qgpProperTimeFormation")),
 maxEventsToPrint_(pset.getUntrackedParameter<int>("maxEventsToPrint",1)),
 pythiaHepMCVerbosity_(pset.getUntrackedParameter<bool>("pythiaHepMCVerbosity",false)),
-pythiaPylistVerbosity_(pset.getUntrackedParameter<int>("pythiaPylistVerbosity",0))
+pythiaPylistVerbosity_(pset.getUntrackedParameter<int>("pythiaPylistVerbosity",0)),
+eventNumber_(0)
 {
   // Default constructor
 
@@ -79,7 +81,7 @@ pythiaPylistVerbosity_(pset.getUntrackedParameter<int>("pythiaPylistVerbosity",0
 
 
 //_____________________________________________________________________
-PyquenSource::~PyquenSource()
+PyquenProducer::~PyquenProducer()
 {
   // distructor
 
@@ -90,7 +92,7 @@ PyquenSource::~PyquenSource()
 
 
 //_____________________________________________________________________
-void PyquenSource::add_heavy_ion_rec(HepMC::GenEvent *evt)
+void PyquenProducer::add_heavy_ion_rec(HepMC::GenEvent *evt)
 {
   HepMC::HeavyIon *hi = new HepMC::HeavyIon(
     -1,                                 // Ncoll_hard
@@ -109,13 +111,11 @@ void PyquenSource::add_heavy_ion_rec(HepMC::GenEvent *evt)
   );
 
   evt->set_heavy_ion(*hi);
-
-  delete hi;
 }
 
 
 //______________________________________________________________________
-bool PyquenSource::call_pygive(const std::string& iParm ) 
+bool PyquenProducer::call_pygive(const std::string& iParm ) 
 {
   // Set Pythia parameters
 
@@ -130,13 +130,13 @@ bool PyquenSource::call_pygive(const std::string& iParm )
 
 
 //____________________________________________________________________
-void PyquenSource::clear()
+void PyquenProducer::clear()
 {
 }
 
 
 //_____________________________________________________________________
-bool PyquenSource::produce(Event & e)
+void PyquenProducer::produce(Event & e, const EventSetup& es)
 {
   edm::LogInfo("PYQUENabeamtarget") << "##### PYQUEN: beam/target A = "                     << abeamtarget_;
   edm::LogInfo("PYQUENcflag")       << "##### PYQUEN: centrality flag cflag_ = "            << cflag_;
@@ -165,10 +165,11 @@ bool PyquenSource::produce(Event & e)
   call_pyhepc(1);
 
   // event information
-  HepMC::GenEvent* evt = hepevtio.read_next_event();
+  HepMC::GenEvent* evt = hepevtio2.read_next_event();
   evt->set_signal_process_id(pypars.msti[0]);      // type of the process
   evt->set_event_scale(pypars.pari[16]);           // Q^2
-  evt->set_event_number(numberEventsInRun() - remainingEvents() - 1);
+  ++eventNumber_;
+  evt->set_event_number(eventNumber_);
 
   add_heavy_ion_rec(evt);
 
@@ -177,7 +178,7 @@ bool PyquenSource::produce(Event & e)
   e.put(bare_product); 
 
   // verbosity
-  if( event() <= maxEventsToPrint_ && ( pythiaPylistVerbosity_ || pythiaHepMCVerbosity_ )) { 
+  if( e.id().event() <= maxEventsToPrint_ && ( pythiaPylistVerbosity_ || pythiaHepMCVerbosity_ )) { 
     // Prints PYLIST info
      if( pythiaPylistVerbosity_ ){
        call_pylist(pythiaPylistVerbosity_);
@@ -190,18 +191,18 @@ bool PyquenSource::produce(Event & e)
      }
   }
     
-  return true;
+  return;
 }
 
 
 //_____________________________________________________________________
-bool PyquenSource::pyqpythia_init(const ParameterSet & pset)
+bool PyquenProducer::pyqpythia_init(const ParameterSet & pset)
 {
   //initialize PYTHIA
 
   //random number seed
   edm::Service<RandomNumberGenerator> rng;
- randomEngine = &(rng->getEngine());
+  randomEngine = fRandomEngine = &(rng->getEngine());
   uint32_t seed = rng->mySeed();
   ostringstream sRandomSet;
   sRandomSet << "MRPY(1)=" << seed;
@@ -250,7 +251,7 @@ bool PyquenSource::pyqpythia_init(const ParameterSet & pset)
 
 
 //_________________________________________________________________
-bool PyquenSource::pyquen_init(const ParameterSet &pset)
+bool PyquenProducer::pyquen_init(const ParameterSet &pset)
 {
   // PYQUEN initialization
 
