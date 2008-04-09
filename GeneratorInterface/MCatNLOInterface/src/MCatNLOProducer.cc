@@ -5,12 +5,15 @@
  */
 
 
-#include "GeneratorInterface/MCatNLOInterface/interface/MCatNLOSource.h"
+#include "GeneratorInterface/MCatNLOInterface/interface/MCatNLOProducer.h"
 #include "GeneratorInterface/MCatNLOInterface/interface/HWRGEN.h"
 #include "GeneratorInterface/MCatNLOInterface/interface/Dummies.h"
 #include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
 #include "FWCore/Framework/interface/Event.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/RandomNumberGenerator.h"
+#include "CLHEP/Random/JamesRandom.h"
+#include "CLHEP/Random/RandFlat.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "SimDataFormats/HepMCProduct/interface/GenInfoProduct.h"
@@ -22,6 +25,7 @@
 #include <ctype.h>
 
 // include Herwig stuff
+#include "HepMC/HEPEVT_Wrapper.h"
 #include "HepMC/HerwigWrapper6_4.h"
 #include "HepMC/IO_HERWIG.h"
 #include "herwig.h"
@@ -44,8 +48,8 @@ extern"C" {
 using namespace edm;
 using namespace std;
 
-MCatNLOSource::MCatNLOSource( const ParameterSet & pset, InputSourceDescription const& desc ) :
-  GeneratedInputSource(pset, desc), evt(0), 
+MCatNLOProducer::MCatNLOProducer( const ParameterSet & pset) :
+  EDProducer(), evt(0), 
   doHardEvents_(pset.getUntrackedParameter<bool>("doHardEvents",true)),
   mcatnloVerbosity_(pset.getUntrackedParameter<int>("mcatnloVerbosity",0)),
   herwigVerbosity_ (pset.getUntrackedParameter<int>("herwigVerbosity",0)),
@@ -53,7 +57,7 @@ MCatNLOSource::MCatNLOSource( const ParameterSet & pset, InputSourceDescription 
   maxEventsToPrint_ (pset.getUntrackedParameter<int>("maxEventsToPrint",0)),
   comenergy(pset.getUntrackedParameter<double>("comEnergy",14000.)),
   processNumber_(pset.getUntrackedParameter<int>("processNumber",0)),
-  numEvents_(pset.getUntrackedParameter<int>("numHardEvents",maxEvents())),
+  numEvents_(pset.getUntrackedParameter<int>("numHardEvents",999999999)),
   stringFileName_(pset.getUntrackedParameter<string>("stringFileName",std::string("stringInput"))),
   lhapdfSetPath_(pset.getUntrackedParameter<string>("lhapdfSetPath",std::string(""))),
   useJimmy_(pset.getUntrackedParameter<bool>("useJimmy",true)),
@@ -66,7 +70,7 @@ MCatNLOSource::MCatNLOSource( const ParameterSet & pset, InputSourceDescription 
    std::ostringstream header_str;
 
   header_str << "----------------------------------------------" << "\n";
-  header_str << "Initializing MCatNLOSource" << "\n";
+  header_str << "Initializing MCatNLOProducer" << "\n";
   header_str << "----------------------------------------------" << "\n";
   /*check for MC@NLO verbosity mode:
                      0 :  print default info
@@ -151,8 +155,9 @@ MCatNLOSource::MCatNLOSource( const ParameterSet & pset, InputSourceDescription 
   header_str << "Setting MCatNLO random number generator seed." << "\n";
   header_str << "----------------------------------------------" << "\n";
   edm::Service<RandomNumberGenerator> rng;
-  randomEngine = &(rng->getEngine());
   int seed = rng->mySeed();
+  fRandomEngine = &(rng->getEngine());
+  randomEngine = fRandomEngine;
   double x[5];
   int s = seed;
   for (int i=0; i<5; i++) {
@@ -541,7 +546,7 @@ MCatNLOSource::MCatNLOSource( const ParameterSet & pset, InputSourceDescription 
 }
 
 
-MCatNLOSource::~MCatNLOSource()
+MCatNLOProducer::~MCatNLOProducer()
 {
   std::ostringstream footer_str;
 
@@ -554,62 +559,62 @@ MCatNLOSource::~MCatNLOSource()
   clear();
 }
 
-void MCatNLOSource::clear() 
+void MCatNLOProducer::clear() 
 {
 
   if(useJimmy_) jmefin();
 }
 
-void MCatNLOSource::processHG() 
+void MCatNLOProducer::processHG() 
 {
   hgmain();
 }
 
-void MCatNLOSource::processLL()
+void MCatNLOProducer::processLL()
 {
   getVpar();
   llmain();
 }
 
-void MCatNLOSource::processVH()
+void MCatNLOProducer::processVH()
 {
   getVpar();
   vhmain();
 }
 
-void MCatNLOSource::processVV()
+void MCatNLOProducer::processVV()
 {
   vbmain();
 }
 
-void MCatNLOSource::processQQ()
+void MCatNLOProducer::processQQ()
 {
   qqmain();
 }
 
-void MCatNLOSource::processSB()
+void MCatNLOProducer::processSB()
 {
   if(processNumber_ != -1396) getVpar();
   sbmain();
 }
 
-void MCatNLOSource::processST()
+void MCatNLOProducer::processST()
 {
   stmain();
 }
 
-void MCatNLOSource::processUnknown(bool positive)
+void MCatNLOProducer::processUnknown(bool positive)
 {
   if(positive)
     throw edm::Exception(edm::errors::Configuration,"MCatNLOError")
-      <<" Unsupported process "<<processNumber_<<". Use Herwig6Interface for positively valued process ID.";
+      <<" Unsupported process "<<processNumber_<<". Use Herwig6Producer for positively valued process ID.";
   else
     throw edm::Exception(edm::errors::Configuration,"MCatNLOError")
-      <<" Unsupported process "<<processNumber_<<". Check MCatNLO manuel for allowed process ID.";
+      <<" Unsupported process "<<processNumber_<<". Check MCatNLO manual for allowed process ID.";
 }
 
 
-bool MCatNLOSource::produce(Event & e) {
+void MCatNLOProducer::produce(Event & e, const EventSetup& es) {
 
   // check if we run out of hard-events. If yes, throw exception...
   eventCounter_++;
@@ -624,7 +629,7 @@ bool MCatNLOSource::produce(Event & e) {
     double eventok = 0.0;
     eventok=hwmsct_dummy(&eventok);
     if(eventok > 0.5) 
-      return true;
+      return;
   }
   
   hwdhob();
@@ -636,7 +641,7 @@ bool MCatNLOSource::produce(Event & e) {
   hwufne();
 
   if(hwevnt.IERROR != 0)
-    return true;
+    return;
 
   // herwig common block conversion
   HepMC::IO_HERWIG conv;
@@ -644,11 +649,11 @@ bool MCatNLOSource::produce(Event & e) {
   HepMC::GenEvent* evt = new HepMC::GenEvent();
   bool ok = conv.fill_next_event( evt );
   if(!ok) throw edm::Exception(edm::errors::EventCorruption,"HerwigError")
-    <<" Conversion problems in event nr."<<numberEventsInRun() - remainingEvents() - 1<<".";  
+    <<" Conversion problems in event nr." << numEvents_ << ".";  
 
   evt->set_signal_process_id(hwproc.IPROC);  
   evt->weights().push_back(hwevnt.EVWGT);
-  evt->set_event_number(numberEventsInRun() - remainingEvents() - 1);
+  evt->set_event_number(numEvents_);
   
 
   if (herwigHepMCVerbosity_) {
@@ -662,11 +667,9 @@ bool MCatNLOSource::produce(Event & e) {
     bare_product->addHepMCData(evt );
     e.put(bare_product);
   }
-  
-  return true;
 }
 
-bool MCatNLOSource::hwgive(const std::string& ParameterString) {
+bool MCatNLOProducer::hwgive(const std::string& ParameterString) {
 
   bool accepted = 1;
 
@@ -1432,7 +1435,7 @@ extern "C" {
 #endif
 
 
-bool MCatNLOSource::give(const std::string& iParm )
+bool MCatNLOProducer::give(const std::string& iParm )
 {
   bool accepted = 1;
   if(!strncmp(iParm.c_str(),"ECM",3))
@@ -1639,7 +1642,7 @@ bool MCatNLOSource::give(const std::string& iParm )
   return accepted;
 }
 
-void MCatNLOSource::getVpar()
+void MCatNLOProducer::getVpar()
 {
   switch(abs(processNumber_)) {
   case(1397):case(11397):
@@ -1680,7 +1683,7 @@ void MCatNLOSource::getVpar()
   }
 }
 
-void MCatNLOSource::createStringFile(const std::string& fileName)
+void MCatNLOProducer::createStringFile(const std::string& fileName)
 {
 
   bool endone = false;
@@ -1747,7 +1750,7 @@ void MCatNLOSource::createStringFile(const std::string& fileName)
   output.close();
 }
 
-void MCatNLOSource::endRun(Run & r) {
+void MCatNLOProducer::endRun(Run & r) {
   hwefin();
   auto_ptr<GenInfoProduct> giprod (new GenInfoProduct());
   intCrossSect = 1000.0*hwevnt.AVWGT;
