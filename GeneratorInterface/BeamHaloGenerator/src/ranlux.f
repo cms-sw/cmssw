@@ -102,41 +102,43 @@ C          as proposed by Marsaglia and Zaman,
 C          Florida State University, March, 1989
 C
       DO 100 IVEC= 1, LENV
-      UNI = SEEDS(J24) - SEEDS(I24) - CARRY 
-      IF (UNI .LT. 0.)  THEN
-         UNI = UNI + 1.0
-         CARRY = TWOM24
-      ELSE
-         CARRY = 0.
-      ENDIF
-      SEEDS(I24) = UNI
-      I24 = NEXT(I24)
-      J24 = NEXT(J24)
-      RVEC(IVEC) = UNI
+*     UNI = SEEDS(J24) - SEEDS(I24) - CARRY 
+*     IF (UNI .LT. 0.)  THEN
+*        UNI = UNI + 1.0
+*        CARRY = TWOM24
+*     ELSE
+*        CARRY = 0.
+*     ENDIF
+*     SEEDS(I24) = UNI
+*     I24 = NEXT(I24)
+*     J24 = NEXT(J24)
+*     RVEC(IVEC) = UNI
+      uni = pyr(idummy)
+      rvec(ivec) = uni
 C  small numbers (with less than 12 "significant" bits) are "padded".
-      IF (UNI .LT. TWOM12)  THEN
-         RVEC(IVEC) = RVEC(IVEC) + TWOM24*SEEDS(J24)
+*     IF (UNI .LT. TWOM12)  THEN
+*        RVEC(IVEC) = RVEC(IVEC) + TWOM24*SEEDS(J24)
 C        and zero is forbidden in case someone takes a logarithm
-         IF (RVEC(IVEC) .EQ. 0.)  RVEC(IVEC) = TWOM24*TWOM24
-      ENDIF
+*        IF (RVEC(IVEC) .EQ. 0.)  RVEC(IVEC) = TWOM24*TWOM24
+*     ENDIF
 C        Skipping to luxury.  As proposed by Martin Luscher.
-      IN24 = IN24 + 1
-      IF (IN24 .EQ. 24)  THEN
-         IN24 = 0
-         KOUNT = KOUNT + NSKIP
-         DO 90 ISK= 1, NSKIP
-         UNI = SEEDS(J24) - SEEDS(I24) - CARRY
-         IF (UNI .LT. 0.)  THEN
-            UNI = UNI + 1.0
-            CARRY = TWOM24
-         ELSE
-            CARRY = 0.
-         ENDIF
-         SEEDS(I24) = UNI
-         I24 = NEXT(I24)
-         J24 = NEXT(J24)
-   90    CONTINUE
-      ENDIF
+*     IN24 = IN24 + 1
+*     IF (IN24 .EQ. 24)  THEN
+*        IN24 = 0
+*        KOUNT = KOUNT + NSKIP
+*        DO 90 ISK= 1, NSKIP
+*        UNI = SEEDS(J24) - SEEDS(I24) - CARRY
+*        IF (UNI .LT. 0.)  THEN
+*           UNI = UNI + 1.0
+*           CARRY = TWOM24
+*        ELSE
+*           CARRY = 0.
+*        ENDIF
+*        SEEDS(I24) = UNI
+*        I24 = NEXT(I24)
+*        J24 = NEXT(J24)
+*  90    CONTINUE
+*     ENDIF
   100 CONTINUE
       KOUNT = KOUNT + LENV
       IF (KOUNT .GE. IGIGA)  THEN

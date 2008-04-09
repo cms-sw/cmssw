@@ -2,9 +2,12 @@ CCC
 CCC from http://cernlib.web.cern.ch/cernlib/download/2005_source/src/mathlib/gen/v/rm48.F
 CCC
 *
-* $Id: rm48.F,v 1.2 1996/12/12 16:32:06 cernlib Exp $
+* $Id: rm48.f,v 1.1 2007/02/06 14:40:25 eperez Exp $
 *
-* $Log: rm48.F,v $
+* $Log: rm48.f,v $
+* Revision 1.1  2007/02/06 14:40:25  eperez
+* first version
+*
 * Revision 1.2  1996/12/12 16:32:06  cernlib
 * Variables ONE and ZERO added to SAVE statement, courtesy R.Veenhof
 *
@@ -121,24 +124,27 @@ C            (NTOT2*MODCNS + NTOT) random numbers
       IF (KALLED .EQ. 1)  RETURN
 C
 C          Normal entry to generate LENV random numbers
+C          Modified 13 Marcch '08 to use the CLHEP engines
    50 CONTINUE
       DO 100 IVEC= 1, LENV
-      UNI = U(I97)-U(J97)
-      IF (UNI .LT. ZERO)  UNI=UNI+ONE
-      U(I97) = UNI
-      I97 = I97-1
-      IF (I97 .EQ. 0)  I97=97
-      J97 = J97-1
-      IF (J97 .EQ. 0)  J97=97
-      C = C - CD
-      IF (C .LT. ZERO)  C=C+CM
-      UNI = UNI-C
-      IF (UNI .LT. ZERO) UNI=UNI+ONE
+*     UNI = U(I97)-U(J97)
+*     IF (UNI .LT. ZERO)  UNI=UNI+ONE
+*     U(I97) = UNI
+*     I97 = I97-1
+*     IF (I97 .EQ. 0)  I97=97
+*     J97 = J97-1
+*     IF (J97 .EQ. 0)  J97=97
+*     C = C - CD
+*     IF (C .LT. ZERO)  C=C+CM
+*     UNI = UNI-C
+*     IF (UNI .LT. ZERO) UNI=UNI+ONE
+*     RVEC(IVEC) = UNI
+      UNI = PYR(IDUMMY)
       RVEC(IVEC) = UNI
 C             Replace exact zeros by 2**-49
-         IF (UNI .EQ. ZERO)  THEN
-            RVEC(IVEC) = TWOM49
-         ENDIF
+*        IF (UNI .EQ. ZERO)  THEN
+*           RVEC(IVEC) = TWOM49
+*        ENDIF
   100 CONTINUE
       NTOT = NTOT + LENV
          IF (NTOT .GE. MODCNS)  THEN
