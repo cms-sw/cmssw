@@ -2,8 +2,6 @@
 #include "MagneticField/Interpolation/src/MagneticFieldGrid.h"
 #include "MagneticField/VolumeGeometry/interface/MagExceptions.h"
 
-// #include "Utilities/Notification/interface/TimingReport.h"
-
 using namespace std;
 
 GlobalGridWrapper::GlobalGridWrapper( const GloballyPositioned<float>& vol,
@@ -16,8 +14,6 @@ GlobalGridWrapper::GlobalGridWrapper( const GloballyPositioned<float>& vol,
 
 MFGrid::LocalVector GlobalGridWrapper::valueInTesla( const LocalPoint& p) const
 {
-//   static TimingReport::Item & timer= (*TimingReport::current())["MagneticFieldProvider::valueInTesla(GlobalGridWrapper)"];
-//   TimeMe t(timer,false);
 
   GlobalPoint gp = frame().toGlobal(p);
   float bx, by, bz;
