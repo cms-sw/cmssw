@@ -5,7 +5,7 @@ MagVolume6Faces::MagVolume6Faces( const PositionType& pos,
 				  DDSolidShape shape,
 				  const std::vector<VolumeSide>& faces,
 				  const MagneticFieldProvider<float> * mfp)
-  : MagVolume(pos,rot,shape,mfp), theFaces(faces), copyno(0) 
+  : MagVolume(pos,rot,shape,mfp),  copyno(0), theFaces(faces)
 {}
 
 bool MagVolume6Faces::inside( const GlobalPoint& gp, double tolerance) const 
