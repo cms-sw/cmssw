@@ -207,7 +207,7 @@ def hlt(process,name):
     theFile.close() 
 
     for path in sortedPaths:
-        if path.startswith("HLT") or path.startswith("CandHLT") of path.startswith("ALCa"):
+        if path.startswith("HLT") or path.startswith("CandHLT") or path.startswith("AlCa"):
             process.schedule.append(getattr(process,path)) 
             common.log ('%s path added  ...'%path)
 
