@@ -1,22 +1,30 @@
-1989  19:36   cmscond_generate_mappingxml -c SiStripFedCabling -P ../src -d CondFormatsSiStripObjects
-  1990  19:36   cmscond_generate_mappingxml -c SiStripPedestals -P ../src -d CondFormatsSiStripObjects
-  1991  19:36   cmscond_generate_mappingxml -c SiStripNoises -P ../src -d CondFormatsSiStripObjects
-  1992  19:36   cmscond_generate_mappingxml -c SiStripApvGain -P ../src -d CondFormatsSiStripObjects
-  1993  19:37   cmscond_generate_mappingxml -c SiStripLorentzAngle -P ../src -d CondFormatsSiStripObjects
-  1994  19:37   cmscond_generate_mappingxml -c SiStripPerformanceSummary -P ../src -d CondFormatsSiStripObjects
-  1995  19:37   cmscond_generate_mappingxml -c SiStripBadStrip -P ../src -d CondFormatsSiStripObjects
-  1996  19:37   cmscond_generate_mappingxml -c SiStripModuleHV -P ../src -d CondFormatsSiStripObjects
-  1997  19:37   cmscond_generate_mappingxml -c SiStripRunSummary -P ../src -d CondFormatsSiStripObjects
+Tool available since CMSSW21X.
 
-###editing xml files adding blob, changing table,column name etc
+In a CMSSW scram area:
 
-2032  20:04   pool_build_object_relational_mapping -f SiStripBadStrip_basic_0.xml -d CondFormatsSiStripObjects -c sqlite_file:test.db
-  2033  20:04   pool_build_object_relational_mapping -f SiStripApvGain_basic_0.xml -d CondFormatsSiStripObjects -c sqlite_file:test.db
-  2034  20:05   pool_build_object_relational_mapping -f SiStripFedCabling_basic_0.xml -d CondFormatsSiStripObjects -c sqlite_file:test.db
-  2035  20:05   pool_build_object_relational_mapping -f SiStripLorentzAngle_basic_0.xml -d CondFormatsSiStripObjects -c sqlite_file:test.db
-  2036  20:05   ls *.xml
-  2037  20:05   pool_build_object_relational_mapping -f SiStripModuleHV_basic_0.xml -d CondFormatsSiStripObjects -c sqlite_file:test.db
-  2038  20:06   pool_build_object_relational_mapping -f SiStripNoises_basic_0.xml -d CondFormatsSiStripObjects -c sqlite_file:test.db
-  2039  20:06   pool_build_object_relational_mapping -f SiStripPedestals_basic_0.xml -d CondFormatsSiStripObjects -c sqlite_file:test.db
-  2040  20:06   pool_build_object_relational_mapping -f SiStripPerformanceSummary_basic_0.xml -d CondFormatsSiStripObjects -c sqlite_file:test.db
-  2041  20:06   pool_build_object_relational_mapping -f SiStripRunSummary_basic_0.xml -d CondFormatsSiStripObjects -c sqlite_file:test.db
+cmscond_bootstrap_detector -P ~/conddb -D STRIP -f ./dbconfiguration-orcon.xml -b $CMSSW_BASE
+
+Example db config file:
+  cvs head     CondTools/OracleDBA/dbconfig/dbconfiguration-orcon.xml
+
+
+cmscond_bootstrap_detector -h
+usage: cmscond_bootstrap_detector [options]
+
+options:
+  -h, --help            show this help message and exit
+  -f DBCONFIG, --dbconfig=DBCONFIG
+                        ( DB configuration file with absolute path required )
+  -P AUTHPATH, --authPath=AUTHPATH
+                        path to authentication.xml(default .)
+  -c CONNECT, --connect=CONNECT
+                        DB to set up (overwrites default value in dbconfig.)
+  -a, --all             Set up all schemas in DB configuration file(default)
+  -D DETECTOR, --Detector=DETECTOR
+                        Set up only schema identified with given Detector
+                        entry in the DBConfiguration file
+  -b BASEDIR, --basedir=BASEDIR
+                        basedir for mappingdir. Default to $CMSSW_RELEASE_BASE
+  --fake                Don't actually do anything, only print commands
+  -v, --verbose         verbose mode
+
