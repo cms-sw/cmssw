@@ -39,7 +39,7 @@ Ring 0 L0 : Width Tray 6:266.6, 5&4:325.6, 3:330.6, 2:341.6, 1:272.6
 //
 // Original Author:  Gobinda Majumder
 //         Created:  Fri Jul  6 17:17:21 CEST 2007
-// $Id: AlCaHOCalibProducer.cc,v 1.6 2008/04/09 14:00:08 kodolova Exp $
+// $Id: AlCaHOCalibProducer.cc,v 1.7 2008/04/09 14:59:35 kodolova Exp $
 //
 //
 
@@ -347,7 +347,7 @@ AlCaHOCalibProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   //  int irun = iEvent.id().run();
   //  int ievt = iEvent.id().event();
   //  cout << endl<<"--- AlCaHOCalibProducer: Event analysed #Run: " << irun << " #Event: " << ievt << endl;
-  if (Nevents%500==1) cout <<"AlCaHOCalibProducer Processing event # "<<Nevents<<endl;
+  //if (Nevents%500==1) cout <<"AlCaHOCalibProducer Processing event # "<<Nevents<<endl;
   std::auto_ptr<HOCalibVariableCollection> hostore (new HOCalibVariableCollection);
   
   double pival = acos(-1.);
@@ -1056,12 +1056,12 @@ AlCaHOCalibProducer::beginJob(const edm::EventSetup& iSetup)
 // ------------ method called once each job just after ending the event loop  ------------
 void AlCaHOCalibProducer::endJob() {
 
-  cout <<"ho_time ";
-  for (int i=0; i<10; i++) { cout <<ho_time[i]<<" ";} 
-  cout<<endl;
-  cout <<"hb_time ";
-  for (int i=0; i<10; i++) { cout <<hb_time[i]<<" ";} 
-  cout<<endl;
+  //cout <<"ho_time ";
+  //for (int i=0; i<10; i++) { cout <<ho_time[i]<<" ";} 
+  //cout<<endl;
+  //cout <<"hb_time ";
+  //for (int i=0; i<10; i++) { cout <<hb_time[i]<<" ";} 
+  //cout<<endl;
 }
 
 
