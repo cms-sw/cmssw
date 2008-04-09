@@ -10,8 +10,7 @@ local $InternalCache={};
 sub init ()
 {
   my $dir=shift;
-  if(!-f "${dir}/config/scram_version"){die "${dir}/config/scram_version file does not exist.";}
-  $SCRAM_VERSION=`cat ${dir}/config/scram_version`; chomp $SCRAM_VERSION;
+  &scramVersion ($dir);
   my $arch=&getScramArch();
   if (!-f "${dir}/tmp/${arch}/Makefile"){system("cd ${dir}; $SCRAM_CMD b -r echo_CXX ufast>/dev/null 2>&1");}
   my $scram_home=dirname(dirname(&SCRAMGenUtils::getBuildVariable($dir,"SCRAM","ufast")));
@@ -98,11 +97,26 @@ sub getTmpDir ()
 # Reading Project Cache DB
 #########################################################################
 
+sub scramVersion ()
+{
+  my $rel=shift;
+  if ($SCRAM_VERSION eq "")
+  {
+    my $ref;
+    if(open($ref,"${rel}/config/scram_version"))
+    {
+      $SCRAM_VERSION=<$ref>; chomp $SCRAM_VERSION;
+      close($ref);
+    }
+  }
+  return $SCRAM_VERSION;
+}
+
 sub fixCacheFileName ()
 {
   my $file=shift;
   my $gz="";
-  if ($SCRAM_VERSION=~/^V[2-9]_/){$gz=".gz";}
+  if ($SCRAM_VERSION=~/^V[2-9]/){if($file!~/\.gz$/){$gz=".gz";}}
   return "$file$gz";
 }
 
@@ -175,7 +189,7 @@ sub createTmpReleaseArea ()
   }
   my $setup=0;
   my $envfile="${dir}/.SCRAM/Environment";
-  if ($SCRAM_VERSION=~/^V[2-9]_/){$envfile="${dir}/.SCRAM/${SCRAM_ARCH}/Environment";}
+  if ($SCRAM_VERSION=~/^V[2-9]/){$envfile="${dir}/.SCRAM/${SCRAM_ARCH}/Environment";}
   if($dev)
   {
     my $rtop=&getFromEnvironmentFile("RELEASETOP",$rel);
@@ -188,10 +202,10 @@ sub createTmpReleaseArea ()
   else
   {
     system("chmod -R u+w $dir");
-    if ($SCRAM_VERSION=~/^V[2-9]_/){system("rm -f $envfile");}
+    if ($SCRAM_VERSION=~/^V[2-9]/){system("rm -f $envfile");}
     else
     {
-      system("grep -v \"RELEASETOP\" $envfile  > ${envfile}.new");
+      system("grep -v \"RELEASETOP=\" $envfile  > ${envfile}.new");
       system("mv ${envfile}.new $envfile");
     }
     $setup=1;
