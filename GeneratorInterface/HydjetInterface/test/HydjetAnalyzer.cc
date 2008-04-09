@@ -4,6 +4,7 @@
 #include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
 #include "DataFormats/Candidate/interface/Candidate.h"
 #include "DataFormats/RecoCandidate/interface/RecoCandidate.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 // essentials !!!
 #include "FWCore/Framework/interface/Event.h"
@@ -30,10 +31,10 @@ using namespace std;
 
  
 HydjetAnalyzer::HydjetAnalyzer(const ParameterSet& pset)
-  : phdNdEta(0), phdNdY(0), phdNdPt(0),phdNdPhi(0)
+  : phdNdEta(0), phdNdY(0), phdNdPt(0), phdNdPhi(0),
+   modLabel_(pset.getUntrackedParameter<string>("moduleLabel","source"))
 {
   // constructor
-
 }
 
 
@@ -63,7 +64,8 @@ void HydjetAnalyzer::analyze( const Event& e, const EventSetup& )
    
    // find initial (unsmeared, unfiltered,...) HepMCProduct
    // by its label - HydjetSource, that is
-   e.getByLabel( "source", EvtHandle ) ;
+// e.getByLabel( "source", EvtHandle ) ;
+   e.getByLabel( modLabel_, EvtHandle ) ;
    
    double part_eta, part_y, part_pt, part_phi, part_e, part_pz;
    const HepMC::GenEvent* myEvt = EvtHandle->GetEvent() ;

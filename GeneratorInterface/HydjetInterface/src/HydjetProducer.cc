@@ -1,5 +1,5 @@
 /*
- * $Id: HydjetSource.cc,v 1.18 2008/04/06 10:07:41 loizides Exp $
+ * $Id: HydjetProducer.cc,v 1.16 2008/01/28 15:32:03 yilmaz Exp $
  *
  * Interface to the HYDJET generator, produces HepMC events
  *
@@ -12,13 +12,14 @@
 #include "boost/lexical_cast.hpp"
 
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/InputSourceDescription.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/RandomNumberGenerator.h"
+#include "FWCore/Utilities/interface/EDMException.h"
+#include "CLHEP/Random/RandomEngine.h"
 
-#include "GeneratorInterface/HydjetInterface/interface/HydjetSource.h"
+#include "GeneratorInterface/HydjetInterface/interface/HydjetProducer.h"
 #include "GeneratorInterface/HydjetInterface/interface/PYR.h"
 #include "GeneratorInterface/HydjetInterface/interface/HydjetWrapper.h"
 #include "GeneratorInterface/CommonInterface/interface/PythiaCMS.h"
@@ -36,8 +37,8 @@ using namespace edm;
 using namespace std;
 
 
-HydjetSource::HydjetSource(const ParameterSet &pset, InputSourceDescription const &desc)
-  : GeneratedInputSource(pset, desc), evt(0), 
+HydjetProducer::HydjetProducer(const ParameterSet &pset) :
+    EDProducer(), evt(0), 
     abeamtarget_(pset.getParameter<double>("aBeamTarget")),
     bfixed_(pset.getParameter<double>("bFixed")),
     bmax_(pset.getParameter<double>("bMax")),
@@ -61,7 +62,8 @@ HydjetSource::HydjetSource(const ParameterSet &pset, InputSourceDescription cons
     qgpt0_(pset.getParameter<double>("qgpInitialTemperature")),
     qgptau0_(pset.getParameter<double>("qgpProperTimeFormation")),
     shadowingswitch_(pset.getParameter<int>("shadowingSwitch")),
-    signn_(pset.getParameter<double>("sigmaInelNN"))
+    signn_(pset.getParameter<double>("sigmaInelNN")),
+    eventNumber_(0)
 {
   // Default constructor
 
@@ -98,7 +100,7 @@ HydjetSource::HydjetSource(const ParameterSet &pset, InputSourceDescription cons
 
 
 //_____________________________________________________________________
-HydjetSource::~HydjetSource()
+HydjetProducer::~HydjetProducer()
 {
   // destructor
 
@@ -109,7 +111,7 @@ HydjetSource::~HydjetSource()
 
 
 //_____________________________________________________________________
-void HydjetSource::add_heavy_ion_rec(HepMC::GenEvent *evt)
+void HydjetProducer::add_heavy_ion_rec(HepMC::GenEvent *evt)
 {
   // heavy ion record in the final CMSSW Event
 
@@ -134,7 +136,7 @@ void HydjetSource::add_heavy_ion_rec(HepMC::GenEvent *evt)
 
 
 //________________________________________________________________
-HepMC::GenParticle* HydjetSource::build_hyjet(int index, int barcode)
+HepMC::GenParticle* HydjetProducer::build_hyjet(int index, int barcode)
 {
    // Build particle object corresponding to index in hyjets (soft+hard)
 
@@ -153,7 +155,7 @@ HepMC::GenParticle* HydjetSource::build_hyjet(int index, int barcode)
 
 
 //___________________________________________________________________
-HepMC::GenVertex* HydjetSource::build_hyjet_vertex(int i,int id)
+HepMC::GenVertex* HydjetProducer::build_hyjet_vertex(int i,int id)
 {
   // build verteces for the hyjets stored events 
 
@@ -168,7 +170,7 @@ HepMC::GenVertex* HydjetSource::build_hyjet_vertex(int i,int id)
 
 
 //______________________________________________________________________
-bool HydjetSource::call_pygive(const std::string& iParm ) 
+bool HydjetProducer::call_pygive(const std::string& iParm ) 
 {
   // Set Pythia parameters
 
@@ -183,14 +185,14 @@ bool HydjetSource::call_pygive(const std::string& iParm )
 
 
 //____________________________________________________________________
-void HydjetSource::clear()
+void HydjetProducer::clear()
 {
 
 }
 
 
 //_____________________________________________________________________
-bool HydjetSource::get_hard_particles(HepMC::GenEvent *evt, vector<SubEvent>& subs )
+bool HydjetProducer::get_hard_particles(HepMC::GenEvent *evt, vector<SubEvent>& subs )
 {
    // Hard particles. The first nhard_ lines from hyjets array.
    // Pythia/Pyquen sub-events (sub-collisions) for a given event
@@ -234,6 +236,7 @@ bool HydjetSource::get_hard_particles(HepMC::GenEvent *evt, vector<SubEvent>& su
 
 	 //The Fortran code is modified to preserve mother id info, by seperating the beginning 
          //mother indices of successive subevents by 10000.
+
 	 int mid = mother_ids[i]-isub*10000-1;
 	 if(mid <= 0){
 	    sub_vertices[isub]->add_particle_out(part);
@@ -247,7 +250,6 @@ bool HydjetSource::get_hard_particles(HepMC::GenEvent *evt, vector<SubEvent>& su
 	       prod_vertex = prods[i];
 	       prod_vertex->add_particle_in(mother);
 	       evt->add_vertex(prod_vertex);
-               prods[i]=0; // mark to protect deletion
 	    }
 	    prod_vertex->add_particle_out(part);
 	 }
@@ -255,16 +257,15 @@ bool HydjetSource::get_hard_particles(HepMC::GenEvent *evt, vector<SubEvent>& su
 
       // cleanup vertices not assigned to evt
       for (unsigned int i = 0; i<prods.size(); i++) {
-         if(prods[i]) delete prods[i];
+	if(prods[i]) delete prods[i];
       }
    }
-
   return true;
 }
 
 
 //___________________________________________________________
-bool HydjetSource::get_soft_particles(HepMC::GenEvent *evt, vector<SubEvent>& subs)
+bool HydjetProducer::get_soft_particles(HepMC::GenEvent *evt, vector<SubEvent>& subs)
 {
    // Soft particles. The last nsoft_ lines of hyjets
    // It corresponds to HYDRO-induced, hadrons only
@@ -281,13 +282,13 @@ bool HydjetSource::get_soft_particles(HepMC::GenEvent *evt, vector<SubEvent>& su
       soft_vertex->add_particle_out( hyj_entries[i2] ) ;
    } 
    evt->add_vertex( soft_vertex );
-
+   
    return true;
 }
 
 
 //______________________________________________________________
-bool HydjetSource::call_hyinit(double energy,double a, int ifb, double bmin,
+bool HydjetProducer::call_hyinit(double energy,double a, int ifb, double bmin,
 			       double bmax,double bfix,int nh)
 {
   // initialize hydjet  
@@ -299,12 +300,12 @@ bool HydjetSource::call_hyinit(double energy,double a, int ifb, double bmin,
 
 
 //______________________________________________________________
-bool HydjetSource::hydjet_init(const ParameterSet &pset)
+bool HydjetProducer::hydjet_init(const ParameterSet &pset)
 {
   // set hydjet options
 
   edm::Service<RandomNumberGenerator> rng;
-  randomEngine = &(rng->getEngine());
+  randomEngine = fRandomEngine = &(rng->getEngine());
   uint32_t seed = rng->mySeed();
   ludatr.mrlu[0]=seed;
 
@@ -369,7 +370,7 @@ bool HydjetSource::hydjet_init(const ParameterSet &pset)
 
 
 //____________________________________________________________________
-bool HydjetSource::hyjpythia_init(const ParameterSet &pset)
+bool HydjetProducer::hyjpythia_init(const ParameterSet &pset)
 {
   //Set PYTHIA parameters
 
@@ -415,7 +416,7 @@ bool HydjetSource::hyjpythia_init(const ParameterSet &pset)
 
 
 //_____________________________________________________________________
-bool HydjetSource::produce(Event & e)
+void HydjetProducer::produce(Event & e, const EventSetup& es)
 {
   // generate single event
 
@@ -428,21 +429,28 @@ bool HydjetSource::produce(Event & e)
   edm::LogInfo("HYDJETinTemp") << "##### HYDJET: QGP init temperature, T0 ="<<pyqpar.T0u;
   edm::LogInfo("HYDJETinTau") << "##### HYDJET: QGP formation time,tau0 ="<<pyqpar.tau0u;
 
+
   // generate a HYDJET event
   int ntry = 0;
   while(nsoft_ == 0 && nhard_ == 0){
      if(ntry > 100){
-	edm::LogError("HydjetEmptyEvent") << "##### HYDJET: No Particles generated, Number of tries ="<<ntry;
-	return false;
-     }else{
-	HYEVNT();
-	nsoft_    = hyfpar.nhyd;
-	nhard_    = hyfpar.npyt;
-	ntry++;
+       edm::LogError("HydjetEmptyEvent") << "##### HYDJET: No Particles generated, Number of tries ="<<ntry;
+
+// Throw an exception.  Use the EventCorruption exception since it maps onto SkipEvent
+// which is what we want to do here.
+
+       std::ostringstream sstr;
+       sstr << "HydjetProducerProducer: No particles generated after " << ntry << " tries.\n";
+       edm::Exception except(edm::errors::EventCorruption, sstr.str());
+       throw except;
+     } else {
+       HYEVNT();
+       nsoft_    = hyfpar.nhyd;
+       nsub_     = hyjpar.njet;
+       nhard_    = hyfpar.npyt;
+       ++ntry;
      }
   }
-  
-  nsub_     = hyjpar.njet;
 
   std::vector<SubEvent> subvector;
 
@@ -454,7 +462,8 @@ bool HydjetSource::produce(Event & e)
 
   evt->set_signal_process_id(pypars.msti[0]);      // type of the process
   evt->set_event_scale(pypars.pari[16]);           // Q^2
-  evt->set_event_number(numberEventsInRun() - remainingEvents() - 1);
+  ++eventNumber_;
+  evt->set_event_number(eventNumber_);
 
   add_heavy_ion_rec(evt);
 
@@ -465,9 +474,9 @@ bool HydjetSource::produce(Event & e)
   e.put(genhi);
 
   // print PYLIST info
-  if (event() <= maxEventsToPrint_ && pythiaPylistVerbosity_)     
+  if (e.id().event() <= maxEventsToPrint_ && pythiaPylistVerbosity_)     
      call_pylist(pythiaPylistVerbosity_);      
-  
-  return true;
 }
 
+
+//________________________________________________________________
