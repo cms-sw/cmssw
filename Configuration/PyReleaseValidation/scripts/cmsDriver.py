@@ -453,7 +453,7 @@ if options.no_exec_flag:
 
 
 # Remove existing pyc files:
-os.system("rm -f "+pyrelvalcodedir+"*.pyc")    
+#os.system("rm -f *.pyc")    
 # A temporary ugly fix for a problem to investigate further.
 
 print "Launching "+' '.join(command)+"..."
