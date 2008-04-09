@@ -45,6 +45,7 @@ public:
  
     //CCS
     ODCCSConfig ccs ;
+    ccs.setConfigTag("CCSConfig_1");
     ccs.setDaccal(1 );
     ccs.setDelay( 2 );
     ccs.setGain( 3 );
@@ -52,8 +53,6 @@ public:
     ccs.setOffsetHigh( 10 );
     ccs.setOffsetLow(  20 );
     ccs.setOffsetMid(  15 );
-    ccs.setPedestalOffsetRelease( "13-feb-2007" );
-    ccs.setSystem(      "my_system" );
     ccs.setTrgMode(      "unknown" );
     ccs.setTrgFilter(    "standard" );
     // write to the DB
@@ -65,6 +64,7 @@ public:
 
     //DCC
     ODDCCConfig dcc ;
+    dcc.setConfigTag("DCCConfig_1");
     std::string my_string="here is a nice DCC configuration";
     char * dcc_clob= new char[my_string.length()];
     strcpy(dcc_clob, my_string.c_str());
@@ -79,6 +79,17 @@ public:
 
     //Laser
     ODLaserConfig las ;
+    las.setConfigTag("LasConfig_1");
+    las.setMatacqMode("whatever");
+    las.setChannelMask(3);
+    las.setMaxSamplesForDaq("10");
+    las.setPedestalFile("thisfile");
+    las.setUseBuffer(1);
+    las.setPostTrig(0);
+    las.setFPMode(1);
+    las.setHalModuleFile("bho");
+    las.setHalAddressTableFile("bho");
+    las.setHalStaticTableFile("bho");
     las.setWaveLength(1 );
     las.setPower( 2 );
     las.setOpticalSwitch( 0 );
@@ -92,64 +103,60 @@ public:
 
     // TCC
     ODTCCConfig tcc ;
-    tcc.setDeviceConfigParamId(184376);
+    tcc.setConfigTag("TCCConfig_1");
+    tcc.setNTestPatternsToLoad(184376);
+    std::string my_tccstring="here is a nice DCC configuration";
+    char * tcc_clob= new char[my_tccstring.length()];
+    strcpy(tcc_clob, my_tccstring.c_str());
+    tcc.setTCCClob((unsigned char*)tcc_clob);
     // write to the DB
     cout << "Inserting in DB..." << endl;
     econn->insertConfigSet(&tcc);
     int tcc_id=tcc.getId();
     cout << "TCC Config inserted with ID "<< tcc_id<< endl;
-
+    delete [] tcc_clob;
 
 
     // TTCci
 
-    ODTTCciConfig x ;
-    std::string my_stringx="here is a nice TTC configuration";
-    char * ttc_clob= new char[my_stringx.length()];
-    strcpy(ttc_clob, my_stringx.c_str());
-    x.setTTCciClob((unsigned char*)ttc_clob);
+    cout << "TTCci now coming "<< endl;
+
+    ODTTCciConfig ttcci ;
+    ttcci.setConfigTag("TTCciConfig_1");
+    ttcci.setTrgMode("unknown");
+    std::string my_stringx="here is a nice TTCci configuration";
+    char * ttcci_clob= new char[my_stringx.length()];
+    strcpy(ttcci_clob, my_stringx.c_str());
+    ttcci.setTTCciClob((unsigned char*)ttcci_clob);
     // write to the DB
     cout << "Inserting TTCci in DB..." << endl;
-    econn->insertConfigSet(&x);
+    econn->insertConfigSet(&ttcci);
     cout << "here we are..." << endl;
-    int ttc_id=x.getId();
+    int ttc_id=ttcci.getId();
     cout << "TTCci Config inserted with ID "<< ttc_id<< endl;
-    delete [] ttc_clob;
+    delete [] ttcci_clob;
 
-    // mataq
-    ODMataqConfig maq ;
-    maq.setMataqMode("whatever");
-    maq.setFastPedestal(1);
-    maq.setChannelMask(3);
-    maq.setMaxSamplesForDaq("10");
-    maq.setPedestalFile("thisfile");
-    maq.setUseBuffer(1);
-    maq.setPostTrig(0);
-    maq.setFPMode(1);
-    maq.setHalModuleFile("bho");
-    maq.setHalAddressTableFile("bho");
-    maq.setHalStaticTableFile("bho");
-    maq.setMataqSerialNumber("9287658346");
-    maq.setPedestalRunEventCount(1000);
-    maq.setRawDataMode(0);
-    cout << "Inserting in DB..." << endl;
-    econn->insertConfigSet(&maq);
-    int maq_id=maq.getId();
-    cout << "MATAQ Config inserted with ID "<< maq_id<< endl;
 
 
 
     // LTC
     ODLTCConfig ltc ;
-    ltc.setDeviceConfigParamId(184376);
+    ltc.setConfigTag("LTCConfig_1");
+    ltc.setLTCConfigurationFile("a_file.xml");
+    std::string my_stringltc="here is a nice ltC configuration";
+    char * ltc_clob= new char[my_stringltc.length()];
+    strcpy(ltc_clob, my_stringltc.c_str());
+    ltc.setLTCClob((unsigned char*)ltc_clob);
     // write to the DB
     cout << "Inserting in DB..." << endl;
     econn->insertConfigSet(&ltc);
     int ltc_id=ltc.getId();
     cout << "LTC Config inserted with ID "<< ltc_id<< endl;
+    delete [] ltc_clob;
 
     // LTS
     ODLTSConfig lts ;
+    lts.setConfigTag("LTSConfig_1");
     lts.setTriggerType("trigger_type");
     lts.setNumberOfEvents(2147);
     lts.setRate(200);
@@ -162,6 +169,7 @@ public:
 
     // JBH4
     ODJBH4Config jbh4 ;
+    jbh4.setConfigTag("JBH4Config_1");
     jbh4.setUseBuffer(1);
     jbh4.setHalModuleFile("bho");
     jbh4.setHalAddressTableFile("bho");
@@ -193,7 +201,7 @@ public:
     run_cfg.setNumberOfSequences(nseq);
     run_cfg.setRunTypeDef(rundef);
     run_cfg.setRunModeDef(runmode);
-    cout << "Inserting in DB..." << flush;
+    cout << "Inserting in DB the ODRunConfigInfo..." << flush;
     econn->insertConfigSet(&run_cfg);
     cout << "Done." << endl;
     int ecal_id= run_cfg.getId();
@@ -219,51 +227,10 @@ public:
       cout << "Seq inserted with ID "<< seq_id<< endl;
 
       for (int icy=0; icy<ncycles; icy++){
-	/*
+
 	// here we insert the cycle 
-	ODRunConfigCycleInfo cyc;
-	cyc.setTag("cycle_tag");
-	cyc.setDescription("the beautiful cycle");
-	cyc.setCycleNumber(icy);
-	cyc.setSequenceID(seq_id);
-	// here we insert the cycle and get back the id 
-	cout << "Inserting cycle " << icy << " in DB..." << flush;
-	econn->insertConfigSet(&cyc);
-	int cyc_id=cyc.getId();
-	cout << "Cycle inserted with ID "<< cyc_id<< endl;
-
-	// then for each object that partecipates in the cycle we 
-	// insert one entry in the cycle-object table that points to the actual config 
-
-	ODCCSCycle ccs_cycle;
-	ccs_cycle.setId(cyc_id);
-	ccs_cycle.setCCSConfigurationID(ccs_id);
-	econn->insertConfigSet(&ccs_cycle);
-	cout << "Inserting CCS-cycle in DB..." << flush;
-
-	ODDCCCycle dcc_cycle;
-	dcc_cycle.setId(cyc_id);
-	dcc_cycle.setDCCConfigurationID(dcc_id);
-	econn->insertConfigSet(&dcc_cycle);
-	cout << "Inserting DCC-cycle in DB..." << flush;
-
-	ODLaserCycle las_cycle;
-	las_cycle.setId(las_id);
-	las_cycle.setLaserConfigurationID(las_id);
-	econn->insertConfigSet(&las_cycle);
-	cout << "Inserting DCC-cycle in DB..." << flush;
-
-	// or just define ODEcalCycle and write 
-
-	*/
 
 	ODEcalCycle ec_cyc;
-	//	ec_cyc.setId(cyc_id);
-	// we don't need the following 
-        //  to write the ecal cycle
-	//	ec_cyc.setTag( );
-	//	ec_cyc.setVersion( );
-	//	ec_cyc.setSeqNum(  );
 	ec_cyc.setCycleNum(icy );
 	ec_cyc.setCycleTag("cycle_tag" );
 	ec_cyc.setCycleDescription("the beautiful cycle" );
@@ -274,7 +241,6 @@ public:
 	ec_cyc.setLTSId(  lts_id       );
 	ec_cyc.setTCCId(  tcc_id       );
 	ec_cyc.setTTCCIId(ttc_id       );
-	ec_cyc.setMataqId(maq_id       );
 	ec_cyc.setJBH4Id( jbh4_id       );
 	ec_cyc.setScanId( 0       );
 	ec_cyc.setSequenceId(seq_id);

@@ -13,16 +13,24 @@ ODTTCciConfig::ODTTCciConfig()
   m_conn = NULL;
   m_writeStmt = NULL;
   m_readStmt = NULL;
+  m_config_tag="";
+   m_ID=0;
+   clear();
 
-  m_ID=0;
-  std::cout<< "creating object"<<endl;
-
-  //  strcpy((char *)m_ttcci_clob, "");
-  std::cout<< "done"<<endl;
-  
 }
 
+void ODTTCciConfig::clear(){
+  std::cout <<"entering clear" << std::endl;
+  m_ttcci_file="";
+  m_trg_mode="";
+  m_trg_sleep=0;
 
+  std::cout <<"entering clear" << std::endl;
+  // strcpy((char *)m_ttcci_clob, "");
+  std::cout <<"entering clear" << std::endl;
+
+  
+}
 
 ODTTCciConfig::~ODTTCciConfig()
 {
@@ -33,15 +41,13 @@ int ODTTCciConfig::fetchNextId()  throw(std::runtime_error) {
   int result=0;
   try {
     this->checkConnection();
-    std::cout<< "going to fetch new id for TTCci 1"<<endl;
+
     m_readStmt = m_conn->createStatement(); 
     m_readStmt->setSQL("select ecal_ttcci_config_sq.NextVal from dual");
     ResultSet* rset = m_readStmt->executeQuery();
     while (rset->next ()){
       result= rset->getInt(1);
     }
-    std::cout<< "id is : "<< result<<endl;
-
     m_conn->terminateStatement(m_readStmt);
     return result; 
 
@@ -58,40 +64,43 @@ void ODTTCciConfig::prepareWrite()
   throw(runtime_error)
 {
   this->checkConnection();
-    std::cout<< "going to fetch new id for TTCci 0"<<endl;
 
   int next_id=fetchNextId();
-    std::cout<< "going to fetch new id for TTCci 2"<<endl;
 
   try {
     m_writeStmt = m_conn->createStatement();
-    m_writeStmt->setSQL("INSERT INTO ECAL_TTCci_CONFIGURATION (ttcci_configuration_id," 
-			" configuration ) "
-                        "VALUES (:1, :2)");
+    m_writeStmt->setSQL("INSERT INTO ECAL_TTCci_CONFIGURATION (ttcci_configuration_id, ttcci_tag, "
+			" TTCCI_configuration_file, TRG_MODE, TRG_SLEEP, Configuration  ) "
+                        "VALUES (:1, :2, :3, :4, :5, :6 )");
     m_writeStmt->setInt(1, next_id);
+    m_writeStmt->setString(2, getConfigTag());
+    m_writeStmt->setString(3, getTTCciConfigurationFile());
+    m_writeStmt->setString(4, getTrgMode());
+    m_writeStmt->setInt(5, getTrgSleep());
+    // and now the clob
     oracle::occi::Clob clob(m_conn);
     clob.setEmpty();
-    m_writeStmt->setClob(2,clob);
+    m_writeStmt->setClob(6,clob);
     m_writeStmt->executeUpdate ();
     m_ID=next_id; 
 
     m_conn->terminateStatement(m_writeStmt);
-    std::cout<<"inserted into CONFIGURATION with id="<<next_id<<std::endl;
+    std::cout<<"TTCci Clob inserted into CONFIGURATION with id="<<next_id<<std::endl;
 
     // now we read and update it 
     m_writeStmt = m_conn->createStatement(); 
-    m_writeStmt->setSQL ("SELECT configuration FROM ECAL_TTCci_CONFIGURATION WHERE"
+    m_writeStmt->setSQL ("SELECT Configuration FROM ECAL_TTCci_CONFIGURATION WHERE"
 			 " ttcci_configuration_id=:1 FOR UPDATE");
 
-  std::cout<<"updating the clob 0"<<std::endl;
+    std::cout<<"updating the clob 0"<<std::endl;
 
-
+    
   } catch (SQLException &e) {
     throw(runtime_error("ODTTCciConfig::prepareWrite():  "+e.getMessage()));
   }
 
   std::cout<<"updating the clob 1 "<<std::endl;
-
+  
 }
 //
 void ODTTCciConfig::dumpClob (oracle::occi::Clob &clob,unsigned int way)
@@ -189,22 +198,18 @@ void ODTTCciConfig::writeDB()
 }
 
 
-void ODTTCciConfig::clear(){
-  strcpy((char *)m_ttcci_clob, "");
-
-}
 
 
-char* ODTTCciConfig::readClob (oracle::occi::Clob &clob, int size)
+unsigned char* ODTTCciConfig::readClob (oracle::occi::Clob &clob, int size)
   throw (runtime_error)
 {
 
   try{
     Stream *instream = clob.getStream (1,0);
-    char *buffer = new char[size];
+    unsigned char *buffer= new unsigned char[size]; 
     memset (buffer, NULL, size);
     
-    instream->readBuffer (buffer, size);
+    instream->readBuffer ((char*)buffer, size);
     cout << "remember to delete the char* at the end of the program ";
        for (int i = 0; i < size; ++i)
        cout << (char) buffer[i];
@@ -213,7 +218,7 @@ char* ODTTCciConfig::readClob (oracle::occi::Clob &clob, int size)
 
     clob.closeStream (instream);
 
-    return buffer;
+    return  buffer;
 
   }catch (SQLException &e) {
     throw(runtime_error("ODTTCciConfig::dumpClob():  "+e.getMessage()));
@@ -258,28 +263,44 @@ void ODTTCciConfig::fetchData(ODTTCciConfig * result)
 {
   this->checkConnection();
   result->clear();
-  if(result->getId()==0){
+  if(result->getId()==0 && (result->getConfigTag()=="") ){
     throw(runtime_error("ODTTCciConfig::fetchData(): no Id defined for this ODTTCciConfig "));
   }
 
   try {
 
-    m_readStmt->setSQL("SELECT d.configuration   "
-		       "FROM ECAL_TTCci_CONFIGURATION d "
-		       " where ttcci_configuration_id = :1 " );
+    m_readStmt->setSQL("SELECT * "
+		       "FROM ECAL_TTCci_CONFIGURATION  "
+		       " where ( ttcci_configuration_id = :1 or ttcci_tag=:2 )" );
     m_readStmt->setInt(1, result->getId());
+    m_readStmt->setString(2, result->getConfigTag());
     ResultSet* rset = m_readStmt->executeQuery();
 
     rset->next();
+    // 1 is the id and 2 is the config tag
 
-    Clob clob = rset->getClob (1);
+    result->setId(rset->getInt(1));
+    result->setConfigTag(rset->getString(2));
+
+
+    result->setTTCciConfigurationFile(rset->getString(3));
+    result->setTrgMode(rset->getString(4));
+    result->setTrgSleep(rset->getInt(5));
+
+    Clob clob = rset->getClob (6);
     cout << "Opening the clob in Read only mode" << endl;
     clob.open (OCCI_LOB_READONLY);
     int clobLength=clob.length ();
     cout << "Length of the clob is: " << clobLength << endl;
-    char* buffer = readClob (clob, clobLength);
+    unsigned char* buffer = readClob (clob, clobLength);
     clob.close ();
-    result->setTTCciClob((unsigned char*) buffer );
+    cout<< "the clob buffer is:"<<endl;  
+    for (int i = 0; i < clobLength; ++i)
+      cout << (char) buffer[i];
+    cout << endl;
+
+
+    result->setTTCciClob(buffer );
 
   } catch (SQLException &e) {
     throw(runtime_error("ODTTCciConfig::fetchData():  "+e.getMessage()));
@@ -290,5 +311,30 @@ void ODTTCciConfig::fetchData(ODTTCciConfig * result)
 
 int ODTTCciConfig::fetchID()    throw(std::runtime_error)
 {
+  if (m_ID!=0) {
+    return m_ID;
+  }
+
+  this->checkConnection();
+
+  try {
+    Statement* stmt = m_conn->createStatement();
+    stmt->setSQL("SELECT ttcci_configuration_id FROM ecal_ttcci_configuration "
+                 "WHERE  ttcci_tag=:ttcci_tag "
+		 );
+
+    stmt->setString(1, getConfigTag() );
+
+    ResultSet* rset = stmt->executeQuery();
+
+    if (rset->next()) {
+      m_ID = rset->getInt(1);
+    } else {
+      m_ID = 0;
+    }
+    m_conn->terminateStatement(stmt);
+  } catch (SQLException &e) {
+    throw(runtime_error("ODTTCciConfig::fetchID:  "+e.getMessage()));
+  }
     return m_ID;
 }

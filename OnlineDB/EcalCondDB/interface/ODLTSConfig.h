@@ -32,6 +32,7 @@ class ODLTSConfig : public IODConfig {
 
   
  private:
+  int fetchNextId() throw(std::runtime_error);
   void prepareWrite()  throw(std::runtime_error);
   void writeDB()       throw(std::runtime_error);
   void clear();

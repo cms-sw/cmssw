@@ -13,7 +13,7 @@ ODJBH4Config::ODJBH4Config()
   m_conn = NULL;
   m_writeStmt = NULL;
   m_readStmt = NULL;
-
+  m_config_tag="";
   m_ID=0;
   clear();
 }
@@ -38,18 +38,42 @@ void ODJBH4Config::clear(){
 }
 
 
+int ODJBH4Config::fetchNextId()  throw(std::runtime_error) {
+
+  int result=0;
+  try {
+    this->checkConnection();
+
+    m_readStmt = m_conn->createStatement(); 
+    m_readStmt->setSQL("select ecal_JBH4_config_sq.NextVal from dual");
+    ResultSet* rset = m_readStmt->executeQuery();
+    while (rset->next ()){
+      result= rset->getInt(1);
+    }
+    m_conn->terminateStatement(m_readStmt);
+    return result; 
+
+  } catch (SQLException &e) {
+    throw(runtime_error("ODJBH4Config::fetchNextId():  "+e.getMessage()));
+  }
+
+}
+
 void ODJBH4Config::prepareWrite()
   throw(runtime_error)
 {
   this->checkConnection();
+  int next_id=fetchNextId();
 
   try {
     m_writeStmt = m_conn->createStatement();
-    m_writeStmt->setSQL("INSERT INTO ECAL_Jbh4_CONFIGURATION ( "
+    m_writeStmt->setSQL("INSERT INTO ECAL_Jbh4_CONFIGURATION ( jbh4_configuration_id, jbh4_tag, "
 			" useBuffer, halModuleFile, halAddressTableFile, halStaticTableFile, halcbd8210serialnumber, "
 			" caenbridgetype, caenlinknumber, caenboardnumber) "
-			" VALUES ( :1, :2, :3, :4, :5, :6, :7, :8 )");
+			" VALUES ( :1, :2, :3, :4, :5, :6, :7, :8 , :9, :10 )");
 
+    m_writeStmt->setInt(1, next_id);
+    m_ID=next_id;
   } catch (SQLException &e) {
     throw(runtime_error("ODJBH4Config::prepareWrite():  "+e.getMessage()));
   }
@@ -65,15 +89,17 @@ void ODJBH4Config::writeDB()
 
   try {
 
+    // number 1 is the id number 2 is the tag
+    m_writeStmt->setString(2, this->getConfigTag());
 
-    m_writeStmt->setInt(1, this->getUseBuffer());
-    m_writeStmt->setString(2,  this->getHalModuleFile() );
-    m_writeStmt->setString(3, this->getHalAddressTableFile() );
-    m_writeStmt->setString(4, this->getHalStaticTableFile() );
-    m_writeStmt->setString(5, this->getCbd8210SerialNumber() );
-    m_writeStmt->setString(6, this->getCaenBridgeType() );
-    m_writeStmt->setInt(7, this->getCaenLinkNumber() );
-    m_writeStmt->setInt(8, this->getCaenBoardNumber() );
+    m_writeStmt->setInt(3, this->getUseBuffer());
+    m_writeStmt->setString(4,  this->getHalModuleFile() );
+    m_writeStmt->setString(5, this->getHalAddressTableFile() );
+    m_writeStmt->setString(6, this->getHalStaticTableFile() );
+    m_writeStmt->setString(7, this->getCbd8210SerialNumber() );
+    m_writeStmt->setString(8, this->getCaenBridgeType() );
+    m_writeStmt->setInt(9, this->getCaenLinkNumber() );
+    m_writeStmt->setInt(10, this->getCaenBoardNumber() );
  
     m_writeStmt->executeUpdate();
 
@@ -89,8 +115,6 @@ void ODJBH4Config::writeDB()
 }
 
 
-
-
 void ODJBH4Config::fetchData(ODJBH4Config * result)
   throw(runtime_error)
 {
@@ -102,24 +126,25 @@ void ODJBH4Config::fetchData(ODJBH4Config * result)
 
   try {
 
-    m_readStmt->setSQL("SELECT d.usebuffer, d.halmodulefile, d.haladdresstablefile, "
-		       " d.halstatictablefile, d.halcbd8210serialnumber, d.caenbridgetype, d.caenlinknumber, d.caenboardnumber "
-		       "FROM ECAL_Jbh4_CONFIGURATION d "
-		       " where jbh4_configuration_id = :1 " );
+    m_readStmt->setSQL("SELECT * FROM ECAL_Jbh4_CONFIGURATION  "
+		       " where ( jbh4_configuration_id = :1 or jbh4_tag=:2 )");
     m_readStmt->setInt(1, result->getId());
+    m_readStmt->setString(2, result->getConfigTag());
     ResultSet* rset = m_readStmt->executeQuery();
 
     rset->next();
 
+    result->setId(rset->getInt(1));
+    result->setConfigTag(rset->getString(2));
 
-    result->setUseBuffer(           rset->getInt(1) );
-    result->setHalModuleFile(        rset->getString(2) );
-    result->setHalAddressTableFile(         rset->getString(3) );
-    result->setHalStaticTableFile(    rset->getString(4) );
-    result->setCbd8210SerialNumber(        rset->getString(5) );
-    result->setCaenBridgeType(           rset->getString(6) );
-    result->setCaenLinkNumber(            rset->getInt(7) );
-    result->setCaenBoardNumber(              rset->getInt(8) );
+    result->setUseBuffer(           rset->getInt(3) );
+    result->setHalModuleFile(        rset->getString(4) );
+    result->setHalAddressTableFile(         rset->getString(5) );
+    result->setHalStaticTableFile(    rset->getString(6) );
+    result->setCbd8210SerialNumber(        rset->getString(7) );
+    result->setCaenBridgeType(           rset->getString(8) );
+    result->setCaenLinkNumber(            rset->getInt(9) );
+    result->setCaenBoardNumber(              rset->getInt(10) );
 
   } catch (SQLException &e) {
     throw(runtime_error("ODJBH4Config::fetchData():  "+e.getMessage()));
@@ -138,17 +163,10 @@ int ODJBH4Config::fetchID()    throw(std::runtime_error)
   try {
     Statement* stmt = m_conn->createStatement();
     stmt->setSQL("SELECT jbh4_configuration_id FROM ecal_jbh4_configuration "
-                 "WHERE  usebuffer=:1 AND  halmodulefile=:2 AND  haladdresstablefile=:3 AND  "
-		 " halstatictablefile=:4 AND  halcbd8210serialnumber=:5 AND  caenbridgetype=:6 AND  caenlinknumber=:7 AND  caenboardnumber=:8");
+		 "WHERE  jbh4_tag=:jbh4_tag ");
     
-    stmt->setInt(1, getUseBuffer());
-    stmt->setString(2, getHalModuleFile());
-    stmt->setString(3,getHalAddressTableFile());
-    stmt->setString(4,getHalStaticTableFile());
-    stmt->setString(5,getCbd8210SerialNumber());
-    stmt->setString(6, getCaenBridgeType());
-    stmt->setInt(7, getCaenLinkNumber());
-    stmt->setInt(8, getCaenBoardNumber());
+
+    stmt->setString(1, getConfigTag());
 
     ResultSet* rset = stmt->executeQuery();
 

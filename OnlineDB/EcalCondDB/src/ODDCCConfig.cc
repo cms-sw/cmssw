@@ -14,9 +14,10 @@ ODDCCConfig::ODDCCConfig()
   m_writeStmt = NULL;
   m_readStmt = NULL;
 
+   m_config_tag="";
    m_ID=0;
-   //  strcpy((char *)m_dcc_clob, "");
-   // bho? 
+   clear();
+   
 }
 
 
@@ -58,33 +59,41 @@ void ODDCCConfig::prepareWrite()
 
   try {
     m_writeStmt = m_conn->createStatement();
-    m_writeStmt->setSQL("INSERT INTO ECAL_DCC_CONFIGURATION (dcc_configuration_id," 
+    m_writeStmt->setSQL("INSERT INTO ECAL_DCC_CONFIGURATION (dcc_configuration_id, dcc_tag, "
+			" DCC_CONFIGURATION_URL, TESTPATTERN_FILE_URL, "
+			" N_TESTPATTERNS_TO_LOAD , SM_HALF, " 
 			"dcc_configuration) "
-                        "VALUES (:1, :2)");
+                        "VALUES (:1, :2, :3, :4, :5, :6 , :7 )");
     m_writeStmt->setInt(1, next_id);
+    m_writeStmt->setString(2, getConfigTag());
+    m_writeStmt->setString(3, getDCCConfigurationUrl());
+    m_writeStmt->setString(4, getTestPatternFileUrl());
+    m_writeStmt->setInt(5, getNTestPatternsToLoad());
+    m_writeStmt->setInt(6, getSMHalf());
+    // and now the clob
     oracle::occi::Clob clob(m_conn);
     clob.setEmpty();
-    m_writeStmt->setClob(2,clob);
+    m_writeStmt->setClob(7,clob);
     m_writeStmt->executeUpdate ();
     m_ID=next_id; 
 
     m_conn->terminateStatement(m_writeStmt);
-  std::cout<<"inserted into CONFIGURATION with id="<<next_id<<std::endl;
+    std::cout<<"DCC Clob inserted into CONFIGURATION with id="<<next_id<<std::endl;
 
     // now we read and update it 
     m_writeStmt = m_conn->createStatement(); 
     m_writeStmt->setSQL ("SELECT dcc_configuration FROM ECAL_DCC_CONFIGURATION WHERE"
 			 " dcc_configuration_id=:1 FOR UPDATE");
 
-  std::cout<<"updating the clob 0"<<std::endl;
+    std::cout<<"updating the clob 0"<<std::endl;
 
-
+    
   } catch (SQLException &e) {
     throw(runtime_error("ODDCCConfig::prepareWrite():  "+e.getMessage()));
   }
 
   std::cout<<"updating the clob 1 "<<std::endl;
-
+  
 }
 //
 void ODDCCConfig::dumpClob (oracle::occi::Clob &clob,unsigned int way)
@@ -183,7 +192,14 @@ void ODDCCConfig::writeDB()
 
 
 void ODDCCConfig::clear(){
-  strcpy((char *)m_dcc_clob, "");
+
+  //  strcpy((char *)m_dcc_clob, "");
+
+
+   m_dcc_url="";
+   m_test_url="";
+   m_ntest=0;
+   m_sm_half=0;
 
 }
 
@@ -251,21 +267,31 @@ void ODDCCConfig::fetchData(ODDCCConfig * result)
 {
   this->checkConnection();
   result->clear();
-  if(result->getId()==0){
+  if(result->getId()==0 && (result->getConfigTag()=="") ){
     throw(runtime_error("ODDCCConfig::fetchData(): no Id defined for this ODDCCConfig "));
   }
 
   try {
 
-    m_readStmt->setSQL("SELECT d.dcc_configuration   "
-		       "FROM ECAL_DCC_CONFIGURATION d "
-		       " where dcc_configuration_id = :1 " );
+    m_readStmt->setSQL("SELECT * "
+		       "FROM ECAL_DCC_CONFIGURATION  "
+		       " where  dcc_configuration_id = :1 or dcc_tag=:2 " );
     m_readStmt->setInt(1, result->getId());
+    m_readStmt->setString(2, result->getConfigTag());
     ResultSet* rset = m_readStmt->executeQuery();
 
     rset->next();
 
-    Clob clob = rset->getClob (1);
+    // 1 is the id and 2 is the config tag
+
+    result->setId(rset->getInt(1));
+    result->setConfigTag(rset->getString(2));
+    result->setDCCConfigurationUrl(rset->getString(3));
+    result->setTestPatternFileUrl(rset->getString(4));
+    result->setNTestPatternsToLoad(rset->getInt(5));
+    result->setSMHalf(rset->getInt(6));
+
+    Clob clob = rset->getClob (7);
     cout << "Opening the clob in Read only mode" << endl;
     clob.open (OCCI_LOB_READONLY);
     int clobLength=clob.length ();

@@ -13,8 +13,13 @@ class IODConfig : public IDBObject {
 
  public:
 
+  std::string   m_config_tag;
+
   virtual std::string getTable() =0;
-  
+
+  inline void setConfigTag(std::string x) {m_config_tag=x;}
+  inline std::string getConfigTag() {return m_config_tag;}
+ 
 
  protected:
   oracle::occi::Statement* m_writeStmt;

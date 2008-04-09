@@ -19,7 +19,9 @@ ODRunConfigInfo::ODRunConfigInfo()
   m_num_seq=0;
   m_runTypeDef = RunTypeDef();
   m_runModeDef = RunModeDef();
-
+  m_defaults="";
+  m_trigger_mode=""; 
+  m_num_events=0;
 }
 
 
@@ -136,7 +138,8 @@ void ODRunConfigInfo::setByID(int id)
    try {
      Statement* stmt = m_conn->createStatement();
 
-     stmt->setSQL("SELECT tag, version, run_type_def_id, run_mode_def_id, num_of_sequences, description, db_timestamp"
+     stmt->setSQL("SELECT tag, version, run_type_def_id, run_mode_def_id, num_of_sequences, description, defaults,"
+		  " trg_mode,num_of_events, db_timestamp"
 		  " FROM ECAL_RUN_CONFIGURATION_DAT WHERE config_id = :1");
      stmt->setInt(1, id);
      
@@ -148,7 +151,10 @@ void ODRunConfigInfo::setByID(int id)
        int run_mode_id=rset->getInt(4);
        m_num_seq=rset->getInt(5);
        m_description= rset->getString(6);
-       Date dbdate = rset->getDate(7);
+       m_defaults= rset->getString(7);
+       m_trigger_mode= rset->getString(8);
+       m_num_events= rset->getInt(9);
+       Date dbdate = rset->getDate(10);
        m_db_time = dh.dateToTm( dbdate );
        m_ID = id;
        m_runModeDef.setConnection(m_env, m_conn);
@@ -173,8 +179,8 @@ void ODRunConfigInfo::prepareWrite()
   try {
     m_writeStmt = m_conn->createStatement();
     m_writeStmt->setSQL("INSERT INTO ECAL_RUN_CONFIGURATION_DAT ( tag, version, run_type_def_id, "
-		 " run_mode_def_id, num_of_sequences, description ) "
-		 " VALUES (:1, :2, :3 , :4, :5, :6 )");
+		 " run_mode_def_id, num_of_sequences, defaults, trg_mode, num_of_events, description ) "
+		 " VALUES (:1, :2, :3 , :4, :5, :6 ,:7, :8, :9 )");
   } catch (SQLException &e) {
     throw(runtime_error("ODRunConfigInfo::prepareWrite():  "+e.getMessage()));
   }
@@ -207,7 +213,10 @@ void ODRunConfigInfo::writeDB()
     m_writeStmt->setInt(3, run_type_id);
     m_writeStmt->setInt(4, run_mode_id);
     m_writeStmt->setInt(5, this->getNumberOfSequences());
-    m_writeStmt->setString(6, this->getDescription());
+    m_writeStmt->setString(6, this->getDefaults());
+    m_writeStmt->setString(7, this->getTriggerMode());
+    m_writeStmt->setInt(8, this->getNumberOfEvents());
+    m_writeStmt->setString(9, this->getDescription());
 
     m_writeStmt->executeUpdate();
 

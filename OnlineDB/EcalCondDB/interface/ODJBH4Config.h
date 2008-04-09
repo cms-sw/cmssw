@@ -44,12 +44,14 @@ class ODJBH4Config : public IODConfig {
   inline void setCaenBoardNumber(int x) { m_caen3 = x ; }
   inline int getCaenBoardNumber() const { return m_caen3 ; }
 
+
  private:
   void prepareWrite()  throw(std::runtime_error);
   void writeDB()       throw(std::runtime_error);
   void clear();
   void fetchData(ODJBH4Config * result)     throw(std::runtime_error);
   int fetchID()  throw(std::runtime_error);
+  int fetchNextId() throw(std::runtime_error);
 
 
   // User data

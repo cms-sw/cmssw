@@ -54,6 +54,10 @@ class ODEcalCycle : public IODConfig {
   inline int getJBH4Id() const { return m_jbh4; }
   inline void setScanId(int x) { m_scan = x; }
   inline int getScanId() const { return m_scan; }
+  inline void setTTCFId(int x) { m_ttcf = x; }
+  inline int getTTCFId() const { return m_ttcf; }
+  inline void setSRPId(int x) { m_srp = x; }
+  inline int getSRPId() const { return m_srp; }
 
   void printout();
 
@@ -82,7 +86,9 @@ class ODEcalCycle : public IODConfig {
   int m_mataq;
   int m_jbh4;
   int m_scan;
-  
+  int m_srp;
+  int m_ttcf;
+
 };
 
 #endif

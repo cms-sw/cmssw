@@ -19,7 +19,7 @@ class ODRunConfigCycleInfo : public IODConfig {
   ODRunConfigCycleInfo();
   ~ODRunConfigCycleInfo();
 
-  inline std::string getTable() { return "ECAL_CYCLE"; }
+  inline std::string getTable() { return "ECAL_CYCLE_DAT"; }
 
   // Methods for user data
   inline void setId(int id) { m_ID = id; }

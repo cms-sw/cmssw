@@ -13,10 +13,17 @@ ODLTSConfig::ODLTSConfig()
   m_conn = NULL;
   m_writeStmt = NULL;
   m_readStmt = NULL;
-  
+  m_config_tag="";
   m_ID=0;
   clear();
 
+}
+
+void ODLTSConfig::clear(){
+  m_trg_type="";
+  m_num=0;
+  m_rate=0;
+  m_delay=0;
 }
 
 
@@ -26,18 +33,43 @@ ODLTSConfig::~ODLTSConfig()
 }
 
 
+int ODLTSConfig::fetchNextId()  throw(std::runtime_error) {
+
+  int result=0;
+  try {
+    this->checkConnection();
+
+    m_readStmt = m_conn->createStatement(); 
+    m_readStmt->setSQL("select ecal_lts_config_sq.NextVal from dual");
+    ResultSet* rset = m_readStmt->executeQuery();
+    while (rset->next ()){
+      result= rset->getInt(1);
+    }
+    m_conn->terminateStatement(m_readStmt);
+    return result; 
+
+  } catch (SQLException &e) {
+    throw(runtime_error("ODLTSConfig::fetchNextId():  "+e.getMessage()));
+  }
+
+}
+
 
 void ODLTSConfig::prepareWrite()
   throw(runtime_error)
 {
   this->checkConnection();
+  int next_id=fetchNextId();
 
   try {
     m_writeStmt = m_conn->createStatement();
-    m_writeStmt->setSQL("INSERT INTO ECAL_LTS_CONFIGURATION ( "
+    m_writeStmt->setSQL("INSERT INTO ECAL_LTS_CONFIGURATION ( lts_configuration_id, lts_tag, "
 			"trigger_type, num_of_events, rate, trig_loc_l1_delay ) "
 			"VALUES (  "
-			":1, :2, :3, :4 )");
+			":1, :2, :3, :4 , :5, :6 )");
+    m_writeStmt->setInt(1, next_id);
+    m_ID=next_id;
+
   } catch (SQLException &e) {
     throw(runtime_error("ODLTSConfig::prepareWrite():  "+e.getMessage()));
   }
@@ -53,10 +85,11 @@ void ODLTSConfig::writeDB()
 
   try {
 
-    m_writeStmt->setString(1, this->getTriggerType());
-    m_writeStmt->setInt(2, this->getNumberOfEvents());
-    m_writeStmt->setInt(3, this->getRate());
-    m_writeStmt->setInt(4, this->getTrigLocL1Delay());
+    m_writeStmt->setString(2, this->getConfigTag());
+    m_writeStmt->setString(3, this->getTriggerType());
+    m_writeStmt->setInt(4, this->getNumberOfEvents());
+    m_writeStmt->setInt(5, this->getRate());
+    m_writeStmt->setInt(6, this->getTrigLocL1Delay());
 
     m_writeStmt->executeUpdate();
 
@@ -73,37 +106,34 @@ void ODLTSConfig::writeDB()
 }
 
 
-void ODLTSConfig::clear(){
-  m_trg_type="";
-  m_num=0;
-  m_rate=0;
-  m_delay=0;
-}
-
 
 void ODLTSConfig::fetchData(ODLTSConfig * result)
   throw(runtime_error)
 {
   this->checkConnection();
   result->clear();
-  if(result->getId()==0){
+  if(result->getId()==0 && (result->getConfigTag()=="") ){
     throw(runtime_error("ODLTSConfig::fetchData(): no Id defined for this ODLTSConfig "));
   }
 
   try {
 
-    m_readStmt->setSQL("SELECT d.trigger_type, d.num_of_events, d.rate, d.trig_loc_l1_delay   "
-		       "FROM ECAL_LTS_CONFIGURATION d "
-		       " where lts_configuration_id = :1 " );
+    m_readStmt->setSQL("SELECT * "
+		       "FROM ECAL_LTS_CONFIGURATION  "
+		       " where ( lts_configuration_id = :1 or lts_tag=:2 ) " );
     m_readStmt->setInt(1, result->getId());
+    m_readStmt->setString(2, result->getConfigTag());
     ResultSet* rset = m_readStmt->executeQuery();
 
     rset->next();
+    // 1 is the id and 2 is the config tag
+    result->setId(rset->getInt(1));
+    result->setConfigTag(rset->getString(2));
 
-    result->setTriggerType(  rset->getString(1) );
-    result->setNumberOfEvents(        rset->getInt(2) );
-    result->setRate(         rset->getInt(3) );
-    result->setTrigLocL1Delay(      rset->getInt(4) );
+    result->setTriggerType(        rset->getString(3) );
+    result->setNumberOfEvents(     rset->getInt(4) );
+    result->setRate(               rset->getInt(5) );
+    result->setTrigLocL1Delay(     rset->getInt(6) );
   
 
   } catch (SQLException &e) {
@@ -123,12 +153,9 @@ int ODLTSConfig::fetchID()    throw(std::runtime_error)
   try {
     Statement* stmt = m_conn->createStatement();
     stmt->setSQL("SELECT lts_configuration_id FROM ecal_lts_configuration "
-                 "WHERE   trigger_type=:1 AND NUM_OF_EVENTS=:2 AND RATE=:3 AND TRIG_LOC_L1_DELAY=:4 " );
+                 "WHERE  lts_tag=:lts_tag  " );
 
-    stmt->setString(1, getTriggerType());
-    stmt->setInt(2, getNumberOfEvents());
-    stmt->setInt(3, getRate());
-    stmt->setInt(4, getTrigLocL1Delay());
+    stmt->setString(1, getConfigTag());
 
     ResultSet* rset = stmt->executeQuery();
 

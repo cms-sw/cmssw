@@ -194,7 +194,7 @@ void ODRunConfigCycleInfo::fetchData(ODRunConfigCycleInfo * result)
   this->checkConnection();
   result->clear();
   if(result->getId()==0){
-    throw(runtime_error("ODRunConfigCycleInfo::fetchData(): no Id defined for this ODCCSConfig "));
+    throw(runtime_error("ODRunConfigCycleInfo::fetchData(): no Id defined for this ODRunConfigCycleInfo "));
   }
 
   try {

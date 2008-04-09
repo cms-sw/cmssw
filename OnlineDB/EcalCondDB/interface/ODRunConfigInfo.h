@@ -35,6 +35,16 @@ int getVersion()const {return m_version;  }
 //
 void setNumberOfSequences(int n){ m_num_seq = n;  }
 int getNumberOfSequences()const {return m_num_seq;  }
+//
+void setDefaults(std::string x) { m_defaults = x;}
+std::string getDefaults() const{  return m_defaults;}
+//
+void setTriggerMode(std::string x) { m_trigger_mode = x;}
+std::string getTriggerMode() const{  return m_trigger_mode;}
+//
+void setNumberOfEvents(int x) { m_num_events = x ;}
+int getNumberOfEvents() const{  return m_num_events ;}
+//
 
 
   RunTypeDef getRunTypeDef() const;
@@ -57,6 +67,9 @@ int getNumberOfSequences()const {return m_num_seq;  }
   RunTypeDef m_runTypeDef;
   int m_num_seq;
   std::string m_description;
+  std::string m_defaults;
+  std::string m_trigger_mode;
+  int m_num_events;
 
   // Methods from IUniqueDBObject
   int fetchID() throw(std::runtime_error);

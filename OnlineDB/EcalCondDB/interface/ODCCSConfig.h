@@ -39,18 +39,26 @@ class ODCCSConfig : public IODConfig {
   inline void setOffsetMid(int x) { m_offset_mid = x; }
   inline int getOffsetMid() const { return m_offset_mid; }
 
-  inline void setPedestalOffsetRelease(std::string x) { m_pedestal_offset_release = x; }
-  inline std::string getPedestalOffsetRelease() const { return m_pedestal_offset_release; }
-
-  inline void setSystem(std::string x) { m_system = x; }
-  inline std::string getSystem() const { return m_system; }
-
   inline void setTrgMode(std::string x) { m_trg_mode = x; }
   inline std::string getTrgMode() const { return m_trg_mode; }
 
   inline void setTrgFilter(std::string x) { m_trg_filter = x; }
   inline std::string getTrgFilter() const { return m_trg_filter; }
 
+  inline void setClock(int x) { m_clock = x; }
+  inline int getClock() const { return m_clock; }
+  inline void setBGOSource(std::string x) { m_bgo = x; }
+  inline std::string getBGOSource() const { return m_bgo; }
+  inline void setTTSMask(int x) { m_tts_mask = x; }
+  inline int getTTSMask() const { return m_tts_mask; }
+  inline void setDAQBCIDPreset(int x) { m_daq = x; }
+  inline int getDAQBCIDPreset() const { return m_daq; }
+  inline void setTrgBCIDPreset(int x) { m_trg = x; }
+  inline int getTrgBCIDPreset() const { return m_trg; }
+  inline void setBC0Counter(int x) { m_bc0 = x; }
+  inline int getBC0Counter() const { return m_bc0; }
+
+  int fetchNextId() throw(std::runtime_error);
   
  private:
   void prepareWrite()  throw(std::runtime_error);
@@ -77,6 +85,12 @@ class ODCCSConfig : public IODConfig {
   std::string m_system;
   std::string m_trg_mode;
   std::string m_trg_filter;
+  int m_clock;
+  std::string m_bgo;
+  int m_tts_mask;
+  int m_daq;
+  int m_trg;
+  int m_bc0;
   
 };
 

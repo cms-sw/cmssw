@@ -24,23 +24,28 @@ class ODDCCConfig : public IODConfig {
   inline void setId(int id) { m_ID = id; }
   inline int getId() const { return m_ID; }
 
+  inline void setDCCConfigurationUrl(std::string x) { m_dcc_url = x; }
+  inline std::string getDCCConfigurationUrl() const { return m_dcc_url; }
+
+  inline void setTestPatternFileUrl(std::string x) { m_test_url = x; }
+  inline std::string getTestPatternFileUrl() const { return m_test_url; }
+
+  inline void setNTestPatternsToLoad(int id) { m_ntest = id; }
+  inline int getNTestPatternsToLoad() const { return m_ntest; }
+
+   inline void setSMHalf(int id) { m_sm_half = id; }
+   inline int getSMHalf() const { return m_sm_half; }
+
   inline void setDCCClob(unsigned char* x) { m_dcc_clob = x; }
   inline unsigned char* getDCCClob() const { return m_dcc_clob; }
 
   
  private:
   void prepareWrite()  throw(std::runtime_error);
-
   void writeDB()       throw(std::runtime_error);
-
   void clear();
-
   void fetchData(ODDCCConfig * result)     throw(std::runtime_error);
-
   int fetchID()  throw(std::runtime_error);
-
-
-
 
   unsigned char* readClob (oracle::occi::Clob &clob, int size)   throw(std::runtime_error);
   void populateClob (oracle::occi::Clob &clob)  throw(std::runtime_error);
@@ -51,6 +56,10 @@ class ODDCCConfig : public IODConfig {
   // User data
   int m_ID;
   unsigned char* m_dcc_clob;
+  std::string  m_dcc_url;
+  std::string  m_test_url;
+  int  m_ntest;
+  int  m_sm_half;
   
 };
 

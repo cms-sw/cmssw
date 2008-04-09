@@ -9,11 +9,12 @@
 #include "OnlineDB/EcalCondDB/interface/ODLaserCycle.h"
 #include "OnlineDB/EcalCondDB/interface/ODLTCCycle.h"
 #include "OnlineDB/EcalCondDB/interface/ODLTSCycle.h"
-#include "OnlineDB/EcalCondDB/interface/ODMataqCycle.h"
 #include "OnlineDB/EcalCondDB/interface/ODRunConfigCycleInfo.h"
 #include "OnlineDB/EcalCondDB/interface/ODScanCycle.h"
 #include "OnlineDB/EcalCondDB/interface/ODTCCCycle.h"
 #include "OnlineDB/EcalCondDB/interface/ODTTCciCycle.h"
+#include "OnlineDB/EcalCondDB/interface/ODTTCFCycle.h"
+#include "OnlineDB/EcalCondDB/interface/ODSRPCycle.h"
 
 using namespace std;
 using namespace oracle::occi;
@@ -119,13 +120,21 @@ void ODEcalCycle::writeDB()
     ttcci_cycle.insertConfig();
     cout << "Inserting TTCCI-cycle in DB..." << flush;
   }
-  if(getMataqId()!=0){
-    ODMataqCycle mataq_cycle;
-    mataq_cycle.setId(cyc_id);
-    mataq_cycle.setMataqConfigurationID(getMataqId());
-    mataq_cycle.setConnection(m_env, m_conn);
-    mataq_cycle.insertConfig();
-    cout << "Inserting MATAQ-cycle in DB..." << flush;
+  if(getTTCFId()!=0){
+    ODTTCFCycle ttcf_cycle;
+    ttcf_cycle.setId(cyc_id);
+    ttcf_cycle.setTTCFConfigurationID(getTTCFId());
+    ttcf_cycle.setConnection(m_env, m_conn);
+    ttcf_cycle.insertConfig();
+    cout << "Inserting TTCF-cycle in DB..." << flush;
+  }
+  if(getSRPId()!=0){
+    ODSRPCycle srp_cycle;
+    srp_cycle.setId(cyc_id);
+    srp_cycle.setSRPConfigurationID(getSRPId());
+    srp_cycle.setConnection(m_env, m_conn);
+    srp_cycle.insertConfig();
+    cout << "Inserting SRP-cycle in DB..." << flush;
   }
   if(getJBH4Id()!=0){
     ODJBH4Cycle jbh4_cycle;
@@ -145,7 +154,6 @@ void ODEcalCycle::writeDB()
   }
 
 
-
 }
 
 
@@ -163,11 +171,11 @@ void ODEcalCycle::clear(){
    m_lts=0;
    m_tcc=0;
    m_ttcci=0;
-   m_mataq=0;
    m_jbh4=0;
    m_scan=0;
    m_seq_id=0;
-
+   m_ttcf=0;
+   m_srp=0;
 }
 
 void ODEcalCycle::printout(){
@@ -183,16 +191,12 @@ void ODEcalCycle::printout(){
   std::cout << "**** ccs_id: "<< m_ccs <<std::endl;
   std::cout << "**** dcc_id: "<< m_dcc <<std::endl;
   std::cout << "**** laser: "<< m_laser << std::endl;
+  std::cout << "**** ttcf_id: "<< m_ttcf << std::endl;
+  std::cout << "**** srp_id: "<< m_srp << std::endl;
+  std::cout << "**** scan_id: "<< m_scan << std::endl;
   std::cout << "**** ODEcalCycle ****"<< std::endl;
  
-  /*   m_ltc=0;
-   m_lts=0;
-   m_tcc=0;
-   m_ttcci=0;
-   m_mataq=0;
-   m_jbh4=0;
-   m_scan=0;
-  */
+ 
 }
 
 
@@ -209,7 +213,7 @@ void ODEcalCycle::fetchData(ODEcalCycle * result)
 
     m_readStmt->setSQL("SELECT d.tag, d.version, d.sequence_num, d.cycle_num, d.cycle_tag, d.description, d.ccs_configuration_id,    "
 		       " d.dcc_configuration_id, d.laser_configuration_id, d.ltc_configuration_id, d.lts_configuration_id, d.tcc_configuration_id,"
-		       " d.\"TTCci_CONFIGURATION_ID\" , d.matacq_configuration_id, d.jbh4_configuration_id, d.scan_id " 
+		       " d.\"TTCci_CONFIGURATION_ID\" ,  d.jbh4_configuration_id, d.scan_id, d.TTCF_configuration_id, d.srp_configuration_id " 
 		       "FROM ECAL_CYCLE d "
 		       " where d.cycle_id = :1 " );
     m_readStmt->setInt(1, result->getId());
@@ -230,10 +234,13 @@ void ODEcalCycle::fetchData(ODEcalCycle * result)
     result->setLTSId(        rset->getInt(11) );
     result->setTCCId(        rset->getInt(12) );
     result->setTTCCIId(        rset->getInt(13) );
-    result->setMataqId(        rset->getInt(14) );
-    result->setJBH4Id(        rset->getInt(15) );
-    result->setScanId(        rset->getInt(16) );
 
+   
+    result->setJBH4Id(        rset->getInt(14) );
+    result->setScanId(        rset->getInt(15) );
+
+    result->setTTCFId(        rset->getInt(16) );
+    result->setSRPId(        rset->getInt(17) );
 
   } catch (SQLException &e) {
     throw(runtime_error("ODEcalCycle::fetchData():  "+e.getMessage()));

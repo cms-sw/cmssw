@@ -151,7 +151,7 @@ void ODRunConfigSeqInfo::prepareWrite()
 			"sequence_num, num_of_cycles, sequence_type_def_id, description ) "
 			"VALUES (:1, :2, :3 , :4, :5 )");
   } catch (SQLException &e) {
-    throw(runtime_error("ODCCSConfig::prepareWrite():  "+e.getMessage()));
+    throw(runtime_error("ODRunConfigSeqInfo::prepareWrite():  "+e.getMessage()));
   }
 }
 void ODRunConfigSeqInfo::writeDB()
