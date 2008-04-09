@@ -1,5 +1,5 @@
 //
-// $Id: PATElectronCleaner.h,v 1.3 2008/03/12 16:13:26 gpetrucc Exp $
+// $Id: PATElectronCleaner.h,v 1.4 2008/03/14 15:13:50 gpetrucc Exp $
 //
 
 #ifndef PhysicsTools_PatAlgos_PATElectronCleaner_h
@@ -37,7 +37,7 @@
   The actual selection is performed by the ElectronSelector.
 
   \author   Steven Lowette, James Lamb
-  \version  $Id: PATElectronCleaner.h,v 1.3 2008/03/12 16:13:26 gpetrucc Exp $
+  \version  $Id: PATElectronCleaner.h,v 1.4 2008/03/14 15:13:50 gpetrucc Exp $
 */
 
 
@@ -47,8 +47,8 @@
 #include "FWCore/ParameterSet/interface/InputTag.h"
 
 #include "PhysicsTools/PatAlgos/plugins/CleanerHelper.h"
-#include "DataFormats/EgammaCandidates/interface/PixelMatchGsfElectronFwd.h"
-#include "DataFormats/EgammaCandidates/interface/PixelMatchGsfElectron.h"
+#include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
+#include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
 #include "DataFormats/EgammaReco/interface/ClusterShapeFwd.h"
 
 #include "PhysicsTools/Utilities/interface/PtComparator.h"
@@ -77,10 +77,10 @@ namespace pat {
       edm::InputTag electronSrc_;
       bool          removeDuplicates_;
 
-      typedef pat::helper::CleanerHelper<reco::PixelMatchGsfElectron,
-                                 reco::PixelMatchGsfElectron,
-                                 reco::PixelMatchGsfElectronCollection,
-                                 GreaterByPt<reco::PixelMatchGsfElectron> > MyCleanerHelper;
+      typedef pat::helper::CleanerHelper<reco::GsfElectron,
+                                 reco::GsfElectron,
+                                 reco::GsfElectronCollection,
+                                 GreaterByPt<reco::GsfElectron> > MyCleanerHelper;
       MyCleanerHelper helper_;
 
       pat::helper::MultiIsolator isolator_;

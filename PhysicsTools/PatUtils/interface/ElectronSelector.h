@@ -14,14 +14,14 @@
     (An adapter exists for use in CMSSW: reco::modules::ParameterAdapter< pat::ElectronSelector >.)
 
     \author F.J. Ronga (ETH Zurich)
-    \version $Id: ElectronSelector.h,v 1.9 2008/03/11 12:55:25 fronga Exp $
+    \version $Id: ElectronSelector.h,v 1.11 2008/03/11 13:43:39 fronga Exp $
 **/
 
 #include <string>
 
 #include "AnalysisDataFormats/Egamma/interface/ElectronID.h"
 #include "AnalysisDataFormats/Egamma/interface/ElectronIDAssociation.h"
-#include "DataFormats/EgammaCandidates/interface/PixelMatchGsfElectronFwd.h"
+#include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
 
 #include "PhysicsTools/PatUtils/interface/ParticleCode.h"
 
@@ -51,7 +51,7 @@ namespace pat {
 
   class ElectronSelector {
 
-    typedef reco::PixelMatchGsfElectron            Electron;
+    typedef reco::GsfElectron            Electron;
     typedef reco::ElectronIDAssociationCollection  ElectronIDmap;
 
   public:

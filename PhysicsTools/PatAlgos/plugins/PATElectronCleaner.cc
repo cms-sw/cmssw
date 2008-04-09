@@ -1,5 +1,5 @@
 //
-// $Id: PATElectronCleaner.cc,v 1.2 2008/03/12 16:13:26 gpetrucc Exp $
+// $Id: PATElectronCleaner.cc,v 1.3 2008/03/14 15:13:50 gpetrucc Exp $
 //
 #include "PhysicsTools/PatAlgos/plugins/PATElectronCleaner.h"
 #include "DataFormats/EgammaReco/interface/BasicClusterShapeAssociation.h"
@@ -44,10 +44,10 @@ void PATElectronCleaner::produce(edm::Event & iEvent, const edm::EventSetup & iS
   for (size_t idx = 0, size = helper_.srcSize(); idx < size; ++idx) {
 
     // read the source electron
-    const reco::PixelMatchGsfElectron &srcElectron = helper_.srcAt(idx);    
+    const reco::GsfElectron &srcElectron = helper_.srcAt(idx);    
 
     // clone the electron so we can modify it (if we want)
-    reco::PixelMatchGsfElectron ourElectron = srcElectron; 
+    reco::GsfElectron ourElectron = srcElectron; 
 
     // Add the electron to the working collection
     size_t selIdx = helper_.addItem(idx, ourElectron);

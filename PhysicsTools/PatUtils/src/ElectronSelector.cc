@@ -1,4 +1,4 @@
-#include "DataFormats/EgammaCandidates/interface/PixelMatchGsfElectron.h"
+#include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
 #include "DataFormats/EgammaReco/interface/BasicCluster.h"
 #include "DataFormats/EgammaReco/interface/ClusterShape.h"
 
@@ -74,7 +74,7 @@ ElectronSelector::customSelection_( const unsigned int&        index,
 
   // Note: this is all taken from SusyAnalyzer
 
-  const reco::PixelMatchGsfElectron& electron = electrons[index];
+  const reco::GsfElectron& electron = electrons[index];
 
   // Retrieve information
   float eta          = fabs(electron.p4().Eta());

@@ -4,8 +4,8 @@
 #include "PhysicsTools/PatUtils/interface/GenericDuplicateRemover.h"
 #include "PhysicsTools/PatUtils/interface/GenericOverlapFinder.h"
 
-#include "DataFormats/EgammaCandidates/interface/PixelMatchGsfElectronFwd.h"
-#include "DataFormats/EgammaCandidates/interface/PixelMatchGsfElectron.h"
+#include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
+#include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
 #include "DataFormats/EgammaCandidates/interface/PhotonFwd.h"
 #include "DataFormats/EgammaCandidates/interface/Photon.h"
 
@@ -36,13 +36,13 @@ namespace pat {
 
             /// Indices of duplicated photons (same supercluster) to remove. It keeps the photons with highest energy.
             /// PhotonCollection can be anything that has a "begin()" and "end()", and that hold things which have a "superCluster()" method
-            /// notable examples are std::vector<Photon> and edm::View<Photon> (but PixelMatchGsfElectrons work too)
+            /// notable examples are std::vector<Photon> and edm::View<Photon> (but GsfElectrons work too)
             template <typename PhotonCollection> 
             std::auto_ptr< std::vector<size_t> > duplicatesBySuperCluster(const PhotonCollection &photons) const ;
             
             /// Indices of duplicated photons (same supercluster) to remove. It keeps the photons with highest energy.
             /// PhotonCollection can be anything that has a "begin()" and "end()", and that hold things which have a "superCluster()" method
-            /// notable examples are std::vector<Photon> and edm::View<Photon> (but PixelMatchGsfElectrons work too)
+            /// notable examples are std::vector<Photon> and edm::View<Photon> (but GsfElectrons work too)
             template <typename PhotonCollection> 
             std::auto_ptr< std::vector<size_t> > duplicatesBySeed(const PhotonCollection &photons) const ;
 
