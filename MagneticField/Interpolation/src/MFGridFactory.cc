@@ -34,6 +34,7 @@ MFGrid* MFGridFactory::build(const string& name, const GloballyPositioned<float>
     break;
   case 5:
     result = new SpecialCylindricalMFGrid(inFile, vol, gridType);
+    break;
   case 6:
     result = new SpecialCylindricalMFGrid(inFile, vol, gridType);
     break;
