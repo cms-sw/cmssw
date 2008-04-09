@@ -45,8 +45,6 @@ class TtSemiJetCombMVAComputer : public edm::EDProducer {
   unsigned int nJetsMax_;
   double discrimCut_;
 
-  std::string histDir_;
-
   PhysicsTools::MVAComputerCache mvaComputer;
 };
 

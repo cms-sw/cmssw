@@ -7,8 +7,7 @@ TtSemiJetCombMVAComputer::TtSemiJetCombMVAComputer(const edm::ParameterSet& cfg)
   muons_     (cfg.getParameter<edm::InputTag>("muons")),
   jets_      (cfg.getParameter<edm::InputTag>("jets")),
   nJetsMax_  (cfg.getParameter<int>("nJetsMax")),
-  discrimCut_(cfg.getParameter<double>("discrimCut")),
-  histDir_   (cfg.getParameter<std::string>("hist_directory"))
+  discrimCut_(cfg.getParameter<double>("discrimCut"))
 {
   produces< std::vector<int> >();
 }
