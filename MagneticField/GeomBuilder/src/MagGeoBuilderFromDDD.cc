@@ -3,8 +3,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/03/10 16:26:36 $
- *  $Revision: 1.10 $
+ *  $Date: 2008/03/29 14:37:18 $
+ *  $Revision: 1.11 $
  *  \author N. Amapane - INFN Torino
  */
 
@@ -423,6 +423,7 @@ void MagGeoBuilderFromDDD::buildMagVolumes(const handles & volumes, map<string, 
 
     // FIXME: debug, to be removed
     (*vol)->magVolume->name = (*vol)->name;
+    (*vol)->magVolume->copyno = (*vol)->copyno;
   }
 }
 
@@ -479,6 +480,9 @@ void MagGeoBuilderFromDDD::buildInterpolator(const volumeHandle * vol, map<strin
     }
   } catch (MagException& exc) {
     cout << exc.what() << endl;
+    interpolators.erase(vol->magFile);
+    // throw; // FIXME, comment this to debug geometry in absence of interpolators
+    return;
   }
 
 
