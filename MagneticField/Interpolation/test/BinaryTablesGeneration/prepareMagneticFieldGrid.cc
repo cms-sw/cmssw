@@ -1,11 +1,10 @@
-// include header for prepareMagneticFieldGrid (regular + extension for some trapezoids)
 #include "prepareMagneticFieldGrid.h"
 
 #include "MagneticField/Interpolation/src/VectorFieldInterpolation.h"
 #include "MagneticField/Interpolation/src/binary_ofstream.h"
+#include <iomanip>
 
-using std::cout;
-using std::endl;
+using namespace std;
 
 void prepareMagneticFieldGrid::countTrueNumberOfPoints(const std::string& name) const {
 
@@ -26,6 +25,11 @@ void prepareMagneticFieldGrid::countTrueNumberOfPoints(const std::string& name) 
       file >> x1 >> x2 >> x3 >> Bx >> By >> Bz >> perm >> poten;
       if (file){
         XBVector.putV6(x1, x2, x3, Bx, By, Bz);
+// 	if (nLines<5) {
+// 	  double tx1, tx2, tx3, tBx, tBy, tBz;
+// 	  XBVector.getV6(tx1, tx2, tx3, tBx, tBy, tBz);
+// 	  cout << "Read: " <<  setprecision(12) << Bx << " " << tBx << endl;
+// 	}
         XBValues.push_back(XBVector);
         ++nLines;
       }
@@ -74,8 +78,14 @@ void prepareMagneticFieldGrid::fillFromFile(const std::string& name){
   std::string::size_type ibeg, iend;
   ibeg = name.find('-');  // first occurance of "-"
   iend = name.rfind('-'); // last  occurance of "-"
-  if  ((name.substr(ibeg+1, iend-ibeg-1)) == "xyz") XyzCoordinates = true;
-  if  ((name.substr(ibeg+1, iend-ibeg-1)) == "rpz") RpzCoordinates = true;
+  if  ((name.substr(ibeg+1, iend-ibeg-1)) == "xyz") {
+    XyzCoordinates = true;
+  } else if  ((name.substr(ibeg+1, iend-ibeg-1)) == "rpz") {
+    RpzCoordinates = true;
+  } else {
+    cout << " Unrecognized input file name: valid formats are *-xyz-* or *-rpz-*" << endl;
+    abort();
+  }
 
   // define vectors of IndexedDoubleVectors
   IndexedDoubleVector XBVector;
@@ -557,8 +567,16 @@ void prepareMagneticFieldGrid::fillFromFileSpecial(const std::string& name){
   std::string::size_type ibeg, iend;
   ibeg = name.find('-');  // first occurance of "-"
   iend = name.rfind('-'); // last  occurance of "-"
-  if  ((name.substr(ibeg+1, iend-ibeg-1)) == "xyz") XyzCoordinates = true;
-  if  ((name.substr(ibeg+1, iend-ibeg-1)) == "rpz") RpzCoordinates = true;
+  if  ((name.substr(ibeg+1, iend-ibeg-1)) == "xyz") {
+    XyzCoordinates = true;
+  } else if  ((name.substr(ibeg+1, iend-ibeg-1)) == "rpz") {
+    RpzCoordinates = true;
+  } else {
+    cout << " Unrecognized input file name: valid formats are *-xyz-* or *-rpz-*" << endl;
+    abort();
+  }
+
+
 
   // define vectors of IndexedDoubleVectors
   IndexedDoubleVector XBVector;
@@ -584,6 +602,15 @@ void prepareMagneticFieldGrid::fillFromFileSpecial(const std::string& name){
         XBVector.putV6(x1, x2, x3, Bx, By, Bz);
         XBValues.push_back(XBVector);
         ++nLines;
+	// Determine if sector is at phi=0 or at phi=pi/2 (so that special
+	// grid should use cos or sin)
+	if (nLines==1)  {
+	  if (fabs(x2)< 0.78) { 
+	    sector = one;
+	  } else {
+	    sector = four;
+	  }	
+	}
         // pre analyze file content
         double pnt[3] = {x1,x2,x3};
         if (nLines == 1){
@@ -838,8 +865,19 @@ void prepareMagneticFieldGrid::fillFromFileSpecial(const std::string& name){
 	double phi  =  phiVec.operator[](j);
 	double rMin = rMinVec.operator[](j);
 	double rMax = rMaxVec.operator[](j);
-	double rhoMin = rMin*sin(phi);
-	double rhoMax = rMax*sin(phi);
+	double rhoMin, rhoMax;
+	if (sector==one) {
+	  rhoMin = rMin*cos(phi);
+	  rhoMax = rMax*cos(phi);
+	} else if (sector==four) {
+	  rhoMin = rMin*sin(phi);
+	  rhoMax = rMax*sin(phi);
+	} else {
+	  cout << "unknown sector!" << endl;
+	  abort();
+	}
+	
+	
 	if (j == 0){
 	  RParAsFunOfPhi[0] = rMax;
 	  RParAsFunOfPhi[1] = rhoMax;
@@ -879,8 +917,23 @@ void prepareMagneticFieldGrid::fillFromFileSpecial(const std::string& name){
       nSteps[i] = NumberOfPoints[i]-1;
     }
 
-    double sinPhi = sin(secondRefPoint[1]);
-    if (std::abs(sinPhi) < EPSILON) sinPhi = EPSILON;
+    // either sin for sector 4 (at pi/2) or cos for sector 1.
+    double sinPhi;
+    if (sector==one) {
+      sinPhi = cos(secondRefPoint[1]);
+    } else if (sector==four) {
+      sinPhi = sin(secondRefPoint[1]);
+    } else {
+      cout << "unknown sector!" << endl;
+      abort();
+    }
+	
+    
+    if (std::abs(sinPhi) < EPSILON) {
+      cout << " WARNING: unexpected sinPhi parameter = 0" << endl;
+      sinPhi = EPSILON;
+    }
+    
     double totStepSize = RParAsFunOfPhi[0] + RParAsFunOfPhi[1]/sinPhi - RParAsFunOfPhi[2] - RParAsFunOfPhi[3]/sinPhi;
     double startingPoint = RParAsFunOfPhi[2] + RParAsFunOfPhi[3]/sinPhi;
     double totDiff = secondRefPoint[0] - (startingPoint + totStepSize);
@@ -896,45 +949,52 @@ void prepareMagneticFieldGrid::fillFromFileSpecial(const std::string& name){
     else                         systematicGrid[2] = false;
     if (!systematicGrid[2]) KnownStructure = false;
 
-    if (KnownStructure){
-      if (RpzCoordinates) GridType = 5;
-      if (PRINT){
-        // print result
-        cout << "  read " << nLines << " lines -> grid structure:" << endl;
-        cout << "  # of points:   N1 = " << NumberOfPoints[0]
-                           << "   N2 = " << NumberOfPoints[1]
-                           << "   N3 = " << NumberOfPoints[2] << endl;
-        cout << "  ref. point :   X1 = " << ReferencePoint[0]
-                           << "   X2 = " << ReferencePoint[1]
-                           << "   X3 = " << ReferencePoint[2] << endl;
-        cout << "  step parm0 :   A1 = " << BasicDistance0[0]
-                           << "   A2 = " << BasicDistance0[1]
-                           << "   A3 = " << BasicDistance0[2] << endl;
-        cout << "  r param.s. :   R1 = " << RParAsFunOfPhi[0]
-                           << " RHO1 = " << RParAsFunOfPhi[1]
-                           << "   R2 = " << RParAsFunOfPhi[2]
-                           << " RHO2 = " << RParAsFunOfPhi[3] << endl;
-        cout << "  easy grid  :   E1 = " << EasyCoordinate[0]
-                           << "   E2 = " << EasyCoordinate[1]
-                           << "   E3 = " << EasyCoordinate[2] << endl;
-        cout << "             :   I1 = " << goodIndex[0]
-                           << "   I2 = " << goodIndex[1]
-                           << "   I3 = " << goodIndex[2] << endl;
-        cout << "  structure  :   S1 = " << systematicGrid[0]
-                           << "   S2 = " << systematicGrid[1]
-                           << "   S3 = " << systematicGrid[2]; 
-        if (KnownStructure) cout << "  -->  VALID   (step II)" << endl;
-        else{               cout << "  -->  INVALID (step II)" << endl;
-          cout << "  reason for error: ";
-          if (NumberOfPoints[0]*NumberOfPoints[1]*NumberOfPoints[2] != nLines) {
-            cout << endl;
-            cout << "  N1*N2*N3 =/= N.lines  -->  exiting now ..." << endl;
-            return;
-          }
-          else {
-	    cout << "  no idea so far  -->  exiting now ..." << endl;
-            return;
-          }
+    if (KnownStructure) {
+      if (RpzCoordinates) {
+	if (sector==four) GridType = 5;
+	else if (sector==one) GridType = 6;
+	else {
+	  cout << "ERROR: Special grid detected, but unknown sector" << sector << endl;
+	}
+      }
+    }
+    
+    if (PRINT){
+      // print result
+      cout << "  read " << nLines << " lines -> grid structure:" << endl;
+      cout << "  # of points:   N1 = " << NumberOfPoints[0]
+	   << "   N2 = " << NumberOfPoints[1]
+	   << "   N3 = " << NumberOfPoints[2] << endl;
+      cout << "  ref. point :   X1 = " << ReferencePoint[0]
+	   << "   X2 = " << ReferencePoint[1]
+	   << "   X3 = " << ReferencePoint[2] << endl;
+      cout << "  step parm0 :   A1 = " << BasicDistance0[0]
+	   << "   A2 = " << BasicDistance0[1]
+	   << "   A3 = " << BasicDistance0[2] << endl;
+      cout << "  r param.s. :   R1 = " << RParAsFunOfPhi[0]
+	   << " RHO1 = " << RParAsFunOfPhi[1]
+	   << "   R2 = " << RParAsFunOfPhi[2]
+	   << " RHO2 = " << RParAsFunOfPhi[3] << endl;
+      cout << "  easy grid  :   E1 = " << EasyCoordinate[0]
+	   << "   E2 = " << EasyCoordinate[1]
+	   << "   E3 = " << EasyCoordinate[2] << endl;
+      cout << "             :   I1 = " << goodIndex[0]
+	   << "   I2 = " << goodIndex[1]
+	   << "   I3 = " << goodIndex[2] << endl;
+      cout << "  structure  :   S1 = " << systematicGrid[0]
+	   << "   S2 = " << systematicGrid[1]
+	   << "   S3 = " << systematicGrid[2]; 
+      if (KnownStructure) cout << "  -->  VALID   (step II)" << endl;
+      else{               cout << "  -->  INVALID (step II)" << endl;
+	cout << "  reason for error: ";
+	if (NumberOfPoints[0]*NumberOfPoints[1]*NumberOfPoints[2] != nLines) {
+	  cout << endl;
+	  cout << "  N1*N2*N3 =/= N.lines  -->  exiting now ..." << endl;
+	  return;
+	}
+	else {
+	  cout << "  no idea so far  -->  exiting now ..." << endl;
+	  return;
         }
       }
     }
@@ -963,6 +1023,7 @@ int prepareMagneticFieldGrid::gridType(){
     if (type == 3) cout << "  grid type = " << type << "  -->  (r,phi,z) cube" << endl;
     if (type == 4) cout << "  grid type = " << type << "  -->  (r,phi,z) trapezoid" << endl;
     if (type == 5) cout << "  grid type = " << type << "  -->  (r,phi,z) 1/sin(phi)" << endl;
+    if (type == 6) cout << "  grid type = " << type << "  -->  (r,phi,z) 1/cos(phi)" << endl;
   }
   return type;
 }
@@ -978,7 +1039,7 @@ void prepareMagneticFieldGrid::validateAllPoints(){
   // loop over three dimensions
   int index[3];
 
-  if (GridType != 5){
+  if (GridType < 5){
     for (index[0]=0; index[0]<NumberOfPoints[0]; ++index[0]){
       for (index[1]=0; index[1]<NumberOfPoints[1]; ++index[1]){
         for (index[2]=0; index[2]<NumberOfPoints[2]; ++index[2]){
@@ -1004,7 +1065,7 @@ void prepareMagneticFieldGrid::validateAllPoints(){
     }
   }
 
-  if (GridType == 5){
+  if (GridType == 5 || GridType == 6){
     for (index[0]=0; index[0]<NumberOfPoints[0]; ++index[0]){
       for (index[1]=0; index[1]<NumberOfPoints[1]; ++index[1]){
 	for (index[2]=0; index[2]<NumberOfPoints[2]; ++index[2]){
@@ -1088,7 +1149,7 @@ void prepareMagneticFieldGrid::saveGridToFile(const std::string& outName){
     outFile << BasicDistance2[0][2] << BasicDistance2[1][2] << BasicDistance2[2][2];
     outFile << EasyCoordinate[0]    << EasyCoordinate[1]    << EasyCoordinate[2];
   }
-  if (GridType == 5) {
+  if (GridType == 5 || GridType == 6) {
     outFile << NumberOfPoints[0]    << NumberOfPoints[1]    << NumberOfPoints[2];
     outFile << ReferencePoint[0]    << ReferencePoint[1]    << ReferencePoint[2];
     outFile << BasicDistance0[0]    << BasicDistance0[1]    << BasicDistance0[2];
@@ -1103,6 +1164,7 @@ void prepareMagneticFieldGrid::saveGridToFile(const std::string& outName){
     float By = float(GridPoint.by());
     float Bz = float(GridPoint.bz());
     outFile << Bx << By << Bz;
+    //    if (iLine<5) cout << setprecision(12) << Bx << " " << GridPoint.bx() << endl;
   }
   // make end and close output file
   const std::string lastEntry = "complete";
@@ -1183,8 +1245,8 @@ void prepareMagneticFieldGrid::putCoordGetIndices(double X1, double X2, double X
 
   double pnt[3] = {X1,X2,X3};
   int index[3];
-
-  if (GridType != 5){
+	
+  if (GridType < 5){
     for (int i=0; i<3; ++i){
       if (EasyCoordinate[i]){
 	index[i] = int((pnt[i]-ReferencePoint[i])/BasicDistance0[i]);
@@ -1202,8 +1264,22 @@ void prepareMagneticFieldGrid::putCoordGetIndices(double X1, double X2, double X
       }
     }
   }
-  if (GridType == 5){
-    double sinPhi = sin(pnt[1]);
+  if (GridType == 5 || GridType == 6){
+    // check consistency of sector assignment
+    if ((std::abs(X2)< 0.78 && sector!=one) ||
+	(std::abs(X2) > 0.78 && sector!=four)) {
+      cout << " ERROR putCoordGetIndices: Mismatch in sector assignment:  " <<  sector << X2 << endl;
+    }
+
+    double sinPhi; // Either cos or sin depending if sector is at phi=0 or at phi=pi/2
+    if (sector==one) {
+      sinPhi = cos(pnt[1]);
+    } else if (sector ==four) {
+      sinPhi = sin(pnt[1]);
+    } else {
+      abort();
+    } 
+    
     if (std::abs(sinPhi) < EPSILON){
       sinPhi = EPSILON;
       cout << "ERROR DIVISION BY ZERO" << endl;
@@ -1242,7 +1318,7 @@ void prepareMagneticFieldGrid::putIndCalcXReturnB(int Index1, int Index2, int In
   int index[3] = {Index1, Index2, Index3};
   double pnt[3];
 
-  if (GridType != 5){
+  if (GridType < 5){
     for (int i=0; i<3; ++i){
       if (EasyCoordinate[i]){
 	pnt[i] = ReferencePoint[i] + BasicDistance0[i]*index[i];
@@ -1258,10 +1334,28 @@ void prepareMagneticFieldGrid::putIndCalcXReturnB(int Index1, int Index2, int In
       }
     }
   }
-  if (GridType == 5){
+  if (GridType == 5 || GridType == 6){
     pnt[2] = ReferencePoint[2] + BasicDistance0[2]*index[2];
     pnt[1] = ReferencePoint[1] + BasicDistance0[1]*index[1];
-    double sinPhi = sin(pnt[1]);
+
+    // check consistency of sector assignment
+    if ((std::abs(pnt[1])< 0.78 && sector!=one) ||
+	(std::abs(pnt[1]) > 0.78 && sector!=four)) {
+      cout << "ERROR: putIndCalcXReturnB: Mismatch in sector assignment:  " <<  sector << pnt[1] << endl;
+    }
+
+    // Determine if sector is at phi=0 or at phi=pi/2 (so that special
+    // grid should use cos or sin)
+    double sinPhi; // Either cos or sin depending if sector is at phi=0 or at phi=pi/2
+    if (sector==one) {
+      sinPhi = cos(pnt[1]);
+    } else if (sector ==four) {
+      sinPhi = sin(pnt[1]);
+    } else {
+      cout << "unknown sector!" << endl;
+      abort();
+    }
+    
     if (std::abs(sinPhi) < EPSILON){
       sinPhi = EPSILON;
       cout << "ERROR DIVISION BY ZERO" << endl;

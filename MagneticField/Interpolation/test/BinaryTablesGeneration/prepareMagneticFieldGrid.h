@@ -4,6 +4,10 @@
 /** \class prepareMagneticFieldGrid
  *
  * read coordinates and magnetic field values from an ASCII file
+ *
+ * The file given as inmust be in the form:
+ *   *-xyz-* (Cartesian) 
+ *   *-rpz-* (Cylindrical)
  * -remark: the units of the ASCII file are unknown to this class
  *
  * determine the structure of the coordinate points (e.g. trapezoid)
@@ -14,12 +18,9 @@
  * additional functions either translate indices <-> coordinates,
  * transfer data, or activate the interpolation between grid points
  *
- * \author : <Volker.Drollinger@cern.ch>
+ * \author : <Volker.Drollinger@cern.ch>, updated N. Amapane 04/2008
  * $date   : 09/09/2003 11:49:38 CET $
- *
- * Modifications:
- * droll: rename methods according to CMS coding rules
- * $date   : 22/09/2003 11:16:07 CET $
+ * 
  *
  */
 
@@ -49,11 +50,15 @@ public:
     KnownStructure = false;
     XyzCoordinates = false;
     RpzCoordinates = false;
+    sector = unknown;
 }
   // destructor
   ~prepareMagneticFieldGrid(){}
 
 private:
+
+  enum masterSector {unknown=0, one=1, four=4};
+
   class IndexedDoubleVector{
   public:
     // constructor
@@ -105,6 +110,8 @@ private:
   bool   KnownStructure;
   bool   XyzCoordinates;
   bool   RpzCoordinates;
+  masterSector sector;
+
   // all points (X1,X2,X3,Bx,By,Bz) of one volume
   std::vector<SixDPoint> GridData;
 
