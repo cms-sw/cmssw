@@ -46,7 +46,7 @@ class bootstrap:
         self.__connect=''
         self.__registry={}
         self.__basedir=''
-
+        self.__dbconfig=''
     def fillregistry(self):
         idx=0
         for l1element in elementstack_l1:
@@ -80,7 +80,7 @@ class bootstrap:
         """
         p = xml.parsers.expat.ParserCreate()
         p.StartElementHandler = start_element
-        f=open('dbconfiguration.xml','r')
+        f=open(self.__dbconfig,'r')
         p.ParseFile(f)
         self.fillregistry()
         
@@ -167,25 +167,24 @@ class bootstrap:
                 dict=self.__registry[self.__detector][1]['library']
                 createpool=' '.join(['pool_build_object_relational_mapping','-c',c,'-f',mappingxmlfile,'-d',dict])
                 commands.append(createpool)
-            for command in commands:
-                if self.__fake is True:
-                    print 'Fake run...'
-                    print '\t',createmeta
-                    print '\t',createiov
-                    for command in commands:
-                        print '\t',command
-                else:
-                    print 'Running...'
-                    print '\t',createmeta
-                    os.system(createmeta)
+            if self.__fake is True:
+                print 'Fake run...'
+                print '\t',createmeta
+                print '\t',createiov
+                for command in commands:
+                    print '\t',command
+            else:
+                print 'Running...'
+                print '\t',createmeta
+                os.system(createmeta)
+                print '\t done'
+                print '\t',createiov
+                os.system(createiov)
+                print '\t done'
+                for command in commands:
+                    print '\t',command
+                    os.system(command)
                     print '\t done'
-                    print '\t',createiov
-                    os.system(createiov)
-                    print '\t done'
-                    for command in commands:
-                        print '\t',command
-                        os.system(command)
-                        print '\t done'
         else:
             c=self.__connect
             for detector in self.__registry.keys():
