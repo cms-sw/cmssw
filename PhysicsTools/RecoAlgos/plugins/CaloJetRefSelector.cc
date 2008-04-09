@@ -23,8 +23,8 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "PhysicsTools/UtilAlgos/interface/SingleObjectSelector.h"
 #include "PhysicsTools/UtilAlgos/interface/StringCutObjectSelector.h"
-#include "DataFormats/CaloJetReco/interface/CaloJet.h"
-#include "DataFormats/CaloJetReco/interface/CaloJetCollection.h"
+#include "DataFormats/JetReco/interface/CaloJet.h"
+#include "DataFormats/JetReco/interface/CaloJetCollection.h"
 
  typedef SingleObjectSelector<
            reco::CaloJetCollection, 
