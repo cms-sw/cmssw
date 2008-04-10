@@ -3,7 +3,7 @@
 // Class:      SiStripGainCosmicCalculator
 // Original Author:  G. Bruno, D. Kcira
 //         Created:  Mon May 20 10:04:31 CET 2007
-// $Id: SiStripGainCosmicCalculator.cc,v 1.3 2007/09/28 17:47:13 ratnik Exp $
+// $Id: SiStripGainCosmicCalculator.cc,v 1.4 2008/01/22 18:49:04 muzaffar Exp $
 #include "CalibTracker/SiStripChannelGain/plugins/SiStripGainCosmicCalculator.h"
 #include "CalibTracker/Records/interface/SiStripDetCablingRcd.h"
 #include "CalibFormats/SiStripObjects/interface/SiStripDetCabling.h"
@@ -176,7 +176,7 @@ void SiStripGainCosmicCalculator::algoAnalyze(const edm::Event & iEvent, const e
       ((TH1F*) HlistOtherHistos->FindObject("LocalAngleAbsoluteCosine"))->Fill(fabs(cos(local_angle)));
       if(sistripsimplehit){
         ((TH1F*) HlistOtherHistos->FindObject("SiStripRecHitType"))->Fill(1.);
-        const edm::Ref<edm::DetSetVector<SiStripCluster>, SiStripCluster, edm::refhelper::FindForDetSetVector<SiStripCluster> > cluster=sistripsimplehit->cluster();
+        const SiStripRecHit2D::ClusterRef & cluster=sistripsimplehit->cluster();
         const std::vector<uint16_t>& ampls = cluster->amplitudes();
         uint32_t thedetid  = cluster->geographicalId();
         double module_width = moduleWidth(thedetid, &iSetup);
