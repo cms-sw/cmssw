@@ -12,6 +12,7 @@
 #include "DataFormats/TrackerRecHit2D/interface/SiStripMatchedRecHit2DCollection.h"
 #include "DataFormats/SiStripCluster/interface/SiStripCluster.h"
 #include "DataFormats/Common/interface/DetSetVector.h"
+#include "DataFormats/Common/interface/DetSetVectorNew.h"
 
 
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -70,7 +71,7 @@ namespace cms
     // Step A: Get Inputs 
     std::string clusterProducer = conf_.getParameter<std::string>("ClusterProducer");
     bool regional = conf_.getParameter<bool>("Regional");
-    edm::Handle<edm::DetSetVector<SiStripCluster> > clusters;
+    edm::Handle<edmNew::DetSetVector<SiStripCluster> > clusters;
     edm::Handle<edm::SiStripRefGetter<SiStripCluster> > refclusters;
     edm::Handle<edm::SiStripLazyGetter<SiStripCluster> > lazygetter;
 

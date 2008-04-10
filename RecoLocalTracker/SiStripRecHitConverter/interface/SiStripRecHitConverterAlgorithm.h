@@ -22,6 +22,7 @@
 #include "DataFormats/TrackerRecHit2D/interface/SiStripMatchedRecHit2DCollection.h"
 #include "DataFormats/SiStripCluster/interface/SiStripClusterCollection.h"
 #include "DataFormats/Common/interface/DetSetVector.h"
+#include "DataFormats/Common/interface/DetSetVectorNew.h"
 #include "DataFormats/SiStripCommon/interface/SiStripRefGetter.h"
 
 #include "Geometry/TrackerGeometryBuilder/interface/StripGeomDetUnit.h"
@@ -41,8 +42,8 @@ class SiStripRecHitConverterAlgorithm
 
   /// Runs the algorithm
 
-    void run(edm::Handle<edm::DetSetVector<SiStripCluster> >  input,SiStripMatchedRecHit2DCollection & outmatched,SiStripRecHit2DCollection & outrphi, SiStripRecHit2DCollection & outstereo,const TrackerGeometry& tracker,const StripClusterParameterEstimator &stripcpe, const SiStripRecHitMatcher &clustermatch_);
-    void run(edm::Handle<edm::DetSetVector<SiStripCluster> >  input, SiStripMatchedRecHit2DCollection&  output, SiStripRecHit2DCollection&  outrphi,SiStripRecHit2DCollection&  outstereo,const TrackerGeometry & tracker,const StripClusterParameterEstimator &stripcpe ,const SiStripRecHitMatcher &clustermatch_, LocalVector trackdirection);
+    void run(edm::Handle<edmNew::DetSetVector<SiStripCluster> >  input,SiStripMatchedRecHit2DCollection & outmatched,SiStripRecHit2DCollection & outrphi, SiStripRecHit2DCollection & outstereo,const TrackerGeometry& tracker,const StripClusterParameterEstimator &stripcpe, const SiStripRecHitMatcher &clustermatch_);
+    void run(edm::Handle<edmNew::DetSetVector<SiStripCluster> >  input, SiStripMatchedRecHit2DCollection&  output, SiStripRecHit2DCollection&  outrphi,SiStripRecHit2DCollection&  outstereo,const TrackerGeometry & tracker,const StripClusterParameterEstimator &stripcpe ,const SiStripRecHitMatcher &clustermatch_, LocalVector trackdirection);
     void run(edm::Handle<edm::SiStripRefGetter<SiStripCluster> >  input1, edm::Handle<edm::SiStripLazyGetter<SiStripCluster> > input2, SiStripMatchedRecHit2DCollection & outmatched,SiStripRecHit2DCollection & outrphi, SiStripRecHit2DCollection & outstereo,const TrackerGeometry& tracker,const StripClusterParameterEstimator &parameterestimator, const SiStripRecHitMatcher & matcher);
 
  private:

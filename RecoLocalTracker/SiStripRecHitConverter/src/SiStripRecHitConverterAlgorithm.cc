@@ -32,21 +32,21 @@ SiStripRecHitConverterAlgorithm::SiStripRecHitConverterAlgorithm(const edm::Para
 SiStripRecHitConverterAlgorithm::~SiStripRecHitConverterAlgorithm() {
 }
 
-void SiStripRecHitConverterAlgorithm::run(edm::Handle<edm::DetSetVector<SiStripCluster> >  input,SiStripMatchedRecHit2DCollection & outmatched,SiStripRecHit2DCollection & outrphi, SiStripRecHit2DCollection & outstereo,const TrackerGeometry& tracker,const StripClusterParameterEstimator &parameterestimator, const SiStripRecHitMatcher & matcher)
+void SiStripRecHitConverterAlgorithm::run(edm::Handle<edmNew::DetSetVector<SiStripCluster> >  input,SiStripMatchedRecHit2DCollection & outmatched,SiStripRecHit2DCollection & outrphi, SiStripRecHit2DCollection & outstereo,const TrackerGeometry& tracker,const StripClusterParameterEstimator &parameterestimator, const SiStripRecHitMatcher & matcher)
 {
   run(input, outmatched,outrphi,outstereo,tracker,parameterestimator,matcher,LocalVector(0.,0.,0.));
 }
 
 
-void SiStripRecHitConverterAlgorithm::run(edm::Handle<edm::DetSetVector<SiStripCluster> > inputhandle,SiStripMatchedRecHit2DCollection & outmatched,SiStripRecHit2DCollection & outrphi, SiStripRecHit2DCollection & outstereo,const TrackerGeometry& tracker,const StripClusterParameterEstimator &parameterestimator, const SiStripRecHitMatcher & matcher,LocalVector trackdirection)
+void SiStripRecHitConverterAlgorithm::run(edm::Handle<edmNew::DetSetVector<SiStripCluster> > inputhandle,SiStripMatchedRecHit2DCollection & outmatched,SiStripRecHit2DCollection & outrphi, SiStripRecHit2DCollection & outstereo,const TrackerGeometry& tracker,const StripClusterParameterEstimator &parameterestimator, const SiStripRecHitMatcher & matcher,LocalVector trackdirection)
 {
 
   int nmono=0;
   int nstereo=0;
 
-  for (edm::DetSetVector<SiStripCluster>::const_iterator DSViter=inputhandle->begin(); DSViter!=inputhandle->end();DSViter++ ) {//loop over detectors
+  for (edmNew::DetSetVector<SiStripCluster>::const_iterator DSViter=inputhandle->begin(); DSViter!=inputhandle->end();DSViter++ ) {//loop over detectors
  
-    unsigned int id = DSViter->id;
+    unsigned int id = DSViter->id();
 
     edm::OwnVector<SiStripRecHit2D> collectorrphi; 
     edm::OwnVector<SiStripRecHit2D> collectorstereo; 
@@ -56,11 +56,11 @@ void SiStripRecHitConverterAlgorithm::run(edm::Handle<edm::DetSetVector<SiStripC
       const StripGeomDetUnit * stripdet=(const StripGeomDetUnit*)tracker.idToDetUnit(detId);
       if(stripdet==0)edm::LogWarning("SiStripRecHitConverter")<<"Detid="<<id<<" not found, trying next one";
       else{
-        edm::DetSet<SiStripCluster>::const_iterator begin=DSViter->data.begin();
-        edm::DetSet<SiStripCluster>::const_iterator end  =DSViter->data.end();
+        edmNew::DetSet<SiStripCluster>::const_iterator begin=DSViter->begin();
+        edmNew::DetSet<SiStripCluster>::const_iterator end  =DSViter->end();
         
         StripSubdetector specDetId=StripSubdetector(id);
-        for(edm::DetSet<SiStripCluster>::const_iterator iter=begin;iter!=end;++iter){//loop over the clusters of the detector
+        for(edmNew::DetSet<SiStripCluster>::const_iterator iter=begin;iter!=end;++iter){//loop over the clusters of the detector
 
           //calculate the position and error in local coordinates
           StripClusterParameterEstimator::LocalValues parameters=parameterestimator.localParameters(*iter,*stripdet);
@@ -72,7 +72,7 @@ void SiStripRecHitConverterAlgorithm::run(edm::Handle<edm::DetSetVector<SiStripC
 //           parameters=parameterestimator.localParameters(*iter,*stripdet,trackparam);
 
           //store the ref to the cluster
-          edm::Ref< edm::DetSetVector <SiStripCluster>,SiStripCluster > const & cluster=edm::makeRefTo(inputhandle,id,iter);
+          SiStripRecHit2D::ClusterRef cluster=edmNew::makeRefTo(inputhandle,iter);
 
           if(!specDetId.stereo()){ //if the cluster is in a mono det
             collectorrphi.push_back(new SiStripRecHit2D(parameters.first, parameters.second,detId,cluster));
