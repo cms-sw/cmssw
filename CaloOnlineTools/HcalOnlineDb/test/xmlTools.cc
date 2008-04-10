@@ -25,6 +25,7 @@
 #include "CaloOnlineTools/HcalOnlineDb/interface/ConfigurationItemNotFoundException.hh"
 #include "CaloOnlineTools/HcalOnlineDb/interface/HcalHardwareXml.h"
 #include "CaloOnlineTools/HcalOnlineDb/interface/HcalQIEManager.h"
+#include "CaloOnlineTools/HcalOnlineDb/interface/HcalLutManager.h"
 #include "CaloOnlineTools/HcalOnlineDb/interface/RooGKCounter.h"
 
 #include "xgi/Utils.h"
@@ -50,6 +51,7 @@ int qie_adc( void );
 int test_db_access( void );
 std::vector <std::string> splitString (const std::string& fLine);
 int createZSLoader2( string & tag, string & comment, string & zs2HB, string & zs2HE, string & zs2HO, string & zs2HF );
+void test_lut_gen( void );
 
 int main( int argc, char **argv )
 {
@@ -74,6 +76,7 @@ int main( int argc, char **argv )
   bool zs2HE_b = false;
   bool zs2HO_b = false;
   bool zs2HF_b = false;
+  bool test_lut_gen_b = false;
 
   string filename = "";
   string path = "";
@@ -116,6 +119,7 @@ int main( int argc, char **argv )
       {"zs2HE", 1, 0, 1091},
       {"zs2HO", 1, 0, 1092},
       {"zs2HF", 1, 0, 1093},
+      {"test_lut_gen", 0, 0, 1100},
       {0, 0, 0, 0}
     };
         
@@ -360,6 +364,10 @@ int main( int argc, char **argv )
 	}
       break;
 
+    case 1100: // test LUT XML generator
+      test_lut_gen_b=true;
+      break;
+      
     default:
       printf ("?? getopt returned character code 0%o ??\n", c);
     }
@@ -442,6 +450,10 @@ int main( int argc, char **argv )
 	createZSLoader2( tag, comment, zs2HB, zs2HE, zs2HO, zs2HF );
 	break;
       }
+    }
+  else if ( test_lut_gen_b )
+    {
+      test_lut_gen();      
     }
   else
     {
@@ -593,6 +605,7 @@ int createZSLoader2( string & tag, string & comment, string & zs2HB, string & zs
     cout << " done" << endl;
 
     RooGKCounter _channels(1,100);
+    _channels . setNewLine( false );
 
     cout << "Going through HCAL channels..." << endl;
     while (rs->next()) {
@@ -1252,4 +1265,18 @@ std::vector <std::string> splitString (const std::string& fLine) {
     }
   }
   return result;
+}
+
+
+
+void test_lut_gen( void )
+{
+  HcalLutManager _manager;
+  std::vector<unsigned int> _l;
+  _l.push_back(0);
+  _l.push_back(0);
+  _l.push_back(0);
+  _l.push_back(1);
+  _l.push_back(2);
+  cout << _manager . getLutXml( _l );
 }

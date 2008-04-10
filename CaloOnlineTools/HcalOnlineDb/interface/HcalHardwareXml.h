@@ -46,7 +46,6 @@ class HcalHardwareXml : public XMLDOMBlock
   virtual ~HcalHardwareXml();
   
   int addHardware( std::map<string,map<string,map<string,map<int,string> > > > & hw_map );
-  std::string * getLutXml( std::vector<unsigned int> & _lut );
 
  private:
 

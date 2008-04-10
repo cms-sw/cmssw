@@ -8,7 +8,7 @@
 //
 // Original Author:  Gena Kukartsev, kukarzev@fnal.gov
 //         Created:  Tue Feb 25 14:30:20 CDT 2008
-// $Id: HcalHardwareXml.cc,v 1.1 2008/02/28 15:03:13 kukartse Exp $
+// $Id: HcalHardwareXml.cc,v 1.2 2008/03/13 16:30:02 kukartse Exp $
 
 #include <sstream>
 
@@ -35,12 +35,6 @@ HcalHardwareXml::HcalHardwareXml( string _type ) : XMLDOMBlock()
 }
 
 
-std::string * HcalHardwareXml::getLutXml( std::vector<unsigned int> & _lut )
-{
-  std::string * result = new string();
-
-  return result;
-}
 
 
 int HcalHardwareXml::addHardware( std::map<string,map<string,map<string,map<int,string> > > > & hw_map )

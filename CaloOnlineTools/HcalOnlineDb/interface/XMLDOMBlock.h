@@ -16,7 +16,7 @@
 //
 // Original Author:  Gena Kukartsev
 //         Created:  Thu Sep 27 01:46:46 CEST 2007
-// $Id: XMLDOMBlock.h,v 1.1 2008/02/12 17:01:59 kukartse Exp $
+// $Id: XMLDOMBlock.h,v 1.2 2008/02/28 15:03:10 kukartse Exp $
 //
 
 
@@ -38,11 +38,14 @@ class XMLDOMBlock
  public:
 
   XMLDOMBlock();
-  XMLDOMBlock( string xmlFileName );
+  XMLDOMBlock( string xmlFileName ); // create XML from template file
   XMLDOMBlock( InputSource & _source );
+  XMLDOMBlock( string _root, int rootElementName ); // create XML from scratch, second parameter is a dummy
 
   DOMDocument * getDocument( void );
   DOMDocument * getNewDocument( string xmlFileName );
+  std::string & getString( void );
+  std::string & getString( DOMNode * _node );
   int write( string target = "stdout" );
   virtual ~XMLDOMBlock();
   
@@ -56,13 +59,14 @@ class XMLDOMBlock
 
  protected:
 
-  int init( void );
+  int init( string _root );
 
   XMLProcessor * theProcessor;
   XercesDOMParser * parser;
   ErrorHandler * errHandler;
   DOMDocument * document;
   string theFileName;
+  std::string * the_string;
 };
 
 

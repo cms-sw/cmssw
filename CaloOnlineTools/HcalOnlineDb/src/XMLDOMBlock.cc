@@ -8,7 +8,7 @@
 //
 // Original Author:  Gena Kukartsev
 //         Created:  Thu Sep 27 01:43:42 CEST 2007
-// $Id: XMLDOMBlock.cc,v 1.1 2008/02/12 17:02:02 kukartse Exp $
+// $Id: XMLDOMBlock.cc,v 1.2 2008/02/28 15:03:13 kukartse Exp $
 //
 
 // system include files
@@ -47,12 +47,20 @@ XMLDOMBlock::XMLDOMBlock()
 {
   //cout << "XMLDOMBlock (or derived): default constructor called - this is meaningless!" << endl;
   //cout << "XMLDOMBlock (or derived): use yourClass( loaderBaseConfig & ) instead." << endl;
-  init();
+  init( "ROOT" );
+}
+
+XMLDOMBlock::XMLDOMBlock( string _root, int rootElementName )
+{
+  //cout << "XMLDOMBlock (or derived): default constructor called - this is meaningless!" << endl;
+  //cout << "XMLDOMBlock (or derived): use yourClass( loaderBaseConfig & ) instead." << endl;
+  init( _root );
 }
 
 
 XMLDOMBlock::XMLDOMBlock( InputSource & _source )
 {
+
   theProcessor = XMLProcessor::getInstance();
 
   //theFileName = xmlFileName;
@@ -95,7 +103,7 @@ XMLDOMBlock::XMLDOMBlock( InputSource & _source )
 
 
 
-int XMLDOMBlock::init( void )
+int XMLDOMBlock::init( string _root )
 {
   theProcessor = XMLProcessor::getInstance();
 
@@ -113,8 +121,11 @@ int XMLDOMBlock::init( void )
   
   document = impl->createDocument(
 				  0,                      // root element namespace URI.
-				  XMLString::transcode("ROOT"), // root element name
+				  //XMLString::transcode("ROOT"), // root element name
+				  XMLProcessor::_toXMLCh(_root), // root element name
 				  0);                     // document type object (DTD).
+
+  the_string = NULL;
 
   return 0;
 }
@@ -123,6 +134,7 @@ int XMLDOMBlock::init( void )
 
 XMLDOMBlock::XMLDOMBlock( string xmlFileName )
 {
+
   theProcessor = XMLProcessor::getInstance();
 
   theFileName = xmlFileName;
@@ -226,6 +238,7 @@ XMLDOMBlock::~XMLDOMBlock()
 {
   delete parser;
   delete errHandler;
+  if (the_string) delete the_string;
 }
 
 const char * XMLDOMBlock::getTagValue( const string & tagName, int _item, DOMDocument * _document )
@@ -275,26 +288,24 @@ string XMLDOMBlock::getTimestamp( time_t _time )
   return creationstamp;
 }
 
-//
-// assignment operators
-//
-// const XMLDOMBlock& XMLDOMBlock::operator=(const XMLDOMBlock& rhs)
-// {
-//   //An exception safe implementation is
-//   XMLDOMBlock temp(rhs);
-//   swap(rhs);
-//
-//   return *this;
-// }
 
-//
-// member functions
-//
 
-//
-// const member functions
-//
 
-//
-// static member functions
-//
+std::string & XMLDOMBlock::getString( void )
+{
+  return getString( this->getDocument() );
+}
+
+
+
+
+std::string & XMLDOMBlock::getString( DOMNode * _node )
+{
+  if (the_string) delete the_string;
+  std::string _target = "string";
+  the_string = new std::string( XMLString::transcode( theProcessor->serializeDOM(_node,_target) ) );
+  return (*the_string);
+}
+
+
+

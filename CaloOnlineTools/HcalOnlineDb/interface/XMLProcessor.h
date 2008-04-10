@@ -16,7 +16,7 @@
 //
 // Original Author:  Gena Kukartsev
 //         Created:  Sun Sep 23 16:57:06 CEST 2007
-// $Id: XMLProcessor.h,v 1.1 2008/02/12 17:01:59 kukartse Exp $
+// $Id: XMLProcessor.h,v 1.2 2008/03/13 20:44:14 kukartse Exp $
 //
 
 // system include files
@@ -35,10 +35,8 @@
 #include <iostream.h>
 #endif
 
-// user include files
 #include "CaloOnlineTools/HcalOnlineDb/interface/XMLDOMBlock.h"
 
-// forward declarations
 
 XERCES_CPP_NAMESPACE_USE 
 using namespace std;
@@ -152,8 +150,9 @@ class XMLProcessor
       return instance;
     }
   
-  int serializeDOM( DOMNode* node, string target = "stdout" );
-  //XMLFormatTarget * serializeDOM( DOMNode* node, string target = "stdout" );
+  // returns XML string if target == "string" otherwise NULL
+  XMLCh * serializeDOM( DOMNode* node, string target = "stdout" );
+
   inline static XMLCh * _toXMLCh( std::string temp );
   inline static XMLCh * _toXMLCh( int temp );
   inline static XMLCh * _toXMLCh( time_t temp );
