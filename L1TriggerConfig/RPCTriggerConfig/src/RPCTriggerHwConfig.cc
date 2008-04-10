@@ -13,7 +13,7 @@
 //
 // Original Author:  Tomasz Maciej Frueboes
 //         Created:  Wed Apr  9 13:57:29 CEST 2008
-// $Id$
+// $Id: RPCTriggerHwConfig.cc,v 1.1 2008/04/09 15:14:10 fruboes Exp $
 //
 //
 
@@ -55,6 +55,9 @@ class RPCTriggerHwConfig : public edm::ESProducer {
 
     bool m_disableAll;
 
+    int m_firstBX;
+    int m_lastBX;
+
 };
 
 //
@@ -89,6 +92,8 @@ RPCTriggerHwConfig::RPCTriggerHwConfig(const edm::ParameterSet& iConfig)
       // check if m_enableTowers  & m_enableCrates are not empty?
     }
 
+     m_firstBX = iConfig.getParameter<int>("firstBX");
+     m_lastBX = iConfig.getParameter<int>("lastBX"); 
 
 
 }
@@ -137,6 +142,13 @@ RPCTriggerHwConfig::produce(const L1RPCConfigRcd& iRecord)
 
 
    }
+
+   if (m_firstBX > m_lastBX )
+        throw cms::Exception("BadConfig") << " firstBX < m_lastBX  " << "\n";
+
+   pL1RPCHwConfig->setFirstBX(m_firstBX);
+   pL1RPCHwConfig->setLastBX(m_lastBX);
+
 
    return pL1RPCHwConfig ;
 }
