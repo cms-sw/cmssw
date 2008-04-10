@@ -8,7 +8,7 @@
 //
 // Original Author:  Jim Pivarski
 //         Created:  Fri May 26 16:49:38 EDT 2006
-// $Id: SiStripElectronAnalyzer.cc,v 1.3 2007/11/14 13:22:38 futyand Exp $
+// $Id: SiStripElectronAnalyzer.cc,v 1.4 2007/11/14 20:38:24 futyand Exp $
 //
 
 // system include files
@@ -958,7 +958,7 @@ SiStripElectronAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup
 	}
 	//	LogDebug("") << siDetName << " " << siLayerNum ;
 
-	const edm::Ref<edm::DetSetVector<SiStripCluster>, SiStripCluster, edm::refhelper::FindForDetSetVector<SiStripCluster> > clust=rechit.cluster();
+	const SiStripRecHit2D::ClusterRef & clust=rechit.cluster();
 	double Signal = 0 ;
 	double Noise2 = 0 ;
 	int StripCount = 0 ;
@@ -1072,7 +1072,7 @@ SiStripElectronAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup
 	  siDetName = "NULL" ;
 	}
 	//	LogDebug("") << siDetName << " " << siLayerNum ;
-	const edm::Ref<edm::DetSetVector<SiStripCluster>, SiStripCluster, edm::refhelper::FindForDetSetVector<SiStripCluster> > clust=rechit.cluster();
+	const SiStripRecHit2D::ClusterRef & clust=rechit.cluster();
 	double Signal = 0 ;
 	double Noise2 = 0 ;
 	int StripCount = 0 ;

@@ -8,7 +8,7 @@
 //
 // Original Author:  Jim Pivarski
 //         Created:  Fri May 26 16:12:04 EDT 2006
-// $Id: SiStripElectronAlgo.cc,v 1.27 2007/05/24 22:18:06 duboscq Exp $
+// $Id: SiStripElectronAlgo.cc,v 1.28 2007/08/28 01:40:37 ratnik Exp $
 //
 
 // system include files
@@ -652,7 +652,7 @@ bool SiStripElectronAlgo::projectPhiBand(float chargeHypothesis, const reco::Sup
     if(r_stereo_err > stereoHitSmallestError ) {
       r_stereo_err = sqrt(r_stereo_err*r_stereo_err+stereoErrFudge*stereoErrFudge);
  
-      const edm::Ref<edm::DetSetVector<SiStripCluster>, SiStripCluster, edm::refhelper::FindForDetSetVector<SiStripCluster> > stereocluster=(*hit)->cluster();
+      const SiStripRecHit2D::ClusterRef & stereocluster=(*hit)->cluster();
     
       bool thisHitIsMatched = false ;
 
@@ -661,7 +661,7 @@ bool SiStripElectronAlgo::projectPhiBand(float chargeHypothesis, const reco::Sup
 	unsigned int matcheduselist_size = matcheduselist.size();
 	for (unsigned int i = 0;  i < matcheduselist_size;  i++) {
 	  if (matcheduselist[i]) {
-	    const edm::Ref<edm::DetSetVector<SiStripCluster>, SiStripCluster, edm::refhelper::FindForDetSetVector<SiStripCluster> > mystereocluster = matchedhitlist[i]->stereoHit()->cluster();
+	    const SiStripRecHit2D::ClusterRef &  mystereocluster = matchedhitlist[i]->stereoHit()->cluster();
 	    if( stereocluster == mystereocluster ) {
 	      thisHitIsMatched = true ;
 	      //    LogDebug("")<< "     This hit is matched " << tracker_p_->idToDet(matchedhitlist[i]->stereoHit()->geographicalId())->surface().toGlobal(matchedhitlist[i]->stereoHit()->localPosition()) << std::endl;
@@ -707,7 +707,7 @@ bool SiStripElectronAlgo::projectPhiBand(float chargeHypothesis, const reco::Sup
       // inflate the reported error
       r_mono_err=sqrt(r_mono_err*r_mono_err+rphiErrFudge*rphiErrFudge);
 
-      const edm::Ref<edm::DetSetVector<SiStripCluster>, SiStripCluster, edm::refhelper::FindForDetSetVector<SiStripCluster> > monocluster=(*hit)->cluster();
+      const SiStripRecHit2D::ClusterRef &  monocluster=(*hit)->cluster();
     
 
       if (!hitUsed_[*hit]) {
@@ -719,7 +719,7 @@ bool SiStripElectronAlgo::projectPhiBand(float chargeHypothesis, const reco::Sup
 	  unsigned int matcheduselist_size = matcheduselist.size();
 	  for (unsigned int i = 0;  i < matcheduselist_size;  i++) {
 	    if (matcheduselist[i]) {
-	      const edm::Ref<edm::DetSetVector<SiStripCluster>, SiStripCluster, edm::refhelper::FindForDetSetVector<SiStripCluster> > mymonocluster = matchedhitlist[i]->monoHit()->cluster();
+	      const SiStripRecHit2D::ClusterRef &  mymonocluster = matchedhitlist[i]->monoHit()->cluster();
 	      if( monocluster == mymonocluster ) {
 		thisHitIsMatched = true ;
 	      } 
