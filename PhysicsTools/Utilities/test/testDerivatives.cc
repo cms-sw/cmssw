@@ -1,6 +1,6 @@
 #include <cppunit/extensions/HelperMacros.h>
 #include "PhysicsTools/Utilities/interface/Operations.h"
-#include "PhysicsTools/Utilities/interface/Derivative.h"
+#include "PhysicsTools/Utilities/interface/NthDerivative.h"
 #include "PhysicsTools/Utilities/interface/FunctionsIO.h"
 #include "PhysicsTools/Utilities/interface/Variables.h"
 #include "PhysicsTools/Utilities/interface/Fraction.h"
@@ -47,5 +47,9 @@ void testDerivatives::checkAll() {
   CHECK(derivative<X>(log(x)), "1/x");
   CHECK(derivative<X>(sin(x)), "cos(x)");
   CHECK(derivative<X>(cos(x)), "-sin(x)");
+
+  CHECK((nth_derivative<2, X>(sin(x))), "-sin(x)");
+  CHECK((nth_derivative<3, X>(sin(x))), "-cos(x)");
+  CHECK((nth_derivative<4, X>(sin(x))), "sin(x)");
 }
 
