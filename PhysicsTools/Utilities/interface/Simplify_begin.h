@@ -108,7 +108,7 @@ struct Ratio<T1, T2> { \
   inline static type combine(const T1& _1, const T2 & _2) { return COMB; } \
 }
 
-#define POWER_RULE( MPL, T1, T2, RES, COMB) \
+#define POWER_RULE(TMPL, T1, T2, RES, COMB) \
 template<TMPL> \
 struct Power<T1, T2> { \
   typedef RES type; \
