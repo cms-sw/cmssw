@@ -69,5 +69,9 @@
 #undef COS_RULE
 #undef TAN_RULE
 #undef GET
+#undef DERIV
+#undef PRIMIT
+#undef DERIV_RULE
+#undef PRIMIT_RULE
 
 #endif
