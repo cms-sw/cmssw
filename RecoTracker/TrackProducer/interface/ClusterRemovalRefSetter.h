@@ -2,7 +2,7 @@
 #define RecoTracker_TrackProducer_ClusterRemovalRefSetter_h
 
 #include "DataFormats/Common/interface/Handle.h"
-#include "DataFormats/Common/interface/DetSetVector.h"
+#include "DataFormats/Common/interface/DetSetVectorNew.h"
 #include "DataFormats/Common/interface/Ref.h"
 #include "DataFormats/SiStripCluster/interface/SiStripCluster.h"
 #include "DataFormats/SiPixelCluster/interface/SiPixelCluster.h"
@@ -24,8 +24,8 @@ class ClusterRemovalRefSetter {
         void reKey(SiPixelRecHit *hit, uint32_t detid) const ;
     private:
         const reco::ClusterRemovalInfo *cri_;
-        edm::Handle<edm::DetSetVector<SiStripCluster> > handleStrip_; // note: Handles are not const,
-        edm::Handle<edm::DetSetVector<SiPixelCluster> > handlePixel_; // but they wrap const pointers.
+        edm::Handle<edmNew::DetSetVector<SiStripCluster> > handleStrip_; // note: Handles are not const,
+        edm::Handle<edmNew::DetSetVector<SiPixelCluster> > handlePixel_; // but they wrap const pointers.
 };
 
 #endif
