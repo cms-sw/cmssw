@@ -6,11 +6,13 @@
 #include "DataFormats/SiStripCluster/interface/SiStripClusterCollection.h"
 #include "Geometry/TrackerGeometryBuilder/interface/StripGeomDetUnit.h"
 #include "DataFormats/Common/interface/DetSetVector.h"
+#include "DataFormats/Common/interface/DetSetVectorNew.h"
 #include "DataFormats/SiStripCluster/interface/SiStripCluster.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "CondFormats/SiStripObjects/interface/SiStripNoises.h"
 #include "CondFormats/SiStripObjects/interface/SiStripBadStrip.h"
 #include "DataFormats/SiStripCommon/interface/SiStripRefGetter.h"
+#include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2D.h"
 
 
 class TransientTrackingRecHit;
@@ -22,13 +24,14 @@ public:
   //  typedef SiStripClusterCollection::ContainerIterator    ClusterIterator;
   typedef StripClusterParameterEstimator::LocalValues    LocalValues;
 
-  typedef edm::Ref<edm::DetSetVector<SiStripCluster>, SiStripCluster, 
-    edm::refhelper::FindForDetSetVector<SiStripCluster> > SiStripClusterRef;
+  typedef SiStripRecHit2D::ClusterRef SiStripClusterRef;
 
   typedef edm::SiStripLazyGetter<SiStripCluster>::value_ref  SiStripRegionalClusterRef;
 
-  typedef edm::DetSetVector<SiStripCluster>::detset detset;
-  typedef detset::const_iterator const_iterator;
+  typedef edmNew::DetSet<SiStripCluster> detset;
+  typedef detset::const_iterator new_const_iterator;
+
+  typedef std::vector<SiStripCluster>::const_iterator const_iterator;
 
   virtual ~TkStripMeasurementDet(){}
 
@@ -36,10 +39,10 @@ public:
 			 const StripClusterParameterEstimator* cpe,
 			 bool regional);
 
-  void update( const detset & detSet, 
-	       const edm::Handle<edm::DetSetVector<SiStripCluster> > h,
+  void update( const detset &detSet, 
+	       const edm::Handle<edmNew::DetSetVector<SiStripCluster> > h,
 	       unsigned int id ) { 
-    detSet_ = & detSet; 
+    detSet_ = detSet; 
     handle_ = h;
     id_ = id;
     empty = false;
@@ -77,7 +80,7 @@ public:
 
 
   bool  isEmpty() {return empty;}
-  const detset* theSet() {return detSet_;}
+  const detset& theSet() {return detSet_;}
   int  size() {return endCluster - beginCluster ; }
 
   /** \brief Turn on/off the module for reconstruction (using info from DB, usually) */
@@ -105,8 +108,8 @@ private:
 
   const StripGeomDetUnit*               theStripGDU;
   const StripClusterParameterEstimator* theCPE;
-  const detset * detSet_;
-  edm::Handle<edm::DetSetVector<SiStripCluster> > handle_;
+  detset detSet_;
+  edm::Handle<edmNew::DetSetVector<SiStripCluster> > handle_;
   unsigned int id_;
   bool empty;
 

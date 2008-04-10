@@ -197,7 +197,7 @@ void MeasurementTracker::updatePixels( const edm::Event& event) const
   // avoid to update twice from the same event
   if (!edm::Service<UpdaterService>()->checkOnce("MeasurementTracker::updatePixels")) return;
 
-  typedef edm::DetSetVector<SiPixelCluster> ::detset   PixelDetSet;
+  typedef edmNew::DetSet<SiPixelCluster> PixelDetSet;
 
   // Pixel Clusters
   std::string pixelClusterProducer = pset_.getParameter<std::string>("pixelClusterProducer");
@@ -207,20 +207,19 @@ void MeasurementTracker::updatePixels( const edm::Event& event) const
       (**i).setEmpty();
     }
   }else{  
-    edm::Handle<edm::DetSetVector<SiPixelCluster> > pixelClusters;
+    edm::Handle<edmNew::DetSetVector<SiPixelCluster> > pixelClusters;
     event.getByLabel(pixelClusterProducer, pixelClusters);
-    const  edm::DetSetVector<SiPixelCluster>* pixelCollection = pixelClusters.product();
+    const  edmNew::DetSetVector<SiPixelCluster>* pixelCollection = pixelClusters.product();
     
     for (std::vector<TkPixelMeasurementDet*>::const_iterator i=thePixelDets.begin();
 	 i!=thePixelDets.end(); i++) {
 
       // foreach det get cluster range
       unsigned int id = (**i).geomDet().geographicalId().rawId();
-      edm::DetSetVector<SiPixelCluster>::const_iterator it = pixelCollection->find( id );
+      edmNew::DetSetVector<SiPixelCluster>::const_iterator it = pixelCollection->find( id );
       if ( it != pixelCollection->end() ){            
-	const PixelDetSet & detSet = (*pixelCollection)[ id ];
 	// push cluster range in det
-	(**i).update( detSet, pixelClusters, id );
+	(**i).update( *it, pixelClusters, id );
       }else{
 	(**i).setEmpty();
       }
@@ -234,7 +233,7 @@ void MeasurementTracker::updateStrips( const edm::Event& event) const
   // avoid to update twice from the same event
   if (!edm::Service<UpdaterService>()->checkOnce("MeasurementTracker::updateStrips")) return;
 
-  typedef edm::DetSetVector<SiStripCluster> ::detset   StripDetSet;
+  typedef edmNew::DetSet<SiStripCluster>   StripDetSet;
 
   // Strip Clusters
   std::string stripClusterProducer = pset_.getParameter<std::string>("stripClusterProducer");
@@ -246,18 +245,18 @@ void MeasurementTracker::updateStrips( const edm::Event& event) const
   }else{
     //=========  actually load cluster =============
     if(!isRegional_){
-      edm::Handle<edm::DetSetVector<SiStripCluster> > clusterHandle;
+      edm::Handle<edmNew::DetSetVector<SiStripCluster> > clusterHandle;
       event.getByLabel(stripClusterProducer, clusterHandle);
-      const edm::DetSetVector<SiStripCluster>* clusterCollection = clusterHandle.product();
+      const edmNew::DetSetVector<SiStripCluster>* clusterCollection = clusterHandle.product();
 
       for (std::vector<TkStripMeasurementDet*>::const_iterator i=theStripDets.begin();
 	   i!=theStripDets.end(); i++) {
 	
 	// foreach det get cluster range
 	unsigned int id = (**i).geomDet().geographicalId().rawId();
-	edm::DetSetVector<SiStripCluster>::const_iterator it = clusterCollection->find( id );
+	edmNew::DetSetVector<SiStripCluster>::const_iterator it = clusterCollection->find( id );
 	if ( it != clusterCollection->end() ){
-	  const StripDetSet & detSet = (*clusterCollection)[ id ];
+	  StripDetSet detSet = (*clusterCollection)[ id ];
 	  // push cluster range in det
 	  (**i).update( detSet, clusterHandle, id );
 	  

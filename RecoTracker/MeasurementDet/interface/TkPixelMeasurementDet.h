@@ -15,10 +15,9 @@ class LocalTrajectoryParameters;
 class TkPixelMeasurementDet : public MeasurementDet {
 public:
 
-  typedef edm::Ref<edm::DetSetVector<SiPixelCluster>, SiPixelCluster, 
-    edm::refhelper::FindForDetSetVector<SiPixelCluster> > SiPixelClusterRef;
+  typedef edm::Ref<edmNew::DetSetVector<SiPixelCluster>, SiPixelCluster> SiPixelClusterRef;
   
-  typedef edm::DetSetVector<SiPixelCluster>::detset detset;
+  typedef edmNew::DetSet<SiPixelCluster> detset;
   typedef detset::const_iterator const_iterator;
   typedef PixelClusterParameterEstimator::LocalValues    LocalValues;
 
@@ -26,9 +25,9 @@ public:
 			 const PixelClusterParameterEstimator* cpe);
 
   void update( const detset & detSet, 
-	       const edm::Handle<edm::DetSetVector<SiPixelCluster> > h,
+	       const edm::Handle<edmNew::DetSetVector<SiPixelCluster> > h,
 	       unsigned int id ) { 
-    detSet_ = & detSet; 
+    detSet_ = detSet; 
     handle_ = h;
     id_ = id;
     empty = false;
@@ -55,8 +54,8 @@ private:
 
   const PixelGeomDetUnit*               thePixelGDU;
   const PixelClusterParameterEstimator* theCPE;
-  const detset * detSet_;
-  edm::Handle<edm::DetSetVector<SiPixelCluster> > handle_;
+  detset detSet_;
+  edm::Handle<edmNew::DetSetVector<SiPixelCluster> > handle_;
   unsigned int id_;
   bool empty;
 };

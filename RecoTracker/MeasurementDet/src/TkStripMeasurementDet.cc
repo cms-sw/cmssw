@@ -64,15 +64,15 @@ fastMeasurements( const TrajectoryStateOnSurface& stateOnThisDet,
   }
   
   if(!isRegional){//old implemetation with DetSet
-    const_iterator rightCluster = 
-      find_if( detSet_->begin(), detSet_->end(), StripClusterAboveU( utraj));
+    new_const_iterator rightCluster = 
+      std::find_if( detSet_.begin(), detSet_.end(), StripClusterAboveU( utraj)); //FIXME
 
-    if ( rightCluster != detSet_->begin()) {
+    if ( rightCluster != detSet_.begin()) {
       // there are hits on the left of the utraj
-      const_iterator leftCluster = rightCluster;
-      while ( --leftCluster >=  detSet_->begin()) {
+      new_const_iterator leftCluster = rightCluster;
+      while ( --leftCluster >=  detSet_.begin()) {
 	//      TransientTrackingRecHit* recHit = buildRecHit( *leftCluster, 
-	SiStripClusterRef clusterref = edm::makeRefTo( handle_, leftCluster->geographicalId(), leftCluster ); 
+	SiStripClusterRef clusterref = edmNew::makeRefTo( handle_, leftCluster ); 
 	TransientTrackingRecHit::RecHitPointer recHit = buildRecHit(clusterref, 
 								    stateOnThisDet.localParameters());
 	std::pair<bool,double> diffEst = est.estimate(stateOnThisDet, *recHit);
@@ -84,8 +84,8 @@ fastMeasurements( const TrajectoryStateOnSurface& stateOnThisDet,
       }
     }
     
-    for ( ; rightCluster != detSet_->end(); rightCluster++) {
-      SiStripClusterRef clusterref = edm::makeRefTo( handle_, rightCluster->geographicalId(), rightCluster ); 
+    for ( ; rightCluster != detSet_.end(); rightCluster++) {
+      SiStripClusterRef clusterref = edmNew::makeRefTo( handle_, rightCluster ); 
       TransientTrackingRecHit::RecHitPointer recHit = buildRecHit( clusterref, 
 								   stateOnThisDet.localParameters());
       std::pair<bool,double> diffEst = est.estimate(stateOnThisDet, *recHit);
@@ -98,7 +98,7 @@ fastMeasurements( const TrajectoryStateOnSurface& stateOnThisDet,
   }// end block with DetSet
   else{
     const_iterator rightCluster = 
-      find_if( beginCluster, endCluster, StripClusterAboveU( utraj));
+      std::find_if( beginCluster, endCluster, StripClusterAboveU( utraj));
 
     if ( rightCluster != beginCluster) {
       // there are hits on the left of the utraj
@@ -182,9 +182,9 @@ TkStripMeasurementDet::recHits( const TrajectoryStateOnSurface& ts) const
   if (active_ == false) return result; // GIO
 
   if(!isRegional){//old implemetation with DetSet
-    for ( const_iterator ci = detSet_->data.begin(); ci != detSet_->data.end(); ++ ci ) {
+    for ( new_const_iterator ci = detSet_.begin(); ci != detSet_.end(); ++ ci ) {
       // for ( ClusterIterator ci=theClusterRange.first; ci != theClusterRange.second; ci++) {
-      SiStripClusterRef  cluster = edm::makeRefTo( handle_, id_, ci ); 
+      SiStripClusterRef  cluster = edmNew::makeRefTo( handle_, ci ); 
       result.push_back( buildRecHit( cluster, ts.localParameters()));
     }
   }else{
