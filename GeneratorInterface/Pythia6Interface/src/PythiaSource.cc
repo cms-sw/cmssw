@@ -1,6 +1,6 @@
 /*
- *  $Date: 2008/04/09 21:34:48 $
- *  $Revision: 1.24 $
+ *  $Date: 2008/04/10 16:13:29 $
+ *  $Revision: 1.25 $
  *  
  *  Filip Moorgat & Hector Naves 
  *  26/10/05
@@ -22,6 +22,7 @@
 #include "FWCore/Framework/interface/Run.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/RandomNumberGenerator.h"
+#include "CLHEP/Random/RandFlat.h"
 
 
 #include <iostream>
@@ -142,8 +143,7 @@ PythiaSource::PythiaSource( const ParameterSet & pset,
   long seed = (long)(rng->mySeed());
   cout << " seed= " << seed << endl ;
   randomEngine = fRandomEngine = &(rng->getEngine());
-//fRandomEngine = new CLHEP::HepJamesRandom(seed) ;
-//fRandomGenerator = new CLHEP::RandFlat(fRandomEngine) ;
+  fRandomGenerator = new CLHEP::RandFlat(fRandomEngine) ;
 
   if(particleID) {
 
@@ -249,8 +249,8 @@ PythiaSource::PythiaSource( const ParameterSet & pset,
   }
   }
 
-   stopHadronsEnabled = pset.getUntrackedParameter<bool>("stopHadrons");
-   gluinoHadronsEnabled = pset.getUntrackedParameter<bool>("gluinoHadrons");
+   stopHadronsEnabled = pset.getUntrackedParameter<bool>("stopHadrons",false);
+   gluinoHadronsEnabled = pset.getUntrackedParameter<bool>("gluinoHadrons",false);
 
   //Init names and pdg code of r-hadrons
    if(stopHadronsEnabled)  PYSTRHAD();

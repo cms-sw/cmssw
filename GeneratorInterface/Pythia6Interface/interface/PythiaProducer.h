@@ -61,6 +61,8 @@ namespace edm
     unsigned int pythiaPylistVerbosity_;
     /// HepMC verbosity flag
     bool pythiaHepMCVerbosity_;
+    /// Impose proper times for pions/kaons at generator level
+    bool imposeProperTimes_;
     /// Events to print if verbosity
     unsigned int maxEventsToPrint_;    
    
@@ -91,7 +93,6 @@ namespace edm
     
     CLHEP::HepRandomEngine* fRandomEngine;
     CLHEP::RandFlat*        fRandomGenerator; 
-
     PtYDistributor*         fPtYGenerator;
     int 		    eventNumber_;
   };

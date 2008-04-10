@@ -1,6 +1,6 @@
 /*
- *  $Date: 2008/02/04 23:20:42 $
- *  $Revision: 1.18 $
+ *  $Date: 2008/04/09 21:34:48 $
+ *  $Revision: 1.1 $
  *  
  *  Filip Moorgat & Hector Naves 
  *  26/10/05
@@ -22,6 +22,8 @@
 #include "FWCore/Framework/interface/Run.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/RandomNumberGenerator.h"
+#include "CLHEP/Random/RandFlat.h"
+
 
 
 #include <iostream>
@@ -110,6 +112,7 @@ PythiaProducer::PythiaProducer( const ParameterSet & pset) :
   EDProducer(), evt(0), 
   pythiaPylistVerbosity_ (pset.getUntrackedParameter<int>("pythiaPylistVerbosity",0)),
   pythiaHepMCVerbosity_ (pset.getUntrackedParameter<bool>("pythiaHepMCVerbosity",false)),
+  imposeProperTimes_ (pset.getUntrackedParameter<bool>("imposeProperTimes",false)),
   maxEventsToPrint_ (pset.getUntrackedParameter<int>("maxEventsToPrint",1)),
   extCrossSect(pset.getUntrackedParameter<double>("crossSection", -1.)),
   extFilterEff(pset.getUntrackedParameter<double>("filterEfficiency", -1.)),
@@ -136,6 +139,7 @@ PythiaProducer::PythiaProducer( const ParameterSet & pset) :
 
   Service<RandomNumberGenerator> rng;
   randomEngine= fRandomEngine = &(rng->getEngine());
+  fRandomGenerator = new CLHEP::RandFlat(fRandomEngine) ;
   long seed = (long)(rng->mySeed());
   cout << " seed= " << seed << endl ;
 
@@ -163,18 +167,18 @@ PythiaProducer::PythiaProducer( const ParameterSet & pset) :
       etamax = pset.getUntrackedParameter<double>("Etamax",2.2);
       cout <<" etamin = " << etamin <<" etamax = " << etamax << endl;
     }else{
-       ymin = pset.getUntrackedParameter<double>("ymin",0.);
-       ymax = pset.getUntrackedParameter<double>("ymax",10.);
-       cout <<" ymin = " << ymin <<" ymax = " << ymax << endl;
+      ymin = pset.getUntrackedParameter<double>("ymin",0.);
+      ymax = pset.getUntrackedParameter<double>("ymax",10.);
+      cout <<" ymin = " << ymin <<" ymax = " << ymax << endl;
     }
 
     phimin = pset.getUntrackedParameter<double>("Phimin",0.);
     phimax = pset.getUntrackedParameter<double>("Phimax",360.);
     cout <<" phimin = " << phimin <<" phimax = " << phimax << endl;
-  }
 
-  if(kinedata.size() > 0)
-     fPtYGenerator = new PtYDistributor(kinedata, *fRandomEngine);
+    if(kinedata.size() > 0)
+       fPtYGenerator = new PtYDistributor(kinedata, *fRandomEngine);
+  }
 
   // Set PYTHIA parameters in a single ParameterSet
   ParameterSet pythia_params = 
@@ -242,6 +246,11 @@ PythiaProducer::PythiaProducer( const ParameterSet & pset) :
   
   }
   }
+
+  //Init names and pdg code of r-hadrons
+   if(stopHadronsEnabled)  PYSTRHAD();
+   if(gluinoHadronsEnabled)  PYGLRHAD();
+
 #ifdef NEVER
   //In the future, we will get the random number seed on each event and tell 
   // pythia to use that new seed
@@ -324,11 +333,6 @@ PythiaProducer::PythiaProducer( const ParameterSet & pset) :
 
 
 PythiaProducer::~PythiaProducer(){
-  call_pystat(1);
-  if ( useTauola_ ) {
-    tauola_.print();
-    //call_pretauola(1); // print TAUOLA decay statistics output
-  }
   clear(); 
 }
 
@@ -344,6 +348,12 @@ void PythiaProducer::endRun(Run & r) {
  giprod->set_external_cross_section(extCrossSect);
  giprod->set_filter_efficiency(extFilterEff);
  r.put(giprod);
+
+ call_pystat(1);
+  if ( useTauola_ ) {
+    tauola_.print();
+    //call_pretauola(1); // print TAUOLA decay statistics output
+  }
 
 }
 
@@ -465,6 +475,40 @@ void PythiaProducer::produce(Event & e, const EventSetup& es) {
     evt->set_pdf_info( HepMC::PdfInfo(id1,id2,x1,x2,Q,pdf1,pdf2) ) ;
     
     evt->weights().push_back( pyint1.vint[96] );
+
+ if (imposeProperTimes_) {
+      int dumm;
+      HepMC::GenEvent::vertex_const_iterator vbegin = evt->vertices_begin();
+      HepMC::GenEvent::vertex_const_iterator vend = evt->vertices_end();
+      HepMC::GenEvent::vertex_const_iterator vitr = vbegin;
+      for (; vitr != vend; ++vitr ) {
+            HepMC::GenVertex::particle_iterator pbegin = (*vitr)->particles_begin(HepMC::children);
+            HepMC::GenVertex::particle_iterator pend = (*vitr)->particles_end(HepMC::children);
+            HepMC::GenVertex::particle_iterator pitr = pbegin;
+            for (; pitr != pend; ++pitr) {
+                  if ((*pitr)->end_vertex()) continue;
+                  if ((*pitr)->status()!=1) continue;
+                  int pdgcode= abs((*pitr)->pdg_id());
+                  if (pdgcode!=211 && pdgcode!=321) continue;
+                  double ctau = pydat2.pmas[3][PYCOMP(pdgcode)-1];
+
+                  double unif_rand = pyr_(&dumm);
+                  // Value of 0 is excluded, so log(unif_rand) should be OK
+                  double proper_length = - ctau * log(unif_rand);
+                  HepMC::FourVector mom = (*pitr)->momentum();
+                  double factor = proper_length/mom.m();
+                  HepMC::FourVector vin = (*vitr)->position();
+                  double x = vin.x() + factor * mom.px();
+                  double y = vin.y() + factor * mom.py();
+                  double z = vin.z() + factor * mom.pz();
+                  double t = vin.t() + factor * mom.e();
+
+                  HepMC::GenVertex* vdec = new HepMC::GenVertex(HepMC::FourVector(x,y,z,t));
+                  evt->add_vertex(vdec);
+                  vdec->add_particle_in((*pitr));
+            }
+      }
+    }
 
     //******** Verbosity ********
     
