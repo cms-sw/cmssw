@@ -2,6 +2,13 @@
 <use name=SimTracker/TrackerHitAssociation>
 <use name=SimTracker/TrackAssociation>
 <use name=SimDataFormats/HepMCProduct>
+
+<use name=AnalysisDataFormats/TrackInfo>
+<use name=DataFormats/BeamSpot>
+<use name=SimDataFormats/TrackingAnalysis>
+<use name=SimTracker/TrackAssociation>
+<use name=SimTracker/TrackerHitAssociation>
+
 <export>
  <lib name=RecoTrackerDebugTools>
  <use name=RecoTracker/CkfPattern>
