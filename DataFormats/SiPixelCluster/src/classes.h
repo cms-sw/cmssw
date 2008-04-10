@@ -10,8 +10,11 @@ namespace {
     edm::DetSet<SiPixelCluster> ds1;
     std::vector<edm::DetSet<SiPixelCluster> > vds1;
     SiPixelClusterCollection c1;
+    SiPixelClusterCollectionNew c1_new;
     edm::Wrapper<SiPixelClusterCollection> w1;
+    edm::Wrapper<SiPixelClusterCollectionNew> w1_new;
     SiPixelClusterRef r1;
+    SiPixelClusterRefNew r1_new;
     SiPixelClusterRefVector rv1;
     SiPixelClusterRefProd rp1;
   }
