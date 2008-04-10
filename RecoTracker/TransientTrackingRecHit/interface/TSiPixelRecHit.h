@@ -13,7 +13,7 @@
 class TSiPixelRecHit : public TransientTrackingRecHit {
 public:
 
-  typedef const edm::Ref<edm::DetSetVector<SiPixelCluster>, SiPixelCluster, edm::refhelper::FindForDetSetVector<SiPixelCluster> > clusterRef;
+  typedef SiPixelRecHit::ClusterRef clusterRef;
 
 
   virtual ~TSiPixelRecHit() {}

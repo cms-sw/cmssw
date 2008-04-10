@@ -11,8 +11,7 @@
 class TSiStripRecHit2DLocalPos : public TransientTrackingRecHit{
 public:
 
-  typedef edm::Ref<edm::DetSetVector<SiStripCluster>, SiStripCluster, 
-		   edm::refhelper::FindForDetSetVector<SiStripCluster> > SiStripClusterRef;
+  typedef SiStripRecHit2D::ClusterRef SiStripClusterRef;
   
   typedef edm::SiStripLazyGetter<SiStripCluster>::value_ref  SiStripRegionalClusterRef;
 
@@ -94,7 +93,7 @@ private:
   /// Creates the TrackingRecHit internally, avoids redundent cloning
   TSiStripRecHit2DLocalPos( const LocalPoint& pos, const LocalError& err,
 			    const GeomDet* det,
-			    const edm::Ref< edm::DetSetVector<SiStripCluster>,SiStripCluster, edm::refhelper::FindForDetSetVector<SiStripCluster>  >  clust,
+			    const SiStripClusterRef clust,
 			    const StripClusterParameterEstimator* cpe,
 			    float weight, float annealing) :
     TransientTrackingRecHit(det, weight, annealing), theHitData(pos, err, det->geographicalId(), clust), 
