@@ -1,5 +1,5 @@
 //
-// $Id: classes.h,v 1.23 2007/12/07 19:19:32 nancy Exp $
+// $Id: classes.h,v 1.24 2007/12/08 13:06:11 futyand Exp $
 //
 #include "DataFormats/Common/interface/Wrapper.h"
 #include "DataFormats/EgammaCandidates/interface/Photon.h"
@@ -12,11 +12,9 @@
 #include "DataFormats/EgammaCandidates/interface/PhotonFwd.h" 
 #include "DataFormats/EgammaCandidates/interface/Electron.h"
 #include "DataFormats/EgammaCandidates/interface/ElectronFwd.h" 
-#include "DataFormats/EgammaCandidates/interface/PixelMatchElectron.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h" 
 #include "DataFormats/TrackReco/interface/Track.h" 
 #include "DataFormats/Common/interface/RefProd.h" 
-#include "DataFormats/EgammaCandidates/interface/PixelMatchElectronFwd.h" 
 #include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
 #include "DataFormats/GsfTrackReco/interface/GsfTrack.h" 
 #include "DataFormats/GsfTrackReco/interface/GsfTrackExtra.h" 
@@ -55,12 +53,6 @@ namespace {
     edm::Ref<reco::ElectronCollection> r2;
     edm::RefProd<reco::ElectronCollection> rp2;
     edm::Wrapper<edm::RefVector<reco::ElectronCollection> > rv2;
-
-    reco::PixelMatchElectronCollection v3;
-    edm::Wrapper<reco::PixelMatchElectronCollection> w3;
-    edm::Ref<reco::PixelMatchElectronCollection> r3;
-    edm::RefProd<reco::PixelMatchElectronCollection> rp3;
-    edm::Wrapper<edm::RefVector<reco::PixelMatchElectronCollection> > rv3;
 
     reco::GsfElectronCollection v4;
     edm::Wrapper<reco::GsfElectronCollection> w4;

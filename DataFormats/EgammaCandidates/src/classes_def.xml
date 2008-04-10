@@ -2,7 +2,6 @@
   <class name="reco::Photon"/>
   <class name="reco::Conversion"/>
   <class name="reco::Electron"/>
-  <class name="reco::PixelMatchElectron"/>
   <class name="reco::GsfElectron"/>
   <class name="reco::SiStripElectron"/>
 
@@ -21,12 +20,6 @@
   <class name="edm::RefVector<std::vector<reco::Electron>,reco::Electron,edm::refhelper::FindUsingAdvance<std::vector<reco::Electron>,reco::Electron> >"/>
   <class name="edm::Wrapper<edm::RefVector<std::vector<reco::Electron>,reco::Electron,edm::refhelper::FindUsingAdvance<std::vector<reco::Electron>,reco::Electron> > >"/>
 
-  <class name="std::vector<reco::PixelMatchElectron>"/>
-  <class name="edm::Wrapper<std::vector<reco::PixelMatchElectron> >"/>
-  <class name="edm::Ref<std::vector<reco::PixelMatchElectron>,reco::PixelMatchElectron,edm::refhelper::FindUsingAdvance<std::vector<reco::PixelMatchElectron>,reco::PixelMatchElectron> >"/>
-  <class name="edm::RefProd<std::vector<reco::PixelMatchElectron> >"/>
-  <class name="edm::RefVector<std::vector<reco::PixelMatchElectron>,reco::PixelMatchElectron,edm::refhelper::FindUsingAdvance<std::vector<reco::PixelMatchElectron>,reco::PixelMatchElectron> >"/>
-  <class name="edm::Wrapper<edm::RefVector<std::vector<reco::PixelMatchElectron>,reco::PixelMatchElectron,edm::refhelper::FindUsingAdvance<std::vector<reco::PixelMatchElectron>,reco::PixelMatchElectron> > >"/>
 
   <class name="std::vector<reco::GsfElectron>"/>
   <class name="edm::Wrapper<std::vector<reco::GsfElectron> >"/>

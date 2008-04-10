@@ -7,7 +7,7 @@
  *
  * \author U.Berthon, ClaudeCharlot,LLR
  *
- * \version $Id: GsfElectron.h,v 1.4 2007/12/11 10:35:47 futyand Exp $
+ * \version $Id: GsfElectron.h,v 1.5 2007/12/11 16:22:02 uberthon Exp $
  *
  */
 
@@ -26,6 +26,9 @@
 // Ursula Berthon - LLR Ecole polytechnique
 // 
 // $Log: GsfElectron.h,v $
+// Revision 1.5  2007/12/11 16:22:02  uberthon
+// remove annoying LogWarning
+//
 // Revision 1.4  2007/12/11 10:35:47  futyand
 // revert HEAD to 18X version
 //
@@ -38,14 +41,13 @@
 //
 //-------------------------------------------------------------------
 
+
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DataFormats/RecoCandidate/interface/RecoCandidate.h"
 #include "DataFormats/GsfTrackReco/interface/GsfTrackFwd.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h" 
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
 #include "DataFormats/EgammaReco/interface/SuperClusterFwd.h" 
-#include "DataFormats/EgammaReco/interface/ClusterShape.h"
-#include "DataFormats/EgammaReco/interface/ClusterShapeFwd.h" 
 #include "DataFormats/Math/interface/LorentzVector.h"
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 #include "DataFormats/GeometryVector/interface/GlobalVector.h"
@@ -63,7 +65,7 @@ class GsfElectron : public RecoCandidate {
 
   GsfElectron(const LorentzVector & p4,
 			const SuperClusterRef scl, 
-			const ClusterShapeRef shp, const GsfTrackRef gsft,
+			const GsfTrackRef gsft,
 			const GlobalPoint tssuperPos, const GlobalVector tssuperMom, 
 			const GlobalPoint tsseedPos, const GlobalVector tsseedMom, 
 			const GlobalPoint innPos, const GlobalVector innMom, 
@@ -92,7 +94,6 @@ class GsfElectron : public RecoCandidate {
   void setDeltaPhiSuperClusterAtVtx (float dphi) {deltaPhiSuperClusterAtVtx_=dphi;}
 
   void setSuperCluster(const reco::SuperClusterRef &scl) {superCluster_=scl;}
-  void setClusterShape(const reco::ClusterShapeRef &shp) {seedClusterShape_=shp;}
   void setGsfTrack(const reco::GsfTrackRef &t) { track_=t;}
 
   // supercluster and electron track related quantities
@@ -147,9 +148,6 @@ class GsfElectron : public RecoCandidate {
   //! get associated superCluster Pointer
   SuperClusterRef superCluster() const { return superCluster_; } 
 
-  //! get pointer to ClusterShape for seed BasicCluster of the associated SuperCluster
-  ClusterShapeRef seedClusterShape() const { return seedClusterShape_; } 
-
   //! get associated GsfTrack pointer
   reco::GsfTrackRef gsfTrack() const { return track_; } 
   reco::TrackRef track() const {return TrackRef();} 
@@ -190,7 +188,6 @@ class GsfElectron : public RecoCandidate {
   float hadOverEm_;
 
   reco::SuperClusterRef superCluster_;
-  reco::ClusterShapeRef seedClusterShape_;
   reco::GsfTrackRef track_;
 
   bool energyScaleCorrected_;
