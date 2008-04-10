@@ -96,19 +96,19 @@ bool PixelThresholdClusterizer::setup(const PixelGeomDetUnit * pixDet) {
 void PixelThresholdClusterizer::clusterizeDetUnit( const edm::DetSet<PixelDigi> & input,
 						   const PixelGeomDetUnit * pixDet,
 						   const std::vector<short>& badChannels,
-						   edm::DetSet<SiPixelCluster> & output) {
+                                                   edmNew::DetSetVector<SiPixelCluster>::FastFiller& output) {
 
   //TimeMe tm1( *theClustersTimer, false);
 
-   DigiIterator begin = input.data.begin();
-   DigiIterator end   = input.data.end();
+   DigiIterator begin = input.begin();
+   DigiIterator end   = input.end();
 
    // Do not bother for empty detectors
    //if (begin == end) cout << " PixelThresholdClusterizer::clusterizeDetUnit - No digis to clusterize";
 
    //  Set up the clusterization on this DetId.
    if (!setup(pixDet)) return;
-   detid_ = input.id;
+   detid_ = input.detId();
 
    //  Copy PixelDigis to the buffer array; select the seed pixels
    //  on the way, and store them in theSeeds.
@@ -117,7 +117,7 @@ void PixelThresholdClusterizer::clusterizeDetUnit( const edm::DetSet<PixelDigi> 
   //  At this point we know the number of seeds on this DetUnit, and thus
   //  also the maximal number of possible clusters, so resize theClusters
   //  in order to make vector<>::push_back() efficient.
-   output.data.reserve ( theSeeds.size() );
+   output.reserve ( theSeeds.size() );
     
   //  Loop over all seeds.  TO DO: wouldn't using iterators be faster?
   for (unsigned int i = 0; i < theSeeds.size(); i++) {
@@ -130,7 +130,7 @@ void PixelThresholdClusterizer::clusterizeDetUnit( const edm::DetSet<PixelDigi> 
       //  Check if the cluster is above threshold  
       // (TO DO: one is signed, other unsigned, gcc warns...)
       if ( cluster.charge() >= theClusterThreshold ) {
-	output.data.push_back( cluster );
+	output.push_back( cluster );
       }
     }
   }

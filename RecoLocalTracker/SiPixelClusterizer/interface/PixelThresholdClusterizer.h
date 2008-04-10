@@ -66,7 +66,7 @@ class PixelThresholdClusterizer : public PixelClusterizerBase {
   void clusterizeDetUnit( const edm::DetSet<PixelDigi> & input,	
 				  const PixelGeomDetUnit * pixDet,
 				  const std::vector<short>& badChannels,
-				  edm::DetSet<SiPixelCluster>& output) ;
+				  edmNew::DetSetVector<SiPixelCluster>::FastFiller& output);
 
   
  private:

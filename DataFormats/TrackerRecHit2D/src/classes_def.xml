@@ -43,7 +43,6 @@
   <class name="edm::RangeMap<DetId, edm::OwnVector<SiStripMatchedRecHit2D, edm::ClonePolicy<SiStripMatchedRecHit2D> >, edm::ClonePolicy<SiStripMatchedRecHit2D> >::id_iterator"/>
 
   <class name="edm::Wrapper<edm::RangeMap<DetId, edm::OwnVector<SiStripMatchedRecHit2D, edm::ClonePolicy<SiStripMatchedRecHit2D> >, edm::ClonePolicy<SiStripMatchedRecHit2D> > >"/>
-  <class name="edm::Ref<edm::DetSetVector<SiStripCluster>, SiStripCluster, edm::refhelper::FindForDetSetVector<SiStripCluster> >"/>
 
   <class pattern="edm::RefBase<*>"/>
   <class pattern="edm::RefItem<*>">
@@ -74,7 +73,6 @@
  <class name="edmNew::DetSetVector<SiPixelRecHit>"/>
  <class name="edm::Wrapper<edmNew::DetSetVector<SiPixelRecHit> >"/>
 
-  <class name="edmNew::DetSetVector<uint16_t>"/>
   <class name="reco::ClusterRemovalInfo" />
   <class name="edm::Wrapper<reco::ClusterRemovalInfo>" />
 </lcgdict>

@@ -58,7 +58,7 @@ namespace cms
     src_( conf.getParameter<edm::InputTag>( "src" ) )
   {
     //--- Declare to the EDM what kind of collections we will be making.
-    produces<SiPixelClusterCollection>(); 
+    produces<SiPixelClusterCollectionNew>(); 
 
     std::string payloadType = conf.getParameter<std::string>( "payloadType" );
 
@@ -103,14 +103,13 @@ namespace cms
     edm::ESHandle<TrackerGeometry> geom;
     es.get<TrackerDigiGeometryRecord>().get( geom );
 
-    // Step B: Iterate over DetIds and invoke the pixel clusterizer algorithm
+    // Step B: create the final output collection
+    std::auto_ptr<SiPixelClusterCollectionNew> output( new SiPixelClusterCollectionNew() );
+    //FIXME: put a reserve() here
+
+    // Step C: Iterate over DetIds and invoke the pixel clusterizer algorithm
     // on each DetUnit
-    run(*input, geom );
-
-    // Step C: create the final output collection
-    std::auto_ptr< SiPixelClusterCollection > 
-      output( new SiPixelClusterCollection (theClusterVector));
-
+    run(*input, geom, *output );
 
     // Step D: write output to file
     e.put( output );
@@ -142,8 +141,9 @@ namespace cms
   //---------------------------------------------------------------------------
   //!  Iterate over DetUnits, and invoke the PixelClusterizer on each.
   //---------------------------------------------------------------------------
-  void SiPixelClusterProducer::run(const edm::DetSetVector<PixelDigi>& input, 
-				   edm::ESHandle<TrackerGeometry> & geom) {
+  void SiPixelClusterProducer::run(const edm::DetSetVector<PixelDigi>   & input, 
+				   edm::ESHandle<TrackerGeometry>       & geom,
+                                   edmNew::DetSetVector<SiPixelCluster> & output) {
     if ( ! readyToCluster_ ) {
       edm::LogError("SiPixelClusterProducer")
 		<<" at least one clusterizer is not ready -- can't run!" ;
@@ -163,7 +163,7 @@ namespace cms
       //LogDebug("SiStripClusterizer") << "[SiPixelClusterProducer::run] DetID" << DSViter->id;
 
       std::vector<short> badChannels; 
-      DetId detIdObject(DSViter->id);
+      DetId detIdObject(DSViter->detId());
       
       // Comment: At the moment the clusterizer depends on geometry
       // to access information as the pixel topology (number of columns
@@ -178,12 +178,12 @@ namespace cms
       }
       // Produce clusters for this DetUnit and store them in 
       // a DetSet
-      edm::DetSet<SiPixelCluster> spc(DSViter->id);
+      edmNew::DetSetVector<SiPixelCluster>::FastFiller spc(output, DSViter->detId());
       clusterizer_->clusterizeDetUnit(*DSViter, pixDet, badChannels, spc);
-      if( spc.data.size() > 0) {
-	//output.insert( spc );  // very slow
-	theClusterVector.push_back( spc );  // fill the cache
-	numberOfClusters += spc.data.size();
+      if ( spc.empty() ) {
+        spc.abort();
+      } else {
+	numberOfClusters += spc.size();
       }
 
     } // end of DetUnit loop

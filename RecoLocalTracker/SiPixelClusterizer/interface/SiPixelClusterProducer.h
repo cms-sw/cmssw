@@ -35,6 +35,7 @@
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 
 #include "DataFormats/Common/interface/DetSetVector.h"
+#include "DataFormats/Common/interface/DetSetVectorNew.h"
 #include "DataFormats/SiPixelDigi/interface/PixelDigi.h"
 #include "DataFormats/SiPixelCluster/interface/SiPixelCluster.h"
 #include "DataFormats/Common/interface/EDProduct.h"
@@ -69,8 +70,9 @@ namespace cms
     virtual void produce(edm::Event& e, const edm::EventSetup& c);
 
     //--- Execute the algorithm(s).
-    void run(const edm::DetSetVector<PixelDigi> & input,
-	     edm::ESHandle<TrackerGeometry>     & geom);
+    void run(const edm::DetSetVector<PixelDigi>   & input,
+	     edm::ESHandle<TrackerGeometry>       & geom,
+             edmNew::DetSetVector<SiPixelCluster> & output);
 
   private:
     edm::ParameterSet conf_;
@@ -80,7 +82,6 @@ namespace cms
     PixelClusterizerBase * clusterizer_;    // what we got (for now, one ptr to base class)
     bool readyToCluster_;                   // needed clusterizers valid => good to go!
     edm::InputTag src_;
-    std::vector<edm::DetSet<SiPixelCluster> > theClusterVector; // cache to hold all clusters
   };
 }
 

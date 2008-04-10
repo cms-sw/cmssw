@@ -2,6 +2,7 @@
 #define RecoLocalTracker_SiPixelClusterizer_PixelClusterizerBase_H
 
 #include "DataFormats/Common/interface/DetSetVector.h"
+#include "DataFormats/Common/interface/DetSetVectorNew.h"
 #include "DataFormats/SiPixelCluster/interface/SiPixelCluster.h"
 #include "DataFormats/SiPixelDigi/interface/PixelDigi.h"
 #include "CondTools/SiPixel/interface/SiPixelGainCalibrationServiceBase.h"
@@ -24,7 +25,7 @@ public:
   virtual void clusterizeDetUnit( const edm::DetSet<PixelDigi> & input,	
 				  const PixelGeomDetUnit * pixDet,
 				  const std::vector<short>& badChannels,
-				  edm::DetSet<SiPixelCluster>& output) = 0;
+				  edmNew::DetSetVector<SiPixelCluster>::FastFiller& output) = 0;
 
   // Configure gain calibration service
   void setSiPixelGainCalibrationService( SiPixelGainCalibrationServiceBase* in){ 

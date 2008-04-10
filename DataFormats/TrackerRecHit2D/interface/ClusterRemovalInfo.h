@@ -8,8 +8,7 @@ namespace reco {
     
     class ClusterRemovalInfo {
         public:
-            typedef edmNew::DetSet<uint16_t> Indices;
-            typedef edmNew::DetSetVector<uint16_t>::const_iterator Match;
+            typedef std::vector<uint32_t> Indices;
 
             ClusterRemovalInfo() {}
 
@@ -17,11 +16,11 @@ namespace reco {
                                const edm::ProductID &stripProdID) : 
                 stripProdID_(stripProdID), pixelProdID_(pixelProdID) { }
            
-            edmNew::DetSetVector<uint16_t> & pixelIndices() { return pixelIndices_; }
-            edmNew::DetSetVector<uint16_t> & stripIndices() { return stripIndices_; }
+            Indices & pixelIndices() { return pixelIndices_; }
+            Indices & stripIndices() { return stripIndices_; }
 
-            const edmNew::DetSetVector<uint16_t> & pixelIndices() const { return pixelIndices_; }
-            const edmNew::DetSetVector<uint16_t> & stripIndices() const { return stripIndices_; }
+            const Indices & pixelIndices() const { return pixelIndices_; }
+            const Indices & stripIndices() const { return stripIndices_; }
 
             edm::ProductID pixelProdID() const { return pixelProdID_; }
             edm::ProductID stripProdID() const { return stripProdID_; }
@@ -35,7 +34,7 @@ namespace reco {
         private:
             edm::ProductID stripProdID_, pixelProdID_;
             edm::ProductID stripNewProdID_, pixelNewProdID_;
-            edmNew::DetSetVector<uint16_t> stripIndices_, pixelIndices_; 
+            Indices stripIndices_, pixelIndices_; 
         
      };
 

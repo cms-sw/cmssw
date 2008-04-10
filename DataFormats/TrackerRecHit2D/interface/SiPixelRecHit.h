@@ -27,7 +27,7 @@
 class SiPixelRecHit : public  BaseSiTrackerRecHit2DLocalPos {
 public:
 
-  typedef edm::Ref<edm::DetSetVector<SiPixelCluster>, SiPixelCluster > ClusterRef;
+  typedef edm::Ref<edmNew::DetSetVector<SiPixelCluster>, SiPixelCluster > ClusterRef;
 
   SiPixelRecHit(): BaseSiTrackerRecHit2DLocalPos(), qualWord_(0), cluster_()  {}
 
@@ -35,7 +35,7 @@ public:
   
   SiPixelRecHit( const LocalPoint&, const LocalError&,
 		 const DetId&, 
-		 edm::Ref< edm::DetSetVector<SiPixelCluster>, SiPixelCluster> const&  cluster);  
+		 ClusterRef const&  cluster);  
 
   virtual SiPixelRecHit * clone() const {return new SiPixelRecHit( * this); }
   
@@ -135,7 +135,7 @@ public:
 
 private:
 
-  edm::Ref<edm::DetSetVector<SiPixelCluster>, SiPixelCluster > cluster_;
+  SiPixelClusterRefNew cluster_;
 
 };
 
