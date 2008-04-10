@@ -154,11 +154,11 @@ void zMinuit3Independentfit_conv() {
   //f_backZmm(new double(0)), l_backZmm(new double(0.01)), a_backZmm(new double(100)), b_backZmm(new double(0)),
   //f_backZms(new double(50.)), l_backZms(new double(0.0001)), a_backZms(new double(5.)), b_backZms(new double(0.1));
 
-  function::ZMuMuScaledFunction zmms(mZmm, GZmm, f_gamma, f_int, meanZmm, sigmaZmm, P0, eff_track, eff_standalone, BinScaleFactorZmm);
-  function::ZMuTrackScaledNormalBack zmtsnb(mZmm, GZmm, f_gamma, f_int, meanZmt, sigmaZmt, P0, eff_track, eff_standalone, f_backZmt, l_backZmt, a_backZmt, b_backZmt, BinScaleFactorZmt, fitXMin, fitXMax);
-  function::ZMuStandaloneScaledFunction zmss(mZmm, GZmm, f_gamma, f_int, meanZms, sigmaZms, P0, eff_track, eff_standalone, BinScaleFactorZms);
-  function::ZMuMuNormalBack zmmnb(P0, mZmm, GZmm, f_gamma, fitXMin, fitXMax);
-  function::ZMuTrackScaledFunction zmts(mZmm, GZmm, f_gamma, f_int, meanZmt, sigmaZmt, P0, eff_track, eff_standalone, BinScaleFactorZmt);
+  funct::ZMuMuScaledFunction zmms(mZmm, GZmm, f_gamma, f_int, meanZmm, sigmaZmm, P0, eff_track, eff_standalone, BinScaleFactorZmm);
+  funct::ZMuTrackScaledNormalBack zmtsnb(mZmm, GZmm, f_gamma, f_int, meanZmt, sigmaZmt, P0, eff_track, eff_standalone, f_backZmt, l_backZmt, a_backZmt, b_backZmt, BinScaleFactorZmt, fitXMin, fitXMax);
+  funct::ZMuStandaloneScaledFunction zmss(mZmm, GZmm, f_gamma, f_int, meanZms, sigmaZms, P0, eff_track, eff_standalone, BinScaleFactorZms);
+  funct::ZMuMuNormalBack zmmnb(P0, mZmm, GZmm, f_gamma, fitXMin, fitXMax);
+  funct::ZMuTrackScaledFunction zmts(mZmm, GZmm, f_gamma, f_int, meanZmt, sigmaZmt, P0, eff_track, eff_standalone, BinScaleFactorZmt);
   
   TFile * ZToLL_file1 = new TFile("../test/ZMM_ZMT_ZMS_histo/ZCandidates_Histo_iso_all.root","read");
   TH1D * zToMuMu = (TH1D*) ZToLL_file1->Get("zToMM");
@@ -220,11 +220,11 @@ void zMinuit3Independentfit_conv() {
   cout << "Chi^2 = " << amin << "/" << ndof << " = " << amin/ndof 
        << "; prob: " << TMath::Prob( amin, ndof )
        << endl;
-  int ZMMPars = ZMuMuScaledFunction::parameters;
+  int ZMMPars = ZMuMuScaledfunction::parameters;
   int ZMTBPars = ZMuTrackScaledNormalBack::parameters;
-  int ZMSPars = ZMuStandaloneScaledFunction::parameters;
+  int ZMSPars = ZMuStandaloneScaledfunction::parameters;
   int ZMMBPars = ZMuMuNormalBack::parameters;
-  int ZMTPars = ZMuTrackScaledFunction::parameters;
+  int ZMTPars = ZMuTrackScaledfunction::parameters;
   double p[nPars], dp[nPars];
   for( size_t i = 0; i < nPars; ++ i ) {
     p[i] = rMinuit.getParameter(i, dp[i]);

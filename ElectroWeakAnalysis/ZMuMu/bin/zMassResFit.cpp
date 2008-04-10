@@ -26,14 +26,12 @@ namespace po = boost::program_options;
 #include <string>
 #include <vector>
 using namespace std;
-using namespace ::function;
 
 // A helper function to simplify the main part.
 template<class T>
-ostream& operator<<(ostream& os, const vector<T>& v)
-{
-    copy(v.begin(), v.end(), ostream_iterator<T>(cout, " ")); 
-    return os;
+ostream& operator<<(ostream& os, const vector<T>& v) {
+  copy(v.begin(), v.end(), ostream_iterator<T>(cout, " ")); 
+  return os;
 }
 
 int main(int ac, char *av[]) { 
@@ -101,15 +99,15 @@ int main(int ac, char *av[]) {
       cout <<">>> Input files loaded\n";
     }
     //Parameters for fit
-    Parameter yield("Yield", 10000);
-    Parameter alpha("Alpha", 0);
-    Parameter beta("Beta", 0);
-    Parameter mean("Mean", 0);
-    Parameter mean2("Mean 2", 0);
-    Parameter mean3("Mean 3", 0);
-    Parameter sigma1("Sigma 1", 1.);
-    Parameter sigma2("Sigma 2", 2.5);
-    Parameter sigma3("Sigma 3", 9.);
+    funct::Parameter yield("Yield", 10000);
+    funct::Parameter alpha("Alpha", 0);
+    funct::Parameter beta("Beta", 0);
+    funct::Parameter mean("Mean", 0);
+    funct::Parameter mean2("Mean 2", 0);
+    funct::Parameter mean3("Mean 3", 0);
+    funct::Parameter sigma1("Sigma 1", 1.);
+    funct::Parameter sigma2("Sigma 2", 2.5);
+    funct::Parameter sigma3("Sigma 3", 9.);
 
     if (vm.count("gauss")) {
       cout << "Fitting histograms in input files to a Gaussian\n"; 
@@ -120,9 +118,9 @@ int main(int ac, char *av[]) {
       for(size_t i = 0; i < v_ZMassResHistos.size(); ++i) { 
 	TH1D * zMass = v_ZMassResHistos[i]; 
 	zMass->Rebin(4); //remember...
-	Gaussian gaus(mean, sigma1);
-	Constant c(yield);
-	typedef Product<Constant, Gaussian> FitFunction;
+	funct::Gaussian gaus(mean, sigma1);
+	funct::Constant c(yield);
+	typedef funct::Product<funct::Constant, funct::Gaussian>::type FitFunction;
 	FitFunction f = c * gaus;
 	typedef fit::HistoChiSquare<FitFunction> ChiSquared;
 	ChiSquared chi2(f, zMass, fMin, fMax);
@@ -161,13 +159,14 @@ int main(int ac, char *av[]) {
       for(size_t i = 0; i < v_ZMassResHistos.size(); ++i) { 
 	TH1D * zMass = v_ZMassResHistos[i]; 
 	zMass->Rebin(4); //remember...
-	Gaussian gaus1(mean, sigma1);
-	Gaussian gaus2(mean, sigma2);
-	typedef Product<Constant, Gaussian> G1;
-	typedef Product<Difference<Number,Constant>, Gaussian> G2;
-	typedef Product<Constant,Sum<G1, G2> > FitFunction;
-	Number _1(1);
-	FitFunction f = yield*(alpha*gaus1 + (_1 - alpha)*gaus2);
+	funct::Gaussian gaus1(mean, sigma1);
+	funct::Gaussian gaus2(mean, sigma2);
+	typedef funct::Product<funct::Constant, funct::Gaussian>::type G1;
+	typedef funct::Product<funct::Difference<funct::Number, funct::Constant>::type, funct::Gaussian>::type G2;
+	typedef funct::Product<funct::Constant, funct::Sum<G1, G2>::type>::type FitFunction;
+	funct::Number _1(1);
+	funct::Constant c_alpha(alpha), c_yield(yield);
+	FitFunction f = c_yield*(c_alpha*gaus1 + (_1 - c_alpha)*gaus2);
 	typedef fit::HistoChiSquare<FitFunction> ChiSquared;
 	ChiSquared chi2(f, zMass, fMin, fMax);
 	int fullBins = chi2.degreesOfFreedom();
@@ -217,16 +216,16 @@ int main(int ac, char *av[]) {
       for(size_t i = 0; i < v_ZMassResHistos.size(); ++i) { 
 	TH1D * zMass = v_ZMassResHistos[i]; 
 	zMass->Rebin(4); //remember...
-	Gaussian gaus1(mean, sigma1);
-	Gaussian gaus2(mean2, sigma2);
-	Gaussian gaus3(mean3, sigma3);
-	Constant a(alpha), b(beta), c(yield);
-	Number _1(1);
-	typedef Product<Constant, Gaussian> G1;
-	typedef Sum<G1, G1> SumG1;
-	typedef Sum<Constant, Constant> ConstSum;
-	typedef Product<Difference<Number,ConstSum>, Gaussian> G2;
-	typedef Product<Constant,Sum<SumG1, G2> > FitFunction;
+	funct::Gaussian gaus1(mean, sigma1);
+	funct::Gaussian gaus2(mean2, sigma2);
+	funct::Gaussian gaus3(mean3, sigma3);
+	funct::Constant a(alpha), b(beta), c(yield);
+	funct::Number _1(1);
+	typedef funct::Product<funct::Constant, funct::Gaussian>::type G1;
+	typedef funct::Sum<G1, G1>::type SumG1;
+	typedef funct::Sum<funct::Constant, funct::Constant>::type ConstSum;
+	typedef funct::Product<funct::Difference<funct::Number, ConstSum>::type, funct::Gaussian>::type G2;
+	typedef funct::Product<funct::Constant, funct::Sum<SumG1, G2>::type>::type FitFunction;
 	FitFunction f = c*(a*gaus1 + b*gaus2 + (_1 - (a+b))*gaus3);
 	typedef fit::HistoChiSquare<FitFunction> ChiSquared;
 	ChiSquared chi2(f, zMass, fMin, fMax);
