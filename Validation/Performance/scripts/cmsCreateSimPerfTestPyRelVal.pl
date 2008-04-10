@@ -6,6 +6,29 @@ $CMSSW_RELEASE_BASE=$ENV{'CMSSW_RELEASE_BASE'};
 $CMSSW_VERSION=$ENV{'CMSSW_VERSION'};
 $HOST=$ENV{'HOST'};
 
+#Default CASTOR directory:
+if ($#ARGV==0)
+{
+    $CASTOR_DIR=$ARGV[0];
+    print "User provided the following custom CASTOR directory where to archive the results of the performance suite:\n$CASTOR_DIR\n";
+}
+elsif ($#ARGV<0)
+{
+    $CASTOR_DIR="/castor/cern.ch/user/r/relval/performance/";
+    print "Default CASTOR directory where the tarball with the results will be archived is:\n$CASTOR_DIR\n";
+}
+else
+{
+    print "Usage: cmsCreateSimPerfTestPyRelVal.pl [optional CASTOR directory argument]:
+E.G.:
+cmsCreateSimPerfTestPyRelVal.pl
+(this will archive the results in a tarball on /castor/cern.ch/user/r/relval/performance/)
+OR
+cmsCreateSimPerfTestPyRelVal.pl \"/castor/cern.ch/user/y/yourusername/yourdirectory/\"
+(this will archive the results in a tarball on /castor/cern.ch/user/y/yourusername/yourdirectory/)\n";
+    exit;
+}
+
 #Default number of events for each set of tests:
 $TimeSizeNumOfEvts=100;
 $IgProfNumOfEvts=5;
@@ -169,7 +192,7 @@ cd ..\n";
 if ($ValgrindNumOfEvts>0)
 {
     print "Launching the Valgrind tests with $ValgrindNumOfEvts events each\n";
-#Running ValgrindFCE callgrind and memcheck on $ValgrindNumOfEvts ZPrimeJJ event (DIGI only)
+#Running ValgrindFCE callgrind and memcheck on $ValgrindNumOfEvts QCD_80_120 event (DIGI, RECO, DIGI PILEUP, RECO PILEUP only)
     print "mkdir QCD_80_120_Valgrind
 cd QCD_80_120_Valgrind
 cp -pR ../QCD_80_120_IgProf/QCD_80_120_SIM.root .
@@ -192,20 +215,20 @@ cd ..\n";
 #Running ValgrindFCE callgrind and memcheck on $ValgrindNumOfEvts SingleMuMinus event (SIM only)
     print "mkdir SingleMuMinusPt10_Valgrind
 cd SingleMuMinusPt10_Valgrind
-$cmsSimPyRelVal $ValgrindNumOfEvts "."$CmsDriverCandle{$Candle[3]}"." 89;grep -v DIGI SimulationCandles_"."$CMSSW_VERSION".".txt \>tmp
-mv tmp SimulationCandles_"."$CMSSW_VERSION".".txt
-cp -pR ../SingleMuMinusPt10_TimeSize/MU-_pt10_DIGI.root .
+$cmsSimPyRelVal $ValgrindNumOfEvts "."$CmsDriverCandle{$Candle[3]}"." 89;
+grep -v DIGI SimulationCandles_"."$CMSSW_VERSION".".txt \>tmp
+grep -v RECO tmp \>tmp1
+mv tmp1 SimulationCandles_"."$CMSSW_VERSION".".txt
 $cmsRelvalreport -i SimulationCandles_"."$CMSSW_VERSION".".txt -t perfreport_tmp -R -P >& SingleMuMinusPt10.log\n
 cd ..\n";
 
     system(
 	   "mkdir SingleMuMinusPt10_Valgrind;
            cd SingleMuMinusPt10_Valgrind;
-           $cmsSimPyRelVal $ValgrindNumOfEvts "."$CmsDriverCandle{$Candle[3]}"." 89;grep -v DIGI SimulationCandles_"."$CMSSW_VERSION".".txt \>tmp; 
-           mv tmp SimulationCandles_"."$CMSSW_VERSION".".txt;
-           #Adding RECO step, so DIGI root file is needed!
-           #Copying over the DIGI.root file from the TimeSize profiling directory to avoid re-running it
-           cp -pR ../SingleMuMinusPt10_TimeSize/MU-_pt10_DIGI.root .;
+           $cmsSimPyRelVal $ValgrindNumOfEvts "."$CmsDriverCandle{$Candle[3]}"." 89;
+           grep -v DIGI SimulationCandles_"."$CMSSW_VERSION".".txt \>tmp;
+           grep -v RECO tmp \>tmp1; 
+           mv tmp1 SimulationCandles_"."$CMSSW_VERSION".".txt;
            $cmsRelvalreport -i SimulationCandles_"."$CMSSW_VERSION".".txt -t perfreport_tmp -R -P >& SingleMuMinusPt10.log;
            cd .."
 	  );
@@ -242,5 +265,14 @@ close SCIMARKLARGE;
 print "Stop all cmsScimarkLaunch jobs\n";
 print "$cmsScimarkStop\n";
 system("$cmsScimarkStop");
+#Create a tarball of the work directory 
+$TarFile=$CMSSW_VERSION.'_'.$HOST.'_work.tar';
+print "tar -cvf $TarFile *; gzip $TarFile";
+system("tar -cvf $TarFile *; gzip $TarFile");
+$TarFileGzip=$TarFile.".gz";
+$CastorFile=$CASTOR_DIR.$TarFile;
+#Archive the tarball in CASTOR
+print "rfcp $TarFileGzip $CastorFile";
+system("rfcp $TarFileGzip $CastorFile");
 exit;
 
