@@ -607,7 +607,7 @@ SiPixelErrorEstimation::analyze(const edm::Event& e, const edm::EventSetup& es)
 	  all_rechitpullx = all_rechitresx / all_rechiterrx;
 	  all_rechitpully = all_rechitresy / all_rechiterry;
 	  
-	  edm::Ref<edm::DetSetVector<SiPixelCluster>, SiPixelCluster> const& clust = pixeliter->cluster();
+	  SiPixelRecHit::ClusterRef const& clust = pixeliter->cluster();
 	  
 	  all_npix = clust->size();
 	  all_nxpix = clust->sizeX();
