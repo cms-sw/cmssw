@@ -7,6 +7,7 @@
 #include "DataFormats/SiPixelDigi/interface/SiPixelCalibDigiError.h"
 #include "DataFormats/Common/interface/Wrapper.h"
 #include "DataFormats/Common/interface/DetSetVector.h"
+#include "DataFormats/Common/interface/DetSetVectorNew.h"
 #include "boost/cstdint.hpp"
 #include <vector>
 
@@ -22,6 +23,7 @@ namespace {
     edm::Wrapper<edm::DetSet<SiPixelCalibDigi> > calibdigidetvec;
     edm::Wrapper<std::vector<edm::DetSet<SiPixelCalibDigi> > > calibdigidetset;
     edm::Wrapper<edm::DetSetVector<SiPixelCalibDigi> > calibdigidetsetvec;
+
     
     uint8_t singlesmallerror;
     uint16_t containerforrowsandcolumns;
@@ -31,13 +33,18 @@ namespace {
     edm::Wrapper<edm::DetSet<SiPixelCalibDigiError> > calibdigierrdetvec;
     edm::Wrapper<std::vector<edm::DetSet<SiPixelCalibDigiError> > > calibdigierrdetset;
     edm::Wrapper<edm::DetSetVector<SiPixelCalibDigiError> > calibdigierrdetsetvec;
-    
+
     edm::Wrapper<PixelDigi> zs0;
     edm::Wrapper<PixelDigiCollection> zsc0;
     edm::Wrapper< std::vector<PixelDigi>  > zs1;
     edm::Wrapper< edm::DetSet<PixelDigi> > zs2;
     edm::Wrapper< std::vector<edm::DetSet<PixelDigi> > > zs3;
     edm::Wrapper< edm::DetSetVector<PixelDigi> > zs4;
+
+    edm::Wrapper<edmNew::DetSetVector<PixelDigi> > zs4_bis;
+    edm::Wrapper<edmNew::DetSetVector<SiPixelCalibDigi> > calibdigidetsetvec_bis;
+    edm::Wrapper<edmNew::DetSetVector<SiPixelCalibDigiError> > calibdigierrdetsetvec_bis;
+    
   }
 }
 
