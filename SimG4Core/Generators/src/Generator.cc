@@ -12,8 +12,6 @@
 #include "G4ParticleDefinition.hh"
 #include "G4UnitsTable.hh"
 
-#include "Math/Boost.h"
-
 using namespace edm;
 using std::cout;
 using std::endl;
@@ -220,7 +218,6 @@ void Generator::particleAssignDaughters( G4PrimaryParticle* g4p, HepMC::GenParti
   LogDebug("SimG4CoreGenerator") <<" px="<<vp->momentum().px()<<" py="<<vp->momentum().py()<<" pz="<<vp->momentum().pz()<<" e="<<vp->momentum().e();
   LogDebug("SimG4CoreGenerator") <<" p.mag2="<<p.mag2()<<" (p.ee)**2="<<p.e()*p.e()<<" ratio:"<<p.mag2()/p.e()/p.e();
   LogDebug("SimG4CoreGenerator") <<" mass="<<vp->generatedMass()<<" rho="<<p.P()<<" mag="<<p.mag();
-  ROOT::Math::Boost cmboost(p.BoostToCM());
   double proper_time=decaylength/(p.Beta()*p.Gamma()*c_light);
   LogDebug("SimG4CoreGenerator") <<" beta="<<p.Beta()<<" gamma="<<p.Gamma()<<" Proper time="
 				     <<proper_time<<" ns" ;
@@ -233,11 +230,10 @@ void Generator::particleAssignDaughters( G4PrimaryParticle* g4p, HepMC::GenParti
        vpdec != vp->end_vertex()->particles_end(HepMC::children); ++vpdec) {
 
     //transform decay products such that in the rest frame of mother
-    math::XYZTLorentzVector pdec_orig((*vpdec)->momentum().px(),
-                                      (*vpdec)->momentum().py(),
-                                      (*vpdec)->momentum().pz(),
-                                      (*vpdec)->momentum().e());
-    math::XYZTLorentzVector pdec = cmboost(pdec_orig);
+    math::XYZTLorentzVector pdec((*vpdec)->momentum().px(),
+                                 (*vpdec)->momentum().py(),
+                                 (*vpdec)->momentum().pz(),
+                                 (*vpdec)->momentum().e());
     // children should only be taken into account once
     G4PrimaryParticle * g4daught= 
       new G4PrimaryParticle((*vpdec)->pdg_id(), pdec.x()*GeV, pdec.y()*GeV, pdec.z()*GeV);
@@ -252,11 +248,11 @@ void Generator::particleAssignDaughters( G4PrimaryParticle* g4p, HepMC::GenParti
 				       <<vp->pdg_id() ;
     if ( (*vpdec)->status() == 2 && (*vpdec)->end_vertex() != 0 ) 
       {
-	double x2 = (*vpdec)->end_vertex()->position().x();
+    	double x2 = (*vpdec)->end_vertex()->position().x();
         double y2 = (*vpdec)->end_vertex()->position().y();
         double z2 = (*vpdec)->end_vertex()->position().z();
-	double dd = std::sqrt((x1-x2)*(x1-x2)+(y1-y2)*(y1-y2)+(z1-z2)*(z1-z2));
-	particleAssignDaughters(g4daught,*vpdec,dd);
+	    double dd = std::sqrt((x1-x2)*(x1-x2)+(y1-y2)*(y1-y2)+(z1-z2)*(z1-z2));
+	    particleAssignDaughters(g4daught,*vpdec,dd);
       }
     (*vpdec)->set_status(1000+(*vpdec)->status()); 
     g4p->SetDaughter(g4daught);
