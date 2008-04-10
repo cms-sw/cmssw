@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Mon Mar  3 13:34:20 CET 2008
-// $Id: RPCConeBuilderFromES.cc,v 1.1 2008/03/03 14:35:08 fruboes Exp $
+// $Id: RPCConeBuilderFromES.cc,v 1.2 2008/04/09 15:17:36 fruboes Exp $
 //
 
 // system include files
@@ -64,8 +64,15 @@ L1RpcLogConesVec RPCConeBuilderFromES::getConesFromES(edm::Handle<RPCDigiCollect
          digiIt!=range.second;
          ++digiIt)
     {
-      if (digiIt->bx()!=0)
+ 
+      
+      //std::cout << "bx = " << digiIt->bx() << " " << hwConfig->getFirstBX() << " "  << hwConfig->getLastBX() <<std::endl;
+      if ( digiIt->bx() < hwConfig->getFirstBX() || digiIt->bx() > hwConfig->getLastBX()  ){
+      //  std::cout << "   -->skip" << std::endl;
+        //std::cout << "Skip" << std::endl;
         continue;
+      }
+      //std::cout << "   -->OK" << std::endl;
       
 
       std::pair<L1RPCConeBuilder::TStripConVec::const_iterator, L1RPCConeBuilder::TStripConVec::const_iterator> 
