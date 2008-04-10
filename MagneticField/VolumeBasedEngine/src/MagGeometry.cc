@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/03/10 16:29:55 $
- *  $Revision: 1.10 $
+ *  $Date: 2008/03/29 14:21:57 $
+ *  $Revision: 1.11 $
  *  \author N. Amapane - INFN Torino
  */
 
@@ -55,6 +55,15 @@ MagGeometry::MagGeometry(const edm::ParameterSet& config, std::vector<MagBLayer 
   //FIXME assume sectors are already sorted in phi
   //FIXME: PeriodicBinFinderInPhi gets *center* of first bin
   theEndcapBinFinder = new PeriodicBinFinderInPhi<float>(theESectors.front()->minPhi()+Geom::pi()/12., 12);
+
+  // FIXME: Get these dimensions from the builder. 
+  // For this we can wait the next generation of tables, when the picture 
+  // may be more complicated
+  if (v_85l){
+    theZ1 = 634.49;
+  } else {
+    theZ1 = 633.29;
+  }
 }
 
 MagGeometry::~MagGeometry(){
@@ -110,7 +119,7 @@ GlobalVector MagGeometry::fieldInTesla(const GlobalPoint & gp) const {
     }
     
 
-    // Map versions 110l is not Z symmetric; dumb volume search for the time being.
+    // Map versions 1103l is not Z symmetric; dumb volume search for the time being.
   } else {
     
     MagVolume * v = 0;
@@ -119,7 +128,12 @@ GlobalVector MagGeometry::fieldInTesla(const GlobalPoint & gp) const {
     if (cacheLastVolume && lastVolume!=0 && lastVolume->inside(gp)){
       v = lastVolume;
     } else {
-      v = findVolume1(gp);
+      // FIXME: endcap layers already built -> optimized search!!!
+      if (inBarrel(gp)) {
+	v = findVolume1(gp);
+      } else {
+	v = findVolume(gp);
+      }
     }
     
     // If search fails, retry with increased tolerance
@@ -128,7 +142,12 @@ GlobalVector MagGeometry::fieldInTesla(const GlobalPoint & gp) const {
       // This is a hack for thin gaps on air-iron boundaries,
       // which will not be present anymore once surfaces are matched.
       if (verbose::debugOut) cout << "Increasing the tolerance to 0.03" <<endl;
-      v = findVolume1(gp, 0.03);
+      // FIXME: endcap layers already built -> optimized search!!!
+       if (inBarrel(gp)) {
+	 v = findVolume1(gp, 0.03);
+       } else {
+	 v = findVolume(gp, 0.03);
+       }
     }
     
     if (v!=0) {
@@ -223,7 +242,7 @@ bool MagGeometry::inBarrel(const GlobalPoint& gp) const {
   // FIXME! hardcoded boundary between barrel and endcaps!
   float Z = gp.z();
   float R = gp.perp();
-  return (fabs(Z)<634.49 || (R>308.755 && fabs(Z)<661.01));
+  return (fabs(Z)< theZ1 || (R>308.755 && fabs(Z)<661.01));
 }
 
 
