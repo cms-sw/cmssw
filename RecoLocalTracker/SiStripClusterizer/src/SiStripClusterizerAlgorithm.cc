@@ -40,26 +40,32 @@ SiStripClusterizerAlgorithm::~SiStripClusterizerAlgorithm() {
 // } 
 
 
-void SiStripClusterizerAlgorithm::run(const edm::DetSetVector<SiStripDigi>& input,std::vector<edm::DetSet<SiStripCluster> > & output,const edm::EventSetup& es){
+void SiStripClusterizerAlgorithm::run(const edm::DetSetVector<SiStripDigi>& input, edmNew::DetSetVector<SiStripCluster> & output,const edm::EventSetup& es){
 
   if ( validClusterizer_ ) {
     int number_detunits          = 0;
     int number_localstriprechits = 0;
 
+    ThreeThresholdStripClusterizer_->init(es);
+
     //loop on all detset inside the input collection
     edm::DetSetVector<SiStripDigi>::const_iterator DSViter=input.begin();
-    for (; DSViter!=input.end();DSViter++){
+    for (; DSViter!=input.end();DSViter++) {
       ++number_detunits;
+#ifdef DEBUG_SiStripClusterizerAlgorithm_
       LogDebug("SiStripClusterizer")  << "[SiStripClusterizerAlgorithm::run] DetID " << DSViter->id;
+#endif
+      if (DSViter->empty()) continue;
 
-      edm::DetSet<SiStripCluster> ssc(DSViter->id);
+      edmNew::DetSetVector<SiStripCluster>::FastFiller ssc(output, DSViter->id);
 
-      ThreeThresholdStripClusterizer_->clusterizeDetUnit(*DSViter,ssc, es);
+      ThreeThresholdStripClusterizer_->clusterizeDetUnit(*DSViter,ssc);
 
-      number_localstriprechits += ssc.data.size();
+      number_localstriprechits += ssc.size();
       
-      if (ssc.data.size())
-	output.push_back(ssc);  // insert the DetSet<SiStripCluster> in the  DetSetVec<SiStripCluster> only if there is at least a digi
+      if (ssc.empty()) ssc.abort(); // insert the DetSet<SiStripCluster> in the  DetSetVec<SiStripCluster> only if there is at least a digi
+      //if (ssc.data.size())
+      //	output.push_back(ssc);  // insert the DetSet<SiStripCluster> in the  DetSetVec<SiStripCluster> only if there is at least a digi
     }
     edm::LogInfo("SiStripClusterizer") << "[SiStripClusterizerAlgorithm] execution in mode " << clusterMode_ << " generating " << number_localstriprechits << " SiStripClusters in " << number_detunits << " DetUnits.";
   }

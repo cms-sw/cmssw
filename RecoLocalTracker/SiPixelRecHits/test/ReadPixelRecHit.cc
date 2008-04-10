@@ -480,7 +480,7 @@ void ReadPixelRecHit::analyze(const edm::Event& e,
       //GlobalPoint GP = PixGeom->surface().toGlobal(Local3DPoint(lp));
       
       // Get cluster 
-      edm::Ref<edm::DetSetVector<SiPixelCluster>, SiPixelCluster> const& clust = 
+      edm::Ref<edmNew::DetSetVector<SiPixelCluster>, SiPixelCluster> const& clust = 
 	pixeliter->cluster();
 	
       float ch = (clust->charge())/1000.; // convert ke to electrons

@@ -3,6 +3,7 @@
 
 //Data Formats
 #include "DataFormats/Common/interface/DetSetVector.h"
+#include "DataFormats/Common/interface/DetSetVectorNew.h"
 #include "DataFormats/SiStripDigi/interface/SiStripDigi.h"
 #include "DataFormats/SiStripCluster/interface/SiStripCluster.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -15,7 +16,6 @@
 #include "CondFormats/DataRecord/interface/SiStripNoisesRcd.h"
 #include "CalibFormats/SiStripObjects/interface/SiStripQuality.h"
 #include "CalibTracker/Records/interface/SiStripQualityRcd.h"
-
 
 #include <vector>
 #include <algorithm>
@@ -33,8 +33,10 @@ public:
     qualityLabel_(qualityLabel){};
   
   //  void setSiStripNoiseService( SiStripNoiseService* in ){ SiStripNoiseService_=in;}
+  void clusterizeDetUnit(const edm::DetSet<SiStripDigi>    & digis, edmNew::DetSetVector<SiStripCluster>::FastFiller & output);
+  void clusterizeDetUnit(const edmNew::DetSet<SiStripDigi> & digis, edmNew::DetSetVector<SiStripCluster>::FastFiller & output);
 
-  void clusterizeDetUnit(const edm::DetSet<SiStripDigi>&,edm::DetSet<SiStripCluster>&, const edm::EventSetup& );
+  void init(const edm::EventSetup& );
 
   float channelThresholdInNoiseSigma() const { return theChannelThreshold;}
   float seedThresholdInNoiseSigma()    const { return theSeedThreshold;}
@@ -42,12 +44,20 @@ public:
 
 private:
   //  SiStripNoiseService* SiStripNoiseService_; 
+  template<typename InputDetSet>
+  void clusterizeDetUnit_(const InputDetSet & digis, edmNew::DetSetVector<SiStripCluster>::FastFiller & output);
 
   float theChannelThreshold;
   float theSeedThreshold;
   float theClusterThreshold;
   int max_holes_;
   std::string qualityLabel_;
+
+  edm::ESHandle<SiStripGain> gainHandle_;
+  edm::ESHandle<SiStripNoises> noiseHandle_;
+  edm::ESHandle<SiStripQuality> qualityHandle_;
+
+  std::vector<SiStripDigi> cluster_digis_;  // so it's not recreated for each det for each event!
 };
 
 class AboveSeed {

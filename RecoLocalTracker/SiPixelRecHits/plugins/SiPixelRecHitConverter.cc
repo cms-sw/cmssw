@@ -84,7 +84,7 @@ namespace cms
   {
 
     // Step A.1: get input data
-    edm::Handle< edm::DetSetVector<SiPixelCluster> > input;
+    edm::Handle< edmNew::DetSetVector<SiPixelCluster> > input;
     e.getByLabel( src_, input);
     
     // Step A.2: get event setup
@@ -127,7 +127,7 @@ namespace cms
   //!  and make a RecHit to store the result.
   //!  New interface reading DetSetVector by V.Chiochia (May 30th, 2006)
   //---------------------------------------------------------------------------
-	void SiPixelRecHitConverter::run(edm::Handle<edm::DetSetVector<SiPixelCluster> >  inputhandle,
+	void SiPixelRecHitConverter::run(edm::Handle<edmNew::DetSetVector<SiPixelCluster> >  inputhandle,
 					SiPixelRecHitCollectionNew &output,
 					edm::ESHandle<TrackerGeometry> & geom) 
 	{
@@ -142,30 +142,30 @@ namespace cms
 		int numberOfDetUnits = 0;
 		int numberOfClusters = 0;
 		
-		const edm::DetSetVector<SiPixelCluster>& input = *inputhandle;
+		const edmNew::DetSetVector<SiPixelCluster>& input = *inputhandle;
 		
-		edm::DetSetVector<SiPixelCluster>::const_iterator DSViter=input.begin();
+		edmNew::DetSetVector<SiPixelCluster>::const_iterator DSViter=input.begin();
 
 		for ( ; DSViter != input.end() ; DSViter++) 
 		{
 			numberOfDetUnits++;
-			unsigned int detid = DSViter->id;
+			unsigned int detid = DSViter->detId();
 			DetId detIdObject( detid );  
 			const GeomDetUnit * genericDet = geom->idToDetUnit( detIdObject );
 			const PixelGeomDetUnit * pixDet = dynamic_cast<const PixelGeomDetUnit*>(genericDet);
 			assert(pixDet); 
 			SiPixelRecHitCollectionNew::FastFiller recHitsOnDetUnit(output,detid);
 			
-			edm::DetSet<SiPixelCluster>::const_iterator clustIt = DSViter->data.begin();
+			edmNew::DetSet<SiPixelCluster>::const_iterator clustIt = DSViter->begin(), clustEnd = DSViter->end();
 
-			for ( ; clustIt != DSViter->data.end(); clustIt++) 
+			for ( ; clustIt != clustEnd; clustIt++) 
 			{
 				numberOfClusters++;
 				std::pair<LocalPoint, LocalError> lv = cpe_->localParameters( *clustIt, *genericDet );
 				LocalPoint lp( lv.first );
 				LocalError le( lv.second );
 				// Create a persistent edm::Ref to the cluster
-				edm::Ref< edm::DetSetVector<SiPixelCluster>, SiPixelCluster > cluster = edm::makeRefTo( inputhandle, detid, clustIt);
+				edm::Ref< edmNew::DetSetVector<SiPixelCluster>, SiPixelCluster > cluster = edmNew::makeRefTo( inputhandle, clustIt);
 				// Make a RecHit and add it to the DetSet
 				// old : recHitsOnDetUnit.push_back( new SiPixelRecHit( lp, le, detIdObject, &*clustIt) );
 				SiPixelRecHit hit( lp, le, detIdObject, cluster);

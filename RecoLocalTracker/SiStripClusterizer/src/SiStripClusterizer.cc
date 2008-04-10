@@ -15,7 +15,7 @@ namespace cms
 
     edm::LogInfo("SiStripClusterizer") << "[SiStripClusterizer::SiStripClusterizer] Constructing object...";
     
-    produces< edm::DetSetVector<SiStripCluster> > ();
+    produces< edmNew::DetSetVector<SiStripCluster> > ();
   }
 
   // Virtual destructor needed.
@@ -31,8 +31,9 @@ namespace cms
     edm::Handle< edm::DetSetVector<SiStripDigi> >  input;
 
     // Step C: produce output product
-    std::vector< edm::DetSet<SiStripCluster> > vSiStripCluster;
-    vSiStripCluster.reserve(10000);
+    std::auto_ptr< edmNew::DetSetVector<SiStripCluster> > output(new edmNew::DetSetVector<SiStripCluster>());
+    output->reserve(10000,4*10000); //FIXME
+
     typedef std::vector<edm::ParameterSet> Parameters;
     Parameters DigiProducersList = conf_.getParameter<Parameters>("DigiProducersList");
     Parameters::iterator itDigiProducersList = DigiProducersList.begin();
@@ -41,12 +42,9 @@ namespace cms
       std::string digiLabel = itDigiProducersList->getParameter<std::string>("DigiLabel");
       e.getByLabel(digiProducer,digiLabel,input);  //FIXME: fix this label	
       if (input->size())
-	SiStripClusterizerAlgorithm_.run(*input,vSiStripCluster, es);
+	SiStripClusterizerAlgorithm_.run(*input,*output, es);
     }
     
-    // Step D: create and fill output collection
-    std::auto_ptr< edm::DetSetVector<SiStripCluster> > output(new edm::DetSetVector<SiStripCluster>(vSiStripCluster) );
-
     // Step D: write output to file
     e.put(output);
   }

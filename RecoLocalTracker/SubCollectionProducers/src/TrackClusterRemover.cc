@@ -58,31 +58,19 @@ class TrackClusterRemover : public edm::EDProducer {
         void readPSet(const edm::ParameterSet& iConfig, const std::string &name, 
                 int id1=-1, int id2=-1, int id3=-1, int id4=-1, int id5=-1, int id6=-1) ;
 
-        std::vector<uint64_t> pixels, strips;    // avoid unneed alloc/dealloc of this
+        std::vector<uint8_t> pixels, strips;                // avoid unneed alloc/dealloc of this
         edm::ProductID pixelSourceProdID, stripSourceProdID; // ProdIDs refs must point to (for consistency tests)
 
         inline void process(const TrackingRecHit *hit, float chi2);
         inline void process(const SiStripRecHit2D *hit2D, uint32_t subdet);
 
-        inline static uint32_t detid(const uint64_t &x) { return static_cast<uint32_t>(x >> 32); }
-        inline static uint32_t index(const uint64_t &x) { return static_cast<uint32_t>(x & 0xFFFFFFFF); }
-        inline static uint64_t pack (const int32_t &detid, const uint32_t &idx) { return ((static_cast<uint64_t>(detid)) << 32) + idx; }
-        inline static uint64_t pack (const  std::pair<edm::det_id_type,size_t> &pair) { return ((static_cast<uint64_t>(pair.first)) << 32) + pair.second; }
-
         template<typename T> 
-        std::auto_ptr<edm::DetSetVector<T> >
-        cleanup(const edm::DetSetVector<T> &oldClusters, const std::vector<uint64_t> &usedOnes, 
-                    edmNew::DetSetVector<uint16_t> &refs, const edmNew::DetSetVector<uint16_t> *oldRefs) ;
+        std::auto_ptr<edmNew::DetSetVector<T> >
+        cleanup(const edmNew::DetSetVector<T> &oldClusters, const std::vector<uint8_t> &isGood, 
+                    reco::ClusterRemovalInfo::Indices &refs, const reco::ClusterRemovalInfo::Indices *oldRefs) ;
 
         // Carries in full removal info about a given det from oldRefs
-        void mergeFull(   edmNew::DetSetVector<uint16_t> &refs, const edmNew::DetSetVector<uint16_t> &oldRefs, uint32_t detid) ;
-        // Merges in information about a given det between oldRefs and the outcome of the current removal run. 
-        // if oldRefs knows nothing about that det, it just calls mergeNew
-        void mergePartial(edmNew::DetSetVector<uint16_t> &refs, const edmNew::DetSetVector<uint16_t> &oldRefs, uint32_t detid,
-                            uint16_t newSize, const std::vector<uint8_t> &good) ; 
-        // Writes new removal info about a given det, using the outcome of the current removal run.
-        void mergeNew(    edmNew::DetSetVector<uint16_t> &refs,                                                uint32_t detid,
-                            uint16_t newSize, const std::vector<uint8_t> &good) ; 
+        void mergeOld(reco::ClusterRemovalInfo::Indices &refs, const reco::ClusterRemovalInfo::Indices &oldRefs) ;
 };
 
 
@@ -116,8 +104,8 @@ TrackClusterRemover::TrackClusterRemover(const ParameterSet& iConfig):
     mergeOld_(iConfig.exists("oldClusterRemovalInfo")),
     oldRemovalInfo_(mergeOld_ ? iConfig.getParameter<InputTag>("oldClusterRemovalInfo") : InputTag("NONE"))
 {
-    produces< DetSetVector<SiPixelCluster> >();
-    produces< DetSetVector<SiStripCluster> >();
+    produces< edmNew::DetSetVector<SiPixelCluster> >();
+    produces< edmNew::DetSetVector<SiStripCluster> >();
     produces< ClusterRemovalInfo >();
 
     fill(pblocks_, pblocks_+NumberOfParamBlocks, ParamBlock());
@@ -147,157 +135,46 @@ TrackClusterRemover::~TrackClusterRemover()
 {
 }
 
-void TrackClusterRemover::mergeFull(edmNew::DetSetVector<uint16_t> &refs,
-                                            const edmNew::DetSetVector<uint16_t> &oldRefs,
-                                            uint32_t detid) 
+void TrackClusterRemover::mergeOld(ClusterRemovalInfo::Indices &refs,
+                                            const ClusterRemovalInfo::Indices &oldRefs) 
 {
-    // the new is full, so we just have to convert
-    typedef edmNew::DetSetVector<uint16_t>::FastFiller  RefDS;
-    typedef edmNew::DetSetVector<uint16_t>::const_iterator RefMatch;
-    typedef edmNew::DetSet<uint16_t> OldRefDS;
-    RefMatch match = oldRefs.find(detid);
-    if (match != oldRefs.end()) {
-        OldRefDS olds = *match;
-        RefDS merged(refs, detid);
-        merged.resize(olds.size());
-        std::copy(olds.begin(), olds.end(), merged.begin());
-    } 
+        for (size_t i = 0, n = refs.size(); i < n; ++i) {
+            refs[i] = oldRefs[refs[i]];
+       }
 }
 
-void TrackClusterRemover::mergeNew(edmNew::DetSetVector<uint16_t> &refs,
-                                            uint32_t detid,
-                                            uint16_t newSize,
-                                            const vector<uint8_t> &good)
-{
-    typedef edmNew::DetSetVector<uint16_t>::FastFiller  RefDS;
-        RefDS merged(refs, detid);
-        merged.resize(newSize);
-        vector<uint8_t>::const_iterator it = good.begin(), ed = good.end();
-        uint16_t iold, inew;
-        for (iold = inew = 0; it != ed; ++it, ++iold) {
-            if (*it) { 
-                merged[inew] = iold; 
-                ++inew; 
-            }
-        }
-}
-
-                                            
-void TrackClusterRemover::mergePartial(edmNew::DetSetVector<uint16_t> &refs,
-                                            const edmNew::DetSetVector<uint16_t> &oldRefs,
-                                            uint32_t detid,
-                                            uint16_t newSize,
-                                            const vector<uint8_t> &good)
-{
-    typedef edmNew::DetSetVector<uint16_t>::FastFiller  RefDS;
-    typedef edmNew::DetSetVector<uint16_t>::const_iterator RefMatch;
-    typedef edmNew::DetSet<uint16_t> OldRefDS;
-    RefMatch match = oldRefs.find(detid);
-    if (match != oldRefs.end()) {
-        OldRefDS olds = *match;
-        if (newSize > olds.size()) {
-                throw cms::Exception("Inconsistent Data") <<  
-                    "The ClusterRemovalInfo passed to TrackClusterRemover does not match with the clusters!";
-        }
-        RefDS merged(refs, detid);
-        merged.resize(newSize);
-        vector<uint8_t>::const_iterator it = good.begin(), ed = good.end();
-        uint16_t iold, inew;
-        for (iold = inew = 0; it != ed; ++it, ++iold) {
-            if (*it) { merged[inew] = olds[iold]; ++inew; }
-        }
-   } else {
-        mergeNew(refs,detid,newSize,good);
-    }
-}
  
 template<typename T> 
-std::auto_ptr<edm::DetSetVector<T> >
-TrackClusterRemover::cleanup(const edm::DetSetVector<T> &oldClusters, const std::vector<uint64_t> &usedOnes, 
-                                edmNew::DetSetVector<uint16_t> &refs, const edmNew::DetSetVector<uint16_t> *oldRefs) {  
-    typedef typename edmNew::DetSetVector<uint16_t>::FastFiller  RefDS;
-    // room for output 
-    std::vector<DetSet<T> > work;
-    work.reserve(oldClusters.size());
-
-    // start from the beginning
-    typename vector<uint64_t>::const_iterator used = usedOnes.begin(); 
-    uint32_t used_detid = detid(*used);
+auto_ptr<edmNew::DetSetVector<T> >
+TrackClusterRemover::cleanup(const edmNew::DetSetVector<T> &oldClusters, const std::vector<uint8_t> &isGood, 
+                                reco::ClusterRemovalInfo::Indices &refs, const reco::ClusterRemovalInfo::Indices *oldRefs) {  
+    typedef typename edmNew::DetSetVector<T>             DSV;
+    typedef typename edmNew::DetSetVector<T>::FastFiller DSF;
+    typedef typename edmNew::DetSet<T>                   DS;
+    auto_ptr<DSV> output(new DSV());
+    output->reserve(oldClusters.size(), oldClusters.dataSize());
 
     // cluster removal loop
-    for (typename DetSetVector<T>::const_iterator itdet = oldClusters.begin(), enddet = oldClusters.end(); itdet != enddet; ++itdet) {
-        const DetSet<T> &oldDS = *itdet;
+    const T * firstOffset = & oldClusters.data().front();
+    for (typename DSV::const_iterator itdet = oldClusters.begin(), enddet = oldClusters.end(); itdet != enddet; ++itdet) {
+        DS oldDS = *itdet;
 
         if (oldDS.empty()) continue; // skip empty detsets
 
         uint32_t id = oldDS.detId();
+        DSF outds(*output, id);
 
-        // look in used dets until I find this detid
-        if (id > used_detid) {
-            do { ++used; } while ( *used < pack(id,0) );
-            used_detid = detid(*used);
+        for (typename DS::const_iterator it = oldDS.begin(), ed = oldDS.end(); it != ed; ++it) {
+            uint32_t index = ((&*it) - firstOffset);
+            if (isGood[index]) { 
+                outds.push_back(*it);
+                refs.push_back(output->size() - 1);
+            }
+            if (outds.empty()) outds.abort(); // not write in an empty DSV
         }
-        
-        if (id < used_detid) {         // the detid is not there
-            work.push_back(oldDS);     // keep the whole stuff
-            if (oldRefs) mergeFull(refs, *oldRefs, id);
-//DBG//     for (size_t idx = 0; idx < oldDS.size(); ++idx) {
-//DBG//             cout << "\tNEW " << (DetId(id).subdetId() <= 2 ? "PIXEL" : "STRIP") 
-//DBG//                         << " [ " << id  << " / " << idx << " ] OK" << endl;
-//DBG//     }
-        } else {
-            // qui cominciano le dolenti note a farsi sentire
-
-            // count how many hits have been taken
-            uint32_t oldSize = oldDS.size(), taken = 0;
-            vector<uint8_t> good(oldSize, true); // uint_8 faster than bool, and vector is small
-            do {
-                uint32_t idx = index(*used);
-                if (good[idx]) { taken++; good[idx] = false; }
-                ++used;
-            } while (detid(*used) ==  used_detid);
-            used_detid = detid(*used); // important            
-
-            // if not fully depleted, I have to write it
-            if (taken < oldSize) {
-                size_t newSize = oldSize - taken;
-
-                // output container
-                DetSet<T> newDS(id); 
-                newDS.reserve(newSize);
-
-                typename DetSet<T>::const_iterator itold = oldDS.begin();
-                uint16_t idx = 0, idxnew = 0;
-                do {
-//DBG//             cout << "\tNEW " << (DetId(id).subdetId() <= 2 ? "PIXEL" : "STRIP") 
-//DBG//                         << " [ " << id  << " / " << idx << " ] " 
-//DBG//                                  << ( good[idx] ? "OK" : "NO" ) << endl;
-                    if (good[idx]) {
-                        newDS.push_back(*itold);
-                        ++idxnew;
-                    }
-                    ++idx; ++itold;
-                } while (idx < oldSize);
-                work.push_back(newDS);
-
-                if (oldRefs) {
-                    mergePartial(refs, *oldRefs, id, newSize, good);
-                } else {
-                    mergeNew(refs, id, newSize, good);
-                }
-            } // if not fully depleted
-//DBG//     else {
-//DBG//         for (size_t idx = 0; idx < oldDS.size(); ++idx) {
-//DBG//                 cout << "\tNEW " << (DetId(id).subdetId() <= 2 ? "PIXEL" : "STRIP") 
-//DBG//                             << " [ " << id  << " / " << idx << " ] NO" << endl;
-//DBG//         }
-//DBG//     }
-        } // work on current det
-    } // loop on dets
-
-    //auto_ptr<DetSetVector<T> > newClusters(new DetSetVector<T>(work)); // FIXME: use the line below as soon as DSV supports it
-    auto_ptr<DetSetVector<T> > newClusters(new DetSetVector<T>(work, true)); // already sorted
-    return newClusters;
+    }
+    if (oldRefs != 0) mergeOld(refs, *oldRefs);
+    return output;
 }
 
 void TrackClusterRemover::process(const SiStripRecHit2D *hit, uint32_t subdet) {
@@ -311,7 +188,7 @@ void TrackClusterRemover::process(const SiStripRecHit2D *hit, uint32_t subdet) {
     if (pblocks_[subdet-1].usesSize_ && (cluster->amplitudes().size() > pblocks_[subdet-1].maxSize_)) return;
 
 //DBG// cout << "Individual HIT " << cluster.key().first << ", INDEX = " << cluster.key().second << endl;
-    strips.push_back(pack(cluster.key()));
+    strips[cluster.key()] = false;
 }
 
 void TrackClusterRemover::process(const TrackingRecHit *hit, float chi2) {
@@ -340,7 +217,7 @@ void TrackClusterRemover::process(const TrackingRecHit *hit, float chi2) {
         if (pblocks_[subdet-1].usesSize_ && (cluster->pixels().size() > pblocks_[subdet-1].maxSize_)) return;
 
         // mark as used
-        pixels.push_back(pack(cluster.key()));
+        pixels[cluster.key()] = false;
     } else { // aka Strip
 #define HIT_SPLITTING_TYPEID
 #if defined(ASSUME_HIT_SPLITTING)
@@ -395,11 +272,11 @@ TrackClusterRemover::produce(Event& iEvent, const EventSetup& iSetup)
 {
     ProductID pixelOldProdID, stripOldProdID;
 
-    Handle<DetSetVector<SiPixelCluster> > pixelClusters;
+    Handle<edmNew::DetSetVector<SiPixelCluster> > pixelClusters;
     iEvent.getByLabel(pixelClusters_, pixelClusters);
     pixelSourceProdID = pixelClusters.id();
 
-    Handle<DetSetVector<SiStripCluster> > stripClusters;
+    Handle<edmNew::DetSetVector<SiStripCluster> > stripClusters;
     iEvent.getByLabel(stripClusters_, stripClusters);
     stripSourceProdID = stripClusters.id();
 
@@ -433,7 +310,8 @@ TrackClusterRemover::produce(Event& iEvent, const EventSetup& iSetup)
     Handle<vector<Trajectory> > trajectories; 
     iEvent.getByLabel(trajectories_, trajectories);
 
-    strips.clear(); pixels.clear();
+    strips.resize(stripClusters->dataSize()); fill(strips.begin(), strips.end(), true);
+    pixels.resize(pixelClusters->dataSize()); fill(pixels.begin(), pixels.end(), true);
 
     //for (TrajTrackAssociationCollection::const_iterator it = trajectories->begin(), ed = trajectories->end(); it != ed; ++it)  {
     //    const Trajectory &tj = * it->key;
@@ -447,26 +325,17 @@ TrackClusterRemover::produce(Event& iEvent, const EventSetup& iSetup)
             process( hit, itm->estimate() );
         }
     }
-    sort(pixels.begin(), pixels.end());
-    sort(strips.begin(), strips.end());
-    pixels.push_back(pack(0xFFFFFFFF,0xFFFFFFFF)); // as end marker
-    strips.push_back(pack(0xFFFFFFFF,0xFFFFFFFF)); // as end marker
 
     auto_ptr<ClusterRemovalInfo> cri(new ClusterRemovalInfo(pixelOldProdID, stripOldProdID));
-    auto_ptr<DetSetVector<SiPixelCluster> > newPixelClusters = cleanup(*pixelClusters, pixels, 
+    auto_ptr<edmNew::DetSetVector<SiPixelCluster> > newPixelClusters = cleanup(*pixelClusters, pixels, 
                 cri->pixelIndices(), mergeOld_ ? &oldRemovalInfo->pixelIndices() : 0);
-    auto_ptr<DetSetVector<SiStripCluster> > newStripClusters = cleanup(*stripClusters, strips, 
+    auto_ptr<edmNew::DetSetVector<SiStripCluster> > newStripClusters = cleanup(*stripClusters, strips, 
                 cri->stripIndices(), mergeOld_ ? &oldRemovalInfo->stripIndices() : 0);
 
-    OrphanHandle<DetSetVector<SiPixelCluster> > newPixels = iEvent.put(newPixelClusters); 
+    OrphanHandle<edmNew::DetSetVector<SiPixelCluster> > newPixels = iEvent.put(newPixelClusters); 
     cri->setNewPixelProdID(newPixels.id());
-    OrphanHandle<DetSetVector<SiStripCluster> > newStrips = iEvent.put(newStripClusters); 
+    OrphanHandle<edmNew::DetSetVector<SiStripCluster> > newStrips = iEvent.put(newStripClusters); 
     cri->setNewStripProdID(newStrips.id());
-
-//DBG// cout << "Source pixels = " << cri->pixelProdID() << endl;
-//DBG// cout << "Source strips = " << cri->stripProdID() << endl;
-//DBG// cout << "Destination pixels = " << cri->pixelNewProdID() << endl;
-//DBG// cout << "Destination strips = " << cri->stripNewProdID() << endl;
 
     iEvent.put(cri);
 
