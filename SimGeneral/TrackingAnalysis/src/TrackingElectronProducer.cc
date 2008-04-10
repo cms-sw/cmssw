@@ -73,7 +73,9 @@ void TrackingElectronProducer::produce(Event &event, const EventSetup &) {
   //
   // create TrackingParticles
   //
-  // loop over electrons
+
+  int totsimhit = 0; //fixing the electron hits
+ // loop over electrons
   for ( TkNavigableSimElectronAssembler::ElectronList::const_iterator ie
           = electrons.begin(); ie != electrons.end(); ie++ ) {
 
@@ -86,6 +88,7 @@ void TrackingElectronProducer::produce(Event &event, const EventSetup &) {
 
     // add G4 tracks and hits of all segments
     int ngenp = 0;
+    totsimhit = 0;//initialize the number of matchedHits for each track
     for (TkNavigableSimElectronAssembler::TrackList::const_iterator it = (*ie).begin();
          it != (*ie).end(); it++ ) {
 
@@ -95,31 +98,18 @@ void TrackingElectronProducer::produce(Event &event, const EventSetup &) {
         ngenp++;
       }
       addG4Track(tkp, *it);
-
+      totsimhit +=(*tk).matchedHit();
+      
+      /*
+	std::cout << "Electron list of tracks Original Segment  = " << (*tk) 
+	<< "\t Matched Hits = " << (*tk).matchedHit() 
+	<< "\t SimHits = " << (*tk).trackPSimHit().size() 
+	<< std::endl;
+      */
+      
     }
-    /*
-    // count matched hits
-    int totsimhit = 0;
-    int oldlay = 0;
-    int newlay = 0;
-    int olddet = 0;
-    int newdet = 0;
-    for ( std::vector<PSimHit>::const_iterator ih = hits.begin();
-          ih != hits.end(); ih++ ) {
-      unsigned int detid = (*ih).detUnitId();
-      DetId detId = DetId(detid);
-      oldlay = newlay;
-      olddet = newdet;
-      newlay = layerFromDetid(detid);
-      newdet = detId.subdetId();
 
-      // Count hits using layers for glued detectors
-      if (oldlay != newlay || (oldlay==newlay && olddet!=newdet) ) {
-        totsimhit++;
-      }
-    }
-    */
-    int totsimhit = 20; // FIXME temp. hack
+    //    int totsimhit = 20; // FIXME temp. hack
     tkp.setMatchedHit(totsimhit);
 
     //
