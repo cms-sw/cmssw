@@ -1,6 +1,6 @@
 /*
- *  $Date: 2008/04/09 21:04:04 $
- *  $Revision: 1.23 $
+ *  $Date: 2008/04/09 21:34:48 $
+ *  $Revision: 1.24 $
  *  
  *  Filip Moorgat & Hector Naves 
  *  26/10/05
@@ -112,6 +112,7 @@ PythiaSource::PythiaSource( const ParameterSet & pset,
   GeneratedInputSource(pset, desc), evt(0), 
   pythiaPylistVerbosity_ (pset.getUntrackedParameter<int>("pythiaPylistVerbosity",0)),
   pythiaHepMCVerbosity_ (pset.getUntrackedParameter<bool>("pythiaHepMCVerbosity",false)),
+  imposeProperTimes_ (pset.getUntrackedParameter<bool>("imposeProperTimes",false)),
   maxEventsToPrint_ (pset.getUntrackedParameter<int>("maxEventsToPrint",1)),
   extCrossSect(pset.getUntrackedParameter<double>("crossSection", -1.)),
   extFilterEff(pset.getUntrackedParameter<double>("filterEfficiency", -1.)),
@@ -480,6 +481,40 @@ bool PythiaSource::produce(Event & e) {
     
     evt->weights().push_back( pyint1.vint[96] );
 
+    if (imposeProperTimes_) {
+      int dumm;
+      HepMC::GenEvent::vertex_const_iterator vbegin = evt->vertices_begin();
+      HepMC::GenEvent::vertex_const_iterator vend = evt->vertices_end();
+      HepMC::GenEvent::vertex_const_iterator vitr = vbegin;
+      for (; vitr != vend; ++vitr ) {
+            HepMC::GenVertex::particle_iterator pbegin = (*vitr)->particles_begin(HepMC::children);
+            HepMC::GenVertex::particle_iterator pend = (*vitr)->particles_end(HepMC::children);
+            HepMC::GenVertex::particle_iterator pitr = pbegin;
+            for (; pitr != pend; ++pitr) {
+                  if ((*pitr)->end_vertex()) continue;
+                  if ((*pitr)->status()!=1) continue;
+                  int pdgcode= abs((*pitr)->pdg_id());
+                  if (pdgcode!=211 && pdgcode!=321) continue;
+                  double ctau = pydat2.pmas[3][PYCOMP(pdgcode)-1];
+
+                  double unif_rand = pyr_(&dumm);
+                  // Value of 0 is excluded, so log(unif_rand) should be OK
+                  double proper_length = - ctau * log(unif_rand);
+                  HepMC::FourVector mom = (*pitr)->momentum();
+                  double factor = proper_length/mom.m();
+                  HepMC::FourVector vin = (*vitr)->position();
+                  double x = vin.x() + factor * mom.px();
+                  double y = vin.y() + factor * mom.py();
+                  double z = vin.z() + factor * mom.pz();
+                  double t = vin.t() + factor * mom.e();
+                  
+                  HepMC::GenVertex* vdec = new HepMC::GenVertex(HepMC::FourVector(x,y,z,t));
+                  evt->add_vertex(vdec);
+                  vdec->add_particle_in((*pitr));
+            }
+      }
+    }
+    
     //******** Verbosity ********
     
     if(event() <= maxEventsToPrint_ &&
