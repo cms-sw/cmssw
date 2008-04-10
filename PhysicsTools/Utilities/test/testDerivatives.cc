@@ -34,15 +34,18 @@ void testDerivatives::checkAll() {
   using namespace funct;
   X x; Y y; Z z;
   x = 1, y = 2, z = 3;
-  funct::Numerical<0> _0;
   funct::Numerical<1> _1;
   funct::Numerical<2> _2;
   funct::Numerical<3> _3;
-  funct::Numerical<-1> _m1;
-  funct::Numerical<-2> _m2;
   
   CHECK(derivative<X>(_1), "0");
   CHECK(derivative<X>(x), "1");
   CHECK(derivative<Y>(x), "0");
+  CHECK(derivative<X>(x^_2), "2 x");
+  CHECK(derivative<X>(x^_3), "3 x^2");
+  CHECK(derivative<X>(exp(x)), "exp(x)");
+  CHECK(derivative<X>(log(x)), "1/x");
+  CHECK(derivative<X>(sin(x)), "cos(x)");
+  CHECK(derivative<X>(cos(x)), "-sin(x)");
 }
 
