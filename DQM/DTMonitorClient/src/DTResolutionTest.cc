@@ -3,8 +3,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2007/12/18 10:47:18 $
- *  $Revision: 1.16 $
+ *  $Date: 2008/03/01 00:39:52 $
+ *  $Revision: 1.17 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -358,10 +358,20 @@ string DTResolutionTest::getMEName(const DTSuperLayerId & slID) {
   stringstream superLayer; superLayer << slID.superlayer();
   
   string folderRoot = parameters.getUntrackedParameter<string>("folderRoot", "Collector/FU0/");
-  string folderName = 
-    folderRoot + "DT/DTResolutionAnalysisTask/Wheel" +  wheel.str() +
-    "/Station" + station.str() +
-    "/Sector" + sector.str() + "/";
+  string folderName;
+
+  if(parameters.getUntrackedParameter<bool>("calibModule", false)){
+    folderName = 
+      folderRoot + "DT/DTCalibValidation/Wheel" +  wheel.str() +
+      "/Station" + station.str() +
+      "/Sector" + sector.str() + "/";
+  }
+  else{
+    folderName = 
+      folderRoot + "DT/DTResolutionAnalysisTask/Wheel" +  wheel.str() +
+      "/Station" + station.str() +
+      "/Sector" + sector.str() + "/";
+  }
 
   string histoTag = parameters.getUntrackedParameter<string>("histoTag", "hResDist");
 
@@ -408,9 +418,10 @@ void DTResolutionTest::bookHistos(const DTChamberId & ch) {
   stringstream wheel; wheel << ch.wheel();		
   stringstream sector; sector << ch.sector();	
 
-  string MeanHistoName =  "MeanTest_W" + wheel.str() + "_Sec" + sector.str(); 
-  string SigmaHistoName =  "SigmaTest_W" + wheel.str() + "_Sec" + sector.str(); 
-  string SlopeHistoName =  "SlopeTest_W" + wheel.str() + "_Sec" + sector.str(); 
+
+  string MeanHistoName =  "MeanTest_" + parameters.getUntrackedParameter<string>("STEP", "STEP3") + "_W" + wheel.str() + "_Sec" + sector.str(); 
+  string SigmaHistoName =  "SigmaTest_" + parameters.getUntrackedParameter<string>("STEP", "STEP3") + "_W" + wheel.str() + "_Sec" + sector.str(); 
+  string SlopeHistoName =  "SlopeTest_" + parameters.getUntrackedParameter<string>("STEP", "STEP3") + "_W" + wheel.str() + "_Sec" + sector.str(); 
 
   dbe->setCurrentFolder("DT/Tests/DTResolution");
 
