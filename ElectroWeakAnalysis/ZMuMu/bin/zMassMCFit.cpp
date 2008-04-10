@@ -2,7 +2,6 @@
 #include "PhysicsTools/Utilities/interface/BreitWigner.h"
 #include "PhysicsTools/Utilities/interface/Constant.h"
 #include "PhysicsTools/Utilities/interface/Product.h"
-#include "PhysicsTools/Utilities/interface/Sum.h"
 #include "PhysicsTools/Utilities/interface/Exponential.h"
 #include "PhysicsTools/Utilities/interface/Gaussian.h"
 #include "PhysicsTools/Utilities/interface/ZLineShape.h"
@@ -18,16 +17,14 @@
 #include "TMath.h"
 #include <boost/shared_ptr.hpp>
 #include <boost/program_options.hpp>
-using namespace boost;
-namespace po = boost::program_options;
-
 #include <iostream>
 #include <algorithm> 
 #include <iterator>
 #include <string>
 #include <vector>
+using namespace boost;
+namespace po = boost::program_options;
 using namespace std;
-using namespace ::function;
 
 // A helper function to simplify the main part.
 template<class T>
@@ -106,17 +103,17 @@ int main(int ac, char *av[]) {
       cout <<">>> Input files loaded\n";
     } 
     //PDG values for Z mass and width
-    Parameter mass("Mass", 91.1876);
-    Parameter gamma("Gamma", 2.4952);
+    funct::Parameter mass("Mass", 91.1876);
+    funct::Parameter gamma("Gamma", 2.4952);
     //Parameters for Z Line Shape
-    Parameter f_gamma("Photon factor", 0);
-    Parameter f_int("Interference factor", 0.001);
+    funct::Parameter f_gamma("Photon factor", 0);
+    funct::Parameter f_int("Interference factor", 0.001);
     //Parameters for fits with one gaussian
-    Parameter yield("Yield", 1000);
-    Parameter mean("Mean", 90);
-    Parameter sigma("Sigma", 1.);
+    funct::Parameter yield("Yield", 1000);
+    funct::Parameter mean("Mean", 90);
+    funct::Parameter sigma("Sigma", 1.);
     //Parameters for fit with an exponential
-    Parameter lambda("Lambda", 0);
+    funct::Parameter lambda("Lambda", 0);
       
     if (vm.count("breitwigner")) {
       cout << "Fitting histograms in input file to a Breit-Wigner\n";
@@ -128,9 +125,9 @@ int main(int ac, char *av[]) {
 	cout << ">>> load histogram\n";
 	TH1D * zMass = v_ZMCMassHistos[i];
 	cout << ">>> histogram loaded\n";
-	BreitWigner bw(mass, gamma);
-	Constant c(yield);
-	typedef Product<Constant, BreitWigner> FitFunction;
+	funct::BreitWigner bw(mass, gamma);
+	funct::Constant c(yield);
+	typedef funct::Product<funct::Constant, funct::BreitWigner>::type FitFunction;
 	FitFunction f = c * bw;
 	typedef fit::HistoChiSquare<FitFunction> ChiSquared;
 	ChiSquared chi2(f, zMass, fMin, fMax);
@@ -164,9 +161,9 @@ int main(int ac, char *av[]) {
       cout << sigma << endl;
       for(size_t i = 0; i < v_ZMCMassHistos.size(); ++i) { 
 	TH1D * zMass = v_ZMCMassHistos[i]; 
-	Gaussian gaus(mean, sigma);
-	Constant c(yield);
-	typedef Product<Constant, Gaussian> FitFunction;
+	funct::Gaussian gaus(mean, sigma);
+	funct::Constant c(yield);
+	typedef funct::Product<funct::Constant, funct::Gaussian>::type FitFunction;
 	FitFunction f = c * gaus;
 	typedef fit::HistoChiSquare<FitFunction> ChiSquared;
 	ChiSquared chi2(f, zMass, fMin, fMax);
@@ -202,9 +199,9 @@ int main(int ac, char *av[]) {
 	cout << f_int  << endl; 
 	for(size_t i = 0; i < v_ZMCMassHistos.size(); ++i) { 
 	  TH1D * zMass = v_ZMCMassHistos[i]; 
-	  ZLineShape zls(mass, gamma, f_gamma, f_int);
-	  Constant c(yield);
-	  typedef Product<Constant, ZLineShape> FitFunction;
+	  funct::ZLineShape zls(mass, gamma, f_gamma, f_int);
+	  funct::Constant c(yield);
+	  typedef funct::Product<funct::Constant, funct::ZLineShape>::type FitFunction;
 	  FitFunction f = c * zls;
 	  cout << "set functions" << endl;
 	  vector<shared_ptr<double> > pars;
@@ -251,9 +248,9 @@ int main(int ac, char *av[]) {
       cout << f_int  << endl; 
       for(size_t i = 0; i < v_ZMCMassHistos.size(); ++i) { 
 	TH1D * zMass = v_ZMCMassHistos[i]; 
-	ZLineShape zls(mass, gamma, f_gamma, f_int);
-	Constant c(yield);
-	typedef Product<Constant, ZLineShape> FitFunction;
+	funct::ZLineShape zls(mass, gamma, f_gamma, f_int);
+	funct::Constant c(yield);
+	typedef funct::Product<funct::Constant, funct::ZLineShape>::type FitFunction;
 	FitFunction f = c * zls;
 	cout << "set functions" << endl;
 	vector<shared_ptr<double> > pars;
@@ -301,12 +298,12 @@ int main(int ac, char *av[]) {
       cout << f_int << endl; 
       for(size_t i = 0; i < v_ZMCMassHistos.size(); ++i) { 
 	TH1D * zMass = v_ZMCMassHistos[i]; 
-	ZLineShape zls(mass, gamma, f_gamma, f_int);
-	Exponential expo(lambda);
-	Constant c(yield);
-	typedef Product<Exponential, ZLineShape> ExpZLS;
+	funct::ZLineShape zls(mass, gamma, f_gamma, f_int);
+	funct::Exponential expo(lambda);
+	funct::Constant c(yield);
+	typedef funct::Product<funct::Exponential, funct::ZLineShape>::type ExpZLS;
 	ExpZLS expz = expo * zls;
-	typedef Product<Constant, ExpZLS> FitFunction;
+	typedef funct::Product<funct::Constant, ExpZLS>::type FitFunction;
 	FitFunction f = c * expz;
 	cout << "set functions" << endl;
 	typedef fit::HistoChiSquare<FitFunction> ChiSquared;
