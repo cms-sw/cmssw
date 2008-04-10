@@ -4,6 +4,8 @@
 #include "DQM/SiStripMonitorHardware/interface/Fed9UEventAnalyzer.hh"
 #include "DQM/SiStripMonitorHardware/interface/Fed9UDebugEvent.hh"
 
+#include "DataFormats/SiStripCommon/interface/SiStripFedKey.h"
+#include "DataFormats/SiStripCommon/interface/SiStripConstants.h" 
 
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
 #include "DataFormats/FEDRawData/interface/FEDRawData.h"
@@ -189,7 +191,10 @@ CnBAnalyzer::beginJob(const edm::EventSetup& iSetup)
 // at the job initialization by beginJob()
 void CnBAnalyzer::createRootFedHistograms() {
 
-  dbe->setCurrentFolder("");
+  std::string baseFolder;
+  baseFolder = sistrip::root_ + "/Fed Monitoring Summary";
+
+  dbe->setCurrentFolder(baseFolder);
 
   // This Histogram will be filled with 
   // problemsSeen / totalChannels
@@ -229,13 +234,17 @@ void CnBAnalyzer::createDetailedFedHistograms( const uint16_t& fed_id ) {
   itFeds=foundFeds_.find(fed_id);
 
   if (itFeds==foundFeds_.end()) {
+
+    SiStripFedKey thisFedKey(fed_id, 0, 0, 0);
+
     foundFeds_[fed_id]=true;
     
-    stringstream  fedNumber;
+    stringstream fedNumber;
     fedNumber << fed_id;
-    string f = "FED #"; 
     
-    dbe->setCurrentFolder(f+fedNumber.str());
+    // Set working directory prior to booking histograms 
+    std::string dir = thisFedKey.path();
+    dbe->setCurrentFolder( dir );
     
     // All the following histograms are such that thay can be plot together
     // In fact the boundaries of the plots are 1, 192 (or actually 0.5, 192,5)

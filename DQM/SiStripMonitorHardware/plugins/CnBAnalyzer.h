@@ -40,6 +40,7 @@ class CnBAnalyzer : public edm::EDAnalyzer {
   void analyze(const edm::Event&, const edm::EventSetup&);
   void endJob();
 
+
   // A data structure to record
   // the found FEDs
   // It is set to true as soon as its plots are created
@@ -101,3 +102,5 @@ class CnBAnalyzer : public edm::EDAnalyzer {
   std::map<int, MonitorElement* > badApv_;
 
 };
+
+
