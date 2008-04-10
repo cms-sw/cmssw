@@ -1,6 +1,5 @@
 #include "RecoParticleFlow/Benchmark/interface/PFBenchmarkAna.h"
 
-/* 
 // CMSSW_2_X_X
 #include "DQMServices/Core/interface/DQMStore.h"
 
@@ -13,8 +12,8 @@
 #define BOOK2D(name,title,nbinsx,lowx,highx,nbinsy,lowy,highy) \
   h##name = DQM ? DQM->book2D(#name,#title,nbinsx,lowx,highx,nbinsy,lowy,highy)->getTH2F() \
     : new TH2F(#name,#title,nbinsx,lowx,highx,nbinsy,lowy,highy)
-*/
 
+/*
 // CMSSW_1_X_X
 #include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
 #include "DQMServices/Daemon/interface/MonitorDaemon.h"
@@ -35,7 +34,7 @@
     MonitorElementT<TNamed> *ob = dynamic_cast<MonitorElementT<TNamed>* >(me); \
     if (ob) h##name = dynamic_cast<TH2F *>(ob->operator->()); \
   } else h##name = new TH2F(#name,#title,nbinsx,lowx,highx,nbinsy,lowy,highy)
-
+*/
 
 // all versions OK
 // preprocesor macro for setting axis titles
@@ -46,8 +45,8 @@ PFBenchmarkAna::PFBenchmarkAna() {}
 
 PFBenchmarkAna::~PFBenchmarkAna() {}
 
-// void PFBenchmarkAna::setup(DQMStore *DQM) { // CMSSW_2_X_X
-void PFBenchmarkAna::setup(DaqMonitorBEInterface *DQM) { // CMSSW_1_X_X
+void PFBenchmarkAna::setup(DQMStore *DQM) { // CMSSW_2_X_X
+//void PFBenchmarkAna::setup(DaqMonitorBEInterface *DQM) { // CMSSW_1_X_X
 
   // use bare Root if no DQM (FWLite applications)
   if (!DQM) file_ = new TFile();

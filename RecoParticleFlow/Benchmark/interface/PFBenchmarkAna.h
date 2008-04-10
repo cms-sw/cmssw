@@ -12,8 +12,8 @@
 #include <TH2F.h>
 #include <TFile.h>
 
-//class DQMStore; // CMSSW_2_X_X
-class DaqMonitorBEInterface; // CMSSW_1_X_X
+class DQMStore; // CMSSW_2_X_X
+//class DaqMonitorBEInterface; // CMSSW_1_X_X
 
 class PFBenchmarkAna {
 public:
@@ -21,8 +21,8 @@ public:
   PFBenchmarkAna();
   virtual ~PFBenchmarkAna();
 
-  // void setup(DQMStore *DQM = NULL); // CMSSW_2_X_X
-  void setup(DaqMonitorBEInterface *DQM = NULL); // CMSSW_1_X_X
+  void setup(DQMStore *DQM = NULL); // CMSSW_2_X_X
+  //void setup(DaqMonitorBEInterface *DQM = NULL); // CMSSW_1_X_X
   template <typename RecoCandidate, typename GenCandidate, template <typename> class VectorT, template <typename> class VectorU>
   void fill(const VectorT<RecoCandidate> *, const VectorU<GenCandidate> *, bool PlotAgainstReco = true);
   void write(std::string Filename);
