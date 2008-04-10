@@ -38,6 +38,7 @@ void testFunctionsIO::checkAll() {
   funct::Numerical<2> _2;
   funct::Numerical<3> _3;
   funct::Numerical<-1> _m1;
+  funct::Numerical<-2> _m2;
   CHECK(x, "x");
   CHECK(-x, "-x");
 
@@ -76,6 +77,7 @@ void testFunctionsIO::checkAll() {
 
   CHECK(-(-x), "x" );
   CHECK(-(x+y), "- x - y" );
+
   // simplifications
   CHECK(x+x, "2 x"); 
   CHECK(_1 + x, "x + 1"); 
@@ -99,4 +101,11 @@ void testFunctionsIO::checkAll() {
   CHECK(_2 * (x/y), "( 2 x )/y");
   CHECK(x * _2, "2 x");
   CHECK((x ^ y) * (x ^ z), "x^( y + z )"); 
+
+  CHECK(_0 / x, "0");
+  CHECK(x / _1, "x");
+  CHECK(x / _m1, "-x");
+  CHECK(x / _m2, "-x/2");
+  CHECK((-x) / y, "-x/y");
+  CHECK(x/y/z, "x/( y z )");
 }

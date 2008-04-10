@@ -174,7 +174,7 @@ PARENTHESES_FRACT(RatioStruct, "/");
 PARENTHESES_FRACT(PowerStruct, "^");
 
 PARENTHESES_1(MinusStruct, SumStruct, "-");
-PARENTHESES_1(MinusStruct, RatioStruct, "-");
+//PARENTHESES_1(MinusStruct, RatioStruct, "-");
 
 #undef PARENTHESES
 #undef PARENTHESES_FRACT
