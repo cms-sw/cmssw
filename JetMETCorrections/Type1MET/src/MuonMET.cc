@@ -24,6 +24,7 @@
 // user include files
 #include "MuonMET.h"
 
+#include "DataFormats/Common/interface/View.h"
 #include "DataFormats/METReco/interface/MET.h"
 #include "DataFormats/METReco/interface/METCollection.h"
 #include "DataFormats/METReco/interface/CaloMET.h"
@@ -73,7 +74,7 @@ namespace cms
   void MuonMET::produce( edm::Event& iEvent, const edm::EventSetup& iSetup )
   {
     using namespace edm;
-    Handle<MuonCollection> inputMuons;
+    Handle<edm::View<reco::Muon> > inputMuons;
     iEvent.getByLabel( inputMuonsLabel, inputMuons );
     if( metType == "CaloMET")
       {

@@ -39,7 +39,7 @@ namespace {
   void MuonMETAlgo_run(edm::Event& iEvent, 
 		       const edm::EventSetup& iSetup,
 		       const vector<T>& uncorMET, 
-		       const MuonCollection& Muons,
+		       const edm::View<reco::Muon>& Muons,
 		       double muonPtMin,
 		       double muonEtaRange,
 		       double muonTrackD0Max,
@@ -67,7 +67,7 @@ namespace {
     // ---------------- Calculate jet corrections, but only for those uncorrected jets
     // ---------------- which are above the given threshold.  This requires that the
     // ---------------- uncorrected jets be matched with the corrected jets.
-    for( MuonCollection::const_iterator muon = Muons.begin(); muon != Muons.end(); ++muon) {
+    for( edm::View<reco::Muon>::const_iterator muon = Muons.begin(); muon != Muons.end(); ++muon) {
       if( muon->combinedMuon()->pt() > muonPtMin && 
 	  fabs(muon->combinedMuon()->eta()) < muonEtaRange &&
 	  fabs(muon->combinedMuon()->d0()) < muonTrackD0Max &&
@@ -136,7 +136,7 @@ MuonMETAlgo::~MuonMETAlgo() {}
 void MuonMETAlgo::run(edm::Event& iEvent, 
 		      const edm::EventSetup& iSetup,
 		      const CaloMETCollection& uncorMET, 
-		      const MuonCollection& Muons,
+		      const edm::View<reco::Muon>& Muons,
 		      double muonPtMin,
 		      double muonEtaRange,
 		      double muonTrackD0Max,
@@ -160,7 +160,7 @@ void MuonMETAlgo::run(edm::Event& iEvent,
 void MuonMETAlgo::run(edm::Event& iEvent, 
 		      const edm::EventSetup& iSetup,
 		      const METCollection& uncorMET, 
-		      const MuonCollection& Muons,
+		      const edm::View<reco::Muon>& Muons,
 		      double muonPtMin,
 		      double muonEtaRange,
 		      double muonTrackD0Max,

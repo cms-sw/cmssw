@@ -11,6 +11,7 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
+#include "DataFormats/Common/interface/View.h"
 #include "DataFormats/METReco/interface/METCollection.h"
 #include "DataFormats/METReco/interface/CaloMETCollection.h"
 #include "DataFormats/MuonReco/interface/Muon.h"
@@ -26,14 +27,14 @@ class MuonMETAlgo
   virtual ~MuonMETAlgo();
   virtual void run(edm::Event&, const edm::EventSetup&,
 		   const reco::METCollection&, 
-		   const reco::MuonCollection&, 
+		   const edm::View<reco::Muon>&, 
 		   double, double, double, double,
 		   int, double, double,
 		   bool, TrackDetectorAssociator&, TrackAssociatorParameters&,
 		   reco::METCollection *);
   virtual void run(edm::Event&, const edm::EventSetup&,
 		   const reco::CaloMETCollection&, 
-		   const reco::MuonCollection&, 
+		   const edm::View<reco::Muon>&, 
 		   double, double, double, double,
 		   int, double, double,
 		   bool, TrackDetectorAssociator&, TrackAssociatorParameters&,
