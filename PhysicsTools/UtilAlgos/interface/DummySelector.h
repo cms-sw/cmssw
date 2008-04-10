@@ -37,6 +37,6 @@ namespace dummy {
   inline bool select(const T&) { return true; }
 }
 
-EVENTSETUP_STD_INIT(DummySelector)
+EVENTSETUP_STD_INIT(DummySelector);
 
 #endif

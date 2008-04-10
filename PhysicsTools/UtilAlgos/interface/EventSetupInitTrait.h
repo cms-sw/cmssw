@@ -41,5 +41,40 @@ namespace reco { \
     }; \
   } \
 } \
+struct __useless_ignoreme
+
+#define EVENTSETUP_STD_INIT_T1(SELECTOR) \
+namespace reco { \
+  namespace modules { \
+    template<typename T1> \
+    struct EventSetupInit<SELECTOR<T1> > {	 \
+      typedef CommonSelectorEventSetupInit type; \
+    }; \
+  } \
+} \
+struct __useless_ignoreme
+
+#define EVENTSETUP_STD_INIT_T2(SELECTOR) \
+namespace reco { \
+  namespace modules { \
+    template<typename T1, typename T2>			 \
+    struct EventSetupInit<SELECTOR<T1, T2> > {		 \
+      typedef CommonSelectorEventSetupInit type; \
+    }; \
+  } \
+} \
+struct __useless_ignoreme
+
+#define EVENTSETUP_STD_INIT_T3(SELECTOR) \
+namespace reco { \
+  namespace modules { \
+    template<typename T1, typename T2, typename T3>		 \
+    struct EventSetupInit<SELECTOR<T1, T2, T3> > {		 \
+      typedef CommonSelectorEventSetupInit type; \
+    }; \
+  } \
+} \
+struct __useless_ignoreme
+
 
 #endif
