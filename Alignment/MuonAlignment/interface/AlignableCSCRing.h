@@ -4,8 +4,8 @@
 /** \class AlignableCSCRing 
  *  The alignable muon CSC ring.
  *
- *  $Date: Tue Feb 12 04:44:18 CST 2008 $
- *  $Revision: 1.0.0.0 $
+ *  $Date: 2008/02/14 12:54:53 $
+ *  $Revision: 1.1 $
  *  \author Jim Pivarski - Texas A&M University
  */
 
@@ -58,9 +58,6 @@ class AlignableCSCRing : public AlignableComposite
   AlignableCSCChamber &chamber(int i);  
   
   //virtual void twist(float);
-
-  /// Return alignable object identifier
-  virtual StructureType alignableObjectId() const { return align::AlignableCSCRing; }
 
   /// Printout muon CSC Ring information (not recursive)
   friend std::ostream& operator << ( std::ostream&, const AlignableCSCRing& ); 

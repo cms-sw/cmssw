@@ -4,8 +4,8 @@
 /** \class AlignableDTBarrel
  *  The alignable muon DT barrel.
  *
- *  $Date: 2007/12/06 01:30:56 $
- *  $Revision: 1.6.4.1 $
+ *  $Date: 2008/02/14 09:39:19 $
+ *  $Revision: 1.8 $
  *  \author Andre Sznajder - UERJ(Brazil)
  */
 
@@ -57,9 +57,6 @@ class AlignableDTBarrel : public AlignableComposite
 
   AlignableDTWheel &wheel(int i);  
   
-  /// Return alignable object identifier
-  virtual StructureType alignableObjectId() const { return align::AlignableDTBarrel; }
-
   /// Printout muon Barrel information (not recursive)
   friend std::ostream& operator << ( std::ostream&, const AlignableDTBarrel& );
 

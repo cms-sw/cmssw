@@ -4,8 +4,8 @@
 /** \class AlignableCSCStation 
  *  The alignable muon CSC station.
  *
- *  $Date: 2007/12/06 01:30:52 $
- *  $Revision: 1.7.4.1 $
+ *  $Date: 2008/02/14 12:54:53 $
+ *  $Revision: 1.10 $
  *  \author Andre Sznajder - UERJ(Brazil)
  */
 
@@ -58,9 +58,6 @@ class AlignableCSCStation : public AlignableComposite
   AlignableCSCRing &ring(int i);  
   
   //virtual void twist(float);
-
-  /// Return alignable object identifier
-  virtual StructureType alignableObjectId() const { return align::AlignableCSCStation; }
 
   /// Printout muon CSC Station information (not recursive)
   friend std::ostream& operator << ( std::ostream&, const AlignableCSCStation& ); 

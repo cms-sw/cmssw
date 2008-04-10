@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2006/08/04 20:18:51 $
- *  $Revision: 1.4 $
+ *  $Date: 2008/02/14 12:54:54 $
+ *  $Revision: 1.5 $
  *  \author Andre Sznajder - UERJ(Brazil)
  */
  
@@ -13,6 +13,7 @@
 
 /// The constructor simply copies the vector of CSC Rings and computes the surface from them
 AlignableCSCStation::AlignableCSCStation( const std::vector<AlignableCSCRing*> cscRings ) 
+   : AlignableComposite(cscRings[0]->id(), align::AlignableCSCStation)
 {
 
   theCSCRings.insert( theCSCRings.end(), cscRings.begin(), cscRings.end() );

@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: Tue Feb 12 04:45:29 CST 2008 $
- *  $Revision: 1.0 $
+ *  $Date: 2008/02/14 12:54:54 $
+ *  $Revision: 1.1 $
  *  \author Jim Pivarski - Texas A&M University
  */
  
@@ -13,6 +13,7 @@
 
 /// The constructor simply copies the vector of CSC Chambers and computes the surface from them
 AlignableCSCRing::AlignableCSCRing( const std::vector<AlignableCSCChamber*> cscChambers ) 
+   : AlignableComposite(cscChambers[0]->id(), align::AlignableCSCRing)
 {
 
   theCSCChambers.insert( theCSCChambers.end(), cscChambers.begin(), cscChambers.end() );

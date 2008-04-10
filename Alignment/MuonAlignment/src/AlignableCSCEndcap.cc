@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2006/10/16 14:39:31 $
- *  $Revision: 1.5 $
+ *  $Date: 2007/12/06 01:39:29 $
+ *  $Revision: 1.6 $
  *  \author Andre Sznajder - UERJ(Brazil)
  */
  
@@ -15,6 +15,7 @@
 
 /// The constructor simply copies the vector of stations and computes the surface from them
 AlignableCSCEndcap::AlignableCSCEndcap( const std::vector<AlignableCSCStation*> cscStations ) 
+   : AlignableComposite(cscStations[0]->id(), align::AlignableCSCEndcap)
 {
 
   theCSCStations.insert( theCSCStations.end(), cscStations.begin(), cscStations.end() );
