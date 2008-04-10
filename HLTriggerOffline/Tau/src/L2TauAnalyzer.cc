@@ -9,7 +9,9 @@ L2TauAnalyzer::L2TauAnalyzer(const edm::ParameterSet& iConfig):
  rootFile_(iConfig.getParameter<std::string>("outputFileName")),
  IsSignal_(iConfig.getParameter<bool>("IsSignal")),
  mcColl_(iConfig.getParameter<edm::InputTag>("MatchedCollection")),
- genJets_(iConfig.getParameter<edm::InputTag>("GenJetCollection")) 
+ genJets_(iConfig.getParameter<edm::InputTag>("GenJetCollection")), 
+ l1taus_(iConfig.getParameter<edm::InputTag>("L1TauTrigger"))
+
 {
   //File Setup
   l2file = new TFile(rootFile_.c_str(),"recreate");
@@ -32,6 +34,7 @@ L2TauAnalyzer::L2TauAnalyzer(const edm::ParameterSet& iConfig):
   cl_Nclusters=0;
   seedTowerEt = 0.;
   matchBit=0;
+  matchL1Bit=0;
   JetEt=0.;
 
   //Setup Branches
@@ -43,7 +46,8 @@ L2TauAnalyzer::L2TauAnalyzer(const edm::ParameterSet& iConfig):
   l2tree->Branch("MCeta",&MCeta,"MCeta/F");
   l2tree->Branch("MCet",&MCet,"MCet/F");
   l2tree->Branch("cl_Nclusters",&cl_Nclusters,"cl_Nclusters/I");
-  l2tree->Branch("Matched",&matchBit,"matchBit/I");
+  l2tree->Branch("MCMatched",&matchBit,"matchBit/I");
+  l2tree->Branch("L1Matched",&matchL1Bit,"matchL1Bit/I");
   l2tree->Branch("seedTower_Et",&seedTowerEt,"seedTower_Et/F");
   l2tree->Branch("Jet_Et",&JetEt,"Jet_Et/F");
  
@@ -118,6 +122,24 @@ L2TauAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 	 mcMatch=match(jet,*McInfo);
        else
 	 mcMatch=matchQCD(jet,*genJets);
+
+
+       //match your jet to L1
+       edm::Handle<trigger::TriggerFilterObjectWithRefs> l1TriggeredTaus;
+       
+       matchL1Bit=0;
+       if(iEvent.getByLabel(l1taus_,l1TriggeredTaus))
+	 {
+    	   std::vector<l1extra::L1JetParticleRef> tauCandRefVec;
+	   l1TriggeredTaus->getObjects(trigger::TriggerL1TauJet,tauCandRefVec);
+
+
+	   if(matchL1(jet,tauCandRefVec))
+	     matchL1Bit=1;
+	   else
+	     matchL1Bit=0;
+	 }
+
 
        //Fill variables
 
@@ -204,6 +226,28 @@ L2TauAnalyzer::match(const reco::Jet& jet,const LVColl& McInfo)
  return match;
 }
 
+
+
+
+
+bool 
+L2TauAnalyzer::matchL1(const reco::Jet& jet,std::vector<l1extra::L1JetParticleRef>& tauCandRefVec)
+{
+
+  bool match = false;
+
+
+	   for( unsigned int iL1Tau=0; iL1Tau <tauCandRefVec.size();iL1Tau++)
+	     {  
+	      
+        	  double delta = ROOT::Math::VectorUtil::DeltaR(jet.p4().Vect(),tauCandRefVec[iL1Tau]->p4().Vect());
+		  printf("L1 Match Dr = %f \n",delta);
+		  if(delta<0.5)
+		    match=true;
+	     }
+
+	   return match;
+}
 
 
 
