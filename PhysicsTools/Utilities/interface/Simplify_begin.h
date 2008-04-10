@@ -150,5 +150,9 @@ struct Tan< T > { \
   inline static type compose( const T& _ ) { return COMB; } \
 }
 
+#define GET( A, RES ) \
+inline static type get( const A& _ ) { return RES; } \
+ \
+struct __useless_ignoreme
 
 #endif

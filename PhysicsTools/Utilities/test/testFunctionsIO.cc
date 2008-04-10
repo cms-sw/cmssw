@@ -131,5 +131,7 @@ void testFunctionsIO::checkAll() {
   CHECK(cos(x)*tan(x), "sin(x)");
   CHECK(sin(x)/tan(x), "cos(x)");
   CHECK((sin(x)^_2)+(cos(x)^_2), "1");
+
+  CHECK(x*y + x*z, "x ( y + z )");
 }
 

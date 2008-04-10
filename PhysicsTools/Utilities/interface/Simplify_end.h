@@ -68,5 +68,6 @@
 #undef SIN_RULE
 #undef COS_RULE
 #undef TAN_RULE
+#undef GET
 
 #endif
