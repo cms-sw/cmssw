@@ -15,7 +15,9 @@ AlpgenEmptyEventFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup
    
    Handle<HepMCProduct> evt;
    iEvent.getByType(evt);
-   HepMC::GenEvent * myGenEvent = new  HepMC::GenEvent(*(evt->GetEvent()));
+   // suggested by Carsten Hof to fix memory leak
+   // HepMC::GenEvent * myGenEvent = new  HepMC::GenEvent(*(evt->GetEvent()));
+   const HepMC::GenEvent * myGenEvent = evt->GetEvent();
 
    if(myGenEvent->particles_empty()) // no particles in the event
      statusOK = false;
