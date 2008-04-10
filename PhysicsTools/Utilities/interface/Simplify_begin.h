@@ -1,6 +1,6 @@
 #ifndef PhysicsTools_Utilities_Simplify_begin_h
 #define PhysicsTools_Utilities_Simplify_begin_h
-
+#undef PhysicsTools_Utilities_Simplify_end_h
 #define TYP0    
 
 #define TYPT1 typename A
@@ -34,20 +34,20 @@
 
 #define NUM( N ) Numerical< N >
 #define FRACT( N, M ) typename Fraction< N, M >::type
-#define SUM_S( A, B ) SumStruct< A, B >
-#define MINUS_S( A ) MinusStruct< A >
-#define PROD_S( A, B ) ProductStruct< A, B >
-#define RATIO_S( A, B ) RatioStruct< A, B >
-#define POWER_S( A, B ) PowerStruct< A, B >
-#define FRACT_S( N, M ) FractionStruct< N, M >
-#define SQRT_S( A ) SqrtStruct< A >
-#define EXP_S( A ) ExpStruct< A >
-#define LOG_S( A ) LogStruct< A >
-#define SIN_S( A ) SinStruct< A >
-#define COS_S( A ) CosStruct< A >
-#define TAN_S( A ) TanStruct< A >
-#define ABS_S( A ) AbsStruct< A >
-#define SGN_S( A ) SgnStruct< A >
+#define SUM_S( A, B ) SumStruct<A, B>
+#define MINUS_S( A ) MinusStruct<A>
+#define PROD_S( A, B ) ProductStruct<A, B>
+#define RATIO_S( A, B ) RatioStruct<A, B>
+#define POWER_S( A, B ) PowerStruct<A, B>
+#define FRACT_S( N, M ) FractionStruct<N, M>
+#define SQRT_S( A ) SqrtStruct<A>
+#define EXP_S( A ) ExpStruct<A>
+#define LOG_S( A ) LogStruct<A>
+#define SIN_S( A ) SinStruct<A>
+#define COS_S( A ) CosStruct<A>
+#define TAN_S( A ) TanStruct<A>
+#define ABS_S( A ) AbsStruct<A>
+#define SGN_S( A ) SgnStruct<A>
 
 #define SUM( A, B ) typename Sum< A, B >::type
 #define DIFF( A, B ) typename Difference< A, B >::type
@@ -67,11 +67,52 @@
 #define ABS( A ) typename Abs< A >::type
 #define SGN( A ) typename Sgn< A >::type
 
+#define COMBINE(A, B, RES) \
+inline static type combine ( const A& _1, const B& _2 ) { \
+  return RES; \
+} \
+struct __useless_ignoreme
+
 #define MINUS_RULE(TMPL, T, RES, COMB) \
 template<TMPL> \
 struct Minus<T> { \
   typedef RES type; \
   inline static type operate(const T& _) { return COMB; } \
+}
+
+#define SUM_RULE(TMPL, T1, T2, RES, COMB) \
+template<TMPL> \
+struct Sum<T1, T2> { \
+  typedef RES type; \
+  inline static type combine(const T1& _1, const T2 & _2) { return COMB; } \
+}
+
+#define DIFF_RULE( TMPL, T1, T2, RES, COMB ) \
+template<TMPL> \
+struct Difference<T1, T2> { \
+  typedef RES type; \
+  inline static type combine(const T1& _1, const T2 & _2) { return COMB; } \
+}
+
+#define PROD_RULE(TMPL, T1, T2, RES, COMB) \
+template<TMPL> \
+struct Product<T1, T2> { \
+  typedef RES type; \
+  inline static type combine(const T1& _1, const T2 & _2) { return COMB; } \
+}
+
+#define RATIO_RULE(TMPL, T1, T2, RES, COMB) \
+template<TMPL> \
+struct Ratio<T1, T2> { \
+  typedef RES type; \
+  inline static type combine(const T1& _1, const T2 & _2) { return COMB; } \
+}
+
+#define POWER_RULE( MPL, T1, T2, RES, COMB) \
+template<TMPL> \
+struct Power<T1, T2> { \
+  typedef RES type; \
+  inline static type combine(const T1& _1, const T2 & _2) { return COMB; } \
 }
 
 #endif

@@ -1,5 +1,6 @@
 #ifndef PhysicsTools_Utilities_Variables_h
 #define PhysicsTools_Utilities_Variables_h
+#include "PhysicsTools/Utilities/interface/ParametricTrait.h"
 #include <iostream>
 
 #define DEFINE_VARIABLE_T(T, X, NAME) \
@@ -17,6 +18,8 @@ struct X { \
 private: \
   static T value; \
 }; \
+ \
+NON_PARAMETRIC(X); \
  \
 inline std::ostream& operator<<(std::ostream& cout, const funct::X &) \
 { return cout << funct::X::name(); } \

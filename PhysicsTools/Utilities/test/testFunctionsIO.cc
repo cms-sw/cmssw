@@ -23,7 +23,7 @@ CPPUNIT_TEST_SUITE_REGISTRATION(testFunctionsIO);
 { \
   std::ostringstream str; \
   str << EXPR; \
-  std::cerr << str.str() << std::endl; \
+  std::cerr << #EXPR << " = " << str.str() << std::endl; \
   CPPUNIT_ASSERT(str.str() == STRING); \
 } \
  \
@@ -31,7 +31,13 @@ struct __useless_igonreme
 
 void testFunctionsIO::checkAll() {
   using namespace funct;
-  X x; Y y;
+  X x; Y y; Z z;
+  x = 1, y = 2, z = 3;
+  funct::Numerical<0> _0;
+  funct::Numerical<1> _1;
+  funct::Numerical<2> _2;
+  funct::Numerical<3> _3;
+  funct::Numerical<-1> _m1;
   CHECK(x, "x");
   CHECK(-x, "-x");
 
@@ -49,25 +55,46 @@ void testFunctionsIO::checkAll() {
   CHECK((x ^ y), "x^y");
   CHECK(x / y, "x/y");
 
-  CHECK(num<1>(), "1");
-  CHECK(num<2>(), "2");
-  CHECK(num<3>(), "3");
+  CHECK(_1, "1");
+  CHECK(_2, "2");
+  CHECK(_3, "3");
 
-  CHECK(num<2>()+num<3>(), "5"); 
-  CHECK(num<2>()-num<3>(), "-1"); 
-  CHECK(num<2>()*num<3>(), "6"); 
-  CHECK(num<2>()/num<3>(), "2/3"); 
+  CHECK(_2 + _3, "5"); 
+  CHECK(_2 -_3, "-1"); 
+  CHECK(_2 * _3, "6"); 
+  CHECK(_2 / _3, "2/3"); 
 
   CHECK((fract<1,2>()), "1/2");
   CHECK((fract<4,2>()), "2");
   CHECK((fract<1,-2>()), "-1/2");
 
   CHECK(- x - y, "- x - y");
-  CHECK(x + num<1>(), "x + 1");
-  CHECK(x - num<1>(), "x - 1");
-  CHECK(- x + num<1>(), "- x + 1");
-  CHECK(- x - num<1>(), "- x - 1");
+  CHECK(x + _1, "x + 1");
+  CHECK(x - _1, "x - 1");
+  CHECK(- x + _1, "- x + 1");
+  CHECK(- x - _1, "- x - 1");
 
-  CHECK( -(-x), "x" );
-  CHECK( -(x+y), "- x - y" );
+  CHECK(-(-x), "x" );
+  CHECK(-(x+y), "- x - y" );
+  // simplifications
+  CHECK(x+x, "2 x"); 
+  CHECK(_1 + x, "x + 1"); 
+  CHECK(x + _0, "x"); 
+  CHECK(_0 + x, "x"); 
+  CHECK(_0 - x, "-x"); 
+  CHECK(x - (-y), "x + y"); 
+  CHECK(_3 * x + _2 * x, "5 x"); 
+
+  CHECK(_0 * x, "0");
+  CHECK(_1 * x, "x");
+  CHECK(x * _2, "2 x");
+  CHECK((_1 * fract<3,4>()), "3/4");
+  CHECK(_m1 * x, "-x");
+  CHECK(x * (-y), "-x y");
+  CHECK(_1 * (-x), "-x");
+  CHECK(x * (y/z), "( x y )/z");
+  CHECK((-x) * (-y), "x y");
+  CHECK((x * y) *(-z), "-x y z"); 
+  CHECK((-x) * y, "-x y");
+  CHECK(_2 * (x/y), "( 2 x )/y");
 }
