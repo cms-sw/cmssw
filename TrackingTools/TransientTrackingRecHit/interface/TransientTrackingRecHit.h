@@ -22,17 +22,30 @@ public:
   typedef std::vector<ConstRecHitPointer>                           ConstRecHitContainer;
 
   explicit TransientTrackingRecHit(const GeomDet * geom=0, float weight=1., float annealing=1.) : 
-    TrackingRecHit(geom ? geom->geographicalId().rawId() : 0), geom_(geom), weight_(weight), annealing_(annealing) {}
+    TrackingRecHit(geom ? geom->geographicalId().rawId() : 0), 
+    geom_(geom), weight_(weight), annealing_(annealing),
+    globalPosition_(0,0,0),hasGlobalPosition_(false),
+    globalError_(),errorR_(0),errorZ_(0),errorRPhi_(0),hasGlobalError_(false){}
 
   explicit TransientTrackingRecHit(const GeomDet * geom, DetId id, Type type=valid, float weight=1., float annealing=1. ) : 
-    TrackingRecHit(id, type), geom_(geom), weight_(weight), annealing_(annealing) {}
+    TrackingRecHit(id, type), 
+    geom_(geom), weight_(weight), annealing_(annealing),
+    globalPosition_(0,0,0),hasGlobalPosition_(false),
+    globalError_(),errorR_(0),errorZ_(0),errorRPhi_(0),hasGlobalError_(false){}
+
   explicit TransientTrackingRecHit(const GeomDet * geom, TrackingRecHit::id_type id, Type type=valid, float weight=1., float annealing=1. ) : 
-    TrackingRecHit(id, type), geom_(geom),  weight_(weight), annealing_(annealing) {}
+    TrackingRecHit(id, type),
+    geom_(geom),  weight_(weight), annealing_(annealing),
+    globalPosition_(0,0,0),hasGlobalPosition_(false),
+    globalError_(),errorR_(0),errorZ_(0),errorRPhi_(0),hasGlobalError_(false){}
+  
   explicit TransientTrackingRecHit(const GeomDet * geom, TrackingRecHit const & rh, float weight=1., float annealing=1. ) : 
-    TrackingRecHit(rh.geographicalId(), rh.type()), geom_(geom), weight_(weight), annealing_(annealing) {}
+    TrackingRecHit(rh.geographicalId(), rh.type()),
+    geom_(geom), weight_(weight), annealing_(annealing),
+    globalPosition_(0,0,0),hasGlobalPosition_(false),
+    globalError_(),errorR_(0),errorZ_(0),errorRPhi_(0),hasGlobalError_(false){}
 
 
-  //RC virtual TransientTrackingRecHit * clone() const = 0;
 
   // Extension of the TrackingRecHit interface
 
@@ -47,6 +60,10 @@ public:
 
   virtual GlobalPoint globalPosition() const ;
   virtual GlobalError globalPositionError() const ;
+
+  float errorGlobalR() const;
+  float errorGlobalZ() const;
+  float errorGlobalRPhi() const;
 
   /// Returns a copy of the hit with parameters and errors computed with respect 
   /// to the TrajectoryStateOnSurface given as argument.
@@ -78,13 +95,20 @@ public:
   float getAnnealingFactor() const {return annealing_;} 
 
 private:
-
+  void setPositionErrors() const;
+  
   const GeomDet * geom_ ;
 
   float weight_;
-
   float annealing_;
 
+  // caching of some variable for fast access
+  mutable GlobalPoint globalPosition_;  
+  mutable bool hasGlobalPosition_;
+  mutable GlobalError globalError_;
+  mutable float errorR_,errorZ_,errorRPhi_;
+  mutable bool hasGlobalError_;
+  
   // hide the clone method for ReferenceCounted. Warning: this method is still 
   // accessible via the bas class TrackingRecHit interface!
   virtual TransientTrackingRecHit * clone() const = 0;

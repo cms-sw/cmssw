@@ -10,12 +10,63 @@ const GeomDetUnit * TransientTrackingRecHit::detUnit() const
 
 
 GlobalPoint TransientTrackingRecHit::globalPosition() const {
-  return  (surface()->toGlobal(localPosition()));
+  if(! hasGlobalPosition_){
+    globalPosition_ = surface()->toGlobal(localPosition());
+    hasGlobalPosition_ = true;
+    return globalPosition_;
+  }else{
+    return globalPosition_;
+  }
 }
 
 GlobalError TransientTrackingRecHit::globalPositionError() const {
-  return ErrorFrameTransformer().transform( localPositionError(), *surface() );
+  if(! hasGlobalError_){
+    setPositionErrors();
+    return globalError_;
+  }else{
+    return globalError_;
+  }
+
 }   
+
+float 
+TransientTrackingRecHit::errorGlobalR() const {
+  if(!hasGlobalError_){
+    setPositionErrors();
+    return errorR_;
+  }else{
+    return errorR_;
+  }
+}
+
+float 
+TransientTrackingRecHit::errorGlobalZ() const {
+  if(!hasGlobalError_){
+    setPositionErrors();
+    return errorZ_;
+  }else{
+    return errorZ_;
+  }
+}
+
+float 
+TransientTrackingRecHit::errorGlobalRPhi() const {
+  if(!hasGlobalError_){
+    setPositionErrors();
+    return errorRPhi_;
+  }else{
+    return errorRPhi_;
+  }
+}
+
+void
+TransientTrackingRecHit::setPositionErrors() const {
+  globalError_ = ErrorFrameTransformer().transform( localPositionError(), *surface() );
+  errorRPhi_ = globalPosition().perp()*sqrt(globalError_.phierr(globalPosition())); 
+  errorR_ = sqrt(globalError_.rerr(globalPosition()));
+  errorZ_ = sqrt(globalError_.czz());
+  hasGlobalError_ = true;
+}
 
 TransientTrackingRecHit::ConstRecHitContainer TransientTrackingRecHit::transientHits() const 
 {
