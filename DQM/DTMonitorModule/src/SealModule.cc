@@ -31,6 +31,9 @@ DEFINE_ANOTHER_FWK_MODULE(DTDigiForNoiseTask);
 #include "DQM/DTMonitorModule/src/DTAlbertoBenvenutiTask.h"
 DEFINE_ANOTHER_FWK_MODULE(DTAlbertoBenvenutiTask);
 
+#include "DQM/DTMonitorModule/interface/DTCalibValidation.h"
+DEFINE_ANOTHER_FWK_MODULE(DTCalibValidation);
+
 
 #include <DQM/DTMonitorModule/interface/DTDataIntegrityTask.h>
 #include "FWCore/ServiceRegistry/interface/ServiceMaker.h"
