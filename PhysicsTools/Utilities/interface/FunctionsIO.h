@@ -169,7 +169,7 @@ PARENTHESES(PowerStruct, SumStruct, "^");
 PARENTHESES(PowerStruct, ProductStruct, "^");
 PARENTHESES(PowerStruct, RatioStruct, "^");
 
-PARENTHESES_FRACT(ProductStruct, " ");
+//PARENTHESES_FRACT(ProductStruct, " ");
 PARENTHESES_FRACT(RatioStruct, "/");
 PARENTHESES_FRACT(PowerStruct, "^");
 

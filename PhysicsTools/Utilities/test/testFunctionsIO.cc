@@ -108,4 +108,5 @@ void testFunctionsIO::checkAll() {
   CHECK(x / _m2, "-x/2");
   CHECK((-x) / y, "-x/y");
   CHECK(x/y/z, "x/( y z )");
+  CHECK((_3 * x)/(_2 * y), "3/2 ( x/y )");
 }

@@ -69,7 +69,8 @@ namespace funct {
 
   // ( n * a ) / ( m * b ) = ( n/m ) ( a / b )
   RATIO_RULE(TYPN2T2, PROD_S(NUM(n), A), PROD_S(NUM(m), B), \
-	     PROD(FRACT(n, m), RATIO(A, B)), (fract<n, m>() * (_1._2 / _2._2)));
+	     PROD_S(FRACT(n, m), RATIO(A, B)), \
+	     (PROD_S(FRACT(n, m), RATIO(A, B))((fract<n, m>()), (_1._2 / _2._2))));
 
   //  a / ( b / c ) = a * c / b
   RATIO_RULE(TYPT3, A, RATIO_S(B, C), \
