@@ -156,7 +156,7 @@
 	<TestName activate="true">tTrigOffSet</TestName>
 </LINK>
 
-<LINK name="*hResDist_W*">
+<LINK name="*hResDist_*">
         <TestName activate="true">ResidualsDistributionGaussianTest</TestName>
 </LINK>
 
