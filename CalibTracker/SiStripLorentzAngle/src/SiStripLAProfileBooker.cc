@@ -331,7 +331,7 @@ void SiStripLAProfileBooker::analyze(const edm::Event& e, const edm::EventSetup&
 	    // THIS THE POINTER TO THE MONO HIT OF A MATCHED HIT 
 	    
 	    const SiStripRecHit2D *monohit=matchedhit->monoHit();    
-	    const edm::Ref<edm::DetSetVector<SiStripCluster>, SiStripCluster, edm::refhelper::FindForDetSetVector<SiStripCluster> > monocluster=monohit->cluster();
+	    const SiStripRecHit2D::ClusterRef & monocluster=monohit->cluster();
 	    const GeomDetUnit * monodet=gdet->monoDet();    
 	    const LocalPoint monoposition = monohit->localPosition();    
             StripSubdetector detid=(StripSubdetector)monohit->geographicalId();
@@ -422,7 +422,7 @@ void SiStripLAProfileBooker::analyze(const edm::Event& e, const edm::EventSetup&
 	      // THIS THE POINTER TO THE STEREO HIT OF A MATCHED HIT 
 	      
 	    const SiStripRecHit2D *stereohit=matchedhit->stereoHit();
-	    const edm::Ref<edm::DetSetVector<SiStripCluster>, SiStripCluster, edm::refhelper::FindForDetSetVector<SiStripCluster> > stereocluster=stereohit->cluster();
+	    const SiStripRecHit2D::ClusterRef & stereocluster=stereohit->cluster();
 	    const GeomDetUnit * stereodet=gdet->stereoDet();
 	    const LocalPoint stereoposition = stereohit->localPosition();    
             StripSubdetector detid=(StripSubdetector)stereohit->geographicalId();
@@ -518,7 +518,7 @@ void SiStripLAProfileBooker::analyze(const edm::Event& e, const edm::EventSetup&
 	  
 	    //  hit= POINTER TO THE RECHIT
 	    
-	    const edm::Ref<edm::DetSetVector<SiStripCluster>, SiStripCluster, edm::refhelper::FindForDetSetVector<SiStripCluster> > cluster=hit->cluster();
+	    const SiStripRecHit2D::ClusterRef & cluster=hit->cluster();
 	   
 	    GeomDet * gdet=(GeomDet *)tracker->idToDet(hit->geographicalId());
 	    const LocalPoint position = hit->localPosition();    
@@ -619,7 +619,7 @@ void SiStripLAProfileBooker::analyze(const edm::Event& e, const edm::EventSetup&
     hitcounter_2ndloop++;
     
     const SiStripRecHit2D* hit=hitsiter->first;
-    const edm::Ref<edm::DetSetVector<SiStripCluster>, SiStripCluster, edm::refhelper::FindForDetSetVector<SiStripCluster> > cluster=hit->cluster();
+    const SiStripRecHit2D::ClusterRef & cluster=hit->cluster();
 
     size=(cluster->amplitudes()).size();
     
