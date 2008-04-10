@@ -13,7 +13,7 @@
 //
 // Original Author:  Christophe DELAERE
 //         Created:  Fri Nov 17 10:52:42 CET 2006
-// $Id: SiStripFineDelayHit.cc,v 1.1 2008/01/17 16:51:42 delaer Exp $
+// $Id: SiStripFineDelayHit.cc,v 1.2 2008/01/18 14:07:08 delaer Exp $
 //
 //
 
@@ -509,10 +509,14 @@ SiStripFineDelayHit::beginJob(const edm::EventSetup& iSetup)
    for(std::vector< uint16_t >::const_iterator fedid = feds.begin();fedid<feds.end();++fedid) {
      const std::vector< FedChannelConnection > & connections = cabling->connections(*fedid);
      for(std::vector< FedChannelConnection >::const_iterator conn=connections.begin();conn<connections.end();++conn) {
+     /*
        SiStripFedKey key(conn->fedId(),
                          SiStripFedKey::feUnit(conn->fedCh()),
 			 SiStripFedKey::feChan(conn->fedCh()));
        connectionMap_[conn->detId()] = key.key();
+     */
+     // the key is computed using an alternate formula for performance reasons.
+     connectionMap_[conn->detId()] = ( ( conn->fedId() & sistrip::invalid_ ) << 16 ) | ( conn->fedCh() & sistrip::invalid_ );
      }
    }
 }

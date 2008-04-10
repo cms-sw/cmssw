@@ -1,8 +1,9 @@
-// Last commit: $Id: LatencyHistosUsingDb.cc,v 1.6 2008/03/06 13:30:52 delaer Exp $
+// Last commit: $Id: LatencyHistosUsingDb.cc,v 1.7 2008/03/06 18:16:07 delaer Exp $
 
 #include "DQM/SiStripCommissioningDbClients/interface/LatencyHistosUsingDb.h"
 #include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
 #include "DataFormats/SiStripCommon/interface/SiStripFecKey.h"
+#include <DataFormats/DetId/interface/DetId.h>
 #include <iostream>
 
 using namespace sistrip;
@@ -23,7 +24,8 @@ LatencyHistosUsingDb::LatencyHistosUsingDb( DQMOldReceiver* mui,
 /** */
 LatencyHistosUsingDb::LatencyHistosUsingDb( DQMOldReceiver* mui,
 					      SiStripConfigDb* const db )
-  : CommissioningHistosUsingDb( db ),
+  : CommissioningHistograms( mui, APV_LATENCY ),
+    CommissioningHistosUsingDb( db, mui, APV_LATENCY ),
     SamplingHistograms( mui, APV_LATENCY )
 {
   LogTrace(mlDqmClient_) 
@@ -63,10 +65,20 @@ void LatencyHistosUsingDb::uploadConfigurations() {
     return;
   }
 
-  // Update APV descriptions with new Latency settings
   const SiStripConfigDb::DeviceDescriptions& devices = db()->getDeviceDescriptions(); 
-  update( const_cast<SiStripConfigDb::DeviceDescriptions&>(devices) );
+  const SiStripConfigDb::FedDescriptions& feds = db()->getFedDescriptions();
+  bool upload = update( const_cast<SiStripConfigDb::DeviceDescriptions&>(devices), const_cast<SiStripConfigDb::FedDescriptions&>(feds) );
+  // Check if new PLL settings are valid
+  if ( !upload ) {
+    edm::LogWarning(mlDqmClient_)
+      << "[LatencyHistosUsingDb::" << __func__ << "]"
+      << " Found invalid PLL settings (coarse > 15)"
+      << " Aborting update to database...";
+    return;
+  }
+  
   if ( doUploadConf() ) { 
+    // Update APV descriptions with new Latency settings
     LogTrace(mlDqmClient_) 
       << "[LatencyHistosUsingDb::" << __func__ << "]"
       << " Uploading APV settings to DB...";
@@ -74,30 +86,41 @@ void LatencyHistosUsingDb::uploadConfigurations() {
     LogTrace(mlDqmClient_) 
       << "[LatencyHistosUsingDb::" << __func__ << "]"
       << " Upload of APV settings to DB finished!";
+    // Update FED descriptions 
+    LogTrace(mlDqmClient_)
+      << "[LatencyHistosUsingDb::" << __func__ << "]"
+      << " Uploading FED delays to DB...";
+    db()->uploadFedDescriptions(true);
+    LogTrace(mlDqmClient_)
+      << "[LatencyHistosUsingDb::" << __func__ << "]"
+      << " Upload of FED delays to DB finished!";
   } else {
     edm::LogWarning(mlDqmClient_) 
       << "[LatencyHistosUsingDb::" << __func__ << "]"
       << " TEST only! No APV settings will be uploaded to DB...";
   }
-  
+
 }
 
 // -----------------------------------------------------------------------------
 /** */
-void LatencyHistosUsingDb::update( SiStripConfigDb::DeviceDescriptions& devices ) {
+bool LatencyHistosUsingDb::update( SiStripConfigDb::DeviceDescriptions& devices, SiStripConfigDb::FedDescriptions& feds ) {
   
   // Obtain the latency from the analysis object
   if(!data().size() || !data().begin()->second->isValid() ) {
     edm::LogVerbatim(mlDqmClient_) 
       << "[LatencyHistosUsingDb::" << __func__ << "]"
       << " Updated NO Latency settings. No analysis result available !" ;
-    return;
+    return false;
   }
   SamplingAnalysis* anal = dynamic_cast<SamplingAnalysis*>( data().begin()->second );
-  uint16_t latency = uint16_t((anal->maximum()/(-25.))+0.5);
+  uint16_t latency = uint16_t(ceil(anal->maximum()/(-25.)));
+  float shift = anal->maximum()-(latency*(-25));
   
   // Iterate through devices and update device descriptions
-  uint16_t updated = 0;
+  uint16_t updatedAPV = 0;
+  uint16_t updatedPLL = 0;
+  std::vector<SiStripFecKey> invalid;
   SiStripConfigDb::DeviceDescriptions::iterator idevice;
   for ( idevice = devices.begin(); idevice != devices.end(); idevice++ ) {
     // Check device type
@@ -120,16 +143,123 @@ void LatencyHistosUsingDb::update( SiStripConfigDb::DeviceDescriptions& devices 
        << " from "
        << static_cast<uint16_t>(desc->getLatency());
     desc->setLatency(latency);
-    updated++;
     ss << " to "
        << static_cast<uint16_t>(desc->getLatency());
     LogTrace(mlDqmClient_) << ss.str();
+    updatedAPV++;
   }
+  // Change also the PLL delay
+  for ( idevice = devices.begin(); idevice != devices.end(); idevice++ ) {
+    // Check device type
+    if ( (*idevice)->getDeviceType() != PLL ) { continue; }
+    // Cast to retrieve appropriate description object
+    pllDescription* desc = dynamic_cast<pllDescription*>( *idevice );
+    if ( !desc ) { continue; }
+    // Retrieve device addresses from device description
+    const SiStripConfigDb::DeviceAddress& addr = db()->deviceAddress(*desc);
+    // Construct key from device description
+    uint32_t fec_key = SiStripFecKey( addr.fecCrate_,
+                                      addr.fecSlot_,
+                                      addr.fecRing_,
+                                      addr.ccuAddr_,
+                                      addr.ccuChan_,
+                                      0 ).key();
+    SiStripFecKey fec_path = SiStripFecKey( fec_key );    
+    // Do it!
+    float delay = desc->getDelayCoarse()*25+desc->getDelayFine()*25./24. + shift;
+    int delayCoarse = int(delay/25);
+    int delayFine   = int(round((delay-25*delayCoarse)*24./25.));
+    //  maximum coarse setting
+    if ( delayCoarse > 15 ) { invalid.push_back(fec_key); delayCoarse = sistrip::invalid_; }
+    // Update PLL settings
+    if ( delayCoarse != sistrip::invalid_ &&
+         delayFine != sistrip::invalid_ ) {
+       std::stringstream ss;
+       ss << "[LatencyHistosUsingDb::" << __func__ << "]"
+          << " Updating coarse/fine PLL settings"
+          << " for Crate/FEC/slot/ring/CCU "
+          << fec_path.fecCrate() << "/"
+          << fec_path.fecSlot() << "/"
+          << fec_path.fecRing() << "/"
+          << fec_path.ccuAddr() << "/"
+          << fec_path.ccuChan()
+          << " from "
+          << static_cast<uint16_t>( desc->getDelayCoarse() ) << "/"
+          << static_cast<uint16_t>( desc->getDelayFine() );
+       desc->setDelayCoarse(delayCoarse);
+       desc->setDelayFine(delayFine);
+       updatedPLL++;
+       ss << " to "
+          << static_cast<uint16_t>( desc->getDelayCoarse() ) << "/"
+	  << static_cast<uint16_t>( desc->getDelayFine() );
+       LogTrace(mlDqmClient_) << ss.str();
+    }
+  }
+  // Retrieve FED ids from cabling
+  std::vector<uint16_t> ids = cabling()->feds() ;
+
+  // loop over the FED ids
+  for ( SiStripConfigDb::FedDescriptions::iterator ifed = feds.begin(); ifed != feds.end(); ifed++ ) {
+    // If FED id not found in list (from cabling), then continue
+    if ( find( ids.begin(), ids.end(), (*ifed)->getFedId() ) == ids.end() ) { continue; }
+    const std::vector<FedChannelConnection>& conns = cabling()->connections((*ifed)->getFedId());
+    // loop over the connections for that FED
+    for ( std::vector<FedChannelConnection>::const_iterator iconn = conns.begin(); iconn != conns.end(); iconn++ ) {
+      // check that this is a tracker module
+      if(DetId(iconn->detId()).det()!=DetId::Tracker) continue;
+      // build the Fed9UAddress for that channel. Used to update the description.
+      Fed9U::Fed9UAddress fedChannel = Fed9U::Fed9UAddress(iconn->fedCh());
+      // retreive the current value for the delays
+      int fedDelayCoarse = (*ifed)->getCoarseDelay(fedChannel);
+      int fedDelayFine = (*ifed)->getFineDelay(fedChannel);
+      // compute the FED delay
+      // this is done by substracting the best (PLL) delay to the present value (from the db)
+      int fedDelay = int(fedDelayCoarse*25. - fedDelayFine*24./25. - round(shift) + 25);
+      fedDelayCoarse = (fedDelay/25)+1;
+      fedDelayFine = fedDelayCoarse*25-fedDelay;
+      // update the FED delay
+      std::stringstream ss;
+      ss << "[LatencyHistosUsingDb::" << __func__ << "]"
+         << " Updating the FED delay"
+         << " for loop FED id/ch "
+         << (*ifed)->getFedId() << "/" << iconn->fedCh()
+         << " from "
+         << (*ifed)->getCoarseDelay( fedChannel) << "/" << (*ifed)->getFineDelay( fedChannel)
+         << " to ";
+      (*ifed)->setDelay(fedChannel, fedDelayCoarse, fedDelayFine);
+      ss << (*ifed)->getCoarseDelay(fedChannel) << "/" << (*ifed)->getFineDelay( fedChannel) << std::endl;
+      LogTrace(mlDqmClient_) << ss.str();
+    }
+  }
+
+  edm::LogVerbatim(mlDqmClient_)
+      << "[LatencyHistosUsingDb::" << __func__ << "]"
+      << " Updated FED delays for " << ids.size() << " FEDs!";
+  // Check if invalid settings were found
+  if ( !invalid.empty() ) {
+    std::stringstream ss;
+    ss << "[LatencyHistosUsingDb::" << __func__ << "]"
+       << " Found PLL coarse setting of 15"
+       << " (not allowed!) for following channels"
+       << " (Crate/FEC/slot/ring/CCU/LLD): ";
+    std::vector<SiStripFecKey>::iterator ikey = invalid.begin();
+    std::vector<SiStripFecKey>::iterator jkey = invalid.end();
+    for ( ; ikey != jkey; ++ikey ) {
+      ss << ikey->fecCrate() << "/"
+         << ikey->fecSlot() << "/"
+         << ikey->fecRing() << "/"
+         << ikey->ccuAddr() << "/"
+         << ikey->ccuChan() << ", ";
+    }
+    edm::LogWarning(mlDqmClient_) << ss.str();
+    return false;
+  }
+
   edm::LogVerbatim(mlDqmClient_) 
     << "[LatencyHistosUsingDb::" << __func__ << "] "
-    << "Updated Latency settings for " << updated << " devices";
+    << "Updated settings for " << updatedAPV << " APV devices and " << updatedPLL << " PLL devices.";
+  return true;
 }
-
 
 // -----------------------------------------------------------------------------
 /** */
@@ -145,17 +275,15 @@ void LatencyHistosUsingDb::create( SiStripConfigDb::AnalysisDescriptions& desc,
   SiStripFedKey fed_key( anal->fedKey() );
   
   uint16_t latency = static_cast<uint16_t>( ( anal->maximum() / (-25.) ) + 0.5 );
-  
-  for ( uint16_t iapv = 0; iapv < 2; ++iapv ) {
-    
+
     ApvLatencyAnalysisDescription* tmp;
     tmp = new ApvLatencyAnalysisDescription( latency, 
-					     fec_key.fecCrate(),
-					     fec_key.fecSlot(),
-					     fec_key.fecRing(),
-					     fec_key.ccuAddr(),
-					     fec_key.ccuChan(),
-					     SiStripFecKey::i2cAddr( fec_key.lldChan(), !iapv ), 
+					     0,
+					     0,
+					     0,
+					     0,
+					     0,
+					     0, 
 					     db()->dbParams().partition_,
 					     db()->dbParams().runNumber_,
 					     anal->isValid(),
@@ -175,8 +303,6 @@ void LatencyHistosUsingDb::create( SiStripConfigDb::AnalysisDescriptions& desc,
     // Store description
     desc.push_back( tmp );
     
-  }
-
 #endif
   
 }

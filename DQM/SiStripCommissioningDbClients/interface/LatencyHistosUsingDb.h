@@ -1,4 +1,4 @@
-// Last commit: $Id: LatencyHistosUsingDb.h,v 1.4 2008/03/06 13:30:50 delaer Exp $
+// Last commit: $Id: LatencyHistosUsingDb.h,v 1.5 2008/03/06 18:16:06 delaer Exp $
 
 #ifndef DQM_SiStripCommissioningClients_LatencyHistosUsingDb_H
 #define DQM_SiStripCommissioningClients_LatencyHistosUsingDb_H
@@ -29,7 +29,7 @@ class LatencyHistosUsingDb : public CommissioningHistosUsingDb, public SamplingH
   
  private:
   
-  void update( SiStripConfigDb::DeviceDescriptions& );
+  bool update( SiStripConfigDb::DeviceDescriptions&, SiStripConfigDb::FedDescriptions& );
   
   void create( SiStripConfigDb::AnalysisDescriptions&, Analysis );
   

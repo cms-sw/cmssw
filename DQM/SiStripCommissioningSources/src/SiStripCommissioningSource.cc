@@ -606,12 +606,14 @@ void SiStripCommissioningSource::fillHistos( const SiStripEventSummary* const su
       // 					SiStripFedKey::feChan(iconn->fedCh()) ).key();
       
       // Create FED key and check if non-zero
+      // note: the key is not computed using the same formula as in commissioning histograms.
+      // beware that changes here must match changes in raw2digi and in SiStripFineDelayHit
       uint32_t fed_key = ( ( iconn->fedId() & sistrip::invalid_ ) << 16 ) | ( iconn->fedCh() & sistrip::invalid_ );
-      
+
       // Retrieve digis for given FED key and check if found
       std::vector< edm::DetSet<SiStripRawDigi> >::const_iterator digis = raw.find( fed_key ); 
       if ( digis != raw.end() ) { 
- 	if ( tasks_[iconn->fedId()][iconn->fedCh()] ) { 
+ 	if ( tasks_[iconn->fedId()][iconn->fedCh()] ) {
 	  tasks_[iconn->fedId()][iconn->fedCh()]->fillHistograms( *summary, *digis );
 	} else {
 	  std::stringstream ss;
@@ -625,18 +627,22 @@ void SiStripCommissioningSource::fillHistos( const SiStripEventSummary* const su
 	  edm::LogWarning(mlDqmSource_) << ss.str();
 	}
       } else {
-	std::stringstream ss;
-	ss << "[SiStripCommissioningSource::" << __func__ << "]"
-	   << " Unable to DetSet containing digis for FED key " 
-	   << std::hex << std::setfill('0') << std::setw(8) << fed_key << std::dec
-	   << " and FED id/ch " 
-	   << iconn->fedId() << "/"
-	   << iconn->fedCh();
-	edm::LogWarning(mlDqmSource_) << ss.str();
+        // issue a warning only for standard runs, as latency and fine delay only deliver 
+	// pseudo zero-suppressed data
+        if ( task_ != sistrip::APV_LATENCY &&
+	     task_ != sistrip::FINE_DELAY )   { 
+  	  std::stringstream ss;
+	  ss << "[SiStripCommissioningSource::" << __func__ << "]"
+	     << " Unable to find any DetSet containing digis for FED key " 
+	     << std::hex << std::setfill('0') << std::setw(8) << fed_key << std::dec
+	     << " and FED id/ch " 
+	     << iconn->fedId() << "/"
+	     << iconn->fedCh();
+	  edm::LogWarning(mlDqmSource_) << ss.str();
+	}
       }
     } // fed channel loop
   } // fed id loop
-
 }
 
 // -----------------------------------------------------------------------------

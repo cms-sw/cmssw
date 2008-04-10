@@ -17,6 +17,12 @@ class SamplingHistograms : virtual public CommissioningHistograms {
   
   void histoAnalysis( bool debug );
 
+  virtual void configure( const edm::ParameterSet&, const edm::EventSetup& );
+
+ private:
+  
+  float sOnCut_;
+
 };
 
 #endif // DQM_SiStripCommissioningClients_SamplingHistograms_H

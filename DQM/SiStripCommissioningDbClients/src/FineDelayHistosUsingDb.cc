@@ -1,4 +1,4 @@
-// Last commit: $Id: FineDelayHistosUsingDb.cc,v 1.7 2008/03/06 18:16:07 delaer Exp $
+// Last commit: $Id: FineDelayHistosUsingDb.cc,v 1.8 2008/03/08 17:24:52 delaer Exp $
 
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
@@ -71,11 +71,12 @@ FineDelayHistosUsingDb::~FineDelayHistosUsingDb() {
 
 // -----------------------------------------------------------------------------
 /** */
-void FineDelayHistosUsingDb::configure(const edm::ParameterSet&, const edm::EventSetup& setup) {
+void FineDelayHistosUsingDb::configure(const edm::ParameterSet& pset, const edm::EventSetup& setup) {
   // get geometry
   edm::ESHandle<TrackerGeometry> estracker;
   setup.get<TrackerDigiGeometryRecord>().get(estracker);
   tracker_=&(* estracker);
+  SamplingHistograms::configure(pset,setup);
 }
 
 // -----------------------------------------------------------------------------
@@ -316,7 +317,7 @@ void FineDelayHistosUsingDb::update( SiStripConfigDb::FedDescriptions& feds ) {
       // retreive the current value for the delays
       int fedDelayCoarse = (*ifed)->getCoarseDelay(fedChannel);
       int fedDelayFine = (*ifed)->getFineDelay(fedChannel);
-      int fedDelay = int(round(fedDelayCoarse*25. + fedDelayFine*24./25.));
+      int fedDelay = int(fedDelayCoarse*25. - fedDelayFine*24./25.);
       // extract the delay from the map
       int delay = delays_[SiStripFecKey( iconn->fecCrate(),
                                          iconn->fecSlot(),
@@ -326,8 +327,8 @@ void FineDelayHistosUsingDb::update( SiStripConfigDb::FedDescriptions& feds ) {
       // compute the FED delay
       // this is done by substracting the best (PLL) delay to the present value (from the db)
       fedDelay -= delay;
-      fedDelayCoarse = fedDelay/25;
-      fedDelayFine = int(round((fedDelay-25*fedDelayCoarse)*24./25.));
+      fedDelayCoarse = (fedDelay/25)+1;
+      fedDelayFine = fedDelayCoarse*25-fedDelay;
       // update the FED delay
       std::stringstream ss;
       ss << "[FineDelayHistosUsingDb::" << __func__ << "]"
@@ -339,7 +340,7 @@ void FineDelayHistosUsingDb::update( SiStripConfigDb::FedDescriptions& feds ) {
          << " to ";
       (*ifed)->setDelay(fedChannel, fedDelayCoarse, fedDelayFine);
       ss << (*ifed)->getCoarseDelay(fedChannel) << "/" << (*ifed)->getFineDelay( fedChannel) << std::endl;
-      data().begin()->second->print(ss);
+      LogTrace(mlDqmClient_) << ss.str();
     }
   }
 
@@ -362,17 +363,15 @@ void FineDelayHistosUsingDb::create( SiStripConfigDb::AnalysisDescriptions& desc
   SiStripFecKey fec_key( anal->fecKey() ); //@@ analysis->first
   SiStripFedKey fed_key( anal->fedKey() );
 
-  for ( uint16_t iapv = 0; iapv < 2; ++iapv ) {
-      
     FineDelayAnalysisDescription* tmp;
     tmp = new FineDelayAnalysisDescription( anal->maximum(),
 					    anal->error(),
-					    fec_key.fecCrate(),
-					    fec_key.fecSlot(),
-					    fec_key.fecRing(),
-					    fec_key.ccuAddr(),
-					    fec_key.ccuChan(),
-					    SiStripFecKey::i2cAddr( fec_key.lldChan(), !iapv ), 
+					    0,
+					    0,
+					    0,
+					    0,
+					    0,
+					    0, 
 					    db()->dbParams().partition_,
 					    db()->dbParams().runNumber_,
 					    anal->isValid(),
@@ -392,8 +391,6 @@ void FineDelayHistosUsingDb::create( SiStripConfigDb::AnalysisDescriptions& desc
     // Store description
     desc.push_back( tmp );
     
-  }
-
 #endif
   
 }

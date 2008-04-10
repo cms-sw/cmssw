@@ -15,7 +15,7 @@ using namespace sistrip;
 // -----------------------------------------------------------------------------
 /** */
 SamplingHistograms::SamplingHistograms( DQMStore* bei,const sistrip::RunType& task ) 
-  : CommissioningHistograms( bei, task )
+  : CommissioningHistograms( bei, task ),sOnCut_(3)
 {
   LogTrace(mlDqmClient_) 
        << "[SamplingHistograms::" << __func__ << "]"
@@ -26,7 +26,7 @@ SamplingHistograms::SamplingHistograms( DQMStore* bei,const sistrip::RunType& ta
 // -----------------------------------------------------------------------------
 /** */
 SamplingHistograms::SamplingHistograms( DQMOldReceiver* mui,const sistrip::RunType& task ) 
-  : CommissioningHistograms( mui, task )
+  : CommissioningHistograms( mui, task ),sOnCut_(3)
 {
   LogTrace(mlDqmClient_) 
        << "[SamplingHistograms::" << __func__ << "]"
@@ -74,10 +74,18 @@ void SamplingHistograms::histoAnalysis( bool debug ) {
 
     // Perform histo analysis
     SamplingAnalysis* anal = new SamplingAnalysis( iter->first );
+    anal->setSoNcut(sOnCut_);
     anal->analysis( profs );
     data()[iter->first] = anal; 
     
  }
  
+}
+
+void SamplingHistograms::configure( const edm::ParameterSet& pset, const edm::EventSetup& )
+{
+ //TODO: should use the parameter set. Why is this crashing ???
+//  sOnCut_ = pset.getParameter<double>("SignalToNoiseCut");
+   sOnCut_ = 3.;
 }
 
