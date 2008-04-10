@@ -16,7 +16,7 @@
 //
 // Original Author:  
 //         Created:  Wed Apr  9 13:48:06 CEST 2008
-// $Id$
+// $Id: L1RPCHwConfig.h,v 1.1 2008/04/09 15:16:52 fruboes Exp $
 //
 
 // system include files
@@ -26,7 +26,7 @@
 // forward declarations
 #include <set>
 
-
+#include <iostream>
 struct L1RPCDevCoords {
  public:
   L1RPCDevCoords(): m_tower(0), m_PAC(255) {};
@@ -81,8 +81,11 @@ class L1RPCHwConfig
 
       int size() const {return m_disabledDevices.size(); } ;
 
-      int getFirstBX() {return m_firstBX;};
-      int getLastBX() {return m_lastBX;};
+      int getFirstBX() const {return m_firstBX;};
+      int getLastBX() const {return m_lastBX;};
+
+      void setFirstBX(int bx) { m_firstBX = bx;};
+      void setLastBX(int bx) {  m_lastBX = bx;};
       // ---------- const member functions ---------------------
 
       // ---------- static member functions --------------------
