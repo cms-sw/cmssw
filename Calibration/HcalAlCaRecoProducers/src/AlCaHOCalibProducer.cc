@@ -39,7 +39,7 @@ Ring 0 L0 : Width Tray 6:266.6, 5&4:325.6, 3:330.6, 2:341.6, 1:272.6
 //
 // Original Author:  Gobinda Majumder
 //         Created:  Fri Jul  6 17:17:21 CEST 2007
-// $Id: AlCaHOCalibProducer.cc,v 1.8 2008/04/09 21:37:43 dlange Exp $
+// $Id: AlCaHOCalibProducer.cc,v 1.9 2008/04/09 23:13:28 dlange Exp $
 //
 //
 
@@ -241,7 +241,7 @@ AlCaHOCalibProducer::AlCaHOCalibProducer(const edm::ParameterSet& iConfig)
   m_sigma = iConfig.getUntrackedParameter<double>("sigma", 1.0);
   hoLabel_ = iConfig.getParameter<edm::InputTag>("hoInput");
   hbheLabel_ = iConfig.getParameter<edm::InputTag>("hbheInput");
-
+  theFile=0;
 //  produces<HOCalibVariableCollection>("HOCalibVariableCollection").setBranchAlias("HOCalibVariableCollection");
   produces<HOCalibVariableCollection>("HOCalibVariableCollection"); 
 
@@ -275,9 +275,8 @@ AlCaHOCalibProducer::AlCaHOCalibProducer(const edm::ParameterSet& iConfig)
   for (int i=0; i<10; i++) {ho_time[i] = hb_time[i] = 0.0;}
 
   char title[200];
-  theFile = new TFile(theRootFileName.c_str(), "RECREATE");
   if (m_hotime) {
-//    theFile = new TFile(theRootFileName.c_str(), "RECREATE");
+    theFile = new TFile(theRootFileName.c_str(), "RECREATE");
     theFile->cd();
     for (int j=0; j<netamx; j++) {
       for (int i=0; i<nphimx; i++) {
@@ -323,9 +322,9 @@ AlCaHOCalibProducer::~AlCaHOCalibProducer()
 	hopedtime[j][i]->Scale(10./max(1.,hopedtime[j][i]->GetEntries()));
       }
     }
+    theFile->Write();
+    theFile->Close();
   }
-  theFile->Write();
-  theFile->Close();
 
 }
 
