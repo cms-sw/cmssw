@@ -1,4 +1,4 @@
-// $Id: EcalCondDBInterface.cc,v 1.9 2008/02/14 15:31:46 fra Exp $
+// $Id: EcalCondDBInterface.cc,v 1.7 2007/11/14 16:38:47 fra Exp $
 
 #include <iostream>
 #include <string>
@@ -224,120 +224,6 @@ vector<EcalLogicID> EcalCondDBInterface::getEcalLogicIDSet( string name,
   return result;
 }
 
-vector<EcalLogicID> EcalCondDBInterface::getEcalLogicIDSetOrdered( string name,
-							    int fromId1, int toId1,
-							    int fromId2, int toId2,
-							    int fromId3, int toId3,
-							    string mapsTo, int orderedBy )
-  // the orderedBy can be 1, 2, 3, 4
-  // corresponding to id1 id2 id3 or logic_id 
-  throw(runtime_error)
-{
-  if (mapsTo == "") {
-    mapsTo = name;
-  }
-  
-  int idArray[] = { fromId1, toId1, fromId2, toId2, fromId3, toId3 };
-  int from, to;
-  
-  stringstream ss;
-  ss << "SELECT name, logic_id, id1, id2, id3, maps_to FROM channelView WHERE name = :name AND ";
-  
-  // loop through the three ids
-  for (int i=1; i<=3; i++) {
-    from = idArray[2*(i-1)];
-    to   = idArray[2*(i-1) + 1];
-    
-    // check the id arguments in pairs
-    if ((from == EcalLogicID::NULLID && to != EcalLogicID::NULLID) || // one is null
-	(from != EcalLogicID::NULLID && to == EcalLogicID::NULLID) || //   but not the other
-	(from > to)) { // negative interval
-      throw(runtime_error("ERROR:  Bad arguments for getEcalLogicIDSet"));
-    }
-    
-    // build the sql
-    if (from == EcalLogicID::NULLID && to == EcalLogicID::NULLID) {
-      ss << "id" << i << " IS NULL AND ";
-    } else {
-      ss << "id" << i << " >= :id" << i << "from AND " <<
-	"id" << i << " <= :id" << i << "to AND ";
-    }
-  }
-  ss << "maps_to = :maps_to ";
-
-  if(orderedBy==EcalLogicID::NULLID){
-    ss<<"  ORDER BY id1, id2, id3";
-  } else if(orderedBy==1 || orderedBy==12 || orderedBy==123){
-    ss<<"  ORDER BY id1, id2, id3 ";
-  } else if (orderedBy==213 || orderedBy==21 ){ 
-    ss<<"  ORDER BY id2, id1, id3 ";
-  } else if (orderedBy==231|| orderedBy==23){ 
-    ss<<"  ORDER BY id2, id3, id1 ";
-  } else if (orderedBy==321|| orderedBy==32){
-    ss<<"  ORDER BY id3, id2, id1 ";
-  } else if (orderedBy==312|| orderedBy==31){
-    ss<<"  ORDER BY id3, id1, id2 ";
-  } else if (orderedBy==132|| orderedBy==13){ 
-    ss<<"  ORDER BY id1, id3, id2 ";
-  } else if (orderedBy==4) {
-    ss<<"  ORDER BY logic_id ";
-  } else {
-    ss<<"  ORDER BY id1, id2, id3";
-  }
-  
-  vector<EcalLogicID> result;
-  
-  try {
-    stmt->setSQL(ss.str());
-
-    // bind the parameters
-    int j = 1;  // parameter number counter
-    stmt->setString(j, name);
-    j++;
-    
-    for (int i=0; i<3; i++) {
-      from = idArray[2*i];
-      to   = idArray[2*i + 1];
-      if (from != EcalLogicID::NULLID) {
-	stmt->setInt(j, from);
-	j++;
-	stmt->setInt(j, to);
-	j++;
-      }
-    }
-
-    stmt->setString(j, mapsTo);
-
-  
-    stmt->setPrefetchRowCount(IDBObject::ECALDB_NROWS);    
-
-    ResultSet* rset = stmt->executeQuery();
-
-    int id1, id2, id3, logicId;
-
-    while (rset->next()) {
-      name = rset->getString(1);
-      logicId = rset->getInt(2);
-      id1 = rset->getInt(3);
-      if (rset->isNull(3)) { id1 = EcalLogicID::NULLID; }
-      id2 = rset->getInt(4);
-      if (rset->isNull(4)) { id2 = EcalLogicID::NULLID; }
-      id3 = rset->getInt(5);
-      if (rset->isNull(5)) { id3 = EcalLogicID::NULLID; }
-      mapsTo = rset->getString(6);
-
-      EcalLogicID ecid = EcalLogicID( name, logicId, id1, id2, id3, mapsTo );
-      result.push_back(ecid);
-    }
-    stmt->setPrefetchRowCount(0);
-
-  } catch (SQLException &e) {
-    throw(runtime_error("ERROR:  Failure while getting EcalLogicID set:  " + e.getMessage() ));    
-  }
-
-  return result;
-}
-
 
 
 void EcalCondDBInterface::insertRunIOV(RunIOV* iov)
@@ -346,19 +232,6 @@ void EcalCondDBInterface::insertRunIOV(RunIOV* iov)
   try {
     iov->setConnection(env, conn);
     iov->writeDB();
-  } catch(runtime_error &e) {
-    conn->rollback();
-    throw(e);
-  }
-  conn->commit();
-}
-
-void EcalCondDBInterface::updateRunIOV(RunIOV* iov)
-  throw(runtime_error)
-{
-  try {
-    iov->setConnection(env, conn);
-    iov->updateEndTimeDB();
   } catch(runtime_error &e) {
     conn->rollback();
     throw(e);

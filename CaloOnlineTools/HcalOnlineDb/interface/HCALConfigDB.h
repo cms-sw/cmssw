@@ -27,7 +27,7 @@ class HCALConfigDB{
   ~HCALConfigDB( );
   HCALConfigDB( string _accessor );
   void connect( string _accessor );
-  void connect( string _accessor1, string _accessor2 ); // for very specific case of XML and Oracle
+  void connect( string _accessor1, string _accessor2 );
   void disconnect( void );
   void setAccessor( string _accessor );
   std::vector<unsigned int> getOnlineLUT( string tag, int crate, int slot, int topbottom, int fiber, int channel, int luttype );

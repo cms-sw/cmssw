@@ -348,7 +348,7 @@ void ESUnpackerCT::word2digi(int fiber, const vector<Word16> & word, ESLocalRawD
   int kFlag1 = (word[0] >> 12) & 0x000f;
   int kFlag2 = (word[1] >>  8) & 0x00ff; 
   int chksum = word[297] & 0xffff;
-  kID += 3;
+
   ESCrcKchipFast crcChecker;
 
   uint32_t packet_length = (kFlag1 & 0x07) ? 5 : 299 ; 

@@ -1,4 +1,5 @@
 #include "CommonTools/Statistics/interface/Accumulator.h"
+#include <cmath>
 #include <ostream>
 
 Accumulator::Accumulator() 

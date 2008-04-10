@@ -5,14 +5,11 @@
 /*
  * \file L1TECALTPG.h
  *
- * $Date: 2008/03/01 00:40:00 $
- * $Revision: 1.6 $
+ * $Date: 2007/08/29 14:02:45 $
+ * $Revision: 1.5 $
  * \author J. Berryhill
  *
  * $Log: L1TECALTPG.h,v $
- * Revision 1.6  2008/03/01 00:40:00  lat
- * DQM core migration.
- *
  * Revision 1.5  2007/08/29 14:02:45  wittich
  * split into barrel and endcap
  *
@@ -97,7 +94,6 @@ private:
   int nev_;			// Number of events processed
   std::string outputFile_;	//file name for ROOT ouput
   bool verbose_;
-  bool enableEE_;
   bool monitorDaemon_;
   ofstream logFile_;
 

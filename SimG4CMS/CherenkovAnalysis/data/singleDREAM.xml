@@ -3,7 +3,7 @@
 
 <SolidSection label="singleDREAM">
  <Box name="DREAM"   dx="2.0*m"  dy="0.3*m"  dz="2.0*m"/>
- <Box name="Crystal" dx="9.0*cm" dy="1.1*cm" dz="1.1*cm"/>
+ <Box name="Crystal" dx="1.1*cm" dy="1.1*cm" dz="9.0*cm"/>
 </SolidSection>
 
 <LogicalPartSection label="singleDREAM">

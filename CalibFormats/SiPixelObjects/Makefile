@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.7 2008/02/02 20:36:09 aryd Exp $
+# $Id: Makefile,v 1.6 2008/01/07 10:31:50 aryd Exp $
 
 #########################################################################
 # XDAQ Components for Distributed Data Acquisition                      #
@@ -19,7 +19,7 @@ include $(XDAQ_ROOT)/config/mfDefs.$(XDAQ_OS)
 Project=pixel
 Package=CalibFormats/SiPixelObjects
 
-Sources = $(wildcard src/*.cc)
+Sources = PixelCalibConfiguration.cc PixelROCDACSettings.cc PixelMaskAllPixels.cc PixelTrimAllPixels.cc PixelMaskBase.cc PixelConfigBase.cc PixelCalibBase.cc PixelROCMaskBits.cc PixelTrimBase.cc PixelROCTrimBits.cc PixelDACSettings.cc PixelROCName.cc PixelNameTranslation.cc PixelHdwAddress.cc PixelDetectorConfig.cc PixelFEDCard.cc PixelFECConfig.cc PixelFEDConfig.cc PixelTBMSettings.cc PixelModuleName.cc PixelTrimCommon.cc PixelPortCardConfig.cc PixelDelay25Calib.cc PixelPortcardMap.cc PixelDACScanRange.cc PixelTTCciConfig.cc PixelFECParameters.cc PixelFEDParameters.cc PixelLTCConfig.cc PixelFEDTestDAC.cc PixelTKFECConfig.cc PixelTKFECParameters.cc PixelChannel.cc PixelTBMChannel.cc PixelROCStatus.cc PixelConfigurationVerifier.cc PixelLowVoltageMap.cc PixelMaxVsf.cc
 
 IncludeDirs = \
         $(BUILD_HOME)/$(Project) \

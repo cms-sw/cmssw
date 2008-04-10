@@ -3,8 +3,8 @@
 
 /** \class TrackerSeedCleaner
  *  Seeds Cleaner based on direction
- *  $Date: 2008/03/21 14:48:19 $
- *  $Revision: 1.2 $
+ *  $Date: 2008/03/03 15:36:12 $
+ *  $Revision: 1.1 $
     \author A. Grelli -  Purdue University, Pavia University
  */ 
 
@@ -19,7 +19,6 @@
 #include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHitBuilder.h"
 #include "RecoTracker/TransientTrackingRecHit/interface/TkTransientTrackingRecHitBuilder.h"
 #include "RecoTracker/TkTrackingRegions/interface/RectangularEtaPhiTrackingRegion.h"
-#include "RecoMuon/TrackerSeedGenerator/interface/RedundantSeedCleaner.h"
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
 
 class MuonServiceProxy;
@@ -41,9 +40,8 @@ public:
   TrackerSeedCleaner(const edm::ParameterSet& pset) : theProxyService(0),theEvent(0) {
                    builderName_ = pset.getParameter<std::string>("TTRHBuilder");
                    theBeamSpotTag = pset.getParameter<edm::InputTag>("beamSpot");
-                   useDirection_Cleaner = pset.getParameter<bool>("directionCleaner");
                    usePt_Cleaner = pset.getParameter<bool>("ptCleaner");
-                   cleanBySharedHits = pset.getParameter<bool>("cleanerFromSharedHits");
+
   }
 
   ///intizialization
@@ -64,11 +62,9 @@ private:
   edm::InputTag theBeamSpotTag; //beam spot
   edm::Handle<reco::BeamSpot> bsHandle_;
 
-  RedundantSeedCleaner * theRedundantCleaner;
-
   std::string builderName_;
   edm::ESHandle<TransientTrackingRecHitBuilder> theTTRHBuilder;
-  bool useDirection_Cleaner,usePt_Cleaner,cleanBySharedHits; 
+  bool usePt_Cleaner; 
 };
 
 #endif

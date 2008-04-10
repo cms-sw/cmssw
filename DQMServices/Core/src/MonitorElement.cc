@@ -356,6 +356,7 @@ MonitorElement::runQTests(void)
 
   // Rerun quality tests where the ME or the quality algorithm was modified.
   bool dirty = wasUpdated();
+  nqerror_ = nqwarning_ = nqother_ = 0;
   for (size_t i = 0, e = data_.qreports.size(); i < e; ++i)
   {
     DQMNet::QValue &qv = data_.qreports[i];
@@ -374,10 +375,25 @@ MonitorElement::runQTests(void)
       if (oldStatus != qv.code || oldMessage != qv.message)
 	update();
     }
+
+    switch (qv.code)
+    {
+    case dqm::qstatus::STATUS_OK: break;
+    case dqm::qstatus::WARNING:   ++nqwarning_; break;
+    case dqm::qstatus::ERROR:     ++nqerror_; break;
+    default:                      ++nqother_; break;
+    }
   }
 
-  // Update QReport statistics.
-  updateQReportStats();
+  data_.flags &= ~(DQMNet::DQM_FLAG_REPORT_ERROR
+		   | DQMNet::DQM_FLAG_REPORT_WARNING
+		   | DQMNet::DQM_FLAG_REPORT_OTHER);
+  if (nqerror_)
+    data_.flags |= DQMNet::DQM_FLAG_REPORT_ERROR;
+  if (nqwarning_)
+    data_.flags |= DQMNet::DQM_FLAG_REPORT_WARNING;
+  if (nqother_)
+    data_.flags |= DQMNet::DQM_FLAG_REPORT_OTHER;
 }
 
 void
@@ -1072,30 +1088,9 @@ MonitorElement::addQReport(QCriterion *qc)
   update();
 }
 
-/// Refresh QReport stats, usually after MEs were read in from a file.
 void
-MonitorElement::updateQReportStats(void)
-{
-  nqerror_ = nqwarning_ = nqother_ = 0;
-  for (size_t i = 0, e = data_.qreports.size(); i < e; ++i)
-    switch (data_.qreports[i].code)
-    {
-    case dqm::qstatus::STATUS_OK: break;
-    case dqm::qstatus::WARNING:   ++nqwarning_; break;
-    case dqm::qstatus::ERROR:     ++nqerror_; break;
-    default:                      ++nqother_; break;
-    }
-
-  data_.flags &= ~(DQMNet::DQM_FLAG_REPORT_ERROR
-		   | DQMNet::DQM_FLAG_REPORT_WARNING
-		   | DQMNet::DQM_FLAG_REPORT_OTHER);
-  if (nqerror_)
-    data_.flags |= DQMNet::DQM_FLAG_REPORT_ERROR;
-  if (nqwarning_)
-    data_.flags |= DQMNet::DQM_FLAG_REPORT_WARNING;
-  if (nqother_)
-    data_.flags |= DQMNet::DQM_FLAG_REPORT_OTHER;
-}
+MonitorElement::clear(void)
+{}
 
 // -------------------------------------------------------------------
 TObject *

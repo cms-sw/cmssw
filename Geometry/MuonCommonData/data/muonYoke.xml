@@ -2034,7 +2034,7 @@ remove this end comment line to restore YE4 -->
   <rParent name="muonBase:MBWheel_1P"/> 
   <rChild name="YB1Chim_w1P_m3"/> 
   <rRotation name="rotations:000D"/>
-  <Translation x="4.805*m*cos(90.*deg)" y="4.805*m*sin(90.*deg)" z="-1.0729*m" />
+  <Translation x="4.805*m*cos(90.*deg)" y="4.805*m*sin(90.*deg)" z="-1.0639*m" />
  </PosPart> 
  <AlgoPosPart algo="global:angular"> 
   <rParent name="muonBase:MBWheel_1N"/> 
@@ -2898,7 +2898,7 @@ remove this end comment line to restore YE4 -->
   <rParent name="muonBase:MBWheel_1P"/> 
   <rChild name="YB2Chim_w1P_m3"/> 
   <rRotation name="rotations:000D"/>
-  <Translation x="5.66*m*cos(90.*deg)" y="5.66*m*sin(90.*deg)" z="-1.0729*m" />
+  <Translation x="5.66*m*cos(90.*deg)" y="5.66*m*sin(90.*deg)" z="-1.0739*m" />
  </PosPart> 
  <AlgoPosPart algo="global:angular"> 
   <rParent name="muonBase:MBWheel_1N"/> 

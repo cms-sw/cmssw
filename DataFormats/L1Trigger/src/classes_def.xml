@@ -46,9 +46,6 @@
   <class name="std::vector<l1extra::L1ParticleMap::L1ObjectType>"/>
   <class name="std::vector<std::vector<unsigned int> >"/>
 
-  <class name="GltDEDigi"/>
-  <class name="L1MonitorDigi"/>
-
   <class name="L1DataEmulDigi"/>
   <class name="std::vector<L1DataEmulDigi>"/>
   <class name="L1DataEmulRecord"/>

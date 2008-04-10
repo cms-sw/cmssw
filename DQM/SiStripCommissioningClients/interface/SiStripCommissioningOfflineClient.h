@@ -1,4 +1,4 @@
-// Last commit: $Id: SiStripCommissioningOfflineClient.h,v 1.10 2008/03/06 13:30:08 delaer Exp $
+// Last commit: $Id: SiStripCommissioningOfflineClient.h,v 1.9 2008/02/25 14:05:00 bainbrid Exp $
 
 #ifndef DQM_SiStripCommissioningClients_SiStripCommissioningOfflineClient_H
 #define DQM_SiStripCommissioningClients_SiStripCommissioningOfflineClient_H
@@ -41,7 +41,7 @@ class SiStripCommissioningOfflineClient : public edm::EDAnalyzer {
   
  protected:
 
-  virtual void createHistos( const edm::ParameterSet&, const edm::EventSetup& );
+  virtual void createHistos();
   virtual void uploadToConfigDb() {;}
   virtual void setInputFiles( std::vector<std::string>&, const std::string, uint32_t, bool );
   
@@ -94,9 +94,6 @@ class SiStripCommissioningOfflineClient : public edm::EDAnalyzer {
   
   /** SummaryPlot objects. */
   std::vector<SummaryPlot> plots_;
-
-  /** */
-  const edm::ParameterSet& parameters_;
   
 };
 

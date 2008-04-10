@@ -4,8 +4,8 @@
 
 /** \class Interprets the RPC record (16 bit) and fills the RPCDigiCollection
  *
- *  $Date: 2007/03/20 09:18:53 $
- *  $Revision: 1.14 $
+ *  $Date: 2007/01/04 21:29:03 $
+ *  $Revision: 1.13 $
  *  \author Ilaria Segoni - CERN
  */
 
@@ -27,7 +27,7 @@ public:
   std::vector<rpcrawtodigi::EventRecords> recordPack(
       uint32_t rawDetId, const RPCDigi & digi, int trigger_BX) const; 
 
-  int recordUnpack(const rpcrawtodigi::EventRecords & event, 
+  void recordUnpack(const rpcrawtodigi::EventRecords & event, 
                     std::auto_ptr<RPCDigiCollection> & prod);
 
 private:    

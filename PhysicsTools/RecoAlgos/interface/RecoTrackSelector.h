@@ -4,8 +4,8 @@
  *
  * \author Giuseppe Cerati, INFN
  *
- *  $Date: 2008/02/19 10:07:33 $
- *  $Revision: 1.6 $
+ *  $Date: 2008/02/19 09:12:29 $
+ *  $Revision: 1.5 $
  *
  */
 #include "DataFormats/TrackReco/interface/Track.h"
@@ -51,7 +51,7 @@ class RecoTrackSelector {
   /// Operator() performs the selection: e.g. if (recoTrackSelector(track)) {...}
   bool operator()( const reco::Track & t, const reco::BeamSpot* bs) {
     return
-      (t.hitPattern().trackerLayersWithMeasurement() >= minHit_ &&
+      (t.numberOfValidHits() >= minHit_ &&
        fabs(t.pt()) >= ptMin_ &&
        t.eta() >= minRapidity_ && t.eta() <= maxRapidity_ &&
        fabs(t.dxy(bs->position())) <= tip_ &&

@@ -1,4 +1,4 @@
-// $Id: SMProxyServer.cc,v 1.12 2008/03/03 20:38:11 biery Exp $
+// $Id: SMProxyServer.cc,v 1.11 2008/02/11 15:02:12 biery Exp $
 
 #include <iostream>
 #include <iomanip>
@@ -984,15 +984,7 @@ void SMProxyServer::headerdataWebPage(xgi::Input *in, xgi::Output *out)
 void SMProxyServer::consumerWebPage(xgi::Input *in, xgi::Output *out)
   throw (xgi::exception::Exception)
 {
-  // 04-Mar-2008, KAB - added the requirement that the DataProcessManager
-  // has registered with the SM event server.  This is to ensure that we
-  // have a copy of the stream-to-trigger-selection map before we accept
-  // any consumer registrations and try to translate a (proxy) consumer 
-  // stream-based selection request.  At some point, we should fix up the
-  // tests on whether the dpm_ shared pointer is valid (can we even get here
-  // without it being valid?)
-  if(dpm_.get() != NULL && dpm_->haveRegWithEventServer() &&
-     fsm_.stateName()->toString() == "Enabled")
+  if(fsm_.stateName()->toString() == "Enabled")
   { // what is the right place for this?
 
   std::string consumerName = "None provided";

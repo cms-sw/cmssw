@@ -1,8 +1,8 @@
 /*
  * \file L1TRCT.cc
  *
- * $Date: 2008/03/14 20:35:46 $
- * $Revision: 1.12 $
+ * $Date: 2008/01/22 18:56:02 $
+ * $Revision: 1.9 $
  * \author P. Wittich
  *
  */
@@ -50,6 +50,7 @@ L1TRCT::L1TRCT(const ParameterSet & ps) :
   if (verbose_)
     std::cout << "L1TRCT: constructor...." << std::endl;
 
+  logFile_.open("L1TRCT.log");
 
   dbe = NULL;
   if (ps.getUntrackedParameter < bool > ("DQMStore", false)) {
@@ -63,6 +64,9 @@ L1TRCT::L1TRCT(const ParameterSet & ps) :
     std::
 	cout << "L1T Monitoring histograms will be saved to " <<
 	outputFile_.c_str() << std::endl;
+  }
+  else {
+    outputFile_ = "L1TDQM.root";
   }
 
   bool disable =
@@ -172,7 +176,7 @@ void L1TRCT::endJob(void)
 {
   if (verbose_)
     std::cout << "L1TRCT: end job...." << std::endl;
-  LogInfo("EndJob") << "analyzed " << nev_ << " events";
+  LogInfo("L1TRCT") << "analyzed " << nev_ << " events";
 
   if (outputFile_.size() != 0 && dbe)
     dbe->save(outputFile_);
@@ -199,7 +203,7 @@ void L1TRCT::analyze(const Event & e, const EventSetup & c)
   e.getByLabel(rctSource_,rgn);
  
   if (!rgn.isValid()) {
-    edm::LogInfo("DataNotFound") << "can't find L1CaloRegionCollection with label "
+    edm::LogInfo("L1TRCT") << "can't find L1CaloRegionCollection with label "
 			       << rctSource_.label() ;
     doHd = false;
   }
@@ -232,7 +236,7 @@ void L1TRCT::analyze(const Event & e, const EventSetup & c)
   e.getByLabel(rctSource_,em);
   
   if (!em.isValid()) {
-    edm::LogInfo("DataNotFound") << "can't find L1CaloEmCollection with label "
+    edm::LogInfo("L1TRCT") << "can't find L1CaloEmCollection with label "
 			       << rctSource_.label() ;
     doEm = false;
   }

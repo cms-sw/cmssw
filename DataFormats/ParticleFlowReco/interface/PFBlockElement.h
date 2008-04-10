@@ -5,7 +5,6 @@
 #include "DataFormats/ParticleFlowReco/interface/PFNuclearInteraction.h"
 #include "DataFormats/ParticleFlowReco/interface/PFClusterFwd.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
-#include "DataFormats/MuonReco/interface/MuonFwd.h"
 
 
 #include <iostream>
@@ -33,13 +32,13 @@ namespace reco {
       PS1, 
       PS2, 
       ECAL, 
-      HCAL,
-      GSF,
-      BREM
+      HCAL 
     };
 
     enum TrackType {
       DEFAULT=0,
+      T_FROM_GSF,  
+      T_FROM_BREM, 
       T_FROM_NUCL,
       T_TO_NUCL,
       T_FROM_GAMMACONV,
@@ -74,11 +73,7 @@ namespace reco {
     Type type() const { return type_; }
 
     /// \return tracktype
-    virtual bool trackType(TrackType trType) const { return false; }
-
-    /// \set the trackType
-    virtual void setTrackType(TrackType trType, bool value) { 
-             std::cout << "Error in PFBlockElement::setTrackType : this base class method is not implemented" << std::endl;}
+    virtual TrackType trackType() const { return DEFAULT; }
 
     /// locked ? 
     bool    locked() const {return locked_;}
@@ -92,12 +87,7 @@ namespace reco {
     virtual reco::TrackRef trackRef()  const {return reco::TrackRef(); }
     virtual PFRecTrackRef trackRefPF()  const {return PFRecTrackRef(); }
     virtual PFClusterRef clusterRef() const {return PFClusterRef(); }
-    virtual NuclearInteractionRef nuclearRef() const { return NuclearInteractionRef(); }
-    virtual MuonRef muonRef() const { return MuonRef(); }
-    virtual void setNuclearRef(const NuclearInteractionRef& niref, TrackType trType) { 
-          std::cout << "Error in PFBlockElement::setNuclearRef : this base class method is not implemented" << std::endl;}
-    virtual void setMuonRef(const MuonRef& muref) { 
-          std::cout << "Error in PFBlockElement::setMuonRef : this base class method is not implemented" << std::endl;}
+    virtual PFNuclearInteractionRef nuclearRef() const { return PFNuclearInteractionRef(); }
 
     virtual bool isSecondary() const { return false; }
 

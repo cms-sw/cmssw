@@ -54,7 +54,6 @@ class RunIOV : public IIOV {
   RunTag m_runTag;
 
   int writeDB() throw(std::runtime_error);
-  int updateEndTimeDB() throw(std::runtime_error);
 
   void setByRun(RunTag* tag, run_t run) throw(std::runtime_error);
   void setByRun(std::string location, run_t run) throw(std::runtime_error);

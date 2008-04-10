@@ -18,11 +18,11 @@ Int_t TStorageFactoryFile::s_cacheDefaultCacheSize = kDefaultCacheSize;
 Int_t TStorageFactoryFile::s_cacheDefaultPageSize = kDefaultPageSize;
 
 static StorageAccount::Counter *s_statsSeek = 0;
+static StorageAccount::Counter *s_statsXSeek = 0;
 static StorageAccount::Counter *s_statsRead = 0;
 static StorageAccount::Counter *s_statsCRead = 0;
-static StorageAccount::Counter *s_statsARead = 0;
+static StorageAccount::Counter *s_statsURead = 0;
 static StorageAccount::Counter *s_statsXRead = 0;
-static StorageAccount::Counter *s_statsVRead = 0;
 static StorageAccount::Counter *s_statsWrite = 0;
 static StorageAccount::Counter *s_statsCWrite = 0;
 static StorageAccount::Counter *s_statsXWrite = 0;
@@ -52,7 +52,10 @@ TStorageFactoryFile::DefaultCaching (Int_t cacheSize /* = kDefaultCacheSize */,
 
 TStorageFactoryFile::TStorageFactoryFile (void)
   : m_storage (0),
-    m_offset (0)
+    m_offset (0),
+    m_recursiveRead (-1),
+    m_lazySeek (kFALSE),
+    m_lazySeekOffset (-1)
 {
   StorageAccount::Stamp stats (storageCounter (0, "construct"));
   stats.tick (0);
@@ -65,7 +68,10 @@ TStorageFactoryFile::TStorageFactoryFile (const char *path,
 					  Int_t compress /* = 1 */)
   : TFile (path, "NET", ftitle, compress), // Pass "NET" to prevent local access in base class
     m_storage (0),
-    m_offset (0)
+    m_offset (0),
+    m_recursiveRead (-1),
+    m_lazySeek (kFALSE),
+    m_lazySeekOffset (-1)
 {
   StorageAccount::Stamp stats (storageCounter (0, "construct"));
 
@@ -144,22 +150,28 @@ TStorageFactoryFile::~TStorageFactoryFile (void)
 //////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////
+Int_t
+TStorageFactoryFile::FlushLazySeek (void)
+{
+  if (! m_lazySeek)
+    return kFALSE;
+
+  StorageAccount::Stamp stats (storageCounter (&s_statsXSeek, "seekx"));
+  if (m_offset != m_lazySeekOffset)
+    m_offset = m_storage->position (m_lazySeekOffset, Storage::SET);
+
+  m_lazySeek = kFALSE;
+  m_lazySeekOffset = -1;
+  stats.tick ();
+  return kFALSE;
+}
+
+//////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////
 Bool_t
 TStorageFactoryFile::ReadBuffer (char *buf, Int_t len)
 {
-  // Check that it's valid to access this file.
-  if (IsZombie())
-  {
-    Error("ReadBuffer", "Cannot read from a zombie file");
-    return kTRUE;
-  }
-
-  if (! IsOpen())
-  {
-    Error("ReadBuffer", "Cannot read from a file that is not open");
-    return kTRUE;
-  }
-
   // Read specified byte range from the storage.  Returns kTRUE in
   // case of error.  Note that ROOT uses this function recursively
   // to fill the cache; we use a flag to make sure our accounting
@@ -168,191 +180,106 @@ TStorageFactoryFile::ReadBuffer (char *buf, Int_t len)
   // cache, "readu" indicates how much we failed to read from the
   // cache (excluding those recursive reads), and "readx" counts
   // the amount actually passed to read from the storage object.
-  StorageAccount::Stamp stats(storageCounter(&s_statsRead, "read"));
+  StorageAccount::Stamp stats (storageCounter (&s_statsRead, "read"));
 
-  // If we have a cache, read from there first.  This returns 0
-  // if the block hasn't been prefetched, 1 if it was in cache,
-  // and 2 if there was an error.
-  Int_t st = 0;
-  if (GetCacheRead())
+  // First flush any pending seek
+  if (FlushLazySeek ())
+    return kTRUE;
+
+  // Note that we are now reading.
+  Int_t wasReading = m_recursiveRead;
+  m_recursiveRead = len;
+
+  // If we have a cache, read from there first.  But if the request
+  // is larger than a page, ROOT's cache is dumb -- it just cycles
+  // through the data a page at a time.  So for large requests do
+  // bypass the cache and issue one big read.
+  if (wasReading < 0 && fCacheRead)
   {
-    StorageAccount::Stamp cstats(storageCounter(&s_statsCRead, "read-via-cache"));
-    if (false /* GetCacheRead()->IsAsyncReading() */
-	&& (st = ReadBufferViaCache(0, len)) == 1)
+    StorageAccount::Stamp cstats (storageCounter (&s_statsCRead, "readc"));
+    Long64_t off = m_offset;
+    Int_t st = fCacheRead->ReadBuffer (buf, off, len);
+
+    if (st < 0)
     {
-      m_offset -= len;
-      cstats.tick(len);
+      Error ("ReadBuffer", "error reading from cache");
+      m_recursiveRead = wasReading;
+      return kTRUE;
     }
-    else if ((st = ReadBufferViaCache(buf, len)) == 1)
+    else if (st > 0)
     {
-      cstats.tick(len);
-      stats.tick(len);
+      Seek (off + len); // fix m_offset if cache changed it
+      stats.tick (len);
+      cstats.tick (len);
+      m_recursiveRead = wasReading;
       return kFALSE;
     }
   }
 
-  // FIXME: Re-enable read-ahead if the data wasn't in cache.
-  // if (! st) m_storage->caching(true, -1, s_readahead);
-
   // A real read
-  StorageAccount::Stamp xstats(storageCounter(&s_statsXRead, "read-actual"));
-  IOSize n = m_storage->xread(buf, len);
-  m_offset += n;
-  xstats.tick(n);
-  stats.tick(n);
-  if (! n)
-    return kTRUE;
-  return kFALSE;
-}
+  StorageAccount::Stamp ustats (storageCounter (&s_statsURead, "readu"));
 
-Bool_t
-TStorageFactoryFile::ReadBufferAsync (Long64_t off, Int_t len)
-{
-  // Check that it's valid to access this file.
-  if (IsZombie())
+  Bool_t ret = TFile::ReadBuffer (buf, len);
+  if (ret == kFALSE)
   {
-    Error("ReadBufferAsync", "Cannot read from a zombie file");
-    return kTRUE;
+    // Successful, tick "read" if this is not recursive read,
+    // otherwise tick to "readu".  If this is a recursive read,
+    // ROOT doesn't necessarily ask for the data in one go, but
+    // a page at a time, so once we've accounted for "readu",
+    // zero out the amount.
+    if (wasReading < 0)
+    {
+      s_statsURead->attempts--;
+      stats.tick (len);
+    }
+    else
+    {
+      ustats.tick (wasReading);
+      wasReading = 0;
+    }
   }
 
-  if (! IsOpen())
-  {
-    Error("ReadBufferAsync", "Cannot read from a file that is not open");
-    return kTRUE;
-  }
-
-  StorageAccount::Stamp stats(storageCounter(&s_statsARead, "read-async"));
-
-  // Let the I/O method indicate if it can do client-side prefetch.
-  // If it does, then for example TTreeCache will drop its own cache
-  // and will use the client-side cache of the actual I/O layer.
-  // If len is zero ROOT is probing for prefetch support.
-  if (len)
-    // FIXME: Synchronise caching.
-    // m_storage->caching(true, -1, 0);
-    ;
-
-  IOPosBuffer iov(off, (void *) 0, len);
-  if (m_storage->prefetch(&iov, 1))
-  {
-    stats.tick(len);
-    return kFALSE;
-  }
-
-  // Prefetching not available right now.
-  return kTRUE;
-}
-
-Bool_t
-TStorageFactoryFile::ReadBuffers (char *buf, Long64_t *pos, Int_t *len, Int_t nbuf)
-{
-  // Check that it's valid to access this file.
-  if (IsZombie())
-  {
-    Error("ReadBuffers", "Cannot read from a zombie file");
-    return kTRUE;
-  }
-
-  if (! IsOpen())
-  {
-    Error("ReadBuffers", "Cannot read from a file that is not open");
-    return kTRUE;
-  }
-
-  // Read from underlying storage.
-  Int_t total = 0;
-  std::vector<IOPosBuffer> iov (nbuf);
-  iov.reserve (nbuf);
-  for (Int_t i = 0; i < nbuf; ++i)
-  {
-    iov.push_back (IOPosBuffer(pos[i], buf ? buf + total : 0, len[i]));
-    total += len[i];
-  }
-
-  // Null buffer means asynchronous reads into I/O system's cache.
-  bool success;
-  if (buf)
-  {
-    StorageAccount::Stamp stats(storageCounter(&s_statsRead, "read"));
-    StorageAccount::Stamp vstats(storageCounter(&s_statsVRead, "readv-actual"));
-    IOSize n = m_storage->readv(&iov[0], nbuf);
-    success = (n > 0); // FIXME: what if it's short!?
-    vstats.tick(n);
-    stats.tick(n);
-  }
-  else
-  {
-    StorageAccount::Stamp astats(storageCounter(&s_statsARead, "read-async"));
-    // Synchronise low-level cache with the supposed cache in TFile.
-    // m_storage->caching(true, -1, 0);
-    success = m_storage->prefetch(&iov[0], nbuf);
-    astats.tick(total);
-  }
-
-  // If it didn't suceeed, pass down to the base class.
-  return success ? kFALSE : TFile::ReadBuffers(buf, pos, len, nbuf);
+  m_recursiveRead = wasReading;
+  return ret;
 }
 
 Bool_t
 TStorageFactoryFile::WriteBuffer (const char *buf, Int_t len)
 {
-  // Check that it's valid to access this file.
-  if (IsZombie())
-  {
-    Error("WriteBuffer", "Cannot write to a zombie file");
-    return kTRUE;
-  }
-
-  if (! IsOpen())
-  {
-    Error("WriteBuffer", "Cannot write to a file that is not open");
-    return kTRUE;
-  }
-
-  if (! fWritable)
-  {
-    Error("WriteBuffer", "File is not writable");
-    return kTRUE;
-  }
-
+  // Write specified byte range to the storage.  Returns kTRUE in
+  // case of error.
   StorageAccount::Stamp stats (storageCounter (&s_statsWrite, "write"));
-  StorageAccount::Stamp cstats (storageCounter (&s_statsCWrite, "write-via-cache"));
 
-  // Try first writing via a cache, and if that's not possible, directly.
-  Int_t st;
-  switch ((st = WriteBufferViaCache(buf, len)))
-  {
-  case 0:
-    // Actual write.
-    {
-      StorageAccount::Stamp xstats(storageCounter(&s_statsXWrite, "write-actual"));
-      IOSize n = m_storage->xwrite(buf, len);
-      m_offset += n;
-      xstats.tick (n);
-      stats.tick (n);
-
-      // FIXME: What if it's a short write?
-      return n > 0 ? kFALSE : kTRUE;
-    }
-
-  case 1:
-    cstats.tick (len);
-    stats.tick (len);
-    return kFALSE;
-
-  case 2:
-  default:
-    Error ("WriteBuffer", "Error writing to cache");
+  if (! IsOpen () || !fWritable)
     return kTRUE;
-  }
-}
 
-//////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////
-// FIXME: Override GetBytesToPrefetch() so XROOTD can suggest how
-// large a prefetch cache to use.
-// FIXME: Asynchronous open support?
+  if (FlushLazySeek ())
+    return kTRUE;
+
+  if (fCacheWrite)
+  {
+    StorageAccount::Stamp cstats (storageCounter (&s_statsCWrite, "writec"));
+    Long64_t off = m_offset;
+    Int_t st = fCacheWrite->WriteBuffer (buf, off, len);
+
+    if (st < 0)
+    {
+      Error ("WriteBuffer", "error writing to cache");
+      return kTRUE;
+    }
+    if (st > 0)
+    {
+      Seek (off + len); // fix m_offset if cache changed it
+      stats.tick (len);
+      cstats.tick (len);
+      return kFALSE;
+    }
+  }
+
+  Bool_t ret = TFile::WriteBuffer (buf, len);
+  if (ret == kFALSE) stats.tick (len);
+  return ret;
+}
 
 //////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////
@@ -409,10 +336,47 @@ TStorageFactoryFile::SysClose (Int_t /* fd */)
   return 0;
 }
 
+Int_t
+TStorageFactoryFile::SysRead (Int_t /* fd */, void *buf, Int_t len)
+{
+  StorageAccount::Stamp stats (storageCounter (&s_statsXRead, "readx"));
+  IOSize n = m_storage->xread (buf, len);
+  m_offset += n;
+  stats.tick (n);
+  return n;
+}
+
+Int_t
+TStorageFactoryFile::SysWrite (Int_t /* fd */, const void *buf, Int_t len)
+{
+  StorageAccount::Stamp stats (storageCounter (&s_statsXWrite, "writex"));
+  IOSize n = m_storage->xwrite (buf, len);
+  m_offset += n;
+  stats.tick (n);
+  return n;
+}
+
 Long64_t
 TStorageFactoryFile::SysSeek (Int_t /* fd */, Long64_t offset, Int_t whence)
 {
   StorageAccount::Stamp stats (storageCounter (&s_statsSeek, "seek"));
+  if (whence == SEEK_SET && ! m_lazySeek && m_offset == offset)
+  {
+    stats.tick ();
+    return offset;
+  }
+
+  if (whence == SEEK_SET)
+  {
+    m_lazySeek = kTRUE;
+    m_lazySeekOffset = offset;
+    stats.tick ();
+    return offset;
+  }
+
+  if (FlushLazySeek ())
+    return -1;
+
   Storage::Relative rel = (whence == SEEK_SET ? Storage::SET
     	    	           : whence == SEEK_CUR ? Storage::CURRENT
     		           : Storage::END);

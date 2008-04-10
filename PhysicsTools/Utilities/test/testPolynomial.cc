@@ -19,12 +19,12 @@ void testPolynomial::checkAll() {
   double c[] = { 1, 2, 3, 4, 5 };
   double x = 10;
   const double epsilon = 1.e-5;
-  funct::Polynomial<0> poly0(c);
+  function::Polynomial<0> poly0(c);
   CPPUNIT_ASSERT(fabs(poly0(x) - c[0]) < epsilon);
-  funct::Polynomial<1> poly1(c);
+  function::Polynomial<1> poly1(c);
   CPPUNIT_ASSERT(fabs(poly1(x) - (c[0]+x*c[1])) < epsilon);
-  funct::Polynomial<2> poly2(c);
+  function::Polynomial<2> poly2(c);
   CPPUNIT_ASSERT(fabs(poly2(x) - (c[0]+x*c[1]+x*x*c[2])) < epsilon);
-  funct::Polynomial<3> poly3(c);
+  function::Polynomial<3> poly3(c);
   CPPUNIT_ASSERT(fabs(poly3(x) - (c[0]+x*c[1]+x*x*c[2]+x*x*x*c[3])) < epsilon);
 }

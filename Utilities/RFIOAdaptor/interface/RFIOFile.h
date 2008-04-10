@@ -32,11 +32,11 @@ public:
   using Storage::read;
   using Storage::write;
   using Storage::position;
-  using Storage::prefetch;
+  using Storage::preseek;
 
-  virtual bool		prefetch (const IOPosBuffer *what, IOSize n);
   virtual IOSize	read (void *into, IOSize n);
   virtual IOSize	write (const void *from, IOSize n);
+  virtual void		preseek (const IOBuffer *offsets, IOSize buffers);
   virtual IOOffset	position (IOOffset offset, Relative whence = SET);
   virtual void		resize (IOOffset size);
   virtual void		close (void);

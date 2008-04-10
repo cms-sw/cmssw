@@ -4,7 +4,7 @@
 #include <boost/shared_ptr.hpp>
 #include <cmath>
 
-namespace funct {
+namespace function {
   const double twoOverPi = 2./M_PI;
   
   struct BreitWigner {

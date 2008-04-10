@@ -1,5 +1,6 @@
 #!/usr/bin/env perl
-# $Id: updateStatus.pl,v 1.1 2007/01/29 13:33:22 klute Exp $
+# Created by Markus Klute on 2007 Jan 24.
+# $Id:$
 ################################################################################
 
 use strict;
@@ -48,12 +49,12 @@ elsif ($#ARGV ==  1)    { $FILENAME = "$ARGV[0]";
 else                    { &show_help(1);          }
 
 # Connect to DB
-my $dbi    = "DBI:Oracle:cms_rcms";
-my $reader = "CMS_STOMGR_W";
-my $dbh    = DBI->connect($dbi,$reader,"qwerty");
+my $dbi    = "DBI:Oracle:omds";
+my $reader = "cms_sto_mgr";
+my $dbh = DBI->connect($dbi,$reader,"qwerty");
 
 # Do the update
-my $SQLUPDATE = "UPDATE CMS_STOMGR.TIER0_INJECTION SET STATUS = '$STATUS' WHERE FILENAME = '$FILENAME'";
+my $SQLUPDATE = "UPDATE CMS_STO_MGR_ADMIN.RUN_FILES SET STATUS = '$STATUS' WHERE FILENAME = '$FILENAME'";
 my $sth = $dbh->do($SQLUPDATE);
 
 # Disconnect from DB

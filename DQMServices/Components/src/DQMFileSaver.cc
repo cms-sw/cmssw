@@ -1,8 +1,8 @@
 /*
  * \file DQMFileSaver.cc
  * 
- * $Date: 2008/03/28 15:53:14 $
- * $Revision: 1.12 $
+ * $Date: 2008/02/21 03:26:49 $
+ * $Revision: 1.8 $
  * $Author: lat $
  * \author A. Meyer, DESY
  *
@@ -16,11 +16,6 @@
 #include <stdio.h>
 #include <sstream>
 #include <math.h>
-
-#include "TString.h"
-#include "classlib/utils/StringOps.h"
-
-#include "DQMServices/Core/interface/MonitorElement.h"
 
 using namespace std;
 
@@ -62,23 +57,7 @@ void DQMFileSaver::initialize(){
   saveAtJobEnd_ = parameters_.getUntrackedParameter<bool>("saveAtJobEnd",false);
   (saveAtJobEnd_)? edm::LogVerbatim ("DQMFileSaver") << "===> save at Job end " << endl :
                    edm::LogVerbatim ("DQMFileSaver") << "===> NO save at Job end " << endl ; 
-
-  dataset_ = parameters_.getUntrackedParameter<std::string>("dataset", std::string());
-
-  saveAsValidation_ = parameters_.getUntrackedParameter<bool>("saveAsValidation",false);
-  (saveAsValidation_)? edm::LogVerbatim ("DQMFileSaver") << "===> save as validation job " << endl :
-                       edm::LogVerbatim ("DQMFileSaver") << "===> NO save as validation job " << endl ;
-
-  addDataset_ = parameters_.getUntrackedParameter<bool>("addDataset",false);
-  (addDataset_)? edm::LogVerbatim ("DQMFileSaver") << "===> add dataset directory " << endl :
-                 edm::LogVerbatim ("DQMFileSaver") << "===> NO add dataset directory " << endl ;
-
-  // Desable the run transition in case of validation
-  if (saveAsValidation_) {
-     saveAtRunEnd_ = false;
-     saveAtJobEnd_ = false;
-  }
- 
+  
   // Base filename for the contents of this job
   fileName_ = "DQM_"+parameters_.getUntrackedParameter<string>("fileName","YourSubsystemName");
   edm::LogVerbatim ("DQMFileSaver") << "===>DQM Output file name = " << fileName_ << endl;
@@ -193,11 +172,10 @@ void DQMFileSaver::endLuminosityBlock(const LuminosityBlock& lumiSeg, const Even
 void DQMFileSaver::endRun(const Run& r, const EventSetup& c){
    if (saveAtRunEnd_) {
      char run[10];
-     sprintf(run,"%09d", irun_ > 0 ? irun_ : 0);
+     if(irun_>0) sprintf(run,"%09d", irun_);
+     else sprintf(run,"%09d", 0);
      string outFile = dirName_+"/"+fileName_+"_R"+run+".root";
-
-     sprintf(run,"%d", irun_ > 0 ? irun_ : 0);
-     dbe_->save(outFile, "", "^([^/]+)", std::string("Run ") + run + "/\\1/Run summary");
+     dbe_->save(outFile,"",irun_);
    }
 }
 
@@ -206,21 +184,5 @@ void DQMFileSaver::endJob() {
    if (saveAtJobEnd_) {
      string outFile = dirName_+"/"+fileName_+".root";
      dbe_->save(outFile);
-   }
-   else if (saveAsValidation_)  {
-     // get the release tag 
-     dbe_->cd();
-     std::string release(dbe_->get("ReleaseTag")->getStringValue());
-     // define the file name
-     std::string outFile;
-     if (!dataset_.empty())
-       outFile = dirName_+"/DQM-"+release+"-"+dataset_+".root";
-     else
-       outFile = dirName_+"/DQM-"+release+".root";
-     // save by including or not the dataset directory 
-     if (addDataset_ && !dataset_.empty())
-       dbe_->save(outFile, "", "^([^/]+)", release+'/'+dataset_+"/\\1/");
-     else
-       dbe_->save(outFile, "", "^([^/]+)", release+"/\\1/");
-   }      
+   }   
 }

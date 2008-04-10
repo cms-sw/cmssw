@@ -2,63 +2,60 @@
 #define PhysicsTools_Utilities_Sum_h
 #include <boost/static_assert.hpp>
 
-namespace funct {
+namespace function {
   template<typename A, typename B, unsigned int args = A::arguments>
-  struct SumStruct { 
+  class Sum { 
+  public:
     BOOST_STATIC_ASSERT(A::arguments == B::arguments);
-    static const unsigned int arguments = args;
+  static const unsigned int arguments = args;
   };
 
   template<typename A, typename B>
-  struct SumStruct<A, B, 0> { 
+  class Sum<A, B, 0> { 
+  public:
     BOOST_STATIC_ASSERT(A::arguments == B::arguments);
     static const unsigned int arguments = 0;
-    SumStruct(const A & a, const B & b) : _1(a), _2(b) { }
+    Sum(const A & a, const B & b) : a_(a), b_(b) { }
     double operator()() const {
-      return _1() + _2();
+      return a_() + b_();
     }
-    operator double() const {
-      return _1() + _2();
-    }
-    A _1; 
-    B _2;
+  private:
+    A a_; 
+    B b_;
   };
 
   template<typename A, typename B>
-  struct SumStruct<A, B, 1> { 
+  class Sum<A, B, 1> { 
+  public:
     BOOST_STATIC_ASSERT(A::arguments == B::arguments);
     static const unsigned int arguments = 1;
-    SumStruct(const A & a, const B & b) : _1(a), _2(b) { }
+    Sum(const A & a, const B & b) : a_(a), b_(b) { }
     double operator()(double x) const {
-      return _1(x) + _2(x);
+      return a_(x) + b_(x);
     }
-    A _1; 
-    B _2;
+  private:
+    A a_; 
+    B b_;
   };
 
   template<typename A, typename B>
-  struct SumStruct<A, B, 2> { 
+  class Sum<A, B, 2> { 
+  public:
     BOOST_STATIC_ASSERT(A::arguments == B::arguments);
     static const unsigned int arguments = 2;
-    SumStruct(const A & a, const B & b) : _1(a), _2(b) { }
+    Sum(const A & a, const B & b) : a_(a), b_(b) { }
     double operator()(double x, double y) const {
-      return _1(x, y) + _2(x, y);
+      return a_(x, y) + b_(x, y);
     }
-    A _1; 
-    B _2;
+  private:
+    A a_; 
+    B b_;
   };
+}
 
-  template<typename A, typename B>
-  struct Sum {
-    typedef SumStruct<A, B> type;
-    static type combine(const A& a, const B& b) { return type(a, b); } 
-  }; 
-
-  template<typename A, typename B>
-  inline typename Sum<A, B>::type operator+(const A& a, const B& b) {
-    return Sum<A, B>::combine(a, b);
-  }
-
+template<typename A, typename B>
+function::Sum<A, B> operator+(const A& a, const B& b) {
+  return function::Sum<A, B>(a, b);
 }
 
 #endif

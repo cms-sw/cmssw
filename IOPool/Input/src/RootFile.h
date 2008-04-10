@@ -5,7 +5,7 @@
 
 RootFile.h // used by ROOT input sources
 
-$Id: RootFile.h,v 1.54 2008/03/20 09:39:06 lsexton Exp $
+$Id: RootFile.h,v 1.55 2008/04/01 23:12:39 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -51,6 +51,7 @@ namespace edm {
 	     unsigned int eventsToSkip,
 	     std::vector<LuminosityBlockID> const& whichLumisToSkip,
 	     int remainingEvents,
+	     unsigned int treeCacheSize,
 	     int forcedRunOffset,
 	     std::vector<EventID> const& whichEventsToProcess,
              bool dropMetaData);

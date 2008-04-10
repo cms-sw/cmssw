@@ -3,7 +3,7 @@
 #include "EventFilter/EcalRawToDigiDev/interface/DCCEEEventBlock.h"
 
 DCCDataUnpacker::DCCDataUnpacker( 
-  EcalElectronicsMapper * mapper, bool hU, bool srpU, bool tccU, bool feU , bool memU, bool syncCheck, bool feIdCheck
+  EcalElectronicsMapper * mapper, bool hU, bool srpU, bool tccU, bool feU , bool memU, bool syncCheck
 ){ 
   electronicsMapper_ = mapper;
   ebEventBlock_   = new DCCEBEventBlock(this,mapper,hU,srpU,tccU,feU,memU);
@@ -11,10 +11,6 @@ DCCDataUnpacker::DCCDataUnpacker(
   if(syncCheck){
     ebEventBlock_->enableSyncChecks();  
     eeEventBlock_->enableSyncChecks();
-  }
-  if(feIdCheck){
-    ebEventBlock_->enableFeIdChecks();  
-    eeEventBlock_->enableFeIdChecks();
   }
 }
 

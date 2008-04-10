@@ -29,8 +29,6 @@
 #include <TMath.h>
 #include <TApplication.h>
 
-using namespace std;
-
 //________________________________________________________________
 
 DisplayManager::DisplayManager(PFRootEventManager *em,

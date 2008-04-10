@@ -28,8 +28,10 @@ EgammaSCCorrectionMaker::EgammaSCCorrectionMaker(const edm::ParameterSet& ps)
   else                               verbosity_ = EgammaSCEnergyCorrectionAlgo::pERROR;
 
   // the input producers
-  rHInputProducer_ = ps.getParameter<edm::InputTag>("recHitProducer");
-  sCInputProducer_ = ps.getParameter<edm::InputTag>("rawSuperClusterProducer");
+  rHInputProducer_ = ps.getParameter<std::string>("recHitProducer");
+  rHInputCollection_ = ps.getParameter<std::string>("recHitCollection");	
+  sCInputProducer_ = ps.getParameter<std::string>("rawSuperClusterProducer");
+  sCInputCollection_ = ps.getParameter<std::string>("rawSuperClusterCollection");
   std::string sCAlgo_str = ps.getParameter<std::string>("superClusterAlgo");
 
   // determine which BasicCluster algo we are correcting for
@@ -84,33 +86,32 @@ EgammaSCCorrectionMaker::produce(edm::Event& evt, const edm::EventSetup& es)
   const CaloGeometry& geometry = *geoHandle;
   const CaloSubdetectorGeometry *geometry_p;
 
-  std::string rHInputCollection = rHInputProducer_.instance();
-  if(rHInputCollection == "EcalRecHitsEB") {
+  if(rHInputCollection_ == "EcalRecHitsEB") {
     geometry_p = geometry.getSubdetectorGeometry(DetId::Ecal, EcalBarrel);
-  } else if(rHInputCollection == "EcalRecHitsEE") {
+  } else if(rHInputCollection_ == "EcalRecHitsEE") {
     geometry_p = geometry.getSubdetectorGeometry(DetId::Ecal, EcalEndcap);
-  } else if(rHInputCollection == "EcalRecHitsPS") {
+  } else if(rHInputCollection_ == "EcalRecHitsPS") {
     geometry_p = geometry.getSubdetectorGeometry(DetId::Ecal, EcalPreshower);
   } else throw(std::runtime_error("\n\nSCCorrectionMaker encountered invalied ecalhitcollection type.\n\n"));
   
   // Get raw SuperClusters from the event    
   Handle<reco::SuperClusterCollection> pRawSuperClusters;
   try { 
-    evt.getByLabel(sCInputProducer_, pRawSuperClusters);
+    evt.getByLabel(sCInputProducer_, sCInputCollection_, pRawSuperClusters);
   } catch ( cms::Exception& ex ) {
     edm::LogError("EgammaSCCorrectionMakerError") 
       << "Error! can't get the rawSuperClusters " 
-      << sCInputProducer_.label() ;
+      << sCInputCollection_.c_str() ;
   }    
   
   // Get the RecHits from the event
   Handle<EcalRecHitCollection> pRecHits;
   try { 
-    evt.getByLabel(rHInputProducer_, pRecHits);
+    evt.getByLabel(rHInputProducer_, rHInputCollection_, pRecHits);
   } catch ( cms::Exception& ex ) {
     edm::LogError("EgammaSCCorrectionMakerError") 
       << "Error! can't get the RecHits " 
-      << rHInputProducer_.label();
+      << rHInputCollection_.c_str() ;
   }    
   
   // Create a pointer to the RecHits and raw SuperClusters

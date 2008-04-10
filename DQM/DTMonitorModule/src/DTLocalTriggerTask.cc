@@ -1,8 +1,8 @@
 /*
  * \file DTLocalTriggerTask.cc
  * 
- * $Date: 2008/03/01 00:39:54 $
- * $Revision: 1.20 $
+ * $Date: 2008/01/07 14:33:40 $
+ * $Revision: 1.19 $
  * \author M. Zanetti - INFN Padova
  *
 */
@@ -282,145 +282,137 @@ void DTLocalTriggerTask::runDCCAnalysis(const edm::Event& e, string& trigsrc){
   string histoType ;
   string histoTag ;
 
+  edm::Handle<L1MuDTChambPhContainer> l1dtlocalphi;
+  e.getByLabel(dcc_label, l1dtlocalphi);
+  vector<L1MuDTChambPhDigi>*  l1phitrig = l1dtlocalphi->getContainer();
+
   // define best quality trigger segment (phi and theta)  
   // in any station start from 1 and zero is kept empty
-  for (int i=0;i<5;++i){
-    for (int j=0;j<6;++j){
+  for (int i=0;i<5;++i)
+    for (int j=0;j<6;++j)
       for (int k=0;k<13;++k){
 	phcode_best[j][i][k] = -1;
 	thcode_best[j][i][k] = -1;
       }
+    
+  for(vector<L1MuDTChambPhDigi>::const_iterator i = l1phitrig->begin(); i != l1phitrig->end(); i++) {
+    int phwheel = i->whNum();
+    int phsec   = i->scNum() + 1; // SM The track finder goes from 0 to 11. I need them from 1 to 12 !!!!!
+    int phst    = i->stNum();
+    int phbx    = i->bxNum();
+    int phcode  = i->code();
+    int phi1st  = i->Ts2Tag();
+    int phphi   = i->phi();
+    int phphiB  = i->phiB();
+
+    correctMapping(phwheel,phsec);
+
+    if(phcode>phcode_best[phwheel+3][phst][phsec] && phcode<7) {
+      phcode_best[phwheel+3][phst][phsec]=phcode; 
+      iphbest[phwheel+3][phst][phsec] = &(*i);
     }
-  }
-
-  edm::Handle<L1MuDTChambPhContainer> l1dtlocalphi;
-  e.getByLabel(dcc_label, l1dtlocalphi);
-
-  if (l1dtlocalphi.isValid()) {    
-    vector<L1MuDTChambPhDigi>*  l1phitrig = l1dtlocalphi->getContainer();
-    
-    for(vector<L1MuDTChambPhDigi>::const_iterator i = l1phitrig->begin(); i != l1phitrig->end(); i++) {
-      int phwheel = i->whNum();
-      int phsec   = i->scNum() + 1; // SM The track finder goes from 0 to 11. I need them from 1 to 12 !!!!!
-      int phst    = i->stNum();
-      int phbx    = i->bxNum();
-      int phcode  = i->code();
-      int phi1st  = i->Ts2Tag();
-      int phphi   = i->phi();
-      int phphiB  = i->phiB();
-
-      correctMapping(phwheel,phsec);
-
-      if(phcode>phcode_best[phwheel+3][phst][phsec] && phcode<7) {
-	phcode_best[phwheel+3][phst][phsec]=phcode; 
-	iphbest[phwheel+3][phst][phsec] = &(*i);
-      }
       
-      DTChamberId dtChId(phwheel,phst,phsec);
+    DTChamberId dtChId(phwheel,phst,phsec);
       
-      float x     = phi2Pos(dtChId,phphi);
-      float angle = phib2Ang(dtChId,phphiB,phphi);
-      uint32_t indexCh = dtChId.rawId();
-      //uint32_t indexScWh = 5*(phsec-1) + (phwheel+3) ;    // wheel + sector identifier for specific histograms
+    float x     = phi2Pos(dtChId,phphi);
+    float angle = phib2Ang(dtChId,phphiB,phphi);
+    uint32_t indexCh = dtChId.rawId();
+    //uint32_t indexScWh = 5*(phsec-1) + (phwheel+3) ;    // wheel + sector identifier for specific histograms
     
-      string histoTag;
+    string histoTag;
     
-      // SM BX vs Quality Phi view (1st & 2nd tracks)
-      if (!phi1st){
-	histoTag = "DCC_BXvsQual1st"+ trigsrc;
-	if ((digiHistos[histoTag].find(indexCh) == digiHistos[histoTag].end()))
-	  bookHistos( dtChId, string("LocalTriggerPhi"), histoTag );
-	(digiHistos.find(histoTag)->second).find(indexCh)->second->Fill(phcode,phbx);
-      }
-      else {
-	string histoTag = "DCC_BXvsQual2nd"+ trigsrc;
-	if ((digiHistos[histoTag].find(indexCh) == digiHistos[histoTag].end()))
-	  bookHistos( dtChId, string("LocalTriggerPhi"), histoTag );
-	(digiHistos.find(histoTag)->second).find(indexCh)->second->Fill(phcode,phbx);
-    
-      }
-      // SM Quality vs radial angle Phi view
-      histoTag = "DCC_QualvsPhirad" + trigsrc;
+    // SM BX vs Quality Phi view (1st & 2nd tracks)
+    if (!phi1st){
+      histoTag = "DCC_BXvsQual1st"+ trigsrc;
       if ((digiHistos[histoTag].find(indexCh) == digiHistos[histoTag].end()))
 	bookHistos( dtChId, string("LocalTriggerPhi"), histoTag );
-      (digiHistos.find(histoTag)->second).find(indexCh)->second->Fill(x,phcode);
-      
-      // SM Quality vs bending Phi view
-      histoTag = "DCC_QualvsPhibend" + trigsrc;
+      (digiHistos.find(histoTag)->second).find(indexCh)->second->Fill(phcode,phbx);
+    }
+    else {
+      string histoTag = "DCC_BXvsQual2nd"+ trigsrc;
       if ((digiHistos[histoTag].find(indexCh) == digiHistos[histoTag].end()))
 	bookHistos( dtChId, string("LocalTriggerPhi"), histoTag );
-      (digiHistos.find(histoTag)->second).find(indexCh)->second->Fill(angle,phcode);
+      (digiHistos.find(histoTag)->second).find(indexCh)->second->Fill(phcode,phbx);
+    
+    }
+    // SM Quality vs radial angle Phi view
+    histoTag = "DCC_QualvsPhirad" + trigsrc;
+    if ((digiHistos[histoTag].find(indexCh) == digiHistos[histoTag].end()))
+      bookHistos( dtChId, string("LocalTriggerPhi"), histoTag );
+    (digiHistos.find(histoTag)->second).find(indexCh)->second->Fill(x,phcode);
       
-      // SM BX 1st trigger track segment, phi view
-      histoTag = "DCC_Flag1stvsBX" + trigsrc;
-      if ((digiHistos[histoTag].find(indexCh) == digiHistos[histoTag].end()))
-	bookHistos( dtChId, string("LocalTriggerPhi"), histoTag );
-      (digiHistos.find(histoTag)->second).find(indexCh)->second->Fill(phbx,phi1st);
+    // SM Quality vs bending Phi view
+    histoTag = "DCC_QualvsPhibend" + trigsrc;
+    if ((digiHistos[histoTag].find(indexCh) == digiHistos[histoTag].end()))
+      bookHistos( dtChId, string("LocalTriggerPhi"), histoTag );
+    (digiHistos.find(histoTag)->second).find(indexCh)->second->Fill(angle,phcode);
       
-      // SM Quality 1st trigger track segment, phi view
-      histoTag =  "DCC_Flag1stvsQual" + trigsrc;
-      if ((digiHistos[histoTag].find(indexCh) == digiHistos[histoTag].end()))
-	bookHistos( dtChId, string("LocalTriggerPhi"), histoTag );
-      (digiHistos.find(histoTag)->second).find(indexCh)->second->Fill(phcode,phi1st);
+    // SM BX 1st trigger track segment, phi view
+    histoTag = "DCC_Flag1stvsBX" + trigsrc;
+    if ((digiHistos[histoTag].find(indexCh) == digiHistos[histoTag].end()))
+      bookHistos( dtChId, string("LocalTriggerPhi"), histoTag );
+    (digiHistos.find(histoTag)->second).find(indexCh)->second->Fill(phbx,phi1st);
       
-    } 
-  }
-
+    // SM Quality 1st trigger track segment, phi view
+    histoTag =  "DCC_Flag1stvsQual" + trigsrc;
+    if ((digiHistos[histoTag].find(indexCh) == digiHistos[histoTag].end()))
+      bookHistos( dtChId, string("LocalTriggerPhi"), histoTag );
+    (digiHistos.find(histoTag)->second).find(indexCh)->second->Fill(phcode,phi1st);
+      
+  } 
+    
   edm::Handle<L1MuDTChambThContainer> l1dtlocalth;
   e.getByLabel(dcc_label, l1dtlocalth);
+  vector<L1MuDTChambThDigi>*  l1thetatrig = l1dtlocalth->getContainer();
+  int thcode[7];
 
-  if (l1dtlocalth.isValid()){
-    vector<L1MuDTChambThDigi>*  l1thetatrig = l1dtlocalth->getContainer();
-    int thcode[7];
-
-    for(vector<L1MuDTChambThDigi>::const_iterator j = l1thetatrig->begin(); j != l1thetatrig->end(); j++) {
-      int thwheel = j->whNum();
-      int thsec   = j->scNum() + 1; // SM The track finder goes from 0 to 11. I need them from 1 to 12 !!!!!
-      int thst    = j->stNum();
-      int thbx    = j->bxNum();
-      correctMapping(thwheel,thsec);
+  for(vector<L1MuDTChambThDigi>::const_iterator j = l1thetatrig->begin(); j != l1thetatrig->end(); j++) {
+    int thwheel = j->whNum();
+    int thsec   = j->scNum() + 1; // SM The track finder goes from 0 to 11. I need them from 1 to 12 !!!!!
+    int thst    = j->stNum();
+    int thbx    = j->bxNum();
+    correctMapping(thwheel,thsec);
       
-      for (int pos=0; pos<7; pos++) {
-	thcode[pos] = j->code(pos);
+    for (int pos=0; pos<7; pos++) {
+      thcode[pos] = j->code(pos);
 
-	if(thcode[pos]>thcode_best[thwheel+3][thst][thsec] ) {
-	  thcode_best[thwheel+3][thst][thsec]=thcode[pos]; 
-	  ithbest[thwheel+3][thst][thsec] = &(*j);
-	}
-      } 
+      if(thcode[pos]>thcode_best[thwheel+3][thst][thsec] ) {
+	thcode_best[thwheel+3][thst][thsec]=thcode[pos]; 
+	ithbest[thwheel+3][thst][thsec] = &(*j);
+      }
+    } 
       
-      DTChamberId dtChId(thwheel,thst,thsec);
-      uint32_t indexCh = dtChId.rawId();   
-      // uint32_t indexScWh = 5*(thsec-1) + (thwheel+3) ;    // wheel + sector identifier for specific histograms     
+    DTChamberId dtChId(thwheel,thst,thsec);
+    uint32_t indexCh = dtChId.rawId();   
+    // uint32_t indexScWh = 5*(thsec-1) + (thwheel+3) ;    // wheel + sector identifier for specific histograms     
 
-      // SM BX vs Position Theta view
-      histoTag = "DCC_PositionvsBX"+ trigsrc;
-      if ((digiHistos[histoTag].find(indexCh) == digiHistos[histoTag].end()))
-	bookHistos( dtChId, string("LocalTriggerTheta"), histoTag );
-      for (int pos=0; pos<7; pos++) //SM fill position for non zero position bit in theta view
-	if(thcode[pos]>0)
-	  (digiHistos.find(histoTag)->second).find(indexCh)->second->Fill(thbx,pos);
+    // SM BX vs Position Theta view
+    histoTag = "DCC_PositionvsBX"+ trigsrc;
+    if ((digiHistos[histoTag].find(indexCh) == digiHistos[histoTag].end()))
+      bookHistos( dtChId, string("LocalTriggerTheta"), histoTag );
+    for (int pos=0; pos<7; pos++) //SM fill position for non zero position bit in theta view
+      if(thcode[pos]>0)
+	(digiHistos.find(histoTag)->second).find(indexCh)->second->Fill(thbx,pos);
       
-      // SM Code vs Position Theta view
-      histoTag =  "DCC_PositionvsQual" + trigsrc;
-      if ((digiHistos[histoTag].find(indexCh) == digiHistos[histoTag].end()))
-	bookHistos( dtChId, string("LocalTriggerTheta"), histoTag );
-      for (int pos=0; pos<7; pos++) //SM fill position for non zero position bit in theta view
-	if(thcode[pos]>0){
-	  int thqual = (thcode[pos]/2)*2+1;
-	  (digiHistos.find(histoTag)->second).find(indexCh)->second->Fill(thqual,pos);
-	}
+    // SM Code vs Position Theta view
+    histoTag =  "DCC_PositionvsQual" + trigsrc;
+    if ((digiHistos[histoTag].find(indexCh) == digiHistos[histoTag].end()))
+      bookHistos( dtChId, string("LocalTriggerTheta"), histoTag );
+    for (int pos=0; pos<7; pos++) //SM fill position for non zero position bit in theta view
+      if(thcode[pos]>0){
+	int thqual = (thcode[pos]/2)*2+1;
+	(digiHistos.find(histoTag)->second).find(indexCh)->second->Fill(thqual,pos);
+      }
 
-      // SM BX vs Code Theta view
-      histoTag =  "DCC_ThetaBXvsQual" + trigsrc;
-      if ((digiHistos[histoTag].find(indexCh) == digiHistos[histoTag].end()))
-	bookHistos( dtChId, string("LocalTriggerTheta"), histoTag );
-      for (int pos=0; pos<7; pos++) //SM fill position for non zero position bit in theta view
-	if(thcode[pos]>0){
-	  int thqual = (thcode[pos]/2)*2+1;
-	  (digiHistos.find(histoTag)->second).find(indexCh)->second->Fill(thqual,thbx);
-	}
-    }
+    // SM BX vs Code Theta view
+    histoTag =  "DCC_ThetaBXvsQual" + trigsrc;
+    if ((digiHistos[histoTag].find(indexCh) == digiHistos[histoTag].end()))
+      bookHistos( dtChId, string("LocalTriggerTheta"), histoTag );
+    for (int pos=0; pos<7; pos++) //SM fill position for non zero position bit in theta view
+      if(thcode[pos]>0){
+	int thqual = (thcode[pos]/2)*2+1;
+	(digiHistos.find(histoTag)->second).find(indexCh)->second->Fill(thqual,thbx);
+      }
   }
   
   // Fill Quality plots with best DCC triggers in phi & theta

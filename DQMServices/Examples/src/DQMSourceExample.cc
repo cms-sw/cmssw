@@ -2,9 +2,9 @@
  * \file DQMSourceExample.cc
  * \author C.Leonidopoulos
  * Last Update:
- * $Date: 2008/02/22 23:52:29 $
- * $Revision: 1.14 $
- * $Author: lat $
+ * $Date: 2008/02/03 10:49:37 $
+ * $Revision: 1.13 $
+ * $Author: ameyer $
  *
  * Description: Simple example showing how to create a DQM Source creating and filling
  * monitoring elements
@@ -108,11 +108,8 @@ counterEvt_(0)
   h5->setResetMe(true);
   h6->setResetMe(true);
   dbe_->showDirStructure();
-  std::vector<std::string> tags;
-  dbe_->getAllTags(tags);
-  for (size_t i = 0, e = tags.size(); i < e; ++i)
-    std::cout << "TAGS [" << i << "] = " << tags[i] << std::endl;
-
+  
+  
 /// test referenceME methods
 //  cout << (dbe_->makeReferenceME(h1)?1:0) << endl;
 //  MonitorElement* rh1 = dbe_->getReferenceME(h1);

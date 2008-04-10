@@ -5,7 +5,5 @@
 #include "DQMServices/Examples/interface/DQMClientExample.h"
 DEFINE_FWK_MODULE(DQMClientExample);
 DEFINE_ANOTHER_FWK_MODULE(DQMSourceExample);
-#include <DQMServices/Examples/interface/ConverterTester.h>
-DEFINE_ANOTHER_FWK_MODULE(ConverterTester);
 
 

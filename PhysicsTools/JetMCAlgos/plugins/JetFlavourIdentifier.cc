@@ -107,7 +107,7 @@ void JetFlavourIdentifier::produce( Event& iEvent, const EventSetup& iEs )
     int                     thePartonFlavour = 0;  
 
     if( physDefinition ) {
-      const GenParticleRef aPartPhy = aMatch.physicsDefinitionParton() ;
+      const CandidateRef aPartPhy = aMatch.physicsDefinitionParton() ;
       if(aPartPhy.isNonnull()) {  
         thePartonLorentzVector = aPartPhy.get()->p4();         
         thePartonVertex        = aPartPhy.get()->vertex();
@@ -115,7 +115,7 @@ void JetFlavourIdentifier::produce( Event& iEvent, const EventSetup& iEs )
       }
     }
     if( !physDefinition ) {
-      const GenParticleRef aPartAlg = aMatch.algoDefinitionParton() ;
+      const CandidateRef aPartAlg = aMatch.algoDefinitionParton() ;
       if(aPartAlg.isNonnull()) {
         thePartonLorentzVector = aPartAlg.get()->p4();
         thePartonVertex        = aPartAlg.get()->vertex();

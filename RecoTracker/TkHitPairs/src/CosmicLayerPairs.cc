@@ -131,21 +131,10 @@ std::vector<SeedLayerPairs::LayerPair> CosmicLayerPairs::operator()()
     result.push_back( SeedLayerPairs::LayerPair(&MTCCLayerWithHits[1],&MTCCLayerWithHits[1]));	
   } 
   else if (_geometry=="CRACK"){
-    //TODO: clean all this. Now this is a random choice of layers
     result.push_back( SeedLayerPairs::LayerPair(&CRACKLayerWithHits[1],&CRACKLayerWithHits[0]));
-    result.push_back( SeedLayerPairs::LayerPair(&CRACKLayerWithHits[2],&CRACKLayerWithHits[0]));
-    result.push_back( SeedLayerPairs::LayerPair(&CRACKLayerWithHits[2],&CRACKLayerWithHits[1]));
-    result.push_back( SeedLayerPairs::LayerPair(&CRACKLayerWithHits[3],&CRACKLayerWithHits[2]));
-    result.push_back( SeedLayerPairs::LayerPair(&CRACKLayerWithHits[5],&CRACKLayerWithHits[4]));
-    result.push_back( SeedLayerPairs::LayerPair(&CRACKLayerWithHits[6],&CRACKLayerWithHits[4]));
-    result.push_back( SeedLayerPairs::LayerPair(&CRACKLayerWithHits[6],&CRACKLayerWithHits[5]));
-    result.push_back( SeedLayerPairs::LayerPair(&CRACKLayerWithHits[7],&CRACKLayerWithHits[6]));
-    result.push_back( SeedLayerPairs::LayerPair(&CRACKLayerWithHits[8],&CRACKLayerWithHits[5]));
-    result.push_back( SeedLayerPairs::LayerPair(&CRACKLayerWithHits[9],&CRACKLayerWithHits[5]));
-    result.push_back( SeedLayerPairs::LayerPair(&CRACKLayerWithHits[10],&CRACKLayerWithHits[5]));
-    result.push_back( SeedLayerPairs::LayerPair(&CRACKLayerWithHits[11],&CRACKLayerWithHits[5]));
-    result.push_back( SeedLayerPairs::LayerPair(&CRACKLayerWithHits[12],&CRACKLayerWithHits[5]));
-    result.push_back( SeedLayerPairs::LayerPair(&CRACKLayerWithHits[13],&CRACKLayerWithHits[5]));
+    //     result.push_back( SeedLayerPairs::LayerPair(&CRACKLayerWithHits[2],&CRACKLayerWithHits[0]));
+    //     result.push_back( SeedLayerPairs::LayerPair(&CRACKLayerWithHits[2],&CRACKLayerWithHits[1]));
+    
   } 
   else if (_geometry=="TIBD+"){
     result.push_back( SeedLayerPairs::LayerPair(&TIBLayerWithHits[1],&TIBLayerWithHits[0]));
@@ -280,20 +269,9 @@ void CosmicLayerPairs::init(const SiStripRecHit2DCollection &collstereo,
 	return;
     }
     if (_geometry=="CRACK"){
-        CRACKLayerWithHits.push_back(new LayerWithHits(bl[6], selectTOBHit(collmatched, 7)));
-        CRACKLayerWithHits.push_back(new LayerWithHits(bl[5], selectTOBHit(collmatched, 6)));
-        CRACKLayerWithHits.push_back(new LayerWithHits(bl[3], selectTOBHit(collmatched, 4)));
-        CRACKLayerWithHits.push_back(new LayerWithHits(bl[2], selectTOBHit(collmatched, 3)));
-        CRACKLayerWithHits.push_back(new LayerWithHits(bl[6], selectTOBHit(collrphi, 7)));
-        CRACKLayerWithHits.push_back(new LayerWithHits(bl[5], selectTOBHit(collrphi, 6)));
-        CRACKLayerWithHits.push_back(new LayerWithHits(bl[3], selectTOBHit(collrphi, 4)));
-        CRACKLayerWithHits.push_back(new LayerWithHits(bl[2], selectTOBHit(collrphi, 3)));
-        CRACKLayerWithHits.push_back(new LayerWithHits(bl[4], selectTOBHit(collrphi, 5)));
-        CRACKLayerWithHits.push_back(new LayerWithHits(bl[1], selectTOBHit(collrphi, 2)));
-        CRACKLayerWithHits.push_back(new LayerWithHits(bl[0], selectTOBHit(collrphi, 1)));
-        CRACKLayerWithHits.push_back(new LayerWithHits(bl[4], selectTOBHit(collmatched, 5)));
-        CRACKLayerWithHits.push_back(new LayerWithHits(bl[1], selectTOBHit(collmatched, 2)));
-        CRACKLayerWithHits.push_back(new LayerWithHits(bl[0], selectTOBHit(collmatched, 1)));
+	CRACKLayerWithHits.push_back(new LayerWithHits(bl[6], selectTOBHit(collmatched, 7)));
+	CRACKLayerWithHits.push_back(new LayerWithHits(bl[5], selectTOBHit(collrphi, 6)));
+	CRACKLayerWithHits.push_back(new LayerWithHits(bl[3], selectTOBHit(collmatched, 4)));
 	return;
     }	
     	

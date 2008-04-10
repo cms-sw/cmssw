@@ -116,8 +116,8 @@ DCacheFile::open (const char *name,
   if ((newfd = dc_open (name, openflags, perms)) == -1)
     throw cms::Exception("DCacheFile::open()")
       << "dc_open(name='" << name
-      << "', flags=0x" << std::hex << openflags
-      << ", permissions=0" << std::oct << perms << std::dec
+      << "', flags=" << openflags
+      << ", permissions=" << perms
       << ") => error '" << dc_strerror(dc_errno)
       << "' (dc_errno=" << dc_errno << ")";
 

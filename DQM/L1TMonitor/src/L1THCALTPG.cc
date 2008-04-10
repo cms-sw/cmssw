@@ -1,26 +1,11 @@
 /*
  * \file L1THCALTPG.cc
  *
- * $Date: 2008/03/14 20:35:46 $
- * $Revision: 1.11 $
+ * $Date: 2007/12/21 17:41:21 $
+ * $Revision: 1.8 $
  * \author J. Berryhill
  *
  * $Log: L1THCALTPG.cc,v $
- * Revision 1.11  2008/03/14 20:35:46  berryhil
- *
- *
- * stripped out obsolete parameter settings
- *
- * rpc tpg restored with correct dn access and dbe handling
- *
- * Revision 1.10  2008/03/12 17:24:24  berryhil
- *
- *
- * eliminated log files, truncated HCALTPGXana histo output
- *
- * Revision 1.9  2008/03/01 00:40:00  lat
- * DQM core migration.
- *
  * Revision 1.8  2007/12/21 17:41:21  berryhil
  *
  *
@@ -84,6 +69,7 @@ L1THCALTPG::L1THCALTPG(const ParameterSet& ps)
 
   if(verbose_) std::cout << "L1THCALTPG: constructor...." << std::endl;
 
+  logFile_.open("L1THCALTPG.log");
 
   dbe = NULL;
   if ( ps.getUntrackedParameter<bool>("DQMStore", false) ) 
@@ -95,6 +81,9 @@ L1THCALTPG::L1THCALTPG(const ParameterSet& ps)
   outputFile_ = ps.getUntrackedParameter<std::string>("outputFile", "");
   if ( outputFile_.size() != 0 ) {
     std::cout << "L1T Monitoring histograms will be saved to " << outputFile_.c_str() << std::endl;
+  }
+  else{
+    outputFile_ = "L1TDQM.root";
   }
 
   bool disable = ps.getUntrackedParameter<bool>("disableROOToutput", false);
@@ -148,7 +137,7 @@ void L1THCALTPG::beginJob(const EventSetup& c)
 void L1THCALTPG::endJob(void)
 {
   if(verbose_) std::cout << "L1THCALTPG: end job...." << std::endl;
-  LogInfo("EndJob") << "analyzed " << nev_ << " events"; 
+  LogInfo("L1THCALTPG") << "analyzed " << nev_ << " events"; 
 
  if ( outputFile_.size() != 0  && dbe ) dbe->save(outputFile_);
 
@@ -164,7 +153,7 @@ void L1THCALTPG::analyze(const Event& e, const EventSetup& c)
   e.getByLabel(hcaltpgSource_, hcalTpgs);
   
   if (!hcalTpgs.isValid()) {
-    edm::LogInfo("DataNotFound") << "can't find HCAL TPG's with label "
+    edm::LogInfo("L1THCALTPG") << "can't find HCAL TPG's with label "
 			       << hcaltpgSource_.label() ;
     return;
   }

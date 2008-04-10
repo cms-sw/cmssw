@@ -7,5 +7,7 @@
 using cms::SiStripHistoricPlot;
 
 DEFINE_SEAL_MODULE();
-DEFINE_FWK_MODULE(HistoricOfflineClient);
-DEFINE_FWK_MODULE(SiStripHistoricPlot);
+DEFINE_ANOTHER_FWK_MODULE(HistoricOfflineClient);
+DEFINE_ANOTHER_FWK_MODULE(CopyPerformanceSummary);
+DEFINE_ANOTHER_FWK_MODULE(SiStripHistoricPlot);
+

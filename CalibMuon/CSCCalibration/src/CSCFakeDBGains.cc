@@ -5,28 +5,39 @@
 
 CSCFakeDBGains::CSCFakeDBGains(const edm::ParameterSet& iConfig)
 {
-  cndbGains = boost::shared_ptr<CSCDBGains>( prefillDBGains() );
-
-  // the following line is needed to tell the framework what
+  //the following line is needed to tell the framework what
   // data is being produced
-  setWhatProduced(this, &CSCFakeDBGains::produceDBGains);
+  cndbGains = prefillDBGains();
+  setWhatProduced(this,&CSCFakeDBGains::produceDBGains);
   findingRecord<CSCDBGainsRcd>();
 }
 
 
 CSCFakeDBGains::~CSCFakeDBGains()
 {
+   // do anything here that needs to be done at desctruction time
+   // (e.g. close files, deallocate resources etc.)
+  delete cndbGains;
 }
 
+
+//
+// member functions
+//
+
 // ------------ method called to produce the data  ------------
-CSCFakeDBGains::Pointer
+CSCFakeDBGains::ReturnType
 CSCFakeDBGains::produceDBGains(const CSCDBGainsRcd& iRecord)
 {
-  return cndbGains;
+  //need a new object so to not be deleted at exit
+  CSCDBGains* mydata=new CSCDBGains( *cndbGains );
+  return mydata;
+
 }
 
  void CSCFakeDBGains::setIntervalFor(const edm::eventsetup::EventSetupRecordKey &, const edm::IOVSyncValue&,
  edm::ValidityInterval & oValidity)
  {
-    oValidity = edm::ValidityInterval(edm::IOVSyncValue::beginOfTime(),edm::IOVSyncValue::endOfTime());
+ oValidity = edm::ValidityInterval(edm::IOVSyncValue::beginOfTime(),edm::IOVSyncValue::endOfTime());
+ 
  }

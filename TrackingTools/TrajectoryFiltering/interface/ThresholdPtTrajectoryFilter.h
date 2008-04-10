@@ -38,17 +38,17 @@ public:
 
   bool test( const TrajectoryMeasurement & tm, int foundHits) const 
   {
+    static bool answerMemory=false;
+
     //first check min number of hits 
-    if (foundHits < theMinHits ){ return true;}
+    if (foundHits < theMinHits ){answerMemory=true; return true;}
 
     // check for momentum below limit
     const FreeTrajectoryState& fts = *tm.updatedState().freeTrajectoryState();
 
     //avoid doing twice the check in TBC and QF
-    static bool answerMemory=false;
     static FreeTrajectoryState ftsMemory;
-    if (ftsMemory.parameters().vector() == fts.parameters().vector()) { return answerMemory;}
-    ftsMemory=fts;
+    if (ftsMemory.parameters().vector() == fts.parameters().vector()) {ftsMemory=fts; return answerMemory;}
 
     //if p_T is way too small: stop
     double pT = fts.momentum().perp();

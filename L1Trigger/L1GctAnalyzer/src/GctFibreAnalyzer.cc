@@ -11,7 +11,7 @@ Description: Analyzer individual fibre channels from the source card.
 //
 // Original Author:  Alex Tapper
 //         Created:  Thu Jul 12 14:21:06 CEST 2007
-// $Id: GctFibreAnalyzer.cc,v 1.5 2008/04/02 08:33:54 tapper Exp $
+// $Id: GctFibreAnalyzer.cc,v 1.3 2007/07/24 10:50:38 tapper Exp $
 //
 //
 
@@ -110,22 +110,22 @@ void GctFibreAnalyzer::CheckLogicalID(const L1GctFibreWord fibre)
 
   switch (fibre.block()){
     
-  case 0x884:
+  case 0x89:
     concRctCrate = fibre.index()/3;
     concFibreNumber = 1+(fibre.index()%3);
     break;
 
-  case 0x804:
+  case 0x81:
     concRctCrate = 4+(fibre.index()/3);
     concFibreNumber = 1+(fibre.index()%3);
     break;
       
-  case 0xc84:
+  case 0xc9:
     concRctCrate = 9+(fibre.index()/3);
     concFibreNumber = 1+(fibre.index()%3);
     break;
       
-  case 0xc04:
+  case 0xc1:
     concRctCrate = 13+(fibre.index()/3);
     concFibreNumber = 1+(fibre.index()%3);
     break;
@@ -166,8 +166,8 @@ void GctFibreAnalyzer::CheckCounter(const L1GctFibreWord fibre)
   // Remove MSB from both cycles
   int cycle0Data, cycle1Data;
   
-  cycle0Data = fibre.data() & 0x7FFF;
-  cycle1Data = (fibre.data() >> 16) & 0x7FFF;
+  cycle0Data = fibre.data() & 0x20007FFF;
+  cycle1Data = (fibre.data() >> 16) & 0x20007FFF;
 
   // Check to see if fibre numbers are consistent
   if ((cycle0Data+1)!=cycle1Data){

@@ -1,5 +1,5 @@
 //
-// $Id: EgammaSCEnergyCorrectionAlgo.cc,v 1.26 2008/04/08 15:58:30 kkaadze Exp $
+// $Id: EgammaSCEnergyCorrectionAlgo.cc,v 1.15 2008/03/04 08:40:08 arizzi Exp $
 // Author: David Evans, Bristol
 //
 #include "RecoEcal/EgammaClusterAlgos/interface/EgammaSCEnergyCorrectionAlgo.h"
@@ -119,8 +119,8 @@ reco::SuperCluster EgammaSCEnergyCorrectionAlgo::applyCorrection(const reco::Sup
   //or apply new Enegry SCale correction
   float newEnergy = 0;
   
-  if ( theAlgo == reco::hybrid || theAlgo == reco::dynamicHybrid ) {
-    // first apply shower lekeage corrections
+  if ( theAlgo == reco::hybrid || theAlgo == reco::dynamicHybrid) {
+    // first apply Zhang's eta corrections
     newEnergy = fEta(cl.energy(), cl.eta());
     // now apply F(brem)
     newEnergy = fBrem(newEnergy, phiWidth/etaWidth);
@@ -128,12 +128,7 @@ reco::SuperCluster EgammaSCEnergyCorrectionAlgo::applyCorrection(const reco::Sup
     double eT = newEnergy/cosh(cl.eta());
     eT = fEtEta(eT, cl.eta());
     newEnergy = eT*cosh(cl.eta());
-  } else if  ( theAlgo == reco::fixedMatrix ) {     
-    newEnergy = fBrem(cl.energy(), phiWidth/etaWidth);
-    double eT = newEnergy/cosh(cl.eta());
-    eT = fEtEta(eT, cl.eta());
-    newEnergy = eT*cosh(cl.eta());
-  } else {  
+  } else {     
     //Apply f(nCry) correction on island algo and fixedMatrix algo 
     newEnergy = seedC->energy()/fNCrystals(nCryGT2Sigma, theAlgo, theBase)+bremsEnergy;
   } 
@@ -177,10 +172,7 @@ double EgammaSCEnergyCorrectionAlgo::fBrem(double e, double brLinear)
     
   //Make No Corrections if brLinear is invalid!
   if ( brLinear == 0 ) return e;
-
-  //Make flat corection if brLinear is too small or big 
-  if ( brLinear < 0.7 ) brLinear = 0.7;  
-
+  //Make flat corection if brLinear is too big ( >12)
   if ( brLinear > brLinearThr_ ) brLinear = brLinearThr_;  
 
   //Parameters provided in cfg file
@@ -214,16 +206,11 @@ double EgammaSCEnergyCorrectionAlgo::fEtEta(double et, double eta)
 
   double fCorr = 0.;
   
-  double p0 = fEtEta_[0] + fEtEta_[1]/(et + fEtEta_[2]) + fEtEta_[3]/(et*et);
-  double p1 = fEtEta_[4]/(et + fEtEta_[5]) + fEtEta_[6]/(et*et);
+  double p0 = fEtEta_[0] + fEtEta_[1]/et + fEtEta_[2]/(et*et);
+  double p1 = fEtEta_[3]/(et + fEtEta_[4]) + fEtEta_[5]/(et*et);
 
-  fCorr = p0 
-    + fEtEta_[11] * p1*atan(fEtEta_[7]*(fEtEta_[8]-fabs(eta))) 
-    + fEtEta_[9] * fabs(eta)
-    + fEtEta_[12] * p1*(fabs(eta) - fEtEta_[10])*(fabs(eta) - fEtEta_[10]); 
- 
-  if ( fCorr < 0.5 ) fCorr = 0.5;
-
+  fCorr = p0 + p1*atan(fEtEta_[7]*(fEtEta_[6]-fabs(eta)));
+  
   return et/fCorr;
 }
 

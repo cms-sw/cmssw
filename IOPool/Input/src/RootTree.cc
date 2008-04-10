@@ -5,6 +5,7 @@
 #include "DataFormats/Provenance/interface/BranchKey.h"
 #include "DataFormats/Provenance/interface/BranchDescription.h"
 #include "DataFormats/Provenance/interface/ConstBranchDescription.h"
+#include "Rtypes.h"
 #include "TTree.h"
 #include "TFile.h"
 #include "TVirtualIndex.h"
@@ -110,5 +111,10 @@ namespace edm {
   RootTree::makeDelayedReader(FileFormatVersion const& fileFormatVersion) const {
     boost::shared_ptr<DelayedReader> store(new RootDelayedReader(entryNumber_, branches_, filePtr_, fileFormatVersion));
     return store;
+  }
+
+  void
+  RootTree::setCacheSize(unsigned int cacheSize) const {
+    tree_->SetCacheSize(static_cast<Long64_t>(cacheSize));
   }
 }

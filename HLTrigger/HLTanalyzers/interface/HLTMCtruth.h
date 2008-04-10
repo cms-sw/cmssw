@@ -41,7 +41,7 @@ private:
   // Tree variables
   float *mcvx, *mcvy, *mcvz, *mcpt, *mceta, *mcphi;
   int *mcpid;
-  int nmcpart,nmu3,nel1,nab,nbb;
+  int nmcpart,nmu3,nab,nbb;
   float pthatf;
   // input variables
   bool _Monte,_Debug;

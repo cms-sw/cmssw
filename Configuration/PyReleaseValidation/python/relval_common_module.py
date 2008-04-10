@@ -168,9 +168,9 @@ def event_output(process, outfile_name, step, evt_filter=None):
     process.extend(content)
     process.out_step = cms.OutputModule\
                    ("PoolOutputModule",
-                    outputCommands=content.RECOEventContent.outputCommands,
+#                    outputCommands=content.RECOEventContent.outputCommands,
 #                    outputCommands=content.FEVTSIMEventContent.outputCommands,
-#                    outputCommands=content.FEVTSIMDIGIEventContent.outputCommands,
+                    outputCommands=content.FEVTSIMDIGIEventContent.outputCommands,
                     fileName = cms.untracked.string(outfile_name),
                     dataset = cms.untracked.PSet(dataTier =cms.untracked.string(step))
                    ) 
@@ -248,7 +248,7 @@ def build_production_info(evt_type, energy, evtnumber):
     func_id=mod_id+"["+sys._getframe().f_code.co_name+"]"
     
     prod_info=cms.untracked.PSet\
-              (version=cms.untracked.string("$Revision: 1.5 $"),
+              (version=cms.untracked.string("$Revision: 1.6 $"),
                name=cms.untracked.string("PyReleaseValidation"),
                annotation=cms.untracked.string(evt_type+" energy:"+str(energy)+" nevts:"+str(evtnumber))
               )

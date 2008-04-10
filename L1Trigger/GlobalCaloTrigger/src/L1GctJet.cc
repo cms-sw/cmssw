@@ -5,15 +5,13 @@
 
 
 
-L1GctJet::L1GctJet(const uint16_t rawsum, const unsigned eta, const unsigned phi,
-                   const bool forwardJet, const bool tauVeto, const int16_t bx) :
+L1GctJet::L1GctJet(uint16_t rawsum, unsigned eta, unsigned phi, bool forwardJet, bool tauVeto) :
   m_rawsum(rawsum),
   m_id(eta, phi),
   m_forwardJet(forwardJet),
-  m_tauVeto(tauVeto || forwardJet),
-  m_bx(bx)
+  m_tauVeto(tauVeto || forwardJet)
 {
-  if (m_rawsum>kRawsumMaxValue) { m_rawsum = ((m_rawsum & kRawsumMaxValue) | kRawsumOFlowBit); }
+  if (rawsum>kRawsumMaxValue) { rawsum = ((rawsum & kRawsumMaxValue) | kRawsumOFlowBit); }
 }
 
 L1GctJet::~L1GctJet()
@@ -60,17 +58,15 @@ bool L1GctJet::operator!= (const L1GctJet& cand) const
   return result;
 }
   
-void L1GctJet::setupJet(const uint16_t rawsum, const unsigned eta, const unsigned phi,
-                        const bool forwardJet, const bool tauVeto, const int16_t bx)
+void L1GctJet::setupJet(uint16_t rawsum, unsigned eta, unsigned phi, bool forwardJet, bool tauVeto)
 {
   L1CaloRegionDetId temp(eta, phi);
   m_rawsum = rawsum;
   m_id = temp;
   m_forwardJet = forwardJet;
   m_tauVeto = tauVeto || forwardJet;
-  m_bx = bx;
 
-  if (m_rawsum>kRawsumMaxValue) { m_rawsum = ((m_rawsum & kRawsumMaxValue) | kRawsumOFlowBit); }
+  if (rawsum>kRawsumMaxValue) { rawsum = ((rawsum & kRawsumMaxValue) | kRawsumOFlowBit); }
 }
 
 /// eta value as encoded in hardware at the GCT output
@@ -91,7 +87,7 @@ unsigned L1GctJet::hwPhi() const
 /// Function to convert from internal format to external jet candidates at the output of the jetFinder 
 L1GctJetCand L1GctJet::jetCand(const L1GctJetEtCalibrationLut* lut) const
 {
-  return L1GctJetCand(rank(lut), hwPhi(), hwEta(), isTauJet(), isForwardJet(), (uint16_t) 0, (uint16_t) 0, m_bx);
+  return L1GctJetCand(rank(lut), hwPhi(), hwEta(), isTauJet(), isForwardJet());
 }
 
 /// The two separate Lut outputs

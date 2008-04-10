@@ -15,47 +15,14 @@ using namespace pos;
 
 PixelDACScanRange::PixelDACScanRange(std::string name, unsigned int first, 
                                      unsigned int last, unsigned int step,
-                                     unsigned int index, bool mixValuesAcrossROCs){
-
-  uniformSteps_=true;
-
+                                     unsigned int index){
+  
+  name_=name;
   first_=first;
   last_=last;
   step_=step;
-  
-  name_=name;
   index_=index;
-  mixValuesAcrossROCs_=mixValuesAcrossROCs;
-  if (first_==last_) assert( mixValuesAcrossROCs==false );
-  while(first<=last){
-    values_.push_back(first);
-    first+=step;
-    //FIXME should have a better reporting
-    assert(values_.size()<1000);
-  }
-
-  setDACChannel(name);
-
-}
-
-PixelDACScanRange::PixelDACScanRange(std::string name, 
-				     std::vector<unsigned int> values,
-                                     unsigned int index, bool mixValuesAcrossROCs){
-
-  uniformSteps_=false;
-
-  name_=name;
-  values_=values;
-  mixValuesAcrossROCs_=mixValuesAcrossROCs;
-  assert( mixValuesAcrossROCs==false );
-
-  setDACChannel(name);
-
-}
-
-
-void PixelDACScanRange::setDACChannel(std::string name){
-
+  
   if (name==pos::k_DACName_Vdd) {
     dacchannel_=pos::k_DACAddress_Vdd;
   } else if (name==pos::k_DACName_Vana) {

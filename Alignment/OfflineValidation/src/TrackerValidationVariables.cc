@@ -36,7 +36,7 @@
 #include "Alignment/OfflineValidation/interface/TrackerValidationVariables.h"
 
 
-TrackerValidationVariables::TrackerValidationVariables() {}
+TrackerValidationVariables::TrackerValidationVariables(){}
 
 
 TrackerValidationVariables::TrackerValidationVariables(const edm::EventSetup& es, const edm::ParameterSet& iSetup) 
@@ -85,8 +85,7 @@ TrackerValidationVariables::fillHitQuantities(const edm::Event& iEvent,
 	float errX = std::sqrt( err1.xx() + err2.xx() );
 	float errY = std::sqrt( err1.yy() + err2.yy() );
 	
-	LogDebug("TrackerValidationVariables") << "@SUB=TrackerValidationVariables::fillHitQuantities" 
-					       << "Residual x/y " << res.x() << '/' << res.y() 
+	edm::LogVerbatim("TrackerValidationVariables") << "Residual x/y " << res.x() << '/' << res.y() 
 					       << ", Error x/y " << errX << '/' << errY;
 		
 	hitStruct.resX = res.x();
@@ -102,7 +101,7 @@ TrackerValidationVariables::fillHitQuantities(const edm::Event& iEvent,
     } 
   }  
 
-} 
+}
 
 void 
 TrackerValidationVariables::fillTrackQuantities(const edm::Event& iEvent,

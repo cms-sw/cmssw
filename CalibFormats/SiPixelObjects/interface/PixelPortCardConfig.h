@@ -1,11 +1,12 @@
 #ifndef PixelTKPCIFECConfig_h
 #define PixelTKPCIFECConfig_h
-/**
-* \file CalibFormats/SiPixelObjects/interface/PixelPortCardConfig.h
-* \brief This class specifies the settings on the TKPCIFEC and the settings on the portcard
-*
-*   A longer explanation will be placed here later
-*/
+//
+// This class specifies the settings on the TKPCIFEC
+// and the settings on the portcard
+//
+//
+//
+//
 #include <vector>
 #include <string>
 #include <map>
@@ -14,17 +15,6 @@
 namespace pos{
   using namespace std;
 
-/*!  \ingroup ConfigurationObjects "Configuration Objects"
-*    
-*  @{
-*
-*  \class PixelPortCardConfig PixelPortCardConfig.h
-*  \brief This is the documentation about PixelNameTranslation...
-*
-*   
-*  This class specifies the settings on the TKPCIFEC and the settings on the portcard 
-*   
-*/
   class PixelPortCardConfig: public PixelConfigBase{
 
   public:
@@ -51,16 +41,9 @@ namespace pos{
     void setdeviceValues(std::string settingName, unsigned int value);
   
     unsigned int AOHBiasAddressFromAOHNumber(unsigned int AOHNumber) const;
-    unsigned int AOHGainAddressFromAOHNumber(unsigned int AOHNumber) const;
-    
-    void setAOHGain(unsigned int AOHNumber, unsigned int value) {setAOHGain(AOHGainStringFromAOHNumber(AOHNumber),value);}
-    unsigned int getAOHGain(unsigned int AOHNumber) const;
   
   private:
     void fillNameToAddress();
-
-    void setAOHGain(std::string settingName, unsigned int value);
-    std::string AOHGainStringFromAOHNumber(unsigned int AOHNumber) const;
 
     std::string portcardname_;
  
@@ -77,5 +60,4 @@ namespace pos{
     std::map<std::string, unsigned int> nameToAddress_; // translation from name to address, filled in by fillNameToAddress();
   };
 }
-/* @} */
 #endif

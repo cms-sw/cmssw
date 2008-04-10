@@ -1,8 +1,8 @@
 /*
  * \file L1TFED.cc
  *
- * $Date: 2008/03/14 20:35:46 $
- * $Revision: 1.6 $
+ * $Date: 2007/11/19 15:08:22 $
+ * $Revision: 1.3 $
  * \author J. Berryhill
  *
  */
@@ -22,6 +22,7 @@ L1TFED::L1TFED(const ParameterSet& ps)
 
   if(verbose_) cout << "L1TFED: constructor...." << endl;
 
+  logFile_.open("L1TFED.log");
 
   dbe = NULL;
   if ( ps.getUntrackedParameter<bool>("DQMStore", false) ) 
@@ -33,6 +34,9 @@ L1TFED::L1TFED(const ParameterSet& ps)
   outputFile_ = ps.getUntrackedParameter<string>("outputFile", "");
   if ( outputFile_.size() != 0 ) {
     cout << "L1T Monitoring histograms will be saved to " << outputFile_.c_str() << endl;
+  }
+  else{
+    outputFile_ = "L1TDQM.root";
   }
 
   bool disable = ps.getUntrackedParameter<bool>("disableROOToutput", false);
@@ -86,7 +90,7 @@ void L1TFED::beginJob(const EventSetup& c)
 void L1TFED::endJob(void)
 {
   if(verbose_) cout << "L1TFED: end job...." << endl;
-  LogInfo("EndJob") << "analyzed " << nev_ << " events"; 
+  LogInfo("L1TFED") << "analyzed " << nev_ << " events"; 
 
  if ( outputFile_.size() != 0  && dbe ) dbe->save(outputFile_);
 

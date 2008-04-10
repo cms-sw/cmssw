@@ -5,8 +5,8 @@
  *
  *  A MagneticField engine that returns a constant programmable field value.
  *
- *  $Date: 2006/05/31 13:43:26 $
- *  $Revision: 1.1 $
+ *  $Date: $
+ *  $Revision: $
  *  \author N. Amapane - CERN
  */
 
@@ -22,8 +22,6 @@ class UniformMagneticField : public MagneticField {
   virtual ~UniformMagneticField() {}
 
   GlobalVector inTesla (const GlobalPoint& gp) const;
-
-  bool isDefined(const GlobalPoint& gp) const {return true;}
 
  private:
   GlobalVector theField;

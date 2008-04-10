@@ -9,31 +9,29 @@
 
 
 //__________________________________________________________________________________________________
-AlignableDet::AlignableDet( const GeomDet* geomDet, bool addComponents ) : 
+AlignableDet::AlignableDet( const GeomDet* geomDet ) : 
   AlignableComposite( geomDet ), 
   theAlignmentPositionError(0)
 {
-  if (addComponents) {
-      
-    // Behaviour depends on level of components:
-    // Check if the AlignableDet is a CompositeDet or a DetUnit
-    
-    if ( geomDet->components().size() == 0 ) // Is a DetUnit
-    {
-      addComponent( new AlignableDetUnit( id(), geomDet->surface() ) );
-    }
-    else // Is a compositeDet: push back all components
-    {
-      const std::vector<const GeomDet*>& geomDets = geomDet->components();
-      for ( std::vector<const GeomDet*>::const_iterator idet=geomDets.begin(); 
-            idet != geomDets.end(); ++idet )
-        {
-          addComponent( new AlignableDetUnit( (*idet)->geographicalId().rawId(),
-                                              (*idet)->surface() ) );
-        }
-    }
-
-  } // end addComponents  
+  
+  // Behaviour depends on level of components:
+  // Check if the AlignableDet is a CompositeDet or a DetUnit
+  
+  if ( geomDet->components().size() == 0 ) // Is a DetUnit
+  {
+    addComponent( new AlignableDetUnit( id(), geomDet->surface() ) );
+  }
+  else // Is a compositeDet: push back all components
+  {
+    const std::vector<const GeomDet*>& geomDets = geomDet->components();
+    for ( std::vector<const GeomDet*>::const_iterator idet=geomDets.begin(); 
+          idet != geomDets.end(); ++idet )
+      {
+        addComponent( new AlignableDetUnit( (*idet)->geographicalId().rawId(),
+                                            (*idet)->surface() ) );
+      }
+  }
+  
 }
 
 
