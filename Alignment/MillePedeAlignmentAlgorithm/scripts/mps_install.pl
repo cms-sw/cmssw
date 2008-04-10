@@ -1,8 +1,8 @@
 #!/usr/local/bin/perl
 #     R. Mankel, DESY Hamburg     28-Nov-2007
 #     A. Parenti, DESY Hamburg    27-Mar-2008
-#     $Revision: 1.14 $
-#     $Date: 2008/03/25 16:15:57 $
+#     $Revision: 1.1 $
+#     $Date: 2008/04/10 16:10:12 $
 #
 #  Setup internal paths correctly for mps scripts in a local directory.
 #  Optionally, create this local directory first & copy mps scripts there. The 
@@ -85,7 +85,8 @@ if ($targetDir ne "undefined") {
 	      "mps_check.pl", "mps_install.pl", "mps_merge.pl", "mps_save.pl", "mps_setup.pl",
 	      "mps_fetch.pl", "mps_kill.pl", "mps_retry.pl", "mps_scriptm.pl", "mps_splice.pl",
 	      "mps_stat.pl",
-	      "mps_runMille_template.sh", "mps_runPede_rfcp_template.sh");
+	      "mps_runMille_template.sh", "mps_runPede_rfcp_template.sh",
+	      "mps_template.cfg");
     $libName = "mpslib/Mpslib.pm";
 
     while (@NAMES) {
