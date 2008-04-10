@@ -57,7 +57,7 @@ u15	LogVerbatim and LogTrace; also whether isInfoEnalbled() works
 	when it is enabled.  
 	---------- UnitTestClient_H
 	
-u16	Explicit specificatoin of filenames and of extensions in destinations,
+u16	Explicit specification of filenames and of extensions in destinations,
 	statistics, and jobReports.
 	---------- UnitTestClient_A
 	
@@ -80,4 +80,8 @@ u24	Behavior when duplicate file names are supplied.  We create two
 	destinations, with ERROR and WARNING thresholds, and force the
 	files both to be u24.log.
 	---------- UnitTestClient_A
+	
+u25	Imposition of limits and thresholds of specific interest to user
+	requests:  Limits per-category on ERROR and WARNING messages.
+	---------- UnitTestClient_R
 	
