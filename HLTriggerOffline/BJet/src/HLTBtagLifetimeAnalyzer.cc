@@ -30,8 +30,6 @@
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 #include "DataFormats/BTauReco/interface/JetTag.h"
-#include "DataFormats/HLTReco/interface/TriggerEvent.h"
-#include "DataFormats/HLTReco/interface/TriggerEventWithRefs.h"
 #include "HLTriggerOffline/BJet/interface/JetPlots.h"
 #include "HLTriggerOffline/BJet/interface/OfflineJetPlots.h"
 #include "HLTriggerOffline/BJet/interface/FlavouredJetPlots.h"
@@ -77,8 +75,8 @@ public:
   virtual void endJob();
 
 private:
-  bool cachePathDescription(const edm::TriggerResults & triggerResult, const trigger::TriggerEventWithRefs & triggerEvent);
   bool cachePathDescription(const edm::ParameterSetID & triggerPSetID, const edm::ParameterSetID & processPSetID);
+  bool cachePathDescription(const edm::TriggerResults & triggerResult, const std::string & triggerProcessName);
 
 private:
   struct InputData {
@@ -92,7 +90,6 @@ private:
   
   // input collections
   std::string               m_triggerPath;      // HLT path
-  edm::InputTag             m_triggerEvent;     // HLT trigger summary with trigger objects
   edm::InputTag             m_triggerResults;   // HLT trigger results
   edm::InputTag             m_vertex;           // primary vertex
   std::vector<InputData>    m_levels;
@@ -138,7 +135,6 @@ private:
 
 HLTBtagLifetimeAnalyzer::HLTBtagLifetimeAnalyzer(const edm::ParameterSet & config) :
   m_triggerPath( config.getParameter<std::string>("triggerPath") ),
-  m_triggerEvent( config.getParameter<edm::InputTag>("triggerEvent") ),
   m_triggerResults( config.getParameter<edm::InputTag>("triggerResults") ),
   m_vertex( config.getParameter<edm::InputTag>("vertex") ),
   m_levels(),
@@ -215,12 +211,16 @@ void HLTBtagLifetimeAnalyzer::beginJob(const edm::EventSetup & setup)
 }
 
 // access and cache the description of the HLT path and filters
-bool HLTBtagLifetimeAnalyzer::cachePathDescription(const edm::TriggerResults & triggerResults, const trigger::TriggerEventWithRefs & triggerEvent) 
+// find the PSet describing the TriggerResults and Process, and pass them to the real cachePathDescription(...)
+bool HLTBtagLifetimeAnalyzer::cachePathDescription(const edm::TriggerResults & triggerResults, const std::string & triggerProcessName)
 {
-  return cachePathDescription(triggerResults.parameterSetID(), psetIdForProcess(triggerEvent.usedProcessName()));
+  return cachePathDescription(triggerResults.parameterSetID(), psetIdForProcess(triggerProcessName));
 }
-  
+
 // access and cache the description of the HLT path and filters
+// this will compute
+// - m_pathIndex
+// - m_levels[].m_filterIndex
 bool HLTBtagLifetimeAnalyzer::cachePathDescription(const edm::ParameterSetID & triggerPSetID, const edm::ParameterSetID & processPSetID)
 {
   if (m_pathCached)
@@ -277,14 +277,7 @@ void HLTBtagLifetimeAnalyzer::analyze(const edm::Event & event, const edm::Event
     return;
   }
 
-  edm::Handle<trigger::TriggerEventWithRefs> h_triggerEvent;
-  event.getByLabel(m_triggerEvent, h_triggerEvent);
-  if (not h_triggerEvent.isValid()) {
-    edm::LogWarning("HLTBtagAnalyzer") << "invalid trigger::TriggerEventWithRefs handle";
-    return;
-  }
-
-  if (not cachePathDescription(* h_triggerResults, * h_triggerEvent)) {
+  if (not cachePathDescription(* h_triggerResults, h_triggerResults.provenance()->processName() )) {
     edm::LogWarning("HLTBtagAnalyzer") << "unable to access trigger informations and description for path " << m_triggerPath;
     return;
   }
