@@ -63,5 +63,10 @@
 #undef PROD_RULE
 #undef RATIO_RULE
 #undef POWER_RULE
+#undef LOG_RULE
+#undef EXP_RULE
+#undef SIN_RULE
+#undef COS_RULE
+#undef TAN_RULE
 
 #endif

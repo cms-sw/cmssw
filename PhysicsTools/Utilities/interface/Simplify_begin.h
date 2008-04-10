@@ -115,4 +115,40 @@ struct Power<T1, T2> { \
   inline static type combine(const T1& _1, const T2 & _2) { return COMB; } \
 }
 
+#define EXP_RULE( TMPL, T, RES, COMB ) \
+template< TMPL >\
+struct Exp< T > { \
+  typedef RES type; \
+  inline static type compose( const T& _ ) { return COMB; } \
+}
+
+#define LOG_RULE( TMPL, T, RES, COMB ) \
+template< TMPL > \
+struct Log< T > { \
+  typedef RES type; \
+  inline static type compose( const T& _ ) { return COMB; } \
+}
+
+#define SIN_RULE( TMPL, T, RES, COMB ) \
+template< TMPL > \
+struct Sin< T > { \
+  typedef RES type; \
+  inline static type compose( const T& _ ) { return COMB; } \
+}
+
+#define COS_RULE( TMPL, T, RES, COMB ) \
+template< TMPL > \
+struct Cos< T > { \
+  typedef RES type; \
+  inline static type compose( const T& _ ) { return COMB; } \
+}
+
+#define TAN_RULE( TMPL, T, RES, COMB ) \
+template< TMPL > \
+struct Tan< T > { \
+  typedef RES type; \
+  inline static type compose( const T& _ ) { return COMB; } \
+}
+
+
 #endif

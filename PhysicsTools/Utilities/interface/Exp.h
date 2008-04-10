@@ -7,6 +7,7 @@ namespace funct {
 
   template<typename T>
   struct ExpStruct {
+    static const unsigned int arguments = 0;
     ExpStruct(const T& t) : _(t) { }
     inline double operator()() const { return ::exp(_()); }
     T _; 

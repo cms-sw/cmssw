@@ -7,6 +7,7 @@ namespace funct {
 
   template<typename T>
   struct LogStruct {
+    static const unsigned int arguments = 0;
     LogStruct(const T& t) : _(t) { }
     inline double operator()() const { return ::log(_()); }
     T _; 

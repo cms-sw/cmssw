@@ -117,4 +117,13 @@ void testFunctionsIO::checkAll() {
   CHECK((x ^ fract<1,2>()), "sqrt(x)");
   CHECK(((x ^ y)^z), "x^( y + z )");
   CHECK(((x * y)^z), "x^z y^z");
+
+  CHECK(log(exp(x)), "x");
+  CHECK(exp(log(x)), "x");
+  CHECK((log(x^y)), "y log(x)");
+  CHECK(exp(x)*exp(y), "exp(x + y)");
+  CHECK(log(x*y), "log(x) + log(y)");
+  CHECK(log(x/y), "log(x) - log(y)");
+
 }
+
