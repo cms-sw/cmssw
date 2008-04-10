@@ -16,7 +16,7 @@ namespace lhef {
 
 JetInput::JetInput() :
 	partonicFinalState(false),
-	onlySignalProcess(false),
+	onlyHardProcess(false),
 	excludeResonances(false),
 	tausAsJets(false),
 	ptMin(0.0)
@@ -25,7 +25,7 @@ JetInput::JetInput() :
 
 JetInput::JetInput(const edm::ParameterSet &params) :
 	partonicFinalState(params.getParameter<bool>("partonicFinalState")),
-	onlySignalProcess(params.getParameter<bool>("onlySignalProcess")),
+	onlyHardProcess(params.getParameter<bool>("onlyHardProcess")),
 	excludeResonances(false),
 	tausAsJets(params.getParameter<bool>("tausAsJets")),
 	ptMin(0.0)
@@ -118,6 +118,15 @@ bool JetInput::isExcludedFromResonances(int pdgId) const
 	return isContained(excludedFromResonances, pdgId);
 }
 
+bool JetInput::isHardProcess(const HepMC::GenVertex *vertex,
+                             const VertexVector &hardProcess) const
+{
+	std::vector<const HepMC::GenVertex*>::const_iterator pos =
+			std::lower_bound(hardProcess.begin(),
+			                 hardProcess.end(), vertex);
+	return pos != hardProcess.end() && *pos == vertex;
+}
+
 static unsigned int partIdx(const JetInput::ParticleVector &p,
                             const HepMC::GenParticle *particle)
 {
@@ -189,10 +198,10 @@ bool JetInput::hasPartonChildren(ParticleBitmap &invalid,
 	return testPartonChildren(invalid, p, particle->end_vertex()) > 0;
 }
 
-bool JetInput::fromSignalVertex(ParticleBitmap &invalid,
-                                const ParticleVector &p,
-                                const HepMC::GenParticle *particle,
-                                const HepMC::GenVertex *sig) const
+bool JetInput::fromHardProcess(ParticleBitmap &invalid,
+                               const ParticleVector &p,
+                               const HepMC::GenParticle *particle,
+                               const VertexVector &hardProcess) const
 {
 	unsigned int idx = partIdx(p, particle);
 
@@ -202,13 +211,38 @@ bool JetInput::fromSignalVertex(ParticleBitmap &invalid,
 	const HepMC::GenVertex *v = particle->production_vertex();
 	if (!v)
 		return false;
-	else if (v == sig)
+	else if (isHardProcess(v, hardProcess))
 		return true;
 
 	for(HepMC::GenVertex::particles_in_const_iterator iter =
 					v->particles_in_const_begin();
 	    iter != v->particles_in_const_end(); ++iter)
-		if (fromSignalVertex(invalid, p, *iter, sig))
+		if (fromHardProcess(invalid, p, *iter, hardProcess))
+			return true;
+
+	return false;
+}
+
+bool JetInput::fromSignalVertex(ParticleBitmap &invalid,
+                                const ParticleVector &p,
+                                const HepMC::GenParticle *particle,
+                                const HepMC::GenVertex *signalVertex) const
+{
+	unsigned int idx = partIdx(p, particle);
+
+	if (invalid[idx])
+		return false;
+
+	const HepMC::GenVertex *v = particle->production_vertex();
+	if (!v)
+		return false;
+	else if (v == signalVertex)
+		return true;
+
+	for(HepMC::GenVertex::particles_in_const_iterator iter =
+					v->particles_in_const_begin();
+	    iter != v->particles_in_const_end(); ++iter)
+		if (fromSignalVertex(invalid, p, *iter, signalVertex))
 			return true;
 
 	return false;
@@ -218,7 +252,8 @@ JetInput::ResonanceState
 JetInput::fromResonance(ParticleBitmap &invalid,
                         const ParticleVector &p,
                         const HepMC::GenParticle *particle,
-                        const HepMC::GenVertex *sig) const
+                        const HepMC::GenVertex *signalVertex,
+                        const VertexVector &hardProcess) const
 {
 	unsigned int idx = partIdx(p, particle);
 	int id = particle->pdg_id();
@@ -235,17 +270,17 @@ JetInput::fromResonance(ParticleBitmap &invalid,
 	const HepMC::GenVertex *v = particle->production_vertex();
 	if (!v)
 		return kNo;
-	else if (v == sig) {
-		if (excludedResonances.empty())
-			return kIndirect;
-		else
-			return kNo;
-	}
+	else if (v == signalVertex && excludedResonances.empty())
+		return kIndirect;
+	else if (v == signalVertex || isHardProcess(v, hardProcess))
+		return kNo;
 
 	for(HepMC::GenVertex::particles_in_const_iterator iter =
 					v->particles_in_const_begin();
 	    iter != v->particles_in_const_end(); ++iter) {
-		ResonanceState result = fromResonance(invalid, p, *iter, sig);
+		ResonanceState result =
+			fromResonance(invalid, p, *iter,
+			              signalVertex, hardProcess);
 		switch(result) {
 		    case kNo:
 			break;
@@ -269,6 +304,47 @@ JetInput::ParticleVector JetInput::operator () (
 		throw cms::Exception("InvalidHepMCEvent")
 			<< "HepMC event is lacking signal vertex."
 			<< std::endl;
+
+	VertexVector hardProcess, toLookAt;
+	std::pair<HepMC::GenParticle*,HepMC::GenParticle*> beamParticles =
+						event->beam_particles();
+	toLookAt.push_back(event->signal_process_vertex());
+	while(!toLookAt.empty()) {
+		std::vector<const HepMC::GenVertex*> next;
+		for(std::vector<const HepMC::GenVertex*>::const_iterator v =
+			toLookAt.begin(); v != toLookAt.end(); ++v) {
+			if (!*v || isHardProcess(*v, hardProcess))
+				continue;
+
+			bool veto = false;
+			for(HepMC::GenVertex::particles_in_const_iterator iter =
+					(*v)->particles_in_const_begin();
+			    iter != (*v)->particles_in_const_end(); ++iter) {
+				if (*iter == beamParticles.first ||
+				    *iter == beamParticles.second) {
+					veto = true;
+					break;
+				}
+			}
+			if (veto)
+				continue;
+
+			hardProcess.push_back(*v);
+			std::sort(hardProcess.begin(), hardProcess.end());
+
+			for(HepMC::GenVertex::particles_in_const_iterator iter =
+					(*v)->particles_in_const_begin();
+			    iter != (*v)->particles_in_const_end(); ++iter) {
+				const HepMC::GenVertex *pv =
+						(*iter)->production_vertex();
+				if (pv)
+					next.push_back(pv);
+			}
+		}
+
+		toLookAt = next;
+		std::sort(toLookAt.begin(), toLookAt.end());
+	}
 
 	ParticleVector particles;
 	for(HepMC::GenEvent::particle_const_iterator iter = event->particles_begin();
@@ -301,9 +377,10 @@ JetInput::ParticleVector JetInput::operator () (
 			}
 		}
 
-		if (onlySignalProcess &&
-		    !fromSignalVertex(invalid, particles, particle,
-		                      event->signal_process_vertex()))
+		if (onlyHardProcess &&
+		    !fromHardProcess(invalid, particles,
+		                     particle, hardProcess) &&
+		    !isHardProcess(particle->end_vertex(), hardProcess))
 			invalid[i] = true;
 	}
 
@@ -315,7 +392,8 @@ JetInput::ParticleVector JetInput::operator () (
 
 		if (excludeResonances &&
 		    fromResonance(invalid, particles, particle,
-		                  event->signal_process_vertex())) {
+		                  event->signal_process_vertex(),
+		                  hardProcess)) {
 			invalid[i] = true;
 			continue;
 		}

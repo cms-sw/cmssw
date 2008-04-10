@@ -15,6 +15,7 @@ class JetInput {
     public:
 	typedef std::vector<bool>			ParticleBitmap;
 	typedef std::vector<const HepMC::GenParticle*>	ParticleVector;
+	typedef std::vector<const HepMC::GenVertex*>	VertexVector;
 
 	JetInput();
 	JetInput(const edm::ParameterSet &params);
@@ -23,7 +24,7 @@ class JetInput {
 	ParticleVector operator () (const HepMC::GenEvent *event) const;
 
 	bool getPartonicFinalState() const { return partonicFinalState; }
-	bool getSignalProcessOnly() const { return onlySignalProcess; }
+	bool getHardProcessOnly() const { return onlyHardProcess; }
 	bool getTausAndJets() const { return tausAsJets; }
 	bool getExcludeResonances() const { return excludeResonances; }
 	double getPtMin() const { return ptMin; }
@@ -36,8 +37,8 @@ class JetInput {
 
 	void setPartonicFinalState(bool flag = true)
 	{ partonicFinalState = flag; }
-	void setSignalProcessOnly(bool flag = true)
-	{ onlySignalProcess = flag; }
+	void setHardProcessOnly(bool flag = true)
+	{ onlyHardProcess = flag; }
 	void setTausAsJets(bool flag = true) { tausAsJets = flag; }
 	void setExcludeResonances(bool flag = true) { excludeResonances = flag; }
 	void setPtMin(double ptMin) { this->ptMin = ptMin; }
@@ -49,7 +50,8 @@ class JetInput {
 	static bool isHadron(int pdgId);
 	bool isResonance(int pdgId) const;
 	bool isExcludedFromResonances(int pdgId) const;
-
+	bool isHardProcess(const HepMC::GenVertex *vertex,
+	                   const VertexVector &hardProcess) const;
 	bool isIgnored(int pdgId) const;
 
 	enum ResonanceState {
@@ -61,14 +63,19 @@ class JetInput {
 	bool hasPartonChildren(ParticleBitmap &invalid,
 	                       const ParticleVector &p,
 	                       const HepMC::GenParticle *particle) const;
+	bool fromHardProcess(ParticleBitmap &invalid,
+	                     const ParticleVector &p,
+	                     const HepMC::GenParticle *particle,
+	                     const VertexVector &hardProcess) const;
 	bool fromSignalVertex(ParticleBitmap &invalid,
 	                      const ParticleVector &p,
 	                      const HepMC::GenParticle *particle,
-	                      const HepMC::GenVertex *signal) const;
+	                      const HepMC::GenVertex *signalVertex) const;
 	ResonanceState fromResonance(ParticleBitmap &invalid,
 	                             const ParticleVector &p,
         	                     const HepMC::GenParticle *particle,
-	                             const HepMC::GenVertex *signal) const;
+	                             const HepMC::GenVertex *signalVertex,
+	                             const VertexVector &hardProcess) const;
 
     private:
 	int testPartonChildren(ParticleBitmap &invalid,
@@ -79,7 +86,7 @@ class JetInput {
 	std::vector<unsigned int>	excludedResonances;
 	std::vector<unsigned int>	excludedFromResonances;
 	bool				partonicFinalState;
-	bool				onlySignalProcess;
+	bool				onlyHardProcess;
 	bool				excludeResonances;
 	bool				tausAsJets;
 	double				ptMin;
