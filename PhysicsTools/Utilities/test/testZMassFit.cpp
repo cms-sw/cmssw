@@ -1,10 +1,11 @@
-#include "PhysicsTools/Utilities/interface/RootFunctionAdapter.h"
 #include "PhysicsTools/Utilities/interface/BreitWigner.h"
 #include "PhysicsTools/Utilities/interface/HistoChiSquare.h"
 #include "PhysicsTools/Utilities/interface/RootMinuitCommands.h"
 #include "PhysicsTools/Utilities/interface/RootMinuit.h"
 #include "PhysicsTools/Utilities/interface/Parameter.h"
 #include "PhysicsTools/Utilities/interface/Constant.h"
+#include "PhysicsTools/Utilities/interface/rootTf1.h"
+#include "PhysicsTools/Utilities/interface/rootPlot.h"
 #include "TFile.h"
 #include "TH1.h"
 #include "TF1.h"
@@ -34,20 +35,20 @@ int main() {
     funct::Constant c(yield);
     
     FitFunction f = c * bw;
-    TF1 fun = root::tf1("fun", f, 0, 200, yield, mass, gamma);
+    TF1 startFun = root::tf1("startFun", f, 0, 200, yield, mass, gamma);
     TH1D histo("histo", "Z mass (GeV/c)", 200, 0, 200);
-    histo.FillRandom("fun", yield);
+    histo.FillRandom("startFun", yield);
     TCanvas canvas;
-    fun.Draw();
+    startFun.Draw();
     canvas.SaveAs("breitWigned.eps");
     histo.Draw();
     canvas.SaveAs("breitWignedHisto.eps");
-    fun.Draw("same");
+    startFun.Draw("same");
     canvas.SaveAs("breitWignedHistoFun.eps");
     histo.Draw("e");
-    fun.Draw("same");
+    startFun.Draw("same");
     
-    ChiSquared chi2(f, &histo, 80, 120);
+    ChiSquared chi2(f, &histo, 0, 200);
     int fullBins = chi2.degreesOfFreedom();
     std::cout << "N. deg. of freedom: " << fullBins << std::endl;
     fit::RootMinuit<ChiSquared> minuit(chi2, true);
@@ -55,11 +56,12 @@ int main() {
     commands.add(minuit, mass);
     commands.add(minuit, gamma);
     commands.run(minuit);
-    fun.SetParameters(yield, mass, gamma);
+    root::plot<FitFunction>("breitWignedHistoFunFit.eps", histo, f, 0, 200, yield, mass, gamma);
+    /*TF1 fun = root::tf1("fun", f, 80, 120, yield, mass, gamma);
     fun.SetParNames(yield.name().c_str(), mass.name().c_str(), gamma.name().c_str());
     fun.SetLineColor(kRed);
     fun.Draw("same");
-    canvas.SaveAs("breitWignedHistoFunFit.eps");
+    canvas.SaveAs("breitWignedHistoFunFit.eps");*/
   } catch(std::exception & err){
     std::cerr << "Exception caught:\n" << err.what() << std::endl;
     return 1;
