@@ -63,9 +63,13 @@ void testSimplifications::checkAll() {
 		       Product<X, Y>::type
 		       >::value));
   BOOST_STATIC_ASSERT((!Parametric<Power<X, Y>::type>::value));
-		      
   BOOST_STATIC_ASSERT((is_same<
 		       Product<Power<X, Y>::type, Power<X, Z>::type>::type,
 		       Power<X, Sum<Y, Z>::type>::type
+		       >::value));
+  BOOST_STATIC_ASSERT((!Parametric<Ratio<Sin<X>::type, Cos<X>::type>::type>::value));
+  BOOST_STATIC_ASSERT((is_same<
+		       Ratio<Sin<X>::type, Cos<X>::type>::type,
+		       Tan<X>::type
 		       >::value));
 }

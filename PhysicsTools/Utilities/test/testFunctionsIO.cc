@@ -125,5 +125,11 @@ void testFunctionsIO::checkAll() {
   CHECK(log(x*y), "log(x) + log(y)");
   CHECK(log(x/y), "log(x) - log(y)");
 
+  CHECK(sin(-x), "-sin(x)");
+  CHECK(cos(-x), "cos(x)");
+  CHECK(sin(x)/cos(x), "tan(x)");
+  CHECK(cos(x)*tan(x), "sin(x)");
+  CHECK(sin(x)/tan(x), "cos(x)");
+  CHECK((sin(x)^_2)+(cos(x)^_2), "1");
 }
 
