@@ -19,6 +19,7 @@
 #include "RecoLocalCalo/EcalRecAlgos/interface/EcalRecHitAbsAlgo.h"
 #include "CondFormats/EcalObjects/interface/EcalIntercalibConstants.h"
 #include "CondFormats/EcalObjects/interface/EcalADCToGeVConstant.h"
+#include "CondFormats/EcalObjects/interface/EcalChannelStatus.h"
 #include "CalibCalorimetry/EcalLaserCorrection/interface/EcalLaserDbService.h"
 #include "EventFilter/EcalRawToDigi/interface/EcalUnpackerWorkerRecord.h"
 #include "EventFilter/EcalRawToDigi/interface/EcalRegionCabling.h"
@@ -85,6 +86,8 @@ class EcalUnpackerWorker {
 
   edm::ESHandle<EcalIntercalibConstants> ical;
   edm::ESHandle<EcalADCToGeVConstant> agc;
+  edm::ESHandle<EcalChannelStatus> chStatus;
+  std::vector<int> v_chstatus_;
   edm::ESHandle<EcalLaserDbService> laser;
 
  public:
@@ -100,6 +103,8 @@ class EcalUnpackerWorker {
     /*R*/ LogDebug("EcalRawToRecHit|Worker")<<"iterator check." ;
     EcalTBWeights::EcalTBWeightMap const & wgtsMap = wgts->getMap();
     /*R*/ LogDebug("EcalRawToRecHit|Worker")<<"weight map check."<<watcher.lap();
+
+
     
     //for the uncalibrated rechits
     const EcalPedestals::Item* aped = 0;
@@ -130,6 +135,24 @@ class EcalUnpackerWorker {
 	/*R*/ LogDebug("EcalRawToRecHit|Worker")<<"starting dealing with one digi." 
 						<<watcher.lap();
 	DID detid(itdg->id());
+
+	//check if the channel is masked
+	EcalChannelStatusMap::const_iterator chit = chStatus->find(itdg->id());
+	EcalChannelStatusCode chStatusCode = 1;
+	if ( chit != chStatus->end() ) {
+	  chStatusCode = *chit;
+	} else {
+	  edm::LogError("EcalRawToRecHit|Worker") << "No channel status found for xtal " << detid << "! something wrong with EcalChannelStatus in your DB? ";
+	  continue;
+	}
+	if ( v_chstatus_.size() > 0) {
+	  std::vector<int>::const_iterator res = std::find( v_chstatus_.begin(), v_chstatus_.end(), chStatusCode.getStatusCode() );
+	  if ( res != v_chstatus_.end() ) {
+	    continue;
+	  }
+	}
+	
+
 	//get the uncalibrated rechit
 	EcalUncalibratedRecHit EURH;
 	{

@@ -47,9 +47,7 @@ EcalUnpackerWorker::EcalUnpackerWorker(const edm::ParameterSet & conf){
 				  DCCpset.getParameter<bool>("tccUnpacking"),
 				  DCCpset.getParameter<bool>("feUnpacking"),
 				  DCCpset.getParameter<bool>("memUnpacking"),
-				  DCCpset.getParameter<bool>("feIdCheck"),
-				  DCCpset.getParameter<bool>("syncCheck")
-				  );
+				  DCCpset.getParameter<bool>("syncCheck"));
   
   unpacker_->setEBDigisCollection(&productDigisEB);
   unpacker_->setEEDigisCollection(&productDigisEE);
@@ -77,7 +75,8 @@ EcalUnpackerWorker::EcalUnpackerWorker(const edm::ParameterSet & conf){
     
   /// EcalRecHitAbsAlgo
   rechitMaker_ = new EcalRecHitSimpleAlgo();
-      
+  
+  v_chstatus_ = conf.getParameter<std::vector<int> >("ChannelStatusToBeExcluded");
 }
 
 EcalUnpackerWorker::~EcalUnpackerWorker(){
@@ -101,6 +100,7 @@ void EcalUnpackerWorker::setHandles(const EcalUnpackerWorkerRecord & iRecord){
 
   iRecord.getRecord<EcalIntercalibConstantsRcd>().get(ical);
   iRecord.getRecord<EcalADCToGeVConstantRcd>().get(agc);
+  iRecord.getRecord<EcalChannelStatusRcd>().get(chStatus);
   iRecord.getRecord<EcalLaserDbRecord>().get(laser);
 
   iRecord.getRecord<EcalRegionCablingRecord>().get(cabling);

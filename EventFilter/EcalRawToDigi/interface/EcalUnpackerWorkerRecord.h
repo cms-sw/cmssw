@@ -12,6 +12,7 @@
 
 #include "CondFormats/DataRecord/interface/EcalIntercalibConstantsRcd.h"
 #include "CondFormats/DataRecord/interface/EcalADCToGeVConstantRcd.h"
+#include "CondFormats/DataRecord/interface/EcalChannelStatusRcd.h"
 #include "CalibCalorimetry/EcalLaserCorrection/interface/EcalLaserDbRecord.h"
 
 #include "EventFilter/EcalRawToDigi/interface/EcalRegionCablingRecord.h"
@@ -23,6 +24,7 @@ class EcalUnpackerWorkerRecord : public edm::eventsetup::DependentRecordImplemen
   EcalTBWeightsRcd,
   EcalIntercalibConstantsRcd,
   EcalADCToGeVConstantRcd,
+  EcalChannelStatusRcd,
   EcalLaserDbRecord,
   EcalRegionCablingRecord> > {};
 #endif
