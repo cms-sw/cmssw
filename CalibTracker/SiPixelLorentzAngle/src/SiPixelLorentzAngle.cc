@@ -189,7 +189,7 @@ void SiPixelLorentzAngle::analyze(const edm::Event& e, const edm::EventSetup& es
 					else isflipped_ = 0;
 
 					SiPixelRecHit rechit = (*tmpiter->first);
-					edm::Ref<edm::DetSetVector<SiPixelCluster>, SiPixelCluster> const& cluster = rechit.cluster();				
+					SiPixelRecHit::ClusterRef const& cluster = rechit.cluster();				
 					rechit_.x  = rechit.localPosition().x();
 					rechit_.y  = rechit.localPosition().y();
 					// fill entries in clust_
