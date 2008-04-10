@@ -11,4 +11,5 @@
 <use name=SimDataFormats/JetMatching>
 <use name=rootcore>
 <use name=rootmath>
+<use name=root>
 <flags EDM_PLUGIN=1>
