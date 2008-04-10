@@ -13,7 +13,7 @@
 //
 // Original Author:  Seth COOPER
 //         Created:  Th Nov 22 5:46:22 CEST 2007
-// $Id: EcalMipGraphs.cc,v 1.4 2008/03/12 17:29:36 scooper Exp $
+// $Id: EcalMipGraphs.cc,v 1.5 2008/03/12 18:36:12 scooper Exp $
 //
 //
 
@@ -122,7 +122,6 @@ EcalMipGraphs::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
   //We only want the 3x3's for this event...
   listAllChannels.clear();
-  auto_ptr<EcalElectronicsMapping> ecalElectronicsMap(new EcalElectronicsMapping);
   Handle<EcalUncalibratedRecHitCollection> hits;
 
   ESHandle<CaloTopology> caloTopo;
@@ -153,7 +152,7 @@ EcalMipGraphs::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     //{
     ic = ebDet.ic();
     hashedIndex = ebDet.hashedIndex();
-    EcalElectronicsId elecId = ecalElectronicsMap->getElectronicsId(ebDet);
+    EcalElectronicsId elecId = ecalElectronicsMap_->getElectronicsId(ebDet);
     //}
     //else
     //{
@@ -229,7 +228,7 @@ EcalMipGraphs::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
       //TODO: use find(), launching it twice over EB and EE collections
 
     int ic = (*chnlItr).ic();
-    EcalElectronicsId elecId = ecalElectronicsMap->getElectronicsId(*chnlItr);
+    EcalElectronicsId elecId = ecalElectronicsMap_->getElectronicsId(*chnlItr);
     int FEDid = 600+elecId.dccId();
     string sliceName = fedMap_->getSliceFromFed(FEDid);
     int hashedIndex = (*chnlItr).hashedIndex();
@@ -327,8 +326,11 @@ void EcalMipGraphs::initHists(int FED)
 
 // ------------ method called once each job just before starting event loop  ------------
 void 
-EcalMipGraphs::beginJob(const edm::EventSetup&)
+EcalMipGraphs::beginJob(const edm::EventSetup& c)
 {
+  edm::ESHandle< EcalElectronicsMapping > handle;
+  c.get< EcalMappingRcd >().get(handle);
+  ecalElectronicsMap_ = handle.product();
 }
 
 // ------------ method called once each job just after ending the event loop  ------------

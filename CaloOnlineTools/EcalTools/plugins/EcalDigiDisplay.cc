@@ -3,8 +3,8 @@
  * dummy module  for the test of  DaqFileInputService
  *   
  * 
- * $Date: 2008/01/02 16:30:05 $
- * $Revision: 1.5 $
+ * $Date: 2008/01/22 22:20:49 $
+ * $Revision: 1.1 $
  * \author Keti Kaadze
  * \author G. Franzoni
  *
@@ -23,7 +23,6 @@
 #include "DataFormats/EcalRawData/interface/EcalRawDataCollections.h"
 #include "DataFormats/EcalRawData/interface/EcalDCCHeaderBlock.h"
 
-#include "Geometry/EcalMapping/interface/EcalElectronicsMapping.h"
 #include "DataFormats/EcalDigi/interface/EcalTriggerPrimitiveDigi.h"
 #include "DataFormats/EcalDigi/interface/EcalTriggerPrimitiveSample.h"
 
@@ -180,6 +179,10 @@ EcalDigiDisplay::~EcalDigiDisplay() {
 void EcalDigiDisplay::beginJob(const edm::EventSetup& c) {
 //========================================================================
   edm::LogInfo("EcalDigiDisplay") << "entering beginJob! ";
+
+  edm::ESHandle<EcalElectronicsMapping> elecHandle;
+    c.get<EcalMappingRcd>().get(elecHandle);
+  ecalElectronicsMap_ = elecHandle.product();
 }
 
 //========================================================================
@@ -194,8 +197,8 @@ void EcalDigiDisplay::analyze( const edm::Event & e, const  edm::EventSetup& c) 
     e.getByLabel(digiProducer_,dccHeader);
   } catch (cms::Exception& ex) {
     edm::LogError("EcalDigiUnpackerModule") << "Can't get DCC Headers!";
-  } 
-
+  }
+    
   //
   bool ebDigisFound = false;
   bool eeDigisFound = false;
@@ -255,13 +258,11 @@ void EcalDigiDisplay::analyze( const edm::Event & e, const  edm::EventSetup& c) 
 
 void EcalDigiDisplay::readEBDigis (edm::Handle<EBDigiCollection> digis, int Mode) {
 
-  EcalElectronicsMapping* theMapping    = new EcalElectronicsMapping();
-
   for ( EBDigiCollection::const_iterator digiItr= digis->begin();digiItr != digis->end(); 
 	++digiItr ) {		
 
     EBDetId detId = EBDetId((*digiItr).id());
-    EcalElectronicsId elecId = theMapping->getElectronicsId(detId);
+    EcalElectronicsId elecId = ecalElectronicsMap_->getElectronicsId(detId);
 
     int FEDid = elecId.dccId() + 600;
     std::vector<int>::iterator fedIter = find(requestedFeds_.begin(), requestedFeds_.end(), FEDid); 
@@ -304,7 +305,6 @@ void EcalDigiDisplay::readEBDigis (edm::Handle<EBDigiCollection> digis, int Mode
     } 
     std::cout << " " << std::endl;
   }
-  delete theMapping;
 }
 
 //Function for EE Digis
@@ -316,14 +316,12 @@ void EcalDigiDisplay::readEEDigis (edm::Handle<EEDigiCollection> digis, int Mode
     return;
   }
   
-  EcalElectronicsMapping* theMapping   = new EcalElectronicsMapping(); 
-  
   for ( EEDigiCollection::const_iterator digiItr= digis->begin();digiItr != digis->end(); 
 	++digiItr ) {		
     
     //Make sure that digis are form requested place
     EEDetId detId = EEDetId((*digiItr).id());
-    EcalElectronicsId elecId = theMapping->getElectronicsId(detId);
+    EcalElectronicsId elecId = ecalElectronicsMap_->getElectronicsId(detId);
 
     int FEDid = elecId.dccId() + 600;
     std::vector<int>::iterator fedIter = find(requestedFeds_.begin(), requestedFeds_.end(), FEDid);
@@ -355,7 +353,6 @@ void EcalDigiDisplay::readEEDigis (edm::Handle<EEDigiCollection> digis, int Mode
     }       
     std::cout << " " << std::endl;
   }
-  delete theMapping;
 }
 
 void EcalDigiDisplay::readPNDigis(edm::Handle<EcalPnDiodeDigiCollection> PNs, int Mode) {

@@ -13,7 +13,7 @@
 //
 // Original Author:  Seth COOPER
 //         Created:  Th Nov 22 5:46:22 CEST 2007
-// $Id: EcalMipGraphs.h,v 1.2 2008/03/11 11:00:12 scooper Exp $
+// $Id: EcalMipGraphs.h,v 1.3 2008/03/12 17:29:37 scooper Exp $
 //
 //
 
@@ -28,9 +28,11 @@
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "Geometry/EcalMapping/interface/EcalMappingRcd.h"
 
 #include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
 #include "DataFormats/EcalRecHit/interface/EcalUncalibratedRecHit.h"
@@ -98,6 +100,7 @@ class EcalMipGraphs : public edm::EDAnalyzer {
   TFile* file_;
   TNtuple* eventsAndSeedCrys_;
   EcalFedMap* fedMap_;
+  const EcalElectronicsMapping* ecalElectronicsMap_;
  
   int naiveEvtNum_; 
 };

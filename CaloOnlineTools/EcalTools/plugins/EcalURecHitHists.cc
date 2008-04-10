@@ -13,7 +13,7 @@
 //
 // Original Author:  Seth COOPER
 //         Created:  Th Nov 22 5:46:22 CEST 2007
-// $Id: EcalURecHitHists.cc,v 1.1 2008/01/22 22:20:54 scooper Exp $
+// $Id: EcalURecHitHists.cc,v 1.2 2008/03/11 10:37:30 scooper Exp $
 //
 //
 
@@ -90,7 +90,6 @@ void
 EcalURecHitHists::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
   int ievt = iEvent.id().event();
-  auto_ptr<EcalElectronicsMapping> ecalElectronicsMap(new EcalElectronicsMapping);
   Handle<EcalUncalibratedRecHitCollection> hits;
 
   //TODO: improve try/catch behavior
@@ -112,7 +111,7 @@ EcalURecHitHists::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
     //TODO: make it work for endcap FEDs also
     int ic = ebDet.ic();
     int hashedIndex = ebDet.hashedIndex();
-    EcalElectronicsId elecId = ecalElectronicsMap->getElectronicsId(ebDet);
+    EcalElectronicsId elecId = ecalElectronicsMap_->getElectronicsId(ebDet);
     int FEDid = 600+elecId.dccId();
     float ampli = hit.amplitude();
 
@@ -180,8 +179,11 @@ void EcalURecHitHists::initHists(int FED)
 
 // ------------ method called once each job just before starting event loop  ------------
 void 
-EcalURecHitHists::beginJob(const edm::EventSetup&)
+EcalURecHitHists::beginJob(const edm::EventSetup& c)
 {
+  edm::ESHandle<EcalElectronicsMapping> elecHandle;
+  c.get<EcalMappingRcd>().get(elecHandle);
+  ecalElectronicsMap_ = elecHandle.product();
 }
 
 // ------------ method called once each job just after ending the event loop  ------------

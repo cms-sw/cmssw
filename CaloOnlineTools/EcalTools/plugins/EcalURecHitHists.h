@@ -13,7 +13,7 @@
 //
 // Original Author:  Seth COOPER
 //         Created:  Th Nov 22 5:46:22 CEST 2007
-// $Id: EcalURecHitHists.h,v 1.1 2008/01/22 22:20:54 scooper Exp $
+// $Id: EcalURecHitHists.h,v 1.2 2008/03/11 10:37:30 scooper Exp $
 //
 //
 
@@ -31,6 +31,7 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/EventSetup.h"
 
 #include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
 #include "DataFormats/EcalRecHit/interface/EcalUncalibratedRecHit.h"
@@ -46,7 +47,7 @@
 #include "TH1F.h"
 #include "TGraph.h"
 #include "TNtuple.h"
-
+#include "Geometry/EcalMapping/interface/EcalMappingRcd.h"
 
 //
 // class declaration
@@ -83,4 +84,5 @@ class EcalURecHitHists : public edm::EDAnalyzer {
 
   TFile* file;
   EcalFedMap* fedMap_;
+  const EcalElectronicsMapping* ecalElectronicsMap_;
 };

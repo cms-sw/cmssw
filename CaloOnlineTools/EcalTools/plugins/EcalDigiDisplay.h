@@ -7,9 +7,13 @@
 
 #include <FWCore/Framework/interface/EDAnalyzer.h>
 #include <FWCore/Framework/interface/Event.h>
+#include <FWCore/Framework/interface/EventSetup.h>
+#include <FWCore/Framework/interface/ESHandle.h>
 #include <FWCore/Framework/interface/MakerMacros.h>
 #include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
 #include "CaloOnlineTools/EcalTools/interface/EcalFedMap.h"
+#include "Geometry/EcalMapping/interface/EcalMappingRcd.h"
+#include "Geometry/EcalMapping/interface/EcalElectronicsMapping.h"
 
 // class declaration
 
@@ -50,6 +54,6 @@ class EcalDigiDisplay : public edm::EDAnalyzer {
   std::vector<int> listTowers;
   std::vector<int> listPns;
   
-
+  const EcalElectronicsMapping* ecalElectronicsMap_;
 };
 #endif

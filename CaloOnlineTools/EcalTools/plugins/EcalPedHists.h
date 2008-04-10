@@ -10,13 +10,16 @@
 
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/Framework/interface/ESHandle.h"
 #include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
 #include "DataFormats/EcalDetId/interface/EcalDetIdCollections.h"
 #include "DataFormats/EcalDigi/interface/EcalTriggerPrimitiveDigi.h"
 #include "DataFormats/EcalDigi/interface/EcalTriggerPrimitiveSample.h"
 #include "DataFormats/EcalRawData/interface/EcalRawDataCollections.h"
 #include "Geometry/EcalMapping/interface/EcalElectronicsMapping.h"
+#include "Geometry/EcalMapping/interface/EcalMappingRcd.h"
 #include "CaloOnlineTools/EcalTools/interface/EcalFedMap.h"
 
 #include <iostream>
@@ -61,4 +64,5 @@ class EcalPedHists: public edm::EDAnalyzer
     std::set<int> theRealFedSet_;
     EcalFedMap* fedMap_;
     TFile * root_file_;
+    const EcalElectronicsMapping* ecalElectronicsMap_;
 };

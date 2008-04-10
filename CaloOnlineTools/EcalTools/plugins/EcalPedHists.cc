@@ -93,14 +93,15 @@ EcalPedHists::EcalPedHists(const edm::ParameterSet& ps) :
   
   // Verify crystal numbers are valid
   for (intIter = listChannels_.begin(); intIter != listChannels_.end(); ++intIter)
-  {  
-      if ( ((*intIter) < 1)||(1700 < (*intIter)) )       
-      {  
-	cout << "[EcalPedHists] ic value: " << (*intIter) << " found in listChannels. "
-		  << " Valid range is 1-1700. Returning." << endl;
-	inputIsOk_ = false;
-	return;
-      }
+  { 
+      //TODO: Fix crystal index checking?
+      //if ( ((*intIter) < 1)||(1700 < (*intIter)) )       
+      //{  
+      //  cout << "[EcalPedHists] ic value: " << (*intIter) << " found in listChannels. "
+      //  	  << " Valid range is 1-1700. Returning." << endl;
+      //  inputIsOk_ = false;
+      //  return;
+      //}
   }
   // Verify sample numbers are valid
   for (intIter = listSamples_.begin(); intIter != listSamples_.end(); intIter++)
@@ -122,6 +123,9 @@ EcalPedHists::~EcalPedHists()
 
 void EcalPedHists::beginJob(const edm::EventSetup& c)
 {
+  edm::ESHandle<EcalElectronicsMapping> elecHandle;
+  c.get<EcalMappingRcd>().get(elecHandle);
+  ecalElectronicsMap_ = elecHandle.product();
 }
 
 void EcalPedHists::endJob(void)
@@ -205,7 +209,7 @@ void EcalPedHists::analyze(const edm::Event& e, const edm::EventSetup& c)
     try {
       e.getByLabel (headerProducer_, DCCHeaders);
     } catch ( std::exception& ex ) {
-      edm::LogError ("EcalPedOffset") << "Error! can't get the product " 
+      edm::LogError ("EcalPedHists") << "Error! can't get the product " 
         << headerProducer_;
       return;
     }
@@ -311,13 +315,11 @@ void EcalPedHists::readEBdigis(edm::Handle<EBDigiCollection> digis)
   //debug
   //cout << "readEBdigis" << endl;
   
-  auto_ptr<EcalElectronicsMapping> ecalElectronicsMap(new EcalElectronicsMapping);
-
   // Loop over digis
   for (EBDigiCollection::const_iterator digiItr= digis->begin();digiItr != digis->end(); ++digiItr )
   {
     EBDetId detId = EBDetId(digiItr->id());
-    EcalElectronicsId elecId = ecalElectronicsMap->getElectronicsId(detId);
+    EcalElectronicsId elecId = ecalElectronicsMap_->getElectronicsId(detId);
     int FEDid = 600+elecId.dccId();
     int crystalId = detId.ic();
 
@@ -371,13 +373,11 @@ void EcalPedHists::readEEdigis(edm::Handle<EEDigiCollection> digis)
   //debug
   //cout << "readEEdigis" << endl;
   
-  auto_ptr<EcalElectronicsMapping> ecalElectronicsMap(new EcalElectronicsMapping);
-
   // Loop over digis
   for (EEDigiCollection::const_iterator digiItr= digis->begin();digiItr != digis->end(); ++digiItr )
   {
     EEDetId detId = EEDetId(digiItr->id());
-    EcalElectronicsId elecId = ecalElectronicsMap->getElectronicsId(detId);
+    EcalElectronicsId elecId = ecalElectronicsMap_->getElectronicsId(detId);
     int FEDid = 600+elecId.dccId();
     int crystalId = 10000*FEDid+100*elecId.towerId()+5*(elecId.stripId()-1)+elecId.xtalId();
 
