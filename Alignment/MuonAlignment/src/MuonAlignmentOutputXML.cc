@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Fri Mar 14 18:02:33 CDT 2008
-// $Id: MuonAlignmentOutputXML.cc,v 1.2 2008/03/19 15:09:35 pivarski Exp $
+// $Id: MuonAlignmentOutputXML.cc,v 1.3 2008/03/26 22:00:02 pivarski Exp $
 //
 
 // system include files
@@ -194,15 +194,8 @@ void MuonAlignmentOutputXML::writeComponents(std::vector<Alignable*> &alignables
 		  outputFile << "  <DTChamber wheel=\"" << id.wheel() << "\" station=\"" << id.station() << "\" sector=\"" << id.sector() << "\" />" << std::endl;
 	       }
 
-	       else { // you'll have to descend to get a DetId
-		  Alignable *aliid = *alignable;
-		  while (aliid->alignableObjectId() != align::AlignableDTChamber) {
-		     std::vector<Alignable*> components = aliid->components();
-		     if (components.size() == 0) throw cms::Exception("Alignment") << "Non-DTChamber,SuperLayer,Layer has zero components" << std::endl;
-		     aliid = components[0];
-		  }
-
-		  DTChamberId id(aliid->geomDetId().rawId());
+	       else {
+		  DTChamberId id((*alignable)->id());
 		  if (alignableObjectId == align::AlignableDTStation) {
 		     outputFile << "  <DTStation wheel=\"" << id.wheel() << "\" station=\"" << id.station() << "\" />" << std::endl;
 		  }
@@ -213,7 +206,7 @@ void MuonAlignmentOutputXML::writeComponents(std::vector<Alignable*> &alignables
 		     outputFile << "  <DTBarrel />" << std::endl;
 		  }
 		  else throw cms::Exception("Alignment") << "Unknown DT Alignable StructureType" << std::endl;
-	       } // end you'll have to descend to get a DetId
+	       }
 
 	    } // end if not rawId
 	 } // end if DT
@@ -234,15 +227,8 @@ void MuonAlignmentOutputXML::writeComponents(std::vector<Alignable*> &alignables
 		  CSCDetId id(rawId);
 		  outputFile << "  <CSCChamber endcap=\"" << id.endcap() << "\" station=\"" << id.station() << "\" ring=\"" << id.ring() << "\" chamber=\"" << id.chamber() << "\" />" << std::endl;
 	       }
-	       else { // you'll have to descend to get a DetId
-		  Alignable *aliid = *alignable;
-		  while (aliid->alignableObjectId() != align::AlignableCSCChamber) {
-		     std::vector<Alignable*> components = aliid->components();
-		     if (components.size() == 0) throw cms::Exception("Alignment") << "Non-CSCChamber,Layer has zero components" << std::endl;
-		     aliid = components[0];
-		  }
-
-		  CSCDetId id(aliid->geomDetId().rawId());
+	       else {
+		  CSCDetId id((*alignable)->id());
 		  if (alignableObjectId == align::AlignableCSCRing) {
 		     outputFile << "  <CSCRing endcap=\"" << id.endcap() << "\" station=\"" << id.station() << "\" ring=\"" << id.ring() << "\" />" << std::endl;
 		  }
@@ -254,7 +240,7 @@ void MuonAlignmentOutputXML::writeComponents(std::vector<Alignable*> &alignables
 		  }
 		  else throw cms::Exception("Alignment") << "Unknown CSC Alignable StructureType" << std::endl;
 	       
-	       } // end you'll have to descend to get a DetId
+	       }
 
 	    } // end if not rawId
 	 } // end if CSC
@@ -273,7 +259,7 @@ void MuonAlignmentOutputXML::writeComponents(std::vector<Alignable*> &alignables
 	 }
 
 	 else if (m_relativeto == 1) {
-	    if (ideal == ideals.end()  ||  (*ideal)->alignableObjectId() != alignableObjectId  ||  (*ideal)->geomDetId().rawId() != rawId) {
+	    if (ideal == ideals.end()  ||  (*ideal)->alignableObjectId() != alignableObjectId  ||  (*ideal)->id() != (*alignable)->id()) {
 	       throw cms::Exception("Alignment") << "AlignableMuon and ideal_AlignableMuon are out of sync!" << std::endl;
 	    }
 

@@ -1,8 +1,8 @@
 /// \file AlignmentProducer.cc
 ///
 ///  \author    : Frederic Ronga
-///  Revision   : $Revision: 1.23 $
-///  last update: $Date: 2008/02/25 17:47:51 $
+///  Revision   : $Revision: 1.24 $
+///  last update: $Date: 2008/03/05 17:32:32 $
 ///  by         : $Author: flucke $
 
 #include "AlignmentProducer.h"
@@ -616,7 +616,7 @@ void AlignmentProducer::addSurveyInfo_(Alignable* ali)
 
   const SurveyError& error = theSurveyErrors->m_surveyErrors[theSurveyIndex];
 
-  if ( ali->geomDetId().rawId() != error.rawId() ||
+  if ( ali->id() != error.rawId() ||
        ali->alignableObjectId() != error.structureType() )
   {
     throw cms::Exception("DatabaseError")

@@ -117,8 +117,9 @@ void MuonAlignment::recursiveList(std::vector<Alignable*> alignables, std::vecto
 //
 void MuonAlignment::recursiveMap(std::vector<Alignable*> alignables, std::map<align::ID, Alignable*> &theMap) {
    for (std::vector<Alignable*>::const_iterator alignable = alignables.begin();  alignable != alignables.end();  ++alignable) {
-      if ((*alignable)->id() != 0) {
-	 theMap[(*alignable)->id()] = *alignable;
+      unsigned int rawId = (*alignable)->geomDetId().rawId();
+      if (rawId != 0) {
+	 theMap[rawId] = *alignable;
       }
       recursiveMap((*alignable)->components(), theMap);
    }
@@ -128,9 +129,7 @@ void MuonAlignment::recursiveMap(std::vector<Alignable*> alignables, std::map<al
 //
 void MuonAlignment::recursiveStructureMap(std::vector<Alignable*> alignables, std::map<std::pair<align::StructureType, align::ID>, Alignable*> &theMap) {
    for (std::vector<Alignable*>::const_iterator alignable = alignables.begin();  alignable != alignables.end();  ++alignable) {
-      Alignable *aliid = *alignable;
-      while (aliid->id() == 0) aliid = aliid->components()[0];
-      theMap[std::pair<align::StructureType, align::ID>((*alignable)->alignableObjectId(), aliid->id())] = *alignable;
+      theMap[std::pair<align::StructureType, align::ID>((*alignable)->alignableObjectId(), (*alignable)->id())] = *alignable;
       recursiveStructureMap((*alignable)->components(), theMap);
    }
 }
@@ -256,9 +255,6 @@ void MuonAlignment::saveDTSurveyToDB(void) {
   recursiveList(theAlignableMuon->DTBarrel(), alignableList);
 
   for (std::vector<Alignable*>::const_iterator alignable = alignableList.begin();  alignable != alignableList.end();  ++alignable) {
-     Alignable *aliid = *alignable;
-//     while (aliid->id() == 0) aliid = aliid->components()[0];  // Survey-reading code expects ID=0 for structures: is that correct?
-
      const align::PositionType &pos = (*alignable)->survey()->position();
      const align::RotationType &rot = (*alignable)->survey()->rotation();
 
@@ -266,8 +262,8 @@ void MuonAlignment::saveDTSurveyToDB(void) {
 			    CLHEP::HepRotation(CLHEP::HepRep3x3(rot.xx(), rot.xy(), rot.xz(),
 								      rot.yx(), rot.yy(), rot.yz(),
 								      rot.zx(), rot.zy(), rot.zz())),
-			    aliid->id());
-     SurveyError error((*alignable)->alignableObjectId(), aliid->id(), (*alignable)->survey()->errors());
+			    (*alignable)->id());
+     SurveyError error((*alignable)->alignableObjectId(), (*alignable)->id(), (*alignable)->survey()->errors());
      
      dtAlignments->m_align.push_back(value);
      dtSurveyErrors->m_surveyErrors.push_back(error);
@@ -292,9 +288,6 @@ void MuonAlignment::saveCSCSurveyToDB(void) {
   recursiveList(theAlignableMuon->CSCEndcaps(), alignableList);
 
   for (std::vector<Alignable*>::const_iterator alignable = alignableList.begin();  alignable != alignableList.end();  ++alignable) {
-     Alignable *aliid = *alignable;
-//     while (aliid->id() == 0) aliid = aliid->components()[0];  // Survey-reading code expects ID=0 for structures: is that correct?
-
      const align::PositionType &pos = (*alignable)->survey()->position();
      const align::RotationType &rot = (*alignable)->survey()->rotation();
 
@@ -302,8 +295,8 @@ void MuonAlignment::saveCSCSurveyToDB(void) {
 			    CLHEP::HepRotation(CLHEP::HepRep3x3(rot.xx(), rot.xy(), rot.xz(),
 								      rot.yx(), rot.yy(), rot.yz(),
 								      rot.zx(), rot.zy(), rot.zz())),
-			    aliid->id());
-     SurveyError error((*alignable)->alignableObjectId(), aliid->id(), (*alignable)->survey()->errors());
+			    (*alignable)->id());
+     SurveyError error((*alignable)->alignableObjectId(), (*alignable)->id(), (*alignable)->survey()->errors());
      
      cscAlignments->m_align.push_back(value);
      cscSurveyErrors->m_surveyErrors.push_back(error);
