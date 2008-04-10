@@ -2,6 +2,8 @@
 #include "AnalysisDataFormats/TrackInfo/interface/TrackInfo.h"
 #include "AnalysisDataFormats/TrackInfo/interface/TrackInfoTrackAssociation.h"
 #include "DataFormats/Common/interface/AssociationMap.h"
+#include "AnalysisDataFormats/TrackInfo/interface/TPtoRecoTrack.h"
+#include "AnalysisDataFormats/TrackInfo/interface/TPtoRecoTrackCollection.h"
 #include <vector>
 
 
@@ -31,5 +33,9 @@ namespace {
     reco::TrackInfoTrackAssociationRef r5;
     reco::TrackInfoTrackAssociationRefProd rp5;
     reco::TrackInfoTrackAssociationRefVector rv5;
+
+    edm::Wrapper<TPtoRecoTrack> TPtoRecoTrackWrapper ;
+    edm::Wrapper<TPtoRecoTrackCollection> TPtoRecoTrackCollectionWrapper;
+
   }
 }

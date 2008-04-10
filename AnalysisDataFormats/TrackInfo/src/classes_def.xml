@@ -20,4 +20,12 @@
     <field name="transientMap_" transient="true" />
   </class>
   <class name="edm::Wrapper<edm::AssociationMap<edm::OneToOne<std::vector<reco::Track>,std::vector<reco::TrackInfo>,unsigned int> > >" />
+
+  <class name="TPtoRecoTrack"/>
+  <class name="edm::Wrapper<TPtoRecoTrack>"/>
+  
+  <class name="std::vector<TPtoRecoTrack>"/>
+  <class name="edm::Wrapper<std::vector<TPtoRecoTrack> >"/>
+
+
 </lcgdict>
