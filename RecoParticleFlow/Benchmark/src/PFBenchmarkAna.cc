@@ -1,41 +1,58 @@
 #include "RecoParticleFlow/Benchmark/interface/PFBenchmarkAna.h"
 
+/* 
+// CMSSW_2_X_X
 #include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
-//#include "DQMServices/Core/interface/CollateMERoot.h"
-//#include "FWCore/ServiceRegistry/interface/Service.h"
-
-#include "TFile.h"
-#include "TH1F.h"
-#include "TH2F.h"
-
-using namespace reco;
-using namespace std;
 
 // preprocessor macro for booking 1d histos with DQMStore -or- bare Root
-#define BOOK1D(name,title,nbinsx,lowx,highx) do { \
-  if (dbe_) \
-    h##name = dbe_->book1D(#name,#title,nbinsx,lowx,highx)->getTH1F(); \
-  else \
-    h##name = new TH1F(#name,#title,nbinsx,lowx,highx); \
-} while(0)
+#define BOOK1D(name,title,nbinsx,lowx,highx) \
+  h##name = DQM ? DQM->book1D(#name,#title,nbinsx,lowx,highx)->getTH1F() \
+    : new TH1F(#name,#title,nbinsx,lowx,highx)
 
 // preprocessor macro for booking 2d histos with DQMStore -or- bare Root
-#define BOOK2D(name,title,nbinsx,lowx,highx,nbinsy,lowy,highy) do { \
-  if (dbe_) \
-    h##name = dbe_->book2D(#name,#title,nbinsx,lowx,highx,nbinsy,lowy,highy)->getTH2F(); \
-  else \
-    h##name = new TH2F(#name,#title,nbinsx,lowx,highx,nbinsy,lowy,highy); \
-} while(0)
+#define BOOK2D(name,title,nbinsx,lowx,highx,nbinsy,lowy,highy) \
+  h##name = DQM ? DQM->book2D(#name,#title,nbinsx,lowx,highx,nbinsy,lowy,highy)->getTH2F() \
+    : new TH2F(#name,#title,nbinsx,lowx,highx,nbinsy,lowy,highy)
+*/
+
+// CMSSW_1_X_X
+#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
+#include "DQMServices/Daemon/interface/MonitorDaemon.h"
+#include "DQMServices/CoreROOT/interface/CollateMERoot.h"
+
+// preprocessor macro for booking 1d histos with DaqMonitorBEInterface -or- bare Root
+#define BOOK1D(name,title,nbinsx,lowx,highx) \
+  if (DQM) { \
+    MonitorElement *me = DQM->book1D(#name,#title,nbinsx,lowx,highx); \
+    MonitorElementT<TNamed> *ob = dynamic_cast<MonitorElementT<TNamed>* >(me); \
+    if (ob) h##name = dynamic_cast<TH1F *>(ob->operator->()); \
+  } else h##name = new TH1F(#name,#title,nbinsx,lowx,highx)
+
+// preprocessor macro for booking 2d histos with DaqMonitorBEInterface -or- bare Root
+#define BOOK2D(name,title,nbinsx,lowx,highx,nbinsy,lowy,highy) \
+  if (DQM) { \
+    MonitorElement *me = DQM->book2D(#name,#title,nbinsx,lowx,highx,nbinsy,lowy,highy); \
+    MonitorElementT<TNamed> *ob = dynamic_cast<MonitorElementT<TNamed>* >(me); \
+    if (ob) h##name = dynamic_cast<TH2F *>(ob->operator->()); \
+  } else h##name = new TH2F(#name,#title,nbinsx,lowx,highx,nbinsy,lowy,highy)
+
+
+// all versions OK
+// preprocesor macro for setting axis titles
+#define SETAXES(name,xtitle,ytitle) \
+  h##name->GetXaxis()->SetTitle(xtitle); h##name->GetYaxis()->SetTitle(ytitle)
 
 PFBenchmarkAna::PFBenchmarkAna() {}
 
 PFBenchmarkAna::~PFBenchmarkAna() {}
 
-void PFBenchmarkAna::setup(DQMStore *DQM) {
+// void PFBenchmarkAna::setup(DQMStore *DQM) { // CMSSW_2_X_X
+void PFBenchmarkAna::setup(DaqMonitorBEInterface *DQM) { // CMSSW_1_X_X
 
-  if (DQM) dbe_ = DQM;
-  else file_ = new TFile();
+  // use bare Root if no DQM (FWLite applications)
+  if (!DQM) file_ = new TFile();
+
+  // Book Histograms
 
   // delta et quantities
   BOOK1D(DeltaEt,DeltaEt,1000,-100,100);
@@ -51,33 +68,70 @@ void PFBenchmarkAna::setup(DQMStore *DQM) {
   // delta eta quantities
   BOOK1D(DeltaEta,DeltaEta,100,-3,3);
   BOOK2D(DeltaEtavsEt,DeltaEtavsEt,1000,0,1000,100,-3,3);
-  BOOK2D(DeltaEtaOverEtavsEt,DeltaEtaOverEtavsEt,1000,0,1000,100,-1,1);
+  BOOK2D(DeltaEtaOverEtavsEt,DeltaEtaOverEtavsEt,1000,0,1000,100,-1,1); // ms: propose remove
   BOOK2D(DeltaEtavsEta,DeltaEtavsEta,200,-5,5,100,-3,3);
-  BOOK2D(DeltaEtaOverEtavsEta,DeltaEtaOverEtvsEta,200,-5,5,100,-1,1);
-  BOOK2D(DeltaEtavsPhi,DeltaEtavsPhi,200,-M_PI,M_PI,200,-M_PI,M_PI);
-  BOOK2D(DeltaEtaOverEtavsPhi,DeltaEtaOverEtavsPhi,200,-M_PI,M_PI,100,-1,1);
+  BOOK2D(DeltaEtaOverEtavsEta,DeltaEtaOverEtvsEta,200,-5,5,100,-1,1); // ms: propose remove
+  BOOK2D(DeltaEtavsPhi,DeltaEtavsPhi,200,-M_PI,M_PI,200,-M_PI,M_PI); // ms: propose remove
+  BOOK2D(DeltaEtaOverEtavsPhi,DeltaEtaOverEtavsPhi,200,-M_PI,M_PI,100,-1,1); // ms: propose remove
 
   // delta phi quantities
   BOOK1D(DeltaPhi,DeltaPhi,100,-M_PI_2,M_PI_2);
   BOOK2D(DeltaPhivsEt,DeltaPhivsEt,1000,0,1000,100,-M_PI_2,M_PI_2);
-  BOOK2D(DeltaPhiOverPhivsEt,DeltaPhiOverPhivsEt,1000,0,1000,100,-1,1);
+  BOOK2D(DeltaPhiOverPhivsEt,DeltaPhiOverPhivsEt,1000,0,1000,100,-1,1); // ms: propose remove
   BOOK2D(DeltaPhivsEta,DeltaPhivsEta,200,-5,5,100,-M_PI_2,M_PI_2);
-  BOOK2D(DeltaPhiOverPhivsEta,DeltaPhiOverPhivsEta,200,-5,5,100,-1,1);
-  BOOK2D(DeltaPhivsPhi,DeltaPhivsPhi,200,-M_PI,M_PI,200,-M_PI,M_PI);
-  BOOK2D(DeltaPhiOverPhivsPhi,DeltaPhiOverPhivsPhi,200,-M_PI,M_PI,100,-1,1);
+  BOOK2D(DeltaPhiOverPhivsEta,DeltaPhiOverPhivsEta,200,-5,5,100,-1,1); // ms: propose remove
+  BOOK2D(DeltaPhivsPhi,DeltaPhivsPhi,200,-M_PI,M_PI,200,-M_PI,M_PI); // ms: propose remove
+  BOOK2D(DeltaPhiOverPhivsPhi,DeltaPhiOverPhivsPhi,200,-M_PI,M_PI,100,-1,1); // ms: propose remove
 
   // delta R quantities
   BOOK1D(DeltaR,DeltaR,100,0,1);
   BOOK2D(DeltaRvsEt,DeltaRvsEt,1000,0,1000,100,0,1);
   BOOK2D(DeltaRvsEta,DeltaRvsEta,200,-5,5,100,0,1);
-  BOOK2D(DeltaRvsPhi,DeltaRvsPhi,200,-M_PI,M_PI,100,0,1);
+  BOOK2D(DeltaRvsPhi,DeltaRvsPhi,200,-M_PI,M_PI,100,0,1); // ms: propose remove
 
   // number of truth particles found within given cone radius of reco
   //BOOK2D(NumInConeVsConeSize,NumInConeVsConeSize,100,0,1,25,0,25);
 
+  // Set Axis Titles
+
+  // delta et quantities
+  SETAXES(DeltaEt,"#DeltaEt","Events");
+  SETAXES(DeltaEtvsEt,"Et","#DeltaEt");
+  SETAXES(DeltaEtOverEtvsEt,"Et","#DeltaEt/Et");
+  SETAXES(DeltaEtvsEta,"Eta","#DeltaEt");
+  SETAXES(DeltaEtOverEtvsEta,"Eta","#DeltaEt/Et");
+  SETAXES(DeltaEtvsPhi,"Phi","#DeltaEt");
+  SETAXES(DeltaEtOverEtvsPhi,"Phi","#DeltaEt/Et");
+  SETAXES(DeltaEtvsDeltaR,"#DeltaR","#DeltaEt");
+  SETAXES(DeltaEtOverEtvsDeltaR,"#DeltaR","#DeltaEt/Et");
+
+  // delta eta quantities
+  SETAXES(DeltaEta,"#DeltaEta","Events");
+  SETAXES(DeltaEtavsEt,"Et","#DeltaEta");
+  SETAXES(DeltaEtavsEta,"Eta","#DeltaEta");
+  SETAXES(DeltaEtaOverEtavsEt,"Et","#DeltaEta/Eta");
+  SETAXES(DeltaEtaOverEtavsEta,"Eta","#DeltaEta/Eta");
+  SETAXES(DeltaEtavsPhi,"Phi","#DeltaEta");
+  SETAXES(DeltaEtaOverEtavsPhi,"Phi","#DeltaEta/Eta");
+
+  // delta phi quantities
+  SETAXES(DeltaPhi,"#DeltaPhi","Events");
+  SETAXES(DeltaPhivsEt,"Et","#DeltaPhi");
+  SETAXES(DeltaPhivsEta,"Eta","#DeltaPhi");
+  SETAXES(DeltaPhiOverPhivsEt,"Et","#DeltaPhi/Phi");
+  SETAXES(DeltaPhiOverPhivsEta,"Eta","#DeltaPhi/Phi");
+  SETAXES(DeltaPhivsPhi,"Phi","#DeltaEta");
+  SETAXES(DeltaPhiOverPhivsPhi,"Phi","#DeltaPhi/Phi");
+
+  // delta R quantities
+  SETAXES(DeltaR,"#DeltaR","Events");
+  SETAXES(DeltaRvsEt,"Et","#DeltaR");
+  SETAXES(DeltaRvsEta,"Eta","#DeltaR");
+  SETAXES(DeltaRvsPhi,"Phi","#DeltaR");
+  
 }
 
-void PFBenchmarkAna::write(string Filename) {
+void PFBenchmarkAna::write(std::string Filename) {
 
   if (Filename.size() != 0 && file_)
     file_->Write(Filename.c_str());
