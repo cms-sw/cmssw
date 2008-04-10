@@ -30,6 +30,9 @@ class SamplingAnalysis : public CommissioningAnalysis {
   inline const Histo& histo() const;
   void print( std::stringstream&, uint32_t not_used = 0 );
   
+  inline void setSoNcut(const float sOnCut) { sOnCut_ = sOnCut; }
+  float getSoNcut() const { return sOnCut_; }
+  
  private:
   
   void reset();
@@ -40,7 +43,12 @@ class SamplingAnalysis : public CommissioningAnalysis {
   float limit(float SoNcut) const;
   float correctMeasurement(float mean, float SoNcut=3.) const;
   void correctProfile(TProfile* profile, float SoNcut=3.) const;
-  
+
+ private:
+
+  /** s/n cut to be used */
+  float sOnCut_;
+
  private:
   
   /** Delay corresponding to the maximum of the pulse shape */
@@ -58,6 +66,4 @@ class SamplingAnalysis : public CommissioningAnalysis {
 };
 
 #endif // CondFormats_SiStripObjects_SamplingAnalysis_H
-
-
 

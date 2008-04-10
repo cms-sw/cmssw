@@ -16,6 +16,7 @@ using namespace sistrip;
 // 
 SamplingAnalysis::SamplingAnalysis( const uint32_t& key ) 
   : CommissioningAnalysis(key,"SamplingAnalysis"),
+    sOnCut_(3),
     max_(sistrip::invalid_),
     error_(sistrip::invalid_),
     histo_(0,"")
@@ -40,6 +41,7 @@ SamplingAnalysis::SamplingAnalysis( const uint32_t& key )
 // 
 SamplingAnalysis::SamplingAnalysis() 
   : CommissioningAnalysis("SamplingAnalysis"),
+    sOnCut_(3),
     max_(sistrip::invalid_),
     error_(sistrip::invalid_),
     histo_(0,"")
@@ -138,15 +140,14 @@ void SamplingAnalysis::analyse() {
     edm::LogWarning(mlCommissioning_) << " NULL pointer to histogram!" ;
     return;
   }
-  
-  // we will run on a tmp copy of the histogram, for security
-  TProfile* prof = (TProfile*)((TProfile*)(histo_.first))->Clone();
+
+  TProfile* prof = (TProfile*)(histo_.first);
   // prune the profile
   pruneProfile(prof);
   // correct for the binning
   correctBinning(prof);
   // correct for clustering effects
-  correctProfile(prof);
+  correctProfile(prof,sOnCut_);
   
   if(runType_==sistrip::APV_LATENCY) {
     // fit
