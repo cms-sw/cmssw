@@ -68,10 +68,10 @@ void SurveyDBUploader::getSurveyInfo(const Alignable* ali)
 		     ( CLHEP::HepRep3x3( rot.xx(), rot.xy(), rot.xz(),
 					 rot.yx(), rot.yy(), rot.yz(),
 					 rot.zx(), rot.zy(), rot.zz() ) ),
-		     ali->geomDetId().rawId() );
+		     ali->id() );
 
   SurveyError error( ali->alignableObjectId(),
-		     ali->geomDetId().rawId(),
+		     ali->id(),
 		     survey->errors() );
 
   theValues->m_align.push_back(value);
