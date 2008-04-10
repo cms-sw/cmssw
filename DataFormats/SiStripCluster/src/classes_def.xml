@@ -16,6 +16,13 @@
  <class name="edm::Wrapper< edm::DetSetVector<SiStripCluster> >"/>
  <class name="edm::Wrapper< std::vector< std::vector < edm::DetSet<SiStripCluster> > > >"/>
 
+ <class name="edmNew::DetSetVector<SiStripCluster>"/>
+
+ <class name="edm::Wrapper< edmNew::DetSetVector<SiStripCluster> >"/>
+
+ <class name="edm::Ref<edm::DetSetVector<SiStripCluster>, SiStripCluster, edm::refhelper::FindForDetSetVector<SiStripCluster> >"/>
+ <class name="edm::Ref<edmNew::DetSetVector<SiStripCluster>, SiStripCluster, edmNew::DetSetVector<SiStripCluster>::FindForDetSetVector>"/>
+
  <class name="edm::RegionIndex<SiStripCluster>"><field name="getter_" transient="true"/> </class>
  <class name="std::vector< edm::RegionIndex<SiStripCluster> >"/>
  <class name="edm::SiStripLazyGetter<SiStripCluster>"><field name="unpacker_" transient="true"/> </class>

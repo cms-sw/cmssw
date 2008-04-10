@@ -12,6 +12,8 @@ namespace {
 }
 
 #include "DataFormats/Common/interface/DetSetVector.h"
+#include "DataFormats/Common/interface/DetSetVectorNew.h"
+#include "DataFormats/Common/interface/Ref.h"
 #include "DataFormats/SiStripCluster/interface/SiStripCluster.h"
 namespace {
   namespace {
@@ -21,6 +23,11 @@ namespace {
     edm::Wrapper< std::vector<edm::DetSet<SiStripCluster> > > dummy3;
     edm::Wrapper< edm::DetSetVector<SiStripCluster> > dummy4;
     edm::Wrapper< std::vector< std::vector < edm::DetSet<SiStripCluster> > > > dummy5;
+
+    edm::Wrapper< edmNew::DetSetVector<SiStripCluster> > dummy4_bis;
+
+    edm::Ref<   edm::DetSetVector<SiStripCluster>, SiStripCluster, edm::refhelper::FindForDetSetVector<   SiStripCluster> >    refOld;
+    edm::Ref<edmNew::DetSetVector<SiStripCluster>, SiStripCluster, edmNew::DetSetVector<SiStripCluster>::FindForDetSetVector > refNew;
   }
 }
 
