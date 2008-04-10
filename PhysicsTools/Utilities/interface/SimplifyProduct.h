@@ -112,54 +112,55 @@ namespace funct {
 	     (_1._1 * _2._1)/(_1._2 * _2._2));
 
   // a^b * a^c => a^( b + c )
-  template<TYPT3, bool parametric = Parametric<A>::value>
+  template< TYPT3, bool parametric = Parametric<A>::value>
   struct SimplifyPowerProduct {
-    typedef POWER(A, B) arg1;
-    typedef POWER(A, C) arg2;
-    typedef PROD_S(arg1, arg2) type;
-    COMBINE(arg1, arg2, type(_1, _2));
+    typedef POWER( A, B ) arg1;
+    typedef POWER( A, C ) arg2;
+    typedef PROD_S( arg1, arg2 ) type;
+    COMBINE( arg1, arg2, type( _1, _2 ) );
   };
-
-  TEMPL(T3)
-  struct SimplifyPowerProduct<A, B, C, false> {
-    typedef POWER(A, B) arg1;
-    typedef POWER(A, C) arg2;
-    typedef POWER(A, SUM(B, C)) type;
-    inline static type combine(const arg1 & _1, const arg2 & _2) { 
-      return pow(DecomposePower<A, B>::getBase(_1), 
-		  (DecomposePower<A, B>::getExp(_1) + 
-		    DecomposePower<A, C>::getExp(_2))); 
-    }
+  
+  TEMPL( T3 )
+  struct SimplifyPowerProduct< A, B, C, false > {
+    typedef POWER( A, B ) arg1;
+    typedef POWER( A, C ) arg2;
+    typedef POWER( A, SUM( B, C ) ) type;
+	 inline static type combine( const arg1 & _1, const arg2 & _2 ) 
+    { return pow( DecomposePower< A, B >::getBase( _1 ), 
+		  ( DecomposePower< A, B >::getExp( _1 ) + 
+		    DecomposePower< A, C >::getExp( _2 ) ) ); }
   };
-
-  TEMPL(T3) struct Product<POWER_S(A, B),POWER_S(A, C)> :
-    public SimplifyPowerProduct<A, B, C> { };
   
-  TEMPL(T2) struct Product<POWER_S(A, B),POWER_S(A, B)> :
-    public SimplifyPowerProduct<A, B, B> { };
+  TEMPL( T3 ) struct Product< POWER_S( A, B ),POWER_S( A, C ) > :
+    public SimplifyPowerProduct< A, B, C > { };
   
-  TEMPL(T2) struct Product<A, POWER_S(A, B)> : 
-    public SimplifyPowerProduct<A, NUM(1), B> { };
+  TEMPL( T2 ) struct Product< POWER_S( A, B ),POWER_S( A, B ) > :
+    public SimplifyPowerProduct< A, B, B > { };
   
-  TEMPL(N1T1) struct Product<A, POWER_S(A, NUM(n))> : 
-    public SimplifyPowerProduct<A, NUM(1), NUM(n)> { };
+  TEMPL( T2 ) struct Product< A, POWER_S( A, B ) > : 
+    public SimplifyPowerProduct< A, NUM( 1 ), B > { };
 
-  TEMPL(T2) struct Product<POWER_S(A, B), A> : 
-    public SimplifyPowerProduct<A, B, NUM(1)> { };
+  TEMPL( N1T1 ) struct Product< A, POWER_S( A, NUM( n ) ) > : 
+    public SimplifyPowerProduct< A, NUM( 1 ), NUM( n ) > { };
+  
+  TEMPL( T2 ) struct Product< POWER_S( A, B ), A > : 
+    public SimplifyPowerProduct< A, B, NUM( 1 ) > { };
 
-  TEMPL(N1T1) struct Product<POWER_S(A, NUM(n)), A> : 
-    public SimplifyPowerProduct<A, NUM(n), NUM(1)> { };
+  TEMPL( N1T1 ) struct Product< POWER_S( A, NUM( n ) ), A > : 
+    public SimplifyPowerProduct< A, NUM( n ), NUM( 1 ) > { };
 
-  TEMPL(T1) struct Product<A, A> : 
-    public SimplifyPowerProduct<A, NUM(1), NUM(1)> { };
+  TEMPL( T1 ) struct Product< A, A > : 
+    public SimplifyPowerProduct< A, NUM( 1 ), NUM( 1 ) > { };
 
-  TEMPL(T2) struct Product<PROD_S(A, B), PROD_S(A, B)> : 
-    public SimplifyPowerProduct<PROD(A, B), NUM(1), NUM(1)> { };
+  TEMPL( T2 ) struct Product< PROD_S( A, B ), PROD_S( A, B ) > : 
+    public SimplifyPowerProduct< PROD( A, B ), NUM( 1 ), NUM( 1 ) > { };
 
-  TEMPL(T1) struct Product<MINUS_S(A), MINUS_S(A)> : 
-    public SimplifyPowerProduct<MINUS_S(A), NUM(1), NUM(1)> { };
+  TEMPL( T1 ) struct Product< MINUS_S( A ), MINUS_S( A ) > : 
+    public SimplifyPowerProduct< MINUS_S( A ), NUM( 1 ), NUM( 1 ) > { };
 
-  PROD_RULE(TYPN1, NUM(n), NUM(n), NUM(2 * n), num<2 * n>());
+
+  // n * n = n ^ 2
+  PROD_RULE(TYPN1, NUM(n), NUM(n), NUM(n*n), num<n*n>());
 
   // a/ b * ( c * d ) = ( a * c * d ) / b
   PROD_RULE(TYPT4, RATIO_S(A, B), PROD_S(C, D),

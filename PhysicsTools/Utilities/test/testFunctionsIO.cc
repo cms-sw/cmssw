@@ -97,4 +97,6 @@ void testFunctionsIO::checkAll() {
   CHECK((x * y) *(-z), "-x y z"); 
   CHECK((-x) * y, "-x y");
   CHECK(_2 * (x/y), "( 2 x )/y");
+  CHECK(x * _2, "2 x");
+  CHECK((x ^ y) * (x ^ z), "x^( y + z )"); 
 }
