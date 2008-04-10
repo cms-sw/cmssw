@@ -16,6 +16,7 @@ Validation and comparison plots:
     [ ] make efficiency histograms (useless but nice for presentations)
 
  + complete migration to new HLT data model
+    [v] make version which does NOT use new data model, compatible with 1.6.x/1.7.x
 
 Detailed plots:
 
