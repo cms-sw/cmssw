@@ -116,7 +116,7 @@ void newSiStripO2O::analyze(const edm::Event& evt, const edm::EventSetup& iSetup
       
       if( mydbservice->isNewTagRequest("SiStripNoisesRcd") ){
 	edm::LogInfo("SiStripO2O") << "new tag requested for SiStripNoisesRcd" << std::endl;
-	mydbservice->createNewIOV<SiStripPedestals>(ped_cpy,mydbservice->currentTime(),mydbservice->endOfTime(),"SiStripPedestalsRcd");      
+	mydbservice->createNewIOV<SiStripNoises>(noise_cpy,mydbservice->currentTime(),mydbservice->endOfTime(),"SiStripNoisesRcd");      
       } else {
 	edm::LogInfo("SiStripO2O") << "append to existing tag for SiStripNoisesRcd" << std::endl;
 	mydbservice->appendSinceTime<SiStripNoises>(noise_cpy,mydbservice->currentTime(),"SiStripNoisesRcd");      
@@ -124,7 +124,7 @@ void newSiStripO2O::analyze(const edm::Event& evt, const edm::EventSetup& iSetup
      
       if( mydbservice->isNewTagRequest("SiStripFedCablingRcd") ){
 	edm::LogInfo("SiStripO2O") << "new tag requested for SiStripFedCablingRcd" << std::endl;
-	mydbservice->createNewIOV<SiStripPedestals>(ped_cpy,mydbservice->currentTime(),mydbservice->endOfTime(),"SiStripPedestalsRcd");      
+	mydbservice->createNewIOV<SiStripFedCabling>(cabling_cpy,mydbservice->currentTime(),mydbservice->endOfTime(),"SiStripFedCablingRcd");      
       } else {
 	edm::LogInfo("SiStripO2O") << "append to existing tag for SiStripFedCablingRcd" << std::endl;
 	mydbservice->appendSinceTime<SiStripFedCabling>(cabling_cpy,mydbservice->currentTime(),"SiStripFedCablingRcd"); 
