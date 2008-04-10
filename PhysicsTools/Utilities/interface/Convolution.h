@@ -45,8 +45,8 @@ namespace funct {
   };
 
   template<typename A, typename B>
-  inline typename funct::Composition<A, B>::type conv(const A& a, const B& b) {
-    return funct::Composition<A, B>::compose(a, b);
+  inline typename funct::Convolution<A, B>::type conv(const A& a, const B& b) {
+    return funct::Convolution<A, B>::compose(a, b);
   }
 
 }
