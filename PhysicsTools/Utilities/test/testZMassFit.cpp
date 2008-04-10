@@ -48,7 +48,7 @@ int main() {
     histo.Draw("e");
     startFun.Draw("same");
     
-    ChiSquared chi2(f, &histo, 0, 200);
+    ChiSquared chi2(f, &histo, 80, 120);
     int fullBins = chi2.degreesOfFreedom();
     std::cout << "N. deg. of freedom: " << fullBins << std::endl;
     fit::RootMinuit<ChiSquared> minuit(chi2, true);
@@ -56,12 +56,7 @@ int main() {
     commands.add(minuit, mass);
     commands.add(minuit, gamma);
     commands.run(minuit);
-    root::plot<FitFunction>("breitWignedHistoFunFit.eps", histo, f, 0, 200, yield, mass, gamma);
-    /*TF1 fun = root::tf1("fun", f, 80, 120, yield, mass, gamma);
-    fun.SetParNames(yield.name().c_str(), mass.name().c_str(), gamma.name().c_str());
-    fun.SetLineColor(kRed);
-    fun.Draw("same");
-    canvas.SaveAs("breitWignedHistoFunFit.eps");*/
+    root::plot<FitFunction>("breitWignedHistoFunFit.eps", histo, f, 80, 120, yield, mass, gamma);
   } catch(std::exception & err){
     std::cerr << "Exception caught:\n" << err.what() << std::endl;
     return 1;
