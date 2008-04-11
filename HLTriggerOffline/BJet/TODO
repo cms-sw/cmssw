@@ -14,6 +14,9 @@ Validation and comparison plots:
     [v] per jets
     [v] per events
     [ ] make efficiency histograms (useless but nice for presentations)
+ + allow job splitting
+    [ ] move efficiency plots to external macro
+    [ ] add nice-plots-making to external macro
 
  + complete migration to new HLT data model
     [v] make version which does NOT use new data model, compatible with 1.6.x/1.7.x

@@ -109,6 +109,10 @@ private:
   std::vector<double>       m_offlineCuts;      // Offline match - discriminator cuts
   double                    m_offlineRadius;    // Offline match - deltaR association radius
 
+  // compute efficiencies
+  bool m_doStepEfficiencies;
+  bool m_doCumulativeEfficiencies;
+
   // plot configuration
   double m_jetMinEnergy;
   double m_jetMaxEnergy;
@@ -147,6 +151,8 @@ HLTBtagLifetimeAnalyzer::HLTBtagLifetimeAnalyzer(const edm::ParameterSet & confi
   m_offlineLabels(),
   m_offlineCuts(),
   m_offlineRadius( config.getParameter<double>("offlineRadius") ),
+  m_doStepEfficiencies( config.getParameter<bool>("computeStepEfficiencies") ),
+  m_doCumulativeEfficiencies( config.getParameter<bool>("computeCumulativeEfficiencies") ),
   m_jetMinEnergy(  0. ),    //   0 GeV
   m_jetMaxEnergy( 300. ),   // 300 GeV
   m_jetMaxEta( 5. ),        //  ±5 pseudorapidity units
@@ -369,14 +375,15 @@ void HLTBtagLifetimeAnalyzer::analyze(const edm::Event & event, const edm::Event
 
 void HLTBtagLifetimeAnalyzer::endJob()
 {
-  // compute and print overall per-event efficiencies
+  // print event rates
   edm::LogVerbatim("HLTBtagAnalyzer") << m_triggerPath << " HLT Trigger path" << std::endl << std::endl;
   for (unsigned int i = 0; i < m_levels.size(); ++i) {
     std::stringstream out;
     out << std::setw(64) << std::left << ("events passing " + m_levels[i].m_title) << std::right << std::setw(12) << m_events[i];
     edm::LogVerbatim("HLTBtagAnalyzer") << m_triggerPath << ":" << out.str() << std::endl;
   }
-  for (unsigned int i = 1; i < m_levels.size(); ++i) {
+  if (m_doStepEfficiencies) for (unsigned int i = 1; i < m_levels.size(); ++i) {
+    // compute and print step-by-step event efficiencies
     std::stringstream out;
     out << std::setw(64) << std::left << ("step efficiency at " + m_levels[i].m_title);
     if (m_events[i-1] > 0) {
@@ -387,7 +394,8 @@ void HLTBtagLifetimeAnalyzer::endJob()
     }
     edm::LogVerbatim("HLTBtagAnalyzer") << m_triggerPath << ":" << out.str() << std::endl;
   }
-  for (unsigned int i = 1; i < m_levels.size(); ++i) {
+  if (m_doCumulativeEfficiencies) for (unsigned int i = 1; i < m_levels.size(); ++i) {
+    // compute and print cumulative event efficiencies
     std::stringstream out;
     out << std::setw(64) << std::left << ("cumulative efficiency at " + m_levels[i].m_title);
     if (m_events[0] > 0) {
@@ -408,14 +416,20 @@ void HLTBtagLifetimeAnalyzer::endJob()
       m_mcPlots[i].save(*dir);
       m_offlinePlots[i].save(*dir);
     }
-    for (unsigned int i = 1; i < m_levels.size(); ++i) {
+    if ((m_doStepEfficiencies or m_doCumulativeEfficiencies) and m_levels.size() > 1) {
+      // make second-wrt-first level efficiency plots
+      m_jetPlots[1].efficiency( m_jetPlots[0] ).save(*dir);
+      m_mcPlots[1].efficiency( m_mcPlots[0] ).save(*dir);
+      m_offlinePlots[1].efficiency( m_offlinePlots[0] ).save(*dir);
+    }
+    if (m_doStepEfficiencies) for (unsigned int i = 2; i < m_levels.size(); ++i) {
       // make step-by-step efficiency plots
       m_jetPlots[i].efficiency( m_jetPlots[i-1] ).save(*dir);
       m_mcPlots[i].efficiency( m_mcPlots[i-1] ).save(*dir);
       m_offlinePlots[i].efficiency( m_offlinePlots[i-1] ).save(*dir);
     }
-    for (unsigned int i = 2; i < m_levels.size(); ++i) {
-      // make overall plots
+    if (m_doCumulativeEfficiencies) for (unsigned int i = 2; i < m_levels.size(); ++i) {
+      // make cumulative efficiency plots
       m_jetPlots[i].efficiency( m_jetPlots[0] ).save(*dir);
       m_mcPlots[i].efficiency( m_mcPlots[0] ).save(*dir);
       m_offlinePlots[i].efficiency( m_offlinePlots[0] ).save(*dir);
