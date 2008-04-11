@@ -1,6 +1,6 @@
 /*
- *  $Date: 2008/04/10 16:13:29 $
- *  $Revision: 1.25 $
+ *  $Date: 2008/04/09 21:04:04 $
+ *  $Revision: 1.23 $
  *  
  *  Filip Moorgat & Hector Naves 
  *  26/10/05
@@ -15,14 +15,12 @@
 
 
 #include "GeneratorInterface/Pythia6Interface/interface/PythiaSource.h"
-#include "GeneratorInterface/Pythia6Interface/interface/PYR.h"
 #include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
 #include "SimDataFormats/HepMCProduct/interface/GenInfoProduct.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/Run.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/RandomNumberGenerator.h"
-#include "CLHEP/Random/RandFlat.h"
 
 
 #include <iostream>
@@ -113,11 +111,10 @@ PythiaSource::PythiaSource( const ParameterSet & pset,
   GeneratedInputSource(pset, desc), evt(0), 
   pythiaPylistVerbosity_ (pset.getUntrackedParameter<int>("pythiaPylistVerbosity",0)),
   pythiaHepMCVerbosity_ (pset.getUntrackedParameter<bool>("pythiaHepMCVerbosity",false)),
-  imposeProperTimes_ (pset.getUntrackedParameter<bool>("imposeProperTimes",false)),
   maxEventsToPrint_ (pset.getUntrackedParameter<int>("maxEventsToPrint",1)),
+  comenergy(pset.getUntrackedParameter<double>("comEnergy",14000.)),
   extCrossSect(pset.getUntrackedParameter<double>("crossSection", -1.)),
   extFilterEff(pset.getUntrackedParameter<double>("filterEfficiency", -1.)),
-  comenergy(pset.getUntrackedParameter<double>("comEnergy",14000.)),
   stopHadronsEnabled(false), gluinoHadronsEnabled(false),
   useExternalGenerators_(false),
   useTauola_(false),
@@ -136,15 +133,6 @@ PythiaSource::PythiaSource( const ParameterSet & pset,
   maxEventsToPrint_ = pset.getUntrackedParameter<int>("maxEventsToPrint",0);
   
   particleID = pset.getUntrackedParameter<int>("ParticleID", 0);
-
-// Initialize the random engine unconditionally!
-
-  Service<RandomNumberGenerator> rng;
-  long seed = (long)(rng->mySeed());
-  cout << " seed= " << seed << endl ;
-  randomEngine = fRandomEngine = &(rng->getEngine());
-  fRandomGenerator = new CLHEP::RandFlat(fRandomEngine) ;
-
   if(particleID) {
 
     cout <<" Particle ID = " << particleID << endl; 
@@ -177,6 +165,12 @@ PythiaSource::PythiaSource( const ParameterSet & pset,
     phimin = pset.getUntrackedParameter<double>("Phimin",0.);
     phimax = pset.getUntrackedParameter<double>("Phimax",360.);
     cout <<" phimin = " << phimin <<" phimax = " << phimax << endl;
+
+    Service<RandomNumberGenerator> rng;
+    long seed = (long)(rng->mySeed());
+    cout << " seed= " << seed << endl ;
+    fRandomEngine = new CLHEP::HepJamesRandom(seed) ;
+    fRandomGenerator = new CLHEP::RandFlat(fRandomEngine) ;
 
     if(kinedata.size() > 0)
        fPtYGenerator = new PtYDistributor(kinedata, *fRandomEngine); 
@@ -249,8 +243,8 @@ PythiaSource::PythiaSource( const ParameterSet & pset,
   }
   }
 
-   stopHadronsEnabled = pset.getUntrackedParameter<bool>("stopHadrons",false);
-   gluinoHadronsEnabled = pset.getUntrackedParameter<bool>("gluinoHadrons",false);
+  stopHadronsEnabled = pset.getUntrackedParameter<bool>("stopHadrons", false);
+  gluinoHadronsEnabled = pset.getUntrackedParameter<bool>("gluinoHadrons", false);
 
   //Init names and pdg code of r-hadrons
    if(stopHadronsEnabled)  PYSTRHAD();
@@ -258,14 +252,11 @@ PythiaSource::PythiaSource( const ParameterSet & pset,
 
   //In the future, we will get the random number seed on each event and tell 
   // pythia to use that new seed
-  // The random engine has already been initialized.  DO NOT do it again!
-#ifdef NEVER
   edm::Service<RandomNumberGenerator> rng;
   uint32_t seed = rng->mySeed();
   ostringstream sRandomSet;
   sRandomSet <<"MRPY(1)="<<seed;
   call_pygive(sRandomSet.str());
-#endif
   
   if(particleID) 
     {
@@ -329,6 +320,7 @@ PythiaSource::PythiaSource( const ParameterSet & pset,
   }
 
 
+
   cout << endl; // Stetically add for the output
   //********                                      
   
@@ -371,16 +363,15 @@ bool PythiaSource::produce(Event & e) {
    if(particleID) 
       {    
 	 double pi = 3.1415927;
-	 int ip = 1;  
-         int dum;
-	 double ee=0,the=0,eta=0;
-	 double pmass = PYMASS(particleID);
-	 double phi = (phimax-phimin)*pyr_(&dum)+phimin; 
+	 int ip = 1;                                                                                           
+	 double ee=0,the=0,eta=0;                                                                              
+	 double pmass = PYMASS(particleID);                                                                    
+	 double phi = fRandomGenerator->fire(phimin, phimax);                                                  
 	 
 	 if(kinedata.size() < 1){  // no kinematics input specified, use flat distribution, pt and eta         
-	    double pt  = (ptmax-ptmin)*pyr_(&dum)+ptmin;                                                 
-	    double e   = (emax-emin)*pyr_(&dum)+emin;
-	    eta = (etamax-etamin)*pyr_(&dum)+etamin;                                                      
+	    double pt  = fRandomGenerator->fire(ptmin, ptmax);                                                 
+	    double e   = fRandomGenerator->fire(emin, emax);                                                   
+	    eta = fRandomGenerator->fire(etamin, etamax);                                                      
 	    the = 2.*atan(exp(-eta));                                                                          
 	    if ( emin > pmass && emax > pmass ) { // generate single particle distribution flat in energy      
 	       ee = e;                                                                                         
@@ -481,40 +472,6 @@ bool PythiaSource::produce(Event & e) {
     
     evt->weights().push_back( pyint1.vint[96] );
 
-    if (imposeProperTimes_) {
-      int dumm;
-      HepMC::GenEvent::vertex_const_iterator vbegin = evt->vertices_begin();
-      HepMC::GenEvent::vertex_const_iterator vend = evt->vertices_end();
-      HepMC::GenEvent::vertex_const_iterator vitr = vbegin;
-      for (; vitr != vend; ++vitr ) {
-            HepMC::GenVertex::particle_iterator pbegin = (*vitr)->particles_begin(HepMC::children);
-            HepMC::GenVertex::particle_iterator pend = (*vitr)->particles_end(HepMC::children);
-            HepMC::GenVertex::particle_iterator pitr = pbegin;
-            for (; pitr != pend; ++pitr) {
-                  if ((*pitr)->end_vertex()) continue;
-                  if ((*pitr)->status()!=1) continue;
-                  int pdgcode= abs((*pitr)->pdg_id());
-                  if (pdgcode!=211 && pdgcode!=321) continue;
-                  double ctau = pydat2.pmas[3][PYCOMP(pdgcode)-1];
-
-                  double unif_rand = pyr_(&dumm);
-                  // Value of 0 is excluded, so log(unif_rand) should be OK
-                  double proper_length = - ctau * log(unif_rand);
-                  HepMC::FourVector mom = (*pitr)->momentum();
-                  double factor = proper_length/mom.m();
-                  HepMC::FourVector vin = (*vitr)->position();
-                  double x = vin.x() + factor * mom.px();
-                  double y = vin.y() + factor * mom.py();
-                  double z = vin.z() + factor * mom.pz();
-                  double t = vin.t() + factor * mom.e();
-                  
-                  HepMC::GenVertex* vdec = new HepMC::GenVertex(HepMC::FourVector(x,y,z,t));
-                  evt->add_vertex(vdec);
-                  vdec->add_particle_in((*pitr));
-            }
-      }
-    }
-    
     //******** Verbosity ********
     
     if(event() <= maxEventsToPrint_ &&
