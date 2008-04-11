@@ -6,7 +6,7 @@
  *  
  *  This class is an EDAnalyzer analyzing the HLT summary object for RAW
  *
- *  $Date: 2007/12/06 08:27:31 $
+ *  $Date: 2008/04/11 17:02:52 $
  *  $Revision: 1.1 $
  *
  *  \author Martin Grunewald
@@ -17,8 +17,6 @@
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "DataFormats/HLTReco/interface/TriggerEventWithRefs.h"
-
 //
 // class declaration
 //
@@ -27,11 +25,11 @@ class TriggerSummaryAnalyzerRAW : public edm::EDAnalyzer {
  public:
   explicit TriggerSummaryAnalyzerRAW(const edm::ParameterSet&);
   ~TriggerSummaryAnalyzerRAW();
-  virtual void produce(edm::Event&, const edm::EventSetup&);
+  virtual void analyze(const edm::Event&, const edm::EventSetup&);
   
  private:
   /// InputTag of TriggerEventWithRefs to analyze
-  edm::InputTag inputTag;
+  edm::InputTag inputTag_;
 
 };
 #endif
