@@ -103,6 +103,7 @@ namespace edm {
     }
 
     size_type size() const { return m_keys.size();}
+
     bool empty() const { return m_keys.empty();}
 
     key_iterator findKey(K const & k) const {
@@ -137,7 +138,7 @@ namespace edm {
     void swap(MapOfVectors& other) {
       m_keys.swap(other.m_keys);
       m_offsets.swap(other.m_offsets);
-      m_data.swap(other.m);
+      m_data.swap(other.m_data);
     }
 
     MapOfVectors& operator=(MapOfVectors const& rhs) {
