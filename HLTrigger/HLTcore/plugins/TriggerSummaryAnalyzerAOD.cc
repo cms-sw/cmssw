@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2008/04/11 17:08:14 $
- *  $Revision: 1.1 $
+ *  $Date: 2008/04/11 18:09:11 $
+ *  $Revision: 1.2 $
  *
  *  \author Martin Grunewald
  *
@@ -36,6 +36,8 @@ TriggerSummaryAnalyzerAOD::analyze(const edm::Event& iEvent, const edm::EventSet
    using namespace reco;
    using namespace trigger;
 
+
+   cout << endl;
    cout << "TriggerSummaryAnalyzerAOD: content of TriggerEvent: " << inputTag_.encode();
 
    Handle<TriggerEvent> handle;
@@ -52,27 +54,26 @@ TriggerSummaryAnalyzerAOD::analyze(const edm::Event& iEvent, const edm::EventSet
        const TriggerObject& TO(TOC[iO]);
        cout << iO << " " << TO.id() << " " << TO.pt() << " " << TO.eta() << " " << TO.phi() << " " << TO.mass() << endl;
      }
-     cout << endl;
      const size_type nF(handle->sizeFilters());
      cout << "Number of TriggerFilters: " << nF << endl;
-     cout << "The Filters: #, label, #ids, #keys" << endl;
+     cout << "The Filters: #, label, #ids==#keys" << endl;
      for (size_type iF=0; iF!=nF; ++iF) {
        const Vids& VIDS (handle->filterIds(iF));
        const Keys& KEYS(handle->filterKeys(iF));
        const size_type nI(VIDS.size());
        const size_type nK(KEYS.size());
-       cout << iF << " " << handle->filterLabel(iF) << " " << nI << " " << nK << endl;
-       cout << "  Ids:";
-       for (size_type iI=0; iI!=nI; ++iI) { cout << " " << VIDS[iI];}
-       cout << endl;
-       cout << " Keys:";
-       for (size_type iK=0; iK!=nK; ++iK) { cout << " " << KEYS[iK];}
+       cout << iF << " " << handle->filterLabel(iF) << " " << nI << "==" << nK << endl;
+       assert (nI==nK);
+       cout << "The Id/Key pairs: #=id/key" << endl;
+       for (size_type iI=0; iI!=nI; ++iI) {
+	 cout << " " << iI << "="<< VIDS[iI] << "/" << KEYS[iK];
+       }
        cout << endl;
      }
-     cout << endl;
    } else {
-     cout << "Handle invalid!" << endl;
+     cout << "Handle invalid! Check InputTag provided." << endl;
    }
+   cout << endl;
    
    return;
 }

@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2008/04/11 17:08:14 $
- *  $Revision: 1.1 $
+ *  $Date: 2008/04/11 18:09:12 $
+ *  $Revision: 1.2 $
  *
  *  \author Martin Grunewald
  *
@@ -37,24 +37,23 @@ TriggerSummaryAnalyzerRAW::analyze(const edm::Event& iEvent, const edm::EventSet
    using namespace l1extra;
    using namespace trigger;
 
+   cout << endl;
    cout << "TriggerSummaryAnalyzerRAW: content of TriggerEventWithRefs: " << inputTag_.encode();
 
    Handle<TriggerEventWithRefs> handle;
    iEvent.getByLabel(inputTag_,handle);
    if (handle.isValid()) {
-     cout << endl;
      cout << "Used Processname: " << handle->usedProcessName() << endl;
-     cout << endl;
      const size_type nFO(handle->size());
      cout << "Number of TriggerFilterObjects: " << nFO << endl;
-     cout << "The TriggerFilterObjects: #, label, 1-past-end" << endl;
+     cout << "The TriggerFilterObjects: #, label" << endl;
      for (size_type iFO=0; iFO!=nFO; ++iFO) {
        cout << iFO << " " << handle->filterLabel(iFO) << " " << endl;
      }
-     cout << endl;
    } else {
-     cout << "Handle invalid!" << endl;
+     cout << "Handle invalid! Check InputTag provided." << endl;
    }
+   cout << endl;
    
    return;
 }
