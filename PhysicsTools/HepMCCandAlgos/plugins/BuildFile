@@ -5,9 +5,12 @@
   <use name=DataFormats/HepMCCandidate>
   <use name=DataFormats/JetReco>
   <use name=DataFormats/WrappedStdDictionaries>
+  <use name=DataFormats/JetReco>
   <use name=SimDataFormats/HepMCProduct>
   <use name=SimGeneral/HepPDTRecord>
   <use name=PhysicsTools/UtilAlgos>
   <use name=PhysicsTools/CandAlgos>
+  <use name=PhysicsTools/JetMCUtils>
 </library>
+
 
