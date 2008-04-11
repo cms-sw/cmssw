@@ -78,11 +78,11 @@ void L1TRPCTF::beginJob(const EventSetup& c)
     rpctfetavalue[0] = dbe->book1D("RPCTF_eta_value_-1", 
        "RPCTF eta value bx -1", 100, -2.5, 2.5 ) ;
     rpctfphivalue[1] = dbe->book1D("RPCTF_phi_value", 
-       "RPCTF phi value", 100, 0.0, 6.2832 ) ;
+       "RPCTF phi value", 144, 0.0, 6.2832 ) ;
     rpctfphivalue[2] = dbe->book1D("RPCTF_phi_value_+1", 
-       "RPCTF phi value bx +1", 100, 0.0, 6.2832 ) ;
+       "RPCTF phi value bx +1", 144, 0.0, 6.2832 ) ;
     rpctfphivalue[0] = dbe->book1D("RPCTF_phi_value_-1", 
-       "RPCTF phi value bx -1", 100, 0.0, 6.2832 ) ;
+       "RPCTF phi value bx -1", 144, 0.0, 6.2832 ) ;
     rpctfptvalue[1] = dbe->book1D("RPCTF_pt_value", 
        "RPCTF pt value", 160, -0.5, 159.5 ) ;
     rpctfptvalue[2] = dbe->book1D("RPCTF_pt_value_+1", 
@@ -105,6 +105,16 @@ void L1TRPCTF::beginJob(const EventSetup& c)
        "RPCTF ntrack", 20, -0.5, 19.5 ) ;
     rpctfbx = dbe->book1D("RPCTF_bx", 
        "RPCTF bx", 3, -1.5, 1.5 ) ;
+    
+    m_qualVsEta = dbe->book2D("RPCTF_quality_vs_eta_value", 
+                              "RPCTF quality vs eta", 
+                              100, -2.5, 2.5,
+                               10, -0.5, 9.5);
+    
+    m_muonsEtaPhi = dbe->book2D("RPCTF_muons_eta_phipacked", 
+                                "RPCTF muons(eta,phipacked)",  
+                                100, -2.5, 2.5,
+                                144,  -0.5, 143.5);
   }  
 }
 
@@ -162,8 +172,7 @@ void L1TRPCTF::analyze(const Event& e, const EventSetup& c)
   
         int bxindex = ECItr->bx() + 1;
         
-        // if (ECItr->quality() > 0 ) {
-        if (ECItr->pt_packed() > 0 ) {
+        if (!ECItr->empty()) {
           
           nrpctftrack++;
     
@@ -185,7 +194,11 @@ void L1TRPCTF::analyze(const Event& e, const EventSetup& c)
           rpctfquality[bxindex]->Fill(ECItr->quality());
           if (verbose_) cout << "\tRPCTFCand quality " << ECItr->quality() << endl;
           
-        } // if qlty > 0
+          m_qualVsEta->Fill(ECItr->etaValue(), ECItr->quality());
+          
+          m_muonsEtaPhi->Fill(ECItr->etaValue(), ECItr->phi_packed());
+          
+        } // if !empty
       } // end candidates iteration
    } // end brl/endcap iteration
   } // end GMT records iteration
