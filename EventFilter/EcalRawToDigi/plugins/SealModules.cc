@@ -10,6 +10,8 @@ DEFINE_ANOTHER_FWK_MODULE(EcalRawToRecHitFacility);
 #include "EventFilter/EcalRawToDigi/plugins/EcalRawToRecHitProducer.h"
 DEFINE_ANOTHER_FWK_MODULE(EcalRawToRecHitProducer);
 
+#include "EventFilter/EcalRawToDigi/plugins/EcalRawToRecHitByproductProducer.h"
+DEFINE_ANOTHER_FWK_MODULE(EcalRawToRecHitByproductProducer);
 
 #include "FWCore/Framework/interface/ModuleFactory.h"
 #include "EventFilter/EcalRawToDigi/plugins/EcalRegionCablingESProducer.h"
