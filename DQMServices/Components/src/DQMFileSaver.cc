@@ -277,7 +277,7 @@ DQMFileSaver::endLuminosityBlock(const edm::LuminosityBlock &, const edm::EventS
     char suffix[64];
     char rewrite[128];
     sprintf(suffix, "_R%09d_L%06d", irun_, ilumi_);
-    sprintf(rewrite, "Run %d/\\1/By Lumi Section %d:%d/", irun_, ilumiprev_, ilumi_);
+    sprintf(rewrite, "Run %d/\\1/By Lumi Section %d-%d/", irun_, ilumiprev_, ilumi_);
     saveForOnline(dbe_, fileBaseName_, suffix, rewrite);
     ilumiprev_ = -1;
     nlumi_ = 0;
