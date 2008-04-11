@@ -2,8 +2,8 @@
  *  
  *  See header file for description of class
  *
- *  $Date: 2008/03/27 18:10:23 $
- *  $Revision: 1.8 $
+ *  $Date: 2008/03/29 19:37:13 $
+ *  $Revision: 1.9 $
  *  \author M. Strang SUNY-Buffalo
  */
 
@@ -166,7 +166,7 @@ void EDMtoMEConverter::endRun(const edm::Run& iRun,
 	    // define new monitor element
 	    if (dbe) {
 	      dbe->setCurrentFolder(dir);
-	      me1[i] = dbe->clone1D(metoedmobject[i].object.GetName(), &metoedmobject[i].object);
+	      me1[i] = dbe->book1D(metoedmobject[i].object.GetName(), &metoedmobject[i].object);
 	    } // end define new monitor elements
 	    
 	    // attach taglist
@@ -225,7 +225,7 @@ void EDMtoMEConverter::endRun(const edm::Run& iRun,
 	    // define new monitor element
 	    if (dbe) {
 	      dbe->setCurrentFolder(dir);
-	      me2[i] = dbe->clone2D(metoedmobject[i].object.GetName(), &metoedmobject[i].object);
+	      me2[i] = dbe->book2D(metoedmobject[i].object.GetName(), &metoedmobject[i].object);
         } // end define new monitor elements
         
         // attach taglist
@@ -284,7 +284,7 @@ void EDMtoMEConverter::endRun(const edm::Run& iRun,
         // define new monitor element
         if (dbe) {
           dbe->setCurrentFolder(dir);
-          me3[i] = dbe->clone3D(metoedmobject[i].object.GetName(), &metoedmobject[i].object);
+          me3[i] = dbe->book3D(metoedmobject[i].object.GetName(), &metoedmobject[i].object);
         } // end define new monitor elements
         
         // attach taglist
@@ -341,7 +341,7 @@ void EDMtoMEConverter::endRun(const edm::Run& iRun,
 	    // define new monitor element
 	    if (dbe) {
 	      dbe->setCurrentFolder(dir);
-	      me4[i] = dbe->cloneProfile(metoedmobject[i].object.GetName(), &metoedmobject[i].object);
+	      me4[i] = dbe->bookProfile(metoedmobject[i].object.GetName(), &metoedmobject[i].object);
 	    } // end define new monitor elements
 	
         // attach taglist
@@ -398,7 +398,7 @@ void EDMtoMEConverter::endRun(const edm::Run& iRun,
         // define new monitor element
         if (dbe) {
           dbe->setCurrentFolder(dir);
-          me5[i] = dbe->cloneProfile2D(metoedmobject[i].object.GetName(), &metoedmobject[i].object);
+          me5[i] = dbe->bookProfile2D(metoedmobject[i].object.GetName(), &metoedmobject[i].object);
         } // end define new monitor elements
         
         // attach taglist

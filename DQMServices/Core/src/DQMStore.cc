@@ -160,13 +160,13 @@ DQMStore::DQMStore(const edm::ParameterSet &pset)
   initQCriterion<Comp2RefKolmogorov>(qalgos_);
   initQCriterion<ContentsXRange>(qalgos_);
   initQCriterion<ContentsYRange>(qalgos_);
+  initQCriterion<MeanWithinExpected>(qalgos_);
   initQCriterion<Comp2RefEqualString>(qalgos_);
   initQCriterion<Comp2RefEqualInt>(qalgos_);
   initQCriterion<Comp2RefEqualFloat>(qalgos_);
   initQCriterion<Comp2RefEqualH1>(qalgos_);
   initQCriterion<Comp2RefEqualH2>(qalgos_);
   initQCriterion<Comp2RefEqualH3>(qalgos_);
-  initQCriterion<MeanWithinExpected>(qalgos_);
   initQCriterion<DeadChannel>(qalgos_);
   initQCriterion<NoisyChannel>(qalgos_);
   initQCriterion<MostProbableLandau>(qalgos_);
@@ -436,7 +436,7 @@ DQMStore::book1D(const std::string &name, const std::string &title,
 
 /// Book 1D histogram by cloning an existing histogram.
 MonitorElement *
-DQMStore::clone1D(const std::string &name, TH1F *source)
+DQMStore::book1D(const std::string &name, TH1F *source)
 {
   return book1D(pwd_, name, static_cast<TH1F *>(source->Clone()));
 }
@@ -460,9 +460,18 @@ DQMStore::book2D(const std::string &name, const std::string &title,
 				     nchY, lowY, highY));
 }
 
+/// Book 2D variable bin histogram.
+MonitorElement *
+DQMStore::book2D(const std::string &name, const std::string &title,
+		 int nchX, float *xbinsize, int nchY, float *ybinsize)
+{
+  return book2D(pwd_, name, new TH2F(name.c_str(), title.c_str(), 
+                                               nchX, xbinsize, nchY, ybinsize));
+}
+
 /// Book 2D histogram by cloning an existing histogram.
 MonitorElement *
-DQMStore::clone2D(const std::string &name, TH2F *source)
+DQMStore::book2D(const std::string &name, TH2F *source)
 {
   return book2D(pwd_, name, static_cast<TH2F *>(source->Clone()));
 }
@@ -490,7 +499,7 @@ DQMStore::book3D(const std::string &name, const std::string &title,
 
 /// Book 3D histogram by cloning an existing histogram.
 MonitorElement *
-DQMStore::clone3D(const std::string &name, TH3F *source)
+DQMStore::book3D(const std::string &name, TH3F *source)
 {
   return book3D(pwd_, name, static_cast<TH3F *>(source->Clone()));
 }
@@ -522,7 +531,7 @@ DQMStore::bookProfile(const std::string &name, const std::string &title,
 
 /// Book TProfile by cloning an existing profile.
 MonitorElement *
-DQMStore::cloneProfile(const std::string &name, TProfile *source)
+DQMStore::bookProfile(const std::string &name, TProfile *source)
 {
   return bookProfile(pwd_, name, static_cast<TProfile *>(source->Clone()));
 }
@@ -556,7 +565,7 @@ DQMStore::bookProfile2D(const std::string &name, const std::string &title,
 
 /// Book TProfile2D by cloning an existing profile.
 MonitorElement *
-DQMStore::cloneProfile2D(const std::string &name, TProfile2D *source)
+DQMStore::bookProfile2D(const std::string &name, TProfile2D *source)
 {
   return bookProfile2D(pwd_, name, static_cast<TProfile2D *>(source->Clone()));
 }
