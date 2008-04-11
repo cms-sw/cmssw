@@ -12,6 +12,7 @@
 #include "PhysicsTools/Utilities/interface/HistoChiSquare.h"
 #include "PhysicsTools/Utilities/interface/RootMinuit.h"
 #include "PhysicsTools/Utilities/interface/RootFunctionAdapter.h"
+#include "PhysicsTools/Utilities/interface/rootPlot.h"
 #include "TFile.h"
 #include "TH1.h"
 #include "TF1.h"
