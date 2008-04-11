@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: RootInputFileSequence.cc,v 1.11 2008/04/08 22:26:06 wmtan Exp $
+$Id: RootInputFileSequence.cc,v 1.12 2008/04/09 23:00:24 wmtan Exp $
 ----------------------------------------------------------------------*/
 #include "RootInputFileSequence.h"
 #include "PoolSource.h"
@@ -46,7 +46,8 @@ namespace edm {
     treeCacheSize_(pset.getUntrackedParameter<unsigned int>("cacheSize", 0U)),
     forcedRunOffset_(0),
     setRun_(pset.getUntrackedParameter<unsigned int>("setRunNumber", 0U)),
-    dropMetaData_(pset.getUntrackedParameter<bool>("dropMetaData", false)) {
+    dropMetaData_(pset.getUntrackedParameter<bool>("dropMetaData", false)),
+    randomAccess_(false) {
 
     sort_all(eventsToProcess_);
     std::string matchMode = pset.getUntrackedParameter<std::string>("fileMatchMode", std::string("permissive"));
@@ -93,8 +94,11 @@ namespace edm {
   boost::shared_ptr<FileBlock>
   RootInputFileSequence::readFile_() {
     if (firstFile_) {
-      // The first input file has already been opened.
+      // The first input file has already been opened, or a rewind has occurred.
       firstFile_ = false;
+      if (!rootFile_) {
+	initFile(skipBadFiles_);
+      }
     } else {
       if (!nextFile(!primary())) {
         assert(0);
@@ -234,6 +238,12 @@ namespace edm {
 
   std::auto_ptr<EventPrincipal>
   RootInputFileSequence::readEvent_(boost::shared_ptr<LuminosityBlockPrincipal> lbp) {
+    if (randomAccess_) {
+      return rootFile_->readEvent(primary() ?
+				  productRegistry() :
+			          rootFile_->productRegistry(),
+				  boost::shared_ptr<LuminosityBlockPrincipal>()); 
+    }
     return rootFile_->readEvent(primary() ? productRegistry() : rootFile_->productRegistry(), lbp); 
   }
 
@@ -241,11 +251,13 @@ namespace edm {
   RootInputFileSequence::readCurrentEvent() {
     return rootFile_->readCurrentEvent(primary() ?
 				       productRegistry() :
-				       rootFile_->productRegistry(), boost::shared_ptr<LuminosityBlockPrincipal>()); 
+				       rootFile_->productRegistry(),
+				       boost::shared_ptr<LuminosityBlockPrincipal>()); 
   }
 
   std::auto_ptr<EventPrincipal>
   RootInputFileSequence::readIt(EventID const& id, LuminosityBlockNumber_t lumi, bool exact) {
+    randomAccess_ = true;
     // Attempt to find event in currently open input file.
     bool found = rootFile_->setEntryAtEvent(id.run(), lumi, id.event(), exact);
     if (!found) {
@@ -263,7 +275,9 @@ namespace edm {
 	  // Now get the event from the correct file.
           found = rootFile_->setEntryAtEvent(id.run(), lumi, id.event(), exact);
 	  assert (found);
-          return readCurrentEvent();
+	  std::auto_ptr<EventPrincipal> ep = readCurrentEvent();
+          skip(1);
+	  return ep;
 	}
       }
       // Look for event in files not yet opened.
@@ -273,14 +287,18 @@ namespace edm {
 	  initFile(true);
           found = rootFile_->setEntryAtEvent(id.run(), lumi, id.event(), exact);
 	  if (found) {
-            return readCurrentEvent();
+	    std::auto_ptr<EventPrincipal> ep = readCurrentEvent();
+            skip(1);
+	    return ep;
 	  }
 	}
       }
       // Not found
       return std::auto_ptr<EventPrincipal>(0);
     }
-    return readCurrentEvent();
+    std::auto_ptr<EventPrincipal> eptr = readCurrentEvent();
+    skip(1);
+    return eptr;
   }
 
   InputSource::ItemType
@@ -292,6 +310,12 @@ namespace edm {
       return InputSource::IsFile;
     }
     if (rootFile_) {
+      if (randomAccess_) {
+        skip(0);
+        if (fileIter_== fileIterEnd_) {
+          return InputSource::IsStop;
+        }
+      }
       FileIndex::EntryType entryType = rootFile_->getNextEntryTypeWanted();
       if (entryType == FileIndex::kEvent) {
         return InputSource::IsEvent;
@@ -311,10 +335,9 @@ namespace edm {
   // Rewind to before the first event that was read.
   void
   RootInputFileSequence::rewind_() {
-    closeFile_();
-    fileIter_ = fileIterBegin_;
+    randomAccess_ = false;
     firstFile_ = true;
-    initFile(skipBadFiles_);
+    fileIter_ = fileIterBegin_;
   }
 
   // Rewind to the beginning of the current file
@@ -326,11 +349,13 @@ namespace edm {
   // Advance "offset" events.  Offset can be positive or negative (or zero).
   void
   RootInputFileSequence::skip(int offset) {
+    randomAccess_ = true;
     while (offset != 0) {
       offset = rootFile_->skipEvents(offset);
       if (offset > 0 && !nextFile(!primary())) return;
       if (offset < 0 && !previousFile()) return;
     }
+    rootFile_->skipEvents(0);
   }
 
   bool const

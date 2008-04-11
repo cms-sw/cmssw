@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: RootFile.cc,v 1.130 2008/04/03 04:19:55 wmtan Exp $
+$Id: RootFile.cc,v 1.131 2008/04/09 23:00:24 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include "RootFile.h"
@@ -642,6 +642,9 @@ namespace edm {
       if (fileIndexIter_->getEntryType() == FileIndex::kEvent) {
         ++offset;
       }
+    }
+    while (fileIndexIter_ != fileIndexEnd_ && fileIndexIter_->getEntryType() != FileIndex::kEvent) {
+      ++fileIndexIter_;
     }
     return offset;
   }
