@@ -303,9 +303,8 @@ void HLTBtagLifetimeAnalyzer::analyze(const edm::Event & event, const edm::Event
   if (h_vertex.isValid() and not h_vertex->empty())
     m_vertexPlots.fill(h_vertex->front());
 
+  // match to MC parton flavour - accessed on demand
   edm::Handle<reco::JetFlavourMatchingCollection> h_mcPartons;
-  event.getByLabel(m_mcPartons, h_mcPartons);
-  const reco::JetFlavourMatchingCollection & mcPartons = * h_mcPartons;
   
   edm::Handle<reco::JetTagCollection> h_offlineBJets;
   event.getByLabel(m_offlineBJets, h_offlineBJets);
@@ -337,8 +336,11 @@ void HLTBtagLifetimeAnalyzer::analyze(const edm::Event & event, const edm::Event
           const reco::Jet & jet = jets[j];
           
           // match to MC parton
-          int m = closestJet(jet, mcPartons, m_mcRadius);
-          unsigned int flavour = (m != -1) ? abs(mcPartons[m].second.getFlavour()) : 0;
+          if (not h_mcPartons.isValid())
+            event.getByLabel(m_mcPartons, h_mcPartons);
+          
+          int m = closestJet(jet, *h_mcPartons, m_mcRadius);
+          unsigned int flavour = (m != -1) ? abs((*h_mcPartons)[m].second.getFlavour()) : 0;
 
           // match to offline reconstruted b jets
           int o = closestJet(jet, offlineBJets, m_offlineRadius);
