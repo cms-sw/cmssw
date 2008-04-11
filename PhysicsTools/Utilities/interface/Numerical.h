@@ -1,9 +1,11 @@
 #ifndef PhysicsTools_Utilities_Numerical_h
 #define PhysicsTools_Utilities_Numerical_h
-
+#include <cassert>
 namespace funct {
 
   template<int n> struct Numerical {
+    Numerical() { }
+    Numerical(int m) { assert(m == n); }
     static const unsigned int arguments = 0;
     static const int value = n;
     double operator()() const { return n; }

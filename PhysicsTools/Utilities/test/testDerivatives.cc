@@ -51,5 +51,10 @@ void testDerivatives::checkAll() {
   CHECK((nth_derivative<2, X>(sin(x))), "-sin(x)");
   CHECK((nth_derivative<3, X>(sin(x))), "-cos(x)");
   CHECK((nth_derivative<4, X>(sin(x))), "sin(x)");
+
+  CHECK(derivative<X>(sin(x)*cos(x)), "cos(x)^2 - sin(x)^2");
+  CHECK((nth_derivative<2, X>(sin(x)*cos(x))), "-4 sin(x) cos(x)");
+  CHECK((nth_derivative<3, X>(sin(x)*cos(x))), "-4 ( cos(x)^2 - sin(x)^2 )");
+  CHECK((nth_derivative<4, X>(sin(x)*cos(x))), "16 sin(x) cos(x)");
 }
 
