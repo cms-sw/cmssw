@@ -86,10 +86,6 @@ MuIsoValidation::MuIsoValidation(const edm::ParameterSet& iConfig)
 	//------"allocate" space for the data vectors-------
 	
 	/*
-	theMuonData is a 1D vector with index   [event#]
-	the1Ddata   is a 2D vector with indices [var][muon#]  
-	the2Ddata   is a 3D vector with indices [var][var][muon#]  
-	h_nMuons is just single histogram
 	h_1D        is a 2D vector with indices [var][muon#]
 	cd_plots    is a 2D vector with indices [var][muon#]  
 	h_2D        is a 3D vector with indices [var][var][muon#]
@@ -99,11 +95,6 @@ MuIsoValidation::MuIsoValidation(const edm::ParameterSet& iConfig)
 	//	   so that dimension is not initialized. Hence, theMuonData
 	//     needs no resizing.
 
-	the1Ddata.resize(NUM_VARS);//
-	the2Ddata.resize(
-		NUM_VARS,
-		vector<vector<pair<double,double> > > (NUM_VARS)
-	);
 	h_1D.resize    (NUM_VARS);
 	cd_plots.resize(NUM_VARS);
 	h_2D.resize(NUM_VARS, vector<MonitorElement*>     (NUM_VARS));
@@ -126,7 +117,6 @@ MuIsoValidation::~MuIsoValidation(){
 void MuIsoValidation::InitStatics(){
 
 	//-----------Initialize primatives-----------
-	NUM_VARS = 11;
 	S_BIN_WIDTH = 1.0;//in GeV
 	L_BIN_WIDTH = 2.0;//in GeV
 	LOG_BINNING_ENABLED = 1;
@@ -247,7 +237,8 @@ void MuIsoValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& i
    
     //Fill event entry in histogram of number of muons
 	edm::LogInfo("Tutorial") << "Number of Muons: " << muonsHandle->size();
-	theMuonData.push_back(muonsHandle->size());
+	theMuonData = muonsHandle->size();
+	h_nMuons->Fill(theMuonData);
 
 	//Fill historgams concerning muon isolation 
 	uint iMuon=0;
@@ -261,54 +252,35 @@ void MuIsoValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& i
 		MuIsoDepRef& hoDep   = (  *hoIsoHandle)[muRef];
 
 		RecordData(muon,tkDep,ecalDep,hcalDep,hoDep);
+		FillHistos();
 	}
    
 }
 
 //---------------Record data for a signle muon's data---------------------
 void MuIsoValidation::RecordData(MuonIterator muon, 
-	MuIsoDepRef& tkDep, MuIsoDepRef& ecalDep, 
-	MuIsoDepRef& hcalDep, MuIsoDepRef& hoDep){
+				 MuIsoDepRef& ctfDep, MuIsoDepRef& ecalDep, 
+				 MuIsoDepRef& hcalDep, MuIsoDepRef& hoDep){
+  
+  
+  theData[0] = ctfDep.depositWithin(0.3);
+  theData[1] = ecalDep.depositWithin(0.3);
+  theData[2] = hcalDep.depositWithin(0.3);
+  theData[3] = hoDep.depositWithin(0.3);
+  
+  theData[4] = ctfDep.depositAndCountWithin(0.3).second;
+  theData[5] = ecalDep.depositAndCountWithin(0.3).second;
+  theData[6] = hcalDep.depositAndCountWithin(0.3).second;
+  theData[7] = hoDep.depositAndCountWithin(0.3).second;
+  
+  theData[8] = muon->combinedMuon()->pt();
+  // make sure nTracks != 0 before filling this one
+  if (theData[4] != 0) theData[9] = (double)theData[0] / (double)theData[4];
+  else theData[9] = -99;
 
+  theData[10] = 1.5 * theData[1] + theData[2];
 
-	the1Ddata[0].push_back(tkDep.depositWithin(0.3));
-	the1Ddata[1].push_back(ecalDep.depositWithin(0.3));
-	the1Ddata[2].push_back(hcalDep.depositWithin(0.3));
-	the1Ddata[3].push_back(hoDep.depositWithin(0.3));
-
-	the1Ddata[4].push_back(tkDep.depositAndCountWithin(0.3).second);
-	the1Ddata[5].push_back(ecalDep.depositAndCountWithin(0.3).second);
-	the1Ddata[6].push_back(hcalDep.depositAndCountWithin(0.3).second);
-	the1Ddata[7].push_back(hoDep.depositAndCountWithin(0.3).second);
-	
-	the1Ddata[8].push_back(muon->combinedMuon()->pt());
-	the1Ddata[9].push_back(
-		(the1Ddata[4].back() != 0) ? 
-		(the1Ddata[0].back() / the1Ddata[4].back()) : 
-		(-99)
-	);
-	the1Ddata[10].push_back(
-		(1.5)*the1Ddata[1].back() +
-		(1.0)*the1Ddata[2].back()
-		); //weighted energy sum
-
-	for(int var1=0; var1<NUM_VARS; ++var1){
-		for(int var2=0; var2<NUM_VARS; ++var2){
-			if(var1 == var2) continue;
-		
-			the2Ddata[var1][var2].push_back(
-				pair<double,double>(
-					the1Ddata[var1].back(),
-					the1Ddata[var2].back()
-				)
-			);
-		}
-	}		  
-	
-	      
 }
-
-
 
 // ------------ method called once each job just before starting event loop  ------------
 void 
@@ -317,7 +289,7 @@ MuIsoValidation::beginJob(const edm::EventSetup&)
 	edm::LogInfo("Tutorial") << "\n#########################################\n\n"
 		<< "Lets get started! " 
 		<< "\n\n#########################################\n";
-		
+	InitHistos();
 }
 
 // ------------ method called once each job just after ending the event loop  ------------
@@ -330,9 +302,8 @@ MuIsoValidation::endJob() {
 		<< "\n\n#########################################\n"
 		<< "\nInitializing Histograms...\n";
 
-	InitHistos();
 	edm::LogInfo("Tutorial") << "\nIntializing Finished.  Filling...\n";
-	FillHistos();
+	NormalizeHistos();
 	edm::LogInfo("Tutorial") << "\nFilled.  Saving...\n";
 	dbe->save(rootfilename);
 	edm::LogInfo("Tutorial") << "\nSaved.  Peace, homie, I'm out.\n";
@@ -453,69 +424,39 @@ void MuIsoValidation::MakeLogBinsForProfile(Double_t* bin_edges,	const double mi
 	bin_edges[nbins] = max;
 }
 
-
+void MuIsoValidation::NormalizeHistos() {
+  for(int var=0; var<NUM_VARS; var++){   
+    //turn cd_plots into CDF's
+    //underflow -> bin #0.  overflow -> bin #(nbins+1)
+    //0th bin doesn't need changed
+    int n_max = int(param[var][0])+1;
+    for(int n=1; n<=n_max; ++n){
+      cd_plots[var]->setBinContent(n, cd_plots[var]->getBinContent(n) + cd_plots[var]->getBinContent(n-1)); //Integrate.
+    }
+    //----normalize------
+    GetTH1FromMonitorElement(h_1D[var])->Scale(1./nMuons);
+    GetTH1FromMonitorElement(cd_plots[var])->Scale(1./nMuons);    
+  }
+}
 
 void MuIsoValidation::FillHistos() {
-
-	//----------Fill "Number of Muons" histograms---------------
-	for(
-		vector<int>::const_iterator iter = theMuonData.begin();
-		iter != theMuonData.end();
-		++iter
-	){
-		h_nMuons->Fill(*iter);
-	}
-	
-
-
-	//----------Fill 1D histograms---------------
-	for(int var=0; var<NUM_VARS; ++var){  
-		for(
-			vector<double>::const_iterator iter = the1Ddata[var].begin(); 
-			iter != the1Ddata[var].end(); 
-			++iter
-		){
-			h_1D[var]->Fill(*iter);
-			cd_plots[var]->Fill(*iter);//right now, this is a regular PDF (just like h_1D)
-		}
-
-		//turn cd_plots into CDF's
-		//underflow -> bin #0.  overflow -> bin #(nbins+1)
-		//0th bin doesn't need changed
-		int n_max = int(param[var][0])+1;
-		for(int n=1; n<=n_max; ++n){
-			cd_plots[var]->setBinContent(
-				n,
-				cd_plots[var]->getBinContent(n) + cd_plots[var]->getBinContent(n-1)
-			); //Integrate.
-		}		
-			
-		//----normalize------
-		GetTH1FromMonitorElement(h_1D[var])->Scale(1./nMuons);
-		GetTH1FromMonitorElement(cd_plots[var])->Scale(1./nMuons);
-
-		
-		
-	}//Finish 1D
-
-
-	//----------Fill 2D histograms---------------
-	for(int var1=0; var1<NUM_VARS; ++var1){
-		for(int var2=0; var2<NUM_VARS; ++var2){
-			if(var1 == var2) continue;
-			//change below to regular int interating!
-			for(
-				vector<pair<double,double> >::iterator iter = the2Ddata[var1][var2].begin();
-				iter != the2Ddata[var1][var2].end();
-				++iter)
-			{
-				h_2D[var1][var2]->Fill(iter->first, iter->second);
-				p_2D[var1][var2]->Fill(iter->first, iter->second);
-			}
-		}
-	}//Finish 2D
-
-	
+  
+  //----------Fill 1D histograms---------------
+  for(int var=0; var<NUM_VARS; var++){  
+    h_1D[var]->Fill(theData[var]);
+    cd_plots[var]->Fill(theData[var]);//right now, this is a regular PDF (just like h_1D)
+  }//Finish 1D
+  
+  
+  //----------Fill 2D histograms---------------
+  for(int var1=0; var1<NUM_VARS; ++var1){
+    for(int var2=0; var2<NUM_VARS; ++var2){
+      if(var1 == var2) continue;
+      //change below to regular int interating!
+      h_2D[var1][var2]->Fill(theData[var1], theData[var2]);
+      p_2D[var1][var2]->Fill(theData[var1], theData[var2]);
+    }
+  }//Finish 2D
 }
 
 TH1* MuIsoValidation::GetTH1FromMonitorElement(MonitorElement* me) {

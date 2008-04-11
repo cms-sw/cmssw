@@ -54,86 +54,86 @@ class TProfile;
 //  Class Declaration: MuIsoValidation
 //--------------------------------------
 class MuIsoValidation : public edm::EDAnalyzer {
-	//---------namespace and typedefs--------------
-	typedef reco::MuonCollection::const_iterator MuonIterator;
-	typedef edm::Handle<reco::IsoDepositMap> MuIsoDepHandle;
-	typedef const reco::IsoDeposit MuIsoDepRef;
+  //---------namespace and typedefs--------------
+  typedef reco::MuonCollection::const_iterator MuonIterator;
+  typedef edm::Handle<reco::IsoDepositMap> MuIsoDepHandle;
+  typedef const reco::IsoDeposit MuIsoDepRef;
+  
+public:
+  //---------methods----------------------------
+  explicit MuIsoValidation(const edm::ParameterSet&);
+  ~MuIsoValidation();
+  
+  
+private:
+  //---------methods----------------------------
+  virtual void beginJob(const edm::EventSetup&) ;
+  virtual void analyze(const edm::Event&, const edm::EventSetup&);
+  virtual void endJob() ;
+  void InitStatics();
+  void RecordData(MuonIterator muon, MuIsoDepRef& tkDep,  
+		  MuIsoDepRef& ecalDep, MuIsoDepRef& hcalDep, 
+		  MuIsoDepRef& hoDep);//Fills Histograms with info from single muon
+  void InitHistos();//adds title, bin information to member histograms
+  void MakeLogBinsForProfile(Double_t* bin_edges, const double min, const double max);
+  void FillHistos();//Fills histograms with data
+  void NormalizeHistos(); //Normalize to number of muons
+  TH1* GetTH1FromMonitorElement(MonitorElement* me);
+  TH2* GetTH2FromMonitorElement(MonitorElement* me);
+  TProfile* GetTProfileFromMonitorElement(MonitorElement* me);
+  
+  
+  //----------Static Variables---------------
+  
+  //Collection labels
+  edm::InputTag Muon_Tag;
+  edm::InputTag tkIsoDeposit_Tag;
+  edm::InputTag hcalIsoDeposit_Tag;
+  edm::InputTag ecalIsoDeposit_Tag;
+  edm::InputTag hoIsoDeposit_Tag;
+  
+  //root file name
+  std::string rootfilename;
 
-	public:
-		//---------methods----------------------------
-		explicit MuIsoValidation(const edm::ParameterSet&);
-		~MuIsoValidation();
-		
-
-	private:
-		//---------methods----------------------------
-		virtual void beginJob(const edm::EventSetup&) ;
-		virtual void analyze(const edm::Event&, const edm::EventSetup&);
-		virtual void endJob() ;
-		void InitStatics();
-		void RecordData(MuonIterator muon, MuIsoDepRef& tkDep,  
-			MuIsoDepRef& ecalDep, MuIsoDepRef& hcalDep, 
-			MuIsoDepRef& hoDep);//Fills Histograms with info from single muon
-		void InitHistos();//adds title, bin information to member histograms
-		void MakeLogBinsForProfile(Double_t* bin_edges, const double min, const double max);
-		void FillHistos();//Fills histograms with data
-		TH1* GetTH1FromMonitorElement(MonitorElement* me);
-		TH2* GetTH2FromMonitorElement(MonitorElement* me);
-		TProfile* GetTProfileFromMonitorElement(MonitorElement* me);
-			
-
-		//----------Static Variables---------------
-
-		//Collection labels
-		edm::InputTag Muon_Tag;
-		edm::InputTag tkIsoDeposit_Tag;
-		edm::InputTag hcalIsoDeposit_Tag;
-		edm::InputTag ecalIsoDeposit_Tag;
-		edm::InputTag hoIsoDeposit_Tag;
-
-		//root file name
-                std::string rootfilename;
-
-		//Histogram parameters
-		int NUM_VARS;
-		double L_BIN_WIDTH;//large bins
-		double S_BIN_WIDTH;//small bins
-		int LOG_BINNING_ENABLED;//pseudo log binning for profile plots
-		int NUM_LOG_BINS;
-		double LOG_BINNING_RATIO;
-		
-		std::string title_sam;
-		std::string title_cone;
-		std::string title_cd;
-
-		std::vector<std::string> main_titles;//[NUM_VARS]
-		std::vector<std::string> axis_titles;//[NUM_VARS]
-		std::vector<std::string> names;//[NUM_VARS]
-		std::vector< std::vector<double> > param;//[NUM_VARS][3]
-		std::vector<int> isContinuous;//[NUM_VARs]
-		
-		//---------------Dynamic Variables---------------------
-		
-		//MonitorElement
-		DQMStore* dbe;
-		
-		//The Data
-		std::vector<int> theMuonData;//[number of muons]
-		std::vector<std::vector<double> > the1Ddata;//[NUM_VARS][number of muons]
-                std::vector<std::vector<std::vector<std::pair<double,double> > > > the2Ddata;//[NUM_VARS][NUM_VARS][number of muons]
-
-		//Histograms
-		MonitorElement* h_nMuons;
-		std::vector<MonitorElement*> h_1D;//[NUM_VARS]
-		std::vector<MonitorElement*> cd_plots;//[NUM_VARS]
-		std::vector< std::vector<MonitorElement*> > h_2D;//[NUM_VARS][NUM_VARS]
-		std::vector< std::vector<MonitorElement*> > p_2D;//[NUM_VARS][NUM_VARS]
-		
-		//Counters
-		int nEvents;
-		int nMuons;
-
-		//enums for monitorElement
-		enum {NOAXIS,XAXIS,YAXIS,ZAXIS};
+  //Histogram parameters
+  static const int NUM_VARS = 11;
+  double L_BIN_WIDTH;//large bins
+  double S_BIN_WIDTH;//small bins
+  int LOG_BINNING_ENABLED;//pseudo log binning for profile plots
+  int NUM_LOG_BINS;
+  double LOG_BINNING_RATIO;
+  
+  std::string title_sam;
+  std::string title_cone;
+  std::string title_cd;
+  
+  std::vector<std::string> main_titles;//[NUM_VARS]
+  std::vector<std::string> axis_titles;//[NUM_VARS]
+  std::vector<std::string> names;//[NUM_VARS]
+  std::vector< std::vector<double> > param;//[NUM_VARS][3]
+  std::vector<int> isContinuous;//[NUM_VARs]
+  
+  //---------------Dynamic Variables---------------------
+  
+  //MonitorElement
+  DQMStore* dbe;
+  
+  //The Data
+  int theMuonData;//[number of muons]
+  double theData[NUM_VARS];
+  
+  //Histograms
+  MonitorElement* h_nMuons;
+  std::vector<MonitorElement*> h_1D;//[NUM_VARS]
+  std::vector<MonitorElement*> cd_plots;//[NUM_VARS]
+  std::vector< std::vector<MonitorElement*> > h_2D;//[NUM_VARS][NUM_VARS]
+  std::vector< std::vector<MonitorElement*> > p_2D;//[NUM_VARS][NUM_VARS]
+  
+  //Counters
+  int nEvents;
+  int nMuons;
+  
+  //enums for monitorElement
+  enum {NOAXIS,XAXIS,YAXIS,ZAXIS};
 };
 
