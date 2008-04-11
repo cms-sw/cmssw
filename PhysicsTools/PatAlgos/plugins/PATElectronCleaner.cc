@@ -1,5 +1,5 @@
 //
-// $Id: PATElectronCleaner.cc,v 1.3 2008/03/14 15:13:50 gpetrucc Exp $
+// $Id: PATElectronCleaner.cc,v 1.4 2008/04/09 12:05:12 llista Exp $
 //
 #include "PhysicsTools/PatAlgos/plugins/PATElectronCleaner.h"
 #include "DataFormats/EgammaReco/interface/BasicClusterShapeAssociation.h"
@@ -54,8 +54,8 @@ void PATElectronCleaner::produce(edm::Event & iEvent, const edm::EventSetup & iS
 
     // get the cluster shape for this electron selection
     if ( selectionType_ == "custom" ) {
-      const reco::ClusterShapeRef& shapeRef = getClusterShape_( &srcElectron, iEvent);
-      clusterShape = &(*shapeRef);
+//       const reco::ClusterShapeRef& shapeRef = getClusterShape_( &srcElectron, iEvent);
+//       clusterShape = &(*shapeRef);
     }
 
     // apply selection and set bits accordingly
@@ -98,35 +98,6 @@ void PATElectronCleaner::removeDuplicates() {
                                 ++it) {
         helper_.addMark(accepted.originalIndexOf(*it), pat::Flags::Core::Duplicate);
     }
-}
-
-// Only needed until clustershape is inside Electron (should come in 2_0_0)
-const reco::ClusterShapeRef& 
-PATElectronCleaner::getClusterShape_( const reco::GsfElectron* electron, 
-                                      const edm::Event&        event
-                                    ) const {
-  // Get association maps linking BasicClusters to ClusterShape.
-  edm::Handle<reco::BasicClusterShapeAssociationCollection> clusterShapeHandleBarrel;
-  edm::Handle<reco::BasicClusterShapeAssociationCollection> clusterShapeHandleEndcap;
-  event.getByLabel( selectionCfg_.getParameter<edm::InputTag>("clusterShapeBarrel"),
-                    clusterShapeHandleBarrel );
-  event.getByLabel( selectionCfg_.getParameter<edm::InputTag>("clusterShapeEndcap"),
-                    clusterShapeHandleEndcap );
-
-  // Find entry in map corresponding to seed BasicCluster of SuperCluster
-  reco::BasicClusterShapeAssociationCollection::const_iterator seedShpItr;
-  if (electron->classification()<100) 
-    {
-      seedShpItr=clusterShapeHandleBarrel->find(electron->superCluster()->seed());
-      if (electron->classification()==40 && seedShpItr == clusterShapeHandleBarrel->end()) 
-        seedShpItr = clusterShapeHandleEndcap->find(electron->superCluster()->seed());
-    } 
-  else 
-    {
-      seedShpItr = clusterShapeHandleEndcap->find(electron->superCluster()->seed());
-    }
-
-  return seedShpItr->val;
 }
 
 void PATElectronCleaner::endJob() { 
