@@ -10,9 +10,7 @@
 #include <TH1F.h>
 
 // CMSSW
-#include "DataFormats/JetReco/interface/Jet.h"
-#include "DataFormats/JetReco/interface/JetTracksAssociation.h"
-#include "DataFormats/TrackReco/interface/Track.h"
+#include "DataFormats/VertexReco/interface/Vertex.h"
 
 struct VertexPlots {
   VertexPlots() :
