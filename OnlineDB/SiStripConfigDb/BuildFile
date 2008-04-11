@@ -16,7 +16,6 @@
   <lib name=OnlineDBSiStripConfigDb>
   <use name=FWCore/Utilities>
   <use name=FWCore/ParameterSet>
-  <use name=FWCore/MessageLogger>
   <use name=FWCore/ServiceRegistry>
   <use name=DataFormats/Common>
   <use name=DataFormats/SiStripCommon>
