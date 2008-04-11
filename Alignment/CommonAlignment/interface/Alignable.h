@@ -16,8 +16,8 @@ class Alignments;
  * Any Alignable object can be moved and rotated.
  * Also an alignment uncertainty can be set.
  *
- *  $Date: 2008/02/12 18:06:49 $
- *  $Revision: 1.29 $
+ *  $Date: 2008/02/13 20:19:56 $
+ *  $Revision: 1.30 $
  *  (last update by $Author: flucke $)
  */
 
@@ -201,6 +201,8 @@ protected:
                                 // contain itself if Alignable is a unit
 
 private:
+  /// private default ctr. to enforce usage of the specialised ones
+  Alignable() {};
 
   AlignmentParameters* theAlignmentParameters;
 
