@@ -9,6 +9,7 @@
 #include "DataFormats/Candidate/interface/CompositeRefCandidate.h"
 #include "DataFormats/Candidate/interface/CompositePtrCandidate.h"
 #include "DataFormats/Candidate/interface/CompositeRefBaseCandidate.h"
+#include "DataFormats/Candidate/interface/NamedCompositeCandidate.h"
 #include "DataFormats/Candidate/interface/ShallowCloneCandidate.h"
 #include "DataFormats/Common/interface/Wrapper.h"
 #include "DataFormats/Common/interface/AssociationVector.h"
@@ -80,6 +81,11 @@ namespace {
     edm::reftobase::RefHolder<reco::VertexCompositeCandidateRef> hcc6;
     edm::reftobase::VectorHolder<reco::Candidate, reco::VertexCompositeCandidateRefVector> hcc7;
     edm::reftobase::RefVectorHolder<reco::VertexCompositeCandidateRefVector> hcc8;
+    edm::Wrapper<reco::NamedCompositeCandidateCollection> wcc3;
+    edm::reftobase::Holder<reco::Candidate, reco::NamedCompositeCandidateRef> hcc9;
+    edm::reftobase::RefHolder<reco::NamedCompositeCandidateRef> hcc10;
+    edm::reftobase::VectorHolder<reco::Candidate, reco::NamedCompositeCandidateRefVector> hcc11;
+    edm::reftobase::RefVectorHolder<reco::NamedCompositeCandidateRefVector> hcc12;
     
   }
 }
