@@ -31,19 +31,10 @@ void SurveyDBUploader::endJob()
 
   if( poolDbService.isAvailable() )
   {
-    if ( poolDbService->isNewTagRequest(theValueRcd) )
-      poolDbService->createNewIOV<SurveyValues>
-	(theValues, poolDbService->endOfTime(), theValueRcd);
-    else
-      poolDbService->appendSinceTime<SurveyValues>
-	(theValues, poolDbService->currentTime(), theValueRcd);
-
-    if ( poolDbService->isNewTagRequest(theErrorRcd) )
-      poolDbService->createNewIOV<SurveyErrors>
-	(theErrors, poolDbService->endOfTime(), theErrorRcd);
-    else
-      poolDbService->appendSinceTime<SurveyErrors>
-	(theErrors, poolDbService->currentTime(), theErrorRcd);
+    poolDbService->writeOne<SurveyValues>
+      (theValues, poolDbService->currentTime(), theValueRcd);
+    poolDbService->writeOne<SurveyErrors>
+      (theErrors, poolDbService->currentTime(), theErrorRcd);
   }
   else
     throw cms::Exception("ConfigError")
