@@ -2,8 +2,8 @@
  *  Class: GlobalMuonTrackMatcher
  *
  * 
- *  $Date: 2008/03/11 01:58:35 $
- *  $Revision: 1.8 $
+ *  $Date: 2008/03/21 01:16:10 $
+ *  $Revision: 1.9 $
  *
  *  \author Chang Liu - Purdue University
  *  \author Norbert Neumeister - Purdue University
@@ -58,7 +58,7 @@ GlobalMuonTrackMatcher::GlobalMuonTrackMatcher(const edm::ParameterSet& par,
   theMinP = par.getParameter<double>("MinP");
   theMinPt = par.getParameter<double>("MinPt");
  
-  theOutPropagatorName = par.getParameter<string>("StateOnTrackerBoundOutPropagator");
+  theOutPropagatorName = par.getParameter<string>("Propagator");
 
 }
 
