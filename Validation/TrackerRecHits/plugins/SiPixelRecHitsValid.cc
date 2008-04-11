@@ -410,7 +410,7 @@ void SiPixelRecHitsValid::fillBarrel(const SiPixelRecHit& recHit, const PSimHit&
     }
   
   //get cluster
-  edm::Ref<edm::DetSetVector<SiPixelCluster>, SiPixelCluster> const& clust = recHit.cluster();
+  SiPixelRecHit::ClusterRef const& clust = recHit.cluster();
   
   // fill module dependent info
   for (unsigned int i=0; i<8; i++) 
@@ -513,7 +513,7 @@ void SiPixelRecHitsValid::fillForward(const SiPixelRecHit & recHit, const PSimHi
   recHitYPullAllF->Fill(pull_y);
   
   // get cluster
-  edm::Ref<edm::DetSetVector<SiPixelCluster>, SiPixelCluster> const& clust = recHit.cluster();
+  SiPixelRecHit::ClusterRef const& clust = recHit.cluster();
   
   // fill plaquette dependent info
   for (unsigned int i=0; i<7; i++) 

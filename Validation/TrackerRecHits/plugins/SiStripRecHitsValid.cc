@@ -415,7 +415,7 @@ void SiStripRecHitsValid::analyze(const edm::Event& e, const edm::EventSetup& es
 	MeasurementError Merror;
 	Mposition = topol.measurementPosition(position);
 	Merror = topol.measurementError(position,error);
-	const edm::Ref<edm::DetSetVector<SiStripCluster>, SiStripCluster, edm::refhelper::FindForDetSetVector<SiStripCluster> > clust=rechit.cluster();
+	SiStripRecHit2D::ClusterRef clust=rechit.cluster();
 	int clusiz=0;
 	int totcharge=0;
 	clusiz = clust->amplitudes().size();
@@ -492,7 +492,7 @@ void SiStripRecHitsValid::analyze(const edm::Event& e, const edm::EventSetup& es
 	MeasurementError Merror;
 	Mposition = topol.measurementPosition(position);
 	Merror = topol.measurementError(position,error);
-	const edm::Ref<edm::DetSetVector<SiStripCluster>, SiStripCluster, edm::refhelper::FindForDetSetVector<SiStripCluster> > clust=rechit.cluster();	int clusiz=0;
+	SiStripRecHit2D::ClusterRef clust=rechit.cluster();	int clusiz=0;
 	int totcharge=0;
 	clusiz = clust->amplitudes().size();
 	const std::vector<uint16_t> amplitudes=clust->amplitudes();
