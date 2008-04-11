@@ -67,7 +67,6 @@ bool NuclearVertexBuilder::FillVertexWithAdaptVtxFitter(const reco::TrackRef& pr
          try {
             TransientVertex tv = AVF.vertex(transientTracks);
             the_vertex = reco::Vertex(tv);
-            LogDebug("NuclearInteractionMaker") << "Vertex build from AdaptiveVertexFitter with " << the_vertex.tracksSize() << " tracks";
          }
          catch(VertexException& exception){
             // AdaptivevertexFitter does not work
@@ -79,7 +78,11 @@ bool NuclearVertexBuilder::FillVertexWithAdaptVtxFitter(const reco::TrackRef& pr
             LogDebug("NuclearInteractionMaker") << exception.what() << "\n";
             return false;
          }
-         return true;
+         if( the_vertex.isValid() ) {
+            LogDebug("NuclearInteractionMaker") << "Try to build from AdaptiveVertexFitter with " << the_vertex.tracksSize() << " tracks";
+            return true;
+         }
+         else return false;
 }
 
 
@@ -112,6 +115,7 @@ bool NuclearVertexBuilder::FillVertexWithCrossingPoint(const reco::TrackRef& pri
                   else the_vertex.add(reco::TrackBaseRef( secTracks[i] ), 0.0);
                }
             }
+            LogDebug("NuclearInteractionMaker") << "Vertex build from crossing point with track : " << indice;
             return true;
 }
 
