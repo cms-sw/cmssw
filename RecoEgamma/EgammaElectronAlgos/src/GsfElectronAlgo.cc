@@ -12,7 +12,7 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Thu july 6 13:22:06 CEST 2006
-// $Id: GsfElectronAlgo.cc,v 1.14 2008/03/04 17:00:32 uberthon Exp $
+// $Id: GsfElectronAlgo.cc,v 1.15 2008/03/15 14:34:48 charlot Exp $
 //
 //
 
@@ -26,7 +26,6 @@
 #include "RecoEgamma/EgammaTools/interface/HoECalculator.h"
 
 #include "DataFormats/EgammaReco/interface/BasicCluster.h"
-#include "DataFormats/EgammaReco/interface/ClusterShape.h"
 #include "DataFormats/EgammaReco/interface/ElectronPixelSeed.h"
 #include "DataFormats/EgammaReco/interface/ElectronPixelSeedFwd.h"
 #include "DataFormats/TrackCandidate/interface/TrackCandidate.h"
@@ -108,8 +107,6 @@ GsfElectronAlgo::GsfElectronAlgo(const edm::ParameterSet& conf,
   // get input collections
   hcalRecHits_ = conf.getParameter<edm::InputTag>("hcalRecHits");
   tracks_ = conf.getParameter<edm::InputTag>("tracks");  
-  barrelClusterShapes_ = conf.getParameter<edm::InputTag>("barrelClusterShapes");
-  endcapClusterShapes_ = conf.getParameter<edm::InputTag>("endcapClusterShapes");
   barrelSuperClusters_ = conf.getParameter<edm::InputTag>("barrelSuperClusters");
   endcapSuperClusters_ = conf.getParameter<edm::InputTag>("endcapSuperClusters");
 
@@ -154,11 +151,6 @@ void  GsfElectronAlgo::run(Event& e, GsfElectronCollection & outEle) {
   edm::Handle<GsfTrackCollection> tracksH;
   e.getByLabel(tracks_,tracksH);
   
-  edm::Handle<BasicClusterShapeAssociationCollection> barrelShapeAssocH;
-  edm::Handle<BasicClusterShapeAssociationCollection> endcapShapeAssocH;
-  e.getByLabel(barrelClusterShapes_,barrelShapeAssocH);
-  e.getByLabel(endcapClusterShapes_,endcapShapeAssocH);
-
   // for HoE calculation
   edm::Handle<HBHERecHitCollection> hbhe;
   mhbhe_=0;
@@ -171,9 +163,7 @@ void  GsfElectronAlgo::run(Event& e, GsfElectronCollection & outEle) {
   const math::XYZPoint bsPosition = recoBeamSpotHandle->position();
 
   // create electrons 
-  const BasicClusterShapeAssociationCollection *shpAssBarrel=&(*barrelShapeAssocH);
-  const BasicClusterShapeAssociationCollection *shpAssEndcap=&(*endcapShapeAssocH);
-  if (processType_==1) process(tracksH,shpAssBarrel,shpAssEndcap,bsPosition,outEle);
+  if (processType_==1) process(tracksH,bsPosition,outEle);
   else {
        edm::Handle<SuperClusterCollection> superClustersBarrelH; 
        e.getByLabel(barrelSuperClusters_,superClustersBarrelH);
@@ -184,7 +174,6 @@ void  GsfElectronAlgo::run(Event& e, GsfElectronCollection & outEle) {
   process(tracksH, 
           superClustersBarrelH, 
           superClustersEndcapH,   
-          shpAssBarrel,shpAssEndcap   ,
 	  bsPosition,
           outEle);
   }
@@ -208,12 +197,9 @@ void  GsfElectronAlgo::run(Event& e, GsfElectronCollection & outEle) {
 }
 
 void GsfElectronAlgo::process(edm::Handle<GsfTrackCollection> tracksH,
-		        const BasicClusterShapeAssociationCollection *shpAssBarrel,
-		        const BasicClusterShapeAssociationCollection *shpAssEndcap,
 			const math::XYZPoint &bsPosition,
 		        GsfElectronCollection & outEle) {
  
-  BasicClusterShapeAssociationCollection::const_iterator seedShpItr;
 
   const GsfTrackCollection *tracks=tracksH.product();
   for (unsigned int i=0;i<tracks->size();++i) {
@@ -227,23 +213,14 @@ void GsfElectronAlgo::process(edm::Handle<GsfTrackCollection> tracksH,
     std::vector<DetId> vecId=theClus.getHitsByDetId();
     subdet_ =vecId[0].subdetId();  
 
-    //get ref to ClusterShape for seed BasicCluster of SuperCluster
-    if (subdet_==EcalEndcap) {
-      seedShpItr = shpAssEndcap->find(scRef->seed());
-      assert(seedShpItr != shpAssEndcap->end());
-    }else if (subdet_==EcalBarrel) {
-      seedShpItr = shpAssBarrel->find(scRef->seed());
-      assert(seedShpItr != shpAssBarrel->end());
-    }
-    const reco::ClusterShapeRef& seedShapeRef = seedShpItr->val;
-
     // calculate Trajectory StatesOnSurface....
     if (!calculateTSOS(t,theClus, bsPosition)) continue;
     vtxMom_=computeMode(vtxTSOS_);
     sclPos_=sclTSOS_.globalPosition();
     if (preSelection(theClus)) {
+
       // interface to be improved...
-      createElectron(scRef,trackRef ,seedShapeRef, outEle);
+      createElectron(scRef,trackRef,outEle);
 
       LogInfo("")<<"Constructed new electron with energy  "<< scRef->energy();
     }
@@ -334,7 +311,7 @@ GlobalVector GsfElectronAlgo::computeMode(const TrajectoryStateOnSurface &tsos) 
 }
 
 // interface to be improved...
-void GsfElectronAlgo::createElectron(const SuperClusterRef & scRef,const GsfTrackRef &trackRef ,const reco::ClusterShapeRef& seedShapeRef, GsfElectronCollection & outEle) {
+void GsfElectronAlgo::createElectron(const SuperClusterRef & scRef, const GsfTrackRef &trackRef, GsfElectronCollection & outEle) {
       GlobalVector innMom=computeMode(innTSOS_);
       GlobalPoint innPos=innTSOS_.globalPosition();
       GlobalVector seedMom=computeMode(seedTSOS_);
@@ -354,7 +331,7 @@ void GsfElectronAlgo::createElectron(const SuperClusterRef & scRef,const GsfTrac
       // should be coming from supercluster!
      HoECalculator calc(theCaloGeom);
      double HoE=calc(&(*scRef),mhbhe_);
-     GsfElectron ele(momentum,scRef,seedShapeRef,trackRef,sclPos_,sclMom,seedPos,seedMom,innPos,innMom,vtxPos,vtxMom_,outPos,outMom,HoE);
+     GsfElectron ele(momentum,scRef,trackRef,sclPos_,sclMom,seedPos,seedMom,innPos,innMom,vtxPos,vtxMom_,outPos,outMom,HoE);
 
       //and set various properties
       ECALPositionCalculator ecpc;
@@ -417,13 +394,9 @@ bsPosition){
 void GsfElectronAlgo::process(edm::Handle<GsfTrackCollection> tracksH,
                             edm::Handle<reco::SuperClusterCollection> superClustersBarrelH,
                             edm::Handle<reco::SuperClusterCollection> superClustersEndcapH,
-                            const reco::BasicClusterShapeAssociationCollection *shpAssBarrel,
-	                    const reco::BasicClusterShapeAssociationCollection *shpAssEndcap,
 			    const math::XYZPoint &bsPosition,
                             GsfElectronCollection & outEle) {
   
-  BasicClusterShapeAssociationCollection::const_iterator seedShpItr;
-  //std::cout << "------- processing event" << std::endl;
   
   if (tracksH->size() == 0) {
     //std::cout << "Electron lost: no track found. " << std::endl;
@@ -471,16 +444,7 @@ void GsfElectronAlgo::process(edm::Handle<GsfTrackCollection> tracksH,
       std::vector<DetId> vecId=theClus.getHitsByDetId();
       subdet_ =vecId[0].subdetId();  
 
-      //get ref to ClusterShape for seed BasicCluster of SuperCluster
-      if (subdet_==EcalEndcap) {
-	seedShpItr = shpAssEndcap->find(scRef->seed());
-	assert(seedShpItr != shpAssEndcap->end());
-      }else if (subdet_==EcalBarrel) {
-	seedShpItr = shpAssBarrel->find(scRef->seed());
-	assert(seedShpItr != shpAssBarrel->end());
-      }
-      const reco::ClusterShapeRef& seedShapeRef = seedShpItr->val;
-     
+    
       // calculate Trajectory StatesOnSurface....
       if (!calculateTSOS((*trackRef),theClus,bsPosition)) continue;
 
@@ -488,7 +452,7 @@ void GsfElectronAlgo::process(edm::Handle<GsfTrackCollection> tracksH,
       sclPos_=sclTSOS_.globalPosition();
       if (preSelection(theClus)) {
 	// interface to be improved...
-	createElectron(scRef,trackRef ,seedShapeRef, outEle);
+	createElectron(scRef,trackRef,outEle);
         //LogInfo("")<<"Constructed new electron with energy  "<< (*sclAss)[seed]->energy();
       }
     }  

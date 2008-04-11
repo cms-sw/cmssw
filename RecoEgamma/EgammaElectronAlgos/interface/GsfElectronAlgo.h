@@ -14,7 +14,6 @@
 
 #include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
 #include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
-#include "DataFormats/EgammaReco/interface/BasicClusterShapeAssociation.h"
 #include "DataFormats/GsfTrackReco/interface/GsfTrackFwd.h"
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
 
@@ -52,26 +51,21 @@ public:
 
   // create electrons from superclusters, tracks and Hcal rechits
   void process(edm::Handle<reco::GsfTrackCollection> tracksH,
-	       const reco::BasicClusterShapeAssociationCollection *shpAssBarrel,
-	       const reco::BasicClusterShapeAssociationCollection *shpAssEndcap,
 	       const math::XYZPoint &bs,
 	       reco::GsfElectronCollection & outEle);
   void process(edm::Handle<reco::GsfTrackCollection> tracksH,
 	       edm::Handle<reco::SuperClusterCollection> superClustersBarrelH,
 	       edm::Handle<reco::SuperClusterCollection> superClustersEndcapH,
-	       const reco::BasicClusterShapeAssociationCollection *shpAssBarrel,
-	       const reco::BasicClusterShapeAssociationCollection *shpAssEndcap,
 	       const math::XYZPoint &bs,
 	       reco::GsfElectronCollection & outEle);
   
   
   // preselection method
-  //  bool preSelection(const reco::SuperCluster& clus, const GlobalVector&, const GlobalPoint&,double HoE);
   bool preSelection(const reco::SuperCluster& clus);
 
   // interface to be improved...
   void createElectron(const reco::SuperClusterRef & scRef,
-                      const reco::GsfTrackRef &trackRef,const reco::ClusterShapeRef& seedShapeRef,
+                      const reco::GsfTrackRef &trackRef,
 		      reco::GsfElectronCollection & outEle);  
 
   //Gsf mode calculations
@@ -108,8 +102,6 @@ public:
   // input configuration
   edm::InputTag barrelSuperClusters_;
   edm::InputTag endcapSuperClusters_;
-  edm::InputTag barrelClusterShapes_;
-  edm::InputTag endcapClusterShapes_;
   edm::InputTag tracks_;
   edm::InputTag hcalRecHits_;
 
@@ -134,7 +126,7 @@ public:
   HBHERecHitMetaCollection *mhbhe_;
   unsigned int processType_;
 
-  unsigned long long   cacheIDGeom_;
+  unsigned long long cacheIDGeom_;
   unsigned long long cacheIDTDGeom_;
   unsigned long long cacheIDMagField_;
 };

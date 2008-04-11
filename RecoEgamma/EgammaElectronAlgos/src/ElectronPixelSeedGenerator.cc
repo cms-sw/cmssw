@@ -13,7 +13,7 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: ElectronPixelSeedGenerator.cc,v 1.47 2008/03/26 10:48:03 uberthon Exp $
+// $Id: ElectronPixelSeedGenerator.cc,v 1.49 2008/04/08 16:39:15 uberthon Exp $
 //
 //
 #include "RecoEgamma/EgammaElectronAlgos/interface/PixelHitMatcher.h" 
@@ -67,7 +67,7 @@ ElectronPixelSeedGenerator::ElectronPixelSeedGenerator(const edm::ParameterSet &
       deltaPhi2_(pset.getParameter<double>("DeltaPhi2")),
       myMatchEle(0), myMatchPos(0),
       thePropagator(0), theMeasurementTracker(0), 
-      theSetter(0), theSetup(0), pts_(0),
+      theSetup(0), pts_(0),
       cacheIDMagField_(0),cacheIDGeom_(0),cacheIDNavSchool_(0),cacheIDCkfComp_(0)
 { 
      // Instantiate the pixel hit matchers

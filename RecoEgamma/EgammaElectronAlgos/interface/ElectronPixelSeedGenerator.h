@@ -83,7 +83,6 @@ class ElectronPixelSeedGenerator: public ElectronSeedGenerator
 
   const MeasurementTracker*     theMeasurementTracker;
   const NavigationSchool*       theNavigationSchool;
-  const NavigationSetter*       theSetter;
 
   const edm::EventSetup *theSetup; 
   TrajectoryStateTransform transformer_; 
