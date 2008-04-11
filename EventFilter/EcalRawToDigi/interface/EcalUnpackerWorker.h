@@ -28,6 +28,9 @@
 
 #include "EventFilter/EcalRawToDigi/interface/MyWatcher.h"
 
+//forward declaration. just to be friend
+class EcalRawToRecHitByproductProducer;
+
 class EcalUnpackerWorker {
  public:
 
@@ -54,6 +57,8 @@ class EcalUnpackerWorker {
   EcalElectronicsMapper * myMap_;
   mutable std::auto_ptr<EBDigiCollection> productDigisEB;
   mutable std::auto_ptr<EEDigiCollection> productDigisEE;
+
+  friend class EcalRawToRecHitByproductProducer;
   mutable std::auto_ptr<EcalRawDataCollection> productDccHeaders;
   mutable std::auto_ptr< EBDetIdCollection> productInvalidGains;
   mutable std::auto_ptr< EBDetIdCollection> productInvalidGainsSwitch;
