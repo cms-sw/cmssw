@@ -14,7 +14,7 @@
 //
 // Original Author:  Vincenzo Chiochia
 //         Created:  
-// $Id: SiPixelRecHitSource.cc,v 1.5 2008/01/22 18:54:09 muzaffar Exp $
+// $Id: SiPixelRecHitSource.cc,v 1.6 2008/03/01 20:19:51 lat Exp $
 //
 //
 // Adapted by:  Keith Rose
@@ -121,7 +121,7 @@ void SiPixelRecHitSource::analyze(const edm::Event& iEvent, const edm::EventSetu
 
 	  rechit_count[TheID]++;
 	  //cout << TheID << endl;
-	  edm::Ref<edm::DetSetVector<SiPixelCluster>, SiPixelCluster> const& clust = pixeliter->cluster();
+	  SiPixelRecHit::ClusterRef const& clust = pixeliter->cluster();
 	  int sizeX = (*clust).sizeX();
 	  //cout << sizeX << endl;
 	  int sizeY = (*clust).sizeY();
