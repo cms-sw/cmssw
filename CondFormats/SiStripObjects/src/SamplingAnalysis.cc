@@ -22,6 +22,7 @@ SamplingAnalysis::SamplingAnalysis( const uint32_t& key )
     histo_(0,"")
 {
    peak_fitter_ = new TF1("peak_fitter",fpeak_convoluted,-2500,0,5);
+   peak_fitter_->SetNpx(1000);
    peak_fitter_->FixParameter(0,0);
    peak_fitter_->SetParLimits(1,0,2500);
    peak_fitter_->SetParLimits(2,0,20);
@@ -29,6 +30,7 @@ SamplingAnalysis::SamplingAnalysis( const uint32_t& key )
    peak_fitter_->SetParLimits(4,0,50);
    peak_fitter_->SetParameters(0.,1250,10,50,10);
    deconv_fitter_ = new TF1("deconv_fitter",fdeconv_convoluted,-50,50,5);
+   deconv_fitter_->SetNpx(1000);
    deconv_fitter_->FixParameter(0,0);
    deconv_fitter_->SetParLimits(1,-10,10);
    deconv_fitter_->SetParLimits(2,0,200);
@@ -47,6 +49,7 @@ SamplingAnalysis::SamplingAnalysis()
     histo_(0,"")
 {
    peak_fitter_ = new TF1("peak_fitter",fpeak_convoluted,-2500,0,5);
+   peak_fitter_->SetNpx(1000);
    peak_fitter_->FixParameter(0,0);
    peak_fitter_->SetParLimits(1,0,2500);
    peak_fitter_->SetParLimits(2,0,20);
@@ -54,6 +57,7 @@ SamplingAnalysis::SamplingAnalysis()
    peak_fitter_->SetParLimits(4,0,50);
    peak_fitter_->SetParameters(0.,1250,10,50,10);
    deconv_fitter_ = new TF1("deconv_fitter",fdeconv_convoluted,-50,50,5);
+   deconv_fitter_->SetNpx(1000);
    deconv_fitter_->FixParameter(0,0);
    deconv_fitter_->SetParLimits(1,-10,10);
    deconv_fitter_->SetParLimits(2,0,200);
@@ -83,7 +87,6 @@ void SamplingAnalysis::reset() {
   peak_fitter_->FixParameter(3,50);
   peak_fitter_->SetParLimits(4,0,50);
   peak_fitter_->SetParameters(0.,1250,10,50,10);
-  deconv_fitter_ = new TF1("deconv_fitter",fdeconv_convoluted,-50,50,5);
   deconv_fitter_->FixParameter(0,0);
   deconv_fitter_->SetParLimits(1,-10,10);
   deconv_fitter_->SetParLimits(2,0,200);
@@ -136,28 +139,31 @@ void SamplingAnalysis::extract( const std::vector<TH1*>& histos) {
 // 
 void SamplingAnalysis::analyse() { 
 
-  if ( !histo_.first ) {
+  TProfile* prof = (TProfile*)(histo_.first);
+  if ( !prof ) {
     edm::LogWarning(mlCommissioning_) << " NULL pointer to histogram!" ;
     return;
   }
 
-  TProfile* prof = (TProfile*)(histo_.first);
   // prune the profile
   pruneProfile(prof);
   // correct for the binning
   correctBinning(prof);
   // correct for clustering effects
   correctProfile(prof,sOnCut_);
-  
+  // fit depending on the mode
   if(runType_==sistrip::APV_LATENCY) {
+    // initialize  the fit (overal latency)
+    float max = prof->GetBinCenter(prof->GetMaximumBin());
+    peak_fitter_->SetParameters(0.,-max,10,50,10);
     // fit
-    histo_.first->Fit(peak_fitter_,"QL");
+    prof->Fit(peak_fitter_,"Q");
     // Set monitorables
     max_ = peak_fitter_->GetMaximumX();
     error_ = peak_fitter_->GetParError(1);
   } else { // sistrip::FINE_DELAY
     // fit
-    histo_.first->Fit(deconv_fitter_,"QL");
+    prof->Fit(deconv_fitter_,"Q");
     // Set monitorables
     max_ = deconv_fitter_->GetMaximumX();
     error_ = deconv_fitter_->GetParError(1);
