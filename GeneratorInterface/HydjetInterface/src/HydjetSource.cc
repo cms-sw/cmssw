@@ -1,5 +1,5 @@
 /*
- * $Id: HydjetSource.cc,v 1.18 2008/04/06 10:07:41 loizides Exp $
+ * $Id: HydjetSource.cc,v 1.19 2008/04/09 15:40:34 marafino Exp $
  *
  * Interface to the HYDJET generator, produces HepMC events
  *
@@ -130,6 +130,8 @@ void HydjetSource::add_heavy_ion_rec(HepMC::GenEvent *evt)
   );
 
   evt->set_heavy_ion(*hi);
+
+  delete hi;
 }
 
 
