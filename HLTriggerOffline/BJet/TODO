@@ -15,7 +15,7 @@ Validation and comparison plots:
     [v] per events
     [ ] make efficiency histograms (useless but nice for presentations)
  + allow job splitting
-    [ ] move efficiency plots to external macro
+    [v] store efficiencies in ROOT file
     [ ] add nice-plots-making to external macro
 
  + complete migration to new HLT data model
