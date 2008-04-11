@@ -1,13 +1,14 @@
-#include "Alignment/SurveyAnalysis/interface/DTSurvey.h"
-#include "DataFormats/MuonDetId/interface/DTChamberId.h" 
-#include "Geometry/DTGeometry/interface/DTChamber.h" 
-
-
-
 #include <fstream>
 
+#include "Alignment/SurveyAnalysis/interface/DTSurveyChamber.h"
+#include "DataFormats/MuonDetId/interface/DTChamberId.h" 
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "Geometry/DTGeometry/interface/DTGeometry.h"
+#include "Geometry/DTGeometry/interface/DTChamber.h" 
 
-DTSurvey::DTSurvey(string Wheel, string Chambers, int n) {
+#include "Alignment/SurveyAnalysis/interface/DTSurvey.h"
+
+DTSurvey::DTSurvey(const std::string& Wheel, const std::string& Chambers, int n) {
   
   nameOfWheelInfoFile = Wheel;
   nameOfChamberInfoFile = Chambers;
@@ -33,9 +34,7 @@ void DTSurvey::CalculateChambers() {
 }
 
 
-int DTSurvey::getId() {return id;}
-
-DTSurveyChamber * DTSurvey::getChamber(int station, int sector) {return chambers[station][sector];}
+const DTSurveyChamber * DTSurvey::getChamber(int station, int sector) const {return chambers[station][sector];}
 
 void DTSurvey::ReadChambers(edm::ESHandle<DTGeometry> pDD) {
   
@@ -49,7 +48,7 @@ void DTSurvey::ReadChambers(edm::ESHandle<DTGeometry> pDD) {
     }
   }
 
-  cout << nameOfChamberInfoFile.c_str() << endl;
+  std::cout << nameOfChamberInfoFile << std::endl;
   std::ifstream file(nameOfChamberInfoFile.c_str());
   while(!file.eof()) {
     int code, station, sector;
@@ -70,7 +69,7 @@ void DTSurvey::ReadChambers(edm::ESHandle<DTGeometry> pDD) {
     GlobalPoint rg(r(0,0), r(1,0), r(2,0));
     GlobalPoint rt(r(0,0)-disp(0,0), r(1,0)-disp(1,0), r(2,0)-disp(2,0));
     DTChamberId mId(id, station+1, sector+1);
-    DTChamber *mChamber = (DTChamber *)pDD->idToDet(mId);
+    const DTChamber *mChamber = static_cast<const DTChamber *>(pDD->idToDet(mId));
     LocalPoint rl = mChamber->toLocal(rg);
     LocalPoint rtl = mChamber->toLocal(rt);
     TMatrixD rLocal(3,1);
@@ -154,12 +153,12 @@ void DTSurvey::FillWheelInfo() {
 }
 
 
-std::ostream &operator<<(std::ostream & flux, DTSurvey obj) {
+std::ostream &operator<<(std::ostream & flux, const DTSurvey& obj) {
 
   for(int stationCounter = 0; stationCounter < 4; stationCounter++) {
     for(int sectorCounter = 0; sectorCounter < 14; sectorCounter++) {
       if(obj.getChamber(stationCounter,sectorCounter)->getNumberPoints() > 2) {
-        DTSurveyChamber *m_chamber = obj.getChamber(stationCounter, sectorCounter);
+        const DTSurveyChamber *m_chamber = obj.getChamber(stationCounter, sectorCounter);
         flux << *m_chamber;
       }
     }

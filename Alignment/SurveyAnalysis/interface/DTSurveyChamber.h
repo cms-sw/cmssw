@@ -3,8 +3,8 @@
  *  Implements a chamber in the context of Drift Tube Survey Measurements  
  *  and calculates displacements and rotations for it.
  *
- *  $Date: 2007/12/06 01:53:28 $
- *  $Revision: 1.3 $
+ *  $Date: 2007/12/31 01:24:38 $
+ *  $Revision: 1.4 $
  *  \author Pablo Martinez Ruiz del Arbol
  */
 
@@ -12,43 +12,46 @@
 #ifndef Alignment_SurveyAnalysis_DTSurveyChamber_H
 #define Alignment_SurveyAnalysis_DTSurveyChamber_H
 
-
-#include "TMatrixD.h" 
 #include <vector>
+
+#include "TMath.h"
+#include "TMatrixD.h" 
 
 class DTSurveyChamber {
   
   
  public:
-  //Constructor & Destructor
+
   DTSurveyChamber(int, int, int, long);
-  ~DTSurveyChamber();
   
 
   //Add a point to the Chamber
-  void addPoint(int, TMatrixD, TMatrixD, TMatrixD);
+  void addPoint(int, const TMatrixD&, const TMatrixD&, const TMatrixD&);
   
   //Begin the chi2 computation
-  int getNumberPoints();
+  int getNumberPoints() const { return pointNumber; }
   void compute();
   void printChamberInfo(); 
-  long getId();
-  float getDeltaX();
-  float getDeltaY();
-  float getDeltaZ();
-  float getDeltaXError();
-  float getDeltaYError();
-  float getDeltaZError();
-  float getAlpha();
-  float getBeta();
-  float getGamma();
-  float getAlphaError();
-  float getBetaError();
-  float getGammaError();
+  long getId() const {return rawId;}
+  float getDeltaX() const {return Solution(0,0);}
+  float getDeltaY() const {return Solution(1,0);}
+  float getDeltaZ() const {return Solution(2,0);}
+  //My definition of the matrix rotation is not the same as the used in CMSSW  
+  float getAlpha() const {return Solution(5,0);}
+  float getBeta() const {return -1.0*Solution(4,0);}
+  float getGamma() const {return Solution(3,0);}
+  float getDeltaXError() const {return TMath::Sqrt(Covariance(0,0));}
+  float getDeltaYError() const {return TMath::Sqrt(Covariance(1,1));}
+  float getDeltaZError() const {return TMath::Sqrt(Covariance(2,2));}
+  float getAlphaError() const {return TMath::Sqrt(Covariance(5,5));}
+  float getBetaError() const {return TMath::Sqrt(Covariance(4,4));}
+  float getGammaError() const {return TMath::Sqrt(Covariance(3,3));}
 
  
  private:
-  
+
+//   static const unsigned int MAX_PUNTOS = 16;
+
   TMatrixD & makeMatrix();
   TMatrixD & makeErrors();
   TMatrixD & makeVector();
@@ -74,7 +77,7 @@ class DTSurveyChamber {
   
 };
 
-ostream & operator<<(ostream &, DTSurveyChamber);
+std::ostream & operator<<(std::ostream &, const DTSurveyChamber&);
 
 
 
