@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Sun Aug  7 20:26:31 EDT 2005
-// $Id: decayParser.cc,v 1.2 2007/10/15 17:59:01 llista Exp $
+// $Id: decayParser.cc,v 1.4 2007/11/14 09:55:41 llista Exp $
 //
 #include <boost/spirit/core.hpp>
 #include <boost/spirit/actor/push_back_actor.hpp>
@@ -42,7 +42,7 @@ namespace cand {
     bool decayParser( const string& iValue, vector<ConjInfo>& oStrings ) {
       using namespace boost::spirit;
       
-      Rule_1 label = ((+alnum_p) >> *ch_p('_') >>*alnum_p)[push_back_a(oStrings)];
+      Rule_1 label = ((+alnum_p) >> *ch_p(':') >> *ch_p('_') >>*alnum_p)[push_back_a(oStrings)];
       Rule_1 conj =  (ch_p('@') >> !((ch_p('b')>>ch_p('a')>>ch_p('r')[ModeSetter(oStrings,ConjInfo::kBar)] )| 
 				     ch_p('+')[ModeSetter(oStrings,ConjInfo::kPlus)] | 
 				     ch_p('-')[ModeSetter(oStrings,ConjInfo::kMinus)]) );
