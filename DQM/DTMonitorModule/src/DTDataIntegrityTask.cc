@@ -1,8 +1,8 @@
 /*
  * \file DTDataIntegrityTask.cc
  * 
- * $Date: 2008/04/03 18:19:58 $
- * $Revision: 1.38 $
+ * $Date: 2008/04/03 18:53:04 $
+ * $Revision: 1.39 $
  * \author M. Zanetti (INFN Padova), S. Bolognesi (INFN Torino)
  *
  */
@@ -736,7 +736,7 @@ void DTDataIntegrityTask::processROS25(DTROS25Data & data, int ddu, int ros) {
 	(rosHistos.find(histoType)->second).find(code.getROSID())->second->Fill(8,robheader.robID());
       else {
 	bookHistos( string("ROS"), code);
-	(rosHistos.find(histoType)->second).find(code.getROS())->second->Fill(8,robheader.robID());
+	(rosHistos.find(histoType)->second).find(code.getROSID())->second->Fill(8,robheader.robID());//CB getROS->getROSID
 	 }
 	}
        }
