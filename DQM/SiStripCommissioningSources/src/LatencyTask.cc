@@ -108,15 +108,15 @@ void LatencyTask::fill( const SiStripEventSummary& summary,
     if(digis.data[strip].adc()!=0) {
       // count the "cluster"
       ++nclusters;
-      // apply the TOF correction
-      float tof = (digis.data[strip].adc()>>8)/10.;
-      correctedDelay = delay*(-25.) - tof;
-      if((digis.data[strip].adc()>>8)==255) continue; // skip hit if TOF is in overflow
+      // no TOF correction is applied.
+      // 2 reasons: the effect is a priori to thin to be seen with 25ns steps
+      // and it biases the result by one clock due to the 25bins in the HistoSet
+      correctedDelay = delay*(-25.); // no TOF correction is applied. 
       // compute the bin
       int bin = int((correctedDelay-LOWBIN)/((HIGHBIN-LOWBIN)/NBINS));
       LogDebug("Commissioning") << "[LatencyTask::fill]; using a hit with value " << ( digis.data[strip].adc()&0xff )
                                 << " at corrected delay of " << correctedDelay
-				<< " in bin " << bin << "  (tof is " << tof << "( since adc = " << digis.data[strip].adc() << "))";
+				<< " in bin " << bin ;
       updateHistoSet( *timing_,bin,digis.data[strip].adc()&0xff);
     }
   }
