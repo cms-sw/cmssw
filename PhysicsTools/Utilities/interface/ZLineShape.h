@@ -9,7 +9,6 @@
 namespace funct {
   class ZLineShape {
   public:
-    static const unsigned int arguments = 1;
     ZLineShape(const Parameter& m, const Parameter& g, 
 	       const Parameter& Ng, const Parameter& Ni): 
       Ngamma(Ng.ptr()), Nint(Ni.ptr()), 

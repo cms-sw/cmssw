@@ -4,7 +4,6 @@
 namespace funct {
   
   struct Identity {
-    static const unsigned int arguments = 1;
     Identity() { }
     double operator()(double x) const {
       return x;

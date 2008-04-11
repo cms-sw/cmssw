@@ -6,7 +6,6 @@ namespace funct {
 
   template<typename T> 
   struct TanStruct {
-    static const unsigned int arguments = 0;
     TanStruct(const T& t) : _(t) { }
     inline double operator()() const { return ::tan(_()); }
     inline operator double() const { return ::tan(_()); }

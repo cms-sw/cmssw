@@ -4,9 +4,8 @@
 namespace root {
   namespace helper {
   
-    template<typename F, int arguments = F::arguments>
+    template<typename F, unsigned int args>
     struct RootVarsAdapter {
-      static double value(F&, const double *);
     };
     
     template<typename F>

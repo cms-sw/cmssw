@@ -7,7 +7,6 @@
 namespace funct {
   class Parameter {
   public:
-    static const unsigned int arguments = 0;
     explicit Parameter(const std::string & name ="undefined" , double value = 0) :
       name_(name), value_(new double(value)) {
     }

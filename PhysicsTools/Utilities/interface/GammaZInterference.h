@@ -6,7 +6,6 @@
 namespace funct {
 
   struct GammaZInterference {
-    static const unsigned int arguments = 1;
     GammaZInterference(const Parameter& m, const Parameter& g): 
       mass(m.ptr()), width(g.ptr()) { }
     GammaZInterference(boost::shared_ptr<double> m, boost::shared_ptr<double> g): 

@@ -7,7 +7,6 @@ namespace funct {
 
   template<typename T>
   struct CosStruct {
-    static const unsigned int arguments = 0;
     CosStruct(const T& t) : _(t) { }
     inline double operator()() const { return ::cos(_()); }
     T _; 

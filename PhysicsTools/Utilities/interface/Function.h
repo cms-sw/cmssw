@@ -10,7 +10,6 @@ namespace funct {
 
   template<typename X1 = null_var, typename X2 = null_var, typename X3 = null_var> 
   struct Function {
-    static const unsigned int arguments = 3;
     template<typename F> 
     Function(const F& f) : _f(f) { }
     double operator()(typename X1::type x1, 
@@ -25,7 +24,6 @@ namespace funct {
 
   template<typename X1, typename X2> 
   struct Function<X1, X2, null_var> {
-    static const unsigned int arguments = 2;
     template<typename F>  
     Function(const F& f) : _f(f) { }
     double operator()(typename X1::type x1, 
@@ -39,7 +37,6 @@ namespace funct {
 
   template<typename X1> 
   struct Function<X1, null_var, null_var> {
-    static const unsigned int arguments = 1;
     template<typename F> 
     Function(const F& f) : _f(f) { }
     double operator()(typename X1::type x1) const { X1::set(x1); return _f(); }

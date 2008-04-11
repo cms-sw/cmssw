@@ -7,7 +7,6 @@ namespace funct {
   template<unsigned int n>
   class Polynomial { 
   public:
-    static const unsigned int arguments = 1;
     Polynomial(const double * c);
     Polynomial(const boost::shared_ptr<double> * c);
     Polynomial(const Parameter * p);
@@ -40,7 +39,6 @@ namespace funct {
   template<>
   class Polynomial<0> {
   public:
-    static const unsigned int arguments = 1;
     Polynomial(const boost::shared_ptr<double> * c) : 
       c0_(*c) {
     }
@@ -69,7 +67,6 @@ namespace funct {
   template<>
   class Polynomial<1> { 
   public:
-    static const unsigned int arguments = 1;
     Polynomial(const boost::shared_ptr<double> * c) : 
       c0_(*c), poly_(c + 1) {
     }
@@ -99,7 +96,6 @@ namespace funct {
   template<>
   class Polynomial<2> { 
   public:
-    static const unsigned int arguments = 1;
     Polynomial(const boost::shared_ptr<double> * c) : 
       c0_(*c), poly_(c + 1) {
     }

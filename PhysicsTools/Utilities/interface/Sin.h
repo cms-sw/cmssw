@@ -7,7 +7,6 @@ namespace funct {
 
   template<typename T>
   struct SinStruct {
-    static const unsigned int arguments = 0;
     SinStruct(const T& t) : _(t) { }
     inline double operator()() const { return ::sin(_()); }
     T _; 

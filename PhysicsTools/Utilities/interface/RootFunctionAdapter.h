@@ -7,7 +7,7 @@
 namespace root {
   namespace helper {
 
-    template<typename F>
+    template<typename F, unsigned int args>
     struct RootFunctionAdapter {
       RootFunctionAdapter() : f_(0) { }
       RootFunctionAdapter(F & f) : f_(&f) { }
@@ -20,7 +20,7 @@ namespace root {
 	}
       }
       double operator()(const double * var) const {
-        return RootVarsAdapter<F>::value(*f_, var);
+        return RootVarsAdapter<F, args>::value(*f_, var);
       }
       size_t numberOfParameters() const {
 	return pars_.size();

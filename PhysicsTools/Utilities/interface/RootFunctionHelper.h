@@ -5,11 +5,11 @@
 namespace root {
   namespace helper {
     
-    template<typename F>
+    template<typename F, unsigned int args>
     struct RootFunctionHelper {
       typedef double (*root_function)(const double *, const double *);
       static root_function fun(F& f) { 
-	adapter_ = RootFunctionAdapter<F>(f); 
+	adapter_ = RootFunctionAdapter<F, args>(f); 
 	return &fun_; 
       }
       static void addParameter(const boost::shared_ptr<double> & par) {
@@ -20,11 +20,11 @@ namespace root {
         adapter_.setParameters(par);
 	return adapter_(x);
       }
-      static RootFunctionAdapter<F> adapter_;
+      static RootFunctionAdapter<F, args> adapter_;
     };
 
-    template<typename F>
-    RootFunctionAdapter<F> RootFunctionHelper<F>::adapter_;
+    template<typename F, unsigned int args>
+    RootFunctionAdapter<F, args> RootFunctionHelper<F, args>::adapter_;
   }
  }
 

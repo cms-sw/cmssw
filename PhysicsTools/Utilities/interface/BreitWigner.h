@@ -8,7 +8,6 @@ namespace funct {
   const double twoOverPi = 2./M_PI;
   
   struct BreitWigner {
-    static const unsigned int arguments = 1;
     BreitWigner(const Parameter& m, const Parameter& g):
       mass(m.ptr()), width(g.ptr()) { }
     BreitWigner(boost::shared_ptr<double> m, boost::shared_ptr<double> g): 

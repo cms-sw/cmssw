@@ -6,10 +6,9 @@ namespace funct {
   template<typename A, typename B>
   class ConvolutionStruct {
    public:
-    static const unsigned int arguments = 1;
     // min and max are defined in the domain of b
     ConvolutionStruct(const A& a, const B& b, 
-		double min, double max, size_t steps) : 
+		      double min, double max, size_t steps) : 
       _1(a), _2(b), min_(min), max_(max), 
       delta_((max-min)/(steps-1)), steps_(steps) { 
       if(max < min)

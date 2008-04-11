@@ -7,7 +7,6 @@
 namespace funct { \
 struct X { \
   typedef T type; \
-  static const unsigned int arguments = 0; \
   X() { } \
   X(const T& x) { set(x); } \
   inline operator T() const { return value; } \

@@ -9,14 +9,14 @@ namespace root {
   template<typename F>
   TF1 tf1(const char * name, F& f,
 	  double min, double max) {
-    TF1 fun(name, root::function(f), min, max, 0);
+    TF1 fun(name, root::function<1>(f), min, max, 0);
     return fun;
   }
 
   template<typename F>
   TF1 tf1(const char * name, F& f, double min, double max,
 	  const funct::Parameter & p0) {
-    TF1 fun(name, root::function(f, p0), min, max, 1);
+    TF1 fun(name, root::function<1>(f, p0), min, max, 1);
     fun.SetParameter(0, *p0.ptr());
     return fun;
   }
@@ -25,7 +25,7 @@ namespace root {
   TF1 tf1(const char * name, F& f, double min, double max,
 	  const funct::Parameter & p0,
 	  const funct::Parameter & p1) {
-    TF1 fun(name, root::function(f, p0, p1), min, max, 2);
+    TF1 fun(name, root::function<1>(f, p0, p1), min, max, 2);
     fun.SetParameter(0, *p0.ptr());
     fun.SetParameter(1, *p1.ptr());
     return fun;
@@ -36,7 +36,7 @@ namespace root {
 	  const funct::Parameter & p0,
 	  const funct::Parameter & p1,
 	  const funct::Parameter & p2) {
-    TF1 fun(name, root::function(f, p0, p1, p2), min, max, 3);
+    TF1 fun(name, root::function<1>(f, p0, p1, p2), min, max, 3);
     fun.SetParameter(0, *p0.ptr());
     fun.SetParameter(1, *p1.ptr());
     fun.SetParameter(2, *p2.ptr());
@@ -49,7 +49,7 @@ namespace root {
 	  const funct::Parameter & p1,
 	  const funct::Parameter & p2,
 	  const funct::Parameter & p3) {
-    TF1 fun(name, root::function(f, p0, p1, p2, p3), min, max, 4);
+    TF1 fun(name, root::function<1>(f, p0, p1, p2, p3), min, max, 4);
     fun.SetParameter(0, *p0.ptr());
     fun.SetParameter(1, *p1.ptr());
     fun.SetParameter(2, *p2.ptr());
@@ -64,7 +64,7 @@ namespace root {
 	  const funct::Parameter & p2,
 	  const funct::Parameter & p3,
 	  const funct::Parameter & p4) {
-    TF1 fun(name, root::function(f, p0, p1, p2, p3, p4), min, max, 5);
+    TF1 fun(name, root::function<1>(f, p0, p1, p2, p3, p4), min, max, 5);
     fun.SetParameter(0, *p0.ptr());
     fun.SetParameter(1, *p1.ptr());
     fun.SetParameter(2, *p2.ptr());
@@ -81,7 +81,7 @@ namespace root {
 	  const funct::Parameter & p3,
 	  const funct::Parameter & p4, 
 	  const funct::Parameter & p5) {
-    TF1 fun(name, root::function(f, p0, p1, p2, p3, p4, p5), min, max, 6);
+    TF1 fun(name, root::function<1>(f, p0, p1, p2, p3, p4, p5), min, max, 6);
     fun.SetParameter(0, *p0.ptr());
     fun.SetParameter(1, *p1.ptr());
     fun.SetParameter(2, *p2.ptr());
@@ -100,7 +100,7 @@ namespace root {
 	  const funct::Parameter & p4, 
 	  const funct::Parameter & p5, 
 	  const funct::Parameter & p6) {
-    TF1 fun(name, root::function(f, p0, p1, p2, p3, p4, p5, p6), min, max, 7);
+    TF1 fun(name, root::function<1>(f, p0, p1, p2, p3, p4, p5, p6), min, max, 7);
     fun.SetParameter(0, *p0.ptr());
     fun.SetParameter(1, *p1.ptr());
     fun.SetParameter(2, *p2.ptr());
@@ -121,7 +121,7 @@ namespace root {
 	  const funct::Parameter & p5, 
 	  const funct::Parameter & p6,
 	  const funct::Parameter & p7) {
-    TF1 fun(name, root::function(f, p0, p1, p2, p3, p4, p5, p6, p7), min, max, 8);
+    TF1 fun(name, root::function<1>(f, p0, p1, p2, p3, p4, p5, p6, p7), min, max, 8);
     fun.SetParameter(0, *p0.ptr());
     fun.SetParameter(1, *p1.ptr());
     fun.SetParameter(2, *p2.ptr());
@@ -144,7 +144,7 @@ namespace root {
 	  const funct::Parameter & p6,
 	  const funct::Parameter & p7, 
 	  const funct::Parameter & p8) {
-    TF1 fun(name, root::function(f, p0, p1, p2, p3, p4, p5, p6, p7, p8), min, max, 9);
+    TF1 fun(name, root::function<1>(f, p0, p1, p2, p3, p4, p5, p6, p7, p8), min, max, 9);
     fun.SetParameter(0, *p0.ptr());
     fun.SetParameter(1, *p1.ptr());
     fun.SetParameter(2, *p2.ptr());
@@ -169,7 +169,7 @@ namespace root {
 	  const funct::Parameter & p7, 
 	  const funct::Parameter & p8, 
 	  const funct::Parameter & p9) {
-    TF1 fun(name, root::function(f, p0, p1, p2, p3, p4, p5, p6, p7, p8, p9), min, max, 10);
+    TF1 fun(name, root::function<1>(f, p0, p1, p2, p3, p4, p5, p6, p7, p8, p9), min, max, 10);
     fun.SetParameter(0, *p0.ptr());
     fun.SetParameter(1, *p1.ptr());
     fun.SetParameter(2, *p2.ptr());
@@ -186,7 +186,7 @@ namespace root {
   template<typename F>
   TF1 tf1(const char * name, F& f, double min, double max,
 	  const std::vector<funct::Parameter> & p) {
-    TF1 fun(name, root::function(f, p), min, max, p.size());
+    TF1 fun(name, root::function<1>(f, p), min, max, p.size());
     for(size_t i = 0; i < p.size(); ++i)
       fun.SetParameter(i, *p[i].ptr());
     return fun;
@@ -195,7 +195,7 @@ namespace root {
   template<typename F>
   TF1 tf1(const char * name, F& f, double min, double max,
 	  const std::vector<boost::shared_ptr<double> > & p) {
-    TF1 fun(name, root::function(f, p), min, max, p.size());
+    TF1 fun(name, root::function<1>(f, p), min, max, p.size());
     for(size_t i = 0; i < p.size(); ++i)
       fun.SetParameter(i, *p[i]);
     return fun;
