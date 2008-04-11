@@ -1,15 +1,17 @@
-// Last commit: $Id: SiStripDbParams.h,v 1.1 2008/04/08 09:14:51 bainbrid Exp $
+// Last commit: $Id: SiStripDbParams.h,v 1.2 2008/04/08 09:33:35 bainbrid Exp $
 
 #ifndef OnlineDB_SiStripConfigDb_SiStripDbParams_h
 #define OnlineDB_SiStripConfigDb_SiStripDbParams_h
 
 #include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "OnlineDB/SiStripConfigDb/interface/SiStripPartition.h"
 #include "boost/cstdint.hpp"
-#include <vector>
-#include <string>
 #include <ostream>
 #include <sstream>
+#include <string>
+#include <vector>
+#include <map>
 
 class SiStripDbParams;
 
@@ -24,27 +26,37 @@ std::ostream& operator<< ( std::ostream&, const SiStripDbParams& );
 class SiStripDbParams { 
   
  public:
-    
+
+  typedef std::map<std::string,SiStripPartition> SiStripPartitions;
+  
   SiStripDbParams();
 
   ~SiStripDbParams();
 
-  void print( std::stringstream& ) const; 
-
   void reset(); 
-
+  
   void setParams( const edm::ParameterSet& );
-
+  
   void confdb( const std::string& );
-
+  
   void confdb( const std::string& user,
 	       const std::string& passwd,
 	       const std::string& path );
-
+  
   std::string partitions() const;
-
+  
   std::vector<std::string> partitions( std::string ) const;
 
+  std::vector<std::string> inputModuleXmlFiles() const;
+
+  std::vector<std::string> inputDcuInfoXmlFiles() const;
+
+  std::vector<std::string> inputFecXmlFiles() const;
+
+  std::vector<std::string> inputFedXmlFiles() const;
+
+  void print( std::stringstream& ) const; 
+  
   // ---------- PUBLIC member data ----------
 
  public:
@@ -59,47 +71,15 @@ class SiStripDbParams {
 
   std::string path_;
 
-  std::vector<std::string> partitions_; 
-
   bool usingDbCache_;
 
   std::string sharedMemory_;
 
-  uint32_t runNumber_;
+  std::string tnsAdmin_;
 
-  uint32_t cabMajor_;
+  SiStripPartitions partitions_; 
 
-  uint32_t cabMinor_;
-
-  uint32_t fedMajor_;
-
-  uint32_t fedMinor_;
-
-  uint32_t fecMajor_;
-
-  uint32_t fecMinor_;
-
-  uint32_t calMajor_;
-
-  uint32_t calMinor_;
-
-  uint32_t dcuMajor_;
-
-  uint32_t dcuMinor_;
-
-  sistrip::RunType runType_;
-
-  bool force_;
-
-  std::string inputModuleXml_;
-
-  std::string inputDcuInfoXml_;
-
-  std::vector<std::string> inputFecXml_;
-
-  std::vector<std::string> inputFedXml_;
-
-  std::string inputDcuConvXml_;
+  // output xml files
 
   std::string outputModuleXml_;
 
@@ -108,8 +88,6 @@ class SiStripDbParams {
   std::string outputFecXml_;
 
   std::string outputFedXml_;
-
-  std::string tnsAdmin_;
 
 };
 

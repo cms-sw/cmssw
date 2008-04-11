@@ -1,6 +1,7 @@
-// Last commit: $Id: $
+// Last commit: $Id: DcuDetIdMap.cc,v 1.14 2008/03/28 15:31:15 bainbrid Exp $
 
 #include "OnlineDB/SiStripConfigDb/interface/SiStripConfigDb.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 using namespace std;
 using namespace sistrip;
@@ -41,8 +42,8 @@ const SiStripConfigDb::DcuDetIdMap& SiStripConfigDb::getDcuDetIdMap() {
   ss << "[SiStripConfigDb::" << __func__ << "]" 
      << " Found " << dcuDetIdMap_.size() 
      << " entries in DCU-DetId map"; 
-  if ( !dbParams_.usingDb_ ) { ss << " in " << dbParams_.inputDcuInfoXml_.size() << " 'dcuinfo.xml' file(s)"; }
-  else { if ( !dbParams_.usingDbCache_ )  { ss << " in database partition '" << dbParams_.partitions_.front() << "'"; } 
+  if ( !dbParams_.usingDb_ ) { ss << " in " << dbParams_.partitions_.begin()->second.inputDcuInfoXml_.size() << " 'dcuinfo.xml' file(s)"; }
+  else { if ( !dbParams_.usingDbCache_ )  { ss << " in database partition '" << dbParams_.partitions_.begin()->second.partitionName_ << "'"; } 
   else { ss << " from shared memory name '" << dbParams_.sharedMemory_ << "'"; } }
   if ( dcuDetIdMap_.empty() ) { edm::LogWarning(mlConfigDb_) << ss.str(); }
   else { LogTrace(mlConfigDb_) << ss.str(); }

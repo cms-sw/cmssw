@@ -1,6 +1,7 @@
-// Last commit: $Id: $
+// Last commit: $Id: DeviceDescriptions.cc,v 1.19 2008/04/08 09:14:51 bainbrid Exp $
 
 #include "OnlineDB/SiStripConfigDb/interface/SiStripConfigDb.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 using namespace std;
 using namespace sistrip;
@@ -20,10 +21,10 @@ const SiStripConfigDb::DeviceDescriptions& SiStripConfigDb::getDeviceDescription
 
     if ( !dbParams_.usingDbCache_ ) { 
 
-      deviceFactory(__func__)->getFecDeviceDescriptions( dbParams_.partitions_.front(), 
+      deviceFactory(__func__)->getFecDeviceDescriptions( dbParams_.partitions_.begin()->second.partitionName_, 
 							 all_devices,
-							 dbParams_.fecMajor_,
-							 dbParams_.fecMinor_,
+							 dbParams_.partitions_.begin()->second.fecMajor_,
+							 dbParams_.partitions_.begin()->second.fecMinor_,
 							 false ); //@@ do not get DISABLED modules (ie, those removed from cabling). 
       devices_ = FecFactory::getDeviceFromDeviceVector( all_devices, device_type );
 
@@ -50,8 +51,8 @@ const SiStripConfigDb::DeviceDescriptions& SiStripConfigDb::getDeviceDescription
      << " Found " << devices_.size()
      << " device descriptions (for devices of type " 
      << deviceType( device_type ) << ")"; 
-  if ( !dbParams_.usingDb_ ) { ss << " in " << dbParams_.inputFecXml_.size() << " 'fec.xml' file(s)"; }
-  else { if ( !dbParams_.usingDbCache_ )  { ss << " in database partition '" << dbParams_.partitions_.front() << "'"; } 
+  if ( !dbParams_.usingDb_ ) { ss << " in " << dbParams_.partitions_.begin()->second.inputFecXml_.size() << " 'fec.xml' file(s)"; }
+  else { if ( !dbParams_.usingDbCache_ )  { ss << " in database partition '" << dbParams_.partitions_.begin()->second.partitionName_ << "'"; } 
   else { ss << " from shared memory name '" << dbParams_.sharedMemory_ << "'"; } }
   if ( devices_.empty() ) { edm::LogWarning(mlConfigDb_) << ss.str(); }
   else { LogTrace(mlConfigDb_) << ss.str(); }
@@ -73,10 +74,10 @@ const SiStripConfigDb::DeviceDescriptions& SiStripConfigDb::getDeviceDescription
 
     if ( !dbParams_.usingDbCache_ ) { 
 
-      deviceFactory(__func__)->getFecDeviceDescriptions( dbParams_.partitions_.front(), 
+      deviceFactory(__func__)->getFecDeviceDescriptions( dbParams_.partitions_.begin()->second.partitionName_, 
 							 devices_,
-							 dbParams_.fecMajor_,
-							 dbParams_.fecMinor_,
+							 dbParams_.partitions_.begin()->second.fecMajor_,
+							 dbParams_.partitions_.begin()->second.fecMinor_,
 							 false ); //@@ do not get DISABLED modules (ie, those removed from cabling). 
       
     } else { 
@@ -99,8 +100,8 @@ const SiStripConfigDb::DeviceDescriptions& SiStripConfigDb::getDeviceDescription
   ss << "[SiStripConfigDb::" << __func__ << "]"
      << " Found " << devices_.size()
      << " device descriptions";
-  if ( !dbParams_.usingDb_ ) { ss << " in " << dbParams_.inputFecXml_.size() << " 'fec.xml' file(s)"; }
-  else { if ( !dbParams_.usingDbCache_ )  { ss << " in database partition '" << dbParams_.partitions_.front() << "'"; } 
+  if ( !dbParams_.usingDb_ ) { ss << " in " << dbParams_.partitions_.begin()->second.inputFecXml_.size() << " 'fec.xml' file(s)"; }
+  else { if ( !dbParams_.usingDbCache_ )  { ss << " in database partition '" << dbParams_.partitions_.begin()->second.partitionName_ << "'"; } 
   else { ss << " from shared memory name '" << dbParams_.sharedMemory_ << "'"; } }
   if ( devices_.empty() ) { edm::LogWarning(mlConfigDb_) << ss.str(); }
   else { LogTrace(mlConfigDb_) << ss.str(); }
@@ -132,9 +133,9 @@ void SiStripConfigDb::uploadDeviceDescriptions( bool new_major_version ) {
   
   try { 
     deviceFactory(__func__)->setFecDeviceDescriptions( devices_,
-						       dbParams_.partitions_.front(), 
-						       &(dbParams_.fecMajor_),
-						       &(dbParams_.fecMinor_),
+						       dbParams_.partitions_.begin()->second.partitionName_, 
+						       &(dbParams_.partitions_.begin()->second.fecMajor_),
+						       &(dbParams_.partitions_.begin()->second.fecMinor_),
 						       new_major_version );
   } catch (...) { handleException( __func__ ); }
   

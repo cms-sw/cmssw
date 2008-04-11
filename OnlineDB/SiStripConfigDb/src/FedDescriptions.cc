@@ -1,8 +1,9 @@
-// Last commit: $Id: $
+// Last commit: $Id: FedDescriptions.cc,v 1.19 2008/03/28 15:31:15 bainbrid Exp $
 
 #include "OnlineDB/SiStripConfigDb/interface/SiStripConfigDb.h"
 #include "CondFormats/SiStripObjects/interface/SiStripFedCabling.h"
 #include "CondFormats/SiStripObjects/interface/FedChannelConnection.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 using namespace std;
 using namespace sistrip;
@@ -21,14 +22,14 @@ const SiStripConfigDb::FedDescriptions& SiStripConfigDb::getFedDescriptions() {
     if ( !dbParams_.usingDbCache_ ) { 
 
       deviceFactory(__func__)->setUsingStrips( usingStrips_ );
-      int16_t major = dbParams_.fedMajor_; 
-      int16_t minor = dbParams_.fedMinor_; 
-      if ( dbParams_.fedMajor_ == 0 && 
-	   dbParams_.fedMinor_ == 0 ) {
+      int16_t major = dbParams_.partitions_.begin()->second.fedMajor_; 
+      int16_t minor = dbParams_.partitions_.begin()->second.fedMinor_; 
+      if ( dbParams_.partitions_.begin()->second.fedMajor_ == 0 && 
+	   dbParams_.partitions_.begin()->second.fedMinor_ == 0 ) {
 	major = -1; //@@ "current state" for fed factory!
 	minor = -1; //@@ "current state" for fed factory!
       }
-      feds_ = *( deviceFactory(__func__)->getFed9UDescriptions( dbParams_.partitions_.front(), 
+      feds_ = *( deviceFactory(__func__)->getFed9UDescriptions( dbParams_.partitions_.begin()->second.partitionName_, 
 								major, 
 								minor ) );
 
@@ -53,8 +54,8 @@ const SiStripConfigDb::FedDescriptions& SiStripConfigDb::getFedDescriptions() {
   ss << "[SiStripConfigDb::" << __func__ << "]" 
      << " Found " << feds_.size() 
      << " FED descriptions"; 
-  if ( !dbParams_.usingDb_ ) { ss << " in " << dbParams_.inputFedXml_.size() << " 'fed.xml' file(s)"; }
-  else { if ( !dbParams_.usingDbCache_ )  { ss << " in database partition '" << dbParams_.partitions_.front() << "'"; } 
+  if ( !dbParams_.usingDb_ ) { ss << " in " << dbParams_.partitions_.begin()->second.inputFedXml_.size() << " 'fed.xml' file(s)"; }
+  else { if ( !dbParams_.usingDbCache_ )  { ss << " in database partition '" << dbParams_.partitions_.begin()->second.partitionName_ << "'"; } 
   else { ss << " from shared memory name '" << dbParams_.sharedMemory_ << "'"; } }
   if ( feds_.empty() ) { edm::LogWarning(mlConfigDb_) << ss.str(); }
   else { LogTrace(mlConfigDb_) << ss.str(); }
@@ -86,9 +87,9 @@ void SiStripConfigDb::uploadFedDescriptions( bool new_major_version ) {
   
   try { 
     deviceFactory(__func__)->setFed9UDescriptions( feds_,
-						   dbParams_.partitions_.front(),
-						   (uint16_t*)(&dbParams_.fedMajor_), 
-						   (uint16_t*)(&dbParams_.fedMinor_),
+						   dbParams_.partitions_.begin()->second.partitionName_,
+						   (uint16_t*)(&dbParams_.partitions_.begin()->second.fedMajor_), 
+						   (uint16_t*)(&dbParams_.partitions_.begin()->second.fedMinor_),
 						   (new_major_version?1:0) ); 
   } catch (...) { handleException( __func__ ); }
 

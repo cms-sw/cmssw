@@ -1,9 +1,10 @@
-// Last commit: $Id: AnalysisDescriptions.cc,v 1.1 2008/02/06 17:13:12 bainbrid Exp $
+// Last commit: $Id: AnalysisDescriptions.cc,v 1.2 2008/03/28 15:16:15 bainbrid Exp $
 // Latest tag:  $Name:  $
 // Location:    $Source: /cvs_server/repositories/CMSSW/CMSSW/OnlineDB/SiStripConfigDb/src/AnalysisDescriptions.cc,v $
 
 #include "OnlineDB/SiStripConfigDb/interface/SiStripConfigDb.h"
 #include "DataFormats/SiStripCommon/interface/SiStripEnumsAndStrings.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #ifdef USING_NEW_DATABASE_MODEL
 
@@ -17,30 +18,30 @@ const SiStripConfigDb::AnalysisDescriptions& SiStripConfigDb::getAnalysisDescrip
   analyses_.clear();
   if ( !deviceFactory(__func__) ) { return analyses_; }
   
-  if ( dbParams_.runType_ == sistrip::PHYSICS ) { 
+  if ( dbParams_.partitions_.begin()->second.runType_ == sistrip::PHYSICS ) { 
     
     // if physics run, return calibration constants 
     try { 
-      analyses_ = deviceFactory(__func__)->getCalibrationData( dbParams_.runNumber_, 
-							       dbParams_.partitions_.front(), 
+      analyses_ = deviceFactory(__func__)->getCalibrationData( dbParams_.partitions_.begin()->second.runNumber_, 
+							       dbParams_.partitions_.begin()->second.partitionName_, 
 							       analysis_type );
     } catch (...) { handleException( __func__ ); }
     
-  } else if ( dbParams_.runType_ != sistrip::PHYSICS &&
-	      dbParams_.runType_ != sistrip::UNDEFINED_RUN_TYPE &&
-	      dbParams_.runType_ != sistrip::UNKNOWN_RUN_TYPE ) { 
+  } else if ( dbParams_.partitions_.begin()->second.runType_ != sistrip::PHYSICS &&
+	      dbParams_.partitions_.begin()->second.runType_ != sistrip::UNDEFINED_RUN_TYPE &&
+	      dbParams_.partitions_.begin()->second.runType_ != sistrip::UNKNOWN_RUN_TYPE ) { 
     
     // else if commissioning run, return version of analysis objects from "history" 
 
     // check if run type is consistent with analysis type requested
-    if ( dbParams_.runType_ == sistrip::PEDESTALS      && analysis_type == AnalysisDescription::T_ANALYSIS_PEDESTALS ||
-	 dbParams_.runType_ == sistrip::CALIBRATION    && analysis_type == AnalysisDescription::T_ANALYSIS_CALIBRATION ||
-	 dbParams_.runType_ == sistrip::APV_LATENCY    && analysis_type == AnalysisDescription::T_ANALYSIS_APVLATENCY ||
-	 dbParams_.runType_ == sistrip::FAST_CABLING   && analysis_type == AnalysisDescription::T_ANALYSIS_FASTFEDCABLING ||
-	 dbParams_.runType_ == sistrip::FINE_DELAY_TTC && analysis_type == AnalysisDescription::T_ANALYSIS_FINEDELAY ||
-	 dbParams_.runType_ == sistrip::OPTO_SCAN      && analysis_type == AnalysisDescription::T_ANALYSIS_OPTOSCAN ||
-	 dbParams_.runType_ == sistrip::APV_TIMING     && analysis_type == AnalysisDescription::T_ANALYSIS_TIMING ||
-	 dbParams_.runType_ == sistrip::VPSP_SCAN      && analysis_type == AnalysisDescription::T_ANALYSIS_VPSPSCAN ) {
+    if ( dbParams_.partitions_.begin()->second.runType_ == sistrip::PEDESTALS      && analysis_type == AnalysisDescription::T_ANALYSIS_PEDESTALS ||
+	 dbParams_.partitions_.begin()->second.runType_ == sistrip::CALIBRATION    && analysis_type == AnalysisDescription::T_ANALYSIS_CALIBRATION ||
+	 dbParams_.partitions_.begin()->second.runType_ == sistrip::APV_LATENCY    && analysis_type == AnalysisDescription::T_ANALYSIS_APVLATENCY ||
+	 dbParams_.partitions_.begin()->second.runType_ == sistrip::FAST_CABLING   && analysis_type == AnalysisDescription::T_ANALYSIS_FASTFEDCABLING ||
+	 dbParams_.partitions_.begin()->second.runType_ == sistrip::FINE_DELAY_TTC && analysis_type == AnalysisDescription::T_ANALYSIS_FINEDELAY ||
+	 dbParams_.partitions_.begin()->second.runType_ == sistrip::OPTO_SCAN      && analysis_type == AnalysisDescription::T_ANALYSIS_OPTOSCAN ||
+	 dbParams_.partitions_.begin()->second.runType_ == sistrip::APV_TIMING     && analysis_type == AnalysisDescription::T_ANALYSIS_TIMING ||
+	 dbParams_.partitions_.begin()->second.runType_ == sistrip::VPSP_SCAN      && analysis_type == AnalysisDescription::T_ANALYSIS_VPSPSCAN ) {
       
       typedef std::pair<uint32_t,uint32_t> Version;
       typedef std::vector<Version> Versions;
@@ -49,7 +50,7 @@ const SiStripConfigDb::AnalysisDescriptions& SiStripConfigDb::getAnalysisDescrip
       // retrieve "history" first
       Runs runs;
       try { 
-	runs = deviceFactory(__func__)->getAnalysisHistory( dbParams_.partitions_.front(), 
+	runs = deviceFactory(__func__)->getAnalysisHistory( dbParams_.partitions_.begin()->second.partitionName_, 
 							    analysis_type );
       } catch (...) { handleException( __func__ ); }
       Runs::const_iterator irun = runs.end();
@@ -59,8 +60,8 @@ const SiStripConfigDb::AnalysisDescriptions& SiStripConfigDb::getAnalysisDescrip
       uint32_t minor = 0;
       if ( !runs.empty() ) {
 	
-	if ( dbParams_.runNumber_ == 0 ) { irun = --(runs.end()); } //@@ assumes map is sorted correctly!
-	else { irun = runs.find( dbParams_.runNumber_ ); } 
+	if ( dbParams_.partitions_.begin()->second.runNumber_ == 0 ) { irun = --(runs.end()); } //@@ assumes map is sorted correctly!
+	else { irun = runs.find( dbParams_.partitions_.begin()->second.runNumber_ ); } 
 	  
 	if ( irun != runs.end() ) {
 	  std::vector<uint16_t> vers;
@@ -71,22 +72,22 @@ const SiStripConfigDb::AnalysisDescriptions& SiStripConfigDb::getAnalysisDescrip
 	      vers.push_back( ivers->first * 1000000 + ivers->second );
 	    }
 	  }
-	  if ( dbParams_.calMajor_ == 0 && 
-	       dbParams_.calMinor_ == 0 ) { 
+	  if ( dbParams_.partitions_.begin()->second.calMajor_ == 0 && 
+	       dbParams_.partitions_.begin()->second.calMinor_ == 0 ) { 
 	    //sort( vers.begin(), vers.end() ); //@@ necessary? already ordered?
 	    major = vers.back() / 1000000;
 	    minor = vers.back() % 1000000;
 	  } else {
-	    uint16_t key = dbParams_.calMajor_ * 1000000 + dbParams_.calMinor_;
+	    uint16_t key = dbParams_.partitions_.begin()->second.calMajor_ * 1000000 + dbParams_.partitions_.begin()->second.calMinor_;
 	    if ( find( vers.begin(), vers.end(), key ) != vers.end() ) {
-	      major = dbParams_.calMajor_;
-	      minor = dbParams_.calMinor_;
+	      major = dbParams_.partitions_.begin()->second.calMajor_;
+	      minor = dbParams_.partitions_.begin()->second.calMinor_;
 	    }
 	  }
 	} else {
 	  edm::LogWarning(mlConfigDb_)
 	    << "[SiStripConfigDb::" << __func__ << "]"
-	    << " Could not find run " << dbParams_.runNumber_
+	    << " Could not find run " << dbParams_.partitions_.begin()->second.runNumber_
 	    << " in history list!";
 	}
 
@@ -100,7 +101,7 @@ const SiStripConfigDb::AnalysisDescriptions& SiStripConfigDb::getAnalysisDescrip
       if ( major && minor ) {
 
 	try { 
-	  analyses_ = deviceFactory(__func__)->getAnalysisHistory( dbParams_.partitions_.front(), 
+	  analyses_ = deviceFactory(__func__)->getAnalysisHistory( dbParams_.partitions_.begin()->second.partitionName_, 
 								   major,
 								   minor,
 								   analysis_type );
@@ -111,8 +112,8 @@ const SiStripConfigDb::AnalysisDescriptions& SiStripConfigDb::getAnalysisDescrip
 	   << " Found " << analyses_.size()
 	   << " analysis descriptions (for analyses of type " 
 	   << analysisType( analysis_type ) << ")"; 
-	if ( !dbParams_.usingDb_ ) { ss << " in " << dbParams_.inputFecXml_.size() << " 'fec.xml' file(s)"; }
-	else { ss << " in database partition '" << dbParams_.partitions_.front() << "'"; }
+	if ( !dbParams_.usingDb_ ) { ss << " in " << dbParams_.partitions_.begin()->second.inputFecXml_.size() << " 'fec.xml' file(s)"; }
+	else { ss << " in database partition '" << dbParams_.partitions_.begin()->second.partitionName_ << "'"; }
 	if ( analyses_.empty() ) { edm::LogWarning(mlConfigDb_) << ss.str(); }
 	else { LogTrace(mlConfigDb_) << ss.str(); }
 	
@@ -121,15 +122,15 @@ const SiStripConfigDb::AnalysisDescriptions& SiStripConfigDb::getAnalysisDescrip
       } else {
 	edm::LogWarning(mlConfigDb_)
 	  << "[SiStripConfigDb::" << __func__ << "]"
-	  << " Cannot retrieve analysis objects for run number " << dbParams_.runNumber_
-	  << " run type " << SiStripEnumsAndStrings::runType( dbParams_.runType_ )
-	  << " and version " << dbParams_.calMajor_ << "." << dbParams_.calMinor_ << "!";
+	  << " Cannot retrieve analysis objects for run number " << dbParams_.partitions_.begin()->second.runNumber_
+	  << " run type " << SiStripEnumsAndStrings::runType( dbParams_.partitions_.begin()->second.runType_ )
+	  << " and version " << dbParams_.partitions_.begin()->second.calMajor_ << "." << dbParams_.partitions_.begin()->second.calMinor_ << "!";
       }
       
     } else {
       edm::LogWarning(mlConfigDb_)
 	<< "[SiStripConfigDb::" << __func__ << "]"
-	<< " Run type \"" << SiStripEnumsAndStrings::runType( dbParams_.runType_ ) 
+	<< " Run type \"" << SiStripEnumsAndStrings::runType( dbParams_.partitions_.begin()->second.runType_ ) 
 	<< " is not compatible with requested analysis type " 
 	<< analysisType( analysis_type ) << "!";
     }
@@ -138,7 +139,7 @@ const SiStripConfigDb::AnalysisDescriptions& SiStripConfigDb::getAnalysisDescrip
     edm::LogWarning(mlConfigDb_)
       << "[SiStripConfigDb::" << __func__ << "]"
       << " Cannot retrieve analysis objects for run type " 
-      << SiStripEnumsAndStrings::runType( dbParams_.runType_ );
+      << SiStripEnumsAndStrings::runType( dbParams_.partitions_.begin()->second.runType_ );
   }
   
   return analyses_;
@@ -176,8 +177,8 @@ void SiStripConfigDb::uploadAnalysisDescriptions( bool use_as_calibrations_for_p
   } else { allowCalibUpload_ = false; }
   
   try { 
-    uint32_t version = deviceFactory(__func__)->uploadAnalysis( dbParams_.runNumber_, 
-								dbParams_.partitions_.front(), 
+    uint32_t version = deviceFactory(__func__)->uploadAnalysis( dbParams_.partitions_.begin()->second.runNumber_, 
+								dbParams_.partitions_.begin()->second.partitionName_, 
 								analysis_type,
 								analyses_,
 								use_as_calibrations_for_physics );

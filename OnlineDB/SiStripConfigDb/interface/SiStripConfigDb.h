@@ -1,16 +1,16 @@
-// Last commit: $Id: SiStripConfigDb.h,v 1.51 2008/04/08 09:14:51 bainbrid Exp $
+// Last commit: $Id: SiStripConfigDb.h,v 1.52 2008/04/08 09:33:35 bainbrid Exp $
 
 #ifndef OnlineDB_SiStripConfigDb_SiStripConfigDb_h
 #define OnlineDB_SiStripConfigDb_SiStripConfigDb_h
 
 #define DATABASE // Needed by DeviceFactory API! Do not comment!
-//#define USING_NEW_DATABASE_MODEL
-//#define USING_DATABASE_CACHE
+#define USING_NEW_DATABASE_MODEL
+#define USING_DATABASE_CACHE
 
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
+#include "DataFormats/Common/interface/MapOfVectors.h"
 #include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
 #include "DataFormats/SiStripCommon/interface/SiStripFecKey.h"
 #include "CalibFormats/SiStripObjects/interface/SiStripFecCabling.h"
@@ -106,31 +106,37 @@ class SiStripConfigDb {
 
   // ---------- Typedefs and structs ----------
 
-  typedef std::vector<deviceDescription*> DeviceDescriptions;
+  typedef deviceDescription DeviceDescription;
+  
+  typedef std::vector<DeviceDescription*> DeviceDescriptions;
 
-  typedef std::vector<Fed9U::Fed9UDescription*> FedDescriptions;
-
+  typedef Fed9U::Fed9UDescription FedDescription;
+  
+  typedef std::vector<FedDescription*> FedDescriptions;
+  
 #ifdef USING_NEW_DATABASE_MODEL
 
-  typedef std::vector<ConnectionDescription*> FedConnections;
+  typedef ConnectionDescription FedConnection;
 
   typedef CommissioningAnalysisDescription::commissioningType AnalysisType;
-
+  
 #else
-
-  //@@ TO BE DEPRECATED
+  
   class CommissioningAnalysisDescription;
   
-  typedef std::vector<FedChannelConnectionDescription*> FedConnections;
+  typedef FedChannelConnectionDescription FedConnection;
 
 #endif
 
+  typedef edm::MapOfVectors<std::string,FedConnection*> FedConnections;
+  
   typedef CommissioningAnalysisDescription AnalysisDescription;
-
+  
   typedef std::vector<AnalysisDescription*> AnalysisDescriptions;
-
-  /** Key is DCU id. */
-  typedef Sgi::hash_map<unsigned long,TkDcuInfo*> DcuDetIdMap;
+  
+  typedef TkDcuInfo DcuDetId; 
+  
+  typedef Sgi::hash_map<unsigned long,DcuDetId*> DcuDetIdMap; //@@ Key is DCU id
   
   /** Class that holds addresses that uniquely identify a hardware
       component within the control system. */
@@ -158,8 +164,11 @@ class SiStripConfigDb {
   /** Closes connection to DeviceFactory API. */
   void closeDbConnection();
 
-  /** Returns DB connection parameters. */
+  /** Returns database connection parameters. */
   inline const SiStripDbParams& dbParams() const;
+
+  /** Returns database partition names. */
+  inline std::vector<std::string> partitionNames() const;
   
   /** Returns whether using database or xml files. */
   inline const bool& usingDb() const;
@@ -211,18 +220,15 @@ class SiStripConfigDb {
   // ---------- FED connections ----------
 
   /** Fills local cache with connection descriptions from DB/xml. */
-  const FedConnections& getFedConnections();
+  FedConnections::range getFedConnections( std::string partition = "" );
   
   /** Uploads FED-FEC connections to DB/xml. */
-  void uploadFedConnections( bool new_major_version = true );
-  
-  /** Creates "dummy" FED connections based on FEC cabling. */
-  void createFedConnections( const SiStripFecCabling& );
+  void uploadFedConnections( std::string partition = "" );
   
   // ---------- Commissioning analyses ---------- 
   
 #ifdef USING_NEW_DATABASE_MODEL
-
+  
   /** Returns analysis descriptions for given analysis type:
       T_UNKNOWN, 
       T_ANALYSIS_FASTFEDCABLING, 
@@ -239,7 +245,7 @@ class SiStripConfigDb {
   /** Uploads all analysis descriptions in cache to DB/xml. Must be
       called AFTER the upload of any hardware parameters. */
   void uploadAnalysisDescriptions( bool use_as_calibrations_for_physics = false ); 
-
+  
   /** Appends analysis descriptions to internal cache. */
   void createAnalysisDescriptions( AnalysisDescriptions& );
   
@@ -248,12 +254,12 @@ class SiStripConfigDb {
   
   /** Extracts unique hardware address of device from description. */
   DeviceAddress deviceAddress( const AnalysisDescription& ); //@@ uses temp offsets!
-
+  
   /** */
   std::string analysisType( const AnalysisType& analysis_type ) const;
-
+  
 #endif
-
+  
   // ---------- DCU-DetId info ----------
 
   /** Returns the DcuId-DetId map. If the local cache is empty, it
@@ -262,13 +268,6 @@ class SiStripConfigDb {
   
   /** Uploads the contents of the local cache to DB/xml file. */
   void uploadDcuDetIdMap();
-  
-  // ---------- Miscellaneous ----------
-  
-  /** Creates "dummy" descriptions based on FEC cabling. */
-  void createPartition( const std::string& partition_name,
-			const SiStripFecCabling&,
-			const DcuDetIdMap& ); 
   
  private:
 
@@ -304,8 +303,8 @@ class SiStripConfigDb {
   /** Instance of struct that holds all DB connection parameters. */
   SiStripDbParams dbParams_;
 
-  // ---------- Local cache ----------
-
+  // ---------- Local cache of vectors ----------
+  
   /** Vector of descriptions for all FEC devices (including DCUs). */
   DeviceDescriptions devices_;
 
@@ -314,7 +313,7 @@ class SiStripConfigDb {
 
   /** FED-FEC connection descriptions. */
   FedConnections connections_;
-
+  
 #ifdef USING_NEW_DATABASE_MODEL
 
   /** Vector of analysis descriptions for all commissioning runs. */
@@ -327,7 +326,7 @@ class SiStripConfigDb {
   
   /** FED ids. */ 
   std::vector<uint16_t> fedIds_;
-
+  
   // ---------- Miscellaneous ----------
   
   /** Switch to enable/disable transfer of strip information. */
@@ -345,8 +344,11 @@ class SiStripConfigDb {
 
 // ---------- Inline methods ----------
 
-/** Returns DB connection parameters. */
+/** Returns database connection parameters. */
 const SiStripDbParams& SiStripConfigDb::dbParams() const { return dbParams_; }
+
+/** Returns database partition names. */
+std::vector<std::string> SiStripConfigDb::partitionNames() const { return dbParams_.partitions( dbParams_.partitions() ); }
 
 /** Indicates whether DB (true) or XML files (false) are used. */
 const bool& SiStripConfigDb::usingDb() const { return dbParams_.usingDb_; }

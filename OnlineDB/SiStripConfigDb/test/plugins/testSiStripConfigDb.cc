@@ -1,4 +1,4 @@
-// Last commit: $Id: testSiStripConfigDb.cc,v 1.1 2007/11/21 13:45:48 bainbrid Exp $
+// Last commit: $Id: testSiStripConfigDb.cc,v 1.1 2008/03/26 09:13:11 bainbrid Exp $
 
 #include "OnlineDB/SiStripConfigDb/test/plugins/testSiStripConfigDb.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
@@ -121,10 +121,10 @@ void testSiStripConfigDb::beginJob( const edm::EventSetup& setup ) {
 
     // Connections
     if ( conns_ ) {
-      conns = db_->getFedConnections();
+      SiStripConfigDb::FedConnections::range conns = db_->getFedConnections();
       std::stringstream ss;
       ss << "[testSiStripConfigDb::" << __func__ << "]" 
-	 << " Downloaded " << conns.size() 
+	 << " Downloaded " << conns.size()
 	 << " FED connections!";
       if ( !conns.empty() ) { edm::LogVerbatim("testSiStripConfigDb") << ss.str(); }
       else { edm::LogWarning("testSiStripConfigDb") << ss.str(); }

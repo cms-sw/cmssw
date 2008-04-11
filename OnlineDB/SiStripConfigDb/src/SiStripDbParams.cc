@@ -1,7 +1,8 @@
-// Last commit: $Id: $
+// Last commit: $Id: SiStripDbParams.cc,v 1.1 2008/04/08 09:14:51 bainbrid Exp $
 
 #include "OnlineDB/SiStripConfigDb/interface/SiStripDbParams.h"
 #include "DataFormats/SiStripCommon/interface/SiStripEnumsAndStrings.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <iostream>
 
 using namespace sistrip;
@@ -13,32 +14,14 @@ SiStripDbParams::SiStripDbParams() :
   user_(null_),
   passwd_(null_),
   path_(null_),
-  partitions_(), 
   usingDbCache_(false),
   sharedMemory_(""),
-  runNumber_(0),
-  cabMajor_(0),
-  cabMinor_(0),
-  fedMajor_(0),
-  fedMinor_(0),
-  fecMajor_(0),
-  fecMinor_(0),
-  calMajor_(0),
-  calMinor_(0),
-  dcuMajor_(0),
-  dcuMinor_(0),
-  runType_(sistrip::UNDEFINED_RUN_TYPE),
-  force_(true),
-  inputModuleXml_(""),
-  inputDcuInfoXml_(""),
-  inputFecXml_(),
-  inputFedXml_(),
-  inputDcuConvXml_(""),
+  tnsAdmin_(""),
+  partitions_(),
   outputModuleXml_("/tmp/module.xml"),
   outputDcuInfoXml_("/tmp/dcuinfo.xml"),
   outputFecXml_("/tmp/fec.xml"),
-  outputFedXml_("/tmp/fed.xml"),
-  tnsAdmin_("")
+  outputFedXml_("/tmp/fed.xml")
 {
   reset();
 }
@@ -46,75 +29,72 @@ SiStripDbParams::SiStripDbParams() :
 // -----------------------------------------------------------------------------
 // 
 SiStripDbParams::~SiStripDbParams() {
-  inputFecXml_.clear();
-  inputFedXml_.clear();
+  partitions_.clear();
 }
 
 // -----------------------------------------------------------------------------
 // 
 void SiStripDbParams::reset() {
-  usingDb_ = false;
-  confdb_ = null_;
-  confdb( confdb_ );
-  partitions_ = std::vector<std::string>();
+  usingDb_      = false;
+  confdb_       = null_;
+  user_         = null_;
+  passwd_       = null_;
+  path_         = null_;
   usingDbCache_ = false;
   sharedMemory_ = "";
-  runNumber_ = 0;
-  cabMajor_ = 0;
-  cabMinor_ = 0;
-  fedMajor_ = 0;
-  fedMinor_ = 0;
-  fecMajor_ = 0;
-  fecMinor_ = 0;
-  calMajor_ = 0;
-  calMinor_ = 0;
-  dcuMajor_ = 0;
-  dcuMinor_ = 0;
-  runType_  = sistrip::UNDEFINED_RUN_TYPE;
-  force_    = true;
-  inputModuleXml_   = "";
-  inputDcuInfoXml_  = "";
-  inputFecXml_      = std::vector<std::string>(1,"");
-  inputFedXml_      = std::vector<std::string>(1,"");
-  inputDcuConvXml_  = "";
-  outputModuleXml_  = "";
-  outputDcuInfoXml_ = "";
-  outputFecXml_     = "";
-  outputFedXml_     = "";
-  tnsAdmin_         = "";
+  tnsAdmin_     = "";
+  partitions_.clear();
+  confdb( confdb_ );
+  outputModuleXml_  = "/tmp/module.xml";
+  outputDcuInfoXml_ = "/tmp/dcuinfo.xml";
+  outputFecXml_     = "/tmp/fec.xml";
+  outputFedXml_     = "/tmp/fed.xml";
 }
 
 // -----------------------------------------------------------------------------
 // 
-void SiStripDbParams::setParams( const edm::ParameterSet& pset ) {
-  reset();
-  usingDb_ = pset.getUntrackedParameter<bool>( "UsingDb", false ); 
-  confdb( pset.getUntrackedParameter<std::string>( "ConfDb", "") );
-  partitions_ = pset.getUntrackedParameter< std::vector<std::string> >( "Partitions", std::vector<std::string>() );
-  runNumber_ = pset.getUntrackedParameter<unsigned int>( "RunNumber", 0 );
-  usingDbCache_ = pset.getUntrackedParameter<bool>( "UsingDbCache", false ); 
-  sharedMemory_ = pset.getUntrackedParameter<std::string>( "SharedMemory", "" ); 
-  cabMajor_ = pset.getUntrackedParameter<unsigned int>( "MajorVersion", 0 );
-  cabMinor_ = pset.getUntrackedParameter<unsigned int>( "MinorVersion", 0 );
-  fedMajor_ = pset.getUntrackedParameter<unsigned int>( "FedMajorVersion", 0 );
-  fedMinor_ = pset.getUntrackedParameter<unsigned int>( "FedMinorVersion", 0 );
-  fecMajor_ = pset.getUntrackedParameter<unsigned int>( "FecMajorVersion", 0 );
-  fecMinor_ = pset.getUntrackedParameter<unsigned int>( "FecMinorVersion", 0 );
-  dcuMajor_ = pset.getUntrackedParameter<unsigned int>( "DcuDetIdMajorVersion", 0 );
-  dcuMinor_ = pset.getUntrackedParameter<unsigned int>( "DcuDetIdMinorVersion", 0 );
-  calMajor_ = pset.getUntrackedParameter<unsigned int>( "CalibMajorVersion", 0 );
-  calMinor_ = pset.getUntrackedParameter<unsigned int>( "CalibMinorVersion", 0 );
-  force_ = pset.getUntrackedParameter<bool>( "ForceDcuDetIdVersions", true );
-  inputModuleXml_ = pset.getUntrackedParameter<std::string>( "InputModuleXml", "" );
-  inputDcuInfoXml_ = pset.getUntrackedParameter<std::string>( "InputDcuInfoXml", "" ); 
-  inputFecXml_ = pset.getUntrackedParameter< std::vector<std::string> >( "InputFecXml", std::vector<std::string>(1,"") ); 
-  inputFedXml_ = pset.getUntrackedParameter< std::vector<std::string> >( "InputFedXml", std::vector<std::string>(1,"") ); 
-  inputDcuConvXml_ = pset.getUntrackedParameter<std::string>( "InputDcuConvXml", "" );
-  outputModuleXml_ = pset.getUntrackedParameter<std::string>( "OutputModuleXml", "/tmp/module.xml" );
-  outputDcuInfoXml_ = pset.getUntrackedParameter<std::string>( "OutputDcuInfoXml", "/tmp/dcuinfo.xml" );
-  outputFecXml_ = pset.getUntrackedParameter<std::string>( "OutputFecXml", "/tmp/fec.xml" );
-  outputFedXml_ = pset.getUntrackedParameter<std::string>( "OutputFedXml", "/tmp/fed.xml" );
-  tnsAdmin_ = pset.getUntrackedParameter<std::string>( "TNS_ADMIN", "" );
+void SiStripDbParams::setParams( const edm::ParameterSet& cfg ) {
+
+  // "Common" configurables
+  usingDb_      = cfg.getUntrackedParameter<bool>( "UsingDb", false ); 
+  usingDbCache_ = cfg.getUntrackedParameter<bool>( "UsingDbCache", false ); 
+  sharedMemory_ = cfg.getUntrackedParameter<std::string>( "SharedMemory", "" ); 
+  tnsAdmin_     = cfg.getUntrackedParameter<std::string>( "TNS_ADMIN", "" );
+  confdb( cfg.getUntrackedParameter<std::string>( "ConfDb", "") );
+
+  // Retrieve top-level PSet containing partition-level Psets
+  edm::ParameterSet psets = cfg.getUntrackedParameter<edm::ParameterSet>( "Partitions" );
+  
+  // Extract names of partition-level PSets
+  std::vector<std::string> names = psets.getParameterNamesForType<edm::ParameterSet>(false);
+  
+  // Iterator through PSets names, retrieve PSet for each partition and extract info
+  std::vector<std::string>::iterator iname = names.begin();
+  std::vector<std::string>::iterator jname = names.end();
+  for ( ; iname != jname; ++iname ) {
+    edm::ParameterSet pset = psets.getUntrackedParameter<edm::ParameterSet>( *iname );
+    SiStripPartition tmp;
+    tmp.setParams( pset );
+    SiStripPartitions::iterator iter = partitions_.find( tmp.partitionName_ ); 
+    if ( iter == partitions_.end() ) { partitions_[tmp.partitionName_] = tmp; }
+    else {
+      edm::LogWarning(mlConfigDb_)
+	<< "[SiStripConfigDb::" << __func__ << "]"
+	<< " Found PSet called \"" << *iname 
+	<< "\" that contains a partition name \"" << tmp.partitionName_ 
+	<< "\" that already exists! Ignoring...";
+    }
+  }
+  
+  // Ensure at least one "default" partition
+  if ( partitions_.empty() ) { partitions_["PrimaryPartition"] = SiStripPartition(); }
+
+  // Set output XML files
+  outputModuleXml_  = cfg.getUntrackedParameter<std::string>( "OutputModuleXml", "/tmp/module.xml" );
+  outputDcuInfoXml_ = cfg.getUntrackedParameter<std::string>( "OutputDcuInfoXml", "/tmp/dcuinfo.xml" );
+  outputFecXml_     = cfg.getUntrackedParameter<std::string>( "OutputFecXml", "/tmp/fec.xml" );
+  outputFedXml_     = cfg.getUntrackedParameter<std::string>( "OutputFedXml", "/tmp/fed.xml" );
+  
 }
 
 // -----------------------------------------------------------------------------
@@ -124,7 +104,7 @@ void SiStripDbParams::confdb( const std::string& confdb ) {
   uint32_t ipass = confdb.find("/");
   uint32_t ipath = confdb.find("@");
   if ( ipass != std::string::npos && 
-       ipath != std::string::npos ) {
+        ipath != std::string::npos ) {
     user_   = confdb.substr(0,ipass); 
     passwd_ = confdb.substr(ipass+1,ipath-ipass-1); 
     path_   = confdb.substr(ipath+1,confdb.size());
@@ -138,8 +118,8 @@ void SiStripDbParams::confdb( const std::string& confdb ) {
 // -----------------------------------------------------------------------------
 // 
 void SiStripDbParams::confdb( const std::string& user,
-					const std::string& passwd,
-					const std::string& path ) {
+			      const std::string& passwd,
+			      const std::string& path ) {
   if ( user != "" && passwd != "" && path != "" &&
        user != null_ && passwd != null_ && path != null_ ) {
     user_   = user;
@@ -157,9 +137,9 @@ void SiStripDbParams::confdb( const std::string& user,
 // 
 std::string SiStripDbParams::partitions() const {
   std::stringstream ss;
-  std::vector<std::string>::const_iterator ii = partitions_.begin();
-  std::vector<std::string>::const_iterator jj = partitions_.end();
-  for ( ; ii != jj; ++ii ) { ii == partitions_.begin() ? ss << *ii : ss << ", " << *ii; }
+  SiStripPartitions::const_iterator ii = partitions_.begin();
+  SiStripPartitions::const_iterator jj = partitions_.end();
+  for ( ; ii != jj; ++ii ) { ii == partitions_.begin() ? ss << ii->second.partitionName_ : ss << ":" << ii->second.partitionName_; }
   return ss.str();
 }
 
@@ -178,48 +158,41 @@ std::vector<std::string> SiStripDbParams::partitions( std::string input ) const 
 // 
 void SiStripDbParams::print( std::stringstream& ss ) const {
 
-  ss << " Using database account    : " << std::boolalpha << usingDb_ << std::noboolalpha << std::endl;
-  ss << " Using database cache      : " << std::boolalpha << usingDbCache_ << std::noboolalpha << std::endl;
-  ss << " Shared memory name        : " << std::boolalpha << sharedMemory_ << std::noboolalpha << std::endl;
+  ss << " Using database account     : " << std::boolalpha << usingDb_ << std::noboolalpha << std::endl;
+  ss << " Using XML files            : " << std::boolalpha << !usingDb_ << std::noboolalpha << std::endl;
+  ss << " Using database cache       : " << std::boolalpha << usingDbCache_ << std::noboolalpha << std::endl;
+  if ( usingDbCache_ ) { 
+    ss << " Shared memory name         : " << std::boolalpha << sharedMemory_ << std::noboolalpha << std::endl;
+  }
 
-  if ( usingDb_ ) {
+  if ( !usingDbCache_ ) {
 
-    ss << " ConfDb                    : " << confdb_ << std::endl;
-      //<< " User, Passwd, Path        : " << user_ << ", " << passwd_ << ", " << path_ << std::endl;
-
-  } else {
-
-    // Input
-    ss << " Input \"module.xml\" file   : " << inputModuleXml_ << std::endl
-       << " Input \"dcuinfo.xml\" file  : " << inputDcuInfoXml_ << std::endl
-       << " Input \"fec.xml\" file(s)   : ";
-    std::vector<std::string>::const_iterator ifec = inputFecXml_.begin();
-    for ( ; ifec != inputFecXml_.end(); ifec++ ) { ss << *ifec << ", "; }
+    if ( usingDb_ ) {
+      ss << " Database account (ConfDb)  : " << confdb_ << std::endl;
+    }
+    
+    ss << " Number of partitions       : " << partitions_.size();
+    if ( partitions_.empty() && usingDbCache_ ) { ss << " (Using database cache!)"; }
     ss << std::endl;
-    ss << " Input \"fed.xml\" file(s)   : ";
-    std::vector<std::string>::const_iterator ifed = inputFedXml_.begin();
-    for ( ; ifed != inputFedXml_.end(); ifed++ ) { ss << *ifed << ", "; }
-    ss << std::endl;
-
-    // Output 
-    ss << " Output \"module.xml\" file  : " << outputModuleXml_ << std::endl
-       << " Output \"dcuinfo.xml\" file : " << outputDcuInfoXml_ << std::endl
-       << " Output \"fec.xml\" file(s)  : " << outputFecXml_ << std::endl
-       << " Output \"fed.xml\" file(s)  : " << outputFedXml_ << std::endl;
+    
+    uint16_t cntr = 0;
+    SiStripPartitions::const_iterator ii = partitions_.begin();
+    SiStripPartitions::const_iterator jj = partitions_.end();
+    for ( ; ii != jj; ++ii ) { 
+      cntr++;
+      ss << " Partition #" << cntr << " (out of " << partitions_.size() << "):" << std::endl;
+      ii->second.print( ss, usingDb_ ); 
+    }
+    
+    if ( !usingDb_ ) {
+      ss << " Output \"module.xml\" file   : " << outputModuleXml_ << std::endl
+	 << " Output \"dcuinfo.xml\" file  : " << outputDcuInfoXml_ << std::endl
+	 << " Output \"fec.xml\" file(s)   : " << outputFecXml_ << std::endl
+	 << " Output \"fed.xml\" file(s)   : " << outputFedXml_ << std::endl;
+    }
 
   }
-  
-  ss << " Partitions                : " << partitions() << std::endl;
-  ss << " Run number                : " << runNumber_ << std::endl
-     << " Run type                  : " << SiStripEnumsAndStrings::runType( runType_ ) << std::endl
-     << " Cabling major/minor vers  : " << cabMajor_ << "." << cabMinor_ << std::endl
-     << " FED major/minor vers      : " << fedMajor_ << "." << fedMinor_ << std::endl
-     << " FEC major/minor vers      : " << fecMajor_ << "." << fecMinor_ << std::endl
-     << " Calibration maj/min vers  : " << calMajor_ << "." << calMinor_ << std::endl
-     << " DCU-DetId maj/min vers    : " << dcuMajor_ << "." << dcuMinor_;
-  if ( force_ ) { ss << " (version not overridden by run number)"; }
-  ss << std::endl;
-  
+ 
 }
 
 // -----------------------------------------------------------------------------
@@ -229,4 +202,36 @@ std::ostream& operator<< ( std::ostream& os, const SiStripDbParams& params ) {
   params.print(ss);
   os << ss.str();
   return os;
+}
+
+std::vector<std::string> SiStripDbParams::inputModuleXmlFiles() const {
+  std::vector<std::string> files;
+  SiStripPartitions::const_iterator ii = partitions_.begin();
+  SiStripPartitions::const_iterator jj = partitions_.end();
+  for ( ; ii != jj; ++ii ) { files.insert( files.end(), ii->second.inputModuleXml_ ); }
+  return files;
+}
+
+std::vector<std::string> SiStripDbParams::inputDcuInfoXmlFiles() const {
+  std::vector<std::string> files;
+  SiStripPartitions::const_iterator ii = partitions_.begin();
+  SiStripPartitions::const_iterator jj = partitions_.end();
+  for ( ; ii != jj; ++ii ) { files.insert( files.end(), ii->second.inputDcuInfoXml_ ); }
+  return files;
+}
+
+std::vector<std::string> SiStripDbParams::inputFecXmlFiles() const {
+  std::vector<std::string> files;
+  SiStripPartitions::const_iterator ii = partitions_.begin();
+  SiStripPartitions::const_iterator jj = partitions_.end();
+  for ( ; ii != jj; ++ii ) { files.insert( files.end(), ii->second.inputFecXml_.begin(), ii->second.inputFecXml_.end() ); }
+  return files;
+}
+
+std::vector<std::string> SiStripDbParams::inputFedXmlFiles() const {
+  std::vector<std::string> files;
+  SiStripPartitions::const_iterator ii = partitions_.begin();
+  SiStripPartitions::const_iterator jj = partitions_.end();
+  for ( ; ii != jj; ++ii ) { files.insert( files.end(), ii->second.inputFedXml_.begin(), ii->second.inputFedXml_.end() ); }
+  return files;
 }
