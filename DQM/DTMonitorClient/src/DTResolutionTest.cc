@@ -3,8 +3,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/03/01 00:39:52 $
- *  $Revision: 1.17 $
+ *  $Date: 2008/04/10 09:41:33 $
+ *  $Revision: 1.18 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -467,18 +467,18 @@ void DTResolutionTest::bookHistos(const DTChamberId & ch) {
 
 
   string HistoName = "W" + wheel.str() + "_Sec" + sector.str(); 
-  string MeanHistoNameSetRange = "MeanWrong_W" + wheel.str() + "_Sec" + sector.str() + "_SetRange";
-  string SigmaHistoNameSetRange =  "SigmaWrong_W" + wheel.str() + "_Sec" + sector.str()  + "_SetRange";
-  string SlopeHistoNameSetRange =  "SlopeWrong_W" + wheel.str() + "_Sec" + sector.str()  + "_SetRange";
-  MeanHistosSetRange[HistoName] = dbe->book1D(MeanHistoNameSetRange.c_str(),MeanHistoNameSetRange.c_str(),10,0.5,10.5);
-  SigmaHistosSetRange[HistoName] = dbe->book1D(SigmaHistoNameSetRange.c_str(),SigmaHistoNameSetRange.c_str(),10,0.5,10.5);
-  SlopeHistosSetRange[HistoName] = dbe->book1D(SlopeHistoNameSetRange.c_str(),SlopeHistoNameSetRange.c_str(),10,0.5,10.5);
-  string MeanHistoNameSetRange2D = "MeanWrong_W" + wheel.str() + "_Sec" + sector.str() + "_SetRange" + "_2D";
-  string SigmaHistoNameSetRange2D =  "SigmaWrong_W" + wheel.str() + "_Sec" + sector.str()  + "_SetRange" + "_2D";
-  string SlopeHistoNameSetRange2D =  "SlopeWrong_W" + wheel.str() + "_Sec" + sector.str()  + "_SetRange" + "_2D";
-  MeanHistosSetRange2D[HistoName] = dbe->book2D(MeanHistoNameSetRange2D.c_str(),MeanHistoNameSetRange2D.c_str(),10, 0.5, 10.5, 100, -0.05, 0.05);
-  SigmaHistosSetRange2D[HistoName] = dbe->book2D(SigmaHistoNameSetRange2D.c_str(),SigmaHistoNameSetRange2D.c_str(),10, 0.5, 10.5, 500, 0, 0.5);
-  SlopeHistosSetRange2D[HistoName] = dbe->book2D(SlopeHistoNameSetRange2D.c_str(),SigmaHistoNameSetRange2D.c_str(),10, 0.5, 10.5, 200, -0.1, 0.1);
+  string MeanHistoNameSetRange = "MeanWrong_" + parameters.getUntrackedParameter<string>("STEP", "STEP3") + "_W" + wheel.str() + "_Sec" + sector.str() + "_SetRange";
+  string SigmaHistoNameSetRange =  "SigmaWrong_" + parameters.getUntrackedParameter<string>("STEP", "STEP3") + "_W" + wheel.str() + "_Sec" + sector.str()  + "_SetRange";
+  string SlopeHistoNameSetRange =  "SlopeWrong_" + parameters.getUntrackedParameter<string>("STEP", "STEP3") + "_W" + wheel.str() + "_Sec" + sector.str()  + "_SetRange";
+  MeanHistosSetRange[HistoName] = dbe->book1D(MeanHistoNameSetRange.c_str(),MeanHistoNameSetRange.c_str(),11,0.5,11.5);
+  SigmaHistosSetRange[HistoName] = dbe->book1D(SigmaHistoNameSetRange.c_str(),SigmaHistoNameSetRange.c_str(),11,0.5,11.5);
+  SlopeHistosSetRange[HistoName] = dbe->book1D(SlopeHistoNameSetRange.c_str(),SlopeHistoNameSetRange.c_str(),11,0.5,11.5);
+  string MeanHistoNameSetRange2D = "MeanWrong_" + parameters.getUntrackedParameter<string>("STEP", "STEP3") + "_W" + wheel.str() + "_Sec" + sector.str() + "_SetRange" + "_2D";
+  string SigmaHistoNameSetRange2D =  "SigmaWrong_" + parameters.getUntrackedParameter<string>("STEP", "STEP3") + "_W" + wheel.str() + "_Sec" + sector.str()  + "_SetRange" + "_2D";
+  string SlopeHistoNameSetRange2D =  "SlopeWrong_" + parameters.getUntrackedParameter<string>("STEP", "STEP3") + "_W" + wheel.str() + "_Sec" + sector.str()  + "_SetRange" + "_2D";
+  MeanHistosSetRange2D[HistoName] = dbe->book2D(MeanHistoNameSetRange2D.c_str(),MeanHistoNameSetRange2D.c_str(),11, 0.5, 11.5, 100, -0.05, 0.05);
+  SigmaHistosSetRange2D[HistoName] = dbe->book2D(SigmaHistoNameSetRange2D.c_str(),SigmaHistoNameSetRange2D.c_str(),11, 0.5, 11.5, 500, 0, 0.5);
+  SlopeHistosSetRange2D[HistoName] = dbe->book2D(SlopeHistoNameSetRange2D.c_str(),SigmaHistoNameSetRange2D.c_str(),11, 0.5, 11.5, 200, -0.1, 0.1);
 
 }
 
@@ -488,7 +488,7 @@ void DTResolutionTest::bookHistos(int wh) {
   dbe->setCurrentFolder("DT/Tests/DTResolution/SummaryPlot");
 
   if(wheelMeanHistos.find(3) == wheelMeanHistos.end()){
-    string histoName =  "MeanSummaryRes_testFailedByAtLeast%BadSL";
+    string histoName =  "MeanSummaryRes_testFailedByAtLeast%BadSL_" + parameters.getUntrackedParameter<string>("STEP", "STEP3");
     wheelMeanHistos[3] = dbe->book2D(histoName.c_str(),histoName.c_str(),14,0,14,5,-2,2);
     wheelMeanHistos[3]->setBinLabel(1,"Sector1",1);
     wheelMeanHistos[3]->setBinLabel(1,"Sector1",1);
@@ -513,7 +513,7 @@ void DTResolutionTest::bookHistos(int wh) {
   }
 
   if(wheelSigmaHistos.find(3) == wheelSigmaHistos.end()){
-    string histoName =  "SigmaSummaryRes_testFailedByAtLeast%BadSL";
+    string histoName =  "SigmaSummaryRes_testFailedByAtLeast%BadSL_" + parameters.getUntrackedParameter<string>("STEP", "STEP3");
     wheelSigmaHistos[3] = dbe->book2D(histoName.c_str(),histoName.c_str(),14,0,14,5,-2,2);
     wheelSigmaHistos[3]->setBinLabel(1,"Sector1",1);
     wheelSigmaHistos[3]->setBinLabel(1,"Sector1",1);
@@ -538,7 +538,7 @@ void DTResolutionTest::bookHistos(int wh) {
   }
 
   if(wheelSlopeHistos.find(3) == wheelSlopeHistos.end()){
-    string histoName =  "SlopeSummaryRes_testFailedByAtLeast%BadSL";
+    string histoName =  "SlopeSummaryRes_testFailedByAtLeast%BadSL_" + parameters.getUntrackedParameter<string>("STEP", "STEP3");
     wheelSlopeHistos[3] = dbe->book2D(histoName.c_str(),histoName.c_str(),14,0,14,5,-2,2);
     wheelSlopeHistos[3]->setBinLabel(1,"Sector1",1);
     wheelSlopeHistos[3]->setBinLabel(1,"Sector1",1);
@@ -565,7 +565,7 @@ void DTResolutionTest::bookHistos(int wh) {
   stringstream wheel; wheel <<wh;
   
   if(wheelMeanHistos.find(wh) == wheelMeanHistos.end()){
-    string histoName =  "MeanSummaryRes_testFailed_W" + wheel.str();
+    string histoName =  "MeanSummaryRes_testFailed_" + parameters.getUntrackedParameter<string>("STEP", "STEP3") + "_W" + wheel.str();
     wheelMeanHistos[wh] = dbe->book2D(histoName.c_str(),histoName.c_str(),14,0,14,11,0,11);
     wheelMeanHistos[wh]->setBinLabel(1,"Sector1",1);
     wheelMeanHistos[wh]->setBinLabel(2,"Sector2",1);
@@ -595,7 +595,7 @@ void DTResolutionTest::bookHistos(int wh) {
   }  
 
   if(wheelSigmaHistos.find(wh) == wheelSigmaHistos.end()){
-    string histoName =  "SigmaSummaryRes_testFailed_W" + wheel.str();
+    string histoName =  "SigmaSummaryRes_testFailed_" + parameters.getUntrackedParameter<string>("STEP", "STEP3") + "_W" + wheel.str();
     wheelSigmaHistos[wh] = dbe->book2D(histoName.c_str(),histoName.c_str(),14,0,14,11,0,11);
     wheelSigmaHistos[wh]->setBinLabel(1,"Sector1",1);
     wheelSigmaHistos[wh]->setBinLabel(2,"Sector2",1);
@@ -625,7 +625,7 @@ void DTResolutionTest::bookHistos(int wh) {
   }  
 
   if(wheelSlopeHistos.find(wh) == wheelSlopeHistos.end()){
-    string histoName =  "SlopeSummaryRes_testFailed_W" + wheel.str();
+    string histoName =  "SlopeSummaryRes_testFailed_" + parameters.getUntrackedParameter<string>("STEP", "STEP3") + "_W" + wheel.str();
     wheelSlopeHistos[wh] = dbe->book2D(histoName.c_str(),histoName.c_str(),14,0,14,11,0,11);
     wheelSlopeHistos[wh]->setBinLabel(1,"Sector1",1);
     wheelSlopeHistos[wh]->setBinLabel(2,"Sector2",1);
