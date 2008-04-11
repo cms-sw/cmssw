@@ -1,8 +1,8 @@
 /*
  * \file L1TRPCTF.cc
  *
- * $Date: 2008/03/14 20:35:46 $
- * $Revision: 1.11 $
+ * $Date: 2008/03/20 19:38:25 $
+ * $Revision: 1.12 $
  * \author J. Berryhill
  *
  */
@@ -124,7 +124,6 @@ void L1TRPCTF::analyze(const Event& e, const EventSetup& c)
   nev_++; 
   if(verbose_) cout << "L1TRPCTF: analyze...." << endl;
 
-
   edm::Handle<L1MuGMTReadoutCollection> pCollection;
   e.getByLabel(rpctfSource_,pCollection);
   
@@ -143,86 +142,57 @@ void L1TRPCTF::analyze(const Event& e, const EventSetup& c)
        RRItr != gmt_records.end() ;
        RRItr++ ) 
   {
+    
+   if (verbose_) cout << "Readout Record " << RRItr->getBxInEvent() << endl;
+   
+   vector<vector<L1MuRegionalCand> > brlAndFwdCands;
+   brlAndFwdCands.push_back(RRItr->getBrlRPCCands());
+   brlAndFwdCands.push_back(RRItr->getFwdRPCCands());
+   
+   //if (verbose_) cout << "RPCTFCands " << RPCTFCands.size() << endl;
+   
+   vector<vector<L1MuRegionalCand> >::iterator RPCTFCands = brlAndFwdCands.begin();
+   for(; RPCTFCands!= brlAndFwdCands.end(); ++RPCTFCands)
+   {
+      for( vector<L1MuRegionalCand>::const_iterator 
+          ECItr = RPCTFCands->begin() ;
+          ECItr != RPCTFCands->end() ;
+          ++ECItr ) 
+      {
+  
+        int bxindex = ECItr->bx() + 1;
+        
+        // if (ECItr->quality() > 0 ) {
+        if (ECItr->pt_packed() > 0 ) {
+          
+          nrpctftrack++;
+    
+          if (verbose_) cout << "RPCTFCand bx " << ECItr->bx() << endl;
+          rpctfbx->Fill(ECItr->bx());
+    
+          rpctfetavalue[bxindex]->Fill(ECItr->etaValue());
+          if (verbose_) cout << "\tRPCTFCand eta value " << ECItr->etaValue() << endl;
+  
+          rpctfphivalue[bxindex]->Fill(ECItr->phiValue());
+          if (verbose_) cout << "\tRPCTFCand phi value " << ECItr->phiValue() << endl;
+    
+          rpctfptvalue[bxindex]->Fill(ECItr->ptValue());
+          if (verbose_) cout << "\tRPCTFCand pt value " << ECItr->ptValue()<< endl;
+    
+          rpctfchargevalue[bxindex]->Fill(ECItr->chargeValue());
+          if (verbose_) cout << "\tRPCTFCand charge value " << ECItr->chargeValue() << endl;
+    
+          rpctfquality[bxindex]->Fill(ECItr->quality());
+          if (verbose_) cout << "\tRPCTFCand quality " << ECItr->quality() << endl;
+          
+        } // if qlty > 0
+      } // end candidates iteration
+   } // end brl/endcap iteration
+  } // end GMT records iteration
 
-    if (verbose_)
-    {
-     cout << "Readout Record " << RRItr->getBxInEvent()
-   	    << endl;
-   }
- 
-   vector<L1MuRegionalCand> RPCTFCands = RRItr->getBrlRPCCands();
- 
-
-   if (verbose_) 
-    {
-     cout << "RPCTFCands " << RPCTFCands.size()
-   	    << endl;
-    }
-
-    for( vector<L1MuRegionalCand>::const_iterator 
-         ECItr = RPCTFCands.begin() ;
-         ECItr != RPCTFCands.end() ;
-         ++ECItr ) 
-    {
-
-      int bxindex = ECItr->bx() + 1;
-      if (ECItr->quality() > 0 ) {
-      nrpctftrack++;
-
-      if (verbose_)
-	{  
-     cout << "RPCTFCand bx " << ECItr->bx()
-   	    << endl;
-	}
-     rpctfbx->Fill(ECItr->bx());
-
-      rpctfetavalue[bxindex]->Fill(ECItr->etaValue());
-      if (verbose_)
-	{     
-     cout << "\tRPCTFCand eta value " << ECItr->etaValue()
-   	    << endl;
-	}
-
-      rpctfphivalue[bxindex]->Fill(ECItr->phiValue());
-      if (verbose_)
-	{     
-     cout << "\tRPCTFCand phi value " << ECItr->phiValue()
-   	    << endl;
-	}
-
-      rpctfptvalue[bxindex]->Fill(ECItr->ptValue());
-      if (verbose_)
-	{     
-     cout << "\tRPCTFCand pt value " << ECItr->ptValue()
-   	    << endl;
-	}
-
-
-      rpctfchargevalue[bxindex]->Fill(ECItr->chargeValue());
-      if (verbose_)
-	{     
-     cout << "\tRPCTFCand charge value " << ECItr->chargeValue()
-   	    << endl;
-	}
-
-      rpctfquality[bxindex]->Fill(ECItr->quality());
-      if (verbose_)
-	{     
-     cout << "\tRPCTFCand quality " << ECItr->quality()
-   	    << endl;
-	}
-
-      }
-    }
-
-
-  }
-
-      rpctfntrack->Fill(nrpctftrack);
-      if (verbose_)
-	{     
-     cout << "\tRPCTFCand ntrack " << nrpctftrack
-   	    << endl;
-	}
+  rpctfntrack->Fill(nrpctftrack);
+  
+  if (verbose_) cout << "\tRPCTFCand ntrack " << nrpctftrack << endl;
+	
 }
 
