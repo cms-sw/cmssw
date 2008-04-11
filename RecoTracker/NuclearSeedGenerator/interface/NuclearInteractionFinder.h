@@ -34,6 +34,11 @@
 #include "RecoTracker/NuclearSeedGenerator/interface/SeedFromNuclearInteraction.h"
 #include "RecoTracker/NuclearSeedGenerator/interface/TangentHelix.h"
 
+#include "TrackingTools/DetLayers/interface/NavigationSetter.h"
+#include "TrackingTools/DetLayers/interface/NavigationSchool.h"
+#include "RecoTracker/TkNavigation/interface/SimpleNavigationSchool.h"
+
+
 #include <boost/shared_ptr.hpp>
 
 class NuclearInteractionFinder {
@@ -80,6 +85,8 @@ public:
 
   TrajectoryStateOnSurface rescaleError(float rescale, const TSOS& state) const;
 
+  const NavigationSchool* nav() const { return theNavigationSchool; }
+
 private:
 
   const Propagator*               thePropagator;
@@ -87,6 +94,7 @@ private:
   const MeasurementTracker*       theMeasurementTracker;
   const LayerMeasurements*        theLayerMeasurements;
   const GeometricSearchTracker*   theGeomSearchTracker;
+  const NavigationSchool*         theNavigationSchool;
   edm::ESHandle<MagneticField>    theMagField;
 
   NuclearTester*                             nuclTester;
@@ -99,6 +107,7 @@ private:
   unsigned int  maxHits;
   double        rescaleErrorFactor;
   bool          checkCompletedTrack; /**< If set to true check all the tracks, even those reaching the edge of the tracker */
+  std::string   navigationSchoolName;
 
 };
 #endif

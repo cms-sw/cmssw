@@ -8,6 +8,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "TrackingTools/KalmanUpdators/interface/Chi2MeasurementEstimatorBase.h"
+#include "RecoTracker/Record/interface/NavigationSchoolRecord.h" 
 
 #include "RecoTracker/Record/interface/CkfComponentsRecord.h"
 
@@ -16,7 +17,8 @@
 NuclearInteractionFinder::NuclearInteractionFinder(const edm::EventSetup& es, const edm::ParameterSet& iConfig) :
 maxHits(iConfig.getParameter<int>("maxHits")),
 rescaleErrorFactor(iConfig.getParameter<double>("rescaleErrorFactor")),
-checkCompletedTrack(iConfig.getParameter<bool>("checkCompletedTrack"))
+checkCompletedTrack(iConfig.getParameter<bool>("checkCompletedTrack")),
+navigationSchoolName(iConfig.getParameter<std::string>("NavigationSchool"))
 {
 
    std::string measurementTrackerName = iConfig.getParameter<std::string>("MeasurementTrackerName");
@@ -34,6 +36,10 @@ checkCompletedTrack(iConfig.getParameter<bool>("checkCompletedTrack"))
    es.get<CkfComponentsRecord>().get(measurementTrackerName, measurementTrackerHandle);
    es.get<TrackerRecoGeometryRecord>().get(theGeomSearchTrackerHandle );
    es.get<IdealMagneticFieldRecord>().get(theMagField);
+
+   edm::ESHandle<NavigationSchool>             nav;
+   es.get<NavigationSchoolRecord>().get(navigationSchoolName, nav);
+   theNavigationSchool  = nav.product();
 
    thePropagator = prop.product();
    theEstimator = est.product();
