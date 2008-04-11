@@ -854,7 +854,6 @@ namespace edm {
       toerror.succeeded();
     }
     changeState(mFinished);
-    fb_.reset();
   }
   
   EventProcessor::StatusCode
