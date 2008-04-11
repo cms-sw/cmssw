@@ -23,7 +23,7 @@ MuonSelector::filter( const unsigned int&    index,
       if ( muons[index].isGlobalMuon() ) return GOOD;
       else return BAD;
     }
-  else if ( config_.selectionType == "muId"  )
+  else if ( config_.selectionType == "muonPOG"  )
     {
       return muIdSelection_( index, muons );
     }
@@ -79,7 +79,11 @@ MuonSelector::muIdSelection_( const unsigned int&    index,
   	if(!muonid::isGoodMuon(muons[index], config_.flag)){
   		return BAD;	
   	}
+	if(config_.minCaloCompatibility >= muonid::getCaloCompatibility(muons[index])
+		|| config_.minSegmentCompatibility >= muonid::getSegmentCompatibility(muons[index]) )
+	{
+		return BAD;
+	}
   }
-
   return GOOD;
 }

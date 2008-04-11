@@ -1,7 +1,7 @@
 #ifndef PhysicsTools_PatAlgos_PATMuonCleaner_h
 #define PhysicsTools_PatAlgos_PATMuonCleaner_h
 //
-// $Id: PATMuonCleaner.h,v 1.6 2008/04/03 08:29:48 zeidler Exp $
+// $Id: PATMuonCleaner.h,v 1.7 2008/04/03 09:36:23 zeidler Exp $
 //
 
 /**
@@ -29,7 +29,7 @@
   The actual selection is performed by the MuonSelector.
 
   \author   Giovanni Petrucciani (from PATMuonProducer by Steven Lowette, Roger Wolf)
-  \version  $Id: PATMuonCleaner.h,v 1.6 2008/04/03 08:29:48 zeidler Exp $
+  \version  $Id: PATMuonCleaner.h,v 1.7 2008/04/03 09:36:23 zeidler Exp $
 */
 
 
@@ -96,7 +96,7 @@ namespace reco {
             config_.chi2max  = cfg.getParameter<double>("chi2max");
             config_.nHitsMin = cfg.getParameter<int>("nHitsMin");
           }
-		if ( selectionType == "muId" )
+		if ( selectionType == "muonPOG" )
           {
             std::string flag = cfg.getParameter<std::string>("flag");
 			if(flag == "TMLastStationLoose"){
@@ -105,17 +105,18 @@ namespace reco {
 			else if(flag == "TMLastStationTight"){
 				config_.flag = muonid::TMLastStationTight;
   			}
-			/* 2_0 only
 			else if(flag == "TM2DCompatibilityLoose"){
 				config_.flag = muonid::TM2DCompatibilityLoose;
   			}
 			else if(flag == "TM2DCompatibilityTight"){
 				config_.flag = muonid::TM2DCompatibilityTight;
-  			}*/
+  			}
 			else{
 				throw edm::Exception(edm::errors::UnimplementedFeature) 
 					<< "muId flag is not valid or not implemented yet";
 			}
+			config_.minCaloCompatibility = cfg.getParameter<double>("minCaloCompatibility");
+			config_.minSegmentCompatibility = cfg.getParameter<double>("minSegmentCompatibility");
           }
         return pat::MuonSelector( config_ );
       }
