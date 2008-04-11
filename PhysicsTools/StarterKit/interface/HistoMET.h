@@ -50,12 +50,13 @@ namespace pat {
   class HistoMET : public HistoGroup<MET> {
 
   public:
-    HistoMET( std::string dir = "met",
+    HistoMET( std::string dir = "met", std::string group = "MET",
+	      std::string pre = "met",
 	      double pt1=0, double pt2=200, double m1=0, double m2=200 );
     virtual ~HistoMET();
 
-    virtual void fill( const MET * met, uint iPart = 0  );
-    virtual void fill( const MET & met, uint iPart = 0  ) { fill(&met, iPart); }
+    virtual void fill( const MET * met, uint iPart = 1 );
+    virtual void fill( const MET & met, uint iPart = 1 ) { fill(&met, iPart); }
 
     virtual void fillCollection( const std::vector<MET> & coll );
 

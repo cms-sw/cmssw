@@ -6,20 +6,20 @@ using namespace std;
 
 using pat::HistoElectron;
 
-HistoElectron::HistoElectron( std::string dir,
+HistoElectron::HistoElectron( std::string dir,std::string group,std::string pre,
 			      double pt1, double pt2, double m1, double m2 ) :
-  HistoGroup<Electron>( dir, "Electron", "e", pt1, pt2, m1, m2)
+  HistoGroup<Electron>( dir, group, pre, pt1, pt2, m1, m2)
 {
   // book relevant electron histograms
 
   addHisto( h_trackIso_      =
-	    new PhysVarHisto("eTrackIso",       "Electron Track Isolation"    , 100, 0, 10, currDir_, "", "vD")
+	    new PhysVarHisto( pre + "TrackIso",       "Electron Track Isolation"    , 100, 0, 10, currDir_, "", "vD")
 	    );
   addHisto( h_caloIso_       =
-	    new PhysVarHisto("eCaloIso",        "Electron Calo Isolation"     , 100, -20, 20, currDir_, "", "vD")
+	    new PhysVarHisto( pre + "CaloIso",        "Electron Calo Isolation"     , 100, -20, 20, currDir_, "", "vD")
 	    );
   addHisto( h_leptonID_      =
-	    new PhysVarHisto("eLeptonID",       "Electron Lepton ID"          , 100, 0, 1, currDir_, "", "vD")
+	    new PhysVarHisto( pre + "LeptonID",       "Electron Lepton ID"          , 100, 0, 1, currDir_, "", "vD")
 	    );
 }
 

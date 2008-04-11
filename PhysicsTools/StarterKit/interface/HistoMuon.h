@@ -52,12 +52,13 @@ namespace pat {
   class HistoMuon : public HistoGroup<Muon> {
 
   public:
-    HistoMuon(std::string dir = "muon",
+    HistoMuon(std::string dir = "muon", std::string group = "Muon",
+	      std::string pre ="mu",
 		   double pt1=0, double pt2=200, double m1=0, double m2=200 );
     virtual ~HistoMuon() { } ;
 
-    virtual void fill( const Muon *muon, uint iPart = 0 );
-    virtual void fill( const Muon &muon, uint iPart = 0 ) { fill(&muon, iPart); }
+    virtual void fill( const Muon *muon, uint iPart = 1 );
+    virtual void fill( const Muon &muon, uint iPart = 1 ) { fill(&muon, iPart); }
 
     virtual void fillCollection( const std::vector<Muon> & coll );
 

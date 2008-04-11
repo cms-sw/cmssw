@@ -56,10 +56,8 @@ namespace pat {
 	       double pt1=0, double pt2=200, double m1=0, double m2=200 );
     virtual ~HistoTrack() { } ;
 
-    virtual void fill( const reco::RecoChargedCandidate *track, uint iPart = 0 );
-
-    // &&& Isn't this one already provided in the base class?
-    virtual void fill( const reco::RecoChargedCandidate &track, uint iPart = 0 ) { fill(&track, iPart); }
+    virtual void fill( const reco::RecoChargedCandidate *track, uint iPart = 1 );
+    virtual void fill( const reco::RecoChargedCandidate &track, uint iPart = 1 ) { fill(&track, iPart); }
 
     virtual void fillCollection( const std::vector<reco::RecoChargedCandidate> & coll );
 

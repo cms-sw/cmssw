@@ -8,42 +8,42 @@ using pat::MET;
 // Constructor:
 
 
-HistoMET::HistoMET( std::string dir, 
+HistoMET::HistoMET( std::string dir, std::string group,std::string pre,
 		    double pt1, double pt2, double m1, double m2 ) 
-  : HistoGroup<MET>( dir, "MET", "met", pt1, pt2, m1, m2)
+  : HistoGroup<MET>( dir, group, pre, pt1, pt2, m1, m2)
 {
 
 
 
   // book relevant MET histograms 
   addHisto( h_sumEt_              =
-	    new PhysVarHisto("metSumEt",              "MET sumEt",               20, 0, 1000, currDir_, "", "vD")  );
+	    new PhysVarHisto( pre + "SumEt",              "MET sumEt",               20, 0, 1000, currDir_, "", "vD")  );
   addHisto( h_mEtSig_             =
-	    new PhysVarHisto("metMEtSig",             "MET mEtSig",              20, 0, 20, currDir_, "", "vD")  );
+	    new PhysVarHisto( pre + "MEtSig",             "MET mEtSig",              20, 0, 20, currDir_, "", "vD")  );
   addHisto( h_eLongitudinal_      =
-	    new PhysVarHisto("metELongitudinal",      "MET eLongitudinal",       20, 0, 20, currDir_, "", "vD")  );
+	    new PhysVarHisto( pre + "ELongitudinal",      "MET eLongitudinal",       20, 0, 20, currDir_, "", "vD")  );
   addHisto( h_maxEtInEmTowers_    =
-	    new PhysVarHisto("metMaxEtInEmTowers",    "MET maxEtInEmTowers",     20, 0, 20, currDir_, "", "vD")  );
+	    new PhysVarHisto( pre + "MaxEtInEmTowers",    "MET maxEtInEmTowers",     20, 0, 20, currDir_, "", "vD")  );
   addHisto( h_maxEtInHadTowers_   =
-	    new PhysVarHisto("metMaxEtInHadTowers",   "MET maxEtInHadTowers",    20, 0, 20, currDir_, "", "vD")  );
+	    new PhysVarHisto( pre + "MaxEtInHadTowers",   "MET maxEtInHadTowers",    20, 0, 20, currDir_, "", "vD")  );
   addHisto( h_etFractionHadronic_ =
-	    new PhysVarHisto("metEtFractionHadronic", "MET etFractionHadronic",  20, 0, 1,  currDir_, "", "vD")  );
+	    new PhysVarHisto( pre + "EtFractionHadronic", "MET etFractionHadronic",  20, 0, 1,  currDir_, "", "vD")  );
   addHisto( h_emEtFraction_       =
-	    new PhysVarHisto("metEmEtFraction",       "MET emEtFraction",        20, 0, 1,  currDir_, "", "vD")  );
+	    new PhysVarHisto( pre + "EmEtFraction",       "MET emEtFraction",        20, 0, 1,  currDir_, "", "vD")  );
   addHisto( h_hadEtInHB_          =
-	    new PhysVarHisto("metHadEtInHB",          "MET hadEtInHB",           20, pt1, pt2, currDir_, "", "vD")  );
+	    new PhysVarHisto( pre + "HadEtInHB",          "MET hadEtInHB",           20, pt1, pt2, currDir_, "", "vD")  );
   addHisto( h_hadEtInHO_          =
-	    new PhysVarHisto("metHadEtInHO",          "MET hadEtInHO",           20, pt1, pt2, currDir_, "", "vD")  );
+	    new PhysVarHisto( pre + "HadEtInHO",          "MET hadEtInHO",           20, pt1, pt2, currDir_, "", "vD")  );
   addHisto( h_hadEtInHE_          =
-	    new PhysVarHisto("metHadEtInHE",          "MET hadEtInHE",           20, pt1, pt2, currDir_, "", "vD")  );
+	    new PhysVarHisto( pre + "HadEtInHE",          "MET hadEtInHE",           20, pt1, pt2, currDir_, "", "vD")  );
   addHisto( h_hadEtInHF_          =
-	    new PhysVarHisto("metHadEtInHF",          "MET hadEtInHF",           20, pt1, pt2, currDir_, "", "vD")  );
+	    new PhysVarHisto( pre + "HadEtInHF",          "MET hadEtInHF",           20, pt1, pt2, currDir_, "", "vD")  );
   addHisto( h_emEtInEB_           =
-	    new PhysVarHisto("metEmEtInEB",           "MET emEtInEB",            20, pt1, pt2, currDir_, "", "vD")  );
+	    new PhysVarHisto( pre + "EmEtInEB",           "MET emEtInEB",            20, pt1, pt2, currDir_, "", "vD")  );
   addHisto( h_emEtInEE_           =
-	    new PhysVarHisto("metEmEtInEE",           "MET emEtInEE",            20, pt1, pt2, currDir_, "", "vD")  );
+	    new PhysVarHisto( pre + "EmEtInEE",           "MET emEtInEE",            20, pt1, pt2, currDir_, "", "vD")  );
   addHisto( h_emEtInHF_           =
-	    new PhysVarHisto("metEmEtInHF",           "MET emEtInHF",            20, pt1, pt2, currDir_, "", "vD")  );
+	    new PhysVarHisto( pre + "EmEtInHF",           "MET emEtInHF",            20, pt1, pt2, currDir_, "", "vD")  );
 
 
 

@@ -53,14 +53,12 @@ namespace pat {
   class HistoTau : public HistoGroup<Tau> {
 
   public:
-    HistoTau(std::string dir = "tau",
+    HistoTau(std::string dir = "tau", std::string group = "Tau",std::string pre="tau",
 		   double pt1=0, double pt2=200, double m1=0, double m2=200 );
     virtual ~HistoTau() { } ;
 
-    virtual void fill( const Tau *tau, uint iPart = 0 );
-
-    // &&& Isn't this one already provided in the base class?
-    virtual void fill( const Tau &tau, uint iPart = 0 ) { fill(&tau, iPart); }
+    virtual void fill( const Tau *tau, uint iPart = 1 );
+    virtual void fill( const Tau &tau, uint iPart = 1 ) { fill(&tau, iPart); }
 
 
     virtual void fillCollection( const std::vector<Tau> & coll );

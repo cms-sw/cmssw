@@ -11,21 +11,21 @@ using namespace std;
 // Constructor:
 
 
-HistoTau::HistoTau(std::string dir,
+HistoTau::HistoTau(std::string dir, std::string group,std::string pre,
 		   double pt1, double pt2, double m1, double m2)
-  : HistoGroup<Tau>( dir, "Tau", "tau", pt1, pt2, m1, m2)
+  : HistoGroup<Tau>( dir, group, pre, pt1, pt2, m1, m2)
 {
 
-  histoLeadingTrack_ = new HistoTrack( dir, "TauLeadingTrack", "tauLeadingTrack" );
-  histoSignalTrack_ = new HistoTrack( dir, "TauSignalTracks", "tauSignalTracks" );
-  histoIsolationTrack_ = new HistoTrack( dir, "TauIsolationTracks", "tauIsolationTracks" );
+  histoLeadingTrack_ = new HistoTrack( dir, group + "TauLeadingTrack", pre + "tauLeadingTrack" );
+  histoSignalTrack_ = new HistoTrack( dir, group + "TauSignalTracks", pre + "tauSignalTracks" );
+  histoIsolationTrack_ = new HistoTrack( dir, group + "TauIsolationTracks", pre + "tauIsolationTracks" );
 
   addHisto( h_emEnergyFraction_ =
-	    new PhysVarHisto( "tauEmEnergyFraction", "Tau EM Energy Fraction", 20, 0, 10, currDir_, "", "vD" )
+	    new PhysVarHisto( pre + "EmEnergyFraction", "Tau EM Energy Fraction", 20, 0, 10, currDir_, "", "vD" )
 	   );
 
   addHisto( h_eOverP_  =
-	    new PhysVarHisto( "tauEOverP",  "Tau E over P",  20, 0, 10, currDir_, "", "vD" )
+	    new PhysVarHisto( pre + "EOverP",  "Tau E over P",  20, 0, 10, currDir_, "", "vD" )
 	    );
 
 

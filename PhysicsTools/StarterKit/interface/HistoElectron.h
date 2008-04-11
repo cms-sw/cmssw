@@ -50,12 +50,13 @@ namespace pat {
   class HistoElectron : public HistoGroup<Electron> {
 
   public:
-    HistoElectron( std::string dir = "electron",
+    HistoElectron( std::string dir = "electron", std::string group = "Electron",
+		   std::string pre = "e",
 		   double pt1=0, double pt2=200, double m1=0, double m2=200 );
     virtual ~HistoElectron();
 
-    virtual void fill( const Electron * electron, uint iPart = 0 );
-    virtual void fill( const Electron & electron, uint iPart = 0 ) { fill(&electron, iPart); }
+    virtual void fill( const Electron * electron, uint iPart = 1 );
+    virtual void fill( const Electron & electron, uint iPart = 1 ) { fill(&electron, iPart); }
 
     virtual void fillCollection( const std::vector<Electron> & coll );
 

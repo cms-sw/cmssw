@@ -172,7 +172,9 @@ public:
   inline void addTrackHistoGroup( pat::HistoTrack * hgr )
     { trackHistograms_->addHistoGroup(hgr); }
 
-
+  //--- Add one generic histo to list
+  inline void addHisto( pat::PhysVarHisto * h )
+    { allVarHistos_.push_back( h ); }
 
 
 

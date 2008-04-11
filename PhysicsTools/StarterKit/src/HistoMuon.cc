@@ -10,35 +10,35 @@ using namespace std;
 // Constructor:
 
 
-HistoMuon::HistoMuon(std::string dir,
+HistoMuon::HistoMuon(std::string dir, std::string group,std::string pre,
 		   double pt1, double pt2, double m1, double m2)
-  : HistoGroup<Muon>( dir, "Muon", "mu", pt1, pt2, m1, m2)
+  : HistoGroup<Muon>( dir, group, pre, pt1, pt2, m1, m2)
 {
   addHisto( h_trackIso_ =
-	    new PhysVarHisto( "muTrackIso", "Muon Track Isolation", 20, 0, 10, currDir_, "", "vD" )
+	    new PhysVarHisto( pre + "TrackIso", "Muon Track Isolation", 20, 0, 10, currDir_, "", "vD" )
 	   );
 
   addHisto( h_caloIso_  =
-	    new PhysVarHisto( "muCaloIso",  "Muon Calo Isolation",  20, 0, 10, currDir_, "", "vD" )
+	    new PhysVarHisto( pre + "CaloIso",  "Muon Calo Isolation",  20, 0, 10, currDir_, "", "vD" )
 	    );
 
   addHisto( h_leptonID_ =
-            new PhysVarHisto( "muLeptonID", "Muon Lepton ID",       20, 0, 1, currDir_, "", "vD" )
+            new PhysVarHisto( pre + "LeptonID", "Muon Lepton ID",       20, 0, 1, currDir_, "", "vD" )
             );
 
   addHisto( h_calCompat_ =
-            new PhysVarHisto( "muCaloCompat", "Muon Calorimetry Compatability", 100, 0, 1, currDir_, "", "vD" )
+            new PhysVarHisto( pre + "CaloCompat", "Muon Calorimetry Compatability", 100, 0, 1, currDir_, "", "vD" )
             );
 
   addHisto( h_nChambers_ =
-            new PhysVarHisto( "muNChamber", "Muon # of Chambers", 51, -0.5, 50.5, currDir_, "", "vD" )
+            new PhysVarHisto( pre + "NChamber", "Muon # of Chambers", 51, -0.5, 50.5, currDir_, "", "vD" )
             );
 
   addHisto( h_caloE_ =
-            new PhysVarHisto( "muCaloE", "Muon Calorimeter Energy", 50, 0, 50, currDir_, "", "vD" )
+            new PhysVarHisto( pre + "CaloE", "Muon Calorimeter Energy", 50, 0, 50, currDir_, "", "vD" )
             );
   addHisto( h_type_ =
-            new PhysVarHisto( "muType", "Muon Type", 65, -0.5, 64.5, currDir_, "", "vD" )
+            new PhysVarHisto( pre + "Type", "Muon Type", 65, -0.5, 64.5, currDir_, "", "vD" )
             );
 }
 

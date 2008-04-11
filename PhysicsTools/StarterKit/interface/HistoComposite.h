@@ -43,7 +43,7 @@
 #include "PhysicsTools/StarterKit/interface/HistoPhoton.h"
 #include "PhysicsTools/StarterKit/interface/HistoTrack.h"
 #include "PhysicsTools/StarterKit/interface/HistoParticle.h"
-#include "DataFormats/Candidate/interface/CompositeCandidate.h"
+#include "DataFormats/Candidate/interface/NamedCompositeCandidate.h"
 
 // STL include files
 #include <string>
@@ -54,29 +54,43 @@
 
 namespace pat {
 
-  class HistoComposite : public HistoGroup<reco::CompositeCandidate> {
+
+  template <class T>
+  class HistoMap {
+  public:
+    typedef std::string                              key_type;
+    typedef T *                                      data_type;
+    typedef std::map<key_type, data_type >           map_type;
+    
+    map_type map;
+  };
+
+  class HistoComposite : public HistoGroup<reco::NamedCompositeCandidate> {
 
    public:
+    
+    
     HistoComposite(std::string dir, std::string candTitle, std::string candName,
 		   double pt1=0, double pt2=200, double m1=0, double m2=200);
     virtual ~HistoComposite();
 
     // void fill( reco::CompositeCandidate * cand );
-    void fill( const reco::CompositeCandidate * cand );
-    void fill( const reco::CompositeCandidate & cand ) { return fill(&cand); }
+    void fill( const reco::NamedCompositeCandidate * cand );
+    void fill( const reco::NamedCompositeCandidate & cand ) { return fill(&cand); }
 
    protected:
     std::string       candName_;
 
 
-    HistoMuon *     histoMuon_;
-    HistoElectron * histoElectron_;
-    HistoTau *      histoTau_;
-    HistoJet *      histoJet_;
-    HistoMET *      histoMET_;
-    HistoPhoton *   histoPhoton_;
-    HistoTrack *    histoTrack_;
-    HistoParticle * histoParticle_;
+    HistoMap<HistoMuon>        histoMuon_;
+    HistoMap<HistoElectron>    histoElectron_;
+    HistoMap<HistoTau>         histoTau_;
+    HistoMap<HistoJet>         histoJet_;
+    HistoMap<HistoMET>         histoMET_;
+    HistoMap<HistoPhoton>      histoPhoton_;
+    HistoMap<HistoTrack>       histoTrack_;
+    HistoMap<HistoParticle>    histoParticle_;
+    HistoMap<HistoComposite>   histoComposite_;
   };
 
 

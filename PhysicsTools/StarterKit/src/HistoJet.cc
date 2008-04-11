@@ -4,22 +4,22 @@ using pat::HistoJet;
 
 // Constructor:
 
-HistoJet::HistoJet(  std::string dir,
+HistoJet::HistoJet(  std::string dir, std::string group,std::string pre,
 		     double pt1, double pt2, double m1, double m2 ) 
-  : HistoGroup<Jet>( dir, "Jet", "jet", pt1, pt2, m1, m2)
+  : HistoGroup<Jet>( dir, group, pre, pt1, pt2, m1, m2)
 {
   // book relevant jet histograms
   addHisto( h_jetFlavour_   =
-	    new PhysVarHisto("jetFlavour", "Jet Flavour", 21, 0, 21, currDir_, "", "vD" )
+	    new PhysVarHisto( pre + "Flavour", "Jet Flavour", 21, 0, 21, currDir_, "", "vD" )
 	    );
   addHisto( h_BDiscriminant_=
-	    new PhysVarHisto("jetBDiscriminant", "Jet B Discriminant", 100, -10, 90, currDir_, "", "vD")
+	    new PhysVarHisto( pre + "BDiscriminant", "Jet B Discriminant", 100, -10, 90, currDir_, "", "vD")
 	    );
   addHisto( h_jetCharge_    =
-	    new PhysVarHisto("jetCharge", "Jet Charge", 100, -5, 5, currDir_, "", "vD")
+	    new PhysVarHisto( pre + "Charge", "Jet Charge", 100, -5, 5, currDir_, "", "vD")
 	    );
   addHisto( h_nTrk_         =
-	    new PhysVarHisto("jetNTrk", "Jet N_{TRK}", 51, -0.5, 50.5, currDir_, "", "vD" )
+	    new PhysVarHisto( pre + "NTrk", "Jet N_{TRK}", 51, -0.5, 50.5, currDir_, "", "vD" )
 	    );
 }
 

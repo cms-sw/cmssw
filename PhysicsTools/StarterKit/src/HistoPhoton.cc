@@ -6,20 +6,20 @@ using namespace std;
 
 using pat::HistoPhoton;
 
-HistoPhoton::HistoPhoton( std::string dir,
+HistoPhoton::HistoPhoton( std::string dir, std::string role,std::string pre,
 			      double pt1, double pt2, double m1, double m2 ) :
-  HistoGroup<Photon>( dir, "Photon", "photon", pt1, pt2, m1, m2)
+  HistoGroup<Photon>( dir, role, pre, pt1, pt2, m1, m2)
 {
   // book relevant photon histograms
 
   addHisto( h_trackIso_      =
-	    new PhysVarHisto("photonTrackIso",       "Photon Track Isolation"    , 100, 0, 1, currDir_, "", "vD")
+	    new PhysVarHisto(pre + "TrackIso",       "Photon Track Isolation"    , 100, 0, 1, currDir_, "", "vD")
 	    );
   addHisto( h_caloIso_       =
-	    new PhysVarHisto("photonCaloIso",        "Photon Calo Isolation"     , 100, 0, 1, currDir_, "", "vD")
+	    new PhysVarHisto(pre + "CaloIso",        "Photon Calo Isolation"     , 100, 0, 1, currDir_, "", "vD")
 	    );
   addHisto( h_photonID_      =
-	    new PhysVarHisto("photonPhotonID",       "Photon ID"                 , 100, 0, 1, currDir_, "", "vD")
+	    new PhysVarHisto(pre + "PhotonID",       "Photon ID"                 , 100, 0, 1, currDir_, "", "vD")
 	    );
 }
 

@@ -50,12 +50,13 @@ namespace pat {
   class HistoJet : public HistoGroup<Jet> {
 
   public:
-    HistoJet( std::string dir = "jet",
+    HistoJet( std::string dir = "jet",std::string group = "Jet",
+	      std::string pre="jet",
 	      double pt1=0, double pt2=200, double m1=0, double m2=200 );
     virtual ~HistoJet();
 
-    virtual void fill( const Jet * jet, uint iPart = 0 );
-    virtual void fill( const Jet & jet, uint iPart = 0 ) { fill(&jet, iPart); }
+    virtual void fill( const Jet * jet, uint iPart = 1 );
+    virtual void fill( const Jet & jet, uint iPart = 1 ) { fill(&jet, iPart); }
 
     virtual void fillCollection( const std::vector<Jet> & coll );
 

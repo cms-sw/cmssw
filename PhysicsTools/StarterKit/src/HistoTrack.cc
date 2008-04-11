@@ -16,16 +16,16 @@ HistoTrack::HistoTrack(std::string dir, std::string groupName, std::string group
   : HistoGroup<RecoChargedCandidate>( dir, groupName, groupLabel, pt1, pt2, m1, m2)
 {
   addHisto( h_dxy_ =
-	    new PhysVarHisto( "trkDxy", "Track Impact Parameter, x-y", 20, -3, 3, currDir_, "", "vD" )
+	    new PhysVarHisto( groupLabel + "Dxy", "Track Impact Parameter, x-y", 20, -3, 3, currDir_, "", "vD" )
 	   );
   addHisto( h_dz_ =
-	    new PhysVarHisto( "trkDz", "Track Impact Parameter, z", 20, -3, 3, currDir_, "", "vD" )
+	    new PhysVarHisto( groupLabel + "Dz", "Track Impact Parameter, z", 20, -3, 3, currDir_, "", "vD" )
 	   );
   addHisto( h_nValid_ =
-	    new PhysVarHisto( "trkNValid", "Number of Valid hits", 20, 0, 20, currDir_, "", "vD" )
+	    new PhysVarHisto( groupLabel + "NValid", "Number of Valid hits", 20, 0, 20, currDir_, "", "vD" )
 	   );
   addHisto( h_nLost_ =
-	    new PhysVarHisto( "trkNLost", "Number of Lost hits", 20, 0, 20, currDir_, "", "vD" )
+	    new PhysVarHisto( groupLabel + "NLost", "Number of Lost hits", 20, 0, 20, currDir_, "", "vD" )
 	   );
 
 }
