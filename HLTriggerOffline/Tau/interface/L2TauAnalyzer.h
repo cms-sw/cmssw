@@ -74,10 +74,9 @@ class L2TauAnalyzer : public edm::EDAnalyzer {
 
 
       MatchElement match(const reco::Jet&,const LVColl&);//See if this Jet Is Matched
+
       MatchElement matchQCD(const reco::Jet&,const reco::GenJetCollection&);//See if this Jet Is Matched
       bool matchL1(const reco::Jet&,std::vector<l1extra::L1JetParticleRef>&);//See if this Jet Is Matched to L1
-      
-
 };
 
 

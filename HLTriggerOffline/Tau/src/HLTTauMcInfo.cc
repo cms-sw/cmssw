@@ -3,6 +3,8 @@
 #include "DataFormats/Math/interface/deltaR.h"
 #include "DataFormats/TauReco/interface/PFTau.h"
 #include "DataFormats/TauReco/interface/PFTauDiscriminatorByIsolation.h"
+#include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
+#include "DataFormats/HepMCCandidate/interface/GenParticleCandidate.h"
 
 using namespace edm;
 using namespace reco;
@@ -19,6 +21,8 @@ HLTTauMcInfo::HLTTauMcInfo(const edm::ParameterSet& iConfig)
   etaMax = iConfig.getParameter<double>("EtaMax");
   ptMin = iConfig.getParameter<double>("PtMin");
   produces<LorentzVectorCollection>("Leptons");
+  produces<LorentzVectorCollection>("Electrons");
+  produces<LorentzVectorCollection>("Muons");
   produces<LorentzVectorCollection>("Jets");
   produces<LorentzVectorCollection>("Neutrina");
 }
@@ -31,6 +35,9 @@ void HLTTauMcInfo::produce(edm::Event& iEvent, const edm::EventSetup& iES)
   product_Jets_tmp.clear();
 
   auto_ptr<LorentzVectorCollection> product_Leptons(new LorentzVectorCollection);
+  auto_ptr<LorentzVectorCollection> product_Electrons(new LorentzVectorCollection);
+  auto_ptr<LorentzVectorCollection> product_Muons(new LorentzVectorCollection);
+
   auto_ptr<LorentzVectorCollection> product_Jets(new LorentzVectorCollection);
   auto_ptr<LorentzVectorCollection> product_Neutrina(new LorentzVectorCollection);
 
@@ -64,11 +71,15 @@ void HLTTauMcInfo::produce(edm::Event& iEvent, const edm::EventSetup& iES)
 		      {
 			LorentzVector vec((*t)->momentum().px(),(*t)->momentum().py(),(*t)->momentum().pz(),(*t)->momentum().e());
 			product_Leptons->push_back(vec);
+			if((abs(vec.eta())<etaMax)&&(vec.pt()>5))
+			 product_Electrons->push_back(vec);
 		      }
 		    if(abs((*t)->pdg_id()) == 13)
 		      {
 			LorentzVector vec((*t)->momentum().px(),(*t)->momentum().py(),(*t)->momentum().pz(),(*t)->momentum().e());
 			product_Leptons->push_back(vec);
+			if((abs(vec.eta())<etaMax)&&(vec.pt()>2))
+			product_Muons->push_back(vec);
 		      }
 		    if(abs((*t)->pdg_id()) == 16)taunet.SetPxPyPzE((*t)->momentum().px(),(*t)->momentum().py(),(*t)->momentum().pz(),(*t)->momentum().e());
 		    if(abs((*t)->pdg_id()) == 16||abs((*t)->pdg_id()) == 14||abs((*t)->pdg_id()) == 12)
@@ -126,6 +137,8 @@ void HLTTauMcInfo::produce(edm::Event& iEvent, const edm::EventSetup& iES)
   LorentzVector neutrina(neutrina_tmp.Px(),neutrina_tmp.Py(),neutrina_tmp.Pz(),neutrina_tmp.E());
   product_Neutrina->push_back(neutrina);
   iEvent.put(product_Leptons,"Leptons");
+  iEvent.put(product_Electrons,"Electrons");
+  iEvent.put(product_Muons,"Muons");
   iEvent.put(product_Jets,"Jets");
   iEvent.put(product_Neutrina,"Neutrina");
 }
