@@ -3,7 +3,6 @@
 #include "PhysicsTools/Utilities/interface/RootMinuitCommands.h"
 #include "PhysicsTools/Utilities/interface/RootMinuit.h"
 #include "PhysicsTools/Utilities/interface/Parameter.h"
-#include "PhysicsTools/Utilities/interface/Constant.h"
 #include "PhysicsTools/Utilities/interface/rootTf1.h"
 #include "PhysicsTools/Utilities/interface/rootPlot.h"
 #include "TFile.h"
@@ -19,7 +18,7 @@
 
 int main() { 
   gROOT->SetStyle("Plain");
-  typedef funct::Product<funct::Constant, funct::BreitWigner>::type FitFunction;
+  typedef funct::Product<funct::Parameter, funct::BreitWigner>::type FitFunction;
   typedef fit::HistoChiSquare<FitFunction> ChiSquared;
   try {
     fit::RootMinuitCommands<ChiSquared> commands("PhysicsTools/Utilities/test/testZMassFit.txt");
@@ -32,9 +31,8 @@ int main() {
     funct::Parameter mass(kMass, commands.par(kMass));
     funct::Parameter gamma(kGamma, commands.par(kGamma));
     funct::BreitWigner bw(mass, gamma);
-    funct::Constant c(yield);
     
-    FitFunction f = c * bw;
+    FitFunction f = yield * bw;
     TF1 startFun = root::tf1("startFun", f, 0, 200, yield, mass, gamma);
     TH1D histo("histo", "Z mass (GeV/c)", 200, 0, 200);
     histo.FillRandom("startFun", yield);
