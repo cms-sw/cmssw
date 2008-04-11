@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2008/04/11 18:09:11 $
- *  $Revision: 1.2 $
+ *  $Date: 2008/04/11 18:32:54 $
+ *  $Revision: 1.3 $
  *
  *  \author Martin Grunewald
  *
@@ -38,14 +38,12 @@ TriggerSummaryAnalyzerAOD::analyze(const edm::Event& iEvent, const edm::EventSet
 
 
    cout << endl;
-   cout << "TriggerSummaryAnalyzerAOD: content of TriggerEvent: " << inputTag_.encode();
+   cout << "TriggerSummaryAnalyzerAOD: content of TriggerEvent: " << inputTag_.encode() << endl;
 
    Handle<TriggerEvent> handle;
    iEvent.getByLabel(inputTag_,handle);
    if (handle.isValid()) {
-     cout << endl;
      cout << "Used Processname: " << handle->usedProcessName() << endl;
-     cout << endl;
      const size_type nO(handle->sizeObjects());
      cout << "Number of TriggerObjects: " << nO << endl;
      cout << "The TriggerObjects: #, id, pt, eta, phi, mass" << endl;
@@ -56,19 +54,21 @@ TriggerSummaryAnalyzerAOD::analyze(const edm::Event& iEvent, const edm::EventSet
      }
      const size_type nF(handle->sizeFilters());
      cout << "Number of TriggerFilters: " << nF << endl;
-     cout << "The Filters: #, label, #ids==#keys" << endl;
+     cout << "The Filters: #, label, #ids/#keys, the id/key pairs" << endl;
      for (size_type iF=0; iF!=nF; ++iF) {
        const Vids& VIDS (handle->filterIds(iF));
        const Keys& KEYS(handle->filterKeys(iF));
        const size_type nI(VIDS.size());
        const size_type nK(KEYS.size());
-       cout << iF << " " << handle->filterLabel(iF) << " " << nI << "==" << nK << endl;
-       assert (nI==nK);
-       cout << "The Id/Key pairs: #=id/key" << endl;
-       for (size_type iI=0; iI!=nI; ++iI) {
-	 cout << " " << iI << "="<< VIDS[iI] << "/" << KEYS[iK];
+       cout << iF << " " << handle->filterLabel(iF)
+	    << " " << nI << "/" << nK
+	    << " the pairs: ";
+       const size_type n(max(nI,nK));
+       for (size_type i=0; i!=n; ++i) {
+	 cout << " " << VIDS[i] << "/" << KEYS[i];
        }
        cout << endl;
+       assert (nI==nK);
      }
    } else {
      cout << "Handle invalid! Check InputTag provided." << endl;
