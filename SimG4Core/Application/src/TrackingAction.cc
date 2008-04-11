@@ -8,7 +8,8 @@
 #include "SimG4Core/Notification/interface/TrackWithHistory.h"
 #include "SimG4Core/Notification/interface/TrackInformationExtractor.h"
 #include "SimG4Core/Notification/interface/SimG4Exception.h"
- 
+
+#include "G4UImanager.hh" 
 #include "G4TrackingManager.hh"
 
 TrackingAction::TrackingAction(EventAction * e, const edm::ParameterSet & p) 
@@ -21,9 +22,23 @@ TrackingAction::~TrackingAction() {}
 void TrackingAction::PreUserTrackingAction(const G4Track * aTrack)
 {
     CurrentG4Track::setTrack(aTrack);
+
     if (currentTrack_ != 0) 
 	throw SimG4Exception("TrackingAction: currentTrack is a mess...");
     currentTrack_ = new TrackWithHistory(aTrack);
+
+    /*
+      Trick suggested by Vladimir I. in order to debug with high 
+      level verbosity only a single problematic tracks
+    */      
+
+    /*
+    if ( aTrack->GetTrackID() == palce_here_the_trackid_of_problematic_tracks  ) {
+      G4UImanager::GetUIpointer()->ApplyCommand("/tracking/verbose 6");
+    } else if ( aTrack->GetTrackID() == place_here_the_trackid_of_following_track_to_donwgrade_the_severity ) {
+      G4UImanager::GetUIpointer()->ApplyCommand("/tracking/verbose 0");
+    }
+    */
     BeginOfTrack bt(aTrack);
     m_beginOfTrackSignal(&bt);
 }
