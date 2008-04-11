@@ -3,6 +3,7 @@
 #include "CLHEP/Vector/EulerAngles.h"
 #include "CLHEP/Vector/Rotation.h"
 #include "CLHEP/Vector/ThreeVector.h"
+#include "CLHEP/Geometry/Transform3D.h"
 
 #include "CondFormats/Alignment/interface/Definitions.h"
 
@@ -15,6 +16,7 @@ public:
   typedef CLHEP::HepEulerAngles EulerAngles;
   typedef CLHEP::Hep3Vector     Translation;
   typedef CLHEP::HepRotation    Rotation;
+  typedef HepTransform3D Transform;
 
   /// Default constructor
   AlignTransform(){}
@@ -39,8 +41,14 @@ public:
   /// Do not expose Euler angles since we may change its type later
   //   const EulerAngles & eulerAngles() const { return m_eulerAngles; }
   align::ID rawId() const { return m_rawId; }
-  Rotation rotation() const { return Rotation(m_eulerAngles); }
 
+  Rotation rotation() const 
+  { //std::cout<<"Inside aligntransform::rotation() with id="<<std::hex<<m_rawId<<std::dec<<std::endl ;
+     //std::cout<<" for e.a.="<<m_eulerAngles<<std::endl;
+     return Rotation(m_eulerAngles); }
+
+  Transform transform() const { return Transform( rotation(), translation() ) ; }  
+      
  private:
 
   Translation m_translation;
