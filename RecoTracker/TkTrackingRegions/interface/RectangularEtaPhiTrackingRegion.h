@@ -59,7 +59,7 @@ public:
     : TrackingRegionBase( dir, vertexPos, Range( -1/ptMin, 1/ptMin), 
 			  rVertex, zVertex),
    thePhiMargin( Margin( fabs(deltaPhi),fabs(deltaPhi))),
-   thePrecise(precise)
+   theTemporaryFix(dummy), thePrecise(precise)
    { initEtaRange(dir, Margin( fabs(deltaEta),fabs(deltaEta))); }
  
  /** constructor (asymmetrinc eta and phi margins). <BR>
@@ -75,7 +75,7 @@ public:
                                    Margin phiMargin,
                                    float dummy = 0., bool precise = true) 
     : TrackingRegionBase( dir, vertexPos, Range( -1/ptMin, 1/ptMin), 
-      rVertex, zVertex), thePhiMargin( phiMargin), thePrecise(precise)
+      rVertex, zVertex), thePhiMargin( phiMargin), theTemporaryFix(dummy), thePrecise(precise)
     { initEtaRange(dir, etaMargin); }
 
  /** constructor (explicit pt range, asymmetrinc eta and phi margins). <BR>
@@ -91,7 +91,7 @@ public:
                                    float dummy = 0.,
                                    bool precise = true) 
     : TrackingRegionBase( dir, vertexPos, invPtRange, rVertex, zVertex),
-      thePhiMargin( phiMargin), thePrecise(precise)
+      thePhiMargin( phiMargin), theTemporaryFix(dummy), thePrecise(precise)
     { initEtaRange(dir, etaMargin); }
 
 
@@ -136,6 +136,7 @@ private:
 
   Range theEtaRange;
   Margin thePhiMargin;
+  double theTemporaryFix;
   bool thePrecise;
 
 };

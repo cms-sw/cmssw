@@ -292,7 +292,13 @@ std::vector< SeedingHit> RectangularEtaPhiTrackingRegion::hits(
   }
   if (!est) return result;
 
-/*
+  bool measurementMethod = false;
+  if ( theTemporaryFix > 0.5) measurementMethod = true;
+  if ( theTemporaryFix > -0.5 &&
+       !(detLayer->subDetector() == GeomDetEnumerators::PixelBarrel ||
+         detLayer->subDetector() == GeomDetEnumerators::PixelEndcap) ) measurementMethod = true;
+
+  if(measurementMethod) {
   edm::ESHandle<MagneticField> field;
   es.get<IdealMagneticFieldRecord>().get(field);
   const MagneticField * magField = field.product();
@@ -330,9 +336,7 @@ std::vector< SeedingHit> RectangularEtaPhiTrackingRegion::hits(
       result.push_back(  SeedingHit( ptrHit, *layer));
     }
   }
-*/
-
-//
+  } else {
   //
   // temporary solution 
   //
@@ -340,9 +344,11 @@ std::vector< SeedingHit> RectangularEtaPhiTrackingRegion::hits(
   Hits layerHits = layer->hits(ev,es);
   for (Hits::const_iterator ih= layerHits.begin(); ih != layerHits.end(); ih++) {
     const TrackingRecHit * hit = *ih;
-    if ( est->hitCompatibility()(hit,es) ) result.push_back( *ih );
+    if ( est->hitCompatibility()(hit,es) ) {
+       result.push_back( *ih );
+    }
   }
-//
+  }
   
   delete est;
   return result;
