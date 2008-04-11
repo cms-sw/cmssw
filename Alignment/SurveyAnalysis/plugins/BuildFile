@@ -1,3 +1,4 @@
+<use name=Alignment/CommonAlignmentAlgorithm>
 <use name=Alignment/MuonAlignment>
 <use name=Alignment/SurveyAnalysis>
 <use name=Alignment/TrackerAlignment>
