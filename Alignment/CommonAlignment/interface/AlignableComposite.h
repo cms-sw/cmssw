@@ -29,7 +29,7 @@ public:
   /// Constructor for a composite with given rotation.
   /// Position is found from average of daughters' positions later.
   /// Default values for backward compatibility with MuonAlignment.
-  AlignableComposite( align::ID = 0,
+  AlignableComposite( align::ID id = 0,
 		      StructureType = align::invalid,
 		      const RotationType& = RotationType() );
 
@@ -38,7 +38,7 @@ public:
 
   /// Add a component and set its mother to this alignable.
   /// (Note: The component will be adopted, e.g. later deleted.)
-  /// Also find average position of this composite from its sensors' positions.
+  /// Also find average position of this composite from its modules' positions.
   virtual void addComponent( Alignable* component );
 
   /// Return vector of direct components
