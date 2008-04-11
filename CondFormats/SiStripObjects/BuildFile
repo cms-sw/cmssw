@@ -5,6 +5,8 @@
 <use name=FWCore/Utilities>
 <use name=boost>
 <use name=rootrflx>
+<use name=rootcore>
+<use name=root>
 <export>
   <use name=boost>
   <lib name=CondFormatsSiStripObjects>
