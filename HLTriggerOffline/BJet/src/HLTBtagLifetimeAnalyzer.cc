@@ -205,7 +205,7 @@ void HLTBtagLifetimeAnalyzer::beginJob(const edm::EventSetup & setup)
   m_mcPlots.resize( m_levels.size() );
   m_offlinePlots.resize( m_levels.size() );
  
-  m_ratePlots.init( "Rates", "Rates", m_levels.size() );  
+  m_ratePlots.init( "Event", "Event", m_levels.size() );  
   m_vertexPlots.init( "PrimaryVertex", "Primary vertex", vertex1DBins, m_vertexMaxZ, m_vertexMaxR );
   
   for (unsigned int i = 0; i < m_levels.size(); ++i) {
