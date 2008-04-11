@@ -80,9 +80,6 @@ HcalConstantsASCIIWriter::analyze(const edm::Event& iEvent, const edm::EventSetu
     map<HcalDetId,float> corrold;
     map<HcalDetId,float> corrnew; 
     
-//    float corrold[4][4][2][4][42][72];
-//    float corrnew[4][4][2][4][42][72];
-    
     int mydet,mysubd,depth,ieta,iphi;
     float coradd;
      
@@ -92,12 +89,6 @@ HcalConstantsASCIIWriter::analyze(const edm::Event& iEvent, const edm::EventSetu
     
       HcalDetId hid = HcalDetId(*i);
       theVector.push_back(hid);
-      mydet = ((hid).rawId()>>28)&0xF;
-      mysubd = ((hid).rawId()>>25)&0x7;
-      depth =(hid).depth();
-      ieta = (hid).ieta();
-      iphi = (hid).iphi();
-//      corrold[mydet][mysubd][depth][ieta][iphi] = (oldRespCorrs->getValues(*i))->getValue();
       corrold[hid] = (oldRespCorrs->getValues(*i))->getValue();
       
     }
@@ -118,7 +109,6 @@ HcalConstantsASCIIWriter::analyze(const edm::Event& iEvent, const edm::EventSetu
       double par;
       int type;
       linestream>>mydet>>mysubd>>depth>>ieta>>iphi>>coradd;
-//      corrnew[mydet][mysubd][depth][ieta][iphi] = coradd;
         HcalDetId  hid(HcalSubdetector(mysubd),ieta,iphi,depth);
         corrnew[hid] =  coradd; 
     } 
@@ -130,33 +120,11 @@ HcalConstantsASCIIWriter::analyze(const edm::Event& iEvent, const edm::EventSetu
      float cc1 = (*corrold.find(*it)).second;
      float cc2 = (*corrnew.find(*it)).second;
      float cc = cc1*cc2;
-//      float cc = corrnew[i][j][k][l][m]*corrold[i][j][k][l][m];
   // now make the basic object for one cell with HcalDetId myDetId containing the value myValue
       HcalRespCorr item ((*it).rawId(), cc);
       bool rr = mycorrections->addValues(item);
    }   
 
-/*     
-    for (int i = 0 ; i < 4 ; i++)
-    {
-      for (int j = 0 ; j < 4 ; j++)
-      {
-        for (int k = 0 ; k < 4 ; k++)
-        {
-          for (int l = 0 ; l < 42 ; l++)
-          {
-            for (int m = 0 ; m < 72 ; m++)
-              {
-      float cc = corrnew[i][j][k][l][m]*corrold[i][j][k][l][m];
-  // now make the basic object for one cell with HcalDetId myDetId containing the value myValue
-      HcalRespCorr item (dd[i].rawId(), cc);
-      bool rr = mycorrections->addValues(item);
-              }
-          }
-       }
-     }
-    }
-*/
     HcalRespCorrs mycc = *mycorrections;
     HcalDbASCIIIO::dumpObject (*myout_hcal, mycc);
 
