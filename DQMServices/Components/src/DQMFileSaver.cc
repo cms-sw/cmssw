@@ -18,7 +18,8 @@ getAnInt(const edm::ParameterSet &ps, int &value, const std::string &name)
   value = ps.getUntrackedParameter<int>(name, value);
   if (value < 1 && value != -1)
     throw cms::Exception("DQMFileSaver")
-      << "Invalid '" << name << "' parameter.  Must be -1 or >= 1.";
+      << "Invalid '" << name << "' parameter '" << value
+      << "'.  Must be -1 or >= 1.";
 }
 
 static void
@@ -31,7 +32,7 @@ saveForOffline(DQMStore *dbe,
   sprintf(suffix, "R%09d", run);
 
   char rewrite[64];
-  sprintf(rewrite, "Run %d/\\1/Run summary", run);
+  sprintf(rewrite, "Run %d/\\1/Run summary/", run);
 
   size_t pos = 0;
   std::string wflow;
@@ -41,7 +42,7 @@ saveForOffline(DQMStore *dbe,
     wflow.replace(pos++, 1, "__");
 
   dbe->save(fileBaseName + suffix + wflow + ".root",
-	     "", "^([^/]+)", rewrite);
+	     "", "^([^/]+)/", rewrite);
 }
 
 static void
@@ -53,7 +54,7 @@ saveForOnline(DQMStore *dbe,
   std::vector<std::string> systems = (dbe->cd(), dbe->getSubdirs());
   for (size_t i = 0, e = systems.size(); i != e; ++i)
     dbe->save(fileBaseName + systems[i] + suffix + ".root",
-	      systems[i], "^([^/]+)", rewrite);
+	      systems[i], "^([^/]+)/", rewrite);
 }
 
 //--------------------------------------------------------
@@ -93,8 +94,8 @@ DQMFileSaver::DQMFileSaver(const edm::ParameterSet &ps)
   }
   else
     throw cms::Exception("DQMFileSaver")
-      << "Invalid 'convention' parameter."
-      << "  Expected one of 'Online', 'Offline' or 'RelVal'";
+      << "Invalid 'convention' parameter '" << convention << "'."
+      << "  Expected one of 'Online', 'Offline' or 'RelVal'.";
 
   // If this isn't online convention, check workflow.
   if (convention_ != Online)
@@ -102,14 +103,15 @@ DQMFileSaver::DQMFileSaver(const edm::ParameterSet &ps)
     workflow_ = ps.getUntrackedParameter<std::string>("workflow", workflow_);
     if (workflow_.empty()
 	|| workflow_[0] != '/'
-	|| workflow_[workflow_.size()-1] == '/'
-	|| std::count(workflow_.begin(), workflow_.end(), '/') != 2
+	|| *workflow_.rbegin() == '/'
+	|| std::count(workflow_.begin(), workflow_.end(), '/') != 3
         || workflow_.find_first_not_of("ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 				       "abcdefghijklmnopqrstuvwxyz"
 				       "0123456789"
 				       "-_/") != std::string::npos)
       throw cms::Exception("DQMFileSaver")
-	<< "Invalid 'workflow' parameter.  Expected '/A/B/C'.";
+	<< "Invalid 'workflow' parameter '" << workflow_
+	<< "'.  Expected '/A/B/C'.";
   }
   else if (! ps.getUntrackedParameter<std::string>("workflow", "").empty())
     throw cms::Exception("DQMFileSaver")
@@ -123,12 +125,14 @@ DQMFileSaver::DQMFileSaver(const edm::ParameterSet &ps)
       && producer_ != "Playback")
   {
     throw cms::Exception("DQMFileSaver")
-      << "Invalid 'producer' parameter.  Expected 'DQM', 'HLTDQM' or 'Playback'.";
+      << "Invalid 'producer' parameter '" << producer_
+      << "'.  Expected 'DQM', 'HLTDQM' or 'Playback'.";
   }
   else if (convention_ != Online && producer_ != "DQM")
   {
     throw cms::Exception("DQMFileSaver")
-      << "Invalid 'producer' parameter.  Expected 'DQM'.";
+      << "Invalid 'producer' parameter '" << producer_
+      << "'.  Expected 'DQM'.";
   }
 
   // In RelVal mode use workflow "stream" name instead of producer label.
@@ -140,7 +144,7 @@ DQMFileSaver::DQMFileSaver(const edm::ParameterSet &ps)
   dirName_ = ps.getUntrackedParameter<std::string>("dirName", dirName_);
   if (dirName_.empty() || stat(dirName_.c_str(), &s) == -1)
     throw cms::Exception("DQMFileSaver")
-      << "Invalid 'dirName' parameter.";
+      << "Invalid 'dirName' parameter '" << dirName_ << "'.";
 
   // Find out when and how to save files.  The following contraints apply:
   // - For online, allow files to be saved at lumi, event and time intervals.
@@ -161,6 +165,10 @@ DQMFileSaver::DQMFileSaver(const edm::ParameterSet &ps)
   {
     getAnInt(ps, forceRunNumber_, "forceRunNumber");
     saveAtJobEnd_ = ps.getUntrackedParameter<bool>("saveAtJobEnd", saveAtJobEnd_);
+    if (convention_ == RelVal && ! saveAtJobEnd_)
+      saveAtJobEnd_ = true;
+    if (convention_ == RelVal && forceRunNumber_ == -1)
+      forceRunNumber_ = 1;
   }
 
   if (saveAtJobEnd_ && forceRunNumber_ < 1)
@@ -174,7 +182,7 @@ DQMFileSaver::DQMFileSaver(const edm::ParameterSet &ps)
   saved_ = start_;
 
   // Log some information what we will do.
-  edm::LogVerbatim("DQMFileSaver")
+  edm::LogInfo("DQMFileSaver")
     << "DQM file saving settings:\n"
     << " using base file name '" << fileBaseName_ << "'\n"
     << " forcing run number " << forceRunNumber_ << "\n"
@@ -220,20 +228,20 @@ void DQMFileSaver::analyze(const edm::Event &e, const edm::EventSetup &)
   char suffix[64];
   if (ievent_ > 0 && saveByEvent_ > 0 && nevent_ == saveByEvent_)
   {
-    if (convention_ == Online)
+    if (convention_ != Online)
       throw cms::Exception("DQMFileSaver")
 	<< "Internal error, can save files by event"
 	<< " only in Online mode.";
 
-    sprintf(suffix, "R%09d_E%08d.root", irun_, ievent_);
-    saveForOnline(dbe_, fileBaseName_, suffix, "\\1");
+    sprintf(suffix, "_R%09d_E%08d", irun_, ievent_);
+    saveForOnline(dbe_, fileBaseName_, suffix, "\\1/");
     nevent_ = 0;
   }
 
   // Check if we should save due to elapsed time.
   if (ievent_ > 0 && saveByMinute_ > 0)
   {
-    if (convention_ == Online)
+    if (convention_ != Online)
       throw cms::Exception("DQMFileSaver")
 	<< "Internal error, can save files by time"
 	<< " only in Online mode.";
@@ -250,8 +258,8 @@ void DQMFileSaver::analyze(const edm::Event &e, const edm::EventSetup &)
       saved_ = tv;
       elapsed = ((tv.tv_sec + tv.tv_usec*1e-6)
 		 - (start_.tv_sec + start_.tv_usec*1e-6)) / 60;
-      sprintf(suffix, "R%09d_T%08d.root", irun_, int(time));
-      saveForOnline(dbe_, fileBaseName_, suffix, "\\1");
+      sprintf(suffix, "_R%09d_T%08d", irun_, int(elapsed));
+      saveForOnline(dbe_, fileBaseName_, suffix, "\\1/");
     }
   }
 }
@@ -261,15 +269,15 @@ DQMFileSaver::endLuminosityBlock(const edm::LuminosityBlock &, const edm::EventS
 {
   if (ilumi_ > 0 && saveByLumiSection_ > 0 && nlumi_ == saveByLumiSection_)
   {
-    if (convention_ == Online)
+    if (convention_ != Online)
       throw cms::Exception("DQMFileSaver")
 	<< "Internal error, can save files at end of lumi block"
 	<< " only in Online mode.";
 
     char suffix[64];
     char rewrite[128];
-    sprintf(suffix, "R%09d_L%06d", irun_, ilumi_);
-    sprintf(rewrite, "Run %d/\\1/By Lumi Section %d:%d", irun_, ilumiprev_, ilumi_);
+    sprintf(suffix, "_R%09d_L%06d", irun_, ilumi_);
+    sprintf(rewrite, "Run %d/\\1/By Lumi Section %d:%d/", irun_, ilumiprev_, ilumi_);
     saveForOnline(dbe_, fileBaseName_, suffix, rewrite);
     ilumiprev_ = -1;
     nlumi_ = 0;
@@ -283,8 +291,8 @@ DQMFileSaver::endRun(const edm::Run &, const edm::EventSetup &)
   {
     if (convention_ == Online)
     {
-      char suffix[64]; sprintf(suffix, "R%09d", irun_);
-      char rewrite[64]; sprintf(rewrite, "Run %d/\\1/Run summary", irun_);
+      char suffix[64]; sprintf(suffix, "_R%09d", irun_);
+      char rewrite[64]; sprintf(rewrite, "Run %d/\\1/Run summary/", irun_);
       saveForOnline(dbe_, fileBaseName_, suffix, rewrite);
     }
     else if (convention_ == Offline)
@@ -308,12 +316,12 @@ DQMFileSaver::endJob(void)
       size_t pos;
       std::string release = edm::getReleaseVersion();
       while ((pos = release.find('"')) != std::string::npos)
-	release.erase(pos);
+	release.erase(pos, 1);
 
       pos = fileBaseName_.rfind('/');
       std::string stream = fileBaseName_.substr(pos+1, fileBaseName_.size()-pos-2);
       dbe_->save(fileBaseName_ + release + ".root", "",
-		 "^([^/]+)", stream + "/\\1");
+		 "^([^/]+)/", stream + "/\\1/");
     }
     else if (convention_ == Offline && forceRunNumber_ > 0)
       saveForOffline(dbe_, fileBaseName_, workflow_, forceRunNumber_);
