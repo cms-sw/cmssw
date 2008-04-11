@@ -417,7 +417,8 @@ void SiPixelRecHitsInputDistributionsMaker::fillBarrel(const SiPixelRecHit& recH
   float betaToBeUsedForRootFiles  = fabs( PI/2. - beta );
 
   //get cluster
-  edm::Ref<edm::DetSetVector<SiPixelCluster>, SiPixelCluster> const& clust = recHit.cluster();
+  SiPixelRecHit::ClusterRef const& clust = recHit.cluster();
+
   int sizeX = (*clust).sizeX();
   int sizeY = (*clust).sizeY();
   int firstPixelInX = (*clust).minPixelRow();
@@ -592,7 +593,8 @@ void SiPixelRecHitsInputDistributionsMaker::fillForward(const SiPixelRecHit & re
   float res_y = (lp.y() - sim_ypos)*cmtomicron;
   
   // get cluster
-  edm::Ref<edm::DetSetVector<SiPixelCluster>, SiPixelCluster> const& clust = recHit.cluster();
+  SiPixelRecHit::ClusterRef const& clust = recHit.cluster();
+
   int sizeX = (*clust).sizeX();
   int sizeY = (*clust).sizeY();
   int firstPixelInX = (*clust).minPixelRow();
