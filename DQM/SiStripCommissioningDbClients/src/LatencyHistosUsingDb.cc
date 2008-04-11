@@ -1,4 +1,4 @@
-// Last commit: $Id: LatencyHistosUsingDb.cc,v 1.7 2008/03/06 18:16:07 delaer Exp $
+// Last commit: $Id: LatencyHistosUsingDb.cc,v 1.8 2008/04/10 15:01:50 delaer Exp $
 
 #include "DQM/SiStripCommissioningDbClients/interface/LatencyHistosUsingDb.h"
 #include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
@@ -227,7 +227,7 @@ bool LatencyHistosUsingDb::update( SiStripConfigDb::DeviceDescriptions& devices,
          << (*ifed)->getCoarseDelay( fedChannel) << "/" << (*ifed)->getFineDelay( fedChannel)
          << " to ";
       (*ifed)->setDelay(fedChannel, fedDelayCoarse, fedDelayFine);
-      ss << (*ifed)->getCoarseDelay(fedChannel) << "/" << (*ifed)->getFineDelay( fedChannel) << std::endl;
+      ss << (*ifed)->getCoarseDelay(fedChannel) << "/" << (*ifed)->getFineDelay( fedChannel);
       LogTrace(mlDqmClient_) << ss.str();
     }
   }
