@@ -44,11 +44,11 @@ struct RatePlots {
   unsigned int rate(unsigned int level) const
   {
     unsigned int value = 0;
-    if (level > m_rates->GetNbinsX())
+    if (level > (unsigned int) m_rates->GetNbinsX())
       value = 0;
     else
       // I *hate* the way ROOT handles bins - it's a capital offence by itself
-      value = m_rates->GetBinContent( level+1 );
+      value = (unsigned int) m_rates->GetBinContent( level+1 );
     return value;
   }
  
@@ -59,7 +59,7 @@ struct RatePlots {
     double value = 0.;
     if (level == 0)
       value = 1.;
-    else if (level > m_rates->GetNbinsX())
+    else if (level > (unsigned int) m_rates->GetNbinsX())
       value = NAN;
     else if (m_rates->GetBinContent( level ) == 0)
       value = NAN;
@@ -73,7 +73,7 @@ struct RatePlots {
   double efficiency(unsigned int level) const
   {
     double value = 0.;
-    if (level > m_rates->GetNbinsX())
+    if (level > (unsigned int) m_rates->GetNbinsX())
       value = NAN;
     else if (m_rates->GetBinContent( 1 ) == 0)
       value = NAN;
