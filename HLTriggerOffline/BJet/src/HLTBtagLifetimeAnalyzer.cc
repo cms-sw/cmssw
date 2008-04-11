@@ -5,10 +5,10 @@
 #include <sstream>
 #include <iomanip>
 #include <algorithm>
+#include <cmath>
 
 #include <TFile.h>
 #include <TH1.h>
-#include <TH3.h>
 #include <Math/GenVector/VectorUtil.h>
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -34,6 +34,7 @@
 #include "HLTriggerOffline/BJet/interface/OfflineJetPlots.h"
 #include "HLTriggerOffline/BJet/interface/FlavouredJetPlots.h"
 #include "HLTriggerOffline/BJet/interface/VertexPlots.h"
+#include "HLTriggerOffline/BJet/interface/RatePlots.h"
 
 // force LogDebug statements to be generated
 #define ML_DEBUG
@@ -94,9 +95,6 @@ private:
   edm::InputTag             m_vertex;           // primary vertex
   std::vector<InputData>    m_levels;
 
-  // counters for per-event efficiencies
-  std::vector<unsigned int> m_events;           // number of jets passing each level
-
   // match to MC truth
   edm::InputTag             m_mcPartons;        // MC truth match - jet association to partons
   std::vector<std::string>  m_mcLabels;         // MC truth match - labels
@@ -122,6 +120,7 @@ private:
   double m_vertexMaxZ;
 
   // plot data
+  RatePlots                         m_ratePlots;    // number of events paassing each level
   VertexPlots                       m_vertexPlots;
   std::vector<JetPlots>             m_jetPlots;
   std::vector<FlavouredJetPlots>    m_mcPlots;
@@ -142,7 +141,6 @@ HLTBtagLifetimeAnalyzer::HLTBtagLifetimeAnalyzer(const edm::ParameterSet & confi
   m_triggerResults( config.getParameter<edm::InputTag>("triggerResults") ),
   m_vertex( config.getParameter<edm::InputTag>("vertex") ),
   m_levels(),
-  m_events(),
   m_mcPartons( config.getParameter<edm::InputTag>("mcPartons") ),
   m_mcLabels(),
   m_mcFlavours(),
@@ -158,6 +156,7 @@ HLTBtagLifetimeAnalyzer::HLTBtagLifetimeAnalyzer(const edm::ParameterSet & confi
   m_jetMaxEta( 5. ),        //  ±5 pseudorapidity units
   m_vertexMaxR( 0.1 ),      //   1 mm
   m_vertexMaxZ( 15. ),      //  15 cm
+  m_ratePlots(),
   m_vertexPlots(),
   m_jetPlots(),
   m_mcPlots(),
@@ -202,18 +201,18 @@ HLTBtagLifetimeAnalyzer::~HLTBtagLifetimeAnalyzer()
 
 void HLTBtagLifetimeAnalyzer::beginJob(const edm::EventSetup & setup) 
 {
-  m_events.resize( m_levels.size(), 0 );
   m_jetPlots.resize( m_levels.size() );
   m_mcPlots.resize( m_levels.size() );
   m_offlinePlots.resize( m_levels.size() );
+ 
+  m_ratePlots.init( "Rates", "Rates", m_levels.size() );  
+  m_vertexPlots.init( "PrimaryVertex", "Primary vertex", vertex1DBins, m_vertexMaxZ, m_vertexMaxR );
   
   for (unsigned int i = 0; i < m_levels.size(); ++i) {
     m_jetPlots[i].init(     m_levels[i].m_name, m_levels[i].m_title,                                 jetEnergyBins, m_jetMinEnergy, m_jetMaxEnergy, jetGeometryBins, m_jetMaxEta, m_levels[i].m_tracks.label() != "none" );
     m_mcPlots[i].init(      m_levels[i].m_name, m_levels[i].m_title, m_mcFlavours,  m_mcLabels,      jetEnergyBins, m_jetMinEnergy, m_jetMaxEnergy, jetGeometryBins, m_jetMaxEta, m_levels[i].m_tracks.label() != "none" );
     m_offlinePlots[i].init( m_levels[i].m_name, m_levels[i].m_title, m_offlineCuts, m_offlineLabels, jetEnergyBins, m_jetMinEnergy, m_jetMaxEnergy, jetGeometryBins, m_jetMaxEta, m_levels[i].m_tracks.label() != "none" );
   }
-  
-  m_vertexPlots.init( "PrimaryVertex", "Primary vertex", vertex1DBins, m_vertexMaxZ, m_vertexMaxR );
 }
 
 // access and cache the description of the HLT path and filters
@@ -316,6 +315,7 @@ void HLTBtagLifetimeAnalyzer::analyze(const edm::Event & event, const edm::Event
   event.getByLabel(m_offlineBJets, h_offlineBJets);
   const reco::JetTagCollection & offlineBJets = * h_offlineBJets;
 
+  m_ratePlots.fill(0);
   for (unsigned int l = 0; l < m_levels.size(); ++l) {
     const InputData & level = m_levels[l];
 
@@ -334,7 +334,7 @@ void HLTBtagLifetimeAnalyzer::analyze(const edm::Event & event, const edm::Event
     
     if (passed) {
       // event did pass this filter, analyze the content
-      ++m_events[l];
+      m_ratePlots.fill(l+1);    // 0 for no filters, 1 for 1st filter, ...
 
       if (h_jets.isValid()) {
         const edm::View<reco::Jet> & jets = * h_jets;
@@ -377,20 +377,25 @@ void HLTBtagLifetimeAnalyzer::endJob()
 {
   // print event rates
   edm::LogVerbatim("HLTBtagAnalyzer") << m_triggerPath << " HLT Trigger path" << std::endl << std::endl;
+  {
+    std::stringstream out;
+    out << std::setw(64) << std::left << "total number of events: " << std::right << std::setw(12) << m_ratePlots.rate(0);
+    edm::LogVerbatim("HLTBtagAnalyzer") << m_triggerPath << ":" << out.str() << std::endl;
+  }
   for (unsigned int i = 0; i < m_levels.size(); ++i) {
     std::stringstream out;
-    out << std::setw(64) << std::left << ("events passing " + m_levels[i].m_title) << std::right << std::setw(12) << m_events[i];
+    out << std::setw(64) << std::left << ("events passing " + m_levels[i].m_title) << std::right << std::setw(12) << m_ratePlots.rate(i+1);
     edm::LogVerbatim("HLTBtagAnalyzer") << m_triggerPath << ":" << out.str() << std::endl;
   }
   if (m_doStepEfficiencies) for (unsigned int i = 1; i < m_levels.size(); ++i) {
     // compute and print step-by-step event efficiencies
     std::stringstream out;
     out << std::setw(64) << std::left << ("step efficiency at " + m_levels[i].m_title);
-    if (m_events[i-1] > 0) {
-      double eff = (double) m_events[i] / (double) m_events[i-1];
+    double eff = m_ratePlots.stepEfficiency(i+1);
+    if (std::isnormal(eff)) {
       out << std::right << std::setw(11) << std::fixed << std::setprecision(2) << eff * 100. << "%";
     } else {
-      out << std::right << std::setw(12) << "NaN";
+      out << std::right << std::setw(12) << "n/a";
     }
     edm::LogVerbatim("HLTBtagAnalyzer") << m_triggerPath << ":" << out.str() << std::endl;
   }
@@ -398,11 +403,11 @@ void HLTBtagLifetimeAnalyzer::endJob()
     // compute and print cumulative event efficiencies
     std::stringstream out;
     out << std::setw(64) << std::left << ("cumulative efficiency at " + m_levels[i].m_title);
-    if (m_events[0] > 0) {
-      double eff = (double) m_events[i] / (double) m_events[0];
+    double eff = m_ratePlots.efficiency(i+1);
+    if (std::isnormal(eff)) {
       out << std::right << std::setw(11) << std::fixed << std::setprecision(2) << eff * 100. << "%";
     } else {
-      out << std::right << std::setw(12) << "NaN";
+      out << std::right << std::setw(12) << "n/a";
     }
     edm::LogVerbatim("HLTBtagAnalyzer") << m_triggerPath << ":" << out.str() << std::endl;
   }
