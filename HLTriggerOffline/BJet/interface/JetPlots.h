@@ -39,9 +39,14 @@ struct JetPlots {
     m_geometryBins  = geometryBins;
     m_maxEta        = maxEta;
     m_hasTracks     = hasTracks;
-    
+   
+    // enable sum-of-squares for all plots
     bool sumw2 = TH1::GetDefaultSumw2();
     TH1::SetDefaultSumw2(true);
+    // disable directory association for all plots
+    bool setdir = TH1::AddDirectoryStatus();
+    TH1::AddDirectory(false);
+
     m_jetEnergy = new TH1F((m_name + "_jets_energy").c_str(), (m_title + " jets energy").c_str(), m_energyBins,    m_minEnergy, m_maxEnergy);
     m_jetET     = new TH1F((m_name + "_jets_ET").c_str(),     (m_title + " jets ET").c_str(),     m_energyBins,    m_minEnergy, m_maxEnergy);
     m_jetEta    = new TH1F((m_name + "_jets_eta").c_str(),    (m_title + " jets eta").c_str(),    m_geometryBins, -m_maxEta,    m_maxEta);
@@ -52,7 +57,11 @@ struct JetPlots {
       m_tracksEta    = new TH1F((m_name + "_tracks_eta").c_str(),    ("Tracks in " + m_title + " jets vs. jet eta").c_str(),    m_geometryBins, -m_maxEta,    m_maxEta);
       m_tracksPhi    = new TH1F((m_name + "_tracks_phi").c_str(),    ("Tracks in " + m_title + " jets vs. jet phi").c_str(),    m_geometryBins, -M_PI,        M_PI);
     }
+
+    // reset sum-of-squares status
     TH1::SetDefaultSumw2(sumw2);
+    // reset directory association status
+    TH1::AddDirectory(setdir);
   }
 
   void fill(const reco::Jet & jet) {
