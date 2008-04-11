@@ -10,8 +10,8 @@
 // Created:         Wed Mar 15 13:00:00 UTC 2006
 //
 // $Author: noeding $
-// $Date: 2008/02/24 17:08:48 $
-// $Revision: 1.48 $
+// $Date: 2008/04/05 12:39:51 $
+// $Revision: 1.49 $
 //
 
 #include <vector>
@@ -86,6 +86,7 @@ RoadSearchTrackCandidateMakerAlgorithm::RoadSearchTrackCandidateMakerAlgorithm(c
   nFoundMin_      = conf_.getParameter<int>("nFoundMin");
   
   initialVertexErrorXY_  = conf_.getParameter<double>("InitialVertexErrorXY");
+  splitMatchedHits_  = conf_.getParameter<bool>("SplitMatchedHits");
 
   measurementTrackerName_ = conf_.getParameter<std::string>("MeasurementTrackerName");
   
@@ -1675,7 +1676,7 @@ TrackCandidateCollection RoadSearchTrackCandidateMakerAlgorithm::PrepareTrackCan
         if (it->isValid()){
 
            edm::OwnVector<TrackingRecHit> goodHits;
-           TransientTrackingRecHit::ConstRecHitContainer ttHits = it->recHits();
+           TransientTrackingRecHit::ConstRecHitContainer ttHits = it->recHits(splitMatchedHits_);
            for (TransientTrackingRecHit::ConstRecHitContainer::const_iterator rhit=ttHits.begin(); rhit!=ttHits.end(); ++rhit){
               goodHits.push_back((*rhit)->hit()->clone());
            }
