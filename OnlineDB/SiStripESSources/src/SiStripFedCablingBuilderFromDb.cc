@@ -1,4 +1,4 @@
-// Last commit: $Id: SiStripFedCablingBuilderFromDb.cc,v 1.44 2008/03/27 13:26:33 bainbrid Exp $
+// Last commit: $Id: SiStripFedCablingBuilderFromDb.cc,v 1.45 2008/03/28 15:34:03 bainbrid Exp $
 
 #include "OnlineDB/SiStripESSources/interface/SiStripFedCablingBuilderFromDb.h"
 #include "CalibFormats/SiStripObjects/interface/SiStripFecCabling.h"
@@ -260,7 +260,7 @@ void SiStripFedCablingBuilderFromDb::buildFecCablingFromFedConnections( SiStripC
   
   // ---------- Retrieve necessary descriptions from database ----------
   
-  const SiStripConfigDb::FedConnections& conns = db->getFedConnections();
+  SiStripConfigDb::FedConnections::range conns = db->getFedConnections();
   if ( conns.empty() ) { 
     edm::LogError(mlCabling_) 
       << "[SiStripFedCablingBuilderFromDb::" << __func__ << "]"
@@ -273,8 +273,9 @@ void SiStripFedCablingBuilderFromDb::buildFecCablingFromFedConnections( SiStripC
   
   // ---------- Populate FEC cabling object with retrieved info ----------
 
-  SiStripConfigDb::FedConnections::const_iterator ifed = conns.begin();
-  for ( ; ifed != conns.end(); ifed++ ) {
+  std::vector<SiStripConfigDb::FedConnection*>::const_iterator ifed = conns.begin();
+  std::vector<SiStripConfigDb::FedConnection*>::const_iterator jfed = conns.end();
+  for ( ; ifed != jfed; ++ifed ) {
     
     if ( !(*ifed) ) {
       edm::LogWarning(mlCabling_)
