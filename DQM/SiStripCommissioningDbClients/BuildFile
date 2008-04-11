@@ -9,6 +9,7 @@
 <use name=OnlineDB/SiStripConfigDb>
 <use name=OnlineDB/SiStripESSources>
 <use name=boost>
+<use name=root>
 <use name=xdaq>
 
 <export>
