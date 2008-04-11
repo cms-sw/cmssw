@@ -1,11 +1,10 @@
-#include "PhysicsTools/Utilities/interface/BreitWigner.h"
 #include "PhysicsTools/Utilities/interface/HistoChiSquare.h"
 #include "PhysicsTools/Utilities/interface/RootMinuitCommands.h"
 #include "PhysicsTools/Utilities/interface/RootMinuit.h"
 #include "PhysicsTools/Utilities/interface/Parameter.h"
-#include "PhysicsTools/Utilities/interface/Constant.h"
 #include "PhysicsTools/Utilities/interface/rootTf1.h"
 #include "PhysicsTools/Utilities/interface/rootPlot.h"
+#include "PhysicsTools/Utilities/interface/Function.h"
 #include "TFile.h"
 #include "TH1.h"
 #include "TF1.h"
@@ -14,49 +13,49 @@
 #include <boost/shared_ptr.hpp>
 #include <iostream>
 #include "PhysicsTools/Utilities/interface/Operations.h"
-//using namespace std;
-//using namespace boost;
 
 int main() { 
+  typedef fit::HistoChiSquare<funct::Function<funct::X> > ChiSquared;
   gROOT->SetStyle("Plain");
-  typedef funct::Product<funct::Constant, funct::BreitWigner>::type FitFunction;
-  typedef fit::HistoChiSquare<FitFunction> ChiSquared;
   try {
-    fit::RootMinuitCommands<ChiSquared> commands("PhysicsTools/Utilities/test/testZMassFit.txt");
+    fit::RootMinuitCommands<ChiSquared> commands("PhysicsTools/Utilities/test/testExpressionFit.txt");
     
     const char * kYield = "Yield";
-    const char * kMass = "Mass";
-    const char * kGamma = "Gamma";
+    const char * kMean = "Mean";
+    const char * kSigma = "Sigma";
     
     funct::Parameter yield(kYield, commands.par(kYield));
-    funct::Parameter mass(kMass, commands.par(kMass));
-    funct::Parameter gamma(kGamma, commands.par(kGamma));
-    funct::BreitWigner bw(mass, gamma);
-    funct::Constant c(yield);
+    funct::Parameter mean(kMean, commands.par(kMean));
+    funct::Parameter sigma(kSigma, commands.par(kSigma));
+    funct::Parameter c("C", 1./sqrt(2*M_PI)); 
+    funct::X x;
+    funct::Numerical<2> _2;
     
-    FitFunction f = c * bw;
-    TF1 startFun = root::tf1("startFun", f, 0, 200, yield, mass, gamma);
-    TH1D histo("histo", "Z mass (GeV/c)", 200, 0, 200);
+    const double min = -5, max = 5;
+
+    funct::Function<funct::X> f = yield * c * exp(-(((x-mean)/sigma)^_2)/_2);
+    TF1 startFun = root::tf1("startFun", f, min, max, yield, mean, sigma);
+    TH1D histo("histo", "gaussian", 100, min, max);
     histo.FillRandom("startFun", yield);
     TCanvas canvas;
     startFun.Draw();
-    canvas.SaveAs("breitWigner.eps");
+    canvas.SaveAs("gaussian.eps");
     histo.Draw();
-    canvas.SaveAs("breitWignerHisto.eps");
+    canvas.SaveAs("gaussianHisto.eps");
     startFun.Draw("same");
-    canvas.SaveAs("breitWignerHistoFun.eps");
+    canvas.SaveAs("gaussianHistoFun.eps");
     histo.Draw("e");
     startFun.Draw("same");
     
-    ChiSquared chi2(f, &histo, 80, 120);
+    ChiSquared chi2(f, &histo, min, max);
     int fullBins = chi2.degreesOfFreedom();
     std::cout << "N. deg. of freedom: " << fullBins << std::endl;
     fit::RootMinuit<ChiSquared> minuit(chi2, true);
     commands.add(minuit, yield);
-    commands.add(minuit, mass);
-    commands.add(minuit, gamma);
+    commands.add(minuit, mean);
+    commands.add(minuit, sigma);
     commands.run(minuit);
-    root::plot<FitFunction>("breitWignerHistoFunFit.eps", histo, f, 80, 120, yield, mass, gamma);
+    root::plot<funct::Function<funct::X> >("gaussianHistoFunFit.eps", histo, f, min, max, yield, mean, sigma);
   } catch(std::exception & err){
     std::cerr << "Exception caught:\n" << err.what() << std::endl;
     return 1;
