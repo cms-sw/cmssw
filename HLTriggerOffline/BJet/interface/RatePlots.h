@@ -11,7 +11,7 @@
 
 struct RatePlots {
   RatePlots() :
-    m_rates(0),
+    m_rates(0)
   { }
 
   void init(const std::string & name, const std::string & title, unsigned int levels)
