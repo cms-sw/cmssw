@@ -1,9 +1,12 @@
 //
-// $Id: TtSemiEvtSolutionMaker.cc,v 1.32 2008/02/17 11:09:40 rwolf Exp $
+// $Id: TtSemiEvtSolutionMaker.cc,v 1.31.2.3 2008/04/11 11:43:54 rwolf Exp $
 //
 
-#include "PhysicsTools/Utilities/interface/DeltaR.h"
+#include "TopQuarkAnalysis/TopEventProducers/interface/TtSemiEvtSolutionMaker.h"
+
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+
+#include "PhysicsTools/Utilities/interface/DeltaR.h"
 
 #include "AnalysisDataFormats/TopObjects/interface/TtSemiEvtSolution.h"
 #include "TopQuarkAnalysis/TopTools/interface/JetPartonMatching.h"
@@ -14,12 +17,11 @@
 #include "TopQuarkAnalysis/TopEventSelection/interface/TtSemiLRSignalSelObservables.h"
 #include "TopQuarkAnalysis/TopEventSelection/interface/TtSemiLRSignalSelCalc.h"
 
-#include "TopQuarkAnalysis/TopEventProducers/interface/TtSemiEvtSolutionMaker.h"
-
 #include <memory>
 
-TtSemiEvtSolutionMaker::TtSemiEvtSolutionMaker(const edm::ParameterSet & iConfig) 
-{
+
+/// constructor
+TtSemiEvtSolutionMaker::TtSemiEvtSolutionMaker(const edm::ParameterSet & iConfig) {
   // configurables
   electronSrc_     = iConfig.getParameter<edm::InputTag>    ("electronSource");
   muonSrc_         = iConfig.getParameter<edm::InputTag>    ("muonSource");
@@ -43,25 +45,31 @@ TtSemiEvtSolutionMaker::TtSemiEvtSolutionMaker(const edm::ParameterSet & iConfig
   metParam_        = iConfig.getParameter<int>              ("metParametrisation");
   constraints_     = iConfig.getParameter<std::vector<int> >("constraints");
   matchToGenEvt_   = iConfig.getParameter<bool>             ("matchToGenEvt");
-  
+  matchingAlgo_    = iConfig.getParameter<int>              ("matchingAlgorithm");
+  useMaxDist_      = iConfig.getParameter<bool>             ("useMaximalDistance");
+  useDeltaR_       = iConfig.getParameter<bool>             ("useDeltaR");
+  maxDist_         = iConfig.getParameter<double>           ("maximalDistance");
+
   // define kinfitter
   if(doKinFit_)        myKinFitter       = new TtSemiKinFitter(jetParam_, lepParam_, metParam_, maxNrIter_, maxDeltaS_, maxF_, constraints_);
-  
+
   // define jet combinations related calculators
   mySimpleBestJetComb                    = new TtSemiSimpleBestJetComb();
   myLRSignalSelObservables               = new TtSemiLRSignalSelObservables();
   myLRJetCombObservables                 = new TtSemiLRJetCombObservables();
+  myLRJetCombObservables -> jetSource(jetSrc_);
   if (addLRJetComb_)   myLRJetCombCalc   = new TtSemiLRJetCombCalc(edm::FileInPath(lrJetCombFile_).fullPath(), lrJetCombObs_);
-  
+
   // instantiate signal selection calculator
   if (addLRSignalSel_) myLRSignalSelCalc = new TtSemiLRSignalSelCalc(edm::FileInPath(lrSignalSelFile_).fullPath(), lrSignalSelObs_);
-  
+
   // define what will be produced
   produces<std::vector<TtSemiEvtSolution> >();
 }
 
-TtSemiEvtSolutionMaker::~TtSemiEvtSolutionMaker() 
-{
+
+/// destructor
+TtSemiEvtSolutionMaker::~TtSemiEvtSolutionMaker() {
   if (doKinFit_)      delete myKinFitter;
   delete mySimpleBestJetComb;
   delete myLRSignalSelObservables;
@@ -70,20 +78,21 @@ TtSemiEvtSolutionMaker::~TtSemiEvtSolutionMaker()
   if(addLRJetComb_)   delete myLRJetCombCalc;
 }
 
-void TtSemiEvtSolutionMaker::produce(edm::Event & iEvent, const edm::EventSetup & iSetup) 
-{
+
+void TtSemiEvtSolutionMaker::produce(edm::Event & iEvent, const edm::EventSetup & iSetup) {
+
   //
   //  TopObject Selection
   //
 
   // select lepton (the TtLepton vectors are, for the moment, sorted on pT)
   bool leptonFound = false;
-  edm::Handle<std::vector<pat::Muon> > muons;
+  edm::Handle<std::vector<TopMuon> > muons;
   if(leptonFlavour_ == "muon"){
     iEvent.getByLabel(muonSrc_, muons);
     if (muons->size() > 0) leptonFound = true;
   }
-  edm::Handle<std::vector<pat::Electron> > electrons;
+  edm::Handle<std::vector<TopElectron> > electrons;
   if(leptonFlavour_ == "electron"){
     iEvent.getByLabel(electronSrc_, electrons);
     if (electrons->size() > 0) leptonFound = true;
@@ -91,20 +100,20 @@ void TtSemiEvtSolutionMaker::produce(edm::Event & iEvent, const edm::EventSetup 
 
   // select MET (TopMET vector is sorted on ET)
   bool metFound = false;
-  edm::Handle<std::vector<pat::MET> > mets;
+  edm::Handle<std::vector<TopMET> > mets;
   iEvent.getByLabel(metSrc_, mets);
   if (mets->size() > 0) metFound = true;
 
   // select Jets
   bool jetsFound = false;
-  edm::Handle<std::vector<pat::Jet> > jets;
+  edm::Handle<std::vector<TopJet> > jets;
   iEvent.getByLabel(jetSrc_, jets);
   if (jets->size() >= 4) jetsFound = true;
 
   //
   // Build Event solutions according to the ambiguity in the jet combination
   //
-
+  std::cout << "Build Event solutions according to the ambiguity in the jet combination" << std::endl;
   std::vector<TtSemiEvtSolution> * evtsols = new std::vector<TtSemiEvtSolution>();
   if(leptonFound && metFound && jetsFound){
     // protect against reading beyond array boundaries
@@ -133,8 +142,17 @@ void TtSemiEvtSolutionMaker::produce(edm::Event & iEvent, const edm::EventSetup 
                   asol.setLeptonParametrisation(lepParam_);
                   asol.setNeutrinoParametrisation(metParam_);
                 }
-                // if asked for, these lines calculate the observables to be used in the TtSemiSignalSelection LR
-                if(addLRSignalSel_) (*myLRSignalSelObservables)(asol, *jets);
+		if(matchToGenEvt_){
+		  edm::Handle<TtGenEvent> genEvt;
+		  iEvent.getByLabel ("genEvt",genEvt); 
+		  if (genEvt->numberOfBQuarks() == 2 &&  // FIXME: in rare cases W->bc decay, resulting in a wrong filled genEvt leading to a segmentation fault 
+		      genEvt->numberOfLeptons() == 1) {  // FIXME: temporary solution to avoid crash in JetPartonMatching for non semi-leptonic events
+		    asol.setGenEvt(genEvt);   
+		  
+		  }
+		}
+                // these lines calculate the observables to be used in the TtSemiSignalSelection LR
+                (*myLRSignalSelObservables)(asol, *jets);
 
                 // if asked for, calculate with these observable values the LRvalue and 
                 // (depending on the configuration) probability this event is signal
@@ -142,9 +160,11 @@ void TtSemiEvtSolutionMaker::produce(edm::Event & iEvent, const edm::EventSetup 
                 if(addLRSignalSel_) (*myLRSignalSelCalc)(asol);
 
                 // these lines calculate the observables to be used in the TtSemiJetCombination LR
-                (*myLRJetCombObservables)(asol);
-
-                // if asked for, calculate with these observable values the LRvalue and 
+                //(*myLRJetCombObservables)(asol);
+		
+		(*myLRJetCombObservables)(asol, iEvent);
+                
+		// if asked for, calculate with these observable values the LRvalue and 
                 // (depending on the configuration) probability a jet combination is correct
                 if(addLRJetComb_) (*myLRJetCombCalc)(asol);
 
@@ -188,7 +208,7 @@ void TtSemiEvtSolutionMaker::produce(edm::Event & iEvent, const edm::EventSetup 
           recjets.push_back( &jetq );
           recjets.push_back( &jetbh );
           recjets.push_back( &jetbl );
-          JetPartonMatching aMatch(quarks, recjets, 3, true, true, 0.3);
+          JetPartonMatching aMatch(quarks, recjets, matchingAlgo_, useMaxDist_, useDeltaR_, maxDist_);   
           (*evtsols)[s].setGenEvt(genEvt);   
           (*evtsols)[s].setMCBestSumAngles(aMatch.getSumAngles());
           (*evtsols)[s].setMCBestAngleHadp(aMatch.getAngleForParton(0));

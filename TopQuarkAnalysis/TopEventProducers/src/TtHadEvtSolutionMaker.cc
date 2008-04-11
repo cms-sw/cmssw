@@ -1,4 +1,4 @@
-// $Id: TtHadEvtSolutionMaker.cc,v 1.9 2008/02/17 11:09:40 rwolf Exp $
+// $Id: TtHadEvtSolutionMaker.cc,v 1.8.2.2 2008/04/11 11:43:54 rwolf Exp $
 
 #include "TopQuarkAnalysis/TopEventProducers/interface/TtHadEvtSolutionMaker.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -14,8 +14,9 @@
 
 #include <memory>
 
-TtHadEvtSolutionMaker::TtHadEvtSolutionMaker(const edm::ParameterSet & iConfig) 
-{
+
+/// constructor
+TtHadEvtSolutionMaker::TtHadEvtSolutionMaker(const edm::ParameterSet & iConfig) {
   // configurables
   jetSrc_          = iConfig.getParameter<edm::InputTag>    ("jetSource");
   jetCorrScheme_   = iConfig.getParameter<int>              ("jetCorrectionScheme");
@@ -32,11 +33,16 @@ TtHadEvtSolutionMaker::TtHadEvtSolutionMaker(const edm::ParameterSet & iConfig)
   jetParam_        = iConfig.getParameter<int>              ("jetParametrisation");
   constraints_     = iConfig.getParameter<std::vector<int> >("constraints");
   matchToGenEvt_   = iConfig.getParameter<bool>             ("matchToGenEvt");
-  
+  matchingAlgo_    = iConfig.getParameter<bool>             ("matchingAlgorithm");
+  useMaxDist_      = iConfig.getParameter<bool>             ("useMaximalDistance");
+  useDeltaR_       = iConfig.getParameter<bool>             ("useDeltaR");
+  maxDist_         = iConfig.getParameter<double>           ("maximalDistance");
+
   // define kinfitter
   if(doKinFit_){
     myKinFitter = new TtHadKinFitter(jetParam_, maxNrIter_, maxDeltaS_, maxF_, constraints_);
   }
+  
   
   // define jet combinations related calculators
   mySimpleBestJetComb                    = new TtHadSimpleBestJetComb();
@@ -46,12 +52,14 @@ TtHadEvtSolutionMaker::TtHadEvtSolutionMaker(const edm::ParameterSet & iConfig)
   
   // instantiate signal selection calculator
   if (addLRSignalSel_) myLRSignalSelCalc = new TtHadLRSignalSelCalc(lrSignalSelFile_, lrSignalSelObs_);
-  
+ 
   // define what will be produced
   produces<std::vector<TtHadEvtSolution> >();
   
 }
 
+
+/// destructor
 TtHadEvtSolutionMaker::~TtHadEvtSolutionMaker()
 {
   if (doKinFit_) {
@@ -64,15 +72,15 @@ TtHadEvtSolutionMaker::~TtHadEvtSolutionMaker()
   if(addLRJetComb_)   delete myLRJetCombCalc;
 }
 
-void TtHadEvtSolutionMaker::produce(edm::Event & iEvent, const edm::EventSetup & iSetup) 
-{
+
+void TtHadEvtSolutionMaker::produce(edm::Event & iEvent, const edm::EventSetup & iSetup) {
   // TopObject Selection
   // Select Jets
-  
+
   bool jetsFound = false;
-  edm::Handle<std::vector<pat::Jet> > jets;
+  edm::Handle<std::vector<TopJet> > jets;
   iEvent.getByLabel(jetSrc_, jets);
-  
+
   if (jets->size() >= 6) jetsFound = true;
   
   // Build Event solutions according to the ambiguity in the jet combination
@@ -211,7 +219,7 @@ void TtHadEvtSolutionMaker::produce(edm::Event & iEvent, const edm::EventSetup &
 	  jets.push_back( &jetj );
 	  jets.push_back( &jetk );
 	  jets.push_back( &jetbbar );
-	  JetPartonMatching aMatch(quarks, jets, 3, true, true, 0.3);
+	  JetPartonMatching aMatch(quarks, jets, matchingAlgo_, useMaxDist_, useDeltaR_, maxDist_);  
 	  (*evtsols)[s].setGenEvt(genEvt);   
 	  (*evtsols)[s].setMCBestSumAngles(aMatch.getSumAngles());
 	  (*evtsols)[s].setMCBestAngleHadp(aMatch.getAngleForParton(0));
