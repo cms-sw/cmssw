@@ -1,11 +1,11 @@
-// Last commit: $Id: SiStripConfigDb.h,v 1.52 2008/04/08 09:33:35 bainbrid Exp $
+// Last commit: $Id: SiStripConfigDb.h,v 1.53 2008/04/11 13:27:33 bainbrid Exp $
 
 #ifndef OnlineDB_SiStripConfigDb_SiStripConfigDb_h
 #define OnlineDB_SiStripConfigDb_SiStripConfigDb_h
 
 #define DATABASE // Needed by DeviceFactory API! Do not comment!
-#define USING_NEW_DATABASE_MODEL
-#define USING_DATABASE_CACHE
+//#define USING_NEW_DATABASE_MODEL
+//#define USING_DATABASE_CACHE
 
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -223,7 +223,7 @@ class SiStripConfigDb {
   FedConnections::range getFedConnections( std::string partition = "" );
   
   /** Uploads FED-FEC connections to DB/xml. */
-  void uploadFedConnections( std::string partition = "" );
+  void uploadFedConnections( std::string partition, const std::vector<FedConnection*>& );
   
   // ---------- Commissioning analyses ---------- 
   
