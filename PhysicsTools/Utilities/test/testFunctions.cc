@@ -9,6 +9,8 @@
 #include "PhysicsTools/Utilities/interface/Variables.h"
 #include "PhysicsTools/Utilities/interface/Numerical.h"
 #include "PhysicsTools/Utilities/interface/Fraction.h"
+#include "PhysicsTools/Utilities/interface/Expression.h"
+#include <iostream>
 
 class testFunctions : public CppUnit::TestFixture {
   CPPUNIT_TEST_SUITE(testFunctions);
@@ -75,5 +77,11 @@ void testFunctions::checkAll() {
   {
     Fraction<1,2>::type _1_2;
     CPPUNIT_ASSERT(_1_2 == 0.5);
+  }
+  {
+    X x = 3.141516;
+    Expression f = sin(x) * cos(x);
+    const double epsilon = 1.e-6;
+    CPPUNIT_ASSERT(fabs(f() == sin(x) * cos(x)) < epsilon);
   }
 }

@@ -4,6 +4,7 @@
 #include "PhysicsTools/Utilities/interface/Variables.h"
 #include "PhysicsTools/Utilities/interface/Fraction.h"
 #include "PhysicsTools/Utilities/interface/Simplify.h"
+#include "PhysicsTools/Utilities/interface/Expression.h"
 #include <sstream>
 #include <iostream>
 class testFunctionsIO : public CppUnit::TestFixture {
@@ -133,5 +134,8 @@ void testFunctionsIO::checkAll() {
   CHECK((sin(x)^_2)+(cos(x)^_2), "1");
 
   CHECK(x*y + x*z, "x ( y + z )");
+
+  Expression expr = sin(x)*cos(x);
+  CHECK(expr, "sin(x) cos(x)");
 }
 

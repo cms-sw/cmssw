@@ -9,12 +9,12 @@ struct X { \
   typedef T type; \
   static const unsigned int arguments = 0; \
   X() { } \
-  X(T & x) { set(x); } \
+  X(const T& x) { set(x); } \
   inline operator T() const { return value; } \
   inline T operator()() const { return value; } \
   inline static const char* name() { static const char * name = NAME; return name; } \
-  inline X operator=(T x) { set(x); return *this; } \
-  inline static void set(T x) { value = x; } \
+  inline X operator=(const T& x) { set(x); return *this; } \
+  inline static void set(const T& x) { value = x; } \
 private: \
   static T value; \
 }; \
