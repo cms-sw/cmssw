@@ -9,6 +9,8 @@ namespace funct {
     static const int value = n;
     double operator()() const { return n; }
     operator double() const { return n; }
+    double operator()(double) const { return n; }
+    double operator()(double, double) const { return n; }
   };
 
   template<int n> const Numerical<n>& num()
