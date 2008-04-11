@@ -5,16 +5,12 @@
 #include "PhysicsTools/Utilities/interface/Parameter.h"
 #include "TH1.h"
 #include "TF1.h"
-#include "TCanvas.h"
-#include "TROOT.h"
-#include <boost/shared_ptr.hpp>
 #include <iostream>
 #include "PhysicsTools/Utilities/interface/Operations.h"
 //using namespace std;
 //using namespace boost;
 
 int main() { 
-  gROOT->SetStyle("Plain");
   typedef funct::Product<funct::Parameter, funct::BreitWigner>::type FitFunction;
   typedef fit::HistoChiSquare<FitFunction> ChiSquared;
   try {
