@@ -57,7 +57,8 @@ header ="""
   ax->SetTitle("#eta");
   TAxis* ay = h_em_et->GetYaxis();
   ay->SetTitle("E_{T}^{RECO}/E_{T}^{MC}");
-
+  ay->SetRangeUser(0.9,1.05);
+  
   TLegend *leg = new TLegend(0.2, 0.2, 0.4, 0.4);
   leg->AddEntry(h_em_et, "Before correction");
   leg->AddEntry(h_emCorr_et, "After correction  ");
