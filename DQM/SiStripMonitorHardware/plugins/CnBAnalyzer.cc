@@ -24,8 +24,8 @@ CnBAnalyzer::CnBAnalyzer(const edm::ParameterSet& iConfig) {
   
   // Parameters for working with S-link and dumping the hex buffer
   swapOn_ = iConfig.getUntrackedParameter<int>("swapOn");
-  outputFileName_ = iConfig.getUntrackedParameter<string>("rootFile");
-  outputFileDir_ = iConfig.getUntrackedParameter<string>("rootFileDirectory");
+  outputFileName_ = iConfig.getUntrackedParameter<string>("rootFile", "");
+  outputFileDir_ = iConfig.getUntrackedParameter<string>("rootFileDirectory","");
   
   // FED address mapping is obtained through
   // FEDNumberting object: use and throw !
