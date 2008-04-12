@@ -149,6 +149,21 @@ parser.add_option("--writeraw",
                   default=False,
                   dest="writeraw")
 
+parser.add_option("--eventcontent",
+                   help="What event content to write out. Default=FEVTSIMDIGI",
+                   default="FEVTSIMDIGI",
+                   dest="eventcontent")
+
+parser.add_option("--conditions",
+                   help="What conditions to use. Default=FrontierConditions_GlobalTag,STARTUP::All",
+                   default="FrontierConditions_GlobalTag,STARTUP::All",
+                   dest="conditions")
+
+parser.add_option("--beamspot",
+                   help="What beam spot to use (from Configuration/StandardSequences). Default=BetafuncEarlyCollision",
+                   default="BetafuncEarlyCollision",
+                   dest="beamspot")
+
 parser.add_option( "--dirin",
                    help="The infile directory.",
                    default="",
@@ -395,6 +410,10 @@ releasevalidation=("""+options.relval+""")
 infile_name='"""+options.dirin+options.filein+"""'
 outfile_name='"""+options.dirout+options.fileout+"""'
 rawfile_name='"""+fileraw+"""'
+eventcontent='"""+options.eventcontent+"""'
+conditions='"""+options.conditions+"""'
+beamspot='"""+options.beamspot+"""'
+
 # The step
 step='"""+str(options.step)+"""'
 # Omit the output in a root file

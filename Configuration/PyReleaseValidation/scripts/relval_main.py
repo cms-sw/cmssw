@@ -101,7 +101,7 @@ process = cms.Process (process_name)
 process.schedule=cms.Schedule()
 
 # Enrich the process with the features described in the relval_includes_module.
-process=common.add_includes(process,PU_flag,step_list)
+process=common.add_includes(process,PU_flag,step_list,conditions,beamspot)
 
 # Add the fpe service if needed
 if fpe_service_flag:
@@ -155,7 +155,7 @@ if hasattr(process,'hltEndPath'):
 # Add the output on a root file if requested
 if output_flag:
     process = common.event_output\
-        (process, outfile_name, dataTier_dict[step])
+        (process, outfile_name, dataTier_dict[step],eventcontent)
     if not user_schedule:
         process.schedule.append(process.outpath)  
     if ( rawfile_name!='' ):
