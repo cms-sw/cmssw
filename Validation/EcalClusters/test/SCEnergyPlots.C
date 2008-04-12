@@ -21,12 +21,12 @@ void SCEnergyPlots (TString inputfile = "SuperClusters.root" )
   TCut dynSC = "em_scType==2";
   TCut fmSC  = "em_scType==3";
   
-  //  TCut barrel = "fabs(em_eta)<1.479";
-  //  TCut endcap = "fabs(em_eta)>1.55&&fabs(em_eta)<2.5";
+  TCut barrel = "fabs(em_eta)<1.479";
+  TCut endcap = "fabs(em_eta)>1.55&&fabs(em_eta)<2.5";
   
   //========== For my ROOT, need to be REMOVED before commiting
-  TCut barrel = "abs(em_eta)<1.479";
-  TCut endcap = "abs(em_eta)>1.55&&abs(em_eta)<2.5";
+  //  TCut barrel = "abs(em_eta)<1.479";
+  //  TCut endcap = "abs(em_eta)>1.55&&abs(em_eta)<2.5";
 
   TString plotEnergy = "emCorr_e/mc_e";
   TString plotEt     = "emCorr_et/mc_et";
@@ -84,5 +84,6 @@ void SCEnergyPlots (TString inputfile = "SuperClusters.root" )
   delete h1;
   delete h2;
   delete FixedMatrix;
-
+  
+  gROOT->ProcessLine(".q");
 }
