@@ -3,6 +3,7 @@
 
 // system include files
 #include <memory>
+#include <vector>
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -34,7 +35,7 @@ class SiStripCommissioningRunTypeFilter : public edm::EDFilter {
       
       // ----------member data ---------------------------
       edm::InputTag inputModuleLabel_;
-      sistrip::RunType runType_;
+      std::vector<sistrip::RunType> runTypes_;
 };
 
 #endif

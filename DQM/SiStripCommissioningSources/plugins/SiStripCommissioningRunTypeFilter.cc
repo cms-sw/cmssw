@@ -13,13 +13,14 @@
 //
 // Original Author:  Christophe DELAERE
 //         Created:  Fri Jan 18 12:17:46 CET 2008
-// $Id$
+// $Id: SiStripCommissioningRunTypeFilter.cc,v 1.1 2008/01/18 14:07:37 delaer Exp $
 //
 //
 
 
 // system include files
 #include <memory>
+#include <algorithm>
 
 // user include files
 #include "DQM/SiStripCommissioningSources/interface/SiStripCommissioningRunTypeFilter.h"
@@ -31,7 +32,10 @@ SiStripCommissioningRunTypeFilter::SiStripCommissioningRunTypeFilter(const edm::
 {
    //now do what ever initialization is needed
    inputModuleLabel_ = iConfig.getParameter<edm::InputTag>( "InputModuleLabel" ) ;
-   runType_ = SiStripEnumsAndStrings::runType(iConfig.getParameter<std::string>("runType"));
+   std::vector<std::string> runTypes = iConfig.getParameter<std::vector<std::string> >("runTypes");
+   for(std::vector<std::string>::const_iterator run = runTypes.begin(); run != runTypes.end(); ++run) {
+     runTypes_.push_back(SiStripEnumsAndStrings::runType(*run));
+   }
 }
 
 //
@@ -46,6 +50,6 @@ SiStripCommissioningRunTypeFilter::filter(edm::Event& iEvent, const edm::EventSe
    // Retrieve commissioning information from "event summary"
    edm::Handle<SiStripEventSummary> summary;
    iEvent.getByLabel( inputModuleLabel_, summary );
-   return (summary->runType() == runType_ );
+   return (std::find(runTypes_.begin(),runTypes_.end(),summary->runType())!=runTypes_.end());
 }
 
