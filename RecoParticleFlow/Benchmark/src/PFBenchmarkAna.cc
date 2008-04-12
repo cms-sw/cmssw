@@ -1,4 +1,5 @@
 #include "RecoParticleFlow/Benchmark/interface/PFBenchmarkAna.h"
+#include "DQMServices/Core/interface/MonitorElement.h"
 
 // CMSSW_2_X_X
 #include "DQMServices/Core/interface/DQMStore.h"
@@ -128,6 +129,62 @@ void PFBenchmarkAna::setup(DQMStore *DQM) { // CMSSW_2_X_X
   SETAXES(DeltaRvsEta,"Eta","#DeltaR");
   SETAXES(DeltaRvsPhi,"Phi","#DeltaR");
   
+}
+
+
+void PFBenchmarkAna::fill(const edm::View<reco::Candidate> *RecoCollection, const edm::View<reco::Candidate> *GenCollection, bool PlotAgainstReco) {
+
+  // loop over reco particles
+  for (unsigned int i = 0; i < RecoCollection->size(); i++) {
+
+    // generate histograms comparing the reco and truth candidate (truth = closest in delta-R)
+    const reco::Candidate *particle = &(*RecoCollection)[i];
+    const reco::Candidate *gen_particle = algo_->matchByDeltaR(particle,GenCollection);
+
+    // get the quantities to place on the denominator and/or divide by
+    double et, eta, phi;
+    if (PlotAgainstReco) { et = particle->et(); eta = particle->eta(); phi = particle->phi(); }
+    else { et = gen_particle->et(); eta = gen_particle->eta(); phi = gen_particle->phi(); }
+    
+    // get the delta quantities
+    double deltaEt = algo_->deltaEt(particle,gen_particle);
+    double deltaR = algo_->deltaR(particle,gen_particle);
+    double deltaEta = algo_->deltaEta(particle,gen_particle);
+    double deltaPhi = algo_->deltaPhi(particle,gen_particle);
+    
+    // fill histograms
+    hDeltaEt->Fill(deltaEt);
+    hDeltaEtvsEt->Fill(et,deltaEt);
+    hDeltaEtOverEtvsEt->Fill(et,deltaEt/et);
+    hDeltaEtvsEta->Fill(eta,deltaEt);
+    hDeltaEtOverEtvsEta->Fill(eta,deltaEt/et);
+    hDeltaEtvsPhi->Fill(phi,deltaEt);
+    hDeltaEtOverEtvsPhi->Fill(phi,deltaEt/et);
+    hDeltaEtvsDeltaR->Fill(deltaR,deltaEt);
+    hDeltaEtOverEtvsDeltaR->Fill(deltaR,deltaEt/et);
+    
+    hDeltaEta->Fill(deltaEta);
+    hDeltaEtavsEt->Fill(et,deltaEta/eta);
+    hDeltaEtaOverEtavsEt->Fill(et,deltaEta/eta);
+    hDeltaEtavsEta->Fill(eta,deltaEta);
+    hDeltaEtaOverEtavsEta->Fill(eta,deltaEta/eta);
+    hDeltaEtavsPhi->Fill(phi,deltaEta);
+    hDeltaEtaOverEtavsPhi->Fill(phi,deltaEta/eta);
+    
+    hDeltaPhi->Fill(deltaPhi);
+    hDeltaPhivsEt->Fill(et,deltaPhi);
+    hDeltaPhiOverPhivsEt->Fill(et,deltaPhi/phi);
+    hDeltaPhivsEta->Fill(eta,deltaPhi);
+    hDeltaPhiOverPhivsEta->Fill(eta,deltaPhi/phi);
+    hDeltaPhivsPhi->Fill(phi,deltaPhi);
+    hDeltaPhiOverPhivsPhi->Fill(phi,deltaPhi/phi);
+
+    hDeltaR->Fill(deltaR);
+    hDeltaRvsEt->Fill(et,deltaR);
+    hDeltaRvsEta->Fill(eta,deltaR);
+
+  }
+
 }
 
 void PFBenchmarkAna::write(std::string Filename) {

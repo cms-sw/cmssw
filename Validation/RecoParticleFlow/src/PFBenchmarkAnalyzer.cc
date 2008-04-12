@@ -67,11 +67,14 @@ void PFBenchmarkAnalyzer::beginJob(const edm::EventSetup& iSetup)
 
 void PFBenchmarkAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
-
-  // data to retrieve from the event
-  const CandidateCollection *truth_candidates;
-  const PFCandidateCollection *reco_candidates;
-
+  
+  // Typedefs to use views
+  typedef edm::View<reco::Candidate> candidateCollection ;
+  typedef edm::View<reco::Candidate> pfcandidateCollection ;
+  
+  const candidateCollection *truth_candidates;
+  const pfcandidateCollection *reco_candidates;
+ 
   // ==========================================================
   // Retrieve!
   // ==========================================================
@@ -79,12 +82,12 @@ void PFBenchmarkAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetu
   { 
 
     // Get Truth Candidates (GenCandidates, GenJets, etc.)
-    Handle<CandidateCollection> truth_hnd;
+    Handle<candidateCollection> truth_hnd;
     iEvent.getByLabel(inputTruthLabel_, truth_hnd);
     truth_candidates = truth_hnd.product();
 
     // Get Reco Candidates (PFlow, CaloJet, etc.)
-    Handle<PFCandidateCollection> reco_hnd;
+    Handle<pfcandidateCollection> reco_hnd;
     iEvent.getByLabel(inputRecoLabel_, reco_hnd);
     reco_candidates = reco_hnd.product();
 
