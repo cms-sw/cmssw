@@ -1,5 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 import relval_common_module as common
+import relval_generation_module as generator
 
 import os
 import sys 
@@ -11,23 +12,6 @@ execfile("relval_parameters_module.py")
 # This just simplifies the use of the common.logger
 mod_id="["+os.path.basename(sys._getframe().f_code.co_filename)[:-3]+"]"
 
-# At top level and not in a function. To be fixed
-# The priority with wich the generators module is seeked for..
-generator_module_name="relval_generation_module.py"
-pyrelval_location=os.environ["CMSSW_BASE"]+"/src/Configuration/PyReleaseValidation/python/"+generator_module_name
-pyrelval_release_location=os.environ["CMSSW_RELEASE_BASE"]+"/src/Configuration/PyReleaseValidation/python/"+generator_module_name
-
-locations=(pyrelval_location,
-           pyrelval_release_location)
-        
-mod_location=""
-for location in locations:
-    if os.path.exists(location):
-        mod_location=location
-
-print 'mod_location %s' % mod_location
-execfile(mod_location)
-print generate
 
 #--------------------------------------------
 # Here the functions to add to the process the various steps are defined:
@@ -40,8 +24,13 @@ def gen(process,name,step,evt_type,energy,evtnumber):
     func_id=mod_id+"["+sys._getframe().f_code.co_name+"]"
     
 
-    process.source=generate(step,evt_type,energy,evtnumber)
-    process.generation_step = cms.Path(getattr(process,name))
+    process=generator.generate(process,step,evt_type,energy,evtnumber)
+
+    if ( name == 'pgen'):
+        process.generation_step = cms.Path(getattr(process,name))
+    else:
+        process.generation_step = cms.Path(getattr(process,'pgen')+getattr(process,name))
+        
     if not user_schedule:
         process.schedule.append(process.generation_step)
         

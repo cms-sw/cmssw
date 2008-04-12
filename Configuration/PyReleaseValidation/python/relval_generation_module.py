@@ -10,6 +10,7 @@
 
 import FWCore.ParameterSet.Config as cms
 import relval_common_module as common
+import inspect
 
 from math import pi as PI
 import os
@@ -24,7 +25,7 @@ mod_id="["+os.path.basename(sys._getframe().f_code.co_filename)[:-3]+"]"
 ETA_MAX=2.5
 ETA_MIN=-2.5
 
-def generate(step, evt_type, energy, evtnumber):
+def generate(process, step, evt_type, energy, evtnumber):
     """
     This function calls all the other functions specific for
     an event evt_type.
@@ -36,36 +37,42 @@ def generate(step, evt_type, energy, evtnumber):
     
     # Particle Gun
     if evt_type in ("MU+","MU-","E","DIE","GAMMA","TAU","PI0","PI+","PI-"):
-       source=_generate_PGUN\
+       process.source=_generate_PGUN\
          (step, evt_type, energy, evtnumber)
      
     elif evt_type in ("HZZMUMUMUMU", "HZZEEEE", "HZZTTTT", "HZZLLLL","HGG"):
-       source=_generate_Higgs\
+       process.source=_generate_Higgs\
          (step, evt_type, energy, evtnumber)
      
     elif evt_type in ("B_JETS", "C_JETS"):
-       source=_generate_udscb_jets\
+       process.source=_generate_udscb_jets\
          (step, evt_type, energy, evtnumber)        
     
     elif evt_type in ("QCD","TTBAR","ZPJJ","MINBIAS","RS1GG","HpT"):
-        source=eval("_generate_"+evt_type+"(step, evt_type, energy, evtnumber)") 
+        process.source=eval("_generate_"+evt_type+"(step, evt_type, energy, evtnumber)") 
     
     elif evt_type in ("ZEE","ZTT","ZMUMU"):
-        source=_generate_Zll\
+        process.source=_generate_Zll\
          (step, evt_type, energy, evtnumber)
 
     elif evt_type in ("ZPEE","ZPTT","ZPMUMU"):
-        source=_generate_ZPll\
+        process.source=_generate_ZPll\
          (step, evt_type, energy, evtnumber)         
              
     elif evt_type in ("WE","WM","WT"):
-        source=_generate_Wl(step, evt_type, energy, evtnumber)
+        process.source=_generate_Wl(step, evt_type, energy, evtnumber)
     else:
-        return common.include_files('Configuration/Generator/data/'+evt_type)[0].source                                   
+        content=common.include_files('Configuration/Generator/data/'+evt_type)[0]                  
+        process.extend(content)
+
+#        process.source=incDict.source
+#        for key,val in inspect.getmembers(incDict):
+#            if ( key[-6:] == 'filter'):
+#                process.generatorfilter=incDict.key
+                
     print 'done'
     common.log( func_id+" Returning Source")
-    
-    return source
+    return process
 
 #------------------------------       
 

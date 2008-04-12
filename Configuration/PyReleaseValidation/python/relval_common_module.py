@@ -81,72 +81,66 @@ def add_includes(process,PU_flag,step_list,conditions,beamspot):
     It returns a process enriched with the includes.
     """
 
-    inc_dict={'GEN':'',
-              'SIM':'',
-              'DIGI':'',
-              'RECO':'',
-              'ALCA':'',
-              'L1':'',
-              'DIGI2RAW':'',
-              'RAW2DIGI':'',
-              'ANA':'',
-              'DQM':'',
-              'FASTSIM':'Configuration/StandardSequences/data/FastSimulation.cff',
-              'HLT':'',
-              'POSTRECO':''
+    conditionsSP=conditions.split(',')
+
+#these are the defaults..
+    incList=['"Configuration/StandardSequences/data/Services.cff"',
+             '"Configuration/StandardSequences/data/Geometry.cff"',
+             '"Configuration/StandardSequences/data/MagneticField.cff"',
+             '"FWCore/MessageService/data/MessageLogger.cfi"',
+             '"Configuration/StandardSequences/data/VtxSmeared'+beamspot+'.cff"',
+             '"Configuration/StandardSequences/data/Generator.cff"',             
+             '"Configuration/StandardSequences/data/'+conditionsSP[0]+'.cff"']             
+
+    if PU_flag:
+        incList.append('"Configuration/StandardSequences/data/MixingLowLumiPileUp.cff"')
+    else:
+        incList.append('"Configuration/StandardSequences/data/MixingNoPileUp.cff"')
+
+    inc_dict={'GEN':'"Configuration/StandardSequences/data/Generator.cff"',
+              'SIM':'"Configuration/StandardSequences/data/Simulation.cff"',
+              'DIGI':'"Configuration/StandardSequences/data/Simulation.cff"',
+              'RECO':'"Configuration/StandardSequences/data/Reconstruction.cff"',
+              'ALCA':'"Configuration/StandardSequences/data/AlCaReco.cff"',
+              'L1':'"Configuration/StandardSequences/data/L1Emulator.cff"',
+              'DIGI2RAW':'"Configuration/StandardSequences/data/DigiToRaw.cff"',
+              'RAW2DIGI':'"Configuration/StandardSequences/data/RawToDigi.cff"',
+              'ANA':'"Configuration/StandardSequences/data/Analysis.cff"',
+              'DQM':'"Configuration/StandardSequences/data/Validation.cff"',
+              'FASTSIM':'"Configuration/StandardSequences/data/FastSimulation.cff"',
+              'HLT':'"HLTrigger/Configuration/data/HLT_2E30.cff"',
+              'POSTRECO':'"Configuration/StandardSequences/data/PostRecoGenerator.cff"'
               }
-    
-    
     
     func_id=mod_id+"["+sys._getframe().f_code.co_name+"]"
     log(func_id+" Entering... ")
         
-    for included_fragment in include_files(["Configuration/StandardSequences/data/Services.cff"]): 
-        process.extend(included_fragment)
-    
-
     # The file FWCore/Framework/test/cmsExceptionsFatalOption.cff:
     fataloptions="FWCore/Framework/test/cmsExceptionsFatalOption.cff" 
     fataloptions_inclobj=include_files(fataloptions)[0]
-    
+
     process.options=cms.untracked.PSet\
-                    (Rethrow=fataloptions_inclobj.Rethrow,
-                     wantSummary=cms.untracked.bool(True),
-                     makeTriggerResults=cms.untracked.bool(True) ) 
+                     (Rethrow=fataloptions_inclobj.Rethrow,
+                      wantSummary=cms.untracked.bool(True),
+                      makeTriggerResults=cms.untracked.bool(True) ) 
+    
                  
-    process.extend(include_files("FWCore/MessageService/data/MessageLogger.cfi")[0])                  
-#    process.extend(include_files(['Configuration/StandardSequences/data/VtxSmeared'+beamspot+'.cff'])[0])                  
-#    process.extend(process.include('Configuration/StandardSequences/data/VtxSmeared'+beamspot+'.cff'))
-
-    conditionsSP=conditions.split(',')
-    process.extend(include_files('Configuration/StandardSequences/data/'+conditionsSP[0]+'.cff')[0])                  
-    if ( len(conditionsSP)>1 ):
-        process.GlobalTag.globaltag=conditionsSP[1]
-
-    if PU_flag:
-        process.extend(include_files("Configuration/PyReleaseValidation/data/incl_summary_PU.cff")[0])   
-    else:
-#aack - the digi2raw and raw2digi can not currently be in same workflow
-#branch the standard config into two parts. not very robust! 
-        if 'RAW2DIGI' in step_list:
-            process.extend(include_files("Configuration/PyReleaseValidation/data/incl_summary_r2d_reco.cff")[0])   
-        else:
-            if 'HLT' in step_list:
-                process.extend(include_files("Configuration/PyReleaseValidation/data/incl_summary_hlt.cff")[0])   
-            else:
-                process.extend(include_files("Configuration/PyReleaseValidation/data/incl_summary.cff")[0])   
-
-
+    from FWCore.ParameterSet.parseConfig import parseConfigString
 
     for s in step_list:
         stepSP=s.split(':') 
         step=stepSP[0]
         if inc_dict[step] != '':
-           included_fragment=inc_dict[step]
-           process.extend(include_files(included_fragment)[0])
+            incList.append(inc_dict[step])
 
+    stringToInclude=''        
+    for incF in incList:
+        stringToInclude=stringToInclude+'include '+incF+' ' 
 
-    
+    process.extend(parseConfigString(stringToInclude))
+    if ( len(conditionsSP)>1 ):
+        process.GlobalTag.globaltag=conditionsSP[1]
+
     log(func_id+ " Returning process...")
     return process
 
@@ -177,11 +171,10 @@ def event_output(process, outfile_name, step, eventcontent, evt_filter=None):
     process.extend(content)
     process.out_step = cms.OutputModule\
                    ("PoolOutputModule",
-#                    outputCommands=content.RECOEventContent.outputCommands,
-#                    outputCommands=content.FEVTSIMEventContent.outputCommands,
                     outputCommands=getattr(content,eventcontent+'EventContent').outputCommands,
                     fileName = cms.untracked.string(outfile_name),
-                    dataset = cms.untracked.PSet(dataTier =cms.untracked.string(step))
+                    dataset = cms.untracked.PSet(dataTier =cms.untracked.string(step)),
+                    SelectEvents = cms.untracked.PSet(SelectEvents = cms.vstring('generation_step'))
                    ) 
     
     process.outpath = cms.EndPath(process.out_step)
@@ -200,7 +193,8 @@ def raw_output(process, outfile_name, evt_filter=None):
                            ("PoolOutputModule",
                             outputCommands=process.RAWEventContent.outputCommands,
                             fileName = cms.untracked.string(outfile_name),
-                            dataset = cms.untracked.PSet(dataTier =cms.untracked.string('RAW'))
+                            dataset = cms.untracked.PSet(dataTier =cms.untracked.string('RAW')),
+                            SelectEvents = cms.untracked.PSet(SelectEvents = cms.vstring('generation_step'))
                            ) 
     
     process.outpath_raw = cms.EndPath(process.out_step_raw)
@@ -257,7 +251,7 @@ def build_production_info(evt_type, energy, evtnumber):
     func_id=mod_id+"["+sys._getframe().f_code.co_name+"]"
     
     prod_info=cms.untracked.PSet\
-              (version=cms.untracked.string("$Revision: 1.7 $"),
+              (version=cms.untracked.string("$Revision: 1.8 $"),
                name=cms.untracked.string("PyReleaseValidation"),
                annotation=cms.untracked.string(evt_type+" energy:"+str(energy)+" nevts:"+str(evtnumber))
               )
