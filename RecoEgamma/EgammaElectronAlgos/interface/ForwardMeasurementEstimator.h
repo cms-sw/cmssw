@@ -16,7 +16,7 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: ForwardMeasurementEstimator.h,v 1.11 2008/03/21 17:36:02 charlot Exp $
+// $Id: ForwardMeasurementEstimator.h,v 1.13 2008/04/08 16:39:14 uberthon Exp $
 //
 //
 #include "TrackingTools/PatternTools/interface/MeasurementEstimator.h"
@@ -27,25 +27,23 @@
 class ForwardMeasurementEstimator : public MeasurementEstimator {
 public:
   ForwardMeasurementEstimator() {};
-  ForwardMeasurementEstimator( float phiRangeMin, float phiRangeMax, 
-                                 float zRangeMin, float zRangeMax ) : 
-                           thePhiRangeMin( phiRangeMin), thePhiRangeMax( phiRangeMax),
-                           theZRangeMin( zRangeMin), theZRangeMax( zRangeMax) {}
+  ForwardMeasurementEstimator(float phiMin, float phiMax, float rMin, float rMax ) : 
+    thePhiMin(phiMin), thePhiMax( phiMax), theRMin(rMin), theRMax(rMax) {}
 
-  void setPhiRange (float dummyphiRangeMin , float dummyphiRangeMax) 
+  void setPhiRange(float dummyphiMin , float dummyphiMax) 
   { 
-    thePhiRangeMin = dummyphiRangeMin ; 
-    thePhiRangeMax = dummyphiRangeMax ; 
+    thePhiMin = dummyphiMin ; 
+    thePhiMax = dummyphiMax ; 
   }
-  void setZRange (float zmin , float zmax) 
+  void setRRange(float rmin , float rmax) 
   { 
-    theZRangeMin=zmin;
-    theZRangeMax=zmax;
+    theRMin = rmin;
+    theRMax = rmax;
   }
-   void setRRange (float rmin , float rmax) 
+   void setRRangeI(float rmin , float rmax) 
   { 
-    rMin_= rmin;
-    rMax_ = rmax;
+    theRMinI = rmin;
+    theRMaxI = rmax;
   }
   
   // zero value indicates incompatible ts - hit pair
@@ -69,11 +67,11 @@ public:
 
  private:
 
-  float thePhiRangeMin;
-  float thePhiRangeMax;
-  float theZRangeMin;
-  float theZRangeMax;
-  float rMin_, rMax_;
+  float thePhiMin;
+  float thePhiMax;
+  float theRMin;
+  float theRMax;
+  float theRMinI, theRMaxI;
 
 };
 

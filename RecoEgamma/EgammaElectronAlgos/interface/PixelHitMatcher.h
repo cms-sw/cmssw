@@ -17,7 +17,7 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: PixelHitMatcher.h,v 1.15 2008/03/21 17:36:02 charlot Exp $
+// $Id: PixelHitMatcher.h,v 1.17 2008/04/08 16:39:14 uberthon Exp $
 //
 //
 
@@ -77,52 +77,27 @@ class PixelHitMatcher{
   typedef TransientTrackingRecHit::RecHitContainer      RecHitContainer;
   
   PixelHitMatcher(float phi1min, float phi1max, float phi2min, float phi2max, 
-		  float z2minB, float z2maxB,
-		  float r2minF, float r2maxF,
-		  float rMinI, float rMaxI, bool searchInTIDTEC) :
-    //zmin1 and zmax1 are dummy at this moment, set from beamspot later
-    meas1stBLayer(phi1min,phi1max,0.,0.), meas2ndBLayer(phi2min,phi2max,z2minB,z2maxB), 
-    meas1stFLayer(phi1min,phi1max,0.,0.), meas2ndFLayer(phi2min,phi2max,r2minF,r2maxF),
-    startLayers(),
-    prop1stLayer(0), prop2ndLayer(0),theGeometricSearchTracker(0),theLayerMeasurements(0),vertex(0.),
-    searchInTIDTEC_(searchInTIDTEC)
-    {
-      meas1stFLayer.setRRange(rMinI,rMaxI);
-      meas2ndFLayer.setRRange(rMinI,rMaxI);
-    }
+		  float z2minB, float z2maxB, float r2minF, float r2maxF,
+		  float rMinI, float rMaxI, bool searchInTIDTEC);
+		  
   virtual ~PixelHitMatcher();
   void setES(const MagneticField*, const MeasurementTracker *theMeasurementTracker, const TrackerGeometry *trackerGeometry);
 
-  std::vector<std::pair<RecHitWithDist,ConstRecHitPointer> > compatibleHits(const GlobalPoint& xmeas,
-									    const GlobalPoint& vprim,
-									    float energy,
-									    float charge);
-  std::vector<TrajectorySeed> compatibleSeeds(edm::Handle<TrajectorySeedCollection> &trajectories, const GlobalPoint& xmeas,
-									    const GlobalPoint& vprim,
-									    float energy,
-									    float charge);
+  std::vector<std::pair<RecHitWithDist,ConstRecHitPointer> > 
+   compatibleHits(const GlobalPoint& xmeas, const GlobalPoint& vprim, float energy, float charge);
+  std::vector<TrajectorySeed> 
+   compatibleSeeds(edm::Handle<TrajectorySeedCollection> &seeds, const GlobalPoint& xmeas,
+                   const GlobalPoint& vprim, float energy, float charge);
+   
   std::vector<Hep3Vector> predicted1Hits();
   std::vector<Hep3Vector> predicted2Hits();
+
+  void set1stLayer (float dummyphi1min, float dummyphi1max);
+  void set1stLayerZRange (float zmin1, float zmax1);
+  void set2ndLayer (float dummyphi2min, float dummyphi2max);
+ 
   float getVertex();
- 
-  void set1stLayer (float dummyphi1min, float dummyphi1max)
-    { 
-      meas1stBLayer.setPhiRange(dummyphi1min,dummyphi1max) ;
-      meas1stFLayer.setPhiRange(dummyphi1min,dummyphi1max) ;
-    }
 
-  void set1stLayerZRange (float zmin1, float zmax1)
-    { 
-      meas1stBLayer.setZRange(zmin1,zmax1);
-      meas1stFLayer.setZRange(zmin1,zmax1);
-    }
-
-  void set2ndLayer (float dummyphi2min, float dummyphi2max)
-    { 
-                                         meas2ndBLayer.setPhiRange(dummyphi2min,dummyphi2max) ;
-                                         meas2ndFLayer.setPhiRange(dummyphi2min,dummyphi2max) ;
-				       }
- 
  private:
 
   RecHitContainer hitsInTrack;
@@ -142,7 +117,7 @@ class PixelHitMatcher{
   const MagneticField* theMagField;
   const TrackerGeometry * theTrackerGeometry;
 
-  float vertex;
+  float vertex_;
 
   bool searchInTIDTEC_;
 

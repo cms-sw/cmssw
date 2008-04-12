@@ -15,7 +15,7 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: BarrelMeasurementEstimator.h,v 1.7 2008/03/21 17:36:02 charlot Exp $
+// $Id: BarrelMeasurementEstimator.h,v 1.9 2008/04/08 16:39:14 uberthon Exp $
 //
 //
 
@@ -32,21 +32,19 @@
 class BarrelMeasurementEstimator : public MeasurementEstimator {
 public:
   BarrelMeasurementEstimator() {};
-  BarrelMeasurementEstimator( float phiRangeMin, float phiRangeMax, 
-                              float zRangeMin, float zRangeMax ) : 
-                           thePhiRangeMin( phiRangeMin), thePhiRangeMax( phiRangeMax),
-                           theZRangeMin( zRangeMin), theZRangeMax( zRangeMax) { }
+  BarrelMeasurementEstimator(float phiMin, float phiMax, float zMin, float zMax ) : 
+    thePhiMin(phiMin), thePhiMax(phiMax), theZMin(zMin), theZMax(zMax) { }
 
-  void setPhiRange (float dummyphiRangeMin , float dummyphiRangeMax) 
+  void setPhiRange (float dummyphiMin , float dummyphiMax) 
   { 
-    thePhiRangeMin = dummyphiRangeMin ; 
-    thePhiRangeMax = dummyphiRangeMax ; 
+    thePhiMin = dummyphiMin ; 
+    thePhiMax = dummyphiMax ; 
   }
   
   void setZRange (float zmin , float zmax) 
   { 
-    theZRangeMin=zmin;
-    theZRangeMax=zmax;
+    theZMin=zmin;
+    theZMax=zmax;
   }
 
   // zero value indicates incompatible ts - hit pair
@@ -70,10 +68,10 @@ public:
 
 private:
 
-  float thePhiRangeMin;
-  float thePhiRangeMax;
-  float theZRangeMin;
-  float theZRangeMax;
+  float thePhiMin;
+  float thePhiMax;
+  float theZMin;
+  float theZMax;
 
 };
 

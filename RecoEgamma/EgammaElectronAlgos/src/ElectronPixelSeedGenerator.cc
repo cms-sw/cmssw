@@ -13,7 +13,7 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: ElectronPixelSeedGenerator.cc,v 1.49 2008/04/08 16:39:15 uberthon Exp $
+// $Id: ElectronPixelSeedGenerator.cc,v 1.50 2008/04/11 11:39:19 uberthon Exp $
 //
 //
 #include "RecoEgamma/EgammaElectronAlgos/interface/PixelHitMatcher.h" 
@@ -53,6 +53,7 @@
 #include "RecoTracker/Record/interface/CkfComponentsRecord.h"
 #include <vector>
 #include <utility>
+
 ElectronPixelSeedGenerator::ElectronPixelSeedGenerator(const edm::ParameterSet &pset)
   :   dynamicphiroad_(pset.getParameter<bool>("dynamicPhiRoad")),
       fromTrackerSeeds_(pset.getParameter<bool>("fromTrackerSeeds")),
@@ -162,20 +163,18 @@ void  ElectronPixelSeedGenerator::run(edm::Event& e, const edm::EventSetup& setu
   if (fromTrackerSeeds_) e.getByLabel(initialSeeds_, theInitialSeedColl);
  
   // get the beamspot from the Event:
-  edm::Handle<reco::BeamSpot> recoBeamSpotHandle;
-  e.getByType(recoBeamSpotHandle);
+  e.getByType(theBeamSpot);
 
   // get its position
-  BSPosition_ = recoBeamSpotHandle->position();
-  double sigmaZ=recoBeamSpotHandle->sigmaZ();
-  double sigmaZ0Error=recoBeamSpotHandle->sigmaZ0Error();
+  double sigmaZ=theBeamSpot->sigmaZ();
+  double sigmaZ0Error=theBeamSpot->sigmaZ0Error();
   double sq=sqrt(sigmaZ*sigmaZ+sigmaZ0Error*sigmaZ0Error);
-  zmin1_=BSPosition_.z()-3*sq;
-  zmax1_=BSPosition_.z()+3*sq;
+  zmin1_=theBeamSpot->position().z()-3*sq;
+  zmax1_=theBeamSpot->position().z()+3*sq;
 
   theMeasurementTracker->update(e); 
   
- for  (unsigned int i=0;i<sclRefs.size();++i) {
+  for  (unsigned int i=0;i<sclRefs.size();++i) {
     // Find the seeds
     recHits_.clear();
 
@@ -196,7 +195,8 @@ void ElectronPixelSeedGenerator::seedsFromThisCluster( edm::Ref<reco::SuperClust
 			 seedCluster->position().y(), 
 			 seedCluster->position().z());
 
-  const GlobalPoint vertexPos(BSPosition_.x(),BSPosition_.y(),BSPosition_.z());
+  const GlobalPoint 
+   vertexPos(theBeamSpot->position().x(),theBeamSpot->position().y(),theBeamSpot->position().z());
   LogDebug("") << "[ElectronPixelSeedGenerator::seedsFromThisCluster] new supercluster with energy: " << clusterEnergy;
   LogDebug("") << "[ElectronPixelSeedGenerator::seedsFromThisCluster] and position: " << clusterPos;
 
@@ -237,7 +237,7 @@ void ElectronPixelSeedGenerator::seedsFromThisCluster( edm::Ref<reco::SuperClust
       myMatchEle->compatibleHits(clusterPos,vertexPos, clusterEnergy, aCharge);
  
     float vertexZ = myMatchEle->getVertex();
-    GlobalPoint eleVertex(BSPosition_.x(),BSPosition_.y(),vertexZ);
+    GlobalPoint eleVertex(theBeamSpot->position().x(),theBeamSpot->position().y(),vertexZ);
 
     if (!elePixelHits.empty() ) {
       LogDebug("ElectronPixelSeedGenerator") << "seedsFromThisCluster: electron compatible hits found ";
@@ -246,7 +246,6 @@ void ElectronPixelSeedGenerator::seedsFromThisCluster( edm::Ref<reco::SuperClust
      
       for (v = elePixelHits.begin(); v != elePixelHits.end(); v++) {
 	(*v).first.invert();
-      
 	bool valid = prepareElTrackSeed((*v).first.recHit(),(*v).second,eleVertex);
 	if (valid) {
 	  reco::ElectronPixelSeed s(seedCluster,*pts_,recHits_,dir);
@@ -274,14 +273,13 @@ void ElectronPixelSeedGenerator::seedsFromThisCluster( edm::Ref<reco::SuperClust
       myMatchPos->compatibleHits(clusterPos,vertexPos, clusterEnergy, aCharge);
  
     float vertexZ = myMatchPos->getVertex();
-    GlobalPoint posVertex(BSPosition_.x(),BSPosition_.y(),vertexZ);
+    GlobalPoint posVertex(theBeamSpot->position().x(),theBeamSpot->position().y(),vertexZ);
 
     if (!posPixelHits.empty() ) {
       LogDebug("ElectronPixelSeedGenerator") << "seedsFromThisCluster: positron compatible hits found ";
 
       std::vector<std::pair<RecHitWithDist,ConstRecHitPointer> >::iterator v;
       for (v = posPixelHits.begin(); v != posPixelHits.end(); v++) {
-
 	bool valid = prepareElTrackSeed((*v).first.recHit(),(*v).second,posVertex);
 	if (valid) {
 	  reco::ElectronPixelSeed s(seedCluster,*pts_,recHits_,dir);	
@@ -335,6 +333,7 @@ bool ElectronPixelSeedGenerator::prepareElTrackSeed(ConstRecHitPointer innerhit,
   }
 
   typedef TrajectoryStateOnSurface     TSOS;
+  
   // make a spiral
   FastHelix helix(outerhit->globalPosition(),innerhit->globalPosition(),vertexPos,*theSetup);
   if ( !helix.isValid()) {

@@ -13,7 +13,7 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: BarrelMeasurementEstimator.cc,v 1.9 2008/03/21 17:36:02 charlot Exp $
+// $Id: BarrelMeasurementEstimator.cc,v 1.11 2008/04/08 16:39:15 uberthon Exp $
 //
 //
 
@@ -40,8 +40,8 @@ std::pair<bool,double> BarrelMeasurementEstimator::estimate( const TrajectorySta
   float myR = gp.perp();
   float myZ = gp.z();
   
-  float myZmax =  theZRangeMax;
-  float myZmin =  theZRangeMin;
+  float myZmax =  theZMax;
+  float myZmin =  theZMin;
 
   if(fabs(myZ)<30. && myR>8.)
     {
@@ -56,9 +56,9 @@ std::pair<bool,double> BarrelMeasurementEstimator::estimate( const TrajectorySta
   if (phiDiff > pi) phiDiff -= twopi;
   if (phiDiff < -pi) phiDiff += twopi; 
    
-  if ( phiDiff < thePhiRangeMax && phiDiff > thePhiRangeMin && 
+  if ( phiDiff < thePhiMax && phiDiff > thePhiMin && 
        zDiff < myZmax && zDiff > myZmin) {
-  
+    
     return std::pair<bool,double>(true,1.);
      } else {
 
@@ -75,8 +75,8 @@ bool BarrelMeasurementEstimator::estimate( const TrajectoryStateOnSurface& ts,
   GlobalPoint trajPos(ts.globalParameters().position());
   GlobalDetRangeZPhi detRange(plane);
 
-  Range trajZRange(trajPos.z() - fabs(theZRangeMin), trajPos.z() + fabs(theZRangeMax));
-  Range trajPhiRange(trajPos.phi() - fabs(thePhiRangeMin), trajPos.phi() + fabs(thePhiRangeMax));
+  Range trajZRange(trajPos.z() - fabs(theZMin), trajPos.z() + fabs(theZMax));
+  Range trajPhiRange(trajPos.phi() - fabs(thePhiMin), trajPos.phi() + fabs(thePhiMax));
 
   if(rangesIntersect(trajZRange, detRange.zRange()) &&
      rangesIntersect(trajPhiRange, detRange.phiRange(), PhiLess())) {
@@ -84,7 +84,7 @@ bool BarrelMeasurementEstimator::estimate( const TrajectoryStateOnSurface& ts,
   }
   else { 
     //     cout <<cout<<" barrel boundpl est returns false!!"<<endl;
-    //     cout<<"BarrelMeasurementEstimator(estimate) :thePhiRangeMin,thePhiRangeMax, theZRangeMin,theZRangeMax "<<thePhiRangeMin<<" "<<thePhiRangeMax<<" "<< theZRangeMin<<" "<<theZRangeMax<<endl;
+    //     cout<<"BarrelMeasurementEstimator(estimate) :thePhiMin,thePhiMax, theZMin,theZMax "<<thePhiMin<<" "<<thePhiMax<<" "<< theZMin<<" "<<theZMax<<endl;
     //     cout<<" trajZRange "<<trajZRange.first<<" "<<trajZRange.second<<endl;
     //     cout<<" trajPhiRange "<<trajPhiRange.first<<" "<<trajPhiRange.second<<endl;
     //     cout<<" detZRange "<<detRange.zRange().first<<" "<<detRange.zRange().second<<endl;

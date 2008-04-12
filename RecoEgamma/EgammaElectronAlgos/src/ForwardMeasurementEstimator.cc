@@ -13,7 +13,7 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: ForwardMeasurementEstimator.cc,v 1.10 2008/03/21 17:36:02 charlot Exp $
+// $Id: ForwardMeasurementEstimator.cc,v 1.12 2008/04/08 16:39:15 uberthon Exp $
 //
 //
 #include "RecoEgamma/EgammaElectronAlgos/interface/ForwardMeasurementEstimator.h"
@@ -41,15 +41,15 @@ std::pair<bool,double> ForwardMeasurementEstimator::estimate( const TrajectorySt
  
   float myZ = gp.z();
   
-  float rMin = theZRangeMin;
-  float rMax = theZRangeMax;
-  float myPhimin = thePhiRangeMin;
-  float myPhimax = thePhiRangeMax;
+  float rMin = theRMin;
+  float rMax = theRMax;
+  float myPhimin = thePhiMin;
+  float myPhimax = thePhiMax;
 
   if(fabs(myZ)> 70. &&  fabs(myZ)<170.)
     {
-      rMin = rMin_;
-      rMax = rMax_;
+      rMin = theRMinI;
+      rMax = theRMaxI;
     }
 
   float phiDiff = tsPhi - rhPhi;
@@ -74,11 +74,11 @@ bool ForwardMeasurementEstimator::estimate( const TrajectoryStateOnSurface& ts,
   GlobalPoint trajPos(ts.globalParameters().position());
   GlobalDetRangeRPhi detRange(plane);
 
-  float theRMin = 0.;
-  float theRMax = 40.; 
+  float r1 = 0.;
+  float r2 = 40.; 
 
-  Range trajRRange(trajPos.perp() - theRMin, trajPos.perp() + theRMax);
-  Range trajPhiRange(trajPos.phi() - fabs(thePhiRangeMin), trajPos.phi() + fabs(thePhiRangeMax));
+  Range trajRRange(trajPos.perp() - r1, trajPos.perp() + r2);
+  Range trajPhiRange(trajPos.phi() - fabs(thePhiMin), trajPos.phi() + fabs(thePhiMax));
 
   if(rangesIntersect(trajRRange, detRange.rRange()) &&
      rangesIntersect(trajPhiRange, detRange.phiRange(), PhiLess())) {

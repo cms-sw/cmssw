@@ -13,7 +13,7 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: PixelHitMatcher.cc,v 1.21 2008/03/21 17:36:02 charlot Exp $
+// $Id: PixelHitMatcher.cc,v 1.23 2008/04/08 16:39:15 uberthon Exp $
 //
 //
 
@@ -37,11 +37,43 @@
 using namespace reco;
 using namespace std;
 
+PixelHitMatcher::PixelHitMatcher(float phi1min, float phi1max, float phi2min, float phi2max, 
+		  float z2minB, float z2maxB, float r2minF, float r2maxF,
+		  float rMinI, float rMaxI, bool searchInTIDTEC) :
+    //zmin1 and zmax1 are dummy at this moment, set from beamspot later
+    meas1stBLayer(phi1min,phi1max,0.,0.), meas2ndBLayer(phi2min,phi2max,z2minB,z2maxB), 
+    meas1stFLayer(phi1min,phi1max,0.,0.), meas2ndFLayer(phi2min,phi2max,r2minF,r2maxF),
+    startLayers(),
+    prop1stLayer(0), prop2ndLayer(0),theGeometricSearchTracker(0),theLayerMeasurements(0),vertex_(0.),
+    searchInTIDTEC_(searchInTIDTEC)
+{
+   meas1stFLayer.setRRangeI(rMinI,rMaxI); 
+   meas2ndFLayer.setRRangeI(rMinI,rMaxI);
+}
+
 PixelHitMatcher::~PixelHitMatcher()
 { 
   delete prop1stLayer;
   delete prop2ndLayer;
   delete theLayerMeasurements;
+}
+  
+void PixelHitMatcher::set1stLayer(float dummyphi1min, float dummyphi1max)
+{ 
+  meas1stBLayer.setPhiRange(dummyphi1min,dummyphi1max);
+  meas1stFLayer.setPhiRange(dummyphi1min,dummyphi1max);
+}
+
+void PixelHitMatcher::set1stLayerZRange(float zmin1, float zmax1)
+{ 
+  meas1stBLayer.setZRange(zmin1,zmax1);
+  meas1stFLayer.setRRange(zmin1,zmax1);
+}
+
+void PixelHitMatcher::set2ndLayer(float dummyphi2min, float dummyphi2max)
+{ 
+  meas2ndBLayer.setPhiRange(dummyphi2min,dummyphi2max);
+  meas2ndFLayer.setPhiRange(dummyphi2min,dummyphi2max);
 }
 
 void PixelHitMatcher::setES(const MagneticField* magField, const MeasurementTracker *theMeasurementTracker, const TrackerGeometry *trackerGeometry){
@@ -214,28 +246,25 @@ vector<pair<RecHitWithDist, PixelHitMatcher::ConstRecHitPointer> >
   // now we have the vector of all valid measurements of the first point
   for (unsigned i=0; i<validMeasurements.size(); i++){
 
-    // std::cout<<"\n run on FH n ==> "<<i<<std::endl;
-
     const DetLayer* newLayer = theGeometricSearchTracker->detLayer(validMeasurements[i].recHit()->det()->geographicalId());
     
     // compute the z vertex from the cluster point and the found pixel hit
+    double zVertexPred;
     double pxHit1z = validMeasurements[i].recHit()->det()->surface().toGlobal(
-									      validMeasurements[i].recHit()->localPosition()).z();
+      validMeasurements[i].recHit()->localPosition()).z();
     double pxHit1x = validMeasurements[i].recHit()->det()->surface().toGlobal(
-									      validMeasurements[i].recHit()->localPosition()).x();
+      validMeasurements[i].recHit()->localPosition()).x();
     double pxHit1y = validMeasurements[i].recHit()->det()->surface().toGlobal(
-									      validMeasurements[i].recHit()->localPosition()).y();
-       
+      validMeasurements[i].recHit()->localPosition()).y();      
     double r1diff = (pxHit1x-vprim.x())*(pxHit1x-vprim.x()) + (pxHit1y-vprim.y())*(pxHit1y-vprim.y());
     r1diff=sqrt(r1diff);
     double r2diff = (xmeas.x()-pxHit1x)*(xmeas.x()-pxHit1x) + (xmeas.y()-pxHit1y)*(xmeas.y()-pxHit1y);
     r2diff=sqrt(r2diff);
-    double zVertexPred = pxHit1z - r1diff*(xmeas.z()-pxHit1z)/r2diff;
+    zVertexPred = pxHit1z - r1diff*(xmeas.z()-pxHit1z)/r2diff;
 
+    if (i==0) vertex_ = zVertexPred;
+    
     GlobalPoint vertexPred(vprim.x(),vprim.y(),zVertexPred);
-    
-    if(i==0)vertex = zVertexPred;
-    
     GlobalPoint hitPos( validMeasurements[i].recHit()->det()->surface().toGlobal(
 										 validMeasurements[i].recHit()->localPosition())); 
     
@@ -323,7 +352,7 @@ vector<Hep3Vector> PixelHitMatcher::predicted2Hits() {
 
 float PixelHitMatcher::getVertex(){
 
-  return vertex;
+  return vertex_;
 }
 
 std::vector<TrajectorySeed> PixelHitMatcher::compatibleSeeds(edm::Handle<TrajectorySeedCollection> &seeds,const GlobalPoint& xmeas,
@@ -384,9 +413,6 @@ std::vector<TrajectorySeed> PixelHitMatcher::compatibleSeeds(edm::Handle<Traject
 	  LocalPoint lp2=(*it).localPosition();
 	  GlobalPoint hitPos2=geomdet2->surface().toGlobal(lp2); 
 	  std::pair<bool,double> est2;
-//           const DetLayer* newLayer2 = theGeometricSearchTracker->detLayer((*it).geographicalId());
-//   	  if (newLayer->location()==GeomDetEnumerators::barrel) est2=meas1stBLayer.estimate(tsos2,hitPos2);
-//   	  if (newLayer->location()==GeomDetEnumerators::endcap) est2=meas1stFLayer.estimate(tsos2,hitPos2);
  	  if (dynamic_cast<const BoundCylinder *>(&(geomdet2->surface()))) est2=meas2ndBLayer.estimate(tsos2,hitPos2);
  	  else est2=meas2ndFLayer.estimate(tsos2,hitPos2); 
 	  if (est2.first) result.push_back((*seeds.product())[i]);

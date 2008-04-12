@@ -17,7 +17,7 @@
 
 #include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHitCollection.h"
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
-#include "DataFormats/Math/interface/Point3D.h"
+#include "DataFormats/BeamSpot/interface/BeamSpot.h"
 
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h"
 #include "TrackingTools/PatternTools/interface/TrajectoryStateUpdator.h"
@@ -40,7 +40,6 @@ class ElectronPixelSeedGenerator: public ElectronSeedGenerator
 {
  public:
 
-  //RC
   typedef edm::OwnVector<TrackingRecHit> PRecHitContainer;
   typedef TransientTrackingRecHit::ConstRecHitPointer   ConstRecHitPointer;
   typedef TransientTrackingRecHit::RecHitPointer        RecHitPointer;
@@ -60,7 +59,7 @@ class ElectronPixelSeedGenerator: public ElectronSeedGenerator
   bool dynamicphiroad_;
   bool fromTrackerSeeds_;
   edm::InputTag initialSeeds_;
-
+  
   float lowPtThreshold_;
   float highPtThreshold_;
   float sizeWindowENeg_;   
@@ -69,7 +68,7 @@ class ElectronPixelSeedGenerator: public ElectronSeedGenerator
   float deltaPhi2_;
   
   double zmin1_, zmax1_;
-  math::XYZPoint BSPosition_;  
+  edm::Handle<reco::BeamSpot> theBeamSpot;
 
   PixelHitMatcher *myMatchEle;
   PixelHitMatcher *myMatchPos;
