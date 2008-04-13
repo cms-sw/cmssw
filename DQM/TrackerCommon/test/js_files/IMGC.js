@@ -959,3 +959,54 @@ IMGC.clearSelection = function ()
  
  IMGC.selectedIMGCItems() ;
 }
+//__________________________________________________________________________________________________________________________________
+// This is an Ajax callback function. It is activated when the web server responds to the request of 
+// providing a list of ME available in a particular DQM folder. The response is packaged by the server
+// as a vector of strings containing the ME names. This list is explored and a new vector is created
+// with each element containing the complete QUERY-STRING to ask the server to provide the corresponding
+// ME plot in the form of a PNG chunk of data. Once this vector is ready (imageURLs) the canvas is 
+// refreshed with a call to IMGC.computeCanvasSize() after a time delay.
+IMGC.processImageURLs = function (ajax)	
+{
+ var imageURLs;
+ var url = IMGC.getApplicationURL();
+
+ try	 
+ { 
+  imageURLs = ajax.responseText.split(/\s+/) ;
+ } catch(errorMessage) {
+  alert('[IMGC.js::IMGC.processIMGCPlots()]\nImage URLs list load failed. Reason: '+error.errorMessage);
+  return 0;	  
+ }
+
+
+ try	 
+ { 
+
+  var canvasW		  = window.innerWidth * IMGC.GLOBAL_RATIO ;
+  IMGC.DEF_IMAGE_WIDTH    = parseInt(canvasW);
+  IMGC.BASE_IMAGE_WIDTH   = IMGC.DEF_IMAGE_WIDTH;
+  IMGC.BASE_IMAGE_HEIGHT  = parseInt(IMGC.BASE_IMAGE_WIDTH / IMGC.ASPECT_RATIO) ;
+  IMGC.THUMB_IMAGE_WIDTH  = IMGC.BASE_IMAGE_WIDTH  / IMGC.IMAGES_PER_ROW;
+  IMGC.THUMB_IMAGE_HEIGHT = IMGC.BASE_IMAGE_HEIGHT / IMGC.IMAGES_PER_COL;
+ 
+  var theFolder = imageURLs[0] ;
+  var tempURLs   = new Array() ;
+  var tempTitles = new Array() ;
+  for( var i=1; i<imageURLs.length-1; i++)
+  {
+   var fullPath = theFolder + "/" + imageURLs[i] ;
+   tempURLs[i-1] = url + "RequestID=GetIMGCImage&Path=" + fullPath;
+   tempTitles[i-1] =theFolder + "|" + imageURLs[i]  
+  }
+
+  $('imageCanvas').imageList	 = tempURLs;
+  $('imageCanvas').titlesList	 = tempTitles;
+  $('imageCanvas').current_start = 0;
+  IMGC.PATH_TO_PICTURES = "" ; 
+			   +
+   setTimeout('IMGC.computeCanvasSize()',2000) ;
+ } catch(errorMessage) {
+  alert('[IMGC.js::IMGC.processIMGCPlots()]\nExecution/syntax error: '+error.errorMessage);
+ }
+}
