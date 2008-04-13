@@ -155,7 +155,7 @@ void SamplingAnalysis::analyse() {
   if(runType_==sistrip::APV_LATENCY) {
     // initialize  the fit (overal latency)
     float max = prof->GetBinCenter(prof->GetMaximumBin());
-    peak_fitter_->SetParameters(0.,-max,10,50,10);
+    peak_fitter_->SetParameters(0.,50-max,10,50,10);
     // fit
     prof->Fit(peak_fitter_,"Q");
     // Set monitorables
