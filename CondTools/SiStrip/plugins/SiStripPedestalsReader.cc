@@ -24,7 +24,7 @@ void SiStripPedestalsReader::analyze( const edm::Event& e, const edm::EventSetup
 	SiStripPedestals::Range range=SiStripPedestals_->getRange(detid[id]);
 	
 	int strip=0;
-	for(int it=0;it<(range.second-range.first)/3;it++){
+	for(int it=0;it<(range.second-range.first)*8/10;it++){
 	  edm::LogInfo("SiStripPedestalsReader")  << "detid  " << detid[id] << " \t"
 						  << " strip " << strip++   << " \t"
 						  << SiStripPedestals_->getPed   (it,range)   << " \t" 
