@@ -23,9 +23,8 @@ def gen(process,name,step,evt_type,energy,evtnumber):
     '''
     func_id=mod_id+"["+sys._getframe().f_code.co_name+"]"
     
-
     process=generator.generate(process,step,evt_type,energy,evtnumber)
-
+    
     if ( name == 'pgen'):
         process.generation_step = cms.Path(getattr(process,name))
     else:

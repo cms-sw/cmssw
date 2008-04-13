@@ -99,18 +99,21 @@ def add_includes(process,PU_flag,step_list,conditions,beamspot):
 
     inc_dict={'GEN':'"Configuration/StandardSequences/data/Generator.cff"',
               'SIM':'"Configuration/StandardSequences/data/Simulation.cff"',
-              'DIGI':'"Configuration/StandardSequences/data/Simulation.cff"',
+              'DIGI':'',
               'RECO':'"Configuration/StandardSequences/data/Reconstruction.cff"',
               'ALCA':'"Configuration/StandardSequences/data/AlCaReco.cff"',
-              'L1':'"Configuration/StandardSequences/data/L1Emulator.cff"',
+              'L1':'"Configuration/StandardSequences/data/L1Emulator.cff" "Configuration/StandardSequences/data/L1TriggerDefaultMenu.cff"',
               'DIGI2RAW':'"Configuration/StandardSequences/data/DigiToRaw.cff"',
               'RAW2DIGI':'"Configuration/StandardSequences/data/RawToDigi.cff"',
               'ANA':'"Configuration/StandardSequences/data/Analysis.cff"',
               'DQM':'"Configuration/StandardSequences/data/Validation.cff"',
               'FASTSIM':'"Configuration/StandardSequences/data/FastSimulation.cff"',
-              'HLT':'"HLTrigger/Configuration/data/HLT_2E30.cff"',
+              'HLT':'"HLTrigger/Configuration/data/HLT_2E30.cff" "HLTrigger/Configuration/data/common/HLTPrescaleReset.cff"',
               'POSTRECO':'"Configuration/StandardSequences/data/PostRecoGenerator.cff"'
               }
+
+# to get the configs to parse, sometimes other steps are needed..
+    dep_dict={'DIGI':'SIM','ALCA':'RECO','HLT':'GEN,SIM,DIGI,L1'}
     
     func_id=mod_id+"["+sys._getframe().f_code.co_name+"]"
     log(func_id+" Entering... ")
@@ -127,11 +130,28 @@ def add_includes(process,PU_flag,step_list,conditions,beamspot):
                  
     from FWCore.ParameterSet.parseConfig import parseConfigString
 
+#try to protect against including multiple times (may or may not matter to speed)
+    sourcedList=['none']
+    
     for s in step_list:
         stepSP=s.split(':') 
         step=stepSP[0]
+
+# first look for dependencies and add them to the include list
+        if ( dep_dict.has_key(step)):
+            depSP=dep_dict[step].split(':')
+            for dep in depSP:
+                if dep not in sourcedList:
+                    sourcedList.append(dep)
+                    if inc_dict[dep] != '':
+                        incs=inc_dict[dep].split(' ')
+                        for inc in incs:
+                            incList.append(inc)
         if inc_dict[step] != '':
-            incList.append(inc_dict[step])
+            incs=inc_dict[step].split(' ')
+            for inc in incs:
+                incList.append(inc)
+        sourcedList.append(step)                    
 
     stringToInclude=''        
     for incF in incList:
@@ -146,14 +166,22 @@ def add_includes(process,PU_flag,step_list,conditions,beamspot):
 
 #-----------------------------------------
 
-def event_input(infile_name):
+def event_input(infile_name,second_name):
     """
     Returns the source for the process.
     """ 
     func_id=mod_id+"["+sys._getframe().f_code.co_name+"]"
-    pr_source=cms.Source("PoolSource",
-                         fileNames = cms.untracked.vstring\
-                                     ((infile_name)))
+    if ( second_name !='' ):
+        pr_source=cms.Source("PoolSource",
+                             fileNames = cms.untracked.vstring\
+                             ((infile_name)),
+                             secondaryFileNames = cms.untracked.vstring\
+                             ((second_name)))
+    else:    
+        pr_source=cms.Source("PoolSource",
+                             fileNames = cms.untracked.vstring\
+                             ((infile_name)))
+        
     log(func_id+" Adding PoolSource source ...")                         
     return pr_source
     
@@ -169,13 +197,21 @@ def event_output(process, outfile_name, step, eventcontent, evt_filter=None):
     content=include_files("Configuration/EventContent/data/EventContent.cff")[0]
         
     process.extend(content)
-    process.out_step = cms.OutputModule\
-                   ("PoolOutputModule",
-                    outputCommands=getattr(content,eventcontent+'EventContent').outputCommands,
-                    fileName = cms.untracked.string(outfile_name),
-                    dataset = cms.untracked.PSet(dataTier =cms.untracked.string(step)),
-                    SelectEvents = cms.untracked.PSet(SelectEvents = cms.vstring('generation_step'))
-                   ) 
+    if hasattr(process,'generation_step'):
+        process.out_step = cms.OutputModule\
+                           ("PoolOutputModule",
+                            outputCommands=getattr(content,eventcontent+'EventContent').outputCommands,
+                            fileName = cms.untracked.string(outfile_name),
+                            dataset = cms.untracked.PSet(dataTier =cms.untracked.string(step)),
+                            SelectEvents = cms.untracked.PSet(SelectEvents = cms.vstring('generation_step'))
+                            ) 
+    else:
+        process.out_step = cms.OutputModule\
+                           ("PoolOutputModule",
+                            outputCommands=getattr(content,eventcontent+'EventContent').outputCommands,
+                            fileName = cms.untracked.string(outfile_name),
+                            dataset = cms.untracked.PSet(dataTier =cms.untracked.string(step))
+                            ) 
     
     process.outpath = cms.EndPath(process.out_step)
     
@@ -251,7 +287,7 @@ def build_production_info(evt_type, energy, evtnumber):
     func_id=mod_id+"["+sys._getframe().f_code.co_name+"]"
     
     prod_info=cms.untracked.PSet\
-              (version=cms.untracked.string("$Revision: 1.8 $"),
+              (version=cms.untracked.string("$Revision: 1.9 $"),
                name=cms.untracked.string("PyReleaseValidation"),
                annotation=cms.untracked.string(evt_type+" energy:"+str(energy)+" nevts:"+str(evtnumber))
               )

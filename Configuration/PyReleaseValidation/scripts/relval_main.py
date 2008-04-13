@@ -123,6 +123,12 @@ process.ReleaseValidation=cms.untracked.PSet(totalNumberOfEvents=cms.untracked.i
                                              eventsPerJob=cms.untracked.int32(evtsperjob),
                                              primaryDatasetName=cms.untracked.string("RelVal"+dsetname.replace('.pkl','')))
 
+
+# Add a last customisation of the process as specified in the file.
+if customisation_file!='':
+    file=__import__(customisation_file[:-3])
+    process=file.customise(process)
+
 """
 Here we choose to make the process work only for one of the four steps 
 (GEN,SIM DIGI RECO) or for the whole chain (ALL)
@@ -134,15 +140,14 @@ for s in step_list:
     step=stepSP[0]
     pathname=''
     if ( len(stepSP)>1):
-        stepSP[1]
+        pathname=stepSP[1]
     if ( pathname == '' ):
        pathname=pathName_dict[step]
-    print 'doing: ' + step + ' ' + pathname
     if ( isFirst==0 ):   
         if step in ('GEN'):
-            process=steps.gen(process,'pgen',step,evt_type,energy,evtnumber)           
+            process=steps.gen(process,pathname,step,evt_type,energy,evtnumber)           
         else:
-            process.source = common.event_input(infile_name) 
+            process.source = common.event_input(infile_name,insecondfile_name) 
             process=step_dict[step](process,pathname)                      
         isFirst=1
     else:    
@@ -163,13 +168,11 @@ if output_flag:
         process = common.raw_output\
                   (process, rawfile_name)
         process.schedule.append(process.outpath_raw)  
-# look for alca reco
-    print 'looking for keys'
 
+# look for alca reco
     nALCA=0
     for k in process.schedule:
         if ( k.label()[0:12]=='pathALCARECO'):
-            print k.label()
             nALCA=nALCA+1
             if nALCA==1:
                 content=common.include_files("Configuration/EventContent/data/AlCaRecoOutput.cff")[0]
@@ -187,15 +190,11 @@ if output_flag:
             setattr(process,modName,poolOutT)
             setattr(process,pathName,cms.EndPath(getattr(process,modName)))
             process.schedule.append(getattr(process,pathName))
-    print 'Number of AlCaReco streams added: '+str(nALCA)
+    if ( nALCA>0):        
+        print 'Number of AlCaReco output streams added: '+str(nALCA)
     
 # Add metadata for production                                    
 process.configurationMetadata=common.build_production_info(evt_type, energy, evtnumber) 
-
-# Add a last customisation of the process as specified in the file.
-if customisation_file!='':
-    file=__import__(customisation_file[:-3])
-    process=file.customise(process)
 
 # print to screen the config file in the old language
 if dump_cfg!='':

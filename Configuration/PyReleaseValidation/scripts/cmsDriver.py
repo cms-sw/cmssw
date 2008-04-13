@@ -137,6 +137,12 @@ parser.add_option("--filein",
                    default="",#to be changed in the default form later
                    dest="filein")
 
+parser.add_option("--secondfilein",
+                   help="The secondary infile name."+\
+                        "for the two-file solution. Default is no file",
+                   default="",#to be changed in the default form later
+                   dest="secondfilein")
+
 parser.add_option("--fileout",
                    help="The outfile name. If absent a default value is "+\
                         "assigned. The form is <type>_<energy>_<step>.root.",
@@ -234,11 +240,6 @@ parser.add_option("--no_exec",
                   action="store_true",
                   default=False,
                   dest="no_exec_flag")   
-                  
-parser.add_option("--substep3",
-                  help="Substitute the \"p3\" sequence with userdefined names.Use ONLY commas to separate values.",
-                  default="",
-                  dest="newstep3")                                  
                   
 parser.add_option("--customise",
                   help="Specify the file where the code to modify the process object is stored.",
@@ -353,10 +354,6 @@ if options.dump_cfg:
         cfg_config_filename+="_ana"
     cfg_config_filename+=".cfg"
     
-#prepare new step3 list:
-newstep3list=[]
-if options.newstep3!="":
-    newstep3list=options.newstep3.split(",")    
 
 # Print the options to screen
 if not options.dump_dsetname_flag:
@@ -369,6 +366,10 @@ ext_process_name=options.evt_type+options.energy+trimmedStep
 if options.dump_dsetname_flag:
     print ext_process_name
     sys.exit(0) # no need to go further
+
+secondfilestr=''
+if options.secondfilein!='':
+    secondfilestr=options.dirin+options.secondfilein
     
 cfgfile="""
 #############################################################
@@ -408,6 +409,7 @@ evtnumber="""+options.number+"""
 releasevalidation=("""+options.relval+""")
 # Input and output file names
 infile_name='"""+options.dirin+options.filein+"""'
+insecondfile_name='"""+secondfilestr+"""'
 outfile_name='"""+options.dirout+options.fileout+"""'
 rawfile_name='"""+fileraw+"""'
 eventcontent='"""+options.eventcontent+"""'
@@ -422,8 +424,6 @@ output_flag="""+str(not options.no_output_flag)+"""
 profiler_service_cuts='"""+options.profiler_service_cuts+"""'
 # Use the floating point exception module:
 fpe_service_flag="""+str(options.fpe_service_flag)+"""
-# Substitute Step 3 sequence
-newstep3list="""+str(newstep3list)+"""
 # The anlaysis
 analysis_flag="""+str(options.analysis_flag)+"""
 # Customisation_file
