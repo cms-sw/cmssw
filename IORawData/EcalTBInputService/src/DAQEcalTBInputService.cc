@@ -1,6 +1,6 @@
 /*
- *  $Date: 2008/03/05 19:06:42 $
- *  $Revision: 1.18 $
+ *  $Date: 2008/03/05 19:59:16 $
+ *  $Revision: 1.19 $
  *  \author N. Amapane - S. Argiro'
  *  \author G. Franzoni
  */
@@ -19,7 +19,7 @@ using namespace std;
 
 DAQEcalTBInputService::DAQEcalTBInputService(const ParameterSet& pset, 
 					     const InputSourceDescription& desc) : 
-  edm::ExternalInputSource(pset,desc), fileCounter_(0), eventRead_(0)
+  edm::ExternalInputSource(pset,desc), reader_(0), fileCounter_(0), eventRead_(0)
 {    
   isBinary_= pset.getUntrackedParameter<bool>("isBinary",true);
   if ( isBinary_ ) {

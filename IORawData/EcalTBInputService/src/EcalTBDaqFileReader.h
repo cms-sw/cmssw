@@ -1,9 +1,6 @@
 #ifndef EcalTBDaqFileReader_H
 #define EcalTBDaqFileReader_H
 
-
-
-
 #include <iosfwd>
 #include <string>
 #include <vector>
@@ -21,8 +18,6 @@ struct FedDataPair {
   unsigned char* fedData;
   int len;
 };
-
-
 
 class EcalTBDaqFileReader  {
 

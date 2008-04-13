@@ -12,15 +12,17 @@
 #include<fstream>
 #include <string>
 
-
 using namespace std;
 using namespace edm;
 
 EcalTBDaqFileReader::EcalTBDaqFileReader(): initialized_(false), inputFile_(0) { 
   LogDebug("EcalTBInputService") << "@SUB=EcalTBDaqFileReader";
 
-}
+  // Reset cachedData_
+  cachedData_.len=0;
+  cachedData_.fedData=0;
 
+}
 
 EcalTBDaqFileReader::~EcalTBDaqFileReader(){ 
 
@@ -47,8 +49,6 @@ bool EcalTBDaqFileReader::isInitialized(){
   return initialized_;
 
 }
-
-
 
 void EcalTBDaqFileReader::initialize(const string & file, bool isBinary){
 
@@ -138,7 +138,6 @@ bool EcalTBDaqFileReader::fillDaqEventData() {
 	}
     }
 }
-
 
 void  EcalTBDaqFileReader::setFEDHeader() {
 
