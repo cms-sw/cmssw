@@ -440,6 +440,7 @@ void HLTBtagLifetimeAnalyzer::endJob()
       m_offlinePlots[i].efficiency( m_offlinePlots[0] ).save(*dir);
     }
 
+    m_ratePlots.save(*dir);
     m_vertexPlots.save(*dir);
   }
 
