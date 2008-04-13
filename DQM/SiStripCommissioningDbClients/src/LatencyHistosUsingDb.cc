@@ -1,10 +1,13 @@
-// Last commit: $Id: LatencyHistosUsingDb.cc,v 1.8 2008/04/10 15:01:50 delaer Exp $
+// Last commit: $Id: LatencyHistosUsingDb.cc,v 1.9 2008/04/11 16:12:43 delaer Exp $
 
 #include "DQM/SiStripCommissioningDbClients/interface/LatencyHistosUsingDb.h"
 #include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
 #include "DataFormats/SiStripCommon/interface/SiStripFecKey.h"
 #include <DataFormats/DetId/interface/DetId.h>
 #include <iostream>
+
+//TODO: fix this
+#define MAXFEDCOARSE 14
 
 using namespace sistrip;
 
@@ -113,15 +116,36 @@ bool LatencyHistosUsingDb::update( SiStripConfigDb::DeviceDescriptions& devices,
       << " Updated NO Latency settings. No analysis result available !" ;
     return false;
   }
+
+  // Compute the minimum coarse delay
+  uint16_t minCoarseDelay = 256;
+  SiStripConfigDb::DeviceDescriptions::iterator idevice;
+  for ( idevice = devices.begin(); idevice != devices.end(); idevice++ ) {
+    // Check device type
+    if ( (*idevice)->getDeviceType() == PLL ) {
+      // Cast to retrieve appropriate description object
+      pllDescription* desc = dynamic_cast<pllDescription*>( *idevice );
+      if ( desc ) { 
+        // add 1 to aim at 1 and not 0 (just to avoid a special 0 value for security)
+        int delayCoarse = desc->getDelayCoarse() - 1;
+        minCoarseDelay = minCoarseDelay < delayCoarse ? minCoarseDelay : delayCoarse;
+      }
+    }
+  }
+
+  // Compute latency and PLL shift from the sampling measurement
   SamplingAnalysis* anal = dynamic_cast<SamplingAnalysis*>( data().begin()->second );
   uint16_t latency = uint16_t(ceil(anal->maximum()/(-25.)));
   float shift = anal->maximum()-(latency*(-25));
+
+  // Take into account the minimum coarse delay to bring the coarse delay down
+  // the same quantity is subtracted to the coarse delay of each APV 
+  latency -= minCoarseDelay;
   
   // Iterate through devices and update device descriptions
   uint16_t updatedAPV = 0;
   uint16_t updatedPLL = 0;
   std::vector<SiStripFecKey> invalid;
-  SiStripConfigDb::DeviceDescriptions::iterator idevice;
   for ( idevice = devices.begin(); idevice != devices.end(); idevice++ ) {
     // Check device type
     if ( (*idevice)->getDeviceType() != APV25 ) { continue; }
@@ -148,6 +172,7 @@ bool LatencyHistosUsingDb::update( SiStripConfigDb::DeviceDescriptions& devices,
     LogTrace(mlDqmClient_) << ss.str();
     updatedAPV++;
   }
+
   // Change also the PLL delay
   for ( idevice = devices.begin(); idevice != devices.end(); idevice++ ) {
     // Check device type
@@ -169,6 +194,7 @@ bool LatencyHistosUsingDb::update( SiStripConfigDb::DeviceDescriptions& devices,
     float delay = desc->getDelayCoarse()*25+desc->getDelayFine()*25./24. + shift;
     int delayCoarse = int(delay/25);
     int delayFine   = int(round((delay-25*delayCoarse)*24./25.));
+    delayCoarse -= minCoarseDelay;
     //  maximum coarse setting
     if ( delayCoarse > 15 ) { invalid.push_back(fec_key); delayCoarse = sistrip::invalid_; }
     // Update PLL settings
@@ -195,8 +221,35 @@ bool LatencyHistosUsingDb::update( SiStripConfigDb::DeviceDescriptions& devices,
        LogTrace(mlDqmClient_) << ss.str();
     }
   }
+  
   // Retrieve FED ids from cabling
   std::vector<uint16_t> ids = cabling()->feds() ;
+
+  // loop over the FED ids to determine min and max values of coarse delay
+  uint16_t minDelay = 256;
+  uint16_t maxDelay = 0;
+  uint16_t fedDelayCoarse = 0;
+  for ( SiStripConfigDb::FedDescriptions::iterator ifed = feds.begin(); ifed != feds.end(); ifed++ ) {
+    // If FED id not found in list (from cabling), then continue
+    if ( find( ids.begin(), ids.end(), (*ifed)->getFedId() ) == ids.end() ) { continue; }
+    const std::vector<FedChannelConnection>& conns = cabling()->connections((*ifed)->getFedId());
+    // loop over the connections for that FED
+    for ( std::vector<FedChannelConnection>::const_iterator iconn = conns.begin(); iconn != conns.end(); iconn++ ) {
+      // check that this is a tracker module
+      if(DetId(iconn->detId()).det()!=DetId::Tracker) continue;
+      // build the Fed9UAddress for that channel. Used to update the description.
+      Fed9U::Fed9UAddress fedChannel = Fed9U::Fed9UAddress(iconn->fedCh());
+      // retreive the current value for the delays
+      fedDelayCoarse = (*ifed)->getCoarseDelay(fedChannel);
+      // update min and max
+      minDelay = minDelay<fedDelayCoarse ? minDelay : fedDelayCoarse;
+      maxDelay = maxDelay>fedDelayCoarse ? maxDelay : fedDelayCoarse;
+    }
+  }
+
+  // compute the FED coarse global offset
+  int offset = (10-minDelay)*25;  // try to ensure 10BX room for later fine delay scan
+  if(maxDelay+(offset/25)>MAXFEDCOARSE) offset = (MAXFEDCOARSE-maxDelay)*25; // otherwise, take the largest possible
 
   // loop over the FED ids
   for ( SiStripConfigDb::FedDescriptions::iterator ifed = feds.begin(); ifed != feds.end(); ifed++ ) {
@@ -214,7 +267,7 @@ bool LatencyHistosUsingDb::update( SiStripConfigDb::DeviceDescriptions& devices,
       int fedDelayFine = (*ifed)->getFineDelay(fedChannel);
       // compute the FED delay
       // this is done by substracting the best (PLL) delay to the present value (from the db)
-      int fedDelay = int(fedDelayCoarse*25. - fedDelayFine*24./25. - round(shift) + 25);
+      int fedDelay = int(fedDelayCoarse*25. - fedDelayFine*24./25. - round(shift) + offset);
       fedDelayCoarse = (fedDelay/25)+1;
       fedDelayFine = fedDelayCoarse*25-fedDelay;
       // update the FED delay
@@ -232,9 +285,11 @@ bool LatencyHistosUsingDb::update( SiStripConfigDb::DeviceDescriptions& devices,
     }
   }
 
+  // Summary output
   edm::LogVerbatim(mlDqmClient_)
       << "[LatencyHistosUsingDb::" << __func__ << "]"
       << " Updated FED delays for " << ids.size() << " FEDs!";
+      
   // Check if invalid settings were found
   if ( !invalid.empty() ) {
     std::stringstream ss;
@@ -255,6 +310,7 @@ bool LatencyHistosUsingDb::update( SiStripConfigDb::DeviceDescriptions& devices,
     return false;
   }
 
+  // Summary output
   edm::LogVerbatim(mlDqmClient_) 
     << "[LatencyHistosUsingDb::" << __func__ << "] "
     << "Updated settings for " << updatedAPV << " APV devices and " << updatedPLL << " PLL devices.";
