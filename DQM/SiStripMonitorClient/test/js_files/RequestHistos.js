@@ -32,7 +32,7 @@ RequestHistos.RequestHistoList = function()
   }
 }
 //
-// -- Request summary histogram tree
+
 //
 RequestHistos.RequestSummaryHistoList = function()
 {
@@ -218,13 +218,10 @@ RequestHistos.DrawSelectedHistos = function()
   var hist_opt   = RequestHistos.SetHistosAndPlotOption();
   if (hist_opt == " ") return;
   queryString   += hist_opt;
-  IMGC.computeCanvasSize();
+//  IMGC.computeCanvasSize();
   queryString += '&width='+IMGC.BASE_IMAGE_WIDTH+
                  '&height='+IMGC.BASE_IMAGE_HEIGHT;
   url += queryString;
-  IMGC.IMAGES_PER_ROW      = 2;
-  IMGC.IMAGES_PER_COL      = 2; 
-  IMGC.IMAGES_PER_PAGE     = IMGC.IMAGES_PER_ROW * IMGC.IMAGES_PER_COL;
   var getMEURLS = new Ajax.Request(url,                    
  	 		         {			  
  	 		          method: 'get',	  
@@ -297,15 +294,12 @@ RequestHistos.DrawSingleHisto = function(path)
   queryString  = 'RequestID=PlotHistogramFromPath';
   queryString += '&Path='+path;
   queryString += '&histotype=summary';
-  IMGC.computeCanvasSize();
+//  IMGC.computeCanvasSize();
   queryString += '&width='+IMGC.BASE_IMAGE_WIDTH+
                  '&height='+IMGC.BASE_IMAGE_HEIGHT;
 
   url         += queryString;
 
-  IMGC.IMAGES_PER_ROW      = 2;
-  IMGC.IMAGES_PER_COL      = 2; 
-  IMGC.IMAGES_PER_PAGE     = IMGC.IMAGES_PER_ROW * IMGC.IMAGES_PER_COL;
   var getMEURLS = new Ajax.Request(url,                    
  	 		         {			  
  	 		          method: 'get',	  
@@ -365,13 +359,13 @@ RequestHistos.FillStatus = function(transport) {
           for (var i = 1; i < mrows.length; i++) {
             var name = mrows[i].childNodes[0].nodeValue;
             tempImages[i-1] = url + "RequestID=GetIMGCImage&Path=" + 
-                           hpath + "/" + name;
+                           hpath + "/" + name + "&Date=" + date;
             tempTitles[i-1] = hpath + "|" + name;
           }
         }
         $('imageCanvas').imageList     = tempImages;
 	$('imageCanvas').titlesList    = tempTitles;
-        setTimeout('IMGC.computeCanvasSize()',2000) ;	
+        setTimeout('IMGC.computeCanvasSize()',10000) ;	
       }
     }
     catch (err) {

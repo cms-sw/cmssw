@@ -111,9 +111,12 @@ void SiStripHistoPlotter::getNamedImageBuffer(const string& path, string& image)
   map<string, string>::iterator cPos = namedPictureBuffer_.find(path);
   if (cPos != namedPictureBuffer_.end()) {
     image = cPos->second;
+    if (namedPictureBuffer_.size() > 99 ) namedPictureBuffer_.erase(cPos);
   } else {
-    cout << " No Image found for :"
-         <<  path << endl;
+    cout << " Sending Dummy Image for :"
+	 <<  path << endl;
+     cPos = namedPictureBuffer_.find("Dummy");
+     image = cPos->second;
   }
 }
 /*! \brief (Documentation under construction).
@@ -159,11 +162,9 @@ void SiStripHistoPlotter::fillNamedImageBuffer(TCanvas * c1, const std::string& 
                // default (and so far only) TImage implementation in root, TASImage.
   
   // clear the first element map if # of entries > 30
-  if (namedPictureBuffer_.size() > 30) {
-    namedPictureBuffer_.erase(namedPictureBuffer_.begin());
-  }
   if (hasNamedImage(name)) namedPictureBuffer_.erase(name);
   namedPictureBuffer_[name] = local_str.str();
+  //  if (namedPictureBuffer_[name].size() > 0) cout << "image created " << name << endl;
 }
 //
 // -- Check if the image exists

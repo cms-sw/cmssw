@@ -181,18 +181,18 @@ void SiStripInformationExtractor::getSingleModuleHistos(DQMStore * dqm_store,
   setHTMLHeader(out);
   *out << path << " ";
 
-  for (vector<MonitorElement *>::const_iterator it = all_mes.begin();
-       it!= all_mes.end(); it++) {
-    MonitorElement * me = (*it);
-    if (!me) continue;
-    string name = me->getName();
-    for (vector<string>::const_iterator ih = hlist.begin();
-	 ih != hlist.end(); ih++) {      
-      
-      if (name.find(*ih) != string::npos) {
-	string full_path = path + "/" + name;
+  for (vector<string>::const_iterator ih = hlist.begin();
+       ih != hlist.end(); ih++) {
+    for (vector<MonitorElement *>::const_iterator it = all_mes.begin();
+	 it!= all_mes.end(); it++) {
+      MonitorElement * me = (*it);
+      if (!me) continue;
+      string hname = me->getName();
+      string name = hname.substr(0, hname.find("__det__"));
+      if (name == (*ih)) {
+	string full_path = path + "/" + hname;
 	histoPlotter_->setNewPlot(full_path, opt, width, height);
-	*out << name << " " ;
+	*out << hname << " " ;
       }
     }
   }
@@ -217,18 +217,18 @@ void SiStripInformationExtractor::getGlobalHistos(DQMStore* dqm_store, const mul
   setHTMLHeader(out);
   *out << path << " ";
 
-  for (vector<MonitorElement *>::const_iterator it = all_mes.begin();
-       it!= all_mes.end(); it++) {
-    MonitorElement * me = (*it);
-    if (!me) continue;
-    string name = me->getName();
-    for (vector<string>::const_iterator ih = hlist.begin();
-	 ih != hlist.end(); ih++) {      
-      
-      if (name.find(*ih) != string::npos) {
-	string full_path = path + "/" + name;
+  for (vector<string>::const_iterator ih = hlist.begin();
+       ih != hlist.end(); ih++) {      
+    for (vector<MonitorElement *>::const_iterator it = all_mes.begin();
+	 it!= all_mes.end(); it++) {
+      MonitorElement * me = (*it);
+      if (!me) continue;
+      string hname = me->getName();
+      string name = hname.substr(0, hname.find("__det__"));
+      if (name == (*ih)) {
+	string full_path = path + "/" + hname;
 	histoPlotter_->setNewPlot(full_path, opt, width, height);
-	*out << name << " " ;
+	*out << hname << " " ;
       }
     }
   }
@@ -338,17 +338,18 @@ void SiStripInformationExtractor::getTrackerMapHistos(DQMStore* dqm_store, const
   vector<MonitorElement*> all_mes = dqm_store->getContents(path);
   setHTMLHeader(out);
   *out << path << " ";
-  for (vector<MonitorElement *>::const_iterator it = all_mes.begin();
-       it!= all_mes.end(); it++) {
-    MonitorElement * me = (*it);
-    if (!me) continue;
-    string name = me->getName(); 
-    for (vector<string>::iterator ih = hlist.begin();
+  for (vector<string>::iterator ih = hlist.begin();
        ih != hlist.end(); ih++) {
-      if (name.find(*ih) != string::npos) {
-	string full_path = path + "/" + name;
+    for (vector<MonitorElement *>::const_iterator it = all_mes.begin();
+	 it!= all_mes.end(); it++) {
+      MonitorElement * me = (*it);
+      if (!me) continue;
+      string hname = me->getName(); 
+      string name = hname.substr(0, hname.find("__det__"));
+      if (name == (*ih)) {	
+	string full_path = path + "/" + hname;
 	histoPlotter_->setNewPlot(full_path, opt, width, height);
-	*out << name << " " ;
+	*out << hname << " " ;
       }      
     }
   }   
