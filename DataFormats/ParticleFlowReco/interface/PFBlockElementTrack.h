@@ -56,10 +56,10 @@ namespace reco {
    void setMuonRef(const MuonRef& muref) { muonRef_=muref; setTrackType(MUON,true); }
 
    /// \return ref to original recoConversion
-   ConversionRef convRef() const {return conversionRef_;} 
+   ConversionRef convRef() const {return convRef_;} 
 
    /// \set the ref to  gamma conversion
-   void setConversionRef(const ConversionRef& convRef, TrackType trType) { conversionRef_ = convRef; setTrackType(trType,true); } 
+   void setConversionRef(const ConversionRef& convRef, TrackType trType) { convRef_ = convRef; setTrackType(trType,true); } 
 
 
 
@@ -81,7 +81,7 @@ namespace reco {
     reco::MuonRef muonRef_;
 
     /// reference to reco conversion
-    ConversionRef conversionRef_;    
+    ConversionRef convRef_;    
 
   };
 }
