@@ -3,7 +3,6 @@
 <use name=DataFormats/SiStripCommon>
 <use name=DataFormats/SiStripDetId>
 <use name=CondFormats/SiStripObjects>
-<use name=CondFormats/SiStripObjects>
 <use name=CalibTracker/SiStripCommon>
 <use name=boost>
 
