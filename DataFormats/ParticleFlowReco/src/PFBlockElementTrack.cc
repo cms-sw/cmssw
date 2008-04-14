@@ -16,6 +16,7 @@ PFBlockElementTrack::PFBlockElementTrack(const PFRecTrackRef& ref) :
   trackRef_( ref->trackRef() ),
   trackType_(0) {
       nuclInterRef_ = NuclearInteractionRef();
+      conversionRef_ = ConversionRef();
       setTrackType( DEFAULT, true );      
 } 
 
