@@ -75,7 +75,7 @@ $UserWebArea=$ARGV[0];
 	     );
 @IgProfMemAnalyseOut=( #This is the special case of IgProfMemAnalyse
 		      "doBeginJob_output.html",
-		      "doProduce_output.html",
+		      "doEvent_output.html",
 		      "mem_live.html"
 		      );
 @memcheck_valgrindOut=( #This is the special case of Valgrind MemCheck (published via Giovanni's script)

@@ -6,7 +6,7 @@ $CMSSW_RELEASE_BASE=$ENV{'CMSSW_RELEASE_BASE'};
 $CMSSW_VERSION=$ENV{'CMSSW_VERSION'};
 $HOST=$ENV{'HOST'};
 
-#Default CASTOR directory:
+#CASTOR directory handling:
 if ($#ARGV==0)
 {
     $CASTOR_DIR=$ARGV[0];
@@ -14,7 +14,8 @@ if ($#ARGV==0)
 }
 elsif ($#ARGV<0)
 {
-    $CASTOR_DIR="/castor/cern.ch/user/r/relval/performance/";
+    #Define here the default CASTOR directory:
+    $CASTOR_DIR="/castor/cern.ch/cms/store/relval/performance";
     print "Default CASTOR directory where the tarball with the results will be archived is:\n$CASTOR_DIR\n";
 }
 else
@@ -241,7 +242,7 @@ for ($i=0;$i<$cmsScimark2NumOfTimes;$i++)
 {
         $j=$i+1;
     print "$Taskset cmsScimark2 \[$j/$cmsScimark2NumOfTimes\]\n";
-    #$scimark=`$Taskset cmsScimark2`;
+    $scimark=`$Taskset cmsScimark2`;
     print SCIMARK "$Taskset cmsScimark2 \[$j/$cmsScimark2NumOfTimes\]\n";
     print SCIMARK "$scimark\n";
 }
@@ -254,7 +255,7 @@ for ($i=0;$i<$cmsScimark2LargeNumOfTimes;$i++)
 {
         $j=$i+1;
     print "$Taskset cmsScimark2 -large \[$j/$cmsScimark2NumOfTimes\]\n";
-    #$scimarklarge=`$Taskset cmsScimark2 -large`;
+    $scimarklarge=`$Taskset cmsScimark2 -large`;
     print SCIMARKLARGE "$Taskset cmsScimark2 -large \[$j/$cmsScimark2NumOfTimes\]\n";
     print SCIMARKLARGE "$scimarklarge\n";
 }
@@ -267,12 +268,12 @@ print "$cmsScimarkStop\n";
 system("$cmsScimarkStop");
 #Create a tarball of the work directory 
 $TarFile=$CMSSW_VERSION.'_'.$HOST.'_work.tar';
-print "tar -cvf $TarFile *; gzip $TarFile";
+print "tar -cvf $TarFile *; gzip $TarFile\n";
 system("tar -cvf $TarFile *; gzip $TarFile");
 $TarFileGzip=$TarFile.".gz";
-$CastorFile=$CASTOR_DIR.$TarFile;
+$CastorFile=$CASTOR_DIR.$TarFileGzip;
 #Archive the tarball in CASTOR
-print "rfcp $TarFileGzip $CastorFile";
+print "rfcp $TarFileGzip $CastorFile \n";
 system("rfcp $TarFileGzip $CastorFile");
 exit;
 
