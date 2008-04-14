@@ -158,12 +158,14 @@ void SamplingAnalysis::analyse() {
     peak_fitter_->SetParameters(0.,50-max,10,50,10);
     // fit
     prof->Fit(peak_fitter_,"Q");
+    prof->Fit(peak_fitter_,"QEWM");
     // Set monitorables
     max_ = peak_fitter_->GetMaximumX();
     error_ = peak_fitter_->GetParError(1);
   } else { // sistrip::FINE_DELAY
     // fit
     prof->Fit(deconv_fitter_,"Q");
+    prof->Fit(deconv_fitter_,"QEWM");
     // Set monitorables
     max_ = deconv_fitter_->GetMaximumX();
     error_ = deconv_fitter_->GetParError(1);
