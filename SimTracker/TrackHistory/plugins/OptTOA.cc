@@ -15,7 +15,7 @@
 //
 // Original Author:  Victor Bazterra
 //         Created:  Tue Mar 13 14:15:40 CDT 2007
-// $Id: OptTOA.cc,v 1.6 2008/03/17 22:52:28 bazterra Exp $
+// $Id: OptTOA.cc,v 1.7 2008/04/07 14:12:56 bazterra Exp $
 //
 //
 
@@ -163,8 +163,8 @@ private:
       chi2 = new TH1F(name.c_str(), title.c_str(), 100, 0., 30.);
 
       name = std::string("pixelhits_") + particleType;
-      title = std::string("Pt distribution for ") + particleType;
-      pixelhits = new TH1F(name.c_str(), title.c_str(), 7, -0.5, 6.5);
+      title = std::string("Pixel hits distribution for ") + particleType;
+      pixelhits = new TH1F(name.c_str(), title.c_str(), 21, -0.5, 20.5);
 
       name = std::string("pt_1Gev_") + particleType;
       title = std::string("Pt distribution close 1Gev for ") + particleType;
