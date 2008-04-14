@@ -6,7 +6,8 @@
 #include "DataFormats/ParticleFlowReco/interface/PFClusterFwd.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/MuonReco/interface/MuonFwd.h"
-
+#include "DataFormats/EgammaCandidates/interface/Conversion.h"
+#include "DataFormats/EgammaCandidates/interface/ConversionFwd.h"
 
 #include <iostream>
 
@@ -93,11 +94,14 @@ namespace reco {
     virtual PFRecTrackRef trackRefPF()  const {return PFRecTrackRef(); }
     virtual PFClusterRef clusterRef() const {return PFClusterRef(); }
     virtual NuclearInteractionRef nuclearRef() const { return NuclearInteractionRef(); }
+    virtual ConversionRef    convRef() const { return ConversionRef();}
     virtual MuonRef muonRef() const { return MuonRef(); }
     virtual void setNuclearRef(const NuclearInteractionRef& niref, TrackType trType) { 
-          std::cout << "Error in PFBlockElement::setNuclearRef : this base class method is not implemented" << std::endl;}
+      std::cout << "Error in PFBlockElement::setNuclearRef : this base class method is not implemented" << std::endl;}
+    virtual void setConversionRef(const ConversionRef& convRef, TrackType trType) { 
+      std::cout << "Error in PFBlockElement::setConversionRef : this base class method is not implemented" << std::endl;}
     virtual void setMuonRef(const MuonRef& muref) { 
-          std::cout << "Error in PFBlockElement::setMuonRef : this base class method is not implemented" << std::endl;}
+      std::cout << "Error in PFBlockElement::setMuonRef : this base class method is not implemented" << std::endl;}
 
     virtual bool isSecondary() const { return false; }
 
