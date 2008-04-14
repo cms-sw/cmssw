@@ -1,15 +1,15 @@
 #!/usr/local/bin/perl
 #     R. Mankel, DESY Hamburg     10-Jul-2007
 #     A. Parenti, DESY Hamburg    27-Mar-2008
-#     $Revision: 1.14 $
-#     $Date: 2008/03/25 16:15:57 $
+#     $Revision: 1.1 $
+#     $Date: 2008/04/10 16:10:12 $
 #
 #  Re-Setup failed jobs for resubmission
 #  
 #
 #  Usage:
 #
-#  mps_retry.pl [job sequence numbers] [jobstates] [replacement class]
+#  mps_retry.pl [job sequence numbers | jobstates]
 #
 
 use lib './mpslib';
@@ -19,7 +19,6 @@ $sdir = get_sdir();
 
 @MODSTATES = ();
 @MODJOBS = ();
-$modClass = "";
 $refresh = "no";
 $retryMerge = 0;
 $force = 0;
@@ -53,16 +52,7 @@ while (@ARGV) {
   else {                # parameters not related to options
     $i = $i + 1;
 
-    # array of valid job queues
-    push @ARR,"8nm","1nh","8nh","1nd","2nd","1nw","2nw","cmsalca","cmscaf";
-    $string = "^$arg\$";
-    $nn = grep /$string/,@ARR;
-    # print "nn is $nn \n";
-    if ( (grep /$string/,@ARR) > 0) {
-      print "Parameter $arg interpreted as job class\n";
-      $modClass = $arg;
-    }
-    elsif (($arg =~ m/\d+/) eq 1) {
+    if (($arg =~ m/\d+/) eq 1) {
       print "Parameter $arg interpreted as job number\n";
       push @MODJOBS,$arg;
     }
@@ -80,12 +70,6 @@ read_db();
 
 # counter for rescheduled jobs
 $nDone = 0;
-
-# default modifier settings
-if ($modClass eq "") {
-  $modClass = $class;  # re-use previous class
-}
-
 
 if ($retryMerge != 1) {
     # loop over all jobs
@@ -110,16 +94,11 @@ else {
     $i = $nJobs;
     if (@JOBSTATUS[$i] eq "ABEND"
 	or @JOBSTATUS[$i] eq "FAIL"
-        or @JOBSTATUS[$i] eq "OK"
-	or @JOBSTATUS[$i] eq "TIMEL") {
+	or @JOBSTATUS[$i] eq "TIMEL"
+	or $force == 1) {
 	reScheduleM($i,$refresh);
 	++$nDone;
     }
-}
-
-if (modClass ne $class) {
-  $class = $modClass;
-  print "Changed job class to $class\n";
 }
 
 print "$nDone jobs have been rescheduled\n";
