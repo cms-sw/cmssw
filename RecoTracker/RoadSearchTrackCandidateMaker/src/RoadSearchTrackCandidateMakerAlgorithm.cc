@@ -10,8 +10,8 @@
 // Created:         Wed Mar 15 13:00:00 UTC 2006
 //
 // $Author: noeding $
-// $Date: 2008/04/14 17:19:26 $
-// $Revision: 1.51 $
+// $Date: 2008/04/14 21:01:31 $
+// $Revision: 1.52 $
 //
 
 #include <vector>
@@ -91,7 +91,7 @@ RoadSearchTrackCandidateMakerAlgorithm::RoadSearchTrackCandidateMakerAlgorithm(c
   measurementTrackerName_ = conf_.getParameter<std::string>("MeasurementTrackerName");
   
   debug_ = false;
-  debugCosmics_ = true;
+  debugCosmics_ = false;
 
   maxPropagationDistance = 1000.0; // 10m
 }
@@ -1445,6 +1445,8 @@ TrackCandidateCollection RoadSearchTrackCandidateMakerAlgorithm::PrepareTrackCan
     
     //generate vector of *valid* trajectories -> traj
     std::vector<Trajectory> traj;
+
+    //keep track of trajectories which are used during merging
     std::vector<bool> trajUsed;
 
     for (std::vector<Trajectory>::iterator it = theTrajectories.begin(); it != theTrajectories.end(); ++it) {
@@ -1463,20 +1465,10 @@ TrackCandidateCollection RoadSearchTrackCandidateMakerAlgorithm::PrepareTrackCan
       }
     }
 
-    //generate vector of unmerged valid trajectories
-    std::vector<Trajectory> unMergedTraj;
-
     //double nested looop to find trajectories that match in phi
-    //for (std::vector<Trajectory>::iterator it1 = traj.begin(); it1 != traj.end(); it1++) {
     for ( unsigned int i = 0; i < traj.size(); ++i) {
     
-      //if(traj.size()>1 && it1==traj.end()-1) trajectory1_matched=true; //retain trajectory if
-      
-      //for (std::vector<Trajectory>::iterator it2 = it1+1; it2 != traj.end(); it2++) {
       for ( unsigned int j = i+1; j != traj.size(); ++j) {
-	
-	bool useTrajectory1 = false;
-	bool useTrajectory2 = false;
 	
 	if (debugCosmics_) std::cout<< "Trajectory 1 has "<<traj[i].recHits().size()<<" hits with chi2=" << traj[i].chiSquared() << " and is valid"<<std::endl;
 	if (debugCosmics_) std::cout<< "Trajectory 2 has "<<traj[j].recHits().size()<<" hits with chi2=" << traj[j].chiSquared() << " and is valid"<<std::endl;           
@@ -1514,20 +1506,16 @@ TrackCandidateCollection RoadSearchTrackCandidateMakerAlgorithm::PrepareTrackCan
 	  if(debugCosmics_) 
 	    std::cout << "-->case A: "<< lastTraj1TSOS.globalPosition().y() << " > " << lastTraj2TSOS.globalPosition().y() << std::endl;
 	  
-	  //upperTrajectory = &(*it1);
 	  upperTrajectory = &(traj[i]);
-	  //lowerTrajectory = &(*it2);
 	  lowerTrajectory = &(traj[j]);
-	  useTrajectory2 = true;
+
 	} else {
 	  if(debugCosmics_) 
 	    std::cout << "-->case B: "<< lastTraj1TSOS.globalPosition().y() << " < " << lastTraj2TSOS.globalPosition().y() << std::endl;
 
-	  //upperTrajectory = &(*it2);
 	  upperTrajectory = &(traj[j]);
-	  //lowerTrajectory = &(*it1);
 	  lowerTrajectory = &(traj[i]);
-	  useTrajectory1 = true;
+
 	}
 	std::vector<Trajectory> freshStartUpperTrajectory = theSmoother->trajectories(*upperTrajectory);
 	std::vector<Trajectory> freshStartLowerTrajectory = theSmoother->trajectories(*lowerTrajectory);
@@ -1595,8 +1583,6 @@ TrackCandidateCollection RoadSearchTrackCandidateMakerAlgorithm::PrepareTrackCan
 	    tm = TrajectoryMeasurement(predTsos, currTsos,&(*rh),est.second,theMeasurementTracker->geometricSearchTracker()->detLayer(rh->geographicalId()));
 	    freshStartTrajectory.push(tm,est.second);
 	    addHitToFreshStartTrajectory=true;
-	    if( useTrajectory1==true ) useTrajectory2=true;
-	    if( useTrajectory2==true ) useTrajectory1=true;
 	    
 	  }
 	  
@@ -1636,47 +1622,41 @@ TrackCandidateCollection RoadSearchTrackCandidateMakerAlgorithm::PrepareTrackCan
 	theCollection.push_back(TrackCandidate(goodHits,freshStartTrajectory.seed(),*state));
 	delete state;
 	
-	//trajectory usage: store trajectory1 if not match has been found
+	//trajectory usage
 	trajUsed[i]=true;
 	trajUsed[j]=true;
-	//trajectory1_matched = true;
 	
       } //for loop trajectory2
-
-      //trajectory usage: store trajectory1 if not match has been found
-      //if(!trajectory1_matched) 
-      //unMergedTraj.push_back(*it1);
       
-     } //for loop trajectory1
+    } //for loop trajectory1
 
-     //add all trajectories to the resulting vector if they have *not* been used by the trajectory merging algorithm
-    //for (std::vector<Trajectory>::iterator it = unMergedTraj.begin(); it != unMergedTraj.end(); it++) {
+    //add all trajectories to the resulting vector if they have *not* been used by the trajectory merging algorithm
     for ( unsigned int i = 0; i < traj.size(); ++i) {
       
       if (trajUsed[i]==true) continue;
 
-       if (debugCosmics_) std::cout<< "Trajectory (not merged) has "<<traj[i].recHits().size()<<" hits with chi2=" << traj[i].chiSquared() << " and is valid? "<< traj[i].isValid()<<std::endl;
-       edm::OwnVector<TrackingRecHit> goodHits;
-       TransientTrackingRecHit::ConstRecHitContainer ttHits = traj[i].recHits();
-       for (TransientTrackingRecHit::ConstRecHitContainer::const_iterator rhit=ttHits.begin(); rhit!=ttHits.end(); ++rhit){
-	 goodHits.push_back((*rhit)->hit()->clone());
-       }
-       TrajectoryStateOnSurface firstState;
-
-       // check if Trajectory from seed is on first hit of the cloud, if not, propagate
-       // exclude if first state on first hit is not valid
-       DetId FirstHitId = (*(traj[i].recHits().begin()))->geographicalId();
-
-       // propagate back to first hit    
-       TrajectoryMeasurement firstMeasurement = traj[i].measurements()[0];
-       const GeomDet* det = trackerGeom->idToDet(FirstHitId);
-       firstState = theAnalyticalPropagator->propagate(firstMeasurement.updatedState(), det->surface());	  
-       if (firstState.isValid()) {
-	 PTrajectoryStateOnDet *state = theTransformer->persistentState(firstState,FirstHitId.rawId());
-	 theCollection.push_back(TrackCandidate(goodHits,traj[i].seed(),*state));
-	 delete state;
-       }
-     }
+      if (debugCosmics_) std::cout<< "Trajectory (not merged) has "<<traj[i].recHits().size()<<" hits with chi2=" << traj[i].chiSquared() << " and is valid? "<< traj[i].isValid()<<std::endl;
+      edm::OwnVector<TrackingRecHit> goodHits;
+      TransientTrackingRecHit::ConstRecHitContainer ttHits = traj[i].recHits();
+      for (TransientTrackingRecHit::ConstRecHitContainer::const_iterator rhit=ttHits.begin(); rhit!=ttHits.end(); ++rhit){
+	goodHits.push_back((*rhit)->hit()->clone());
+      }
+      TrajectoryStateOnSurface firstState;
+      
+      // check if Trajectory from seed is on first hit of the cloud, if not, propagate
+      // exclude if first state on first hit is not valid
+      DetId FirstHitId = (*(traj[i].recHits().begin()))->geographicalId();
+      
+      // propagate back to first hit    
+      TrajectoryMeasurement firstMeasurement = traj[i].measurements()[0];
+      const GeomDet* det = trackerGeom->idToDet(FirstHitId);
+      firstState = theAnalyticalPropagator->propagate(firstMeasurement.updatedState(), det->surface());	  
+      if (firstState.isValid()) {
+	PTrajectoryStateOnDet *state = theTransformer->persistentState(firstState,FirstHitId.rawId());
+	theCollection.push_back(TrackCandidate(goodHits,traj[i].seed(),*state));
+	delete state;
+      }
+    }
      
   } //if(CosmicTrackMerging_)
   
