@@ -40,6 +40,9 @@ namespace reco {
        /// return the number of seeds
        int seedsSize() const { return seeds_.size(); }
 
+       /// return the seeds
+       const TrajectorySeedRefVector& seeds() { return seeds_; }
+
        /// first iterator over seeds
        seedRef_iterator seeds_begin() const { return seeds_.begin(); }
 
