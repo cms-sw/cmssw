@@ -7,8 +7,10 @@
 #include "Alignment/CommonAlignmentProducer/interface/AlignmentGlobalTrackSelector.h"
 #include "Alignment/CommonAlignmentProducer/interface/AlignmentTwoBodyDecayTrackSelector.h"
 
+#include "DataFormats/TrackReco/interface/TrackFwd.h"
+
 // the following include is necessary to clone all track branches
-// including recoTrackExtras and TrackingRecHitsOwned.
+// including recoTrackExtras and TrackingRecHitsOwned (in future also "owned clusters"?).
 // if you remove it the code will compile, but the cloned
 // tracks have only the recoTracks branch!
 #include "PhysicsTools/RecoAlgos/interface/TrackSelector.h"
