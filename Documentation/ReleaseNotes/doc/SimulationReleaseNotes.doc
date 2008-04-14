@@ -2,13 +2,41 @@
 \page SimulationReleaseNotes Simulation Release Notes - CMSSW_2_0_x 
 
 - General:
+ - Geant4.9.p01 is used starting 2_0_x cycle; physics performance and technical 
+   characteristics have been validated
+ - redesigned MixingModule is icurrently in validation, concerns about memory consumption 
+   have been raised and are been investigated
+ - GFlash structure has been finalized; EM shower model tuned to full simulation, HAD
+   model tuning in the work, lateral profiles reasonably tuned; infrastructure ready
+   to tuning to the data 
 
 - Main changes and new features:
+ - Large number of Validation packages adapted to the new structure: Global, ECAL,
+   Muon-CSC; HCAL and Tracker are in progress
+ - Basic ECAL+HCAL test beam analysis available as validation-like package
+ - Tracker: 
+  - passive material budget increased by ~5% in the eta region of ~2
+  - hit assiciator revised and reflects possibility to retrieve a unique SimHit
+    from CrossingFrame list
+ - ECAL:
+  - absolute energy scale finalized
+  - Birk's law settings defined
+  - nuclear counter effect implemented
+ - HCAL:
+  - noise simulation (PMT window events) finalized
+ - Muon-CSC: 
+  - better description of the ME11 chambers (material, dimensions, position)
+  - description of the Muon Yoke updated from negineering drawings
+ - Muon-RPC: SimDigiLink finalized
+
 
 - Major bug fixes:
+ - Vertex smearing bug found (single bunch value was used for lumimous region,
+   neglected reduction by 1/sqrt(2) in overlap of 2 colliding bunches); bux fixed
 
 - Known issues:
-
+ - Lack of reproducibility remains a concern, in Hadronic showers modeling and 
+   is the works by the Geant4 team
 
 <hr>
 Last updated: @DATE@ Julia Yarba
