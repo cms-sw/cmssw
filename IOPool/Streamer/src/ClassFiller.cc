@@ -8,6 +8,7 @@
 
 
 #include "TClass.h"
+#include "G__ci.h"
 
 #include <string>
 #include <set>
@@ -52,6 +53,7 @@ namespace edm {
 	loadCap(std::string("std::vector<edm::BranchDescription>"));
 	loadCap(std::string("edm::SendJobHeader"));
     }
+    G__SetCatchException(0);
     ROOT::Cintex::Cintex::Enable();
     done=true;
   }
