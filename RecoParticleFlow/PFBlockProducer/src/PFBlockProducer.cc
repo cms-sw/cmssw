@@ -10,6 +10,9 @@
 #include "DataFormats/ParticleFlowReco/interface/PFCluster.h"
 #include "DataFormats/ParticleFlowReco/interface/PFRecTrack.h"
 #include "DataFormats/ParticleFlowReco/interface/PFNuclearInteraction.h"
+#include "DataFormats/ParticleFlowReco/interface/PFConversionFwd.h"
+#include "DataFormats/ParticleFlowReco/interface/PFConversion.h"
+
 
 #include "DataFormats/ParticleFlowReco/interface/PFBlock.h"
 #include "DataFormats/ParticleFlowReco/interface/PFBlockFwd.h"
@@ -45,6 +48,10 @@ PFBlockProducer::PFBlockProducer(const edm::ParameterSet& iConfig) {
   inputTagPFNuclear_ 
     = iConfig.getParameter<InputTag>("PFNuclear");
 
+  inputTagPFConversions_ 
+    = iConfig.getParameter<InputTag>("PFConversions");
+
+
   inputTagPFClustersECAL_ 
     = iConfig.getParameter<InputTag>("PFClustersECAL");
 
@@ -64,6 +71,9 @@ PFBlockProducer::PFBlockProducer(const edm::ParameterSet& iConfig) {
 
   useNuclear_ =
      iConfig.getUntrackedParameter<bool>("useNuclear",false);
+
+  useConversions_ =
+    iConfig.getUntrackedParameter<bool>("useConversions",false);
 
 
   produces<reco::PFBlockCollection>();
@@ -208,6 +218,23 @@ void PFBlockProducer::produce(Event& iEvent,
       LogError("PFBlockProducer")<<" cannot get PFNuclearInteractions : "
                                <<inputTagPFNuclear_<<endl;
   }
+
+
+ 
+  // get conversions
+  Handle< reco::PFConversionCollection > pfConversions;
+  if( useConversions_ ) {
+    found = iEvent.getByLabel(inputTagPFConversions_, pfConversions);
+    
+    if(!found )
+      LogError("PFBlockProducer")<<" cannot get PFConversions : "
+				 <<inputTagPFConversions_<<endl;
+  }
+  
+
+
+
+
   
   // get ECAL, HCAL and PS clusters
   
@@ -243,6 +270,7 @@ void PFBlockProducer::produce(Event& iEvent,
 			 GsfrecTracks,
 			 recMuons, 
                          pfNuclears,
+                         pfConversions,
 			 clustersECAL,
 			 clustersHCAL,
 			 clustersPS );
