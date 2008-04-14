@@ -2,8 +2,8 @@
  * \class TrackerSeedCleaner
  *  Reference class for seeds cleaning
  *  Seeds Cleaner based on sharedHits cleaning, direction cleaning and pt cleaning
- *  $Date: 2008/03/21 14:47:26 $
- *  $Revision: 1.2 $
+ *  $Date: 2008/04/09 05:12:25 $
+ *  $Revision: 1.3 $
     \author A. Grelli -  Purdue University, Pavia University
  */
 
@@ -98,6 +98,7 @@ void TrackerSeedCleaner::clean( const reco::TrackRef& muR, const RectangularEtaP
 	GlobalVector pSeed = tsAtClosestApproachSeed.trackStateAtPCA().momentum();
 	GlobalPoint vSeed(vSeed1.x()-bs.x0(),vSeed1.y()-bs.y0(),vSeed1.z()-bs.z0());
 
+
         //eta,phi info from seeds 
 	double etaSeed = state.globalMomentum().eta();
 	double phiSeed = pSeed.phi(); 
@@ -123,10 +124,10 @@ void TrackerSeedCleaner::clean( const reco::TrackRef& muR, const RectangularEtaP
         bool inPtRange = ptSeed >= ptMin &&  ptSeed<= 2*(muR->pt());
 
         // use pt and angle cleaners
-        if( inEtaRange && inPhiRange && inPtRange && usePt_Cleaner) {
+        if(inPtRange && usePt_Cleaner && !useDirection_Cleaner) {
 
             result.push_back(*seed);
-            LogDebug("TrackerSeedCleaner")<<" Keeping the seed : this seed passed pt and direction selection";
+            LogDebug("TrackerSeedCleaner")<<" Keeping the seed : this seed passed pt selection";
         }
         
         // use only angle default option
@@ -136,6 +137,15 @@ void TrackerSeedCleaner::clean( const reco::TrackRef& muR, const RectangularEtaP
             LogDebug("TrackerSeedCleaner")<<" Keeping the seed : this seed passed direction selection";
 
         }
+
+        // use all the cleaners
+        if( inEtaRange && inPhiRange && inPtRange && usePt_Cleaner && useDirection_Cleaner) {
+
+            result.push_back(*seed);
+            LogDebug("TrackerSeedCleaner")<<" Keeping the seed : this seed passed direction and pt selection";
+
+        }
+
 	
         LogDebug("TrackerSeedCleaner")<<" eta for current seed "<<etaSeed<<"\n"
                                       <<" phi for current seed "<<phiSeed<<"\n"
