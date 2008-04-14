@@ -13,7 +13,7 @@
 //
 // Original Author:  Artur Kalinowski
 //         Created:  Tue Aug  1 13:54:56 CEST 2006
-// $Id: RPCVHDLConeMaker.cc,v 1.1 2007/04/16 16:04:05 fruboes Exp $
+// $Id: RPCVHDLConeMaker.cc,v 1.2 2007/06/08 08:43:59 fruboes Exp $
 //
 //
 
@@ -41,7 +41,10 @@
 #include "L1Trigger/RPCTrigger/interface/RPCRingFromRolls.h"
 
 #include "CondFormats/RPCObjects/interface/RPCReadOutMapping.h"
-#include "CondFormats/DataRecord/interface/RPCReadOutMappingRcd.h"
+//#include "CondFormats/DataRecord/interface/RPCReadOutMappingRcd.h"
+
+#include "CondFormats/RPCObjects/interface/RPCEMap.h"
+#include "CondFormats/DataRecord/interface/RPCEMapRcd.h"
 
 #include "DataFormats/MuonDetId/interface/RPCDetId.h"
 
@@ -83,8 +86,15 @@ void RPCVHDLConeMaker::initRPCLinks(const edm::EventSetup& iSetup){
   if(!RPCLinksDone) RPCLinksDone  = true;
   else return;
  //Open the cabling database
-  edm::ESHandle<RPCReadOutMapping> map;
-  iSetup.get<RPCReadOutMappingRcd>().get(map);
+//  edm::ESHandle<RPCReadOutMapping> map;
+//  iSetup.get<RPCReadOutMappingRcd>().get(map);
+
+
+   edm::ESHandle<RPCEMap> nmap;
+   iSetup.get<RPCEMapRcd>().get(nmap);
+   const RPCEMap* eMap=nmap.product();
+   edm::ESHandle<RPCReadOutMapping>  map = eMap->convert();
+
   LogInfo("") << "version: " << map->version() << endl;
 
  // Build the trigger linksystem geometry;
@@ -205,17 +215,22 @@ void RPCVHDLConeMaker::writeHeader(int aTower, int aSector, std::ofstream & out)
   out<<"  --|   |      logplane 1 size .........logplane 6 size"<<endl;
   //
     for(int iPAC=0;iPAC<maxPAC;iPAC++){
+        int size[6];
+        for (int i =0; i <6; ++i){
+          size[i]=RPCRingFromRolls::m_LOGPLANE_SIZE[abs(aTower)][i];
+          if (size[i]==0) size[i]=1;
+        } 
 	if(!begin) out<<",";
 	else begin = false;
 	out<<"   ("
 	   <<iPAC
 	   <<",  E, (  "
-	   <<RPCRingFromRolls::m_LOGPLANE_SIZE[abs(aTower)][0]<<", "
-	   <<RPCRingFromRolls::m_LOGPLANE_SIZE[abs(aTower)][1]<<", "
-	   <<RPCRingFromRolls::m_LOGPLANE_SIZE[abs(aTower)][2]<<", "
-	   <<RPCRingFromRolls::m_LOGPLANE_SIZE[abs(aTower)][3]<<", "
-	   <<RPCRingFromRolls::m_LOGPLANE_SIZE[abs(aTower)][4]<<", "
-	   <<RPCRingFromRolls::m_LOGPLANE_SIZE[abs(aTower)][5]
+	   <<size[0]<<", "
+	   <<size[1]<<", "
+	   <<size[2]<<", "
+	   <<size[3]<<", "
+	   <<size[4]<<", "
+	   <<size[5]
 	   <<"))";		     
 	out<<"-- "<<endl;
     }
@@ -256,10 +271,17 @@ void RPCVHDLConeMaker::writeConesDef(int iTower, int iSec, std::ofstream & out, 
   int maxPAC = minPAC+11;
   //int maxPAC = minPAC+1;
 
+  /*
   //Open the cabling database
   edm::ESHandle<RPCReadOutMapping> map;
   iSetup.get<RPCReadOutMappingRcd>().get(map);
   //LogInfo("") << "version: " << map->version() << endl;
+  */
+   edm::ESHandle<RPCEMap> nmap;
+   iSetup.get<RPCEMapRcd>().get(nmap);
+   const RPCEMap* eMap=nmap.product();
+   edm::ESHandle<RPCReadOutMapping>  map = eMap->convert();
+
 
   // Build the trigger linksystem geometry;
   if (!theLinksystem.isGeometryBuilt()){
@@ -293,6 +315,7 @@ void RPCVHDLConeMaker::writeConesDef(int iTower, int iSec, std::ofstream & out, 
 	    std::vector< std::pair< LinkBoardElectronicIndex, LinkBoardPackedStrip> > aVec = map->rawDataFrame( stripInDetUnit);
 	    std::vector< std::pair< LinkBoardElectronicIndex, LinkBoardPackedStrip> >::const_iterator CI;
             if( aCoords.m_stripNo <0) continue;
+            if( aCoords.m_isVirtual) continue;
 	    for(CI=aVec.begin();CI!=aVec.end();CI++){
 	      if(CI->first.dccInputChannelNum==dccInputChannel){
 	      linkStrip = *CI;
