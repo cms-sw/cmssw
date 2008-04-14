@@ -9,6 +9,12 @@
 #include <cstring>
 #include <cmath>
 
+#ifdef _POSIX_C_SOURCE
+#	include <sys/time.h>
+#	include <signal.h>
+#	include <setjmp.h>
+#endif
+
 #include <boost/shared_ptr.hpp>
 
 #include <HepMC/GenEvent.h>
@@ -70,6 +76,8 @@ struct Herwig6Hadronisation::FortranCallback {
 } static fortranCallback;
 
 extern "C" {
+	void hwwarn_(const char *method, int *id);
+
 	void setherwpdf_(void);
 	void mysetpdfpath_(const char *path);
 
@@ -117,6 +125,75 @@ extern "C" {
 	void upevnt_() { fortranCallback.upevnt(); }
 	void upveto_(int *veto) { *veto = fortranCallback.upveto(); }
 } // extern "C"
+
+#ifdef _POSIX_C_SOURCE
+// some deep POSIX hackery to catch HERWIG sometimes (O(10k events) with
+// complicated topologies) getting caught in and endless loop :-(
+extern "C" {
+	sigjmp_buf		_timeout_longjmp;
+
+	static void _timeout_sighandler(int signr) {
+		siglongjmp(_timeout_longjmp, 1);
+	}
+
+	static bool timeout(unsigned int secs, void (*callback)(void))
+	{
+		struct sigaction saOld = { 0, };
+
+		struct itimerval itv;
+		timerclear(&itv.it_value);
+		timerclear(&itv.it_interval);
+		itv.it_value.tv_sec = 0;
+		itv.it_interval.tv_sec = 0;
+		setitimer(ITIMER_VIRTUAL, &itv, NULL);
+
+		sigset_t ss;
+		sigemptyset(&ss);
+		sigaddset(&ss, SIGVTALRM);
+
+		sigprocmask(SIG_UNBLOCK, &ss, NULL);
+		sigprocmask(SIG_BLOCK, &ss, NULL);
+
+		if (sigsetjmp(_timeout_longjmp, 1)) {
+			itv.it_value.tv_sec = 0;
+			itv.it_interval.tv_sec = 0;
+			setitimer(ITIMER_VIRTUAL, &itv, NULL);
+			sigprocmask(SIG_UNBLOCK, &ss, NULL);
+			return true;
+		}
+
+		itv.it_value.tv_sec = secs;
+		itv.it_interval.tv_sec = secs;
+		setitimer(ITIMER_VIRTUAL, &itv, NULL);
+
+		struct sigaction sa = { 0, };
+		sa.sa_handler = _timeout_sighandler;
+		sa.sa_flags = SA_ONESHOT;
+		sigemptyset(&sa.sa_mask);
+
+		sigaction(SIGVTALRM, &sa, &saOld);
+		sigprocmask(SIG_UNBLOCK, &ss, NULL);
+
+		callback();
+
+		itv.it_value.tv_sec = 0;
+		itv.it_interval.tv_sec = 0;
+		setitimer(ITIMER_VIRTUAL, &itv, NULL);
+
+		sigaction(SIGVTALRM, &saOld, NULL);
+
+		return false;
+	}
+} // extern "C"
+#else
+extern "C" {
+	static bool timeout(unsigned int secs, void (*callback)(void))
+	{
+		callback();
+		return false;
+	}
+} // extern "C"
+#endif
 
 static bool hwgive(const std::string &paramString);
 static bool setRngSeeds(int mseed);
@@ -246,7 +323,11 @@ std::auto_ptr<HepMC::GenEvent> Herwig6Hadronisation::doHadronisation()
 		while(counter++ < numTrials) {
 			// call herwig routines to create HEPEVT
 			hwuine();
-			hwepro();
+			if (timeout(10, hwepro)) {
+				// We hung for more than 10 seconds
+				int error = 199;
+				hwwarn_("HWHGUP", &error);
+			}
 			hwbgen();
 
 			// call jimmy ... only if event is not killed yet by HERWIG
