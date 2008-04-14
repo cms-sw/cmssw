@@ -42,8 +42,8 @@ void ElectronClassification::classify(const GsfElectron &electron) {
   float scEnergy=sclRef->energy();
     
   // first look whether it's in crack, barrel or endcap
-  std::vector<DetId> vecId=sclRef->getHitsByDetId();
-  int detector =vecId[0].subdetId();  //FIXME: is the first one really the biggest??
+  std::vector<DetId> vecId=sclRef->seed()->getHitsByDetId();
+  int detector =vecId[0].subdetId();  
   if (isInCrack(fabs(electron.eta()))) {
     electronClass_=40;
     return;

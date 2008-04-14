@@ -12,7 +12,7 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Thu july 6 13:22:06 CEST 2006
-// $Id: GsfElectronAlgo.cc,v 1.15 2008/03/15 14:34:48 charlot Exp $
+// $Id: GsfElectronAlgo.cc,v 1.16 2008/04/11 11:39:19 uberthon Exp $
 //
 //
 
@@ -210,7 +210,7 @@ void GsfElectronAlgo::process(edm::Handle<GsfTrackCollection> tracksH,
     const GsfTrackRef trackRef = edm::Ref<GsfTrackCollection>(tracksH,i);
     const SuperClusterRef & scRef=getTrSuperCluster(trackRef);
     const SuperCluster theClus=*scRef;
-    std::vector<DetId> vecId=theClus.getHitsByDetId();
+    std::vector<DetId> vecId=theClus.seed()->getHitsByDetId();
     subdet_ =vecId[0].subdetId();  
 
     // calculate Trajectory StatesOnSurface....
@@ -441,7 +441,7 @@ void GsfElectronAlgo::process(edm::Handle<GsfTrackCollection> tracksH,
         //std::cout << "Electron lost: no supercluster match found: " << tracksH->size() << std::endl;
         continue;
       }
-      std::vector<DetId> vecId=theClus.getHitsByDetId();
+      std::vector<DetId> vecId=theClus.seed()->getHitsByDetId();
       subdet_ =vecId[0].subdetId();  
 
     
