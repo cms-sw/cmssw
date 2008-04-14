@@ -168,6 +168,7 @@ Definition of packages by detector.
 
 <br><br>
 Learn \ref ReferenceManual "how to contribute to this Reference Manual"
+Learn \ref ReferenceManualHowTo "how this Reference Manual is built and configured"
 <br>
 
 */
