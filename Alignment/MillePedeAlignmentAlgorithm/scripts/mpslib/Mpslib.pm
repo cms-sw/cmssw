@@ -10,7 +10,7 @@ package Mpslib;  # assumes Some/Module.pm
 #  $batchScript - base script for serial job
 #  $cfgTemplate - template for cfg file
 #  $infiList  -  list of input files to be serialized
-#  $class - batch class information
+#  $class - batch class information (might contain two ':'-separated)
 #  $addFiles - job name for submission
 #  $driver - specifies whether merge job is foreseen
 #  $nJobs - number of serial jobs (not including merge job)
@@ -54,6 +54,7 @@ package Mpslib;  # assumes Some/Module.pm
                     read_db 
                     print_memdb
 		    get_sdir
+		    get_class
 		    @JOBID
 		    $header 
 		    $batchScript $cfgTemplate $infiList $class $addFiles $driver $nJobs
@@ -220,6 +221,29 @@ sub print_memdb() {
 sub get_sdir() {
   # we no longer read this from mps.conf
     $theSdir = ".";
+}
+
+sub get_class {
+    # returns job class as stored in db
+    # one and only argument may be "mille" or "pede" for mille or pede jobs
+    my @CLASSES = split ":",$class;
+    if (@CLASSES < 1 || @CLASSES > 2) {
+	print "\nget_class():\n  class must be of the form 'class' or 'classMille:classPede', but is '$class'!\n\n";
+	exit 1;
+	return "";
+    } elsif ($_[0] eq "mille") {
+	return $CLASSES[0];
+    } elsif ($_[0] eq "pede") {
+	if (@CLASSES == 1) {
+	    return $CLASSES[0];
+	} elsif (@CLASSES == 2) {
+	    return $CLASSES[1];
+	}
+    } else {
+	print "\nget_class():\n  Know class only for 'mille' or 'pede', not $_[0]!\n\n";
+	exit 1;
+	return "";
+    }
 }
 
 sub get_cpufactor() {
