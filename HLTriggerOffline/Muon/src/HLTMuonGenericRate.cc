@@ -130,7 +130,7 @@ void HLTMuonGenericRate::analyze(const Event & event ){
 
   // Get the Trigger collection
   edm::Handle<trigger::TriggerEventWithRefs> triggerObj;
-  event.getByLabel("triggerSummaryRAW",triggerObj); 
+  event.getByLabel("hltTriggerSummaryRAW",triggerObj); 
   if(!triggerObj.isValid()) { 
     edm::LogWarning("HLTMuonVal") << "RAW-type HLT results not found, skipping event";
     return;
