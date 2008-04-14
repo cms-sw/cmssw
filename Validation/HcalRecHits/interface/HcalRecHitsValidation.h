@@ -63,6 +63,7 @@ class HcalRecHitsValidation : public edm::EDAnalyzer {
   std::string eventype_;
   std::string sign_;
   std::string mc_;
+  bool        famos_;
 
   // choice of subdetector in config : noise/HB/HE/HO/HF/ALL (0/1/2/3/4/5)
   int subdet_;
@@ -72,7 +73,18 @@ class HcalRecHitsValidation : public edm::EDAnalyzer {
   int iz;
   int imc;
 
+  // RecHits counters
+  MonitorElement* Nhb;
+  MonitorElement* Nhe;
+  MonitorElement* Nho;
+  MonitorElement* Nhf;
+
   // ZS-specific
+
+  MonitorElement* map_depth1;
+  MonitorElement* map_depth2;
+  MonitorElement* map_depth3;
+  MonitorElement* map_depth4;
 
   MonitorElement* ZS_HB1;
   MonitorElement* ZS_HB2;
@@ -103,27 +115,51 @@ class HcalRecHitsValidation : public edm::EDAnalyzer {
 
   // In ALL other cases : 2D ieta-iphi maps 
   // without and with cuts (a la "Scheme B") on energy
+  // - only in the cone around particle for single-part samples (mc = "yes")
+  // - for all calls in milti-particle samples (mc = "no")
+
   MonitorElement* map_ecal;
 
-  MonitorElement* map_depth1;
-  MonitorElement* map_depth2;
-  MonitorElement* map_depth3;
-  MonitorElement* map_depth4;
+  MonitorElement* emap_HBdepth1;
+  MonitorElement* emap_HBdepth2;
+  MonitorElement* emap_HEdepth1;
+  MonitorElement* emap_HEdepth2;
+  MonitorElement* emap_HEdepth3;
+  MonitorElement* emap_HO;
+  MonitorElement* emap_HFdepth1;
+  MonitorElement* emap_HFdepth2;
 
-  MonitorElement* map_depth1_cuts;
-  MonitorElement* map_depth2_cuts;
-  MonitorElement* map_depth3_cuts;
-  MonitorElement* map_depth4_cuts;
+  MonitorElement* emean_vs_ieta_HBdepth1;
+  MonitorElement* emean_vs_ieta_HBdepth2;
+  MonitorElement* emean_vs_ieta_HEdepth1;
+  MonitorElement* emean_vs_ieta_HEdepth2;
+  MonitorElement* emean_vs_ieta_HEdepth3;
+  MonitorElement* emean_vs_ieta_HO;
+  MonitorElement* emean_vs_ieta_HFdepth1;
+  MonitorElement* emean_vs_ieta_HFdepth2;
+
+  MonitorElement* occupancy_map_HBdepth1;
+  MonitorElement* occupancy_map_HBdepth2;
+  MonitorElement* occupancy_map_HEdepth1;
+  MonitorElement* occupancy_map_HEdepth2;
+  MonitorElement* occupancy_map_HEdepth3;
+  MonitorElement* occupancy_map_HO;
+  MonitorElement* occupancy_map_HFdepth1;
+  MonitorElement* occupancy_map_HFdepth2;
+
+  MonitorElement* occupancy_vs_ieta_HBdepth1;
+  MonitorElement* occupancy_vs_ieta_HBdepth2;
+  MonitorElement* occupancy_vs_ieta_HEdepth1;
+  MonitorElement* occupancy_vs_ieta_HEdepth2;
+  MonitorElement* occupancy_vs_ieta_HEdepth3;
+  MonitorElement* occupancy_vs_ieta_HO;
+  MonitorElement* occupancy_vs_ieta_HFdepth1;
+  MonitorElement* occupancy_vs_ieta_HFdepth2;
 
   MonitorElement* profile_z1;
   MonitorElement* profile_z2;
   MonitorElement* profile_z3;
   MonitorElement* profile_z4;
-
-  MonitorElement* meEnConeEtaProfile_depth1;
-  MonitorElement* meEnConeEtaProfile_depth2;
-  MonitorElement* meEnConeEtaProfile_depth3;
-  MonitorElement* meEnConeEtaProfile_depth4;
 
   // also - energy in the cone around MC particle
   MonitorElement* map_econe_depth1;
@@ -131,6 +167,12 @@ class HcalRecHitsValidation : public edm::EDAnalyzer {
   MonitorElement* map_econe_depth3;
   MonitorElement* map_econe_depth4;
  
+  // for single monoenergetic particles - cone collection profile vs ieta.
+  MonitorElement* meEnConeEtaProfile_depth1;
+  MonitorElement* meEnConeEtaProfile_depth2;
+  MonitorElement* meEnConeEtaProfile_depth3;
+  MonitorElement* meEnConeEtaProfile_depth4;
+
   // Single particles - deviation of cluster from MC truth
   MonitorElement* meDeltaPhi;
   MonitorElement* meDeltaEta;
@@ -243,6 +285,9 @@ class HcalRecHitsValidation : public edm::EDAnalyzer {
 
   // array or min. e-values  ieta x iphi x depth x subdet
   double emap_min[82][72][4][4];
+
+  // counter
+  int nevtot;
 
 };
 
