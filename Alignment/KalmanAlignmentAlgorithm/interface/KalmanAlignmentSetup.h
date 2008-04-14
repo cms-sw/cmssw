@@ -19,20 +19,21 @@ class KalmanAlignmentSetup
 public:
 
   typedef int SubDetId;
-
   typedef TransientTrackingRecHit::ConstRecHitPointer ConstRecHitPointer;
+
+  enum SortingDirection { sortInsideOut, sortOutsideIn, sortUpsideDown, sortDownsideUp };
 
   KalmanAlignmentSetup( const std::string& id,
 			const TrajectoryFitter* fitter,
 			const Propagator* propagator,
 			const std::vector< SubDetId >& trackingIds,
 			const unsigned int minTrackingHits,
-			const bool sortInsideOut,
+			const SortingDirection sortingDir,
 			const TrajectoryFitter* externalFitter,
 			const Propagator* externalPropagator,
 			const std::vector< SubDetId >& externalIds,
 			const unsigned int minExternalHits,
-			const bool externalSortInsideOut,
+			const SortingDirection externalSortingDir,
 			TrajectoryFactoryBase* trajectoryFactory,
 			KalmanAlignmentUpdator* alignmentUpdator,
 			KalmanAlignmentMetricsUpdator* metricsUpdator );
@@ -55,8 +56,8 @@ public:
   inline const unsigned int minTrackingHits( void ) const { return theMinTrackingHits; }
   inline const unsigned int minExternalHits( void ) const { return theMinExternalHits; }
 
-  inline const bool sortInsideOut( void ) const { return theSortInsideOutFlag; }
-  inline const bool externalSortInsideOut( void ) const { return theExternalSortInsideOutFlag; }
+  inline const SortingDirection sortingDirection( void ) const { return theSortingDir; }
+  inline const SortingDirection externalSortingDirection( void ) const { return theExternalSortingDir; }
 
   bool useForTracking( const ConstRecHitPointer& recHit ) const;
   bool useForExternalTracking( const ConstRecHitPointer& recHit ) const;
@@ -73,13 +74,13 @@ private:
   Propagator* thePropagator;
   std::vector< SubDetId > theTrackingSubDetIds;
   unsigned int theMinTrackingHits;
-  bool theSortInsideOutFlag;
+  SortingDirection theSortingDir;
 
   TrajectoryFitter* theExternalFitter;
   Propagator* theExternalPropagator;
   std::vector< SubDetId > theExternalTrackingSubDetIds;
   unsigned int theMinExternalHits;
-  bool theExternalSortInsideOutFlag;
+  SortingDirection theExternalSortingDir;
 
   TrajectoryFactoryBase* theTrajectoryFactory;
   KalmanAlignmentUpdator* theAlignmentUpdator;

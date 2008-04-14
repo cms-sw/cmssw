@@ -60,12 +60,13 @@ private:
 
   void initializeAlignmentSetups( const edm::EventSetup& setup );
 
-  inline const PropagationDirection getDirection( const std::string& dir )
+  inline const PropagationDirection getDirection( const std::string& dir ) const
     { return ( dir == "alongMomentum" ) ? alongMomentum : oppositeToMomentum; }
 
-  inline const PropagationDirection oppositeDirection( const PropagationDirection dir )
+  inline const PropagationDirection oppositeDirection( const PropagationDirection dir ) const
     { return ( dir == alongMomentum ) ? oppositeToMomentum : alongMomentum; }
 
+  const KalmanAlignmentSetup::SortingDirection getSortingDirection( const std::string& sortDir ) const;
 
   edm::ParameterSet theConfiguration;
 

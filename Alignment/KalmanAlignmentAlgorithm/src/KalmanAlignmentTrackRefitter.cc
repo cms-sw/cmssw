@@ -1,15 +1,15 @@
 
 #include "Alignment/KalmanAlignmentAlgorithm/interface/KalmanAlignmentTrackRefitter.h"
-#include "Alignment/KalmanAlignmentAlgorithm/interface/KalmanAlignmentDataCollector.h"
-#include "Alignment/CommonAlignment/interface/Alignable.h"
 
 #include "TrackingTools/PatternTools/interface/TrajectoryFitter.h"
+
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h"
+
 #include "TrackingTools/GeomPropagators/interface/AnalyticalPropagator.h"
 #include "TrackingTools/MaterialEffects/interface/PropagatorWithMaterial.h"
 
-#include "DataFormats/BeamSpot/interface/BeamSpot.h"
+#include "Alignment/KalmanAlignmentAlgorithm/interface/KalmanAlignmentDataCollector.h"
 
 #include "CLHEP/GenericFunctions/CumulativeChiSquare.hh"
 
@@ -74,11 +74,8 @@ KalmanAlignmentTrackRefitter::refitTracks( const edm::EventSetup& setup,
 
  	try
 	{
-	  AlignableDetOrUnitPtr alignable = theNavigator->alignableFromDetId( (*itHits)->geographicalId() );
-	  AlignmentParameters* alignmentParameters = getAlignmentParameters( alignable );
-	  if ( !alignmentParameters ) continue;
 	  //if ( !theNavigator->alignableFromDetId( (*itHits)->geographicalId() )->alignmentParameters() ) continue;
-	  //theNavigator->alignableFromDetId( (*itHits)->geographicalId() );	  
+	  theNavigator->alignableFromDetId( (*itHits)->geographicalId() );	  
 	} catch(...) { continue; }
 
 	if ( (*itSetup)->useForTracking( *itHits ) )
@@ -103,7 +100,8 @@ KalmanAlignmentTrackRefitter::refitTracks( const edm::EventSetup& setup,
 	  TrajTrackPairCollection refitted = refitSingleTracklet( aGeometry.product(), aMagneticField.product(),
 								  (*itSetup)->fitter(), (*itSetup)->propagator(), 
 								  aRecHitBuilder.product(), fullTrack,
-								  trackingRecHits, false, true, (*itSetup)->sortInsideOut() );
+								  trackingRecHits, (*itSetup)->sortingDirection(),
+								  false, true );
 
 	  if ( refitted.empty() ) continue; // The refitting did not work ... Try next!
 
@@ -127,7 +125,8 @@ KalmanAlignmentTrackRefitter::refitTracks( const edm::EventSetup& setup,
 	TrajTrackPairCollection external = refitSingleTracklet( aGeometry.product(), aMagneticField.product(),
 								(*itSetup)->externalFitter(), (*itSetup)->externalPropagator(),
 								aRecHitBuilder.product(), fullTrack,
-								externalTrackingRecHits, false, true, (*itSetup)->externalSortInsideOut() );
+								externalTrackingRecHits, (*itSetup)->externalSortingDirection(),
+								false, true );
 	if ( external.empty() ) { continue; }
 
 	TransientTrack externalTrack( *external.front().second, aMagneticField.product() );
@@ -135,7 +134,8 @@ KalmanAlignmentTrackRefitter::refitTracks( const edm::EventSetup& setup,
 	TrajTrackPairCollection refitted = refitSingleTracklet( aGeometry.product(), aMagneticField.product(),
 								(*itSetup)->fitter(), (*itSetup)->propagator(),
 								aRecHitBuilder.product(), externalTrack,
-								trackingRecHits, false, true, (*itSetup)->sortInsideOut() );
+								trackingRecHits, (*itSetup)->sortingDirection(),
+								false, true );
 	if ( refitted.empty() ) continue;
 
  	//const Surface& surface = refitted.front().first->firstMeasurement().updatedState().surface();
@@ -173,16 +173,16 @@ KalmanAlignmentTrackRefitter::refitSingleTracklet( const TrackingGeometry* geome
 						   const TransientTrackingRecHitBuilder* recHitBuilder,
 						   const TransientTrack& fullTrack,
 						   RecHitContainer& recHits,
+						   const SortingDirection& sortingDir,
 						   bool useExternalEstimate,
-						   bool reuseMomentumEstimate,
-						   bool sortInsideOut )
+						   bool reuseMomentumEstimate )
 {
 
   TrajTrackPairCollection result;
 
   if ( recHits.size() < 2 ) return result;
 
-  sortRecHits( recHits, recHitBuilder, sortInsideOut );
+  sortRecHits( recHits, recHitBuilder, sortingDir );
 
   TransientTrackingRecHit::RecHitPointer firstHit = recHitBuilder->build( &recHits.front() );
 
@@ -256,20 +256,26 @@ KalmanAlignmentTrackRefitter::refitSingleTracklet( const TrackingGeometry* geome
 
 void KalmanAlignmentTrackRefitter::sortRecHits( RecHitContainer& hits,
 						const TransientTrackingRecHitBuilder* builder,
-						bool sortInsideOut ) const
+						const SortingDirection& sortingDir ) const
 {
   // Don't start sorting if there is only 1 or even 0 elements.
   if ( hits.size() < 2 ) return;
 
   TransientTrackingRecHit::RecHitPointer firstHit = builder->build( &hits.front() );
   double firstRadius = firstHit->det()->surface().toGlobal( firstHit->localPosition() ).mag();
+  double firstY = firstHit->det()->surface().toGlobal( firstHit->localPosition() ).y();
 
   TransientTrackingRecHit::RecHitPointer lastHit = builder->build( &hits.back() );
   double lastRadius = lastHit->det()->surface().toGlobal( lastHit->localPosition() ).mag();
+  double lastY = lastHit->det()->surface().toGlobal( lastHit->localPosition() ).y();
 
   bool insideOut = firstRadius < lastRadius;
+  bool upsideDown = lastY < firstY;
 
-  if ( ( insideOut && sortInsideOut ) || ( !insideOut && !sortInsideOut ) ) return;
+  if ( ( insideOut && ( sortingDir == KalmanAlignmentSetup::sortInsideOut ) ) ||
+       ( !insideOut && ( sortingDir == KalmanAlignmentSetup::sortOutsideIn ) ) ||
+       ( upsideDown && ( sortingDir == KalmanAlignmentSetup::sortUpsideDown ) ) ||
+       ( !upsideDown && ( sortingDir == KalmanAlignmentSetup::sortDownsideUp ) ) ) return;
 
   // Fill temporary container with reversed hits.
   RecHitContainer tmp;
@@ -280,29 +286,6 @@ void KalmanAlignmentTrackRefitter::sortRecHits( RecHitContainer& hits,
   hits.swap( tmp );
 
   return;
-}
-
-
-AlignmentParameters*
-KalmanAlignmentTrackRefitter::getAlignmentParameters( const AlignableDetOrUnitPtr& alignable ) const
-{
-  // Get alignment parameters from AlignableDet ...
-  AlignmentParameters* alignmentParameters = alignable->alignmentParameters();
-  // ... or any higher level alignable.
-  if ( !alignmentParameters ) alignmentParameters = getHigherLevelParameters( alignable );
-  return alignmentParameters;
-}
-
-
-AlignmentParameters*
-KalmanAlignmentTrackRefitter::getHigherLevelParameters( const Alignable* aAlignable ) const
-{
-  Alignable* higherLevelAlignable = aAlignable->mother();
-  // Alignable has no mother ... most probably the alignable is already the full tracker.
-  if ( !higherLevelAlignable ) return 0;
-  AlignmentParameters* higherLevelParameters = higherLevelAlignable->alignmentParameters();
-  // Found alignment parameters? If not, go one level higher in the hierarchy.
-  return higherLevelParameters ? higherLevelParameters : getHigherLevelParameters( higherLevelAlignable );
 }
 
 

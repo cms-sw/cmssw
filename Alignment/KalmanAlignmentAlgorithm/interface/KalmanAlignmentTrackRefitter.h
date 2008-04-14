@@ -5,7 +5,6 @@
 #include "RecoTracker/TrackProducer/interface/TrackProducerAlgorithm.h"
 
 #include "Alignment/CommonAlignment/interface/AlignableNavigator.h"
-#include "Alignment/CommonAlignment/interface/AlignmentParameters.h"
 
 #include "Alignment/KalmanAlignmentAlgorithm/interface/KalmanAlignmentTracklet.h"
 #include "Alignment/KalmanAlignmentAlgorithm/interface/KalmanAlignmentSetup.h"
@@ -33,6 +32,7 @@ class KalmanAlignmentTrackRefitter : public TrackProducerBase<reco::Track>
 public:
 
   typedef std::vector< KalmanAlignmentSetup* > AlignmentSetupCollection;
+  typedef KalmanAlignmentSetup::SortingDirection SortingDirection;
 
   typedef edm::OwnVector< TrackingRecHit > RecHitContainer;
 
@@ -65,16 +65,14 @@ private:
 					       const TransientTrackingRecHitBuilder* recHitBuilder,
 					       const reco::TransientTrack& originalTrack,
 					       RecHitContainer& recHits,
+					       const SortingDirection& sortingDir,
 					       bool useExternalEstimate,
-					       bool reuseMomentumEstimate,
-					       bool sortInsideOut );
+					       bool reuseMomentumEstimate );
 
   void sortRecHits( RecHitContainer& hits,
 		    const TransientTrackingRecHitBuilder* builder,
-		    bool sortInsideOut ) const;
+		    const SortingDirection& sortingDir ) const;
 
-  AlignmentParameters* getAlignmentParameters( const AlignableDetOrUnitPtr& alignable ) const;
-  AlignmentParameters* getHigherLevelParameters( const Alignable* aAlignable ) const;
   void debugTrackData( const std::string identifier, const Trajectory* traj, const reco::Track* track );
 
   TrackProducerAlgorithm<reco::Track> theRefitterAlgo;

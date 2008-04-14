@@ -27,10 +27,10 @@ public:
   /// Contructor. NOTE: The container gains the ownership of the trajectory/track at construction time.
   KalmanAlignmentTracklet( TrajTrackPair& trajTrackPair,
 			   const TrajectoryStateOnSurface& external,
-			   const KalmanAlignmentSetup* setup );
+			   KalmanAlignmentSetup* setup );
 
   KalmanAlignmentTracklet( TrajTrackPair& trajTrackPair,
-			   const KalmanAlignmentSetup* setup );
+			   KalmanAlignmentSetup* setup );
 
   /// Destructor.
   ~KalmanAlignmentTracklet( void );
@@ -42,7 +42,7 @@ public:
   inline const TrajectoryStateOnSurface externalPrediction( void ) const { return theExternalPrediction; }
   inline bool externalPredictionAvailable( void ) const { return theExternalPredictionFlag; }
 
-  inline const KalmanAlignmentSetup* alignmentSetup( void ) const { return theAlignmentSetup; }
+  inline KalmanAlignmentSetup* alignmentSetup( void ) const { return theAlignmentSetup; }
 
 private:
 
@@ -51,7 +51,7 @@ private:
   TrajectoryStateOnSurface theExternalPrediction;
   bool theExternalPredictionFlag;
 
-  const KalmanAlignmentSetup* theAlignmentSetup;
+  KalmanAlignmentSetup* theAlignmentSetup;
 };
 
 #endif

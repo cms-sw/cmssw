@@ -5,7 +5,7 @@
 
 KalmanAlignmentTracklet::KalmanAlignmentTracklet( TrajTrackPair& trajTrackPair,
 						  const TrajectoryStateOnSurface& external,
-						  const KalmanAlignmentSetup* setup ) :
+						  KalmanAlignmentSetup* setup ) :
   theTrajTrackPair( trajTrackPair ),
   theExternalPrediction( external ),
   theExternalPredictionFlag( true ),
@@ -18,7 +18,7 @@ KalmanAlignmentTracklet::KalmanAlignmentTracklet( TrajTrackPair& trajTrackPair,
 
 
 KalmanAlignmentTracklet::KalmanAlignmentTracklet( TrajTrackPair& trajTrackPair,
-						  const KalmanAlignmentSetup* setup ) :
+						  KalmanAlignmentSetup* setup ) :
   theTrajTrackPair( trajTrackPair ),
   theExternalPredictionFlag( false ),
   theAlignmentSetup( setup )
