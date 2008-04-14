@@ -13,7 +13,7 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: ElectronPixelSeedProducer.cc,v 1.19 2008/03/04 17:03:42 uberthon Exp $
+// $Id: ElectronPixelSeedProducer.cc,v 1.20 2008/03/15 14:34:59 charlot Exp $
 //
 //
 
@@ -129,7 +129,7 @@ void ElectronPixelSeedProducer::filterClusters(const edm::Handle<reco::SuperClus
 
     if (scl.energy()/cosh(scl.eta())>SCEtCut_) {
 
-      double HoE=calc_(&scl,mhbhe);
+      double HoE=calc_(&(*scl.seed()),mhbhe);
       if (HoE <= maxHOverE_) {
 	sclRefs.push_back(edm::Ref<reco::SuperClusterCollection> (superClusters,i));
       }

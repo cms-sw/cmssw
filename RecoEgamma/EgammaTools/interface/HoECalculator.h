@@ -31,6 +31,9 @@ class HoECalculator
    double operator() ( const reco::SuperCluster* , 
                        HBHERecHitMetaCollection *mhbhe);
 
+   double operator() ( const reco::BasicCluster* , 
+                       HBHERecHitMetaCollection *mhbhe);
+
   private:
   
    double getHoE(GlobalPoint pos, float energy,

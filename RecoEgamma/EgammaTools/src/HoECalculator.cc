@@ -30,6 +30,11 @@ double HoECalculator::operator() ( const reco::SuperCluster* clus,
 }
 
 
+double HoECalculator::operator() ( const reco::BasicCluster* clus, 
+			     HBHERecHitMetaCollection *mhbhe) {
+  return getHoE(GlobalPoint(clus->x(),clus->y(),clus->z()), clus->energy(), mhbhe);
+}
+
 double HoECalculator::getHoE(GlobalPoint pclu, float ecalEnergy, const edm::Event& e , const edm::EventSetup& c )
 {
   if ( !theCaloGeom_.isValid() )
