@@ -30,7 +30,14 @@ CaloTowersReCreator::CaloTowersReCreator(const edm::ParameterSet& conf) :
         conf.getParameter<double>("HOWeight"),
         conf.getParameter<double>("HF1Weight"),
         conf.getParameter<double>("HF2Weight"),
-        0.,0.,0.,true),
+        0.,0.,0.,
+        conf.getParameter<bool>("UseHO"),
+        // (these have no effect on recreation: here for compatibility)
+        conf.getParameter<int>("MomConstrMethod"),
+        conf.getParameter<double>("MomEmDepth"),
+        conf.getParameter<double>("MomHadDepth"),
+        conf.getParameter<double>("MomTotDepth")
+        ),
   caloLabel_(conf.getParameter<edm::InputTag>("caloLabel")),
   allowMissingInputs_(false)
 {

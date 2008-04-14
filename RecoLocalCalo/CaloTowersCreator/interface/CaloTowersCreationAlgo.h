@@ -5,6 +5,7 @@
 #include "DataFormats/CaloTowers/interface/CaloTowerDetId.h"
 #include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
+#include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 
 #include <map>
 class HcalTopology;
@@ -16,10 +17,16 @@ class DetId;
 
 /** \class CaloTowersCreationAlgo
   *  
-  * $Date: 2006/05/11 20:57:20 $
-  * $Revision: 1.8 $
+  * $Date: 2007/03/31 18:38:51 $
+  * $Revision: 1.9 $
   * \author R. Wilkinson - Caltech
   */
+
+//
+// Modify MetaTower to save energy of rechits for use in tower 4-momentum assignment
+// Anton Anastassov (Northwestern)
+//
+
 class CaloTowersCreationAlgo {
 public:
   CaloTowersCreationAlgo();
@@ -30,7 +37,13 @@ public:
     double EBweight, double EEweight,
     double HBweight, double HESweight, double HEDweight, 
     double HOweight, double HF1weight, double HF2weight,
-    double EcutTower, double EBSumThreshold, double EESumThreshold, bool useHO);
+    double EcutTower, double EBSumThreshold, double EESumThreshold, bool useHO,
+    // (for momentum reconstruction algorithm)
+    int momConstrMethod,
+    double momEmDepth,
+    double momHadDepth,
+    double momTotDepth
+    );
   
   CaloTowersCreationAlgo(double EBthreshold, double EEthreshold, double HcalThreshold,
     double HBthreshold, double HESthreshold, double HEDthreshold,
@@ -46,7 +59,13 @@ public:
     double EBweight, double EEweight,
     double HBweight, double HESweight, double HEDweight, 
     double HOweight, double HF1weight, double HF2weight,
-    double EcutTower, double EBSumThreshold, double EESumThreshold, bool useHO);
+    double EcutTower, double EBSumThreshold, double EESumThreshold, bool useHO,
+    // (for momentum reconstruction algorithm)
+    int momConstrMethod,
+    double momEmDepth,
+    double momHadDepth,
+    double momTotDepth
+    );
   
   void setGeometry(const CaloTowerConstituentsMap* cttopo, const HcalTopology* htopo, const CaloGeometry* geo);
 
@@ -55,6 +74,8 @@ public:
   void process(const HORecHitCollection& ho);
   void process(const HFRecHitCollection& hf); 
   void process(const EcalRecHitCollection& ecal); 
+  
+  
   void process(const CaloTowerCollection& ctc);
 
   void finish(CaloTowerCollection& destCollection);
@@ -67,17 +88,36 @@ public:
   void setHF1EScale(double scale);
   void setHF2EScale(double scale);
 
+   // set momentum construction method and parameters
+  void setMomConstrMethod(int methodId);
+  void setMomEmDepth(double momEmDepth);
+  void setMomHadDepth(double momHadDepth);
+  void setMomTotDepth(double momTotDepth);
+
+  // Add methods to get the seperate positions for ECAL/HCAL 
+  // used in constructing the 4-vectors using new methods
+  GlobalPoint emCrystalShwrPos (DetId detId, float fracDepth); 
+  GlobalPoint hadSegmentShwrPos(DetId detId, float fracDepth);
+  // "effective" point for the EM/HAD shower in CaloTower
+  GlobalPoint hadShwrPos(std::vector<std::pair<DetId,double> >& metaContains,
+    float fracDepth, double hadE);
+  GlobalPoint emShwrPos(std::vector<std::pair<DetId,double> >& metaContains, 
+    float fracDepth, double totEmE);
+
 private:
+
   struct MetaTower {
     MetaTower();
     double E, E_em, E_had, E_outer;
-    std::vector<DetId> constituents;
+    // contains also energy of RecHit
+    std::vector< std::pair<DetId, double> > metaConstituents;
   };
 
   /// adds a single hit to the tower
   void assignHit(const CaloRecHit * recHit);
- 
+
   void rescale(const CaloTower * ct);
+
   /// looks for a given tower in the internal cache.  If it can't find it, it makes it.
   MetaTower & find(const CaloTowerDetId & id);
   
@@ -115,6 +155,12 @@ private:
   /// only affects energy and ET calculation.  HO is still recorded in the tower
   bool theHOIsUsed;
 
+  // Switches and paramters for CaloTower 4-momentum assignment
+  // "depth" variables do not affect all algorithms 
+  int theMomConstrMethod;
+  double theMomEmDepth;
+  double theMomHadDepth;
+  double theMomTotDepth;
 
   CaloTower convert(const CaloTowerDetId& id, const MetaTower& mt);
 

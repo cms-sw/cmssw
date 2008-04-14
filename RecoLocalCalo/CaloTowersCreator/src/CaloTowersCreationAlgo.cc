@@ -49,7 +49,12 @@ CaloTowersCreationAlgo::CaloTowersCreationAlgo()
    theHcalTopology(0),
    theGeometry(0),
    theTowerConstituentsMap(0),
-   theHOIsUsed(true)
+   theHOIsUsed(true),
+   // (for momentum reconstruction algorithm)
+   theMomConstrMethod(0),
+   theMomEmDepth(0),
+   theMomHadDepth(0),
+   theMomTotDepth(0)
 {
 }
 
@@ -60,7 +65,12 @@ CaloTowersCreationAlgo::CaloTowersCreationAlgo(double EBthreshold, double EEthre
     double HBweight, double HESweight, double HEDweight,
     double HOweight, double HF1weight, double HF2weight,
     double EcutTower, double EBSumThreshold, double EESumThreshold,
-    bool useHO)
+    bool useHO,
+    // (momentum reconstruction algorithm)
+    int momConstrMethod,
+    double momEmDepth,
+    double momHadDepth,
+    double momTotDepth)
 
  : theEBthreshold(EBthreshold),
    theEEthreshold(EEthreshold),
@@ -98,7 +108,12 @@ CaloTowersCreationAlgo::CaloTowersCreationAlgo(double EBthreshold, double EEthre
    theEcutTower(EcutTower),
    theEBSumThreshold(EBSumThreshold),
    theEESumThreshold(EESumThreshold),
-   theHOIsUsed(useHO)
+   theHOIsUsed(useHO),
+   // (momentum reconstruction algorithm)
+   theMomConstrMethod(momConstrMethod),
+   theMomEmDepth(momEmDepth),
+   theMomHadDepth(momHadDepth),
+   theMomTotDepth(momTotDepth)
 {
 }
 
@@ -117,7 +132,13 @@ CaloTowersCreationAlgo::CaloTowersCreationAlgo(double EBthreshold, double EEthre
     double HBweight, double HESweight, double HEDweight,
     double HOweight, double HF1weight, double HF2weight,
     double EcutTower, double EBSumThreshold, double EESumThreshold,
-    bool useHO)
+    bool useHO,
+    // (for the momentum construction algorithm)
+    int momConstrMethod,
+    double momEmDepth,
+    double momHadDepth,
+    double momTotDepth
+    )
 
  : theEBthreshold(EBthreshold),
    theEEthreshold(EEthreshold),
@@ -155,7 +176,12 @@ CaloTowersCreationAlgo::CaloTowersCreationAlgo(double EBthreshold, double EEthre
    theEcutTower(EcutTower),
    theEBSumThreshold(EBSumThreshold),
    theEESumThreshold(EESumThreshold),
-   theHOIsUsed(useHO)
+   theHOIsUsed(useHO),
+   // (momentum reconstruction algorithm)
+   theMomConstrMethod(momConstrMethod),
+   theMomEmDepth(momEmDepth),
+   theMomHadDepth(momHadDepth),
+   theMomTotDepth(momTotDepth)
 {
 }
 
@@ -194,13 +220,14 @@ void CaloTowersCreationAlgo::process(const EcalRecHitCollection& ec) {
       ecItr != ec.end(); ++ecItr)  
     assignHit(&(*ecItr));
 }
-
 void CaloTowersCreationAlgo::process(const CaloTowerCollection& ctc) {
   for(CaloTowerCollection::const_iterator ctcItr = ctc.begin();
       ctcItr != ctc.end(); ++ctcItr) { 
     rescale(&(*ctcItr));
     }
 }
+
+
 
 void CaloTowersCreationAlgo::finish(CaloTowerCollection& result) {
   // now copy this map into the final collection
@@ -213,6 +240,7 @@ void CaloTowersCreationAlgo::finish(CaloTowerCollection& result) {
   }
   theTowerMap.clear(); // save the memory
 }
+
 
 
 void CaloTowersCreationAlgo::assignHit(const CaloRecHit * recHit) {
@@ -241,17 +269,17 @@ void CaloTowersCreationAlgo::assignHit(const CaloRecHit * recHit) {
       
       tower28.E_had += e28;
       tower28.E += e28;
-      tower28.constituents.push_back(detId);    
+      std::pair<DetId,double> mc(detId,e28);
+      tower28.metaConstituents.push_back(mc);
 
       tower29.E_had += e29;
       tower29.E += e29;
-      tower29.constituents.push_back(detId);    
+      tower29.metaConstituents.push_back(mc);
     }
   } else {
     CaloTowerDetId towerDetId = theTowerConstituentsMap->towerOf(detId);
     if (towerDetId.null()) return;    
     MetaTower & tower = find(towerDetId);
-
 
     double energy = recHit->energy();
     if(energy >= threshold) {
@@ -289,11 +317,16 @@ void CaloTowersCreationAlgo::assignHit(const CaloRecHit * recHit) {
           tower.E += e;
         }
       }
-      tower.constituents.push_back(detId);
+      std::pair<DetId,double> mc(detId,e);
+      tower.metaConstituents.push_back(mc);
     } 
   }
 }
 
+
+// this method is not compatible with the new format 
+// for now make a quick compatibility "fix" : WILL NOT WORK CORRECTLY with anything 
+// except the default simple p4 assignment!!!
 void CaloTowersCreationAlgo::rescale(const CaloTower * ct) {
   double threshold, weight;
 
@@ -325,12 +358,20 @@ void CaloTowersCreationAlgo::rescale(const CaloTower * ct) {
       }
     }
     tower.E = tower.E_had+tower.E_em+tower.E_outer;
-    tower.constituents.push_back(detId);
+
+    // this is to be complient with the new MetaTower setup
+    // used only for the default simple vector assignment
+    std::pair<DetId, double> mc(detId, 0);
+    tower.metaConstituents.push_back(mc);
+
   }
 }
 
+
 CaloTowersCreationAlgo::MetaTower::MetaTower() : E(0),E_em(0),E_had(0),E_outer(0) {
 }
+
+
 
 CaloTowersCreationAlgo::MetaTower & CaloTowersCreationAlgo::find(const CaloTowerDetId & detId) {
   MetaTowerMap::iterator itr = theTowerMap.find(detId);
@@ -346,40 +387,100 @@ CaloTowersCreationAlgo::MetaTower & CaloTowersCreationAlgo::find(const CaloTower
 }
 
 CaloTower CaloTowersCreationAlgo::convert(const CaloTowerDetId& id, const MetaTower& mt) {
-    GlobalPoint p=theTowerGeometry->getGeometry(id)->getPosition();
-    double pf=1.0/cosh(p.eta());
+
+  // moved to respective method
+//  GlobalPoint p=theTowerGeometry->getGeometry(id)->getPosition();
+//  double pf=1.0/cosh(p.eta());
+
     double ecalThres=(id.ietaAbs()<=17)?(theEBSumThreshold):(theEESumThreshold);
     double E=mt.E;
     double E_em=mt.E_em;
     double E_had=mt.E_had;
     double E_outer=mt.E_outer;
-    std::vector<DetId> contains=mt.constituents;
+    std::vector<std::pair<DetId,double> > metaContains=mt.metaConstituents;
 
     if (id.ietaAbs()<=29 && E_em<ecalThres) { // ignore EM threshold in HF
       E-=E_em;
       E_em=0;
-      std::vector<DetId> contains_noecal;
-      for (std::vector<DetId>::iterator i=contains.begin(); i!=contains.end(); i++) 
-	if (i->det()!=DetId::Ecal) contains_noecal.push_back(*i);
-      contains.swap(contains_noecal);
-    }
-    if (id.ietaAbs()<=29 && E_had<theHcalThreshold) {
-      E-=E_had;
-      E_had=0;
-      E_outer=0;
-      std::vector<DetId> contains_nohcal;
-      for (std::vector<DetId>::iterator i=contains.begin(); i!=contains.end(); i++) 
-	if (i->det()!=DetId::Hcal) contains_nohcal.push_back(*i);
-      contains.swap(contains_nohcal);
+      std::vector<std::pair<DetId,double> > metaContains_noecal;
+
+    for (std::vector<std::pair<DetId,double> >::iterator i=metaContains.begin(); i!=metaContains.end(); ++i) 
+	        if (i->first.det()!=DetId::Ecal) metaContains_noecal.push_back(*i);
+      metaContains.swap(metaContains_noecal);
     }
 
-    CaloTower::Vector v(E*pf,p.eta(),p.phi());
-    CaloTower retval(id,v,E_em*pf,E_had*pf,E_outer*pf,
-		     -1,-1);
+    if (id.ietaAbs()<=29 && E_had<theHcalThreshold) {
+      E-=E_had;
+      // if (theHOIsUsed)  E-=E_outer; // not subtracted before, think it should be done
+      E_had=0;
+      E_outer=0;
+      std::vector<std::pair<DetId,double> > metaContains_nohcal;
+
+      for (std::vector<std::pair<DetId,double> >::iterator i=metaContains.begin(); i!=metaContains.end(); ++i) 
+        if (i->first.det()!=DetId::Hcal) metaContains_nohcal.push_back(*i);
+      metaContains.swap(metaContains_nohcal);
+    }
+
+    // create CaloTower using the selected algorithm
+
+    GlobalPoint emPoint, hadPoint;
+    CaloTower::LorentzVector towerP4;
+
+  switch (theMomConstrMethod) {
+
+  case 0 :
+    {  // Simple 4-momentum assignment
+      GlobalPoint p=theTowerGeometry->getGeometry(id)->getPosition();
+
+      double pf=1.0/cosh(p.eta());
+      towerP4 = CaloTower::PolarLorentzVector(E*pf, p.eta(), p.phi(), 0);  // simple momentum assignment, same position
+      emPoint  = p;   
+      hadPoint = p;
+    }  // end case 0
+    break;
+
+  case 1 :
+    {
+      if (id.ietaAbs()<=29) {
+        if (E_em>0) {
+          emPoint   = emShwrPos(metaContains, theMomEmDepth, E_em);
+          double emPf = 1.0/cosh(emPoint.eta());
+          towerP4 += CaloTower::PolarLorentzVector(E_em*emPf, emPoint.eta(), emPoint.phi(), 0); 
+        }
+        if (E_had>0) {
+          double E_had_tot = (theHOIsUsed)? E_had+E_outer : E_had; 
+          hadPoint  = hadShwrPos(metaContains, theMomHadDepth, E_had_tot);
+          double hadPf = 1.0/cosh(hadPoint.eta());
+          towerP4 += CaloTower::PolarLorentzVector(E_had_tot*hadPf, hadPoint.eta(), hadPoint.phi(), 0); 
+        }
+      }
+      else {  // forward detector: use the CaloTower position 
+        GlobalPoint p=theTowerGeometry->getGeometry(id)->getPosition();
+        double pf=1.0/cosh(p.eta());
+        towerP4 = CaloTower::PolarLorentzVector(E*pf, p.eta(), p.phi(), 0);  // simple momentum assignment, same position
+        emPoint  = p;   
+        hadPoint = p;
+      }
+    }  // end case 1
+    break;
+
+  }  // end of decision on p4 reconstruction method
+
+
+//    CaloTower::LorentzVector lv = caloTowerMomentum(id, metaContains, E, E_em, E_had, E_outer);
+
+    CaloTower retval(id, E_em, E_had, E_outer, -1, -1, towerP4, emPoint, hadPoint);
+
+    std::vector<DetId> contains;
+    for (std::vector<std::pair<DetId,double> >::iterator i=metaContains.begin(); i!=metaContains.end(); ++i) 
+        contains.push_back(i->first);
+
     retval.addConstituents(contains);
     return retval;
 } 
-  
+
+
+
 void CaloTowersCreationAlgo::getThresholdAndWeight(const DetId & detId, double & threshold, double & weight) const {
   DetId::Detector det = detId.det();
   weight=0; // in case the hit is not identified
@@ -505,4 +606,96 @@ void CaloTowersCreationAlgo::setHF2EScale(double scale){
   if (scale>0.00001) *&theHF2EScale = scale;
   else *&theHF2EScale = 50.;
 }
+
+
+GlobalPoint CaloTowersCreationAlgo::emCrystalShwrPos(DetId detId, float fracDepth) {
+   const CaloCellGeometry* cellGeometry = theGeometry->getGeometry(detId);
+   GlobalPoint point = cellGeometry->getPosition();  // face of the cell
+
+   if      (fracDepth<0) fracDepth=0;
+   else if (fracDepth>1) fracDepth=1;
+
+   if (fracDepth>0.0) {
+     CaloCellGeometry::CornersVec cv = cellGeometry->getCorners();
+     GlobalPoint backPoint = GlobalPoint( 0.25*( cv[4].x() + cv[5].x() + cv[6].x() + cv[7].x() ),
+                                          0.25*( cv[4].y() + cv[5].y() + cv[6].y() + cv[7].y() ),
+                                          0.25*( cv[4].z() + cv[5].z() + cv[6].z() + cv[7].z() ) );
+     point += fracDepth * (backPoint-point);
+   }
+
+   return point;
+}
+
+GlobalPoint CaloTowersCreationAlgo::hadSegmentShwrPos(DetId detId, float fracDepth) {
+   const CaloCellGeometry* cellGeometry = theGeometry->getGeometry(detId);
+   GlobalPoint point = cellGeometry->getPosition();  // face of the cell
+
+   if      (fracDepth<0) fracDepth=0;
+   else if (fracDepth>1) fracDepth=1;
+
+   if (fracDepth>0.0) {
+     CaloCellGeometry::CornersVec cv = cellGeometry->getCorners();
+     GlobalPoint backPoint = GlobalPoint( 0.25*( cv[4].x() + cv[5].x() + cv[6].x() + cv[7].x() ),
+                                          0.25*( cv[4].y() + cv[5].y() + cv[6].y() + cv[7].y() ),
+                                          0.25*( cv[4].z() + cv[5].z() + cv[6].z() + cv[7].z() ) );
+     point += fracDepth * (backPoint-point);
+   }
+
+   return point;
+}
+
+
+GlobalPoint CaloTowersCreationAlgo::hadShwrPos(std::vector<std::pair<DetId,double> >& metaContains,
+                                               float fracDepth, double hadE) {
+
+                                                  
+  if (hadE<=0) return GlobalPoint(0,0,0);
+
+  double hadX = 0.0;
+  double hadY = 0.0;
+  double hadZ = 0.0;
+
+  int nConst = 0;
+
+  std::vector<std::pair<DetId,double> >::iterator mc_it = metaContains.begin();
+  for (; mc_it!=metaContains.end(); ++mc_it) {
+    if (mc_it->first.det() != DetId::Hcal) continue;
+    ++nConst;
+
+    GlobalPoint p = hadSegmentShwrPos(mc_it->first.det(), fracDepth);
+
+    // longitudinal segmantation: do not weight by energy,
+    // get the geometrical position
+    hadX += p.x();
+    hadY += p.y();
+    hadZ += p.z();
+  }
+
+   return GlobalPoint(hadX/nConst, hadY/nConst, hadZ/nConst);
+}
+
+
+GlobalPoint CaloTowersCreationAlgo::emShwrPos(std::vector<std::pair<DetId,double> >& metaContains, 
+                                              float fracDepth, double emE) {
+
+  if (emE<=0) return GlobalPoint(0,0,0);
+
+  double emX = 0.0;
+  double emY = 0.0;
+  double emZ = 0.0;
+
+  std::vector<std::pair<DetId,double> >::iterator mc_it = metaContains.begin();
+  for (; mc_it!=metaContains.end(); ++mc_it) {
+    if (mc_it->first.det() != DetId::Ecal) continue;
+    GlobalPoint p = emCrystalShwrPos(mc_it->first.det(), fracDepth);
+    double e = mc_it->second;
+
+    emX += p.x() * e;
+    emY += p.y() * e;
+    emZ += p.z() * e;
+  }
+
+   return GlobalPoint(emX/emE, emY/emE, emZ/emE);
+}
+
 
