@@ -1,4 +1,4 @@
-// Last commit: $Id: SiStripConfigDb.cc,v 1.54 2008/04/08 09:14:51 bainbrid Exp $
+// Last commit: $Id: SiStripConfigDb.cc,v 1.55 2008/04/11 13:27:33 bainbrid Exp $
 
 #include "OnlineDB/SiStripConfigDb/interface/SiStripConfigDb.h"
 #include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
@@ -431,7 +431,12 @@ void SiStripConfigDb::usingDatabase() {
     if ( ip->second.forceVersions_ ) { 
 
       // Find state for current partition
-      tkStateVector states  = deviceFactory(__func__)->getCurrentStates(); 
+      tkStateVector states;
+#ifdef USING_NEW_DATABASE_MODEL
+      states = deviceFactory(__func__)->getCurrentStates(); 
+#else
+      states = *( deviceFactory(__func__)->getCurrentStates() ); 
+#endif
       tkStateVector::const_iterator istate = states.begin();
       tkStateVector::const_iterator jstate = states.end();
       while ( istate != jstate ) {
@@ -443,28 +448,50 @@ void SiStripConfigDb::usingDatabase() {
       if ( istate != states.end() ) {
 	
 #ifdef USING_NEW_DATABASE_MODEL
-	if ( !ip->second.cabMajor_ ) { ip->second.cabMajor_ = (*istate)->getConnectionVersionMajorId(); }
-	if ( !ip->second.cabMinor_ ) { ip->second.cabMinor_ = (*istate)->getConnectionVersionMinorId(); }
+	if ( !ip->second.cabVersion_.first &&
+	     !ip->second.cabVersion_.second ) { 
+	  ip->second.cabVersion_.first = (*istate)->getConnectionVersionMajorId(); 
+	  ip->second.cabVersion_.second = (*istate)->getConnectionVersionMinorId(); 
+	}
 #endif
 	
-	if ( !ip->second.fecMajor_ ) { ip->second.fecMajor_ = (*istate)->getFecVersionMajorId(); }
-	if ( !ip->second.fecMinor_ ) { ip->second.fecMinor_ = (*istate)->getFecVersionMinorId(); }
-	if ( !ip->second.fedMajor_ ) { ip->second.fedMajor_ = (*istate)->getFedVersionMajorId(); }
-	if ( !ip->second.fedMinor_ ) { ip->second.fedMinor_ = (*istate)->getFedVersionMinorId(); }
+	if ( !ip->second.fecVersion_.first &&
+	     !ip->second.fecVersion_.second ) { 
+	  ip->second.fecVersion_.first = (*istate)->getFecVersionMajorId(); 
+	  ip->second.fecVersion_.second = (*istate)->getFecVersionMinorId(); 
+	}
+	if ( !ip->second.fedVersion_.first &&
+	     !ip->second.fedVersion_.second ) { 
+	  ip->second.fedVersion_.first = (*istate)->getFedVersionMajorId(); 
+	  ip->second.fedVersion_.second = (*istate)->getFedVersionMinorId(); 
+	}
 	
 #ifdef USING_NEW_DATABASE_MODEL
-	if ( !ip->second.dcuMajor_ ) { ip->second.dcuMajor_ = (*istate)->getDcuInfoVersionMajorId(); }
-	if ( !ip->second.dcuMinor_ ) { ip->second.dcuMinor_ = (*istate)->getDcuInfoVersionMinorId(); }
+	if ( !ip->second.dcuVersion_.first &&
+	     !ip->second.dcuVersion_.second ) { 
+	  ip->second.dcuVersion_.first = (*istate)->getDcuInfoVersionMajorId(); 
+	  ip->second.dcuVersion_.second = (*istate)->getDcuInfoVersionMinorId(); 
+	}
 #endif
 	
 #ifdef USING_NEW_DATABASE_MODEL
-	//@@ if ( !ip->second.psuMajor_ ) { ip->second.psuMajor_ = (*istate)->getDcuPsuMapVersionMajorId(); }
-	//@@ if ( !ip->second.psuMinor_ ) { ip->second.psuMinor_ = (*istate)->getDcuPsuMapVersionMinorId(); }
+	/*
+	  if ( !ip->second.psuMajor_.first && 
+	  !ip->second.psuMajor_.second ) { 
+	  ip->second.psuMajor_ = (*istate)->getDcuPsuMapVersionMajorId();
+	  ip->second.psuMinor_ = (*istate)->getDcuPsuMapVersionMinorId(); 
+	  }
+	*/
 #endif
 	
 #ifdef USING_NEW_DATABASE_MODEL
-	//@@ if ( !dbParams_.calMajor_ ) { dbParams_.calMajor_ = (*istate)->getAnalysisVersionMajorId(); }
-	//@@ if ( !dbParams_.calMinor_ ) { dbParams_.calMinor_ = (*istate)->getAnalysisVersionMinorId(); }
+	/*
+	  if ( !dbParams_.calVersion_.first &&
+	  !dbParams_.calVersion_.second ) { 
+	  dbParams_.calVersion_.first = (*istate)->getAnalysisVersionMajorId(); 
+	  dbParams_.calVersion_.second = (*istate)->getAnalysisVersionMinorId(); 
+	  }
+	*/
 #endif
 	
       } else {
@@ -490,18 +517,18 @@ void SiStripConfigDb::usingDatabase() {
 	  if ( ip->second.runNumber_ == run->getRunNumber() ) {
 	  
 #ifdef USING_NEW_DATABASE_MODEL
-	    ip->second.cabMajor_ = run->getConnectionVersionMajorId(); 
-	    ip->second.cabMinor_ = run->getConnectionVersionMinorId(); 
+	    ip->second.cabVersion_.first = run->getConnectionVersionMajorId(); 
+	    ip->second.cabVersion_.second = run->getConnectionVersionMinorId(); 
 #endif
 	  
-	    ip->second.fecMajor_ = run->getFecVersionMajorId(); 
-	    ip->second.fecMinor_ = run->getFecVersionMinorId(); 
-	    ip->second.fedMajor_ = run->getFedVersionMajorId(); 
-	    ip->second.fedMinor_ = run->getFedVersionMinorId(); 
+	    ip->second.fecVersion_.first = run->getFecVersionMajorId(); 
+	    ip->second.fecVersion_.second = run->getFecVersionMinorId(); 
+	    ip->second.fedVersion_.first = run->getFedVersionMajorId(); 
+	    ip->second.fedVersion_.second = run->getFedVersionMinorId(); 
 	  
 #ifdef USING_NEW_DATABASE_MODEL
-	    ip->second.dcuMajor_ = run->getDcuInfoVersionMajorId(); 
-	    ip->second.dcuMinor_ = run->getDcuInfoVersionMinorId(); 
+	    ip->second.dcuVersion_.first = run->getDcuInfoVersionMajorId(); 
+	    ip->second.dcuVersion_.second = run->getDcuInfoVersionMinorId(); 
 #endif
 
 #ifdef USING_NEW_DATABASE_MODEL
@@ -510,8 +537,8 @@ void SiStripConfigDb::usingDatabase() {
 #endif
 
 #ifdef USING_NEW_DATABASE_MODEL
-	    //@@ dbParams_.calMajor_ = run->getAnalysisVersionMajorId(); 
-	    //@@ dbParams_.calMinor_ = run->getAnalysisVersionMinorId(); 
+	    //@@ dbParams_.calVersion_.first = run->getAnalysisVersionMajorId(); 
+	    //@@ dbParams_.calVersion_.second = run->getAnalysisVersionMinorId(); 
 #endif
 
 	    std::stringstream ss;
@@ -587,8 +614,8 @@ void SiStripConfigDb::usingDatabase() {
     try { 
 #ifdef USING_NEW_DATABASE_MODEL
       deviceFactory(__func__)->addDetIdPartition( ip->second.partitionName_,
-						  ip->second.dcuMajor_, 
-						  ip->second.dcuMinor_ );
+						  ip->second.dcuVersion_.first, 
+						  ip->second.dcuVersion_.second );
 #else
       deviceFactory(__func__)->addDetIdPartition( ip->second.partitionName_ );
 #endif
@@ -608,8 +635,8 @@ void SiStripConfigDb::usingDatabase() {
     
     try {
       deviceFactory(__func__)->setInputDBVersion( ip->second.partitionName_,
-						  ip->second.cabMajor_,
-						  ip->second.cabMinor_ );
+						  ip->second.cabVersion_.first,
+						  ip->second.cabVersion_.second );
     } catch (...) { 
       std::stringstream ss;
       ss << "Attempted to 'setInputDBVersion' for partition: " << ip->second.partitionName_;

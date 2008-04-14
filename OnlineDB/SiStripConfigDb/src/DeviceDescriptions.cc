@@ -1,4 +1,4 @@
-// Last commit: $Id: DeviceDescriptions.cc,v 1.19 2008/04/08 09:14:51 bainbrid Exp $
+// Last commit: $Id: DeviceDescriptions.cc,v 1.20 2008/04/11 13:27:33 bainbrid Exp $
 
 #include "OnlineDB/SiStripConfigDb/interface/SiStripConfigDb.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -23,8 +23,8 @@ const SiStripConfigDb::DeviceDescriptions& SiStripConfigDb::getDeviceDescription
 
       deviceFactory(__func__)->getFecDeviceDescriptions( dbParams_.partitions_.begin()->second.partitionName_, 
 							 all_devices,
-							 dbParams_.partitions_.begin()->second.fecMajor_,
-							 dbParams_.partitions_.begin()->second.fecMinor_,
+							 dbParams_.partitions_.begin()->second.fecVersion_.first,
+							 dbParams_.partitions_.begin()->second.fecVersion_.second,
 							 false ); //@@ do not get DISABLED modules (ie, those removed from cabling). 
       devices_ = FecFactory::getDeviceFromDeviceVector( all_devices, device_type );
 
@@ -76,8 +76,8 @@ const SiStripConfigDb::DeviceDescriptions& SiStripConfigDb::getDeviceDescription
 
       deviceFactory(__func__)->getFecDeviceDescriptions( dbParams_.partitions_.begin()->second.partitionName_, 
 							 devices_,
-							 dbParams_.partitions_.begin()->second.fecMajor_,
-							 dbParams_.partitions_.begin()->second.fecMinor_,
+							 dbParams_.partitions_.begin()->second.fecVersion_.first,
+							 dbParams_.partitions_.begin()->second.fecVersion_.second,
 							 false ); //@@ do not get DISABLED modules (ie, those removed from cabling). 
       
     } else { 
@@ -134,8 +134,8 @@ void SiStripConfigDb::uploadDeviceDescriptions( bool new_major_version ) {
   try { 
     deviceFactory(__func__)->setFecDeviceDescriptions( devices_,
 						       dbParams_.partitions_.begin()->second.partitionName_, 
-						       &(dbParams_.partitions_.begin()->second.fecMajor_),
-						       &(dbParams_.partitions_.begin()->second.fecMinor_),
+						       &(dbParams_.partitions_.begin()->second.fecVersion_.first),
+						       &(dbParams_.partitions_.begin()->second.fecVersion_.second),
 						       new_major_version );
   } catch (...) { handleException( __func__ ); }
   

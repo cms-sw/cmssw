@@ -1,4 +1,4 @@
-// Last commit: $Id: AnalysisDescriptions.cc,v 1.2 2008/03/28 15:16:15 bainbrid Exp $
+// Last commit: $Id: AnalysisDescriptions.cc,v 1.3 2008/04/11 13:27:33 bainbrid Exp $
 // Latest tag:  $Name:  $
 // Location:    $Source: /cvs_server/repositories/CMSSW/CMSSW/OnlineDB/SiStripConfigDb/src/AnalysisDescriptions.cc,v $
 
@@ -72,16 +72,16 @@ const SiStripConfigDb::AnalysisDescriptions& SiStripConfigDb::getAnalysisDescrip
 	      vers.push_back( ivers->first * 1000000 + ivers->second );
 	    }
 	  }
-	  if ( dbParams_.partitions_.begin()->second.calMajor_ == 0 && 
-	       dbParams_.partitions_.begin()->second.calMinor_ == 0 ) { 
+	  if ( dbParams_.partitions_.begin()->second.calVersion_.first == 0 && 
+	       dbParams_.partitions_.begin()->second.calVersion_.second == 0 ) { 
 	    //sort( vers.begin(), vers.end() ); //@@ necessary? already ordered?
 	    major = vers.back() / 1000000;
 	    minor = vers.back() % 1000000;
 	  } else {
-	    uint16_t key = dbParams_.partitions_.begin()->second.calMajor_ * 1000000 + dbParams_.partitions_.begin()->second.calMinor_;
+	    uint16_t key = dbParams_.partitions_.begin()->second.calVersion_.first * 1000000 + dbParams_.partitions_.begin()->second.calVersion_.second;
 	    if ( find( vers.begin(), vers.end(), key ) != vers.end() ) {
-	      major = dbParams_.partitions_.begin()->second.calMajor_;
-	      minor = dbParams_.partitions_.begin()->second.calMinor_;
+	      major = dbParams_.partitions_.begin()->second.calVersion_.first;
+	      minor = dbParams_.partitions_.begin()->second.calVersion_.second;
 	    }
 	  }
 	} else {
@@ -124,7 +124,7 @@ const SiStripConfigDb::AnalysisDescriptions& SiStripConfigDb::getAnalysisDescrip
 	  << "[SiStripConfigDb::" << __func__ << "]"
 	  << " Cannot retrieve analysis objects for run number " << dbParams_.partitions_.begin()->second.runNumber_
 	  << " run type " << SiStripEnumsAndStrings::runType( dbParams_.partitions_.begin()->second.runType_ )
-	  << " and version " << dbParams_.partitions_.begin()->second.calMajor_ << "." << dbParams_.partitions_.begin()->second.calMinor_ << "!";
+	  << " and version " << dbParams_.partitions_.begin()->second.calVersion_.first << "." << dbParams_.partitions_.begin()->second.calVersion_.second << "!";
       }
       
     } else {

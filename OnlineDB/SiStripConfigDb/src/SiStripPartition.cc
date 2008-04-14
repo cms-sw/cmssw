@@ -1,8 +1,10 @@
-// Last commit: $Id: $
+// Last commit: $Id: SiStripPartition.cc,v 1.1 2008/04/11 13:27:33 bainbrid Exp $
 
 #include "OnlineDB/SiStripConfigDb/interface/SiStripPartition.h"
 #include "DataFormats/SiStripCommon/interface/SiStripEnumsAndStrings.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <iostream>
+#include <cmath>
 
 using namespace sistrip;
 
@@ -12,16 +14,11 @@ SiStripPartition::SiStripPartition() :
   partitionName_(""), 
   runNumber_(0),
   runType_(sistrip::UNDEFINED_RUN_TYPE),
-  cabMajor_(0),
-  cabMinor_(0),
-  fedMajor_(0),
-  fedMinor_(0),
-  fecMajor_(0),
-  fecMinor_(0),
-  calMajor_(0),
-  calMinor_(0),
-  dcuMajor_(0),
-  dcuMinor_(0),
+  cabVersion_(0,0),
+  fedVersion_(0,0),
+  fecVersion_(0,0),
+  calVersion_(0,0),
+  dcuVersion_(0,0),
   forceVersions_(true),
   inputModuleXml_(""),
   inputDcuInfoXml_(""),
@@ -46,16 +43,11 @@ void SiStripPartition::reset() {
   runType_       = sistrip::UNDEFINED_RUN_TYPE;
   forceVersions_ = true;
 
-  cabMajor_  = 0;
-  cabMinor_  = 0;
-  fedMajor_  = 0;
-  fedMinor_  = 0;
-  fecMajor_  = 0;
-  fecMinor_  = 0;
-  calMajor_  = 0;
-  calMinor_  = 0;
-  dcuMajor_  = 0;
-  dcuMinor_  = 0;
+  cabVersion_ = std::make_pair(0,0);
+  fedVersion_ = std::make_pair(0,0);
+  fecVersion_ = std::make_pair(0,0);
+  calVersion_ = std::make_pair(0,0);
+  dcuVersion_ = std::make_pair(0,0);
 
   inputModuleXml_   = "";
   inputDcuInfoXml_  = "";
@@ -71,23 +63,32 @@ void SiStripPartition::setParams( const edm::ParameterSet& pset ) {
   runNumber_     = pset.getUntrackedParameter<unsigned int>( "RunNumber", 0 );
   forceVersions_ = pset.getUntrackedParameter<bool>( "ForceVersions", false );
 
-  cabMajor_  = pset.getUntrackedParameter<unsigned int>( "CablingMajorVersion", 0 );
-  cabMinor_  = pset.getUntrackedParameter<unsigned int>( "CablingMinorVersion", 0 );
-  fedMajor_  = pset.getUntrackedParameter<unsigned int>( "FedMajorVersion", 0 );
-  fedMinor_  = pset.getUntrackedParameter<unsigned int>( "FedMinorVersion", 0 );
-  fecMajor_  = pset.getUntrackedParameter<unsigned int>( "FecMajorVersion", 0 );
-  fecMinor_  = pset.getUntrackedParameter<unsigned int>( "FecMinorVersion", 0 );
-  dcuMajor_  = pset.getUntrackedParameter<unsigned int>( "DcuDetIdMajorVersion", 0 );
-  dcuMinor_  = pset.getUntrackedParameter<unsigned int>( "DcuDetIdMinorVersion", 0 );
-  calMajor_  = pset.getUntrackedParameter<unsigned int>( "CalibMajorVersion", 0 );
-  calMinor_  = pset.getUntrackedParameter<unsigned int>( "CalibMinorVersion", 0 );
-
+  cabVersion_ = versions( pset.getUntrackedParameter< std::vector<unsigned int> >( "CablingVersion", std::vector<unsigned int>(2,0) ) );
+  fedVersion_ = versions( pset.getUntrackedParameter< std::vector<unsigned int> >( "FedVersion", std::vector<unsigned int>(2,0) ) );
+  fecVersion_ = versions( pset.getUntrackedParameter< std::vector<unsigned int> >( "FecVersion", std::vector<unsigned int>(2,0) ) );
+  dcuVersion_ = versions( pset.getUntrackedParameter< std::vector<unsigned int> >( "DcuDetIdVersion", std::vector<unsigned int>(2,0) ) );
+  calVersion_ = versions( pset.getUntrackedParameter< std::vector<unsigned int> >( "CalibVersion", std::vector<unsigned int>(2,0) ) );
+  
   std::vector<std::string> tmp(1,"");
   inputModuleXml_   = pset.getUntrackedParameter<std::string>( "InputModuleXml", "" );
   inputDcuInfoXml_  = pset.getUntrackedParameter<std::string>( "InputDcuInfoXml", "" ); 
   inputFecXml_      = pset.getUntrackedParameter< std::vector<std::string> >( "InputFecXml", tmp ); 
   inputFedXml_      = pset.getUntrackedParameter< std::vector<std::string> >( "InputFedXml", tmp );
 
+}
+
+// -----------------------------------------------------------------------------
+// 
+SiStripPartition::Versions SiStripPartition::versions( std::vector<unsigned int> input ) {
+  if ( input.size() != 2 ) { 
+    edm::LogWarning(mlConfigDb_)
+      << "[SiStripPartition::" << __func__ << "]"
+      << " Unexpected size (" << input.size()
+      << ") for  vector containing version numbers (major,minor)!"
+      << " Resizing to 2 elements (default values will be 0,0)...";
+    input.resize(2,0);
+  }
+  return std::make_pair( input[0], input[1] );
 }
 
 // -----------------------------------------------------------------------------
@@ -107,11 +108,11 @@ void SiStripPartition::print( std::stringstream& ss, bool using_db ) const {
       ss << "  Run type                  : " << SiStripEnumsAndStrings::runType( runType_ ) << std::endl;
     }
     
-    ss << "  Cabling major/minor vers  : " << cabMajor_ << "." << cabMinor_ << std::endl
-       << "  FED major/minor vers      : " << fedMajor_ << "." << fedMinor_ << std::endl
-       << "  FEC major/minor vers      : " << fecMajor_ << "." << fecMinor_ << std::endl
-       << "  Calibration maj/min vers  : " << calMajor_ << "." << calMinor_ << std::endl
-       << "  DCU-DetId maj/min vers    : " << dcuMajor_ << "." << dcuMinor_ << std::endl;
+    ss << "  Cabling major/minor vers  : " << cabVersion_.first << "." << cabVersion_.second << std::endl
+       << "  FED major/minor vers      : " << fedVersion_.first << "." << fedVersion_.second << std::endl
+       << "  FEC major/minor vers      : " << fecVersion_.first << "." << fecVersion_.second << std::endl
+       << "  Calibration maj/min vers  : " << calVersion_.first << "." << calVersion_.second << std::endl
+       << "  DCU-DetId maj/min vers    : " << dcuVersion_.first << "." << dcuVersion_.second << std::endl;
     
   } else {
     

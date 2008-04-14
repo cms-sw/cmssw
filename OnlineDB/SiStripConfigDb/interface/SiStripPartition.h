@@ -1,4 +1,4 @@
-// Last commit: $Id: $
+// Last commit: $Id: SiStripPartition.h,v 1.1 2008/04/11 13:27:33 bainbrid Exp $
 
 #ifndef OnlineDB_SiStripConfigDb_SiStripPartition_h
 #define OnlineDB_SiStripConfigDb_SiStripPartition_h
@@ -28,10 +28,14 @@ class SiStripPartition {
   SiStripPartition();
 
   ~SiStripPartition();
+
+  typedef std::pair<uint32_t,uint32_t> Versions; 
   
   void reset(); 
 
   void setParams( const edm::ParameterSet& );
+  
+  Versions versions( std::vector<unsigned int> );
   
   void print( std::stringstream&, bool using_db = false ) const; 
   
@@ -48,26 +52,16 @@ class SiStripPartition {
   sistrip::RunType runType_;
   
   // description versions
+  
+  Versions cabVersion_;
 
-  uint32_t cabMajor_;
+  Versions fedVersion_;
 
-  uint32_t cabMinor_;
+  Versions fecVersion_;
 
-  uint32_t fedMajor_;
+  Versions calVersion_;
 
-  uint32_t fedMinor_;
-
-  uint32_t fecMajor_;
-
-  uint32_t fecMinor_;
-
-  uint32_t calMajor_;
-
-  uint32_t calMinor_;
-
-  uint32_t dcuMajor_;
-
-  uint32_t dcuMinor_;
+  Versions dcuVersion_;
 
   bool forceVersions_;
 

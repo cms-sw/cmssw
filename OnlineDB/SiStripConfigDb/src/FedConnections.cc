@@ -1,4 +1,4 @@
-// Last commit: $Id: FedConnections.cc,v 1.15 2008/03/28 15:31:15 bainbrid Exp $
+// Last commit: $Id: FedConnections.cc,v 1.16 2008/04/11 13:27:33 bainbrid Exp $
 
 #include "OnlineDB/SiStripConfigDb/interface/SiStripConfigDb.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -33,8 +33,8 @@ SiStripConfigDb::FedConnections::range SiStripConfigDb::getFedConnections( std::
 	  std::vector<FedConnection*> tmp1;
 	  deviceFactory(__func__)->getConnectionDescriptions( ii->second.partitionName_, 
 							      tmp1,
-							      ii->second.cabMajor_,
-							      ii->second.cabMinor_,
+							      ii->second.cabVersion_.first,
+							      ii->second.cabVersion_.second,
 							      false ); //@@ do not get DISABLED connections
 	  
 	  // Make local copy 
@@ -113,7 +113,7 @@ SiStripConfigDb::FedConnections::range SiStripConfigDb::getFedConnections( std::
       for ( uint16_t iconn = 0; iconn < deviceFactory(__func__)->getNumberOfFedChannel(); iconn++ ) {
 	tmp.push_back( deviceFactory(__func__)->getFedChannelConnection( iconn ) ); 
       }
-      connections_.loadNext( "", tmp2 );
+      connections_.loadNext( "", tmp );
       
 #endif // USING_NEW_DATABASE_MODEL
       
@@ -151,7 +151,7 @@ SiStripConfigDb::FedConnections::range SiStripConfigDb::getFedConnections( std::
 
 // -----------------------------------------------------------------------------
 // 
-void SiStripConfigDb::uploadFedConnections( std::string partition ) {
+void SiStripConfigDb::uploadFedConnections( std::string partition, const std::vector<FedConnection*>& conns ) {
 
   if ( dbParams_.usingDbCache_ ) {
     edm::LogWarning(mlConfigDb_)
@@ -161,53 +161,59 @@ void SiStripConfigDb::uploadFedConnections( std::string partition ) {
   }
 
   if ( !deviceFactory(__func__) ) { return; }
-  
-  if ( connections_.empty() ) { 
+
+  if ( partition.empty() ) { 
     stringstream ss; 
     ss << "[SiStripConfigDb::" << __func__ << "]" 
-       << " Found no cached FED connections, therefore no upload!"; 
+       << " Partition string is empty, therefore aborting upload!"; 
+    edm::LogWarning(mlConfigDb_) << ss.str(); 
+    return; 
+  }
+  
+  if ( conns.empty() ) { 
+    stringstream ss; 
+    ss << "[SiStripConfigDb::" << __func__ << "]" 
+       << " Vector of FED connections is empty, therefore aborting upload!"; 
     edm::LogWarning(mlConfigDb_) << ss.str(); 
     return; 
   }
 
+  SiStripDbParams::SiStripPartitions::iterator iter = dbParams_.partitions_.begin();
+  SiStripDbParams::SiStripPartitions::iterator jter = dbParams_.partitions_.end();
+  for ( ; iter != jter; ++iter ) { if ( partition == iter->second.partitionName_ ) { break; } }
+  
+  if ( iter == dbParams_.partitions_.end() ) {
+    stringstream ss; 
+    ss << "[SiStripConfigDb::" << __func__ << "]" 
+       << " Cannot find partition \"" << partition
+       << "\" in cached partitions list: \""
+       << dbParams_.partitions() 
+       << "\", therefore aborting upload!";
+    edm::LogWarning(mlConfigDb_) << ss.str(); 
+    return; 
+  }
+  
   if ( dbParams_.usingDb_ ) {
     
     try { 
-      
-      SiStripDbParams::SiStripPartitions::iterator ii = dbParams_.partitions_.begin();
-      SiStripDbParams::SiStripPartitions::iterator jj = dbParams_.partitions_.end();
-      for ( ; ii != jj; ++ii ) {
-
-	if ( partition == "" || partition == ii->second.partitionName_ ) {
-	  
-	  FedConnections::range range = connections_.find( ii->second.partitionName_ );
-	  if ( range != connections_.emptyRange() ) {
-	    std::vector<FedConnection*> conns( range.begin(), range.end() );
 	    
 #ifdef USING_NEW_DATABASE_MODEL
 	    
-	    deviceFactory(__func__)->setConnectionDescriptions( conns,
-								ii->second.partitionName_,
-								&(ii->second.cabMajor_),
-								&(ii->second.cabMinor_),
-								true ); // new major version
-	    
+      deviceFactory(__func__)->setConnectionDescriptions( conns,
+							  iter->second.partitionName_,
+							  &(iter->second.cabVersion_.first),
+							  &(iter->second.cabVersion_.second),
+							  true ); // new major version
+      
 #else 
-	    std::vector<FedConnection*>::iterator ifed = conns.begin();
-	    std::vector<FedConnection*>::iterator jfed = conns.end();
-	    for ( ; ifed != jfed; ++ifed ) {
-	      deviceFactory(__func__)->addFedChannelConnection( *ifed );
-	    }
-	    deviceFactory(__func__)->upload();
-#endif
-	  } else {
-	  }
-
-	} else {
-	}
-
+      std::vector<FedConnection*>::const_iterator ifed = conns.begin();
+      std::vector<FedConnection*>::const_iterator jfed = conns.end();
+      for ( ; ifed != jfed; ++ifed ) {
+	deviceFactory(__func__)->addFedChannelConnection( *ifed );
       }
-
+      deviceFactory(__func__)->upload();
+#endif
+      
     } catch (...) { handleException( __func__ ); }
     
   } else {
@@ -218,9 +224,9 @@ void SiStripConfigDb::uploadFedConnections( std::string partition ) {
 	<< "<!DOCTYPE TrackerDescription SYSTEM \"http://cmsdoc.cern.ch/cms/cmt/System_aspects/Daq/dtd/trackerdescription.dtd\">" << endl
 	<< "<TrackerDescription>" << endl
 	<< "<FedChannelList>" << endl;
-    FedConnections::iterator ifed = connections_.begin();
-    FedConnections::iterator jfed = connections_.end();
-    for ( ; ifed != jfed; ++ifed ) { (*ifed)->toXML(out); out << endl; }
+    std::vector<FedConnection*>::const_iterator ifed = conns.begin();
+    std::vector<FedConnection*>::const_iterator jfed = conns.end();
+    for ( ; ifed != jfed; ++ifed ) { if ( !(*ifed) ) { (*ifed)->toXML(out); out << endl; } }
     out << "</FedChannelList>" << endl
 	<< "</TrackerDescription>" << endl;
     out.close();
@@ -231,4 +237,87 @@ void SiStripConfigDb::uploadFedConnections( std::string partition ) {
   allowCalibUpload_ = true;
   
 }
+
+// // -----------------------------------------------------------------------------
+// // 
+// void SiStripConfigDb::uploadFedConnections( std::string partition ) {
+
+//   if ( dbParams_.usingDbCache_ ) {
+//     edm::LogWarning(mlConfigDb_)
+//       << "[SiStripConfigDb::" << __func__ << "]" 
+//       << " Using database cache! No uploads allowed!"; 
+//     return;
+//   }
+
+//   if ( !deviceFactory(__func__) ) { return; }
+  
+//   if ( connections_.empty() ) { 
+//     stringstream ss; 
+//     ss << "[SiStripConfigDb::" << __func__ << "]" 
+//        << " Found no cached FED connections, therefore no upload!"; 
+//     edm::LogWarning(mlConfigDb_) << ss.str(); 
+//     return; 
+//   }
+
+//   if ( dbParams_.usingDb_ ) {
+    
+//     try { 
+      
+//       SiStripDbParams::SiStripPartitions::iterator ii = dbParams_.partitions_.begin();
+//       SiStripDbParams::SiStripPartitions::iterator jj = dbParams_.partitions_.end();
+//       for ( ; ii != jj; ++ii ) {
+
+// 	if ( partition == "" || partition == ii->second.partitionName_ ) {
+	  
+// 	  FedConnections::range range = connections_.find( ii->second.partitionName_ );
+// 	  if ( range != connections_.emptyRange() ) {
+// 	    std::vector<FedConnection*> conns( range.begin(), range.end() );
+	    
+// #ifdef USING_NEW_DATABASE_MODEL
+	    
+// 	    deviceFactory(__func__)->setConnectionDescriptions( conns,
+// 								ii->second.partitionName_,
+// 								&(ii->second.cabVersion_.first),
+// 								&(ii->second.cabVersion_.second),
+// 								true ); // new major version
+	    
+// #else 
+// 	    std::vector<FedConnection*>::iterator ifed = conns.begin();
+// 	    std::vector<FedConnection*>::iterator jfed = conns.end();
+// 	    for ( ; ifed != jfed; ++ifed ) {
+// 	      deviceFactory(__func__)->addFedChannelConnection( *ifed );
+// 	    }
+// 	    deviceFactory(__func__)->upload();
+// #endif
+// 	  } else {
+// 	  }
+
+// 	} else {
+// 	}
+
+//       }
+
+//     } catch (...) { handleException( __func__ ); }
+    
+//   } else {
+    
+// #ifndef USING_NEW_DATABASE_MODEL
+//     ofstream out( dbParams_.outputModuleXml_.c_str() );
+//     out << "<?xml version=\"1.0\" encoding=\"ISO-8859-1\" ?>" << endl
+// 	<< "<!DOCTYPE TrackerDescription SYSTEM \"http://cmsdoc.cern.ch/cms/cmt/System_aspects/Daq/dtd/trackerdescription.dtd\">" << endl
+// 	<< "<TrackerDescription>" << endl
+// 	<< "<FedChannelList>" << endl;
+//     FedConnections::iterator ifed = connections_.begin();
+//     FedConnections::iterator jfed = connections_.end();
+//     for ( ; ifed != jfed; ++ifed ) { (*ifed)->toXML(out); out << endl; }
+//     out << "</FedChannelList>" << endl
+// 	<< "</TrackerDescription>" << endl;
+//     out.close();
+// #endif
+
+//   }
+
+//   allowCalibUpload_ = true;
+  
+// }
 
