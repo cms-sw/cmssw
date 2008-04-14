@@ -1,6 +1,7 @@
 #ifndef DATAFORMATS_CALOTOWERS_CALOTOWER_H
 #define DATAFORMATS_CALOTOWERS_CALOTOWER_H 1
 
+#include "DataFormats/Candidate/interface/LeafCandidate.h"
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/CaloTowers/interface/CaloTowerDetId.h"
 #include "DataFormats/Math/interface/Vector3D.h"
@@ -8,21 +9,47 @@
 #include <vector>
 #include <cmath>
 
+#include "DataFormats/GeometryVector/interface/GlobalPoint.h"
+
 /** \class CaloTower
     
-$Date: 2006/03/29 21:26:26 $
-$Revision: 1.4 $
+$Date: 2007/07/31 15:19:57 $
+$Revision: 1.5 $
 \author J. Mans - Minnesota
 */
-class CaloTower {
+
+//
+// Original author: J. Mans - Minnesota
+// Created: 2007/07/31 15:19:57
+//
+// Modified: Anton Anastassov (Northwestern)
+// Reason:   Make CaloTower inherit from LeafCandidate
+// 
+//
+
+using namespace reco;
+
+class CaloTower : public LeafCandidate {
 public:
   typedef CaloTowerDetId key_type; // for SortedCollection
-  typedef math::RhoEtaPhiVector Vector;
 
+  // Default constructor
   CaloTower();
-  CaloTower(const CaloTowerDetId& id, const Vector& vec, 
-	    double emEt, double hadEt, double outerEt,
-	    int ecal_tp, int hcal_tp);
+
+  // Constructors from values
+
+  CaloTower(const CaloTowerDetId& id, 
+	    double emE, double hadE, double outerE,
+	    int ecal_tp, int hcal_tp,
+	    const PolarLorentzVector p4,
+      GlobalPoint emPosition, GlobalPoint hadPosition);
+
+  CaloTower(const CaloTowerDetId& id, 
+	    double emE, double hadE, double outerE,
+	    int ecal_tp, int hcal_tp,
+	    const LorentzVector p4,
+      GlobalPoint emPosition, GlobalPoint hadPosition);
+
 
   CaloTowerDetId id() const { return id_; }
   void addConstituent( DetId id ) { constituents_.push_back( id ); }
@@ -30,25 +57,28 @@ public:
   size_t constituentsSize() const { return constituents_.size(); }
   DetId constituent( size_t i ) const { return constituents_[ i ]; }
 
-  const Vector & momentum() const { return momentum_; }
-  double et() const { return momentum_.rho(); }
-  double energy() const { return momentum_.r(); }
-  double eta() const { return momentum_.eta(); }
-  double phi() const { return momentum_.phi(); }
-  double emEnergy() const { return emEt_ * cosh( eta() ); }
-  double hadEnergy() const { return hadEt_ * cosh( eta() ); }
-  double outerEnergy() const { return outerEt_ * cosh( eta() ); }
-  double outerEt() const { return outerEt_; }
-  double emEt() const { return emEt_; }
-  double hadEt() const { return hadEt_; }
+  double emEnergy() const { return emE_ ; }
+  double hadEnergy() const { return hadE_ ; }
+  double outerEnergy() const { return outerE_; }
+  double emEt() const { return emE_ * sin( theta() ); }
+  double hadEt() const { return hadE_ * sin( theta() ); }
+  double outerEt() const { return outerE_ * sin( theta() ); }
+
+  GlobalPoint emPosition()  const { return emPosition_ ; }
+  GlobalPoint hadPosition() const { return hadPosition_ ; }
 
   int emLvl1() const { return emLvl1_; }
   int hadLv11() const { return hadLvl1_; }
 
 private:
   CaloTowerDetId id_;
-  Vector momentum_;
-  Double32_t emEt_, hadEt_, outerEt_;
+ 
+   // positions of assumed EM and HAD shower positions
+   GlobalPoint emPosition_;
+   GlobalPoint hadPosition_;
+
+  Double32_t emE_, hadE_, outerE_;
+
   int emLvl1_,hadLvl1_;
   std::vector<DetId> constituents_;
 };

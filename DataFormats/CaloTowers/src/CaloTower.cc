@@ -1,20 +1,36 @@
 #include "DataFormats/CaloTowers/interface/CaloTower.h"
 
 CaloTower::CaloTower() {
-  emEt_=0;
-  hadEt_=0;
-  outerEt_=0;
+  emE_=0;
+  hadE_=0;
+  outerE_=0;
   emLvl1_=0;
   hadLvl1_=0;
 }
 
-CaloTower::CaloTower(const CaloTowerDetId& id, const Vector& vec, 
-	    double emEt, double hadEt, double outerEt,
-		     int ecal_tp, int hcal_tp) :
-  id_(id),momentum_(vec),
-  emEt_(emEt),hadEt_(hadEt),outerEt_(outerEt),
-  emLvl1_(ecal_tp),hadLvl1_(hcal_tp) {
-}
+CaloTower::CaloTower(const CaloTowerDetId& id,
+		     double emE, double hadE, double outerE,
+		     int ecal_tp, int hcal_tp,
+		     const PolarLorentzVector p4,
+         GlobalPoint emPos, GlobalPoint hadPos) : 
+  LeafCandidate(0, p4, Point(0,0,0)),  
+  id_(id),
+  emE_(emE), hadE_(hadE), outerE_(outerE),
+  emLvl1_(ecal_tp), hadLvl1_(hcal_tp),
+  emPosition_(emPos), hadPosition_(hadPos)  {}
+  
+
+CaloTower::CaloTower(const CaloTowerDetId& id,
+		     double emE, double hadE, double outerE,
+		     int ecal_tp, int hcal_tp,
+		     const LorentzVector p4,
+         GlobalPoint emPos, GlobalPoint hadPos) : 
+  LeafCandidate(0, p4, Point(0,0,0)),  
+  id_(id),
+  emE_(emE), hadE_(hadE), outerE_(outerE),
+  emLvl1_(ecal_tp), hadLvl1_(hcal_tp),
+  emPosition_(emPos), hadPosition_(hadPos)  {}
+
 
 void CaloTower::addConstituents( const std::vector<DetId>& ids ) {
   constituents_.reserve(constituents_.size()+ids.size());
