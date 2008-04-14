@@ -82,7 +82,7 @@ std::vector<std::pair< std::pair<DetId, LocalPoint> ,float> > SiStripFineDelayTL
 	//cluster and trackdirection on mono det
 	// this the pointer to the mono hit of a matched hit 
 	const SiStripRecHit2D *monohit=matchedhit->monoHit();
-	const edm::Ref<edm::DetSetVector<SiStripCluster>, SiStripCluster, edm::refhelper::FindForDetSetVector<SiStripCluster> > monocluster=monohit->cluster();
+	const SiStripRecHit2D::ClusterRef & monocluster=monohit->cluster();
 	const GeomDetUnit * monodet=gdet->monoDet();
 	LocalVector monotkdir=monodet->toLocal(gtrkdir);
 	if(monotkdir.z()!=0){
@@ -92,7 +92,7 @@ std::vector<std::pair< std::pair<DetId, LocalPoint> ,float> > SiStripFineDelayTL
 	  //cluster and trackdirection on stereo det
 	  // this the pointer to the stereo hit of a matched hit 
 	  const SiStripRecHit2D *stereohit=matchedhit->stereoHit();
-	  const edm::Ref<edm::DetSetVector<SiStripCluster>, SiStripCluster, edm::refhelper::FindForDetSetVector<SiStripCluster> > stereocluster=stereohit->cluster();
+	  const SiStripRecHit2D::ClusterRef & stereocluster=stereohit->cluster();
 	  const GeomDetUnit * stereodet=gdet->stereoDet(); 
 	  LocalVector stereotkdir=stereodet->toLocal(gtrkdir);
 	  if(stereotkdir.z()!=0){
@@ -104,7 +104,7 @@ std::vector<std::pair< std::pair<DetId, LocalPoint> ,float> > SiStripFineDelayTL
     }
     else if(hit){
 	//  hit= pointer to the rechit
-	const edm::Ref<edm::DetSetVector<SiStripCluster>, SiStripCluster, edm::refhelper::FindForDetSetVector<SiStripCluster> > cluster=hit->cluster();
+	const SiStripRecHit2D::ClusterRef & cluster=hit->cluster();
 	if(trackdirection.z()!=0){
 	  float angle = acos(trackdirection.z()/trackdirection.mag())*180/TMath::Pi();
 	  hitangleassociation.push_back(make_pair(make_pair(hit->geographicalId(),hit->localPosition()), angle)); 
