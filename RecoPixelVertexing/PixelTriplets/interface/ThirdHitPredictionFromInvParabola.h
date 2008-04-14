@@ -28,27 +28,19 @@ public:
   typedef TkRotation<double> Rotation;
   typedef PixelRecoRange<float> Range;
 
-//  ThirdHitPredictionFromInvParabola(const OrderedHitPair & hitPair);
-//  double isCompatible(const TrackingRecHit & hit, const TrackingRegion & region) const;
-
   ThirdHitPredictionFromInvParabola(const GlobalPoint & P1, const GlobalPoint & P2,
     double ip, double curv, double tolerance);
 
-  Range operator()(double radius) const;
-  Range operator()(const GlobalPoint& hit) const;
+  Range operator()(double radius, int charge) const;
 
   void init( const GlobalPoint & P1, const GlobalPoint & P2,  double ip, double curv);
 
-
 private:
 
-  double test( const GlobalPoint & P3, const double & ip) const;
-
-  double coeffA(const double & impactParameter) const;
-  double coeffB(const double & impactParameter) const;
-  double predV(const double & u, const double & ip) const;
-  double ipFromCurvature(const double & curvature) const;
-  Range rangeRPhi(double radius, double pointUV_u) const;
+  double coeffA(const double & impactParameter, int charge) const;
+  double coeffB(const double & impactParameter, int charge) const;
+  double predV(const double & u, const double & ip, int charge) const;
+  double ipFromCurvature(const double & curvature, int charge) const;
 
 private:
 
@@ -83,7 +75,7 @@ private:
   typedef MappedPoint<double> PointUV;
   PointUV p1, p2;
 
-  Range ipRange, ipConstraint, theConstrainedIp;
+  Range theIpRangePlus, theIpRangeMinus; 
   float theTolerance;
 
 };

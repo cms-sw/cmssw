@@ -12,6 +12,9 @@
 #include "RecoPixelVertexing/PixelTriplets/src/ThirdHitCorrection.h"
 #include <iostream>
 
+#include "TrackingTools/GeomPropagators/interface/HelixArbitraryPlaneCrossing2Order.h"
+#include "TrackingTools/GeomPropagators/interface/HelixArbitraryPlaneCrossing.h"
+
 using pixelrecoutilities::LongitudinalBendingCorrection;
 typedef PixelRecoRange<float> Range;
 using namespace std;
@@ -32,6 +35,9 @@ void PixelTripletHLTGenerator::hitTriplets(
     const edm::Event & ev,
     const edm::EventSetup& es)
 {
+
+//  GlobalPoint origin = region.origin();
+//  GlobalVector direction = region.direction();
 
   OrderedHitPairs pairs; pairs.reserve(30000);
   OrderedHitPairs::const_iterator ip;
@@ -60,6 +66,7 @@ void PixelTripletHLTGenerator::hitTriplets(
 
 
   for (ip = pairs.begin(); ip != pairs.end(); ip++) {
+//
     const TrackingRecHit * h1 = (*ip).inner();
     const TrackingRecHit * h2 = (*ip).outer();
     GlobalPoint gp1 = tracker->idToDet( 
@@ -67,13 +74,11 @@ void PixelTripletHLTGenerator::hitTriplets(
     GlobalPoint gp2 = tracker->idToDet( 
         h2->geographicalId())->surface().toGlobal(h2->localPosition());
 
-
     PixelRecoPointRZ point1(gp1.perp(), gp1.z());
     PixelRecoPointRZ point2(gp2.perp(), gp2.z());
     PixelRecoLineRZ  line(point1, point2);
     ThirdHitRZPrediction predictionRZ(gp1,gp2,extraHitRZtolerance);
     ThirdHitPredictionFromInvParabola predictionRPhi(gp1,gp2,imppar,curv,extraHitRPhitolerance);
-
 
     for (int il=0; il <=size-1; il++) {
       const DetLayer * layer = theLayers[il].detLayer();
@@ -83,6 +88,8 @@ void PixelTripletHLTGenerator::hitTriplets(
 
       ThirdHitCorrection correction(es, region.ptMin(), layer, line, point2, useMScat, useBend);
       
+      predictionRZ.initLayer(layer);
+
       ThirdHitRZPrediction::Range rzRange = predictionRZ(layer);
       correction.correctRZRange(rzRange);
 
@@ -96,19 +103,13 @@ void PixelTripletHLTGenerator::hitTriplets(
         float radiusMax = barrelLayer ?  predictionRZ.detRange().max() : rzRange.max();
         float radiusMin = barrelLayer ?  predictionRZ.detRange().min() : rzRange.min();
 
-//        std::cout <<" point 1  r=" << point1.r()<<" z="<<point1.z()<< std::endl;
-//        std::cout <<" point 2  r=" << point2.r()<<" z="<<point2.z()<< std::endl;
-//        std::cout <<" barrel: " << barrelLayer 
-//                  <<" eta: " <<  line.cotLine() 
-//                  <<" detRange: " << predictionRZ.detRange()
-//                  <<" rzRange: " << rzRange
-//                  << std::endl;
-//        std::cout <<" min Radius: " << radiusMin << std::endl;
-//        std::cout <<" max Radius: " << radiusMax << std::endl;
- 
         if (radiusMin < 0 || radiusMax < 0) continue;
-        Range rPhi1 = predictionRPhi(radiusMax);
-        Range rPhi2 = predictionRPhi(radiusMin);
+        Range rPhi1m = predictionRPhi(radiusMax, -1);
+        Range rPhi1p = predictionRPhi(radiusMax,  1);
+        Range rPhi2m = predictionRPhi(radiusMin, -1);
+        Range rPhi2p = predictionRPhi(radiusMin,  1);
+        Range rPhi1 = rPhi1m.sum(rPhi1p);
+        Range rPhi2 = rPhi2m.sum(rPhi2p);
         correction.correctRPhiRange(rPhi1);
         correction.correctRPhiRange(rPhi2);
         rPhi1.first  /= radiusMax;
@@ -121,29 +122,45 @@ void PixelTripletHLTGenerator::hitTriplets(
       LayerHitMapLoop thirdHits = 
           pixelLayer ? thirdHitMap[il]->loop(phiRange, rzRange) : 
           thirdHitMap[il]->loop();
-
+  
       const SeedingHit * th;
+      double nSigmaRZ = sqrt(12.);
+      double nSigmaPhi = 3.;
+   
       while ( (th = thirdHits.getHit()) ) {
-         float p3_r = th->r();
-         float p3_z = th->z();
-         float p3_phi = th->phi();
-    
-         if (barrelLayer) {
-           ThirdHitRZPrediction::Range rangeZ = predictionRZ(p3_r);
-           correction.correctRZRange(rangeZ);
-           if (! rangeZ.inside(p3_z) ) continue;
-         } else {
-           ThirdHitRZPrediction::Range rangeR = predictionRZ(p3_z);
-           correction.correctRZRange(rangeR); 
-           if (! rangeR.inside(p3_r) ) continue;
-         }
 
-         Range rangeRPhi = predictionRPhi(GlobalPoint(p3_r*cos(p3_phi),p3_r*sin(p3_phi),p3_z) ); 
-         correction.correctRPhiRange(rangeRPhi);
-         if (!checkPhiInRange(p3_phi, rangeRPhi.first/p3_r, rangeRPhi.second/p3_r)) continue;
+        float p3_r = th->r();
+        float p3_z = th->z();
+        float p3_phi = th->phi();
+ 
+        const TransientTrackingRecHit::ConstRecHitPointer& hit = (*th);
+        if (barrelLayer) {
+          ThirdHitRZPrediction::Range allowedZ = predictionRZ(p3_r);
+          correction.correctRZRange(allowedZ);
 
-         result.push_back( OrderedHitTriplet( (*ip).inner(), (*ip).outer(), *th)); 
-      }
+          double zErr = nSigmaRZ * sqrt(hit->globalPositionError().czz());
+          Range hitRange(p3_z-zErr, p3_z+zErr);
+          Range crossingRange = allowedZ.intersection(hitRange);
+          if (crossingRange.empty())  continue;
+        } else {
+          ThirdHitRZPrediction::Range allowedR = predictionRZ(p3_z);
+          correction.correctRZRange(allowedR); 
+          double rErr = nSigmaRZ * sqrt(hit->globalPositionError().rerr( hit->globalPosition()));
+          Range hitRange(p3_r-rErr, p3_r+rErr);
+          Range crossingRange = allowedR.intersection(hitRange);
+          if (crossingRange.empty())  continue;
+        }
+
+        for (int icharge=-1; icharge <=1; icharge+=2) {
+          Range rangeRPhi = predictionRPhi(p3_r, icharge);
+          correction.correctRPhiRange(rangeRPhi);
+          double phiErr = nSigmaPhi * sqrt(hit->globalPositionError().phierr(hit->globalPosition()));
+          if (checkPhiInRange(p3_phi, rangeRPhi.first/p3_r-phiErr, rangeRPhi.second/p3_r+phiErr)) {
+            result.push_back( OrderedHitTriplet( (*ip).inner(), (*ip).outer(), *th)); 
+            break;
+          } 
+        }
+      } 
     }
   }
   delete [] thirdHitMap;

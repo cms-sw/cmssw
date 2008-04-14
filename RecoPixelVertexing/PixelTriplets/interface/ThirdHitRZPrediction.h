@@ -29,9 +29,9 @@ public:
 
   Range detRange() const { return theDetRange; }
 
+  void initLayer(const DetLayer *layer);
 private:
 
-  void initLayer(const DetLayer *layer);
 
   bool theBarrel, theForward;
   Range theDetRange;
