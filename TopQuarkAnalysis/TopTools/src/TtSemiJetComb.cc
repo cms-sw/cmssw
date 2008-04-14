@@ -3,7 +3,7 @@
 
 TtSemiJetComb::TtSemiJetComb(){}
 
-TtSemiJetComb::TtSemiJetComb(const std::vector<TopJet> &topJets, const std::vector<int> cmb,
+TtSemiJetComb::TtSemiJetComb(const std::vector<pat::Jet> &topJets, const std::vector<int> cmb,
 			     const math::XYZTLorentzVector &lep)
 { 
   // receive right jet assiciation

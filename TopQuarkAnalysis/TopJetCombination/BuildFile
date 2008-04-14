@@ -13,7 +13,7 @@
 <use name=rootcore>
 <use name=rootmath>
 
-<flags EDM_PLUGIN=1>
+#<flags EDM_PLUGIN=1>
 
 <export>
   <use name=AnalysisDataFormats/TopObjects>

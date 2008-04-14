@@ -1,5 +1,5 @@
 //
-// $Id: TtSemiEvtSolutionMaker.cc,v 1.31.2.3 2008/04/11 11:43:54 rwolf Exp $
+// $Id: TtSemiEvtSolutionMaker.cc,v 1.34 2008/04/11 12:00:24 rwolf Exp $
 //
 
 #include "TopQuarkAnalysis/TopEventProducers/interface/TtSemiEvtSolutionMaker.h"
@@ -87,12 +87,12 @@ void TtSemiEvtSolutionMaker::produce(edm::Event & iEvent, const edm::EventSetup 
 
   // select lepton (the TtLepton vectors are, for the moment, sorted on pT)
   bool leptonFound = false;
-  edm::Handle<std::vector<TopMuon> > muons;
+  edm::Handle<std::vector<pat::Muon> > muons;
   if(leptonFlavour_ == "muon"){
     iEvent.getByLabel(muonSrc_, muons);
     if (muons->size() > 0) leptonFound = true;
   }
-  edm::Handle<std::vector<TopElectron> > electrons;
+  edm::Handle<std::vector<pat::Electron> > electrons;
   if(leptonFlavour_ == "electron"){
     iEvent.getByLabel(electronSrc_, electrons);
     if (electrons->size() > 0) leptonFound = true;
@@ -100,13 +100,13 @@ void TtSemiEvtSolutionMaker::produce(edm::Event & iEvent, const edm::EventSetup 
 
   // select MET (TopMET vector is sorted on ET)
   bool metFound = false;
-  edm::Handle<std::vector<TopMET> > mets;
+  edm::Handle<std::vector<pat::MET> > mets;
   iEvent.getByLabel(metSrc_, mets);
   if (mets->size() > 0) metFound = true;
 
   // select Jets
   bool jetsFound = false;
-  edm::Handle<std::vector<TopJet> > jets;
+  edm::Handle<std::vector<pat::Jet> > jets;
   iEvent.getByLabel(jetSrc_, jets);
   if (jets->size() >= 4) jetsFound = true;
 

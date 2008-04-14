@@ -13,8 +13,8 @@
 #include "PhysicsTools/MVAComputer/interface/HelperMacros.h"
 #include "PhysicsTools/MVAComputer/interface/MVAComputerCache.h"
 
-#include "AnalysisDataFormats/TopObjects/interface/TopJet.h"
-#include "AnalysisDataFormats/TopObjects/interface/TopMuon.h"
+#include "DataFormats/PatCandidates/interface/Jet.h"
+#include "DataFormats/PatCandidates/interface/Muon.h"
 
 #ifndef TtSemiJetCombMVARcd_defined  // to avoid conflicts with the TopSemiLepMuonJetCombMVAComputer
 #define TtSemiJetCombMVARcd_defined
@@ -32,8 +32,8 @@ class TtSemiJetCombMVATrainer : public edm::EDAnalyzer {
   
   virtual void analyze(const edm::Event& evt, const edm::EventSetup& setup);
   
-  typedef std::vector<TopMuon> TopMuonCollection;
-  typedef std::vector<TopJet> TopJetCollection;
+  typedef std::vector<pat::Muon> TopMuonCollection;
+  typedef std::vector<pat::Jet> TopJetCollection;
 
   edm::InputTag muons_;
   edm::InputTag jets_;

@@ -8,7 +8,7 @@
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "AnalysisDataFormats/TopObjects/interface/TopJet.h"
+#include "DataFormats/PatCandidates/interface/Jet.h"
 #include "AnalysisDataFormats/TopObjects/interface/TtGenEvent.h"
 #include "TopQuarkAnalysis/TopTools/interface/JetPartonMatching.h"
 
@@ -22,7 +22,7 @@ class TtJetPartonMatch : public edm::EDProducer {
   
  private:
   
-  typedef std::vector<TopJet> TopJetCollection;
+  typedef std::vector<pat::Jet> TopJetCollection;
   
   virtual void produce(edm::Event&, const edm::EventSetup&);
 
@@ -70,7 +70,7 @@ TtJetPartonMatch<C>::produce(edm::Event& evt, const edm::EventSetup& setup)
   for(unsigned int ij = 0; ij < topJets->size(); ij++) {
     if(nJets_ >= partons.size()){ if(ij == nJets_) break; }
     else{ if(ij == partons.size()) break; }
-    const reco::CaloJet jet = (*topJets)[ij].getRecJet();
+    const reco::CaloJet jet = (*topJets)[ij].recJet();
     jets.push_back( jet );
   }
 

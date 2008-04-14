@@ -5,7 +5,7 @@
 #include "TMath.h"
 #include "Math/VectorUtil.h"
 
-#include "AnalysisDataFormats/TopObjects/interface/TopJet.h"
+#include "DataFormats/PatCandidates/interface/Jet.h"
 
 class TtSemiJetComb {
   // common calculator class for likelihood
@@ -13,7 +13,7 @@ class TtSemiJetComb {
 public:
 
   TtSemiJetComb();
-  TtSemiJetComb(const std::vector<TopJet>&, const std::vector<int>, const math::XYZTLorentzVector&);
+  TtSemiJetComb(const std::vector<pat::Jet>&, const std::vector<int>, const math::XYZTLorentzVector&);
   ~TtSemiJetComb();
 
   double angleHadQQBar() const { return ROOT::Math::VectorUtil::Angle(hadQJet, hadQBarJet) * TMath::RadToDeg(); }

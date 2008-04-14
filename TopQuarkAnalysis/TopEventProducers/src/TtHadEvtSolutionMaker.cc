@@ -1,4 +1,4 @@
-// $Id: TtHadEvtSolutionMaker.cc,v 1.8.2.2 2008/04/11 11:43:54 rwolf Exp $
+// $Id: TtHadEvtSolutionMaker.cc,v 1.11 2008/04/11 12:00:24 rwolf Exp $
 
 #include "TopQuarkAnalysis/TopEventProducers/interface/TtHadEvtSolutionMaker.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -78,7 +78,7 @@ void TtHadEvtSolutionMaker::produce(edm::Event & iEvent, const edm::EventSetup &
   // Select Jets
 
   bool jetsFound = false;
-  edm::Handle<std::vector<TopJet> > jets;
+  edm::Handle<std::vector<pat::Jet> > jets;
   iEvent.getByLabel(jetSrc_, jets);
 
   if (jets->size() >= 6) jetsFound = true;

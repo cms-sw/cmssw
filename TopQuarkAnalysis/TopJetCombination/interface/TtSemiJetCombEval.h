@@ -7,7 +7,7 @@
 #include "PhysicsTools/MVAComputer/interface/MVAComputerCache.h"
 #include "PhysicsTools/MVATrainer/interface/MVATrainer.h"
 
-#include "AnalysisDataFormats/TopObjects/interface/TopJet.h"
+#include "DataFormats/PatCandidates/interface/Jet.h"
 #include "TopQuarkAnalysis/TopTools/interface/TtSemiJetComb.h"
 
 inline double evaluateTtSemiJetComb(PhysicsTools::MVAComputerCache& mvaComputer,
