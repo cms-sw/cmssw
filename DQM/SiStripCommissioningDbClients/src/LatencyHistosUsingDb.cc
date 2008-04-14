@@ -1,4 +1,4 @@
-// Last commit: $Id: LatencyHistosUsingDb.cc,v 1.9 2008/04/11 16:12:43 delaer Exp $
+// Last commit: $Id: LatencyHistosUsingDb.cc,v 1.10 2008/04/13 13:28:38 delaer Exp $
 
 #include "DQM/SiStripCommissioningDbClients/interface/LatencyHistosUsingDb.h"
 #include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
@@ -6,8 +6,7 @@
 #include <DataFormats/DetId/interface/DetId.h>
 #include <iostream>
 
-//TODO: fix this
-#define MAXFEDCOARSE 14
+#define MAXFEDCOARSE 15
 
 using namespace sistrip;
 
