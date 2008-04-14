@@ -1,18 +1,20 @@
 #!/usr/local/bin/perl
 #     R. Mankel, DESY Hamburg     08-Oct-2007
 #     A. Parenti, DESY Hamburg    29-Mar-2008
-#     $Revision: 1.14 $
-#     $Date: 2008/03/25 16:15:57 $
+#     $Revision: 1.1 $
+#     $Date: 2008/04/10 16:10:12 $
 #
 #  Setup local mps database
 #  
 #
 #  Usage:
 #
-#  mps_setup.pl batchScript cfgTemplate infiList nJobs class jobname [mergeScript] [mssDir]
+#  mps_setup.pl batchScript cfgTemplate infiList nJobs class[:classMerge] jobname [mergeScript] [mssDir]
 #
-# class can be: 8nm,1nh,8nh,1nd,2nd,1nw,2nw (lxplus)
-#               dedicated                   (cmsalca,cmscaf)
+# class can be - any of the normal LSF queues (8nm,1nh,8nh,1nd,2nd,1nw,2nw)
+#              - special CAF queues (cmscaf,cmscafspec - the latter for pede job!)
+# If class contains a ':', it will be split: The part before the ':' will be used for mille jobs,
+#                                            the part behind it for the merging pede job
 
 use lib './mpslib';
 use Mpslib;
@@ -83,7 +85,7 @@ while (@ARGV) {
 
 # test input parameters
 if ($nJobs eq 0 or $helpwanted != 0 ) {
-  print "Usage:\n  mps_setup.pl [options] batchScript cfgTemplate infiList nJobs class jobname [mergeScript] [mssDir]";
+  print "Usage:\n  mps_setup.pl [options] batchScript cfgTemplate infiList nJobs class[:classMerge] jobname [mergeScript] [mssDir]";
   print "\nKnown options:";
   print "  \n -m   Setup pede merging job.";
   print "  \n -a   Append jobs to existing list.\n";
@@ -102,10 +104,15 @@ unless (-r $infiList) {
   print "Bad input list file $infiList\n";
   exit 1;
 }
-unless (index("lxplus cmsalca cmscaf 8nm 1nh 8nh 1nd 2nd 1nw 2nw dedicated",$class)>-1) {
-  print "Bad job class $class\n";
+unless (index("lxplus cmscaf cmscafspec 8nm 1nh 8nh 1nd 2nd 1nw 2nw",get_class("mille"))>-1) {
+  print "Bad job class for mille in class '$class'\n";
   exit 1;
 }
+unless (index("lxplus cmscaf cmscafspec 8nm 1nh 8nh 1nd 2nd 1nw 2nw",get_class("pede"))>-1) {
+  print "Bad job class for pede in class '$class'\n";
+  exit 1;
+}
+
 if ($driver eq "merge") {
   if ($mergeScript eq "") {
     $mergeScript = $batchScript . "merge";

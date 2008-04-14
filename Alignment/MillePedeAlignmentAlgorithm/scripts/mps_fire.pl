@@ -1,8 +1,8 @@
 #!/usr/local/bin/perl
 #     R. Mankel, DESY Hamburg     3-Jul-2007
 #     A. Parenti, DESY Hamburg    27-Mar-2008
-#     $Revision: 1.14 $
-#     $Date: 2008/03/25 16:15:57 $
+#     $Revision: 1.1 $
+#     $Date: 2008/04/10 16:10:12 $
 #
 #  Submit jobs that are setup in local mps database
 #  
@@ -49,17 +49,13 @@ $theJobData = "$thePwd/jobData";
 
 if ($fireMerge == 0) {
     # fire the "normal" parallel jobs
-    # set the resource string (depends on "class" in mps.db)
-    $resources = "-q 1nh";
-    if ($class eq "8nm" || $class eq "1nh" || $class eq "8nh" || $class eq "1nd" 
-	|| $class eq "2nd" || $class eq "1nw" || $class eq "2nw") {
-	$resources = "-q $class";
-    }
-    elsif ($class eq "cmsalca") {
-	$resources = "-q dedicated -R cmsalca";
-    }
-    elsif ($class eq "cmscaf") {
-	$resources = "-q dedicated -R cmscaf";
+    # set the resource string coming from mps.db
+    $resources = get_class("mille");
+    if ($resources eq "cmscafspec") {  # special cmscaf resource
+	print "\nWARNING:\n  Running mille jobs on cmscafspec, intended for pede only!\n\n";
+	$resources = "-q cmscaf -R ".$resources;
+    } else {
+	$resources = "-q ".$resources;
     }
 
     # set the job name
@@ -95,17 +91,12 @@ if ($fireMerge == 0) {
 else {
     # fire the merge job
     print "fire merge\n";
-    # may require different resources. keep the same for time being.
-    $resources = "-q 1nh";
-    if ($class eq "8nm" || $class eq "1nh" || $class eq "8nh" || $class eq "1nd" 
-	|| $class eq "2nd" || $class eq "1nw" || $class eq "2nw") {
-	$resources = "-q $class";
-    }
-    elsif ($class eq "cmsalca") {
-	$resources = "-q dedicated -R cmsalca";
-    }
-    elsif ($class eq "cmscaf") {
-	$resources = "-q dedicated -R cmscaf";
+    # set the resource string coming from mps.db
+    $resources = get_class("pede");
+    if ($resources eq "cmscafspec") {  # special cmscaf resource
+	$resources = "-q cmscaf -R ".$resources;
+    } else {
+	$resources = "-q ".$resources;
     }
 
     # check whether all other jobs OK
