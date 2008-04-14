@@ -16,7 +16,7 @@ std::map<std::string, CommissioningTask::HistoSet> LatencyTask::clusterMap_;
 //
 LatencyTask::LatencyTask( DQMStore* dqm,
 			      const FedChannelConnection& conn ) :
-  CommissioningTask( dqm, conn, "LatencyTask" ),timing_(0),cluster_(0)
+  CommissioningTask( dqm, conn, "LatencyTask" ),timing_(0),cluster_(0),firstReading_(-1)
 {
   LogDebug("Commissioning") << "[LatencyTask::LatencyTask] Constructing object...";
 }
@@ -100,8 +100,13 @@ void LatencyTask::fill( const SiStripEventSummary& summary,
   LogDebug("Commissioning") << "[LatencyTask::fill]";
   // retrieve the delay from the EventSummary
   uint32_t delay = const_cast<SiStripEventSummary&>(summary).latency();
+  if(firstReading_==-1) firstReading_ = delay;
   float correctedDelay = 0.;
   LogDebug("Commissioning") << "[LatencyTask::fill]; the delay is " << delay;
+  if(delay==firstReading_) {
+    LogDebug("Commissioning") << "[LatencyTask::fill]; skipping event in the first bin.";
+    return;
+  }
   // loop on the strips to find the (maybe) non-zero digi
   unsigned int nclusters = 0;
   for(unsigned int strip=0;strip<digis.data.size();strip++) {
