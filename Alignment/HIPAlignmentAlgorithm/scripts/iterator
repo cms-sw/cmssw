@@ -2,29 +2,28 @@
 
 set iter = $1
 set odir = $2
-set data = (`cat $3`)
-set jobs = $#data
 
 cp test/common.cff $odir/
 
 ## Set up config file for each alignment job
 
-if ($jobs > 0) then
-    @ j = 0 # job index
+@ j = 0 # job index
 
-    foreach file ($data)
-	@ j++
+foreach data (`ls $3`)
+  set skim = `basename $data .dat`
 
-	mkdir $odir/job$j
+  foreach file (`cat $data`)
+    @ j++
 
-	replace "<FILE>" $file "<PATH>" $PWD/$odir/job$j < test/align.tpl > $odir/job$j/align.cfg
-    end
-endif
+    mkdir $odir/job$j
+    replace "<FILE>" $file "<PATH>" $PWD/$odir/job$j "<SKIM>" $skim < test/align.tpl > $odir/job$j/align.cfg
+  end
+end
 
 ## Set up config file for collector job
 
 mkdir $odir/main
-replace "<PATH>" $PWD/$odir "<JOBS>" $jobs < test/collect.tpl > $odir/main/collect.cfg
+replace "<PATH>" $PWD/$odir "<JOBS>" $j < test/collect.tpl > $odir/main/collect.cfg
 
 ## Set up config file for iteration 0
 
