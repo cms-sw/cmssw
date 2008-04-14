@@ -1,6 +1,7 @@
 #include "RecoParticleFlow/PFProducer/interface/PFProducer.h"
 #include "RecoParticleFlow/PFAlgo/interface/PFAlgo.h"
 #include "RecoParticleFlow/PFAlgo/interface/PFAlgoTestBenchElectrons.h"
+#include "RecoParticleFlow/PFAlgo/interface/PFAlgoTestBenchConversions.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "RecoParticleFlow/PFClusterTools/interface/PFEnergyCalibration.h"
 
@@ -83,6 +84,9 @@ PFProducer::PFProducer(const edm::ParameterSet& iConfig) {
   case 1:
     pfAlgo_.reset( new PFAlgoTestBenchElectrons);
     break;
+  case 2:
+    pfAlgo_.reset( new PFAlgoTestBenchConversions);
+    break;
   default:
     assert(0);
   }
@@ -155,6 +159,13 @@ void PFProducer::produce(Event& iEvent,
     pOutputCandidateCollection( pfAlgo_->transferCandidates() ); 
   
   LogDebug("PFProducer")<<"particle flow: putting products in the event"<<endl;
+  if ( verbose_ ) std::cout <<"particle flow: putting products in the event. Here the full list"<<endl;
+  int nC=0;
+  for( reco::PFCandidateCollection::const_iterator  itCand =  (*pOutputCandidateCollection).begin(); itCand !=  (*pOutputCandidateCollection).end(); itCand++) {
+    nC++;
+      if (verbose_ ) std::cout << nC << ")" << (*itCand).particleId() << std::endl;
+
+  }
   
   iEvent.put(pOutputCandidateCollection);
 }
