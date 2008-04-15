@@ -85,44 +85,48 @@ void HLTMuonGenericRate::analyze(const Event & event ){
   if (useMuonFromGenerator) {
     Handle<HepMCProduct> genProduct;
     event.getByLabel(theGenLabel,genProduct);
-    if (genProduct.failedToGet())return;
-    evt= genProduct->GetEvent();
-    HepMC::GenEvent::particle_const_iterator part;
-    for (part = evt->particles_begin(); part != evt->particles_end(); ++part ) {
-      int id1 = (*part)->pdg_id();
-      if (abs(id1)==13 && (*part)->status() == 1  ){
-	float pt1 = (*part)->momentum().perp();
-	hMCetanor->Fill((*part)->momentum().eta());
-	hMCphinor->Fill((*part)->momentum().phi());
-	if (pt1>ptuse) {
-	  refmuon_found = true;
-	  ptuse = pt1;
+    if (genProduct.failedToGet()){
+      LogWarning("HLTMuonVal")<<"No generator input to compare to";
+      useMuonFromGenerator=false;
+    } else {
+      evt= genProduct->GetEvent();
+      HepMC::GenEvent::particle_const_iterator part;
+      for (part = evt->particles_begin(); part != evt->particles_end(); ++part ) {
+	int id1 = (*part)->pdg_id();
+	if (abs(id1)==13 && (*part)->status() == 1  ){
+	  float pt1 = (*part)->momentum().perp();
+	  hMCetanor->Fill((*part)->momentum().eta());
+	  hMCphinor->Fill((*part)->momentum().phi());
+	  if (pt1>ptuse) {
+	    refmuon_found = true;
+	    ptuse = pt1;
+	  }
 	}
       }
-    }
-  } 
+    } 
+  }
   Handle<reco::TrackCollection> muTracks;
   if (useMuonFromReco) {
-    try {
       // Get the muon track collection from the event
       reco::TrackCollection::const_iterator muon;
       event.getByLabel(theRecoLabel.label(), muTracks);    
-      if  ( muTracks.failedToGet() )return;
-      for ( muon = muTracks->begin(); muon != muTracks->end(); ++muon ) {
-	float pt1 = muon->pt();
-	hRECOetanor->Fill(muon->eta());
-	hRECOphinor->Fill(muon->phi());
-	if (pt1>recoptuse) {
-	  refrecomuon_found = true;
-	  recoptuse = pt1;
+      if  ( muTracks.failedToGet() ) {
+	LogWarning("HLTMuonVal")<<"No reco tracks to compare to";
+	useMuonFromReco=false;
+	return;
+      } else {
+	for ( muon = muTracks->begin(); muon != muTracks->end(); ++muon ) {
+	  float pt1 = muon->pt();
+	  hRECOetanor->Fill(muon->eta());
+	  hRECOphinor->Fill(muon->phi());
+	  if (pt1>recoptuse) {
+	    refrecomuon_found = true;
+	    recoptuse = pt1;
+	  }
 	}
       }
-    } catch (...) {
-      // Do nothing
-      LogWarning("HLTMuonVal")<<"NO Reco Collection";
-     return; 
-    }
-  }
+  } 
+
 
   
   if (ptuse > 0 ) hMCptnor->Fill(ptuse,this_event_weight);
@@ -135,16 +139,13 @@ void HLTMuonGenericRate::analyze(const Event & event ){
     edm::LogWarning("HLTMuonVal") << "RAW-type HLT results not found, skipping event";
     return;
   }
-  // Get the L1 collection
-  /* Handle<TriggerFilterObjectWithRefs> l1mucands;
-  event.getByLabel(theL1CollectionLabel, l1mucands);
-  if (l1mucands.failedToGet()){
-    LogDebug("HLTMuonVal")<<"No L1 Collection with label "<<theL1CollectionLabel;
-    return; 
-    } */
+
   vector<L1MuonParticleRef> l1cands;
-  if ( triggerObj->filterIndex(theL1CollectionLabel.label())>=triggerObj->size() )return;
-  triggerObj->getObjects(triggerObj->filterIndex(theL1CollectionLabel.label()),TriggerL1Mu,l1cands);
+  if ( triggerObj->filterIndex(theL1CollectionLabel.label())>=triggerObj->size() ){
+    LogDebug("HLTMuonVal")<<"No L1 Collection with label "<<theL1CollectionLabel;
+    return;
+  }
+  triggerObj->getObjects(triggerObj->filterIndex(theL1CollectionLabel.label()),81,l1cands);
   ++theNumberOfL1Events;
  // Get the HLT collections
   unsigned hltsize=theHLTCollectionLabels.size();
@@ -155,7 +156,7 @@ void HLTMuonGenericRate::analyze(const Event & event ){
       LogDebug("HLTMuonVal")<<"No HLT Collection with label "<<theHLTCollectionLabels[i];
       break ;
     }
-    triggerObj->getObjects(triggerObj->filterIndex(theHLTCollectionLabels[i].label()),TriggerMuon, hltcands[i]);
+    triggerObj->getObjects(triggerObj->filterIndex(theHLTCollectionLabels[i].label()),93, hltcands[i]);
     modules_in_this_event++;
   }
 
