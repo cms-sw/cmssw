@@ -2,7 +2,7 @@
 // Author:  Jan Heyninck
 // Created: Tue Apr  3 17:33:23 PDT 2007
 //
-// $Id: TtSemiLRJetCombObservables.h,v 1.4 2007/06/15 08:53:52 heyninck Exp $
+// $Id: TtSemiLRJetCombObservables.h,v 1.4.8.1 2008/03/26 08:01:09 jmmaes Exp $
 //
 
 #ifndef TtSemiLRJetCombObservables_h
@@ -14,33 +14,53 @@
 
    In this TtSemiLRJetCombObservables class a list of observables is calculated that might be used in the evaluation of the
    combined Likelihood ratio to distinguish between correct and wrong jet combinations
-  // obs1 : pt(had top)
-  // obs2 : (pt_b1 + pt_b2)/(sum jetpt)
-  // obs3 : delta R between had top and lep b  
-
+  // obs1 : 
+  // obs2 : 
+  // obs3 : 
+  // ...
+  
   \author   Jan Heyninck
-  \version  $Id: TtSemiLRJetCombObservables.h,v 1.4 2007/06/15 08:53:52 heyninck Exp $
+  \version  $Id: TtSemiLRJetCombObservables.h,v 1.4.8.1 2008/03/26 08:01:09 jmmaes Exp $
 */
+
 
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
-#include "AnalysisDataFormats/TopObjects/interface/TtSemiEvtSolution.h"
+// General C++ stuff
+#include <iostream>
+#include <string>
+#include <vector>
 #include <Math/VectorUtil.h>
+
+#include "AnalysisDataFormats/TopObjects/interface/TtSemiEvtSolution.h"
+
+using namespace std;
 
 class TtSemiLRJetCombObservables {
 
- public:
+  public:
+
+  typedef pair<unsigned int,bool>   IntBoolPair;
   
   TtSemiLRJetCombObservables();
   ~TtSemiLRJetCombObservables();	
+   
+  vector< IntBoolPair > operator()(TtSemiEvtSolution&, const edm::Event & iEvent,bool matchOnly = false);
+  //void  operator()(TtSemiEvtSolution&);
+  void jetSource(const edm::InputTag & jetSource) {jetSource_ = jetSource;}
+ 
+private:
+
+  typedef pair<unsigned int,double> IntDblPair;
+  //std::vector<std::pair<unsigned int,double> > jetCombVarVal;
   
-  void  operator()(TtSemiEvtSolution&);
+  edm::InputTag jetSource_;
   
- private:
-  std::vector<std::pair<unsigned int,double> > jetCombVarVal;
+  vector< IntDblPair > evtselectVarVal;
+  vector< IntBoolPair > evtselectVarMatch;
 };
 
 #endif
