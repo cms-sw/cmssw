@@ -231,3 +231,5 @@ if dump_pickle!='':
 # A sober separator between the python program and CMSSW    
 print "And now The Framework -----------------------------"
 sys.stdout.flush() 
+
+process.dumpPython()
