@@ -135,6 +135,7 @@ Here we choose to make the process work only for one of the four steps
 """
 
 isFirst=0
+genfilt=''
 for s in step_list:
     stepSP=s.split(':') 
     step=stepSP[0]
@@ -145,13 +146,15 @@ for s in step_list:
        pathname=pathName_dict[step]
     if ( isFirst==0 ):   
         if step in ('GEN'):
+            if ( pathname != pathName_dict[step]):
+                genfilt=pathname
             process=steps.gen(process,pathname,step,evt_type,energy,evtnumber)           
         else:
             process.source = common.event_input(infile_name,insecondfile_name) 
-            process=step_dict[step](process,pathname)                      
+            process=step_dict[step](process,pathname,genfilt)                      
         isFirst=1
     else:    
-        process=step_dict[step](process,pathname)                      
+        process=step_dict[step](process,pathname,genfilt)                      
 
 #look for an hlt endpath
 if hasattr(process,'hltEndPath'):
