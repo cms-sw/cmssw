@@ -23,7 +23,6 @@ HFShowerLibrary::HFShowerLibrary(std::string & name, const DDCompactView & cpv,
 								hadTree(0),
 								emBranch(0),
 								hadBranch(0),
-								nHit(0), 
 								npe(0) {
   
 
@@ -231,7 +230,8 @@ void HFShowerLibrary::initRun(G4ParticleTable * theParticleTable) {
 		       << anutauPDG;
 }
 
-int HFShowerLibrary::getHits(G4Step * aStep) {
+std::vector<HFShowerLibrary::Hit> HFShowerLibrary::getHits(G4Step * aStep,
+							   bool & ok) {
 
 
   G4StepPoint * preStepPoint  = aStep->GetPreStepPoint(); 
@@ -245,6 +245,14 @@ int HFShowerLibrary::getHits(G4Step * aStep) {
   G4ThreeVector hitPoint = preStepPoint->GetPosition();   
   G4String      partType = track->GetDefinition()->GetParticleName();
   int           parCode  = track->GetDefinition()->GetPDGEncoding();
+
+  std::vector<HFShowerLibrary::Hit> hit;
+  ok = false;
+  if (parCode == pi0PDG || parCode == etaPDG || parCode == nuePDG ||
+      parCode == numuPDG || parCode == nutauPDG || parCode == anuePDG ||
+      parCode == anumuPDG || parCode == anutauPDG || parCode == geantinoPDG) 
+    return hit;
+  ok = true;
 
   double tSlice = (postStepPoint->GetGlobalTime())/nanosecond;
   double pin    = preStepPoint->GetTotalEnergy();
@@ -281,12 +289,7 @@ int HFShowerLibrary::getHits(G4Step * aStep) {
                        << sphi << "," << cphi << ","   
                        << stheta << "," << ctheta ; 
     
-                       
-  if (parCode == pi0PDG || parCode == etaPDG || parCode == nuePDG ||
-      parCode == numuPDG || parCode == nutauPDG || parCode == anuePDG ||
-      parCode == anumuPDG || parCode == anutauPDG || parCode == geantinoPDG) {
-    return -1;
-  } else if (parCode == emPDG || parCode == epPDG || parCode == gammaPDG ) {
+  if (parCode == emPDG || parCode == epPDG || parCode == gammaPDG ) {
     if (pin<pmom[nMomBin-1]) {
       interpolate(0, pin);
     } else {
@@ -300,10 +303,8 @@ int HFShowerLibrary::getHits(G4Step * aStep) {
     }
   }
     
-  nHit = 0;
-  if (npe > 0) {
-    hit.clear(); hit.resize(npe);
-  }
+  int nHit = 0;
+  HFShowerLibrary::Hit oneHit;
   for (int i = 0; i < npe; i++) {
     LogDebug("HFShower") << "HFShowerLibrary: Hit " << i << " " << pe[i];
     double zv = std::abs(pe[i].z()); // abs local z  
@@ -369,9 +370,10 @@ int HFShowerLibrary::getHits(G4Step * aStep) {
 
       if (rInside(r) && r1 <= exp(-p*zv) && r2 <= probMax && dfir > gpar[5] &&
 	  zz >= gpar[4] && zz <= gpar[4]+gpar[1] && r3 <= backProb ){
-	hit[nHit].position = pos;
-	hit[nHit].depth    = depth;
-	hit[nHit].time     = (tSlice+(pe[i].t())+(fibre->tShift(pos,depth,true)));
+	oneHit.position = pos;
+	oneHit.depth    = depth;
+	oneHit.time     = (tSlice+(pe[i].t())+(fibre->tShift(pos,depth,true)));
+	hit.push_back(oneHit);
 	LogDebug("HFShower") << "HFShowerLibrary: Final Hit " << nHit 
 			     <<" position " << (hit[nHit].position) <<" Depth "
 			     <<(hit[nHit].depth) <<" Time " <<(hit[nHit].time);
@@ -386,35 +388,8 @@ int HFShowerLibrary::getHits(G4Step * aStep) {
   if (nHit > npe)
     edm::LogWarning("HFShower") << "HFShowerLibrary: Hit buffer " << npe 
 				<< " smaller than " << nHit << " Hits";
-  return nHit;
+  return hit;
 
-}
-
-G4ThreeVector HFShowerLibrary::getPosHit(int i) {
-
-  G4ThreeVector pos;
-  if (i < nHit) pos = (hit[i].position);
-  LogDebug("HFShower") << " HFShowerLibrary: getPosHit (" << i << "/" << nHit 
-		       << ") " << pos;
-  return pos;
-}
-
-int HFShowerLibrary::getDepth(int i) {
-
-  int depth = 0;
-  if (i < nHit) depth = (hit[i].depth);
-  LogDebug("HFShower") << " HFShowerLibrary: getDepth (" << i << "/" << nHit 
-		       << ") "  << depth;
-  return depth;
-}
-
-double HFShowerLibrary::getTSlice(int i) {
-  
-  double tim = 0.;
-  if (i < nHit) tim = (hit[i].time);
-  LogDebug("HFShower") << " HFShowerLibrary: Time (" << i << "/" << nHit 
-		       << ") "  << tim;
-  return tim;
 }
 
 bool HFShowerLibrary::rInside(double r) {

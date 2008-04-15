@@ -25,6 +25,8 @@ public:
 	  edm::ParameterSet const & p);
   ~HFFibre();
 
+public:
+
   double              attLength(double lambda);
   double              tShift(G4ThreeVector point, int depth, 
 			     bool fromEndAbs=false);

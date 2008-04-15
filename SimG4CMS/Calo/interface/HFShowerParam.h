@@ -25,7 +25,18 @@ public:
   HFShowerParam(std::string & name, const DDCompactView & cpv, 
 		edm::ParameterSet const & p);
   virtual ~HFShowerParam();
-  std::vector<double>   getHits(G4Step * aStep);
+
+public:    
+
+  struct Hit {
+    Hit() {}
+    G4ThreeVector       position;
+    int                 depth;
+    double              time;
+    double              edep;
+  };
+
+  std::vector<Hit>      getHits(G4Step * aStep);
   G4ThreeVector         getPosHit(int i);
   int                   getDepth(int i);
   double                getTSlice(int i);
@@ -34,20 +45,12 @@ private:
 
   std::vector<double>   getDDDArray(const std::string&, const DDsvalues_type&);
 
-  struct Hit {
-    Hit() {}
-    G4ThreeVector     position;
-    int               depth;
-    double            time;
-  };
-
 private:    
 
   HFFibre*              fibre;
   double                pePerGeV;
   bool                  trackEM;
   std::vector<double>   gpar;
-  std::vector<Hit>      hits;
 };
 
 #endif // HFShowerParam_h
