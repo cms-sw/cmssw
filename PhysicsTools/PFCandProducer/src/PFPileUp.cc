@@ -73,7 +73,7 @@ void PFPileUp::produce(Event& iEvent,
     bool isPileUp = false;
     // just to debug ! all particles with neg charge 
     // are considered to be pile-up
-    if( cand.charge()<0 )
+    if( cand.charge()!=0 )
       isPileUp = true; 
 
     if( isPileUp ) {

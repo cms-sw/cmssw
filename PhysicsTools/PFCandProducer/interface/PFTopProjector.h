@@ -14,6 +14,9 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
+ 
+#include "DataFormats/Candidate/interface/CandidateFwd.h"
+
 
 /**\class PFTopProjector 
 \brief 
@@ -43,19 +46,21 @@ class PFTopProjector : public edm::EDProducer {
 			 const edm::InputTag& tag,
 			 const edm::Event& iSetup) const;
 
-/*   template<class T_u > */
-/*     const T_u& down( const edm::Handle<T_u>& up ) const; */
-/*     void fetchCollection(edm::Handle<reco::PFCandidateCollection>& c,  */
-/* 			 const edm::InputTag& tag,  */
-/* 			 const edm::Event& iSetup) const; */
+  const reco::CandidateBaseRef& 
+    parent( const reco::CandidateBaseRef& candBaseRef) const;
 
-
- 
+  reco::CandidateBaseRef
+    refToAncestorPFCandidate( reco::CandidateBaseRef candRef,
+			      const edm::Handle<reco::PFCandidateCollection> ancestors ) 
+    const;
+    
   edm::InputTag   inputTagPFCandidates_;
  
   edm::InputTag   inputTagPileUpPFCandidates_;
 
   edm::InputTag   inputTagIsolatedPFCandidates_;
+  
+  edm::InputTag   inputTagPFJets_;
   
   
   /// verbose ?
@@ -83,18 +88,6 @@ void PFTopProjector::fetchCollection(T& c,
   }
 }
 
-
-/* template<class T_u, class T_d> */
-/* const T_d& PFTopProjector::down( unsigned uIndex,  */
-/* 				 const edm::Handle<T_u>& up, */
-/* 				 const edm::Handle<T_d>& d ) const { */
-
-/*   edm::Ref<T_d> up.parent(); */
-  
-/* /\*   if( parent.productId() == ) *\/ */
-
-/*   return (*d)[0]; */
-/* } */
 
 
 #endif
