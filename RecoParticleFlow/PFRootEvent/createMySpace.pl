@@ -25,7 +25,7 @@ protectedCopy( "test/init.C",
 print "\n";
 print "success. Now execute: \n";
 print "cd $destdir\n";
-print "scramv1 b\n";
+print "scramv1 b -j 4\n";
 print "\n";
 print "cd workdir\n";
 print "root\n";
