@@ -7,8 +7,10 @@ CSCStripHit::CSCStripHit() :
   theStripHitTmax(),     
   theStrips(),
   theStripHitADCs(),
+  theStripHitRawADCs(),
   theConsecutiveStrips(),
-  theClosestMaximum()
+  theClosestMaximum(),
+  isDeadStripAround()
 {}
 
 CSCStripHit::CSCStripHit( const CSCDetId& id, 
@@ -16,15 +18,19 @@ CSCStripHit::CSCStripHit( const CSCDetId& id,
                           const int& tmax, 
                           const ChannelContainer& strips, 
                           const StripHitADCContainer& s_adc,
+                          const StripHitADCContainer& s_adcRaw,
 			  const int& numberOfConsecutiveStrips,
-                          const int& closestMaximum) :
+                          const int& closestMaximum,
+                          const bool& isNearDeadStrip) :
   theDetId( id ), 
   theStripHitPosition( sHitPos ),
   theStripHitTmax( tmax ),
   theStrips( strips ),
   theStripHitADCs( s_adc ),
+  theStripHitRawADCs( s_adcRaw ),
   theConsecutiveStrips(numberOfConsecutiveStrips),
-  theClosestMaximum(closestMaximum)
+  theClosestMaximum(closestMaximum),
+  isDeadStripAround(isNearDeadStrip)
 {}
 
 CSCStripHit::~CSCStripHit() {}

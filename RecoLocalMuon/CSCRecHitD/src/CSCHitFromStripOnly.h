@@ -80,12 +80,13 @@ class CSCHitFromStripOnly
  private:
   
   CSCStripHitData makeStripData( int centerStrip, int offset );
-
+  bool isNearDeadStrip(const CSCDetId& id, int centralStrip); 
 
   // Variables entering the CSCStripHit construction:
   int tmax_cluster;
   int clusterSize;
-  std::vector<float> strips_adc;  
+  std::vector<float> strips_adc;
+  std::vector<float> strips_adcRaw;
   std::vector<int> theStrips;
   
   // The cuts for forming the strip hits are described in the data/.cfi file

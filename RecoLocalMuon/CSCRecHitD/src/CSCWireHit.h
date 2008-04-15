@@ -25,7 +25,8 @@ public:
   typedef std::vector<int> ChannelContainer;
 
   CSCWireHit();
-  CSCWireHit( const CSCDetId& id, const float& wHitPos, ChannelContainer& wgroups, const int& tmax );
+  CSCWireHit( const CSCDetId& id, const float& wHitPos, ChannelContainer& wgroups, const int& tmax,
+  const bool& isNearDeadWG );
 
   ~CSCWireHit();
 
@@ -43,12 +44,16 @@ public:
 
   /// The timing for the wire hit
   int tmax() const { return theWireHitTmax; }
- 
+
+  /// is a neighbouring WG a dead WG?
+  bool isNearDeadWG() const {return isDeadWGAround; };
+
 private:
   CSCDetId theDetId;
   float theWireHitPosition;
   ChannelContainer theWgroups;
   int theWireHitTmax;
+  bool isDeadWGAround;
 };
 
 

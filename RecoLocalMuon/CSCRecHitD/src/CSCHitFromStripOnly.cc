@@ -3,14 +3,11 @@
 
 #include <RecoLocalMuon/CSCRecHitD/src/CSCHitFromStripOnly.h>
 #include <RecoLocalMuon/CSCRecHitD/src/CSCPeakBinOfStripPulse.h>
-//#include <RecoLocalMuon/CSCRecHitD/src/CSCStripGain.h>
 #include <RecoLocalMuon/CSCRecHitD/src/CSCStripData.h>
 #include <RecoLocalMuon/CSCRecHitD/src/CSCStripHitData.h>
 #include <RecoLocalMuon/CSCRecHitD/src/CSCStripHit.h>
-//#include <RecoLocalMuon/CSCRecHitD/src/CSCStripHitCollection.h>
 
 #include <DataFormats/MuonDetId/interface/CSCDetId.h>
-//#include <DataFormats/CSCDigi/interface/CSCStripDigi.h>
 
 #include <Geometry/CSCGeometry/interface/CSCLayer.h>
 #include <Geometry/CSCGeometry/interface/CSCChamberSpecs.h>
@@ -83,6 +80,7 @@ std::vector<CSCStripHit> CSCHitFromStripOnly::runStrip( const CSCDetId& id, cons
     clusterSize = theClusterSize;
     theStrips.clear();
     strips_adc.clear();
+    strips_adcRaw.clear();
 
     // This is where centroid position is determined
     // The strips_adc vector is also filled here
@@ -107,8 +105,11 @@ std::vector<CSCStripHit> CSCHitFromStripOnly::runStrip( const CSCDetId& id, cons
       theClosestMaximum.push_back(maximum_to_left);
     }
     
-    CSCStripHit striphit( id, strippos, TmaxOfCluster, theStrips, strips_adc,
-			  theConsecutiveStrips.at(imax), theClosestMaximum.at(imax));
+    //---- Check if a neighbouring strip is a dead strip
+    bool deadStrip = isNearDeadStrip(id, theMaxima.at(imax)); 
+    
+    CSCStripHit striphit( id, strippos, TmaxOfCluster, theStrips, strips_adc, strips_adcRaw,
+			  theConsecutiveStrips.at(imax), theClosestMaximum.at(imax), deadStrip);
     hitsInLayer.push_back( striphit ); 
   }
 
@@ -154,59 +155,79 @@ float CSCHitFromStripOnly::makeCluster( int centerStrip ) {
  */
 CSCStripHitData CSCHitFromStripOnly::makeStripData(int centerStrip, int offset) {
   
-  CSCStripHitData prelimData(-1.,0.,0.,0.,0.,0);
+  CSCStripHitData prelimData(-1.,0.,0.,0.,0.,0.,0.,0.,0.,0);
   int thisStrip = centerStrip+offset;
 
   int tmax      = thePulseHeightMap[centerStrip-1].t();
   TmaxOfCluster = tmax;
 
   float adc[12];
+  float adcRaw[12];
 
   if ( tmax == 3 ) {
     adc[0] = thePulseHeightMap[thisStrip-1].y2();
     adc[1] = thePulseHeightMap[thisStrip-1].y3();
     adc[2] = thePulseHeightMap[thisStrip-1].y4();
     adc[3] = thePulseHeightMap[thisStrip-1].y5();
+    adcRaw[0] = thePulseHeightMap[thisStrip-1].y2Raw();
+    adcRaw[1] = thePulseHeightMap[thisStrip-1].y3Raw();
+    adcRaw[2] = thePulseHeightMap[thisStrip-1].y4Raw();
+    adcRaw[3] = thePulseHeightMap[thisStrip-1].y5Raw();
   } else if ( tmax == 4 ) {
     adc[0] = thePulseHeightMap[thisStrip-1].y3();
     adc[1] = thePulseHeightMap[thisStrip-1].y4();
     adc[2] = thePulseHeightMap[thisStrip-1].y5();
     adc[3] = thePulseHeightMap[thisStrip-1].y6();
+    adcRaw[0] = thePulseHeightMap[thisStrip-1].y3Raw();
+    adcRaw[1] = thePulseHeightMap[thisStrip-1].y4Raw();
+    adcRaw[2] = thePulseHeightMap[thisStrip-1].y5Raw();
+    adcRaw[3] = thePulseHeightMap[thisStrip-1].y6Raw();
   } else if ( tmax == 5 ) {
     adc[0] = thePulseHeightMap[thisStrip-1].y4();
     adc[1] = thePulseHeightMap[thisStrip-1].y5();
     adc[2] = thePulseHeightMap[thisStrip-1].y6();
     adc[3] = thePulseHeightMap[thisStrip-1].y7();
+    adcRaw[0] = thePulseHeightMap[thisStrip-1].y4Raw();
+    adcRaw[1] = thePulseHeightMap[thisStrip-1].y5Raw();
+    adcRaw[2] = thePulseHeightMap[thisStrip-1].y6Raw();
+    adcRaw[3] = thePulseHeightMap[thisStrip-1].y7Raw();
   } else if ( tmax == 6 ) {
     adc[0] = thePulseHeightMap[thisStrip-1].y5();
     adc[1] = thePulseHeightMap[thisStrip-1].y6();
     adc[2] = thePulseHeightMap[thisStrip-1].y7();
     adc[3] = 0.1;
+    adcRaw[0] = thePulseHeightMap[thisStrip-1].y5Raw();
+    adcRaw[1] = thePulseHeightMap[thisStrip-1].y6Raw();
+    adcRaw[2] = thePulseHeightMap[thisStrip-1].y7Raw();
+    adcRaw[3] = 0.1;
   } else {
     adc[0] = 0.1;
     adc[1] = 0.1;
     adc[2] = 0.1;
     adc[3] = 0.1;
+    adcRaw[0] = 0.1;
+    adcRaw[1] = 0.1;
+    adcRaw[2] = 0.1;
+    adcRaw[3] = 0.1;
     LogTrace("CSCRecHit")  << "[CSCHitFromStripOnly::makeStripData] Tmax out of range: contact CSC expert!!!" << "\n";
   }
   
   if ( offset == 0 ) {
-    prelimData = CSCStripHitData(thisStrip, adc[0], adc[1], adc[2], adc[3], TmaxOfCluster);
+    prelimData = CSCStripHitData(thisStrip, adc[0], adc[1], adc[2], adc[3], 
+				 adcRaw[0], adcRaw[1], adcRaw[2], adcRaw[3],TmaxOfCluster);
   } else {
     int sign = offset>0 ? 1 : -1;
-    
     // If there's another maximum that would like to use part of this cluster, 
     // it gets shared in proportion to the height of the maxima
     for ( int i = 1; i <= clusterSize/2; ++i ) {
 
       // Find the direction of the offset
       int testStrip = thisStrip + sign*i;
-
       std::vector<int>::iterator otherMax = find(theMaxima.begin(), theMaxima.end(), testStrip-1);
 
       // No other maxima found, so just store
       if ( otherMax == theMaxima.end() ) {
-        prelimData = CSCStripHitData(thisStrip, adc[0], adc[1], adc[2], adc[3], TmaxOfCluster);
+        prelimData = CSCStripHitData(thisStrip, adc[0], adc[1], adc[2], adc[3], adcRaw[0], adcRaw[1], adcRaw[2], adcRaw[3],TmaxOfCluster);
       } else {
         if ( tmax == 3 ) {
           adc[4] = thePulseHeightMap[testStrip-1].y2();
@@ -217,6 +238,14 @@ CSCStripHitData CSCHitFromStripOnly::makeStripData(int centerStrip, int offset) 
           adc[9] = thePulseHeightMap[centerStrip-1].y3();
           adc[10] = thePulseHeightMap[centerStrip-1].y4();
           adc[11] = thePulseHeightMap[centerStrip-1].y5();
+          adcRaw[4] = thePulseHeightMap[testStrip-1].y2Raw();
+          adcRaw[5] = thePulseHeightMap[testStrip-1].y3Raw();
+          adcRaw[6] = thePulseHeightMap[testStrip-1].y4Raw();
+          adcRaw[7] = thePulseHeightMap[testStrip-1].y5Raw();
+          adcRaw[8] = thePulseHeightMap[centerStrip-1].y2Raw();
+          adcRaw[9] = thePulseHeightMap[centerStrip-1].y3Raw();
+          adcRaw[10] = thePulseHeightMap[centerStrip-1].y4Raw();
+          adcRaw[11] = thePulseHeightMap[centerStrip-1].y5Raw();
         } else if ( tmax == 4 ) {
           adc[4] = thePulseHeightMap[testStrip-1].y3();
           adc[5] = thePulseHeightMap[testStrip-1].y4();
@@ -226,6 +255,14 @@ CSCStripHitData CSCHitFromStripOnly::makeStripData(int centerStrip, int offset) 
           adc[9] = thePulseHeightMap[centerStrip-1].y4();
           adc[10] = thePulseHeightMap[centerStrip-1].y5();
           adc[11] = thePulseHeightMap[centerStrip-1].y6();
+	  adcRaw[4] = thePulseHeightMap[testStrip-1].y3Raw();
+	  adcRaw[5] = thePulseHeightMap[testStrip-1].y4Raw();
+          adcRaw[6] = thePulseHeightMap[testStrip-1].y5Raw();
+          adcRaw[7] = thePulseHeightMap[testStrip-1].y6Raw();
+          adcRaw[8] = thePulseHeightMap[centerStrip-1].y3Raw();
+          adcRaw[9] = thePulseHeightMap[centerStrip-1].y4Raw();
+          adcRaw[10] = thePulseHeightMap[centerStrip-1].y5Raw();
+          adcRaw[11] = thePulseHeightMap[centerStrip-1].y6Raw();
 	} else if ( tmax == 5 ) {
           adc[4] = thePulseHeightMap[testStrip-1].y4();
           adc[5] = thePulseHeightMap[testStrip-1].y5();
@@ -235,6 +272,14 @@ CSCStripHitData CSCHitFromStripOnly::makeStripData(int centerStrip, int offset) 
           adc[9] = thePulseHeightMap[centerStrip-1].y5();
           adc[10] = thePulseHeightMap[centerStrip-1].y6();
           adc[11] = thePulseHeightMap[centerStrip-1].y7();
+          adcRaw[4] = thePulseHeightMap[testStrip-1].y4Raw();
+          adcRaw[5] = thePulseHeightMap[testStrip-1].y5Raw();
+          adcRaw[6] = thePulseHeightMap[testStrip-1].y6Raw();
+          adcRaw[7] = thePulseHeightMap[testStrip-1].y7Raw();
+          adcRaw[8] = thePulseHeightMap[centerStrip-1].y4Raw();
+          adcRaw[9] = thePulseHeightMap[centerStrip-1].y5Raw();
+          adcRaw[10] = thePulseHeightMap[centerStrip-1].y6Raw();
+          adcRaw[11] = thePulseHeightMap[centerStrip-1].y7Raw();
 	} else if ( tmax == 6 ) {
           adc[4] = thePulseHeightMap[testStrip-1].y5();
           adc[5] = thePulseHeightMap[testStrip-1].y6();
@@ -244,13 +289,31 @@ CSCStripHitData CSCHitFromStripOnly::makeStripData(int centerStrip, int offset) 
           adc[9] = thePulseHeightMap[centerStrip-1].y6();
           adc[10] = thePulseHeightMap[centerStrip-1].y7();
           adc[11] = 0.1;
+          adcRaw[4] = thePulseHeightMap[testStrip-1].y5Raw();
+          adcRaw[5] = thePulseHeightMap[testStrip-1].y6Raw();
+          adcRaw[6] = thePulseHeightMap[testStrip-1].y7Raw();
+          adcRaw[7] = 0.1;
+          adcRaw[8] = thePulseHeightMap[centerStrip-1].y5Raw();
+          adcRaw[9] = thePulseHeightMap[centerStrip-1].y6Raw();
+          adcRaw[10] = thePulseHeightMap[centerStrip-1].y7Raw();
+          adcRaw[11] = 0.1;
         } else {
-          for (int k = 4; k < 12; ++k ) adc[k] = 0.1;
+          for (int k = 4; k < 12; ++k ){
+	    adc[k] = adcRaw[k] = 0.1;
+	  }
         }
         // Scale shared strip B by ratio of peak of ADC counts from central strip A
         // and neighbouring maxima C
-        for (int k = 0; k < 4; ++k) adc[k] = adc[k] * adc[k+8] / (adc[k+4]+adc[k+8]);
-        prelimData = CSCStripHitData(thisStrip, adc[0], adc[1], adc[2], adc[3], TmaxOfCluster);
+	for (int k = 0; k < 4; ++k){
+	  if(adc[k+4]>0 && adc[k+8]>0){
+	    adc[k] = adc[k] * adc[k+8] / (adc[k+4]+adc[k+8]);
+	  }
+	  if(adcRaw[k+4]>0 && adcRaw[k+8]>0){
+	    adcRaw[k] = adcRaw[k] * adcRaw[k+8] / (adcRaw[k+4]+adcRaw[k+8]);
+	  }
+	}
+        prelimData = CSCStripHitData(thisStrip, adc[0], adc[1], adc[2], adc[3], 
+				     adcRaw[0], adcRaw[1], adcRaw[2], adcRaw[3], TmaxOfCluster);
       }
     }
   }
@@ -300,13 +363,13 @@ void CSCHitFromStripOnly::fillPulseHeights( const CSCStripDigiCollection::Range&
     
     if ( id_.station() == 1 && id_.ring() == 4 ) {
       for ( int j = 0; j < 3; ++j ) {
-        thePulseHeightMap[thisChannel-1+16*j] = CSCStripData( float(thisChannel+16*j), hmax, tmax, height[0], height[1], height[2], height[3], height[4], height[5]);
+        thePulseHeightMap[thisChannel-1+16*j] = CSCStripData( float(thisChannel+16*j), hmax, tmax, height[0], height[1], height[2], height[3], height[4], height[5], height[0], height[1], height[2], height[3], height[4], height[5]);
         if ( useCalib ){
            thePulseHeightMap[thisChannel-1+16*j] *= gainWeight[thisChannel-1];
         }
       }
     } else {
-      thePulseHeightMap[thisChannel-1] = CSCStripData( float(thisChannel), hmax, tmax, height[0], height[1], height[2], height[3], height[4], height[5]);
+      thePulseHeightMap[thisChannel-1] = CSCStripData( float(thisChannel), hmax, tmax, height[0], height[1], height[2], height[3], height[4], height[5], height[0], height[1], height[2], height[3], height[4], height[5]);
       if ( useCalib ){
         thePulseHeightMap[thisChannel-1] *= gainWeight[thisChannel-1];
       }
@@ -434,6 +497,10 @@ float CSCHitFromStripOnly::findHitOnStripPosition( const std::vector<CSCStripHit
     float w1 = data[i].y1();
     float w2 = data[i].y2();
     float w3 = data[i].y3();
+    float w0Raw = data[i].y0Raw();
+    float w1Raw = data[i].y1Raw();
+    float w2Raw = data[i].y2Raw();
+    float w3Raw = data[i].y3Raw();
 
     // Require ADC to be > 0.
     if (w0 < 0.) w0 = 0.001;
@@ -451,6 +518,10 @@ float CSCHitFromStripOnly::findHitOnStripPosition( const std::vector<CSCStripHit
     strips_adc.push_back( w1 );
     strips_adc.push_back( w2 );
     strips_adc.push_back( w3 );
+    strips_adcRaw.push_back( w0Raw );
+    strips_adcRaw.push_back( w1Raw );
+    strips_adcRaw.push_back( w2Raw );
+    strips_adcRaw.push_back( w3Raw );
 
     if ( data[i].x() < 1 ){
       LogTrace("CSCRecHit") << "problem in indexing of strip, strip id is: " << data[i].x() << "\n";
@@ -464,3 +535,12 @@ float CSCHitFromStripOnly::findHitOnStripPosition( const std::vector<CSCStripHit
   return strippos;
 }
 
+bool CSCHitFromStripOnly::isNearDeadStrip(const CSCDetId& id, int centralStrip){
+
+  const std::bitset<80> & deadStrips = recoConditions_->badStripWord( id );
+  bool isDead = false;
+  if(centralStrip>0 && centralStrip<79){
+    isDead = (deadStrips.test(centralStrip+1) || deadStrips.test(centralStrip-1));
+  }
+  return isDead;
+} 

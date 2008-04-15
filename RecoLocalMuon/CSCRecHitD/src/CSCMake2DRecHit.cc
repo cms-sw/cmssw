@@ -64,18 +64,15 @@ CSCRecHit2D CSCMake2DRecHit::hitFromStripAndWire(const CSCDetId& id, const CSCLa
   CSCRecHit2D::ADCContainer adcMap;
   CSCRecHit2D::ChannelContainer wgroups;
   
-  
   // Find wire hit position and wire properties
   wgroups = wHit.wgroups();
- 
-
 
   int wg_left = wgroups[0];;
   int wg_right = wgroups[wgroups.size()-1];
   
   int Nwires1 = layergeom_->numberOfWiresPerGroup( wg_left );
   int Nwires2 = layergeom_->numberOfWiresPerGroup( wg_right );
-  
+
   float Mwire1 = layergeom_->middleWireOfGroup( wg_left );
   float Mwire2 = layergeom_->middleWireOfGroup( wg_right );
   
@@ -88,9 +85,11 @@ CSCRecHit2D CSCMake2DRecHit::hitFromStripAndWire(const CSCDetId& id, const CSCLa
   //---- This is not addressed here.
     
   float sigmaWire = 0.;
-  if(1==wgroups.size()){
-    //---- simple - just 1 WG
-    sigmaWire  = layergeom_->yResolution( wgroups[0]);
+  if(true == wHit.isNearDeadWG() || wgroups.size()>2){
+    //---- worst possible case; take most conservative approach
+    for(unsigned int iWG=0;iWG<wgroups.size();iWG++){
+      sigmaWire+=layergeom_->yResolution( wgroups[iWG] );
+    }
   }
   else if(2==wgroups.size()){
     //---- 2 WGs - get the larger error (overestimation if a single track is passing
@@ -102,11 +101,9 @@ CSCRecHit2D CSCMake2DRecHit::hitFromStripAndWire(const CSCDetId& id, const CSCLa
       sigmaWire  = layergeom_->yResolution( wgroups[1]);
     }
   }  
-  else{
-    //---- worst possible case; take most conservative approach
-    for(unsigned int iWG=0;iWG<wgroups.size();iWG++){
-      sigmaWire+=layergeom_->yResolution( wgroups[iWG] );
-    }
+  else if(1==wgroups.size()){
+    //---- simple - just 1 WG
+    sigmaWire  = layergeom_->yResolution( wgroups[0]);
   }
   
   // Find strips position and properties
@@ -123,10 +120,19 @@ CSCRecHit2D CSCMake2DRecHit::hitFromStripAndWire(const CSCDetId& id, const CSCLa
   // Setup ADCs
   std::vector<float> adcs = sHit.s_adc();
   std::vector<float> adc2;
+  std::vector<float> adcsRaw = sHit.s_adcRaw();
+  std::vector<float> adc2Raw;
+
   for ( int iStrip = 0; iStrip < nStrip; ++iStrip) {
     adc2.clear();
-    for ( int t = 0; t < 4; ++t ) adc2.push_back(adcs[t+iStrip*4]);    
-    adcMap.put( strips[iStrip], adc2.begin(), adc2.end() ); 
+    adc2Raw.clear();
+    for ( int t = 0; t < 4; ++t ){
+      adc2.push_back(adcs[t+iStrip*4]);
+      adc2Raw.push_back(adcsRaw[t+iStrip*4]);
+    }
+    //---- Store raw ADCs
+    //adcMap.put( strips[iStrip], adc2.begin(), adc2.end() ); 
+    adcMap.put( strips[iStrip], adc2Raw.begin(), adc2Raw.end() ); 
     if (iStrip == nStrip/2 ) 
       tpeak = 50. * ( adc2[0]*(tmax-1) + adc2[1]*tmax + adc2[2]*(tmax+1) ) / (adc2[0]+adc2[1]+adc2[2]);
   }
@@ -136,19 +142,20 @@ CSCRecHit2D CSCMake2DRecHit::hitFromStripAndWire(const CSCDetId& id, const CSCLa
   int quality = -1;
   LocalPoint lp0(0., 0.);
   
-  
+  float stripWidth = -99.;
   // If at the edge, then used 1 strip cluster only :
   if ( ch == 1 || ch == specs_->nStrips() || nStrip < 2 ) {
     lp0 = layergeom_->stripWireIntersection( centerStrip, centerWire);
     positionWithinTheStrip = 0.;
-    sigmaWithinTheStrip = layergeom_->stripPitch(lp0) / sqrt_12;
+    stripWidth = layergeom_->stripPitch(lp0);
+    sigmaWithinTheStrip = stripWidth / sqrt_12;
     quality = 2;
   }
   else {
     // If not at the edge, used cluster of size ClusterSize:
     int ch0 = strips[idCenterStrip];
     LocalPoint lp11  = layergeom_->stripWireIntersection( ch0, centerWire);
-    float stripWidth = layergeom_->stripPitch( lp11 );
+    stripWidth = layergeom_->stripPitch( lp11 );
     
     //---- Calculate local position within the strip
     float xWithinChamber = lp11.x();
@@ -165,9 +172,10 @@ CSCRecHit2D CSCMake2DRecHit::hitFromStripAndWire(const CSCDetId& id, const CSCLa
 						sigmaWithinTheStrip, sigmaWire );
   
   // store rechit
+  // (sigmaWithinTheStrip/stripWidth) is in strip widths just like positionWithinTheStrip is!
   CSCRecHit2D rechit( id, lp0, localerr, strips,
 		      adcMap, wgroups, tpeak, positionWithinTheStrip, 
-		      sigmaWithinTheStrip, quality);
+		      sigmaWithinTheStrip/stripWidth, quality);
   return rechit;
 }
 

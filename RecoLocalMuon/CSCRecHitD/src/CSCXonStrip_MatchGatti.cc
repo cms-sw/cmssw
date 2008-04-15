@@ -217,6 +217,8 @@ void CSCXonStrip_MatchGatti::findXOnStrip( const CSCDetId& id, const CSCLayer* l
   if(factorStripWidth){
     maxConsecutiveStrips /=  factorStripWidth ;
   }
+  maxConsecutiveStrips++;
+
   std::map <std::string, int> chamberTypes;
   chamberTypes["ME1/a"] = 1;
   chamberTypes["ME1/b"] = 2;
@@ -289,12 +291,12 @@ void CSCXonStrip_MatchGatti::findXOnStrip( const CSCDetId& id, const CSCLayer* l
       const_syst = const_syst_ME22;
 
   }
-  maxConsecutiveStrips++;
-  if(stripHit.numberOfConsecutiveStrips()<maxConsecutiveStrips &&
-     fabs(stripHit.closestMaximum())>maxConsecutiveStrips/2){
+  if(false==stripHit.isNearDeadStrip() &&
+     stripHit.numberOfConsecutiveStrips()<maxConsecutiveStrips &&
+     fabs(stripHit.closestMaximum())>maxConsecutiveStrips/2 ){
     sigma =  float(calculateXonStripError(stripWidth, ME1_1));
   }
-  else{ //---- too close maxima or too wide strip cluster
+  else{ //---- near dead strip or too close maxima or too wide strip cluster
     sigma = stripWidth/sqrt(12);
   }
 

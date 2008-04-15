@@ -31,8 +31,10 @@ public:
                const int& tmax, 
                const ChannelContainer& strips, 
                const StripHitADCContainer& s_adc,
+               const StripHitADCContainer& s_adcRaw,
                const int& numberOfConsecutiveStrips,
-               const int& closestMaximum);
+               const int& closestMaximum,
+               const bool& isNearDeadStrip);
 
   ~CSCStripHit();
 
@@ -54,11 +56,17 @@ public:
   /// the ADC counts for each of the strip within cluster
   const StripHitADCContainer& s_adc() const { return theStripHitADCs; }
 
+  /// the raw ADC counts for each of the strip within cluster
+  const StripHitADCContainer& s_adcRaw() const { return theStripHitRawADCs; }
+
   /// Number of consecutive strips with charge
   int numberOfConsecutiveStrips() const { return theConsecutiveStrips; }
 
   /// Number of strips to the closest other maximum
   int closestMaximum() const { return theClosestMaximum; }
+
+  /// is a neighbouring string a dead strip?
+  bool isNearDeadStrip() const {return isDeadStripAround; };
 
   
 private:
@@ -67,8 +75,10 @@ private:
   int theStripHitTmax;
   ChannelContainer theStrips;
   StripHitADCContainer theStripHitADCs;  
+  StripHitADCContainer theStripHitRawADCs;  
   int theConsecutiveStrips;
   int theClosestMaximum;
+  bool isDeadStripAround;
 
 };
 

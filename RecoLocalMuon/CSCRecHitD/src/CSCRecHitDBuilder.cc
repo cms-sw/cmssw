@@ -242,5 +242,6 @@ const CSCLayer* CSCRecHitDBuilder::getLayer( const CSCDetId& detId )  {
 
 void CSCRecHitDBuilder::setConditions( const CSCRecoConditions* reco ) {
   hitsFromStripOnly_->setConditions( reco );
+  hitsFromWireOnly_->setConditions( reco );
   make2DHits_->setConditions( reco );  
 }

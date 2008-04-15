@@ -21,7 +21,7 @@
 #include <iostream>
 
 
-CSCHitFromWireOnly::CSCHitFromWireOnly( const edm::ParameterSet& ps ) {
+CSCHitFromWireOnly::CSCHitFromWireOnly( const edm::ParameterSet& ps ) : recoConditions_(0){
   
   deltaT                 = ps.getUntrackedParameter<int>("CSCWireClusterDeltaT");
   //clusterSize            = ps.getUntrackedParameter<int>("CSCWireClusterMaxSize");
@@ -37,7 +37,8 @@ CSCHitFromWireOnly::~CSCHitFromWireOnly(){}
 std::vector<CSCWireHit> CSCHitFromWireOnly::runWire( const CSCDetId& id, const CSCLayer* layer, const CSCWireDigiCollection::Range& rwired ) {
   
   std::vector<CSCWireHit> hitsInLayer;
-    
+
+  id_        = id;
   layer_ = layer;
   layergeom_ = layer->geometry();
   bool any_digis = true;
@@ -58,7 +59,13 @@ std::vector<CSCWireHit> CSCHitFromWireOnly::runWire( const CSCDetId& id, const C
       if ( !addToCluster( wdigi ) ) {
 	// Make Wire Hit from cluster, delete old cluster and start new one
 	float whit_pos = findWireHitPosition();
-	CSCWireHit whit(id, whit_pos, wire_in_cluster, theTime);
+	bool deadWG_left = isDeadWG( id, wire_in_cluster.at(0) -1 ); 
+	bool deadWG_right = isDeadWG( id, wire_in_cluster.at(wire_in_cluster.size()-1) + 1);
+        bool isDeadWGAround = false;
+	if(deadWG_left || deadWG_right){
+	  isDeadWGAround = true;
+	} 
+	CSCWireHit whit(id, whit_pos, wire_in_cluster, theTime, isDeadWGAround );
 	hitsInLayer.push_back( whit );	
 	makeWireCluster( wdigi );
 	n_wgroup = 1;
@@ -69,7 +76,13 @@ std::vector<CSCWireHit> CSCHitFromWireOnly::runWire( const CSCDetId& id, const C
     // Don't forget to fill last wire hit !!!
     if ( rwired.second - it == 1) {           
       float whit_pos = findWireHitPosition();
-      CSCWireHit whit(id, whit_pos, wire_in_cluster, theTime);
+      bool deadWG_left = isDeadWG( id, wire_in_cluster.at(0) -1 ); 
+      bool deadWG_right = isDeadWG( id, wire_in_cluster.at(wire_in_cluster.size()-1) + 1); 
+      bool isDeadWGAround = false;
+      if(deadWG_left || deadWG_right){
+	isDeadWGAround = true;
+      } 
+      CSCWireHit whit(id, whit_pos, wire_in_cluster, theTime, isDeadWGAround );
       hitsInLayer.push_back( whit );
       n_wgroup++;
     }
@@ -138,3 +151,12 @@ float CSCHitFromWireOnly::findWireHitPosition() {
 
 }
 
+bool CSCHitFromWireOnly::isDeadWG(const CSCDetId& id, int WG){
+
+  const std::bitset<112> & deadWG = recoConditions_->badWireWord( id );
+  bool isDead = false;
+  if(WG>-1 && WG<112){
+    isDead = deadWG.test(WG);
+  }
+  return isDead;
+} 

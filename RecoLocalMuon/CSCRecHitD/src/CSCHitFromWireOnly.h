@@ -22,6 +22,8 @@
 
 #include <DataFormats/CSCDigi/interface/CSCWireDigiCollection.h>
 
+#include <RecoLocalMuon/CSCRecHitD/src/CSCRecoConditions.h>
+
 #include <FWCore/Framework/interface/Frameworkfwd.h>
 #include <FWCore/ParameterSet/interface/ParameterSet.h>
 
@@ -44,15 +46,19 @@ class CSCHitFromWireOnly
   ~CSCHitFromWireOnly();
   
   std::vector<CSCWireHit> runWire( const CSCDetId& id, const CSCLayer* layer, const CSCWireDigiCollection::Range& rwired ); 
+  void setConditions( const CSCRecoConditions* reco ) {
+    recoConditions_ = reco;
+  }
   void makeWireCluster(const CSCWireDigi& digi);
   bool addToCluster(const CSCWireDigi& digi); 
   float findWireHitPosition();
   
+  CSCDetId id_;    
   const CSCLayer * layer_;
   const CSCLayerGeometry * layergeom_;
   
  private:
-
+  bool isDeadWG(const CSCDetId& id, int WG); 
 
   std::vector<CSCWireDigi> wire_cluster;
   std::vector<int> wire_in_cluster;
@@ -62,6 +68,9 @@ class CSCHitFromWireOnly
   
   int deltaT;
   //int clusterSize;
+
+  /// Hold pointer to current conditions data
+  const CSCRecoConditions* recoConditions_;
 };
 
 #endif

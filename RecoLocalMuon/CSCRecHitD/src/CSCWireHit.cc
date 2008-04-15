@@ -5,17 +5,20 @@ CSCWireHit::CSCWireHit() :
   theDetId(),
   theWireHitPosition(),
   theWgroups(),
-  theWireHitTmax()
+  theWireHitTmax(),
+  isDeadWGAround()
 {}
 
 CSCWireHit::CSCWireHit( const CSCDetId& id, 
                         const float& wHitPos, 
                         ChannelContainer& wgroups, 
-                        const int& tmax ) :
+                        const int& tmax,
+                        const bool& isNearDeadWG ) :
   theDetId( id ), 
   theWireHitPosition( wHitPos ),
   theWgroups( wgroups ),
-  theWireHitTmax ( tmax )
+  theWireHitTmax ( tmax ),
+  isDeadWGAround( isNearDeadWG )
 {}
 
 CSCWireHit::~CSCWireHit() {}
