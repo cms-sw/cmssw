@@ -243,7 +243,11 @@ def hlt(process,name,genfilt):
          process.hltEndPath=getattr(process,endPaths[0])
 
     if ( genfilt!=''):
-        process.HLTBeginSequence._seq = cms.Sequence(process.ProductionFilterSequence._seq*process.HLTBeginSequence._seq) 
+        # unfortunately not every HLT paths uses the HLTBeginSequence. Only trust what you tested yourself... :-/
+        # process.HLTBeginSequence._seq = cms.Sequence(process.ProductionFilterSequence._seq*process.HLTBeginSequence._seq) 
+        for path in sortedPaths:
+            if path.startswith("HLT") or path.startswith("CandHLT") or path.startswith("AlCa"):
+                getattr(process,path)._seq = cms.Sequence(process.ProductionFilterSequence._seq*getattr(process,path)._seq )
 #    for p  in process.paths_().itervalues():
 #        pname=p.label()
 #        if ( pname[0:3]=='HLT' or pname[0:7]=='CandHLT' ):
