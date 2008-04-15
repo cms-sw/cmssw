@@ -9,8 +9,8 @@
 // Created:         Sat Jan 14 22:00:00 UTC 2006
 //
 // $Author: noeding $
-// $Date: 2008/04/02 15:02:15 $
-// $Revision: 1.13 $
+// $Date: 2008/04/05 08:58:12 $
+// $Revision: 1.15 $
 //
 
 #include <iostream>
@@ -74,7 +74,7 @@ void RoadSearchSeedFinder::produce(edm::Event& e, const edm::EventSetup& es)
   if( e.getByLabel(pixelRecHitsInputTag, pixelRecHits)) {
     pixelRecHitCollection = pixelRecHits.product();
   } else {
-    edm::LogWarning("RoadSearch") << "Collection SiPixelRecHitCollection with InputTag " << pixelRecHitsInputTag << " cannot be found, using empty collection of same type. The RoadSearch algorithm is also fully functional without Pixel RecHits.";
+    LogDebug("RoadSearch") << "Collection SiPixelRecHitCollection with InputTag " << pixelRecHitsInputTag << " cannot be found, using empty collection of same type. The RoadSearch algorithm is also fully functional without Pixel RecHits.";
   }
 
   // create empty output collection
