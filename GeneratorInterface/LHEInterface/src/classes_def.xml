@@ -1,0 +1,12 @@
+<lcgdict>
+	<class name="std::pair<int, int>"/>
+	<class name="std::vector<std::pair<int, int> >"/>
+	<class name="std::pair<long, long>"/>
+	<class name="std::pair<double, double>"/>
+	<class name="lhef::HEPEUP::FiveVector"/>
+	<class name="std::vector<lhef::HEPEUP::FiveVector>"/>
+	<class name="lhef::HEPRUP"/>
+	<class name="lhef::HEPEUP"/>
+	<class name="edm::Wrapper<lhef::HEPRUP>"/>
+	<class name="edm::Wrapper<lhef::HEPEUP>"/>
+</lcgdict>

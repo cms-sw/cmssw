@@ -1,0 +1,35 @@
+<use name="FWCore/MessageLogger"/>
+<use name="FWCore/ParameterSet"/>
+<use name="FWCore/ServiceRegistry"/>
+<use name="FWCore/Utilities"/>
+<use name="GeneratorInterface/LHEInterface"/>
+<use name="boost"/>
+<use name="hepmc"/>
+<library name="GeneratorInterfaceLHEProducer" file="LHEProducer.cc">
+	<use name="FWCore/Framework"/>
+	<use name="SimDataFormats/HepMCProduct"/>
+	<flags EDM_PLUGIN="1"/>
+</library>
+<library name="GeneratorInterfaceLHESource" file="LHESource.cc">
+	<use name="FWCore/Framework"/>
+	<use name="mcdb"/>
+	<flags EDM_PLUGIN="1"/>
+</library>
+<library name="GeneratorInterfaceLHEAnalyzer" file="LHEAnalyzer.cc">
+	<use name="FWCore/Framework"/>
+	<use name="DataFormats/StdDictionaries"/>
+	<use name="SimDataFormats/HepMCProduct"/>
+	<use name="PhysicsTools/UtilAlgos"/>
+	<flags EDM_PLUGIN="1"/>
+</library>
+<library name="GeneratorInterfacePythia6Hadronisation" file="Pythia6Hadronisation.cc">
+	<use name="pythia6"/>
+	<flags EDM_PLUGIN="1"/>
+</library>
+<library name="GeneratorInterfaceHerwig6Hadronisation" file="Herwig6Hadronisation.cc hwudat.f hwmsct_dummy.F pathhelper.F cms_hwwarn.F">
+	<use name="herwig"/>
+	<use name="jimmy"/>
+	<use name="lhapdf"/>
+	<use name="f77compiler"/>
+	<flags EDM_PLUGIN="1"/>
+</library>
