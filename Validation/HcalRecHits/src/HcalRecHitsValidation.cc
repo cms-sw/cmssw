@@ -796,7 +796,7 @@ void HcalRecHitsValidation::analyze(edm::Event const& ev, edm::EventSetup const&
   // Fill working vectors of HCAL RecHits quantities 
   fillRecHitsTmp(subdet_, ev); 
 
-  //   std::cout << "*** 3" << std::endl; 
+  //  std::cout << "*** 3" << std::endl; 
 
 
   //===========================================================================
@@ -868,7 +868,7 @@ void HcalRecHitsValidation::analyze(edm::Event const& ev, edm::EventSetup const&
   }     // end of ECAL selection 
 
 
-  //    std::cout << "*** 4" << std::endl; 
+  //     std::cout << "*** 4" << std::endl; 
 
 
   // Counting, including ZS items
@@ -937,51 +937,55 @@ void HcalRecHitsValidation::analyze(edm::Event const& ev, edm::EventSetup const&
     }
     */
 
-    if (depth == 1 ) profile_z1->Fill(double(ieta), z); 
-    if (depth == 2 ) profile_z2->Fill(double(ieta), z); 
-    if (depth == 3 ) profile_z3->Fill(double(ieta), z); 
-    if (depth == 4 ) profile_z4->Fill(double(ieta), z); 
-
-
-    if (depth == 1 && sub == 1 ) {
-      emap_HBdepth1->Fill(double(ieta), double(iphi), en);
-      emean_vs_ieta_HBdepth1->Fill(double(ieta), en);
-      occupancy_map_HBdepth1->Fill(double(ieta), double(iphi));          
-    }
-    if (depth == 2  && sub == 1) {
-      emap_HBdepth2->Fill(double(ieta), double(iphi), en);
-      emean_vs_ieta_HBdepth2->Fill(double(ieta), en);
-      occupancy_map_HBdepth2->Fill(double(ieta), double(iphi));          
-    }
-    if (depth == 1 && sub == 2) {
-      emap_HEdepth1->Fill(double(ieta), double(iphi), en);
-      emean_vs_ieta_HEdepth1->Fill(double(ieta), en);
-      occupancy_map_HEdepth1->Fill(double(ieta), double(iphi));          
-    }
-    if (depth == 2 && sub == 2) {
-      emap_HEdepth2->Fill(double(ieta), double(iphi), en);
-      emean_vs_ieta_HEdepth2->Fill(double(ieta), en);
+    if( subdet_ != 6) {  
+      if (depth == 1 ) profile_z1->Fill(double(ieta), z); 
+      if (depth == 2 ) profile_z2->Fill(double(ieta), z); 
+      if (depth == 3 ) profile_z3->Fill(double(ieta), z); 
+      if (depth == 4 ) profile_z4->Fill(double(ieta), z); 
+      
+      //      std::cout << "*** 4-1" << std::endl; 
+      
+      
+      if (depth == 1 && sub == 1 ) {
+	emap_HBdepth1->Fill(double(ieta), double(iphi), en);
+	emean_vs_ieta_HBdepth1->Fill(double(ieta), en);
+	occupancy_map_HBdepth1->Fill(double(ieta), double(iphi));          
+      }
+      if (depth == 2  && sub == 1) {
+	emap_HBdepth2->Fill(double(ieta), double(iphi), en);
+	emean_vs_ieta_HBdepth2->Fill(double(ieta), en);
+	occupancy_map_HBdepth2->Fill(double(ieta), double(iphi));          
+      }
+      if (depth == 1 && sub == 2) {
+	emap_HEdepth1->Fill(double(ieta), double(iphi), en);
+	emean_vs_ieta_HEdepth1->Fill(double(ieta), en);
+	occupancy_map_HEdepth1->Fill(double(ieta), double(iphi));          
+      }
+      if (depth == 2 && sub == 2) {
+	emap_HEdepth2->Fill(double(ieta), double(iphi), en);
+	emean_vs_ieta_HEdepth2->Fill(double(ieta), en);
       occupancy_map_HEdepth2->Fill(double(ieta), double(iphi));          
-    }
-    if (depth == 3 && sub == 2) {
-      emap_HEdepth3->Fill(double(ieta), double(iphi), en);
-      emean_vs_ieta_HEdepth3->Fill(double(ieta), en);
-      occupancy_map_HEdepth3->Fill(double(ieta), double(iphi));          
-    }
-    if (depth == 4 ) {
-      emap_HO->Fill(double(ieta), double(iphi), en);
-      emean_vs_ieta_HO->Fill(double(ieta), en);
-      occupancy_map_HO->Fill(double(ieta), double(iphi));          
-    }
-    if (depth == 1 && sub == 4) {
-      emap_HFdepth1->Fill(double(ieta), double(iphi), en);
-      emean_vs_ieta_HFdepth1->Fill(double(ieta), en);
-      occupancy_map_HFdepth1->Fill(double(ieta), double(iphi));          
-    }
-    if (depth == 2 && sub == 4) {
-      emap_HFdepth2->Fill(double(ieta), double(iphi), en);
-      emean_vs_ieta_HFdepth2->Fill(double(ieta), en);
-      occupancy_map_HFdepth2->Fill(double(ieta), double(iphi));          
+      }
+      if (depth == 3 && sub == 2) {
+	emap_HEdepth3->Fill(double(ieta), double(iphi), en);
+	emean_vs_ieta_HEdepth3->Fill(double(ieta), en);
+	occupancy_map_HEdepth3->Fill(double(ieta), double(iphi));          
+      }
+      if (depth == 4 ) {
+	emap_HO->Fill(double(ieta), double(iphi), en);
+	emean_vs_ieta_HO->Fill(double(ieta), en);
+	occupancy_map_HO->Fill(double(ieta), double(iphi));          
+      }
+      if (depth == 1 && sub == 4) {
+	emap_HFdepth1->Fill(double(ieta), double(iphi), en);
+	emean_vs_ieta_HFdepth1->Fill(double(ieta), en);
+	occupancy_map_HFdepth1->Fill(double(ieta), double(iphi));          
+      }
+      if (depth == 2 && sub == 4) {
+	emap_HFdepth2->Fill(double(ieta), double(iphi), en);
+	emean_vs_ieta_HFdepth2->Fill(double(ieta), en);
+	occupancy_map_HFdepth2->Fill(double(ieta), double(iphi));          
+      }
     }
     
     // maps with "Scheme B" cuts 
@@ -1023,10 +1027,7 @@ void HcalRecHitsValidation::analyze(edm::Event const& ev, edm::EventSetup const&
     
   } 
 
-  Nhb->Fill(double(nhb1 + nhb2));
-  Nhe->Fill(double(nhe1 + nhe2 + nhe3));
-  Nho->Fill(double(nho));
-  Nhf->Fill(double(nhf1 + nhf2));
+  //  std::cout << "*** 4-2" << std::endl; 
   
   if( subdet_ == 6) {               // ZS plots
     ZS_nHB1->Fill(double(nhb1));  
@@ -1038,18 +1039,22 @@ void HcalRecHitsValidation::analyze(edm::Event const& ev, edm::EventSetup const&
     ZS_nHF1->Fill(double(nhf1));  
     ZS_nHF2->Fill(double(nhf2));  
   }
+  else{ 
+    Nhb->Fill(double(nhb1 + nhb2));
+    Nhe->Fill(double(nhe1 + nhe2 + nhe3));
+    Nho->Fill(double(nho));
+    Nhf->Fill(double(nhf1 + nhf2));
 
-  //    std::cout << "*** 5" << std::endl; 
-  
-  
-  // IN ALL THE CASES : sum of rechits around MC particle = f(eta,phi) 
-  
-  if(imc != 0) {
-    map_econe_depth1->Fill(eta_MC, phi_MC, ehcal_coneMC_1);
-    map_econe_depth2->Fill(eta_MC, phi_MC, ehcal_coneMC_2);
-    map_econe_depth3->Fill(eta_MC, phi_MC, ehcal_coneMC_3);
+    if(imc != 0) {
+      map_econe_depth1->Fill(eta_MC, phi_MC, ehcal_coneMC_1);
+      map_econe_depth2->Fill(eta_MC, phi_MC, ehcal_coneMC_2);
+      map_econe_depth3->Fill(eta_MC, phi_MC, ehcal_coneMC_3);
     map_econe_depth4->Fill(eta_MC, phi_MC, ehcal_coneMC_4);
+    }
   }
+
+  //  std::cout << "*** 5" << std::endl; 
+    
 
   //  NOISE ================================================================= 
   
