@@ -10,8 +10,8 @@
 // Created:         Wed Mar 15 13:00:00 UTC 2006
 //
 // $Author: noeding $
-// $Date: 2008/04/14 21:01:31 $
-// $Revision: 1.52 $
+// $Date: 2008/04/14 21:17:52 $
+// $Revision: 1.53 $
 //
 
 #include <vector>
@@ -557,7 +557,7 @@ void RoadSearchTrackCandidateMakerAlgorithm::run(const RoadSearchCloudCollection
           
           std::vector<Trajectory> freshStartv = theSmoother->trajectories(*i);
           
-          std::cout<<"Smoothing has returned " << freshStartv.size() <<" trajectory " << std::endl;
+          if(debug_) std::cout<<"Smoothing has returned " << freshStartv.size() <<" trajectory " << std::endl;
           if (!freshStartv.empty()){
              if(debug_)  std::cout<< "Smoothing of trajectory " <<i-CleanChunks.begin() << " has succeeded with " << freshStartv.begin()->measurements().size() << " hits and a chi2 of " << freshStartv.begin()->chiSquared() <<" for " << freshStartv.begin()->ndof() << " DOF.  Now add hits." <<std::endl;
           } else {
