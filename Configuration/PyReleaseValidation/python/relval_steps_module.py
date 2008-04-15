@@ -234,11 +234,18 @@ def alca(process,name):
     '''
     func_id=mod_id+"["+sys._getframe().f_code.co_name+"]"
 
-    for p  in process.paths_().itervalues():
-        pname=p.label()
-        if ( pname[0:12]=='pathALCARECO'):
-            process.schedule.append(getattr(process,pname))
-            common.log ('%s path added  ...'%pname)
+# if paths not specified, just take everything and hope...
+    if ( name ==''):
+        for p  in process.paths_().itervalues():
+            pname=p.label()
+            if ( pname[0:12]=='pathALCARECO'):
+                process.schedule.append(getattr(process,pname))
+                common.log ('%s path added  ...'%pname)
+    else:
+        paths=name.split('+')
+        for p in paths:
+            process.schedule.append(getattr(process,'pathALCARECO'+p))
+            common.log ('%s path added  ...'%p)
             
     return process
 
