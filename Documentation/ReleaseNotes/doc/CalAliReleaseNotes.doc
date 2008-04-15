@@ -6,6 +6,12 @@
 
 - Main changes and new features:
 
+Calibration/EcalAlCaRecoProducers : phi symmetry calibration and Pi0 Calibration do part of the work 
+                                    online (see HLTrigger/special). The AlCaReco step now consists 
+                                    in selecting events produced by the online filter and copying to                                                                    the appropriate stream. The phi symmetry stream keeps the 
+                                    L1 information to study different MinBias Triggers. 
+
+
 - Major bug fixes:
 
 - Known issues:
