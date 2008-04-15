@@ -1,5 +1,5 @@
 //
-// $Id: EgammaSCEnergyCorrectionAlgo.cc,v 1.26 2008/04/08 15:58:30 kkaadze Exp $
+// $Id: EgammaSCEnergyCorrectionAlgo.cc,v 1.27 2008/04/08 16:38:27 kkaadze Exp $
 // Author: David Evans, Bristol
 //
 #include "RecoEcal/EgammaClusterAlgos/interface/EgammaSCEnergyCorrectionAlgo.h"
@@ -22,7 +22,6 @@ EgammaSCEnergyCorrectionAlgo::EgammaSCEnergyCorrectionAlgo(double noise,
   fBrem_ = pset.getParameter<std::vector<double> >("fBremVec");  
   fEtEta_ = pset.getParameter<std::vector<double> >("fEtEtaVec");
   brLinearThr_ = pset.getParameter<double>("brLinearThr");
-
 }
 
 EgammaSCEnergyCorrectionAlgo::~EgammaSCEnergyCorrectionAlgo()
