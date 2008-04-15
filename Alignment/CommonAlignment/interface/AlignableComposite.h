@@ -27,11 +27,11 @@ class AlignableComposite : public Alignable
 
 public:
   /// Constructor for a composite with given rotation.
-  /// Position is found from average of daughters' positions later.
-  /// Default values for backward compatibility with MuonAlignment.
-  AlignableComposite( align::ID id = 0,
-		      StructureType = align::invalid,
-		      const RotationType& = RotationType() );
+  /// Position can be found from average of daughters' positions later,
+  /// using addComponent(Alignable*).
+  AlignableComposite( align::ID id,
+		      StructureType aType,
+		      const RotationType& rot = RotationType() );
 
   /// deleting its components
   virtual ~AlignableComposite();
@@ -92,6 +92,8 @@ protected:
   StructureType theStructureType;
 
 private:
+  /// default constructor hidden
+  AlignableComposite() : Alignable (0, RotationType()) {};
 
   Alignables theComponents; // direct daughters
 };
