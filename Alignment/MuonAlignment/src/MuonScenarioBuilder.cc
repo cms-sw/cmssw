@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2007/12/06 01:32:37 $
- *  $Revision: 1.2.4.1 $
+ *  $Date: 2008/02/14 09:39:21 $
+ *  $Revision: 1.4 $
  *  \author Andre Sznajder - UERJ(Brazil)
  */
  
@@ -252,10 +252,10 @@ void MuonScenarioBuilder::moveMuon(const edm::ParameterSet& pSet) {
 //______________________________________________________________________________________________________
 void MuonScenarioBuilder::moveChamberInSector(Alignable *chamber, std::vector<float> disp, std::vector<float>rotation, std::vector<float> dispError, std::vector<float> rotationError) {
    
-    RotationType rotx( Basic3DVector<float>(1.0, 0.0, 0.0), rotation[0] );
-    RotationType roty( Basic3DVector<float>(0.0, 1.0, 0.0), rotation[1] );
-    RotationType rotz( Basic3DVector<float>(0.0, 0.0, 1.0), rotation[2] );
-    RotationType rot = rotz * roty * rotx;
+    align::RotationType rotx( Basic3DVector<float>(1.0, 0.0, 0.0), rotation[0] );
+    align::RotationType roty( Basic3DVector<float>(0.0, 1.0, 0.0), rotation[1] );
+    align::RotationType rotz( Basic3DVector<float>(0.0, 0.0, 1.0), rotation[2] );
+    align::RotationType rot = rotz * roty * rotx;
     GlobalPoint pos = chamber->globalPosition();
     GlobalPoint dispRot(pos.basicVector()-rot*pos.basicVector());
     disp[0] += dispRot.x(); disp[1] += dispRot.y(); disp[2] += dispRot.z();

@@ -4,8 +4,8 @@
 /** \class AlignableCSCStation 
  *  The alignable muon CSC station.
  *
- *  $Date: 2008/02/14 12:54:53 $
- *  $Revision: 1.10 $
+ *  $Date: 2008/04/10 16:36:41 $
+ *  $Revision: 1.11 $
  *  \author Andre Sznajder - UERJ(Brazil)
  */
 
@@ -45,9 +45,6 @@ class AlignableCSCStation : public AlignableComposite
 
   }
   
-  typedef GlobalPoint           PositionType;
-  typedef TkRotation<float>     RotationType;
-
   // gets the global position as the average over all positions of the layers
   PositionType computePosition() ;
   // get the global orientation

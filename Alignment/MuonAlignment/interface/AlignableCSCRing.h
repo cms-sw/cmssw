@@ -4,8 +4,8 @@
 /** \class AlignableCSCRing 
  *  The alignable muon CSC ring.
  *
- *  $Date: 2008/02/14 12:54:53 $
- *  $Revision: 1.1 $
+ *  $Date: 2008/04/10 16:36:41 $
+ *  $Revision: 1.2 $
  *  \author Jim Pivarski - Texas A&M University
  */
 
@@ -45,9 +45,6 @@ class AlignableCSCRing : public AlignableComposite
 
   }
   
-  typedef GlobalPoint           PositionType;
-  typedef TkRotation<float>     RotationType;
-
   // gets the global position as the average over all positions of the layers
   PositionType computePosition() ;
   // get the global orientation

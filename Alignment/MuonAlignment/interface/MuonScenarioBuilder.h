@@ -4,8 +4,8 @@
 /** \class MuonScenarioBuilder
  *  The misalignment scenario builder.
  *
- *  $Date: 2007/06/07 08:42:09 $
- *  $Revision: 1.2 $
+ *  $Date: 2007/12/06 01:38:48 $
+ *  $Revision: 1.3 $
  *  \author Andre Sznajder - UERJ(Brazil)
  */
 
@@ -22,10 +22,6 @@ class MuonScenarioBuilder : public MisalignmentScenarioBuilder
 {
 
 public:
-
-  typedef GlobalPoint           PositionType;
-  typedef TkRotation<float>     RotationType;
-
 
   /// Constructor
   explicit MuonScenarioBuilder( Alignable* alignable );

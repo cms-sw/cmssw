@@ -4,8 +4,8 @@
 /** \class AlignableDTStation
  *  The alignable muon DT station.
  *
- *  $Date: 2008/02/14 09:39:20 $
- *  $Revision: 1.8 $
+ *  $Date: 2008/04/10 16:36:41 $
+ *  $Revision: 1.9 $
  *  \author Andre Sznajder - UERJ(Brazil)
  */
 
@@ -44,9 +44,6 @@ class AlignableDTStation : public AlignableComposite
 
   }
   
-  typedef GlobalPoint           PositionType;
-  typedef TkRotation<float>     RotationType;
-
   // gets the global position as the average over all positions of the layers
   PositionType computePosition() ;
   // get the global orientation
