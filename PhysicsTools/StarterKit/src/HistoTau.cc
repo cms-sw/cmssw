@@ -36,9 +36,6 @@ HistoTau::HistoTau(std::string dir, std::string group,std::string pre,
 void HistoTau::fill( const Tau *tau, uint iTau )
 {
 
-  // First fill common 4-vector histograms
-
-  HistoGroup<Tau>::fill( tau, iTau);
 
   // fill relevant tau histograms
 

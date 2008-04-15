@@ -45,9 +45,7 @@ void HistoPhoton::fill( const Photon * photon, uint iE )
 void HistoPhoton::fillCollection( const std::vector<Photon> & coll ) 
 {
 
-  HistoGroup<Photon>::fillCollection( coll );
- 
-  h_size_->fill( coll.size() );     //! Save the size of the collection.
+   h_size_->fill( coll.size() );     //! Save the size of the collection.
 
   std::vector<Photon>::const_iterator
     iobj = coll.begin(),

@@ -3,7 +3,7 @@
 
 //------------------------------------------------------------
 // Title: HistoGroup.h
-// Purpose: To histogram data objects deriving from TK::Object
+// Purpose: To histogram data objects deriving from PATObject
 //          that is common (such as 4-vector information)
 //
 // Authors:
@@ -20,7 +20,7 @@
 //                desired prefix. Stores file where histograms
 //                should reside.
 //
-//   void fill( TK::Object * );
+//   void fill( PATObject * );
 //   Description: Fill object. Will fill relevant reco::Candidate
 //                variables.
 //
@@ -53,13 +53,9 @@
 #include <TH1D.h>
 #include <TMath.h>
 
-//--- For temporary backwards compatibility
-#define HistoObject HistoGroup
-
-
 namespace pat {
 
-  //! PHYS_OBJECT template argument must inherit from a reco::Candidate
+  //! PHYS_OBJECT template argument must inherit from a reco::Particle
   template <class PHYS_OBJECT>
   class HistoGroup {
 
@@ -73,18 +69,8 @@ namespace pat {
     virtual void fill( const PHYS_OBJECT     & obj, uint imulti = 1, double weight = 1.0)
     { fill( &obj, imulti, weight ); } // call the one above
 
-// #define ALLOW_CAND_ARGS 0
-// #if ALLOW_CAND_ARGS
-//     virtual void fill( const reco::Candidate * cand );
-//     virtual void fill( const reco::Candidate & cand );
-// #endif
-
-
     //!  Fill all histograms for *all* Phys Objects sitting in a collection!
     virtual void fillCollection( const std::vector<PHYS_OBJECT> & coll );
-    //    virtual void fillCollection( edm::Handle<std::vector<PHYS_OBJECT> > & h)
-    // { fillCollection( *h ); }   // handle dereferences into a vector<PHYS_OBJECT>
-
 
     //!  Register newly created HistGram objects
     virtual void addHisto( PhysVarHisto * hg );
@@ -227,37 +213,6 @@ namespace pat {
     histoGroups_.erase( hm, hmend );    // free memory used by this small array
   }
 
-
-
-// #if ALLOW_CAND_ARGS
-//   //------------------------------------------------------------------------
-//   //!  The method that actually fills histograms in the base class.
-//   //------------------------------------------------------------------------
-//   template <class PHYS_OBJECT>
-//   inline
-//   void
-//   HistoGroup<PHYS_OBJECT>::
-//   fill( const reco::Candidate * cand )
-//   {
-//     h_pt_  ->fill( cand->p4().pt() );
-//     h_eta_ ->fill( cand->p4().eta() );
-//     h_phi_ ->fill( cand->p4().phi() );
-//     h_mass_->fill( cand->p4().mass() );
-//   }
-
-
-//   //------------------------------------------------------------------------
-//   //!  Another flavor of fill(). Trivially forwards to the method above.
-//   //------------------------------------------------------------------------
-//   template <class PHYS_OBJECT>
-//   inline
-//   void
-//   HistoGroup<PHYS_OBJECT>::
-//   fill( const reco::Candidate & cand )
-//   {
-//     fill( &cand );
-//   }
-// #endif
 
 
   //------------------------------------------------------------------------

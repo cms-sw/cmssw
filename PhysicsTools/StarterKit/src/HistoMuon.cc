@@ -78,8 +78,6 @@ void HistoMuon::fill( const Muon *muon, uint iMu )
 void HistoMuon::fillCollection( const std::vector<Muon> & coll )
 {
 
-  HistoGroup<Muon>::fillCollection( coll );
-
   h_size_->fill( coll.size() );     //! Save the size of the collection.
 
   std::vector<Muon>::const_iterator

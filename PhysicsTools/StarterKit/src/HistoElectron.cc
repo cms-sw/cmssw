@@ -44,8 +44,6 @@ void HistoElectron::fill( const Electron * electron, uint iE )
 
 void HistoElectron::fillCollection( const std::vector<Electron> & coll ) 
 {
-
-  HistoGroup<Electron>::fillCollection( coll );
  
   h_size_->fill( coll.size() );     //! Save the size of the collection.
 

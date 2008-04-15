@@ -49,8 +49,6 @@ void HistoTrack::fill( const RecoChargedCandidate *track, uint iTrk )
 
 void HistoTrack::fillCollection( const std::vector<RecoChargedCandidate> & coll ) 
 {
-
-  HistoGroup<RecoChargedCandidate>::fillCollection( coll );
  
   h_size_->fill( coll.size() );     //! Save the size of the collection.
 

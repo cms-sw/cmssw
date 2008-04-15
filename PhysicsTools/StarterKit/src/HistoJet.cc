@@ -45,8 +45,6 @@ void HistoJet::fill( const Jet * jet, uint iJet )
 
 void HistoJet::fillCollection( const std::vector<Jet> & coll ) 
 {
-
-  HistoGroup<Jet>::fillCollection( coll );
  
   h_size_->fill( coll.size() );     //! Save the size of the collection.
 

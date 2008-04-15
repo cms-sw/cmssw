@@ -82,8 +82,6 @@ void HistoMET::fill( const MET * met, uint iPart)
 
 void HistoMET::fillCollection( const std::vector<MET> & coll ) 
 {
-
-  HistoGroup<MET>::fillCollection( coll );
  
   h_size_->fill( coll.size() );     //! Save the size of the collection.
 
