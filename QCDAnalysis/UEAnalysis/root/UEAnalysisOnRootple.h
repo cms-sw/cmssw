@@ -13,6 +13,7 @@
 #include <TFile.h>
 #include <TH1F.h>
 #include <TProfile.h>
+#include <TH2D.h>
 #include <iostream>
 #include <fstream>
 
@@ -25,6 +26,10 @@ using namespace std;
 
 class UEAnalysisOnRootple {
 public :
+
+  // declare file handle here
+  TFile *f;
+
   TTree          *fChain;   //!pointer to the analyzed TTree or TChain
   Int_t           fCurrent; //!current Tree number in a TChain
   
@@ -153,6 +158,10 @@ public :
 
   TProfile*   pdN_vs_dphiMC;
   TProfile*   pdPt_vs_dphiMC;
+
+  // add histo on fluctuation in UE
+  TH2D*   h2d_dN_vs_ptJTransMC;
+
 
   TProfile*   pdN_vs_ptJTransMC;
   TProfile*   pdN_vs_ptJTransMaxMC;
@@ -304,6 +313,9 @@ void UEAnalysisOnRootple::Init(TTree *tree)
    // code, but the routine can be extended by the user if needed.
    // Init() will be called many times when running on PROOF
    // (once per file to be processed).
+
+  // allocate space for file handle here
+  f = new TFile;
 
    // Set branch addresses and branch pointers
    if (!tree) return;

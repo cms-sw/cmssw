@@ -26,21 +26,27 @@ void UEAnalysisOnRootple::MultiAnalysis(char* filelist,char* outname,Float_t wei
   while(inFile.getline(RootTupleName,255)) {
     if (RootTupleName[0] != '#') {
       cout<<"I'm analyzing file "<<RootTupleName<<endl;
-      TFile *f =  new TFile(RootTupleName);
+
+      //TFile *f =  new TFile(RootTupleName);
+      f = TFile::Open(RootTupleName);
 
       // TFileService puts UEAnalysisTree in a directory named after the module
       // which called the EDAnalyzer
-      cout << "changing to directory ueAnalysisRootple" << endl;
       f->cd("ueAnalysisRootple");
 
       TTree * tree = (TTree*)gDirectory->Get("AnalysisTree");
       Init(tree);
+
       Loop(weight[filenumber],triggerPt,type,trigger,tkpt);
+    
+      f->Close();
+    
     } else {
       if (RootTupleName[1] == '#') break;     
     }
     filenumber++;
   }
+
   EndJob();
 
 }
@@ -65,14 +71,14 @@ void UEAnalysisOnRootple::Loop(Float_t we,Float_t triggerPt,string type,string t
     if (ientry < 0) break;
     nb = fChain->GetEntry(jentry);   nbytes += nb;
 
-    cout << endl << "Event has been accepted by " << acceptedTriggers->GetSize() << endl;
-    
-    int nAcceptedTriggers( acceptedTriggers->GetSize() );
-    for ( int iAcceptedTrigger(0); iAcceptedTrigger<nAcceptedTriggers; ++iAcceptedTrigger )
-      {
-	cout << "\t(" << iAcceptedTrigger << ") trigger path ";
-	cout << (acceptedTriggers->At(iAcceptedTrigger))->GetName() << endl;
-      } 
+
+//     int nAcceptedTriggers( acceptedTriggers->GetSize() );
+//     if (nAcceptedTriggers) cout << endl << "Event has been accepted by " << acceptedTriggers->GetSize() << endl;
+//     for ( int iAcceptedTrigger(0); iAcceptedTrigger<nAcceptedTriggers; ++iAcceptedTrigger )
+//       {
+// 	cout << "\t(" << iAcceptedTrigger << ") trigger path ";
+// 	cout << (acceptedTriggers->At(iAcceptedTrigger))->GetName() << endl;
+//       } 
 
     if(type=="Jet"){
       if(trigger=="MB"){
@@ -216,7 +222,10 @@ void UEAnalysisOnRootple::UEAnalysisMC(Float_t weight,string tkpt)
   
   if( transN1>=transN2 ) orderedN = true;
   if( transP1>=transP2 ) orderedP = true;
-  
+
+  // add histo for ue fluctuation
+  h2d_dN_vs_ptJTransMC->Fill(PTLeadingCJ,(transN1+transN2)/(120.*(2*etaRegion)*(piG/180.)),weight);
+
   pdN_vs_ptJTransMC->Fill(PTLeadingCJ,(transN1+transN2)/(120.*(2*etaRegion)*(piG/180.)),weight);
   
   pdPt_vs_ptJTransMC->Fill(PTLeadingCJ,(transP1+transP2)/(120.*(2*etaRegion)*(piG/180.)),weight);
@@ -834,6 +843,9 @@ void UEAnalysisOnRootple::BeginJob(char* outname)
 
   pdN_vs_dphiMC             = new TProfile("dN_vs_dphiMC","#frac{dN}{d#phid#eta} vs #delta #phi",100,-180.,180.,0,100);
   pdPt_vs_dphiMC            = new TProfile("dPt_vs_dphiMC","#frac{dP_{T}^{sum}}{d#phid#eta} vs #delta #phi",100,-180.,180.,0,100);
+
+  // add histo for ue fluctuation
+  h2d_dN_vs_ptJTransMC = new TH2D("h2d_dN_vs_ptJTransMC","#frac{dN}{d#phid#eta} vs P_{T}^{Chg Jet} ''Trans''",100,0.,200,100,0.,20.);
 
   pdN_vs_ptJTransMC         = new TProfile("dN_vs_ptJTransMC","#frac{dN}{d#phid#eta} vs P_{T}^{Chg Jet} ''Trans''",100,0.,200);
   pdN_vs_ptJTransMaxMC      = new TProfile("dN_vs_ptJTransMaxMC","#frac{dN}{d#phid#eta} vs P_{T}^{Chg Jet} ''Trans Max''",100,0.,200);
