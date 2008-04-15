@@ -3,8 +3,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/04/11 08:16:50 $
- *  $Revision: 1.19 $
+ *  $Date: 2008/04/15 12:26:53 $
+ *  $Revision: 1.20 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -398,10 +398,20 @@ string DTResolutionTest::getMEName2D(const DTSuperLayerId & slID) {
   stringstream superLayer; superLayer << slID.superlayer();
   
   string folderRoot = parameters.getUntrackedParameter<string>("folderRoot", "Collector/FU0/");
-  string folderName = 
-    folderRoot + "DT/DTResolutionAnalysisTask/Wheel" +  wheel.str() +
-    "/Station" + station.str() +
-    "/Sector" + sector.str() + "/";
+  string folderName;
+
+  if(parameters.getUntrackedParameter<bool>("calibModule", false)){
+    folderName = 
+      folderRoot + "DT/DTCalibValidation/Wheel" +  wheel.str() +
+      "/Station" + station.str() +
+      "/Sector" + sector.str() + "/";
+  }
+  else{
+    folderName = 
+      folderRoot + "DT/DTResolutionAnalysisTask/Wheel" +  wheel.str() +
+      "/Station" + station.str() +
+      "/Sector" + sector.str() + "/";
+  }
 
   string histoTag2D = parameters.getUntrackedParameter<string>("histoTag2D", "hResDistVsDist");
 
