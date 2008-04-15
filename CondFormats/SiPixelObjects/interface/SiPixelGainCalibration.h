@@ -16,7 +16,8 @@
 // Original Author:  Vincenzo Chiochia
 //         Created:  Tue 8 12:31:25 CEST 2007
 //         Modified: Evan Friis
-// $Id: SiPixelGainCalibration.h,v 1.4 2007/09/12 10:41:57 chiochia Exp $
+//         Modified: Freya Blekman
+// $Id: SiPixelGainCalibration.h,v 1.5 2008/02/06 16:29:55 friis Exp $
 //
 //
 #include<vector>
@@ -64,8 +65,10 @@ class SiPixelGainCalibration {
 
   // Set and get public methods
   void  setData(float ped, float gain, std::vector<char>& vped);
-  float getPed   (const int& col, const int& row, const Range& range, const int& nCols) const;
-  float getGain  (const int& col, const int& row, const Range& range, const int& nCols) const;
+  void  setDead(std::vector<char>& vped);
+  bool isDead(const int &col, const int & row, const Range & range, const int & nCols);
+  float getPed   (const int& col, const int& row, const Range& range, const int& nCols, bool &isDead) const;
+  float getGain  (const int& col, const int& row, const Range& range, const int& nCols,  bool &isDead) const;
 
   // here to maintain compatibility with the templated CondTools/SiPixel/SiPixelGainCalibrationServiceBash
   // both throw exceptions if ran
@@ -83,6 +86,8 @@ class SiPixelGainCalibration {
   std::vector<DetRegistry> indexes;
   float  minPed_, maxPed_, minGain_, maxGain_;
 
+  float nBins_;
+  unsigned int deadVal_;
 };
     
 #endif

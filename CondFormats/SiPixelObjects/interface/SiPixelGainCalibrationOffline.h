@@ -15,8 +15,9 @@
 //
 // Original Author:  Vincenzo Chiochia
 //         Modified: Evan Friis
+//         Modified: Freya Blekman
 //         Created:  Tue 8 12:31:25 CEST 2007
-// $Id: SiPixelGainCalibrationOffline.h,v 1.1 2008/02/06 16:29:55 friis Exp $
+// $Id: SiPixelGainCalibrationOffline.h,v 1.2 2008/04/15 14:39:03 friis Exp $
 //
 //
 #include<vector>
@@ -71,9 +72,13 @@ class SiPixelGainCalibrationOffline {
   // Set and get public methods
   void  setDataGain(float gainLow, float gainHigh, const int& nRows, std::vector<char>& vped);
   void  setDataPedestal(float pedestal, std::vector<char>& vped);
-  float getPed   (const int& col, const int& row, const Range& range, const int& nCols) const;
-  float getGain  (const int& col, const int& row, const Range& range, const int& nCols) const;
+  void setDeadPixel(std::vector<char>&vped);
+  void setDeadCol(bool lowCol, bool highCol,const int &nRows, std::vector<char>& vped);
 
+  float getPed   (const int& col, const int& row, const Range& range, const int& nCols, bool &isDead) const;
+  float getGain  (const int& col, const int& row, const Range& range, const int& nCols, bool &isDead ) const;
+  bool isDead(const int& col, const int& row, const Range& range, const int& nCols) const;
+  
   private:
 
   float   encodeGain(const float& gain);
@@ -85,6 +90,8 @@ class SiPixelGainCalibrationOffline {
   std::vector<DetRegistry> indexes;
   float  minPed_, maxPed_, minGain_, maxGain_;
 
+  float nBins_;
+  unsigned int deadVal_;
 };
     
 #endif

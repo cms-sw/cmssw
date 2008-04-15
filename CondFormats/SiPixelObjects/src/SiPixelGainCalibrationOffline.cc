@@ -6,9 +6,11 @@
 //
 SiPixelGainCalibrationOffline::SiPixelGainCalibrationOffline() :
   minPed_(0.),
-  maxPed_(255.),
+  maxPed_(254.),
   minGain_(0.),
-  maxGain_(255.)
+  maxGain_(254.),
+  nBins_(254.),
+  deadVal_(255)
 {
 }
 //
@@ -16,7 +18,9 @@ SiPixelGainCalibrationOffline::SiPixelGainCalibrationOffline(float minPed, float
   minPed_(minPed),
   maxPed_(maxPed),
   minGain_(minGain),
-  maxGain_(maxGain)
+  maxGain_(maxGain),
+  nBins_(254.),
+  deadVal_(255)
 {
 }
 
@@ -77,6 +81,36 @@ void SiPixelGainCalibrationOffline::getDetIds(std::vector<uint32_t>& DetIds_) co
   }
 }
 
+void SiPixelGainCalibrationOffline::setDeadPixel(std::vector<char>& vped){
+  float theEncodedPedestal  = deadVal_;
+
+  unsigned int ped_  = (static_cast<unsigned int>(theEncodedPedestal)) & 0xFF;
+
+  vped.resize(vped.size()+1);
+  // insert in vector of char
+  ::memcpy((void*)(&vped[vped.size()-1]),(void*)(&ped_),1);
+}
+void SiPixelGainCalibrationOffline::setDeadCol(bool lowCol, bool highCol,const int &nRows,std::vector<char>& vped){
+  
+  float theEncodedGainLow  = deadVal_;
+  float theEncodedGainHigh  = deadVal_;
+
+  unsigned int gainLow_  = (static_cast<unsigned int>(theEncodedGainLow)) & 0xFF;
+  unsigned int gainHigh_  = (static_cast<unsigned int>(theEncodedGainHigh)) & 0xFF;
+
+  vped.resize(vped.size()+2);  //add a value on the end of this column for the high and low averages.
+
+  //check to make sure the column is being placed in the right place in the blob
+  if (vped.size() % (nRows + 2) != 0) 
+  {
+    throw cms::Exception("FillError")
+      << "[SiPixelGainCalibrationOffline::setDataGain] Column gain average must be filled after the pedestal for each row has been added";
+  }  
+  // insert the two objects into the vector of chars 
+  ::memcpy((void*)(&vped[vped.size()-2]),(void*)(&gainLow_),1);
+  ::memcpy((void*)(&vped[vped.size()-1]),(void*)(&gainHigh_),1);
+}
+
 void SiPixelGainCalibrationOffline::setDataGain(float gainLow, float gainHigh, const int& nRows, std::vector<char>& vped){
   
   float theEncodedGainLow  = encodeGain(gainLow);
@@ -109,10 +143,11 @@ void SiPixelGainCalibrationOffline::setDataPedestal(float pedestal,  std::vector
   ::memcpy((void*)(&vped[vped.size()-1]),(void*)(&ped_),1);
 }
 
-float SiPixelGainCalibrationOffline::getPed(const int& col, const int& row, const Range& range, const int& nCols) const {
+float SiPixelGainCalibrationOffline::getPed(const int& col, const int& row, const Range& range, const int& nCols, bool & isDead) const {
 
   int lengthOfColumnData = (range.second-range.first)/nCols;
 
+  isDead=false;
   const DecodingStructure & s = (const DecodingStructure & ) *(range.first + col*(lengthOfColumnData)+row);
 
   // ensure we aren't getting a nonsensical column, or retrieving one of the gain entries at the end of column stream
@@ -120,13 +155,34 @@ float SiPixelGainCalibrationOffline::getPed(const int& col, const int& row, cons
     throw cms::Exception("CorruptedData")
       << "[SiPixelGainCalibrationOffline::getPed] Pixel out of range: col " << col << " row " << row;
   }  
+  if(s.datum==deadVal_)
+    isDead=true;
   return decodePed(s.datum & 0xFF);  
 }
 
-float SiPixelGainCalibrationOffline::getGain(const int& col, const int& row, const Range& range, const int& nCols) const {
+bool SiPixelGainCalibrationOffline::isDead(const int& col, const int& row, const Range& range, const int& nCols) const{
+  int offset = 0; 
+  if (row >= 80)
+   offset = 1;
+  int lengthOfColumnData = (range.second-range.first)/nCols;
+  const DecodingStructure & sg = (const DecodingStructure & ) *(range.first+(col+1)*(lengthOfColumnData)-2 + offset);
+  const DecodingStructure & sp = (const DecodingStructure & ) *(range.first + col*(lengthOfColumnData)+row);
+
+  if (col >= nCols || row >= lengthOfColumnData-2){
+    throw cms::Exception("CorruptedData")
+      << "[SiPixelGainCalibrationOffline::isDead] Pixel out of range: col " << col << " row " << row;
+  } 
+  if(sp.datum!=deadVal_ && sg.datum!=deadVal_)
+    return false;
+  else
+    return true;
+
+}
+float SiPixelGainCalibrationOffline::getGain(const int& col, const int& row, const Range& range, const int& nCols, bool & isDead) const {
 
   //determine if we should get the low or high gain column average
   int offset = 0;
+  isDead = false;
   if (row >= 80)
      offset = 1;
   int lengthOfColumnData = (range.second-range.first)/nCols;
@@ -136,6 +192,8 @@ float SiPixelGainCalibrationOffline::getGain(const int& col, const int& row, con
     throw cms::Exception("CorruptedData")
       << "[SiPixelGainCalibrationOffline::getPed] Pixel out of range: col " << col;
   }  
+  if(s.datum==deadVal_)
+    isDead=true;
   return decodeGain(s.datum & 0xFF);
 }
 
@@ -145,7 +203,7 @@ float SiPixelGainCalibrationOffline::encodeGain( const float& gain ) {
     throw cms::Exception("InsertFailure")
       << "[SiPixelGainCalibrationOffline::encodeGain] Trying to encode gain (" << gain << ") out of range [" << minGain_ << "," << maxGain_ << "]\n";
   } else {
-    double precision   = (maxGain_-minGain_)/255.;
+    double precision   = (maxGain_-minGain_)/nBins_;
     float  encodedGain = (float)((gain-minGain_)/precision);
     return encodedGain;
   }
@@ -158,7 +216,7 @@ float SiPixelGainCalibrationOffline::encodePed( const float& ped ) {
     throw cms::Exception("InsertFailure")
       << "[SiPixelGainCalibrationOffline::encodePed] Trying to encode pedestal (" << ped << ") out of range [" << minPed_ << "," << maxPed_ << "]\n";
   } else {
-    double precision   = (maxPed_-minPed_)/255.;
+    double precision   = (maxPed_-minPed_)/nBins_;
     float  encodedPed = (float)((ped-minPed_)/precision);
     return encodedPed;
   }
@@ -167,7 +225,7 @@ float SiPixelGainCalibrationOffline::encodePed( const float& ped ) {
 
 float SiPixelGainCalibrationOffline::decodePed( unsigned int ped ) const {
 
-  double precision = (maxPed_-minPed_)/255.;
+  double precision = (maxPed_-minPed_)/nBins_;
   float decodedPed = (float)(ped*precision + minPed_);
   return decodedPed;
 
@@ -175,7 +233,7 @@ float SiPixelGainCalibrationOffline::decodePed( unsigned int ped ) const {
 
 float SiPixelGainCalibrationOffline::decodeGain( unsigned int gain ) const {
 
-  double precision = (maxGain_-minGain_)/255.;
+  double precision = (maxGain_-minGain_)/nBins_;
   float decodedGain = (float)(gain*precision + minGain_);
   return decodedGain;
 

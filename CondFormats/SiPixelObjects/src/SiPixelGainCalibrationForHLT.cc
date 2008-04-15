@@ -6,9 +6,11 @@
 //
 SiPixelGainCalibrationForHLT::SiPixelGainCalibrationForHLT() :
   minPed_(0.),
-  maxPed_(255.),
+  maxPed_(254.),
   minGain_(0.),
-  maxGain_(255.)
+  maxGain_(254.),
+  nBins_(254.),
+  deadVal_(255)
 {
 }
 //
@@ -16,7 +18,9 @@ SiPixelGainCalibrationForHLT::SiPixelGainCalibrationForHLT(float minPed, float m
   minPed_(minPed),
   maxPed_(maxPed),
   minGain_(minGain),
-  maxGain_(maxGain)
+  maxGain_(maxGain),
+  nBins_(254.),
+  deadVal_(255)
 {
 }
 
@@ -109,10 +113,11 @@ void SiPixelGainCalibrationForHLT::setData(float pedLowRows, float gainLowRows, 
 }
 
 // DummyNCols only exists to preserve template compatability with other payloads
-float SiPixelGainCalibrationForHLT::getPed(const int& col, const int& row, const Range& range, const int& DummyNCols) const {
+float SiPixelGainCalibrationForHLT::getPed(const int& col, const int& row, const Range& range, const int& DummyNCols, bool &isdead) const {
 
   int nCols = (range.second-range.first)/4;
   int offset = 0;
+  isdead=false;
   // check if this is a high row and adjust offset accordingly
   if (row >= 80)
      offset = 2;
@@ -121,14 +126,17 @@ float SiPixelGainCalibrationForHLT::getPed(const int& col, const int& row, const
     throw cms::Exception("CorruptedData")
       << "[SiPixelGainCalibrationForHLT::getPed] Pixel out of range: col " << col;
   }  
+  if(s.ped==deadVal_)
+    isdead=true;
   return decodePed(s.ped & 0xFF);  
 }
 
 // DummyNCols only exists to preserve template compatability with other payloads
 //
-float SiPixelGainCalibrationForHLT::getGain(const int& col, const int& row, const Range& range, const int& DummyNCols) const {
+float SiPixelGainCalibrationForHLT::getGain(const int& col, const int& row, const Range& range, const int& DummyNCols, bool & isdead) const {
 
   int nCols = (range.second-range.first)/4;
+  isdead=false;
   int offset = 0;
   // check if this is a high row and adjust offset accordingly
   if (row >= 80)
@@ -138,8 +146,28 @@ float SiPixelGainCalibrationForHLT::getGain(const int& col, const int& row, cons
     throw cms::Exception("CorruptedData")
       << "[SiPixelGainCalibrationForHLT::getGain] Pixel out of range: col " << col;
   }  
+  if(s.gain==deadVal_)
+    isdead=true;
   return decodeGain(s.gain & 0xFF);  
 
+}
+
+bool SiPixelGainCalibrationForHLT::isDead(const int& col, const int& row, const Range& range, const int& DummyNCols) const{
+
+  int nCols = (range.second-range.first)/4;
+  int offset = 0;
+  // check if this is a high row and adjust offset accordingly
+  if (row >= 80)
+     offset = 2;
+  const DecodingStructure & sg = (const DecodingStructure & ) *(range.first+col*4 + offset);
+  if (col >= nCols){
+    throw cms::Exception("CorruptedData")
+      << "[SiPixelGainCalibrationForHLT::isDead] Pixel out of range: col " << col;
+  }  
+  if(sg.gain!=deadVal_ || sg.ped!=deadVal_)
+    return false;
+  else
+    return true;
 }
 
 float SiPixelGainCalibrationForHLT::encodeGain( const float& gain ) {
@@ -148,7 +176,7 @@ float SiPixelGainCalibrationForHLT::encodeGain( const float& gain ) {
     throw cms::Exception("InsertFailure")
       << "[SiPixelGainCalibrationForHLT::encodeGain] Trying to encode gain (" << gain << ") out of range [" << minGain_ << "," << maxGain_ << "]\n";
   } else {
-    double precision   = (maxGain_-minGain_)/255.;
+    double precision   = (maxGain_-minGain_)/nBins_;
     float  encodedGain = (float)((gain-minGain_)/precision);
     return encodedGain;
   }
@@ -161,7 +189,7 @@ float SiPixelGainCalibrationForHLT::encodePed( const float& ped ) {
     throw cms::Exception("InsertFailure")
       << "[SiPixelGainCalibrationForHLT::encodePed] Trying to encode pedestal (" << ped << ") out of range [" << minPed_ << "," << maxPed_ << "]\n";
   } else {
-    double precision   = (maxPed_-minPed_)/255.;
+    double precision   = (maxPed_-minPed_)/nBins_;
     float  encodedPed = (float)((ped-minPed_)/precision);
     return encodedPed;
   }
@@ -170,7 +198,7 @@ float SiPixelGainCalibrationForHLT::encodePed( const float& ped ) {
 
 float SiPixelGainCalibrationForHLT::decodePed( unsigned int ped ) const {
 
-  double precision = (maxPed_-minPed_)/255.;
+  double precision = (maxPed_-minPed_)/nBins_;
   float decodedPed = (float)(ped*precision + minPed_);
   return decodedPed;
 
@@ -178,7 +206,7 @@ float SiPixelGainCalibrationForHLT::decodePed( unsigned int ped ) const {
 
 float SiPixelGainCalibrationForHLT::decodeGain( unsigned int gain ) const {
 
-  double precision = (maxGain_-minGain_)/255.;
+  double precision = (maxGain_-minGain_)/nBins_;
   float decodedGain = (float)(gain*precision + minGain_);
   return decodedGain;
 

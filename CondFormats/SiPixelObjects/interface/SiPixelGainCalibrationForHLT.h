@@ -16,7 +16,8 @@
 // Original Author:  Vincenzo Chiochia
 //         Created:  Tue 8 12:31:25 CEST 2007
 //         Modified: Evan Friis
-// $Id: SiPixelGainCalibrationForHLT.h,v 1.1 2008/02/06 16:29:55 friis Exp $
+//         Modified: Freya Blekman
+// $Id: SiPixelGainCalibrationForHLT.h,v 1.2 2008/04/15 14:39:03 friis Exp $
 //
 //
 #include<vector>
@@ -62,9 +63,11 @@ class SiPixelGainCalibrationForHLT {
 
   // Set and get public methods
   void  setData(float pedLowRows, float gainLowRows, float pedHighRows, float gainHighRows, std::vector<char>& vped);
+  void setDead(bool lowRows, bool highRows, std::vector<char>& vped);
 
-  float getPed   (const int& col, const int& row, const Range& range, const int& nCols) const;
-  float getGain  (const int& col, const int& row, const Range& range, const int& nCols) const;
+  float getPed   (const int& col, const int& row, const Range& range, const int& nCols,  bool & isdead) const;
+  float getGain  (const int& col, const int& row, const Range& range, const int& nCols,  bool & isdead) const;
+  bool isDead(const int& col, const int& row, const Range& range, const int& nCols) const;
 
   private:
 
@@ -77,6 +80,8 @@ class SiPixelGainCalibrationForHLT {
   std::vector<DetRegistry> indexes;
   float  minPed_, maxPed_, minGain_, maxGain_;
 
+  float nBins_;
+  unsigned int deadVal_;
 };
     
 #endif
