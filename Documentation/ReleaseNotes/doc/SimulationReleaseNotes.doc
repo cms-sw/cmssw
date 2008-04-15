@@ -13,17 +13,17 @@
 - Main changes and new features:
  - Large number of Validation packages adapted to the new structure: Global, ECAL,
    Muon-CSC; HCAL and Tracker are in progress
- - Basic ECAL+HCAL test beam analysis available as validation-like package
  - Tracker: 
   - passive material budget increased by ~5% in the eta region of ~2
   - hit assiciator revised and reflects possibility to retrieve a unique SimHit
     from CrossingFrame list
  - ECAL:
-  - absolute energy scale finalized
-  - Birk's law settings defined
-  - nuclear counter effect implemented
+  - Birk's law settings definition is in progress
+  - nuclear counter effect implementation is in progress
  - HCAL:
-  - noise simulation (PMT window events) finalized
+  - noise simulation (PMT window events) is in progress and includes 2 aspects:
+    HPD noise simulation and particles directly hitting the PMT window and giving 
+    abnormaly high signal
  - Muon-CSC: 
   - better description of the ME11 chambers (material, dimensions, position)
   - description of the Muon Yoke updated from negineering drawings
