@@ -102,7 +102,7 @@ math::XYZPoint PositionCalc::Calculate_Location(std::vector<DetId> passedDetIds,
   // Calculate shower depth
   float depth = 0.;
   if(eTot<=0.) {
-    edm::LogError("NegativeClusterEnergy") << "cluster with negative energy: " << eTot
+    edm::LogWarning("NegativeClusterEnergy") << "cluster with negative energy: " << eTot
                                       << " setting depth to 0.";
   } else {
     depth = param_X0_ * (T0 + log(eTot));
