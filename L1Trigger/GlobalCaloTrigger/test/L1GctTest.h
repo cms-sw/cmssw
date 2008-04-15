@@ -11,7 +11,7 @@
 //
 // Original Author:  Gregory Heath
 //         Created:  Mon Mar 12 16:36:35 CET 2007
-// $Id: L1GctTest.h,v 1.2 2007/09/04 14:16:37 heath Exp $
+// $Id: L1GctTest.h,v 1.3 2008/03/28 15:29:37 heath Exp $
 //
 //
 
@@ -62,6 +62,7 @@ private:
 
   std::string theInputDataFileName;
   std::string theReferenceDataFileName;
+  std::string theEnergySumsDataFileName;
 
   int m_firstBx;
   int m_lastBx;

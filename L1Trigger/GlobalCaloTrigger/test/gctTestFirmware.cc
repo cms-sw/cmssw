@@ -3,6 +3,7 @@
 #include "FWCore/Utilities/interface/Exception.h"
 
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GlobalCaloTrigger.h"
+#include "L1Trigger/GlobalCaloTrigger/interface/L1GctGlobalEnergyAlgos.h"
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctJetFinderBase.h"
 
 #include <iostream>
@@ -150,5 +151,69 @@ L1GctJet gctTestFirmware::nextJetFromFile (const unsigned jf, const int bx)
   L1GctJet temp(et, globalEta, globalPhi, (eta>7), tv);
   temp.setBx(bx);
   return temp;
+}
+
+/// Analyse calculation of energy sums in firmware
+void gctTestFirmware::checkEnergySumsFromFirmware(const L1GlobalCaloTrigger* gct, const std::string &fileName) {
+  //Open the file
+  if (!esumsFromFirmwareInputFile.is_open()) {
+    esumsFromFirmwareInputFile.open(fileName.c_str(), std::ios::in);
+  }
+
+  //Error message and abandon ship if we can't read the file
+  if(!esumsFromFirmwareInputFile.good())
+  {
+    throw cms::Exception("fileReadError")
+    << " in gctTestFirmware::checkEnergySumsFromFirmware(const L1GlobalCaloTrigger*, const std::string &)\n"
+    << "Couldn't read data from file " << fileName << "!";
+  }
+
+  //Loop reading events from the file (one event per line)
+  unsigned evno;
+  unsigned etGct, htGct, magGct, phiGct;
+  unsigned etEmv, htEmv, magEmv, phiEmv;
+  int exGct, eyGct;
+  unsigned magTest, phiTest;
+
+  esumsFromFirmwareInputFile >> evno;
+  // Values output from the GCT firmware
+  esumsFromFirmwareInputFile >> etGct;
+  esumsFromFirmwareInputFile >> htGct;
+  esumsFromFirmwareInputFile >> magGct;
+  esumsFromFirmwareInputFile >> phiGct;
+  // Values output from "procedural VHDL" emulator 
+  esumsFromFirmwareInputFile >> etEmv;
+  esumsFromFirmwareInputFile >> htEmv;
+  esumsFromFirmwareInputFile >> magEmv;
+  esumsFromFirmwareInputFile >> phiEmv;
+  // Values of ex, ey components input
+  esumsFromFirmwareInputFile >> exGct;
+  esumsFromFirmwareInputFile >> eyGct;
+  // Values of missing Et from VHDL "algorithm-under-test"
+  esumsFromFirmwareInputFile >> magTest;
+  esumsFromFirmwareInputFile >> phiTest;
+
+  cout << "et from firmware " << etGct << " from emulator " << gct->getEtSum().value()
+       << ( etGct==etEmv ? ", vhdl OK" : ", vhdl mismatch" ) << endl;
+  cout << "ht from firmware " << htGct << " from emulator " << gct->getEtHad().value()
+       << ( htGct==htEmv ? ", vhdl OK" : ", vhdl mismatch" ) << endl;
+
+  int exPlus  = gct->getEnergyFinalStage()->getInputExValPlusWheel().value();
+  int eyPlus  = gct->getEnergyFinalStage()->getInputEyValPlusWheel().value();
+  int exMinus = gct->getEnergyFinalStage()->getInputExVlMinusWheel().value();
+  int eyMinus = gct->getEnergyFinalStage()->getInputEyVlMinusWheel().value();
+
+  int exEmu = exPlus + exMinus;
+  int eyEmu = eyPlus + eyMinus;
+
+  cout << "ex from firmware " << exGct << " from emulator " << exEmu << endl;
+  cout << "ey from firmware " << eyGct << " from emulator " << eyEmu << endl;
+
+  float r = ((float) magTest)/((float) gct->getEtMiss().value());
+  int dif = phiTest - (gct->getEtMissPhi().value());
+  cout << "Met from firmware " << magTest << " from emulator " << gct->getEtMiss().value()
+       << " ratio " << r << endl;
+  cout << "phi from firmware " << phiTest << " from emulator " << gct->getEtMissPhi().value()
+       << " difference " << dif << endl;
 }
 

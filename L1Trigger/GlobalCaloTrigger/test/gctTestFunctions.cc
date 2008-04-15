@@ -182,3 +182,11 @@ bool gctTestFunctions::checkHfEtSums(const L1GlobalCaloTrigger* gct) const
   return theHfEtSumsTester->checkHfEtSums(gct, m_numOfBx);
 }
 
+
+//=================================================================================================================
+//
+/// Analyse calculation of energy sums in firmware
+void gctTestFunctions::checkEnergySumsFromFirmware(const L1GlobalCaloTrigger* gct, const std::string &fileName) const
+{
+  theFirmwareTester->checkEnergySumsFromFirmware(gct, fileName);
+}

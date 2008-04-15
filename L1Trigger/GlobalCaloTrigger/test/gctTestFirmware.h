@@ -37,6 +37,9 @@ public:
   /// Check the jet finder against the results from the firmware
   bool checkJetFinder(const L1GlobalCaloTrigger* gct) const;
 
+  /// Analyse calculation of energy sums in firmware
+  void checkEnergySumsFromFirmware(const L1GlobalCaloTrigger* gct, const std::string &fileName);
+
 private:
 
   // FUNCTION PROTOTYPES FOR JET FINDER CHECKING
@@ -49,6 +52,7 @@ private:
   std::vector<JetsVector> jetsFromFile;
 
   std::ifstream jetsFromFirmwareInputFile;
+  std::ifstream esumsFromFirmwareInputFile;
 
 };
 

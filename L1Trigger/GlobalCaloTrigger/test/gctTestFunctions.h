@@ -74,6 +74,9 @@ public:
   /// Check the Hf Et sums
   bool checkHfEtSums(const L1GlobalCaloTrigger* gct) const;
 
+  /// Analyse calculation of energy sums in firmware
+  void checkEnergySumsFromFirmware(const L1GlobalCaloTrigger* gct, const std::string &fileName) const;
+
 private:
 
   gctTestElectrons*      theElectronsTester;

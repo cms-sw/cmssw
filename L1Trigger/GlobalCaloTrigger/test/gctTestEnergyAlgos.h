@@ -36,9 +36,6 @@ public:
   /// Set array sizes for the number of bunch crossings
   void setBxRange(const int bxStart, const int numOfBx);
 
-  /// Read the input jet data from the jetfinders (after GCT processing).
-  void fillRawJetData(const L1GlobalCaloTrigger* gct);
-
   /// Check the energy sums algorithms
   bool checkEnergySums(const L1GlobalCaloTrigger* gct) const;
 

@@ -39,6 +39,7 @@ L1GctTest::L1GctTest(const edm::ParameterSet& iConfig) :
   theFirmwareTestIsEnabled   (iConfig.getUntrackedParameter<bool>("doFirmware",    false)),
   theInputDataFileName       (iConfig.getUntrackedParameter<std::string>("inputFile",     "")),
   theReferenceDataFileName   (iConfig.getUntrackedParameter<std::string>("referenceFile", "")),
+  theEnergySumsDataFileName  (iConfig.getUntrackedParameter<std::string>("energySumsFile", "")),
   m_firstBx (-iConfig.getParameter<unsigned>("preSamples")),
   m_lastBx  ( iConfig.getParameter<unsigned>("postSamples")),
   m_eventNo(0), m_allGood(true)
@@ -128,6 +129,7 @@ L1GctTest::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
    if (theFirmwareTestIsEnabled && !endOfFile) {
      m_tester->fillJetsFromFirmware(theReferenceDataFileName);
      passAllTests &= m_tester->checkJetFinder(m_gct);
+     m_tester->checkEnergySumsFromFirmware(m_gct, theEnergySumsDataFileName);
    }
    std::cout << "Done check jet finder" << std::endl;
 
