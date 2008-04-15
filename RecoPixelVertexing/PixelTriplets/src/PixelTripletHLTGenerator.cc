@@ -58,11 +58,11 @@ void PixelTripletHLTGenerator::hitTriplets(
   double imppar = region.originRBound();;
   double curv = PixelRecoUtilities::curvature(1/region.ptMin(), es);
 
-  static bool useFixedPreFiltering =  theConfig.getParameter<bool>("useFixedPreFiltering");
-  static float extraHitRZtolerance = theConfig.getParameter<double>("extraHitRZtolerance");
-  static float extraHitRPhitolerance = theConfig.getParameter<double>("extraHitRPhitolerance");
-  static bool  useMScat = theConfig.getParameter<bool>("useMultScattering");
-  static bool  useBend  = theConfig.getParameter<bool>("useBending");
+  bool useFixedPreFiltering =  theConfig.getParameter<bool>("useFixedPreFiltering");
+  float extraHitRZtolerance = theConfig.getParameter<double>("extraHitRZtolerance");
+  float extraHitRPhitolerance = theConfig.getParameter<double>("extraHitRPhitolerance");
+  bool  useMScat = theConfig.getParameter<bool>("useMultScattering");
+  bool  useBend  = theConfig.getParameter<bool>("useBending");
 
 
   for (ip = pairs.begin(); ip != pairs.end(); ip++) {
