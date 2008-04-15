@@ -7,7 +7,6 @@ namespace edm {
   // ---------------------
   void ClassFiller() {
     TH1::AddDirectory(kFALSE);
-    G__SetCatchException(0);
     ROOT::Cintex::Cintex::Enable();
   }
 }
