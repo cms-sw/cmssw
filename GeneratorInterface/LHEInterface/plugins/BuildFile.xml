@@ -27,9 +27,9 @@
 	<flags EDM_PLUGIN="1"/>
 </library>
 <library name="GeneratorInterfaceHerwig6Hadronisation" file="Herwig6Hadronisation.cc hwudat.f hwmsct_dummy.F pathhelper.F cms_hwwarn.F">
+	<use name="lhapdf"/>
 	<use name="herwig"/>
 	<use name="jimmy"/>
-	<use name="lhapdf"/>
 	<use name="f77compiler"/>
 	<flags EDM_PLUGIN="1"/>
 </library>
