@@ -1,8 +1,8 @@
 #!/usr/local/bin/perl
 #     R. Mankel, DESY Hamburg     11-Oct-2007
 #     A. Parenti, DESY Hamburg    27-Mar-2008
-#     $Revision: 1.14 $
-#     $Date: 2008/03/25 16:15:57 $
+#     $Revision: 1.1 $
+#     $Date: 2008/04/10 16:10:12 $
 #
 #  Save output from jobs that have FETCH status
 #  
@@ -64,10 +64,9 @@ if (@JOBSTATUS[$i] eq "FETCH"
     or @JOBSTATUS[$i] eq "OK" or @JOBSTATUS[$i] eq "TIMEL") {
  
 
-#GF  @FILENAMES = ("treeFile_merge.root","histograms_merge.root","alignment.log",
   @FILENAMES = ("treeFile_merge.root","histograms_merge.root","alignment_merge.log",
-		"alignment_merge.cfg","millepede.res", # by GF
-		"millepede.log","pede.dump","millepede.his");
+		"alignment_merge.cfg","millepede.res",
+		"millepede.log","pede.dump","millepede.his", "alignments_MP.db");
 
   $dirPrefix = "jobData/@JOBDIR[$i]/";
 
