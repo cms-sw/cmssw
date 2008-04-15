@@ -8,7 +8,7 @@ int mstyle[15] = { 29, 29, 20, 21, 20, 21, 22, 21, 22, 20, 21, 22, 20, 20, 21};
 int mcolor[15] = {  1,  1,  3,  3,  4,  4,  4,  7,  7,  7,  2,  2,  2, 28, 28};
 float msiz[15] = {1.4,1.4,1.1,1.1,1.1,1.1,1.4,1.1,1.4,1.1,1.1,1.4,1.1,1.1,1.1};
 int lcolor[15] = {  1,  1,  3,  3,  4,  4,  4,  7,  7,  7,  2,  2,  2, 28, 28};
-int lstyle[15] = {  1,  1,  1,  2,  1,  2,  2,  2,  2,  1,  2,  2,  1,  1,  2};
+int lstyle[15] = {  1,  1,  1,  2,  1,  2,  3,  2,  3,  1,  3,  2,  1,  1,  2};
 int lwidth[15] = {  1,  1,  1,  2,  1,  2,  2,  2,  2,  1,  2,  2,  1,  1,  2};
 
 void plotMomentum(char target[6], char list[10], char ene[6], char part[4]) {
@@ -225,9 +225,9 @@ void plotMultiplicity(char target[6],char list[10],char part[4],int ymax=25) {
   //  std::cout << "Number of types: " << types.size() << "\n";
 
   TGraph *gr[20];
-  TLegend *leg = new TLegend(0.35, 0.5, 0.8, 0.87);
+  TLegend *leg = new TLegend(0.45, 0.53, 0.90, 0.90);
   char hdr[40];
-  sprintf(hdr, "%s (%s-%s)", target, g4ver, list);
+  sprintf(hdr, "%s+%s (%s-%s)", sym, target, g4ver, list);
   leg->SetHeader(hdr);  leg->SetFillColor(10); leg->SetMargin(0.45);
   leg->SetTextSize(.027);
   sprintf(name, "c_%s_%sMultiplicity_%s", part,target,list);
@@ -372,7 +372,7 @@ void plotTotalKE(char target[6], char list[10], char part[4]) {
   TGraph *gr[20];
   TLegend *leg = new TLegend(0.55, 0.45, 0.9, 0.80);
   char hdr[40];
-  sprintf(hdr, "%s (%s-%s)", target, g4ver, list);
+  sprintf(hdr, "%s+%s (%s-%s)", sym, target, g4ver, list);
   leg->SetHeader(hdr);
   leg->SetFillColor(10);
   leg->SetMargin(0.45);
@@ -493,21 +493,19 @@ void plotKE(char target[6],char list[10],char ene[6],char part[4],int typ=0) {
     leg->SetTextSize(.036); leg->Draw("same");
   }
 
-  TLegend *leg = new TLegend(0.35, 0.80, 0.8, 0.87);
+  TLegend *leg = new TLegend(0.50, 0.75, 0.90, 0.90);
+  if (typ == 0) sprintf (cname, "Kinetic Energy (GeV)");
+  else          sprintf (cname, "Total Kinetic Energy (GeV)");
+  hiKE[6]->GetXaxis()->SetTitle(cname);
   char hdr[120];
   sprintf(hdr, "%s+%s at %s GeV (%s-%s)", sym, target, ene, g4ver, list);
   leg->SetHeader(hdr);  leg->SetFillColor(10); leg->SetMargin(0.45);
-  sprintf(cname, "c_%s%s_%s_%sGeV_%s(All)", target,list,part,ene,pre);
+  sprintf(cname, "c_%s%s_%s_%sGeV_%s(Pion)", target,list,part,ene,pre);
   leg->SetTextSize(.030); 
-  c[19] = new TCanvas(cname, cname, 1100, 600);
-  c[19]->Divide(3,2);
-  c[19]->cd(1); hiKE[6]->Draw(); leg->Draw("same");
-  c[19]->cd(2); hiKE[5]->Draw(); leg->Draw("same");
-  c[19]->cd(3); hiKE[4]->Draw(); leg->Draw("same");
-  c[19]->cd(4); hiKE[11]->Draw(); leg->Draw("same");
-  c[19]->cd(5); hiKE[12]->Draw(); leg->Draw("same");
-  c[19]->cd(6); hiKE[7]->Draw(); 
-  hiKE[8]->Draw("same"); hiKE[9]->Draw("same"); leg->Draw("same");
+  c[19] = new TCanvas(cname, cname, 800, 500);
+  hiKE[6]->Draw(); sprintf (ctype, "%s", types[5].c_str()); leg->AddEntry(hiKE[6], ctype, "l");
+  hiKE[5]->Draw("same"); sprintf (ctype, "%s", types[4].c_str()); leg->AddEntry(hiKE[5], ctype, "l");
+  hiKE[4]->Draw("same"); sprintf (ctype, "%s", types[3].c_str()); leg->AddEntry(hiKE[4], ctype, "l"); leg->Draw("same");
 }
 
 void printMeans(std::map<string, double> means) {

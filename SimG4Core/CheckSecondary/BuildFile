@@ -1,15 +1,5 @@
 <export>
  <lib name=SimG4CoreCheckSecondary>
- <use name=FWCore/Framework>
- <use name=FWCore/ParameterSet>
- <use name=FWCore/MessageLogger>
- <use name=geant4>
- <use name=boost>
- <use name=root>
- <use name=SimG4Core/Notification>
- <use name=SimG4Core/Watcher>
- <use name=SimG4Core/Physics>
- <use name=DataFormats/Math>
 </export>
 
 <use name=FWCore/Framework>

@@ -15,8 +15,4 @@
 
 <export>
  <lib name=SimG4CoreGFlash>
- <use name=FWCore/Framework>
- <use name=FWCore/ParameterSet>
- <use name=FWCore/MessageLogger>
- <use name=FWCore/PluginManager>
 </export>

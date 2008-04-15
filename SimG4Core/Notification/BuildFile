@@ -1,7 +1,5 @@
 <export>
  <lib name=SimG4CoreNotification>
- <use name=DetectorDescription/Core>
- <use name=FWCore/MessageLogger>
 </export>
 
 <use name=geant4>

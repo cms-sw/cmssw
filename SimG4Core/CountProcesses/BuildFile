@@ -1,9 +1,6 @@
 <Flags EDM_PLUGIN=1>
 <export>
  <lib name=SimG4CoreCountProcesses>
- <use name=SimG4Core/Notification>
- <use name=SimG4Core/Watcher>
- <use name=FWCore/ParameterSet>
 </export>
 
 <use name=SimG4Core/Notification>

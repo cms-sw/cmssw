@@ -1,7 +1,6 @@
 <Flags EDM_PLUGIN=1>
 <export>
  <lib name=SimG4CoreTrackingVerbose>
- <use name=SimG4Core/Application>
 </export>
 
 <use name=SimG4Core/Application>

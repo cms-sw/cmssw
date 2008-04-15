@@ -1,15 +1,10 @@
 <Flags EDM_PLUGIN=1>
 <export>
- <use name=FWCore/Framework>
- <use name=Framework/SealKernel>
- <use name=FWCore/MessageLogger>
- <use name=SimG4Core/Physics>
- <use name=SimG4Core/PhysicsLists>
  <lib name=SimG4CoreCustomPhysics>
 </export>
  
 <use name=FWCore/Framework>
-<use name=Framework/SealKernel>
+<use name=FWCore/PluginManager>
 <use name=FWCore/MessageLogger>
 <use name=SimG4Core/Physics>
 <use name=SimG4Core/PhysicsLists>
