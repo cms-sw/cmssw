@@ -1,8 +1,8 @@
 #!/usr/local/bin/perl
 #     R. Mankel, DESY Hamburg     03-Jul-2007
 #     A. Parenti, DESY Hamburg    27-Mar-2008
-#     $Revision: 1.14 $
-#     $Date: 2008/03/25 16:15:57 $
+#     $Revision: 1.1 $
+#     $Date: 2008/04/10 16:10:12 $
 #
 #  produce cfg file for merging run
 #
@@ -85,6 +85,25 @@ $replaceBlock = "";
 $nn = ($body =~ s/alignment\.log/alignment\_merge\.log/g);
 ## print "alignment.log nn= $nn\n";
 
+# replace "save to DB" directives
+$saveAlignmentConstants = "    replace AlignmentProducer.saveToDB = true\n"
+		     ."    include \"CondCore/DBCommon/data/CondDBSetup.cfi\" \n"				   
+                     ."    service = PoolDBOutputService { \n"
+                     ."           using CondDBSetup \n"
+                     ."           VPSet toPut = { \n"
+                     ."                           { string record = \"TrackerAlignmentRcd\"      string tag = \"Alignments\" } , \n"
+                     ."                           { string record = \"TrackerAlignmentErrorRcd\" string tag = \"AlignmentErrors\" } \n"
+                     ."                         }  \n"
+                     ."           string connect = \"sqlite_file:alignments_MP.db\" \n"
+                     ."           string timetype = \"runnumber\" \n"
+                     ."         }"; 
+# 
+$nn = ($body =~ /AlignmentProducer\.saveToDB.+?false/);
+if ($nn != 1) {
+  $replaceBlock = "$replaceBlock\n$saveAlignmentConstants";
+  print "No AlignmentProducer.saveToDB directive found, adding saveToDB=true to replace block\n";
+}
+
 # change mode to pede
 $nn = ($body =~ s/mode \= \"mille\"/mode \= \"pede\"/);
 if ($nn != 1) {
@@ -97,6 +116,9 @@ $nn = ($body =~ s/string fileDir \= \"\"/string fileDir \= \"$mergeDir\"/);
 if ($nn != 1) {
   $replaceBlock = "$replaceBlock\n   replace MillePedeAlignmentAlgorithm.fileDir = \"$mergeDir\"";
   print "No MillePedeAlignmentAlgorithm.fileDir directive found, adding one to replace block\n";
+  # EM: empty fileDir fix for CMSSW_175 
+#  $replaceBlock = "$replaceBlock\n   replace MillePedeAlignmentAlgorithm.fileDir = \"\"";
+#  print "No MillePedeAlignmentAlgorithm.fileDir directive found, adding empty one to replace block\n";
 }
 
 # blank binary output file string
