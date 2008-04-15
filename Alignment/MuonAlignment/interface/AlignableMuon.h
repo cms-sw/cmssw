@@ -4,8 +4,8 @@
 /** \class AlignableMuon
  *  The alignable muon.
  *
- *  $Date: 2008/02/14 12:54:54 $
- *  $Revision: 1.18 $
+ *  $Date: 2008/04/04 15:54:15 $
+ *  $Revision: 1.19 $
  *  \author Andre Sznajder - UERJ(Brazil)
  */
 
@@ -35,7 +35,6 @@ class AlignableCSCChamber;
 
 
 /// Constructor of the full muon geometry.
-/// This object is stored to the EventSetup for further retrieval
 
 class AlignableMuon: public AlignableComposite 
 {
@@ -48,13 +47,7 @@ public:
   /// Destructor
   ~AlignableMuon();
   
-public:
 
-  // Some typdefs to simplify notation
-  typedef GlobalPoint           _PositionType;
-  typedef TkRotation<float>     _RotationType;
-
-  
   /// Return all components
   virtual std::vector<Alignable*> components() const { return theMuonComponents; }
 
@@ -97,9 +90,6 @@ private:
 
   // Get the Surface
   AlignableSurface computeSurface();
-
-  // Return alignable object identifier
-  virtual StructureType alignableObjectId() const { return align::AlignableMuon; }
 
   // Get alignments sorted by DetId
   Alignments* alignments() const;

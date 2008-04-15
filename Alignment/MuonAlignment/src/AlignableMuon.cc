@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2007/12/06 01:39:29 $
- *  $Revision: 1.16 $
+ *  $Date: 2008/02/14 12:54:54 $
+ *  $Revision: 1.19 $
  *  \author Andre Sznajder - UERJ(Brazil)
  */
  
@@ -29,6 +29,7 @@
 
 //--------------------------------------------------------------------------------------------------
 AlignableMuon::AlignableMuon( const DTGeometry* dtGeometry , const CSCGeometry* cscGeometry )
+  : AlignableComposite(0, align::AlignableMuon) // cannot yet set id, use 0
 {
 
   // Build the muon barrel
@@ -39,6 +40,9 @@ AlignableMuon::AlignableMuon( const DTGeometry* dtGeometry , const CSCGeometry* 
 
   // Set links to mothers recursively
   recursiveSetMothers( this );
+
+  // now can set id as for all composites: id of first component
+  theId = this->components()[0]->id();
 
   edm::LogInfo("AlignableMuon") << "Constructing alignable muon objects DONE";
 
