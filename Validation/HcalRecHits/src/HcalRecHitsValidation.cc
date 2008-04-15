@@ -559,17 +559,30 @@ HcalRecHitsValidation::~HcalRecHitsValidation() {
 	for (unsigned int i3 = 0;  i3 < 4;  i3++) {  // depth
 	  double emin = 100000.;
 	  for (unsigned int i4 = 0;  i4 < 4;  i4++) {  // subdet
+	    /*
+	    std::cout << "* ieta, iphi, depth, sub = " 
+		      << i1 << ", " << i2 << ", " << i3 << ", " << i4
+		      << "  emap_min = " << emap_min [i1][i2][i3][i4]
+		      << std::endl;
+	    */
 	    if ( emin > emap_min [i1][i2][i3][i4]) 
 	      emin = emap_min [i1][i2][i3][i4];
 	  }
-	  if( i3 == 0 && emin < 10000.)
-	    map_depth1->Fill(double(i1-41),double(i2),emin);
+
+          int ieta = i1-41;
+	  if( i3 == 0 && emin < 10000.) {
+	    map_depth1->Fill(double(ieta),double(i2),emin);
+	    /*
+	    std::cout << "* Fill map_depth1 " << double(ieta) << " "  
+		      << double(i2) << "  with " << emin <<  std::endl;
+	    */
+	  }
 	  if( i3 == 1 && emin < 10000.)
-	    map_depth2->Fill(double(i1-41),double(i2),emin);
+	    map_depth2->Fill(double(ieta),double(i2),emin);
 	  if( i3 == 2 && emin < 10000.) 
-	    map_depth3->Fill(double(i1-41),double(i2),emin);
+	    map_depth3->Fill(double(ieta),double(i2),emin);
 	  if( i3 == 3 && emin < 10000.) 
-	    map_depth4->Fill(double(i1-41),double(i2),emin);
+	    map_depth4->Fill(double(ieta),double(i2),emin);
 	}
       }
     } 
