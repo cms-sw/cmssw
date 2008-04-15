@@ -64,7 +64,7 @@ dataTier_dict={'GEN':'GEN',
                'ANA':'RECO',
                'DQM':'RECO',
                'FASTSIM':'RECO',
-               'HLT':'RAW',
+               'HLT':'GEN-SIM-RAW',
                'POSTRECO':'RECO'}
 
 pathName_dict={'GEN':'pgen',
@@ -125,16 +125,10 @@ process.ReleaseValidation=cms.untracked.PSet(totalNumberOfEvents=cms.untracked.i
                                              primaryDatasetName=cms.untracked.string("RelVal"+dsetname.replace('.pkl','')))
 
 
-# Add metadata for production
-process.configurationMetadata=common.build_production_info(evt_type, energy, evtnumber)
+# Add metadata for production - only if not already present
+if not hasattr(process,"configurationMetadata"):
+    process.configurationMetadata=common.build_production_info(evt_type, energy, evtnumber)
  
-# Add a last customisation of the process as specified in the file.
-if customisation_file!='':
-    file=__import__(customisation_file[:-3])
-    process=file.customise(process)
-    if process == None:
-        raise ValueError("Customise file returns no process. Please add a 'return process'.")
-
 """
 Here we choose to make the process work only for one of the four steps 
 (GEN,SIM DIGI RECO) or for the whole chain (ALL)
@@ -201,6 +195,14 @@ if output_flag:
             process.schedule.append(getattr(process,pathName))
     if ( nALCA>0):        
         print 'Number of AlCaReco output streams added: '+str(nALCA)
+
+# Add a last customisation of the process as specified in the file.
+if customisation_file!='':
+    file=__import__(customisation_file[:-3])
+    process=file.customise(process)
+    if process == None:
+        raise ValueError("Customise file returns no process. Please add a 'return process'.")
+        
     
 # print to screen the config file in the old language
 if dump_cfg!='':
