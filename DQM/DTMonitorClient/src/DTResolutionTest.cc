@@ -3,8 +3,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/04/10 09:41:33 $
- *  $Revision: 1.18 $
+ *  $Date: 2008/04/11 08:16:50 $
+ *  $Revision: 1.19 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -196,7 +196,8 @@ void DTResolutionTest::endLuminosityBlock(LuminosityBlock const& lumiSeg, EventS
 						   "ResidualsDistributionGaussianTest");
 	const QReport * GaussianReport = res_histo->getQReport(GaussianCriterionName);
 	if(GaussianReport){
-	  edm::LogWarning ("resolution") << "-------- SuperLayer : "<<supLayer<<"  "<<GaussianReport->getMessage()<<" ------- "<<GaussianReport->getStatus();
+	  // FIXE ME: if the quality test fails this cout return a null pointer
+	  //edm::LogWarning ("resolution") << "-------- SuperLayer : "<<supLayer<<"  "<<GaussianReport->getMessage()<<" ------- "<<GaussianReport->getStatus();
 	}
 	int BinNumber = entry+slID.superLayer();
 	if(BinNumber == 12) BinNumber=11;
@@ -257,7 +258,8 @@ void DTResolutionTest::endLuminosityBlock(LuminosityBlock const& lumiSeg, EventS
 	  wheelMeanHistos[3]->Fill(((*hMean).first.second)-1,(*hMean).first.first);
 	}	
       }
-      edm::LogWarning ("resolution") << "-------- wheel: "<<wheel.str()<<" sector: "<<sector.str()<<"  "<<theMeanQReport->getMessage()<<" ------- "<<theMeanQReport->getStatus(); 
+      // FIXE ME: if the quality test fails this cout return a null pointer
+      //edm::LogWarning ("resolution") << "-------- wheel: "<<wheel.str()<<" sector: "<<sector.str()<<"  "<<theMeanQReport->getMessage()<<" ------- "<<theMeanQReport->getStatus(); 
     }
   }
 
@@ -295,7 +297,8 @@ void DTResolutionTest::endLuminosityBlock(LuminosityBlock const& lumiSeg, EventS
 	  wheelSigmaHistos[3]->Fill((*hSigma).first.second-1,(*hSigma).first.first);
 	}
       }
-      edm::LogWarning ("resolution") << "-------- wheel: "<<wheel.str()<<" sector: "<<sector.str()<<"  "<<theSigmaQReport->getMessage()<<" ------- "<<theSigmaQReport->getStatus();
+      // FIXE ME: if the quality test fails this cout return a null pointer
+      //edm::LogWarning ("resolution") << "-------- wheel: "<<wheel.str()<<" sector: "<<sector.str()<<"  "<<theSigmaQReport->getMessage()<<" ------- "<<theSigmaQReport->getStatus();
     }
   }
 
@@ -333,7 +336,8 @@ void DTResolutionTest::endLuminosityBlock(LuminosityBlock const& lumiSeg, EventS
 	  wheelSlopeHistos[3]->Fill((*hSlope).first.second-1,(*hSlope).first.first);
 	}
       }
-      edm::LogWarning ("resolution") << "-------- wheel: "<<wheel.str()<<" sector: "<<sector.str()<<"  "<<theSlopeQReport->getMessage()<<" ------- "<<theSlopeQReport->getStatus();
+      // FIXE ME: if the quality test fails this cout return a null pointer
+      //edm::LogWarning ("resolution") << "-------- wheel: "<<wheel.str()<<" sector: "<<sector.str()<<"  "<<theSlopeQReport->getMessage()<<" ------- "<<theSlopeQReport->getStatus();
     }
   }
 
@@ -488,7 +492,7 @@ void DTResolutionTest::bookHistos(int wh) {
   dbe->setCurrentFolder("DT/Tests/DTResolution/SummaryPlot");
 
   if(wheelMeanHistos.find(3) == wheelMeanHistos.end()){
-    string histoName =  "MeanSummaryRes_testFailedByAtLeast%BadSL_" + parameters.getUntrackedParameter<string>("STEP", "STEP3");
+    string histoName =  "MeanSummaryRes_testFailedByAtLeastBadSL_" + parameters.getUntrackedParameter<string>("STEP", "STEP3");
     wheelMeanHistos[3] = dbe->book2D(histoName.c_str(),histoName.c_str(),14,0,14,5,-2,2);
     wheelMeanHistos[3]->setBinLabel(1,"Sector1",1);
     wheelMeanHistos[3]->setBinLabel(1,"Sector1",1);
@@ -513,7 +517,7 @@ void DTResolutionTest::bookHistos(int wh) {
   }
 
   if(wheelSigmaHistos.find(3) == wheelSigmaHistos.end()){
-    string histoName =  "SigmaSummaryRes_testFailedByAtLeast%BadSL_" + parameters.getUntrackedParameter<string>("STEP", "STEP3");
+    string histoName =  "SigmaSummaryRes_testFailedByAtLeastBadSL_" + parameters.getUntrackedParameter<string>("STEP", "STEP3");
     wheelSigmaHistos[3] = dbe->book2D(histoName.c_str(),histoName.c_str(),14,0,14,5,-2,2);
     wheelSigmaHistos[3]->setBinLabel(1,"Sector1",1);
     wheelSigmaHistos[3]->setBinLabel(1,"Sector1",1);
@@ -538,7 +542,7 @@ void DTResolutionTest::bookHistos(int wh) {
   }
 
   if(wheelSlopeHistos.find(3) == wheelSlopeHistos.end()){
-    string histoName =  "SlopeSummaryRes_testFailedByAtLeast%BadSL_" + parameters.getUntrackedParameter<string>("STEP", "STEP3");
+    string histoName =  "SlopeSummaryRes_testFailedByAtLeastBadSL_" + parameters.getUntrackedParameter<string>("STEP", "STEP3");
     wheelSlopeHistos[3] = dbe->book2D(histoName.c_str(),histoName.c_str(),14,0,14,5,-2,2);
     wheelSlopeHistos[3]->setBinLabel(1,"Sector1",1);
     wheelSlopeHistos[3]->setBinLabel(1,"Sector1",1);
