@@ -112,7 +112,7 @@ void LHEProducer::endRun(edm::Run &run, const edm::EventSetup &es)
 
 void LHEProducer::produce(edm::Event &event, const edm::EventSetup &es)
 {
-	std::auto_ptr<HepMC::GenEvent> hadronLevel;
+	std::auto_ptr<edm::HepMCProduct> result(new edm::HepMCProduct);
 
 	edm::Handle<HEPEUP> hepeup;
 	event.getByLabel("source", hepeup);
@@ -121,10 +121,12 @@ void LHEProducer::produce(edm::Event &event, const edm::EventSetup &es)
 
 	hadronisation->setEvent(partonLevel);
 
-	hadronLevel = hadronisation->hadronize();
+	std::auto_ptr<HepMC::GenEvent> hadronLevel(hadronisation->hadronize());
 
-	if (!hadronLevel.get())
+	if (!hadronLevel.get()) {
+		event.put(result);
 		return;
+	}
 
 	partonLevel->count(LHECommon::kTried);
 
@@ -137,6 +139,8 @@ void LHEProducer::produce(edm::Event &event, const edm::EventSetup &es)
 				<< "Event got rejected by the"
 				   "jet matching." << std::endl;
 			partonLevel->count(LHECommon::kSelected);
+
+			event.put(result);
 			return;
 		}
 	}
@@ -150,7 +154,6 @@ void LHEProducer::produce(edm::Event &event, const edm::EventSetup &es)
 		hadronLevel->print();
 	}
 
-	std::auto_ptr<edm::HepMCProduct> result(new edm::HepMCProduct);
 	result->addHepMCData(hadronLevel.release());
 	event.put(result);
 
