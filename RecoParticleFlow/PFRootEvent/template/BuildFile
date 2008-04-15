@@ -6,6 +6,7 @@
 <use name=RecoParticleFlow/PFClusterAlgo>
 <use name=RecoParticleFlow/PFAlgo>
 <use name=RecoParticleFlow/PFRootEvent>
+<use name=SimDataFormats/HepMCProduct> 
 <use name=root>
 <export>
   <use name=FWCore/Framework>

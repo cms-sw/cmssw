@@ -5,6 +5,8 @@ use Term::ReadKey;
 
 
 my $destdir = '../MyPFRootEvent/';
+my $macro = 'tauBenchmarkDisplay_famos.C';
+my $opt = 'tauBenchmark_famos.opt';
 
 
 protectedCopy( 'template/', "$destdir");
@@ -13,8 +15,12 @@ protectedCopy( 'interface/MyPFRootEventManager.h',
 	       "$destdir/interface/MyPFRootEventManager.h");
 protectedCopy( 'src/MyPFRootEventManager.cc', 
 	       "$destdir/src/MyPFRootEventManager.cc");
-protectedCopy( 'test/pfRootEvent.opt', 
-	       "$destdir/workdir/pfRootEvent.opt");
+protectedCopy( "test/$opt", 
+	       "$destdir/workdir/$opt");
+protectedCopy( "test/Macros/", 
+	       "$destdir/workdir/Macros");
+protectedCopy( "test/init.C", 
+	       "$destdir/workdir/init.C");
 
 print "\n";
 print "success. Now execute: \n";
@@ -23,7 +29,7 @@ print "scramv1 b\n";
 print "\n";
 print "cd workdir\n";
 print "root\n";
-print ".x display.C\n";
+print ".x Macros/$macro\n";
 
 
 sub protectedCopy {
