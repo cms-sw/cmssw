@@ -16,7 +16,7 @@
 // Original Author:  Vincenzo Chiochia
 //         Created:  Tue 8 12:31:25 CEST 2007
 //         Modified: Evan Friis
-// $Id: SiPixelGainCalibrationForHLT.h,v 1.4 2007/09/12 10:41:57 chiochia Exp $
+// $Id: SiPixelGainCalibrationForHLT.h,v 1.1 2008/02/06 16:29:55 friis Exp $
 //
 //
 #include<vector>
@@ -29,8 +29,8 @@ class SiPixelGainCalibrationForHLT {
  public:
 
   struct DecodingStructure{  
-    unsigned int gain :8;
-    unsigned int ped  :8;
+    unsigned int gain  :8;
+    unsigned int ped   :8;
   };
   
   struct DetRegistry{
@@ -61,12 +61,8 @@ class SiPixelGainCalibrationForHLT {
   const std::pair<const Range, const int> getRangeAndNCols(const uint32_t& detID) const;
 
   // Set and get public methods
-  void  setData(float ped, float gain, std::vector<char>& vped);
-  float getPed   (const int& col, const Range& range, const int& nCols) const;
-  float getGain  (const int& col, const Range& range, const int& nCols) const;
+  void  setData(float pedLowRows, float gainLowRows, float pedHighRows, float gainHighRows, std::vector<char>& vped);
 
-  // here to maintain compatibility with the templated CondTools/SiPixel/SiPixelGainCalibrationServiceBash
-  // both throw exceptions if ran
   float getPed   (const int& col, const int& row, const Range& range, const int& nCols) const;
   float getGain  (const int& col, const int& row, const Range& range, const int& nCols) const;
 

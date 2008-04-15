@@ -77,24 +77,25 @@ void SiPixelGainCalibrationOffline::getDetIds(std::vector<uint32_t>& DetIds_) co
   }
 }
 
-void SiPixelGainCalibrationOffline::setDataGain(float gain, const int& nRows, std::vector<char>& vped){
-   
-
+void SiPixelGainCalibrationOffline::setDataGain(float gainLow, float gainHigh, const int& nRows, std::vector<char>& vped){
   
-  float theEncodedGain  = encodeGain(gain);
+  float theEncodedGainLow  = encodeGain(gainLow);
+  float theEncodedGainHigh  = encodeGain(gainHigh);
 
+  unsigned int gainLow_  = (static_cast<unsigned int>(theEncodedGainLow)) & 0xFF;
+  unsigned int gainHigh_  = (static_cast<unsigned int>(theEncodedGainHigh)) & 0xFF;
 
-  unsigned int gain_  = (static_cast<unsigned int>(theEncodedGain)) & 0xFF;
+  vped.resize(vped.size()+2);  //add a value on the end of this column for the high and low averages.
 
-  vped.resize(vped.size()+1);
   //check to make sure the column is being placed in the right place in the blob
-  if (vped.size() % (nRows + 1) != 0) 
+  if (vped.size() % (nRows + 2) != 0) 
   {
     throw cms::Exception("FillError")
       << "[SiPixelGainCalibrationOffline::setDataGain] Column gain average must be filled after the pedestal for each row has been added";
   }  
-  // insert in vector of char
-  ::memcpy((void*)(&vped[vped.size()-1]),(void*)(&gain_),1);
+  // insert the two objects into the vector of chars 
+  ::memcpy((void*)(&vped[vped.size()-2]),(void*)(&gainLow_),1);
+  ::memcpy((void*)(&vped[vped.size()-1]),(void*)(&gainHigh_),1);
 }
 
 void SiPixelGainCalibrationOffline::setDataPedestal(float pedestal,  std::vector<char>& vped){
@@ -110,20 +111,26 @@ void SiPixelGainCalibrationOffline::setDataPedestal(float pedestal,  std::vector
 
 float SiPixelGainCalibrationOffline::getPed(const int& col, const int& row, const Range& range, const int& nCols) const {
 
-  int nRows = (range.second-range.first)/nCols;
-  //int startOfColumn = *(range.first) + col*(nRows+1);
-  const DecodingStructure & s = (const DecodingStructure & ) *(range.first + col*(nRows)+row);
-  if (col >= nCols || row >= nRows){
+  int lengthOfColumnData = (range.second-range.first)/nCols;
+
+  const DecodingStructure & s = (const DecodingStructure & ) *(range.first + col*(lengthOfColumnData)+row);
+
+  // ensure we aren't getting a nonsensical column, or retrieving one of the gain entries at the end of column stream
+  if (col >= nCols || row >= lengthOfColumnData-2){
     throw cms::Exception("CorruptedData")
       << "[SiPixelGainCalibrationOffline::getPed] Pixel out of range: col " << col << " row " << row;
   }  
   return decodePed(s.datum & 0xFF);  
 }
 
-float SiPixelGainCalibrationOffline::getGain(const int& col, const Range& range, const int& nCols) const {
+float SiPixelGainCalibrationOffline::getGain(const int& col, const int& row, const Range& range, const int& nCols) const {
 
+  //determine if we should get the low or high gain column average
+  int offset = 0;
+  if (row >= 80)
+     offset = 1;
   int lengthOfColumnData = (range.second-range.first)/nCols;
-  const DecodingStructure & s = (const DecodingStructure & ) *(range.first+(col+1)*(lengthOfColumnData)-1);
+  const DecodingStructure & s = (const DecodingStructure & ) *(range.first+(col+1)*(lengthOfColumnData)-2 + offset);
 
   if (col >= nCols){
     throw cms::Exception("CorruptedData")
@@ -175,15 +182,3 @@ float SiPixelGainCalibrationOffline::decodeGain( unsigned int gain ) const {
 }
 
 
-// functions for template compatibility with other payloads. should never run.
-float SiPixelGainCalibrationOffline::getPed(const int& col, const Range& range, const int& nCols) const {
-   throw cms::Exception("ConfigurationError")
-      << "[SiPixelGainCalibrationOffline::getPed(col, range)] Data is stored at pixel granularity in this payload.  Please use getPed(col, row, range, ncols)";
-   return -1.;
-}
-
-float SiPixelGainCalibrationOffline::getGain(const int& col, const int& row, const Range& range, const int& nCols) const {
-   throw cms::Exception("ConfigurationError")
-      << "[SiPixelGainCalibrationOffline::getGain(col, row, range)] Gain is stored at column granularity in this payload.  Please use getGain(col, range, ncols)";
-   return -1.;
-}

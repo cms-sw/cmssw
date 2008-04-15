@@ -16,7 +16,7 @@
 // Original Author:  Vincenzo Chiochia
 //         Modified: Evan Friis
 //         Created:  Tue 8 12:31:25 CEST 2007
-// $Id: SiPixelGainCalibrationOffline.h,v 1.4 2007/09/12 10:41:57 chiochia Exp $
+// $Id: SiPixelGainCalibrationOffline.h,v 1.1 2008/02/06 16:29:55 friis Exp $
 //
 //
 #include<vector>
@@ -27,6 +27,14 @@
 class SiPixelGainCalibrationOffline {
 
  public:
+
+  // SiPixelGainCalibrationOffline BLOB FORMAT
+  // 
+  // For each column, N pedestal values are stored, where N is the number of columns
+  // in the CMSSW DetID frame (NOT the ROC frame).  At the end of each N pedestal values,
+  // two gain averages are stored, for the two different ROCS.  FOR PLAQUETTES WITH ONLY ONE
+  // ROW OF ROCS THE SECOND GAIN AVERAGE MUST STILL BE FILLED SO THE BLOB STREAM IS STILL PARSED
+  // CORRECTLY.  The total number of char entries for each column will be (nRows+2)
 
   struct DecodingStructure{  
     unsigned int datum :8;
@@ -61,15 +69,10 @@ class SiPixelGainCalibrationOffline {
   const std::pair<const Range, const int> getRangeAndNCols(const uint32_t& detID) const;
 
   // Set and get public methods
-  void  setDataGain(float gain, const int& nRows, std::vector<char>& vped);
+  void  setDataGain(float gainLow, float gainHigh, const int& nRows, std::vector<char>& vped);
   void  setDataPedestal(float pedestal, std::vector<char>& vped);
   float getPed   (const int& col, const int& row, const Range& range, const int& nCols) const;
   float getGain  (const int& col, const int& row, const Range& range, const int& nCols) const;
-
-  // here to maintain compatibility with the templated CondTools/SiPixel/SiPixelGainCalibrationOfflineServiceBash
-  // both throw exceptions if ran
-  float getPed   (const int& col, const Range& range, const int& nCols) const;
-  float getGain  (const int& col, const Range& range, const int& nCols) const;
 
   private:
 

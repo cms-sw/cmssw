@@ -45,7 +45,7 @@ const int SiPixelGainCalibrationForHLT::getNCols(const uint32_t& DetId) const {
     return 0;
   else
   {
-    int nCols = static_cast<int>(p->iend - p->ibegin);
+    int nCols = static_cast<int>(p->iend - p->ibegin)/4;
     return nCols;
   }
 }
@@ -78,25 +78,45 @@ void SiPixelGainCalibrationForHLT::getDetIds(std::vector<uint32_t>& DetIds_) con
   }
 }
 
-void SiPixelGainCalibrationForHLT::setData(float ped, float gain, std::vector<char>& vped){
+void SiPixelGainCalibrationForHLT::setData(float pedLowRows, float gainLowRows, float pedHighRows, float gainHighRows, std::vector<char>& vped){
   
-  float theEncodedGain  = encodeGain(gain);
-  float theEncodedPed   = encodePed (ped);
+  // Blob encoding scheme:
+  // Each column has four chars, arranged like: [ pedAvgLowRow - gainAvgLowRow - pedAvgHighRow - gainAvgHighRow ]
+  // Note that for plaquettes with only one row of ROCS, the high rows must be filled so that
+  // the blob is parsed correctly when it is read out.  FAILURE TO DO SO WILL RESULT IN CORRUPT OUTPUT 
 
-  unsigned int ped_   = (static_cast<unsigned int>(theEncodedPed))  & 0xFF; 
-  unsigned int gain_  = (static_cast<unsigned int>(theEncodedGain)) & 0xFF;
+  float theEncodedGainLowRows  = encodeGain(gainLowRows);
+  float theEncodedPedLowRows   = encodePed (pedLowRows);
 
-  unsigned int data = (ped_ << 8) | gain_ ;
+  float theEncodedGainHighRows  = encodeGain(gainHighRows);
+  float theEncodedPedHighRows   = encodePed (pedHighRows);
+
+  unsigned int pedLow_   = (static_cast<unsigned int>(theEncodedPedLowRows))  & 0xFF; 
+  unsigned int gainLow_  = (static_cast<unsigned int>(theEncodedGainLowRows)) & 0xFF;
+
+  unsigned int pedHigh_   = (static_cast<unsigned int>(theEncodedPedHighRows))  & 0xFF; 
+  unsigned int gainHigh_  = (static_cast<unsigned int>(theEncodedGainHighRows)) & 0xFF;
+
+  unsigned int dataLow = (pedLow_ << 8) | gainLow_ ;
   vped.resize(vped.size()+2);
-  // insert in vector of char
-  ::memcpy((void*)(&vped[vped.size()-2]),(void*)(&data),2);
+  // insert in low columns data
+  ::memcpy((void*)(&vped[vped.size()-2]),(void*)(&dataLow),2);
+
+  unsigned int dataHigh = (pedHigh_ << 8) | gainHigh_ ;
+  vped.resize(vped.size()+2);
+  // insert in high columns data
+  ::memcpy((void*)(&vped[vped.size()-2]),(void*)(&dataHigh),2);
 }
 
 // DummyNCols only exists to preserve template compatability with other payloads
-float SiPixelGainCalibrationForHLT::getPed(const int& col, const Range& range, const int& DummyNCols) const {
+float SiPixelGainCalibrationForHLT::getPed(const int& col, const int& row, const Range& range, const int& DummyNCols) const {
 
-  int nCols = (range.second-range.first)/2;
-  const DecodingStructure & s = (const DecodingStructure & ) *(range.first+col*2);
+  int nCols = (range.second-range.first)/4;
+  int offset = 0;
+  // check if this is a high row and adjust offset accordingly
+  if (row >= 80)
+     offset = 2;
+  const DecodingStructure & s = (const DecodingStructure & ) *(range.first+col*4 + offset);
   if (col >= nCols){
     throw cms::Exception("CorruptedData")
       << "[SiPixelGainCalibrationForHLT::getPed] Pixel out of range: col " << col;
@@ -105,10 +125,15 @@ float SiPixelGainCalibrationForHLT::getPed(const int& col, const Range& range, c
 }
 
 // DummyNCols only exists to preserve template compatability with other payloads
-float SiPixelGainCalibrationForHLT::getGain(const int& col, const Range& range, const int& DummyNCols) const {
+//
+float SiPixelGainCalibrationForHLT::getGain(const int& col, const int& row, const Range& range, const int& DummyNCols) const {
 
-  int nCols = (range.second-range.first)/2;
-  const DecodingStructure & s = (const DecodingStructure & ) *(range.first+col*2);
+  int nCols = (range.second-range.first)/4;
+  int offset = 0;
+  // check if this is a high row and adjust offset accordingly
+  if (row >= 80)
+     offset = 2;
+  const DecodingStructure & s = (const DecodingStructure & ) *(range.first+col*4 + offset);
   if (col >= nCols){
     throw cms::Exception("CorruptedData")
       << "[SiPixelGainCalibrationForHLT::getGain] Pixel out of range: col " << col;
@@ -160,15 +185,3 @@ float SiPixelGainCalibrationForHLT::decodeGain( unsigned int gain ) const {
 }
 
 
-// functions for template compatibility with other payloads. should never run.
-float SiPixelGainCalibrationForHLT::getGain(const int& col, const int& row, const Range& range, const int& nCols) const {
-   throw cms::Exception("ConfigurationError")
-      << "[SiPixelGainCalibration::getGain(col, row, range, ncols)] Data is stored at column granularity in this payload.  Please use getGain(col, range)";
-   return -1.;
-}
-
-float SiPixelGainCalibrationForHLT::getPed(const int& col, const int& row, const Range& range, const int& nCols) const {
-   throw cms::Exception("ConfigurationError")
-      << "[SiPixelGainCalibration::getPed(col, row, range, ncols)] Data is stored at column granularity in this payload.  Please use getPed(col, range)";
-   return -1.;
-}
