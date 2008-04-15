@@ -13,7 +13,7 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: GsfElectronProducer.cc,v 1.4 2008/02/29 12:50:48 uberthon Exp $
+// $Id: GsfElectronProducer.cc,v 1.5 2008/03/04 17:04:00 uberthon Exp $
 //
 //
 
@@ -51,7 +51,9 @@ GsfElectronProducer::GsfElectronProducer(const edm::ParameterSet& iConfig)
 		    iConfig.getParameter<double>("maxDeltaPhi"),
 		    iConfig.getParameter<bool>("highPtPreselection"),
 		    iConfig.getParameter<double>("highPtMin"),
-		    iConfig.getParameter<bool>("applyEtaCorrection"));
+		    iConfig.getParameter<bool>("applyEtaCorrection"),
+		    iConfig.getParameter<bool>("applyAmbResolution")
+		    );
 
 }
 

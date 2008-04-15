@@ -12,7 +12,7 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Thu july 6 13:22:06 CEST 2006
-// $Id: GsfElectronAlgo.cc,v 1.16 2008/04/11 11:39:19 uberthon Exp $
+// $Id: GsfElectronAlgo.cc,v 1.17 2008/04/14 22:47:10 charlot Exp $
 //
 //
 
@@ -87,12 +87,12 @@ GsfElectronAlgo::GsfElectronAlgo(const edm::ParameterSet& conf,
                                                double minEOverPBarrel, double minEOverPEndcaps,
                                                double maxDeltaEta, double maxDeltaPhi, 
 					       bool highPtPresel, double highPtMin,
-   				               bool applyEtaCorrection):  
+   				               bool applyEtaCorrection, bool applyAmbResolution):  
   maxEOverPBarrel_(maxEOverPBarrel), maxEOverPEndcaps_(maxEOverPEndcaps), 
   minEOverPBarrel_(minEOverPBarrel), minEOverPEndcaps_(minEOverPEndcaps), 
   maxDeltaEta_(maxDeltaEta), maxDeltaPhi_(maxDeltaPhi),
   highPtPreselection_(highPtPresel), highPtMin_(highPtMin),
-  applyEtaCorrection_(applyEtaCorrection),
+  applyEtaCorrection_(applyEtaCorrection), applyAmbResolution_(applyAmbResolution),
   cacheIDGeom_(0),cacheIDTDGeom_(0),cacheIDMagField_(0)
 {   
  // this is the new version allowing to configurate the algo
@@ -157,13 +157,16 @@ void  GsfElectronAlgo::run(Event& e, GsfElectronCollection & outEle) {
   bool got = e.getByLabel(hcalRecHits_,hbhe);  
   if (got) mhbhe_=  new HBHERecHitMetaCollection(*hbhe);
 
-  //Getting the beamspot from the Event:
+  // get the beamspot from the Event:
   edm::Handle<reco::BeamSpot> recoBeamSpotHandle;
   e.getByType(recoBeamSpotHandle);
   const math::XYZPoint bsPosition = recoBeamSpotHandle->position();
 
+  // temporay array for electron before amb. solving
+  std::vector<GsfElectron> tempEle;
+  
   // create electrons 
-  if (processType_==1) process(tracksH,bsPosition,outEle);
+  if (processType_==1) process(tracksH,bsPosition,tempEle);
   else {
        edm::Handle<SuperClusterCollection> superClustersBarrelH; 
        e.getByLabel(barrelSuperClusters_,superClustersBarrelH);
@@ -175,16 +178,16 @@ void  GsfElectronAlgo::run(Event& e, GsfElectronCollection & outEle) {
           superClustersBarrelH, 
           superClustersEndcapH,   
 	  bsPosition,
-          outEle);
+          tempEle);
   }
 
   std::ostringstream str;
 
-  str << "\n========== GsfElectronAlgo Info ==========";
+  str << "\n========== GsfElectronAlgo Info (before amb. solving) ==========";
   str << "\nEvent " << e.id();
   str << "\nNumber of final electron tracks: " << tracksH.product()->size();
-  str << "\nNumber of final electrons: " << outEle.size();
-  for (vector<GsfElectron>::const_iterator it = outEle.begin(); it != outEle.end(); it++) {
+  str << "\nNumber of final electrons: " << tempEle.size();
+  for (vector<GsfElectron>::const_iterator it = tempEle.begin(); it != tempEle.end(); it++) {
     str << "\nNew electron with charge, pt, eta, phi : "  << it->charge() << " , " 
         << it->pt() << " , " << it->eta() << " , " << it->phi();
   }
@@ -192,6 +195,30 @@ void  GsfElectronAlgo::run(Event& e, GsfElectronCollection & outEle) {
   str << "\n=================================================";
   LogDebug("GsfElectronAlgo") << str.str();
 
+  std::ostringstream str2;
+
+  if (applyAmbResolution_) {
+  
+    resolveElectrons(tempEle, outEle);
+
+    str2 << "\n========== GsfElectronAlgo Info (after amb. solving) ==========";
+    str2 << "\nEvent " << e.id();
+    str2 << "\nNumber of final electron tracks: " << tracksH.product()->size();
+    str2 << "\nNumber of final electrons: " << outEle.size();
+    for (vector<GsfElectron>::const_iterator it = outEle.begin(); it != outEle.end(); it++) {
+      str2 << "\nNew electron with charge, pt, eta, phi : "  << it->charge() << " , " 
+          << it->pt() << " , " << it->eta() << " , " << it->phi();
+    }
+
+    str2 << "\n=================================================";
+    LogDebug("GsfElectronAlgo") << str2.str();
+
+  } else {
+  
+    outEle = tempEle;
+  
+  }
+  
   delete mhbhe_;
   return;
 }
@@ -351,6 +378,7 @@ void GsfElectronAlgo::createElectron(const SuperClusterRef & scRef, const GsfTra
       theEnCorrector.correct(ele, applyEtaCorrection_);
       ElectronMomentumCorrector theMomCorrector;
       theMomCorrector.correct(ele,vtxTSOS_);
+
       outEle.push_back(ele);
 }
 
@@ -390,6 +418,69 @@ bsPosition){
     return true;
 }
 
+void GsfElectronAlgo::resolveElectrons(std::vector<reco::GsfElectron> & tempEle, reco::GsfElectronCollection & outEle) {
+
+  typedef std::set<const reco::GsfElectron *> set_container;
+  typedef std::vector<const reco::GsfElectron *> container;
+  typedef container::const_iterator const_iterator;
+  typedef set_container::const_iterator set_const_iterator;
+
+//  container selected;
+  set_container resolved_el;
+  std::multimap< const reco::GsfElectron *,  const reco::GsfElectron *> ambigus_el;  
+  set_container ambigus;
+
+//  selected_.clear();
+//  resolved_el_.clear();
+//  ambigus_el_.clear();
+
+  // fill map of ambiguous electrons
+  for( std::vector<reco::GsfElectron>::const_iterator el1 = tempEle.begin();  el1 != tempEle.end(); el1++ ) {
+    for( std::vector<reco::GsfElectron>::const_iterator el2 = el1+1;  el2 != tempEle.end(); el2++ ) {
+      if((el1->caloEnergy() == el2->caloEnergy() && 
+      	  el1->caloPosition() == el2->caloPosition()) || 
+      	 (el1->gsfTrack()== el2->gsfTrack())) {
+//	std::cout<<"ambigus : "<<el1->eta()<<" "<<el2->eta()
+//	         <<" "<<el1->caloEnergy()<<" "<<el2->caloEnergy()
+//	         <<" "<<el1->gsfTrack()->momentum().rho()<<" "<<el2->gsfTrack()->momentum().rho()
+//	         <<" "<<el1->trackMomentumAtVtx().rho()<<" "<<el2->trackMomentumAtVtx().rho()
+//	         <<" "<<el1->p4().t()<<" "<<el2->p4().t()
+//	         <<" "<<el1->eSuperClusterOverP()<<" "<<el2->eSuperClusterOverP()
+//		 <<std::endl;
+      	ambigus_el.insert(pair<const GsfElectron *,const GsfElectron *>(&(*el1),&(*el2)));
+	ambigus.insert(&(*el1));
+	ambigus.insert(&(*el2));
+      }
+    }
+    set<const reco::GsfElectron *>::iterator it = ambigus.find(& * el1);
+    //    if (it == ambigus.end()) resolved_el_.push_back(& * el1);
+    if (it == ambigus.end()) {
+      resolved_el.insert(&(*el1));
+      outEle.push_back(*el1);
+    }
+  }
+
+  // resolve ambiguities
+  for (map< const reco::GsfElectron *,  const reco::GsfElectron *>::iterator it2= ambigus_el.begin(); it2!=ambigus_el.end();it2++){
+    //cout<<"ambigus = "<<it2->first->eta()<<" "<<it2->second->eta()<<endl;
+    if (fabs(it2->first->eSuperClusterOverP()-1)<= fabs(it2->second->eSuperClusterOverP()-1)){
+      set_const_iterator it= resolved_el.find(it2->first);
+      if (it == resolved_el.end()) {
+	resolved_el.insert(it2->first);
+	outEle.push_back(*it2->first);
+      }
+    }
+    else  {
+      set_const_iterator it= resolved_el.find(it2->second);
+      if (it == resolved_el.end()){
+	resolved_el.insert(it2->second);
+	outEle.push_back(*it2->second);
+
+      }
+    }      
+  }    
+
+}
 
 void GsfElectronAlgo::process(edm::Handle<GsfTrackCollection> tracksH,
                             edm::Handle<reco::SuperClusterCollection> superClustersBarrelH,
