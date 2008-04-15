@@ -13,7 +13,7 @@
 //
 // Original Author:  Freya Blekman
 //         Created:  Mon Dec  3 14:07:42 CET 2007
-// $Id: SiPixelIsAliveCalibration.cc,v 1.17 2008/02/26 11:00:56 fblekman Exp $
+// $Id: SiPixelIsAliveCalibration.cc,v 1.18 2008/03/03 10:10:53 chiochia Exp $
 //
 //
 
@@ -53,6 +53,7 @@ class SiPixelIsAliveCalibration : public SiPixelOfflineCalibAnalysisBase {
       // ----------member data ---------------------------
 
   std::map<uint32_t,MonitorElement *> bookkeeper_;
+  std::map<uint32_t,MonitorElement *> summaries_;
   double mineff_;
 };
 
@@ -93,6 +94,7 @@ SiPixelIsAliveCalibration::newDetID(uint32_t detid){
   setDQMDirectory(detid);
   std::string tempname=translateDetIdToString(detid);
   bookkeeper_[detid]= bookDQMHistoPlaquetteSummary2D(detid,"pixelAlive","pixel alive for "+tempname); 
+  summaries_[detid]= bookDQMHistogram1D(detid,"pixelAliveSummary",bookkeeper_[detid]->getTitle(),calib_->getNTriggers()+1,0.,1+(1./(float)calib_->getNTriggers()));
 }
 bool
 SiPixelIsAliveCalibration::checkCorrectCalibrationType(){
@@ -131,8 +133,10 @@ SiPixelIsAliveCalibration::doFits(uint32_t detid, std::vector<SiPixelCalibDigi>:
   double eff = -1;
   if(denom>0)
     eff = nom;
-  if(bookkeeper_[detid]->getBinContent(ipix->col()+1,ipix->row()+1)==0)
+  if(bookkeeper_[detid]->getBinContent(ipix->col()+1,ipix->row()+1)==0){
     bookkeeper_[detid]->Fill(ipix->col(), ipix->row(), eff);
+    summaries_[detid]->Fill(eff/(float)calib_->getNTriggers());
+  }
   else
     bookkeeper_[detid]->setBinContent(ipix->col()+1,ipix->row()+1,-2);
   return true;
@@ -149,7 +153,6 @@ SiPixelIsAliveCalibration::calibrationEnd(){
     uint32_t detid=idet->first;
 
     setDQMDirectory(detid);
-    MonitorElement *temp = bookDQMHistogram1D(detid,"pixelAliveSummary",bookkeeper_[detid]->getTitle(),calib_->getNTriggers()+1,0.,1+(1./(float)calib_->getNTriggers()));
     for(int icol=1; icol <= bookkeeper_[detid]->getNbinsX(); ++icol){
       for(int irow=1; irow <= bookkeeper_[detid]->getNbinsY(); ++irow){
 	itot++;
@@ -163,8 +166,7 @@ SiPixelIsAliveCalibration::calibrationEnd(){
 	
 
 	bookkeeper_[detid]->setBinContent(icol,irow,val/(float)calib_->getNTriggers());
-	temp->Fill(val/(float)calib_->getNTriggers());
-
+ 	
       }
     }
     edm::LogInfo("SiPixelIsAliveCalibration") << "summary for " << translateDetIdToString(detid) << "\tfrac dead:" << idead/itot << " frac below " << mineff_ << ":" << iunderthres/itot << " bad " <<  imultiplefill/itot << std::endl;
