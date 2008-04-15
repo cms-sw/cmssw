@@ -62,8 +62,13 @@ def generate(process, step, evt_type, energy, evtnumber):
     elif evt_type in ("WE","WM","WT"):
         process.source=_generate_Wl(step, evt_type, energy, evtnumber)
     else:
-        content=common.include_files('Configuration/Generator/data/'+evt_type)[0]                  
+
+        if "/" in evt_type:
+            content = common.include_files(evt_type)[0] # we are assuming a full path is given here
+        else: 
+            content = common.include_files('Configuration/Generator/data/'+evt_type)[0]                  
         process.extend(content)
+
 
 #        process.source=incDict.source
 #        for key,val in inspect.getmembers(incDict):
