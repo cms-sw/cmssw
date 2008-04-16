@@ -16,6 +16,7 @@
 #include "DataFormats/Common/interface/Ref.h"
 #include "DataFormats/Common/interface/EDProduct.h"
 #include "DataFormats/Common/interface/DetSetVector.h"
+#include "DataFormats/Common/interface/DetSetVectorNew.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/SiStripCluster/interface/SiStripCluster.h"
 #include "DataFormats/SiStripCluster/interface/SiStripClusterCollection.h"
