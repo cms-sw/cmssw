@@ -6,7 +6,7 @@
  * After a specified number of samples are added to the counter, old values
  * are removed from the counter to make room for the new ones.
  *
- * $Id: RollingSampleCounter.h,v 1.12 2008/03/03 20:09:36 biery Exp $
+ * $Id: RollingSampleCounter.h,v 1.1 2008/04/14 15:42:28 biery Exp $
  */
 
 #include "EventFilter/StorageManager/interface/BaseCounter.h"
@@ -28,14 +28,14 @@ namespace stor
                          int validSubWindowSize = -1,
                  AccumulationStyle style = INCLUDE_SAMPLES_AFTER_BINNING);
 
-    void addSample(double value = 1.0);
+    void addSample(double value = 1.0, double currentTime = getCurrentTime());
     bool hasValidResult();
     int getSampleCount();
-    double getSampleRate();
+    double getSampleRate(double currentTime = 0.0);
     double getValueSum();
     double getValueAverage();
     double getValueRate();
-    double getDuration();
+    double getDuration(double currentTime = 0.0);
 
     void dumpData(std::ostream& outStream);
 
