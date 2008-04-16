@@ -108,6 +108,8 @@ namespace funct {
   //  /
   PRIMIT_RULE(TYPX, RATIO_S(NUM(1), X), LOG(ABS(X)), log(abs(_._2)));
 
+  PRIMIT_RULE(TYPX, POWER_S(X, NUM(-1)), LOG(ABS(X)), log(abs(_._1)));
+
   //  /
   //  | 1 / cos(x)^2 dx = tan(x)
   //  /

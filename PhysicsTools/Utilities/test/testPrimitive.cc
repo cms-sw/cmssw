@@ -52,11 +52,15 @@ void testPrimitives::checkAll() {
   CHECK(primitive<X>(_1 / (x^_4)), "-( 1/3 )/x^3");
   CHECK(primitive<X>((_1 / x)^_4), "-( 1/3 )/x^3");
   CHECK(primitive<X>(x^(_3/_4)), "4/7 x^( 7/4 )");
+  CHECK(primitive<X>(sqrt(x)), "2/3 x^( 3/2 )");
   CHECK(primitive<X>(exp(x)), "exp(x)");
   CHECK(primitive<X>(log(x)), "x ( log(x) - 1 )");
   CHECK(primitive<X>(sgn(x)), "abs(x)");
   CHECK(primitive<X>(sin(x)), "-cos(x)");
   CHECK(primitive<X>(cos(x)), "sin(x)");
+  CHECK(primitive<X>(tan(x)), "-log(abs(cos(x)))");
+  CHECK(primitive<X>(_1/x), "log(abs(x))");
+  CHECK((primitive<X>(x^_m1)), "log(abs(x))");
   
 }
 
