@@ -54,45 +54,38 @@ void Generator::HepMC2G4(const HepMC::GenEvent * evt_orig, G4Event * g4evt)
   //  throw cms::Exception("EventCorruption") << "Input GenEvent with no vertex \n" ;
 
   if ( *(evt_orig->vertices_begin()) == 0 )
-  {
-     throw SimG4Exception( "SimG4CoreGenerator: Corrupted Event - GenEvent with no vertex" ) ;
-  }
+    {
+      throw SimG4Exception( "SimG4CoreGenerator: Corrupted Event - GenEvent with no vertex" ) ;
+    }
   
   
   HepMC::GenEvent* evt = new HepMC::GenEvent(*evt_orig) ;
-    
-  //M. Vander Donckt : modified to take the generator event weight  
+  
   if ( evt->weights().size() > 0 )
     {
       weight_ = evt->weights()[0] ;
       for ( int iw=1; iw<evt->weights().size(); iw++ )
-	{
-	  // terminate if the versot of weights contains a zero-weight
-	  if ( evt->weights()[iw] <= 0 ) break;
-	  weight_ *= evt->weights()[iw] ;
-	}     
+        {
+          // terminate if the versot of weights contains a zero-weight
+          if ( evt->weights()[iw] <= 0 ) break;
+          weight_ *= evt->weights()[iw] ;
+        }     
     }
-  // end modification
   
-  // in the future, we probably want to skip events of zero-weight
-  // but at this point, it's zero in most cases anyway... 
-  // just a note for future... (JY)  
-
-
   if (vtx_ != 0) delete vtx_;
   vtx_ = new math::XYZTLorentzVector((*(evt->vertices_begin()))->position().x(),
-				     (*(evt->vertices_begin()))->position().y(),
-				     (*(evt->vertices_begin()))->position().z(),
-				     (*(evt->vertices_begin()))->position().t());
+                                     (*(evt->vertices_begin()))->position().y(),
+                                     (*(evt->vertices_begin()))->position().z(),
+                                     (*(evt->vertices_begin()))->position().t());
   
   if(verbose >0){
     evt->print();
     cout << " " << endl;
     cout << " Prim.Vtx : " << vtx_->x() << " " 
-	 << vtx_->y() << " "
-	 << vtx_->z() << endl;
+         << vtx_->y() << " "
+         << vtx_->z() << endl;
   }
-
+  
   for(HepMC::GenEvent::vertex_const_iterator vitr= evt->vertices_begin();
       vitr != evt->vertices_end(); ++vitr ) 
     { // loop for vertex ...
@@ -100,104 +93,102 @@ void Generator::HepMC2G4(const HepMC::GenEvent * evt_orig, G4Event * g4evt)
       G4bool qvtx=false;
       
       for (HepMC::GenVertex::particle_iterator 
-	     pitr= (*vitr)->particles_begin(HepMC::children);
-	   pitr != (*vitr)->particles_end(HepMC::children); ++pitr) 
-	{
-	  if (!(*pitr)->end_vertex() && (*pitr)->status()==1) 
-	    {
-	      qvtx=true;
-	      break;
-	    }  else if ( (*pitr)->status()== 2 ) {
-	      if ( (*pitr)->end_vertex() != 0  ) { 
-		double xx = (*vitr)->position().x()-(*pitr)->end_vertex()->position().x();
+             pitr= (*vitr)->particles_begin(HepMC::children);
+           pitr != (*vitr)->particles_end(HepMC::children); ++pitr) 
+        {
+          // Admit also status=1 && end_vertex for long vertex special decay treatment 
+          if ((*pitr)->status()==1) 
+            {
+              qvtx=true;
+              break;
+            }  else if ( (*pitr)->status()== 2 ) {
+              if ( (*pitr)->end_vertex() != 0  ) { 
+                double xx = (*vitr)->position().x()-(*pitr)->end_vertex()->position().x();
                 double yy = (*vitr)->position().y()-(*pitr)->end_vertex()->position().y();
                 double zz = (*vitr)->position().z()-(*pitr)->end_vertex()->position().z();
-		double dd=std::sqrt(xx*xx+yy*yy+zz*zz);
-		if (dd>theDecLenCut){
-		  qvtx=true;
-		  break;
-		}
-	      }
-	    }
-	}
+                double dd=std::sqrt(xx*xx+yy*yy+zz*zz);
+                if (dd>theDecLenCut){
+                  qvtx=true;
+                  break;
+                }
+              }
+            }
+        }
       if (!qvtx) 
-	{
-	  continue;
-	}
-	
-      // check world boundary
-      //G4LorentzVector xvtx= (*vitr)-> position();
+        {
+          continue;
+        }
+      
       double x1 = (*vitr)->position().x();
       double y1 = (*vitr)->position().y();
       double z1 = (*vitr)->position().z();
       double t1 = (*vitr)->position().t();	
-      //fix later
-      //if (! CheckVertexInsideWorld(xvtx.vect()*mm)) continue;
-      
-      // create G4PrimaryVertex and associated G4PrimaryParticles
       G4PrimaryVertex* g4vtx= 
-	new G4PrimaryVertex(x1*mm, y1*mm, z1*mm, t1*mm/c_light);
-		
+        new G4PrimaryVertex(x1*mm, y1*mm, z1*mm, t1*mm/c_light);
+      
       for (HepMC::GenVertex::particle_iterator 
-	     vpitr= (*vitr)->particles_begin(HepMC::children);
-	   vpitr != (*vitr)->particles_end(HepMC::children); ++vpitr) 
-	{
-	
-	  // M. Vander Donckt modification: to take also decay mother
-	  // in case decay length is large; decay procuts get setup
-	  // as daughters of G4Particle in this case, through the method
-	  // particleAssignDaughters, and they get marked 1000+status 
-	  // in the generator product (this seem to "violate" the idea 
-	  // that a product can't be modified one it's in edm::Event... 
-	  // but it seems to fly...)
+             vpitr= (*vitr)->particles_begin(HepMC::children);
+           vpitr != (*vitr)->particles_end(HepMC::children); ++vpitr) 
+        {
+          // Special cases:
+          // 1) import in Geant4 a full decay chain (e.g. also particles with status == 2) 
+          //    from the generator in case the decay path lenght is larger than theDecLenCut
+          // 2) import in Geant4 particles with status == 1 but a final end vertex. 
+          //    The time of the vertex is used as the time of flight to be forced for the particle 
 
-	  double decay_length=-1;
-	  if ( (*vpitr)->status() == 2 ) 
-	    {
-	      // this particle has decayed
-	      if ( (*vpitr)->end_vertex() != 0 ) // needed some particles have status 2 and no end_vertex 
-		{
-		  double x2 = (*vpitr)->end_vertex()->position().x();
+          double decay_length=-1;
+          if ( (*vpitr)->status() == 1 || (*vpitr)->status() == 2 ) 
+            {
+              // this particle has decayed
+              if ( (*vpitr)->end_vertex() != 0 ) // needed some particles have status 2 and no end_vertex 
+                {
+                  double x2 = (*vpitr)->end_vertex()->position().x();
                   double y2 = (*vpitr)->end_vertex()->position().y();
                   double z2 = (*vpitr)->end_vertex()->position().z();
-		  decay_length=std::sqrt((x1-x2)*(x1-x2)+(y1-y2)*(y1-y2)+(z1-z2)*(z1-z2));
-		}
-	    }             
-	  // end modification
-		
-	  if( (*vpitr)->status() == 1 || 
-	      ((*vpitr)->status() == 2 && decay_length > theDecLenCut && 
-	       fabs((*vpitr)->momentum().eta()) < theEtaCutForHector ) ) {
-	    
-	    math::XYZTLorentzVector p((*vpitr)->momentum().px(),
-				      (*vpitr)->momentum().py(),
-				      (*vpitr)->momentum().pz(),
-				      (*vpitr)->momentum().e());
-	 
-	    
-	    if ( !particlePassesPrimaryCuts( p ) ) 
-	      {
-		continue ;
-	      }
-	    
-	    G4int pdgcode= (*vpitr)-> pdg_id();
-	    G4PrimaryParticle* g4prim= 
-	      new G4PrimaryParticle(pdgcode, p.Px()*GeV, p.Py()*GeV, p.Pz()*GeV);
-	    
-	    if ( g4prim->GetG4code() != 0 )
-	      { 
-		g4prim->SetMass( g4prim->GetG4code()->GetPDGMass() ) ;
-		g4prim->SetCharge( g4prim->GetG4code()->GetPDGCharge() ) ;  
-	      }
-	    
-	    g4prim->SetWeight( 10000*(*vpitr)->barcode() ) ;
-	    setGenId( g4prim, (*vpitr)->barcode() ) ;
-	    if ( (*vpitr)->status() == 2 && fabs((*vpitr)->momentum().eta()) < theEtaCutForHector ) 
-	      particleAssignDaughters(g4prim,(HepMC::GenParticle *) *vpitr, decay_length);
+                  decay_length=std::sqrt((x1-x2)*(x1-x2)+(y1-y2)*(y1-y2)+(z1-z2)*(z1-z2));
+                }
+            }             
+          // end modification
+          
+          if( (*vpitr)->status() == 1 || 
+              ((*vpitr)->status() == 2 && decay_length > theDecLenCut && 
+               fabs((*vpitr)->momentum().eta()) < theEtaCutForHector ) ) {
+            
+            math::XYZTLorentzVector p((*vpitr)->momentum().px(),
+                                      (*vpitr)->momentum().py(),
+                                      (*vpitr)->momentum().pz(),
+                                      (*vpitr)->momentum().e());
+            
+            
+            if ( !particlePassesPrimaryCuts( p ) ) 
+              {
+                continue ;
+              }
+            
+            G4int pdgcode= (*vpitr)-> pdg_id();
+            G4PrimaryParticle* g4prim= 
+              new G4PrimaryParticle(pdgcode, p.Px()*GeV, p.Py()*GeV, p.Pz()*GeV);
+            
+            if ( g4prim->GetG4code() != 0 )
+              { 
+                g4prim->SetMass( g4prim->GetG4code()->GetPDGMass() ) ;
+                g4prim->SetCharge( g4prim->GetG4code()->GetPDGCharge() ) ;  
+              }
+            
+            g4prim->SetWeight( 10000*(*vpitr)->barcode() ) ;
+            setGenId( g4prim, (*vpitr)->barcode() ) ;
+            if ( (*vpitr)->status() == 2 && fabs((*vpitr)->momentum().eta()) < theEtaCutForHector ) 
+              particleAssignDaughters(g4prim,(HepMC::GenParticle *) *vpitr, decay_length);
             if ( verbose > 1 ) g4prim->Print();
-	    g4vtx->SetPrimary(g4prim);
-	  }
-	}
+            g4vtx->SetPrimary(g4prim);
+            // impose also proper time for status=1 and available end_vertex
+            if ( (*vpitr)->status()==1 && (*vpitr)->end_vertex()!=0) {
+              double proper_time=decay_length/(p.Beta()*p.Gamma()*c_light);
+              //LogDebug("SimG4CoreGenerator") <<" beta="<<p.beta()<<" gamma="<<p.gamma()<<" Proper time=" <<proper_time<<" ns" ;
+              g4prim->SetProperTime(proper_time*ns);
+            }
+          }
+        }
       if (verbose > 1 ) g4vtx->Print();
       g4evt->AddPrimaryVertex(g4vtx);
     }
@@ -220,15 +211,15 @@ void Generator::particleAssignDaughters( G4PrimaryParticle* g4p, HepMC::GenParti
   LogDebug("SimG4CoreGenerator") <<" mass="<<vp->generatedMass()<<" rho="<<p.P()<<" mag="<<p.mag();
   double proper_time=decaylength/(p.Beta()*p.Gamma()*c_light);
   LogDebug("SimG4CoreGenerator") <<" beta="<<p.Beta()<<" gamma="<<p.Gamma()<<" Proper time="
-				     <<proper_time<<" ns" ;
+                                 <<proper_time<<" ns" ;
   g4p->SetProperTime(proper_time*ns); // the particle will decay after the same length if it has not interacted before
   double x1 = vp->end_vertex()->position().x();
   double y1 = vp->end_vertex()->position().y();
   double z1 = vp->end_vertex()->position().z();
   for (HepMC::GenVertex::particle_iterator 
-	 vpdec= vp->end_vertex()->particles_begin(HepMC::children);
+         vpdec= vp->end_vertex()->particles_begin(HepMC::children);
        vpdec != vp->end_vertex()->particles_end(HepMC::children); ++vpdec) {
-
+    
     //transform decay products such that in the rest frame of mother
     math::XYZTLorentzVector pdec((*vpdec)->momentum().px(),
                                  (*vpdec)->momentum().py(),
@@ -239,20 +230,20 @@ void Generator::particleAssignDaughters( G4PrimaryParticle* g4p, HepMC::GenParti
       new G4PrimaryParticle((*vpdec)->pdg_id(), pdec.x()*GeV, pdec.y()*GeV, pdec.z()*GeV);
     if ( g4daught->GetG4code() != 0 )
       { 
-	g4daught->SetMass( g4daught->GetG4code()->GetPDGMass() ) ;
-	g4daught->SetCharge( g4daught->GetG4code()->GetPDGCharge() ) ;  
+        g4daught->SetMass( g4daught->GetG4code()->GetPDGMass() ) ;
+        g4daught->SetCharge( g4daught->GetG4code()->GetPDGCharge() ) ;  
       }
     g4daught->SetWeight( 10000*(*vpdec)->barcode() ) ;
     setGenId( g4daught, (*vpdec)->barcode() ) ;
     edm::LogInfo("SimG4CoreGenerator") <<" Assigning a "<<(*vpdec)->pdg_id()<<" as daughter of a "
-				       <<vp->pdg_id() ;
+                                       <<vp->pdg_id() ;
     if ( (*vpdec)->status() == 2 && (*vpdec)->end_vertex() != 0 ) 
       {
-    	double x2 = (*vpdec)->end_vertex()->position().x();
+        double x2 = (*vpdec)->end_vertex()->position().x();
         double y2 = (*vpdec)->end_vertex()->position().y();
         double z2 = (*vpdec)->end_vertex()->position().z();
-	    double dd = std::sqrt((x1-x2)*(x1-x2)+(y1-y2)*(y1-y2)+(z1-z2)*(z1-z2));
-	    particleAssignDaughters(g4daught,*vpdec,dd);
+        double dd = std::sqrt((x1-x2)*(x1-x2)+(y1-y2)*(y1-y2)+(z1-z2)*(z1-z2));
+        particleAssignDaughters(g4daught,*vpdec,dd);
       }
     (*vpdec)->set_status(1000+(*vpdec)->status()); 
     g4p->SetDaughter(g4daught);
