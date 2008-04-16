@@ -34,7 +34,8 @@ void ConverterTester::beginJob(const edm::EventSetup& iSetup)
     meTestString = 0;
     meTestInt = 0;
     meTestFloat = 0;
-    meTestTH1F = 0;
+    meTestTH1FN = 0;
+    meTestTH1FD = 0;
     meTestTH2F = 0;
     meTestTH3F = 0;
     meTestProfile1 = 0;
@@ -51,7 +52,10 @@ void ConverterTester::beginJob(const edm::EventSetup& iSetup)
     meTestFloat = dbe->bookFloat("TestFloat");
 
     dbe->setCurrentFolder("ConverterTest/TH1F");
-    meTestTH1F = dbe->book1D("Random1D", "Random1D", 100, -10., 10.);
+    meTestTH1FN = 
+      dbe->book1D("Random1DN", "Random1D Numerator", 100, -10., 10.);
+    meTestTH1FD = 
+      dbe->book1D("Random1DD", "Random1D Denominator", 100, -10., 10.);
 
     dbe->setCurrentFolder("ConverterTest/TH2F");
     meTestTH2F = dbe->book2D("Random2D", "Random2D", 100, -10, 10., 100, -10., 
@@ -69,14 +73,15 @@ void ConverterTester::beginJob(const edm::EventSetup& iSetup)
     meTestProfile2 = dbe->bookProfile2D("Profile2", "Profile2", 100, -10., 
 					10., 100, -10, 10., 100, -10., 10.);
 
-    dbe->tag(meTestTH1F->getFullname(),1);
-    dbe->tag(meTestTH2F->getFullname(),2);
-    dbe->tag(meTestTH3F->getFullname(),3);
-    dbe->tag(meTestProfile1->getFullname(),4);
-    dbe->tag(meTestProfile2->getFullname(),5);
-    dbe->tag(meTestString->getFullname(),6);
-    dbe->tag(meTestInt->getFullname(),7);
-    dbe->tag(meTestFloat->getFullname(),8);
+    dbe->tag(meTestTH1FN->getFullname(),1);
+    dbe->tag(meTestTH1FD->getFullname(),2);    
+    dbe->tag(meTestTH2F->getFullname(),3);
+    dbe->tag(meTestTH3F->getFullname(),4);
+    dbe->tag(meTestProfile1->getFullname(),5);
+    dbe->tag(meTestProfile2->getFullname(),6);
+    dbe->tag(meTestString->getFullname(),7);
+    dbe->tag(meTestInt->getFullname(),8);
+    dbe->tag(meTestFloat->getFullname(),9);
   }
 
   return;
@@ -117,7 +122,8 @@ void ConverterTester::analyze(const edm::Event& iEvent,
     RandomVal2 = Random->Gaus(0.,1.);
     RandomVal3 = Random->Gaus(0.,1.);
     
-    meTestTH1F->Fill(RandomVal1);
+    meTestTH1FN->Fill(0.5*RandomVal1);
+    meTestTH1FD->Fill(RandomVal1);    
     meTestTH2F->Fill(RandomVal1, RandomVal2);
     meTestTH3F->Fill(RandomVal1, RandomVal2, RandomVal3);
     meTestProfile1->Fill(RandomVal1, RandomVal2);

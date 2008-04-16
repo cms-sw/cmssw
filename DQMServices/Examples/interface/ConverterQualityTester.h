@@ -1,7 +1,7 @@
-#ifndef ConverterTester_h
-#define ConverterTester_h
+#ifndef ConverterQualityTester_h
+#define ConverterQualityTester_h
 
-/** \class ConverterTester
+/** \class ConverterQualityTester
  *  
  *  Class to fill dqm monitor elements from existing EDM file
  *
@@ -31,17 +31,13 @@
 #include <memory>
 #include <vector>
 
-#include "TString.h"
-#include "TRandom.h"
-#include "TRandom3.h"
-
-class ConverterTester : public edm::EDAnalyzer
+class ConverterQualityTester : public edm::EDAnalyzer
 {
   
  public:
 
-  explicit ConverterTester(const edm::ParameterSet&);
-  virtual ~ConverterTester();
+  explicit ConverterQualityTester(const edm::ParameterSet&);
+  virtual ~ConverterQualityTester();
   virtual void beginJob(const edm::EventSetup&);
   virtual void endJob();  
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
@@ -52,27 +48,6 @@ class ConverterTester : public edm::EDAnalyzer
 private:
   std::string fName;
   int verbosity;
-  int frequency;
-  std::string label;
-  DQMStore *dbe;
-
-  MonitorElement *meTestString;
-  MonitorElement *meTestInt;
-  MonitorElement *meTestFloat;
-  MonitorElement *meTestTH1FD;
-  MonitorElement *meTestTH1FN;
-  MonitorElement *meTestTH2F;
-  MonitorElement *meTestTH3F;
-  MonitorElement *meTestProfile1;
-  MonitorElement *meTestProfile2;
-
-  TRandom *Random;
-  double RandomVal1;
-  double RandomVal2;
-  double RandomVal3;
-
- // private statistics information
-  unsigned int count;
 };
 
 #endif
