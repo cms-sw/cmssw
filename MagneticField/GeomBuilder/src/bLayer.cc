@@ -3,8 +3,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2007/02/03 16:19:08 $
- *  $Revision: 1.4 $
+ *  $Date: 2007/03/09 14:38:23 $
+ *  $Revision: 1.5 $
  *  \author N. Amapane - INFN Torino
  */
 
@@ -60,12 +60,13 @@ MagGeoBuilderFromDDD::bLayer::bLayer(handles::const_iterator begin,
     secEnd = secBegin+size/12;
 
   }  else { // there are more than one volume per sector.
+    float tolerance = 0.025; // 250 micron
     do {
       if (MagGeoBuilderFromDDD::debug) std::cout << (*secBegin)->name 
 				 << " " << (*secBegin)->copyno << std::endl;
       ++secBegin;
     } while ((secBegin != theVolumes.end()) &&
-	     (*secBegin)->sameSurface(refSurf,outer)); // This works only if outer surface is a plane, otherwise sameSurface returns always true!
+	     (*secBegin)->sameSurface(refSurf,outer, tolerance)); // This works only if outer surface is a plane, otherwise sameSurface returns always true!
     
     secEnd = secBegin;
     secBegin = theVolumes.begin()+bin((secEnd-theVolumes.begin())-size/12);;
