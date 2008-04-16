@@ -154,7 +154,6 @@ def add_includes(process,PU_flag,step_list,conditions,beamspot):
         sourcedList.append(step)                    
 
     stringToInclude=''        
-    print 'hi there'
     for incF in incList:
         stringToInclude=stringToInclude+'include '+incF+' ' 
 
@@ -288,7 +287,7 @@ def build_production_info(evt_type, energy, evtnumber):
     func_id=mod_id+"["+sys._getframe().f_code.co_name+"]"
     
     prod_info=cms.untracked.PSet\
-              (version=cms.untracked.string("$Revision: 1.10 $"),
+              (version=cms.untracked.string("$Revision: 1.11 $"),
                name=cms.untracked.string("PyReleaseValidation"),
                annotation=cms.untracked.string(evt_type+" energy:"+str(energy)+" nevts:"+str(evtnumber))
               )

@@ -284,6 +284,9 @@ prec_step = {"ALL":"",
              "DIGI2RAW":"DIGI",
              "RAW2DIGI":"DIGI2RAW"}
 
+trimmedEvtType=options.evt_type.split('/')[-1:][0]
+
+
 trimmedStep=''
 isFirst=0
 step_list=options.step.split(',')
@@ -300,12 +303,12 @@ first_step=trimmedStep.split(',')[0]
 if options.filein=="" and not first_step in ("ALL","GEN"):
     if options.dirin=="":
         options.dirin="file:"
-    options.filein=options.evt_type+"_"+options.energy+\
+    options.filein=trimmedEvtType+"_"+options.energy+\
      "_"+prec_step[trimmedStep]+".root"
 
      
 if options.fileout=="":
-    options.fileout=options.evt_type+"_"+\
+    options.fileout=trimmedEvtType+"_"+\
                     options.energy+\
                     "_"+trimmedStep
     if options.PU_flag:
@@ -334,7 +337,7 @@ if options.writeraw:
 # File where to dump the python cfg file
 python_config_filename=''
 if options.dump_python:
-    python_config_filename=options.evt_type+"_"+\
+    python_config_filename=trimmedEvtType+"_"+\
                               options.energy+\
                               "_"+trimmedStep
     if options.PU_flag:
@@ -345,7 +348,7 @@ if options.dump_python:
 
 cfg_config_filename=''
 if options.dump_cfg:
-    cfg_config_filename=options.evt_type+"_"+\
+    cfg_config_filename=trimmedEvtType+"_"+\
                               options.energy+\
                               "_"+trimmedStep
     if options.PU_flag:
@@ -360,7 +363,7 @@ if not options.dump_dsetname_flag:
     print_options(options)  
 
 #set process name:
-ext_process_name=options.evt_type+options.energy+trimmedStep
+ext_process_name=trimmedEvtType+options.energy+trimmedStep
 
 
 if options.dump_dsetname_flag:
