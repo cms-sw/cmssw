@@ -1,4 +1,4 @@
-// $Id: StorageManager.cc,v 1.46 2008/03/10 14:50:08 biery Exp $
+// $Id: StorageManager.cc,v 1.47 2008/04/16 16:16:08 biery Exp $
 
 #include <iostream>
 #include <iomanip>
@@ -1947,6 +1947,7 @@ void StorageManager::consumerListWebPage(xgi::Input *in, xgi::Output *out)
   out->write(buffer,strlen(buffer));
 }
 
+//////////////////// event server statistics web page //////////////////
 void StorageManager::eventServerWebPage(xgi::Input *in, xgi::Output *out)
   throw (xgi::exception::Exception)
 {
@@ -2045,11 +2046,11 @@ void StorageManager::eventServerWebPage(xgi::Input *in, xgi::Output *out)
       *out << "    <br/>" << std::endl;
       *out << "    Data rates are reported in MB/sec." << std::endl;
       *out << "    <br/>" << std::endl;
-      *out << "    Maximum event rate is " << eventServer->getMaxEventRate()
-           << " Hz." << std::endl;
+      *out << "    Maximum event rate to consumers is "
+           << eventServer->getMaxEventRate() << " Hz." << std::endl;
       *out << "    <br/>" << std::endl;
-      *out << "    Maximum data rate is " << eventServer->getMaxDataRate()
-           << " MB/sec." << std::endl;
+      *out << "    Maximum data rate to consumers is "
+           << eventServer->getMaxDataRate() << " MB/sec." << std::endl;
       *out << "    <br/>" << std::endl;
       *out << "    Maximum consumer queue size is " << consumerQueueSize_
            << "." << std::endl;
