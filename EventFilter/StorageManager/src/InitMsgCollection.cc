@@ -3,7 +3,7 @@
  * been received by the storage manager and will be sent to event
  * consumers and written to output disk files.
  *
- * $Id: InitMsgCollection.cc,v 1.2 2008/01/30 19:45:08 biery Exp $
+ * $Id: InitMsgCollection.cc,v 1.3 2008/02/11 15:18:15 biery Exp $
  */
 
 #include "DataFormats/Streamer/interface/StreamedProducts.h"
@@ -188,9 +188,9 @@ bool InitMsgCollection::testAndAddIfUnique(InitMsgView const& initMsgView)
           throw cms::Exception("InitMsgCollection", "testAndAddIfUnique:")
             << "INIT messages from the \"" << inputOMLabel << "\" and \""
             << existingOMLabel << "\" output modules have "
-            << "overlapping HLT trigger selections: "
-            << stringsToText(inputSelectionList, 10) << " and "
-            << stringsToText(existingSelectionList, 10) << "."
+            << "overlapping HLT trigger selections: ("
+            << stringsToText(inputSelectionList, 10) << ") and ("
+            << stringsToText(existingSelectionList, 10) << ")."
             << std::endl;
         }
       }
@@ -237,9 +237,9 @@ InitMsgCollection::getElementForSelection(Strings const& triggerSelection)
     existingInitMsg.hltTriggerNames(fullTriggerList);
     if (! EventSelector::selectionIsValid(triggerSelection,
                                           fullTriggerList)) {
-      std::string msg = "The specified trigger selection list ";
+      std::string msg = "The specified trigger selection list (";
       msg.append(stringsToText(triggerSelection, 10));
-      msg.append(" contains paths not in the full trigger list!");
+      msg.append(") contains paths not in the full trigger list!");
       throw cms::Exception("InitMsgCollection", "getElementForSelection:")
         << msg << std::endl;
     }
@@ -263,9 +263,9 @@ InitMsgCollection::getElementForSelection(Strings const& triggerSelection)
           serializedProds = workingMessage;
         }
         else {
-          std::string msg = "The specified trigger selection list ";
+          std::string msg = "The specified trigger selection list (";
           msg.append(stringsToText(triggerSelection, 10));
-          msg.append(" matches triggers from more than one HLT output module!");
+          msg.append(") matches triggers from more than one HLT output module!");
           throw cms::Exception("InitMsgCollection", "getElementForSelection:")
             << msg << std::endl;
         }
@@ -382,8 +382,9 @@ std::string InitMsgCollection::getSelectionHelpString()
 
 /**
  * Creates a single text string from the elements in the specified
- * list of strings.  Only the specified maximum number of elements are
- * included.
+ * list of strings.  The specified maximum number of elements are
+ * included, however a zero value for the maximum number will include
+ * all elements.
  *
  * @param list the list of strings to include (vector of strings);
  * @param maxCount the maximum number of list elements to include.
@@ -392,9 +393,9 @@ std::string InitMsgCollection::getSelectionHelpString()
 std::string InitMsgCollection::stringsToText(Strings const& list,
                                              unsigned int maxCount)
 {
-  std::string resultString = "(";
+  std::string resultString = "";
   unsigned int elementCount = list.size();
-  if (maxCount < elementCount) {elementCount = maxCount;}
+  if (maxCount > 0 && maxCount < elementCount) {elementCount = maxCount;}
   for (unsigned int idx = 0; idx < elementCount; idx++)
   {
     resultString.append(list[idx]);
@@ -406,7 +407,6 @@ std::string InitMsgCollection::stringsToText(Strings const& list,
   {
     resultString.append(", ...");
   }
-  resultString.append(")");
   return resultString;
 }
 
