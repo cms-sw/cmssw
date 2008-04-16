@@ -67,15 +67,23 @@ namespace funct {
   };
 
   template<typename X, typename F> 
+  typename Integral<F, X>::type integral(const F& f) {
+    return typename Integral<F, X>::type(f);
+  }
+
+  template<typename X, typename F> 
   double integral(const F& f, double min, double max) {
-    typename Integral<F, X>::type i(f);
-    return i(min, max);
+    return integral<X>(f)(min, max);
+  }
+
+  template<typename F> 
+  typename Integral<F>::type integral(const F& f) {
+    return typename Integral<F>::type(f);
   }
 
   template<typename F>
   double integral(const F& f, double min, double max) {
-    typename Integral<F>::type i(f);
-    return i(min, max);
+    return integral(f)(min, max);
   }
 }
 

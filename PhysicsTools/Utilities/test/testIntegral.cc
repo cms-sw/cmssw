@@ -57,12 +57,13 @@ void testIntegral::checkAll() {
   Expression f = c * exp(-(x^num<2>()));
   CPPUNIT_ASSERT(fabs(integral<X>(f, 0, 1) - erf(1)) < epsilon);
 
+  // numerical integration
   gauss g;
   CPPUNIT_ASSERT(fabs(integral(g, 0, 1) - erf(1)) < epsilon);
-
+  // user-defined integration
   gauss2 g2;
   CPPUNIT_ASSERT(fabs(integral(g2, 0, 1) - erf(1)) < epsilon);
-
+  // automatic (trivial) integration
   Parameter pi("pi", M_PI);
   CPPUNIT_ASSERT(fabs(integral(pi, 0, 2) - 2*pi()) < epsilon);
 }
