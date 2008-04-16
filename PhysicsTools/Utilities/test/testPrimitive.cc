@@ -61,6 +61,11 @@ void testPrimitives::checkAll() {
   CHECK(primitive<X>(tan(x)), "-log(abs(cos(x)))");
   CHECK(primitive<X>(_1/x), "log(abs(x))");
   CHECK((primitive<X>(x^_m1)), "log(abs(x))");
-  
+  CHECK((primitive<X>(_1/(cos(x)^_2))), "tan(x)");
+  CHECK((primitive<X>(cos(x)^_m2)), "tan(x)");
+  CHECK((primitive<X>(_1/(sin(x)^_2))), "-1/tan(x)");
+  CHECK((primitive<X>(sin(x)^_m2)), "-1/tan(x)");
+  CHECK(primitive<X>(x*exp(x)), "exp(x) ( x - 1 )");
+  CHECK(primitive<X>(exp(x)*x), "exp(x) ( x - 1 )");
 }
 
