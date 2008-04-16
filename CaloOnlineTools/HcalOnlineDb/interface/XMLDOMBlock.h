@@ -16,10 +16,11 @@
 //
 // Original Author:  Gena Kukartsev
 //         Created:  Thu Sep 27 01:46:46 CEST 2007
-// $Id: XMLDOMBlock.h,v 1.2 2008/02/28 15:03:10 kukartse Exp $
+// $Id: XMLDOMBlock.h,v 1.3 2008/04/10 21:12:09 kukartse Exp $
 //
 
 
+#include <boost/shared_ptr.hpp>
 #include <string>
 #include <xercesc/parsers/XercesDOMParser.hpp>
 #include <xercesc/sax/HandlerBase.hpp>
@@ -66,6 +67,7 @@ class XMLDOMBlock
   ErrorHandler * errHandler;
   DOMDocument * document;
   string theFileName;
+  //boost::shared_ptr<std::string> the_string;
   std::string * the_string;
 };
 

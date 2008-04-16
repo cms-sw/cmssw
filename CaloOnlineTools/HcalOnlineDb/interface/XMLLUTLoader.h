@@ -16,7 +16,7 @@
 //
 // Original Author:  Gena Kukartsev, kukarzev@fnal.gov
 //         Created:  Tue Oct 23 14:30:33 CDT 2007
-// $Id: XMLLUTLoader.h,v 1.3 2007/12/06 02:26:12 kukartse Exp $
+// $Id: XMLLUTLoader.h,v 1.1 2008/02/12 17:01:59 kukartse Exp $
 //
 
 // system include files
@@ -59,11 +59,6 @@ class XMLLUTLoader : public XMLDOMBlock
   XMLLUTLoader( XMLProcessor::loaderBaseConfig * config, string templateBase = "HCAL_TRIG_PRIM_LOOKUP_TABLE.XMLloader.template" );
   virtual ~XMLLUTLoader();
   
-  // ---------- const member functions ---------------------
-  
-  // ---------- static member functions --------------------
-  
-  // ---------- member functions ---------------------------
   int addLUT( lutDBConfig * config,
   	      string templateFileName = "HCAL_TRIG_PRIM_LOOKUP_TABLE.dataset.template" );
   
@@ -77,7 +72,6 @@ class XMLLUTLoader : public XMLDOMBlock
   
   const XMLLUTLoader& operator=(const XMLLUTLoader&); // stop default
   
-  // ---------- member data --------------------------------
   
 };
 

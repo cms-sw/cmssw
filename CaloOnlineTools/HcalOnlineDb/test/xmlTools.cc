@@ -121,6 +121,7 @@ int main( int argc, char **argv )
       int _cr = vm["create-lut-xml"].as<int>();
       HcalLutManager manager;
       manager . getLutXmlFromAsciiMaster( "inputLUTcoder.dat", "CR0T_2008_v1_fakeChecksum", _cr );
+      //manager . getLutXmlFromAsciiMaster( "inputLUTcoder.dat", "CR0T_2008_v1_test1", _cr );
       return 0;
     }
     
@@ -297,10 +298,6 @@ int main( int argc, char **argv )
       createLUTLoader();
       break;
       
-    case 70:
-      luts = true;
-      break;
-      
     case 20:
       createHTRPatternLoader();
       break;
@@ -333,6 +330,10 @@ int main( int argc, char **argv )
 	}
       break;
 
+    case 70:
+      luts = true;
+      break;
+      
     case 1000: // testocci
       testocci();
       break;
@@ -745,13 +746,11 @@ int createZSLoader2( string & tag, string & comment, string & zs2HB, string & zs
 int createLUTLoader( string _prefix, string tag_name )
 {
   cout << "Generating XML loader for LUTs..." << endl;
+  cout << _prefix << "..." << tag_name << endl;
 
   XMLLUTLoader::loaderBaseConfig baseConf;
   XMLLUTLoader::lutDBConfig conf;
   XMLLUTLoader::checksumsDBConfig CSconf;
-
-  //_prefix = "GREN_olddetid_fake_p3_thr9_all";
-  //tag_name = "GREN_olddetid_fake_p3_thr9_all";
 
   baseConf . tag_name = tag_name;
   //baseConf . comment_description = _prefix + ": LUTs for GREN 26Nov2007";
@@ -759,8 +758,8 @@ int createLUTLoader( string _prefix, string tag_name )
   baseConf . iov_begin = "1";
   baseConf . iov_end = "-1";
 
-  //conf . version = _prefix + ":1";
-  conf . version = "GREN2007:1";
+  conf . version = _prefix + ":1";
+  //conf . version = "GREN2007:1";
   conf . subversion = "1";
 
   CSconf . version = conf . version;
@@ -770,6 +769,7 @@ int createLUTLoader( string _prefix, string tag_name )
   CSconf . comment_description = tag_name;
 
   XMLLUTLoader doc( &baseConf );
+
   vector<int> crate_number;
   crate_number . push_back(0);
   crate_number . push_back(1);
@@ -796,13 +796,12 @@ int createLUTLoader( string _prefix, string tag_name )
   file_name . push_back( "./" + _prefix + "_14.xml.dat" );
   file_name . push_back( "./" + _prefix + "_15.xml.dat" );
   file_name . push_back( "./" + _prefix + "_17.xml.dat" );
-
   for ( vector<string>::const_iterator _file = file_name . begin(); _file != file_name . end(); _file++ )
     {
       conf . trig_prim_lookuptbl_data_file = *_file;
       //conf . trig_prim_lookuptbl_data_file += ".dat";
       conf . crate = crate_number[ _file - file_name . begin() ];
-
+      
       char _buf[128];
       sprintf( _buf, "CRATE%.2d", conf . crate );
       string _namelabel;

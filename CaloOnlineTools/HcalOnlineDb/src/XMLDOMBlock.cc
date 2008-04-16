@@ -8,7 +8,7 @@
 //
 // Original Author:  Gena Kukartsev
 //         Created:  Thu Sep 27 01:43:42 CEST 2007
-// $Id: XMLDOMBlock.cc,v 1.2 2008/02/28 15:03:13 kukartse Exp $
+// $Id: XMLDOMBlock.cc,v 1.3 2008/04/10 21:12:09 kukartse Exp $
 //
 
 // system include files
@@ -125,7 +125,7 @@ int XMLDOMBlock::init( string _root )
 				  XMLProcessor::_toXMLCh(_root), // root element name
 				  0);                     // document type object (DTD).
 
-  the_string = NULL;
+  the_string = 0;
 
   return 0;
 }
@@ -238,7 +238,7 @@ XMLDOMBlock::~XMLDOMBlock()
 {
   delete parser;
   delete errHandler;
-  if (the_string) delete the_string;
+  //if (the_string) delete the_string;
 }
 
 const char * XMLDOMBlock::getTagValue( const string & tagName, int _item, DOMDocument * _document )
