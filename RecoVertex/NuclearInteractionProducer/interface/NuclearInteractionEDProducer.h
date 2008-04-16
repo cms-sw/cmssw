@@ -15,7 +15,7 @@
 //
 // Original Author:  Vincent ROBERFROID
 //         Created:  Fri Aug 10 12:05:36 CET 2007
-// $Id: NuclearInteractionEDProducer.h,v 1.7 2008/02/05 13:35:09 roberfro Exp $
+// $Id: NuclearInteractionEDProducer.h,v 1.8 2008/02/05 17:21:46 roberfro Exp $
 //
 //
 
@@ -59,12 +59,15 @@ public:
       virtual void endJob();
 
       bool isInside( const reco::TrackRef& track, const TrajectorySeedRefVector& seeds);
+      void findAdditionalSecondaryTracks( reco::NuclearInteraction& nucl,
+                                          const edm::Handle<reco::TrackCollection>& additionalSecTracks);
 
       // ----------member data ---------------------------
       edm::ParameterSet conf_;
       std::string primaryProducer_;
       std::string seedsProducer_;
       std::string secondaryProducer_;
+      std::string additionalSecondaryProducer_;
 
       std::auto_ptr< NuclearVertexBuilder >  vertexBuilder;
       std::auto_ptr< NuclearLikelihood >     likelihoodCalculator;
