@@ -4,6 +4,8 @@
 #include "PhysicsTools/Utilities/interface/Operations.h"
 #include "PhysicsTools/Utilities/interface/Fraction.h"
 #include "PhysicsTools/Utilities/interface/Derivative.h"
+#include "PhysicsTools/Utilities/interface/Parameter.h"
+#include "PhysicsTools/Utilities/interface/Identity.h"
 #include <boost/type_traits.hpp>
 
 #include "PhysicsTools/Utilities/interface/Simplify_begin.h"
@@ -17,27 +19,32 @@ namespace funct {
   template<typename X, typename F, bool independent = Independent<X, F>::value> 
   struct ConstPrimitive {
     typedef UndefinedIntegral type;
-    GET(F, type());
+    inline static type get(const F& f) { return type(); }
   };
-  
+
+  //  / 
+  //  | c dx = c * x
+  //  / 
   template<typename X, typename F>
   struct ConstPrimitive<X, F, true> {
     typedef PROD(F, X) type;
-    GET(F, _ * X());
+    inline static type get(const F& f) { return f * X(); }
   };
   
   template<typename F, typename X = no_var>
-  struct Primitive :
-    public ConstPrimitive<X, F> { };
+  struct Primitive : public ConstPrimitive<X, F> { };
+
+  template<typename F>
+  struct Primitive<F> {  };
   
-  template<typename X, typename A>
-  typename Primitive<A, X>::type primitive(const A& _) { 
-    return Primitive<A, X>::get(_); 
+  template<typename X, typename F>
+  typename Primitive<F, X>::type primitive(const F& f) { 
+    return Primitive<F, X>::get(f); 
   }
 
-  template<typename A>
-  typename Primitive<A>::type primitive(const A& _) { 
-    return Primitive<A>::get(_); 
+  template<typename F>
+  typename Primitive<F>::type primitive(const F& f) { 
+    return Primitive<F>::get(f); 
   }
 
   //  /
@@ -272,6 +279,20 @@ namespace funct {
   
   TEMPL(XT2) struct Primitive<RATIO_S(A, B), X> :
     public RatioPrimitive<X, A, B> { };
+
+  // Function integrals
+
+  //  / 
+  //  | c dx = c * x
+  //  / 
+  template<>
+  struct Primitive<Parameter> {
+    typedef Product<Parameter, Identity>::type type;
+    inline static type get(const Parameter & p) {
+      return p * Identity();
+    }
+  };
+
 }
 
 #define DECLARE_PRIMITIVE(X, F, P) \

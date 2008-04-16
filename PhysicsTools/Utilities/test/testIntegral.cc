@@ -62,5 +62,8 @@ void testIntegral::checkAll() {
 
   gauss2 g2;
   CPPUNIT_ASSERT(fabs(integral(g2, 0, 1) - erf(1)) < epsilon);
+
+  Parameter pi("pi", M_PI);
+  CPPUNIT_ASSERT(fabs(integral(pi, 0, 2) - 2*pi()) < epsilon);
 }
 

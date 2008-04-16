@@ -19,7 +19,7 @@ namespace funct {
   };
 
   template<typename F>
-  struct IntegralStruct<F, no_var> {
+  struct IntegralStruct<F> {
     IntegralStruct(const F& f) : p(primitive(f)) { }
     double operator()(double min, double max) const { 
       return p(max) - p(min); 
