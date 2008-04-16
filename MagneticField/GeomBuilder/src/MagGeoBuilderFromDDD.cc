@@ -3,8 +3,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/03/29 14:37:18 $
- *  $Revision: 1.11 $
+ *  $Date: 2008/04/09 17:19:10 $
+ *  $Revision: 1.12 $
  *  \author N. Amapane - INFN Torino
  */
 
@@ -204,8 +204,9 @@ void MagGeoBuilderFromDDD::build(const DDCompactView & cpva)
     float Z = v->center().z();
     float R = v->center().perp();
 
-    // Barrel is everything up to |Z| = 6610, excluding 
+    // v 85l: Barrel is everything up to |Z| = 661.0, excluding 
     // volume #7, centered at 6477.5
+    // v 1103l: same numbers work fine. #16 instead of #7, same coords
     // FIXME: misalignment?
     if (fabs(Z)<647. || (R>350. && fabs(Z)<662.)) { // Barrel
       if (debug) cout << " (Barrel)" <<endl;
