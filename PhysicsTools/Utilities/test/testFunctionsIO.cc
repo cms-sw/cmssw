@@ -40,6 +40,7 @@ void testFunctionsIO::checkAll() {
   funct::Numerical<3> _3;
   funct::Numerical<-1> _m1;
   funct::Numerical<-2> _m2;
+  funct::Numerical<-3> _m3;
   CHECK(x, "x");
   CHECK(-x, "-x");
 
@@ -65,6 +66,10 @@ void testFunctionsIO::checkAll() {
   CHECK(_2 -_3, "-1"); 
   CHECK(_2 * _3, "6"); 
   CHECK(_2 / _3, "2/3"); 
+  CHECK((_2 ^ _3), "8");
+  CHECK((_2 ^ _m3), "1/8");
+  CHECK((_m2 ^ _3), "-8");
+  CHECK((_m2 ^ _m3), "-1/8");
 
   CHECK((fract<1,2>()), "1/2");
   CHECK((fract<4,2>()), "2");
@@ -117,8 +122,7 @@ void testFunctionsIO::checkAll() {
   CHECK((x ^ _m2), "1/x^2");
   CHECK((x ^ fract<1,2>()), "sqrt(x)");
   CHECK(((x ^ y)^z), "x^( y + z )");
-  CHECK(((x * y)^z), "x^z y^z");
-
+  
   CHECK(log(exp(x)), "x");
   CHECK(exp(log(x)), "x");
   CHECK((log(x^y)), "y log(x)");

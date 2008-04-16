@@ -30,10 +30,6 @@ namespace funct {
   // (a ^ b) ^ c = a ^ (b + c)
   POWER_RULE(TYPT3, POWER_S(A, B), C, POWER(A, SUM(B, C)), pow(_1._1, _1._2 + _2));
 
-  // (a * b) ^ c = a ^ c * b ^ c
-  POWER_RULE(TYPT3, PROD_S(A, B), C, PROD(POWER(A, C), POWER(B, C)),
-	     pow(_1._1, _2) * pow(_1._2, _2));
-
   // (a ^ b) ^ n = a ^ (b + n)
   POWER_RULE(TYPN1T2, POWER_S(A, B), NUM(n), POWER(A, SUM(B, NUM(n))),
 	     pow(_1._1, _1._2 + _2));
@@ -57,15 +53,6 @@ namespace funct {
 
   TEMPL(N1T1) struct Power<A, NUM(n)> :
     public SimplifySignedPower<n, A> { };
-  
-  TEMPL(N1T2) struct Power<PROD_S(A, B), NUM(n)> :
-    public SimplifySignedPower<n, PROD_S(A, B)> { };
-
-  // ( a * b )^1 = a * b
-  TEMPL(T2) struct Power<PROD_S(A, B), NUM(1)> {
-    typedef PROD_S(A, B) type;
-    COMBINE(PROD_S(A, B), NUM(1), _1);
-  };
   
 }
 

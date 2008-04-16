@@ -54,6 +54,10 @@ namespace funct {
 	      RATIO(NUM(-1), PROD(NUM(n - 1), POWER(X, NUM(n - 1)))),
 	      num<-1>()/(num<n - 1>() * pow(_._2._1, num<n - 1>())));
   
+  PRIMIT_RULE(TYPXN1, POWER_S(RATIO_S(NUM(1), X), NUM(n)),
+	      RATIO(NUM(-1), PROD(NUM(n - 1), POWER(X, NUM(n - 1)))),
+	      num<-1>()/(num<n - 1>() * pow(_._1._2, num<n - 1>())));
+  
   //  /
   //  | exp(x) dx = exp(x)
   //  /

@@ -50,6 +50,7 @@ void testPrimitives::checkAll() {
   CHECK(primitive<X>(x^_4), "x^5/5");
   CHECK(primitive<X>(x^_m4), "-( 1/3 )/x^3");
   CHECK(primitive<X>(_1 / (x^_4)), "-( 1/3 )/x^3");
+  CHECK(primitive<X>((_1 / x)^_4), "-( 1/3 )/x^3");
   CHECK(primitive<X>(sin(x)), "-cos(x)");
   CHECK(primitive<X>(cos(x)), "sin(x)");
   
