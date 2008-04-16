@@ -286,7 +286,6 @@ prec_step = {"ALL":"",
 
 trimmedEvtType=options.evt_type.split('/')[-1:][0]
 
-
 trimmedStep=''
 isFirst=0
 step_list=options.step.split(',')
@@ -311,6 +310,9 @@ if options.fileout=="":
     options.fileout=trimmedEvtType+"_"+\
                     options.energy+\
                     "_"+trimmedStep
+    options.fileout=options.fileout.replace(',','_')
+    options.fileout=options.fileout.replace('.','_')
+
     if options.PU_flag:
         options.fileout+="_PU"
     if options.analysis_flag:
@@ -340,6 +342,8 @@ if options.dump_python:
     python_config_filename=trimmedEvtType+"_"+\
                               options.energy+\
                               "_"+trimmedStep
+    python_config_filename=options.fileout.replace(',','_')
+    python_config_filename.fileout=options.fileout.replace('.','_')
     if options.PU_flag:
         python_config_filename+="_PU"
     if options.analysis_flag:
@@ -351,6 +355,8 @@ if options.dump_cfg:
     cfg_config_filename=trimmedEvtType+"_"+\
                               options.energy+\
                               "_"+trimmedStep
+    cfg_config_filename=options.fileout.replace(',','_')
+    cfg_config_filename.fileout=options.fileout.replace('.','_')
     if options.PU_flag:
         cfg_config_filename+="_PU"
     if options.analysis_flag:
