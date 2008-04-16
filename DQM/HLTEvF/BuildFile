@@ -1,4 +1,3 @@
-<use name=DQMServices/Components>
 <use name=DQMServices/Core>
 <use name=DQMServices/XdaqCollector>
 <use name=DQMServices/WebComponents>
