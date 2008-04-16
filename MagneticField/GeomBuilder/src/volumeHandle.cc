@@ -3,8 +3,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2007/06/05 14:47:59 $
- *  $Revision: 1.6 $
+ *  $Date: 2008/03/29 14:33:43 $
+ *  $Revision: 1.7 $
  *  \author N. Amapane - INFN Torino
  */
 
@@ -149,6 +149,10 @@ void MagGeoBuilderFromDDD::volumeHandle::referencePlane(const DDExpandedView &fv
   // inside the volume for DDD boxes and (pesudo)trapezoids, on the beam line
   // for tubs, cons and trunctubs. 
 
+  // In geometry version 1103l, trapezoids have X and Z in the opposite direction
+  // than the above.  Boxes are either oriented as described above or in some case 
+  // have opposite direction for Y and X.
+
   // The global position
   Surface::PositionType & posResult = center_;
 
@@ -169,34 +173,24 @@ void MagGeoBuilderFromDDD::volumeHandle::referencePlane(const DDExpandedView &fv
 
   refPlane = new GloballyPositioned<float>(posResult, rotResult);
 
-  // See comments above for the conventions for orientation.
-  LocalVector globalRdir(0.,1.,0.); // Local direction of the axis closer to global R
-  LocalVector globalZdir(0.,0.,1.); // Local direction of the axis along global Z (used for check only)
-  if (solid.shape() == ddpseudotrap) {
-    globalRdir = LocalVector(0.,0.,1.);
-    globalZdir = LocalVector(0.,1.,0.);    
-  }
-  if (refPlane->toGlobal(globalZdir).z()<0.) {
-    globalZdir=-globalZdir;
-  }
-
   // Check correct orientation
   if (MagGeoBuilderFromDDD::debug) {
+
+    cout << "Refplane pos  " << refPlane->position() << endl;
+
+    // See comments above for the conventions for orientation.
+    LocalVector globalZdir(0.,0.,1.); // Local direction of the axis along global Z 
+    if (solid.shape() == ddpseudotrap) {
+      globalZdir = LocalVector(0.,1.,0.);    
+    }
+    if (refPlane->toGlobal(globalZdir).z()<0.) {
+      globalZdir=-globalZdir;
+    }
+
     float chk = refPlane->toGlobal(globalZdir).dot(GlobalVector(0,0,1));
     if (chk < .999) cout << "*** WARNING RefPlane check failed!***"
-			 << chk << endl;
+			 << chk << endl; 
   }
-
-  if (MagGeoBuilderFromDDD::debug) cout << "Refplane pos  " << refPlane->position() << endl;
-
-  // Get the distance to beam line along local y
-  if (solid.shape() != ddcons &&
-      solid.shape() != ddtubs &&
-      solid.shape() != ddtrunctubs) {   
-    theRN = fabs(refPlane->toGlobal(globalRdir).dot(GlobalVector(posResult.x(),posResult.y(),posResult.z())));
-    if (MagGeoBuilderFromDDD::debug) cout << "RN            " << theRN << endl;
-  }
-  
 }
 
 
@@ -273,7 +267,7 @@ void MagGeoBuilderFromDDD::volumeHandle::buildPhiZSurf(double startPhi,
 
 
 
-bool MagGeoBuilderFromDDD::volumeHandle::sameSurface(const Surface & s1, Sides which_side)
+bool MagGeoBuilderFromDDD::volumeHandle::sameSurface(const Surface & s1, Sides which_side, float tolerance)
 {
   //Check for null comparison
   if (&s1==(surfaces[which_side]).get()){
@@ -285,7 +279,6 @@ bool MagGeoBuilderFromDDD::volumeHandle::sameSurface(const Surface & s1, Sides w
 //   TimeMe time(timer,false);
 
   const float maxtilt  = 0.999;
-  const float maxdist  = 0.01; // in cm
 
   const Surface & s2 = *(surfaces[which_side]);
   // Try with a plane.
@@ -298,7 +291,7 @@ bool MagGeoBuilderFromDDD::volumeHandle::sameSurface(const Surface & s1, Sides w
     }
     
     if ( (fabs(p1->normalVector().dot(p2->normalVector())) > maxtilt)
-	 && (fabs((p1->toLocal(p2->position())).z()) < maxdist) ) {
+	 && (fabs((p1->toLocal(p2->position())).z()) < tolerance) ) {
       if (MagGeoBuilderFromDDD::debug) cout << "      sameSurface: OK "
 		      << fabs(p1->normalVector().dot(p2->normalVector()))
 		      << " " << fabs((p1->toLocal(p2->position())).z()) << endl;
@@ -323,7 +316,7 @@ bool MagGeoBuilderFromDDD::volumeHandle::sameSurface(const Surface & s1, Sides w
       return false;
     }
     // Assume axis is the same!
-    if (fabs(cy1->radius() - cy2->radius()) < maxdist) {
+    if (fabs(cy1->radius() - cy2->radius()) < tolerance) {
       return true;
     } else {
       return false;
@@ -340,7 +333,7 @@ bool MagGeoBuilderFromDDD::volumeHandle::sameSurface(const Surface & s1, Sides w
     }
     // FIXME
     if (fabs(co1->openingAngle()-co2->openingAngle()) < maxtilt 
-	&& (co1->vertex()-co2->vertex()).mag() < maxdist) {
+	&& (co1->vertex()-co2->vertex()).mag() < tolerance) {
       return true;
     } else {
       return false;
