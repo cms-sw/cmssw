@@ -1,4 +1,4 @@
-// $Id: PoolOutputModule.cc,v 1.103 2008/02/21 22:47:52 wdd Exp $
+// $Id: PoolOutputModule.cc,v 1.104 2008/04/16 04:08:14 wmtan Exp $
 
 #include "IOPool/Output/src/PoolOutputModule.h"
 #include "boost/array.hpp" 
@@ -29,6 +29,7 @@ namespace edm {
     compressionLevel_(pset.getUntrackedParameter<int>("compressionLevel", 1)),
     basketSize_(pset.getUntrackedParameter<int>("basketSize", 16384)),
     splitLevel_(pset.getUntrackedParameter<int>("splitLevel", 99)),
+    treeMaxVirtualSize_(pset.getUntrackedParameter<int>("treeMaxVirtualSize", -1)),
     fastCloning_(pset.getUntrackedParameter<bool>("fastCloning", true) && wantAllEvents()),
     fastMetaCloning_(fastCloning_),
     fileBlock_(0),

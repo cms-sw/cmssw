@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: RootFile.cc,v 1.131 2008/04/09 23:00:24 wmtan Exp $
+$Id: RootFile.cc,v 1.132 2008/04/11 00:36:28 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include "RootFile.h"
@@ -50,6 +50,7 @@ namespace edm {
 		     std::vector<LuminosityBlockID> const& whichLumisToSkip,
 		     int remainingEvents,
 		     unsigned int treeCacheSize,
+                     int treeMaxVirtualSize,
 		     int forcedRunOffset,
 		     std::vector<EventID> const& whichEventsToProcess,
 		     bool dropMetaData) :
@@ -91,6 +92,11 @@ namespace edm {
       oldBranchNames_(),
       eventHistoryTree_(0) {
     eventTree_.setCacheSize(treeCacheSize);
+
+    eventTree_.setTreeMaxVirtualSize(treeMaxVirtualSize);
+    lumiTree_.setTreeMaxVirtualSize(treeMaxVirtualSize);
+    runTree_.setTreeMaxVirtualSize(treeMaxVirtualSize);
+
     treePointers_[InEvent] = &eventTree_;
     treePointers_[InLumi]  = &lumiTree_;
     treePointers_[InRun]   = &runTree_;

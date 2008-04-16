@@ -117,4 +117,9 @@ namespace edm {
   RootTree::setCacheSize(unsigned int cacheSize) const {
     tree_->SetCacheSize(static_cast<Long64_t>(cacheSize));
   }
+
+  void
+  RootTree::setTreeMaxVirtualSize(int treeMaxVirtualSize) {
+    if (treeMaxVirtualSize >= 0) tree_->SetMaxVirtualSize(static_cast<Long64_t>(treeMaxVirtualSize));
+  }
 }

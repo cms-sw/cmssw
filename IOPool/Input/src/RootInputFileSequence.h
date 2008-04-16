@@ -5,7 +5,7 @@
 
 RootInputFileSequence: This is an InputSource
 
-$Id: RootInputFileSequence.h,v 1.8 2008/04/09 23:00:24 wmtan Exp $
+$Id: RootInputFileSequence.h,v 1.9 2008/04/11 00:36:28 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -94,6 +94,7 @@ namespace edm {
     std::vector<EventID> eventsToProcess_;
     bool skipBadFiles_;
     unsigned int treeCacheSize_;
+    int const treeMaxVirtualSize_;
     int forcedRunOffset_;
     RunNumber_t setRun_;
     bool dropMetaData_;
