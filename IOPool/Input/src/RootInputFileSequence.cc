@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: RootInputFileSequence.cc,v 1.13 2008/04/11 00:36:28 wmtan Exp $
+$Id: RootInputFileSequence.cc,v 1.14 2008/04/16 22:02:32 wdd Exp $
 ----------------------------------------------------------------------*/
 #include "RootInputFileSequence.h"
 #include "PoolSource.h"
@@ -24,7 +24,8 @@ namespace edm {
   RootInputFileSequence::RootInputFileSequence(
 		ParameterSet const& pset,
 		PoolSource const& input,
-		InputFileCatalog const& catalog) :
+		InputFileCatalog const& catalog,
+		bool primarySequence) :
     input_(input),
     catalog_(catalog),
     firstFile_(true),
@@ -48,6 +49,7 @@ namespace edm {
     forcedRunOffset_(0),
     setRun_(pset.getUntrackedParameter<unsigned int>("setRunNumber", 0U)),
     dropMetaData_(pset.getUntrackedParameter<bool>("dropMetaData", false)),
+    primarySequence_(primarySequence),
     randomAccess_(false) {
 
     sort_all(eventsToProcess_);
@@ -67,7 +69,7 @@ namespace edm {
             << "'setRunNumber' was " << setRun_ <<", while the first run was "
             << setRun_ - forcedRunOffset_ << ".\n";
         }
-        updateProductRegistry();
+        if (primarySequence_) updateProductRegistry();
       }
     } else {
       Service<RandomNumberGenerator> rng;
@@ -101,7 +103,7 @@ namespace edm {
 	initFile(skipBadFiles_);
       }
     } else {
-      if (!nextFile(!primary())) {
+      if (!nextFile()) {
         assert(0);
       }
     }
@@ -161,19 +163,19 @@ namespace edm {
     return *rootFile_->productRegistry();
   }
 
-  bool RootInputFileSequence::nextFile(bool wrapAround) {
+  bool RootInputFileSequence::nextFile() {
     if(fileIter_ != fileIterEnd_) ++fileIter_;
     if(fileIter_ == fileIterEnd_) {
-      if (wrapAround) {
-	fileIter_ = fileIterBegin_;
-      } else {
+      if (primarySequence_) {
 	return false;
+      } else {
+	fileIter_ = fileIterBegin_;
       }
     }
 
     initFile(skipBadFiles_);
 
-    if (primary() && !wrapAround && rootFile_) {
+    if (primarySequence_ && rootFile_) {
       // make sure the new product registry is compatible with the main one
       std::string mergeInfo = productRegistryUpdate().merge(*rootFile_->productRegistry(),
 							    fileIter_->fileName(),
@@ -187,7 +189,7 @@ namespace edm {
 
   bool RootInputFileSequence::previousFile() {
     if(fileIter_ == fileIterBegin_) {
-      if (primary()) {
+      if (primarySequence_) {
 	return false;
       } else {
 	fileIter_ = fileIterEnd_;
@@ -197,7 +199,7 @@ namespace edm {
 
     initFile(false);
 
-    if (primary() && rootFile_) {
+    if (primarySequence_ && rootFile_) {
       // make sure the new product registry is compatible to the main one
       std::string mergeInfo = productRegistryUpdate().merge(*rootFile_->productRegistry(),
 							    fileIter_->fileName(),
@@ -215,12 +217,12 @@ namespace edm {
 
   boost::shared_ptr<RunPrincipal>
   RootInputFileSequence::readRun_() {
-    return rootFile_->readRun(primary() ? productRegistry() : rootFile_->productRegistry()); 
+    return rootFile_->readRun(primarySequence_ ? productRegistry() : rootFile_->productRegistry()); 
   }
 
   boost::shared_ptr<LuminosityBlockPrincipal>
   RootInputFileSequence::readLuminosityBlock_() {
-    return rootFile_->readLumi(primary() ? productRegistry() : rootFile_->productRegistry(), runPrincipal()); 
+    return rootFile_->readLumi(primarySequence_ ? productRegistry() : rootFile_->productRegistry(), runPrincipal()); 
   }
 
   // readEvent_() is responsible for creating, and setting up, the
@@ -240,17 +242,17 @@ namespace edm {
   std::auto_ptr<EventPrincipal>
   RootInputFileSequence::readEvent_(boost::shared_ptr<LuminosityBlockPrincipal> lbp) {
     if (randomAccess_) {
-      return rootFile_->readEvent(primary() ?
+      return rootFile_->readEvent(primarySequence_ ?
 				  productRegistry() :
 			          rootFile_->productRegistry(),
 				  boost::shared_ptr<LuminosityBlockPrincipal>()); 
     }
-    return rootFile_->readEvent(primary() ? productRegistry() : rootFile_->productRegistry(), lbp); 
+    return rootFile_->readEvent(primarySequence_ ? productRegistry() : rootFile_->productRegistry(), lbp); 
   }
 
   std::auto_ptr<EventPrincipal>
   RootInputFileSequence::readCurrentEvent() {
-    return rootFile_->readCurrentEvent(primary() ?
+    return rootFile_->readCurrentEvent(primarySequence_ ?
 				       productRegistry() :
 				       rootFile_->productRegistry(),
 				       boost::shared_ptr<LuminosityBlockPrincipal>()); 
@@ -353,7 +355,7 @@ namespace edm {
     randomAccess_ = true;
     while (offset != 0) {
       offset = rootFile_->skipEvents(offset);
-      if (offset > 0 && !nextFile(!primary())) return;
+      if (offset > 0 && !nextFile()) return;
       if (offset < 0 && !previousFile()) return;
     }
     rootFile_->skipEvents(0);

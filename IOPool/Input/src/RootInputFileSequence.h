@@ -5,7 +5,7 @@
 
 RootInputFileSequence: This is an InputSource
 
-$Id: RootInputFileSequence.h,v 1.9 2008/04/11 00:36:28 wmtan Exp $
+$Id: RootInputFileSequence.h,v 1.10 2008/04/16 22:02:32 wdd Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -38,7 +38,7 @@ namespace edm {
   class FileIndex;
   class RootInputFileSequence : private boost::noncopyable {
   public:
-    explicit RootInputFileSequence(ParameterSet const& pset, PoolSource const& input, InputFileCatalog const& catalog);
+    explicit RootInputFileSequence(ParameterSet const& pset, PoolSource const& input, InputFileCatalog const& catalog, bool primarySequence);
     virtual ~RootInputFileSequence();
 
     typedef VectorInputSource::EventPrincipalVector EventPrincipalVector;
@@ -61,7 +61,7 @@ namespace edm {
   private:
     void initFile(bool skipBadFiles);
     void updateProductRegistry() const;
-    bool nextFile(bool wrapAround);
+    bool nextFile();
     bool previousFile();
     void rewindFile();
     std::auto_ptr<EventPrincipal> readCurrentEvent();
@@ -98,6 +98,7 @@ namespace edm {
     int forcedRunOffset_;
     RunNumber_t setRun_;
     bool dropMetaData_;
+    bool primarySequence_;
     bool randomAccess_;
   }; // class RootInputFileSequence
 }
