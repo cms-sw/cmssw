@@ -7,8 +7,8 @@
  * One instance is created for each DDVolume. The parameters of the 
  * boundary surfaces are calculated during construction.
  *
- *  $Date: 2007/02/03 16:17:30 $
- *  $Revision: 1.4 $
+ *  $Date: 2008/03/29 14:32:51 $
+ *  $Revision: 1.5 $
  *  \author N. Amapane - INFN Torino
  */
 
@@ -41,7 +41,7 @@ public:
   const Surface & surface(int which_side) const;
   const Surface & surface(Sides which_side) const;
   /// Find out if two surfaces are the same physical surface
-  bool sameSurface(const Surface & s1, Sides which_side);
+  bool sameSurface(const Surface & s1, Sides which_side, float tolerance = 0.01);
   /// Assign a shared surface perorming sanity checks.
   bool setSurface(const Surface & s1, Sides which_side);
   /// if the specified surface has been matched.
