@@ -1,6 +1,7 @@
 #include "CondFormats/L1TObjects/interface/BitArray.h"
 #include "CondFormats/L1TObjects/interface/L1MuScale.h"
 #include "CondFormats/L1TObjects/interface/L1MuTriggerScales.h"
+#include "CondFormats/L1TObjects/interface/L1MuTriggerPtScale.h"
 #include "CondFormats/L1TObjects/interface/L1MuGMTParameters.h"
 #include "CondFormats/L1TObjects/interface/L1MuGMTScales.h"
 #include "CondFormats/L1TObjects/interface/L1CaloEtScale.h"
@@ -39,6 +40,8 @@
 #include "CondFormats/L1TObjects/interface/L1GtCondition.h"
 #include "CondFormats/L1TObjects/interface/L1GtAlgorithm.h"
 #include "CondFormats/L1TObjects/interface/L1GtTriggerMenu.h"
+
+#include "CondFormats/L1TObjects/interface/L1CaloGeometry.h"
 
 namespace {
   namespace {

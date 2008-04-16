@@ -1,6 +1,10 @@
 <lcgdict>
   <class name="L1MuScale"/>
+  <class name="L1MuBinnedScale"/>
+  <class name="L1MuSymmetricBinnedScale"/>
+  <class name="L1MuPseudoSignedPacking"/>
   <class name="L1MuTriggerScales"/>
+  <class name="L1MuTriggerPtScale"/>
   <class name="L1MuGMTParameters"/>
   <class name="L1MuGMTScales"/>
   <class name="L1CaloEtScale"/>
@@ -11,21 +15,22 @@
   <class name="L1GctJetEtCalibrationFunction"/>
   <class name="std::vector<std::vector<double> >"/>
   <class name="L1GctJetFinderParams"/>
-  <class name="std::map<int,int>"/>
-  <class name="std::map<int,int>::value_type"/>
+  <class name="std::map<short,short>"/>
+  <class name="std::map<short,short>::value_type"/>
   <class name="L1MuDTExtLut::LUT"/>
   <class name="std::vector<L1MuDTExtLut::LUT>"/>
   <class name="L1MuDTExtLut"/>
-  <class name="std::vector<std::map<int,int> >"/>
+  <class name="std::vector<std::map<short,short> >"/>
   <class name="L1MuDTPhiLut"/>
   <class name="L1MuDTPtaLut"/>
   <class name="L1MuDTEtaPattern"/>
-  <class name="std::map<int,L1MuDTEtaPattern>"/>
-  <class name="std::map<int,L1MuDTEtaPattern>::value_type"/>
+  <class name="std::map<short,L1MuDTEtaPattern>"/>
+  <class name="std::map<short,L1MuDTEtaPattern>::value_type"/>
   <class name="L1MuDTEtaPatternLut"/>
-  <class name="std::pair<int,std::vector<int> >"/>
-  <class name="std::map<std::pair<int,int>,std::pair<int,std::vector<int> > >"/>
-  <class name="std::map<std::pair<int,int>,std::pair<int,std::vector<int> > >::value_type"/>
+  <class name="std::pair<short,short>"/>
+  <class name="std::pair<short,std::vector<short> >"/>
+  <class name="std::map<std::pair<short,short>,std::pair<short,std::vector<short> > >"/>
+  <class name="std::map<std::pair<short,short>,std::pair<short,std::vector<short> > >::value_type"/>
   <class name="L1MuDTQualPatternLut"/>
   <class name="L1CSCTPParameters"/>
   <class name="L1MuCSCTFConfiguration"/>
@@ -104,5 +109,6 @@
   <class name="L1GtTriggerMenu">
     <field name="m_conditionMap" transient="true" />
   </class>
+  <class name="L1CaloGeometry"/>
 
 </lcgdict>

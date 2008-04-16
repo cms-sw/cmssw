@@ -6,8 +6,8 @@
  *
 */
 //
-//   $Date: 2007/03/23 15:22:03 $
-//   $Revision: 1.1 $
+//   $Date: 2007/04/27 13:16:00 $
+//   $Revision: 1.3 $
 //
 //   Original Author :
 //   H. Sakulin            HEPHY Vienna
@@ -61,6 +61,21 @@ class L1MuUnsignedPacking : public L1MuPacking{
   };
 };
 
+class L1MuUnsignedPackingGeneric : public L1MuPacking{
+ public:
+  /// get the sign from the packed notation. always psitive (0)
+  static int signFromPacked(unsigned packed, unsigned int nbits) { return 0;}; 
+  /// get the value from the packed notation (always positive)
+  static int idxFromPacked(unsigned packed, unsigned int nbits) { return (int) packed;};
+  /// get the packed notation of a value, check the range
+  static unsigned packedFromIdx(int idx, unsigned int nbits) { 
+    if (idx >= (1 << nbits) ) edm::LogWarning("ScaleRangeViolation") 
+                  << "L1MuUnignedPacking::packedFromIdx: warning value " << idx 
+		  << "exceeds " << nbits << "-bit range !!!";        
+    return (unsigned) idx;
+  };
+};
+
 /**
  * \class L1MuSignedPacking
  *
@@ -85,6 +100,23 @@ class L1MuSignedPacking : public L1MuPacking {
   };
 };
 
+class L1MuSignedPackingGeneric : public L1MuPacking {
+ public:
+  /// get the sign from the packed notation (0=positive, 1=negative)
+  static int signFromPacked(unsigned packed, unsigned int nbits) { return packed & (1 << (nbits-1)) ? 1 : 0;};
+
+  /// get the value from the packed notation (+/-)
+  static int idxFromPacked(unsigned packed, unsigned int nbits) { return packed & (1 << (nbits-1)) ? (packed - (1 << nbits) ) : packed;};
+  /// get the packed notation of a value, check range
+  static unsigned packedFromIdx(int idx, unsigned int nbits) { 
+    unsigned maxabs = 1 << (nbits-1) ;
+    if (idx < -(int)maxabs && idx >= (int)maxabs) edm::LogWarning("ScaleRangeViolation") 
+                                                       << "L1MuSignedPacking::packedFromIdx: warning value " << idx 
+						       << "exceeds " << nbits << "-bit range !!!";    
+    return  ~(~0 << nbits) & (idx < 0 ? (1 << nbits) + idx : idx);
+  };
+};
+
 /**
  * \class L1MuPseudoSignedPacking
  *
@@ -95,6 +127,7 @@ class L1MuSignedPacking : public L1MuPacking {
 
 class L1MuPseudoSignedPacking : public L1MuPacking {
  public:
+      L1MuPseudoSignedPacking() {}
   L1MuPseudoSignedPacking(unsigned int nbits) : m_nbits(nbits) {};
 
   /// get the (pseudo-)sign from the packed notation (0=positive, 1=negative)
