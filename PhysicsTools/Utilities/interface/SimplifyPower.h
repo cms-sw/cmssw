@@ -38,17 +38,21 @@ namespace funct {
   POWER_RULE(TYPN1T2, POWER_S(A, B), NUM(n), POWER(A, SUM(B, NUM(n))),
 	     pow(_1._1, _1._2 + _2));
 
-
   // a ^ (-n) = 1 / a ^ n
   template<TYPN1T1, bool positive = (n>= 0)>
   struct SimplifySignedPower {
     typedef POWER_S(A, NUM(n)) type;
     COMBINE(A, NUM(n), type(_1, _2));
   };
-  
+
   TEMPL(N1T1) struct SimplifySignedPower<n, A, false> {
     typedef RATIO(NUM(1), POWER(A, NUM(- n))) type;
     COMBINE(A, NUM(n), num<1>() / pow(_1, num<-n>()));
+  };
+
+  TEMPL(T1) struct SimplifySignedPower<0, A, true> {
+    typedef NUM(1) type;
+    COMBINE(A, NUM(0), num<1>());
   };
 
   TEMPL(N1T1) struct Power<A, NUM(n)> :
@@ -56,7 +60,8 @@ namespace funct {
   
   TEMPL(N1T2) struct Power<PROD_S(A, B), NUM(n)> :
     public SimplifySignedPower<n, PROD_S(A, B)> { };
-  
+
+  // ( a * b )^1 = a * b
   TEMPL(T2) struct Power<PROD_S(A, B), NUM(1)> {
     typedef PROD_S(A, B) type;
     COMBINE(PROD_S(A, B), NUM(1), _1);

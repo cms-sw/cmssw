@@ -45,15 +45,14 @@ namespace funct {
   //  /
   PRIMIT_RULE(TYPXN1, POWER_S(X, NUM(n)), 
 	      RATIO(POWER(X, NUM(n + 1)), NUM(n + 1)),
-	      pow(_._1, num<n + 1>() / num<n + 1>()));
+	      pow(_._1, num<n + 1>()) / num<n + 1>());
   
   //  /
   //  | 1 / x ^ n dx = (- 1) / ((n - 1)  x ^ (n - 1))
   //  /
   PRIMIT_RULE(TYPXN1, RATIO_S(NUM(1), POWER_S(X, NUM(n))),
-	      RATIO(NUM(-1), PROD(NUM(n - 1), 
-				  POWER(X, NUM(n - 1)))),
-	      num<-1>()/(num<n - 1>() * pow(_._2._1, num<n - 1>)));
+	      RATIO(NUM(-1), PROD(NUM(n - 1), POWER(X, NUM(n - 1)))),
+	      num<-1>()/(num<n - 1>() * pow(_._2._1, num<n - 1>())));
   
   //  /
   //  | exp(x) dx = exp(x)

@@ -37,7 +37,19 @@ void testPrimitives::checkAll() {
   funct::Numerical<1> _1;
   funct::Numerical<2> _2;
   funct::Numerical<3> _3;
+  funct::Numerical<4> _4;
+  funct::Numerical<-1> _m1;
+  funct::Numerical<-2> _m2;
+  funct::Numerical<-3> _m3;
+  funct::Numerical<-4> _m4;
 
+
+  CHECK(primitive<X>(x), "x^2/2");
+  CHECK(primitive<X>(x^_2), "x^3/3");
+  CHECK(primitive<X>(x^_3), "x^4/4");
+  CHECK(primitive<X>(x^_4), "x^5/5");
+  CHECK(primitive<X>(x^_m4), "-( 1/3 )/x^3");
+  CHECK(primitive<X>(_1 / (x^_4)), "-( 1/3 )/x^3");
   CHECK(primitive<X>(sin(x)), "-cos(x)");
   CHECK(primitive<X>(cos(x)), "sin(x)");
   
