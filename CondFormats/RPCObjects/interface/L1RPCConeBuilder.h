@@ -16,7 +16,7 @@
 //
 // Original Author:  Tomasz Fruboes
 //         Created:  Fri Feb 22 12:27:02 CET 2008
-// $Id: L1RPCConeBuilder.h,v 1.1 2008/03/03 14:14:15 fruboes Exp $
+// $Id: L1RPCConeBuilder.h,v 1.2 2008/03/14 12:38:20 fruboes Exp $
 //
 
 #include <vector>
@@ -82,6 +82,7 @@ class L1RPCConeBuilder
       void setFirstTower(int tow) {m_firstTower = tow;};
       void setLastTower(int tow) {m_lastTower = tow;};
       
+      const TLPSizesInTowers &  getLPSizes() const { return m_LPSizesInTowers;};
       
    private:
 //      L1RPCConeBuilder(const L1RPCConeBuilder&); // stop default
