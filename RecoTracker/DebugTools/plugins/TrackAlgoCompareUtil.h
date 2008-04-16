@@ -77,10 +77,8 @@ class TrackAlgoCompareUtil : public edm::EDProducer
   edm::InputTag vertexLabel_algoB;
   edm::InputTag trackingVertexLabel;
   edm::InputTag beamSpotLabel;
-  std::string assocByHitsLabel;       // Associator label for by Hits
-  std::string assocByChi2Label;       // Associator label for Chi2
+  std::string assocLabel;     
   
-  unsigned int numEventsProcessed;
 };
 
 

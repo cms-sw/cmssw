@@ -16,7 +16,7 @@ TrackAlgoCompareUtil::TrackAlgoCompareUtil(const edm::ParameterSet& iConfig)
   vertexLabel_algoB = iConfig.getParameter<edm::InputTag>("vertexLabel_algoB");
   trackingVertexLabel = iConfig.getParameter<edm::InputTag>("trackingVertexLabel");
   beamSpotLabel = iConfig.getParameter<edm::InputTag>("beamSpotLabel");
-  assocByHitsLabel = iConfig.getUntrackedParameter<std::string>("assocByHitsLabel", "TrackAssociatorByHits");
+  assocLabel = iConfig.getUntrackedParameter<std::string>("assocLabel", "TrackAssociator");
   
   produces<TPtoRecoTrackCollection>("AlgoA");
   produces<TPtoRecoTrackCollection>("AlgoB");
@@ -32,7 +32,6 @@ TrackAlgoCompareUtil::~TrackAlgoCompareUtil()
 // ------------ method called once each job just before starting event loop  ------------
 void TrackAlgoCompareUtil::beginJob(const edm::EventSetup&)
 {
-  numEventsProcessed = 0;
 }
 
 
@@ -40,8 +39,6 @@ void TrackAlgoCompareUtil::beginJob(const edm::EventSetup&)
 void
 TrackAlgoCompareUtil::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
-  cout << "Event Number = " << ++numEventsProcessed << endl;
-  
   // create output collection instance
   std::auto_ptr<TPtoRecoTrackCollection> outputAlgoA(new TPtoRecoTrackCollection());
   std::auto_ptr<TPtoRecoTrackCollection> outputAlgoB(new TPtoRecoTrackCollection());
@@ -53,11 +50,9 @@ TrackAlgoCompareUtil::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   
   // Get Inputs
   edm::Handle<View<reco::Track> > trackCollAlgoA;
-  //edm::Handle<reco::TrackCollection> trackCollAlgoA;
   iEvent.getByLabel(trackLabel_algoA, trackCollAlgoA);
   
   edm::Handle< View<reco::Track> > trackCollAlgoB;
-  //edm::Handle<reco::TrackCollection> trackCollAlgoB;
   iEvent.getByLabel(trackLabel_algoB, trackCollAlgoB);
   
   edm::Handle<TrackingParticleCollection> trackingParticleCollFakes;
@@ -76,32 +71,30 @@ TrackAlgoCompareUtil::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   iEvent.getByLabel(trackingVertexLabel, trackingVertexColl);
   
   // get associator (by hits) for the track
-  edm::ESHandle<TrackAssociatorBase> theAssociatorByHits;
-  iSetup.get<TrackAssociatorRecord>().get(assocByHitsLabel, theAssociatorByHits);
+  edm::ESHandle<TrackAssociatorBase> theAssociator;
+  iSetup.get<TrackAssociatorRecord>().get(assocLabel, theAssociator);
   
   // call the associator functions:
-  reco::RecoToSimCollection recSimCollByHits_AlgoA = theAssociatorByHits->associateRecoToSim(trackCollAlgoA,trackingParticleCollFakes, &iEvent);
-  reco::RecoToSimCollection recSimCollByHits_AlgoB = theAssociatorByHits->associateRecoToSim(trackCollAlgoB,trackingParticleCollFakes, &iEvent);
+  reco::RecoToSimCollection recSimColl_AlgoA = theAssociator->associateRecoToSim(trackCollAlgoA,trackingParticleCollFakes, &iEvent);
+  reco::RecoToSimCollection recSimColl_AlgoB = theAssociator->associateRecoToSim(trackCollAlgoB,trackingParticleCollFakes, &iEvent);
   
-  reco::SimToRecoCollection simRecCollByHits_AlgoA = theAssociatorByHits->associateSimToReco(trackCollAlgoA,trackingParticleCollEffic, &iEvent);
-  reco::SimToRecoCollection simRecCollByHits_AlgoB = theAssociatorByHits->associateSimToReco(trackCollAlgoB,trackingParticleCollEffic, &iEvent);
+  reco::SimToRecoCollection simRecCollByHits_AlgoA = theAssociator->associateSimToReco(trackCollAlgoA,trackingParticleCollEffic, &iEvent);
+  reco::SimToRecoCollection simRecCollByHits_AlgoB = theAssociator->associateSimToReco(trackCollAlgoB,trackingParticleCollEffic, &iEvent);
   
-  // define the vector of references to trackingParticleColl associated with a given recoTrack
+  // define the vector of references to trackingParticleColl associated with a given reco::Track
   std::vector<std::pair<TrackingParticleRef, double> > associatedTrackingParticles;
   
-  // define the vector of references to trackColl associated with a given trackingParticle
+  // define the vector of references to trackColl associated with a given TrackingParticle
   std::vector<std::pair<reco::TrackBaseRef, double> > associatedRecoTracks;
   
-  // Get the magnetic field data from the event (used to calculate the point of closest approach for simTracks)
+  // Get the magnetic field data from the event (used to calculate the point of closest TrackingParticle)
   edm::ESHandle<MagneticField> theMagneticField;
   iSetup.get<IdealMagneticFieldRecord>().get(theMagneticField);
   const MagneticField *magneticField = theMagneticField.product();
 	
-  
   // fill collection algoA
   for(View<reco::Track>::size_type i = 0; i < trackCollAlgoA->size(); ++i)
-    //for(reco::TrackCollection::size_type i = 0; i < trackCollAlgoA->size(); ++i)
-    {
+  {
       // get recoTrack algo A
       reco::TrackBaseRef recoTrack(trackCollAlgoA, i);
       TPtoRecoTrack  recoTracktoTP;
@@ -109,12 +102,11 @@ TrackAlgoCompareUtil::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
       recoTracktoTP.SetBeamSpot(beamSpot.position());
 		
       // get the associated trackingParticle
-      if(recSimCollByHits_AlgoA.find(recoTrack) != recSimCollByHits_AlgoA.end())
+      if(recSimColl_AlgoA.find(recoTrack) != recSimColl_AlgoA.end())
         {
-	  associatedTrackingParticles = recSimCollByHits_AlgoA[recoTrack];
+	  associatedTrackingParticles = recSimColl_AlgoA[recoTrack];
 	  recoTracktoTP.SetTrackingParticle( associatedTrackingParticles.begin()->first );
 	  SetTrackingParticleD0Dz(associatedTrackingParticles.begin()->first, beamSpot, magneticField, recoTracktoTP);
-	  //SetTrackingParticleD0Dz(associatedTrackingParticles.begin()->first, recoTrack, magneticField, recoTracktoTP);
 	}
       else
 	{			
@@ -153,9 +145,9 @@ TrackAlgoCompareUtil::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
       recoTracktoTP.SetBeamSpot(beamSpot.position());
       
       // get the associated trackingParticle
-      if(recSimCollByHits_AlgoB.find(recoTrack) != recSimCollByHits_AlgoB.end())
+      if(recSimColl_AlgoB.find(recoTrack) != recSimColl_AlgoB.end())
         {
-	  associatedTrackingParticles = recSimCollByHits_AlgoB[recoTrack];
+	  associatedTrackingParticles = recSimColl_AlgoB[recoTrack];
 	  recoTracktoTP.SetTrackingParticle( associatedTrackingParticles.begin()->first );
 	  SetTrackingParticleD0Dz(associatedTrackingParticles.begin()->first, beamSpot, magneticField, recoTracktoTP);
 	}
@@ -273,7 +265,7 @@ void TrackAlgoCompareUtil::SetTrackingParticleD0Dz(TrackingParticleRef tp, const
   
   FreeTrajectoryState ftsAtProduction( trackingParticleVertex, trackingParticleP3, trackingParticleCharge, bf );
   TrajectoryStateClosestToBeamLineBuilder tscblBuilder;
-  TrajectoryStateClosestToBeamLine tsAtClosestApproach = tscblBuilder(ftsAtProduction, bs);//as in TrackProducerAlgorithm
+  TrajectoryStateClosestToBeamLine tsAtClosestApproach = tscblBuilder(ftsAtProduction, bs);  //as in TrackProducerAlgorithm
   
 	if(tsAtClosestApproach.isValid())
 	  {
@@ -288,7 +280,5 @@ void TrackAlgoCompareUtil::SetTrackingParticleD0Dz(TrackingParticleRef tp, const
 	    TPRT.SetTrackingParticleMomentumPCA(GlobalVector(-9999.0, -9999.0, -9999.0));
 	    TPRT.SetTrackingParticlePCA(GlobalPoint(-9999.0, -9999.0, -9999.0));
 	}
-	
-	
 }
 
