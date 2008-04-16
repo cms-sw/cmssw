@@ -26,8 +26,10 @@ class SiPixelGainCalibrationService : public SiPixelGainCalibrationServicePayloa
   ~SiPixelGainCalibrationService(){};
 
   // pixel granularity
-  float   getPedestal (const uint32_t& detID,const int& col, const int& row) {return this->getPedestalByPixel(detID, col, row);};
-  float   getGain     (const uint32_t& detID,const int& col, const int& row) {return this->getGainByPixel(detID, col, row);};
+  float   getPedestal  ( const uint32_t& detID,const int& col, const int& row);
+  float   getGain      ( const uint32_t& detID,const int& col, const int& row);
+  bool    isDead       ( const uint32_t& detID,const int& col, const int& row);
+  bool    isDeadColumn ( const uint32_t& detID,const int& col, const int& row); //throws exception!
 
 
 };

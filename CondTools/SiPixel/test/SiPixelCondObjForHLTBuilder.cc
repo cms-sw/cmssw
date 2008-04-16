@@ -123,18 +123,29 @@ SiPixelCondObjForHLTBuilder::analyze(const edm::Event& iEvent, const edm::EventS
 // 	   gain =  2.8;
 // 	   ped  = 28.2;
 
+           if (j > 80) //TESTING
+           {
+              ped -= 8;
+              gain += 5;
+           }
+
            totalPed     += ped;
            totalGain    += gain;
 
+           if (j + 1 % 80 == 0) 
+           {
+              float averagePed       = totalPed/static_cast<float>(80);
+              float averageGain      = totalGain/static_cast<float>(80);
+              //only fill by column after each roc
+              SiPixelGainCalibration_->setData( averagePed , averageGain , theSiPixelGainCalibration);
+              totalPed = 0;
+              totalGain = 0;
+           }
 	 }
-         float averagePed       = totalPed/static_cast<float>(nrows);
-         float averageGain      = totalGain/static_cast<float>(nrows);
-         //only fill by column
-         SiPixelGainCalibration_->setData( averagePed , averageGain , theSiPixelGainCalibration);
        }
 
        SiPixelGainCalibrationForHLT::Range range(theSiPixelGainCalibration.begin(),theSiPixelGainCalibration.end());
-       if( !SiPixelGainCalibration_->put(detid,range) )
+       if( !SiPixelGainCalibration_->put(detid,range, ncols) )
 	 edm::LogError("SiPixelCondObjForHLTBuilder")<<"[SiPixelCondObjForHLTBuilder::analyze] detid already exists"<<std::endl;
      }
    }

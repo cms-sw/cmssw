@@ -126,13 +126,19 @@ SiPixelCondObjOfflineBuilder::analyze(const edm::Event& iEvent, const edm::Event
 //  	   gain =  2.8;
 //  	   ped  = 28.2;
 
+           if (j >= 80)
+              gain += 3; //add an offset for testing
            totalGain    += gain;
+
            SiPixelGainCalibration_->setDataPedestal( ped , theSiPixelGainCalibration);
+           if ((j + 1)  % 80 == 0) // fill the column average after ever ROC!
+           {
+              float averageGain      = totalGain/static_cast<float>(80);
+              SiPixelGainCalibration_->setDataGain( averageGain , 80, theSiPixelGainCalibration);
+              totalGain = 0;
+           }
 
 	 }
-         float averageGain      = totalGain/static_cast<float>(nrows);
-         SiPixelGainCalibration_->setDataGain( averageGain , nrows, theSiPixelGainCalibration);
-         //only fill by column
        }
 
        SiPixelGainCalibrationOffline::Range range(theSiPixelGainCalibration.begin(),theSiPixelGainCalibration.end());

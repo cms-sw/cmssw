@@ -55,14 +55,15 @@ SiPixelCondObjForHLTReader::analyze(const edm::Event& iEvent, const edm::EventSe
     int ncols = topol.ncolumns();   // cols in y
     
     for(int col_iter=0; col_iter<ncols; col_iter++) {
-       nchannels++;
+       for(int row_iter=0; row_iter<nrows; row_iter++) {
+          nchannels++;
 
-       float ped  = SiPixelGainCalibrationService_.getPedestal(detid, col_iter);
-       p_iter->second->Fill( ped );
+          float ped  = SiPixelGainCalibrationService_.getPedestal(detid, col_iter, row_iter);
+          p_iter->second->Fill( ped );
 
-       float gain  = SiPixelGainCalibrationService_.getGain(detid, col_iter);
-       g_iter->second->Fill( gain );
-
+          float gain  = SiPixelGainCalibrationService_.getGain(detid, col_iter, row_iter);
+          g_iter->second->Fill( gain );
+       }
        //std::cout << "       Col "<<col_iter<<" Row "<<row_iter<<" Ped "<<ped<<" Gain "<<gain<<std::endl;
 
     }

@@ -26,8 +26,10 @@ class SiPixelGainCalibrationForHLTService : public SiPixelGainCalibrationService
   ~SiPixelGainCalibrationForHLTService(){};
 
   // column granularity
-  float   getPedestal (const uint32_t& detID,const int& col, const int& row = 0) {return this->getPedestalByColumn(detID, col);};
-  float   getGain     (const uint32_t& detID,const int& col, const int& row = 0) {return this->getGainByColumn(detID, col);};
+  float   getPedestal  ( const uint32_t& detID,const int& col, const int& row);
+  float   getGain      ( const uint32_t& detID,const int& col, const int& row);
+  bool    isDead       ( const uint32_t& detID,const int& col, const int& row); //also return dead by column.
+  bool    isDeadColumn ( const uint32_t& detID,const int& col, const int& row);
 
 };
 #endif

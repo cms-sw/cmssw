@@ -26,9 +26,9 @@ class SiPixelGainCalibrationOfflineService : public SiPixelGainCalibrationServic
   ~SiPixelGainCalibrationOfflineService(){};
 
   // pixel granularity
-  float   getPedestal (const uint32_t& detID,const int& col, const int& row) {return this->getPedestalByPixel(detID, col, row);};
-  float   getGain     (const uint32_t& detID,const int& col, const int& row = 0) {return this->getGainByColumn(detID, col);};
-
-
+  float   getPedestal  ( const uint32_t& detID,const int& col, const int& row);
+  float   getGain      ( const uint32_t& detID,const int& col, const int& row);
+  bool    isDead       ( const uint32_t& detID,const int& col, const int& row);
+  bool    isDeadColumn ( const uint32_t& detID,const int& col, const int& row);
 };
 #endif
