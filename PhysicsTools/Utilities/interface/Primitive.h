@@ -59,6 +59,19 @@ namespace funct {
 	      num<-1>()/(num<n - 1>() * pow(_._1._2, num<n - 1>())));
   
   //  /
+  //  | x ^ n/m dx = m / (n + m) (x)^ (n + m / m)
+  //  /
+  PRIMIT_RULE(TYPXN2, POWER_S(X, FRACT_S(n, m)),
+	      PROD(FRACT(m, n + m), POWER(X, FRACT(n + m, m))),
+	      (fract<m, n + m>() * pow(_._1, fract<n + m, m>())));
+  
+  //  /
+  //  | sqrt(x) dx = 2/3 (x)^ 3/2
+  //  /
+  PRIMIT_RULE(TYPX, SQRT_S(X), PRIMIT(X, POWER_S(X, FRACT_S(1, 2))),
+	      (fract<2, 3>() * pow(_._, fract<3, 2>())));
+
+  //  /
   //  | exp(x) dx = exp(x)
   //  /
   PRIMIT_RULE(TYPX, EXP_S(X), EXP(X), _);
@@ -74,21 +87,9 @@ namespace funct {
   //  /
   PRIMIT_RULE(TYPX, SGN_S(X), ABS(X), abs(_._));
   
-  //  /
-  //  | x ^ n/m dx = m / (n + m) (x)^ (n + m / m)
-  //  /
-  PRIMIT_RULE(TYPXN2, POWER_S(X, FRACT_S(n, m)),
-	      PROD(FRACT(m, n + m), POWER(X, FRACT(n + m, m))),
-	      (fract<m, n + m>() * pow(_._, fract<n + m, m>())));
   
   //  /
-  //  | sqrt(x) dx = 2/3 (x)^ 3/2
-  //  /
-  PRIMIT_RULE(TYPX, SQRT_S(X), PRIMIT(X, POWER_S(X, FRACT_S(1, 2))),
-	      (fract<2, 3>() * pow(_._, fract<3, 2>())));
-	      
-	      //  /
-	      //  | sin(x) dx = - cos(x)
+  //  | sin(x) dx = - cos(x)
   //  /
   PRIMIT_RULE(TYPX, SIN_S(X), MINUS(COS(X)), - cos(_._));
 
