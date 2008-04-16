@@ -17,9 +17,10 @@ std::string ROOTFileBase::TimeStampShort(){
   timeinfo = localtime(&rawtime);
 
   std::ostringstream out;
-  out << std::setfill('0') << std::setw(4) << timeinfo->tm_year + 1900
-      << std::setfill('0') << std::setw(2) << timeinfo->tm_mon + 1
-      << std::setfill('0') << std::setw(2) << timeinfo->tm_mday;
+  out.str(std::string());
+  out << std::setfill('0') << std::setw(4) << timeinfo->tm_year + 1900;
+  out << std::setfill('0') << std::setw(2) << timeinfo->tm_mon + 1;
+  out << std::setfill('0') << std::setw(2) << timeinfo->tm_mday;
 
   return out.str();
 }
@@ -75,7 +76,6 @@ ROOTFileBase::~ROOTFileBase(){
 #ifdef DEBUG
   std::cout << "End " << __PRETTY_FUNCTION__ << std::endl;
 #endif
-
 }
 
 void ROOTFileBase::CreateFileName(const HCAL_HLX::LUMI_SECTION &localSection){
@@ -83,28 +83,24 @@ void ROOTFileBase::CreateFileName(const HCAL_HLX::LUMI_SECTION &localSection){
   std::cout << "Begin " << __PRETTY_FUNCTION__ << std::endl;
 #endif
 
-
   std::ostringstream outputString;
 
-  outputString << outputDir << "/" << std::setfill('0') << std::setw(9) << localSection.hdr.runNumber;
-
+  // Create directory name
+  outputString << outputDir << "/" 
+	       << std::setfill('0') << std::setw(9) << localSection.hdr.runNumber;
+  
+  // Create the directory that will contain the single lumi section file
   mkdir(outputString.str().c_str(), 0777);
-
+  
+  // Create file name
   outputString << "/CMS_LUMI_RAW_"
-	       << TimeStampShort()
-	       << "_"
-	       << std::setfill('0') << std::setw(9) << localSection.hdr.runNumber
-	       << "_"
-	       << localSection.hdr.bCMSLive
-	       << "_"
+	       << TimeStampShort() << "_"
+	       << std::setfill('0') << std::setw(9) << localSection.hdr.runNumber << "_"
+	       << localSection.hdr.bCMSLive << "_"
 	       << std::setfill('0') << std::setw(4) << localSection.hdr.sectionNumber 
 	       << ".root";
   fileName = outputString.str();
   
-  outputString << outputDir << "/" << std::setfill('0') << std::setw(9) << localSection.hdr.runNumber;
-
-  mkdir(outputString.str().c_str(), 0770);
-
 #ifdef DEBUG
   std::cout << "Output file is " << fileName << std::endl;
   std::cout << "End " << __PRETTY_FUNCTION__ << std::endl;
@@ -146,7 +142,6 @@ void ROOTFileBase::CreateTree(const HCAL_HLX::LUMI_SECTION & localSection){
 
     LHCPtr[i] = &LHC[i];
     MakeBranch(localSection.lhc[i], &LHCPtr[i], i);
-    // Yes, that is supposed to be the address of a pointer.
   }
 
 #ifdef DEBUG
@@ -236,9 +231,9 @@ void ROOTFileBase::InsertInformation(){
 
   TriggerDeadtime->TriggerDeadtime = 91;
 
-  RingSet->Set1Rings = 101;
-  RingSet->Set2Rings = 102;
-  RingSet->EtSumRings = 103;
+  RingSet->Set1Rings = "33L,34L";
+  RingSet->Set2Rings = "35S,36S";
+  RingSet->EtSumRings = "33L,34L,35S,36S";
 }
 
 void ROOTFileBase::CloseTree(){
@@ -250,7 +245,6 @@ void ROOTFileBase::CloseTree(){
   m_file->Close();
 
   //delete m_tree; // NO!!! root does this when you delete m_file
-
   if(m_file != NULL){
     delete m_file;
     m_file = NULL;
@@ -272,17 +266,9 @@ void ROOTFileBase::Concatenate(const HCAL_HLX::LUMI_SECTION& localSection){
   std::string tempString;
   std::vector<std::string> FileList;
 
-  time_t rawtime;
-  struct tm* timeinfo;
-
-  rawtime = time(NULL);
-  timeinfo = localtime(&rawtime);
-
   outputString << outputDir
 	       << "/CMS_LUMI_RAW_"
-	       << std::setfill('0') << std::setw(4) << timeinfo->tm_year + 1900
-	       << std::setfill('0') << std::setw(2) << timeinfo->tm_mon + 1
-	       << std::setfill('0') << std::setw(2) << timeinfo->tm_mday
+	       << TimeStampShort()
 	       << "_"
 	       << std::setfill('0') << std::setw(9) << localSection.hdr.runNumber
 	       << "_"
@@ -290,30 +276,25 @@ void ROOTFileBase::Concatenate(const HCAL_HLX::LUMI_SECTION& localSection){
 	       << ".root";
   outFileName = outputString.str();
   
-  outputString.str("");
-  outputString << outputDir << "/" << std::setfill('0') << std::setw(9) << localSection.hdr.runNumber;
-
-  DIR *dp;
-  struct dirent *ep;
-  dp = opendir(outputString.str().c_str());
-  if(dp != NULL){
-    while (ep = readdir(dp)){
-      tempString = ep->d_name;
-      if(tempString.length() >  3){
-	tempString = outputString.str() + "/" +  tempString;
-	FileList.push_back(tempString);
-	std::cout << tempString << std::endl;
-      }
-    }
-    (void) closedir (dp);
-  }
+  outputString.str(std::string());
+  outputString << outputDir << "/" << std::setfill('0') << std::setw(9) << localSection.hdr.runNumber;  
+  outputString << "/CMS_LUMI_RAW_"
+	       << TimeStampShort() << "_"
+	       << std::setfill('0') << std::setw(9) << localSection.hdr.runNumber << "_"
+	       << localSection.hdr.bCMSLive << "_*.root";
 
   TChain Temp("LumiTree");
-  for(unsigned int i = 0; i < FileList.size(); i++){
-    Temp.Add(FileList[i].c_str());
-  }
-  Temp.Merge(outFileName.c_str());
+  Temp.Add(outputString.str().c_str());
 
+  //  Temp.Merge(outFileName.c_str()); // causes leaks
+  /*
+  TFile* OutputFile = new TFile(outFileName.c_str(),"RECREATE");
+  TTree* OutputTree = Temp.CloneTree();
+  
+  OutputFile->Write();
+  OutputFile->Close();
+  delete OutputFile;
+  */
 #ifdef DEBUG
   std::cout << "End " << __PRETTY_FUNCTION__ << std::endl;
 #endif

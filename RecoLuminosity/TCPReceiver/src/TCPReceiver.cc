@@ -1,3 +1,4 @@
+
 /*
   Author: Adam Hunt
   email:  ahunt@princeton.edu
@@ -31,6 +32,7 @@ namespace HCAL_HLX{
     servPort = port;
     servIP = IP;
     Connected = false;
+
 #ifdef DEBUG
     std::cout << "Begin " << __PRETTY_FUNCTION__ << std::endl;
 #endif
@@ -89,7 +91,7 @@ void SetupFDSets(fd_set& ReadFDs, fd_set& WriteFDs,
  
     if(acquireMode == 0){  // real data
       if(Connected == false){
-	errorCode = 701;
+	errorCode = 701;  // not connected
       } else {
 	unsigned int bytesRcvd, bytesToReceive, totalBytesRcvd;
 	const unsigned int Buffer_Size = 8192;
@@ -136,6 +138,7 @@ void SetupFDSets(fd_set& ReadFDs, fd_set& WriteFDs,
 	    if (FD_ISSET(tcpSocket, &fdsRead)) {
 	      
 	      if((bytesRcvd = recv(tcpSocket, Buffer, Buffer_Size, 0))<=0){
+		perror("Recv Error"); 
 		errorCode = 501;
 	      }else{
 		
@@ -178,9 +181,8 @@ void SetupFDSets(fd_set& ReadFDs, fd_set& WriteFDs,
 
   bool TCPReceiver::IsConnected(){
 #ifdef DEBUG
-    std::cout << "Begin and End  " << __PRETTY_FUNCTION__ << std::endl;
+    std::cout << "Begin and End  " << __PRETTY_FUNCTION__ << " " << Connected << std::endl;
 #endif
-
     return Connected;
   }
   
@@ -251,6 +253,7 @@ void SetupFDSets(fd_set& ReadFDs, fd_set& WriteFDs,
 	std::cout << "Requesting connection" << std::endl;
 #endif
 	if((tcpSocket = socket(AF_INET, SOCK_STREAM, 0))<0){
+	  perror("Socket Error");
 	  errorCode = 301; // Socket failed
 	}else{
 	  memset(&servAddr, 0, sizeof(servAddr)); 
@@ -264,7 +267,9 @@ void SetupFDSets(fd_set& ReadFDs, fd_set& WriteFDs,
 	  std::cout << "Connecting" << std::endl;
 #endif
 	  if(connect(tcpSocket, (struct sockaddr *) &servAddr, sizeof(servAddr))<0){
+	    perror("Connect Error");
 	    errorCode = 302; // connect failed
+	    close(tcpSocket);
 	  } else{
 	    Connected = true;
 	    errorCode = 1;  // Successful connection
@@ -272,8 +277,10 @@ void SetupFDSets(fd_set& ReadFDs, fd_set& WriteFDs,
 	}
       }
     } else if(acquireMode == 1) {
+      Connected = true; 
       errorCode = 1;       // do nothing for fake data
     } else  if(acquireMode == 2) {
+      Connected = true; 
       errorCode = 1;       // do nothing for random data
     } else {
       errorCode = 201;     // Invalid aquire mode
@@ -294,7 +301,9 @@ void SetupFDSets(fd_set& ReadFDs, fd_set& WriteFDs,
 
     if(Connected){
       if(shutdown(tcpSocket,SHUT_RDWR)<0){
+	perror("Shutdown Error");
 	errorCode = 601; // Disconnect Failed
+	Connected = false;
       } else {
 	Connected = false;
 	errorCode = 1;  // Successful Disconnect
@@ -461,5 +470,3 @@ void SetupFDSets(fd_set& ReadFDs, fd_set& WriteFDs,
   }
 
 }
-
-
