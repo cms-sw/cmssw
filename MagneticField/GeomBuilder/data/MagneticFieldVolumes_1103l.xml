@@ -11,7 +11,7 @@
  <Tubs name="V_7" rMin="0*m" rMax="1.724*m" dz="1.41645*m" startPhi="-15*deg" deltaPhi="30*deg"/>
  <Tubs name="V_8" rMin="1.724*m" rMax="3.08735*m" dz="6.3329*m" startPhi="-15*deg" deltaPhi="30*deg"/>
  <Tubs name="V_9" rMin="3.08735*m" rMax="3.47812*m" dz="6.6101*m" startPhi="-15*deg" deltaPhi="30*deg"/>
- <TruncTubs name="V_10" rMin="3.47812*m" rMax="3.92757*m" cutAtStart="3.74764*m" cutAtDelta="3.92757*m" cutInside="false" startPhi="0*deg" deltaPhi="30*deg" zHalf="6.6101*m"/>
+ <TruncTubs name="V_10" rMin="3.47812*m" rMax="3.69071*m" cutAtStart="3.74764*m" cutAtDelta="3.69071*m" cutInside="false" startPhi="0*deg" deltaPhi="10*deg" zHalf="6.6101*m"/>
  <PseudoTrap name="V_11" dx1="1.9922*m" dx2="2.32937*m" dy1="6.6101*m" dy2="6.6101*m" dz="0.629166*m" radius="9*m" atMinusZ="false"/>
  <Cone name="V_12" dz="0.251*m" rMin1="0*m" rMax1="0.8899*m" rMin2="0*m" rMax2="0.925*m" startPhi="-15*deg" deltaPhi="30*deg"/>
  <Cone name="V_13" dz="0.251*m" rMin1="0*m" rMax1="0.925*m" rMin2="0*m" rMax2="0.8899*m" startPhi="-15*deg" deltaPhi="30*deg"/>
@@ -313,9 +313,10 @@
  <Cone name="V_309" dz="0.005*m" rMin1="0*m" rMax1="0.2499*m" rMin2="0*m" rMax2="0.3299*m" startPhi="-15*deg" deltaPhi="30*deg"/>
  <Tubs name="V_310" rMin="0*m" rMax="0.3299*m" dz="2.82995*m" startPhi="-15*deg" deltaPhi="30*deg"/>
  <Tubs name="V_311" rMin="0*m" rMax="0.3299*m" dz="2.82995*m" startPhi="-15*deg" deltaPhi="30*deg"/>
+ <TruncTubs name="V_312" rMin="3.47812*m" rMax="3.92757*m" cutAtStart="3.69071*m" cutAtDelta="3.92757*m" cutInside="false" startPhi="0*deg" deltaPhi="20*deg" zHalf="6.6101*m"/>
 </SolidSection> 
 
-<LogicalPartSection> 
+<LogicalPartSection>
  <LogicalPart name="V_1" category="unspecified"> 
   <rSolid name="V_1"/> 
   <rMaterial name="materials:Air"/> 
@@ -1558,6 +1559,10 @@
  </LogicalPart>
  <LogicalPart name="V_311" category="unspecified"> 
   <rSolid name="V_311"/> 
+  <rMaterial name="materials:Air"/> 
+ </LogicalPart>
+ <LogicalPart name="V_312" category="unspecified"> 
+  <rSolid name="V_312"/> 
   <rMaterial name="materials:Air"/> 
  </LogicalPart>
 </LogicalPartSection> 
@@ -6532,6 +6537,17 @@
   <ParE name="center" value="0"/>
   <ParE name="center" value="17.17*m"/>
  </AlgoPosPart>
+ <AlgoPosPart algo="global:angular">
+  <rParent name="cmsMagneticField:MAGF"/>
+  <rChild name="V_312"/>
+  <ParE name="n" value="12"/>
+  <ParE name="startAngle" value="0*deg"/>
+  <ParE name="rangeAngle" value="360*deg"/>
+  <ParE name="radius" value="0"/>
+  <ParE name="center" value="0"/>
+  <ParE name="center" value="0"/>
+  <ParE name="center" value="0*m"/>
+ </AlgoPosPart>
 </PosPartSection> 
 
 <SpecParSection>
@@ -7778,6 +7794,10 @@
  <SpecPar name="Magnetic field map of Volume_311">
    <PartSelector path="//cmsMagneticField:MAGF/V_311"/>
    <Parameter name="mfield_V_311" value="grid.311.bin"/>
+ </SpecPar>
+ <SpecPar name="Magnetic field map of Volume_312">
+   <PartSelector path="//cmsMagneticField:MAGF/V_312"/>
+   <Parameter name="mfield_V_312" value="grid.312.bin"/>
  </SpecPar>
 </SpecParSection> 
 
