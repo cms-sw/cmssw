@@ -12,7 +12,7 @@
 
 // Original Author:  fwyzard
 //         Created:  Wed Oct 18 18:02:07 CEST 2006
-// $Id: SoftLepton.cc,v 1.16 2008/01/25 09:45:55 fwyzard Exp $
+// $Id: SoftLepton.cc,v 1.17 2008/03/03 10:52:26 fwyzard Exp $
 
 
 #include <memory>
@@ -46,8 +46,6 @@
 #include "DataFormats/MuonReco/interface/MuonFwd.h"
 #include "DataFormats/EgammaCandidates/interface/Electron.h"
 #include "DataFormats/EgammaCandidates/interface/ElectronFwd.h"
-#include "DataFormats/EgammaCandidates/interface/PixelMatchElectron.h"
-#include "DataFormats/EgammaCandidates/interface/PixelMatchElectronFwd.h"
 #include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
 #include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
 #include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
@@ -173,10 +171,10 @@ SoftLepton::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
     }
   } { // else
     // look for vector<PixelMatchElectron>
-    Handle<reco::PixelMatchElectronCollection> h_electrons;
+    Handle<reco::PixelMatchGsfElectronCollection> h_electrons;
     iEvent.getByLabel(m_leptons, h_electrons);
     if (h_electrons.isValid()) {
-      for (reco::PixelMatchElectronCollection::const_iterator electron = h_electrons->begin(); electron != h_electrons->end(); ++electron)
+      for (reco::PixelMatchGsfElectronCollection::const_iterator electron = h_electrons->begin(); electron != h_electrons->end(); ++electron)
         leptons.push_back(edm::RefToBase<reco::Track>( electron->track() ));
       break;
     }
@@ -213,7 +211,7 @@ SoftLepton::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
       break;
     }
   } { // else
-    throw edm::Exception(edm::errors::NotFound) << "Object " << m_leptons << " of type among (\"reco::ElectronCollection\", \"reco::PixelMatchElectronCollection\", \"reco::GsfElectronCollection\", \"reco::MuonCollection\", \"edm::View<reco::Track>\") not found";
+    throw edm::Exception(edm::errors::NotFound) << "Object " << m_leptons << " of type among (\"reco::ElectronCollection\", \"reco::PixelMatchGsfElectronCollection\", \"reco::GsfElectronCollection\", \"reco::MuonCollection\", \"edm::View<reco::Track>\") not found";
   } } while (false);
 
   // output collections
