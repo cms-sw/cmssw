@@ -1,6 +1,6 @@
 /*
- *  $Date: 2007/05/28 09:53:16 $
- *  $Revision: 1.15 $
+ *  $Date: 2008/04/10 13:04:13 $
+ *  $Revision: 1.1 $
  *  \author Julia Yarba
  */
 
@@ -23,9 +23,26 @@ using namespace edm;
 using namespace std;
 using namespace CLHEP;
 
+namespace {
+  HepRandomEngine& getEngineReference()
+  {
+
+   Service<RandomNumberGenerator> rng;
+   if(!rng.isAvailable()) {
+    throw cms::Exception("Configuration")
+       << "The RandomNumberProducer module requires the RandomNumberGeneratorService\n"
+          "which appears to be absent.  Please add that service to your configuration\n"
+          "or remove the modules that require it.";
+   }
+
+// The Service has already instantiated an engine.  Make contact with it.
+   return (rng->getEngine());
+  }
+}
+
 BaseFlatGunProducer::BaseFlatGunProducer( const ParameterSet& pset ) :
    fEvt(0),
-   fRandomEngine(0),
+   fRandomEngine(getEngineReference()),
    fRandomGenerator(0)
    // fPDGTable( new DefaultConfig::ParticleDataTable("PDG Table") )
 {
@@ -69,24 +86,9 @@ BaseFlatGunProducer::BaseFlatGunProducer( const ParameterSet& pset ) :
 
   fVerbosity = pset.getUntrackedParameter<int>( "Verbosity",0 ) ;
 
-   Service<RandomNumberGenerator> rng;
-   if(!rng.isAvailable()) {
-    throw cms::Exception("Configuration")
-       << "The RandomNumberProducer module requires the RandomNumberGeneratorService\n"
-          "which appears to be absent.  Please add that service to your configuration\n"
-          "or remove the modules that require it.";
-   }
-
 // The Service has already instantiated an engine.  Use it.
-// long seed = (long)(rng->mySeed()) ;
-// fRandomEngine = new HepJamesRandom(seed) ;
-
-   CLHEP::HepRandomEngine& thing = rng->getEngine();
-   fRandomEngine = &thing;
    fRandomGenerator = new RandFlat(fRandomEngine) ;
-   
    fAddAntiParticle = pset.getUntrackedParameter("AddAntiParticle", false) ;
-   
 }
 
 BaseFlatGunProducer::~BaseFlatGunProducer()
