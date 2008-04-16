@@ -71,7 +71,7 @@ double HoECalculator::getHoE(GlobalPoint pos, float energy,
 			     HBHERecHitMetaCollection *mhbhe) {
   
   double HoE=0.;
-
+  
   if (mhbhe) {
     const CaloSubdetectorGeometry *geometry_p ; 
     geometry_p =  theCaloGeom_->getSubdetectorGeometry (DetId::Hcal,4) ;

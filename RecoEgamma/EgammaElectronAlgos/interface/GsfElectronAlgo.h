@@ -41,7 +41,7 @@ public:
                          double minEOverPBarrel, double minEOverPEndcaps,
                          double maxDeltaEta, double maxDeltaPhi, 
 			 bool highPtPresel, double highPtMin,
-		         bool applyEtaCorrection);
+		         bool applyEtaCorrection, bool applyAmbResolution);
   ~GsfElectronAlgo();
 
   void setupES(const edm::EventSetup& setup);
@@ -68,6 +68,8 @@ public:
                       const reco::GsfTrackRef &trackRef,
 		      reco::GsfElectronCollection & outEle);  
 
+  void resolveElectrons(std::vector<reco::GsfElectron> &, reco::GsfElectronCollection & outEle);
+  
   //Gsf mode calculations
   GlobalVector computeMode(const TrajectoryStateOnSurface &tsos);
 
@@ -96,9 +98,12 @@ public:
   bool highPtPreselection_;
   double highPtMin_;
   
-  //if this parameter is true the result of fEta correction will be set as energy of eletron
+  // if this parameter is false, only SC level Escale correctoins are applied
   bool applyEtaCorrection_;
   
+  // if this parameter is true, "double" electrons are resolved
+  bool applyAmbResolution_;
+
   // input configuration
   edm::InputTag barrelSuperClusters_;
   edm::InputTag endcapSuperClusters_;

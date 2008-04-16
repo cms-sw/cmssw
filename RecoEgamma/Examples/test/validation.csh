@@ -4,7 +4,7 @@
 #two input root files produced using the EDAnalyzers in RecoEgamma/Examples,
 #by running one of:
 #
-#  RecoEgamma/Examples/test/read_gsfElectrons.cfg
+#  RecoEgamma/Examples/test/GsfElectronMCAnalyzer.cfg
 #  RecoEgamma/Examples/test/SimplePhotonAnalyzer.cfg
 #  RecoEgamma/Examples/test/SimpleConvertedPhotonAnalyzer.cfg
 #
@@ -27,8 +27,8 @@ setenv NEWRELEASE 200pre4
 setenv OLDRELEASE 167
 #Name of sample (affects output directory name and html description only)
 setenv SAMPLE RelValSingleElectronPt10
-#TYPE must be one of PixelMatchGsfElectron, Photon or ConvertedPhoton
-setenv TYPE PixelMatchGsfElectron
+#TYPE must be one of GsfElectron, GsfElectronFake, Photon or ConvertedPhoton
+setenv TYPE GsfElectron
 
 #==============END BASIC CONFIGURATION==================
 
@@ -54,7 +54,7 @@ cd $OUTDIR
 
 #The list of histograms to be compared for each TYPE can be configured below:
 
-if ( $TYPE == PixelMatchGsfElectron ) then
+if ( $TYPE == GsfElectron || $TYPE == GsfElectronFake ) then
 
 cat > scaledhistos <<EOF
   h_ele_PoPtrue   
@@ -236,9 +236,12 @@ cat end.C >>& validation.C
 rm end.C
 
 
-if ( $TYPE == PixelMatchGsfElectron ) then
-  setenv ANALYZER PixelMatchGsfElectronAnalyzer
-  setenv CFG read_gsfElectrons
+if ( $TYPE == GsfElectron ) then
+  setenv ANALYZER GsfElectronMCAnalyzer
+  setenv CFG GsfElectronMCAnalyzer
+else if ( $TYPE == GsfElectronFake ) then
+  setenv ANALYZER GsfElectronFakeAnalyzer
+  setenv CFG GsfElectronFakeAnalyzer
 else if ( $TYPE == Photon ) then
   setenv ANALYZER SimplePhotonAnalyzer
   setenv CFG SimplePhotonAnalyzer
