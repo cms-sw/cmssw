@@ -1,5 +1,5 @@
 /**
- * $Id: RollingSampleCounter.cc,v 1.19 2008/03/03 20:09:37 biery Exp $
+ * $Id: RollingSampleCounter.cc,v 1.1 2008/04/14 15:42:28 biery Exp $
  */
 
 #include "EventFilter/StorageManager/interface/RollingSampleCounter.h"
@@ -77,7 +77,7 @@ RollingSampleCounter(int windowSize, int binSize, int validSubWindowSize,
 /**
  * Adds the specified sample value to the counter instance.
  */
-void RollingSampleCounter::addSample(double value)
+void RollingSampleCounter::addSample(double value, double currentTime)
 {
   boost::recursive_mutex::scoped_lock sl(dataMutex_);
 
@@ -90,18 +90,17 @@ void RollingSampleCounter::addSample(double value)
   if (accumStyle_ == INCLUDE_SAMPLES_AFTER_BINNING) {
     workingBinSum_ += value;
     if (sampleCount_ == 1) {
-      workingBinStartTime_ = getCurrentTime();
+      workingBinStartTime_ = currentTime;
     }
   }
   else {
-    double now = getCurrentTime();
     int binIndex = (int) (workingBinId_ % binCount_);
     (*binContents_)[binIndex] += value;
     currentTotal_ += value;
     if (sampleCount_ == 1) {
-      (*binStartTimes_)[binIndex] = now;
+      (*binStartTimes_)[binIndex] = currentTime;
     }
-    (*binStopTimes_)[binIndex] = now;
+    (*binStopTimes_)[binIndex] = currentTime;
   }
 }
 
@@ -128,7 +127,8 @@ int RollingSampleCounter::getSampleCount()
   if (sampleCount_ < windowSize_) {
     result = (int) sampleCount_;
   }
-  else if (accumStyle_ == INCLUDE_SAMPLES_IMMEDIATELY) {
+  else if (accumStyle_ == INCLUDE_SAMPLES_IMMEDIATELY && binSize_ > 1) {
+    // NEED TO FIX!!!
     result = 1 + (int) ((sampleCount_ - 1) % windowSize_);
   }
 
@@ -140,11 +140,11 @@ int RollingSampleCounter::getSampleCount()
  * (number of samples divided by duration) or 0.0 if no samples have
  * been stored.  The units of the return value are samples per second.
  */
-double RollingSampleCounter::getSampleRate()
+double RollingSampleCounter::getSampleRate(double currentTime)
 {
   boost::recursive_mutex::scoped_lock sl(dataMutex_);
 
-  double duration = getDuration();
+  double duration = getDuration(currentTime);
   if (duration > 0.0) {
     return ((double) getSampleCount()) / duration;
   }
@@ -203,8 +203,12 @@ double RollingSampleCounter::getValueRate()
  * time that the latest was stored.  Since old samples are discarded
  * to make room for new ones, this does *not* correspond to the time
  * since the first sample was added.
+ * <br/>
+ * 15-Apr-2008, KAB: added time argument.  If it is non-zero, then the
+ * result of this method is the time between the earliest sample and
+ * the specified time.
  */
-double RollingSampleCounter::getDuration()
+double RollingSampleCounter::getDuration(double currentTime)
 {
   boost::recursive_mutex::scoped_lock sl(dataMutex_);
 
@@ -229,8 +233,13 @@ double RollingSampleCounter::getDuration()
 
     if ((*binStopTimes_)[stopBinIndex] > 0.0 &&
         (*binStartTimes_)[startBinIndex] > 0.0) {
-      return ((*binStopTimes_)[stopBinIndex] -
-              (*binStartTimes_)[startBinIndex]);
+      if (currentTime <= 0.0) {
+        return ((*binStopTimes_)[stopBinIndex] -
+                (*binStartTimes_)[startBinIndex]);
+      }
+      else {
+        return (currentTime - (*binStartTimes_)[startBinIndex]);
+      }
     }
     else {
       return 0.0;
@@ -245,6 +254,9 @@ void RollingSampleCounter::dumpData(std::ostream& outStream)
 {
   outStream << "RollingSampleCounter 0x" << std::hex
             << ((int) this) << std::dec << std::endl;
+  char nowString[32];
+  sprintf(nowString, "%16.4f", getCurrentTime());
+  outStream << "  Now = " << nowString << std::endl;
   outStream << "  Window size = " << windowSize_ << std::endl;
   outStream << "  Bin size = " << binSize_ << std::endl;
   outStream << "  Sample count = " << sampleCount_ << std::endl;
