@@ -8,6 +8,7 @@ using namespace ctfseeding;
 BeamHaloPairGenerator::BeamHaloPairGenerator(const edm::ParameterSet& conf): conf_(conf){
 	edm::LogInfo("CtfSpecialSeedGenerator|BeamHaloPairGenerator") << "Constructing BeamHaloPairGenerator";
 	theMaxTheta=conf.getParameter<double>("maxTheta");
+	theMaxTheta=fabs(sin(theMaxTheta));
 } 
 
 
@@ -40,8 +41,11 @@ const OrderedSeedingHits& BeamHaloPairGenerator::run(const TrackingRegion& regio
 			  const TransientTrackingRecHit::ConstRecHitPointer & crhpi = *iInnerHit;
 			  const TransientTrackingRecHit::ConstRecHitPointer & crhpo =  *iOuterHit;
 			  GlobalVector d=crhpo->globalPosition() - crhpi->globalPosition();
-			  if (fabs(d.theta())>theMaxTheta) {;continue;}
-
+			  double ABSsinDtheta = fabs(sin(d.theta()));
+			  std::cout<<"position1: "<<crhpo->globalPosition()
+				   <<" position2: "<<crhpi->globalPosition()
+				   <<" |sin(Dtheta)|: "<< ABSsinDtheta <<((ABSsinDtheta>theMaxTheta)?" skip":" keep")<<std::endl;
+			  if (ABSsinDtheta>theMaxTheta) {;continue;}
 
 			  hitPairs.push_back(OrderedHitPair(*iInnerHit,
 							    *iOuterHit));
