@@ -42,9 +42,10 @@ const OrderedSeedingHits& BeamHaloPairGenerator::run(const TrackingRegion& regio
 			  const TransientTrackingRecHit::ConstRecHitPointer & crhpo =  *iOuterHit;
 			  GlobalVector d=crhpo->globalPosition() - crhpi->globalPosition();
 			  double ABSsinDtheta = fabs(sin(d.theta()));
-			  std::cout<<"position1: "<<crhpo->globalPosition()
-				   <<" position2: "<<crhpi->globalPosition()
-				   <<" |sin(Dtheta)|: "<< ABSsinDtheta <<((ABSsinDtheta>theMaxTheta)?" skip":" keep")<<std::endl;
+			  LogDebug("BeamHaloPairGenerator")<<"position1: "<<crhpo->globalPosition()
+							   <<" position2: "<<crhpi->globalPosition()
+							   <<" |sin(Dtheta)|: "<< ABSsinDtheta <<((ABSsinDtheta>theMaxTheta)?" skip":" keep");
+
 			  if (ABSsinDtheta>theMaxTheta) {;continue;}
 
 			  hitPairs.push_back(OrderedHitPair(*iInnerHit,
