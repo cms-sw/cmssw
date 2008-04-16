@@ -1,11 +1,7 @@
 #include <iostream>
 #include <string>
-#include <memory>
 
-#include <boost/shared_ptr.hpp>
-
-#include <HepMC/GenEvent.h>
-#include <HepMC/SimpleVector.h>
+#include "mcdb.hpp"
 
 #include "FWCore/Framework/interface/GeneratedInputSource.h"
 #include "FWCore/Framework/interface/InputSourceMacros.h"
@@ -14,17 +10,10 @@
 #include "FWCore/Framework/interface/Run.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
-#include "FWCore/Utilities/interface/RandomNumberGenerator.h"
 
-#include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
-#include "SimDataFormats/HepMCProduct/interface/GenInfoProduct.h"
-
-#include "GeneratorInterface/LHEInterface/interface/mcdb.h"
+#include "GeneratorInterface/LHEInterface/interface/LesHouches.h"
 #include "GeneratorInterface/LHEInterface/interface/LHEEvent.h"
 #include "GeneratorInterface/LHEInterface/interface/LHEReader.h"
-#include "GeneratorInterface/LHEInterface/interface/Hadronisation.h"
-#include "GeneratorInterface/LHEInterface/interface/JetMatching.h"
 
 #include "LHESource.h"
 
@@ -32,8 +21,8 @@ using namespace lhef;
 
 class MCDBSource : public LHESource {
     public:
-	MCDBSource(const edm::ParameterSet &params,
-	           const edm::InputSourceDescription &desc);
+	explicit MCDBSource(const edm::ParameterSet &params,
+	                    const edm::InputSourceDescription &desc);
 	virtual ~MCDBSource();
 
     private:
@@ -42,7 +31,7 @@ class MCDBSource : public LHESource {
 
 MCDBSource::MCDBSource(const edm::ParameterSet &params,
                        const edm::InputSourceDescription &desc) :
-	LHESource(params, desc, 0)
+        LHESource(params, desc, 0)
 {
 	unsigned int articleId = params.getParameter<unsigned int>("articleID");
 
@@ -68,7 +57,7 @@ MCDBSource::MCDBSource(const edm::ParameterSet &params,
 							"supportedProtocols");
 
 	unsigned int firstEvent =
-		params.getUntrackedParameter<unsigned int>("firstEvent", 0);
+		params.getUntrackedParameter<unsigned int>("seekEvent", 0);
 
 	std::vector<std::string> fileURLs;
 	for(std::vector<mcdb::File>::iterator file = article.files().begin();
@@ -81,7 +70,7 @@ MCDBSource::MCDBSource(const edm::ParameterSet &params,
 
 		bool found = false;
 		for(std::vector<std::string>::const_iterator prot =
-					supportedProtocols.begin();
+						supportedProtocols.begin();
 		    prot != supportedProtocols.end(); ++prot) {
 			for(std::vector<std::string>::const_iterator path =
 							file->paths().begin();
@@ -106,6 +95,7 @@ MCDBSource::MCDBSource(const edm::ParameterSet &params,
 
 	reader.reset(new LHEReader(fileURLs, firstEvent));
 }
+
 MCDBSource::~MCDBSource()
 {
 }

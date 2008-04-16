@@ -10,7 +10,7 @@
 	<use name="SimDataFormats/HepMCProduct"/>
 	<flags EDM_PLUGIN="1"/>
 </library>
-<library name="GeneratorInterfaceLHESource" file="LHESource.cc">
+<library name="GeneratorInterfaceLHESource" file="LHESource.cc MCDBSource.cc">
 	<use name="FWCore/Framework"/>
 	<use name="mcdb"/>
 	<flags EDM_PLUGIN="1"/>

@@ -9,38 +9,30 @@
 #include "FWCore/Framework/interface/Run.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
 
+#include "GeneratorInterface/LHEInterface/interface/LesHouches.h"
 #include "GeneratorInterface/LHEInterface/interface/LHEEvent.h"
 #include "GeneratorInterface/LHEInterface/interface/LHEReader.h"
 
+#include "LHESource.h"
+
 using namespace lhef;
-
-class LHESource : public edm::GeneratedInputSource {
-    public:
-	explicit LHESource(const edm::ParameterSet &params,
-	                   const edm::InputSourceDescription &desc);
-	virtual ~LHESource();
-
-    protected:
-	virtual void endJob();
-	virtual void beginRun(edm::Run &run);
-	virtual bool produce(edm::Event &event);
-
-    private:
-	void nextEvent();
-
-	std::auto_ptr<LHEReader>	reader;
-	std::auto_ptr<HEPRUP>		heprup;
-	std::auto_ptr<HEPEUP>		hepeup;
-
-	unsigned int			skipEvents;
-};
 
 LHESource::LHESource(const edm::ParameterSet &params,
                      const edm::InputSourceDescription &desc) :
 	GeneratedInputSource(params, desc),
 	reader(new LHEReader(params)),
+	skipEvents(params.getUntrackedParameter<unsigned int>("skipEvents", 0))
+{
+	produces<HEPEUP>();
+	produces<HEPRUP, edm::InRun>();
+}
+
+LHESource::LHESource(const edm::ParameterSet &params,
+                     const edm::InputSourceDescription &desc,
+                     lhef::LHEReader *reader) :
+	GeneratedInputSource(params, desc),
+	reader(reader),
 	skipEvents(params.getUntrackedParameter<unsigned int>("skipEvents", 0))
 {
 	produces<HEPEUP>();
