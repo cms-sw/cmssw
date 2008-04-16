@@ -13,7 +13,7 @@
 //
 // Original Author:  Christophe DELAERE
 //         Created:  Fri Nov 17 10:52:42 CET 2006
-// $Id: SiStripFineDelayHit.cc,v 1.2 2008/01/18 14:07:08 delaer Exp $
+// $Id: SiStripFineDelayHit.cc,v 1.3 2008/04/10 15:01:50 delaer Exp $
 //
 //
 
@@ -239,7 +239,7 @@ bool SiStripFineDelayHit::rechit(reco::Track* tk,uint32_t det_id)
   return false;
 }
 
-std::pair<const SiStripCluster*,double> SiStripFineDelayHit::closestCluster(const TrackerGeometry& tracker,const reco::Track* tk,const uint32_t& det_id ,const edm::DetSetVector<SiStripCluster>& clusters, const edm::DetSetVector<SiStripDigi>& hits)
+std::pair<const SiStripCluster*,double> SiStripFineDelayHit::closestCluster(const TrackerGeometry& tracker,const reco::Track* tk,const uint32_t& det_id ,const edmNew::DetSetVector<SiStripCluster>& clusters, const edm::DetSetVector<SiStripDigi>& hits)
 {
   std::pair<const SiStripCluster*,double> result(NULL,0.);
   double hitStrip = -1;
@@ -320,17 +320,17 @@ std::pair<const SiStripCluster*,double> SiStripFineDelayHit::closestCluster(cons
     }
   } else {
   // loop on the detsetvector<cluster> to find the right one
-   for (edm::DetSetVector<SiStripCluster>::const_iterator DSViter=clusters.begin(); DSViter!=clusters.end();DSViter++ ) 
-     if(DSViter->id==det_id)  {
+   for (edmNew::DetSetVector<SiStripCluster>::const_iterator DSViter=clusters.begin(); DSViter!=clusters.end();DSViter++ ) 
+     if(DSViter->id()==det_id)  {
         LogDebug("closestCluster") << " detset with the right detid. ";
-        edm::DetSet<SiStripCluster>::const_iterator begin=DSViter->data.begin();
-        edm::DetSet<SiStripCluster>::const_iterator end  =DSViter->data.end();
+        edmNew::DetSet<SiStripCluster>::const_iterator begin=DSViter->begin();
+        edmNew::DetSet<SiStripCluster>::const_iterator end  =DSViter->end();
 	//find the cluster close to the hitStrip
 	result.second = 1000.;
-        for(edm::DetSet<SiStripCluster>::const_iterator iter=begin;iter!=end;++iter) {
+        for(edmNew::DetSet<SiStripCluster>::const_iterator iter=begin;iter!=end;++iter) {
 	  double dist = fabs(iter->barycenter()-hitStrip);
 	  if(dist<result.second) { result.second = dist; result.first = &(*iter); }
-        }
+	}
         break;
      }
   }
@@ -367,9 +367,9 @@ SiStripFineDelayHit::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
        hitSet = hits.product();
      }
      // look at the clusters 
-     edm::Handle<edm::DetSetVector<SiStripCluster> > clusters;
+     edm::Handle<edmNew::DetSetVector<SiStripCluster> > clusters;
      iEvent.getByLabel(clusterLabel_, clusters);
-     const edm::DetSetVector<SiStripCluster>* clusterSet = clusters.product();
+     const edmNew::DetSetVector<SiStripCluster>* clusterSet = clusters.product();
      // look at the trajectories if they are in the event
      std::vector<Trajectory> trajVec;
      if(trajInEvent_) {
@@ -454,15 +454,15 @@ SiStripFineDelayHit::produceNoTracking(edm::Event& iEvent, const edm::EventSetup
    std::vector< edm::DetSet<SiStripRawDigi> > output;
    output.reserve(100);
    // look at the clusters 
-   edm::Handle<edm::DetSetVector<SiStripCluster> > clusters;
+   edm::Handle<edmNew::DetSetVector<SiStripCluster> > clusters;
    iEvent.getByLabel(clusterLabel_,clusters);
-   for (edm::DetSetVector<SiStripCluster>::const_iterator DSViter=clusters->begin(); DSViter!=clusters->end();DSViter++ ) {
+   for (edmNew::DetSetVector<SiStripCluster>::const_iterator DSViter=clusters->begin(); DSViter!=clusters->end();DSViter++ ) {
      //TODO: define the protocol with Laurent
      //if(mode_==1 && notInGoodLayer(cluster)) continue;
-     edm::DetSet<SiStripCluster>::const_iterator begin=DSViter->data.begin();
-     edm::DetSet<SiStripCluster>::const_iterator end  =DSViter->data.end();
-     edm::DetSet<SiStripRawDigi> newds(connectionMap_[DSViter->id]);
-     for(edm::DetSet<SiStripCluster>::const_iterator iter=begin;iter!=end;++iter) {
+     edmNew::DetSet<SiStripCluster>::const_iterator begin=DSViter->begin();
+     edmNew::DetSet<SiStripCluster>::const_iterator end  =DSViter->end();
+     edm::DetSet<SiStripRawDigi> newds(connectionMap_[DSViter->id()]);
+     for(edmNew::DetSet<SiStripCluster>::const_iterator iter=begin;iter!=end;++iter) {
          // build the rawdigi corresponding to the leading strip and save it
          // here, only the leading strip is retained. All other rawdigis in the module are set to 0.
 	 const std::vector< uint16_t >& amplitudes = iter->amplitudes();
@@ -479,7 +479,7 @@ SiStripFineDelayHit::produceNoTracking(edm::Event& iEvent, const edm::EventSetup
 	 // apply some correction to the leading charge, but only if it has not saturated.
 	 if(leadingCharge<255) {
 	   // correct for modulethickness for TEC and TOB
-	   if((((((DSViter->id)>>25)&0x7f)==0xd)||((((DSViter->id)>>25)&0x7f)==0xd))&&((((DSViter->id)>>5)&0x7)>4)) 
+	   if((((((DSViter->id())>>25)&0x7f)==0xd)||((((DSViter->id())>>25)&0x7f)==0xd))&&((((DSViter->id())>>5)&0x7)>4)) 
 	      leadingCharge = uint16_t((leadingCharge*0.64));
 	 }
 	 //code the time of flight == 0 in the digi
@@ -490,7 +490,7 @@ SiStripFineDelayHit::produceNoTracking(edm::Event& iEvent, const edm::EventSetup
      output.push_back(newds);
      LogDebug("produce") << "    New edm::DetSet<SiStripRawDigi> added with fedkey = " 
                          << std::hex << std::setfill('0') << std::setw(8) 
-                         << connectionMap_[DSViter->id] << std::dec;
+                         << connectionMap_[DSViter->id()] << std::dec;
    }
    // add the selected hits to the event.
    LogDebug("produce") << "Putting " << output.size() << " new hits in the event." << std::endl;

@@ -43,7 +43,7 @@ class SiStripFineDelayHit : public edm::EDProducer {
       std::pair<const SiStripCluster*,double> 
                 closestCluster(const TrackerGeometry& tracker,
 		               const reco::Track* tk,const uint32_t& detId,
-			       const edm::DetSetVector<SiStripCluster>& clusters, 
+			       const edmNew::DetSetVector<SiStripCluster>& clusters, 
 			       const edm::DetSetVector<SiStripDigi>& hits);
       bool rechit(reco::Track* tk,uint32_t detId);
       
