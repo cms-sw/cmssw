@@ -1,8 +1,8 @@
 /*
  *  Compute parameters for a trapezoid 
  *
- *  $Date: 2007/03/09 14:38:23 $
- *  $Revision: 1.3 $
+ *  $Date: 2008/03/29 14:28:07 $
+ *  $Revision: 1.4 $
  *  \author N. Amapane - INFN Torino
  */
 
@@ -63,6 +63,8 @@ void MagGeoBuilderFromDDD::volumeHandle::buildTrap(const DDExpandedView &fv) {
 
   // FIXME Assumption: it is assumed that local Y is always along global R
   // (true for version 1103l, not necessarily in the future)
+  GlobalVector Rvol(refPlane->position().x(), refPlane->position().y(), refPlane->position().z());
+  theRN = fabs(planeYAxis.dot(Rvol));
 
   if (planeZAxis.z()<0.) {
     x1 = -x1;
@@ -79,7 +81,8 @@ void MagGeoBuilderFromDDD::volumeHandle::buildTrap(const DDExpandedView &fv) {
   GlobalPoint pos_phiplus(refPlane->toGlobal(LocalPoint(-halfX,0.,0.)));
   GlobalPoint pos_phiminus(refPlane->toGlobal(LocalPoint(halfX,0.,0.)));
 
-  if (MagGeoBuilderFromDDD::debug) cout << "pos_outer    " << pos_outer << " "
+  if (MagGeoBuilderFromDDD::debug) cout << "RN           " << theRN << endl 
+                  << "pos_outer    " << pos_outer << " "
 		  << pos_outer.perp() << " " << pos_outer.phi() << endl 
 		  << "pos_inner    " << pos_inner << " "
 		  << pos_inner.perp() << " " << pos_inner.phi() << endl
@@ -102,11 +105,7 @@ void MagGeoBuilderFromDDD::volumeHandle::buildTrap(const DDExpandedView &fv) {
     }
     if (Geom::Phi<float>(pos_phiplus.phi()-pos_phiminus.phi()) < 0. ) {
       cout << "*** WARNING: pos_phiplus < pos_phiminus for trapezoid" << endl;
-    } else {
-      //FIXME 
-      cout << " pos_phi OK for trapezoid " << endl;
-    }
-    
+    }    
   }
   
   // Local Y axis of the faces at +-phi. The local X is = global Z.
