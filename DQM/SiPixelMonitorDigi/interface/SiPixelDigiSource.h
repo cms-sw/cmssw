@@ -16,7 +16,7 @@
 //
 // Original Author:  Vincenzo Chiochia
 //         Created:  
-// $Id: SiPixelDigiSource.h,v 1.5 2007/11/09 16:18:10 chiochia Exp $
+// $Id: SiPixelDigiSource.h,v 1.6 2008/03/01 20:19:48 lat Exp $
 //
 
 #include <memory>
@@ -67,6 +67,8 @@
        int eventNo;
        DQMStore* theDMBE;
        std::map<uint32_t,SiPixelDigiModule*> thePixelStructure;
+
+    
  };
 
 #endif

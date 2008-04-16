@@ -13,7 +13,7 @@
 //
 // Original Author:  Vincenzo Chiochia
 //         Created:  
-// $Id: SiPixelDigiSource.cc,v 1.17 2008/01/22 18:54:58 muzaffar Exp $
+// $Id: SiPixelDigiSource.cc,v 1.18 2008/03/01 20:19:49 lat Exp $
 //
 //
 #include "DQM/SiPixelMonitorDigi/interface/SiPixelDigiSource.h"
@@ -89,11 +89,12 @@ SiPixelDigiSource::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
   // get input data
   edm::Handle< edm::DetSetVector<PixelDigi> >  input;
   iEvent.getByLabel( src_, input );
+  bool modon = conf_.getParameter<bool>("Mod_On");
 
   std::map<uint32_t,SiPixelDigiModule*>::iterator struct_iter;
   for (struct_iter = thePixelStructure.begin() ; struct_iter != thePixelStructure.end() ; struct_iter++) {
     
-    (*struct_iter).second->fill(*input);
+    (*struct_iter).second->fill(modon, *input);
     
   }
 

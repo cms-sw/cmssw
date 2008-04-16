@@ -15,7 +15,7 @@
 //
 // Original Author:  Vincenzo Chiochia
 //         Created:  
-// $Id: SiPixelDigiModule.h,v 1.5 2007/03/30 15:10:46 chiochia Exp $
+// $Id: SiPixelDigiModule.h,v 1.6 2007/04/04 13:57:04 chiochia Exp $
 //
 //
 #include "DQMServices/Core/interface/MonitorElement.h"
@@ -41,8 +41,11 @@ class SiPixelDigiModule {
 
   /// Book histograms
   void book(const edm::ParameterSet& iConfig);
+  void bookUpperLevelMEs(DQMStore* theDMBE);
+  void bookUpperLevelBarrelMEs(DQMStore* theDMBE);
+  void bookUpperLevelEndcapMEs(DQMStore* theDMBE);
   /// Fill histograms
-  void fill(const edm::DetSetVector<PixelDigi> & input);
+  void fill(bool modon, const edm::DetSetVector<PixelDigi> & input);
   
  private:
 
@@ -53,5 +56,67 @@ class SiPixelDigiModule {
   MonitorElement* meADC_;
   MonitorElement* mePixDigis_;
   
+    MonitorElement* Barrel_SmIL1_ndigis;
+    MonitorElement* Barrel_SmIL1_adc;
+    MonitorElement* Barrel_SmIL1_hitmap;
+    MonitorElement* Barrel_SmOL1_ndigis;
+    MonitorElement* Barrel_SmOL1_adc;
+    MonitorElement* Barrel_SmOL1_hitmap;
+    MonitorElement* Barrel_SpIL1_ndigis;
+    MonitorElement* Barrel_SpIL1_adc;
+    MonitorElement* Barrel_SpIL1_hitmap;
+    MonitorElement* Barrel_SpOL1_ndigis;
+    MonitorElement* Barrel_SpOL1_adc;
+    MonitorElement* Barrel_SpOL1_hitmap;
+    MonitorElement* Barrel_SmIL2_ndigis;
+    MonitorElement* Barrel_SmIL2_adc;
+    MonitorElement* Barrel_SmIL2_hitmap;
+    MonitorElement* Barrel_SmOL2_ndigis;
+    MonitorElement* Barrel_SmOL2_adc;
+    MonitorElement* Barrel_SmOL2_hitmap;
+    MonitorElement* Barrel_SpIL2_ndigis;
+    MonitorElement* Barrel_SpIL2_adc;
+    MonitorElement* Barrel_SpIL2_hitmap;
+    MonitorElement* Barrel_SpOL2_ndigis;
+    MonitorElement* Barrel_SpOL2_adc;
+    MonitorElement* Barrel_SpOL2_hitmap;
+    MonitorElement* Barrel_SmIL3_ndigis;
+    MonitorElement* Barrel_SmIL3_adc;
+    MonitorElement* Barrel_SmIL3_hitmap;
+    MonitorElement* Barrel_SmOL3_ndigis;
+    MonitorElement* Barrel_SmOL3_adc;
+    MonitorElement* Barrel_SmOL3_hitmap;
+    MonitorElement* Barrel_SpIL3_ndigis;
+    MonitorElement* Barrel_SpIL3_adc;
+    MonitorElement* Barrel_SpIL3_hitmap;
+    MonitorElement* Barrel_SpOL3_ndigis;
+    MonitorElement* Barrel_SpOL3_adc;
+    MonitorElement* Barrel_SpOL3_hitmap;
+    MonitorElement* Endcap_HCmID1_ndigis;
+    MonitorElement* Endcap_HCmID1_adc;	 
+    MonitorElement* Endcap_HCmID1_hitmap;
+    MonitorElement* Endcap_HCmOD1_ndigis;
+    MonitorElement* Endcap_HCmOD1_adc;
+    MonitorElement* Endcap_HCmOD1_hitmap;
+    MonitorElement* Endcap_HCpID1_ndigis;
+    MonitorElement* Endcap_HCpID1_adc;
+    MonitorElement* Endcap_HCpID1_hitmap;
+    MonitorElement* Endcap_HCpOD1_ndigis;
+    MonitorElement* Endcap_HCpOD1_adc;
+    MonitorElement* Endcap_HCpOD1_hitmap;
+    MonitorElement* Endcap_HCmID2_ndigis;
+    MonitorElement* Endcap_HCmID2_adc;
+    MonitorElement* Endcap_HCmID2_hitmap;
+    MonitorElement* Endcap_HCmOD2_ndigis;
+    MonitorElement* Endcap_HCmOD2_adc;
+    MonitorElement* Endcap_HCmOD2_hitmap;
+    MonitorElement* Endcap_HCpID2_ndigis;
+    MonitorElement* Endcap_HCpID2_adc;
+    MonitorElement* Endcap_HCpID2_hitmap;
+    MonitorElement* Endcap_HCpOD2_ndigis;
+    MonitorElement* Endcap_HCpOD2_adc;
+    MonitorElement* Endcap_HCpOD2_hitmap; 
+    
+    bool bookedUL_;
 };
 #endif
