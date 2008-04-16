@@ -55,6 +55,12 @@ REGISTER_L1_WRITER(L1EmEtScaleRcd, L1CaloEtScale);
 REGISTER_PLUGIN(L1MuTriggerScalesRcd, L1MuTriggerScales);
 REGISTER_L1_WRITER(L1MuTriggerScalesRcd, L1MuTriggerScales);
 
+#include "CondFormats/L1TObjects/interface/L1MuTriggerPtScale.h"
+#include "CondFormats/DataRecord/interface/L1MuTriggerPtScaleRcd.h"
+
+REGISTER_PLUGIN(L1MuTriggerPtScaleRcd, L1MuTriggerPtScale);
+REGISTER_L1_WRITER(L1MuTriggerPtScaleRcd, L1MuTriggerPtScale);
+
 #include "CondFormats/L1TObjects/interface/L1MuGMTScales.h"
 #include "CondFormats/DataRecord/interface/L1MuGMTScalesRcd.h"
 
@@ -206,3 +212,9 @@ REGISTER_L1_WRITER(L1GtTriggerMaskRcd, L1GtTriggerMask);
 
 REGISTER_PLUGIN(L1GtTriggerMenuRcd, L1GtTriggerMenu);
 REGISTER_L1_WRITER(L1GtTriggerMenuRcd, L1GtTriggerMenu);
+
+#include "CondFormats/L1TObjects/interface/L1CaloGeometry.h"
+#include "CondFormats/DataRecord/interface/L1CaloGeometryRecord.h"
+
+REGISTER_PLUGIN(L1CaloGeometryRecord, L1CaloGeometry);
+REGISTER_L1_WRITER(L1CaloGeometryRecord, L1CaloGeometry);
