@@ -1,6 +1,6 @@
 #ifndef PhysicsTools_Utilities_Integral_h
 #define PhysicsTools_Utilities_Integral_h
-#include "StatTools/Funct/Primitive.h"
+#include "PhysicsTools/Utilities/interface/Primitive.h"
 
 namespace funct {
 
