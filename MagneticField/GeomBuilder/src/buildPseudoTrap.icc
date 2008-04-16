@@ -7,8 +7,8 @@
  *  +phi(-X)                   +X
  *  +Z                         +Y
  *
- *  $Date: 2007/03/09 14:38:23 $
- *  $Revision: 1.3 $
+ *  $Date: 2008/03/29 14:28:07 $
+ *  $Revision: 1.4 $
  *  \author N. Amapane - INFN Torino
  */
 
@@ -53,6 +53,12 @@ void MagGeoBuilderFromDDD::volumeHandle::buildPseudoTrap(const DDExpandedView &f
   GlobalVector planeYAxis = refPlane->toGlobal(LocalVector( 0, 1, 0));
   GlobalVector planeZAxis = refPlane->toGlobal(LocalVector( 0, 0, 1));
 
+  //FIXME assumption: here we do use the assumption on the orientation /
+  //of local Z (see above)
+   GlobalVector Rvol(refPlane->position().x(), refPlane->position().y(), refPlane->position().z());
+  theRN = fabs(planeZAxis.dot(Rvol));
+
+
   double fR = fabs(radius);
   Sides cyl_side;
   Sides plane_side;
@@ -85,7 +91,8 @@ void MagGeoBuilderFromDDD::volumeHandle::buildPseudoTrap(const DDExpandedView &f
   }
 
   if (MagGeoBuilderFromDDD::debug) {
-    cout << "pos_Rplane    " << pos_Rplane << " "
+    cout << "RN           " << theRN << endl 
+         << "pos_Rplane   " << pos_Rplane << " "
 	 << pos_Rplane.perp() << " " << pos_Rplane.phi() << endl 
 	 << "pos_zplus    " << pos_zplus << " "
 	 << pos_zplus.perp() << " " << pos_zplus.phi() << endl
