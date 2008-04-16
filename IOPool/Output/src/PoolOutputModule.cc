@@ -1,4 +1,4 @@
-// $Id: PoolOutputModule.cc,v 1.102 2008/02/01 20:23:42 wmtan Exp $
+// $Id: PoolOutputModule.cc,v 1.103 2008/02/21 22:47:52 wdd Exp $
 
 #include "IOPool/Output/src/PoolOutputModule.h"
 #include "boost/array.hpp" 
@@ -67,7 +67,7 @@ namespace edm {
   }
 
   void PoolOutputModule::respondToCloseInputFile(FileBlock const& fb) {
-    rootOutputFile_->respondToCloseInputFile(fb);
+    if (rootOutputFile_) rootOutputFile_->respondToCloseInputFile(fb);
   }
 
   PoolOutputModule::~PoolOutputModule() {
