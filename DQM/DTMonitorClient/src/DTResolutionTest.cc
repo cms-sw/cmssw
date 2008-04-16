@@ -3,8 +3,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/04/15 12:26:53 $
- *  $Revision: 1.20 $
+ *  $Date: 2008/04/15 15:31:49 $
+ *  $Revision: 1.21 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -232,11 +232,16 @@ void DTResolutionTest::endLuminosityBlock(LuminosityBlock const& lumiSeg, EventS
     const QReport * theMeanQReport = (*hMean).second->getQReport(MeanCriterionName);
     stringstream wheel; wheel << (*hMean).first.first;
     stringstream sector; sector << (*hMean).first.second;
-    if(theMeanQReport) {
+    // Report the channels failing the test on the mean
+    if(theMeanQReport) { 
       vector<dqm::me_util::Channel> badChannels = theMeanQReport->getBadChannels();
       for (vector<dqm::me_util::Channel>::iterator channel = badChannels.begin(); 
 	   channel != badChannels.end(); channel++) {
-	edm::LogError ("resolution") << "wheel: "<<wheel.str()<<" sector: "<<sector.str()<<" Bad mean channels: "<<(*channel).getBin()<<"  Contents : "<<(*channel).getContents();
+	edm::LogError("resolution") << "Bad mean channel: wh: " << wheel.str()
+				     << " st: " << stationFromBin((*channel).getBin())
+				     << " sect: " <<sector.str()
+				     << " sl: " << slFromBin((*channel).getBin())
+				     << " mean (cm): " << (*channel).getContents();
 	string HistoName = "W" + wheel.str() + "_Sec" + sector.str();
 	if (MeanHistosSetRange.find(HistoName) == MeanHistosSetRange.end()) bookHistos((*ch_it)->id());
 	MeanHistosSetRange.find(HistoName)->second->Fill((*channel).getBin());
@@ -275,7 +280,11 @@ void DTResolutionTest::endLuminosityBlock(LuminosityBlock const& lumiSeg, EventS
       vector<dqm::me_util::Channel> badChannels = theSigmaQReport->getBadChannels();
       for (vector<dqm::me_util::Channel>::iterator channel = badChannels.begin(); 
 	   channel != badChannels.end(); channel++) {
-	edm::LogError ("resolution") << "wheel: "<<wheel.str()<<" sector: "<<sector.str()<<" Bad sigma channels: "<<(*channel).getBin()<<" Contents : "<<(*channel).getContents();
+	edm::LogError("resolution") << "Bad sigma: wh: " << wheel.str()
+				     << " st: " << stationFromBin((*channel).getBin())
+				     << " sect: " <<sector.str()
+				     << " sl: " << slFromBin((*channel).getBin())
+				     << " sigma (cm): " << (*channel).getContents();
 	string HistoName = "W" + wheel.str() + "_Sec" + sector.str();
 	if (SigmaHistosSetRange.find(HistoName) == SigmaHistosSetRange.end()) bookHistos((*ch_it)->id());
         SigmaHistosSetRange.find(HistoName)->second->Fill((*channel).getBin());
@@ -314,7 +323,11 @@ void DTResolutionTest::endLuminosityBlock(LuminosityBlock const& lumiSeg, EventS
       vector<dqm::me_util::Channel> badChannels = theSlopeQReport->getBadChannels();
       for (vector<dqm::me_util::Channel>::iterator channel = badChannels.begin(); 
 	   channel != badChannels.end(); channel++) {
-	edm::LogError ("resolution") << "wheel: "<<wheel.str()<<" sector: "<<sector.str()<<" Bad slope channels: "<<(*channel).getBin()<<" Contents : "<<(*channel).getContents();
+	edm::LogError("resolution") << "Bad slope: wh: " << wheel.str()
+				    << " st: " << stationFromBin((*channel).getBin())
+				    << " sect: " <<sector.str()
+				    << " sl: " << slFromBin((*channel).getBin())
+				    << " slope: " << (*channel).getContents();
 	string HistoName = "W" + wheel.str() + "_Sec" + sector.str();
 	if (SlopeHistosSetRange.find(HistoName) == SlopeHistosSetRange.end()) bookHistos((*ch_it)->id());
         SlopeHistosSetRange.find(HistoName)->second->Fill((*channel).getBin());
@@ -439,8 +452,8 @@ void DTResolutionTest::bookHistos(const DTChamberId & ch) {
 
   dbe->setCurrentFolder("DT/Tests/DTResolution");
 
-
-  MeanHistos[make_pair(ch.wheel(),ch.sector())] = dbe->book1D(MeanHistoName.c_str(),MeanHistoName.c_str(),11,0,10);
+  // Book the histo for the mean value and set the axis labels
+  MeanHistos[make_pair(ch.wheel(),ch.sector())] = dbe->book1D(MeanHistoName.c_str(),MeanHistoName.c_str(),11,0,11);
   (MeanHistos[make_pair(ch.wheel(),ch.sector())])->setBinLabel(1,"MB1_SL1",1);
   (MeanHistos[make_pair(ch.wheel(),ch.sector())])->setBinLabel(2,"MB1_SL2",1);
   (MeanHistos[make_pair(ch.wheel(),ch.sector())])->setBinLabel(3,"MB1_SL3",1);
@@ -453,7 +466,8 @@ void DTResolutionTest::bookHistos(const DTChamberId & ch) {
   (MeanHistos[make_pair(ch.wheel(),ch.sector())])->setBinLabel(10,"MB4_SL1",1);
   (MeanHistos[make_pair(ch.wheel(),ch.sector())])->setBinLabel(11,"MB4_SL3",1);
 
-  SigmaHistos[make_pair(ch.wheel(),ch.sector())] = dbe->book1D(SigmaHistoName.c_str(),SigmaHistoName.c_str(),11,0,10);
+  // Book the histo for the sigma value and set the axis labels
+  SigmaHistos[make_pair(ch.wheel(),ch.sector())] = dbe->book1D(SigmaHistoName.c_str(),SigmaHistoName.c_str(),11,0,11);
   (SigmaHistos[make_pair(ch.wheel(),ch.sector())])->setBinLabel(1,"MB1_SL1",1);  
   (SigmaHistos[make_pair(ch.wheel(),ch.sector())])->setBinLabel(2,"MB1_SL2",1);
   (SigmaHistos[make_pair(ch.wheel(),ch.sector())])->setBinLabel(3,"MB1_SL3",1);
@@ -466,7 +480,7 @@ void DTResolutionTest::bookHistos(const DTChamberId & ch) {
   (SigmaHistos[make_pair(ch.wheel(),ch.sector())])->setBinLabel(10,"MB4_SL1",1);
   (SigmaHistos[make_pair(ch.wheel(),ch.sector())])->setBinLabel(11,"MB4_SL3",1);
   
-  SlopeHistos[make_pair(ch.wheel(),ch.sector())] = dbe->book1D(SlopeHistoName.c_str(),SlopeHistoName.c_str(),11,0,10);
+  SlopeHistos[make_pair(ch.wheel(),ch.sector())] = dbe->book1D(SlopeHistoName.c_str(),SlopeHistoName.c_str(),11,0,11);
   (SlopeHistos[make_pair(ch.wheel(),ch.sector())])->setBinLabel(1,"MB1_SL1",1);  
   (SlopeHistos[make_pair(ch.wheel(),ch.sector())])->setBinLabel(2,"MB1_SL2",1);
   (SlopeHistos[make_pair(ch.wheel(),ch.sector())])->setBinLabel(3,"MB1_SL3",1);
@@ -670,3 +684,14 @@ void DTResolutionTest::bookHistos(int wh) {
   
 }
   
+int DTResolutionTest::stationFromBin(int bin) const {
+  return (int) (bin /3.1)+1;
+}
+ 
+
+int DTResolutionTest::slFromBin(int bin) const {
+  int ret = bin%3;
+  if(ret == 0 || bin == 11) ret = 3;
+  
+  return ret;
+}
