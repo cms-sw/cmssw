@@ -154,7 +154,7 @@ void ThreeThresholdStripClusterizer::clusterizeDetUnit_(const InputDetSet& input
         charge += stripCharge;
         sigmaNoise2 += channelNoise*channelNoise/(gainFactor*gainFactor);
       
-	cluster_digis_.push_back(SiStripDigi(itest->strip(), static_cast<int>(stripCharge+0.499)));
+	cluster_digis_.push_back(SiStripDigi(itest->strip(), static_cast<uint8_t>(stripCharge+0.499)));
       } else {
 	cluster_digis_.push_back(SiStripDigi(itest->strip(),0)); //if strip bad or under threshold set SiStripDigi.adc_=0
 	

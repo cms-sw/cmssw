@@ -42,20 +42,18 @@ public:
    *  A strip may also be missing anywhere in the cluster, including the 
    *  edge, to record a dead/noisy channel.
    */
-  const std::vector<uint16_t>&  amplitudes() const {return amplitudes_;}
+  const std::vector<uint8_t>&  amplitudes() const {return amplitudes_;}
 
   /** The barycenter of the cluster, not corrected for Lorentz shift;
    *  should not be used as position estimate for tracking.
    */
-  float barycenter() const {return barycenter_;}
+  float barycenter() const;
 
 private:
 
   uint32_t                detId_;
   uint16_t                firstStrip_;
-  std::vector<uint16_t>   amplitudes_;
-  float                   barycenter_;
-
+  std::vector<uint8_t>   amplitudes_;
 };
 
 // Comparison operators
