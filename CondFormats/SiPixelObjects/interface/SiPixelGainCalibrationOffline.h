@@ -15,9 +15,8 @@
 //
 // Original Author:  Vincenzo Chiochia
 //         Modified: Evan Friis
-//         Modified: Freya Blekman
 //         Created:  Tue 8 12:31:25 CEST 2007
-// $Id: SiPixelGainCalibrationOffline.h,v 1.2 2008/04/15 14:39:03 friis Exp $
+// $Id: SiPixelGainCalibrationOffline.h,v 1.1 2008/02/06 16:29:55 friis Exp $
 //
 //
 #include<vector>
@@ -28,14 +27,6 @@
 class SiPixelGainCalibrationOffline {
 
  public:
-
-  // SiPixelGainCalibrationOffline BLOB FORMAT
-  // 
-  // For each column, N pedestal values are stored, where N is the number of columns
-  // in the CMSSW DetID frame (NOT the ROC frame).  At the end of each N pedestal values,
-  // two gain averages are stored, for the two different ROCS.  FOR PLAQUETTES WITH ONLY ONE
-  // ROW OF ROCS THE SECOND GAIN AVERAGE MUST STILL BE FILLED SO THE BLOB STREAM IS STILL PARSED
-  // CORRECTLY.  The total number of char entries for each column will be (nRows+2)
 
   struct DecodingStructure{  
     unsigned int datum :8;
@@ -70,15 +61,20 @@ class SiPixelGainCalibrationOffline {
   const std::pair<const Range, const int> getRangeAndNCols(const uint32_t& detID) const;
 
   // Set and get public methods
-  void  setDataGain(float gainLow, float gainHigh, const int& nRows, std::vector<char>& vped);
-  void  setDataPedestal(float pedestal, std::vector<char>& vped);
-  void setDeadPixel(std::vector<char>&vped);
-  void setDeadCol(bool lowCol, bool highCol,const int &nRows, std::vector<char>& vped);
+  void  setDataGain     ( float gain, const int& nRows, std::vector<char>& vped , bool thisColumnIsDead = false);
+  void  setDataPedestal ( float pedestal,               std::vector<char>& vped , bool thisPixelIsDead  = false);
 
-  float getPed   (const int& col, const int& row, const Range& range, const int& nCols, bool &isDead) const;
-  float getGain  (const int& col, const int& row, const Range& range, const int& nCols, bool &isDead ) const;
-  bool isDead(const int& col, const int& row, const Range& range, const int& nCols) const;
-  
+  unsigned int getNumberOfRowsToAverageOver() const { return numberOfRowsToAverageOver_; }
+
+  // Set dead pixels
+  void  setDeadPixel(std::vector<char>& vped)                    { setDataPedestal(0 /*dummy value, not used*/,    vped,  true ); }
+  void  setDeadColumn(const int& nRows, std::vector<char>& vped) { setDataGain(0 /*dummy value, not used*/, nRows, vped,  true ); }
+
+  // these methods SHOULD NEVER BE ACESSED BY THE USER - use the services in CondTools/SiPixel!!!!
+  float getPed   (const int& col, const int& row, const Range& range, const int& nCols, bool& isDead) const;
+  float getGain  (const int& col, const int& row, const Range& range, const int& nCols, bool& isDeadColumn) const;
+
+
   private:
 
   float   encodeGain(const float& gain);
@@ -90,8 +86,10 @@ class SiPixelGainCalibrationOffline {
   std::vector<DetRegistry> indexes;
   float  minPed_, maxPed_, minGain_, maxGain_;
 
-  float nBins_;
-  unsigned int deadVal_;
+  unsigned int numberOfRowsToAverageOver_;   //THIS WILL BE HARDCODED TO 80 (all rows in a ROC) DON'T CHANGE UNLESS YOU KNOW WHAT YOU ARE DOING! 
+  unsigned int nBinsToUseForEncoding_;
+  unsigned int deadFlag_;
+
 };
     
 #endif

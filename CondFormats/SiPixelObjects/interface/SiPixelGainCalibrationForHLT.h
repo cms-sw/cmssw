@@ -16,8 +16,7 @@
 // Original Author:  Vincenzo Chiochia
 //         Created:  Tue 8 12:31:25 CEST 2007
 //         Modified: Evan Friis
-//         Modified: Freya Blekman
-// $Id: SiPixelGainCalibrationForHLT.h,v 1.2 2008/04/15 14:39:03 friis Exp $
+// $Id: SiPixelGainCalibrationForHLT.h,v 1.1 2008/02/06 16:29:55 friis Exp $
 //
 //
 #include<vector>
@@ -30,14 +29,15 @@ class SiPixelGainCalibrationForHLT {
  public:
 
   struct DecodingStructure{  
-    unsigned int gain  :8;
-    unsigned int ped   :8;
+    unsigned int gain :8;
+    unsigned int ped  :8;
   };
   
   struct DetRegistry{
     uint32_t detid;
     uint32_t ibegin;
     uint32_t iend;
+    int      ncols;
   };
   
   class StrictWeakOrdering{
@@ -55,19 +55,20 @@ class SiPixelGainCalibrationForHLT {
   SiPixelGainCalibrationForHLT(float minPed, float maxPed, float minGain, float maxGain);
   virtual ~SiPixelGainCalibrationForHLT(){};
 
-  bool  put(const uint32_t& detID,Range input);
+  bool  put(const uint32_t& detID,Range input, const int& nCols);
   const Range getRange(const uint32_t& detID) const;
   void  getDetIds(std::vector<uint32_t>& DetIds_) const;
   const int getNCols(const uint32_t& detID) const;
   const std::pair<const Range, const int> getRangeAndNCols(const uint32_t& detID) const;
 
-  // Set and get public methods
-  void  setData(float pedLowRows, float gainLowRows, float pedHighRows, float gainHighRows, std::vector<char>& vped);
-  void setDead(bool lowRows, bool highRows, std::vector<char>& vped);
+  unsigned int getNumberOfRowsToAverageOver() const { return numberOfRowsToAverageOver_; }
 
-  float getPed   (const int& col, const int& row, const Range& range, const int& nCols,  bool & isdead) const;
-  float getGain  (const int& col, const int& row, const Range& range, const int& nCols,  bool & isdead) const;
-  bool isDead(const int& col, const int& row, const Range& range, const int& nCols) const;
+  // Set and get public methods
+  void  setData(float ped, float gain, std::vector<char>& vped, bool thisColumnIsDead = false);
+  void  setDeadColumn(const int& nRows, std::vector<char>& vped) { setData(0, 0 /*dummy values, not used*/, vped, true); }
+
+  float getPed   (const int& col, const int& row, const Range& range, const int& nCols, bool& isDeadColumn ) const;
+  float getGain  (const int& col, const int& row, const Range& range, const int& nCols, bool& isDeadColumn ) const;
 
   private:
 
@@ -80,8 +81,9 @@ class SiPixelGainCalibrationForHLT {
   std::vector<DetRegistry> indexes;
   float  minPed_, maxPed_, minGain_, maxGain_;
 
-  float nBins_;
-  unsigned int deadVal_;
+  unsigned int numberOfRowsToAverageOver_;   //THIS WILL BE HARDCODED TO 80 (all rows in a ROC) DON'T CHANGE UNLESS YOU KNOW WHAT YOU ARE DOING! 
+  unsigned int nBinsToUseForEncoding_;
+  unsigned int deadFlag_;
 };
     
 #endif

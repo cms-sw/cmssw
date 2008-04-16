@@ -9,9 +9,13 @@ SiPixelGainCalibration::SiPixelGainCalibration() :
   maxPed_(255.),
   minGain_(0.),
   maxGain_(255.),
-  nBins_(254.),
-  deadVal_(255)
+  numberOfRowsToAverageOver_(1),
+  nBinsToUseForEncoding_(254),
+  deadFlag_(255)
 {
+   if (deadFlag_ > 0xFF)
+      throw cms::Exception("GainCalibration Payload configuration error")
+         << "[SiPixelGainCalibration::SiPixelGainCalibration] Dead flag was set to " << deadFlag_ << ", and it must be set less than or equal to 255";
 }
 //
 SiPixelGainCalibration::SiPixelGainCalibration(float minPed, float maxPed, float minGain, float maxGain) :
@@ -19,9 +23,13 @@ SiPixelGainCalibration::SiPixelGainCalibration(float minPed, float maxPed, float
   maxPed_(maxPed),
   minGain_(minGain),
   maxGain_(maxGain),
-  nBins_(254.),
-  deadVal_(255)
+  numberOfRowsToAverageOver_(1),
+  nBinsToUseForEncoding_(254),
+  deadFlag_(255)
 {
+   if (deadFlag_ > 0xFF)
+      throw cms::Exception("GainCalibration Payload configuration error")
+         << "[SiPixelGainCalibration::SiPixelGainCalibration] Dead flag was set to " << deadFlag_ << ", and it must be set less than or equal to 255";
 }
 
 bool SiPixelGainCalibration::put(const uint32_t& DetId, Range input, const int& nCols) {
@@ -81,7 +89,7 @@ void SiPixelGainCalibration::getDetIds(std::vector<uint32_t>& DetIds_) const {
   }
 }
 
-void SiPixelGainCalibration::setData(float ped, float gain, std::vector<char>& vped){
+void SiPixelGainCalibration::setData(float ped, float gain, std::vector<char>& vped, bool isDeadPixel){
   
   float theEncodedGain  = encodeGain(gain);
   float theEncodedPed   = encodePed (ped);
@@ -89,18 +97,11 @@ void SiPixelGainCalibration::setData(float ped, float gain, std::vector<char>& v
   unsigned int ped_   = (static_cast<unsigned int>(theEncodedPed))  & 0xFF; 
   unsigned int gain_  = (static_cast<unsigned int>(theEncodedGain)) & 0xFF;
 
-  unsigned int data = (ped_ << 8) | gain_ ;
-  vped.resize(vped.size()+2);
-  // insert in vector of char
-  ::memcpy((void*)(&vped[vped.size()-2]),(void*)(&data),2);
-}
-
-void SiPixelGainCalibration::setDead(std::vector<char> &vped){
-  float theEncodedGain  = deadVal_;
-  float theEncodedPed   = deadVal_;
-
-  unsigned int ped_   = (static_cast<unsigned int>(theEncodedPed))  & 0xFF; 
-  unsigned int gain_  = (static_cast<unsigned int>(theEncodedGain)) & 0xFF;
+  if (isDeadPixel)
+  {
+     ped_  = deadFlag_;
+     gain_ = deadFlag_;
+  }
 
   unsigned int data = (ped_ << 8) | gain_ ;
   vped.resize(vped.size()+2);
@@ -108,54 +109,39 @@ void SiPixelGainCalibration::setDead(std::vector<char> &vped){
   ::memcpy((void*)(&vped[vped.size()-2]),(void*)(&data),2);
 }
 
-float SiPixelGainCalibration::getPed(const int& col, const int& row, const Range& range, const int& nCols,  bool & isDead) const {
+float SiPixelGainCalibration::getPed(const int& col, const int& row, const Range& range, const int& nCols, bool& isDead) const {
 
   int nRows = (range.second-range.first)/2 / nCols;
-  isDead=false;
   const DecodingStructure & s = (const DecodingStructure & ) *(range.first+(col*nRows + row)*2);
   if (col >= nCols || row >= nRows){
     throw cms::Exception("CorruptedData")
       << "[SiPixelGainCalibration::getPed] Pixel out of range: col " << col << " row " << row;
   }  
-  if(s.ped==deadVal_)
-    isDead=true;
-  
-  
+  if (s.ped & 0xFF == deadFlag_)
+     isDead = true;
   return decodePed(s.ped & 0xFF);  
 }
 
-float SiPixelGainCalibration::getGain(const int& col, const int& row, const Range& range, const int& nCols, bool & isDead) const {
+float SiPixelGainCalibration::getGain(const int& col, const int& row, const Range& range, const int& nCols, bool& isDead) const {
 
   int nRows = (range.second-range.first)/2 / nCols;
-  isDead = false;
   const DecodingStructure & s = (const DecodingStructure & ) *(range.first+(col*nRows + row)*2);
   if (col >= nCols || row >= nRows){
     throw cms::Exception("CorruptedData")
       << "[SiPixelGainCalibration::getPed] Pixel out of range: col " << col << " row " << row;
   }  
-  if(s.gain==deadVal_)
-    isDead=true;
+  if (s.gain & 0xFF == deadFlag_)
+     isDead = true;
   return decodeGain(s.gain & 0xFF);
 }
-bool SiPixelGainCalibration::isDead(const int& col, const int& row, const Range& range, const int& nCols){
-  int nRows = (range.second-range.first)/2 / nCols;
-  const DecodingStructure & s = (const DecodingStructure & ) *(range.first+(col*nRows + row)*2);
-  if (col >= nCols || row >= nRows){
-    throw cms::Exception("CorruptedData")
-      << "[SiPixelGainCalibration::getPed] Pixel out of range: col " << col << " row " << row;
-  }  
-  if(s.gain!=deadVal_ && s.ped!=deadVal_)
-    return true;
-  else
-    return false;
-}
+
 float SiPixelGainCalibration::encodeGain( const float& gain ) {
   
   if(gain < minGain_ || gain > maxGain_ ) {
     throw cms::Exception("InsertFailure")
       << "[SiPixelGainCalibration::encodeGain] Trying to encode gain (" << gain << ") out of range [" << minGain_ << "," << maxGain_ << "]\n";
   } else {
-    double precision   = (maxGain_-minGain_)/nBins_;
+    double precision   = (maxGain_-minGain_)/static_cast<float>(nBinsToUseForEncoding_);
     float  encodedGain = (float)((gain-minGain_)/precision);
     return encodedGain;
   }
@@ -168,7 +154,7 @@ float SiPixelGainCalibration::encodePed( const float& ped ) {
     throw cms::Exception("InsertFailure")
       << "[SiPixelGainCalibration::encodePed] Trying to encode pedestal (" << ped << ") out of range [" << minPed_ << "," << maxPed_ << "]\n";
   } else {
-    double precision   = (maxPed_-minPed_)/nBins_;
+    double precision   = (maxPed_-minPed_)/static_cast<float>(nBinsToUseForEncoding_);
     float  encodedPed = (float)((ped-minPed_)/precision);
     return encodedPed;
   }
@@ -177,7 +163,7 @@ float SiPixelGainCalibration::encodePed( const float& ped ) {
 
 float SiPixelGainCalibration::decodePed( unsigned int ped ) const {
 
-  double precision = (maxPed_-minPed_)/nBins_;
+  double precision = (maxPed_-minPed_)/static_cast<float>(nBinsToUseForEncoding_);
   float decodedPed = (float)(ped*precision + minPed_);
   return decodedPed;
 
@@ -185,22 +171,9 @@ float SiPixelGainCalibration::decodePed( unsigned int ped ) const {
 
 float SiPixelGainCalibration::decodeGain( unsigned int gain ) const {
 
-  double precision = (maxGain_-minGain_)/nBins_;
+  double precision = (maxGain_-minGain_)/static_cast<float>(nBinsToUseForEncoding_);
   float decodedGain = (float)(gain*precision + minGain_);
   return decodedGain;
 
 }
 
-
-// functions for template compatibility with other payloads. should never run.
-float SiPixelGainCalibration::getPed(const int& col, const Range& range, const int& nCols) const {
-   throw cms::Exception("ConfigurationError")
-      << "[SiPixelGainCalibration::getPed(col, range)] Data is stored at pixel granularity in this payload.  Please use getPed(col, row, range, ncols)";
-   return -1.;
-}
-
-float SiPixelGainCalibration::getGain(const int& col, const Range& range, const int& nCols) const {
-   throw cms::Exception("ConfigurationError")
-      << "[SiPixelGainCalibration::getGain(col, range)] Data is stored at pixel granularity in this payload.  Please use getGain(col, row, range, ncols)";
-   return -1.;
-}

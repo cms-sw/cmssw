@@ -16,7 +16,6 @@
 // Original Author:  Vincenzo Chiochia
 //         Created:  Tue 8 12:31:25 CEST 2007
 //         Modified: Evan Friis
-//         Modified: Freya Blekman
 // $Id: SiPixelGainCalibration.h,v 1.5 2008/02/06 16:29:55 friis Exp $
 //
 //
@@ -63,17 +62,15 @@ class SiPixelGainCalibration {
   const int getNCols(const uint32_t& detID) const;
   const std::pair<const Range, const int> getRangeAndNCols(const uint32_t& detID) const;
 
-  // Set and get public methods
-  void  setData(float ped, float gain, std::vector<char>& vped);
-  void  setDead(std::vector<char>& vped);
-  bool isDead(const int &col, const int & row, const Range & range, const int & nCols);
-  float getPed   (const int& col, const int& row, const Range& range, const int& nCols, bool &isDead) const;
-  float getGain  (const int& col, const int& row, const Range& range, const int& nCols,  bool &isDead) const;
+  unsigned int getNumberOfRowsToAverageOver() const { return numberOfRowsToAverageOver_; }
 
-  // here to maintain compatibility with the templated CondTools/SiPixel/SiPixelGainCalibrationServiceBash
-  // both throw exceptions if ran
-  float getPed   (const int& col, const Range& range, const int& nCols) const;
-  float getGain  (const int& col, const Range& range, const int& nCols) const;
+  // Set and get public methods
+  void  setData(float ped, float gain, std::vector<char>& vped, bool thisPixelIsDead = false);
+
+  void  setDeadPixel(std::vector<char>& vped) { setData(0, 0, /*dummy values, not used*/ vped,  true ); }
+
+  float getPed   (const int& col, const int& row, const Range& range, const int& nCols, bool& isDead) const;
+  float getGain  (const int& col, const int& row, const Range& range, const int& nCols, bool& isDead) const;
 
   private:
 
@@ -86,8 +83,10 @@ class SiPixelGainCalibration {
   std::vector<DetRegistry> indexes;
   float  minPed_, maxPed_, minGain_, maxGain_;
 
-  float nBins_;
-  unsigned int deadVal_;
+  unsigned int numberOfRowsToAverageOver_;   //THIS WILL BE HARDCODED TO 1 (no averaging) DON'T CHANGE UNLESS YOU KNOW WHAT YOU ARE DOING! 
+  unsigned int nBinsToUseForEncoding_;
+  unsigned int deadFlag_;
+
 };
     
 #endif
