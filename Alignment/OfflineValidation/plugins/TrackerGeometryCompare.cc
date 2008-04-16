@@ -31,28 +31,30 @@
 #include "TFile.h" 
 #include "CLHEP/Vector/ThreeVector.h"
 
+// Database
+#include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
+//#include "Geometry/Records/interface/PGeometricDetRcd.h"
+
+
 TrackerGeometryCompare::TrackerGeometryCompare(const edm::ParameterSet& cfg)
 {
-	//for root input
-	//type of inputs being used
-	_inputFileType = cfg.getUntrackedParameter< std::string > ("inputFileType");
-
-	//if input is ROOT
+	
+	//input is ROOT
 	_inputFilename1 = cfg.getUntrackedParameter< std::string > ("inputROOTFile1");
 	_inputFilename2 = cfg.getUntrackedParameter< std::string > ("inputROOTFile2");
 	_inputTreename = cfg.getUntrackedParameter< std::string > ("treeName");
 	
-	//if input is DB
-	_inputType = cfg.getUntrackedParameter< std::string > ("inputDBType");
-
 	//output file
 	_filename = cfg.getUntrackedParameter< std::string > ("outputFile");
-
+	
+	_writeToDB = cfg.getUntrackedParameter< bool > ("writeToDB" );
+	
 	const std::vector<std::string>& levels = cfg.getUntrackedParameter< std::vector<std::string> > ("levels");
 	//const std::vector<int>& subdets = cfg.getUntrackedParameter< std::vector<int> > ("subdets");
-
-
-
+	
+	
+	
 	//setting the levels being used in the geometry comparator
 	AlignableObjectId dummy;
 	edm::LogInfo("TrakcerGeomertyCompare") << "levels: " << levels.size();
@@ -64,8 +66,8 @@ TrackerGeometryCompare::TrackerGeometryCompare(const edm::ParameterSet& cfg)
 	//	theSubDets.push_back( subdets[l] );
 	//}
 	
-
-
+	
+	
 	//root configuration
 	_theFile = new TFile(_filename.c_str(),"RECREATE");
 	_alignTree = new TTree("alignTree","alignTree");//,"id:level:mid:mlevel:sublevel:x:y:z:r:phi:a:b:c:dx:dy:dz:dr:dphi:da:db:dc");
@@ -93,106 +95,60 @@ TrackerGeometryCompare::TrackerGeometryCompare(const edm::ParameterSet& cfg)
 }
 
 void TrackerGeometryCompare::beginJob(const edm::EventSetup& iSetup){
-
-	//create the geometries
-	if (_inputFileType == "poolora"){
-		createDBGeometry(iSetup);
-	}
-	else if (_inputFileType == "root"){
-		createROOTGeometry(iSetup);
-	}
-	else{
-		throw cms::Exception("Bad File Type") << "Bad Input File Type";
-	}
-
+	
+	//upload the ROOT geometries
+	createROOTGeometry(iSetup);
+	
 	//compare the goemetries
 	compareGeometries(referenceTracker,currentTracker);
-				
-
+	
 	//write out ntuple
 	//might be better to do within output module
 	_theFile->cd();
 	_alignTree->Write();
 	_theFile->Close();
 	
-}
-
-void TrackerGeometryCompare::createDBGeometry(const edm::EventSetup& iSetup){
-
-	edm::LogInfo("DBGeom") << "Creating Geoemtries from database...";
 	
-	//accessing the initial geometry
-	edm::ESHandle<GeometricDet> theGeometricDet;
-	iSetup.get<IdealGeometryRecord>().get(theGeometricDet);
-	TrackerGeomBuilderFromGeometricDet trackerBuilder;
-	//reference tracker
-	TrackerGeometry* theRefTracker = trackerBuilder.build(&*theGeometricDet); 
-	referenceTracker = new AlignableTracker(&(*theRefTracker));
-	//dummy tracker
-	dummyTracker = new AlignableTracker(&(*theRefTracker));
-	
-
-	//currernt tracker
-	TrackerGeometry* theCurTracker = trackerBuilder.build(&*theGeometricDet); 
-	
-	if (_inputType == "tracker"){
-		edm::ESHandle<Alignments> alignments;
-		edm::ESHandle<AlignmentErrors> alignmentErrors;
+	if (_writeToDB){
+		Alignments* myAlignments = currentTracker->alignments();
+		AlignmentErrors* myAlignmentErrors = currentTracker->alignmentErrors();
 		
-		iSetup.get<TrackerAlignmentRcd>().get(alignments);
-		iSetup.get<TrackerAlignmentErrorRcd>().get(alignmentErrors);
-
-		//apply the latest alignments
-		edm::ESHandle<Alignments> globalPositionRcd;
-		iSetup.get<TrackerDigiGeometryRecord>().getRecord<GlobalPositionRcd>().get(globalPositionRcd);
-		GeometryAligner aligner;
-		aligner.applyAlignments<TrackerGeometry>( &(*theCurTracker), &(*alignments), &(*alignmentErrors),
-							  align::DetectorGlobalPosition(*globalPositionRcd, DetId(DetId::Tracker)));
-		currentTracker = new AlignableTracker(&(*theCurTracker));
+		// 2. Store alignment[Error]s to DB
+		edm::Service<cond::service::PoolDBOutputService> poolDbService;
+		// Call service
+		if( !poolDbService.isAvailable() ) // Die if not available
+			throw cms::Exception("NotAvailable") << "PoolDBOutputService not available";
 		
-	}
-	if (_inputType == "survey"){
-		edm::ESHandle<SurveyValues> valuesHandle;
-		edm::ESHandle<SurveyErrors> errorsHandle;
+		poolDbService->writeOne<Alignments>(&(*myAlignments), poolDbService->currentTime(), "TrackerAlignmentRcd");
+		poolDbService->writeOne<AlignmentErrors>(&(*myAlignmentErrors), poolDbService->currentTime(), "TrackerAlignmentErrorRcd");
 
-		iSetup.get<TrackerSurveyRcd>().get(valuesHandle);
-		iSetup.get<TrackerSurveyErrorRcd>().get(errorsHandle);
-
-		//add the survey info
-		theSurveyIndex = 0;
-		theSurveyValues = &*valuesHandle;
-		theSurveyErrors = &*errorsHandle;
-		addSurveyInfo(dummyTracker);
-		
-		//convert survey into alignments
-		Alignments* alignVals = new Alignments();
-		AlignmentErrors* alignErrors = new AlignmentErrors();
-		surveyToTracker(&(*dummyTracker), alignVals, alignErrors); 
-		
-		//apply the survey alignments
-		edm::ESHandle<Alignments> globalPositionRcd;
-		iSetup.get<TrackerDigiGeometryRecord>().getRecord<GlobalPositionRcd>().get(globalPositionRcd);
-		GeometryAligner aligner;
-		aligner.applyAlignments<TrackerGeometry>( &(*theCurTracker), alignVals, alignErrors,
-							  align::DetectorGlobalPosition(*globalPositionRcd, DetId(DetId::Tracker)));
-		currentTracker = new AlignableTracker(&(*theCurTracker));
-			
-	}
+		/*
+		if ( poolDbService->isNewTagRequest("TrackerAlignmentRcd") )
+			poolDbService->createNewIOV<Alignments>( &(*myAlignments), poolDbService->endOfTime(), "TrackerAlignmentRcd" );
+		else
+			poolDbService->appendSinceTime<Alignments>( &(*myAlignments), poolDbService->currentTime(), "TrackerAlignmentRcd" );
+		if ( poolDbService->isNewTagRequest("TrackerAlignmentErrorRcd") )
+			poolDbService->createNewIOV<AlignmentErrors>( &(*myAlignmentErrors), poolDbService->endOfTime(), "TrackerAlignmentErrorRcd" );
+		else
+			poolDbService->appendSinceTime<AlignmentErrors>( &(*myAlignmentErrors), poolDbService->currentTime(), "TrackerAlignmentErrorRcd" );
+		 */
+	}		
 	
 }
+
 
 void TrackerGeometryCompare::createROOTGeometry(const edm::EventSetup& iSetup){
-
+	
 	_inputRootFile1 = new TFile(_inputFilename1.c_str());
 	TTree* _inputTree1 = (TTree*) _inputRootFile1->Get(_inputTreename.c_str());
 	_inputRootFile2 = new TFile(_inputFilename2.c_str());
 	TTree* _inputTree2 = (TTree*) _inputRootFile2->Get(_inputTreename.c_str());
 	
 	
-
+	
 	//loop through the ROOT file
 	int nEntries1 = _inputTree1->GetEntries();
-	int nEntries2 = _inputTree1->GetEntries();
+	int nEntries2 = _inputTree2->GetEntries();
 	if (nEntries1 != nEntries2) edm::LogInfo("creatROOT") << "nEntries incompatible: " << nEntries1 << ",  " << nEntries2;
 	//read the ROOT file
 	//uint32_t inputRawId;
@@ -213,13 +169,13 @@ void TrackerGeometryCompare::createROOTGeometry(const edm::EventSetup& iSetup){
 	_inputTree2->SetBranchAddress("alpha", &inputAlpha2);
 	_inputTree2->SetBranchAddress("beta", &inputBeta2);
 	_inputTree2->SetBranchAddress("gamma", &inputGamma2);
-
+	
 	//declare alignments
 	Alignments* alignments1 = new Alignments();
 	AlignmentErrors* alignmentErrors1 = new AlignmentErrors();
 	Alignments* alignments2 = new Alignments();
 	AlignmentErrors* alignmentErrors2 = new AlignmentErrors();
-
+	
 	//fill alignments
 	for (int i = 0; i < nEntries1; ++i){
 		
@@ -229,7 +185,7 @@ void TrackerGeometryCompare::createROOTGeometry(const edm::EventSetup& iSetup){
 		uint32_t detid1 = inputRawId1;
 		AlignTransform transform1(translation1, eulerangles1, detid1);
 		alignments1->m_align.push_back(transform1);
-
+		
 		_inputTree2->GetEntry(i);
 		Hep3Vector translation2(inputX2, inputY2, inputZ2);
 		HepEulerAngles eulerangles2(inputAlpha2,inputBeta2,inputGamma2);
@@ -248,40 +204,40 @@ void TrackerGeometryCompare::createROOTGeometry(const edm::EventSetup& iSetup){
 	std::sort( alignmentErrors1->m_alignError.begin(), alignmentErrors1->m_alignError.end(), lessAlignmentDetId<AlignTransformError>() );
 	std::sort( alignments2->m_align.begin(), alignments2->m_align.end(), lessAlignmentDetId<AlignTransform>() );
 	std::sort( alignmentErrors2->m_alignError.begin(), alignmentErrors2->m_alignError.end(), lessAlignmentDetId<AlignTransformError>() );
-
-
+	
+	
 	//accessing the initial geometry
 	edm::ESHandle<DDCompactView> cpv;
 	iSetup.get<IdealGeometryRecord>().get(cpv);
 	edm::ESHandle<GeometricDet> theGeometricDet;
 	iSetup.get<IdealGeometryRecord>().get(theGeometricDet);
 	TrackerGeomBuilderFromGeometricDet trackerBuilder;
-
+	
 	edm::ESHandle<Alignments> globalPositionRcd;
 	iSetup.get<TrackerDigiGeometryRecord>().getRecord<GlobalPositionRcd>().get(globalPositionRcd);
-
+	
 	//reference tracker
 	TrackerGeometry* theRefTracker = trackerBuilder.build(&*theGeometricDet); 
 	GeometryAligner aligner1;
 	aligner1.applyAlignments<TrackerGeometry>( &(*theRefTracker), &(*alignments1), &(*alignmentErrors1),
-						   align::DetectorGlobalPosition(*globalPositionRcd, DetId(DetId::Tracker)));
+											  align::DetectorGlobalPosition(*globalPositionRcd, DetId(DetId::Tracker)));
 	referenceTracker = new AlignableTracker(&(*theRefTracker));
 	//currernt tracker
 	TrackerGeometry* theCurTracker = trackerBuilder.build(&*theGeometricDet); 
 	GeometryAligner aligner2;
 	aligner2.applyAlignments<TrackerGeometry>( &(*theCurTracker), &(*alignments2), &(*alignmentErrors2),
-						   align::DetectorGlobalPosition(*globalPositionRcd, DetId(DetId::Tracker)));
+											  align::DetectorGlobalPosition(*globalPositionRcd, DetId(DetId::Tracker)));
 	currentTracker = new AlignableTracker(&(*theCurTracker));
 	
-
+	
 }
 
 void TrackerGeometryCompare::analyze(const edm::Event&, const edm::EventSetup& iSetup){
-
+	
 }
 
 void TrackerGeometryCompare::compareGeometries(Alignable* refAli, Alignable* curAli){
-
+	
 	const std::vector<Alignable*>& refComp = refAli->components();
 	const std::vector<Alignable*>& curComp = curAli->components();
 	
@@ -340,14 +296,14 @@ void TrackerGeometryCompare::compareGeometries(Alignable* refAli, Alignable* cur
 	
 	//another added level for difference between det and detunit
 	for (unsigned int i = 0; i < nComp; ++i) compareGeometries(refComp[i],curComp[i]);
-
-
+	
+	
 }
 
 void TrackerGeometryCompare::fillTree(Alignable *refAli, AlgebraicVector diff){
-
-
-	_id = refAli->geomDetId().rawId();
+	
+	
+	_id = refAli->id();
 	_level = refAli->alignableObjectId();
 	//need if ali has no mother
 	if (refAli->mother()){
@@ -384,11 +340,11 @@ void TrackerGeometryCompare::fillTree(Alignable *refAli, AlgebraicVector diff){
 	_dgammaVal = diff[5];
 	//Fill
 	_alignTree->Fill();
-
+	
 }
 
 void TrackerGeometryCompare::surveyToTracker(AlignableTracker* ali, Alignments* alignVals, AlignmentErrors* alignErrors){
-
+	
 	//getting the right alignables for the alignment record
 	std::vector<Alignable*> detPB = ali->pixelHalfBarrelGeomDets();
 	std::vector<Alignable*> detPEC = ali->pixelEndcapGeomDets();
@@ -396,7 +352,7 @@ void TrackerGeometryCompare::surveyToTracker(AlignableTracker* ali, Alignments* 
 	std::vector<Alignable*> detTID = ali->TIDGeomDets();
 	std::vector<Alignable*> detTOB = ali->outerBarrelGeomDets();
 	std::vector<Alignable*> detTEC = ali->endcapGeomDets();
-
+	
 	std::vector<Alignable*> allGeomDets;
 	std::copy(detPB.begin(), detPB.end(), std::back_inserter(allGeomDets));
 	std::copy(detPEC.begin(), detPEC.end(), std::back_inserter(allGeomDets));
@@ -418,10 +374,10 @@ void TrackerGeometryCompare::surveyToTracker(AlignableTracker* ali, Alignments* 
 			}
 		}
 	}
-
+	
 	//turning them into alignments
 	for(std::vector<Alignable*>::iterator k = rcdAlis.begin(); k != rcdAlis.end(); k++){
-
+		
 		const SurveyDet* surveyInfo = (*k)->survey();
 		align::PositionType pos(surveyInfo->position());
 		align::RotationType rot(surveyInfo->rotation());
@@ -432,7 +388,7 @@ void TrackerGeometryCompare::surveyToTracker(AlignableTracker* ali, Alignments* 
 		alignVals->m_align.push_back(transform);
 		alignErrors->m_alignError.push_back(transformError);
 	}
-
+	
 	//to get the right order
 	std::sort( alignVals->m_align.begin(), alignVals->m_align.end(), lessAlignmentDetId<AlignTransform>() );
 	std::sort( alignErrors->m_alignError.begin(), alignErrors->m_alignError.end(), lessAlignmentDetId<AlignTransformError>() );
@@ -440,37 +396,38 @@ void TrackerGeometryCompare::surveyToTracker(AlignableTracker* ali, Alignments* 
 }
 
 void TrackerGeometryCompare::addSurveyInfo(Alignable* ali){
-
+	
 	const std::vector<Alignable*>& comp = ali->components();
-
-  unsigned int nComp = comp.size();
-
-  for (unsigned int i = 0; i < nComp; ++i) addSurveyInfo(comp[i]);
-
-  const SurveyError& error = theSurveyErrors->m_surveyErrors[theSurveyIndex];
-
-  if ( ali->geomDetId().rawId() != error.rawId() ||
-       ali->alignableObjectId() != error.structureType() )
-  {
-    throw cms::Exception("DatabaseError")
-      << "Error reading survey info from DB. Mismatched id!";
-  }
-
-  const CLHEP::Hep3Vector&  pos = theSurveyValues->m_align[theSurveyIndex].translation();
-  const CLHEP::HepRotation& rot = theSurveyValues->m_align[theSurveyIndex].rotation();
-
-  AlignableSurface surf( align::PositionType( pos.x(), pos.y(), pos.z() ),
-			 align::RotationType( rot.xx(), rot.xy(), rot.xz(),
-					      rot.yx(), rot.yy(), rot.yz(),
-					      rot.zx(), rot.zy(), rot.zz() ) );
-
-  surf.setWidth( ali->surface().width() );
-  surf.setLength( ali->surface().length() );
-
-  ali->setSurvey( new SurveyDet( surf, error.matrix() ) );
-
+	
+	unsigned int nComp = comp.size();
+	
+	for (unsigned int i = 0; i < nComp; ++i) addSurveyInfo(comp[i]);
+	
+	const SurveyError& error = theSurveyErrors->m_surveyErrors[theSurveyIndex];
+	
+	if ( ali->geomDetId().rawId() != error.rawId() ||
+		ali->alignableObjectId() != error.structureType() )
+	{
+		throw cms::Exception("DatabaseError")
+		<< "Error reading survey info from DB. Mismatched id!";
+	}
+	
+	const CLHEP::Hep3Vector&  pos = theSurveyValues->m_align[theSurveyIndex].translation();
+	const CLHEP::HepRotation& rot = theSurveyValues->m_align[theSurveyIndex].rotation();
+	
+	AlignableSurface surf( align::PositionType( pos.x(), pos.y(), pos.z() ),
+						  align::RotationType( rot.xx(), rot.xy(), rot.xz(),
+											  rot.yx(), rot.yy(), rot.yz(),
+											  rot.zx(), rot.zy(), rot.zz() ) );
+	
+	surf.setWidth( ali->surface().width() );
+	surf.setLength( ali->surface().length() );
+	
+	ali->setSurvey( new SurveyDet( surf, error.matrix() ) );
+	
 	++theSurveyIndex;
 	
 }
+
 
 DEFINE_FWK_MODULE(TrackerGeometryCompare);

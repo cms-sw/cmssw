@@ -14,8 +14,8 @@
  *   path p = { comparator }
  *
  *
- *  $Date: 2007/12/06 01:46:42 $
- *  $Revision: 1.5 $
+ *  $Date: 2008/02/27 17:33:19 $
+ *  $Revision: 1.1 $
  *  \author Nhan Tran
  */
 
@@ -69,7 +69,7 @@ private:
 	void surveyToTracker(AlignableTracker* ali, Alignments* alignVals, AlignmentErrors* alignErrors);
 	//need for conversion for surveyToTracker
 	void addSurveyInfo(Alignable* ali);
-	void createDBGeometry(const edm::EventSetup& iSetup);
+	//void createDBGeometry(const edm::EventSetup& iSetup);
 	void createROOTGeometry(const edm::EventSetup& iSetup);
 	
 	AlignableTracker* referenceTracker;
@@ -80,12 +80,10 @@ private:
 	const Alignments* theSurveyValues;
 	const SurveyErrors* theSurveyErrors;
 	
-
-	std::string _inputType;
-	std::string _inputFileType;
 	std::string _inputFilename1;
 	std::string _inputFilename2;
 	std::string _inputTreename;
+	bool _writeToDB;
 	
 	//root configuration
 	std::string _filename;
