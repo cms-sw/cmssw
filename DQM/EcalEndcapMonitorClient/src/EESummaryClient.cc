@@ -1,8 +1,8 @@
 /*
  * \file EESummaryClient.cc
  *
- * $Date: 2008/04/08 20:09:07 $
- * $Revision: 1.108 $
+ * $Date: 2008/04/09 05:52:43 $
+ * $Revision: 1.109 $
  * \author G. Della Ricca
  *
 */
@@ -982,7 +982,7 @@ void EESummaryClient::analyze(void){
 
           if ( eecc ) {
 
-            h2d = eecc->h01_[ism-1];
+            h2d = eecc->h02_[ism-1];
 
             if ( h2d ) {
 
