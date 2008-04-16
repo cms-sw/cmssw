@@ -1,11 +1,6 @@
 #ifndef HcalLutManager_h
 #define HcalLutManager_h
 
-#include <iostream>
-#include <string>
-#include <vector>
-#include "CaloOnlineTools/HcalOnlineDb/interface/LutXml.h"
-
 /**
 
    \class HcalLutManager
@@ -14,7 +9,25 @@
 
 */
 
+#include <iostream>
+#include <string>
+#include <vector>
+#include <map>
+#include <time>
+#include "CaloOnlineTools/HcalOnlineDb/interface/LutXml.h"
+#include "DataFormats/HcalDetId/interface/HcalSubdetector.h"
+
 class XMLDOMBlock;
+
+class HcalLutSet{
+ public:
+  string label;
+  std::vector<string> subdet;
+  std::vector<int> eta_min, eta_max, phi_min, phi_max, depth_min, depth_max;
+  std::vector<vector<unsigned int> > lut;
+};
+
+
 
 class HcalLutManager{
  public:
@@ -24,6 +37,27 @@ class HcalLutManager{
 
   void init( void );
   std::string & getLutXml( std::vector<unsigned int> & _lut );
+  std::string getLutXmlFromAsciiMaster( string _filename, string _tag, int _crate );
+  HcalLutSet getLutSetFromFile( string _filename );
+
+  static int getInt( string number );
+  static HcalSubdetector get_subdetector( string _subdet );
+  static string get_time_stamp( time_t _time );
+
+ protected:
+  
+  LutXml * lut_xml;
+
+};
+
+
+class HcalLutManager_test{
+ public:
+  
+  static int getLutXml_test( std::vector<unsigned int> & _lut ){}
+  static int getLutSetFromFile_test( string _filename );
+
+  static int getInt_test( string number );
 
  protected:
   

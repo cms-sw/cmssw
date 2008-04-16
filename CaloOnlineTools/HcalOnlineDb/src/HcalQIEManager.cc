@@ -89,7 +89,7 @@ std::vector <std::string> HcalQIEManager::splitString (const std::string& fLine)
   int start = 0;
   bool empty = true;
   for (unsigned i = 0; i <= fLine.size (); i++) {
-    if (fLine [i] == ' ' || i == fLine.size ()) {
+    if (fLine [i] == ' ' || fLine [i] == '	' || i == fLine.size ()) {
       if (!empty) {
         std::string item (fLine, start, i-start);
         result.push_back (item);

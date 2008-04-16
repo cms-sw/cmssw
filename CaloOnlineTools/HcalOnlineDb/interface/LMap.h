@@ -7,26 +7,32 @@
 // 
 /**\class LMap LMap.h CaloOnlineTools/HcalOnlineDb/interface/LMap.h
 
- Description: <one line class summary>
+ Description: interface to the HCAL logical map
 
  Usage:
-    <usage>
+    #include <boost/shared_ptr.hpp>
+
+    shared_ptr<LMap> the_map(new LMap);
+    the_map -> read( "your-accessor-string", "optional map type" );
 
 */
 //
 // Original Author:  Gena Kukartsev, kukarzev@fnal.gov
 //         Created:  Tue Nov 06 14:30:33 CDT 2007
-// $Id: LMap.h,v 1.1 2008/02/12 17:01:59 kukartse Exp $
+// $Id: LMap.h,v 1.2 2008/02/20 17:15:29 kukartse Exp $
 //
 
 // system include files
 #include<vector>
 #include <string.h>
 #include <fstream>
+#include <boost/shared_ptr.hpp>
 
 #include "CaloOnlineTools/HcalOnlineDb/interface/ConfigurationDatabase.hh"
+#include "DataFormats/HcalDetId/interface/HcalSubdetector.h"
 
 using namespace std;
+using namespace boost;
 
 class LMapRow
 {
@@ -36,7 +42,8 @@ class LMapRow
   
   int side;
   int eta, phi, dphi, depth;
-  string det;
+  //string det;
+  HcalSubdetector det;
   string rbx;
   int wedge, rm, pixel, qie, adc, rm_fi, fi_ch;
   int crate, htr; // crate-slot
@@ -72,19 +79,27 @@ class LMap
  public:
     
   LMap();
-  int read( string map_file, string type = "HBEF" ); // type = "HNEF" or "HO"
-  hcal::ConfigurationDatabase::LUTId getLUTId( LMapDetId _etaphi );
-  virtual ~LMap();
-  
-  vector<LMapRow> _table;
+  ~LMap();
 
+  // type = "HNEF" or "HO", matters for
+  int read( string accessor, string type = "HBEF" );
+  std::map<int,LMapRow> & get_map( void );
+  
  private:
-  LMap(const LMap&); // stop default
-  const LMap& operator=(const LMap&); // stop default
-  
-  // ---------- member data --------------------------------
-
+  class impl;
+  shared_ptr<impl> p_impl;
 };
 
+
+class LMap_test {
+public:
+  LMap_test();
+  ~LMap_test(){ }
+
+  int test_read( string accessor, string type="HBEF" );
+
+private:
+  shared_ptr<LMap> _lmap;
+};
 
 #endif

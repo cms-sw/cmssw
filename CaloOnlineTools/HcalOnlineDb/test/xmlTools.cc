@@ -3,7 +3,7 @@
 #include <getopt.h>
 #include <string.h>
 #include <fstream>
-
+#include <boost/program_options.hpp>
 #include <sys/time.h>
 
 //#include "DataFormats/HcalDetId/interface/HcalSubdetector.h"
@@ -32,17 +32,22 @@
 #include "toolbox/string.h"
 #include "occi.h"
 #include "CaloOnlineTools/HcalOnlineDb/interface/ConfigurationItemNotFoundException.hh"
+#include "CaloOnlineTools/HcalOnlineDb/interface/LMap.h"
 
 using namespace std;
 using namespace oracle::occi;
 using namespace hcal;
+namespace po = boost::program_options;
 
 int createLUTLoader( string prefix_="", string tag_="" );
 int createHTRPatternLoader( void );
 int createLMap( void );
 int createRBXLoader( string & type_, string & tag_, string & list_file, string & _comment, string & _version );
 //int createRBXentries( string );
-int createZSLoader( void );
+
+// deprecated - to be removed
+//int createZSLoader( void );
+
 int testocci( void );
 int testDB( string _tag, string _filename );
 int lmaptest( string _param );
@@ -56,8 +61,76 @@ void test_lut_gen( void );
 int main( int argc, char **argv )
 {
   cout << "Running xmlTools..." << endl;
-  
-  // parse command line options
+
+  //
+  //===> command line options parser using boost  
+  //
+  po::options_description general("General options");
+  general.add_options()
+    ("help", "produce help message")
+    ("test", po::value<string>(), "print test string")
+    ("test-lmap", po::value<string>(), "test logical map functionality")
+    ("test-lut-manager", po::value<string>(), "test LUT functionality")
+    ("create-lut-xml", po::value<int>(), "create XML file(s) with LUTs")
+    ;
+
+  try{
+    
+    po::variables_map vm;
+    po::store(po::parse_command_line(argc, argv, general), vm);
+    po::notify(vm);
+    
+    if (vm.count("help")) {
+      cout << general << "\n";
+      return 1;
+    }
+    
+    if (vm.count("test")) {
+      cout << "Test: "
+	   << vm["test"].as<string>() << ".\n";
+    }
+
+    if (vm.count("test-lmap")) {
+      cout << "Testing lmap stuff..." << "\n";
+      string _accessor = vm["test-lmap"].as<string>();
+      cout << "Logical map accessor string: " << _accessor << "\n";
+      string _type;
+      if ( _accessor . find ("HO") != string::npos ){
+	cout << "type: HO" << endl;
+	_type = "HO";
+      }
+      else{
+	cout << "type: HBEF" << endl;
+	_type = "HBEF";
+      }
+      LMap_test test;
+      test . test_read( _accessor, _type);
+      return 0;
+    }
+    
+    if (vm.count("test-lut-manager")) {
+      cout << "Testing LUT manager stuff..." << "\n";
+      string _accessor = vm["test-lut-manager"].as<string>();
+      cout << "LUT ascii file: " << _accessor << "\n";
+      HcalLutManager_test::getLutSetFromFile_test( _accessor );
+      return 0;
+    }
+    
+    if (vm.count("create-lut-xml")) {
+      cout << "Creating XML with LUTs for all channels..." << "\n";
+      int _cr = vm["create-lut-xml"].as<int>();
+      HcalLutManager manager;
+      manager . getLutXmlFromAsciiMaster( "inputLUTcoder.dat", "CR0T_2008_v1_fakeChecksum", _cr );
+      return 0;
+    }
+    
+  } catch(boost::program_options::unknown_option) {
+    cout << "No command line options known to boost... continuing to getopt parser..." << endl;
+  }
+
+  //
+  // FIXME: deprecated parse command line options - switch to boost above
+  //
   int c;
   int digit_optind = 0;
   
@@ -105,7 +178,7 @@ int main( int argc, char **argv )
       {"patterns", 0, 0, 20},
       {"lmap", 0, 0, 30},
       {"rbxpedestals", 0, 0, 40},
-      {"zs", 0, 0, 50},
+      // deprecated     {"zs", 0, 0, 50},
       {"rbx", 1, 0, 60},
       {"luts2", 0, 0, 70},
       {"testocci", 0, 0, 1000},
@@ -119,7 +192,7 @@ int main( int argc, char **argv )
       {"zs2HE", 1, 0, 1091},
       {"zs2HO", 1, 0, 1092},
       {"zs2HF", 1, 0, 1093},
-      {"test_lut_gen", 0, 0, 1100},
+      {"test-lut-gen", 0, 0, 1100},
       {0, 0, 0, 0}
     };
         
@@ -240,9 +313,10 @@ int main( int argc, char **argv )
       //createRBXLoader();
       break;
       
-    case 50:
-      createZSLoader();
-      break;
+      // deprecated - to be removed
+      //    case 50:
+      //      createZSLoader();
+      //      break;
       
       // rbx
     case 60:
@@ -472,7 +546,8 @@ int main( int argc, char **argv )
 
 
 
-
+/* deprecated - to be removed
+//
 // Zero suppression Loader
 int createZSLoader( void )
 {
@@ -552,7 +627,7 @@ int createZSLoader( void )
   
   return 0;
 }
-
+*/
 
 // Zero suppression Loader version 2
 int createZSLoader2( string & tag, string & comment, string & zs2HB, string & zs2HE, string & zs2HO, string & zs2HF )

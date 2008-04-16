@@ -16,7 +16,7 @@
 //
 // Original Author:  Gena Kukartsev, kukarzev@fnal.gov
 //         Created:  Tue Nov 06 14:30:33 CDT 2007
-// $Id: XMLHTRZeroSuppressionLoader.h,v 1.2 2007/12/06 02:26:11 kukartse Exp $
+// $Id: XMLHTRZeroSuppressionLoader.h,v 1.1 2008/02/12 17:01:59 kukartse Exp $
 //
 
 // system include files
@@ -68,13 +68,9 @@ class XMLHTRZeroSuppressionLoader : public XMLDOMBlock
   XMLHTRZeroSuppressionLoader( loaderBaseConfig * config, string templateBase = "HCAL_HTR_ZERO_SUPPRESSION.XMLloader.template" );
   virtual ~XMLHTRZeroSuppressionLoader();
 
-  int createLoader( void );
+  // deprecated - to be removed
+  //int createLoader( void );
   
-  // ---------- const member functions ---------------------
-  
-  // ---------- static member functions --------------------
-  
-  // ---------- member functions ---------------------------
   int addZS( datasetDBConfig * config,
 	     string templateFileName = "HCAL_HTR_ZERO_SUPPRESSION.dataset.template" );
   

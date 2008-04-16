@@ -8,7 +8,7 @@
 //
 // Original Author:  Gena Kukartsev, kukarzev@fnal.gov
 //         Created:  Tue Oct 23 14:30:20 CDT 2007
-// $Id: XMLHTRZeroSuppressionLoader.cc,v 1.2 2007/12/06 02:26:36 kukartse Exp $
+// $Id: XMLHTRZeroSuppressionLoader.cc,v 1.1 2008/02/12 17:02:02 kukartse Exp $
 //
 
 // system include files
@@ -145,6 +145,11 @@ int XMLHTRZeroSuppressionLoader::addZS( datasetDBConfig * config, string templat
 }
 
 
+
+
+
+
+/* deprecated - to be removed
 int XMLHTRZeroSuppressionLoader::createLoader( void )
 {
   XMLHTRZeroSuppressionLoader::datasetDBConfig conf;
@@ -190,11 +195,4 @@ int XMLHTRZeroSuppressionLoader::createLoader( void )
   return 0;
 }
 
-
-//
-// const member functions
-//
-
-//
-// static member functions
-//
+*/

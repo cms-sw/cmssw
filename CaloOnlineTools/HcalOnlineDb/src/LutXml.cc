@@ -8,7 +8,7 @@
 //
 // Original Author:  Gena Kukartsev, kukarzev@fnal.gov
 //         Created:  Tue Mar 18 14:30:20 CDT 2008
-// $Id: LutXml.cc,v 1.1 2008/02/12 17:02:02 kukartse Exp $
+// $Id: LutXml.cc,v 1.1 2008/04/10 21:12:09 kukartse Exp $
 //
 
 // system include files
@@ -85,7 +85,7 @@ void LutXml::addLut( LutXml::Config & _config )
   addParameter( "CREATIONSTAMP", "string", _config.creationstamp );
   addParameter( "FORMATREVISION", "string", _config.formatrevision );
   addParameter( "TARGETFIRMWARE", "string", _config.targetfirmware );
-  addParameter( "GENERALIZEDINDEX", "string", _config.creationtag );
+  addParameter( "GENERALIZEDINDEX", "int", _config.generalizedindex );
   addData( "128", "hex", _config.lut );
 }
 
@@ -98,7 +98,10 @@ DOMElement * LutXml::addData( string _elements, string _encoding, std::vector<un
   stringstream buf;
 
   for (std::vector<unsigned int>::const_iterator iter = _lut.begin();iter!=_lut.end();iter++){
-    buf << (*iter) << " ";
+    char buf2[8];
+    sprintf(buf2,"%x",(*iter));
+    buf << buf2 << " ";
+    //buf << (*iter) << " ";
   }
 
   string _value = buf . str();
