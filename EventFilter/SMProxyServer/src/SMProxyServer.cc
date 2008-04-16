@@ -1,4 +1,4 @@
-// $Id: SMProxyServer.cc,v 1.12 2008/03/03 20:38:11 biery Exp $
+// $Id: SMProxyServer.cc,v 1.13 2008/03/04 21:53:23 biery Exp $
 
 #include <iostream>
 #include <iomanip>
@@ -124,6 +124,8 @@ SMProxyServer::SMProxyServer(xdaq::ApplicationStub * s)
   // added for Event Server
   maxESEventRate_ = 10.0;  // hertz
   ispace->fireItemAvailable("maxESEventRate",&maxESEventRate_);
+  maxESDataRate_ = 100.0;  // MB/sec
+  ispace->fireItemAvailable("maxESDataRate",&maxESDataRate_);
   maxEventRequestRate_ = 10.0;  // hertz
   ispace->fireItemAvailable("maxEventRequestRate",&maxEventRequestRate_);
   activeConsumerTimeout_ = 300;  // seconds
@@ -1045,13 +1047,17 @@ void SMProxyServer::consumerWebPage(xgi::Input *in, xgi::Output *out)
     Strings modifiedRequest =
       eventServer->updateTriggerSelectionForStreams(selectionRequest);
 
+    // pull the rate request out of the consumer parameter set, too
+    double maxEventRequestRate =
+      requestParamSet.getUntrackedParameter<double>("maxEventRequestRate", 1.0);
+
     // create the local consumer interface and add it to the event server
     boost::shared_ptr<ConsumerPipe>
       consPtr(new ConsumerPipe(consumerName, consumerPriority,
                                activeConsumerTimeout_.value_,
                                idleConsumerTimeout_.value_,
-                               modifiedRequest, consumerHost,
-                               consumerQueueSize_));
+                               modifiedRequest, maxEventRequestRate,
+                               consumerHost, consumerQueueSize_));
     eventServer->addConsumer(consPtr);
 
     // build the registration response into the message buffer
@@ -1415,6 +1421,7 @@ void SMProxyServer::setupFlashList()
   //is->fireItemAvailable("nLogicalDisk",         &nLogicalDisk_);
   //is->fireItemAvailable("fileCatalog",          &fileCatalog_);
   is->fireItemAvailable("maxESEventRate",       &maxESEventRate_);
+  is->fireItemAvailable("maxESDataRate",        &maxESDataRate_);
   is->fireItemAvailable("DQMmaxESEventRate",    &DQMmaxESEventRate_);
   is->fireItemAvailable("maxEventRequestRate",&maxEventRequestRate_);
   is->fireItemAvailable("maxDQMEventRequestRate",&maxDQMEventRequestRate_);
@@ -1457,9 +1464,10 @@ void SMProxyServer::setupFlashList()
   //is->addItemRetrieveListener("nLogicalDisk",         this);
   //is->addItemRetrieveListener("fileCatalog",          this);
   is->addItemRetrieveListener("maxESEventRate",       this);
-  is->addItemRetrieveListener("DQMmaxESEventRate",       this);
-  is->addItemRetrieveListener("maxEventRequestRate",       this);
-  is->addItemRetrieveListener("maxDQMEventRequestRate",       this);
+  is->addItemRetrieveListener("maxESDataRate",        this);
+  is->addItemRetrieveListener("DQMmaxESEventRate",    this);
+  is->addItemRetrieveListener("maxEventRequestRate",  this);
+  is->addItemRetrieveListener("maxDQMEventRequestRate",this);
   is->addItemRetrieveListener("activeConsumerTimeout",this);
   is->addItemRetrieveListener("idleConsumerTimeout",  this);
   is->addItemRetrieveListener("consumerQueueSize",    this);
@@ -1515,6 +1523,8 @@ bool SMProxyServer::configuring(toolbox::task::WorkLoop* wl)
     
     if (maxESEventRate_ < 0.0)
       maxESEventRate_ = 0.0;
+    if (maxESDataRate_ < 0.0)
+      maxESDataRate_ = 0.0;
     if (DQMmaxESEventRate_ < 0.0)
       DQMmaxESEventRate_ = 0.0;
     
@@ -1542,7 +1552,7 @@ bool SMProxyServer::configuring(toolbox::task::WorkLoop* wl)
       dpm_.reset(new stor::DataProcessManager());
       
       boost::shared_ptr<EventServer>
-        eventServer(new EventServer(maxESEventRate_));
+        eventServer(new EventServer(maxESEventRate_, maxESDataRate_));
       dpm_->setEventServer(eventServer);
       boost::shared_ptr<DQMEventServer>
         DQMeventServer(new DQMEventServer(DQMmaxESEventRate_));
