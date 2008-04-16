@@ -12,7 +12,7 @@
 
      See CMS EventFilter wiki page for further notes.
 
-   $Id: SMProxyServer.h,v 1.6 2007/10/14 14:40:03 hcheung Exp $
+   $Id: SMProxyServer.h,v 1.7 2008/02/02 02:35:28 hcheung Exp $
 */
 
 #include <string>
@@ -143,6 +143,7 @@ namespace stor {
     xdata::String DQMconsumerName_;
 
     xdata::Double maxESEventRate_;  // hertz
+    xdata::Double maxESDataRate_;  // hertz
     xdata::Double maxEventRequestRate_;  // hertz
     xdata::Integer activeConsumerTimeout_;  // seconds
     xdata::Integer idleConsumerTimeout_;  // seconds
