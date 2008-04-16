@@ -10,6 +10,7 @@
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
 #include "DataFormats/FEDRawData/interface/FEDRawData.h"
 
+#include "DQMServices/Core/interface/DQMStore.h"
 
 // This is the maximum number of histogrammed FEDs
 // If the number of FEDs exceeds this limit we have a crash
@@ -20,7 +21,10 @@
 
 CnBAnalyzer::CnBAnalyzer(const edm::ParameterSet& iConfig) {
   // Get hold of back-end interface
-  dbe = edm::Service<DaqMonitorBEInterface>().operator->();
+  // dbe = edm::Service<DaqMonitorBEInterface>().operator->();
+
+  // Dqm private object
+  dqm_ = NULL;
   
   // Parameters for working with S-link and dumping the hex buffer
   swapOn_ = iConfig.getUntrackedParameter<int>("swapOn");
@@ -37,9 +41,9 @@ CnBAnalyzer::CnBAnalyzer(const edm::ParameterSet& iConfig) {
 
 CnBAnalyzer::~CnBAnalyzer() {
   // Go to top directory
-  dbe->cd();
+  dqm()->cd();
   // and remove MEs at top directory
-  dbe->removeContents(); 
+  dqm()->removeContents(); 
 }
 
 void CnBAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup){
@@ -194,36 +198,36 @@ void CnBAnalyzer::createRootFedHistograms() {
   std::string baseFolder;
   baseFolder = sistrip::root_ + "/Fed Monitoring Summary";
 
-  dbe->setCurrentFolder(baseFolder);
+  dqm()->setCurrentFolder(baseFolder);
 
   // This Histogram will be filled with 
   // problemsSeen / totalChannels
-  fedGenericErrors_ = dbe->book1D( "Fed Generic Errors","Fed Generic Errors vs. FED #",
-				   totalNumberOfFeds_,
-				   fedIdBoundaries_.first  - 0.5,
-				   fedIdBoundaries_.second + 0.5 );
+  fedGenericErrors_ = dqm()->book1D( "Fed Generic Errors","Fed Generic Errors vs. FED #",
+				     totalNumberOfFeds_,
+				     fedIdBoundaries_.first  - 0.5,
+				     fedIdBoundaries_.second + 0.5 );
   
   
   // bool internalFreeze
-  fedFreeze_ = dbe->book1D( "Fed Freeze","Fed Freeze vs. FED #",
-			    totalNumberOfFeds_,
-			    fedIdBoundaries_.first  - 0.5,
-			    fedIdBoundaries_.second + 0.5 );
+  fedFreeze_ = dqm()->book1D( "Fed Freeze","Fed Freeze vs. FED #",
+			      totalNumberOfFeds_,
+			      fedIdBoundaries_.first  - 0.5,
+			      fedIdBoundaries_.second + 0.5 );
   
   // bool bxError
-  fedBx_ = dbe->book1D( "Fed Bx Error","Fed Bx Error vs. FED #",
-			totalNumberOfFeds_,
-			fedIdBoundaries_.first  - 0.5,
-			fedIdBoundaries_.second + 0.5 );
+  fedBx_ = dqm()->book1D( "Fed Bx Error","Fed Bx Error vs. FED #",
+			  totalNumberOfFeds_,
+			  fedIdBoundaries_.first  - 0.5,
+			  fedIdBoundaries_.second + 0.5 );
 
   // Trend plots:
-  totalChannels_  = dbe->book1D( "Total channels vs. Event",
-				 "Total channels vs. Event for all FEDs",
-				 1001, 0.5, 1000.5);
+  totalChannels_  = dqm()->book1D( "Total channels vs. Event",
+				   "Total channels vs. Event for all FEDs",
+				   1001, 0.5, 1000.5);
 
-  faultyChannels_ = dbe->book1D( "Faulty channels vs. Event",
-				 "Faulty channels vs. Event for all FEDs",
-				 1001, 0.5, 1000.5);
+  faultyChannels_ = dqm()->book1D( "Faulty channels vs. Event",
+				   "Faulty channels vs. Event for all FEDs",
+				   1001, 0.5, 1000.5);
 
 }
 
@@ -244,7 +248,7 @@ void CnBAnalyzer::createDetailedFedHistograms( const uint16_t& fed_id ) {
     
     // Set working directory prior to booking histograms 
     std::string dir = thisFedKey.path();
-    dbe->setCurrentFolder( dir );
+    dqm()->setCurrentFolder( dir );
     
     // All the following histograms are such that thay can be plot together
     // In fact the boundaries of the plots are 1, 192 (or actually 0.5, 192,5)
@@ -256,27 +260,27 @@ void CnBAnalyzer::createDetailedFedHistograms( const uint16_t& fed_id ) {
     
     
     //   bool feOverflow[8];
-    feOverFlow_[fed_id]     = dbe->book1D( "FedUnit Overflow",
-					   "FedUnit Overflow for FED #"+fedNumber.str(),
-					   8, 0.5, 192.5 );
+    feOverFlow_[fed_id]     = dqm()->book1D( "FedUnit Overflow",
+					     "FedUnit Overflow for FED #"+fedNumber.str(),
+					     8, 0.5, 192.5 );
     
     //   bool apvAddressError[8];
-    feAPVAddr_[fed_id]      = dbe->book1D( "APV Address error",
-					   "FedUnit APV Address error for FED #"+fedNumber.str(),
-					   8, 0.5, 192.5 );
+    feAPVAddr_[fed_id]      = dqm()->book1D( "APV Address error",
+					     "FedUnit APV Address error for FED #"+fedNumber.str(),
+					     8, 0.5, 192.5 );
     
     // Channel[96]
-    chanErrUnlock_[fed_id]  = dbe->book1D( "Unlock error",
-					   "Unlocked Fiber error for FED #"+fedNumber.str(),
-					   96, 0.5, 192.5);
-    chanErrOOS_[fed_id]     = dbe->book1D( "OOS error",
-					   "OutOfSynch Fiber error for FED #"+fedNumber.str(),
-					   96, 0.5, 192.5);
+    chanErrUnlock_[fed_id]  = dqm()->book1D( "Unlock error",
+					     "Unlocked Fiber error for FED #"+fedNumber.str(),
+					     96, 0.5, 192.5);
+    chanErrOOS_[fed_id]     = dqm()->book1D( "OOS error",
+					     "OutOfSynch Fiber error for FED #"+fedNumber.str(),
+					     96, 0.5, 192.5);
     
     // apv[96*2]
-    badApv_[fed_id]         = dbe->book1D( "Bad APV error",
-					   "Bad APV error for FED #"+fedNumber.str(),
-					   192, 0.5, 192.5);
+    badApv_[fed_id]         = dqm()->book1D( "Bad APV error",
+					     "Bad APV error for FED #"+fedNumber.str(),
+					     192, 0.5, 192.5);
 
 
   } // Otherwise we have nothing to do
@@ -288,12 +292,21 @@ void CnBAnalyzer::createDetailedFedHistograms( const uint16_t& fed_id ) {
 void CnBAnalyzer::endJob() {
 
   if (outputFileName_!="") {
-    dbe->showDirStructure();
+    dqm()->showDirStructure();
     std::string completeFileName = outputFileDir_ + std::string("/test_") + outputFileName_;
-    dbe->save(completeFileName);
+    dqm()->save(completeFileName);
   }
 
 }
 
 
-
+DQMStore* const CnBAnalyzer::dqm( std::string method ) const {
+  if ( !dqm_ ) { 
+    std::stringstream ss;
+    if ( method != "" ) { ss << "[CnBAnalyzer::" << method << "]" << std::endl; }
+    else { ss << "[CnBAnalyzer]" << std::endl; }
+    ss << " NULL pointer to DQMStore";
+    edm::LogWarning("SiStripMonitorHardware") << ss.str();
+    return 0;
+  } else { return dqm_; }
+}

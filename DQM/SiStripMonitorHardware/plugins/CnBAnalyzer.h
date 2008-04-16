@@ -14,7 +14,7 @@
 #include "CondFormats/DataRecord/interface/SiStripFedCablingRcd.h"
 
 // DQM headers as well as the service header
-#include"DQMServices/Core/interface/DaqMonitorBEInterface.h"
+//#include"DQMServices/Core/interface/DaqMonitorBEInterface.h"
 #include"DQMServices/Core/interface/MonitorElement.h"
 #include"FWCore/ServiceRegistry/interface/Service.h"
 
@@ -28,6 +28,7 @@
 #include "DQM/SiStripMonitorHardware/interface/BinCounters.h"
 
 using namespace std;
+class DQMStore;
 
 class CnBAnalyzer : public edm::EDAnalyzer {
  public:
@@ -47,7 +48,10 @@ class CnBAnalyzer : public edm::EDAnalyzer {
   std::map<uint16_t, bool> foundFeds_;
 
   // back-end interface
-  DaqMonitorBEInterface* dbe;
+  //  DaqMonitorBEInterface* dbe;
+  DQMStore* const dqm( std::string method = "" ) const;
+
+  DQMStore* dqm_;
 
   // ME for % of FEs in synch globally over event number (Mersi Plot 2)
   MonitorElement* AddConstPerEvent;
