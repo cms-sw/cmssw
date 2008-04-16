@@ -8,7 +8,7 @@
  * \author Michael A. Balazs, UVa
  * \author Luca Lista, INFN
  *
- * \version $Id: ClusterShape.h,v 1.8 2007/08/07 11:14:45 rahatlou Exp $
+ * \version $Id: ClusterShape.h,v 1.9 2008/03/04 00:10:10 ferriff Exp $
  *
  */
 
@@ -65,8 +65,8 @@ namespace reco {
     Double32_t etaLAT_;
     Double32_t phiLAT_;
     Double32_t A20_, A42_;
-    std::vector<Double32_t> energyBasketFractionEta_;
-    std::vector<Double32_t> energyBasketFractionPhi_;
+    std::vector<double> energyBasketFractionEta_;
+    std::vector<double> energyBasketFractionPhi_;
     DetId eMaxId_, e2ndId_;
   };
 

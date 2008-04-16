@@ -41,8 +41,6 @@
     <field name="phiLAT_" iotype="Double32_t"/>
     <field name="A20_" iotype="Double32_t"/>
     <field name="A42_" iotype="Double32_t"/>
-    <field name="energyBasketFractionEta_" iotype="std::vector<Double32_t>"/>
-    <field name="energyBasketFractionPhi_" iotype="std::vector<Double32_t>"/>
   </class>
   <class name="std::vector<reco::ClusterShape>"/>
   <class name="edm::Wrapper<std::vector<reco::ClusterShape> >"/>
