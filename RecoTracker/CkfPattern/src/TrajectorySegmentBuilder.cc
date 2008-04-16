@@ -263,6 +263,7 @@ TrajectorySegmentBuilder::updateCandidatesWithBestHit (TempTrajectory& traj,
       if (bestIsValid) {
           cout << "TSB: found best measurement at " 
                << ibest->recHit()->globalPosition().perp() << " "
+               << ibest->recHit()->globalPosition().phi() << " "
                << ibest->recHit()->globalPosition().z() << endl;
       } else {
 	cout << "TSB: found best measurement at invalid hit on det " << ibest->recHit()->geographicalId().rawId() << endl;

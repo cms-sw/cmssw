@@ -345,7 +345,8 @@ GroupedCkfTrajectoryBuilder::advanceOneLayer (TempTrajectory& traj,
 					  theLockHits,theBestHitOnly);
     
 #ifdef DBG_GCTB
-    cout << "GCTB: starting from r / z = " << stateAndLayers.first.globalPosition().perp()
+    cout << "GCTB: starting from r / phi / z = " << stateAndLayers.first.globalPosition().perp()
+	 << " / " << stateAndLayers.first.globalPosition().phi()
 	 << " / " << stateAndLayers.first.globalPosition().z() << " , pt / pz = " 
 	 << stateAndLayers.first.globalMomentum().perp() << " / " 
 	 << stateAndLayers.first.globalMomentum().z() << " for layer at "
@@ -710,9 +711,9 @@ GroupedCkfTrajectoryBuilder::rebuildSeedingRegion(const std::vector<const Tracki
     nrOfTrajectories++;
 #ifdef DBG2_GCTB
     cout << "New traj direction = " << reversedTrajectory.direction() << endl;
-    vector<TM> tms = reversedTrajectory.measurements();
-    for ( vector<TM>::const_iterator im=tms.begin();
-	  im!=tms.end(); im++ ) {
+    cmsutils::bqueue<TM> tms = reversedTrajectory.measurements();
+    for (cmsutils::bqueue<TM>::const_iterator im=tms.rbegin(),end=tms.rend();
+	 im!=end; --im ) {
       if ( im->recHit()->isValid() )  cout << im->recHit()->globalPosition();
       else cout << "(-,-,-)";
       cout << " ";
@@ -750,9 +751,9 @@ GroupedCkfTrajectoryBuilder::backwardFit (TempTrajectory& candidate, unsigned in
     {
       cout << "nSeed " << nSeed << endl;
       cout << "Old traj direction = " << candidate.direction() << endl;
-      vector<TM> tms = candidate.measurements();
-      for ( vector<TM>::const_iterator im=tms.begin();
-	    im!=tms.end(); im++ ) {
+      cmsutils::bqueue<TM> tms = candidate.measurements();
+      for (cmsutils::bqueue<TM>::const_iterator im=tms.rbegin(),end=tms.rend();
+	   im!=end; --im ) {
 	if ( im->recHit()->isValid() )  cout << im->recHit()->globalPosition();
 	else cout << "(-,-,-)";
 	cout << " layer " << im->layer();
