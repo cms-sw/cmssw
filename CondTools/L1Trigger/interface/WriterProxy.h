@@ -12,6 +12,8 @@
 #include "CondCore/DBCommon/interface/PoolTransaction.h"
 #include "CondCore/DBCommon/interface/TypedRef.h"
 
+#include "CondTools/L1Trigger/interface/Exception.h"
+
 #include <string>
 
 namespace l1t
@@ -57,21 +59,22 @@ class WriterProxyT : public WriterProxy
 
             // load record and type from EventSetup and save them in db
             edm::ESHandle<Type> handle;
-            setup.get<Record> ().get (handle);
 
-	    // If handle is invalid, then data is already in DB
-	    if( handle.isValid() )
+	    try
 	      {
-		cond::TypedRef<Type> ref (pool,
-					  new Type (*(handle.product ())));
-		ref.markWrite (recordName);
-
-		return ref.token ();
+		setup.get<Record> ().get (handle);
 	      }
-	    else
+	    catch( l1t::DataAlreadyPresentException& ex )
 	      {
 		return std::string() ;
 	      }
+
+	    // If handle is invalid, then data is already in DB
+	    cond::TypedRef<Type> ref (pool,
+				      new Type (*(handle.product ())));
+	    ref.markWrite (recordName);
+
+	    return ref.token ();
         }
 };
 

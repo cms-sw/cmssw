@@ -13,7 +13,7 @@
 //
 // Original Author:  Werner Man-Li Sun
 //         Created:  Sun Mar  2 03:03:32 CET 2008
-// $Id$
+// $Id: L1TriggerKeyOnlineProd.cc,v 1.1 2008/03/03 21:52:19 wsun Exp $
 //
 //
 
@@ -22,6 +22,8 @@
 
 // user include files
 #include "CondTools/L1Trigger/plugins/L1TriggerKeyOnlineProd.h"
+
+#include "CondTools/L1Trigger/interface/Exception.h"
 
 #include "CondFormats/L1TObjects/interface/L1TriggerKeyList.h"
 #include "CondFormats/DataRecord/interface/L1TriggerKeyListRcd.h"
@@ -100,19 +102,25 @@ L1TriggerKeyOnlineProd::produce(const L1TriggerKeyRcd& iRecord)
       pL1TriggerKey->setTSCKey( m_tscKey ) ;
 
       // Get subsystem keys from OMDS
-     std::string tableString = "TSC_CONF" ;
+      std::string tableString = "GCT_CONFIG" ;
 
-     std::vector< std::string > queryStrings ;
-     queryStrings.push_back( "???" ) ;
+      std::vector< std::string > queryStrings ;
+      queryStrings.push_back( "CONFIG_KEY" ) ;
 
-     boost::shared_ptr< coral::IQuery > query
-       ( m_omdsReader.newQuery( tableString, queryStrings ) ) ;
-     coral::ICursor& cursor = query->execute() ;
-     while( cursor.next() )
-       {
-         const coral::AttributeList& row = cursor.currentRow() ;
-         int run = row[ "RUN" ].data< int >() ;
-       }
+      boost::shared_ptr< coral::IQuery > query
+	( m_omdsReader.newQuery( tableString, queryStrings ) ) ;
+      coral::ICursor& cursor = query->execute() ;
+      while( cursor.next() )
+	{
+	  const coral::AttributeList& row = cursor.currentRow() ;
+	  std::string key = row[ "CONFIG_KEY" ].data< std::string >() ;
+	  std::cout << "CONFIG_KEY " << key << std::endl ;
+	}
+   }
+   else
+   {
+     throw l1t::DataAlreadyPresentException(
+        "L1TriggerKey for TSC key " + m_tscKey + " already in CondDB." ) ;
    }
 
    return pL1TriggerKey ;

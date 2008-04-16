@@ -13,7 +13,7 @@
 //
 // Original Author:  Werner Man-Li Sun
 //         Created:  Sat Mar  1 05:02:13 CET 2008
-// $Id$
+// $Id: L1TriggerConfigOnlineProd.cc,v 1.1 2008/03/03 21:52:18 wsun Exp $
 //
 //
 
@@ -22,6 +22,8 @@
 
 // user include files
 #include "CondTools/L1Trigger/plugins/L1TriggerConfigOnlineProd.h"
+
+#include "CondTools/L1Trigger/interface/Exception.h"
 
 #include "CondFormats/L1TObjects/interface/L1TriggerKey.h"
 #include "CondFormats/DataRecord/interface/L1TriggerKeyRcd.h"
@@ -80,7 +82,7 @@ L1TriggerConfigOnlineProd::~L1TriggerConfigOnlineProd()
 
 // Called from produce methods.
 // bool is true if the subsystem data should be made.
-// If bool is false, produce method should return null pointer.
+// If bool is false, produce method should throw DataAlreadyPresentException.
 template< class TRcd, class TData >
 bool L1TriggerConfigOnlineProd::getSubsystemKey( const TRcd& record,
 					boost::shared_ptr< TData > data,
@@ -94,16 +96,24 @@ bool L1TriggerConfigOnlineProd::getSubsystemKey( const TRcd& record,
    // expecting getRecord to be a template so the compiler parses it
    // as a non-template. http://gcc.gnu.org/ml/gcc-bugs/2005-11/msg03685.html
 
-   edm::ESHandle< L1TriggerKey > key ;
-   keyRcd.get( key ) ;
-
    // If L1TriggerKey is invalid, then all configuration objects are
    // already in ORCON.
-   if( !key.isValid() )
+   edm::ESHandle< L1TriggerKey > key ;
+   try
+   {
+      keyRcd.get( key ) ;
+   }
+   catch( l1t::DataAlreadyPresentException& ex )
    {
       subsystemKey = std::string() ;
-      return false ;
+      return false ;      
    }
+
+//    if( !key.isValid() )
+//    {
+//       subsystemKey = std::string() ;
+//       return false ;
+//    }
 
    // Get subsystem key from L1TriggerKey
    std::string recordName =
@@ -160,6 +170,11 @@ L1TriggerConfigOnlineProd::produceL1JetEtScaleRcd( const L1JetEtScaleRcd& iRecor
 
       pL1CaloEtScale = boost::shared_ptr< L1CaloEtScale >(
 	 new L1CaloEtScale() ) ;
+   }
+   else
+   {
+     throw l1t::DataAlreadyPresentException(
+        "L1JetEtScale for key " + key + " already in CondDB." ) ;
    }
 
    return pL1CaloEtScale ;
