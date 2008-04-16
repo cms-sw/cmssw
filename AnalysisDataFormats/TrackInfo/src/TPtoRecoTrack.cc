@@ -16,23 +16,56 @@ TPtoRecoTrack::~TPtoRecoTrack()
 
 TrackingParticle TPtoRecoTrack::TPMother(unsigned short i)
 {
-	TrackingParticleRefVector mothers = TP().parentVertex()->sourceTracks();
-	//if(mothers.size()) return *(*mothers.begin());
-	//return i < mothers.size() ? *mothers[i] : TrackingParticle();
-	TrackingParticle tp;
-	tp.setPdgId(-9999);
-	return i < mothers.size() ? *(mothers[i]) : tp;
-/*
-	HepMC::GenParticle *gp = GetTrackingParticle().genParticle().size() > 0 ? *GetTrackingParticle().genParticle_begin() : HepMC::GenParticle();
-	
-	for( GenVertex::particles_in_const_iterator i = gp->production_vertex()->particles_in_const_begin(); i != h->production_vertex()->particles_in_const_end(); i++)
-	{
-*/		
+    std::vector<TrackingParticle>  result;
+
+    if( TP().parentVertex().isNonnull())
+    {
+        if(TP().parentVertex()->nSourceTracks() > 0)
+        {
+        for(TrackingParticleRefVector::iterator si = TP().parentVertex()->sourceTracks_begin();
+            si != TP().parentVertex()->sourceTracks_end(); si++)
+            {
+            for(TrackingParticleRefVector::iterator di = TP().parentVertex()->daughterTracks_begin();
+                di != TP().parentVertex()->daughterTracks_end(); di++)
+                {
+                    if(si != di)
+                    {
+                        result.push_back(**si);
+                        break;
+                    }
+                }
+                if(result.size()) break;
+            }
+        }
+        else
+        {
+            return TrackingParticle();
+        }
+    }
+    else
+    {
+        return TrackingParticle();
+    }
+
+    return i < result.size() ? result[i] : TrackingParticle();
 }
 
-int TPtoRecoTrack::numTPMothers2()
+int TPtoRecoTrack::numTPMothers()
 {
-	return GetTrackingParticle().genParticle_begin() != GetTrackingParticle().genParticle_end() ? (*GetTrackingParticle().genParticle_begin())->production_vertex()->particles_in_size() : 0;
+    int count = 0;
+    for(TrackingParticleRefVector::iterator si = TP().parentVertex()->sourceTracks_begin();
+        si != TP().parentVertex()->sourceTracks_end(); si++)
+    {
+        for(TrackingParticleRefVector::iterator di = TP().parentVertex()->daughterTracks_begin();
+            di != TP().parentVertex()->daughterTracks_end(); di++)
+        {
+            if(si != di) count++;
+            break;
+        }
+        if(count>0) break;
+    }
+    return count;
 }
+
 
 
