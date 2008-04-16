@@ -9,27 +9,37 @@
 #include "PhysicsTools/Utilities/interface/Simplify_begin.h"
 
 namespace funct {
-  
+
+  struct no_var;
+
   struct UndefinedIntegral { };
   
-  template <TYPXT1, bool independent = Independent<X, A>::value> 
+  template<typename X, typename F, bool independent = Independent<X, F>::value> 
   struct ConstPrimitive {
     typedef UndefinedIntegral type;
-    GET(A, type());
+    GET(F, type());
   };
   
-  TEMPL(XT1) struct ConstPrimitive<X, A, true> {
-    typedef PROD(A, X) type;
-    GET(A, _ * X());
+  template<typename X, typename F>
+  struct ConstPrimitive<X, F, true> {
+    typedef PROD(F, X) type;
+    GET(F, _ * X());
   };
   
-  TEMPL(XT1) struct Primitive :
-    public ConstPrimitive<X, A> { };
+  template<typename F, typename X = no_var>
+  struct Primitive :
+    public ConstPrimitive<X, F> { };
   
-  TEMPL(XT1) PRIMIT(X, A) primitive(const A& _) { 
-    return Primitive<X, A>::get(_); 
+  template<typename X, typename A>
+  typename Primitive<A, X>::type primitive(const A& _) { 
+    return Primitive<A, X>::get(_); 
   }
- 
+
+  template<typename A>
+  typename Primitive<A>::type primitive(const A& _) { 
+    return Primitive<A>::get(_); 
+  }
+
   //  /
   //  | f ^ g dx : UNDEFINED
   //  /
@@ -194,7 +204,7 @@ namespace funct {
     GET(PROD_S(A, B), _ * X());
   };
   
-  TEMPL(XT2) struct Primitive<X, PROD_S(A, B)> : 
+  TEMPL(XT2) struct Primitive<PROD_S(A, B), X> : 
     public ProductPrimitive<X, A, B> { };
   
   //  /
@@ -260,16 +270,26 @@ namespace funct {
     GET(RATIO_S(A, B), _ * X());
   };
   
-  TEMPL(XT2) struct Primitive<X, RATIO_S(A, B)> :
+  TEMPL(XT2) struct Primitive<RATIO_S(A, B), X> :
     public RatioPrimitive<X, A, B> { };
 }
 
 #define DECLARE_PRIMITIVE(X, F, P) \
 namespace funct { \
-template<typename X> struct Primitive<X, F> { \
+template<typename X> struct Primitive<F, X> { \
   typedef P type; \
   inline static type get(const F& _) \
   { return type(_._); } \
+}; \
+} \
+struct __useless_ignoreme
+
+#define DECLARE_FUNCT_PRIMITIVE(F, P) \
+namespace funct { \
+template<> struct Primitive<F> { \
+  typedef P type; \
+  inline static type get(const F& _) \
+  { return type(); } \
 }; \
 } \
 struct __useless_ignoreme

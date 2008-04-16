@@ -155,8 +155,8 @@ inline static type get(const A& _) { return RES; } \
  \
 struct __useless_ignoreme
 
-#define DERIV(X, A) typename Derivative< X, A >::type
-#define PRIMIT(X, A) typename Primitive< X, A >::type
+#define DERIV(X, A) typename Derivative<X, A>::type
+#define PRIMIT(X, A) typename Primitive<A, X>::type
 
 #define DERIV_RULE(TMPL, T, RES, COMB) \
 template<TMPL> \
@@ -167,8 +167,8 @@ struct Derivative<X, T> \
 }
 
 #define PRIMIT_RULE(TMPL, T, RES, COMB) \
-template< TMPL > \
-struct Primitive< X, T > \
+template<TMPL> \
+struct Primitive<T, X> \
 { \
   typedef RES type; \
   inline static type get(const T& _) { return COMB; } \

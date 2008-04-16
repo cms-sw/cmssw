@@ -18,6 +18,25 @@ public:
 
 NUMERICAL_INTEGRAL(X, Expression, 10000);
 
+struct gauss {
+  static const double c;
+  double operator()(double x) const {
+    return c * exp(- x * x);
+  }
+};
+
+struct gauss2 : public gauss { };
+
+struct gaussPrimitive {
+  double operator()(double x) const { return erf(x); }
+};
+
+const double gauss::c = 2./sqrt(M_PI);
+
+NUMERICAL_FUNCT_INTEGRAL(gauss, 10000);
+
+DECLARE_FUNCT_PRIMITIVE(gauss2, gaussPrimitive);
+
 CPPUNIT_TEST_SUITE_REGISTRATION(testIntegral);
 
 void testIntegral::checkAll() {
@@ -34,8 +53,14 @@ void testIntegral::checkAll() {
   Expression f_x2 = (x ^ num<2>());
   CPPUNIT_ASSERT(fabs(integral<X>(f_x2, 0, 1) - 1./3.) < epsilon);
 
-  Parameter c("c", 2./sqrt(M_PI));
+  Parameter c("c", gauss::c);
   Expression f = c * exp(-(x^num<2>()));
   CPPUNIT_ASSERT(fabs(integral<X>(f, 0, 1) - erf(1)) < epsilon);
+
+  gauss g;
+  CPPUNIT_ASSERT(fabs(integral(g, 0, 1) - erf(1)) < epsilon);
+
+  gauss2 g2;
+  CPPUNIT_ASSERT(fabs(integral(g2, 0, 1) - erf(1)) < epsilon);
 }
 
