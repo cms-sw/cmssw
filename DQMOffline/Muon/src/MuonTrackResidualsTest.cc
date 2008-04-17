@@ -2,8 +2,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/04/15 15:31:49 $
- *  $Revision: 1.21 $
+ *  $Date: 2008/04/16 19:40:40 $
+ *  $Revision: 1.1 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -111,7 +111,7 @@ void MuonTrackResidualsTest::endLuminosityBlock(LuminosityBlock const& lumiSeg, 
       histo != histoNames.end();
       histo++) {
    
-    for (int type=0; type< (*histo).second.size(); type++){
+    for (unsigned int type=0; type< (*histo).second.size(); type++){
 
       string path = "Muons/MuonRecoAnalyzer/" + (*histo).second[type];
       MonitorElement * res_histo = dbe->get(path);
