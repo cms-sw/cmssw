@@ -26,9 +26,11 @@
 #include "DataFormats/JetReco/interface/GenJet.h"
 #include "DataFormats/JetReco/interface/GenJetCollection.h"
 #include "DataFormats/Candidate/interface/Candidate.h"
+#include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 
 using namespace edm;
 using namespace reco;
+using std::vector;
 
 class AnalysisRootpleProducerOnlyMC : public edm::EDAnalyzer
 {
@@ -56,7 +58,7 @@ private:
   InputTag chgGenPartCollName; // label of charged MC particles
 
   Handle< HepMCProduct        > EvtHandle        ;
-  Handle< CandidateCollection > CandHandleMC     ;
+  Handle< vector<GenParticle> > CandHandleMC     ;
   Handle< GenJetCollection    > GenJetsHandle    ;
   Handle< GenJetCollection    > ChgGenJetsHandle ;
 

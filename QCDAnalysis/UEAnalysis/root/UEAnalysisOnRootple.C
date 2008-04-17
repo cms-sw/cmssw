@@ -5,6 +5,9 @@
 #include <TCanvas.h>
 #include <TVector3.h>
 
+#include <vector>
+#include <math.h>
+
 //
 #include <TClonesArray.h>
 #include <TObjString.h>

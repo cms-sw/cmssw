@@ -30,6 +30,7 @@
 #include "DataFormats/JetReco/interface/BasicJet.h"
 #include "DataFormats/JetReco/interface/BasicJetCollection.h"
 #include "DataFormats/Candidate/interface/Candidate.h"
+#include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 
 // access trigger results
 #include <FWCore/Framework/interface/TriggerNames.h>
@@ -40,6 +41,7 @@
 using namespace edm;
 using namespace reco;
 using namespace trigger;
+using std::vector;
 
 class AnalysisRootpleProducer : public edm::EDAnalyzer
 {
@@ -78,7 +80,7 @@ private:
   InputTag triggerResultsTag;
 
   Handle< HepMCProduct        > EvtHandle ;
-  Handle< CandidateCollection > CandHandleMC ;
+  Handle< vector<GenParticle> > CandHandleMC ;
   Handle< GenJetCollection    > GenJetsHandle ;
   Handle< GenJetCollection    > ChgGenJetsHandle ;
   Handle< CandidateCollection > CandHandleRECO ;

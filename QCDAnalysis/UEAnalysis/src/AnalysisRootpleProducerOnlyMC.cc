@@ -188,7 +188,7 @@ void AnalysisRootpleProducerOnlyMC::analyze( const Event& e, const EventSetup& )
   
   if (CandHandleMC->size()){
 
-    for (CandidateCollection::const_iterator it(CandHandleMC->begin()), itEnd(CandHandleMC->end());
+    for (vector<GenParticle>::const_iterator it(CandHandleMC->begin()), itEnd(CandHandleMC->end());
 	 it != itEnd;it++)
       {
 	GenPart.push_back(it->p4());
