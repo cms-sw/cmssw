@@ -26,6 +26,9 @@ class CSCTFTrackProducer : public edm::EDProducer
 
   bool useDT, TMB07;
   edm::InputTag input_module, dt_producer;
+  edm::ParameterSet sp_pset ;
+  unsigned long long m_scalesCacheID ;
+  unsigned long long m_ptScaleCacheID ;
   CSCTFTrackBuilder* my_builder;
 };
 

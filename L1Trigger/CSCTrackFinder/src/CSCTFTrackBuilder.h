@@ -14,6 +14,8 @@
 
 class CSCMuonPortCard;
 class CSCTFSectorProcessor;
+class L1MuTriggerScales ;
+class L1MuTriggerPtScale ;
 
 class CSCTFTrackBuilder
 {
@@ -23,7 +25,9 @@ class CSCTFTrackBuilder
 
   enum { nEndcaps = 2, nSectors = 6};
 
-  CSCTFTrackBuilder(const edm::ParameterSet& pset, bool TMB07);
+  CSCTFTrackBuilder(const edm::ParameterSet& pset, bool TMB07,
+		    const L1MuTriggerScales* scales,
+		    const L1MuTriggerPtScale* ptScale);
 
   ~CSCTFTrackBuilder();
 

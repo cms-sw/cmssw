@@ -23,9 +23,14 @@
 #include "L1Trigger/CSCTrackFinder/interface/CSCTFPtLUT.h"
 #include "L1Trigger/CSCCommonTrigger/interface/CSCTriggerGeometry.h"
 
+#include "CondFormats/L1TObjects/interface/L1MuTriggerScales.h"
+#include "CondFormats/DataRecord/interface/L1MuTriggerScalesRcd.h"
+#include "CondFormats/L1TObjects/interface/L1MuTriggerPtScale.h"
+#include "CondFormats/DataRecord/interface/L1MuTriggerPtScaleRcd.h"
+
 #include "L1Trigger/CSCTrackFinder/test/analysis/CSCMakePTLUT.h"
 
-CSCMakePTLUT::CSCMakePTLUT(edm::ParameterSet const& conf)
+CSCMakePTLUT::CSCMakePTLUT(edm::ParameterSet const& conf) : myTF( 0 )
 {
   //writeLocalPhi = conf.getUntrackedParameter<bool>("WriteLocalPhi",true);
   station = conf.getUntrackedParameter<int>("Station",-1);
@@ -35,7 +40,7 @@ CSCMakePTLUT::CSCMakePTLUT(edm::ParameterSet const& conf)
   LUTparam = conf.getParameter<edm::ParameterSet>("lutParam");
 
   //init Track Finder LUTs
-  myTF = new CSCTFPtLUT(LUTparam);
+  //  myTF = new CSCTFPtLUT(LUTparam);
 }
 
 CSCMakePTLUT::~CSCMakePTLUT()
@@ -54,6 +59,14 @@ void CSCMakePTLUT::analyze(edm::Event const& e, edm::EventSetup const& iSetup)
   iSetup.get<MuonGeometryRecord>().get( pDD );
   CSCTriggerGeometry::setGeometry(pDD);
   
+  edm::ESHandle< L1MuTriggerScales > scales ;
+  iSetup.get< L1MuTriggerScalesRcd >().get( scales ) ;
+
+  edm::ESHandle< L1MuTriggerPtScale > ptScale ;
+  iSetup.get< L1MuTriggerPtScaleRcd >().get( ptScale ) ;
+
+  myTF = new CSCTFPtLUT(LUTparam, scales.product(), ptScale.product() );
+
   std::string filename = std::string("L1CSCPtLUT") + ((binary) ? std::string(".bin") : std::string(".dat"));
   std::ofstream L1CSCPtLUT(filename.c_str());
   for(int i=0; i < 1<<CSCBitWidths::kPtAddressWidth; ++i)

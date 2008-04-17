@@ -15,7 +15,9 @@
 #include <sstream>
 #include <stdlib.h>
 
-CSCTFTrackBuilder::CSCTFTrackBuilder(const edm::ParameterSet& pset, bool TMB07){
+CSCTFTrackBuilder::CSCTFTrackBuilder(const edm::ParameterSet& pset, bool TMB07,
+				     const L1MuTriggerScales* scales,
+				     const L1MuTriggerPtScale* ptScale ){
   my_dtrc = new CSCTFDTReceiver();
 
   for(int e = CSCDetId::minEndcapId(); e <= CSCDetId::maxEndcapId(); ++e)
@@ -24,7 +26,8 @@ CSCTFTrackBuilder::CSCTFTrackBuilder(const edm::ParameterSet& pset, bool TMB07){
 	  s <= CSCTriggerNumbering::maxTriggerSectorId(); ++s)
 	{
           // All SPs work with the same configuration (impossible to make it more exclusive in this framework)
-	  my_SPs[e-1][s-1] = new CSCTFSectorProcessor(e, s, pset, TMB07);
+	  my_SPs[e-1][s-1] = new CSCTFSectorProcessor(e, s, pset, TMB07,
+						      scales, ptScale);
 	}
     }
   // Uninitialize following parameters: 

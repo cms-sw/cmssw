@@ -5,14 +5,21 @@
 
 ptdat* CSCTFPtLUT::pt_lut = NULL;
 bool CSCTFPtLUT::lut_read_in = false;
-L1MuTriggerScales CSCTFPtLUT::trigger_scale;
-CSCTFPtMethods CSCTFPtLUT::ptMethods;
+// L1MuTriggerScales CSCTFPtLUT::trigger_scale;
+// L1MuTriggerPtScale CSCTFPtLUT::trigger_ptscale;
+// CSCTFPtMethods CSCTFPtLUT::ptMethods;
 
 ///KK
 #include "CondFormats/L1TObjects/interface/L1MuCSCPtLut.h"
 #include "CondFormats/DataRecord/interface/L1MuCSCPtLutRcd.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include <L1Trigger/CSCTrackFinder/interface/CSCTFPtLUT.h>
+
+#include "CondFormats/L1TObjects/interface/L1MuTriggerScales.h"
+#include "CondFormats/DataRecord/interface/L1MuTriggerScalesRcd.h"
+#include "CondFormats/L1TObjects/interface/L1MuTriggerPtScale.h"
+#include "CondFormats/DataRecord/interface/L1MuTriggerPtScaleRcd.h"
+
 CSCTFPtLUT::CSCTFPtLUT(const edm::EventSetup& es){
 	pt_method = 1;
 	lowQualityFlag = 4;
@@ -25,10 +32,25 @@ CSCTFPtLUT::CSCTFPtLUT(const edm::EventSetup& es){
 	memcpy((void*)pt_lut,(void*)myConfigPt_->lut(),(1<<21)*sizeof(ptdat));
 
 	lut_read_in = true;
+
+	edm::ESHandle< L1MuTriggerScales > scales ;
+	es.get< L1MuTriggerScalesRcd >().get( scales ) ;
+	trigger_scale = scales.product() ;
+
+	edm::ESHandle< L1MuTriggerPtScale > ptScale ;
+	es.get< L1MuTriggerPtScaleRcd >().get( ptScale ) ;
+	trigger_ptscale = ptScale.product() ;
+
+	ptMethods = CSCTFPtMethods( ptScale.product() ) ;
 }
 ///
 
-CSCTFPtLUT::CSCTFPtLUT(const edm::ParameterSet& pset)
+CSCTFPtLUT::CSCTFPtLUT(const edm::ParameterSet& pset,
+		       const L1MuTriggerScales* scales,
+		       const L1MuTriggerPtScale* ptScale )
+  : trigger_scale( scales ),
+    trigger_ptscale( ptScale ),
+    ptMethods( ptScale )
 {
   read_pt_lut = pset.getUntrackedParameter<bool>("ReadPtLUT",false);
   if(read_pt_lut)
@@ -117,7 +139,7 @@ ptdat CSCTFPtLUT::calcPt(const ptadd& address) const
   unsigned front_pt, rear_pt;
   unsigned front_quality, rear_quality;
 
-  etaR = trigger_scale.getRegionalEtaScale(2)->getLowEdge(2*eta+1);
+  etaR = trigger_scale->getRegionalEtaScale(2)->getLowEdge(2*eta+1);
 
   front_quality = rear_quality = quality;
 
@@ -219,8 +241,8 @@ ptdat CSCTFPtLUT::calcPt(const ptadd& address) const
 	}
       else
 	{
-	  ptR_front = trigger_scale.getPtScale()->getLowEdge(1);
-	  ptR_rear  = trigger_scale.getPtScale()->getLowEdge(1);
+	  ptR_front = trigger_ptscale->getPtScale()->getLowEdge(1);
+	  ptR_rear  = trigger_ptscale->getPtScale()->getLowEdge(1);
 	}
       break;
     case 11:
@@ -242,8 +264,8 @@ ptdat CSCTFPtLUT::calcPt(const ptadd& address) const
 	}
       else
 	{
-	  ptR_front = trigger_scale.getPtScale()->getLowEdge(1);
-	  ptR_rear  = trigger_scale.getPtScale()->getLowEdge(1);
+	  ptR_front = trigger_ptscale->getPtScale()->getLowEdge(1);
+	  ptR_rear  = trigger_ptscale->getPtScale()->getLowEdge(1);
 	}
       break;
     case 13:
@@ -264,21 +286,21 @@ ptdat CSCTFPtLUT::calcPt(const ptadd& address) const
 	}
       else
 	{
-	  ptR_front = trigger_scale.getPtScale()->getLowEdge(1);
-	  ptR_rear  = trigger_scale.getPtScale()->getLowEdge(1);
+	  ptR_front = trigger_ptscale->getPtScale()->getLowEdge(1);
+	  ptR_rear  = trigger_ptscale->getPtScale()->getLowEdge(1);
 	}
       break;
     case 1:
-      ptR_front = trigger_scale.getPtScale()->getLowEdge(5);
-      ptR_rear  = trigger_scale.getPtScale()->getLowEdge(5);
+      ptR_front = trigger_ptscale->getPtScale()->getLowEdge(5);
+      ptR_rear  = trigger_ptscale->getPtScale()->getLowEdge(5);
       break;
     default: // Tracks in this category are not considered muons.
-      ptR_front = trigger_scale.getPtScale()->getLowEdge(0);
-      ptR_rear  = trigger_scale.getPtScale()->getLowEdge(0);
+      ptR_front = trigger_ptscale->getPtScale()->getLowEdge(0);
+      ptR_rear  = trigger_ptscale->getPtScale()->getLowEdge(0);
     };
 
-  front_pt = trigger_scale.getPtScale()->getPacked(ptR_front);
-  rear_pt  = trigger_scale.getPtScale()->getPacked(ptR_rear);
+  front_pt = trigger_ptscale->getPtScale()->getPacked(ptR_front);
+  rear_pt  = trigger_ptscale->getPtScale()->getPacked(ptR_rear);
 
   // kluge to set arbitrary Pt for some tracks with lousy resolution (and no param)
   if ((front_pt==0 || front_pt==1) && (eta<3) && quality==1 && pt_method != 2) front_pt = 31;

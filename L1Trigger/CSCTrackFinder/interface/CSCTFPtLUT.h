@@ -4,6 +4,7 @@
 #include <FWCore/ParameterSet/interface/ParameterSet.h>
 #include <L1Trigger/CSCTrackFinder/interface/CSCTrackFinderDataTypes.h>
 #include <CondFormats/L1TObjects/interface/L1MuTriggerScales.h>
+#include <CondFormats/L1TObjects/interface/L1MuTriggerPtScale.h>
 #include <L1Trigger/CSCTrackFinder/interface/CSCTFPtMethods.h>
 #include <FWCore/ParameterSet/interface/FileInPath.h>
 ///KK
@@ -17,7 +18,9 @@ public:
   CSCTFPtLUT(const edm::EventSetup& c);
 ///
 
-  CSCTFPtLUT(const edm::ParameterSet&);
+    CSCTFPtLUT(const edm::ParameterSet&,
+	       const L1MuTriggerScales* scales,
+	       const L1MuTriggerPtScale* ptScale);
   CSCTFPtLUT(const CSCTFPtLUT&);
   ~CSCTFPtLUT() { if(pt_lut) delete pt_lut; pt_lut = NULL; }
 
@@ -38,8 +41,9 @@ public:
  private:
   static ptdat* pt_lut;
   static bool lut_read_in;
-  static L1MuTriggerScales trigger_scale;
-  static CSCTFPtMethods ptMethods;
+  const L1MuTriggerScales* trigger_scale;
+  const L1MuTriggerPtScale* trigger_ptscale;
+  CSCTFPtMethods ptMethods;
 
   bool read_pt_lut, isBinary;
   edm::FileInPath pt_lut_file;

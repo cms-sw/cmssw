@@ -26,7 +26,12 @@
 class CSCTFSectorProcessor
 {
 public:
-  CSCTFSectorProcessor(const unsigned& endcap, const unsigned& sector, const edm::ParameterSet& pset, bool tmb07);
+  CSCTFSectorProcessor(const unsigned& endcap,
+		       const unsigned& sector,
+		       const edm::ParameterSet& pset,
+		       bool tmb07,
+		       const L1MuTriggerScales* scales,
+		       const L1MuTriggerPtScale* ptScale );
 
 ///KK
   void initialize(const edm::EventSetup& c);

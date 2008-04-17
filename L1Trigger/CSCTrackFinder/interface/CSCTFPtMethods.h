@@ -1,7 +1,9 @@
 #ifndef CSCTrackFinder_CSCTFPtMethods_h
 #define CSCTrackFinder_CSCTFPtMethods_h
 
-#include <CondFormats/L1TObjects/interface/L1MuTriggerScales.h>
+#include <CondFormats/L1TObjects/interface/L1MuTriggerPtScale.h>
+
+class L1MuTriggerPtScale ;
 
 class CSCTFPtMethods
 {
@@ -11,7 +13,7 @@ class CSCTFPtMethods
   enum {kME1andME2=1, kME1andME3, kME2andME3, kME2andME4, 
 	kME3andME4, kME1andME2ovr, kME2andMB1, kME2andMB2};
 
-  CSCTFPtMethods() {};
+  CSCTFPtMethods( const L1MuTriggerPtScale* ptScale = 0 ) ;
 
   /** First is the parameterizations of Acosta/McDonald */
   
@@ -48,13 +50,13 @@ class CSCTFPtMethods
   static const float sigmafr0[4][15][28];
   static const float sigmafr1[4][15][28];
 
-  float Pt2StnChiSq(int type, float eta, int dphi, int fr);
-  float Pt3StnChiSq(int type, float eta, int dphi1, int dphi2, int fr);
+  float Pt2StnChiSq(int type, float eta, int dphi, int fr) const;
+  float Pt3StnChiSq(int type, float eta, int dphi1, int dphi2, int fr) const;
 
   /** Third is the hybrid method */
 
-  float Pt2StnHybrid(int type, float eta, int dphi, int fr);
-  float Pt3StnHybrid(int type, float eta, int dphi1, int dphi2, int fr);
+  float Pt2StnHybrid(int type, float eta, int dphi, int fr) const;
+  float Pt3StnHybrid(int type, float eta, int dphi1, int dphi2, int fr) const;
 
   /** The hybrid method may be changing soon to:
    *  1st Calculate PT with Darin's method
@@ -72,7 +74,7 @@ class CSCTFPtMethods
   float PtEff90(float pt, float eta, int mode) const;
 
  private:  
-  static L1MuTriggerScales trigger_scale;
+  const L1MuTriggerPtScale* trigger_scale;
 };
 
 #endif

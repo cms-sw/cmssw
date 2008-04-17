@@ -7,7 +7,7 @@
 // Static variables
 //-----------------
 
-L1MuTriggerScales CSCTFPtMethods::trigger_scale;
+//L1MuTriggerPtScale CSCTFPtMethods::trigger_scale;
 
 // Global scale factor to multiply all parameterizations by
 //const float CSCTFPtMethods::kGlobalScaleFactor = 1.055;
@@ -126,6 +126,12 @@ const float CSCTFPtMethods::FRCorrHighEta[kME2andMB2][2] =
     {1.0, 1.0}    //26
   };
 
+// Constructor
+CSCTFPtMethods::CSCTFPtMethods( const L1MuTriggerPtScale* ptScale )
+  : trigger_scale( ptScale )
+{
+}
+
 // compute PT from dphi = A/Pt + B/Pt^2
 // this involves solving the quadratic equation and storing it as Pt
 // out of the two possible roots, the return value is always the larger value for Pt
@@ -177,8 +183,8 @@ float CSCTFPtMethods::Pt2Stn(int type, float eta, float dphi, int fr) const
       float Pt = (A + sqrt(A*A + 4.*dphi*B))/(2.*dphi);
 
       //      return (Pt>0.0) ? Pt : 0.0;
-      return (Pt>trigger_scale.getPtScale()->getLowEdge(1)) ? Pt 
-	: trigger_scale.getPtScale()->getLowEdge(1);
+      return (Pt>trigger_scale->getPtScale()->getLowEdge(1)) ? Pt 
+	: trigger_scale->getPtScale()->getLowEdge(1);
     }
     return 0.0;
 }
@@ -262,8 +268,8 @@ float CSCTFPtMethods::Pt3Stn(int type, float eta, float dphi1, float dphi2, int 
       
       } // end 2 or 3 station method
     //    if (Pt<0.0) Pt = 0.0;
-    if (Pt<trigger_scale.getPtScale()->getLowEdge(1)) 
-      Pt = trigger_scale.getPtScale()->getLowEdge(1);
+    if (Pt<trigger_scale->getPtScale()->getLowEdge(1)) 
+      Pt = trigger_scale->getPtScale()->getLowEdge(1);
 
     // switch to 2-stn Pt above 10 GeV:
     /*
@@ -609,7 +615,7 @@ const float CSCTFPtMethods::sigmafr1[4][15][28] =
     }
   };
 
-float CSCTFPtMethods::Pt2StnChiSq(int type, float eta, int dphi, int fr) 
+float CSCTFPtMethods::Pt2StnChiSq(int type, float eta, int dphi, int fr) const
 {
 
   float diff, min, ptmin, ptmax;
@@ -752,7 +758,7 @@ float CSCTFPtMethods::Pt2StnChiSq(int type, float eta, int dphi, int fr)
 }
 
 
-float CSCTFPtMethods::Pt3StnChiSq(int type, float eta, int dphi1, int dphi2, int fr)
+float CSCTFPtMethods::Pt3StnChiSq(int type, float eta, int dphi1, int dphi2, int fr) const
 {
 
   float diff, min, ptmin, ptmax;
@@ -984,7 +990,7 @@ float CSCTFPtMethods::Pt3StnChiSq(int type, float eta, int dphi1, int dphi2, int
 
 }
 
-float CSCTFPtMethods::Pt2StnHybrid(int type, float eta, int dphi, int fr)
+float CSCTFPtMethods::Pt2StnHybrid(int type, float eta, int dphi, int fr) const
 {
   float mypt = 0.0;
 
@@ -998,7 +1004,7 @@ float CSCTFPtMethods::Pt2StnHybrid(int type, float eta, int dphi, int fr)
   return mypt;
 }
 
-float CSCTFPtMethods::Pt3StnHybrid(int type, float eta, int dphi1, int dphi2, int fr)
+float CSCTFPtMethods::Pt3StnHybrid(int type, float eta, int dphi1, int dphi2, int fr) const
 {
   float mypt = 0.0;
 

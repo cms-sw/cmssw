@@ -14,7 +14,10 @@ const std::string CSCTFSectorProcessor::FPGAs[5] = {"F1","F2","F3","F4","F5"};
 
 CSCTFSectorProcessor::CSCTFSectorProcessor(const unsigned& endcap,
 					   const unsigned& sector,
-					   const edm::ParameterSet& pset, bool tmb07)
+					   const edm::ParameterSet& pset,
+					   bool tmb07,
+					   const L1MuTriggerScales* scales,
+					   const L1MuTriggerPtScale* ptScale)
 {
   m_endcap = endcap;
   m_sector = sector;
@@ -132,7 +135,7 @@ CSCTFSectorProcessor::CSCTFSectorProcessor(const unsigned& endcap,
 
   try {
     edm::ParameterSet ptLUTset = pset.getParameter<edm::ParameterSet>("PTLUT");
-	ptLUT_ = new CSCTFPtLUT(ptLUTset);
+    ptLUT_ = new CSCTFPtLUT(ptLUTset, scales, ptScale);
     LogDebug("CSCTFSectorProcessor") << "Using stand-alone PT LUT for endcap="<<m_endcap<<", sector="<<m_sector;
   } catch(...){
     ptLUT_=0;
