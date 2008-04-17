@@ -5,8 +5,8 @@
 //   Description: L1 Global Muon Trigger
 //
 //
-//   $Date: 2007/09/06 13:50:37 $
-//   $Revision: 1.9 $
+//   $Date: 2007/10/01 17:29:17 $
+//   $Revision: 1.10 $
 //
 //   Author :
 //   Norbert Neumeister              CERN EP
@@ -55,8 +55,13 @@
 #include "CondFormats/DataRecord/interface/L1MuGMTScalesRcd.h"
 #include "CondFormats/L1TObjects/interface/L1MuTriggerScales.h"
 #include "CondFormats/DataRecord/interface/L1MuTriggerScalesRcd.h"
+#include "CondFormats/L1TObjects/interface/L1MuTriggerPtScale.h"
+#include "CondFormats/DataRecord/interface/L1MuTriggerPtScaleRcd.h"
 #include "CondFormats/L1TObjects/interface/L1MuGMTParameters.h"
 #include "CondFormats/DataRecord/interface/L1MuGMTParametersRcd.h"
+
+#include "CondFormats/L1TObjects/interface/L1CaloGeometry.h"
+#include "CondFormats/DataRecord/interface/L1CaloGeometryRecord.h"
 
 //----------------
 // Constructors --
@@ -161,9 +166,17 @@ void L1MuGlobalMuonTrigger::produce(edm::Event& e, const edm::EventSetup& es) {
   es.get< L1MuTriggerScalesRcd >().get( trigscales_h );
   m_config->setTriggerScales( trigscales_h.product() );
 
+  edm::ESHandle< L1MuTriggerPtScale > trigptscale_h;
+  es.get< L1MuTriggerPtScaleRcd >().get( trigptscale_h );
+  m_config->setTriggerPtScale( trigptscale_h.product() );
+
   edm::ESHandle< L1MuGMTParameters > gmtparams_h;
   es.get< L1MuGMTParametersRcd >().get( gmtparams_h );
   m_config->setGMTParams( gmtparams_h.product() );
+
+  edm::ESHandle< L1CaloGeometry > caloGeom_h ;
+  es.get< L1CaloGeometryRecord >().get( caloGeom_h ) ;
+  m_config->setCaloGeom( caloGeom_h.product() ) ;
   
   m_config->setDefaults();
   

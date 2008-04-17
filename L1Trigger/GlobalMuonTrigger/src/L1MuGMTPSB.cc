@@ -5,8 +5,8 @@
 //   Description: Pipelined Synchronising Buffer module 
 //
 //
-//   $Date: 2007/12/19 16:36:34 $
-//   $Revision: 1.10 $
+//   $Date: 2008/02/01 14:02:28 $
+//   $Revision: 1.11 $
 //
 //   Author :
 //   N. Neumeister            CERN EP 
@@ -36,6 +36,7 @@
 
 #include "L1Trigger/GlobalMuonTrigger/src/L1MuGMTConfig.h"
 #include "CondFormats/L1TObjects/interface/L1MuTriggerScales.h"
+#include "CondFormats/L1TObjects/interface/L1MuTriggerPtScale.h"
 
 #include "L1Trigger/GlobalMuonTrigger/interface/L1MuGlobalMuonTrigger.h"
 #include "DataFormats/L1CaloTrigger/interface/L1CaloCollections.h"
@@ -109,34 +110,39 @@ void L1MuGMTPSB::receiveData(edm::Event& e, int bx) {
   ////////////////////////////////////
 
   const L1MuTriggerScales* theTriggerScales = L1MuGMTConfig::getTriggerScales();
+  const L1MuTriggerPtScale* theTriggerPtScale = L1MuGMTConfig::getTriggerPtScale();
 
   // store data in readout record
   for (int i=0; i<4; i++) {
     L1MuRegionalCand* cand = &(m_DtbxMuons[i]);
     cand->setPhiValue( theTriggerScales->getPhiScale()->getLowEdge(cand->phi_packed()) );
     cand->setEtaValue( theTriggerScales->getRegionalEtaScale(cand->type_idx())->getCenter(cand->eta_packed()) );
-    cand->setPtValue( theTriggerScales->getPtScale()->getLowEdge(cand->pt_packed()) );
+    cand->setPtValue( theTriggerPtScale->getPtScale()->getLowEdge(cand->pt_packed()) );
+    // cand->setPtValue( theTriggerScales->getPtScale()->getLowEdge(cand->pt_packed()) );
     m_gmt.currentReadoutRecord()->setInputCand ( i, *cand );
   }
   for (int i=0; i<4; i++) {
     L1MuRegionalCand* cand = &(m_RpcMuons[i]);
     cand->setPhiValue( theTriggerScales->getPhiScale()->getLowEdge(cand->phi_packed()) );
     cand->setEtaValue( theTriggerScales->getRegionalEtaScale(cand->type_idx())->getCenter(cand->eta_packed()) );
-    cand->setPtValue( theTriggerScales->getPtScale()->getLowEdge(cand->pt_packed()) );
+    cand->setPtValue( theTriggerPtScale->getPtScale()->getLowEdge(cand->pt_packed()) );
+    // cand->setPtValue( theTriggerScales->getPtScale()->getLowEdge(cand->pt_packed()) );
     m_gmt.currentReadoutRecord()->setInputCand ( i+4, *cand );
   }
   for (int i=0; i<4; i++) {
     L1MuRegionalCand* cand = &(m_CscMuons[i]);
     cand->setPhiValue( theTriggerScales->getPhiScale()->getLowEdge(cand->phi_packed()) );
     cand->setEtaValue( theTriggerScales->getRegionalEtaScale(cand->type_idx())->getCenter(cand->eta_packed()) );
-    cand->setPtValue( theTriggerScales->getPtScale()->getLowEdge(cand->pt_packed()) );
+    cand->setPtValue( theTriggerPtScale->getPtScale()->getLowEdge(cand->pt_packed()) );
+    // cand->setPtValue( theTriggerScales->getPtScale()->getLowEdge(cand->pt_packed()) );
     m_gmt.currentReadoutRecord()->setInputCand ( i+8, *cand );
   }
   for (int i=0; i<4; i++) {
     L1MuRegionalCand* cand = &(m_RpcMuons[i+4]);
     cand->setPhiValue( theTriggerScales->getPhiScale()->getLowEdge(cand->phi_packed()) );
     cand->setEtaValue( theTriggerScales->getRegionalEtaScale(cand->type_idx())->getCenter(cand->eta_packed()) );
-    cand->setPtValue( theTriggerScales->getPtScale()->getLowEdge(cand->pt_packed()) );
+    cand->setPtValue( theTriggerPtScale->getPtScale()->getLowEdge(cand->pt_packed()) );
+    // cand->setPtValue( theTriggerScales->getPtScale()->getLowEdge(cand->pt_packed()) );
     m_gmt.currentReadoutRecord()->setInputCand ( i+12, *cand );
   }
 

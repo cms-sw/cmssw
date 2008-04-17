@@ -4,8 +4,8 @@
  *  Configuration parameters for L1GlobalMuonTrigger.
 */
 //
-//   $Date: 2007/10/05 17:09:03 $
-//   $Revision: 1.8 $
+//   $Date: 2007/12/19 16:36:25 $
+//   $Revision: 1.9 $
 //
 //   Author :
 //   N. Neumeister             CERN EP
@@ -70,7 +70,11 @@ class L1MuGMTPhiLUT;
 
 class L1MuGMTScales;
 class L1MuTriggerScales;
+class L1MuTriggerPtScale;
 class L1MuGMTParameters;
+
+class L1CaloGeometry ;
+
 //              ---------------------
 //              -- Class Interface --
 //              ---------------------
@@ -167,8 +171,14 @@ class L1MuGMTConfig {
     void setGMTScales(const L1MuGMTScales* gmtscales) { m_GMTScales = gmtscales; }
     static const L1MuGMTScales* getGMTScales() { return m_GMTScales; }
 
+    void setCaloGeom( const L1CaloGeometry* caloGeom ) { m_caloGeom = caloGeom ; }
+    static const L1CaloGeometry* getCaloGeom() { return m_caloGeom ; }
+
     void setTriggerScales(const L1MuTriggerScales* trigscales) { m_TriggerScales = trigscales; }
     static const L1MuTriggerScales* getTriggerScales() { return m_TriggerScales; }
+
+    void setTriggerPtScale(const L1MuTriggerPtScale* trigptscale) { m_TriggerPtScale = trigptscale; }
+    static const L1MuTriggerPtScale* getTriggerPtScale() { return m_TriggerPtScale; }
 
     void setGMTParams(const L1MuGMTParameters* gmtparams) { m_GMTParams = gmtparams; }
     static const L1MuGMTParameters* getGMTParams() { return m_GMTParams; }
@@ -259,6 +269,9 @@ class L1MuGMTConfig {
     // scales pointers
     static const L1MuGMTScales* m_GMTScales;
     static const L1MuTriggerScales* m_TriggerScales;
+    static const L1MuTriggerPtScale* m_TriggerPtScale;
+
+    static const L1CaloGeometry* m_caloGeom ;
 };
 
 #endif

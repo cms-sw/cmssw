@@ -5,8 +5,8 @@
 //   Description: Configuration parameters for L1GlobalMuonTrigger
 //
 //
-//   $Date: 2007/10/05 17:09:03 $
-//   $Revision: 1.8 $
+//   $Date: 2007/12/19 16:36:17 $
+//   $Revision: 1.9 $
 //
 //   Author :
 //   N. Neumeister             CERN EP
@@ -63,6 +63,8 @@
 
 #include "CondFormats/L1TObjects/interface/L1MuGMTScales.h"
 #include "CondFormats/L1TObjects/interface/L1MuGMTParameters.h"
+
+#include "CondFormats/L1TObjects/interface/L1CaloGeometry.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
@@ -378,4 +380,7 @@ L1MuGMTPhiLUT* L1MuGMTConfig::m_PhiLUT=0;
 
 const L1MuGMTScales* L1MuGMTConfig::m_GMTScales=0;
 const L1MuTriggerScales* L1MuGMTConfig::m_TriggerScales=0;
+const L1MuTriggerPtScale* L1MuGMTConfig::m_TriggerPtScale=0;
 const L1MuGMTParameters* L1MuGMTConfig::m_GMTParams=0;
+
+const L1CaloGeometry* L1MuGMTConfig::m_caloGeom = 0 ;
