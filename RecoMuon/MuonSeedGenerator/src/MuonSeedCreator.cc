@@ -1,7 +1,7 @@
 /**
  *  See header file for a description of this class.
  *
- *  \author Dominique Fortin, Shih-Chuan Kao - UCR
+ *  \author Shih-Chuan Kao, Dominique Fortin - UCR
  *
  */
 
@@ -70,6 +70,7 @@ TrajectorySeed MuonSeedCreator::createSeed(int type, SegmentContainer seg, std::
   AlgebraicVector t(4);
   AlgebraicSymMatrix mat(5,0) ;
 
+  //LocalPoint segPos = seg[last]->localPosition();
   LocalPoint segPos;
 
   // Compute the pt according to station types used;
@@ -91,7 +92,6 @@ TrajectorySeed MuonSeedCreator::createSeed(int type, SegmentContainer seg, std::
     ptmean  = theMaxMomentum * charge;
     sptmean = theMaxMomentum;
   }
-  if (sptmean < 0) sptmean = -sptmean;
 
   LocalTrajectoryParameters param;
   double p_err =0.0;
@@ -117,6 +117,14 @@ TrajectorySeed MuonSeedCreator::createSeed(int type, SegmentContainer seg, std::
             best_seg = i;
          }
          if ( chi2_dof > ( seg[i]->chi2()/dof ) ) {
+            // avoiding showering chamber
+            /*
+            bool shower = false;
+            for (unsigned int j = 0; j< badSeedLayer.size(); j++ ) {
+                if (badSeedLayer[j] == layers[i]) shower = true;
+            }
+            if (shower) continue;
+            */
             chi2_dof = seg[i]->chi2() / dof ;
             best_seg = i;
          }
@@ -171,7 +179,33 @@ TrajectorySeed MuonSeedCreator::createSeed(int type, SegmentContainer seg, std::
 	mat[4][4]= 2.25*mat[4][4];
      }
   }
+  /*else if ( type==5 ) {
+     // Fill the LocalTrajectoryParameters
+     /// get the Global position
+     last = best_seg;
+     GlobalVector mom = seg[last]->globalPosition()-GlobalPoint();
+     //GlobalVector polar(GlobalVector::Spherical(mom.theta(),seg[last]->globalDirection().phi(),1.));
+     //polar *= fabs(ptmean)/polar.perp();
+     //LocalVector segDirFromPos = seg[last]->det()->toLocal(polar);
 
+     LocalPoint  segLocalPos = seg[last]->localPosition();
+     LocalVector segLocalDir = seg[last]->localDirection();
+     double totalP = fabs( ptmean/sin(mom.theta()) );
+     double QbP = charge / totalP ;
+     double dxdz = segLocalDir.x()/segLocalDir.z();
+     double dydz = segLocalDir.y()/segLocalDir.z();
+     //double dydz = segDirFromPos.y()/segDirFromPos.z();
+     double lx = segLocalPos.x();
+     double ly = segLocalPos.y();
+     double pz_sign =  segLocalDir.z() > 0.0 ? 1.0:-1.0 ;
+     LocalTrajectoryParameters param1(QbP,dxdz,dydz,lx,ly,pz_sign,true);
+     param = param1;
+     p_err =  (sptmean*sptmean)/(totalP*totalP*ptmean*ptmean) ;
+     mat = seg[last]->parametersError().similarityT( seg[last]->projectionMatrix() );
+     mat[0][0]= 4.0*p_err;
+     mat[3][3]= 4.0*mat[3][3];
+     mat[4][4]= 4.0*mat[4][4];
+  }*/
   else {
      // Fill the LocalTrajectoryParameters
      /// get the Global position
@@ -220,6 +254,7 @@ TrajectorySeed MuonSeedCreator::createSeed(int type, SegmentContainer seg, std::
   // Transform it in a TrajectoryStateOnSurface
   TrajectoryStateTransform tsTransform;
   
+  //PTrajectoryStateOnDet *seedTSOS = tsTransform.persistentState( tsos, id.rawId());
   std::auto_ptr<PTrajectoryStateOnDet> seedTSOS(tsTransform.persistentState( tsos, id.rawId()));  
 
   edm::OwnVector<TrackingRecHit> container;
@@ -231,19 +266,30 @@ TrajectorySeed MuonSeedCreator::createSeed(int type, SegmentContainer seg, std::
 
   // At inner-most layer
   if ( out_in ) {
-    TrajectorySeed theSeed(*seedTSOS,container,oppositeToMomentum);
-    return theSeed;
-  } 
-  else if ( expand ) {
-    TrajectorySeed theSeed(*seedTSOS,container,anyDirection);
-    return theSeed;
-  } 
-  else {
-    TrajectorySeed theSeed(*seedTSOS,container,alongMomentum);
-    return theSeed;
+     TrajectorySeed theSeed(*seedTSOS,container,oppositeToMomentum);
+     return theSeed;
+  } else if ( expand ) {
+            TrajectorySeed theSeed(*seedTSOS,container,anyDirection);
+            return theSeed;
+  }else {
+     //if ( abs(layers[last]) < 2 ) {
+	    TrajectorySeed theSeed(*seedTSOS,container,alongMomentum);
+	    return theSeed;
+     //}
+     /*
+     // At outer-most layer
+     else if (abs(layers[last]) >= 3 ) {
+	    TrajectorySeed theSeed(*seedTSOS,container,oppositeToMomentum);
+	    return theSeed;
+     }
+     // In between
+     else {
+	    TrajectorySeed theSeed(*seedTSOS,container,anyDirection);
+	    return theSeed;
+     }*/
   }
-}
 
+}
 
 /*
  * estimatePtCSC
@@ -276,7 +322,7 @@ void MuonSeedCreator::estimatePtCSC(SegmentContainer seg, std::vector<int> layer
 
   unsigned size = seg.size();
 
-  if (size < 2) return;
+  //if (size < 2) return;
   
   int layer0 = layers[0];
   segPos[0] = seg[0]->globalPosition();
@@ -292,8 +338,7 @@ void MuonSeedCreator::estimatePtCSC(SegmentContainer seg, std::vector<int> layer
       if (layer0 == layer1) continue;
       segPos[1] = seg[idx1]->globalPosition();      
       segVec[1] = seg[idx1]->globalDirection();      
-
-      // For Pt estimate, must get eta in outer layer
+      //eta = fabs(segPos[0].eta());  // Eta is better determined from track closest from IP
       eta = fabs(segPos[1].eta()); 
 
       double dphi = segPos[0].phi() - segPos[1].phi();
@@ -323,22 +368,14 @@ void MuonSeedCreator::estimatePtCSC(SegmentContainer seg, std::vector<int> layer
           spt = ( 0.25 ) * pt;
         }  
         // ME2 is outer-most
-        else if ( (layer1 == 2) && (eta > 1.6) ) {
+        else if ( layer1 == 2  ) {
           pt  = ( 0.7782 - 0.3524*eta + 0.0337*eta*eta) / temp_dphi;
           spt = ( 1.7780 - 1.7289*eta + 0.4915*eta*eta) * pt;
         }
-        else if ( (layer1 == 2) && (eta <= 1.6) ) {
-          pt  = ( -0.5474 + 0.8620*eta - 0.2794*eta*eta) / temp_dphi;
-          spt = (  3.4666 - 4.3546*eta + 1.4666*eta*eta) * pt;
-        }
         // ME3 is outer-most
-        else if ( (layer1 == 3) && (eta > 1.6) ) {
+        else if ( layer1 == 3 ) {
           pt  = ( 1.0537 - 0.5768*eta + 0.08545*eta*eta) / temp_dphi; 
           spt = (-0.1875 + 0.2202*eta + 0.02222*eta*eta) * pt;
-        }
-        else if ( (layer1 == 3) && (eta <= 1.6) ) {
-          pt  = ( -0.6416 + 0.9726*eta - 0.2973*eta*eta) / temp_dphi; 
-          spt = (  2.0256 - 2.0803*eta + 0.6333*eta*eta) * pt;
         }
         // ME4 is outer-most
         else {
@@ -352,20 +389,20 @@ void MuonSeedCreator::estimatePtCSC(SegmentContainer seg, std::vector<int> layer
       // ME1/2,ME1/3 is inner-most
       if ( layer0 == 1 ) {
         // ME2 is outer-most
-        if ( (layer1 == 2) && (eta > 1.6) ) {
-          pt  = ( 0.7782 - 0.3524*eta + 0.0337*eta*eta) / temp_dphi;
-          spt = ( 1.7780 - 1.7289*eta + 0.4915*eta*eta) * pt;
-        }
-        else if ( (layer1 == 2) && (eta <= 1.6) ) {
+        //if ( (layer1 == 2) && (eta > 1.6) ) {
+        //  pt  = ( 0.7782 - 0.3524*eta + 0.0337*eta*eta) / temp_dphi;
+        //  spt = ( 1.7780 - 1.7289*eta + 0.4915*eta*eta) * pt;
+        //}
+        if ( layer1 == 2 ) {
           pt  = ( -0.5474 + 0.8620*eta - 0.2794*eta*eta) / temp_dphi;
           spt = (  3.4666 - 4.3546*eta + 1.4666*eta*eta) * pt;
         }
         // ME3 is outer-most
-        else if ( (layer1 == 3) && (eta > 1.6) ) {
-          pt  = ( 1.0537 - 0.5768*eta + 0.08545*eta*eta) / temp_dphi; 
-          spt = (-0.1875 + 0.2202*eta + 0.02222*eta*eta) * pt;
-        }
-        else if ( (layer1 == 3) && (eta <= 1.6) ) {
+        //else if ( (layer1 == 3) && (eta > 1.6) ) {
+        //  pt  = ( 1.0537 - 0.5768*eta + 0.08545*eta*eta) / temp_dphi; 
+        //  spt = (-0.1875 + 0.2202*eta + 0.02222*eta*eta) * pt;
+        //}
+        else if ( layer1 == 3 ) {
           pt  = ( -0.6416 + 0.9726*eta - 0.2973*eta*eta) / temp_dphi; 
           spt = (  2.0256 - 2.0803*eta + 0.6333*eta*eta) * pt;
         }
@@ -401,6 +438,47 @@ void MuonSeedCreator::estimatePtCSC(SegmentContainer seg, std::vector<int> layer
         ptEstimate.push_back( pt*sign );   
         sptEstimate.push_back( spt );
       }
+
+      /*
+      // Estimate pT with dPhi from segment directions
+      // ME1 is inner-most
+      if ( layer0 == 0 || layer0 == 1 ) {
+        // ME2 is outer-most
+        if ( (layer1 == 2) && (eta < 1.6) ) {
+          pt  = (   2.133 - 3.772*eta - 1.367*eta*eta) / temp_dphiV;
+          spt = (  -6.699 - 9.242*eta - 3.336*eta*eta) * pt;
+        }
+        // ME3 is outer-most
+        if ( (layer1 == 3) && (eta < 1.7) ) {
+          pt  = (   3.647 - 5.912*eta - 1.978*eta*eta) / temp_dphiV; 
+          spt = (  -4.554 + 5.818*eta - 1.973*eta*eta) * pt;
+        }
+
+        if ( (spt/pt) < 0.8  ) {
+           ptEstimate.push_back( pt*sign );
+           sptEstimate.push_back( spt );
+        }
+      }
+
+      // ME2 is inner-most
+      if ( layer0 == 2 ) {
+        // ME3 is outer-most
+        if ( layer1 == 3 ) {
+          pt  = (  1.108 - 1.654*eta + 0.477*eta*eta) / temp_dphi; 
+          spt = ( -4.195 - 4.157*eta - 1.141*eta*eta) * pt;
+        }
+        // ME4 is outer-most
+        else {
+          pt  = ( -0.1076 - 0.481*eta + 0.1803*eta*eta) / temp_dphi;
+          spt = (  5.115  - 5.000*eta + 1.089*eta*eta ) * pt;
+        }
+        if ( (spt/pt) < 0.8  ) {
+           ptEstimate.push_back( pt );   
+           sptEstimate.push_back( spt );
+        }
+      }
+      */
+
     } 
   }
 
@@ -435,6 +513,8 @@ void MuonSeedCreator::estimatePtDT(SegmentContainer seg, std::vector<int> layers
   if (size < 2) return;
   
   int layer0 = layers[0];
+  //segPos[0] = seg[0]->globalPosition();
+  //float eta = fabs(segPos[0].eta());
 
   // Want to look at every possible pairs
   // inner-most layer
@@ -447,8 +527,7 @@ void MuonSeedCreator::estimatePtDT(SegmentContainer seg, std::vector<int> layers
       int layer1 = layers[idx1];
       segPos[1] = seg[idx1]->globalPosition();      
  
-      // For Pt estimate, must get eta in outer layer
-      eta = fabs(segPos[1].eta());  
+      eta = fabs(segPos[0].eta());  // Eta is better determined from track closest from IP
 
       double dphi = segPos[0].phi() - segPos[1].phi();
       double temp_dphi = dphi;
@@ -509,7 +588,8 @@ void MuonSeedCreator::estimatePtDT(SegmentContainer seg, std::vector<int> layers
         sptEstimate.push_back( spt );
       }
     }   
-  }  
+  }
+  
   
   // Compute weighted average if have more than one estimator
   if (ptEstimate.size() > 0 ) weightedPt( ptEstimate, sptEstimate, thePt, theSpt);
@@ -551,13 +631,11 @@ void MuonSeedCreator::estimatePtOverlap(SegmentContainer seg, std::vector<int> l
   GlobalPoint segPos[2];
   int layer0 = layers[0];
   segPos[0] = seg[0]->globalPosition();
+  float eta = fabs(segPos[0].eta());
     
   if ( segDT.size() > 0 && segCSC.size() > 0 ) {
     int layer1 = layers[size-1];
     segPos[1] = seg[size-1]->globalPosition();
- 
-    // For Pt estimate, need to get eta from outer layer
-    float eta = fabs(segPos[1].eta());
   
     double dphi = segPos[0].phi() - segPos[1].phi();
     double temp_dphi = dphi;
@@ -654,40 +732,43 @@ void MuonSeedCreator::estimatePtSingle(SegmentContainer seg, std::vector<int> la
   if ( dpsi > 1.570796 ) {
       dpsi = 3.141592 - dpsi;
   }
+  if (fabs(dpsi) < 0.00005) {
+     dpsi = 0.00005;
+  }
 
   // the 1st layer
   if ( layers[0] == -1 ) {
      // MB10
-     if ( fabs(eta) <= 0.3 ) {
+     if ( fabs(eta) < 0.3 ) {
        thePt  =(1.457  + 0.008*fabs(eta) ) / dpsi;
        theSpt =(0.1043 - 0.00188*fabs(eta) )*thePt;
      }
      // MB11
-     if ( fabs(eta) > 0.3 && fabs(eta) <= 0.82 ) {
+     if ( fabs(eta) >= 0.3 && fabs(eta) < 0.82 ) {
        thePt  =(1.551  - 0.1719*fabs(eta) ) / dpsi;
        theSpt =(0.105  - 0.0000*fabs(eta) )*thePt;
      }
      // MB12
-     if ( fabs(eta) > 0.82 && fabs(eta) < 1.2 ) {
+     if ( fabs(eta) >= 0.82 && fabs(eta) < 1.2 ) {
        thePt  =(2.232  - 1.005*fabs(eta) ) / dpsi;
        theSpt =(0.120  - 0.000*fabs(eta) )*thePt;
      }
   }
   if ( layers[0] == 1 ) {
      // ME13
-     if ( fabs(eta) > 0.9 && fabs(eta) <= 1.2 ) {
+     if ( fabs(eta) > 0.92 && fabs(eta) < 1.16 ) {
        thePt  =(-1.816  + 2.226*fabs(eta) ) / dpsi;
        theSpt =( 4.522  - 3.753*fabs(eta) )*thePt;
      }
      // ME12
-     if ( fabs(eta) > 1.2 && fabs(eta) <= 1.6 ) {
+     if ( fabs(eta) >= 1.16 && fabs(eta) <= 1.6 ) {
        thePt  =(0.2128  + 0.5369*fabs(eta) ) / dpsi;
        theSpt =(0.2666  + 0.01795*fabs(eta) )*thePt;
      }
   }
   if ( layers[0] == 0  ) {
      // ME11
-     if ( fabs(eta) > 1.6 && fabs(eta) < 2.5 ) {
+     if ( fabs(eta) > 1.6 && fabs(eta) < 2.45 ) {
        thePt  =( 2.552  - 0.9044*fabs(eta) ) / dpsi;
        theSpt =(-1.742  + 1.156*fabs(eta) )*thePt;
      }
@@ -695,29 +776,29 @@ void MuonSeedCreator::estimatePtSingle(SegmentContainer seg, std::vector<int> la
   // the 2nd layer
   if ( layers[0] == -2 ) {
      // MB20
-     if ( fabs(eta) <= 0.25 ) {
+     if ( fabs(eta) < 0.25 ) {
        thePt  =(1.064  - 0.032*fabs(eta) ) / dpsi;
        theSpt =(0.1364 - 0.0054*fabs(eta) )*thePt;
      }
      // MB21
-     if ( fabs(eta) > 0.25 && fabs(eta) <= 0.72 ) {
+     if ( fabs(eta) >= 0.25 && fabs(eta) < 0.72 ) {
        thePt  =(1.131  - 0.2012*fabs(eta) ) / dpsi;
        theSpt =(0.117  - 0.0654*fabs(eta) )*thePt;
      }
      // MB22
-     if ( fabs(eta) > 0.72 && fabs(eta) < 1.1 ) {
+     if ( fabs(eta) >= 0.72 && fabs(eta) < 1.04 ) {
        thePt  =(1.567  - 0.809*fabs(eta) ) / dpsi;
        theSpt =(0.0579  + 0.1466*fabs(eta) )*thePt;
      }
   }
   if ( layers[0] == 2 ) {
      // ME22
-     if ( fabs(eta) > 0.9 && fabs(eta) <= 1.6 ) {
+     if ( fabs(eta) > 0.95 && fabs(eta) <= 1.6 ) {
        thePt  =(-0.5333  + 0.6436*fabs(eta) ) / dpsi;
        theSpt =( 3.522  - 3.333*fabs(eta) )*thePt;
      }
      // ME21
-     if ( fabs(eta) > 1.6 && fabs(eta) < 2.5 ) {
+     if ( fabs(eta) > 1.6 && fabs(eta) < 2.45 ) {
        thePt  =(0.8672  - 0.2218*fabs(eta) ) / dpsi;
        theSpt =(-1.322  + 1.320*fabs(eta) )*thePt;
      }
@@ -731,12 +812,12 @@ void MuonSeedCreator::estimatePtSingle(SegmentContainer seg, std::vector<int> la
        theSpt =(0.325  - 0.000*fabs(eta) )*thePt;
      }
      // MB31
-     if ( fabs(eta) > 0.2 && fabs(eta) < 0.6 ) {
+     if ( fabs(eta) > 0.22 && fabs(eta) <= 0.6 ) {
        thePt  =(0.5917  - 0.1479*fabs(eta) ) / dpsi;
        theSpt =(0.2872  + 0.0995*fabs(eta) )*thePt;
      }
      // MB32
-     if ( fabs(eta) >= 0.6 && fabs(eta) < 1. ) {
+     if ( fabs(eta) > 0.6 && fabs(eta) < 0.95 ) {
        thePt  =(0.6712  - 0.285*fabs(eta) ) / dpsi;
        theSpt =(0.232  + 0.273*fabs(eta) )*thePt;
      }
@@ -779,6 +860,7 @@ void MuonSeedCreator::weightedPt(std::vector<double> ptEstimate, std::vector<dou
     }
   }
  
+  //std::cout <<" Q= "<<charge<<std::endl;   
   // No need to normalize as we want to know only sign ( + or - )
   if (charge < 0.) {
     charge = -1.;
@@ -793,6 +875,7 @@ void MuonSeedCreator::weightedPt(std::vector<double> ptEstimate, std::vector<dou
   // Now, we want to compute average Pt using estimators with "correct" charge
   // This is to remove biases
   for ( unsigned j = 0; j < ptEstimate.size(); ++j ) {
+    //if ( (minpt_ratio < 0.5) && (fabs(ptEstimate[j]) < 5.0) ) continue;
     if ( ptEstimate[j] * charge > 0. ) {
       n++;
       sigmaSqr_sum += 1.0 / (sptEstimate[j]*sptEstimate[j]);
@@ -808,6 +891,7 @@ void MuonSeedCreator::weightedPt(std::vector<double> ptEstimate, std::vector<dou
 
   thePt  = weightPtSum / sigmaSqr_sum;
   theSpt = sqrt( 1.0 / sigmaSqr_sum ) ;
+  //std::cout<<" pt= "<<thePt<<" sPt= "<<theSpt<< std::endl;
   return;
 }
 
