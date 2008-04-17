@@ -26,7 +26,7 @@ if (grep(/^-(n|-dry-run)$/, @ARGV)) {
 }
 if (@CFGs) {
     my @allCFGs = ();
-    foreach my $cfg (@CFGs) { push @allCFGs, glob($cfg); }
+    foreach my $cfg (@CFGs) { push @allCFGs, grep(/\.cfg$/, glob($cfg)); }
     @CFGs = @allCFGs;
 } else {
     @CFGs = glob("patLayer[01]_from*_*.cfg"); 
