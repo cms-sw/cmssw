@@ -1,5 +1,5 @@
 //
-// $Id: PATElectronProducer.h,v 1.2 2008/03/12 16:13:26 gpetrucc Exp $
+// $Id: PATElectronProducer.h,v 1.3 2008/04/03 13:34:22 gpetrucc Exp $
 //
 
 #ifndef PhysicsTools_PatAlgos_PATElectronProducer_h
@@ -13,7 +13,7 @@
    a collection of objects of ElectronType.
 
   \author   Steven Lowette, James Lamb
-  \version  $Id: PATElectronProducer.h,v 1.2 2008/03/12 16:13:26 gpetrucc Exp $
+  \version  $Id: PATElectronProducer.h,v 1.3 2008/04/03 13:34:22 gpetrucc Exp $
 */
 
 
@@ -72,13 +72,9 @@ namespace pat {
       edm::InputTag elecIDSrc_;
       bool          addElecIDRobust_;
       edm::InputTag elecIDRobustSrc_;
-      bool          addLRValues_;
-      edm::InputTag tracksSrc_;
-      std::string   electronLRFile_;
 
       // tools
       ObjectResolutionCalc * theResoCalc_;
-      LeptonLRCalc         * theLeptonLRCalc_;
       GreaterByPt<Electron>       pTComparator_;
 
       pat::helper::MultiIsolator isolator_; 
