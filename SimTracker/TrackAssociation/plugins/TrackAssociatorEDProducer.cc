@@ -1,7 +1,7 @@
 //
 // Original Author:  Stefano Magni
 //         Created:  Fri Mar  9 10:52:11 CET 2007
-// $Id: TrackAssociatorEDProducer.cc,v 1.1 2007/10/26 15:08:05 cerati Exp $
+// $Id: TrackAssociatorEDProducer.cc,v 1.2 2007/12/18 16:15:33 cerati Exp $
 //
 //
 
@@ -11,7 +11,6 @@
 #include <string>
 
 // user include files
-#include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDProducer.h"
 
 #include "FWCore/Framework/interface/Event.h"
