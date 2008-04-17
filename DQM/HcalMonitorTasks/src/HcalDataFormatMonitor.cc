@@ -93,183 +93,193 @@ void HcalDataFormatMonitor::setup(const edm::ParameterSet& ps,
     meFWVersion_->setAxisTitle("Crate #",2);
     // Examine conditions of the DCC Event Fragment
     type = "Number of Event Fragments by FED ID";
-    meFEDId_=m_dbe->book1D(type, type, 4095, -0.5, 4094.5);
-    meFEDId_->setAxisTitle("All possible values of FED ID",1);
+    meFEDId_=m_dbe->book1D(type, type, 35, 729.5, 733.5);
+    meFEDId_->setAxisTitle("All possible values of HCAL FED ID",1);
 
     type = "Common Data Format violations";
-    meCDFErrorFound_ = m_dbe->book2D(type,type,32,699.5,731.5,9,0.5,9.5);
+    meCDFErrorFound_ = m_dbe->book2D(type,type,32,699.5,731.5,10,0.5,10.5);
     meCDFErrorFound_->setAxisTitle("HCAL FED ID", 1);
-    meCDFErrorFound_->setBinLabel(1, "Missing Indicator for Second CDF Header", 2);
-    meCDFErrorFound_->setBinLabel(2, "CDF Version Number Inconsistency", 2);
-    meCDFErrorFound_->setBinLabel(3, "CDF Event Type Inconsistency", 2);
-    meCDFErrorFound_->setBinLabel(4, "Beginning Of Event not '0x5' as Spec'ed", 2);
-    meCDFErrorFound_->setBinLabel(5, "Erroneous Third CDF Header Indicated", 2);
-    meCDFErrorFound_->setBinLabel(6, "Reserved Second Header Bits Inconsistent", 2);
-    meCDFErrorFound_->setBinLabel(7, "Second BOE not '0x0", 2);
-    meCDFErrorFound_->setBinLabel(8, "placeholder", 2);
-    meCDFErrorFound_->setBinLabel(9, "placeholder", 2);
+    meCDFErrorFound_->setBinLabel(1, "Hdr1BitUnset", 2);
+    meCDFErrorFound_->setBinLabel(2, "FmtNumChange", 2);
+    meCDFErrorFound_->setBinLabel(3, "EvTypChange", 2);
+    meCDFErrorFound_->setBinLabel(4, "BOE not '0x5'", 2);
+    meCDFErrorFound_->setBinLabel(5, "Hdr2Bit Set", 2);
+    meCDFErrorFound_->setBinLabel(6, "Hdr1 36-59", 2);
+    meCDFErrorFound_->setBinLabel(7, "BOE not 0", 2);
+    meCDFErrorFound_->setBinLabel(8, "Trlr1Bit Set", 2);
+    meCDFErrorFound_->setBinLabel(9, "Size Error", 2);
+    meCDFErrorFound_->setBinLabel(10, "TrailerBad", 2);
 
     type = "DCC Event Format violation";
-    meDCCEventFormatError_ = m_dbe->book2D(type,type,32,699.5,731.5,9,0.5,9.5);
+    meDCCEventFormatError_ = m_dbe->book2D(type,type,32,699.5,731.5,4,0.5,4.5);
     meDCCEventFormatError_->setAxisTitle("HCAL FED ID", 1);
-    meDCCEventFormatError_->setBinLabel(1, "DCC Format Version Inconsistent", 2);
-    meDCCEventFormatError_->setBinLabel(2, "DCC Reserved Bits Inconsistent", 2);
-    meDCCEventFormatError_->setBinLabel(3, "DCC 'Zero Bits' Not Zero ", 2);
-    meDCCEventFormatError_->setBinLabel(4, "DCC Header Bits [63:42] NonZero", 2);
-    meDCCEventFormatError_->setBinLabel(5, "Nonvalid HTR Summaries 15, 16 ,17 NonZero", 2);
-    meDCCEventFormatError_->setBinLabel(6, "Spigot Error Flag Miscalculated", 2);      
-    meDCCEventFormatError_->setBinLabel(7, "LRB Truncation Bit MisCopied", 2);	       
-    meDCCEventFormatError_->setBinLabel(8, "32-Bit Padding Word Needed But Absent", 2);
-    meDCCEventFormatError_->setBinLabel(9, "Event Size Internally Misdescribed", 2);
+    meDCCEventFormatError_->setBinLabel(1, "FmtVersChng", 2);
+    meDCCEventFormatError_->setBinLabel(2, "StrayBits", 2);
+    meDCCEventFormatError_->setBinLabel(3, "HTRStatusPad", 2);
+    meDCCEventFormatError_->setBinLabel(4, "32bitPadErr", 2);
+    //meDCCEventFormatError_->setBinLabel(5, "Spigot Error Flag Miscalculated", 2);      
+    //meDCCEventFormatError_->setBinLabel(7, "LRB Truncation Bit MisCopied", 2);	       
+    //meDCCEventFormatError_->setBinLabel(8, "32-Bit Padding Word Needed But Absent", 2);
+    //meDCCEventFormatError_->setBinLabel(9, "Event Size Internally Misdescribed", 2);
+
+    type = "DCC Status Flags (Nonzero Error Counters)";
+    meDCCStatusFlags_ = m_dbe->book2D(type,type,32,699.5,731.5,9,0.5,9.5);
+    meDCCStatusFlags_->setAxisTitle("HCAL FED ID", 1);      
+    meDCCStatusFlags_->setBinLabel(1, "Saw OFW", 2);
+    meDCCStatusFlags_->setBinLabel(2, "Saw BSY", 2);
+    meDCCStatusFlags_->setBinLabel(3, "Saw SYN", 2);
+    meDCCStatusFlags_->setBinLabel(4, "MxMx_L1AEvN", 2);
+    meDCCStatusFlags_->setBinLabel(5, "MxMx_L1ABcN", 2);
+    meDCCStatusFlags_->setBinLabel(6, "MxMx_CT-EvN", 2);
+    meDCCStatusFlags_->setBinLabel(7, "MxMx_CT-BCN", 2);
+    meDCCStatusFlags_->setBinLabel(8, "BC0 Spacing", 2);
+    meDCCStatusFlags_->setBinLabel(9, "TTCSingErr", 2);
+    meDCCStatusFlags_->setBinLabel(10, "TTCDoubErr", 2);
 
     type = "DCC Error and Warning";
     meDCCErrorAndWarnConditions_ = m_dbe->book2D(type,type,32,699.5,731.5, 25,0.5,24.5);
-    meDCCErrorAndWarnConditions_->setAxisTitle("HCAL FED ID", 1);
-    meDCCErrorAndWarnConditions_->setBinLabel(1, "Error Spigot 15", 2);
-    meDCCErrorAndWarnConditions_->setBinLabel(2, "Error Spigot 14", 2);
-    meDCCErrorAndWarnConditions_->setBinLabel(3, "Error Spigot 13", 2);
-    meDCCErrorAndWarnConditions_->setBinLabel(4, "Error Spigot 12", 2);
-    meDCCErrorAndWarnConditions_->setBinLabel(5, "Error Spigot 11", 2);
-    meDCCErrorAndWarnConditions_->setBinLabel(6, "Error Spigot 10", 2);
-    meDCCErrorAndWarnConditions_->setBinLabel(7, "Error Spigot 9", 2);
-    meDCCErrorAndWarnConditions_->setBinLabel(8, "Error Spigot 8", 2);
-    meDCCErrorAndWarnConditions_->setBinLabel(9, "Error Spigot 7", 2);
-    meDCCErrorAndWarnConditions_->setBinLabel(10, "Error Spigot 6", 2);
-    meDCCErrorAndWarnConditions_->setBinLabel(11, "Error Spigot 5", 2);
-    meDCCErrorAndWarnConditions_->setBinLabel(12, "Error Spigot 4", 2);
-    meDCCErrorAndWarnConditions_->setBinLabel(13, "Error Spigot 3", 2);
-    meDCCErrorAndWarnConditions_->setBinLabel(14, "Error Spigot 2", 2);
-    meDCCErrorAndWarnConditions_->setBinLabel(15, "Error Spigot 1 (top)", 2);
-    meDCCErrorAndWarnConditions_->setBinLabel(16, "OverFlow Warning Occurred", 2);
-    meDCCErrorAndWarnConditions_->setBinLabel(17, "Busy (Ignore L1A) Occurred", 2);
-    meDCCErrorAndWarnConditions_->setBinLabel(18, "Synch Loss Occurred", 2);
-    meDCCErrorAndWarnConditions_->setBinLabel(19, "L1 EvN Mismatch Occurred", 2);
-    meDCCErrorAndWarnConditions_->setBinLabel(20, "L1 BcN Mismatch  Occurred", 2);
-    meDCCErrorAndWarnConditions_->setBinLabel(21, "Calibration EvN Mismatch Occurred", 2);
-    meDCCErrorAndWarnConditions_->setBinLabel(22, "Calibration BcN MismatchOccurred", 2);
-    meDCCErrorAndWarnConditions_->setBinLabel(23, "TTCrx Bx Error Occurred", 2);
-    meDCCErrorAndWarnConditions_->setBinLabel(24, "TTCrx Single-Bit Error Occurred", 2);
-    meDCCErrorAndWarnConditions_->setBinLabel(25, "TTCrx Double-Bit Error Occurred", 2);
+    meDCCErrorAndWarnConditions_->setAxisTitle("HCAL FED ID", 1);      
+    meDCCErrorAndWarnConditions_->setBinLabel(1, "Err Spgt 15", 2);
+    meDCCErrorAndWarnConditions_->setBinLabel(2, "Err Spgt 14", 2);
+    meDCCErrorAndWarnConditions_->setBinLabel(3, "Err Spgt 13", 2);
+    meDCCErrorAndWarnConditions_->setBinLabel(4, "Err Spgt 12", 2);
+    meDCCErrorAndWarnConditions_->setBinLabel(5, "Err Spgt 11", 2);
+    meDCCErrorAndWarnConditions_->setBinLabel(6, "Err Spgt 10", 2);
+    meDCCErrorAndWarnConditions_->setBinLabel(7, "Err Spgt 9", 2);
+    meDCCErrorAndWarnConditions_->setBinLabel(8, "Err Spgt 8", 2);
+    meDCCErrorAndWarnConditions_->setBinLabel(9, "Err Spgt 7", 2);
+    meDCCErrorAndWarnConditions_->setBinLabel(10, "Err Spgt 6", 2);
+    meDCCErrorAndWarnConditions_->setBinLabel(11, "Err Spgt 5", 2);
+    meDCCErrorAndWarnConditions_->setBinLabel(12, "Err Spgt 4", 2);
+    meDCCErrorAndWarnConditions_->setBinLabel(13, "Err Spgt 3", 2);
+    meDCCErrorAndWarnConditions_->setBinLabel(14, "Err Spgt 2", 2);
+    meDCCErrorAndWarnConditions_->setBinLabel(15, "Err Spgt 1 (top)", 2);
+    meDCCErrorAndWarnConditions_->setBinLabel(16, "TTS_OFW", 2);
+    meDCCErrorAndWarnConditions_->setBinLabel(17, "TTS_BSY", 2);
+    meDCCErrorAndWarnConditions_->setBinLabel(18, "TTS_SYN", 2);
+    meDCCErrorAndWarnConditions_->setBinLabel(19, "L1A_EvN Mis", 2);
+    meDCCErrorAndWarnConditions_->setBinLabel(20, "L1A_BcN Mis", 2);
+    meDCCErrorAndWarnConditions_->setBinLabel(21, "CT_EvN Mis", 2);
+    meDCCErrorAndWarnConditions_->setBinLabel(22, "CT_BcN Mis", 2);
+    meDCCErrorAndWarnConditions_->setBinLabel(23, "OrbitLenErr", 2);
+    meDCCErrorAndWarnConditions_->setBinLabel(24, "TTC_SingErr", 2);
+    meDCCErrorAndWarnConditions_->setBinLabel(25, "TTC_DoubErr", 2);
 
-    type = "DCC View of Spigot Conditions";
+    //type = "DCC View of Spigot Conditions";
+    type = "DCC Nonzero Spigot Conditions";
     meDCCSummariesOfHTRs_ = m_dbe->book2D(type,type,32,699.5,731.5, 20,0.5,20.5);
     meDCCSummariesOfHTRs_->setAxisTitle("HCAL FED ID", 1);
-    meDCCSummariesOfHTRs_->setBinLabel(1, "One or More HTR OverFlowWarnings Seen", 2);
-    meDCCSummariesOfHTRs_->setBinLabel(2, "One or More Internal HTR Buffers Busy", 2);
-    meDCCSummariesOfHTRs_->setBinLabel(3, "One or More Empty Events", 2);
-    meDCCSummariesOfHTRs_->setBinLabel(4, "One or More L1A Rejected by a HTR", 2);
-    meDCCSummariesOfHTRs_->setBinLabel(5, "One or More Latency Errors by a HTR", 2);
-    meDCCSummariesOfHTRs_->setBinLabel(6, "One or More Latency Warnings by a HTR", 2);
-    meDCCSummariesOfHTRs_->setBinLabel(7, "One or More Optical Data Errors by a HTR", 2);
-    meDCCSummariesOfHTRs_->setBinLabel(8, "One or More Clocking Problems from a HTR", 2);
-    meDCCSummariesOfHTRs_->setBinLabel(9, "One or More Corrected Link Errors from an LRB", 2);
-    meDCCSummariesOfHTRs_->setBinLabel(10, "One or More Uncorrected Link Errors from an LRB", 2);
-    meDCCSummariesOfHTRs_->setBinLabel(11, "One or More Block Size Overflows from an LRB", 2);
-    meDCCSummariesOfHTRs_->setBinLabel(12, "One or More EvN Header/Trailer Mismatch from an LRB", 2);
-    meDCCSummariesOfHTRs_->setBinLabel(13, "One or More FIFOs Empty when reading block by an LRB", 2);
-    meDCCSummariesOfHTRs_->setBinLabel(14, "One or More Overflow (Data Truncated) from an LRB", 2);
-    meDCCSummariesOfHTRs_->setBinLabel(15, "One or More Missing Header/trailer by an LRB", 2);
-    meDCCSummariesOfHTRs_->setBinLabel(16, "One or More Odd 16-Bit Word Count by an LRB", 2);
-    meDCCSummariesOfHTRs_->setBinLabel(17, "One or More Spigots Enabled without data Present", 2);
-    meDCCSummariesOfHTRs_->setBinLabel(18, "One or More Spigots data Present without BcN Matching DCC", 2);
-    meDCCSummariesOfHTRs_->setBinLabel(19, "One or More Spigots data Present but not valid", 2);
-    meDCCSummariesOfHTRs_->setBinLabel(20, "One or More Spigots Truncated by LRB", 2);
+    meDCCSummariesOfHTRs_->setBinLabel(1, "HTR OFW", 2);
+    meDCCSummariesOfHTRs_->setBinLabel(2, "HTR BSY", 2);
+    meDCCSummariesOfHTRs_->setBinLabel(3, "Empty Events", 2);
+    meDCCSummariesOfHTRs_->setBinLabel(4, "L1A Reject", 2);
+    meDCCSummariesOfHTRs_->setBinLabel(5, "Latency Er", 2);
+    meDCCSummariesOfHTRs_->setBinLabel(6, "Latncy Warn", 2);
+    meDCCSummariesOfHTRs_->setBinLabel(7, "Optcl Data Err", 2);
+    meDCCSummariesOfHTRs_->setBinLabel(8, "Clock", 2);
+    meDCCSummariesOfHTRs_->setBinLabel(9, "CorrHamm LRB", 2);
+    meDCCSummariesOfHTRs_->setBinLabel(10, "UncorrHam", 2);
+    meDCCSummariesOfHTRs_->setBinLabel(11, "LRB Block OvF", 2);
+    meDCCSummariesOfHTRs_->setBinLabel(12, "LRB EvN Hdr/Tlr", 2);
+    meDCCSummariesOfHTRs_->setBinLabel(13, "FIFOs Empty", 2);
+    meDCCSummariesOfHTRs_->setBinLabel(14, "LRB Trunct", 2);
+    meDCCSummariesOfHTRs_->setBinLabel(15, "LRB No Hdr/tlr", 2);
+    meDCCSummariesOfHTRs_->setBinLabel(16, "Odd 16-Bit Wd Cnt", 2);
+    meDCCSummariesOfHTRs_->setBinLabel(17, "Spgt E not P", 2);
+    meDCCSummariesOfHTRs_->setBinLabel(18, "Spgt BcN Mis", 2);
+    meDCCSummariesOfHTRs_->setBinLabel(19, "P not V", 2);
+    meDCCSummariesOfHTRs_->setBinLabel(20, "Trunct by LRB", 2);
 
     int maxbits = 16;//Look at all bits
     type = "HTR Error Word by Crate";
     meErrWdCrate_ = m_dbe->book2D(type,type,18,-0.5,17.5,maxbits,-0.5,maxbits-0.5);
     meErrWdCrate_ -> setAxisTitle("Crate #",1);
-    labelHTRBits(meErrWdCrate_,2);
+    meErrWdCrate_ -> setBinLabel(1,"Overflow Warn",2);
+    meErrWdCrate_ -> setBinLabel(2,"Buffer Busy",2);
+    meErrWdCrate_ -> setBinLabel(3,"Empty Event",2);
+    meErrWdCrate_ -> setBinLabel(4,"Reject L1A",2);
+    meErrWdCrate_ -> setBinLabel(5,"Latency Err",2);
+    meErrWdCrate_ -> setBinLabel(6,"Latency Warn",2);
+    meErrWdCrate_ -> setBinLabel(7,"OptDat Err",2);
+    meErrWdCrate_ -> setBinLabel(8,"Clock Err",2);
+    meErrWdCrate_ -> setBinLabel(9,"Bunch Err",2);
+    meErrWdCrate_ -> setBinLabel(13,"Test Mode",2);
+    meErrWdCrate_ -> setBinLabel(14,"Histo Mode",2);
+    meErrWdCrate_ -> setBinLabel(15,"Calib Trig",2);
+    meErrWdCrate_ -> setBinLabel(16,"Bit15 Err",2);
 
     type = "HTR Error Word - Crate 0";
     meCrate0HTRErr_ = m_dbe->book2D(type,type,40,-0.25,19.75,maxbits,-0.5,maxbits-0.5);
     meCrate0HTRErr_ ->setAxisTitle("Slot #",1);
-    labelHTRBits(meCrate0HTRErr_,2);
-
+    meCrate0HTRErr_ ->setAxisTitle("Crate #",2);
     type = "HTR Error Word - Crate 1";
     meCrate1HTRErr_ = m_dbe->book2D(type,type,40,-0.25,19.75,maxbits,-0.5,maxbits-0.5);
     meCrate1HTRErr_ ->setAxisTitle("Slot #",1);
-    labelHTRBits(meCrate1HTRErr_,2);
-
+    meCrate1HTRErr_ ->setAxisTitle("Crate #",2);
     type = "HTR Error Word - Crate 2";
     meCrate2HTRErr_ = m_dbe->book2D(type,type,40,-0.25,19.75,maxbits,-0.5,maxbits-0.5);
     meCrate2HTRErr_ ->setAxisTitle("Slot #",1);
-    labelHTRBits(meCrate2HTRErr_,2);
-
+    meCrate2HTRErr_ ->setAxisTitle("Crate #",2);
     type = "HTR Error Word - Crate 3";
     meCrate3HTRErr_ = m_dbe->book2D(type,type,40,-0.25,19.75,maxbits,-0.5,maxbits-0.5);
     meCrate3HTRErr_ ->setAxisTitle("Slot #",1);
-    labelHTRBits(meCrate3HTRErr_,2);
-
+    meCrate3HTRErr_ ->setAxisTitle("Crate #",2);
     type = "HTR Error Word - Crate 4";
     meCrate4HTRErr_ = m_dbe->book2D(type,type,40,-0.25,19.75,maxbits,-0.5,maxbits-0.5);
     meCrate4HTRErr_ ->setAxisTitle("Slot #",1);
-    labelHTRBits(meCrate4HTRErr_,2);
-
+    meCrate4HTRErr_ ->setAxisTitle("Crate #",2);
     type = "HTR Error Word - Crate 5";
     meCrate5HTRErr_ = m_dbe->book2D(type,type,40,-0.25,19.75,maxbits,-0.5,maxbits-0.5);
     meCrate5HTRErr_ ->setAxisTitle("Slot #",1);
-    labelHTRBits(meCrate5HTRErr_,2);
-
+    meCrate5HTRErr_ ->setAxisTitle("Crate #",2);
     type = "HTR Error Word - Crate 6";
     meCrate6HTRErr_ = m_dbe->book2D(type,type,40,-0.25,19.75,maxbits,-0.5,maxbits-0.5);
     meCrate6HTRErr_ ->setAxisTitle("Slot #",1);
-    labelHTRBits(meCrate6HTRErr_,2);
-
+    meCrate6HTRErr_ ->setAxisTitle("Crate #",2);
     type = "HTR Error Word - Crate 7";
     meCrate7HTRErr_ = m_dbe->book2D(type,type,40,-0.25,19.75,maxbits,-0.5,maxbits-0.5);
     meCrate7HTRErr_ ->setAxisTitle("Slot #",1);
-    labelHTRBits(meCrate7HTRErr_,2);
-
+    meCrate7HTRErr_ ->setAxisTitle("Crate #",2);
     type = "HTR Error Word - Crate 8";
     meCrate8HTRErr_ = m_dbe->book2D(type,type,40,-0.25,19.75,maxbits,-0.5,maxbits-0.5);
     meCrate8HTRErr_ ->setAxisTitle("Slot #",1);
-    labelHTRBits(meCrate8HTRErr_,2);
-
+    meCrate8HTRErr_ ->setAxisTitle("Crate #",2);
     type = "HTR Error Word - Crate 9";
     meCrate9HTRErr_ = m_dbe->book2D(type,type,40,-0.25,19.75,maxbits,-0.5,maxbits-0.5);
     meCrate9HTRErr_ ->setAxisTitle("Slot #",1);
-    labelHTRBits(meCrate9HTRErr_,2);
-
+    meCrate9HTRErr_ ->setAxisTitle("Crate #",2);
     type = "HTR Error Word - Crate 10";
     meCrate10HTRErr_ = m_dbe->book2D(type,type,40,-0.25,19.75,maxbits,-0.5,maxbits-0.5);
     meCrate10HTRErr_ ->setAxisTitle("Slot #",1);
-    labelHTRBits(meCrate10HTRErr_,2);
-
+    meCrate10HTRErr_ ->setAxisTitle("Crate #",2);
     type = "HTR Error Word - Crate 11";
     meCrate11HTRErr_ = m_dbe->book2D(type,type,40,-0.25,19.75,maxbits,-0.5,maxbits-0.5);
     meCrate11HTRErr_ ->setAxisTitle("Slot #",1);
-    labelHTRBits(meCrate11HTRErr_,2);
-
+    meCrate11HTRErr_ ->setAxisTitle("Crate #",2);
     type = "HTR Error Word - Crate 12";
     meCrate12HTRErr_ = m_dbe->book2D(type,type,40,-0.25,19.75,maxbits,-0.5,maxbits-0.5);
     meCrate12HTRErr_ ->setAxisTitle("Slot #",1);
-    labelHTRBits(meCrate12HTRErr_,2);
-
+    meCrate12HTRErr_ ->setAxisTitle("Crate #",2);
     type = "HTR Error Word - Crate 13";
     meCrate13HTRErr_ = m_dbe->book2D(type,type,40,-0.25,19.75,maxbits,-0.5,maxbits-0.5);
     meCrate13HTRErr_ ->setAxisTitle("Slot #",1);
-    labelHTRBits(meCrate13HTRErr_,2);
-
+    meCrate13HTRErr_ ->setAxisTitle("Crate #",2);
     type = "HTR Error Word - Crate 14";
     meCrate14HTRErr_ = m_dbe->book2D(type,type,40,-0.25,19.75,maxbits,-0.5,maxbits-0.5);
     meCrate14HTRErr_ ->setAxisTitle("Slot #",1);
-    labelHTRBits(meCrate14HTRErr_,2);
-
+    meCrate14HTRErr_ ->setAxisTitle("Crate #",2);
     type = "HTR Error Word - Crate 15";
     meCrate15HTRErr_ = m_dbe->book2D(type,type,40,-0.25,19.75,maxbits,-0.5,maxbits-0.5);
     meCrate15HTRErr_ ->setAxisTitle("Slot #",1);
-    labelHTRBits(meCrate15HTRErr_,2);
-
+    meCrate15HTRErr_ ->setAxisTitle("Crate #",2);
     type = "HTR Error Word - Crate 16";
     meCrate16HTRErr_ = m_dbe->book2D(type,type,40,-0.25,19.75,maxbits,-0.5,maxbits-0.5);
     meCrate16HTRErr_ ->setAxisTitle("Slot #",1);
-    labelHTRBits(meCrate16HTRErr_,2);
-
+    meCrate16HTRErr_ ->setAxisTitle("Crate #",2);
     type = "HTR Error Word - Crate 17";
     meCrate17HTRErr_ = m_dbe->book2D(type,type,40,-0.25,19.75,maxbits,-0.5,maxbits-0.5);
     meCrate17HTRErr_ ->setAxisTitle("Slot #",1);
-    labelHTRBits(meCrate17HTRErr_,2);
+    meCrate17HTRErr_ ->setAxisTitle("Crate #",2);
     
  /* Disable these histos for now
      type = "Fiber 1 Orbit Message BCN";
@@ -292,16 +302,52 @@ void HcalDataFormatMonitor::setup(const edm::ParameterSet& ps,
 
     type = "HBHE Data Format Error Word";
     DCC_ErrWd_HBHE =  m_dbe->book1D(type,type,16,-0.5,15.5);
-    labelHTRBits(DCC_ErrWd_HBHE,1);
+    DCC_ErrWd_HBHE -> setBinLabel(1,"Overflow Warn",1);
+    DCC_ErrWd_HBHE -> setBinLabel(2,"Buffer Busy",1);
+    DCC_ErrWd_HBHE -> setBinLabel(3,"Empty Event",1);
+    DCC_ErrWd_HBHE -> setBinLabel(4,"Reject L1A",1);
+    DCC_ErrWd_HBHE -> setBinLabel(5,"Latency Err",1);
+    DCC_ErrWd_HBHE -> setBinLabel(6,"Latency Warn",1);
+    DCC_ErrWd_HBHE -> setBinLabel(7,"OptDat Err",1);
+    DCC_ErrWd_HBHE -> setBinLabel(8,"Clock Err",1);
+    DCC_ErrWd_HBHE -> setBinLabel(9,"Bunch Err",1);
+    DCC_ErrWd_HBHE -> setBinLabel(13,"Test Mode",1);
+    DCC_ErrWd_HBHE -> setBinLabel(14,"Histo Mode",1);
+    DCC_ErrWd_HBHE -> setBinLabel(15,"Calib Trig",1);
+    DCC_ErrWd_HBHE -> setBinLabel(16,"Bit15 Err",1);
 
     type = "HF Data Format Error Word";
     DCC_ErrWd_HF =  m_dbe->book1D(type,type,16,-0.5,15.5);
-    labelHTRBits(DCC_ErrWd_HF,1);
-  
+    DCC_ErrWd_HF -> setBinLabel(1,"Overflow Warn",1);
+    DCC_ErrWd_HF -> setBinLabel(2,"Buffer Busy",1);
+    DCC_ErrWd_HF -> setBinLabel(3,"Empty Event",1);
+    DCC_ErrWd_HF -> setBinLabel(4,"Reject L1A",1);
+    DCC_ErrWd_HF -> setBinLabel(5,"Latency Err",1);
+    DCC_ErrWd_HF -> setBinLabel(6,"Latency Warn",1);
+    DCC_ErrWd_HF -> setBinLabel(7,"OptDat Err",1);
+    DCC_ErrWd_HF -> setBinLabel(8,"Clock Err",1);
+    DCC_ErrWd_HF -> setBinLabel(9,"Bunch Err",1);
+    DCC_ErrWd_HF -> setBinLabel(13,"Test Mode",1);
+    DCC_ErrWd_HF -> setBinLabel(14,"Histo Mode",1);
+    DCC_ErrWd_HF -> setBinLabel(15,"Calib Trig",1);
+    DCC_ErrWd_HF -> setBinLabel(16,"Bit15 Err",1);
+
     type = "HO Data Format Error Word";
     DCC_ErrWd_HO = m_dbe->book1D(type,type,16,-0.5,15.5);
-    labelHTRBits(DCC_ErrWd_HO,1);
-  
+    DCC_ErrWd_HO -> setBinLabel(1,"Overflow Warn",1);
+    DCC_ErrWd_HO -> setBinLabel(2,"Buffer Busy",1);
+    DCC_ErrWd_HO -> setBinLabel(3,"Empty Event",1);
+    DCC_ErrWd_HO -> setBinLabel(4,"Reject L1A",1);
+    DCC_ErrWd_HO -> setBinLabel(5,"Latency Err",1);
+    DCC_ErrWd_HO -> setBinLabel(6,"Latency Warn",1);
+    DCC_ErrWd_HO -> setBinLabel(7,"OptDat Err",1);
+    DCC_ErrWd_HO -> setBinLabel(8,"Clock Err",1);
+    DCC_ErrWd_HO -> setBinLabel(9,"Bunch Err",1);
+    DCC_ErrWd_HO -> setBinLabel(13,"Test Mode",1);
+    DCC_ErrWd_HO -> setBinLabel(14,"Histo Mode",1);
+    DCC_ErrWd_HO -> setBinLabel(15,"Calib Trig",1);
+    DCC_ErrWd_HO -> setBinLabel(16,"Bit15 Err",1);
+
    }
 
    return;
@@ -407,11 +453,17 @@ void HcalDataFormatMonitor::unpack(const FEDRawData& raw,
   /* 7 */ //There should always be 0x0 in CDF Header word 1, bits [63:60]
   if (dccHeader->BOEshouldBeZeroAlways() !=0)
     meCDFErrorFound_->Fill(dccid, 7);
-  /* 8 */ //There should always be a zero in the CDF Trailer, bit 2
+  /* 8 */ //There should only be one trailer
+  if (trailer.moreTrailers())
+    meCDFErrorFound_->Fill(dccid, 8);
   //  if trailer.
   /* 9 */ //CDF Trailer [55:30] should be the # 64-bit words in the EvFragment
-  /*10 */ //There should always be a 5 in CDF Trailer bits [63:60]
-
+  if ((uint64_t) raw.size() != ( (uint64_t) trailer.lenght()*sizeof(uint64_t)) )  //The function name is a typo! Awesome.
+    meCDFErrorFound_->Fill(dccid, 9);
+  /*10 */ //There is a rudimentary sanity check built into the FEDTrailer class
+  if (!trailer.check())
+    meCDFErrorFound_->Fill(dccid, 10);
+  
 
   ////////// Histogram problems with DCC Event Format compliance;////////////
   /* 1 */ //Make sure a reference value of the DCC Event Format version has been noted for this dcc.
@@ -423,58 +475,47 @@ void HcalDataFormatMonitor::unpack(const FEDRawData& raw,
   } // then check against it.
   if (dccHeader->getDCCDataFormatVersion()!= DCCEvtFormat_it->second) 
     meDCCEventFormatError_->Fill(dccid,1);
-  /* 2 */ //Make sure a reference value of the DCC Reserved bits has been noted for this dcc.
-  DCCRsvdBits_it = DCCRsvdBits_list.find(dccid);
-  if (DCCRsvdBits_it == DCCRsvdBits_list.end()) {
-    DCCRsvdBits_list.insert(pair<int,short>
-				 (dccid,dccHeader->getDCCDataFormatVersion() ) );
-    DCCRsvdBits_it = DCCRsvdBits_list.find(dccid);
-  } // then check against it.
-  if (dccHeader->getDCCHeaderSchmutz()!= DCCRsvdBits_it->second) 
+  /* 2 */ //Check for ones where there should always be zeros
+  if (false) //dccHeader->getByte1Zeroes() || dccHeader->getByte3Zeroes() || dccHeader->getByte567Zeroes()) 
     meDCCEventFormatError_->Fill(dccid,2);
-  /* 3 */ //Check that there are zeros in the DCC Header above the HTR Status Bits
-  if (dccHeader->getDCCHeaderZeros() !=0)
-    meDCCEventFormatError_->Fill(dccid, 3);
-  /* 4 */ //Check that there are zeros in the DCC Header above the 'DCC Counters Nonzero' Flags
-  bool FoundOne = false;
-  for(int i=9; i<31; i++) {
-    if (dccHeader->isThisDCCErrorCounterNonZero((unsigned int) i)) FoundOne = true;}
-  if (FoundOne)
-    meDCCEventFormatError_->Fill(dccid, 4);
-  /* 5 */ //Check that there are zeros in the DCC Header after the HTR Summaries.
-  FoundOne = false;
-  int NumberOfPaddingSpigots = 3;
-  for(int i=HcalDCCHeader::SPIGOT_COUNT; 
-      i<HcalDCCHeader::SPIGOT_COUNT+NumberOfPaddingSpigots; i++) {
-    if (dccHeader->getSpigotDataLength(i) != 0) FoundOne=true;
-    if (dccHeader->getSpigotEnabled((unsigned int)i) != 0) FoundOne=true;
-    if (dccHeader->getSpigotPresent((unsigned int)i) != 0) FoundOne=true;
-    if (dccHeader->getBxMismatchWithDCC((unsigned int)i) != 0) FoundOne=true;
-    if (dccHeader->getSpigotValid((unsigned int) i) != 0) FoundOne=true;
-    if (dccHeader->getSpigotDataTruncated((unsigned int) i) != 0) FoundOne=true;
-    if ((int) dccHeader->getSpigotErrorBits((unsigned int) i) != 0) FoundOne=true;
-    if ((int) dccHeader->getLRBErrorBits((unsigned int) i) != 0) FoundOne=true;
-  }
-  if (FoundOne) meDCCEventFormatError_->Fill(dccid, 5);
-  /* 6 */ //Check that there are zeros following the HTR Payloads, if needed.
+  /* 3 */ //Check that there are zeros following the HTR Status words.
+        //int SpigotPad = HcalDCCHeader::SPIGOT_COUNT;
+  if (false) //(  ((uint64_t) dccHeader->getSpigotSummary(SpigotPad)  )
+ 	//        | ((uint64_t) dccHeader->getSpigotSummary(SpigotPad+1)) 
+	//        | ((uint64_t) dccHeader->getSpigotSummary(SpigotPad+2)) ) != 0)
+    meDCCEventFormatError_->Fill(dccid,3);
+  /* 4 */ //Check that there are zeros following the HTR Payloads, if needed.
   int nHTR32BitWords=0;
+  // add up all the declared HTR Payload lengths
   for(int i=0; i<HcalDCCHeader::SPIGOT_COUNT; i++) {
     nHTR32BitWords += dccHeader->getSpigotDataLength(i);  }
-  if ( (( nHTR32BitWords % 2) == 1) && (true)) {
-    meDCCEventFormatError_->Fill(dccid, 6); }
+  // if it's an odd number, check for the padding zeroes
+  if (( nHTR32BitWords % 2) == 1) {
+    uint64_t* lastDataWord = (uint64_t*) ( raw.data()+raw.size()-(2*sizeof(uint64_t)) );
+    if ((*lastDataWord>>32) != 0x00000000)
+      meDCCEventFormatError_->Fill(dccid, 4);
+  }
   
   ////////// Histogram Errors and Warnings from the DCC;////////////
   /* [1:15] */ //Histogram HTR Status Bits from the DCC Header
   for(int i=1; i<=HcalDCCHeader::SPIGOT_COUNT; i++)
     if (dccHeader->getSpigotErrorFlag(i))  meDCCErrorAndWarnConditions_->Fill(dccid, i);
   /* [16:25] */ //Histogram DCC Error and Warning Counters being nonzero
-  for(int i=0; i<10; i++){
-    if (dccHeader->isThisDCCErrorCounterNonZero((unsigned int)i))
-	meDCCErrorAndWarnConditions_->Fill(dccid, i+1+HcalDCCHeader::SPIGOT_COUNT);
-  }
+  if (false) /*dccHeader->SawTTS_OFW()        )*/  meDCCErrorAndWarnConditions_->Fill(dccid,16);
+  if (false) /*dccHeader->SawTTS_BSY()        )*/  meDCCErrorAndWarnConditions_->Fill(dccid,17);
+  if (false) /*dccHeader->SawTTS_SYN()        )*/  meDCCErrorAndWarnConditions_->Fill(dccid,18);
+  if (false) /*dccHeader->SawL1A_EvN_MxMx()   )*/  meDCCErrorAndWarnConditions_->Fill(dccid,19);
+  if (false) /*dccHeader->SawL1A_BcN_MxMx()   )*/  meDCCErrorAndWarnConditions_->Fill(dccid,20);
+  if (false) /*dccHeader->SawCT_EvN_MxMx()    )*/  meDCCErrorAndWarnConditions_->Fill(dccid,21);
+  if (false) /*dccHeader->SawCT_BcN_MxMx()    )*/  meDCCErrorAndWarnConditions_->Fill(dccid,22);
+  if (false) /*dccHeader->SawOrbitLengthErr() )*/  meDCCErrorAndWarnConditions_->Fill(dccid,23);
+  if (false) /*dccHeader->SawTTC_SingErr()    )*/  meDCCErrorAndWarnConditions_->Fill(dccid,24);
+  if (false) /*dccHeader->SawTTC_DoubErr()    )*/  meDCCErrorAndWarnConditions_->Fill(dccid,25);
+
 
   ////////// Histogram Spigot Errors from the DCCs HTR Summaries;////////////
   /* [1:8] */ //Histogram HTR Error Bits in the DCC Headers
+  bool FoundOne;
   unsigned char WholeErrorList=0; 
   for (int i=0; i<8; i++) {
     FoundOne=false;
@@ -694,29 +735,7 @@ void HcalDataFormatMonitor::HTRPrint(const HcalHTRData& htr,int prtlvl){
 
 return;
 }
-void HcalDataFormatMonitor::labelHTRBits(MonitorElement* mePlot,unsigned int axisType) {
 
-  if (axisType !=1 && axisType != 2) return;
-
-  mePlot -> setBinLabel(1,"Overflow Warn",axisType);
-  mePlot -> setBinLabel(2,"Buffer Busy",axisType);
-  mePlot -> setBinLabel(3,"Empty Event",axisType);
-  mePlot -> setBinLabel(4,"Reject L1A",axisType);
-  mePlot -> setBinLabel(5,"Latency Err",axisType);
-  mePlot -> setBinLabel(6,"Latency Warn",axisType);
-  mePlot -> setBinLabel(7,"OptDat Err",axisType);
-  mePlot -> setBinLabel(8,"Clock Err",axisType);
-  mePlot -> setBinLabel(9,"Bunch Err",axisType);
-  mePlot -> setBinLabel(10,"Link Err",axisType);
-  mePlot -> setBinLabel(11,"CapId Err",axisType);
-  mePlot -> setBinLabel(12,"FE Format Err",axisType);
-  mePlot -> setBinLabel(13,"Test Mode",axisType);
-  mePlot -> setBinLabel(14,"Histo Mode",axisType);
-  mePlot -> setBinLabel(15,"Calib Trig",axisType);
-  mePlot -> setBinLabel(16,"Bit15 Err",axisType);
-
-  return;
-}
 
 
 

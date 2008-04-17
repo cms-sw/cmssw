@@ -28,7 +28,6 @@ class HcalDataFormatMonitor: public HcalBaseMonitor {
   void reset();
 
   void HTRPrint(const HcalHTRData& htr,int prtlvl);
-  void labelHTRBits(MonitorElement* mePlot,unsigned int axisType);
 
  private: // Data accessors
    vector<int> fedUnpackList_;
@@ -70,11 +69,12 @@ class HcalDataFormatMonitor: public HcalBaseMonitor {
    // The following MEs map specific conditons from the EventFragment headers as specified in
    //   http://cmsdoc.cern.ch/cms/HCAL/document/CountingHouse/DCC/DCC_1Jul06.pdf
 
-   MonitorElement* meFEDId_;               //All of them, no matter how crazy.
+   MonitorElement* meFEDId_;               //All of HCAL, as a stupidcheck.
    MonitorElement* meCDFErrorFound_;       //Summary histo of Common Data Format violations by FED ID
    MonitorElement* meDCCEventFormatError_; //Summary histo of DCC Event Format violations by FED ID 
    //Summary histo for HTR Status bits, DCC Error&Warn Counters Flagged Nonzero
    MonitorElement* meDCCErrorAndWarnConditions_;  
+   MonitorElement* meDCCStatusFlags_;
    MonitorElement* meDCCSummariesOfHTRs_;  //Summary histo of HTR Summaries from DCC
 
    // The following MEs map specific conditons from the HTR/DCC headers as specified in
