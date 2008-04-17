@@ -3,8 +3,8 @@
  *  
  *  All the code is under revision
  *
- *  $Date: 2007/11/08 22:12:18 $
- *  $Revision: 1.21 $
+ *  $Date: 2008/02/19 18:05:17 $
+ *  $Revision: 1.22 $
  *
  *  \author A. Vitelli - INFN Torino, V.Palichik
  *  \author ported by: R. Bellan - INFN Torino
@@ -14,6 +14,7 @@
 #include "RecoMuon/MuonSeedGenerator/src/MuonSeedGenerator.h"
 
 #include "RecoMuon/MuonSeedGenerator/src/MuonSeedFinder.h"
+#include "RecoMuon/MuonSeedGenerator/src/MuonSeedFromRecHits.h"
 
 // Data Formats 
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeed.h"
@@ -483,7 +484,7 @@ void MuonSeedGenerator::produce(edm::Event& event, const edm::EventSetup& eSetup
   if(theSeeds.size() == 1)
     output->push_back(theSeeds.front());
   
-  else{
+  else if (theSeeds.size() >1 ){
     for(vector<TrajectorySeed>::iterator seed = theSeeds.begin();
 	seed != theSeeds.end(); ++seed){
       int counter =0;
@@ -496,6 +497,72 @@ void MuonSeedGenerator::produce(edm::Event& event, const edm::EventSetup& eSetup
       if( counter > 1 ) theSeeds.erase(seed--);
       else output->push_back(*seed);
     }
+  }
+  else{
+    const std::string metname = "Muon|RecoMuon|MuonSeedGenerator";  
+	
+    MuonRecHitContainer all = muonMeasurements.recHits(ME4Bwd,event);
+    LogTrace(metname)<<"ME4B "<<all.size();
+    MuonRecHitContainer tmp = muonMeasurements.recHits(ME3Bwd,event);
+    copy(tmp.begin(),tmp.end(),back_inserter(all));
+    LogTrace(metname)<<"ME3B "<<tmp.size();
+
+    tmp = muonMeasurements.recHits(ME2Bwd,event);
+    copy(tmp.begin(),tmp.end(),back_inserter(all));
+    LogTrace(metname)<<"ME2B "<<tmp.size();
+
+    tmp = muonMeasurements.recHits(ME12Bwd,event);
+    copy(tmp.begin(),tmp.end(),back_inserter(all));
+    LogTrace(metname)<<"ME12B "<<tmp.size();
+
+    tmp = muonMeasurements.recHits(ME11Bwd,event);
+    copy(tmp.begin(),tmp.end(),back_inserter(all));
+    LogTrace(metname)<<"ME11B "<<tmp.size();
+
+    tmp = muonMeasurements.recHits(ME11Fwd,event);
+    copy(tmp.begin(),tmp.end(),back_inserter(all));
+    LogTrace(metname)<<"ME11F "<<tmp.size();
+
+    tmp = muonMeasurements.recHits(ME12Fwd,event);
+    copy(tmp.begin(),tmp.end(),back_inserter(all));
+    LogTrace(metname)<<"ME12F "<<tmp.size();
+
+    tmp = muonMeasurements.recHits(ME2Fwd,event);
+    copy(tmp.begin(),tmp.end(),back_inserter(all));
+    LogTrace(metname)<<"ME2F "<<tmp.size();
+
+    tmp = muonMeasurements.recHits(ME3Fwd,event);
+    copy(tmp.begin(),tmp.end(),back_inserter(all));
+    LogTrace(metname)<<"ME3F "<<tmp.size();
+
+    tmp = muonMeasurements.recHits(ME4Fwd,event);
+    copy(tmp.begin(),tmp.end(),back_inserter(all));
+    LogTrace(metname)<<"ME4F "<<tmp.size();
+
+    tmp = muonMeasurements.recHits(MB4DL,event);
+    copy(tmp.begin(),tmp.end(),back_inserter(all));
+    LogTrace(metname)<<"MB4 "<<tmp.size();
+
+    tmp = muonMeasurements.recHits(MB3DL,event);
+    copy(tmp.begin(),tmp.end(),back_inserter(all));
+    LogTrace(metname)<<"MB3 "<<tmp.size();
+
+    tmp = muonMeasurements.recHits(MB2DL,event);
+    copy(tmp.begin(),tmp.end(),back_inserter(all));
+    LogTrace(metname)<<"MB2 "<<tmp.size();    
+
+    tmp = muonMeasurements.recHits(MB1DL,event);
+    copy(tmp.begin(),tmp.end(),back_inserter(all));
+    LogTrace(metname)<<"MB1 "<<tmp.size();
+
+    LogTrace(metname)<<"Number of segments: "<<all.size();  
+    
+    MuonSeedFromRecHits seedCreator(eSetup);
+    for(MuonRecHitContainer::const_iterator segment = all.begin(); segment != all.end(); ++segment)
+      output->push_back(seedCreator.createSeed(100,
+					       100,
+					       *segment)); 
+    
   }
   
   event.put(output);

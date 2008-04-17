@@ -30,15 +30,15 @@ public:
   MuonTransientTrackingRecHit::ConstMuonRecHitPointer firstRecHit() const { return theRhits.front(); }
   unsigned int nrhit() const { return  theRhits.size(); }
 
+  TrajectorySeed createSeed(float ptmean, float sptmean,
+			    MuonTransientTrackingRecHit::ConstMuonRecHitPointer last) const;
+  
   protected:
   friend class MuonSeedFinder;
   typedef MuonTransientTrackingRecHit::MuonRecHitContainer MuonRecHitContainer;
   typedef MuonTransientTrackingRecHit::MuonRecHitPointer MuonRecHitPointer;
   typedef MuonTransientTrackingRecHit::ConstMuonRecHitPointer ConstMuonRecHitPointer;
 
-
-  TrajectorySeed createSeed(float ptmean, float sptmean,
-			    MuonTransientTrackingRecHit::ConstMuonRecHitPointer last) const;
   // makes a straight-line seed.  q/p = 0, and sigma(q/p) = 1/theMinMomentum
   TrajectorySeed createDefaultSeed(MuonTransientTrackingRecHit::ConstMuonRecHitPointer last) const;
 
