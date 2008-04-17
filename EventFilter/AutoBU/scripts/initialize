@@ -180,10 +180,12 @@ my @BUproperties = ("replay","boolean","false",
     
 my @PBproperties = ("parameterSet","string","file:$pwd/cfg/playback.cfg",
 		    "hasSharedMemory","boolean","false",
+		    "hasPrescaleService","boolean","false",
 		    "collReconnSec","integer","-1");
 
 my @RBproperties = ("buClassName", "string",     $BUappname,
 		    "doCrcCheck", "unsignedInt","1",
+		    "processKillerEnabled", "boolean","false",
 		    "monSleepSec", "unsignedInt","30",
 		    "nbRawCells",  "unsignedInt","32",
 		    "nbRecoCells", "unsignedInt","8",
@@ -308,7 +310,7 @@ if ($doSM) {
     print CTL makeCtlCommand("Configure",$SMappname,"SM",$hostname,$SMport,1);
 }
 if ($doPB) {
-    print CTL makeCtlCommand("Configure",$EPappname,"PB",$hostname,$BUport,5);
+    print CTL makeCtlCommand("Configure",$EPappname,"PB",$hostname,$BUport,10);
     print CTL makeCtlCommand("Enable",   $EPappname,"PB",$hostname,$BUport,5);
 }
 print CTL makeCtlCommand("Configure",$BUappname,"BU",$hostname,$BUport,0);
@@ -354,7 +356,7 @@ if ($doEP) {
     }
 }
 if ($doSM) {
-    print CTL "`sleep 5`;\n\n";
+    print CTL "`sleep 20`;\n\n";
     print CTL makeCtlCommand("Stop",$SMappname,"SM",$hostname,$SMport,0);
 }
 close (CTL);
@@ -503,6 +505,7 @@ sub makeCfgFu
     $result = $result . "  endpath ep = { out }\n\n";
     
     $result = $result . "  // services\n\n";
+    $result = $result . "  service = DQMStore { }\n\n";
     $result = $result . "  service = MessageLogger {\n";
     $result = $result . "    untracked vstring destinations = { \"cout\" }\n";
     $result = $result . "    untracked PSet    cout         = " .
