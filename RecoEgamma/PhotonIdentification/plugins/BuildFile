@@ -8,7 +8,7 @@
 <use name=RecoCaloTools/MetaCollections>
 <use name=RecoEgamma/EgammaPhotonAlgos>
 
-<library name=RecoEgammaPhotonIdentificationPlugins file="PhotonIDProducer.cc">
+<library name=RecoEgammaPhotonIdentificationPlugins file="*.cc">
   <use name=RecoEgamma/PhotonIdentification>
   <flags EDM_PLUGIN=1>
 </library>
