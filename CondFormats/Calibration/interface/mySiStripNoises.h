@@ -38,7 +38,7 @@ class mySiStripNoises {
   void getDetIds(std::vector<uint32_t>& DetIds) const;
   float getNoise  (const uint16_t& strip, const Range& range) const;
   void  setData(float noise_, std::vector<short>& vped);
- private:
+  // private:
   //SiStripNoiseVector v_noises;
   //Registry indexes;
   void     encode(InputVector& Vi, std::vector<unsigned char>& Vo_CHAR);
