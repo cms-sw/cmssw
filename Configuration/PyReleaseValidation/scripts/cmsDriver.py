@@ -160,6 +160,11 @@ parser.add_option("--eventcontent",
                    default="FEVTSIMDIGI",
                    dest="eventcontent")
 
+parser.add_option("--filtername",
+                   help="What filter name to specify in output module",
+                   default="",
+                   dest="filtername")
+
 parser.add_option("--conditions",
                    help="What conditions to use. Default=FrontierConditions_GlobalTag,STARTUP::All",
                    default="FrontierConditions_GlobalTag,STARTUP::All",
@@ -420,6 +425,7 @@ insecondfile_name='"""+secondfilestr+"""'
 outfile_name='"""+options.dirout+options.fileout+"""'
 rawfile_name='"""+fileraw+"""'
 eventcontent='"""+options.eventcontent+"""'
+filtername='"""+options.filtername+"""'
 conditions='"""+options.conditions+"""'
 beamspot='"""+options.beamspot+"""'
 

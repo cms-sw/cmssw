@@ -163,7 +163,7 @@ if hasattr(process,'hltEndPath'):
 # Add the output on a root file if requested
 if output_flag:
     process = common.event_output\
-        (process, outfile_name, dataTier_dict[step],eventcontent)
+        (process, outfile_name, dataTier_dict[step],eventcontent,filtername)
     if not user_schedule:
         process.schedule.append(process.outpath)  
     if ( rawfile_name!='' ):
