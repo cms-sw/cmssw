@@ -1,8 +1,8 @@
-#include "DQMServices/Examples/interface/PostConverterAnalyzer.h"
+#include "DQMServices/Examples/interface/HarvestingAnalyzer.h"
 
-PostConverterAnalyzer::PostConverterAnalyzer(const edm::ParameterSet& iPSet)
+HarvestingAnalyzer::HarvestingAnalyzer(const edm::ParameterSet& iPSet)
 {
-  std::string MsgLoggerCat = "PostConverterAnalyzer_PostConverterAnalyzer";
+  std::string MsgLoggerCat = "HarvestingAnalyzer_HarvestingAnalyzer";
 
   fName = iPSet.getUntrackedParameter<std::string>("Name");
   verbosity = iPSet.getUntrackedParameter<int>("Verbosity");
@@ -17,14 +17,14 @@ PostConverterAnalyzer::PostConverterAnalyzer(const edm::ParameterSet& iPSet)
   }
 }
 
-PostConverterAnalyzer::~PostConverterAnalyzer() {}
+HarvestingAnalyzer::~HarvestingAnalyzer() {}
 
-void PostConverterAnalyzer::beginJob(const edm::EventSetup& iSetup) 
+void HarvestingAnalyzer::beginJob(const edm::EventSetup& iSetup) 
 {
   return;
 }
 
-void PostConverterAnalyzer::endJob()
+void HarvestingAnalyzer::endJob()
 {
 
   dbe = 0;
@@ -69,19 +69,19 @@ void PostConverterAnalyzer::endJob()
   return;
 }
 
-void PostConverterAnalyzer::beginRun(const edm::Run& iRun, 
+void HarvestingAnalyzer::beginRun(const edm::Run& iRun, 
 				const edm::EventSetup& iSetup)
 {
   return;
 }
 
-void PostConverterAnalyzer::endRun(const edm::Run& iRun, 
+void HarvestingAnalyzer::endRun(const edm::Run& iRun, 
 			      const edm::EventSetup& iSetup)
 {
   return;
 }
 
-void PostConverterAnalyzer::analyze(const edm::Event& iEvent, 
+void HarvestingAnalyzer::analyze(const edm::Event& iEvent, 
 			       const edm::EventSetup& iSetup)
 {
   return;

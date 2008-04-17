@@ -8,7 +8,8 @@ DEFINE_FWK_MODULE(DQMClientExample);
 DEFINE_ANOTHER_FWK_MODULE(DQMSourceExample);
 #include <DQMServices/Examples/interface/ConverterTester.h>
 DEFINE_ANOTHER_FWK_MODULE(ConverterTester);
-#include <DQMServices/Examples/interface/PostConverterAnalyzer.h>
-DEFINE_ANOTHER_FWK_MODULE(PostConverterAnalyzer);
-#include <DQMServices/Examples/interface/ConverterQualityTester.h>
-DEFINE_ANOTHER_FWK_MODULE(ConverterQualityTester);
+#include <DQMServices/Examples/interface/HarvestingAnalyzer.h>
+DEFINE_ANOTHER_FWK_MODULE(HarvestingAnalyzer);
+#include <DQMServices/Examples/interface/HarvestingDataCertification.h>
+DEFINE_ANOTHER_FWK_MODULE(HarvestingDataCertification);
+

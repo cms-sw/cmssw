@@ -1,11 +1,11 @@
-#ifndef PostConverterAnalyzer_h
-#define PostConverterAnalyzer_h
+#ifndef HarvestingAnalyzer_h
+#define HarvestingAnalyzer_h
 
-/** \class PostConverterAnalyzer
+/** \class HarvestingAnalyzer
  *  
  *  Class to perform operations on MEs after EDMtoMEConverter
  *
- *  $Date: 2008/03/26 22:16:30 $
+ *  $Date: 2008/04/16 21:52:41 $
  *  $Revision: 1.1 $
  *  \author M. Strang SUNY-Buffalo
  */
@@ -33,13 +33,13 @@
 
 #include "TString.h"
 
-class PostConverterAnalyzer : public edm::EDAnalyzer
+class HarvestingAnalyzer : public edm::EDAnalyzer
 {
   
  public:
 
-  explicit PostConverterAnalyzer(const edm::ParameterSet&);
-  virtual ~PostConverterAnalyzer();
+  explicit HarvestingAnalyzer(const edm::ParameterSet&);
+  virtual ~HarvestingAnalyzer();
   virtual void beginJob(const edm::EventSetup&);
   virtual void endJob();  
   virtual void analyze(const edm::Event&, const edm::EventSetup&);

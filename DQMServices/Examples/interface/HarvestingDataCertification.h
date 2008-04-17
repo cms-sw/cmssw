@@ -1,11 +1,11 @@
-#ifndef ConverterQualityTester_h
-#define ConverterQualityTester_h
+#ifndef HarvestingDataCertification_h
+#define HarvestingDataCertification_h
 
-/** \class ConverterQualityTester
+/** \class HarvestingDataCertification
  *  
  *  Class to fill dqm monitor elements from existing EDM file
  *
- *  $Date: 2008/03/26 22:16:30 $
+ *  $Date: 2008/04/16 21:52:41 $
  *  $Revision: 1.1 $
  *  \author M. Strang SUNY-Buffalo
  */
@@ -31,13 +31,13 @@
 #include <memory>
 #include <vector>
 
-class ConverterQualityTester : public edm::EDAnalyzer
+class HarvestingDataCertification : public edm::EDAnalyzer
 {
   
  public:
 
-  explicit ConverterQualityTester(const edm::ParameterSet&);
-  virtual ~ConverterQualityTester();
+  explicit HarvestingDataCertification(const edm::ParameterSet&);
+  virtual ~HarvestingDataCertification();
   virtual void beginJob(const edm::EventSetup&);
   virtual void endJob();  
   virtual void analyze(const edm::Event&, const edm::EventSetup&);

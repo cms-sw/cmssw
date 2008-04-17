@@ -1,8 +1,8 @@
-#include "DQMServices/Examples/interface/ConverterQualityTester.h"
+#include "DQMServices/Examples/interface/HarvestingDataCertification.h"
 
-ConverterQualityTester::ConverterQualityTester(const edm::ParameterSet& iPSet)
+HarvestingDataCertification::HarvestingDataCertification(const edm::ParameterSet& iPSet)
 {
-  std::string MsgLoggerCat = "ConverterQualityTester_ConverterQualityTester";
+  std::string MsgLoggerCat = "HarvestingDataCertification_HarvestingDataCertification";
 
   fName = iPSet.getUntrackedParameter<std::string>("Name");
   verbosity = iPSet.getUntrackedParameter<int>("Verbosity");
@@ -17,31 +17,31 @@ ConverterQualityTester::ConverterQualityTester(const edm::ParameterSet& iPSet)
   }
 }
 
-ConverterQualityTester::~ConverterQualityTester() {}
+HarvestingDataCertification::~HarvestingDataCertification() {}
 
-void ConverterQualityTester::beginJob(const edm::EventSetup& iSetup)
+void HarvestingDataCertification::beginJob(const edm::EventSetup& iSetup)
 {
   return;
 }
 
-void ConverterQualityTester::endJob()
+void HarvestingDataCertification::endJob()
 {
   return;
 }
 
-void ConverterQualityTester::beginRun(const edm::Run& iRun, 
+void HarvestingDataCertification::beginRun(const edm::Run& iRun, 
 				const edm::EventSetup& iSetup)
 {
   return;
 }
 
-void ConverterQualityTester::endRun(const edm::Run& iRun, 
+void HarvestingDataCertification::endRun(const edm::Run& iRun, 
 			      const edm::EventSetup& iSetup)
 {
   return;
 }
 
-void ConverterQualityTester::analyze(const edm::Event& iEvent, 
+void HarvestingDataCertification::analyze(const edm::Event& iEvent, 
 			       const edm::EventSetup& iSetup)
 {
   return;
