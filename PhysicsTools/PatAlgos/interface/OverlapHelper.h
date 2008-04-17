@@ -14,6 +14,7 @@
 //#include "PhysicsTools/PatUtils/interface/SimpleOverlapFinder.h"
 #include "PhysicsTools/PatUtils/interface/GenericOverlapFinder.h"
 
+#include "PhysicsTools/PatUtils/interface/PatSelectorByFlags.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -49,6 +50,7 @@ class OverlapHelper {
                 edm::InputTag tag_;
                 SimpleOverlapFinder finder_;
                 boost::shared_ptr<StringCutObjectSelector<reco::Candidate> > cut_;
+                boost::shared_ptr<pat::SelectorByFlags > flags_;
                 mutable std::vector<const reco::Candidate *> tmp_;
         }; // worker
  
@@ -88,7 +90,8 @@ pat::helper::OverlapHelper::Worker::run(const edm::Event &iEvent, const Collecti
         iEvent.getByLabel(tag_, handle);
         tmp_.clear(); // just in case
         for (View<reco::Candidate>::const_iterator it = handle->begin(), ed = handle->end(); it != ed; ++it) {
-            if (cut_.get() && ! (*cut_)(*it) ) continue;
+            if (cut_.get()   && ! (*cut_  )(*it) ) continue;
+            if (flags_.get() && ! (*flags_)(*it) ) continue;
             tmp_.push_back( & *it );
         }
         std::auto_ptr<pat::OverlapList> ret = finder_.find(items, tmp_);

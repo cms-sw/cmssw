@@ -16,6 +16,12 @@ pat::helper::OverlapHelper::Worker::Worker(const edm::ParameterSet &pset) :
             cut_ = boost::shared_ptr<CutObj>( new CutObj(cut) );
         }
     }
+    if (pset.exists("flags")) {
+        std::vector<std::string> flags = pset.getParameter<std::vector<std::string> >("flags");
+        if (!flags.empty()) {
+            flags_ = boost::shared_ptr<pat::SelectorByFlags>( new pat::SelectorByFlags(flags) );
+        }
+    }
 }
 
 
