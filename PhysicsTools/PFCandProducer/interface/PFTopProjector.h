@@ -40,53 +40,40 @@ class PFTopProjector : public edm::EDProducer {
   virtual void beginJob(const edm::EventSetup & c);
 
  private:
-  
-  template<class T>
-    void fetchCollection(T& c,
-			 const edm::InputTag& tag,
-			 const edm::Event& iSetup) const;
-
-  const reco::CandidateBaseRef& 
-    parent( const reco::CandidateBaseRef& candBaseRef) const;
-
-  reco::CandidateBaseRef
-    refToAncestorPFCandidate( reco::CandidateBaseRef candRef,
-			      const edm::Handle<reco::PFCandidateCollection> ancestors ) 
+ 
+  /// fills ancestors with RefToBases to the PFCandidates that in
+  /// one way or another contribute to the candidate pointed to by 
+  /// candRef
+  void
+    refToAncestorPFCandidates( reco::CandidateBaseRef candRef,
+			       reco::CandidateBaseRefVector& ancestors,
+			       const edm::Handle<reco::PFCandidateCollection> allPFCandidates ) 
     const;
+
+  /// ancestors is a RefToBase vector. For each object in this vector
+  /// get the index and set the corresponding slot to true in the 
+  /// masked vector
+  void maskAncestors( const reco::CandidateBaseRefVector& ancestors,
+		      std::vector<bool>& masked ) const;
     
+
+  /// ancestor PFCandidates
   edm::InputTag   inputTagPFCandidates_;
  
+  /// optional collection of PileUpPFCandidates
   edm::InputTag   inputTagPileUpPFCandidates_;
 
+  /// optional collection of IsolatedPFCandidates
   edm::InputTag   inputTagIsolatedPFCandidates_;
   
+  /// optional collection of jets
   edm::InputTag   inputTagPFJets_;
-  
   
   /// verbose ?
   bool   verbose_;
 
 };
 
-
-template<class T>
-void PFTopProjector::fetchCollection(T& c, 
-				     const edm::InputTag& tag, 
-				     const edm::Event& iEvent) const {
-  
-  edm::InputTag empty;
-  if( tag==empty ) return;
-
-  bool found = iEvent.getByLabel(tag, c);
-  
-  if(!found ) {
-    std::ostringstream  err;
-    err<<" cannot get PFCandidates: "
-       <<tag<<std::endl;
-    edm::LogError("PFCandidates")<<err.str();
-    throw cms::Exception( "MissingProduct", err.str());
-  }
-}
 
 
 

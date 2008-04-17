@@ -1,4 +1,5 @@
 #include "PhysicsTools/PFCandProducer/interface/PFIsolation.h"
+#include "PhysicsTools/PFCandProducer/interface/FetchCollection.h"
 
 #include "DataFormats/ParticleFlowCandidate/interface/IsolatedPFCandidate.h"
 #include "DataFormats/ParticleFlowCandidate/interface/IsolatedPFCandidateFwd.h"
@@ -68,14 +69,14 @@ void PFIsolation::produce(Event& iEvent,
   // get PFCandidates
 
   Handle<PFCandidateCollection> pfCandidates;
-  fetchCandidateCollection(pfCandidates, 
-			   inputTagPFCandidates_, 
-			   iEvent );
+  pfpat::fetchCollection(pfCandidates, 
+			 inputTagPFCandidates_, 
+			 iEvent );
 
   Handle<PFCandidateCollection> pfCandidatesForIsolation;
-  fetchCandidateCollection( pfCandidatesForIsolation, 
-			    inputTagPFCandidatesForIsolation_, 
-			    iEvent );
+  pfpat::fetchCollection( pfCandidatesForIsolation, 
+			  inputTagPFCandidatesForIsolation_, 
+			  iEvent );
 
   // get PFCandidates for isolation
   
@@ -102,24 +103,6 @@ void PFIsolation::produce(Event& iEvent,
   
   LogDebug("PFIsolation")<<"STOP event: "<<iEvent.id().event()
 			 <<" in run "<<iEvent.id().run()<<endl;
-}
-
-
-void 
-PFIsolation::fetchCandidateCollection(Handle<reco::PFCandidateCollection>& c, 
-				      const InputTag& tag, 
-				      const Event& iEvent) const {
-  
-  bool found = iEvent.getByLabel(tag, c);
-  
-  if(!found ) {
-    ostringstream  err;
-    err<<" cannot get PFCandidates: "
-       <<tag<<endl;
-    LogError("PFCandidates")<<err.str();
-    throw cms::Exception( "MissingProduct", err.str());
-  }
-  
 }
 
 

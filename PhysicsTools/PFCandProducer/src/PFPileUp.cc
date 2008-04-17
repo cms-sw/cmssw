@@ -1,4 +1,5 @@
 #include "PhysicsTools/PFCandProducer/interface/PFPileUp.h"
+#include "PhysicsTools/PFCandProducer/interface/FetchCollection.h"
 
 #include "DataFormats/ParticleFlowCandidate/interface/PileUpPFCandidate.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PileUpPFCandidateFwd.h"
@@ -55,9 +56,9 @@ void PFPileUp::produce(Event& iEvent,
   // get PFCandidates
 
   Handle<PFCandidateCollection> pfCandidates;
-  fetchCandidateCollection(pfCandidates, 
-			   inputTagPFCandidates_, 
-			   iEvent );
+  pfpat::fetchCollection(pfCandidates, 
+			 inputTagPFCandidates_, 
+			 iEvent );
 
   // get PFCandidates for isolation
   
@@ -87,23 +88,4 @@ void PFPileUp::produce(Event& iEvent,
   LogDebug("PFPileUp")<<"STOP event: "<<iEvent.id().event()
 			 <<" in run "<<iEvent.id().run()<<endl;
 }
-
-
-void 
-PFPileUp::fetchCandidateCollection(Handle<reco::PFCandidateCollection>& c, 
-				      const InputTag& tag, 
-				      const Event& iEvent) const {
-  
-  bool found = iEvent.getByLabel(tag, c);
-  
-  if(!found ) {
-    ostringstream  err;
-    err<<" cannot get PFCandidates: "
-       <<tag<<endl;
-    LogError("PFCandidates")<<err.str();
-    throw cms::Exception( "MissingProduct", err.str());
-  }
-  
-}
-
 

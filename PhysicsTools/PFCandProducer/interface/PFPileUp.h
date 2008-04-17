@@ -38,11 +38,6 @@ class PFPileUp : public edm::EDProducer {
 
  private:
   
-  void 
-    fetchCandidateCollection(edm::Handle<reco::PFCandidateCollection>& c, 
-			     const edm::InputTag& tag, 
-			     const edm::Event& iSetup) const;
-
 
   
   /// PFCandidates in which we'll look for pile up particles 

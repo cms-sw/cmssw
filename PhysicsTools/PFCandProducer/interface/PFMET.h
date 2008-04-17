@@ -1,5 +1,5 @@
-#ifndef RecoParticleFlow_PFPAT_PFIsolation_h_
-#define RecoParticleFlow_PFPAT_PFIsolation_h_
+#ifndef RecoParticleFlow_PFPAT_PFMET_
+#define RecoParticleFlow_PFPAT_PFMET_
 
 // system include files
 #include <memory>
@@ -15,7 +15,7 @@
 
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
 
-/**\class PFIsolation 
+/**\class PFMET 
 \brief produces IsolatedPFCandidates from PFCandidates
 
 \author Colin Bernet
@@ -25,38 +25,26 @@
 
 
 
-class PFIsolation : public edm::EDProducer {
+class PFMET : public edm::EDProducer {
  public:
 
-  explicit PFIsolation(const edm::ParameterSet&);
+  explicit PFMET(const edm::ParameterSet&);
 
-  ~PFIsolation();
+  ~PFMET();
   
   virtual void produce(edm::Event&, const edm::EventSetup&);
 
   virtual void beginJob(const edm::EventSetup & c);
 
  private:
+ 
 
-  double 
-    computeIsolation( const reco::PFCandidate& cand, 
-		      const reco::PFCandidateCollection& candidates,
-		      double isolationCone ) const;
   
-  /// PFCandidates for which the isolation will be computed
+  /// PFCandidates in which we'll look for pile up particles 
   edm::InputTag   inputTagPFCandidates_;
   
-  /// PFCandidates with which the isolation will be computed
-  edm::InputTag   inputTagPFCandidatesForIsolation_;
-
   /// verbose ?
   bool   verbose_;
-
-  /// min isolation to be considered isolated
-  double max_ptFraction_InCone_;
-  
-  /// isolation cone
-  double isolation_Cone_DeltaR_;
 
 };
 
