@@ -13,7 +13,7 @@
 //
 // Original Author:  Freya Blekman
 //         Created:  Mon Dec  3 14:07:42 CET 2007
-// $Id: SiPixelIsAliveCalibration.cc,v 1.18 2008/03/03 10:10:53 chiochia Exp $
+// $Id: SiPixelIsAliveCalibration.cc,v 1.19 2008/04/15 19:10:10 krose Exp $
 //
 //
 
@@ -132,10 +132,10 @@ SiPixelIsAliveCalibration::doFits(uint32_t detid, std::vector<SiPixelCalibDigi>:
   edm::LogInfo("SiPixelIsAliveCalibration") << "DetID/col/row " << detid << "/"<< ipix->col() << "/" << ipix->row() << ", now calculating efficiency: " << nom << "/" << denom <<"=" << nom/denom << std::endl;
   double eff = -1;
   if(denom>0)
-    eff = nom;
+    eff = nom/denom;
   if(bookkeeper_[detid]->getBinContent(ipix->col()+1,ipix->row()+1)==0){
     bookkeeper_[detid]->Fill(ipix->col(), ipix->row(), eff);
-    summaries_[detid]->Fill(eff/(float)calib_->getNTriggers());
+    summaries_[detid]->Fill(eff);
   }
   else
     bookkeeper_[detid]->setBinContent(ipix->col()+1,ipix->row()+1,-2);
@@ -159,14 +159,11 @@ SiPixelIsAliveCalibration::calibrationEnd(){
 	double val = bookkeeper_[detid]->getBinContent(icol,irow);
 	if(val==0)
 	  idead++;
-	if(val<mineff_*calib_->getNTriggers())
+	if(val<mineff_)
 	  iunderthres++;
 	if(val==-2)
 	  imultiplefill++;
 	
-
-	bookkeeper_[detid]->setBinContent(icol,irow,val/(float)calib_->getNTriggers());
- 	
       }
     }
     edm::LogInfo("SiPixelIsAliveCalibration") << "summary for " << translateDetIdToString(detid) << "\tfrac dead:" << idead/itot << " frac below " << mineff_ << ":" << iunderthres/itot << " bad " <<  imultiplefill/itot << std::endl;
