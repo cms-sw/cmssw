@@ -8,7 +8,7 @@
 //
 // Original Author:  Jim Pivarski
 //         Created:  Mon Mar 10 16:37:40 CDT 2008
-// $Id: MuonAlignmentInputXML.cc,v 1.3 2008/03/26 22:00:34 pivarski Exp $
+// $Id: MuonAlignmentInputXML.cc,v 1.4 2008/03/26 22:14:14 pivarski Exp $
 //
 
 // system include files
@@ -736,9 +736,9 @@ void MuonAlignmentInputXML::do_setposition(const xercesc_2_7::DOMElement *node, 
 
       // standard Euler angles (how they're internally stored in the database)
       align::EulerAngles eulerAngles(3);
-      eulerAngles(1) = parseDouble(node_phix->getValue(), "alpha");
-      eulerAngles(2) = parseDouble(node_phiy->getValue(), "beta");
-      eulerAngles(3) = parseDouble(node_phiz->getValue(), "gamma");
+      eulerAngles(1) = parseDouble(node_alpha->getValue(), "alpha");
+      eulerAngles(2) = parseDouble(node_beta->getValue(), "beta");
+      eulerAngles(3) = parseDouble(node_gamma->getValue(), "gamma");
       rot = align::RotationType(align::toMatrix(eulerAngles));
    }
 
