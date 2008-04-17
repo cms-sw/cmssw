@@ -8,6 +8,7 @@
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "TMinuit.h"
 #include "TMath.h"
+#include "Math/SMatrix.h"
 #include <boost/shared_ptr.hpp>
 #include <iostream>
 #include <vector>
@@ -66,6 +67,19 @@ namespace fit {
       minuit_->GetParameter(parameterIndex(name), val, err);
       return err;
     }
+    template<unsigned int N>
+    void getErrorMatrix(ROOT::Math::SMatrix<double, N, N, ROOT::Math::MatRepSym<double, N> > & err) {
+      init();
+      assert(N == numberOfParameters());
+      double * e = new double[N*N];
+      minuit_->mnemat(e, numberOfParameters());
+      for(size_t i = 0; i < N; ++i) {
+	for(size_t j = 0; j <= i; ++j) {
+	  err(i, j) = e[i + N*j];
+	}
+      }
+      delete [] e;
+    }
     void fixParameter(const std::string & name) {
       size_t i = parameterIndex(name);
       parMap_[i].second.fixed = true;
@@ -93,6 +107,10 @@ namespace fit {
 	    << " value = " << par.val << " error = " << par.err
 	    << " range = [" << par.min << ", " << par.max << "]\n";
       }
+    }
+    int numberOfParameters() { 
+      init();
+      return minuit_->GetNumPars();
     }
     int numberOfFreeParameters() { 
       init();

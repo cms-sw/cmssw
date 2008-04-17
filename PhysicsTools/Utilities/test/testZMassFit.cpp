@@ -54,6 +54,15 @@ int main() {
     commands.add(minuit, mass);
     commands.add(minuit, gamma);
     commands.run(minuit);
+    ROOT::Math::SMatrix<double, 3, 3, ROOT::Math::MatRepSym<double, 3> > err;
+    minuit.getErrorMatrix(err);
+    std::cout << "error matrix:" << std::endl;
+    for(size_t i = 0; i < 3; ++i) {
+      for(size_t j = 0; j < 3; ++j) {
+	std::cout << err(i, j) << "\t";
+      }
+      std::cout << std::endl;
+    } 
     root::plot<FitFunction>("breitWignerHistoFunFit.eps", histo, f, 80, 120, yield, mass, gamma);
   } catch(std::exception & err){
     std::cerr << "Exception caught:\n" << err.what() << std::endl;
