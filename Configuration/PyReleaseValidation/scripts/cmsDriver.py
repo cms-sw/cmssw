@@ -342,8 +342,7 @@ if options.dump_python:
     python_config_filename=trimmedEvtType+"_"+\
                               options.energy+\
                               "_"+trimmedStep
-    python_config_filename=options.fileout.replace(',','_')
-    python_config_filename.fileout=options.fileout.replace('.','_')
+    python_config_filename=options.fileout.replace(',','_').replace('.','_')
     if options.PU_flag:
         python_config_filename+="_PU"
     if options.analysis_flag:
@@ -355,8 +354,7 @@ if options.dump_cfg:
     cfg_config_filename=trimmedEvtType+"_"+\
                               options.energy+\
                               "_"+trimmedStep
-    cfg_config_filename=options.fileout.replace(',','_')
-    cfg_config_filename.fileout=options.fileout.replace('.','_')
+    cfg_config_filename=options.fileout.replace(',','_').replace('.','_')
     if options.PU_flag:
         cfg_config_filename+="_PU"
     if options.analysis_flag:
