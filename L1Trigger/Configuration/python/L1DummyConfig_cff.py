@@ -16,8 +16,10 @@ from L1TriggerConfig.L1CSCTPConfigProducers.L1CSCTriggerPrimitivesConfig_cff imp
 from L1TriggerConfig.CSCTFConfigProducers.L1CSCTFConfig_cff import *
 from L1TriggerConfig.RPCTriggerConfig.RPCPatSource_cfi import *
 from L1TriggerConfig.RPCTriggerConfig.RPCConeSource_cfi import *
+from L1TriggerConfig.RPCTriggerConfig.RPCHwConfigSource_cfi import *
 from L1TriggerConfig.GMTConfigProducers.L1MuGMTParametersConfig_cff import *
 from L1TriggerConfig.L1ScalesProducers.L1MuTriggerScalesConfig_cff import *
+from L1TriggerConfig.L1ScalesProducers.L1MuTriggerPtScaleConfig_cff import *
 from L1TriggerConfig.L1ScalesProducers.L1MuGMTScalesConfig_cff import *
 # L1 GT configuration - not available yet
 from L1TriggerConfig.L1GtConfigProducers.L1GtConfig_cff import *
