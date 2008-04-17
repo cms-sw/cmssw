@@ -14,6 +14,21 @@ L1SubsystemParams = cms.PSet(
         type = cms.string('L1CaloEtScale'),
         key = cms.string('dummy')
     ), cms.PSet(
+        record = cms.string('L1MuTriggerScalesRcd'),
+        tag = cms.string('L1MuTriggerScalesStandard'),
+        type = cms.string('L1MuTriggerScales'),
+        key = cms.string('dummy')
+    ), cms.PSet(
+        record = cms.string('L1MuTriggerPtScaleRcd'),
+        tag = cms.string('L1MuTriggerPtScaleStandard'),
+        type = cms.string('L1MuTriggerPtScale'),
+        key = cms.string('dummy')
+    ), cms.PSet(
+        record = cms.string('L1MuGMTScalesRcd'),
+        tag = cms.string('L1MuGMTScalesStandard'),
+        type = cms.string('L1MuGMTScales'),
+        key = cms.string('dummy')
+    ), cms.PSet(
         record = cms.string('L1CSCTPParametersRcd'),
         tag = cms.string('L1CSCTPParametersStandard'),
         type = cms.string('L1CSCTPParameters'),
@@ -97,6 +112,11 @@ L1SubsystemParams = cms.PSet(
         record = cms.string('L1GtTriggerMaskRcd'),
         tag = cms.string('L1GtTriggerMaskStandard'),
         type = cms.string('L1GtTriggerMask'),
+        key = cms.string('dummy')
+    ), cms.PSet(
+        record = cms.string('L1CaloGeometryRecord'),
+        tag = cms.string('L1CaloGeometryStandard'),
+        type = cms.string('L1CaloGeometry'),
         key = cms.string('dummy')
     ))
 )
