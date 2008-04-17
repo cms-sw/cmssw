@@ -190,7 +190,7 @@ void EnergyLossPlain::process
 
   // Collect adc
   double Delta = 0;
-  for(vector<uint16_t>::const_iterator
+  for(vector<uint8_t>::const_iterator
     i = (recHit->cluster()->amplitudes()).begin();
     i!= (recHit->cluster()->amplitudes()).end(); i++)
   {
