@@ -83,6 +83,21 @@
 <!--  <class name="edm::ValueMap<reco::JetTagRef>" /> -->
 <!--  <class name="edm::Wrapper<edm::ValueMap<reco::JetTagRef> >" /> -->
 
+
+
+
+  <class name="std::vector<edm::Ref<std::vector<reco::SecondaryVertexTagInfo>,reco::SecondaryVertexTagInfo,edm::refhelper::FindUs ingAdvance<std::vector<reco::SecondaryVertexTagInfo>,reco::SecondaryVertexTagInfo> > >" />
+
+  <class name="std::vector<edm::Ref<std::vector<reco::SoftLeptonTagInfo>,reco::SoftLeptonTagInfo,edm::refhelper::FindUsingAdvance <std::vector<reco::SoftLeptonTagInfo>,reco::SoftLeptonTagInfo> > >" />
+
+  <class name="std::vector<edm::Ref<std::vector<reco::TrackIPTagInfo>,reco::TrackIPTagInfo,edm::refhelper::FindUsingAdvance<std:: vector<reco::TrackIPTagInfo>,reco::TrackIPTagInfo> > >" />
+
+  <class name="std::vector<std::pair<pat::IsolationKeys,reco::IsoDeposit> >" />
+
+
+  <class name="std::pair<pat::IsolationKeys,reco::IsoDeposit>" />
+
+
   <class name="edm::Association<reco::GenJetCollection>" />
   <class name="edm::Wrapper<edm::Association<reco::GenJetCollection> >" />
 

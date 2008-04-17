@@ -178,5 +178,21 @@ namespace {
     edm::reftobase::Holder<pat::ParticleType, pat::ParticleTypeRef> rbh1Particle;
     edm::reftobase::Holder<pat::ParticleType, pat::ParticleRef>     rbh2Particle;
     edm::reftobase::RefHolder<pat::ParticleRef> rhParticle;
+    
+   
+   
+    std::vector<edm::Ref<std::vector<reco::SecondaryVertexTagInfo>,reco::SecondaryVertexTagInfo,edm::refhelper::FindUsingAdvance<std::vector<reco::SecondaryVertexTagInfo>,reco::SecondaryVertexTagInfo> > > rbh1btag ;
+    std::vector<edm::Ref<std::vector<reco::SoftLeptonTagInfo>,reco::SoftLeptonTagInfo,edm::refhelper::FindUsingAdvance<std::vector<reco::SoftLeptonTagInfo>,reco::SoftLeptonTagInfo> > > rbh2btag; 
+
+    std::vector<edm::Ref<std::vector<reco::TrackIPTagInfo>,reco::TrackIPTagInfo,edm::refhelper::FindUsingAdvance<std:: vector<reco::TrackIPTagInfo>,reco::TrackIPTagInfo> > > rbh3btag;
+    std::vector<std::pair<pat::IsolationKeys,reco::IsoDeposit> > rbh4btag;
+
+    
+    
+    std::pair<pat::IsolationKeys,reco::IsoDeposit> rbh4unknown;
+
+    
+    
+    
   }
 }
