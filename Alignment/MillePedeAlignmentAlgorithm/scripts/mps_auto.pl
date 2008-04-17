@@ -1,8 +1,8 @@
 #!/usr/local/bin/perl
 #     R. Mankel, DESY Hamburg     17-Oct-2007
-#     A. Parenti, DESY Hamburg    27-Mar-2008
-#     $Revision: 1.14 $
-#     $Date: 2008/03/25 16:15:57 $
+#     A. Parenti, DESY Hamburg    16-Apr-2008
+#     $Revision: 1.1 $
+#     $Date: 2008/04/10 16:10:11 $
 #
 #  Try periodically to fire merge job.
 #  Terminate when done
@@ -10,7 +10,10 @@
 #  Usage: mps_auto.pl seconds
 #
 
-use lib './mpslib';
+BEGIN {
+use File::Basename;
+unshift(@INC, dirname($0)."/mpslib");
+}
 use Mpslib;
 
 $seconds = 60;
@@ -41,8 +44,6 @@ if ($seconds <20) {
   $seconds = 20;
 }
 
-$sdir = get_sdir();
-
 $done = 0;
 
 while ($done == 0) {
@@ -54,8 +55,8 @@ while ($done == 0) {
 	break;
     }
     else {
-	print "$sdir/mps_fire.pl -m\n";
-	#system "$sdir/mps_fire.pl -m";
+	print "mps_fire.pl -m\n";
+	#system "mps_fire.pl -m";
 	print "sleep $seconds\n";
 	system "sleep $seconds";
     }

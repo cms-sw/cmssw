@@ -1,8 +1,8 @@
 #!/usr/local/bin/perl
 #     R. Mankel, DESY Hamburg     28-Nov-2007
-#     A. Parenti, DESY Hamburg    27-Mar-2008
-#     $Revision: 1.14 $
-#     $Date: 2008/03/25 16:15:57 $
+#     A. Parenti, DESY Hamburg    16-Apr-2008
+#     $Revision: 1.1 $
+#     $Date: 2008/04/10 16:10:12 $
 #
 #  Display local mps database
 #
@@ -11,15 +11,13 @@
 #
 #
 
-use lib './mpslib';
+BEGIN {
+use File::Basename;
+unshift(@INC, dirname($0)."/mpslib");
+}
 use Mpslib;
 
-$sdir = get_sdir();
-if ($sdir eq ".") {
-  print "Error from mps_stat.pl: configuration file not found or unreadable\n";
-  exit;
-}
-system "$sdir/mps_update.pl >| /dev/null";
+system "mps_update.pl >| /dev/null";
 read_db();
 print_memdb();
 

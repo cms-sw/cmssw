@@ -53,7 +53,6 @@ package Mpslib;  # assumes Some/Module.pm
                     write_db
                     read_db 
                     print_memdb
-		    get_sdir
 		    get_class
 		    @JOBID
 		    $header 
@@ -216,11 +215,6 @@ sub print_memdb() {
   printf "                       Event total: %10d\n",$totEvt;
   printf "                         CPU total: %10.1f s\n",$totCpu;
   printf "                    Mean CPU/event: %10.3f s\n",$meanCpuPerEvt;
-}
-
-sub get_sdir() {
-  # we no longer read this from mps.conf
-    $theSdir = ".";
 }
 
 sub get_class {

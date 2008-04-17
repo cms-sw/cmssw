@@ -1,8 +1,8 @@
 #!/usr/local/bin/perl
 #     R. Mankel, DESY Hamburg     16-Jul-2007
-#     A. Parenti, DESY Hamburg    27-Mar-2008
-#     $Revision: 1.14 $
-#     $Date: 2008/03/25 16:15:57 $
+#     A. Parenti, DESY Hamburg    16-Apr-2008
+#     $Revision: 1.1 $
+#     $Date: 2008/04/10 16:10:12 $
 #
 #  Kill all jobs being processed by ZARAH,
 #  i.e. those pending, running or suspended.
@@ -17,7 +17,10 @@
 #      mps_kill.pl
 #
 
-use lib './mpslib';
+BEGIN {
+use File::Basename;
+unshift(@INC, dirname($0)."/mpslib");
+}
 use Mpslib;
 
 @MODSTATES = ();
@@ -100,6 +103,7 @@ if ($killMerge eq 1) {
 	    $theNum = $i + 1;
 	    $jobText = "^$theNum\$";
 	    if ( ( (grep /$stateText/,@MODSTATES) > 0) || (grep /$jobText/,@MODJOBS) > 0) {
+
 		print "bkill @JOBID[$i]\n";
 		system "bkill @JOBID[$i]";
 		@JOBSTATUS[$i] = "FAIL";

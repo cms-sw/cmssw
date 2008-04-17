@@ -1,8 +1,8 @@
 #!/usr/local/bin/perl
 #     R. Mankel, DESY Hamburg     09-Jul-2007
-#     A. Parenti, DESY Hamburg    27-Mar-2008
-#     $Revision: 1.14 $
-#     $Date: 2008/03/25 16:15:57 $
+#     A. Parenti, DESY Hamburg    17-Apr-2008
+#     $Revision: 1.1 $
+#     $Date: 2008/04/10 16:10:11 $
 #
 #  Check output from jobs that have FETCH status
 #  
@@ -10,7 +10,10 @@
 #  Usage:
 #
 
-use lib './mpslib';
+BEGIN {
+use File::Basename;
+unshift(@INC, dirname($0)."/mpslib");
+}
 use Mpslib;
 
 read_db();
@@ -33,6 +36,7 @@ for ($i=0; $i<@JOBID; ++$i) {
   $pedeAbend = 0;
   $exceptionCaught = 0;
   $timeout = 0;
+  $cfgerr = 0;
 
   $remark = "";
 
@@ -51,7 +55,8 @@ for ($i=0; $i<@JOBID; ++$i) {
 	$ncuFactor = 3;
 	$cputime = $1 / $ncuFactor;
 	# print "Set cpu to $cputime\n";
-    }
+      }
+      if (($line =~ m/ConfigFileReadError/) eq 1)  { $cfgerr = 1; }
 
     }
     close STDFILE;
@@ -162,6 +167,11 @@ for ($i=0; $i<@JOBID; ++$i) {
     if ($timeout eq 1) {
 	print "@JOBDIR[$i] @JOBID[$i] had connection timed out problem\n";
         $remark = "connection timed out";
+    }
+    if ($cfgerr eq 1) {
+      print "@JOBDIR[$i] @JOBID[$i] had config file error\n";
+      $remark = "cfg file error";
+      $okStatus = "FAIL";
     }
     if ($killed eq 1) {
       print "@JOBDIR[$i] @JOBID[$i] Job Killed (probably time exceeded)\n";

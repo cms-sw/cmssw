@@ -1,8 +1,8 @@
 #!/usr/local/bin/perl
-#     R. Mankel, DESY Hamburg     3-Jul-2007
-#     A. Parenti, DESY Hamburg    27-Mar-2008
-#     $Revision: 1.1 $
-#     $Date: 2008/04/10 16:10:12 $
+#     R. Mankel, DESY Hamburg      3-Jul-2007
+#     A. Parenti, DESY Hamburg    16-Apr-2008
+#     $Revision: 1.2 $
+#     $Date: 2008/04/14 19:19:47 $
 #
 #  Submit jobs that are setup in local mps database
 #  
@@ -11,7 +11,10 @@
 #
 #  mps_fire.pl [-m] [maxjobs]
 
-use lib './mpslib';
+BEGIN {
+use File::Basename;
+unshift(@INC, dirname($0)."/mpslib");
+}
 use Mpslib;
 
 $maxJobs = 1;  # by default, fire one job only

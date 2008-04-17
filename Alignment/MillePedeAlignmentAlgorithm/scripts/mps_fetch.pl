@@ -1,8 +1,8 @@
 #!/usr/local/bin/perl
 #     R. Mankel, DESY Hamburg     07-Jul-2007
-#     A. Parenti, DESY Hamburg    27-Mar-2008
-#     $Revision: 1.14 $
-#     $Date: 2008/03/25 16:15:57 $
+#     A. Parenti, DESY Hamburg    16-Apr-2008
+#     $Revision: 1.1 $
+#     $Date: 2008/04/10 16:10:12 $
 #
 #  Fetch jobs that have DONE status
 #  This step is mainly foreseen in case job result files need 
@@ -15,10 +15,11 @@
 #  Usage:
 #
 
-use lib './mpslib';
+BEGIN {
+use File::Basename;
+unshift(@INC, dirname($0)."/mpslib");
+}
 use Mpslib;
-
-$sdir = get_sdir();
 
 $nJobs = 0;
 read_db();
@@ -39,4 +40,4 @@ for ($i=0; $i<@JOBID; ++$i) {
 }
 write_db();
 
-system "$sdir/mps_check.pl";
+system "mps_check.pl";

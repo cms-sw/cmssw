@@ -1,8 +1,8 @@
 #!/usr/local/bin/perl
 #     R. Mankel, DESY Hamburg     11-Oct-2007
-#     A. Parenti, DESY Hamburg    27-Mar-2008
-#     $Revision: 1.1 $
-#     $Date: 2008/04/10 16:10:12 $
+#     A. Parenti, DESY Hamburg    16-Apr-2008
+#     $Revision: 1.2 $
+#     $Date: 2008/04/15 18:01:00 $
 #
 #  Save output from jobs that have FETCH status
 #  
@@ -10,7 +10,10 @@
 #  Usage: mps_save.pl saveDir
 #
 
-use lib './mpslib';
+BEGIN {
+use File::Basename;
+unshift(@INC, dirname($0)."/mpslib");
+}
 use Mpslib;
 
 $saveDir = "undefined";

@@ -1,8 +1,8 @@
 #!/usr/local/bin/perl
 #     R. Mankel, DESY Hamburg     10-Jul-2007
-#     A. Parenti, DESY Hamburg    27-Mar-2008
-#     $Revision: 1.1 $
-#     $Date: 2008/04/10 16:10:12 $
+#     A. Parenti, DESY Hamburg    16-Apr-2008
+#     $Revision: 1.2 $
+#     $Date: 2008/04/14 19:16:42 $
 #
 #  Re-Setup failed jobs for resubmission
 #  
@@ -12,10 +12,11 @@
 #  mps_retry.pl [job sequence numbers | jobstates]
 #
 
-use lib './mpslib';
+BEGIN {
+use File::Basename;
+unshift(@INC, dirname($0)."/mpslib");
+}
 use Mpslib;
-
-$sdir = get_sdir();
 
 @MODSTATES = ();
 @MODJOBS = ();
@@ -119,13 +120,13 @@ sub reSchedule() {
     $theJobData = "$thePwd/jobData";
     $theJobDir = sprintf "job%03d",$_[0]+1;
     $theIsn = sprintf "%03d",$i;
-    print "$sdir/mps_split.pl $infiList $i $nJobs >jobData/$theJobDir/theSplit\n";
-    system "$sdir/mps_split.pl $infiList $i $nJobs >jobData/$theJobDir/theSplit";
-    print "$sdir/mps_splice.pl $cfgTemplate jobData/$theJobDir/theSplit jobData/$theJobDir/the.cfg $theIsn\n";
-    system "$sdir/mps_splice.pl $cfgTemplate jobData/$theJobDir/theSplit jobData/$theJobDir/the.cfg $theIsn";
+    print "mps_split.pl $infiList $i $nJobs >jobData/$theJobDir/theSplit\n";
+    system "mps_split.pl $infiList $i $nJobs >jobData/$theJobDir/theSplit";
+    print "mps_splice.pl $cfgTemplate jobData/$theJobDir/theSplit jobData/$theJobDir/the.cfg $theIsn\n";
+    system "mps_splice.pl $cfgTemplate jobData/$theJobDir/theSplit jobData/$theJobDir/the.cfg $theIsn";
     # create the run script
-    print "$sdir/mps_script.pl $batchScript  jobData/$theJobDir/theScript.sh $theJobData/$theJobDir the.cfg jobData/$theJobDir/theSplit $theIsn\n";
-    system "$sdir/mps_script.pl $batchScript  jobData/$theJobDir/theScript.sh $theJobData/$theJobDir the.cfg jobData/$theJobDir/theSplit $theIsn";
+    print "mps_script.pl $batchScript  jobData/$theJobDir/theScript.sh $theJobData/$theJobDir the.cfg jobData/$theJobDir/theSplit $theIsn\n";
+    system "mps_script.pl $batchScript  jobData/$theJobDir/theScript.sh $theJobData/$theJobDir the.cfg jobData/$theJobDir/theSplit $theIsn";
   }
   print "ReSchedule @JOBDIR[$_[0]]\n";
 }
@@ -142,11 +143,11 @@ sub reScheduleM() {
     $theJobData = "$thePwd/jobData";
     $theJobDir = "jobm";
     $batchScriptMerge = $batchScript . "merge";
-    print "$sdir/mps_merge.pl $cfgTemplate jobData/jobm/alignment_merge.cfg $theJobData/jobm $nJobs\n";
-    system "$sdir/mps_merge.pl $cfgTemplate jobData/jobm/alignment_merge.cfg $theJobData/jobm $nJobs";
+    print "mps_merge.pl $cfgTemplate jobData/jobm/alignment_merge.cfg $theJobData/jobm $nJobs\n";
+    system "mps_merge.pl $cfgTemplate jobData/jobm/alignment_merge.cfg $theJobData/jobm $nJobs";
     # create the merge job script
-    print "$sdir/mps_scriptm.pl $batchScriptMerge jobData/jobm/theScript.sh $theJobData/jobm alignment_merge.cfg $nJobs\n";
-    system "$sdir/mps_scriptm.pl $batchScriptMerge jobData/jobm/theScript.sh $theJobData/jobm alignment_merge.cfg $nJobs";
+    print "mps_scriptm.pl $batchScriptMerge jobData/jobm/theScript.sh $theJobData/jobm alignment_merge.cfg $nJobs\n";
+    system "mps_scriptm.pl $batchScriptMerge jobData/jobm/theScript.sh $theJobData/jobm alignment_merge.cfg $nJobs";
   }
   print "ReSchedule @JOBDIR[$_[0]]\n";
 }

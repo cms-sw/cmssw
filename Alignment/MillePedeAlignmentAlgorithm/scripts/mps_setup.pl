@@ -1,8 +1,8 @@
 #!/usr/local/bin/perl
 #     R. Mankel, DESY Hamburg     08-Oct-2007
-#     A. Parenti, DESY Hamburg    29-Mar-2008
-#     $Revision: 1.1 $
-#     $Date: 2008/04/10 16:10:12 $
+#     A. Parenti, DESY Hamburg    16-Apr-2008
+#     $Revision: 1.2 $
+#     $Date: 2008/04/14 19:19:47 $
 #
 #  Setup local mps database
 #  
@@ -16,7 +16,10 @@
 # If class contains a ':', it will be split: The part before the ':' will be used for mille jobs,
 #                                            the part behind it for the merging pede job
 
-use lib './mpslib';
+BEGIN {
+use File::Basename;
+unshift(@INC, dirname($0)."/mpslib");
+}
 use Mpslib;
 
 $batchScript = "undefined";
@@ -130,8 +133,6 @@ if ($mssDir ne "") {
   }
 }
 
-$sdir = get_sdir();
-
 # Create the job directories
 my $nJobExist="";
 if ($append==1 && -d "jobData") {
@@ -209,18 +210,18 @@ for ($j = 1; $j <= $nJobs; ++$j) {
   push @JOBSP2,"";
   push @JOBSP3,"";
   # create the split card files
-  print "$sdir/mps_split.pl $infiList $j $nJobs >jobData/$theJobDir/theSplit\n";
-  system "$sdir/mps_split.pl $infiList $j $nJobs >jobData/$theJobDir/theSplit";
+  print "mps_split.pl $infiList $j $nJobs >jobData/$theJobDir/theSplit\n";
+  system "mps_split.pl $infiList $j $nJobs >jobData/$theJobDir/theSplit";
   if ($?) {
     print "              split failed\n";
     @JOBSTATUS[$i-1] = "FAIL";
   }
   $theIsn = sprintf "%03d",$i;
-  print "$sdir/mps_splice.pl $cfgTemplate jobData/$theJobDir/theSplit jobData/$theJobDir/the.cfg $theIsn\n";
-  system "$sdir/mps_splice.pl $cfgTemplate jobData/$theJobDir/theSplit jobData/$theJobDir/the.cfg $theIsn";
+  print "mps_splice.pl $cfgTemplate jobData/$theJobDir/theSplit jobData/$theJobDir/the.cfg $theIsn\n";
+  system "mps_splice.pl $cfgTemplate jobData/$theJobDir/theSplit jobData/$theJobDir/the.cfg $theIsn";
   # create the run script
-  print "$sdir/mps_script.pl $batchScript  jobData/$theJobDir/theScript.sh $theJobData/$theJobDir the.cfg jobData/$theJobDir/theSplit $theIsn $mssDir\n";
-  system "$sdir/mps_script.pl $batchScript  jobData/$theJobDir/theScript.sh $theJobData/$theJobDir the.cfg jobData/$theJobDir/theSplit $theIsn $mssDir";
+  print "mps_script.pl $batchScript  jobData/$theJobDir/theScript.sh $theJobData/$theJobDir the.cfg jobData/$theJobDir/theSplit $theIsn $mssDir\n";
+  system "mps_script.pl $batchScript  jobData/$theJobDir/theScript.sh $theJobData/$theJobDir the.cfg jobData/$theJobDir/theSplit $theIsn $mssDir";
 }
 
 # create the merge job entry. This is always done. Whether it is used depends on the "merge" option.
@@ -249,12 +250,12 @@ if ($driver eq "merge") {
   my $nJobsMerge = $nJobs+$nJobExist;
 
   # create  merge job cfg
-  print "$sdir/mps_merge.pl $cfgTemplate jobData/jobm/alignment_merge.cfg $theJobData/jobm $nJobsMerge\n";
-  system "$sdir/mps_merge.pl $cfgTemplate jobData/jobm/alignment_merge.cfg $theJobData/jobm $nJobsMerge";
+  print "mps_merge.pl $cfgTemplate jobData/jobm/alignment_merge.cfg $theJobData/jobm $nJobsMerge\n";
+  system "mps_merge.pl $cfgTemplate jobData/jobm/alignment_merge.cfg $theJobData/jobm $nJobsMerge";
 
   # create merge job script
-  print "$sdir/mps_scriptm.pl $mergeScript jobData/jobm/theScript.sh $theJobData/jobm alignment_merge.cfg $nJobsMerge $mssDir\n";
-  system "$sdir/mps_scriptm.pl $mergeScript jobData/jobm/theScript.sh $theJobData/jobm alignment_merge.cfg $nJobsMerge $mssDir";
+  print "mps_scriptm.pl $mergeScript jobData/jobm/theScript.sh $theJobData/jobm alignment_merge.cfg $nJobsMerge $mssDir\n";
+  system "mps_scriptm.pl $mergeScript jobData/jobm/theScript.sh $theJobData/jobm alignment_merge.cfg $nJobsMerge $mssDir";
 }
 
 write_db();
