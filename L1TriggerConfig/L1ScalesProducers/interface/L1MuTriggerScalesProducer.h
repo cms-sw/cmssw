@@ -4,8 +4,8 @@
 //
 //   Description:  A class to produce the L1 mu emulator scales record in the event setup
 //
-//   $Date: $
-//   $Revision: $
+//   $Date: 2007/03/23 15:43:00 $
+//   $Revision: 1.1 $
 //
 //   Author :
 //   I. Mikulec
@@ -43,7 +43,7 @@ public:
 private:
   // ----------member data ---------------------------
   
-  
+  L1MuTriggerScales m_scales ;
 };
 
 #endif

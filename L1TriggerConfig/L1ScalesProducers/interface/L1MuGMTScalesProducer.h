@@ -4,8 +4,8 @@
 //
 //   Description:  A class to produce the L1 GMT emulator scales record in the event setup
 //
-//   $Date: $
-//   $Revision: $
+//   $Date: 2007/03/23 15:42:57 $
+//   $Revision: 1.1 $
 //
 //   Author :
 //   I. Mikulec
@@ -43,7 +43,7 @@ public:
 private:
   // ----------member data ---------------------------
   
-  
+  L1MuGMTScales m_scales ;
 };
 
 #endif

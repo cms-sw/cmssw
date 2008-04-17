@@ -5,6 +5,8 @@
 
 #include "CondFormats/L1TObjects/interface/L1MuTriggerScales.h"
 #include "CondFormats/DataRecord/interface/L1MuTriggerScalesRcd.h"
+#include "CondFormats/L1TObjects/interface/L1MuTriggerPtScale.h"
+#include "CondFormats/DataRecord/interface/L1MuTriggerPtScaleRcd.h"
 #include "CondFormats/L1TObjects/interface/L1MuGMTScales.h"
 #include "CondFormats/DataRecord/interface/L1MuGMTScalesRcd.h"
 
@@ -26,8 +28,11 @@ void L1MuScalesTester::analyze(const edm::Event& e, const edm::EventSetup& es) {
   ESHandle< L1MuTriggerScales > l1muscales ;
   es.get< L1MuTriggerScalesRcd >().get( l1muscales ) ;
 
+  ESHandle< L1MuTriggerPtScale > l1muptscale ;
+  es.get< L1MuTriggerPtScaleRcd >().get( l1muptscale ) ;
+
   cout << "**** L1 Mu Pt Scale print *****************************************" << endl;
-  printScale(l1muscales->getPtScale());
+  printScale(l1muptscale->getPtScale());
 
   cout << "**** L1 Mu Phi Scale print *****************************************" << endl;
   printScale(l1muscales->getPhiScale());
@@ -65,14 +70,14 @@ void L1MuScalesTester::analyze(const edm::Event& e, const edm::EventSetup& es) {
 
   }
 
-  cout << "**** L1 GMT calo eta Scale print *************************************" << endl;
-  printScale(l1gmtscales->getCaloEtaScale());
+//   cout << "**** L1 GMT calo eta Scale print *************************************" << endl;
+//   printScale(l1gmtscales->getCaloEtaScale());
 
 
 
 }
 
-void L1MuScalesTester::printScale(L1MuScale* l1muscale) {
+void L1MuScalesTester::printScale(const L1MuScale* l1muscale) {
 
 
   cout << l1muscale->print();
