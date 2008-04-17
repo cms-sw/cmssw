@@ -5,6 +5,8 @@
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
 #include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
+#include "RecoEgamma/EgammaIsolationAlgos/interface/PhotonTkIsolation.h"
+#include "RecoEgamma/EgammaIsolationAlgos/interface/EgammaEcalIsolation.h"
 #include <string>
 #include <TMath.h>
 
@@ -76,6 +78,10 @@ void PhotonIDAlgo::calculateTrackIso(const reco::Photon* photon,
 				     double pTThresh,
 				     double RCone,
 				     double RinnerCone){
+
+  
+
+
   //Track isolation calculator goes here.
   //Not my code, I stole it from:
   //RecoEgamma/EgammaIsolationAlgos/src/ElectronTkIsolation.
@@ -87,38 +93,42 @@ void PhotonIDAlgo::calculateTrackIso(const reco::Photon* photon,
   int counter  =0;
   double ptSum =0.;
   
-  //Photon Eta and Phi.  Hope these are correct.
-  double peta = photon->p4().Eta();
-  double pphi = photon->p4().Phi();
-  
+
   //get the tracks
   edm::Handle<reco::TrackCollection> tracks;
   e.getByLabel(trackInputTag_,tracks);
   const reco::TrackCollection* trackCollection = tracks.product();
-  
-  for ( reco::TrackCollection::const_iterator itrTr  = (*trackCollection).begin(); 
-	itrTr != (*trackCollection).end(); 
-	++itrTr){
-    math::XYZVector tmpTrackMomentumAtVtx = (*itrTr).momentum(); 
-    double this_pt  = (*itrTr).pt();
-    if ( this_pt < pTThresh ) 
-      continue;  
+  //Photon Eta and Phi.  Hope these are correct.
+  double peta = photon->p4().Eta();
+  double pphi = photon->p4().Phi();
+
+  PhotonTkIsolation *phoIso = new PhotonTkIsolation(RCone, RinnerCone, pTThresh, 999., trackCollection);
+  counter = phoIso->getNumberTracks(photon);
+  ptSum = phoIso->getPtTracks(photon);
+  delete phoIso;
+//   for ( reco::TrackCollection::const_iterator itrTr  = (*trackCollection).begin(); 
+// 	itrTr != (*trackCollection).end(); 
+// 	++itrTr){
+//     math::XYZVector tmpTrackMomentumAtVtx = (*itrTr).momentum(); 
+//     double this_pt  = (*itrTr).pt();
+//     if ( this_pt < pTThresh ) 
+//       continue;  
     
-    //This is vertex checking, I'll need to substitute PV somehow...
-    //	if (fabs( (*itrTr).dz() - (*tmpTrack).dz() ) > lip_ )
-    //  continue ;
-    double trEta = (*itrTr).eta();
-    double trPhi = (*itrTr).phi();
-    double deta2 = (trEta-peta)*(trEta-peta);
-    double dphi = fabs(trPhi-pphi);
-    if (dphi > TMath::Pi()) dphi = TMath::Pi()*2 - dphi;
-    double dphi2 = dphi*dphi;
-    double dr = sqrt(deta2 + dphi2);
-    if ( dr < RCone && dr > RinnerCone){
-      ++counter;
-      ptSum += this_pt;
-    }//In cone? 
-  }//end loop over tracks                 
+//     //This is vertex checking, I'll need to substitute PV somehow...
+//     //	if (fabs( (*itrTr).dz() - (*tmpTrack).dz() ) > lip_ )
+//     //  continue ;
+//     double trEta = (*itrTr).eta();
+//     double trPhi = (*itrTr).phi();
+//     double deta2 = (trEta-peta)*(trEta-peta);
+//     double dphi = fabs(trPhi-pphi);
+//     if (dphi > TMath::Pi()) dphi = TMath::Pi()*2 - dphi;
+//     double dphi2 = dphi*dphi;
+//     double dr = sqrt(deta2 + dphi2);
+//     if ( dr < RCone && dr > RinnerCone){
+//       ++counter;
+//       ptSum += this_pt;
+//     }//In cone? 
+//   }//end loop over tracks                 
   ntrkCone = counter;
   trkCone = ptSum;
 }
@@ -154,107 +164,110 @@ double PhotonIDAlgo::calculateBasicClusterIso(const reco::Photon* photon,
   const reco::SuperClusterCollection* islandSuperClusterCollection_ = superIslandClusterH.product();
 
   double ecalIsol=0.;
-  //Get MY supercluster position
-  reco::SuperClusterRef sc = photon->superCluster();
-  math::XYZVector position(sc.get()->position().x(),
-			   sc.get()->position().y(),
-			   sc.get()->position().z());
+  EgammaEcalIsolation *phoIso = new EgammaEcalIsolation(RCone,etMin, basicClusterCollection_, islandSuperClusterCollection_);
+  ecalIsol = phoIso->getEcalEtSum(photon);
+  delete phoIso;
+//   //Get MY supercluster position
+//   reco::SuperClusterRef sc = photon->superCluster();
+//   math::XYZVector position(sc.get()->position().x(),
+// 			   sc.get()->position().y(),
+// 			   sc.get()->position().z());
   
-  // match the photon hybrid supercluster with those with Algo==0 (island)
-  //Since this code doesn't use the merged collections, the Algo checking doesn't do anything.  I've
-  //left it here since it is harmless:  all clusters should pass requirement, since I specifically got
-  //those collections. ---A. A.
+//   // match the photon hybrid supercluster with those with Algo==0 (island)
+//   //Since this code doesn't use the merged collections, the Algo checking doesn't do anything.  I've
+//   //left it here since it is harmless:  all clusters should pass requirement, since I specifically got
+//   //those collections. ---A. A.
 
-  double delta1=1000.;
-  const reco::SuperCluster *matchedsupercluster=0;
-  bool MATCHEDSC = false;
+//   double delta1=1000.;
+//   const reco::SuperCluster *matchedsupercluster=0;
+//   bool MATCHEDSC = false;
   
-  for(reco::SuperClusterCollection::const_iterator scItr = islandSuperClusterCollection_->begin(); scItr != islandSuperClusterCollection_->end(); ++scItr){
+//   for(reco::SuperClusterCollection::const_iterator scItr = islandSuperClusterCollection_->begin(); scItr != islandSuperClusterCollection_->end(); ++scItr){
      
-    const reco::SuperCluster *supercluster = &(*scItr);
+//     const reco::SuperCluster *supercluster = &(*scItr);
     
-    math::XYZVector currentPosition(supercluster->position().x(),
-				    supercluster->position().y(),
-				    supercluster->position().z());
+//     math::XYZVector currentPosition(supercluster->position().x(),
+// 				    supercluster->position().y(),
+// 				    supercluster->position().z());
   
      
-    if(supercluster->seed()->algo() == 0){    
-      double trEta = currentPosition.eta();
-      double trPhi = currentPosition.phi();
-      double peta = position.eta();
-      double pphi = position.phi();
-      double deta2 = (trEta-peta)*(trEta-peta);
-      double dphi = fabs(trPhi-pphi);
-      if (dphi > TMath::Pi()) dphi = TMath::Pi()*2 - dphi;
-      double dphi2 = dphi*dphi;
-      double dr = sqrt(deta2 + dphi2);
-      if (dr < delta1) {
-	delta1=dr;
-	matchedsupercluster = supercluster;
-	MATCHEDSC = true;
-      }
-    }
-  }
+//     if(supercluster->seed()->algo() == 0){    
+//       double trEta = currentPosition.eta();
+//       double trPhi = currentPosition.phi();
+//       double peta = position.eta();
+//       double pphi = position.phi();
+//       double deta2 = (trEta-peta)*(trEta-peta);
+//       double dphi = fabs(trPhi-pphi);
+//       if (dphi > TMath::Pi()) dphi = TMath::Pi()*2 - dphi;
+//       double dphi2 = dphi*dphi;
+//       double dr = sqrt(deta2 + dphi2);
+//       if (dr < delta1) {
+// 	delta1=dr;
+// 	matchedsupercluster = supercluster;
+// 	MATCHEDSC = true;
+//       }
+//     }
+//   }
  
 
-  //Okay, now I've made the association between my HybridSupercluster and an IslandSuperCluster.
-  const reco::BasicCluster *cluster= 0;
+//   //Okay, now I've made the association between my HybridSupercluster and an IslandSuperCluster.
+//   const reco::BasicCluster *cluster= 0;
   
-  //loop over basic clusters
-  for(reco::BasicClusterCollection::const_iterator cItr = basicClusterCollection_->begin(); cItr != basicClusterCollection_->end(); ++cItr){
+//   //loop over basic clusters
+//   for(reco::BasicClusterCollection::const_iterator cItr = basicClusterCollection_->begin(); cItr != basicClusterCollection_->end(); ++cItr){
     
-    cluster = &(*cItr);
-    double ebc_bcchi2 = cluster->chi2();
-    int   ebc_bcalgo = cluster->algo();
-    double ebc_bce    = cluster->energy();
-    double ebc_bceta  = cluster->eta();
-    double ebc_bcet   = ebc_bce*sin(2*atan(exp(ebc_bceta)));
-    double newDelta = 0.;
+//     cluster = &(*cItr);
+//     double ebc_bcchi2 = cluster->chi2();
+//     int   ebc_bcalgo = cluster->algo();
+//     double ebc_bce    = cluster->energy();
+//     double ebc_bceta  = cluster->eta();
+//     double ebc_bcet   = ebc_bce*sin(2*atan(exp(ebc_bceta)));
+//     double newDelta = 0.;
  
  
-    if (ebc_bcet > etMin && ebc_bcalgo == 0) {
-      if (ebc_bcchi2 < 30.) {
+//     if (ebc_bcet > etMin && ebc_bcalgo == 0) {
+//       if (ebc_bcchi2 < 30.) {
 	
-	if(MATCHEDSC){
-	  bool inSuperCluster = false;
+// 	if(MATCHEDSC){
+// 	  bool inSuperCluster = false;
 	  
-	  reco::basicCluster_iterator theEclust = matchedsupercluster->clustersBegin();
-	  // loop over the basic clusters of the matched supercluster
+// 	  reco::basicCluster_iterator theEclust = matchedsupercluster->clustersBegin();
+// 	  // loop over the basic clusters of the matched supercluster
 
-	  //I consider this somewhat wacky, if you are a basiccluster which was included in my
-	  //matched island supercluster, then you don't count against me for isolation.  If you AREN'T
-	  //included in my supercluster, then you are assumed to be from something else.  I think this
-	  //will have to be eliminated, especially if we're going to use fixed arrays for photons.
-	  for(;theEclust != matchedsupercluster->clustersEnd();
-	      theEclust++) {
-	    if ((**theEclust) ==  (*cluster) ) inSuperCluster = true;
-	  }
-	  if (!inSuperCluster) {
+// 	  //I consider this somewhat wacky, if you are a basiccluster which was included in my
+// 	  //matched island supercluster, then you don't count against me for isolation.  If you AREN'T
+// 	  //included in my supercluster, then you are assumed to be from something else.  I think this
+// 	  //will have to be eliminated, especially if we're going to use fixed arrays for photons.
+// 	  for(;theEclust != matchedsupercluster->clustersEnd();
+// 	      theEclust++) {
+// 	    if ((**theEclust) ==  (*cluster) ) inSuperCluster = true;
+// 	  }
+// 	  if (!inSuperCluster) {
 	    
-	    math::XYZVector basicClusterPosition(cluster->position().x(),
-						 cluster->position().y(),
-						 cluster->position().z());
-	    double trEta = basicClusterPosition.eta();
-	    double trPhi = basicClusterPosition.phi();
-	    double peta = position.eta();
-	    double pphi = position.phi();
-	    double deta2 = (trEta-peta)*(trEta-peta);
-	    double dphi = fabs(trPhi-pphi);
-	    if (dphi > TMath::Pi()) dphi = TMath::Pi()*2 - dphi;
-	    double dphi2 = dphi*dphi;
-	    double dr = sqrt(deta2 + dphi2);
-	    if(dr < RCone
-	       && newDelta > RConeInner) {
-	      ecalIsol+=ebc_bcet;
-	    }
-	  }
-	}
-      } // matches ebc_bcchi2
-    } // matches ebc_bcet && ebc_bcalgo
+// 	    math::XYZVector basicClusterPosition(cluster->position().x(),
+// 						 cluster->position().y(),
+// 						 cluster->position().z());
+// 	    double trEta = basicClusterPosition.eta();
+// 	    double trPhi = basicClusterPosition.phi();
+// 	    double peta = position.eta();
+// 	    double pphi = position.phi();
+// 	    double deta2 = (trEta-peta)*(trEta-peta);
+// 	    double dphi = fabs(trPhi-pphi);
+// 	    if (dphi > TMath::Pi()) dphi = TMath::Pi()*2 - dphi;
+// 	    double dphi2 = dphi*dphi;
+// 	    double dr = sqrt(deta2 + dphi2);
+// 	    if(dr < RCone
+// 	       && newDelta > RConeInner) {
+// 	      ecalIsol+=ebc_bcet;
+// 	    }
+// 	  }
+// 	}
+//       } // matches ebc_bcchi2
+//     } // matches ebc_bcet && ebc_bcalgo
     
-  }
+//   }
   
-  //  std::cout << "Will return ecalIsol = " << ecalIsol << std::endl; 
+//   //  std::cout << "Will return ecalIsol = " << ecalIsol << std::endl; 
   return ecalIsol;
   
 

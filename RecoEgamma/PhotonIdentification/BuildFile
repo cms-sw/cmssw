@@ -9,6 +9,7 @@
 <use name=Geometry/CaloGeometry>
 <use name=RecoCaloTools/MetaCollections>
 <use name=RecoEgamma/EgammaPhotonAlgos>
+<use name=RecoEgamma/EgammaIsolationAlgos>
 <export>
   <lib name=RecoEgammaPhotonIdentification>
   <use name=FWCore/Framework>
@@ -22,6 +23,7 @@
   <use name=RecoCaloTools/MetaCollections>
   <use name=RecoEgamma/EgammaPhotonAlgos>
   <use name=DataFormats/EgammaCandidates>
+  <use name=RecoEgamma/EgammaIsolationAlgos>
 </export>
 
 
