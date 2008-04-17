@@ -1,3 +1,11 @@
+2008-04-17  Marco Zanetti  <marco.zanetti@cern.ch>
+
+	* tag V00-06-1
+	* DQMStore service added to fu configuration
+	* time-out between configuring and enabling for PB
+	* RBproperties: processKillerEnabled false
+	* PBproperties: hasPrescaleService false
+	
 2008-03-10  Philipp SCHIEFERDECKER  <philipp.schieferdecker@cern.ch>
 
 	* tag V00-06-10
