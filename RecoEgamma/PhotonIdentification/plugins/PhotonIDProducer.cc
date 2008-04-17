@@ -3,7 +3,7 @@
 #include "DataFormats/EgammaCandidates/interface/PhotonIDAssociation.h"
 #include "DataFormats/EgammaReco/interface/BasicCluster.h"
 #include "DataFormats/EgammaReco/interface/BasicClusterShapeAssociation.h"
-
+#include "DataFormats/EgammaCandidates/interface/PhotonFwd.h"
 void PhotonIDProducer::beginJob(edm::EventSetup const& iSetup) {
   //Otherwise we're just going to do our calculations.  This will
   //set a bool for passing the cut based criteria, nothing else.
