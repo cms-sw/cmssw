@@ -26,7 +26,8 @@ class SiLinearChargeDivider : public SiChargeDivider{
 
   virtual ~SiLinearChargeDivider();
 
-  SiChargeDivider::ionization_type divide(const PSimHit&, const StripGeomDetUnit& det);
+  SiChargeDivider::ionization_type divide(const PSimHit&, const LocalVector&, double, const StripGeomDetUnit& det);
+  float driftXPos(const Local3DPoint&, const LocalVector&, double);
 
   void setParticleDataTable(const ParticleDataTable * pdt);
   

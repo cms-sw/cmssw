@@ -36,11 +36,10 @@ SiLinearChargeDivider::~SiLinearChargeDivider(){
 }
 
 SiChargeDivider::ionization_type 
-SiLinearChargeDivider::divide(const PSimHit& hit, const StripGeomDetUnit& det) {
- 
-  LocalVector direction = hit.exitPoint() - hit.entryPoint();  
+SiLinearChargeDivider::divide(const PSimHit& hit, const LocalVector& driftdir, double moduleThickness, const StripGeomDetUnit& det) {
+
   int NumberOfSegmentation =  
-    (int)(1+chargedivisionsPerStrip*fabs(direction.x())/(det.specificTopology()).localPitch(hit.localPosition())); 
+    (int)(1+chargedivisionsPerStrip*fabs(driftXPos(hit.exitPoint(), driftdir, moduleThickness)-driftXPos(hit.entryPoint(), driftdir, moduleThickness))/(det.specificTopology()).localPitch(hit.localPosition())); 
  
   float eLoss = hit.energyLoss();  // Eloss in GeV
  
@@ -53,6 +52,9 @@ SiLinearChargeDivider::divide(const PSimHit& hit, const StripGeomDetUnit& det) {
   float energy;
 
   // Fluctuate charge in track subsegments
+
+  LocalVector direction = hit.exitPoint() - hit.entryPoint();  
+
   float* eLossVector = new float[NumberOfSegmentation];
  
   if( fluctuateCharge ) {
@@ -172,4 +174,26 @@ float SiLinearChargeDivider::DeconvolutionShape(const PSimHit& hit, const StripG
 void SiLinearChargeDivider::setParticleDataTable(const ParticleDataTable * pdt)
 {
   theParticleDataTable = pdt;
+}
+
+
+float SiLinearChargeDivider::driftXPos
+(const Local3DPoint& pos, const LocalVector& drift, double moduleThickness){
+  
+  double tanLorentzAngleX = drift.x()/drift.z();
+  
+  double segX = pos.x();
+  double segZ = pos.z();
+  
+  double thicknessFraction = (moduleThickness/2.-segZ)/moduleThickness ; 
+  // fix the bug due to  rounding on entry and exit point
+  thicknessFraction = thicknessFraction>0. ? thicknessFraction : 0. ;
+  thicknessFraction = thicknessFraction<1. ? thicknessFraction : 1. ;
+  
+  double xDriftDueToMagField // Drift along X due to BField
+    = (moduleThickness/2. - segZ)*tanLorentzAngleX;
+  double positionX = segX + xDriftDueToMagField;
+
+  return positionX;
+		     
 }
