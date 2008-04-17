@@ -82,6 +82,11 @@ void RootErrorHandler(int level, bool die, const char* location, const char* mes
       die = false;
     }
 
+    if (el_message.find("matrix not positive definite") != std::string::npos) {
+      el_severity = edm::ELseverityLevel::ELsev_info;
+      die = false;
+    }
+
 // Intercept some messages and upgrade the severity
 
     if ((el_location.find("TBranchElement::Fill") != std::string::npos)
