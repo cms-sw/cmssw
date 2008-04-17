@@ -1,12 +1,10 @@
 <Flags EDM_PLUGIN=1>
 <export>
- <use name=FWCore/ParameterSet>
-<use name=SimG4Core/Notification>
-<use name=SimG4Core/Watcher>
  <lib name=SimG4CoreHelpfulWatchers>
 </export>
  
 <use name=FWCore/Framework>
+<use name=FWCore/ParameterSet>
 <use name=SimG4Core/Watcher>
 <use name=SimG4Core/Notification>
 <use name=boost>
