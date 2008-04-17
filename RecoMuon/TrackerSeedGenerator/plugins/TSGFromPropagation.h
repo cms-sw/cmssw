@@ -5,8 +5,8 @@
  *  Tracker Seed Generator by propagating and updating a standAlone muon
  *  to the first 2 (or 1) rechits it meets in tracker system 
  *
- *  $Date: 2008/02/13 18:44:28 $
- *  $Revision: 1.3 $
+ *  $Date: 2008/03/06 15:54:52 $
+ *  $Revision: 1.4 $
  *  \author Chang Liu - Purdue University 
  */
 
@@ -15,6 +15,7 @@
 #include "TrackingTools/TrajectoryState/interface/FreeTrajectoryState.h"
 #include "RecoMuon/TrackingTools/interface/MuonServiceProxy.h"
 #include "TrackingTools/PatternTools/interface/TrajectoryMeasurement.h"
+#include "RecoMuon/TrackingTools/interface/MuonErrorMatrix.h"
 
 class LayerMeasurements;
 class Chi2MeasurementEstimator;
@@ -27,16 +28,21 @@ class TrajectoryStateTransform;
 class TSGFromPropagation : public TrackerSeedGenerator {
 
 public:
+  /// constructor
   TSGFromPropagation(const edm::ParameterSet &pset);
 
   TSGFromPropagation(const edm::ParameterSet& par, const MuonServiceProxy*);
 
+  /// destructor
   virtual ~TSGFromPropagation();
 
+  /// generate seed(s) for a track
   void  trackerSeeds(const TrackCand&, const TrackingRegion&, std::vector<TrajectorySeed>&);
     
+  /// initialize
   void init(const MuonServiceProxy*);
 
+  /// set an event
   void setEvent(const edm::Event&);
 
 
@@ -52,19 +58,32 @@ private:
 
   edm::ESHandle<Propagator> propagator() const {return theService->propagator(thePropagatorName); }
 
+  /// create a seed from a trajectory state
   TrajectorySeed createSeed(const TrajectoryStateOnSurface&, const DetId&) const;
 
+  /// create a seed from a trajectory measurement
   TrajectorySeed createSeed(const TrajectoryMeasurement&) const;
 
+  /// select by comparing likely measurements
   void selectMeasurements(std::vector<TrajectoryMeasurement>&) const;
 
+  /// select valid measurements
   void validMeasurements(std::vector<TrajectoryMeasurement>&) const;
 
+  /// look for measurements on the first compatible layer (faster way)
   std::vector<TrajectoryMeasurement> findMeasurements_new(const DetLayer*, const TrajectoryStateOnSurface&) const;
 
+  /// look for measurements on the first compatible layer
   std::vector<TrajectoryMeasurement> findMeasurements(const DetLayer*, const TrajectoryStateOnSurface&) const;
 
+  /// 
   void findSecondMeasurements(std::vector<TrajectoryMeasurement>&, const std::vector<const DetLayer*>& ) const;
+
+  /// adjust the error matrix of the FTS
+  void adjust(FreeTrajectoryState &) const;
+
+  /// adjust the error matrix of the TSOS
+  void adjust(TrajectoryStateOnSurface &) const;
 
   struct IncreasingEstimate{
     bool operator()(const TrajectoryMeasurement& lhs,
@@ -74,6 +93,8 @@ private:
   };
 
   unsigned long long theCacheId_MT;
+
+  std::string theCategory;
 
   const LayerMeasurements*  theTkLayerMeasurements;
 
@@ -102,6 +123,10 @@ private:
   bool theUseSecondMeasurementsFlag;
 
   std::string thePropagatorName;
+
+  MuonErrorMatrix * theErrorMatrixAdjuster;
+
+  bool theAdjustAtIp;
 
 };
 
