@@ -134,7 +134,7 @@ void SiPixelActionExecutor::createTkMap(DQMStore* bei,
 
 //=============================================================================================================
 void SiPixelActionExecutor::createSummary(DQMStore* bei) {
-cout<<"entering SiPixelActionExecutor::createSummary..."<<endl;
+//cout<<"entering SiPixelActionExecutor::createSummary..."<<endl;
   string barrel_structure_name;
   vector<string> barrel_me_names;
   if (!configParser_->getMENamesForBarrelSummary(barrel_structure_name, barrel_me_names)){
@@ -172,7 +172,7 @@ cout<<"entering SiPixelActionExecutor::createSummary..."<<endl;
   configWriter_->write(fname);
   if (configWriter_) delete configWriter_;
   configWriter_ = 0;
-cout<<"leaving SiPixelActionExecutor::createSummary..."<<endl;
+//cout<<"leaving SiPixelActionExecutor::createSummary..."<<endl;
 }
 
 
@@ -215,28 +215,44 @@ void SiPixelActionExecutor::fillBarrelSummary(DQMStore* bei,
 	   (*iv)=="pixelAliveSummary")
 	  prefix="SUMCAL"; 
       }
+      //cout<<"A "<<currDir<<" , "<<(*iv)<<endl;
       if((*iv).find("residual")!=string::npos ||        // track residuals
          prefix == "SUMCAL"){                           // calibrations
+      //cout<<"A1 "<<currDir<<" , "<<(*iv)<<endl;
         string tag = prefix + "_" + (*iv) + "_mean_" 
                                 + currDir.substr(currDir.find(dir_name));
+      //cout<<"A2 "<<currDir<<" , "<<(*iv)<<endl;
         MonitorElement* temp = getSummaryME(bei, tag);
+      //cout<<"A3 "<<currDir<<" , "<<(*iv)<<endl;
         sum_mes.push_back(temp);
+      //cout<<"A4 "<<currDir<<" , "<<(*iv)<<endl;
         if((*iv)!="pixelAliveSummary"){
 	  tag = prefix + "_" + (*iv) + "_RMS_" 
                                 + currDir.substr(currDir.find(dir_name));
+      //cout<<"A5 "<<currDir<<" , "<<(*iv)<<endl;
 	}else{
 	  tag = prefix + "_" + (*iv) + "_FracOfPerfectPix_"
                                 + currDir.substr(currDir.find(dir_name));
+      //cout<<"A6 "<<currDir<<" , "<<(*iv)<<endl;
 	}
+      //cout<<"A7 "<<currDir<<" , "<<(*iv)<<endl;
         temp = getSummaryME(bei, tag);
+      //cout<<"A8 "<<currDir<<" , "<<(*iv)<<endl;
         sum_mes.push_back(temp);
+      //cout<<"A9 "<<currDir<<" , "<<(*iv)<<endl;
       }else{
+      //cout<<"A10 "<<currDir<<" , "<<(*iv)<<endl;
         string tag = prefix + "_" + (*iv) + "_" 
                                 + currDir.substr(currDir.find(dir_name));
+      //cout<<"A11 "<<currDir<<" , "<<(*iv)<<endl;
         MonitorElement* temp = getSummaryME(bei, tag);
+      //cout<<"A12 "<<currDir<<" , "<<(*iv)<<endl;
         sum_mes.push_back(temp);
+      //cout<<"A13 "<<currDir<<" , "<<(*iv)<<endl;
       }
+      //cout<<"A14 "<<currDir<<" , "<<(*iv)<<endl;
     }
+      //cout<<"B"<<endl;
     if (sum_mes.size() == 0) {
       edm::LogInfo("SiPixelActionExecutor") << " Summary MEs can not be created" << "\n" ;
       return;
@@ -248,6 +264,7 @@ void SiPixelActionExecutor::fillBarrelSummary(DQMStore* bei,
       if ( (*it).find("Module_") == string::npos) continue;
       bei->cd(*it);
       ndet++;
+      //cout<<"C"<<endl;
       
       vector<string> contents = bei->getMEs(); 
       
@@ -263,12 +280,13 @@ void SiPixelActionExecutor::fillBarrelSummary(DQMStore* bei,
 
 	    MonitorElement *  me = bei->get(fullpathname);
 	    
+      //cout<<"D"<<endl;
 	    if (me){ 
 	      if (sname.find("_RMS_")!=string::npos){
 	        (*isum)->Fill(ndet, me->getRMS());
 	      }else if (sname.find("_FracOfPerfectPix_")!=string::npos){
-	        cout<<"nbins = "<<me->getNbinsX()<<" , "<<me->getBinEntries(me->getNbinsX()-1)<<" , "<<me->getBinEntries(me->getNbinsX())<<endl;
-		float nlast = me->getBinEntries(me->getNbinsX());
+	        //cout<<"nbins = "<<me->getNbinsX()<<" , "<<me->getBinContent(me->getNbinsX()-1)<<" , "<<me->getBinContent(me->getNbinsX())<<endl;
+		float nlast = me->getBinContent(me->getNbinsX());
 		float nall = me->getEntries();
 	        (*isum)->Fill(ndet, nlast/nall);
               }else{
@@ -289,6 +307,7 @@ void SiPixelActionExecutor::fillBarrelSummary(DQMStore* bei,
           }
 	}
       }
+      //cout<<"E"<<endl;
       bei->goUp();
     }
   } else {  
@@ -300,6 +319,7 @@ void SiPixelActionExecutor::fillBarrelSummary(DQMStore* bei,
       bei->cd(*it);
       if((*it).find("Endcap")!=string::npos ||
          (*it).find("AdditionalPixelErrors")!=string::npos) continue;
+      //cout<<"F"<<endl;
       fillBarrelSummary(bei, dir_name, me_names);
       bei->goUp();
     }
@@ -311,7 +331,7 @@ void SiPixelActionExecutor::fillBarrelSummary(DQMStore* bei,
     }
     fillGrandBarrelSummaryHistos(bei, grandbarrel_me_names);
   }
- // cout<<"...leaving SiPixelActionExecutor::fillBarrelSummary!"<<endl;
+  //cout<<"...leaving SiPixelActionExecutor::fillBarrelSummary!"<<endl;
 }
 
 void SiPixelActionExecutor::fillEndcapSummary(DQMStore* bei,
@@ -406,7 +426,7 @@ void SiPixelActionExecutor::fillEndcapSummary(DQMStore* bei,
 	      if (sname.find("_RMS_")!=string::npos){
 	        (*isum)->Fill(ndet, me->getRMS());
 	      }else if (sname.find("_FracOfPerfectPix_")!=string::npos){
-		float nlast = me->getBinEntries(me->getNbinsX());
+		float nlast = me->getBinContent(me->getNbinsX());
 		float nall = me->getEntries();
 	        (*isum)->Fill(ndet, nlast/nall);
               }else{
@@ -449,7 +469,7 @@ void SiPixelActionExecutor::fillEndcapSummary(DQMStore* bei,
     }
     fillGrandEndcapSummaryHistos(bei, grandendcap_me_names);
   }
- // cout<<"...leaving SiPixelActionExecutor::fillEndcapSummary!"<<endl;
+  //cout<<"...leaving SiPixelActionExecutor::fillEndcapSummary!"<<endl;
 }
 
 
@@ -826,24 +846,36 @@ MonitorElement* SiPixelActionExecutor::getSummaryME(DQMStore* bei,
                                                     string me_name) {
 //cout<<"Entering SiPixelActionExecutor::getSummaryME..."<<endl;
   MonitorElement* me = 0;
+//cout<<"DD"<<endl;
   vector<string> contents = bei->getMEs();    
+//cout<<"DD1"<<endl;
   
   for (vector<string>::const_iterator it = contents.begin();
        it != contents.end(); it++) {
+//cout<<"DD2"<<endl;
     if ((*it).find(me_name) == 0) {
+//cout<<"DD3"<<endl;
       string fullpathname = bei->pwd() + "/" + (*it); 
+//cout<<"DD4"<<endl;
 
       me = bei->get(fullpathname);
+//cout<<"DD5"<<endl;
       
       if (me) {
+//cout<<"DD6"<<endl;
 	me->Reset();
+//cout<<"DD7"<<endl;
 	return me;
       }
+//cout<<"DD8"<<endl;
     }
+//cout<<"DD9"<<endl;
   }
+  contents.clear();
+cout<<"DD10"<<endl;
   me = bei->book1D(me_name.c_str(), me_name.c_str(),4,1.,5.);
+ // cout<<"...leaving SiPixelActionExecutor::getSummaryME!"<<endl;
   return me;
-  //cout<<"...leaving SiPixelActionExecutor::getSummaryME!"<<endl;
 }
 
 
