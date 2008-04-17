@@ -1004,7 +1004,7 @@ IMGC.processImageURLs = function (ajax)
   $('imageCanvas').titlesList	 = tempTitles;
   $('imageCanvas').current_start = 0;
   IMGC.PATH_TO_PICTURES = "" ; 
-   setTimeout('IMGC.computeCanvasSize()',2000) ;
+   setTimeout('IMGC.computeCanvasSize()',10000) ;
  } catch(errorMessage) {
   alert('[IMGC.js::IMGC.processIMGCPlots()]\nExecution/syntax error: '+error.errorMessage);
  }
