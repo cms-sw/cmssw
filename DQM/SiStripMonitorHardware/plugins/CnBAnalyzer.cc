@@ -187,6 +187,11 @@ void
 CnBAnalyzer::beginJob(const edm::EventSetup& iSetup)
 {
   
+  // ---------- DQM back-end interface ----------
+  dqm_ = edm::Service<DQMStore>().operator->();
+  dqm()->setVerbose(0);
+
+  // Summary histograms
   createRootFedHistograms();
 
 }
@@ -221,11 +226,11 @@ void CnBAnalyzer::createRootFedHistograms() {
 			  fedIdBoundaries_.second + 0.5 );
 
   // Trend plots:
-  totalChannels_  = dqm()->book1D( "Total channels vs. Event",
+  totalChannels_  = dqm()->book1D( "Total channels vs Event",
 				   "Total channels vs. Event for all FEDs",
 				   1001, 0.5, 1000.5);
 
-  faultyChannels_ = dqm()->book1D( "Faulty channels vs. Event",
+  faultyChannels_ = dqm()->book1D( "Faulty channels vs Event",
 				   "Faulty channels vs. Event for all FEDs",
 				   1001, 0.5, 1000.5);
 
