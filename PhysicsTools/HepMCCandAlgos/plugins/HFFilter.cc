@@ -2,7 +2,7 @@
 #include "PhysicsTools/JetMCUtils/interface/JetMCTag.h"
 
 #include "DataFormats/JetReco/interface/GenJet.h"
-#include "DataFormats/HepMCCandidate/interface/GenParticleCandidate.h"
+#include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 
 using namespace std;
 
@@ -47,15 +47,15 @@ HFFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
      if ( ijet->pt() < ptMin_ || fabs(ijet->eta()) > etaMax_ ) continue;
 
      // Get the constituent particles
-     vector<const GenParticleCandidate*> particles = ijet->getConstituents ();
+     vector<const GenParticle*> particles = ijet->getConstituents ();
     
      // Loop over the constituent particles
-     vector<const GenParticleCandidate*>::const_iterator genit = particles.begin();
-     vector<const GenParticleCandidate*>::const_iterator genend = particles.end();
+     vector<const GenParticle*>::const_iterator genit = particles.begin();
+     vector<const GenParticle*>::const_iterator genend = particles.end();
      for ( ; genit != genend; ++genit ) {
 
        // See if any of them come from B or C hadrons
-       const GenParticleCandidate & genitref = **genit;
+       const GenParticle & genitref = **genit;
        if ( JetMCTagUtils::decayFromBHadron( genitref ) ||
 	    JetMCTagUtils::decayFromCHadron( genitref ) ) {
 	 return true;
