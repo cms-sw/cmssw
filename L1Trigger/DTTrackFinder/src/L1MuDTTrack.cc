@@ -5,8 +5,8 @@
 //   Description: Muon Track Candidate
 //
 //
-//   $Date: 2007/02/27 11:44:00 $
-//   $Revision: 1.3 $
+//   $Date: 2008/02/18 17:38:04 $
+//   $Revision: 1.5 $
 //
 //   Author :
 //   N. Neumeister            CERN EP
@@ -34,8 +34,8 @@
 #include "L1Trigger/DTTrackFinder/src/L1MuDTSecProcId.h"
 #include "L1Trigger/DTTrackFinder/src/L1MuDTTrackSegPhi.h"
 #include "L1Trigger/DTTrackFinder/src/L1MuDTTrackSegEta.h"
-#include "CondFormats/L1TObjects/interface/L1MuTriggerScales.h"
-#include "CondFormats/DataRecord/interface/L1MuTriggerScalesRcd.h"
+#include "CondFormats/L1TObjects/interface/L1MuTriggerPtScale.h"
+#include "CondFormats/DataRecord/interface/L1MuTriggerPtScaleRcd.h"
 #include "CondFormats/L1TObjects/interface/L1MuPacking.h"
 
 using namespace std;
@@ -201,8 +201,8 @@ unsigned int L1MuDTTrack::triggerScale(float value, const edm::EventSetup& c) co
 
   const float eps = 1.e-5; // add an epsilon so that setting works with low edge value
 
-  edm::ESHandle< L1MuTriggerScales > theTriggerScales;
-  c.get< L1MuTriggerScalesRcd >().get( theTriggerScales );
+  edm::ESHandle< L1MuTriggerPtScale > theTriggerScales;
+  c.get< L1MuTriggerPtScaleRcd >().get( theTriggerScales );
   unsigned int t_Scale = theTriggerScales->getPtScale()->getPacked( value + eps );
 
   return t_Scale;
