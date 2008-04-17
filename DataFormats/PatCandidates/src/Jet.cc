@@ -1,9 +1,9 @@
 //
-// $Id$
+// $Id: Jet.cc,v 1.11 2008/04/03 19:22:00 lowette Exp $
 //
 
 #include "DataFormats/PatCandidates/interface/Jet.h"
-
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 using namespace pat;
 
@@ -370,3 +370,35 @@ void Jet::setLRPhysicsJetProb(float plr) {
 void Jet::setJetCharge(float jetCharge) {
   jetCharge_ = jetCharge;
 }
+
+/// correction factor from correction type
+float
+Jet::correctionFactor (CorrectionType type) const
+{
+  switch ( type ) {
+  case NoCorrection :      return noCorrF_;
+  case DefaultCorrection : return jetCorrF_.scaleDefault();
+  case udsCorrection :     return jetCorrF_.scaleUds();
+  case cCorrection :       return jetCorrF_.scaleC();
+  case bCorrection :       return jetCorrF_.scaleB();
+  case gCorrection :       return jetCorrF_.scaleGlu();
+  default :                return jetCorrF_.scaleDefault();
+  }
+}
+
+/// auxiliary method to convert a string to a correction type enum
+Jet::CorrectionType
+Jet::correctionType (const std::string& correctionName) 
+{
+  for ( unsigned int i=0; i<NrOfCorrections; ++i ) {
+    if ( correctionName == correctionNames_[i] )  
+      return static_cast<CorrectionType>(i);
+  }
+  // should include an error message ..
+  edm::LogError("pat::Jet") << "Unknown correction type " << correctionName
+			    << " - going to use default";
+  return DefaultCorrection;
+}
+
+const std::string pat::Jet::correctionNames_[] = { "none", "default", 
+						   "uds", "c", "b", "g" };

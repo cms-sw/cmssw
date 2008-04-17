@@ -1,5 +1,5 @@
 //
-// $Id: Jet.h,v 1.12 2008/04/03 19:22:00 lowette Exp $
+// $Id: Jet.h,v 1.13 2008/04/04 18:22:08 srappocc Exp $
 //
 
 #ifndef DataFormats_PatCandidates_Jet_h
@@ -13,7 +13,7 @@
    'pat' namespace
 
   \author   Steven Lowette
-  \version  $Id: Jet.h,v 1.12 2008/04/03 19:22:00 lowette Exp $
+  \version  $Id: Jet.h,v 1.13 2008/04/04 18:22:08 srappocc Exp $
 */
 
 #include "DataFormats/JetReco/interface/CaloJet.h"
@@ -43,6 +43,11 @@ namespace pat {
 
 
   class Jet : public PATObject<JetType> {
+
+  public:
+    enum CorrectionType { NoCorrection=0, DefaultCorrection,
+			  udsCorrection, cCorrection, bCorrection, gCorrection, 
+			  NrOfCorrections };
 
     public:
 
@@ -144,6 +149,10 @@ namespace pat {
       void setLRPhysicsJetProb(float plr);
       /// method to set the jet charge
       void setJetCharge(float jetCharge);
+    /// correction factor from correction type
+    float correctionFactor (CorrectionType type) const;
+    /// auxiliary method to convert a string to a correction type
+    static CorrectionType correctionType (const std::string& name);
 
     public:
 
@@ -177,6 +186,7 @@ namespace pat {
       std::vector<reco::SoftLeptonTagInfoRef>      bTagSoftLeptonMRef_;
       std::vector<reco::SecondaryVertexTagInfoRef> bTagSecondaryVertexTagInfoRef_;
 
+    static const std::string correctionNames_[NrOfCorrections];
   };
 
 
