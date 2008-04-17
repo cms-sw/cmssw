@@ -13,7 +13,7 @@
 //
 // Original Author:  Tomasz Maciej Frueboes
 //         Created:  Tue Mar 18 15:15:30 CET 2008
-// $Id: WriteVHDL.cc,v 1.1 2008/04/09 11:06:16 fruboes Exp $
+// $Id: WriteVHDL.cc,v 1.1 2008/04/16 13:38:14 fruboes Exp $
 //
 //
 
@@ -76,11 +76,21 @@ class WriteVHDL : public edm::EDAnalyzer {
       void writePats(const edm::EventSetup& evtSetup,int tower, int logsector);
 
       std::string writeVersion();
-      std::string writePACandLPDef(const edm::EventSetup& iSetup, int tower, int logsector, std::string PACt);
-      std::string writeConeDef(const edm::EventSetup& iSetup, int tower, int sector, std::string PACt);
-      std::string writeQualTable(const edm::EventSetup& iSetup);
-      std::string writePatterns(const edm::EventSetup& iSetup);
-      std::string writeGB(const edm::EventSetup& iSetup);
+      
+      std::string writeCNT(std::string pacT);
+
+      std::string writePACandLPDef(const edm::EventSetup& iSetup, 
+                                   int tower, int logsector, std::string PACt);
+      
+      std::string writeConeDef(const edm::EventSetup& iSetup, 
+                               int tower, int sector, std::string PACt);
+      
+      std::string writeQualTable(const edm::EventSetup& iSetup, int tower, int sector);
+      
+      std::string writePatterns(const edm::EventSetup& iSetup,
+                                int tower, int sector, std::string PACt);
+      
+      std::string writeGB(std::string PACt);
       // ----------member data ---------------------------
 };
 
@@ -143,7 +153,11 @@ void
 WriteVHDL::writePats(const edm::EventSetup& evtSetup,int tower, int logsector) {
 
   std::ifstream inputfile(m_templateName.c_str());
- 
+  std::stringstream fname;
+  fname << "pac_t" << tower << "_sec" << logsector << ".vhd"; 
+
+  std::ofstream fout( fname.str().c_str() );
+  
   // get PAC type
   edm::ESHandle<L1RPCConfig> conf;
   evtSetup.get<L1RPCConfigRcd>().get(conf);
@@ -151,7 +165,7 @@ WriteVHDL::writePats(const edm::EventSetup& evtSetup,int tower, int logsector) {
 
   RPCPattern::RPCPatVec::const_iterator it =  rpcconf->m_pats.begin();
 
-  while ( it->getTower()!=tower && it!=rpcconf->m_pats.end() ) ++it;
+  while ( it->getTower()!=std::abs(tower) && it!=rpcconf->m_pats.end() ) ++it;
 
   if (it==rpcconf->m_pats.end())
     throw cms::Exception("") << " tower not found " << tower << "\n";
@@ -162,10 +176,7 @@ WriteVHDL::writePats(const edm::EventSetup& evtSetup,int tower, int logsector) {
   if (patType==RPCPattern::PAT_TYPE_T ) pacT = "T";
 
 
-  std::stringstream fname;
-  fname << "pac_t" << tower << "_sec" << logsector << ".vhd"; 
-
-  std::ofstream fout( fname.str().c_str() );
+  
 
 
   if(inputfile.fail())  {
@@ -189,6 +200,9 @@ WriteVHDL::writePats(const edm::EventSetup& evtSetup,int tower, int logsector) {
                       case 'V':
                            fout << writeVersion();
                            break;
+                      case 'N':
+                           fout << writeCNT(pacT);
+                           break;
                       case 'P':
                            fout << writePACandLPDef(evtSetup, tower, logsector, pacT);
                            break;
@@ -196,13 +210,13 @@ WriteVHDL::writePats(const edm::EventSetup& evtSetup,int tower, int logsector) {
                            fout << writeConeDef(evtSetup, tower, logsector, pacT);
                            break;
                       case 'Q':
-                           fout << writeQualTable(evtSetup);
+                           fout << writeQualTable(evtSetup, tower, logsector);
                            break;
                       case 'S':
-                           fout << writePatterns(evtSetup);  
+                           fout << writePatterns(evtSetup, tower, logsector, pacT);  
                            break;
                       case 'G':
-                           fout << writeGB(evtSetup);
+                           fout << writeGB(pacT);
                            break;
                       default:
                            throw cms::Exception("BadTemplate") << " Unknown command: XX" << chCmd << "\n";
@@ -242,6 +256,24 @@ std::string WriteVHDL::writeVersion(){
   return ret.str();
 }
 
+std::string WriteVHDL::writeCNT(std::string pacT){
+   
+   std::stringstream ret;
+   int nT=0, nE=0;
+   if (pacT == "E")
+      nE=12;
+   else if (pacT == "T")
+      nT=12;
+   else
+      throw cms::Exception("") << "Unknown PAC type \n";
+   
+   ret << "constant TT_EPACS_COUNT         :natural := " << nE << std::endl;
+   ret << "constant TT_TPACS_COUNT         :natural := " << nT << std::endl;
+   
+   return ret.str();
+}
+
+
 std::string WriteVHDL::writePACandLPDef(const edm::EventSetup& iSetup, int tower, int logsector,  std::string pacT){
 
   std::stringstream ret;
@@ -274,30 +306,130 @@ std::string WriteVHDL::writePACandLPDef(const edm::EventSetup& iSetup, int tower
   return ret.str();
 }
 
-std::string WriteVHDL::writeQualTable(const edm::EventSetup& iSetup){
+std::string WriteVHDL::writeQualTable(const edm::EventSetup& iSetup, int tower, int sector){
 
   std::stringstream ret;
+  
+  edm::ESHandle<L1RPCConfig> conf;
+  iSetup.get<L1RPCConfigRcd>().get(conf);
+  
+  const  RPCPattern::TQualityVec *qvec = &conf.product()->m_quals;
+  
+  bool first = true;
+  RPCPattern::TQualityVec::const_iterator it = qvec->begin();
+  RPCPattern::TQualityVec::const_iterator itEnd = qvec->end();
+  
+  for (;it!=itEnd;++it) {
+     
+     // there is only one PACCellQuality for 12 comparators!
+     if ( it->m_tower != std::abs(tower) || 
+          it->m_logsector!=sector || 
+          it->m_logsegment!= 0) continue;
+           
+     if(first) {
+        ret<<" (";
+        first = false;
+     } else {
+        ret <<", "<<std::endl<<" (";
+     }
 
-
-  ret << " -- TODO" << std::endl;
+     ret  << it->m_QualityTabNumber <<",\""
+           << it->m_FiredPlanes<<"\","
+           << it->m_QualityValue<<")";
+     
+  }
+  
+  ret<< ");" <<std::endl <<std::endl;
+  
   return ret.str();
 }
 
-std::string WriteVHDL::writePatterns(const edm::EventSetup& iSetup){
+std::string WriteVHDL::writePatterns(const edm::EventSetup& iSetup, 
+                                     int tower, int sector, std::string pacT)
+{
 
   std::stringstream ret;
+  
+  tower = std::abs(tower);
+  
+  edm::ESHandle<L1RPCConfig> conf;
+  iSetup.get<L1RPCConfigRcd>().get(conf);
+  
+  const RPCPattern::RPCPatVec *pats = &conf.product()->m_pats;
+  int ppt = conf.product()->getPPT();
+  int segment = 0;
+  
+  const RPCPattern::RPCPatVec::const_iterator itEnd = pats->end();
+  RPCPattern::RPCPatVec::const_iterator it;
+  int to[6], globalPatNo=0;
+  bool firstRun = true;
+  
+  for ( int iPAC = 0; iPAC < 12 ; ++iPAC){
+  
+    if (ppt == 144) segment = iPAC; // if ppt!=144 each of 12 comparators present in same PACchip
+                                    // have same patterns
+    
+    for (it = pats->begin(); it!=itEnd; ++it){
+       
+       // select right pac
+       if ( it->getTower() != tower ||
+            it->getLogSector() != sector ||
+            it->getLogSegment() != segment ) continue;
+
+       for (int i = 0; i<6 ; ++i){
+          to[i]=it->getStripTo(i)-1;
+          if (it->getStripFrom(i)==RPCPattern::m_NOT_CONECTED)
+             to[i]=RPCPattern::m_NOT_CONECTED;
+       }
+       
+       if (!firstRun) ret << ",";
+       firstRun = false;
+       
+       ret   << "( " << iPAC << ", " << pacT
+             << ", " << it->getRefGroup()
+             << ", " << it->getQualityTabNumber()
+             << ",(" // planes start
+             << "(" << it->getStripFrom(0) << "," << to[0] << ")"  // pl1
+             << ",(" << it->getStripFrom(1) << "," << to[1] << ")" // pl2
+             << ",(" << it->getStripFrom(2) << "," << to[2] << ")" // pl3
+             << ",(" << it->getStripFrom(3) << "," << to[3] << ")" // pl4
+             << ",(" << it->getStripFrom(4) << "," << to[4] << ")" // pl5
+             << ",(" << it->getStripFrom(5) << "," << to[5] << ")" // pl6
+             << ")"  // planes end
+             << ", " << it->getSign()
+             << ", " << it->getCode()
+             << ") -- " << globalPatNo++ << std::endl;
+       
+    } // patterns iteration
+  
+  } // segment
+  
+  ret << ");" <<std::endl<< std::endl;
 
 
-  ret << " -- TODO" << std::endl;
   return ret.str();
 }
 
-std::string WriteVHDL::writeGB(const edm::EventSetup& iSetup){
+std::string WriteVHDL::writeGB(std::string PACt){
 
   std::stringstream ret;
+  bool frun=true;
+  
+  for(int i = 0; i<12; ++i){
+     
+     if(frun){
+        frun=false;
+        ret << "(";
+     } else{
+        ret << std::endl << ",(";
+     }
+     
+     ret << i <<", " << PACt << ", " << i << ")";
 
+  }
+  
+  ret << ");" << std::endl;
 
-  ret << " -- TODO" << std::endl;
   return ret.str();
 }
 

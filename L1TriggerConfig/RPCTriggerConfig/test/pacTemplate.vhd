@@ -7,8 +7,7 @@ use work.RPC_PAC_def.all;
 
 package RPC_PAC_patt is
 
-constant TT_EPACS_COUNT         :natural := 12;
-constant TT_TPACS_COUNT         :natural := 0;
+XXN
 constant TT_REF_GROUP_NUMBERS   :natural := 1;
 constant TT_GBSORT_INPUTS       :natural := 12;
 
