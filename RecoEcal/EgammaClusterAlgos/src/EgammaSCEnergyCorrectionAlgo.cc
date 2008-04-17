@@ -1,5 +1,5 @@
 //
-// $Id: EgammaSCEnergyCorrectionAlgo.cc,v 1.27 2008/04/08 16:38:27 kkaadze Exp $
+// $Id: EgammaSCEnergyCorrectionAlgo.cc,v 1.28 2008/04/15 09:53:46 kkaadze Exp $
 // Author: David Evans, Bristol
 //
 #include "RecoEcal/EgammaClusterAlgos/interface/EgammaSCEnergyCorrectionAlgo.h"
@@ -147,7 +147,7 @@ reco::SuperCluster EgammaSCEnergyCorrectionAlgo::applyCorrection(const reco::Sup
 
   reco::SuperCluster corrCl(newEnergy, 
     math::XYZPoint(cl.position().X(), cl.position().Y(), cl.position().Z()),
-    cl.seed(), clusters_v );
+    cl.seed(), clusters_v, cl.preshowerEnergy());
 
   corrCl.setPhiWidth(phiWidth);
   corrCl.setEtaWidth(etaWidth);
