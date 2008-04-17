@@ -1,5 +1,5 @@
 //
-// $Id$
+// $Id: PATJetProducer.cc,v 1.6 2008/04/03 19:33:42 lowette Exp $
 //
 
 #include "PhysicsTools/PatAlgos/plugins/PATJetProducer.h"
@@ -55,6 +55,7 @@ PATJetProducer::PATJetProducer(const edm::ParameterSet& iConfig) {
   useNNReso_               = iConfig.getParameter<bool> 		      ( "useNNResolutions" );
   caliJetResoFile_         = iConfig.getParameter<std::string>  	      ( "caliJetResoFile" );
   caliBJetResoFile_        = iConfig.getParameter<std::string>  	      ( "caliBJetResoFile" );
+#if 0
   addBTagInfo_             = iConfig.getParameter<bool> 		      ( "addBTagInfo" );
   tagModuleLabelPostfix_   = iConfig.getParameter<std::string>  	      ( "tagModuleLabelPostfix" ); 
   addDiscriminators_       = iConfig.getParameter<bool> 		      ( "addDiscriminators" );
@@ -64,10 +65,11 @@ PATJetProducer::PATJetProducer(const edm::ParameterSet& iConfig) {
   softETagInfoLabel_       = iConfig.getParameter<std::vector<edm::InputTag> >( "softETagInfoLabelName" );
   softMTagInfoLabel_       = iConfig.getParameter<std::vector<edm::InputTag> >( "softMTagInfoLabelName" );
   svTagInfoLabel_          = iConfig.getParameter<std::vector<edm::InputTag> >( "svTagInfoLabelName" );
+#endif
   addAssociatedTracks_     = iConfig.getParameter<bool> 		      ( "addAssociatedTracks" ); 
-  trackAssociationPSet_    = iConfig.getParameter<edm::ParameterSet>	      ( "trackAssociation" );
+  trackAssociation_        = iConfig.getParameter<edm::InputTag>	      ( "trackAssociationSource" );
   addJetCharge_            = iConfig.getParameter<bool> 		      ( "addJetCharge" ); 
-  jetChargePSet_           = iConfig.getParameter<edm::ParameterSet>	      ( "jetCharge" );
+  jetCharge_               = iConfig.getParameter<edm::InputTag>	      ( "jetChargeSource" );
 
   // construct resolution calculator
   if (addResolutions_) {
@@ -75,11 +77,7 @@ PATJetProducer::PATJetProducer(const edm::ParameterSet& iConfig) {
     theBResoCalc_ = new ObjectResolutionCalc(edm::FileInPath(caliBJetResoFile_).fullPath(), useNNReso_);
   }
 
-  // construct Jet Track Associator
-  simpleJetTrackAssociator_ = ::helper::SimpleJetTrackAssociator(trackAssociationPSet_);
-  // construct Jet Charge Computer
-  if (addJetCharge_) jetCharge_ = new JetCharge(jetChargePSet_);
- 
+
   // produces vector of jets
   produces<std::vector<Jet> >();
 }
@@ -90,7 +88,6 @@ PATJetProducer::~PATJetProducer() {
     delete theResoCalc_;
     delete theBResoCalc_;
   }
-  if (addJetCharge_) delete jetCharge_;
 }
 
 
@@ -124,6 +121,7 @@ void PATJetProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
   edm::Handle<edm::ValueMap<JetCorrFactors> > jetCorrs;
   iEvent.getByLabel(jetCorrFactorsSrc_, jetCorrs);
 
+#if 0
   // Get the vector of jet tags with b-tagging info
   std::vector<edm::Handle<std::vector<reco::JetTag> > > jetTags_testManyByType ;
   if (addBTagInfo_) iEvent.getManyByType(jetTags_testManyByType);
@@ -137,10 +135,13 @@ void PATJetProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
   edm::Handle<reco::SoftLeptonTagInfoCollection> jetsInfoHandle_sl;
   edm::Handle<reco::TrackProbabilityTagInfoCollection> jetsInfoHandleTP;
   edm::Handle<reco::TrackCountingTagInfoCollection> jetsInfoHandleTC;
+#endif
 
-  // tracks Jet Track Association, by hand in CMSSW_1_3_X
-  edm::Handle<reco::TrackCollection> hTracks;
-  iEvent.getByLabel(trackAssociationPSet_.getParameter<edm::InputTag>("tracksSource"), hTracks);
+  // tracks Jet Track Association
+  edm::Handle<edm::ValueMap<reco::TrackRefVector> > hTrackAss;
+  if (addAssociatedTracks_) iEvent.getByLabel(trackAssociation_, hTrackAss);
+  edm::Handle<edm::ValueMap<float> > hJetChargeAss;
+  if (addJetCharge_) iEvent.getByLabel(jetCharge_, hJetChargeAss);
 
 
   // loop over jets
@@ -204,6 +205,7 @@ void PATJetProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
       ajet.setBResolutions(abjet.resolutionEt(), abjet.resolutionEta(), abjet.resolutionPhi(), abjet.resolutionA(), abjet.resolutionB(), abjet.resolutionC(), abjet.resolutionD(), abjet.resolutionTheta());
     }
 
+#if 0
     // add b-tag info if available & required
     if (addBTagInfo_) {
       
@@ -274,17 +276,11 @@ void PATJetProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
       }
       
     }
+#endif
     
-    // Associate tracks with jet (at least temporary)
-    simpleJetTrackAssociator_.associate(ajet.momentum(), hTracks, ajet.associatedTracks_);
+    if (addAssociatedTracks_) ajet.associatedTracks_ = (*hTrackAss)[jetRef];
 
-    // PUT HERE EVERYTHING WHICH NEEDS TRACKS
-    if (addJetCharge_) {
-      ajet.setJetCharge(static_cast<float>(jetCharge_->charge(ajet.p4(), ajet.associatedTracks())));
-    }
-
-    // drop jet track association if the user does not want it
-    if (!addAssociatedTracks_) ajet.associatedTracks_.clear();
+    if (addJetCharge_)        ajet.setJetCharge( (*hJetChargeAss)[jetRef] );
 
     patJets->push_back(ajet);
   }
