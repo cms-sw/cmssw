@@ -1,14 +1,8 @@
 <export>
  <lib name=SimG4CoreMagneticField>
- <use name=Framework/SealKernel>
- <use name=FWCore/ParameterSet>
- <use name=MagneticField/Records>
- <use name=MagneticField/VolumeBasedEngine>
- <use name=SimG4Core/Notification>
- <use name=boost>
- <use name=geant4>
 </export>
-<use name=Framework/SealKernel>
+
+<use name=FWCore/PluginManager>
 <use name=FWCore/ParameterSet>
 <use name=MagneticField/Records>
 <use name=MagneticField/VolumeBasedEngine>
