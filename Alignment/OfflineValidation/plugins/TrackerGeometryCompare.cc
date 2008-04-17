@@ -36,6 +36,14 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 //#include "Geometry/Records/interface/PGeometricDetRcd.h"
 
+#include "DataFormats/SiStripDetId/interface/TECDetId.h"
+#include "DataFormats/SiStripDetId/interface/TIBDetId.h"
+#include "DataFormats/SiStripDetId/interface/TOBDetId.h"
+#include "DataFormats/SiStripDetId/interface/TIDDetId.h"
+#include "DataFormats/SiPixelDetId/interface/PXFDetId.h"
+#include "DataFormats/SiPixelDetId/interface/PXBDetId.h"
+
+
 
 TrackerGeometryCompare::TrackerGeometryCompare(const edm::ParameterSet& cfg)
 {
@@ -92,6 +100,12 @@ TrackerGeometryCompare::TrackerGeometryCompare(const edm::ParameterSet& cfg)
 	_alignTree->Branch("dalpha", &_dalphaVal, "dalpha/F");
 	_alignTree->Branch("dbeta", &_dbetaVal, "dbeta/F");
 	_alignTree->Branch("dgamma", &_dgammaVal, "dgamma/F");
+	_alignTree->Branch("surW", &_surWidth, "surW/F");
+	_alignTree->Branch("surL", &_surLength, "surL/F");
+	_alignTree->Branch("surRot", &_surRot, "surRot[9]/D");
+	_alignTree->Branch("identifiers", &_identifiers, "identifiers[6]/I");
+
+	
 }
 
 void TrackerGeometryCompare::beginJob(const edm::EventSetup& iSetup){
@@ -121,16 +135,16 @@ void TrackerGeometryCompare::beginJob(const edm::EventSetup& iSetup){
 		
 		poolDbService->writeOne<Alignments>(&(*myAlignments), poolDbService->currentTime(), "TrackerAlignmentRcd");
 		poolDbService->writeOne<AlignmentErrors>(&(*myAlignmentErrors), poolDbService->currentTime(), "TrackerAlignmentErrorRcd");
-
+		
 		/*
-		if ( poolDbService->isNewTagRequest("TrackerAlignmentRcd") )
-			poolDbService->createNewIOV<Alignments>( &(*myAlignments), poolDbService->endOfTime(), "TrackerAlignmentRcd" );
-		else
-			poolDbService->appendSinceTime<Alignments>( &(*myAlignments), poolDbService->currentTime(), "TrackerAlignmentRcd" );
-		if ( poolDbService->isNewTagRequest("TrackerAlignmentErrorRcd") )
-			poolDbService->createNewIOV<AlignmentErrors>( &(*myAlignmentErrors), poolDbService->endOfTime(), "TrackerAlignmentErrorRcd" );
-		else
-			poolDbService->appendSinceTime<AlignmentErrors>( &(*myAlignmentErrors), poolDbService->currentTime(), "TrackerAlignmentErrorRcd" );
+		 if ( poolDbService->isNewTagRequest("TrackerAlignmentRcd") )
+		 poolDbService->createNewIOV<Alignments>( &(*myAlignments), poolDbService->endOfTime(), "TrackerAlignmentRcd" );
+		 else
+		 poolDbService->appendSinceTime<Alignments>( &(*myAlignments), poolDbService->currentTime(), "TrackerAlignmentRcd" );
+		 if ( poolDbService->isNewTagRequest("TrackerAlignmentErrorRcd") )
+		 poolDbService->createNewIOV<AlignmentErrors>( &(*myAlignmentErrors), poolDbService->endOfTime(), "TrackerAlignmentErrorRcd" );
+		 else
+		 poolDbService->appendSinceTime<AlignmentErrors>( &(*myAlignmentErrors), poolDbService->currentTime(), "TrackerAlignmentErrorRcd" );
 		 */
 	}		
 	
@@ -316,6 +330,7 @@ void TrackerGeometryCompare::fillTree(Alignable *refAli, AlgebraicVector diff){
 	}
 	DetId detid(_id);
 	_sublevel = detid.subdetId();
+	fillIdentifiers( _sublevel, _id );
 	_xVal = refAli->globalPosition().x();
 	_yVal = refAli->globalPosition().y();
 	_zVal = refAli->globalPosition().z();
@@ -338,6 +353,15 @@ void TrackerGeometryCompare::fillTree(Alignable *refAli, AlgebraicVector diff){
 	_dalphaVal = diff[3];
 	_dbetaVal = diff[4];
 	_dgammaVal = diff[5];
+	
+	_surWidth = refAli->surface().width();
+	_surLength = refAli->surface().length();
+	align::RotationType rt = refAli->globalRotation();
+	_surRot[0] = rt.xx(); _surRot[1] = rt.xy(); _surRot[2] = rt.xz();
+	_surRot[3] = rt.yx(); _surRot[4] = rt.yy(); _surRot[5] = rt.yz();
+	_surRot[6] = rt.zx(); _surRot[7] = rt.zy(); _surRot[8] = rt.zz();
+	
+	
 	//Fill
 	_alignTree->Fill();
 	
@@ -427,6 +451,85 @@ void TrackerGeometryCompare::addSurveyInfo(Alignable* ali){
 	
 	++theSurveyIndex;
 	
+}
+void TrackerGeometryCompare::fillIdentifiers( int subdetlevel, int rawid ){
+	
+	
+	switch( subdetlevel ){
+			
+		case 1:
+		{
+			PXBDetId pxbid( rawid );
+			_identifiers[0] = pxbid.module();
+			_identifiers[1] = pxbid.ladder();
+			_identifiers[2] = pxbid.layer();
+			_identifiers[3] = 999;
+			_identifiers[4] = 999;
+			_identifiers[5] = 999;
+			break;
+		}
+		case 2:
+		{
+			PXFDetId pxfid( rawid );
+			_identifiers[0] = pxfid.module();
+			_identifiers[1] = pxfid.panel();
+			_identifiers[2] = pxfid.blade();
+			_identifiers[3] = pxfid.disk();
+			_identifiers[4] = pxfid.side();
+			_identifiers[5] = 999;
+			break;
+		}
+		case 3:
+		{
+			TIBDetId tibid( rawid );
+			_identifiers[0] = tibid.module();
+			_identifiers[1] = tibid.string()[0];
+			_identifiers[2] = tibid.string()[1];
+			_identifiers[3] = tibid.string()[2];
+			_identifiers[4] = tibid.layer();
+			_identifiers[5] = 999;
+			break;
+		}
+		case 4: 
+		{
+			TIDDetId tidid( rawid );
+			_identifiers[0] = tidid.module()[0];
+			_identifiers[1] = tidid.module()[1];
+			_identifiers[2] = tidid.ring();
+			_identifiers[3] = tidid.wheel();
+			_identifiers[4] = tidid.side();
+			_identifiers[5] = 999;
+			break;
+		}
+		case 5: 
+		{
+			TOBDetId tobid( rawid );
+			_identifiers[0] = tobid.module();
+			_identifiers[1] = tobid.rod()[0];
+			_identifiers[2] = tobid.rod()[1];
+			_identifiers[3] = tobid.layer();
+			_identifiers[4] = 999;
+			_identifiers[5] = 999;
+			break;
+		}
+		case 6: 
+		{
+			TECDetId tecid( rawid );
+			_identifiers[0] = tecid.module();
+			_identifiers[1] = tecid.ring();
+			_identifiers[2] = tecid.petal()[0];
+			_identifiers[3] = tecid.petal()[1];
+			_identifiers[4] = tecid.wheel();
+			_identifiers[5] = tecid.side();
+			break;
+		}
+		default:
+		{
+			std::cout << "Error: bad subdetid!!" << std::endl;
+			break;
+		}
+			
+	}
 }
 
 

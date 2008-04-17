@@ -65,6 +65,8 @@ private:
 	void compareGeometries(Alignable* refAli, Alignable* curAli);
 	//filling the ROOT file
 	void fillTree(Alignable *refAli, AlgebraicVector diff);
+	//for filling identifiers
+	void fillIdentifiers( int subdetlevel, int rawid );
 	//converts surveyRcd into alignmentRcd
 	void surveyToTracker(AlignableTracker* ali, Alignments* alignVals, AlignmentErrors* alignErrors);
 	//need for conversion for surveyToTracker
@@ -97,6 +99,9 @@ private:
 	int _id, _level, _mid, _mlevel, _sublevel;
 	float _xVal, _yVal, _zVal, _rVal, _phiVal, _alphaVal, _betaVal, _gammaVal;
 	float _dxVal, _dyVal, _dzVal, _drVal, _dphiVal, _dalphaVal, _dbetaVal, _dgammaVal;
+	float _surWidth, _surLength;
+	uint32_t _identifiers[6];
+	double _surRot[9];
 	
 
 	
