@@ -19,6 +19,7 @@ namespace pos{
 *   \brief This class implements..
 *
 *   A longer explanation will be placed here later
+
 */
   class PixelFECConfigInterface{
 
@@ -32,22 +33,31 @@ namespace pos{
     //are specified by the vector allPixels. 
 
     virtual void setMaskAndTrimAll(const PixelHdwAddress& theROC,
-				   const std::vector<unsigned char>& allPixels)=0;
+				   const std::vector<unsigned char>& allPixels,
+				   const bool buffermode=false)=0;
+
+    virtual void setDcolEnableAll(const PixelHdwAddress& theROC,
+                                  unsigned char maskAndTrim,
+                                  const bool buffermode=false )=0;
 
     //Generate the commands needed to set the trim and mask bits for all
     //pixels to the common value specified by maskAndTrim. 
-    virtual void setMaskAndTrimCommon(const PixelHdwAddress& theROC,
-  				      unsigned char maskAndTrim)=0;
+    // DO WE REALY NEED THIS?? Danek 15/4/08
+    //virtual void setMaskAndTrimCommon(const PixelHdwAddress& theROC,
+    //			      unsigned char maskAndTrim,)=0;
   
     //Generate the commands needed to set the DAC values for a ROC.
     virtual void setAllDAC(const PixelHdwAddress& theROC, 
-			   const std::vector<unsigned int>& dacs)=0;
-
-
+			   const std::vector<unsigned int>& dacs,
+			   const bool buffermode=false) = 0;
 
     virtual int roctrimload(int mfec, int fecchannel, 
 			    int hubaddress, int portaddress, int rocid,
 			    const std::vector<unsigned char>& allPixels)=0;
+
+    virtual int rocinit(int mfec, int fecchannel,
+                        int hubaddress, int portaddress, int rocid,
+                        int mask, int trim)=0;
 
     virtual int injectrstroc(const int mfec, const int bitstate)=0;
     virtual int injecttrigger(const int mfec, const int bitstate)=0;
