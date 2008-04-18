@@ -11,7 +11,8 @@ class PhotonID
 
   //Real constructor
   PhotonID(bool Decision, double BCIso, double TrkCone4,
-	   double HollowCone4, int nTrkCone4, int nHollow4,
+	   double HollowCone, int nTrkCone, int nHollow,
+	   double EcalRecHitIso, double HcalRecHitIso,
 	   bool EBPho, bool EEPho, bool EBGap, bool EEGap, bool EBEEGap,
 	   bool isAlsoElectron);
   
@@ -22,6 +23,10 @@ class PhotonID
   bool cutBasedDecision() const {return cutBasedDecision_;}
   //Returns computed BasicCluster isolation
   double isolationECal() const{return isolationECal_;}
+  //Returns computed EcalRecHit isolation
+  double isolationEcalRecHit() const{return isolationEcalRecHit_;}
+  //Returns computed HcalRecHit isolation
+  double isolationHcalRecHit() const{return isolationHcalRecHit_;}
   //Returns calculated sum track pT cone of dR
   double isolationSolidTrkCone() const{return isolationSolidTrkCone_;}
   //As above, excluding the core at the center of the cone
@@ -57,13 +62,17 @@ class PhotonID
 
   //BasicCluster Isolation
   double isolationECal_;
-  //Sum of track pT in a cone of dR=0.4
+  //EcalRecHit isolation
+  double isolationEcalRecHit_;
+  //HcalRecHit isolation
+  double isolationHcalRecHit_;
+  //Sum of track pT in a cone of dR
   double isolationSolidTrkCone_;
-  //Sum of track pT in a hollow cone of outer radius 0.4, inner radius 0.1
+  //Sum of track pT in a hollow cone of outer radius, inner radius
   double isolationHollowTrkCone_;
-  //Number of tracks in a cone of dR=0.4
+  //Number of tracks in a cone of dR
   int nTrkSolidCone_;
-  //Number of tracks in a hollow cone of outer radius 0.4, inner radius 0.1
+  //Number of tracks in a hollow cone of outer radius, inner radius
   int nTrkHollowTrkCone_;
  
   //Fiducial flags

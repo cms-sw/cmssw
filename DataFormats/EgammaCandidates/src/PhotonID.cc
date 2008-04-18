@@ -6,6 +6,8 @@ using namespace reco;
 PhotonID::PhotonID(){
   cutBasedDecision_=false;
   isolationECal_=999;
+  isolationEcalRecHit_=999;
+  isolationHcalRecHit_=999;
   isolationSolidTrkCone_=999;
   isolationHollowTrkCone_=999;
   nTrkSolidCone_=999;
@@ -24,6 +26,8 @@ PhotonID::PhotonID(bool Decision,
 		   double HollowCone, 
 		   int nTrkCone, 
 		   int nHollow,
+		   double EcalRecHitIso,
+		   double HcalRecHitIso,
 		   bool EBPho, 
 		   bool EEPho, 
 		   bool EBGap, 
@@ -32,6 +36,8 @@ PhotonID::PhotonID(bool Decision,
 		   bool isAlsoElectron){
   cutBasedDecision_=Decision;
   isolationECal_=BCIso;
+  isolationEcalRecHit_ = EcalRecHitIso;
+  isolationHcalRecHit_ = HcalRecHitIso;
   isolationSolidTrkCone_=TrkCone;
   isolationHollowTrkCone_=HollowCone;
   nTrkSolidCone_=nTrkCone;
