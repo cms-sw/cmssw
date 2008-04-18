@@ -15,6 +15,9 @@
      <Primitive column="MAXPED" name="maxPed_" />
      <Primitive column="MINGAIN" name="minGain_" />
      <Primitive column="MINPED" name="minPed_" />
+     <Primitive column="NUMROWSTOAVERAGE" name="numberOfRowsToAverageOver_" />
+     <Primitive column="NBINSFORENCODE" name="nBinsToUseForEncoding_" />
+     <Primitive column="DEADPIXFLAG" name="deadFlag_" />
      <Blob column="GAINCALIBRATIONOFFLINE_BLOB" name="v_pedestals" />
    </Class >
   </PoolContainer >
