@@ -1,5 +1,5 @@
 //
-// $Id: PATJetProducer.cc,v 1.6 2008/04/03 19:33:42 lowette Exp $
+// $Id: PATJetProducer.cc,v 1.7 2008/04/17 23:43:41 gpetrucc Exp $
 //
 
 #include "PhysicsTools/PatAlgos/plugins/PATJetProducer.h"
@@ -55,7 +55,6 @@ PATJetProducer::PATJetProducer(const edm::ParameterSet& iConfig) {
   useNNReso_               = iConfig.getParameter<bool> 		      ( "useNNResolutions" );
   caliJetResoFile_         = iConfig.getParameter<std::string>  	      ( "caliJetResoFile" );
   caliBJetResoFile_        = iConfig.getParameter<std::string>  	      ( "caliBJetResoFile" );
-#if 0
   addBTagInfo_             = iConfig.getParameter<bool> 		      ( "addBTagInfo" );
   tagModuleLabelPostfix_   = iConfig.getParameter<std::string>  	      ( "tagModuleLabelPostfix" ); 
   addDiscriminators_       = iConfig.getParameter<bool> 		      ( "addDiscriminators" );
@@ -65,7 +64,6 @@ PATJetProducer::PATJetProducer(const edm::ParameterSet& iConfig) {
   softETagInfoLabel_       = iConfig.getParameter<std::vector<edm::InputTag> >( "softETagInfoLabelName" );
   softMTagInfoLabel_       = iConfig.getParameter<std::vector<edm::InputTag> >( "softMTagInfoLabelName" );
   svTagInfoLabel_          = iConfig.getParameter<std::vector<edm::InputTag> >( "svTagInfoLabelName" );
-#endif
   addAssociatedTracks_     = iConfig.getParameter<bool> 		      ( "addAssociatedTracks" ); 
   trackAssociation_        = iConfig.getParameter<edm::InputTag>	      ( "trackAssociationSource" );
   addJetCharge_            = iConfig.getParameter<bool> 		      ( "addJetCharge" ); 
@@ -121,7 +119,6 @@ void PATJetProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
   edm::Handle<edm::ValueMap<JetCorrFactors> > jetCorrs;
   iEvent.getByLabel(jetCorrFactorsSrc_, jetCorrs);
 
-#if 0
   // Get the vector of jet tags with b-tagging info
   std::vector<edm::Handle<std::vector<reco::JetTag> > > jetTags_testManyByType ;
   if (addBTagInfo_) iEvent.getManyByType(jetTags_testManyByType);
@@ -135,7 +132,6 @@ void PATJetProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
   edm::Handle<reco::SoftLeptonTagInfoCollection> jetsInfoHandle_sl;
   edm::Handle<reco::TrackProbabilityTagInfoCollection> jetsInfoHandleTP;
   edm::Handle<reco::TrackCountingTagInfoCollection> jetsInfoHandleTC;
-#endif
 
   // tracks Jet Track Association
   edm::Handle<edm::ValueMap<reco::TrackRefVector> > hTrackAss;
@@ -205,7 +201,6 @@ void PATJetProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
       ajet.setBResolutions(abjet.resolutionEt(), abjet.resolutionEta(), abjet.resolutionPhi(), abjet.resolutionA(), abjet.resolutionB(), abjet.resolutionC(), abjet.resolutionD(), abjet.resolutionTheta());
     }
 
-#if 0
     // add b-tag info if available & required
     if (addBTagInfo_) {
       
@@ -276,7 +271,6 @@ void PATJetProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
       }
       
     }
-#endif
     
     if (addAssociatedTracks_) ajet.associatedTracks_ = (*hTrackAss)[jetRef];
 
