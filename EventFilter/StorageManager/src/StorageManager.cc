@@ -1,4 +1,4 @@
-// $Id: StorageManager.cc,v 1.47 2008/04/16 16:16:08 biery Exp $
+// $Id: StorageManager.cc,v 1.48 2008/04/16 18:22:58 biery Exp $
 
 #include <iostream>
 #include <iomanip>
@@ -242,7 +242,7 @@ StorageManager::StorageManager(xdaq::ApplicationStub * s)
   // sourcename << xmlClass << "_" << instance;
   sourcename << instance;
   sourceId_ = sourcename.str();
-  smParameter_ -> setSmInstance(sourceId_);  // sourceId_ can be removed ...
+  smParameter_ -> setSmInstance(sourceId_);
 
   // need the line below so that deserializeRegistry can run
   // in order to compare two registries (cannot compare byte-for-byte) (if we keep this)
