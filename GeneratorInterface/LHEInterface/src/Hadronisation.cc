@@ -59,11 +59,6 @@ void Hadronisation::clear()
 {
 }
 
-double Hadronisation::getCrossSection() const
-{
-	return -1.0;
-}
-
 std::auto_ptr<Hadronisation> Hadronisation::create(
 					const edm::ParameterSet &params)
 {

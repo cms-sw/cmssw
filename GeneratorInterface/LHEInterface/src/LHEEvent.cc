@@ -4,6 +4,7 @@
 #include <string>
 #include <vector>
 #include <memory>
+#include <cmath>
 
 #include <HepMC/GenEvent.h>
 #include <HepMC/GenVertex.h>
@@ -101,6 +102,42 @@ LHEEvent::~LHEEvent()
 void LHEEvent::count(LHECommon::CountMode mode)
 {
 	common->count(hepeup.IDPRUP, mode, hepeup.XWGTUP);
+}
+
+void LHEEvent::fillPdfInfo(HepMC::PdfInfo *info) const
+{
+	if (pdf.get()) {
+		info->set_id1(pdf->id.first);
+		info->set_id2(pdf->id.second);
+		info->set_x1(pdf->x.first);
+		info->set_x2(pdf->x.second);
+		info->set_pdf1(pdf->xPDF.first);
+		info->set_pdf2(pdf->xPDF.second);
+		info->set_scalePDF(pdf->scalePDF);
+	} else if (hepeup.NUP >= 2) {
+		const HEPRUP *heprup = getHEPRUP();
+		info->set_id1(hepeup.IDUP[0] == 21 ? 0 : hepeup.IDUP[0]);
+		info->set_id2(hepeup.IDUP[1] == 21 ? 0 : hepeup.IDUP[1]);
+		info->set_x1(std::abs(hepeup.PUP[0][2] / heprup->EBMUP.first));
+		info->set_x2(std::abs(hepeup.PUP[1][2] / heprup->EBMUP.second));
+		info->set_pdf1(-1.0);
+		info->set_pdf2(-1.0);
+		info->set_scalePDF(hepeup.SCALUP);
+	} else {
+		info->set_x1(-1.0);
+		info->set_x2(-1.0);
+		info->set_pdf1(-1.0);
+		info->set_pdf2(-1.0);
+		info->set_scalePDF(hepeup.SCALUP);
+	}
+}
+
+void LHEEvent::fillEventInfo(HepMC::GenEvent *event) const
+{
+	event->set_signal_process_id(hepeup.IDPRUP);
+	event->set_event_scale(hepeup.SCALUP);
+	event->set_alphaQED(hepeup.AQEDUP);
+	event->set_alphaQCD(hepeup.AQCDUP);
 }
 
 std::auto_ptr<HepMC::GenEvent> LHEEvent::asHepMCEvent() const

@@ -9,6 +9,7 @@
 
 #include <HepMC/GenEvent.h>
 #include <HepMC/GenVertex.h>
+#include <HepMC/PdfInfo.h>
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
@@ -38,6 +39,9 @@ class LHEEvent {
 	const PDF *getPDF() const { return pdf.get(); }
 
 	void count(LHECommon::CountMode count);
+
+	void fillPdfInfo(HepMC::PdfInfo *info) const;
+	void fillEventInfo(HepMC::GenEvent *hepmc) const;
 
 	std::auto_ptr<HepMC::GenEvent> asHepMCEvent() const;
 

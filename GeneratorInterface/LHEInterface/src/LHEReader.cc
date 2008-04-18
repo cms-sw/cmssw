@@ -74,7 +74,6 @@ class LHEReader::XMLHandler : public XMLDocument::Handler {
 	                const XMLCh *const qname);
 
 	void characters(const XMLCh *const data, const unsigned int length);
-
 	void comment(const XMLCh *const data, const unsigned int length);
 
     private:

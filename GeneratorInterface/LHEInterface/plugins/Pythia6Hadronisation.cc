@@ -7,6 +7,7 @@
 #include <boost/shared_ptr.hpp>
 
 #include <HepMC/GenEvent.h>
+#include <HepMC/PdfInfo.h>
 #include <HepMC/PythiaWrapper6_2.h>
 #include <HepMC/IO_HEPEVT.h>
 
@@ -36,7 +37,6 @@ class Pythia6Hadronisation : public Hadronisation {
 
     private:
 	std::auto_ptr<HepMC::GenEvent> doHadronisation();
-	double getCrossSection() const;
 	void newCommon(const boost::shared_ptr<LHECommon> &common);
 
 	const int		pythiaPylistVerbosity;
@@ -161,7 +161,37 @@ std::auto_ptr<HepMC::GenEvent> Pythia6Hadronisation::doHadronisation()
 
 	std::auto_ptr<HepMC::GenEvent> event(conv.read_next_event());
 
-	event->set_signal_process_id(pypars.msti[0]);   
+	const HEPRUP *heprup = getRawEvent()->getHEPRUP();
+	const HEPEUP *hepeup = getRawEvent()->getHEPEUP();
+
+	getRawEvent()->fillEventInfo(event.get());
+	if (event->event_scale() < 0.0)
+		event->set_event_scale(pypars.pari[16]);
+	if (event->alphaQED() < 0.0)
+		event->set_alphaQED(pypars.pari[27]);
+	if (event->alphaQCD() < 0.0)
+		event->set_alphaQCD(pypars.pari[28]);
+
+	HepMC::PdfInfo pdf;
+	getRawEvent()->fillPdfInfo(&pdf);
+	if (pdf.pdf1() < 0)
+		pdf.set_pdf1(pypars.pari[28]);
+	if (pdf.pdf2() < 0)
+		pdf.set_pdf2(pypars.pari[29]);
+	if (pdf.x1() < 0)
+		pdf.set_x1(pypars.pari[32]);
+	if (pdf.x2() < 0)
+		pdf.set_x2(pypars.pari[33]);
+	if (pdf.scalePDF() < 0)
+		pdf.set_scalePDF(pypars.pari[20]);
+
+std::cout << pdf.id1() << ", "
+	<< pdf.id2() << ", "
+	<< pdf.pdf1() << ", "
+	<< pdf.pdf2() << ", "
+	<< pdf.x1() << ", "
+	<< pdf.x2() << ", "
+	<< pdf.scalePDF() << std::endl;
 
 	if (maxEventsToPrint > 0) {
 		maxEventsToPrint--;
@@ -170,11 +200,6 @@ std::auto_ptr<HepMC::GenEvent> Pythia6Hadronisation::doHadronisation()
 	}
 
 	return event;
-}
-
-double Pythia6Hadronisation::getCrossSection() const
-{
-	return pypars.pari[0];
 }
 
 void Pythia6Hadronisation::newCommon(const boost::shared_ptr<LHECommon> &common)

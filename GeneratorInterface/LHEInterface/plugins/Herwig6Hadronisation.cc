@@ -18,6 +18,7 @@
 #include <boost/shared_ptr.hpp>
 
 #include <HepMC/GenEvent.h>
+#include <HepMC/PdfInfo.h>
 #include <HepMC/HerwigWrapper6_4.h>
 #include <HepMC/IO_HERWIG.h>
 
@@ -50,7 +51,6 @@ class Herwig6Hadronisation : public Hadronisation {
     private:
 	void clear();
 	std::auto_ptr<HepMC::GenEvent> doHadronisation();
-	double getCrossSection() const;
 	void newCommon(const boost::shared_ptr<LHECommon> &common);
 
 	int			herwigVerbosity;
@@ -377,17 +377,13 @@ std::auto_ptr<HepMC::GenEvent> Herwig6Hadronisation::doHadronisation()
 
 	LHEEvent::fixHepMCEventTimeOrdering(event.get());
 
-	event->set_signal_process_id(hwproc.IPROC);	//FIXME
+	getRawEvent()->fillEventInfo(event.get());
+
+	HepMC::PdfInfo pdf;
+	getRawEvent()->fillPdfInfo(&pdf);
+	event->set_pdf_info(pdf);
 
 	return event;
-}
-
-double Herwig6Hadronisation::getCrossSection() const
-{
-	double RNWGT = 1.0 / hwevnt.NWGTS;
-	double AVWGT = hwevnt.WGTSUM * RNWGT;
-
-	return 1000.0 * AVWGT;
 }
 
 void Herwig6Hadronisation::newCommon(const boost::shared_ptr<LHECommon> &common)

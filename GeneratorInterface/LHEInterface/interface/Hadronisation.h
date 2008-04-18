@@ -25,8 +25,6 @@ class Hadronisation {
 
 	std::auto_ptr<HepMC::GenEvent> hadronize();
 
-	virtual double getCrossSection() const;
-
 	static std::auto_ptr<Hadronisation> create(
 					const edm::ParameterSet &params);
 
