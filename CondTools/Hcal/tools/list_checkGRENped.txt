@@ -6,6 +6,12 @@
 # Object = Gains/Pedestals/PedestalWidths
 #
 
+
+# Salavats bad cells replaced:
+Pedestals   CondFormats/HcalObjects/data/hcal_pedestals_fC_v3.txt  CondTools/Hcal/tools/tmp_ped11.txt  hcal_pedestals_fC_v4.txt
+PedestalWidths   CondFormats/HcalObjects/data/hcal_widths_fC_v3.txt  CondTools/Hcal/tools/tmp_wid11.txt  hcal_widths_fC_v4.txt
+
+
 # pedestals for GRuMM
 
 # Pedestals CondTools/Hcal/tools/grmm-r3/peds_fC_with37893.txt   CondTools/Hcal/tools/grmm-r3/38148-peds_fC.txt    peds_fC_with38148.txt

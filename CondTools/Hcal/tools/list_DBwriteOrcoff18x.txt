@@ -13,11 +13,11 @@
 # orcoff  ElectronicsMap  CondFormats/HcalObjects/data/official_emap_16x_v4.txt      official_emap_16x_v4_9Nov07  since  0
 
 # # miscalibration gains
-# orcoff  Gains           CondFormats/HcalObjects/data/miscalib_CSA07/hcal_gain_miscalib_v1_100pb.txt  hcal_gain_miscalib_v1_100pb  since  0
-# orcoff  Gains           CondFormats/HcalObjects/data/miscalib_CSA07/hcal_gain_miscalib_v2_100pb.txt  hcal_gain_miscalib_v2_100pb  since  0
-# orcoff  Gains           CondFormats/HcalObjects/data/miscalib_CSA07/hcal_gain_miscalib_v2_10pb.txt   hcal_gain_miscalib_v2_10pb   since  0
-# orcoff  Gains           CondFormats/HcalObjects/data/miscalib_CSA07/hcal_gain_miscalib_v1.txt        hcal_gains_miscalib_v1       since  0
-# orcoff  Gains           CondFormats/HcalObjects/data/miscalib_CSA07/hcal_gain_miscalib_v1_10pb.txt   hcal_gains_miscalib_v1_10pb  since  0
+# orcoff  Gains           CondFormats/HcalObjects/data/miscalib-CSA07/hcal_gain_miscalib_v1_100pb.txt  hcal_gain_miscalib_v1_100pb  since  0
+# orcoff  Gains           CondFormats/HcalObjects/data/miscalib-CSA07/hcal_gain_miscalib_v2_100pb.txt  hcal_gain_miscalib_v2_100pb  since  0
+# orcoff  Gains           CondFormats/HcalObjects/data/miscalib-CSA07/hcal_gain_miscalib_v2_10pb.txt   hcal_gain_miscalib_v2_10pb   since  0
+# orcoff  Gains           CondFormats/HcalObjects/data/miscalib-CSA07/hcal_gain_miscalib_v1.txt        hcal_gains_miscalib_v1       since  0
+# orcoff  Gains           CondFormats/HcalObjects/data/miscalib-CSA07/hcal_gain_miscalib_v1.10pb.txt   hcal_gains_miscalib_v1_10pb  since  0
 
 # # standard conditions
 # orcoff  Gains           CondFormats/HcalObjects/data/hcal_gains_v1.txt             hcal_gains_v1                since  0
