@@ -1,7 +1,7 @@
 #ifndef IOPool_Streamer_StreamerOutputModule_h
 #define IOPool_Streamer_StreamerOutputModule_h
 
-// $Id: StreamerOutputModule.h,v 1.36 2008/02/20 22:15:25 wdd Exp $
+// $Id: StreamerOutputModule.h,v 1.37 2008/03/24 16:20:50 biery Exp $
 
 #include "FWCore/RootAutoLibraryLoader/interface/RootAutoLibraryLoader.h"
 #include "FWCore/Utilities/interface/Exception.h"
@@ -253,8 +253,20 @@ std::auto_ptr<InitMsgBuilder> StreamerOutputModule<Consumer>::serializeRegistry(
 
     Strings hltTriggerNames = edm::getAllTriggerNames();
     hltsize_ = hltTriggerNames.size();
-    maskingSelector_.reset(new EventSelector(hltTriggerSelections_,
-                                             hltTriggerNames));
+    // 18-Apr-2008, KAB: added a check for valid hltTriggerNames and
+    // hltTriggerSelections lists.  This is a partial fix at best.
+    // If getAllTriggerNames has returned an empty list, we are most
+    // likely running offline in a cmsRun job that has no paths.  And,
+    // it is likely that the job is trying to convert a ROOT file to
+    // a streamer file.  In that case, it is not clear what trigger names
+    // should be used.  Possibly ones from a previous process, but which
+    // ones?  (and how would we get them?)
+    // If there are no trigger names in an online job, isn't that a
+    // mistake that should be flagged?
+    if (hltsize_ > 0 && hltTriggerSelections_.size() > 0) {
+      maskingSelector_.reset(new EventSelector(hltTriggerSelections_,
+                                               hltTriggerNames));
+    }
 
     //L1 stays dummy as of today
     Strings l1_names;  //3
@@ -291,10 +303,20 @@ void StreamerOutputModule<Consumer>::setHltMask(EventPrincipal const& e)
     
     if (prod.isValid())
     {
-      boost::shared_ptr<TriggerResults> maskedResults =
-        maskingSelector_->maskTriggerResults(*prod);
-      for(std::vector<unsigned char>::size_type i=0; i != hltsize_ ; ++i) {
-        vHltState.push_back(((maskedResults->at(i)).state()));
+      // 18-Apr-2008, KAB:  if we have a valid maskingSelector, use it
+      // to mask the trigger results, otherwise simply use the TriggerResults
+      // object in the event.
+      if (maskingSelector_.get() != 0) {
+        boost::shared_ptr<TriggerResults> maskedResults =
+          maskingSelector_->maskTriggerResults(*prod);
+        for(std::vector<unsigned char>::size_type i=0; i != hltsize_ ; ++i) {
+          vHltState.push_back(((maskedResults->at(i)).state()));
+        }
+      }
+      else {
+        for(std::vector<unsigned char>::size_type i=0; i != hltsize_ ; ++i) {
+          vHltState.push_back(((prod->at(i)).state()));
+        }
       }
     }
     else 
