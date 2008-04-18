@@ -6,7 +6,7 @@
 
 #include "FWCore/Framework/interface/ESHandle.h"
 
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
+// #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 
@@ -31,8 +31,8 @@ PFPileUp::PFPileUp(const edm::ParameterSet& iConfig) {
   produces<reco::PileUpPFCandidateCollection>();
   
 
-  LogDebug("PFPileUp")
-    <<" input collection : "<<inputTagPFCandidates_ ;
+//   LogDebug("PFPileUp")
+//     <<" input collection : "<<inputTagPFCandidates_ ;
    
 }
 
@@ -48,8 +48,8 @@ void PFPileUp::beginJob(const edm::EventSetup & es) { }
 void PFPileUp::produce(Event& iEvent, 
 			  const EventSetup& iSetup) {
   
-  LogDebug("PFPileUp")<<"START event: "<<iEvent.id().event()
-			 <<" in run "<<iEvent.id().run()<<endl;
+//   LogDebug("PFPileUp")<<"START event: "<<iEvent.id().event()
+// 			 <<" in run "<<iEvent.id().run()<<endl;
   
   
   
@@ -85,7 +85,7 @@ void PFPileUp::produce(Event& iEvent,
   
   iEvent.put( pOutput );
   
-  LogDebug("PFPileUp")<<"STOP event: "<<iEvent.id().event()
-			 <<" in run "<<iEvent.id().run()<<endl;
+//   LogDebug("PFPileUp")<<"STOP event: "<<iEvent.id().event()
+// 			 <<" in run "<<iEvent.id().run()<<endl;
 }
 

@@ -10,7 +10,7 @@
 
 #include "FWCore/Framework/interface/ESHandle.h"
 
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
+// #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 
@@ -51,8 +51,9 @@ PFTopProjector::PFTopProjector(const edm::ParameterSet& iConfig) {
        <<"input IsolatedPFCandidateCollection : "
        <<inputTagIsolatedPFCandidates_<<endl  
        <<"input PFJetCollection : "
-       <<inputTagPFJets_<<endl;     
-    LogInfo("PFTopProjector")<<msg.str();
+       <<inputTagPFJets_<<endl;  
+    cout<<msg.str()<<endl;
+//     LogInfo("PFTopProjector")<<msg.str();
   }
 }
 
@@ -68,8 +69,8 @@ void PFTopProjector::beginJob(const edm::EventSetup & es) { }
 void PFTopProjector::produce(Event& iEvent, 
 			  const EventSetup& iSetup) {
   
-  LogDebug("PFTopProjector")<<"START event: "<<iEvent.id().event()
-			 <<" in run "<<iEvent.id().run()<<endl;
+//   LogDebug("PFTopProjector")<<"START event: "<<iEvent.id().event()
+// 			 <<" in run "<<iEvent.id().run()<<endl;
   
   
   
@@ -196,8 +197,8 @@ void PFTopProjector::produce(Event& iEvent,
 
   iEvent.put( pOutput );
   
-  LogDebug("PFTopProjector")<<"STOP event: "<<iEvent.id().event()
- 			 <<" in run "<<iEvent.id().run()<<endl;
+//   LogDebug("PFTopProjector")<<"STOP event: "<<iEvent.id().event()
+//  			 <<" in run "<<iEvent.id().run()<<endl;
 }
 
 

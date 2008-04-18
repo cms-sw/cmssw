@@ -6,7 +6,7 @@
 
 #include "FWCore/Framework/interface/ESHandle.h"
 
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
+// #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 
@@ -41,9 +41,9 @@ PFIsolation::PFIsolation(const edm::ParameterSet& iConfig) {
   isolation_Cone_DeltaR_
     = iConfig.getParameter<double>("isolation_Cone_DeltaR");  
 
-  LogDebug("PFIsolation")
-    <<" input collection : "<<inputTagPFCandidates_ <<"\t"
-    <<" max_ptFraction_InCone : "<<max_ptFraction_InCone_<<"\t";
+//   LogDebug("PFIsolation")
+//     <<" input collection : "<<inputTagPFCandidates_ <<"\t"
+//     <<" max_ptFraction_InCone : "<<max_ptFraction_InCone_<<"\t";
    
   
 
@@ -61,8 +61,8 @@ void PFIsolation::beginJob(const edm::EventSetup & es) { }
 void PFIsolation::produce(Event& iEvent, 
 			  const EventSetup& iSetup) {
   
-  LogDebug("PFIsolation")<<"START event: "<<iEvent.id().event()
-			 <<" in run "<<iEvent.id().run()<<endl;
+//   LogDebug("PFIsolation")<<"START event: "<<iEvent.id().event()
+// 			 <<" in run "<<iEvent.id().run()<<endl;
   
   
   
@@ -101,8 +101,8 @@ void PFIsolation::produce(Event& iEvent,
   
   iEvent.put( pOutput );
   
-  LogDebug("PFIsolation")<<"STOP event: "<<iEvent.id().event()
-			 <<" in run "<<iEvent.id().run()<<endl;
+//   LogDebug("PFIsolation")<<"STOP event: "<<iEvent.id().event()
+// 			 <<" in run "<<iEvent.id().run()<<endl;
 }
 
 
