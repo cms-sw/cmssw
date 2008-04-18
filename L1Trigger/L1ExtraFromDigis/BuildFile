@@ -6,7 +6,6 @@
 <use name=DataFormats/L1GlobalTrigger>
 <use name=CondFormats/L1TObjects>
 <use name=CondFormats/DataRecord>
-<use name=L1TriggerConfig/L1Geometry>
 <flags EDM_PLUGIN=1>
 <export>
    <lib name=L1TriggerL1ExtraFromDigis>
