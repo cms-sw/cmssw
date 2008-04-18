@@ -59,9 +59,6 @@ void pat::PATTauCleaner<TauIn,TauOut,TauTag>::produce(edm::Event & iEvent, const
 
 template<typename TauIn, typename TauOut, typename TauTag>
 void pat::PATTauCleaner<TauIn,TauOut,TauTag>::endJob() { 
-    edm::LogVerbatim("PATLayer0Summary|PATTauCleaner") << "PATTauCleaner end job. \n" <<
-            "Input tag was " << tauSrc_.encode() <<
-            "\nCleaner summary information:\n" <<
-            helper_.printSummary();
+    typename edm::LogVerbatim("PATLayer0Summary|PATTauCleaner") << "PATTauCleaner end job. Input tag was " << tauSrc_.encode();
     helper_.endJob(); 
 }

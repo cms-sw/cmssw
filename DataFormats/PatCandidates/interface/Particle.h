@@ -1,5 +1,5 @@
 //
-// $Id: Particle.h,v 1.2 2008/03/05 14:47:33 fronga Exp $
+// $Id: Particle.h,v 1.1 2008/01/15 12:59:28 lowette Exp $
 //
 
 #ifndef DataFormats_PatCandidates_Particle_h
@@ -13,7 +13,7 @@
    namespace.
 
   \author   Steven Lowette
-  \version  $Id: Particle.h,v 1.2 2008/03/05 14:47:33 fronga Exp $
+  \version  $Id: Particle.h,v 1.1 2008/01/15 12:59:28 lowette Exp $
 */
 
 #include "DataFormats/Candidate/interface/Particle.h"
@@ -33,8 +33,6 @@ namespace pat {
       Particle();
       Particle(const ParticleType & aParticle);
       virtual ~Particle();
-
-      virtual Particle * clone() const { return new Particle(*this); }
 
   };
 

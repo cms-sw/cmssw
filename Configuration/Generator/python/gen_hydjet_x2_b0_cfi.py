@@ -1,11 +1,3 @@
-# The following comments couldn't be translated into the new config version:
-
-# This is a vector of ParameterSet names to be read, in this order
-# They are  in the include files
-# pythiaDefault HAS TO BE ALWAYS included
-# If just the hard QCD dijets wanted, comment out the photons corresponding include and parameter set
-
-# MSEL=1 (hard QCD dijets in) + hydjet needed initializations
 import FWCore.ParameterSet.Config as cms
 
 source = cms.Source("HydjetSource",
@@ -29,7 +21,6 @@ source = cms.Source("HydjetSource",
     fracSoftMultiplicity = cms.double(1.0),
     maxEventsToPrint = cms.untracked.int32(0),
     bMax = cms.double(0.0),
-    # initialize pythia
     PythiaParameters = cms.PSet(
         orcaSettings = cms.vstring('MSEL=0', 'PARP(67)=1.', 'PARP(82)=1.9', 'PARP(85)=0.33', 'PARP(86)=0.66', 'PARP(89)=1000.', 'PARP(91)=1.0', 'MSTJ(11)=3', 'MSTJ(22)=2'),
         pythiaJets = cms.vstring('MSUB(11)=1', 'MSUB(12)=1', 'MSUB(13)=1', 'MSUB(28)=1', 'MSUB(53)=1', 'MSUB(68)=1'),
@@ -40,15 +31,9 @@ source = cms.Source("HydjetSource",
     qgpProperTimeFormation = cms.double(0.1)
 )
 
-# whatever parameters from the hydjetSourceDefault you want to modify, do it following the exampels
 HydjetSource.bFixed = 0.
-# replace HydjetSource.bMax          = 0.               # max impact param (fm)
-# replace HydjetSource.bMin          = 0.               # min impact param (fm)
 HydjetSource.cFlag = 0
-# =  0 fixed impact param
-# <> 0 between bmin and bmax
 HydjetSource.nMultiplicity = 26000
-#automatically calculated for other centralities and beams
 HydjetSource.hydjetMode = 'kHydroQJets'
 
 

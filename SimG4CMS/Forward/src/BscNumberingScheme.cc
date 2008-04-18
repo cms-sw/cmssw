@@ -10,31 +10,26 @@
 #include "globals.hh"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-
-using namespace std;
-using namespace edm;
-
 BscNumberingScheme::BscNumberingScheme() {
   LogDebug("BscSim") << " Creating BscNumberingScheme" ;
 }
 
 BscNumberingScheme::~BscNumberingScheme() {
- LogDebug("BscSim") << " Deleting BscNumberingScheme" ;
+  LogDebug("BscSim") << " Deleting BscNumberingScheme" ;
 }
 
-                                                                                
 int BscNumberingScheme::detectorLevel(const G4Step* aStep) const {
-                                                                                
+
   //Find number of levels
   const G4VTouchable* touch = aStep->GetPreStepPoint()->GetTouchable();
   int level = 0;
   if (touch) level = ((touch->GetHistoryDepth())+1);
   return level;
 }
-                                                                                
+
 void BscNumberingScheme::detectorLevel(const G4Step* aStep, int& level,
                                         int* copyno, G4String* name) const {
-                                                                                
+
   //Get name and copy numbers
   if (level > 0) {
     const G4VTouchable* touch = aStep->GetPreStepPoint()->GetTouchable();
@@ -45,16 +40,13 @@ void BscNumberingScheme::detectorLevel(const G4Step* aStep, int& level,
     }
   }
 }
-                                                                                
-
-
 
 unsigned int BscNumberingScheme::getUnitID(const G4Step* aStep) const {
 
   unsigned intindex=0;
   int level = detectorLevel(aStep);
 
-  LogDebug("BscSim") << "BscNumberingScheme number of levels= " << level << endl;
+  LogDebug("BscSim") << "BscNumberingScheme number of levels= " << level;
 
  //  unsigned int intIndex = 0;
   if (level > 0) {
@@ -82,19 +74,19 @@ unsigned int BscNumberingScheme::getUnitID(const G4Step* aStep) const {
         station =  copyno[ich]-1;
       }
 
-      LogDebug("BscSim") << "BscNumberingScheme  " << "ich=" << ich  << "copyno" 
-		   << copyno[ich] << "name="  << name[ich] << endl;
+      LogDebug("BscSim") << "BscNumberingScheme  " << "ich=" << ich  <<"copyno"
+			 << copyno[ich] << "name="  << name[ich];
 
     }
     intindex = packBscIndex (zside,det,  station);
     LogDebug("BscSim") << "BscNumberingScheme : det " << det << " zside " 
-		  << zside << " station " << station 
-		  << " UnitID 0x" << hex << intindex << dec << endl;
+		       << zside << " station " << station 
+		       << " UnitID 0x" << std::hex << intindex << std::dec;
 
     for (int ich = 0; ich < level; ich++)
-      LogDebug("BscSim") <<" name = " << name[ich] <<" copy = " << copyno[ich] 
-		    << endl;
-    LogDebug("BscSim")<< " packed index = 0x" << hex << intindex << dec << endl;
+      LogDebug("BscSim") <<" name = " << name[ich] <<" copy = " << copyno[ich];
+    LogDebug("BscSim") << " packed index = 0x" << std::hex << intindex 
+		       << std::dec;
 
     delete[] copyno;
     delete[] name;
@@ -106,14 +98,15 @@ unsigned int BscNumberingScheme::getUnitID(const G4Step* aStep) const {
 
 unsigned BscNumberingScheme::packBscIndex(int zside,int det,  int station){
   unsigned int idx = 6 << 28; // autre numero que les detecteurs existants 
-  idx += (zside<<5)&32;    // vaut 0 ou 1 bit 5    
-  idx += (det<<3)&24;                  //bit 3-4    det:0-1-2    2 bits:0-1
-  idx += (station&7);                //bits 0-2   station:0-7=8-->2**3 =8     3 bits:0-2         
-  LogInfo("BscSim") << "Bsc packing: det " << det 
- << " zside  " << zside << " station " << station  << "-> 0x" << hex << idx << dec <<  endl;
+  idx += (zside<<5)&32;       // vaut 0 ou 1 bit 5    
+  idx += (det<<3)&24;         //bit 3-4    det:0-1-2    2 bits:0-1
+  idx += (station&7);         //bits 0-2   station:0-7=8-->2**3 =8   3 bits:0-2
+  LogDebug("BscSim") << "Bsc packing: det " << det 
+		     << " zside  " << zside << " station " << station  
+		     << "-> 0x" << std::hex << idx << std::dec;
 
   //  unpackBscIndex(idx);  
-return idx;
+  return idx;
 }
 
 void BscNumberingScheme::unpackBscIndex(const unsigned int& idx) {
@@ -121,6 +114,7 @@ void BscNumberingScheme::unpackBscIndex(const unsigned int& idx) {
   zside  = (idx&32)>>5;
   det    = (idx&24)>>3;
   station = idx&7;                                           
-  LogDebug("BscSim") << " Bsc unpacking: 0x " << hex << idx << dec << " -> det " <<   det  << " zside  " << zside << " station " << station  ;
+  LogDebug("BscSim") << " Bsc unpacking: 0x " << std::hex << idx << std::dec 
+		     << " -> det " <<   det  << " zside  " << zside 
+		     << " station " << station  ;
 }
-                                                                                

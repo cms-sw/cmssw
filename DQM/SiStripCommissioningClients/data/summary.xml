@@ -78,38 +78,5 @@
 
 </RunType>
 
-<RunType name="PedsOnly">
-
-<SummaryPlot monitorable="StripPedestals" presentation="Histo1D" level="SiStrip/ControlView" granularity=""/>
-<SummaryPlot monitorable="StripNoise" presentation="Histo1D" level="SiStrip/ControlView" granularity=""/>
-<SummaryPlot monitorable="NoiseMin" presentation="Histo1D" level="SiStrip/ControlView" granularity=""/>
-<SummaryPlot monitorable="NoiseMax" presentation="Histo1D" level="SiStrip/ControlView" granularity=""/>
-
-<SummaryPlot monitorable="StripPedestals" presentation="Histo2DScatter" level="SiStrip/ControlView" granularity="CcuChan"/>
-<SummaryPlot monitorable="StripNoise" presentation="Histo2DScatter" level="SiStrip/ControlView" granularity="CcuChan"/>
-
-<SummaryPlot monitorable="StripPedestals" presentation="Profile1D" level="SiStrip/ControlView" granularity="CcuChan"/>
-<SummaryPlot monitorable="StripNoise" presentation="Profile1D" level="SiStrip/ControlView" granularity="CcuChan"/>
-
-</RunType>
-
-<RunType name="Noise">
-
-<SummaryPlot monitorable="StripPedestals" presentation="Histo1D" level="SiStrip/ControlView" granularity=""/>
-<SummaryPlot monitorable="StripNoise" presentation="Histo1D" level="SiStrip/ControlView" granularity=""/>
-<SummaryPlot monitorable="NoiseMin" presentation="Histo1D" level="SiStrip/ControlView" granularity=""/>
-<SummaryPlot monitorable="NoiseMax" presentation="Histo1D" level="SiStrip/ControlView" granularity=""/>
-
-<SummaryPlot monitorable="NumOfDeadStrips" presentation="Histo1D" level="SiStrip/ControlView" granularity=""/>
-<SummaryPlot monitorable="NumOfNoisyStrips" presentation="Histo1D" level="SiStrip/ControlView" granularity=""/>
-
-<SummaryPlot monitorable="StripPedestals" presentation="Histo2DScatter" level="SiStrip/ControlView" granularity="CcuChan"/>
-<SummaryPlot monitorable="StripNoise" presentation="Histo2DScatter" level="SiStrip/ControlView" granularity="CcuChan"/>
-
-<SummaryPlot monitorable="StripPedestals" presentation="Profile1D" level="SiStrip/ControlView" granularity="CcuChan"/>
-<SummaryPlot monitorable="StripNoise" presentation="Profile1D" level="SiStrip/ControlView" granularity="CcuChan"/>
-
-</RunType>
-
 </root>
 

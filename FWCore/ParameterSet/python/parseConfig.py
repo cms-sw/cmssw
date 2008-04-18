@@ -1582,6 +1582,13 @@ def parseCffFile(fileName):
     finally:
         _fileStack.pop()
 
+def parseConfigString(aString):
+    """Read an old style config string and return a dictionary"""
+    t=onlyFragment.parseString(aString)
+    global _allUsingLabels
+    d=_finalizeProcessFragment(t,_allUsingLabels)
+    return _ConfigReturn(d)
+                    
 def dumpCfg(fileName):
     return cfgDumper.parseFile(_fileFactory(fileName))[0]
 

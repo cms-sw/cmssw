@@ -8,14 +8,12 @@
 #include "ParabolaFit.h"
 #include <vector>
 
-namespace edm {class ParameterSet;}
-
 class ConformalMappingFit {
 public:
   typedef TkRotation<double> Rotation;
   typedef Basic2DVector<double> PointXY;
 
-  ConformalMappingFit(const std::vector<PointXY> & hits, const edm::ParameterSet & cfg);
+  ConformalMappingFit(const std::vector<PointXY> & hits);
 
 //  ConformalMappingFit(const std::vector<RecHit>& hits,
 //      const Rotation * rot = 0,
@@ -28,6 +26,15 @@ public:
   Measurement1D directionPhi() const;
   Measurement1D impactParameter() const;
 
+/*
+  double pT() const;
+  double errPT() const;
+  double phi() const;
+  double errPhi() const;
+  double tip() const; 
+  double errTip() const;
+*/
+  
   int charge() const;
   double chi2() const { return theFit.chi2(); }
 

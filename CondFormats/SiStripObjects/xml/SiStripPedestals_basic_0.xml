@@ -1,10 +1,17 @@
 <?xml version='1.0' encoding="UTF-8"?>
 <!DOCTYPE PoolDatabase SYSTEM "InMemory">
-<PoolDatabase >
-	<PoolContainer name="SiStripPedestalsRcd" >
-		<Class table="SISTRIPPEDESTALS" id_columns="IOV_VALUE_ID" name="SiStripPedestals" mapping_version="SiStripPedestals_basic" >
-			<Blob column="DETREGISTRYINDEX_PED" name="indexes"/>
-			<Blob column="PEDESTALDATA" name="v_pedestals"/>
-		</Class >
-	</PoolContainer >
-</PoolDatabase >
+ <PoolDatabase >
+  <PoolContainer name="SiStripPedestalsRcd" >
+   <Class table="SISTRIPPEDESTALS" id_columns="IOV_VALUE_ID" name="SiStripPedestals" mapping_version="SiStripPedestals_basic" >
+     <Container table="DETREGISTRYINDEX_PED" id_columns="IOV_VALUE_ID" name="indexes" position_column="POS" >
+       <Object name="value_type" >
+         <Primitive column="DETID" name="detid" />
+         <Primitive column="IBEGIN" name="ibegin" />
+         <Primitive column="IEND" name="iend" />
+       </Object >
+     </Container >
+     <Blob column="DETREGISTRYINDEX_PED" name="indexes"/>
+     <Blob column="PEDESTALDATA" name="v_pedestals"/>
+   </Class >
+  </PoolContainer >
+ </PoolDatabase >

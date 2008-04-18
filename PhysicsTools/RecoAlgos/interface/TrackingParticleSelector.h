@@ -4,7 +4,7 @@
  *
  * \author Giuseppe Cerati, INFN
  *
- *  $Date: 2007/11/13 10:46:04 $
+ *  $Date: 2007/11/09 13:52:55 $
  *  $Revision: 1.1 $
  *
  */
@@ -15,14 +15,13 @@ class TrackingParticleSelector {
 public:
   TrackingParticleSelector(){}
   TrackingParticleSelector ( double ptMin,double minRapidity,double maxRapidity,
-			     double tip,double lip,int minHit, bool signalOnly, bool chargedOnly, 
+			     double tip,double lip,int minHit, bool signalOnly, 
 			     std::vector<int> pdgId = std::vector<int>()) :
     ptMin_( ptMin ), minRapidity_( minRapidity ), maxRapidity_( maxRapidity ),
-    tip_( tip ), lip_( lip ), minHit_( minHit ), signalOnly_(signalOnly), chargedOnly_(chargedOnly), pdgId_( pdgId ) { }
+    tip_( tip ), lip_( lip ), minHit_( minHit ), signalOnly_(signalOnly), pdgId_( pdgId ) { }
   
   /// Operator() performs the selection: e.g. if (tPSelector(tp)) {...}
   bool operator()( const TrackingParticle & tp ) const { 
-    if (chargedOnly_ && tp.charge()==0) return false;//select only if charge!=0
     bool testId = false;
     unsigned int idSize = pdgId_.size();
     if (idSize==0) testId = true;
@@ -50,7 +49,6 @@ private:
   double lip_;
   int    minHit_;
   bool signalOnly_;
-  bool chargedOnly_;
   std::vector<int> pdgId_;
 
 };
@@ -71,7 +69,6 @@ namespace reco {
 	  cfg.getParameter<double>( "lip" ),
 	  cfg.getParameter<int>( "minHit" ), 
 	  cfg.getParameter<bool>( "signalOnly" ),
-	  cfg.getParameter<bool>( "chargedOnly" ),
 	cfg.getParameter<std::vector<int> >( "pdgId" )); 
       }
     };

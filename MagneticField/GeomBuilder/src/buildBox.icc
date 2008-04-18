@@ -1,8 +1,8 @@
 /*
  *  Compute parameters for a box 
  *
- *  $Date: 2007/03/09 14:38:23 $
- *  $Revision: 1.3 $
+ *  $Date: 2005/09/27 15:15:52 $
+ *  $Revision: 1.2 $
  *  \author N. Amapane - INFN Torino
  */
 
@@ -18,27 +18,9 @@ void MagGeoBuilderFromDDD::volumeHandle::buildBox(const DDExpandedView &fv) {
 		  << " halfY: " << halfY 
 		  << " halfZ: " << halfZ <<endl;
 
-  // Global vectors of the normals to X, Y, Z axes
   GlobalVector planeXAxis = refPlane->toGlobal(LocalVector( 1, 0, 0));
   GlobalVector planeYAxis = refPlane->toGlobal(LocalVector( 0, 1, 0));
   GlobalVector planeZAxis = refPlane->toGlobal(LocalVector( 0, 0, 1)); 
-
- 
-  // For the correct definition of inner, outer, phiplus, phiminus,
-  // Zplus, zminus the orientation of axes must be checked. 
-  // Normal (convention in version 85l_030919): 
-  //  planeXAxis in the direction of decreasing global phi; 
-  //  planeZAxis in the direction of global Z; 
-  // Invert the sign of local X and Z if 
-
-  // FIXME Assumption: it is assumed that local Z is always along global Z
-  // (true for version 1103l, not necessarily in the future)
-
-  if (planeYAxis.dot(center_-Surface::PositionType(0.,0.,0.))<0.) {
-    halfX = -halfX;
-    halfY = -halfY;
-  }
-
 
   GlobalPoint pos_outer(refPlane->toGlobal(LocalPoint(0.,halfY,0.)));
   GlobalPoint pos_inner(refPlane->toGlobal(LocalPoint(0.,-halfY,0.)));
@@ -63,13 +45,13 @@ void MagGeoBuilderFromDDD::volumeHandle::buildBox(const DDExpandedView &fv) {
   // Check ordering.
   if (MagGeoBuilderFromDDD::debug) {
     if (pos_outer.perp() < pos_inner.perp()) {
-      cout << "*** WARNING: pos_outer < pos_inner for box" << endl;
+      cout << "*** WARNING: pos_outer < pos_inner " << endl;
     }
     if (pos_zplus.z() < pos_zminus.z()) {
-      cout << "*** WARNING: pos_zplus < pos_zminus for box" << endl;
+      cout << "*** WARNING: pos_zplus < pos_zminus " << endl;
     }
     if (Geom::Phi<float>(pos_phiplus.phi()-pos_phiminus.phi()) < 0. ) {
-      cout << "*** WARNING: pos_phiplus < pos_phiminus for box" << endl;
+      cout << "*** WARNING: pos_phiplus < pos_phiminus " << endl;
     }
   }
   

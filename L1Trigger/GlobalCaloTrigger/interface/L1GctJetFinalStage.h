@@ -25,7 +25,6 @@ class L1GctJetFinalStage : public L1GctProcessor
 {
 public:
   typedef std::vector<L1GctJetCand> JetVector;
-  typedef Pipeline<L1GctJetCand>    JetPipeline;
   static const unsigned int MAX_WHEEL_FPGAS; ///< Max number of wheel FPGA pointers
 
   /// Takes a vector of 2 wheel jet FPGA pointers, with which to get input data from
@@ -34,6 +33,9 @@ public:
 
   /// Overload << operator
   friend std::ostream& operator << (std::ostream& os, const L1GctJetFinalStage& fpga);
+
+  /// clear internal buffers
+  virtual void reset();
 
   /// get input data from sources
   virtual void fetchInput();
@@ -49,19 +51,11 @@ public:
   JetVector getInputForwardJets() const { return m_inputForwardJets; } ///< get the forward jets input data
   JetVector getInputTauJets() const { return m_inputTauJets; }         ///< get the tau jets input data
 
-  JetVector getCentralJets() const { return m_centralJets.contents; } ///< get the central jets output data
-  JetVector getForwardJets() const { return m_forwardJets.contents; } ///< get the forward jets output data
-  JetVector getTauJets() const     { return m_tauJets.contents; }     ///< get the tau jets output data
- protected:
-
-  /// Separate reset methods for the processor itself and any data stored in pipelines
-  virtual void resetProcessor();
-  virtual void resetPipelines();
-
-  /// Initialise inputs with null objects for the correct bunch crossing if required
-  virtual void setupObjects() {}
-
+  JetVector getCentralJets() const { return m_centralJets; } ///< get the central jets output data
+  JetVector getForwardJets() const { return m_forwardJets; } ///< get the forward jets output data
+  JetVector getTauJets() const { return m_tauJets; }         ///< get the tau jets output data
 private:
+
   static const int MAX_JETS_IN;  ///< Max number of jets of each type coming in
   static const int MAX_JETS_OUT; ///< Max number of jets of each type going out
   
@@ -74,9 +68,9 @@ private:
   JetVector m_inputTauJets;
 
   // output data
-  JetPipeline m_centralJets;
-  JetPipeline m_forwardJets;
-  JetPipeline m_tauJets;
+  JetVector m_centralJets;
+  JetVector m_forwardJets;
+  JetVector m_tauJets;
 
   //PRIVATE MEMBER FUNCTIONS
   ///Enters jets into the specified storageVector, according to which wheel card we are taking them from.

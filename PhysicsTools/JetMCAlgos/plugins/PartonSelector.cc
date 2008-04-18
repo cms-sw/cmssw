@@ -19,10 +19,8 @@
 
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/Common/interface/Ref.h"  
-//#include "DataFormats/Candidate/interface/CandidateFwd.h"
-//#include "DataFormats/HepMCCandidate/interface/GenParticleCandidate.h"
-#include "DataFormats/HepMCCandidate/interface/GenParticle.h"
-#include "DataFormats/HepMCCandidate/interface/GenParticleFwd.h"
+#include "DataFormats/Candidate/interface/CandidateFwd.h"
+#include "DataFormats/HepMCCandidate/interface/GenParticleCandidate.h"
       
 #include <memory>
 #include <string>
@@ -48,7 +46,7 @@ class PartonSelector : public edm::EDProducer
 
 PartonSelector::PartonSelector( const edm::ParameterSet& iConfig )
 { 
-    produces<reco::GenParticleRefVector>();
+    produces<reco::CandidateRefVector>();
     withLeptons         = iConfig.getParameter<bool>("withLeptons");   
 }
 
@@ -62,21 +60,20 @@ PartonSelector::~PartonSelector()
 
 void PartonSelector::produce( Event& iEvent, const EventSetup& iEs )
 {
-  
-  //edm::Handle <reco::CandidateView> particles;
-  edm::Handle <reco::GenParticleCollection> particles;
-  iEvent.getByLabel ("genParticles", particles );  
-  edm::LogVerbatim("PartonSelector") << "=== GenParticle size:" << particles->size();
+         
+  edm::Handle <CandidateCollection> particles;
+  iEvent.getByLabel ("genParticleCandidates", particles );  
+  edm::LogVerbatim("PartonSelector") << "=== genParticleCandidates size:" << particles->size();
   int nPart=0; 
 
-  auto_ptr<GenParticleRefVector> thePartons ( new GenParticleRefVector);  
+  auto_ptr<CandidateRefVector> thePartons ( new CandidateRefVector);  
   
   for (size_t m = 0; m < particles->size(); m++) {
     
     // Don't take into account first 6 particles in generator list
     if (m<6) continue;    
 
-    const GenParticle & aParticle = (*particles)[ m ];
+    const Candidate & aParticle = (*particles)[ m ];
     bool isAParton = false;
     bool isALepton = false;
     int flavour = abs(aParticle.pdgId());
@@ -95,14 +92,14 @@ void PartonSelector::produce( Event& iEvent, const EventSetup& iEs )
 
     //Add Partons status 3
     if( aParticle.status() == 3 && isAParton ) {
-      thePartons->push_back( GenParticleRef( particles, m ) );
+      thePartons->push_back( CandidateRef( particles, m ) );
       nPart++;
     }
 
     //Add Partons stauts 2
     if(   aParticle.numberOfDaughters() > 0  && 
         ( aParticle.daughter(0)->pdgId() == 91 || aParticle.daughter(0)->pdgId() == 92 ) ) {
-      thePartons->push_back( GenParticleRef( particles, m ) );
+      thePartons->push_back( CandidateRef( particles, m ) );
       nPart++;
     }
 
@@ -110,12 +107,12 @@ void PartonSelector::produce( Event& iEvent, const EventSetup& iEs )
     // Here you have to decide what to do with taus....
     // Now all leptons, including e and mu from leptonic tau decays, are added
     if( withLeptons && aParticle.status() == 3 && isALepton ) {
-      thePartons->push_back( GenParticleRef( particles, m ) );
+      thePartons->push_back( CandidateRef( particles, m ) );
       nPart++;
     }
   }
   
-  edm::LogVerbatim("PartonSelector") << "=== GenParticle selected:" << nPart;  
+  edm::LogVerbatim("PartonSelector") << "=== genParticleCandidates selcted:" << nPart;  
   iEvent.put( thePartons );
 
 }

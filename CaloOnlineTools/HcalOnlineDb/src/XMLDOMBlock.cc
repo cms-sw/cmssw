@@ -8,7 +8,7 @@
 //
 // Original Author:  Gena Kukartsev
 //         Created:  Thu Sep 27 01:43:42 CEST 2007
-// $Id: XMLDOMBlock.cc,v 1.1 2008/02/12 17:02:02 kukartse Exp $
+// $Id: XMLDOMBlock.cc,v 1.3 2007/12/06 02:26:29 kukartse Exp $
 //
 
 // system include files
@@ -45,9 +45,8 @@ using namespace std;
 //
 XMLDOMBlock::XMLDOMBlock()
 {
-  //cout << "XMLDOMBlock (or derived): default constructor called - this is meaningless!" << endl;
-  //cout << "XMLDOMBlock (or derived): use yourClass( loaderBaseConfig & ) instead." << endl;
-  init();
+  cout << "XMLDOMBlock (or derived): default constructor called - this is meaningless!" << endl;
+  cout << "XMLDOMBlock (or derived): use yourClass( loaderBaseConfig & ) instead." << endl;
 }
 
 
@@ -92,33 +91,6 @@ XMLDOMBlock::XMLDOMBlock( InputSource & _source )
   //get the XML document
   document = parser -> getDocument();
 }
-
-
-
-int XMLDOMBlock::init( void )
-{
-  theProcessor = XMLProcessor::getInstance();
-
-  //theFileName = xmlFileName;
-
-  // initialize the parser
-  parser = new XercesDOMParser();
-  parser->setValidationScheme(XercesDOMParser::Val_Always);    
-  parser->setDoNamespaces(true);    // optional
-  
-  errHandler = (ErrorHandler*) new HandlerBase();
-  parser->setErrorHandler(errHandler);
-
-  DOMImplementation* impl =  DOMImplementation::getImplementation();
-  
-  document = impl->createDocument(
-				  0,                      // root element namespace URI.
-				  XMLString::transcode("ROOT"), // root element name
-				  0);                     // document type object (DTD).
-
-  return 0;
-}
-
 
 
 XMLDOMBlock::XMLDOMBlock( string xmlFileName )

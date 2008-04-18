@@ -1,8 +1,8 @@
 /*
  * \file EEOccupancyTask.cc
  *
- * $Date: 2008/04/08 15:32:10 $
- * $Revision: 1.47 $
+ * $Date: 2008/04/08 18:11:28 $
+ * $Revision: 1.48 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -448,7 +448,7 @@ void EEOccupancyTask::analyze(const Event& e, const EventSetup& c){
 
   Handle<EcalRawDataCollection> dcchs;
 
-  if ( e.getByLabel(EcalRawDataCollection_, dcchs) ) {
+  if ( ! e.getByLabel(EcalRawDataCollection_, dcchs) ) {
     LogWarning("EBOccupancyTask") << EcalRawDataCollection_ << " not available";
   }
 

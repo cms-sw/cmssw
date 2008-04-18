@@ -200,6 +200,7 @@ if(($configfile ne "") && (-f "$configfile"))
   foreach my $line (`cat $configfile`)
   {
     chomp $line;
+    if(($line=~/^\s*#/) || ($line=~/^\s*$/)){next;}
     my @x=split /:/,$line;
     my $count=scalar(@x);
     if($count<3){next;}

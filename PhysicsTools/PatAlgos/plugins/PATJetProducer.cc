@@ -1,5 +1,5 @@
 //
-// $Id$
+// $Id: PATJetProducer.cc,v 1.3 2008/03/10 18:43:06 lowette Exp $
 //
 
 #include "PhysicsTools/PatAlgos/plugins/PATJetProducer.h"
@@ -25,7 +25,7 @@
 #include "DataFormats/HepMCCandidate/interface/GenParticleFwd.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 
-#include "DataFormats/Math/interface/deltaR.h"
+#include "PhysicsTools/Utilities/interface/DeltaR.h"
 
 #include "PhysicsTools/PatUtils/interface/RefHelper.h"
 #include "PhysicsTools/PatUtils/interface/ObjectResolutionCalc.h"
@@ -41,7 +41,6 @@ using namespace pat;
 PATJetProducer::PATJetProducer(const edm::ParameterSet& iConfig) {
   // initialize the configurables
   jetsSrc_                 = iConfig.getParameter<edm::InputTag>	      ( "jetSource" );
-  embedCaloTowers_         = iConfig.getParameter<bool>                       ( "embedCaloTowers" );
   getJetMCFlavour_         = iConfig.getParameter<bool> 		      ( "getJetMCFlavour" );
   jetPartonMapSource_      = iConfig.getParameter<edm::InputTag>	      ( "JetPartonMapSource" );
   addGenPartonMatch_       = iConfig.getParameter<bool> 		      ( "addGenPartonMatch" );
@@ -151,8 +150,6 @@ void PATJetProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
     unsigned int idx = itJet - jets->begin();
     edm::RefToBase<JetType> jetRef = jets->refAt(idx); 
     Jet ajet(jetRef);
-    // ensure the internal storage of the jet constituents
-    if (embedCaloTowers_) ajet.setCaloTowers(jetRef->getConstituents());
 
     // calculate the energy correction factors
     JetCorrFactors jcf = backRefHelper.recursiveLookup(jetRef, *jetCorrs);
@@ -219,7 +216,7 @@ void PATJetProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
             /*std::cout << "-----------> JetTag::jet() returned null reference" << std::endl; */
             continue;
           }
-	  if (::deltaR( *itJet, *jet_p ) < 0.00001) {
+	  if (DeltaR<reco::Candidate>()( *itJet, *jet_p ) < 0.00001) {
 	    //look only at the tagger present in tagModuleLabelsToKeep_
 	    for (unsigned int i = 0; i < tagModuleLabelsToKeep_.size(); ++i) {
 	      if (moduleLabel == tagModuleLabelsToKeep_[i] + tagModuleLabelPostfix_) {  

@@ -6,7 +6,7 @@
  * been received by the storage manager and will be sent to event
  * consumers and written to output streams.
  *
- * $Id: InitMsgCollection.h,v 1.1 2008/01/29 20:26:35 biery Exp $
+ * $Id: InitMsgCollection.h,v 1.2 2008/02/11 15:07:37 biery Exp $
  */
 
 #include "IOPool/Streamer/interface/InitMessage.h"
@@ -38,7 +38,7 @@ namespace stor
 
     std::string getSelectionHelpString();
     static std::string stringsToText(Strings const& list,
-                                     unsigned int maxCount);
+                                     unsigned int maxCount = 0);
 
   private:
 

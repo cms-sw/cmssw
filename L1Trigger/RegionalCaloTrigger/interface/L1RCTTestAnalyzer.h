@@ -13,7 +13,7 @@
 //
 // Original Author:  pts/47
 //         Created:  Thu Jul 13 21:38:08 CEST 2006
-// $Id: L1RCTTestAnalyzer.h,v 1.8 2008/03/11 18:08:03 jleonard Exp $
+// $Id: L1RCTTestAnalyzer.h,v 1.6 2008/01/28 13:32:41 jleonard Exp $
 //
 //
 
@@ -58,7 +58,6 @@ private:
   bool showRegionSums;
 
   TH1F * h_emRank;
-  TH1F * h_emRankOutOfTime;
   TH1F * h_emIeta;
   TH1F * h_emIphi;
   TH1F * h_emIso;
@@ -66,7 +65,6 @@ private:
   // add isolated/non-iso?
   TH2F * h_emIsoInIetaIphi;
   TH2F * h_emNonIsoInIetaIphi;
-  TH1F * h_emCandTimeSample;
 
   TH1F * h_regionSum;
   TH1F * h_regionIeta;
@@ -78,10 +76,6 @@ private:
   TH2F * h_regionFGInIetaIphi;
 
   TH1F * h_towerMip;
-
-  TH1F * h_ecalTimeSample;
-  TH1F * h_hcalTimeSample;
-
 };
 
 //

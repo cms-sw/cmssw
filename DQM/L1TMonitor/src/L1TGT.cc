@@ -1,8 +1,8 @@
 /*
  * \file L1TGT.cc
  *
- * $Date: 2008/03/14 20:35:46 $
- * $Revision: 1.16 $
+ * $Date: 2008/01/02 11:54:15 $
+ * $Revision: 1.13 $
  * \author J. Berryhill
  *
  */
@@ -23,6 +23,8 @@ L1TGT::L1TGT(const ParameterSet& ps)
 
   if(verbose_) cout << "L1TGT: constructor...." << endl;
 
+  logFile_.open("L1TGT.log");
+
   dbe = NULL;
   if ( ps.getUntrackedParameter<bool>("DQMStore", false) ) 
   {
@@ -33,6 +35,9 @@ L1TGT::L1TGT(const ParameterSet& ps)
   outputFile_ = ps.getUntrackedParameter<string>("outputFile", "");
   if ( outputFile_.size() != 0 ) {
     cout << "L1T Monitoring histograms will be saved to " << outputFile_.c_str() << endl;
+  }
+  else{
+    outputFile_ = "L1TDQM.root";
   }
 
   bool disable = ps.getUntrackedParameter<bool>("disableROOToutput", false);
@@ -98,7 +103,7 @@ void L1TGT::beginJob(const EventSetup& c)
 void L1TGT::endJob(void)
 {
   if(verbose_) cout << "L1TGT: end job...." << endl;
-  LogInfo("EndJob") << "analyzed " << nev_ << " events"; 
+  LogInfo("L1TGT") << "analyzed " << nev_ << " events"; 
 
  if ( outputFile_.size() != 0  && dbe ) dbe->save(outputFile_);
 
@@ -122,7 +127,7 @@ void L1TGT::analyze(const Event& e, const EventSetup& c)
      e.getByLabel(gtSource_,myGTReadoutRecord);
      
      if (!myGTReadoutRecord.isValid()) {
-     edm::LogInfo("DataNotFound") << "can't find L1GlobalTriggerReadoutRecord with label "
+     edm::LogInfo("L1TGT") << "can't find L1GlobalTriggerReadoutRecord with label "
 			       << gtSource_.label() ;
      return;
      }

@@ -13,7 +13,7 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: BarrelMeasurementEstimator.cc,v 1.9 2008/03/21 17:36:02 charlot Exp $
+// $Id: BarrelMeasurementEstimator.cc,v 1.8 2008/02/28 21:43:51 charlot Exp $
 //
 //
 
@@ -28,15 +28,12 @@
 // zero value indicates incompatible ts - hit pair
 std::pair<bool,double> BarrelMeasurementEstimator::estimate( const TrajectoryStateOnSurface& ts, 
 							     const TransientTrackingRecHit& hit) const {
-  LocalPoint lp = hit.localPosition();
-  GlobalPoint gp = hit.det()->surface().toGlobal( lp);
-  return this->estimate(ts,gp);
-}
-  
-//usable in case we have no TransientTrackingRecHit
-std::pair<bool,double> BarrelMeasurementEstimator::estimate( const TrajectoryStateOnSurface& ts, 
-					   GlobalPoint &gp) const {
+
+
   float tsPhi = ts.globalParameters().position().phi();
+  LocalPoint lp = hit.localPosition();
+  GlobalPoint gp = hit.det()->surface().toGlobal( lp); 
+  
   float myR = gp.perp();
   float myZ = gp.z();
   

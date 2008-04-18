@@ -70,10 +70,7 @@ void pat::PATJetCleaner<JetIn,JetOut>::produce(edm::Event & iEvent, const edm::E
 }
 template<typename JetIn, typename JetOut>
 void pat::PATJetCleaner<JetIn,JetOut>::endJob() { 
-    edm::LogVerbatim("PATLayer0Summary|PATJetCleaner") << "PATJetCleaner end job. \n" <<
-            "Input tag was " << jetSrc_.encode() <<
-            "\nCleaner summary information:\n" <<
-            helper_.printSummary();
+    typename edm::LogVerbatim("PATLayer0Summary|PATJetCleaner") << "PATJetCleaner end job. Input tag was " << jetSrc_.encode();
     helper_.endJob(); 
 }
 

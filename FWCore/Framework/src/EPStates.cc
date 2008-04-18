@@ -1,5 +1,5 @@
 
-// $Id: EPStates.cc,v 1.5 2008/03/11 18:33:56 wdd Exp $
+// $Id: EPStates.cc,v 1.6 2008/04/08 18:13:36 wdd Exp $
 
 #include "FWCore/Framework/src/EPStates.h"
 #include "FWCore/Framework/interface/IEventProcessor.h"
@@ -323,7 +323,7 @@ namespace statemachine {
     beginRunCalled_ = true;
 
     runException_ = true;
-    ep_.smBeginRun(run);
+    ep_.beginRun(run);
     runException_ = false;
   }
 
@@ -331,7 +331,7 @@ namespace statemachine {
     beginRunCalled_ = false;
 
     runException_ = true;
-    ep_.smEndRun(run);
+    ep_.endRun(run);
     runException_ = false;
   }
 

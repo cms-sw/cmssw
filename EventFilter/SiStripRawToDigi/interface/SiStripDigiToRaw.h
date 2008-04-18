@@ -1,4 +1,4 @@
-// Last commit: $Id: SiStripDigiToRaw.h,v 1.16 2007/10/09 17:03:27 bainbrid Exp $
+// Last commit: $Id: SiStripDigiToRaw.h,v 1.15 2007/04/24 16:58:58 bainbrid Exp $
 
 #ifndef EventFilter_SiStripRawToDigi_SiStripDigiToRaw_H
 #define EventFilter_SiStripRawToDigi_SiStripDigiToRaw_H
@@ -26,8 +26,7 @@ class SiStripDigiToRaw {
  public: // ----- public interface -----
   
   SiStripDigiToRaw( std::string readout_mode, 
-		    int16_t appended_bytes,
-		    bool use_fed_key );
+		    int16_t appended_bytes );
   ~SiStripDigiToRaw();
   
   void createFedBuffers( edm::Event&, 
@@ -42,7 +41,6 @@ class SiStripDigiToRaw {
 
   std::string readoutMode_;
   uint16_t nAppendedBytes_;
-  bool useFedKey_;
 
 };
 

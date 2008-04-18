@@ -11,7 +11,7 @@
   <use name=DataFormats/METReco>
   <use name=DataFormats/HcalRecHit>
   <use name=SimDataFormats/TrackingAnalysis>
-  <use name=PhysicsTools/RecoUtils>
+  <use name=PhysicsTools/RecoCandUtils>
   <use name=PhysicsTools/CandAlgos>
   <use name=PhysicsTools/RecoAlgos>
   <use name=PhysicsTools/UtilAlgos>

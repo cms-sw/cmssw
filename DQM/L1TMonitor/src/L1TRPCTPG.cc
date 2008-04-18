@@ -1,8 +1,8 @@
 /*
  * \file L1TRPCTPG.cc
  *
- * $Date: 2008/03/14 20:35:46 $
- * $Revision: 1.9 $
+ * $Date: 2008/01/29 20:41:21 $
+ * $Revision: 1.6 $
  * \author J. Berryhill
  *
  */
@@ -23,6 +23,7 @@ L1TRPCTPG::L1TRPCTPG(const ParameterSet& ps)
 
   if(verbose_) cout << "L1TRPCTPG: constructor...." << endl;
 
+  logFile_.open("L1TRPCTPG.log");
 
   dbe = NULL;
   if ( ps.getUntrackedParameter<bool>("DQMStore", false) ) 
@@ -34,6 +35,9 @@ L1TRPCTPG::L1TRPCTPG(const ParameterSet& ps)
   outputFile_ = ps.getUntrackedParameter<string>("outputFile", "");
   if ( outputFile_.size() != 0 ) {
     cout << "L1T Monitoring histograms will be saved to " << outputFile_.c_str() << endl;
+  }
+  else{
+    outputFile_ = "L1TDQM.root";
   }
 
   bool disable = ps.getUntrackedParameter<bool>("disableROOToutput", false);
@@ -86,7 +90,7 @@ void L1TRPCTPG::beginJob(const EventSetup& c)
 void L1TRPCTPG::endJob(void)
 {
   if(verbose_) cout << "L1TRPCTPG: end job...." << endl;
-  LogInfo("EndJob") << "analyzed " << nev_ << " events"; 
+  LogInfo("L1TRPCTPG") << "analyzed " << nev_ << " events"; 
 
  if ( outputFile_.size() != 0  && dbe ) dbe->save(outputFile_);
 
@@ -103,7 +107,7 @@ void L1TRPCTPG::analyze(const Event& e, const EventSetup& c)
   edm::ESHandle<RPCGeometry> rpcGeo;
   c.get<MuonGeometryRecord>().get(rpcGeo);
   if (!rpcGeo.isValid()) {
-    edm::LogInfo("DataNotFound") << "can't find RPCGeometry" << endl;
+    edm::LogInfo("L1TRPCTPG") << "can't find RPCGeometry" << endl;
     return;
   }
   char layerLabel[328];
@@ -115,7 +119,7 @@ void L1TRPCTPG::analyze(const Event& e, const EventSetup& c)
   e.getByLabel(rpctpgSource_,rpcdigis);
     
   if (!rpcdigis.isValid()) {
-    edm::LogInfo("DataNotFound") << "can't find RPCDigiCollection with label "<< rpctpgSource_ << endl;
+    edm::LogInfo("L1TRPCTPG") << "can't find RPCDigiCollection with label "<< rpctpgSource_ << endl;
     return;
   }
 
@@ -125,7 +129,7 @@ void L1TRPCTPG::analyze(const Event& e, const EventSetup& c)
   e.getByType(rpcHits);
      
   if (!rpcHits.isValid()) {
-    edm::LogInfo("DataNotFound") << "can't find RPCRecHitCollection of any type" << endl;
+    edm::LogInfo("L1TRPCTPG") << "can't find RPCRecHitCollection of any type" << endl;
     return;
   }  
   }

@@ -8,11 +8,9 @@ source = cms.Source("FlatRandomPtGunSource",
         MaxEta = cms.untracked.double(2.5),
         MaxPhi = cms.untracked.double(3.14159265359),
         MinEta = cms.untracked.double(-2.5),
-        MinPhi = cms.untracked.double(-3.14159265359) ## in radians
-
+        MinPhi = cms.untracked.double(-3.14159265359)
     ),
-    Verbosity = cms.untracked.int32(0), ## set to 1 (or greater)  for printouts
-
+    Verbosity = cms.untracked.int32(0),
     psethack = cms.string('single gamma pt 1000'),
     firstRun = cms.untracked.uint32(1)
 )

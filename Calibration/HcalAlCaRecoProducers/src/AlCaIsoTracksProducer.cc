@@ -52,8 +52,6 @@ AlCaIsoTracksProducer::AlCaIsoTracksProducer(const edm::ParameterSet& iConfig)
   m_ecalCut = iConfig.getUntrackedParameter<double>("ecalCut",8.);
   m_histoFlag = iConfig.getUntrackedParameter<int>("histoFlag",0);
   
-  cout<<" Isolation parameter "<< m_ddirCut << " cm"<< endl;
-  
 //
 // Parameters for track associator   ===========================
 //  

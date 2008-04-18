@@ -48,12 +48,18 @@ $UserWebArea=$ARGV[0];
 @Step=(
        "SIM",
        "DIGI",
-       "RECO"
+       "RECO",
+       "DIGI_PILEUP",
+       "RECO_PILEUP"
        );
+#This hash and the code that checked for this is obsolete: it was for backward compatibility with cfg version
+#of the suite (need to clean it up sometime)
 %StepLowCaps=(
 	      "SIM"=>"sim",
 	      "DIGI"=>"digi",
-	      "RECO"=>"reco"
+	      "RECO"=>"reco",
+	      "DIGI_PILEUP"=>"digi_pileup",
+	      "RECO_PILEUP"=>"reco_pileup",
 	      );
 %NumOfEvents=( #These numbers are used in the index.html they are not automatically matched to the actual
 	       #ones (one should automate this, by looking into the cmsCreateSimPerfTestPyRelVal.log logfile)
@@ -75,7 +81,7 @@ $UserWebArea=$ARGV[0];
 	     );
 @IgProfMemAnalyseOut=( #This is the special case of IgProfMemAnalyse
 		      "doBeginJob_output.html",
-		      "doProduce_output.html",
+		      "doEvent_output.html",
 		      "mem_live.html"
 		      );
 @memcheck_valgrindOut=( #This is the special case of Valgrind MemCheck (published via Giovanni's script)

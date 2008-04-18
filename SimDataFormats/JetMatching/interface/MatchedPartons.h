@@ -2,10 +2,8 @@
 #define MatchedParton_H
 
 #include <vector>
-//#include "DataFormats/Candidate/interface/Candidate.h"
-//#include "DataFormats/Candidate/interface/CandidateFwd.h"
-#include "DataFormats/HepMCCandidate/interface/GenParticle.h"
-#include "DataFormats/HepMCCandidate/interface/GenParticleFwd.h"
+#include "DataFormats/Candidate/interface/Candidate.h"
+#include "DataFormats/Candidate/interface/CandidateFwd.h"
 
 namespace reco
 {
@@ -16,11 +14,11 @@ class MatchedPartons
     
     MatchedPartons() { }
     MatchedPartons( 
-                    GenParticleRef hv,
-                    GenParticleRef n2,
-                    GenParticleRef n3,
-                    GenParticleRef pd,
-                    GenParticleRef ad 
+                    CandidateRef hv,
+                    CandidateRef n2,
+                    CandidateRef n3,
+                    CandidateRef pd,
+                    CandidateRef ad 
                   ) : 
        m_heaviest(hv),
        m_nearest2(n2),
@@ -29,27 +27,27 @@ class MatchedPartons
        m_AlgoDef(ad) { }
 
     //Return the ParticleRef for the heaviest flavour in the signal cone
-    const GenParticleRef heaviest() const {return m_heaviest;}
+    const CandidateRef heaviest() const {return m_heaviest;}
 
     //Return the ParticleRef for the nearest parton (status=2)
-    const GenParticleRef & nearest_status2() const {return m_nearest2;}
+    const CandidateRef & nearest_status2() const {return m_nearest2;}
 
     //Return the ParticleRef for the nearest parton (status=3)
-    const GenParticleRef & nearest_status3() const {return m_nearest3;}
+    const CandidateRef & nearest_status3() const {return m_nearest3;}
     
     //Return the ParticleRef for the Physics Definition parton
-    const GenParticleRef & physicsDefinitionParton() const {return m_PhysDef;}
+    const CandidateRef & physicsDefinitionParton() const {return m_PhysDef;}
 
     //Return the ParticleRef for the Algorithmic Definition parton
-    const GenParticleRef & algoDefinitionParton() const {return m_AlgoDef;}
+    const CandidateRef & algoDefinitionParton() const {return m_AlgoDef;}
 
   private:
 
-    GenParticleRef m_heaviest;
-    GenParticleRef m_nearest2;
-    GenParticleRef m_nearest3;
-    GenParticleRef m_PhysDef;
-    GenParticleRef m_AlgoDef;
+    CandidateRef m_heaviest;
+    CandidateRef m_nearest2;
+    CandidateRef m_nearest3;
+    CandidateRef m_PhysDef;
+    CandidateRef m_AlgoDef;
 
 };
 

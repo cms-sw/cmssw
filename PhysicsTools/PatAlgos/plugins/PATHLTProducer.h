@@ -14,10 +14,10 @@
    A CandidateCollection of "firing" trigger objects from a given filter in a given trigger path is produced from trigger information available in AOD.
 
   \author   Volker Adler
-  \version  $Id: PATHLTProducer.h,v 1.1 2008/03/06 09:23:10 llista Exp $
+  \version  $Id: PATHLTProducer.h,v 1.2 2008/03/05 14:56:50 fronga Exp $
 */
 //
-// $Id: PATHLTProducer.h,v 1.1 2008/03/06 09:23:10 llista Exp $
+// $Id: PATHLTProducer.h,v 1.2 2008/03/05 14:56:50 fronga Exp $
 // based on the HLTCandProducer by florian.bechtel@cern.ch
 //
 
@@ -33,23 +33,25 @@
 #include "FWCore/ParameterSet/interface/InputTag.h"
 
 
+using namespace std;
+using namespace edm;
+
 namespace pat {
 
-
-  class PATHLTProducer : public edm::EDProducer {
+  class PATHLTProducer : public EDProducer {
 
     public:
 
-      explicit PATHLTProducer(const edm::ParameterSet & iConfig);
+      explicit PATHLTProducer( const ParameterSet& iConfig );
       ~PATHLTProducer();
 
     private:
 
-      virtual void produce(edm::Event & iEvent, const edm::EventSetup & iSetup);
+      virtual void produce( Event& iEvent, const EventSetup& iSetup );
       
-      edm::InputTag triggerResults_;
-      std::string   triggerName_;
-      edm::InputTag filterName_;
+      InputTag triggerResults_;
+      string   triggerName_;
+      InputTag filterName_;
 
   };
 

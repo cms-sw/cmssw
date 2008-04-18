@@ -24,7 +24,6 @@ private:
   edm::InputTag src_;
   bool verbose;
   double overallLumi;
-  double ttKfactor;
   // methods needed deal with alpgen
   // hardcoded xsecs and generated yields
   int FindIndex(int njet, double pT);
@@ -59,8 +58,7 @@ using namespace reco;
 
 CSA07EventWeightProducer::CSA07EventWeightProducer( const ParameterSet & p ) :
   src_( p.getParameter<InputTag>( "src" ) ), verbose ( p.getUntrackedParameter<bool> ("talkToMe", false)),
-  overallLumi (p.getParameter<double> ("overallLumi")) ,
-  ttKfactor (p.getParameter<double> ("ttKfactor")) {
+  overallLumi (p.getParameter<double> ("overallLumi")) {
   produces<double>("weight");
   produces<int>("AlpgenProcessID");
 
@@ -333,7 +331,7 @@ void CSA07EventWeightProducer::produce( Event& evt, const EventSetup& es ) {
 
     if(id_process == 2) {
       njet += -2; // take out the two tops from the counting
-      (*weight) = TTbarCrossSection[njet]*ttKfactor/TTbarNevents[njet];
+      (*weight) = TTbarCrossSection[njet]/TTbarNevents[njet];
     } else if(id_process == 0) {
       njet += -1;// take out the vector boson
       int indSample = FindIndex(njet,pT);
@@ -601,13 +599,14 @@ vector<double> CSA07EventWeightProducer::GetZNevents() {
 
 vector<double> CSA07EventWeightProducer::GetTTbarCrossSection() {
   vector<double> vec;
-  vec.push_back(334.5);
-  vec.push_back(95.4);
-  vec.push_back(18.2);
-  vec.push_back(3.2);
-  vec.push_back(0.8);
+  vec.push_back(334.51);
+  vec.push_back(90.23);
+  vec.push_back(18.75);
+  vec.push_back(3.16);
+  vec.push_back(0.82);
   return vec;
 }
+
 
 vector<double> CSA07EventWeightProducer::GetTTbarNevents() {
   vector<double> vec;

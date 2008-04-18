@@ -4,7 +4,7 @@
  * event server part of the storage manager.
  *
  * 16-Aug-2006 - KAB  - Initial Implementation
- * $Id: ConsumerPipe.cc,v 1.18 2008/02/11 15:16:43 biery Exp $
+ * $Id: ConsumerPipe.cc,v 1.19 2008/03/03 20:09:37 biery Exp $
  */
 
 #include "EventFilter/StorageManager/interface/ConsumerPipe.h"
@@ -29,17 +29,23 @@ uint32 ConsumerPipe::rootId_ = 1;
 boost::mutex ConsumerPipe::rootIdLock_;
 
 /**
+ * Initialize the maximum accept interval.
+ */
+const double ConsumerPipe::MAX_ACCEPT_INTERVAL = 86400.0;  // seconds in 1 day
+
+/**
  * ConsumerPipe constructor.
  */
 ConsumerPipe::ConsumerPipe(std::string name, std::string priority,
                            int activeTimeout, int idleTimeout,
-                           Strings triggerSelection,
+                           Strings triggerSelection, double rateRequest,
                            std::string hostName, int queueSize):
   han_(curl_easy_init()),
   headers_(),
   consumerName_(name),consumerPriority_(priority),
   events_(0),
   triggerSelection_(triggerSelection),
+  rateRequest_(rateRequest),
   hostName_(hostName),
   pushEventFailures_(0),
   maxQueueSize_(queueSize)
@@ -87,6 +93,34 @@ ConsumerPipe::ConsumerPipe(std::string name, std::string priority,
     //setopt(han_,CURLOPT_VERBOSE, 1);
     //setopt(han_,CURLOPT_TCP_NODELAY, 1);
   }
+
+  // determine the amount of time that we need to wait between accepted
+  // events.  The request rate specified to this constructor is
+  // converted to an interval that is used internally, and the interval
+  // is required to be somewhat reasonable.
+  if (rateRequest_ < (1.0 / MAX_ACCEPT_INTERVAL))
+  {
+    minTimeBetweenEvents_ = MAX_ACCEPT_INTERVAL;
+  }
+  else
+  {
+    minTimeBetweenEvents_ = 1.0 / rateRequest_;  // seconds
+  }
+  lastConsideredEventTime_ = BaseCounter::getCurrentTime();
+  rateRequestCounter_.reset(new RollingSampleCounter(50,1,60,RollingSampleCounter::INCLUDE_SAMPLES_IMMEDIATELY));
+
+  // initialize the counters that we use for statistics
+  longTermDesiredCounter_.reset(new ForeverCounter());
+  shortTermDesiredCounter_.reset(new RollingIntervalCounter(180,5,20));
+  longTermQueuedCounter_.reset(new ForeverCounter());
+  shortTermQueuedCounter_.reset(new RollingIntervalCounter(180,5,20));
+  longTermServedCounter_.reset(new ForeverCounter());
+  shortTermServedCounter_.reset(new RollingIntervalCounter(180,5,20));
+
+  ltQueueSizeWhenDesiredCounter_.reset(new ForeverCounter());
+  stQueueSizeWhenDesiredCounter_.reset(new RollingIntervalCounter(180,5,20));
+  ltQueueSizeWhenQueuedCounter_.reset(new ForeverCounter());
+  stQueueSizeWhenQueuedCounter_.reset(new RollingIntervalCounter(180,5,20));
 }
 
 /**
@@ -127,6 +161,16 @@ void ConsumerPipe::initializeSelection(Strings const& fullTriggerList)
 }
 
 /**
+ * Tests if the consumer is active.  The active state indicates that
+ * the consumer is connected and is actively requesting events.
+ */
+bool ConsumerPipe::isActive() const
+{
+  time_t timeDiff = time(NULL) - lastEventRequestTime_;
+  return (timeDiff < timeToIdleState_);
+}
+
+/**
  * Tests if the consumer is idle (as opposed to active).  The idle
  * state indicates that the consumer is still connected, but it hasn't
  * requested an event in some time.
@@ -148,42 +192,88 @@ bool ConsumerPipe::isDisconnected() const
 }
 
 /**
- * Tests if the consumer is ready for an event.
+ * Tests if the consumer is ready for an event.  This method is often
+ * used in conjunction with the wantsEvent() method.  In those cases,
+ * the wantsEvent() method should be called first to get
+ * "DESIRED" event statistics that are not biased by the consumer
+ * rate request.
  */
-bool ConsumerPipe::isReadyForEvent() const
+bool ConsumerPipe::isReadyForEvent(double currentTime) const
 {
-  // 13-Oct-2006, KAB - we're not ready if we haven't been initialized
-  if (! initializationDone) return false;
+  // we're not ready if we haven't yet been initialized
+  // or are no longer active
+  if (! initializationDone) {return false;}
+  if (! this->isActive()) {return false;}
 
-  // for now, just test if we are in the active state
-  time_t timeDiff = time(NULL) - lastEventRequestTime_;
-  return (timeDiff < timeToIdleState_);
+  // check if enough time has elapsed since the last event was considered.
+  // 16-Apr-2008, KAB:  The simple method here would be to always use
+  // "currentTime - lastTime" is greater-than-or-equal-to the minimum time
+  // between events.  However, that doesn't provide enough rate, in my
+  // opinion.  For example, let's say that the rate of triggers for a
+  // particular consumer is 1.0 Hz, and the consumer rate request is 10 Hz.
+  // The simple method will undershoot the 1.0 Hz because occasionally
+  // an event is just under the 1.0 sec cutoff.  Using a longer time frame
+  // (with a RollingSampleCounter or something else) allows us to provide
+  // a more accurate requested rate.
+  if (! rateRequestCounter_->hasValidResult()) {
+    return ((currentTime - lastConsideredEventTime_) >= minTimeBetweenEvents_);
+  }
+  else {
+    return (rateRequestCounter_->getSampleRate(currentTime) < rateRequest_);
+  }
 }
 
 /**
- * Tests if the consumer wants the specified event.
+ * Tests if the consumer wants the specified event.  This method is often
+ * used in conjuntion with the isReadyForEvent() method.  In those cases,
+ * this method should be called first to generate "DESIRED" event
+ * statistics that are not biased by the consumer rate request.
  */
 bool ConsumerPipe::wantsEvent(EventMsgView const& eventView) const
 {
+  // we're not interested in events if we haven't yet been initialized
+  // or are no longer active
+  if (! initializationDone) {return false;}
+  if (! this->isActive()) {return false;}
+
   // get trigger bits for this event and check using eventSelector_
   std::vector<unsigned char> hlt_out;
   hlt_out.resize(1 + (eventView.hltCount()-1)/4);
   eventView.hltTriggerBits(&hlt_out[0]);
-  /* --- print the trigger bits from the event header
-  std::cout << ">>>>>>>>>>>Trigger bits:" << std::endl;
-  for(int i=0; i< hlt_out.size(); ++i)
-  {
-    unsigned test = (unsigned int)hlt_out[i];
-    std::cout<< hex << ">>>>>>>>>>>  bits = " << test << " " << hlt_out[i] << std::endl;
-  }
-  cout << "\nhlt bits=\n(";
-  for(int i=(hlt_out.size()-1); i != -1 ; --i) 
-     printBits(hlt_out[i]);
-  cout << ")\n";
-  */
   int num_paths = eventView.hltCount();
   bool rc = (eventSelector_->wantAll() || eventSelector_->acceptEvent(&hlt_out[0], num_paths));
+
+  // if we want this event, add it to our statistics for "desired"
+  // or "acceptable" events.
+  if (rc) {
+    double now = BaseCounter::getCurrentTime();
+    double sizeInMB = static_cast<double>(eventView.size()) / 1048576.0;
+    ltQueueSizeWhenDesiredCounter_->addSample(eventQueue_.size());
+    stQueueSizeWhenDesiredCounter_->addSample(eventQueue_.size(), now);
+    longTermDesiredCounter_->addSample(sizeInMB);
+    shortTermDesiredCounter_->addSample(sizeInMB, now);
+  }
   return rc;
+}
+
+/**
+ * Tells the ConsumerPipe that an event was considered or accepted or queued.
+ *
+ * This method may be used in conjunction with the putEvent() method,
+ * but it may be used independently if external prescaling is done.
+ * Basically, this method is used to tell the ConsumerPipe instance
+ * that it should update its internal state for keeping track of whether
+ * it is ready for another event.  
+ *
+ * This extra work is needed to support our fair-share event serving model.
+ * With fair-event-serving, we need a way for external entities to get
+ * a realistic event rate for a consumer by calling the isReadyForEvent()
+ * method independent of whether events actually end up being queued.
+ */
+void ConsumerPipe::wasConsidered(double currentTime)
+{
+  lastConsideredEventTime_ = currentTime;
+  rateRequestCounter_->addSample(1.0, currentTime);
 }
 
 /**
@@ -193,7 +283,17 @@ void ConsumerPipe::putEvent(boost::shared_ptr< std::vector<char> > bufPtr)
 {
   // add this event to the queue
   boost::mutex::scoped_lock scopedLockForEventQueue(eventQueueLock_);
+
+  // add the event to our statistics for "queued" events
+  double now = BaseCounter::getCurrentTime();
+  double sizeInMB = static_cast<double>(bufPtr->size()) / 1048576.0;
+  ltQueueSizeWhenQueuedCounter_->addSample(eventQueue_.size());
+  stQueueSizeWhenQueuedCounter_->addSample(eventQueue_.size(), now);
+  longTermQueuedCounter_->addSample(sizeInMB);
+  shortTermQueuedCounter_->addSample(sizeInMB, now);
+
   eventQueue_.push_back(bufPtr);
+
   while (eventQueue_.size() > maxQueueSize_) {
     eventQueue_.pop_front();
   }
@@ -206,6 +306,9 @@ void ConsumerPipe::putEvent(boost::shared_ptr< std::vector<char> > bufPtr)
     {
       lastEventRequestTime_ = time(NULL);
       ++events_;
+      // add the event to our statistics for "served" events
+      longTermServedCounter_->addSample(sizeInMB);
+      shortTermServedCounter_->addSample(sizeInMB, now);
     }
   }
 }
@@ -231,6 +334,11 @@ boost::shared_ptr< std::vector<char> > ConsumerPipe::getEvent()
     {
       bufPtr = eventQueue_.front();
       eventQueue_.pop_front();
+
+      // add the event to our statistics for "served" events
+      double sizeInMB = static_cast<double>(bufPtr->size()) / 1048576.0;
+      longTermServedCounter_->addSample(sizeInMB);
+      shortTermServedCounter_->addSample(sizeInMB);
     }
   }
 
@@ -361,4 +469,163 @@ void ConsumerPipe::setRegistryWarning(std::vector<char> const& message)
   // adding a mutex for the warning message string)
   registryWarningMessage_ = message;
   registryWarningWasReported_ = true;
+}
+
+/**
+ * Returns the number of events for the specified statistics types
+ * (short term vs. long term; desired vs. queued vs. served).
+ */
+long long ConsumerPipe::getEventCount(STATS_TIME_FRAME timeFrame,
+                                      STATS_SAMPLE_TYPE sampleType,
+                                      double currentTime)
+{
+  if (timeFrame == SHORT_TERM) {
+    if (sampleType == QUEUED_EVENTS) {
+      return shortTermQueuedCounter_->getSampleCount(currentTime);
+    }
+    else if (sampleType == DESIRED_EVENTS) {
+      return shortTermDesiredCounter_->getSampleCount(currentTime);
+    }
+    else {
+      return shortTermServedCounter_->getSampleCount(currentTime);
+    }
+  }
+  else {
+    if (sampleType == QUEUED_EVENTS) {
+      return longTermQueuedCounter_->getSampleCount();
+    }
+    else if (sampleType == DESIRED_EVENTS) {
+      return longTermDesiredCounter_->getSampleCount();
+    }
+    else {
+      return longTermServedCounter_->getSampleCount();
+    }
+  }
+}
+
+/**
+ * Returns the rate of events for the specified statistics types
+ * (short term vs. long term; desired vs. queued vs. served).
+ */
+double ConsumerPipe::getEventRate(STATS_TIME_FRAME timeFrame,
+                                  STATS_SAMPLE_TYPE sampleType,
+                                  double currentTime)
+{
+  if (timeFrame == SHORT_TERM) {
+    if (sampleType == QUEUED_EVENTS) {
+      return shortTermQueuedCounter_->getSampleRate(currentTime);
+    }
+    else if (sampleType == DESIRED_EVENTS) {
+      return shortTermDesiredCounter_->getSampleRate(currentTime);
+    }
+    else {
+      return shortTermServedCounter_->getSampleRate(currentTime);
+    }
+  }
+  else {
+    if (sampleType == QUEUED_EVENTS) {
+      return longTermQueuedCounter_->getSampleRate(currentTime);
+    }
+    else if (sampleType == DESIRED_EVENTS) {
+      return longTermDesiredCounter_->getSampleRate(currentTime);
+    }
+    else {
+      return longTermServedCounter_->getSampleRate(currentTime);
+    }
+  }
+}
+
+/**
+ * Returns the data rate for the specified statistics types
+ * (short term vs. long term; desired vs. queued vs. served).
+ */
+double ConsumerPipe::getDataRate(STATS_TIME_FRAME timeFrame,
+                                 STATS_SAMPLE_TYPE sampleType,
+                                 double currentTime)
+{
+  if (timeFrame == SHORT_TERM) {
+    if (sampleType == QUEUED_EVENTS) {
+      return shortTermQueuedCounter_->getValueRate(currentTime);
+    }
+    else if (sampleType == DESIRED_EVENTS) {
+      return shortTermDesiredCounter_->getValueRate(currentTime);
+    }
+    else {
+      return shortTermServedCounter_->getValueRate(currentTime);
+    }
+  }
+  else {
+    if (sampleType == QUEUED_EVENTS) {
+      return longTermQueuedCounter_->getValueRate(currentTime);
+    }
+    else if (sampleType == DESIRED_EVENTS) {
+      return longTermDesiredCounter_->getValueRate(currentTime);
+    }
+    else {
+      return longTermServedCounter_->getValueRate(currentTime);
+    }
+  }
+}
+
+/**
+ * Returns the duration (in seconds) for the specified statistics types
+ * (short term vs. long term; desired vs. queued vs. served).
+ * "Duration" here means the length of time in which the specified
+ * statistics have been collected.
+ */
+double ConsumerPipe::getDuration(STATS_TIME_FRAME timeFrame,
+                                 STATS_SAMPLE_TYPE sampleType,
+                                 double currentTime)
+{
+  if (timeFrame == SHORT_TERM) {
+    if (sampleType == QUEUED_EVENTS) {
+      return shortTermQueuedCounter_->getDuration(currentTime);
+    }
+    else if (sampleType == DESIRED_EVENTS) {
+      return shortTermDesiredCounter_->getDuration(currentTime);
+    }
+    else {
+      return shortTermServedCounter_->getDuration(currentTime);
+    }
+  }
+  else {
+    if (sampleType == QUEUED_EVENTS) {
+      return longTermQueuedCounter_->getDuration(currentTime);
+    }
+    else if (sampleType == DESIRED_EVENTS) {
+      return longTermDesiredCounter_->getDuration(currentTime);
+    }
+    else {
+      return longTermServedCounter_->getDuration(currentTime);
+    }
+  }
+}
+
+/**
+ * Returns the average queue size for the specified statistics types
+ * (short term vs. long term; desired vs. queued).  The queue size
+ * is sampled before any additional events are added.  For example,
+ * the average queue size for "queued" events is the size before each
+ * new event is queued.
+ */
+double ConsumerPipe::getAverageQueueSize(STATS_TIME_FRAME timeFrame,
+                                         STATS_SAMPLE_TYPE sampleType,
+                                         double currentTime)
+{
+  if (timeFrame == SHORT_TERM) {
+    if (sampleType == QUEUED_EVENTS) {
+      return stQueueSizeWhenQueuedCounter_->getValueAverage(currentTime);
+    }
+    else {
+      return stQueueSizeWhenDesiredCounter_->getValueAverage(currentTime);
+    }
+  }
+  else {
+    if (sampleType == QUEUED_EVENTS) {
+      return ltQueueSizeWhenQueuedCounter_->getValueAverage();
+    }
+    else {
+      return ltQueueSizeWhenDesiredCounter_->getValueAverage();
+    }
+  }
 }

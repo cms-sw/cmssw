@@ -13,7 +13,7 @@
 //
 // Original Author:  
 //         Created:  Tue Oct 17 00:13:51 EDT 2006
-// $Id: L1ExtraParticlesProd.h,v 1.6 2007/12/18 03:31:12 wsun Exp $
+// $Id: L1ExtraParticlesProd.h,v 1.5 2007/10/12 23:26:54 wsun Exp $
 //
 
 // system include files
@@ -68,8 +68,6 @@ class L1ExtraParticlesProd : public edm::EDProducer {
       edm::InputTag etMissSource_ ;
 
       static double muonMassGeV_ ;
-
-      bool centralBxOnly_ ;
 };
 
 #endif

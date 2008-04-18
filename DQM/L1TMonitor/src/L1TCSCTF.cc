@@ -1,8 +1,8 @@
 /*
  * \file L1TCSCTF.cc
  *
- * $Date: 2008/03/14 20:35:46 $
- * $Revision: 1.15 $
+ * $Date: 2007/12/21 17:41:20 $
+ * $Revision: 1.12 $
  * \author J. Berryhill
  *
  */
@@ -22,6 +22,7 @@ L1TCSCTF::L1TCSCTF(const ParameterSet& ps)
 
   if(verbose_) cout << "L1TCSCTF: constructor...." << endl;
 
+  logFile_.open("L1TCSCTF.log");
 
   dbe = NULL;
   if ( ps.getUntrackedParameter<bool>("DQMStore", false) ) 
@@ -33,6 +34,9 @@ L1TCSCTF::L1TCSCTF(const ParameterSet& ps)
   outputFile_ = ps.getUntrackedParameter<string>("outputFile", "");
   if ( outputFile_.size() != 0 ) {
     cout << "L1T Monitoring histograms will be saved to " << outputFile_.c_str() << endl;
+  }
+  else{
+    outputFile_ = "L1TDQM.root";
   }
 
   bool disable = ps.getUntrackedParameter<bool>("disableROOToutput", false);
@@ -112,7 +116,7 @@ void L1TCSCTF::beginJob(const EventSetup& c)
 void L1TCSCTF::endJob(void)
 {
   if(verbose_) cout << "L1TCSCTF: end job...." << endl;
-  LogInfo("EndJob") << "analyzed " << nev_ << " events"; 
+  LogInfo("L1TCSCTF") << "analyzed " << nev_ << " events"; 
 
  if ( outputFile_.size() != 0  && dbe ) dbe->save(outputFile_);
 
@@ -129,7 +133,7 @@ void L1TCSCTF::analyze(const Event& e, const EventSetup& c)
   e.getByLabel(csctfSource_,pCollection);
   
   if (!pCollection.isValid()) {
-    edm::LogInfo("DataNotFound") << "can't find L1MuGMTReadoutCollection with label "
+    edm::LogInfo("L1TCSCTF") << "can't find L1MuGMTReadoutCollection with label "
 			       << csctfSource_.label() ;
     return;
   }

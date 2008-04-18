@@ -45,6 +45,9 @@ public:
         /// Overload << operator
         friend std::ostream& operator << (std::ostream& os, const L1GctWheelEnergyFpga& fpga);
 
+	/// clear internal buffers
+	virtual void reset();
+
 	/// get input data from sources; this is the standard way to provide input
 	virtual void fetchInput();
 
@@ -71,16 +74,7 @@ public:
 	/// get output Et value
 	inline etTotalType getOutputEt() const { return m_outputEt; }
 
- protected:
-
-	/// Separate reset methods for the processor itself and any data stored in pipelines
-	virtual void resetProcessor();
-	virtual void resetPipelines() {}
-
-	/// Initialise inputs with null objects for the correct bunch crossing if required
-	virtual void setupObjects() {}
-
- private:
+private:
 
 	///
 	/// algo ID

@@ -13,7 +13,7 @@
 // Original Author:  Andrea Perrotta
 // Modifications: Patrick Janot.
 //         Created:  Mon Oct 30 14:37:24 CET 2006
-// $Id: FastL1MuonProducer.cc,v 1.2 2007/12/28 22:45:14 pjanot Exp $
+// $Id: FastL1MuonProducer.cc,v 1.3 2008/01/22 20:42:30 muzaffar Exp $
 //
 //
 
@@ -143,7 +143,11 @@ void FastL1MuonProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSet
   std::multimap<float,SimpleL1MuGMTCand*>  mySimpleL1MuonCandsTemp;
 
   for( unsigned fsimi=0; fsimi < nmuons; ++fsimi) {
+    // The sim track can be a muon or a decaying hadron
     const SimTrack& mySimTrack = (*simMuons)[fsimi];
+    // Keep only the muons at L1 (either primary or secondary)
+    int pid = mySimTrack.type();        
+    if ( fabs(pid) != 13 ) continue;
 
     bool hasL1 = false;
 

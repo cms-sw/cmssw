@@ -19,7 +19,7 @@ using std::endl;
 gctTestFirmware::gctTestFirmware() : jetsFromFile(L1CaloRegionDetId::N_PHI) {}
 gctTestFirmware::~gctTestFirmware() {}
 
-void gctTestFirmware::fillJetsFromFirmware(const std::string &fileName, const int bxStart, const int numOfBx)
+void gctTestFirmware::fillJetsFromFirmware(const std::string &fileName)
 {
   //Open the file
   if (!jetsFromFirmwareInputFile.is_open()) {
@@ -34,7 +34,7 @@ void gctTestFirmware::fillJetsFromFirmware(const std::string &fileName, const in
     << "Couldn't read data from file " << fileName << "!";
   }
 
-  jetsFromFile = getJetsFromFile(bxStart, numOfBx);
+  jetsFromFile = getJetsFromFile();
 }
 
 //
@@ -88,43 +88,37 @@ bool gctTestFirmware::checkJetFinder(const L1GlobalCaloTrigger* gct) const
 }
 
 /// Read one event's worth of jets from the file
-vector<gctTestFirmware::JetsVector> gctTestFirmware::getJetsFromFile(const int bxStart, const int numOfBx)
+vector<gctTestFirmware::JetsVector> gctTestFirmware::getJetsFromFile()
 {
-  vector<JetsVector> result(L1CaloRegionDetId::N_PHI);
+  vector<JetsVector> result;
   char textFromFile[10];
   std::string strFromFile;
   unsigned jf, ev;
-
-  int bx = bxStart;
-  for (int i=0; i<numOfBx && jetsFromFirmwareInputFile.good(); i++) {
-    jetsFromFirmwareInputFile.width(10);
+  jetsFromFirmwareInputFile.width(10);
+  jetsFromFirmwareInputFile >> textFromFile;
+  jetsFromFirmwareInputFile >> ev;
+  strFromFile = textFromFile;
+  assert (strFromFile=="Event");
+  for (unsigned j=0; j<L1CaloRegionDetId::N_PHI; ++j) {
     jetsFromFirmwareInputFile >> textFromFile;
-    jetsFromFirmwareInputFile >> ev;
+    jetsFromFirmwareInputFile >> jf;
     strFromFile = textFromFile;
-    assert (strFromFile=="Event");
-    for (unsigned j=0; j<L1CaloRegionDetId::N_PHI; ++j) {
-      jetsFromFirmwareInputFile >> textFromFile;
-      jetsFromFirmwareInputFile >> jf;
-      strFromFile = textFromFile;
-      assert ((strFromFile=="JetFinder") && (jf==j));
-      JetsVector temp;
-      for (unsigned i=0; i<L1GctJetFinderBase::MAX_JETS_OUT; ++i) {
-	temp.push_back(nextJetFromFile(jf, bx));
-      }
-      // Sort the jets coming from the hardware to match the order from the jetFinderBase
-      // *** The sort is currently commented. Note that it won't work unless the ***
-      // *** same et->rank lookup table is used in the test and in the emulator  ***
-      // sort(temp.begin(), temp.end(), L1GctJet::rankGreaterThan());
-      JetsVector::iterator itr = result.at(j).end();
-      result.at(j).insert(itr, temp.begin(), temp.end());
+    assert ((strFromFile=="JetFinder") && (jf==j));
+    JetsVector temp;
+    for (unsigned i=0; i<L1GctJetFinderBase::MAX_JETS_OUT; ++i) {
+      temp.push_back(nextJetFromFile(jf));
     }
-    bx++;
+    // Sort the jets coming from the hardware to match the order from the jetFinderBase
+	// *** The sort is currently commented. Note that it won't work unless the ***
+	// *** same et->rank lookup table is used in the test and in the emulator  ***
+    // sort(temp.begin(), temp.end(), L1GctJet::rankGreaterThan());
+    result.push_back(temp);
   }
   return result;
 }
 
 /// Read a single jet
-L1GctJet gctTestFirmware::nextJetFromFile (const unsigned jf, const int bx)
+L1GctJet gctTestFirmware::nextJetFromFile (const unsigned jf)
 {
 
   unsigned et, eta, phi;
@@ -148,7 +142,6 @@ L1GctJet gctTestFirmware::nextJetFromFile (const unsigned jf, const int bx)
   if (of) { et |= L1GctJet::kRawsumOFlowBit; }
 
   L1GctJet temp(et, globalEta, globalPhi, (eta>7), tv);
-  temp.setBx(bx);
   return temp;
 }
 

@@ -1,18 +1,5 @@
-#ifndef MagVolume6Faces_h
-#define MagVolume6Faces_h
-
-/** \class MagVolume6Faces
- *
- *  A MagVolume defined by a number of sides (surfaces)
- *  NOTE that despite the name the sides can be less (or more) than 6!!! <br>
- *
- *  inside() is implemented by checking that the given point is on the 
- *  correct side of each of the surfaces sides.
- *
- *  $Date: $
- *  $Revision: $
- *  \author T. Todorov, N. Amapane
- */
+#ifndef MagVolume6Faces_H
+#define MagVolume6Faces_H
 
 #include "MagneticField/VolumeGeometry/interface/MagVolume.h"
 #include "MagneticField/VolumeGeometry/interface/VolumeSide.h"

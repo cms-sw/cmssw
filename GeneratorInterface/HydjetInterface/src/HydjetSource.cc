@@ -1,5 +1,5 @@
 /*
- * $Id: HydjetSource.cc,v 1.17 2008/03/25 17:45:22 yilmaz Exp $
+ * $Id: HydjetSource.cc,v 1.15 2008/01/16 14:47:18 yilmaz Exp $
  *
  * Interface to the HYDJET generator, produces HepMC events
  *
@@ -233,6 +233,7 @@ bool HydjetSource::get_hard_particles(HepMC::GenEvent *evt, vector<SubEvent>& su
 
 	 //The Fortran code is modified to preserve mother id info, by seperating the beginning 
          //mother indices of successive subevents by 10000.
+
 	 int mid = mother_ids[i]-isub*10000-1;
 	 if(mid <= 0){
 	    sub_vertices[isub]->add_particle_out(part);
@@ -246,18 +247,11 @@ bool HydjetSource::get_hard_particles(HepMC::GenEvent *evt, vector<SubEvent>& su
 	       prod_vertex = prods[i];
 	       prod_vertex->add_particle_in(mother);
 	       evt->add_vertex(prod_vertex);
-               prods[i]=0; // mark to protect deletion
 	    }
 	    prod_vertex->add_particle_out(part);
 	 }
       }
-
-      // cleanup vertices not assigned to evt
-      for (unsigned int i = 0; i<prods.size(); i++) {
-         if(prods[i]) delete prods[i];
-      }
    }
-
   return true;
 }
 
@@ -280,7 +274,7 @@ bool HydjetSource::get_soft_particles(HepMC::GenEvent *evt, vector<SubEvent>& su
       soft_vertex->add_particle_out( hyj_entries[i2] ) ;
    } 
    evt->add_vertex( soft_vertex );
-
+   
    return true;
 }
 
@@ -426,21 +420,13 @@ bool HydjetSource::produce(Event & e)
   edm::LogInfo("HYDJETinTemp") << "##### HYDJET: QGP init temperature, T0 ="<<pyqpar.T0u;
   edm::LogInfo("HYDJETinTau") << "##### HYDJET: QGP formation time,tau0 ="<<pyqpar.tau0u;
 
+
   // generate a HYDJET event
-  int ntry = 0;
-  while(nsoft_ == 0 && nhard_ == 0){
-     if(ntry > 100){
-	edm::LogError("HydjetEmptyEvent") << "##### HYDJET: No Particles generated, Number of tries ="<<ntry;
-	return false;
-     }else{
-	HYEVNT();
-	nsoft_    = hyfpar.nhyd;
-	nhard_    = hyfpar.npyt;
-	ntry++;
-     }
-  }
-  
+  HYEVNT();
+
+  nsoft_    = hyfpar.nhyd;
   nsub_     = hyjpar.njet;
+  nhard_    = hyfpar.npyt;
 
   std::vector<SubEvent> subvector;
 
@@ -466,6 +452,9 @@ bool HydjetSource::produce(Event & e)
   if (event() <= maxEventsToPrint_ && pythiaPylistVerbosity_)     
      call_pylist(pythiaPylistVerbosity_);      
   
+
   return true;
 }
 
+
+//________________________________________________________________

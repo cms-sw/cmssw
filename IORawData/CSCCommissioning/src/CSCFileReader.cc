@@ -313,30 +313,20 @@ int CSCFileReader::nextEventFromFUs(FEDRawDataCollection *data){
 	}
 	// Include 0x5xxx preHeader if exists
 	if( start>(unsigned long long *)fuEvent[readyToGo] && (*(start-1)&0xF000000000000000LL)==0x5000000000000000LL ) start--;
-
-	// If Track-Finder DDU was in readout
-	if( tfDDUnumber>=0 ){
 	// Cut out Track-Finder DDU from the buffer
-		if( !end ) throw cms::Exception("CSCFileReader|lookingForTF")<<" Sanity check failed (end==0)! Should never happen";
+	FEDRawData& tfRawData = data->FEDData(FEDNumbering::getCSCTFFEDIds().first);
+	tfRawData.resize((end-start)*sizeof(unsigned long long));
+	std::copy((unsigned char*)start,(unsigned char*)end,tfRawData.data());
 
-		FEDRawData& tfRawData = data->FEDData(FEDNumbering::getCSCTFFEDIds().first);
-		tfRawData.resize((end-start)*sizeof(unsigned long long));
-		std::copy((unsigned char*)start,(unsigned char*)end,tfRawData.data());
-
-		// Create a new buffer from everything before and after TF DDU
-		unsigned short *event = tmpBuf;
-		memcpy(event,fuEvent[readyToGo],((unsigned short*)start-fuEvent[readyToGo])*sizeof(unsigned short));
-		event += ((unsigned short*)start-fuEvent[readyToGo]);
-		memcpy(event,end,(fuEvent[readyToGo]+fuEventSize[readyToGo]-(unsigned short*)end)*sizeof(unsigned short));
-		event += fuEvent[readyToGo]+fuEventSize[readyToGo]-(unsigned short*)end;
-		FEDRawData& fedRawData = data->FEDData(FEDNumbering::getCSCFEDIds().first);
-		fedRawData.resize((fuEventSize[readyToGo]-((unsigned short*)end-(unsigned short*)start))*sizeof(unsigned short));
-		std::copy((unsigned char*)tmpBuf,(unsigned char*)event,fedRawData.data());
-	} else {
-		FEDRawData& fedRawData = data->FEDData(FEDNumbering::getCSCFEDIds().first);
-		fedRawData.resize((fuEventSize[readyToGo])*sizeof(unsigned short));
-		std::copy((unsigned char*)fuEvent[readyToGo],(unsigned char*)(fuEvent[readyToGo]+fuEventSize[readyToGo]),fedRawData.data());
-	}
+	// Create a new buffer from everything before and after TF DDU
+	unsigned short *event = tmpBuf;
+	memcpy(event,fuEvent[readyToGo],((unsigned short*)start-fuEvent[readyToGo])*sizeof(unsigned short));
+	event += ((unsigned short*)start-fuEvent[readyToGo]);
+	memcpy(event,end,(fuEvent[readyToGo]+fuEventSize[readyToGo]-(unsigned short*)end)*sizeof(unsigned short));
+	event += fuEvent[readyToGo]+fuEventSize[readyToGo]-(unsigned short*)end;
+	FEDRawData& fedRawData = data->FEDData(FEDNumbering::getCSCFEDIds().first);
+	fedRawData.resize((fuEventSize[readyToGo]-((unsigned short*)end-(unsigned short*)start))*sizeof(unsigned short));
+	std::copy((unsigned char*)tmpBuf,(unsigned char*)event,fedRawData.data());
 
 	currentL1A[readyToGo] = readFU(readyToGo,fuEvent[readyToGo],fuEventSize[readyToGo]);
 

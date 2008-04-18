@@ -8,7 +8,7 @@
  * $Revision: 1.6 $
  * \author J. Berryhill
  *
- */
+*/
 
 // system include files
 #include <memory>
@@ -31,29 +31,25 @@
 
 class L1TDTTPG : public edm::EDAnalyzer {
 
- public:
+public:
 
-  // Constructor
-  L1TDTTPG(const edm::ParameterSet& ps);
+// Constructor
+L1TDTTPG(const edm::ParameterSet& ps);
 
-  // Destructor
-  virtual ~L1TDTTPG();
+// Destructor
+virtual ~L1TDTTPG();
 
- protected:
-  // Analyze
-  void analyze(const edm::Event& e, const edm::EventSetup& c);
+protected:
+// Analyze
+void analyze(const edm::Event& e, const edm::EventSetup& c);
 
-  // BeginJob
-  void beginJob(const edm::EventSetup& c);
+// BeginJob
+void beginJob(const edm::EventSetup& c);
 
-  // EndJob
-  void endJob(void);
+// EndJob
+void endJob(void);
 
- private:
-
-  void setMapPhLabel(MonitorElement *me);
-  void setMapThLabel(MonitorElement *me);
-
+private:
   // ----------member data ---------------------------
   DQMStore * dbe;
 
@@ -62,19 +58,12 @@ class L1TDTTPG : public edm::EDAnalyzer {
   MonitorElement* dttpgphwheel[3];  
   MonitorElement* dttpgphsector[3];  
   MonitorElement* dttpgphstation[3];  
-  /*   MonitorElement* dttpgphphi[3];   */
-  /*   MonitorElement* dttpgphphiB[3];   */
+  MonitorElement* dttpgphphi[3];  
+  MonitorElement* dttpgphphiB[3];  
   MonitorElement* dttpgphquality[3];  
   MonitorElement* dttpgphts2tag[3];  
-  /*   MonitorElement* dttpgphbxcnt[3];   */
-  MonitorElement* dttpgphntrack;
-  MonitorElement* dttpgphmap;
-  MonitorElement* dttpgphmapbx[3];
-  MonitorElement* dttpgphmap2nd;
-  MonitorElement* dttpgphmapcorr;
-  MonitorElement* dttpgphbestmap;
-  MonitorElement* dttpgphbestmapcorr;
-
+  MonitorElement* dttpgphbxcnt[3];  
+  MonitorElement* dttpgphntrack;  
 
   MonitorElement* dttpgthbx[3];  
   MonitorElement* dttpgthwheel[3];  
@@ -83,11 +72,6 @@ class L1TDTTPG : public edm::EDAnalyzer {
   MonitorElement* dttpgththeta[3];  
   MonitorElement* dttpgthquality[3];    
   MonitorElement* dttpgthntrack;  
-  MonitorElement* dttpgthmap;
-  MonitorElement* dttpgthmapbx[3];
-  MonitorElement* dttpgthmaph;
-  MonitorElement* dttpgthbestmap;
-  MonitorElement* dttpgthbestmaph;
 
   MonitorElement *dttf_p_phi[3];
   MonitorElement *dttf_p_pt[3];

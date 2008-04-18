@@ -1,11 +1,3 @@
-# The following comments couldn't be translated into the new config version:
-
-# This is a vector of ParameterSet names to be read, in this order
-
-# "TAUO = 0 0              ! Registered by Alexandre.Nikitenko@cern.ch",
-
-# higgs decays
-
 import FWCore.ParameterSet.Config as cms
 
 source = cms.Source("PythiaSource",

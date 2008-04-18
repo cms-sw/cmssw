@@ -94,7 +94,6 @@ void PixelDataFormatter::interpretRawData(int fedId, const FEDRawData& rawData, 
       static const Word64 WORD32_mask  = 0xffffffff;
       Word32 w1 =  *word       & WORD32_mask;
       Word32 w2 =  *word >> 32 & WORD32_mask;
-      if (w1==0) theWordCounter--;
       if (w2==0) theWordCounter--;
 
       // check status of word...

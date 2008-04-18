@@ -1,4 +1,4 @@
-// $Id: DataProcessManager.cc,v 1.8 2008/02/11 15:02:11 biery Exp $
+// $Id: DataProcessManager.cc,v 1.9 2008/03/03 20:38:11 biery Exp $
 
 #include "EventFilter/SMProxyServer/interface/DataProcessManager.h"
 #include "EventFilter/StorageManager/interface/SMCurlInterface.h"
@@ -90,6 +90,15 @@ namespace stor
 
     edm::ParameterSet ps = ParameterSet();
     // TODO fixme: only request event types that are requested by connected consumers?
+
+    // 16-Apr-2008, KAB: set maxEventRequestRate in the parameterSet that
+    // we send to the storage manager now that we have the fair share
+    // algorithm working in the SM.
+    Entry maxRateEntry("maxEventRequestRate",
+                       static_cast<double>(1.0 / minEventRequestInterval_),
+                       false);
+    ps.insert(true, "maxEventRequestRate", maxRateEntry);
+
     consumerPSetString_ = ps.toString();
     // TODO fixme: only request folders that connected consumers want?
     consumerTopFolderName_ = "*";
@@ -110,6 +119,16 @@ namespace stor
     else {
       minEventRequestInterval_ = 1.0 / rate;  // seconds
     }
+
+    // 16-Apr-2008, KAB: set maxEventRequestRate in the parameterSet that
+    // we send to the storage manager now that we have the fair share
+    // algorithm working in the SM.
+    edm::ParameterSet ps = ParameterSet();
+    Entry maxRateEntry("maxEventRequestRate",
+                       static_cast<double>(1.0 / minEventRequestInterval_),
+                       false);
+    ps.insert(true, "maxEventRequestRate", maxRateEntry);
+    consumerPSetString_ = ps.toString();
   }
 
   void DataProcessManager::setMaxDQMEventRequestRate(double rate)
