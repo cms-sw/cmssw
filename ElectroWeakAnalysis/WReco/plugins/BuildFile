@@ -3,3 +3,6 @@
 <library file=WToMuNuSelector.cc>
   <use name=DataFormats/Candidate>
 </library>
+<library file=X1X2PythiaProducer.cc> 
+  <use name=DataFormats/Candidate>
+</library>
