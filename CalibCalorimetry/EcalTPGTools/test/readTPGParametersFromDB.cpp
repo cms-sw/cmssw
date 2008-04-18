@@ -1,4 +1,4 @@
-#include "CalibCalorimetry/EcalTPGTools/interface/EcalTPGCondDBApp.h"
+#include "CalibCalorimetry/EcalTPGTools/interface/EcalTPGDBApp.h"
 
 #include <cassert>
 #include <string>
@@ -39,12 +39,12 @@ int main (int argc, char* argv[])
   int n_run=atoi(sn_run.c_str());
 
   try {
-    EcalTPGCondDBApp app( sid, user, pass);
+    EcalTPGDBApp app( sid, user, pass);
 
     int i ; 
-    app.readPedestals(i);
-    app.writeLUT();
-    app.writeWeights();
+    //app.readTPGPedestals(i);
+    //app.writeTPGLUT();
+    //app.writeTPGWeights();
 
   } catch (exception &e) {
     cout << "ERROR:  " << e.what() << endl;

@@ -1,7 +1,7 @@
 
 #include "EcalTPGParamBuilder.h"
 
-#include "CalibCalorimetry/EcalTPGTools/interface/EcalTPGCondDBApp.h"
+#include "CalibCalorimetry/EcalTPGTools/interface/EcalTPGDBApp.h"
 
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
@@ -41,16 +41,17 @@ EcalTPGParamBuilder::EcalTPGParamBuilder(edm::ParameterSet const& pSet)
   
   readFromDB_ = pSet.getParameter<bool>("readFromDB") ;
   writeToDB_  = pSet.getParameter<bool>("writeToDB") ;
+  DBEE_ = pSet.getParameter<bool>("allowDBEE") ;
   string DBsid    = pSet.getParameter<std::string>("DBsid") ;
   string DBuser   = pSet.getParameter<std::string>("DBuser") ;
   string DBpass   = pSet.getParameter<std::string>("DBpass") ;
-  uint32_t DBport   = pSet.getParameter<unsigned int>("DBport") ;
-  uint32_t DBfirstRun = pSet.getParameter<unsigned int>("DBfirstRun") ;
-  uint32_t DBnbRun    = pSet.getParameter<unsigned int>("DBnbRun") ;
+  uint32_t DBport = pSet.getParameter<unsigned int>("DBport") ;
+  DBrunNb_        = pSet.getParameter<unsigned int>("DBrunNb") ;
+
   if (readFromDB_ || writeToDB_) {
     try {
       cout << "Warning: using the DB is not yet implemented " <<endl ;
-      db_ = new EcalTPGCondDBApp(DBsid, DBuser, DBpass) ;
+      db_ = new EcalTPGDBApp(DBsid, DBuser, DBpass) ;
     } catch (exception &e) {
       cout << "ERROR:  " << e.what() << endl;
     } catch (...) {
@@ -125,19 +126,22 @@ void EcalTPGParamBuilder::analyze(const edm::Event& evt, const edm::EventSetup& 
   // Pedestals
   ESHandle<EcalPedestals> pedHandle;
   evtSetup.get<EcalPedestalsRcd>().get( pedHandle );
-  const EcalPedestalsMap & pedMap = pedHandle.product()->getMap() ;
- 
+  const EcalPedestalsMap & pedMap = pedHandle.product()->getMap() ;   
+  map<EcalLogicID, MonPedestalsDat> pedMapDB ;
+  int iovId = 0 ;
+  if (readFromDB_) iovId = db_->readFromCondDB_Pedestals(pedMapDB, DBrunNb_) ;
+
   // Intercalib constants
   ESHandle<EcalIntercalibConstants> pIntercalib ;
   evtSetup.get<EcalIntercalibConstantsRcd>().get(pIntercalib) ;
   const EcalIntercalibConstants * intercalib = pIntercalib.product() ;
   const EcalIntercalibConstantMap & calibMap = intercalib->getMap() ;
 
-   // Gain Ratios
-   ESHandle<EcalGainRatios> pRatio;
-   evtSetup.get<EcalGainRatiosRcd>().get(pRatio);
-   const EcalGainRatioMap & gainMap = pRatio.product()->getMap();
-
+  // Gain Ratios
+  ESHandle<EcalGainRatios> pRatio;
+  evtSetup.get<EcalGainRatiosRcd>().get(pRatio);
+  const EcalGainRatioMap & gainMap = pRatio.product()->getMap();
+  
   // ADCtoGeV
   ESHandle<EcalADCToGeVConstant> pADCToGeV ;
   evtSetup.get<EcalADCToGeVConstantRcd>().get(pADCToGeV) ;
@@ -151,8 +155,11 @@ void EcalTPGParamBuilder::analyze(const edm::Event& evt, const edm::EventSetup& 
   // Compute linearization coeff section //
   /////////////////////////////////////////
 
+  map<EcalLogicID, FEConfigPedDat> pedset ;
+  map<EcalLogicID, FEConfigLinDat> linset ;
+
   // loop on EB xtals
-  (*out_file_)<<"COMMENT ====== barrel crystals ====== "<<std::endl ;
+  if (writeToFiles_) (*out_file_)<<"COMMENT ====== barrel crystals ====== "<<std::endl ;
   std::vector<DetId> ebCells = theBarrelGeometry_->getValidDetIds(DetId::Ecal, EcalBarrel);
   for (vector<DetId>::const_iterator it = ebCells.begin(); it != ebCells.end(); ++it) {
     EBDetId id(*it) ;
@@ -168,28 +175,45 @@ void EcalTPGParamBuilder::analyze(const edm::Event& evt, const edm::EventSetup& 
     int stripInTower = elId.pseudoStripId() ;
     int xtalInStrip = elId.channelId() ;
 
+    EcalLogicID logicId ;
+    FEConfigPedDat ped ;
+    FEConfigLinDat lin ;
     if (writeToFiles_) (*out_file_)<<"CRYSTAL "<<dec<<id.rawId()<<std::endl ;
+    if (writeToDB_ || readFromDB_) logicId = db_->getEcalLogicID ("EB_crystal_number", id.ism(), id.ic()) ;
 
     coeffStruc coeff ;
-    getCoeff(coeff, calibMap, gainMap, pedMap, id.rawId()) ;
+    if (readFromDB_) {
+      getCoeff(coeff, calibMap, id.rawId()) ;
+      getCoeff(coeff, gainMap, id.rawId()) ;
+      getCoeff(coeff, pedMapDB, logicId) ;      
+    } else {
+      getCoeff(coeff, calibMap, id.rawId()) ;
+      getCoeff(coeff, gainMap, id.rawId()) ;
+      getCoeff(coeff, pedMap, id.rawId()) ;
+    }
 
     // compute and fill linearization parameters
     for (int i=0 ; i<3 ; i++) {
       int mult, shift ;
       bool ok = computeLinearizerParam(theta, coeff.gainRatio_[i], coeff.calibCoeff_, "EB", mult , shift) ;
-      if (writeToFiles_) {
-	if (ok) (*out_file_) << hex <<" 0x"<<coeff.pedestals_[i]<<" 0x"<<mult<<" 0x"<<shift<<std::endl; 
-	else { 
-	  (*out_file_) << "unable to compute the parameters"<<std::endl ; 
-	  std::cout << "unable to compute the parameters for "<<dec<<id.rawId()<<std::endl ; 
+      if (!ok) std::cout << "unable to compute the parameters for "<<dec<<id.rawId()<<std::endl ;  
+      else {
+	if (writeToFiles_) (*out_file_) << hex <<" 0x"<<coeff.pedestals_[i]<<" 0x"<<mult<<" 0x"<<shift<<std::endl; 
+	if (writeToDB_) {
+	  if (i==0)  {ped.setPedMeanG12(coeff.pedestals_[i]) ; lin.setMultX12(mult) ; lin.setShift12(shift) ; } 
+	  if (i==1)  {ped.setPedMeanG6(coeff.pedestals_[i]) ; lin.setMultX6(mult) ; lin.setShift6(shift) ; } 
+	  if (i==2)  {ped.setPedMeanG1(coeff.pedestals_[i]) ; lin.setMultX1(mult) ; lin.setShift1(shift) ; } 
 	}
       }
     }
+    if (writeToDB_) {
+      pedset[logicId] = ped ;
+      linset[logicId] = lin ;
+    }
   } //ebCells
 
-
   // loop on EE xtals
-  (*out_file_)<<"COMMENT ====== endcap crystals ====== "<<std::endl ;
+  if (writeToFiles_) (*out_file_)<<"COMMENT ====== endcap crystals ====== "<<std::endl ;
   std::vector<DetId> eeCells = theEndcapGeometry_->getValidDetIds(DetId::Ecal, EcalEndcap);
   for (vector<DetId>::const_iterator it = eeCells.begin(); it != eeCells.end(); ++it) {
     EEDetId id(*it);
@@ -197,6 +221,11 @@ void EcalTPGParamBuilder::analyze(const edm::Event& evt, const edm::EventSetup& 
     if (!useTransverseEnergy_) theta = acos(0.) ;
     const EcalTrigTowerDetId towid= (*eTTmap_).towerOf(id) ;
     towerListEE.push_back(towid.rawId()) ;
+    // special case of towers in inner rings of EE
+    if (towid.ietaAbs() == 27 || towid.ietaAbs() == 28) {
+      EcalTrigTowerDetId additionalTower(towid.zside(), towid.subDet(), towid.ietaAbs(), towid.iphi()+1) ;
+      towerListEE.push_back(additionalTower.rawId()) ;
+    }
     const EcalTriggerElectronicsId elId = theMapping_->getTriggerElectronicsId(id) ;
     stripListEE.push_back(elId.rawId() & 0xfffffff8) ;
     int dccNb = theMapping_->DCCid(towid) ;
@@ -205,25 +234,51 @@ void EcalTPGParamBuilder::analyze(const edm::Event& evt, const edm::EventSetup& 
     int stripInTower = elId.pseudoStripId() ;
     int xtalInStrip = elId.channelId() ;
 
+    EcalLogicID logicId ;
+    FEConfigPedDat ped ;
+    FEConfigLinDat lin ;
     if (writeToFiles_) (*out_file_)<<"CRYSTAL "<<dec<<id.rawId()<<std::endl ;
+    if ((writeToDB_ || readFromDB_) && DBEE_) {
+      int iz = id.positiveZ() ;
+      if (iz ==0) iz = -1 ;
+      logicId = db_->getEcalLogicID ("EE_crystal_number", iz, id.ix(), id.iy()) ;
+    }
 
     coeffStruc coeff ;
-    getCoeff(coeff, calibMap, gainMap, pedMap, id.rawId()) ;
+    if (readFromDB_ && DBEE_) {
+      getCoeff(coeff, calibMap, id.rawId()) ;
+      getCoeff(coeff, gainMap, id.rawId()) ;
+      getCoeff(coeff, pedMapDB, logicId) ;      
+    } else {
+      getCoeff(coeff, calibMap, id.rawId()) ;
+      getCoeff(coeff, gainMap, id.rawId()) ;
+      getCoeff(coeff, pedMap, id.rawId()) ;
+    }
 
     // compute and fill linearization parameters
     for (int i=0 ; i<3 ; i++) {
       int mult, shift ;
       bool ok = computeLinearizerParam(theta, coeff.gainRatio_[i], coeff.calibCoeff_, "EE", mult , shift) ;
-      if (writeToFiles_) {
-	if (ok) (*out_file_) << hex <<" 0x"<<coeff.pedestals_[i]<<" 0x"<<mult<<" 0x"<<shift<<std::endl; 
-	else { 
-	  (*out_file_) << "unable to compute the parameters"<<std::endl ; 
-	  std::cout << "unable to compute the parameters for "<<dec<<id.rawId()<<std::endl ; 
-	}
+      if (!ok) std::cout << "unable to compute the parameters for "<<dec<<id.rawId()<<std::endl ;  
+      else {
+	if (writeToFiles_) (*out_file_) << hex <<" 0x"<<coeff.pedestals_[i]<<" 0x"<<mult<<" 0x"<<shift<<std::endl; 
+	if (writeToDB_ && DBEE_) {
+	  if (i==0)  {ped.setPedMeanG12(coeff.pedestals_[i]) ; lin.setMultX12(mult) ; lin.setShift12(shift) ; } 
+	  if (i==1)  {ped.setPedMeanG6(coeff.pedestals_[i]) ; lin.setMultX6(mult) ; lin.setShift6(shift) ; } 
+	  if (i==2)  {ped.setPedMeanG1(coeff.pedestals_[i]) ; lin.setMultX1(mult) ; lin.setShift1(shift) ; } 
+	}	
       }
+    }
+    if (writeToDB_ && DBEE_) {
+      pedset[logicId] = ped ;
+      linset[logicId] = lin ;
     }
   } //eeCells
 
+  if (writeToDB_) {
+    db_->writeToConfDB_TPGPedestals(pedset, iovId, "from_CondDB") ;
+    db_->writeToConfDB_TPGLinearCoef(linset, iovId, "from_CondDB") ;
+  }
 
   /////////////////////////////
   // Compute weights section //
@@ -236,12 +291,15 @@ void EcalTPGParamBuilder::analyze(const edm::Event& evt, const edm::EventSetup& 
   EcalShape shape(phase); 
   std::vector<unsigned int> weights = computeWeights(shape) ;
 
-  if (writeToFiles_) {
-    if (weights.size() == 5) {
+  if (weights.size() == 5) {
+    if (writeToFiles_) {
       (*out_file_) <<std::endl ;
       (*out_file_) <<"WEIGHT 0"<<endl ;
       for (uint sample=0 ; sample<5 ; sample++) (*out_file_) << "0x" <<hex<<weights[sample]<<" " ;
       (*out_file_)<<std::endl ; 
+    }
+    if (writeToDB_) {
+
     }
   }
 
@@ -694,20 +752,17 @@ void EcalTPGParamBuilder::computeLUT(int * lut, std::string det)
 
 }
 
-
-void EcalTPGParamBuilder::getCoeff(coeffStruc & coeff,
-				   const EcalIntercalibConstantMap & calibMap, 
-				   const EcalGainRatioMap & gainMap, 
-				   const EcalPedestalsMap & pedMap,
-				   uint rawId)
+void EcalTPGParamBuilder::getCoeff(coeffStruc & coeff, const EcalIntercalibConstantMap & calibMap, uint rawId)
 {
   // get current intercalibration coeff
   coeff.calibCoeff_ = 1. ;
   EcalIntercalibConstantMap::const_iterator icalit = calibMap.find(rawId);
-  if( icalit != calibMap.end() ){
-    coeff.calibCoeff_ = (*icalit) ;
-  }
-  
+  if( icalit != calibMap.end() ) coeff.calibCoeff_ = (*icalit) ;
+  else std::cout<<"getCoeff: "<<rawId<<" not found in EcalIntercalibConstantMap"<<std::endl ;
+}
+
+void EcalTPGParamBuilder::getCoeff(coeffStruc & coeff, const EcalGainRatioMap & gainMap, uint rawId)
+{
   // get current gain ratio
   coeff.gainRatio_[0]  = 1. ;
   coeff.gainRatio_[1]  = 2. ;
@@ -718,6 +773,11 @@ void EcalTPGParamBuilder::getCoeff(coeffStruc & coeff,
     coeff.gainRatio_[1] = aGain.gain12Over6() ;
     coeff.gainRatio_[2] = aGain.gain6Over1() * aGain.gain12Over6() ;
   }
+  else std::cout<<"getCoeff: "<<rawId<<" not found in EcalGainRatioMap"<<std::endl ;
+}
+
+void EcalTPGParamBuilder::getCoeff(coeffStruc & coeff, const EcalPedestalsMap & pedMap, uint rawId)
+{
   // get current pedestal
   coeff.pedestals_[0] = 0 ;
   coeff.pedestals_[1] = 0 ;
@@ -729,6 +789,25 @@ void EcalTPGParamBuilder::getCoeff(coeffStruc & coeff,
     coeff.pedestals_[1] = int(aped.mean_x6 + 0.5) ;
     coeff.pedestals_[2] = int(aped.mean_x1 + 0.5) ;
   }
+  else std::cout<<"getCoeff: "<<rawId<<" not found in EcalPedestalsMap"<<std::endl ;
+}
+
+void EcalTPGParamBuilder::getCoeff(coeffStruc & coeff, const map<EcalLogicID, MonPedestalsDat> & pedMap, const EcalLogicID & logicId)
+{
+  // get current pedestal
+  coeff.pedestals_[0] = 0 ;
+  coeff.pedestals_[1] = 0 ;
+  coeff.pedestals_[2] = 0 ;
+
+  map<EcalLogicID, MonPedestalsDat>::const_iterator it =  pedMap.find(logicId);
+  if (it != pedMap.end()) {
+    MonPedestalsDat ped = it->second ;
+    coeff.pedestals_[0] = int(ped.getPedMeanG12() + 0.5) ; 
+    coeff.pedestals_[1] = int(ped.getPedMeanG6() + 0.5) ; 
+    coeff.pedestals_[2] = int(ped.getPedMeanG1() + 0.5) ; 
+  } 
+  else std::cout<<"getCoeff: "<<logicId.getID1()<<", "<<logicId.getID2()<<", "<<logicId.getID3()
+		<<" not found in map<EcalLogicID, MonPedestalsDat>"<<std::endl ;
 }
 
 void EcalTPGParamBuilder::computeFineGrainEBParameters(uint & lowRatio, uint & highRatio,

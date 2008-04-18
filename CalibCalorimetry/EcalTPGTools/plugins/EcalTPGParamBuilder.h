@@ -21,6 +21,8 @@
 #include "CondFormats/EcalObjects/interface/EcalIntercalibConstants.h"
 #include "CondFormats/EcalObjects/interface/EcalGainRatios.h"
 #include "CondFormats/EcalObjects/interface/EcalPedestals.h"
+#include "OnlineDB/EcalCondDB/interface/all_monitoring_types.h"
+#include "OnlineDB/EcalCondDB/interface/all_fe_config_types.h"
 
 #include "SimCalorimetry/EcalSimAlgos/interface/EcalShape.h"
 
@@ -31,7 +33,7 @@
 
 class CaloSubdetectorGeometry ;
 class EcalElectronicsMapping ;
-class EcalTPGCondDBApp ;
+class EcalTPGDBApp ;
 
 class coeffStruc {
  public:
@@ -56,11 +58,11 @@ class EcalTPGParamBuilder : public edm::EDAnalyzer {
   double uncodeWeight(int iweight, int complement2 = 7) ;
   std::vector<unsigned int> computeWeights(EcalShape & shape) ;
   void computeLUT(int * lut, std::string det="EB")  ;
-  void getCoeff(coeffStruc & coeff,
-		const EcalIntercalibConstantMap & calibMap, 
-		const EcalGainRatioMap & gainMap, 
-		const EcalPedestalsMap & pedMap,
-		uint rawId) ;
+  void getCoeff(coeffStruc & coeff, const EcalIntercalibConstantMap & calibMap, uint rawId) ;
+  void getCoeff(coeffStruc & coeff, const EcalGainRatioMap & gainMap, uint rawId) ;
+  void getCoeff(coeffStruc & coeff, const EcalPedestalsMap & pedMap, uint rawId) ;
+  void getCoeff(coeffStruc & coeff, const std::map<EcalLogicID, MonPedestalsDat> & pedMap, const EcalLogicID & logicId) ;
+
   void computeFineGrainEBParameters(uint & lowRatio, uint & highRatio,
 				    uint & lowThreshold, uint & highThreshold, uint & lut) ;
   void computeFineGrainEEParameters(uint & threshold, uint & lut_strip, uint & lut_tower) ;
@@ -90,10 +92,13 @@ class EcalTPGParamBuilder : public edm::EDAnalyzer {
 
   std::ofstream * out_file_ ;
   std::ofstream * geomFile_ ;
-  EcalTPGCondDBApp * db_ ;
+  EcalTPGDBApp * db_ ;
   bool readFromDB_ ;
   bool writeToDB_ ;
   bool writeToFiles_ ;
+  unsigned int DBrunNb_ ;
+  bool DBEE_ ;
+
 
 };
 #endif
