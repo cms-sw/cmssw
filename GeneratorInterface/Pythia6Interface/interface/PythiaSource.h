@@ -83,16 +83,16 @@ namespace edm
     double ymin, ymax;  
     bool flatEnergy;
     
-    bool stopHadronsEnabled;
-    bool gluinoHadronsEnabled;
-    
     // external generators (tauola,...)
     bool useExternalGenerators_ ;
     bool useTauola_ ;
     bool useTauolaPolarization_ ;
     TauolaInterface tauola_ ;
+    
+    bool stopHadronsEnabled;
+    bool gluinoHadronsEnabled;
         
-    CLHEP::HepRandomEngine* fRandomEngine;
+    CLHEP::HepRandomEngine& fRandomEngine;
     CLHEP::RandFlat*        fRandomGenerator; 
     PtYDistributor*         fPtYGenerator;
   };

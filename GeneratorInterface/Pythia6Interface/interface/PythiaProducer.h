@@ -39,7 +39,7 @@ namespace edm
     /// Destructor
     virtual ~PythiaProducer();
 
-    void endRun( Run& r);
+    void endRun( Run& r, const EventSetup& es);
 
   private:
 
@@ -91,7 +91,7 @@ namespace edm
     bool stopHadronsEnabled;
     bool gluinoHadronsEnabled;
     
-    CLHEP::HepRandomEngine* fRandomEngine;
+    CLHEP::HepRandomEngine& fRandomEngine;
     CLHEP::RandFlat*        fRandomGenerator; 
     PtYDistributor*         fPtYGenerator;
     int 		    eventNumber_;
