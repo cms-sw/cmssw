@@ -12,6 +12,7 @@
 #include "CondFormats/DataRecord/interface/DTReadOutMappingRcd.h"
 #include "CondFormats/DTObjects/interface/DTT0.h"
 #include "CondFormats/DataRecord/interface/DTT0Rcd.h"
+#include "CondFormats/DataRecord/interface/DTT0RefRcd.h"
 #include "CondFormats/DTObjects/interface/DTRangeT0.h"
 #include "CondFormats/DataRecord/interface/DTRangeT0Rcd.h"
 #include "CondFormats/DTObjects/interface/DTTtrig.h"
@@ -31,6 +32,7 @@
 DEFINE_SEAL_MODULE();
 REGISTER_PLUGIN(DTReadOutMappingRcd,DTReadOutMapping);
 REGISTER_PLUGIN(DTT0Rcd,DTT0);
+REGISTER_PLUGIN(DTT0RefRcd,DTT0);
 REGISTER_PLUGIN(DTRangeT0Rcd,DTRangeT0);
 REGISTER_PLUGIN(DTTtrigRcd,DTTtrig);
 REGISTER_PLUGIN(DTMtimeRcd,DTMtime);
