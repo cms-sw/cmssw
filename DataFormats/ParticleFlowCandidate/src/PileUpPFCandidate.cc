@@ -24,10 +24,9 @@ std::ostream& operator<<( std::ostream& out,
   if(!out) return out;
   
   
-  const CandidateBaseRefVector mothers = c.motherRefs();
-  assert(mothers.size()==1);
   out<<"PileUpPFCandidate, "
-     <<mothers[0].id()<<"/"<<mothers[0].key();
+     <<c.sourceCandidateRef(0).id()<<"/"
+     <<c.sourceCandidateRef(0).key();
   
   return out;
 }

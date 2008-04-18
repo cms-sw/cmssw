@@ -43,8 +43,8 @@ namespace reco {
     /// default constructor
     PFCandidate();
 
-    /// constructor from a reference (keeps track of mother relationship)
-    PFCandidate( const PFCandidateRef& motherRef );
+    /// constructor from a reference (keeps track of source relationship)
+    PFCandidate( const PFCandidateRef& sourceRef );
     
     /*     PFCandidate( Charge q,  */
     /*                  const LorentzVector & p4,  */
@@ -61,15 +61,21 @@ namespace reco {
     virtual PFCandidate * clone() const;
 
 
-    /// set mother ref
-    void setMotherRef(const PFCandidateRef& ref) { motherRef_ = ref; }
+    /// set source ref
+    void setSourceRef(const PFCandidateRef& ref) { sourceRef_ = ref; }
 
-    /// return a reference to the motherRef PFCandidate
-/*     const PFCandidateRef& motherRef() const { return motherRef_;} */
-    CandidateBaseRefVector motherRefs() const { 
-      CandidateBaseRefVector mothers;
-      mothers.push_back( CandidateBaseRef(motherRef_) );
-      return mothers;
+    /// return a reference to the sourceRef PFCandidate
+/*     const PFCandidateRef& sourceRef() const { return sourceRef_;} */
+/*     CandidateBaseRefVector sourceRefs() const {  */
+/*       CandidateBaseRefVector sources; */
+/*       sources.push_back( CandidateBaseRef(sourceRef_) ); */
+/*       return sources; */
+/*     } */
+
+    size_type numberOfSourceCandidateRefs() const {return 1;}
+
+    CandidateBaseRef sourceCandidateRef( size_type i ) const {
+      return  CandidateBaseRef(sourceRef_);
     }
 
     /// returns the pdg id corresponding to the particle type.
@@ -247,8 +253,8 @@ namespace reco {
   
     ElementsInBlocks elementsInBlocks_;
 
-    /// reference to the mother PFCandidate, if any
-    PFCandidateRef motherRef_;
+    /// reference to the source PFCandidate, if any
+    PFCandidateRef sourceRef_;
 
     reco::TrackRef trackRef_;
     

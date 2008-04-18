@@ -190,7 +190,7 @@ void PFTopProjector::produce(Event& iEvent,
 	cout<<"O "<<i<<" "<<inCands[i]<<endl;
       PFCandidateRef motherRef( pfCandidates, i );
       pOutput->push_back( inCands[i] );
-      pOutput->back().setMotherRef(motherRef);
+      pOutput->back().setSourceRef(motherRef);
     }
   }
   
@@ -209,16 +209,17 @@ PFTopProjector::refToAncestorPFCandidates( CandidateBaseRef candRef,
 
   
 
-  CandidateBaseRefVector mothers = candRef->motherRefs(); 
+//   CandidateBaseRefVector mothers = candRef->motherRefs(); 
  
 //   cout<<"going down from "<<candRef.id()
 //       <<"/"<<candRef.key()<<" #mothers "<<mothers.size()
 //       <<" ancestor id "<<allPFCandidates.id()<<endl;
   
-  for(unsigned i=0; i<mothers.size(); i++) {
+  unsigned nSources = candRef->numberOfSourceCandidateRefs();
+  for(unsigned i=0; i<nSources; i++) {
 //     cout<<"  mother id "<<mothers[i].id()<<endl;
     
-    CandidateBaseRef mother = mothers[i];
+    CandidateBaseRef mother = candRef->sourceCandidateRef(i);
     
     if(  mother.id() != allPFCandidates.id() ) {
       // the mother is not yet at lowest level
@@ -242,7 +243,7 @@ void PFTopProjector::maskAncestors( const reco::CandidateBaseRefVector& ancestor
     
     if(verbose_) {
       ProductID id = ancestors[i].id();
-      cout<<"masking "<<i<<", ancestor "<<id<<"/"<<index<<endl;
+      cout<<"masking "<<index<<", ancestor "<<id<<"/"<<index<<endl;
     }
     masked[index] = true;
   }

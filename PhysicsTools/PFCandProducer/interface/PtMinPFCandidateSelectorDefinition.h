@@ -34,7 +34,7 @@ struct PtMinPFCandidateSelectorDefinition {
       if( trk->pt() > ptMin_ ) {
 	selected_.push_back( new reco::PFCandidate(*trk) );
 	reco::PFCandidateRef refToMother( hc, key );
-	selected_.back()->setMotherRef( refToMother );
+	selected_.back()->setSourceRef( refToMother );
       }
     }
   }

@@ -34,7 +34,7 @@ struct PdgIdPFCandidateSelectorDefinition {
 	if ( trk->pdgId() == pdgIds_[iId] ) {
 	  selected_.push_back( new reco::PFCandidate(*trk) );
 	  reco::PFCandidateRef refToMother( hc, key );
-	  selected_.back()->setMotherRef( refToMother );
+	  selected_.back()->setSourceRef( refToMother );
 	  break;
 	}
       }
