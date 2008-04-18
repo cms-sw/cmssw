@@ -53,7 +53,7 @@ class SiStripClusterInfo {
     
   uint16_t                           getFirstStrip() const {return cluster_->firstStrip();}
   float                                getPosition() const {return cluster_->barycenter();}
-  const std::vector<uint16_t>&  getStripAmplitudes() const {return cluster_->amplitudes();} 
+  const std::vector<uint8_t>&  getStripAmplitudes() const {return cluster_->amplitudes();} 
   
     
   float                            getWidth() const {return cluster_->amplitudes().size();}

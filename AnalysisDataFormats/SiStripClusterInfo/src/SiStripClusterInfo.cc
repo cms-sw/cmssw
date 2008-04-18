@@ -65,7 +65,7 @@ SiStripClusterInfo::~SiStripClusterInfo(){}
 float SiStripClusterInfo::getCharge() {
   
   float charge_=0;
-  const std::vector<uint16_t>& amplitudes_ =  cluster_->amplitudes();
+  const std::vector<uint8_t>& amplitudes_ =  cluster_->amplitudes();
   
   for(size_t i=0; i< amplitudes_.size();i++){
     if (amplitudes_[i] > 0){  // redundant as always fullfilled for cluster amplitudes
@@ -81,7 +81,7 @@ float SiStripClusterInfo::getCharge() {
 uint16_t SiStripClusterInfo::getMaxPosition() {
   
   uint16_t maxPosition_=0;
-  const std::vector<uint16_t>& amplitudes_ =  cluster_->amplitudes();  
+  const std::vector<uint8_t>& amplitudes_ =  cluster_->amplitudes();  
   float maxCharge_=0;
   
   for(size_t i=0; i< amplitudes_.size();i++){
@@ -101,7 +101,7 @@ uint16_t SiStripClusterInfo::getMaxPosition() {
 
 float SiStripClusterInfo::getMaxCharge() {
   
-  const std::vector<uint16_t>& amplitudes_ =  cluster_->amplitudes();  
+  const std::vector<uint8_t>& amplitudes_ =  cluster_->amplitudes();  
   float maxCharge_=0;
   
   for(size_t i=0; i< amplitudes_.size();i++){
@@ -120,7 +120,7 @@ std::pair<float,float> SiStripClusterInfo::getChargeLR() {
   float chargeL_=0;
   float chargeR_=0; 
   uint16_t maxPosition_ = this->getMaxPosition();
-  const std::vector<uint16_t>& amplitudes_ =  cluster_->amplitudes();
+  const std::vector<uint8_t>& amplitudes_ =  cluster_->amplitudes();
   
   for(size_t i=0; i<amplitudes_.size();i++){
     if (i<maxPosition_) chargeL_+=amplitudes_[i]; 	  
@@ -136,7 +136,7 @@ std::vector<float> SiStripClusterInfo::getStripNoises() const {
   
   std::vector<float>   stripNoises_;
   SiStripNoises::Range detNoiseRange = noiseHandle_->getRange(cluster_detId_);  
-  const std::vector<uint16_t>& amplitudes_ =  cluster_->amplitudes();
+  const std::vector<uint8_t>& amplitudes_ =  cluster_->amplitudes();
   
   for(size_t i=0; i<amplitudes_.size();i++){
     
@@ -155,7 +155,7 @@ std::vector<float> SiStripClusterInfo::getStripNoisesRescaledByGain() const {
   std::vector<float>   stripNoises_;
   SiStripNoises::Range detNoiseRange = noiseHandle_->getRange(cluster_detId_);  
   SiStripApvGain::Range detGainRange = gainHandle_->getRange(cluster_detId_);	
-  const std::vector<uint16_t>& amplitudes_ =  cluster_->amplitudes();
+  const std::vector<uint8_t>& amplitudes_ =  cluster_->amplitudes();
   
   for(size_t i=0; i<amplitudes_.size();i++){
     
@@ -180,7 +180,7 @@ float SiStripClusterInfo::getNoise() {
   
   SiStripNoises::Range detNoiseRange = noiseHandle_->getRange(cluster_detId_);
   
-  const std::vector<uint16_t>& amplitudes_ =  cluster_->amplitudes();
+  const std::vector<uint8_t>& amplitudes_ =  cluster_->amplitudes();
   
   for(size_t i=0; i<amplitudes_.size();i++){
     
@@ -207,7 +207,7 @@ float SiStripClusterInfo::getNoiseRescaledByGain() {
   SiStripNoises::Range detNoiseRange = noiseHandle_->getRange(cluster_detId_);
   SiStripApvGain::Range detGainRange = gainHandle_->getRange(cluster_detId_);	
   
-  const std::vector<uint16_t>& amplitudes_ =  cluster_->amplitudes();
+  const std::vector<uint8_t>& amplitudes_ =  cluster_->amplitudes();
   
   for(size_t i=0; i<amplitudes_.size();i++){
     
@@ -245,7 +245,7 @@ std::vector<float> SiStripClusterInfo::getApvGains() const {
   std::vector<float>   apvGains_;
   SiStripApvGain::Range detGainRange = gainHandle_->getRange(cluster_detId_);	
   
-  const std::vector<uint16_t>& amplitudes_ =  cluster_->amplitudes();
+  const std::vector<uint8_t>& amplitudes_ =  cluster_->amplitudes();
   
   for(size_t i=0; i<amplitudes_.size();i++){	
     float gain_=gainHandle_->getStripGain(cluster_->firstStrip()+i,detGainRange);
