@@ -143,5 +143,9 @@
    <class name="edm::reftobase::Holder<pat::ParticleType, pat::ParticleTypeRef>" />
    <class name="edm::reftobase::Holder<pat::ParticleType, pat::ParticleRef>" />
    <class name="edm::reftobase::RefHolder<pat::ParticleRef>" />
+
+  <class name="std::vector<reco::TrackRefVector>" />
+  <class name="edm::ValueMap<reco::TrackRefVector>" />
+  <class name="edm::Wrapper<edm::ValueMap<reco::TrackRefVector> >" />
 </lcgdict>
 
