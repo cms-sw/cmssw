@@ -13,7 +13,7 @@
 //
 // Original Author:  Erik Butz
 //         Created:  Tue Dec 11 14:03:05 CET 2007
-// $Id: TrackerOfflineValidation.cc,v 1.1 2008/02/27 17:34:40 ebutz Exp $
+// $Id: TrackerOfflineValidation.cc,v 1.2 2008/03/26 16:20:26 ebutz Exp $
 //
 //
 
@@ -54,12 +54,14 @@
 #include "Geometry/CommonDetUnit/interface/TrackingGeometry.h"
 #include "Alignment/CommonAlignment/interface/Utilities.h"
 #include "Alignment/CommonAlignment/interface/AlignableObjectId.h"
+#include "Alignment/TrackerAlignment/interface/TrackerAlignableId.h"
 
 //
 // class decleration
 //
 
 //typedef std::vector<DetId>          DetIdContainer;
+
 
 
 class TrackerOfflineValidation : public edm::EDAnalyzer {
@@ -76,62 +78,51 @@ private:
   edm::ESHandle<TrackerGeometry> tkgeom;
   edm::ParameterSet Parameters;
   
+  struct ModuleHistos{
+    ModuleHistos() :  ResHisto(), NormResHisto() {} 
+    TH1* ResHisto;
+    TH1* NormResHisto;
+    TH1* ResXprimeHisto;
+    TH1* NormResXprimeHisto;
+  };
+  
+  ModuleHistos& GetHistStructFromMap(const DetId& detid);
+
+
   std::vector<TH1*> v_trackhistos;
   std::vector<TProfile*> v_trackprofiles;
   std::vector<TH2*> v_track2Dhistos;
   
   std::vector<TH1*> v_subdetres;
   std::vector<TH1*> v_subdetnormres;
+  std::vector<TH1*> v_subdetXprimeRes;
 
-  std::vector<TProfile*> v_tobrodphi;
-  std::vector<TProfile*> v_tobrodphi_rms;
-  std::vector<TProfile*> v_toblayerphi;
-  std::vector<TProfile*> v_toblayerphi_rms;
+  //__gnu_cxx::hash_map<int,TrackerOfflineValidation::ModuleHistos> m_modulehistos;
   
-  std::vector<TProfile*> v_tibstringphi;
-  std::vector<TProfile*> v_tibstringphi_rms;
-  
-  std::vector<TProfile*> v_tiblayerphi;
-  std::vector<TProfile*> v_tiblayerphi_rms;
-
-  std::vector<TProfile*> v_tiddiscphi;
-  std::vector<TProfile*> v_tiddiscphi_rms;
-
-  std::vector<TProfile*> v_teclayerphi;
-  std::vector<TProfile*> v_teclayerphi_rms;
-
-
-  std::map<align::StructureType, std::vector<TProfile*> > m_hierarchy_profiles;
-
-  std::map<int,TH1*> m_pxbresiduals;
-  std::map<int,TH1*> m_pxeresiduals;
-  std::map<int,TH1*> m_tibresiduals;
-  std::map<int,TH1*> m_tidresiduals;
-  std::map<int,TH1*> m_tobresiduals;
-  std::map<int,TH1*> m_tecresiduals;
-
-  std::map<int,TH1*> m_pxbnormresiduals;
-  std::map<int,TH1*> m_pxenormresiduals;
-  std::map<int,TH1*> m_tibnormresiduals;
-  std::map<int,TH1*> m_tidnormresiduals;
-  std::map<int,TH1*> m_tobnormresiduals;
-  std::map<int,TH1*> m_tecnormresiduals;
+  std::map<int,TrackerOfflineValidation::ModuleHistos> m_pxbResiduals;
+  std::map<int,TrackerOfflineValidation::ModuleHistos> m_pxeResiduals;
+  std::map<int,TrackerOfflineValidation::ModuleHistos> m_tibResiduals;
+  std::map<int,TrackerOfflineValidation::ModuleHistos> m_tidResiduals;
+  std::map<int,TrackerOfflineValidation::ModuleHistos> m_tobResiduals;
+  std::map<int,TrackerOfflineValidation::ModuleHistos> m_tecResiduals;
 
   AlignableTracker *alitracker;
-  
+  void bookGlobalHists(TFileDirectory &tfd);
   void bookDirHists(TFileDirectory &tfd, const Alignable& ali, const AlignableObjectId &aliobjid);
   void bookHists(TFileDirectory &tfd, const Alignable& ali, align::StructureType type, int i, const AlignableObjectId &aliobjid);
  
-  void collateSummaryHists( TFileDirectory &tfd, const Alignable& ali, int i, const AlignableObjectId &aliobjid, std::vector<TProfile*> &v_levelprofiles);
+  void collateSummaryHists( TFileDirectory &tfd, const Alignable& ali, int i, const AlignableObjectId &aliobjid, std::vector<std::pair<TH1*,TH1*> > &v_levelprofiles);
   
-  TProfile* bookSummaryHists(TFileDirectory &tfd, const Alignable& ali, align::StructureType type, int i, const AlignableObjectId &aliobjid); 
+  std::pair<TH1*,TH1*> bookSummaryHists(TFileDirectory &tfd, const Alignable& ali, align::StructureType type, int i, const AlignableObjectId &aliobjid); 
  
+ 
+  float Fwhm(const TH1* hist);
+
   // From MillePedeAlignmentMonitor: Get Index for Arbitary vector<class> by name
   template <class OBJECT_TYPE>  
   int GetIndex(const std::vector<OBJECT_TYPE*> &vec, const TString &name);
   
-
-  
+ 
   
   // ----------member data ---------------------------
 };
@@ -139,7 +130,7 @@ private:
 //
 // constants, enums and typedefs
 //
-typedef std::vector<DetId>                 DetIdContainer;
+typedef std::vector<DetId>  DetIdContainer;
 //
 // static data member definitions
 //
@@ -151,7 +142,7 @@ int TrackerOfflineValidation::GetIndex(const std::vector<OBJECT_TYPE*> &vec, con
        iter != iterEnd; ++iter, ++result) {
     if (*iter && (*iter)->GetName() == name) return result;
   }
-  edm::LogError("Alignment") << "@SUB=MillePedeMonitor::GetIndex" << " could not find " << name;
+  edm::LogError("Alignment") << "@SUB=TrackerOfflineValidation::GetIndex" << " could not find " << name;
   return -1;
 }
 //
@@ -193,34 +184,13 @@ TrackerOfflineValidation::beginJob(const edm::EventSetup& es)
 
   alitracker = new AlignableTracker(&(*tkgeom));
   
+
+  //
+  // Book Histogramms for global track quantities
+  TFileDirectory trackglobal = fs->mkdir("GlobalTrackVariables");
   
-  v_trackhistos.push_back(fs->make<TH1F>("h_tracketa","Track #eta;#eta_{Track};Number of Tracks",90,-3.,3.));	       
-  v_trackhistos.push_back(fs->make<TH1F>("h_curvature","Curvature #kappa;#kappa_{Track};Number of Tracks",100,-.05,.05));
-  v_trackhistos.push_back(fs->make<TH1F>("h_curvature_pos","Curvature |#kappa| Positive Tracks;|#kappa_{pos Track}|;Number of Tracks",100,.0,.05));
-  v_trackhistos.push_back(fs->make<TH1F>("h_curvature_neg","Curvature |#kappa| Negative Tracks;|#kappa_{neg Track}|;Number of Tracks",100,.0,.05));
-  v_trackhistos.push_back(fs->make<TH1F>("h_diff_curvature","Curvature |#kappa| Tracks Difference;|#kappa_{Track}|;# Pos Tracks - # Neg Tracks",100,.0,.05));
-  v_trackhistos.push_back(fs->make<TH1F>("h_chi2","#chi^{2};#chi^{2}_{Track};Number of Tracks",500,-0.01,500.));	       
-  v_trackhistos.push_back(fs->make<TH1F>("h_normchi2","#chi^{2}/ndof;#chi^{2}/ndof;Number of Tracks",100,-0.01,10.));     
-  v_trackhistos.push_back(fs->make<TH1F>("h_pt","p_{T};p_{T}^{track};Number of Tracks",100,0.,2500));                     
-
-  v_trackprofiles.push_back(fs->make<TProfile>("h_d0_vs_phi","Transverse Impact Parameter vs. #phi;#phi_{Track};#LT d_{0} #GT",100,-3.15,3.15));  
-  v_trackprofiles.push_back(fs->make<TProfile>("h_dz_vs_phi","Longitudinal Impact Parameter vs. #phi;#phi_{Track};#LT d_{z} #GT",100,-3.15,3.15));
-  v_trackprofiles.push_back(fs->make<TProfile>("h_d0_vs_eta","Transverse Impact Parameter vs. #eta;#eta_{Track};#LT d_{0} #GT",100,-3.15,3.15));  
-  v_trackprofiles.push_back(fs->make<TProfile>("h_dz_vs_eta","Longitudinal Impact Parameter vs. #eta;#eta_{Track};#LT d_{z} #GT",100,-3.15,3.15));
-  v_trackprofiles.push_back(fs->make<TProfile>("h_chi2_vs_phi","#chi^{2} vs. #phi;#phi_{Track};#LT #chi^{2} #GT",100,-3.15,3.15));		  
-  v_trackprofiles.push_back(fs->make<TProfile>("h_normchi2_vs_phi","#chi^{2}/ndof vs. #phi;#phi_{Track};#LT #chi^{2}/ndof #GT",100,-3.15,3.15));  
-  v_trackprofiles.push_back(fs->make<TProfile>("h_chi2_vs_eta","#chi^{2} vs. #eta;#eta_{Track};#LT #chi^{2} #GT",100,-3.15,3.15));		  
-  v_trackprofiles.push_back(fs->make<TProfile>("h_normchi2_vs_eta","#chi^{2}/ndof vs. #eta;#eta_{Track};#LT #chi^{2}/ndof #GT",100,-3.15,3.15));  
-
-  v_track2Dhistos.push_back(fs->make<TH2F>("h2_d0_vs_phi","Transverse Impact Parameter vs. #phi;#phi_{Track};d_{0}",100, -3.15, 3.15, 100,-1.,1.) );  
-  v_track2Dhistos.push_back(fs->make<TH2F>("h2_dz_vs_phi","Longitudinal Impact Parameter vs. #phi;#phi_{Track};d_{z}",100, -3.15, 3.15, 100,-100.,100.));
-  v_track2Dhistos.push_back(fs->make<TH2F>("h2_d0_vs_eta","Transverse Impact Parameter vs. #eta;#eta_{Track};d_{0}",100, -3.15, 3.15, 100,-1.,1.));  
-  v_track2Dhistos.push_back(fs->make<TH2F>("h2_dz_vs_eta","Longitudinal Impact Parameter vs. #eta;#eta_{Track};d_{z}",100, -3.15, 3.15, 100,-100.,100.));
-  v_track2Dhistos.push_back(fs->make<TH2F>("h2_chi2_vs_phi","#chi^{2} vs. #phi;#phi_{Track};#chi^{2}",100, -3.15, 3.15, 500, 0., 500.));		  
-  v_track2Dhistos.push_back(fs->make<TH2F>("h2_normchi2_vs_phi","#chi^{2}/ndof vs. #phi;#phi_{Track};#chi^{2}/ndof",100, -3.15, 3.15, 100, 0., 10.));  
-  v_track2Dhistos.push_back(fs->make<TH2F>("h2_chi2_vs_eta","#chi^{2} vs. #eta;#eta_{Track};#chi^{2}",100, -3.15, 3.15, 500, 0., 500.));		  
-  v_track2Dhistos.push_back(fs->make<TH2F>("h2_normchi2_vs_eta","#chi^{2}/ndof vs. #eta;#eta_{Track};#chi^{2}/ndof",100,-3.15,3.15, 100, 0., 10.));  
-
+  this->bookGlobalHists(trackglobal);
+  
   Parameters = parset_.getParameter<edm::ParameterSet>("TH1ResModules");
   int32_t i_residuals_Nbins =  Parameters.getParameter<int32_t>("Nbinx");
   double d_residual_xmin = Parameters.getParameter<double>("xmin");
@@ -231,33 +201,94 @@ TrackerOfflineValidation::beginJob(const edm::EventSetup& es)
   double d_normres_xmin = Parameters.getParameter<double>("xmin");
   double d_normres_xmax = Parameters.getParameter<double>("xmax");
   
-  v_subdetres.push_back(fs->make<TH1F>("h_residuals_pxb","Residuals in PXB;x_{pred} - x_{rec} [cm]", i_residuals_Nbins,d_residual_xmin,d_residual_xmax)) ;
-  v_subdetres.push_back(fs->make<TH1F>("h_residuals_pxe","Residuals in PXE;x_{pred} - x_{rec} [cm]", i_residuals_Nbins,d_residual_xmin,d_residual_xmax)) ;
-  v_subdetres.push_back(fs->make<TH1F>("h_residuals_tib","Residuals in TIB;x_{pred} - x_{rec} [cm]", i_residuals_Nbins,d_residual_xmin,d_residual_xmax)) ;
-  v_subdetres.push_back(fs->make<TH1F>("h_residuals_tid","Residuals in TID;x_{pred} - x_{rec} [cm]", i_residuals_Nbins,d_residual_xmin,d_residual_xmax)) ;
-  v_subdetres.push_back(fs->make<TH1F>("h_residuals_tob","Residuals in TOB;x_{pred} - x_{rec} [cm]", i_residuals_Nbins,d_residual_xmin,d_residual_xmax)) ;
-  v_subdetres.push_back(fs->make<TH1F>("h_residuals_tec","Residuals in TEC;x_{pred} - x_{rec} [cm]", i_residuals_Nbins,d_residual_xmin,d_residual_xmax)) ;
 
-  v_subdetnormres.push_back(fs->make<TH1F>("h_normresiduals_pxb","Normalized Residuals in PXB;(x_{pred} - x_{rec})/#sqrt{V}", 
+  v_subdetres.push_back(fs->make<TH1F>("h_Residuals_pxb","Residuals in PXB;x_{pred} - x_{rec} [cm]", 
+				       i_residuals_Nbins,d_residual_xmin,d_residual_xmax)) ;
+  v_subdetres.push_back(fs->make<TH1F>("h_Residuals_pxe","Residuals in PXE;x_{pred} - x_{rec} [cm]", 
+				       i_residuals_Nbins,d_residual_xmin,d_residual_xmax)) ;
+  v_subdetres.push_back(fs->make<TH1F>("h_Residuals_tib","Residuals in TIB;x_{pred} - x_{rec} [cm]", 
+				       i_residuals_Nbins,d_residual_xmin,d_residual_xmax)) ;
+  v_subdetres.push_back(fs->make<TH1F>("h_Residuals_tid","Residuals in TID;x_{pred} - x_{rec} [cm]", 
+				       i_residuals_Nbins,d_residual_xmin,d_residual_xmax)) ;
+  v_subdetres.push_back(fs->make<TH1F>("h_Residuals_tob","Residuals in TOB;x_{pred} - x_{rec} [cm]", 
+				       i_residuals_Nbins,d_residual_xmin,d_residual_xmax)) ;
+  v_subdetres.push_back(fs->make<TH1F>("h_Residuals_tec","Residuals in TEC;x_{pred} - x_{rec} [cm]", 
+				       i_residuals_Nbins,d_residual_xmin,d_residual_xmax)) ;
+
+  v_subdetXprimeRes.push_back(fs->make<TH1F>("h_XprimeResiduals_pxb","Residuals in PXB;x_{pred} - x_{rec} [cm]", 
+				       i_residuals_Nbins,d_residual_xmin,d_residual_xmax)) ;
+  v_subdetXprimeRes.push_back(fs->make<TH1F>("h_XprimeResiduals_pxe","Residuals in PXE;x_{pred} - x_{rec} [cm]", 
+				       i_residuals_Nbins,d_residual_xmin,d_residual_xmax)) ;
+  v_subdetXprimeRes.push_back(fs->make<TH1F>("h_XprimeResiduals_tib","Residuals in TIB;x_{pred} - x_{rec} [cm]", 
+				       i_residuals_Nbins,d_residual_xmin,d_residual_xmax)) ;
+  v_subdetXprimeRes.push_back(fs->make<TH1F>("h_XprimeResiduals_tid","Residuals in TID;x_{pred} - x_{rec} [cm]", 
+				       i_residuals_Nbins,d_residual_xmin,d_residual_xmax)) ;
+  v_subdetXprimeRes.push_back(fs->make<TH1F>("h_XprimeResiduals_tob","Residuals in TOB;x_{pred} - x_{rec} [cm]", 
+				       i_residuals_Nbins,d_residual_xmin,d_residual_xmax)) ;
+  v_subdetXprimeRes.push_back(fs->make<TH1F>("h_XprimeResiduals_tec","Residuals in TEC;x_{pred} - x_{rec} [cm]", 
+				       i_residuals_Nbins,d_residual_xmin,d_residual_xmax)) ;
+
+
+  v_subdetnormres.push_back(fs->make<TH1F>("h_normResiduals_pxb","Normalized Residuals in PXB;(x_{pred} - x_{rec})/#sqrt{V}", 
 					   i_normres_Nbins,d_normres_xmin,d_normres_xmax));   
-  v_subdetnormres.push_back(fs->make<TH1F>("h_normresiduals_pxe","Normalized Residuals in PXE;(x_{pred} - x_{rec})/#sqrt{V}", 
+  v_subdetnormres.push_back(fs->make<TH1F>("h_normResiduals_pxe","Normalized Residuals in PXE;(x_{pred} - x_{rec})/#sqrt{V}", 
 					   i_normres_Nbins,d_normres_xmin,d_normres_xmax));   
-  v_subdetnormres.push_back(fs->make<TH1F>("h_normresiduals_tib","Normalized Residuals in TIB;(x_{pred} - x_{rec})/#sqrt{V}", 
+  v_subdetnormres.push_back(fs->make<TH1F>("h_normResiduals_tib","Normalized Residuals in TIB;(x_{pred} - x_{rec})/#sqrt{V}", 
 					   i_normres_Nbins,d_normres_xmin,d_normres_xmax));   
-  v_subdetnormres.push_back(fs->make<TH1F>("h_normresiduals_tid","Normalized Residuals in TID;(x_{pred} - x_{rec})/#sqrt{V}", 
+  v_subdetnormres.push_back(fs->make<TH1F>("h_normResiduals_tid","Normalized Residuals in TID;(x_{pred} - x_{rec})/#sqrt{V}", 
 					   i_normres_Nbins,d_normres_xmin,d_normres_xmax));   
-  v_subdetnormres.push_back(fs->make<TH1F>("h_normresiduals_tob","Normalized Residuals in TOB;(x_{pred} - x_{rec})/#sqrt{V}", 
+  v_subdetnormres.push_back(fs->make<TH1F>("h_normResiduals_tob","Normalized Residuals in TOB;(x_{pred} - x_{rec})/#sqrt{V}", 
 					   i_normres_Nbins,d_normres_xmin,d_normres_xmax));   
-  v_subdetnormres.push_back(fs->make<TH1F>("h_normresiduals_tec","Normalized Residuals in TEC;(x_{pred} - x_{rec})/#sqrt{V}", 
+  v_subdetnormres.push_back(fs->make<TH1F>("h_normResiduals_tec","Normalized Residuals in TEC;(x_{pred} - x_{rec})/#sqrt{V}", 
 					   i_normres_Nbins,d_normres_xmin,d_normres_xmax));
+
+
+  
 
   
   edm::LogInfo("TrackerOfflineValidation") << "There are " << (*tkgeom).detIds().size() << " detUnits in the Geometry record" << std::endl;
 
   // recursively book histogramms on lowest level
-  bookDirHists(static_cast<TFileDirectory&>(*fs), *alitracker, aliobjid);
+  this->bookDirHists(static_cast<TFileDirectory&>(*fs), *alitracker, aliobjid);
   
  
+}
+
+void 
+TrackerOfflineValidation::bookGlobalHists(TFileDirectory &tfd )
+{
+
+  v_trackhistos.push_back(tfd.make<TH1F>("h_tracketa","Track #eta;#eta_{Track};Number of Tracks",90,-3.,3.));	       
+  v_trackhistos.push_back(tfd.make<TH1F>("h_curvature","Curvature #kappa;#kappa_{Track};Number of Tracks",100,-.05,.05));
+  v_trackhistos.push_back(tfd.make<TH1F>("h_curvature_pos","Curvature |#kappa| Positive Tracks;|#kappa_{pos Track}|;Number of Tracks",100,.0,.05));
+  v_trackhistos.push_back(tfd.make<TH1F>("h_curvature_neg","Curvature |#kappa| Negative Tracks;|#kappa_{neg Track}|;Number of Tracks",100,.0,.05));
+  v_trackhistos.push_back(tfd.make<TH1F>("h_diff_curvature","Curvature |#kappa| Tracks Difference;|#kappa_{Track}|;# Pos Tracks - # Neg Tracks",100,.0,.05));
+  v_trackhistos.push_back(tfd.make<TH1F>("h_chi2","#chi^{2};#chi^{2}_{Track};Number of Tracks",500,-0.01,500.));	       
+  v_trackhistos.push_back(tfd.make<TH1F>("h_normchi2","#chi^{2}/ndof;#chi^{2}/ndof;Number of Tracks",100,-0.01,10.));     
+  v_trackhistos.push_back(tfd.make<TH1F>("h_pt","p_{T};p_{T}^{track};Number of Tracks",100,0.,2500));                     
+
+  v_trackprofiles.push_back(tfd.make<TProfile>("h_d0_vs_phi","Transverse Impact Parameter vs. #phi;#phi_{Track};#LT d_{0} #GT",100,-3.15,3.15));  
+  v_trackprofiles.push_back(tfd.make<TProfile>("h_dz_vs_phi","Longitudinal Impact Parameter vs. #phi;#phi_{Track};#LT d_{z} #GT",100,-3.15,3.15));
+  v_trackprofiles.push_back(tfd.make<TProfile>("h_d0_vs_eta","Transverse Impact Parameter vs. #eta;#eta_{Track};#LT d_{0} #GT",100,-3.15,3.15));  
+  v_trackprofiles.push_back(tfd.make<TProfile>("h_dz_vs_eta","Longitudinal Impact Parameter vs. #eta;#eta_{Track};#LT d_{z} #GT",100,-3.15,3.15));
+  v_trackprofiles.push_back(tfd.make<TProfile>("h_chi2_vs_phi","#chi^{2} vs. #phi;#phi_{Track};#LT #chi^{2} #GT",100,-3.15,3.15));		  
+  v_trackprofiles.push_back(tfd.make<TProfile>("h_normchi2_vs_phi","#chi^{2}/ndof vs. #phi;#phi_{Track};#LT #chi^{2}/ndof #GT",100,-3.15,3.15));  
+  v_trackprofiles.push_back(tfd.make<TProfile>("h_chi2_vs_eta","#chi^{2} vs. #eta;#eta_{Track};#LT #chi^{2} #GT",100,-3.15,3.15));		  
+  v_trackprofiles.push_back(tfd.make<TProfile>("h_normchi2_vs_eta","#chi^{2}/ndof vs. #eta;#eta_{Track};#LT #chi^{2}/ndof #GT",100,-3.15,3.15));  
+
+  v_track2Dhistos.push_back(tfd.make<TH2F>("h2_d0_vs_phi","Transverse Impact Parameter vs. #phi;#phi_{Track};d_{0}",100, -3.15, 3.15, 100,-1.,1.) );  
+  v_track2Dhistos.push_back(tfd.make<TH2F>("h2_dz_vs_phi","Longitudinal Impact Parameter vs. #phi;#phi_{Track};d_{z}",100, -3.15, 3.15, 100,-100.,100.));
+  v_track2Dhistos.push_back(tfd.make<TH2F>("h2_d0_vs_eta","Transverse Impact Parameter vs. #eta;#eta_{Track};d_{0}",100, -3.15, 3.15, 100,-1.,1.));  
+  v_track2Dhistos.push_back(tfd.make<TH2F>("h2_dz_vs_eta","Longitudinal Impact Parameter vs. #eta;#eta_{Track};d_{z}",100, -3.15, 3.15, 100,-100.,100.));
+  v_track2Dhistos.push_back(tfd.make<TH2F>("h2_chi2_vs_phi","#chi^{2} vs. #phi;#phi_{Track};#chi^{2}",100, -3.15, 3.15, 500, 0., 500.));		  
+  v_track2Dhistos.push_back(tfd.make<TH2F>("h2_normchi2_vs_phi","#chi^{2}/ndof vs. #phi;#phi_{Track};#chi^{2}/ndof",100, -3.15, 3.15, 100, 0., 10.));  
+  v_track2Dhistos.push_back(tfd.make<TH2F>("h2_chi2_vs_eta","#chi^{2} vs. #eta;#eta_{Track};#chi^{2}",100, -3.15, 3.15, 500, 0., 500.));		  
+  v_track2Dhistos.push_back(tfd.make<TH2F>("h2_normchi2_vs_eta","#chi^{2}/ndof vs. #eta;#eta_{Track};#chi^{2}/ndof",100,-3.15,3.15, 100, 0., 10.));  
+  v_track2Dhistos.push_back(tfd.make<TH2F>("h2_kappa_vs_phi","#kappa vs. #phi;#phi_{Track};#kappa",100,-3.15,3.15, 100, .0,.05));  
+  
+
+
+
 }
 
 
@@ -267,13 +298,13 @@ TrackerOfflineValidation::bookDirHists( TFileDirectory &tfd, const Alignable& al
   std::vector<Alignable*> alivec(ali.components());
   for(int i=0, iEnd = ali.components().size();i < iEnd; ++i) {
     std::string structurename  = aliobjid.typeToName((alivec)[i]->alignableObjectId());
-    edm::LogVerbatim("TrackerOfflineValidation") << "StructureName = " << structurename;
+    LogDebug("TrackerOfflineValidation") << "StructureName = " << structurename;
     std::stringstream dirname;
     
     // add no suffix counter to Strip and Pixel
     // just aesthetics
     if(structurename != "Strip" && structurename != "Pixel") {
-      dirname << structurename << "_" << i;
+      dirname << structurename << "_" << i+1;
     } else {
       dirname << structurename;
     }
@@ -281,31 +312,15 @@ TrackerOfflineValidation::bookDirHists( TFileDirectory &tfd, const Alignable& al
       TFileDirectory f = tfd.mkdir((dirname.str()).c_str());
       bookHists(f, *(alivec)[i], ali.alignableObjectId() , i, aliobjid);
       bookDirHists( f, *(alivec)[i], aliobjid);
-
-    } else if((structurename != "Det" && structurename != "DetUnit" ) || alivec[i]->components().size() > 1) {
-      
-      // next line by Gero, try to include splitted rechit case
-      //} else if((structurename != "Det" && structurename != "DetUnit" )) {
+    } else if((structurename != "Det" && structurename != "DetUnit" ) || alivec[i]->components().size() > 1) {      
       TFileDirectory f = tfd.mkdir((dirname.str()).c_str());
       bookHists(tfd, *(alivec)[i], ali.alignableObjectId() , i, aliobjid);
       bookDirHists( f, *(alivec)[i], aliobjid);
-   
-      //} else if(structurename == "Det" && alivec[i]->components().size() > 1) {
-      //bookDirHists( tfd, *(alivec)[i], aliobjid);
     } else {
-      //std::cout << structurename << ' ' << alivec[i]->components().size() << ' ' << alivec[i]->id() << std::endl;
-
       bookHists(tfd, *(alivec)[i], ali.alignableObjectId() , i, aliobjid);
     }
-    
   }
-
-
-  
 }
-
-
-
 
 
 void 
@@ -322,136 +337,86 @@ TrackerOfflineValidation::bookHists(TFileDirectory &tfd, const Alignable& ali, a
   double d_normres_xmin = Parameters.getParameter<double>("xmin");
   double d_normres_xmax = Parameters.getParameter<double>("xmax");
 
+  TrackerAlignableId aliid;
   const DetId id = ali.id();
-  uint subdetid = id.subdetId();
-  TIBDetId tibid(id.rawId());
-  TOBDetId tobid(id.rawId());
- 
-  // book residual and normalized residual histogramms for 
-  // the lowest level in each subdetector
-  switch (type) 
-    {
-      // PXB Histogramms
-    case (align::TPBLadder) :
-      m_pxbresiduals[id.rawId()] = tfd.make<TH1F>(Form("h_residual_subdet%d_module%d", id.subdetId(), id.rawId()),
-						  Form("Residual for module %d;x_{pred} - x_{rec} [cm]",id.rawId()), 
-						  i_residuals_Nbins,d_residual_xmin,d_residual_xmax);
-      m_pxbnormresiduals[id.rawId()] = tfd.make<TH1F>(Form("h_normresidual_subdet%d_module%d", id.subdetId(), id.rawId()),
-						  Form("Normalized Residual for module %d;x_{pred} - x_{rec} [cm]",id.rawId()), 
-						  i_normres_Nbins,d_normres_xmin,d_normres_xmax);
-      break;
-      // PXE Histogramms
-    case (align::TPEPanel) :
-      m_pxeresiduals[id.rawId()] = tfd.make<TH1F>(Form("h_residual_subdet%d_module%d", id.subdetId(), id.rawId()),
-						  Form("Residual for module %d;x_{pred} - x_{rec} [cm]",id.rawId()), 
-						  i_residuals_Nbins,d_residual_xmin,d_residual_xmax);
-      m_pxenormresiduals[id.rawId()] = tfd.make<TH1F>(Form("h_normresidual_subdet%d_module%d", id.subdetId(), id.rawId()),
-						  Form("Normalized Residual for module %d;x_{pred} - x_{rec} [cm]",id.rawId()), 
-						  i_normres_Nbins,d_normres_xmin,d_normres_xmax);
-      break;
-      // TIB Histogramms
-    case (align::TIBString) : 
-      m_tibresiduals[id.rawId()] = tfd.make<TH1F>(Form("h_residual_subdet%d_side%d_module%d", 
-						       id.subdetId() ,tibid.string()[0], id.rawId()),
-						  Form("Residual for module %d;x_{pred} - x_{rec} [cm]",id.rawId()), 
-						  i_residuals_Nbins,d_residual_xmin,d_residual_xmax);
-      m_tibnormresiduals[id.rawId()] = tfd.make<TH1F>(Form("h_normresidual_subdet%d_side%d_module%d", 
-							   id.subdetId() ,tibid.string()[0], id.rawId()),
-						      Form("Normalized Residual for module %d;x_{pred} - x_{rec} [cm]",id.rawId()), 
-						      i_normres_Nbins,d_normres_xmin,d_normres_xmax);
-      break;
+  
+  std::pair<int,int> subdetandlayer = aliid.typeAndLayerFromDetId(id);
 
-      // TID Histogramms
-    case (align::TIDSide) :
-      m_tidresiduals[id.rawId()] = tfd.make<TH1F>(Form("h_residual_subdet%d_module%d", id.subdetId(), id.rawId()),
-						  Form("Residual for module %d;x_{pred} - x_{rec} [cm]",id.rawId()),
-						  i_residuals_Nbins,d_residual_xmin,d_residual_xmax);  
-      m_tidnormresiduals[id.rawId()] = tfd.make<TH1F>(Form("h_normresidual_subdet%d_module%d", id.subdetId(), id.rawId()),
-						  Form("Normalized Residual for module %d;x_{pred} - x_{rec} [cm]",id.rawId()),
-						  i_normres_Nbins,d_normres_xmin,d_normres_xmax);  
-      break;
-
-      // TOB Histogramms
-    case (align::TOBRod) :
-      m_tobresiduals[id.rawId()] = tfd.make<TH1F>(Form("h_residual_subdet%d_side%d_layer%d__rod%d_module%d",id.subdetId() ,tobid.rod()[0],
-						       tobid.layer(), tobid.rod()[1], id.rawId()),
-						  Form("Residual for module %d;x_{pred} - x_{rec} [cm]",id.rawId()), i_residuals_Nbins,d_residual_xmin,d_residual_xmax);
-      m_tobnormresiduals[id.rawId()] = tfd.make<TH1F>(Form("h_normresidual_subdet%d_side%d_layer%d__rod%d_module%d",id.subdetId() ,tobid.rod()[0],
-							   tobid.layer(), tobid.rod()[1], id.rawId()),
-						      Form("Normalized Residual for module %d;x_{pred} - x_{rec} [cm]",id.rawId()),
-						      i_normres_Nbins,d_normres_xmin,d_normres_xmax);
-      break;
-      // TEC Histogramms
-    case (align::TECRing) :
-      m_tecresiduals[id.rawId()] = tfd.make<TH1F>(Form("h_residual_subdet%d_module%d", id.subdetId(), id.rawId()),
-						  Form("Residual for module %d;x_{pred} - x_{rec} [cm]",id.rawId()), 
-						  i_residuals_Nbins,d_residual_xmin,d_residual_xmax);
-      m_tecnormresiduals[id.rawId()] = tfd.make<TH1F>(Form("h_normresidual_subdet%d_module%d", id.subdetId(), id.rawId()),
-						  Form("Normalized Residual for module %d;x_{pred} - x_{rec} [cm]",id.rawId()), 
-						  i_normres_Nbins,d_normres_xmin,d_normres_xmax);
-      break;
-      
-    case (align::AlignableDet) :
-      if(subdetid == PixelSubdetector::PixelBarrel ) {
-	m_pxbresiduals[id.rawId()] = tfd.make<TH1F>(Form("h_residual_subdet%d_module%d", id.subdetId(), id.rawId()),
-						    Form("Residual for module %d;x_{pred} - x_{rec} [cm]",id.rawId()), 
-						    i_residuals_Nbins,d_residual_xmin,d_residual_xmax);
-	m_pxbnormresiduals[id.rawId()] = tfd.make<TH1F>(Form("h_normresidual_subdet%d_module%d", id.subdetId(), id.rawId()),
-							Form("Normalized Residual for module %d;x_{pred} - x_{rec} [cm]",id.rawId()), 
-							i_normres_Nbins,d_normres_xmin,d_normres_xmax);
-      } else if (subdetid == PixelSubdetector::PixelEndcap) {      
-	m_pxeresiduals[id.rawId()] = tfd.make<TH1F>(Form("h_residual_subdet%d_module%d", id.subdetId(), id.rawId()),
-						    Form("Residual for module %d;x_{pred} - x_{rec} [cm]",id.rawId()), 
-						    i_residuals_Nbins,d_residual_xmin,d_residual_xmax);
-	m_pxenormresiduals[id.rawId()] = tfd.make<TH1F>(Form("h_normresidual_subdet%d_module%d", id.subdetId(), id.rawId()),
-							Form("Normalized Residual for module %d;x_{pred} - x_{rec} [cm]",id.rawId()), 
-							i_normres_Nbins,d_normres_xmin,d_normres_xmax);
-      } else if(subdetid  == StripSubdetector::TIB) {
-	  m_tibresiduals[id.rawId()] = tfd.make<TH1F>(Form("h_residual_subdet%d_side%d_module%d", 
-							   id.subdetId() ,tibid.string()[0], id.rawId()),
-						      Form("Residual for module %d;x_{pred} - x_{rec} [cm]",id.rawId()), 
-						      i_residuals_Nbins,d_residual_xmin,d_residual_xmax);
-	  m_tibnormresiduals[id.rawId()] = tfd.make<TH1F>(Form("h_normresidual_subdet%d_side%d_module%d", 
-							       id.subdetId() ,tibid.string()[0], id.rawId()),
-							  Form("Normalized Residual for module %d;x_{pred} - x_{rec} [cm]",id.rawId()), 
-							  i_normres_Nbins,d_normres_xmin,d_normres_xmax);
-      } else if(subdetid  == StripSubdetector::TID) {
-	m_tidresiduals[id.rawId()] = tfd.make<TH1F>(Form("h_residual_subdet%d_module%d", id.subdetId(), id.rawId()),
-						    Form("Residual for module %d;x_{pred} - x_{rec} [cm]",id.rawId()),
-						    i_residuals_Nbins,d_residual_xmin,d_residual_xmax);  
-	m_tidnormresiduals[id.rawId()] = tfd.make<TH1F>(Form("h_normresidual_subdet%d_module%d", id.subdetId(), id.rawId()),
-							Form("Normalized Residual for module %d;x_{pred} - x_{rec} [cm]",id.rawId()),
-							i_normres_Nbins,d_normres_xmin,d_normres_xmax);  
-      } else if(subdetid  == StripSubdetector::TOB) {
-	m_tobresiduals[id.rawId()] = tfd.make<TH1F>(Form("h_residual_subdet%d_side%d_layer%d__rod%d_module%d",id.subdetId() ,tobid.rod()[0],
-							 tobid.layer(), tobid.rod()[1], id.rawId()),
-						    Form("Residual for module %d;x_{pred} - x_{rec} [cm]",id.rawId()), i_residuals_Nbins,d_residual_xmin,d_residual_xmax);
-	m_tobnormresiduals[id.rawId()] = tfd.make<TH1F>(Form("h_normresidual_subdet%d_side%d_layer%d__rod%d_module%d",id.subdetId() ,tobid.rod()[0],
-							     tobid.layer(), tobid.rod()[1], id.rawId()),
-							Form("Normalized Residual for module %d;x_{pred} - x_{rec} [cm]",id.rawId()),
-							i_normres_Nbins,d_normres_xmin,d_normres_xmax);
-      } else if(subdetid  == StripSubdetector::TEC) {
-	m_tecresiduals[id.rawId()] = tfd.make<TH1F>(Form("h_residual_subdet%d_module%d", id.subdetId(), id.rawId()),
-						    Form("Residual for module %d;x_{pred} - x_{rec} [cm]",id.rawId()), 
-						    i_residuals_Nbins,d_residual_xmin,d_residual_xmax);
-	m_tecnormresiduals[id.rawId()] = tfd.make<TH1F>(Form("h_normresidual_subdet%d_module%d", id.subdetId(), id.rawId()),
-							Form("Normalized Residual for module %d;x_{pred} - x_{rec} [cm]",id.rawId()), 
-							i_normres_Nbins,d_normres_xmin,d_normres_xmax);
-      } else {
-	edm::LogWarning("Residuals") << "No such subdetector: " << subdetid;      
-      }
-      
-      break;
-
-
-    default :
-      edm::LogVerbatim("TrackerOfflineValidation") << "nothing to be done for Structure " << aliobjid.typeToName(type)<< std::endl;
-      //std::cout << "nothing to be done for Structure " << aliobjid.typeToName(type)<< std::endl;
-      break;
-      
-    }
+  align::StructureType subtype = align::invalid;
+  
+  // are we on or just above det, detunit level respectively?
+  if (type == align::AlignableDetUnit )
+    subtype = type;
+  else if(      ali.alignableObjectId() == align::AlignableDet || 
+		ali.alignableObjectId() == align::AlignableDetUnit) 
+    subtype = ali.alignableObjectId();
+  
+	
+  std::stringstream histoname, histotitle, normhistoname, normhistotitle, xprimehistoname, xprimehistotitle;
+  if( subdetandlayer.first == StripSubdetector::TID || subdetandlayer.first == StripSubdetector::TEC ||
+      subdetandlayer.first == PixelSubdetector::PixelEndcap ) {
+    histoname << "h_residuals_subdet_" << subdetandlayer.first 
+	      << "_wheel_" << subdetandlayer.second << "_module_" << id.rawId();
+    xprimehistoname << "h_xprime_residuals_subdet_" << subdetandlayer.first 
+	      << "_wheel_" << subdetandlayer.second << "_module_" << id.rawId();
+    normhistoname << "h_normresiduals_subdet_" << subdetandlayer.first 
+		  << "_wheel_" << subdetandlayer.second << "_module_" << id.rawId();
+    histotitle << "Residual for module " << id.rawId() << ";x_{pred} - x_{rec} [cm]";
+    normhistotitle << "Normalized Residual for module " << id.rawId() << ";x_{pred} - x_{rec}/#sigma";
+    xprimehistotitle << "X' Residual for module " << id.rawId() << ";x_{pred} - x_{rec} [cm]";
+  } else if (subdetandlayer.first == StripSubdetector::TIB || subdetandlayer.first == StripSubdetector::TOB ||
+	     subdetandlayer.first == PixelSubdetector::PixelBarrel ) {
+    histoname << "h_residuals_subdet_" << subdetandlayer.first 
+	      << "_layer_" << subdetandlayer.second << "_module_" << id.rawId();
+    xprimehistoname << "h_xprime_residuals_subdet_" << subdetandlayer.first 
+		    << "_layer_" << subdetandlayer.second << "_module_" << id.rawId();
+    normhistoname << "h_normresiduals_subdet_" << subdetandlayer.first 
+		  << "_layer_" << subdetandlayer.second << "_module_" << id.rawId();
+    histotitle << "Residual for module " << id.rawId() << ";x_{pred} - x_{rec} [cm]";
+    normhistotitle << "Normalized Residual for module " << id.rawId() << ";x_{pred} - x_{rec}/#sigma";
+    xprimehistotitle << "X' Residual for module " << id.rawId() << ";x_{pred} - x_{rec} [cm]";
+  } else {
+    edm::LogWarning("TrackerOfflineValidation") << "@SUB=TrackerOfflineValidation::bookHists" 
+						<< "Unknown subdetid: " <<  subdetandlayer.first; 
+    
+  }
   
   
+  if(subtype == align::AlignableDet || subtype == align::AlignableDetUnit) {
+    ModuleHistos &histStruct = this->GetHistStructFromMap(id);
+    histStruct.ResHisto       =  tfd.make<TH1F>(histoname.str().c_str(),histotitle.str().c_str(),		     
+					 i_residuals_Nbins,d_residual_xmin,d_residual_xmax);
+    histStruct.NormResHisto   =  tfd.make<TH1F>(normhistoname.str().c_str(),normhistotitle.str().c_str(),
+						i_normres_Nbins,d_normres_xmin,d_normres_xmax);
+    histStruct.ResXprimeHisto =  tfd.make<TH1F>(xprimehistoname.str().c_str(),xprimehistotitle.str().c_str(),
+						i_residuals_Nbins,d_residual_xmin,d_residual_xmax);
+  }
+  
+}
+
+
+TrackerOfflineValidation::ModuleHistos& TrackerOfflineValidation::GetHistStructFromMap(const DetId& detid)
+{
+
+  uint subdetid = detid.subdetId();
+  if(subdetid == PixelSubdetector::PixelBarrel ) {
+    return m_pxbResiduals[detid.rawId()];
+  } else if (subdetid == PixelSubdetector::PixelEndcap) {      
+    return m_pxeResiduals[detid.rawId()];
+  } else if(subdetid  == StripSubdetector::TIB) {
+    return m_tibResiduals[detid.rawId()];
+  } else if(subdetid  == StripSubdetector::TID) {
+    return m_tidResiduals[detid.rawId()];
+  } else if(subdetid  == StripSubdetector::TOB) {
+    return m_tobResiduals[detid.rawId()];
+  } else if(subdetid  == StripSubdetector::TEC) {
+    return m_tecResiduals[detid.rawId()];
+  } else {
+    throw cms::Exception("Geometry Error") 
+      << "[TrackerOfflineValidation] Error, tried to get reference for non-tracker subdet " << subdetid 
+      << " from detector " << detid.det();
+    return m_pxbResiduals[0];
+  }
   
 }
 
@@ -527,6 +492,8 @@ TrackerOfflineValidation::analyze(const edm::Event& iEvent, const edm::EventSetu
     v_track2Dhistos[chietaindex_2d]->Fill(it->eta,it->chi2);
     static const int normchietaindex_2d = this->GetIndex(v_track2Dhistos,"h2_normchi2_vs_eta");
     v_track2Dhistos[normchietaindex_2d]->Fill(it->eta,it->normchi2);
+    static const int kappaphiindex_2d = this->GetIndex(v_track2Dhistos,"h2_kappa_vs_phi");
+    v_track2Dhistos[kappaphiindex_2d]->Fill(it->phi,it->kappa);
      
   } // finish loop over track quantities
 
@@ -534,35 +501,12 @@ TrackerOfflineValidation::analyze(const edm::Event& iEvent, const edm::EventSetu
   // hit quantities: residuals, normalized residuals
   for (std::vector<TrackerValidationVariables::AVHitStruct>::const_iterator it = v_hitstruct.begin(),
   	 itEnd = v_hitstruct.end(); it != itEnd; ++it) {
-    uint subdetid = DetId::DetId(it->rawDetId).subdetId();
+    DetId detid(it->rawDetId);
+    ModuleHistos &histStruct = this->GetHistStructFromMap(detid);
+    histStruct.ResHisto->Fill(it->resX);
+    if(it->resXprime != -999)  histStruct.ResXprimeHisto->Fill(it->resXprime);
+    if(it->resErrX != 0)       histStruct.NormResHisto->Fill(it->resX/it->resErrX);
     
-    if(subdetid == PixelSubdetector::PixelBarrel ) {
-      m_pxbresiduals[it->rawDetId]->Fill(it->resX);
-      if(it->resErrX != 0)
-  	m_pxbnormresiduals[it->rawDetId]->Fill(it->resX/it->resErrX);
-    } else if (subdetid == PixelSubdetector::PixelEndcap) {      
-      m_pxeresiduals[it->rawDetId]->Fill(it->resX);
-      if(it->resErrX != 0)
-  	m_pxenormresiduals[it->rawDetId]->Fill(it->resX/it->resErrX);
-    } else if(subdetid  == StripSubdetector::TIB) {
-      m_tibresiduals[it->rawDetId]->Fill(it->resX);
-      if(it->resErrX != 0)
-  	m_tibnormresiduals[it->rawDetId]->Fill(it->resX/it->resErrX);
-    } else if(subdetid  == StripSubdetector::TID) {
-      m_tidresiduals[it->rawDetId]->Fill(it->resX);
-      if(it->resErrX != 0)
-  	m_tidnormresiduals[it->rawDetId]->Fill(it->resX/it->resErrX);
-    } else if(subdetid  == StripSubdetector::TOB) {
-      m_tobresiduals[it->rawDetId]->Fill(it->resX);
-      if(it->resErrX != 0)
-  	m_tobnormresiduals[it->rawDetId]->Fill(it->resX/it->resErrX);
-    } else if(subdetid  == StripSubdetector::TEC) {
-      m_tecresiduals[it->rawDetId]->Fill(it->resX);
-      if(it->resErrX != 0)
-  	m_tecnormresiduals[it->rawDetId]->Fill(it->resX/it->resErrX);
-    } else {
-      edm::LogWarning("Residuals") << "No such subdetector: " << subdetid;      
-    }
   }
   
 }
@@ -581,36 +525,45 @@ TrackerOfflineValidation::endJob() {
   v_trackhistos[kappadiffindex]->Add(v_trackhistos[this->GetIndex(v_trackhistos,"h_curvature_neg")],v_trackhistos[this->GetIndex(v_trackhistos,"h_curvature_pos")],-1,1);
   // Collate Information for Subdetectors
   // So far done by default, should be steerable
-  for(std::map<int, TH1*>::const_iterator itPxb = m_pxbresiduals.begin(), itEnd = m_pxbresiduals.end(); itPxb != itEnd;++itPxb ) {
-    v_subdetres[PixelSubdetector::PixelBarrel - 1]->Add(itPxb->second); 
-    v_subdetnormres[PixelSubdetector::PixelBarrel - 1]->Add(static_cast<TH1F*>(m_pxbnormresiduals[itPxb->first]));
+  for(std::map<int, TrackerOfflineValidation::ModuleHistos>::const_iterator itPxb = m_pxbResiduals.begin(), 
+	itEnd = m_pxbResiduals.end(); itPxb != itEnd;++itPxb ) {
+    v_subdetres[PixelSubdetector::PixelBarrel - 1]->Add(itPxb->second.ResHisto); 
+    v_subdetXprimeRes[PixelSubdetector::PixelBarrel - 1]->Add(itPxb->second.ResXprimeHisto); 
+    v_subdetnormres[PixelSubdetector::PixelBarrel - 1]->Add(itPxb->second.NormResHisto);
   }
-  for(std::map<int, TH1*>::const_iterator itPxe = m_pxeresiduals.begin(), itEnd = m_pxeresiduals.end(); itPxe != itEnd;++itPxe ) {
-    v_subdetres[PixelSubdetector::PixelEndcap - 1]->Add(itPxe->second);
-    v_subdetnormres[PixelSubdetector::PixelEndcap - 1]->Add(static_cast<TH1F*>(m_pxenormresiduals[itPxe->first]));
+  for(std::map<int, TrackerOfflineValidation::ModuleHistos>::const_iterator itPxe = m_pxeResiduals.begin(), 
+	itEnd = m_pxeResiduals.end(); itPxe != itEnd;++itPxe ) {
+    v_subdetres[PixelSubdetector::PixelEndcap - 1]->Add(itPxe->second.ResHisto);
+    v_subdetXprimeRes[PixelSubdetector::PixelEndcap - 1]->Add(itPxe->second.ResXprimeHisto);
+    v_subdetnormres[PixelSubdetector::PixelEndcap - 1]->Add(itPxe->second.NormResHisto);
   }
-  for(std::map<int, TH1*>::const_iterator itTib = m_tibresiduals.begin(), itEnd = m_tibresiduals.end(); itTib != itEnd;++itTib ) {
-    TIBDetId tibid(itTib->first);
-    v_subdetres[StripSubdetector::TIB - 1]->Add(itTib->second);
-    v_subdetnormres[StripSubdetector::TIB -1]->Add(static_cast<TH1F*>(m_tibnormresiduals[itTib->first]));
+  for(std::map<int, TrackerOfflineValidation::ModuleHistos>::const_iterator itTib = m_tibResiduals.begin(), 
+	itEnd = m_tibResiduals.end(); itTib != itEnd;++itTib ) {
+    v_subdetres[StripSubdetector::TIB - 1]->Add(itTib->second.ResHisto);
+    v_subdetXprimeRes[StripSubdetector::TIB - 1]->Add(itTib->second.ResXprimeHisto);
+    v_subdetnormres[StripSubdetector::TIB -1]->Add(itTib->second.NormResHisto);
   }
-  for(std::map<int, TH1*>::const_iterator itTid = m_tidresiduals.begin(), itEnd = m_tidresiduals.end(); itTid != itEnd;++itTid ) {
-    TIDDetId tidid(itTid->first);
-    v_subdetres[StripSubdetector::TID - 1]->Add(itTid->second);
-    v_subdetnormres[StripSubdetector::TID - 1]->Add(static_cast<TH1F*>(m_tidnormresiduals[itTid->first]));
+  for(std::map<int, TrackerOfflineValidation::ModuleHistos>::const_iterator itTid = m_tidResiduals.begin(), 
+	itEnd = m_tidResiduals.end(); itTid != itEnd;++itTid ) {
+    v_subdetres[StripSubdetector::TID - 1]->Add(itTid->second.ResHisto);
+    v_subdetXprimeRes[StripSubdetector::TID - 1]->Add(itTid->second.ResXprimeHisto);
+    v_subdetnormres[StripSubdetector::TID - 1]->Add(itTid->second.NormResHisto);
   }
-  for(std::map<int, TH1*>::const_iterator itTob = m_tobresiduals.begin(), itEnd = m_tobresiduals.end(); itTob != itEnd;++itTob ) {
-    TOBDetId tobid(itTob->first);  
-    v_subdetres[StripSubdetector::TOB - 1]->Add(itTob->second);
-    v_subdetnormres[StripSubdetector::TOB - 1]->Add(static_cast<TH1F*>(m_tobnormresiduals[itTob->first]));
+  for(std::map<int, TrackerOfflineValidation::ModuleHistos>::const_iterator itTob = m_tobResiduals.begin(), 
+	itEnd = m_tobResiduals.end(); itTob != itEnd;++itTob ) {
+    v_subdetres[StripSubdetector::TOB - 1]->Add(itTob->second.ResHisto);
+    v_subdetXprimeRes[StripSubdetector::TOB - 1]->Add(itTob->second.ResXprimeHisto);
+    v_subdetnormres[StripSubdetector::TOB - 1]->Add(itTob->second.NormResHisto);
   }
-  for(std::map<int, TH1*>::const_iterator itTec = m_tecresiduals.begin(), itEnd = m_tecresiduals.end(); itTec != itEnd;++itTec ) {
-    v_subdetres[StripSubdetector::TEC - 1]->Add(itTec->second);
-    v_subdetnormres[StripSubdetector::TEC - 1]->Add(static_cast<TH1F*>(m_tecnormresiduals[itTec->first]));
+  for(std::map<int, TrackerOfflineValidation::ModuleHistos>::const_iterator itTec = m_tecResiduals.begin(), 
+	itEnd = m_tecResiduals.end(); itTec != itEnd;++itTec ) {
+    v_subdetres[StripSubdetector::TEC - 1]->Add(itTec->second.ResHisto);
+    v_subdetXprimeRes[StripSubdetector::TEC - 1]->Add(itTec->second.ResXprimeHisto);
+    v_subdetnormres[StripSubdetector::TEC - 1]->Add(itTec->second.NormResHisto);
   }
   
   // create summary histogramms recursively
-  std::vector<TProfile*> v_trackerprofiles;
+  std::vector<std::pair<TH1*,TH1*> > v_trackerprofiles;
   collateSummaryHists((*fs),(*alitracker), 0, aliobjid, v_trackerprofiles);
 
   
@@ -618,39 +571,45 @@ TrackerOfflineValidation::endJob() {
 
 
 void
-TrackerOfflineValidation::collateSummaryHists( TFileDirectory &tfd, const Alignable& ali, int i, const AlignableObjectId &aliobjid, std::vector<TProfile*> &v_levelprofiles)
+TrackerOfflineValidation::collateSummaryHists( TFileDirectory &tfd, const Alignable& ali, int i, const AlignableObjectId &aliobjid, std::vector<std::pair<TH1*,TH1*> > &v_levelprofiles)
 {
  
   std::vector<Alignable*> alivec(ali.components());
    
-  if(aliobjid.typeToName((alivec)[0]->alignableObjectId()) == "Det" || aliobjid.typeToName((alivec)[0]->alignableObjectId()) == "DetUnit") {
+  if((aliobjid.typeToName((alivec)[0]->alignableObjectId()) == "Det" || 
+      aliobjid.typeToName((alivec)[0]->alignableObjectId()) == "DetUnit") 
+     )  {
      return;
   }
 
   for(int iComp=0, iCompEnd = ali.components().size();iComp < iCompEnd; ++iComp) {
 
-    std::vector<TProfile*> v_profiles;        
+    std::vector<std::pair<TH1*,TH1*> > v_profiles;        
     std::string structurename  = aliobjid.typeToName((alivec)[iComp]->alignableObjectId());
  
-    edm::LogVerbatim("TrackerOfflineValidation") << "StructureName = " << structurename;
+    LogDebug("TrackerOfflineValidation") << "StructureName = " << structurename;
     std::stringstream dirname;
     
     // add no suffix counter to strip and pixel
     // just aesthetics
     if(structurename != "Strip" && structurename != "Pixel") {
-      dirname << structurename << "_" << iComp;
+      dirname << structurename << "_" << iComp+1;
     } else {
       dirname << structurename;
     }
     
-    if((structurename != "Det" && structurename != "DetUnit" )) {
+    if( (structurename != "Det" && structurename != "DetUnit" )  || (alivec)[0]->components().size() > 1
+       ) {
       TFileDirectory f = tfd.mkdir((dirname.str()).c_str());
       collateSummaryHists( f, *(alivec)[iComp], i, aliobjid, v_profiles);
-      
+    
       v_levelprofiles.push_back(bookSummaryHists(tfd, *(alivec[iComp]), ali.alignableObjectId(), iComp, aliobjid));
       
-      for(uint n = 0;n<v_profiles.size();++n) 
-	v_levelprofiles[iComp]->Fill(n+1,v_profiles[n]->GetMean(2));
+      for(uint n = 0; n < v_profiles.size(); ++n) {
+	v_levelprofiles[iComp].first->SetBinContent(n+1,v_profiles[n].second->GetMean(1));
+	v_levelprofiles[iComp].first->SetBinError(n+1,Fwhm(v_profiles[n].second)/2.);
+	v_levelprofiles[iComp].second->Add(v_profiles[n].second);
+      }
     } else {
       // nothing to be done for det or detunits
       continue;
@@ -660,47 +619,104 @@ TrackerOfflineValidation::collateSummaryHists( TFileDirectory &tfd, const Aligna
 
 }
 
-TProfile*
+std::pair<TH1*,TH1*> 
 TrackerOfflineValidation::bookSummaryHists(TFileDirectory &tfd, const Alignable& ali, align::StructureType type, int i, const AlignableObjectId &aliobjid)
 {
-  
-  
-  int subsize = ali.components().size();
+  Parameters = parset_.getParameter<edm::ParameterSet>("TH1ResModules");
+  int32_t i_residuals_Nbins =  Parameters.getParameter<int32_t>("Nbinx");
+  double d_residual_xmin = Parameters.getParameter<double>("xmin");
+  double d_residual_xmax = Parameters.getParameter<double>("xmax");
+  uint subsize = ali.components().size();
   align::StructureType alitype = ali.alignableObjectId();
   align::StructureType subtype = ali.components()[0]->alignableObjectId();
-  TProfile * p_this = tfd.make<TProfile>(Form("h_%s_%d_phi",aliobjid.typeToName(alitype).c_str(),i), 
-					 Form("Mean for %s in %s %d;%s;#LT #Delta x #GT",aliobjid.typeToName(alitype).c_str(),
-					      aliobjid.typeToName(type).c_str(),i,aliobjid.typeToName(subtype).c_str()),
-					 subsize,0.5,subsize+0.5)  ;
+  TH1 *h_thissummary = 0;
   
-  if(aliobjid.typeToName(ali.components()[0]->alignableObjectId()) == "Det") {
-    for(int k=0;k<subsize;++k) {
+  if( subtype  != align::AlignableDet && subtype  != align::AlignableDetUnit ) {
+    h_thissummary = tfd.make<TH1F>(Form("h_summary%s_%d",aliobjid.typeToName(alitype).c_str(),i), 
+				Form("Summary for substructures in %s %d;%s;#LT #Delta x #GT",
+				     aliobjid.typeToName(alitype).c_str(),i,aliobjid.typeToName(subtype).c_str()),
+				subsize,0.5,subsize+0.5)  ;
+   
+  } else if( subtype == align::AlignableDet && subsize > 1) {
+    h_thissummary = tfd.make<TH1F>(Form("h_summary%s_%d",aliobjid.typeToName(alitype).c_str(),i), 
+				Form("Summary for substructures in %s %d;%s;#LT #Delta x #GT",
+				     aliobjid.typeToName(alitype).c_str(),i,aliobjid.typeToName(subtype).c_str()),
+				(2*subsize),0.5,2*subsize+0.5)  ;  
+  } else {
+    edm::LogWarning("TrackerOfflineValidation") << "@SUB=TrackerOfflineValidation::bookSummaryHists" 
+						<< "No summary histogramm for hierarchy level" << aliobjid.typeToName(subtype);      
+  }
+
+  TH1* h_this = tfd.make<TH1F>(Form("h_%s_%d",aliobjid.typeToName(alitype).c_str(),i), 
+				Form("Residual for %s %d in %s ",aliobjid.typeToName(alitype).c_str(),i,
+				     aliobjid.typeToName(type).c_str(),aliobjid.typeToName(subtype).c_str()),
+				i_residuals_Nbins,d_residual_xmin,d_residual_xmax);
+  
+  // special case I: For DetUnits and Detwith  only one subcomponent start filling summary histos
+  if( (  subtype == align::AlignableDet && ali.components()[0]->components().size() == 1) || 
+      subtype  == align::AlignableDetUnit  
+      ) {
+    for(uint k=0;k<subsize;++k) {
       DetId detid = ali.components()[k]->id();
-      uint subdetid = detid.subdetId();
-      if(subdetid == PixelSubdetector::PixelBarrel) {
-	p_this->Fill(k+1,m_pxbresiduals[detid.rawId()]->GetMean());
-      } else if(subdetid == PixelSubdetector::PixelEndcap) {
-	p_this->Fill(k+1,m_pxeresiduals[detid.rawId()]->GetMean());
-      } else if(subdetid == StripSubdetector::TIB) {
-	p_this->Fill(k+1,m_tibresiduals[detid.rawId()]->GetMean());
-      } else if(subdetid == StripSubdetector::TID) {
-	p_this->Fill(k+1,m_tidresiduals[detid.rawId()]->GetMean());
-      } else if(subdetid == StripSubdetector::TOB) {
-	p_this->Fill(k+1,m_tobresiduals[detid.rawId()]->GetMean());
-      } else if(subdetid == StripSubdetector::TEC) {
-	p_this->Fill(k+1,m_tecresiduals[detid.rawId()]->GetMean());
-      } else {
-	edm::LogError("TrackerOfflineValidation") << "No valid Tracker Subdetector: " << subdetid;
-      } 
-      
+      ModuleHistos &histStruct = this->GetHistStructFromMap(detid);
+      h_thissummary->SetBinContent(k+1, histStruct.ResHisto->GetMean());
+      h_thissummary->SetBinError(k+1, histStruct.ResHisto->GetRMS());
+      h_this->Add(histStruct.ResHisto);
+    }
+    
+  }
+  // special case II: Fill summary histos for dets with two detunits 
+  else if( subtype == align::AlignableDet && subsize > 1) {
+    for(uint k = 0; k < subsize; ++k) { 
+      int jEnd = ali.components()[0]->components().size();
+      for(uint j = 0; j <  jEnd; ++j) {
+	DetId detid = ali.components()[k]->components()[j]->id();
+	ModuleHistos &histStruct = this->GetHistStructFromMap(detid);	
+	h_thissummary->SetBinContent(2*k+j+1,histStruct.ResHisto->GetMean());
+	h_thissummary->SetBinError(2*k+j+1,histStruct.ResHisto->GetRMS());
+	h_this->Add( histStruct.ResHisto);
+
+      }
     }
   }
-  return p_this;
+  
+
+  return std::make_pair(h_thissummary,h_this);
   
   
 }
 
 
+float 
+TrackerOfflineValidation::Fwhm (const TH1* hist) 
+{
+  float fwhm = 0.;
+  float max = hist->GetMaximum();
+  int left = -1, right = -1;
+  for(unsigned int i = 1, iEnd = hist->GetNbinsX(); i <= iEnd; ++i) {
+    if(hist->GetBinContent(i) < max/2. && hist->GetBinContent(i+1) > max/2. && left == -1) {
+      if(max/2. - hist->GetBinContent(i) < hist->GetBinContent(i+1) - max/2.) {
+	left = i;
+	++i;
+      } else {
+	left = i+1;
+	++i;
+      }
+    }
+    if(left != -1 && right == -1) {
+      if(hist->GetBinContent(i) > max/2. && hist->GetBinContent(i+1) < max/2.) {
+	if( hist->GetBinContent(i) - max/2. < max/2. - hist->GetBinContent(i+1)) {
+	  right = i;
+	} else {
+	  right = i+1;
+	}
+	
+      }
+    }
+  }
+  fwhm = hist->GetXaxis()->GetBinCenter(right) - hist->GetXaxis()->GetBinCenter(left);
+  return fwhm;
+}
 
 
 //define this as a plug-in
