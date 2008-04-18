@@ -87,7 +87,7 @@ process HFLIHGTCALRAND = {
 
   es_source es_ascii = HcalTextCalibrations { VPSet input = {
                                                 {string object = "ElectronicsMap"
-                                                 FileInPath file = "CondFormats/HcalObjects/data/official_emap_16x_v4.txt"
+                                                 FileInPath file = "CondFormats/HcalObjects/data/official_emap_v5_080208.txt"
                                                 }                                            
     }
   }
