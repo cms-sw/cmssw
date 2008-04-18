@@ -12,7 +12,7 @@
  *
  * \version   Original: April 22, 2005 by Fernando Varela Rodriguez.
  * \version   May 23, 2006 by F.R.
- * \version   $Id: Jet.h,v 1.23 2008/02/14 00:06:23 fedor Exp $
+ * \version   $Id: Jet.h,v 1.24 2008/02/29 00:52:45 fedor Exp $
  ************************************************************/
 #include <string>
 #include "DataFormats/Candidate/interface/CompositeRefBaseCandidate.h"
@@ -71,10 +71,10 @@ namespace reco {
     static float detectorEta (float fZVertex, float fPhysicsEta);
 
     /// list of constituents
-    Constituents getJetConstituents () const;
+    virtual Constituents getJetConstituents () const;
 
     /// quick list of constituents
-    std::vector<const reco::Candidate*> getJetConstituentsQuick () const;
+    virtual std::vector<const reco::Candidate*> getJetConstituentsQuick () const;
 
     /// Print object
     virtual std::string print () const;
