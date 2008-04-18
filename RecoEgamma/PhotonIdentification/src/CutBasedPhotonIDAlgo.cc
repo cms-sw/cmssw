@@ -2,6 +2,7 @@
 #include "DataFormats/EgammaCandidates/interface/PhotonID.h"
 #include "DataFormats/EgammaCandidates/interface/Photon.h"
 #include "DataFormats/EgammaReco/interface/BasicCluster.h"
+#include <iostream>
 
 void CutBasedPhotonIDAlgo::setup(const edm::ParameterSet& conf) {
   
@@ -43,7 +44,8 @@ reco::PhotonID CutBasedPhotonIDAlgo::calculate(const reco::Photon* pho, const ed
   //     isolations.
   //2.)  Decide whether this particular photon passes the cuts that are set forth in the ps.
   //3.)  Create a new PhotonID object, complete with decision and return it.
-
+  
+//   std::cout << "Entering Calculate fcn: " << std::endl;
 
   //Get fiducial information
   bool isEBPho   = false;
@@ -53,31 +55,55 @@ reco::PhotonID CutBasedPhotonIDAlgo::calculate(const reco::Photon* pho, const ed
   bool isEBEEGap = false;
   classify(pho, isEBPho, isEEPho, isEBGap, isEEGap, isEBEEGap);
 
+//   std::cout << "Output from classification: " << std::endl;
+//   std::cout << "Photon Eta: " << pho->p4().Eta();
+//   std::cout << " Photon phi: " << pho->p4().Phi() << std::endl;
+//   std::cout << "Flags: ";
+//   std::cout << "isEBPho: " << isEBPho;
+//   std::cout << " isEEPho: " << isEEPho;
+//   std::cout << " isEBGap: " << isEBGap;
+//   std::cout << " isEEGap: " << isEEGap;
+//   std::cout << " isEBEEGap: " << isEBEEGap << std::endl;
+
   //Calculate hollow cone track isolation
   int ntrk=0;
   double trkiso=0;
   calculateTrackIso(pho, e, trkiso, ntrk, isolationtrackThreshold_,    
 		    trackConeOuterRadius_, trackConeInnerRadius_);
 
+//   std::cout << "Output from hollow cone track isolation: ";
+//   std::cout << " Sum pT: " << trkiso << " ntrk: " << ntrk << std::endl;
+
   //Calculate solid cone track isolation
   int sntrk=0;
   double strkiso=0;
   calculateTrackIso(pho, e, strkiso, sntrk, isolationtrackThreshold_,    
 		    trackConeOuterRadius_, 0.);
+
+//   std::cout << "Output from solid cone track isolation: ";
+//   std::cout << " Sum pT: " << strkiso << " ntrk: " << sntrk << std::endl;
   
   double bc_iso = calculateBasicClusterIso(pho, e, 
 					   photonBasicClusterConeOuterRadius_,
 					   photonBasicClusterConeInnerRadius_,
 					   isolationbasicclusterThreshold_);
 
+//   std::cout << "Output from basic cluster isolation: ";
+//   std::cout << " Sum pT: " << bc_iso << std::endl;
+
   bool isElec = isAlsoElectron(pho, e);
   
+//   std::cout << "Are you also an electron? " << isElec << std::endl;
+
   reco::PhotonID temp(false, bc_iso, strkiso,
 		      trkiso, sntrk, ntrk,
 		      isEBPho, isEEPho, isEBGap, isEEGap, isEBEEGap,
 		      isElec);
 
   decide(temp, pho);
+  
+//   std::cout << "Cut based decision: " << temp.cutBasedDecision() << std::endl;
+  
   return temp;
 
 }
