@@ -4,18 +4,21 @@ $baseofall = `pwd`;
 chop($baseofall);
 
 $dirname = $ARGV[0];
-# $initial = "wheeldisk_nocut";
+$initial = "wheeldisk_nocut";
 # $initial = "wheeldisk_cut3sig";
-$initial = "wheeldisk_cut5sig";
-# $filetemplate = "rfio:///?svcclass=cmscaf&path=//castor/cern.ch/cms/store/cmscaf/alca/alignment/CSA07/MuonHIP/AlCaRecoMu/wmunu_100pb-1/%02d.root";
+# $initial = "wheeldisk_cut5sig";
+$filetemplate = "rfio:///?svcclass=cmscaf&path=//castor/cern.ch/cms/store/cmscaf/alca/alignment/CSA07/MuonHIP/AlCaRecoMu/wmunu_100pb-1/%02d.root";
 # $filetemplate = "rfio:///?svcclass=cmscaf&path=//castor/cern.ch/cms/store/cmscaf/alca/alignment/CSA07/MuonHIP/AlCaRecoMu/wmunu_100pb-1_cut3sig/%02d.root";
-$filetemplate = "rfio:///?svcclass=cmscaf&path=//castor/cern.ch/cms/store/cmscaf/alca/alignment/CSA07/MuonHIP/AlCaRecoMu/wmunu_100pb-1_cut5sig/%02d.root";
+# $filetemplate = "rfio:///?svcclass=cmscaf&path=//castor/cern.ch/cms/store/cmscaf/alca/alignment/CSA07/MuonHIP/AlCaRecoMu/wmunu_100pb-1_cut5sig/%02d.root";
 # $filetemplate = "rfio:///castor/cern.ch/user/p/pivarski/tmp2/%02d.root";
 # $filetemplate = "rfio:///castor/cern.ch/user/p/pivarski/tmp2_cut3sig/%02d.root";
 # $filetemplate = "rfio:///castor/cern.ch/user/p/pivarski/tmp2_cut5sig/%02d.root";
 
-# $muonSourceLabel = "ALCARECOMuAlZMuMu";
-$muonSourceLabel = "StraightMuonCutProducer";
+$muonSourceLabel = "ALCARECOMuAlZMuMu";
+# $muonSourceLabel = "StraightMuonCutProducer";
+
+$theConstraint = "NONE";
+# $theConstraint = "/afs/cern.ch/user/p/pivarski/scratch0/cmssw_dest/constraints/constraint_10";
 
 $last = $initial;
 $lastwhere = "$baseofall/$initial";
@@ -221,7 +224,7 @@ foreach $pass ("pass1", "pass2_mb2_me12", "pass3_mb3_me21", "pass4_mb4_me13", "p
 ";
     }
     elsif ($pass eq "stage3") {
-	$alignParams = "{\"MuonDTChambers,111111,mb1\", \"MuonDTChambers,111111,mb2\", \"MuonDTChambers,111111,mb3\", \"MuonDTChambers,101011,mb4\", \"MuonCSCChambers,110011,me11\", \"MuonCSCChambers,110011,me12\", \"MuonCSCChambers,110011,me13\", \"MuonCSCChambers,110011,me21\", \"MuonCSCChambers,110011,me22\", \"MuonCSCChambers,110011,me31\", \"MuonCSCChambers,110011,me32\", \"MuonCSCChambers,110011,me41\"}";
+ 	$alignParams = "{\"MuonDTChambers,111111,mb1\", \"MuonDTChambers,111111,mb2\", \"MuonDTChambers,111111,mb3\", \"MuonDTChambers,101011,mb4\", \"MuonCSCChambers,110011,me11\", \"MuonCSCChambers,110011,me12\", \"MuonCSCChambers,110011,me13\", \"MuonCSCChambers,110011,me21\", \"MuonCSCChambers,110011,me22\", \"MuonCSCChambers,110011,me31\", \"MuonCSCChambers,110011,me32\", \"MuonCSCChambers,110011,me41\"}";
 	$APEs = ", {
     PSet Selector = { vstring alignParams = {\"MuonDTChambers,111111\", \"MuonCSCChambers,111111\"} }
     string function = \"linear\"
@@ -313,6 +316,38 @@ cd ..\n", $N, $N);
     replace PoolDBESSource.catalog = \"xmlcatalog_file:$last.xml\"
 
     path p = {recoMuon2recoTrack, TrackRefitter}
+
+";
+	    if ($theConstraint ne "NONE") {
+		print FILE "
+    es_source constraints = PoolDBESSource {
+        using CondDBCommon
+        untracked uint32 authenticationMethod = 1
+        VPSet toGet = {
+            {
+                string record = \"DTSurveyRcd\"
+                string tag = \"DTSurveyRcd\"
+            },
+            {
+                string record = \"DTSurveyErrorRcd\"
+                string tag = \"DTSurveyErrorRcd\"
+            },
+            {
+                string record = \"CSCSurveyRcd\"
+                string tag = \"CSCSurveyRcd\"
+            },
+            {
+                string record = \"CSCSurveyErrorRcd\"
+                string tag = \"CSCSurveyErrorRcd\"
+            }
+        }
+    }
+    replace constraints.connect = \"sqlite_file:$theConstraint.db\"
+    replace constraints.catalog = \"xmlcatalog_file:$theConstraint\_catalog.xml\"
+    replace AlignmentProducer.useSurvey = true
+";
+	    }
+	    print FILE "
 }
 ";
 	    close(FILE);
@@ -339,12 +374,24 @@ echo \"About to cp $dirname\_$pass\_$iter\_$job.cfg $lastwhere.db $lastwhere.xml
 cp $dirname\_$pass\_$iter\_$job.cfg $lastwhere.db $lastwhere.xml /pool/lsf/pivarski/$dirname\_$pass\_$iter\_$job/
 date
 
+";
+	    if ($theConstraint ne "NONE") {
+		print FILE "
+echo \"About to copy $theConstraint to /pool/lsf/pivarski/$dirname\_$pass\_$iter\_$job\"
+cp $theConstraint.db /pool/lsf/pivarski/$dirname\_$pass\_$iter\_$job/
+cp $theConstraint\_catalog.xml /pool/lsf/pivarski/$dirname\_$pass\_$iter\_$job/
+date
+";
+	    }
+
+	    print FILE "
 echo \"About to cd /pool/lsf/pivarski/$dirname\_$pass\_$iter\_$job\"
 cd /pool/lsf/pivarski/$dirname\_$pass\_$iter\_$job
 date
 
-echo \"About to pwd\"
+echo \"About to pwd and ls\"
 pwd
+ls
 date
 
 echo \"About to cmsRun\"
