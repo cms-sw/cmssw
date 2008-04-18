@@ -69,11 +69,12 @@ PFBlockProducer::PFBlockProducer(const edm::ParameterSet& iConfig) {
   bool debug_ = 
     iConfig.getUntrackedParameter<bool>("debug",false);
 
-  useNuclear_ =
-     iConfig.getUntrackedParameter<bool>("useNuclear",false);
+  useNuclear_ = false;
+  iConfig.getParameter<bool>("useNuclear");
 
-  useConversions_ =
-    iConfig.getUntrackedParameter<bool>("useConversions",false);
+
+  useConversions_ = false;
+  iConfig.getParameter<bool>("useConversions");
 
 
   produces<reco::PFBlockCollection>();
