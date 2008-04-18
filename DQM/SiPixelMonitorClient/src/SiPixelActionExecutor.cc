@@ -846,33 +846,22 @@ MonitorElement* SiPixelActionExecutor::getSummaryME(DQMStore* bei,
                                                     string me_name) {
 //cout<<"Entering SiPixelActionExecutor::getSummaryME..."<<endl;
   MonitorElement* me = 0;
-//cout<<"DD"<<endl;
   vector<string> contents = bei->getMEs();    
-//cout<<"DD1"<<endl;
   
   for (vector<string>::const_iterator it = contents.begin();
        it != contents.end(); it++) {
-//cout<<"DD2"<<endl;
     if ((*it).find(me_name) == 0) {
-//cout<<"DD3"<<endl;
       string fullpathname = bei->pwd() + "/" + (*it); 
-//cout<<"DD4"<<endl;
 
       me = bei->get(fullpathname);
-//cout<<"DD5"<<endl;
       
       if (me) {
-//cout<<"DD6"<<endl;
 	me->Reset();
-//cout<<"DD7"<<endl;
 	return me;
       }
-//cout<<"DD8"<<endl;
     }
-//cout<<"DD9"<<endl;
   }
   contents.clear();
-cout<<"DD10"<<endl;
   me = bei->book1D(me_name.c_str(), me_name.c_str(),4,1.,5.);
  // cout<<"...leaving SiPixelActionExecutor::getSummaryME!"<<endl;
   return me;
