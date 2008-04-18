@@ -2,6 +2,7 @@
 #define PhotonIDAlgo_H
 
 #include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/EgammaCandidates/interface/Photon.h"
 #include "DataFormats/EgammaCandidates/interface/PhotonID.h"
@@ -34,11 +35,23 @@ public:
 				  double RCone=0.4,
 				  double RConeInner=0,
 				  double etMin=0);
+  double calculateEcalRecHitIso(const reco::Photon* photon,
+				const edm::Event& iEvent,
+				const edm::EventSetup& iSetup,
+				double RCone,
+				double RConeInner,
+				double etMin);
+  double calculateHcalRecHitIso(const reco::Photon* photon,
+				const edm::Event& iEvent,
+				const edm::EventSetup& iSetup,
+				double RCone,
+				double RConeInner,
+				double etMin);
   bool isAlsoElectron(const reco::Photon* photon,
 		      const edm::Event& e);
-
   
- private:
+  
+ protected:
 
 
   std::string endcapSuperClusterProducer_;      
@@ -49,6 +62,15 @@ public:
   std::string barrelbasicclusterProducer_;
   std::string endcapbasicclusterCollection_;
   std::string endcapbasicclusterProducer_;
+  std::string barrelecalCollection_;
+  std::string barrelecalProducer_;
+  std::string endcapecalCollection_;
+  std::string endcapecalProducer_;
+  std::string hcalCollection_;
+  std::string hcalProducer_;
+
+  
+
   edm::InputTag trackInputTag_;
   edm::InputTag gsfRecoInputTag_;
 

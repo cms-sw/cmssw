@@ -2,7 +2,7 @@
 #include "DataFormats/EgammaCandidates/interface/PhotonID.h"
 #include "DataFormats/EgammaCandidates/interface/Photon.h"
 #include "DataFormats/EgammaReco/interface/BasicCluster.h"
-#include <iostream>
+
 
 void CutBasedPhotonIDAlgo::setup(const edm::ParameterSet& conf) {
   
@@ -11,6 +11,8 @@ void CutBasedPhotonIDAlgo::setup(const edm::ParameterSet& conf) {
 
   //get cuts here
   photonBasicClusterIsolationCut_ = conf.getParameter<double>("PhotonBCIso");
+  photonEcalRecHitIsolationCut_ = conf.getParameter<double>("PhotonEcalRecHitIso");
+  photonHcalRecHitIsolationCut_ = conf.getParameter<double>("PhotonHcalRecHitIso");
   photonHollowConeTrkIsolationCut_ = conf.getParameter<double>("PhotonHollowTrk");
   photonSolidConeTrkIsolationCut_ = conf.getParameter<double>("PhotonSolidTrk");
   photonSolidConeNTrkCut_ = conf.getParameter<int>("PhotonSolidNTrk");
@@ -24,9 +26,17 @@ void CutBasedPhotonIDAlgo::setup(const edm::ParameterSet& conf) {
   trackConeOuterRadius_ = conf.getParameter<double>("TrackConeOuterRadius");
   trackConeInnerRadius_ = conf.getParameter<double>("TrackConeInnerRadius");
   isolationtrackThreshold_ = conf.getParameter<double>("isolationtrackThreshold");
+  photonEcalRecHitConeInnerRadius_ = conf.getParameter<double>("EcalRecHitInnerRadius");
+  photonEcalRecHitConeOuterRadius_ = conf.getParameter<double>("EcalRecHitOuterRadius");
+  photonEcalRecHitThresh_ = conf.getParameter<double>("EcalRecThresh");
+  photonHcalRecHitConeInnerRadius_ = conf.getParameter<double>("HcalRecHitInnerRadius");
+  photonHcalRecHitConeOuterRadius_ = conf.getParameter<double>("HcalRecHitOuterRadius");
+  photonHcalRecHitThresh_ = conf.getParameter<double>("HcalRecHitThresh");
 
   //Decision cuts
   dophotonBCIsolationCut_ = conf.getParameter<bool>("DoBasicClusterIsolationCut");
+  dophotonEcalRecHitIsolationCut_ = conf.getParameter<bool>("DoEcalRecHitIsolationCut");
+  dophotonHcalRecHitIsolationCut_ = conf.getParameter<bool>("DoHcalRecHitIsolationCut");
   dophotonHCTrkIsolationCut_ = conf.getParameter<bool>("DoHollowConeTrackIsolationCut");
   dophotonSCTrkIsolationCut_ = conf.getParameter<bool>("DoSolidConeTrackIsolationCut");
   dophotonHCNTrkCut_ = conf.getParameter<bool>("DoHollowConeNTrkCut");
@@ -37,7 +47,7 @@ void CutBasedPhotonIDAlgo::setup(const edm::ParameterSet& conf) {
   dorequireFiducial_ = conf.getParameter<bool>("RequireFiducial");
 }
 
-reco::PhotonID CutBasedPhotonIDAlgo::calculate(const reco::Photon* pho, const edm::Event& e){
+reco::PhotonID CutBasedPhotonIDAlgo::calculate(const reco::Photon* pho, const edm::Event& e, const edm::EventSetup& es){
 
   //need to do the following things here:
   //1.)  Call base class methods to calculate photonID variables like fiducial and
@@ -45,7 +55,7 @@ reco::PhotonID CutBasedPhotonIDAlgo::calculate(const reco::Photon* pho, const ed
   //2.)  Decide whether this particular photon passes the cuts that are set forth in the ps.
   //3.)  Create a new PhotonID object, complete with decision and return it.
   
-//   std::cout << "Entering Calculate fcn: " << std::endl;
+  //  std::cout << "Entering Calculate fcn: " << std::endl;
 
   //Get fiducial information
   bool isEBPho   = false;
@@ -87,16 +97,32 @@ reco::PhotonID CutBasedPhotonIDAlgo::calculate(const reco::Photon* pho, const ed
 					   photonBasicClusterConeOuterRadius_,
 					   photonBasicClusterConeInnerRadius_,
 					   isolationbasicclusterThreshold_);
-
 //   std::cout << "Output from basic cluster isolation: ";
 //   std::cout << " Sum pT: " << bc_iso << std::endl;
 
+  double EcalRecHitIso = calculateEcalRecHitIso(pho, e, es,
+						photonEcalRecHitConeOuterRadius_,
+						photonEcalRecHitConeInnerRadius_,
+						photonEcalRecHitThresh_);
+
+//   std::cout << "Output from ecal isolation: ";
+//   std::cout << " Sum pT: " << EcalRecHitIso << std::endl;
+
+  double HcalRecHitIso = calculateHcalRecHitIso(pho, e, es,
+						photonHcalRecHitConeOuterRadius_,
+						photonHcalRecHitConeInnerRadius_,
+						photonHcalRecHitThresh_);
+
+//   std::cout << "Output from hcal isolation: ";
+//   std::cout << " Sum pT: " << HcalRecHitIso << std::endl;
+
   bool isElec = isAlsoElectron(pho, e);
-  
+
 //   std::cout << "Are you also an electron? " << isElec << std::endl;
 
   reco::PhotonID temp(false, bc_iso, strkiso,
 		      trkiso, sntrk, ntrk,
+		      EcalRecHitIso, HcalRecHitIso,
 		      isEBPho, isEEPho, isEBGap, isEEGap, isEBEEGap,
 		      isElec);
 
@@ -136,6 +162,22 @@ void CutBasedPhotonIDAlgo::decide(reco::PhotonID &phID, const reco::Photon* pho)
   //Cut on the sum of basic clusters within a cone
   if(dophotonBCIsolationCut_){
     if (phID.isolationHollowTrkCone() > photonBasicClusterIsolationCut_){
+      phID.setDecision(false);
+      return;
+    }
+  }
+
+  //Cut on the sum of ecal rec hits in a cone
+  if(dophotonEcalRecHitIsolationCut_){
+    if(phID.isolationEcalRecHit() > photonEcalRecHitIsolationCut_){
+      phID.setDecision(false);
+      return;
+    }
+  }
+  
+  //Cut on the sum of hcal rec hits in a cone (HBHE)
+  if(dophotonHcalRecHitIsolationCut_){
+    if(phID.isolationHcalRecHit() > photonHcalRecHitIsolationCut_){
       phID.setDecision(false);
       return;
     }

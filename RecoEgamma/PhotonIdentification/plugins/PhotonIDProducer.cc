@@ -4,12 +4,13 @@
 #include "DataFormats/EgammaReco/interface/BasicCluster.h"
 #include "DataFormats/EgammaReco/interface/BasicClusterShapeAssociation.h"
 #include "DataFormats/EgammaCandidates/interface/PhotonFwd.h"
-void PhotonIDProducer::beginJob(edm::EventSetup const& iSetup) {
+
+//void PhotonIDProducer::beginJob(edm::EventSetup const& iSetup) {
   //Otherwise we're just going to do our calculations.  This will
   //set a bool for passing the cut based criteria, nothing else.
-  if (doCutBased_) cutBasedAlgo_->setup(conf_);
+  // if (doCutBased_) cutBasedAlgo_->setup(conf_);
 
-}
+//}
 
 
 PhotonIDProducer::PhotonIDProducer(const edm::ParameterSet& conf) : conf_(conf) {
@@ -29,8 +30,8 @@ PhotonIDProducer::PhotonIDProducer(const edm::ParameterSet& conf) : conf_(conf) 
 
 PhotonIDProducer::~PhotonIDProducer() {
 
-  if (doCutBased_)
-    delete cutBasedAlgo_;
+  //if (doCutBased_)
+  delete cutBasedAlgo_;
 
 }
 
@@ -48,8 +49,7 @@ void PhotonIDProducer::produce(edm::Event& e, const edm::EventSetup& c) {
   reco::PhotonCollection::const_iterator photon;
   for (photon = (*photons).begin();
        photon != (*photons).end(); ++photon) {
-    
-    reco::PhotonID phoID = cutBasedAlgo_->calculate(&(*photon),e);
+    reco::PhotonID phoID = cutBasedAlgo_->calculate(&(*photon),e, c);
     photonIDCollection.push_back(phoID);
   }
   
