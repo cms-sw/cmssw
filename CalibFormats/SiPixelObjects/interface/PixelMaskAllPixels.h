@@ -26,6 +26,9 @@ namespace pos{
 
     PixelMaskAllPixels(std::string filename);
     PixelMaskAllPixels(std::vector< std::vector<std::string> >& tableMat);
+// modified by MR on 18-04-2008 10:05:04
+    PixelMaskAllPixels() ;
+    void addROCMaskBits(PixelROCMaskBits);
     
 
     void writeBinary(std::string filename) const;

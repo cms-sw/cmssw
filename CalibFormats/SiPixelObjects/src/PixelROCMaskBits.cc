@@ -20,22 +20,23 @@ PixelROCMaskBits::PixelROCMaskBits(){
 
 void  PixelROCMaskBits::setROCMaskBits(PixelROCName& rocid ,std::string bits)
 {
-try{
-rocid_=rocid;
-  char cpt[520] ;
-  bits.copy( cpt , 520);
-  for(unsigned int i = 0 ; i < bits.size(); i++)
-        bits_[i] = (unsigned char)cpt[i];
-	
-	  /* std::cout<<rocid_<<std::endl;
-			std::cout.flags(std::ios::hex);
-		 std::cout<<(short)bits_[0]<<std::endl;  */
-		 }catch(std::bad_cast){
-		 
-		 std::cout << "Error casting variable." << std::endl;
-		 
-		 }
-	
+try
+  {
+    rocid_=rocid;
+    char cpt[520] ;
+    bits.copy( cpt , 520);
+    for(unsigned int i = 0 ; i < bits.size(); i++)
+      {
+	bits_[i] = (unsigned char)cpt[i];
+	//      std::cout<< "bits_[" << i << "]\t" << bits_[i] <<std::endl;
+	//      std::cout<<rocid_<<std::endl;
+	//      std::cout.flags(std::ios::hex)
+      }
+  }
+ catch(std::bad_cast)
+   {
+     std::cout << "Error casting variable." << std::endl;
+   }
 }
 
 /**********************End Modification******************************/
@@ -127,7 +128,12 @@ void PixelROCMaskBits::writeASCII(std::ofstream& out) const{
 unsigned int PixelROCMaskBits::mask(unsigned int col, unsigned int row) const{
 
   unsigned int tmp=bits_[col*10+row/8];
-  tmp=tmp>>(row%8);
+//   std::cout << "c =  " << col << "\tr = " << row << "\tbits_[" << (col*10+row/8) << "]=" << bits_[col*10+row/8] << std::endl ;
+//   std::cout << "[PixelROCMaskBits::mask()] tmp iniziale " << tmp      << std::endl ;
+  tmp=tmp>>(row%8);				        	
+//   std::cout << "[PixelROCMaskBits::mask()] tmp finale   " << tmp      << std::endl ;
+//   unsigned int res = tmp&0x01 ;			        	
+//   std::cout << "[PixelROCMaskBits::mask()] return value " << res      << std::endl ;
   return tmp&0x01;
 
 }

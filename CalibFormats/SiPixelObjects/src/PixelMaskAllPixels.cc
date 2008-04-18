@@ -77,6 +77,13 @@ std::string bits;
 //std::cout<<maskbits_.size()<<std::endl;
 }
 
+// modified by MR on 18-04-2008 10:02:00
+PixelMaskAllPixels::PixelMaskAllPixels():PixelMaskBase("","",""){;}
+
+void PixelMaskAllPixels::addROCMaskBits(PixelROCMaskBits bits)
+{
+  maskbits_.push_back(bits);
+}
 
 //**********************************************************************
 
