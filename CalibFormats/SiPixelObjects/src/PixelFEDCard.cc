@@ -23,6 +23,9 @@ PixelFEDCard::PixelFEDCard(string fileName):
 
   //const bool localDEBUG = true;
   const bool localDEBUG = false;
+  
+  // Added by Dario (March 26th, 2008): insure variables are all cleared before read-in
+  clear() ;
 
   //cout<<" Get setup parameters from file "<<fileName<<endl;
   FILE *infile = fopen((fileName.c_str()),"r");
@@ -327,6 +330,84 @@ PixelFEDCard::PixelFEDCard(string fileName):
   return;
 }
 
+//==================================================================================
+// Added by Dario (March 26th 2008)
+void PixelFEDCard::clear(void) 
+{
+  FEDBASE_0 = 0 ;
+  fedNumber = 0 ;
+  for(int i=0;i<36;i++){
+    NRocs[i]    = 0;
+    offs_dac[i] = 0;
+    BlackHi[i]  = 0;
+    BlackLo[i]  = 0;
+    Ublack[i]   = 0;
+    DelayCh[i]  = 0;  
+    TBM_L0[i]	= 0;		   
+    TBM_L1[i]	= 0;		   
+    TBM_L2[i]	= 0;		   
+    TBM_L3[i]	= 0;		   
+    TBM_L4[i]	= 0;
+    TRL_L0[i]	= 0;
+    TRL_L1[i]	= 0;
+    TRL_L2[i]	= 0;
+    TRL_L3[i]	= 0;
+    TRL_L4[i]	= 0;
+  }		
+  for(int i=0;i<3;i++){
+    opt_cap[i]   = 0;
+    opt_inadj[i] = 0;
+    opt_ouadj[i] = 0;
+  }
+  clkphs1_9   = 0;
+  clkphs10_18 = 0;
+  clkphs19_27 = 0;
+  clkphs28_36 = 0;
+  
+  for(int i=0;i<36;i++) {
+    for(int j=0;j<26;j++) {
+      ROC_L0[i][j] = 0;
+      ROC_L1[i][j] = 0;
+      ROC_L2[i][j] = 0;
+      ROC_L3[i][j] = 0;
+      ROC_L4[i][j] = 0;
+    }
+  }
+  Ncntrl       = 0;  
+  NCcntrl      = 0;  
+  SCcntrl      = 0;  
+  Scntrl       = 0;  
+  CoarseDel    = 0;
+  ClkDes2      = 0;
+  FineDes2Del  = 0;
+  Ccntrl       = 0;
+  modeRegister = 0;
+  Nadcg        = 0;
+  NCadcg       = 0;
+  SCadcg       = 0;
+  Sadcg        = 0;
+  Nbaseln      = 0;
+  NCbaseln     = 0;
+  SCbaseln     = 0;
+  Sbaseln      = 0;
+  N_TBMmask    = 0;
+  NC_TBMmask   = 0;
+  SC_TBMmask   = 0;
+  S_TBMmask    = 0;
+  N_Pword      = 0;
+  NC_Pword     = 0;
+  SC_Pword     = 0;
+  S_Pword      = 0;
+  SpecialDac   = 0;
+  Ooslvl       = 0;
+  Errlvl       = 0;
+  Nfifo1Bzlvl  = 0;
+  NCfifo1Bzlvl = 0;
+  SCfifo1Bzlvl = 0;
+  Sfifo1Bzlvl  = 0;
+  fifo3Wrnlvl  = 0;
+}
+//==================================================================================
 
 void PixelFEDCard::writeASCII(std::string dir) const{
 

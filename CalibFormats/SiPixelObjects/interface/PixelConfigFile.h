@@ -521,6 +521,7 @@ namespace pos{
 	return false ;
       }
 
+      std::cout << "[pos::PixelConfigFile::configurationDataExists()]\t\t\tfileName: " << fileName << std::endl ; 
       std::ifstream in(fileName.c_str());
       if (!in.good()){return false ;}
       in.close() ;
@@ -738,11 +739,11 @@ namespace pos{
 
     template <class T>
     static int put(std::vector<T*> objects, std::string path){
-      //cout << "[pos::PixelConfigFile::put()]\t\t# of objects to write: "<< objects.size() << endl;
+      cout << "[pos::PixelConfigFile::put()]\t\t# of objects to write: "<< objects.size() << endl;
       std::string dir;
       int version=makeNewVersion(path,dir);
       for(unsigned int i=0;i<objects.size();i++){
-	//cout << "[pos::PixelConfigFile::put()]\t\tWill write i="<<i<<endl;
+	cout << "[pos::PixelConfigFile::put()]\t\tWill write i="<<i<<" ptr: "<<objects[i]<<endl;
 	objects[i]->writeASCII(dir);
       }
       return version;

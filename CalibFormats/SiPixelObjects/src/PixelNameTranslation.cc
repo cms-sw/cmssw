@@ -79,7 +79,7 @@ PixelNameTranslation::PixelNameTranslation(std::vector< std::vector<std::string>
 			  hubaddress,portaddress,
 			  rocid,
 			  fednumber,fedchannel,fedrocnumber);
-   std::cout << aROC << std::endl;
+   std::cout << "[PixelNameTranslation::PixelNameTranslation()] aROC: " << aROC << std::endl;
    translationtable_[aROC]=hdwAdd;
    
    PixelModuleName aModule(rocname);
@@ -183,6 +183,26 @@ PixelNameTranslation::PixelNameTranslation(std::string filename):
       //std::cout << aROC << std::endl;
       // modified by MR on 18-01-2008 11:18:53
       //       std::cout << hdwAdd << std::endl ;
+//cout << "[PixelNameTranslation::PixelNameTranslation()]\t\t-----------------------------"  << endl ;
+// A fecnumber    
+// B mfec	  
+// C mfecchannel  
+// D hubaddress   
+// E portaddress  
+// F rocid	  
+// G fednumber    
+// H fedchannel   
+// I fedrocnumber 
+//cout << "[PixelNameTranslation::PixelNameTranslation()]\t\t"
+//     << " A " << fecnumber   
+//     << " B " << mfec	      
+//     << " C " << mfecchannel  
+//     << " D " << hubaddress   
+//     << " E " << portaddress  
+//     << " F " << rocid        
+//     << " G " << fednumber    
+//     << " H " << fedchannel   
+//     << " I " << fedrocnumber << endl ;    
       translationtable_[aROC]=hdwAdd;
 	    
       PixelModuleName aModule(rocname);

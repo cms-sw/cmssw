@@ -48,6 +48,8 @@ namespace pos{
     void setDAC(unsigned int dacaddress, unsigned int dacvalue);
     void setDACs(std::map<std::string, unsigned int>& dacs) ;
 
+    void compareDACs(std::map<std::string, unsigned int>& dacs, std::map<std::string, bool>& changes) ;
+
     void checkTag(std::string tag, 
 		  std::string dacName,
 		  const PixelROCName& rocid);

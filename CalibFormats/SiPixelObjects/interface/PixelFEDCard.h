@@ -44,6 +44,7 @@ namespace pos{
     void writeASCII(std::string dir="") const; // write to files
     unsigned long long enabledChannels();  // returns 64-bit integer mask 35..0
 
+
     //Settable optical input parameters (one for each 12-receiver)
     int opt_cap[3];   // Capacitor adjust
     int opt_inadj[3]; // DC-input offset
@@ -119,6 +120,10 @@ namespace pos{
     //VME base address 
     unsigned long FEDBASE_0, fedNumber;
 
+ private: 
+ 
+    // Added by Dario (March 26th 2008)
+    void clear(void) ;
 
   }; // end class PixelFEDCard
 }
