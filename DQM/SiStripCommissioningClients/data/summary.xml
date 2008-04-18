@@ -111,5 +111,50 @@
 
 </RunType>
 
+<RunType name="CalibrationPeak">
+
+<SummaryPlot monitorable="CalibrationAmplitude" presentation="Histo1D" level="SiStrip/ControlView" granularity=""/>
+<SummaryPlot monitorable="CalibrationTail" presentation="Histo1D" level="SiStrip/ControlView" granularity=""/>
+<SummaryPlot monitorable="CalibrationRiseTime" presentation="Histo1D" level="SiStrip/ControlView" granularity=""/>
+<SummaryPlot monitorable="CalibrationTimeConstant" presentation="Histo1D" level="SiStrip/ControlView" granularity=""/>
+<SummaryPlot monitorable="CalibrationSmearing" presentation="Histo1D" level="SiStrip/ControlView" granularity=""/>
+<SummaryPlot monitorable="CalibrationChi2" presentation="Histo1D" level="SiStrip/ControlView" granularity=""/>
+<SummaryPlot monitorable="StripCalibrationAmplitude" presentation="Histo1D" level="SiStrip/ControlView" granularity=""/>
+<SummaryPlot monitorable="CalibrationAmplitude" presentation="Profile1D" level="SiStrip/ControlView" granularity="Apv"/>
+<SummaryPlot monitorable="CalibrationTail" presentation="Profile1D" level="SiStrip/ControlView" granularity="Apv"/>
+<SummaryPlot monitorable="CalibrationRiseTime" presentation="Profile1D" level="SiStrip/ControlView" granularity="Apv"/>
+<SummaryPlot monitorable="CalibrationTimeConstant" presentation="Profile1D" level="SiStrip/ControlView" granularity="Apv"/>
+<SummaryPlot monitorable="CalibrationSmearing" presentation="Profile1D" level="SiStrip/ControlView" granularity="Apv"/>
+<SummaryPlot monitorable="CalibrationChi2" presentation="Profile1D" level="SiStrip/ControlView" granularity="Apv"/>
+<SummaryPlot monitorable="StripCalibrationAmplitude" presentation="Profile1D" level="SiStrip/ControlView" granularity="Apv"/>
+
+</RunType>
+
+<RunType name="CalibrationDeco">
+
+<SummaryPlot monitorable="CalibrationAmplitude" presentation="Histo1D" level="SiStrip/ControlView" granularity=""/>
+<SummaryPlot monitorable="CalibrationTail" presentation="Histo1D" level="SiStrip/ControlView" granularity=""/>
+<SummaryPlot monitorable="CalibrationRiseTime" presentation="Histo1D" level="SiStrip/ControlView" granularity=""/>
+<SummaryPlot monitorable="CalibrationTimeConstant" presentation="Histo1D" level="SiStrip/ControlView" granularity=""/>
+<SummaryPlot monitorable="CalibrationSmearing" presentation="Histo1D" level="SiStrip/ControlView" granularity=""/>
+<SummaryPlot monitorable="CalibrationChi2" presentation="Histo1D" level="SiStrip/ControlView" granularity=""/>
+<SummaryPlot monitorable="StripCalibrationAmplitude" presentation="Histo1D" level="SiStrip/ControlView" granularity=""/>
+<SummaryPlot monitorable="CalibrationAmplitude" presentation="Profile1D" level="SiStrip/ControlView" granularity="Apv"/>
+<SummaryPlot monitorable="CalibrationTail" presentation="Profile1D" level="SiStrip/ControlView" granularity="Apv"/>
+<SummaryPlot monitorable="CalibrationRiseTime" presentation="Profile1D" level="SiStrip/ControlView" granularity="Apv"/>
+<SummaryPlot monitorable="CalibrationTimeConstant" presentation="Profile1D" level="SiStrip/ControlView" granularity="Apv"/>
+<SummaryPlot monitorable="CalibrationSmearing" presentation="Profile1D" level="SiStrip/ControlView" granularity="Apv"/>
+<SummaryPlot monitorable="CalibrationChi2" presentation="Profile1D" level="SiStrip/ControlView" granularity="Apv"/>
+<SummaryPlot monitorable="StripCalibrationAmplitude" presentation="Profile1D" level="SiStrip/ControlView" granularity="Apv"/>
+
+</RunType>
+
+<RunType name="CalibrationScanPeak">
+
+<SummaryPlot monitorable="CalibrationTail" presentation="Profile1D" level="SiStrip/ControlView" granularity="Apv"/>
+<SummaryPlot monitorable="CalibrationRiseTime" presentation="Profile1D" level="SiStrip/ControlView" granularity="Apv"/>
+
+</RunType>
+
 </root>
 
