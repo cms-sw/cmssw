@@ -297,7 +297,7 @@ class AlignPlots
 
 const char* const AlignPlots::titles_[nPar] = 
   {"#Deltau (#mum)", "#Deltav (#mum)", "#Deltaw (#mum)",
-   "#Delta#omega_{u} (mrad)", "#Delta#omega_{v} (mrad)", "#Delta#omega_{w} (mrad)"};
+   "#Delta#alpha (mrad)", "#Delta#beta (mrad)", "#Delta#gamma (mrad)"};
 
 AlignPlots::AlignPlots(std::string file):
   file_(file)
