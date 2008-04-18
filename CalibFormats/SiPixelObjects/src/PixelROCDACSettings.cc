@@ -571,11 +571,106 @@ void PixelROCDACSettings::setDac(string dacName, int dacValue){
 
 }
 
+unsigned int PixelROCDACSettings::getDac(string dacName) const {
+  
+  if(dacName == k_DACName_Vdd){
+    return Vdd_;
+  }
+  else if(dacName == k_DACName_Vana){
+    return Vana_;
+  }
+  else if(dacName == k_DACName_Vsf){
+    return Vsf_;
+  }
+  else if(dacName == k_DACName_Vcomp){
+    return Vcomp_;
+  }
+  else if(dacName == k_DACName_Vleak){
+    return Vleak_;
+  }
+  else if(dacName == k_DACName_VrgPr){
+    return VrgPr_;
+  }
+  else if(dacName == k_DACName_VwllPr){
+    return VwllPr_;
+  }
+  else if(dacName == k_DACName_VrgSh){
+    return VrgSh_;
+  }
+  else if(dacName == k_DACName_VwllSh){
+    return VwllSh_;
+  }
+  else if(dacName == k_DACName_VHldDel){
+    return VHldDel_;
+  }
+  else if(dacName == k_DACName_Vtrim){
+    return Vtrim_;
+  }
+  else if(dacName == k_DACName_VcThr){
+    return VcThr_;
+  }
+  else if(dacName == k_DACName_VIbias_bus){
+    return VIbias_bus_;
+  }
+  else if(dacName == k_DACName_VIbias_sf){
+    return VIbias_sf_;
+  }
+  else if(dacName == k_DACName_VOffsetOp){
+    return VOffsetOp_;
+  }
+  else if(dacName == k_DACName_VbiasOp){
+    return VbiasOp_;
+  }
+  else if(dacName == k_DACName_VOffsetRO){
+    return VOffsetRO_;
+  }
+  else if(dacName == k_DACName_VIon){
+    return VIon_;
+  }
+  else if(dacName == k_DACName_VIbias_PH){
+    return VIbias_PH_;
+  }
+  else if(dacName == k_DACName_VIbias_DAC){
+    return VIbias_DAC_;
+  }
+  else if(dacName == k_DACName_VIbias_roc){
+    return VIbias_roc_;
+  }
+  else if(dacName == k_DACName_VIColOr){
+    return VIColOr_;
+  }
+  else if(dacName == k_DACName_Vnpix){
+    return Vnpix_;
+  }
+  else if(dacName == k_DACName_VsumCol){
+    return VsumCol_;
+  }
+  else if(dacName == k_DACName_Vcal){
+    return Vcal_;
+  }
+  else if(dacName == k_DACName_CalDel){
+    return CalDel_;
+  }
+  else if(dacName == k_DACName_TempRange){
+    return TempRange_;
+  }
+  else if(dacName == k_DACName_WBC){
+    return WBC_;
+  }
+  else if(dacName == k_DACName_ChipContReg){
+    return ChipContReg_;
+  }
+  else {
+    cout << "ERROR in PixelROCDACSettings::getDac: DAC name " << dacName << " does not exist." << endl;
+    assert(0);
+  }
+}			  
+
 
 string PixelROCDACSettings::ToLower(string generic)
 {
   string result ;
-  for(int i = 0; i < generic.length() ; i++)
+  for(unsigned int i = 0; i < generic.length() ; i++)
     {
       result.append(1,(char)tolower(generic[i]) );
     }
