@@ -7,8 +7,8 @@
  *
  *  Basically list the levels in the detector's hierarchy.
  *
- *  $Date: 2007/10/23 08:55:14 $
- *  $Revision: 1.2 $
+ *  $Date: 2008/02/14 12:54:35 $
+ *  $Revision: 1.3 $
  *  \author Chung Khim Lae
  */
 
@@ -23,52 +23,52 @@ namespace align
     // Barrel Pixel
     TPBModule,
     TPBLadder,
-    TPBLayer,
+    TPBLayer, // = 5
     TPBHalfBarrel,
     TPBBarrel,
 
     // Forward Pixel
     TPEModule,
     TPEPanel,
-    TPEBlade,
+    TPEBlade, // = 10
     TPEHalfDisk,
     TPEHalfCylinder,
     TPEEndcap,
 
     // Tracker Inner Barrel
     TIBModule,
-    TIBString,
+    TIBString, // = 15
     TIBSurface,
     TIBHalfShell,
     TIBLayer,
     TIBHalfBarrel,
-    TIBBarrel,
+    TIBBarrel, // = 20
 
     // Tracker Inner Disks
     TIDModule,
     TIDSide,
     TIDRing,
     TIDDisk,
-    TIDEndcap,
+    TIDEndcap, // = 25
 
     // Tracker Outer Barrel
     TOBModule,
     TOBRod,
     TOBLayer,
     TOBHalfBarrel,
-    TOBBarrel,
+    TOBBarrel, // = 30
 
     // Tracker Endcaps
     TECModule,
     TECRing,
     TECPetal,
     TECSide,
-    TECDisk,
+    TECDisk, // = 35
     TECEndcap,
 
     Pixel,
     Strip,
-    Tracker,
+    Tracker, // = 39
 
     // Muon Detector, not touching these now
     AlignableDTBarrel = 100,
@@ -76,15 +76,15 @@ namespace align
     AlignableDTStation,
     AlignableDTChamber,
     AlignableDTSuperLayer,
-    AlignableDTLayer,
+    AlignableDTLayer, // = 105
     AlignableCSCEndcap,
     AlignableCSCStation,
     AlignableCSCRing,
     AlignableCSCChamber,
-    AlignableCSCLayer,
+    AlignableCSCLayer, // = 110
     AlignableMuon,
 
-    Detector
+    Detector // = 112 (what for?)
   };
 }
 
