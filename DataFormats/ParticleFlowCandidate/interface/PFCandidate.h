@@ -43,8 +43,8 @@ namespace reco {
     /// default constructor
     PFCandidate();
 
-    /// constructor from a reference (keeps track of parent relationship)
-    PFCandidate( const PFCandidateRef& parentRef );
+    /// constructor from a reference (keeps track of mother relationship)
+    PFCandidate( const PFCandidateRef& motherRef );
     
     /*     PFCandidate( Charge q,  */
     /*                  const LorentzVector & p4,  */
@@ -60,8 +60,17 @@ namespace reco {
     /// return a clone
     virtual PFCandidate * clone() const;
 
-    /// return a reference to the parent PFCandidate
-    const PFCandidateRef& parent() const { return parent_;}
+
+    /// set mother ref
+    void setMotherRef(const PFCandidateRef& ref) { motherRef_ = ref; }
+
+    /// return a reference to the motherRef PFCandidate
+/*     const PFCandidateRef& motherRef() const { return motherRef_;} */
+    CandidateBaseRefVector motherRefs() const { 
+      CandidateBaseRefVector mothers;
+      mothers.push_back( CandidateBaseRef(motherRef_) );
+      return mothers;
+    }
 
     /// returns the pdg id corresponding to the particle type.
     /// the particle type could be removed at some point to gain some space.
@@ -238,8 +247,8 @@ namespace reco {
   
     ElementsInBlocks elementsInBlocks_;
 
-    /// reference to the parent PFCandidate, if any
-    PFCandidateRef parent_;
+    /// reference to the mother PFCandidate, if any
+    PFCandidateRef motherRef_;
 
     reco::TrackRef trackRef_;
     

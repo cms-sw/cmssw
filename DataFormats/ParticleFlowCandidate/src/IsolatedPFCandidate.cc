@@ -1,6 +1,9 @@
 #include "DataFormats/ParticleFlowCandidate/interface/IsolatedPFCandidate.h"
 
+#include <iostream>
+
 using namespace reco;
+using namespace std;
 
 IsolatedPFCandidate::IsolatedPFCandidate() : PFCandidate(), isolation_(-1) {}
 
@@ -9,8 +12,6 @@ IsolatedPFCandidate::IsolatedPFCandidate( const PFCandidateRef & candidateRef,
 					  double isolation ) : 
   PFCandidate(candidateRef), 
   isolation_(isolation) {
-
-//   parent_ = candidateRef;
 }
 
 IsolatedPFCandidate * IsolatedPFCandidate::clone() const {
@@ -21,8 +22,8 @@ IsolatedPFCandidate * IsolatedPFCandidate::clone() const {
 IsolatedPFCandidate::~IsolatedPFCandidate();
 
 
-std::ostream& operator<<( std::ostream& out, 
-			  const IsolatedPFCandidate& c ) {
+std::ostream& reco::operator<<( std::ostream& out, 
+				const IsolatedPFCandidate& c ) {
   if(!out) return out;
 
   const PFCandidate& mother = c;

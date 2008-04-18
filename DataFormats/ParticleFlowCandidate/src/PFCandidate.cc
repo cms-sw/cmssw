@@ -34,9 +34,9 @@ PFCandidate::PFCandidate() :
 }
 
 
-PFCandidate::PFCandidate( const PFCandidateRef& parentRef ) {
-  *this = *parentRef;
-  parent_ = parentRef;
+PFCandidate::PFCandidate( const PFCandidateRef& motherRef ) {
+  *this = *motherRef;
+  motherRef_ = motherRef;
 }
 
 
@@ -242,6 +242,8 @@ ostream& reco::operator<<(ostream& out,
     
     out<<"("<<blockRef.key()<<"|"<<indexInBlock<<"), ";
   }
+
+  out<<" mother:"<<c.motherRef_.id()<<"/"<<c.motherRef_.key();
 
 //   PFBlockRef blockRef = c.block(); 
 //   int blockid = blockRef.key(); 
