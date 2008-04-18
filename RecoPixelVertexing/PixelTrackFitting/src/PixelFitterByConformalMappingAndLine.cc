@@ -67,7 +67,8 @@ reco::Track* PixelFitterByConformalMappingAndLine::run(
   //
   // simple fit to get pt, phi0 used for precise calcul.
   //
-  ConformalMappingFit parabola(xy, theConfig);
+  ConformalMappingFit parabola(hits, region, es, theConfig);
+  //ConformalMappingFit parabola(xy, theConfig);
 
   //
   // precalculate theta to correct errors:

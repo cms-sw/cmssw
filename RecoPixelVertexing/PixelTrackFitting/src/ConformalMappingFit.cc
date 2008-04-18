@@ -1,4 +1,11 @@
 #include "ConformalMappingFit.h"
+
+#include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHitBuilder.h"
+#include "TrackingTools/Records/interface/TransientRecHitRecord.h"
+#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
+#include "RecoTracker/Record/interface/TrackerRecoGeometryRecord.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+
 //#include "TrackerReco/TkMSParametrization/interface/PixelRecoUtilities.h"
 //#include "CommonDet/DetGeometry/interface/LocalError.h"
 //#include "CommonDet/DetGeometry/interface/MeasurementError.h"
@@ -26,6 +33,46 @@ ConformalMappingFit::ConformalMappingFit(const vector<PointXY> & hits, const Par
   }
   theFit.skipErrorCalculationByDefault();
   if (cfg.exists("fixImpactParameter")) theFit.fixParC(cfg.getParameter<double>("fixImpactParameter"));
+}
+
+ConformalMappingFit::ConformalMappingFit(const std::vector<const TrackingRecHit* > &trhits, 
+    const TrackingRegion & region, const edm::EventSetup& es, const edm::ParameterSet &cfg)
+  : theRotation(0), myRotation(false)
+{
+  vector<PointXY> hits;
+  vector<float> errRPhi2;
+
+  static const TransientTrackingRecHitBuilder * TTRHbuilder = 0;
+  static const TrackerGeometry * trackerGeometry = 0;
+  if(TTRHbuilder == 0){
+    edm::ESHandle<TransientTrackingRecHitBuilder> theBuilderHandle;
+    es.get<TransientRecHitRecord>().get("WithoutRefit",theBuilderHandle);
+    TTRHbuilder = theBuilderHandle.product();
+  }
+  if (!trackerGeometry) {
+    edm::ESHandle<TrackerGeometry> tracker;
+    es.get<TrackerDigiGeometryRecord>().get(tracker);
+    trackerGeometry = tracker.product();
+  }
+  typedef vector<const TrackingRecHit*>::const_iterator TRH;
+  for (TRH ih=trhits.begin(); ih != trhits.end(); ++ih) {
+    TransientTrackingRecHit::RecHitPointer recHit = TTRHbuilder->build(*ih);
+    GlobalPoint hitPos = recHit->globalPosition();
+    float phiErr2 = recHit->globalPositionError().phierr(hitPos);
+    hits.push_back(PointXY(hitPos.x(), hitPos.y())); 
+    errRPhi2.push_back(hitPos.perp2()*phiErr2);  
+  } 
+
+  typedef ConformalMappingFit::MappedPoint<double> PointUV;
+  int hits_size = hits.size();
+  for ( int i= 0; i < hits_size; i++) {
+    if (!theRotation) findRot( hits[i] );
+    PointUV point( hits[i], 1./errRPhi2[i], theRotation);
+    theFit.addPoint( point.u(), point.v(), point.weight());
+  }
+  if (cfg.exists("fixImpactParameter")) theFit.fixParC(cfg.getParameter<double>("fixImpactParameter"));
+
+ 
 }
 
 /*

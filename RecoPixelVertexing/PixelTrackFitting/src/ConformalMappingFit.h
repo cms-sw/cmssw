@@ -5,6 +5,10 @@
 #include "DataFormats/GeometryVector/interface/Basic3DVector.h"
 #include "DataFormats/GeometrySurface/interface/TkRotation.h"
 #include "DataFormats/GeometryCommonDetAlgo/interface/Measurement1D.h"
+#include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
+#include "RecoTracker/TkTrackingRegions/interface/TrackingRegion.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+
 #include "ParabolaFit.h"
 #include <vector>
 
@@ -16,6 +20,9 @@ public:
   typedef Basic2DVector<double> PointXY;
 
   ConformalMappingFit(const std::vector<PointXY> & hits, const edm::ParameterSet & cfg);
+  ConformalMappingFit(const std::vector<const TrackingRecHit* > &hits, 
+      const TrackingRegion & region,
+      const edm::EventSetup& es, const edm::ParameterSet &cfg);
 
 //  ConformalMappingFit(const std::vector<RecHit>& hits,
 //      const Rotation * rot = 0,
