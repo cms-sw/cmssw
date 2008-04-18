@@ -31,6 +31,8 @@
 
 #include "CondFormats/L1TObjects/interface/L1GctJetEtCalibrationFunction.h"
 
+class L1CaloGeometry ;
+
 //
 // class declaration
 //
@@ -42,7 +44,7 @@ class L1GctCalibFunConfigurer {
 
       typedef boost::shared_ptr<L1GctJetEtCalibrationFunction> CalibFunReturnType;
 
-      CalibFunReturnType produceCalibFun();
+      CalibFunReturnType produceCalibFun(const L1CaloGeometry* );
 
    private:
       // ----------member data ---------------------------
@@ -71,7 +73,7 @@ class L1GctCalibFunConfigurer {
   void setPiecewiseCubicParamsForBin(std::vector<double>& paramsForBin);
 
   /// Calculate Et-to-energy conversion factors for eta bins
-  std::vector<double> etToEnergyConversion() const;
+  std::vector<double> etToEnergyConversion( const L1CaloGeometry* ) const;
 
 };
 

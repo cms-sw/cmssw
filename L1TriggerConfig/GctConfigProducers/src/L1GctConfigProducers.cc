@@ -58,8 +58,13 @@ L1GctConfigProducers::~L1GctConfigProducers()
 // The producer methods are handled by the "Configurer" objects
 
 L1GctConfigProducers::
-CalibFunReturnType L1GctConfigProducers::produceCalibFun(const L1GctJetCalibFunRcd&)
-        { return m_CalibFunConf->produceCalibFun(); }
+CalibFunReturnType L1GctConfigProducers::produceCalibFun(const L1GctJetCalibFunRcd& aRcd)
+        {
+	  const L1CaloGeometryRecord& geomRcd =
+	    aRcd.getRecord< L1CaloGeometryRecord >() ;
+	  edm::ESHandle< L1CaloGeometry > geom ;
+	  geomRcd.get( geom ) ;
+	  return m_CalibFunConf->produceCalibFun( geom.product() ); }
 
 L1GctConfigProducers::
 JCtSetupReturnType L1GctConfigProducers::produceJCNegEta(const L1GctJetCounterNegativeEtaRcd&)

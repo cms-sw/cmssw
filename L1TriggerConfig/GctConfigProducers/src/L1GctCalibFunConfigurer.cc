@@ -3,7 +3,7 @@
 
 #include "L1TriggerConfig/GctConfigProducers/interface/L1GctCalibFunConfigurer.h"
 
-#include "L1TriggerConfig/L1Geometry/interface/L1CaloGeometry.h"
+#include "CondFormats/L1TObjects/interface/L1CaloGeometry.h"
 
 #include <string>
 #include <math.h>
@@ -108,7 +108,7 @@ L1GctCalibFunConfigurer::~L1GctCalibFunConfigurer()
 
 // ------------ methods called to produce the data  ------------
 L1GctCalibFunConfigurer::CalibFunReturnType
-L1GctCalibFunConfigurer::produceCalibFun()
+L1GctCalibFunConfigurer::produceCalibFun(const L1CaloGeometry* geom)
 {
    boost::shared_ptr<L1GctJetEtCalibrationFunction> pL1GctJetEtCalibrationFunction =
      boost::shared_ptr<L1GctJetEtCalibrationFunction> (new L1GctJetEtCalibrationFunction());
@@ -120,7 +120,7 @@ L1GctCalibFunConfigurer::produceCalibFun()
    pL1GctJetEtCalibrationFunction->setCorrectionFunctionType(m_corrFunType);
 
    if (m_convertToEnergy) {
-     pL1GctJetEtCalibrationFunction->setConversionToEnergyOn(etToEnergyConversion());
+     pL1GctJetEtCalibrationFunction->setConversionToEnergyOn(etToEnergyConversion(geom));
    }
 
    return pL1GctJetEtCalibrationFunction ;
@@ -278,8 +278,9 @@ void L1GctCalibFunConfigurer::setPiecewiseCubicParamsForBin(std::vector<double>&
 }
 
 /// Calculate Et-to-energy conversion factors for eta bins
-std::vector<double> L1GctCalibFunConfigurer::etToEnergyConversion() const {
-  L1CaloGeometry* geom = new L1CaloGeometry();
+std::vector<double> L1GctCalibFunConfigurer::etToEnergyConversion(
+   const L1CaloGeometry* geom) const {
+  //  L1CaloGeometry* geom = new L1CaloGeometry();
   std::vector<double> result;
   // Factors for central eta bins
   for (unsigned ieta=0; ieta<7; ieta++) {
