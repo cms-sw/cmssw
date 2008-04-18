@@ -25,6 +25,11 @@
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/Common/interface/DetSetVector.h"
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
+/* #include "DataFormats/TrackingRecHit/interface/TrackingRecHitFwd.h" */
+/* #include "AnalysisDataFormats/TrackInfo/interface/TrackInfoFwd.h" */
+/* #include "AnalysisDataFormats/TrackInfo/interface/TrackInfo.h" */
+/* #include "AnalysisDataFormats/TrackInfo/interface/TrackingRecHitInfo.h" */
+/* #include "AnalysisDataFormats/TrackInfo/interface/TrackInfoEnum.h" */
 #include "DataFormats/SiStripCluster/interface/SiStripCluster.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "Geometry/TrackerGeometryBuilder/interface/StripGeomDetUnit.h"
@@ -48,6 +53,7 @@
 class SiStripMonitorTrack : public edm::EDAnalyzer {
  public:
   typedef TransientTrackingRecHit::ConstRecHitPointer ConstRecHitPointer;
+  enum RecHitType { Single=0, Matched=1, Projected=2, Null=3};
   explicit SiStripMonitorTrack(const edm::ParameterSet&);
   ~SiStripMonitorTrack();
   virtual void beginRun(const edm::Run& run, const edm::EventSetup& c);
@@ -70,7 +76,6 @@ class SiStripMonitorTrack : public edm::EDAnalyzer {
   void trackStudy(const edm::EventSetup& es);
   //  LocalPoint project(const GeomDet *det,const GeomDet* projdet,LocalPoint position,LocalVector trackdirection)const;
   bool clusterInfos(SiStripClusterInfo* cluster, const uint32_t& detid,std::string flag, LocalVector LV);	
-  std::pair<std::string,int32_t> GetSubDetAndLayer(const uint32_t& detid);
   void RecHitInfo(const SiStripRecHit2D* tkrecHit, LocalVector LV,reco::TrackRef track_ref, const edm::EventSetup&);
   // fill monitorables 
   void fillModMEs(SiStripClusterInfo*,TString,float);

@@ -13,7 +13,6 @@
 #include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2D.h"
 #include "DataFormats/TrackerRecHit2D/interface/ProjectedSiStripRecHit2D.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiStripMatchedRecHit2D.h"
-#include "AnalysisDataFormats/TrackInfo/src/TrackInfo.cc"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h"
 
 #include "DQM/SiStripMonitorTrack/interface/SiStripMonitorTrack.h"
@@ -142,9 +141,9 @@ void SiStripMonitorTrack::book()
       edm::LogError("SiStripMonitorTrack")<< "[" <<__PRETTY_FUNCTION__ << "] invalid detid " << detid<< std::endl;
       continue;
     }
-    if (DetectedLayers.find(GetSubDetAndLayer(detid)) == DetectedLayers.end()){
+    if (DetectedLayers.find(folder_organizer.GetSubDetAndLayer(detid)) == DetectedLayers.end()){
       
-      DetectedLayers[GetSubDetAndLayer(detid)]=true;
+      DetectedLayers[folder_organizer.GetSubDetAndLayer(detid)]=true;
     }    
 
     // set the DQM directory
@@ -166,8 +165,8 @@ void SiStripMonitorTrack::book()
 
     // book Layer plots      
     for (int j=0;j<2;j++){ 
-      folder_organizer.setLayerFolder(*detid_iter,GetSubDetAndLayer(*detid_iter).second); 
-      bookTrendMEs("layer",GetSubDetAndLayer(*detid_iter).second,*detid_iter,flags[j]);
+      folder_organizer.setLayerFolder(*detid_iter,folder_organizer.GetSubDetAndLayer(*detid_iter).second); 
+      bookTrendMEs("layer",folder_organizer.GetSubDetAndLayer(*detid_iter).second,*detid_iter,flags[j]);
     }
   
     if(Mod_On_){
@@ -175,7 +174,7 @@ void SiStripMonitorTrack::book()
       folder_organizer.setDetectorFolder(*detid_iter);
       bookModMEs("det",*detid_iter);
     }
-    DetectedLayers[GetSubDetAndLayer(*detid_iter)] |= (DetectedLayers.find(GetSubDetAndLayer(*detid_iter)) == DetectedLayers.end());
+    DetectedLayers[folder_organizer.GetSubDetAndLayer(*detid_iter)] |= (DetectedLayers.find(folder_organizer.GetSubDetAndLayer(*detid_iter)) == DetectedLayers.end());
     //      }
   }//end loop on detector
   
@@ -424,6 +423,7 @@ MonitorElement* SiStripMonitorTrack::bookMETrend(const char* ParameterSetLabel, 
 //------------------------------------------------------------------------------------------
 void SiStripMonitorTrack::trackStudy(const edm::EventSetup& es)
 {
+
   LogDebug("SiStripMonitorTrack") << "inside trackstudy" << std::endl;
   const reco::TrackCollection tC = *(trackCollection.product());
   int i=0;
@@ -465,7 +465,7 @@ void SiStripMonitorTrack::trackStudy(const edm::EventSetup& es)
       const SiStripRecHit2D* hit=dynamic_cast<const SiStripRecHit2D*>( ttrh->hit() );	
       
       RecHitType type=Single;
-      
+
       if(matchedhit){
 	LogTrace("SiStripMonitorTrack")<<"\nMatched recHit found"<< std::endl;
 	type=Matched;
@@ -615,7 +615,7 @@ bool SiStripMonitorTrack::clusterInfos(SiStripClusterInfo* cluster, const uint32
   std::string name;
   
    //Filling SubDet Plots (on Track + off Track)
-   std::pair<std::string,int32_t> SubDetAndLayer = GetSubDetAndLayer(detid);
+   std::pair<std::string,int32_t> SubDetAndLayer = folder_organizer.GetSubDetAndLayer(detid);
    name=flag+"_in_"+SubDetAndLayer.first;
    fillTrendMEs(cluster,name,cosRZ,flag);
 
@@ -659,35 +659,6 @@ bool SiStripMonitorTrack::clusterInfos(SiStripClusterInfo* cluster, const uint32
    }
      return true;
    }
-
-//--------------------------------------------------------------------------------
-std::pair<std::string,int32_t> SiStripMonitorTrack::GetSubDetAndLayer(const uint32_t& detid)
-{
-  std::string cSubDet;
-  int32_t layer=0;
-  switch(StripSubdetector::SubDetector(StripSubdetector(detid).subdetId()))
-    {
-    case StripSubdetector::TIB:
-      cSubDet="TIB";
-      layer=TIBDetId(detid).layer();
-      break;
-    case StripSubdetector::TOB:
-      cSubDet="TOB";
-      layer=TOBDetId(detid).layer();
-      break;
-    case StripSubdetector::TID:
-      cSubDet="TID";
-      layer=TIDDetId(detid).wheel() * ( TIDDetId(detid).side()==1 ? -1 : +1);
-      break;
-    case StripSubdetector::TEC:
-      cSubDet="TEC";
-      layer=TECDetId(detid).wheel() * ( TECDetId(detid).side()==1 ? -1 : +1);
-      break;
-    default:
-      edm::LogWarning("SiStripMonitorTrack") << "WARNING!!! this detid does not belong to tracker" << std::endl;
-    }
-  return std::make_pair(cSubDet,layer);
-}
 
 //--------------------------------------------------------------------------------
 void SiStripMonitorTrack::fillTrend(MonitorElement* me ,float value)
@@ -819,4 +790,5 @@ void SiStripMonitorTrack::fillTrendMEs(SiStripClusterInfo* cluster,std::string n
     fillME(iModME->second.ClusterPos   ,cluster->getPosition());
   }
 }
+
 DEFINE_FWK_MODULE(SiStripMonitorTrack);
