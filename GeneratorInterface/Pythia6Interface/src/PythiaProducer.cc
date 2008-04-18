@@ -1,6 +1,6 @@
 /*
- *  $Date: 2008/04/09 21:34:48 $
- *  $Revision: 1.1 $
+ *  $Date: 2008/04/10 22:16:14 $
+ *  $Revision: 1.2 $
  *  
  *  Filip Moorgat & Hector Naves 
  *  26/10/05
@@ -102,6 +102,23 @@ extern "C" {
     void PYSTRHAD();
 }
 
+namespace {
+  HepRandomEngine& getEngineReference()
+  {
+
+   Service<RandomNumberGenerator> rng;
+   if(!rng.isAvailable()) {
+    throw cms::Exception("Configuration")
+       << "The RandomNumberProducer module requires the RandomNumberGeneratorService\n"
+          "which appears to be absent.  Please add that service to your configuration\n"
+          "or remove the modules that require it.";
+   }
+
+// The Service has already instantiated an engine.  Make contact with it.
+   return (rng->getEngine());
+  }
+}
+
 HepMC::IO_HEPEVT conv2;
 
 //used for defaults
@@ -120,6 +137,8 @@ PythiaProducer::PythiaProducer( const ParameterSet & pset) :
   useExternalGenerators_(false),
   useTauola_(false),
   useTauolaPolarization_(false),
+  stopHadronsEnabled(false), gluinoHadronsEnabled(false),
+  fRandomEngine(getEngineReference()),
   eventNumber_(0)
 {
   
@@ -135,13 +154,9 @@ PythiaProducer::PythiaProducer( const ParameterSet & pset) :
   
   particleID = pset.getUntrackedParameter<int>("ParticleID", 0);
 
-// Initialize the random engine unconditionally!
-
-  Service<RandomNumberGenerator> rng;
-  randomEngine= fRandomEngine = &(rng->getEngine());
+// Initialize the random engine unconditionally
+  randomEngine = &fRandomEngine;
   fRandomGenerator = new CLHEP::RandFlat(fRandomEngine) ;
-  long seed = (long)(rng->mySeed());
-  cout << " seed= " << seed << endl ;
 
   if(particleID) {
 
@@ -177,7 +192,7 @@ PythiaProducer::PythiaProducer( const ParameterSet & pset) :
     cout <<" phimin = " << phimin <<" phimax = " << phimax << endl;
 
     if(kinedata.size() > 0)
-       fPtYGenerator = new PtYDistributor(kinedata, *fRandomEngine);
+       fPtYGenerator = new PtYDistributor(kinedata, fRandomEngine);
   }
 
   // Set PYTHIA parameters in a single ParameterSet
@@ -247,11 +262,14 @@ PythiaProducer::PythiaProducer( const ParameterSet & pset) :
   }
   }
 
+   stopHadronsEnabled = pset.getUntrackedParameter<bool>("stopHadrons",false);
+   gluinoHadronsEnabled = pset.getUntrackedParameter<bool>("gluinoHadrons",false);
+
   //Init names and pdg code of r-hadrons
    if(stopHadronsEnabled)  PYSTRHAD();
    if(gluinoHadronsEnabled)  PYGLRHAD();
 
-#ifdef NEVER
+#ifdef NOTYET
   //In the future, we will get the random number seed on each event and tell 
   // pythia to use that new seed
 // The random engine has already been initialized.  DO NOT do it again!
@@ -340,7 +358,7 @@ void PythiaProducer::clear() {
  
 }
 
-void PythiaProducer::endRun(Run & r) {
+void PythiaProducer::endRun(Run & r, const EventSetup & es) {
  
  double cs = pypars.pari[0]; // cross section in mb
  auto_ptr<GenInfoProduct> giprod (new GenInfoProduct());
@@ -422,9 +440,7 @@ void PythiaProducer::produce(Event & e, const EventSetup& es) {
 	  }
 	PYEXEC();
       } else {
-	call_pyevnt();      // generate one event with Pythia
-      }
- if(!gluinoHadronsEnabled && !stopHadronsEnabled)
+          if(!gluinoHadronsEnabled && !stopHadronsEnabled)
           {
              call_pyevnt();      // generate one event with Pythia
           }
@@ -436,6 +452,8 @@ void PythiaProducer::produce(Event & e, const EventSetup& es) {
              if(gluinoHadronsEnabled)  PYGLFR();
              if(stopHadronsEnabled)  PYSTFR();
           }
+
+      }
 
     if ( useTauola_ ) {
       tauola_.processEvent();

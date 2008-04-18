@@ -1,6 +1,6 @@
 /*
- *  $Date: 2008/04/10 22:16:14 $
- *  $Revision: 1.26 $
+ *  $Date: 2008/04/11 10:11:09 $
+ *  $Revision: 1.28 $
  *  
  *  Filip Moorgat & Hector Naves 
  *  26/10/05
@@ -102,6 +102,24 @@ extern "C" {
     void PYSTRHAD();
 }
 
+namespace {
+  HepRandomEngine& getEngineReference()
+  {
+
+   Service<RandomNumberGenerator> rng;
+   if(!rng.isAvailable()) {
+    throw cms::Exception("Configuration")
+       << "The RandomNumberProducer module requires the RandomNumberGeneratorService\n"
+          "which appears to be absent.  Please add that service to your configuration\n"
+          "or remove the modules that require it.";
+   }
+
+// The Service has already instantiated an engine.  Make contact with it.
+   return (rng->getEngine());
+  }
+}
+
+
 HepMC::IO_HEPEVT conv;
 
 //used for defaults
@@ -118,11 +136,11 @@ PythiaSource::PythiaSource( const ParameterSet & pset,
   extCrossSect(pset.getUntrackedParameter<double>("crossSection", -1.)),
   extFilterEff(pset.getUntrackedParameter<double>("filterEfficiency", -1.)),
   comenergy(pset.getUntrackedParameter<double>("comEnergy",14000.)),
-  stopHadronsEnabled(false), gluinoHadronsEnabled(false),
   useExternalGenerators_(false),
   useTauola_(false),
-  useTauolaPolarization_(false)
-  
+  useTauolaPolarization_(false),
+  stopHadronsEnabled(false), gluinoHadronsEnabled(false),
+  fRandomEngine(getEngineReference())
 {
   
   // PYLIST Verbosity Level
@@ -138,11 +156,7 @@ PythiaSource::PythiaSource( const ParameterSet & pset,
   particleID = pset.getUntrackedParameter<int>("ParticleID", 0);
 
 // Initialize the random engine unconditionally!
-
-  Service<RandomNumberGenerator> rng;
-  long seed = (long)(rng->mySeed());
-  cout << " seed= " << seed << endl ;
-  randomEngine = fRandomEngine = &(rng->getEngine());
+  randomEngine = &fRandomEngine;
   fRandomGenerator = new CLHEP::RandFlat(fRandomEngine) ;
 
   if(particleID) {
@@ -179,7 +193,7 @@ PythiaSource::PythiaSource( const ParameterSet & pset,
     cout <<" phimin = " << phimin <<" phimax = " << phimax << endl;
 
     if(kinedata.size() > 0)
-       fPtYGenerator = new PtYDistributor(kinedata, *fRandomEngine); 
+       fPtYGenerator = new PtYDistributor(kinedata, fRandomEngine); 
 
   }
   // Set PYTHIA parameters in a single ParameterSet
@@ -259,7 +273,7 @@ PythiaSource::PythiaSource( const ParameterSet & pset,
   //In the future, we will get the random number seed on each event and tell 
   // pythia to use that new seed
   // The random engine has already been initialized.  DO NOT do it again!
-#ifdef NEVER
+#ifdef NOTYET
   edm::Service<RandomNumberGenerator> rng;
   uint32_t seed = rng->mySeed();
   ostringstream sRandomSet;
