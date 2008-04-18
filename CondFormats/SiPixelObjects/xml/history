@@ -1,30 +1,22 @@
-Tool available since CMSSW21X.
-
-In a CMSSW scram area:
-
-cmscond_bootstrap_detector -P ~/conddb -D PIXEL -f ./dbconfiguration-orcon.xml -b $CMSSW_BASE
-
-Example db config file:
-  cvs head     CondTools/OracleDBA/dbconfig/dbconfiguration-orcon.xml
-
-
-cmscond_bootstrap_detector -h
-usage: cmscond_bootstrap_detector [options]
-
-options:
-  -h, --help            show this help message and exit
-  -f DBCONFIG, --dbconfig=DBCONFIG
-                        ( DB configuration file with absolute path required )
-  -P AUTHPATH, --authPath=AUTHPATH
-                        path to authentication.xml(default .)
-  -c CONNECT, --connect=CONNECT
-                        DB to set up (overwrites default value in dbconfig.)
-  -a, --all             Set up all schemas in DB configuration file(default)
-  -D DETECTOR, --Detector=DETECTOR
-                        Set up only schema identified with given Detector
-                        entry in the DBConfiguration file
-  -b BASEDIR, --basedir=BASEDIR
-                        basedir for mappingdir. Default to $CMSSW_RELEASE_BASE
-  --fake                Don't actually do anything, only print commands
-  -v, --verbose         verbose mode
-
+generate template xml
+ 2500  11:04   cmscond_generate_mappingxml -c SiPixelGainCalibration -P ../src -d CondFormatsSiPixelObjects
+  2501  11:05   cmscond_generate_mappingxml -c SiPixelGainCalibrationForHLT -P ../src -d CondFormatsSiPixelObjects
+  2502  11:06   cmscond_generate_mappingxml -c SiPixelGainCalibrationOffline -P ../src -d CondFormatsSiPixelObjects
+  2503  11:06   cmscond_generate_mappingxml -c SiPixelFedCablingMap -P ../src -d CondFormatsSiPixelObjects
+  2504  11:06   cmscond_generate_mappingxml -c SiPixelCPEParmErrors -P ../src -d CondFormatsSiPixelObjects
+  2505  11:06   cmscond_generate_mappingxml -c SiPixelCalibConfiguration -P ../src -d CondFormatsSiPixelObjects
+  2506  11:07   cmscond_generate_mappingxml -c SiPixelPerformanceSummary -P ../src -d CondFormatsSiPixelObjects
+  2507  11:07   cmscond_generate_mappingxml -c SiPixelLorentzAngle -P ../src -d CondFormatsSiPixelObjects
+edit xml 
+build schema
+pool_build_object_relational_mapping -h
+2609  12:11   pool_build_object_relational_mapping -f SiPixelCalibConfiguration_basic_0.xml -d CondFormatsSiPixelObjects -c sqlite_file:test.db
+  2610  12:11   pool_build_object_relational_mapping -f SiPixelCPEParmErrors_basic_0.xml -d CondFormatsSiPixelObjects -c sqlite_file:test.db
+  2611  12:12   pool_build_object_relational_mapping -f SiPixelFedCablingMap_basic_0.xml -d CondFormatsSiPixelObjects -c sqlite_file:test.db
+  2612  12:12   pool_build_object_relational_mapping -f SiPixelGainCalibration_basic_0.xml -d CondFormatsSiPixelObjects -c sqlite_file:test.db
+  2613  12:12   pool_build_object_relational_mapping -f SiPixelGainCalibration_basic_0.xml -d CondFormatsSiPixelObjects -c sqlite_file:test.db
+  2614  12:13   ls
+  2615  12:13   pool_build_object_relational_mapping -f SiPixelGainCalibrationForHLT_basic_0.xml -d CondFormatsSiPixelObjects -c sqlite_file:test.db
+  2617  12:13   pool_build_object_relational_mapping -f SiPixelGainCalibrationOffline_basic_0.xml -d CondFormatsSiPixelObjects -c sqlite_file:test.db
+  2618  12:13   pool_build_object_relational_mapping -f SiPixelLorentzAngle_basic_0.xml -d CondFormatsSiPixelObjects -c sqlite_file:test.db
+  2619  12:14   pool_build_object_relational_mapping -f SiPixelPerformanceSummary_basic_0.xml -d CondFormatsSiPixelObjects -c sqlite_file:test.db
