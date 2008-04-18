@@ -16,7 +16,7 @@
 //
 // Original Author:  Werner Sun
 //         Created:  Tue Oct 24 00:01:12 EDT 2006
-// $Id$
+// $Id: L1CaloGeometryProd.h,v 1.1 2006/12/21 01:55:36 wsun Exp $
 //
 
 // system include files
@@ -26,8 +26,8 @@
 #include "FWCore/Framework/interface/ESProducer.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 
-#include "L1TriggerConfig/L1Geometry/interface/L1CaloGeometry.h"
-#include "L1TriggerConfig/L1Geometry/interface/L1CaloGeometryRecord.h"
+#include "CondFormats/L1TObjects/interface/L1CaloGeometry.h"
+#include "CondFormats/DataRecord/interface/L1CaloGeometryRecord.h"
 
 // forward declarations
 
@@ -41,6 +41,7 @@ class L1CaloGeometryProd : public edm::ESProducer {
       ReturnType produce(const L1CaloGeometryRecord&);
    private:
       // ----------member data ---------------------------
+      L1CaloGeometry m_geom ;
 };
 
 
