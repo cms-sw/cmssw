@@ -53,6 +53,9 @@
 
 #include "CondFormats/L1TObjects/interface/L1MuTriggerScales.h"
 #include "CondFormats/DataRecord/interface/L1MuTriggerScalesRcd.h"
+#include "CondFormats/L1TObjects/interface/L1MuTriggerPtScale.h"
+#include "CondFormats/DataRecord/interface/L1MuTriggerPtScaleRcd.h"
+
 
 #include "CondFormats/L1TObjects/interface/L1GtFwd.h"
 #include "CondFormats/L1TObjects/interface/L1GtBoard.h"
@@ -156,6 +159,10 @@ void L1GlobalTriggerRawToDigi::produce(edm::Event& iEvent, const edm::EventSetup
     edm::ESHandle< L1MuTriggerScales > trigscales_h;
     evSetup.get< L1MuTriggerScalesRcd >().get( trigscales_h );
     m_TriggerScales = trigscales_h.product();
+
+    edm::ESHandle< L1MuTriggerPtScale > trigptscale_h;
+    evSetup.get< L1MuTriggerPtScaleRcd >().get( trigptscale_h );
+    m_TriggerPtScale = trigptscale_h.product();
 
     //  board maps
     edm::ESHandle< L1GtBoardMaps > l1GtBM;
@@ -818,7 +825,7 @@ void L1GlobalTriggerRawToDigi::unpackGMT(
                     cand.setType(2);
                 cand.setPhiValue( m_TriggerScales->getPhiScale()->getLowEdge(cand.phi_packed()) );
                 cand.setEtaValue( m_TriggerScales->getRegionalEtaScale(cand.type_idx())->getCenter(cand.eta_packed()) );
-                cand.setPtValue( m_TriggerScales->getPtScale()->getLowEdge(cand.pt_packed()) );
+                cand.setPtValue( m_TriggerPtScale->getPtScale()->getLowEdge(cand.pt_packed()) );
                 gmtrr.setInputCand(im, cand);
                 if(!cand.empty()) {
                     if(im<4)
@@ -840,7 +847,7 @@ void L1GlobalTriggerRawToDigi::unpackGMT(
                 L1MuGMTExtendedCand cand(waux,raux,iBxInEvent);
                 cand.setPhiValue( m_TriggerScales->getPhiScale()->getLowEdge( cand.phiIndex() ));
                 cand.setEtaValue( m_TriggerScales->getGMTEtaScale()->getCenter( cand.etaIndex() ));
-                cand.setPtValue( m_TriggerScales->getPtScale()->getLowEdge( cand.ptIndex() ));
+                cand.setPtValue( m_TriggerPtScale->getPtScale()->getLowEdge( cand.ptIndex() ));
                 if(im<4)
                     gmtrr.setGMTBrlCand(im, cand);
                 else if(im<8)

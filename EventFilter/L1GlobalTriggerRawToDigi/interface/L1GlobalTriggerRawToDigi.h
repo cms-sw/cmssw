@@ -43,6 +43,7 @@ class FEDHeader;
 class FEDTrailer;
 
 class L1MuTriggerScales;
+class L1MuTriggerPtScale;
 
 
 // class declaration
@@ -119,6 +120,7 @@ private:
 
     /// muon trigger scales to convert unpacked data into physical quantities
     const L1MuTriggerScales* m_TriggerScales;
+    const L1MuTriggerPtScale* m_TriggerPtScale;
 };
 
 #endif // EventFilter_L1GlobalTriggerRawToDigi_L1GlobalTriggerRawToDigi_h
