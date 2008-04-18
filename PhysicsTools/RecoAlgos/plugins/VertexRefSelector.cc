@@ -1,13 +1,13 @@
-/* \class VertexSelector
+/* \class VertexRefSelector
  *
  * Selects vertices with a configurable string-based cut.
- * Saves clones of the selected vertices 
+ * Saves references to the selected vertices 
  *
  * \author: Luca Lista, INFN
  *
  * usage:
  *
- * module bestVertices = VertexSelector {
+ * module bestVertices = VertexRefSelector {
  *   src = ctfWithMaterialTracks
  *   string cut = "chiSquared < 5"
  * }
@@ -28,7 +28,8 @@
 
  typedef SingleObjectSelector<
            reco::VertexCollection, 
-           StringCutObjectSelector<reco::Vertex> 
-         > VertexSelector;
+           StringCutObjectSelector<reco::Vertex>,
+           reco::VertexRefVector
+         > VertexRefSelector;
 
-DEFINE_FWK_MODULE(VertexSelector);
+DEFINE_FWK_MODULE(VertexRefSelector);
