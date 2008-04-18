@@ -15,8 +15,6 @@
 #include <DetectorDescription/Core/interface/DDExpandedView.h>
 
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
-#include "RecoTracker/TkDetLayers/interface/GeometricSearchTracker.h"
-#include "RecoTracker/TkDetLayers/interface/GeometricSearchTrackerBuilder.h"
 
 #include "Geometry/TrackerGeometryBuilder/interface/GeomDetTypeIdToEnum.h"
 #include "Geometry/TrackerNumberingBuilder/interface/CmsTrackerStringToEnum.h"
@@ -24,9 +22,13 @@
 #include <iostream>
 #include <string>
 #include <vector>
-#include <map>
-#include <sstream>
-#include <algorithm>
+//#include <map>
+//#include <sstream>
+//#include <algorithm>
+
+// just a reminder to self... beware errors caused by levels.  Look
+// at how tracker is built and how GeometricSearchTracker.h is built 
+// up from the hierarchy.
 
 GeometricDetLoader::GeometricDetLoader(const edm::ParameterSet& iConfig)
 {
