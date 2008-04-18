@@ -35,11 +35,9 @@ JetSelector<JetType>::filter( const unsigned int&        index,
 
     result = GOOD;
   }
-  else if (config_.selectionType=="JetMETLikelihood" && JetMap!=0)  {
-    ///Using the JetRejectorTool, for details see
-    ///https://twiki.cern.ch/twiki/bin/view/CMS/JetRejectorTool 
-    const double likelihood = (*JetMap)[ Jets.refAt(index) ];
-    if ( likelihood > config_.value ) result = GOOD;
+  else if (config_.selectionType=="JetID" && JetMap!=0)  {
+    const double jetIDresult = (*JetMap)[ Jets.refAt(index) ];
+    if ( jetIDresult > config_.value ) result = GOOD;
     else result = BAD;
   } 
   else if ( config_.selectionType == "custom" ) {
