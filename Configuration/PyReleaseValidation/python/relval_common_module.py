@@ -18,6 +18,7 @@ import pickle
 import os # To check the existance of pkl objects files
 import sys # to get current funcname
 import time
+import inspect
 
 # This just simplifies the use of the logger
 mod_id="["+os.path.basename(sys._getframe().f_code.co_filename)[:-3]+"]"
@@ -187,22 +188,28 @@ def event_input(infile_name,second_name):
     
 #-----------------------------------------
 
-def event_output(process, outfile_name, step, eventcontent, filtername, evt_filter=None):
+def event_output(process, outfile_name, step, eventcontent, filtername, conditions, evt_filter=None):
     """
     Function that enriches the process so to produce an output.
     """ 
     func_id=mod_id+"["+sys._getframe().f_code.co_name+"]"
     # Event content
-
+    print 'reading'
     content=include_files("Configuration/EventContent/data/EventContent.cff")[0]
-        
     process.extend(content)
+
+    conditionsSP=conditions.split(',')
+    globalTagName=''
+    if ( len(conditionsSP)>1 ):
+        globalTagName=conditionsSP[1].split(':')[0]
+
     if hasattr(process,'generation_step'):
         process.out_step = cms.OutputModule\
                            ("PoolOutputModule",
                             outputCommands=getattr(content,eventcontent+'EventContent').outputCommands,
                             fileName = cms.untracked.string(outfile_name),
                             dataset = cms.untracked.PSet(dataTier =cms.untracked.string(step)),
+                            filterName = cms.untracked.string(globalTagName),
                             SelectEvents = cms.untracked.PSet(SelectEvents = cms.vstring('generation_step'))
                             ) 
     else:
@@ -210,13 +217,12 @@ def event_output(process, outfile_name, step, eventcontent, filtername, evt_filt
                            ("PoolOutputModule",
                             outputCommands=getattr(content,eventcontent+'EventContent').outputCommands,
                             fileName = cms.untracked.string(outfile_name),
+                            filterName = cms.untracked.string(globalTagName),
                             dataset = cms.untracked.PSet(dataTier =cms.untracked.string(step))
                             ) 
-
     # if filtername given, put it into output module definition
     if filtername != "":
         process.out_step.dataset.filterName = cms.untracked.string(filtername)
-        
     process.outpath = cms.EndPath(process.out_step)
     
     log(func_id+" Adding PoolOutputModule ...") 
@@ -291,7 +297,7 @@ def build_production_info(evt_type, energy, evtnumber):
     func_id=mod_id+"["+sys._getframe().f_code.co_name+"]"
     
     prod_info=cms.untracked.PSet\
-              (version=cms.untracked.string("$Revision: 1.12 $"),
+              (version=cms.untracked.string("$Revision: 1.13 $"),
                name=cms.untracked.string("PyReleaseValidation"),
                annotation=cms.untracked.string(evt_type+" energy:"+str(energy)+" nevts:"+str(evtnumber))
               )

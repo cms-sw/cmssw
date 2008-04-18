@@ -160,10 +160,16 @@ for s in step_list:
 if hasattr(process,'hltEndPath'):
     process.schedule.append(process.hltEndPath)
 
+#override the data tier (likely the usual..)
+    
+
 # Add the output on a root file if requested
 if output_flag:
+    outputDT=dataTier_dict[step]
+    if ( dataTier!=''):
+        outputDT=dataTier
     process = common.event_output\
-        (process, outfile_name, dataTier_dict[step],eventcontent,filtername)
+        (process, outfile_name, outputDT,eventcontent,filtername, conditions)
     if not user_schedule:
         process.schedule.append(process.outpath)  
     if ( rawfile_name!='' ):
@@ -185,14 +191,15 @@ if output_flag:
             rootName='file:'+filterName+'.root'
             modName='pool'+k.label()[4:len(k.label())]
             pathName='outPath'+k.label()[4:len(k.label())]
-            poolOutT = cms.OutputModule("PoolOutputModule",getattr(process,poUsing),\
-                                        dataset = cms.untracked.PSet(filterName = cms.untracked.string(filterName),\
-                                                                     dataTier = cms.untracked.string('ALCARECO')),\
-                                        fileName = cms.untracked.string(rootName)
-                                        )
-            setattr(process,modName,poolOutT)
-            setattr(process,pathName,cms.EndPath(getattr(process,modName)))
-            process.schedule.append(getattr(process,pathName))
+            if ( hasattr(process,poUsing)):
+                poolOutT = cms.OutputModule("PoolOutputModule",getattr(process,poUsing),\
+                                            dataset = cms.untracked.PSet(filterName = cms.untracked.string(filterName),\
+                                                                         dataTier = cms.untracked.string('ALCARECO')),\
+                                            fileName = cms.untracked.string(rootName)
+                                            )
+                setattr(process,modName,poolOutT)
+                setattr(process,pathName,cms.EndPath(getattr(process,modName)))
+                process.schedule.append(getattr(process,pathName))
     if ( nALCA>0):        
         print 'Number of AlCaReco output streams added: '+str(nALCA)
 

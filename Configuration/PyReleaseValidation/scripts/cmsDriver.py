@@ -160,6 +160,11 @@ parser.add_option("--eventcontent",
                    default="FEVTSIMDIGI",
                    dest="eventcontent")
 
+parser.add_option("--datatier",
+                   help="What data tier to use. Default from lookup table",
+                   default='',
+                   dest="datatier")
+
 parser.add_option("--filtername",
                    help="What filter name to specify in output module",
                    default="",
@@ -425,6 +430,7 @@ insecondfile_name='"""+secondfilestr+"""'
 outfile_name='"""+options.dirout+options.fileout+"""'
 rawfile_name='"""+fileraw+"""'
 eventcontent='"""+options.eventcontent+"""'
+datatier='"""+options.datatier+"""'
 filtername='"""+options.filtername+"""'
 conditions='"""+options.conditions+"""'
 beamspot='"""+options.beamspot+"""'
