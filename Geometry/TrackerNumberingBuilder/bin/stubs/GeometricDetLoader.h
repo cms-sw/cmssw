@@ -19,7 +19,7 @@ class GeometricDetLoader : public edm::EDAnalyzer {
   virtual void beginJob( edm::EventSetup const& );
   virtual void analyze( const edm::Event&, const edm::EventSetup& ){}
   virtual void endJob() {};
-  void putOne ( const GeometricDet* gd, PGeometricDet* pgd );
+  void putOne ( const GeometricDet* gd, PGeometricDet* pgd, int lev );
  private:
 
 };

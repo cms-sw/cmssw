@@ -12,6 +12,14 @@
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "Geometry/TrackerNumberingBuilder/interface/GeometricDet.h"
 #include <DetectorDescription/Core/interface/DDCompactView.h>
+#include <DetectorDescription/Core/interface/DDExpandedView.h>
+
+#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
+#include "RecoTracker/TkDetLayers/interface/GeometricSearchTracker.h"
+#include "RecoTracker/TkDetLayers/interface/GeometricSearchTrackerBuilder.h"
+
+#include "Geometry/TrackerGeometryBuilder/interface/GeomDetTypeIdToEnum.h"
+#include "Geometry/TrackerNumberingBuilder/interface/CmsTrackerStringToEnum.h"
 
 #include <iostream>
 #include <string>
@@ -43,17 +51,94 @@ GeometricDetLoader::beginJob( edm::EventSetup const& es)
   edm::ESHandle<DDCompactView> pDD;
   edm::ESHandle<GeometricDet> rDD;
   es.get<IdealGeometryRecord>().get( pDD );
-  //  const DDCompactView& cpv = *pDD;
   es.get<IdealGeometryRecord>().get( rDD );
-  //  DDDCmsTrackerContruction theDDDCmsTrackerContruction;
-  //  const GeometricDet* tracker = theDDDCmsTrackerContruction.construct(&(*pDD));
   const GeometricDet* tracker = &(*rDD);
-  // so now I have the tracker itself... I think this is what I want to do...
-  putOne(tracker, pgd);
-  std::vector<const GeometricDet*> modules =  tracker->deepComponents();
-  for(unsigned int i=0; i<modules.size();i++){
-    putOne(modules[i], pgd);
+
+  // so now I have the tracker itself. loop over all its components to store them.
+  putOne(tracker, pgd, 0);
+  std::vector<const GeometricDet*> tc = tracker->components();
+  std::cout <<"Tracker has " << tc.size() << " components." << std::endl; //, lets go through them." << std::endl;
+  std::vector<const GeometricDet*>::const_iterator git = tc.begin();
+  std::vector<const GeometricDet*>::const_iterator egit = tc.end();
+  int count=0;
+  int lev = 1;
+  //  CmsTrackerStringToEnum ctste;
+  for (; git!= egit; ++git) {  // one level below "tracker"
+    putOne(*git, pgd, lev);
+    std::vector<const GeometricDet*> inone = (*git)->components();
+    //    << ctste.name((*git)->type())
+    //    std::cout << lev << " type " << (*git)->type() << " " << int((*git)->geographicalId()) << std::endl; // << " has " << inone.size() << " components." << std::endl;
+    if ( inone.size() == 0 )  ++count;
+    std::vector<const GeometricDet*>::const_iterator git2 = inone.begin();
+    std::vector<const GeometricDet*>::const_iterator egit2 = inone.end();
+    ++lev;
+    for (; git2 != egit2; ++git2) { // level 2
+      putOne(*git2, pgd, lev);
+      std::vector<const GeometricDet*> intwo= (*git2)->components();
+      //      std::cout << lev << "\ttype " << (*git2)->type() << " " << int((*git2)->geographicalId()) << std::endl; // << " has " << intwo.size() << " components." << std::endl;
+      if ( intwo.size() == 0 )  ++count;
+      std::vector<const GeometricDet*>::const_iterator git3 = intwo.begin();
+      std::vector<const GeometricDet*>::const_iterator egit3 = intwo.end();
+      ++lev;
+      for (; git3 != egit3; ++git3) { // level 3
+// 	const DDCompactView & cpv = *pDD;
+// 	DDExpandedView epv(cpv);
+// 	epv.goTo((*git)->navType());
+// 	std::vector<const DDsvalues_type *> spec = epv.specifics();
+// 	std::vector<const DDsvalues_type *>::const_iterator spit = spec.begin();
+// 	for (;  spit != spec.end(); spit++) {
+// 	  DDsvalues_type::const_iterator it = (**spit).begin();
+// 	  for (;  it != (**spit).end(); it++) {
+// 	    if ( it->second.name() == "TkDDDStructure" ) {
+// 	      std::cout << it->second.strings()[0] << std::endl;
+// 	    }
+// 	  }
+// 	}
+	putOne(*git3, pgd, lev);
+	std::vector<const GeometricDet*> inthree= (*git3)->components();
+	//	std::cout << lev << "\t\ttype " << (*git3)->type() << " " << int((*git3)->geographicalId()) << std::endl; // << " has " << inthree.size() << " components." << std::endl;
+	if ( inthree.size() == 0 )  ++count;
+	std::vector<const GeometricDet*>::const_iterator git4 = inthree.begin();
+	std::vector<const GeometricDet*>::const_iterator egit4 = inthree.end();
+	++lev;
+	for (; git4 != egit4; ++git4) { //level 4
+	  putOne(*git4, pgd, lev);
+	  std::vector<const GeometricDet*> infour= (*git4)->components();
+	  //	  std::cout << lev << "\t\t\ttype " << (*git4)->type() << " " << int((*git4)->geographicalId()) << std::endl; // << " has " << infour.size() << " components." << std::endl;
+	  if ( infour.size() == 0 )  ++count;
+	  std::vector<const GeometricDet*>::const_iterator git5 = infour.begin();
+	  std::vector<const GeometricDet*>::const_iterator egit5 = infour.end();
+	  ++lev;
+	  for (; git5 != egit5; ++git5) { // level 5
+	    putOne(*git5, pgd, lev);
+	    std::vector<const GeometricDet*> infive= (*git5)->components();
+	    //	    std::cout << lev << "\t\t\t\ttype " << (*git5)->type() << " " << int((*git5)->geographicalId()) << std::endl; // << " has " << infive.size() << " components." << std::endl;
+	    if ( infive.size() == 0 )  ++count;
+	    std::vector<const GeometricDet*>::const_iterator git6 = infive.begin();
+	    std::vector<const GeometricDet*>::const_iterator egit6 = infive.end();
+	    ++lev;
+	    for (; git6 != egit6; ++git6) { //level 6
+	      putOne(*git6, pgd, lev);
+	      std::vector<const GeometricDet*> insix= (*git6)->components();
+	      //	      std::cout << lev << "\t\t\t\t\ttype " << (*git6)->type() << " " << int((*git6)->geographicalId()) << std::endl; // << " has " << insix.size() << " components." << std::endl;
+	      if ( insix.size() == 0 )  ++count;
+	    } // level 6
+	    --lev;
+	  } // level 5
+	  --lev;
+	} // level 4
+	--lev;
+      } //level 3
+      --lev;
+    } // level 2
+    --lev;
   }
+  std::vector<const GeometricDet*> modules =  tracker->deepComponents();
+  std::cout << " No. of Tracker components \"deepComponents\" = " << modules.size() << std::endl;
+  std::cout << " Counted # of lowest \"leaves\" = " << count << std::endl; 
+//   for(unsigned int i=0; i<modules.size();i++){
+//     putOne(modules[i], pgd);
+//   }
   if ( mydbservice->isNewTagRequest("PGeometricDetRcd") ) {
     mydbservice->createNewIOV<PGeometricDet>( pgd
 					      , mydbservice->beginOfTime()
@@ -64,17 +149,19 @@ GeometricDetLoader::beginJob( edm::EventSetup const& es)
   }
 }
   
-void GeometricDetLoader::putOne ( const GeometricDet* gd, PGeometricDet* pgd ) {
+void GeometricDetLoader::putOne ( const GeometricDet* gd, PGeometricDet* pgd, int lev ) {
 
-  std::cout << "putting name: " << gd->name().name();
-  std::cout << " gid: " << gd->geographicalID();
-  std::cout << " type: " << gd->type() << std::endl;
+//   std::cout << "putting name: " << gd->name().name();
+//   std::cout << " gid: " << gd->geographicalID();
+//   std::cout << " type: " << gd->type() << std::endl;
+//  static CmsTrackerStringToEnum ctste;
   PGeometricDet::Item item;
   DDTranslation tran = gd->translation();
   DDRotationMatrix rot = gd->rotation();
   DD3Vector x, y, z;
   rot.GetComponents(x, y, z);
   item._name           = gd->name().name();
+  item._level          = lev;
   item._x              = tran.X();
   item._y              = tran.Y();
   item._z              = tran.Z();
