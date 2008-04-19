@@ -1413,6 +1413,15 @@ DQMStore::readDirectory(TFile *file,
 	&& dirpart.compare(slash+1, s_referenceDirName.size(), s_referenceDirName) == 0)
       return 0;
 
+    // Remove Run # and RunSummary dirs from Reference dir structure
+    if (slash != std::string::npos
+        && dirpart.compare(0,4,"Run ")==0) 
+        dirpart.erase(0,dirpart.find('/')+1);
+
+    size_t pos = dirpart.find("/Run summary");
+    if (slash != std::string::npos && pos !=std::string::npos) 
+	dirpart.erase(pos,12);
+    
     // Add prefix.
     if (dirpart.empty())
       dirpart = prepend;
