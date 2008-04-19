@@ -1,6 +1,6 @@
 /*
- * $Date: 2008/02/28 19:49:39 $
- * $Revision: 1.13 $
+ * $Date: 2008/03/04 13:44:35 $
+ * $Revision: 1.14 $
  *
  * \author: D. Giordano, domenico.giordano@cern.ch
  * Modified: M.De Mattia 2/3/2007 & R.Castello 5/4/2007 & Susy Borgia 15/11/07
@@ -20,7 +20,7 @@
 #include "TCanvas.h"
 #include "TPostScript.h"
 
-static const uint16_t _NUM_SISTRIP_SUBDET_ = 4;
+static const uint8_t _NUM_SISTRIP_SUBDET_ = 4;
 static TString SubDet[_NUM_SISTRIP_SUBDET_]={"_TIB","_TOB","_TID","_TEC"};
 static TString flags[3] = {"_onTrack","_offTrack","_All"};
 static TString width_flags[5] = {"","_width_1","_width_2","_width_3","_width_ge_4"};

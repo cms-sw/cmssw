@@ -11,7 +11,7 @@ namespace cms
     Track_src_( conf.getParameter<edm::InputTag>( "Track_src" ) ),
     Cluster_src_( conf.getParameter<edm::InputTag>( "Cluster_src" ) )
   {  
-    produces <uint16_t>();
+    produces <uint8_t>();
   }
   
   void ClusterAnalysisFilter::beginJob(edm::EventSetup const& es) {
@@ -55,7 +55,7 @@ namespace cms
       //&& SomeThingElse
       ;
     
-    uint16_t decisionWord = 
+    uint8_t decisionWord = 
       ( TrackNumberSelector_Decision_ & 0x1)
       |
       ((ClusterNumberSelector_Decision_ << 1) & 0x2)
@@ -66,7 +66,7 @@ namespace cms
       // | ( SomeThingElse < nbits)
       ;
     
-    std::auto_ptr< uint16_t > odecisionWord( new uint16_t(decisionWord) );
+    std::auto_ptr< uint8_t > odecisionWord( new uint8_t(decisionWord) );
     e.put(odecisionWord);
     
     return decision;

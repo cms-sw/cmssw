@@ -121,7 +121,7 @@ namespace cms{
 
       edm::Handle< edm::DetSetVector<SiStripCluster> >  dsv_SiStripCluster;
       edm::Handle<reco::TrackCollection> trackCollection;
-      edm::Handle<uint16_t> filterWord;
+      edm::Handle<uint8_t> filterWord;
       edm::Handle<reco::TrackInfoTrackAssociationCollection> tkiTkAssCollection;
       std::vector<const SiStripCluster*> vPSiStripCluster;
 
